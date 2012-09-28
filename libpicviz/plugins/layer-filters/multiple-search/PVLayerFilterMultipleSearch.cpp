@@ -5,10 +5,13 @@
  */
 
 #include "PVLayerFilterMultipleSearch.h"
+#include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/PVPlainTextType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <picviz/PVView.h>
+
+#include <locale.h>
 
 #include <tbb/enumerable_thread_specific.h>
 
@@ -70,6 +73,7 @@ void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 
 	QString const& txt = _args[ARG_NAME_EXPS].value<PVCore::PVPlainTextType>().get_text();
 	QStringList exps = txt.split("\n");
+	std::vector<QByteArray> exps_utf8;
 	std::vector<QRegExp> rxs;
 	if (is_rx) {
 		rxs.reserve(exps.size());
@@ -87,9 +91,12 @@ void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 	else {
+		exps_utf8.reserve(exps.size());
 		for (int i = 0; i < exps.size(); i++) {
-			QString& str = exps[i];
-			str = str.trimmed();
+			QString const& str = exps[i];
+			if (!str.isEmpty()) {
+				exps_utf8.push_back(std::move(str.trimmed().toUtf8()));
+			}
 		}
 	}
 
@@ -97,55 +104,77 @@ void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 
 	tbb::enumerable_thread_specific<PVSelection> tls_sel;
 
-	nraw.visit_column_tbb(axis_id, [&](PVRow const r, const char* buf, size_t n)
+	char* old_locale = setlocale(LC_COLLATE, NULL);
+	setlocale(LC_COLLATE, "fr_FR.UTF-8");
+	BENCH_START(visit);
+	nraw.visit_column_tbb_sel(axis_id, [&](PVRow const r, const char* buf, size_t n)
 		{
-			if (this->_view->get_line_state_in_pre_filter_layer(r)) {
-				QString str(QString::fromUtf8(buf, n));
-				bool sel = false;
-				if (is_rx) {
-					for (size_t i = 0; i < rxs.size(); i++) {
-						QRegExp& rx = rxs[i];
-						if (exact_match) {
-							if (rx.exactMatch(str)) {
-								sel = true;
-								break;
-							}
-						}
-						else
-						if (rx.indexIn(str) != -1) {
+			//QString str(QString::fromUtf8(buf, n));
+			bool sel = false;
+			if (is_rx) {
+				/*for (size_t i = 0; i < rxs.size(); i++) {
+					QRegExp& rx = rxs[i];
+					if (exact_match) {
+						if (rx.exactMatch(str)) {
 							sel = true;
 							break;
 						}
 					}
-				}
-				else {
-					for (int i = 0; i < exps.size(); i++) {
-						QString const& exp = exps.at(i);
-						if (exp.isEmpty()) {
-						   continue;
-						}
-						if (exact_match) {
-							if (str.compare(exp, (Qt::CaseSensitivity) case_match) == 0) {
-								sel = true;
-								break;
-							}
-						}
-						else
-						if (str.contains(exp, (Qt::CaseSensitivity) case_match)) {
-							sel = true;
-							break;
-						}
+					else
+					if (rx.indexIn(str) != -1) {
+						sel = true;
+						break;
 					}
-				}
-
-				sel = !(sel ^ include);
-				tls_sel.local().set_line(r, sel);
+				}*/
 			}
-		});
+			else {
+				for (int i = 0; i < exps.size(); i++) {
+					QByteArray const& exp = exps_utf8[i];
+					if (exact_match) {
+						if (n == exp.size() &&
+							memcmp(buf, exp.constData(), n) == 0) {
+							sel = true;
+							break;
+						}
+					}
+					else
+					if (strstr(buf, exp.constData()) != NULL) {
+						sel = true;
+						break;
+					}
+					/*
+					QString const& exp = exps.at(i);
+					if (exp.isEmpty()) {
+					   continue;
+					}
+					if (exact_match) {
+						if (str.compare(exp, (Qt::CaseSensitivity) case_match) == 0) {
+							sel = true;
+							break;
+						}
+					}
+					else
+					if (str.contains(exp, (Qt::CaseSensitivity) case_match)) {
+						sel = true;
+						break;
+					}*/
+				}
+			}
 
-	typename decltype(tls_sel)::const_iterator it_tls;
-	for (it_tls = tls_sel.begin(); it_tls != tls_sel.end(); it_tls++) {
-		out.get_selection().or_optimized(*it_tls);
+			sel = !(sel ^ include);
+			tls_sel.local().set_line(r, sel);
+		}, _view->get_pre_filter_layer().get_selection());
+	BENCH_END(visit, "multiple-search", 1, 1, 1, 1);
+
+	setlocale(LC_COLLATE, old_locale);
+
+	typename decltype(tls_sel)::const_iterator it_tls = tls_sel.begin();
+	PVSelection& out_sel = out.get_selection();
+	// Save one copy with std::move :) !
+	out_sel = std::move(*it_tls);
+	it_tls++;
+	for (; it_tls != tls_sel.end(); it_tls++) {
+		out_sel.or_optimized(*it_tls);
 	}
 }
 

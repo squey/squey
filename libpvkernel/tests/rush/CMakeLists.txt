@@ -117,8 +117,8 @@ add_executable(Trush_input_hdfs input_hdfs.cpp)
 target_link_libraries(Trush_input_hdfs ${LINK_LIBRARIES})
 
 if(HDFS_FOUND)
-	add_executable(Trush_input_hadoop input_hadoop.cpp helpers.cpp ../../plugins/common/hdfs/PVInputHDFSFile.cpp ../../plugins/common/hdfs/PVInputHDFSServer.cpp)
-	target_link_libraries(Trush_input_hadoop ${LINK_LIBRARIES} ${HDFS_LIBRARIES})
+	#add_executable(Trush_input_hadoop input_hadoop.cpp helpers.cpp ../../plugins/common/hdfs/PVInputHDFSFile.cpp ../../plugins/common/hdfs/PVInputHDFSServer.cpp)
+	#target_link_libraries(Trush_input_hadoop ${LINK_LIBRARIES} ${HDFS_LIBRARIES})
 endif(HDFS_FOUND)
 
 add_executable(Trush_fake_hadoop_src fake_hadoop_src.cpp helpers.cpp)

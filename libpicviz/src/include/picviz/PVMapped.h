@@ -81,6 +81,9 @@ public:
 	virtual QString get_serialize_description() const { return "Mapping: " + get_name(); }
 
 	inline PVCore::DecimalType get_decimal_type_of_col(PVCol const j) const { return _mapping->get_decimal_type_of_col(j); }
+	inline bool is_mapping_pure(PVCol const c) const { return _mapping->is_mapping_pure(c); }
+
+	void init_pure_mapping_functions(PVFilter::PVPureMappingProcessing::list_pure_mapping_t& funcs);
 
 protected:
 	// This is accessed by PVSource !

@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#include <queue>
 #include <sstream>
 #include <string>
 
@@ -21,6 +22,7 @@
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVMatrix.h>
 #include <pvkernel/core/PVByteVisitor.h>
+#include <pvkernel/core/PVSelBitField.h>
 
 namespace PVRush {
 
@@ -192,6 +194,7 @@ public:
 		{
 			chunk_t* ret;
 			_queue.pop(ret);
+			//ret = _queue.pop();
 			assert(((uintptr_t)ret % 16) == 0);
 			return ret;
 		}
@@ -208,6 +211,7 @@ public:
 	private:
 		chunk_t* _chunks;
 		size_t   _n;
+		//std::queue<chunk_t*> _queue;
 		tbb::concurrent_bounded_queue<chunk_t*> _queue;
 	};
 
@@ -334,6 +338,62 @@ public:
 	}
 
 	template <typename F>
+	bool visit_column2_sel(uint64_t const col_idx, F const& f, PVCore::PVSelBitField const& sel)
+	{
+		set_direct_mode(false);
+
+		// Sequential version
+		PVColumn& column = get_col(col_idx);
+		this->Seek(column.file, 0);
+
+		size_t rows_to_find = sel.get_number_of_selected_lines_in_range(0, _nrows);
+
+		ssize_t read_size;
+		size_t prev_off = 0;
+		size_t cur_field = 0;
+		typename index_table_t::column index_col = _indexes.get_col(col_idx);
+		for (size_t i = 0; i < column.fields_indexed; i++) {
+			offset_fields_t const& off_field = index_col.at(i);
+			const size_t off = off_field.offset;
+
+			// This field (`end_field') is not in the "previous" chunk, which
+			// means that we are going to process fields in the interval [cur_field,end_field[ .
+			const size_t end_field = off_field.field; 
+
+			const size_t diff_off = off-prev_off;
+			assert(diff_off <= SERIAL_READ_BUFFER_SIZE);
+			// Check that something is selected in that chunk
+			// is_empty_between is between [a,b[ (b is *not* included)
+			if (!sel.is_empty_between(cur_field, end_field)) {
+				read_size = this->Read(column.file, _serial_read_buffer, diff_off);
+				if (read_size != diff_off) {
+					assert(false);
+					return false;
+				}
+				const size_t rows_found = visit_column_process_chunk_sel(cur_field, end_field-1, _serial_read_buffer, read_size, sel, f);
+				//const size_t rows_found = sel.get_number_of_selected_lines_in_range(cur_field, end_field);
+				assert(rows_found <= rows_to_find);
+				assert(rows_found == sel.get_number_of_selected_lines_in_range(cur_field, end_field));
+				if (rows_found == rows_to_find) {
+					// That's the end of it!
+					return true;
+				}
+				rows_to_find -= rows_found;
+			}
+			cur_field = end_field;
+			prev_off = off;
+		}
+		// Finish off !
+		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
+		// necessary !
+		read_size = this->Read(column.file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
+		visit_column_process_chunk_sel(cur_field, _nrows-1, _serial_read_buffer, read_size, sel, f);
+
+		return true;
+	}
+
+
+	template <typename F>
 	bool visit_column_tbb(uint64_t const col_idx, F const& f)
 	{
 		set_direct_mode(false);
@@ -399,6 +459,94 @@ public:
 		// necessary !
 		size_t read_size = this->Read(column.file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
 		visit_column_process_chunk_sse(cur_field, _nrows-1, _serial_read_buffer, read_size, f);
+
+		return cur_field == _nrows;
+	}
+
+	template <typename F>
+	bool visit_column_tbb_sel(uint64_t const col_idx, F const& f, PVCore::PVSelBitField const& sel)
+	{
+		set_direct_mode(false);
+
+		// TBB version
+		PVColumn& column = get_col(col_idx);
+		this->Seek(column.file, 0);
+
+		size_t prev_off = 0;
+		size_t cur_field = 0;
+		typename index_table_t::column index_col = _indexes.get_col(col_idx);
+		size_t cur_idx = 0;
+		ssize_t nrows_to_find = sel.get_number_of_selected_lines_in_range(0, _nrows);
+		tbb::parallel_pipeline(_chunks.size(),
+			tbb::make_filter<void, typename tbb_chunks_t::chunk_t*>(tbb::filter::serial_in_order,
+				[&](tbb::flow_control& fc) -> typename tbb_chunks_t::chunk_t*
+				{
+					if (nrows_to_find <= 0) {
+						// No more work to do!
+						fc.stop();
+						return nullptr;
+					}
+
+					size_t sel_lines_in_chunk = 0;
+					size_t diff_off;
+					size_t end_field;
+					size_t off;
+					while (cur_idx < column.fields_indexed) {
+						offset_fields_t const& off_field = index_col.at(cur_idx);
+						cur_idx++;
+						off = off_field.offset;
+						end_field = off_field.field;
+						diff_off = off-prev_off;
+						assert(diff_off <= SERIAL_READ_BUFFER_SIZE);
+						sel_lines_in_chunk = sel.get_number_of_selected_lines_in_range(cur_field, end_field);
+						if (sel_lines_in_chunk > 0) {
+							break;
+						}
+						prev_off = off;
+						cur_field = end_field;
+					}
+					if (sel_lines_in_chunk == 0) {
+						// No more chunk with lines selected, that's the end.
+						fc.stop();
+						return nullptr;
+					}
+
+					nrows_to_find -= sel_lines_in_chunk;
+
+					typename tbb_chunks_t::chunk_t* chunk = this->_chunks.get_chunk();
+					const ssize_t read_size = this->Read(column.file, chunk->buf, diff_off);
+					if (read_size != diff_off) {
+						assert(false);
+						fc.stop();
+						return nullptr;
+					}
+					chunk->size_data = diff_off;
+					chunk->start_field = cur_field;
+					chunk->end_field = end_field;
+					cur_field = end_field;
+					prev_off = off;
+					return chunk;
+				}) &
+
+			tbb::make_filter<typename tbb_chunks_t::chunk_t*, typename tbb_chunks_t::chunk_t*>(tbb::filter::parallel,
+				[&](typename tbb_chunks_t::chunk_t* c)
+				{
+					this->visit_column_process_chunk_sel(c->start_field, c->end_field-1, &c->buf[0], c->size_data, sel, f);
+					return c;
+				}) &
+
+			tbb::make_filter<typename tbb_chunks_t::chunk_t*, void>(tbb::filter::serial_out_of_order,
+				[&](typename tbb_chunks_t::chunk_t* c)
+				{
+					this->_chunks.release_chunk(c);
+				})
+		);
+
+		// Finish off !
+		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
+		// necessary !
+		size_t read_size = this->Read(column.file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
+		visit_column_process_chunk_sel(cur_field, _nrows-1, _serial_read_buffer, read_size, sel, f);
 
 		return cur_field == _nrows;
 	}
@@ -512,6 +660,32 @@ private:
 
 		//PVLOG_INFO("visit_column_process_chunk_sse: ask %llu fields, %llu found, %llu ref-found\n", fields_asked, found_field, fields_found_ref);
 		return idx_start_field;
+	}
+
+	template <typename F>
+	size_t visit_column_process_chunk_sel(size_t const field_start, size_t const field_end, const char* buf, size_t size_buf, PVCore::PVSelBitField const& sel, F const& f)
+	{
+		// field_end is inclusive in the interface of this function, but not in visit_selected_lines (hence the '+1')
+		const char* cur_buf = buf;
+		const char* buf_end = buf+size_buf;
+		size_t last_r = field_start;
+		size_t nfound = 0;
+		sel.visit_selected_lines([&](const PVRow r)
+			{
+				assert(r >= last_r);
+				PVCore::PVByteVisitor::visit_nth_slice((const uint8_t*) cur_buf, (uintptr_t)buf_end-(uintptr_t)cur_buf, r-last_r,
+				//PVCore::PVByteVisitor::visit_nth_slice((uint8_t const*) buf, size_buf, r-field_start,
+					[&](const uint8_t* slice, size_t slice_size)
+					{
+						f(r, (const char*) slice, slice_size);
+						cur_buf = (const char*) (slice+slice_size+1);
+						last_r = r+1;
+						nfound++;
+					});
+			},
+			field_end+1,
+			field_start);
+		return nfound;
 	}
 
 private:

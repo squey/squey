@@ -167,6 +167,11 @@ int main(void)
 	ASSERT_VALID(a.is_empty_between(88, 10000) == false);
 	a.set_bit_fast(1024);
 	ASSERT_VALID(a.is_empty_between(100, 10000) == false);
+	a.set_bit_fast(5);
+	a.set_bit_fast(63);
+	a.set_bit_fast(64);
+	a.visit_selected_lines([&](const PVRow r) { std::cout << r << " "; });
+	std::cout << std::endl;
 	
 
 	// Test of C++0x features
@@ -231,6 +236,14 @@ int main(void)
 	std::cout << std::endl;
 	ref.clear();
 	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 115);
+	for (PVRow r: ref) { std::cout << r << " "; }
+	std::cout << std::endl;
+	ref.clear();
+	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 2, 1);
+	for (PVRow r: ref) { std::cout << r << " "; }
+	std::cout << std::endl;
+	ref.clear();
+	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 4600, 4568);
 	for (PVRow r: ref) { std::cout << r << " "; }
 	std::cout << std::endl;
 	ref.clear();

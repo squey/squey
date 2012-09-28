@@ -5,14 +5,17 @@
  */
 
 #include "PVLayerFilterHeatline.h"
+
+#include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/rush/PVUtils.h>
+
 #include <picviz/PVView.h>
 
-#include <pvkernel/core/picviz_bench.h>
+#include <tbb/enumerable_thread_specific.h>
 
 #include <math.h>
 
@@ -44,7 +47,7 @@ Picviz::PVLayerFilterHeatlineBase::PVLayerFilterHeatlineBase(PVCore::PVArgumentL
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineBase)
 {
 	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey(ARG_NAME_AXES, ARG_DESC_AXES)].setValue(PVCore::PVAxesIndexType());
+	args[PVCore::PVArgumentKey(ARG_NAME_AXES, ARG_DESC_AXES)].setValue(PVCore::PVAxisIndexType());
 
 	PVCore::PVEnumType scale(QStringList() << "Linear" << "Log", 0);
 	args[PVCore::PVArgumentKey(ARG_NAME_SCALE, ARG_DESC_SCALE)].setValue(scale);
@@ -74,16 +77,15 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 {	
 	BENCH_START(heatline);
 
-	PVRow nb_lines;
 	PVRow counter;
 	PVRow highest_frequency = 1;
 	float ratio;
 	
-	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
-	nb_lines = nraw.get_nrows();
+	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 	
-	PVCore::PVAxesIndexType axes = _args.value(ARG_NAME_AXES).value<PVCore::PVAxesIndexType>();
-	if (axes.size() == 0) {
+	PVCore::PVAxisIndexType axis = _args.value(ARG_NAME_AXES).value<PVCore::PVAxisIndexType>();
+	const PVCol axis_id = axis.get_original_index();
+	/*if (axes.size() == 0) {
 		_args = get_default_args_for_view(*_view);
 		axes = _args.value(ARG_NAME_AXES).value<PVCore::PVAxesIndexType>();
 		if (axes.size() == 0) {
@@ -93,77 +95,24 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 			}
 			return;
 		}
-	}
+	}*/
 
 	bool bLog = _args.value(ARG_NAME_SCALE).value<PVCore::PVEnumType>().get_sel().compare("Log") == 0;
 
 	out.get_selection() = in.get_selection();
 
-	/* 1st round: we calculate all the frequencies */
-	typedef QHash<QString, PVRow> lines_hash_t;
-	lines_hash_t lines_hash;
-	size_t nthreads = 0;
-	lines_hash_t** lines_hash_array = nullptr;
-	QString** keys = nullptr;
-#pragma omp parallel
-	{
-	nthreads = omp_get_num_threads();
-#pragma omp master
-	{
-		lines_hash_array = new lines_hash_t*[nthreads];
-		keys = new QString*[nthreads];
-		for (size_t ith=0; ith<nthreads; ith++) {
-			lines_hash_array[ith] = new lines_hash_t();
-			keys[ith] = new QString();
-		}
-	}
-#pragma omp barrier
-	size_t th_index = omp_get_thread_num();
-	lines_hash_t& lines_hash_th = *(lines_hash_array[th_index]);
-	QString& key = *(keys[th_index]);
-#pragma omp for
-	for (counter = 0; counter < nb_lines; counter++) {
-		if (!should_cancel()) {
-			if (!_view->get_line_state_in_pre_filter_layer(counter)) {
-				continue;
-			}
-			PVRush::PVNraw::const_nraw_table_line nrawvalues = nraw.get_row(counter);
-			key = PVRush::PVUtils::generate_key_from_axes_values(axes, nrawvalues);
+	// Per-thread frequencies
+	typedef QHash<PVUnicodeString, PVRow> lines_hash_t;
+	tbb::enumerable_thread_specific<lines_hash_t> tls_lines_hash;
 
-			lines_hash_th.insert(key, lines_hash_th[key]+1);
-		}
-	}
-	}
+	nraw.visit_column_tbb_sel(axis_id,
+		[&tls_lines_hash](const PVRow, const char* buf, size_t size)
+		{
+			tls_lines_hash.local()[PVCore::PVUnicodeString(buf, size)]++;
+		},
+		_view->get_pre_filter_layer().get_selection());
 
-	if (!should_cancel()) {
-		for (size_t ith = 0; ith < nthreads; ith++) {
-			QHashIterator<QString, PVRow> i(*(lines_hash_array[ith]));
-			while (i.hasNext()) {
-				i.next();
-				lines_hash.insert(i.key(), i.value() + lines_hash[i.key()]);
-			}
-		}
-		QHashIterator<QString, PVRow> i(lines_hash);
-		while (i.hasNext()) {
-			i.next();
-			highest_frequency = picviz_max(highest_frequency, i.value());
-		}
-	}
-
-	for (size_t ith=0; ith<nthreads; ith++) {
-		delete lines_hash_array[ith];
-	}
-	delete [] lines_hash_array;
-
-	if (should_cancel()) {
-		if (&in != &out) {
-			out = in;
-		}
-		return;
-	}
-
-
-	/* 2nd round: we get the color from the ratio compared with the key and the frequency */
+	// Compute each 
 	const lines_hash_t& const_lines_hash = lines_hash;
 #pragma omp parallel
 	{

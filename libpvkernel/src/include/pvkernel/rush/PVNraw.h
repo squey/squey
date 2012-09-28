@@ -96,6 +96,18 @@ public:
 		return _backend.visit_column2(c, f);
 	}
 
+	template <typename F>
+	inline bool visit_column_sel(PVCol const c, F const& f, PVCore::PVSelBitField const& sel) const
+	{
+		return _backend.visit_column2_sel(c, f, sel);
+	}
+
+	template <typename F>
+	inline bool visit_column_tbb_sel(PVCol const c, F const& f, PVCore::PVSelBitField const& sel) const
+	{
+		return _backend.visit_column_tbb_sel(c, f, sel);
+	}
+
 	QString nraw_line_to_csv(PVRow idx) const;
 	QStringList nraw_line_to_qstringlist(PVRow idx) const;
 

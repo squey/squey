@@ -89,6 +89,19 @@ void Picviz::PVMapped::init_process_from_rush_pipeline()
 	_grp_values_rush.clear();
 }
 
+void Picviz::PVMapped::init_pure_mapping_functions(PVFilter::PVPureMappingProcessing::list_pure_mapping_t& funcs)
+{
+	const PVCol ncols = _mapping->get_number_cols();
+	assert((PVCol) _mapping_filters_rush.size() == ncols);
+	funcs.clear();
+	funcs.resize(ncols);
+	for (PVCol c = 0; c < ncols; c++) {
+		if (is_mapping_pure(c)) {
+			funcs[c] = _mapping_filters_rush[c]->f();
+		}
+	}
+}
+
 void Picviz::PVMapped::finish_process_from_rush_pipeline()
 {
 	// Give back unused memory (over-allocated)
@@ -144,8 +157,14 @@ void Picviz::PVMapped::process_rush_pipeline_chunk(PVCore::PVChunk const* chunk,
 	chunk->visit_by_column([&](PVRow const r, PVCol const c, PVCore::PVField const& field)
 		{
 			assert(c < (PVCol) _mapping_filters_rush.size());
-			PVMappingFilter::p_type& mapping_filter = _mapping_filters_rush[c];
-			this->_trans_table[c].at(r+cur_r) = mapping_filter->operator()(field);
+			if (is_mapping_pure(c)) {
+				// AG: HACK: if we are not the first mapping, that's a failure..
+				this->_trans_table[c].at(r+cur_r) = field.mapped_value();
+			}
+			else {
+				PVMappingFilter::p_type& mapping_filter = _mapping_filters_rush[c];
+				this->_trans_table[c].at(r+cur_r) = mapping_filter->operator()(field);
+			}
 		});
 }
 
