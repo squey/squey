@@ -16,41 +16,36 @@
 #include <QEvent>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QToolBar>
+#include <pvkernel/core/PVProgressBox.h>
+
+#include <picviz/PVSource.h>
+
+#include <pvguiqt/PVViewDisplay.h>
+#include <pvparallelview/PVParallelView.h>
+#include <pvparallelview/PVLibView.h>
+
+Q_DECLARE_METATYPE(Picviz::PVView*)
 
 namespace PVGuiQt
 {
 
-class PVDockWidget : public QDockWidget
-{
-public:
-	PVDockWidget(QWidget* parent = 0) : QDockWidget(parent) {}
-
-	void setFlag(bool f) { flag = f; }
-
-protected:
-	/*bool event(QEvent* ev)
-	{
-		if (flag) {
-			return QDockWidget::event(ev);
-		}
-
-		return false; // ?
-	}*/
-
-private:
-	bool flag = true;
-};
-
 class PVWorkspace : public QMainWindow
 {
 	Q_OBJECT;
+
+	friend class PVViewDisplay;
 public:
-	PVWorkspace(QWidget* parent = 0);
+	PVWorkspace(Picviz::PVSource_sp, QWidget* parent = 0);
 
 	void add_view_display(QWidget* view_display, const QString& name);
 
-	void switch_with_central_widget(PVDockWidget* display_dock)
+public slots:
+	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr)
 	{
+		if (!display_dock) {
+			display_dock = (PVViewDisplay*) sender()->parent();
+		}
 		QWidget* display = display_dock->widget();
 		display->setParent(nullptr);
 
@@ -61,8 +56,28 @@ public:
 		display_dock->setWidget(central_widget);
 	}
 
+	void create_parallel_view()
+	{
+		QAction* action = (QAction*) sender();
+		QVariant var = action->data();
+		Picviz::PVView* view = var.value<Picviz::PVView*>();
+
+		PVParallelView::PVLibView* parallel_lib_view;
+
+		PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
+		pbox_lib->set_enable_cancel(false);
+		PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*view)), pbox_lib, parallel_lib_view);
+
+		QWidget* parallel_view = parallel_lib_view->create_view();
+
+		add_view_display(parallel_view, "Test");
+	}
+
+
 private:
-	QList<QDockWidget*> _displays;
+	QList<PVViewDisplay*> _displays;
+	Picviz::PVSource_sp _source;
+	QToolBar* _toolbar;
 };
 
 class SlotHandler : public QObject
@@ -71,18 +86,18 @@ class SlotHandler : public QObject
 public:
 	SlotHandler(
 		PVWorkspace* workspace,
-		PVDockWidget* dock_display_to_switch
-	) : _workspace(workspace), _dock_display(dock_display_to_switch) {}
+		PVViewDisplay* view_display_to_switch
+	) : _workspace(workspace), _view_display(view_display_to_switch) {}
 
 public slots:
 	void switch_displays()
 	{
-		_workspace->switch_with_central_widget(_dock_display);
+		_workspace->switch_with_central_widget(_view_display);
 	}
 
 private:
 	PVWorkspace* _workspace;
-	PVDockWidget* _dock_display;
+	PVViewDisplay* _view_display;
 };
 
 }

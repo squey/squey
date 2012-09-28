@@ -25,6 +25,7 @@ PVLogoModel.cpp
 PVLogoScene.cpp
 PVWorkspacesTabWidget.cpp
 PVWorkspace.cpp
+PVViewDisplay.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
@@ -44,6 +45,7 @@ include/pvguiqt/PVSortFilterProxyModel.h
 include/pvguiqt/PVLogoScene.h
 include/pvguiqt/PVWorkspacesTabWidget.h
 include/pvguiqt/PVWorkspace.h
+include/pvguiqt/PVViewDisplay.h
 )
 
 SET(UI_FILES
