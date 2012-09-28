@@ -29,11 +29,11 @@ public:
 	template <typename T>
 	PVSharedCounter(T* p)
 	{
-		_counted_base = new __impl::PVCountedBasePD<T*, void(*)(T*)>(p);
+		_counted_base = new __impl::PVCountedBasePD<T*, void(*)(void*)>(p);
 	}
 
 	template <typename T>
-	PVSharedCounter(T* p, void(*d)(T*))
+	PVSharedCounter(T* p, void(*d)(void*))
 	{
 		_counted_base = new __impl::PVCountedBasePD<T*, decltype(d)>(p, d);
 	}

@@ -60,7 +60,7 @@ void PVParallelView::PVSelectionAxisSliders::initialize(id_t id,
 void PVParallelView::PVSelectionAxisSliders::remove_from_axis()
 {
 	PVHive::call<FUNC(PVSlidersManager::del_selection_sliders)>(_sliders_manager_p,
-	                                                            _group->get_axe_id(),
+	                                                            _group->get_axis_id(),
 	                                                            _id);
 }
 
@@ -72,7 +72,7 @@ void PVParallelView::PVSelectionAxisSliders::do_sliders_moved()
 {
 	emit sliders_moved();
 	PVHive::call<FUNC(PVSlidersManager::update_selection_sliders)>(_sliders_manager_p,
-	                                                               _group->get_axe_id(),
+	                                                               _group->get_axis_id(),
 	                                                               _id,
 	                                                               _sl_min->value(),
 	                                                               _sl_max->value());
@@ -84,10 +84,10 @@ void PVParallelView::PVSelectionAxisSliders::do_sliders_moved()
 
 void PVParallelView::PVSelectionAxisSliders::selection_sliders_del_obs::update(arguments_deep_copy_type const& args) const
 {
-	const axe_id_t &axe_id = std::get<0>(args);
+	const axis_id_t &axis_id = std::get<0>(args);
 	PVSlidersManager::id_t id = std::get<1>(args);
 
-	if ((axe_id == _parent->_group->get_axe_id()) && (id == _parent->_id)) {
+	if ((axis_id == _parent->_group->get_axis_id()) && (id == _parent->_id)) {
 		_parent->group()->removeFromGroup(_parent);
 		_parent->scene()->removeItem(_parent);
 	}
@@ -99,10 +99,10 @@ void PVParallelView::PVSelectionAxisSliders::selection_sliders_del_obs::update(a
 
 void PVParallelView::PVSelectionAxisSliders::selection_sliders_update_obs::update(arguments_deep_copy_type const& args) const
 {
-	const axe_id_t &axe_id = std::get<0>(args);
+	const axis_id_t &axis_id = std::get<0>(args);
 	PVSlidersManager::id_t id = std::get<1>(args);
 
-	if ((axe_id == _parent->_group->get_axe_id()) && (id == _parent->_id)) {
+	if ((axis_id == _parent->_group->get_axis_id()) && (id == _parent->_id)) {
 		int y_min = std::get<2>(args);
 		int y_max = std::get<3>(args);
 		if (y_max < y_min) {

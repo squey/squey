@@ -23,9 +23,9 @@
  *****************************************************************************/
 
 PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSlidersManager_p sm_p,
-                                                       Picviz::PVView const& view, const axe_id_t &axe_id) :
+                                                       Picviz::PVView const& view, const axis_id_t &axis_id) :
 	_sliders_manager_p(sm_p),
-	_axe_id(axe_id),
+	_axis_id(axis_id),
 	_lib_view(view)
 {
 	// This is needed to let the children of the group handle their events.
@@ -34,7 +34,7 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	// the sliders must be over all other QGraphicsItems
 	setZValue(1.e42);
 
-	_sliders_group = new PVSlidersGroup(sm_p, axe_id, this);
+	_sliders_group = new PVSlidersGroup(sm_p, axis_id, this);
 
 	addToGroup(get_sliders_group());
 	get_sliders_group()->setPos(PARALLELVIEW_AXIS_WIDTH / 2, 0.);
@@ -52,22 +52,6 @@ PVParallelView::PVAxisGraphicsItem::~PVAxisGraphicsItem()
 }
 
 /*****************************************************************************
- * PVParallelView::PVAxisGraphicsItem::boundingRect
- *****************************************************************************/
-
-QRectF PVParallelView::PVAxisGraphicsItem::boundingRect() const
-{
-	QRectF bbox = QRectF(
-		-PVParallelView::AxisWidth*2,
-		-PVAW_CST,
-		PVParallelView::AxisWidth,
-		IMAGE_HEIGHT + (2 * PVAW_CST)
-	);
-
-	return bbox.united(QRectF(- PVParallelView::AxisWidth, 0, 50, -50));
-}
-
-/*****************************************************************************
  * PVParallelView::PVAxisGraphicsItem::paint
  *****************************************************************************/
 
@@ -75,8 +59,6 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
                                                const QStyleOptionGraphicsItem *option,
                                                QWidget *widget)
 {
-	QPen pen = painter->pen();
-
 	painter->fillRect(
 		0,
 		-PVAW_CST,
@@ -96,7 +78,7 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_info()
 {
 	_label->set_text(lib_axis()->get_name());
 	_label->set_color(lib_axis()->get_titlecolor().toQColor());
-	_label->set_axis_index(_lib_view.get_axes_combination().get_index_by_id(_axe_id));
+	_label->set_axis_index(_lib_view.get_axes_combination().get_index_by_id(_axis_id));
 }
 
 /*****************************************************************************
@@ -105,5 +87,5 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_info()
 
 Picviz::PVAxis const* PVParallelView::PVAxisGraphicsItem::lib_axis() const
 {
-	return &_lib_view.get_axis_by_id(_axe_id);
+	return &_lib_view.get_axis_by_id(_axis_id);
 }

@@ -54,8 +54,13 @@ Picviz::PVSource::PVSource(const PVSource& org):
 
 Picviz::PVSource::~PVSource()
 {
-	PVLOG_INFO("In PVSource destructor\n");
+	PVLOG_INFO("In PVSource destructor: %p\n", this);
 	_extractor.force_stop_controller();
+	for (auto& m: get_children()) {
+		PVMapped* pm = m.get();
+		m.reset();
+		PVLOG_INFO("Mapped %p use count: %u\n", pm, pm->weak_from_this().use_count());
+	}
 }
 
 void Picviz::PVSource::init()
@@ -124,13 +129,23 @@ PVRush::PVControllerJob_p Picviz::PVSource::extract_from_agg_nlines(chunk_index 
 void Picviz::PVSource::set_mapping_function_in_extractor()
 {
 	PVRush::PVNrawOutput::list_chunk_functions& funcs = _extractor.chunk_functions();
+	PVFilter::PVPureMappingProcessing::list_pure_mapping_t& m_funcs = _extractor.pure_mapping_functions();
 	funcs.clear();
+	m_funcs.clear();
 
 	children_t const& mappeds = get_children();
+	if (mappeds.size() == 0) {
+		return;
+	}
+
 	for (auto m: mappeds) {
 		funcs.emplace_back(boost::bind<void>(&PVMapped::process_rush_pipeline_chunk, m.get(), _1, _2));
 		m->init_process_from_rush_pipeline();
 	}
+
+	// AG: *HACK*: only the first mapping get a placeholder for its pure mapped values...
+	Picviz::PVMapped& first_child = *mappeds.at(0);
+	first_child.init_pure_mapping_functions(m_funcs);
 }
 
 void Picviz::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)

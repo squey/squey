@@ -179,7 +179,7 @@ private:
 
 private:
 	typedef typename zones_drawing_t::render_group_t render_group_t;
-	typedef PVParallelView::PVSlidersManager::axe_id_t axe_id_t;
+	typedef PVParallelView::PVSlidersManager::axis_id_t axis_id_t;
 
 private:
 	typedef enum {
@@ -206,7 +206,7 @@ private:
 	zoom_sliders_del_obs           _zsd_obs;
 	zones_drawing_t               &_zones_drawing;
 	PVCol                          _axis_index;
-	axe_id_t                       _axe_id;
+	axis_id_t                      _axis_id;
 
 	// this flag helps not killing twice through the hive and the destructor
 	bool                           _pending_deletion;

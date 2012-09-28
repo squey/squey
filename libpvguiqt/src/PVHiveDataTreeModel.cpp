@@ -14,6 +14,7 @@ PVGuiQt::PVHiveDataTreeModel::PVHiveDataTreeModel(PVCore::PVDataTreeObjectBase& 
 			auto datatree_o = o->base_shared_from_this();
 			PVHive::get().register_observer(datatree_o, *obs);
 			obs->connect_refresh(this, SLOT(hive_refresh(PVHive::PVObserverBase*)));
+			obs->connect_about_to_be_deleted(this, SLOT(about_to_be_deleted(PVHive::PVObserverBase*)));
 		}
 	);
 }
@@ -30,4 +31,9 @@ void PVGuiQt::PVHiveDataTreeModel::hive_refresh(PVHive::PVObserverBase* o)
 
 	// Emit the fact that data has changed !
 	emit dataChanged(idx, idx);
+}
+
+void PVGuiQt::PVHiveDataTreeModel::about_to_be_deleted(PVHive::PVObserverBase*)
+{
+	PVLOG_INFO("about_to_be_deleted\n");
 }

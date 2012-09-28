@@ -1043,7 +1043,11 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 /*void PVInspector::PVMainWindow::view_new_parallel_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+
+
 	QDialog* dlg = new QDialog(this);
+	PVHive::PVObserverSignal<Picviz::PVView>* new_obs = new PVHive::PVObserverSignal<Picviz::PVView>(dlg);
+	new_obs->connect_about_to_be_deleted(dlg, SLOT(reject()));
 	dlg->setAttribute(Qt::WA_DeleteOnClose, true);
 
 	QLayout *layout = new QVBoxLayout(this);
@@ -1059,6 +1063,8 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 	QWidget *view = parallel_lib_view->create_view(dlg);
 	layout->addWidget(view);
 
+	Picviz::PVView_sp view_sp(get_current_lib_view()->shared_from_this());
+	PVHive::get().register_observer(view_sp, *new_obs);
 	dlg->show();
 }*/
 
@@ -1113,6 +1119,8 @@ void PVInspector::PVMainWindow::view_new_zoomed_parallel_Slot()
 
 	if (dlg->exec() == QDialog::Accepted) {
 		QDialog *view_dlg = new QDialog();
+		PVHive::PVObserverSignal<Picviz::PVView>* new_obs = new PVHive::PVObserverSignal<Picviz::PVView>(view_dlg);
+		new_obs->connect_about_to_be_deleted(view_dlg, SLOT(reject()));
 
 		view_dlg->setMaximumWidth(1024);
 		view_dlg->setMaximumHeight(1024);
@@ -1132,6 +1140,9 @@ void PVInspector::PVMainWindow::view_new_zoomed_parallel_Slot()
 		PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*get_current_lib_view())), pbox_lib, parallel_lib_view);
 
 		QWidget *view = parallel_lib_view->create_zoomed_view(axis_index);
+
+		Picviz::PVView_sp view_sp(get_current_lib_view()->shared_from_this());
+		PVHive::get().register_observer(view_sp, *new_obs);
 
 		view_layout->addWidget(view);
 		view_dlg->show();

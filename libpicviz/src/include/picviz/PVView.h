@@ -57,7 +57,7 @@ class LibPicvizDecl PVView: public data_tree_view_t
 public:
 	typedef QHash<QString,PVCore::PVArgumentList> map_filter_arguments;
 	typedef int32_t id_t;
-	typedef PVAxesCombination::axes_comb_id_t axe_id_t;
+	typedef PVAxesCombination::axes_comb_id_t axes_comb_id_t;
 
 public:
 	PVView();
@@ -140,7 +140,7 @@ public:
 	const QString& get_axis_name(PVCol index) const;
 	QString get_axis_type(PVCol index) const;
 	PVAxis const& get_axis(PVCol const comb_index) const;
-	PVAxis const& get_axis_by_id(axe_id_t const axe_id) const;
+	PVAxis const& get_axis_by_id(axes_comb_id_t const axes_comb_id) const;
 
 	void emit_user_modified_sel(QList<Picviz::PVView*>* changed_views = NULL);
 

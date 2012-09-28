@@ -36,13 +36,11 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 {
 public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
-	typedef PVSlidersManager::axe_id_t         axe_id_t;
+	typedef PVSlidersManager::axis_id_t        axis_id_t;
 
 public:
-	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVView const& view, const axe_id_t &axe_id);
+	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVView const& view, const axis_id_t &axis_id);
 	~PVAxisGraphicsItem();
-
-	QRectF boundingRect () const;
 
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
@@ -58,9 +56,9 @@ public:
 		return _sliders_group;
 	}
 
-	const axe_id_t get_axe_id() const
+	const axis_id_t get_axis_id() const
 	{
-		return _axe_id;
+		return _axis_id;
 	}
 
 	QRect map_from_scene(QRectF rect) const
@@ -79,7 +77,7 @@ private:
 
 private:
 	PVSlidersManager_p              _sliders_manager_p;
-	axe_id_t                        _axe_id;
+	axis_id_t                       _axis_id;
 	QRectF                          _bbox;
 	Picviz::PVView const&           _lib_view;
 	PVSlidersGroup                 *_sliders_group;

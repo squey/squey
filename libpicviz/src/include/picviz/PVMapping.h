@@ -77,6 +77,7 @@ public:
 	bool is_col_uptodate(PVCol j) const;
 	PVCol get_number_cols() const { return columns.size(); }
 	PVCore::DecimalType get_decimal_type_of_col(PVCol const j) const;
+	inline bool is_mapping_pure(PVCol const c) const { assert(c < columns.size()); return columns.at(c).is_mapping_pure(); }
 
 	QString const& get_name() const { return _name; }
 	void set_name(QString const& name) { _name = name; }

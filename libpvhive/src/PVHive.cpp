@@ -6,6 +6,7 @@
 
 #include <QMetaType>
 
+#include <pvkernel/core/general.h>
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActorBase.h>
 #include <pvhive/PVObserver.h>

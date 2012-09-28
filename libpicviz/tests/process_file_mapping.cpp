@@ -60,11 +60,14 @@ int main(int argc, char** argv)
 	Picviz::PVRoot_p root;
 	Picviz::PVScene_p scene(root, "scene");
 	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	Picviz::PVMapped_p mapped(src);
 	//src->set_invalid_elts_mode(true);
 	PVRush::PVControllerJob_p job = src->extract();
 	src->wait_extract_end(job);
 	PVLOG_INFO("Extraction job bytes: %lu, time: %0.4fs, mean bw: %0.4f MB/s\n", job->total_bytes_processed(), job->duration().seconds(), job->mean_bw());
 
+	mapped->to_csv();
+	//
 	/*QStringList const& inv(job->get_invalid_elts());
 	foreach (QString const& sinv, inv) {
 		PVLOG_INFO("invalid: %s\n", qPrintable(sinv));

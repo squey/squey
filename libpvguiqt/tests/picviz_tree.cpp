@@ -35,12 +35,12 @@ int main(int argc, char** argv)
 	// Get a Picviz tree from the given file/format
 	Picviz::PVRoot_p root;
 	Picviz::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
-	Picviz::PVSource_sp src2 = get_src_from_file(root->get_children().at(0), argv[1], argv[2]);
+	//Picviz::PVSource_sp src2 = get_src_from_file(root->get_children().at(0), argv[1], argv[2]);
 	src->create_default_view();
-	src2->create_default_view();
+	//src2->create_default_view();
 
-	Picviz::PVView_p new_view(src->current_view()->get_parent()->shared_from_this());
-	new_view->process_parent_plotted();
+	//Picviz::PVView_p new_view(src->current_view()->get_parent()->shared_from_this());
+	//new_view->process_parent_plotted();
 
 	// Qt app
 	QApplication app(argc, argv);
@@ -49,21 +49,34 @@ int main(int argc, char** argv)
 	root->dump();
 	src->dump();
 
-	PVGuiQt::PVRootTreeModel* model = new PVGuiQt::PVRootTreeModel(*root);
+	PVGuiQt::PVRootTreeModel* model = new PVGuiQt::PVRootTreeModel(*src);
 	PVGuiQt::PVRootTreeView* view = new PVGuiQt::PVRootTreeView(model);
-	//view->setModel(model);
+	view->setModel(model);
 
-	PVGuiQt::PVRootTreeModel* model2 = new PVGuiQt::PVRootTreeModel(*src);
-	PVGuiQt::PVRootTreeView* view2 = new PVGuiQt::PVRootTreeView(model2);
+	//PVGuiQt::PVRootTreeModel* model2 = new PVGuiQt::PVRootTreeModel(*src);
+	//PVGuiQt::PVRootTreeView* view2 = new PVGuiQt::PVRootTreeView(model2);
 
 	QMainWindow* mw = new QMainWindow();
 	mw->setCentralWidget(view);
 
-	QMainWindow* mw2 = new QMainWindow();
-	mw2->setCentralWidget(view2);
+	//QMainWindow* mw2 = new QMainWindow();
+	//mw2->setCentralWidget(view2);
 
 	mw->show();
-	mw2->show();
+	//mw2->show();
+
+	src.reset();
+	//src2.reset();
+	//new_view.reset();
+
+	// Remove listing when pressing enter
+	boost::thread key_thread([&]
+		{
+			std::cerr << "Press enter to remove data-tree..." << std::endl;
+			while (getchar() != '\n');
+			root.reset();
+		}
+	);
 
 	return app.exec();
 }

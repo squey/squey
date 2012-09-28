@@ -806,7 +806,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		PVRush::PVControllerJob_p job_import;
 		PVRush::PVFormat const& cur_format = fc.first;
 
-		Picviz::PVSource_p import_source;
+		Picviz::PVSource_sp import_source;
 		try {
 			import_source = Picviz::PVSource_p(_scene, inputs, fc.second, cur_format);
 			import_source->set_invalid_elts_mode(save_inv_elts);
@@ -819,7 +819,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		if (!load_source(import_source)) {
 			continue;
 		}
-		import_source->set_parent(_scene);
+		//import_source->set_parent(_scene);
 		//_scene->add_source(import_source);
 
 		one_extraction_successful = true;
@@ -1603,8 +1603,9 @@ void PVInspector::PVMainWindow::display_inv_elts(PVTabSplitter* tab_src)
  * PVInspector::PVMainWindow::load_source
  *
  *****************************************************************************/
-bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
+bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 {
+	PVLOG_INFO("load_source: %p\n", src.get());
 	// Load a created source
 	
 	// Transient view. This need to be created before posting the "PVSDK_MESSENGER_FUNCTION_CREATE_VIEW" message,
@@ -1674,17 +1675,6 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 		//message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
 		//pvsdk_messenger->post_message_to_gl(message);
 		return false;
-	}
-
-	// If, even after having processed the pipeline from the source, we still don't have
-	// any views, create a default mapped/plotted/view.
-	// This can happen if mappeds have been saved but with no plotted !
-	if (src->get_children<Picviz::PVView>().size() == 0) {
-		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
-			//message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-			//pvsdk_messenger->post_message_to_gl(message);
-			return false;
-		}
 	}
 
 	//auto first_view_p = src->get_children<Picviz::PVView>().at(0);
