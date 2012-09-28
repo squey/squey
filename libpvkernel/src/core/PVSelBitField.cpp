@@ -169,7 +169,7 @@ bool PVCore::PVSelBitField::is_empty_between(PVRow const a, PVRow b) const
 	}
 
 	// Epilogue
-	return (_table[chunk_end] << (PICVIZ_SELECTION_CHUNK_SIZE-line_index_to_chunk_bit(b))) == 0;
+	return (_table[chunk_end] << (PICVIZ_SELECTION_CHUNK_SIZE-line_index_to_chunk_bit(b)-1)) == 0;
 }
 
 

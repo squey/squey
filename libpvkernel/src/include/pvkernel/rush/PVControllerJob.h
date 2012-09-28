@@ -51,7 +51,8 @@ class PVController;
  * Moreover, a "dummy" controller job exists (PVControllerJobDummy). Its wait method returns immediatly. It is used
  * if an invalid job has to be created/returned (used by PVExtractor for instance).
  */
-class LibKernelDecl PVControllerJob : public QObject, public boost::enable_shared_from_this<PVControllerJob> {
+class LibKernelDecl PVControllerJob : public QObject, public boost::enable_shared_from_this<PVControllerJob>, boost::noncopyable
+{
 friend class PVController;
 
 	// This is defined as a QObject so that Qt objects can connect to the "job done" signal
@@ -81,7 +82,7 @@ public:
 	 */
 	PVControllerJob(job_action a, int priority);
 	virtual ~PVControllerJob();
-	void set_params(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks, bool dump_inv_elts = false, bool dump_all_elts = false);
+	void set_params(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVFilter::PVChunkFilter& mapping_filter, PVOutput& out_filter, size_t nchunks, bool dump_inv_elts = false, bool dump_all_elts = false);
 	bool done() const;
 	bool running() const;
 	bool cancel();
@@ -133,6 +134,7 @@ protected:
 	bool _job_started;
 	PVAggregator* _agg;
 	PVFilter::PVChunkFilter_f _filter;
+	PVFilter::PVChunkFilter* _mapping_filter;
 	PVOutput* _out_filter;
 
 	// Filter that count valid elements

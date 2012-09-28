@@ -195,6 +195,23 @@ public:
 		}
 	}
 
+	template <typename F>
+	void visit_by_column(F const& f)
+	{
+		PVRow r = 0;
+		for (PVElement* elt: elements()) {
+			if (!elt->valid()) {
+				continue;
+			}
+			PVCol c = 0;
+			for (PVField& field: elt->fields()) {
+				f(r, c, field);
+				c++;
+			}
+			r++;
+		}
+	}
+
 public:
 	void set_elements_index()
 	{

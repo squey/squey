@@ -158,7 +158,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
 	// object when it is not needed anymore !
 	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start, priority));
-	job->set_params(start, 0, nlines, PVControllerJob::sc_n_elts, _agg, _chk_flt, _out_nraw, _chunks, _dump_inv_elts, _dump_all_elts);
+	job->set_params(start, 0, nlines, PVControllerJob::sc_n_elts, _agg, _chk_flt, _mapping_flt, _out_nraw, _chunks, _dump_inv_elts, _dump_all_elts);
 	
 	// The job is submitted to the controller and the pointer returned, so that the caller can wait for its end
 	_ctrl.submit_job(job);
@@ -180,7 +180,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
 	// object when it is not needed anymore !
 	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start, priority));
-	job->set_params(start, end, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _out_nraw, _chunks, _dump_inv_elts, _dump_all_elts);
+	job->set_params(start, end, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _mapping_flt, _out_nraw, _chunks, _dump_inv_elts, _dump_all_elts);
 	
 	// The job is submitted to the controller and the pointer returned, so that the caller can wait for its end
 	_ctrl.submit_job(job);
@@ -191,7 +191,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 PVRush::PVControllerJob_p PVRush::PVExtractor::read_everything(int priority)
 {
 	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::read_everything, priority));
-	job->set_params(0, 0, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _out_nraw, _chunks, false, false);
+	job->set_params(0, 0, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _mapping_flt, _out_nraw, _chunks, false, false);
 
 	_ctrl.submit_job(job);
 	return job;

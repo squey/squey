@@ -45,6 +45,7 @@ public:
 	inline QString const& get_type() const { return _type; }
 	inline QString const& get_mode() const { return _mode; }
 	inline bool is_uptodate() const { return _is_uptodate; }
+	inline bool is_mapping_pure() const { return _mapping_filter->is_pure(); }
 
 public:
 	bool operator==(const PVMappingProperties& org);

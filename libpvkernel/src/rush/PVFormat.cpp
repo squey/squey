@@ -9,6 +9,7 @@
 #include <QDir>
 #include <QHashIterator>
 #include <QDateTime>
+#include <QFileInfo>
 
 #include <pvkernel/core/debug.h>
 #include <pvkernel/core/PVFileSerialize.h>
@@ -42,6 +43,12 @@ PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path
 	_dump_elts = false;
 	_already_pop = false;
 	_original_was_serialized = false;
+
+	if (format_name.isEmpty() && !full_path.isEmpty()) {
+		QFileInfo info(full_path);
+		QString basename = info.baseName();
+		format_name = basename;
+	}
 }
 
 
