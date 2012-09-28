@@ -52,22 +52,6 @@ PVParallelView::PVAxisGraphicsItem::~PVAxisGraphicsItem()
 }
 
 /*****************************************************************************
- * PVParallelView::PVAxisGraphicsItem::boundingRect
- *****************************************************************************/
-
-QRectF PVParallelView::PVAxisGraphicsItem::boundingRect() const
-{
-	QRectF bbox = QRectF(
-		-PVParallelView::AxisWidth*2,
-		-PVAW_CST,
-		PVParallelView::AxisWidth,
-		IMAGE_HEIGHT + (2 * PVAW_CST)
-	);
-
-	return bbox.united(QRectF(- PVParallelView::AxisWidth, 0, 50, -50));
-}
-
-/*****************************************************************************
  * PVParallelView::PVAxisGraphicsItem::paint
  *****************************************************************************/
 
@@ -75,8 +59,6 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
                                                const QStyleOptionGraphicsItem *option,
                                                QWidget *widget)
 {
-	QPen pen = painter->pen();
-
 	painter->fillRect(
 		0,
 		-PVAW_CST,

@@ -53,6 +53,7 @@ public:
 	void first_render();
 	void update_new_selection();
 	void update_all();
+	void update_scene(QGraphicsSceneWheelEvent* event = nullptr);
 
 	void update_number_of_zones();
 
@@ -71,7 +72,6 @@ public:
 private:
 	void update_zones_position(bool update_all = true, bool scale = true);
 	void translate_and_update_zones_position();
-
 
 	void store_selection_square();
 	void update_selection_square();

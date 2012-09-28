@@ -29,6 +29,8 @@
 
 #define CRAND() (127 + (random() & 0x7F))
 
+#define SCENE_MARGIN 32
+
 PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* parallel_view, Picviz::PVView_sp& view_sp, PVParallelView::PVSlidersManager_p sm_p, PVLinesView::zones_drawing_t& zd, tbb::task* root_sel):
 	QGraphicsScene(),
 	_lines_view(zd),
@@ -70,7 +72,6 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* par
 PVParallelView::PVFullParallelScene::~PVFullParallelScene()
 {
 	PVLOG_INFO("In PVFullParallelScene destructor\n");
-	PVLOG_INFO("%p\n", this);
 	_rendering_job_sel->deleteLater();
 	_rendering_job_bg->deleteLater();
 	common::get_lib_view(_lib_view)->remove_view(this);
@@ -143,7 +144,6 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 
 		_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 	}
-
 
 	update_selection_square();
 }
@@ -315,6 +315,8 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 			_lines_view.render_zone_all_imgs(zid, lib_view().get_volatile_selection(), _render_tasks_bg, _root_sel, _rendering_job_bg);
 		}
 		update_zones_position();
+
+		update_scene(event);
 	}
 	//Global zoom
 	else if (event->modifiers() == Qt::NoModifier) {
@@ -322,11 +324,6 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 		disconnect(&_lines_view.get_zones_manager(), 0, this, 0);
 		disconnect(_rendering_job_sel, NULL, this, NULL);
 		disconnect(_rendering_job_bg, NULL, this, NULL);
-
-		// Get the current zone where the mouse is
-		const PVZoneID zmouse = mouse_zid;
-		int32_t zone_x = map_to_axis(zmouse, mouse_scene_pt).x();
-		int32_t mouse_view_x = _parallel_view->mapFromScene(mouse_scene_pt).x();
 
 		_rendering_job_sel->cancel();
 		_rendering_job_bg->cancel();
@@ -337,12 +334,6 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 
 		_render_tasks_sel.cancel();
 		_render_tasks_bg.cancel();
-
-		// Compute the new view x coordinate
-		//zone_x += zoom;
-		int32_t view_x = map_from_axis(zmouse, QPointF(zone_x, 0)).x() - mouse_view_x;
-
-		_parallel_view->horizontalScrollBar()->setValue(view_x);
 
 		connect(_heavy_job_timer, SIGNAL(timeout()), this, SLOT(try_to_launch_zoom_job()));
 
@@ -355,6 +346,8 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 					_heavy_job_timer->start(500);
 				});
 		}
+
+		update_scene(event);
 	}
 	event->accept();
 }
@@ -423,7 +416,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zid)
 	}
 
 	PVLOG_INFO("update_zone_pixmap_bg: zone %d\n", zid);
-		
+
 	_zones[img_id].bg->setPixmap(QPixmap::fromImage(img_bg->qimage()));
 	_zones[img_id].bg->setPos(QPointF(_lines_view.get_zone_absolute_pos(zid), 0));
 }
@@ -548,6 +541,47 @@ void PVParallelView::PVFullParallelScene::update_all()
 				_heavy_job_timer->start(0);
 				});
 	}
+}
+
+void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent* event)
+{
+	QRectF old_scene_rect = sceneRect();
+	QRectF items_bbox = itemsBoundingRect();
+	QRectF new_scene_rect(items_bbox.left() - SCENE_MARGIN, items_bbox.top() - SCENE_MARGIN,
+	                      items_bbox.right() + SCENE_MARGIN, items_bbox.bottom() + SCENE_MARGIN);
+
+	if (old_scene_rect.width() == new_scene_rect.width()) {
+		/* QGraphicsView::centerOn(...) is not stable:
+		 * centerOn(scene_center) may differ from scene_center. Thx Qt's guys!
+		 */
+		return;
+	}
+
+	QRect screen_rect = _parallel_view->viewport()->rect();
+	QPointF old_center = _parallel_view->mapToScene(screen_rect.center());
+
+	// set scene's bounding box because Qt never shrinks the sceneRect (see Qt Doc)
+	setSceneRect(new_scene_rect);
+
+	qreal new_center_x;
+
+
+	if (event == nullptr) {
+		// due to a resize event
+		new_center_x = old_center.x();
+	} else {
+		qreal mouse_x = event->scenePos().x();
+		qreal dx = old_center.x() - mouse_x;
+		qreal rel_mouse_x = mouse_x / (qreal)old_scene_rect.width();
+		qreal new_mouse_x = rel_mouse_x * (qreal)new_scene_rect.width();
+
+		new_center_x = new_mouse_x + dx;
+	}
+
+	// center's ordinate must always show axes names
+	qreal new_center_y = (items_bbox.top() - SCENE_MARGIN) + screen_rect.center().y();
+
+	_parallel_view->centerOn(new_center_x, new_center_y);
 }
 
 void PVParallelView::PVFullParallelScene::draw_zone_sel_Slot(int zid, bool /*changed*/)

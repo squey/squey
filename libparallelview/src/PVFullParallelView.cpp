@@ -37,3 +37,13 @@ void PVParallelView::PVFullParallelView::paintEvent(QPaintEvent *event)
 	painter.drawText(width() - QFontMetrics(painter.font()).width(count) - 20, 20, count);
 	painter.end();
 }
+
+void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent *event)
+{
+	QGraphicsView::resizeEvent(event);
+
+	PVParallelView::PVFullParallelScene *fps = (PVParallelView::PVFullParallelScene*)scene();
+	if(fps != nullptr) {
+		fps->update_scene();
+	}
+}

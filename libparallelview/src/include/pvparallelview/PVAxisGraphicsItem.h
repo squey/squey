@@ -42,8 +42,6 @@ public:
 	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVView const& view, const axis_id_t &axis_id);
 	~PVAxisGraphicsItem();
 
-	QRectF boundingRect () const;
-
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
 	void update_axis_info();
