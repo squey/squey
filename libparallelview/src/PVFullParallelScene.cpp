@@ -226,6 +226,7 @@ void PVParallelView::PVFullParallelScene::mouseMoveEvent(QGraphicsSceneMouseEven
 		// Translate viewport
 		QScrollBar *hBar = _parallel_view->horizontalScrollBar();
 		hBar->setValue(hBar->value() + int(_translation_start_x - event->scenePos().x()));
+		event->accept();
 	}
 	else if (!sliders_moving() && event->buttons() == Qt::LeftButton)
 	{
@@ -234,6 +235,7 @@ void PVParallelView::PVFullParallelScene::mouseMoveEvent(QGraphicsSceneMouseEven
 		QPointF bottom_right(qMax(_selection_square_pos.x(), event->scenePos().x()), qMax(_selection_square_pos.y(), event->scenePos().y()));
 
 		_selection_square->update_rect(QRectF(top_left, bottom_right));
+		event->accept();
 	}
 
 	QGraphicsScene::mouseMoveEvent(event);
@@ -244,6 +246,7 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
 	if (event->button() == Qt::RightButton) {
 		// translate zones
 		translate_and_update_zones_position();
+		event->accept();
 	}
 	else if (!sliders_moving()) {
 		if (_selection_square_pos == event->scenePos()) {
@@ -251,6 +254,7 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
 			_selection_square->clear_rect();
 		}
 		commit_volatile_selection_Slot();
+		event->accept();
 	}
 
 	QGraphicsScene::mouseReleaseEvent(event);
