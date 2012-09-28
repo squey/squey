@@ -104,7 +104,7 @@ void Picviz::PVLayerFilter::set_output(PVLayer* out)
  *****************************************************************************/
 void Picviz::PVLayerFilter::set_view(PVView_sp const& view)
 {
-	_view = view;
+	_view = view.get();
 }
 
 /******************************************************************************

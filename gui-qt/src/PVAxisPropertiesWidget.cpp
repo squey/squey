@@ -17,7 +17,7 @@
  *****************************************************************************/
 PVInspector::PVAxisPropertiesWidget::PVAxisPropertiesWidget(Picviz::PVView_sp view, PVTabSplitter* tab_, PVMainWindow *mw):
 	QDialog(mw),
-	_view(view)
+	_view(view.get())
 {
 	main_window = mw;
 

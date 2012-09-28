@@ -40,7 +40,7 @@ private:
 	QDialogButtonBox *box_buttons;
 	PVTabSplitter    *tab;
 	PVMainWindow* main_window;
-	Picviz::PVView_sp _view;
+	Picviz::PVView* _view;
 
 public:
 	/**

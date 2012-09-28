@@ -11,6 +11,7 @@
 #include <tbb/atomic.h>
 #include <boost/checked_delete.hpp>
 #include <pvkernel/core/PVSpinLock.h>
+#include <pvkernel/core/PVTypeTraits.h>
 
 namespace PVCore
 {
@@ -107,11 +108,9 @@ namespace __impl
 		virtual void dispose()
 		{
 			if (_deleter) {
-				_deleter(_px);
+				_deleter(PVCore::PVTypeTraits::get_starting_address(_px));
 			}
-			else {
-				boost::checked_delete(_px);
-			}
+			boost::checked_delete(_px);
 		}
 
 		virtual void* get() { return _px; }

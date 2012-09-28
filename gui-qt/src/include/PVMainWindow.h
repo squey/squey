@@ -247,7 +247,7 @@ private:
 
 private:
 	bool load_scene();
-	bool load_source(Picviz::PVSource_p src);
+	bool load_source(Picviz::PVSource_sp src);
 	bool fix_project_errors(boost::shared_ptr<PVCore::PVSerializeArchive> ar);
 
 private:
