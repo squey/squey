@@ -548,7 +548,7 @@ void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent*
 	QRectF old_scene_rect = sceneRect();
 	QRectF items_bbox = itemsBoundingRect();
 	QRectF new_scene_rect(items_bbox.left() - SCENE_MARGIN, items_bbox.top() - SCENE_MARGIN,
-	                      items_bbox.right() + SCENE_MARGIN, items_bbox.bottom() + SCENE_MARGIN);
+	                      items_bbox.right() + (2*SCENE_MARGIN), items_bbox.bottom() + SCENE_MARGIN);
 
 	if (old_scene_rect.width() == new_scene_rect.width()) {
 		/* QGraphicsView::centerOn(...) is not stable:
