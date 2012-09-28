@@ -18,6 +18,7 @@ public:
 
 private slots:
 	void hive_refresh(PVHive::PVObserverBase* o);
+	void about_to_be_deleted(PVHive::PVObserverBase* o);
 
 private:
 	std::list<datatree_obs_t> _obs;

@@ -196,6 +196,7 @@ int PVGuiQt::PVListingModel::rowCount(const QModelIndex &index) const
 
 void PVGuiQt::PVListingModel::view_about_to_be_deleted(PVHive::PVObserverBase* /*o*/)
 {
+	PVLOG_INFO("View about to be deleted\n");
 	beginResetModel();
 	_view_valid = false;
 	endResetModel();

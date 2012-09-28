@@ -62,8 +62,7 @@ namespace __impl
 {
 
 // declaration of hive_deleter
-template <typename T>
-inline void hive_deleter(T *ptr);
+inline void hive_deleter(void *ptr);
 
 
 // definition of PVCallReturn
@@ -162,8 +161,7 @@ private:
 	typedef tbb::concurrent_hash_map<void*, observable_t, tbb_hash_ptr> observables_t;
 
 private:
-	template<typename T>
-	friend void __impl::hive_deleter(T *ptr);
+	friend void __impl::hive_deleter(void *ptr);
 	friend class PVActorBase;
 	template<typename T>
 	friend class PVActor;
@@ -192,7 +190,7 @@ public:
 		observables_t::accessor acc;
 
 		_observables.insert(acc, PVCore::PVTypeTraits::get_starting_address(object.get()));
-		object.set_deleter(&__impl::hive_deleter<T>);
+		object.set_deleter(&__impl::hive_deleter);
 	}
 
 	/**
@@ -216,7 +214,7 @@ public:
 		// create/get object's entry
 		_observables.insert(acc, PVCore::PVTypeTraits::get_starting_address(object.get()));
 		acc->second.properties.insert(property);
-		object.set_deleter(&__impl::hive_deleter<T>);
+		object.set_deleter(&__impl::hive_deleter);
 	}
 
 	/**
@@ -240,7 +238,7 @@ public:
 		// create/get object's entry
 		acc->second.actors.insert(&actor);
 		actor.set_object((void*) object.get(), registered_object);
-		object.set_deleter(&__impl::hive_deleter<T>);
+		object.set_deleter(&__impl::hive_deleter);
 	}
 
 	/**
@@ -281,7 +279,7 @@ public:
 
 		acc->second.observers.push_back(&observer);
 		observer.set_object((void*) object.get(), registered_object);
-		object.set_deleter(&__impl::hive_deleter<T>);
+		object.set_deleter(&__impl::hive_deleter);
 	}
 
 	/**
@@ -312,7 +310,7 @@ public:
 #pragma GCC diagnostic pop
 #endif
 		observer.set_object((void*) object.get(), registered_object);
-		object.set_deleter(&__impl::hive_deleter<T>);
+		object.set_deleter(&__impl::hive_deleter);
 	}
 
 	/**
@@ -349,7 +347,7 @@ public:
 		// create/get object's entry
 		_observables.insert(acc, PVCore::PVTypeTraits::get_starting_address(object.get()));
 		acc->second.properties.insert(registered_object);
-		object.set_deleter(&__impl::hive_deleter<T>);
+		object.set_deleter(&__impl::hive_deleter);
 	}
 
 public:
@@ -695,11 +693,9 @@ namespace __impl
 {
 
 // definition of hive_deleter
-template <typename T>
-inline void hive_deleter(T *ptr)
+inline void hive_deleter(void *ptr)
 {
-	PVHive::get().unregister_object(PVCore::PVTypeTraits::get_starting_address(ptr));
-	delete ptr;
+	PVHive::get().unregister_object(ptr);
 }
 
 }

@@ -251,6 +251,22 @@ bool my_assert(bool res)
 	return res;
 }
 
+bool delete_use_case()
+{
+	std::cout << "Delete use case" << std::endl;
+	A_p a1(4);
+	{
+		B_p b1(a1, 5);
+		B_p b2(a1);
+		C_p c(b1);
+		D_p d(c);
+	}
+
+	a1.reset();
+
+	return true;
+}
+
 bool standard_use_case()
 {
 	//////////////////////////////////////////
@@ -701,5 +717,5 @@ bool serialize_use_case()
 
 int main()
 {
-	return !(standard_use_case() && serialize_use_case());
+	return !(standard_use_case() && serialize_use_case() && delete_use_case());
 }

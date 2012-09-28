@@ -50,7 +50,7 @@ public:
 	typedef T type;
 	typedef PVSharedCounter shared_counter_t;
 	typedef type* pointer;
-	typedef void(*deleter)(pointer);
+	typedef void(*deleter)(void*);
 
 
 	PVSharedPtr(): _shared_count(), _px(nullptr)

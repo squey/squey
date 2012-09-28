@@ -51,6 +51,11 @@ public:
         return p;
     }
 
+    PVWeakPtr<T> weak_from_this()
+    {
+		return _weak_this;
+    }
+
 public: // actually private, but avoids compiler template friendship issues
 
     // Note: invoked automatically by shared_ptr; do not call

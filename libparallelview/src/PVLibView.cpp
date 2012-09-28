@@ -41,16 +41,7 @@ PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp, Picviz::PVPlott
 PVParallelView::PVLibView::~PVLibView()
 {
 	PVLOG_INFO("In PVLibView destructor\n");
-	for (PVFullParallelScene* view: _parallel_scenes) {
-		view->about_to_be_deleted();
-		view->graphics_view()->deleteLater();
-	}
 
-	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
-		view->deleteLater();
-	}
-
-	_task_root->destroy(*_task_root);
 }
 
 void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
@@ -121,7 +112,18 @@ PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_v
 }
 void PVParallelView::PVLibView::view_about_to_be_deleted()
 {
-	PVParallelView::common::remove_lib_view(*lib_view());
+	for (PVFullParallelScene* view: _parallel_scenes) {
+		view->about_to_be_deleted();
+		view->graphics_view()->deleteLater();
+	}
+
+	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
+		view->deleteLater();
+	}
+
+	_task_root->destroy(*_task_root);
+
+	//PVParallelView::common::remove_lib_view(*lib_view());
 }
 
 void PVParallelView::PVLibView::selection_updated()

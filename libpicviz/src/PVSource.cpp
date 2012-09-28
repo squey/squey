@@ -54,8 +54,13 @@ Picviz::PVSource::PVSource(const PVSource& org):
 
 Picviz::PVSource::~PVSource()
 {
-	PVLOG_INFO("In PVSource destructor\n");
+	PVLOG_INFO("In PVSource destructor: %p\n", this);
 	_extractor.force_stop_controller();
+	for (auto& m: get_children()) {
+		PVMapped* pm = m.get();
+		m.reset();
+		PVLOG_INFO("Mapped %p use count: %u\n", pm, pm->weak_from_this().use_count());
+	}
 }
 
 void Picviz::PVSource::init()

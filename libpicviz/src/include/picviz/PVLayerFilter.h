@@ -83,7 +83,7 @@ protected:
 	void add_ctxt_menu_entry(QString menu_name, ctxt_menu_f f);
 
 protected:
-	PVView_sp _view;
+	PVView* _view;
 
 private:
 	PVLayer *_out_p;
