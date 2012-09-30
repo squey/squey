@@ -95,6 +95,16 @@ public:
 		return process_worker_thread(end_s, worker, pbox);
 	}
 
+	template <typename F>
+	static bool progress(F f, tbb::task_group_context& ctxt, PVProgressBox* pbox)
+	{
+		//PVThreadWatcher* watcher = new PVThreadWatcher();
+		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
+		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
+		boost::thread worker(boost::bind(&PVProgressBox::worker_thread<F>, boost::ref(f), end_s));
+		return process_worker_thread(end_s, worker, pbox, ctxt);
+	}
+
 	static bool progress(tbb::task& root_task, PVProgressBox* pbox)
 	{
 		// This will be the thread that executes the root task
@@ -136,6 +146,7 @@ public slots:
 
 private:
 	static bool process_worker_thread(__impl::ThreadEndSignal* watcher, boost::thread& worker, PVProgressBox* pbox);
+	static bool process_worker_thread(__impl::ThreadEndSignal* watcher, boost::thread& worker, PVProgressBox* pbox, tbb::task_group_context& ctxt);
 
 private:
 	QLabel *message;

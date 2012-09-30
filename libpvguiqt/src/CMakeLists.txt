@@ -15,6 +15,8 @@ PVLayerStackDelegate.cpp
 PVLayerStackModel.cpp
 PVLayerStackView.cpp
 PVLayerStackWidget.cpp
+PVListDisplayDlg.cpp
+PVListUniqStringsDlg.cpp
 PVListingModel.cpp
 PVListingSortFilterProxyModel.cpp
 PVListingView.cpp
@@ -23,6 +25,7 @@ PVRootTreeView.cpp
 PVSortFilterProxyModel.cpp
 PVLogoModel.cpp
 PVLogoScene.cpp
+PVQNraw.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
@@ -34,6 +37,8 @@ include/pvguiqt/PVLayerStackDelegate.h
 include/pvguiqt/PVLayerStackModel.h
 include/pvguiqt/PVLayerStackView.h
 include/pvguiqt/PVLayerStackWidget.h
+include/pvguiqt/PVListDisplayDlg.h
+include/pvguiqt/PVListUniqStringsDlg.h
 include/pvguiqt/PVListingModel.h
 include/pvguiqt/PVListingSortFilterProxyModel.h
 include/pvguiqt/PVListingView.h
@@ -45,6 +50,7 @@ include/pvguiqt/PVLogoScene.h
 SET(UI_FILES
 PVAxesCombinationWidget.ui
 PVAxesCombinationWidgetSelRange.ui
+PVListDisplayDlg.ui
 )
 
 set(LIBGUIQT_HEADER_FILES

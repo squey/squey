@@ -130,3 +130,22 @@ bool PVCore::PVProgressBox::process_worker_thread(__impl::ThreadEndSignal* watch
 	pbox->deleteLater();
 	return true;
 }
+
+bool PVCore::PVProgressBox::process_worker_thread(__impl::ThreadEndSignal* watcher, boost::thread& worker, PVProgressBox* pbox, tbb::task_group_context& ctxt)
+{
+	//watcher->set_thread(worker);
+	// Show the window only if the work takes more than 50ms (avoid window flashing)
+	if (!worker.timed_join(boost::posix_time::milliseconds(250))) {
+		if (pbox->exec() != QDialog::Accepted) {
+			ctxt.cancel_group_execution();
+			worker.join();
+			return false;
+		}
+	}
+	else {
+		disconnect(watcher, SIGNAL(finished()), pbox, SLOT(accept()));
+	}
+	watcher->deleteLater();
+	pbox->deleteLater();
+	return true;
+}

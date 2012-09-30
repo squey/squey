@@ -54,6 +54,7 @@ core/PVUnicodeString16.cpp
 core/PVVersion.cpp
 core/PVAllocators.cpp
 core/PVRecentItemsManager.cpp
+core/string_tbb.cpp
 )
 
 if(PYTHONLIBS_FOUND)

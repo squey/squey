@@ -18,6 +18,7 @@
 #include <pvguiqt/PVListingView.h>
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
+#include <pvguiqt/PVQNraw.h>
 
 #include <QAbstractButton>
 #include <QApplication>
@@ -321,13 +322,11 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 
 void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 {
-#if 0
 	int col = horizontalHeader()->logicalIndexAt(pos);
 	QAction* sel = _hhead_ctxt_menu->exec(QCursor::pos());
 	if (sel == _action_col_unique) {
-		_parent->show_unique_values(col);
+		PVQNraw::show_unique_values(lib_view().get_rushnraw_parent(), col, *lib_view().get_selection_visible_listing(), this);
 	}
-#endif
 }
 
 /******************************************************************************

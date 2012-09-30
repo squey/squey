@@ -65,7 +65,6 @@ Qt::ItemFlags PVGuiQt::PVAxesListModel::flags(const QModelIndex &index) const
 
 void PVGuiQt::PVAxesListModel::about_to_be_deleted_slot(PVHive::PVObserverBase*)
 {
-	std::cout << "PVGuiQt::PVAxesListModel::about_to_be_deleted (" << boost::this_thread::get_id() << ")" << std::endl;
 	beginResetModel();
 	_view_deleted = true;
 	endResetModel();
@@ -73,7 +72,6 @@ void PVGuiQt::PVAxesListModel::about_to_be_deleted_slot(PVHive::PVObserverBase*)
 
 void PVGuiQt::PVAxesListModel::refresh_slot(PVHive::PVObserverBase*)
 {
-	PVLOG_INFO("PVGuiQt::PVAxesListModel::refresh\n");
 	reset();
 }
 

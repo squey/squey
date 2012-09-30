@@ -87,7 +87,8 @@ void Picviz::PVPlottingProperties::set_mode(QString const& mode)
 		_is_uptodate = false;
 		lib_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(get_type() + "_" + _mode);
 		if (!lib_filter) {
-			PVLOG_ERROR("Plotting mode '%s' for type '%s' does not exist !\n", qPrintable(mode), qPrintable(get_type()));
+			PVLOG_ERROR("Plotting mode '%s' for type '%s' does not exist ! Falling back to default..\n", qPrintable(mode), qPrintable(get_type()));
+			lib_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(get_type() + "_default");
 		}
 		_plotting_filter = lib_filter->clone<PVPlottingFilter>();
 	}

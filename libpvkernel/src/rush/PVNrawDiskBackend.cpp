@@ -4,8 +4,12 @@
  * Copyright (C) Picviz Labs 2012
  */
 
+#include <pvbase/qhashes.h>
+#include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/rush/PVNrawDiskBackend.h>
+
+#include <tbb/enumerable_thread_specific.h>
 
 static const std::string INDEX_FILENAME = std::string("nraw.idx");
 
@@ -353,17 +357,17 @@ char* PVRush::PVNrawDiskBackend::next(uint64_t col, uint64_t nb_fields, char* bu
 		size_ret = column.field_length;
 	}
 	else {
-		char* end_field_ptr = nullptr;
 		uint64_t size_to_read = READ_BUFFER_SIZE - (buffer - column.buffer_read_ptr);
 		// TODO: vectorize this!
-		for (uint64_t i = 0; i < nb_fields; i++) {
+		/*for (uint64_t i = 0; i < nb_fields; i++) {
 			end_field_ptr = (char*) memchr(buffer_ptr, '\0', size_to_read);
-			assert(end_field_ptr && ((uintptr_t)end_field_ptr - (uintptr_t)column.buffer_read < (size_t)READ_BUFFER_SIZE));
+			assert(end_field_ptr && ((uintptr_t)end_field_ptr - (uintptr_t)column.buffer_read <= (size_t)READ_BUFFER_SIZE));
 			uint64_t field_length = (end_field_ptr - buffer_ptr)+1;
 			size_to_read -= field_length;
 			buffer_ptr += field_length;
-		}
-		size_ret = strnlen(buffer_ptr, size_to_read);
+		}*/
+		//size_ret = strnlen(buffer_ptr, size_to_read);
+		PVCore::PVByteVisitor::visit_nth_slice((const uint8_t*) buffer, size_to_read, nb_fields,  [&](const uint8_t* found_buf, size_t sbuf) { buffer_ptr = (char*) found_buf; size_ret = sbuf; });
 	}
 
 	column.buffer_read_ptr = buffer_ptr;
@@ -513,4 +517,49 @@ int64_t PVRush::PVNrawDiskBackend::PVCachePool::get_index(uint64_t col, uint64_t
 		}
 	}
 	return -1;
+}
+
+bool PVRush::PVNrawDiskBackend::get_unique_values_for_col(PVCol const c, unique_values_t& ret, tbb::task_group_context* ctxt)
+{
+	const size_t nreserve = std::sqrt(_nrows);
+	tbb::enumerable_thread_specific<unique_values_t> tbb_qset([nreserve]{ unique_values_t ret; ret.reserve(nreserve); return ret; }); 
+	bool vret = visit_column_tbb(c, [&tbb_qset](size_t, const char* buf, size_t n)
+			{   
+				std::string_tbb new_s(buf, n); 
+				tbb_qset.local().insert(new_s);
+			}, ctxt);
+	if (!vret) {
+		return false;
+	}
+	typename decltype(tbb_qset)::iterator it_tls = tbb_qset.begin();
+	unique_values_t& final = *it_tls;
+	it_tls++;
+	for (; it_tls != tbb_qset.end(); it_tls++) {
+		final.unite(*it_tls);
+	}   
+	ret = final;
+	return true;
+}
+
+bool PVRush::PVNrawDiskBackend::get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt)
+{
+	// AG: TODO: factorize w/ the previous function!
+	const size_t nreserve = std::sqrt(_nrows);
+	tbb::enumerable_thread_specific<unique_values_t> tbb_qset([nreserve]{ unique_values_t ret; ret.reserve(nreserve); return ret; }); 
+	bool vret = visit_column_tbb_sel(c, [&tbb_qset](size_t, const char* buf, size_t n)
+			{   
+				std::string_tbb new_s(buf, n); 
+				tbb_qset.local().insert(new_s);
+			}, sel, ctxt); 
+	if (!vret) {
+		return false;
+	}
+	typename decltype(tbb_qset)::iterator it_tls = tbb_qset.begin();
+	unique_values_t& final = *it_tls;
+	it_tls++;
+	for (; it_tls != tbb_qset.end(); it_tls++) {
+		final.unite(*it_tls);
+	}   
+	ret = final;
+	return true;
 }

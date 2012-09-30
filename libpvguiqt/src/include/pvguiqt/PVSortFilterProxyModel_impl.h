@@ -17,7 +17,8 @@ struct PVSortProxyAsc
 	{
 		ms = m->sourceModel();
 	}
-	bool operator()(int idx1, int idx2) const
+
+	inline bool operator()(int idx1, int idx2) const
 	{
 		return m->less_than(ms->index(idx1, column), ms->index(idx2, column));
 	}
@@ -33,7 +34,8 @@ struct PVSortProxyDesc
 	{
 		ms = m->sourceModel();
 	}
-	bool operator()(int idx1, int idx2) const
+	
+	inline bool operator()(int idx1, int idx2) const
 	{
 		return m->less_than(ms->index(idx2, column), ms->index(idx1, column));
 	}
@@ -49,7 +51,8 @@ struct PVSortProxyComp
 	{
 		ms = m->sourceModel();
 	}
-	bool operator()(int idx1, int idx2) const
+
+	inline bool operator()(int idx1, int idx2) const
 	{
 		return m->is_equal(ms->index(idx2, column), ms->index(idx1, column));
 	}

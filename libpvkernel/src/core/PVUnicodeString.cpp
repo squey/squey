@@ -9,6 +9,9 @@
 #include <pvkernel/core/PVUnicodeString.h>
 
 #include <unicode/ustring.h>
+#include <unicode/coll.h>
+
+#include <tbb/enumerable_thread_specific.h>
 
 // Taken from QT 4.7.3's source code
 // The original disclamer is:
@@ -86,19 +89,8 @@ bool PVCore::PVUnicodeString::operator<(const PVUnicodeString& o) const
 
 int PVCore::PVUnicodeString::compare(const char* str) const
 {
-	QString str_(str);
-	const uint32_t str_size = str_.size();
-	int ret = memcmp(str_.constData(), _buf, picviz_min(_len, str_size)*sizeof(utf_char));
-	if (ret == 0) {
-		if (_len < str_size) {
-			ret = -1;
-		}
-		else
-		if (_len > str_size) {
-			ret = 1;
-		}
-	}
-	return ret;
+	size_t str_size = strlen(str);
+	return compare(PVUnicodeString((PVCore::PVUnicodeString::utf_char*) str, str_size));
 }
 
 int PVCore::PVUnicodeString::compare(const PVUnicodeString& o) const
@@ -118,9 +110,18 @@ int PVCore::PVUnicodeString::compare(const PVUnicodeString& o) const
 
 int PVCore::PVUnicodeString::compareNoCase(const PVUnicodeString& o) const
 {
-	//UErrorCode err = U_ZERO_ERROR;
-	//return u_strCaseCompare((const UChar*) _buf, _len, (const UChar*) o._buf, o._len, 0, &err);
-	return compare(o);
+	static tbb::enumerable_thread_specific<Collator*> tls_collator(
+			[=]
+			{
+				UErrorCode err = U_ZERO_ERROR;
+				Collator* c = Collator::createInstance(err);
+				c->setStrength(Collator::PRIMARY);
+				return c;
+			});
+	Collator* const c = tls_collator.local();
+	UErrorCode err = U_ZERO_ERROR;
+	const UCollationResult res = c->compareUTF8(StringPiece((const char*) _buf, _len), StringPiece((const char*) o._buf, o._len), err);
+	return (int) res;
 }
 
 PYTHON_EXPOSE_IMPL(PVCore::PVUnicodeString)

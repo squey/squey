@@ -35,7 +35,6 @@
 #include <picviz/PVSortingFunc.h>
 #include <picviz/PVDefaultSortingFunc.h>
 #include <picviz/PVPlotted.h>
-#include <picviz/PVZLevelArray.h>
 
 #include <picviz/PVView_types.h>
 #include <picviz/PVView_impl.h>

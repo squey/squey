@@ -16,6 +16,7 @@
 
 #include <tbb/concurrent_queue.h>
 #include <tbb/pipeline.h>
+#include <tbb/task.h>
 #include <tbb/tick_count.h>
 
 #include <pvkernel/core/picviz_intrin.h>
@@ -23,6 +24,9 @@
 #include <pvkernel/core/PVMatrix.h>
 #include <pvkernel/core/PVByteVisitor.h>
 #include <pvkernel/core/PVSelBitField.h>
+#include <pvkernel/core/string_tbb.h>
+
+#include <QSet>
 
 namespace PVRush {
 
@@ -222,6 +226,7 @@ public:
 	//typedef std::pair<uint64_t, uint64_t> offset_fields_t;
 	typedef PVCore::PVMatrix<offset_fields_t, PVRow, PVCol> index_table_t;
 	typedef PVNrawDiskBackend this_type;
+	typedef QSet<std::string_tbb> unique_values_t;
 
 public:
 	PVNrawDiskBackend();
@@ -394,13 +399,19 @@ public:
 
 
 	template <typename F>
-	bool visit_column_tbb(uint64_t const col_idx, F const& f)
+	bool visit_column_tbb(uint64_t const col_idx, F const& f, tbb::task_group_context* ctxt = NULL)
 	{
 		set_direct_mode(false);
 
 		// TBB version
 		PVColumn& column = get_col(col_idx);
 		this->Seek(column.file, 0);
+
+		// Task context
+		tbb::task_group_context my_ctxt;
+		if (ctxt == NULL) {
+			ctxt = &my_ctxt;
+		}
 
 		size_t prev_off = 0;
 		size_t cur_field = 0;
@@ -451,8 +462,14 @@ public:
 				[&](typename tbb_chunks_t::chunk_t* c)
 				{
 					this->_chunks.release_chunk(c);
-				})
+				}),
+
+				*ctxt
 		);
+
+		if (ctxt->is_group_execution_cancelled()) {
+			return false;
+		}
 
 		// Finish off !
 		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
@@ -464,13 +481,19 @@ public:
 	}
 
 	template <typename F>
-	bool visit_column_tbb_sel(uint64_t const col_idx, F const& f, PVCore::PVSelBitField const& sel)
+	bool visit_column_tbb_sel(uint64_t const col_idx, F const& f, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL)
 	{
 		set_direct_mode(false);
 
 		// TBB version
 		PVColumn& column = get_col(col_idx);
 		this->Seek(column.file, 0);
+
+		// Task context
+		tbb::task_group_context my_ctxt;
+		if (ctxt == NULL) {
+			ctxt = &my_ctxt;
+		}
 
 		size_t prev_off = 0;
 		size_t cur_field = 0;
@@ -539,8 +562,13 @@ public:
 				[&](typename tbb_chunks_t::chunk_t* c)
 				{
 					this->_chunks.release_chunk(c);
-				})
+				}),
+
+				*ctxt
 		);
+		if (ctxt->is_group_execution_cancelled()) {
+			return false;
+		}
 
 		// Finish off !
 		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
@@ -548,8 +576,11 @@ public:
 		size_t read_size = this->Read(column.file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
 		visit_column_process_chunk_sel(cur_field, _nrows-1, _serial_read_buffer, read_size, sel, f);
 
-		return cur_field == _nrows;
+		return true;
 	}
+
+	bool get_unique_values_for_col(PVCol const c, unique_values_t& ret, tbb::task_group_context* ctxt = NULL);
+	bool get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL);
 
 private:
 	std::string get_disk_index_file() const;

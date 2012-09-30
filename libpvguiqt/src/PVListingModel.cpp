@@ -113,8 +113,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 			}
 		case (PVCustomQtRoles::Sort):
 			{
-				/*
-				QVariant ret;
+				/*QVariant ret;
 				ret.setValue<void*>((void*) &lib_view().get_parent<Picviz::PVSource>()->get_data_unistr_raw(index.row(), index.column()));
 				return ret;*/
 				return QVariant();
@@ -196,7 +195,6 @@ int PVGuiQt::PVListingModel::rowCount(const QModelIndex &index) const
 
 void PVGuiQt::PVListingModel::view_about_to_be_deleted(PVHive::PVObserverBase* /*o*/)
 {
-	PVLOG_INFO("View about to be deleted\n");
 	beginResetModel();
 	_view_valid = false;
 	endResetModel();

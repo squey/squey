@@ -14,15 +14,14 @@
 #include <pvhive/waxes/waxes.h>
 
 #include <PVAxisPropertiesWidget.h>
-#include <PVListDisplayDlg.h>
 #include <PVMainWindow.h>
 #include <PVSimpleStringListModel.h>
 #include <PVExtractorWidget.h>
-#include <PVListColNrawDlg.h>
 #include <PVMappingPlottingEditDialog.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvguiqt/PVLayerStackWidget.h>
+#include <pvguiqt/PVListDisplayDlg.h>
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVListingView.h>
@@ -74,7 +73,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(Picviz::PVSource& lib_src, QWidget *pa
 
 	// Invalid elements widget
 	PVSimpleStringListModel<QStringList>* inv_elts_model = new PVSimpleStringListModel<QStringList>(get_lib_src()->get_invalid_elts());
-	PVListDisplayDlg* inv_dlg = new PVListDisplayDlg(inv_elts_model, this);
+	PVGuiQt::PVListDisplayDlg* inv_dlg = new PVGuiQt::PVListDisplayDlg(inv_elts_model, this);
 	inv_dlg->setWindowTitle(tr("Invalid elements"));
 	inv_dlg->set_description(tr("There were invalid elements during the extraction:"));
 	_inv_elts_dlg = inv_dlg;
@@ -520,21 +519,6 @@ size_t PVInspector::PVTabSplitter::get_unique_indexes_for_current_listing(PVCol 
 		ret = current_lib_view->sort_unique_indexes_with_axes_combination(column, idxes);
 	}
 	return ret;
-}
-
-void PVInspector::PVTabSplitter::show_unique_values(PVCol col)
-{
-	std::vector<int> rows;
-	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(tr("Computing values..."), this);
-	pbox->set_enable_cancel(false);
-	size_t nvalues;
-	PVCore::PVProgressBox::progress(boost::bind(&PVTabSplitter::get_unique_indexes_for_current_listing, this, col, boost::ref(rows)), pbox, nvalues);
-	if (nvalues == 0) {
-		return;
-	}
-
-	PVListColNrawDlg* dlg = new PVListColNrawDlg(*get_lib_view(), rows, nvalues, col, this);
-	dlg->exec();
 }
 
 // PVViewWidgets

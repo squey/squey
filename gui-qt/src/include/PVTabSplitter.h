@@ -29,6 +29,8 @@ class PVListingView;
 
 class PVRootTreeModel;
 class PVRootTreeView;
+
+class PVListDisplayDlg;
 }
 
 namespace PVInspector {
@@ -38,7 +40,6 @@ typedef std::vector<int> MatchingTable_t;
 class PVAxisPropertiesWidget;
 class PVMainWindow;
 class PVExtractorWidget;
-class PVListDisplayDlg;
 
 /**
  *  \class PVTabSplitter
@@ -88,7 +89,7 @@ public:
 	PVGuiQt::PVListingView* get_listing_view() { return pv_listing_view; }
 
 
-	PVListDisplayDlg* get_source_invalid_elts_dlg() { return _inv_elts_dlg; };
+	PVGuiQt::PVListDisplayDlg* get_source_invalid_elts_dlg() { return _inv_elts_dlg; };
 
 	/**
 	 *
@@ -163,9 +164,6 @@ public:
 public:
 	bool process_extraction_job(PVRush::PVControllerJob_p job);
 
-public slots:
-	void show_unique_values(PVCol col);
-
 private slots:
 	void source_about_to_be_deleted();
 
@@ -191,7 +189,7 @@ private:
 	PVGuiQt::PVRootTreeView*  _data_tree_view;
 	PVGuiQt::PVRootTreeModel* _data_tree_model;
 
-	PVListDisplayDlg* _inv_elts_dlg;
+	PVGuiQt::PVListDisplayDlg* _inv_elts_dlg;
 
 	PVExtractorWidget *_pv_extractor; //!< The extractor widget of this view
 

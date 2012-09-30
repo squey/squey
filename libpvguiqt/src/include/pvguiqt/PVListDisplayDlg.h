@@ -4,8 +4,8 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef PVINSPECTOR_PVLISTDISPLAYDLG_H
-#define PVINSPECTOR_PVLISTDISPLAYDLG_H
+#ifndef PVGUIQT_PVLISTDISPLAYDLG_H
+#define PVGUIQT_PVLISTDISPLAYDLG_H
 
 #include <picviz/PVView_types.h>
 #include "../ui_PVListDisplayDlg.h"
@@ -14,7 +14,7 @@
 #include <QVector>
 #include <QDialog>
 
-namespace PVInspector {
+namespace PVGuiQt {
 
 class PVListDisplayDlg: public QDialog, Ui::PVListDisplayDlg
 {
@@ -25,6 +25,9 @@ public:
 
 public:
 	void set_description(QString const& desc);
+
+protected:
+	inline QAbstractListModel* model() { return _model; }
 
 private slots:
 	void copy_to_clipboard();

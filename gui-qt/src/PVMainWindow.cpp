@@ -21,7 +21,6 @@
 
 #include <PVMainWindow.h>
 #include <PVExtractorWidget.h>
-#include <PVListDisplayDlg.h>
 #include <PVStringListChooserWidget.h>
 #include <PVInputTypeMenuEntries.h>
 
@@ -57,6 +56,8 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/waxes/waxes.h>
+
+#include <pvguiqt/PVListDisplayDlg.h>
 
 #include <PVFormatBuilderWidget.h>
 

@@ -40,6 +40,9 @@ class LibKernelDecl PVNraw
 	PVNraw(const PVNraw&) = delete;
 
 public:
+	typedef PVNrawDiskBackend::unique_values_t unique_values_t;
+
+public:
 	PVNraw();
 	~PVNraw();
 
@@ -53,8 +56,10 @@ public:
 	inline PVCol get_number_cols() const { return _backend.get_number_cols(); }
 
 	QString get_value(PVRow row, PVCol col) const;
-	PVCore::PVUnicodeString at_unistr(PVRow row, PVCol col) const
+	inline PVCore::PVUnicodeString at_unistr(PVRow row, PVCol col) const
 	{
+		assert(row < get_number_rows());
+		assert(col < get_number_cols());
 		size_t size;
 		const char* buf = _backend.at(row, col, size);
 		return PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size);
@@ -103,9 +108,19 @@ public:
 	}
 
 	template <typename F>
-	inline bool visit_column_tbb_sel(PVCol const c, F const& f, PVCore::PVSelBitField const& sel) const
+	inline bool visit_column_tbb_sel(PVCol const c, F const& f, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL) const
 	{
-		return _backend.visit_column_tbb_sel(c, f, sel);
+		return _backend.visit_column_tbb_sel(c, f, sel, ctxt);
+	}
+
+	inline void get_unique_values_for_col(PVCol const c, unique_values_t& ret, tbb::task_group_context* ctxt = NULL) const
+	{
+		_backend.get_unique_values_for_col(c, ret, ctxt);
+	}
+
+	inline void get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL) const
+	{
+		_backend.get_unique_values_for_col_with_sel(c, ret, sel, ctxt);
 	}
 
 	QString nraw_line_to_csv(PVRow idx) const;

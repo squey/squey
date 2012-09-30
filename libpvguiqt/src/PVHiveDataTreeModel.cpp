@@ -35,5 +35,4 @@ void PVGuiQt::PVHiveDataTreeModel::hive_refresh(PVHive::PVObserverBase* o)
 
 void PVGuiQt::PVHiveDataTreeModel::about_to_be_deleted(PVHive::PVObserverBase*)
 {
-	PVLOG_INFO("about_to_be_deleted\n");
 }

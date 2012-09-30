@@ -144,6 +144,10 @@ target_link_libraries(Trush_format_conv ${LINK_LIBRARIES})
 add_executable(Trush_nraw_backend nraw_backend.cpp)
 target_link_libraries(Trush_nraw_backend ${LINK_LIBRARIES})
 
+# NRAW sort-uniq
+add_executable(Trush_nraw_sort_uniq nraw_sort_uniq.cpp)
+target_link_libraries(Trush_nraw_sort_uniq ${LINK_LIBRARIES})
+
 if(PYTHONLIBS_FOUND)
 	# Python NRAW
 	#	add_executable(Trush_python_nraw python_nraw.cpp)

@@ -63,6 +63,13 @@ public:
 	{
 		assert(buf);
 	}
+
+	PVUnicodeString(const char* buf, size_t len):
+		_buf((const utf_char*) buf),
+		_len(len)
+	{
+		assert(buf);
+	}
 public:
 	// == Conversions ==
 	double to_double(bool& ok) const;

@@ -64,8 +64,7 @@ include/PVFilterWidget.h
 include/PVInputTypeMenuEntries.h
 include/PVInvestigationWizard.h
 include/PVLayerFilterProcessWidget.h
-include/PVListColNrawDlg.h
-include/PVListDisplayDlg.h
+#include/PVListColNrawDlg.h
 #include/PVListingModel.h
 include/PVListingsTabWidget.h
 #include/PVListingSortFilterProxyModel.h
@@ -139,8 +138,7 @@ PVExportSelectionDialog.cpp
 PVFilterWidget.cpp
 PVInvestigationWizard.cpp
 PVLayerFilterProcessWidget.cpp
-PVListColNrawDlg.cpp
-PVListDisplayDlg.cpp
+#PVListColNrawDlg.cpp
 #PVListingModel.cpp
 PVListingsTabWidget.cpp
 #PVListingSortFilterProxyModel.cpp
@@ -202,7 +200,6 @@ SET(UI_FILES
 PVAxisComputationDlg.ui
 widgets/format-builder/PVAxisTagHelp.ui
 ui/PVViewCorrelationWidget.ui
-PVListDisplayDlg.ui
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})

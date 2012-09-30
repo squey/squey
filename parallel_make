@@ -18,6 +18,5 @@ for l in $LIBS_ORDER; do
 	cd ../..
 done
 
-make -j $1 -C libpvkernel/plugins
-make -j $1 -C libpicviz/plugins
+make -j $1
 

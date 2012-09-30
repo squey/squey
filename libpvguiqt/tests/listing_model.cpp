@@ -40,30 +40,18 @@ int main(int argc, char** argv)
 
 	Picviz::PVView_sp view = src->current_view()->shared_from_this();
 	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(view);
-	//PVGuiQt::PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view);
-	//proxy_model->setSourceModel(model);
+	PVGuiQt::PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view);
+	proxy_model->setSourceModel(model);
 
-	Picviz::PVView* pview = view.get();
-	std::cout << "View shared count: " << view.use_count() << std::endl;
-
-	//PVGuiQt::PVListingView* qt_view = new PVGuiQt::PVListingView(view);
-	//qt_view->setModel(proxy_model);
+	PVGuiQt::PVListingView* qt_view = new PVGuiQt::PVListingView(view);
+	qt_view->setModel(proxy_model);
 
 	view.reset();
 
-	std::cout << "View shared count: " << src->current_view()->weak_from_this().use_count() << std::endl;
-
 	QMainWindow* mw = new QMainWindow();
-	//mw->setCentralWidget(qt_view);
+	mw->setCentralWidget(qt_view);
 
 	mw->show();
-
-	Picviz::PVSource* src_p = src.get();
-	src.reset();
-	std::cout << "Source use count: " << src_p->weak_from_this().use_count() << std::endl;
-
-	//Picviz::PVView_p other_view(pview->get_parent()->shared_from_this());
-	//other_view.reset();
 
 	// Remove listing when pressing enter
 	boost::thread key_thread([&]
