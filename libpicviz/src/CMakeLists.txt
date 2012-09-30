@@ -75,7 +75,6 @@ include/picviz/PVSquareArea.h
 include/picviz/PVStateMachine.h
 include/picviz/PVVector.h
 include/picviz/PVView.h
-include/picviz/PVZLevelArray.h
 
 # Correlation files
 include/picviz/PVSelRowFilteringFunction.h
@@ -145,7 +144,6 @@ PVSortingFunc.cpp
 PVSource.cpp
 PVStateMachine.cpp
 PVView.cpp
-PVZLevelArray.cpp
 
 # Correlation files
 PVCombiningFunctionView.cpp
