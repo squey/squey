@@ -53,6 +53,12 @@ PVAxesCombinationWidget.ui
 PVAxesCombinationWidgetSelRange.ui
 )
 
+SET(QRC_FILES
+../../gui-qt/src/picviz-inspector_resource.qrc
+)
+
+QT4_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
+
 set(LIBGUIQT_HEADER_FILES
 )
 

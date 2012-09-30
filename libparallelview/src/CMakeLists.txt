@@ -83,7 +83,6 @@ include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVZoomedParallelView.h
 include/pvparallelview/PVSlidersManager.h
 include/pvparallelview/PVAxisLabel.h
-include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
 include/pvparallelview/PVSlidersGroup.h
@@ -108,6 +107,7 @@ include/pvparallelview/PVAbstractAxisSlider.h
 include/pvparallelview/PVAbstractAxisSliders.h
 include/pvparallelview/PVSelectionAxisSliders.h
 include/pvparallelview/PVZoomAxisSliders.h
+include/pvparallelview/PVAxisGraphicsItem.h
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})

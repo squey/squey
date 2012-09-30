@@ -21,9 +21,18 @@
 
 #include <picviz/PVSource.h>
 
+#include <pvparallelview/PVFullParallelView.h>
+
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
+
+#include <pvguiqt/PVRootTreeModel.h>
+#include <pvguiqt/PVRootTreeView.h>
+
+#include <pvguiqt/PVListingModel.h>
+#include <pvguiqt/PVListingSortFilterProxyModel.h>
+#include <pvguiqt/PVListingView.h>
 
 Q_DECLARE_METATYPE(Picviz::PVView*)
 
@@ -68,16 +77,63 @@ public slots:
 		pbox_lib->set_enable_cancel(false);
 		PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*view)), pbox_lib, parallel_lib_view);
 
-		QWidget* parallel_view = parallel_lib_view->create_view();
+		PVParallelView::PVFullParallelView* parallel_view = parallel_lib_view->create_view();
+		connect(parallel_view, SIGNAL(new_zoomed_parallel_view(Picviz::PVView*, int)), this, SLOT(create_zoomed_parallel_view(Picviz::PVView*, int)));
 
-		add_view_display(parallel_view, "Test");
+		add_view_display(parallel_view, "Parallel view [" + view->get_name() + "]");
 	}
 
+	void create_listing_view()
+	{
+		QAction* action = (QAction*) sender();
+		QVariant var = action->data();
+		Picviz::PVView* view = var.value<Picviz::PVView*>();
+
+		Picviz::PVView_p view_p = view->shared_from_this();
+		PVListingModel* listing_model = new PVGuiQt::PVListingModel(view_p);
+		PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view_p);
+		proxy_model->setSourceModel(listing_model);
+		PVListingView* listing_view = new PVGuiQt::PVListingView(view_p);
+		listing_view->setModel(proxy_model);
+
+		add_view_display(listing_view, "Listing [" + view->get_name() + "]");
+	}
+
+public slots:
+	void create_zoomed_parallel_view(Picviz::PVView* view, int axis_id)
+	{
+		QWidget* zoomed_parallel_view = PVParallelView::common::get_lib_view(*view)->create_zoomed_view(axis_id);
+
+		add_view_display(zoomed_parallel_view, "Zoomed parallel view [" + view->get_name() + "]");
+	}
+
+	void create_datatree_view(bool create)
+	{
+		if (create) {
+			PVRootTreeModel* datatree_model = new PVRootTreeModel(*_source);
+			PVRootTreeView* data_tree_display = new PVRootTreeView(datatree_model);
+			connect(data_tree_display, SIGNAL(destroyed(QObject*)), this, SLOT(uncheck_datatree_button()));
+			add_view_display(data_tree_display, "Data tree");
+		}
+		else {
+			for (auto display : _displays) {
+				if (dynamic_cast<PVRootTreeView*>(display->widget())) {
+					removeDockWidget(display);
+				}
+			}
+		}
+	}
+
+	void uncheck_datatree_button()
+	{
+		_datatree_view_action->setChecked(false);
+	}
 
 private:
 	QList<PVViewDisplay*> _displays;
 	Picviz::PVSource_sp _source;
 	QToolBar* _toolbar;
+	QAction* _datatree_view_action;
 };
 
 class SlotHandler : public QObject

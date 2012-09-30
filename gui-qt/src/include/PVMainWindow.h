@@ -40,8 +40,6 @@
 #include <PVWorkspacesTabWidget.h>
 #include <PVFilesTypesSelWidget.h>
 
-#include <pvguiqt/PVWorkspace.h>
-
 //#include <>
 
 /* #include <logviewer/logviewerwidget.h> */
@@ -125,7 +123,6 @@ public:
 	PVOpenFileDialog    *pv_OpenFileDialog;
 	PVSaveFileDialog    *pv_SaveFileDialog;
 	PVTabSplitter       *current_tab;
-	PVGuiQt::PVWorkspace* _current_workspace;
 	PVWorkspacesTabWidget *pv_WorkspacesTabWidget;
 
 	QMenuBar *menubar;

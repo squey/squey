@@ -44,6 +44,8 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	_label->rotate(-45.);
 	_label->setPos(0, - 2 * PVAW_CST);
 
+	connect(_label, SIGNAL(new_zoomed_parallel_view(int)), this, SLOT(emit_new_zoomed_parallel_view(int)));
+
 	update_axis_info();
 }
 

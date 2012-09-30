@@ -1071,12 +1071,11 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 void PVInspector::PVMainWindow::view_new_parallel_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	//QDialog* dlg = new QDialog(this);
-	//->setAttribute(Qt::WA_DeleteOnClose, true);
+	QDialog* dlg = new QDialog(this);
 
-	//QLayout *layout = new QVBoxLayout(this);
-	//layout->setContentsMargins(0, 0, 0, 0);
-	//dlg->setLayout(layout);
+	QLayout *layout = new QVBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
+	dlg->setLayout(layout);
 	PVParallelView::PVLibView* parallel_lib_view;
 
 	// Progress box!
@@ -1086,11 +1085,9 @@ void PVInspector::PVMainWindow::view_new_parallel_Slot()
 
 	QWidget *view = parallel_lib_view->create_view();
 
-	_current_workspace->add_view_display(view, "Parallel view");
+	layout->addWidget(view);
 
-	//layout->addWidget(view);
-
-	//dlg->show();
+	dlg->show();
 }
 
 void PVInspector::PVMainWindow::view_new_zoomed_parallel_Slot()

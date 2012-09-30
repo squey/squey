@@ -19,29 +19,74 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 	setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);
 
 	_toolbar = new QToolBar(this);
+	_toolbar->setFloatable(false);
+	_toolbar->setMovable(false);
+	_toolbar->setIconSize(QSize(32, 32));
 	addToolBar(_toolbar);
 
+	// Datatree views toolbar button
+	_datatree_view_action = new QAction(_toolbar);
+	_datatree_view_action->setCheckable(true);
+	_datatree_view_action->setIcon(QIcon(":/view_display_datatree"));
+	_datatree_view_action->setToolTip(tr("Add data tree"));
+	connect(_datatree_view_action, SIGNAL(triggered(bool)), this, SLOT(create_datatree_view(bool)));
+	_toolbar->addAction(_datatree_view_action);
+	_toolbar->addSeparator();
+
+	// Listings button
+	QToolButton* listing_tool_button = new QToolButton(_toolbar);
+	listing_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
+	listing_tool_button->setIcon(QIcon(":/view_display_listing"));
+	listing_tool_button->setToolTip(tr("Add listing"));
+	QMenu* listing_views_menu = new QMenu;
+	for (auto view : source->get_children<Picviz::PVView>()) {
+		QAction* action = new QAction(view->get_name(), this);
+		QVariant var;
+		var.setValue<Picviz::PVView*>(view.get());
+		action->setData(var);
+		connect(action, SIGNAL(triggered(bool)), this, SLOT(create_listing_view()));
+		listing_views_menu->addAction(action);
+	}
+	listing_tool_button->setMenu(listing_views_menu);
+	_toolbar->addWidget(listing_tool_button);
+
 	// Parallel views toolbar button
-	QToolButton* tool_button = new QToolButton(_toolbar);
-	tool_button->setPopupMode(QToolButton::MenuButtonPopup);
-	tool_button->setIcon(QIcon("/home/jbleonesio/dev/picviz-inspector/gui-qt/src/resources/inspector.png")); //tool_button->setIcon(QIcon(":/logo_text.png"));
-	tool_button->setToolTip(tr("Add parallel view"));
-	QMenu* views_menu = new QMenu;
+	QToolButton* parallel_view_tool_button = new QToolButton(_toolbar);
+	parallel_view_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
+	parallel_view_tool_button->setIcon(QIcon(":/view_display_parallel"));
+	parallel_view_tool_button->setToolTip(tr("Add parallel view"));
+	QMenu* parallel_views_menu = new QMenu;
 	for (auto view : source->get_children<Picviz::PVView>()) {
 		QAction* action = new QAction(view->get_name(), this);
 		QVariant var;
 		var.setValue<Picviz::PVView*>(view.get());
 		action->setData(var);
 		connect(action, SIGNAL(triggered(bool)), this, SLOT(create_parallel_view()));
-		views_menu->addAction(action);
+		parallel_views_menu->addAction(action);
 	}
-	tool_button->setMenu(views_menu);
-	_toolbar->addWidget(tool_button);
+	parallel_view_tool_button->setMenu(parallel_views_menu);
+	_toolbar->addWidget(parallel_view_tool_button);
+
+	// Zoomed parallel views toolbar button
+	QToolButton* zoomed_parallel_view_tool_button = new QToolButton(_toolbar);
+	zoomed_parallel_view_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
+	zoomed_parallel_view_tool_button->setIcon(QIcon(":/view_display_zoom"));
+	zoomed_parallel_view_tool_button->setToolTip(tr("Add zoomed parallel view"));
+	_toolbar->addWidget(zoomed_parallel_view_tool_button);
+
+	// Scatter views toolbar button
+	QToolButton* scatter_view_tool_button = new QToolButton(_toolbar);
+	scatter_view_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
+	scatter_view_tool_button->setIcon(QIcon(":/view_display_scatter"));
+	scatter_view_tool_button->setToolTip(tr("Add scatter view"));
+	_toolbar->addWidget(scatter_view_tool_button);
 }
 
 void PVGuiQt::PVWorkspace::add_view_display(QWidget* view_widget, const QString& name)
 {
 	PVViewDisplay* view_display = new PVViewDisplay(this);
+	view_display->setAttribute(Qt::WA_DeleteOnClose, true);
+	view_widget->setParent(this);
 	view_display->setWidget(view_widget);
 	view_display->setWindowTitle(name);
 

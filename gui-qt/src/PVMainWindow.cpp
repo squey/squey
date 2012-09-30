@@ -1687,14 +1687,10 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 	// Add the source's tab
 	current_tab = new PVTabSplitter(*src, pv_WorkspacesTabWidget);
 
-	_current_workspace = new PVGuiQt::PVWorkspace();
-	_current_workspace->add_view_display(current_tab, "Listing");
 
 	connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
 	connect(current_tab, SIGNAL(source_changed()), this, SLOT(project_modified_Slot()));
 	int new_tab_index = pv_WorkspacesTabWidget->addTab(current_tab, current_tab->get_tab_name());
-
-	//int new_tab_index = pv_WorkspacesTabWidget->addTab(_current_workspace, current_tab->get_tab_name());
 
 	pv_WorkspacesTabWidget->setCurrentIndex(new_tab_index);
 

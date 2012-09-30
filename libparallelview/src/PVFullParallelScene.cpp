@@ -679,8 +679,8 @@ void PVParallelView::PVFullParallelScene::add_zone_image()
 void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const z, int index)
 {
 	PVParallelView::PVAxisGraphicsItem* axisw = new PVParallelView::PVAxisGraphicsItem(_sm_p, lib_view(), _lib_view.get_axes_combination().get_axes_comb_id(z));
-	connect(axisw->get_sliders_group(), SIGNAL(selection_sliders_moved(axis_id_t)),
-	        this, SLOT(update_selection_from_sliders_Slot(axis_id_t)));
+	connect(axisw->get_sliders_group(), SIGNAL(selection_sliders_moved(axis_id_t)), this, SLOT(update_selection_from_sliders_Slot(axis_id_t)));
+	connect(axisw, SIGNAL(new_zoomed_parallel_view(int)), this, SLOT(emit_new_zoomed_parallel_view(int)));
 	addItem(axisw);
 	if (index < 0) {
 		_axes.push_back(axisw);

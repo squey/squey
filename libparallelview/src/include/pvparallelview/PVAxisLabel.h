@@ -51,6 +51,9 @@ public:
 protected:
 	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
+signals:
+	void new_zoomed_parallel_view(int _axis_index);
+
 private slots:
 	void new_zoomed_parallel_view();
 	void new_selection_sliders();

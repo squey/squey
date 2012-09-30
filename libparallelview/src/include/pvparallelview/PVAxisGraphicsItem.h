@@ -34,6 +34,8 @@ class PVAxisLabel;
 
 class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 {
+	Q_OBJECT
+
 public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
 	typedef PVSlidersManager::axis_id_t        axis_id_t;
@@ -71,6 +73,15 @@ public:
 	{
 		return get_sliders_group()->get_selection_ranges();
 	}
+
+public slots:
+	void emit_new_zoomed_parallel_view(int axis_id)
+	{
+		emit new_zoomed_parallel_view(axis_id);
+	}
+
+signals:
+	void new_zoomed_parallel_view(int axis_id);
 
 private:
 	Picviz::PVAxis const* lib_axis() const;
