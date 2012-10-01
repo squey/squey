@@ -5,18 +5,36 @@
  */
 
 #include <QAction>
-#include <QToolButton>
+#include <QHBoxLayout>
 #include <QMenu>
+#include <QPushButton>
+#include <QToolBar>
+#include <QToolButton>
 
 #include <pvkernel/core/PVDataTreeAutoShared.h>
-#include <pvguiqt/PVWorkspace.h>
+#include <pvkernel/core/PVProgressBox.h>
+
+#include <picviz/PVSource.h>
 #include <picviz/PVView.h>
+
+#include <pvparallelview/PVFullParallelView.h>
+#include <pvparallelview/PVParallelView.h>
+#include <pvparallelview/PVLibView.h>
+
+#include <pvguiqt/PVListingModel.h>
+#include <pvguiqt/PVListingSortFilterProxyModel.h>
+#include <pvguiqt/PVListingView.h>
+#include <pvguiqt/PVViewDisplay.h>
+#include <pvguiqt/PVRootTreeModel.h>
+#include <pvguiqt/PVRootTreeView.h>
+#include <pvguiqt/PVWorkspace.h>
+#include <pvguiqt/PVViewDisplay.h>
 
 PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 	QMainWindow(parent),
 	_source(source)
 {
-	setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);
+	//setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);
 
 	_toolbar = new QToolBar(this);
 	_toolbar->setFloatable(false);
@@ -33,9 +51,9 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 	_toolbar->addAction(_datatree_view_action);
 	_toolbar->addSeparator();
 	PVRootTreeModel* datatree_model = new PVRootTreeModel(*_source);
-	PVRootTreeView* data_tree_display = new PVRootTreeView(datatree_model);
-	connect(data_tree_display, SIGNAL(destroyed(QObject*)), this, SLOT(check_datatree_button()));
-	add_view_display(data_tree_display, "Data tree", false);
+	PVRootTreeView* data_tree_view = new PVRootTreeView(datatree_model);
+	PVGuiQt::PVViewDisplay* data_tree_view_display = add_view_display(data_tree_view, "Data tree", false);
+	connect(data_tree_view_display, SIGNAL(display_closed()), this, SLOT(check_datatree_button()));
 	check_datatree_button(true);
 
 	// Listings button
@@ -87,21 +105,109 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 	_toolbar->addWidget(scatter_view_tool_button);
 }
 
-void PVGuiQt::PVWorkspace::add_view_display(QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/)
+PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/)
 {
 	PVViewDisplay* view_display = new PVViewDisplay(can_be_central_display, this);
+	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
 	view_display->setWidget(view_widget);
 	view_display->setWindowTitle(name);
-	_displays.append(view_display);
 	addDockWidget(Qt::TopDockWidgetArea, view_display);
+
+	_displays.append(view_display);
+
+	return view_display;
 }
 
-void PVGuiQt::PVWorkspace::set_central_display(QWidget* view_widget, const QString& name)
+PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::set_central_display(QWidget* view_widget, const QString& name)
 {
 	PVViewDisplay* view_display = new PVViewDisplay(true, this);
 	view_display->setWidget(view_widget);
 	view_display->setWindowTitle(name);
-	_displays.append(view_display);
 	view_display->setFeatures(QDockWidget::NoDockWidgetFeatures);
 	setCentralWidget(view_display);
+
+	_displays.append(view_display);
+
+	return view_display;
+}
+
+void PVGuiQt::PVWorkspace::switch_with_central_widget(PVViewDisplay* display_dock /*= nullptr*/)
+{
+	if (!display_dock) {
+		display_dock = (PVViewDisplay*) sender()->parent();
+	}
+	QWidget* display_widget = display_dock->widget();
+
+	PVViewDisplay* central_dock = (PVViewDisplay*) centralWidget();
+	QWidget* central_widget = central_dock->widget();
+
+	// Exchange widgets
+	central_dock->setWidget(display_widget);
+	display_dock->setWidget(central_widget);
+
+	// Exchange titles
+	QString central_title = central_dock->windowTitle();
+	central_dock->setWindowTitle(display_dock->windowTitle());
+	display_dock->setWindowTitle(central_title);
+}
+
+void PVGuiQt::PVWorkspace::create_listing_view()
+{
+	QAction* action = (QAction*) sender();
+	QVariant var = action->data();
+	Picviz::PVView* view = var.value<Picviz::PVView*>();
+
+	Picviz::PVView_p view_p = view->shared_from_this();
+	PVListingModel* listing_model = new PVGuiQt::PVListingModel(view_p);
+	PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view_p);
+	proxy_model->setSourceModel(listing_model);
+	PVListingView* listing_view = new PVGuiQt::PVListingView(view_p);
+	listing_view->setModel(proxy_model);
+
+	add_view_display(listing_view, "Listing [" + view->get_name() + "]");
+}
+
+void PVGuiQt::PVWorkspace::create_parallel_view()
+{
+	QAction* action = (QAction*) sender();
+	QVariant var = action->data();
+	Picviz::PVView* view = var.value<Picviz::PVView*>();
+
+	PVParallelView::PVLibView* parallel_lib_view;
+
+	PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
+	pbox_lib->set_enable_cancel(false);
+	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*view)), pbox_lib, parallel_lib_view);
+
+	PVParallelView::PVFullParallelView* parallel_view = parallel_lib_view->create_view();
+	connect(parallel_view, SIGNAL(new_zoomed_parallel_view(Picviz::PVView*, int)), this, SLOT(create_zoomed_parallel_view(Picviz::PVView*, int)));
+
+	add_view_display(parallel_view, "Parallel view [" + view->get_name() + "]");
+}
+
+void PVGuiQt::PVWorkspace::create_zoomed_parallel_view(Picviz::PVView* view, int axis_id)
+{
+	QWidget* zoomed_parallel_view = PVParallelView::common::get_lib_view(*view)->create_zoomed_view(axis_id);
+
+	add_view_display(zoomed_parallel_view, "Zoomed parallel view [" + view->get_name() + "]");
+}
+
+void PVGuiQt::PVWorkspace::show_datatree_view(bool show)
+{
+	for (auto display : _displays) {
+		if (dynamic_cast<PVRootTreeView*>(display->widget())) {
+			display->setVisible(show);
+		}
+	}
+}
+
+void PVGuiQt::PVWorkspace::check_datatree_button(bool check /*= false*/)
+{
+	_datatree_view_action->setChecked(check);
+}
+
+void PVGuiQt::PVWorkspace::display_destroyed(QObject* object /*= 0*/)
+{
+	PVGuiQt::PVViewDisplay* display = (PVGuiQt::PVViewDisplay*) object;
+	_displays.removeAll(display);
 }
