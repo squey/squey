@@ -549,7 +549,7 @@ void PVParallelView::PVFullParallelScene::update_all()
 				_render_tasks_sel.wait();
 				_render_tasks_bg.wait();
 				_heavy_job_timer->stop();
-				_heavy_job_timer->start(0);
+				_heavy_job_timer->start(200);
 				});
 	}
 }
