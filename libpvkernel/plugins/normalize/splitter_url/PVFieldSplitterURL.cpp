@@ -88,8 +88,8 @@ static bool set_field(int pos, PVCore::PVField** fields, const uint16_t* str, fu
 	}
 	else {
 		new_f->set_begin((char*) &empty_str);
-		new_f->set_end((char*) (&empty_str+1));
-		new_f->set_physical_end((char*) (&empty_str+1));
+		new_f->set_end((char*) (&empty_str));
+		new_f->set_physical_end((char*) (&empty_str));
 	}
 
 	return true;

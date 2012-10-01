@@ -25,6 +25,9 @@ public:
 	virtual QList<PVCore::PVArgumentKey> get_args_keys_for_preset() const;
 	virtual QString menu_name() const { return "Text Search/Multiple values"; }
 
+public:
+	static PVCore::PVArgumentList search_value_menu(PVRow row, PVCol col, QString const& v);
+
 	CLASS_FILTER(Picviz::PVLayerFilterMultipleSearch)
 };
 
