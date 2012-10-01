@@ -34,6 +34,5 @@
 #else
 #include "../../libpvgl2/src/include/pvgl/export.h"
 #endif
-#include "../../libpvsdk/src/include/pvsdk/export.h"
 
 #endif	/* PVBASE_EXPORT_H */

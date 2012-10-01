@@ -6,6 +6,7 @@
 
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/PVRecentItemsManager.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVVersion.h>
@@ -17,22 +18,21 @@
 
 #include <picviz/widgets/editors/PVAxisIndexEditor.h>
 
+#include <pvhive/waxes/waxes.h>
+#include <pvhive/PVHive.h>
+
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
-#include <pvkernel/core/PVRecentItemsManager.h>
 #include <pvguiqt/PVLogoScene.h>
-
-#include <pvhive/waxes/waxes.h>
-#include <pvhive/PVHive.h>
+#include <pvguiqt/PVLayerFilterProcessWidget.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <picviz/widgets/PVArgumentListWidgetFactory.h>
 #include <PVFormatBuilderWidget.h>
-#include <PVLayerFilterProcessWidget.h>
 #include <PVExtractorWidget.h>
 #include <PVSaveSceneDialog.h>
 #include <PVAxisComputationDlg.h>
@@ -460,7 +460,7 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		Picviz::PVLayerFilter::p_type filter_org = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
 		Picviz::PVLayerFilter::p_type fclone = filter_org->clone<Picviz::PVLayerFilter>();
 		PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
-		PVLayerFilterProcessWidget* filter_widget = new PVLayerFilterProcessWidget(current_tab, args, fclone);
+		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_tab->get_lib_view(), args, fclone);
 		filter_widget->show();
 	}
 }
@@ -481,7 +481,7 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
 		Picviz::PVLayerFilter::p_type filter_org = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
 		Picviz::PVLayerFilter::p_type fclone = filter_org->clone<Picviz::PVLayerFilter>();
 		PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
-		PVLayerFilterProcessWidget* filter_widget = new PVLayerFilterProcessWidget(current_tab, args, fclone);
+		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_tab->get_lib_view(), args, fclone);
 		filter_widget->show();
 		filter_widget->preview_Slot();
 	}

@@ -19,6 +19,7 @@
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVQNraw.h>
+#include <pvguiqt/PVLayerFilterProcessWidget.h>
 
 #include <QAbstractButton>
 #include <QApplication>
@@ -38,7 +39,8 @@
  *
  *****************************************************************************/
 PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
-	QTableView(parent)
+	QTableView(parent),
+	_ctxt_process(nullptr)
 {
 	PVHive::get().register_observer(view, _obs);
 	PVHive::get().register_actor(view, _actor);
@@ -410,20 +412,20 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
 	Picviz::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
 
 	// Get the arguments
-	/*PVCore::PVArgumentList &args = lib_view().get_last_args_filter(filter_name);
+	PVCore::PVArgumentList &args = lib_view().get_last_args_filter(filter_name);
 	_ctxt_args = args_f(_ctxt_row, _ctxt_col, _ctxt_v);
 
 	// Show the layout filter widget
 	Picviz::PVLayerFilter_p fclone = lib_filter->clone<Picviz::PVLayerFilter>();
 	if (_ctxt_process) {
 		_ctxt_process->deleteLater();
-	}*/
+	}
 
 	// Creating the PVLayerFilterProcessWidget will save the current args for this filter.
 	// Then we can change them !
-	/*_ctxt_process = new PVLayerFilterProcessWidget(main_window->current_tab, args, fclone);
+	_ctxt_process = new PVGuiQt::PVLayerFilterProcessWidget(&lib_view(), args, fclone);
 	_ctxt_process->change_args(_ctxt_args);
-	_ctxt_process->show();*/
+	_ctxt_process->show();
 }
 
 PVGuiQt::PVListingSortFilterProxyModel* PVGuiQt::PVListingView::get_listing_model()
