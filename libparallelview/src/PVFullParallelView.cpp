@@ -44,6 +44,14 @@ void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent *event)
 
 	PVParallelView::PVFullParallelScene *fps = (PVParallelView::PVFullParallelScene*)scene();
 	if(fps != nullptr) {
+		fps->update_viewport();
 		fps->update_scene();
+		fps->update_all();
+
+		/* to force the view to be always at the top. Otherwise,
+		 * resizing the window to a smallet size automatically translates
+		 * the view in a wrong way.
+		 */
+		verticalScrollBar()->setValue(verticalScrollBar()->minimum());
 	}
 }

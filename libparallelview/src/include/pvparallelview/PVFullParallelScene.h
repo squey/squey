@@ -53,6 +53,8 @@ public:
 	void first_render();
 	void update_new_selection();
 	void update_all();
+
+	void update_viewport();
 	void update_scene(QGraphicsSceneWheelEvent* event = nullptr);
 
 	void update_number_of_zones();

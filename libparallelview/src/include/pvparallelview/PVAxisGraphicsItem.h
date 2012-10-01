@@ -25,6 +25,9 @@
 #include <pvparallelview/PVSlidersManager.h>
 #include <pvparallelview/PVSlidersGroup.h>
 
+// Used to draw the axis out of the image zone
+#define PVAW_CST 8
+
 class QGraphicsSimpleTextItem;
 
 namespace PVParallelView
@@ -61,6 +64,13 @@ public:
 		return _axis_id;
 	}
 
+	QRectF get_label_scene_bbox() const;
+
+	void set_axis_length(int l)
+	{
+		_axis_length = l;
+	}
+
 	QRect map_from_scene(QRectF rect) const
 	{
 		QPointF point = mapFromScene(rect.topLeft());
@@ -82,6 +92,7 @@ private:
 	Picviz::PVView const&           _lib_view;
 	PVSlidersGroup                 *_sliders_group;
 	PVAxisLabel                    *_label;
+	int                             _axis_length;
 };
 
 }

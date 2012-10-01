@@ -15,9 +15,6 @@
 #include <QPainter>
 #include <QGraphicsScene>
 
-// Used to draw the axis out of the image zone
-#define PVAW_CST 8
-
 /*****************************************************************************
  * PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem
  *****************************************************************************/
@@ -63,7 +60,7 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 		0,
 		-PVAW_CST,
 	    PVParallelView::AxisWidth,
-	    IMAGE_HEIGHT + (2 * PVAW_CST),
+	    _axis_length + (2 * PVAW_CST),
 	    lib_axis()->get_color().toQColor()
 	);
 
@@ -79,6 +76,15 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_info()
 	_label->set_text(lib_axis()->get_name());
 	_label->set_color(lib_axis()->get_titlecolor().toQColor());
 	_label->set_axis_index(_lib_view.get_axes_combination().get_index_by_id(_axis_id));
+}
+
+/*****************************************************************************
+ * PVParallelView::PVAxisGraphicsItem::get_label_scene_bbox
+ *****************************************************************************/
+
+QRectF PVParallelView::PVAxisGraphicsItem::get_label_scene_bbox() const
+{
+	return _label->get_scene_bbox();
 }
 
 /*****************************************************************************
