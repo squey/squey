@@ -145,7 +145,7 @@ public:
 #endif
 
 	template <class Fbci>
-	inline void draw_zone(PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, PVZoneID zone, uint32_t zone_width, Fbci const& f_bci, std::function<void()> const& cleaning_func = std::function<void()>(), std::function<void()> const& drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
+	inline void draw_zone(PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, PVZoneID zone, uint32_t zone_width, Fbci const& f_bci, const float zoom_y, std::function<void()> const& cleaning_func = std::function<void()>(), std::function<void()> const& drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
 	{
 		PVZoneTree const &zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
 		draw_bci_lambda<PVZoneTree>(zone_tree, dst_img, x_start, zone_width,
@@ -153,7 +153,7 @@ public:
 				{
 					return (zone_tree.*f_bci)(colors, codes);
 				},
-				1.0f,
+		                zoom_y,
 				false,
 				cleaning_func,
 				drawing_done,
@@ -196,7 +196,7 @@ public:
 
 
 	template <class Tree, class Fbci>
-	void draw_bci_lambda(Tree const &zone_tree, backend_image_t& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci, const float zoom_y = 1.0f, bool reverse = false, std::function<void()> cleaning_func = std::function<void()>(), std::function<void()> drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
+	void draw_bci_lambda(Tree const &zone_tree, backend_image_t& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci, const float zoom_y, bool reverse = false, std::function<void()> cleaning_func = std::function<void()>(), std::function<void()> drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
 	{
 		// Get a free BCI buffers
 		PVBCICode<Bbits>* bci_buf = _computed_codes.get_available_buffer<Bbits>();

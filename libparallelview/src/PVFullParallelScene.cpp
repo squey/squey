@@ -26,6 +26,7 @@
 #include <QLayout>
 #include <QLabel>
 #include <QDialogButtonBox>
+#include <QRect>
 
 #define CRAND() (127 + (random() & 0x7F))
 
@@ -38,6 +39,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* par
 	_parallel_view(parallel_view),
 	_selection_square(new PVParallelView::PVSelectionSquareGraphicsItem(this)),
 	_selection_generator(_lines_view),
+	_zoom_y(1.0),
 	_root_sel(root_sel),
 	_sm_p(sm_p)
 {
@@ -48,6 +50,9 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* par
 	_rendering_job_all = new PVRenderingJob(this);
 
 	setBackgroundBrush(QBrush(common::color_view_bg()));
+
+	// this scrollbar is totally useless
+	_parallel_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	connect(_parallel_view->horizontalScrollBar(), SIGNAL(sliderPressed()), this, SLOT(scrollbar_pressed_Slot()));
 	connect(_parallel_view->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(scrollbar_released_Slot()));
@@ -103,7 +108,7 @@ void PVParallelView::PVFullParallelScene::first_render()
 	uint32_t view_width = _parallel_view->width();
 
 	connect_draw_zone_sel();
-	_lines_view.render_all_zones_all_imgs(view_x, view_width, lib_view().get_volatile_selection(), _render_tasks_bg, _root_sel, _rendering_job_bg);
+	_lines_view.render_all_zones_all_imgs(view_x, view_width, lib_view().get_volatile_selection(), _render_tasks_bg, _root_sel, _zoom_y, _rendering_job_bg);
 }
 
 
@@ -198,7 +203,7 @@ void PVParallelView::PVFullParallelScene::translate_and_update_zones_position()
 {
 	uint32_t view_x = _parallel_view->horizontalScrollBar()->value();
 	uint32_t view_width = _parallel_view->width();
-	_lines_view.translate(view_x, view_width, lib_view().get_volatile_selection(), _root_sel, _render_tasks_bg, _rendering_job_all);
+	_lines_view.translate(view_x, view_width, lib_view().get_volatile_selection(), _root_sel, _render_tasks_bg, _zoom_y, _rendering_job_all);
 }
 
 void PVParallelView::PVFullParallelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -288,7 +293,7 @@ void PVParallelView::PVFullParallelScene::try_to_launch_zoom_job()
 
 	// Laucnh task jobs
 	BENCH_START(tasks);
-	_lines_view.render_all_zones_all_imgs(view_x, _parallel_view->width(), lib_view().get_volatile_selection(), _render_tasks_bg, _root_sel, _rendering_job_bg);
+	_lines_view.render_all_zones_all_imgs(view_x, _parallel_view->width(), lib_view().get_volatile_selection(), _render_tasks_bg, _root_sel, _zoom_y, _rendering_job_bg);
 	BENCH_END(tasks, "task launching", 1, 1, 1, 1);
 
 	disconnect(_heavy_job_timer, NULL, this, NULL);
@@ -309,10 +314,12 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 		//_render_tasks_sel.cancel();
 		//_render_tasks_bg.cancel();
 
+		update_viewport();
+
 		uint32_t z_width = _lines_view.get_zone_width(zid);
 		if (_lines_view.set_zone_width(zid, z_width+zoom)) {
 			update_zones_position(false);
-			_lines_view.render_zone_all_imgs(zid, lib_view().get_volatile_selection(), _render_tasks_bg, _root_sel, _rendering_job_bg);
+			_lines_view.render_zone_all_imgs(zid, lib_view().get_volatile_selection(), _render_tasks_bg, _root_sel, _zoom_y, _rendering_job_bg);
 		}
 		update_zones_position();
 
@@ -328,6 +335,8 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 		_rendering_job_sel->cancel();
 		_rendering_job_bg->cancel();
 		_lines_view.cancel_all_rendering();
+
+		update_viewport();
 
 		_lines_view.set_all_zones_width([=](uint32_t width){ return width+zoom; });
 		update_zones_position();
@@ -543,11 +552,37 @@ void PVParallelView::PVFullParallelScene::update_all()
 	}
 }
 
+void PVParallelView::PVFullParallelScene::update_viewport()
+{
+	int screen_height = _parallel_view->viewport()->rect().height();
+
+	QRectF axes_names_bbox_f;
+
+	for(PVAxisGraphicsItem *axis : _axes) {
+		axes_names_bbox_f |= axis->get_label_scene_bbox();
+	}
+
+	/* the bbox is extended to 0 to consider the offset between the labels and
+	 * the top of the axis, and the offset 0 and the axis top
+	 */
+	axes_names_bbox_f.setBottom(0.);
+
+	int labels_height = _parallel_view->mapFromScene(axes_names_bbox_f).boundingRect().height();
+	qreal axes_length = PVCore::clamp(screen_height - (labels_height + SCENE_MARGIN),
+	                                  0, 1024);
+
+	for(PVAxisGraphicsItem *axis : _axes) {
+		axis->set_axis_length(axes_length);
+	}
+
+	_zoom_y = axes_length / 1024.;
+}
+
 void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent* event)
 {
 	QRectF old_scene_rect = sceneRect();
 	QRectF items_bbox = itemsBoundingRect();
-	QRectF new_scene_rect(items_bbox.left() - SCENE_MARGIN, items_bbox.top() - SCENE_MARGIN,
+	QRectF new_scene_rect(items_bbox.left() - SCENE_MARGIN, items_bbox.top(),
 	                      items_bbox.right() + (2*SCENE_MARGIN), items_bbox.bottom() + SCENE_MARGIN);
 
 	if (old_scene_rect.width() == new_scene_rect.width()) {
@@ -565,7 +600,6 @@ void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent*
 
 	qreal new_center_x;
 
-
 	if (event == nullptr) {
 		// due to a resize event
 		new_center_x = old_center.x();
@@ -579,9 +613,10 @@ void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent*
 	}
 
 	// center's ordinate must always show axes names
-	qreal new_center_y = (items_bbox.top() - SCENE_MARGIN) + screen_rect.center().y();
+	qreal new_center_y = items_bbox.top() + screen_rect.center().y();
 
 	_parallel_view->centerOn(new_center_x, new_center_y);
+
 }
 
 void PVParallelView::PVFullParallelScene::draw_zone_sel_Slot(int zid, bool /*changed*/)
@@ -596,7 +631,7 @@ void PVParallelView::PVFullParallelScene::draw_zone_sel_Slot(int zid, bool /*cha
 
 	_render_tasks_sel.run([&, zid]
 		{
-			this->_lines_view.render_zone_sel(zid, this->_rendering_job_sel);
+			this->_lines_view.render_zone_sel(zid, this->_zoom_y, this->_rendering_job_sel);
 		}
 	);
 }

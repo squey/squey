@@ -48,6 +48,11 @@ public:
 		_axis_index = index;
 	}
 
+	QRectF get_scene_bbox()
+	{
+		return mapRectToScene(boundingRect());
+	}
+
 protected:
 	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 

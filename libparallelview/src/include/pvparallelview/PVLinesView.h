@@ -83,17 +83,17 @@ public:
 	int update_number_of_zones(int view_x, uint32_t view_width);
 
 public:
-	void render_all_imgs_bg(uint32_t view_width, tbb::task_group& grp_bg, PVRenderingJob* job);
+	void render_all_imgs_bg(uint32_t view_width, tbb::task_group& grp_bg, const float zoom_y, PVRenderingJob* job);
 
 	void update_sel_tree(uint32_t view_width, const Picviz::PVSelection& sel, tbb::task* root);
 
-	void render_zone_all_imgs(PVZoneID z, const Picviz::PVSelection& sel, tbb::task_group& grp_bg, tbb::task* root_sel, PVRenderingJob* job);
-	void render_all_zones_all_imgs(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, tbb::task_group& grp_bg, tbb::task* root_sel, PVRenderingJob* job_bg);
+	void render_zone_all_imgs(PVZoneID z, const Picviz::PVSelection& sel, tbb::task_group& grp_bg, tbb::task* root_sel, const float zoom_y, PVRenderingJob* job);
+	void render_all_zones_all_imgs(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, tbb::task_group& grp_bg, tbb::task* root_sel, const float zoom_y, PVRenderingJob* job_bg);
 
-	void render_zone_bg(PVZoneID z, PVRenderingJob* job);
-	void render_zone_sel(PVZoneID z, PVRenderingJob* job);
+	void render_zone_bg(PVZoneID z, const float zoom_y, PVRenderingJob* job);
+	void render_zone_sel(PVZoneID z, const float zoom_y, PVRenderingJob* job);
 
-	void translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, tbb::task* root_sel, tbb::task_group& grp_bg, PVRenderingJob* job);
+	void translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, tbb::task* root_sel, tbb::task_group& grp_bg, const float zoom_y, PVRenderingJob* job);
 
 	void cancel_sel_rendering()
 	{

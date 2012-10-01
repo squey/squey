@@ -53,6 +53,8 @@ public:
 	void first_render();
 	void update_new_selection();
 	void update_all();
+
+	void update_viewport();
 	void update_scene(QGraphicsSceneWheelEvent* event = nullptr);
 
 	void update_number_of_zones();
@@ -211,6 +213,8 @@ private:
 	PVParallelView::PVSelectionGenerator _selection_generator;
 	QPointF _selection_square_pos;
 	qreal _translation_start_x = 0.0;
+
+	float           _zoom_y;
 
 	tbb::task_group _render_tasks_sel;
 	tbb::task_group _render_tasks_bg;

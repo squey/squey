@@ -32,7 +32,7 @@ PVParallelView::PVLinesView::PVLinesView(zones_drawing_t& zd, uint32_t zone_widt
 	}
 }
 
-void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, tbb::task* root_sel, tbb::task_group& grp_bg, PVRenderingJob* job)
+void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, tbb::task* root_sel, tbb::task_group& grp_bg, const float zoom_y, PVRenderingJob* job)
 {
 	// First, set new view x (before launching anything in the future !! ;))
 	
@@ -49,40 +49,40 @@ void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width,
 		PVLOG_INFO("(translate) render zone %u\n", z);
 		assert(is_zone_drawn(z));
 		update_zone_images_width(z);
-		grp_bg.run([&,z,job] { this->render_zone_bg(z, job); });
+		grp_bg.run([&,z,job, zoom_y] { this->render_zone_bg(z, zoom_y, job); });
 		filter_zone_by_sel_in_task(z, sel, root_sel);
 	},
 	job);
 }
 
-void PVParallelView::PVLinesView::render_zone_all_imgs(PVZoneID z, const Picviz::PVSelection& sel, tbb::task_group& grp_bg, tbb::task* root_sel, PVRenderingJob* job)
+void PVParallelView::PVLinesView::render_zone_all_imgs(PVZoneID z, const Picviz::PVSelection& sel, tbb::task_group& grp_bg, tbb::task* root_sel, const float zoom_y, PVRenderingJob* job)
 {
 	assert(is_zone_drawn(z));
 	update_zone_images_width(z);
-	grp_bg.run([&,z,job](){ this->render_zone_bg(z, job); });
+	grp_bg.run([&,z,job, zoom_y](){ this->render_zone_bg(z, zoom_y, job); });
 	filter_zone_by_sel_in_task(z, sel, root_sel);
 }
 
-void PVParallelView::PVLinesView::render_all_zones_all_imgs(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, tbb::task_group& grp_bg, tbb::task* root_sel, PVRenderingJob* job_bg)
+void PVParallelView::PVLinesView::render_all_zones_all_imgs(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, tbb::task_group& grp_bg, tbb::task* root_sel, const float zoom_y, PVRenderingJob* job_bg)
 {
 	set_new_view(view_x, view_width);
 	visit_all_zones_to_render(view_width,
 	    [&](PVZoneID z)
 	    {
 			assert(z >= _first_zone);
-			render_zone_all_imgs(z, sel, grp_bg, root_sel, job_bg);
+			render_zone_all_imgs(z, sel, grp_bg, root_sel, zoom_y, job_bg);
 		}
 	);
 }
 
-void PVParallelView::PVLinesView::render_all_imgs_bg(uint32_t view_width, tbb::task_group& grp_bg, PVRenderingJob* job)
+void PVParallelView::PVLinesView::render_all_imgs_bg(uint32_t view_width, tbb::task_group& grp_bg, const float zoom_y, PVRenderingJob* job)
 {
 	visit_all_zones_to_render(view_width,
 	    [&](PVZoneID z)
 	    {
 			assert(z >= _first_zone);
 			update_zone_images_width(z);
-			grp_bg.run([&,z,job](){ this->render_zone_bg(z, job); });
+			grp_bg.run([&,z,job,zoom_y](){ this->render_zone_bg(z, zoom_y, job); });
 			//draw_zone_caller_t::call(_zd, *_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci, [=](){ PVLOG_INFO("Zone %d drawn!\n", z); });
 		}
 	);
@@ -147,22 +147,22 @@ void PVParallelView::PVLinesView::update_sel_tree(uint32_t view_width, const Pic
 	);
 }
 
-void PVParallelView::PVLinesView::render_zone_bg(PVZoneID z, PVRenderingJob* job)
+void PVParallelView::PVLinesView::render_zone_bg(PVZoneID z, const float zoom_y, PVRenderingJob* job)
 {
 	assert(is_zone_drawn(z));
 	if (_zones_imgs[z-_first_zone].bg->width() != get_zone_width(z)) {
 		return;
 	}
-	_zd->draw_zone(*_zones_imgs[z-_first_zone].bg, 0, z, get_zone_width(z), &PVParallelView::PVZoneTree::browse_tree_bci, []{}, [=](){ job->zone_finished(z); }, _render_grp_bg);
+	_zd->draw_zone(*_zones_imgs[z-_first_zone].bg, 0, z, get_zone_width(z), &PVParallelView::PVZoneTree::browse_tree_bci, zoom_y, []{}, [=](){ job->zone_finished(z); }, _render_grp_bg);
 }
 
-void PVParallelView::PVLinesView::render_zone_sel(PVZoneID z, PVRenderingJob* job)
+void PVParallelView::PVLinesView::render_zone_sel(PVZoneID z, const float zoom_y, PVRenderingJob* job)
 {
 	assert(is_zone_drawn(z));
 	if (_zones_imgs[z-_first_zone].sel->width() != get_zone_width(z)) {
 		return;
 	}
-	_zd->draw_zone(*_zones_imgs[z-_first_zone].sel, 0, z, get_zone_width(z), &PVParallelView::PVZoneTree::browse_tree_bci_sel, []{}, [=](){ job->zone_finished(z); }, _render_grp_sel);
+	_zd->draw_zone(*_zones_imgs[z-_first_zone].sel, 0, z, get_zone_width(z), &PVParallelView::PVZoneTree::browse_tree_bci_sel, zoom_y, []{}, [=](){ job->zone_finished(z); }, _render_grp_sel);
 }
 
 void PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width, std::function<void(PVZoneID)> fzone, PVRenderingJob* job /*= NULL*/)

@@ -38,6 +38,9 @@ public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
 	typedef PVSlidersManager::axis_id_t        axis_id_t;
 
+	// Used to draw the axis out of the image zone
+	constexpr static int axis_extend = 8;
+
 public:
 	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVView const& view, const axis_id_t &axis_id);
 	~PVAxisGraphicsItem();
@@ -61,6 +64,13 @@ public:
 		return _axis_id;
 	}
 
+	QRectF get_label_scene_bbox() const;
+
+	void set_axis_length(int l)
+	{
+		_axis_length = l;
+	}
+
 	QRect map_from_scene(QRectF rect) const
 	{
 		QPointF point = mapFromScene(rect.topLeft());
@@ -82,6 +92,7 @@ private:
 	Picviz::PVView const&           _lib_view;
 	PVSlidersGroup                 *_sliders_group;
 	PVAxisLabel                    *_label;
+	int                             _axis_length;
 };
 
 }
