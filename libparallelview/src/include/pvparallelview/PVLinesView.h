@@ -131,11 +131,13 @@ public:
 	uint32_t get_zone_absolute_pos(PVZoneID z) const;
 
 	template <class F>
-	inline void set_all_zones_width(F const& f)
+	inline bool set_all_zones_width(F const& f)
 	{
+		bool has_changed = false;
 		for (PVZoneID zid = 0; zid < (PVZoneID) _zones_width.size(); zid++) {
-			set_zone_width(zid, f(get_zone_width(zid)));
+			has_changed |= set_zone_width(zid, f(get_zone_width(zid)));
 		}
+		return has_changed;
 	}
 
 private:

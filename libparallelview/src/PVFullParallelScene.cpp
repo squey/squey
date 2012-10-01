@@ -314,16 +314,16 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 		//_render_tasks_sel.cancel();
 		//_render_tasks_bg.cancel();
 
-		update_viewport();
-
 		uint32_t z_width = _lines_view.get_zone_width(zid);
 		if (_lines_view.set_zone_width(zid, z_width+zoom)) {
+			update_viewport();
 			update_zones_position(false);
 			_lines_view.render_zone_all_imgs(zid, lib_view().get_volatile_selection(), _render_tasks_bg, _root_sel, _zoom_y, _rendering_job_bg);
-		}
-		update_zones_position();
 
-		update_scene(event);
+			update_zones_position();
+			update_scene(event);
+		}
+		event->accept();
 	}
 	//Global zoom
 	else if (event->modifiers() == Qt::NoModifier) {
@@ -336,10 +336,14 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 		_rendering_job_bg->cancel();
 		_lines_view.cancel_all_rendering();
 
-		update_viewport();
+		event->accept();
 
-		_lines_view.set_all_zones_width([=](uint32_t width){ return width+zoom; });
-		update_zones_position();
+		if (_lines_view.set_all_zones_width([=](uint32_t width) { return width+zoom; })) {
+			// at least one zone's width has been changed
+			update_viewport();
+			update_zones_position();
+			update_scene(event);
+		}
 
 		_render_tasks_sel.cancel();
 		_render_tasks_bg.cancel();
@@ -356,9 +360,7 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 				});
 		}
 
-		update_scene(event);
 	}
-	event->accept();
 }
 
 void PVParallelView::PVFullParallelScene::scale_zone_images(PVZoneID zid)
@@ -577,17 +579,22 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 
 	QRectF r = _selection_square->rect();
 
-	// unscaling the selection rectangle (with the old y zoom factor)
-	r.setTop(r.top() / _zoom_y);
-	r.setBottom(r.bottom() / _zoom_y);
+	if (r.isNull() == false) {
+		/* if the selection rectangle exists, it must be unscaled (using
+		 * the old y zoom factor)...
+		 */
+		r.setTop(r.top() / _zoom_y);
+		r.setBottom(r.bottom() / _zoom_y);
+	}
 
 	_zoom_y = axes_length / 1024.;
 
-	// rescaling the selection rectangle (with the new y zoom factor)
-	r.setTop(r.top() * _zoom_y);
-	r.setBottom(r.bottom() * _zoom_y);
-
-	_selection_square->update_rect(r);
+	if (r.isNull() == false) {
+		// and it must be rescaled (using the new y zoom factor)
+		r.setTop(r.top() * _zoom_y);
+		r.setBottom(r.bottom() * _zoom_y);
+		_selection_square->update_rect(r);
+	}
 }
 
 void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent* event)
