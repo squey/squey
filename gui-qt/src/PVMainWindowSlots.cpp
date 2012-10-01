@@ -243,10 +243,9 @@ void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
 		return;
 	}
 
-	state_machine->toggle_listing_unselected_visibility();
 	/* We refresh the listing */
-	// TODO: hive!
-	//current_tab->update_pv_listing_model_Slot();
+	Picviz::PVView_sp view_sp = current_lib_view->shared_from_this();
+	PVHive::call<FUNC(Picviz::PVView::toggle_listing_zombie_visibility)>(view_sp);
 }
 
 /******************************************************************************
@@ -320,10 +319,8 @@ void PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
 	current_lib_view = current_tab->get_lib_view();
 	state_machine = current_lib_view->state_machine;
 
-	state_machine->toggle_listing_zombie_visibility();
-	// TODO: Hive!
-	/* We refresh the listing */
-	//current_tab->update_pv_listing_model_Slot();
+	Picviz::PVView_sp view_sp = current_lib_view->shared_from_this();
+	PVHive::call<FUNC(Picviz::PVView::toggle_listing_zombie_visibility)>(view_sp);
 }
 
 /******************************************************************************

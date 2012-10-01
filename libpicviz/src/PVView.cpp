@@ -1401,6 +1401,16 @@ bool Picviz::PVView::is_real_output_selection_empty() const
 	return real_output_selection.is_empty();
 }
 
+void Picviz::PVView::toggle_listing_unselected_visibility()
+{
+	state_machine->toggle_listing_unselected_visibility();
+}
+
+void Picviz::PVView::toggle_listing_zombie_visibility()
+{
+	state_machine->toggle_listing_unselected_visibility();
+}
+
 Picviz::PVSortingFunc_p Picviz::PVView::get_sort_plugin_for_col(PVCol col) const
 {
 	// Temporary, waiting for all of this to be configurable
@@ -1440,3 +1450,4 @@ void Picviz::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSer
 	}
 	so.object("axes-combination", axes_combination, "Axes combination", true);
 }
+
