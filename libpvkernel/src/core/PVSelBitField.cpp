@@ -25,7 +25,8 @@ PVCore::PVSelBitField::PVSelBitField():
  * PVCore::PVSelBitField::PVSelBitField(std::vector<PVRow>)
  *
  *****************************************************************************/
-PVCore::PVSelBitField::PVSelBitField(std::vector<PVRow> const& r_table)
+PVCore::PVSelBitField::PVSelBitField(std::vector<PVRow> const& r_table):
+	_table(nullptr)
 {
 	allocate_table();
 	select_none();
@@ -36,7 +37,8 @@ PVCore::PVSelBitField::PVSelBitField(std::vector<PVRow> const& r_table)
 	}
 }
 
-PVCore::PVSelBitField::PVSelBitField(PVSelBitField const& o)
+PVCore::PVSelBitField::PVSelBitField(PVSelBitField const& o):
+	_table(nullptr)
 {
 	allocate_and_copy_from(o);
 }

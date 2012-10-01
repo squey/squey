@@ -6,6 +6,8 @@
 
 #include "PVMappingFilterHostDefault.h"
 #include <picviz/limits.h>
+#include <pvkernel/core/PVUnicodeString.h>
+#include <pvkernel/core/PVUnicodeString16.h>
 #include <pvkernel/core/PVStringUtils.h>
 #include <pvkernel/core/network.h>
 
@@ -17,18 +19,62 @@
 
 #include <pvkernel/core/dumbnet.h>
 
-
-typedef tbb::concurrent_vector< std::pair<QByteArray,uint64_t> > vec_conv_sort_t;
-typedef vec_conv_sort_t::value_type str_local_index;
-typedef tbb::concurrent_vector<uint32_t> list_indexes;
-
-static inline bool compLocal(const str_local_index& s1, const str_local_index& s2)
+static uint32_t compute_str16_factor(PVCore::PVUnicodeString16 const& str)
 {
-	return strcoll(s1.first.constData(), s2.first.constData()) < 0;
+	char b1_c = 0;
+	char b2_c = 0;
+	char b3_c = 0;
+	char b4_c = 0;
+
+	const size_t len = str.len();
+	PVCore::PVUnicodeString16::utf_char const* const buf = str.buffer();
+	if (len >= 1) {
+		b1_c = QChar(buf[0]).toLatin1();
+		if (len >= 2) {
+			b2_c = QChar(buf[1]).toLatin1();
+			if (len >= 3) {
+				b3_c = QChar(buf[2]).toLatin1();
+				if (len >= 4) {
+					b4_c = QChar(buf[3]).toLatin1();
+				}
+			}
+		}
+	}
+
+	return ((uint32_t)(b4_c) << 0)  | ((uint32_t)(b3_c) << 8) |
+	       ((uint32_t)(b2_c) << 16) | ((uint32_t)(b1_c) << 24);
 }
 
+static uint32_t compute_str_factor(PVCore::PVUnicodeString const& str)
+{
+	char b1_c = 0;
+	char b2_c = 0;
+	char b3_c = 0;
+	char b4_c = 0;
+
+	const size_t len = str.len();
+	PVCore::PVUnicodeString::utf_char const* const buf = str.buffer();
+	// TODO: check for UTF8 real chars!
+	if (len >= 1) {
+		b1_c = buf[0];
+		if (len >= 2) {
+			b2_c = buf[1];
+			if (len >= 3) {
+				b3_c = buf[2];
+				if (len >= 4) {
+					b4_c = buf[3];
+				}
+			}
+		}
+	}
+
+	return ((uint32_t)(b4_c) << 0)  | ((uint32_t)(b3_c) << 8) |
+	       ((uint32_t)(b2_c) << 16) | ((uint32_t)(b1_c) << 24);
+}
+
+
 Picviz::PVMappingFilterHostDefault::PVMappingFilterHostDefault(PVCore::PVArgumentList const& args):
-	PVMappingFilter(),
+	PVPureMappingFilter<host_mapping>(),
 	_case_sensitive(false) // This will be changed by set_args anyway
 {
 	INIT_FILTER(PVMappingFilterHostDefault, args);
@@ -47,77 +93,42 @@ void Picviz::PVMappingFilterHostDefault::set_args(PVCore::PVArgumentList const& 
 	_case_sensitive = !args["convert-lowercase"].toBool();
 }
 
-Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
+Picviz::PVMappingFilter::decimal_storage_type Picviz::host_mapping::process_utf8(const char* buf, size_t size, PVMappingFilter*)
 {
-	assert(_dest);
-	assert(values.size() >= _dest_size);
-
-	int64_t ssize = values.size();
-	uint32_t max_str = 0;
-	uint32_t min_str = UINT_MAX;
-	list_indexes str_idxes;
-	str_idxes.reserve(ssize);
-	QString v;
-	for (int64_t i = 0; i < ssize; i++) {
-		values[i].get_qstr(v);
-		uint32_t ipv4_v;
-		if (PVCore::Network::ipv4_aton(v, ipv4_v)) {
-			// IPv4 are mapped from 0 to 0.5
-			_dest[i].storage_as_uint() = ipv4_v>>1;
-		}
-		else {
-			uint32_t res = PVCore::PVStringUtils::compute_str_factor(values[i], _case_sensitive); 
-			if (res > max_str) {
-				max_str = res;
-			}
-			if (res < min_str) {
-				min_str = res;
-			}
-			_dest[i].storage_as_uint() = res;
-			str_idxes.push_back(i);
-		}
-	}
-
-	list_indexes::const_iterator it;
-	const uint64_t diff = max_str-min_str;
-	if (diff == 0) {
-		for (it = str_idxes.begin(); it != str_idxes.end(); it++) {
-			_dest[*it].storage_as_uint() = 0x80000000UL;
-		}
+	uint32_t ret;
+	if (PVCore::Network::ipv4_aton(buf, size, ret)) {
+		// That goes to the first half of the space
+		ret >>= 1;
 	}
 	else {
-		for (it = str_idxes.begin(); it != str_idxes.end(); it++) {
-			uint32_t& dest_v = _dest[*it].storage_as_uint();
-			dest_v = ((uint32_t) (((uint64_t)(dest_v-min_str) * (uint64_t)((UINT_MAX)>>1))/diff)) | 0x80000000UL;
-		}
+		// Take the first four characters
+		ret = compute_str_factor(PVCore::PVUnicodeString(buf, size));
+		// That goes to the other half!
+		ret = (ret >> 1) | 0x80000000;
 	}
 
-#if 0 // Too slow for now, need improvements
-	// Sort the strings that represents hosts
-	std::sort(v_local.begin(), v_local.end(), compLocal);
+	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
+	ret_ds.storage_as_uint() = ret;
+	return ret_ds;
+}
 
-	// And map them from 0 to 0.5
-	QByteArray prev;
-	uint64_t cur_index = 0;
-	size_t size = v_local.size();
-	for (size_t i = 0; i < size; i++) {
-		str_local_index const& v = v_local[i];
-		QByteArray const& str_local = v.first;
-		uint64_t org_index = v.second;
-		if (prev != str_local) {
-			cur_index++;
-			prev = str_local;
-		}
-		_dest[org_index] = (float) cur_index;
+Picviz::PVMappingFilter::decimal_storage_type Picviz::host_mapping::process_utf16(const uint16_t* buf, size_t size, PVMappingFilter*)
+{
+	uint32_t ret;
+	if (PVCore::Network::ipv4_a16ton(buf, size, ret)) {
+		// That goes to the first half of the space
+		ret >>= 1;
 	}
-	float div = 2*(cur_index);
-	for (size_t i = 0; i < size; i++) {
-		uint64_t org_index = v_local[i].second;
-		_dest[org_index] = _dest[org_index]/div + 0.5;
+	else {
+		// Take the first four characters
+		ret = compute_str16_factor(PVCore::PVUnicodeString16(buf, size));
+		// That goes to the other half!
+		ret = (ret >> 1) | 0x80000000;
 	}
-#endif
 
-	return _dest;
+	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
+	ret_ds.storage_as_uint() = ret;
+	return ret_ds;
 }
 
 IMPL_FILTER(Picviz::PVMappingFilterHostDefault)

@@ -18,7 +18,8 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
 	_ssn_obs(this),
 	_zsd_obs(this),
 	_ssd_obs(this),
-	_axis_id(axis_id)
+	_axis_id(axis_id),
+	_axis_scale(1.0f)
 {
 	// does not care about children events
 	// RH: this method is obsolete in Qt 4.8 and replaced with
@@ -77,6 +78,19 @@ void PVParallelView::PVSlidersGroup::recreate_sliders()
 	/* FIXME: all child must be removed and recreated by iterating on
 	 * all sliders types.
 	 */
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSlidersGroup::set_axis_scale
+ *****************************************************************************/
+
+void PVParallelView::PVSlidersGroup::set_axis_scale(float s)
+{
+	_axis_scale = s;
+
+	for(PVAbstractAxisSliders *aas : _all_sliders) {
+		aas->refresh();
+	}
 }
 
 /*****************************************************************************

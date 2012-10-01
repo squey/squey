@@ -11,6 +11,7 @@
 /* TODO: move from int to uint32_t to use QPointF instead of QPoint to  move precisely
  *       any sliders in zoomed view
  */
+
 namespace PVParallelView
 {
 
@@ -31,13 +32,9 @@ public:
 
 	~PVAbstractAxisSlider();
 
-	inline void set_value(int v)
-	{
-		_offset = PVCore::clamp(v, _offset_min, _offset_max);
-		setPos(0., _offset);
-	}
+	void set_value(int v);
 
-	inline int value()
+	inline int get_value() const
 	{
 		return _offset;
 	}

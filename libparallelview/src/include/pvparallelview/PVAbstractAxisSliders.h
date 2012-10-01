@@ -21,7 +21,14 @@ public:
 	PVAbstractAxisSliders(QGraphicsItem *parent, PVSlidersManager_p sm_p,
 	                      PVSlidersGroup *group, const char *text);
 
+	PVSlidersGroup *get_sliders_group() const
+	{
+		return _group;
+	}
+
 	virtual bool is_moving() const = 0;
+
+	virtual void refresh() = 0;
 
 public slots:
 	virtual void remove_from_axis() = 0;

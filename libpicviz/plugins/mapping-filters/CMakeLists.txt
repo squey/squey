@@ -16,7 +16,7 @@ set(FILTERS_DIST_LIST
 mapping_filter_integer_default
 #mapping_filter_ipv4_default
 mapping_filter_enum_default
-#mapping_filter_host_default
+mapping_filter_host_default
 mapping_filter_string_default
 #mapping_filter_string_4Bsort
 #mapping_filter_string_sort
@@ -46,8 +46,8 @@ target_link_libraries(mapping_filter_ipv4_default ${LINK_LIBRARIES})
 add_library(mapping_filter_enum_default SHARED enum_default/PVMappingFilterEnumDefault.cpp enum_default/register.cpp)
 target_link_libraries(mapping_filter_enum_default ${LINK_LIBRARIES})
 
-#add_library(mapping_filter_host_default SHARED host_default/PVMappingFilterHostDefault.cpp host_default/register.cpp)
-#target_link_libraries(mapping_filter_host_default ${LINK_LIBRARIES})
+add_library(mapping_filter_host_default SHARED host_default/PVMappingFilterHostDefault.cpp host_default/register.cpp)
+target_link_libraries(mapping_filter_host_default ${LINK_LIBRARIES})
 
 add_library(mapping_filter_string_default SHARED string_default/PVMappingFilterStringDefault.cpp string_default/register.cpp)
 target_link_libraries(mapping_filter_string_default ${LINK_LIBRARIES} ${TBB_LIBRARIES})

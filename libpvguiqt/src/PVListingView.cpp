@@ -146,7 +146,6 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	}
 	else {
 		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-		lib_view().get_floating_selection().select_none();
 	}
 
 	/* We define the volatile_selection using selection in the listing */
