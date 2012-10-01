@@ -51,7 +51,6 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 
 	// SIZE STUFF
 	setMinimumSize(500,600);
-	QSizePolicy temp_size_policy = QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Expanding);
 	
 	// OBJECTNAME STUFF
 	
@@ -150,7 +149,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 		format_widget_layout->addWidget(format_text_used_label);
 		QVBoxLayout* recent_used_formats_layout = new QVBoxLayout();
 		format_widget_layout->addLayout(recent_used_formats_layout);
-		QListWidget* recent_used_formats_list = new QListWidget();
+		custom_listwidget_t* recent_used_formats_list = new custom_listwidget_t();
 		recent_used_formats_layout->addWidget(recent_used_formats_list);
 		recent_used_formats_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		recent_used_formats_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
@@ -165,7 +164,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 		format_widget_layout->addWidget(format_text_edited_label);
 		QVBoxLayout* recent_edited_formats_layout = new QVBoxLayout();
 		format_widget_layout->addLayout(recent_edited_formats_layout);
-		QListWidget* recent_edited_formats_list = new QListWidget();
+		custom_listwidget_t* recent_edited_formats_list = new custom_listwidget_t();
 		recent_edited_formats_layout->addWidget(recent_edited_formats_list);
 		recent_edited_formats_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		recent_edited_formats_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
@@ -181,7 +180,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 
 		QVBoxLayout* supported_formats_layout = new QVBoxLayout();
 		format_widget_layout->addLayout(supported_formats_layout);
-		QListWidget* supported_formats_list = new QListWidget();
+		custom_listwidget_t* supported_formats_list = new custom_listwidget_t();
 		supported_formats_layout->addWidget(supported_formats_list);
 		supported_formats_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		supported_formats_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
@@ -197,7 +196,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 	project_widget_layout->addWidget(project_text_label);
 	QVBoxLayout* recent_projects_layout = new QVBoxLayout();
 	project_widget_layout->addLayout(recent_projects_layout);
-	QListWidget* recent_projects_list = new QListWidget();
+	custom_listwidget_t* recent_projects_list = new custom_listwidget_t();
 	recent_projects_layout->addWidget(recent_projects_list);
 	recent_projects_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	recent_projects_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
@@ -214,7 +213,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 	import_widget_layout->addLayout(recent_imports_layout);
 	QVBoxLayout* recent_sources_layout = new QVBoxLayout();
 	import_widget_layout->addLayout(recent_sources_layout);
-	QListWidget* import_list = new QListWidget();
+	custom_listwidget_t* import_list = new custom_listwidget_t();
 	recent_sources_layout->addWidget(import_list);
 	import_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	import_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
@@ -249,7 +248,9 @@ void PVInspector::PVStartScreenWidget::refresh_recent_items(int cat)
 	// Qt doesn't like custom types, here's why we are using an int for this slot...
 	PVCore::PVRecentItemsManager::Category category = (PVCore::PVRecentItemsManager::Category) cat;
 
-	QListWidget* list = _recent_list_widgets[category];
+	custom_listwidget_t* list = _recent_list_widgets[category];
+	list->setObjectName("RecentProjectItem");
+	//list->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum));
 	list->clear();
 
 	uint64_t index = 0 ;

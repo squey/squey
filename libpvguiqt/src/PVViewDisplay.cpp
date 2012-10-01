@@ -4,7 +4,8 @@
  * Copyright (C) Picviz Labs 2012
  */
 
-#include <iostream>
+#include <QAbstractScrollArea>
+#include <QScrollBar>
 
 #include <pvguiqt/PVViewDisplay.h>
 
@@ -23,6 +24,12 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 
 	view_widget->installEventFilter(new FocusInEventFilter(this));
 	view_widget->setFocusPolicy(Qt::StrongFocus);
+
+	QAbstractScrollArea* scroll_area = dynamic_cast<QAbstractScrollArea*>(view_widget);
+	if (scroll_area) {
+		scroll_area->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
+		scroll_area->horizontalScrollBar()->setObjectName("horizontalScrollBar_of_PVListingView");
+	}
 
 	if (view) {
 		QColor view_color = view->get_color();

@@ -123,6 +123,12 @@ public:
 	typedef QList<pchild_t> children_t;
 
 public:
+	virtual ~PVDataTreeObjectWithChildren()
+	{
+		_children.clear();
+	}
+
+public:
 	template <typename... Tparams>
 	child_t* new_child(Tparams... params)
 	{

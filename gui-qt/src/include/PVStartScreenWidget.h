@@ -16,6 +16,7 @@
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVObserverSignal.h>
 
+#include <pvkernel/widgets/PVSizeHintListWidget.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
 
 namespace PVInspector {
@@ -48,33 +49,35 @@ private:
 class PVStartScreenWidget : public QWidget
 {
 	Q_OBJECT
+public:
+	typedef PVWidgets::PVSizeHintListWidget<QListWidget, 42> custom_listwidget_t;
 
-	public:
-		PVStartScreenWidget(PVMainWindow* parent);
-		void refresh_all_recent_items();
-		void refresh_recent_sources_items();
+public:
+	PVStartScreenWidget(PVMainWindow* parent);
+	void refresh_all_recent_items();
+	void refresh_recent_sources_items();
 
-		void refresh_recent_items(int category);
+	void refresh_recent_items(int category);
 
-	public slots:
-		void dispatch_action(const QString& id);
+public slots:
+	void dispatch_action(const QString& id);
 
-	private:
-		QString get_string_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var);
-		QString get_string_from_format(const QVariant& var);
-		QString get_string_from_source_description(const QVariant& var);
+private:
+	QString get_string_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var);
+	QString get_string_from_format(const QVariant& var);
+	QString get_string_from_source_description(const QVariant& var);
 
-	private:
-		PVMainWindow* _mw;
+private:
+	PVMainWindow* _mw;
 
-		QWidget* format_widget;
-		QWidget* import_widget;
-		QWidget* project_widget;
+	QWidget* format_widget;
+	QWidget* import_widget;
+	QWidget* project_widget;
 
-		QListWidget* _recent_list_widgets[PVCore::PVRecentItemsManager::Category::LAST];
+	custom_listwidget_t* _recent_list_widgets[PVCore::PVRecentItemsManager::Category::LAST];
 
-		PVAddRecentItemFuncObserver _recent_items_add_obs;
-		PVAddSourceRecentItemFuncObserver _recent_items_add_source_obs;
+	PVAddRecentItemFuncObserver _recent_items_add_obs;
+	PVAddSourceRecentItemFuncObserver _recent_items_add_source_obs;
 };
 }
 

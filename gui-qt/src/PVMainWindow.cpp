@@ -875,7 +875,7 @@ void PVInspector::PVMainWindow::import_type_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 {
-
+	PVLOG_INFO("keyPressEvent\n");
 #ifndef NDEBUG
 	switch (event->key()) {
 
@@ -1464,7 +1464,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 						break;
 				}
 
-				//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
+				//update_pvglviecurrent_tabw(current_lib_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
 				current_tab->refresh_listing_with_horizontal_header_Slot();
 				break;
 

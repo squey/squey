@@ -11,14 +11,14 @@
 
 namespace PVWidgets {
 
-template <class T = QListWidget>
+template <class T = QListWidget, int VSize=42>
 class PVSizeHintListWidget : public T
 {
 public:
 	PVSizeHintListWidget(QWidget * parent = 0) : T(parent) {}
 	QSize sizeHint() const
 	{
-		return QSize(0, 40);
+		return QSize(0, VSize);
 	}
 };
 

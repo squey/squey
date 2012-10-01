@@ -66,10 +66,12 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 		PVLayerStackWidget* layerstack_view = new PVLayerStackWidget(view);
 		PVGuiQt::PVViewDisplay* layerstack_view_display = add_view_display(view.get(), layerstack_view, "Layer stack [" + view->get_name() + "]", false, Qt::RightDockWidgetArea);
 		QAction* action = new QAction(view->get_name(), layerstack_view_display);
+		action->setEnabled(false);
 		connect(action, SIGNAL(triggered(bool)), this, SLOT(show_layerstack()));
 		_layerstack_tool_button->addAction(action);
 		connect(layerstack_view_display, SIGNAL(display_closed()), this, SLOT(hide_layerstack()));
 	}
+	connect(_layerstack_tool_button, SLOT(triggered(QAction*)), this, SLOT(layerstack_toolbutton(QAction*)));
 	_toolbar->addWidget(_layerstack_tool_button);
 	_toolbar->addSeparator();
 
@@ -179,10 +181,10 @@ void PVGuiQt::PVWorkspace::add_listing_view(bool central /*= false*/)
 	QString title = "Listing [" + view->get_name() + "]";
 
 	if (central) {
-		add_view_display(view, listing_view, title);
+		set_central_display(view, listing_view, title);
 	}
 	else {
-		set_central_display(view, listing_view, title);
+		add_view_display(view, listing_view, title);
 	}
 }
 

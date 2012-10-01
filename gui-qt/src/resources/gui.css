@@ -450,8 +450,10 @@ QLabel#PVStartScreenWidget_text {
 	border-radius: 4px;
 }
 
-#RecentProjectItem QLabel {
+QListWidgetItem:hover  {
 	padding: 0 0 0 0;
+	color: purple;
+	background-color: purple;
 }
 
 #PVStartScreenWidget QPushButton {
