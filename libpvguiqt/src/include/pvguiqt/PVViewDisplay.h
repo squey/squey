@@ -7,20 +7,30 @@
 #ifndef __PVGUIQT_PVVIEWDISPLAY_H__
 #define __PVGUIQT_PVVIEWDISPLAY_H__
 
-#include <QDockWidget>
 #include <QAction>
 #include <QCloseEvent>
+#include <QDockWidget>
+#include <QFocusEvent>
+
+#include <iostream>
+
+namespace Picviz
+{
+class PVView;
+}
 
 namespace PVGuiQt
 {
 
 class PVWorkspace;
+class FocusInEventFilter;
 
 class PVViewDisplay : public QDockWidget
 {
 	Q_OBJECT;
 
 	friend PVWorkspace;
+	friend FocusInEventFilter;
 
 protected:
 	void closeEvent(QCloseEvent * event)
@@ -29,24 +39,35 @@ protected:
 		QDockWidget::closeEvent(event);
 	}
 
+private:
+	void set_current_view();
+
 signals:
 	void display_closed();
 
 private:
-	PVViewDisplay(bool can_be_central_widget = true, QWidget* parent = 0) : QDockWidget(parent)
+	PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget = true, QWidget* parent = 0);
+
+private:
+	Picviz::PVView* _view;
+};
+
+class FocusInEventFilter : public QObject
+{
+public:
+	FocusInEventFilter(PVViewDisplay* parent) : _parent(parent) {}
+protected:
+	bool eventFilter(QObject* obj, QEvent *event)
 	{
-		if (can_be_central_widget) {
-
-			setAttribute(Qt::WA_DeleteOnClose, true);
-
-			QAction* switch_action = new QAction(tr("Set as central display"), this);
-
-			addAction(switch_action);
-			setContextMenuPolicy(Qt::ActionsContextMenu);
-
-			connect(switch_action, SIGNAL(triggered(bool)), parent, SLOT(switch_with_central_widget()));
+		if (event->type() == QEvent::FocusIn) {
+			_parent->set_current_view();
+			return true;
 		}
+
+		return QObject::eventFilter(obj, event);
 	}
+private:
+	PVViewDisplay* _parent;
 };
 
 }

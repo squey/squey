@@ -199,6 +199,8 @@ public:
 	QString get_name() const;
 	QString get_window_name() const;
 
+	void set_color(QColor color) { _color = color; }
+	QColor get_color() const { return _color; }
 
 	PVLayer &get_post_filter_layer();
 	PVLayer &get_pre_filter_layer();
@@ -423,6 +425,7 @@ protected:
 	boost::weak_ptr<PVCore::PVSerializeObject> _last_so;
 	id_t _view_id;
 	PVCol _active_axis;
+	QColor _color;
 };
 
 typedef PVView::p_type PVView_p;

@@ -8,6 +8,7 @@
 #define __PVGUIQT_PVWORKSPACE_H__
 
 #include <QAction>
+#include <QEvent>
 #include <QList>
 #include <QObject>
 #include <QMainWindow>
@@ -36,8 +37,8 @@ class PVWorkspace : public QMainWindow
 public:
 	PVWorkspace(Picviz::PVSource_sp, QWidget* parent = 0);
 
-	PVViewDisplay* add_view_display(QWidget* view_display, const QString& name, bool can_be_central_display = true);
-	PVViewDisplay* set_central_display(QWidget* view_widget, const QString& name);
+	PVViewDisplay* add_view_display(Picviz::PVView* view, QWidget* view_display, const QString& name, bool can_be_central_display = true);
+	PVViewDisplay* set_central_display(Picviz::PVView* view, QWidget* view_widget, const QString& name);
 
 public slots:
 	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr);

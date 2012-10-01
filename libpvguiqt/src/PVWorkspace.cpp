@@ -52,7 +52,7 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 	_toolbar->addAction(_datatree_view_action);
 	PVRootTreeModel* datatree_model = new PVRootTreeModel(*_source);
 	PVRootTreeView* data_tree_view = new PVRootTreeView(datatree_model);
-	PVGuiQt::PVViewDisplay* data_tree_view_display = add_view_display(data_tree_view, "Data tree", false);
+	PVGuiQt::PVViewDisplay* data_tree_view_display = add_view_display(nullptr, data_tree_view, "Data tree", false);
 	connect(data_tree_view_display, SIGNAL(display_closed()), this, SLOT(check_datatree_button()));
 	check_datatree_button(true);
 
@@ -64,7 +64,7 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 	_layerstack_tool_button->setToolTip(tr("Add layer stack"));
 	for (auto view : source->get_children<Picviz::PVView>()) {
 		PVLayerStackWidget* layerstack_view = new PVLayerStackWidget(view);
-		PVGuiQt::PVViewDisplay* layerstack_view_display = add_view_display(layerstack_view, "Layer stack [" + view->get_name() + "]", false);
+		PVGuiQt::PVViewDisplay* layerstack_view_display = add_view_display(view.get(), layerstack_view, "Layer stack [" + view->get_name() + "]", false);
 		QAction* action = new QAction(view->get_name(), layerstack_view_display);
 		connect(action, SIGNAL(triggered(bool)), this, SLOT(show_layerstack()));
 		_layerstack_tool_button->addAction(action);
@@ -123,19 +123,12 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 	_toolbar->addWidget(scatter_view_tool_button);
 }
 
-PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/)
+PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/)
 {
-	PVViewDisplay* view_display = new PVViewDisplay(can_be_central_display, this);
-
-    /*QPalette pal = view_display->palette();
-    pal.setColor(QPalette::Background, QColor(50, 200, 1));
-    view_display->setPalette(pal);
-    view_display->setAutoFillBackground(true);*/
-
-	//view_display->setStyleSheet("QDockWidget::title {background: purple;} QDockWidget { background: purple;} ");
+	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, can_be_central_display, this);
 
 	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
-	view_display->setWidget(view_widget);
+
 	view_display->setWindowTitle(name);
 	addDockWidget(Qt::TopDockWidgetArea, view_display);
 
@@ -144,12 +137,9 @@ PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(QWidget* view_wid
 	return view_display;
 }
 
-PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::set_central_display(QWidget* view_widget, const QString& name)
+PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::set_central_display(Picviz::PVView* view, QWidget* view_widget, const QString& name)
 {
-	PVViewDisplay* view_display = new PVViewDisplay(true, this);
-	view_display->setWidget(view_widget);
-	view_display->setWindowTitle(name);
-	view_display->setFeatures(QDockWidget::NoDockWidgetFeatures);
+	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, true, this);
 	setCentralWidget(view_display);
 
 	_displays.append(view_display);
@@ -190,7 +180,7 @@ void PVGuiQt::PVWorkspace::create_listing_view()
 	PVListingView* listing_view = new PVGuiQt::PVListingView(view_p);
 	listing_view->setModel(proxy_model);
 
-	add_view_display(listing_view, "Listing [" + view->get_name() + "]");
+	add_view_display(view, listing_view, "Listing [" + view->get_name() + "]");
 }
 
 void PVGuiQt::PVWorkspace::create_parallel_view()
@@ -208,14 +198,14 @@ void PVGuiQt::PVWorkspace::create_parallel_view()
 	PVParallelView::PVFullParallelView* parallel_view = parallel_lib_view->create_view();
 	connect(parallel_view, SIGNAL(new_zoomed_parallel_view(Picviz::PVView*, int)), this, SLOT(create_zoomed_parallel_view(Picviz::PVView*, int)));
 
-	add_view_display(parallel_view, "Parallel view [" + view->get_name() + "]");
+	add_view_display(view, parallel_view, "Parallel view [" + view->get_name() + "]");
 }
 
 void PVGuiQt::PVWorkspace::create_zoomed_parallel_view(Picviz::PVView* view, int axis_id)
 {
 	QWidget* zoomed_parallel_view = PVParallelView::common::get_lib_view(*view)->create_zoomed_view(axis_id);
 
-	add_view_display(zoomed_parallel_view, "Zoomed parallel view [" + view->get_name() + "]");
+	add_view_display(view, zoomed_parallel_view, "Zoomed parallel view [" + view->get_name() + "]");
 }
 
 void PVGuiQt::PVWorkspace::show_datatree_view(bool show)

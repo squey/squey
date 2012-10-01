@@ -77,6 +77,8 @@ protected:
 	int32_t get_new_view_id() const;
 	void set_views_id();
 
+	QColor get_new_view_color() const;
+
 	virtual QString get_children_description() const { return "Source(s)"; }
 	virtual QString get_children_serialize_name() const { return "sources"; }
 
@@ -108,6 +110,9 @@ private:
 	PVAD2GView_p _ad2g_view;
 
 	PVCore::PVSerializeArchive_p _original_archive;
+
+	QRgb _view_colors[3] = { 0x66006E, 0x778800, 0x332211 } ;
+
 };
 
 typedef PVScene::p_type  PVScene_p;
