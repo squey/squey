@@ -4,25 +4,24 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef PVINSPECTOR_PVLAYERFILTERPROCESSWIDGET_H
-#define PVINSPECTOR_PVLAYERFILTERPROCESSWIDGET_H
+#ifndef PVGUIQT_PVLAYERFILTERPROCESSWIDGET_H
+#define PVGUIQT_PVLAYERFILTERPROCESSWIDGET_H
 
 #include <picviz/PVLayerFilter.h>
-#include "PVTabSplitter.h"
 #include <pvkernel/widgets/PVPresetsWidget.h>
 
 namespace PVWidgets {
 class PVArgumentListWidget;
 }
 
-namespace PVInspector {
+namespace PVGuiQt {
 
 class PVLayerFilterProcessWidget: public QDialog
 {
 	Q_OBJECT
 
 public:
-	PVLayerFilterProcessWidget(PVTabSplitter* tab, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p);
+	PVLayerFilterProcessWidget(Picviz::PVView* view, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p, QWidget* parent = NULL);
 	virtual ~PVLayerFilterProcessWidget();
 
 	void change_args(PVCore::PVArgumentList const& args);
@@ -49,7 +48,6 @@ private:
 	static void process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* layer);
 
 protected:
-	PVTabSplitter* _tab;
 	Picviz::PVView* _view;
 	Picviz::PVLayerFilter_p _filter_p;
 	PVWidgets::PVPresetsWidget* _presets_widget;

@@ -63,7 +63,6 @@ include/PVFilesTypesSelWidget.h
 include/PVFilterWidget.h
 include/PVInputTypeMenuEntries.h
 include/PVInvestigationWizard.h
-include/PVLayerFilterProcessWidget.h
 #include/PVListColNrawDlg.h
 #include/PVListingModel.h
 include/PVListingsTabWidget.h
@@ -137,7 +136,6 @@ PVDualSlider.cpp
 PVExportSelectionDialog.cpp
 PVFilterWidget.cpp
 PVInvestigationWizard.cpp
-PVLayerFilterProcessWidget.cpp
 #PVListColNrawDlg.cpp
 #PVListingModel.cpp
 PVListingsTabWidget.cpp

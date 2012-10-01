@@ -4,20 +4,24 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
+#include <pvbase/qhashes.h>
+
 #include "PVLayerFilterHeatline.h"
 
 #include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/PVColor.h>
-#include <pvkernel/core/PVAxesIndexType.h>
+#include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/rush/PVUtils.h>
 
 #include <picviz/PVView.h>
 
+#include <tbb/concurrent_hash_map.h>
 #include <tbb/enumerable_thread_specific.h>
 
 #include <math.h>
+#include <unordered_map>
 
 #include <omp.h>
 
@@ -64,7 +68,7 @@ PVCore::PVArgumentList Picviz::PVLayerFilterHeatlineBase::get_default_args_for_v
 {
 	PVCore::PVArgumentList args = get_default_args();
 	// Default args with the "key" tag
-	args[ARG_NAME_AXES].setValue(PVCore::PVAxesIndexType(view.get_original_axes_index_with_tag(get_tag("key"))));
+	args[ARG_NAME_AXES].setValue(PVCore::PVAxisIndexType(0));
 	return args;
 }
 
@@ -77,10 +81,6 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 {	
 	BENCH_START(heatline);
 
-	PVRow counter;
-	PVRow highest_frequency = 1;
-	float ratio;
-	
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 	
 	PVCore::PVAxisIndexType axis = _args.value(ARG_NAME_AXES).value<PVCore::PVAxisIndexType>();
@@ -102,56 +102,57 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 	out.get_selection() = in.get_selection();
 
 	// Per-thread frequencies
-	typedef QHash<PVUnicodeString, PVRow> lines_hash_t;
-	tbb::enumerable_thread_specific<lines_hash_t> tls_lines_hash;
+	typedef std::unordered_map<std::string_tbb, PVRow> lines_hash_t;
+	lines_hash_t freqs;
 
-	nraw.visit_column_tbb_sel(axis_id,
-		[&tls_lines_hash](const PVRow, const char* buf, size_t size)
+	const PVRow nrows = _view->get_row_count();
+	freqs.reserve(nrows);
+
+	std::vector<PVRow const*> row_values;
+	row_values.resize(nrows, nullptr);
+
+	nraw.visit_column_sel(axis_id,
+		[&](const PVRow r, const char* buf, size_t size)
 		{
-			tls_lines_hash.local()[PVCore::PVUnicodeString(buf, size)]++;
+			std::string_tbb tmp_str(buf, size);
+			lines_hash_t::iterator it = freqs.find(tmp_str);
+			if (it == freqs.end()) {
+				it = freqs.emplace(std::move(tmp_str), 0).first;
+			}
+			else {
+				it->second++;
+			}
+			row_values[r] = &it->second;
 		},
 		_view->get_pre_filter_layer().get_selection());
 
-	// Compute each 
-	const lines_hash_t& const_lines_hash = lines_hash;
-#pragma omp parallel
-	{
-	QString& key = *(keys[omp_get_thread_num()]);
-#pragma omp for
-	for (counter = 0; counter < nb_lines; counter++) {
-		if (!should_cancel()) {
-			if (_view->get_line_state_in_pre_filter_layer(counter)) {
-				PVRush::PVNraw::const_nraw_table_line nrawvalues = nraw.get_row(counter);
-				key = PVRush::PVUtils::generate_key_from_axes_values(axes, nrawvalues);
+	lines_hash_t::const_iterator it;
+	PVRow max_n = 0;
+	for (it = freqs.begin(); it != freqs.end(); it++) {
+		const PVRow cur_n = it->second;
+		if (cur_n > max_n) {
+			max_n = cur_n;
+		}
+	}
 
-				PVRow count_frequency = const_lines_hash[key];
+	const float max_n_log = logf(max_n);
 
-				if (bLog) {
-					ratio = logf(count_frequency) / logf(highest_frequency);
-				}
-				else {
-					ratio = (float)count_frequency / (float)highest_frequency;
-				}
-
-				this->post(in, out, ratio, counter);
+	_view->get_pre_filter_layer().get_selection().visit_selected_lines(
+		[&](const PVRow r)
+		{
+			assert(r < row_values.size());
+			const PVRow freq = *row_values[r];
+			float ratio;
+			if (bLog) {
+				ratio = logf(freq)/max_n_log;
 			}
-		}
-	}
-	}
+			else {
+				ratio = (float)((double)freq/(double)max_n);
+			}
+			this->post(in, out, ratio, r);
+		}, nrows);
 
-	for (size_t ith=0; ith<nthreads; ith++) {
-		delete keys[ith];
-	}
-	delete [] keys;
-
-	if (should_cancel()) {
-		if (&in != &out) {
-			out = in;
-		}
-		return;
-	}
-
-	BENCH_END(heatline, "heatline", 1, 1, sizeof(PVRow), nb_lines);
+	BENCH_END(heatline, "heatline", 1, 1, sizeof(PVRow), nrows);
 }
 
 QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterHeatlineBase::get_args_keys_for_preset() const
@@ -184,13 +185,8 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineColor)
 
 void Picviz::PVLayerFilterHeatlineColor::post(PVLayer& /*in*/, PVLayer& out, float ratio, PVRow line_id)
 {
-	PVCore::PVColor color;
-	QColor qcolor;
-
-	qcolor.setHsvF((1.0 - ratio)/3.0, 1.0, 1.0);
-	color.fromQColor(qcolor);
-
-	out.get_lines_properties().line_set_rgb_from_color(line_id, color);
+	const PVCore::PVHSVColor color((uint8_t)((float)(HSV_COLOR_RED-HSV_COLOR_GREEN)*ratio + (float)HSV_COLOR_GREEN));
+	out.get_lines_properties().line_set_color(line_id, color);
 }
 
 IMPL_FILTER(Picviz::PVLayerFilterHeatlineColor)
@@ -244,13 +240,8 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineSelAndCol)
 void Picviz::PVLayerFilterHeatlineSelAndCol::post(PVLayer& /*in*/, PVLayer& out, float ratio, PVRow line_id)
 {
 	// Colorize
-	PVCore::PVColor color;
-	QColor qcolor;
-	get_args_for_preset().keys();
-	qcolor.setHsvF((1.0 - ratio)/3.0, 1.0, 1.0);
-	color.fromQColor(qcolor);
-
-	out.get_lines_properties().line_set_rgb_from_color(line_id, color);
+	const PVCore::PVHSVColor color((uint8_t)((float)(HSV_COLOR_RED-HSV_COLOR_GREEN)*ratio + (float)HSV_COLOR_GREEN));
+	out.get_lines_properties().line_set_color(line_id, color);
 
 	// Select
 	PVCore::PVColorGradientDualSliderType ratios = _args.value(ARG_NAME_COLORS).value<PVCore::PVColorGradientDualSliderType>();

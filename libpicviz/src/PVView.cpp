@@ -744,7 +744,7 @@ void Picviz::PVView::process_from_selection()
 void Picviz::PVView::process_real_output_selection()
 {
 	// AG: TODO: should be optimised to only create real_output_selection
-	process_from_layer_stack();
+	process_from_selection();
 }
 
 /******************************************************************************

@@ -11,6 +11,7 @@ PVAxesCombinationModel.cpp
 PVAxesCombinationWidget.cpp
 PVAxesListModel.cpp
 PVHiveDataTreeModel.cpp
+PVLayerFilterProcessWidget.cpp
 PVLayerStackDelegate.cpp
 PVLayerStackModel.cpp
 PVLayerStackView.cpp
@@ -33,6 +34,7 @@ include/pvguiqt/PVAxesCombinationDialog.h
 include/pvguiqt/PVAxesCombinationModel.h
 include/pvguiqt/PVAxesCombinationWidget.h
 include/pvguiqt/PVAxesListModel.h
+include/pvguiqt/PVLayerFilterProcessWidget.h
 include/pvguiqt/PVLayerStackDelegate.h
 include/pvguiqt/PVLayerStackModel.h
 include/pvguiqt/PVLayerStackView.h

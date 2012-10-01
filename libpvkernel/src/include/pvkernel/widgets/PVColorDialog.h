@@ -25,6 +25,13 @@ public:
 	void set_color(PVCore::PVHSVColor const c);
 	inline PVCore::PVHSVColor color() const { return picker()->color(); };
 
+	inline void set_interval(uint8_t x0, uint8_t x1)
+	{
+		assert(x1 > x0);
+		picker()->set_x0(x0);
+		picker()->set_x1(x1);
+	}
+
 private:
 	void show_color(PVCore::PVHSVColor const c);
 

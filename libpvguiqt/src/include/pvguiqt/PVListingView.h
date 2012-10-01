@@ -19,7 +19,7 @@
 
 namespace PVGuiQt {
 
-//class PVLayerFilterProcessWidget;
+class PVLayerFilterProcessWidget;
 class PVListingSortFilterProxyModel;
 
 /**
@@ -75,7 +75,7 @@ private:
 	PVCol _ctxt_col;
 	QString _ctxt_v;
 	PVCore::PVArgumentList _ctxt_args;
-	//PVLayerFilterProcessWidget* _ctxt_process;
+	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process;
 	QAction* _act_copy;
 	QAction* _act_set_color;
 
