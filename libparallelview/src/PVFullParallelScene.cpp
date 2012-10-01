@@ -22,6 +22,7 @@
 #include <QtCore>
 #include <QKeyEvent>
 
+#include <QApplication>
 #include <QDialog>
 #include <QLayout>
 #include <QLabel>
@@ -258,6 +259,7 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
 			// Remove selection
 			_selection_square->clear_rect();
 		}
+		_selection_square->finished();
 		commit_volatile_selection_Slot();
 		event->accept();
 	}
@@ -464,8 +466,30 @@ void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axi
 
 void PVParallelView::PVFullParallelScene::process_selection()
 {
-	_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-	lib_view().get_floating_selection().select_none();
+	unsigned int modifiers = (unsigned int) QApplication::keyboardModifiers();
+	/* We don't care about a keypad button being pressed */
+	modifiers &= ~Qt::KeypadModifier;
+	
+	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier aren't really
+	 * constants */
+	if (modifiers == (Qt::ShiftModifier | Qt::ControlModifier)) {
+		_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
+	}
+	else
+	if (modifiers == Qt::ControlModifier) {	
+		_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
+	}
+	else
+	if (modifiers == Qt::ShiftModifier) {
+		_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
+	}
+	else {
+		_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	}
+
+	/* Commit the previous volatile selection */
+	_view_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
+
 	_view_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
 }
 
@@ -593,7 +617,9 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 		// and it must be rescaled (using the new y zoom factor)
 		r.setTop(r.top() * _zoom_y);
 		r.setBottom(r.bottom() * _zoom_y);
-		_selection_square->update_rect(r);
+		// AG: don't do an update_rect here since it will change the current selection!
+		//_selection_square->update_rect(r);
+		_selection_square->update_rect_no_commit(r);
 	}
 }
 

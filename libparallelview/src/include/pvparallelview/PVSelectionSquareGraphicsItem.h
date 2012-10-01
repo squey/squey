@@ -44,6 +44,11 @@ public:
 		handle_volatile_selection();
 	}
 
+	void update_rect_no_commit(const QRectF & rectangle)
+	{
+		setRect(rectangle);
+	}
+
 	void finished()
 	{
 		QPen cur_pen = pen();
