@@ -91,11 +91,12 @@ void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 	else {
-		exps_utf8.reserve(exps.size());
+		exps_utf8.resize(exps.size());
+#pragma omp parallel for
 		for (int i = 0; i < exps.size(); i++) {
 			QString const& str = exps[i];
 			if (!str.isEmpty()) {
-				exps_utf8.push_back(std::move(str.trimmed().toUtf8()));
+				exps_utf8[i] = str.trimmed().toUtf8();
 			}
 		}
 	}
@@ -130,9 +131,18 @@ void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 			else {
 				for (int i = 0; i < exps.size(); i++) {
 					QByteArray const& exp = exps_utf8[i];
+					if (exp.isEmpty()) {
+						continue;
+					}
 					if (exact_match) {
-						if (n == exp.size() &&
-							memcmp(buf, exp.constData(), n) == 0) {
+						bool found;
+						if (case_match) {
+							found = (PVCore::PVUnicodeString(buf, n) == PVCore::PVUnicodeString(exp.constData(), exp.size()));
+						}
+						else {
+							found = (PVCore::PVUnicodeString(buf, n).compareNoCase(PVCore::PVUnicodeString(exp.constData(), exp.size())) == 0);
+						}
+						if (found) {
 							sel = true;
 							break;
 						}

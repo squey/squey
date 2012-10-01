@@ -153,6 +153,17 @@ public:
 		base_type::set_min<T>();
 	}
 
+public:
+	template <typename C, typename... P>
+	static auto call_from_type(DecimalType const type, P && ... params) -> decltype(C::template call<int_type>(params...))
+	{
+		if (type == FloatType) {
+			return C::template call<float>(std::forward<P>(params)...);
+		}
+
+		return base_type::call_from_type<C>(type, std::forward<P>(params)...);
+	}
+
 };
 
 template <>
@@ -177,6 +188,17 @@ public:
 
 	template <typename T>
 	typename std::enable_if<std::is_same<T, double>::value == false, T>::type const& storage_cast() const { return base_type::template storage_cast<T>(); }
+
+public:
+	template <typename C, typename... P>
+	static auto call_from_type(DecimalType const type, P && ... params) -> decltype(C::template call<int_type>(params...))
+	{
+		if (type == FloatType) {
+			return C::template call<double>(std::forward<P>(params)...);
+		}
+
+		return base_type::call_from_type<C>(type, std::forward<P>(params)...);
+	}
 };
 
 }
