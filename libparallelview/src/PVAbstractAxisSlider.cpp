@@ -3,6 +3,7 @@
 
 #include <pvparallelview/PVAbstractAxisSlider.h>
 #include <pvparallelview/PVAbstractAxisSliders.h>
+#include <pvparallelview/PVSlidersGroup.h>
 
 #include <QPainter>
 #include <QGraphicsScene>
@@ -15,14 +16,12 @@
 
 PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider(int omin, int omax, int o,
                                                            PVAxisSliderOrientation orientation) :
-	_offset_min(omin), _offset_max(omax), _orientation(orientation),
-	_moving(false)
+	_offset_min(omin), _offset_max(omax), _offset(o),
+	_orientation(orientation), _moving(false)
 {
 	setAcceptHoverEvents(true); // This is needed to enable hover events
 
 	setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
-
-	set_value(o);
 }
 
 /*****************************************************************************
@@ -36,6 +35,19 @@ PVParallelView::PVAbstractAxisSlider::~PVAbstractAxisSlider()
 	if (s != 0) {
 		s->removeItem(this);
 	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVAbstractAxisSlider::set_value
+ *****************************************************************************/
+
+void PVParallelView::PVAbstractAxisSlider::set_value(int v)
+{
+	_offset = PVCore::clamp(v, _offset_min, _offset_max);
+
+	float f = _owner->get_sliders_group()->get_axis_scale();
+	v = PVCore::clamp<int>(v * f, _offset_min * f, _offset_max * f);
+	setPos(0., v);
 }
 
 /*****************************************************************************
@@ -98,7 +110,7 @@ void PVParallelView::PVAbstractAxisSlider::mouseMoveEvent(QGraphicsSceneMouseEve
 {
 	if (event->buttons() == Qt::LeftButton) {
 		// +0.5 to have a rounded value
-		set_value(event->scenePos().y() + 0.5);
+		set_value((event->scenePos().y() / _owner->get_sliders_group()->get_axis_scale()) + 0.5);
 
 		group()->update();
 		event->accept();

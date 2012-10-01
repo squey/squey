@@ -32,11 +32,24 @@ public:
 
 	range_t get_range() const
 	{
-		PVRow v_min = _sl_min->value();
-		PVRow v_max = _sl_max->value();
+		PVRow v_min = _sl_min->get_value();
+		PVRow v_max = _sl_max->get_value();
 
 		return std::make_pair(PVCore::min(v_min, v_max),
 		                      PVCore::max(v_min, v_max));
+	}
+
+	virtual void refresh()
+	{
+		refresh_value(_sl_min->get_value(),
+		              _sl_max->get_value());
+	}
+
+protected:
+	void refresh_value(int y_min, int y_max)
+	{
+		_sl_min->set_value(y_min);
+		_sl_max->set_value(y_max);
 	}
 
 protected:

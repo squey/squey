@@ -48,6 +48,13 @@ public:
 		return _axis_id;
 	}
 
+	void set_axis_scale(float s);
+
+	float get_axis_scale() const
+	{
+		return _axis_scale;
+	}
+
 	QRectF boundingRect() const
 	{
 		// TODO: the width depend of the children's width
@@ -148,6 +155,7 @@ private:
 	zoom_sliders_del_obs      _zsd_obs;
 	selection_sliders_del_obs _ssd_obs;
 	axis_id_t                 _axis_id;
+	float                     _axis_scale;
 
 	aas_set_t                 _all_sliders;
 	sas_set_t                 _selection_sliders;

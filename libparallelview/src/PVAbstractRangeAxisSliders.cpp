@@ -1,5 +1,6 @@
 
 #include <pvparallelview/PVAbstractRangeAxisSliders.h>
+#include <pvparallelview/PVSlidersGroup.h>
 
 #include <QPainter>
 
@@ -31,9 +32,11 @@ void PVParallelView::PVAbstractRangeAxisSliders::paint(QPainter *painter,
 		QPen new_pen(Qt::white);
 		new_pen.setWidth(0);
 		painter->setPen(new_pen);
-		painter->drawLine(0, _sl_min->value(), 0, _sl_max->value());
+		int vmin = _sl_min->pos().y();
+		int vmax = _sl_max->pos().y();
+		painter->drawLine(0, vmin, 0, vmax);
 
-		_text->setPos(0, _sl_min->value());
+		_text->setPos(0, vmin);
 		_text->show();
 
 		painter->restore();
