@@ -145,8 +145,8 @@ add_subdirectory(helpers)
 
 add_subdirectory(libpicviz)
 add_subdirectory(libpvhive)
-add_subdirectory(libpvguiqt)
 add_subdirectory(libparallelview)
+add_subdirectory(libpvguiqt)
 
 add_subdirectory(gui-qt)
 

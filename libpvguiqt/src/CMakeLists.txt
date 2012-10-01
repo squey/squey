@@ -27,6 +27,9 @@ PVSortFilterProxyModel.cpp
 PVLogoModel.cpp
 PVLogoScene.cpp
 PVQNraw.cpp
+PVWorkspacesTabWidget.cpp
+PVWorkspace.cpp
+PVViewDisplay.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
@@ -47,6 +50,9 @@ include/pvguiqt/PVListingView.h
 include/pvguiqt/PVHiveDataTreeModel.h
 include/pvguiqt/PVSortFilterProxyModel.h
 include/pvguiqt/PVLogoScene.h
+include/pvguiqt/PVWorkspacesTabWidget.h
+include/pvguiqt/PVWorkspace.h
+include/pvguiqt/PVViewDisplay.h
 )
 
 SET(UI_FILES
@@ -54,6 +60,12 @@ PVAxesCombinationWidget.ui
 PVAxesCombinationWidgetSelRange.ui
 PVListDisplayDlg.ui
 )
+
+SET(QRC_FILES
+../../gui-qt/src/picviz-inspector_resource.qrc
+)
+
+QT4_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
 
 set(LIBGUIQT_HEADER_FILES
 )
@@ -72,9 +84,10 @@ add_library(pvguiqt SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-set(PVGUIQT_LINK_LIBRARIES ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES} ${PVHIVE_LIBRARIES} ${OpenMP_LIBRARIES})
+MESSAGE(INFO  ${PVPARALLELVIEW_LIBRARIES})
+set(PVGUIQT_LINK_LIBRARIES ${PVPARALLELVIEW_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES} ${PVHIVE_LIBRARIES} ${OpenMP_LIBRARIES})
 
-target_link_libraries(pvguiqt ${PVHIVE_LINK_LIBRARIES})
+target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 
 INSTALL(TARGETS pvguiqt LIBRARY DESTINATION .
                         RUNTIME DESTINATION .)

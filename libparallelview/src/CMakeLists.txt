@@ -12,7 +12,7 @@ if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 endif(CUDA_FOUND)
 
-set(LINK_LIBRARIES ${PVGUIQT_LIBRARY} ${PICVIZ_LIBRARY} ${PVHIVE_LIBRARIES} ${QT_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${PVKERNEL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
+set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVHIVE_LIBRARIES} ${QT_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${PVKERNEL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
 
 # CUDA
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
@@ -83,7 +83,6 @@ include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVZoomedParallelView.h
 include/pvparallelview/PVSlidersManager.h
 include/pvparallelview/PVAxisLabel.h
-include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
 include/pvparallelview/PVSlidersGroup.h
@@ -108,6 +107,7 @@ include/pvparallelview/PVAbstractAxisSlider.h
 include/pvparallelview/PVAbstractAxisSliders.h
 include/pvparallelview/PVSelectionAxisSliders.h
 include/pvparallelview/PVZoomAxisSliders.h
+include/pvparallelview/PVAxisGraphicsItem.h
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})

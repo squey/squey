@@ -78,6 +78,11 @@ void Picviz::PVScene::set_views_id()
 	}
 }
 
+QColor Picviz::PVScene::get_new_view_color() const
+{
+	return QColor(_view_colors[(get_new_view_id()-1) % (sizeof(_view_colors)/sizeof(QRgb))]);
+}
+
 void Picviz::PVScene::user_modified_sel(PVView* src_view, QList<Picviz::PVView*>* changed_views)
 {
 	_ad2g_view->pre_process();

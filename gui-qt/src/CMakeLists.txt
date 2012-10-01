@@ -65,7 +65,7 @@ include/PVInputTypeMenuEntries.h
 include/PVInvestigationWizard.h
 #include/PVListColNrawDlg.h
 #include/PVListingModel.h
-include/PVListingsTabWidget.h
+include/PVWorkspacesTabWidget.h
 #include/PVListingSortFilterProxyModel.h
 include/PVMainWindow.h
 include/PVMappingPlottingEditDialog.h
@@ -138,7 +138,7 @@ PVFilterWidget.cpp
 PVInvestigationWizard.cpp
 #PVListColNrawDlg.cpp
 #PVListingModel.cpp
-PVListingsTabWidget.cpp
+PVWorkspacesTabWidget.cpp
 #PVListingSortFilterProxyModel.cpp
 PVMainWindow.cpp
 PVMainWindowMenusActions.cpp

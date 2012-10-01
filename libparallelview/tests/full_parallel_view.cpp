@@ -23,6 +23,7 @@
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVFullParallelView.h>
 
+//#include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvparallelview/PVLibView.h>
 
 #include <pvbase/general.h>
@@ -59,6 +60,21 @@ int main(int argc, char** argv)
 	QWidget *view = plib_view->create_view();
 	layout->addWidget(view);
 	dlg->show();
+
+	{
+		Picviz::PVView_sp view_sp = plib_view->lib_view()->shared_from_this();
+
+		dlg = new QDialog();
+		dlg->setAttribute(Qt::WA_DeleteOnClose, true);
+
+		layout = new QVBoxLayout(dlg);
+		layout->setContentsMargins(0, 0, 0, 0);
+		dlg->setLayout(layout);
+
+		/*QWidget *axes = new PVGuiQt::PVAxesCombinationDialog(view_sp);
+		layout->addWidget(axes);*/
+		dlg->show();
+	}
 
 	app.exec();
 

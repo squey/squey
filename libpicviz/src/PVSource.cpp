@@ -251,12 +251,10 @@ void Picviz::PVSource::add_view(PVView_sp view)
 	if (!_current_view) {
 		_current_view = view.get();
 	}
-	auto views_p = get_children<PVView>();
-	if (!views_p.contains(view)) {
-		PVScene* scene = get_parent();
-		if (scene) {
-			view->set_view_id(scene->get_new_view_id());
-		}
+	PVScene* scene = get_parent();
+	if (scene) {
+		view->set_view_id(scene->get_new_view_id());
+		view->set_color(scene->get_new_view_color());
 	}
 }
 

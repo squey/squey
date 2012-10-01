@@ -36,7 +36,7 @@ void PVParallelView::PVAxisLabel::contextMenuEvent(QGraphicsSceneContextMenuEven
 
 void PVParallelView::PVAxisLabel::new_zoomed_parallel_view()
 {
-	QDialog *view_dlg = new QDialog();
+	/*QDialog *view_dlg = new QDialog();
 
 	view_dlg->setMaximumWidth(1024);
 	view_dlg->setMaximumHeight(1024);
@@ -49,7 +49,9 @@ void PVParallelView::PVAxisLabel::new_zoomed_parallel_view()
 	QWidget *view = common::get_lib_view(const_cast<Picviz::PVView&>(_lib_view))->create_zoomed_view(_axis_index);
 
 	view_layout->addWidget(view);
-	view_dlg->show();
+	view_dlg->show();*/
+
+	emit new_zoomed_parallel_view(_axis_index);
 }
 
 /*****************************************************************************

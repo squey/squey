@@ -130,6 +130,10 @@ private slots:
 		_selection_barycenter.clear();
 		_selection_square->clear_rect();
 	}
+	void emit_new_zoomed_parallel_view(int axis_index)
+	{
+		emit _parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
+	}
 
 private:
 	struct ZoneImages
