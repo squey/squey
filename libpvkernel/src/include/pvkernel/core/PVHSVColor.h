@@ -22,6 +22,10 @@
 #define HSV_COLOR_WHITE 255
 #define HSV_COLOR_BLACK 254
 
+// Some colors that can be useful
+#define HSV_COLOR_GREEN 59
+#define HSV_COLOR_RED   126
+
 namespace PVCore {
 
 class PVHSVColor

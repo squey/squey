@@ -18,7 +18,7 @@ PVWidgets::PVColorDialog::PVColorDialog(PVCore::PVHSVColor const& c, QWidget* pa
 void PVWidgets::PVColorDialog::init()
 {
 	setupUi(this);
-	connect(picker(), SIGNAL(color_changed(int)), this, SLOT(picker_color_changed(int)));
+	connect(picker(), SIGNAL(color_changed_left(int)), this, SLOT(picker_color_changed(int)));
 }
 
 void PVWidgets::PVColorDialog::picker_color_changed(int h)

@@ -58,6 +58,7 @@ IMPL_WAX(Picviz::PVView::process_from_filter, view, args)
 	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::process_from_filter)>(view, args);
 	refresh_observers(&view->get_post_filter_layer());
 	refresh_observers(&view->get_output_layer());
+	refresh_observers(&view->get_real_output_selection());
 }
 
 IMPL_WAX(Picviz::PVView::process_from_eventline, view, args)
