@@ -20,7 +20,6 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 	setFocusPolicy(Qt::StrongFocus);
 	setWidget(view_widget);
 	setWindowTitle(name);
-	setFeatures(QDockWidget::NoDockWidgetFeatures);
 
 	view_widget->installEventFilter(new FocusInEventFilter(this));
 	view_widget->setFocusPolicy(Qt::StrongFocus);

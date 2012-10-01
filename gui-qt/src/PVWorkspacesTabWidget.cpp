@@ -12,6 +12,8 @@
 #include <PVMainWindow.h>
 #include <PVTabSplitter.h>
 
+#include <pvguiqt/PVWorkspace.h>
+
 #include <PVWorkspacesTabWidget.h>
 
 /******************************************************************************
@@ -49,14 +51,15 @@ QTabBar *PVInspector::PVWorkspacesTabWidget::get_tabBar()
  * PVInspector::PVWorkspacesTabWidget::remove_listing
  *
  *****************************************************************************/
-void PVInspector::PVWorkspacesTabWidget::remove_listing(PVTabSplitter* tab)
+void PVInspector::PVWorkspacesTabWidget::remove_workspace(PVGuiQt::PVWorkspace* tab)
 {
+	main_window->close_source(tab);
+
 	int index = indexOf(tab);
 	assert(index != -1);
 	removeTab(index);
 
-	if(currentIndex() == -1)
-	{
+	if(currentIndex() == -1) {
 		emit is_empty();
 		hide();
 	}
@@ -85,7 +88,8 @@ void PVInspector::PVWorkspacesTabWidget::show_hide_views_tab_widget_Slot(bool vi
  *****************************************************************************/
 void PVInspector::PVWorkspacesTabWidget::tabCloseRequested_Slot(int index)
 {
-	PVTabSplitter* tab = dynamic_cast<PVTabSplitter*>(widget(index));
+	PVGuiQt::PVWorkspace* tab = dynamic_cast<PVGuiQt::PVWorkspace*>(widget(index));
 	assert(tab);
-	main_window->close_source(tab);
+
+	remove_workspace(tab);
 }

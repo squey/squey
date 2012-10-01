@@ -9,6 +9,11 @@
 
 #include <QTabWidget>
 
+namespace PVGuiQt
+{
+class PVWorkspace;
+}
+
 namespace PVInspector {
 
 class PVMainWindow;
@@ -25,7 +30,7 @@ class PVWorkspacesTabWidget : public QTabWidget
 
 public:
 	PVWorkspacesTabWidget(PVMainWindow *mw, QWidget *parent = 0);
-	void remove_listing(PVTabSplitter* tab); // really used?
+	void remove_workspace(PVGuiQt::PVWorkspace* tab);
 
 signals:
 	void is_empty(); 

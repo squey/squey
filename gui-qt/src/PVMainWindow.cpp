@@ -25,6 +25,9 @@
 #include <PVStringListChooserWidget.h>
 #include <PVInputTypeMenuEntries.h>
 
+#include <pvguiqt/PVWorkspace.h>
+#include <pvguiqt/PVListingView.h>
+
 #include <PVStartScreenWidget.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
 
@@ -389,7 +392,7 @@ void PVInspector::PVMainWindow::close_scene()
 	// Close sources one by one
 	int ntabs = pv_WorkspacesTabWidget->count();
 	for (int i = 0; i < ntabs; i++) {
-		close_source((PVTabSplitter*) pv_WorkspacesTabWidget->widget(0));
+		close_source((PVGuiQt::PVWorkspace*) pv_WorkspacesTabWidget->widget(0));
 	}
 	if (_ad2g_mw) {
 		_ad2g_mw->deleteLater();
@@ -406,9 +409,9 @@ void PVInspector::PVMainWindow::close_scene()
  * PVInspector::PVMainWindow::close_source
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
+void PVInspector::PVMainWindow::close_source(PVGuiQt::PVWorkspace* tab)
 {
-	Picviz::PVSource* src = tab->get_lib_src();
+	Picviz::PVSource* src = tab->get_source();
 	_scene->remove_child(*src);
 
 	if (_scene->get_children_count() == 0) {
@@ -1684,13 +1687,19 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 	message.pv_view = first_view_p;
 	pvsdk_messenger->post_message_to_gl(message);*/
 
+	PVGuiQt::PVWorkspace* workspace = new PVGuiQt::PVWorkspace(src.get());
+	int new_tab_index = pv_WorkspacesTabWidget->addTab(workspace, src->get_name());
+
+	PVGuiQt::PVListingView* listing_view = workspace->create_listing_view(first_view_p);
+
+	workspace->set_central_display(first_view_p.get(), listing_view, "Listing [" + first_view_p->get_name() + "]");
+
 	// Add the source's tab
-	current_tab = new PVTabSplitter(*src, pv_WorkspacesTabWidget);
+	//current_tab = new PVTabSplitter(*src, pv_WorkspacesTabWidget);
 
 
 	connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
 	connect(current_tab, SIGNAL(source_changed()), this, SLOT(project_modified_Slot()));
-	int new_tab_index = pv_WorkspacesTabWidget->addTab(current_tab, current_tab->get_tab_name());
 
 	pv_WorkspacesTabWidget->setCurrentIndex(new_tab_index);
 

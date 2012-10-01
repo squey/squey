@@ -57,6 +57,11 @@ namespace PVCore {
 class PVSerializeArchive;
 }
 
+namespace PVGuiQt
+{
+class PVWorkspace;
+}
+
 namespace PVInspector {
 
 class PVMainWindow;
@@ -148,7 +153,7 @@ public:
 	void update_statemachine_label(Picviz::PVView_sp view);
 
 	void close_source(int index);
-	void close_source(PVTabSplitter* tab);
+	void close_source(PVGuiQt::PVWorkspace* tab);
 	void close_scene();
 
 public slots:

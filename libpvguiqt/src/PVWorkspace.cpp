@@ -31,7 +31,7 @@
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVViewDisplay.h>
 
-PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
+PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	QMainWindow(parent),
 	_source(source)
 {
@@ -52,7 +52,7 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 	_toolbar->addAction(_datatree_view_action);
 	PVRootTreeModel* datatree_model = new PVRootTreeModel(*_source);
 	PVRootTreeView* data_tree_view = new PVRootTreeView(datatree_model);
-	PVGuiQt::PVViewDisplay* data_tree_view_display = add_view_display(nullptr, data_tree_view, "Data tree", false);
+	PVGuiQt::PVViewDisplay* data_tree_view_display = add_view_display(nullptr, data_tree_view, "Data tree", false, Qt::RightDockWidgetArea);
 	connect(data_tree_view_display, SIGNAL(display_closed()), this, SLOT(check_datatree_button()));
 	check_datatree_button(true);
 
@@ -64,12 +64,11 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 	_layerstack_tool_button->setToolTip(tr("Add layer stack"));
 	for (auto view : source->get_children<Picviz::PVView>()) {
 		PVLayerStackWidget* layerstack_view = new PVLayerStackWidget(view);
-		PVGuiQt::PVViewDisplay* layerstack_view_display = add_view_display(view.get(), layerstack_view, "Layer stack [" + view->get_name() + "]", false);
+		PVGuiQt::PVViewDisplay* layerstack_view_display = add_view_display(view.get(), layerstack_view, "Layer stack [" + view->get_name() + "]", false, Qt::RightDockWidgetArea);
 		QAction* action = new QAction(view->get_name(), layerstack_view_display);
 		connect(action, SIGNAL(triggered(bool)), this, SLOT(show_layerstack()));
 		_layerstack_tool_button->addAction(action);
 		connect(layerstack_view_display, SIGNAL(display_closed()), this, SLOT(hide_layerstack()));
-		layerstack_view_display->setVisible(false); //
 	}
 	_toolbar->addWidget(_layerstack_tool_button);
 	_toolbar->addSeparator();
@@ -85,7 +84,7 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 		QVariant var;
 		var.setValue<Picviz::PVView*>(view.get());
 		action->setData(var);
-		connect(action, SIGNAL(triggered(bool)), this, SLOT(create_listing_view()));
+		connect(action, SIGNAL(triggered(bool)), this, SLOT(add_listing_view()));
 		listing_views_menu->addAction(action);
 	}
 	listing_tool_button->setMenu(listing_views_menu);
@@ -123,14 +122,14 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 	_toolbar->addWidget(scatter_view_tool_button);
 }
 
-PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/)
+PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/, Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/)
 {
 	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, can_be_central_display, this);
 
 	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
 
 	view_display->setWindowTitle(name);
-	addDockWidget(Qt::TopDockWidgetArea, view_display);
+	addDockWidget(area, view_display);
 
 	_displays.append(view_display);
 
@@ -140,6 +139,8 @@ PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(Picviz::PVView* v
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::set_central_display(Picviz::PVView* view, QWidget* view_widget, const QString& name)
 {
 	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, true, this);
+	view_display->setFeatures(QDockWidget::NoDockWidgetFeatures);
+	view_display->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 	setCentralWidget(view_display);
 
 	_displays.append(view_display);
@@ -167,20 +168,33 @@ void PVGuiQt::PVWorkspace::switch_with_central_widget(PVViewDisplay* display_doc
 	display_dock->setWindowTitle(central_title);
 }
 
-void PVGuiQt::PVWorkspace::create_listing_view()
+void PVGuiQt::PVWorkspace::add_listing_view(bool central /*= false*/)
 {
 	QAction* action = (QAction*) sender();
 	QVariant var = action->data();
 	Picviz::PVView* view = var.value<Picviz::PVView*>();
 
-	Picviz::PVView_p view_p = view->shared_from_this();
-	PVListingModel* listing_model = new PVGuiQt::PVListingModel(view_p);
-	PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view_p);
+	PVListingView* listing_view = create_listing_view(view->shared_from_this());
+
+	QString title = "Listing [" + view->get_name() + "]";
+
+	if (central) {
+		add_view_display(view, listing_view, title);
+	}
+	else {
+		set_central_display(view, listing_view, title);
+	}
+}
+
+PVGuiQt::PVListingView* PVGuiQt::PVWorkspace::create_listing_view(Picviz::PVView_sp view_sp)
+{
+	PVListingModel* listing_model = new PVGuiQt::PVListingModel(view_sp);
+	PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view_sp);
 	proxy_model->setSourceModel(listing_model);
-	PVListingView* listing_view = new PVGuiQt::PVListingView(view_p);
+	PVListingView* listing_view = new PVGuiQt::PVListingView(view_sp);
 	listing_view->setModel(proxy_model);
 
-	add_view_display(view, listing_view, "Listing [" + view->get_name() + "]");
+	return listing_view;
 }
 
 void PVGuiQt::PVWorkspace::create_parallel_view()

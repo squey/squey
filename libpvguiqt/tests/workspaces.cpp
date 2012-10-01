@@ -125,7 +125,7 @@ int main(int argc, char** argv)
 
 
 	//workspace1->setCentralWidget(listing_view);
-	workspace1->set_central_display(view.get(), listing_view, "Listing [" + view->get_name() + "]");
+	workspace1->set_central_display(view.get(), (QWidget*) listing_view, "Listing [" + view->get_name() + "]");
 
 	mw->show();
 
