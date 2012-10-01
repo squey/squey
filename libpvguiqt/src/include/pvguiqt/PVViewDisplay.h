@@ -19,14 +19,19 @@ class PVViewDisplay : public QDockWidget
 	friend PVWorkspace;
 
 private:
-	PVViewDisplay(QWidget* parent = 0) : QDockWidget(parent)
+	PVViewDisplay(bool can_be_central_widget = true, QWidget* parent = 0) : QDockWidget(parent)
 	{
-		QAction* switch_action = new QAction(tr("Set as central display"), this);
+		if (can_be_central_widget) {
 
-		addAction(switch_action);
-		setContextMenuPolicy(Qt::ActionsContextMenu);
+			setAttribute(Qt::WA_DeleteOnClose, true);
 
-		connect(switch_action, SIGNAL(triggered(bool)), parent, SLOT(switch_with_central_widget()));
+			QAction* switch_action = new QAction(tr("Set as central display"), this);
+
+			addAction(switch_action);
+			setContextMenuPolicy(Qt::ActionsContextMenu);
+
+			connect(switch_action, SIGNAL(triggered(bool)), parent, SLOT(switch_with_central_widget()));
+		}
 	}
 };
 

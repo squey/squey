@@ -94,8 +94,8 @@ int main(int argc, char** argv)
 	root->dump();
 	src->dump();
 
-	PVGuiQt::PVRootTreeModel* model = new PVGuiQt::PVRootTreeModel(*root);
-	PVGuiQt::PVRootTreeView* data_tree_display = new PVGuiQt::PVRootTreeView(model);
+	/*PVGuiQt::PVRootTreeModel* model = new PVGuiQt::PVRootTreeModel(*root);
+	PVGuiQt::PVRootTreeView* data_tree_display = new PVGuiQt::PVRootTreeView(model);*/
 
 	CustomMainWindow* mw = new CustomMainWindow();
 
@@ -112,10 +112,9 @@ int main(int argc, char** argv)
 
 	PVParallelView::PVLibView* plib_view = PVParallelView::common::get_lib_view(*view);
 
-	QWidget* parallel_view = plib_view->create_view();
+	//QWidget* parallel_view = plib_view->create_view();
 
 	//workspace1->setCentralWidget(parallel_view);
-
 
 
 	PVGuiQt::PVListingModel* listing_model = new PVGuiQt::PVListingModel(view);
@@ -125,8 +124,8 @@ int main(int argc, char** argv)
 	listing_view->setModel(proxy_model);
 
 
-	workspace1->setCentralWidget(data_tree_display);
-	workspace1->add_view_display(listing_view, "Listing1");
+	//workspace1->setCentralWidget(listing_view);
+	workspace1->set_central_display(listing_view, "Listing");
 
 	mw->show();
 

@@ -47,7 +47,8 @@ class PVWorkspace : public QMainWindow
 public:
 	PVWorkspace(Picviz::PVSource_sp, QWidget* parent = 0);
 
-	void add_view_display(QWidget* view_display, const QString& name);
+	void add_view_display(QWidget* view_display, const QString& name, bool can_be_central_display = true);
+	void set_central_display(QWidget* view_widget, const QString& name);
 
 public slots:
 	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr)
@@ -55,14 +56,19 @@ public slots:
 		if (!display_dock) {
 			display_dock = (PVViewDisplay*) sender()->parent();
 		}
-		QWidget* display = display_dock->widget();
-		display->setParent(nullptr);
+		QWidget* display_widget = display_dock->widget();
 
-		QWidget* central_widget = centralWidget();
-		central_widget->setParent(display_dock);
+		PVViewDisplay* central_dock = (PVViewDisplay*) centralWidget();
+		QWidget* central_widget = central_dock->widget();
 
-		setCentralWidget(display);
+		// Exchange widgets
+		central_dock->setWidget(display_widget);
 		display_dock->setWidget(central_widget);
+
+		// Exchange titles
+		QString central_title = central_dock->windowTitle();
+		central_dock->setWindowTitle(display_dock->windowTitle());
+		display_dock->setWindowTitle(central_title);
 	}
 
 	void create_parallel_view()
@@ -107,26 +113,18 @@ public slots:
 		add_view_display(zoomed_parallel_view, "Zoomed parallel view [" + view->get_name() + "]");
 	}
 
-	void create_datatree_view(bool create)
+	void show_datatree_view(bool show)
 	{
-		if (create) {
-			PVRootTreeModel* datatree_model = new PVRootTreeModel(*_source);
-			PVRootTreeView* data_tree_display = new PVRootTreeView(datatree_model);
-			connect(data_tree_display, SIGNAL(destroyed(QObject*)), this, SLOT(uncheck_datatree_button()));
-			add_view_display(data_tree_display, "Data tree");
-		}
-		else {
-			for (auto display : _displays) {
-				if (dynamic_cast<PVRootTreeView*>(display->widget())) {
-					removeDockWidget(display);
-				}
+		for (auto display : _displays) {
+			if (dynamic_cast<PVRootTreeView*>(display->widget())) {
+				display->setVisible(show);
 			}
 		}
 	}
 
-	void uncheck_datatree_button()
+	void check_datatree_button(bool check = false)
 	{
-		_datatree_view_action->setChecked(false);
+		_datatree_view_action->setChecked(check);
 	}
 
 private:

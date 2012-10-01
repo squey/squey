@@ -29,9 +29,14 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 	_datatree_view_action->setCheckable(true);
 	_datatree_view_action->setIcon(QIcon(":/view_display_datatree"));
 	_datatree_view_action->setToolTip(tr("Add data tree"));
-	connect(_datatree_view_action, SIGNAL(triggered(bool)), this, SLOT(create_datatree_view(bool)));
+	connect(_datatree_view_action, SIGNAL(triggered(bool)), this, SLOT(show_datatree_view(bool)));
 	_toolbar->addAction(_datatree_view_action);
 	_toolbar->addSeparator();
+	PVRootTreeModel* datatree_model = new PVRootTreeModel(*_source);
+	PVRootTreeView* data_tree_display = new PVRootTreeView(datatree_model);
+	connect(data_tree_display, SIGNAL(destroyed(QObject*)), this, SLOT(check_datatree_button()));
+	add_view_display(data_tree_display, "Data tree", false);
+	check_datatree_button(true);
 
 	// Listings button
 	QToolButton* listing_tool_button = new QToolButton(_toolbar);
@@ -82,14 +87,21 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 	_toolbar->addWidget(scatter_view_tool_button);
 }
 
-void PVGuiQt::PVWorkspace::add_view_display(QWidget* view_widget, const QString& name)
+void PVGuiQt::PVWorkspace::add_view_display(QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/)
 {
-	PVViewDisplay* view_display = new PVViewDisplay(this);
-	view_display->setAttribute(Qt::WA_DeleteOnClose, true);
-	view_widget->setParent(this);
+	PVViewDisplay* view_display = new PVViewDisplay(can_be_central_display, this);
 	view_display->setWidget(view_widget);
 	view_display->setWindowTitle(name);
-
-	addDockWidget(Qt::TopDockWidgetArea, view_display);
 	_displays.append(view_display);
+	addDockWidget(Qt::TopDockWidgetArea, view_display);
+}
+
+void PVGuiQt::PVWorkspace::set_central_display(QWidget* view_widget, const QString& name)
+{
+	PVViewDisplay* view_display = new PVViewDisplay(true, this);
+	view_display->setWidget(view_widget);
+	view_display->setWindowTitle(name);
+	_displays.append(view_display);
+	view_display->setFeatures(QDockWidget::NoDockWidgetFeatures);
+	setCentralWidget(view_display);
 }
