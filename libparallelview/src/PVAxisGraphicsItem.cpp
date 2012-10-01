@@ -39,7 +39,7 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	_label = new PVAxisLabel(view, _sliders_group);
 	addToGroup(_label);
 	_label->rotate(-45.);
-	_label->setPos(0, - 2 * PVAW_CST);
+	_label->setPos(0, - 2 * axis_extend);
 
 	update_axis_info();
 }
@@ -58,9 +58,9 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 {
 	painter->fillRect(
 		0,
-		-PVAW_CST,
+		-axis_extend,
 	    PVParallelView::AxisWidth,
-	    _axis_length + (2 * PVAW_CST),
+	    _axis_length + (2 * axis_extend),
 	    lib_axis()->get_color().toQColor()
 	);
 
