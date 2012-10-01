@@ -575,7 +575,19 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 		axis->set_axis_length(axes_length);
 	}
 
+	QRectF r = _selection_square->rect();
+
+	// unscaling the selection rectangle (with the old y zoom factor)
+	r.setTop(r.top() / _zoom_y);
+	r.setBottom(r.bottom() / _zoom_y);
+
 	_zoom_y = axes_length / 1024.;
+
+	// rescaling the selection rectangle (with the new y zoom factor)
+	r.setTop(r.top() * _zoom_y);
+	r.setBottom(r.bottom() * _zoom_y);
+
+	_selection_square->update_rect(r);
 }
 
 void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent* event)

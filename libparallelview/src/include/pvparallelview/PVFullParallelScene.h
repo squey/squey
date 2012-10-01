@@ -89,7 +89,16 @@ private:
 
 	inline QPointF map_to_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->mapFromScene(p); }
 	inline QPointF map_from_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->mapToScene(p); }
-	QRect map_to_axis(PVZoneID zid, QRectF rect) const { return _axes[zid]->map_from_scene(rect); }
+	QRect map_to_axis(PVZoneID zid, QRectF rect) const
+	{
+		QRect r = _axes[zid]->map_from_scene(rect);
+
+		// top and bottom must be corrected according to the y zoom factor
+		r.setTop(r.top() / _zoom_y);
+		r.setBottom(r.bottom() / _zoom_y);
+
+		return r;
+	}
 
 	bool sliders_moving() const;
 
