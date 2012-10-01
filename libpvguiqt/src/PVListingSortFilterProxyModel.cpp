@@ -11,9 +11,21 @@
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVCustomQtRoles.h>
 
+void PVGuiQt::__impl::PVListingVisbilityObserver::update(arguments_type const&) const
+{
+	_parent->refresh_filter();
+}
+
+void PVGuiQt::__impl::PVListingVisbilityZombieObserver::update(arguments_type const&) const
+{
+	_parent->refresh_filter();
+}
+
 PVGuiQt::PVListingSortFilterProxyModel::PVListingSortFilterProxyModel(Picviz::PVView_sp& lib_view, QObject* parent):
 	PVSortFilterProxyModel(parent),
-	_lib_view(*lib_view.get())
+	_lib_view(*lib_view.get()),
+	_obs_vis(this),
+	_obs_zomb(this)
 {
 	invalidate_all();
 
@@ -21,6 +33,8 @@ PVGuiQt::PVListingSortFilterProxyModel::PVListingSortFilterProxyModel(Picviz::PV
 	_obs_sel.connect_refresh(this, SLOT(refresh_filter()));
 	PVHive::get().register_observer(lib_view, [=](Picviz::PVView& view) { return &view.get_output_layer(); }, _obs_output_layer);
 	PVHive::get().register_observer(lib_view, [=](Picviz::PVView& view) { return &view.get_real_output_selection(); }, _obs_sel);
+	PVHive::get().register_func_observer(lib_view, _obs_vis);
+	PVHive::get().register_func_observer(lib_view, _obs_zomb);
 }
 
 bool PVGuiQt::PVListingSortFilterProxyModel::less_than(const QModelIndex &left, const QModelIndex &right) const

@@ -18,19 +18,35 @@
 
 namespace PVGuiQt {
 
+class PVListingSortFilterProxyModel;
+
+
 namespace __impl {
 
-class PVSelFuncObserver: public PVHive::PVFuncObserverSignal<Picviz::PVView, FUNC(Picviz::PVView::process_from_selection)>
+struct PVListingVisbilityObserver: public PVHive::PVFuncObserver<Picviz::PVView, FUNC(Picviz::PVView::toggle_listing_unselected_visibility)>
 {
-	Q_OBJECT
+	PVListingVisbilityObserver(PVGuiQt::PVListingSortFilterProxyModel* parent):
+		_parent(parent)
+	{ }
 
-public:
-	void about_to_be_updated(const arguments_deep_copy_type&) const override { emit about_to_refresh_sel(); }
-	void update(const arguments_deep_copy_type&) const override { emit refresh_sel(); }
+protected:
+	virtual void update(arguments_type const& args) const;
 
-signals:
-	void about_to_refresh_sel() const;
-	void refresh_sel() const;
+private:
+	PVGuiQt::PVListingSortFilterProxyModel* _parent;
+};
+
+struct PVListingVisbilityZombieObserver: public PVHive::PVFuncObserver<Picviz::PVView, FUNC(Picviz::PVView::toggle_listing_zombie_visibility)>
+{
+	PVListingVisbilityZombieObserver(PVGuiQt::PVListingSortFilterProxyModel* parent):
+		_parent(parent)
+	{ }
+
+protected:
+	virtual void update(arguments_type const& args) const;
+
+private:
+	PVGuiQt::PVListingSortFilterProxyModel* _parent;
 };
 
 }
@@ -61,6 +77,8 @@ private:
 	//__impl::PVSelFuncObserver _obs_sel;
 	PVHive::PVObserverSignal<Picviz::PVLayer> _obs_output_layer;
 	PVHive::PVObserverSignal<Picviz::PVSelection> _obs_sel;
+	__impl::PVListingVisbilityObserver _obs_vis;
+	__impl::PVListingVisbilityZombieObserver _obs_zomb;
 
 	// Temporary
 	Picviz::PVDefaultSortingFunc _def_sort;

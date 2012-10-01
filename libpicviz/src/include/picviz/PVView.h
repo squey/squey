@@ -238,6 +238,9 @@ public:
 	void select_no_line();
 	void select_inv_lines();
 
+	void toggle_listing_unselected_visibility();
+	void toggle_listing_zombie_visibility();
+
 	PVSortingFunc_p get_sort_plugin_for_col(PVCol col) const;
 
 
