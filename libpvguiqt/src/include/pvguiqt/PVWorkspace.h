@@ -11,6 +11,7 @@
 #include <QList>
 #include <QObject>
 #include <QMainWindow>
+#include <QToolButton>
 #include <QWidget>
 
 #include <picviz/PVSource_types.h>
@@ -45,6 +46,8 @@ public slots:
 	void create_zoomed_parallel_view(Picviz::PVView* view, int axis_id);
 	void show_datatree_view(bool show);
 	void check_datatree_button(bool check = false);
+	void show_layerstack();
+	void hide_layerstack();
 	void display_destroyed(QObject* object = 0);
 
 private:
@@ -52,6 +55,7 @@ private:
 	Picviz::PVSource_sp _source;
 	QToolBar* _toolbar;
 	QAction* _datatree_view_action;
+	QToolButton* _layerstack_tool_button;
 };
 
 }

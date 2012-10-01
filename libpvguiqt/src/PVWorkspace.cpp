@@ -7,9 +7,9 @@
 #include <QAction>
 #include <QHBoxLayout>
 #include <QMenu>
+#include <QPalette>
 #include <QPushButton>
 #include <QToolBar>
-#include <QToolButton>
 
 #include <pvkernel/core/PVDataTreeAutoShared.h>
 #include <pvkernel/core/PVProgressBox.h>
@@ -21,6 +21,7 @@
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
 
+#include <pvguiqt/PVLayerStackWidget.h>
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVListingView.h>
@@ -46,15 +47,32 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 	_datatree_view_action = new QAction(_toolbar);
 	_datatree_view_action->setCheckable(true);
 	_datatree_view_action->setIcon(QIcon(":/view_display_datatree"));
-	_datatree_view_action->setToolTip(tr("Add data tree"));
+	_datatree_view_action->setToolTip(tr("toggle data tree visibility"));
 	connect(_datatree_view_action, SIGNAL(triggered(bool)), this, SLOT(show_datatree_view(bool)));
 	_toolbar->addAction(_datatree_view_action);
-	_toolbar->addSeparator();
 	PVRootTreeModel* datatree_model = new PVRootTreeModel(*_source);
 	PVRootTreeView* data_tree_view = new PVRootTreeView(datatree_model);
 	PVGuiQt::PVViewDisplay* data_tree_view_display = add_view_display(data_tree_view, "Data tree", false);
 	connect(data_tree_view_display, SIGNAL(display_closed()), this, SLOT(check_datatree_button()));
 	check_datatree_button(true);
+
+
+	// Layerstack views toolbar button
+	_layerstack_tool_button = new QToolButton(_toolbar);
+	_layerstack_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
+	_layerstack_tool_button->setIcon(QIcon(":/layer-active.png"));
+	_layerstack_tool_button->setToolTip(tr("Add layer stack"));
+	for (auto view : source->get_children<Picviz::PVView>()) {
+		PVLayerStackWidget* layerstack_view = new PVLayerStackWidget(view);
+		PVGuiQt::PVViewDisplay* layerstack_view_display = add_view_display(layerstack_view, "Layer stack [" + view->get_name() + "]", false);
+		QAction* action = new QAction(view->get_name(), layerstack_view_display);
+		connect(action, SIGNAL(triggered(bool)), this, SLOT(show_layerstack()));
+		_layerstack_tool_button->addAction(action);
+		connect(layerstack_view_display, SIGNAL(display_closed()), this, SLOT(hide_layerstack()));
+		layerstack_view_display->setVisible(false); //
+	}
+	_toolbar->addWidget(_layerstack_tool_button);
+	_toolbar->addSeparator();
 
 	// Listings button
 	QToolButton* listing_tool_button = new QToolButton(_toolbar);
@@ -108,6 +126,14 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource_sp source, QWidget* parent) :
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/)
 {
 	PVViewDisplay* view_display = new PVViewDisplay(can_be_central_display, this);
+
+    /*QPalette pal = view_display->palette();
+    pal.setColor(QPalette::Background, QColor(50, 200, 1));
+    view_display->setPalette(pal);
+    view_display->setAutoFillBackground(true);*/
+
+	//view_display->setStyleSheet("QDockWidget::title {background: purple;} QDockWidget { background: purple;} ");
+
 	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
 	view_display->setWidget(view_widget);
 	view_display->setWindowTitle(name);
@@ -197,6 +223,25 @@ void PVGuiQt::PVWorkspace::show_datatree_view(bool show)
 	for (auto display : _displays) {
 		if (dynamic_cast<PVRootTreeView*>(display->widget())) {
 			display->setVisible(show);
+		}
+	}
+}
+
+void  PVGuiQt::PVWorkspace::show_layerstack()
+{
+	QAction* action = (QAction*) sender();
+	PVViewDisplay* view_display = (PVViewDisplay*) action->parent();
+	view_display->setVisible(true);
+	action->setEnabled(false);
+}
+
+void  PVGuiQt::PVWorkspace::hide_layerstack()
+{
+	PVViewDisplay* view_display = (PVViewDisplay*) sender();
+
+	for (QAction* action : _layerstack_tool_button->actions()) {
+		if (action->parent() == view_display) {
+			action->setEnabled(true);
 		}
 	}
 }
