@@ -589,6 +589,11 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 
 	_zoom_y = axes_length / 1024.;
 
+	// propagate this value to all PVSlidersGroup
+	for(PVAxisGraphicsItem *axis : _axes) {
+		axis->get_sliders_group()->set_axis_scale(_zoom_y);
+	}
+
 	if (r.isNull() == false) {
 		// and it must be rescaled (using the new y zoom factor)
 		r.setTop(r.top() * _zoom_y);

@@ -40,8 +40,8 @@ void PVParallelView::PVSelectionAxisSliders::initialize(id_t id,
 	addToGroup(_sl_max);
 
 	// set positions in their parent, not in the QGraphicsScene
-	_sl_min->setPos(0, y_min);
-	_sl_max->setPos(0, y_max);
+	_sl_min->set_value(y_min);
+	_sl_max->set_value(y_max);
 
 	connect(_sl_min, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
 	connect(_sl_max, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
@@ -71,11 +71,12 @@ void PVParallelView::PVSelectionAxisSliders::remove_from_axis()
 void PVParallelView::PVSelectionAxisSliders::do_sliders_moved()
 {
 	emit sliders_moved();
+
 	PVHive::call<FUNC(PVSlidersManager::update_selection_sliders)>(_sliders_manager_p,
 	                                                               _group->get_axis_id(),
 	                                                               _id,
-	                                                               _sl_min->value(),
-	                                                               _sl_max->value());
+	                                                               _sl_min->get_value(),
+	                                                               _sl_max->get_value());
 }
 
 /*****************************************************************************
@@ -111,8 +112,7 @@ void PVParallelView::PVSelectionAxisSliders::selection_sliders_update_obs::updat
 			y_min = tmp;
 		}
 
-		_parent->_sl_min->set_value(y_min);
-		_parent->_sl_max->set_value(y_max);
+		_parent->refresh_value(y_min, y_max);
 
 		emit _parent->sliders_moved();
 	}
