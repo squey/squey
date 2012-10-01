@@ -62,11 +62,13 @@ void PVInspector::PVMainWindow::about_Slot()
 		main_layout->setHorizontalSpacing(0);
 
 		QLabel *logo = new QLabel;
+
+		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2012 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n";
+
 #ifdef CUDA
-		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nWith CUDA support\nQT version " + QString(QT_VERSION_STR);
-#else
-		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nQT version " + QString(QT_VERSION_STR);
+		content += "\nWith CUDA support\n";
 #endif
+		content += "\nQT version " + QString(QT_VERSION_STR);
 
 		QGraphicsView* view3D = new GraphicsView();
 		view3D->setStyleSheet("QGraphicsView { background-color: white; color: white; border-style: none; }");

@@ -102,7 +102,7 @@ int main(int argc, char** argv)
 	PVGuiQt::PVWorkspacesTabWidget* workspaces_tab_widget = new PVGuiQt::PVWorkspacesTabWidget(mw);
 	workspaces_tab_widget->resize(mw->size());
 
-	PVGuiQt::PVWorkspace* workspace1 = new PVGuiQt::PVWorkspace(src);
+	PVGuiQt::PVWorkspace* workspace1 = new PVGuiQt::PVWorkspace(src.get());
 
 
 	workspaces_tab_widget->addTab(workspace1, "Workspace1");

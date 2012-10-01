@@ -135,7 +135,3 @@ target_link_libraries(Tcore_decimal_storage ${PVKERNEL_LIBRARIES})
 # Huge POD vector
 add_executable(Tcore_huge_vector huge_vector.cpp)
 target_link_libraries(Tcore_huge_vector ${PVKERNEL_LIBRARIES})
-
-# PCRE
-add_executable(Tcore_pcre pcre.cpp)
-target_link_libraries(Tcore_pcre ${PVKERNEL_LIBRARIES} ${PCRE_LIBRARIES})

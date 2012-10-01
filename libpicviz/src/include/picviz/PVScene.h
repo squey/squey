@@ -111,7 +111,7 @@ private:
 
 	PVCore::PVSerializeArchive_p _original_archive;
 
-	QRgb _view_colors[3] = { 0x66006E, 0x778800, 0x332211 } ;
+	QRgb _view_colors[4] = { 0x9966CC, 0x6699CC, 0x778800, 0xFFCC66 } ;
 
 };
 

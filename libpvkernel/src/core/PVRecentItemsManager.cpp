@@ -28,7 +28,7 @@ void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_c
 		_recents_settings.remove(QString::number(source_timestamp));
 	}
 
-	_recents_settings.beginGroup(QString::number(QDateTime::currentDateTime().toTime_t()));
+	_recents_settings.beginGroup(QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()));
 
 	_recents_settings.setValue("__sc_name", source_creator_p->registered_name());
 	_recents_settings.setValue("__format_name", format.get_format_name());
@@ -146,10 +146,10 @@ uint64_t PVCore::PVRecentItemsManager::get_source_timestamp_to_replace(const PVR
 
 	QStringList sources = _recents_settings.childGroups();
 
-	uint64_t older_timestamp = QDateTime::currentDateTime().toTime_t();
+	uint64_t older_timestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();
 	for (QString source_timestamp : sources) {
 
-		older_timestamp = std::min(older_timestamp, (uint64_t) source_timestamp.toUInt());
+		older_timestamp = std::min(older_timestamp, (uint64_t) source_timestamp.toULong());
 
 		_recents_settings.beginGroup(source_timestamp);
 
@@ -158,7 +158,7 @@ uint64_t PVCore::PVRecentItemsManager::get_source_timestamp_to_replace(const PVR
 		_recents_settings.endGroup();
 
 		if (source_description == src_desc) {
-			return source_timestamp.toUInt();
+			return source_timestamp.toULong();
 		}
 	}
 
