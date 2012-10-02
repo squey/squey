@@ -97,7 +97,7 @@ private slots:
 	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr);
 	void add_listing_view(bool central = false);
 	void create_parallel_view();
-	void create_zoomed_parallel_view(Picviz::PVView* view, int axis_id);
+	void create_zoomed_parallel_view();
 	void show_datatree_view(bool show);
 	void check_datatree_button(bool check = false);
 	void create_layerstack();
@@ -118,6 +118,7 @@ private:
 	QToolButton* _layerstack_tool_button;
 	QToolButton* _listing_tool_button;
 	QToolButton* _parallel_view_tool_button;
+	QToolButton* _zoomed_parallel_view_tool_button;
 
 	std::list<datatree_obs_t> _obs;
 	uint64_t _views_count;
