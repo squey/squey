@@ -455,8 +455,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 	PVHive::call<FUNC(PVSlidersManager::update_zoom_sliders)>(_sliders_manager_p,
 	                                                          _axis_id, _sliders_group,
-	                                                          y_min >> (32 - NBITS_INDEX),
-	                                                          y_max >> (32 - NBITS_INDEX),
+	                                                          y_min, y_max,
 	                                                          PVParallelView::PVSlidersManager::ZoomSliderNone);
 	_last_y_min = y_min;
 	_last_y_max = y_max;
@@ -771,8 +770,8 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(argu
 	}
 
 	if ((axis_id == _parent->_axis_id) && (id == _parent->_sliders_group)) {
-		double sld_min = std::get<2>(args);
-		double sld_max = std::get<3>(args);
+		double sld_min = std::get<2>(args) / (double)PVAbstractAxisSlider::precision;
+		double sld_max = std::get<3>(args) / (double)PVAbstractAxisSlider::precision;
 		double sld_dist = sld_max - sld_min;
 
 		// computing the nearest range matching the discrete zoom rules

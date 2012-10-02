@@ -22,7 +22,7 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
 	_axis_scale(1.0f)
 {
 	// does not care about children events
-	// RH: this method is obsolete in Qt 4.8 and replaced with
+	// RH: this method is obsolete in Qt 4.8 and should be replaced with
 	//     setFiltersChildEvents() but this latter does not have the same
 	//     behaviour... so I keep setHandlesChildEvents()
 	setHandlesChildEvents(false);
@@ -97,21 +97,26 @@ void PVParallelView::PVSlidersGroup::set_axis_scale(float s)
  * PVParallelView::PVSlidersGroup::add_zoom_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::add_zoom_sliders(uint32_t y_min,
-                                                      uint32_t y_max)
+void PVParallelView::PVSlidersGroup::add_zoom_sliders(int64_t y_min,
+                                                      int64_t y_max)
 {
 	PVHive::call<FUNC(PVSlidersManager::new_zoom_sliders)>(_sliders_manager_p,
 	                                                       get_axis_id(),
-	                                                       this, y_min, y_max);
+	                                                       this,
+	                                                       y_min * PVAbstractAxisSlider::precision,
+	                                                       y_max * PVAbstractAxisSlider::precision);
 }
 
 /*****************************************************************************
  * PVParallelView::PVSlidersGroup::add_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::add_selection_sliders(uint32_t y_min,
-                                                           uint32_t y_max)
+void PVParallelView::PVSlidersGroup::add_selection_sliders(int64_t y_min,
+                                                           int64_t y_max)
 {
+	y_min *= PVAbstractAxisSlider::precision;
+	y_max *= PVAbstractAxisSlider::precision;
+
 	PVParallelView::PVSelectionAxisSliders *sliders =
 		new PVParallelView::PVSelectionAxisSliders(this, _sliders_manager_p,
 		                                           this);
@@ -158,8 +163,8 @@ bool PVParallelView::PVSlidersGroup::sliders_moving() const
  *****************************************************************************/
 
 void PVParallelView::PVSlidersGroup::add_new_zoom_sliders(id_t id,
-                                                          uint32_t y_min,
-                                                          uint32_t y_max)
+                                                          int64_t y_min,
+                                                          int64_t y_max)
 {
 	PVParallelView::PVZoomAxisSliders* sliders =
 		new PVParallelView::PVZoomAxisSliders(this, _sliders_manager_p,
@@ -185,8 +190,8 @@ void PVParallelView::PVSlidersGroup::add_new_zoom_sliders(id_t id,
 
 void PVParallelView::PVSlidersGroup::add_new_selection_sliders(PVParallelView::PVSelectionAxisSliders* sliders,
                                                                id_t id,
-                                                               uint32_t y_min,
-                                                               uint32_t y_max)
+                                                               int64_t y_min,
+                                                               int64_t y_max)
 {
 	if (sliders == nullptr) {
 		sliders = new PVParallelView::PVSelectionAxisSliders(this, _sliders_manager_p,
@@ -222,8 +227,8 @@ void PVParallelView::PVSlidersGroup::zoom_sliders_new_obs::update(arguments_deep
 		PVSlidersManager::id_t id = std::get<1>(args);
 
 		if (id != _parent) {
-			uint32_t y_min = std::get<2>(args);
-			uint32_t y_max = std::get<3>(args);
+			int64_t y_min = std::get<2>(args);
+			int64_t y_max = std::get<3>(args);
 			_parent->add_new_zoom_sliders(id, y_min, y_max);
 		}
 	}
@@ -241,8 +246,8 @@ void PVParallelView::PVSlidersGroup::selection_sliders_new_obs::update(arguments
 		PVSlidersManager::id_t id = std::get<1>(args);
 
 		if (_parent->_registered_ids.find(id) == _parent->_registered_ids.end()) {
-			uint32_t y_min = std::get<2>(args);
-			uint32_t y_max = std::get<3>(args);
+			int64_t y_min = std::get<2>(args);
+			int64_t y_max = std::get<3>(args);
 			_parent->add_new_selection_sliders(nullptr, id,
 			                                   y_min, y_max);
 		}

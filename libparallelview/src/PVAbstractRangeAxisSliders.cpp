@@ -32,9 +32,9 @@ void PVParallelView::PVAbstractRangeAxisSliders::paint(QPainter *painter,
 		QPen new_pen(Qt::white);
 		new_pen.setWidth(0);
 		painter->setPen(new_pen);
-		int vmin = _sl_min->pos().y();
-		int vmax = _sl_max->pos().y();
-		painter->drawLine(0, vmin, 0, vmax);
+		qreal vmin = _sl_min->pos().y();
+		qreal vmax = _sl_max->pos().y();
+		painter->drawLine(QPointF(0., vmin), QPointF(0., vmax));
 
 		_text->setPos(0, vmin);
 		_text->show();

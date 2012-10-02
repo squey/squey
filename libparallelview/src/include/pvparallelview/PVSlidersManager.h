@@ -37,8 +37,8 @@ public:
 
 	struct range_geometry_t
 	{
-		uint32_t y_min;
-		uint32_t y_max;
+		int64_t y_min;
+		int64_t y_max;
 	};
 
 	typedef std::function<void(const axis_id_t, const id_t,
@@ -61,9 +61,9 @@ public:
 	 * @param y_max the high position of the sliders
 	 */
 	void new_selection_sliders(const axis_id_t &axis_id, const id_t id,
-	                           const uint32_t y_min, const uint32_t y_max);
+	                           const int64_t y_min, const int64_t y_max);
 	void new_zoom_sliders(const axis_id_t &axis_id, const id_t id,
-	                      const uint32_t y_min, const uint32_t y_max);
+	                      const int64_t y_min, const int64_t y_max);
 
 	/**
 	 * Function to observe (in PVHive way) to be notified when a new
@@ -85,9 +85,9 @@ public:
 	 * @param y_max the high position of the sliders
 	 */
 	void update_selection_sliders(const axis_id_t &axis_id, const id_t id,
-	                              const uint32_t y_min, const uint32_t y_max);
+	                              const int64_t y_min, const int64_t y_max);
 	void update_zoom_sliders(const axis_id_t &axis_id, const id_t id,
-	                         const uint32_t y_min, const uint32_t y_max,
+	                         const int64_t y_min, const int64_t y_max,
 	                         const ZoomSliderChange change);
 
 	/**
@@ -108,14 +108,14 @@ private:
 private:
 	void new_range_sliders(range_geometry_set_t &range,
 	                          const axis_id_t &axis_id, const id_t id,
-	                          const uint32_t y_min, const uint32_t y_max);
+	                          const int64_t y_min, const int64_t y_max);
 
 	void del_range_sliders(range_geometry_set_t &range,
 	                          const axis_id_t &axis_id, const id_t id);
 
 	void update_range_sliders(range_geometry_set_t &range,
 	                             const axis_id_t &axis_id, const id_t id,
-	                             const uint32_t y_min, const uint32_t y_max);
+	                             const int64_t y_min, const int64_t y_max);
 
 	void iterate_range_sliders(const range_geometry_set_t &range,
 	                              const range_functor_t &functor) const;

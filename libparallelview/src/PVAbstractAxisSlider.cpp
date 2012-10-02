@@ -14,7 +14,7 @@
  * PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider
  *****************************************************************************/
 
-PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider(int omin, int omax, int o,
+PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider(int64_t omin, int64_t omax, int64_t o,
                                                            PVAxisSliderOrientation orientation) :
 	_offset_min(omin), _offset_max(omax), _offset(o),
 	_orientation(orientation), _moving(false)
@@ -41,13 +41,15 @@ PVParallelView::PVAbstractAxisSlider::~PVAbstractAxisSlider()
  * PVParallelView::PVAbstractAxisSlider::set_value
  *****************************************************************************/
 
-void PVParallelView::PVAbstractAxisSlider::set_value(int v)
+void PVParallelView::PVAbstractAxisSlider::set_value(int64_t v)
 {
 	_offset = PVCore::clamp(v, _offset_min, _offset_max);
 
-	float f = _owner->get_sliders_group()->get_axis_scale();
-	v = PVCore::clamp<int>(v * f, _offset_min * f, _offset_max * f);
-	setPos(0., v);
+	double f = _owner->get_sliders_group()->get_axis_scale();
+	double vd = PVCore::clamp<int64_t>(_offset * f, _offset_min * f, _offset_max * f);
+	vd /= (double)precision;
+
+	setPos(0., vd);
 }
 
 /*****************************************************************************
@@ -109,8 +111,8 @@ void PVParallelView::PVAbstractAxisSlider::mouseReleaseEvent(QGraphicsSceneMouse
 void PVParallelView::PVAbstractAxisSlider::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (event->buttons() == Qt::LeftButton) {
-		// +0.5 to have a rounded value
-		set_value((event->scenePos().y() / _owner->get_sliders_group()->get_axis_scale()) + 0.5);
+		double sy = ((double)precision * event->scenePos().y()) / _owner->get_sliders_group()->get_axis_scale();
+		set_value(sy);
 
 		group()->update();
 		event->accept();

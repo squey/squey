@@ -61,9 +61,9 @@ public:
 		return QRectF(-10, 0, 10, 1024);
 	}
 
-	void add_zoom_sliders(uint32_t y_min, uint32_t y_max);
+	void add_zoom_sliders(int64_t y_min, int64_t y_max);
 
-	void add_selection_sliders(uint32_t y_min, uint32_t y_max);
+	void add_selection_sliders(int64_t y_min, int64_t y_max);
 
 	bool sliders_moving() const;
 
@@ -82,9 +82,9 @@ private:
 	 * If sliders is nullptr, it is created.
 	 * If id is 0, it is deduced from sliders.
 	 */
-	void add_new_zoom_sliders(id_t id, uint32_t y_min, uint32_t y_max);
+	void add_new_zoom_sliders(id_t id, int64_t y_min, int64_t y_max);
 	void add_new_selection_sliders(PVSelectionAxisSliders* sliders,
-	                               id_t id, uint32_t y_min, uint32_t y_max);
+	                               id_t id, int64_t y_min, int64_t y_max);
 
 private:
 	class zoom_sliders_new_obs :

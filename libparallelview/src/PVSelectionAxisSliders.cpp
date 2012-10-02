@@ -24,13 +24,17 @@ PVParallelView::PVSelectionAxisSliders::PVSelectionAxisSliders(QGraphicsItem *pa
  *****************************************************************************/
 
 void PVParallelView::PVSelectionAxisSliders::initialize(id_t id,
-                                                        uint32_t y_min, uint32_t y_max)
+                                                        int64_t y_min, int64_t y_max)
 {
 	_id = id;
 
-	_sl_min = new PVSelectionAxisSlider(0, 1024, y_min,
+	_sl_min = new PVSelectionAxisSlider(PVAbstractAxisSlider::min_value,
+	                                    PVAbstractAxisSlider::max_value,
+	                                    y_min,
 	                                    PVAxisSliderOrientation::Min);
-	_sl_max = new PVSelectionAxisSlider(0, 1024, y_max,
+	_sl_max = new PVSelectionAxisSlider(PVAbstractAxisSlider::min_value,
+	                                    PVAbstractAxisSlider::max_value,
+	                                    y_max,
 	                                    PVAxisSliderOrientation::Max);
 
 	_sl_min->set_owner(this);
@@ -104,10 +108,10 @@ void PVParallelView::PVSelectionAxisSliders::selection_sliders_update_obs::updat
 	PVSlidersManager::id_t id = std::get<1>(args);
 
 	if ((axis_id == _parent->_group->get_axis_id()) && (id == _parent->_id)) {
-		int y_min = std::get<2>(args);
-		int y_max = std::get<3>(args);
+		int64_t y_min = std::get<2>(args);
+		int64_t y_max = std::get<3>(args);
 		if (y_max < y_min) {
-			int tmp = y_max;
+			int64_t tmp = y_max;
 			y_max = y_min;
 			y_min = tmp;
 		}
