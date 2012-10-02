@@ -11,6 +11,7 @@
 #include <QCloseEvent>
 #include <QDockWidget>
 #include <QFocusEvent>
+#include <QContextMenuEvent>
 
 #include <iostream>
 
@@ -36,6 +37,7 @@ public:
 	Picviz::PVView* get_view() { return _view; }
 
 protected:
+	void contextMenuEvent(QContextMenuEvent* event);
 	void closeEvent(QCloseEvent * event)
 	{
 		emit display_closed();
@@ -49,10 +51,11 @@ signals:
 	void display_closed();
 
 private:
-	PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget = true, QWidget* parent = 0);
+	PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspace* parent);
 
 private:
 	Picviz::PVView* _view;
+	PVWorkspace* _workspace;
 };
 
 class FocusInEventFilter : public QObject

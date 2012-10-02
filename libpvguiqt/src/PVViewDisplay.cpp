@@ -4,19 +4,23 @@
  * Copyright (C) Picviz Labs 2012
  */
 
+#include <QMenu>
+
 #include <QAbstractScrollArea>
 #include <QScrollBar>
 
 #include <pvguiqt/PVViewDisplay.h>
+#include <pvguiqt/PVWorkspace.h>
 
 #include <picviz/PVView.h>
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
 
-PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget /*= true*/, QWidget* parent /*= 0*/) :
-	QDockWidget(parent),
-	_view(view)
+PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspace* workspace) :
+	QDockWidget((QWidget*)workspace),
+	_view(view),
+	_workspace(workspace)
 {
 	setFocusPolicy(Qt::StrongFocus);
 	setWidget(view_widget);
@@ -38,15 +42,22 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 	}
 
 	if (can_be_central_widget) {
-
 		setAttribute(Qt::WA_DeleteOnClose, true);
+	}
+}
 
+void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
+{
+	bool add_menu = true;
+	add_menu &= _workspace->centralWidget() != this;
+	add_menu &=  !widget()->isAncestorOf(childAt(event->pos()));
+
+	if (add_menu) {
+		QMenu* ctxt_menu = new QMenu(this);
 		QAction* switch_action = new QAction(tr("Set as central display"), this);
-
-		addAction(switch_action);
-		setContextMenuPolicy(Qt::ActionsContextMenu);
-
-		connect(switch_action, SIGNAL(triggered(bool)), parent, SLOT(switch_with_central_widget()));
+		connect(switch_action, SIGNAL(triggered(bool)), (QWidget*)_workspace, SLOT(switch_with_central_widget()));
+		ctxt_menu->addAction(switch_action);
+		ctxt_menu->popup(QCursor::pos());
 	}
 }
 
