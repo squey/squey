@@ -130,11 +130,19 @@ public:
 
 public:
 	template <typename... Tparams>
-	child_t* new_child(Tparams... params)
+	child_t* new_child(Tparams && ... params)
 	{
-		pchild_t ret(new child_t(params...));
+		pchild_t ret(new child_t(std::forward<Tparams>(params)...));
 		add_child(ret);
-		return ret;
+		return ret.get();
+	}
+
+	child_t* new_child_default()
+	{
+		PVCore::PVSharedPtr<child_t> ret(new child_t());
+		real_type_t* me = static_cast<real_type_t*>(this);
+		ret->set_parent(me);
+		return ret.get();
 	}
 
 	/*! \brief Return the children of a data tree object at the specified hierarchical level (as a class type).

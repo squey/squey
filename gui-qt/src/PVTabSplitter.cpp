@@ -161,6 +161,7 @@ PVInspector::PVTabSplitter::~PVTabSplitter()
  *****************************************************************************/
 void PVInspector::PVTabSplitter::create_new_mapped()
 {
+#if 0
 	Picviz::PVMapped_p mapped(get_lib_src()->shared_from_this());
 
 	Picviz::PVMapping* new_mapping = new Picviz::PVMapping(mapped.get());
@@ -177,6 +178,7 @@ void PVInspector::PVTabSplitter::create_new_mapped()
 	}
 
 	//_views_widget->force_refresh();
+#endif
 }
 
 void PVInspector::PVTabSplitter::toggle_listing_sort()
@@ -199,6 +201,7 @@ void PVInspector::PVTabSplitter::toggle_listing_sort()
  *****************************************************************************/
 void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_parent)
 {
+#if 0
 	Picviz::PVPlotted_p plotted(mapped_parent->shared_from_this());
 	Picviz::PVPlotting_p new_plotting(new Picviz::PVPlotting(plotted.get()));
 
@@ -214,6 +217,7 @@ void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_par
 	}
 
 	//_views_widget->force_refresh();
+#endif
 }
 
 
@@ -225,6 +229,7 @@ void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_par
  *****************************************************************************/
 void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
 {
+#if 0
 	PVMappingPlottingEditDialog* dlg;
 	dlg = new PVMappingPlottingEditDialog(mapped->get_mapping(), NULL, this);
 	if (dlg->exec() == QDialog::Rejected) {
@@ -232,6 +237,7 @@ void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
 	}
 
 	process_mapped_if_current(mapped);
+#endif
 }
 
 
@@ -243,12 +249,14 @@ void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
  *****************************************************************************/
 void PVInspector::PVTabSplitter::edit_plotted(Picviz::PVPlotted* plotted)
 {
+#if 0
 	PVMappingPlottingEditDialog* dlg;
 	dlg = new PVMappingPlottingEditDialog(NULL, &plotted->get_plotting(), this);
 	if (dlg->exec() != QDialog::Accepted) {
 		return;
 	}
 	process_plotted_if_current(plotted);
+#endif
 }
 
 

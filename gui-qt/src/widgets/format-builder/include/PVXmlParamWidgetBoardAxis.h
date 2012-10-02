@@ -36,12 +36,14 @@
 #include <PVXmlParamList.h>
 
 // Widget helpers
-#include <PVAxisTypeWidget.h>
-#include <PVMappingModeWidget.h>
-#include <PVPlottingModeWidget.h>
+#include <picviz/widgets/PVAxisTypeWidget.h>
+#include <picviz/widgets/PVMappingModeWidget.h>
+#include <picviz/widgets/PVPlottingModeWidget.h>
 
 #include <picviz/plugins.h>
 #include <picviz/PVLayerFilter.h>
+#include <picviz/PVMappingFilter.h>
+#include <picviz/PVPlottingFilter.h>
 
 namespace PVWidgets {
 class PVArgumentListWidget;
@@ -85,9 +87,9 @@ public:
     QTabWidget *tabParam;
     PVXmlParamWidgetEditorBox *textName;//name
     //type
-	PVWidgetsHelpers::PVAxisTypeWidget* mapPlotType;
-	PVWidgetsHelpers::PVMappingModeWidget* comboMapping;
-	PVWidgetsHelpers::PVPlottingModeWidget* comboPlotting;
+	PVWidgets::PVAxisTypeWidget* mapPlotType;
+	PVWidgets::PVMappingModeWidget* comboMapping;
+	PVWidgets::PVPlottingModeWidget* comboPlotting;
 	PVXmlParamComboBox * comboGroup;
 	PVXmlParamList* listTags;
     

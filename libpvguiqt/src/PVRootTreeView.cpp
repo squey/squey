@@ -85,6 +85,7 @@ void PVGuiQt::PVRootTreeView::contextMenuEvent(QContextMenuEvent* event)
 	Picviz::PVPlotted* plotted = dynamic_cast<Picviz::PVPlotted*>(obj);
 	if (plotted) {
 		QMenu* ctxt_menu = new QMenu(this);
+		ctxt_menu->addAction(_act_new_view);
 		ctxt_menu->addAction(_act_edit_plotting);
 		ctxt_menu->popup(QCursor::pos());
 		return;
@@ -101,6 +102,11 @@ void PVGuiQt::PVRootTreeView::contextMenuEvent(QContextMenuEvent* event)
 
 void PVGuiQt::PVRootTreeView::create_new_view()
 {
+	Picviz::PVPlotted* plotted = get_selected_obj_as<Picviz::PVPlotted>();
+	if (plotted) {
+		Picviz::PVPlotted_sp plotted_sp = plotted->shared_from_this();
+		PVHive::call<FUNC(Picviz::PVPlotted::new_child_default)>(plotted_sp);
+	}
 }
 
 void PVGuiQt::PVRootTreeView::edit_mapping()

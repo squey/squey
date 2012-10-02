@@ -60,9 +60,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     //name
     textName = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
     //type
-    mapPlotType = new PVWidgetsHelpers::PVAxisTypeWidget(this);
-    comboMapping = new PVWidgetsHelpers::PVMappingModeWidget(this);
-    comboPlotting = new PVWidgetsHelpers::PVPlottingModeWidget(this);
+    mapPlotType = new PVWidgets::PVAxisTypeWidget(this);
+    comboMapping = new PVWidgets::PVMappingModeWidget(this);
+    comboPlotting = new PVWidgets::PVPlottingModeWidget(this);
     
     //tab parameter
     group = new PVXmlParamWidgetEditorBox(QString("group"), new QVariant(node->attribute(PVFORMAT_AXIS_GROUP_STR)));
