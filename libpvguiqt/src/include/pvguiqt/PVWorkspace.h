@@ -93,10 +93,10 @@ public:
 	inline Picviz::PVSource* get_lib_src() { return _source; }
 	inline Picviz::PVSource const* get_lib_src() const { return _source; }
 
-private slots:
+public slots:
 	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr);
 	void add_listing_view(bool central = false);
-	void create_parallel_view();
+	void create_parallel_view(Picviz::PVView* view = nullptr);
 	void create_zoomed_parallel_view();
 	void create_zoomed_parallel_view(Picviz::PVView* view, int axis_id);
 	void show_datatree_view(bool show);

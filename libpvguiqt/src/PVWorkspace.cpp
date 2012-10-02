@@ -111,7 +111,10 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	_toolbar->addWidget(scatter_view_tool_button);
 
 	refresh_views_menus();
-	create_layerstack(source->get_children<Picviz::PVView>()[0].get()); // FIXME: JB: this is the ugliest thing I ever did in Picviz!!
+
+	for (auto view : _source->get_children<Picviz::PVView>()) {
+		create_layerstack(view.get());
+	}
 }
 
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/, Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/)
@@ -203,11 +206,13 @@ PVGuiQt::PVListingView* PVGuiQt::PVWorkspace::create_listing_view(Picviz::PVView
 	return listing_view;
 }
 
-void PVGuiQt::PVWorkspace::create_parallel_view()
+void PVGuiQt::PVWorkspace::create_parallel_view(Picviz::PVView* view /*= nullptr*/)
 {
-	QAction* action = (QAction*) sender();
-	QVariant var = action->data();
-	Picviz::PVView* view = var.value<Picviz::PVView*>();
+	if (!view) {
+		QAction* action = (QAction*) sender();
+		QVariant var = action->data();
+		view = var.value<Picviz::PVView*>();
+	}
 
 	PVParallelView::PVLibView* parallel_lib_view;
 
