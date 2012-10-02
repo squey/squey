@@ -140,7 +140,7 @@ PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::set_central_display(Picviz::PVView
 	return view_display;
 }
 
-void PVGuiQt::PVWorkspace::switch_with_central_widget(PVViewDisplay* display_dock /*= nullptr*/)
+void PVGuiQt::PVWorkspace::switch_with_central_widget(PVViewDisplay* display_dock /* = nullptr */)
 {
 	if (!display_dock) {
 		display_dock = (PVViewDisplay*) sender()->parent();
@@ -158,6 +158,20 @@ void PVGuiQt::PVWorkspace::switch_with_central_widget(PVViewDisplay* display_doc
 	QString central_title = central_dock->windowTitle();
 	central_dock->setWindowTitle(display_dock->windowTitle());
 	display_dock->setWindowTitle(central_title);
+
+	// Exchange views
+	Picviz::PVView* central_view = central_dock->get_view();
+	central_dock->set_view(display_dock->get_view());
+	display_dock->set_view(central_view);
+
+	// Exchange colors
+	QString style = QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ");
+	QColor col1 = central_dock->get_view()->get_color();
+	QColor col2 = display_dock->get_view()->get_color();
+	QString style1 = style.arg(col1.name()).arg(col1.name());
+	QString style2 = style.arg(col2.name()).arg(col2.name());
+	display_dock->setStyleSheet(style1);
+	central_dock->setStyleSheet(style2);
 }
 
 void PVGuiQt::PVWorkspace::add_listing_view(bool central /*= false*/)
