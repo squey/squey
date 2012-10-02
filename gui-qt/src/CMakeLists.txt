@@ -68,7 +68,7 @@ include/PVInvestigationWizard.h
 include/PVWorkspacesTabWidget.h
 #include/PVListingSortFilterProxyModel.h
 include/PVMainWindow.h
-include/PVMappingPlottingEditDialog.h
+#include/PVMappingPlottingEditDialog.h
 include/PVMapWidget.h
 include/PVOpenFileDialog.h
 include/PVSaveFileDialog.h
@@ -84,11 +84,6 @@ include/PVTabSplitter.h
 include/PVViewsModel.h
 
 widgets/PVCheckableComboBox.h
-
-widgets/helpers/include/PVAxisTypeWidget.h
-widgets/helpers/include/PVComboBox.h
-widgets/helpers/include/PVMappingModeWidget.h
-widgets/helpers/include/PVPlottingModeWidget.h
 
 widgets/format-builder/include/PVAxisTagHelp.h
 widgets/format-builder/include/PVFormatBuilderWidget.h
@@ -144,7 +139,7 @@ PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
 PVMapWidget.cpp
-PVMappingPlottingEditDialog.cpp
+#PVMappingPlottingEditDialog.cpp
 PVInputTypeMenuEntries.cpp
 PVOpenFileDialog.cpp
 PVSaveFileDialog.cpp
@@ -178,11 +173,6 @@ widgets/format-builder/PVXmlRegValidatorHighLight.cpp
 widgets/format-builder/PVXmlTreeItemDelegate.cpp
 widgets/format-builder/PVXmlTreeView.cpp
 widgets/format-builder/PVXmlTimeValidatorHighLight.cpp
-
-widgets/helpers/PVAxisTypeWidget.cpp
-widgets/helpers/PVComboBox.cpp
-widgets/helpers/PVMappingModeWidget.cpp
-widgets/helpers/PVPlottingModeWidget.cpp
 
 # logviewer/addmachinedialog.cpp
 # logviewer/fileconnectiondialog.cpp

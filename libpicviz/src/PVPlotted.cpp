@@ -561,6 +561,17 @@ void Picviz::PVPlotted::child_added(PVView& child)
 	get_parent<PVSource>()->add_view(child.shared_from_this());
 }
 
+bool Picviz::PVPlotted::is_current_plotted() const
+{
+	Picviz::PVView const* cur_view = get_parent<PVSource>()->current_view();
+	for (auto const& cv: get_children()) {
+		if (cv.get() == cur_view) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void Picviz::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 {
 	data_tree_plotted_t::serialize_write(so);

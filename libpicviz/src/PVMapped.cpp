@@ -469,6 +469,17 @@ QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_not_within_range(decim
 	return cols_ret;
 }
 
+bool Picviz::PVMapped::is_current_mapped() const
+{
+	Picviz::PVView const* cur_view = get_parent<PVSource>()->current_view();
+	for (auto const& cv: get_children<Picviz::PVView>()) {
+		if (cv.get() == cur_view) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void Picviz::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 {
 	data_tree_mapped_t::serialize_write(so);

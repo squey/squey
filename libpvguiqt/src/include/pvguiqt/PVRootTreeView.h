@@ -10,6 +10,16 @@
 #include <pvkernel/core/general.h>
 #include <QTreeView>
 
+namespace PVCore {
+class PVDataTreeObjectBase;
+}
+
+namespace Picviz {
+class PVPlotted;
+class PVMapped;
+class PVView;
+}
+
 namespace PVGuiQt {
 
 class PVRootTreeModel;
@@ -17,15 +27,40 @@ class PVTabSplitter;
 
 class PVRootTreeView: public QTreeView
 {
+	Q_OBJECT
+
 public:
 	PVRootTreeView(PVRootTreeModel* model, QWidget* parent = 0);
 
 protected:
-	void mouseDoubleClickEvent(QMouseEvent* event);
+	void mouseDoubleClickEvent(QMouseEvent* event) override;
+	void contextMenuEvent(QContextMenuEvent* event) override;
+
+protected slots:
+	// Actions slots
+	void create_new_view();
+	void edit_mapping();
+	void edit_plotting();
 
 protected:
-	PVRootTreeModel* tree_model() { return static_cast<PVRootTreeModel*>(model()); }
-	PVRootTreeModel const* tree_model() const { return static_cast<PVRootTreeModel const*>(model()); }
+	PVCore::PVDataTreeObjectBase* get_selected_obj();
+
+	template <typename T>
+	T* get_selected_obj_as()
+	{
+		return dynamic_cast<T*>(this->get_selected_obj());
+	}
+
+protected:
+	PVRootTreeModel* tree_model();
+	PVRootTreeModel const* tree_model() const;
+
+private:
+	QAction* _act_new_view;
+	QAction* _act_new_plotted;
+	QAction* _act_new_mapped;
+	QAction* _act_edit_mapping;
+	QAction* _act_edit_plotting;
 
 };
 

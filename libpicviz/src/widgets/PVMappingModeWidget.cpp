@@ -4,37 +4,38 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <picviz/PVMapping.h>
 #include <picviz/PVMappingFilter.h>
 #include <picviz/PVView.h>
 
-#include <PVMappingModeWidget.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <picviz/widgets/PVArgumentListWidgetFactory.h>
+#include <picviz/widgets/PVMappingModeWidget.h>
 
 #include <QHBoxLayout>
 
-PVInspector::PVWidgetsHelpers::PVMappingModeWidget::PVMappingModeWidget(QString const& type, QWidget* parent):
+PVWidgets::PVMappingModeWidget::PVMappingModeWidget(QString const& type, QWidget* parent):
 	QWidget(parent)
 {
 	init(false);
 	populate_from_type(type);
 }
 
-PVInspector::PVWidgetsHelpers::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Picviz::PVMapping& mapping, bool params_btn, QWidget* parent):
+PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Picviz::PVMapping& mapping, bool params_btn, QWidget* parent):
 	QWidget(parent)
 {
 	init(params_btn);
 	populate_from_mapping(axis_id, mapping);
 }
 
-PVInspector::PVWidgetsHelpers::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Picviz::PVView& view, bool params_btn, QWidget* parent):
+PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Picviz::PVView& view, bool params_btn, QWidget* parent):
 	QWidget(parent)
 {
 	init(params_btn);
 	populate_from_mapping(axis_id, *view.get_parent<Picviz::PVMapped>()->get_mapping());
 }
 
-void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::init(bool params_btn)
+void PVWidgets::PVMappingModeWidget::init(bool params_btn)
 {
 	_combo = new PVComboBox(this);
 	_props = NULL;
@@ -57,7 +58,7 @@ void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::init(bool params_btn)
 	setFocusPolicy(Qt::StrongFocus);
 }
 
-void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::populate_from_type(QString const& type)
+void PVWidgets::PVMappingModeWidget::populate_from_type(QString const& type)
 {
 	LIB_CLASS(Picviz::PVMappingFilter)::list_classes const& map_filters = LIB_CLASS(Picviz::PVMappingFilter)::get().get_list();
 	LIB_CLASS(Picviz::PVMappingFilter)::list_classes::const_iterator it;
@@ -73,7 +74,7 @@ void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::populate_from_type(QStr
 	_cur_type = type;
 }
 
-void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::populate_from_mapping(PVCol axis_id, Picviz::PVMapping& mapping)
+void PVWidgets::PVMappingModeWidget::populate_from_mapping(PVCol axis_id, Picviz::PVMapping& mapping)
 {
 	Picviz::PVMappingProperties& props = mapping.get_properties_for_col(axis_id);
 	_props = &props;
@@ -84,7 +85,7 @@ void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::populate_from_mapping(P
 	set_mode(mode);
 }
 
-void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::set_filter_params_from_type_mode(QString const& type, QString const& mode)
+void PVWidgets::PVMappingModeWidget::set_filter_params_from_type_mode(QString const& type, QString const& mode)
 {
 	PVCore::PVArgumentList new_args;
 	if (_filter_params.contains(type)) {
@@ -104,7 +105,7 @@ void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::set_filter_params_from_
 	_cur_filter_params = new_args;
 }
 
-QSize PVInspector::PVWidgetsHelpers::PVMappingModeWidget::sizeHint() const
+QSize PVWidgets::PVMappingModeWidget::sizeHint() const
 {
 	QLayout* l = layout();
 	if (l) {
@@ -113,7 +114,7 @@ QSize PVInspector::PVWidgetsHelpers::PVMappingModeWidget::sizeHint() const
 	return QSize();
 }
 
-void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::change_params()
+void PVWidgets::PVMappingModeWidget::change_params()
 {
 	if (!_props) {
 		return;
@@ -134,7 +135,7 @@ void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::change_params()
 	_props->set_args(args);
 }
 
-bool PVInspector::PVWidgetsHelpers::PVMappingModeWidget::set_mode(QString const& mode)
+bool PVWidgets::PVMappingModeWidget::set_mode(QString const& mode)
 {
 	if (_params_btn) {
 		set_filter_params_from_type_mode(_cur_type, mode);

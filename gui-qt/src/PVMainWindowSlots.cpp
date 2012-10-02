@@ -27,6 +27,7 @@
 #include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvguiqt/PVLogoScene.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
+#include <pvguiqt/PVWorkspace.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -102,11 +103,12 @@ void PVInspector::PVMainWindow::axes_editor_Slot()
 	if (!current_tab) {
 		return;
 	}
+	/*
 	PVAxisPropertiesWidget* dlg = current_tab->get_axes_properties_widget(current_tab->get_lib_view());
 	if (dlg->isVisible()) {
 		return;
 	}
-	dlg->show();
+	dlg->show();*/
 }
 
 void PVInspector::PVMainWindow::axes_combination_editor_Slot()
@@ -114,13 +116,13 @@ void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 	if (!current_tab) {
 		return;
 	}
-
+/*
 	PVGuiQt::PVAxesCombinationDialog* dlg = current_tab->get_axes_combination_editor(current_tab->get_lib_view());
 	if (dlg->isVisible()) {
 		return;
 	}
 
-	dlg->show();
+	dlg->show();*/
 }
 
 /******************************************************************************
@@ -174,6 +176,7 @@ void PVInspector::PVMainWindow::axes_display_edges_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::change_of_current_view_Slot()
 {
+#if 0
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 	/* we set current_tab to it's new value */
 	current_tab = dynamic_cast<PVTabSplitter*>(pv_WorkspacesTabWidget->currentWidget());
@@ -187,6 +190,7 @@ void PVInspector::PVMainWindow::change_of_current_view_Slot()
 	}
 	/* we emit a broadcast signal to spread the news ! */
 	emit change_of_current_view_Signal(); // FIXME! I think nobody care about this broadcast!
+#endif
 }
 
 /******************************************************************************
@@ -231,17 +235,11 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer_Slot()
 void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
 {
 	Picviz::PVView* current_lib_view;
-	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
 		return;
 	}
 	current_lib_view = current_tab->get_lib_view();
-	state_machine = current_lib_view->state_machine;
-
-	if (pv_WorkspacesTabWidget->currentIndex() == -1) {
-		return;
-	}
 
 	/* We refresh the listing */
 	Picviz::PVView_sp view_sp = current_lib_view->shared_from_this();
@@ -311,13 +309,11 @@ void PVInspector::PVMainWindow::lines_display_zombies_Slot()
 void PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
 {
 	Picviz::PVView* current_lib_view;
-	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
 		return;
 	}
 	current_lib_view = current_tab->get_lib_view();
-	state_machine = current_lib_view->state_machine;
 
 	Picviz::PVView_sp view_sp = current_lib_view->shared_from_this();
 	PVHive::call<FUNC(Picviz::PVView::toggle_listing_zombie_visibility)>(view_sp);
@@ -497,7 +493,7 @@ void PVInspector::PVMainWindow::extractor_file_Slot()
 		//TODO: this should not happen because the menu item should be disabled... !
 		return;
 	}
-	current_tab->get_extractor_widget()->refresh_and_show();
+	//current_tab->get_extractor_widget()->refresh_and_show();
 }
 
 /******************************************************************************

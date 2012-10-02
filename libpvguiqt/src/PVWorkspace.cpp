@@ -262,3 +262,13 @@ void PVGuiQt::PVWorkspace::display_destroyed(QObject* object /*= 0*/)
 	PVGuiQt::PVViewDisplay* display = (PVGuiQt::PVViewDisplay*) object;
 	_displays.removeAll(display);
 }
+
+Picviz::PVView* PVGuiQt::PVWorkspace::get_lib_view()
+{
+	return _source->current_view();
+}
+
+Picviz::PVView const* PVGuiQt::PVWorkspace::get_lib_view() const
+{
+	return _source->current_view();
+}

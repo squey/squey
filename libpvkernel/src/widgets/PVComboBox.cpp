@@ -4,7 +4,7 @@
  * Copyright (C) Picviz Labs 2011-2012
  */
 
-#include <PVComboBox.h>
+#include <pvkernel/widgets/PVComboBox.h>
 
 
 /******************************************************************************
@@ -12,7 +12,7 @@
  * PVInspector::PVComboBox::PVComboBox
  *
  *****************************************************************************/
-PVInspector::PVWidgetsHelpers::PVComboBox::PVComboBox(QWidget* parent):
+PVWidgets::PVComboBox::PVComboBox(QWidget* parent):
 	QComboBox(parent)
 {
 	setModel(new PVComboBoxModel(_dis_elt));
@@ -20,15 +20,15 @@ PVInspector::PVWidgetsHelpers::PVComboBox::PVComboBox(QWidget* parent):
 
 /******************************************************************************
  *
- * PVInspector::PVWidgetsHelpers::PVComboBox::val
+ * PVWidgets::PVComboBox::val
  *
  *****************************************************************************/
-QString PVInspector::PVWidgetsHelpers::PVComboBox::get_selected() const
+QString PVWidgets::PVComboBox::get_selected() const
 {
     return currentText();
 }
 
-QVariant PVInspector::PVWidgetsHelpers::PVComboBox::get_sel_userdata() const
+QVariant PVWidgets::PVComboBox::get_sel_userdata() const
 {
 	int idx = currentIndex();
 	if (idx == -1) {
@@ -39,10 +39,10 @@ QVariant PVInspector::PVWidgetsHelpers::PVComboBox::get_sel_userdata() const
 
 /******************************************************************************
  *
- * void PVInspector::PVWidgetsHelpers::PVComboBox::select
+ * void PVWidgets::PVComboBox::select
  *
  *****************************************************************************/
-bool PVInspector::PVWidgetsHelpers::PVComboBox::select(QString const& title)
+bool PVWidgets::PVComboBox::select(QString const& title)
 {
 	int idx = findText(title);
 	if (idx == -1) {
@@ -53,7 +53,7 @@ bool PVInspector::PVWidgetsHelpers::PVComboBox::select(QString const& title)
 	return true;
 }
 
-bool PVInspector::PVWidgetsHelpers::PVComboBox::select_userdata(QVariant const& data)
+bool PVWidgets::PVComboBox::select_userdata(QVariant const& data)
 {
 	int idx = findData(data);
 	if (idx == -1) {
@@ -64,12 +64,12 @@ bool PVInspector::PVWidgetsHelpers::PVComboBox::select_userdata(QVariant const& 
 	return true;
 }
 
-void PVInspector::PVWidgetsHelpers::PVComboBox::add_disabled_string(QString const& str)
+void PVWidgets::PVComboBox::add_disabled_string(QString const& str)
 {
 	_dis_elt.push_back(str);
 }
 
-void PVInspector::PVWidgetsHelpers::PVComboBox::remove_disabled_string(QString const& str)
+void PVWidgets::PVComboBox::remove_disabled_string(QString const& str)
 {
 	int index = _dis_elt.indexOf(str);
 	if (index != -1) {
@@ -77,20 +77,20 @@ void PVInspector::PVWidgetsHelpers::PVComboBox::remove_disabled_string(QString c
 	}
 }
 
-void PVInspector::PVWidgetsHelpers::PVComboBox::clear_disabled_strings()
+void PVWidgets::PVComboBox::clear_disabled_strings()
 {
 	_dis_elt.clear();
 }
 
 // PVComboBoxModel implementation
 
-PVInspector::PVWidgetsHelpers::PVComboBox::PVComboBoxModel::PVComboBoxModel(QStringList& dis_elt, QObject* parent):
+PVWidgets::PVComboBox::PVComboBoxModel::PVComboBoxModel(QStringList& dis_elt, QObject* parent):
 	QStandardItemModel(parent),
 	_dis_elt(dis_elt)
 {
 }
 
-Qt::ItemFlags PVInspector::PVWidgetsHelpers::PVComboBox::PVComboBoxModel::flags(const QModelIndex& index) const
+Qt::ItemFlags PVWidgets::PVComboBox::PVComboBoxModel::flags(const QModelIndex& index) const
 {
 	Qt::ItemFlags ret = QStandardItemModel::flags(index);
 	if (is_disabled(index)) {
@@ -101,7 +101,7 @@ Qt::ItemFlags PVInspector::PVWidgetsHelpers::PVComboBox::PVComboBoxModel::flags(
 	return ret;
 }
 
-QVariant PVInspector::PVWidgetsHelpers::PVComboBox::PVComboBoxModel::data(const QModelIndex& index, int role) const
+QVariant PVWidgets::PVComboBox::PVComboBoxModel::data(const QModelIndex& index, int role) const
 {
 	if (role == Qt::ForegroundRole && is_disabled(index)) {
 		// If an item is disabled, it will be displayed in red.
@@ -111,7 +111,7 @@ QVariant PVInspector::PVWidgetsHelpers::PVComboBox::PVComboBoxModel::data(const 
 	return QStandardItemModel::data(index, role);
 }
 
-bool PVInspector::PVWidgetsHelpers::PVComboBox::PVComboBoxModel::is_disabled(const QModelIndex& index) const
+bool PVWidgets::PVComboBox::PVComboBoxModel::is_disabled(const QModelIndex& index) const
 {
 	return _dis_elt.indexOf(index.data().toString()) != -1;
 }

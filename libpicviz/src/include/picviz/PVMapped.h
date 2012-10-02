@@ -85,6 +85,8 @@ public:
 
 	void init_pure_mapping_functions(PVFilter::PVPureMappingProcessing::list_pure_mapping_t& funcs);
 
+	bool is_current_mapped() const;
+
 protected:
 	// This is accessed by PVSource !
 	void init_process_from_rush_pipeline();

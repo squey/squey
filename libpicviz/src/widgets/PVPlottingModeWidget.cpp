@@ -4,36 +4,37 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <picviz/PVPlotting.h>
 #include <picviz/PVView.h>
 
-#include <PVPlottingModeWidget.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <picviz/widgets/PVArgumentListWidgetFactory.h>
+#include <picviz/widgets/PVPlottingModeWidget.h>
 
 #include <QHBoxLayout>
 
-PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::PVPlottingModeWidget(QString const& type, QWidget* parent):
+PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(QString const& type, QWidget* parent):
 	QWidget(parent)
 {
 	init(false);
 	populate_from_type(type);
 }
 
-PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id, Picviz::PVPlotting& plotting, bool params_btn, QWidget* parent):
+PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id, Picviz::PVPlotting& plotting, bool params_btn, QWidget* parent):
 	QWidget(parent)
 {
 	init(params_btn);
 	populate_from_plotting(axis_id, plotting);
 }
 
-PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id, Picviz::PVView& view, bool params_btn, QWidget* parent):
+PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id, Picviz::PVView& view, bool params_btn, QWidget* parent):
 	QWidget(parent)
 {
 	init(params_btn);
 	populate_from_plotting(axis_id, view.get_parent<Picviz::PVPlotted>()->get_plotting());
 }
 
-QSize PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::sizeHint() const
+QSize PVWidgets::PVPlottingModeWidget::sizeHint() const
 {
 	QLayout* l = layout();
 	if (l) {
@@ -42,7 +43,7 @@ QSize PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::sizeHint() const
 	return QSize();
 }
 
-void PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::init(bool params_btn)
+void PVWidgets::PVPlottingModeWidget::init(bool params_btn)
 {
 	_combo = new PVComboBox(this);
 	_props = NULL;
@@ -65,7 +66,7 @@ void PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::init(bool params_btn)
 	setFocusPolicy(Qt::StrongFocus);
 }
 
-void PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::populate_from_type(QString const& type)
+void PVWidgets::PVPlottingModeWidget::populate_from_type(QString const& type)
 {
 	LIB_CLASS(Picviz::PVPlottingFilter)::list_classes const& map_filters = LIB_CLASS(Picviz::PVPlottingFilter)::get().get_list();
 	LIB_CLASS(Picviz::PVPlottingFilter)::list_classes::const_iterator it;
@@ -80,7 +81,7 @@ void PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::populate_from_type(QSt
 	}
 }
 
-void PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::populate_from_plotting(PVCol axis_id, Picviz::PVPlotting& plotting)
+void PVWidgets::PVPlottingModeWidget::populate_from_plotting(PVCol axis_id, Picviz::PVPlotting& plotting)
 {
 	Picviz::PVPlottingProperties& props = plotting.get_properties_for_col(axis_id);
 	_props = &props;
@@ -92,7 +93,7 @@ void PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::populate_from_plotting
 	}
 }
 
-void PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::change_params()
+void PVWidgets::PVPlottingModeWidget::change_params()
 {
 	if (!_props) {
 		return;

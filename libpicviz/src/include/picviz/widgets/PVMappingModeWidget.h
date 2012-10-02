@@ -9,17 +9,19 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/widgets/PVComboBox.h>
+
 #include <picviz/PVMapping.h>
-#include <picviz/PVMappingProperties.h>
 #include <picviz/PVView_types.h>
-#include <PVComboBox.h>
 
 #include <QPushButton>
 #include <QWidget>
 
-namespace PVInspector {
+namespace Picviz {
+class PVMappingProperties;
+}
 
-namespace PVWidgetsHelpers {
+namespace PVWidgets {
 
 class PVMappingModeWidget: public QWidget
 {
@@ -61,8 +63,5 @@ private:
 };
 
 }
-
-}
-
 
 #endif

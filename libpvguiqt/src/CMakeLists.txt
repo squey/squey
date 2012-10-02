@@ -27,6 +27,8 @@ PVSortFilterProxyModel.cpp
 PVLogoModel.cpp
 PVLogoScene.cpp
 PVQNraw.cpp
+PVQMapped.cpp
+PVQPlotted.cpp
 PVWorkspacesTabWidget.cpp
 PVWorkspace.cpp
 PVViewDisplay.cpp
@@ -47,6 +49,8 @@ include/pvguiqt/PVListUniqStringsDlg.h
 include/pvguiqt/PVListingModel.h
 include/pvguiqt/PVListingSortFilterProxyModel.h
 include/pvguiqt/PVListingView.h
+include/pvguiqt/PVRootTreeModel.h
+include/pvguiqt/PVRootTreeView.h
 include/pvguiqt/PVHiveDataTreeModel.h
 include/pvguiqt/PVSortFilterProxyModel.h
 include/pvguiqt/PVLogoScene.h

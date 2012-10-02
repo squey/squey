@@ -46,6 +46,10 @@ public:
 
 public:
 	PVListingView* create_listing_view(Picviz::PVView_sp view_sp);
+	Picviz::PVView* get_lib_view();
+	Picviz::PVView const* get_lib_view() const;
+	inline Picviz::PVSource* get_lib_src() { return _source; }
+	inline Picviz::PVSource const* get_lib_src() const { return _source; }
 
 private slots:
 	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr);

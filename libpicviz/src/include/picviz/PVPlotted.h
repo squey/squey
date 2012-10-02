@@ -105,6 +105,8 @@ public:
 
 	virtual QString get_serialize_description() const { return "Plotting: " + get_name(); }
 
+	bool is_current_plotted() const;
+
 public:
 	PVRush::PVNraw& get_rushnraw_parent();
 	const PVRush::PVNraw& get_rushnraw_parent() const;

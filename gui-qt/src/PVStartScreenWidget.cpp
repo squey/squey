@@ -313,6 +313,7 @@ QString PVInspector::PVStartScreenWidget::get_string_from_variant(PVCore::PVRece
 			break;
 		}
 	}
+	return QString();
 }
 
 QString PVInspector::PVStartScreenWidget::get_string_from_format(const QVariant& var)

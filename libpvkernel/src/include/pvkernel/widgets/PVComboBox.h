@@ -4,16 +4,14 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef WIDGETS_PVCOMBOBOX_H
-#define WIDGETS_PVCOMBOBOX_H
+#ifndef PVWIDGETS_PVCOMBOBOX_H
+#define PVWIDGETS_PVCOMBOBOX_H
 
 #include <QComboBox>
 #include <QStandardItemModel>
 #include <QWidget>
 
-namespace PVInspector {
-
-namespace PVWidgetsHelpers {
+namespace PVWidgets {
 
 class PVComboBox: public QComboBox {
 public:
@@ -52,6 +50,5 @@ protected:
 
 }
 
-}
 
 #endif

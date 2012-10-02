@@ -4,14 +4,12 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef WIDGETS_PVAXISTYPEWIDGET_H
-#define WIDGETS_PVAXISTYPEWIDGET_H
+#ifndef PVWIDGETS_PVAXISTYPEWIDGET_H
+#define PVWIDGETS_PVAXISTYPEWIDGET_H
 
-#include <PVComboBox.h>
+#include <pvkernel/widgets/PVComboBox.h>
 
-namespace PVInspector {
-
-namespace PVWidgetsHelpers {
+namespace PVWidgets{
 
 class PVAxisTypeWidget: public PVComboBox
 {
@@ -22,7 +20,6 @@ public:
 	inline bool sel_type(QString const& type) { return select(type); }
 };
 
-}
 
 }
 

@@ -623,16 +623,16 @@ void PVInspector::PVMainWindow::display_icon_Slot()
  * PVInspector::PVMainWindow::get_tab_from_view
  *
  *****************************************************************************/
-PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView* picviz_view)
+PVGuiQt::PVWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView* picviz_view)
 {
 	return get_tab_from_view(*picviz_view);
 }
 
-PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView const& picviz_view)
+PVGuiQt::PVWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView const& picviz_view)
 {
 	// This returns the tab associated to a picviz view
 	for (int i = 0; i < pv_WorkspacesTabWidget->count();i++) {
-		PVTabSplitter *tab = dynamic_cast<PVTabSplitter*>(pv_WorkspacesTabWidget->widget(i));
+		PVGuiQt::PVWorkspace *tab = dynamic_cast<PVGuiQt::PVWorkspace*>(pv_WorkspacesTabWidget->widget(i));
 		if (!tab) {
 			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
 		} else {
@@ -1500,19 +1500,14 @@ void PVInspector::PVMainWindow::lines_display_unselected_Slot()
 	Picviz::PVView* current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
-	if (!current_tab) {
+	current_lib_view = get_current_lib_view();
+	if (!current_lib_view) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
 	state_machine = current_lib_view->state_machine;
-
-	if (pv_WorkspacesTabWidget->currentIndex() == -1) {
-		return;
-	}
 
 	state_machine->toggle_gl_unselected_visibility();
 	state_machine->toggle_listing_unselected_visibility();
-	//current_lib_view->process_visibility();
 }
 
 
@@ -1588,14 +1583,14 @@ bool PVInspector::PVMainWindow::load_scene()
 	return true;
 }
 
-void PVInspector::PVMainWindow::display_inv_elts(PVTabSplitter* tab_src)
+void PVInspector::PVMainWindow::display_inv_elts(PVGuiQt::PVWorkspace* tab_src)
 {
 	if (!tab_src) {
 		return;
 	}
 
 	if (tab_src->get_lib_src()->get_invalid_elts().size() > 0) {
-		tab_src->get_source_invalid_elts_dlg()->show();
+		//tab_src->get_source_invalid_elts_dlg()->show();
 	}
 	else {
 		QMessageBox::information(this, tr("Invalid elements"), tr("No invalid element have been saved or created during the extraction of this source."));
@@ -1696,11 +1691,10 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 	workspace->set_central_display(first_view_p.get(), listing_view, "Listing [" + first_view_p->get_name() + "]");
 
 	// Add the source's tab
-	//current_tab = new PVTabSplitter(*src, pv_WorkspacesTabWidget);
+	current_tab = workspace;
 
-
-	connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
-	connect(current_tab, SIGNAL(source_changed()), this, SLOT(project_modified_Slot()));
+	//connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
+	//connect(current_tab, SIGNAL(source_changed()), this, SLOT(project_modified_Slot()));
 
 	pv_WorkspacesTabWidget->setCurrentIndex(new_tab_index);
 
@@ -1973,3 +1967,11 @@ bool PVInspector::PVMainWindow::SceneMenuEventFilter::eventFilter(QObject* obj, 
 	}
 	return QObject::eventFilter(obj, event);
 }
+
+Picviz::PVView* PVInspector::PVMainWindow::get_current_lib_view() const
+{
+	if (!current_tab) {
+		return nullptr;
+	}
+	return current_tab->get_lib_view();
+};

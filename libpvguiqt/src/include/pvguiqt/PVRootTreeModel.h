@@ -7,6 +7,8 @@ namespace PVGuiQt {
 
 class PVRootTreeModel: public PVHiveDataTreeModel
 {
+	Q_OBJECT
+
 public:
 	PVRootTreeModel(PVCore::PVDataTreeObjectBase& root, QObject* parent = 0);
 

@@ -127,7 +127,7 @@ public:
 
 	PVOpenFileDialog    *pv_OpenFileDialog;
 	PVSaveFileDialog    *pv_SaveFileDialog;
-	PVTabSplitter       *current_tab;
+	PVGuiQt::PVWorkspace  *current_tab;
 	PVWorkspacesTabWidget *pv_WorkspacesTabWidget;
 
 	QMenuBar *menubar;
@@ -229,9 +229,9 @@ private:
 	void set_project_modified(bool modified);
 	PVMainWindow* find_main_window(const QString& file);
 	void set_selection_from_layer(Picviz::PVView_sp view, Picviz::PVLayer const& layer);
-	void display_inv_elts(PVTabSplitter* tab_src);
+	void display_inv_elts(PVGuiQt::PVWorkspace* tab_src);
 	void close_all_views();
-	Picviz::PVView* get_current_lib_view() const { assert(current_tab); return current_tab->get_lib_view(); };
+	Picviz::PVView* get_current_lib_view() const;
 
 private slots:
 	void project_modified_Slot();
@@ -337,8 +337,8 @@ protected:
 	void keyPressEvent(QKeyEvent *event);
 	int update_check();
 	void treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors);
-	PVTabSplitter* get_tab_from_view(Picviz::PVView* picviz_view);
-	PVTabSplitter* get_tab_from_view(Picviz::PVView const& picviz_view);
+	PVGuiQt::PVWorkspace* get_tab_from_view(Picviz::PVView* picviz_view);
+	PVGuiQt::PVWorkspace* get_tab_from_view(Picviz::PVView const& picviz_view);
 	void show_start_page(bool visible);
 	void set_version_informations();
 

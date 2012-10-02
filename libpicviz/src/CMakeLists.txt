@@ -164,10 +164,14 @@ include/picviz/widgets/PVAD2GFunctionPropertiesWidget.h
 include/picviz/widgets/PVAD2GInteractor.h
 include/picviz/widgets/PVAD2GListEdgesWidget.h
 include/picviz/widgets/PVAD2GWidget.h
-include/picviz/widgets/PVArgumentListWidgetFactory.h
-include/picviz/widgets/PVViewArgumentEditorCreator.h
 include/picviz/widgets/PVAD2GRFFListModel.h
+include/picviz/widgets/PVAxisTypeWidget.h
+include/picviz/widgets/PVArgumentListWidgetFactory.h
 include/picviz/widgets/PVCombinOpDelegate.h
+include/picviz/widgets/PVMappingModeWidget.h
+include/picviz/widgets/PVPlottingModeWidget.h
+include/picviz/widgets/PVViewArgumentEditorCreator.h
+include/picviz/widgets/PVMappingPlottingEditDialog.h
 
 include/picviz/widgets/editors/PVAxisIndexEditor.h
 include/picviz/widgets/editors/PVAxisIndexCheckBoxEditor.h
@@ -182,9 +186,13 @@ widgets/PVAD2GInteractor.cpp
 widgets/PVAD2GEdgeEditor.cpp
 widgets/PVAD2GFunctionPropertiesWidget.cpp
 widgets/PVAD2GListEdgesWidget.cpp
-widgets/PVArgumentListWidgetFactory.cpp
 widgets/PVAD2GRFFListModel.cpp
+widgets/PVAxisTypeWidget.cpp
+widgets/PVArgumentListWidgetFactory.cpp
 widgets/PVCombinOpDelegate.cpp
+widgets/PVMappingModeWidget.cpp
+widgets/PVPlottingModeWidget.cpp
+widgets/PVMappingPlottingEditDialog.cpp
 
 widgets/editors/PVAxisIndexEditor.cpp
 widgets/editors/PVAxisIndexCheckBoxEditor.cpp

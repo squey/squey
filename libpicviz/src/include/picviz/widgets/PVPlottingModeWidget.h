@@ -8,15 +8,18 @@
 #define WIDGETS_PVPLOTTINGMODEWIDGET_H
 
 #include <pvkernel/core/general.h>
-#include <picviz/PVPlotting.h>
+#include <pvkernel/widgets/PVComboBox.h>
+
 #include <picviz/PVView_types.h>
-#include <PVComboBox.h>
 
 #include <QPushButton>
 
-namespace PVInspector {
+namespace Picviz {
+class PVPlotting;
+class PVPlottingProperties;
+}
 
-namespace PVWidgetsHelpers {
+namespace PVWidgets {
 
 class PVPlottingModeWidget: public QWidget
 {
@@ -52,8 +55,6 @@ private:
 	QPushButton* _params_btn;
 	Picviz::PVPlottingProperties* _props;
 };
-
-}
 
 }
 
