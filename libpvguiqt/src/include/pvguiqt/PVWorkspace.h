@@ -7,6 +7,9 @@
 #ifndef __PVGUIQT_PVWORKSPACE_H__
 #define __PVGUIQT_PVWORKSPACE_H__
 
+#include <list>
+#include <iostream>
+
 #include <QAction>
 #include <QEvent>
 #include <QList>
@@ -17,6 +20,10 @@
 
 #include <picviz/PVSource_types.h>
 #include <picviz/PVView_types.h>
+
+#include <pvhive/PVHive.h>
+#include <pvhive/PVObserverSignal.h>
+#include <pvhive/waxes/waxes.h>
 
 namespace Picviz
 {
@@ -35,6 +42,10 @@ class PVWorkspace : public QMainWindow
 	Q_OBJECT;
 
 	friend class PVViewDisplay;
+
+public:
+	typedef PVHive::PVObserverSignal<PVCore::PVDataTreeObjectBase> datatree_obs_t;
+
 public:
 	PVWorkspace(Picviz::PVSource* source, QWidget* parent = 0);
 
@@ -46,6 +57,8 @@ public:
 
 public:
 	PVListingView* create_listing_view(Picviz::PVView_sp view_sp);
+
+public:
 	Picviz::PVView* get_lib_view();
 	Picviz::PVView const* get_lib_view() const;
 	inline Picviz::PVSource* get_lib_src() { return _source; }
@@ -58,16 +71,27 @@ private slots:
 	void create_zoomed_parallel_view(Picviz::PVView* view, int axis_id);
 	void show_datatree_view(bool show);
 	void check_datatree_button(bool check = false);
-	void show_layerstack();
-	void hide_layerstack();
+	void create_layerstack();
+	void destroy_layerstack();
 	void display_destroyed(QObject* object = 0);
+
+	void update_view_count(PVHive::PVObserverBase* obs_base);
+
+private:
+	void refresh_views_menus();
 
 private:
 	QList<PVViewDisplay*> _displays;
 	Picviz::PVSource* _source;
 	QToolBar* _toolbar;
 	QAction* _datatree_view_action;
+
 	QToolButton* _layerstack_tool_button;
+	QToolButton* _listing_tool_button;
+	QToolButton* _parallel_view_tool_button;
+
+	std::list<datatree_obs_t> _obs;
+	uint64_t _views_count;
 };
 
 }

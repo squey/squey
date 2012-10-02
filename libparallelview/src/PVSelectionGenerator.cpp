@@ -99,7 +99,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 
 			bool is_line_selected = false;
 			for (auto range : ranges) {
-				if (y1 >= range.first && y1 <= range.second) {
+				if (y1 >= range.first && y1 < range.second) {
 					is_line_selected = true;
 					break;
 				}
@@ -133,7 +133,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 
 			bool is_line_selected = false;
 			for (auto range : ranges) {
-				if (y1 >= range.first && y1 <= range.second) {
+				if (y1 >= range.first && y1 < range.second) {
 					is_line_selected = true;
 					break;
 				}
