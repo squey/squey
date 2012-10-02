@@ -136,9 +136,40 @@ void PVParallelView::PVZonesManager::update_zone(PVZoneID z)
 
 void PVParallelView::PVZonesManager::update_from_axes_comb(columns_indexes_t const& ac)
 {
-	// TODO: optimise this to update only the concerned zones !
+    // TODO: optimise this to update only the concerned zones !
+    _axes_comb = ac;
+    update_all();
+
+	/*typedef std::pair<PVCol, PVCol> axes_pair_t;
+	typedef std::vector<axes_pair_t> axes_pair_list_t;
+
+	// Compute old axes pairs
+	axes_pair_list_t old_pairs;
+	PVCol nb_pairs = _axes_comb.size()-1;
+	old_pairs.reserve(nb_pairs);
+	for (PVCol i = 0 ; i < nb_pairs ; i++) {
+		old_pairs.push_back(std::make_pair(_axes_comb[i].get_axis(), _axes_comb[i+1].get_axis()));
+	}
+
+	PVCol nb_new_pairs = ac.size()-1;
+	_zones.resize(nb_new_pairs);
+	// Find zones needing a reprocessing
+	std::vector<PVZoneID> zoneids;
+	for (PVCol i = 0 ; i < ac.size()-1 ; i++) {
+		axes_pair_t axes_pair = std::make_pair(ac[i].get_axis(), ac[i+1].get_axis());
+		axes_pair_list_t::iterator it = std::find(old_pairs.begin(), old_pairs.end(), axes_pair);
+		if (it == old_pairs.end()) {
+			zoneids.push_back(i);
+		}
+	}
+
 	_axes_comb = ac;
-	update_all();
+
+	// Update only these zones
+	for (PVZoneID zid : zoneids) {
+		PVLOG_INFO("UPDATE ZONE %d\n", zid);
+		update_zone(zid);
+	}*/
 }
 
 void PVParallelView::PVZonesManager::update_from_axes_comb(Picviz::PVView const& view)
