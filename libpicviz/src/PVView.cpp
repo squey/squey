@@ -62,18 +62,8 @@ Picviz::PVView::PVView(const PVView& /*org*/):
 void Picviz::PVView::set_parent_from_ptr(PVPlotted* plotted)
 {
 	data_tree_view_t::set_parent_from_ptr(plotted);
-	reset_view();
-}
 
-void Picviz::PVView::process_parent_plotted()
-{
-	Picviz::PVPlotted* plotted = get_parent();
 	_rushnraw_parent = &get_parent<PVSource>()->get_rushnraw();
-
-	// Init default axes combination from source
-	PVSource* source = plotted->get_parent<PVSource>();
-	axes_combination.set_from_format(source->get_format());
-	axes_combination.set_axis_name(0, axes_combination.get_axis(0).get_name()); // Hack to detach QVector
 
 	// Create layer filter arguments for that view
 	LIB_CLASS(Picviz::PVLayerFilter) &filters_layer = 	LIB_CLASS(Picviz::PVLayerFilter)::get();
@@ -84,6 +74,23 @@ void Picviz::PVView::process_parent_plotted()
 	for (it = lf.begin(); it != lf.end(); it++) {
 		filters_args[it.key()] = it.value()->get_default_args_for_view(*this);
 	}
+	row_count = get_parent<PVPlotted>()->get_row_count();
+	layer_stack.set_row_count(row_count);
+	eventline.set_row_count(row_count);
+	eventline.set_first_index(0);
+	eventline.set_current_index(row_count);
+	eventline.set_last_index(row_count);
+
+	reset_view();
+}
+
+void Picviz::PVView::process_parent_plotted()
+{
+	// Init default axes combination from source
+	Picviz::PVPlotted* plotted = get_parent();
+	PVSource* source = plotted->get_parent<PVSource>();
+	axes_combination.set_from_format(source->get_format());
+	axes_combination.set_axis_name(0, axes_combination.get_axis(0).get_name()); // Hack to detach QVector
 
 	row_count = get_parent<PVPlotted>()->get_row_count();
 	layer_stack.set_row_count(row_count);
@@ -1341,7 +1348,7 @@ void Picviz::PVView::select_inv_lines()
 
 QString Picviz::PVView::get_name() const
 {
-	return QString("mapped/plotted: %1/%2").arg(get_parent<PVMapped>()->get_name()).arg(get_parent<PVPlotted>()->get_name());
+	return QString("%1 (%2/%3)").arg(QString::number(get_view_id())).arg(get_parent<PVMapped>()->get_name()).arg(get_parent<PVPlotted>()->get_name());
 }
 
 QString Picviz::PVView::get_window_name() const

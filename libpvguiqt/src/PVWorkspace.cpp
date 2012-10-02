@@ -16,6 +16,7 @@
 
 #include <picviz/PVSource.h>
 #include <picviz/PVView.h>
+#include <picviz/widgets/editors/PVAxisIndexEditor.h>
 
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVParallelView.h>
@@ -72,22 +73,12 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	connect(data_tree_view_display, SIGNAL(display_closed()), this, SLOT(check_datatree_button()));
 	check_datatree_button(true);
 
-
 	// Layerstack views toolbar button
 	_layerstack_tool_button = new QToolButton(_toolbar);
 	_layerstack_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
 	_layerstack_tool_button->setIcon(QIcon(":/layer-active.png"));
 	_layerstack_tool_button->setToolTip(tr("Add layer stack"));
-	/*for (auto view : source->get_children<Picviz::PVView>()) {
-		PVLayerStackWidget* layerstack_view = new PVLayerStackWidget(view);
-		PVGuiQt::PVViewDisplay* layerstack_view_display = add_view_display(view.get(), layerstack_view, "Layer stack [" + view->get_name() + "]", false, Qt::RightDockWidgetArea);
-		QAction* action = new QAction(view->get_name(), layerstack_view_display);
-		action->setEnabled(false);
-		connect(action, SIGNAL(triggered(bool)), this, SLOT(show_layerstack()));
-		_layerstack_tool_button->addAction(action);
-		connect(layerstack_view_display, SIGNAL(display_closed()), this, SLOT(hide_layerstack()));
-	}*/
-	connect(_layerstack_tool_button, SLOT(triggered(QAction*)), this, SLOT(layerstack_toolbutton(QAction*)));
+	//connect(_layerstack_tool_button, SLOT(triggered(QAction*)), this, SLOT(layerstack_toolbutton(QAction*)));
 	_toolbar->addWidget(_layerstack_tool_button);
 	_toolbar->addSeparator();
 
@@ -96,16 +87,6 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	_listing_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
 	_listing_tool_button->setIcon(QIcon(":/view_display_listing"));
 	_listing_tool_button->setToolTip(tr("Add listing"));
-	/*QMenu* listing_views_menu = new QMenu;
-	for (auto view : source->get_children<Picviz::PVView>()) {
-		QAction* action = new QAction(view->get_name(), this);
-		QVariant var;
-		var.setValue<Picviz::PVView*>(view.get());
-		action->setData(var);
-		connect(action, SIGNAL(triggered(bool)), this, SLOT(add_listing_view()));
-		listing_views_menu->addAction(action);
-	}
-	listing_tool_button->setMenu(listing_views_menu);*/
 	_toolbar->addWidget(_listing_tool_button);
 
 	// Parallel views toolbar button
@@ -113,24 +94,14 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	_parallel_view_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
 	_parallel_view_tool_button->setIcon(QIcon(":/view_display_parallel"));
 	_parallel_view_tool_button->setToolTip(tr("Add parallel view"));
-	/*QMenu* parallel_views_menu = new QMenu;
-	for (auto view : source->get_children<Picviz::PVView>()) {
-		QAction* action = new QAction(view->get_name(), this);
-		QVariant var;
-		var.setValue<Picviz::PVView*>(view.get());
-		action->setData(var);
-		connect(action, SIGNAL(triggered(bool)), this, SLOT(create_parallel_view()));
-		parallel_views_menu->addAction(action);
-	}
-	parallel_view_tool_button->setMenu(parallel_views_menu);*/
 	_toolbar->addWidget(_parallel_view_tool_button);
 
 	// Zoomed parallel views toolbar button
-	QToolButton* zoomed_parallel_view_tool_button = new QToolButton(_toolbar);
-	zoomed_parallel_view_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
-	zoomed_parallel_view_tool_button->setIcon(QIcon(":/view_display_zoom"));
-	zoomed_parallel_view_tool_button->setToolTip(tr("Add zoomed parallel view"));
-	_toolbar->addWidget(zoomed_parallel_view_tool_button);
+	_zoomed_parallel_view_tool_button = new QToolButton(_toolbar);
+	_zoomed_parallel_view_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
+	_zoomed_parallel_view_tool_button->setIcon(QIcon(":/view_display_zoom"));
+	_zoomed_parallel_view_tool_button->setToolTip(tr("Add zoomed parallel view"));
+	_toolbar->addWidget(_zoomed_parallel_view_tool_button);
 
 	// Scatter views toolbar button
 	QToolButton* scatter_view_tool_button = new QToolButton(_toolbar);
@@ -140,6 +111,7 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	_toolbar->addWidget(scatter_view_tool_button);
 
 	refresh_views_menus();
+	create_layerstack(source->get_children<Picviz::PVView>()[0].get()); // FIXME: JB: this is the ugliest thing I ever did in Picviz!!
 }
 
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/, Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/)
@@ -235,12 +207,47 @@ void PVGuiQt::PVWorkspace::create_parallel_view()
 	add_view_display(view, parallel_view, "Parallel view [" + view->get_name() + "]");
 }
 
-void PVGuiQt::PVWorkspace::create_zoomed_parallel_view(Picviz::PVView* view, int axis_id)
+void PVGuiQt::PVWorkspace::create_zoomed_parallel_view()
 {
-	QWidget* zoomed_parallel_view = PVParallelView::common::get_lib_view(*view)->create_zoomed_view(axis_id);
+	QAction* action = (QAction*) sender();
+	QVariant var = action->data();
+	Picviz::PVView* view = var.value<Picviz::PVView*>();
 
-	add_view_display(view, zoomed_parallel_view, "Zoomed parallel view [" + view->get_name() + "]");
+	QDialog *dlg = new QDialog(this);
+	dlg->setModal(true);
+
+	QLayout *layout = new QVBoxLayout();
+	dlg->setLayout(layout);
+
+	QLabel *label = new QLabel("Open a zoomed view on axis:");
+	layout->addWidget(label);
+
+	PVWidgets::PVAxisIndexEditor *axes = new PVWidgets::PVAxisIndexEditor(*view, dlg);
+	axes->set_axis_index(0);
+	layout->addWidget(axes);
+
+	QDialogButtonBox *dbb = new QDialogButtonBox(QDialogButtonBox::Open | QDialogButtonBox::Cancel);
+
+	QObject::connect(dbb, SIGNAL(accepted()), dlg, SLOT(accept()));
+	QObject::connect(dbb, SIGNAL(rejected()), dlg, SLOT(reject()));
+
+	layout->addWidget(dbb);
+
+	if (dlg->exec() == QDialog::Accepted) {
+		int axis_index = axes->get_axis_index().get_axis_index();
+		create_zoomed_parallel_view(view, axis_index);
+
+	}
+
+	dlg->deleteLater();
 }
+
+void PVGuiQt::PVWorkspace::create_zoomed_parallel_view(Picviz::PVView* view, int axis_index)
+{
+	QWidget* zoomed_parallel_view = PVParallelView::common::get_lib_view(*view)->create_zoomed_view(axis_index);
+	add_view_display(view, zoomed_parallel_view, QString("Zoomed parallel view on axis '%1' [%2]").arg(view->get_axis_name(axis_index)).arg(view->get_name()));
+}
+
 
 void PVGuiQt::PVWorkspace::show_datatree_view(bool show)
 {
@@ -251,18 +258,36 @@ void PVGuiQt::PVWorkspace::show_datatree_view(bool show)
 	}
 }
 
-void  PVGuiQt::PVWorkspace::create_layerstack()
+void  PVGuiQt::PVWorkspace::create_layerstack(Picviz::PVView* view_org /*= nullptr*/)
 {
-	QAction* action = (QAction*) sender();
-	QVariant var = action->data();
-	Picviz::PVView* view = var.value<Picviz::PVView*>();
+	Picviz::PVView* view = nullptr;
+	QAction* action;
+	if (!view_org) {
+		action = (QAction*) sender();
+		QVariant var = action->data();
+		view = var.value<Picviz::PVView*>();
+	}
+	else {
+		view = view_org;
+	}
 
 	Picviz::PVView_sp view_sp = view->shared_from_this();
 	PVLayerStackWidget* layerstack_view = new PVLayerStackWidget(view_sp);
 	PVGuiQt::PVViewDisplay* layerstack_view_display = add_view_display(view, layerstack_view, "Layer stack [" + view->get_name() + "]", false, Qt::RightDockWidgetArea);
 	connect(layerstack_view_display, SIGNAL(display_closed()), this, SLOT(destroy_layerstack()));
 
-	action->setEnabled(false);
+	if (!view_org) {
+		action->setEnabled(false);
+	}
+	else {
+		for (QAction* action : _layerstack_tool_button->actions()) {
+			QVariant var = action->data();
+			Picviz::PVView* view = var.value<Picviz::PVView*>();
+			if (layerstack_view_display->get_view() == view) {
+				action->setEnabled(false);
+			}
+		}
+	}
 }
 
 void  PVGuiQt::PVWorkspace::destroy_layerstack()
@@ -308,6 +333,16 @@ void PVGuiQt::PVWorkspace::update_view_count(PVHive::PVObserverBase* /*obs_base*
 	}
 }
 
+const PVGuiQt::PVWorkspace::PVViewWidgets& PVGuiQt::PVWorkspace::get_view_widgets(Picviz::PVView* view)
+{
+	assert(view->get_parent<Picviz::PVSource>() == _source);
+	if (!_view_widgets.contains(view)) {
+		PVViewWidgets widgets(view, this);
+		return *(_view_widgets.insert(view, widgets));
+	}
+	return _view_widgets[view];
+}
+
 void PVGuiQt::PVWorkspace::refresh_views_menus()
 {
 	for (QAction* action : _layerstack_tool_button->actions()) {
@@ -318,6 +353,9 @@ void PVGuiQt::PVWorkspace::refresh_views_menus()
 	}
 	for (QAction* action : _parallel_view_tool_button->actions()) {
 		_parallel_view_tool_button->removeAction(action);
+	}
+	for (QAction* action : _zoomed_parallel_view_tool_button->actions()) {
+		_zoomed_parallel_view_tool_button->removeAction(action);
 	}
 
 	for (auto view : _source->get_children<Picviz::PVView>()) {
@@ -343,5 +381,11 @@ void PVGuiQt::PVWorkspace::refresh_views_menus()
 		action->setData(var);
 		connect(action, SIGNAL(triggered(bool)), this, SLOT(create_parallel_view()));
 		_parallel_view_tool_button->addAction(action);
+
+		// Zoomed views menus
+		action = new QAction(view->get_name(), this);
+		action->setData(var);
+		connect(action, SIGNAL(triggered(bool)), this, SLOT(create_zoomed_parallel_view()));
+		_zoomed_parallel_view_tool_button->addAction(action);
 	}
 }

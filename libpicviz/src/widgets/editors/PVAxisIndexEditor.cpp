@@ -46,5 +46,5 @@ void PVWidgets::PVAxisIndexEditor::set_axis_index(PVCore::PVAxisIndexType axis_i
 PVCore::PVAxisIndexType PVWidgets::PVAxisIndexEditor::get_axis_index() const
 {
 	int index = _view.axes_combination.get_axis_column_index(currentIndex());
-	return PVCore::PVAxisIndexType(index);
+	return PVCore::PVAxisIndexType(index, false, currentIndex());
 }

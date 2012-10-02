@@ -6,6 +6,7 @@
 
 #define ZOOM_LINE_WIDTH 12
 #define ZOOM_ARROW_SIDE 6.0
+#define MARGIN 25
 
 /*****************************************************************************
  * PVParallelView::PVZoomAxisSlider::boundingRect
@@ -14,11 +15,11 @@
 QRectF PVParallelView::PVZoomAxisSlider::boundingRect() const
 {
 	if (_orientation == Min) {
-		return QRectF(QPointF(-ZOOM_ARROW_SIDE, 0),
-		              QPointF(ZOOM_ARROW_SIDE, ZOOM_ARROW_SIDE));
+		return QRectF(QPointF(-ZOOM_ARROW_SIDE-MARGIN, -MARGIN),
+		              QPointF(ZOOM_ARROW_SIDE+MARGIN, ZOOM_ARROW_SIDE+MARGIN));
 	} else {
-		return QRectF(QPointF(-ZOOM_ARROW_SIDE, 0),
-		              QPointF(ZOOM_ARROW_SIDE, -ZOOM_ARROW_SIDE));
+		return QRectF(QPointF(-ZOOM_ARROW_SIDE-MARGIN, MARGIN),
+		              QPointF(ZOOM_ARROW_SIDE+MARGIN, -ZOOM_ARROW_SIDE-MARGIN));
 	}
 }
 
@@ -44,7 +45,12 @@ void PVParallelView::PVZoomAxisSlider::paint(QPainter *painter,
 
 	painter->save();
 
-	painter->setBrush(QBrush(Qt::black,Qt::SolidPattern));
+	if (mouse_is_hover()) {
+		painter->setBrush(QBrush(QColor(205, 56, 83),Qt::SolidPattern));
+	}
+	else {
+		painter->setBrush(QBrush(Qt::black,Qt::SolidPattern));
+	}
 	painter->setPen(Qt::white);
 
 	if (_orientation == Min) {

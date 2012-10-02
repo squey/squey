@@ -17,7 +17,7 @@
 PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider(int64_t omin, int64_t omax, int64_t o,
                                                            PVAxisSliderOrientation orientation) :
 	_offset_min(omin), _offset_max(omax), _offset(o),
-	_orientation(orientation), _moving(false)
+	_orientation(orientation), _moving(false), _is_hover(false)
 {
 	setAcceptHoverEvents(true); // This is needed to enable hover events
 
@@ -58,7 +58,9 @@ void PVParallelView::PVAbstractAxisSlider::set_value(int64_t v)
 
 void PVParallelView::PVAbstractAxisSlider::hoverEnterEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
-	PVLOG_INFO("PVAbstractAxisSlider::hoverEnterEvent\n");
+	//PVLOG_INFO("PVAbstractAxisSlider::hoverEnterEvent\n");
+	_is_hover = true;
+	group()->update();
 }
 
 /*****************************************************************************
@@ -67,7 +69,9 @@ void PVParallelView::PVAbstractAxisSlider::hoverEnterEvent(QGraphicsSceneHoverEv
 
 void PVParallelView::PVAbstractAxisSlider::hoverMoveEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
-	PVLOG_INFO("PVAbstractAxisSlider::hoverMoveEvent\n");
+	//PVLOG_INFO("PVAbstractAxisSlider::hoverMoveEvent\n");
+	_is_hover = true;
+	group()->update();
 }
 
 /*****************************************************************************
@@ -76,7 +80,9 @@ void PVParallelView::PVAbstractAxisSlider::hoverMoveEvent(QGraphicsSceneHoverEve
 
 void PVParallelView::PVAbstractAxisSlider::hoverLeaveEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
-	PVLOG_INFO("PVAbstractAxisSlider::hoverLeaveEvent\n");
+	//PVLOG_INFO("PVAbstractAxisSlider::hoverLeaveEvent\n");
+	_is_hover = false;
+	group()->update();
 }
 
 /*****************************************************************************

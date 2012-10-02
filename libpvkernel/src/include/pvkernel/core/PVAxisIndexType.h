@@ -26,9 +26,10 @@ public:
 	 * Constructor
 	 */
 	PVAxisIndexType(bool append_none_axis = false);
-	PVAxisIndexType(int origin_axis_index, bool append_none_axis = false);
+	PVAxisIndexType(int origin_axis_index, bool append_none_axis = false, int axis_index = 0);
 
 	int get_original_index();
+	int get_axis_index();
 	bool get_append_none_axis();
 
 	QString to_string() const
@@ -65,6 +66,7 @@ protected:
 	// The original axis index will never change. PVAxisCombination takes care of any
 	// axis addition/order modification, but will never change the original axis index.
 	int  _origin_axis_index;
+	int _axis_index;
 	bool _append_none_axis;
 };
 }

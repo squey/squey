@@ -134,6 +134,7 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 	PVZoneID nzones = (PVZoneID) _lines_view.get_zones_manager().get_number_zones()+1;
 	uint32_t pos = 0;
 
+	_axes[0]->setPos(QPointF(0, 0));
 	PVZoneID z = 1;
 	if (!update_all) {
 		uint32_t view_x = _parallel_view->horizontalScrollBar()->value();

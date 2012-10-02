@@ -25,6 +25,8 @@
 #include <pvhive/PVObserverSignal.h>
 #include <pvhive/waxes/waxes.h>
 
+#include <pvguiqt/PVAxesCombinationDialog.h>
+
 namespace Picviz
 {
 class PVView;
@@ -43,6 +45,27 @@ class PVWorkspace : public QMainWindow
 
 	friend class PVViewDisplay;
 
+private:
+	class PVViewWidgets
+	{
+		friend class PVWorkspace;
+	public:
+		PVViewWidgets(Picviz::PVView* view, PVWorkspace* tab)
+		{
+			Picviz::PVView_sp view_sp = view->shared_from_this();
+			pv_axes_combination_editor = new PVAxesCombinationDialog(view_sp, tab);
+		}
+		PVViewWidgets() { pv_axes_combination_editor = nullptr; /*pv_axes_properties = nullptr;*/ }
+		~PVViewWidgets() {};
+	protected:
+		void delete_widgets() { pv_axes_combination_editor->deleteLater(); }
+	public:
+		PVGuiQt::PVAxesCombinationDialog* pv_axes_combination_editor;
+		//PVAxisPropertiesWidget  *pv_axes_properties;
+	};
+
+	friend class PVViewWidgets;
+
 public:
 	typedef PVHive::PVObserverSignal<PVCore::PVDataTreeObjectBase> datatree_obs_t;
 
@@ -50,6 +73,12 @@ public:
 	PVWorkspace(Picviz::PVSource* source, QWidget* parent = 0);
 
 	Picviz::PVSource* get_source() const { return _source; }
+	PVViewWidgets const& get_view_widgets(Picviz::PVView* view);
+	PVAxesCombinationDialog* get_axes_combination_editor(Picviz::PVView* view)
+	{
+		PVViewWidgets const& widgets = get_view_widgets(view);
+		return widgets.pv_axes_combination_editor;
+	}
 
 	PVViewDisplay* add_view_display(Picviz::PVView* view, QWidget* view_display, const QString& name, bool can_be_central_display = true, Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
 	PVViewDisplay* set_central_display(Picviz::PVView* view, QWidget* view_widget, const QString& name);
@@ -68,10 +97,11 @@ private slots:
 	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr);
 	void add_listing_view(bool central = false);
 	void create_parallel_view();
+	void create_zoomed_parallel_view();
 	void create_zoomed_parallel_view(Picviz::PVView* view, int axis_id);
 	void show_datatree_view(bool show);
 	void check_datatree_button(bool check = false);
-	void create_layerstack();
+	void create_layerstack(Picviz::PVView* view = nullptr);
 	void destroy_layerstack();
 	void display_destroyed(QObject* object = 0);
 
@@ -89,9 +119,11 @@ private:
 	QToolButton* _layerstack_tool_button;
 	QToolButton* _listing_tool_button;
 	QToolButton* _parallel_view_tool_button;
+	QToolButton* _zoomed_parallel_view_tool_button;
 
 	std::list<datatree_obs_t> _obs;
 	uint64_t _views_count;
+	QHash<Picviz::PVView const*, PVViewWidgets> _view_widgets;
 };
 
 }
