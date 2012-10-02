@@ -122,10 +122,9 @@ void PVParallelView::PVZoomAxisSliders::zoom_sliders_update_obs::update(argument
 	if ((axis_id == _parent->_group->get_axis_id()) && (id == _parent->_id)) {
 		int64_t y_min = std::get<2>(args);
 		int64_t y_max = std::get<3>(args);
+
 		if (y_max < y_min) {
-			int64_t tmp = y_max;
-			y_max = y_min;
-			y_min = tmp;
+			std::swap(y_min, y_max);
 		}
 
 		_parent->_sl_min->set_range(PVAbstractAxisSlider::min_value, y_max);
