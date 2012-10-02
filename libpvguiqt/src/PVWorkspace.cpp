@@ -37,6 +37,22 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 {
 	//setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);
 
+	_views_count = _source->get_children<Picviz::PVView>().size();
+
+	// Register observers on the mapped and plotted
+	source->depth_first_list(
+		[&](PVCore::PVDataTreeObjectBase* o) {
+			if(dynamic_cast<Picviz::PVMapped*>(o) || dynamic_cast<Picviz::PVPlotted*>(o)) {
+				this->_obs.emplace_back(static_cast<QObject*>(this));
+				datatree_obs_t* obs = &_obs.back();
+				auto datatree_o = o->base_shared_from_this();
+				PVHive::get().register_observer(datatree_o, *obs);
+				obs->connect_refresh(this, SLOT(update_view_count(PVHive::PVObserverBase*)));
+				obs->connect_about_to_be_deleted(this, SLOT(update_view_count(PVHive::PVObserverBase*)));
+			}
+		}
+	);
+
 	_toolbar = new QToolBar(this);
 	_toolbar->setFloatable(false);
 	_toolbar->setMovable(false);
@@ -62,7 +78,7 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	_layerstack_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
 	_layerstack_tool_button->setIcon(QIcon(":/layer-active.png"));
 	_layerstack_tool_button->setToolTip(tr("Add layer stack"));
-	for (auto view : source->get_children<Picviz::PVView>()) {
+	/*for (auto view : source->get_children<Picviz::PVView>()) {
 		PVLayerStackWidget* layerstack_view = new PVLayerStackWidget(view);
 		PVGuiQt::PVViewDisplay* layerstack_view_display = add_view_display(view.get(), layerstack_view, "Layer stack [" + view->get_name() + "]", false, Qt::RightDockWidgetArea);
 		QAction* action = new QAction(view->get_name(), layerstack_view_display);
@@ -70,17 +86,17 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 		connect(action, SIGNAL(triggered(bool)), this, SLOT(show_layerstack()));
 		_layerstack_tool_button->addAction(action);
 		connect(layerstack_view_display, SIGNAL(display_closed()), this, SLOT(hide_layerstack()));
-	}
+	}*/
 	connect(_layerstack_tool_button, SLOT(triggered(QAction*)), this, SLOT(layerstack_toolbutton(QAction*)));
 	_toolbar->addWidget(_layerstack_tool_button);
 	_toolbar->addSeparator();
 
 	// Listings button
-	QToolButton* listing_tool_button = new QToolButton(_toolbar);
-	listing_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
-	listing_tool_button->setIcon(QIcon(":/view_display_listing"));
-	listing_tool_button->setToolTip(tr("Add listing"));
-	QMenu* listing_views_menu = new QMenu;
+	_listing_tool_button = new QToolButton(_toolbar);
+	_listing_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
+	_listing_tool_button->setIcon(QIcon(":/view_display_listing"));
+	_listing_tool_button->setToolTip(tr("Add listing"));
+	/*QMenu* listing_views_menu = new QMenu;
 	for (auto view : source->get_children<Picviz::PVView>()) {
 		QAction* action = new QAction(view->get_name(), this);
 		QVariant var;
@@ -89,15 +105,15 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 		connect(action, SIGNAL(triggered(bool)), this, SLOT(add_listing_view()));
 		listing_views_menu->addAction(action);
 	}
-	listing_tool_button->setMenu(listing_views_menu);
-	_toolbar->addWidget(listing_tool_button);
+	listing_tool_button->setMenu(listing_views_menu);*/
+	_toolbar->addWidget(_listing_tool_button);
 
 	// Parallel views toolbar button
-	QToolButton* parallel_view_tool_button = new QToolButton(_toolbar);
-	parallel_view_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
-	parallel_view_tool_button->setIcon(QIcon(":/view_display_parallel"));
-	parallel_view_tool_button->setToolTip(tr("Add parallel view"));
-	QMenu* parallel_views_menu = new QMenu;
+	_parallel_view_tool_button = new QToolButton(_toolbar);
+	_parallel_view_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
+	_parallel_view_tool_button->setIcon(QIcon(":/view_display_parallel"));
+	_parallel_view_tool_button->setToolTip(tr("Add parallel view"));
+	/*QMenu* parallel_views_menu = new QMenu;
 	for (auto view : source->get_children<Picviz::PVView>()) {
 		QAction* action = new QAction(view->get_name(), this);
 		QVariant var;
@@ -106,8 +122,8 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 		connect(action, SIGNAL(triggered(bool)), this, SLOT(create_parallel_view()));
 		parallel_views_menu->addAction(action);
 	}
-	parallel_view_tool_button->setMenu(parallel_views_menu);
-	_toolbar->addWidget(parallel_view_tool_button);
+	parallel_view_tool_button->setMenu(parallel_views_menu);*/
+	_toolbar->addWidget(_parallel_view_tool_button);
 
 	// Zoomed parallel views toolbar button
 	QToolButton* zoomed_parallel_view_tool_button = new QToolButton(_toolbar);
@@ -122,6 +138,8 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	scatter_view_tool_button->setIcon(QIcon(":/view_display_scatter"));
 	scatter_view_tool_button->setToolTip(tr("Add scatter view"));
 	_toolbar->addWidget(scatter_view_tool_button);
+
+	refresh_views_menus();
 }
 
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/, Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/)
@@ -233,20 +251,28 @@ void PVGuiQt::PVWorkspace::show_datatree_view(bool show)
 	}
 }
 
-void  PVGuiQt::PVWorkspace::show_layerstack()
+void  PVGuiQt::PVWorkspace::create_layerstack()
 {
 	QAction* action = (QAction*) sender();
-	PVViewDisplay* view_display = (PVViewDisplay*) action->parent();
-	view_display->setVisible(true);
+	QVariant var = action->data();
+	Picviz::PVView* view = var.value<Picviz::PVView*>();
+
+	Picviz::PVView_sp view_sp = view->shared_from_this();
+	PVLayerStackWidget* layerstack_view = new PVLayerStackWidget(view_sp);
+	PVGuiQt::PVViewDisplay* layerstack_view_display = add_view_display(view, layerstack_view, "Layer stack [" + view->get_name() + "]", false, Qt::RightDockWidgetArea);
+	connect(layerstack_view_display, SIGNAL(display_closed()), this, SLOT(destroy_layerstack()));
+
 	action->setEnabled(false);
 }
 
-void  PVGuiQt::PVWorkspace::hide_layerstack()
+void  PVGuiQt::PVWorkspace::destroy_layerstack()
 {
 	PVViewDisplay* view_display = (PVViewDisplay*) sender();
 
 	for (QAction* action : _layerstack_tool_button->actions()) {
-		if (action->parent() == view_display) {
+		QVariant var = action->data();
+		Picviz::PVView* view = var.value<Picviz::PVView*>();
+		if (view_display->get_view() == view) {
 			action->setEnabled(true);
 		}
 	}
@@ -271,4 +297,51 @@ Picviz::PVView* PVGuiQt::PVWorkspace::get_lib_view()
 Picviz::PVView const* PVGuiQt::PVWorkspace::get_lib_view() const
 {
 	return _source->current_view();
+}
+
+void PVGuiQt::PVWorkspace::update_view_count(PVHive::PVObserverBase* /*obs_base*/)
+{
+	uint64_t views_count = _source->get_children<Picviz::PVView>().size();
+	if (views_count != _views_count) {
+		refresh_views_menus();
+		_views_count = views_count;
+	}
+}
+
+void PVGuiQt::PVWorkspace::refresh_views_menus()
+{
+	for (QAction* action : _layerstack_tool_button->actions()) {
+		_layerstack_tool_button->removeAction(action);
+	}
+	for (QAction* action : _listing_tool_button->actions()) {
+		_listing_tool_button->removeAction(action);
+	}
+	for (QAction* action : _parallel_view_tool_button->actions()) {
+		_parallel_view_tool_button->removeAction(action);
+	}
+
+	for (auto view : _source->get_children<Picviz::PVView>()) {
+
+		QAction* action;
+		QVariant var;
+		var.setValue<Picviz::PVView*>(view.get());
+
+		// Layer stack views menus
+		action = new QAction(view->get_name(), this);
+		action->setData(var);
+		connect(action, SIGNAL(triggered(bool)), this, SLOT(create_layerstack()));
+		_layerstack_tool_button->addAction(action);
+
+		// Listing views menus
+		action = new QAction(view->get_name(), this);
+		action->setData(var);
+		connect(action, SIGNAL(triggered(bool)), this, SLOT(add_listing_view()));
+		_listing_tool_button->addAction(action);
+
+		// Parallel views menus
+		action = new QAction(view->get_name(), this);
+		action->setData(var);
+		connect(action, SIGNAL(triggered(bool)), this, SLOT(create_parallel_view()));
+		_parallel_view_tool_button->addAction(action);
+	}
 }

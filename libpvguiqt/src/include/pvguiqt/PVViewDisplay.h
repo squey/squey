@@ -32,6 +32,9 @@ class PVViewDisplay : public QDockWidget
 	friend PVWorkspace;
 	friend FocusInEventFilter;
 
+public:
+	Picviz::PVView* get_view() { return _view; }
+
 protected:
 	void closeEvent(QCloseEvent * event)
 	{
