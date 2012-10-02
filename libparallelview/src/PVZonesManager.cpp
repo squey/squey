@@ -116,6 +116,24 @@ void PVParallelView::PVZonesManager::update_all()
 	}*/
 }
 
+void PVParallelView::PVZonesManager::update_zone(PVZoneID z)
+{
+	assert(z < (PVZoneID) _zones.size());
+
+	_zones[z].reset();
+
+	PVZoneProcessing zp(get_uint_plotted(), get_number_rows());
+	get_zone_cols(z, zp.col_a(), zp.col_b());
+	PVParallelView::PVZoneTree::ProcessData pdata;
+	pdata.clear();
+
+	PVZoneTree& ztree = _zones[z].ztree();
+	ztree.process(zp, pdata);
+
+	PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
+	zztree.process(zp, ztree);
+}
+
 void PVParallelView::PVZonesManager::update_from_axes_comb(columns_indexes_t const& ac)
 {
 	// TODO: optimise this to update only the concerned zones !
@@ -159,4 +177,23 @@ void PVParallelView::PVZonesManager::invalidate_selection()
 void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVView const& view)
 {
 	set_uint_plotted(view.get_parent<Picviz::PVPlotted>()->get_uint_plotted(), view.get_row_count(), view.get_column_count());
+}
+
+QSet<PVZoneID> PVParallelView::PVZonesManager::list_cols_to_zones(QSet<PVCol> const& cols) const
+{
+	QSet<PVZoneID> ret;
+	for (PVCol c: cols) {
+		if (c == 0) {
+			ret << 0;
+		}
+		else
+		if (c == get_number_zones()) {
+			ret << c-1;
+		}
+		else {
+			ret << c;
+			ret << c-1;
+		}
+	}
+	return ret;
 }

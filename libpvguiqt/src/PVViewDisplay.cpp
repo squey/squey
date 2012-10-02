@@ -13,6 +13,7 @@
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
+#include <pvhive/waxes/waxes.h>
 
 PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget /*= true*/, QWidget* parent /*= 0*/) :
 	QDockWidget(parent),
