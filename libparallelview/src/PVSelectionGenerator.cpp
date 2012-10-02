@@ -10,6 +10,7 @@
 #include <picviz/PVSelection.h>
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVZonesManager.h>
+#include <pvparallelview/PVAbstractAxisSlider.h>
 
 uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZoneID zid, QRect rect, Picviz::PVSelection& sel)
 {
@@ -99,7 +100,9 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 
 			bool is_line_selected = false;
 			for (auto range : ranges) {
-				if (y1 >= range.first && y1 < range.second) {
+				uint32_t y_min = range.first / (double)PVAbstractAxisSlider::precision;
+				uint32_t y_max = 0.5 + (range.second / (double)PVAbstractAxisSlider::precision);
+				if (y1 >= y_min && y1 <= y_max) {
 					is_line_selected = true;
 					break;
 				}
@@ -133,7 +136,9 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 
 			bool is_line_selected = false;
 			for (auto range : ranges) {
-				if (y1 >= range.first && y1 < range.second) {
+				uint32_t y_min = range.first / (double)PVAbstractAxisSlider::precision;
+				uint32_t y_max = 0.5 + (range.second / (double)PVAbstractAxisSlider::precision);
+				if (y1 >= y_min && y1 <= y_max) {
 					is_line_selected = true;
 					break;
 				}

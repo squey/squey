@@ -31,7 +31,7 @@ public:
 	                  PVSlidersManager_p sm_p,
 	                  PVSlidersGroup *group);
 
-	void initialize(id_t id, uint32_t y_min, uint32_t y_max);
+	void initialize(id_t id, int64_t y_min, int64_t y_max);
 
 public slots:
 	virtual void remove_from_axis();

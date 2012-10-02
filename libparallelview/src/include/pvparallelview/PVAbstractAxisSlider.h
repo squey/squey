@@ -4,6 +4,8 @@
 
 #include <pvkernel/core/PVAlgorithms.h>
 
+#include <pvparallelview/common.h>
+
 #include <QObject>
 #include <QGraphicsItem>
 #include <QGraphicsSceneContextMenuEvent>
@@ -27,19 +29,25 @@ class PVAbstractAxisSlider : public QGraphicsObject
 Q_OBJECT
 
 public:
-	PVAbstractAxisSlider(int omin, int omax, int o,
+	constexpr static int64_t min_value = 0LL;
+	constexpr static int64_t max_value = (1LL << 32);
+	constexpr static int64_t precision = (1LL << (32 - NBITS_INDEX));
+
+
+public:
+	PVAbstractAxisSlider(int64_t omin, int64_t omax, int64_t o,
 	                     PVAxisSliderOrientation orientation = Min);
 
 	~PVAbstractAxisSlider();
 
-	void set_value(int v);
+	void set_value(int64_t v);
 
-	inline int get_value() const
+	inline int64_t get_value() const
 	{
 		return _offset;
 	}
 
-	void set_range(int omin, int omax)
+	void set_range(int64_t omin, int64_t omax)
 	{
 		_offset_min = omin;
 		_offset_max = omax;
@@ -77,9 +85,9 @@ protected:
 	bool mouse_is_hover() const { return _is_hover; }
 
 protected:
-	int                     _offset_min;
-	int                     _offset_max;
-	int                     _offset;
+	int64_t                 _offset_min;
+	int64_t                 _offset_max;
+	int64_t                 _offset;
 	PVAxisSliderOrientation _orientation;
 	bool                    _moving;
 	bool                    _is_hover;

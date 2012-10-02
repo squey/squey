@@ -455,8 +455,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 	PVHive::call<FUNC(PVSlidersManager::update_zoom_sliders)>(_sliders_manager_p,
 	                                                          _axis_id, _sliders_group,
-	                                                          y_min >> (32 - NBITS_INDEX),
-	                                                          y_max >> (32 - NBITS_INDEX),
+	                                                          y_min, y_max,
 	                                                          PVParallelView::PVSlidersManager::ZoomSliderNone);
 	_last_y_min = y_min;
 	_last_y_max = y_max;
@@ -771,16 +770,27 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(argu
 	}
 
 	if ((axis_id == _parent->_axis_id) && (id == _parent->_sliders_group)) {
-		double sld_min = std::get<2>(args);
-		double sld_max = std::get<3>(args);
+		int64_t y_min = std::get<2>(args);
+                int64_t y_max = std::get<3>(args);
+
+                if (y_max < y_min) {
+	                std::swap(y_min, y_max);
+                }
+
+		double sld_min = y_min / (double)PVAbstractAxisSlider::precision;
+		double sld_max = y_max / (double)PVAbstractAxisSlider::precision;
 		double sld_dist = sld_max - sld_min;
 
 		// computing the nearest range matching the discrete zoom rules
 		double y_dist = round(pow(2.0, (round(zoom_steps * log2(sld_dist)) / (double)zoom_steps)));
 
-		double screen_height = _parent->_zpview->viewport()->rect().height();
-		double wanted_alpha = PVCore::clamp<double>(y_dist / screen_height, 0., 1.);
-		_parent->_wheel_value = (int)round(_parent->retrieve_wheel_value_from_alpha(wanted_alpha));
+		if (y_dist != 0) {
+			double screen_height = _parent->_zpview->viewport()->rect().height();
+			double wanted_alpha = PVCore::clamp<double>(y_dist / screen_height, 0., 1.);
+			_parent->_wheel_value = (int)round(_parent->retrieve_wheel_value_from_alpha(wanted_alpha));
+		} else {
+			_parent->_wheel_value = max_wheel_value;
+		}
 
 		if (change == PVParallelView::PVSlidersManager::ZoomSliderMin) {
 			sld_max = round(PVCore::clamp<double>(sld_min + y_dist,
@@ -798,7 +808,6 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(argu
 		_parent->update_zoom();
 	}
 }
-
 
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::zoom_sliders_del_obs::update

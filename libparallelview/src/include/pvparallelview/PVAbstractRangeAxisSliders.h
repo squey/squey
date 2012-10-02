@@ -23,7 +23,7 @@ public:
 	PVAbstractRangeAxisSliders(QGraphicsItem *parent, PVSlidersManager_p sm_p,
 	                           PVSlidersGroup *group, const char *text);
 
-	virtual void initialize(id_t id, uint32_t y_min, uint32_t y_max) = 0;
+	virtual void initialize(id_t id, int64_t y_min, int64_t y_max) = 0;
 
 	virtual bool is_moving() const
 	{
@@ -46,7 +46,7 @@ public:
 	}
 
 protected:
-	void refresh_value(int y_min, int y_max)
+	void refresh_value(int64_t y_min, int64_t y_max)
 	{
 		_sl_min->set_value(y_min);
 		_sl_max->set_value(y_max);

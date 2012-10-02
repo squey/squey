@@ -10,7 +10,7 @@ namespace PVParallelView
 class PVZoomAxisSlider : public PVAbstractAxisSlider
 {
 public:
-	PVZoomAxisSlider(int omin, int omax, int o,
+	PVZoomAxisSlider(int64_t omin, int64_t omax, int64_t o,
 	                 PVAxisSliderOrientation orientation = Min) :
 		PVAbstractAxisSlider(omin, omax, o, orientation)
 	{}
