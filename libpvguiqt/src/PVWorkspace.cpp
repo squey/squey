@@ -235,12 +235,19 @@ void PVGuiQt::PVWorkspace::create_zoomed_parallel_view()
 
 	if (dlg->exec() == QDialog::Accepted) {
 		int axis_index = axes->get_axis_index().get_axis_index();
-		QWidget* zoomed_parallel_view = PVParallelView::common::get_lib_view(*view)->create_zoomed_view(axis_index);
-		add_view_display(view, zoomed_parallel_view, QString("Zoomed parallel view on axis '%1' [%2]").arg(view->get_axis_name(axis_index)).arg(view->get_name()));
+		create_zoomed_parallel_view(view, axis_index);
+
 	}
 
 	dlg->deleteLater();
 }
+
+void PVGuiQt::PVWorkspace::create_zoomed_parallel_view(Picviz::PVView* view, int axis_index)
+{
+	QWidget* zoomed_parallel_view = PVParallelView::common::get_lib_view(*view)->create_zoomed_view(axis_index);
+	add_view_display(view, zoomed_parallel_view, QString("Zoomed parallel view on axis '%1' [%2]").arg(view->get_axis_name(axis_index)).arg(view->get_name()));
+}
+
 
 void PVGuiQt::PVWorkspace::show_datatree_view(bool show)
 {
