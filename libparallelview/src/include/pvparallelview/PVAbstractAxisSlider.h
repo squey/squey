@@ -74,12 +74,15 @@ protected:
 
 	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
+	bool mouse_is_hover() const { return _is_hover; }
+
 protected:
 	int                     _offset_min;
 	int                     _offset_max;
 	int                     _offset;
 	PVAxisSliderOrientation _orientation;
 	bool                    _moving;
+	bool                    _is_hover;
 	PVAbstractAxisSliders  *_owner;
 };
 
