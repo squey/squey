@@ -116,13 +116,13 @@ void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 	if (!current_tab) {
 		return;
 	}
-/*
+
 	PVGuiQt::PVAxesCombinationDialog* dlg = current_tab->get_axes_combination_editor(current_tab->get_lib_view());
 	if (dlg->isVisible()) {
 		return;
 	}
 
-	dlg->show();*/
+	dlg->show();
 }
 
 /******************************************************************************

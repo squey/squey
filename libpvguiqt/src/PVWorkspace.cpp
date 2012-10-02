@@ -308,6 +308,16 @@ void PVGuiQt::PVWorkspace::update_view_count(PVHive::PVObserverBase* /*obs_base*
 	}
 }
 
+const PVGuiQt::PVWorkspace::PVViewWidgets& PVGuiQt::PVWorkspace::get_view_widgets(Picviz::PVView* view)
+{
+	assert(view->get_parent<Picviz::PVSource>() == _source);
+	if (!_view_widgets.contains(view)) {
+		PVViewWidgets widgets(view, this);
+		return *(_view_widgets.insert(view, widgets));
+	}
+	return _view_widgets[view];
+}
+
 void PVGuiQt::PVWorkspace::refresh_views_menus()
 {
 	for (QAction* action : _layerstack_tool_button->actions()) {
