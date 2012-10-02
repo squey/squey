@@ -35,6 +35,7 @@ class PVViewDisplay : public QDockWidget
 
 public:
 	Picviz::PVView* get_view() { return _view; }
+	void set_view(Picviz::PVView* view) { _view = view; }
 
 protected:
 	void contextMenuEvent(QContextMenuEvent* event);

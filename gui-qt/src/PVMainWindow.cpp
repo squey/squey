@@ -1687,8 +1687,9 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 	int new_tab_index = pv_WorkspacesTabWidget->addTab(workspace, src->get_name());
 
 	PVGuiQt::PVListingView* listing_view = workspace->create_listing_view(first_view_p);
-
 	workspace->set_central_display(first_view_p.get(), listing_view, "Listing [" + first_view_p->get_name() + "]");
+
+	workspace->create_parallel_view(first_view_p.get());
 
 	// Add the source's tab
 	current_tab = workspace;

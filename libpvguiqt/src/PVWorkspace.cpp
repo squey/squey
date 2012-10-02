@@ -111,7 +111,10 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	_toolbar->addWidget(scatter_view_tool_button);
 
 	refresh_views_menus();
-	create_layerstack(source->get_children<Picviz::PVView>()[0].get()); // FIXME: JB: this is the ugliest thing I ever did in Picviz!!
+
+	for (auto view : _source->get_children<Picviz::PVView>()) {
+		create_layerstack(view.get());
+	}
 }
 
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/, Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/)
@@ -140,7 +143,7 @@ PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::set_central_display(Picviz::PVView
 	return view_display;
 }
 
-void PVGuiQt::PVWorkspace::switch_with_central_widget(PVViewDisplay* display_dock /*= nullptr*/)
+void PVGuiQt::PVWorkspace::switch_with_central_widget(PVViewDisplay* display_dock /* = nullptr */)
 {
 	if (!display_dock) {
 		display_dock = (PVViewDisplay*) sender()->parent();
@@ -158,6 +161,20 @@ void PVGuiQt::PVWorkspace::switch_with_central_widget(PVViewDisplay* display_doc
 	QString central_title = central_dock->windowTitle();
 	central_dock->setWindowTitle(display_dock->windowTitle());
 	display_dock->setWindowTitle(central_title);
+
+	// Exchange views
+	Picviz::PVView* central_view = central_dock->get_view();
+	central_dock->set_view(display_dock->get_view());
+	display_dock->set_view(central_view);
+
+	// Exchange colors
+	QString style = QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ");
+	QColor col1 = central_dock->get_view()->get_color();
+	QColor col2 = display_dock->get_view()->get_color();
+	QString style1 = style.arg(col1.name()).arg(col1.name());
+	QString style2 = style.arg(col2.name()).arg(col2.name());
+	display_dock->setStyleSheet(style1);
+	central_dock->setStyleSheet(style2);
 }
 
 void PVGuiQt::PVWorkspace::add_listing_view(bool central /*= false*/)
@@ -189,11 +206,13 @@ PVGuiQt::PVListingView* PVGuiQt::PVWorkspace::create_listing_view(Picviz::PVView
 	return listing_view;
 }
 
-void PVGuiQt::PVWorkspace::create_parallel_view()
+void PVGuiQt::PVWorkspace::create_parallel_view(Picviz::PVView* view /*= nullptr*/)
 {
-	QAction* action = (QAction*) sender();
-	QVariant var = action->data();
-	Picviz::PVView* view = var.value<Picviz::PVView*>();
+	if (!view) {
+		QAction* action = (QAction*) sender();
+		QVariant var = action->data();
+		view = var.value<Picviz::PVView*>();
+	}
 
 	PVParallelView::PVLibView* parallel_lib_view;
 
