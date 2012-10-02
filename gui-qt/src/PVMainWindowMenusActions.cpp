@@ -231,10 +231,10 @@ void PVInspector::PVMainWindow::create_menus()
 	scene_Menu->addAction(correlation_scene_Action);
 	
 	view_Menu = menubar->addMenu(tr("&View"));
-	view_Menu->addAction(view_new_parallel_Action);
-	view_Menu->addAction(view_new_zoomed_parallel_Action);
-	view_Menu->addAction(view_new_scatter_Action);
-	view_Menu->addSeparator();
+	//view_Menu->addAction(view_new_parallel_Action);
+	//view_Menu->addAction(view_new_zoomed_parallel_Action);
+	//view_Menu->addAction(view_new_scatter_Action);
+	//view_Menu->addSeparator();
 	view_Menu->addAction(view_display_inv_elts_Action);
 #ifndef NDEBUG
 	view_Menu->addSeparator();

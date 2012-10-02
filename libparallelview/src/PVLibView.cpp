@@ -74,9 +74,18 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 		[&](Picviz::PVView const*) { this->view_about_to_be_deleted(); }
 	);
 
+	_obs_plotting = PVHive::create_observer_callback_heap<Picviz::PVPlotting>(
+	    [&](Picviz::PVPlotting const*) { },
+		[&](Picviz::PVPlotting const*) { this->plotting_updated(); },
+		[&](Picviz::PVPlotting const*) { }
+	);
+
+	Picviz::PVPlotted_sp plotted_sp = view_sp->get_parent()->shared_from_this();
+
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_real_output_selection(); }, *_obs_sel);
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_output_layer(); }, *_obs_output_layer);
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_axes_combination().get_axes_index_list(); }, *_obs_axes_comb);
+	PVHive::get().register_observer(plotted_sp, [=](Picviz::PVPlotted& plotted) { return &plotted.get_plotting(); }, *_obs_plotting);
 	PVHive::get().register_observer(view_sp, *_obs_view);
 
 	_sliders_manager_p = PVParallelView::PVSlidersManager_p(new PVSlidersManager);
@@ -154,6 +163,52 @@ void PVParallelView::PVLibView::selection_updated()
 void PVParallelView::PVLibView::output_layer_updated()
 {
 	for (PVFullParallelScene* view: _parallel_scenes) {
+		view->update_all();
+	}
+}
+
+void PVParallelView::PVLibView::plotting_updated()
+{
+	QList<PVCol> const& cols_updated = lib_view()->get_parent<Picviz::PVPlotted>()->last_updated_cols();
+	if (cols_updated.size() == 0) {
+		return;
+	}
+
+	// Get list of combined columns
+	QSet<PVCol> combined_cols;
+	for (PVCol c: cols_updated) {
+		combined_cols.unite(lib_view()->get_axes_combination().get_combined_axes_columns_indexes(c).toSet());
+	}
+
+	// Get zones from that list of columns
+	QSet<PVZoneID> zones_to_update = get_zones_manager().list_cols_to_zones(combined_cols);
+
+	for (PVFullParallelScene* view: _parallel_scenes) {
+		view->set_enabled(false);
+	}
+
+	QList<PVZoomedParallelScene*> concerned_zoom;
+	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
+		for (PVZoneID z: zones_to_update) {
+			if (view->is_zone_rendered(z)) {
+				view->set_enabled(false);
+				concerned_zoom.push_back(view);
+				break;
+			}
+		}
+	}
+	
+	for (PVZoneID z: zones_to_update) {
+		get_zones_manager().update_zone(z);
+	}
+
+	for (PVFullParallelScene* view: _parallel_scenes) {
+		view->set_enabled(true);
+		view->update_all();
+	}
+
+	for (PVZoomedParallelScene* view: concerned_zoom) {
+		view->set_enabled(true);
 		view->update_all();
 	}
 }

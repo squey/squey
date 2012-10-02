@@ -57,6 +57,8 @@ public:
 	void reverse_zone(PVZoneID zone);
 	void add_zone(PVZoneID zone);
 
+	QSet<PVZoneID> list_cols_to_zones(QSet<PVCol> const& cols) const;
+
 public:
 	template <class Tree>
 	inline Tree const& get_zone_tree(PVZoneID z) const

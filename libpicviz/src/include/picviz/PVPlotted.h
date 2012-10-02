@@ -117,11 +117,14 @@ public:
 	PVPlotting& get_plotting() { return *_plotting; }
 	const PVPlotting& get_plotting() const { return *_plotting; }
 
+	inline PVPlottingProperties const& get_plotting_properties(PVCol j) { assert(j < get_column_count()); return _plotting->get_properties_for_col(j); }
+
 	bool is_uptodate() const;
 
 	QList<PVCol> get_singleton_columns_indexes();
 	QList<PVCol> get_columns_indexes_values_within_range(uint32_t min, uint32_t max, double rate = 1.0);
 	QList<PVCol> get_columns_indexes_values_not_within_range(uint32_t min, uint32_t max, double rate = 1.0);
+	QList<PVCol> get_columns_to_update() const;
 
 public:
 	// Data access
@@ -149,6 +152,8 @@ public:
 	static bool load_buffer_from_file(uint_plotted_table_t& buf, PVRow& nrows, PVCol& ncols, bool get_transposed_version, QString const& file);
 	static bool load_buffer_from_file(plotted_table_t& buf, PVCol& ncols, bool get_transposed_version, QString const& file);
 
+	inline QList<PVCol> const& last_updated_cols() const { return _last_updated_cols; }
+
 public:
 	// Debug
 	void to_csv();
@@ -165,6 +170,7 @@ private:
 	PVPlotting_p _plotting;
 	uint_plotted_table_t _uint_table;
 	list_expanded_selection_t _expanded_sels;
+	QList<PVCol> _last_updated_cols;
 };
 
 typedef PVPlotted::p_type  PVPlotted_p;

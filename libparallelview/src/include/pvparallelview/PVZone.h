@@ -69,6 +69,13 @@ public:
 		return *(new Tree());
 	}
 
+	void reset()
+	{
+		_zone_state = INVALID;
+		_ztree.reset(new PVZoneTree());
+		_zoomed_ztree.reset(new PVZoomedZoneTree(_ztree->get_sel_elts()));
+	}
+
 private:
 	enum zone_state_t {
 		UP_TO_DATE,

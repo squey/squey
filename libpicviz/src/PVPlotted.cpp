@@ -80,6 +80,8 @@ int Picviz::PVPlotted::create_table()
 		}
 	}
 
+	_last_updated_cols.clear();
+
 	try {
 
 		PVLOG_INFO("(PVPlotted::create_table) begin parallel plotting\n");
@@ -106,6 +108,7 @@ int Picviz::PVPlotted::create_table()
 
 			boost::this_thread::interruption_point();
 			_plotting->set_uptodate_for_col(j);
+			_last_updated_cols.push_back(j);
 		}
 		PVLOG_INFO("(PVPlotted::create_table) end parallel plotting\n");
 
@@ -570,6 +573,20 @@ bool Picviz::PVPlotted::is_current_plotted() const
 		}
 	}
 	return false;
+}
+
+
+QList<PVCol> Picviz::PVPlotted::get_columns_to_update() const
+{
+	QList<PVCol> ret;
+
+	for (PVCol j = 0; j < get_column_count(); j++) {
+		if (!_plotting->is_col_uptodate(j)) {
+			ret << j;
+		}
+	}
+
+	return ret;
 }
 
 void Picviz::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)

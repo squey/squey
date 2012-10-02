@@ -8,6 +8,7 @@
 #define PVPARALLELVIEW_PVLIBVIEW_H
 
 #include <picviz/PVAxesCombination.h>
+#include <picviz/PVPlotting.h>
 #include <picviz/PVView_types.h>
 
 #include <pvhive/PVObserverSignal.h>
@@ -55,6 +56,7 @@ protected:
 	void output_layer_updated();
 	void view_about_to_be_deleted();
 	void axes_comb_updated();
+	void plotting_updated();
 
 protected:
 	void common_init_view(Picviz::PVView_sp& view_sp);
@@ -69,6 +71,7 @@ private:
 	PVHive::PVObserver_p<Picviz::PVSelection> _obs_sel;
 	PVHive::PVObserver_p<Picviz::PVView>      _obs_view;
 	PVHive::PVObserver_p<Picviz::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
+	PVHive::PVObserver_p<Picviz::PVPlotting>  _obs_plotting;
 	scene_list_t                              _parallel_scenes;
 	zoomed_scene_list_t                       _zoomed_parallel_scenes;
 	PVCore::PVHSVColor                 const* _colors;

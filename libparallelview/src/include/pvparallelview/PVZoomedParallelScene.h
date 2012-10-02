@@ -94,14 +94,27 @@ public:
 
 	void resize_display();
 
-private:
-	void cancel_current_job();
-
 	inline void update_all()
 	{
 		_render_type = RENDER_ALL;
 		update_display();
 	}
+
+	inline bool is_zone_rendered(PVZoneID z) const
+	{
+		bool ret = false;
+		if (_left_zone) {
+			ret |= (z == _axis_index-1);
+		}
+		if (_right_zone) {
+			ret |= (z == _axis_index);
+		}
+		return ret;
+	}	
+			
+
+private:
+	void cancel_current_job();
 
 	inline void update_sel()
 	{
