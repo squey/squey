@@ -111,6 +111,7 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	_toolbar->addWidget(scatter_view_tool_button);
 
 	refresh_views_menus();
+	create_layerstack(source->get_children<Picviz::PVView>()[0].get()); // FIXME: JB: this is the ugliest thing I ever did in Picviz!!
 }
 
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/, Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/)
@@ -250,18 +251,36 @@ void PVGuiQt::PVWorkspace::show_datatree_view(bool show)
 	}
 }
 
-void  PVGuiQt::PVWorkspace::create_layerstack()
+void  PVGuiQt::PVWorkspace::create_layerstack(Picviz::PVView* view_org /*= nullptr*/)
 {
-	QAction* action = (QAction*) sender();
-	QVariant var = action->data();
-	Picviz::PVView* view = var.value<Picviz::PVView*>();
+	Picviz::PVView* view = nullptr;
+	QAction* action;
+	if (!view_org) {
+		action = (QAction*) sender();
+		QVariant var = action->data();
+		view = var.value<Picviz::PVView*>();
+	}
+	else {
+		view = view_org;
+	}
 
 	Picviz::PVView_sp view_sp = view->shared_from_this();
 	PVLayerStackWidget* layerstack_view = new PVLayerStackWidget(view_sp);
 	PVGuiQt::PVViewDisplay* layerstack_view_display = add_view_display(view, layerstack_view, "Layer stack [" + view->get_name() + "]", false, Qt::RightDockWidgetArea);
 	connect(layerstack_view_display, SIGNAL(display_closed()), this, SLOT(destroy_layerstack()));
 
-	action->setEnabled(false);
+	if (!view_org) {
+		action->setEnabled(false);
+	}
+	else {
+		for (QAction* action : _layerstack_tool_button->actions()) {
+			QVariant var = action->data();
+			Picviz::PVView* view = var.value<Picviz::PVView*>();
+			if (layerstack_view_display->get_view() == view) {
+				action->setEnabled(false);
+			}
+		}
+	}
 }
 
 void  PVGuiQt::PVWorkspace::destroy_layerstack()

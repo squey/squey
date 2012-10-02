@@ -100,7 +100,7 @@ private slots:
 	void create_zoomed_parallel_view();
 	void show_datatree_view(bool show);
 	void check_datatree_button(bool check = false);
-	void create_layerstack();
+	void create_layerstack(Picviz::PVView* view = nullptr);
 	void destroy_layerstack();
 	void display_destroyed(QObject* object = 0);
 
