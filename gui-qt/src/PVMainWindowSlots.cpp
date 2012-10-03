@@ -25,7 +25,6 @@
 #include <pvparallelview/PVLibView.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
-#include <pvguiqt/PVLogoScene.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 #include <pvguiqt/PVWorkspace.h>
 
@@ -38,64 +37,21 @@
 #include <PVSaveSceneDialog.h>
 #include <PVAxisComputationDlg.h>
 
+#include <pvguiqt/PVAboutBoxDialog.h>
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::about_Slot()
  *
  *****************************************************************************/
 
-class GraphicsView : public QGraphicsView
-{
-protected:
-    void resizeEvent(QResizeEvent *event) {
-        if (scene())
-            scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
-        QGraphicsView::resizeEvent(event);
-    }
-};
+
 
 void PVInspector::PVMainWindow::about_Slot()
 {
-	if (!about_dialog) {
-		about_dialog = new QDialog;
-
-		QGridLayout *main_layout = new QGridLayout;
-		main_layout->setHorizontalSpacing(0);
-
-		QLabel *logo = new QLabel;
-
-		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2012 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n";
-
-#ifdef CUDA
-		content += "\nWith CUDA support\n";
-#endif
-		content += "\nQT version " + QString(QT_VERSION_STR);
-
-		QGraphicsView* view3D = new GraphicsView();
-		view3D->setStyleSheet("QGraphicsView { background-color: white; color: white; border-style: none; }");
-		view3D->setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
-		view3D->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-		view3D->setScene(new PVGuiQt::PVLogoScene());
-		view3D->setCursor(Qt::OpenHandCursor);
-
-		QLabel *text = new QLabel(content);
-		text->setAlignment(Qt::AlignCenter);
-		QPushButton *ok = new QPushButton("OK");
-
-		logo->setPixmap(QPixmap(":/logo_text.png"));
-
-		main_layout->addWidget(view3D, 0, 0);
-		main_layout->addWidget(logo, 0, 1);
-		main_layout->addWidget(text, 1, 0);
-		main_layout->addWidget(ok, 2, 1);
-
-		about_dialog->setLayout(main_layout);
-
-		about_dialog->setWindowTitle("About Picviz Inspector");
-
-		about_dialog->connect(ok, SIGNAL(pressed()), about_dialog, SLOT(hide()));
-	}
-	about_dialog->show();
+	PVGuiQt::PVAboutBoxDialog* about_dialog = new PVGuiQt::PVAboutBoxDialog(this);
+	about_dialog->exec();
+	about_dialog->deleteLater();
 }
 
 void PVInspector::PVMainWindow::axes_editor_Slot()

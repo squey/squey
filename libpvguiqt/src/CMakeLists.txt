@@ -32,6 +32,7 @@ PVQPlotted.cpp
 PVWorkspacesTabWidget.cpp
 PVWorkspace.cpp
 PVViewDisplay.cpp
+PVAboutBoxDialog.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
@@ -57,6 +58,7 @@ include/pvguiqt/PVLogoScene.h
 include/pvguiqt/PVWorkspacesTabWidget.h
 include/pvguiqt/PVWorkspace.h
 include/pvguiqt/PVViewDisplay.h
+include/pvguiqt/PVAboutBoxDialog.h
 )
 
 SET(UI_FILES
