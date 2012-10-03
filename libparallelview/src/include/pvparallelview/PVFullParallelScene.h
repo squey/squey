@@ -228,6 +228,7 @@ private:
 	qreal _translation_start_x = 0.0;
 
 	float           _zoom_y;
+	float           _axis_length;
 
 	tbb::task_group _render_tasks_sel;
 	tbb::task_group _render_tasks_bg;

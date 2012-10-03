@@ -595,11 +595,11 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 	axes_names_bbox_f.setBottom(0.);
 
 	int labels_height = _parallel_view->mapFromScene(axes_names_bbox_f).boundingRect().height();
-	qreal axes_length = PVCore::clamp(screen_height - (labels_height + SCENE_MARGIN),
-	                                  0, 1024);
+	_axis_length = PVCore::clamp(screen_height - (labels_height + SCENE_MARGIN),
+	                             0, 1024);
 
 	for(PVAxisGraphicsItem *axis : _axes) {
-		axis->set_axis_length(axes_length);
+		axis->set_axis_length(_axis_length);
 	}
 
 	QRectF r = _selection_square->rect();
@@ -612,7 +612,7 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 		r.setBottom(r.bottom() / _zoom_y);
 	}
 
-	_zoom_y = axes_length / 1024.;
+	_zoom_y = _axis_length / 1024.;
 
 	// propagate this value to all PVSlidersGroup
 	for(PVAxisGraphicsItem *axis : _axes) {
@@ -764,10 +764,19 @@ void PVParallelView::PVFullParallelScene::add_zone_image()
 
 void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const z, int index)
 {
-	PVParallelView::PVAxisGraphicsItem* axisw = new PVParallelView::PVAxisGraphicsItem(_sm_p, lib_view(), _lib_view.get_axes_combination().get_axes_comb_id(z));
-	connect(axisw->get_sliders_group(), SIGNAL(selection_sliders_moved(axis_id_t)), this, SLOT(update_selection_from_sliders_Slot(axis_id_t)));
-	connect(axisw, SIGNAL(new_zoomed_parallel_view(int)), this, SLOT(emit_new_zoomed_parallel_view(int)));
+	PVAxisGraphicsItem* axisw = new PVAxisGraphicsItem(_sm_p, lib_view(),
+	                                                   _lib_view.get_axes_combination().get_axes_comb_id(z));
+
+	axisw->get_sliders_group()->set_axis_scale(_zoom_y);
+	axisw->set_axis_length(_axis_length);
+
+	connect(axisw->get_sliders_group(), SIGNAL(selection_sliders_moved(axis_id_t)),
+	        this, SLOT(update_selection_from_sliders_Slot(axis_id_t)));
+	connect(axisw, SIGNAL(new_zoomed_parallel_view(int)),
+	        this, SLOT(emit_new_zoomed_parallel_view(int)));
+
 	addItem(axisw);
+
 	if (index < 0) {
 		_axes.push_back(axisw);
 	} else {
