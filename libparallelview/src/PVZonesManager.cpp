@@ -141,9 +141,9 @@ void PVParallelView::PVZonesManager::update_zone(PVZoneID z)
 
 void PVParallelView::PVZonesManager::update_from_axes_comb(columns_indexes_t const& ac)
 {
-    // TODO: optimise this to update only the concerned zones !
-    _axes_comb = ac;
-    update_all();
+	// TODO: optimise this to update only the concerned zones !
+	_axes_comb = ac;
+	update_all();
 
 	/*typedef std::pair<PVCol, PVCol> axes_pair_t;
 	typedef std::vector<axes_pair_t> axes_pair_list_t;

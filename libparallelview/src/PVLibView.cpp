@@ -263,7 +263,7 @@ void PVParallelView::PVLibView::axes_comb_updated()
 		view->update_zones();
 	}
 
-	PVCore::PVProgressBox pbox("Reinitializing zoomed parallel views");
+	PVCore::PVProgressBox pbox("Updating zoomed parallel views");
 
 	PVCore::PVProgressBox::progress([&]() {
 			for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
