@@ -65,6 +65,7 @@ if(PYTHONLIBS_FOUND)
 endif(PYTHONLIBS_FOUND)
 
 SET(CORE_MOC_HEADERS
+include/pvkernel/core/lambda_connect.h
 include/pvkernel/core/PVProgressBox.h
 )
 

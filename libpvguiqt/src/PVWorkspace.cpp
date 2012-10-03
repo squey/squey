@@ -75,40 +75,39 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 
 	// Layerstack views toolbar button
 	_layerstack_tool_button = new QToolButton(_toolbar);
-	_layerstack_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
+	_layerstack_tool_button->setPopupMode(QToolButton::InstantPopup);
 	_layerstack_tool_button->setIcon(QIcon(":/layer-active.png"));
 	_layerstack_tool_button->setToolTip(tr("Add layer stack"));
-	//connect(_layerstack_tool_button, SLOT(triggered(QAction*)), this, SLOT(layerstack_toolbutton(QAction*)));
 	_toolbar->addWidget(_layerstack_tool_button);
 	_toolbar->addSeparator();
 
 	// Listings button
 	_listing_tool_button = new QToolButton(_toolbar);
-	_listing_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
+	_listing_tool_button->setPopupMode(QToolButton::InstantPopup);
 	_listing_tool_button->setIcon(QIcon(":/view_display_listing"));
 	_listing_tool_button->setToolTip(tr("Add listing"));
 	_toolbar->addWidget(_listing_tool_button);
 
 	// Parallel views toolbar button
 	_parallel_view_tool_button = new QToolButton(_toolbar);
-	_parallel_view_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
+	_parallel_view_tool_button->setPopupMode(QToolButton::InstantPopup);
 	_parallel_view_tool_button->setIcon(QIcon(":/view_display_parallel"));
 	_parallel_view_tool_button->setToolTip(tr("Add parallel view"));
 	_toolbar->addWidget(_parallel_view_tool_button);
 
 	// Zoomed parallel views toolbar button
 	_zoomed_parallel_view_tool_button = new QToolButton(_toolbar);
-	_zoomed_parallel_view_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
+	_zoomed_parallel_view_tool_button->setPopupMode(QToolButton::InstantPopup);
 	_zoomed_parallel_view_tool_button->setIcon(QIcon(":/view_display_zoom"));
 	_zoomed_parallel_view_tool_button->setToolTip(tr("Add zoomed parallel view"));
 	_toolbar->addWidget(_zoomed_parallel_view_tool_button);
 
 	// Scatter views toolbar button
-	QToolButton* scatter_view_tool_button = new QToolButton(_toolbar);
-	scatter_view_tool_button->setPopupMode(QToolButton::MenuButtonPopup);
+	/*QToolButton* scatter_view_tool_button = new QToolButton(_toolbar);
+	scatter_view_tool_button->setPopupMode(QToolButton::InstantPopup);
 	scatter_view_tool_button->setIcon(QIcon(":/view_display_scatter"));
 	scatter_view_tool_button->setToolTip(tr("Add scatter view"));
-	_toolbar->addWidget(scatter_view_tool_button);
+	_toolbar->addWidget(scatter_view_tool_button);*/
 
 	refresh_views_menus();
 

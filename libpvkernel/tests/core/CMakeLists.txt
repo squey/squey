@@ -135,3 +135,7 @@ target_link_libraries(Tcore_decimal_storage ${PVKERNEL_LIBRARIES})
 # Huge POD vector
 add_executable(Tcore_huge_vector huge_vector.cpp)
 target_link_libraries(Tcore_huge_vector ${PVKERNEL_LIBRARIES})
+
+# lambda_connect
+add_executable(Tcore_lambda_connect lambda_connect.cpp)
+target_link_libraries(Tcore_lambda_connect ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
