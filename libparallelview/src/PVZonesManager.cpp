@@ -78,7 +78,7 @@ void PVParallelView::PVZonesManager::update_all()
 		tbb::task_scheduler_init init(nthreads);
 		tbb::parallel_for(tbb::blocked_range<PVZoneID>(0, nzones, 8), zc);
 
-
+#ifdef EXPLICIT_ZZTS_PROCESSING
 		BENCH_START(zztree);
 #if 1
 		// Create Zoomed Zone Tree (serial)
@@ -101,6 +101,7 @@ void PVParallelView::PVZonesManager::update_all()
 		});
 		BENCH_END(zztree, "ZZTREES PROCESS (PARALLEL)", 1, 1, 1, 1);
 #endif
+#endif // EXPLICIT_ZZTS_PROCESSING
 
 	}
 
@@ -131,7 +132,11 @@ void PVParallelView::PVZonesManager::update_zone(PVZoneID z)
 	ztree.process(zp, pdata);
 
 	PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
+#if EXPLICIT_ZZTS_PROCESSING
 	zztree.process(zp, ztree);
+#else
+	zztree.reset();
+#endif
 }
 
 void PVParallelView::PVZonesManager::update_from_axes_comb(columns_indexes_t const& ac)
@@ -175,6 +180,24 @@ void PVParallelView::PVZonesManager::update_from_axes_comb(columns_indexes_t con
 void PVParallelView::PVZonesManager::update_from_axes_comb(Picviz::PVView const& view)
 {
 	update_from_axes_comb(view.get_axes_combination().get_axes_index_list());
+}
+
+void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID z)
+{
+	PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
+
+	if (zztree.is_initialized()) {
+		return;
+	}
+
+	BENCH_START(zztree);
+	PVZoneProcessing zp(get_uint_plotted(), get_number_rows());
+
+	get_zone_cols(z, zp.col_a(), zp.col_b());
+
+	PVZoneTree& ztree = _zones[z].ztree();
+	zztree.process(zp, ztree);
+	BENCH_END(zztree, "ZZTREES PROCESS", 1, 1, 1, 1);
 }
 
 void PVParallelView::PVZonesManager::lazy_init_from_view(Picviz::PVView const& view)

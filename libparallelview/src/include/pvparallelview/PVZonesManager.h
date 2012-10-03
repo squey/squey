@@ -59,6 +59,8 @@ public:
 
 	QSet<PVZoneID> list_cols_to_zones(QSet<PVCol> const& cols) const;
 
+	void request_zoomed_zone(PVZoneID zone);
+
 public:
 	template <class Tree>
 	inline Tree const& get_zone_tree(PVZoneID z) const

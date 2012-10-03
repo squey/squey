@@ -481,6 +481,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	_updated_selection_count = 0;
 
 	_rendering_job->reset();
+
 	_rendering_future = QtConcurrent::run<>([&, y_min, y_max, y_lim, alpha, beta]
 		{
 			using namespace PVParallelView;

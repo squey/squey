@@ -24,8 +24,47 @@
 
 PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(const PVRow *sel_elts,
                                                    uint32_t max_level) :
-	_sel_elts(sel_elts)
+	_trees(nullptr),
+	_sel_elts(sel_elts),
+	_max_level(max_level),
+	_initialized(false)
 {
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::~PVZoomedZoneTree
+ *****************************************************************************/
+
+PVParallelView::PVZoomedZoneTree::~PVZoomedZoneTree()
+{
+	reset();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::reset
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedZoneTree::reset()
+{
+	if (_trees != nullptr) {
+		delete [] _trees;
+		_trees = nullptr;
+	}
+	_initialized = false;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::process
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedZoneTree::process(const PVZoneProcessing &zp,
+                                               PVZoneTree &zt)
+{
+	if (_initialized) {
+		PVLOG_WARN("calling ::process() on an already initialized ZoomedZoneTree\n");
+		return;
+	}
+
 	uint32_t idx = 0;
 	uint32_t y1_min;
 	uint32_t y2_min;
@@ -37,23 +76,20 @@ PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(const PVRow *sel_elts,
 		for(uint32_t y1 = 0; y1 < 1024; ++y1) {
 			_trees[idx].init(y1_min, y1_min + (ZZT_MAX_VALUE >> 1),
 			                 y2_min, y2_min + (ZZT_MAX_VALUE >> 1),
-			                 max_level);
+			                 _max_level);
 			y1_min += ZZT_MAX_VALUE;
 			++idx;
 		}
 		y2_min += ZZT_MAX_VALUE;
 	}
-}
 
-/*****************************************************************************
- * PVParallelView::PVZoomedZoneTree::~PVZoomedZoneTree
- *****************************************************************************/
-
-PVParallelView::PVZoomedZoneTree::~PVZoomedZoneTree()
-{
-	if (_trees != 0) {
-		delete [] _trees;
-	}
+	tbb::tick_count start, end;
+	start = tbb::tick_count::now();
+	process_omp_from_zt(zp, zt);
+	end = tbb::tick_count::now();
+	PVLOG_INFO("PVZoomedZoneTree::process in %0.4f ms.\n", (end-start).seconds()*1000.0);
+	PVLOG_INFO("PVZoomedZoneTree::memory: %lu octets.\n", memory());
+	_initialized = true;
 }
 
 /*****************************************************************************

@@ -82,6 +82,11 @@ public:
 	void update_new_selection(tbb::task* root);
 	bool update_zones();
 
+	PVCol get_axis_index() const
+	{
+		return _axis_index;
+	}
+
 	void set_enabled(bool value)
 	{
 		if (value == false) {
@@ -110,8 +115,7 @@ public:
 			ret |= (z == _axis_index);
 		}
 		return ret;
-	}	
-			
+	}
 
 private:
 	void cancel_current_job();

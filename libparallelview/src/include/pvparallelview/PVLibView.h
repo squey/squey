@@ -45,6 +45,7 @@ public:
 public:
 	PVFullParallelView* create_view(QWidget* parent = NULL);
 	PVZoomedParallelView* create_zoomed_view(PVCol const axis, QWidget* parent = NULL);
+	void request_zoomed_zone_trees(const PVCol axis);
 	PVZonesManager& get_zones_manager() { return _zones_manager; }
 	Picviz::PVView* lib_view() { return _obs_view->get_object(); }
 

@@ -127,15 +127,14 @@ public:
 		return mem;
 	}
 
-	inline void process(const PVZoneProcessing &zp, PVZoneTree &zt)
+	bool is_initialized() const
 	{
-		tbb::tick_count start, end;
-		start = tbb::tick_count::now();
-		process_omp_from_zt(zp, zt);
-		end = tbb::tick_count::now();
-		PVLOG_INFO("PVZoomedZoneTree::process in %0.4f ms.\n", (end-start).seconds()*1000.0);
-		PVLOG_INFO("PVZoomedZoneTree::memory: %lu octets.\n", memory());
+		return _initialized;
 	}
+
+	void reset();
+
+	void process(const PVZoneProcessing &zp, PVZoneTree &zt);
 
 public:
 	void process_seq(const PVZoneProcessing &zp);
@@ -153,6 +152,10 @@ public:
 	                               pv_bci_code_t* codes,
 	                               const float beta = 1.0f) const
 	{
+		if (_initialized == false) {
+			return 0;
+		}
+
 #ifdef BROWSE_TBB
 		return browse_trees_bci_by_y1_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 #else
@@ -174,6 +177,10 @@ public:
 	                               pv_bci_code_t *codes,
 	                               const float beta = 1.0f) const
 	{
+		if (_initialized == false) {
+			return 0;
+		}
+
 #ifdef BROWSE_TBB
 		return browse_trees_bci_by_y2_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 #else
@@ -196,6 +203,10 @@ public:
 	                                   pv_bci_code_t *codes,
 	                                   const float beta = 1.0f) const
 	{
+		if (_initialized == false) {
+			return 0;
+		}
+
 #ifdef BROWSE_TBB
 		return browse_trees_bci_by_y1_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 #else
@@ -219,6 +230,10 @@ public:
 	                                   pv_bci_code_t *codes,
 	                                   const float beta = 1.0f) const
 	{
+		if (_initialized == false) {
+			return 0;
+		}
+
 #ifdef BROWSE_TBB
 		return browse_trees_bci_by_y2_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 #else
@@ -242,6 +257,11 @@ public:
 	                                   pv_bci_code_t *codes,
 	                                   const float beta = 1.0f) const
 	{
+		if (_initialized == false) {
+			PVLOG_WARN("you forget to initialize the ZoomedZoneTree\n");
+			return 0;
+		}
+
 		return browse_trees_bci_by_y1_seq(ctx, y_min, y_max, y_lim, zoom, width,
 		                                  [&](const pvquadtree &tree,
 		                                      PVQuadTreeEntry* entries) -> size_t
@@ -259,6 +279,11 @@ public:
 	                                   pv_bci_code_t *codes,
 	                                   const float beta = 1.0f) const
 	{
+		if (_initialized == false) {
+			PVLOG_WARN("you forget to initialize the ZoomedZoneTree\n");
+			return 0;
+		}
+
 		return browse_trees_bci_by_y1_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 		                                  [&](const pvquadtree &tree,
 		                                      PVQuadTreeEntry* entries) -> size_t
@@ -276,6 +301,11 @@ public:
 	                                   pv_bci_code_t *codes,
 	                                   const float beta = 1.0f) const
 	{
+		if (_initialized == false) {
+			PVLOG_WARN("you forget to initialize the ZoomedZoneTree\n");
+			return 0;
+		}
+
 		return browse_trees_bci_by_y2_seq(ctx, y_min, y_max, y_lim, zoom, width,
 		                                  [&](const pvquadtree &tree,
 		                                      PVQuadTreeEntry* entries) -> size_t
@@ -293,6 +323,11 @@ public:
 	                                   pv_bci_code_t *codes,
 	                                   const float beta = 1.0f) const
 	{
+		if (_initialized == false) {
+			PVLOG_WARN("you forget to initialize the ZoomedZoneTree\n");
+			return 0;
+		}
+
 		return browse_trees_bci_by_y2_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 		                                  [&](const pvquadtree &tree,
 		                                      PVQuadTreeEntry* entries) -> size_t
@@ -350,6 +385,8 @@ private:
 private:
 	pvquadtree      *_trees;
 	const PVRow     *_sel_elts;
+	uint32_t         _max_level;
+	bool             _initialized;
 };
 
 typedef boost::shared_ptr<PVZoomedZoneTree> PVZoomedZoneTree_p;
