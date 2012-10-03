@@ -256,12 +256,30 @@ void PVParallelView::PVLibView::axes_comb_updated()
 		view->update_number_of_zones();
 	}
 
-	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
-		view->set_enabled(true);
-		// FIXME: if ::update_zones return false, the view
-		// can be deleted.
-		view->update_zones();
+	zoomed_scene_list_t new_zps;
+
+	for (size_t i = 0; i < _zoomed_parallel_scenes.size(); ++i) {
+		PVZoomedParallelScene* scene = _zoomed_parallel_scenes[i];
+		_zoomed_parallel_scenes[i] = nullptr;
+
+		if (scene->update_zones()) {
+			// the ZPS can still exist
+			new_zps.push_back(scene);
+		} else {
+			/* the ZPS can be closed because there is no
+			 * axis to rattach it to.
+			 */
+			for(QGraphicsView *view: scene->views()) {
+				if (view->parentWidget() == nullptr) {
+					PVLOG_WARN("a ZoomedParallelScene exists but is not in a dock!\n");
+					continue;
+				}
+				view->parentWidget()->close();
+			}
+		}
 	}
+
+	_zoomed_parallel_scenes = new_zps;
 
 	PVCore::PVProgressBox pbox("Updating zoomed parallel views");
 
