@@ -33,7 +33,7 @@ class PVLibView
 {
 private:
 	typedef std::list<PVFullParallelScene*> scene_list_t;
-	typedef std::list<PVZoomedParallelScene*> zoomed_scene_list_t;
+	typedef std::vector<PVZoomedParallelScene*> zoomed_scene_list_t;
 	friend class process_selection_Observer;
 
 public:
