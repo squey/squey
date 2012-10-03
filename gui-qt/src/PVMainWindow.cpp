@@ -107,10 +107,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	pv_font_database.addApplicationFont(QString(":/Jura-DemiBold.ttf"));
 	pv_font_database.addApplicationFont(QString(":/OSP-DIN.ttf"));
 
-	
-	about_dialog = 0;
-	// picviz_datatreerootitem_t *datatree;
-
 	setGeometry(20,10,800,600);
 //	datatree = picviz_datatreerootitem_new();
 
@@ -875,6 +871,7 @@ void PVInspector::PVMainWindow::import_type_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 {
+	QMainWindow::keyPressEvent(event);
 	PVLOG_INFO("keyPressEvent\n");
 #ifndef NDEBUG
 	switch (event->key()) {

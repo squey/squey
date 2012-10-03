@@ -60,6 +60,7 @@ class PVSerializeArchive;
 namespace PVGuiQt
 {
 class PVWorkspace;
+class PVAboutBoxDialog;
 }
 
 namespace PVInspector {
@@ -113,9 +114,6 @@ private:
 	private:
 		PVMainWindow* _parent;
 	};
-
-private:
-	QDialog *about_dialog;
 
 public:
 	PVMainWindow(QWidget *parent = 0);

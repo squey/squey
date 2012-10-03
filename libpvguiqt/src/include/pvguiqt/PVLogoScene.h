@@ -58,7 +58,7 @@ private:
     PVPoint3D m_angularMomentum;
     PVPoint3D m_accumulatedMomentum;
 
-    QGraphicsRectItem* m_lightItem;
+    PVPoint3D m_lightPosition;
 
 #ifndef QT_NO_CONCURRENT
     QFutureWatcher<PVLogoModel*> m_modelLoader;

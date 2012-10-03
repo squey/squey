@@ -104,7 +104,18 @@ public slots:
 	void create_layerstack(Picviz::PVView* view = nullptr);
 	void destroy_layerstack();
 	void display_destroyed(QObject* object = 0);
+	void layerstack_toolbutton_clicked()
+	{
+		std::cout << "layerstack_toolbutton_clicked" << std::endl;
+		if (_source->get_children<Picviz::PVView>().size() > 1) {
 
+		}
+		else {
+			_layerstack_tool_button->actions()[0]->trigger();
+		}
+	}
+
+public:
 	void update_view_count(PVHive::PVObserverBase* obs_base);
 
 private:
