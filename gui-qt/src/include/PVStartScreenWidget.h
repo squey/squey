@@ -50,7 +50,8 @@ class PVStartScreenWidget : public QWidget
 {
 	Q_OBJECT
 public:
-	typedef PVWidgets::PVSizeHintListWidget<QListWidget, 42> custom_listwidget_t;
+	//typedef PVWidgets::PVSizeHintListWidget<QListWidget, 42> custom_listwidget_t;
+	typedef QListWidget custom_listwidget_t;
 
 public:
 	PVStartScreenWidget(PVMainWindow* parent);
