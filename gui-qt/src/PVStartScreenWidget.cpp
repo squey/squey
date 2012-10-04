@@ -328,7 +328,8 @@ PVInspector::PVStartScreenWidget::descr_strings_t PVInspector::PVStartScreenWidg
 		}
 		default:
 		{
-			break;
+			assert(false);
+			return descr_strings_t();
 		}
 	}
 }
@@ -356,7 +357,8 @@ PVInspector::PVStartScreenWidget::descr_strings_t PVInspector::PVStartScreenWidg
 	QStringList short_strings;
 	if (src_desc.get_inputs().size() == 1) {
 		QString source_path = src_desc.get_inputs()[0]->human_name();
-		short_string = PVWidgets::PVUtils::shorten_path(source_path, _item_font, _item_width);
+		short_string = PVWidgets::PVUtils::shorten_path(source_path, _item_font, _item_width) + " [" + src_desc.get_format().get_format_name() +"]";
+		long_string = source_path + "[" + src_desc.get_format().get_format_name() +"]";
 		filenames << source_path;
 	}
 	else {
@@ -366,9 +368,8 @@ PVInspector::PVStartScreenWidget::descr_strings_t PVInspector::PVStartScreenWidg
 			filenames << input->human_name();
 		}
 		short_string = short_strings.join(", ") + " [" + src_desc.get_format().get_format_name() +"]";
+		long_string = "[" + src_desc.get_format().get_format_name() +"]\n" + filenames.join("\n");
 	}
-
-	long_string = filenames.join(", ") + " [" + src_desc.get_format().get_format_name() +"]";
 
 	return std::make_tuple(short_string, long_string, filenames);
 }
