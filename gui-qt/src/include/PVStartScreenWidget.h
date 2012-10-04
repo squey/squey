@@ -7,6 +7,8 @@
 #ifndef PVSTARTSCREENWIDGET_H
 #define PVSTARTSCREENWIDGET_H
 
+#include <tuple>
+
 #include <QWidget>
 #include <QStringList>
 #include <QVBoxLayout>
@@ -50,6 +52,7 @@ class PVStartScreenWidget : public QWidget
 {
 	Q_OBJECT
 public:
+	typedef std::tuple<QString, QString, QStringList> descr_strings_t;
 	//typedef PVWidgets::PVSizeHintListWidget<QListWidget, 42> custom_listwidget_t;
 	typedef QListWidget custom_listwidget_t;
 
@@ -64,9 +67,9 @@ public slots:
 	void dispatch_action(const QString& id);
 
 private:
-	QString get_string_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var);
-	QString get_string_from_format(const QVariant& var);
-	QString get_string_from_source_description(const QVariant& var);
+	descr_strings_t get_string_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var);
+	descr_strings_t get_string_from_format(const QVariant& var);
+	descr_strings_t get_string_from_source_description(const QVariant& var);
 
 private:
 	PVMainWindow* _mw;
@@ -79,6 +82,9 @@ private:
 
 	PVAddRecentItemFuncObserver _recent_items_add_obs;
 	PVAddSourceRecentItemFuncObserver _recent_items_add_source_obs;
+
+	QFont _item_font;
+	uint64_t _item_width = 475;
 };
 }
 

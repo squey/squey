@@ -11,6 +11,7 @@
 #include <PVMainWindow.h>
 #include <PVTabSplitter.h>
 
+#include <QApplication>
 #include <QFileInfo>
 #include <QFileIconProvider>
 #include <QIcon>
@@ -219,6 +220,8 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 	import_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
 	_recent_list_widgets[PVCore::PVRecentItemsManager::Category::SOURCES] = import_list;
 
+	_item_font = import_list->font();
+
 	// Final Stretch as Spacer ...
 	format_widget_layout->addStretch(1);
 	import_widget_layout->addStretch(1);
@@ -259,7 +262,10 @@ void PVInspector::PVStartScreenWidget::refresh_recent_items(int cat)
 		QListWidgetItem* item = new QListWidgetItem(list);
 		item->setData(Qt::UserRole, var);
 		item->setData(Qt::UserRole+1, cat);
-		QString formated_string = get_string_from_variant(category, var);
+		QString short_string;
+		QString long_string;
+		QStringList filenames;
+		std::tie(short_string, long_string, filenames) = get_string_from_variant(category, var);
 
 		QWidget* widget = new QWidget();
 		QHBoxLayout* layout = new QHBoxLayout();
@@ -267,30 +273,38 @@ void PVInspector::PVStartScreenWidget::refresh_recent_items(int cat)
 		widget->setLayout(layout);
 
 		// Icon
-		QFileInfo finfo(formated_string);
-		QFileIconProvider ficon;
-		QIcon icon = ficon.icon(finfo);
 		QLabel* icon_label = new QLabel();
+		QIcon icon;
+		if (filenames.size() == 1) {
+			QFileInfo finfo(filenames[0]);
+			QFileIconProvider ficon;
+			icon = ficon.icon(finfo);
+		}
+		else {
+			icon = QApplication::style()->standardIcon(QStyle::SP_FileDialogNewFolder);
+		}
 		icon_label->setPixmap(icon.pixmap(15, 15));
 		layout->addWidget(icon_label);
 
 		// Text
 		QLabel* text_label = new QLabel();
 		text_label->setTextFormat(Qt::RichText);
-		QString shortened = PVWidgets::PVUtils::shorten_path(formated_string, list->font(), 330);
-		text_label->setText(QString("<a href=\"%1;%2\">" + shortened + "</a>").arg(cat).arg(index));
-		text_label->setToolTip(formated_string);
+		text_label->setText(QString("<a href=\"%1;%2\">" + short_string + "</a>").arg(cat).arg(index));
+		text_label->setToolTip(long_string);
 		connect(text_label, SIGNAL(linkActivated(const QString &)), this, SLOT(dispatch_action(const QString &)));
 		layout->addWidget(text_label);
 
-		item->setSizeHint(QSize(widget->sizeHint().width(), widget->sizeHint().height()-7)); // Do not forget this!
+		item->setSizeHint(QSize(widget->sizeHint().width(), widget->sizeHint().height()-6)); // Do not forget this!
 		list->setItemWidget(item, widget);
 
 		index++;
 	}
 }
 
-QString PVInspector::PVStartScreenWidget::get_string_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var)
+PVInspector::PVStartScreenWidget::descr_strings_t PVInspector::PVStartScreenWidget::get_string_from_variant(
+	PVCore::PVRecentItemsManager::Category category,
+	const QVariant& var
+)
 {
 	switch (category)
 	{
@@ -298,7 +312,11 @@ QString PVInspector::PVStartScreenWidget::get_string_from_variant(PVCore::PVRece
 		case PVCore::PVRecentItemsManager::Category::USED_FORMATS:
 		case PVCore::PVRecentItemsManager::Category::EDITED_FORMATS:
 		{
-			return var.toString();
+			QString long_string = var.toString();
+			QString short_string = PVWidgets::PVUtils::shorten_path(long_string, _item_font, _item_width);
+			QStringList filenames;
+			filenames << long_string;
+			return std::make_tuple(short_string, long_string, filenames);
 		}
 		case PVCore::PVRecentItemsManager::Category::SOURCES:
 		{
@@ -313,25 +331,46 @@ QString PVInspector::PVStartScreenWidget::get_string_from_variant(PVCore::PVRece
 			break;
 		}
 	}
-	return QString();
 }
 
-QString PVInspector::PVStartScreenWidget::get_string_from_format(const QVariant& var)
+PVInspector::PVStartScreenWidget::descr_strings_t PVInspector::PVStartScreenWidget::get_string_from_format(const QVariant& var)
 {
 	PVRush::PVFormat format = var.value<PVRush::PVFormat>();
 
-	return QString("%1 (%2)").arg(format.get_format_name()).arg(format.get_full_path());
+	QString long_string = QString("%1 (%2)").arg(format.get_format_name()).arg(format.get_full_path());
+	QString short_string = PVWidgets::PVUtils::shorten_path(long_string, _item_font, _item_width);
+	QStringList filenames;
+	filenames << format.get_full_path();
+
+	return std::make_tuple(short_string, long_string, filenames);
 }
 
-QString PVInspector::PVStartScreenWidget::get_string_from_source_description(const QVariant& var)
+PVInspector::PVStartScreenWidget::descr_strings_t PVInspector::PVStartScreenWidget::get_string_from_source_description(const QVariant& var)
 {
 	PVRush::PVSourceDescription src_desc = var.value<PVRush::PVSourceDescription>();
 
-	QStringList inputs_string;
-	for (auto input : src_desc.get_inputs()) {
-		inputs_string << input->human_name() + " [" + src_desc.get_format().get_format_name() +"]";
+	QString long_string;
+	QString short_string;
+	QStringList filenames;
+
+	QStringList short_strings;
+	if (src_desc.get_inputs().size() == 1) {
+		QString source_path = src_desc.get_inputs()[0]->human_name();
+		short_string = PVWidgets::PVUtils::shorten_path(source_path, _item_font, _item_width);
+		filenames << source_path;
 	}
-	return inputs_string.join(", ");
+	else {
+		for (auto input : src_desc.get_inputs()) {
+			QFileInfo info(input->human_name());
+			short_strings << info.fileName();
+			filenames << input->human_name();
+		}
+		short_string = short_strings.join(", ") + " [" + src_desc.get_format().get_format_name() +"]";
+	}
+
+	long_string = filenames.join(", ") + " [" + src_desc.get_format().get_format_name() +"]";
+
+	return std::make_tuple(short_string, long_string, filenames);
 }
 
 void PVInspector::PVStartScreenWidget::dispatch_action(const QString& id)
