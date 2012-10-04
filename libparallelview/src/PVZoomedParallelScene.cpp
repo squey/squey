@@ -161,8 +161,10 @@ void PVParallelView::PVZoomedParallelScene::mousePressEvent(QGraphicsSceneMouseE
 {
 	if (event->button() == Qt::RightButton) {
 		_pan_reference_y = event->screenPos().y();
+		event->accept();
 	} else if (!_sliders_group->sliders_moving() && (event->button() == Qt::LeftButton)) {
 		_selection_rect_pos = event->scenePos();
+		event->accept();
 	}
 
 	// do item's hover stuff
@@ -188,6 +190,7 @@ void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMous
 		}
 		commit_volatile_selection_Slot();
 		_selection_rect->clear_rect();
+		event->accept();
 	}
 
 	// do item's hover stuff
@@ -206,6 +209,7 @@ void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEv
 		_pan_reference_y = event->screenPos().y();
 		int v = sb->value();
 		sb->setValue(v + delta);
+		event->accept();
 	} else if (!_sliders_group->sliders_moving() && (event->buttons() == Qt::LeftButton)) {
 		// trace square area
 		QPointF top_left(_selection_rect_pos.x(),
@@ -214,6 +218,7 @@ void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEv
 		                     qMax(_selection_rect_pos.y(), event->scenePos().y()));
 
 		_selection_rect->update_rect(QRectF(top_left, bottom_right));
+		event->accept();
 	}
 
 	// do item's hover stuff
