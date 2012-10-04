@@ -1,3 +1,9 @@
+/**
+ * \file PVColorPicker.cpp
+ *
+ * Copyright (C) Picviz Labs 2012
+ */
+
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/widgets/PVColorPicker.h>
 
@@ -5,12 +11,15 @@
 #include <QPainter>
 #include <QPaintEvent>
 
+#include <iostream>
+
 #define CROSS_HEIGHT 20
 #define CROSS_WIDTH 20
 #define CROSS_THICK 3
 #define HEIGHT_TRIANGLE 8
 #define WIDTH_TRIANGLE 15
 #define VERT_MARGIN 4
+#define WHITE_COLOR_RANGE 3
 
 PVWidgets::PVColorPicker::PVColorPicker(QWidget* parent):
 	QFrame(parent)
@@ -130,7 +139,8 @@ void PVWidgets::PVColorPicker::paintEvent(QPaintEvent* event)
 	const int c1_x = h_to_x_screen(_c1.h());
 
 	QColor color;
-	for (int x = draw_rect.left(); x < draw_rect.right(); x++) {
+	int x = draw_rect.left();
+	for (; x < draw_rect.right() - WHITE_COLOR_RANGE; x++) {
 		int real_x = x-contentsRect().x();
 		const uint8_t h = screen_x_to_h(real_x);
 		PVCore::PVHSVColor(h).toQColor(color);
@@ -141,6 +151,10 @@ void PVWidgets::PVColorPicker::paintEvent(QPaintEvent* event)
 		}
 		painter.fillRect(QRect(x, VERT_MARGIN, 1, height-2*VERT_MARGIN), color);
 	}
+	for (; x < draw_rect.right(); x++) {
+		painter.fillRect(QRect(x, VERT_MARGIN, 1, height-2*VERT_MARGIN), QColor(Qt::white));
+	}
+
 
 	draw_up_triangle(c0_x, painter);
 	draw_down_triangle(c0_x, painter);
@@ -182,6 +196,10 @@ void PVWidgets::PVColorPicker::update_h_left(uint8_t h)
 		h_max--;
 	}
 	_c = PVCore::clamp(h, x0(), h_max);
+	if (_c.h() > PVCore::PVHSVColor::color_max - WHITE_COLOR_RANGE -2) {
+		_c.h() = HSV_COLOR_WHITE;
+	}
+
 	emit color_changed_left(_c.h());
 }
 
