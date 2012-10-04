@@ -33,9 +33,24 @@ class PVSelectionSquareGraphicsItem : public QObject, public QGraphicsRectItem
 public:
 	PVSelectionSquareGraphicsItem(QGraphicsScene* s);
 
+	bool is_null() const
+	{
+		return rect().isNull();
+	}
+
 	void clear_rect()
 	{
 		setRect(QRect());
+	}
+
+	qreal top() const
+	{
+		return rect().top();
+	}
+
+	qreal bottom() const
+	{
+		return rect().bottom();
 	}
 
 	void update_rect(const QRectF & rectangle)

@@ -4,15 +4,18 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <pvkernel/core/PVAlgorithms.h>
+
+#include <picviz/PVSelection.h>
+
 #include <pvparallelview/PVTaskFilterSel.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
-
-#include <pvkernel/core/PVAlgorithms.h>
+#include <pvparallelview/PVAbstractAxisSlider.h>
+#include <pvparallelview/PVZoomedSelectionAxisSliders.h>
 
 #include <QScrollBar>
-#include <QtCore>
 
 /**
  * IDEA: keep ratio between the width of the 2 zones in full parallel view
@@ -61,6 +64,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_pending_deletion(false),
 	_left_zone(nullptr),
 	_right_zone(nullptr),
+	_selection_sliders(nullptr),
 	_updated_selection_count(0)
 {
 	_zpview->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -116,6 +120,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	        this, SLOT(scrollbar_timeout_Slot()));
 
 	_render_group = _zones_drawing.new_render_group();
+
+	PVHive::get().register_actor(pvview_sp, _view_actor);
 }
 
 /*****************************************************************************
@@ -138,6 +144,13 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 		PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
 		                                                       _axis_id, _sliders_group);
 	}
+
+	if (_selection_sliders) {
+		PVHive::call<FUNC(PVSlidersManager::del_zoomed_selection_sliders)>(_sliders_manager_p,
+		                                                                   _axis_id,
+		                                                                   _selection_sliders);
+		_selection_sliders = nullptr;
+	}
 }
 
 /*****************************************************************************
@@ -149,9 +162,7 @@ void PVParallelView::PVZoomedParallelScene::mousePressEvent(QGraphicsSceneMouseE
 	if (event->button() == Qt::RightButton) {
 		_pan_reference_y = event->screenPos().y();
 	} else if (!_sliders_group->sliders_moving() && (event->button() == Qt::LeftButton)) {
-#if 0
 		_selection_rect_pos = event->scenePos();
-#endif
 	}
 
 	// do item's hover stuff
@@ -165,13 +176,18 @@ void PVParallelView::PVZoomedParallelScene::mousePressEvent(QGraphicsSceneMouseE
 void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
 	if (!_sliders_group->sliders_moving() && (event->button() == Qt::LeftButton)) {
-#if 0
 		if (_selection_rect_pos == event->scenePos()) {
 			// Remove selection
 			_selection_rect->clear_rect();
+			if (_selection_sliders) {
+				PVHive::call<FUNC(PVSlidersManager::del_zoomed_selection_sliders)>(_sliders_manager_p,
+				                                                                   _axis_id,
+				                                                                   _selection_sliders);
+				_selection_sliders = nullptr;
+			}
 		}
 		commit_volatile_selection_Slot();
-#endif
+		_selection_rect->clear_rect();
 	}
 
 	// do item's hover stuff
@@ -191,15 +207,13 @@ void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEv
 		int v = sb->value();
 		sb->setValue(v + delta);
 	} else if (!_sliders_group->sliders_moving() && (event->buttons() == Qt::LeftButton)) {
-#if 0
 		// trace square area
-		QPointF top_left(qMin(_selection_rect_pos.x(), event->scenePos().x()),
+		QPointF top_left(_selection_rect_pos.x(),
 		                 qMin(_selection_rect_pos.y(), event->scenePos().y()));
-		QPointF bottom_right(qMax(_selection_rect_pos.x(), event->scenePos().x()),
+		QPointF bottom_right(_selection_rect_pos.x(),
 		                     qMax(_selection_rect_pos.y(), event->scenePos().y()));
 
 		_selection_rect->update_rect(QRectF(top_left, bottom_right));
-#endif
 	}
 
 	// do item's hover stuff
@@ -290,13 +304,13 @@ void PVParallelView::PVZoomedParallelScene::update_new_selection(tbb::task* root
 
 	if (_left_zone) {
 		root->increment_ref_count();
-		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis_index-1, volatile_selection());
+		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis_index-1, real_selection());
 		root->enqueue(child_task, tbb::priority_high);
 	}
 
 	if (_right_zone) {
 		root->increment_ref_count();
-		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis_index, volatile_selection());
+		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis_index, real_selection());
 		root->enqueue(child_task, tbb::priority_high);
 	}
 }
@@ -524,7 +538,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					BENCH_START(sel_render);
 					_zones_drawing.draw_zoomed_zone_sel(_left_zone->context,
 					                                    *(_left_zone->sel_image),
-					                                    y_min, y_max, y_lim, volatile_selection(),
+					                                    y_min, y_max, y_lim, real_selection(),
 					                                    zoom_level, _axis_index - 1,
 					                                    &PVZoomedZoneTree::browse_bci_sel_by_y2,
 					                                    alpha, beta, true,
@@ -561,7 +575,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					BENCH_START(sel_render);
 					_zones_drawing.draw_zoomed_zone_sel(_right_zone->context,
 					                                    *(_right_zone->sel_image),
-					                                    y_min, y_max, y_lim, volatile_selection(),
+					                                    y_min, y_max, y_lim, real_selection(),
 					                                    zoom_level, _axis_index,
 					                                    &PVZoomedZoneTree::browse_bci_sel_by_y1,
 					                                    alpha, beta, false,
@@ -754,6 +768,27 @@ PVParallelView::PVZoomedParallelScene::filter_by_sel_finished_Slot(int zid,
 void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
 {
 	_selection_rect->finished();
+
+	Picviz::PVSelection &vol_sel = _pvview.get_volatile_selection();
+	vol_sel.select_none();
+
+	if (_selection_rect->is_null()) {
+		// force selection update
+		_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		_view_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
+		_view_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
+	} else {
+		int64_t y_min = _selection_rect->top() * PVAbstractAxisSlider::precision;
+		int64_t y_max = _selection_rect->bottom() * PVAbstractAxisSlider::precision;
+
+		if (_selection_sliders == nullptr) {
+			_selection_sliders = _sliders_group->add_zoomed_selection_sliders(y_min, y_max);
+		}
+		/* ::set_value implictly emits the signal slider_moved;
+		 * what will lead to a selection update in PVFullParallelView
+		 */
+		_selection_sliders->set_value(y_min, y_max);
+	}
 }
 
 /*****************************************************************************

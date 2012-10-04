@@ -78,9 +78,9 @@ private:
 	};
 
 private:
-	selection_sliders_del_obs     _ssd_obs;
-	selection_sliders_update_obs  _ssu_obs;
-	id_t                          _id;
+	selection_sliders_del_obs    _ssd_obs;
+	selection_sliders_update_obs _ssu_obs;
+	id_t                         _id;
 };
 
 }

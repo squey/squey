@@ -8,9 +8,6 @@
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVSlidersManager.h>
-#include <pvparallelview/PVAbstractAxisSliders.h>
-#include <pvparallelview/PVSelectionAxisSliders.h>
-#include <pvparallelview/PVZoomAxisSliders.h>
 
 #include <unordered_set>
 
@@ -19,6 +16,11 @@
 
 namespace PVParallelView
 {
+
+class PVAbstractAxisSliders;
+class PVAbstractRangeAxisSliders;
+class PVSelectionAxisSliders;
+class PVZoomedSelectionAxisSliders;
 
 class PVSlidersGroup : public QObject, public QGraphicsItemGroup
 {
@@ -65,6 +67,8 @@ public:
 
 	void add_selection_sliders(int64_t y_min, int64_t y_max);
 
+	PVZoomedSelectionAxisSliders* add_zoomed_selection_sliders(int64_t y_min, int64_t y_max);
+
 	bool sliders_moving() const;
 
 	selection_ranges_t get_selection_ranges() const;
@@ -85,6 +89,8 @@ private:
 	void add_new_zoom_sliders(id_t id, int64_t y_min, int64_t y_max);
 	void add_new_selection_sliders(PVSelectionAxisSliders* sliders,
 	                               id_t id, int64_t y_min, int64_t y_max);
+	void add_new_zoomed_selection_sliders(PVZoomedSelectionAxisSliders* sliders,
+	                                      id_t id, int64_t y_min, int64_t y_max);
 
 private:
 	class zoom_sliders_new_obs :
@@ -107,6 +113,20 @@ private:
 	{
 	public:
 		selection_sliders_new_obs(PVSlidersGroup *parent) : _parent(parent)
+		{}
+
+		void update(arguments_deep_copy_type const& args) const;
+
+	private:
+		PVSlidersGroup *_parent;
+	};
+
+	class zoomed_selection_sliders_new_obs :
+		public PVHive::PVFuncObserver<PVSlidersManager,
+		                              FUNC(PVSlidersManager::new_zoomed_selection_sliders)>
+	{
+	public:
+		zoomed_selection_sliders_new_obs(PVSlidersGroup *parent) : _parent(parent)
 		{}
 
 		void update(arguments_deep_copy_type const& args) const;
@@ -143,23 +163,39 @@ private:
 		PVSlidersGroup *_parent;
 	};
 
-private:
-	typedef std::unordered_set<PVAbstractAxisSliders*>  aas_set_t;
-	typedef std::unordered_set<PVSelectionAxisSliders*> sas_set_t;
-	typedef std::unordered_set<id_t>                    id_set_t;
+	class zoomed_selection_sliders_del_obs :
+		public PVHive::PVFuncObserver<PVSlidersManager,
+		                              FUNC(PVSlidersManager::del_zoomed_selection_sliders)>
+	{
+	public:
+		zoomed_selection_sliders_del_obs(PVSlidersGroup *parent) : _parent(parent)
+		{}
+
+		void update(arguments_deep_copy_type const& args) const;
+
+	private:
+		PVSlidersGroup *_parent;
+	};
 
 private:
-	PVSlidersManager_p        _sliders_manager_p;
-	zoom_sliders_new_obs      _zsn_obs;
-	selection_sliders_new_obs _ssn_obs;
-	zoom_sliders_del_obs      _zsd_obs;
-	selection_sliders_del_obs _ssd_obs;
-	axis_id_t                 _axis_id;
-	float                     _axis_scale;
+	typedef std::unordered_set<PVAbstractAxisSliders*>      aas_set_t;
+	typedef std::unordered_set<PVAbstractRangeAxisSliders*> aras_set_t;
+	typedef std::unordered_set<id_t>                        id_set_t;
 
-	aas_set_t                 _all_sliders;
-	sas_set_t                 _selection_sliders;
-	id_set_t                  _registered_ids;
+private:
+	PVSlidersManager_p               _sliders_manager_p;
+	zoom_sliders_new_obs             _zsn_obs;
+	selection_sliders_new_obs        _ssn_obs;
+	zoomed_selection_sliders_new_obs _zssn_obs;
+	zoom_sliders_del_obs             _zsd_obs;
+	selection_sliders_del_obs        _ssd_obs;
+	zoomed_selection_sliders_del_obs _zssd_obs;
+	axis_id_t                        _axis_id;
+	float                            _axis_scale;
+
+	aas_set_t                        _all_sliders;
+	aras_set_t                       _selection_sliders;
+	id_set_t                         _registered_ids;
 };
 
 }

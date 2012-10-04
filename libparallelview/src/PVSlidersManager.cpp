@@ -18,6 +18,18 @@ PVParallelView::PVSlidersManager::~PVSlidersManager()
 {}
 
 /*****************************************************************************
+ * PVParallelView::PVSlidersManager::new_selection_sliders
+ *****************************************************************************/
+
+void PVParallelView::PVSlidersManager::new_selection_sliders(const axis_id_t &axis_id,
+                                                             const id_t id,
+                                                             const int64_t y_min,
+                                                             const int64_t y_max)
+{
+	new_range_sliders(_selection_geometries, axis_id, id, y_min, y_max);
+}
+
+/*****************************************************************************
  * PVParallelView::PVSlidersManager::new_zoom_sliders
  *****************************************************************************/
 
@@ -30,15 +42,25 @@ void PVParallelView::PVSlidersManager::new_zoom_sliders(const axis_id_t &axis_id
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersManager::new_selection_sliders
+ * PVParallelView::PVSlidersManager::new_zoomedselection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::new_selection_sliders(const axis_id_t &axis_id,
-                                                             const id_t id,
-                                                             const int64_t y_min,
-                                                             const int64_t y_max)
+void PVParallelView::PVSlidersManager::new_zoomed_selection_sliders(const axis_id_t &axis_id,
+                                                                    const id_t id,
+                                                                    const int64_t y_min,
+                                                                    const int64_t y_max)
 {
-	new_range_sliders(_selection_geometries, axis_id, id, y_min, y_max);
+	new_range_sliders(_zoomed_selection_geometries, axis_id, id, y_min, y_max);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSlidersManager::del_selection_sliders
+ *****************************************************************************/
+
+void PVParallelView::PVSlidersManager::del_selection_sliders(const axis_id_t &axis_id,
+                                                             const id_t id)
+{
+	del_range_sliders(_selection_geometries, axis_id, id);
 }
 
 /*****************************************************************************
@@ -52,13 +74,25 @@ void PVParallelView::PVSlidersManager::del_zoom_sliders(const axis_id_t &axis_id
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersManager::del_selection_sliders
+ * PVParallelView::PVSlidersManager::del_zoomed_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::del_selection_sliders(const axis_id_t &axis_id,
-                                                             const id_t id)
+void PVParallelView::PVSlidersManager::del_zoomed_selection_sliders(const axis_id_t &axis_id,
+                                                                    const id_t id)
 {
-	del_range_sliders(_selection_geometries, axis_id, id);
+	del_range_sliders(_zoomed_selection_geometries, axis_id, id);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSlidersManager::update_selection_sliders
+ *****************************************************************************/
+
+void PVParallelView::PVSlidersManager::update_selection_sliders(const axis_id_t &axis_id,
+                                                                const id_t id,
+                                                                const int64_t y_min,
+                                                                const int64_t y_max)
+{
+	update_range_sliders(_selection_geometries, axis_id, id, y_min, y_max);
 }
 
 /*****************************************************************************
@@ -76,15 +110,24 @@ void PVParallelView::PVSlidersManager::update_zoom_sliders(const axis_id_t &axis
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersManager::update_selection_sliders
+ * PVParallelView::PVSlidersManager::update_zoomed_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::update_selection_sliders(const axis_id_t &axis_id,
-                                                                const id_t id,
-                                                                const int64_t y_min,
-                                                                const int64_t y_max)
+void PVParallelView::PVSlidersManager::update_zoomed_selection_sliders(const axis_id_t &axis_id,
+                                                                       const id_t id,
+                                                                       const int64_t y_min,
+                                                                       const int64_t y_max)
 {
-	update_range_sliders(_selection_geometries, axis_id, id, y_min, y_max);
+	update_range_sliders(_zoomed_selection_geometries, axis_id, id, y_min, y_max);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSlidersManager::iterate_selection_sliders
+ *****************************************************************************/
+
+void PVParallelView::PVSlidersManager::iterate_selection_sliders(const range_functor_t &functor) const
+{
+	iterate_range_sliders(_selection_geometries, functor);
 }
 
 /*****************************************************************************
@@ -97,12 +140,12 @@ void PVParallelView::PVSlidersManager::iterate_zoom_sliders(const range_functor_
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersManager::iterate_selection_sliders
+ * PVParallelView::PVSlidersManager::iterate_zoomed_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::iterate_selection_sliders(const range_functor_t &functor) const
+void PVParallelView::PVSlidersManager::iterate_zoomed_selection_sliders(const range_functor_t &functor) const
 {
-	iterate_range_sliders(_selection_geometries, functor);
+	iterate_range_sliders(_zoomed_selection_geometries, functor);
 }
 
 /*****************************************************************************

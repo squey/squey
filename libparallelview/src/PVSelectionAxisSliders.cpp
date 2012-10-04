@@ -16,7 +16,6 @@ PVParallelView::PVSelectionAxisSliders::PVSelectionAxisSliders(QGraphicsItem *pa
 	_ssd_obs(this),
 	_ssu_obs(this)
 {
-	PVLOG_INFO("creating selection sliders with %p\n", _sliders_manager_p.get());
 }
 
 /*****************************************************************************

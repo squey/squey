@@ -33,7 +33,6 @@ public:
 	constexpr static int64_t max_value = (1LL << 32);
 	constexpr static int64_t precision = (1LL << (32 - NBITS_INDEX));
 
-
 public:
 	PVAbstractAxisSlider(int64_t omin, int64_t omax, int64_t o,
 	                     PVAxisSliderOrientation orientation = Min);
@@ -92,6 +91,7 @@ protected:
 	bool                    _moving;
 	bool                    _is_hover;
 	PVAbstractAxisSliders  *_owner;
+	bool                    _removable;
 };
 
 }
