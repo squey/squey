@@ -236,6 +236,7 @@ void Picviz::PVMapped::create_table()
 			}
 			boost::this_thread::interruption_point();
 			tbb::tick_count tmap_start = tbb::tick_count::now();
+			mapping_filter->init();
 			mapping_filter->operator()(j, nraw);
 			tbb::tick_count tmap_end = tbb::tick_count::now();
 			PVLOG_INFO("(PVMapped::create_table) parallel mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());

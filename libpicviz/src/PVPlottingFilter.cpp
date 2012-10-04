@@ -112,7 +112,7 @@ void Picviz::PVPlottingFilter::copy_mapped_to_plotted(mapped_decimal_storage_typ
 			// Direct copy. Vectorized by GCC
 			uint32_t const* const vint = &value->storage_as_uint();
 			for (size_t i = 0; i < _dest_size; i++) {
-				_dest[i] = vint[i];
+				_dest[i] = ~vint[i];
 			}
 			break;
 		}
@@ -123,7 +123,7 @@ void Picviz::PVPlottingFilter::copy_mapped_to_plotted(mapped_decimal_storage_typ
 			uint32_t const* const vint = &value->storage_as_uint();
 			for (size_t i = 0; i < _dest_size; i++) {
 				const uint32_t v = vint[i];
-				_dest[i] = ((~v) & 0x80000000) | (v & 0x7FFFFFFF);
+				_dest[i] = ~(((~v) & 0x80000000) | (v & 0x7FFFFFFF));
 			}
 			break;
 		}
@@ -133,7 +133,7 @@ void Picviz::PVPlottingFilter::copy_mapped_to_plotted(mapped_decimal_storage_typ
 			float const* const vfloat = &value->storage_as_float();
 			// That should also be vectorized!
 			for (size_t i = 0; i < _dest_size; i++) {
-				_dest[i] = (uint32_t) vfloat[i];
+				_dest[i] = ~((uint32_t) vfloat[i]);
 			}
 			break;
 		}

@@ -32,7 +32,7 @@ uint32_t* Picviz::PVPlottingFilterMinmax::operator()(mapped_decimal_storage_type
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = UINT_MAX>>1;
+				_dest[i] = ~(UINT_MAX>>1);
 			}
 			return _dest;
 		}
@@ -41,7 +41,7 @@ uint32_t* Picviz::PVPlottingFilterMinmax::operator()(mapped_decimal_storage_type
 #pragma omp parallel for
 		for (ssize_t i = 0; i < size; i++) {
 			const int64_t v_tmp = ((((int64_t) values[i].storage_as_uint() - ymin)*(int64_t)(UINT_MAX))/diff);
-			_dest[i] = (uint32_t) (v_tmp & 0x00000000FFFFFFFFULL);
+			_dest[i] = ~((uint32_t) (v_tmp & 0x00000000FFFFFFFFULL));
 		}
 	}
 	else {
@@ -51,7 +51,7 @@ uint32_t* Picviz::PVPlottingFilterMinmax::operator()(mapped_decimal_storage_type
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = UINT_MAX>>1;
+				_dest[i] = ~(UINT_MAX>>1);
 			}
 			return _dest;
 		}
@@ -59,7 +59,7 @@ uint32_t* Picviz::PVPlottingFilterMinmax::operator()(mapped_decimal_storage_type
 		const float diff = ymax - ymin;
 #pragma omp parallel for
 		for (ssize_t i = 0; i < size; i++) {
-			_dest[i] = (uint32_t) ((double) ((values[i].storage_as_float() - ymin)/diff) * (double)UINT_MAX);
+			_dest[i] = ~((uint32_t) ((double) ((values[i].storage_as_float() - ymin)/diff) * (double)UINT_MAX));
 		}
 	}
 

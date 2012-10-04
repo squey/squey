@@ -52,7 +52,7 @@ uint32_t* Picviz::PVPlottingFilterLogMinmax::operator()(mapped_decimal_storage_t
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = UINT_MAX>>1;
+				_dest[i] = ~(UINT_MAX>>1);
 			}
 			return _dest;
 		}
@@ -68,7 +68,7 @@ uint32_t* Picviz::PVPlottingFilterLogMinmax::operator()(mapped_decimal_storage_t
 		const double div = log2(ymax) - log_ymin;
 #pragma omp parallel for
 		for (ssize_t i = 0; i < size; i++) {
-			_dest[i] = (uint32_t) (((log2((int64_t)(values[i].storage_as_uint())+offset) - log_ymin) / div)*((double)(UINT_MAX)));
+			_dest[i] = ~((uint32_t) (((log2((int64_t)(values[i].storage_as_uint())+offset) - log_ymin) / div)*((double)(UINT_MAX))));
 		}
 	}
 	else {
@@ -78,7 +78,7 @@ uint32_t* Picviz::PVPlottingFilterLogMinmax::operator()(mapped_decimal_storage_t
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = UINT_MAX>>1;
+				_dest[i] = ~(UINT_MAX>>1);
 			}
 			return _dest;
 		}
@@ -94,7 +94,7 @@ uint32_t* Picviz::PVPlottingFilterLogMinmax::operator()(mapped_decimal_storage_t
 		const double div = log2(ymax) - log_ymin;
 #pragma omp parallel for
 		for (ssize_t i = 0; i < size; i++) {
-			_dest[i] = (uint32_t) (((log2(values[i].storage_as_float()+offset) - log_ymin) / div)*((double)(UINT_MAX)));
+			_dest[i] = ~((uint32_t) (((log2(values[i].storage_as_float()+offset) - log_ymin) / div)*((double)(UINT_MAX))));
 		}
 	}
 
@@ -118,7 +118,7 @@ void Picviz::PVPlottingFilterLogMinmax::init_expand(uint32_t min, uint32_t max)
 
 uint32_t Picviz::PVPlottingFilterLogMinmax::expand_plotted(uint32_t value) const
 {
-	return (uint32_t) (((log2(value+_offset)-_expand_min)/_expand_diff)*(double)(UINT_MAX));
+	return ~((uint32_t) (((log2(value+_offset)-_expand_min)/_expand_diff)*(double)(UINT_MAX)));
 }
 
 IMPL_FILTER(Picviz::PVPlottingFilterLogMinmax)

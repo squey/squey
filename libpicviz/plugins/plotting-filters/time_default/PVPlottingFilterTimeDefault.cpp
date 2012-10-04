@@ -33,7 +33,7 @@ uint32_t* Picviz::PVPlottingFilterTimeDefault::operator()(mapped_decimal_storage
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = UINT_MAX>>1;
+				_dest[i] = ~(UINT_MAX>>1);
 			}
 			return _dest;
 		}
@@ -60,7 +60,7 @@ uint32_t* Picviz::PVPlottingFilterTimeDefault::operator()(mapped_decimal_storage
 	const uint64_t ydiff = ymax-ymin;
 #pragma omp parallel for
 	for (int64_t i = 0; i < size; i++) {
-		_dest[i] = (uint32_t) (((uint64_t)(vint[i] - ymin)*(uint64_t)UINT_MAX)/ydiff);
+		_dest[i] = ~((uint32_t) (((uint64_t)(vint[i] - ymin)*(uint64_t)UINT_MAX)/ydiff));
 	}
 
 	return _dest;
