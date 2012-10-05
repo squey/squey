@@ -447,8 +447,8 @@ void PVParallelView::PVFullParallelScene::commit_volatile_selection_Slot()
 	PVZoneID zid = _lines_view.get_zone_from_scene_pos(_selection_square->rect().x());
 	QRect r = map_to_axis(zid, _selection_square->rect());
 
-	uint32_t nb_selected_lines = _selection_generator.compute_selection_from_rect(zid, r, lib_view().get_volatile_selection());
-	_parallel_view->set_selected_line_number(nb_selected_lines);
+	_selection_generator.compute_selection_from_rect(zid, r, lib_view().get_volatile_selection());
+	//_parallel_view->set_selected_line_number(nb_selected_lines);
 
 	store_selection_square();
 
@@ -537,6 +537,10 @@ void PVParallelView::PVFullParallelScene::scrollbar_released_Slot()
 
 void PVParallelView::PVFullParallelScene::update_new_selection()
 {
+	// Change view's internal counter
+	const PVRow nlines = lib_view().get_real_output_selection().get_number_of_selected_lines_in_range(0, _lines_view.get_zones_manager().get_number_rows());
+	graphics_view()->set_selected_line_number(nlines);
+
 	// Ask for current selection rendering to be cancelled
 	_render_tasks_sel.cancel();
 	_rendering_job_sel->cancel();
@@ -548,7 +552,6 @@ void PVParallelView::PVFullParallelScene::update_new_selection()
 	connect_draw_zone_sel();
 
 	const uint32_t view_width = _parallel_view->width();
-	PVLOG_INFO("Selection with %lu lines\n", lib_view().get_real_output_selection().get_number_of_selected_lines_in_range(0, _lines_view.get_zones_manager().get_number_rows()));
 	_lines_view.update_sel_tree(view_width, lib_view().get_real_output_selection(), _root_sel);
 }
 
