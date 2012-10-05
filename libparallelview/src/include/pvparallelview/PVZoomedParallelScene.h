@@ -11,6 +11,7 @@
 #include <picviz/PVAxesCombination.h>
 
 #include <pvhive/PVHive.h>
+#include <pvhive/waxes/waxes.h>
 #include <pvhive/PVFuncObserver.h>
 #include <pvhive/PVCallHelper.h>
 
