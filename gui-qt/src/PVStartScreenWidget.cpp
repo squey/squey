@@ -358,7 +358,7 @@ PVInspector::PVStartScreenWidget::descr_strings_t PVInspector::PVStartScreenWidg
 	if (src_desc.get_inputs().size() == 1) {
 		QString source_path = src_desc.get_inputs()[0]->human_name();
 		short_string = PVWidgets::PVUtils::shorten_path(source_path, _item_font, _item_width) + " [" + src_desc.get_format().get_format_name() +"]";
-		long_string = source_path + "[" + src_desc.get_format().get_format_name() +"]";
+		long_string = source_path + " [" + src_desc.get_format().get_format_name() +"]";
 		filenames << source_path;
 	}
 	else {
