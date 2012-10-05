@@ -17,7 +17,7 @@ class PVListUniqStringsDlg;
 
 struct PVQNraw
 {
-	static PVListUniqStringsDlg* show_unique_values(PVRush::PVNraw const& nraw, PVCol c, Picviz::PVSelection const& sel, QWidget* parent = NULL);
+	static bool show_unique_values(PVRush::PVNraw const& nraw, PVCol c, Picviz::PVSelection const& sel, QWidget* parent = NULL);
 };
 
 }
