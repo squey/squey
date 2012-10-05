@@ -146,6 +146,7 @@ QDialog* PVWidgets::PVArgumentListWidget::create_dialog_for_arguments(QItemEdito
 	dlg->setLayout(main_layout);
 
 	// Connections
+	connect(btns, SIGNAL(accepted()), args_widget, SLOT(force_submit()));
 	connect(btns, SIGNAL(accepted()), dlg, SLOT(accept()));
 	connect(btns, SIGNAL(rejected()), dlg, SLOT(reject()));
 

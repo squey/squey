@@ -40,6 +40,9 @@ public:
 	inline void clear_args_state() { _args_has_changed = false; }
 	PVCore::PVArgumentList* get_args() { return _args; }
 
+public slots:
+	inline void force_submit() { _mapper->submit(); }
+
 public:
 	static QDialog* create_dialog_for_arguments(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent = NULL);
 	static bool modify_arguments_dlg(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent = NULL);
