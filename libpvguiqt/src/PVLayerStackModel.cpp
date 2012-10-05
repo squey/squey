@@ -125,7 +125,6 @@ Qt::ItemFlags PVGuiQt::PVLayerStackModel::flags(const QModelIndex &index) const
 		case 0:
 			//return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 			return Qt::ItemIsEditable | Qt::ItemIsEnabled;
-			break;
 
 		default:
 			return (Qt::ItemIsEditable | Qt::ItemIsEnabled);
