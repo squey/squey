@@ -464,7 +464,32 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView* pi
 
 	actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 }
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::move_selection_to_new_layer
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::move_selection_to_new_layer(Picviz::PVView* picviz_view)
+{
+	// Register an actor to the hive
+	Picviz::PVView_sp view_sp = picviz_view->shared_from_this();
+	PVHive::PVActor<Picviz::PVView> actor;
+	PVHive::get().register_actor(view_sp, actor);
 
+	Picviz::PVLayer& current_layer = picviz_view->layer_stack.get_selected_layer();
+	actor.call<FUNC(Picviz::PVView::add_new_layer)>();
+	Picviz::PVLayer &new_layer = picviz_view->layer_stack.get_selected_layer();
+	/* We set it's selection to the final selection */
+	picviz_view->set_selection_with_final_selection(new_layer.get_selection());
+	picviz_view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(new_layer.get_lines_properties(), new_layer.get_selection(), picviz_view->row_count);
+	// We remove that selection from the current layer
+	current_layer.get_selection().and_not(new_layer.get_selection());
+	
+	/* We need to reprocess the layer stack */
+	new_layer.compute_min_max(*picviz_view->get_parent<Picviz::PVPlotted>());
+
+	actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+}
 
 
 /******************************************************************************

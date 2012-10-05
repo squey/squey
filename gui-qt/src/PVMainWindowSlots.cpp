@@ -183,6 +183,16 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer_Slot()
 	commit_selection_to_new_layer(current_lib_view);
 }
 
+void PVInspector::PVMainWindow::move_selection_to_new_layer_Slot()
+{
+	if (!current_tab) {
+		return;
+	}
+
+	Picviz::PVView* current_lib_view = current_tab->get_lib_view();
+	move_selection_to_new_layer(current_lib_view);
+}
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()

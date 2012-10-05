@@ -91,6 +91,8 @@ void PVInspector::PVMainWindow::create_actions()
 	//commit_selection_in_current_layer_Action->setShortcut(QKeySequence(Qt::Key_K));
 	commit_selection_to_new_layer_Action = new QAction(tr("Create new layer from selection"), this);
 	commit_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_K));
+	move_selection_to_new_layer_Action = new QAction(tr("Move selection to new layer"), this);
+	move_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_M));
 	expand_selection_on_axis_Action = new QAction(tr("Expand selection on axis..."), this);
 
 	/******************************
@@ -213,6 +215,7 @@ void PVInspector::PVMainWindow::create_menus()
 	selection_Menu->addSeparator();
 	//selection_Menu->addAction(commit_selection_in_current_layer_Action);
 	selection_Menu->addAction(commit_selection_to_new_layer_Action);
+	selection_Menu->addAction(move_selection_to_new_layer_Action);
 	selection_Menu->addSeparator();
 	selection_Menu->addAction(expand_selection_on_axis_Action);
 
@@ -340,6 +343,7 @@ void PVInspector::PVMainWindow::connect_actions()
 
 	//connect(commit_selection_in_current_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_in_current_layer_Slot()));
 	connect(commit_selection_to_new_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_to_new_layer_Slot()));
+	connect(move_selection_to_new_layer_Action, SIGNAL(triggered()), this, SLOT(move_selection_to_new_layer_Slot()));
 
 	connect(axes_editor_Action, SIGNAL(triggered()), this, SLOT(axes_editor_Slot()));//
 	connect(axes_combination_editor_Action, SIGNAL(triggered()), this, SLOT(axes_combination_editor_Slot()));//

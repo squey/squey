@@ -141,6 +141,7 @@ public:
 
 	/* QGridLayout *filter_widgets_layout; */
 	void commit_selection_in_current_layer(Picviz::PVView* view);
+	void move_selection_to_new_layer(Picviz::PVView* view);
 	void commit_selection_to_new_layer(Picviz::PVView* view);
 	void set_color(Picviz::PVView* view);
 
@@ -163,6 +164,7 @@ public slots:
 	void change_of_current_view_Slot();
 	void commit_selection_in_current_layer_Slot();
 	void commit_selection_to_new_layer_Slot();
+	void move_selection_to_new_layer_Slot();
 	void selection_set_from_current_layer_Slot();
 	void selection_set_from_layer_Slot();
 	void expand_selection_on_axis_Slot();
@@ -284,6 +286,7 @@ private:
 	QAction *copy_Action;
 	QAction *commit_selection_in_current_layer_Action;
 	QAction *commit_selection_to_new_layer_Action;
+	QAction *move_selection_to_new_layer_Action;
 	QAction *cut_Action;
 	QAction *filter_reprocess_last_filter; 
 	QAction *project_new_Action;
