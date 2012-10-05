@@ -17,7 +17,8 @@
 PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider(int64_t omin, int64_t omax, int64_t o,
                                                            PVAxisSliderOrientation orientation) :
 	_offset_min(omin), _offset_max(omax), _offset(o),
-	_orientation(orientation), _moving(false), _is_hover(false)
+	_orientation(orientation), _moving(false), _is_hover(false),
+	_removable(true)
 {
 	setAcceptHoverEvents(true); // This is needed to enable hover events
 
@@ -132,12 +133,14 @@ void PVParallelView::PVAbstractAxisSlider::mouseMoveEvent(QGraphicsSceneMouseEve
 
 void PVParallelView::PVAbstractAxisSlider::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
 {
-	QMenu menu;
+	if (_removable) {
+		QMenu menu;
 
-	QAction *rem = menu.addAction("Remove cursors");
-	connect(rem, SIGNAL(triggered()), _owner, SLOT(remove_from_axis()));
+		QAction *rem = menu.addAction("Remove cursors");
+		connect(rem, SIGNAL(triggered()), _owner, SLOT(remove_from_axis()));
 
-	if (menu.exec(event->screenPos()) != nullptr) {
-		event->accept();
+		if (menu.exec(event->screenPos()) != nullptr) {
+			event->accept();
+		}
 	}
 }

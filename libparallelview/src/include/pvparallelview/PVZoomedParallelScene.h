@@ -34,6 +34,8 @@
 namespace PVParallelView
 {
 
+class PVZoomedSelectionAxisSliders;
+
 class PVZoomedParallelScene : public QGraphicsScene
 {
 Q_OBJECT
@@ -156,7 +158,7 @@ private:
 
 	PVZonesManager& get_zones_manager() { return _zones_drawing.get_zones_manager(); }
 
-	inline Picviz::PVSelection& volatile_selection() { return _pvview.get_volatile_selection(); }
+	inline Picviz::PVSelection& real_selection() { return _pvview.get_real_output_selection(); }
 
 private slots:
 	void scrollbar_changed_Slot(int value);
@@ -214,46 +216,47 @@ private:
 	};
 
 private:
-
-	PVZoomedParallelView          *_zpview;
-	Picviz::PVView&                _pvview;
-	PVSlidersManager_p             _sliders_manager_p;
-	PVSlidersGroup                *_sliders_group;
-	zoom_sliders_update_obs        _zsu_obs;
-	zoom_sliders_del_obs           _zsd_obs;
-	zones_drawing_t               &_zones_drawing;
-	PVCol                          _axis_index;
-	axis_id_t                      _axis_id;
+	PVZoomedParallelView           *_zpview;
+	Picviz::PVView&                 _pvview;
+	PVSlidersManager_p              _sliders_manager_p;
+	PVSlidersGroup                 *_sliders_group;
+	zoom_sliders_update_obs         _zsu_obs;
+	zoom_sliders_del_obs            _zsd_obs;
+	zones_drawing_t                &_zones_drawing;
+	PVCol                           _axis_index;
+	axis_id_t                       _axis_id;
 
 	// this flag helps not killing twice through the hive and the destructor
-	bool                           _pending_deletion;
+	bool                            _pending_deletion;
 
 	// about mouse
-	int                            _wheel_value;
-	int                            _pan_reference_y;
+	int                             _wheel_value;
+	int                             _pan_reference_y;
 
 	// about zones rendering/display
-	zone_desc_t                   *_left_zone;
-	zone_desc_t                   *_right_zone;
-	qreal                          _next_beta;
-	qreal                          _current_beta;
-	uint32_t                       _last_y_min;
-	uint32_t                       _last_y_max;
+	zone_desc_t                    *_left_zone;
+	zone_desc_t                    *_right_zone;
+	qreal                           _next_beta;
+	qreal                           _current_beta;
+	uint32_t                        _last_y_min;
+	uint32_t                        _last_y_max;
 
 	// about rendering
-	PVRenderingJob                *_rendering_job;
-	QFuture<void>                  _rendering_future;
-	QTimer                         _scroll_timer;
-	render_group_t                 _render_group;
+	PVRenderingJob                 *_rendering_job;
+	QFuture<void>                   _rendering_future;
+	QTimer                          _scroll_timer;
+	render_group_t                  _render_group;
 
 	// about selection in the zoom view
-	QPointF                        _selection_rect_pos;
-	PVSelectionSquareGraphicsItem *_selection_rect;
+	QPointF                         _selection_rect_pos;
+	PVSelectionSquareGraphicsItem  *_selection_rect;
+	PVZoomedSelectionAxisSliders   *_selection_sliders;
+	PVHive::PVActor<Picviz::PVView> _view_actor;
 
 	// about rendering invalidation
-	render_t                       _render_type;
-	int                            _renderable_zone_number;
-	int                            _updated_selection_count;
+	render_t                        _render_type;
+	int                             _renderable_zone_number;
+	int                             _updated_selection_count;
 };
 
 }

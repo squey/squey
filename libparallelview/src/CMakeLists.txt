@@ -57,6 +57,8 @@ PVSelectionAxisSlider.cpp
 PVSelectionAxisSliders.cpp
 PVZoomAxisSlider.cpp
 PVZoomAxisSliders.cpp
+PVZoomedSelectionAxisSlider.cpp
+PVZoomedSelectionAxisSliders.cpp
 )
 
 set(CUDA_SRC_FILES
@@ -92,6 +94,8 @@ include/pvparallelview/PVSelectionAxisSlider.h
 include/pvparallelview/PVSelectionAxisSliders.h
 include/pvparallelview/PVZoomAxisSlider.h
 include/pvparallelview/PVZoomAxisSliders.h
+include/pvparallelview/PVZoomedSelectionAxisSlider.h
+include/pvparallelview/PVZoomedSelectionAxisSliders.h
 )
 
 SET(MOC_HEADERS
@@ -102,12 +106,13 @@ include/pvparallelview/PVSelectionSquareGraphicsItem.h
 include/pvparallelview/PVZonesManager.h
 include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVSlidersGroup.h
+include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVAxisLabel.h
 include/pvparallelview/PVAbstractAxisSlider.h
 include/pvparallelview/PVAbstractAxisSliders.h
 include/pvparallelview/PVSelectionAxisSliders.h
 include/pvparallelview/PVZoomAxisSliders.h
-include/pvparallelview/PVAxisGraphicsItem.h
+include/pvparallelview/PVZoomedSelectionAxisSliders.h
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})

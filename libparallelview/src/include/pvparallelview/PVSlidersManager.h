@@ -64,6 +64,8 @@ public:
 	                           const int64_t y_min, const int64_t y_max);
 	void new_zoom_sliders(const axis_id_t &axis_id, const id_t id,
 	                      const int64_t y_min, const int64_t y_max);
+	void new_zoomed_selection_sliders(const axis_id_t &axis_id, const id_t id,
+	                                  const int64_t y_min, const int64_t y_max);
 
 	/**
 	 * Function to observe (in PVHive way) to be notified when a new
@@ -74,6 +76,7 @@ public:
 	 */
 	void del_selection_sliders(const axis_id_t &axis_id, const id_t id);
 	void del_zoom_sliders(const axis_id_t &axis_id, const id_t id);
+	void del_zoomed_selection_sliders(const axis_id_t &axis_id, const id_t id);
 
 	/**
 	 * Function to observe (in PVHive way) to be notified when a
@@ -89,6 +92,8 @@ public:
 	void update_zoom_sliders(const axis_id_t &axis_id, const id_t id,
 	                         const int64_t y_min, const int64_t y_max,
 	                         const ZoomSliderChange change);
+	void update_zoomed_selection_sliders(const axis_id_t &axis_id, const id_t id,
+	                                     const int64_t y_min, const int64_t y_max);
 
 	/**
 	 * Function to iterate on all range sliders
@@ -100,6 +105,7 @@ public:
 	 */
 	void iterate_selection_sliders(const range_functor_t &functor) const;
 	void iterate_zoom_sliders(const range_functor_t &functor) const;
+	void iterate_zoomed_selection_sliders(const range_functor_t &functor) const;
 
 private:
 	typedef std::map<id_t, range_geometry_t> range_geometry_list_t;
@@ -123,6 +129,7 @@ private:
 private:
 	range_geometry_set_t _zoom_geometries;
 	range_geometry_set_t _selection_geometries;
+	range_geometry_set_t _zoomed_selection_geometries;
 };
 
 typedef PVCore::PVSharedPtr<PVSlidersManager> PVSlidersManager_p;
