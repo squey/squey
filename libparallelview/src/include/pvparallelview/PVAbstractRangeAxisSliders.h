@@ -16,7 +16,7 @@ class PVAbstractRangeAxisSliders : public PVAbstractAxisSliders
 {
 public:
 	typedef PVSlidersManager::id_t id_t;
-	typedef std::pair<PVRow, PVRow> range_t;
+	typedef std::pair<int64_t, int64_t> range_t;
 
 public:
 
@@ -32,8 +32,8 @@ public:
 
 	range_t get_range() const
 	{
-		PVRow v_min = _sl_min->get_value();
-		PVRow v_max = _sl_max->get_value();
+		int64_t v_min = _sl_min->get_value();
+		int64_t v_max = _sl_max->get_value();
 
 		return std::make_pair(PVCore::min(v_min, v_max),
 		                      PVCore::max(v_min, v_max));

@@ -32,7 +32,7 @@ private:
 
 public:
 	typedef PVSlidersManager::axis_id_t axis_id_t;
-	typedef std::vector<std::pair<PVRow, PVRow> > selection_ranges_t;
+	typedef std::vector<std::pair<int64_t, int64_t> > selection_ranges_t;
 
 public:
 	PVSlidersGroup(PVSlidersManager_p sm_p, const axis_id_t &axis_id, QGraphicsItem *parent = nullptr);
