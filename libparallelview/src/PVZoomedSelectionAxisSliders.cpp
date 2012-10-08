@@ -13,7 +13,6 @@ PVParallelView::PVZoomedSelectionAxisSliders::PVZoomedSelectionAxisSliders(QGrap
 	     PVSlidersManager_p sm_p,
 	     PVSlidersGroup *group) :
 	PVAbstractRangeAxisSliders(parent, sm_p, group, "range selection"),
-	_zssd_obs(this),
 	_zssu_obs(this)
 {
 }
@@ -48,9 +47,6 @@ void PVParallelView::PVZoomedSelectionAxisSliders::initialize(id_t id,
 
 	connect(_sl_min, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
 	connect(_sl_max, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
-
-	PVHive::PVHive::get().register_func_observer(_sliders_manager_p,
-	                                             _zssd_obs);
 
 	PVHive::PVHive::get().register_func_observer(_sliders_manager_p,
 	                                             _zssu_obs);
@@ -90,21 +86,6 @@ void PVParallelView::PVZoomedSelectionAxisSliders::do_sliders_moved()
 	                                                                      _id,
 	                                                                      _sl_min->get_value(),
 	                                                                      _sl_max->get_value());
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedSelectionAxisSliders::zoomed_selection_sliders_del_obs::update
- *****************************************************************************/
-
-void PVParallelView::PVZoomedSelectionAxisSliders::zoomed_selection_sliders_del_obs::update(arguments_deep_copy_type const& args) const
-{
-	const axis_id_t &axis_id = std::get<0>(args);
-	PVSlidersManager::id_t id = std::get<1>(args);
-
-	if ((axis_id == _parent->_group->get_axis_id()) && (id == _parent->_id)) {
-		_parent->group()->removeFromGroup(_parent);
-		_parent->scene()->removeItem(_parent);
-	}
 }
 
 /*****************************************************************************

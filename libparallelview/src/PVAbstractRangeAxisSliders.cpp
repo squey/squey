@@ -3,6 +3,7 @@
 #include <pvparallelview/PVSlidersGroup.h>
 
 #include <QPainter>
+#include <QGraphicsScene>
 
 /*****************************************************************************
  * PVParallelView::PVAbstractRangeAxisSliders::PVAbstractRangeAxisSliders
@@ -14,6 +15,28 @@ PVParallelView::PVAbstractRangeAxisSliders::PVAbstractRangeAxisSliders(QGraphics
                                                                        const char *text) :
 	PVAbstractAxisSliders(parent, sm_p, group, text)
 {
+}
+
+/*****************************************************************************
+ * PVParallelView::PVAbstractRangeAxisSliders::~PVAbstractRangeAxisSliders
+ *****************************************************************************/
+
+PVParallelView::PVAbstractRangeAxisSliders::~PVAbstractRangeAxisSliders()
+{
+	if (_sl_min) {
+		if (scene()) {
+			scene()->removeItem(_sl_min);
+		}
+		removeFromGroup(_sl_min);
+		delete _sl_min;
+	}
+	if (_sl_max) {
+		if (scene()) {
+			scene()->removeItem(_sl_max);
+		}
+		removeFromGroup(_sl_max);
+		delete _sl_max;
+	}
 }
 
 /*****************************************************************************

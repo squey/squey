@@ -78,6 +78,9 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
 
 PVParallelView::PVSlidersGroup::~PVSlidersGroup()
 {
+	for (const auto &it : _all_sliders) {
+		delete it.second;
+	}
 }
 
 /*****************************************************************************
@@ -349,8 +352,12 @@ void PVParallelView::PVSlidersGroup::zoom_sliders_del_obs::update(arguments_deep
 		PVSlidersManager::id_t id = std::get<1>(args);
 
 		if (_parent->_registered_ids.find(id) != _parent->_registered_ids.end()) {
+			PVAbstractAxisSliders* aas = (PVAbstractAxisSliders*)_parent->_all_sliders[id];
 			_parent->_registered_ids.erase(id);
-			_parent->_all_sliders.erase((PVParallelView::PVAbstractAxisSliders*)id);
+			_parent->_all_sliders.erase((PVAbstractAxisSliders*)id);
+			_parent->scene()->removeItem(aas);
+			_parent->removeFromGroup(aas);
+			delete aas;
 		}
 	}
 }
@@ -367,9 +374,13 @@ void PVParallelView::PVSlidersGroup::selection_sliders_del_obs::update(arguments
 		PVSlidersManager::id_t id = std::get<1>(args);
 
 		if (_parent->_registered_ids.find(id) != _parent->_registered_ids.end()) {
+			PVAbstractRangeAxisSliders* aras = _parent->_selection_sliders[id];
 			_parent->_registered_ids.erase(id);
-			_parent->_selection_sliders.erase((PVParallelView::PVSelectionAxisSliders*)id);
-			_parent->_all_sliders.erase((PVParallelView::PVAbstractAxisSliders*)id);
+			_parent->_selection_sliders.erase((PVAbstractRangeAxisSliders*)id);
+			_parent->_all_sliders.erase((PVAbstractAxisSliders*)id);
+			_parent->scene()->removeItem(aras);
+			_parent->removeFromGroup(aras);
+			delete aras;
 		}
 	}
 }
@@ -386,9 +397,13 @@ void PVParallelView::PVSlidersGroup::zoomed_selection_sliders_del_obs::update(ar
 		PVSlidersManager::id_t id = std::get<1>(args);
 
 		if (_parent->_registered_ids.find(id) != _parent->_registered_ids.end()) {
+			PVAbstractRangeAxisSliders* aras = _parent->_selection_sliders[id];
 			_parent->_registered_ids.erase(id);
-			_parent->_selection_sliders.erase((PVParallelView::PVZoomedSelectionAxisSliders*)id);
-			_parent->_all_sliders.erase((PVParallelView::PVAbstractAxisSliders*)id);
+			_parent->_selection_sliders.erase((PVAbstractRangeAxisSliders*)id);
+			_parent->_all_sliders.erase((PVAbstractAxisSliders*)id);
+			_parent->scene()->removeItem(aras);
+			_parent->removeFromGroup(aras);
+			delete aras;
 		}
 	}
 }

@@ -21,7 +21,7 @@ public:
 	PVAbstractAxisSliders(QGraphicsItem *parent, PVSlidersManager_p sm_p,
 	                      PVSlidersGroup *group, const char *text);
 
-	PVSlidersGroup *get_sliders_group() const
+	inline PVSlidersGroup *get_sliders_group() const
 	{
 		return _group;
 	}

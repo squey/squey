@@ -414,12 +414,18 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 
 	// draw axis
 	QPen new_pen = QPen(_pvview.get_axis(_axis_index).get_color().toQColor());
+
 	new_pen.setWidth(PARALLELVIEW_AXIS_WIDTH);
 	painter->setPen(new_pen);
 	painter->drawLine(screen_center, 0, screen_center, screen_rect.height());
 
 	// get back the painter's original state
 	painter->setTransform(t);
+
+	painter->setPen(Qt::red);
+	for(int i = 0; i < 1024; ++i) {
+		painter->drawLine(QPointF(-10, i), QPointF(10, i));
+	}
 	painter->setPen(old_pen);
 }
 

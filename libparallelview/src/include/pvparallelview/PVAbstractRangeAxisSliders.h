@@ -23,6 +23,8 @@ public:
 	PVAbstractRangeAxisSliders(QGraphicsItem *parent, PVSlidersManager_p sm_p,
 	                           PVSlidersGroup *group, const char *text);
 
+	virtual ~PVAbstractRangeAxisSliders();
+
 	virtual void initialize(id_t id, int64_t y_min, int64_t y_max) = 0;
 
 	virtual bool is_moving() const

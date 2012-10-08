@@ -40,20 +40,6 @@ private slots:
 	void do_sliders_moved();
 
 private:
-	class zoom_sliders_del_obs :
-		public PVHive::PVFuncObserver<PVSlidersManager,
-		                              FUNC(PVSlidersManager::del_zoom_sliders)>
-	{
-	public:
-		zoom_sliders_del_obs(PVZoomAxisSliders *parent) : _parent(parent)
-		{}
-
-		void update(arguments_deep_copy_type const& args) const;
-
-	private:
-		PVZoomAxisSliders *_parent;
-	};
-
 	class zoom_sliders_update_obs :
 		public PVHive::PVFuncObserver<PVSlidersManager,
 		                              FUNC(PVSlidersManager::update_zoom_sliders)>
@@ -69,7 +55,6 @@ private:
 	};
 
 private:
-	zoom_sliders_del_obs     _zsd_obs;
 	zoom_sliders_update_obs  _zsu_obs;
 	id_t                     _id;
 };

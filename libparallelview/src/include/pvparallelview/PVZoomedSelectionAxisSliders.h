@@ -10,10 +10,6 @@
 
 #include <pvparallelview/PVAbstractRangeAxisSliders.h>
 
-/* TODO: add a method to delete all the corresponding PVAxisSliders
- *       like a destroy() { hive::call(..., del_selection_sliders, _axis, _id); }
- */
-
 namespace PVParallelView
 {
 
@@ -51,20 +47,6 @@ private slots:
 	void do_sliders_moved();
 
 private:
-	class zoomed_selection_sliders_del_obs :
-		public PVHive::PVFuncObserver<PVSlidersManager,
-		                              FUNC(PVSlidersManager::del_zoomed_selection_sliders)>
-	{
-	public:
-		zoomed_selection_sliders_del_obs(PVZoomedSelectionAxisSliders *parent) : _parent(parent)
-		{}
-
-		void update(arguments_deep_copy_type const& args) const;
-
-	private:
-		PVZoomedSelectionAxisSliders *_parent;
-	};
-
 	class zoomed_selection_sliders_update_obs :
 		public PVHive::PVFuncObserver<PVSlidersManager,
 		                              FUNC(PVSlidersManager::update_zoomed_selection_sliders)>
@@ -80,7 +62,6 @@ private:
 	};
 
 private:
-	zoomed_selection_sliders_del_obs    _zssd_obs;
 	zoomed_selection_sliders_update_obs _zssu_obs;
 	id_t                                _id;
 };
