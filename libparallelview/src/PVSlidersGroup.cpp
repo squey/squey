@@ -216,7 +216,6 @@ void PVParallelView::PVSlidersGroup::add_new_zoom_sliders(id_t id,
 	sliders->setPos(0, 0);
 
 	_all_sliders[id] = sliders;
-	_registered_ids.insert(id);
 }
 
 /*****************************************************************************
@@ -247,7 +246,6 @@ void PVParallelView::PVSlidersGroup::add_new_selection_sliders(PVParallelView::P
 
 	_all_sliders[id] = sliders;
 	_selection_sliders[id] = sliders;
-	_registered_ids.insert(id);
 }
 
 /*****************************************************************************
@@ -278,7 +276,6 @@ void PVParallelView::PVSlidersGroup::add_new_zoomed_selection_sliders(PVParallel
 
 	_all_sliders[id] = sliders;
 	_selection_sliders[id] = sliders;
-	_registered_ids.insert(id);
 }
 
 /*****************************************************************************
@@ -311,7 +308,7 @@ void PVParallelView::PVSlidersGroup::selection_sliders_new_obs::update(arguments
 	if (axis_id == _parent->get_axis_id()) {
 		PVSlidersManager::id_t id = std::get<1>(args);
 
-		if (_parent->_registered_ids.find(id) == _parent->_registered_ids.end()) {
+		if (_parent->_all_sliders.find(id) == _parent->_all_sliders.end()) {
 			int64_t y_min = std::get<2>(args);
 			int64_t y_max = std::get<3>(args);
 			_parent->add_new_selection_sliders(nullptr, id,
@@ -331,7 +328,7 @@ void PVParallelView::PVSlidersGroup::zoomed_selection_sliders_new_obs::update(ar
 	if (axis_id == _parent->get_axis_id()) {
 		PVSlidersManager::id_t id = std::get<1>(args);
 
-		if (_parent->_registered_ids.find(id) == _parent->_registered_ids.end()) {
+		if (_parent->_all_sliders.find(id) == _parent->_all_sliders.end()) {
 			int64_t y_min = std::get<2>(args);
 			int64_t y_max = std::get<3>(args);
 			_parent->add_new_zoomed_selection_sliders(nullptr, id,
@@ -351,13 +348,12 @@ void PVParallelView::PVSlidersGroup::zoom_sliders_del_obs::update(arguments_deep
 	if (axis_id == _parent->get_axis_id()) {
 		PVSlidersManager::id_t id = std::get<1>(args);
 
-		if (_parent->_registered_ids.find(id) != _parent->_registered_ids.end()) {
-			PVAbstractAxisSliders* aas = (PVAbstractAxisSliders*)_parent->_all_sliders[id];
-			_parent->_registered_ids.erase(id);
-			_parent->_all_sliders.erase((PVAbstractAxisSliders*)id);
-			_parent->scene()->removeItem(aas);
-			_parent->removeFromGroup(aas);
-			delete aas;
+		aas_set_t::const_iterator it = _parent->_all_sliders.find(id);
+		if (it != _parent->_all_sliders.end()) {
+			_parent->scene()->removeItem(it->second);
+			_parent->removeFromGroup(it->second);
+			delete it->second;
+			_parent->_all_sliders.erase(it);
 		}
 	}
 }
@@ -373,14 +369,13 @@ void PVParallelView::PVSlidersGroup::selection_sliders_del_obs::update(arguments
 	if (axis_id == _parent->get_axis_id()) {
 		PVSlidersManager::id_t id = std::get<1>(args);
 
-		if (_parent->_registered_ids.find(id) != _parent->_registered_ids.end()) {
-			PVAbstractRangeAxisSliders* aras = _parent->_selection_sliders[id];
-			_parent->_registered_ids.erase(id);
+		aas_set_t::const_iterator it = _parent->_all_sliders.find(id);
+		if (it != _parent->_all_sliders.end()) {
+			_parent->scene()->removeItem(it->second);
+			_parent->removeFromGroup(it->second);
+			delete it->second;
+			_parent->_all_sliders.erase(it);
 			_parent->_selection_sliders.erase((PVAbstractRangeAxisSliders*)id);
-			_parent->_all_sliders.erase((PVAbstractAxisSliders*)id);
-			_parent->scene()->removeItem(aras);
-			_parent->removeFromGroup(aras);
-			delete aras;
 		}
 	}
 }
@@ -396,14 +391,13 @@ void PVParallelView::PVSlidersGroup::zoomed_selection_sliders_del_obs::update(ar
 	if (axis_id == _parent->get_axis_id()) {
 		PVSlidersManager::id_t id = std::get<1>(args);
 
-		if (_parent->_registered_ids.find(id) != _parent->_registered_ids.end()) {
-			PVAbstractRangeAxisSliders* aras = _parent->_selection_sliders[id];
-			_parent->_registered_ids.erase(id);
+		aas_set_t::const_iterator it = _parent->_all_sliders.find(id);
+		if (it != _parent->_all_sliders.end()) {
+			_parent->scene()->removeItem(it->second);
+			_parent->removeFromGroup(it->second);
+			delete it->second;
+			_parent->_all_sliders.erase(it);
 			_parent->_selection_sliders.erase((PVAbstractRangeAxisSliders*)id);
-			_parent->_all_sliders.erase((PVAbstractAxisSliders*)id);
-			_parent->scene()->removeItem(aras);
-			_parent->removeFromGroup(aras);
-			delete aras;
 		}
 	}
 }
