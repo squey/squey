@@ -409,7 +409,6 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 	// the pen has to be saved too
 	QPen old_pen = painter->pen();
 
-	// TODO: get background color
 	painter->fillRect(screen_rect, common::color_view_bg());
 
 	// draw axis
@@ -422,10 +421,14 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 	// get back the painter's original state
 	painter->setTransform(t);
 
+#if 0
+	// really usefull to see quadtrees
 	painter->setPen(Qt::red);
 	for(int i = 0; i < 1024; ++i) {
 		painter->drawLine(QPointF(-10, i), QPointF(10, i));
 	}
+#endif
+
 	painter->setPen(old_pen);
 }
 
