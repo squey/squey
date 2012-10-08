@@ -24,9 +24,6 @@ private:
 	typedef PVSlidersManager::id_t id_t;
 
 public:
-	typedef std::pair<PVRow, PVRow> range_t;
-
-public:
 	PVSelectionAxisSliders(QGraphicsItem *parent,
 	                       PVSlidersManager_p sm_p,
 	                       PVSlidersGroup *group);

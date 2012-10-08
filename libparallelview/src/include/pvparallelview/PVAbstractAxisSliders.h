@@ -6,7 +6,8 @@
 
 #include <QObject>
 #include <QGraphicsItemGroup>
-#include <QGraphicsSimpleTextItem>
+
+class QGraphicsSimpleTextItem;
 
 namespace PVParallelView
 {

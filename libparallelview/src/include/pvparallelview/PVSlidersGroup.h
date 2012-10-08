@@ -9,6 +9,7 @@
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVSlidersManager.h>
+#include <pvparallelview/PVAbstractRangeAxisSliders.h>
 
 #include <unordered_map>
 
@@ -18,8 +19,6 @@
 namespace PVParallelView
 {
 
-class PVAbstractAxisSliders;
-class PVAbstractRangeAxisSliders;
 class PVSelectionAxisSliders;
 class PVZoomedSelectionAxisSliders;
 
@@ -32,8 +31,9 @@ private:
 	typedef PVSlidersManager::range_geometry_t range_geometry_t;
 
 public:
-	typedef PVSlidersManager::axis_id_t axis_id_t;
-	typedef std::vector<std::pair<int64_t, int64_t> > selection_ranges_t;
+	typedef PVSlidersManager::axis_id_t         axis_id_t;
+	typedef PVAbstractRangeAxisSliders::range_t range_t;
+	typedef std::vector<range_t>                selection_ranges_t;
 
 public:
 	PVSlidersGroup(PVSlidersManager_p sm_p, const axis_id_t &axis_id, QGraphicsItem *parent = nullptr);

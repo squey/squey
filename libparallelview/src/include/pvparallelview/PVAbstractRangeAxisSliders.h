@@ -5,7 +5,7 @@
 #include <pvparallelview/PVAbstractAxisSliders.h>
 #include <pvparallelview/PVAbstractAxisSlider.h>
 
-#include <QGraphicsItem>
+class QGraphicsItem;
 
 namespace PVParallelView
 {
