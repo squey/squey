@@ -11,6 +11,7 @@
 #include <pvparallelview/PVSlidersManager.h>
 
 #include <unordered_set>
+#include <unordered_map>
 
 #include <QObject>
 #include <QGraphicsItemGroup>
@@ -179,9 +180,9 @@ private:
 	};
 
 private:
-	typedef std::unordered_set<PVAbstractAxisSliders*>      aas_set_t;
-	typedef std::unordered_set<PVAbstractRangeAxisSliders*> aras_set_t;
-	typedef std::unordered_set<id_t>                        id_set_t;
+	typedef std::unordered_map<id_t, PVAbstractAxisSliders*>      aas_set_t;
+	typedef std::unordered_map<id_t, PVAbstractRangeAxisSliders*> aras_set_t;
+	typedef std::unordered_set<id_t>                              id_set_t;
 
 private:
 	PVSlidersManager_p               _sliders_manager_p;

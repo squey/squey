@@ -99,8 +99,8 @@ void PVParallelView::PVSlidersGroup::set_axis_scale(float s)
 {
 	_axis_scale = s;
 
-	for(PVAbstractAxisSliders *aas : _all_sliders) {
-		aas->refresh();
+	for(const auto &it : _all_sliders) {
+		it.second->refresh();
 	}
 }
 
@@ -170,7 +170,7 @@ PVParallelView::PVSlidersGroup::get_selection_ranges() const
 	selection_ranges_t ranges;
 
 	for (aras_set_t::const_iterator it = _selection_sliders.begin(); it != _selection_sliders.end(); ++it) {
-		ranges.push_back((*it)->get_range());
+		ranges.push_back(it->second->get_range());
 	}
 
 	return ranges;
@@ -182,8 +182,8 @@ PVParallelView::PVSlidersGroup::get_selection_ranges() const
 
 bool PVParallelView::PVSlidersGroup::sliders_moving() const
 {
-	for (PVParallelView::PVAbstractAxisSliders* sliders : _all_sliders) {
-		if (sliders->is_moving()) {
+	for (const auto &it : _all_sliders) {
+		if (it.second->is_moving()) {
 			return true;
 		}
 	}
@@ -212,7 +212,7 @@ void PVParallelView::PVSlidersGroup::add_new_zoom_sliders(id_t id,
 
 	sliders->setPos(0, 0);
 
-	_all_sliders.insert(sliders);
+	_all_sliders[id] = sliders;
 	_registered_ids.insert(id);
 }
 
@@ -242,8 +242,8 @@ void PVParallelView::PVSlidersGroup::add_new_selection_sliders(PVParallelView::P
 
 	connect(sliders, SIGNAL(sliders_moved()), this, SLOT(selection_slider_moved()));
 
-	_all_sliders.insert(sliders);
-	_selection_sliders.insert(sliders);
+	_all_sliders[id] = sliders;
+	_selection_sliders[id] = sliders;
 	_registered_ids.insert(id);
 }
 
@@ -273,8 +273,8 @@ void PVParallelView::PVSlidersGroup::add_new_zoomed_selection_sliders(PVParallel
 
 	connect(sliders, SIGNAL(sliders_moved()), this, SLOT(selection_slider_moved()));
 
-	_all_sliders.insert(sliders);
-	_selection_sliders.insert(sliders);
+	_all_sliders[id] = sliders;
+	_selection_sliders[id] = sliders;
 	_registered_ids.insert(id);
 }
 
