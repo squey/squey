@@ -145,6 +145,42 @@ public:
 
 	void process_omp_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
 
+	inline size_t compute_selection_y1(PVRow t1, uint32_t y_min, uint32_t y_max,
+	                              Picviz::PVSelection &selection) const
+	{
+		if (_initialized == false) {
+			return 0;
+		}
+
+		size_t num = 0;
+		for (uint32_t t2 = 0; t2 < 1024; ++t2) {
+			PVRow tree_idx = (t2 * 1024) + t1;
+			// if (_sel_elts[tree_idx] != PVROW_INVALID_VALUE) {
+				num += _trees[tree_idx].compute_selection_y1(y_min, y_max, selection);
+			// }
+		}
+
+		return num;
+	}
+
+	inline size_t compute_selection_y2(PVRow t2, uint32_t y_min, uint32_t y_max,
+	                              Picviz::PVSelection &selection) const
+	{
+		if (_initialized == false) {
+			return 0;
+		}
+
+		size_t num = 0;
+		for (uint32_t t1 = 0; t1 < 1024; ++t1) {
+			PVRow tree_idx = (t2 * 1024) + t1;
+			// if (_sel_elts[tree_idx] != PVROW_INVALID_VALUE) {
+				num += _trees[tree_idx].compute_selection_y2(y_min, y_max, selection);
+			// }
+		}
+
+		return num;
+	}
+
 	inline size_t browse_bci_by_y1(context_t &ctx,
 	                               uint64_t y_min, uint64_t y_max, uint64_t y_lim,
 	                               int zoom, uint32_t width,

@@ -76,8 +76,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZon
 uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 	PVZoneID zid,
 	const typename PVAxisGraphicsItem::selection_ranges_t& ranges,
-	Picviz::PVSelection& sel
-)
+	Picviz::PVSelection& sel)
 {
 	uint32_t nb_selected = 0;
 
@@ -86,74 +85,147 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 	PVParallelView::PVBCode code_b;
 
 	if (zid < get_zones_manager().get_number_zones()) {
+		// process the left side of zones
 		PVZoneTree& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zid);
 
-		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)	{
-			PVRow r =  ztree.get_first_elt_of_branch(branch);
-			if(r == PVROW_INVALID_VALUE) {
-				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
-				continue;
+		memset(ztree._sel_elts, 0xFFFFFFFF, NBUCKETS * sizeof(ztree._sel_elts[0]));
+
+		for (auto &range : ranges) {
+			int64_t range_min = range.first;
+			int64_t range_max = range.second;
+
+			uint32_t zt_min = range_min / PVAbstractAxisSlider::precision;
+			uint32_t zt_max = range_max / PVAbstractAxisSlider::precision;
+
+			int64_t zt_range_min = zt_min * PVAbstractAxisSlider::precision;
+			int64_t zt_range_max = zt_max * PVAbstractAxisSlider::precision;
+
+			bool need_zzt_min = false;
+			uint32_t zzt_min_idx = 0;
+			bool need_zzt_max = false;
+			uint32_t zzt_max_idx = 0;
+
+			if (zt_range_min != range_min) {
+				zzt_min_idx = zt_min;
+				++zt_min;
+				need_zzt_min = true;
 			}
 
-			code_b.int_v = branch;
-			uint32_t y1 = code_b.s.l;
+			if (zt_range_max != range_max) {
+				zzt_max_idx = zt_max;
+				/* it the "low" quadtree must be traversed, make sure the
+				 * "higher one is not the same
+				 */
+				need_zzt_max = (need_zzt_min && (zzt_min_idx != zzt_max_idx));
+			}
 
-			bool is_line_selected = false;
-			for (auto range : ranges) {
-				uint32_t y_min = range.first / (double)PVAbstractAxisSlider::precision;
-				uint32_t y_max = 0.5 + (range.second / (double)PVAbstractAxisSlider::precision);
-				if (y1 >= y_min && y1 <= y_max) {
-					is_line_selected = true;
-					break;
+			for(PVRow t1 = zt_min; t1 < zt_max; ++t1) {
+				for (PVRow t2 = 0; t2 < 1024; ++t2) {
+					PVRow branch = (t2 * 1024) + t1;
+					PVRow r = ztree.get_first_elt_of_branch(branch);
+					if(r == PVROW_INVALID_VALUE) {
+						continue;
+					}
+
+					code_b.int_v = branch;
+					uint32_t y1 = code_b.s.l;
+					bool is_line_selected = ((zt_min <= y1) && (y1 <= zt_max));
+
+					if (is_line_selected == false) {
+						continue;
+					}
+
+					ztree._sel_elts[branch] = r;
+					uint32_t branch_count = ztree.get_branch_count(branch);
+					for (size_t i = 0; i < branch_count; ++i) {
+						sel.set_bit_fast(ztree.get_branch_element(branch, i));
+					}
+					nb_selected += branch_count;
 				}
 			}
 
-			if(is_line_selected) {
-				ztree._sel_elts[branch] = r;
-				uint32_t branch_count = ztree.get_branch_count(branch);
-				for (size_t i = 0; i < ztree.get_branch_count(branch); i++) {
-					sel.set_bit_fast(ztree.get_branch_element(branch, i));
-				}
-				nb_selected += branch_count;
+			if (need_zzt_min) {
+				PVZoomedZoneTree& zztree = get_zones_manager().get_zone_tree<PVZoomedZoneTree>(zid);
+				nb_selected += zztree.compute_selection_y1(zzt_min_idx, range_min,
+				                                           range_max, sel);
 			}
-			else {
-				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
+
+			if (need_zzt_max) {
+				PVZoomedZoneTree& zztree = get_zones_manager().get_zone_tree<PVZoomedZoneTree>(zid);
+				nb_selected += zztree.compute_selection_y1(zzt_max_idx, range_min,
+				                                           range_max, sel);
 			}
 		}
 	} else {
-		// for the last zid, we must process bci.s.r in the last zone tree
+		// process the right side of zones
 		PVZoneTree& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zid - 1);
 
-		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)	{
-			PVRow r =  ztree.get_first_elt_of_branch(branch);
-			if(r == PVROW_INVALID_VALUE) {
-				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
-				continue;
+		memset(ztree._sel_elts, 0xFFFFFFFF, NBUCKETS * sizeof(ztree._sel_elts[0]));
+
+		for (auto &range : ranges) {
+			int64_t range_min = range.first;
+			int64_t range_max = range.second;
+
+			uint32_t zt_min = range_min / PVAbstractAxisSlider::precision;
+			uint32_t zt_max = range_max / PVAbstractAxisSlider::precision;
+
+			int64_t zt_range_min = zt_min * PVAbstractAxisSlider::precision;
+			int64_t zt_range_max = zt_max * PVAbstractAxisSlider::precision;
+
+			bool need_zzt_min = false;
+			uint32_t zzt_min_idx = 0;
+			bool need_zzt_max = false;
+			uint32_t zzt_max_idx = 0;
+
+			if (zt_range_min != range_min) {
+				zzt_min_idx = zt_min;
+				++zt_min;
+				need_zzt_min = true;
 			}
 
-			code_b.int_v = branch;
-			uint32_t y1 = code_b.s.r;
+			if (zt_range_max != range_max) {
+				zzt_max_idx = zt_max;
+				/* it the "low" quadtree must be traversed, make sure the
+				 * "higher one is not the same
+				 */
+				need_zzt_max = (need_zzt_min && (zzt_min_idx != zzt_max_idx));
+			}
 
-			bool is_line_selected = false;
-			for (auto range : ranges) {
-				uint32_t y_min = range.first / (double)PVAbstractAxisSlider::precision;
-				uint32_t y_max = 0.5 + (range.second / (double)PVAbstractAxisSlider::precision);
-				if (y1 >= y_min && y1 <= y_max) {
-					is_line_selected = true;
-					break;
+			for (PVRow t1 = 0; t1 < 1024; ++t1) {
+				for(PVRow t2 = zt_min; t2 < zt_max; ++t2) {
+					PVRow branch = (t2 * 1024) + t1;
+					PVRow r = ztree.get_first_elt_of_branch(branch);
+					if(r == PVROW_INVALID_VALUE) {
+						continue;
+					}
+
+					code_b.int_v = branch;
+					uint32_t y2 = code_b.s.r;
+					bool is_line_selected = ((zt_min <= y2) && (y2 <= zt_max));
+
+					if (is_line_selected == false) {
+						continue;
+					}
+
+					ztree._sel_elts[branch] = r;
+					uint32_t branch_count = ztree.get_branch_count(branch);
+					for (size_t i = 0; i < branch_count; ++i) {
+						sel.set_bit_fast(ztree.get_branch_element(branch, i));
+					}
+					nb_selected += branch_count;
 				}
 			}
 
-			if(is_line_selected) {
-				ztree._sel_elts[branch] = r;
-				uint32_t branch_count = ztree.get_branch_count(branch);
-				for (size_t i = 0; i < ztree.get_branch_count(branch); i++) {
-					sel.set_bit_fast(ztree.get_branch_element(branch, i));
-				}
-				nb_selected += branch_count;
+			if (need_zzt_min) {
+				PVZoomedZoneTree& zztree = get_zones_manager().get_zone_tree<PVZoomedZoneTree>(zid - 1);
+				nb_selected += zztree.compute_selection_y2(zzt_min_idx, range_min,
+				                                           range_max, sel);
 			}
-			else {
-				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
+
+			if (need_zzt_max) {
+				PVZoomedZoneTree& zztree = get_zones_manager().get_zone_tree<PVZoomedZoneTree>(zid - 1);
+				nb_selected += zztree.compute_selection_y2(zzt_max_idx, range_min,
+				                                           range_max, sel);
 			}
 		}
 	}

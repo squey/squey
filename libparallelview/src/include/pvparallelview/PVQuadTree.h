@@ -352,6 +352,16 @@ public:
 		return new_tree;
 	}
 
+	size_t compute_selection_y1(const uint32_t y1_min, const uint32_t y1_max, Picviz::PVSelection &selection) const
+	{
+		return compute_selection_y1(*this, y1_min, y1_max, selection);
+	}
+
+	size_t compute_selection_y2(const uint32_t y2_min, const uint32_t y2_max, Picviz::PVSelection &selection) const
+	{
+		return compute_selection_y2(*this, y2_min, y2_max, selection);
+	}
+
 private:
 	void init(const PVQuadTree &qt)
 	{
@@ -964,6 +974,53 @@ private:
 		}
 	}
 
+	size_t compute_selection_y1(PVQuadTree const& obj, const uint32_t y1_min, const uint32_t y1_max, Picviz::PVSelection &selection) const
+	{
+		size_t num = 0;
+		if (obj._nodes != 0) {
+			if (obj._y1_mid_value < y1_max) {
+				num += compute_selection_y1(obj._nodes[NE], y1_min, y1_max, selection);
+				num += compute_selection_y1(obj._nodes[SE], y1_min, y1_max, selection);
+			}
+			if (y1_min < obj._y1_mid_value) {
+				num += compute_selection_y1(obj._nodes[NW], y1_min, y1_max, selection);
+				num += compute_selection_y1(obj._nodes[SW], y1_min, y1_max, selection);
+			}
+		} else {
+			for (size_t i = 0; i < obj._datas.size(); ++i) {
+				const PVQuadTreeEntry &e = obj._datas.at(i);
+				if ((y1_min <= e.y1) && (e.y1 <= y1_max)) {
+					selection.set_bit_fast(e.idx);
+					++num;
+				}
+			}
+		}
+		return num;
+	}
+
+	size_t compute_selection_y2(PVQuadTree const& obj, const uint32_t y2_min, const uint32_t y2_max, Picviz::PVSelection &selection) const
+	{
+		size_t num = 0;
+		if (obj._nodes != 0) {
+			if (obj._y2_mid_value < y2_max) {
+				num += compute_selection_y2(obj._nodes[NE], y2_min, y2_max, selection);
+				num += compute_selection_y2(obj._nodes[NW], y2_min, y2_max, selection);
+			}
+			if (y2_min < obj._y2_mid_value) {
+				num += compute_selection_y2(obj._nodes[SE], y2_min, y2_max, selection);
+				num += compute_selection_y2(obj._nodes[SW], y2_min, y2_max, selection);
+			}
+		} else {
+			for (size_t i = 0; i < obj._datas.size(); ++i) {
+				const PVQuadTreeEntry &e = obj._datas.at(i);
+				if ((y2_min <= e.y2) && (e.y2 <= y2_max)) {
+					selection.set_bit_fast(e.idx);
+					++num;
+				}
+			}
+		}
+		return num;
+	}
 
 private:
 	pvquadtree_entries_t  _datas;
