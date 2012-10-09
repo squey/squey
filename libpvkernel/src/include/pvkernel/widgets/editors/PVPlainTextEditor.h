@@ -7,6 +7,7 @@
 #ifndef PVCORE_PVPLAINTEXTEDITOR_H
 #define PVCORE_PVPLAINTEXTEDITOR_H
 
+#include <QFileDialog>
 #include <QWidget>
 #include <QPlainTextEdit>
 
@@ -38,6 +39,9 @@ protected slots:
 
 protected:
 	QPlainTextEdit* _text_edit;
+
+private:
+	QFileDialog _file_dlg;
 };
 
 }

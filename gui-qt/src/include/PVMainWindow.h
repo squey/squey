@@ -35,8 +35,6 @@
 #include <PVExportSelectionDialog.h>
 #include <PVFilterWidget.h>
 //#include <PVMapWidget.h>
-#include <PVOpenFileDialog.h>
-#include <PVSaveFileDialog.h>
 #include <PVWorkspacesTabWidget.h>
 #include <PVFilesTypesSelWidget.h>
 
@@ -123,8 +121,6 @@ public:
 
 	PVExportSelectionDialog *pv_ExportSelectionDialog;
 
-	PVOpenFileDialog    *pv_OpenFileDialog;
-	PVSaveFileDialog    *pv_SaveFileDialog;
 	PVGuiQt::PVWorkspace  *current_tab;
 	PVWorkspacesTabWidget *pv_WorkspacesTabWidget;
 
@@ -331,8 +327,10 @@ private:
 	QPixmap  *pv_welcomeIcon;
 	QLabel* pv_lastCurVersion;
 	QLabel* pv_lastMajVersion;
+	QFileDialog _load_project_dlg;
 
 	PVStartScreenWidget* _start_screen_widget;
+	QString _current_save_project_folder;
 
 protected:
 	void keyPressEvent(QKeyEvent *event);

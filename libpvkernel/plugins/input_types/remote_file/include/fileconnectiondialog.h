@@ -11,6 +11,7 @@
 #include "connectionsettings.h"
 
 #include <QDialog>
+#include <QFileDialog>
 
 class QLineEdit;
 class QPushButton;

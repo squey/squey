@@ -11,7 +11,6 @@
 #include <PVListColNrawDlg.h>
 
 #include <QClipboard>
-#include <QFileDialog>
 #include <QMessageBox>
 
 // PVlistColNrawDlg

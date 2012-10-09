@@ -70,8 +70,6 @@ include/PVWorkspacesTabWidget.h
 include/PVMainWindow.h
 #include/PVMappingPlottingEditDialog.h
 include/PVMapWidget.h
-include/PVOpenFileDialog.h
-include/PVSaveFileDialog.h
 include/PVSaveSceneDialog.h
 include/PVSerializeOptionsModel.h
 include/PVSerializeOptionsWidget.h
@@ -141,8 +139,6 @@ PVMainWindowSlots.cpp
 PVMapWidget.cpp
 #PVMappingPlottingEditDialog.cpp
 PVInputTypeMenuEntries.cpp
-PVOpenFileDialog.cpp
-PVSaveFileDialog.cpp
 PVSaveSceneDialog.cpp
 PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp

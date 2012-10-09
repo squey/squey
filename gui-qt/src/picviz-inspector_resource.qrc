@@ -18,6 +18,9 @@
 	<file alias="more.png">resources/more.png</file>
 	<file alias="morezoom.png">resources/morezoom.png</file>
 	<file alias="width.png">resources/width.png</file>
+	<file alias="picviz">resources/icon.png</file>
+	<file alias="picviz.ico">resources/picviz-inspector.ico</file>
+	
 
 	<file alias="layer-active.png">resources/layer-active.png</file>
 	<file alias="layer-inactive.png">resources/layer-inactive.png</file>

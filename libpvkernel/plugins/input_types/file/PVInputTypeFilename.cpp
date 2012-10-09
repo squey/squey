@@ -5,7 +5,6 @@
  */
 
 #include "PVInputTypeFilename.h"
-#include "PVImportFileDialog.h"
 
 #include <pvkernel/core/PVArchive.h>
 #include <pvkernel/core/PVDirectory.h>
@@ -37,11 +36,11 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash
 {
 	QStringList formats_name = formats.keys();
 	formats_name.prepend(QString(PICVIZ_AUTOMATIC_FORMAT_STR));
-	PVImportFileDialog* dlg = new PVImportFileDialog(formats_name, parent);
-	dlg->setDefaults();
-	QStringList filenames = dlg->getFileNames(format);
-	bool check_archives = dlg->_check_archives_checkbox->checkState() == Qt::Checked;
-	args_ext["inv_elts"] = dlg->save_inv_elts();
+	_file_dlg = new PVImportFileDialog(formats_name, parent);
+	_file_dlg->setDefaults();
+	QStringList filenames = _file_dlg->getFileNames(format);
+	bool check_archives = _file_dlg->_check_archives_checkbox->checkState() == Qt::Checked;
+	args_ext["inv_elts"] = _file_dlg->save_inv_elts();
 	return load_files(filenames, check_archives, inputs, parent);
 }
 

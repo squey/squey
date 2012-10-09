@@ -16,7 +16,6 @@
 PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget *parent) : QFileDialog(parent)
 {
 	setWindowTitle("Import file");
-	setDirectory(QDir().currentPath());
 	setFileMode(QFileDialog::ExistingFile);
 	treat_as_combobox = new QComboBox();
 	QLabel *treat_as_label = new QLabel("Treat file as: ");

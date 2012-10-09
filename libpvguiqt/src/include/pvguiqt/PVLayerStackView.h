@@ -7,7 +7,7 @@
 #ifndef PVLAYERSTACKVIEW_H
 #define PVLAYERSTACKVIEW_H
 
-
+#include <QFileDialog>
 #include <QTableView>
 
 #include <picviz/PVView_types.h>
@@ -50,6 +50,9 @@ private:
 	QAction* _ctxt_menu_save_ls_act;
 	QAction* _ctxt_menu_load_ls_act;
 	QAction* _ctxt_menu_set_sel_layer;
+
+	QFileDialog _layer_dialog;
+	QFileDialog _layerstack_dialog;
 };
 
 }

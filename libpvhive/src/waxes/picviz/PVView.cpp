@@ -86,6 +86,12 @@ IMPL_WAX(Picviz::PVView::add_new_layer, view, args)
 	refresh_observers(&view->get_layer_stack());
 }
 
+IMPL_WAX(Picviz::PVView::add_new_layer_from_file, view, args)
+{
+	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::add_new_layer_from_file)>(view, args);
+	refresh_observers(&view->get_layer_stack());
+}
+
 IMPL_WAX(Picviz::PVView::delete_layer_n, view, args)
 {
 	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::delete_layer_n)>(view, args);

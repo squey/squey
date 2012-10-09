@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 
 	app.setOrganizationName("PICVIZ Labs");
 	app.setApplicationName("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR);
-	app.setWindowIcon(QIcon(":/window-icon.png"));
+	app.setWindowIcon(QIcon(":/picviz"));
 
 
 	// We get the CSS as a QFile

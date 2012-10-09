@@ -22,6 +22,7 @@ DECLARE_WAX(Picviz::PVView::process_real_output_selection)
 //
 
 DECLARE_WAX(Picviz::PVView::add_new_layer)
+DECLARE_WAX(Picviz::PVView::add_new_layer_from_file)
 DECLARE_WAX(Picviz::PVView::delete_layer_n)
 DECLARE_WAX(Picviz::PVView::delete_selected_layer)
 DECLARE_WAX(Picviz::PVView::commit_to_new_layer)

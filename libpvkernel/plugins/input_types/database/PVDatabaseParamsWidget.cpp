@@ -16,7 +16,6 @@
 #include <QHash>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QFileDialog>
 
 // Hash table used to have 'human-readable' name of Qt's SQL drivers
 class HashDriversName
@@ -417,7 +416,7 @@ QString PVRush::PVDatabaseParamsWidget::get_existing_format()
 
 void PVRush::PVDatabaseParamsWidget::browse_sqlite_Slot()
 {
-	QString file = QFileDialog::getOpenFileName(this, tr("Choose an SQLite database..."));
+	QString file = _file_dlg.getOpenFileName(this, tr("Choose an SQLite database..."));
 	if (file.isEmpty()) {
 		return;
 	}

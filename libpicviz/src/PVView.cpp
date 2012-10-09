@@ -187,6 +187,16 @@ void Picviz::PVView::add_new_layer()
 	layer_stack.append_new_layer();
 }
 
+void Picviz::PVView::add_new_layer_from_file(const QString& path)
+{
+	// Create a new layer
+	Picviz::PVLayer* layer = layer_stack.append_new_layer();
+
+	// And load it
+	layer->load_from_file(path);
+	layer->compute_min_max(*get_parent<Picviz::PVPlotted>());
+}
+
 void Picviz::PVView::delete_selected_layer()
 {
 	layer_stack.delete_selected_layer();
@@ -195,6 +205,12 @@ void Picviz::PVView::delete_selected_layer()
 void Picviz::PVView::delete_layer_n(int idx)
 {
 	layer_stack.append_new_layer();
+}
+
+void Picviz::PVView::load_from_file(const QString& file)
+{
+	layer_stack.load_from_file(file);
+	layer_stack.compute_min_maxs(*get_parent<Picviz::PVPlotted>());
 }
 
 /******************************************************************************

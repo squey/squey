@@ -7,6 +7,8 @@
 #ifndef PICVIZ_PVINPUTTYPEFILENAME_H
 #define PICVIZ_PVINPUTTYPEFILENAME_H
 
+#include "PVImportFileDialog.h"
+
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVFileDescription.h>
@@ -43,6 +45,11 @@ protected:
 	mutable QStringList _tmp_dir_to_delete;
 	int _limit_nfds;
 	
+private:
+	mutable PVImportFileDialog* _file_dlg;
+
+protected:
+
 	CLASS_REGISTRABLE_NOCOPY(PVInputTypeFilename)
 };
 

@@ -463,12 +463,11 @@ void PVInspector::PVFormatBuilderWidget::slotNewWindow()
  *
  *****************************************************************************/
 QString PVInspector::PVFormatBuilderWidget::slotOpen() {
-    QFileDialog fd;
     //open file chooser
-    QString urlFile = fd.getOpenFileName(0, QString("Select the file."), PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
-	openFormat(urlFile);
+    QString urlFile = _open_dialog.getOpenFileName(0, QString("Select the file."), PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
+	bool valid = openFormat(urlFile);
 
-	return urlFile;
+	return valid ? urlFile : QString();
 }
 
 
@@ -508,9 +507,8 @@ bool PVInspector::PVFormatBuilderWidget::saveAs() {
 
     QModelIndex index;
     myTreeView->applyModification(myParamBord_old_model,index);
-    QFileDialog fd;
      //open file chooser
-    QString urlFile = fd.getSaveFileName(0,QString("Select the file."),PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
+    QString urlFile = _save_dialog.getSaveFileName(0,QString("Select the file."),PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
 	if (!urlFile.isEmpty()) {
 		if (myTreeModel->saveXml(urlFile)) {
 			_cur_file = urlFile;
@@ -937,15 +935,18 @@ void PVInspector::PVFormatBuilderWidget::set_axes_type_selected_row_Slot(int row
 {
 }
 
-void PVInspector::PVFormatBuilderWidget::openFormat(QString const& path)
+bool PVInspector::PVFormatBuilderWidget::openFormat(QString const& path)
 {
     QFile f(path);
     if (f.exists()) {//if the file exists...
         if (myTreeModel->openXml(path)) {
 			_cur_file = path;
 			setWindowTitleForFile(path);
+			return true;
 		}
     }
+
+    return false;
 }
 
 void PVInspector::PVFormatBuilderWidget::openFormat(QDomDocument& doc)

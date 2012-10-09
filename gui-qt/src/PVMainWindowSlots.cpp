@@ -532,13 +532,12 @@ void PVInspector::PVMainWindow::project_new_Slot()
 void PVInspector::PVMainWindow::project_load_Slot()
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	QFileDialog* dlg = new QFileDialog(this, tr("Load a project..."), QString(), PICVIZ_SCENE_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	dlg->setFileMode(QFileDialog::ExistingFile);
-	dlg->setAcceptMode(QFileDialog::AcceptOpen);
-	if (dlg->exec() != QDialog::Accepted) {
+	_load_project_dlg.setFileMode(QFileDialog::ExistingFile);
+	_load_project_dlg.setAcceptMode(QFileDialog::AcceptOpen);
+	if (_load_project_dlg.exec() != QDialog::Accepted) {
 		return;
 	}
-	QString file = dlg->selectedFiles().at(0);
+	QString file = _load_project_dlg.selectedFiles().at(0);
 
 	load_project(file);
 #if 0
@@ -723,11 +722,15 @@ bool PVInspector::PVMainWindow::project_saveas_Slot()
 	if (current_tab && current_tab->get_lib_view()) {
 		PVCore::PVSerializeArchiveOptions_p options(_scene->get_default_serialize_options());
 		PVSaveSceneDialog* dlg = new PVSaveSceneDialog(_scene, options, this);
+		if (!_current_save_project_folder.isEmpty()) {
+			dlg->setDirectory(_current_save_project_folder);
+		}
 		dlg->selectFile(_cur_project_file);
 		if (dlg->exec() == QDialog::Accepted) {
 			QString file = dlg->selectedFiles().at(0);
 			ret = save_project(file, options);
-		}	
+		}
+		_current_save_project_folder = dlg->directory().absolutePath();
 		dlg->deleteLater();
 	}
 #endif

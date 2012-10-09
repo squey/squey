@@ -42,9 +42,12 @@ public:
 	void delete_layer_n(const int idx);
 	void delete_selected_layer();
 	void add_new_layer();
+	void add_new_layer_from_file(const QString& path);
+	void load_from_file(const QString& file);
 
 public:
 	Picviz::PVLayerStack const& lib_layer_stack() const { return *_obs.get_object(); }
+	Picviz::PVLayerStack& lib_layer_stack() { return *_obs.get_object(); }
 
 private slots:
 	void layer_stack_about_to_be_deleted(PVHive::PVObserverBase* o);

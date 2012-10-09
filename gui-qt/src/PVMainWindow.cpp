@@ -73,6 +73,7 @@ QFile *report_file;
  *****************************************************************************/
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QMainWindow(parent),
+	_load_project_dlg(this, tr("Load a project..."), QString(), PICVIZ_SCENE_ARCHIVE_FILTER ";;" ALL_FILES_FILTER),
 	_scene(root, "root")
 {
 	PVLOG_DEBUG("%s: Creating object\n", __FUNCTION__);
@@ -123,12 +124,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	pv_ExportSelectionDialog->hide();
 	pv_FilterWidget = new PVFilterWidget(this);
 	pv_FilterWidget->hide();
-
-	pv_OpenFileDialog = new PVOpenFileDialog(this);
-	pv_OpenFileDialog->hide();
-
-	pv_SaveFileDialog = new PVSaveFileDialog(this);
-	pv_SaveFileDialog->hide();
 
 	pv_WorkspacesTabWidget = new PVWorkspacesTabWidget(this);
 
