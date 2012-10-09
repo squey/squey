@@ -31,6 +31,7 @@ private slots:
 private:
     QLineEdit *m_path;
     QPushButton *m_selectPath;
+    QFileDialog _file_dlg;
 };
 
 class LOGVIEWER_EXPORT FileConnectionDialog : public QDialog
