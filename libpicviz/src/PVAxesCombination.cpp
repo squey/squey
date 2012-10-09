@@ -44,7 +44,8 @@ void Picviz::PVAxesCombination::axis_append(const PVAxis &axis)
 void Picviz::PVAxesCombination::axis_append(PVCol org_axis_id)
 {
 	assert(org_axis_id < original_axes_list.size());
-	columns_indexes_list.push_back(axes_comb_id_t(org_axis_id, 0));
+	columns_indexes_list.push_back(axes_comb_id_t(org_axis_id,
+	                                              get_first_free_child_id(org_axis_id)));
 	axes_list.push_back(original_axes_list.at(org_axis_id));
 	float absciss = 0.0f;
 	if (abscissae_list.size() > 0) {
