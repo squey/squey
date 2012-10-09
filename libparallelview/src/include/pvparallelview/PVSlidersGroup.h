@@ -21,6 +21,7 @@ namespace PVParallelView
 
 class PVSelectionAxisSliders;
 class PVZoomedSelectionAxisSliders;
+class PVZoomAxisSliders;
 
 class PVSlidersGroup : public QObject, public QGraphicsItemGroup
 {
@@ -39,7 +40,11 @@ public:
 	PVSlidersGroup(PVSlidersManager_p sm_p, const axis_id_t &axis_id, QGraphicsItem *parent = nullptr);
 	~PVSlidersGroup();
 
-	void recreate_sliders();
+	void remove_selection_sliders();
+	void remove_zoom_slider();
+
+	void delete_own_selection_sliders();
+	void delete_own_zoom_slider();
 
 	void set_axis_id(const axis_id_t &axis_id)
 	{
@@ -92,6 +97,10 @@ private:
 	                               id_t id, int64_t y_min, int64_t y_max);
 	void add_new_zoomed_selection_sliders(PVZoomedSelectionAxisSliders* sliders,
 	                                      id_t id, int64_t y_min, int64_t y_max);
+
+	void del_zoom_sliders(id_t id);
+	void del_selection_sliders(id_t id);
+	void del_zoomed_selection_sliders(id_t id);
 
 private:
 	class zoom_sliders_new_obs :
@@ -179,8 +188,9 @@ private:
 	};
 
 private:
-	typedef std::unordered_map<id_t, PVAbstractAxisSliders*>      aas_set_t;
-	typedef std::unordered_map<id_t, PVAbstractRangeAxisSliders*> aras_set_t;
+	typedef std::unordered_map<id_t, PVSelectionAxisSliders*>       sas_set_t;
+	typedef std::unordered_map<id_t, PVZoomedSelectionAxisSliders*> zsas_set_t;
+	typedef std::unordered_map<id_t, PVZoomAxisSliders*>            zas_set_t;
 
 private:
 	PVSlidersManager_p               _sliders_manager_p;
@@ -193,8 +203,9 @@ private:
 	axis_id_t                        _axis_id;
 	float                            _axis_scale;
 
-	aas_set_t                        _all_sliders;
-	aras_set_t                       _selection_sliders;
+	sas_set_t                        _selection_sliders;
+	zsas_set_t                       _zoomed_selection_sliders;
+	zas_set_t                        _zoom_sliders;
 };
 
 }

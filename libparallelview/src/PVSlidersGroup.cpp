@@ -76,22 +76,96 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
 	                                             _zssd_obs);
 }
 
+/*****************************************************************************
+ * PVParallelView::PVSlidersGroup::~PVSlidersGroup
+ *****************************************************************************/
+
 PVParallelView::PVSlidersGroup::~PVSlidersGroup()
 {
-	for (const auto &it : _all_sliders) {
-		delete it.second;
+	remove_selection_sliders();
+	remove_zoom_slider();
+
+	if (scene()) {
+		scene()->removeItem(this);
+	}
+
+	if (group()) {
+		group()->removeFromGroup(this);
 	}
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersGroup::recreate_sliders
+ * PVParallelView::PVSlidersGroup::remove_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::recreate_sliders()
+void PVParallelView::PVSlidersGroup::remove_selection_sliders()
 {
-	/* FIXME: all child must be removed and recreated by iterating on
-	 * all sliders types.
-	 */
+	sas_set_t sasliders = _selection_sliders;
+
+	for (const auto &it : sasliders) {
+		del_selection_sliders(it.first);
+	}
+
+	zsas_set_t zssliders = _zoomed_selection_sliders;
+
+	for (const auto &it : zssliders) {
+		del_zoomed_selection_sliders(it.first);
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSlidersGroup::remove_zoom_slider
+ *****************************************************************************/
+
+void PVParallelView::PVSlidersGroup::remove_zoom_slider()
+{
+	zas_set_t zasliders = _zoom_sliders;
+
+	for (const auto &it : zasliders) {
+		if (it.first == (id_t)this) {
+			del_zoom_sliders(it.first);
+		}
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSlidersGroup::delete_own_selection_sliders
+ *****************************************************************************/
+
+void PVParallelView::PVSlidersGroup::delete_own_selection_sliders()
+{
+	sas_set_t ssliders = _selection_sliders;
+
+	for (const auto &it : ssliders) {
+		if (it.first != it.second) {
+			continue;
+		}
+		PVHive::call<FUNC(PVSlidersManager::del_selection_sliders)>(_sliders_manager_p,
+		                                                            get_axis_id(),
+		                                                            it.first);
+	}
+
+	zsas_set_t zssliders = _zoomed_selection_sliders;
+
+	for (const auto &it : zssliders) {
+		if (it.first != it.second) {
+			continue;
+		}
+		PVHive::call<FUNC(PVSlidersManager::del_zoomed_selection_sliders)>(_sliders_manager_p,
+		                                                                   get_axis_id(),
+		                                                                   it.first);
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSlidersGroup::delete_own_zoom_slider
+ *****************************************************************************/
+
+
+void PVParallelView::PVSlidersGroup::delete_own_zoom_slider()
+{
+	PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
+	                                                       get_axis_id(), this);
 }
 
 /*****************************************************************************
@@ -102,9 +176,37 @@ void PVParallelView::PVSlidersGroup::set_axis_scale(float s)
 {
 	_axis_scale = s;
 
-	for(const auto &it : _all_sliders) {
+	for(auto &it : _selection_sliders) {
 		it.second->refresh();
 	}
+
+	for(auto &it : _zoomed_selection_sliders) {
+		it.second->refresh();
+	}
+
+	for(auto &it : _zoom_sliders) {
+		it.second->refresh();
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSlidersGroup::get_selection_ranges
+ *****************************************************************************/
+
+PVParallelView::PVSlidersGroup::selection_ranges_t
+PVParallelView::PVSlidersGroup::get_selection_ranges() const
+{
+	selection_ranges_t ranges;
+
+	for (const auto it : _selection_sliders) {
+		ranges.push_back(it.second->get_range());
+	}
+
+	for (const auto it : _zoomed_selection_sliders) {
+		ranges.push_back(it.second->get_range());
+	}
+
+	return ranges;
 }
 
 /*****************************************************************************
@@ -164,19 +266,59 @@ PVParallelView::PVSlidersGroup::add_zoomed_selection_sliders(int64_t y_min,
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersGroup::get_selection_ranges
+ * PVParallelView::PVSlidersGroup::del_zoom_sliders
  *****************************************************************************/
 
-PVParallelView::PVSlidersGroup::selection_ranges_t
-PVParallelView::PVSlidersGroup::get_selection_ranges() const
+void PVParallelView::PVSlidersGroup::del_zoom_sliders(id_t id)
 {
-	selection_ranges_t ranges;
+	zas_set_t::const_iterator it = _zoom_sliders.find(id);
 
-	for (aras_set_t::const_iterator it = _selection_sliders.begin(); it != _selection_sliders.end(); ++it) {
-		ranges.push_back(it->second->get_range());
+	if (it != _zoom_sliders.end()) {
+		if (scene()) {
+			scene()->removeItem(it->second);
+		}
+		removeFromGroup(it->second);
+		delete it->second;
+		_zoom_sliders.erase(it);
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSlidersGroup::del_selection_sliders
+ *****************************************************************************/
+
+void PVParallelView::PVSlidersGroup::del_selection_sliders(id_t id)
+{
+
+	sas_set_t::const_iterator it = _selection_sliders.find(id);
+
+	if (it != _selection_sliders.end()) {
+		if (scene()) {
+			scene()->removeItem(it->second);
+		}
+		removeFromGroup(it->second);
+		delete it->second;
+		_selection_sliders.erase(it);
 	}
 
-	return ranges;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSlidersGroup::del_zoomed_selection_sliders
+ *****************************************************************************/
+
+void PVParallelView::PVSlidersGroup::del_zoomed_selection_sliders(id_t id)
+{
+	zsas_set_t::const_iterator it = _zoomed_selection_sliders.find(id);
+
+	if (it != _zoomed_selection_sliders.end()) {
+		if (scene()) {
+			scene()->removeItem(it->second);
+		}
+		removeFromGroup(it->second);
+		delete it->second;
+		_zoomed_selection_sliders.erase(it);
+	}
 }
 
 /*****************************************************************************
@@ -185,7 +327,17 @@ PVParallelView::PVSlidersGroup::get_selection_ranges() const
 
 bool PVParallelView::PVSlidersGroup::sliders_moving() const
 {
-	for (const auto &it : _all_sliders) {
+	for (const auto &it : _selection_sliders) {
+		if (it.second->is_moving()) {
+			return true;
+		}
+	}
+	for (const auto &it : _zoomed_selection_sliders) {
+		if (it.second->is_moving()) {
+			return true;
+		}
+	}
+	for (const auto &it : _zoom_sliders) {
 		if (it.second->is_moving()) {
 			return true;
 		}
@@ -215,7 +367,7 @@ void PVParallelView::PVSlidersGroup::add_new_zoom_sliders(id_t id,
 
 	sliders->setPos(0, 0);
 
-	_all_sliders[id] = sliders;
+	_zoom_sliders[id] = sliders;
 }
 
 /*****************************************************************************
@@ -244,7 +396,6 @@ void PVParallelView::PVSlidersGroup::add_new_selection_sliders(PVParallelView::P
 
 	connect(sliders, SIGNAL(sliders_moved()), this, SLOT(selection_slider_moved()));
 
-	_all_sliders[id] = sliders;
 	_selection_sliders[id] = sliders;
 }
 
@@ -274,8 +425,7 @@ void PVParallelView::PVSlidersGroup::add_new_zoomed_selection_sliders(PVParallel
 
 	connect(sliders, SIGNAL(sliders_moved()), this, SLOT(selection_slider_moved()));
 
-	_all_sliders[id] = sliders;
-	_selection_sliders[id] = sliders;
+	_zoomed_selection_sliders[id] = sliders;
 }
 
 /*****************************************************************************
@@ -308,7 +458,7 @@ void PVParallelView::PVSlidersGroup::selection_sliders_new_obs::update(arguments
 	if (axis_id == _parent->get_axis_id()) {
 		PVSlidersManager::id_t id = std::get<1>(args);
 
-		if (_parent->_all_sliders.find(id) == _parent->_all_sliders.end()) {
+		if (_parent->_selection_sliders.find(id) == _parent->_selection_sliders.end()) {
 			int64_t y_min = std::get<2>(args);
 			int64_t y_max = std::get<3>(args);
 			_parent->add_new_selection_sliders(nullptr, id,
@@ -328,7 +478,7 @@ void PVParallelView::PVSlidersGroup::zoomed_selection_sliders_new_obs::update(ar
 	if (axis_id == _parent->get_axis_id()) {
 		PVSlidersManager::id_t id = std::get<1>(args);
 
-		if (_parent->_all_sliders.find(id) == _parent->_all_sliders.end()) {
+		if (_parent->_zoomed_selection_sliders.find(id) == _parent->_zoomed_selection_sliders.end()) {
 			int64_t y_min = std::get<2>(args);
 			int64_t y_max = std::get<3>(args);
 			_parent->add_new_zoomed_selection_sliders(nullptr, id,
@@ -346,15 +496,7 @@ void PVParallelView::PVSlidersGroup::zoom_sliders_del_obs::update(arguments_deep
 	const axis_id_t &axis_id = std::get<0>(args);
 
 	if (axis_id == _parent->get_axis_id()) {
-		PVSlidersManager::id_t id = std::get<1>(args);
-
-		aas_set_t::const_iterator it = _parent->_all_sliders.find(id);
-		if (it != _parent->_all_sliders.end()) {
-			_parent->scene()->removeItem(it->second);
-			_parent->removeFromGroup(it->second);
-			delete it->second;
-			_parent->_all_sliders.erase(it);
-		}
+		_parent->del_zoom_sliders(std::get<1>(args));
 	}
 }
 
@@ -367,16 +509,7 @@ void PVParallelView::PVSlidersGroup::selection_sliders_del_obs::update(arguments
 	const axis_id_t &axis_id = std::get<0>(args);
 
 	if (axis_id == _parent->get_axis_id()) {
-		PVSlidersManager::id_t id = std::get<1>(args);
-
-		aas_set_t::const_iterator it = _parent->_all_sliders.find(id);
-		if (it != _parent->_all_sliders.end()) {
-			_parent->scene()->removeItem(it->second);
-			_parent->removeFromGroup(it->second);
-			delete it->second;
-			_parent->_all_sliders.erase(it);
-			_parent->_selection_sliders.erase((PVAbstractRangeAxisSliders*)id);
-		}
+		_parent->del_selection_sliders(std::get<1>(args));
 	}
 }
 
@@ -389,15 +522,6 @@ void PVParallelView::PVSlidersGroup::zoomed_selection_sliders_del_obs::update(ar
 	const axis_id_t &axis_id = std::get<0>(args);
 
 	if (axis_id == _parent->get_axis_id()) {
-		PVSlidersManager::id_t id = std::get<1>(args);
-
-		aas_set_t::const_iterator it = _parent->_all_sliders.find(id);
-		if (it != _parent->_all_sliders.end()) {
-			_parent->scene()->removeItem(it->second);
-			_parent->removeFromGroup(it->second);
-			delete it->second;
-			_parent->_all_sliders.erase(it);
-			_parent->_selection_sliders.erase((PVAbstractRangeAxisSliders*)id);
-		}
+		_parent->del_zoomed_selection_sliders(std::get<1>(args));
 	}
 }
