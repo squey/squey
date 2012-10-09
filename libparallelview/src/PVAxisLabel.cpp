@@ -12,6 +12,31 @@
 #include <iostream>
 
 /*****************************************************************************
+ * PVParallelView::PVAxisLabel::PVAxisLabel
+ *****************************************************************************/
+
+PVParallelView::PVAxisLabel::PVAxisLabel(const Picviz::PVView &view,
+                                         PVSlidersGroup *sg,
+                                         QGraphicsItem *parent) :
+	QGraphicsSimpleTextItem(parent), _lib_view(view), _sliders_group(sg)
+{
+}
+
+/*****************************************************************************
+ * PVParallelView::PVAxisLabel::~PVAxisLabel
+ *****************************************************************************/
+
+PVParallelView::PVAxisLabel::~PVAxisLabel()
+{
+	if (scene()) {
+		scene()->removeItem(this);
+	}
+	if (group()) {
+		group()->removeFromGroup(this);
+	}
+}
+
+/*****************************************************************************
  * PVParallelView::PVAxisLabel::contextMenuEvent
  *****************************************************************************/
 
