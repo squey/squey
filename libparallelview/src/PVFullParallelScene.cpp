@@ -730,6 +730,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 			// removeItem will remove this object from the list of children
 			// of the scene, and gives us the ownship of the object. Thus,
 			// we are free to delete it afterwards.
+			_axes[i]->get_sliders_group()->delete_own_selection_sliders();
 			removeItem(_axes[i]);
 			delete _axes[i];
 		} else {
