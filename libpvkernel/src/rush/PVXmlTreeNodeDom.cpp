@@ -756,7 +756,9 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	}
 	else
 	if (plugin_name == "url") {
-		force_nchild = 6;
+		// TODO: that's a real issue here.
+		// For the URL splitter, you also need to change that number !!
+		force_nchild = 10;
 	}
 
 
