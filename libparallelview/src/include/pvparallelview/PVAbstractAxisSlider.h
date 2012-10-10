@@ -87,6 +87,7 @@ protected:
 	int64_t                 _offset_min;
 	int64_t                 _offset_max;
 	int64_t                 _offset;
+	double                  _move_offset;
 	PVAxisSliderOrientation _orientation;
 	bool                    _moving;
 	bool                    _is_hover;

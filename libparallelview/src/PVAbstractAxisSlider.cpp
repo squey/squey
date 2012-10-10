@@ -93,7 +93,9 @@ void PVParallelView::PVAbstractAxisSlider::hoverLeaveEvent(QGraphicsSceneHoverEv
 void PVParallelView::PVAbstractAxisSlider::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
+		_move_offset = pos().y() - event->scenePos().y();
 		_moving = true;
+
 		event->accept();
 	}
 }
@@ -118,7 +120,7 @@ void PVParallelView::PVAbstractAxisSlider::mouseReleaseEvent(QGraphicsSceneMouse
 void PVParallelView::PVAbstractAxisSlider::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (event->buttons() == Qt::LeftButton) {
-		double sy = ((double)precision * event->scenePos().y()) / _owner->get_sliders_group()->get_axis_scale();
+		double sy = ((double)precision * (event->scenePos().y() + _move_offset)) / _owner->get_sliders_group()->get_axis_scale();
 		set_value(sy);
 
 		group()->update();
