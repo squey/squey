@@ -27,11 +27,9 @@ Q_OBJECT
 
 public:
 	PVAxisLabel(const Picviz::PVView &view, PVSlidersGroup *sg,
-	            QGraphicsItem *parent = nullptr) :
-		QGraphicsSimpleTextItem(parent),
-		_lib_view(view),
-		_sliders_group(sg)
-	{}
+	            QGraphicsItem *parent = nullptr);
+
+	virtual ~PVAxisLabel();
 
 	void set_text(const QString &text)
 	{

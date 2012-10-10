@@ -48,6 +48,9 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 
 PVParallelView::PVAxisGraphicsItem::~PVAxisGraphicsItem()
 {
+	if (scene()) {
+		scene()->removeItem(this);
+	}
 }
 
 /*****************************************************************************

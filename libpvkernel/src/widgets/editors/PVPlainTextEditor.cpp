@@ -9,7 +9,6 @@
 
 #include <QPushButton>
 #include <QHBoxLayout>
-#include <QFileDialog>
 #include <QMessageBox>
 
 #include <pvkernel/core/PVChunk.h>
@@ -46,7 +45,7 @@ PVWidgets::PVPlainTextEditor::PVPlainTextEditor(QWidget *parent):
 
 void PVWidgets::PVPlainTextEditor::slot_import_file()
 {
-	QString file = QFileDialog::getOpenFileName(this, tr("Select a text file..."));
+	QString file = _file_dlg.getOpenFileName(this, tr("Select a text file..."));
 	if (file.isEmpty()) {
 		return;
 	}

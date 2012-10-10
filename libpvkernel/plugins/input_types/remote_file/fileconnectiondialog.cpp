@@ -16,7 +16,6 @@
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QFileDialog>
 #include <QCheckBox>
 #include <QFormLayout>
 
@@ -55,7 +54,7 @@ void FileNameSelectorWidget::setText(const QString&text)
 
 void FileNameSelectorWidget::slotPathChanged()
 {
-    const QString fileName = QFileDialog::getOpenFileName(this, tr("SSH key file") );
+    const QString fileName = _file_dlg.getOpenFileName(this, tr("SSH key file") );
     if ( !fileName.isEmpty() )
         m_path->setText( fileName );
 

@@ -130,7 +130,10 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 
 PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 {
-	delete _selection_rect;
+	if (_selection_rect) {
+		delete _selection_rect;
+		_selection_rect = nullptr;
+	}
 
 	_updated_selection_count = 0;
 	_rendering_job->deleteLater();
@@ -138,6 +141,12 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 	_zones_drawing.remove_render_group(_render_group);
 
 	common::get_lib_view(_pvview)->remove_zoomed_view(this);
+
+	if (_sliders_group) {
+		_sliders_group->delete_own_zoom_slider();
+		delete _sliders_group;
+		_sliders_group = nullptr;
+	}
 
 	if (_pending_deletion == false) {
 		_pending_deletion = true;
@@ -340,8 +349,14 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
 		 * same index is used instead
 		 */
 		_axis_id = _pvview.get_axes_combination().get_axes_comb_id(_axis_index);
-		_sliders_group->set_axis_id(_axis_id);
-		_sliders_group->recreate_sliders();
+
+		// it's more simple to delete and recreate the sliders group
+		_sliders_group->delete_own_zoom_slider();
+		delete _sliders_group;
+
+		_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _axis_id);
+		_sliders_group->setPos(0., 0.);
+		_sliders_group->add_zoom_sliders(0, 1024);
 	} else {
 		/* the axes has only been moved, nothing special to do.
 		 */

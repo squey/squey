@@ -11,6 +11,7 @@
 #include "connectionsettings.h"
 
 #include <QDialog>
+#include <QFileDialog>
 
 class QLineEdit;
 class QPushButton;
@@ -30,6 +31,7 @@ private slots:
 private:
     QLineEdit *m_path;
     QPushButton *m_selectPath;
+    QFileDialog _file_dlg;
 };
 
 class LOGVIEWER_EXPORT FileConnectionDialog : public QDialog

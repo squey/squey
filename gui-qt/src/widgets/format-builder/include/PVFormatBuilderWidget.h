@@ -62,7 +62,7 @@ private:
 	bool somethingChanged(void);
 
 public:
-	void openFormat(QString const& path);
+	bool openFormat(QString const& path);
 	void openFormat(QDomDocument& doc);
 	PVRush::types_groups_t& getGroups() { return myTreeModel->getGroups(); }
 
@@ -83,6 +83,8 @@ private:
     QFile logFile;///!< file we open to edit the format
     int lastSplitterPluginAdding;
     
+    static QFileDialog _open_dialog;
+    static QFileDialog _save_dialog;
     
     void actionAllocation();
     
