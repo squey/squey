@@ -12,7 +12,6 @@
 #include <pvguiqt/PVListDisplayDlg.h>
 
 #include <QClipboard>
-#include <QFileDialog>
 #include <QMessageBox>
 
 // PVlistColNrawDlg
@@ -98,7 +97,7 @@ void PVGuiQt::PVListDisplayDlg::copy_to_clipboard()
 
 void PVGuiQt::PVListDisplayDlg::copy_to_file()
 {
-	QString path = QFileDialog::getSaveFileName(this, tr("Save to file..."));
+	QString path = _file_dlg.getSaveFileName(this, tr("Save to file..."));
 	if (path.isEmpty()) {
 		return;
 	}
