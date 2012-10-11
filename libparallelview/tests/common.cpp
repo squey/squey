@@ -23,6 +23,21 @@ static void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows
 	}
 }
 
+static void init_qt_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
+{
+	p.clear();
+	const PVRow nrows_aligned = ((nrows+3)/4)*4;
+	p.resize(nrows_aligned*ncols);
+	for (PVCol j = 0; j < (ncols/2)*2; j += 2) {
+		for (PVRow i = 0; i < nrows; i++) {
+			p[j*nrows_aligned+i] = 1<<22;
+		}
+		for (PVRow i = 0; i < nrows; i++) {
+			p[(j+1)*nrows_aligned+i] = (i&1023)*(1<<22)+4;
+		}
+	}
+}
+
 void usage(const char* path)
 {
 	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl;
@@ -37,7 +52,7 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 
 	Picviz::PVPlotted::uint_plotted_table_t &norm_plotted = g_norm_plotted;
 	QString fplotted(argv[1]);
-	if (fplotted == "0") {
+	if ((fplotted == "0") || (fplotted == "1")) {
 		if (argc < 4) {
 			usage(argv[0]);
 			return NULL;
@@ -52,9 +67,13 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 
 		ncols = atol(argv[3]);
 
-		Picviz::PVPlotted::plotted_table_t plotted;
-		init_rand_plotted(plotted, nrows, ncols);
-		Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
+		if (fplotted == "0") {
+			Picviz::PVPlotted::plotted_table_t plotted;
+			init_rand_plotted(plotted, nrows, ncols);
+			Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
+		} else {
+			init_qt_plotted(norm_plotted, nrows, ncols);
+		}
 	}
 	else
 	{
