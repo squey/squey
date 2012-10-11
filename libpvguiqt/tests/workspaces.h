@@ -19,12 +19,16 @@
 #include <QDateTime>
 #include <iostream>
 
+class CustomMainWindow;
+
 class CustomDockWidget : public QDockWidget
 {
 	Q_OBJECT
 
 public:
 	CustomDockWidget(QWidget* parent = 0) : QDockWidget(parent) {}
+
+	CustomMainWindow* workspace_under_mouse();
 
 protected:
 	bool event(QEvent* event);
@@ -40,28 +44,22 @@ class CustomMainWindow : public QMainWindow
 
 public:
 
-	CustomMainWindow();
+	CustomMainWindow(QWidget* parent = 0);
 
 public:
 	void CreateDockWidgets();
 
 public slots:
 	void dragStarted(bool started);
+	void dragEnded();
+	void changeEvent(QEvent *event);
 
-protected:
-	bool event(QEvent* event) override
-	{
-		//std::cout << QDateTime::currentDateTime().toMSecsSinceEpoch() << "QMainWindow receive event type: " << event->type() << std::endl;
-		return QMainWindow::event(event);
-	}
-};
+public:
+	int z_order() { return zOrderIndex; }
 
-class MyEventFilter: public QObject
-{
-	Q_OBJECT
-
-protected:
-	bool eventFilter(QObject *obj, QEvent *ev) override;
+private:
+	int zOrderIndex;
+	static unsigned int zOrderCounter;
 };
 
 
