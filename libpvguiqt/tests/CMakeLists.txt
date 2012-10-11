@@ -42,10 +42,19 @@ target_link_libraries(Tqt_huge-model ${COMMON_LIBRARIES})
 add_executable(Tqt_css css.cpp)
 target_link_libraries(Tqt_css ${COMMON_LIBRARIES})
 
+
+# Workspaces
 if (CUDA_FOUND)
-	# Workspaces
+	qt4_wrap_cpp(WORKSPACES_MOC_SRC workspaces.h OPTIONS ${QT4_WRAP_OPTIONS})
 	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES} /opt/cuda/lib64/libnpp.so)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
-	add_executable(Tqt_workspaces workspaces.cpp common.cpp)
-	target_link_libraries(Tqt_workspaces ${COMMON_LIBRARIES} ${CUDA_LIBRARIES} ${LINK_LIBRARIES})
+	add_executable(Tqt_workspaces workspaces.cpp common.cpp ${WORKSPACES_MOC_SRC})
+	target_link_libraries(Tqt_workspaces ${MOC_SRC} ${MOC_HEADERS} ${COMMON_LIBRARIES} ${CUDA_LIBRARIES} ${LINK_LIBRARIES} )
 endif(CUDA_FOUND)
+
+
+
+
+# Desktop geometry
+add_executable(Tqt_desktop_geometry desktop_geometry.cpp)
+target_link_libraries(Tqt_desktop_geometry ${COMMON_LIBRARIES})
