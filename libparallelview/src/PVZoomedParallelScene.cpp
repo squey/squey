@@ -487,7 +487,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	double pixel_height = (1UL << (32 - NBITS_INDEX)) / get_scale_factor();
 
 	// the screen's upper limit in plotted coordinates system
-	uint64_t y_min = view_rect.top() * (UINT32_MAX >> NBITS_INDEX);
+	uint64_t y_min = view_rect.top() * PVAbstractAxisSlider::precision;
 	// the backend_image's lower limit in plotted coordinates system
 	uint64_t y_lim = PVCore::clamp<uint64_t>(y_min + (1 << bbits) * alpha * pixel_height,
 	                                         0ULL, 1ULL << 32);
