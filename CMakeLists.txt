@@ -3,12 +3,12 @@ cmake_minimum_required(VERSION 2.8)
 project(picviz-inspector)
 
 include(CMakeOptions.txt)
+include(CMakeMacros.txt)
 
 if(USE_PVGL2)
   add_definitions(-DUSE_PVGL2)
 endif(USE_PVGL2)
 
-set(PICVIZ_SINGLE_TREE_BUILD true)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 include(CTest)
@@ -134,19 +134,18 @@ include_directories(AFTER "${picviz-inspector_SOURCE_DIR}/include")
 # END: ADD INCLUDE DIRS NEEDED EVERYWHERE #
 ###########################################
 
-
 add_subdirectory(scripts)
-add_subdirectory(libpvkernel)
+declare_internal_library(pvkernel)
 
 # Helpers means various stuff we can use
 # such as binaries or libraries, that depends
 # on PVKernel
 add_subdirectory(helpers)
 
-add_subdirectory(libpicviz)
-add_subdirectory(libpvhive)
-add_subdirectory(libparallelview)
-add_subdirectory(libpvguiqt)
+declare_internal_library(picviz)
+declare_internal_library(pvhive)
+declare_internal_library(pvparallelview)
+declare_internal_library(pvguiqt)
 
 add_subdirectory(gui-qt)
 

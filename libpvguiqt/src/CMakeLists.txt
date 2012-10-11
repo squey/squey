@@ -3,8 +3,6 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-include_directories(${QT_QTOPENGL_INCLUDE_DIR})
-
 set(LIBGUIQT_SRC_FILES
 PVAxesCombinationDialog.cpp
 PVAxesCombinationModel.cpp
@@ -90,8 +88,7 @@ add_library(pvguiqt SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-MESSAGE(INFO  ${PVPARALLELVIEW_LIBRARIES})
-set(PVGUIQT_LINK_LIBRARIES ${PVPARALLELVIEW_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES} ${PVHIVE_LIBRARIES} ${OpenMP_LIBRARIES})
+set(PVGUIQT_LINK_LIBRARIES pvparallelview pvhive picviz pvkernel ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 

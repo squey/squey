@@ -3,12 +3,16 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+project(libpicviz)
+
+include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
+include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
+include_directories(AFTER ${ICU_INCLUDE})
+include_directories(AFTER ${TULIP_INCLUDE_DIR})
+
 ##########################################
 # BEGIN: SET VARIOUS PLUGINS DIRECTORIES #
 ##########################################
-include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
-include_directories(AFTER ${ICU_INCLUDE})
-
 # Set PICVIZ_FUNCTIONS_DIR
 if(WIN32)
         set(PICVIZ_FUNCTIONS_DIR "functions")

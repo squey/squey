@@ -4,7 +4,7 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-INSPECTOR_SOURCE_ROOT_DIR=.
+INSPECTOR_SOURCE_ROOT_DIR=build
 ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 
 # AG: we don't need this anymore, because
@@ -15,8 +15,7 @@ ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 #LANG=C
 #export LC_ALL=C
 
-PVKERNEL_PATH=$ISRC/libpvkernel
-PVGL_DIR=$ISRC/libpvgl
+PVKERNEL_PATH=$ISRD/libpvkernel
 PICVIZ_PATH=$ISRD/libpicviz
 
 #export PICVIZ_LOG_FILE="log.txt"
@@ -31,12 +30,12 @@ export PICVIZ_ROW_FILTERS_DIR=$PICVIZ_PATH/plugins/row-filters/
 
 export PVRUSH_NORMALIZE_HELPERS_DIR="libpvkernel/plugins/normalize-helpers;~/.pvrush-formats-extra"
 
-export PVRUSH_INPUTTYPE_DIR=libpvkernel/plugins/input_types
-export PVRUSH_SOURCE_DIR=libpvkernel/plugins/sources
+export PVRUSH_INPUTTYPE_DIR=$PVKERNEL_PATH/plugins/input_types
+export PVRUSH_SOURCE_DIR=$PVKERNEL_PATH/plugins/sources
 
-export PVFILTER_NORMALIZE_DIR=libpvkernel/plugins/normalize
+export PVFILTER_NORMALIZE_DIR=$PVKERNEL_PATH/plugins/normalize
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PVKERNEL_PATH/src/:$PICVIZ_PATH/src/:$PVGL_PATH/src
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PVKERNEL_PATH/src/:$PICVIZ_PATH/src/
 
 VALGRIND_ALLOC_FNS="--alloc-fn=scalable_aligned_malloc --alloc-fn=scalable_malloc --alloc-fn=scalable_posix_memalign"
 
@@ -52,21 +51,21 @@ fi
 export PICVIZ_DEBUG_LEVEL="DEBUG"
 #export PICVIZ_DEBUG_FILE="debug.txt"
 	unset CMD_ARGS[0]
-	gdb -ex run --args gui-qt/src/picviz-inspector $LOAD_PROJECT ${CMD_ARGS[@]}
+	gdb -ex run --args $ISRD/gui-qt/src/picviz-inspector $LOAD_PROJECT ${CMD_ARGS[@]}
 	exit 0
 fi
 if [ "$1" == "ddd" ]
 then
 export PICVIZ_DEBUG_LEVEL="DEBUG"
 #export PICVIZ_DEBUG_FILE="debug.txt"
-	ddd gui-qt/src/picviz-inspector
+	ddd $ISRD/gui-qt/src/picviz-inspector
 	exit 0
 fi
 if [ "$1" == "nem" ]
 then
 #export PICVIZ_DEBUG_LEVEL="DEBUG"
 #export PICVIZ_DEBUG_FILE="debug.txt"
-	nemiver gui-qt/src/picviz-inspector
+	nemiver $ISRD/gui-qt/src/picviz-inspector
 	exit 0
 fi
 if [ "$1" == "debug-nogl" ]
@@ -74,7 +73,7 @@ then
 export PICVIZ_DEBUG_LEVEL="DEBUG"
 #export PICVIZ_DEBUG_FILE="debug.txt"
 	unset ARGS[0]
-	gdb --args gui-qt/src/picviz-inspector ${ARGS[@]} |egrep -v "PVGL"
+	gdb --args $ISRD/gui-qt/src/picviz-inspector ${ARGS[@]} |egrep -v "PVGL"
 #-e ".*PVGL.*" --invert-match
 	exit 0
 fi
@@ -84,19 +83,19 @@ then
 export PICVIZ_DEBUG_LEVEL="NOTICE"
 #export PICVIZ_DEBUG_FILE="debug.txt"
 	unset ARGS[0]
-	gdb --args gui-qt/src/picviz-inspector ${ARGS[@]}
+	gdb --args $ISRD/gui-qt/src/picviz-inspector ${ARGS[@]}
 	exit 0
 fi
 
 if [ "$1" == "valgrind" ]
 then
-	valgrind --log-file=./valgrind.out --leak-check=full --track-origins=yes --show-reachable=yes gui-qt/src/picviz-inspector
+	valgrind --log-file=./valgrind.out --leak-check=full --track-origins=yes --show-reachable=yes $ISRD/gui-qt/src/picviz-inspector
 	exit 0
 fi
 
 if [ "$1" == "massif" ]
 then
-	valgrind $VALGRIND_ALLOC_FNS --depth=60 --tool=massif --heap=yes --detailed-freq=1 --threshold=0.1 gui-qt/src/picviz-inspector
+	valgrind $VALGRIND_ALLOC_FNS --depth=60 --tool=massif --heap=yes --detailed-freq=1 --threshold=0.1 $ISRD/gui-qt/src/picviz-inspector
 	exit 0
 fi
 
@@ -104,7 +103,7 @@ if [ "$1" == "callgrind" ]
 then
 export PICVIZ_DEBUG_LEVEL="NOTICE"
 	#valgrind --tool=callgrind --instr-atstart=no gui-qt/src/picviz-inspector
-	valgrind --tool=callgrind gui-qt/src/picviz-inspector
+	valgrind --tool=callgrind $ISRD/gui-qt/src/picviz-inspector
 	exit 0
 fi
 
@@ -137,4 +136,4 @@ then
 	exit 0
 fi
 	
-catchsegv gui-qt/src/picviz-inspector $LOAD_PROJECT $@
+catchsegv $ISRD/gui-qt/src/picviz-inspector $LOAD_PROJECT $@

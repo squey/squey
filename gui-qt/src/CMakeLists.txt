@@ -3,29 +3,7 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-# include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
-
-# if(USE_PVGL2)
-#   include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpvgl2/src/include)
-# else(USE_PVGL2)
-#   include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpvgl/src/include)
-# endif(USE_PVGL2)
-
-include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/include)
-include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/)
-include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/format-builder/include)
-include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/remote-log/include)
-include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/editors/include)
-include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/helpers/include)
-
-# include_directories(AFTER ${GLEW_INCLUDE_PATH})
-# include_directories(AFTER ${OPENGL_INCLUDE_DIR})
-#include_directories(AFTER ${CURL_INCLUDE_DIR})
 include_directories(AFTER ${ICU_INCLUDE})
-
-# PICVIZ
-add_definitions(${PICVIZ_DEFINES})
-# include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 
 set(QT_USE_QTNETWORK TRUE)
 set(QT_USE_QTOPENGL TRUE)
@@ -33,18 +11,12 @@ set(QT_USE_QTWEBKIT TRUE)
 set(QT_USE_QTXML TRUE)
 include(${QT_USE_FILE})
 
-
 if(WIN32)
     link_libraries(${QT_QTMAIN_LIBRARY})
 	set(WIN32_EXTRA_LIBS "ws2_32.lib")
 endif(WIN32)
 
-include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
-add_definitions(${PICVIZ_FLAGS})
-
 set(INSPECTOR_ICON "resources////inspector.ico")
-include_directories(AFTER ${PVGL_INCLUDE_DIRS})
-add_definitions(${PVGL_FLAGS})
 
 #include_directories(AFTER ${GLUT_INCLUDE_DIR})
 SET(MOC_HEADERS
@@ -218,7 +190,7 @@ if(SET_PROTECT)
 endif()
 
 set_property(TARGET picviz-inspector APPEND PROPERTY LINK_FLAGS ${GALVEZ_LDFLAGS})
-target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES} ${PVGUIQT_LIBRARY} ${PVHIVE_LIBRARY} ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY} ${GALVEZ_LIBS} ${OpenMP_LIBRARIES})
+target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES} pvguiqt pvparallelview pvhive picviz pvkernel ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY} ${GALVEZ_LIBS} ${OpenMP_LIBRARIES})
 
 INSTALL(TARGETS picviz-inspector DESTINATION .)
 

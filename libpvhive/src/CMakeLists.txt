@@ -14,6 +14,7 @@ PVFuncObserver.cpp
 )
 
 file(GLOB_RECURSE PVHIVE_WAXES_FILES waxes *.cpp)
+message(STATUS "Waxes: " ${PVHIVE_WAXES_FILES})
 
 SET(PVHIVE_MOC_HEADERS
 include/pvhive/PVRefreshSignal.h
@@ -41,7 +42,7 @@ add_library(pvhive SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS}
 
 set_target_properties(pvhive PROPERTIES SOVERSION 1)
 
-set(PVHIVE_LINK_LIBRARIES ${QT_LIBRARIES} ${TBB_LIBRARIES})
+set(PVHIVE_LINK_LIBRARIES ${QT_LIBRARIES} ${TBB_LIBRARIES} picviz pvkernel)
 
 target_link_libraries(pvhive ${PVHIVE_LINK_LIBRARIES})
 

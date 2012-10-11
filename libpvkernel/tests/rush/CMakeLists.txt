@@ -3,13 +3,7 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-include_directories(AFTER ${QT_QTCORE_INCLUDE_DIR})
-include_directories(AFTER ${QT_INCLUDE_DIR})
-if(PYTHONLIBS_FOUND)
-	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
-endif(PYTHONLIBS_FOUND)
-
-set(LINK_LIBRARIES ${PVKERNEL_LIBRARY} ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY})
+set(LINK_LIBRARIES pvkernel ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY})
 
 #add_definitions(-DPV_USE_RINGBUFFER)
 

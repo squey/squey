@@ -6,12 +6,9 @@
 #
 # Layer filters
 #
-include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 
 # PCAP
 include_directories(AFTER ${PCAP_INCLUDE_DIRS})
-
-link_directories(${picviz-inspector_SOURCE_DIR}/libpicviz/src/ ${picviz-inspector_SOURCE_DIR}/libpvfilter/src/)
 
 set(FILTERS_DIST_LIST
 layer_filter_axis_gradient
@@ -29,7 +26,7 @@ set(FILTERS_DIST_FILES
 create-layers/create-layers.conf
 )
 
-set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+set(LINK_LIBRARIES picviz pvkernel ${QT_LIBRARIES})
 
 add_library(layer_filter_axis_gradient SHARED axis-gradient/PVLayerFilterAxisGradient.cpp axis-gradient/register.cpp)
 target_link_libraries(layer_filter_axis_gradient ${LINK_LIBRARIES})

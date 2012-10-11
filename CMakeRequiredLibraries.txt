@@ -234,23 +234,6 @@ else(WIN32)
 endif(WIN32)
 #add_definitions(-DU_DISABLE_RENAMING)
 
-# It is OK to find those package even if they are not compiled
-# since we've defined the variable PICVIZ_SINGLE_TREE_BUILD 
-# it just returns PATHS and avoid adding multiple search of the
-# same package in the different sub directories.
-find_package(PVKernel REQUIRED)
-find_package(PVHive REQUIRED)
-find_package(PVParallelView REQUIRED)
-find_package(Picviz REQUIRED)
-find_package(PVSDK REQUIRED)
-find_package(PVGUIQT REQUIRED)
-
-if(USE_PVGL2)
-	find_package(PVGL2 REQUIRED)
-else(USE_PVGL2)
-	find_package(PVGL REQUIRED)
-endif(USE_PVGL2)
-
 ###############################
 # Needed for picviz-inspector #
 ###############################

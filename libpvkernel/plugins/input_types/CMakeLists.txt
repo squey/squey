@@ -34,7 +34,7 @@ SET(FILE_MOC_HEADERS file/PVImportFileDialog.h)
 QT4_WRAP_CPP(FILE_MOC_SRC ${FILE_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 
 add_library(input_type_file SHARED file/PVInputTypeFilename.cpp file/PVImportFileDialog.cpp file/register.cpp ${FILE_MOC_SRC})
-target_link_libraries(input_type_file ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${ARCHIVE_LIBRARY})
+target_link_libraries(input_type_file pvkernel ${QT_LIBRARIES} ${ARCHIVE_LIBRARY})
 
 #
 # Database input plugin
@@ -45,7 +45,7 @@ set(DB_UI database/db_params.ui database/db_preview.ui)
 QT4_WRAP_UI(DB_UI_SRCS ${DB_UI})
 
 add_library(input_type_database SHARED ${DB_UI_SRCS} ${DB_MOC_SRCS} database/PVDatabaseParamsWidget.cpp database/PVSQLTypeMap.cpp database/PVDBPreviewWidget.cpp database/PVInputTypeDatabase.cpp database/PVDBPresets.cpp ../common/database/PVDBInfos.cpp ../common/database/PVDBQuery.cpp database/register.cpp)
-target_link_libraries(input_type_database ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+target_link_libraries(input_type_database pvkernel ${QT_LIBRARIES})
 
 #
 # HDFS input plugin
@@ -67,7 +67,7 @@ set(REMOTEFILE_MOC_HEADERS remote_file/include/addmachinedialog.h remote_file/in
 QT4_WRAP_CPP(REMOTEFILE_MOC_SRCS ${REMOTEFILE_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 include_directories(AFTER ${CURL_INCLUDE_DIR})
 add_library(input_type_remotefile SHARED remote_file/addmachinedialog.cpp remote_file/fileconnectiondialog.cpp remote_file/filedownloader.cpp remote_file/logviewerwidget.cpp remote_file/PVLogViewerDialog.cpp remote_file/PVInputTypeRemoteFilename.cpp remote_file/register.cpp ${REMOTEFILE_MOC_SRCS} file/PVInputTypeFilename.cpp)
-target_link_libraries(input_type_remotefile ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${ARCHIVE_LIBRARY} ${CURL_LIBRARY})
+target_link_libraries(input_type_remotefile pvkernel ${QT_LIBRARIES} ${ARCHIVE_LIBRARY} ${CURL_LIBRARY})
 
 
 INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION input-types

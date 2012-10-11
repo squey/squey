@@ -3,11 +3,6 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-if(CUDA_FOUND)
-	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
-endif(CUDA_FOUND)
-include_directories(AFTER ${ICU_INCLUDE})
-
 set(CORE_SRC_FILES
 core/debug.cpp
 core/environ.cpp
