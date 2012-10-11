@@ -370,6 +370,7 @@ public:
 			// Check that something is selected in that chunk
 			// is_empty_between is between [a,b[ (b is *not* included)
 			if (!sel.is_empty_between(cur_field, end_field)) {
+				this->Seek(column.file, prev_off);
 				read_size = this->Read(column.file, _serial_read_buffer, diff_off);
 				if (read_size != diff_off) {
 					assert(false);
@@ -391,6 +392,7 @@ public:
 		// Finish off !
 		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
 		// necessary !
+		this->Seek(column.file, prev_off);
 		read_size = this->Read(column.file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
 		visit_column_process_chunk_sel(cur_field, _nrows-1, _serial_read_buffer, read_size, sel, f);
 
@@ -537,6 +539,7 @@ public:
 					nrows_to_find -= sel_lines_in_chunk;
 
 					typename tbb_chunks_t::chunk_t* chunk = this->_chunks.get_chunk();
+					this->Seek(column.file, prev_off);
 					const ssize_t read_size = this->Read(column.file, chunk->buf, diff_off);
 					if (read_size != diff_off) {
 						assert(false);
@@ -573,6 +576,7 @@ public:
 		// Finish off !
 		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
 		// necessary !
+		this->Seek(column.file, prev_off);
 		size_t read_size = this->Read(column.file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
 		visit_column_process_chunk_sel(cur_field, _nrows-1, _serial_read_buffer, read_size, sel, f);
 
