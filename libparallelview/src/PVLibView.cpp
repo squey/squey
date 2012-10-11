@@ -82,13 +82,16 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 		[&](Picviz::PVPlotting const*) { }
 	);
 
-	Picviz::PVPlotted_sp plotted_sp = view_sp->get_parent()->shared_from_this();
 
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_real_output_selection(); }, *_obs_sel);
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_output_layer(); }, *_obs_output_layer);
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_axes_combination().get_axes_index_list(); }, *_obs_axes_comb);
-	PVHive::get().register_observer(plotted_sp, [=](Picviz::PVPlotted& plotted) { return &plotted.get_plotting(); }, *_obs_plotting);
 	PVHive::get().register_observer(view_sp, *_obs_view);
+
+	if (view_sp->get_parent()) {
+		Picviz::PVPlotted_sp plotted_sp = view_sp->get_parent()->shared_from_this();
+		PVHive::get().register_observer(plotted_sp, [=](Picviz::PVPlotted& plotted) { return &plotted.get_plotting(); }, *_obs_plotting);
+	}
 
 	_sliders_manager_p = PVParallelView::PVSlidersManager_p(new PVSlidersManager);
 }
