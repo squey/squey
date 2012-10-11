@@ -13,6 +13,7 @@
 #include <QAbstractListModel>
 #include <QVector>
 #include <QDialog>
+#include <QFileDialog>
 
 namespace PVGuiQt {
 
@@ -39,6 +40,7 @@ private:
 
 private:
 	QAbstractListModel* _model;
+	QFileDialog _file_dlg;
 };
 
 }
