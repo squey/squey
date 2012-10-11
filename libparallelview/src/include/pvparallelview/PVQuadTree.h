@@ -352,12 +352,12 @@ public:
 		return new_tree;
 	}
 
-	size_t compute_selection_y1(const uint32_t y1_min, const uint32_t y1_max, Picviz::PVSelection &selection) const
+	size_t compute_selection_y1(const uint64_t y1_min, const uint64_t y1_max, Picviz::PVSelection &selection) const
 	{
 		return compute_selection_y1(*this, y1_min, y1_max, selection);
 	}
 
-	size_t compute_selection_y2(const uint32_t y2_min, const uint32_t y2_max, Picviz::PVSelection &selection) const
+	size_t compute_selection_y2(const uint64_t y2_min, const uint64_t y2_max, Picviz::PVSelection &selection) const
 	{
 		return compute_selection_y2(*this, y2_min, y2_max, selection);
 	}
@@ -974,7 +974,7 @@ private:
 		}
 	}
 
-	size_t compute_selection_y1(PVQuadTree const& obj, const uint32_t y1_min, const uint32_t y1_max, Picviz::PVSelection &selection) const
+	size_t compute_selection_y1(PVQuadTree const& obj, const uint64_t y1_min, const uint64_t y1_max, Picviz::PVSelection &selection) const
 	{
 		size_t num = 0;
 		if (obj._nodes != 0) {
@@ -998,7 +998,7 @@ private:
 		return num;
 	}
 
-	size_t compute_selection_y2(PVQuadTree const& obj, const uint32_t y2_min, const uint32_t y2_max, Picviz::PVSelection &selection) const
+	size_t compute_selection_y2(PVQuadTree const& obj, const int64_t y2_min, const int64_t y2_max, Picviz::PVSelection &selection) const
 	{
 		size_t num = 0;
 		if (obj._nodes != 0) {

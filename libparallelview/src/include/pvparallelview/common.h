@@ -14,6 +14,9 @@
 #define NBITS_INDEX 10
 #define NBUCKETS ((1UL<<(2*NBITS_INDEX)))
 
+// the cardinal of buckets ranges
+#define BUCKET_ELT_COUNT (1 << (32 - NBITS_INDEX))
+
 #define PARALLELVIEW_ZT_BBITS  10
 #define PARALLELVIEW_ZZT_BBITS 11
 

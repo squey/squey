@@ -19,7 +19,6 @@ typedef PVParallelView::PVQuadTree<10000, 1000, 10000> pvquadtree;
 
 pvquadtree *qt = 0;
 PVParallelView::PVQuadTreeEntry *entries = 0;
-PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes = 0;
 
 #define MAX_VALUE ((1<<22) - 1)
 
@@ -37,8 +36,6 @@ int main(int argc, char **argv)
 
 	depth = (unsigned)atoi(argv[1]);
 	count = (unsigned)atoi(argv[2]);
-
-	PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(count);
 
 	entries = new PVParallelView::PVQuadTreeEntry [count];
 	for(unsigned i = 0; i < count; ++i) {
@@ -59,12 +56,12 @@ int main(int argc, char **argv)
 	std::cout << "sizeof(node): " << sizeof(*qt) << std::endl;
 	std::cout << "memory used : " << qt->memory() << std::endl;
 
-	bci_codes = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(4096);
+	PVParallelView::PVQuadTreeEntry *entries = new PVParallelView::PVQuadTreeEntry [1<<22];
 
 	for (unsigned i = 1; i < 9; ++i) {
 		std::cout << "extract BCI codes from y1 for zoom " << i << std::endl;
 		BENCH_START(extract);
-		size_t num = qt->get_first_bci_from_y1(0, MAX_VALUE >> i, i, colors, bci_codes);
+		size_t num = qt->get_first_from_y1(0, MAX_VALUE >> i, i, entries);
 		BENCH_END(extract, "extract", 1, 1, 1, 1);
 		std::cout << "elements found: " << num << std::endl;
 	}
@@ -155,8 +152,6 @@ int main(int argc, char **argv)
 	if (qt) {
 		delete qt;
 	}
-	// a double free occurs if uncommented...
-	// if (bci_codes) { delete bci_codes; }
 
 	return 0;
 }

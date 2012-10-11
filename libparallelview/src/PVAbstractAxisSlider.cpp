@@ -48,7 +48,7 @@ void PVParallelView::PVAbstractAxisSlider::set_value(int64_t v)
 
 	double f = _owner->get_sliders_group()->get_axis_scale();
 	double vd = PVCore::clamp<int64_t>(_offset * f, _offset_min * f, _offset_max * f);
-	vd /= (double)precision;
+	vd /= (double)BUCKET_ELT_COUNT;
 
 	setPos(0., vd);
 }
@@ -93,7 +93,9 @@ void PVParallelView::PVAbstractAxisSlider::hoverLeaveEvent(QGraphicsSceneHoverEv
 void PVParallelView::PVAbstractAxisSlider::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
+		_move_offset = pos().y() - event->scenePos().y();
 		_moving = true;
+
 		event->accept();
 	}
 }
@@ -118,7 +120,7 @@ void PVParallelView::PVAbstractAxisSlider::mouseReleaseEvent(QGraphicsSceneMouse
 void PVParallelView::PVAbstractAxisSlider::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (event->buttons() == Qt::LeftButton) {
-		double sy = ((double)precision * event->scenePos().y()) / _owner->get_sliders_group()->get_axis_scale();
+		double sy = ((double)BUCKET_ELT_COUNT * (event->scenePos().y() + _move_offset)) / _owner->get_sliders_group()->get_axis_scale();
 		set_value(sy);
 
 		group()->update();
