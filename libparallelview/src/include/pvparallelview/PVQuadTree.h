@@ -21,9 +21,14 @@
 
 /* TODO: remove all useless code!
  *
- * TODO: when searching N entries in a list, it's not the N
- *       first found but they have to be searched in N bands.
+ * TODO: make a type for the bitfield visit_{y1,y2}_v2::f::'entries and put it
+ *       in ZZT_context and add a PVQuadTree::set_bitfield
  */
+
+#define QUADTREE_USE_BITFIELD
+
+#define QUADTREE_BF_TEST(BF, I) (BF[(I) >> 5] & ((I) & 31))
+#define QUADTREE_BF_SET(BF, I) BF[(I) >> 5] |= (1 << ((I) & 31))
 
 namespace PVParallelView {
 
@@ -524,18 +529,68 @@ private:
 						num += f(obj._nodes[SW], y1_min, y1_max, zoom - 1, test_f, result + num);
 					}
 				} else {
-					// we have to extract the 'zoom' first relevant elements from _datas
-					// NOTE: the elements should be uniformly distributed, isn't it?
-					size_t i = 0, n = 0;
-					while ((n < zoom) && (i < obj._datas.size())) {
-						const PVQuadTreeEntry &e = obj._datas.at(i);
-						if (test_f(e)) {
+#ifdef QUADTREE_USE_BITFIELD
+					if (obj._datas.size() != 0) {
+						int count = 1 << zoom;
+						const uint32_t y1_orig = obj._y1_min_value;
+						const uint32_t y1_scale = ((obj._y1_mid_value - y1_orig) * 2) / count;
+
+						const int count_aligned = (count + 31) / 32;
+						uint32_t entries[count_aligned];
+						memset(entries, 0, count_aligned * sizeof(uint32_t));
+
+						for(size_t i = 0; i < obj._datas.size(); ++i) {
+							const PVQuadTreeEntry &e = obj._datas.at(i);
+							if (!test_f(e)) {
+								continue;
+							}
+							const uint32_t pos = (e.y1 - y1_orig) / y1_scale;
+							if (QUADTREE_BF_TEST(entries, pos)) {
+								continue;
+							}
 							result[num] = e;
+							QUADTREE_BF_SET(entries, pos);
 							++num;
-							++n;
+							--count;
+							if (count == 0) {
+								break;
+							}
 						}
-						++i;
 					}
+#else // with PVQuadTreeEntry
+					if (obj._datas.size() != 0) {
+						int count = 1 << zoom;
+						const uint32_t y1_orig = obj._y1_min_value;
+						const uint32_t y1_scale = ((obj._y1_mid_value - y1_orig) * 2) / count;
+
+						PVQuadTreeEntry temp_entries[count];
+						memset(temp_entries, -1, count * sizeof (PVQuadTreeEntry));
+
+						int remaining = count;
+						for(size_t i = 0; i < obj._datas.size(); ++i) {
+							const PVQuadTreeEntry &e = obj._datas.at(i);
+							if (!test_f(e)) {
+								continue;
+							}
+							const uint32_t pos = (e.y1 - y1_orig) / y1_scale;
+							if (temp_entries[pos].idx != UINT_MAX) {
+								continue;
+							}
+							temp_entries[pos] = e;
+							--remaining;
+							if (remaining == 0) {
+								break;
+							}
+						}
+
+						for(size_t i = 0; i < count; ++i) {
+							if (temp_entries[i].idx != UINT_MAX) {
+								result[num] = temp_entries[i];
+								++num;
+							}
+						}
+					}
+#endif
 				}
 				return num;
 			}
@@ -680,18 +735,68 @@ private:
 						num += f(obj._nodes[SW], y2_min, y2_max, zoom - 1, test_f, result + num);
 					}
 				} else {
-					// we have to extract the 'zoom' first relevant elements from _datas
-					// NOTE: the elements should be uniformly distributed, isn't it?
-					size_t i = 0, n = 0;
-					while ((n < zoom) && (i < obj._datas.size())) {
-						const PVQuadTreeEntry &e = obj._datas.at(i);
-						if (test_f(e)) {
+#ifdef QUADTREE_USE_BITFIELD
+					if (obj._datas.size() != 0) {
+						int count = 1 << zoom;
+						const uint32_t y2_orig = obj._y2_min_value;
+						const uint32_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / count;
+
+						const int count_aligned = (count + 31) / 32;
+						uint32_t entries[count_aligned];
+						memset(entries, 0, count_aligned * sizeof(uint32_t));
+
+						for(size_t i = 0; i < obj._datas.size(); ++i) {
+							const PVQuadTreeEntry &e = obj._datas.at(i);
+							if (!test_f(e)) {
+								continue;
+							}
+							const uint32_t pos = (e.y2 - y2_orig) / y2_scale;
+							if (QUADTREE_BF_TEST(entries, pos)) {
+								continue;
+							}
 							result[num] = e;
+							QUADTREE_BF_SET(entries, pos);
 							++num;
-							++n;
+							--count;
+							if (count == 0) {
+								break;
+							}
 						}
-						++i;
 					}
+#else // with PVQuadTreeEntry
+					if (obj._datas.size() != 0) {
+						int count = 1 << zoom;
+						const uint32_t y2_orig = obj._y2_min_value;
+						const uint32_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / count;
+
+						PVQuadTreeEntry temp_entries[count];
+						memset(temp_entries, -1, count * sizeof (PVQuadTreeEntry));
+
+						int remaining = count;
+						for(size_t i = 0; i < obj._datas.size(); ++i) {
+							const PVQuadTreeEntry &e = obj._datas.at(i);
+							if (!test_f(e)) {
+								continue;
+							}
+							const uint32_t pos = (e.y2 - y2_orig) / y2_scale;
+							if (temp_entries[pos].idx != UINT_MAX) {
+								continue;
+							}
+							temp_entries[pos] = e;
+							--remaining;
+							if (remaining == 0) {
+								break;
+							}
+						}
+
+						for(size_t i = 0; i < count; ++i) {
+							if (temp_entries[i].idx != UINT_MAX) {
+								result[num] = temp_entries[i];
+								++num;
+							}
+						}
+					}
+#endif
 				}
 				return num;
 			}
