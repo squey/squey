@@ -164,6 +164,7 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator(){
         QString myLine = myText.at(line);
 		const QChar* start = myLine.constData();
 		PVCore::PVElement elt(NULL, (char*) start, (char*) (start + myLine.size()));
+		elt.fields().push_back(PVCore::PVField(elt, elt.begin(), elt.end()));
 		// Filter this element
 		elt_f(elt);
 		if (elt.valid()) {

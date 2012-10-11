@@ -18,6 +18,21 @@ size_t get_buf_size(size_t /*i*/)
 	return 10;
 }
 
+void check_value(const char* buf, size_t s, size_t r)
+{
+	size_t read_r;
+	char rbuf[MAX_SIZE+1];
+	sscanf(buf, "%lu %s", &read_r, rbuf);
+	bool valid = (read_r == r) && (strlen(rbuf) == get_buf_size(r));
+	if (!valid) {
+		printf("line %llu: ", r);
+		fwrite(buf, 1, s, stdout);
+		printf("  INVALID!!");
+		printf("\n");
+	}
+	ASSERT_VALID(valid);
+}
+
 int main(int argc, char** argv)
 {
 	if (argc < 2) {
@@ -74,18 +89,15 @@ int main(int argc, char** argv)
 #endif
 
 	PVLOG_INFO("Writing NRAW...\n");
-	char buf[MAX_SIZE];
+	char buf[MAX_SIZE+20];
 	size_t stotal = 0;
 	for (size_t i = 0; i < N; i++) {
 		//const size_t sbuf = (rand()%(MAX_SIZE-MIN_SIZE+1))+MIN_SIZE;
 		const size_t sbuf = get_buf_size(i);
 		stotal += sbuf;
-		memset(buf, 'a' + i%26, sbuf);
-		if (i == 3038487) {
-			printf("hello\n");
-		}
-		backend.add(0, buf, sbuf);
-		//backend.add(1, buf, sbuf);
+		int swrite = snprintf(buf, 20, "%lu ", i);
+		memset(&buf[swrite], 'a' + i%26, sbuf);
+		backend.add(0, buf, sbuf+swrite);
 	}
 	backend.flush();
 
@@ -106,21 +118,37 @@ int main(int argc, char** argv)
 
 	PVLOG_INFO("Checking values with visit_column()...\n");
 	BENCH_START(visit);
-	ASSERT_VALID(backend.visit_column2(0, [=](size_t r, const char*, size_t n)
+	ASSERT_VALID(backend.visit_column2(0, [=](size_t r, const char* buf, size_t n)
 			{
-				ASSERT_VALID(n == get_buf_size(r));
+				check_value(buf, n, r);
 			}));
 	BENCH_END(visit, "visit", sizeof(char), stotal, 1, 1);
 
 	PVLOG_INFO("Checking values with visit_column_tbb()...\n");
 	BENCH_START(visit2);
-	ASSERT_VALID(backend.visit_column_tbb(0, [=](size_t r, const char*, size_t n)
+	ASSERT_VALID(backend.visit_column_tbb(0, [=](size_t r, const char* buf, size_t n)
 			{
-				ASSERT_VALID(n == get_buf_size(r));
+				check_value(buf, n, r);
 			}));
 	BENCH_END(visit2, "visit", sizeof(char), stotal, 1, 1);
 
 	PVCore::PVSelBitField sel;
+	sel.select_all();
+	//sel.set_bit_fast((N/2)-7);
+	backend.visit_column_tbb_sel(0, [&](size_t r, const char* bread, size_t n)
+		{
+			check_value(bread, n, r);
+		},
+		sel);
+
+	sel.select_none();
+	sel.set_bit_fast((N/2)-7);
+	backend.visit_column_tbb_sel(0, [&](size_t r, const char* bread, size_t n)
+		{
+			check_value(bread, n, r);
+		},
+		sel);
+
 	sel.select_none();
 	sel.set_bit_fast(0);
 	sel.set_bit_fast(2);
@@ -133,7 +161,7 @@ int main(int argc, char** argv)
 	sel.set_bit_fast(N-1);
 	backend.visit_column2_sel(0, [&](size_t r, const char* bread, size_t n)
 		{
-			ASSERT_VALID(n == get_buf_size(r));
+			check_value(bread, n, r);
 			printf("line: %llu, ", r);
 			fwrite(bread, 1, n, stdout);
 			printf("\n");
@@ -142,7 +170,7 @@ int main(int argc, char** argv)
 
 	backend.visit_column_tbb_sel(0, [&](size_t r, const char* bread, size_t n)
 		{
-			ASSERT_VALID(n == get_buf_size(r));
+			check_value(bread, n, r);
 			printf("line: %llu, ", r);
 			fwrite(bread, 1, n, stdout);
 			printf("\n");
@@ -157,7 +185,7 @@ int main(int argc, char** argv)
 			/*printf("line: %llu, ", r);
 			fwrite(bread, 1, n, stdout);
 			printf("\n");*/
-			ASSERT_VALID(n == get_buf_size(r));
+			//ASSERT_VALID(n == get_buf_size(r));
 		},
 		sel);
 	BENCH_END(visit_sel, "visit_sel", sizeof(char), stotal, 1, 1);
@@ -168,7 +196,7 @@ int main(int argc, char** argv)
 			/*printf("line: %llu, ", r);
 			fwrite(bread, 1, n, stdout);
 			printf("\n");*/
-			ASSERT_VALID(n == get_buf_size(r));
+			//ASSERT_VALID(n == get_buf_size(r));
 		},
 		sel);
 	BENCH_END(visit_sel2, "visit_sel (cached)", sizeof(char), stotal, 1, 1);
@@ -190,7 +218,7 @@ int main(int argc, char** argv)
 			/*printf("line: %llu, ", r);
 			fwrite(bread, 1, n, stdout);
 			printf("\n");*/
-			ASSERT_VALID(n == get_buf_size(r));
+			//ASSERT_VALID(n == get_buf_size(r));
 		},
 		sel);
 	BENCH_END(visit_sel4, "visit_sel (cached) (two rows)", sizeof(char), stotal, 1, 1);
@@ -198,7 +226,7 @@ int main(int argc, char** argv)
 	BENCH_START(visit_sel_tbb2);
 	backend.visit_column_tbb_sel(0, [&](size_t r, const char* bread, size_t n)
 		{
-			ASSERT_VALID(n == get_buf_size(r));
+			//ASSERT_VALID(n == get_buf_size(r));
 		},
 		sel);
 	BENCH_END(visit_sel_tbb2, "visit_sel_tbb (cached) (two rows)", sizeof(char), stotal, 1, 1);

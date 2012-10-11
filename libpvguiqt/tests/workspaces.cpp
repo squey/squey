@@ -10,10 +10,13 @@
 #include "workspaces.h"
 
 #include <iostream>
+#include <QDateTime>
 
 static bool drag_started = false;
 
-CustomMainWindow::CustomMainWindow()
+unsigned int CustomMainWindow::zOrderCounter = 0;
+
+CustomMainWindow::CustomMainWindow(QWidget* parent /* = 0*/) : QMainWindow(parent)
 {
 	setGeometry(
 		QStyle::alignedRect(
@@ -34,14 +37,51 @@ void CustomMainWindow::dragStarted(bool started)
 	}
 }
 
+void CustomMainWindow::dragEnded()
+{
+	drag_started = false;
+}
+
 void CustomMainWindow::CreateDockWidgets()
 {
 	CustomDockWidget* dock_widget = new CustomDockWidget(this);
 	dock_widget->setWidget(new QPushButton("Button"));
+	dock_widget->setMouseTracking(true);
+	//dock_widget->setTitleBarWidget(new QLabel("title"));
 	addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
 
 	connect(dock_widget, SIGNAL(topLevelChanged(bool)), this, SLOT(dragStarted(bool)));
-	//connect(dock_widget, SIGNAL(dockLocationChanged (Qt::DockWidgetArea)), this, SLOT(dragEnded()));
+	connect(dock_widget, SIGNAL(dockLocationChanged (Qt::DockWidgetArea)), this, SLOT(dragEnded()));
+}
+
+
+void CustomMainWindow::changeEvent(QEvent *event)
+{
+	QMainWindow::changeEvent(event);
+
+	if (event->type() == QEvent::ActivationChange && isActiveWindow())
+	{
+		zOrderIndex = ++zOrderCounter;
+	}
+}
+
+CustomMainWindow* CustomDockWidget::workspace_under_mouse()
+{
+	CustomMainWindow* main_window_under_mouse = nullptr;
+	int z_oder = -1;
+
+	for (QWidget* top_widget : QApplication::topLevelWidgets()) {
+		CustomMainWindow* main_window = qobject_cast<CustomMainWindow*>(top_widget);
+		if (main_window) {
+			QRect main_global_rect = main_window->geometry();
+			if (main_global_rect.contains(QCursor::pos()) && main_window->z_order() > z_oder) {
+				z_oder = main_window->z_order();
+				main_window_under_mouse = main_window;
+			}
+		}
+	}
+
+	return main_window_under_mouse;
 }
 
 bool CustomDockWidget::event(QEvent* event)
@@ -51,46 +91,60 @@ bool CustomDockWidget::event(QEvent* event)
 		{
 			QMouseEvent* mouse_event = (QMouseEvent*) event;
 
-			for (QWidget* top_widget : QApplication::topLevelWidgets()) {
-				CustomMainWindow* main_window = qobject_cast<CustomMainWindow*>(top_widget);
+			CustomMainWindow* main_window = workspace_under_mouse();
 
-				QPoint mouse_global_pos = mouse_event->globalPos();
+			if (main_window) {
+				std::cout << "Z Order=" << main_window->z_order() << std::endl;
 
-				if (main_window) {
-					QRect main_global_rect = main_window->geometry();
+				if (drag_started && main_window && main_window != parent()) {
+					QMouseEvent fake_event3(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+					QDockWidget::event(&fake_event3);
 
-					if (drag_started && main_window && main_window != parent()) {
-						if (main_global_rect.contains(mouse_global_pos)) {
-							QMouseEvent fake_event3(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-							QDockWidget::event(&fake_event3);
+					qobject_cast<CustomMainWindow*>(parent())->removeDockWidget(this);
+					show();
 
-							main_window->activateWindow();
-							main_window->addDockWidget(Qt::RightDockWidgetArea, this); // Qt::NoDockWidgetArea yields "QMainWindow::addDockWidget: invalid 'area' argument"
-							setFloating(true); // We don't want to dock widget to be docked
+					main_window->activateWindow();
+					main_window->addDockWidget(Qt::RightDockWidgetArea, this); // Qt::NoDockWidgetArea yields "QMainWindow::addDockWidget: invalid 'area' argument"
+					setFloating(true); // We don't want the dock widget to be docked
 
-							QMouseEvent* fake_event_rel = new QMouseEvent(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-							QMouseEvent* fake_event1 = new QMouseEvent(QEvent::MouseButtonPress, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-							//QMouseEvent* fake_event2 = new QMouseEvent(QEvent::MouseMove, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+					QCursor::setPos(mapToGlobal(_press_pt));
+					move(mapToGlobal(_press_pt));
 
-							//QApplication::postEvent(this, fake_event_rel);
-							//QApplication::postEvent(this, fake_event1);
-							QDockWidget::event(fake_event_rel);
-							QDockWidget::event(fake_event1);
+					QMouseEvent* fake_event1 = new QMouseEvent(QEvent::MouseButtonPress, _press_pt, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+					QApplication::postEvent(this, fake_event1);
 
-							/*QMouseEvent fake_event2(QEvent::DragMove, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-							QApplication::sendEvent(this, &fake_event1);
-							QApplication::sendEvent(this, &fake_event2);*/
 
-							drag_started = false;
-							return true;
-						}
-					}
+					QApplication::processEvents(QEventLoop::AllEvents);
+
+					grabMouse();
+
+
+					return true;
 				}
 			}
 			break;
 		}
+		case QEvent::MouseButtonPress:
+		{
+			QMouseEvent* mouse_event = (QMouseEvent*) event;
+			std::cout << "Press mouse point: " << mouse_event->pos().x() << "/" << mouse_event->pos().y() << std::endl;
+			_press_pt = mouse_event->pos();
+			break;
+		}
+		case QEvent::MouseButtonRelease:
+		{
+			QMouseEvent* mouse_event = (QMouseEvent*) event;
+			std::cout << "Release mouse point: " << mouse_event->pos().x() << "/" << mouse_event->pos().y() << std::endl;
+			break;
+		}
+		case QEvent::Leave:
+		{
+			std::cout << "Mouse leaving" << std::endl;
+			break;
+		}
 		default:
 		{
+			//std::cout << "CustomDockWidget event: " << event->type() << std::endl;
 			break;
 		}
 
