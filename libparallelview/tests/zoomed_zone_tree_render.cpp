@@ -174,13 +174,13 @@ int main(int argc, char** argv)
 			 size_t num = zoomed_zone_tree.browse_bci_by_y1(zzt_ctx,
 			                                                a, a2, a2, b,
 			                                                256,
-			                                                colors, codes);
+			                                                colors, codes, 1.0);
 			 std::cout << "ZZT-0: num of codes: " << num << std::endl;
 			 // for (unsigned i = 0; i < num; ++i) {
 			 // 	 printf("%u %u %u %u\n", codes[i].s.l, codes[i].s.r, codes[i].s.idx, codes[i].s.color);
 			 // }
 			 return num;
-		 });
+		 }, 1.0);
 	BENCH_END(col1, "render col1", 1, 1, 1, 1);
 
 	// "1 +" because position must be a power of 2
@@ -206,7 +206,7 @@ int main(int argc, char** argv)
 			 // 	 printf("%u %u %u %u\n", codes[i].s.l, codes[i].s.r, codes[i].s.idx, codes[i].s.color);
 			 // }
 			 return num;
-		 });
+		 }, 1.0);
 	BENCH_END(col2, "render col2", 1, 1, 1, 1);
 
 	a = 0;
@@ -231,7 +231,7 @@ int main(int argc, char** argv)
 			 // 	 printf("%u %u %u %u\n", codes[i].s.l, codes[i].s.r, codes[i].s.idx, codes[i].s.color);
 			 // }
 			 return num;
-		 });
+		 }, 1.0);
 	BENCH_END(col3, "render col3", 1, 1, 1, 1);
 
 	a = 0;
@@ -256,7 +256,7 @@ int main(int argc, char** argv)
 			 // 	 printf("%u %u %u %u\n", codes[i].s.l, codes[i].s.r, codes[i].s.idx, codes[i].s.color);
 			 // }
 			 return num;
-		 });
+		 }, 1.0);
 	BENCH_END(col4, "render col4", 1, 1, 1, 1);
 
 	show_qimage("test - zoomed zone tree", dst_img2->qimage());
