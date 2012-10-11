@@ -16,7 +16,8 @@
 #include <QPushButton>
 #include <QDockWidget>
 #include <QDragEnterEvent>
-
+#include <QDateTime>
+#include <iostream>
 
 class CustomDockWidget : public QDockWidget
 {
@@ -27,6 +28,8 @@ public:
 
 protected:
 	bool event(QEvent* event);
+
+	QPoint _press_pt;
 };
 
 
@@ -44,6 +47,21 @@ public:
 
 public slots:
 	void dragStarted(bool started);
+
+protected:
+	bool event(QEvent* event) override
+	{
+		//std::cout << QDateTime::currentDateTime().toMSecsSinceEpoch() << "QMainWindow receive event type: " << event->type() << std::endl;
+		return QMainWindow::event(event);
+	}
+};
+
+class MyEventFilter: public QObject
+{
+	Q_OBJECT
+
+protected:
+	bool eventFilter(QObject *obj, QEvent *ev) override;
 };
 
 
