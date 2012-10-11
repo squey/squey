@@ -94,11 +94,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 			int64_t range_min = range.first;
 			int64_t range_max = range.second;
 
-			uint32_t zt_min = range_min / PVAbstractAxisSlider::precision;
-			uint32_t zt_max = range_max / PVAbstractAxisSlider::precision;
+			uint32_t zt_min = range_min / BUCKET_ELT_COUNT;
+			uint32_t zt_max = range_max / BUCKET_ELT_COUNT;
 
-			int64_t zt_range_min = zt_min * PVAbstractAxisSlider::precision;
-			int64_t zt_range_max = zt_max * PVAbstractAxisSlider::precision;
+			int64_t zt_range_min = zt_min * BUCKET_ELT_COUNT;
+			int64_t zt_range_max = zt_max * BUCKET_ELT_COUNT;
 
 			bool need_zzt_min = false;
 			uint32_t zzt_min_idx = 0;
@@ -171,11 +171,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 			int64_t range_min = PVCore::clamp(range.first, 0L, 1L << 32);
 			int64_t range_max = PVCore::clamp(range.second, 0L, 1L << 32);
 
-			uint32_t zt_min = range_min / PVAbstractAxisSlider::precision;
-			uint32_t zt_max = range_max / PVAbstractAxisSlider::precision;
+			uint32_t zt_min = range_min / BUCKET_ELT_COUNT;
+			uint32_t zt_max = range_max / BUCKET_ELT_COUNT;
 
-			int64_t zt_range_min = zt_min * PVAbstractAxisSlider::precision;
-			int64_t zt_range_max = zt_max * PVAbstractAxisSlider::precision;
+			int64_t zt_range_min = zt_min * BUCKET_ELT_COUNT;
+			int64_t zt_range_max = zt_max * BUCKET_ELT_COUNT;
 
 			bool need_zzt_min = false;
 			uint32_t zzt_min_idx = 0;

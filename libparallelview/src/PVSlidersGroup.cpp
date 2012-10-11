@@ -219,8 +219,8 @@ void PVParallelView::PVSlidersGroup::add_zoom_sliders(int64_t y_min,
 	PVHive::call<FUNC(PVSlidersManager::new_zoom_sliders)>(_sliders_manager_p,
 	                                                       get_axis_id(),
 	                                                       this,
-	                                                       y_min * PVAbstractAxisSlider::precision,
-	                                                       y_max * PVAbstractAxisSlider::precision);
+	                                                       y_min * BUCKET_ELT_COUNT,
+	                                                       y_max * BUCKET_ELT_COUNT);
 }
 
 /*****************************************************************************
@@ -230,8 +230,8 @@ void PVParallelView::PVSlidersGroup::add_zoom_sliders(int64_t y_min,
 void PVParallelView::PVSlidersGroup::add_selection_sliders(int64_t y_min,
                                                            int64_t y_max)
 {
-	y_min *= PVAbstractAxisSlider::precision;
-	y_max *= PVAbstractAxisSlider::precision;
+	y_min *= BUCKET_ELT_COUNT;
+	y_max *= BUCKET_ELT_COUNT;
 
 	PVParallelView::PVSelectionAxisSliders *sliders =
 		new PVParallelView::PVSelectionAxisSliders(this, _sliders_manager_p,

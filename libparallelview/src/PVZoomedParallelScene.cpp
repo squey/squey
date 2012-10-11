@@ -487,7 +487,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	double pixel_height = (1UL << (32 - NBITS_INDEX)) / get_scale_factor();
 
 	// the screen's upper limit in plotted coordinates system
-	uint64_t y_min = view_rect.top() * PVAbstractAxisSlider::precision;
+	uint64_t y_min = view_rect.top() * BUCKET_ELT_COUNT;
 	// the backend_image's lower limit in plotted coordinates system
 	uint64_t y_lim = PVCore::clamp<uint64_t>(y_min + (1 << bbits) * alpha * pixel_height,
 	                                         0ULL, 1ULL << 32);
@@ -807,8 +807,8 @@ void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
 		_view_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
 		_view_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
 	} else {
-		int64_t y_min = _selection_rect->top() * PVAbstractAxisSlider::precision;
-		int64_t y_max = _selection_rect->bottom() * PVAbstractAxisSlider::precision;
+		int64_t y_min = _selection_rect->top() * BUCKET_ELT_COUNT;
+		int64_t y_max = _selection_rect->bottom() * BUCKET_ELT_COUNT;
 
 		if (_selection_sliders == nullptr) {
 			_selection_sliders = _sliders_group->add_zoomed_selection_sliders(y_min, y_max);
@@ -842,8 +842,8 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(argu
 	                std::swap(y_min, y_max);
                 }
 
-		double sld_min = y_min / (double)PVAbstractAxisSlider::precision;
-		double sld_max = y_max / (double)PVAbstractAxisSlider::precision;
+		double sld_min = y_min / (double)BUCKET_ELT_COUNT;
+		double sld_max = y_max / (double)BUCKET_ELT_COUNT;
 		double sld_dist = sld_max - sld_min;
 
 		// computing the nearest range matching the discrete zoom rules
