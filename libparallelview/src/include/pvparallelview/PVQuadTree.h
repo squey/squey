@@ -25,7 +25,7 @@
  *       in ZZT_context and add a PVQuadTree::set_bitfield
  */
 
-#define QUADTREE_USE_BITFIELD
+// #define QUADTREE_USE_BITFIELD
 
 #define QUADTREE_BF_TEST(BF, I) (BF[(I) >> 5] & ((I) & 31))
 #define QUADTREE_BF_SET(BF, I) BF[(I) >> 5] |= (1 << ((I) & 31))
