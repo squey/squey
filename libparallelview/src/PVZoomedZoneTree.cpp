@@ -250,7 +250,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 	uint32_t t1_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t1_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
 	                                                    0U, 1024U);
-	PVQuadTreeEntry *quadtree_entries = ctx.get_quadtree_entries();
+	zzt_tls &tls = ctx.get_tls().local();
+	PVQuadTreeEntry *quadtree_entries = tls.get_quadtree_entries();
 
 	for (uint32_t t1 = t1_min; t1 < t1_max; ++t1) {
 		for (uint32_t t2 = 0; t2 < 1024; ++t2) {
@@ -345,7 +346,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 	uint32_t t2_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t2_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
 	                                                    0U, 1024U);
-	PVQuadTreeEntry *quadtree_entries = ctx.get_quadtree_entries();
+	zzt_tls &tls = ctx.get_tls().local();
+	PVQuadTreeEntry *quadtree_entries = tls.get_quadtree_entries();
 
 	for (uint32_t t2 = t2_min; t2 < t2_max; ++t2) {
 		for (uint32_t t1 = 0; t1 < 1024; ++t1) {

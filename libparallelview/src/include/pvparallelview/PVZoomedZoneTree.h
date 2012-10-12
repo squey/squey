@@ -89,28 +89,17 @@ public:
 		typedef tbb::enumerable_thread_specific<zzt_tls> tls_set_t;
 
 		context_t()
-		{
-			// TODO: is _quadtree_entries correctly sized?
-			_quadtree_entries = new PVQuadTreeEntry [NBUCKETS];
-		}
+		{}
 
 		~context_t()
-		{
-			delete [] _quadtree_entries;
-		}
-
-		PVQuadTreeEntry *get_quadtree_entries() const
-		{
-			return _quadtree_entries;
-		}
+		{}
 
 		tls_set_t &get_tls() const
 		{
 			return _tls;
 		}
 	private:
-		PVQuadTreeEntry   *_quadtree_entries;
-		mutable tls_set_t  _tls;
+		mutable tls_set_t _tls;
 	};
 
 public:
