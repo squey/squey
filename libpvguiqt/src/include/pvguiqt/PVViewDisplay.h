@@ -8,6 +8,7 @@
 #define __PVGUIQT_PVVIEWDISPLAY_H__
 
 #include <QAction>
+#include <QEvent>
 #include <QCloseEvent>
 #include <QDockWidget>
 #include <QFocusEvent>
@@ -38,6 +39,7 @@ public:
 	void set_view(Picviz::PVView* view) { _view = view; }
 
 protected:
+	bool event(QEvent* event);
 	void contextMenuEvent(QContextMenuEvent* event);
 	void closeEvent(QCloseEvent * event)
 	{
@@ -45,11 +47,16 @@ protected:
 		QDockWidget::closeEvent(event);
 	}
 
-private:
-	void set_current_view();
+public slots:
+	void dragStarted(bool started);
+	void dragEnded();
 
 signals:
 	void display_closed();
+	void try_automatic_tab_switch();
+
+private:
+	void set_current_view();
 
 private:
 	PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspace* parent);
@@ -57,6 +64,7 @@ private:
 private:
 	Picviz::PVView* _view;
 	PVWorkspace* _workspace;
+	QPoint _press_pt;
 };
 
 class FocusInEventFilter : public QObject
