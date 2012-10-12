@@ -393,7 +393,7 @@ QString PVRush::PVXmlTreeNodeDom::getOutName() {
  *
  *****************************************************************************/
 PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getOutWidget() {
-    PVXmlTreeNodeDom *l;
+    PVXmlTreeNodeDom *l = nullptr;
     if (this->type == field) {// its a field whiche is selected...
         for (int i = 0; i < children.count(); i++) {
             if ((children.at(i)->getDom().tagName() == PVFORMAT_XML_TAG_AXIS_STR) || //if it's an axis
