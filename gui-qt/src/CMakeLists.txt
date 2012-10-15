@@ -173,7 +173,7 @@ if(PROTECT_PASS)
 endif()
 
 if(SET_PROTECT)
-	list(APPEND SRC_FILES gen_table.c)
+	list(APPEND SRC_FILES ${CMAKE_CURRENT_BINARY_DIR}/gen_table.c)
 endif()
 
 if (WIN32)
@@ -183,7 +183,7 @@ else (WIN32)
 endif(WIN32)
 
 if(SET_PROTECT)
-	message(INFO " Protection activated !")
+	message(STATUS "Protection activated !")
 	#set_property(SOURCE PVMainWindow.cpp APPEND PROPERTY COMPILE_FLAGS ${GALVEZ_GCC})
 	set_property(SOURCE main.cpp APPEND PROPERTY COMPILE_FLAGS ${GALVEZ_GCC})
 	add_definitions(${GALVEZ_CFLAGS})

@@ -85,10 +85,6 @@ else(WIN32)
 endif(WIN32)
 add_definitions(-DPICVIZ_SORTING_FUNCTIONS_PLUGINS_DIR="${PICVIZ_SORTING_FUNCTIONS_PLUGINS_DIR}")
 
-add_definitions(${OpenMP_CXX_FLAGS})
-add_definitions(${COMPILER_OPTIMIZE_FLAGS})
-
-
 # #
 # # PCRE
 # if(WIN32)

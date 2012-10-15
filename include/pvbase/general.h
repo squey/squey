@@ -10,15 +10,13 @@
 #include <QtGlobal>
 #include <QSettings>
 
-#ifdef PICVIZ_DEVELOPER_MODE
-	#include "picviz-developer.h"
-#else
-	#include "customer.h"
-#endif
+
+// "PICVIZ_CFG_FILE_PATH" and "PICVIZ_VERSION_FILE_PATH" are set by cmake (CMakeOptions.txt/CMakeVersionHandler.txt respectively)
+#include PICVIZ_CFG_FILE_PATH
+#include PICVIZ_VERSION_FILE_PATH
 
 #include "types.h"
 #include "export.h"
-#include "version.h"
 
 static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 

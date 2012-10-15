@@ -7,8 +7,6 @@ project(libpvparallelview)
 
 set(QT_USE_QTOPENGL 1)
 
-add_definitions(${COMPILER_OPTIMIZE_FLAGS})
-
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 include_directories(AFTER ${PVHIVE_INCLUDE_DIRS})

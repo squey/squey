@@ -53,7 +53,7 @@ endif(CUDA_FOUND)
 #
 # Check for Boost library
 #
-set(Boost_DEBUG TRUE)
+#set(Boost_DEBUG TRUE)
 if(WIN32)
 	set(BOOST_ROOT "C:\\dev\\boost\\install-root")
 	set(BOOST_INCLUDEDIR "C:\\dev\\boost\\install-root\\include\\boost-1_48")
@@ -74,11 +74,7 @@ set(Boost_ADDITIONAL_VERSIONS "1.48.0")
 find_package(Boost 1.48.0 COMPONENTS date_time system thread program_options)
 set(Boost_LIBRARIES_SAVE ${Boost_LIBRARIES})
 
-if(USE_BOOST148_DEBIAN)
-	find_package(Boost COMPONENTS python-py32)
-else(USE_BOOST148_DEBIAN)
-	find_package(Boost COMPONENTS python3)
-endif(USE_BOOST148_DEBIAN)
+find_package(Boost COMPONENTS python-py32)
 
 set(Boost_LIBRARIES_PYTHON ${Boost_LIBRARIES})
 set(Boost_LIBRARIES ${Boost_LIBRARIES_SAVE})

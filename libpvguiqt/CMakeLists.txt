@@ -8,9 +8,6 @@ project(libpvguiqt)
 include(CTest)
 set(CTEST_PROJECT_NAME "PVGuiQT")
 
-add_definitions(${COMPILER_OPTIMIZE_FLAGS})
-add_definitions(${OpenMP_CXX_FLAGS})
-
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 include_directories(AFTER ${PVHIVE_INCLUDE_DIRS})

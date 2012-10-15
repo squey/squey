@@ -14,7 +14,6 @@ PVFuncObserver.cpp
 )
 
 file(GLOB_RECURSE PVHIVE_WAXES_FILES waxes *.cpp)
-message(STATUS "Waxes: " ${PVHIVE_WAXES_FILES})
 
 SET(PVHIVE_MOC_HEADERS
 include/pvhive/PVRefreshSignal.h

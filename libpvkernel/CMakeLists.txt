@@ -91,9 +91,6 @@ add_definitions(-DPVRUSH_SOURCE_DIR="${PVRUSH_SOURCE_DIR}")
 ########################################
 
 
-add_definitions(${OpenMP_CXX_FLAGS})
-add_definitions(${COMPILER_OPTIMIZE_FLAGS})
-
 add_subdirectory(src)
 add_subdirectory(plugins)
 

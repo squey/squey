@@ -1,18 +1,64 @@
-# Default build type is debug
-if (CMAKE_BUILD_TYPE)
-else()
-	set(CMAKE_BUILD_TYPE "debug")
-endif()
 
 set(CMAKE_CONFIGURATION_TYPES debug release relwithdebinfo relprotect)
 
+MESSAGE(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
+
 if (WIN32)
+	# Old stuff, in case we will go back on windows again.. !
+
+#	# /Ox: "full-optimisation" mode
+#	# /Ob2: inline everything that is possible
+#	# /Oi: use intrinsics functions
+#	# /Ot: favorize fast over small code
+#	# /GL: intra-procedural optimisations by MSVC !
+#	set(COMPILER_OPTIMIZE_FLAGS "/Ox /Ob2 /Oi /Ot /GL")
+#	# Intraprocedural optimisations
+#	SET(LINKER_OPTIMIZE_FLAGS "/ltcg")
+
+#	add_definitions(-DWIN32)
+#	add_definitions(-D_WIN32)
+#	add_definitions(-D_WINSOCKAPI_)
+#	# Defined or python believes where are in 32-bit !!
+#	# (and define bad types for Py_ssize_t for instance)
+#	add_definitions(-D_WIN64)
+#	add_definitions(/MP) # parallel compilation
+#	# Visual 2008 and OpenMP with 64 bits is a huge mess.
+#	# First, you've got to install Visual 2008 SP1, then install
+#	# OpenMP dll in "winsxs" and then set this flag so that we link
+#	# with the good version...... !!
+#	#add_definitions(-D__OPENMP_ASSEMBLY_VERSION="9.0.30729.6161")
+#	set(MSVC_LINKER_FLAGS "/LARGEADDRESSAWARE")
+#	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+#		set(MSVC_LINKER_FLAGS "${MSVC_LINKER_FLAGS} ${LINKER_OPTIMIZE_FLAGS}")
+#	endif()
+#	set(CMAKE_EXE_LINKER_FLAGS ${MSVC_LINKER_FLAGS})
+#	set(CMAKE_SHARED_LINKER_FLAGS ${MSVC_LINKER_FLAGS})
+#	set(CMAKE_MODULE_LINKER_FLAGS ${MSVC_LINKER_FLAGS})
+
 else()
-	set(CMAKE_CXX_COMMON_FLAGS "-Wall")
+	set(CMAKE_CXX_COMMON_FLAGS "-std=c++11 -Wall")
 	set(CMAKE_CXX_ARCH_FLAGS "-march=native")
 
+	if (USE_LTO)
+		set(CMAKE_CXX_COMMON_FLAGS "${CMAKE_CXX_COMMON_FLAGS} -flto=jobserver")
+		set(LTO_LINK_FLAGS "-flto")
+	else()
+		set(LTO_LINK_FLAGS "")
+	endif()
+
 	set(CMAKE_CXX_FLAGS_DEBUG "-g ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
-	set(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O3 ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
-	set(CMAKE_CXX_FLAGS_RELPROTECT "-O3 ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
+	set(CMAKE_SHARED_LINKER_FLAGS_DEBUG ${LTO_LINK_FLAGS})
+	set(CMAKE_MODULE_LINKER_FLAGS_DEBUG ${LTO_LINK_FLAGS})
+
+	set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
+	set(CMAKE_SHARED_LINKER_FLAGS_RELEASE ${LTO_LINK_FLAGS})
+	set(CMAKE_MODULE_LINKER_FLAGS_RELEASE ${LTO_LINK_FLAGS})
+
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O3 -DNDEBUG ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
+	set(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO ${LTO_LINK_FLAGS})
+	set(CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO ${LTO_LINK_FLAGS})
+
+	set(CMAKE_CXX_FLAGS_RELPROTECT "-O3 -DNDEBUG ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
+	set(CMAKE_SHARED_LINKER_FLAGS_RELPROTECT ${LTO_LINK_FLAGS})
+	set(CMAKE_MODULE_LINKER_FLAGS_RELPROTECT ${LTO_LINK_FLAGS})
 endif()
