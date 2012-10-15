@@ -26,6 +26,7 @@
 #include <time.h>
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/segfault_handler.h>
+#include <pvkernel/core/PVConfig.h>
 
 #include <pvparallelview/PVParallelView.h>
 
@@ -42,6 +43,7 @@ namespace bpo = boost::program_options;
 int main(int argc, char *argv[])
 {
 	init_segfault_handler();
+	PVCore::PVConfig::get().init_dirs();
 	QApplication app(argc, argv);
 
 	// Program options
