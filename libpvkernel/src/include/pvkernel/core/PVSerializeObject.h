@@ -208,6 +208,15 @@ public:
 	template <class T>
 	void list_attributes(QString const& name, T& obj);
 
+	/*! \brief Declare a list of attributes to load/save in the 'configuration' of the object. T must be a STL-compliant container. T::value_type must be convertible to and from a QVariant.
+	 *  \param[in] name Name of the list of attributes
+	 *  \param[in] variant_conv Function that takes a QVaraint and returns an object of type T::value_type
+	 *  \param[in,out] obj List of attributes to save
+	 *  These attributes will be read/saved in the 'config.ini' file associated with the object.
+	 */
+	template <class T, class F>
+	void list_attributes(QString const& name, T& obj, F const& variant_conv);
+
 	/*! \brief Read/save a buffer for this object
 	 *  \param[in] name Name of the buffer. This will be used for the underlying filename.
 	 *  \param[in,out] buf Original/destination buffer
@@ -562,6 +571,12 @@ void PVSerializeObject::attribute(QString const& name, T& obj, T const& def)
 template <class T>
 void PVSerializeObject::list_attributes(QString const& name, T& obj)
 {
+	list_attributes(name, obj, [=](QVariant const& v) { return v.value<typename T::value_type>(); });
+}
+
+template <class T, class F>
+void PVSerializeObject::list_attributes(QString const& name, T& obj, F const& variant_conv)
+{
 	if (is_writing()) {
 		std::vector<QVariant> list;
 		list.reserve(obj.size());
@@ -577,7 +592,7 @@ void PVSerializeObject::list_attributes(QString const& name, T& obj)
 		list_attributes_read(name, list);
 		std::vector<QVariant>::iterator it;
 		for (it = list.begin(); it != list.end(); it++) {
-			obj.push_back(it->value<typename T::value_type>());
+			obj.push_back(variant_conv(*it));
 		}
 	}
 }

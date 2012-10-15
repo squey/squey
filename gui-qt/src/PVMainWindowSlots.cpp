@@ -618,6 +618,13 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 		{
 			err_msg = tr("Error while loading project %1:\n%2").arg(file).arg(QString::fromStdString(e.what()));
 		}
+		catch (...)
+		{
+			err_msg = tr("Error while loading project %1:\n unhandled error.").arg(file);
+			QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading project..."), err_msg, QMessageBox::Ok, this);
+			box->exec();
+			return false;
+		}
 		if (ar->has_repairable_errors()) {
 			if (fix_project_errors(ar)) {
 				project_has_been_fixed = true;

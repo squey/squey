@@ -233,7 +233,9 @@ public:
 		}
 
 		int dev = _last_image_dev->first;
-		PVBCIBackendImage_p<Bbits> ret(new PVBCIBackendImageCUDA<Bbits>(img_width, dev));
+		// AG: tofix: crashes with GTX 690!!
+		PVBCIBackendImage_p<Bbits> ret(new PVBCIBackendImageCUDA<Bbits>(img_width, 0));
+		//PVBCIBackendImage_p<Bbits> ret(new PVBCIBackendImageCUDA<Bbits>(img_width, dev));
 		++_last_image_dev;
 		return ret;
 	}

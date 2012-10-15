@@ -137,4 +137,4 @@ then
 	exit 0
 fi
 	
-catchsegv gui-qt/src/picviz-inspector $LOAD_PROJECT $@
+gui-qt/src/picviz-inspector $LOAD_PROJECT $@

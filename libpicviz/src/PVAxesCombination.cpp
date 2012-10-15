@@ -587,7 +587,7 @@ QString Picviz::PVAxesCombination::to_string() const
 void Picviz::PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	columns_indexes_list.clear();
-	so.list_attributes("columns_indexes_list", columns_indexes_list);
+	so.list_attributes("columns_indexes_list", columns_indexes_list, [=](QVariant const& v) { return axes_comb_id_t::from_qvariant(v); });
 	//axes_list.clear();
 	//so.list("axes_list", axes_list);
 }
