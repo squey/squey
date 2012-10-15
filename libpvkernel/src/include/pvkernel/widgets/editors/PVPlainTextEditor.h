@@ -36,6 +36,7 @@ protected:
 
 protected slots:
 	void slot_import_file();
+	void slot_export_file();
 
 protected:
 	QPlainTextEdit* _text_edit;

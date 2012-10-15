@@ -72,6 +72,9 @@ public:
 public:
 	PVWorkspace(Picviz::PVSource* source, QWidget* parent = 0);
 
+	static PVWorkspace* workspace_under_mouse();
+	static bool drag_started() { return _drag_started; }
+
 	Picviz::PVSource* get_source() const { return _source; }
 	PVViewWidgets const& get_view_widgets(Picviz::PVView* view);
 	PVAxesCombinationDialog* get_axes_combination_editor(Picviz::PVView* view)
@@ -92,6 +95,7 @@ public:
 	Picviz::PVView const* get_lib_view() const;
 	inline Picviz::PVSource* get_lib_src() { return _source; }
 	inline Picviz::PVSource const* get_lib_src() const { return _source; }
+	inline int z_order() { return _z_order_index; }
 
 public slots:
 	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr);
@@ -105,9 +109,17 @@ public slots:
 	void destroy_layerstack();
 	void display_destroyed(QObject* object = 0);
 	void update_view_count(PVHive::PVObserverBase* obs_base);
+	void emit_try_automatic_tab_switch() { emit try_automatic_tab_switch(); }
+
+
+signals:
+	void try_automatic_tab_switch();
 
 private:
 	void refresh_views_menus();
+
+protected:
+	void changeEvent(QEvent *event) override;
 
 private:
 	QList<PVViewDisplay*> _displays;
@@ -123,6 +135,10 @@ private:
 	std::list<datatree_obs_t> _obs;
 	uint64_t _views_count;
 	QHash<Picviz::PVView const*, PVViewWidgets> _view_widgets;
+
+	int _z_order_index = 0;
+	static uint64_t _z_order_counter;
+	static bool _drag_started;
 };
 
 }

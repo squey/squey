@@ -35,7 +35,7 @@
 #include <PVExportSelectionDialog.h>
 #include <PVFilterWidget.h>
 //#include <PVMapWidget.h>
-#include <PVWorkspacesTabWidget.h>
+#include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <PVFilesTypesSelWidget.h>
 
 //#include <>
@@ -122,7 +122,7 @@ public:
 	PVExportSelectionDialog *pv_ExportSelectionDialog;
 
 	PVGuiQt::PVWorkspace  *current_tab;
-	PVWorkspacesTabWidget *pv_WorkspacesTabWidget;
+	PVGuiQt::PVWorkspacesTabWidget *pv_WorkspacesTabWidget;
 
 	QMenuBar *menubar;
 	QMenu *filter_Menu;
@@ -148,10 +148,10 @@ public:
 	void update_statemachine_label(Picviz::PVView_sp view);
 
 	void close_source(int index);
-	void close_source(PVGuiQt::PVWorkspace* tab);
 	void close_scene();
 
 public slots:
+	void close_source(Picviz::PVSource* src);
 	void about_Slot();
 	void axes_editor_Slot();
 	void axes_mode_Slot();

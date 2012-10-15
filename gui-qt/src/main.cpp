@@ -26,6 +26,7 @@
 #include <time.h>
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/segfault_handler.h>
+#include <pvkernel/core/PVConfig.h>
 
 #include <pvparallelview/PVParallelView.h>
 
@@ -42,6 +43,7 @@ namespace bpo = boost::program_options;
 int main(int argc, char *argv[])
 {
 	init_segfault_handler();
+	PVCore::PVConfig::get().init_dirs();
 	QApplication app(argc, argv);
 
 	// Program options
@@ -134,33 +136,6 @@ int main(int argc, char *argv[])
 	app.setOrganizationName("PICVIZ Labs");
 	app.setApplicationName("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR);
 	app.setWindowIcon(QIcon(":/picviz"));
-
-
-	// We get the CSS as a QFile
-	// WARNING: The following line should not be removed. It is for testing conveniences.
-	// It is commented by default (PhS)
-	//QFile css_file("/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/gui.css");
-	// This is the real definition
-	QFile css_file(":/gui.css");
-	
-	// We open the QFile
-	css_file.open(QFile::ReadOnly);
-	// We make it a QTexteStream
-	QTextStream css_stream(&css_file);
-	// We get all the lines in one big QString
-	QString css_string(css_stream.readAll());
-	// Now it's time to close the QFile
-	css_file.close();
-	
-	PVLOG_HEAVYDEBUG("The current CSS for the GUI is the following :\n%s\n-----------------------------\n", qPrintable(css_string));
- 	
-	// Now we can set the StyleSheet of the application.
-	//app.setStyleSheet(css_string);
-	
-
-	pv_main_window.show();
-	
-	pv_main_window.setStyleSheet(css_string);
 
 	if (vm.count("project")) {
 		QString prj_path = QString::fromLocal8Bit(vm["project"].as<std::string>().c_str());
