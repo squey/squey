@@ -5,6 +5,7 @@
  */
 
 #include <QAction>
+#include <QApplication>
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QPalette>
@@ -31,6 +32,11 @@
 #include <pvguiqt/PVRootTreeView.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVViewDisplay.h>
+
+#include <QDateTime>
+
+uint64_t PVGuiQt::PVWorkspace::_z_order_counter = 0;
+bool PVGuiQt::PVWorkspace::_drag_started = false;
 
 PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	QMainWindow(parent),
@@ -116,6 +122,48 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	}
 }
 
+PVGuiQt::PVWorkspace* PVGuiQt::PVWorkspace::workspace_under_mouse()
+{
+	QList<PVWorkspace*> active_workspaces;
+	for (QWidget* top_widget : QApplication::topLevelWidgets()) {
+		QMainWindow* w = qobject_cast<QMainWindow*>(top_widget);
+		if (w) {
+			for (QTabWidget* tab_widget : w->findChildren<QTabWidget*>()) {
+				PVWorkspace* workspace = qobject_cast<PVWorkspace*>(tab_widget->currentWidget());
+				if (workspace) {
+					active_workspaces.append(workspace);
+				}
+			}
+		}
+	}
+
+	assert(active_workspaces.size() > 0); // Hierarchy is supposed to be: PVMainWindow > PVWorkspaceTabWidget > PVWorkspace.
+
+	PVWorkspace* workspace = nullptr;
+	int z_oder = -1;
+
+	for (PVWorkspace* w : active_workspaces) {
+		if (w->geometry().contains(w->mapFromGlobal(QCursor::pos()))) {
+			if (w->z_order() > z_oder) {
+				z_oder = w->z_order();
+				workspace = w;
+			}
+		}
+	}
+
+	std::cout << "workspace=" << workspace << std::endl;
+	return workspace;
+}
+
+void PVGuiQt::PVWorkspace::changeEvent(QEvent *event)
+{
+	QMainWindow::changeEvent(event);
+
+	if (event->type() == QEvent::ActivationChange && isActiveWindow()) {
+		_z_order_index = ++_z_order_counter;
+	}
+}
+
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/, Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/)
 {
 	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, can_be_central_display, this);
@@ -124,6 +172,7 @@ PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(Picviz::PVView* v
 
 	view_display->setWindowTitle(name);
 	addDockWidget(area, view_display);
+	connect(view_display, SIGNAL(try_automatic_tab_switch()), this, SLOT(emit_try_automatic_tab_switch()));
 
 	_displays.append(view_display);
 

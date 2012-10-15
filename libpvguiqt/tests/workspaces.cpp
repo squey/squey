@@ -5,169 +5,132 @@
  */
 
 
-#include <pvkernel/core/lambda_connect.h>
+#include <pvparallelview/common.h>
+#include <pvparallelview/PVBCICode.h>
+#include <pvparallelview/PVBCIBackendImage.h>
+#include <pvparallelview/PVBCIDrawingBackendCUDA.h>
+#include <pvparallelview/PVZonesDrawing.h>
+#include <pvparallelview/PVZonesManager.h>
+#include <pvparallelview/PVLinesView.h>
+#include <pvparallelview/PVParallelView.h>
+#include <pvparallelview/PVLibView.h>
 
-#include "workspaces.h"
+#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/PVDataTreeObject.h>
+#include <picviz/PVMapped.h>
+#include <picviz/PVPlotted.h>
+#include <picviz/PVSource.h>
+#include <picviz/PVView.h>
+#include <pvhive/PVActor.h>
+#include <pvhive/PVCallHelper.h>
+#include <pvguiqt/PVHiveDataTreeModel.h>
+#include <pvguiqt/PVRootTreeModel.h>
+#include <pvguiqt/PVRootTreeView.h>
+#include <pvguiqt/PVWorkspace.h>
+#include <pvguiqt/PVWorkspacesTabWidget.h>
+
+#include <pvguiqt/PVListingModel.h>
+#include <pvguiqt/PVListingSortFilterProxyModel.h>
+#include <pvguiqt/PVListingView.h>
+
+
+
+#include "common.h"
+#include "test-env.h"
 
 #include <iostream>
-#include <QDateTime>
 
-static bool drag_started = false;
+#include <QApplication>
+#include <QMainWindow>
+#include <QTabWidget>
+#include <QStyle>
+#include <QDesktopWidget>
+#include <QLabel>
+#include <QPushButton>
 
-unsigned int CustomMainWindow::zOrderCounter = 0;
-
-CustomMainWindow::CustomMainWindow(QWidget* parent /* = 0*/) : QMainWindow(parent)
+class CustomMainWindow : public QMainWindow
 {
-	setGeometry(
-		QStyle::alignedRect(
-			Qt::LeftToRight,
-			Qt::AlignCenter,
-			size(),
-			QApplication::desktop()->availableGeometry()
-		));
-}
+public:
 
-void CustomMainWindow::dragStarted(bool started)
-{
-	if(started)
+	CustomMainWindow()
 	{
-		if(/*CustomDockWidget* dock = */qobject_cast<CustomDockWidget*>(sender())) {
-			drag_started = true;
-		}
+		setMinimumSize(1800, 1150);
+
+		setGeometry(
+		    QStyle::alignedRect(
+		        Qt::LeftToRight,
+		        Qt::AlignCenter,
+		        size(),
+		        qApp->desktop()->availableGeometry()
+		    ));
 	}
-}
+};
 
-void CustomMainWindow::dragEnded()
-{
-	drag_started = false;
-}
-
-void CustomMainWindow::CreateDockWidgets()
-{
-	CustomDockWidget* dock_widget = new CustomDockWidget(this);
-	dock_widget->setWidget(new QPushButton("Button"));
-	dock_widget->setMouseTracking(true);
-	//dock_widget->setTitleBarWidget(new QLabel("title"));
-	addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
-
-	connect(dock_widget, SIGNAL(topLevelChanged(bool)), this, SLOT(dragStarted(bool)));
-	connect(dock_widget, SIGNAL(dockLocationChanged (Qt::DockWidgetArea)), this, SLOT(dragEnded()));
-}
-
-
-void CustomMainWindow::changeEvent(QEvent *event)
-{
-	QMainWindow::changeEvent(event);
-
-	if (event->type() == QEvent::ActivationChange && isActiveWindow())
-	{
-		zOrderIndex = ++zOrderCounter;
-	}
-}
-
-CustomMainWindow* CustomDockWidget::workspace_under_mouse()
-{
-	CustomMainWindow* main_window_under_mouse = nullptr;
-	int z_oder = -1;
-
-	for (QWidget* top_widget : QApplication::topLevelWidgets()) {
-		CustomMainWindow* main_window = qobject_cast<CustomMainWindow*>(top_widget);
-		if (main_window) {
-			QRect main_global_rect = main_window->geometry();
-			if (main_global_rect.contains(QCursor::pos()) && main_window->z_order() > z_oder) {
-				z_oder = main_window->z_order();
-				main_window_under_mouse = main_window;
-			}
-		}
-	}
-
-	return main_window_under_mouse;
-}
-
-bool CustomDockWidget::event(QEvent* event)
-{
-	switch (event->type()) {
-		case QEvent::MouseMove:
-		{
-			QMouseEvent* mouse_event = (QMouseEvent*) event;
-
-			CustomMainWindow* main_window = workspace_under_mouse();
-
-			if (main_window) {
-				std::cout << "Z Order=" << main_window->z_order() << std::endl;
-
-				if (drag_started && main_window && main_window != parent()) {
-					QMouseEvent fake_event3(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-					QDockWidget::event(&fake_event3);
-
-					qobject_cast<CustomMainWindow*>(parent())->removeDockWidget(this);
-					show();
-
-					main_window->activateWindow();
-					main_window->addDockWidget(Qt::RightDockWidgetArea, this); // Qt::NoDockWidgetArea yields "QMainWindow::addDockWidget: invalid 'area' argument"
-					setFloating(true); // We don't want the dock widget to be docked
-
-					QCursor::setPos(mapToGlobal(_press_pt));
-					move(mapToGlobal(_press_pt));
-
-					QMouseEvent* fake_event1 = new QMouseEvent(QEvent::MouseButtonPress, _press_pt, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-					QApplication::postEvent(this, fake_event1);
-
-
-					QApplication::processEvents(QEventLoop::AllEvents);
-
-					grabMouse();
-
-
-					return true;
-				}
-			}
-			break;
-		}
-		case QEvent::MouseButtonPress:
-		{
-			QMouseEvent* mouse_event = (QMouseEvent*) event;
-			std::cout << "Press mouse point: " << mouse_event->pos().x() << "/" << mouse_event->pos().y() << std::endl;
-			_press_pt = mouse_event->pos();
-			break;
-		}
-		case QEvent::MouseButtonRelease:
-		{
-			QMouseEvent* mouse_event = (QMouseEvent*) event;
-			std::cout << "Release mouse point: " << mouse_event->pos().x() << "/" << mouse_event->pos().y() << std::endl;
-			break;
-		}
-		case QEvent::Leave:
-		{
-			std::cout << "Mouse leaving" << std::endl;
-			break;
-		}
-		default:
-		{
-			//std::cout << "CustomDockWidget event: " << event->type() << std::endl;
-			break;
-		}
-
-	}
-	return QDockWidget::event(event);
-}
 
 int main(int argc, char** argv)
 {
+	if (argc <= 2) {
+		std::cerr << "Usage: " << argv[0] << " file format" << std::endl;
+		return 1;
+	}
+
+	PVCore::PVIntrinsics::init_cpuid();
+	init_env();
+
+	// Get a Picviz tree from the given file/format
+	Picviz::PVRoot_p root;
+	Picviz::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
+	Picviz::PVSource_sp src2 = get_src_from_file(root->get_children().at(0), argv[1], argv[2]);
+	src->create_default_view();
+	src2->create_default_view();
+
+	Picviz::PVView_p view(src->current_view()->get_parent()->shared_from_this());
+	view->process_parent_plotted();
+
+	// Qt app
 	QApplication app(argc, argv);
 
-	CustomMainWindow* mw1 = new CustomMainWindow();
-	mw1->setWindowTitle("MW1");
-	mw1->setCentralWidget(new QLabel("centralWidget"));
-	CustomMainWindow* mw2 = new CustomMainWindow();
-	mw2->setWindowTitle("MW2");
-	mw2->setCentralWidget(new QLabel("centralWidget"));
+	// Create our model and view
+	root->dump();
+	src->dump();
 
-	mw1->CreateDockWidgets();
-	mw2->CreateDockWidgets();
+	/*PVGuiQt::PVRootTreeModel* model = new PVGuiQt::PVRootTreeModel(*root);
+	PVGuiQt::PVRootTreeView* data_tree_display = new PVGuiQt::PVRootTreeView(model);*/
 
-	mw1->show();
-	mw2->show();
+	CustomMainWindow* mw = new CustomMainWindow();
+
+	PVGuiQt::PVWorkspacesTabWidget* workspaces_tab_widget = new PVGuiQt::PVWorkspacesTabWidget(mw);
+	workspaces_tab_widget->resize(mw->size());
+
+	PVGuiQt::PVWorkspace* workspace1 = new PVGuiQt::PVWorkspace(src.get());
+
+	PVGuiQt::PVWorkspace* workspace2 = new PVGuiQt::PVWorkspace(src2.get());
+
+
+	workspaces_tab_widget->addTab(workspace1, "Workspace1");
+	workspaces_tab_widget->addTab(workspace2, "Workspace2");
+
+
+	PVParallelView::common::init<PVParallelView::PVBCIDrawingBackendCUDA>();
+
+	PVParallelView::PVLibView* plib_view = PVParallelView::common::get_lib_view(*view);
+
+	//QWidget* parallel_view = plib_view->create_view();
+
+	//workspace1->setCentralWidget(parallel_view);
+
+
+	PVGuiQt::PVListingModel* listing_model = new PVGuiQt::PVListingModel(view);
+	PVGuiQt::PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view);
+	proxy_model->setSourceModel(listing_model);
+	PVGuiQt::PVListingView* listing_view = new PVGuiQt::PVListingView(view);
+	listing_view->setModel(proxy_model);
+
+
+	//workspace1->setCentralWidget(listing_view);
+	workspace1->set_central_display(view.get(), (QWidget*) listing_view, "Listing [" + view->get_name() + "]");
+
+	mw->show();
 
 	return app.exec();
 }

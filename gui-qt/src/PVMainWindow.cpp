@@ -71,6 +71,8 @@ QFile *report_file;
  * PVInspector::PVMainWindow::PVMainWindow
  *
  *****************************************************************************/
+Q_DECLARE_METATYPE(Picviz::PVSource*);
+
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QMainWindow(parent),
 	_load_project_dlg(this, tr("Load a project..."), QString(), PICVIZ_SCENE_ARCHIVE_FILTER ";;" ALL_FILES_FILTER),
@@ -125,7 +127,8 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	pv_FilterWidget = new PVFilterWidget(this);
 	pv_FilterWidget->hide();
 
-	pv_WorkspacesTabWidget = new PVWorkspacesTabWidget(this);
+	pv_WorkspacesTabWidget = new PVGuiQt::PVWorkspacesTabWidget(this);
+	connect(pv_WorkspacesTabWidget, SIGNAL(workspace_closed(Picviz::PVSource*)), this, SLOT(close_source(Picviz::PVSource*)));
 
 	// We display the PV Icon together with a button to import files
 	pv_centralStartWidget = new QWidget();
@@ -226,6 +229,17 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 
 	// The default title isn't set, so do this by hand...
 	setWindowTitle(QString("%1[*] - Picviz Inspector " PICVIZ_CURRENT_VERSION_STR).arg(_cur_project_file));
+
+
+	//Set stylesheet
+	QFile css_file(":/gui.css");
+	css_file.open(QFile::ReadOnly);
+	QTextStream css_stream(&css_file);
+	QString css_string(css_stream.readAll());
+	css_file.close();
+	setStyleSheet(css_string);
+
+	show();
 }
 
 
@@ -384,7 +398,7 @@ void PVInspector::PVMainWindow::close_scene()
 	// Close sources one by one
 	int ntabs = pv_WorkspacesTabWidget->count();
 	for (int i = 0; i < ntabs; i++) {
-		close_source((PVGuiQt::PVWorkspace*) pv_WorkspacesTabWidget->widget(0));
+		pv_WorkspacesTabWidget->remove_workspace(0);
 	}
 	if (_ad2g_mw) {
 		_ad2g_mw->deleteLater();
@@ -401,16 +415,14 @@ void PVInspector::PVMainWindow::close_scene()
  * PVInspector::PVMainWindow::close_source
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::close_source(PVGuiQt::PVWorkspace* tab)
+void PVInspector::PVMainWindow::close_source(Picviz::PVSource* src)
 {
-	Picviz::PVSource* src = tab->get_source();
 	_scene->remove_child(*src);
 
 	if (_scene->get_children_count() == 0) {
 		show_start_page(true);
 	}
 }
-
 
 
 /******************************************************************************

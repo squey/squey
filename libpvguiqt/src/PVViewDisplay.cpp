@@ -11,12 +11,16 @@
 
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVWorkspace.h>
+#include <pvguiqt/PVWorkspacesTabWidget.h>
 
 #include <picviz/PVView.h>
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
 #include <pvhive/waxes/waxes.h>
+
+#include <QApplication>
+#include <QMouseEvent>
 
 PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspace* workspace) :
 	QDockWidget((QWidget*)workspace),
@@ -45,6 +49,109 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 	if (can_be_central_widget) {
 		setAttribute(Qt::WA_DeleteOnClose, true);
 	}
+
+	connect(this, SIGNAL(topLevelChanged(bool)), this, SLOT(dragStarted(bool)));
+	connect(this, SIGNAL(dockLocationChanged (Qt::DockWidgetArea)), this, SLOT(dragEnded()));
+}
+
+bool PVGuiQt::PVViewDisplay::event(QEvent* event)
+{
+// Allow PVViewDisplay to be docked inside any other PVWorkspace
+//                ,
+//          ._  \/, ,|_
+//          -\| \|;|,'_
+//          `_\|\|;/-.
+//           `_\\|/._
+//          ,'__   __`.
+//         / /_ | | _\ \  ┌─────────────────────────────
+//        / ((o)| |(o)) \ | Voodoo magic begins here...
+//        |  `--/ \--'  | └─────────────────────────────
+//  ,--.   `.   '-'   ,'  /
+// (O..O)    `.uuuuu,'   y
+//  \==/     _|nnnnn|_
+// .'||`. ,-' \_____/ `-.
+//  _||,-'      | |      `.
+// (__)  _,-.   ; |   .'.  `.
+// (___)'   |__/___\__|  \(__)
+// (__)     :::::::::::  (___)
+//   ||    :::::::::::::  (__)
+//   ||    :::::::::::::
+//        __|   | | _ |__
+//       (_(_(_,' '._)_)_)
+//
+	switch (event->type()) {
+		case QEvent::MouseMove:
+		{
+			if (PVGuiQt::PVWorkspace::_drag_started) {
+				emit try_automatic_tab_switch();
+
+				QMouseEvent* mouse_event = (QMouseEvent*) event;
+				PVWorkspace* workspace = PVGuiQt::PVWorkspace::workspace_under_mouse();
+
+				if (workspace) {
+
+					if (workspace != parent()) {
+
+						QMouseEvent fake_mouse_release(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+						QDockWidget::event(&fake_mouse_release);
+
+						qobject_cast<PVWorkspace*>(parent())->removeDockWidget(this);
+						show();
+
+						workspace->activateWindow();
+						workspace->addDockWidget(Qt::RightDockWidgetArea, this); // Qt::NoDockWidgetArea yields "QMainWindow::addDockWidget: invalid 'area' argument"
+						setFloating(true); // We don't want the dock widget to be docked right now
+
+						QCursor::setPos(mapToGlobal(_press_pt));
+						move(mapToGlobal(_press_pt));
+
+						QMouseEvent* fake_mouse_press = new QMouseEvent(QEvent::MouseButtonPress, _press_pt, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+						QApplication::postEvent(this, fake_mouse_press);
+
+
+						QApplication::processEvents(QEventLoop::AllEvents);
+
+						grabMouse();
+
+						return true;
+					}
+				}
+			}
+			break;
+		}
+		case QEvent::MouseButtonPress:
+		{
+			QMouseEvent* mouse_event = (QMouseEvent*) event;
+			_press_pt = mouse_event->pos();
+			break;
+		}
+		case QEvent::MouseButtonRelease:
+		{
+			PVGuiQt::PVWorkspace::_drag_started = false;
+			break;
+		}
+		default:
+		{
+			break;
+		}
+
+	}
+	return QDockWidget::event(event);
+}
+
+void PVGuiQt::PVViewDisplay::dragStarted(bool started)
+{
+	if(started)
+	{
+		if(qobject_cast<PVViewDisplay*>(sender())) {
+			PVGuiQt::PVWorkspace::_drag_started = true;
+		}
+	}
+}
+
+void PVGuiQt::PVViewDisplay::dragEnded()
+{
+	PVGuiQt::PVWorkspace::_drag_started = false;
 }
 
 void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
