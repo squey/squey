@@ -71,6 +71,7 @@ public:
 
 public:
 	PVWorkspace(Picviz::PVSource* source, QWidget* parent = 0);
+	PVWorkspace(QWidget* parent = 0);
 
 	static PVWorkspace* workspace_under_mouse();
 	static bool drag_started() { return _drag_started; }
@@ -123,7 +124,7 @@ protected:
 
 private:
 	QList<PVViewDisplay*> _displays;
-	Picviz::PVSource* _source;
+	Picviz::PVSource* _source = nullptr;
 	QToolBar* _toolbar;
 	QAction* _datatree_view_action;
 

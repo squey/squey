@@ -4,9 +4,10 @@
  * Copyright (C) Picviz Labs 2012
  */
 
-#include <QMenu>
-
 #include <QAbstractScrollArea>
+#include <QApplication>
+#include <QMenu>
+#include <QMouseEvent>
 #include <QScrollBar>
 
 #include <pvguiqt/PVViewDisplay.h>
@@ -19,8 +20,9 @@
 #include <pvhive/PVHive.h>
 #include <pvhive/waxes/waxes.h>
 
-#include <QApplication>
-#include <QMouseEvent>
+#include <X11/Xlib.h>
+#include <QX11Info>
+
 
 PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspace* workspace) :
 	QDockWidget((QWidget*)workspace),
@@ -92,8 +94,9 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 
 					if (workspace != parent()) {
 
-						QMouseEvent fake_mouse_release(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-						QDockWidget::event(&fake_mouse_release);
+						QMouseEvent* fake_mouse_release = new QMouseEvent(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+						QApplication::postEvent(this, fake_mouse_release);
+						QApplication::processEvents(QEventLoop::AllEvents);
 
 						qobject_cast<PVWorkspace*>(parent())->removeDockWidget(this);
 						show();
@@ -105,11 +108,15 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 						QCursor::setPos(mapToGlobal(_press_pt));
 						move(mapToGlobal(_press_pt));
 
+						XSync(QX11Info::display(), false);
+
 						QMouseEvent* fake_mouse_press = new QMouseEvent(QEvent::MouseButtonPress, _press_pt, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
 						QApplication::postEvent(this, fake_mouse_press);
 
 
 						QApplication::processEvents(QEventLoop::AllEvents);
+
+						QCursor::setPos(mapToGlobal(_press_pt));
 
 						grabMouse();
 
@@ -128,6 +135,11 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 		case QEvent::MouseButtonRelease:
 		{
 			PVGuiQt::PVWorkspace::_drag_started = false;
+			break;
+		}
+		case QEvent::Move:
+		{
+			PVGuiQt::PVWorkspace::_drag_started = true;
 			break;
 		}
 		default:

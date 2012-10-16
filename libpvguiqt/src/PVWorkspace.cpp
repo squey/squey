@@ -122,6 +122,11 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	}
 }
 
+PVGuiQt::PVWorkspace::PVWorkspace(QWidget* parent) : QMainWindow(parent)
+{
+
+}
+
 PVGuiQt::PVWorkspace* PVGuiQt::PVWorkspace::workspace_under_mouse()
 {
 	QList<PVWorkspace*> active_workspaces;
@@ -151,7 +156,6 @@ PVGuiQt::PVWorkspace* PVGuiQt::PVWorkspace::workspace_under_mouse()
 		}
 	}
 
-	std::cout << "workspace=" << workspace << std::endl;
 	return workspace;
 }
 

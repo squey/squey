@@ -14,9 +14,11 @@
 #include <QEvent>
 #include <QTabBar>
 #include <QMouseEvent>
+#include <QPushButton>
 #include <QDateTime>
+#include <QPropertyAnimation>
 
-#define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 1000
+#define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 500
 
 PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(QWidget* parent) :
 	QTabWidget(parent),
@@ -35,6 +37,73 @@ PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(QWidget* parent) :
 
 	setTabsClosable(true);
 	connect(tabBar(), SIGNAL(tabCloseRequested(int)), this, SLOT(tabCloseRequested_Slot(int)));
+
+	QWidget* new_tab = new QWidget();
+	QTabWidget::addTab(new_tab, QIcon(":/more.png"), "");
+	setTabToolTip(0, tr("New open workspace"));
+	QPushButton* hidden_close_button = new QPushButton();
+	hidden_close_button->resize(QSize(0, 0));
+	tabBar()->setTabButton(0, QTabBar::RightSide, hidden_close_button);
+	connect(this, SIGNAL(currentChanged(int)), this, SLOT(tab_changed(int)));
+}
+
+int PVGuiQt::PVWorkspacesTabWidget::count() const
+{
+	return QTabWidget::count() -1; // Substract new workspace special tab from count
+}
+
+void PVGuiQt::PVWorkspacesTabWidget::tab_changed(int index)
+{
+	if (index == count()) {
+		addTab(new PVWorkspace(this), "Open workspace");
+		setCurrentIndex(count()-1);
+	}
+}
+
+void PVGuiQt::PVWorkspacesTabWidget::mouseMoveEvent(QMouseEvent* event)
+{
+	if (tabBar()->tabAt(event->pos()) == count()) {
+		setCursor(Qt::PointingHandCursor);
+	}
+	else {
+		setCursor(Qt::ArrowCursor);
+	}
+}
+
+int PVGuiQt::PVWorkspacesTabWidget::addTab(QWidget* page, const QString & label)
+{
+	int index = insertTab(count(), page, label);
+
+	QPropertyAnimation *animation = new QPropertyAnimation(this, "tab_size");
+	animation->setDuration(200);
+	animation->setStartValue(0);
+	animation->setEndValue(100);
+	animation->start();
+
+	return index;
+}
+
+/*void PVGuiQt::PVWorkspacesTabWidget::removeTab(int index)
+{
+	QPropertyAnimation *animation = new QPropertyAnimation(this, "tab_size");
+	animation->setDuration(200);
+	animation->setStartValue(100);
+	animation->setEndValue(0);
+	animation->start();
+
+	QTabWidget::removeTab(index);
+}*/
+
+void PVGuiQt::PVWorkspacesTabWidget::set_tab_size(int tab_size_percent)
+{
+
+	QString str = QString("QTabBar::tab:selected { width: %1%;}").arg(tab_size_percent);
+	if (tab_size_percent % 100 == 0) {
+		tabBar()->setStyleSheet("");
+	}
+	else {
+		tabBar()->setStyleSheet(str);
+	}
 }
 
 void PVGuiQt::PVWorkspacesTabWidget::tabInserted(int index)
@@ -74,13 +143,20 @@ void PVGuiQt::PVWorkspacesTabWidget::remove_workspace(int index)
 {
 	assert(index != -1);
 	PVGuiQt::PVWorkspace* workspace = qobject_cast<PVGuiQt::PVWorkspace*>(widget(index));
-	emit workspace_closed(workspace->get_source());
+	if (workspace->get_source()) {
+		emit workspace_closed(workspace->get_source());
+	}
 
+	blockSignals(true);
 	removeTab(index);
+	blockSignals(false);
 
-	if(currentIndex() == -1) {
+	if(count() == 0) {
 		emit is_empty();
 		hide();
+	}
+	else {
+		setCurrentIndex(index-1);
 	}
 
 	workspace->deleteLater();

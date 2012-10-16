@@ -1,3 +1,199 @@
+#if 1
+/**
+ * \file workspaces.cpp
+ *
+ * Copyright (C) Picviz Labs 2012
+ */
+
+
+#include <pvkernel/core/lambda_connect.h>
+
+#include "workspaces.h"
+
+#include <iostream>
+#include <QDateTime>
+
+static bool drag_started = false;
+
+unsigned int CustomMainWindow::zOrderCounter = 0;
+
+CustomMainWindow::CustomMainWindow(QWidget* parent /* = 0*/) : QMainWindow(parent)
+{
+        setGeometry(
+                QStyle::alignedRect(
+                        Qt::LeftToRight,
+                        Qt::AlignCenter,
+                        size(),
+                        QApplication::desktop()->availableGeometry()
+                ));
+}
+
+void CustomMainWindow::dragStarted(bool started)
+{
+        if(started)
+        {
+                if(/*CustomDockWidget* dock = */qobject_cast<CustomDockWidget*>(sender())) {
+                        drag_started = true;
+                }
+        }
+}
+
+void CustomMainWindow::dragEnded()
+{
+        drag_started = false;
+}
+
+void CustomMainWindow::CreateDockWidgets()
+{
+        CustomDockWidget* dock_widget = new CustomDockWidget(this);
+        dock_widget->setWidget(new QPushButton("Button"));
+        dock_widget->setMouseTracking(true);
+        //dock_widget->setTitleBarWidget(new QLabel("title"));
+        addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
+
+        connect(dock_widget, SIGNAL(topLevelChanged(bool)), this, SLOT(dragStarted(bool)));
+        connect(dock_widget, SIGNAL(dockLocationChanged (Qt::DockWidgetArea)), this, SLOT(dragEnded()));
+}
+
+
+void CustomMainWindow::changeEvent(QEvent *event)
+{
+        QMainWindow::changeEvent(event);
+
+        if (event->type() == QEvent::ActivationChange && isActiveWindow())
+        {
+                zOrderIndex = ++zOrderCounter;
+        }
+}
+
+CustomMainWindow* CustomDockWidget::workspace_under_mouse()
+{
+        CustomMainWindow* main_window_under_mouse = nullptr;
+        int z_oder = -1;
+
+        for (QWidget* top_widget : QApplication::topLevelWidgets()) {
+                CustomMainWindow* main_window = qobject_cast<CustomMainWindow*>(top_widget);
+                if (main_window) {
+                        QRect main_global_rect = main_window->geometry();
+                        if (main_global_rect.contains(QCursor::pos()) && main_window->z_order() > z_oder) {
+                                z_oder = main_window->z_order();
+                                main_window_under_mouse = main_window;
+                        }
+                }
+        }
+
+        return main_window_under_mouse;
+}
+
+bool CustomDockWidget::event(QEvent* event)
+{
+        switch (event->type()) {
+                case QEvent::MouseMove:
+                {
+                        QMouseEvent* mouse_event = (QMouseEvent*) event;
+
+                        CustomMainWindow* main_window = workspace_under_mouse();
+
+                        if (main_window) {
+                                if (drag_started && main_window && main_window != parent()) {
+                                		std::cout << this << "/fake event release" << std::endl;
+
+                                        QMouseEvent fake_event3(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                                        QDockWidget::event(&fake_event3);
+
+                                        std::cout << this << "/remove dock widget + show" << std::endl;
+                                        qobject_cast<CustomMainWindow*>(parent())->removeDockWidget(this);
+                                        show();
+
+                                        std::cout << this << "/addDockWidget + floating" << std::endl;
+                                        main_window->activateWindow();
+                                        main_window->addDockWidget(Qt::RightDockWidgetArea, this); // Qt::NoDockWidgetArea yields "QMainWindow::addDockWidget: invalid 'area' argument"
+                                        setFloating(true); // We don't want the dock widget to be docked
+
+                                        QPoint curpos = QCursor::pos();
+                                        std::cout << this << "/process event: qcursor::pos: " << curpos.x() << "/" << curpos.y() << std::endl;
+
+                                        QCursor::setPos(mapToGlobal(_press_pt));
+                                        move(mapToGlobal(_press_pt));
+
+                                        QMouseEvent* fake_event1 = new QMouseEvent(QEvent::MouseButtonPress, _press_pt, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                                        QApplication::postEvent(this, fake_event1);
+
+                                        curpos = QCursor::pos();
+                                        std::cout << this << "/process event: qcursor::pos: " << curpos.x() << "/" << curpos.y() << std::endl;
+
+                                        QApplication::processEvents(QEventLoop::AllEvents);
+
+                                        curpos = QCursor::pos();
+                                        std::cout << this << "/process event: qcursor::pos: " << curpos.x() << "/" << curpos.y() << std::endl;
+
+                                        grabMouse();
+
+
+                                        return true;
+                                }
+                        }
+                        break;
+                }
+                case QEvent::MouseButtonPress:
+                {
+                        QMouseEvent* mouse_event = (QMouseEvent*) event;
+                        std::cout << this << "/Press mouse point: " << mouse_event->pos().x() << "/" << mouse_event->pos().y() << std::endl;
+                        _press_pt = mouse_event->pos();
+                        break;
+                }
+                case QEvent::MouseButtonRelease:
+                {
+                        QMouseEvent* mouse_event = (QMouseEvent*) event;
+                        std::cout << this << "/Release mouse point: " << mouse_event->pos().x() << "/" << mouse_event->pos().y() << std::endl;
+                        break;
+                }
+                case QEvent::Leave:
+                {
+                        std::cout << this << "/Mouse leaving" << std::endl;
+                        break;
+                }
+                default:
+                {
+                        //std::cout << "CustomDockWidget event: " << event->type() << std::endl;
+                        break;
+                }
+
+        }
+
+        std::cout << this << ": " << event->type() << std::endl;
+        QMouseEvent* mouse_event = dynamic_cast<QMouseEvent*>(event);
+        if (mouse_event) {
+            std::cout << this << "/mouse_event=(" << mouse_event->pos().x() << ";" << mouse_event->pos().y() << ")" << std::endl;
+        }
+
+        std::cout << this << "/_press_pt=(" << _press_pt.x() << ";" << _press_pt.y() << ")" << std::endl;
+
+        return QDockWidget::event(event);
+}
+
+int main(int argc, char** argv)
+{
+        QApplication app(argc, argv);
+
+        CustomMainWindow* mw1 = new CustomMainWindow();
+        mw1->setWindowTitle("MW1");
+        mw1->setCentralWidget(new QLabel("centralWidget"));
+        CustomMainWindow* mw2 = new CustomMainWindow();
+        mw2->setWindowTitle("MW2");
+        mw2->setCentralWidget(new QLabel("centralWidget"));
+
+        mw1->CreateDockWidgets();
+        mw2->CreateDockWidgets();
+
+        mw1->show();
+        mw2->show();
+
+        return app.exec();
+}
+
+
+#else
 /**
  * \file workspaces.cpp
  *
@@ -97,18 +293,25 @@ int main(int argc, char** argv)
 	/*PVGuiQt::PVRootTreeModel* model = new PVGuiQt::PVRootTreeModel(*root);
 	PVGuiQt::PVRootTreeView* data_tree_display = new PVGuiQt::PVRootTreeView(model);*/
 
-	CustomMainWindow* mw = new CustomMainWindow();
+	CustomMainWindow* mw1 = new CustomMainWindow();
+	CustomMainWindow* mw2 = new CustomMainWindow();
 
-	PVGuiQt::PVWorkspacesTabWidget* workspaces_tab_widget = new PVGuiQt::PVWorkspacesTabWidget(mw);
-	workspaces_tab_widget->resize(mw->size());
+
+	PVGuiQt::PVWorkspacesTabWidget* workspaces_tab_widget1 = new PVGuiQt::PVWorkspacesTabWidget(mw1);
+	workspaces_tab_widget1->resize(mw1->size());
+
+	PVGuiQt::PVWorkspacesTabWidget* workspaces_tab_widget2 = new PVGuiQt::PVWorkspacesTabWidget(mw2);
+	workspaces_tab_widget2->resize(mw2->size());
 
 	PVGuiQt::PVWorkspace* workspace1 = new PVGuiQt::PVWorkspace(src.get());
-
 	PVGuiQt::PVWorkspace* workspace2 = new PVGuiQt::PVWorkspace(src2.get());
+	workspaces_tab_widget1->addTab(workspace1, "Workspace1");
+	workspaces_tab_widget1->addTab(workspace2, "Workspace2");
 
-
-	workspaces_tab_widget->addTab(workspace1, "Workspace1");
-	workspaces_tab_widget->addTab(workspace2, "Workspace2");
+	PVGuiQt::PVWorkspace* workspace3 = new PVGuiQt::PVWorkspace(src.get());
+	PVGuiQt::PVWorkspace* workspace4 = new PVGuiQt::PVWorkspace(src2.get());
+	workspaces_tab_widget2->addTab(workspace3, "Workspace3");
+	workspaces_tab_widget2->addTab(workspace4, "Workspace4");
 
 
 	PVParallelView::common::init<PVParallelView::PVBCIDrawingBackendCUDA>();
@@ -130,7 +333,10 @@ int main(int argc, char** argv)
 	//workspace1->setCentralWidget(listing_view);
 	workspace1->set_central_display(view.get(), (QWidget*) listing_view, "Listing [" + view->get_name() + "]");
 
-	mw->show();
+	mw1->show();
+	mw2->show();
 
 	return app.exec();
 }
+
+#endif
