@@ -81,7 +81,7 @@ int PVGuiQt::PVWorkspacesTabWidget::addTab(QWidget* page, const QString & label,
 	setCurrentIndex(index);
 
 	if (animation) {
-		QPropertyAnimation *animation = new QPropertyAnimation(this, "tab_width");
+		QPropertyAnimation* animation = new QPropertyAnimation(this, "tab_width");
 		animation->setDuration(TAB_OPENING_EFFECT_MSEC);
 		animation->setStartValue(25);
 		_tab_width = _tab_bar->tabSizeHint(index).width();
@@ -94,7 +94,7 @@ int PVGuiQt::PVWorkspacesTabWidget::addTab(QWidget* page, const QString & label,
 
 void PVGuiQt::PVWorkspacesTabWidget::set_tab_width(int tab_width)
 {
-	QString str = QString("QTabBar::tab:selected { width: %1px;}").arg(tab_width);
+	QString str = QString("QTabBar::tab:selected { width: %1px; color: rgba(0, 0, 0, %2%);}").arg(tab_width).arg((float)tab_width / _tab_width * 100);
 	tabBar()->setStyleSheet(tab_width == _tab_width ? "" : str);
 }
 

@@ -11,6 +11,7 @@
 #include <QTimer>
 #include <QTabBar>
 #include <QWidget>
+#include <QMouseEvent>
 
 namespace Picviz
 {
@@ -26,6 +27,16 @@ public:
 	QSize tabSizeHint(int index) const
 	{
 		return QTabBar::tabSizeHint(index);
+	}
+
+protected:
+	void mouseReleaseEvent(QMouseEvent* event)
+	{
+		// Tabs are closed on middle button click
+		if (event->button() == Qt::MidButton) {
+			emit tabCloseRequested(tabAt(event->pos()));
+		}
+		QTabBar::mouseReleaseEvent(event);
 	}
 };
 
