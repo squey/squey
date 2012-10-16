@@ -176,6 +176,12 @@ if(SET_PROTECT)
 	list(APPEND SRC_FILES ${CMAKE_CURRENT_BINARY_DIR}/gen_table.c)
 endif()
 
+if (USE_LTO AND SET_PROTECT)
+	# Remove LTO for picviz-inspector as it remove the calls made with MAO
+	list(REMOVE_ITEM CMAKE_CXX_FLAGS_RELPROTECT ${LTO_CXX_FLAGS})
+	list(REMOVE_ITEM CMAKE_SHARED_LINKER_FLAGS_RELPROTECT ${LTO_LINK_FLAGS})
+endif()
+
 if (WIN32)
 	add_executable(picviz-inspector WIN32 ${SRC_FILES} ${MOC_SRC} ${UI_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
 else (WIN32)
@@ -190,6 +196,7 @@ if(SET_PROTECT)
 endif()
 
 set_property(TARGET picviz-inspector APPEND PROPERTY LINK_FLAGS ${GALVEZ_LDFLAGS})
+
 target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES} pvguiqt pvparallelview pvhive picviz pvkernel ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY} ${GALVEZ_LIBS} ${OpenMP_LIBRARIES})
 
 INSTALL(TARGETS picviz-inspector DESTINATION .)

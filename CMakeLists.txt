@@ -18,6 +18,8 @@ include(CMakeCfgs.txt)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${picviz-inspector_SOURCE_DIR}/cmake)
 
+set(USE_OPENMP true)
+
 #
 # Required libraries
 #
@@ -30,7 +32,7 @@ include(CMakeVersionHandler.txt)
 
 # OpenMP for everyone
 add_definitions(${OpenMP_CXX_FLAGS})
-set(USE_OPENMP true)
+message(STATUS "OpenMP flags: ${OpenMP_CXX_FLAGS}")
 
 #############################################
 # BEGIN: ADD INCLUDE DIRS NEEDED EVERYWHERE #
@@ -52,6 +54,9 @@ include_directories(AFTER "${picviz-inspector_SOURCE_DIR}/include")
 ###########################################
 # END: ADD INCLUDE DIRS NEEDED EVERYWHERE #
 ###########################################
+
+# Test compilation target
+ADD_CUSTOM_TARGET(alltests COMMAND make)
 
 add_subdirectory(scripts)
 declare_internal_library(pvkernel)
