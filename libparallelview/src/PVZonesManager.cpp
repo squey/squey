@@ -199,6 +199,9 @@ void PVParallelView::PVZonesManager::update_from_axes_comb(Picviz::PVView const&
 
 void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID z)
 {
+	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	tbb::task_scheduler_init init(nthreads);
+
 	PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
 
 	if (zztree.is_initialized()) {

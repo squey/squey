@@ -114,17 +114,16 @@ void PVParallelView::PVZoomedZoneTree::process_seq(const PVParallelView::PVZoneP
 void PVParallelView::PVZoomedZoneTree::process_seq_from_zt(const PVZoneProcessing &zp,
                                                            PVZoneTree &zt)
 {
-	const uint32_t* pcol_a = zp.get_plotted_col_a();
-	const uint32_t* pcol_b = zp.get_plotted_col_b();
-	PVRow r;
+	register const uint32_t* pcol_a = zp.get_plotted_col_a();
+	register const uint32_t* pcol_b = zp.get_plotted_col_b();
 
 	for(unsigned i = 0; i < NBUCKETS; ++i) {
+		pvquadtree& tree_i = _trees[i];
 		for (unsigned j = 0; j < zt.get_branch_count(i); ++j) {
-			r = zt.get_branch_element(i, j);
-			PVParallelView::PVQuadTreeEntry e(pcol_a[r], pcol_b[r], r);
-			_trees[i].insert(e);
+			const PVRow r = zt.get_branch_element(i, j);
+			tree_i.insert(PVParallelView::PVQuadTreeEntry(pcol_a[r], pcol_b[r], r));
 		}
-		_trees[i].compact();
+		tree_i.compact();
 	}
 }
 
@@ -211,17 +210,22 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 		}
 		BENCH_END(zztree, "ZZTREE CREATION (SERIAL)", 1, 1, 1, 1);
 #else
-		tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, 128), [&](tbb::blocked_range<size_t> const& range){
+		tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, 256), [&](tbb::blocked_range<size_t> const& range){
+			pvquadtree* trees = this->_trees;
+			PVZoneTree& zt_(zt);
+			const uint32_t* pcol_a_ = pcol_a;
+			const uint32_t* pcol_b_ = pcol_b;
 			for (size_t i = range.begin(); i != range.end(); i++) {
-				for (size_t j = 0; j < zt.get_branch_count(i); ++j) {
-					const PVRow r = zt.get_branch_element(i, j);
+				pvquadtree& tree_i = trees[i];
+				for (size_t j = 0; j < zt_.get_branch_count(i); ++j) {
+					const PVRow r = zt_.get_branch_element(i, j);
 
-					PVParallelView::PVQuadTreeEntry e(pcol_a[r], pcol_b[r], r);
-					this->_trees[i].insert(e);
+					PVParallelView::PVQuadTreeEntry e(pcol_a_[r], pcol_b_[r], r);
+					tree_i.insert(e);
 				}
-				this->_trees[i].compact();
+				tree_i.compact();
 			}
-		});
+		}, tbb::auto_partitioner());
 		BENCH_END(zztree, "ZZTREE CREATION (PARALLEL)", 1, 1, 1, 1);
 #endif
 
@@ -250,7 +254,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 	uint32_t t1_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t1_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
 	                                                    0U, 1024U);
-	PVQuadTreeEntry *quadtree_entries = ctx.get_quadtree_entries();
+	zzt_tls &tls = ctx.get_tls().local();
+	PVQuadTreeEntry *quadtree_entries = tls.get_quadtree_entries();
 
 	for (uint32_t t1 = t1_min; t1 < t1_max; ++t1) {
 		for (uint32_t t2 = 0; t2 < 1024; ++t2) {
@@ -345,7 +350,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 	uint32_t t2_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t2_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
 	                                                    0U, 1024U);
-	PVQuadTreeEntry *quadtree_entries = ctx.get_quadtree_entries();
+	zzt_tls &tls = ctx.get_tls().local();
+	PVQuadTreeEntry *quadtree_entries = tls.get_quadtree_entries();
 
 	for (uint32_t t2 = t2_min; t2 < t2_max; ++t2) {
 		for (uint32_t t1 = 0; t1 < 1024; ++t1) {

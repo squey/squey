@@ -47,7 +47,11 @@ public:
 
 	void compact()
 	{
-		reallocate(_index);
+		if (_index) {
+			reallocate(_index);
+		} else {
+			clear();
+		}
 	}
 
 	void reset()
