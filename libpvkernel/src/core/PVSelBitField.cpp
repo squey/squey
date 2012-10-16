@@ -666,7 +666,7 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::or_optimized(const PVSelBitField& 
 		// TODO: GCC vectorize this, but we could try to
 		// do this by SSE and checking whether rhs._table[] vectors
 		// are non-null before doing the actual OR+store (thus saving stores)
-		for (PVRow i = 0; i < (PVRow) last_chunk; i++) {
+		for (PVRow i = 0; i <= (PVRow) last_chunk; i++) {
 			_table[i] |= rhs._table[i];
 		}
 	}

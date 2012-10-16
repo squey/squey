@@ -221,12 +221,13 @@ void Picviz::PVLayerStack::process(PVLayer &output_layer, PVRow row_count)
 				*  in the output layer */
 
 				// The line below is an optimized version of:
-				// temp_selection = layer_being_processed->get_selection() - output_layer.get_selection
+				//temp_selection = layer_being_processed->get_selection() - output_layer.get_selection();
 				temp_selection.AB_sub(layer_being_processed->get_selection(), output_layer.get_selection());
 
 				/* and we already update the selection in
 				*  the output_layer */
 				output_layer.get_selection().or_optimized(layer_being_processed->get_selection());
+				//output_layer.get_selection() |= layer_being_processed->get_selection();
 
 				/* We copy in the output_layer the only new
 				*  lines properties */

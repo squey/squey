@@ -26,7 +26,8 @@ class PVLayerStackView : public QTableView
 public:
 	PVLayerStackView(QWidget* parent = NULL);
 
-	void leaveEvent(QEvent *event);
+public:
+	PVLayerStackModel* ls_model();
 
 private:
 	void save_layer(int idx);
@@ -37,9 +38,11 @@ private:
 private slots:
 	void show_ctxt_menu(QPoint const& pt);
 	void layer_clicked(QModelIndex const& idx);
+	void layer_double_clicked(QModelIndex const& idx);
 
-public:
-	PVLayerStackModel* ls_model();
+protected:
+	void leaveEvent(QEvent *event);
+	void mouseDoubleClickEvent(QMouseEvent* event);
 
 
 private:
