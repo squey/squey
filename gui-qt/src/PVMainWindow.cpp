@@ -406,6 +406,7 @@ void PVInspector::PVMainWindow::close_scene()
 	_scene = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(root, "default");
 	_ad2g_mw = NULL;
 	set_project_modified(false);
+	current_tab = nullptr;
 }
 
 
