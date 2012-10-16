@@ -39,9 +39,9 @@ public:
 	void set_view(Picviz::PVView* view) { _view = view; }
 
 protected:
-	bool event(QEvent* event);
-	void contextMenuEvent(QContextMenuEvent* event);
-	void closeEvent(QCloseEvent * event)
+	bool event(QEvent* event) override;
+	void contextMenuEvent(QContextMenuEvent* event) override;
+	void closeEvent(QCloseEvent * event) override
 	{
 		emit display_closed();
 		QDockWidget::closeEvent(event);
@@ -57,6 +57,7 @@ signals:
 
 private:
 	void set_current_view();
+	void maximize_on_screen(int screen_number);
 
 private:
 	PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspace* parent);

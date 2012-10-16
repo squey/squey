@@ -6,9 +6,12 @@
 
 #include <QAbstractScrollArea>
 #include <QApplication>
+#include <QDesktopWidget>
 #include <QMenu>
 #include <QMouseEvent>
 #include <QScrollBar>
+
+#include <pvkernel/core/lambda_connect.h>
 
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVWorkspace.h>
@@ -174,11 +177,40 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 
 	if (add_menu) {
 		QMenu* ctxt_menu = new QMenu(this);
+
+		// Set as central display
 		QAction* switch_action = new QAction(tr("Set as central display"), this);
 		connect(switch_action, SIGNAL(triggered(bool)), (QWidget*)_workspace, SLOT(switch_with_central_widget()));
 		ctxt_menu->addAction(switch_action);
+
+		std::cout << "QApplication::desktop()->screenNumber()" << QApplication::desktop()->screenNumber(this) << std::endl;
+
+		// Maximize on left screen
+		int screen_number = QApplication::desktop()->screenNumber(this);
+		if (screen_number > 0) {
+			QAction* maximize_right_action = new QAction(tr(">> Maximize on right screen"), this);
+			::connect(maximize_right_action, SIGNAL(triggered(bool)), [=]{maximize_on_screen(screen_number-1);});
+			ctxt_menu->addAction(maximize_right_action);
+		}
+
+		if (screen_number < QApplication::desktop()->screenCount()-1) {
+			QAction* maximize_left_action = new QAction(tr("<< Maximize on left screen"), this);
+			::connect(maximize_left_action, SIGNAL(triggered(bool)), [=]{maximize_on_screen(screen_number+1);});
+			ctxt_menu->addAction(maximize_left_action);
+		}
+
 		ctxt_menu->popup(QCursor::pos());
 	}
+}
+
+void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
+{
+	std::cout << "screen_number=" << screen_number << std::endl;
+	QRect screenres = QApplication::desktop()->screenGeometry(screen_number);
+	setFloating(true);
+	move(QPoint(screenres.x(), screenres.y()));
+	resize(screenres.width(), screenres.height());
+	show();
 }
 
 void PVGuiQt::PVViewDisplay::set_current_view()
