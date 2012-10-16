@@ -62,9 +62,9 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 	main_layout->setContentsMargins(0,0,0,0);
 
 	// We also need two Layout for the left and right parts
-	QVBoxLayout *left_layout = new QVBoxLayout(this);
+	QVBoxLayout *left_layout = new QVBoxLayout();
 	left_layout->setContentsMargins(0,0,0,0);
-	QVBoxLayout *right_layout = new QVBoxLayout(this);
+	QVBoxLayout *right_layout = new QVBoxLayout();
 	right_layout->setContentsMargins(0,0,0,0);
 	
 	// We add these two layouts to the main_layout

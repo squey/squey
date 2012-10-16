@@ -24,14 +24,18 @@ class PVView;
 namespace PVGuiQt
 {
 
+class PVWorkspaceBase;
 class PVWorkspace;
+class PVOpenWorkspace;
 class FocusInEventFilter;
 
 class PVViewDisplay : public QDockWidget
 {
 	Q_OBJECT;
 
+	friend PVWorkspaceBase;
 	friend PVWorkspace;
+	friend PVOpenWorkspace;
 	friend FocusInEventFilter;
 
 public:
@@ -60,11 +64,11 @@ private:
 	void maximize_on_screen(int screen_number);
 
 private:
-	PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspace* parent);
+	PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspaceBase* parent);
 
 private:
 	Picviz::PVView* _view;
-	PVWorkspace* _workspace;
+	PVWorkspaceBase* _workspace;
 	QPoint _press_pt;
 };
 

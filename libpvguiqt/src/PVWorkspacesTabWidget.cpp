@@ -59,7 +59,7 @@ int PVGuiQt::PVWorkspacesTabWidget::count() const
 void PVGuiQt::PVWorkspacesTabWidget::tab_changed(int index)
 {
 	if (index == count()) {
-		addTab(new PVWorkspace(this), "Open workspace", true);
+		addTab(new PVOpenWorkspace(this), "Open workspace", true);
 		setCurrentIndex(count()-1);
 	}
 }
@@ -74,10 +74,23 @@ void PVGuiQt::PVWorkspacesTabWidget::mouseMoveEvent(QMouseEvent* event)
 	}
 }
 
-int PVGuiQt::PVWorkspacesTabWidget::addTab(QWidget* page, const QString & label, bool animation)
+int PVGuiQt::PVWorkspacesTabWidget::addTab(PVWorkspaceBase* workspace, const QString & label, bool animation)
 {
 	setCursor(Qt::ArrowCursor);
-	int index = insertTab(count(), page, label);
+
+	int insert_index = -1;
+	if (qobject_cast<PVWorkspace*>(workspace)) {
+		insert_index = _workspaces_count++;
+	}
+	else if (qobject_cast<PVOpenWorkspace*>(workspace)) {
+		insert_index = _workspaces_count + _openworkspaces_count++;
+	}
+	else
+	{
+		assert(false); // Unknown workspace type
+	}
+
+	int index = insertTab(insert_index, workspace, label);
 	setCurrentIndex(index);
 
 	if (animation) {
@@ -100,7 +113,10 @@ void PVGuiQt::PVWorkspacesTabWidget::set_tab_width(int tab_width)
 
 void PVGuiQt::PVWorkspacesTabWidget::tabInserted(int index)
 {
-	connect(widget(index), SIGNAL(try_automatic_tab_switch()), this, SLOT(start_checking_for_automatic_tab_switch()));
+	PVWorkspaceBase* workspace = (PVWorkspaceBase*) widget(index);
+
+	//!\\ Qt is complaining about signal not existing but it definitively does!
+	connect(workspace, SIGNAL(try_automatic_tab_switch()), this, SLOT(start_checking_for_automatic_tab_switch()));
 	QTabWidget::tabInserted(index);
 }
 
@@ -134,9 +150,18 @@ void PVGuiQt::PVWorkspacesTabWidget::tabCloseRequested_Slot(int index)
 void PVGuiQt::PVWorkspacesTabWidget::remove_workspace(int index)
 {
 	assert(index != -1);
-	PVGuiQt::PVWorkspace* workspace = qobject_cast<PVGuiQt::PVWorkspace*>(widget(index));
-	if (workspace->get_source()) {
-		emit workspace_closed(workspace->get_source());
+	PVGuiQt::PVWorkspaceBase* workspace = qobject_cast<PVGuiQt::PVWorkspaceBase*>(widget(index));
+
+	if (PVWorkspace* w = qobject_cast<PVWorkspace*>(workspace)) {
+		_workspaces_count--;
+		emit workspace_closed(w->get_source());
+	}
+	else if (qobject_cast<PVOpenWorkspace*>(workspace)) {
+		_openworkspaces_count--;
+	}
+	else
+	{
+		assert(false); // Unknown workspace type
 	}
 
 	blockSignals(true);
@@ -150,6 +175,4 @@ void PVGuiQt::PVWorkspacesTabWidget::remove_workspace(int index)
 	else {
 		setCurrentIndex(std::min(index, count()-1));
 	}
-
-	workspace->deleteLater();
 }

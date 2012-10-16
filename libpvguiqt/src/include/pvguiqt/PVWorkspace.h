@@ -39,54 +39,79 @@ namespace PVGuiQt
 class PVListingView;
 class PVViewDisplay;
 
-class PVWorkspace : public QMainWindow
+class PVWorkspaceBase : public QMainWindow
 {
-	Q_OBJECT;
+	Q_OBJECT
 
-	friend class PVViewDisplay;
+		friend class PVViewDisplay;
 
-private:
-	class PVViewWidgets
-	{
-		friend class PVWorkspace;
 	public:
-		PVViewWidgets(Picviz::PVView* view, PVWorkspace* tab)
-		{
-			Picviz::PVView_sp view_sp = view->shared_from_this();
-			pv_axes_combination_editor = new PVAxesCombinationDialog(view_sp, tab);
-		}
-		PVViewWidgets() { pv_axes_combination_editor = nullptr; /*pv_axes_properties = nullptr;*/ }
-		~PVViewWidgets() {};
+		PVWorkspaceBase(QWidget* parent) : QMainWindow(parent) {}
+		virtual ~PVWorkspaceBase() = 0;
+
+	public:
+		typedef PVHive::PVObserverSignal<PVCore::PVDataTreeObjectBase> datatree_obs_t;
+
+		static PVWorkspaceBase* workspace_under_mouse();
+		static bool drag_started() { return _drag_started; }
+
+		PVViewDisplay* add_view_display(Picviz::PVView* view, QWidget* view_display, const QString& name, bool can_be_central_display = true, Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
+		PVViewDisplay* set_central_display(Picviz::PVView* view, QWidget* view_widget, const QString& name);
+		void set_central_display(PVViewDisplay* view_display);
+		inline int z_order() { return _z_order_index; }
+
+	public slots:
+		void switch_with_central_widget(PVViewDisplay* display_dock = nullptr);
+		void display_destroyed(QObject* object = 0);
+		void emit_try_automatic_tab_switch() { emit try_automatic_tab_switch(); }
+
+	signals:
+		void try_automatic_tab_switch();
+
 	protected:
-		void delete_widgets() { pv_axes_combination_editor->deleteLater(); }
-	public:
-		PVGuiQt::PVAxesCombinationDialog* pv_axes_combination_editor;
-		//PVAxisPropertiesWidget  *pv_axes_properties;
-	};
+		void changeEvent(QEvent *event) override;
 
-	friend class PVViewWidgets;
+	protected:
+		QList<PVViewDisplay*> _displays;
+		int _z_order_index = 0;
+		static uint64_t _z_order_counter;
+		static bool _drag_started;
+};
+
+class PVWorkspace : public PVWorkspaceBase
+{
+	Q_OBJECT
+private:
+		class PVViewWidgets
+		{
+			friend class PVWorkspace;
+		public:
+			PVViewWidgets(Picviz::PVView* view, PVWorkspace* tab)
+			{
+				Picviz::PVView_sp view_sp = view->shared_from_this();
+				pv_axes_combination_editor = new PVAxesCombinationDialog(view_sp, tab);
+			}
+			PVViewWidgets() { pv_axes_combination_editor = nullptr; /*pv_axes_properties = nullptr;*/ }
+			~PVViewWidgets() {};
+		protected:
+			void delete_widgets() { pv_axes_combination_editor->deleteLater(); }
+		public:
+			PVGuiQt::PVAxesCombinationDialog* pv_axes_combination_editor;
+			//PVAxisPropertiesWidget  *pv_axes_properties;
+		};
+
+		friend class PVViewWidgets;
 
 public:
-	typedef PVHive::PVObserverSignal<PVCore::PVDataTreeObjectBase> datatree_obs_t;
-
+		Picviz::PVSource* get_source() const { return _source; }
+		PVViewWidgets const& get_view_widgets(Picviz::PVView* view);
+		PVAxesCombinationDialog* get_axes_combination_editor(Picviz::PVView* view)
+		{
+			PVViewWidgets const& widgets = get_view_widgets(view);
+			return widgets.pv_axes_combination_editor;
+		}
 public:
 	PVWorkspace(Picviz::PVSource* source, QWidget* parent = 0);
-	PVWorkspace(QWidget* parent = 0);
-
-	static PVWorkspace* workspace_under_mouse();
-	static bool drag_started() { return _drag_started; }
-
-	Picviz::PVSource* get_source() const { return _source; }
-	PVViewWidgets const& get_view_widgets(Picviz::PVView* view);
-	PVAxesCombinationDialog* get_axes_combination_editor(Picviz::PVView* view)
-	{
-		PVViewWidgets const& widgets = get_view_widgets(view);
-		return widgets.pv_axes_combination_editor;
-	}
-
-	PVViewDisplay* add_view_display(Picviz::PVView* view, QWidget* view_display, const QString& name, bool can_be_central_display = true, Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
-	PVViewDisplay* set_central_display(Picviz::PVView* view, QWidget* view_widget, const QString& name);
-	void set_central_display(PVViewDisplay* view_display);
 
 public:
 	PVListingView* create_listing_view(Picviz::PVView_sp view_sp);
@@ -96,10 +121,8 @@ public:
 	Picviz::PVView const* get_lib_view() const;
 	inline Picviz::PVSource* get_lib_src() { return _source; }
 	inline Picviz::PVSource const* get_lib_src() const { return _source; }
-	inline int z_order() { return _z_order_index; }
 
 public slots:
-	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr);
 	void add_listing_view(bool central = false);
 	void create_parallel_view(Picviz::PVView* view = nullptr);
 	void create_zoomed_parallel_view();
@@ -108,22 +131,12 @@ public slots:
 	void check_datatree_button(bool check = false);
 	void create_layerstack(Picviz::PVView* view = nullptr);
 	void destroy_layerstack();
-	void display_destroyed(QObject* object = 0);
 	void update_view_count(PVHive::PVObserverBase* obs_base);
-	void emit_try_automatic_tab_switch() { emit try_automatic_tab_switch(); }
-
-
-signals:
-	void try_automatic_tab_switch();
 
 private:
 	void refresh_views_menus();
 
-protected:
-	void changeEvent(QEvent *event) override;
-
 private:
-	QList<PVViewDisplay*> _displays;
 	Picviz::PVSource* _source = nullptr;
 	QToolBar* _toolbar;
 	QAction* _datatree_view_action;
@@ -136,10 +149,14 @@ private:
 	std::list<datatree_obs_t> _obs;
 	uint64_t _views_count;
 	QHash<Picviz::PVView const*, PVViewWidgets> _view_widgets;
+};
 
-	int _z_order_index = 0;
-	static uint64_t _z_order_counter;
-	static bool _drag_started;
+
+class PVOpenWorkspace : public PVWorkspaceBase
+{
+	Q_OBJECT
+public:
+	PVOpenWorkspace(QWidget* parent = 0);
 };
 
 }

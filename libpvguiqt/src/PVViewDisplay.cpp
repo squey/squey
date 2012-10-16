@@ -27,7 +27,7 @@
 #include <QX11Info>
 
 
-PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspace* workspace) :
+PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspaceBase* workspace) :
 	QDockWidget((QWidget*)workspace),
 	_view(view),
 	_workspace(workspace)
@@ -91,7 +91,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 				emit try_automatic_tab_switch();
 
 				QMouseEvent* mouse_event = (QMouseEvent*) event;
-				PVWorkspace* workspace = PVGuiQt::PVWorkspace::workspace_under_mouse();
+				PVWorkspaceBase* workspace = PVGuiQt::PVWorkspace::workspace_under_mouse();
 
 				if (workspace) {
 
@@ -101,7 +101,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 						QApplication::postEvent(this, fake_mouse_release);
 						QApplication::processEvents(QEventLoop::AllEvents);
 
-						qobject_cast<PVWorkspace*>(parent())->removeDockWidget(this);
+						qobject_cast<PVWorkspaceBase*>(parent())->removeDockWidget(this);
 						show();
 
 						workspace->activateWindow();
@@ -159,7 +159,7 @@ void PVGuiQt::PVViewDisplay::dragStarted(bool started)
 	if(started)
 	{
 		if(qobject_cast<PVViewDisplay*>(sender())) {
-			PVGuiQt::PVWorkspace::_drag_started = true;
+			PVGuiQt::PVWorkspaceBase::_drag_started = true;
 		}
 	}
 }
@@ -205,7 +205,6 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 
 void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
 {
-	std::cout << "screen_number=" << screen_number << std::endl;
 	QRect screenres = QApplication::desktop()->screenGeometry(screen_number);
 	setFloating(true);
 	move(QPoint(screenres.x(), screenres.y()));

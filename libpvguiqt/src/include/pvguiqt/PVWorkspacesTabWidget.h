@@ -21,6 +21,8 @@ class PVSource;
 namespace PVGuiQt
 {
 
+class PVWorkspaceBase;
+
 class PVTabBar : public QTabBar
 {
 public:
@@ -48,7 +50,7 @@ class PVWorkspacesTabWidget : public QTabWidget
 public:
 	PVWorkspacesTabWidget(QWidget* parent = 0);
 	void remove_workspace(int index);
-	int addTab(QWidget* page, const QString & label, bool animation = true);
+	int addTab(PVWorkspaceBase* page, const QString & label, bool animation = true);
 	int count() const;
 
 protected:
@@ -72,6 +74,9 @@ private:
 	int _tab_index;
 	PVTabBar* _tab_bar;
 	int _tab_width;
+
+	int _workspaces_count = 0;
+	int _openworkspaces_count = 0;
 };
 
 }
