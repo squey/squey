@@ -41,6 +41,9 @@ target_link_libraries(zoomed_zone_tree_render2 ${LINK_LIBRARIES})
 add_executable(create_tree create_tree.cpp)
 target_link_libraries(create_tree ${LINK_LIBRARIES})
 
+add_executable(quadtree-create-bench quadtree-create-bench.cpp common.cpp)
+target_link_libraries(quadtree-create-bench ${LINK_LIBRARIES})
+
 add_executable(sse_bci sse_bci.cpp)
 target_link_libraries(sse_bci ${LINK_LIBRARIES})
 
