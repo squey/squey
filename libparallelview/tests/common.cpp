@@ -13,13 +13,16 @@ static Picviz::PVView_sp g_fake_view;
 static Picviz::PVPlotted::uint_plotted_table_t g_norm_plotted;
 
 
-static void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol ncols)
+static void init_rand_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
 	srand(time(NULL));
 	p.clear();
-	p.reserve(nrows*ncols);
-	for (PVRow i = 0; i < nrows*ncols; i++) {
-		p.push_back((float)((double)(rand())/(double)RAND_MAX));
+	const PVRow nrows_aligned = ((nrows+3)/4)*4;
+	p.resize(nrows_aligned*ncols);
+	for (PVCol j = 0; j < ncols; j++) {
+		for (PVRow i = 0; i < nrows; i++) {
+			p[j*nrows_aligned+i] = (rand() << 1) | (rand()&1);
+		}
 	}
 }
 
@@ -68,9 +71,8 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 		ncols = atol(argv[3]);
 
 		if (fplotted == "0") {
-			Picviz::PVPlotted::plotted_table_t plotted;
-			init_rand_plotted(plotted, nrows, ncols);
-			Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
+			init_rand_plotted(norm_plotted, nrows, ncols);
+			//Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 		} else {
 			init_qt_plotted(norm_plotted, nrows, ncols);
 		}
