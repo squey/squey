@@ -1,0 +1,14 @@
+--- enumerable_thread_specific.h	2012-09-05 14:14:28.585617463 +0200
++++ /tmp/enumerable_thread_specific.h	2012-10-16 10:27:34.622678483 +0200
+@@ -708,9 +708,9 @@
+    
+         /*override*/ void* create_local() {
+ #if TBB_DEPRECATED
+-            void* lref = &my_locals[my_locals.grow_by(1)];
++            void* lref = &my_locals[my_locals.push_back(padded_element())];
+ #else
+-            void* lref = &*my_locals.grow_by(1);
++            void* lref = &*my_locals.push_back(padded_element());
+ #endif
+             my_construct_callback->construct(lref);
+             return lref;
