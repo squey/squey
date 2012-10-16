@@ -43,6 +43,9 @@
 	<file alias="add-url">resources/22x22/add-url.png</file>
 	<file alias="help">resources/22x22/help.png</file>
 	
+	<file alias="import_file">resources/import_file.png</file>
+	<file alias="export_file">resources/export_file.png</file>
+	
 	<file alias="Presets_Load_Action_Icon">resources/Presets_Load_Action_Icon.png</file>
 	<file alias="Presets_Save_Action_Icon">resources/Presets_Save_Action_Icon.png</file>
 	<file alias="remove-preset">resources/22x22/remove-preset.png</file>

@@ -86,11 +86,18 @@ public:
 			data.info.copy_id = v;
 		}
 
+		static inline axes_comb_id_t from_qvariant(QVariant const& v)
+		{
+			axes_comb_id_t ret;
+			ret.data.raw = (uint64_t) v.toULongLong(NULL);
+			return ret;
+		}
+
 		union {
 			struct
 			{
-				uint32_t copy_id;
 				PVCol    axis;
+				uint32_t copy_id;
 			} info;
 			uint64_t raw;
 		} data;

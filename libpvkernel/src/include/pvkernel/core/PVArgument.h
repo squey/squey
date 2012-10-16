@@ -133,6 +133,7 @@ LibKernelDecl void dump_argument_list(PVArgumentList const& l);
 LibKernelDecl PVCore::PVArgumentList filter_argument_list_with_keys(PVArgumentList const& args, PVArgumentKeyList const& keys, PVArgumentList const& def_args);
 
 void PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret, PVCore::PVArgumentList const& ref);
+void PVArgumentList_set_missing_args(PVCore::PVArgumentList& ret, PVCore::PVArgumentList const& def_args);
 
 }
 

@@ -11,18 +11,18 @@ include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 include_directories(AFTER ${ICU_INCLUDE})
 
 set(FILTERS_DIST_LIST
-#mapping_filter_float_default
-#mapping_filter_float_fraction
+mapping_filter_float_default
+mapping_filter_float_fraction
 mapping_filter_integer_default
-#mapping_filter_ipv4_default
+mapping_filter_ipv4_default
 mapping_filter_enum_default
 mapping_filter_host_default
 mapping_filter_string_default
 #mapping_filter_string_4Bsort
 #mapping_filter_string_sort
-#mapping_filter_time_24h
-#mapping_filter_time_default
-##mapping_filter_userdefined_default
+mapping_filter_time_24h
+mapping_filter_time_default
+#mapping_filter_userdefined_default
 mapping_filter_mandatory_minmax
 )
 
