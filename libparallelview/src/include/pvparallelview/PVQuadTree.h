@@ -196,7 +196,7 @@ public:
 
 	void insert(const PVQuadTreeEntry &e) {
 		// searching for the right child
-		PVQuadTree *qt = this;
+		register PVQuadTree *qt = this;
 		while (qt->_nodes != 0) {
 			qt = &qt->_nodes[qt->compute_index(e)];
 		}
@@ -210,7 +210,7 @@ public:
 		}
 	}
 
-	void compact()
+	__attribute__((noinline)) void compact()
 	{
 		if (_nodes) {
 			for (int i = 0; i < 4; ++i) {
