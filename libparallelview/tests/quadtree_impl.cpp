@@ -58,10 +58,12 @@ int main(int argc, char **argv)
 
 	PVParallelView::PVQuadTreeEntry *entries = new PVParallelView::PVQuadTreeEntry [1<<22];
 
+	PVParallelView::pv_quadtree_buffer_entry_t *buffer = new PVParallelView::pv_quadtree_buffer_entry_t [QUADTREE_BUFFER_SIZE];
+
 	for (unsigned i = 1; i < 9; ++i) {
 		std::cout << "extract BCI codes from y1 for zoom " << i << std::endl;
 		BENCH_START(extract);
-		size_t num = qt->get_first_from_y1(0, MAX_VALUE >> i, i, entries);
+		size_t num = qt->get_first_from_y1(0, MAX_VALUE >> i, i, entries, buffer);
 		BENCH_END(extract, "extract", 1, 1, 1, 1);
 		std::cout << "elements found: " << num << std::endl;
 	}

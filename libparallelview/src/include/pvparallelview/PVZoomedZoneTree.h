@@ -41,7 +41,9 @@ class PVZoomedZoneTree
 	constexpr static uint32_t mask_int_ycoord = (((uint32_t)1)<<bbits)-1;
 
 	typedef PVQuadTree<10000, 1000, 0, bbits> pvquadtree;
-	typedef std::function<size_t(const pvquadtree &tree, PVQuadTreeEntry *entries)> extract_entry_f;
+	typedef std::function<size_t(const pvquadtree &tree,
+	                             PVQuadTreeEntry *entries,
+	                             pv_quadtree_buffer_entry_t *buffer)> extract_entry_f;
 	typedef PVBCICode<bbits> pv_bci_code_t;
 
 public:
@@ -62,6 +64,11 @@ public:
 			return &_quadtree_entries[0];
 		}
 
+		pv_quadtree_buffer_entry_t *get_quadtree_buffer()
+		{
+			return &_quadtree_buffer[0];
+		}
+
 		pv_bci_code_t *get_bci_codes()
 		{
 			return &_bci_codes[0];
@@ -78,10 +85,15 @@ public:
 		}
 
 	private:
-		// TODO: are the arrays correctly sized?
-		PVQuadTreeEntry _quadtree_entries[NBUCKETS];
-		pv_bci_code_t   _bci_codes[NBUCKETS];
-		size_t          _index;
+#ifdef QUADTREE_USE_BITFIELD
+		pv_quadtree_buffer_entry_t _quadtree_buffer[(1<<22) >> 5];
+#else
+		pv_quadtree_buffer_entry_t _quadtree_buffer[1<<22];
+#endif
+		// FIXME: are the arrays correctly sized?
+		PVQuadTreeEntry            _quadtree_entries[NBUCKETS];
+		pv_bci_code_t              _bci_codes[NBUCKETS];
+		size_t                     _index;
 	};
 
 	class context_t {
@@ -128,7 +140,7 @@ public:
 public:
 	void process_seq(const PVZoneProcessing &zp);
 
-	void process_seq_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
+	__attribute__((noinline)) void process_seq_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
 
 	void process_omp(const PVZoneProcessing &zp);
 
@@ -187,10 +199,11 @@ public:
 		return browse_trees_bci_by_y1_seq(ctx, y_min, y_max, y_lim, zoom, width,
 #endif
 		                                  [&](const pvquadtree &tree,
-		                                      PVQuadTreeEntry* entries) -> size_t
+		                                      PVQuadTreeEntry* entries,
+		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_from_y1(y_min, y_max,
-			                                                                zoom, entries);
+			                                                                zoom, entries, buffer);
 		                                  },
 		                                  colors, codes, beta);
 	}
@@ -212,10 +225,11 @@ public:
 		return browse_trees_bci_by_y2_seq(ctx, y_min, y_max, y_lim, zoom, width,
 #endif
 		                                  [&](const pvquadtree &tree,
-		                                      PVQuadTreeEntry* entries) -> size_t
+		                                      PVQuadTreeEntry* entries,
+		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_from_y2(y_min, y_max,
-			                                                                zoom, entries);
+			                                                                zoom, entries, buffer);
 		                                  },
 		                                  colors, codes, beta);
 	}
@@ -238,11 +252,12 @@ public:
 		return browse_trees_bci_by_y1_seq(ctx, y_min, y_max, y_lim, zoom, width,
 #endif
 		                                  [&](const pvquadtree &tree,
-		                                      PVQuadTreeEntry* entries) -> size_t
+		                                      PVQuadTreeEntry* entries,
+		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_sel_from_y1(y_min, y_max,
 			                                                                    selection,
-			                                                                    zoom, entries);
+			                                                                    zoom, entries, buffer);
 		                                  },
 		                                  colors, codes, beta, true);
 	}
@@ -265,11 +280,12 @@ public:
 		return browse_trees_bci_by_y2_seq(ctx, y_min, y_max, y_lim, zoom, width,
 #endif
 		                                  [&](const pvquadtree &tree,
-		                                      PVQuadTreeEntry* entries) -> size_t
+		                                      PVQuadTreeEntry* entries,
+		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_sel_from_y2(y_min, y_max,
 			                                                                    selection,
-			                                                                    zoom, entries);
+			                                                                    zoom, entries, buffer);
 		                                  },
 		                                  colors, codes, beta, true);
 	}
@@ -289,10 +305,11 @@ public:
 
 		return browse_trees_bci_by_y1_seq(ctx, y_min, y_max, y_lim, zoom, width,
 		                                  [&](const pvquadtree &tree,
-		                                      PVQuadTreeEntry* entries) -> size_t
+		                                      PVQuadTreeEntry* entries,
+		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_from_y1(y_min, y_max,
-			                                                                zoom, entries);
+			                                                                zoom, entries, buffer);
 		                                  },
 		                                  colors, codes, beta);
 	}
@@ -311,10 +328,11 @@ public:
 
 		return browse_trees_bci_by_y1_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 		                                  [&](const pvquadtree &tree,
-		                                      PVQuadTreeEntry* entries) -> size_t
+		                                      PVQuadTreeEntry* entries,
+		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_from_y1(y_min, y_max,
-			                                                                zoom, entries);
+			                                                                zoom, entries, buffer);
 		                                  },
 		                                  colors, codes, beta);
 	}
@@ -333,10 +351,11 @@ public:
 
 		return browse_trees_bci_by_y2_seq(ctx, y_min, y_max, y_lim, zoom, width,
 		                                  [&](const pvquadtree &tree,
-		                                      PVQuadTreeEntry* entries) -> size_t
+		                                      PVQuadTreeEntry* entries,
+		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_from_y2(y_min, y_max,
-			                                                                zoom, entries);
+			                                                                zoom, entries, buffer);
 		                                  },
 		                                  colors, codes, beta);
 	}
@@ -355,10 +374,11 @@ public:
 
 		return browse_trees_bci_by_y2_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 		                                  [&](const pvquadtree &tree,
-		                                      PVQuadTreeEntry* entries) -> size_t
+		                                      PVQuadTreeEntry* entries,
+		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_from_y2(y_min, y_max,
-			                                                                zoom, entries);
+			                                                                zoom, entries, buffer);
 		                                  },
 		                                  colors, codes, beta);
 	}
