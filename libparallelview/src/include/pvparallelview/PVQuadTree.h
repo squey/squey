@@ -164,12 +164,12 @@ public:
 	                                PVQuadTreeEntry *result,
 	                                pv_quadtree_buffer_entry_t *buffer) const
 	{
-		return visit_y1::f(*this, y1_min, y1_max, zoom,
-		                   [&](const PVQuadTreeEntry &e) -> bool
-		                   {
-			                   return (e.y1 >= y1_min) && (e.y1 < y1_max);
-		                   },
-		                   result, buffer);
+		return visit_y1::get_n_m(*this, y1_min, y1_max, zoom,
+		                         [&](const PVQuadTreeEntry &e) -> bool
+		                         {
+			                         return (e.y1 >= y1_min) && (e.y1 < y1_max);
+		                         },
+		                         result, buffer);
 	}
 
 
@@ -177,12 +177,12 @@ public:
 	                                PVQuadTreeEntry *result,
 	                                pv_quadtree_buffer_entry_t *buffer) const
 	{
-		return visit_y2::f(*this, y2_min, y2_max, zoom,
-		                   [&](const PVQuadTreeEntry &e) -> bool
-		                   {
-			                   return (e.y2 >= y2_min) && (e.y2 < y2_max);
-		                   },
-		                   result, buffer);
+		return visit_y2::get_n_m(*this, y2_min, y2_max, zoom,
+		                         [&](const PVQuadTreeEntry &e) -> bool
+		                         {
+			                         return (e.y2 >= y2_min) && (e.y2 < y2_max);
+		                         },
+		                         result, buffer);
 	}
 
 
@@ -192,13 +192,13 @@ public:
 	                                    PVQuadTreeEntry *result,
 	                                    pv_quadtree_buffer_entry_t *buffer) const
 	{
-		return visit_y1::f(*this, y1_min, y1_max, zoom,
-		                   [&](const PVQuadTreeEntry &e) -> bool
-		                   {
-			                   return (e.y1 >= y1_min) && (e.y1 < y1_max)
-				                   && selection.get_line(e.idx);
-		                   },
-		                   result, buffer);
+		return visit_y1::get_n_m(*this, y1_min, y1_max, zoom,
+		                         [&](const PVQuadTreeEntry &e) -> bool
+		                         {
+			                         return (e.y1 >= y1_min) && (e.y1 < y1_max)
+				                         && selection.get_line(e.idx);
+		                         },
+		                         result, buffer);
 	}
 
 
@@ -208,13 +208,13 @@ public:
 	                                    PVQuadTreeEntry *result,
 	                                    pv_quadtree_buffer_entry_t *buffer) const
 	{
-		return visit_y2::f(*this, y2_min, y2_max, zoom,
-		                   [&](const PVQuadTreeEntry &e) -> bool
-		                   {
-			                   return (e.y2 >= y2_min) && (e.y2 < y2_max)
-				                   && selection.get_line(e.idx);
-		                   },
-		                   result, buffer);
+		return visit_y2::get_n_m(*this, y2_min, y2_max, zoom,
+		                         [&](const PVQuadTreeEntry &e) -> bool
+		                         {
+			                         return (e.y2 >= y2_min) && (e.y2 < y2_max)
+				                         && selection.get_line(e.idx);
+		                         },
+		                         result, buffer);
 	}
 
 	PVQuadTree *get_subtree_from_y1(uint32_t y1_min, uint32_t y1_max)
@@ -308,17 +308,18 @@ private:
 
 	struct visit_y1
 	{
-		static size_t f(PVQuadTree const& obj,
-		                const uint64_t &y1_min, const uint64_t &y1_max, const uint32_t zoom,
-		                const test_entry_f &test_f, PVQuadTreeEntry *result,
-		                pv_quadtree_buffer_entry_t *buffer)
+		static size_t get_n_m(PVQuadTree const& obj,
+		                      const uint64_t &y1_min, const uint64_t &y1_max,
+		                      const uint32_t zoom,
+		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
+		                      pv_quadtree_buffer_entry_t *buffer)
 		{
 			if (zoom == 0) {
 				if (obj._nodes != 0) {
 					// we must get the better first elements from children
 					PVQuadTreeEntry e;
 					e.idx = UINT_MAX;
-					f2(obj, y1_min, y1_max, test_f, e);
+					get_1_m(obj, y1_min, y1_max, test_f, e);
 					if (e.idx != UINT_MAX) {
 						// it has been found
 						*result = e;
@@ -339,12 +340,20 @@ private:
 				size_t num = 0;
 				if (obj._nodes != 0) {
 					if (obj._y1_mid_value < y1_max) {
-						num += f(obj._nodes[NE], y1_min, y1_max, zoom - 1, test_f, result + num, buffer);
-						num += f(obj._nodes[SE], y1_min, y1_max, zoom - 1, test_f, result + num, buffer);
+						num += get_n_m(obj._nodes[NE], y1_min, y1_max,
+						               zoom - 1, test_f,
+						               result + num, buffer);
+						num += get_n_m(obj._nodes[SE], y1_min, y1_max,
+						               zoom - 1, test_f,
+						               result + num, buffer);
 					}
 					if (y1_min < obj._y1_mid_value) {
-						num += f(obj._nodes[NW], y1_min, y1_max, zoom - 1, test_f, result + num, buffer);
-						num += f(obj._nodes[SW], y1_min, y1_max, zoom - 1, test_f, result + num, buffer);
+						num += get_n_m(obj._nodes[NW], y1_min, y1_max,
+						               zoom - 1, test_f,
+						               result + num, buffer);
+						num += get_n_m(obj._nodes[SW], y1_min, y1_max,
+						               zoom - 1, test_f,
+						               result + num, buffer);
 					}
 				} else {
 #ifdef QUADTREE_USE_BITFIELD
@@ -422,18 +431,18 @@ private:
 				return num;
 			}
 		}
-		static void f2(PVQuadTree const& obj,
+		static void get_1_m(PVQuadTree const& obj,
 		               const uint64_t &y1_min, const uint64_t &y1_max,
 		               const test_entry_f &test_f, PVQuadTreeEntry &result)
 		{
 			if (obj._nodes != 0) {
 				if (obj._y1_mid_value < y1_max) {
-					f2(obj._nodes[NE], y1_min, y1_max, test_f, result);
-					f2(obj._nodes[SE], y1_min, y1_max, test_f, result);
+					get_1_m(obj._nodes[NE], y1_min, y1_max, test_f, result);
+					get_1_m(obj._nodes[SE], y1_min, y1_max, test_f, result);
 				}
 				if (y1_min < obj._y1_mid_value) {
-					f2(obj._nodes[NW], y1_min, y1_max, test_f, result);
-					f2(obj._nodes[SW], y1_min, y1_max, test_f, result);
+					get_1_m(obj._nodes[NW], y1_min, y1_max, test_f, result);
+					get_1_m(obj._nodes[SW], y1_min, y1_max, test_f, result);
 				}
 			} else {
 				for (size_t i = 0; i < obj._datas.size(); ++i) {
@@ -448,17 +457,18 @@ private:
 
 	struct visit_y2
 	{
-		static size_t f(PVQuadTree const& obj,
-		                const uint64_t &y2_min, const uint64_t &y2_max, const uint32_t zoom,
-		                const test_entry_f &test_f, PVQuadTreeEntry *result,
-		                pv_quadtree_buffer_entry_t *buffer)
+		static size_t get_n_m(PVQuadTree const& obj,
+		                      const uint64_t &y2_min, const uint64_t &y2_max,
+		                      const uint32_t zoom,
+		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
+		                      pv_quadtree_buffer_entry_t *buffer)
 		{
 			if (zoom == 0) {
 				if (obj._nodes != 0) {
 					// we must get the better first elements from children
 					PVQuadTreeEntry e;
 					e.idx = UINT_MAX;
-					f2(obj, y2_min, y2_max, test_f, e);
+					get_1_m(obj, y2_min, y2_max, test_f, e);
 					if (e.idx != UINT_MAX) {
 						// it has been found
 						*result = e;
@@ -479,12 +489,20 @@ private:
 				size_t num = 0;
 				if (obj._nodes != 0) {
 					if (obj._y2_mid_value < y2_max) {
-						num += f(obj._nodes[NE], y2_min, y2_max, zoom - 1, test_f, result + num, buffer);
-						num += f(obj._nodes[NW], y2_min, y2_max, zoom - 1, test_f, result + num, buffer);
+						num += get_n_m(obj._nodes[NE], y2_min, y2_max,
+						               zoom - 1, test_f,
+						               result + num, buffer);
+						num += get_n_m(obj._nodes[NW], y2_min, y2_max,
+						               zoom - 1, test_f,
+						               result + num, buffer);
 					}
 					if (y2_min < obj._y2_mid_value) {
-						num += f(obj._nodes[SE], y2_min, y2_max, zoom - 1, test_f, result + num, buffer);
-						num += f(obj._nodes[SW], y2_min, y2_max, zoom - 1, test_f, result + num, buffer);
+						num += get_n_m(obj._nodes[SE], y2_min, y2_max,
+						               zoom - 1, test_f,
+						               result + num, buffer);
+						num += get_n_m(obj._nodes[SW], y2_min, y2_max,
+						               zoom - 1, test_f,
+						               result + num, buffer);
 					}
 				} else {
 #ifdef QUADTREE_USE_BITFIELD
@@ -563,18 +581,18 @@ private:
 				return num;
 			}
 		}
-		static void f2(PVQuadTree const& obj,
+		static void get_1_m(PVQuadTree const& obj,
 		               const uint64_t &y2_min, const uint64_t &y2_max,
 		               const test_entry_f &test_f, PVQuadTreeEntry &result)
 		{
 			if (obj._nodes != 0) {
 				if (obj._y2_mid_value < y2_max) {
-					f2(obj._nodes[NE], y2_min, y2_max, test_f, result);
-					f2(obj._nodes[NW], y2_min, y2_max, test_f, result);
+					get_1_m(obj._nodes[NE], y2_min, y2_max, test_f, result);
+					get_1_m(obj._nodes[NW], y2_min, y2_max, test_f, result);
 				}
 				if (y2_min < obj._y2_mid_value) {
-					f2(obj._nodes[SE], y2_min, y2_max, test_f, result);
-					f2(obj._nodes[SW], y2_min, y2_max, test_f, result);
+					get_1_m(obj._nodes[SE], y2_min, y2_max, test_f, result);
+					get_1_m(obj._nodes[SW], y2_min, y2_max, test_f, result);
 				}
 			} else {
 				for (size_t i = 0; i < obj._datas.size(); ++i) {
