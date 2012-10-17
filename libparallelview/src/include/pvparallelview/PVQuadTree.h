@@ -10,16 +10,16 @@
 #include <pvbase/types.h>
 
 #include <bithacks.h>
+
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVHSVColor.h>
+#include <pvkernel/core/PVAllocators.h>
+#include <pvkernel/core/PVVector.h>
 
 #include <picviz/PVSelection.h>
-#include <picviz/PVVector.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
-
-#include <pvkernel/core/PVAllocators.h>
 
 /* TODO: remove all useless code!
  *
@@ -73,9 +73,9 @@ typedef PVQuadTreeEntry pv_quadtree_buffer_entry_t;
 
 #endif
 
-// typedef Picviz::PVVector<PVQuadTreeEntry, tbb::scalable_allocator<PVQuadTreeEntry> > pvquadtree_entries_t;
-// typedef Picviz::PVVector<PVQuadTreeEntry, 1000, PVCore::PVJEMallocAllocator<PVQuadTreeEntry> > pvquadtree_entries_t;
-typedef Picviz::PVVector<PVQuadTreeEntry> pvquadtree_entries_t;
+// typedef PVCore::PVVector<PVQuadTreeEntry, tbb::scalable_allocator<PVQuadTreeEntry> > pvquadtree_entries_t;
+// typedef PVCore::PVVector<PVQuadTreeEntry, 1000, PVCore::PVJEMallocAllocator<PVQuadTreeEntry> > pvquadtree_entries_t;
+typedef PVCore::PVVector<PVQuadTreeEntry> pvquadtree_entries_t;
 
 //typedef std::vector<PVParallelView::PVBCICode> pvquadtree_bcicodes_t;
 

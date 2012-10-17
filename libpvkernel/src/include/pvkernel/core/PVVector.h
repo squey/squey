@@ -4,15 +4,15 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
-#ifndef PICVIZ_PVVECTOR_H
-#define PICVIZ_PVVECTOR_H
+#ifndef PVCORE_PVVECTOR_H
+#define PVCORE_PVVECTOR_H
 
 #include <pvkernel/core/PVAllocators.h>
 
 // for memcpy()
 #include <string.h>
 
-namespace Picviz {
+namespace PVCore {
 
 template <class C, int INCREMENT = 1000, class Alloc = PVCore::PVReallocableCAllocator<C> >
 class PVVector
@@ -146,5 +146,5 @@ private:
 
 }
 
-#endif // PICVIZ_PVVECTOR_H
+#endif // PVCORE_PVVECTOR_H
 
