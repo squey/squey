@@ -1431,7 +1431,7 @@ void Picviz::PVView::toggle_listing_unselected_visibility()
 
 void Picviz::PVView::toggle_listing_zombie_visibility()
 {
-	state_machine->toggle_listing_unselected_visibility();
+	state_machine->toggle_listing_zombie_visibility();
 }
 
 Picviz::PVSortingFunc_p Picviz::PVView::get_sort_plugin_for_col(PVCol col) const
