@@ -433,7 +433,7 @@ public:
 					const size_t diff_off = off-prev_off;
 					assert(diff_off <= SERIAL_READ_BUFFER_SIZE);
 					const ssize_t read_size = this->Read(column.file, chunk->buf, diff_off);
-					if (read_size != diff_off) {
+					if ((ssize_t) read_size != (ssize_t) diff_off) {
 						assert(false);
 						fc.stop();
 						return nullptr;
@@ -538,7 +538,7 @@ public:
 
 					typename tbb_chunks_t::chunk_t* chunk = this->_chunks.get_chunk();
 					const ssize_t read_size = this->Read(column.file, chunk->buf, diff_off);
-					if (read_size != diff_off) {
+					if ((ssize_t) read_size != (ssize_t) diff_off) {
 						assert(false);
 						fc.stop();
 						return nullptr;
