@@ -30,18 +30,12 @@ PVGuiQt::PVListingModel::PVListingModel(Picviz::PVView_sp& view, QObject* parent
 	_obs(this),
 	_view_valid(true)
 {
-	//test_fontdatabase.addApplicationFont(QString("/donnees/HORS_SVN/TESTS_PHIL/GOOGLE_WEBFONTS/Convergence/Convergence-Regular.ttf"));
-	//test_fontdatabase.addApplicationFont(QString("/donnees/HORS_SVN/TESTS_PHIL/GOOGLE_WEBFONTS/Metrophobic/Metrophobic.ttf"));
-
-	test_fontdatabase.addApplicationFont(QString(":/Convergence-Regular.ttf"));
-
-	row_header_font = QFont("Convergence-Regular", 6);
+	//row_header_font = QFont("Convergence-Regular", 6);
 
 	select_brush = QBrush(QColor(255, 240, 200));
 	unselect_brush = QBrush(QColor(180, 180, 180));
-	select_font.setBold(true);
-	not_zombie_font_brush = QBrush(QColor(0, 0, 0));
-	zombie_font_brush = QBrush(QColor(200, 200, 200));
+	vheader_font = QFont(":/Convergence-Regular");
+	zombie_font_brush = QBrush(QColor(0, 0, 0));
 
 	PVHive::get().register_actor(view, _actor);
 	PVHive::get().register_observer(view, _obs);
@@ -86,38 +80,38 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 
 		case (Qt::BackgroundRole):
 		{
-			/* We get the current selected axis index */
-			PVCol c = lib_view().get_active_axis();
-
-			if ((lib_view().get_state_machine().is_axes_mode()) && (c == index.column())) {
-				/* We must provide an evidence of the active_axis ! */
-				return QBrush(QColor(130, 100, 25));
+			const PVRow r = index.row();
+			if (lib_view().get_real_output_selection().get_line(r)) {
+				const PVCore::PVHSVColor color = lib_view().get_color_in_output_layer(r);
+				return QBrush(color.toQColor());
 			} else {
-				const PVRow r = index.row();
-				if (lib_view().get_line_state_in_output_layer(r)) {
+				if (lib_view().get_line_state_in_layer_stack_output_layer(index.row())) {
+					/* The line is unselected */
 					const PVCore::PVHSVColor color = lib_view().get_color_in_output_layer(r);
-					return QBrush(color.toQColor());
+					return QBrush(color.toQColor().darker(200));
 				} else {
-					return unselect_brush;
+					/* The line is a ZOMBIE */
+					return zombie_font_brush;
 				}
 			}
 		}
-
 		case (Qt::ForegroundRole):
-			if (lib_view().layer_stack_output_layer.get_selection().get_line(index.row())) {
-				/* The line is NOT a ZOMBIE */
-				return not_zombie_font_brush;
-			} else {
-				/* The line is a ZOMBIE */
-				return zombie_font_brush;
+		{
+			const PVRow r = index.row();
+			// Show text in white iif this is a zombie line
+			if (!lib_view().get_real_output_selection().get_line(r) &&
+				!lib_view().get_line_state_in_layer_stack_output_layer(r)) {
+				return QBrush(Qt::white);
 			}
+			return QVariant();
+		}
 		case (PVCustomQtRoles::Sort):
-			{
-				/*QVariant ret;
-				ret.setValue<void*>((void*) &lib_view().get_parent<Picviz::PVSource>()->get_data_unistr_raw(index.row(), index.column()));
-				return ret;*/
-				return QVariant();
-			}
+		{
+			/*QVariant ret;
+			ret.setValue<void*>((void*) &lib_view().get_parent<Picviz::PVSource>()->get_data_unistr_raw(index.row(), index.column()));
+			return ret;*/
+			return QVariant();
+		}
 	}
 	return QVariant();
 }
@@ -148,19 +142,18 @@ QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orient
 			if (orientation == Qt::Horizontal) {
 				QString axis_name(lib_view().get_axis_name(section));
 				return QVariant(axis_name);
-			} else {
-				if (section < 0) {
-					// That should never happen !
-					return QVariant();
-				}
+			}
+			else
+			if (section >= 0) {
 				return section;
 			}
-		break;
 		case (Qt::FontRole):
-			if ((orientation == Qt::Vertical) && (lib_view().real_output_selection.get_line(section))) {
-				return row_header_font;
-			} else {
-				return unselect_font;
+			if (orientation == Qt::Vertical) {
+				QFont f(vheader_font);
+				if (lib_view().get_real_output_selection().get_line(section)) {
+					f.setBold(true);
+				}
+				return f;
 			}
 			break;
 		case (Qt::TextAlignmentRole):
@@ -169,10 +162,6 @@ QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orient
 			} else {
 				return (Qt::AlignRight + Qt::AlignVCenter);
 			}
-			break;
-
-		default:
-			return QVariant();
 	}
 
 	return QVariant();

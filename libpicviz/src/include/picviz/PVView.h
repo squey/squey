@@ -154,6 +154,7 @@ public:
 	QString get_layer_stack_layer_n_name(int n) const;
 	int get_layer_stack_layer_n_visible_state(int n) const;
 	PVLayer &get_layer_stack_output_layer();
+	PVLayer const& get_layer_stack_output_layer() const { return layer_stack_output_layer; }
 
 	PVCol get_active_axis() const { assert(_active_axis < get_column_count()); return _active_axis; }
 	PVStateMachine& get_state_machine() { return *state_machine; }

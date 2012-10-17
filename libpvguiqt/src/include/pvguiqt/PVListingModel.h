@@ -44,14 +44,12 @@ public:
     };
 
 private:
-	QBrush not_zombie_font_brush; //!<
 	QBrush zombie_font_brush; //!<
 
 protected:
-	QFontDatabase test_fontdatabase;
 	QFont  row_header_font;
 	QBrush select_brush;            //!<
-	QFont  select_font;             //!<
+	QFont  vheader_font;             //!<
 	QBrush unselect_brush;          //!<
 	QFont  unselect_font;           //!<
 

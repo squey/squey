@@ -80,14 +80,13 @@ class PVFuncObserverTemplatedBase : public B
 public:
 	typedef B observer_type;
 	typedef F f_type;
-	constexpr static f_type bound_function = f;
 	typedef PVCore::PVTypeTraits::function_traits<f_type> f_traits;
 	typedef typename f_traits::arguments_type arguments_type;
 	typedef typename f_traits::arguments_type arguments_deep_copy_type;
 
 public:
 	PVFuncObserverTemplatedBase():
-		B((void*)(bound_function))
+		B((void*)(f))
 	{ }
 };
 

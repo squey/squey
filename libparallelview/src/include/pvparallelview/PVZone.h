@@ -24,6 +24,7 @@ public:
 		_ztree(new PVZoneTree()),
 		_zoomed_ztree(new PVZoomedZoneTree(_ztree->get_sel_elts()))
 	{
+		invalid_selection();
 	}
 
 public:

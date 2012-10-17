@@ -209,7 +209,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
 
 	/* We refresh the listing */
 	Picviz::PVView_sp view_sp = current_lib_view->shared_from_this();
-	PVHive::call<FUNC(Picviz::PVView::toggle_listing_zombie_visibility)>(view_sp);
+	PVHive::call<FUNC(Picviz::PVView::toggle_listing_unselected_visibility)>(view_sp);
 }
 
 /******************************************************************************
