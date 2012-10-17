@@ -86,7 +86,7 @@ public:
 
 public:
 	PVFuncObserverTemplatedBase():
-		B((void*)(f))
+		B((void*)(bound_function))
 	{ }
 };
 

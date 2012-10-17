@@ -27,6 +27,7 @@ for m in $MAKEFILES; do
 	rm $target 2>/dev/null
 	ln -s "$m" "$target" ||exit $?
 done
+rm $SRCDIR/Makefile
 
 rm $SRCDIR/inspector.sh 2>/dev/null
 ln -s $BUILDDIR/inspector.sh $SRCDIR/inspector.sh
