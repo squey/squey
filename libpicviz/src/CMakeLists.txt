@@ -73,7 +73,6 @@ include/picviz/PVSortingFunc.h
 include/picviz/PVSource.h
 include/picviz/PVSquareArea.h
 include/picviz/PVStateMachine.h
-include/picviz/PVVector.h
 include/picviz/PVView.h
 
 # Correlation files

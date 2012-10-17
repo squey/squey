@@ -122,6 +122,7 @@ include/pvkernel/core/PVUnicodeString.h
 include/pvkernel/core/PVVersion.h
 include/pvkernel/core/PVRecentItemsManager.h
 include/pvkernel/core/PVConfig.h
+include/pvkernel/core/PVVector.h
 )
 
 if(PYTHONLIBS_FOUND)
