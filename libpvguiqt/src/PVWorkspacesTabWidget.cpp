@@ -9,6 +9,8 @@
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVWorkspace.h>
 
+#include <pvkernel/core/lambda_connect.h>
+
 #include <iostream>
 #include <QApplication>
 #include <QEvent>
@@ -17,9 +19,45 @@
 #include <QPushButton>
 #include <QDateTime>
 #include <QPropertyAnimation>
+#include <QLineEdit>
 
 #define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 500
 #define TAB_OPENING_EFFECT_MSEC 200
+
+QSize PVGuiQt::PVTabBar::tabSizeHint(int index) const
+{
+	return QTabBar::tabSizeHint(index);
+}
+
+void PVGuiQt::PVTabBar::mouseReleaseEvent(QMouseEvent* event)
+{
+	// Tabs are closed on middle button click
+	if (event->button() == Qt::MidButton) {
+		emit tabCloseRequested(tabAt(event->pos()));
+	}
+	QTabBar::mouseReleaseEvent(event);
+}
+
+void PVGuiQt::PVTabBar::mouseDoubleClickEvent(QMouseEvent* event)
+{
+	int index = tabAt(event->pos());
+
+	if (qobject_cast<PVOpenWorkspace*>(_tab_widget->widget(index))) {
+		QLineEdit* line_edit = new QLineEdit(this);
+		QRect tab_rect = tabRect(index);
+		line_edit->move(tab_rect.topLeft());
+		line_edit->resize(QSize(tab_rect.width(), tab_rect.height()));
+		line_edit->setText(tabText(index));
+		line_edit->show();
+		line_edit->setFocus();
+		line_edit->setSelection(0, tabText(index).length());
+
+		::connect(line_edit, SIGNAL(editingFinished()), [=] {
+			setTabText(index, line_edit->text());
+			line_edit->deleteLater();
+		});
+	}
+}
 
 PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(QWidget* parent) :
 	QTabWidget(parent),
@@ -28,7 +66,7 @@ PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(QWidget* parent) :
 {
 	setObjectName("PVWorkspacesTabWidget");
 
-	_tab_bar = new PVTabBar();
+	_tab_bar = new PVTabBar(this);
 	setTabBar(_tab_bar);
 
 	// To get notified of mouse events we must enable mouse tracking on *both* QTabWidget and its underlying QTabBar

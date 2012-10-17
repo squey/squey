@@ -22,24 +22,20 @@ namespace PVGuiQt
 {
 
 class PVWorkspaceBase;
+class PVWorkspacesTabWidget;
 
 class PVTabBar : public QTabBar
 {
 public:
-	QSize tabSizeHint(int index) const
-	{
-		return QTabBar::tabSizeHint(index);
-	}
+	PVTabBar(PVWorkspacesTabWidget* tab_widget) : _tab_widget(tab_widget) {}
+	QSize tabSizeHint(int index) const;
 
 protected:
-	void mouseReleaseEvent(QMouseEvent* event)
-	{
-		// Tabs are closed on middle button click
-		if (event->button() == Qt::MidButton) {
-			emit tabCloseRequested(tabAt(event->pos()));
-		}
-		QTabBar::mouseReleaseEvent(event);
-	}
+	void mouseReleaseEvent(QMouseEvent* event);
+	void mouseDoubleClickEvent(QMouseEvent* event);
+
+private:
+	PVWorkspacesTabWidget* _tab_widget;
 };
 
 class PVWorkspacesTabWidget : public QTabWidget

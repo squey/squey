@@ -183,9 +183,7 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 		connect(switch_action, SIGNAL(triggered(bool)), (QWidget*)_workspace, SLOT(switch_with_central_widget()));
 		ctxt_menu->addAction(switch_action);
 
-		std::cout << "QApplication::desktop()->screenNumber()" << QApplication::desktop()->screenNumber(this) << std::endl;
-
-		// Maximize on left screen
+		// Maximize on left monitor
 		int screen_number = QApplication::desktop()->screenNumber(this);
 		if (screen_number > 0) {
 			QAction* maximize_right_action = new QAction(tr(">> Maximize on right screen"), this);
@@ -193,6 +191,7 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 			ctxt_menu->addAction(maximize_right_action);
 		}
 
+		// Maximize on right monitor
 		if (screen_number < QApplication::desktop()->screenCount()-1) {
 			QAction* maximize_left_action = new QAction(tr("<< Maximize on left screen"), this);
 			::connect(maximize_left_action, SIGNAL(triggered(bool)), [=]{maximize_on_screen(screen_number+1);});
