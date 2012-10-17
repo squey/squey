@@ -14,6 +14,7 @@ include_directories(AFTER ${PVHIVE_INCLUDE_DIRS})
 include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIRS})
 include_directories(AFTER ${QT_QTOPENGL_INCLUDE_DIR})
+include_directories(AFTER ${QT_UI_INCLUDE_DIR})
 
 add_subdirectory(src)
 add_subdirectory(tests)

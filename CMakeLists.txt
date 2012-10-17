@@ -58,6 +58,9 @@ include_directories(AFTER "${picviz-inspector_SOURCE_DIR}/include")
 # Test compilation target
 ADD_CUSTOM_TARGET(alltests COMMAND make)
 
+# Generic generated-ui files include directory
+PV_QT4_UI_INC_DIR(QT_UI_INCLUDE_DIR)
+
 add_subdirectory(scripts)
 declare_internal_library(pvkernel)
 

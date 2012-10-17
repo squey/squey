@@ -8,7 +8,7 @@
 #define PVGUIQT_PVLISTDISPLAYDLG_H
 
 #include <picviz/PVView_types.h>
-#include "../ui_PVListDisplayDlg.h"
+#include <pvguiqt/ui/PVListDisplayDlg.h>
 
 #include <QAbstractListModel>
 #include <QVector>

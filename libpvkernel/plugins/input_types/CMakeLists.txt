@@ -42,7 +42,7 @@ target_link_libraries(input_type_file pvkernel ${QT_LIBRARIES} ${ARCHIVE_LIBRARY
 SET(DB_MOC_HEADERS database/PVDatabaseParamsWidget.h)
 QT4_WRAP_CPP(DB_MOC_SRCS ${DB_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 set(DB_UI database/db_params.ui database/db_preview.ui)
-QT4_WRAP_UI(DB_UI_SRCS ${DB_UI})
+PV_QT4_WRAP_UI(DB_UI_SRCS ${DB_UI})
 
 add_library(input_type_database SHARED ${DB_UI_SRCS} ${DB_MOC_SRCS} database/PVDatabaseParamsWidget.cpp database/PVSQLTypeMap.cpp database/PVDBPreviewWidget.cpp database/PVInputTypeDatabase.cpp database/PVDBPresets.cpp ../common/database/PVDBInfos.cpp ../common/database/PVDBQuery.cpp database/register.cpp)
 target_link_libraries(input_type_database pvkernel ${QT_LIBRARIES})

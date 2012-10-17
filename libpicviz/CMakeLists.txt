@@ -10,6 +10,7 @@ include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 include_directories(AFTER ${ICU_INCLUDE})
 include_directories(AFTER ${TULIP_INCLUDE_DIR})
 
+
 ##########################################
 # BEGIN: SET VARIOUS PLUGINS DIRECTORIES #
 ##########################################

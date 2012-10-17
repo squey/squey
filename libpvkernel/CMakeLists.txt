@@ -25,7 +25,7 @@ if(PYTHONLIBS_FOUND)
 endif(PYTHONLIBS_FOUND)
 include_directories(AFTER ${QT_QTCORE_INCLUDE_DIR})
 include_directories(AFTER ${QT_INCLUDE_DIR})
-
+include_directories(AFTER ${QT_UI_INCLUDE_DIR})
 
 ##########################################
 # begin: SET VARIOUS PLUGINS DIRECTORIES #
