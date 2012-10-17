@@ -30,16 +30,11 @@ PVGuiQt::PVListingModel::PVListingModel(Picviz::PVView_sp& view, QObject* parent
 	_obs(this),
 	_view_valid(true)
 {
-	//test_fontdatabase.addApplicationFont(QString("/donnees/HORS_SVN/TESTS_PHIL/GOOGLE_WEBFONTS/Convergence/Convergence-Regular.ttf"));
-	//test_fontdatabase.addApplicationFont(QString("/donnees/HORS_SVN/TESTS_PHIL/GOOGLE_WEBFONTS/Metrophobic/Metrophobic.ttf"));
-
-	test_fontdatabase.addApplicationFont(QString(":/Convergence-Regular.ttf"));
-
-	row_header_font = QFont("Convergence-Regular", 6);
+	//row_header_font = QFont("Convergence-Regular", 6);
 
 	select_brush = QBrush(QColor(255, 240, 200));
 	unselect_brush = QBrush(QColor(180, 180, 180));
-	select_font.setBold(true);
+	vheader_font = QFont(":/Convergence-Regular");
 	zombie_font_brush = QBrush(QColor(0, 0, 0));
 
 	PVHive::get().register_actor(view, _actor);
@@ -147,19 +142,18 @@ QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orient
 			if (orientation == Qt::Horizontal) {
 				QString axis_name(lib_view().get_axis_name(section));
 				return QVariant(axis_name);
-			} else {
-				if (section < 0) {
-					// That should never happen !
-					return QVariant();
-				}
+			}
+			else
+			if (section >= 0) {
 				return section;
 			}
-		break;
 		case (Qt::FontRole):
-			if ((orientation == Qt::Vertical) && (lib_view().real_output_selection.get_line(section))) {
-				return row_header_font;
-			} else {
-				return unselect_font;
+			if (orientation == Qt::Vertical) {
+				QFont f(vheader_font);
+				if (lib_view().get_real_output_selection().get_line(section)) {
+					f.setBold(true);
+				}
+				return f;
 			}
 			break;
 		case (Qt::TextAlignmentRole):
@@ -168,10 +162,6 @@ QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orient
 			} else {
 				return (Qt::AlignRight + Qt::AlignVCenter);
 			}
-			break;
-
-		default:
-			return QVariant();
 	}
 
 	return QVariant();
