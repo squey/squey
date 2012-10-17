@@ -205,6 +205,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 bool PVGuiQt::PVLayerFilterProcessWidget::process()
 {
 	_view->process_selection();
+	_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 
 	Picviz::PVLayerFilter_p filter_p = _filter_p->clone<Picviz::PVLayerFilter>();
 	filter_p->set_args(*_args_widget->get_args());
@@ -229,14 +230,12 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 		// Wait for the filter to finish
 		watcher.waitForFinished();
 
-		_view->post_filter_layer = _view->pre_filter_layer;
 		return false;
 	}
 
 	// We made it ! :)
 	// _view->pre_filter_layer = _view->post_filter_layer;
 	// _view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-	_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 
 	// We reprocess the pipeline from the eventline stage
 	Picviz::PVView_sp view_p(_view->shared_from_this());
@@ -267,7 +266,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::cancel_Slot()
 	*_args_widget->get_args() = _args_org;
 
 	// Restore the original post_filter_layer
-	_view->post_filter_layer = _view->pre_filter_layer;
+	//_view->post_filter_layer = _view->pre_filter_layer;
 
 	// Update everything
 	Picviz::PVView_sp view_p(_view->shared_from_this());

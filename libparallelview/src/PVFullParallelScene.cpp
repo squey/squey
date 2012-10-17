@@ -108,8 +108,13 @@ void PVParallelView::PVFullParallelScene::first_render()
 	uint32_t view_x = _parallel_view->horizontalScrollBar()->value();
 	uint32_t view_width = _parallel_view->width();
 
+	// Change view's internal counter
+	const PVRow nlines = lib_view().get_real_output_selection().get_number_of_selected_lines_in_range(0, _lines_view.get_zones_manager().get_number_rows());
+	graphics_view()->set_selected_line_number(nlines);
+
 	connect_draw_zone_sel();
-	_lines_view.render_all_zones_all_imgs(view_x, view_width, lib_view().get_volatile_selection(), _render_tasks_bg, _root_sel, _zoom_y, _rendering_job_bg);
+	_lines_view.update_sel_tree(view_width, lib_view().get_real_output_selection(), _root_sel);
+	//_lines_view.render_all_zones_all_imgs(view_x, view_width, lib_view().get_volatile_selection(), _render_tasks_bg, _root_sel, _zoom_y, _rendering_job_bg);
 }
 
 
