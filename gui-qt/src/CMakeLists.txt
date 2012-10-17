@@ -173,6 +173,7 @@ if(PROTECT_PASS)
 endif()
 
 if(SET_PROTECT)
+	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gen_table.c "")
 	list(APPEND SRC_FILES ${CMAKE_CURRENT_BINARY_DIR}/gen_table.c)
 endif()
 

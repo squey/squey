@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# \file inspector.sh
+# \file inspector.sh.cmake
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-INSPECTOR_SOURCE_ROOT_DIR=build
+INSPECTOR_SOURCE_ROOT_DIR=@CMAKE_CURRENT_BINARY_DIR@
 ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 
 # AG: we don't need this anymore, because

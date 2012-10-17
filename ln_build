@@ -1,0 +1,18 @@
+#!/bin/bash
+# Create symbolic links for Makefiles, according to a build directory
+# Create a "bin" symlink for every tests directory
+
+if [ $# -ne 1 ]; then
+	echo "Usage: $0 build_dir" 1>&2
+	exit 1
+fi
+
+MAKEFILES=$(find $1 -name Makefile)
+for m in $MAKEFILES; do
+	target="./$(echo $m |cut --complement -d'/' -f1)"
+	rm $target 2>/dev/null
+	ln -s "$PWD/$m" $target ||exit $?
+done
+
+rm ./inspector.sh 2>/dev/null
+ln -s $1/inspector.sh ./inspector.sh

@@ -6,7 +6,12 @@
 # Default build type is debug
 if (NOT DEFINED CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "debug")
+else()
+if (CMAKE_BUILD_TYPE STREQUAL "")
+	set(CMAKE_BUILD_TYPE "debug")
 endif()
+endif()
+string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
 
 # Set default values for capabilities
 if (NOT DEFINED USER_TARGET)
@@ -14,7 +19,7 @@ if (NOT DEFINED USER_TARGET)
 endif()
 
 # Default value for protection mode
-if (CMAKE_BUILD_TYPE STREQUAL "relprotect")
+if (CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
 	set(PROTECT_PASS true)
 endif()
 
@@ -31,7 +36,7 @@ endif()
 # Default value for LTO
 if (NOT DEFINED USE_LTO)
 	# By default, not set only in release mode
-	if (CMAKE_BUILD_TYPE STREQUAL "debug")
+	if (CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
 		set(USE_LTO false)
 	else()
 		set(USE_LTO true)
