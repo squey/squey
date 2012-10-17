@@ -49,6 +49,9 @@ class PVZoomedZoneTree
 public:
 	class zzt_tls
 	{
+		// the max number of lines to draw (2048  * 2048)
+		constexpr static size_t entries_count = 1 << (2 * bbits);
+
 	public:
 		zzt_tls()
 		{
@@ -85,14 +88,9 @@ public:
 		}
 
 	private:
-#ifdef QUADTREE_USE_BITFIELD
-		pv_quadtree_buffer_entry_t _quadtree_buffer[(1<<22) >> 5];
-#else
-		pv_quadtree_buffer_entry_t _quadtree_buffer[1<<22];
-#endif
-		// FIXME: are the arrays correctly sized?
-		PVQuadTreeEntry            _quadtree_entries[NBUCKETS];
-		pv_bci_code_t              _bci_codes[NBUCKETS];
+		pv_quadtree_buffer_entry_t _quadtree_buffer[QUADTREE_BUFFER_SIZE];
+		PVQuadTreeEntry            _quadtree_entries[entries_count];
+		pv_bci_code_t              _bci_codes[entries_count];
 		size_t                     _index;
 	};
 
