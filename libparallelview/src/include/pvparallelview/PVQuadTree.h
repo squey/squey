@@ -232,7 +232,7 @@ public:
 				_nodes[i].compact();
 			}
 		} else {
-			_datas.reserve(_datas.size());
+			_datas.compact();
 		}
 	}
 
