@@ -4,7 +4,7 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-INSPECTOR_SOURCE_ROOT_DIR=@CMAKE_CURRENT_BINARY_DIR@
+INSPECTOR_SOURCE_ROOT_DIR=@CMAKE_BINARY_DIR@
 ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 
 # AG: we don't need this anymore, because
@@ -28,7 +28,7 @@ export PICVIZ_AXIS_COMPUTATION_PLUGINS_DIR=$PICVIZ_PATH/plugins/axis-computation
 export PICVIZ_SORTING_FUNCTIONS_PLUGINS_DIR=$PICVIZ_PATH/plugins/sorting-functions/
 export PICVIZ_ROW_FILTERS_DIR=$PICVIZ_PATH/plugins/row-filters/
 
-export PVRUSH_NORMALIZE_HELPERS_DIR="libpvkernel/plugins/normalize-helpers;~/.pvrush-formats-extra"
+export PVRUSH_NORMALIZE_HELPERS_DIR="@CMAKE_SOURCE_DIR@/libpvkernel/plugins/normalize-helpers;~/.pvrush-formats-extra"
 
 export PVRUSH_INPUTTYPE_DIR=$PVKERNEL_PATH/plugins/input_types
 export PVRUSH_SOURCE_DIR=$PVKERNEL_PATH/plugins/sources
