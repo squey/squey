@@ -47,7 +47,6 @@ simple_lines_int_view.cpp
 PVAxisLabel.cpp
 PVAxisGraphicsItem.cpp
 PVSelectionGenerator.cpp
-PVQuadTree.cpp
 PVLibView.cpp
 PVSlidersManager.cpp
 PVSlidersGroup.cpp

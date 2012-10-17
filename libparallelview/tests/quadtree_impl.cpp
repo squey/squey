@@ -108,48 +108,6 @@ int main(int argc, char **argv)
 	}
 
 	std::cout << std::endl;
-	Picviz::PVSelection *selection;
-	selection = new Picviz::PVSelection();
-
-	{
-		std::cout << "extract subtree from full selection" << std::endl;
-		selection->select_all();
-		BENCH_START(extract);
-		subtree = qt->get_subtree_from_selection(*selection);
-		BENCH_END(extract, "extract", 1, 1, 1, 1);
-		std::cout << "memory used: " << subtree->memory() << std::endl;
-		delete subtree;
-	}
-
-	{
-		std::cout << "extract subtree from half of selection" << std::endl;
-		selection->select_even();
-		BENCH_START(extract);
-		subtree = qt->get_subtree_from_selection(*selection);
-		BENCH_END(extract, "extract", 1, 1, 1, 1);
-		std::cout << "memory used: " << subtree->memory() << std::endl;
-		delete subtree;
-	}
-
-	{
-		std::cout << "extract subtree from quarter of selection" << std::endl;
-		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_BYTES);
-		BENCH_START(extract);
-		subtree = qt->get_subtree_from_selection(*selection);
-		BENCH_END(extract, "extract", 1, 1, 1, 1);
-		std::cout << "memory used: " << subtree->memory() << std::endl;
-		delete subtree;
-	}
-
-	{
-		std::cout << "extract subtree from no selection" << std::endl;
-		selection->select_none();
-		BENCH_START(extract);
-		subtree = qt->get_subtree_from_selection(*selection);
-		BENCH_END(extract, "extract", 1, 1, 1, 1);
-		std::cout << "memory used: " << subtree->memory() << std::endl;
-		delete subtree;
-	}
 
 	if (qt) {
 		delete qt;
