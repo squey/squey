@@ -7,12 +7,26 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
-MAKEFILES=$(find $1 -name Makefile)
+BUILDDIR=$(realpath $1)
+SRCDIR=$(realpath $(dirname $0))
+
+if [ "$BUILDDIR" == "$SRCDIR" ]; then
+	echo "Current source directory and build directory are the same... Do nothing." 1>&2
+	exit 1
+fi
+
+if [ ! -f "$SRCDIR/CMakeLists.txt" ]; then
+	echo "$SRCDIR does not contain any CMakeLists.txt file. Are you sure this is a picviz inspector source directory ?" 1>&2
+	exit 2
+fi
+
+
+MAKEFILES=$(find $BUILDDIR -name Makefile)
 for m in $MAKEFILES; do
-	target="./$(echo $m |cut --complement -d'/' -f1)"
+	target=${m/$BUILDDIR/$SRCDIR}
 	rm $target 2>/dev/null
-	ln -s "$PWD/$m" $target ||exit $?
+	ln -s "$m" "$target" ||exit $?
 done
 
-rm ./inspector.sh 2>/dev/null
-ln -s $1/inspector.sh ./inspector.sh
+rm $SRCDIR/inspector.sh 2>/dev/null
+ln -s $BUILDDIR/inspector.sh $SRCDIR/inspector.sh
