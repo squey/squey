@@ -6,11 +6,6 @@
 #
 # Row filters
 #
-include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
-
-
-link_directories(${picviz-inspector_SOURCE_DIR}/libpicviz/src/ ${picviz-inspector_SOURCE_DIR}/libpvfilter/src/)
-
 set(FILTERS_DIST_LIST
 	#row_filter_axes_bind
 	#row_filter_axes_bind_nearest_neighbors
@@ -19,7 +14,7 @@ set(FILTERS_DIST_LIST
 set(FILTERS_DIST_FILES
 )
 
-set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+set(LINK_LIBRARIES picviz pvkernel ${QT_LIBRARIES})
 
 #add_library(row_filter_axes_bind SHARED axes-bind/PVRFFAxesBind.cpp axes-bind/register.cpp)
 #target_link_libraries(row_filter_axes_bind ${LINK_LIBRARIES})

@@ -3,6 +3,7 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+project(libpvkernel)
 include(CTest)
 set(CTEST_PROJECT_NAME "PVKernel")
 
@@ -16,6 +17,15 @@ include_directories(AFTER ${PCAP_INCLUDE_DIRS})
 include_directories(AFTER ${X11_INCLUDE_DIR})
 include_directories(AFTER ${Boost_INCLUDE_DIR})
 include_directories(AFTER ${HWLOC_INCLUDE_DIRS})
+if(CUDA_FOUND)
+	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
+endif(CUDA_FOUND)
+if(PYTHONLIBS_FOUND)
+	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
+endif(PYTHONLIBS_FOUND)
+include_directories(AFTER ${QT_QTCORE_INCLUDE_DIR})
+include_directories(AFTER ${QT_INCLUDE_DIR})
+include_directories(AFTER ${QT_UI_INCLUDE_DIR})
 
 ##########################################
 # begin: SET VARIOUS PLUGINS DIRECTORIES #
@@ -80,9 +90,6 @@ add_definitions(-DPVRUSH_SOURCE_DIR="${PVRUSH_SOURCE_DIR}")
 # END: SET VARIOUS PLUGINS DIRECTORIES #
 ########################################
 
-
-add_definitions(${OpenMP_CXX_FLAGS})
-add_definitions(${COMPILER_OPTIMIZE_FLAGS})
 
 add_subdirectory(src)
 add_subdirectory(plugins)

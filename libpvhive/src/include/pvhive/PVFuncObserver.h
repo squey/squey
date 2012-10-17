@@ -72,7 +72,7 @@ signals:
 
 namespace PVHive {
 
-template <class B, class T, class F, F f>
+template <class B, class T, class F, F bound_function>
 class PVFuncObserverTemplatedBase : public B
 {
 	friend class PVHive;

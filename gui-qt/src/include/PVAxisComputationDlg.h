@@ -12,7 +12,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../ui_PVAxisComputationDlg.h"
+#include <gui-qt/ui/PVAxisComputationDlg.h>
 
 namespace PVWidgets
 {

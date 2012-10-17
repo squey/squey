@@ -7,7 +7,7 @@
 #ifndef PVDBPREVIEWWIDGET_FILE_H
 #define PVDBPREVIEWWIDGET_FILE_H
 
-#include "../ui_db_preview.h"
+#include <pvkernel/ui/db_preview.h>
 #include "../../common/database/PVDBQuery.h"
 #include "../../common/database/PVDBInfos.h"
 

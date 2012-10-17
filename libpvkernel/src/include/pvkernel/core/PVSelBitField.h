@@ -407,9 +407,9 @@ public:
 		}
 
 		// Main loop
-		size_t c;
-		const size_t chunk_start_aligned = ((chunk_start+1)>>1)<<1;
-		const size_t chunk_end_sse = (((size_t)(chunk_end))>>1)<<1;
+		ssize_t c;
+		const ssize_t chunk_start_aligned = ((chunk_start+1)>>1)<<1;
+		const ssize_t chunk_end_sse = (((size_t)(chunk_end))>>1)<<1;
 		for (c = chunk_start; c < chunk_start_aligned; c++) {
 			const uint64_t sel_buf = _table[c];
 			PVCore::PVBitVisitor::visit_bits(sel_buf, f, chunk_to_line_index(c));

@@ -3,12 +3,17 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+project(libpicviz)
+
+include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
+include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
+include_directories(AFTER ${ICU_INCLUDE})
+include_directories(AFTER ${TULIP_INCLUDE_DIR})
+
+
 ##########################################
 # BEGIN: SET VARIOUS PLUGINS DIRECTORIES #
 ##########################################
-include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
-include_directories(AFTER ${ICU_INCLUDE})
-
 # Set PICVIZ_FUNCTIONS_DIR
 if(WIN32)
         set(PICVIZ_FUNCTIONS_DIR "functions")
@@ -80,10 +85,6 @@ else(WIN32)
 	set(PICVIZ_SORTING_FUNCTIONS_PLUGINS_DIR "${CMAKE_INSTALL_PREFIX}/share/picviz/sorting-functions")
 endif(WIN32)
 add_definitions(-DPICVIZ_SORTING_FUNCTIONS_PLUGINS_DIR="${PICVIZ_SORTING_FUNCTIONS_PLUGINS_DIR}")
-
-add_definitions(${OpenMP_CXX_FLAGS})
-add_definitions(${COMPILER_OPTIMIZE_FLAGS})
-
 
 # #
 # # PCRE
