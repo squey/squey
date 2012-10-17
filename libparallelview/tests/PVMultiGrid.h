@@ -9,8 +9,9 @@
 
 #include <pvbase/types.h>
 
+#include <pvkernel/core/PVVector.h>
+
 #include <picviz/PVSelection.h>
-#include <picviz/PVVector.h>
 
 #include <pvparallelview/PVBCICode.h>
 
@@ -28,7 +29,7 @@ struct PVMultiGridEntry {
 };
 #pragma pack(pop)
 
-typedef Picviz::PVVector<PVMultiGridEntry> pvmultigrid_entries_t;
+typedef PVCore::PVVector<PVMultiGridEntry> pvmultigrid_entries_t;
 
 template <int ORDER>
 class PVMultiGrid
