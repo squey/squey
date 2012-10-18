@@ -16,7 +16,6 @@
 #include <picviz/PVStateMachine.h>
 #include <picviz/widgets/PVArgumentListWidgetFactory.h>
 
-#include <pvhive/waxes/waxes.h>
 #include <pvhive/PVHive.h>
 #include <pvhive/PVCallHelper.h>
 

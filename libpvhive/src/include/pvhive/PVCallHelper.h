@@ -9,12 +9,6 @@
 
 namespace PVHive {
 
-#define FUNC(Method) \
-	decltype(&Method), &Method
-
-#define FUNC_PROTOTYPE(RetType, Class, Method, Params...) \
-	RetType(Class::*)(Params), &Class::Method
-
 class PVCallHelper
 {
 public:

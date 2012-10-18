@@ -58,7 +58,6 @@
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
-#include <pvhive/waxes/waxes.h>
 
 #include <pvguiqt/PVListDisplayDlg.h>
 
@@ -406,7 +405,6 @@ void PVInspector::PVMainWindow::close_scene()
 	_scene = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(root, "default");
 	_ad2g_mw = NULL;
 	set_project_modified(false);
-	current_tab = nullptr;
 }
 
 

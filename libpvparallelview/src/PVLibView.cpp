@@ -13,7 +13,6 @@
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverCallback.h>
-#include <pvhive/waxes/waxes.h>
 
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>

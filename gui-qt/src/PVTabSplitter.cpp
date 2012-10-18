@@ -11,7 +11,6 @@
 #include <picviz/PVView.h>
 
 #include <pvhive/PVHive.h>
-#include <pvhive/waxes/waxes.h>
 
 #include <PVAxisPropertiesWidget.h>
 #include <PVMainWindow.h>
