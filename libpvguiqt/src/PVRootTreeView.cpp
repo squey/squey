@@ -13,7 +13,6 @@
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
-#include <pvhive/waxes/waxes.h>
 
 #include <pvguiqt/PVQMapped.h>
 #include <pvguiqt/PVQPlotted.h>

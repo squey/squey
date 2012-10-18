@@ -14,7 +14,6 @@
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActor.h>
-#include <pvhive/waxes/waxes.h>
 
 #include <picviz/PVRoot.h>
 #include <picviz/PVScene.h>

@@ -150,6 +150,7 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(PVViewDisplay* display
 	}
 	else {
 		set_central_display(display_dock->get_view(), display_dock->widget(), display_dock->windowTitle());
+		removeDockWidget(display_dock);
 	}
 
 }
@@ -397,16 +398,6 @@ void  PVGuiQt::PVWorkspace::destroy_layerstack()
 void PVGuiQt::PVWorkspace::check_datatree_button(bool check /*= false*/)
 {
 	_datatree_view_action->setChecked(check);
-}
-
-Picviz::PVView* PVGuiQt::PVWorkspace::get_lib_view()
-{
-	return _source->current_view();
-}
-
-Picviz::PVView const* PVGuiQt::PVWorkspace::get_lib_view() const
-{
-	return _source->current_view();
 }
 
 void PVGuiQt::PVWorkspace::update_view_count(PVHive::PVObserverBase* /*obs_base*/)

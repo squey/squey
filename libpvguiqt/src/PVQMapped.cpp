@@ -4,7 +4,6 @@
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
-#include <pvhive/waxes/waxes.h>
 
 bool PVGuiQt::PVQMapped::edit_mapped(Picviz::PVMapped& mapped, QWidget* parent)
 {

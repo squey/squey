@@ -59,16 +59,21 @@ Picviz::PVSource const* Picviz::PVScene::current_source() const
 
 void Picviz::PVScene::select_source(PVSource* source)
 {
-	 assert(!source || (source && get_children<PVSource>().contains(source->shared_from_this())));
-	 if (source) {
-		 if (source->current_view()) {
-			 _current_view = source->current_view();
-		 }
-		 else {
-			 _current_view = source->last_current_view();
-		 }
-	 }
-	 _current_source = source;
+	assert(!source || (source && get_children<PVSource>().contains(source->shared_from_this())));
+	if (source) {
+		if (source->current_view()) {
+			_current_view = source->current_view();
+		}
+		else {
+			_current_view = source->last_current_view();
+		}
+		_current_source = source;
+	}
+	else {
+		if (_current_view) {
+			_current_source = _current_view->get_parent<PVSource>();
+		}
+	}
 }
 
 Picviz::PVView* Picviz::PVScene::current_view()

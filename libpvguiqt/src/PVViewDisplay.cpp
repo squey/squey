@@ -21,7 +21,6 @@
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
-#include <pvhive/waxes/waxes.h>
 
 #include <X11/Xlib.h>
 #include <QX11Info>
@@ -217,6 +216,9 @@ void PVGuiQt::PVViewDisplay::set_current_view()
 {
 	if (_view) {
 		auto scene = _view->get_parent<Picviz::PVScene>()->shared_from_this();
+		std::cout << "Picviz::PVScene::select_view: " << _view << std::endl;
+
+		_workspace->set_current_view(_view);
 		PVHive::call<FUNC(Picviz::PVScene::select_view)>(scene, *_view);
 	}
 }

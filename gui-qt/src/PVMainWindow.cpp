@@ -400,6 +400,7 @@ void PVInspector::PVMainWindow::close_scene()
 		_ad2g_mw->deleteLater();
 	}
 	_scene = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(root, "default");
+	_workspaces_tab_widget->set_scene(_scene.get());
 	_ad2g_mw = NULL;
 	set_project_modified(false);
 }
@@ -660,7 +661,7 @@ PVGuiQt::PVWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVVie
 		if (!tab) {
 			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
 		} else {
-			if (tab->get_lib_view() == &picviz_view) {
+			if (tab->current_view() == &picviz_view) {
 				return tab;
 				/* We refresh the listing */
 			}
@@ -950,7 +951,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 
 
 	if (current_tab) {
-		current_lib_view = current_tab->get_lib_view();
+		current_lib_view = current_tab->current_view();
 		state_machine = current_lib_view->state_machine;
 	}
 	/* Now we switch according to the key pressed */
@@ -1770,7 +1771,7 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView* picviz_view)
 void PVInspector::PVMainWindow::set_color_selected(QColor const& color)
 {
 #if 0
-	Picviz::PVView& picviz_view = dlg->get_lib_view();
+	Picviz::PVView& picviz_view = dlg->current_view();
 
 	// Get the tab associated w/ this view
 	PVTabSplitter* tab = get_tab_from_view(picviz_view);
@@ -1803,7 +1804,7 @@ void PVInspector::PVMainWindow::set_color_selected(QColor const& color)
 	picviz_view.process_from_eventline();
 
 	// And we commit to the current layer (cf. ticket #38)
-	commit_selection_in_current_layer(current_tab->get_lib_view());
+	commit_selection_in_current_layer(current_tab->current_view());
 
 	// And tell that the project has been modified
 	set_project_modified(true);

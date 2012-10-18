@@ -13,7 +13,6 @@
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
-#include <pvhive/waxes/waxes.h>
 
 #include <pvguiqt/PVListingView.h>
 #include <pvguiqt/PVListingModel.h>

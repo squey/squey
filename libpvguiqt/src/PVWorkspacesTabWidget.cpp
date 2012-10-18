@@ -13,7 +13,6 @@
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
-#include <pvhive/waxes/waxes.h>
 
 #include <iostream>
 #include <QApplication>
@@ -132,12 +131,12 @@ void PVGuiQt::PVWorkspacesTabWidget::tab_changed(int index)
 		setCurrentIndex(count()-1);
 	}
 	else {
-		Picviz::PVSource* source = nullptr;
-		if (PVWorkspace* workspace = qobject_cast<PVWorkspace*>(widget(index))) {
-			source = workspace->get_source();
+		Picviz::PVView* view = qobject_cast<PVWorkspaceBase*>(widget(index))->current_view();
+		if (view) {
+			auto scene_sp = _scene->shared_from_this();
+			std::cout << "Picviz::PVScene::select_view: " << view << std::endl;
+			PVHive::call<FUNC(Picviz::PVScene::select_view)>(scene_sp, *view);
 		}
-		auto scene_sp = _scene->shared_from_this();
-		PVHive::call<FUNC(Picviz::PVScene::select_source)>(scene_sp, source);
 	}
 }
 

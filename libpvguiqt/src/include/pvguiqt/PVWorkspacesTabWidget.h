@@ -51,6 +51,7 @@ class PVWorkspacesTabWidget : public QTabWidget
 
 public:
 	PVWorkspacesTabWidget(Picviz::PVScene* scene, QWidget* parent = 0);
+	void set_scene(Picviz::PVScene* scene) { _scene = scene; }
 	void remove_workspace(int index);
 	int addTab(PVWorkspaceBase* page, const QString & label, bool animation = true);
 	int count() const;

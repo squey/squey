@@ -23,7 +23,6 @@
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
-#include <pvhive/waxes/waxes.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
 
@@ -79,6 +78,9 @@ public:
 public:
 	typedef PVHive::PVObserverSignal<PVCore::PVDataTreeObjectBase> datatree_obs_t;
 
+	Picviz::PVView* current_view() const { return _current_view; }
+	void set_current_view(Picviz::PVView* view) { _current_view = view; }
+
 	static PVWorkspaceBase* workspace_under_mouse();
 	static bool drag_started() { return _drag_started; }
 
@@ -104,6 +106,8 @@ protected:
 	static uint64_t _z_order_counter;
 	static bool _drag_started;
 	QHash<Picviz::PVView const*, PVViewWidgets> _view_widgets;
+
+	Picviz::PVView* _current_view = nullptr;
 };
 
 class PVWorkspace : public PVWorkspaceBase
@@ -120,10 +124,7 @@ public:
 	PVListingView* create_listing_view(Picviz::PVView_sp view_sp);
 
 public:
-	Picviz::PVView* get_lib_view();
-	Picviz::PVView const* get_lib_view() const;
-	inline Picviz::PVSource* get_lib_src() { return _source; }
-	inline Picviz::PVSource const* get_lib_src() const { return _source; }
+	inline Picviz::PVSource* get_source() { return _source; }
 
 public slots:
 	void add_listing_view(bool central = false);
