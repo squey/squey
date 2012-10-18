@@ -13,4 +13,4 @@ include_directories(AFTER ${PVHIVE_INCLUDE_DIRS})
 include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 
 add_subdirectory(src)
-#add_subdirectory(tests)
+add_subdirectory(tests)

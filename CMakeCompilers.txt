@@ -37,7 +37,6 @@ if (WIN32)
 
 else()
 	set(CMAKE_CXX_COMMON_FLAGS "-std=c++11 -Wall -Wno-unused-local-typedefs -Wno-pmf-conversions")
-	set(CMAKE_CXX_ARCH_FLAGS "-march=native")
 
 	if (USE_LTO)
 		set(LTO_CXX_FLAGS "-flto")
