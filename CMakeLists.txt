@@ -2,13 +2,6 @@ cmake_minimum_required(VERSION 2.8)
 
 project(picviz-inspector)
 
-include(CMakeOptions.txt)
-
-if(USE_PVGL2)
-  add_definitions(-DUSE_PVGL2)
-endif(USE_PVGL2)
-
-set(PICVIZ_SINGLE_TREE_BUILD true)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 include(CTest)
@@ -19,99 +12,27 @@ include(CheckLibraryExists)
 
 include(FindPkgConfig)
 
-if (DEBUG_MODE)
-	if (NOT WIN32)
-		add_definitions(-g -march=native)
-	endif()
-else()
-	if(WIN32)
-		# /Ox: "full-optimisation" mode
-		# /Ob2: inline everything that is possible
-		# /Oi: use intrinsics functions
-		# /Ot: favorize fast over small code
-		# /GL: intra-procedural optimisations by MSVC !
-		set(COMPILER_OPTIMIZE_FLAGS "/Ox /Ob2 /Oi /Ot /GL")
-		# Intraprocedural optimisations
-		SET(LINKER_OPTIMIZE_FLAGS "/ltcg")
-	else(WIN32)
-		set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native -flto=jobserver")
-		#SET(LINKER_OPTIMIZE_FLAGS "-flto")
-		add_definitions(-DNDEBUG) # so that 'assert' will generate no code
-		if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-			add_definitions(-g)
-		endif()
-	endif(WIN32)
-endif()
-
-#
-# Application specific definitions
-#
-add_definitions(-DCUSTOMER_RELEASE)
-
-if(WIN32)
-	add_definitions(-DWIN32)
-	add_definitions(-D_WIN32)
-	add_definitions(-D_WINSOCKAPI_)
-	# Defined or python believes where are in 32-bit !!
-	# (and define bad types for Py_ssize_t for instance)
-	add_definitions(-D_WIN64)
-	add_definitions(/MP) # parallel compilation
-	# Visual 2008 and OpenMP with 64 bits is a huge mess.
-	# First, you've got to install Visual 2008 SP1, then install
-	# OpenMP dll in "winsxs" and then set this flag so that we link
-	# with the good version...... !!
-	#add_definitions(-D__OPENMP_ASSEMBLY_VERSION="9.0.30729.6161")
-	set(MSVC_LINKER_FLAGS "/LARGEADDRESSAWARE")
-	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-		set(MSVC_LINKER_FLAGS "${MSVC_LINKER_FLAGS} ${LINKER_OPTIMIZE_FLAGS}")
-	endif()
-	set(CMAKE_EXE_LINKER_FLAGS ${MSVC_LINKER_FLAGS})
-	set(CMAKE_SHARED_LINKER_FLAGS ${MSVC_LINKER_FLAGS})
-	set(CMAKE_MODULE_LINKER_FLAGS ${MSVC_LINKER_FLAGS})
-
-else(WIN32)
-	add_definitions(-DUNIX)
-	add_definitions(-DLINUX=2)
-	add_definitions(-Wall -Wextra -pipe -Wno-unused-local-typedefs -Wno-pmf-conversions -std=c++0x)
-	#add_definitions(-include ${picviz-inspector_SOURCE_DIR}/precompiled-headers/qt.h)
-	#add_definitions(-Wall -Wextra -pipe -ggdb3 -msse4.1)
-
-	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-		#set(CMAKE_EXE_LINKER_FLAGS ${LINKER_OPTIMIZE_FLAGS})
-		set(CMAKE_SHARED_LINKER_FLAGS ${LINKER_OPTIMIZE_FLAGS})
-		set(CMAKE_MODULE_LINKER_FLAGS ${LINKER_OPTIMIZE_FLAGS})
-	endif()
-endif(WIN32)
+include(CMakeMacros.txt)
+include(CMakeOptions.txt)
+include(CMakeCompilers.txt)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${picviz-inspector_SOURCE_DIR}/cmake)
 
 set(USE_OPENMP true)
 
-######################################
-# BEGIN: SET CUSTOMERS CAPABILITIES #
-#####################################
-if(PICVIZ_DEVELOPER_MODE)
-	include(CMakePicvizDeveloperSpecifics.txt)
-else(PICVIZ_DEVELOPER_MODE)
-	include(CMakeCustomerSpecifics.txt)
-endif(PICVIZ_DEVELOPER_MODE)
-###################################
-# END: SET CUSTOMERS CAPABILITIES #
-###################################
-
-
-#########################################
-# BEGIN: SET VARIOUS REQUIRED LIBRARIES #
-#########################################
+#
+# Required libraries
+#
 include(CMakeRequiredLibraries.txt)
-#######################################
-# END: SET VARIOUS REQUIRED LIBRARIES #
-#######################################
 
 #
 # Handles the version
 #
 include(CMakeVersionHandler.txt)
+
+# OpenMP for everyone
+add_definitions(${OpenMP_CXX_FLAGS})
+message(STATUS "OpenMP flags: ${OpenMP_CXX_FLAGS}")
 
 #############################################
 # BEGIN: ADD INCLUDE DIRS NEEDED EVERYWHERE #
@@ -134,19 +55,24 @@ include_directories(AFTER "${picviz-inspector_SOURCE_DIR}/include")
 # END: ADD INCLUDE DIRS NEEDED EVERYWHERE #
 ###########################################
 
+# Test compilation target
+ADD_CUSTOM_TARGET(alltests COMMAND make)
+
+# Generic generated-ui files include directory
+PV_QT4_UI_INC_DIR(QT_UI_INCLUDE_DIR)
 
 add_subdirectory(scripts)
-add_subdirectory(libpvkernel)
+declare_internal_library(pvkernel)
 
 # Helpers means various stuff we can use
 # such as binaries or libraries, that depends
 # on PVKernel
 add_subdirectory(helpers)
 
-add_subdirectory(libpicviz)
-add_subdirectory(libpvhive)
-add_subdirectory(libparallelview)
-add_subdirectory(libpvguiqt)
+declare_internal_library(picviz)
+declare_internal_library(pvhive)
+declare_internal_library(pvparallelview)
+declare_internal_library(pvguiqt)
 
 add_subdirectory(gui-qt)
 
@@ -159,8 +85,9 @@ if(CUDA_FOUND)
   message(STATUS "CUDA 64bit device: " ${CUDA_64_BIT_DEVICE_CODE})
 endif(CUDA_FOUND)
 
-#CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/src/include/picviz/config.h)
-
+# Set inspector.sh and make_protect for current build
+configure_file(inspector.sh.cmake inspector.sh @ONLY)
+configure_file(make_protect.cmake make_protect @ONLY)
 
 include(CMakePackage.txt)
 include(CMakePackageDistribute.txt)

@@ -1,0 +1,33 @@
+#!/bin/bash
+# Create symbolic links for Makefiles, according to a build directory
+# Create a "bin" symlink for every tests directory
+
+if [ $# -ne 1 ]; then
+	echo "Usage: $0 build_dir" 1>&2
+	exit 1
+fi
+
+BUILDDIR=$(realpath $1)
+SRCDIR=$(realpath $(dirname $0))
+
+if [ "$BUILDDIR" == "$SRCDIR" ]; then
+	echo "Current source directory and build directory are the same... Do nothing." 1>&2
+	exit 1
+fi
+
+if [ ! -f "$SRCDIR/CMakeLists.txt" ]; then
+	echo "$SRCDIR does not contain any CMakeLists.txt file. Are you sure this is a picviz inspector source directory ?" 1>&2
+	exit 2
+fi
+
+
+MAKEFILES=$(find $BUILDDIR -name Makefile)
+for m in $MAKEFILES; do
+	target=${m/$BUILDDIR/$SRCDIR}
+	rm $target 2>/dev/null
+	ln -s "$m" "$target" ||exit $?
+done
+rm $SRCDIR/Makefile
+
+rm $SRCDIR/inspector.sh 2>/dev/null
+ln -s $BUILDDIR/inspector.sh $SRCDIR/inspector.sh

@@ -3,12 +3,6 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
-
-add_definitions(${PICVIZ_DEFINITIONS})
-include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
-include_directories(AFTER ${TULIP_INCLUDE_DIR})
-
 if (NOT WIN32)
 set(MATHS_LIBRARY "-lm")
 endif(NOT WIN32)
@@ -73,7 +67,6 @@ include/picviz/PVSortingFunc.h
 include/picviz/PVSource.h
 include/picviz/PVSquareArea.h
 include/picviz/PVStateMachine.h
-include/picviz/PVVector.h
 include/picviz/PVView.h
 
 # Correlation files
@@ -234,7 +227,7 @@ add_definitions(-DUSE_PARALLEL_MAPPING_FILTERS)
 add_definitions(-DUSE_PARALLEL_PLOTTING_FILTERS)
 set_target_properties(picviz PROPERTIES SOVERSION 1)
 
-target_link_libraries(picviz ${MATHS_LIBRARY} ${PICVIZ_LIBRARIES_WITHOUT_PICVIZ} ${QT_LIBRARIES} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES} ${TULIP_LIBRARY} ${TULIP_QT4_LIBRARY} ${TULIP_OGL_LIBRARY})
+target_link_libraries(picviz ${MATHS_LIBRARY} ${PICVIZ_LIBRARIES_WITHOUT_PICVIZ} ${QT_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES} ${TULIP_LIBRARY} ${TULIP_QT4_LIBRARY} ${TULIP_OGL_LIBRARY} pvkernel)
 
 INSTALL(TARGETS picviz LIBRARY DESTINATION .
                        RUNTIME DESTINATION .)

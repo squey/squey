@@ -1,9 +1,8 @@
 #ifndef PVWIDGETS_PVCOLORDIALOG_H
 #define PVWIDGETS_PVCOLORDIALOG_H
 
-#include "../../../ui_PVColorDialog.h"
-
 #include <pvkernel/core/PVHSVColor.h>
+#include <pvkernel/ui/PVColorDialog.h>
 
 namespace PVCore {
 class PVHSVColor;

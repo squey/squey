@@ -3,13 +3,7 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
-
-add_definitions(${PICVIZ_DEFINITIONS})
-include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
-
-
-set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES})
+set(LINK_LIBRARIES pvkernel picviz ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES})
 
 enable_testing()
 

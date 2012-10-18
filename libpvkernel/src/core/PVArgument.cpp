@@ -153,7 +153,7 @@ PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings, 
 		QString const& key = keys.at(i);
 		if (def_args.contains(key)) {
 			QString str;
-			if (settings.value(key).type() == QMetaType::QStringList) {
+			if (settings.value(key).type() == (QVariant::Type) QMetaType::QStringList) {
 				// QSettings returns strings containing commas as QStringList
 				str = settings.value(key).toStringList().join(",");
 			}
@@ -164,6 +164,8 @@ PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings, 
 		}
 	}
 	settings.endGroup();
+
+	PVArgumentList_set_missing_args(args, def_args);
 
 	return args;
 }
@@ -229,6 +231,17 @@ void PVCore::PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret, PV
 		QString const& key(it.key());
 		if (ref.contains(key)) {
 			it.value() = ref[key];
+		}
+	}
+}
+
+void PVCore::PVArgumentList_set_missing_args(PVCore::PVArgumentList& ret, PVCore::PVArgumentList const& def_args)
+{
+	PVCore::PVArgumentList::const_iterator it;
+	for (it = def_args.begin(); it != def_args.end(); it++) {
+		QString const& key(it.key());
+		if (!ret.contains(key)) {
+			ret[key] = it.value();
 		}
 	}
 }

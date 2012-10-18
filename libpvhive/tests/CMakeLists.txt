@@ -3,10 +3,7 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-include_directories(AFTER ${PVKERNEL_INCLUDE_DIR})
-include_directories(AFTER ${PVHIVE_INCLUDE_DIR})
-
-set(COMMON_LIBRARIES ${PVHIVE_LIBRARIES} ${PICVIZ_LIBRARIES} ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY})
+set(COMMON_LIBRARIES pvhive pvkernel picviz ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${QT_LIBRARIES})
 
 add_executable(Tsimplistic simplistic.cpp)
 target_link_libraries(Tsimplistic ${COMMON_LIBRARIES})
@@ -28,47 +25,46 @@ target_link_libraries(Tadrien-qt_thread ${COMMON_LIBRARIES})
 QT4_WRAP_CPP(TEST_FUNCTIONAL_MOC_SRC functional_dlg.h functional_objs.h OPTIONS ${QT4_WRAP_OPTIONS})
 
 add_executable(Tfunctional functional_main.cpp functional_objs.cpp ${TEST_FUNCTIONAL_MOC_SRC})
-target_link_libraries(Tfunctional ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+target_link_libraries(Tfunctional ${COMMON_LIBRARIES})
 
 add_executable(Tinter-threads inter-threads.cpp)
-target_link_libraries(Tinter-threads ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+target_link_libraries(Tinter-threads ${COMMON_LIBRARIES})
 
 QT4_WRAP_CPP(TEST_DIT_MOC_SRC data-in-thread_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
 
 add_executable(Tdata-in-thread data-in-thread.cpp ${TEST_DIT_MOC_SRC})
-target_link_libraries(Tdata-in-thread ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+target_link_libraries(Tdata-in-thread ${COMMON_LIBRARIES})
 
 QT4_WRAP_CPP(TEST_MODAL_MOC_SRC modal_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
 
 add_executable(Tmodal modal.cpp ${TEST_MODAL_MOC_SRC})
-target_link_libraries(Tmodal ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+target_link_libraries(Tmodal ${COMMON_LIBRARIES})
 
 add_executable(Tmultithreads multithreads.cpp)
-target_link_libraries(Tmultithreads ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+target_link_libraries(Tmultithreads ${COMMON_LIBRARIES})
 
 add_executable(Tmassive-mem massive-mem.cpp massive_common.cpp)
-target_link_libraries(Tmassive-mem ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+target_link_libraries(Tmassive-mem ${COMMON_LIBRARIES})
 
 add_executable(Tmassive-register massive-register.cpp massive_common.cpp)
-target_link_libraries(Tmassive-register ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+target_link_libraries(Tmassive-register ${COMMON_LIBRARIES})
 
 add_executable(Tmassive-call-obj massive-call-obj.cpp massive_common.cpp)
-target_link_libraries(Tmassive-call-obj ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+target_link_libraries(Tmassive-call-obj ${COMMON_LIBRARIES})
 
 add_executable(Tmassive-call-prop massive-call-prop.cpp massive_common.cpp)
-target_link_libraries(Tmassive-call-prop ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+target_link_libraries(Tmassive-call-prop ${COMMON_LIBRARIES})
 
 QT4_WRAP_CPP(TEST_MQ_MOC_SRC message-queue.h OPTIONS ${QT4_WRAP_OPTIONS})
 
 add_executable(Tmessage-queue message-queue.cpp ${TEST_MQ_MOC_SRC})
-target_link_libraries(Tmessage-queue ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+target_link_libraries(Tmessage-queue ${COMMON_LIBRARIES})
 
 include_directories(AFTER ${PICVIZ_INCLUDE_DIR})
 
 add_executable(Tcall_helper call_helper.cpp)
-target_link_libraries(Tcall_helper ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
+target_link_libraries(Tcall_helper ${COMMON_LIBRARIES})
 
 QT4_WRAP_CPP(TEST_FUNC_OBSERVER_THREAD_MOC_SRC func_observer_thread.h OPTIONS ${QT4_WRAP_OPTIONS})
 add_executable(Tcore_func_observer_thread func_observer_thread.cpp ${TEST_FUNC_OBSERVER_THREAD_MOC_SRC})
-target_link_libraries(Tcore_func_observer_thread ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
-
+target_link_libraries(Tcore_func_observer_thread ${COMMON_LIBRARIES})

@@ -209,7 +209,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
 
 	/* We refresh the listing */
 	Picviz::PVView_sp view_sp = current_lib_view->shared_from_this();
-	PVHive::call<FUNC(Picviz::PVView::toggle_listing_zombie_visibility)>(view_sp);
+	PVHive::call<FUNC(Picviz::PVView::toggle_listing_unselected_visibility)>(view_sp);
 }
 
 /******************************************************************************
@@ -617,6 +617,13 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 		catch (PVRush::PVInputException const& e)
 		{
 			err_msg = tr("Error while loading project %1:\n%2").arg(file).arg(QString::fromStdString(e.what()));
+		}
+		catch (...)
+		{
+			err_msg = tr("Error while loading project %1:\n unhandled error.").arg(file);
+			QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading project..."), err_msg, QMessageBox::Ok, this);
+			box->exec();
+			return false;
 		}
 		if (ar->has_repairable_errors()) {
 			if (fix_project_errors(ar)) {

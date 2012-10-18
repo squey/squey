@@ -15,4 +15,6 @@ set(INSPECTOR_VERSION_MINOR ${VERSION_MINOR})
 set(INSPECTOR_VERSION_MICRO ${VERSION_MICRO})
 set(INSPECTOR_VERSION_NAME ${VERSION_NAME})
 
-configure_file("include/pvbase/version.h.cmake" "include/pvbase/version.h")
+set(VERSION_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/include/pvbase/version.h")
+configure_file("include/pvbase/version.h.cmake" ${VERSION_FILE_PATH})
+add_definitions(-DPICVIZ_VERSION_FILE_PATH="${VERSION_FILE_PATH}")

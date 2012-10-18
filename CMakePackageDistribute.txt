@@ -203,4 +203,10 @@ else(WIN32)
 	install(FILES ${LINUX_MISCLIB_PATH_64}/libhwloc.so ${LINUX_MISCLIB_PATH_64}/libhwloc.so.5 ${LINUX_MISCLIB_PATH_64}/libhwloc.so.5.0.1 DESTINATION .)
 	install(FILES /usr/local/lib/libgzstream.so /usr/local/lib/libftgl.so /usr/local/lib/libtulip-3.8.so /usr/local/lib/libtulip-ogdf-3.8.so /usr/local/lib/libtulip-ogl-3.8.so /usr/local/lib/libtulip-qt4-3.8.so DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH}/libnuma.so ${LINUX_MISCLIB_PATH}/libnuma.so.1 DESTINATION .)
+
+	#
+	# CUDA + NPP
+	#
+	install(FILES /opt/cuda/lib64/libcudart.so /opt/cuda/lib64/libcudart.so.5.0 /opt/cuda/lib64/libcudart.so.5.0.7 /opt/cuda/lib64/libnpp.so /opt/cuda/lib64/libnpp.so.5.0 /opt/cuda/lib64/libnpp.so.5.0.7 DESTINATION .)
+
 endif(WIN32)

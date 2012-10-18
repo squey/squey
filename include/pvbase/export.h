@@ -29,10 +29,5 @@
 // Decls for other libraries
 #include "../../libpvkernel/src/include/pvkernel/export.h"
 #include "../../libpicviz/src/include/picviz/export.h"
-#ifndef USE_PVGL2
-#include "../../libpvgl/src/include/pvgl/export.h"
-#else
-#include "../../libpvgl2/src/include/pvgl/export.h"
-#endif
 
 #endif	/* PVBASE_EXPORT_H */

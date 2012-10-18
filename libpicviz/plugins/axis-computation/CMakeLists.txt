@@ -6,9 +6,6 @@
 #
 # Axis computation
 #
-include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
-
-link_directories(${picviz-inspector_SOURCE_DIR}/libpicviz/src/)
 
 set(FILTERS_DIST_LIST
 )
@@ -16,7 +13,7 @@ set(FILTERS_DIST_LIST
 set(FILTERS_DIST_FILES
 )
 
-set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+set(LINK_LIBRARIES picviz pvkernel ${QT_LIBRARIES})
 
 if(PYTHONLIBS_FOUND)
 	# AG: BEFORE here is important, or boost does not include the good patchlevel.h (from Python), and does not

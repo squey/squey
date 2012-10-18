@@ -7,6 +7,7 @@
 #include <QAction>
 #include <QEvent>
 #include <QHeaderView>
+#include <QMouseEvent>
 #include <QMenu>
 
 #include <pvguiqt/PVCustomQtRoles.h>
@@ -54,6 +55,7 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent):
 #endif
 
 	connect(this, SIGNAL(clicked(QModelIndex const&)), this, SLOT(layer_clicked(QModelIndex const&)));
+	connect(this, SIGNAL(doubleClicked(QModelIndex const&)), this, SLOT(layer_double_clicked(QModelIndex const&)));
 
 	// Context menu
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
@@ -121,7 +123,17 @@ void PVGuiQt::PVLayerStackView::leaveEvent(QEvent * /*event*/)
 	viewport()->update();
 }
 
+void PVGuiQt::PVLayerStackView::mouseDoubleClickEvent(QMouseEvent* event)
+{
+	QModelIndex idx = indexAt(event->pos());
+	if (!idx.isValid()) {
+		return;
+	}
 
+	if (idx.column() == 2) {
+		edit(idx);
+	}
+}
 
 /******************************************************************************
  *
@@ -211,12 +223,16 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 
 void PVGuiQt::PVLayerStackView::layer_clicked(QModelIndex const& idx)
 {
+	PVLOG_INFO("PVLayerStackView::layer_clicked\n");
 	if (!idx.isValid()) {
 		// Qt says it's only called when idx is valid, but still..
 		return;
 	}
+	
+	ls_model()->setData(idx, QVariant(true), PVCustomQtRoles::RoleSetSelectedItem);
+}
 
-	if (idx.column() != 2) {
-		ls_model()->setData(idx, QVariant(true), PVCustomQtRoles::RoleSetSelectedItem);
-	}
+void PVGuiQt::PVLayerStackView::layer_double_clicked(QModelIndex const& idx)
+{
+	PVLOG_INFO("PVLayerStackView::layer_double_clicked\n");
 }

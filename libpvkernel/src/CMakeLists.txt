@@ -3,11 +3,6 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-if(CUDA_FOUND)
-	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
-endif(CUDA_FOUND)
-include_directories(AFTER ${ICU_INCLUDE})
-
 set(CORE_SRC_FILES
 core/debug.cpp
 core/environ.cpp
@@ -122,6 +117,7 @@ include/pvkernel/core/PVUnicodeString.h
 include/pvkernel/core/PVVersion.h
 include/pvkernel/core/PVRecentItemsManager.h
 include/pvkernel/core/PVConfig.h
+include/pvkernel/core/PVVector.h
 )
 
 if(PYTHONLIBS_FOUND)
@@ -404,7 +400,7 @@ set(HEADER_FILES ${CORE_HEADER_FILES} ${CUDA_HEADER_FILES} ${FILTER_HEADER_FILES
 set(MOC_HEADERS ${CORE_MOC_HEADERS} ${FILTER_MOC_HEADERS} ${RUSH_MOC_HEADERS} ${WIDGETS_MOC_HEADERS})
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
-QT4_WRAP_UI(UI_SRC ${UI_FILES})
+PV_QT4_WRAP_UI(UI_SRC ${UI_FILES})
 
 add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${UI_FILES})
 

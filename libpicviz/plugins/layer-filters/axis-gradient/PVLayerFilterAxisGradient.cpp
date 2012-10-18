@@ -62,7 +62,8 @@ void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 			const uint32_t plotted_value = (double) plotted->get_value(r, axis_id);
 
 			PVCore::PVHSVColor color;
-			color = ((double)(max_plotted-plotted_value)/diff)*(double)PVCore::PVHSVColor::color_max;
+			// From green to red.. !
+			color = ((uint8_t) (((double)(max_plotted-plotted_value)/diff)*(double)(HSV_COLOR_RED-HSV_COLOR_GREEN))) + HSV_COLOR_GREEN;
 			out.get_lines_properties().line_set_color(r, color);
 		},
 		_view->get_row_count());

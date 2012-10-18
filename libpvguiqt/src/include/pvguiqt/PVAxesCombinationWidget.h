@@ -12,9 +12,10 @@
 #include <QList>
 
 #include <picviz/PVAxesCombination.h>
-#include "../../ui_PVAxesCombinationWidget.h"
-#include "../../ui_PVAxesCombinationWidgetSelRange.h"
 #include <picviz/PVView_types.h>
+
+#include <pvguiqt/ui/PVAxesCombinationWidget.h>
+#include <pvguiqt/ui/PVAxesCombinationWidgetSelRange.h>
 
 namespace PVGuiQt {
 

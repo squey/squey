@@ -37,6 +37,7 @@ int main(int argc, char** argv)
 	QApplication app(argc, argv);
 
 	Picviz::PVView_sp view = src->current_view()->shared_from_this();
+	view->add_new_layer();
 
 	PVGuiQt::PVLayerStackWidget* ls = new PVGuiQt::PVLayerStackWidget(view);
 	PVGuiQt::PVLayerStackWidget* ls2 = new PVGuiQt::PVLayerStackWidget(view);
@@ -57,7 +58,7 @@ int main(int argc, char** argv)
 	    [](Picviz::PVLayerStack const*) { std::cout << "about to be deleted." << std::endl; });
 
 	PVHive::get().register_observer(view, [=](Picviz::PVView& view) { return &view.get_layer_stack(); }, observer);
-	    
+	 
 	int ret = app.exec();
 
 	return ret;
