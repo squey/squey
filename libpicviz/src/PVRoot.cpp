@@ -14,6 +14,8 @@
 
 #include <tulip/TlpTools.h>
 
+Picviz::PVRoot_sp Picviz::PVRoot::_unique_root;
+
 /******************************************************************************
  *
  * Picviz::PVRoot::PVRoot
@@ -47,6 +49,24 @@ Picviz::PVRoot::PVRoot() : data_tree_root_t()
 Picviz::PVRoot::~PVRoot()
 {
 	PVLOG_INFO("In PVRoot destructor\n");
+}
+
+Picviz::PVRoot& Picviz::PVRoot::get_root()
+{
+	return *get_root_sp();
+}
+
+Picviz::PVRoot_sp Picviz::PVRoot::get_root_sp()
+{
+	if (!_unique_root) {
+		_unique_root.reset(new Picviz::PVRoot());
+	}
+	return _unique_root;
+}
+
+void Picviz::PVRoot::release()
+{
+	_unique_root.reset();
 }
 
 /******************************************************************************

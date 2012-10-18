@@ -517,10 +517,13 @@ PVInspector::PVMainWindow* PVInspector::PVMainWindow::find_main_window(QString c
  *****************************************************************************/
 void PVInspector::PVMainWindow::project_new_Slot()
 {
-	if (maybe_save_project()) {
+	/*if (maybe_save_project()) {
 		close_scene();
 		set_current_project_filename(QString());
-	}
+	}*/
+	PVMainWindow* new_mw = new PVMainWindow();
+	new_mw->move(x() + 40, y() + 40);
+	new_mw->show();
 }
 
 /******************************************************************************
@@ -538,8 +541,7 @@ void PVInspector::PVMainWindow::project_load_Slot()
 	}
 	QString file = _load_project_dlg.selectedFiles().at(0);
 
-	load_project(file);
-#if 0
+	//load_project(file);
 	PVMainWindow* existing = find_main_window(file);
 	if (existing) {
 		existing->show();
@@ -550,16 +552,15 @@ void PVInspector::PVMainWindow::project_load_Slot()
 	if (is_project_untitled() && _scene->is_empty() && !isWindowModified()) {
 		load_project(file);
 	}
-	else {update_recent_projects
+	else {
 		PVMainWindow* other = new PVMainWindow();
+		other->move(x() + 40, y() + 40);
+		other->show();
 		if (!other->load_project(file)) {
 			other->deleteLater();
 			return;
 		}
-		other->move(x() + 40, y() + 40);
-		other->show();
 	}
-#endif
 
 #endif
 }

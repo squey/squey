@@ -23,7 +23,7 @@ int main(void)
 
 #include "test-env.h"
 
-	PVRoot_p root = PVRoot_p(new PVRoot());
+	PVRoot_sp root = Picviz::PVRoot::get_root_sp();
 
 	PVScene_p scene = PVScene_p(new PVScene(QString("scene1"), root));
 

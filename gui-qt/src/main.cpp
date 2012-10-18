@@ -28,6 +28,8 @@
 #include <pvkernel/core/segfault_handler.h>
 #include <pvkernel/core/PVConfig.h>
 
+#include <picviz/PVRoot.h>
+
 #include <pvparallelview/PVParallelView.h>
 
 #include <boost/program_options.hpp>
@@ -93,7 +95,7 @@ int main(int argc, char *argv[])
 
 
 	//app.setStyle(new PVInspector::PVCustomStyle());
-	PVInspector::PVMainWindow pv_main_window;
+	PVInspector::PVMainWindow* pv_mw = new PVInspector::PVMainWindow();
 	QString wintitle;
 	
 	// Here, we assume that everyone is coding with an editor using UTF-8
@@ -137,13 +139,15 @@ int main(int argc, char *argv[])
 	app.setApplicationName("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR);
 	app.setWindowIcon(QIcon(":/picviz"));
 
+	pv_mw->show();
+
 	if (vm.count("project")) {
 		QString prj_path = QString::fromLocal8Bit(vm["project"].as<std::string>().c_str());
-		pv_main_window.load_project(prj_path);
+		pv_mw->load_project(prj_path);
 	}
 	else 
 	if (files.size() > 0) {
-		pv_main_window.load_files(files, format);
+		pv_mw->load_files(files, format);
 	}
 
 	PVParallelView::common::init_cuda();
@@ -151,6 +155,7 @@ int main(int argc, char *argv[])
 	int ret = app.exec();
 
 	PVParallelView::common::release();
+	Picviz::PVRoot::release();
 
 	return ret;
 }

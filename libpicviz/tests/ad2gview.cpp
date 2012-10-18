@@ -32,7 +32,7 @@ int main(void)
 	Picviz::PVView *vc = new Picviz::PVView();
 	Picviz::PVView *vd = new Picviz::PVView();
 
-	Picviz::PVRoot_p root(new Picviz::PVRoot());
+	Picviz::PVRoot_sp root = Picviz::PVRoot::get_root_sp();
 	Picviz::PVScene_p scene(new Picviz::PVScene("scene", root.get()));
 
 
@@ -124,6 +124,7 @@ int main(void)
 	check_ret = ad2gv->check_properties();
 	REPORT_RESULT(check_ret == false);
 
+	Picviz::PVRoot::release();
 
 	return 0;
 }

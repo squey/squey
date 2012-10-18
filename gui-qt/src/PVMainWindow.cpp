@@ -75,10 +75,10 @@ Q_DECLARE_METATYPE(Picviz::PVSource*);
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QMainWindow(parent),
 	_load_project_dlg(this, tr("Load a project..."), QString(), PICVIZ_SCENE_ARCHIVE_FILTER ";;" ALL_FILES_FILTER),
-	_scene(root, "root")
+	_scene(get_root_sp(), "root")
 {
-	PVLOG_DEBUG("%s: Creating object\n", __FUNCTION__);
-	
+	setAttribute(Qt::WA_DeleteOnClose);
+
 	_is_project_untitled = true;
 	_ad2g_mw = NULL;
 
@@ -241,7 +241,15 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	show();
 }
 
+Picviz::PVRoot& PVInspector::PVMainWindow::get_root()
+{
+	return Picviz::PVRoot::get_root();
+}
 
+Picviz::PVRoot_sp PVInspector::PVMainWindow::get_root_sp()
+{
+	return Picviz::PVRoot::get_root_sp();
+}
 
 /******************************************************************************
  *
@@ -402,7 +410,7 @@ void PVInspector::PVMainWindow::close_scene()
 	if (_ad2g_mw) {
 		_ad2g_mw->deleteLater();
 	}
-	_scene = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(root, "default");
+	_scene = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(get_root_sp(), "default");
 	_ad2g_mw = NULL;
 	set_project_modified(false);
 }
