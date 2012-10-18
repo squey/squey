@@ -1,0 +1,6 @@
+# Arch flag
+# WARNING: setting -march=native will *silently* *breaks* icecc, as it will
+# force every job to be run locally
+if (NOT DEFINED CMAKE_CXX_ARCH_FLAGS)
+	set(CMAKE_CXX_ARCH_FLAGS "-march=corei7-avx")
+endif()

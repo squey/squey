@@ -3,6 +3,10 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+if (EXISTS "${CMAKE_SOURCE_DIR}/CMakeDefaultOptions.txt")
+	include("${CMAKE_SOURCE_DIR}/CMakeDefaultOptions.txt")
+endif()
+
 # Default build type is debug
 if (NOT DEFINED CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "debug")
@@ -12,6 +16,14 @@ if (CMAKE_BUILD_TYPE STREQUAL "")
 endif()
 endif()
 string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
+
+# Arch flag
+if (NOT DEFINED CMAKE_CXX_ARCH_FLAGS)
+	# Guess flag from GCC. This is done so that icecc doesn't silently set all jobs as local-job !
+	execute_process(COMMAND bash -c "gcc -march=native -Q --help=target | grep march |  tr -d '[[:space:]]'" OUTPUT_VARIABLE CMAKE_CXX_ARCH_FLAGS)
+	#set(CMAKE_CXX_ARCH_FLAGS "-march=native")
+	message(STATUS "CMAKE_CXX_ARCH_FLAGS isn't set. Flag has been guessed to ${CMAKE_CXX_ARCH_FLAGS}")
+endif()
 
 # Set default values for capabilities
 if (NOT DEFINED USER_TARGET)
