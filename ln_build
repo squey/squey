@@ -26,6 +26,14 @@ for m in $MAKEFILES; do
 	target=${m/$BUILDDIR/$SRCDIR}
 	rm $target 2>/dev/null
 	ln -s "$m" "$target" ||exit $?
+
+	echo "$m" |grep 'tests' >/dev/null
+	if [ $? -eq 0 ]; then
+		BINDIR=${m/Makefile/}
+		DSTDIR=${target/Makefile/bin}
+		rm $DSTDIR 2>/dev/null
+		ln -s $BINDIR $DSTDIR
+	fi
 done
 rm $SRCDIR/Makefile
 
