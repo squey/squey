@@ -20,6 +20,8 @@ namespace PVParallelView {
 template <size_t Bbits>
 class PVBCICode;
 
+#define INVALID_RENDER_GROUP ((uint32_t)-1)
+
 template <size_t Bbits = NBITS_INDEX>
 class PVBCIDrawingBackend
 {

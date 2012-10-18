@@ -97,7 +97,7 @@ public:
 		drawing_job job;
 		job._bbits = Bbits;
 		job.set_args(args);
-		if (rgrp != -1) {
+		if (rgrp != INVALID_RENDER_GROUP) {
 			_grp_order.push(rgrp);
 			_jobs[rgrp].push(job);
 		}
