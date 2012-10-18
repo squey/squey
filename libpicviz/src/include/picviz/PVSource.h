@@ -95,9 +95,11 @@ public:
 	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
 	QString get_window_name() const { return get_name() + QString(" / ") + get_format_name(); }
 
-	PVView* current_view() { return _current_view; }
-	PVView const* current_view() const { return _current_view; }
-	void select_view(PVView& view);
+	PVView* last_current_view() const { return _last_current_view; }
+	void set_last_current_view(PVView* view) { _last_current_view = view; }
+
+	PVView* current_view();
+	PVView const* current_view() const;
 
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
 	PVRush::PVFormat const& get_format() const { return _extractor.get_format(); }
@@ -159,13 +161,13 @@ private:
 	void extract_finished();
 
 private:
+	PVView* _last_current_view = nullptr;
 	PVRush::PVExtractor _extractor;
 	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
 	PVRush::PVInputType::list_inputs _inputs;
 
 	PVRush::PVSourceCreator_p _src_plugin;
 	PVRush::PVNraw *nraw;
-	PVView* _current_view;
 	bool _restore_inv_elts;
 	QStringList _inv_elts;
 

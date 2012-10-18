@@ -65,7 +65,6 @@ Picviz::PVSource::~PVSource()
 
 void Picviz::PVSource::init()
 {
-	_current_view = NULL;
 	nraw = &(_extractor.get_nraw());
 	// Set extractor default values
 	_extractor.set_last_start(0);
@@ -80,6 +79,18 @@ void Picviz::PVSource::init()
 
 	// Launch the controller thread
 	_extractor.start_controller();
+}
+
+Picviz::PVView* Picviz::PVSource::current_view()
+{
+	PVView* view = get_parent<PVScene>()->current_view();
+	assert(!view || (view && get_children<PVView>().contains(view->shared_from_this())));
+	return view;
+}
+
+Picviz::PVView const* Picviz::PVSource::current_view() const
+{
+	return const_cast<PVView const*>(const_cast<PVSource*>(this)->current_view());
 }
 
 void Picviz::PVSource::set_parent_from_ptr(PVScene* parent)
@@ -153,12 +164,6 @@ void Picviz::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 	job->wait_end();
 	_inv_elts = job->get_invalid_elts();
 	extract_finished();
-}
-
-void Picviz::PVSource::select_view(PVView& view)
-{
-	 assert(get_children<PVView>().contains(view.shared_from_this()));
-	 _current_view = &view;
 }
 
 void Picviz::PVSource::extract_finished()
@@ -248,9 +253,9 @@ void Picviz::PVSource::process_from_source()
 
 void Picviz::PVSource::add_view(PVView_sp view)
 {
-	if (!_current_view) {
-		_current_view = view.get();
-	}
+	//if (!current_view()) {
+		get_parent<PVScene>()->select_view(*view);
+	//}
 	PVScene* scene = get_parent();
 	if (scene) {
 		view->set_view_id(scene->get_new_view_id());

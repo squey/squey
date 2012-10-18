@@ -108,6 +108,8 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 						workspace->addDockWidget(Qt::RightDockWidgetArea, this); // Qt::NoDockWidgetArea yields "QMainWindow::addDockWidget: invalid 'area' argument"
 						setFloating(true); // We don't want the dock widget to be docked right now
 
+						_workspace = workspace;
+
 						QCursor::setPos(mapToGlobal(_press_pt));
 						move(mapToGlobal(_press_pt));
 
@@ -186,16 +188,16 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 		// Maximize on left monitor
 		int screen_number = QApplication::desktop()->screenNumber(this);
 		if (screen_number > 0) {
-			QAction* maximize_right_action = new QAction(tr(">> Maximize on right screen"), this);
-			::connect(maximize_right_action, SIGNAL(triggered(bool)), [=]{maximize_on_screen(screen_number-1);});
-			ctxt_menu->addAction(maximize_right_action);
+			QAction* maximize_left_action = new QAction(tr("<< Maximize on left screen"), this);
+			::connect(maximize_left_action, SIGNAL(triggered(bool)), [=]{maximize_on_screen(screen_number-1);});
+			ctxt_menu->addAction(maximize_left_action);
 		}
 
 		// Maximize on right monitor
 		if (screen_number < QApplication::desktop()->screenCount()-1) {
-			QAction* maximize_left_action = new QAction(tr("<< Maximize on left screen"), this);
-			::connect(maximize_left_action, SIGNAL(triggered(bool)), [=]{maximize_on_screen(screen_number+1);});
-			ctxt_menu->addAction(maximize_left_action);
+			QAction* maximize_right_action = new QAction(tr(">> Maximize on right screen"), this);
+			::connect(maximize_right_action, SIGNAL(triggered(bool)), [=]{maximize_on_screen(screen_number+1);});
+			ctxt_menu->addAction(maximize_right_action);
 		}
 
 		ctxt_menu->popup(QCursor::pos());
@@ -214,7 +216,7 @@ void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
 void PVGuiQt::PVViewDisplay::set_current_view()
 {
 	if (_view) {
-		auto source = _view->get_parent<Picviz::PVSource>()->shared_from_this();
-		PVHive::call<FUNC(Picviz::PVSource::select_view)>(source, *_view);
+		auto scene = _view->get_parent<Picviz::PVScene>()->shared_from_this();
+		PVHive::call<FUNC(Picviz::PVScene::select_view)>(scene, *_view);
 	}
 }

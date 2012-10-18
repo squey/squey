@@ -121,30 +121,37 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(PVViewDisplay* display
 	QWidget* display_widget = display_dock->widget();
 
 	PVViewDisplay* central_dock = (PVViewDisplay*) centralWidget();
-	QWidget* central_widget = central_dock->widget();
 
-	// Exchange widgets
-	central_dock->setWidget(display_widget);
-	display_dock->setWidget(central_widget);
+	if (central_dock) {
+		QWidget* central_widget = central_dock->widget();
 
-	// Exchange titles
-	QString central_title = central_dock->windowTitle();
-	central_dock->setWindowTitle(display_dock->windowTitle());
-	display_dock->setWindowTitle(central_title);
+		// Exchange widgets
+		central_dock->setWidget(display_widget);
+		display_dock->setWidget(central_widget);
 
-	// Exchange views
-	Picviz::PVView* central_view = central_dock->get_view();
-	central_dock->set_view(display_dock->get_view());
-	display_dock->set_view(central_view);
+		// Exchange titles
+		QString central_title = central_dock->windowTitle();
+		central_dock->setWindowTitle(display_dock->windowTitle());
+		display_dock->setWindowTitle(central_title);
 
-	// Exchange colors
-	QString style = QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ");
-	QColor col1 = central_dock->get_view()->get_color();
-	QColor col2 = display_dock->get_view()->get_color();
-	QString style1 = style.arg(col1.name()).arg(col1.name());
-	QString style2 = style.arg(col2.name()).arg(col2.name());
-	display_dock->setStyleSheet(style1);
-	central_dock->setStyleSheet(style2);
+		// Exchange colors
+		QString style = QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ");
+		QColor col1 = central_dock->get_view()->get_color();
+		QColor col2 = display_dock->get_view()->get_color();
+		QString style1 = style.arg(col1.name()).arg(col1.name());
+		QString style2 = style.arg(col2.name()).arg(col2.name());
+		display_dock->setStyleSheet(style1);
+		central_dock->setStyleSheet(style2);
+
+		// Exchange views
+		Picviz::PVView* central_view = central_dock->get_view();
+		central_dock->set_view(display_dock->get_view());
+		display_dock->set_view(central_view);
+	}
+	else {
+		set_central_display(display_dock->get_view(), display_dock->widget(), display_dock->windowTitle());
+	}
+
 }
 
 void PVGuiQt::PVWorkspaceBase::display_destroyed(QObject* object /*= 0*/)
@@ -411,9 +418,9 @@ void PVGuiQt::PVWorkspace::update_view_count(PVHive::PVObserverBase* /*obs_base*
 	}
 }
 
-const PVGuiQt::PVWorkspace::PVViewWidgets& PVGuiQt::PVWorkspace::get_view_widgets(Picviz::PVView* view)
+const PVGuiQt::PVWorkspaceBase::PVViewWidgets& PVGuiQt::PVWorkspaceBase::get_view_widgets(Picviz::PVView* view)
 {
-	assert(view->get_parent<Picviz::PVSource>() == _source);
+	//assert(view->get_parent<Picviz::PVSource>() == _source);
 	if (!_view_widgets.contains(view)) {
 		PVViewWidgets widgets(view, this);
 		return *(_view_widgets.insert(view, widgets));

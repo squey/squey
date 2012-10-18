@@ -11,6 +11,10 @@
 
 #include <pvkernel/core/lambda_connect.h>
 
+#include <pvhive/PVCallHelper.h>
+#include <pvhive/PVHive.h>
+#include <pvhive/waxes/waxes.h>
+
 #include <iostream>
 #include <QApplication>
 #include <QEvent>
@@ -24,6 +28,11 @@
 #define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 500
 #define TAB_OPENING_EFFECT_MSEC 200
 
+int PVGuiQt::PVTabBar::count() const
+{
+	return QTabBar::count() -1;
+}
+
 QSize PVGuiQt::PVTabBar::tabSizeHint(int index) const
 {
 	return QTabBar::tabSizeHint(index);
@@ -33,16 +42,20 @@ void PVGuiQt::PVTabBar::mouseReleaseEvent(QMouseEvent* event)
 {
 	// Tabs are closed on middle button click
 	if (event->button() == Qt::MidButton) {
-		emit tabCloseRequested(tabAt(event->pos()));
+		int tab_index = tabAt(event->pos());
+		if (tab_index < count()) {
+			emit tabCloseRequested(tab_index);
+		}
 	}
 	QTabBar::mouseReleaseEvent(event);
 }
 
 void PVGuiQt::PVTabBar::mouseDoubleClickEvent(QMouseEvent* event)
 {
+	// Tabs titles are inplace edited on mouse double click
 	int index = tabAt(event->pos());
 
-	if (qobject_cast<PVOpenWorkspace*>(_tab_widget->widget(index))) {
+	if (!_tab_widget->_tab_animation_ongoing && index < count() && qobject_cast<PVOpenWorkspace*>(_tab_widget->widget(index))) {
 		QLineEdit* line_edit = new QLineEdit(this);
 		QRect tab_rect = tabRect(index);
 		line_edit->move(tab_rect.topLeft());
@@ -59,8 +72,25 @@ void PVGuiQt::PVTabBar::mouseDoubleClickEvent(QMouseEvent* event)
 	}
 }
 
-PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(QWidget* parent) :
+void PVGuiQt::PVTabBar::mouseMoveEvent(QMouseEvent* event)
+{
+	if (tabAt(event->pos()) == count()) {
+		setCursor(Qt::PointingHandCursor);
+	}
+	else {
+		setCursor(Qt::ArrowCursor);
+	}
+}
+
+void PVGuiQt::PVTabBar::leaveEvent(QEvent* ev)
+{
+	setCursor(Qt::ArrowCursor);
+	QTabBar::leaveEvent(ev);
+}
+
+PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(Picviz::PVScene* scene, QWidget* parent) :
 	QTabWidget(parent),
+	_scene(scene),
 	_automatic_tab_switch_timer(this)
 
 {
@@ -91,30 +121,29 @@ PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(QWidget* parent) :
 
 int PVGuiQt::PVWorkspacesTabWidget::count() const
 {
-	return QTabWidget::count() -1; // Substract new workspace special tab from count
+	return _tab_bar->count();
 }
 
 void PVGuiQt::PVWorkspacesTabWidget::tab_changed(int index)
 {
+	// TODO: avoid ugly qobject_cast with virtual methods in PVWorkspaceBase !!
 	if (index == count()) {
 		addTab(new PVOpenWorkspace(this), "Open workspace", true);
 		setCurrentIndex(count()-1);
 	}
-}
-
-void PVGuiQt::PVWorkspacesTabWidget::mouseMoveEvent(QMouseEvent* event)
-{
-	if (tabBar()->tabAt(event->pos()) == count()) {
-		setCursor(Qt::PointingHandCursor);
-	}
 	else {
-		setCursor(Qt::ArrowCursor);
+		Picviz::PVSource* source = nullptr;
+		if (PVWorkspace* workspace = qobject_cast<PVWorkspace*>(widget(index))) {
+			source = workspace->get_source();
+		}
+		auto scene_sp = _scene->shared_from_this();
+		PVHive::call<FUNC(Picviz::PVScene::select_source)>(scene_sp, source);
 	}
 }
 
-int PVGuiQt::PVWorkspacesTabWidget::addTab(PVWorkspaceBase* workspace, const QString & label, bool animation)
+int PVGuiQt::PVWorkspacesTabWidget::addTab(PVWorkspaceBase* workspace, const QString & label, bool animation /* = true */)
 {
-	setCursor(Qt::ArrowCursor);
+	tabBar()->setCursor(Qt::ArrowCursor);
 
 	int insert_index = -1;
 	if (qobject_cast<PVWorkspace*>(workspace)) {
@@ -135,8 +164,8 @@ int PVGuiQt::PVWorkspacesTabWidget::addTab(PVWorkspaceBase* workspace, const QSt
 		QPropertyAnimation* animation = new QPropertyAnimation(this, "tab_width");
 		animation->setDuration(TAB_OPENING_EFFECT_MSEC);
 		animation->setStartValue(25);
-		_tab_width = _tab_bar->tabSizeHint(index).width();
-		animation->setEndValue(_tab_width);
+		_tab_animated_width = _tab_bar->tabSizeHint(index).width();
+		animation->setEndValue(_tab_animated_width);
 		animation->start();
 	}
 
@@ -145,8 +174,9 @@ int PVGuiQt::PVWorkspacesTabWidget::addTab(PVWorkspaceBase* workspace, const QSt
 
 void PVGuiQt::PVWorkspacesTabWidget::set_tab_width(int tab_width)
 {
-	QString str = QString("QTabBar::tab:selected { width: %1px; color: rgba(0, 0, 0, %2%);}").arg(tab_width).arg((float)tab_width / _tab_width * 100);
-	tabBar()->setStyleSheet(tab_width == _tab_width ? "" : str);
+	QString str = QString("QTabBar::tab:selected { width: %1px; color: rgba(0, 0, 0, %2%);}").arg(tab_width).arg((float)tab_width / _tab_animated_width * 100);
+	_tab_animation_ongoing = tab_width != _tab_animated_width;
+	tabBar()->setStyleSheet(_tab_animation_ongoing ? str : "");
 }
 
 void PVGuiQt::PVWorkspacesTabWidget::tabInserted(int index)

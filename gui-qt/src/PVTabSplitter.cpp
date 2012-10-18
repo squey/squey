@@ -499,7 +499,7 @@ void PVInspector::PVTabSplitter::select_view(Picviz::PVView* view)
 {
 	// TODO: hive !
 	assert(view->get_parent<Picviz::PVSource>() == get_lib_src());
-	get_lib_src()->select_view(*view);
+	get_lib_src()->get_parent()->select_view(*view);
 
 	// Create view widgets if necessary
 	get_view_widgets(view);

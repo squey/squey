@@ -539,6 +539,7 @@ void Picviz::PVPlotted::process_from_parent_mapped()
 		cur_view = PVView_p(shared_from_this());
 	}
 	else {
+		assert(current_view());
 		cur_view = current_view()->shared_from_this();
 	}
 	cur_view->process_parent_plotted();
