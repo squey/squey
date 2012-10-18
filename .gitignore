@@ -1,3 +1,5 @@
 Makefile
 build
 inspector.sh
+*/tests/bin
+*/tests/*/bin
