@@ -39,8 +39,6 @@
 #include <picviz/PVView_types.h>
 #include <picviz/PVView_impl.h>
 
-#include <boost/enable_shared_from_this.hpp>
-
 namespace Picviz {
 
 /**

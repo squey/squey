@@ -1,3 +1,9 @@
+/**
+ * \file PVMapped.h
+ *
+ * Copyright (C) Picviz Labs 2012
+ */
+
 #ifndef PVHIVE_WAXES_PVMAPPED_PVVIEW_H
 #define PVHIVE_WAXES_PVMAPPED_PVVIEW_H
 

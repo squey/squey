@@ -121,8 +121,7 @@ public:
 
 	PVExportSelectionDialog *pv_ExportSelectionDialog;
 
-	PVGuiQt::PVWorkspace  *current_tab;
-	PVGuiQt::PVWorkspacesTabWidget *pv_WorkspacesTabWidget;
+	PVGuiQt::PVWorkspacesTabWidget* _workspaces_tab_widget;
 
 	QMenuBar *menubar;
 	QMenu *filter_Menu;
@@ -135,7 +134,9 @@ public:
 
 	PVCore::PVDataTreeAutoShared<Picviz::PVRoot> root;
 
-	/* QGridLayout *filter_widgets_layout; */
+	Picviz::PVView* current_view() { return _scene->current_view(); }
+	Picviz::PVView const* current_view() const { return _scene->current_view(); }
+
 	void commit_selection_in_current_layer(Picviz::PVView* view);
 	void move_selection_to_new_layer(Picviz::PVView* view);
 	void commit_selection_to_new_layer(Picviz::PVView* view);
@@ -225,9 +226,8 @@ private:
 	void set_project_modified(bool modified);
 	PVMainWindow* find_main_window(const QString& file);
 	void set_selection_from_layer(Picviz::PVView_sp view, Picviz::PVLayer const& layer);
-	void display_inv_elts(PVGuiQt::PVWorkspace* tab_src);
+	void display_inv_elts();
 	void close_all_views();
-	Picviz::PVView* get_current_lib_view() const;
 
 private slots:
 	void project_modified_Slot();

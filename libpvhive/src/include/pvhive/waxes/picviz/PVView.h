@@ -1,3 +1,9 @@
+/**
+ * \file PVView.h
+ *
+ * Copyright (C) Picviz Labs 2012
+ */
+
 #ifndef PVHIVE_WAXES_PICVIZ_PVVIEW_H
 #define PVHIVE_WAXES_PICVIZ_PVVIEW_H
 

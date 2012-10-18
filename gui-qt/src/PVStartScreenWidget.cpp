@@ -9,7 +9,6 @@
 #include <picviz/PVView.h>
 
 #include <PVMainWindow.h>
-#include <PVTabSplitter.h>
 
 #include <QApplication>
 #include <QFileInfo>

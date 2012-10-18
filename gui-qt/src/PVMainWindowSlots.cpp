@@ -56,11 +56,11 @@ void PVInspector::PVMainWindow::about_Slot()
 
 void PVInspector::PVMainWindow::axes_editor_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 	/*
-	PVAxisPropertiesWidget* dlg = current_tab->get_axes_properties_widget(current_tab->get_lib_view());
+	PVAxisPropertiesWidget* dlg = current_tab->get_axes_properties_widget(current_tab);
 	if (dlg->isVisible()) {
 		return;
 	}
@@ -69,11 +69,11 @@ void PVInspector::PVMainWindow::axes_editor_Slot()
 
 void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 
-	PVGuiQt::PVAxesCombinationDialog* dlg = current_tab->get_axes_combination_editor(current_tab->get_lib_view());
+	PVGuiQt::PVAxesCombinationDialog* dlg = ((PVGuiQt::PVWorkspaceBase*) _workspaces_tab_widget->currentWidget())->get_axes_combination_editor(current_view());
 	if (dlg->isVisible()) {
 		return;
 	}
@@ -91,10 +91,10 @@ void PVInspector::PVMainWindow::axes_mode_Slot()
 	PVLOG_INFO("%s\n", __FUNCTION__);
 	Picviz::PVView* current_lib_view;
 
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 
 	current_lib_view->state_machine->toggle_axes_mode();
 
@@ -135,12 +135,12 @@ void PVInspector::PVMainWindow::change_of_current_view_Slot()
 #if 0
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 	/* we set current_tab to it's new value */
-	current_tab = dynamic_cast<PVTabSplitter*>(pv_WorkspacesTabWidget->currentWidget());
+	current_tab = dynamic_cast<PVTabSplitter*>(_workspaces_tab_widget->currentWidget());
 	if(current_tab!=0){
 		connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
 		current_tab->updateFilterMenuEnabling();
 	}
-	if (!current_tab) {
+	if (!current_view()) {
 		// PVLOG_ERROR("PVInspector::PVMainWindow::%s We have a strange beast in the tab widget: %p!\n", __FUNCTION__, pv_WorkspacesTabWidget->currentWidget());
 		menu_activate_is_file_opened(false);
 	}
@@ -161,10 +161,10 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer_Slot()
 
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
-	if (pv_WorkspacesTabWidget->currentIndex() == -1) {
+	if (_workspaces_tab_widget->currentIndex() == -1) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 	commit_selection_in_current_layer(current_lib_view);
 }
 
@@ -175,21 +175,21 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::commit_selection_to_new_layer_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 
-	Picviz::PVView* current_lib_view = current_tab->get_lib_view();
+	Picviz::PVView* current_lib_view = current_view();
 	commit_selection_to_new_layer(current_lib_view);
 }
 
 void PVInspector::PVMainWindow::move_selection_to_new_layer_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 
-	Picviz::PVView* current_lib_view = current_tab->get_lib_view();
+	Picviz::PVView* current_lib_view = current_view();
 	move_selection_to_new_layer(current_lib_view);
 }
 
@@ -202,10 +202,10 @@ void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
 {
 	Picviz::PVView* current_lib_view;
 
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 
 	/* We refresh the listing */
 	Picviz::PVView_sp view_sp = current_lib_view->shared_from_this();
@@ -222,13 +222,13 @@ void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
 	Picviz::PVView* current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 	state_machine = current_lib_view->state_machine;
 
-	if (pv_WorkspacesTabWidget->currentIndex() == -1) {
+	if (_workspaces_tab_widget->currentIndex() == -1) {
 		return;
 	}
 
@@ -248,10 +248,10 @@ void PVInspector::PVMainWindow::lines_display_zombies_Slot()
 	Picviz::PVView* current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 	state_machine = current_lib_view->state_machine;
 
 	state_machine->toggle_listing_zombie_visibility();
@@ -276,10 +276,10 @@ void PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
 {
 	Picviz::PVView* current_lib_view;
 
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 
 	Picviz::PVView_sp view_sp = current_lib_view->shared_from_this();
 	PVHive::call<FUNC(Picviz::PVView::toggle_listing_zombie_visibility)>(view_sp);
@@ -295,10 +295,10 @@ void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
 	Picviz::PVView* current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 	state_machine = current_lib_view->state_machine;
 
 	state_machine->toggle_gl_zombie_visibility();
@@ -309,10 +309,10 @@ void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
 
 void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	Picviz::PVView* cur_view_p = current_tab->get_lib_view();
+	Picviz::PVView* cur_view_p = current_view();
 	PVExpandSelDlg* dlg = new PVExpandSelDlg(*cur_view_p, this);
 	Picviz::PVView &view = *cur_view_p;
 	if (dlg->exec() != QDialog::Accepted) {
@@ -374,7 +374,7 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 	QTextStream stream(&file);
 
 	// For now, save the NRAW !
-	Picviz::PVView* view = current_tab->get_lib_view();
+	Picviz::PVView* view = current_view();
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
 	view->get_real_output_selection().write_selected_lines_nraw(stream, nraw, 0);
 
@@ -394,12 +394,12 @@ void PVInspector::PVMainWindow::filter_select_all_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
-	if (!current_tab || !current_tab->get_lib_view()) {
+	if (!current_view()) {
 		return;
 	}
 	/* We do all that has to be done in the lib FIRST */
-	current_tab->get_lib_view()->apply_filter_named_select_all();
-	current_tab->get_lib_view()->process_from_eventline();
+	current_view()->apply_filter_named_select_all();
+	current_view()->process_from_eventline();
 
 	/* THEN we can emit the signal */
 	emit selection_changed_Signal();
@@ -413,15 +413,15 @@ void PVInspector::PVMainWindow::filter_select_all_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::filter_Slot(void)
 {
-	if (current_tab && current_tab->get_lib_view()) {
+	if (current_view()) {
 		QObject *s = sender();
-		Picviz::PVView* lib_view = current_tab->get_lib_view();
+		Picviz::PVView* lib_view = current_view();
 		QString filter_name = s->objectName();
 
 		Picviz::PVLayerFilter::p_type filter_org = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
 		Picviz::PVLayerFilter::p_type fclone = filter_org->clone<Picviz::PVLayerFilter>();
 		PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
-		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_tab->get_lib_view(), args, fclone);
+		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone);
 		filter_widget->show();
 	}
 }
@@ -433,8 +433,8 @@ void PVInspector::PVMainWindow::filter_Slot(void)
  *****************************************************************************/
 void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
 {
-	if (current_tab && current_tab->get_lib_view()) {
-		Picviz::PVView* lib_view = current_tab->get_lib_view();
+	if (current_view()) {
+		Picviz::PVView* lib_view = current_view();
 		if (!lib_view->is_last_filter_used_valid()) {
 			return;
 		}
@@ -442,7 +442,7 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
 		Picviz::PVLayerFilter::p_type filter_org = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
 		Picviz::PVLayerFilter::p_type fclone = filter_org->clone<Picviz::PVLayerFilter>();
 		PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
-		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_tab->get_lib_view(), args, fclone);
+		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone);
 		filter_widget->show();
 		filter_widget->preview_Slot();
 	}
@@ -455,7 +455,7 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::extractor_file_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		//TODO: this should not happen because the menu item should be disabled... !
 		return;
 	}
@@ -647,7 +647,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 
 	menu_activate_is_file_opened(true);
 	show_start_page(false);
-	pv_WorkspacesTabWidget->setVisible(true);
+	_workspaces_tab_widget->setVisible(true);
 
 	set_current_project_filename(file);
 	if (project_has_been_fixed) {
@@ -719,7 +719,7 @@ bool PVInspector::PVMainWindow::project_saveas_Slot()
 {
 	bool ret = false;
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	if (current_tab && current_tab->get_lib_view()) {
+	if (current_view()) {
 		PVCore::PVSerializeArchiveOptions_p options(_scene->get_default_serialize_options());
 		PVSaveSceneDialog* dlg = new PVSaveSceneDialog(_scene, options, this);
 		if (!_current_save_project_folder.isEmpty()) {
@@ -819,11 +819,11 @@ void PVInspector::PVMainWindow::select_scene_Slot()
 void PVInspector::PVMainWindow::selection_all_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 
-	Picviz::PVView_sp lib_view(current_tab->get_lib_view()->shared_from_this());
+	Picviz::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_all_nonzb_lines();
 		PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_real_output_selection)>(lib_view);
@@ -838,11 +838,11 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 void PVInspector::PVMainWindow::selection_none_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 
-	Picviz::PVView_sp lib_view(current_tab->get_lib_view()->shared_from_this());
+	Picviz::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_no_line();
 		PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_real_output_selection)>(lib_view);
@@ -857,11 +857,11 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 void PVInspector::PVMainWindow::selection_inverse_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 
-	Picviz::PVView_sp lib_view(current_tab->get_lib_view()->shared_from_this());
+	Picviz::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_inv_lines();
 		PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_real_output_selection)>(lib_view);
@@ -878,9 +878,9 @@ void PVInspector::PVMainWindow::set_color_Slot()
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
 	/* CODE */
-	if (!current_tab || !current_tab->get_lib_view())
+	if (!current_view())
 		return;
-	set_color(current_tab->get_lib_view());
+	set_color(current_view());
 }
 
 /******************************************************************************
@@ -911,8 +911,8 @@ void PVInspector::PVMainWindow::textedit_text_changed_Slot()
 
 		picviz_arguments_debug(args);
 
-		current_tab->get_lib_view()->apply_filter_from_name(last_sendername, args);
-		current_tab->get_lib_view()->process_from_eventline();
+		current_view()->apply_filter_from_name(last_sendername, args);
+		current_view()->process_from_eventline();
 
 		free(sender_name);
 
@@ -1022,12 +1022,12 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 	// Progress box!
 	PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
 	pbox_lib->set_enable_cancel(false);
-	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*get_current_lib_view())), pbox_lib, parallel_lib_view);
+	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*current_view())), pbox_lib, parallel_lib_view);
 
 	QWidget *view = parallel_lib_view->create_view(dlg);
 	layout->addWidget(view);
 
-	Picviz::PVView_sp view_sp(get_current_lib_view()->shared_from_this());
+	Picviz::PVView_sp view_sp(current_view()->shared_from_this());
 	PVHive::get().register_observer(view_sp, *new_obs);
 	dlg->show();
 }*/
@@ -1045,7 +1045,7 @@ void PVInspector::PVMainWindow::view_new_parallel_Slot()
 	// Progress box!
 	PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
 	pbox_lib->set_enable_cancel(false);
-	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*get_current_lib_view())), pbox_lib, parallel_lib_view);
+	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*current_view())), pbox_lib, parallel_lib_view);
 
 	QWidget *view = parallel_lib_view->create_view();
 
@@ -1067,7 +1067,7 @@ void PVInspector::PVMainWindow::view_new_zoomed_parallel_Slot()
 	QLabel *label = new QLabel("Open a zoomed view on axis:");
 	layout->addWidget(label);
 
-	PVWidgets::PVAxisIndexEditor *axes = new PVWidgets::PVAxisIndexEditor(*get_current_lib_view(), dlg);
+	PVWidgets::PVAxisIndexEditor *axes = new PVWidgets::PVAxisIndexEditor(*current_view(), dlg);
 	axes->set_axis_index(0);
 	layout->addWidget(axes);
 
@@ -1098,11 +1098,11 @@ void PVInspector::PVMainWindow::view_new_zoomed_parallel_Slot()
 		// Progress box!
 		PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
 		pbox_lib->set_enable_cancel(false);
-		PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*get_current_lib_view())), pbox_lib, parallel_lib_view);
+		PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*current_view())), pbox_lib, parallel_lib_view);
 
 		QWidget *view = parallel_lib_view->create_zoomed_view(axis_index);
 
-		Picviz::PVView_sp view_sp(get_current_lib_view()->shared_from_this());
+		Picviz::PVView_sp view_sp(current_view()->shared_from_this());
 		PVHive::get().register_observer(view_sp, *new_obs);
 
 		view_layout->addWidget(view);
@@ -1147,8 +1147,11 @@ void PVInspector::PVMainWindow::new_format_Slot() {
  *****************************************************************************/
 void PVInspector::PVMainWindow::cur_format_Slot()
 {
-	Picviz::PVSource const* cur_src = current_tab->get_lib_src();
-	if (!current_tab || !cur_src) {
+	Picviz::PVSource* cur_src = nullptr;
+	if (current_view()) {
+		cur_src = current_view()->get_parent<Picviz::PVSource>();
+	}
+	if (!cur_src) {
 		return;
 	}
 	PVRush::PVFormat const& format = cur_src->get_format();
@@ -1156,7 +1159,7 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 		return;
 	}
 
-    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(current_tab);
+    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(_workspaces_tab_widget->currentWidget());
 	connect(editorWidget, SIGNAL(accepted()), this, SLOT(cur_format_changed_Slot()));
 	connect(editorWidget, SIGNAL(rejected()), this, SLOT(cur_format_changed_Slot()));
 	editorWidget->openFormat(format.get_full_path());
@@ -1165,7 +1168,7 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 
 void PVInspector::PVMainWindow::edit_format_Slot(const QString& format)
 {
-    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(current_tab);
+    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(_workspaces_tab_widget->currentWidget());
 	editorWidget->openFormat(format);
     editorWidget->show();
 }
@@ -1258,11 +1261,11 @@ void PVInspector::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* par
 
 void PVInspector::PVMainWindow::axes_new_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 	
-	Picviz::PVView* view = current_tab->get_lib_view();
+	Picviz::PVView* view = current_view();
 	/*
 	std::vector<PVCore::PVUnicodeString> vec_str;
 	PVRow nrows = view->get_rushnraw_parent().get_number_rows();
@@ -1315,16 +1318,16 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 
 void PVInspector::PVMainWindow::selection_set_from_current_layer_Slot()
 {
-	if (current_tab && current_tab->get_lib_view()) {
-		Picviz::PVView_sp view(current_tab->get_lib_view());
+	if (current_view()) {
+		Picviz::PVView_sp view(current_view());
 		set_selection_from_layer(view, view->get_current_layer());
 	}
 }
 
 void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 {
-	if (current_tab && current_tab->get_lib_view()) {
-		Picviz::PVView_sp view(current_tab->get_lib_view());
+	if (current_view()) {
+		Picviz::PVView_sp view(current_view());
 
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("sel-layer", tr("Choose a layer"))].setValue<Picviz::PVLayer*>(&view->get_current_layer());
@@ -1338,8 +1341,8 @@ void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 
 void PVInspector::PVMainWindow::view_display_inv_elts_Slot()
 {
-	if (current_tab && current_tab->get_lib_view()) {
-		display_inv_elts(current_tab);
+	if (current_view()) {
+		display_inv_elts();
 	}
 }
 

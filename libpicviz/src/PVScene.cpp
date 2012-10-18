@@ -47,6 +47,48 @@ Picviz::PVScene::list_sources_t Picviz::PVScene::get_sources(PVRush::PVInputType
 	return ret;
 }
 
+Picviz::PVSource* Picviz::PVScene::current_source()
+{
+	return _current_source;
+}
+
+Picviz::PVSource const* Picviz::PVScene::current_source() const
+{
+	return _current_source;
+}
+
+void Picviz::PVScene::select_source(PVSource* source)
+{
+	 assert(!source || (source && get_children<PVSource>().contains(source->shared_from_this())));
+	 if (source) {
+		 if (source->current_view()) {
+			 _current_view = source->current_view();
+		 }
+		 else {
+			 _current_view = source->last_current_view();
+		 }
+	 }
+	 _current_source = source;
+}
+
+Picviz::PVView* Picviz::PVScene::current_view()
+{
+	return _current_source ? _current_view : nullptr;
+}
+
+Picviz::PVView const* Picviz::PVScene::current_view() const
+{
+	return const_cast<PVView const*>(const_cast<PVScene*>(this)->current_view());
+}
+
+void Picviz::PVScene::select_view(PVView& view)
+{
+	 assert(get_children<PVView>().contains(view.shared_from_this()));
+	 _current_view = &view;
+	 _current_source = view.get_parent<PVSource>();
+	 _current_source->set_last_current_view(_current_view);
+}
+
 PVRush::PVInputType::list_inputs_desc Picviz::PVScene::get_inputs_desc(PVRush::PVInputType const& type) const
 {
 	children_t const& sources = get_children();
