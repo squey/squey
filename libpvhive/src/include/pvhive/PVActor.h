@@ -58,4 +58,6 @@ public:
 
 }
 
+#include <pvhive/waxes/waxes.h>
+
 #endif // LIBPVHIVE_PVACTOR_H

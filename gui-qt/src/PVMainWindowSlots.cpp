@@ -18,7 +18,6 @@
 
 #include <picviz/widgets/editors/PVAxisIndexEditor.h>
 
-#include <pvhive/waxes/waxes.h>
 #include <pvhive/PVHive.h>
 
 #include <pvparallelview/PVParallelView.h>

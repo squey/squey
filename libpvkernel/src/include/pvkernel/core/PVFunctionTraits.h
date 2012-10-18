@@ -10,6 +10,12 @@
 #include <pvkernel/core/PVTypeTraits.h>
 #include <type_traits>
 
+#define FUNC(Method) \
+	decltype(&Method), &Method
+
+#define FUNC_PROTOTYPE(RetType, Class, Method, Params...) \
+	RetType(Class::*)(Params), &Class::Method
+
 namespace PVCore {
 
 namespace PVTypeTraits {

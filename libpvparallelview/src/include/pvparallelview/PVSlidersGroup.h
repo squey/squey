@@ -3,7 +3,6 @@
 #define PVPARALLELVIEW_PVSLIDERSGROUP_H
 
 #include <pvhive/PVHive.h>
-#include <pvhive/waxes/waxes.h>
 #include <pvhive/PVFuncObserver.h>
 #include <pvhive/PVCallHelper.h>
 

@@ -2,7 +2,6 @@
 #define PVHIVE_PVWAX_H
 
 #include <pvkernel/core/PVFunctionTraits.h>
-#include <pvhive/PVCallHelper.h>
 
 /**
  * @attention any specialization of template method ::call_object() *must* be
