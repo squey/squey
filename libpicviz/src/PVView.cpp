@@ -682,7 +682,7 @@ void Picviz::PVView::process_eventline()
 		PVCore::PVHSVColor const& post_lp = post_lps.get_line_properties(i);
 		if (real_output_selection.get_line(i)) {
 			/* It is selected, so we copy it's line properties */
-			out_lps.get_line_properties(i) = post_lp;
+			out_lp = post_lp;
 		} else {
 			/* It is not selected in the end, so we check if it was available in the beginning */
 			if (layer_stack_output_layer.get_selection().get_line(i)) {
