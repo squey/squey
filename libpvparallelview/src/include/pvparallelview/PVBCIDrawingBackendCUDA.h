@@ -197,7 +197,7 @@ public:
 				cudaSetDevice(id);
 
 				device_t dev;
-				picviz_verify_cuda(cudaMalloc(&dev.device_codes, NBUCKETS*sizeof(PVBCICode<>::int_type)));
+				picviz_verify_cuda(cudaMalloc(&dev.device_codes, PVParallelView::MaxBciCodes * sizeof(PVBCICode<>::int_type)));
 				picviz_verify_cuda(cudaStreamCreate(&dev.stream));
 				this->_devices.insert(std::make_pair(id, dev));
 			});
