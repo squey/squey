@@ -1,8 +1,11 @@
 #include <picviz/PVView.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
+#ifdef CUDA
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
+#endif
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
+
 
 PVParallelView::__impl::PVParallelView* PVParallelView::__impl::PVParallelView::_s = nullptr;
 
@@ -94,5 +97,7 @@ void PVParallelView::__impl::PVParallelView::remove_lib_view(Picviz::PVView& vie
 
 void PVParallelView::common::init_cuda()
 {
+#ifdef CUDA
 	init<PVBCIDrawingBackendCUDA>();
+#endif
 }
