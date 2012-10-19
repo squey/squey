@@ -42,6 +42,7 @@ class PVZoomedZoneTree
 
 	typedef PVQuadTree<10000, 1000, 0, bbits> pvquadtree;
 	typedef std::function<size_t(const pvquadtree &tree,
+	                             const uint32_t count,
 	                             PVQuadTreeEntry *entries,
 	                             pv_quadtree_buffer_entry_t *buffer)> extract_entry_f;
 	typedef PVBCICode<bbits> pv_bci_code_t;
@@ -49,7 +50,7 @@ class PVZoomedZoneTree
 public:
 	class zzt_tls
 	{
-		// the max number of lines to draw (2048  * 2048)
+		// the max number of lines to extract from a quadtree (2048  * 2048)
 		constexpr static size_t entries_count = 1 << (2 * bbits);
 
 	public:
@@ -197,11 +198,13 @@ public:
 		return browse_trees_bci_by_y1_seq(ctx, y_min, y_max, y_lim, zoom, width,
 #endif
 		                                  [&](const pvquadtree &tree,
+		                                      const uint32_t y2_count,
 		                                      PVQuadTreeEntry* entries,
 		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_from_y1(y_min, y_max,
-			                                                                zoom, entries, buffer);
+			                                                                zoom, y2_count,
+			                                                                entries, buffer);
 		                                  },
 		                                  colors, codes, beta);
 	}
@@ -223,11 +226,13 @@ public:
 		return browse_trees_bci_by_y2_seq(ctx, y_min, y_max, y_lim, zoom, width,
 #endif
 		                                  [&](const pvquadtree &tree,
+		                                      const uint32_t y1_count,
 		                                      PVQuadTreeEntry* entries,
 		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_from_y2(y_min, y_max,
-			                                                                zoom, entries, buffer);
+			                                                                zoom, y1_count,
+			                                                                entries, buffer);
 		                                  },
 		                                  colors, codes, beta);
 	}
@@ -250,12 +255,14 @@ public:
 		return browse_trees_bci_by_y1_seq(ctx, y_min, y_max, y_lim, zoom, width,
 #endif
 		                                  [&](const pvquadtree &tree,
+		                                      const uint32_t y2_count,
 		                                      PVQuadTreeEntry* entries,
 		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_sel_from_y1(y_min, y_max,
 			                                                                    selection,
-			                                                                    zoom, entries, buffer);
+			                                                                    zoom, y2_count,
+			                                                                    entries, buffer);
 		                                  },
 		                                  colors, codes, beta, true);
 	}
@@ -278,12 +285,14 @@ public:
 		return browse_trees_bci_by_y2_seq(ctx, y_min, y_max, y_lim, zoom, width,
 #endif
 		                                  [&](const pvquadtree &tree,
+		                                      const uint32_t y1_count,
 		                                      PVQuadTreeEntry* entries,
 		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_sel_from_y2(y_min, y_max,
 			                                                                    selection,
-			                                                                    zoom, entries, buffer);
+			                                                                    zoom, y1_count,
+			                                                                    entries, buffer);
 		                                  },
 		                                  colors, codes, beta, true);
 	}
@@ -303,11 +312,13 @@ public:
 
 		return browse_trees_bci_by_y1_seq(ctx, y_min, y_max, y_lim, zoom, width,
 		                                  [&](const pvquadtree &tree,
+		                                      const uint32_t y2_count,
 		                                      PVQuadTreeEntry* entries,
 		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_from_y1(y_min, y_max,
-			                                                                zoom, entries, buffer);
+			                                                                zoom, y2_count,
+			                                                                entries, buffer);
 		                                  },
 		                                  colors, codes, beta);
 	}
@@ -326,11 +337,13 @@ public:
 
 		return browse_trees_bci_by_y1_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 		                                  [&](const pvquadtree &tree,
+		                                      const uint32_t y2_count,
 		                                      PVQuadTreeEntry* entries,
 		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_from_y1(y_min, y_max,
-			                                                                zoom, entries, buffer);
+			                                                                zoom, y2_count,
+			                                                                entries, buffer);
 		                                  },
 		                                  colors, codes, beta);
 	}
@@ -349,11 +362,13 @@ public:
 
 		return browse_trees_bci_by_y2_seq(ctx, y_min, y_max, y_lim, zoom, width,
 		                                  [&](const pvquadtree &tree,
+		                                      const uint32_t y1_count,
 		                                      PVQuadTreeEntry* entries,
 		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_from_y2(y_min, y_max,
-			                                                                zoom, entries, buffer);
+			                                                                zoom, y1_count,
+			                                                                entries, buffer);
 		                                  },
 		                                  colors, codes, beta);
 	}
@@ -372,11 +387,13 @@ public:
 
 		return browse_trees_bci_by_y2_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 		                                  [&](const pvquadtree &tree,
+		                                      const uint32_t y1_count,
 		                                      PVQuadTreeEntry* entries,
 		                                      pv_quadtree_buffer_entry_t *buffer) -> size_t
 		                                  {
 			                                  return tree.get_first_from_y2(y_min, y_max,
-			                                                                zoom, entries, buffer);
+			                                                                zoom, y1_count,
+			                                                                entries, buffer);
 		                                  },
 		                                  colors, codes, beta);
 	}

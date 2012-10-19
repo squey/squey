@@ -24,8 +24,6 @@
 /* TODO: try to move code into .cpp, etc.
  */
 
-#define QUADTREE_USE_BITFIELD
-
 namespace PVParallelView {
 
 #define SW 0
@@ -54,28 +52,16 @@ struct PVQuadTreeEntry {
 };
 #pragma pack(pop)
 
-#define __PV_IMPL_QUADTREE_BUFFER_ENTRY_COUNT (4096)
 
-#ifdef QUADTREE_USE_BITFIELD
-
+#define __PV_IMPL_QUADTREE_BUFFER_ENTRY_COUNT (4096 * 2048)
 // we store bits
 #define QUADTREE_BUFFER_SIZE (__PV_IMPL_QUADTREE_BUFFER_ENTRY_COUNT >> 5)
 
 typedef uint32_t pv_quadtree_buffer_entry_t;
 
-#else // !QUADTREE_USE_BITFIELD
-
-#define QUADTREE_BUFFER_SIZE (__PV_IMPL_QUADTREE_BUFFER_ENTRY_COUNT)
-
-typedef PVQuadTreeEntry pv_quadtree_buffer_entry_t;
-
-#endif
-
 // typedef PVCore::PVVector<PVQuadTreeEntry, tbb::scalable_allocator<PVQuadTreeEntry> > pvquadtree_entries_t;
 // typedef PVCore::PVVector<PVQuadTreeEntry, 1000, PVCore::PVJEMallocAllocator<PVQuadTreeEntry> > pvquadtree_entries_t;
 typedef PVCore::PVVector<PVQuadTreeEntry> pvquadtree_entries_t;
-
-//typedef std::vector<PVParallelView::PVBCICode> pvquadtree_bcicodes_t;
 
 template<int MAX_ELEMENTS_PER_NODE = 10000, int REALLOC_ELEMENT_COUNT = 1000, int PREALLOC_ELEMENT_COUNT = 0, size_t Bbits = NBITS_INDEX>
 class PVQuadTree
@@ -161,10 +147,11 @@ public:
 	}
 
 	inline size_t get_first_from_y1(uint64_t y1_min, uint64_t y1_max, uint32_t zoom,
+	                                uint32_t y2_count,
 	                                PVQuadTreeEntry *result,
 	                                pv_quadtree_buffer_entry_t *buffer) const
 	{
-		return visit_y1::get_n_m(*this, y1_min, y1_max, zoom,
+		return visit_y1::get_n_m(*this, y1_min, y1_max, zoom, y2_count,
 		                         [&](const PVQuadTreeEntry &e) -> bool
 		                         {
 			                         return (e.y1 >= y1_min) && (e.y1 < y1_max);
@@ -174,10 +161,11 @@ public:
 
 
 	inline size_t get_first_from_y2(uint64_t y2_min, uint64_t y2_max, uint32_t zoom,
+	                                uint32_t y1_count,
 	                                PVQuadTreeEntry *result,
 	                                pv_quadtree_buffer_entry_t *buffer) const
 	{
-		return visit_y2::get_n_m(*this, y2_min, y2_max, zoom,
+		return visit_y2::get_n_m(*this, y2_min, y2_max, zoom, y1_count,
 		                         [&](const PVQuadTreeEntry &e) -> bool
 		                         {
 			                         return (e.y2 >= y2_min) && (e.y2 < y2_max);
@@ -188,11 +176,11 @@ public:
 
 	inline size_t get_first_sel_from_y1(uint64_t y1_min, uint64_t y1_max,
 	                                    const Picviz::PVSelection &selection,
-	                                    uint32_t zoom,
+	                                    uint32_t zoom, uint32_t y2_count,
 	                                    PVQuadTreeEntry *result,
 	                                    pv_quadtree_buffer_entry_t *buffer) const
 	{
-		return visit_y1::get_n_m(*this, y1_min, y1_max, zoom,
+		return visit_y1::get_n_m(*this, y1_min, y1_max, zoom, y2_count,
 		                         [&](const PVQuadTreeEntry &e) -> bool
 		                         {
 			                         return (e.y1 >= y1_min) && (e.y1 < y1_max)
@@ -204,11 +192,11 @@ public:
 
 	inline size_t get_first_sel_from_y2(uint64_t y2_min, uint64_t y2_max,
 	                                    const Picviz::PVSelection &selection,
-	                                    uint32_t zoom,
+	                                    uint32_t zoom, uint32_t y1_count,
 	                                    PVQuadTreeEntry *result,
 	                                    pv_quadtree_buffer_entry_t *buffer) const
 	{
-		return visit_y2::get_n_m(*this, y2_min, y2_max, zoom,
+		return visit_y2::get_n_m(*this, y2_min, y2_max, zoom, y1_count,
 		                         [&](const PVQuadTreeEntry &e) -> bool
 		                         {
 			                         return (e.y2 >= y2_min) && (e.y2 < y2_max)
@@ -310,148 +298,198 @@ private:
 	{
 		static size_t get_n_m(PVQuadTree const& obj,
 		                      const uint64_t &y1_min, const uint64_t &y1_max,
+		                      const uint32_t zoom, const uint32_t y2_count,
+		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
+		                      pv_quadtree_buffer_entry_t *buffer)
+		{
+			size_t num = 0;
+			if (zoom == 0) {
+				/* need a 1 entry width band along y1
+				 */
+				num = get_1_m(obj, y1_min, y1_max, y2_count, test_f, result, buffer);
+			} else if (y2_count == 1) {
+				/* need a 1 entry width band along y2
+				 */
+				num = get_n_1(obj, y1_min, y1_max, zoom, test_f, result, buffer);
+			} else if (obj._nodes != 0) {
+				/* recursive search can be processed
+				 */
+				if (obj._y1_mid_value < y1_max) {
+					num += get_n_m(obj._nodes[NE], y1_min, y1_max,
+					               zoom - 1, y2_count >> 1, test_f,
+					               result + num, buffer);
+					num += get_n_m(obj._nodes[SE], y1_min, y1_max,
+					               zoom - 1, y2_count >> 1, test_f,
+					               result + num, buffer);
+				}
+				if (y1_min < obj._y1_mid_value) {
+					num += get_n_m(obj._nodes[NW], y1_min, y1_max,
+					               zoom - 1, y2_count >> 1, test_f,
+					               result + num, buffer);
+					num += get_n_m(obj._nodes[SW], y1_min, y1_max,
+					               zoom - 1, y2_count >> 1, test_f,
+					               result + num, buffer);
+				}
+			} else if (obj._datas.size() != 0) {
+				/* this is a unsplitted node with data and an array of nxm
+				 * entries is needed
+				 */
+				num = extract(obj, y1_min, y1_max, zoom, y2_count,
+				              test_f, result, buffer);
+			}
+			return num;
+		}
+
+		static size_t get_1_m(PVQuadTree const& obj,
+		                      const uint64_t &y1_min, const uint64_t &y1_max,
+		                      const uint32_t y2_count,
+		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
+		                      pv_quadtree_buffer_entry_t *buffer)
+		{
+			size_t num = 0;
+			if (y2_count == 1) {
+				/* time to extract
+				 */
+				result->idx = UINT32_MAX;
+				if (get_1_1(obj, y1_min, y1_max, test_f, result)) {
+					num = 1;
+				}
+			} else  if (obj._nodes != 0) {
+				if (obj._y1_mid_value < y1_max) {
+					num += get_1_m(obj._nodes[NE], y1_min, y1_max,
+					               y2_count >> 1, test_f,
+					               result + num, buffer);
+					num += get_1_m(obj._nodes[SE], y1_min, y1_max,
+					               y2_count >> 1, test_f,
+					               result + num, buffer);
+				}
+				if (y1_min < obj._y1_mid_value) {
+					num += get_1_m(obj._nodes[NW], y1_min, y1_max,
+					               y2_count >> 1, test_f,
+					               result + num, buffer);
+					num += get_1_m(obj._nodes[SW], y1_min, y1_max,
+					               y2_count >> 1, test_f,
+					               result + num, buffer);
+				}
+			} else if (obj._datas.size() != 0) {
+				/* this is a unsplitted node with data and an array of 1xm
+				 * entries is needed
+				 */
+				num = extract(obj, y1_min, y1_max, 0, y2_count,
+				              test_f, result, buffer);
+			}
+			return num;
+		}
+
+		static size_t get_n_1(PVQuadTree const& obj,
+		                      const uint64_t &y1_min, const uint64_t &y1_max,
 		                      const uint32_t zoom,
 		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
 		                      pv_quadtree_buffer_entry_t *buffer)
 		{
+			size_t num = 0;
 			if (zoom == 0) {
-				if (obj._nodes != 0) {
-					// we must get the better first elements from children
-					PVQuadTreeEntry e;
-					e.idx = UINT_MAX;
-					get_1_m(obj, y1_min, y1_max, test_f, e);
-					if (e.idx != UINT_MAX) {
-						// it has been found
-						*result = e;
-						return 1;
-					}
-				} else {
-					// get the first relevant element
-					for (size_t i = 0; i < obj._datas.size(); ++i) {
-						const PVQuadTreeEntry &e = obj._datas.at(i);
-						if (test_f(e)) {
-							*result = e;
-							return 1;
-						}
-					}
+				/* time to extract
+				 */
+				result->idx = UINT32_MAX;
+				if (get_1_1(obj, y1_min, y1_max, test_f, result)) {
+					num = 1;
 				}
-				return 0;
-			} else {
-				size_t num = 0;
-				if (obj._nodes != 0) {
-					if (obj._y1_mid_value < y1_max) {
-						num += get_n_m(obj._nodes[NE], y1_min, y1_max,
-						               zoom - 1, test_f,
-						               result + num, buffer);
-						num += get_n_m(obj._nodes[SE], y1_min, y1_max,
-						               zoom - 1, test_f,
-						               result + num, buffer);
-					}
-					if (y1_min < obj._y1_mid_value) {
-						num += get_n_m(obj._nodes[NW], y1_min, y1_max,
-						               zoom - 1, test_f,
-						               result + num, buffer);
-						num += get_n_m(obj._nodes[SW], y1_min, y1_max,
-						               zoom - 1, test_f,
-						               result + num, buffer);
-					}
-				} else {
-#ifdef QUADTREE_USE_BITFIELD
-					if (obj._datas.size() != 0) {
-						const uint32_t max_count = 1 << zoom;
-						const uint32_t y1_orig = obj._y1_min_value;
-						const uint32_t y1_scale = ((obj._y1_mid_value - y1_orig) * 2) / max_count;
-
-						const uint32_t ly1_min = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y1_min, y1_orig, 1UL << 32) - y1_orig) / y1_scale,
-						                                                 0U, max_count);
-						const uint32_t ly1_max = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y1_max, y1_orig, 1UL << 32) - y1_orig) / y1_scale,
-						                                                 0U, max_count);
-						const uint32_t clipped_max_count = 1 + ly1_max - ly1_min;
-						const int count_aligned = (clipped_max_count + 31) / 32;
-						memset(buffer, 0, count_aligned * sizeof(uint32_t));
-
-						uint32_t remaining = clipped_max_count;
-						for(size_t i = 0; i < obj._datas.size(); ++i) {
-							const PVQuadTreeEntry &e = obj._datas.at(i);
-							if (!test_f(e)) {
-								continue;
-							}
-							const uint32_t pos = ((e.y1 - y1_orig) / y1_scale) - ly1_min;
-							if (B_IS_SET(buffer[pos >> 5], pos & 31)) {
-								continue;
-							}
-							result[num] = e;
-							B_SET(buffer[pos >> 5], pos & 31);
-							++num;
-							--remaining;
-							if (remaining == 0) {
-								break;
-							}
-						}
-					}
-#else // with PVQuadTreeEntry
-					if (obj._datas.size() != 0) {
-						const uint32_t max_count = 1 << zoom;
-						const uint32_t y1_orig = obj._y1_min_value;
-						const uint32_t y1_scale = ((obj._y1_mid_value - y1_orig) * 2) / max_count;
-
-						const uint32_t ly1_min = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y1_min, y1_orig, 1UL << 32) - y1_orig) / y1_scale,
-						                                                 0U, max_count);
-						const uint32_t ly1_max = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y1_max, y1_orig, 1UL << 32) - y1_orig) / y1_scale,
-						                                                 0U, max_count);
-						uint32_t clipped_max_count = 1 + ly1_max - ly1_min;
-						memset(buffer, -1, clipped_max_count * sizeof (PVQuadTreeEntry));
-
-						int remaining = clipped_max_count;
-						for(size_t i = 0; i < obj._datas.size(); ++i) {
-							const PVQuadTreeEntry &e = obj._datas.at(i);
-							if (!test_f(e)) {
-								continue;
-							}
-							const uint32_t pos = ((e.y1 - y1_orig) / y1_scale) - ly1_min;
-							if (buffer[pos].idx != UINT_MAX) {
-								continue;
-							}
-							buffer[pos] = e;
-							--remaining;
-							if (remaining == 0) {
-								break;
-							}
-						}
-
-						for(size_t i = 0; i < clipped_max_count; ++i) {
-							if (buffer[i].idx != UINT_MAX) {
-								result[num] = buffer[i];
-								++num;
-							}
-						}
-					}
-#endif
-				}
-				return num;
-			}
-		}
-		static void get_1_m(PVQuadTree const& obj,
-		               const uint64_t &y1_min, const uint64_t &y1_max,
-		               const test_entry_f &test_f, PVQuadTreeEntry &result)
-		{
-			if (obj._nodes != 0) {
+			} else if (obj._nodes != 0) {
 				if (obj._y1_mid_value < y1_max) {
-					get_1_m(obj._nodes[NE], y1_min, y1_max, test_f, result);
-					get_1_m(obj._nodes[SE], y1_min, y1_max, test_f, result);
+					num += get_n_1(obj._nodes[NE], y1_min, y1_max,
+					               zoom - 1, test_f,
+					               result + num, buffer);
+					num += get_n_1(obj._nodes[SE], y1_min, y1_max,
+					               zoom - 1, test_f,
+					               result + num, buffer);
 				}
 				if (y1_min < obj._y1_mid_value) {
-					get_1_m(obj._nodes[NW], y1_min, y1_max, test_f, result);
-					get_1_m(obj._nodes[SW], y1_min, y1_max, test_f, result);
+					num += get_n_1(obj._nodes[NW], y1_min, y1_max,
+					               zoom - 1, test_f,
+					               result + num, buffer);
+					num += get_n_1(obj._nodes[SW], y1_min, y1_max,
+					               zoom - 1, test_f,
+					               result + num, buffer);
+				}
+			} else if (obj._datas.size() != 0) {
+				/* this is a unsplitted node with data and an array of nx1
+				 * entries is needed
+				 */
+				num = extract(obj, y1_min, y1_max, zoom, 1,
+				              test_f, result, buffer);
+			}
+			return num;
+		}
+
+		static bool get_1_1(PVQuadTree const& obj,
+		                    const uint64_t &y1_min, const uint64_t &y1_max,
+		                    const test_entry_f &test_f, PVQuadTreeEntry *result)
+		{
+			bool ret = false;
+			if (obj._nodes != 0) {
+				/* pick the first relevant element from the children
+				 */
+				if (obj._y1_mid_value < y1_max) {
+					ret |= get_1_1(obj._nodes[NE], y1_min, y1_max, test_f, result);
+					ret |= get_1_1(obj._nodes[SE], y1_min, y1_max, test_f, result);
+				}
+				if (y1_min < obj._y1_mid_value) {
+					ret |= get_1_1(obj._nodes[NW], y1_min, y1_max, test_f, result);
+					ret |= get_1_1(obj._nodes[SW], y1_min, y1_max, test_f, result);
 				}
 			} else {
+				/* pick the first relevant element from the entry list
+				 */
 				for (size_t i = 0; i < obj._datas.size(); ++i) {
 					const PVQuadTreeEntry &e = obj._datas.at(i);
-					if (test_f(e) && (e.idx <= result.idx)) {
-						result = e;
+					if (test_f(e) && (e.idx < result->idx)) {
+						*result = e;
+						return true;
 					}
 				}
 			}
+			return ret;
+		}
+
+		static size_t extract(PVQuadTree const& obj,
+		                      const uint64_t &y1_min, const uint64_t &y1_max,
+		                      const uint32_t zoom, const uint32_t y2_count,
+		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
+		                      pv_quadtree_buffer_entry_t *buffer)
+		{
+			size_t num = 0;
+			const uint32_t max_count = 1 << zoom;
+			const uint32_t y1_orig = obj._y1_min_value;
+			const uint32_t y1_scale = ((obj._y1_mid_value - y1_orig) * 2) / max_count;
+			const uint32_t y2_orig = obj._y2_min_value;
+			const uint32_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / y2_count;
+			const uint32_t ly1_min = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y1_min, y1_orig, 1UL << 32) - y1_orig) / y1_scale,
+			                                                 0U, max_count);
+			const uint32_t ly1_max = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y1_max, y1_orig, 1UL << 32) - y1_orig) / y1_scale,
+			                                                 0U, max_count);
+			const uint32_t clipped_max_count = 1 + ly1_max - ly1_min;
+			const int count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
+			memset(buffer, 0, count_aligned * sizeof(uint32_t));
+			uint32_t remaining = clipped_max_count * y2_count;
+			for(size_t i = 0; i < obj._datas.size(); ++i) {
+				const PVQuadTreeEntry &e = obj._datas.at(i);
+				if (!test_f(e)) {
+					continue;
+				}
+				const uint32_t pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min) + y2_count * ((e.y2 - y2_orig) / y2_scale);
+				if (B_IS_SET(buffer[pos >> 5], pos & 31)) {
+					continue;
+				}
+				result[num] = e;
+				B_SET(buffer[pos >> 5], pos & 31);
+				++num;
+				--remaining;
+				if (remaining == 0) {
+					break;
+				}
+			}
+			return num;
 		}
 	};
 
@@ -459,149 +497,198 @@ private:
 	{
 		static size_t get_n_m(PVQuadTree const& obj,
 		                      const uint64_t &y2_min, const uint64_t &y2_max,
+		                      const uint32_t zoom, const uint32_t y1_count,
+		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
+		                      pv_quadtree_buffer_entry_t *buffer)
+		{
+			size_t num = 0;
+			if (zoom == 0) {
+				/* need a 1 entry width band along y2
+				 */
+				num = get_1_m(obj, y2_min, y2_max, y1_count, test_f, result, buffer);
+			} else if (y1_count == 1) {
+				/* need a 1 entry width band along y1
+				 */
+				num = get_n_1(obj, y2_min, y2_max, zoom, test_f, result, buffer);
+			} else if (obj._nodes != 0) {
+				/* recursive search can be processed
+				 */
+				if (obj._y2_mid_value < y2_max) {
+					num += get_n_m(obj._nodes[NE], y2_min, y2_max,
+					               zoom - 1, y1_count >> 1, test_f,
+					               result + num, buffer);
+					num += get_n_m(obj._nodes[NW], y2_min, y2_max,
+					               zoom - 1, y1_count >> 1, test_f,
+					               result + num, buffer);
+				}
+				if (y2_min < obj._y2_mid_value) {
+					num += get_n_m(obj._nodes[SE], y2_min, y2_max,
+					               zoom - 1, y1_count >> 1, test_f,
+					               result + num, buffer);
+					num += get_n_m(obj._nodes[SW], y2_min, y2_max,
+					               zoom - 1, y1_count >> 1, test_f,
+					               result + num, buffer);
+				}
+			} else if (obj._datas.size() != 0) {
+				/* this is a unsplitted node with data and an array of nxm
+				 * entries is needed
+				 */
+				num = extract(obj, y2_min, y2_max, zoom, y1_count,
+				              test_f, result, buffer);
+			}
+			return num;
+		}
+
+		static size_t get_1_m(PVQuadTree const& obj,
+		                      const uint64_t &y2_min, const uint64_t &y2_max,
+		                      const uint32_t y1_count,
+		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
+		                      pv_quadtree_buffer_entry_t *buffer)
+		{
+			size_t num = 0;
+			if (y1_count == 1) {
+				/* time to extract
+				 */
+				result->idx = UINT32_MAX;
+				if (get_1_1(obj, y2_min, y2_max, test_f, result)) {
+					num = 1;
+				}
+			} else  if (obj._nodes != 0) {
+				if (obj._y2_mid_value < y2_max) {
+					num += get_1_m(obj._nodes[NE], y2_min, y2_max,
+					               y1_count >> 1, test_f,
+					               result + num, buffer);
+					num += get_1_m(obj._nodes[NW], y2_min, y2_max,
+					               y1_count >> 1, test_f,
+					               result + num, buffer);
+				}
+				if (y2_min < obj._y2_mid_value) {
+					num += get_1_m(obj._nodes[SE], y2_min, y2_max,
+					               y1_count >> 1, test_f,
+					               result + num, buffer);
+					num += get_1_m(obj._nodes[SW], y2_min, y2_max,
+					               y1_count >> 1, test_f,
+					               result + num, buffer);
+				}
+			} else if (obj._datas.size() != 0) {
+				/* this is a unsplitted node with data and an array of 1xm
+				 * entries is needed
+				 */
+				num = extract(obj, y2_min, y2_max, 0, y1_count,
+				              test_f, result, buffer);
+			}
+			return num;
+		}
+
+		static size_t get_n_1(PVQuadTree const& obj,
+		                      const uint64_t &y2_min, const uint64_t &y2_max,
 		                      const uint32_t zoom,
 		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
 		                      pv_quadtree_buffer_entry_t *buffer)
 		{
+			size_t num = 0;
 			if (zoom == 0) {
-				if (obj._nodes != 0) {
-					// we must get the better first elements from children
-					PVQuadTreeEntry e;
-					e.idx = UINT_MAX;
-					get_1_m(obj, y2_min, y2_max, test_f, e);
-					if (e.idx != UINT_MAX) {
-						// it has been found
-						*result = e;
-						return 1;
-					}
-				} else {
-					// get the first relevant element
-					for (size_t i = 0; i < obj._datas.size(); ++i) {
-						const PVQuadTreeEntry &e = obj._datas.at(i);
-						if (test_f(e)) {
-							*result = e;
-							return 1;
-						}
-					}
+				/* time to extract
+				 */
+				result->idx = UINT32_MAX;
+				if (get_1_1(obj, y2_min, y2_max, test_f, result)) {
+					num = 1;
 				}
-				return 0;
-			} else {
-				size_t num = 0;
-				if (obj._nodes != 0) {
-					if (obj._y2_mid_value < y2_max) {
-						num += get_n_m(obj._nodes[NE], y2_min, y2_max,
-						               zoom - 1, test_f,
-						               result + num, buffer);
-						num += get_n_m(obj._nodes[NW], y2_min, y2_max,
-						               zoom - 1, test_f,
-						               result + num, buffer);
-					}
-					if (y2_min < obj._y2_mid_value) {
-						num += get_n_m(obj._nodes[SE], y2_min, y2_max,
-						               zoom - 1, test_f,
-						               result + num, buffer);
-						num += get_n_m(obj._nodes[SW], y2_min, y2_max,
-						               zoom - 1, test_f,
-						               result + num, buffer);
-					}
-				} else {
-#ifdef QUADTREE_USE_BITFIELD
-					if (obj._datas.size() != 0) {
-						const uint32_t max_count = 1 << zoom;
-						const uint32_t y2_orig = obj._y2_min_value;
-						const uint32_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / max_count;
-
-						const uint32_t ly2_min = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y2_min, y2_orig, 1UL << 32) - y2_orig) / y2_scale,
-						                                                 0U, max_count);
-						const uint32_t ly2_max = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y2_max, y2_orig, 1UL << 32) - y2_orig) / y2_scale,
-						                                                 0U, max_count);
-						const uint32_t clipped_max_count = 1 + ly2_max - ly2_min;
-						const int count_aligned = (clipped_max_count + 31) / 32;
-						memset(buffer, 0, count_aligned * sizeof(uint32_t));
-
-						uint32_t remaining = clipped_max_count;
-						for(size_t i = 0; i < obj._datas.size(); ++i) {
-							const PVQuadTreeEntry &e = obj._datas.at(i);
-							if (!test_f(e)) {
-								continue;
-							}
-							const uint32_t pos = ((e.y2 - y2_orig) / y2_scale) - ly2_min;
-							if (B_IS_SET(buffer[pos >> 5], pos & 31)) {
-								continue;
-							}
-							result[num] = e;
-							B_SET(buffer[pos >> 5], pos & 31);
-							++num;
-							--remaining;
-							if (remaining == 0) {
-								break;
-							}
-						}
-					}
-#else // with PVQuadTreeEntry
-					if (obj._datas.size() != 0) {
-						const uint32_t max_count = 1 << zoom;
-						const uint32_t y2_orig = obj._y2_min_value;
-						const uint32_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / max_count;
-
-						const uint32_t ly2_min = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y2_min, y2_orig, 1UL << 32) - y2_orig) / y2_scale,
-						                                                 0U, max_count);
-						const uint32_t ly2_max = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y2_max, y2_orig, 1UL << 32) - y2_orig) / y2_scale,
-						                                                 0U, max_count);
-						uint32_t clipped_max_count = 1 + ly2_max - ly2_min;
-
-						memset(buffer, -1, clipped_max_count * sizeof (PVQuadTreeEntry));
-
-						int remaining = clipped_max_count;
-						for(size_t i = 0; i < obj._datas.size(); ++i) {
-							const PVQuadTreeEntry &e = obj._datas.at(i);
-							if (!test_f(e)) {
-								continue;
-							}
-							const uint32_t pos = ((e.y2 - y2_orig) / y2_scale) - ly2_min;
-							if (buffer[pos].idx != UINT_MAX) {
-								continue;
-							}
-							buffer[pos] = e;
-							--remaining;
-							if (remaining == 0) {
-								break;
-							}
-						}
-
-						for(size_t i = 0; i < clipped_max_count; ++i) {
-							if (buffer[i].idx != UINT_MAX) {
-								result[num] = buffer[i];
-								++num;
-							}
-						}
-					}
-#endif
-				}
-				return num;
-			}
-		}
-		static void get_1_m(PVQuadTree const& obj,
-		               const uint64_t &y2_min, const uint64_t &y2_max,
-		               const test_entry_f &test_f, PVQuadTreeEntry &result)
-		{
-			if (obj._nodes != 0) {
+			} else if (obj._nodes != 0) {
 				if (obj._y2_mid_value < y2_max) {
-					get_1_m(obj._nodes[NE], y2_min, y2_max, test_f, result);
-					get_1_m(obj._nodes[NW], y2_min, y2_max, test_f, result);
+					num += get_n_1(obj._nodes[NE], y2_min, y2_max,
+					               zoom - 1, test_f,
+					               result + num, buffer);
+					num += get_n_1(obj._nodes[NW], y2_min, y2_max,
+					               zoom - 1, test_f,
+					               result + num, buffer);
 				}
 				if (y2_min < obj._y2_mid_value) {
-					get_1_m(obj._nodes[SE], y2_min, y2_max, test_f, result);
-					get_1_m(obj._nodes[SW], y2_min, y2_max, test_f, result);
+					num += get_n_1(obj._nodes[SE], y2_min, y2_max,
+					               zoom - 1, test_f,
+					               result + num, buffer);
+					num += get_n_1(obj._nodes[SW], y2_min, y2_max,
+					               zoom - 1, test_f,
+					               result + num, buffer);
+				}
+			} else if (obj._datas.size() != 0) {
+				/* this is a unsplitted node with data and an array of nx1
+				 * entries is needed
+				 */
+				num = extract(obj, y2_min, y2_max, zoom, 1,
+				              test_f, result, buffer);
+			}
+			return num;
+		}
+
+		static bool get_1_1(PVQuadTree const& obj,
+		                    const uint64_t &y2_min, const uint64_t &y2_max,
+		                    const test_entry_f &test_f, PVQuadTreeEntry *result)
+		{
+			bool ret = false;
+			if (obj._nodes != 0) {
+				/* pick the first relevant element from the children
+				 */
+				if (obj._y2_mid_value < y2_max) {
+					ret |= get_1_1(obj._nodes[NE], y2_min, y2_max, test_f, result);
+					ret |= get_1_1(obj._nodes[SE], y2_min, y2_max, test_f, result);
+				}
+				if (y2_min < obj._y2_mid_value) {
+					ret |= get_1_1(obj._nodes[NW], y2_min, y2_max, test_f, result);
+					ret |= get_1_1(obj._nodes[SW], y2_min, y2_max, test_f, result);
 				}
 			} else {
+				/* pick the first relevant element from the entry list
+				 */
 				for (size_t i = 0; i < obj._datas.size(); ++i) {
 					const PVQuadTreeEntry &e = obj._datas.at(i);
-					if (test_f(e) && (e.idx <= result.idx)) {
-						result = e;
+					if (test_f(e) && (e.idx < result->idx)) {
+						*result = e;
+						return true;
 					}
 				}
 			}
+			return ret;
+		}
+
+		static size_t extract(PVQuadTree const& obj,
+		                      const uint64_t &y2_min, const uint64_t &y2_max,
+		                      const uint32_t zoom, const uint32_t y1_count,
+		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
+		                      pv_quadtree_buffer_entry_t *buffer)
+		{
+			size_t num = 0;
+			const uint32_t max_count = 1 << zoom;
+			const uint32_t y1_orig = obj._y1_min_value;
+			const uint32_t y1_scale = ((obj._y1_mid_value - y1_orig) * 2) / y1_count;
+			const uint32_t y2_orig = obj._y2_min_value;
+			const uint32_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / max_count;
+			const uint32_t ly2_min = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y2_min, y2_orig, 1UL << 32) - y2_orig) / y2_scale,
+			                                                 0U, max_count);
+			const uint32_t ly2_max = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y2_max, y2_orig, 1UL << 32) - y2_orig) / y2_scale,
+			                                                 0U, max_count);
+			const uint32_t clipped_max_count = 1 + ly2_max - ly2_min;
+			const int count_aligned = ((clipped_max_count * y1_count) + 31) / 32;
+			memset(buffer, 0, count_aligned * sizeof(uint32_t));
+			uint32_t remaining = clipped_max_count * y1_count;
+			for(size_t i = 0; i < obj._datas.size(); ++i) {
+				const PVQuadTreeEntry &e = obj._datas.at(i);
+				if (!test_f(e)) {
+					continue;
+				}
+				const uint32_t pos = (((e.y2 - y2_orig) / y2_scale) - ly2_min) + y1_count * ((e.y1 - y1_orig) / y1_scale);
+				if (B_IS_SET(buffer[pos >> 5], pos & 31)) {
+					continue;
+				}
+				result[num] = e;
+				B_SET(buffer[pos >> 5], pos & 31);
+				++num;
+				--remaining;
+				if (remaining == 0) {
+					break;
+				}
+			}
+			return num;
 		}
 	};
 

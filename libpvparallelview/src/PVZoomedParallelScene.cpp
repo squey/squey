@@ -438,7 +438,7 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 
 #if 0
 	// really usefull to see quadtrees
-	painter->setPen(Qt::red);
+	painter->setPen(Qt::blue);
 	for(int i = 0; i < 1025; ++i) {
 		painter->drawLine(QPointF(-10, i), QPointF(10, i));
 	}
