@@ -185,40 +185,40 @@ find_package(OpenGL REQUIRED)
 #
 # GLEW
 #
-if (WIN32)
-	set(GLEW_INCLUDE_PATH "C:\\dev\\glew-amd64\\include")
-	set(GLEW_LIBRARY "C:\\dev\\glew-amd64\\lib\\glew32s.lib")
-else(WIN32)
-	find_package(GLEW REQUIRED)
-endif(WIN32)
+#if (WIN32)
+#	set(GLEW_INCLUDE_PATH "C:\\dev\\glew-amd64\\include")
+#	set(GLEW_LIBRARY "C:\\dev\\glew-amd64\\lib\\glew32s.lib")
+#else(WIN32)
+#	find_package(GLEW REQUIRED)
+#endif(WIN32)
 
 #
 # GLUT
 #
-if (WIN32)
-	set(GLUT_INCLUDE_DIR "C:\\dev\\freeglut\\include\\")
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(GLUT_glut_LIBRARY "C:\\dev\\freeglut\\VisualStudio2008\\x64\\Debug\\freeglut.lib")
-else()
-	set(GLUT_glut_LIBRARY "C:\\dev\\freeglut\\VisualStudio2008\\x64\\Release\\freeglut.lib")
-endif()
-else(WIN32)
-  find_package(GLUT REQUIRED)
-endif(WIN32)
+#if (WIN32)
+#	set(GLUT_INCLUDE_DIR "C:\\dev\\freeglut\\include\\")
+#if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+#	set(GLUT_glut_LIBRARY "C:\\dev\\freeglut\\VisualStudio2008\\x64\\Debug\\freeglut.lib")
+#else()
+#	set(GLUT_glut_LIBRARY "C:\\dev\\freeglut\\VisualStudio2008\\x64\\Release\\freeglut.lib")
+#endif()
+#else(WIN32)
+#  find_package(GLUT REQUIRED)
+#endif(WIN32)
 
 #
 # Freetype
 #
-if (WIN32)
-	set(FREETYPE_INCLUDE_DIRS "C:\\dev\\freetype-amd64\\include")
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(FREETYPE_LIBRARY "C:\\dev\\freetype-amd64\\lib\\freetyped.lib")
-else()
-	set(FREETYPE_LIBRARY "C:\\dev\\freetype-amd64\\lib\\freetype.lib")
-endif()
-else(WIN32)
-	find_package(Freetype REQUIRED)
-endif(WIN32)
+#if (WIN32)
+#	set(FREETYPE_INCLUDE_DIRS "C:\\dev\\freetype-amd64\\include")
+#if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+#	set(FREETYPE_LIBRARY "C:\\dev\\freetype-amd64\\lib\\freetyped.lib")
+#else()
+#	set(FREETYPE_LIBRARY "C:\\dev\\freetype-amd64\\lib\\freetype.lib")
+#endif()
+#else(WIN32)
+#	find_package(Freetype REQUIRED)
+#endif(WIN32)
 
 #
 # IBM ICU
