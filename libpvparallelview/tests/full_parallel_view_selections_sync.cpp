@@ -14,7 +14,6 @@
 #include <picviz/PVSelection.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
-#include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
@@ -41,7 +40,7 @@ int main(int argc, char** argv)
 
 	QApplication app(argc, argv);
 
-	PVParallelView::common::init<PVParallelView::PVBCIDrawingBackendCUDA>();
+	PVParallelView::common::init_cuda();
 
 	PVParallelView::PVLibView* plib_view = create_lib_view_from_args(argc, argv);
 	if (plib_view == NULL) {

@@ -32,12 +32,6 @@ target_link_libraries(both_views ${LINK_LIBRARIES})
 add_executable(zoomed_parallel_view zoomed_parallel_view.cpp)
 target_link_libraries(zoomed_parallel_view ${LINK_LIBRARIES})
 
-add_executable(zoomed_zone_tree_render zoomed_zone_tree_render.cpp)
-target_link_libraries(zoomed_zone_tree_render ${LINK_LIBRARIES})
-
-add_executable(zoomed_zone_tree_render2 zoomed_zone_tree_render2.cpp)
-target_link_libraries(zoomed_zone_tree_render2 ${LINK_LIBRARIES})
-
 add_executable(create_tree create_tree.cpp)
 target_link_libraries(create_tree ${LINK_LIBRARIES})
 
@@ -117,4 +111,10 @@ if (CUDA_FOUND)
 
 	add_executable(show_codes_cuda_lib show_codes_cuda_lib.cpp)
 	target_link_libraries(show_codes_cuda_lib ${LINK_LIBRARIES})
+
+	add_executable(zoomed_zone_tree_render zoomed_zone_tree_render.cpp)
+	target_link_libraries(zoomed_zone_tree_render ${LINK_LIBRARIES})
+
+	add_executable(zoomed_zone_tree_render2 zoomed_zone_tree_render2.cpp)
+	target_link_libraries(zoomed_zone_tree_render2 ${LINK_LIBRARIES})
 endif (CUDA_FOUND)

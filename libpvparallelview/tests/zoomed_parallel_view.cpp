@@ -15,7 +15,6 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
-#include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVZonesDrawing.h>
@@ -121,7 +120,7 @@ int main(int argc, char** argv)
 	Picviz::PVView_sp fake_view(new Picviz::PVView());
 	fake_view->reset_layers();
 
-	PVParallelView::common::init<PVParallelView::PVBCIDrawingBackendCUDA>();
+	PVParallelView::common::init_cuda();
 	PVParallelView::PVLibView* plib_view = PVParallelView::common::get_lib_view(*fake_view, norm_plotted, nrows, ncols);
 	plib_view->get_zones_manager().update_all();
 
