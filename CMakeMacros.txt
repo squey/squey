@@ -55,3 +55,12 @@ MACRO (PV_QT4_WRAP_UI outfiles )
     SET(${outfiles} ${${outfiles}} ${outfile})
   ENDFOREACH (it)
 ENDMACRO() 
+
+# GCC version
+macro(GET_GCC_VERSION major minor)
+	execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion
+                    OUTPUT_VARIABLE GCC_VERSION)
+	string(REGEX MATCHALL "[0-9]+" GCC_VERSION_COMPONENTS ${GCC_VERSION})
+	list(GET GCC_VERSION_COMPONENTS 0 ${major})
+	list(GET GCC_VERSION_COMPONENTS 1 ${minor})
+endmacro()

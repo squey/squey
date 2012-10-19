@@ -3,7 +3,7 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-set(LINK_LIBRARIES pvkernel picviz ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES})
+set(LINK_LIBRARIES pvkernel picviz ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES} ${OPENGL_LIBRARIES})
 
 enable_testing()
 

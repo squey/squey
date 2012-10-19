@@ -7,9 +7,6 @@
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
 
-#include <QGLWidget>
-
-
 PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent):
 	QGraphicsView(parent)
 {
