@@ -296,4 +296,3 @@ find_package(HWLoc REQUIRED)
 if (HWLOC_FOUND)
   include_directories(${HWLOC_INCLUDE_DIRS})
 endif ()
-gna2
