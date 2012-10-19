@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 	for (unsigned i = 1; i < 9; ++i) {
 		std::cout << "extract BCI codes from y1 for zoom " << i << std::endl;
 		BENCH_START(extract);
-		size_t num = qt->get_first_from_y1(0, MAX_VALUE >> i, i, entries, buffer);
+		size_t num = qt->get_first_from_y1(0, MAX_VALUE >> i, i, 1, entries, buffer);
 		BENCH_END(extract, "extract", 1, 1, 1, 1);
 		std::cout << "elements found: " << num << std::endl;
 	}
