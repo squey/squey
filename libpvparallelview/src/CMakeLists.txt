@@ -27,7 +27,6 @@ add_definitions(${OpenMP_CXX_FLAGS})
 
 SET(SRC_FILES
 PVBCIBuffers.cpp
-PVBCIDrawingEngineCuda.cpp
 PVParallelView.cpp
 PVTools.cpp
 PVZoomedZoneTree.cpp
@@ -61,6 +60,7 @@ PVZoomedSelectionAxisSliders.cpp
 )
 
 set(CUDA_SRC_FILES
+PVBCIDrawingEngineCuda.cpp
 )
 
 SET(HEADER_FILES

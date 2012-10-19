@@ -150,7 +150,9 @@ int main(int argc, char *argv[])
 		pv_mw->load_files(files, format);
 	}
 
+#ifdef CUDA
 	PVParallelView::common::init_cuda();
+#endif
 
 	int ret = app.exec();
 
