@@ -35,7 +35,7 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 	setWidget(view_widget);
 	setWindowTitle(name);
 
-	view_widget->installEventFilter(new FocusInEventFilter(this));
+	installEventFilter(new FocusInEventFilter(this));
 	view_widget->setFocusPolicy(Qt::StrongFocus);
 
 	QAbstractScrollArea* scroll_area = dynamic_cast<QAbstractScrollArea*>(view_widget);

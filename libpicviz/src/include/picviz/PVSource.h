@@ -33,8 +33,6 @@
 #include <picviz/PVRoot.h>
 #include <picviz/PVSource_types.h>
 
-#include <boost/enable_shared_from_this.hpp>
-
 namespace Picviz {
 
 /**

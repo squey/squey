@@ -23,10 +23,18 @@
 #include <QDateTime>
 #include <QPropertyAnimation>
 #include <QLineEdit>
+#include <QPixmap>
+#include <QPainter>
+#include <QImage>
 
 #define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 500
 #define TAB_OPENING_EFFECT_MSEC 200
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVTabBar
+ *
+ *****************************************************************************/
 int PVGuiQt::PVTabBar::count() const
 {
 	return QTabBar::count() -1;
@@ -39,6 +47,8 @@ QSize PVGuiQt::PVTabBar::tabSizeHint(int index) const
 
 void PVGuiQt::PVTabBar::mouseReleaseEvent(QMouseEvent* event)
 {
+	stop_drag();
+
 	// Tabs are closed on middle button click
 	if (event->button() == Qt::MidButton) {
 		int tab_index = tabAt(event->pos());
@@ -73,12 +83,25 @@ void PVGuiQt::PVTabBar::mouseDoubleClickEvent(QMouseEvent* event)
 
 void PVGuiQt::PVTabBar::mouseMoveEvent(QMouseEvent* event)
 {
-	if (tabAt(event->pos()) == count()) {
+	int tab_index = tabAt(event->pos());
+
+	if (tab_index == count()) {
 		setCursor(Qt::PointingHandCursor);
 	}
 	else {
 		setCursor(Qt::ArrowCursor);
 	}
+
+	bool drag_n_drop = !_drag_ongoing && // No ongoing drag&drop action
+					  event->buttons() == Qt::LeftButton && // Drag&drop initialized with left button click
+			          tab_index >=0 && tab_index < count() && // Tab is candidate for drag&drop
+			          (event->pos() - _drag_start_position).manhattanLength() < QApplication::startDragDistance(); // Significant desire to engage drag&drop
+
+	if (drag_n_drop) {
+		start_drag(_tab_widget->widget(tab_index));
+	}
+
+	QTabBar::mouseMoveEvent(event);
 }
 
 void PVGuiQt::PVTabBar::leaveEvent(QEvent* ev)
@@ -87,6 +110,83 @@ void PVGuiQt::PVTabBar::leaveEvent(QEvent* ev)
 	QTabBar::leaveEvent(ev);
 }
 
+void PVGuiQt::PVTabBar::wheelEvent(QWheelEvent* event)
+{
+	if (currentIndex() == count()-1 && event->delta() < 0) {
+		return;
+	}
+	QTabBar::wheelEvent(event);
+}
+
+void PVGuiQt::PVTabBar::mousePressEvent(QMouseEvent* event)
+{
+	if (event->button() == Qt::LeftButton) {
+		_drag_start_position = event->pos();
+	}
+
+	QTabBar::mousePressEvent(event);
+}
+
+void PVGuiQt::PVTabBar::keyPressEvent(QKeyEvent* event)
+{
+	if (currentIndex() == count()-1 && event->key() == Qt::Key_Right) {
+		return;
+	}
+	QTabBar::keyPressEvent(event);
+}
+
+void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
+{
+	_drag_ongoing = true;
+	PVDrag* drag = new PVDrag(this);
+
+	connect(drag, SIGNAL(dragged_outside()), this, SLOT(dragged_outside()));
+
+	QMimeData* mimeData = new QMimeData;
+
+	QByteArray byte_array;
+	byte_array.reserve(sizeof(void*));
+	byte_array.append((const char*)workspace, sizeof(void*));
+
+	mimeData->setData("application/x-picviz_workspace", byte_array);
+
+	drag->setMimeData(mimeData);
+
+	// Set semi transparent thumbnail
+	QImage opaque = QPixmap::grabWidget(workspace, workspace->rect()).scaledToWidth(200).toImage();
+	QPixmap transparent(opaque.size());
+	transparent.fill(Qt::transparent);
+	QPainter p;
+	p.begin(&transparent);
+	p.setCompositionMode(QPainter::CompositionMode_Source);
+	p.drawPixmap(0, 0, QPixmap::fromImage(opaque));
+	p.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+	p.fillRect(transparent.rect(), QColor(0, 0, 0, 150));
+	p.end();
+	drag->setPixmap(transparent);
+	qApp->installEventFilter(new DragNDropTransparencyHack());
+
+	QCursor cursor = QCursor(Qt::ClosedHandCursor);
+	drag->setDragCursor(cursor.pixmap(), Qt::MoveAction);
+	drag->exec(Qt::MoveAction);
+}
+
+void PVGuiQt::PVTabBar::dragged_outside()
+{
+	stop_drag();
+}
+
+void PVGuiQt::PVTabBar::stop_drag()
+{
+	_drag_ongoing = false;
+	qApp->installEventFilter(new QObject());
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVWorkspacesTabWidget
+ *
+ *****************************************************************************/
 PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(Picviz::PVScene* scene, QWidget* parent) :
 	QTabWidget(parent),
 	_scene(scene),
@@ -125,7 +225,6 @@ int PVGuiQt::PVWorkspacesTabWidget::count() const
 
 void PVGuiQt::PVWorkspacesTabWidget::tab_changed(int index)
 {
-	// TODO: avoid ugly qobject_cast with virtual methods in PVWorkspaceBase !!
 	if (index == count()) {
 		addTab(new PVOpenWorkspace(this), "Open workspace", true);
 		setCurrentIndex(count()-1);
@@ -144,6 +243,7 @@ int PVGuiQt::PVWorkspacesTabWidget::addTab(PVWorkspaceBase* workspace, const QSt
 {
 	tabBar()->setCursor(Qt::ArrowCursor);
 
+	// TODO: avoid ugly qobject_cast with virtual methods in PVWorkspaceBase !!
 	int insert_index = -1;
 	if (qobject_cast<PVWorkspace*>(workspace)) {
 		insert_index = _workspaces_count++;

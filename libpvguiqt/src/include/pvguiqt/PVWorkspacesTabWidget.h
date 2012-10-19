@@ -12,6 +12,11 @@
 #include <QTabBar>
 #include <QWidget>
 #include <QMouseEvent>
+#include <QPoint>
+#include <QObject>
+#include <QDrag>
+
+#include <iostream>
 
 namespace Picviz
 {
@@ -25,21 +30,67 @@ namespace PVGuiQt
 class PVWorkspaceBase;
 class PVWorkspacesTabWidget;
 
+class DragNDropTransparencyHack : public QObject
+{
+public:
+	bool eventFilter(QObject* watched, QEvent* event) {
+		if (event->type() == QEvent::Move) {
+			QWidget *window = qobject_cast<QWidget*>(watched);
+			if (window && QLatin1String("QShapedPixmapWidget") == window->metaObject()->className()) {
+				window->setAttribute(Qt::WA_TranslucentBackground);
+				window->clearMask();
+			}
+		}
+		return false;
+	}
+};
+
+class PVDrag : public QDrag
+{
+	Q_OBJECT
+
+public:
+	PVDrag(QWidget* dragSource) : QDrag(dragSource) {}
+	~PVDrag()
+	{
+		if(!target()) {
+			emit dragged_outside();
+		}
+	}
+
+signals:
+	void dragged_outside();
+};
+
 class PVTabBar : public QTabBar
 {
+	Q_OBJECT
+
 public:
 	PVTabBar(PVWorkspacesTabWidget* tab_widget) : _tab_widget(tab_widget) {}
 	QSize tabSizeHint(int index) const;
 	int count() const;
 
 protected:
+	void mousePressEvent(QMouseEvent* event) override;
 	void mouseReleaseEvent(QMouseEvent* event) override;
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
 	void mouseMoveEvent(QMouseEvent* event) override;
 	void leaveEvent(QEvent* even) override;
+	void wheelEvent(QWheelEvent* event) override;
+	void keyPressEvent(QKeyEvent* event) override;
+
+public slots:
+	void dragged_outside();
+
+private:
+	void start_drag(QWidget* workspace);
+	void stop_drag();
 
 private:
 	PVWorkspacesTabWidget* _tab_widget;
+	QPoint _drag_start_position;
+	bool _drag_ongoing = false;
 };
 
 class PVWorkspacesTabWidget : public QTabWidget

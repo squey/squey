@@ -24,7 +24,6 @@
 
 
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 #define PICVIZ_SCENE_ARCHIVE_EXT "pv"
 #define PICVIZ_SCENE_ARCHIVE_FILTER "Picviz project files (*." PICVIZ_SCENE_ARCHIVE_EXT ")"
