@@ -23,11 +23,10 @@
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 
 #include <picviz/init.h>
-#include <picviz/PVRoot.h>
-#include <picviz/PVScene.h>
-#include <picviz/PVSource.h>
-#include <picviz/PVMapped.h>
-#include <picviz/PVView.h>
+#include <picviz/PVRoot_types.h>
+#include <picviz/PVScene_types.h>
+#include <picviz/PVSource_types.h>
+#include <picviz/PVView_types.h>
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVSelection.h>
 
@@ -131,8 +130,6 @@ public:
 	bool report_started;
 	int report_image_index;
 	QString *report_filename;
-
-	PVCore::PVDataTreeAutoShared<Picviz::PVRoot> root;
 
 	Picviz::PVView* current_view() { return _scene->current_view(); }
 	Picviz::PVView const* current_view() const { return _scene->current_view(); }
@@ -341,6 +338,10 @@ protected:
 	void show_start_page(bool visible);
 	void set_version_informations();
 
+private:
+	static Picviz::PVRoot& get_root();
+	static Picviz::PVRoot_sp get_root_sp();
+
 signals:
 	void change_of_current_view_Signal();
 	void color_changed_Signal();
@@ -348,9 +349,6 @@ signals:
 	void commit_to_new_layer_Signal();
 	void selection_changed_Signal();
 	void zombie_mode_changed_Signal();
-
-private:
-	tbb::task_scheduler_init init_parallel;
 
 private:
 	PVCore::PVDataTreeAutoShared<Picviz::PVScene> _scene;

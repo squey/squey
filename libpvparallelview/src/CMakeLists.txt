@@ -10,6 +10,7 @@ if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 endif(CUDA_FOUND)
 
+
 set(LINK_LIBRARIES picviz pvhive pvkernel ${QT_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
 
 # CUDA

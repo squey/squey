@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	QApplication a(argc, argv);
 	QMainWindow w;
 
-	Picviz::PVRoot_p root;
+	Picviz::PVRoot_sp root = Picviz::PVRoot::get_root_sp();
 	Picviz::PVScene_p scene(root, "scene");
 	Picviz::PVAD2GView_p ad2gv(new Picviz::PVAD2GView(scene.get()));
 

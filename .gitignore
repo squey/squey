@@ -3,3 +3,4 @@ build
 inspector.sh
 */tests/bin
 */tests/*/bin
+.gdb_history

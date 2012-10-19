@@ -35,10 +35,18 @@ typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<PVRoot>, PV
 class LibPicvizDecl PVRoot : public data_tree_root_t {
 public:
 	//typedef boost::shared_ptr<PVRoot> p_type;
-public:
+private:
 	PVRoot();
+
+public:
 	~PVRoot();
 
+public:
+	static PVRoot& get_root(); 
+	static PVRoot_sp get_root_sp();
+	static void release();
+
+public:
 	virtual QString get_serialize_description() const { return "Root"; }
 
 private:
@@ -50,6 +58,8 @@ private:
 	static int load_axis_computation_filters();
 	static int load_sorting_functions_filters();
 
+private:
+	static PVRoot_sp _unique_root;
 };
 
 typedef PVRoot::p_type  PVRoot_p;

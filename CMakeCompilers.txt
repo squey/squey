@@ -37,10 +37,33 @@ if (WIN32)
 
 else()
 	set(CMAKE_CXX_COMMON_FLAGS "-std=c++11 -Wall -Wno-unused-local-typedefs -Wno-pmf-conversions")
+	set(LD_IS_GOLD_USED FALSE)
 
 	if (USE_LTO)
-		set(LTO_CXX_FLAGS "-flto")
-		set(LTO_LINK_FLAGS "-flto")
+		if (CMAKE_COMPILER_IS_GNUCC)
+			set(LTO_CXX_FLAGS "-flto")
+			set(LTO_LINK_FLAGS "-flto")
+
+			GET_GCC_VERSION(GCC_MAJOR GCC_MINOR)
+			#message(STATUS "GCC version is ${GCC_MAJOR}.${GCC_MINOR}")
+			if ((${GCC_MAJOR} LESS 5) AND (${GCC_MINOR} LESS 8))
+				# Gold needs to be used for LTO to work. Let's try if we find it !
+				find_program(GOLD_EXE gold)
+				if (GOLD_EXE-NOTFOUND)
+					message(FATAL "LTO can't be used without the gold linker and current GCC version (${GCC_MAJOR}.${GCC_MINOR})")
+				endif()
+				# Gold found, let's make a symlink for ld to it and use it
+				set(GOLD_BIN_DIR "${CMAKE_BINARY_DIR}/bin/gold/")
+				file(MAKE_DIRECTORY "${GOLD_BIN_DIR}")
+				execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${GOLD_EXE}" "${GOLD_BIN_DIR}/ld")
+				
+				# "-lrt" needs to be add since GNU ld does it by default, but not GNU gold!
+				set(LTO_LINK_FLAGS "${LTO_LINK_FLAGS} -B${GOLD_BIN_DIR} -Wl,--threads -lrt")
+				set(LD_IS_GOLD_USED TRUE)
+				
+				message(STATUS "GNU gold is used for LTO and linking")
+			endif()
+		endif()
 	else()
 		set(LTO_CXX_FLAGS "")
 		set(LTO_LINK_FLAGS "")
@@ -51,16 +74,20 @@ else()
 	set(CMAKE_CXX_FLAGS_DEBUG "-g ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
 	list(APPEND CMAKE_SHARED_LINKER_FLAGS_DEBUG ${LTO_LINK_FLAGS})
 	list(APPEND CMAKE_MODULE_LINKER_FLAGS_DEBUG ${LTO_LINK_FLAGS})
+	list(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG ${LTO_LINK_FLAGS})
 
 	set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
 	list(APPEND CMAKE_SHARED_LINKER_FLAGS_RELEASE ${LTO_LINK_FLAGS})
 	list(APPEND CMAKE_MODULE_LINKER_FLAGS_RELEASE ${LTO_LINK_FLAGS})
+	list(APPEND CMAKE_EXE_LINKER_FLAGS_RELEASE ${LTO_LINK_FLAGS})
 
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O3 -DNDEBUG ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
 	list(APPEND CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO ${LTO_LINK_FLAGS})
 	list(APPEND CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO ${LTO_LINK_FLAGS})
+	list(APPEND CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO ${LTO_LINK_FLAGS})
 
 	set(CMAKE_CXX_FLAGS_RELPROTECT "-O3 -DNDEBUG ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
 	list(APPEND CMAKE_SHARED_LINKER_FLAGS_RELPROTECT ${LTO_LINK_FLAGS})
 	list(APPEND CMAKE_MODULE_LINKER_FLAGS_RELPROTECT ${LTO_LINK_FLAGS})
+	list(APPEND CMAKE_EXE_LINKER_FLAGS_RELPROTECT ${LTO_LINK_FLAGS})
 endif()

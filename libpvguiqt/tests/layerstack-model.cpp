@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 	init_env();
 
 	// Get a Picviz tree from the given file/format
-	Picviz::PVRoot_p root;
+	Picviz::PVRoot_sp root = Picviz::PVRoot::get_root_sp();
 	Picviz::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
 	src->create_default_view();
 

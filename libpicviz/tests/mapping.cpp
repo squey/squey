@@ -37,7 +37,7 @@ int main(void)
 
 #include "test-env.h"
 
-	PVRoot_p root = PVRoot_p(new PVRoot());
+	PVRoot_sp root = Picviz::PVRoot::get_root_sp();
 	PVScene_p scene = PVScene_p(new PVScene(QString("scene1"), root));
 	PVSource_p source = PVSource_p(new PVSource(scene));
 	source->file_append("pcre:syslog", "logs/syslog");
@@ -46,6 +46,8 @@ int main(void)
 	PVMapped_p mapped = PVMapped_p(new PVMapped(mapping));
 	std::cout << "#### MAPPED ####\n";
 	mapped->to_csv("");
+
+	Picviz::PVRoot::release();
 
 	return 0;
 }

@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 	}
 
 	// Create the PVSource object
-	Picviz::PVRoot_p root;
+	Picviz::PVRoot_sp root = Picviz::PVRoot::get_root_sp();
 	Picviz::PVScene_p scene(root, "scene");
 	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	scene->add_source(src);
