@@ -7,9 +7,18 @@
 #ifndef PVCUDA_COMMON_H
 #define PVCUDA_COMMON_H
 
+// Ensure CUDA is set if using nvcc
+#ifdef __CUDACC__
+#ifndef CUDA
+#define CUDA
+#endif
+#endif
+
+#ifdef CUDA
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
+#endif
 
 #include <functional>
 
