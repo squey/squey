@@ -21,14 +21,43 @@
 #include <QMouseEvent>
 #include <QPushButton>
 #include <QDateTime>
-#include <QPropertyAnimation>
-#include <QLineEdit>
 #include <QPixmap>
 #include <QPainter>
 #include <QImage>
 
 #define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 500
 #define TAB_OPENING_EFFECT_MSEC 200
+
+
+
+bool PVGuiQt::DragNDropTransparencyHack::eventFilter(QObject* watched, QEvent* event)
+{
+	if (event->type() == QEvent::Move) {
+		QWidget *window = qobject_cast<QWidget*>(watched);
+		if (window && QLatin1String("QShapedPixmapWidget") == window->metaObject()->className()) {
+			window->setAttribute(Qt::WA_TranslucentBackground);
+			window->clearMask();
+		}
+	}
+	return false;
+}
+
+bool PVGuiQt::TabRenamerEventFilter::eventFilter(QObject* watched, QEvent* event)
+{
+	bool rename = false;
+	if (event->type() == QEvent::Leave) {
+		rename = true;
+	}
+	else if (event->type() == QEvent::KeyPress) {
+		QKeyEvent* key_event = (QKeyEvent*) event;
+		rename = key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Escape;
+	}
+	if (rename) {
+		_tab_bar->setTabText(_index, _line_edit->text());
+		_line_edit->deleteLater();
+	}
+	return rename;
+}
 
 /******************************************************************************
  *
@@ -74,10 +103,12 @@ void PVGuiQt::PVTabBar::mouseDoubleClickEvent(QMouseEvent* event)
 		line_edit->setFocus();
 		line_edit->setSelection(0, tabText(index).length());
 
-		::connect(line_edit, SIGNAL(editingFinished()), [=] {
+		line_edit->installEventFilter(new TabRenamerEventFilter(this, index, line_edit));
+
+		/*::connect(line_edit, SIGNAL(editingFinished()), [=] {
 			setTabText(index, line_edit->text());
 			line_edit->deleteLater();
-		});
+		});*/
 	}
 }
 
@@ -95,7 +126,7 @@ void PVGuiQt::PVTabBar::mouseMoveEvent(QMouseEvent* event)
 	bool drag_n_drop = !_drag_ongoing && // No ongoing drag&drop action
 					  event->buttons() == Qt::LeftButton && // Drag&drop initialized with left button click
 			          tab_index >=0 && tab_index < count() && // Tab is candidate for drag&drop
-			          (event->pos() - _drag_start_position).manhattanLength() < QApplication::startDragDistance(); // Significant desire to engage drag&drop
+			          (event->pos() - _drag_start_position).manhattanLength() > QApplication::startDragDistance()*3; // Significant desire to engage drag&drop
 
 	if (drag_n_drop) {
 		start_drag(_tab_widget->widget(tab_index));
@@ -140,7 +171,7 @@ void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
 	_drag_ongoing = true;
 	PVDrag* drag = new PVDrag(this);
 
-	connect(drag, SIGNAL(dragged_outside()), this, SLOT(dragged_outside()));
+	connect(drag, SIGNAL(dragged_outside(QPoint)), this, SLOT(dragged_outside(QPoint)));
 
 	QMimeData* mimeData = new QMimeData;
 
@@ -166,14 +197,18 @@ void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
 	drag->setPixmap(transparent);
 	qApp->installEventFilter(new DragNDropTransparencyHack());
 
-	QCursor cursor = QCursor(Qt::ClosedHandCursor);
-	drag->setDragCursor(cursor.pixmap(), Qt::MoveAction);
-	drag->exec(Qt::MoveAction);
+	/*QCursor cursor = QCursor(Qt::ClosedHandCursor);
+	drag->setDragCursor(cursor.pixmap().scaled(QSize(32, 32)), Qt::MoveAction);
+	drag->setDragCursor(cursor.pixmap().scaled(QSize(32, 32)), Qt::CopyAction);
+	drag->setDragCursor(cursor.pixmap().scaled(QSize(32, 32)), Qt::IgnoreAction);*/
+
+	drag->exec(Qt::MoveAction | Qt::CopyAction | Qt::IgnoreAction);
 }
 
-void PVGuiQt::PVTabBar::dragged_outside()
+void PVGuiQt::PVTabBar::dragged_outside(QPoint point)
 {
 	stop_drag();
+	emit _tab_widget->emit_workspace_dragged_outside(point);
 }
 
 void PVGuiQt::PVTabBar::stop_drag()
@@ -273,7 +308,8 @@ int PVGuiQt::PVWorkspacesTabWidget::addTab(PVWorkspaceBase* workspace, const QSt
 
 void PVGuiQt::PVWorkspacesTabWidget::set_tab_width(int tab_width)
 {
-	QString str = QString("QTabBar::tab:selected { width: %1px; color: rgba(0, 0, 0, %2%);}").arg(tab_width).arg((float)tab_width / _tab_animated_width * 100);
+	//QString str = QString("QTabBar::tab:selected { width: %1px; color: rgba(0, 0, 0, %2%);}").arg(tab_width).arg((float)tab_width / _tab_animated_width * 100);
+	QString str = QString("QTabBar::tab:selected { width: %1px;}").arg(tab_width);
 	_tab_animation_ongoing = tab_width != _tab_animated_width;
 	tabBar()->setStyleSheet(_tab_animation_ongoing ? str : "");
 }
@@ -331,15 +367,37 @@ void PVGuiQt::PVWorkspacesTabWidget::remove_workspace(int index)
 		assert(false); // Unknown workspace type
 	}
 
-	blockSignals(true);
-	removeTab(index);
-	blockSignals(false);
+	QPropertyAnimation* animation = new QPropertyAnimation(this, "tab_width");
+	connect(
+		animation,
+		SIGNAL(stateChanged(QAbstractAnimation::State, QAbstractAnimation::State)),
+		this,
+		SLOT(animation_state_changed(QAbstractAnimation::State, QAbstractAnimation::State))
+	);
+	animation->setDuration(TAB_OPENING_EFFECT_MSEC);
+	animation->setEndValue(25);
+	_tab_animated_width = _tab_bar->tabSizeHint(index).width();
+	animation->setStartValue(_tab_animated_width);
+	animation->start();
+}
 
-	if(count() == 0) {
-		emit is_empty();
-		hide();
-	}
-	else {
-		setCurrentIndex(std::min(index, count()-1));
+void PVGuiQt::PVWorkspacesTabWidget::animation_state_changed(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state)
+{
+	if (new_state == QAbstractAnimation::Stopped && old_state == QAbstractAnimation::Running)
+	{
+		tabBar()->setStyleSheet("");
+
+		int index = currentIndex();
+		blockSignals(true);
+		removeTab(index);
+		blockSignals(false);
+
+		if(count() == 0) {
+			emit is_empty();
+			hide();
+		}
+		else {
+			setCurrentIndex(std::min(index, count()-1));
+		}
 	}
 }

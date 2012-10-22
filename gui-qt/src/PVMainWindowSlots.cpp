@@ -565,6 +565,13 @@ void PVInspector::PVMainWindow::project_load_Slot()
 #endif
 }
 
+void PVInspector::PVMainWindow::create_new_scene_for_workspace(QPoint pt)
+{
+	PVMainWindow* other = new PVMainWindow();
+	other->move(pt);
+	other->show();
+}
+
 bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p ar)
 {
 	// Fix errors due to invalid file paths

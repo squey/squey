@@ -79,7 +79,7 @@ public:
 protected:
 	bool eventFilter(QObject* obj, QEvent *event)
 	{
-		if (event->type() == QEvent::Enter) { //QEvent::FocusIn
+		if (event->type() == QEvent::FocusIn) {
 			_parent->set_current_view();
 			return true;
 		}

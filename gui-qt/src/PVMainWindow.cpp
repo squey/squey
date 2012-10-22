@@ -125,6 +125,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 
 	_workspaces_tab_widget = new PVGuiQt::PVWorkspacesTabWidget(_scene.get(), this);
 	connect(_workspaces_tab_widget, SIGNAL(workspace_closed(Picviz::PVSource*)), this, SLOT(close_source(Picviz::PVSource*)));
+	connect(_workspaces_tab_widget, SIGNAL(workspace_dragged_outside(QPoint)), this, SLOT(create_new_scene_for_workspace(QPoint)));
 
 	// We display the PV Icon together with a button to import files
 	pv_centralStartWidget = new QWidget();
@@ -1707,20 +1708,18 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 		return false;
 	}
 
-	//auto first_view_p = src->get_children<Picviz::PVView>().at(0);
-	Picviz::PVView_sp first_view_p = src->current_view()->shared_from_this();
-	// Ask PVGL to create a GL-View from the previous transient view
-	/*message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
-	message.pv_view = first_view_p;
-	pvsdk_messenger->post_message_to_gl(message);*/
-
 	PVGuiQt::PVWorkspace* workspace = new PVGuiQt::PVWorkspace(src.get());
 	int new_tab_index = _workspaces_tab_widget->addTab(workspace, src->get_name());
 
-	PVGuiQt::PVListingView* listing_view = workspace->create_listing_view(first_view_p);
-	workspace->set_central_display(first_view_p.get(), listing_view, "Listing [" + first_view_p->get_name() + "]");
+	if (src->get_children<Picviz::PVView>().size() > 0) {
+		Picviz::PVView_sp first_view_p = src->get_children<Picviz::PVView>().at(0);
+		first_view_p->get_parent<Picviz::PVScene>()->select_view(*first_view_p);
 
-	workspace->create_parallel_view(first_view_p.get());
+		PVGuiQt::PVListingView* listing_view = workspace->create_listing_view(first_view_p);
+		workspace->set_central_display(first_view_p.get(), listing_view, "Listing [" + first_view_p->get_name() + "]");
+
+		workspace->create_parallel_view(first_view_p.get());
+	}
 
 	//connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
 	//connect(current_tab, SIGNAL(source_changed()), this, SLOT(project_modified_Slot()));

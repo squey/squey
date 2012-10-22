@@ -7,6 +7,9 @@
 #ifndef __PVGUIQT_PVWORKSPACESTABWIDGET_H__
 #define __PVGUIQT_PVWORKSPACESTABWIDGET_H__
 
+#include <pvkernel/core/lambda_connect.h>
+
+#include <QApplication>
 #include <QTabWidget>
 #include <QTimer>
 #include <QTabBar>
@@ -15,6 +18,8 @@
 #include <QPoint>
 #include <QObject>
 #include <QDrag>
+#include <QLineEdit>
+#include <QPropertyAnimation>
 
 #include <iostream>
 
@@ -29,20 +34,24 @@ namespace PVGuiQt
 
 class PVWorkspaceBase;
 class PVWorkspacesTabWidget;
+class PVTabBar;
 
 class DragNDropTransparencyHack : public QObject
 {
 public:
-	bool eventFilter(QObject* watched, QEvent* event) {
-		if (event->type() == QEvent::Move) {
-			QWidget *window = qobject_cast<QWidget*>(watched);
-			if (window && QLatin1String("QShapedPixmapWidget") == window->metaObject()->className()) {
-				window->setAttribute(Qt::WA_TranslucentBackground);
-				window->clearMask();
-			}
-		}
-		return false;
-	}
+	bool eventFilter(QObject* watched, QEvent* event);
+};
+
+class TabRenamerEventFilter : public QObject
+{
+public:
+	TabRenamerEventFilter(PVTabBar* tab_bar, int index, QLineEdit* line_edit) : _tab_bar(tab_bar), _index(index), _line_edit(line_edit) {}
+
+	bool eventFilter(QObject* watched, QEvent* event);
+private:
+	PVTabBar* _tab_bar;
+	int _index;
+	QLineEdit* _line_edit;
 };
 
 class PVDrag : public QDrag
@@ -50,16 +59,17 @@ class PVDrag : public QDrag
 	Q_OBJECT
 
 public:
-	PVDrag(QWidget* dragSource) : QDrag(dragSource) {}
+	PVDrag(QWidget* drag_source) : QDrag(drag_source) {}
+
 	~PVDrag()
 	{
 		if(!target()) {
-			emit dragged_outside();
+			emit dragged_outside(QCursor::pos());
 		}
 	}
 
 signals:
-	void dragged_outside();
+	void dragged_outside(QPoint pt);
 };
 
 class PVTabBar : public QTabBar
@@ -81,7 +91,7 @@ protected:
 	void keyPressEvent(QKeyEvent* event) override;
 
 public slots:
-	void dragged_outside();
+	void dragged_outside(QPoint);
 
 private:
 	void start_drag(QWidget* workspace);
@@ -111,6 +121,7 @@ protected:
 	void tabInserted(int index) override;
 
 signals:
+	void workspace_dragged_outside(QPoint);
 	void workspace_closed(Picviz::PVSource* source);
 	void is_empty();
 
@@ -121,6 +132,8 @@ private slots:
 	void tab_changed(int index);
 	int get_tab_width() const { return 0; }
 	void set_tab_width(int tab_width);
+	void emit_workspace_dragged_outside(QPoint pt) { emit workspace_dragged_outside(pt); }
+	void animation_state_changed(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state);
 
 private:
 	Picviz::PVScene* _scene = nullptr;
