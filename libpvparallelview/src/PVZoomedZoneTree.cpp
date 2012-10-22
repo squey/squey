@@ -289,7 +289,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 				bci.s.l = ((e.y1 - y_min) >> shift) & mask_int_ycoord;
 
 				int64_t d = (int64_t)e.y2 - (int64_t)e.y1;
-				double y2p = (double)e.y1 + d * beta;
+				double y2p = (double)e.y1 + d * (double)beta;
 
 				if (y2p >= y_lim) {
 					bci.s.type = pv_bci_code_t::DOWN;
@@ -388,7 +388,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 				bci.s.l = ((e.y2 - y_min) >> shift) & mask_int_ycoord;
 
 				int64_t d = (int64_t)e.y1 - (int64_t)e.y2;
-				double y1p = (double)e.y2 + d * beta;
+				double y1p = (double)e.y2 + d * (double)beta;
 
 				if (y1p >= y_lim) {
 					bci.s.type = pv_bci_code_t::DOWN;
@@ -492,7 +492,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 					                  bci.s.l = ((e.y1 - y_min) >> shift) & mask_int_ycoord;
 
 					                  int64_t d = (int64_t)e.y2 - (int64_t)e.y1;
-					                  double y2p = (double)e.y1 + d * beta;
+					                  double y2p = (double)e.y1 + d * (double)beta;
 
 					                  if (y2p >= y_lim) {
 						                  bci.s.type = pv_bci_code_t::DOWN;
@@ -612,7 +612,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 					                  bci.s.l = ((e.y2 - y_min) >> shift) & mask_int_ycoord;
 
 					                  int64_t d = (int64_t)e.y1 - (int64_t)e.y2;
-					                  double y1p = (double)e.y2 + d * beta;
+					                  double y1p = (double)e.y2 + d * (double)beta;
 
 					                  if (y1p >= y_lim) {
 						                  bci.s.type = pv_bci_code_t::DOWN;
