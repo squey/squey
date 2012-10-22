@@ -145,8 +145,8 @@ public:
 
 	void process_omp_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
 
-	inline size_t compute_selection_y1(PVRow t1, uint32_t y_min, uint32_t y_max,
-	                              Picviz::PVSelection &selection) const
+	inline size_t compute_selection_y1(PVRow t1, const uint64_t y_min, const uint64_t y_max,
+	                                   Picviz::PVSelection &selection) const
 	{
 		if (_initialized == false) {
 			return 0;
@@ -163,8 +163,8 @@ public:
 		return num;
 	}
 
-	inline size_t compute_selection_y2(PVRow t2, uint32_t y_min, uint32_t y_max,
-	                              Picviz::PVSelection &selection) const
+	inline size_t compute_selection_y2(PVRow t2, const uint64_t y_min, const uint64_t y_max,
+	                                   Picviz::PVSelection &selection) const
 	{
 		if (_initialized == false) {
 			return 0;
