@@ -28,8 +28,6 @@
 #define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 500
 #define TAB_OPENING_EFFECT_MSEC 200
 
-
-
 bool PVGuiQt::DragNDropTransparencyHack::eventFilter(QObject* watched, QEvent* event)
 {
 	if (event->type() == QEvent::Move) {
@@ -169,7 +167,7 @@ void PVGuiQt::PVTabBar::keyPressEvent(QKeyEvent* event)
 void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
 {
 	_drag_ongoing = true;
-	PVDrag* drag = new PVDrag(this);
+	QDrag* drag = new QDrag(this);
 
 	connect(drag, SIGNAL(dragged_outside(QPoint)), this, SLOT(dragged_outside(QPoint)));
 
@@ -179,7 +177,8 @@ void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
 	byte_array.reserve(sizeof(void*));
 	byte_array.append((const char*)workspace, sizeof(void*));
 
-	mimeData->setData("application/x-picviz_workspace", byte_array);
+	//mimeData->setData("application/x-picviz_workspace", byte_array);
+	mimeData->setData("text/plain", byte_array);
 
 	drag->setMimeData(mimeData);
 
@@ -197,17 +196,19 @@ void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
 	drag->setPixmap(transparent);
 	qApp->installEventFilter(new DragNDropTransparencyHack());
 
-	/*QCursor cursor = QCursor(Qt::ClosedHandCursor);
-	drag->setDragCursor(cursor.pixmap().scaled(QSize(32, 32)), Qt::MoveAction);
-	drag->setDragCursor(cursor.pixmap().scaled(QSize(32, 32)), Qt::CopyAction);
-	drag->setDragCursor(cursor.pixmap().scaled(QSize(32, 32)), Qt::IgnoreAction);*/
+	QCursor cursor = QCursor(Qt::ClosedHandCursor);
+	drag->setDragCursor(cursor.pixmap(), Qt::MoveAction);
+	drag->setDragCursor(cursor.pixmap(), Qt::CopyAction);
 
-	drag->exec(Qt::MoveAction | Qt::CopyAction | Qt::IgnoreAction);
+	Qt::DropAction action = drag->exec(Qt::CopyAction | Qt::MoveAction | Qt::IgnoreAction);
+	if (action == Qt::IgnoreAction) {
+		dragged_outside(QCursor::pos());
+	}
+	stop_drag();
 }
 
 void PVGuiQt::PVTabBar::dragged_outside(QPoint point)
 {
-	stop_drag();
 	emit _tab_widget->emit_workspace_dragged_outside(point);
 }
 

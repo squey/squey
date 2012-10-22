@@ -54,24 +54,6 @@ private:
 	QLineEdit* _line_edit;
 };
 
-class PVDrag : public QDrag
-{
-	Q_OBJECT
-
-public:
-	PVDrag(QWidget* drag_source) : QDrag(drag_source) {}
-
-	~PVDrag()
-	{
-		if(!target()) {
-			emit dragged_outside(QCursor::pos());
-		}
-	}
-
-signals:
-	void dragged_outside(QPoint pt);
-};
-
 class PVTabBar : public QTabBar
 {
 	Q_OBJECT
@@ -90,11 +72,9 @@ protected:
 	void wheelEvent(QWheelEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 
-public slots:
-	void dragged_outside(QPoint);
-
 private:
 	void start_drag(QWidget* workspace);
+	void dragged_outside(QPoint);
 	void stop_drag();
 
 private:
