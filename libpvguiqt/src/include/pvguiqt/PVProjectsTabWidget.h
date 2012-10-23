@@ -24,6 +24,8 @@
 namespace PVGuiQt
 {
 
+class PVProjectsTabWidget;
+
 namespace __impl
 {
 
@@ -32,6 +34,7 @@ class PVSplitterHandle : public QSplitterHandle
 public:
 	PVSplitterHandle(Qt::Orientation orientation, QSplitter* parent = 0) : QSplitterHandle(orientation, parent) {}
 	void set_max_size(int max_size) { _max_size = max_size; }
+	int get_max_size() const { return _max_size; }
 
 protected:
 	void mouseMoveEvent(QMouseEvent* event) override
@@ -69,6 +72,7 @@ class PVProjectsTabWidget : public QWidget
 public:
 	PVProjectsTabWidget(QWidget* parent);
 	void add_source(Picviz::PVSource* source);
+	void collapse_tabs(bool collapse = true);
 
 private:
 	PVGuiQt::PVWorkspacesTabWidget* add_project(Picviz::PVScene* scene, const QString & text);

@@ -31,6 +31,14 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(QWidget* parent) : QWidget(par
 	connect(_tab_bar, SIGNAL(currentChanged(int)), _stacked_widget, SLOT(setCurrentIndex(int)));
 }
 
+void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* true */)
+{
+	int max_size = ((__impl::PVSplitterHandle*) _splitter->handle(1))->get_max_size();
+	QList<int> sizes;
+	sizes << (collapse ? 0 : max_size) << 1;
+	_splitter->setSizes(sizes);
+}
+
 PVGuiQt::PVWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::add_project(Picviz::PVScene* scene, const QString& text)
 {
 	PVGuiQt::PVWorkspacesTabWidget* workspace_tab_widget = new PVGuiQt::PVWorkspacesTabWidget(scene);
