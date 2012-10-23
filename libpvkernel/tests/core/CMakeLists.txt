@@ -89,7 +89,7 @@ declare_pv_test(Tcore_const_fwd "const_fwd.cpp" "pvkernel")
 
 # Bit count
 declare_pv_test(Tcore_bit_count "bit_count.cpp" "pvkernel;${QT_LIBRARIES};${OpenMP_LIBRARIES}")
-add_test(TestBitCount Tcore_bit_count)
+add_test(TestBitCount Tcore_bit_count 65535)
 
 # Bit visitor
 declare_pv_test(Tcore_visit_bits "visit_bits.cpp" "pvkernel;${QT_LIBRARIES};${OpenMP_LIBRARIES}")
