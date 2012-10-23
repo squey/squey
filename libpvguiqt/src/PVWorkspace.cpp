@@ -201,11 +201,11 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	_datatree_view_action->setToolTip(tr("toggle data tree visibility"));
 	connect(_datatree_view_action, SIGNAL(triggered(bool)), this, SLOT(show_datatree_view(bool)));
 	_toolbar->addAction(_datatree_view_action);
-	PVRootTreeModel* datatree_model = new PVRootTreeModel(*_source);
+	/*PVRootTreeModel* datatree_model = new PVRootTreeModel(*_source);
 	PVRootTreeView* data_tree_view = new PVRootTreeView(datatree_model);
 	PVGuiQt::PVViewDisplay* data_tree_view_display = add_view_display(nullptr, data_tree_view, "Data tree", false, Qt::RightDockWidgetArea);
 	connect(data_tree_view_display, SIGNAL(display_closed()), this, SLOT(check_datatree_button()));
-	check_datatree_button(true);
+	check_datatree_button(true);*/
 
 	// Layerstack views toolbar button
 	_layerstack_tool_button = new QToolButton(_toolbar);

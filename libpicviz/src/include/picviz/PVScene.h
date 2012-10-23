@@ -55,6 +55,8 @@ public:
 	~PVScene();
 
 public:
+	const QString & get_name() const { return _name; }
+
 	PVSource* current_source();
 	PVSource const* current_source() const;
 	void select_source(PVSource* source);

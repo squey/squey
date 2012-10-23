@@ -212,7 +212,7 @@ public slots:
 	void display_icon_Slot();
 	bool load_project(const QString &file);
 
-	void create_new_scene_for_workspace(QPoint pt);
+	void create_new_scene_for_workspace(QWidget* workspace);
 
 protected:
 	void closeEvent(QCloseEvent* event);

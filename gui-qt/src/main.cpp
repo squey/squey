@@ -12,6 +12,8 @@
 #include <QString>
 #include <QTextStream>
 #include <QTextCodec>
+#include <QObject>
+#include <QWidget>
 
 #include <PVMainWindow.h>
 #include <PVCustomStyle.h>
@@ -39,6 +41,22 @@
 // #ifdef USE_UNIKEY
   // #include <UniKeyFR.h>
 // #endif
+
+class DragNDropTransparencyHack : public QObject
+{
+public:
+	bool eventFilter(QObject* watched, QEvent* event)
+	{
+		if (event->type() == QEvent::Move) {
+			QWidget *window = qobject_cast<QWidget*>(watched);
+			if (window && QLatin1String("QShapedPixmapWidget") == window->metaObject()->className()) {
+				window->setAttribute(Qt::WA_TranslucentBackground);
+				window->clearMask();
+			}
+		}
+		return false;
+	}
+};
 
 namespace bpo = boost::program_options;
 
@@ -138,6 +156,7 @@ int main(int argc, char *argv[])
 	app.setOrganizationName("PICVIZ Labs");
 	app.setApplicationName("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR);
 	app.setWindowIcon(QIcon(":/picviz"));
+	app.installEventFilter(new DragNDropTransparencyHack());
 
 	pv_mw->show();
 

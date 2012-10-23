@@ -565,11 +565,22 @@ void PVInspector::PVMainWindow::project_load_Slot()
 #endif
 }
 
-void PVInspector::PVMainWindow::create_new_scene_for_workspace(QPoint pt)
+void PVInspector::PVMainWindow::create_new_scene_for_workspace(QWidget* workspace)
 {
 	PVMainWindow* other = new PVMainWindow();
-	other->move(pt);
+	other->move(QCursor::pos());
 	other->show();
+
+	other->menu_activate_is_file_opened(true);
+	other->show_start_page(false);
+	other->_workspaces_tab_widget->setVisible(true);
+	other->set_project_modified(true);
+
+	int tab_index = _workspaces_tab_widget->indexOf(workspace);
+	QString workspace_title = _workspaces_tab_widget->tabText(tab_index);
+
+	_workspaces_tab_widget->remove_workspace(tab_index, false /*do not close source*/ );
+	other->_workspaces_tab_widget->addTab((PVGuiQt::PVWorkspaceBase*) workspace, workspace_title);
 }
 
 bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p ar)

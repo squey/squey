@@ -240,6 +240,7 @@ void Picviz::PVSource::create_default_view()
 	for (PVMapped_p& m: get_children()) {
 		PVPlotted_p def_plotted(m);
 		PVView_p def_view(def_plotted);
+		def_view->get_parent<PVScene>()->select_view(*def_view);
 		process_from_source();
 	}
 }

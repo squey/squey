@@ -36,12 +36,6 @@ class PVWorkspaceBase;
 class PVWorkspacesTabWidget;
 class PVTabBar;
 
-class DragNDropTransparencyHack : public QObject
-{
-public:
-	bool eventFilter(QObject* watched, QEvent* event);
-};
-
 class TabRenamerEventFilter : public QObject
 {
 public:
@@ -74,7 +68,6 @@ protected:
 
 private:
 	void start_drag(QWidget* workspace);
-	void dragged_outside(QPoint);
 	void stop_drag();
 
 private:
@@ -92,16 +85,17 @@ class PVWorkspacesTabWidget : public QTabWidget
 
 public:
 	PVWorkspacesTabWidget(Picviz::PVScene* scene, QWidget* parent = 0);
+	Picviz::PVScene* get_scene() { return _scene; }
 	void set_scene(Picviz::PVScene* scene) { _scene = scene; }
-	void remove_workspace(int index);
-	int addTab(PVWorkspaceBase* page, const QString & label, bool animation = true);
+	void remove_workspace(int index, bool close_source = true);
+	int addTab(PVWorkspaceBase* page, const QString & label);
 	int count() const;
 
 protected:
 	void tabInserted(int index) override;
 
 signals:
-	void workspace_dragged_outside(QPoint);
+	void workspace_dragged_outside(QWidget*);
 	void workspace_closed(Picviz::PVSource* source);
 	void is_empty();
 
@@ -112,7 +106,7 @@ private slots:
 	void tab_changed(int index);
 	int get_tab_width() const { return 0; }
 	void set_tab_width(int tab_width);
-	void emit_workspace_dragged_outside(QPoint pt) { emit workspace_dragged_outside(pt); }
+	void emit_workspace_dragged_outside(QWidget* workspace) { emit workspace_dragged_outside(workspace); }
 	void animation_state_changed(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state);
 
 private:

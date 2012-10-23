@@ -125,7 +125,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 
 	_workspaces_tab_widget = new PVGuiQt::PVWorkspacesTabWidget(_scene.get(), this);
 	connect(_workspaces_tab_widget, SIGNAL(workspace_closed(Picviz::PVSource*)), this, SLOT(close_source(Picviz::PVSource*)));
-	connect(_workspaces_tab_widget, SIGNAL(workspace_dragged_outside(QPoint)), this, SLOT(create_new_scene_for_workspace(QPoint)));
+	connect(_workspaces_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_scene_for_workspace(QWidget*)));
 
 	// We display the PV Icon together with a button to import files
 	pv_centralStartWidget = new QWidget();

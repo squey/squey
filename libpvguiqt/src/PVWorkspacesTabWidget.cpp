@@ -28,17 +28,6 @@
 #define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 500
 #define TAB_OPENING_EFFECT_MSEC 200
 
-bool PVGuiQt::DragNDropTransparencyHack::eventFilter(QObject* watched, QEvent* event)
-{
-	if (event->type() == QEvent::Move) {
-		QWidget *window = qobject_cast<QWidget*>(watched);
-		if (window && QLatin1String("QShapedPixmapWidget") == window->metaObject()->className()) {
-			window->setAttribute(Qt::WA_TranslucentBackground);
-			window->clearMask();
-		}
-	}
-	return false;
-}
 
 bool PVGuiQt::TabRenamerEventFilter::eventFilter(QObject* watched, QEvent* event)
 {
@@ -100,13 +89,7 @@ void PVGuiQt::PVTabBar::mouseDoubleClickEvent(QMouseEvent* event)
 		line_edit->show();
 		line_edit->setFocus();
 		line_edit->setSelection(0, tabText(index).length());
-
 		line_edit->installEventFilter(new TabRenamerEventFilter(this, index, line_edit));
-
-		/*::connect(line_edit, SIGNAL(editingFinished()), [=] {
-			setTabText(index, line_edit->text());
-			line_edit->deleteLater();
-		});*/
 	}
 }
 
@@ -141,10 +124,20 @@ void PVGuiQt::PVTabBar::leaveEvent(QEvent* ev)
 
 void PVGuiQt::PVTabBar::wheelEvent(QWheelEvent* event)
 {
+	// Prevent mouse wheel to trigger the creation of a new open workspace
 	if (currentIndex() == count()-1 && event->delta() < 0) {
 		return;
 	}
 	QTabBar::wheelEvent(event);
+}
+
+void PVGuiQt::PVTabBar::keyPressEvent(QKeyEvent* event)
+{
+	// Prevent keyboard to trigger the creation of a new open workspace
+	if (currentIndex() == count()-1 && event->key() == Qt::Key_Right) {
+		return;
+	}
+	QTabBar::keyPressEvent(event);
 }
 
 void PVGuiQt::PVTabBar::mousePressEvent(QMouseEvent* event)
@@ -152,16 +145,7 @@ void PVGuiQt::PVTabBar::mousePressEvent(QMouseEvent* event)
 	if (event->button() == Qt::LeftButton) {
 		_drag_start_position = event->pos();
 	}
-
 	QTabBar::mousePressEvent(event);
-}
-
-void PVGuiQt::PVTabBar::keyPressEvent(QKeyEvent* event)
-{
-	if (currentIndex() == count()-1 && event->key() == Qt::Key_Right) {
-		return;
-	}
-	QTabBar::keyPressEvent(event);
 }
 
 void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
@@ -169,16 +153,14 @@ void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
 	_drag_ongoing = true;
 	QDrag* drag = new QDrag(this);
 
-	connect(drag, SIGNAL(dragged_outside(QPoint)), this, SLOT(dragged_outside(QPoint)));
-
 	QMimeData* mimeData = new QMimeData;
 
 	QByteArray byte_array;
 	byte_array.reserve(sizeof(void*));
 	byte_array.append((const char*)workspace, sizeof(void*));
 
-	//mimeData->setData("application/x-picviz_workspace", byte_array);
-	mimeData->setData("text/plain", byte_array);
+	mimeData->setData("application/x-picviz_workspace", byte_array);
+	//mimeData->setData("text/plain", byte_array);
 
 	drag->setMimeData(mimeData);
 
@@ -191,31 +173,25 @@ void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
 	p.setCompositionMode(QPainter::CompositionMode_Source);
 	p.drawPixmap(0, 0, QPixmap::fromImage(opaque));
 	p.setCompositionMode(QPainter::CompositionMode_DestinationIn);
-	p.fillRect(transparent.rect(), QColor(0, 0, 0, 150));
+	p.fillRect(transparent.rect(), QColor(0, 0, 0, 75));
 	p.end();
 	drag->setPixmap(transparent);
-	qApp->installEventFilter(new DragNDropTransparencyHack());
 
-	QCursor cursor = QCursor(Qt::ClosedHandCursor);
+	QCursor cursor = QCursor(Qt::WaitCursor);
 	drag->setDragCursor(cursor.pixmap(), Qt::MoveAction);
 	drag->setDragCursor(cursor.pixmap(), Qt::CopyAction);
+	drag->setDragCursor(cursor.pixmap(), Qt::IgnoreAction);
 
-	Qt::DropAction action = drag->exec(Qt::CopyAction | Qt::MoveAction | Qt::IgnoreAction);
+	Qt::DropAction action = drag->exec(Qt::CopyAction | Qt::IgnoreAction | Qt::MoveAction | Qt::IgnoreAction);
 	if (action == Qt::IgnoreAction) {
-		dragged_outside(QCursor::pos());
+		emit _tab_widget->emit_workspace_dragged_outside(workspace);
 	}
 	stop_drag();
-}
-
-void PVGuiQt::PVTabBar::dragged_outside(QPoint point)
-{
-	emit _tab_widget->emit_workspace_dragged_outside(point);
 }
 
 void PVGuiQt::PVTabBar::stop_drag()
 {
 	_drag_ongoing = false;
-	qApp->installEventFilter(new QObject());
 }
 
 /******************************************************************************
@@ -262,7 +238,7 @@ int PVGuiQt::PVWorkspacesTabWidget::count() const
 void PVGuiQt::PVWorkspacesTabWidget::tab_changed(int index)
 {
 	if (index == count()) {
-		addTab(new PVOpenWorkspace(this), "Open workspace", true);
+		addTab(new PVOpenWorkspace(this), "Open workspace");
 		setCurrentIndex(count()-1);
 	}
 	else {
@@ -275,7 +251,7 @@ void PVGuiQt::PVWorkspacesTabWidget::tab_changed(int index)
 	}
 }
 
-int PVGuiQt::PVWorkspacesTabWidget::addTab(PVWorkspaceBase* workspace, const QString & label, bool animation /* = true */)
+int PVGuiQt::PVWorkspacesTabWidget::addTab(PVWorkspaceBase* workspace, const QString & label)
 {
 	tabBar()->setCursor(Qt::ArrowCursor);
 
@@ -295,7 +271,7 @@ int PVGuiQt::PVWorkspacesTabWidget::addTab(PVWorkspaceBase* workspace, const QSt
 	int index = insertTab(insert_index, workspace, label);
 	setCurrentIndex(index);
 
-	if (animation) {
+	if (true) {
 		QPropertyAnimation* animation = new QPropertyAnimation(this, "tab_width");
 		animation->setDuration(TAB_OPENING_EFFECT_MSEC);
 		animation->setStartValue(25);
@@ -351,14 +327,16 @@ void PVGuiQt::PVWorkspacesTabWidget::tabCloseRequested_Slot(int index)
 	remove_workspace(index);
 }
 
-void PVGuiQt::PVWorkspacesTabWidget::remove_workspace(int index)
+void PVGuiQt::PVWorkspacesTabWidget::remove_workspace(int index, bool close_source /*= true*/)
 {
 	assert(index != -1);
 	PVGuiQt::PVWorkspaceBase* workspace = qobject_cast<PVGuiQt::PVWorkspaceBase*>(widget(index));
 
 	if (PVWorkspace* w = qobject_cast<PVWorkspace*>(workspace)) {
 		_workspaces_count--;
-		emit workspace_closed(w->get_source());
+		if (close_source) {
+			emit workspace_closed(w->get_source());
+		}
 	}
 	else if (qobject_cast<PVOpenWorkspace*>(workspace)) {
 		_openworkspaces_count--;
@@ -384,8 +362,7 @@ void PVGuiQt::PVWorkspacesTabWidget::remove_workspace(int index)
 
 void PVGuiQt::PVWorkspacesTabWidget::animation_state_changed(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state)
 {
-	if (new_state == QAbstractAnimation::Stopped && old_state == QAbstractAnimation::Running)
-	{
+	if (new_state == QAbstractAnimation::Stopped && old_state == QAbstractAnimation::Running) {
 		tabBar()->setStyleSheet("");
 
 		int index = currentIndex();
