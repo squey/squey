@@ -15,7 +15,7 @@ namespace PVParallelView {
 template <size_t N>
 class PVBCIBuffers
 {
-	static_assert(NBUCKETS % 16 == 0, "NBUCKETS must be a multiple of 16.");
+	static_assert(PARALLELVIEW_MAX_BCI_CODES % 16 == 0, "PARALLELVIEW_MAX_BCI_CODES must be a multiple of 16.");
 	static_assert(N >= 2, "The number of BCI buffers must be >= 2.");
 
 	typedef PVBCICode<> bci_type;
@@ -24,7 +24,7 @@ class PVBCIBuffers
 public:
 	PVBCIBuffers()
 	{
-		_codes = reinterpret_cast<int_type*>(bci_type::allocate_codes(NBUCKETS*N));
+		_codes = reinterpret_cast<int_type*>(bci_type::allocate_codes(PARALLELVIEW_MAX_BCI_CODES*N));
 		_free_bufs.set_capacity(N);
 		for (size_t i = 0; i < N; i++) {
 			_free_bufs.push(get_buffer_n(i));
@@ -50,7 +50,7 @@ public:
 	{
 		int_type* buf = reinterpret_cast<int_type*>(bci_buf);
 		assert(buf >= _codes && buf < get_buffer_n(N));
-		assert(std::distance(_codes, buf) % NBUCKETS == 0);
+		assert(std::distance(_codes, buf) % PARALLELVIEW_MAX_BCI_CODES == 0);
 #ifdef NDEBUG
 		_free_bufs.try_push(buf);
 #else
@@ -62,7 +62,7 @@ private:
 	int_type* get_buffer_n(size_t i)
 	{
 		assert(i <= N);
-		int_type* const ret = &_codes[NBUCKETS*i];
+		int_type* const ret = &_codes[PARALLELVIEW_MAX_BCI_CODES*i];
 		assert((uintptr_t)ret % 16 == 0);
 		return ret;
 	}
