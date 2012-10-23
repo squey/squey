@@ -145,7 +145,7 @@ template <typename T> T max(const T& value1, const T& value2)
 
 inline uint64_t upper_power_of_2(uint64_t v)
 {
-	const uint64_t MantissaMask = (1UL<<52) - 1;
+	constexpr static uint64_t MantissaMask = (1UL<<52) - 1;
 
 #ifdef __GNUG__
 #pragma GCC diagnostic push
