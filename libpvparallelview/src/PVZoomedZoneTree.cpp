@@ -21,6 +21,68 @@
 #define SEC_COORD_COUNT 2048
 
 /*****************************************************************************
+ * compute_bci_projection_y1
+ *****************************************************************************/
+
+static inline void compute_bci_projection_y1(const uint64_t y1,
+                                             const uint64_t y2,
+                                             const uint64_t y_min,
+                                             const uint64_t y_lim,
+                                             const int shift,
+                                             const uint32_t mask,
+                                             const uint32_t width,
+                                             const float beta,
+                                             PVParallelView::PVZoomedZoneTree::pv_bci_code_t &bci)
+{
+	bci.s.l = ((y2 - y_min) >> shift) & mask;
+
+	int64_t d = (int64_t)y1 - (int64_t)y2;
+	double y1p = (double)y2 + d * (double)beta;
+
+	if (y1p >= y_lim) {
+		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::DOWN;
+		bci.s.r = ((double)width * (double)(y_lim - y2)) / (double)(y1p - y2);
+	} else if (y1p <= y_min) {
+		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::UP;
+		bci.s.r = ((double)width * (double)(y2 - y_min)) / (double)(y2 - y1p);
+	} else {
+		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::STRAIGHT;
+		bci.s.r = (((uint32_t)(y1p - y_min)) >> shift) & mask;
+	}
+}
+
+/*****************************************************************************
+ * compute_bci_projection_y2
+ *****************************************************************************/
+
+static inline void compute_bci_projection_y2(const uint64_t y1,
+                                             const uint64_t y2,
+                                             const uint64_t y_min,
+                                             const uint64_t y_lim,
+                                             const int shift,
+                                             const uint32_t mask,
+                                             const uint32_t width,
+                                             const float beta,
+                                             PVParallelView::PVZoomedZoneTree::pv_bci_code_t &bci)
+{
+	bci.s.l = ((y1 - y_min) >> shift) & mask;
+
+	int64_t dy = (int64_t)y2 - (int64_t)y1;
+	double y2p = (double)y1 + dy * (double)beta;
+
+	if (y2p >= y_lim) {
+		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::DOWN;
+		bci.s.r = ((double)width * (double)(y_lim - y1)) / (double)(y2p - y1);
+	} else if (y2p <= y_min) {
+		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::UP;
+		bci.s.r = ((double)width * (double)(y1 - y_min)) / (double)(y1 - y2p);
+	} else {
+		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::STRAIGHT;
+		bci.s.r = (((uint32_t)(y2p - y_min)) >> shift) & mask;
+	}
+}
+
+/*****************************************************************************
  * PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree
  *****************************************************************************/
 
@@ -286,21 +348,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 
 				bci.s.idx = e.idx;
 				bci.s.color = colors[e.idx].h();
-				bci.s.l = ((e.y1 - y_min) >> shift) & mask_int_ycoord;
-
-				int64_t d = (int64_t)e.y2 - (int64_t)e.y1;
-				double y2p = (double)e.y1 + d * (double)beta;
-
-				if (y2p >= y_lim) {
-					bci.s.type = pv_bci_code_t::DOWN;
-					bci.s.r = ((double)width * (double)(y_lim - e.y1)) / (double)(y2p - e.y1);
-				} else if (y2p <= y_min) {
-					bci.s.type = pv_bci_code_t::UP;
-					bci.s.r = ((double)width * (double)(e.y1 - y_min)) / (double)(e.y1 - y2p);
-				} else {
-					bci.s.type = pv_bci_code_t::STRAIGHT;
-					bci.s.r = (((uint32_t)(y2p - y_min)) >> shift) & mask_int_ycoord;
-				}
+				compute_bci_projection_y2(e.y1, e.y2, y_min, y_lim,
+				                          shift, mask_int_ycoord,
+				                          width, beta, bci);
 
 				/* zoom make some entries having the same BCI codes. It is also useless
 				 * to render all of them.
@@ -385,21 +435,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 
 				bci.s.idx = e.idx;
 				bci.s.color = colors[e.idx].h();
-				bci.s.l = ((e.y2 - y_min) >> shift) & mask_int_ycoord;
-
-				int64_t d = (int64_t)e.y1 - (int64_t)e.y2;
-				double y1p = (double)e.y2 + d * (double)beta;
-
-				if (y1p >= y_lim) {
-					bci.s.type = pv_bci_code_t::DOWN;
-					bci.s.r = ((double)width * (double)(y_lim - e.y2)) / (double)(y1p - e.y2);
-				} else if (y1p <= y_min) {
-					bci.s.type = pv_bci_code_t::UP;
-					bci.s.r = ((double)width * (double)(e.y2 - y_min)) / (double)(e.y2 - y1p);
-				} else {
-					bci.s.type = pv_bci_code_t::STRAIGHT;
-					bci.s.r = (((uint32_t)(y1p - y_min)) >> shift) & mask_int_ycoord;
-				}
+				compute_bci_projection_y1(e.y1, e.y2, y_min, y_lim,
+				                          shift, mask_int_ycoord,
+				                          width, beta, bci);
 
 				/* zoom make some entries having the same BCI codes. It is also useless
 				 * to render all of them.
@@ -489,21 +527,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 
 					                  bci.s.idx = e.idx;
 					                  bci.s.color = colors[e.idx].h();
-					                  bci.s.l = ((e.y1 - y_min) >> shift) & mask_int_ycoord;
-
-					                  int64_t d = (int64_t)e.y2 - (int64_t)e.y1;
-					                  double y2p = (double)e.y1 + d * (double)beta;
-
-					                  if (y2p >= y_lim) {
-						                  bci.s.type = pv_bci_code_t::DOWN;
-						                  bci.s.r = ((double)width * (double)(y_lim - e.y1)) / (double)(y2p - e.y1);
-					                  } else if (y2p <= y_min) {
-						                  bci.s.type = pv_bci_code_t::UP;
-						                  bci.s.r = ((double)width * (double)(e.y1 - y_min)) / (double)(e.y1 - y2p);
-					                  } else {
-						                  bci.s.type = pv_bci_code_t::STRAIGHT;
-						                  bci.s.r = (((uint32_t)(y2p - y_min)) >> shift) & mask_int_ycoord;
-					                  }
+					                  compute_bci_projection_y2(e.y1, e.y2, y_min, y_lim,
+					                                            shift, mask_int_ycoord,
+					                                            width, beta, bci);
 
 					                  /* zoom make some entries having the same BCI codes. It is also useless
 					                   * to render all of them.
@@ -609,21 +635,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 
 					                  bci.s.idx = e.idx;
 					                  bci.s.color = colors[e.idx].h();
-					                  bci.s.l = ((e.y2 - y_min) >> shift) & mask_int_ycoord;
-
-					                  int64_t d = (int64_t)e.y1 - (int64_t)e.y2;
-					                  double y1p = (double)e.y2 + d * (double)beta;
-
-					                  if (y1p >= y_lim) {
-						                  bci.s.type = pv_bci_code_t::DOWN;
-						                  bci.s.r = ((double)width * (double)(y_lim - e.y2)) / (double)(y1p - e.y2);
-					                  } else if (y1p <= y_min) {
-						                  bci.s.type = pv_bci_code_t::UP;
-						                  bci.s.r = ((double)width * (double)(e.y2 - y_min)) / (double)(e.y2 - y1p);
-					                  } else {
-						                  bci.s.type = pv_bci_code_t::STRAIGHT;
-						                  bci.s.r = (((uint32_t)(y1p - y_min)) >> shift) & mask_int_ycoord;
-					                  }
+					                  compute_bci_projection_y1(e.y1, e.y2, y_min, y_lim,
+					                                            shift, mask_int_ycoord,
+					                                            width, beta, bci);
 
 					                  /* zoom make some entries having the same BCI codes. It is also useless
 					                   * to render all of them.

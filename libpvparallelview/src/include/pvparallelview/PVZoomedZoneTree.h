@@ -45,6 +45,8 @@ class PVZoomedZoneTree
 	                             const uint32_t count,
 	                             PVQuadTreeEntry *entries,
 	                             pv_quadtree_buffer_entry_t *buffer)> extract_entry_f;
+
+public:
 	typedef PVBCICode<bbits> pv_bci_code_t;
 
 public:
