@@ -134,6 +134,32 @@ template <typename T> T max(const T& value1, const T& value2)
 	return value1 > value2 ? value1 : value2;
 }
 
+/**
+ * Compute the upper power of 2 of a value.
+ *
+ * This is an adaptation for 64 bits number of the algorithm found at:
+ * http://www.gamedev.net/topic/229831-nearest-power-of-2/page__p__2494431#entry2494431
+ *
+ * @param v the value from which we want the upper power of 2
+ */
+
+inline uint64_t upper_power_of_2(uint64_t v)
+{
+	const uint64_t MantissaMask = (1UL<<52) - 1;
+
+#ifdef __GNUG__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
+
+	(*(double*)&v) = (double) v;
+	v = (v + MantissaMask) & ~MantissaMask;
+	return (uint64_t) (*(double*)&v);
+
+#ifdef __GNUG__
+#pragma GCC diagnostic pop
+#endif
+}
 
 }
 
