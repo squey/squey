@@ -98,8 +98,8 @@ protected:
 	typedef TimeFormatEpoch* TimeFormatEpoch_p;
 	typedef TimeFormatInterface* TimeFormatInterface_p;
 
-	boost::object_pool<TimeFormat> _alloc_tf;
-	boost::object_pool<TimeFormatEpoch> _alloc_tfe;
+	//boost::object_pool<TimeFormat> _alloc_tf;
+	//boost::object_pool<TimeFormatEpoch> _alloc_tfe;
 
 private:
 	static void destroy_tf(TimeFormat* p);

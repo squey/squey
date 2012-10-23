@@ -5,7 +5,11 @@
  */
 
 #include <pvkernel/core/PVBitCount.h>
+#include <pvkernel/core/picviz_bench.h>
 #include <iostream>
+
+#include <cstdlib>
+#include <ctime>
 
 size_t bit_count_ref(uint64_t v)
 {
@@ -29,9 +33,11 @@ size_t bit_count_ref(uint32_t v)
 	return ret;
 }
 
-int main()
+int main(int argc, char** argv)
 {
 	int ret = 0;
+
+	BENCH_START(b);
 #pragma omp parallel for
 	for (uint32_t i = 0; i < 0xFFFFFFFFUL; i++) {
 		size_t ref = bit_count_ref(i);
@@ -44,24 +50,44 @@ int main()
 			}
 		}
 	}
+	BENCH_END(b, "time", 1, 1, 1, 1);
 	if (ret) {
 		return ret;
 	}
 
 	std::cout << "32-bit tests done..." << std::endl;
 
-#pragma omp parallel for
-	for (uint64_t i = 0; i < 0xFFFFFFFFFFFFFFFFULL; i++) {
-		size_t ref = bit_count_ref(i);
-		size_t test = PVCore::PVBitCount::bit_count(i);
-		if (ref != test) {
-#pragma omp critical
-			{
-				std::cout << "bit count failed for 64-bit " << i << " : " << test << " vs. " << ref << " (ref)" << std::endl;
+	// For 64-bit tests, 2 modes: full-test (takes really a HUGE time, but that's the only
+	// way to be sure of our algorithms), or random mode.
+	if (argc >= 2) {
+		srand(time(NULL));
+		size_t n = atoll(argv[1]);
+		for (size_t i = 0; i < n; i++) {
+			uint64_t vrand = rand()*rand();
+			size_t ref = bit_count_ref(vrand);
+			size_t test = PVCore::PVBitCount::bit_count(vrand);
+			if (ref != test) {
+				std::cerr << "bit count failed for 64-bit " << i << " : " << test << " vs. " << ref << " (ref)" << std::endl;
 				ret = 1;
 			}
 		}
 	}
+	else {
+#pragma omp parallel for
+		for (uint64_t i = 0xFFFFFFFFULL; i < 0xFFFFFFFFFFFFFFFFULL; i++) {
+			size_t ref = bit_count_ref(i);
+			size_t test = PVCore::PVBitCount::bit_count(i);
+			if (ref != test) {
+#pragma omp critical
+				{
+					std::cerr << "bit count failed for 64-bit " << i << " : " << test << " vs. " << ref << " (ref)" << std::endl;
+					ret = 1;
+				}
+			}
+		}
+	}
+	
+	std::cout << "64-bit tests done..." << std::endl;
 
 	return ret;
 }

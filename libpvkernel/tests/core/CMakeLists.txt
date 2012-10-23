@@ -36,7 +36,7 @@ add_test(TestLogger Tcore_logger)
 
 # Time format parser test
 declare_pv_test(Tcore_timeformat "time-format.cpp" "pvkernel;${QT_LIBRARIES};${ICU_LIBRARY}")
-add_test(TestTimeformat Tcore_timeformat test-files/time_format)
+add_test(TestTimeformat Tcore_timeformat ${CMAKE_CURRENT_SOURCE_DIR}/test-files/time_format)
 
 # Time format performance
 declare_pv_test(Tcore_timeformat_perf "time-format-perf.cpp" "pvkernel;${QT_LIBRARIES};${ICU_LIBRARY}")
@@ -71,6 +71,7 @@ declare_pv_test(Tcore_transp "transp.cpp" "pvkernel;${QT_LIBRARIES}")
 
 # Data tree
 declare_pv_test(Tcore_datatree "datatree.cpp" "pvkernel;${QT_LIBRARIES}")
+add_test(TestDataTree Tcore_datatree)
 
 # Shared Pointer
 #add_executable(Tcore_shared_ptr shared_ptr.cpp)
@@ -88,9 +89,11 @@ declare_pv_test(Tcore_const_fwd "const_fwd.cpp" "pvkernel")
 
 # Bit count
 declare_pv_test(Tcore_bit_count "bit_count.cpp" "pvkernel;${QT_LIBRARIES};${OpenMP_LIBRARIES}")
+add_test(TestBitCount Tcore_bit_count 65535)
 
 # Bit visitor
 declare_pv_test(Tcore_visit_bits "visit_bits.cpp" "pvkernel;${QT_LIBRARIES};${OpenMP_LIBRARIES}")
+add_test(TestVisitBits Tcore_visit_bits)
 
 # POD tree
 declare_pv_test(Tcore_pod_tree "pod_tree.cpp" "pvkernel;${QT_LIBRARIES}")
@@ -106,6 +109,7 @@ declare_pv_test(Tcore_raid_test "raid_test.cpp" "pvkernel")
 
 # Decimal storage
 declare_pv_test(Tcore_decimal_storage "decimal_storage.cpp" "pvkernel")
+add_test(TestDecimalStorage Tcore_decimal_storage)
 
 # Huge POD vector
 declare_pv_test(Tcore_huge_vector "huge_vector.cpp" "pvkernel")

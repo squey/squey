@@ -10,7 +10,7 @@
 #include <boost/bind.hpp>
 
 #include <tbb/tick_count.h>
-#include <tbb/tbb_allocator.h>
+#include <tbb/scalable_allocator.h>
 
 /*boost::object_pool<PVCore::PVDateTimeParser::TimeFormat> PVCore::PVDateTimeParser::_alloc_tf;
 boost::object_pool<PVCore::PVDateTimeParser::TimeFormatEpoch> PVCore::PVDateTimeParser::_alloc_tfe;
@@ -59,9 +59,8 @@ PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format):
 
 	_last_match_time_format = NULL;
 	_time_format.resize(time_format.size());
-	static tbb::tbb_allocator<TimeFormatEpoch> alloc_epoch;
-	static tbb::tbb_allocator<TimeFormat> alloc_format;
-#pragma openmp parallel for
+	static tbb::scalable_allocator<TimeFormatEpoch> alloc_epoch;
+	static tbb::scalable_allocator<TimeFormat> alloc_format;
 	for (int i = 0; i < time_format.size(); i++) {
 		QString const& format_org = time_format.at(i);
 		bool is_epoch = (format_org.compare("epoch") == 0);
@@ -93,8 +92,8 @@ PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format):
 
 PVCore::PVDateTimeParser::~PVDateTimeParser()
 {
-	static tbb::tbb_allocator<TimeFormatEpoch> alloc_epoch;
-	static tbb::tbb_allocator<TimeFormat> alloc_format;
+	static tbb::scalable_allocator<TimeFormatEpoch> alloc_epoch;
+	static tbb::scalable_allocator<TimeFormat> alloc_format;
 	list_time_format::const_iterator it;
 	for (it = _time_format.begin(); it != _time_format.end(); it++) {
 		TimeFormatInterface* tfi = *it;
@@ -113,6 +112,8 @@ PVCore::PVDateTimeParser::~PVDateTimeParser()
 
 void PVCore::PVDateTimeParser::copy(const PVDateTimeParser& src)
 {
+	static tbb::scalable_allocator<TimeFormatEpoch> alloc_epoch;
+	static tbb::scalable_allocator<TimeFormat> alloc_format;
 	list_time_format::const_iterator it;
 	for (it = src._time_format.begin(); it != src._time_format.end(); it++) {
 		// Use RTII to find out the real type of the TimeFormatInterface object.
@@ -120,12 +121,14 @@ void PVCore::PVDateTimeParser::copy(const PVDateTimeParser& src)
 		TimeFormat* tf = dynamic_cast<TimeFormat*>(tfi);
 		if (tf == NULL) {
 			//TimeFormatEpoch_p ptfe(_alloc_tfe.construct(), boost::bind(&PVDateTimeParser::destroy_tfe, _1));
-			TimeFormatEpoch_p ptfe = _alloc_tfe.construct();
+			TimeFormatEpoch_p ptfe = alloc_epoch.allocate(1);
+			new (ptfe) TimeFormatEpoch();
 			_time_format.push_back(ptfe);
 		}
 		else {
 			//TimeFormat_p ptf(_alloc_tf.construct(*tf), boost::bind(&PVDateTimeParser::destroy_tf, _1));
-			TimeFormat_p ptf = _alloc_tf.construct(*tf);
+			TimeFormat_p ptf = alloc_format.allocate(1);
+			new (ptf) TimeFormat(*tf);
 			_time_format.push_back(ptf);
 		}
 	}
@@ -179,7 +182,7 @@ void PVCore::PVDateTimeParser::TimeFormat::create_parsers(QString const& time_fo
 	const Locale* list_locales = Locale::getAvailableLocales(nlocales);
 	UnicodeString pattern = icuFromQStringAlias(time_format);
 
-	static tbb::tbb_allocator<SimpleDateFormat> alloc;
+	static tbb::scalable_allocator<SimpleDateFormat> alloc;
 	_parsers = alloc.allocate(nlocales);
 	_nparsers = nlocales;
 	for (int il = 0; il < nlocales; il++) {
@@ -203,7 +206,7 @@ PVCore::PVDateTimeParser::TimeFormat::TimeFormat(const TimeFormat& src):
 
 PVCore::PVDateTimeParser::TimeFormat::~TimeFormat()
 {
-	static tbb::tbb_allocator<SimpleDateFormat> alloc;
+	static tbb::scalable_allocator<SimpleDateFormat> alloc;
 	if (_parsers) {
 		for (size_t i = 0; i < _nparsers; i++) {
 			SimpleDateFormat* psdf = &_parsers[i];
