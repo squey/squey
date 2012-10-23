@@ -91,14 +91,14 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 		memset(ztree._sel_elts, 0xFFFFFFFF, NBUCKETS * sizeof(ztree._sel_elts[0]));
 
 		for (auto &range : ranges) {
-			int64_t range_min = range.first;
-			int64_t range_max = range.second;
+			uint64_t range_min = range.first;
+			uint64_t range_max = range.second;
 
 			uint32_t zt_min = range_min / BUCKET_ELT_COUNT;
 			uint32_t zt_max = range_max / BUCKET_ELT_COUNT;
 
-			int64_t zt_range_min = zt_min * BUCKET_ELT_COUNT;
-			int64_t zt_range_max = zt_max * BUCKET_ELT_COUNT;
+			uint64_t zt_range_min = zt_min * (uint64_t)BUCKET_ELT_COUNT;
+			uint64_t zt_range_max = zt_max * (uint64_t)BUCKET_ELT_COUNT;
 
 			bool need_zzt_min = false;
 			uint32_t zzt_min_idx = 0;
@@ -114,6 +114,10 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 			if (zt_range_max != range_max) {
 				zzt_max_idx = zt_max;
 				need_zzt_max = true;
+			}
+
+			if (zzt_max_idx == 1024) {
+				need_zzt_max = false;
 			}
 
 			if (need_zzt_min && need_zzt_max && (zzt_min_idx == zzt_max_idx)) {
@@ -168,14 +172,14 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 		memset(ztree._sel_elts, 0xFFFFFFFF, NBUCKETS * sizeof(ztree._sel_elts[0]));
 
 		for (auto &range : ranges) {
-			int64_t range_min = PVCore::clamp(range.first, 0L, 1L << 32);
-			int64_t range_max = PVCore::clamp(range.second, 0L, 1L << 32);
+			uint64_t range_min = range.first;
+			uint64_t range_max = range.second;
 
 			uint32_t zt_min = range_min / BUCKET_ELT_COUNT;
 			uint32_t zt_max = range_max / BUCKET_ELT_COUNT;
 
-			int64_t zt_range_min = zt_min * BUCKET_ELT_COUNT;
-			int64_t zt_range_max = zt_max * BUCKET_ELT_COUNT;
+			uint64_t zt_range_min = zt_min * (uint64_t)BUCKET_ELT_COUNT;
+			uint64_t zt_range_max = zt_max * (uint64_t)BUCKET_ELT_COUNT;
 
 			bool need_zzt_min = false;
 			uint32_t zzt_min_idx = 0;
@@ -191,6 +195,10 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 			if (zt_range_max != range_max) {
 				zzt_max_idx = zt_max;
 				need_zzt_max = true;
+			}
+
+			if (zzt_max_idx == 1024) {
+				need_zzt_max = false;
 			}
 
 			if (need_zzt_min && need_zzt_max && (zzt_min_idx == zzt_max_idx)) {
