@@ -68,7 +68,6 @@ protected:
 
 private:
 	void start_drag(QWidget* workspace);
-	void stop_drag();
 
 private:
 	PVWorkspacesTabWidget* _tab_widget;
@@ -93,11 +92,13 @@ public:
 
 protected:
 	void tabInserted(int index) override;
+	void tabRemoved(int index) override;
 
 signals:
 	void workspace_dragged_outside(QWidget*);
 	void workspace_closed(Picviz::PVSource* source);
 	void is_empty();
+	void animation_finished();
 
 private slots:
 	void tabCloseRequested_Slot(int index);

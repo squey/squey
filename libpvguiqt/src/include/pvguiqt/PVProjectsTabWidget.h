@@ -12,6 +12,7 @@
 #include <picviz/PVScene.h>
 
 #include <pvguiqt/PVWorkspacesTabWidget.h>
+#include <pvguiqt/PVWorkspace.h>
 
 #include <QWidget>
 #include <QObject>
@@ -70,13 +71,26 @@ class PVProjectsTabWidget : public QWidget
 	Q_OBJECT
 
 public:
-	PVProjectsTabWidget(QWidget* parent);
-	void add_source(Picviz::PVSource* source);
+	PVProjectsTabWidget(QWidget* parent = 0);
+	PVWorkspace* add_source(Picviz::PVSource* source);
+	void add_workspace(PVWorkspace* workspace);
+	void remove_workspace(PVWorkspace* workspace, bool animation = true);
+	void remove_project(PVWorkspacesTabWidget* workspace_tab_widget);
 	void collapse_tabs(bool collapse = true);
+	inline PVWorkspacesTabWidget* current_project() const { return (PVWorkspacesTabWidget*) _stacked_widget->currentWidget(); }
+	inline PVWorkspaceBase* current_workspace() const { return  current_project() ? (PVWorkspaceBase*) current_project()->currentWidget() : nullptr; }
+	PVWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Picviz::PVScene* scene);
+
+private slots:
+	void emit_workspace_dragged_outside(QWidget* workspace) { emit workspace_dragged_outside(workspace); }
+	void close_project();
+
+signals:
+	void is_empty();
+	void workspace_dragged_outside(QWidget* workspace);
 
 private:
-	PVGuiQt::PVWorkspacesTabWidget* add_project(Picviz::PVScene* scene, const QString & text);
-	PVGuiQt::PVWorkspacesTabWidget* get_workspace_tab_widget_from_scene(Picviz::PVScene* scene);
+	PVWorkspacesTabWidget* add_project(Picviz::PVScene* scene, const QString & text);
 
 private:
 	__impl::PVSplitter* _splitter = nullptr;

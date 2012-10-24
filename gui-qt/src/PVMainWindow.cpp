@@ -78,6 +78,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	_scene(get_root_sp(), "root")
 {
 	setAttribute(Qt::WA_DeleteOnClose);
+	setAcceptDrops(true);
 
 	_is_project_untitled = true;
 	_ad2g_mw = NULL;
@@ -123,9 +124,9 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	pv_FilterWidget = new PVFilterWidget(this);
 	pv_FilterWidget->hide();
 
-	_workspaces_tab_widget = new PVGuiQt::PVWorkspacesTabWidget(_scene.get(), this);
-	connect(_workspaces_tab_widget, SIGNAL(workspace_closed(Picviz::PVSource*)), this, SLOT(close_source(Picviz::PVSource*)));
-	connect(_workspaces_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_scene_for_workspace(QWidget*)));
+	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget();
+	//connect(_workspaces_tab_widget, SIGNAL(workspace_closed(Picviz::PVSource*)), this, SLOT(close_source(Picviz::PVSource*)));
+	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_scene_for_workspace(QWidget*)));
 
 	// We display the PV Icon together with a button to import files
 	pv_centralStartWidget = new QWidget();
@@ -143,9 +144,9 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	pv_labelWelcomeIcon->resize(pv_welcomeIcon->width(), pv_welcomeIcon->height());
 
 	
-	connect(_workspaces_tab_widget, SIGNAL(is_empty()), this, SLOT(display_icon_Slot()) );
+	connect(_projects_tab_widget, SIGNAL(is_empty()), this, SLOT(display_icon_Slot()) );
 
-	pv_mainLayout->addWidget(_workspaces_tab_widget);
+	pv_mainLayout->addWidget(_projects_tab_widget);
 
 	pv_startLayout = new QVBoxLayout();
 	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -192,7 +193,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 
 	setCentralWidget(pv_centralWidget);
 
-	_workspaces_tab_widget->setFocus(Qt::OtherFocusReason);
+	_projects_tab_widget->setFocus(Qt::OtherFocusReason);
 
 
 	// RemoteLogDialog = new QMainWindow(this, Qt::Dialog);
@@ -237,6 +238,37 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	setStyleSheet(css_string);
 
 	show();
+}
+
+bool PVInspector::PVMainWindow::event(QEvent* event)
+{
+	QString mime_type = "application/x-picviz_workspace";
+
+	if(event->type() == QEvent::DragEnter) {
+		QDragEnterEvent* dragEnterEvent = static_cast<QDragEnterEvent*>(event);
+		if (dragEnterEvent->mimeData()->hasFormat(mime_type)) {
+			dragEnterEvent->accept(); // dragEnterEvent->acceptProposedAction();
+			return true;
+		}
+	}
+	else if (event->type() == QEvent::Drop) {
+		QDropEvent* dropEvent = static_cast<QDropEvent*>(event);
+		if (dropEvent->mimeData()->hasFormat(mime_type)) {
+			dropEvent->acceptProposedAction();
+			const QMimeData* mimeData = dropEvent->mimeData();
+			QByteArray byte_array = mimeData->data(mime_type);
+			if (byte_array.size() < (int)sizeof(PVGuiQt::PVWorkspace*)) {
+				return false;
+			}
+			PVGuiQt::PVWorkspace* workspace = *(reinterpret_cast<PVGuiQt::PVWorkspace* const*>(byte_array.constData()));
+
+			_projects_tab_widget->add_workspace(workspace);
+
+			return true;
+		}
+	}
+
+	return QMainWindow::event(event);
 }
 
 Picviz::PVRoot& PVInspector::PVMainWindow::get_root()
@@ -401,7 +433,7 @@ void PVInspector::PVMainWindow::close_all_views()
 void PVInspector::PVMainWindow::close_scene()
 {
 	// Close sources one by one
-	int ntabs = _workspaces_tab_widget->count();
+	/*int ntabs = _workspaces_tab_widget->count();
 	for (int i = 0; i < ntabs; i++) {
 		_workspaces_tab_widget->remove_workspace(0);
 	}
@@ -411,7 +443,7 @@ void PVInspector::PVMainWindow::close_scene()
 	_scene = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(get_root_sp(), "default");
 	_workspaces_tab_widget->set_scene(_scene.get());
 	_ad2g_mw = NULL;
-	set_project_modified(false);
+	set_project_modified(false);*/
 }
 
 
@@ -513,7 +545,7 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Picviz::PVView* picv
 void PVInspector::PVMainWindow::connect_widgets()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	connect(_workspaces_tab_widget, SIGNAL(currentChanged(int)), this, SLOT(change_of_current_view_Slot()));
+	connect(_projects_tab_widget, SIGNAL(currentChanged(int)), this, SLOT(change_of_current_view_Slot()));
 
 	/* for the this::color_changed_Signal() */
 	connect(this, SIGNAL(color_changed_Signal()), this, SLOT(refresh_current_view_Slot()));
@@ -665,8 +697,10 @@ PVGuiQt::PVWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVVie
 PVGuiQt::PVWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView const& picviz_view)
 {
 	// This returns the tab associated to a picviz view
-	for (int i = 0; i < _workspaces_tab_widget->count();i++) {
-		PVGuiQt::PVWorkspace *tab = dynamic_cast<PVGuiQt::PVWorkspace*>(_workspaces_tab_widget->widget(i));
+	const Picviz::PVScene* scene = picviz_view.get_parent<Picviz::PVScene>();
+	PVGuiQt::PVWorkspacesTabWidget* workspaces_tab_widget = _projects_tab_widget->get_workspace_tab_widget_from_scene(scene);
+	for (int i = 0; workspaces_tab_widget && i < workspaces_tab_widget->count();i++) {
+		PVGuiQt::PVWorkspace *tab = dynamic_cast<PVGuiQt::PVWorkspace*>(workspaces_tab_widget->widget(i));
 		if (!tab) {
 			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
 		} else {
@@ -676,7 +710,7 @@ PVGuiQt::PVWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVVie
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -869,7 +903,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 
 	menu_activate_is_file_opened(true);
 	show_start_page(false);
-	_workspaces_tab_widget->setVisible(true);
+	_projects_tab_widget->setVisible(true);
 	set_project_modified(true);
 }
 
@@ -1708,8 +1742,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 		return false;
 	}
 
-	PVGuiQt::PVWorkspace* workspace = new PVGuiQt::PVWorkspace(src.get());
-	int new_tab_index = _workspaces_tab_widget->addTab(workspace, src->get_name());
+	PVGuiQt::PVWorkspace* workspace = _projects_tab_widget->add_source(src.get());
 
 	if (src->get_children<Picviz::PVView>().size() > 0) {
 		Picviz::PVView_sp first_view_p = src->get_children<Picviz::PVView>().at(0);
@@ -1724,7 +1757,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 	//connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
 	//connect(current_tab, SIGNAL(source_changed()), this, SLOT(project_modified_Slot()));
 
-	_workspaces_tab_widget->setCurrentIndex(new_tab_index);
+	//_projects_tab_widget->setCurrentIndex(new_tab_index);
 
 	if (src->get_invalid_elts().size() > 0) {
 		display_inv_elts();
@@ -1736,7 +1769,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 
 	menu_activate_is_file_opened(true);
 	show_start_page(false);
-	_workspaces_tab_widget->setVisible(true);
+	_projects_tab_widget->setVisible(true);
 	set_project_modified(true);
 	return true;
 }

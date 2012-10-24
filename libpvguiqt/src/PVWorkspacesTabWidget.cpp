@@ -63,7 +63,7 @@ QSize PVGuiQt::PVTabBar::tabSizeHint(int index) const
 
 void PVGuiQt::PVTabBar::mouseReleaseEvent(QMouseEvent* event)
 {
-	stop_drag();
+	_drag_ongoing = false;
 
 	// Tabs are closed on middle button click
 	if (event->button() == Qt::MidButton) {
@@ -145,6 +145,22 @@ void PVGuiQt::PVTabBar::mousePressEvent(QMouseEvent* event)
 	if (event->button() == Qt::LeftButton) {
 		_drag_start_position = event->pos();
 	}
+
+	int index = -1;
+	for(int i=0; i < count()+1; i++)
+	{
+		if(tabRect(i).contains(event->pos()))
+		{
+			index = i;
+			std::cout << "index=" << index << std::endl;
+			break;
+		}
+	}
+	if (index == count()) {
+		_tab_widget->addTab(new PVOpenWorkspace(this), "Open workspace");
+		return;
+	}
+
 	QTabBar::mousePressEvent(event);
 }
 
@@ -157,10 +173,9 @@ void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
 
 	QByteArray byte_array;
 	byte_array.reserve(sizeof(void*));
-	byte_array.append((const char*)workspace, sizeof(void*));
+	byte_array.append((const char*) &workspace, sizeof(void*));
 
 	mimeData->setData("application/x-picviz_workspace", byte_array);
-	//mimeData->setData("text/plain", byte_array);
 
 	drag->setMimeData(mimeData);
 
@@ -186,11 +201,6 @@ void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
 	if (action == Qt::IgnoreAction) {
 		emit _tab_widget->emit_workspace_dragged_outside(workspace);
 	}
-	stop_drag();
-}
-
-void PVGuiQt::PVTabBar::stop_drag()
-{
 	_drag_ongoing = false;
 }
 
@@ -237,11 +247,7 @@ int PVGuiQt::PVWorkspacesTabWidget::count() const
 
 void PVGuiQt::PVWorkspacesTabWidget::tab_changed(int index)
 {
-	if (index == count()) {
-		addTab(new PVOpenWorkspace(this), "Open workspace");
-		setCurrentIndex(count()-1);
-	}
-	else {
+	if (index < count()) {
 		Picviz::PVView* view = qobject_cast<PVWorkspaceBase*>(widget(index))->current_view();
 		if (view) {
 			auto scene_sp = _scene->shared_from_this();
@@ -335,7 +341,7 @@ void PVGuiQt::PVWorkspacesTabWidget::remove_workspace(int index, bool close_sour
 	if (PVWorkspace* w = qobject_cast<PVWorkspace*>(workspace)) {
 		_workspaces_count--;
 		if (close_source) {
-			emit workspace_closed(w->get_source());
+			_scene->remove_child(*w->get_source());
 		}
 	}
 	else if (qobject_cast<PVOpenWorkspace*>(workspace)) {
@@ -346,36 +352,47 @@ void PVGuiQt::PVWorkspacesTabWidget::remove_workspace(int index, bool close_sour
 		assert(false); // Unknown workspace type
 	}
 
-	QPropertyAnimation* animation = new QPropertyAnimation(this, "tab_width");
-	connect(
-		animation,
-		SIGNAL(stateChanged(QAbstractAnimation::State, QAbstractAnimation::State)),
-		this,
-		SLOT(animation_state_changed(QAbstractAnimation::State, QAbstractAnimation::State))
-	);
-	animation->setDuration(TAB_OPENING_EFFECT_MSEC);
-	animation->setEndValue(25);
-	_tab_animated_width = _tab_bar->tabSizeHint(index).width();
-	animation->setStartValue(_tab_animated_width);
-	animation->start();
+	if (close_source) {
+		QPropertyAnimation* animation = new QPropertyAnimation(this, "tab_width");
+		connect(
+			animation,
+			SIGNAL(stateChanged(QAbstractAnimation::State, QAbstractAnimation::State)),
+			this,
+			SLOT(animation_state_changed(QAbstractAnimation::State, QAbstractAnimation::State))
+		);
+		animation->setDuration(TAB_OPENING_EFFECT_MSEC);
+		animation->setEndValue(25);
+		_tab_animated_width = _tab_bar->tabSizeHint(index).width();
+		animation->setStartValue(_tab_animated_width);
+		animation->start();
+
+		/*QEventLoop loop;
+		loop.connect(this, SIGNAL(animation_finished()), SLOT(quit()));
+		loop.exec();*/
+
+		animation->deleteLater();
+	}
+	else {
+		removeTab(currentIndex());
+	}
+}
+
+void PVGuiQt::PVWorkspacesTabWidget::tabRemoved(int index)
+{
+	if(count() == 0) {
+		emit is_empty();
+		hide();
+	}
+	else {
+		setCurrentIndex(std::min(index, count()-1));
+	}
 }
 
 void PVGuiQt::PVWorkspacesTabWidget::animation_state_changed(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state)
 {
 	if (new_state == QAbstractAnimation::Stopped && old_state == QAbstractAnimation::Running) {
 		tabBar()->setStyleSheet("");
-
-		int index = currentIndex();
-		blockSignals(true);
-		removeTab(index);
-		blockSignals(false);
-
-		if(count() == 0) {
-			emit is_empty();
-			hide();
-		}
-		else {
-			setCurrentIndex(std::min(index, count()-1));
-		}
+		removeTab(currentIndex());
+		emit animation_finished();
 	}
 }

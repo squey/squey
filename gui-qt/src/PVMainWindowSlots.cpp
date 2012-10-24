@@ -72,7 +72,7 @@ void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 		return;
 	}
 
-	PVGuiQt::PVAxesCombinationDialog* dlg = ((PVGuiQt::PVWorkspaceBase*) _workspaces_tab_widget->currentWidget())->get_axes_combination_editor(current_view());
+	PVGuiQt::PVAxesCombinationDialog* dlg = ((PVGuiQt::PVWorkspaceBase*) _projects_tab_widget->current_workspace())->get_axes_combination_editor(current_view());
 	if (dlg->isVisible()) {
 		return;
 	}
@@ -160,7 +160,7 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer_Slot()
 
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
-	if (_workspaces_tab_widget->currentIndex() == -1) {
+	if (_projects_tab_widget->current_workspace() == nullptr) {
 		return;
 	}
 	current_lib_view = current_view();
@@ -227,7 +227,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
 	current_lib_view = current_view();
 	state_machine = current_lib_view->state_machine;
 
-	if (_workspaces_tab_widget->currentIndex() == -1) {
+	if (_projects_tab_widget->current_workspace() == nullptr) {
 		return;
 	}
 
@@ -565,7 +565,7 @@ void PVInspector::PVMainWindow::project_load_Slot()
 #endif
 }
 
-void PVInspector::PVMainWindow::create_new_scene_for_workspace(QWidget* workspace)
+void PVInspector::PVMainWindow::create_new_scene_for_workspace(QWidget* widget_workspace)
 {
 	PVMainWindow* other = new PVMainWindow();
 	other->move(QCursor::pos());
@@ -573,14 +573,14 @@ void PVInspector::PVMainWindow::create_new_scene_for_workspace(QWidget* workspac
 
 	other->menu_activate_is_file_opened(true);
 	other->show_start_page(false);
-	other->_workspaces_tab_widget->setVisible(true);
+	//other->_workspaces_tab_widget->setVisible(true);
 	other->set_project_modified(true);
 
-	int tab_index = _workspaces_tab_widget->indexOf(workspace);
-	QString workspace_title = _workspaces_tab_widget->tabText(tab_index);
-
-	_workspaces_tab_widget->remove_workspace(tab_index, false /*do not close source*/ );
-	other->_workspaces_tab_widget->addTab((PVGuiQt::PVWorkspaceBase*) workspace, workspace_title);
+	PVGuiQt::PVWorkspace* workspace = dynamic_cast<PVGuiQt::PVWorkspace*>(widget_workspace);
+	if (workspace) {
+		_projects_tab_widget->remove_workspace(workspace, false);
+		other->_projects_tab_widget->add_workspace((PVGuiQt::PVWorkspace*) workspace);
+	}
 }
 
 bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p ar)
@@ -672,7 +672,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 
 	menu_activate_is_file_opened(true);
 	show_start_page(false);
-	_workspaces_tab_widget->setVisible(true);
+	//_workspaces_tab_widget->setVisible(true);
 
 	set_current_project_filename(file);
 	if (project_has_been_fixed) {
@@ -1184,7 +1184,7 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 		return;
 	}
 
-    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(_workspaces_tab_widget->currentWidget());
+    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(_projects_tab_widget->current_workspace());
 	connect(editorWidget, SIGNAL(accepted()), this, SLOT(cur_format_changed_Slot()));
 	connect(editorWidget, SIGNAL(rejected()), this, SLOT(cur_format_changed_Slot()));
 	editorWidget->openFormat(format.get_full_path());
@@ -1193,7 +1193,7 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 
 void PVInspector::PVMainWindow::edit_format_Slot(const QString& format)
 {
-    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(_workspaces_tab_widget->currentWidget());
+    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(_projects_tab_widget->current_workspace());
 	editorWidget->openFormat(format);
     editorWidget->show();
 }
