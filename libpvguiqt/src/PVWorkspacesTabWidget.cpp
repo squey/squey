@@ -149,16 +149,14 @@ void PVGuiQt::PVTabBar::mousePressEvent(QMouseEvent* event)
 	int index = -1;
 	for(int i=0; i < count()+1; i++)
 	{
-		if(tabRect(i).contains(event->pos()))
-		{
+		if(tabRect(i).contains(event->pos())) {
 			index = i;
-			std::cout << "index=" << index << std::endl;
 			break;
 		}
 	}
 	if (index == count()) {
+		// Special case for "new open workspace" tab
 		_tab_widget->addTab(new PVOpenWorkspace(this), "Open workspace");
-		return;
 	}
 
 	QTabBar::mousePressEvent(event);
@@ -200,6 +198,18 @@ void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
 	Qt::DropAction action = drag->exec(Qt::CopyAction | Qt::IgnoreAction | Qt::MoveAction | Qt::IgnoreAction);
 	if (action == Qt::IgnoreAction) {
 		emit _tab_widget->emit_workspace_dragged_outside(workspace);
+	}
+	if (action == Qt::MoveAction) {
+		if (PVWorkspace* w = qobject_cast<PVWorkspace*>(workspace)) {
+			_tab_widget->_workspaces_count--;
+		}
+		else if (qobject_cast<PVOpenWorkspace*>(workspace)) {
+			_tab_widget->_openworkspaces_count--;
+		}
+		else
+		{
+			assert(false); // Unknown workspace type
+		}
 	}
 	_drag_ongoing = false;
 }
@@ -289,14 +299,6 @@ int PVGuiQt::PVWorkspacesTabWidget::addTab(PVWorkspaceBase* workspace, const QSt
 	return index;
 }
 
-void PVGuiQt::PVWorkspacesTabWidget::set_tab_width(int tab_width)
-{
-	//QString str = QString("QTabBar::tab:selected { width: %1px; color: rgba(0, 0, 0, %2%);}").arg(tab_width).arg((float)tab_width / _tab_animated_width * 100);
-	QString str = QString("QTabBar::tab:selected { width: %1px;}").arg(tab_width);
-	_tab_animation_ongoing = tab_width != _tab_animated_width;
-	tabBar()->setStyleSheet(_tab_animation_ongoing ? str : "");
-}
-
 void PVGuiQt::PVWorkspacesTabWidget::tabInserted(int index)
 {
 	PVWorkspaceBase* workspace = (PVWorkspaceBase*) widget(index);
@@ -321,7 +323,6 @@ void PVGuiQt::PVWorkspacesTabWidget::start_checking_for_automatic_tab_switch()
 	}
 }
 
-
 void PVGuiQt::PVWorkspacesTabWidget::switch_tab()
 {
 	QApplication::restoreOverrideCursor();
@@ -331,6 +332,18 @@ void PVGuiQt::PVWorkspacesTabWidget::switch_tab()
 void PVGuiQt::PVWorkspacesTabWidget::tabCloseRequested_Slot(int index)
 {
 	remove_workspace(index);
+}
+
+void PVGuiQt::PVWorkspacesTabWidget::tabRemoved(int index)
+{
+	if(count() == 0) {
+		emit is_empty();
+		hide();
+	}
+	else {
+		setCurrentIndex(std::min(index, count()-1));
+	}
+	QTabWidget::tabRemoved(index);
 }
 
 void PVGuiQt::PVWorkspacesTabWidget::remove_workspace(int index, bool close_source /*= true*/)
@@ -377,15 +390,12 @@ void PVGuiQt::PVWorkspacesTabWidget::remove_workspace(int index, bool close_sour
 	}
 }
 
-void PVGuiQt::PVWorkspacesTabWidget::tabRemoved(int index)
+void PVGuiQt::PVWorkspacesTabWidget::set_tab_width(int tab_width)
 {
-	if(count() == 0) {
-		emit is_empty();
-		hide();
-	}
-	else {
-		setCurrentIndex(std::min(index, count()-1));
-	}
+	//QString str = QString("QTabBar::tab:selected { width: %1px; color: rgba(0, 0, 0, %2%);}").arg(tab_width).arg((float)tab_width / _tab_animated_width * 100);
+	QString str = QString("QTabBar::tab:selected { width: %1px;}").arg(tab_width);
+	_tab_animation_ongoing = tab_width != _tab_animated_width;
+	tabBar()->setStyleSheet(_tab_animation_ongoing ? str : "");
 }
 
 void PVGuiQt::PVWorkspacesTabWidget::animation_state_changed(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state)

@@ -50,7 +50,7 @@ PVGuiQt::PVWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::add_project(Picviz
 	connect(workspace_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(emit_workspace_dragged_outside(QWidget*)));
 	connect(workspace_tab_widget, SIGNAL(is_empty()), this, SLOT(close_project()));
 
-	_tab_bar->addTab(/*text*/ "test");
+	_tab_bar->addTab(text);
 	_stacked_widget->addWidget(workspace_tab_widget);
 
 	((__impl::PVSplitterHandle*) _splitter->handle(1))->set_max_size(_tab_bar->tabRect(0).width());
