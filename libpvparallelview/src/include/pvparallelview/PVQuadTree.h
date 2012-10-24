@@ -297,7 +297,7 @@ private:
 	struct visit_y1
 	{
 		static size_t get_n_m(PVQuadTree const& obj,
-		                      const uint64_t &y1_min, const uint64_t &y1_max,
+		                      const uint64_t y1_min, const uint64_t y1_max,
 		                      const uint32_t zoom, const uint32_t y2_count,
 		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
 		                      pv_quadtree_buffer_entry_t *buffer)
@@ -341,7 +341,7 @@ private:
 		}
 
 		static size_t get_1_m(PVQuadTree const& obj,
-		                      const uint64_t &y1_min, const uint64_t &y1_max,
+		                      const uint64_t y1_min, const uint64_t y1_max,
 		                      const uint32_t y2_count,
 		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
 		                      pv_quadtree_buffer_entry_t *buffer)
@@ -382,7 +382,7 @@ private:
 		}
 
 		static size_t get_n_1(PVQuadTree const& obj,
-		                      const uint64_t &y1_min, const uint64_t &y1_max,
+		                      const uint64_t y1_min, const uint64_t y1_max,
 		                      const uint32_t zoom,
 		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
 		                      pv_quadtree_buffer_entry_t *buffer)
@@ -423,7 +423,7 @@ private:
 		}
 
 		static bool get_1_1(PVQuadTree const& obj,
-		                    const uint64_t &y1_min, const uint64_t &y1_max,
+		                    const uint64_t y1_min, const uint64_t y1_max,
 		                    const test_entry_f &test_f, PVQuadTreeEntry *result)
 		{
 			bool ret = false;
@@ -453,23 +453,22 @@ private:
 		}
 
 		static size_t extract(PVQuadTree const& obj,
-		                      const uint64_t &y1_min, const uint64_t &y1_max,
+		                      const uint64_t y1_min, const uint64_t y1_max,
 		                      const uint32_t zoom, const uint32_t y2_count,
 		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
 		                      pv_quadtree_buffer_entry_t *buffer)
 		{
 			size_t num = 0;
-			const uint32_t max_count = 1 << zoom;
-			const uint32_t y1_orig = obj._y1_min_value;
-			const uint32_t y1_scale = ((obj._y1_mid_value - y1_orig) * 2) / max_count;
-			const uint32_t y2_orig = obj._y2_min_value;
-			const uint32_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / y2_count;
-			const uint32_t ly1_min = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y1_min, y1_orig, 1UL << 32) - y1_orig) / y1_scale,
-			                                                 0U, max_count);
-			const uint32_t ly1_max = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y1_max, y1_orig, 1UL << 32) - y1_orig) / y1_scale,
-			                                                 0U, max_count);
-			const uint32_t clipped_max_count = 1 + ly1_max - ly1_min;
-			const int count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
+			const uint64_t max_count = 1 << zoom;
+			const uint64_t y1_orig = obj._y1_min_value;
+			const uint64_t y1_len = (obj._y1_mid_value - y1_orig) * 2;
+			const uint64_t y1_scale = y1_len / max_count;
+			const uint64_t y2_orig = obj._y2_min_value;
+			const uint64_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / y2_count;
+			const uint64_t ly1_min = (PVCore::clamp(y1_min, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
+			const uint64_t ly1_max = (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
+			const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
+			const size_t count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
 			memset(buffer, 0, count_aligned * sizeof(uint32_t));
 			uint32_t remaining = clipped_max_count * y2_count;
 			for(size_t i = 0; i < obj._datas.size(); ++i) {
@@ -477,7 +476,7 @@ private:
 				if (!test_f(e)) {
 					continue;
 				}
-				const uint32_t pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min) + y2_count * ((e.y2 - y2_orig) / y2_scale);
+				const uint32_t pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min) + clipped_max_count * ((e.y2 - y2_orig) / y2_scale);
 				if (B_IS_SET(buffer[pos >> 5], pos & 31)) {
 					continue;
 				}
@@ -496,7 +495,7 @@ private:
 	struct visit_y2
 	{
 		static size_t get_n_m(PVQuadTree const& obj,
-		                      const uint64_t &y2_min, const uint64_t &y2_max,
+		                      const uint64_t y2_min, const uint64_t y2_max,
 		                      const uint32_t zoom, const uint32_t y1_count,
 		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
 		                      pv_quadtree_buffer_entry_t *buffer)
@@ -540,7 +539,7 @@ private:
 		}
 
 		static size_t get_1_m(PVQuadTree const& obj,
-		                      const uint64_t &y2_min, const uint64_t &y2_max,
+		                      const uint64_t y2_min, const uint64_t y2_max,
 		                      const uint32_t y1_count,
 		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
 		                      pv_quadtree_buffer_entry_t *buffer)
@@ -581,7 +580,7 @@ private:
 		}
 
 		static size_t get_n_1(PVQuadTree const& obj,
-		                      const uint64_t &y2_min, const uint64_t &y2_max,
+		                      const uint64_t y2_min, const uint64_t y2_max,
 		                      const uint32_t zoom,
 		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
 		                      pv_quadtree_buffer_entry_t *buffer)
@@ -622,7 +621,7 @@ private:
 		}
 
 		static bool get_1_1(PVQuadTree const& obj,
-		                    const uint64_t &y2_min, const uint64_t &y2_max,
+		                    const uint64_t y2_min, const uint64_t y2_max,
 		                    const test_entry_f &test_f, PVQuadTreeEntry *result)
 		{
 			bool ret = false;
@@ -652,23 +651,22 @@ private:
 		}
 
 		static size_t extract(PVQuadTree const& obj,
-		                      const uint64_t &y2_min, const uint64_t &y2_max,
+		                      const uint64_t y2_min, const uint64_t y2_max,
 		                      const uint32_t zoom, const uint32_t y1_count,
 		                      const test_entry_f &test_f, PVQuadTreeEntry *result,
 		                      pv_quadtree_buffer_entry_t *buffer)
 		{
 			size_t num = 0;
-			const uint32_t max_count = 1 << zoom;
-			const uint32_t y1_orig = obj._y1_min_value;
-			const uint32_t y1_scale = ((obj._y1_mid_value - y1_orig) * 2) / y1_count;
-			const uint32_t y2_orig = obj._y2_min_value;
-			const uint32_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / max_count;
-			const uint32_t ly2_min = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y2_min, y2_orig, 1UL << 32) - y2_orig) / y2_scale,
-			                                                 0U, max_count);
-			const uint32_t ly2_max = PVCore::clamp<uint32_t>((PVCore::clamp<uint64_t>(y2_max, y2_orig, 1UL << 32) - y2_orig) / y2_scale,
-			                                                 0U, max_count);
-			const uint32_t clipped_max_count = 1 + ly2_max - ly2_min;
-			const int count_aligned = ((clipped_max_count * y1_count) + 31) / 32;
+			const uint64_t max_count = 1 << zoom;
+			const uint64_t y1_orig = obj._y1_min_value;
+			const uint64_t y1_scale = ((obj._y1_mid_value - y1_orig) * 2) / y1_count;
+			const uint64_t y2_orig = obj._y2_min_value;
+			const uint64_t y2_len = (obj._y2_mid_value - y2_orig) * 2;
+			const uint64_t y2_scale = y2_len / max_count;
+			const uint64_t ly2_min = (PVCore::clamp(y2_min, y2_orig, y2_orig + y2_len) - y2_orig) / y2_scale;
+			const uint64_t ly2_max = (PVCore::clamp(y2_max, y2_orig, y2_orig + y2_len) - y2_orig) / y2_scale;
+			const uint64_t clipped_max_count = PVCore::max(1UL, ly2_max - ly2_min);
+			const size_t count_aligned = ((clipped_max_count * y1_count) + 31) / 32;
 			memset(buffer, 0, count_aligned * sizeof(uint32_t));
 			uint32_t remaining = clipped_max_count * y1_count;
 			for(size_t i = 0; i < obj._datas.size(); ++i) {
@@ -676,7 +674,7 @@ private:
 				if (!test_f(e)) {
 					continue;
 				}
-				const uint32_t pos = (((e.y2 - y2_orig) / y2_scale) - ly2_min) + y1_count * ((e.y1 - y1_orig) / y1_scale);
+				const uint32_t pos = (((e.y2 - y2_orig) / y2_scale) - ly2_min) + clipped_max_count * ((e.y1 - y1_orig) / y1_scale);
 				if (B_IS_SET(buffer[pos >> 5], pos & 31)) {
 					continue;
 				}
