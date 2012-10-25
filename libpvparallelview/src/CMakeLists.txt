@@ -27,14 +27,14 @@ add_definitions(${OpenMP_CXX_FLAGS})
 
 SET(SRC_FILES
 PVBCIBuffers.cpp
-PVParallelView.cpp
+#PVParallelView.cpp
 PVTools.cpp
 PVZoomedZoneTree.cpp
-PVZoomedParallelScene.cpp
-PVZoomedParallelView.cpp
-PVLinesView.cpp
-PVFullParallelScene.cpp
-PVFullParallelView.cpp
+#PVZoomedParallelScene.cpp
+#PVZoomedParallelView.cpp
+#PVLinesView.cpp
+#PVFullParallelScene.cpp
+#PVFullParallelView.cpp
 PVSelectionSquareGraphicsItem.cpp
 PVZonesManager.cpp
 PVZoneTree.cpp
@@ -44,8 +44,9 @@ simple_lines_float_view.cpp
 simple_lines_int_view.cpp
 PVAxisLabel.cpp
 PVAxisGraphicsItem.cpp
-PVSelectionGenerator.cpp
-PVLibView.cpp
+#PVSelectionGenerator.cpp
+#PVLibView.cpp
+PVRenderingPipeline.cpp
 PVSlidersManager.cpp
 PVSlidersGroup.cpp
 PVAbstractAxisSlider.cpp
@@ -60,7 +61,8 @@ PVZoomedSelectionAxisSliders.cpp
 )
 
 set(CUDA_SRC_FILES
-PVBCIDrawingEngineCuda.cpp
+	#PVBCIDrawingEngineCuda.cpp
+	PVBCIDrawingBackendCUDA.cpp
 )
 
 SET(HEADER_FILES
@@ -99,11 +101,11 @@ include/pvparallelview/PVZoomedSelectionAxisSliders.h
 
 SET(MOC_HEADERS
 include/pvparallelview/PVRenderingJob.h
-include/pvparallelview/PVFullParallelView.h
-include/pvparallelview/PVFullParallelScene.h
+#include/pvparallelview/PVFullParallelView.h
+#include/pvparallelview/PVFullParallelScene.h
 include/pvparallelview/PVSelectionSquareGraphicsItem.h
 include/pvparallelview/PVZonesManager.h
-include/pvparallelview/PVZoomedParallelScene.h
+#include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVSlidersGroup.h
 include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVAxisLabel.h

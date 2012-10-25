@@ -19,6 +19,11 @@
 #include <QApplication>
 #include <QMainWindow>
 
+void stream_callback(cudaStream_t stream, cudaError_t status, void* userData)
+{
+	printf("stream %d is finished\n", stream);
+}
+
 int main(int argc, char** argv)
 {
 	if (argc < 2) {
@@ -69,6 +74,8 @@ int main(int argc, char** argv)
 		printf("Launching kernel on stream %d w/ device %d\n", cstreams[z], device);
 		copy_codes_to_cuda(device_codes[device], host_codes, n, cstreams[z]);
 		show_codes_cuda(device_codes[device], n, zone_width, device_img, width, z*zone_width, cstreams[z]);
+		picviz_verify_cuda(cudaStreamAddCallback(cstreams[z], &stream_callback, NULL, 0));
+
 	}
 	picviz_verify_cuda(cudaEventRecord(end, 0));
 	picviz_verify_cuda(cudaEventSynchronize(end));

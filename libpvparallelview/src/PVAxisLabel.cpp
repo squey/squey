@@ -2,12 +2,12 @@
 #include <picviz/PVView.h>
 
 #include <pvparallelview/PVAxisLabel.h>
-#include <pvparallelview/PVParallelView.h>
-#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVSlidersGroup.h>
 
 #include <QDialog>
 #include <QLayout>
 #include <QMenu>
+#include <QGraphicsScene>
 
 #include <iostream>
 

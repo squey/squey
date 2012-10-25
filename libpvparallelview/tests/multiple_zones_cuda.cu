@@ -283,8 +283,8 @@ uint32_t* init_cuda_image(uint32_t img_width, int device)
 
 PVBCICode<>* init_cuda_codes(int device)
 {
-	cudaSetDevice(device);
-	picviz_verify_cuda(cudaFuncSetCacheConfig(&bcicode_raster_unroll2, cudaFuncCachePreferL1));
+	picviz_verify_cuda(cudaSetDevice(device));
+	//picviz_verify_cuda(cudaFuncSetCacheConfig(&bcicode_raster_unroll2, cudaFuncCachePreferL1));
 	PVBCICode<>* device_codes;
 	picviz_verify_cuda(cudaMalloc(&device_codes, NBUCKETS*sizeof(PVBCICode<>)));
 	return device_codes;
@@ -327,14 +327,14 @@ void show_codes_cuda(PVParallelView::PVBCICode<>* device_codes, uint32_t n, uint
 		picviz_verify_cuda(cudaEventRecord(start, 0));
 	}
 	bcicode_raster_unroll2<<<dim3(nblocks_x,nblocks_y),dim3(nthreads_x, nthreads_y), 0, stream>>>((uint2*) device_codes, n, width, device_img, img_width, x_start);
-	picviz_verify_cuda_kernel();
-	if (!stream) {
+	//picviz_verify_cuda_kernel();
+	/*if (!stream) {
 		picviz_verify_cuda(cudaEventRecord(end, 0));
 		picviz_verify_cuda(cudaEventSynchronize(end));
 		float time = 0;
 		picviz_verify_cuda(cudaEventElapsedTime(&time, start, end));
 		fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode<>))/(double)((time/1000.0)*1024.0*1024.0));
-	}
+	}*/
 }
 
 void copy_codes_to_cuda(PVBCICode<>* device_codes, PVBCICode<>* host_codes, size_t n, cudaStream_t stream)
