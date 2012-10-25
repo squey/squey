@@ -32,7 +32,6 @@ PVParallelView::PVZoneRendering<10>* new_zr(PVParallelView::PVBCIDrawingBackend&
 		0,
 		[n](PVCore::PVHSVColor* colors_, PVParallelView::PVBCICode<10>* codes)
 		{
-			usleep(100*1000);
 			for (size_t i = 0; i < n; i++) {
 				codes[i].int_v = 0;
 				codes[i].s.l = 0;
@@ -58,15 +57,15 @@ int main(int argc, char** argv)
 	size_t n = picviz_min(atoll(argv[1]), PVParallelView::MaxBciCodes);
 
 	PVCuda::init_cuda();
-	PVParallelView::PVBCIDrawingBackendCUDA backend;
-	PVParallelView::PVRenderingPipeline pipeline(backend);
+	PVParallelView::PVBCIDrawingBackendCUDA& backend = PVParallelView::PVBCIDrawingBackendCUDA::get();
+	PVParallelView::PVRenderingPipeline* pipeline = new PVParallelView::PVRenderingPipeline(backend);
 
 	PVCore::PVHSVColor* colors = std::allocator<PVCore::PVHSVColor>().allocate(n);
 	for (size_t i = 0; i < n; i++) {
 		colors[i] = (i%(HSV_COLOR_RED-HSV_COLOR_GREEN))+HSV_COLOR_GREEN;
 	}
 
-	PVParallelView::PVZonesProcessor p = pipeline.declare_processor([](PVZoneID z) { std::cout << "Preprocess for zone " << z << std::endl; }, colors, 2);
+	PVParallelView::PVZonesProcessor p = pipeline->declare_processor([](PVZoneID z) { std::cout << "Preprocess for zone " << z << std::endl; }, colors, 2);
 
 #define NJOBS 19
 	std::vector<PVParallelView::PVZoneRendering<10>*> zrs;
@@ -80,12 +79,15 @@ int main(int argc, char** argv)
 		p.add_job(*zr);
 	}
 
-	double time_cancel = 0.0;
+	for (size_t i = 0; i < NJOBS; i++) {
+		zrs[i]->wait_end();
+	}
+	/*double time_cancel = 0.0;
 	for (size_t i = NJOBS/2; i < NJOBS; i++) {
 		zrs[i]->cancel();
 		std::cout << zrs[i] << " canceled." << std::endl;
 	}
-	/*for (size_t i = 0; i < NJOBS; i++) {
+	for (size_t i = 0; i < NJOBS; i++) {
 		std::cout << "Waiting for " << zrs[i] << " to finished" << std::endl;
 		tbb::tick_count start = tbb::tick_count::now();
 		zrs[i]->wait_end();
@@ -94,6 +96,7 @@ int main(int argc, char** argv)
 	}
 	std::cout << "Average cancelation time: " << (time_cancel*1000.0)/((double)NJOBS) << " ms." << std::endl;*/
 
+	/*
 	QApplication app(argc, argv);
 	for (size_t i = 0; i < 15; i++) {
 		PVParallelView::PVZoneRendering<10>* zr = zrs[i];
@@ -101,7 +104,11 @@ int main(int argc, char** argv)
 			show_qimage(QString::number(i), dimgs[i]->qimage());
 		}
 	}
-	app.exec();
+	app.exec();*/
+
+	// The pipeline must be deleted before the backend !
+	delete pipeline;
+	PVParallelView::PVBCIDrawingBackendCUDA::release();
 
 	return 0;
 }

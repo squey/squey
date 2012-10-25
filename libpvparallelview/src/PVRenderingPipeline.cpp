@@ -5,6 +5,7 @@
 #include <iostream>
 
 PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& backend):
+	_bci_buffers(backend),
 	_node_limiter(_g, BCI_BUFFERS_COUNT),
 	_node_buffer(_g)
 {

@@ -9,6 +9,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvparallelview/common.h>
+#include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage_types.h>
 
 #include <QImage>
@@ -37,6 +38,10 @@ public:
 	virtual backend_image_p_t create_image(size_t img_width, uint8_t height_bits) const = 0;
 	virtual Flags flags() const = 0;
 	virtual bool is_sync() const = 0;
+
+public:
+	virtual PVBCICodeBase* allocate_bci(size_t n) { return (PVBCICodeBase*) PVBCICode<>::allocate_codes(n); }
+	virtual void free_bci(PVBCICodeBase* buf) { return PVBCICode<>::free_codes((PVBCICode<>*)buf); }
 
 public:
 	// If this backend is synchronous, render_done must be ignored.

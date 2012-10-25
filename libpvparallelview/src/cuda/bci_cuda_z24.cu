@@ -14,6 +14,7 @@
 #include <pvparallelview/cuda/bci_cuda.h>
 
 #include <cassert>
+#include <iostream>
 
 #define NTHREADS_BLOCK 512
 #define SMEM_IMG_KB (4*4)
@@ -352,29 +353,12 @@ static void show_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint
 	int nthreads_y = NTHREADS_BLOCK/nthreads_x;
 	assert(nthreads_x*nthreads_y <= NTHREADS_BLOCK);
 
-	//PVLOG_INFO("Number threads per block: %d x %d\n", nthreads_x, nthreads_y);
-	cudaEvent_t start,end;
-	picviz_verify_cuda(cudaEventCreate(&start));
-	picviz_verify_cuda(cudaEventCreate(&end));
-
-
 	// Compute number of blocks
 	int nblocks = PVCuda::get_number_blocks();
 	int nblocks_x = (width+nthreads_x-1)/nthreads_x;
 	int nblocks_y = 1;
-	//PVLOG_INFO("Number of blocks: %d x %d\n", nblocks_x, nblocks_y);
-
-	//int shared_size = nthreads_x*IMAGE_HEIGHT*sizeof(img_zbuffer_t);
-
-	//picviz_verify_cuda(cudaFuncSetCacheConfig(bcicode_raster_unroll2<Bbits>, cudaFuncCachePreferL1));
-	picviz_verify_cuda(cudaEventRecord(start, stream));
+	std::cout << "CUDA launch on stream " << stream << std::endl;
 	bcicode_raster_unroll2<Bbits, reverse><<<dim3(nblocks_x,nblocks_y),dim3(nthreads_x, nthreads_y), 0, stream>>>((uint2*) device_codes, n, width, device_img, img_width, x_start, zoom_y);
-	picviz_verify_cuda_kernel();
-	picviz_verify_cuda(cudaEventRecord(end, stream));
-	picviz_verify_cuda(cudaEventSynchronize(end));
-	float time = 0;
-	picviz_verify_cuda(cudaEventElapsedTime(&time, start, end));
-	fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode<Bbits>))/(double)((time/1000.0)*1024.0*1024.0));
 }
 
 void show_codes_cuda10(PVParallelView::PVBCICode<10>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream)
