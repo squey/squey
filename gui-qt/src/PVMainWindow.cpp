@@ -22,12 +22,10 @@
 #include <PVMainWindow.h>
 #include <PVExtractorWidget.h>
 #include <PVStringListChooserWidget.h>
-#include <PVInputTypeMenuEntries.h>
 
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVListingView.h>
 
-#include <PVStartScreenWidget.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
 
 #ifdef CUSTOMER_RELEASE
@@ -103,7 +101,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	//setWindowFlags(Qt::FramelessWindowHint);
 
 	// FIXME
-	_start_screen_widget = new PVStartScreenWidget(this);
+	//_start_screen_widget = new PVStartScreenWidget(this);
 	
 	// FONT stuff
 	QFontDatabase pv_font_database;
@@ -125,12 +123,11 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	pv_FilterWidget->hide();
 
 	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget();
+	_projects_tab_widget->show();
 	//connect(_workspaces_tab_widget, SIGNAL(workspace_closed(Picviz::PVSource*)), this, SLOT(close_source(Picviz::PVSource*)));
 	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_scene_for_workspace(QWidget*)));
 
 	// We display the PV Icon together with a button to import files
-	pv_centralStartWidget = new QWidget();
-	pv_centralStartWidget->setObjectName("pv_centralStartWidget_of_PVMainWindow");
 	pv_centralMainWidget = new QWidget();
 	pv_centralMainWidget->setObjectName("pv_centralMainWidget_of_PVMainWindow");
 
@@ -138,58 +135,16 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	pv_mainLayout->setSpacing(40);
 	pv_mainLayout->setContentsMargins(0,0,0,0);
 
-	pv_welcomeIcon = new QPixmap(":/start-logo");
-	pv_labelWelcomeIcon = new QLabel(this);
-	pv_labelWelcomeIcon->setPixmap(*pv_welcomeIcon);
-	pv_labelWelcomeIcon->resize(pv_welcomeIcon->width(), pv_welcomeIcon->height());
-
 	
 	connect(_projects_tab_widget, SIGNAL(is_empty()), this, SLOT(display_icon_Slot()) );
 
 	pv_mainLayout->addWidget(_projects_tab_widget);
 
-	pv_startLayout = new QVBoxLayout();
-	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
-	QVBoxLayout* centerLayout = new QVBoxLayout();
-	centerLayout->setAlignment(Qt::AlignHCenter);
-	centerLayout->addWidget(pv_labelWelcomeIcon);
-	pv_startLayout->addLayout(centerLayout);
-	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
-	pv_startLayout->addWidget(_start_screen_widget);
-
-	QGridLayout* versionLayout = new QGridLayout();
-	QLabel* label = new QLabel(tr("Current version") + QString(" :"));
-	label->setAlignment(Qt::AlignRight);
-	versionLayout->addWidget(label, 0, 0);
-	label = new QLabel(QString(PICVIZ_CURRENT_VERSION_STR));
-	label->setAlignment(Qt::AlignRight);
-	versionLayout->addWidget(label, 0, 2);
-	label = new QLabel(tr("Last version of the %1.%2 branch").arg(PICVIZ_CURRENT_VERSION_MAJOR).arg(PICVIZ_CURRENT_VERSION_MINOR) + QString(" :"));
-	label->setAlignment(Qt::AlignRight);
-	versionLayout->addWidget(label, 2, 0);
-	pv_lastCurVersion = new QLabel("N/A");
-	pv_lastCurVersion->setAlignment(Qt::AlignRight);
-	versionLayout->addWidget(pv_lastCurVersion, 2, 2);
-	label = new QLabel(tr("Last major version") + QString(" :"));
-	label->setAlignment(Qt::AlignRight);
-	versionLayout->addWidget(label, 4, 0);
-	pv_lastMajVersion = new QLabel("N/A");
-	pv_lastMajVersion->setAlignment(Qt::AlignRight);
-	versionLayout->addWidget(pv_lastMajVersion, 4, 2);
-
-	QHBoxLayout* hboxVersionLayout = new QHBoxLayout();
-	hboxVersionLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
-	hboxVersionLayout->addLayout(versionLayout);
-
-	pv_startLayout->addLayout(hboxVersionLayout);
-	
-	pv_centralStartWidget->setLayout(pv_startLayout);
 	pv_centralMainWidget->setLayout(pv_mainLayout);
 
 	pv_centralWidget = new QStackedWidget();
-	pv_centralWidget->addWidget(pv_centralStartWidget);
 	pv_centralWidget->addWidget(pv_centralMainWidget);
-	pv_centralWidget->setCurrentWidget(pv_centralStartWidget);
+	pv_centralWidget->setCurrentWidget(pv_centralMainWidget);
 
 	setCentralWidget(pv_centralWidget);
 
@@ -210,7 +165,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	statemachine_label = new QLabel("");
 	statusBar()->insertPermanentWidget(0, statemachine_label);
 
-	splash.finish(_start_screen_widget);
+	//splash.finish(_start_screen_widget);
 
 	// Center the main window
 	QRect r = geometry();
@@ -681,6 +636,7 @@ void PVInspector::PVMainWindow::display_icon_Slot()
 	close_scene();
 	set_current_project_filename(QString());
 	show_start_page(true);
+	deleteLater();
 }
 
 
@@ -1889,12 +1845,12 @@ void PVInspector::PVMainWindow::set_version_informations()
  *****************************************************************************/
 void PVInspector::PVMainWindow::show_start_page(bool visible)
 {
-	if (visible) {
+	/*if (visible) {
 		pv_centralWidget->setCurrentWidget(pv_centralStartWidget);
 	}
 	else {
 		pv_centralWidget->setCurrentWidget(pv_centralMainWidget);
-	}
+	}*/
 }
 
 

@@ -53,26 +53,46 @@ class PVTabBar : public QTabBar
 	Q_OBJECT
 
 public:
-	PVTabBar(PVWorkspacesTabWidget* tab_widget) : _tab_widget(tab_widget) {}
+	PVTabBar(PVWorkspacesTabWidget* tab_widget) : _tab_widget(tab_widget) {	connect(this, SIGNAL(currentChanged(int)), this, SLOT(tab_changed(int)));}
 	QSize tabSizeHint(int index) const;
-	int count() const;
+
+public:
+	virtual void create_new_workspace() {}
 
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
 	void mouseReleaseEvent(QMouseEvent* event) override;
-	void mouseDoubleClickEvent(QMouseEvent* event) override;
 	void mouseMoveEvent(QMouseEvent* event) override;
 	void leaveEvent(QEvent* even) override;
-	void wheelEvent(QWheelEvent* event) override;
-	void keyPressEvent(QKeyEvent* event) override;
 
-private:
 	void start_drag(QWidget* workspace);
 
-private:
+protected slots:
+	virtual void tab_changed(int index);
+
+protected:
 	PVWorkspacesTabWidget* _tab_widget;
 	QPoint _drag_start_position;
 	bool _drag_ongoing = false;
+};
+
+class PVWorkspaceTabBar : public PVTabBar
+{
+	Q_OBJECT
+
+public:
+	PVWorkspaceTabBar(PVWorkspacesTabWidget* tab_widget) : PVTabBar(tab_widget) {}
+	int count() const;
+	void create_new_workspace() override;
+
+protected:
+	void mousePressEvent(QMouseEvent* event) override;
+	void mouseDoubleClickEvent(QMouseEvent* event) override;
+	void wheelEvent(QWheelEvent* event) override;
+	void keyPressEvent(QKeyEvent* event) override;
+
+protected slots:
+	void tab_changed(int index) override;
 };
 
 class PVWorkspacesTabWidget : public QTabWidget
@@ -81,9 +101,12 @@ class PVWorkspacesTabWidget : public QTabWidget
 	Q_PROPERTY(int tab_width READ get_tab_width WRITE set_tab_width);
 
 	friend class PVTabBar;
+	friend class PVWorkspaceTabBar;
 
 public:
 	PVWorkspacesTabWidget(Picviz::PVScene* scene, QWidget* parent = 0);
+	PVWorkspacesTabWidget(QWidget* parent = 0);
+	void init();
 	Picviz::PVScene* get_scene() { return _scene; }
 	void set_scene(Picviz::PVScene* scene) { _scene = scene; }
 	void remove_workspace(int index, bool close_source = true);
@@ -104,7 +127,6 @@ private slots:
 	void tabCloseRequested_Slot(int index);
 	void start_checking_for_automatic_tab_switch();
 	void switch_tab();
-	void tab_changed(int index);
 	int get_tab_width() const { return 0; }
 	void set_tab_width(int tab_width);
 	void emit_workspace_dragged_outside(QWidget* workspace) { emit workspace_dragged_outside(workspace); }

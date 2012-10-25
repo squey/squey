@@ -212,11 +212,6 @@ QHeaderView#verticalHeader_of_PVListingView::section:pressed {
 	background-color: #f0f0f0;
 }*/
 
-
-QWidget#pv_centralStartWidget_of_PVMainWindow {
-	background-image: url(:background-window.png);
-}
-
 /* This is temporary! */
 /*QWidget#pv_centralStartWidget_of_PVMainWindow QPushButton {
 	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
@@ -432,6 +427,10 @@ QScrollBar#verticalScrollBar_of_PVListingView::up-arrow {
 /****************************
  * PVStartScreenWidget
  ***************************/
+
+/*#PVStartScreenWidget {
+	background-image: url(:background-window.png);
+}*/
 
 QLabel#PVStartScreenWidget_header {
 	font-family: "Jura";

@@ -51,10 +51,6 @@ bool PVGuiQt::TabRenamerEventFilter::eventFilter(QObject* watched, QEvent* event
  * PVGuiQt::PVTabBar
  *
  *****************************************************************************/
-int PVGuiQt::PVTabBar::count() const
-{
-	return QTabBar::count() -1;
-}
 
 QSize PVGuiQt::PVTabBar::tabSizeHint(int index) const
 {
@@ -73,24 +69,6 @@ void PVGuiQt::PVTabBar::mouseReleaseEvent(QMouseEvent* event)
 		}
 	}
 	QTabBar::mouseReleaseEvent(event);
-}
-
-void PVGuiQt::PVTabBar::mouseDoubleClickEvent(QMouseEvent* event)
-{
-	// Tabs titles are inplace edited on mouse double click
-	int index = tabAt(event->pos());
-
-	if (!_tab_widget->_tab_animation_ongoing && index < count() && qobject_cast<PVOpenWorkspace*>(_tab_widget->widget(index))) {
-		QLineEdit* line_edit = new QLineEdit(this);
-		QRect tab_rect = tabRect(index);
-		line_edit->move(tab_rect.topLeft());
-		line_edit->resize(QSize(tab_rect.width(), tab_rect.height()));
-		line_edit->setText(tabText(index));
-		line_edit->show();
-		line_edit->setFocus();
-		line_edit->setSelection(0, tabText(index).length());
-		line_edit->installEventFilter(new TabRenamerEventFilter(this, index, line_edit));
-	}
 }
 
 void PVGuiQt::PVTabBar::mouseMoveEvent(QMouseEvent* event)
@@ -122,43 +100,11 @@ void PVGuiQt::PVTabBar::leaveEvent(QEvent* ev)
 	QTabBar::leaveEvent(ev);
 }
 
-void PVGuiQt::PVTabBar::wheelEvent(QWheelEvent* event)
-{
-	// Prevent mouse wheel to trigger the creation of a new open workspace
-	if (currentIndex() == count()-1 && event->delta() < 0) {
-		return;
-	}
-	QTabBar::wheelEvent(event);
-}
-
-void PVGuiQt::PVTabBar::keyPressEvent(QKeyEvent* event)
-{
-	// Prevent keyboard to trigger the creation of a new open workspace
-	if (currentIndex() == count()-1 && event->key() == Qt::Key_Right) {
-		return;
-	}
-	QTabBar::keyPressEvent(event);
-}
-
 void PVGuiQt::PVTabBar::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
 		_drag_start_position = event->pos();
 	}
-
-	int index = -1;
-	for(int i=0; i < count()+1; i++)
-	{
-		if(tabRect(i).contains(event->pos())) {
-			index = i;
-			break;
-		}
-	}
-	if (index == count()) {
-		// Special case for "new open workspace" tab
-		_tab_widget->addTab(new PVOpenWorkspace(this), "Open workspace");
-	}
-
 	QTabBar::mousePressEvent(event);
 }
 
@@ -214,21 +160,131 @@ void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
 	_drag_ongoing = false;
 }
 
+void PVGuiQt::PVTabBar::tab_changed(int index)
+{
+	if (index == -1) return;
+
+	Picviz::PVView* view = qobject_cast<PVWorkspaceBase*>(_tab_widget->widget(index))->current_view();
+	if (view) {
+		auto scene_sp = _tab_widget->_scene->shared_from_this();
+		std::cout << "Picviz::PVScene::select_view: " << view << std::endl;
+		PVHive::call<FUNC(Picviz::PVScene::select_view)>(scene_sp, *view);
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVWorkspaceTabBar
+ *
+ *****************************************************************************/
+
+int PVGuiQt::PVWorkspaceTabBar::count() const
+{
+	return QTabBar::count() -1;
+}
+
+void PVGuiQt::PVWorkspaceTabBar::wheelEvent(QWheelEvent* event)
+{
+	// Prevent mouse wheel to trigger the creation of a new open workspace
+	if (currentIndex() == count()-1 && event->delta() < 0) {
+		return;
+	}
+	QTabBar::wheelEvent(event);
+}
+
+void PVGuiQt::PVWorkspaceTabBar::keyPressEvent(QKeyEvent* event)
+{
+	// Prevent keyboard to trigger the creation of a new open workspace
+	if (currentIndex() == count()-1 && event->key() == Qt::Key_Right) {
+		return;
+	}
+	QTabBar::keyPressEvent(event);
+}
+
+void PVGuiQt::PVWorkspaceTabBar::mouseDoubleClickEvent(QMouseEvent* event)
+{
+	// Tabs titles are inplace edited on mouse double click
+	int index = tabAt(event->pos());
+	if (!_tab_widget->_tab_animation_ongoing && index < count()) {
+		QLineEdit* line_edit = new QLineEdit(this);
+		QRect tab_rect = tabRect(index);
+		line_edit->move(tab_rect.topLeft());
+		line_edit->resize(QSize(tab_rect.width(), tab_rect.height()));
+		line_edit->setText(tabText(index));
+		line_edit->show();
+		line_edit->setFocus();
+		line_edit->setSelection(0, tabText(index).length());
+		line_edit->installEventFilter(new TabRenamerEventFilter(this, index, line_edit));
+	}
+}
+
+void PVGuiQt::PVWorkspaceTabBar::mousePressEvent(QMouseEvent* event)
+{
+	int index = -1;
+	for(int i=0; i < count()+1; i++) {
+		if(tabRect(i).contains(event->pos())) {
+			index = i;
+			break;
+		}
+	}
+	if (index == count()) {
+		// Special case for "new open workspace" tab
+		create_new_workspace();
+	}
+
+	PVTabBar::mousePressEvent(event);
+}
+
+void PVGuiQt::PVWorkspaceTabBar::tab_changed(int index)
+{
+	if (index == count()) {
+		setCurrentIndex(count()-1);
+	}
+}
+
+void PVGuiQt::PVWorkspaceTabBar::create_new_workspace()
+{
+	_tab_widget->addTab(new PVOpenWorkspace(this), QString("Workspace %1").arg(_tab_widget->count()));
+}
+
 /******************************************************************************
  *
  * PVGuiQt::PVWorkspacesTabWidget
  *
  *****************************************************************************/
-PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(Picviz::PVScene* scene, QWidget* parent) :
+PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(QWidget* parent /* = 0 */) :
+	QTabWidget(parent),
+	_automatic_tab_switch_timer(this)
+{
+	_tab_bar = new PVWorkspaceTabBar(this);
+	setTabBar(_tab_bar);
+
+	QWidget* new_tab = new QWidget();
+	QTabWidget::addTab(new_tab, QIcon(":/more.png"), "");
+	setTabToolTip(0, tr("New workspace"));
+	QPushButton* hidden_close_button = new QPushButton();
+	hidden_close_button->resize(QSize(0, 0));
+	tabBar()->setTabButton(0, QTabBar::RightSide, hidden_close_button);
+
+	init();
+
+	_tab_bar->create_new_workspace();
+}
+
+PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(Picviz::PVScene* scene, QWidget* parent /* = 0 */) :
 	QTabWidget(parent),
 	_scene(scene),
 	_automatic_tab_switch_timer(this)
-
 {
-	setObjectName("PVWorkspacesTabWidget");
-
 	_tab_bar = new PVTabBar(this);
 	setTabBar(_tab_bar);
+
+	init();
+}
+
+void PVGuiQt::PVWorkspacesTabWidget::init()
+{
+	setObjectName("PVWorkspacesTabWidget");
 
 	// To get notified of mouse events we must enable mouse tracking on *both* QTabWidget and its underlying QTabBar
 	setMouseTracking(true);
@@ -240,31 +296,11 @@ PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(Picviz::PVScene* scene, QW
 
 	setTabsClosable(true);
 	connect(tabBar(), SIGNAL(tabCloseRequested(int)), this, SLOT(tabCloseRequested_Slot(int)));
-
-	QWidget* new_tab = new QWidget();
-	QTabWidget::addTab(new_tab, QIcon(":/more.png"), "");
-	setTabToolTip(0, tr("New open workspace"));
-	QPushButton* hidden_close_button = new QPushButton();
-	hidden_close_button->resize(QSize(0, 0));
-	tabBar()->setTabButton(0, QTabBar::RightSide, hidden_close_button);
-	connect(this, SIGNAL(currentChanged(int)), this, SLOT(tab_changed(int)));
 }
 
 int PVGuiQt::PVWorkspacesTabWidget::count() const
 {
 	return _tab_bar->count();
-}
-
-void PVGuiQt::PVWorkspacesTabWidget::tab_changed(int index)
-{
-	if (index < count()) {
-		Picviz::PVView* view = qobject_cast<PVWorkspaceBase*>(widget(index))->current_view();
-		if (view) {
-			auto scene_sp = _scene->shared_from_this();
-			std::cout << "Picviz::PVScene::select_view: " << view << std::endl;
-			PVHive::call<FUNC(Picviz::PVScene::select_view)>(scene_sp, *view);
-		}
-	}
 }
 
 int PVGuiQt::PVWorkspacesTabWidget::addTab(PVWorkspaceBase* workspace, const QString & label)

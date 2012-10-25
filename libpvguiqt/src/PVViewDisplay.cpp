@@ -92,40 +92,37 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 				QMouseEvent* mouse_event = (QMouseEvent*) event;
 				PVWorkspaceBase* workspace = PVGuiQt::PVWorkspace::workspace_under_mouse();
 
-				if (workspace) {
+				if (workspace && workspace != parent()) {
 
-					if (workspace != parent()) {
+					QMouseEvent* fake_mouse_release = new QMouseEvent(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+					QApplication::postEvent(this, fake_mouse_release);
+					QApplication::processEvents(QEventLoop::AllEvents);
 
-						QMouseEvent* fake_mouse_release = new QMouseEvent(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-						QApplication::postEvent(this, fake_mouse_release);
-						QApplication::processEvents(QEventLoop::AllEvents);
+					qobject_cast<PVWorkspaceBase*>(parent())->removeDockWidget(this);
+					show();
 
-						qobject_cast<PVWorkspaceBase*>(parent())->removeDockWidget(this);
-						show();
+					workspace->activateWindow();
+					workspace->addDockWidget(Qt::RightDockWidgetArea, this); // Qt::NoDockWidgetArea yields "QMainWindow::addDockWidget: invalid 'area' argument"
+					setFloating(true); // We don't want the dock widget to be docked right now
 
-						workspace->activateWindow();
-						workspace->addDockWidget(Qt::RightDockWidgetArea, this); // Qt::NoDockWidgetArea yields "QMainWindow::addDockWidget: invalid 'area' argument"
-						setFloating(true); // We don't want the dock widget to be docked right now
+					_workspace = workspace;
 
-						_workspace = workspace;
+					QCursor::setPos(mapToGlobal(_press_pt));
+					move(mapToGlobal(_press_pt));
 
-						QCursor::setPos(mapToGlobal(_press_pt));
-						move(mapToGlobal(_press_pt));
+					XSync(QX11Info::display(), false);
 
-						XSync(QX11Info::display(), false);
-
-						QMouseEvent* fake_mouse_press = new QMouseEvent(QEvent::MouseButtonPress, _press_pt, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-						QApplication::postEvent(this, fake_mouse_press);
+					QMouseEvent* fake_mouse_press = new QMouseEvent(QEvent::MouseButtonPress, _press_pt, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+					QApplication::postEvent(this, fake_mouse_press);
 
 
-						QApplication::processEvents(QEventLoop::AllEvents);
+					QApplication::processEvents(QEventLoop::AllEvents);
 
-						QCursor::setPos(mapToGlobal(_press_pt));
+					QCursor::setPos(mapToGlobal(_press_pt));
 
-						grabMouse();
+					grabMouse();
 
-						return true;
-					}
+					return true;
 				}
 			}
 			break;
@@ -143,7 +140,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 		}
 		case QEvent::Move:
 		{
-			PVGuiQt::PVWorkspace::_drag_started = true;
+			//PVGuiQt::PVWorkspace::_drag_started = true;
 			break;
 		}
 		default:

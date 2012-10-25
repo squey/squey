@@ -9,7 +9,7 @@
 #include <PVFormatBuilderWidget.h>
 #include <PVXmlTreeItemDelegate.h>
 #include <PVXmlParamWidget.h>
-#include <PVInputTypeMenuEntries.h>
+#include <pvguiqt/PVInputTypeMenuEntries.h>
 
 #include <pvkernel/rush/PVNormalizer.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
@@ -612,7 +612,7 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar() {
         file->addAction(actionSave);
         file->addAction(actionSaveAs);
         file->addSeparator();
-		PVInputTypeMenuEntries::add_inputs_to_menu(file, this, SLOT(slotOpenLog()));
+		PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(file, this, SLOT(slotOpenLog()));
         file->addSeparator();
 
 
@@ -641,7 +641,7 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar() {
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 {
-	PVRush::PVInputType_p in_t = PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
+	PVRush::PVInputType_p in_t = PVGuiQt::PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 
 	QString choosenFormat;

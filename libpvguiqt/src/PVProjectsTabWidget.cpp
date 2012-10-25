@@ -5,6 +5,7 @@
  */
 
 #include <pvguiqt/PVProjectsTabWidget.h>
+#include <pvguiqt/PVStartScreenWidget.h>
 
 #include <QHBoxLayout>
 
@@ -12,7 +13,7 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(QWidget* parent /*= 0*/) : QWi
 {
 	_tab_bar = new QTabBar();
 	_tab_bar->setShape(QTabBar::RoundedWest);
-	//_tab_bar->setTabsClosable(true);
+	_tab_bar->setTabsClosable(true);
 
 	_stacked_widget = new QStackedWidget();
 
@@ -34,9 +35,29 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(QWidget* parent /*= 0*/) : QWi
 
 	// Map QTabBar signal to QStackedWidget to keep the sync
 	connect(_tab_bar, SIGNAL(currentChanged(int)), _stacked_widget, SLOT(setCurrentIndex(int)));
+
+	create_unclosable_tabs();
 }
 
-void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* true */)
+void  PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
+{
+	// Start screen widget
+	_start_screen_widget = new PVGuiQt::PVStartScreenWidget();
+	_tab_bar->addTab("Start screen");
+	_tab_bar->tabButton(0, QTabBar::RightSide)->resize(0, 0);
+	_tab_bar->setTabIcon(0, QIcon(":/picviz"));
+	_stacked_widget->addWidget(_start_screen_widget);
+
+	// Open workspaces
+	_workspaces_tab_widget = new PVWorkspacesTabWidget();
+	_tab_bar->addTab("Workspaces");
+	_tab_bar->tabButton(1, QTabBar::RightSide)->resize(0, 0);
+	_stacked_widget->addWidget(_workspaces_tab_widget);
+
+	((__impl::PVSplitterHandle*) _splitter->handle(1))->set_max_size(_tab_bar->tabRect(0).width());
+}
+
+void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* = true */)
 {
 	int max_size = ((__impl::PVSplitterHandle*) _splitter->handle(1))->get_max_size();
 	QList<int> sizes;
@@ -46,14 +67,13 @@ void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* true */)
 
 PVGuiQt::PVWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::add_project(Picviz::PVScene* scene, const QString& text)
 {
-	PVWorkspacesTabWidget* workspace_tab_widget = new PVGuiQt::PVWorkspacesTabWidget(scene);
+	PVWorkspacesTabWidget* workspace_tab_widget = new PVWorkspacesTabWidget(scene);
 	connect(workspace_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(emit_workspace_dragged_outside(QWidget*)));
 	connect(workspace_tab_widget, SIGNAL(is_empty()), this, SLOT(close_project()));
 
-	_tab_bar->addTab(text);
-	_stacked_widget->addWidget(workspace_tab_widget);
-
-	((__impl::PVSplitterHandle*) _splitter->handle(1))->set_max_size(_tab_bar->tabRect(0).width());
+	int index = _tab_bar->count() -1;
+	_tab_bar->insertTab(index, text);
+	_stacked_widget->insertWidget(index, workspace_tab_widget);
 
 	return workspace_tab_widget;
 }
@@ -84,6 +104,7 @@ void PVGuiQt::PVProjectsTabWidget::add_workspace(PVWorkspace* workspace)
 	}
 
 	workspace_tab_widget->addTab(workspace, workspace->get_source()->get_name());
+	_tab_bar->setCurrentIndex(_stacked_widget->indexOf(workspace_tab_widget));
 }
 
 void PVGuiQt::PVProjectsTabWidget::remove_workspace(PVWorkspace* workspace, bool animation /* = true */)
@@ -100,7 +121,7 @@ void PVGuiQt::PVProjectsTabWidget::remove_project(PVWorkspacesTabWidget* workspa
 		_tab_bar->removeTab(project_index);
 		_stacked_widget->removeWidget(workspace_tab_widget);
 
-		if (_stacked_widget->count() == 0) {
+		if (_stacked_widget->count() == 2) {
 			emit is_empty();
 		}
 	}

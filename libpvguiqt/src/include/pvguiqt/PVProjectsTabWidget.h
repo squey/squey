@@ -24,7 +24,7 @@
 
 namespace PVGuiQt
 {
-
+class PVStartScreenWidget;
 class PVProjectsTabWidget;
 
 namespace __impl
@@ -91,11 +91,15 @@ signals:
 
 private:
 	PVWorkspacesTabWidget* add_project(Picviz::PVScene* scene, const QString & text);
+	void create_unclosable_tabs();
 
 private:
 	__impl::PVSplitter* _splitter = nullptr;
 	QTabBar* _tab_bar = nullptr;
 	QStackedWidget* _stacked_widget = nullptr;
+
+	PVStartScreenWidget* _start_screen_widget;
+	PVWorkspacesTabWidget* _workspaces_tab_widget;
 };
 
 }

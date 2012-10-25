@@ -32,6 +32,8 @@ PVWorkspace.cpp
 PVViewDisplay.cpp
 PVAboutBoxDialog.cpp
 PVProjectsTabWidget.cpp
+PVStartScreenWidget.cpp
+PVInputTypeMenuEntries.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
@@ -59,6 +61,8 @@ include/pvguiqt/PVWorkspace.h
 include/pvguiqt/PVViewDisplay.h
 include/pvguiqt/PVAboutBoxDialog.h
 include/pvguiqt/PVProjectsTabWidget.h
+include/pvguiqt/PVStartScreenWidget.h
+include/pvguiqt/PVInputTypeMenuEntries.h
 )
 
 SET(UI_FILES

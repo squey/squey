@@ -5,7 +5,7 @@
  */
 
 #include <PVMainWindow.h>
-#include <PVInputTypeMenuEntries.h>
+#include <pvguiqt/PVInputTypeMenuEntries.h>
 
 #include <QAction>
 #include <QMenuBar>
@@ -279,7 +279,7 @@ void PVInspector::PVMainWindow::create_menus()
  *****************************************************************************/
 void PVInspector::PVMainWindow::create_actions_import_types(QMenu* menu)
 {
-	PVInputTypeMenuEntries::add_inputs_to_menu(menu, this, SLOT(import_type_Slot()));
+	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(menu, this, SLOT(import_type_Slot()));
 }
 
 /******************************************************************************

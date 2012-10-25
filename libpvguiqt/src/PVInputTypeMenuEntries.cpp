@@ -4,13 +4,13 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#include <PVInputTypeMenuEntries.h>
+#include <pvguiqt/PVInputTypeMenuEntries.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/core/PVClassLibrary.h>
 
 #include <QPushButton>
 
-void PVInspector::PVInputTypeMenuEntries::add_inputs_to_menu(QMenu* menu, QObject* parent, const char* slot)
+void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(QMenu* menu, QObject* parent, const char* slot)
 {
 	LIB_CLASS(PVRush::PVInputType) &input_types = LIB_CLASS(PVRush::PVInputType)::get();
 	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
@@ -27,7 +27,7 @@ void PVInspector::PVInputTypeMenuEntries::add_inputs_to_menu(QMenu* menu, QObjec
 	}
 }
 
-void PVInspector::PVInputTypeMenuEntries::add_inputs_to_layout(QBoxLayout* layout, QObject* parent, const char* slot)
+void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(QBoxLayout* layout, QObject* parent, const char* slot)
 {
 	LIB_CLASS(PVRush::PVInputType) &input_types = LIB_CLASS(PVRush::PVInputType)::get();
 	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
@@ -51,7 +51,7 @@ void PVInspector::PVInputTypeMenuEntries::add_inputs_to_layout(QBoxLayout* layou
 	}
 }
 
-PVRush::PVInputType_p PVInspector::PVInputTypeMenuEntries::input_type_from_action(QAction* action)
+PVRush::PVInputType_p PVGuiQt::PVInputTypeMenuEntries::input_type_from_action(QAction* action)
 {
 	QString const& itype = action->data().toString();
 	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(itype);

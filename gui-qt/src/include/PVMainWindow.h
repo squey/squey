@@ -320,18 +320,15 @@ private:
 
 	QSpacerItem* pv_mainSpacerTop;
 	QSpacerItem* pv_mainSpacerBottom;
-	QWidget *pv_centralStartWidget;
 	QWidget *pv_centralMainWidget;
 	QStackedWidget* pv_centralWidget;
 	QVBoxLayout *pv_mainLayout;
 	QVBoxLayout *pv_startLayout;
-	QLabel *pv_labelWelcomeIcon;
-	QPixmap  *pv_welcomeIcon;
 	QLabel* pv_lastCurVersion;
 	QLabel* pv_lastMajVersion;
 	QFileDialog _load_project_dlg;
 
-	PVStartScreenWidget* _start_screen_widget;
+	//PVStartScreenWidget* _start_screen_widget;
 	QString _current_save_project_folder;
 
 protected:

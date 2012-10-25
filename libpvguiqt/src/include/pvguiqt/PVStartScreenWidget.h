@@ -21,8 +21,8 @@
 #include <pvkernel/widgets/PVSizeHintListWidget.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
 
-namespace PVInspector {
-class PVMainWindow;
+namespace PVGuiQt {
+
 class PVStartScreenWidget;
 
 class PVAddRecentItemFuncObserver: public PVHive::PVFuncObserverSignal<PVCore::PVRecentItemsManager, FUNC(PVCore::PVRecentItemsManager::add)>
@@ -57,7 +57,7 @@ public:
 	typedef QListWidget custom_listwidget_t;
 
 public:
-	PVStartScreenWidget(PVMainWindow* parent);
+	PVStartScreenWidget(QWidget* parent = 0);
 	void refresh_all_recent_items();
 	void refresh_recent_sources_items();
 
@@ -72,8 +72,6 @@ private:
 	descr_strings_t get_string_from_source_description(const QVariant& var);
 
 private:
-	PVMainWindow* _mw;
-
 	QWidget* format_widget;
 	QWidget* import_widget;
 	QWidget* project_widget;

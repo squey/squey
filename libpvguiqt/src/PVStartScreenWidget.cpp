@@ -8,8 +8,6 @@
 #include <pvkernel/core/general.h>
 #include <picviz/PVView.h>
 
-#include <PVMainWindow.h>
-
 #include <QApplication>
 #include <QFileInfo>
 #include <QFileIconProvider>
@@ -17,46 +15,99 @@
 #include <QScrollBar>
 #include <QFontMetrics>
 #include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QSpacerItem>
 
-#include <PVStartScreenWidget.h>
+#include <pvguiqt/PVStartScreenWidget.h>
 
 #include <picviz/PVSource.h>
+
 #include <pvkernel/rush/PVSourceDescription.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/widgets/PVUtils.h>
-#include <PVInputTypeMenuEntries.h>
 
-void PVInspector::PVAddRecentItemFuncObserver::update(const arguments_deep_copy_type& args) const
+#include <pvguiqt/PVInputTypeMenuEntries.h>
+
+void PVGuiQt::PVAddRecentItemFuncObserver::update(const arguments_deep_copy_type& args) const
 {
 	_parent->refresh_recent_items(std::get<1>(args));
 }
 
-void PVInspector::PVAddSourceRecentItemFuncObserver::update(const arguments_deep_copy_type&) const
+void PVGuiQt::PVAddSourceRecentItemFuncObserver::update(const arguments_deep_copy_type&) const
 {
 	_parent->refresh_recent_items(PVCore::PVRecentItemsManager::Category::SOURCES);
 }
 
 /******************************************************************************
  *
- * PVInspector::PVStartScreenWidget::PVStartScreenWidget
+ * PVGuiQt::PVStartScreenWidget::PVStartScreenWidget
  *
  *****************************************************************************/
-PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
+PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	QWidget(parent),
-	_mw(parent),
 	_recent_items_add_obs(this),
 	_recent_items_add_source_obs(this)
 {
-	PVLOG_DEBUG("PVInspector::PVStartScreenWidget::%s\n", __FUNCTION__);
+	PVLOG_DEBUG("PVGuiQt::PVStartScreenWidget::%s\n", __FUNCTION__);
 
 	// SIZE STUFF
 	setMinimumSize(500,600);
 	
+	QHBoxLayout *main_layout = new QHBoxLayout();
+
+	QPixmap* pv_welcomeIcon = new QPixmap(":/start-logo");
+
+	QLabel* pv_labelWelcomeIcon = new QLabel();
+	pv_labelWelcomeIcon->setPixmap(*pv_welcomeIcon);
+	pv_labelWelcomeIcon->resize(pv_welcomeIcon->width(), pv_welcomeIcon->height());
+
+	QVBoxLayout* pv_startLayout = new QVBoxLayout(this);
+	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+	QVBoxLayout* centerLayout = new QVBoxLayout();
+	centerLayout->setAlignment(Qt::AlignHCenter);
+	centerLayout->addWidget(pv_labelWelcomeIcon);
+	pv_startLayout->addLayout(centerLayout);
+	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
+	QWidget* start_widget = new QWidget();
+	start_widget->setObjectName("PVStartScreenWidget");
+	start_widget->setLayout(main_layout);
+	pv_startLayout->addWidget(start_widget);
+
+	QGridLayout* versionLayout = new QGridLayout();
+	QLabel* label = new QLabel(tr("Current version") + QString(" :"));
+	label->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(label, 0, 0);
+	label = new QLabel(QString(PICVIZ_CURRENT_VERSION_STR));
+	label->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(label, 0, 2);
+	label = new QLabel(tr("Last version of the %1.%2 branch").arg(PICVIZ_CURRENT_VERSION_MAJOR).arg(PICVIZ_CURRENT_VERSION_MINOR) + QString(" :"));
+	label->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(label, 2, 0);
+	QLabel* pv_lastCurVersion = new QLabel("N/A");
+	pv_lastCurVersion->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(pv_lastCurVersion, 2, 2);
+	label = new QLabel(tr("Last major version") + QString(" :"));
+	label->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(label, 4, 0);
+	QLabel* pv_lastMajVersion = new QLabel("N/A");
+	pv_lastMajVersion->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(pv_lastMajVersion, 4, 2);
+
+	QHBoxLayout* hboxVersionLayout = new QHBoxLayout();
+	hboxVersionLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
+	hboxVersionLayout->addLayout(versionLayout);
+
+	pv_startLayout->addLayout(hboxVersionLayout);
+
+	//setLayout(pv_startLayout);
+
 	// OBJECTNAME STUFF
 	
 	// LAYOUT STUFF
 	// We need a Layout for that Widget
-	QHBoxLayout *main_layout = new QHBoxLayout(this);
+
 	// We fix the margins for that Layout
 	main_layout->setContentsMargins(0,0,0,0);
 
@@ -70,7 +121,6 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 	main_layout->addLayout(left_layout, 1);
 	main_layout->addLayout(right_layout, 1);
 
-	setObjectName("PVStartScreenWidget");
 
 	// We create the three Widgets
 	format_widget = new QWidget(this);
@@ -133,7 +183,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 	format_widget_layout->addWidget(edit_format_button);
 
 	// Import buttons
-	PVInspector::PVInputTypeMenuEntries::add_inputs_to_layout(import_widget_layout, _mw, SLOT(import_type_Slot()));
+	//PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(import_widget_layout, _mw, SLOT(import_type_Slot()));
 
 	project_widget_layout->addWidget(create_new_project_button);
 	project_widget_layout->addWidget(open_project_button);
@@ -227,10 +277,10 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 	project_widget_layout->addStretch(1);
 	
 	// Connections
-	connect(create_new_project_button, SIGNAL(clicked(bool)), _mw, SLOT(project_new_Slot()));
+	/*connect(create_new_project_button, SIGNAL(clicked(bool)), _mw, SLOT(project_new_Slot()));
 	connect(open_project_button, SIGNAL(clicked(bool)), _mw, SLOT(project_load_Slot()));
 	connect(create_new_format_button, SIGNAL(clicked(bool)), _mw, SLOT(new_format_Slot()));
-	connect(edit_format_button, SIGNAL(clicked(bool)), _mw, SLOT(open_format_Slot()));
+	connect(edit_format_button, SIGNAL(clicked(bool)), _mw, SLOT(open_format_Slot()));*/
 
 	PVHive::get().register_func_observer(PVCore::PVRecentItemsManager::get(), _recent_items_add_obs);
 	PVHive::get().register_func_observer(PVCore::PVRecentItemsManager::get(), _recent_items_add_source_obs);
@@ -238,14 +288,14 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 	refresh_all_recent_items();
 }
 
-void PVInspector::PVStartScreenWidget::refresh_all_recent_items()
+void PVGuiQt::PVStartScreenWidget::refresh_all_recent_items()
 {
 	for (int category = (int) PVCore::PVRecentItemsManager::Category::FIRST ; category < (int) PVCore::PVRecentItemsManager::Category::LAST; category++) {
 		refresh_recent_items(category);
 	}
 }
 
-void PVInspector::PVStartScreenWidget::refresh_recent_items(int cat)
+void PVGuiQt::PVStartScreenWidget::refresh_recent_items(int cat)
 {
 	// Qt doesn't like custom types, here's why we are using an int for this slot...
 	PVCore::PVRecentItemsManager::Category category = (PVCore::PVRecentItemsManager::Category) cat;
@@ -300,7 +350,7 @@ void PVInspector::PVStartScreenWidget::refresh_recent_items(int cat)
 	}
 }
 
-PVInspector::PVStartScreenWidget::descr_strings_t PVInspector::PVStartScreenWidget::get_string_from_variant(
+PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_string_from_variant(
 	PVCore::PVRecentItemsManager::Category category,
 	const QVariant& var
 )
@@ -333,7 +383,7 @@ PVInspector::PVStartScreenWidget::descr_strings_t PVInspector::PVStartScreenWidg
 	}
 }
 
-PVInspector::PVStartScreenWidget::descr_strings_t PVInspector::PVStartScreenWidget::get_string_from_format(const QVariant& var)
+PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_string_from_format(const QVariant& var)
 {
 	PVRush::PVFormat format = var.value<PVRush::PVFormat>();
 
@@ -345,7 +395,7 @@ PVInspector::PVStartScreenWidget::descr_strings_t PVInspector::PVStartScreenWidg
 	return std::make_tuple(short_string, long_string, filenames);
 }
 
-PVInspector::PVStartScreenWidget::descr_strings_t PVInspector::PVStartScreenWidget::get_string_from_source_description(const QVariant& var)
+PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_string_from_source_description(const QVariant& var)
 {
 	PVRush::PVSourceDescription src_desc = var.value<PVRush::PVSourceDescription>();
 
@@ -373,7 +423,7 @@ PVInspector::PVStartScreenWidget::descr_strings_t PVInspector::PVStartScreenWidg
 	return std::make_tuple(short_string, long_string, filenames);
 }
 
-void PVInspector::PVStartScreenWidget::dispatch_action(const QString& id)
+void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 {
 	// This is kind of a hack but it saves the use of a QAbstractListModel/QListView...
 	QStringList ids = id.split(";");
@@ -387,25 +437,25 @@ void PVInspector::PVStartScreenWidget::dispatch_action(const QString& id)
 	{
 		case PVCore::PVRecentItemsManager::Category::PROJECTS:
 		{
-			_mw->load_project(var.toString());
+			//_mw->load_project(var.toString());
 			break;
 		}
 		case PVCore::PVRecentItemsManager::Category::SOURCES:
 		{
 			PVRush::PVSourceDescription src_desc = var.value<PVRush::PVSourceDescription>();
-			Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(_mw->_scene, src_desc);
-			_mw->load_source(src_p);
+			//Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(_mw->_scene, src_desc);
+			//_mw->load_source(src_p);
 			break;
 		}
 		case PVCore::PVRecentItemsManager::Category::EDITED_FORMATS:
 		case PVCore::PVRecentItemsManager::Category::USED_FORMATS:
 		{
-			_mw->edit_format_Slot(var.toString());
+			//_mw->edit_format_Slot(var.toString());
 			break;
 		}
 		case PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS:
 		{
-			_mw->edit_format_Slot(var.value<PVRush::PVFormat>().get_full_path());
+			//_mw->edit_format_Slot(var.value<PVRush::PVFormat>().get_full_path());
 			break;
 		}
 		default:
