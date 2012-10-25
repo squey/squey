@@ -129,6 +129,7 @@ public:
 	inline PVZoneID get_last_drawn_zone() const { return picviz_min((PVZoneID)(_first_zone + _zones_imgs.size()-1), (PVZoneID)get_zones_manager().get_number_zones()-1); }
 	bool is_zone_drawn(PVZoneID z) const { return (z >= get_first_drawn_zone() && z <= get_last_drawn_zone()); }
 	uint32_t get_zone_absolute_pos(PVZoneID z) const;
+	inline PVZoneID get_number_zones() const { return (PVZoneID)get_zones_manager().get_number_zones(); }
 
 	template <class F>
 	inline bool set_all_zones_width(F const& f)

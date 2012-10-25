@@ -104,7 +104,6 @@ void PVParallelView::PVFullParallelScene::first_render()
 
 	update_zones_position(true, false);
 
-	uint32_t view_x = _parallel_view->horizontalScrollBar()->value();
 	uint32_t view_width = _parallel_view->width();
 
 	// Change view's internal counter
@@ -445,14 +444,40 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bgsel(int zid)
 	update_zone_pixmap_sel(zid);
 }
 
+int32_t PVParallelView::PVFullParallelScene::pos_last_axis() const
+{
+	const PVZoneID lastz = _lines_view.get_number_zones()-1;
+	int32_t pos = _lines_view.get_zone_absolute_pos(lastz);
+	pos += _lines_view.get_zone_width(lastz);
+	return pos;
+}
+
 void PVParallelView::PVFullParallelScene::commit_volatile_selection_Slot()
 {
 	_selection_square->finished();
-	PVZoneID zid = _lines_view.get_zone_from_scene_pos(_selection_square->rect().x());
-	QRect r = map_to_axis(zid, _selection_square->rect());
+	QRectF srect = _selection_square->rect();
+	PVLOG_INFO("srect start: %f, srect end: %f\n", srect.x(), srect.x() + srect.width());
+	// Too much on the left dude!
+	if (srect.x() + srect.width() <= 0) {
+		return;
+	}
 
-	_selection_generator.compute_selection_from_rect(zid, r, lib_view().get_volatile_selection());
-	//_parallel_view->set_selected_line_number(nb_selected_lines);
+	// Too much on the right, stop drinking!
+	const int32_t pos_end = pos_last_axis();
+	if (srect.x() >= pos_end) {
+		return;
+	}
+
+	const PVZoneID zid_start = _lines_view.get_zone_from_scene_pos(srect.x());
+	const PVZoneID zid_end = _lines_view.get_zone_from_scene_pos(srect.x() + srect.width());
+
+	lib_view().get_volatile_selection().select_none();
+	for (PVZoneID z = zid_start; z <= zid_end; z++) {
+		QRect r = map_to_axis(z, srect);
+		r.setX(picviz_max(0, r.x()));
+		r.setRight(picviz_min(pos_end-1, r.right()));
+		_selection_generator.compute_selection_from_rect(z, r, lib_view().get_volatile_selection());
+	}
 
 	store_selection_square();
 
