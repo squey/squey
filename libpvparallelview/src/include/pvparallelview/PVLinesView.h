@@ -40,7 +40,6 @@ class PVLinesView
 public:
 	typedef PVZonesDrawing<bbits> zones_drawing_t;
 	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
-	typedef typename zones_drawing_t::render_group_t render_group_t;
 	typedef typename zones_drawing_t::bci_backend_t bci_backend_t;
 
 private:
