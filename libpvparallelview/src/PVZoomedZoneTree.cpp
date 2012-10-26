@@ -349,9 +349,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 				          pv_tlr_buffer_t::tlr_index_t tlr(bci.s.type,
 				                                           bci.s.l,
 				                                           bci.s.r);
-				          if (e.idx < tlr_buffer[tlr.v].idx) {
-					          tlr_buffer.set(tlr.v, e.idx,
-					                         colors[e.idx].h());
+				          if (e.idx < tlr_buffer[tlr.v]) {
+					          tlr_buffer[tlr.v] = e.idx;
 				          }
 			          });
 		}
@@ -364,14 +363,15 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
 		const pv_tlr_buffer_t::tlr_index_t tlr(i);
 
-		if (tlr_buffer[i].idx != UINT32_MAX) {
+		const uint32_t idx = tlr_buffer[i];
+		if (idx != UINT32_MAX) {
 			pv_bci_code_t &bci = codes[bci_idx];
 			++bci_idx;
+			bci.s.idx = idx;
 			bci.s.type = tlr.s.t;
 			bci.s.l = tlr.s.l;
 			bci.s.r = tlr.s.r;
-			bci.s.color = tlr_buffer[i].col;
-			bci.s.idx = tlr_buffer[i].idx;
+			bci.s.color = colors[idx].h();
 		}
 	}
 
@@ -436,9 +436,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 				          pv_tlr_buffer_t::tlr_index_t tlr(bci.s.type,
 				                                           bci.s.l,
 				                                           bci.s.r);
-				          if (e.idx < tlr_buffer[tlr.v].idx) {
-					          tlr_buffer.set(tlr.v, e.idx,
-					                         colors[e.idx].h());
+				          if (e.idx < tlr_buffer[tlr.v]) {
+					          tlr_buffer[tlr.v] = e.idx;
 				          }
 			          });
 		}
@@ -451,14 +450,15 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
 		const pv_tlr_buffer_t::tlr_index_t tlr(i);
 
-		if (tlr_buffer[i].idx != UINT32_MAX) {
+		const uint32_t idx = tlr_buffer[i];
+		if (idx != UINT32_MAX) {
 			pv_bci_code_t &bci = codes[bci_idx];
 			++bci_idx;
+			bci.s.idx = idx;
 			bci.s.type = tlr.s.t;
 			bci.s.l = tlr.s.l;
 			bci.s.r = tlr.s.r;
-			bci.s.color = tlr_buffer[i].col;
-			bci.s.idx = tlr_buffer[i].idx;
+			bci.s.color = colors[idx].h();
 		}
 	}
 
@@ -528,9 +528,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 					                            pv_tlr_buffer_t::tlr_index_t tlr(bci.s.type,
 					                                                             bci.s.l,
 					                                                             bci.s.r);
-					                            if (e.idx < tlr_buffer[tlr.v].idx) {
-						                            tlr_buffer.set(tlr.v, e.idx,
-						                                           colors[e.idx].h());
+					                            if (e.idx < tlr_buffer[tlr.v]) {
+						                            tlr_buffer[tlr.v] = e.idx;
 					                            }
 				                            });
 			                  }
@@ -553,7 +552,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 		pv_tlr_buffer_t &tlr_buffer2 = it->get_tlr_buffer();
 
 		for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
-			if(tlr_buffer2[i].idx < tlr_buffer[i].idx) {
+			if(tlr_buffer2[i] < tlr_buffer[i]) {
 				tlr_buffer[i] = tlr_buffer2[i];
 			}
 		}
@@ -568,14 +567,15 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
 		const pv_tlr_buffer_t::tlr_index_t tlr(i);
 
-		if (tlr_buffer[i].idx != UINT32_MAX) {
+		const uint32_t idx = tlr_buffer[i];
+		if (idx != UINT32_MAX) {
 			pv_bci_code_t &bci = codes[bci_idx];
 			++bci_idx;
+			bci.s.idx = idx;
 			bci.s.type = tlr.s.t;
 			bci.s.l = tlr.s.l;
 			bci.s.r = tlr.s.r;
-			bci.s.color = tlr_buffer[i].col;
-			bci.s.idx = tlr_buffer[i].idx;
+			bci.s.color = colors[idx].h();
 		}
 	}
 
@@ -645,9 +645,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 					                            pv_tlr_buffer_t::tlr_index_t tlr(bci.s.type,
 					                                                             bci.s.l,
 					                                                             bci.s.r);
-					                            if (e.idx < tlr_buffer[tlr.v].idx) {
-						                            tlr_buffer.set(tlr.v, e.idx,
-						                                           colors[e.idx].h());
+					                            if (e.idx < tlr_buffer[tlr.v]) {
+						                            tlr_buffer[tlr.v] = e.idx;
 					                            }
 				                            });
 			                  }
@@ -670,7 +669,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 		pv_tlr_buffer_t &tlr_buffer2 = it->get_tlr_buffer();
 
 		for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
-			if(tlr_buffer2[i].idx < tlr_buffer[i].idx) {
+			if(tlr_buffer2[i] < tlr_buffer[i]) {
 				tlr_buffer[i] = tlr_buffer2[i];
 			}
 		}
@@ -685,14 +684,15 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
 		const pv_tlr_buffer_t::tlr_index_t tlr(i);
 
-		if (tlr_buffer[i].idx != UINT32_MAX) {
+		const uint32_t idx = tlr_buffer[i];
+		if (idx != UINT32_MAX) {
 			pv_bci_code_t &bci = codes[bci_idx];
 			++bci_idx;
+			bci.s.idx = idx;
 			bci.s.type = tlr.s.t;
 			bci.s.l = tlr.s.l;
 			bci.s.r = tlr.s.r;
-			bci.s.color = tlr_buffer[i].col;
-			bci.s.idx = tlr_buffer[i].idx;
+			bci.s.color = colors[idx].h();
 		}
 	}
 

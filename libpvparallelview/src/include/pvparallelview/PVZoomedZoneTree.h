@@ -37,15 +37,6 @@ namespace __impl {
 template <size_t Bbits=11>
 class PVTLRBuffer
 {
-#pragma pack(push,1)
-
-	struct data_t {
-		uint32_t idx;
-		uint8_t  col;
-	};
-
-#pragma pack(pop)
-
 public:
 	constexpr static size_t length = 3 * (1 << (2*Bbits));
 
@@ -74,7 +65,7 @@ public:
 			struct {
 				uint32_t r : Bbits;
 				uint32_t l : Bbits;
-				uint32_t t :  2;
+				uint32_t t : 2;
 			} s;
 		};
 	};
@@ -87,27 +78,21 @@ public:
 
 	void clear()
 	{
-		memset(_data, -1, length * sizeof(data_t));
+		memset(_data, -1, length * sizeof(uint32_t));
 	}
 
-	inline void set(size_t i, uint32_t idx, uint8_t c)
-	{
-		_data[i].idx = idx;
-		_data[i].col = c;
-	}
-
-	const data_t &operator[](size_t i) const
+	const uint32_t &operator[](size_t i) const
 	{
 		return _data[i];
 	}
 
-	data_t &operator[](size_t i)
+	uint32_t &operator[](size_t i)
 	{
 		return _data[i];
 	}
 
 private:
-	data_t _data[length];
+	uint32_t _data[length];
 };
 
 }
