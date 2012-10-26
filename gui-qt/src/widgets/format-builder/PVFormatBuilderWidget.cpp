@@ -79,7 +79,7 @@ void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent *event)
 	}
 }
 
-void PVInspector::PVFormatBuilderWidget::init(QWidget* parent)
+void PVInspector::PVFormatBuilderWidget::init(QWidget* parent /* = 0 */)
 {
 	setWindowTitle(FORMAT_BUILDER_TITLE);
     

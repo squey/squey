@@ -126,6 +126,13 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	_projects_tab_widget->show();
 	//connect(_workspaces_tab_widget, SIGNAL(workspace_closed(Picviz::PVSource*)), this, SLOT(close_source(Picviz::PVSource*)));
 	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_scene_for_workspace(QWidget*)));
+	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(project_new_Slot()));
+	connect(_projects_tab_widget, SIGNAL(load_project()), this, SLOT(project_load_Slot()));
+	connect(_projects_tab_widget, SIGNAL(load_project_from_path(const QString &)), this, SLOT(load_project(const QString &)));
+	connect(_projects_tab_widget, SIGNAL(load_source_from_description(PVRush::PVSourceDescription)), this, SLOT(load_source_from_description_Slot(PVRush::PVSourceDescription)));
+	connect(_projects_tab_widget, SIGNAL(new_format()), this, SLOT(new_format_Slot()));
+	connect(_projects_tab_widget, SIGNAL(load_format()), this, SLOT(open_format_Slot()));
+	connect(_projects_tab_widget, SIGNAL(edit_format(const QString &)), this, SLOT(edit_format_Slot(const QString &)));
 
 	// We display the PV Icon together with a button to import files
 	pv_centralMainWidget = new QWidget();
@@ -887,7 +894,7 @@ void PVInspector::PVMainWindow::import_type_Slot()
 	QAction* action_src = (QAction*) sender();
 	QString const& itype = action_src->data().toString();
 	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(itype);
-	import_type(in_t);	
+	import_type(in_t);
 }
 
 

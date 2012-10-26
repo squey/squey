@@ -526,6 +526,12 @@ void PVInspector::PVMainWindow::project_new_Slot()
 	new_mw->show();
 }
 
+void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
+{
+	Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(_scene, src_desc);
+	load_source(src_p);
+}
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::project_load_Slot

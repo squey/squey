@@ -60,8 +60,16 @@ public:
 	PVStartScreenWidget(QWidget* parent = 0);
 	void refresh_all_recent_items();
 	void refresh_recent_sources_items();
-
 	void refresh_recent_items(int category);
+
+signals:
+	void new_project();
+	void load_project();
+	void load_project_from_path(const QString & project);
+	void load_source_from_description(PVRush::PVSourceDescription);
+	void new_format();
+	void load_format();
+	void edit_format(const QString & project);
 
 public slots:
 	void dispatch_action(const QString& id);

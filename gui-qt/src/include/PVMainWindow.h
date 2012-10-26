@@ -184,6 +184,7 @@ public slots:
 	void lines_display_zombies_listing_Slot();
 	void lines_display_zombies_GLview_Slot();
 	void map_Slot();
+	void load_source_from_description_Slot(PVRush::PVSourceDescription);
 	void project_new_Slot();
 	void project_load_Slot();
 	bool project_save_Slot();

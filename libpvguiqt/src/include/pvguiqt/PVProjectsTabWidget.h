@@ -21,6 +21,7 @@
 #include <QTabBar>
 #include <QMouseEvent>
 #include <QStackedWidget>
+#include <QSize>
 
 namespace PVGuiQt
 {
@@ -29,6 +30,18 @@ class PVProjectsTabWidget;
 
 namespace __impl
 {
+
+class PVTabBar : public QTabWidget
+{
+public:
+	PVTabBar(QWidget* parent = 0) : QTabWidget(parent) {}
+
+public:
+	QTabBar* tabBar() const
+	{
+		return QTabWidget::tabBar();
+	}
+};
 
 class PVSplitterHandle : public QSplitterHandle
 {
@@ -77,7 +90,7 @@ public:
 	void remove_workspace(PVWorkspace* workspace, bool animation = true);
 	void remove_project(PVWorkspacesTabWidget* workspace_tab_widget);
 	void collapse_tabs(bool collapse = true);
-	inline PVWorkspacesTabWidget* current_project() const { return (PVWorkspacesTabWidget*) _stacked_widget->currentWidget(); }
+	inline PVWorkspacesTabWidget* current_project() const { return _stacked_widget->currentIndex() > 1 ? (PVWorkspacesTabWidget*) _stacked_widget->currentWidget() : nullptr; }
 	inline PVWorkspaceBase* current_workspace() const { return  current_project() ? (PVWorkspaceBase*) current_project()->currentWidget() : nullptr; }
 	PVWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Picviz::PVScene* scene);
 
@@ -88,6 +101,14 @@ private slots:
 signals:
 	void is_empty();
 	void workspace_dragged_outside(QWidget* workspace);
+	void new_project();
+	void load_source_from_description(PVRush::PVSourceDescription);
+	void load_project();
+	void load_project_from_path(const QString & project);
+	void load_source();
+	void new_format();
+	void load_format();
+	void edit_format(const QString & format);
 
 private:
 	PVWorkspacesTabWidget* add_project(Picviz::PVScene* scene, const QString & text);
@@ -95,7 +116,7 @@ private:
 
 private:
 	__impl::PVSplitter* _splitter = nullptr;
-	QTabBar* _tab_bar = nullptr;
+	__impl::PVTabBar* _tab_bar = nullptr;
 	QStackedWidget* _stacked_widget = nullptr;
 
 	PVStartScreenWidget* _start_screen_widget;

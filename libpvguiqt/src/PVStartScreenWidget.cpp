@@ -183,7 +183,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	format_widget_layout->addWidget(edit_format_button);
 
 	// Import buttons
-	//PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(import_widget_layout, _mw, SLOT(import_type_Slot()));
+	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(import_widget_layout, this, SIGNAL(import_type()));
 
 	project_widget_layout->addWidget(create_new_project_button);
 	project_widget_layout->addWidget(open_project_button);
@@ -277,10 +277,10 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	project_widget_layout->addStretch(1);
 	
 	// Connections
-	/*connect(create_new_project_button, SIGNAL(clicked(bool)), _mw, SLOT(project_new_Slot()));
-	connect(open_project_button, SIGNAL(clicked(bool)), _mw, SLOT(project_load_Slot()));
-	connect(create_new_format_button, SIGNAL(clicked(bool)), _mw, SLOT(new_format_Slot()));
-	connect(edit_format_button, SIGNAL(clicked(bool)), _mw, SLOT(open_format_Slot()));*/
+	connect(create_new_project_button, SIGNAL(clicked(bool)), this, SIGNAL(new_project()));
+	connect(open_project_button, SIGNAL(clicked(bool)), this, SIGNAL(load_project()));
+	connect(create_new_format_button, SIGNAL(clicked(bool)), this, SIGNAL(new_format()));
+	connect(edit_format_button, SIGNAL(clicked(bool)), this, SIGNAL(load_format()));
 
 	PVHive::get().register_func_observer(PVCore::PVRecentItemsManager::get(), _recent_items_add_obs);
 	PVHive::get().register_func_observer(PVCore::PVRecentItemsManager::get(), _recent_items_add_source_obs);
@@ -437,25 +437,24 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 	{
 		case PVCore::PVRecentItemsManager::Category::PROJECTS:
 		{
-			//_mw->load_project(var.toString());
+			emit load_project_from_path(var.toString());
 			break;
 		}
 		case PVCore::PVRecentItemsManager::Category::SOURCES:
 		{
 			PVRush::PVSourceDescription src_desc = var.value<PVRush::PVSourceDescription>();
-			//Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(_mw->_scene, src_desc);
-			//_mw->load_source(src_p);
+			emit load_source_from_description(src_desc);
 			break;
 		}
 		case PVCore::PVRecentItemsManager::Category::EDITED_FORMATS:
 		case PVCore::PVRecentItemsManager::Category::USED_FORMATS:
 		{
-			//_mw->edit_format_Slot(var.toString());
+			emit edit_format(var.toString());
 			break;
 		}
 		case PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS:
 		{
-			//_mw->edit_format_Slot(var.value<PVRush::PVFormat>().get_full_path());
+			emit edit_format(var.toString());
 			break;
 		}
 		default:
