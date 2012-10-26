@@ -97,6 +97,11 @@ private:
 		r.setTop(r.top() / _zoom_y);
 		r.setBottom(r.bottom() / _zoom_y);
 
+		const int32_t zone_width = _lines_view.get_zone_width(zid);
+		if (r.width() + r.x() > zone_width) {
+			r.setRight(zone_width-1);
+		}
+
 		return r;
 	}
 
@@ -134,6 +139,8 @@ private slots:
 	{
 		emit _parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
 	}
+
+	int32_t pos_last_axis() const;
 
 private:
 	struct ZoneImages

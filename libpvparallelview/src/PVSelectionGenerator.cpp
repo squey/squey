@@ -4,10 +4,12 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <pvkernel/core/picviz_bench.h>
+
+#include <picviz/PVSelection.h>
+
 #include <pvparallelview/PVSelectionGenerator.h>
 #include <pvparallelview/PVBCode.h>
-#include <pvkernel/core/picviz_bench.h>
-#include <picviz/PVSelection.h>
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVAbstractAxisSlider.h>
@@ -16,7 +18,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZon
 {
 	uint32_t nb_selected = 0;
 
-	sel.select_none();
 	int32_t width = _lines_view.get_zone_width(zid);
 
 	PVZoneTree& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zid);
