@@ -25,6 +25,7 @@
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
+#include <pvguiqt/PVImportSourceToProjectDlg.h>
 #include <pvguiqt/PVWorkspace.h>
 
 #include <PVMainWindow.h>
@@ -44,7 +45,7 @@
  *
  *****************************************************************************/
 
-
+int PVInspector::PVMainWindow::sequence_n = 1;
 
 void PVInspector::PVMainWindow::about_Slot()
 {
@@ -517,19 +518,34 @@ PVInspector::PVMainWindow* PVInspector::PVMainWindow::find_main_window(QString c
  *****************************************************************************/
 void PVInspector::PVMainWindow::project_new_Slot()
 {
-	/*if (maybe_save_project()) {
-		close_scene();
-		set_current_project_filename(QString());
-	}*/
-	PVMainWindow* new_mw = new PVMainWindow();
-	new_mw->move(x() + 40, y() + 40);
-	new_mw->show();
+	PVCore::PVDataTreeAutoShared<Picviz::PVScene> scene_p = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(get_root_sp(), _cur_project_file);
+	scene_p->set_name(tr("new-project%1." PICVIZ_SCENE_ARCHIVE_EXT).arg(sequence_n++));
+	_projects_tab_widget->add_project(scene_p);
 }
 
 void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
 {
-	Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(_scene, src_desc);
-	load_source(src_p);
+	if (_projects_tab_widget->projects_count() == 0) {
+		// No loaded project: create a new one and load the source
+		PVCore::PVDataTreeAutoShared<Picviz::PVScene> scene_p = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(get_root_sp(), _cur_project_file);
+		Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(scene_p, src_desc);
+		load_source(src_p);
+	}
+	else if (_projects_tab_widget->projects_count() == 1) {
+		// Only one project loaded: use it to load the source
+		Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(current_scene()->shared_from_this(), src_desc);
+		load_source(src_p);
+	}
+	else {
+		// More than one project loaded: ask the user the project he wants to use to load the source
+		PVGuiQt::PVImportSourceToProjectDlg dlg(_projects_tab_widget->get_projects_list(), _projects_tab_widget->get_current_project_index());
+		if (dlg.exec() == QDialog::Accepted) {
+			int project_index = dlg.result();
+			select_scene(project_index);
+			Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(current_scene()->shared_from_this(), src_desc);
+			load_source(src_p);
+		}
+	}
 }
 
 /******************************************************************************
@@ -547,34 +563,15 @@ void PVInspector::PVMainWindow::project_load_Slot()
 	}
 	QString file = _load_project_dlg.selectedFiles().at(0);
 
-	//load_project(file);
-	PVMainWindow* existing = find_main_window(file);
-	if (existing) {
-		existing->show();
-		existing->raise();
-		existing->activateWindow();
-		return;
-	}
-	if (is_project_untitled() && _scene->is_empty() && !isWindowModified()) {
-		load_project(file);
-	}
-	else {
-		PVMainWindow* other = new PVMainWindow();
-		other->move(x() + 40, y() + 40);
-		other->show();
-		if (!other->load_project(file)) {
-			other->deleteLater();
-			return;
-		}
-	}
-
+	load_project(file);
 #endif
 }
 
-void PVInspector::PVMainWindow::create_new_scene_for_workspace(QWidget* widget_workspace)
+void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_workspace)
 {
 	PVMainWindow* other = new PVMainWindow();
 	other->move(QCursor::pos());
+	other->resize(size());
 	other->show();
 
 	other->menu_activate_is_file_opened(true);
@@ -613,12 +610,23 @@ bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p 
 bool PVInspector::PVMainWindow::load_project(QString const& file)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	if (!maybe_save_project()) {
+	/*if (!maybe_save_project()) {
 		return false;
 	}
-	set_project_modified(false);
+	set_project_modified(false);*/
 
-	close_scene();
+	/*close_scene();*/
+
+
+	Picviz::PVScene* scene = _projects_tab_widget->get_scene_from_path(file);
+
+	if (scene) {
+		_projects_tab_widget->select_project(scene);
+		return false;
+	}
+
+	PVCore::PVDataTreeAutoShared<Picviz::PVScene> scene_p = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(get_root_sp(), file);
+
 	PVCore::PVSerializeArchive_p ar;
 	try {
 		ar.reset(new PVCore::PVSerializeArchiveZip(file, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
@@ -633,7 +641,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 	while (true) {
 		QString err_msg;
 		try {
-			_scene->load_from_archive(ar);
+			scene_p->load_from_archive(ar);
 		}
 		catch (PVCore::PVSerializeArchiveError& e) {
 			err_msg = tr("Error while loading project %1:\n%2").arg(file).arg(e.what());
@@ -661,7 +669,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 					QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading project..."), err_msg, QMessageBox::Ok, this);
 					box->exec();
 				}
-				close_scene();
+				//close_scene();
 				//_scene.reset();
 				return false;
 			}
@@ -669,12 +677,14 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 		break;
 	}
 
-	if (!load_scene()) {
+	if (!load_scene(scene_p.get())) {
 		PVLOG_ERROR("(PVMainWindow::project_load_Slot) error while processing the scene...\n");
-		close_scene();
+		//close_scene();
 		//_scene.reset();
 		return false;
 	}
+
+	//_projects_tab_widget->add_project(scene_p);
 
 	menu_activate_is_file_opened(true);
 	show_start_page(false);
@@ -735,7 +745,7 @@ bool PVInspector::PVMainWindow::project_save_Slot()
 		return project_saveas_Slot();
 	}
 	else {
-		PVCore::PVSerializeArchiveOptions_p options(_scene->get_default_serialize_options());
+		PVCore::PVSerializeArchiveOptions_p options(current_scene()->get_default_serialize_options());
 		return save_project(_cur_project_file, options);
 	}
 #endif
@@ -751,8 +761,8 @@ bool PVInspector::PVMainWindow::project_saveas_Slot()
 	bool ret = false;
 #ifdef CUSTOMER_CAPABILITY_SAVE
 	if (current_view()) {
-		PVCore::PVSerializeArchiveOptions_p options(_scene->get_default_serialize_options());
-		PVSaveSceneDialog* dlg = new PVSaveSceneDialog(_scene, options, this);
+		PVCore::PVSerializeArchiveOptions_p options(current_scene()->get_default_serialize_options());
+		PVSaveSceneDialog* dlg = new PVSaveSceneDialog(current_scene()->shared_from_this(), options, this);
 		if (!_current_save_project_folder.isEmpty()) {
 			dlg->setDirectory(_current_save_project_folder);
 		}
@@ -772,7 +782,7 @@ bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSeri
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
 	try {
-		_scene->save_to_file(file, options);
+		current_scene()->save_to_file(file, options);
 	}
 	catch (PVCore::PVSerializeArchiveError& e) {
 		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while saving project..."), tr("Error while saving project %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
@@ -1382,7 +1392,7 @@ void PVInspector::PVMainWindow::show_correlation_Slot()
 	if (!_ad2g_mw) {
 		_ad2g_mw = new QDialog(this);
 		_ad2g_mw->setWindowTitle(tr("Correlations"));
-		PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(_scene->get_ad2g_view_p());
+		PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(current_scene()->get_ad2g_view_p());
 		QVBoxLayout* l = new QVBoxLayout();
 		l->addWidget(ad2g_w);
 		_ad2g_mw->setLayout(l);

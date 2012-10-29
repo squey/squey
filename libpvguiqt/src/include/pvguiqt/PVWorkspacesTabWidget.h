@@ -7,6 +7,8 @@
 #ifndef __PVGUIQT_PVWORKSPACESTABWIDGET_H__
 #define __PVGUIQT_PVWORKSPACESTABWIDGET_H__
 
+#include <picviz/PVScene.h>
+
 #include <pvkernel/core/lambda_connect.h>
 
 #include <QApplication>
@@ -104,11 +106,10 @@ class PVWorkspacesTabWidget : public QTabWidget
 	friend class PVWorkspaceTabBar;
 
 public:
-	PVWorkspacesTabWidget(Picviz::PVScene* scene, QWidget* parent = 0);
+	PVWorkspacesTabWidget(Picviz::PVScene_p scene_p, QWidget* parent = 0);
 	PVWorkspacesTabWidget(QWidget* parent = 0);
 	void init();
-	Picviz::PVScene* get_scene() { return _scene; }
-	void set_scene(Picviz::PVScene* scene) { _scene = scene; }
+	Picviz::PVScene* get_scene() { return _scene_p.get(); }
 	void remove_workspace(int index, bool close_source = true);
 	int addTab(PVWorkspaceBase* page, const QString & label);
 	int count() const;
@@ -133,7 +134,7 @@ private slots:
 	void animation_state_changed(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state);
 
 private:
-	Picviz::PVScene* _scene = nullptr;
+	Picviz::PVScene_p _scene_p;
 	QTimer _automatic_tab_switch_timer;
 	int _tab_index;
 	PVTabBar* _tab_bar;

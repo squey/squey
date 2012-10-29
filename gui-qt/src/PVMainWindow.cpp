@@ -72,9 +72,10 @@ Q_DECLARE_METATYPE(Picviz::PVSource*);
 
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QMainWindow(parent),
-	_load_project_dlg(this, tr("Load a project..."), QString(), PICVIZ_SCENE_ARCHIVE_FILTER ";;" ALL_FILES_FILTER),
-	_scene(get_root_sp(), "root")
+	_load_project_dlg(this, tr("Load a project..."), QString(), PICVIZ_SCENE_ARCHIVE_FILTER ";;" ALL_FILES_FILTER)
 {
+	get_root();
+
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
 
@@ -124,8 +125,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 
 	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget();
 	_projects_tab_widget->show();
-	//connect(_workspaces_tab_widget, SIGNAL(workspace_closed(Picviz::PVSource*)), this, SLOT(close_source(Picviz::PVSource*)));
-	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_scene_for_workspace(QWidget*)));
+	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_window_for_workspace(QWidget*)));
 	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(project_new_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_project()), this, SLOT(project_load_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_project_from_path(const QString &)), this, SLOT(load_project(const QString &)));
@@ -133,6 +133,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	connect(_projects_tab_widget, SIGNAL(new_format()), this, SLOT(new_format_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_format()), this, SLOT(open_format_Slot()));
 	connect(_projects_tab_widget, SIGNAL(edit_format(const QString &)), this, SLOT(edit_format_Slot(const QString &)));
+	//connect(_projects_tab_widget, SIGNAL(is_empty()), this, SLOT(display_icon_Slot()) );
 
 	// We display the PV Icon together with a button to import files
 	pv_centralMainWidget = new QWidget();
@@ -141,9 +142,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	pv_mainLayout = new QVBoxLayout();
 	pv_mainLayout->setSpacing(40);
 	pv_mainLayout->setContentsMargins(0,0,0,0);
-
-	
-	connect(_projects_tab_widget, SIGNAL(is_empty()), this, SLOT(display_icon_Slot()) );
 
 	pv_mainLayout->addWidget(_projects_tab_widget);
 
@@ -406,22 +404,6 @@ void PVInspector::PVMainWindow::close_scene()
 	_workspaces_tab_widget->set_scene(_scene.get());
 	_ad2g_mw = NULL;
 	set_project_modified(false);*/
-}
-
-
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::close_source
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::close_source(Picviz::PVSource* src)
-{
-	_scene->remove_child(*src);
-
-	if (_scene->get_children_count() == 0) {
-		show_start_page(true);
-	}
 }
 
 
@@ -843,7 +825,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 
 		Picviz::PVSource_sp import_source;
 		try {
-			import_source = Picviz::PVSource_p(_scene, inputs, fc.second, cur_format);
+			import_source = Picviz::PVSource_p(current_scene()->shared_from_this(), inputs, fc.second, cur_format);
 			import_source->set_invalid_elts_mode(save_inv_elts);
 		}
 		catch (PVRush::PVFormatException const& e) {
@@ -1602,10 +1584,10 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
  * PVInspector::PVMainWindow::load_scene
  *
  *****************************************************************************/
-bool PVInspector::PVMainWindow::load_scene()
+bool PVInspector::PVMainWindow::load_scene(Picviz::PVScene* scene)
 {
 	// Here, load the whole scene.
-	for (auto source_p : _scene->get_children<Picviz::PVSource>()) {
+	for (auto source_p : scene->get_children<Picviz::PVSource>()) {
 		if (!load_source(source_p)) {
 			return false;
 		}
@@ -1978,12 +1960,9 @@ bool PVInspector::PVMainWindow::SceneMenuEventFilter::eventFilter(QObject* obj, 
 {
 	if(event->type() == QEvent::Show) {
 		bool is_enabled = false;
-		Picviz::PVScene* s = _parent->_scene.get();
+		Picviz::PVScene* s = _parent->current_scene();
 		if (s) {
-			uint32_t nb_sources = _parent->_scene->get_children<Picviz::PVSource>().size();
-			PVLOG_INFO("s=0x%x\n", &(*s));
-			s->dump();
-			PVLOG_INFO("nb_sources=0x%x\n", nb_sources);
+			uint32_t nb_sources = _parent->current_scene()->get_children<Picviz::PVSource>().size();
 			is_enabled = nb_sources >= 2;
 		}
 		_parent->correlation_scene_Action->setEnabled(is_enabled);

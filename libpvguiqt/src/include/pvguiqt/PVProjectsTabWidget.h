@@ -30,17 +30,36 @@ class PVProjectsTabWidget : public QTabWidget
 
 public:
 	PVProjectsTabWidget(QWidget* parent = 0);
+	PVWorkspacesTabWidget* add_project(Picviz::PVScene_p scene_p);
+	void remove_project(PVWorkspacesTabWidget* workspace_tab_widget);
 	PVWorkspace* add_source(Picviz::PVSource* source);
 	void add_workspace(PVWorkspace* workspace);
 	void remove_workspace(PVWorkspace* workspace, bool animation = true);
-	void remove_project(PVWorkspacesTabWidget* workspace_tab_widget);
-	inline PVWorkspacesTabWidget* current_project() const { return _tab_widget->currentIndex() > 1 ? (PVWorkspacesTabWidget*) _tab_widget->currentWidget() : nullptr; }
+
+	inline Picviz::PVScene* current_scene() const { return current_project()->get_scene(); }
+	inline PVWorkspacesTabWidget* current_project() const { return (_current_project_index >= 2) ? (PVWorkspacesTabWidget*) widget(_current_project_index) : nullptr; }
+	inline void select_project(Picviz::PVScene* scene) { setCurrentIndex(indexOf(get_workspace_tab_widget_from_scene(scene))); }
+	inline void select_project(int index) { setCurrentIndex(index+2); }
 	inline PVWorkspaceBase* current_workspace() const { return  current_project() ? (PVWorkspaceBase*) current_project()->currentWidget() : nullptr; }
+	inline Picviz::PVView* current_view() const { return current_project() ? current_project()->get_scene()->current_view() : nullptr; }
+	inline int projects_count() { return count() -2; }
+	inline const QStringList get_projects_list()
+	{
+		QStringList projects_list;
+		for (int i = 2; i < count() ; i++) {
+			projects_list << tabText(i);
+		}
+		return projects_list;
+	}
+	inline int get_current_project_index() { return _current_project_index-2; }
+	Picviz::PVScene* get_scene_from_path(const QString & path);
 	PVWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Picviz::PVScene* scene);
 
 private slots:
+	void currentChanged_Slot(int index);
 	void emit_workspace_dragged_outside(QWidget* workspace) { emit workspace_dragged_outside(workspace); }
-	void close_project();
+	void tabCloseRequested_Slot(int index);
+	void close_project_Slot();
 
 signals:
 	void is_empty();
@@ -55,14 +74,13 @@ signals:
 	void edit_format(const QString & format);
 
 private:
-	PVWorkspacesTabWidget* add_project(Picviz::PVScene* scene, const QString & text);
 	void create_unclosable_tabs();
+	void remove_project(int index);
 
 private:
-	QTabWidget* _tab_widget = nullptr;
-
 	PVStartScreenWidget* _start_screen_widget;
 	PVWorkspacesTabWidget* _workspaces_tab_widget;
+	int _current_project_index;
 };
 
 }

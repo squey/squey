@@ -58,3 +58,7 @@ target_link_libraries(Tqt_desktop_geometry ${COMMON_LIBRARIES})
 # Vertical tabs
 add_executable(Tqt_vertical_tabs vertical_tabs.cpp common.cpp)
 target_link_libraries(Tqt_vertical_tabs ${COMMON_LIBRARIES})
+
+# PVImportSourceToProjectDlg
+add_executable(Tqt_import_source_to_project_dlg import_source_to_project_dlg.cpp)
+target_link_libraries(Tqt_import_source_to_project_dlg ${COMMON_LIBRARIES})

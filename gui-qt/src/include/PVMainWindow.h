@@ -131,8 +131,11 @@ public:
 	int report_image_index;
 	QString *report_filename;
 
-	Picviz::PVView* current_view() { return _scene->current_view(); }
-	Picviz::PVView const* current_view() const { return _scene->current_view(); }
+	Picviz::PVView* current_view() { return _projects_tab_widget->current_view(); }
+	Picviz::PVView const* current_view() const { return _projects_tab_widget->current_view(); }
+
+	void select_scene(int index) { _projects_tab_widget->select_project(index); }
+	Picviz::PVScene* current_scene() const { return _projects_tab_widget->current_scene(); }
 
 	void commit_selection_in_current_layer(Picviz::PVView* view);
 	void move_selection_to_new_layer(Picviz::PVView* view);
@@ -145,14 +148,12 @@ public:
 	/* void import_type(); */
 	void update_statemachine_label(Picviz::PVView_sp view);
 
-	void close_source(int index);
 	void close_scene();
 
 protected:
 	bool event(QEvent* event) override;
 
 public slots:
-	void close_source(Picviz::PVSource* src);
 	void about_Slot();
 	void axes_editor_Slot();
 	void axes_mode_Slot();
@@ -216,7 +217,7 @@ public slots:
 	void display_icon_Slot();
 	bool load_project(const QString &file);
 
-	void create_new_scene_for_workspace(QWidget* workspace);
+	void create_new_window_for_workspace(QWidget* workspace);
 
 protected:
 	void closeEvent(QCloseEvent* event);
@@ -250,7 +251,7 @@ private:
 	void auto_detect_formats(PVFormatDetectCtxt ctxt);
 
 private:
-	bool load_scene();
+	bool load_scene(Picviz::PVScene* scene);
 	bool load_source(Picviz::PVSource_sp src);
 	bool fix_project_errors(boost::shared_ptr<PVCore::PVSerializeArchive> ar);
 
@@ -354,11 +355,11 @@ signals:
 	void zombie_mode_changed_Signal();
 
 private:
-	PVCore::PVDataTreeAutoShared<Picviz::PVScene> _scene;
 	QDialog* _ad2g_mw;
 	QString _cur_project_file;
 	bool _cur_project_save_everything;
 	bool _is_project_untitled;
+	static int sequence_n;
 
 private:
 	version_t _last_known_cur_release;

@@ -4,6 +4,8 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
+#include <QFileInfo>
+
 #include <pvkernel/core/hash_sharedptr.h>
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
@@ -19,10 +21,12 @@
  * Picviz::PVScene::PVScene
  *
  *****************************************************************************/
-Picviz::PVScene::PVScene(QString scene_name):
-	_name(scene_name),
+Picviz::PVScene::PVScene(QString scene_path) :
+	_path(scene_path),
 	_ad2g_view(new PVAD2GView(this))
 {
+	QFileInfo info(_path);
+	_name = info.baseName();
 }
 
 /******************************************************************************

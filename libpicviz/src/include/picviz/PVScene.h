@@ -49,13 +49,15 @@ private:
 	typedef std::map<PVRush::PVInputType::base_registrable, PVCore::PVSerializeObject_p> hash_type_so_inputs;
 
 protected:
-	PVScene(QString scene_name = QString());
+	PVScene(QString scene_path = QString());
 
 public:
 	~PVScene();
 
 public:
+	void set_name(QString name) { _name = name; }
 	const QString & get_name() const { return _name; }
+	const QString & get_path() const { return _path; }
 
 	PVSource* current_source();
 	PVSource const* current_source() const;
@@ -116,6 +118,7 @@ private:
 	PVSource* _current_source = nullptr;
 	hash_type_so_inputs _so_inputs;
 
+	QString _path;
 	QString _name;
 
 	// This is a shared pointer for current issues with the widget (which will be deleted by Qt *after*

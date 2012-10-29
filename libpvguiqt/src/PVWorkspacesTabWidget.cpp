@@ -166,7 +166,7 @@ void PVGuiQt::PVTabBar::tab_changed(int index)
 
 	Picviz::PVView* view = qobject_cast<PVWorkspaceBase*>(_tab_widget->widget(index))->current_view();
 	if (view) {
-		auto scene_sp = _tab_widget->_scene->shared_from_this();
+		auto scene_sp = _tab_widget->_scene_p;
 		std::cout << "Picviz::PVScene::select_view: " << view << std::endl;
 		PVHive::call<FUNC(Picviz::PVScene::select_view)>(scene_sp, *view);
 	}
@@ -273,9 +273,9 @@ PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(QWidget* parent /* = 0 */)
 	_tab_bar->create_new_workspace();
 }
 
-PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(Picviz::PVScene* scene, QWidget* parent /* = 0 */) :
+PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(Picviz::PVScene_p scene_p, QWidget* parent /* = 0 */) :
 	QTabWidget(parent),
-	_scene(scene),
+	_scene_p(scene_p),
 	_automatic_tab_switch_timer(this)
 {
 	_tab_bar = new PVTabBar(this);
@@ -392,7 +392,7 @@ void PVGuiQt::PVWorkspacesTabWidget::remove_workspace(int index, bool close_sour
 	if (PVWorkspace* w = qobject_cast<PVWorkspace*>(workspace)) {
 		_workspaces_count--;
 		if (close_source) {
-			_scene->remove_child(*w->get_source());
+			_scene_p->remove_child(*w->get_source());
 		}
 	}
 	else if (qobject_cast<PVOpenWorkspace*>(workspace)) {
