@@ -14,7 +14,7 @@ namespace PVCore {
 
 namespace PVBitCount {
 
-#ifdef __SSE4_1__
+#ifdef __SSE4_2__
 inline size_t bit_count(const uint64_t v) { return _mm_popcnt_u64(v); }
 inline size_t bit_count(const uint32_t v) { return _mm_popcnt_u32(v); }
 #else
