@@ -256,6 +256,8 @@ PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(QWidget* parent /* = 0 */)
 	QTabWidget(parent),
 	_automatic_tab_switch_timer(this)
 {
+	setObjectName("PVWorkspacesTabWidget");
+
 	_tab_bar = new PVWorkspaceTabBar(this);
 	setTabBar(_tab_bar);
 
@@ -418,8 +420,6 @@ void PVGuiQt::PVWorkspacesTabWidget::remove_workspace(int index, bool close_sour
 		/*QEventLoop loop;
 		loop.connect(this, SIGNAL(animation_finished()), SLOT(quit()));
 		loop.exec();*/
-
-		animation->deleteLater();
 	}
 	else {
 		removeTab(currentIndex());
@@ -439,6 +439,7 @@ void PVGuiQt::PVWorkspacesTabWidget::animation_state_changed(QAbstractAnimation:
 	if (new_state == QAbstractAnimation::Stopped && old_state == QAbstractAnimation::Running) {
 		tabBar()->setStyleSheet("");
 		removeTab(currentIndex());
+		sender()->deleteLater();
 		emit animation_finished();
 	}
 }

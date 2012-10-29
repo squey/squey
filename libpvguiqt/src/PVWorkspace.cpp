@@ -34,6 +34,8 @@
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVViewDisplay.h>
 
+#include <pvguiqt/PVWorkspacesTabWidget.h>
+
 
 /******************************************************************************
  *
@@ -51,24 +53,27 @@ PVGuiQt::PVWorkspaceBase* PVGuiQt::PVWorkspaceBase::workspace_under_mouse()
 	for (QWidget* top_widget : QApplication::topLevelWidgets()) {
 		QMainWindow* w = qobject_cast<QMainWindow*>(top_widget);
 		if (w) {
-			for (QTabWidget* tab_widget : w->findChildren<QTabWidget*>()) {
-				PVWorkspaceBase* workspace = qobject_cast<PVWorkspaceBase*>(tab_widget->currentWidget());
-				if (workspace) {
-					active_workspaces.append(workspace);
+			for (QTabWidget* project_tab_widget : w->findChildren<QTabWidget*>("PVProjectsTabWidget")) {
+				PVWorkspacesTabWidget* workspace_tab_widget = qobject_cast<PVWorkspacesTabWidget*>(project_tab_widget->currentWidget());
+				if (workspace_tab_widget) {
+					PVWorkspaceBase* workspace = qobject_cast<PVWorkspaceBase*>(workspace_tab_widget->currentWidget());
+					if (workspace) {
+						active_workspaces.append(workspace);
+					}
 				}
 			}
 		}
 	}
 
-	assert(active_workspaces.size() > 0); // Hierarchy is supposed to be: PVMainWindow > PVWorkspaceTabWidget > PVWorkspaceBase.
+	assert(active_workspaces.size() > 0); // Hierarchy is supposed to be: PVMainWindow > PVProjectsTabWidget > PVWorkspaceTabWidget > PVWorkspaceBase.
 
 	PVWorkspaceBase* workspace = nullptr;
-	int z_oder = -1;
+	int z_order = -1;
 
 	for (PVWorkspaceBase* w : active_workspaces) {
 		if (w->geometry().contains(w->mapFromGlobal(QCursor::pos()))) {
-			if (w->z_order() > z_oder) {
-				z_oder = w->z_order();
+			if (w->z_order() > z_order) {
+				z_order = w->z_order();
 				workspace = w;
 			}
 		}

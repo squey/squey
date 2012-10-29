@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 
 	projects_tab_widget->add_source(src.get());
 
-	projects_tab_widget->collapse_tabs();
+	//projects_tab_widget->collapse_tabs();
 	//projects_tab_widget->collapse_tabs(false);
 
 	mw->show();

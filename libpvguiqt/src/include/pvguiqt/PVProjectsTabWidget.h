@@ -16,70 +16,15 @@
 
 #include <QWidget>
 #include <QObject>
-#include <QSplitter>
-#include <QSplitterHandle>
-#include <QTabBar>
+#include <QTabWidget>
 #include <QMouseEvent>
-#include <QStackedWidget>
 #include <QSize>
 
 namespace PVGuiQt
 {
 class PVStartScreenWidget;
-class PVProjectsTabWidget;
 
-namespace __impl
-{
-
-class PVTabBar : public QTabWidget
-{
-public:
-	PVTabBar(QWidget* parent = 0) : QTabWidget(parent) {}
-
-public:
-	QTabBar* tabBar() const
-	{
-		return QTabWidget::tabBar();
-	}
-};
-
-class PVSplitterHandle : public QSplitterHandle
-{
-public:
-	PVSplitterHandle(Qt::Orientation orientation, QSplitter* parent = 0) : QSplitterHandle(orientation, parent) {}
-	void set_max_size(int max_size) { _max_size = max_size; }
-	int get_max_size() const { return _max_size; }
-
-protected:
-	void mouseMoveEvent(QMouseEvent* event) override
-	{
-		assert(_max_size > 0); // set splitter handle max size!
-		QList<int> sizes = splitter()->sizes();
-		assert(sizes.size() > 0);
-		if ((sizes[0] == 0 && event->pos().x() < _max_size) || (sizes[0] != 0 && event->pos().x() < 0)) {
-			QSplitterHandle::mouseMoveEvent(event);
-		}
-	}
-
-private:
-	int _max_size = 0;
-};
-
-class PVSplitter : public QSplitter
-{
-public:
-	PVSplitter(Qt::Orientation orientation, QWidget * parent = 0) : QSplitter(orientation, parent) {}
-
-protected:
-    QSplitterHandle *createHandle()
-    {
-    	return new PVSplitterHandle(orientation(), this);
-    }
-};
-
-}
-
-class PVProjectsTabWidget : public QWidget
+class PVProjectsTabWidget : public QTabWidget
 {
 	Q_OBJECT
 
@@ -89,8 +34,7 @@ public:
 	void add_workspace(PVWorkspace* workspace);
 	void remove_workspace(PVWorkspace* workspace, bool animation = true);
 	void remove_project(PVWorkspacesTabWidget* workspace_tab_widget);
-	void collapse_tabs(bool collapse = true);
-	inline PVWorkspacesTabWidget* current_project() const { return _stacked_widget->currentIndex() > 1 ? (PVWorkspacesTabWidget*) _stacked_widget->currentWidget() : nullptr; }
+	inline PVWorkspacesTabWidget* current_project() const { return _tab_widget->currentIndex() > 1 ? (PVWorkspacesTabWidget*) _tab_widget->currentWidget() : nullptr; }
 	inline PVWorkspaceBase* current_workspace() const { return  current_project() ? (PVWorkspaceBase*) current_project()->currentWidget() : nullptr; }
 	PVWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Picviz::PVScene* scene);
 
@@ -115,9 +59,7 @@ private:
 	void create_unclosable_tabs();
 
 private:
-	__impl::PVSplitter* _splitter = nullptr;
-	__impl::PVTabBar* _tab_bar = nullptr;
-	QStackedWidget* _stacked_widget = nullptr;
+	QTabWidget* _tab_widget = nullptr;
 
 	PVStartScreenWidget* _start_screen_widget;
 	PVWorkspacesTabWidget* _workspaces_tab_widget;
