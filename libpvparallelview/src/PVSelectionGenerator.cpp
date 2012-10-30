@@ -4,12 +4,12 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#include <pvparallelview/PVSelectionGenerator.h>
-#include <pvparallelview/PVBCode.h>
 #include <pvkernel/core/picviz_bench.h>
 
 #include <picviz/PVSelection.h>
 
+#include <pvparallelview/PVSelectionGenerator.h>
+#include <pvparallelview/PVBCode.h>
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVAbstractAxisSlider.h>

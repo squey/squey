@@ -56,14 +56,15 @@ int main(int argc, char **argv)
 	std::cout << "sizeof(node): " << sizeof(*qt) << std::endl;
 	std::cout << "memory used : " << qt->memory() << std::endl;
 
-	PVParallelView::PVQuadTreeEntry *entries = new PVParallelView::PVQuadTreeEntry [1<<22];
-
 	PVParallelView::pv_quadtree_buffer_entry_t *buffer = new PVParallelView::pv_quadtree_buffer_entry_t [QUADTREE_BUFFER_SIZE];
 
 	for (unsigned i = 1; i < 9; ++i) {
+		size_t num = 0;
 		std::cout << "extract BCI codes from y1 for zoom " << i << std::endl;
 		BENCH_START(extract);
-		size_t num = qt->get_first_from_y1(0, MAX_VALUE >> i, i, 1, entries, buffer);
+		qt->get_first_from_y1(0, MAX_VALUE >> i, i, 1, buffer,
+		                      [&](const PVParallelView::PVQuadTreeEntry &e)
+		                      {});
 		BENCH_END(extract, "extract", 1, 1, 1, 1);
 		std::cout << "elements found: " << num << std::endl;
 	}

@@ -306,23 +306,23 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
                                                                     uint64_t y_lim,
                                                                     int zoom,
                                                                     uint32_t width,
-                                                                    const extract_entry_f &extract_entry,
+                                                                    const extract_entries_f &extract_f,
                                                                     const PVCore::PVHSVColor *colors,
                                                                     pv_bci_code_t *codes,
                                                                     const float beta,
                                                                     const bool use_sel) const
 {
-	size_t num = 0;
 	size_t bci_idx = 0;
 	uint32_t shift = (32 - bbits) - zoom;
 	uint32_t t1_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t1_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
 	                                                    0U, 1024U);
 	zzt_tls &tls = ctx.get_tls().local();
-	PVQuadTreeEntry *quadtree_entries = tls.get_quadtree_entries();
+	pv_tlr_buffer_t &tlr_buffer = tls.get_tlr_buffer();
 	pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
 	uint32_t y2_count = SEC_COORD_COUNT;
 
+	BENCH_START(extract);
 	for (uint32_t t1 = t1_min; t1 < t1_max; ++t1) {
 		for (uint32_t t2 = 0; t2 < 1024; ++t2) {
 			PVRow tree_idx = (t2 * 1024) + t1;
@@ -337,46 +337,46 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 
 			/* lines extraction
 			 */
-			num = extract_entry(_trees[tree_idx], y2_count,
-			                    quadtree_entries, quadtree_buffer);
-
-			/* conversion into BCI codes
-			 */
-			for (size_t e_idx = 0; e_idx < num; ++e_idx) {
-				pv_bci_code_t bci;
-				PVParallelView::PVQuadTreeEntry &e = quadtree_entries[e_idx];
-
-				bci.s.idx = e.idx;
-				bci.s.color = colors[e.idx].h();
-				compute_bci_projection_y2(e.y1, e.y2, y_min, y_lim,
-				                          shift, mask_int_ycoord,
-				                          width, beta, bci);
-
-				/* zoom make some entries having the same BCI codes. It is also useless
-				 * to render all of them.
-				 */
-				if (bci_idx == 0) {
-					// first entry, insert it!
-					codes[bci_idx] = bci;
-					++bci_idx;
-				} else if ((codes[bci_idx-1].s.l != bci.s.l)
-				           ||
-				           (codes[bci_idx-1].s.r != bci.s.r)
-				           ||
-				           (codes[bci_idx-1].s.type != bci.s.type)) {
-					// the BCI code is a new one, insert it!
-					codes[bci_idx] = bci;
-					++bci_idx;
-				} else {
-					// same BCI code
-					if (bci.s.idx < codes[bci_idx-1].s.idx) {
-						// we want the entry with the lowest index
-						codes[bci_idx-1] = bci;
-					}
-				}
-			}
+			extract_f(_trees[tree_idx], y2_count,
+			          quadtree_buffer,
+			          [&](const PVQuadTreeEntry &e)
+			          {
+				          pv_bci_code_t bci;
+				          compute_bci_projection_y2(e.y1, e.y2,
+				                                    y_min, y_lim,
+				                                    shift, mask_int_ycoord,
+				                                    width, beta, bci);
+				          pv_tlr_buffer_t::tlr_index_t tlr(bci.s.type,
+				                                           bci.s.l,
+				                                           bci.s.r);
+				          if (e.idx < tlr_buffer[tlr.v]) {
+					          tlr_buffer[tlr.v] = e.idx;
+				          }
+			          });
 		}
 	}
+	BENCH_END(extract, "extraction", 1, 1, 1, 1);
+
+	/* extracting BCI codes from TLR buffer
+	 */
+	BENCH_START(compute);
+	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
+		const pv_tlr_buffer_t::tlr_index_t tlr(i);
+
+		const uint32_t idx = tlr_buffer[i];
+		if (idx != UINT32_MAX) {
+			pv_bci_code_t &bci = codes[bci_idx];
+			++bci_idx;
+			bci.s.idx = idx;
+			bci.s.type = tlr.s.t;
+			bci.s.l = tlr.s.l;
+			bci.s.r = tlr.s.r;
+			bci.s.color = colors[idx].h();
+		}
+	}
+
+	tlr_buffer.clear();
+	BENCH_END(compute, "computation", 1, 1, 1, 1);
 
 	std::cout << "::browse_trees_bci_by_y1 -> " << bci_idx << std::endl;
 
@@ -393,23 +393,23 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
                                                                     uint64_t y_lim,
                                                                     int zoom,
                                                                     uint32_t width,
-                                                                    const extract_entry_f &extract_entry,
+                                                                    const extract_entries_f &extract_f,
                                                                     const PVCore::PVHSVColor *colors,
                                                                     pv_bci_code_t *codes,
                                                                     const float beta,
                                                                     const bool use_sel) const
 {
-	size_t num = 0;
 	size_t bci_idx = 0;
 	uint32_t shift = (32 - bbits) - zoom;
 	uint32_t t2_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t2_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
 	                                                    0U, 1024U);
 	zzt_tls &tls = ctx.get_tls().local();
-	PVQuadTreeEntry *quadtree_entries = tls.get_quadtree_entries();
+	pv_tlr_buffer_t &tlr_buffer = tls.get_tlr_buffer();
 	pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
 	uint32_t y1_count = SEC_COORD_COUNT;
 
+	BENCH_START(extract);
 	for (uint32_t t2 = t2_min; t2 < t2_max; ++t2) {
 		for (uint32_t t1 = 0; t1 < 1024; ++t1) {
 			PVRow tree_idx = (t2 * 1024) + t1;
@@ -424,46 +424,46 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 
 			/* lines extraction
 			 */
-			num = extract_entry(_trees[tree_idx], y1_count,
-			                    quadtree_entries, quadtree_buffer);
-
-			/* conversion into BCI codes
-			 */
-			for (size_t e_idx = 0; e_idx < num; ++e_idx) {
-				pv_bci_code_t bci;
-				PVParallelView::PVQuadTreeEntry &e = quadtree_entries[e_idx];
-
-				bci.s.idx = e.idx;
-				bci.s.color = colors[e.idx].h();
-				compute_bci_projection_y1(e.y1, e.y2, y_min, y_lim,
-				                          shift, mask_int_ycoord,
-				                          width, beta, bci);
-
-				/* zoom make some entries having the same BCI codes. It is also useless
-				 * to render all of them.
-				 */
-				if (bci_idx == 0) {
-					// first entry, insert it!
-					codes[bci_idx] = bci;
-					++bci_idx;
-				} else if ((codes[bci_idx-1].s.l != bci.s.l)
-				           ||
-				           (codes[bci_idx-1].s.r != bci.s.r)
-				           ||
-				           (codes[bci_idx-1].s.type != bci.s.type)) {
-					// the BCI code is a new one, insert it!
-					codes[bci_idx] = bci;
-					++bci_idx;
-				} else {
-					// same BCI code
-					if (bci.s.idx < codes[bci_idx-1].s.idx) {
-						// we want the entry with the lowest index
-						codes[bci_idx-1] = bci;
-					}
-				}
-			}
+			extract_f(_trees[tree_idx], y1_count,
+			          quadtree_buffer,
+			          [&](const PVQuadTreeEntry &e)
+			          {
+				          pv_bci_code_t bci;
+				          compute_bci_projection_y1(e.y1, e.y2,
+				                                    y_min, y_lim,
+				                                    shift, mask_int_ycoord,
+				                                    width, beta, bci);
+				          pv_tlr_buffer_t::tlr_index_t tlr(bci.s.type,
+				                                           bci.s.l,
+				                                           bci.s.r);
+				          if (e.idx < tlr_buffer[tlr.v]) {
+					          tlr_buffer[tlr.v] = e.idx;
+				          }
+			          });
 		}
 	}
+	BENCH_END(extract, "extraction", 1, 1, 1, 1);
+
+	/* extracting BCI codes from TLR buffer
+	 */
+	BENCH_START(compute);
+	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
+		const pv_tlr_buffer_t::tlr_index_t tlr(i);
+
+		const uint32_t idx = tlr_buffer[i];
+		if (idx != UINT32_MAX) {
+			pv_bci_code_t &bci = codes[bci_idx];
+			++bci_idx;
+			bci.s.idx = idx;
+			bci.s.type = tlr.s.t;
+			bci.s.l = tlr.s.l;
+			bci.s.r = tlr.s.r;
+			bci.s.color = colors[idx].h();
+		}
+	}
+
+	tlr_buffer.clear();
+	BENCH_END(compute, "computation", 1, 1, 1, 1);
 
 	std::cout << "::browse_trees_bci_by_y2 -> " << bci_idx << std::endl;
 
@@ -480,7 +480,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
                                                                     uint64_t y_lim,
                                                                     int zoom,
                                                                     uint32_t width,
-                                                                    const extract_entry_f &extract_entry,
+                                                                    const extract_entries_f &extract_f,
                                                                     const PVCore::PVHSVColor *colors,
                                                                     pv_bci_code_t *codes,
                                                                     const float beta,
@@ -491,15 +491,15 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 	uint32_t t1_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
 	                                                    0U, 1024U);
 
+	BENCH_START(extract);
 	tbb::parallel_for(tbb::blocked_range2d<uint32_t>(t1_min, t1_max, 0, 1024),
 	                  [&] (const tbb::blocked_range2d<uint32_t> &r)
 	                  {
 		                  zzt_tls &tls = ctx.get_tls().local();
-		                  PVQuadTreeEntry *quadtree_entries = tls.get_quadtree_entries();
+		                  pv_tlr_buffer_t &tlr_buffer = tls.get_tlr_buffer();
 		                  pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
 
 		                  size_t bci_idx = tls.get_index();
-		                  pv_bci_code_t *bci_codes = tls.get_bci_codes();
 		                  uint32_t y2_count = SEC_COORD_COUNT;
 
 		                  for (uint32_t t1 = r.rows().begin(); t1 != r.rows().end(); ++t1) {
@@ -516,62 +516,71 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 
 				                  /* lines extraction
 				                   */
-				                  size_t num = extract_entry(_trees[tree_idx], y2_count,
-				                                             quadtree_entries, quadtree_buffer);
-
-				                  /* conversion into BCI codes
-				                   */
-				                  for (size_t e_idx = 0; e_idx < num; ++e_idx) {
-					                  pv_bci_code_t bci;
-					                  PVParallelView::PVQuadTreeEntry &e = quadtree_entries[e_idx];
-
-					                  bci.s.idx = e.idx;
-					                  bci.s.color = colors[e.idx].h();
-					                  compute_bci_projection_y2(e.y1, e.y2, y_min, y_lim,
-					                                            shift, mask_int_ycoord,
-					                                            width, beta, bci);
-
-					                  /* zoom make some entries having the same BCI codes. It is also useless
-					                   * to render all of them.
-					                   */
-					                  if (bci_idx == 0) {
-						                  // first entry, insert it!
-						                  bci_codes[bci_idx] = bci;
-						                  ++bci_idx;
-					                  } else if ((bci_codes[bci_idx-1].s.l != bci.s.l)
-					                             ||
-					                             (bci_codes[bci_idx-1].s.r != bci.s.r)
-					                             ||
-					                             (bci_codes[bci_idx-1].s.type != bci.s.type)) {
-						                  // the BCI code is a new one, insert it!
-						                  bci_codes[bci_idx] = bci;
-						                  ++bci_idx;
-					                  } else {
-						                  // same BCI code
-						                  if (bci.s.idx < bci_codes[bci_idx-1].s.idx) {
-							                  // we want the entry with the lowest index
-							                  bci_codes[bci_idx-1] = bci;
-						                  }
-					                  }
-				                  }
+				                  extract_f(_trees[tree_idx], y2_count,
+				                            quadtree_buffer,
+				                            [&](const PVQuadTreeEntry &e)
+				                            {
+					                            pv_bci_code_t bci;
+					                            compute_bci_projection_y2(e.y1, e.y2,
+					                                                      y_min, y_lim,
+					                                                      shift, mask_int_ycoord,
+					                                                      width, beta, bci);
+					                            pv_tlr_buffer_t::tlr_index_t tlr(bci.s.type,
+					                                                             bci.s.l,
+					                                                             bci.s.r);
+					                            if (e.idx < tlr_buffer[tlr.v]) {
+						                            tlr_buffer[tlr.v] = e.idx;
+					                            }
+				                            });
 			                  }
 		                  }
 
 		                  tls.set_index(bci_idx);
 	                  });
+	BENCH_END(extract, "extraction", 1, 1, 1, 1);
 
 	size_t bci_idx = 0;
 
-	for(context_t::tls_set_t::iterator it = ctx.get_tls().begin();
-	    it != ctx.get_tls().end(); ++it) {
-		size_t index = it->get_index();
+	/* merging all TLR buffers
+	 */
+	BENCH_START(merge);
+	context_t::tls_set_t::iterator it = ctx.get_tls().begin();
+	pv_tlr_buffer_t &tlr_buffer = it->get_tlr_buffer();
 
-		memcpy(codes + bci_idx, it->get_bci_codes(), index * sizeof(pv_bci_code_t));
-		bci_idx += index;
+	++it;
+	for(;it != ctx.get_tls().end(); ++it) {
+		pv_tlr_buffer_t &tlr_buffer2 = it->get_tlr_buffer();
 
-		// at this point, the TLS's content can be cleared
-		it->set_index(0);
+		for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
+			if(tlr_buffer2[i] < tlr_buffer[i]) {
+				tlr_buffer[i] = tlr_buffer2[i];
+			}
+		}
+
+		tlr_buffer2.clear();
 	}
+	BENCH_END(merge, "merge", 1, 1, 1, 1);
+
+	/* extracting BCI codes from TLR buffer
+	 */
+	BENCH_START(compute);
+	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
+		const pv_tlr_buffer_t::tlr_index_t tlr(i);
+
+		const uint32_t idx = tlr_buffer[i];
+		if (idx != UINT32_MAX) {
+			pv_bci_code_t &bci = codes[bci_idx];
+			++bci_idx;
+			bci.s.idx = idx;
+			bci.s.type = tlr.s.t;
+			bci.s.l = tlr.s.l;
+			bci.s.r = tlr.s.r;
+			bci.s.color = colors[idx].h();
+		}
+	}
+
+	tlr_buffer.clear();
+	BENCH_END(compute, "computation", 1, 1, 1, 1);
 
 	std::cout << "::browse_trees_bci_by_y1_tbb -> " << bci_idx << std::endl;
 
@@ -588,7 +597,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
                                                                     uint64_t y_lim,
                                                                     int zoom,
                                                                     uint32_t width,
-                                                                    const extract_entry_f &extract_entry,
+                                                                    const extract_entries_f &extract_f,
                                                                     const PVCore::PVHSVColor *colors,
                                                                     pv_bci_code_t *codes,
                                                                     const float beta,
@@ -599,15 +608,15 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 	uint32_t t2_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
 	                                                    0U, 1024U);
 
+	BENCH_START(extract);
 	tbb::parallel_for(tbb::blocked_range2d<uint32_t>(t2_min, t2_max, 0, 1024),
 	                  [&] (const tbb::blocked_range2d<uint32_t> &r)
 	                  {
 		                  zzt_tls &tls = ctx.get_tls().local();
-		                  PVQuadTreeEntry *quadtree_entries = tls.get_quadtree_entries();
+		                  pv_tlr_buffer_t &tlr_buffer = tls.get_tlr_buffer();
 		                  pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
 
 		                  size_t bci_idx = tls.get_index();
-		                  pv_bci_code_t *bci_codes = tls.get_bci_codes();
 		                  uint32_t y1_count = SEC_COORD_COUNT;
 
 		                  for (uint32_t t2 = r.rows().begin(); t2 != r.rows().end(); ++t2) {
@@ -624,62 +633,71 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 
 				                  /* lines extraction
 				                   */
-				                  size_t num = extract_entry(_trees[tree_idx], y1_count,
-				                                             quadtree_entries, quadtree_buffer);
-
-				                  /* conversion into BCI codes
-				                   */
-				                  for (size_t e_idx = 0; e_idx < num; ++e_idx) {
-					                  pv_bci_code_t bci;
-					                  PVParallelView::PVQuadTreeEntry &e = quadtree_entries[e_idx];
-
-					                  bci.s.idx = e.idx;
-					                  bci.s.color = colors[e.idx].h();
-					                  compute_bci_projection_y1(e.y1, e.y2, y_min, y_lim,
-					                                            shift, mask_int_ycoord,
-					                                            width, beta, bci);
-
-					                  /* zoom make some entries having the same BCI codes. It is also useless
-					                   * to render all of them.
-					                   */
-					                  if (bci_idx == 0) {
-						                  // first entry, insert it!
-						                  bci_codes[bci_idx] = bci;
-						                  ++bci_idx;
-					                  } else if ((bci_codes[bci_idx-1].s.l != bci.s.l)
-					                             ||
-					                             (bci_codes[bci_idx-1].s.r != bci.s.r)
-					                             ||
-					                             (bci_codes[bci_idx-1].s.type != bci.s.type)) {
-						                  // the BCI code is a new one, insert it!
-						                  bci_codes[bci_idx] = bci;
-						                  ++bci_idx;
-					                  } else {
-						                  // same BCI code
-						                  if (bci.s.idx < bci_codes[bci_idx-1].s.idx) {
-							                  // we want the entry with the lowest index
-							                  bci_codes[bci_idx-1] = bci;
-						                  }
-					                  }
-				                  }
+				                  extract_f(_trees[tree_idx], y1_count,
+				                            quadtree_buffer,
+				                            [&](const PVQuadTreeEntry &e)
+				                            {
+					                            pv_bci_code_t bci;
+					                            compute_bci_projection_y1(e.y1, e.y2,
+					                                                      y_min, y_lim,
+					                                                      shift, mask_int_ycoord,
+					                                                      width, beta, bci);
+					                            pv_tlr_buffer_t::tlr_index_t tlr(bci.s.type,
+					                                                             bci.s.l,
+					                                                             bci.s.r);
+					                            if (e.idx < tlr_buffer[tlr.v]) {
+						                            tlr_buffer[tlr.v] = e.idx;
+					                            }
+				                            });
 			                  }
 		                  }
 
 		                  tls.set_index(bci_idx);
 	                  });
+	BENCH_END(extract, "extraction", 1, 1, 1, 1);
 
 	size_t bci_idx = 0;
 
-	for(context_t::tls_set_t::iterator it = ctx.get_tls().begin();
-	    it != ctx.get_tls().end(); ++it) {
-		size_t index = it->get_index();
+	/* merging all TLR buffers
+	 */
+	BENCH_START(merge);
+	context_t::tls_set_t::iterator it = ctx.get_tls().begin();
+	pv_tlr_buffer_t &tlr_buffer = it->get_tlr_buffer();
 
-		memcpy(codes + bci_idx, it->get_bci_codes(), index * sizeof(pv_bci_code_t));
-		bci_idx += index;
+	++it;
+	for(;it != ctx.get_tls().end(); ++it) {
+		pv_tlr_buffer_t &tlr_buffer2 = it->get_tlr_buffer();
 
-		// at this point, the TLS's content can be cleared
-		it->set_index(0);
+		for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
+			if(tlr_buffer2[i] < tlr_buffer[i]) {
+				tlr_buffer[i] = tlr_buffer2[i];
+			}
+		}
+
+		tlr_buffer2.clear();
 	}
+	BENCH_END(merge, "merge", 1, 1, 1, 1);
+
+	/* extracting BCI codes from TLR buffer
+	 */
+	BENCH_START(compute);
+	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
+		const pv_tlr_buffer_t::tlr_index_t tlr(i);
+
+		const uint32_t idx = tlr_buffer[i];
+		if (idx != UINT32_MAX) {
+			pv_bci_code_t &bci = codes[bci_idx];
+			++bci_idx;
+			bci.s.idx = idx;
+			bci.s.type = tlr.s.t;
+			bci.s.l = tlr.s.l;
+			bci.s.r = tlr.s.r;
+			bci.s.color = colors[idx].h();
+		}
+	}
+
+	tlr_buffer.clear();
+	BENCH_END(compute, "computation", 1, 1, 1, 1);
 
 	std::cout << "::browse_trees_bci_by_y2_tbb -> " << bci_idx << std::endl;
 

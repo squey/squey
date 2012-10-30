@@ -93,6 +93,11 @@ private:
 		r.setTop(r.top() / _zoom_y);
 		r.setBottom(r.bottom() / _zoom_y);
 
+		const int32_t zone_width = _lines_view.get_zone_width(zid);
+		if (r.width() + r.x() > zone_width) {
+			r.setRight(zone_width-1);
+		}
+
 		return r;
 	}
 
@@ -135,6 +140,9 @@ private slots:
 	void zr_bg_finished(int zid);
 
 	void render_all_zones_all_imgs();
+
+private:
+	int32_t pos_last_axis() const;
 
 private:
 	struct ZoneImages
