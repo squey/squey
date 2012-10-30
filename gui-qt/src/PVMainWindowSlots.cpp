@@ -516,18 +516,20 @@ PVInspector::PVMainWindow* PVInspector::PVMainWindow::find_main_window(QString c
  * PVInspector::PVMainWindow::project_new_Slot
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::project_new_Slot()
+Picviz::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 {
-	PVCore::PVDataTreeAutoShared<Picviz::PVScene> scene_p = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(get_root_sp(), _cur_project_file);
-	scene_p->set_name(tr("new-project%1." PICVIZ_SCENE_ARCHIVE_EXT).arg(sequence_n++));
+	QString scene_name = tr("new-project%1." PICVIZ_SCENE_ARCHIVE_EXT).arg(sequence_n++);
+	PVCore::PVDataTreeAutoShared<Picviz::PVScene> scene_p = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(get_root_sp(), scene_name);
 	_projects_tab_widget->add_project(scene_p);
+
+	return scene_p;
 }
 
 void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
 {
 	if (_projects_tab_widget->projects_count() == 0) {
 		// No loaded project: create a new one and load the source
-		PVCore::PVDataTreeAutoShared<Picviz::PVScene> scene_p = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(get_root_sp(), _cur_project_file);
+		PVCore::PVDataTreeAutoShared<Picviz::PVScene> scene_p = project_new_Slot();
 		Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(scene_p, src_desc);
 		load_source(src_p);
 	}
@@ -701,7 +703,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 	return true;
 }
 
-void PVInspector::PVMainWindow::set_current_project_filename(QString const& file)
+void PVInspector::PVMainWindow::set_current_project_filename(QString const& file) /*deprecated*/
 {
 	static int sequence_n = 1;
 
@@ -760,13 +762,13 @@ bool PVInspector::PVMainWindow::project_saveas_Slot()
 {
 	bool ret = false;
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	if (current_view()) {
+	if (current_scene()) {
 		PVCore::PVSerializeArchiveOptions_p options(current_scene()->get_default_serialize_options());
 		PVSaveSceneDialog* dlg = new PVSaveSceneDialog(current_scene()->shared_from_this(), options, this);
 		if (!_current_save_project_folder.isEmpty()) {
 			dlg->setDirectory(_current_save_project_folder);
 		}
-		dlg->selectFile(_cur_project_file);
+		dlg->selectFile(current_scene()->get_path());
 		if (dlg->exec() == QDialog::Accepted) {
 			QString file = dlg->selectedFiles().at(0);
 			ret = save_project(file, options);
@@ -790,33 +792,11 @@ bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSeri
 		return false;
 	}
 
+	current_scene()->set_path(file);
 	set_current_project_filename(file);
 
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 
-	return true;
-#else
-	return false;
-#endif
-}
-
-bool PVInspector::PVMainWindow::maybe_save_project()
-{
-#ifdef CUSTOMER_CAPABILITY_SAVE
-	if (isWindowModified()) {
-		QMessageBox::StandardButton ret;
-		ret = QMessageBox::warning(this, tr("Picviz Inspector"),
-				tr("The project has been modified.\n"
-					"Do you want to save your changes?"),
-				QMessageBox::Save | QMessageBox::Discard
-				| QMessageBox::Cancel);
-		if (ret == QMessageBox::Save) {
-			return project_save_Slot();
-		}
-		if (ret == QMessageBox::Cancel) {
-			return false;
-		}
-	}
 	return true;
 #else
 	return false;

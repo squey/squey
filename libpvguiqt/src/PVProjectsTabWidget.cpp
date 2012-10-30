@@ -11,15 +11,11 @@
 
 PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(QWidget* parent /*= 0*/) : QTabWidget(parent)
 {
-	//_tab_bar->setShape(QTabBar::RoundedWest);
-	//_tab_bar->setDocumentMode(true);
-	//_tab_bar->setDrawBase(true);
-
 	setObjectName("PVProjectsTabWidget");
 	setTabsClosable(true);
-	connect(this, SIGNAL(currentChanged(int)), this, SLOT(currentChanged_Slot(int)));
+	connect(this, SIGNAL(currentChanged(int)), this, SLOT(current_tab_changed(int)));
 
-	connect(tabBar(), SIGNAL(tabCloseRequested(int)), this, SLOT(tabCloseRequested_Slot(int)));
+	connect(tabBar(), SIGNAL(tabCloseRequested(int)), this, SLOT(tab_close_requested(int)));
 
 	create_unclosable_tabs();
 }
@@ -53,7 +49,8 @@ PVGuiQt::PVWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::add_project(Picviz
 {
 	PVWorkspacesTabWidget* workspace_tab_widget = new PVWorkspacesTabWidget(scene_p);
 	connect(workspace_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(emit_workspace_dragged_outside(QWidget*)));
-	connect(workspace_tab_widget, SIGNAL(is_empty()), this, SLOT(close_project_Slot()));
+	connect(workspace_tab_widget, SIGNAL(is_empty()), this, SLOT(close_project()));
+	connect(workspace_tab_widget, SIGNAL(project_modified(bool)), this, SLOT(project_modified(bool)));
 
 	insertTab(count(), workspace_tab_widget, scene_p->get_name());
 	setCurrentIndex(count()-1);
@@ -61,16 +58,80 @@ PVGuiQt::PVWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::add_project(Picviz
 	return workspace_tab_widget;
 }
 
-void PVGuiQt::PVProjectsTabWidget::close_project_Slot()
+void PVGuiQt::PVProjectsTabWidget::project_modified(bool modified)
 {
 	PVWorkspacesTabWidget* workspace_tab_widget = (PVWorkspacesTabWidget*) sender();
 	assert(workspace_tab_widget);
-	tabCloseRequested_Slot(indexOf(workspace_tab_widget));
+	int index = indexOf(workspace_tab_widget);
+	QString text = tabText(index);
+	const QString star = "*";
+	if (modified && !text.endsWith(star)) {
+		setTabText(index, text + "*");
+	}
+	else if (!modified && text.endsWith(star)) {
+		text.truncate(text.size()-2);
+		setTabText(index, text);
+	}
 }
 
-void PVGuiQt::PVProjectsTabWidget::tabCloseRequested_Slot(int index)
+bool PVGuiQt::PVProjectsTabWidget::save_modified_projects()
 {
+	for (int i = 2; i < count(); i++) {
+		PVWorkspacesTabWidget* tab_widget = (PVWorkspacesTabWidget*) widget(i);
+		if (tab_widget->is_project_modified()) {
+			if (!tab_close_requested(i)) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+void PVGuiQt::PVProjectsTabWidget::close_project()
+{
+	PVWorkspacesTabWidget* workspace_tab_widget = (PVWorkspacesTabWidget*) sender();
+	assert(workspace_tab_widget);
+	int index = indexOf(workspace_tab_widget);
 	remove_project(index);
+}
+
+bool PVGuiQt::PVProjectsTabWidget::tab_close_requested(int index)
+{
+	if (maybe_save_project(index)) {
+		remove_project(index);
+		return true;
+	}
+
+	return false;
+}
+
+bool PVGuiQt::PVProjectsTabWidget::maybe_save_project(int index)
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	PVWorkspacesTabWidget* tab_widget = (PVWorkspacesTabWidget*) widget(index);
+	if (tab_widget->is_project_modified()) {
+		QMessageBox::StandardButton ret;
+		QString project_name = tabText(index).left(tabText(index).size()-1);
+		ret = QMessageBox::warning(this, tr("%1").arg(project_name),
+				tr("The project \"%1\"has been modified.\n"
+					"Do you want to save your changes?").arg(project_name),
+				QMessageBox::Save | QMessageBox::Discard
+				| QMessageBox::Cancel);
+		if (ret == QMessageBox::Save) {
+			return /*project_save_Slot()*/ true;
+		}
+		if (ret == QMessageBox::Discard) {
+			return true;
+		}
+		else if (ret == QMessageBox::Cancel) {
+			return false;
+		}
+	}
+	return true;
+#else
+	return false;
+#endif
 }
 
 PVGuiQt::PVWorkspace* PVGuiQt::PVProjectsTabWidget::add_source(Picviz::PVSource* source)
@@ -107,13 +168,6 @@ void PVGuiQt::PVProjectsTabWidget::remove_project(PVWorkspacesTabWidget* workspa
 	remove_project(indexOf(workspace_tab_widget));
 }
 
-void PVGuiQt::PVProjectsTabWidget::currentChanged_Slot(int index)
-{
-	if (index >= 2) {
-		_current_project_index = index;
-	}
-}
-
 void PVGuiQt::PVProjectsTabWidget::remove_project(int index)
 {
 	if (index != -1) {
@@ -125,6 +179,13 @@ void PVGuiQt::PVProjectsTabWidget::remove_project(int index)
 			setCurrentIndex(0);
 			emit is_empty();
 		}
+	}
+}
+
+void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
+{
+	if (index >= 2) {
+		_current_project_index = index;
 	}
 }
 

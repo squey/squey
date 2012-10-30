@@ -133,7 +133,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	connect(_projects_tab_widget, SIGNAL(new_format()), this, SLOT(new_format_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_format()), this, SLOT(open_format_Slot()));
 	connect(_projects_tab_widget, SIGNAL(edit_format(const QString &)), this, SLOT(edit_format_Slot(const QString &)));
-	//connect(_projects_tab_widget, SIGNAL(is_empty()), this, SLOT(display_icon_Slot()) );
+	connect(_projects_tab_widget, SIGNAL(is_empty()), this, SLOT(display_icon_Slot()) );
 
 	// We display the PV Icon together with a button to import files
 	pv_centralMainWidget = new QWidget();
@@ -186,7 +186,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	set_current_project_filename(QString());
 
 	// The default title isn't set, so do this by hand...
-	setWindowTitle(QString("%1[*] - Picviz Inspector " PICVIZ_CURRENT_VERSION_STR).arg(_cur_project_file));
+	setWindowTitle(QString("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR));
 
 
 	//Set stylesheet
@@ -362,17 +362,15 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
  *****************************************************************************/
 void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 {
-	if (maybe_save_project()) {
+	if (_projects_tab_widget->save_modified_projects()) {
+		PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(tr("Closing Picviz Inspector..."), (QWidget*) this);
+		pbox->set_enable_cancel(false);
+		PVCore::PVProgressBox::progress(boost::bind(&PVMainWindow::close_all_views, this), pbox);
 		event->accept();
 	}
 	else {
 		event->ignore();
-		return;
 	}
-
-	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(tr("Closing Picviz Inspector..."), (QWidget*) this);
-	pbox->set_enable_cancel(false);
-	PVCore::PVProgressBox::progress(boost::bind(&PVMainWindow::close_all_views, this), pbox);
 }
 
 /******************************************************************************
@@ -622,10 +620,7 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
  *****************************************************************************/
 void PVInspector::PVMainWindow::display_icon_Slot()
 {
-	close_scene();
-	set_current_project_filename(QString());
-	show_start_page(true);
-	deleteLater();
+	menu_activate_is_file_opened(false);
 }
 
 

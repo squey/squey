@@ -9,6 +9,9 @@
 
 #include <picviz/PVScene.h>
 
+#include <pvhive/PVHive.h>
+#include <pvhive/PVObserverSignal.h>
+
 #include <pvkernel/core/lambda_connect.h>
 
 #include <QApplication>
@@ -113,6 +116,7 @@ public:
 	void remove_workspace(int index, bool close_source = true);
 	int addTab(PVWorkspaceBase* page, const QString & label);
 	int count() const;
+	bool is_project_modified() { return _project_modified; }
 
 protected:
 	void tabInserted(int index) override;
@@ -123,6 +127,7 @@ signals:
 	void workspace_closed(Picviz::PVSource* source);
 	void is_empty();
 	void animation_finished();
+	void project_modified(bool);
 
 private slots:
 	void tabCloseRequested_Slot(int index);
@@ -132,6 +137,7 @@ private slots:
 	void set_tab_width(int tab_width);
 	void emit_workspace_dragged_outside(QWidget* workspace) { emit workspace_dragged_outside(workspace); }
 	void animation_state_changed(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state);
+	void set_project_modified(bool modified = true);
 
 private:
 	Picviz::PVScene_p _scene_p;
@@ -143,6 +149,9 @@ private:
 
 	int _workspaces_count = 0;
 	int _openworkspaces_count = 0;
+
+	PVHive::PVObserverSignal<Picviz::PVScene> _obs_scene;
+	bool _project_modified = false;
 };
 
 }

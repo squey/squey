@@ -7,6 +7,8 @@
 #include <pvhive/PVHive.h>
 #include <pvhive/waxes/picviz/PVScene.h>
 
+#include <picviz/PVView.h>
+
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 IMPL_WAX(Picviz::PVScene::select_view, scene, args)

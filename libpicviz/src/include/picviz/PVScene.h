@@ -57,6 +57,7 @@ public:
 public:
 	void set_name(QString name) { _name = name; }
 	const QString & get_name() const { return _name; }
+	void set_path(QString path) { _path = path; }
 	const QString & get_path() const { return _path; }
 
 	PVSource* current_source();

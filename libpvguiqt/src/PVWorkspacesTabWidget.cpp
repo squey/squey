@@ -12,7 +12,6 @@
 #include <pvkernel/core/lambda_connect.h>
 
 #include <pvhive/PVCallHelper.h>
-#include <pvhive/PVHive.h>
 
 #include <iostream>
 #include <QApplication>
@@ -278,10 +277,24 @@ PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(Picviz::PVScene_p scene_p,
 	_scene_p(scene_p),
 	_automatic_tab_switch_timer(this)
 {
+	PVHive::get().register_observer(scene_p, _obs_scene);
+	_obs_scene.connect_refresh(this, SLOT(set_project_modified()));
+
 	_tab_bar = new PVTabBar(this);
 	setTabBar(_tab_bar);
 
 	init();
+}
+
+void PVGuiQt::PVWorkspacesTabWidget::set_project_modified(bool modified /* = true */)
+{
+	if (!_project_modified && modified) {
+		emit project_modified(true);
+	}
+	else if (_project_modified && !modified) {
+		emit project_modified(false);
+	}
+	_project_modified = modified;
 }
 
 void PVGuiQt::PVWorkspacesTabWidget::init()

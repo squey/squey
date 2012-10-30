@@ -186,7 +186,7 @@ public slots:
 	void lines_display_zombies_GLview_Slot();
 	void map_Slot();
 	void load_source_from_description_Slot(PVRush::PVSourceDescription);
-	void project_new_Slot();
+	Picviz::PVScene_p project_new_Slot();
 	void project_load_Slot();
 	bool project_save_Slot();
 	bool project_saveas_Slot();
@@ -225,7 +225,6 @@ protected:
 private:
 	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
 	void set_current_project_filename(const QString& file);
-	bool maybe_save_project();
 	bool is_project_untitled() { return _is_project_untitled; }
 	void set_project_modified(bool modified);
 	PVMainWindow* find_main_window(const QString& file);
