@@ -168,7 +168,7 @@ void PVParallelView::PVLibView::selection_updated()
 	}
 
 	for (PVFullParallelScene* view: _parallel_scenes) {
-		view->update_new_selection();
+		view->update_new_selection_async();
 	}
 
 	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
@@ -179,7 +179,7 @@ void PVParallelView::PVLibView::selection_updated()
 void PVParallelView::PVLibView::output_layer_updated()
 {
 	for (PVFullParallelScene* view: _parallel_scenes) {
-		view->update_all();
+		view->update_all_async();
 	}
 	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
 		view->update_all_async();
@@ -223,7 +223,7 @@ void PVParallelView::PVLibView::plotting_updated()
 
 	for (PVFullParallelScene* view: _parallel_scenes) {
 		view->set_enabled(true);
-		view->update_all();
+		view->update_all_async();
 	}
 
 	for (PVZoomedParallelScene* view: concerned_zoom) {

@@ -52,8 +52,6 @@ public:
 	virtual ~PVFullParallelScene();
 
 	void first_render();
-	void update_new_selection();
-	void update_all();
 	void update_all_with_timer();
 
 	void update_viewport();
@@ -69,6 +67,13 @@ public:
 	{
 		_parallel_view->setEnabled(value);
 	}
+
+	void update_new_selection_async();
+	void update_all_async();
+
+private slots:
+	void update_new_selection();
+	void update_all();
 
 private:
 	void update_zones_position(bool update_all = true, bool scale = true);
@@ -136,8 +141,8 @@ private slots:
 
 private slots:
 	// Slots called from PVLinesView
-	void zr_sel_finished(int zid);
-	void zr_bg_finished(int zid);
+	void zr_sel_finished(void* zr, int zid);
+	void zr_bg_finished(void* zr, int zid);
 
 	void render_all_zones_all_imgs();
 

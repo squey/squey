@@ -107,11 +107,12 @@ public:
 	void wait_for_all();
 
 public:
-	/*void set_preprocessor_state(preprocessor_id_type id, ZoneState state);
-	void set_preprocessor_state_for_zone(preprocessor_id_type id, PVZoneID z, ZoneState state);
-
-	void set_preprocessors_state(ZoneState state);
-	void set_preprocessors_state_for_zone(PVZoneID z, ZoneState state);*/
+	template <size_t bbits>
+	static void* allocate_zr()
+	{
+		return malloc(sizeof(PVZoneRendering<bbits>));
+	}
+	static void free_zr(PVZoneRenderingBase* zr);
 
 private:
 	inline tbb::flow::graph& tbb_graph() { return _g; }

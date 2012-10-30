@@ -11,6 +11,7 @@
 #include <pvparallelview/PVAbstractAxisSlider.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVZoomedSelectionAxisSliders.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 
@@ -494,7 +495,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 			if (_left_zone) {
 				if (_render_type == RENDER_ALL) { 
 					_renderable_zone_number++;
-					PVZoneRendering<bbits>* zr = new PVZoneRendering<bbits>(
+					PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
 						left_zone_id(),
 						[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
 						{
@@ -510,13 +511,13 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 						alpha, // zoom_y
 						true); // reversed
 
-					connect_zr(zr, SLOT(zr_finished(int)));
+					connect_zr(zr, "zr_finished");
 					_left_zone->last_zr_bg = zr;
 					_zp_bg.add_job(*zr);
 				}
 
 				_renderable_zone_number++;
-				PVZoneRendering<bbits>* zr = new PVZoneRendering<bbits>(
+				PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
 					left_zone_id(),
 					[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
 					{
@@ -532,7 +533,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					alpha, // zoom_y
 					true); // reversed
 
-				connect_zr(zr, SLOT(zr_finished(int)));
+				connect_zr(zr, "zr_finished");
 				_left_zone->last_zr_sel = zr;
 				_zp_sel.add_job(*zr);
 			}
@@ -572,7 +573,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				if (_render_type == RENDER_ALL) { 
 					_renderable_zone_number++;
 					_right_zone->cancel_last_bg();
-					PVZoneRendering<bbits>* zr = new PVZoneRendering<bbits>(
+					PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
 						right_zone_id(),
 						[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
 						{
@@ -588,13 +589,13 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 						alpha, // zoom_y
 						false); // reversed
 
-					connect_zr(zr, SLOT(zr_finished(int)));
+					connect_zr(zr, "zr_finished");
 					_right_zone->last_zr_bg = zr;
 					_zp_bg.add_job(*zr);
 				}
 
 				_renderable_zone_number++;
-				PVZoneRendering<bbits>* zr = new PVZoneRendering<bbits>(
+				PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
 					right_zone_id(),
 					[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
 					{
@@ -610,7 +611,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					alpha, // zoom_y
 					false); // reversed
 
-				connect_zr(zr, SLOT(zr_finished(int)));
+				connect_zr(zr, "zr_finished");
 				_right_zone->last_zr_sel = zr;
 				_zp_sel.add_job(*zr);
 			}
@@ -620,11 +621,10 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 void PVParallelView::PVZoomedParallelScene::connect_zr(PVZoneRendering<bbits>* zr, const char* slot)
 {
-	connect(zr, SIGNAL(render_finished_success(int)), this, slot);
-	//connect(zr, SIGNAL(render_finished_success(int)), zr, SLOT(deleteLater()));
+	zr->set_render_finished_slot(this, slot);
 }
 
-void PVParallelView::PVZoomedParallelScene::zr_finished(int zid)
+void PVParallelView::PVZoomedParallelScene::zr_finished(void* zr, int zid)
 {
 #ifdef NDEBUG
 	(void)(zid); // avoid unused warning
@@ -637,6 +637,9 @@ void PVParallelView::PVZoomedParallelScene::zr_finished(int zid)
 	if (_renderable_zone_number == 0) {
 		all_rendering_done();
 	}
+
+	// We became responsible for freezing that zone rendering!
+	PVRenderingPipeline::free_zr(reinterpret_cast<PVZoneRenderingBase*>(zr));
 }
 
 /*****************************************************************************

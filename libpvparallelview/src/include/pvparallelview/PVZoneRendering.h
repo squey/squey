@@ -24,10 +24,8 @@ class PVRenderingPipeline;
 template <size_t Bbits>
 class PVBCICode;
 
-class PVZoneRenderingBase: public QObject, boost::noncopyable
+class PVZoneRenderingBase: boost::noncopyable
 {
-	Q_OBJECT
-
 	typedef std::function<size_t(PVZoneID, PVCore::PVHSVColor const* colors, PVBCICodeBase* codes)> bci_func_type;
 	friend class PVRenderingPipeline;
 
@@ -40,9 +38,10 @@ public:
 		_x_start(x_start),
 		_zoom_y(zoom_y),
 		_reversed(reversed),
+		_qobject_finished_success(nullptr),
 		_finished(false)
 	{
-		_should_cancel = false;
+		init();
 	}
 
 	PVZoneRenderingBase(bool reversed = false):
@@ -51,9 +50,10 @@ public:
 		_width(0),
 		_x_start(0),
 		_reversed(reversed),
+		_qobject_finished_success(nullptr),
 		_finished(false)
 	{
-		_should_cancel = false;
+		init();
 	}
 
 	virtual ~PVZoneRenderingBase() { }
@@ -75,6 +75,8 @@ public:
 	inline void set_img_width(uint32_t w) { assert(_finished); _width = w; }
 	inline void set_img_x_start(uint32_t x) { assert(_finished); _x_start = x; }
 
+	inline void set_render_finished_slot(QObject* receiver, const char* slot) { _qobject_finished_success = receiver; _qobject_slot = slot; }
+
 public:
 	void wait_end()
 	{
@@ -90,27 +92,8 @@ public:
 		_finished = false;
 	}
 
-signals:
-	void render_finished(int zid, bool was_canceled);
-	void render_finished_success(int zid);
-
 protected:
-	// TODO: implement this
-	void finished()
-	{
-		bool was_canceled;
-		{
-			boost::lock_guard<boost::mutex> lock(_wait_mut);
-			_finished = true;
-			was_canceled = _should_cancel;
-		}
-		_wait_cond.notify_all();
-
-		if (!was_canceled) {
-			emit render_finished_success(zid());
-		}
-		emit render_finished(zid(), was_canceled);
-	}
+	void finished();
 
 protected:
 	inline size_t compute_bci(PVCore::PVHSVColor const* colors, PVBCICodeBase* codes) const { return _f_bci(zid(), colors, codes); }
@@ -118,6 +101,9 @@ protected:
 	{
 		backend(*_dst_img, img_x_start(), img_width(), codes, n, render_zoom_y(), render_reversed(), render_done);
 	}
+
+private:
+	void init();
 
 private:
 	PVZoneID _zid;
@@ -134,6 +120,10 @@ private:
 
 	bool _reversed;
 	tbb::atomic<bool> _should_cancel;
+
+	// Qt signalisation
+	QObject* _qobject_finished_success;
+	const char* _qobject_slot;
 
 	// Synchronisation
 	boost::condition_variable _wait_cond;

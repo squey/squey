@@ -139,8 +139,8 @@ void PVParallelView::PVLinesView::render_zone_bg(PVZoneID z, const float zoom_y)
 	const uint32_t width = get_zone_width(z);
 	zi.bg->set_width(width);
 
-	PVZoneRendering<PARALLELVIEW_ZT_BBITS>* zr = new PVZoneRendering<PARALLELVIEW_ZT_BBITS>(z,
-		[&](PVZoneID z, PVCore::PVHSVColor const* colors, PVBCICode<PARALLELVIEW_ZT_BBITS>* codes)
+	PVZoneRendering<PARALLELVIEW_ZT_BBITS>* zr = new (PVRenderingPipeline::allocate_zr<PARALLELVIEW_ZT_BBITS>()) PVZoneRendering<PARALLELVIEW_ZT_BBITS>(z,
+		[&,width,zoom_y](PVZoneID z, PVCore::PVHSVColor const* colors, PVBCICode<PARALLELVIEW_ZT_BBITS>* codes)
 		{
 			return this->get_zones_manager().get_zone_tree<PVZoneTree>(z).browse_tree_bci(colors, codes);
 		},
@@ -151,10 +151,7 @@ void PVParallelView::PVLinesView::render_zone_bg(PVZoneID z, const float zoom_y)
 		false // not reversed
 		);
 
-	connect_zr(zr, SLOT(zr_bg_finished(int)));
-	if (zi.last_zr_bg) {
-		zi.last_zr_bg->deleteLater();
-	}
+	connect_zr(zr, "zr_bg_finished");
 	zi.last_zr_bg = zr;
 
 	_processor_bg.add_job(*zr);
@@ -169,8 +166,8 @@ void PVParallelView::PVLinesView::render_zone_sel(PVZoneID z, const float zoom_y
 	const uint32_t width = get_zone_width(z);
 	zi.sel->set_width(width);
 
-	PVZoneRendering<PARALLELVIEW_ZT_BBITS>* zr = new PVZoneRendering<PARALLELVIEW_ZT_BBITS>(z,
-		[&](PVZoneID z, PVCore::PVHSVColor const* colors, PVBCICode<PARALLELVIEW_ZT_BBITS>* codes)
+	PVZoneRendering<PARALLELVIEW_ZT_BBITS>* zr = new (PVRenderingPipeline::allocate_zr<PARALLELVIEW_ZT_BBITS>()) PVZoneRendering<PARALLELVIEW_ZT_BBITS>(z,
+		[&,width,zoom_y](PVZoneID z, PVCore::PVHSVColor const* colors, PVBCICode<PARALLELVIEW_ZT_BBITS>* codes)
 		{
 			return this->get_zones_manager().get_zone_tree<PVZoneTree>(z).browse_tree_bci_sel(colors, codes);
 		},
@@ -181,10 +178,7 @@ void PVParallelView::PVLinesView::render_zone_sel(PVZoneID z, const float zoom_y
 		false // not reversed
 		);
 
-	connect_zr(zr, SLOT(zr_sel_finished(int)));
-	if (zi.last_zr_sel) {
-		zi.last_zr_sel->deleteLater();
-	}
+	connect_zr(zr, "zr_sel_finished");
 	zi.last_zr_sel = zr;
 
 	_processor_sel.add_job(*zr);
@@ -193,9 +187,8 @@ void PVParallelView::PVLinesView::render_zone_sel(PVZoneID z, const float zoom_y
 void PVParallelView::PVLinesView::connect_zr(PVZoneRenderingBase* zr, const char* slot)
 {
 	if (_img_update_receiver) {
-		QObject::connect(zr, SIGNAL(render_finished_success(int)), _img_update_receiver, slot);
+		zr->set_render_finished_slot(_img_update_receiver, slot);
 	}
-	//QObject::connect(zr, SIGNAL(render_finished(bool)), zr, SLOT(deleteLater()));
 }
 
 void PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width, std::function<void(PVZoneID)> const& fzone)
@@ -440,8 +433,10 @@ void PVParallelView::PVLinesView::call_refresh_slots(int zid)
 	}
 
 	QMetaObject::invokeMethod(_img_update_receiver, "zr_sel_finished", Qt::QueuedConnection,
+			Q_ARG(void*, NULL),
 			Q_ARG(int, zid));
 	QMetaObject::invokeMethod(_img_update_receiver, "zr_bg_finished",  Qt::QueuedConnection,
+			Q_ARG(void*, NULL),
 			Q_ARG(int, zid));
 }
 
@@ -464,7 +459,7 @@ void PVParallelView::PVLinesView::ZoneImages::cancel_last_sel()
 {
 	if (last_zr_sel) {
 		last_zr_sel->cancel();
-		last_zr_sel->wait_end();
+		//last_zr_sel->wait_end();
 	}
 }
 
@@ -472,7 +467,7 @@ void PVParallelView::PVLinesView::ZoneImages::cancel_last_bg()
 {
 	if (last_zr_bg) {
 		last_zr_bg->cancel();
-		last_zr_bg->wait_end();
+		//last_zr_bg->wait_end();
 	}
 }
 

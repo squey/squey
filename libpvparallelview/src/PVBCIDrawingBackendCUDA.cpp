@@ -166,7 +166,7 @@ void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage& dst_
 	backend_image_t* dst_img_cuda = dynamic_cast<backend_image_t*>(&dst_img);
 	assert(dst_img_cuda != NULL);
 #endif
-	assert(x_start + width <= (size_t) dst_img_cuda->width());
+	//assert(x_start + width <= (size_t) dst_img_cuda->width());
 
 	// Set current device according to dst_img
 	int dev_id = dst_img_cuda->get_cuda_device();

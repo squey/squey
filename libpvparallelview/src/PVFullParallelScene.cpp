@@ -13,6 +13,7 @@
 
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
+#include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVSlidersGroup.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoneRendering.h>
@@ -683,12 +684,38 @@ void PVParallelView::PVFullParallelScene::about_to_be_deleted()
 	_lines_view.cancel_and_wait_all_rendering();
 }
 
-void PVParallelView::PVFullParallelScene::zr_sel_finished(int zid)
+void PVParallelView::PVFullParallelScene::zr_sel_finished(void* zr, int zid)
 {
 	update_zone_pixmap_sel(zid);
+
+	if (zr) {
+		PVRenderingPipeline::free_zr(reinterpret_cast<PVZoneRenderingBase*>(zr));
+		
+		const PVZoneID img_id = _lines_view.get_zone_image_idx(zid);
+		PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
+		images[img_id].last_zr_sel = nullptr;
+	}
 }
 
-void PVParallelView::PVFullParallelScene::zr_bg_finished(int zid)
+void PVParallelView::PVFullParallelScene::zr_bg_finished(void* zr, int zid)
 {
 	update_zone_pixmap_bg(zid);
+
+	if (zr) {
+		PVRenderingPipeline::free_zr(reinterpret_cast<PVZoneRenderingBase*>(zr));
+
+		const PVZoneID img_id = _lines_view.get_zone_image_idx(zid);
+		PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
+		images[img_id].last_zr_bg = nullptr;
+	}
+}
+
+void PVParallelView::PVFullParallelScene::update_all_async()
+{
+	QMetaObject::invokeMethod(this, "update_all", Qt::QueuedConnection);
+}
+
+void PVParallelView::PVFullParallelScene::update_new_selection_async()
+{
+	QMetaObject::invokeMethod(this, "update_new_selection", Qt::QueuedConnection);
 }

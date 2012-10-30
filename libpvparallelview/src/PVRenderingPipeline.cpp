@@ -4,6 +4,11 @@
 
 #include <iostream>
 
+static void _free_zr(PVParallelView::PVZoneRenderingBase* zr)
+{
+	PVParallelView::PVRenderingPipeline::free_zr(zr);
+}
+
 PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& backend):
 	_bci_buffers(backend),
 	_node_limiter(_g, BCI_BUFFERS_COUNT),
@@ -25,7 +30,6 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 			return ZoneRenderingWithBCI(zr, bci_buf, n);
 		});
 	
-
 	// Create draw BCI function, according to backend flags and type
 	bool backend_sequential = ((backend_flags & PVBCIDrawingBackend::Serial) == PVBCIDrawingBackend::Serial);
 	const bool backend_sync = backend.is_sync();
@@ -100,6 +104,11 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 			[](PVZoneRenderingBase* zr)
 			{
 				zr->finished();
+				if (zr->should_cancel()) {
+					// gcc ask for "this" to be captured even w/ free_zr static..
+					//PVParallelView::PVRenderingPipeline::free_zr(zr);
+					_free_zr(zr);
+				}
 			});
 
 	// Connect this together
@@ -158,6 +167,12 @@ PVParallelView::PVZonesProcessor PVParallelView::PVRenderingPipeline::declare_pr
 	DirectInput* di = new DirectInput(tbb_graph(), _node_buffer, *_node_finish, colors);
 	_direct_inputs.push_back(di);
 	return PVZonesProcessor(di->node_process);
+}
+
+void PVParallelView::PVRenderingPipeline::free_zr(PVZoneRenderingBase* zr)
+{
+	zr->~PVZoneRenderingBase();
+	free(zr);
 }
 
 // Preprocess class

@@ -36,20 +36,12 @@ static void show_qimage(QString const& title, QImage const& img)
 
 void LinesViewMw::zr_sel_finished(int zid)
 {
-	PVParallelView::PVZoneRenderingBase* zr = qobject_cast<PVParallelView::PVZoneRenderingBase*>(sender());
-	assert(zr);
-	PVLOG_INFO("Sel zone rendering finished for zone %d\n", zr->zid());
-	assert(zr->zid() == zid);
-	show_qimage(QString("Sel %1").arg(zr->zid()), zr->dst_img().qimage());
+	PVLOG_INFO("Sel zone rendering finished for zone %d\n", zid);
 }
 
 void LinesViewMw::zr_bg_finished(int zid)
 {
-	PVParallelView::PVZoneRenderingBase* zr = qobject_cast<PVParallelView::PVZoneRenderingBase*>(sender());
-	assert(zr);
-	PVLOG_INFO("Bg zone rendering finished for zone %d\n", zr->zid());
-	assert(zr->zid() == zid);
-	show_qimage(QString("Bg %1").arg(zr->zid()), zr->dst_img().qimage());
+	PVLOG_INFO("Bg zone rendering finished for zone %d\n", zid);
 }
 
 static void init_rand_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)

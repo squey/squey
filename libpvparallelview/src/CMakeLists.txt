@@ -54,6 +54,7 @@ PVAbstractAxisSliders.cpp
 PVAbstractRangeAxisSliders.cpp
 PVSelectionAxisSlider.cpp
 PVSelectionAxisSliders.cpp
+PVZoneRendering.cpp
 PVZonesProcessor.cpp
 PVZoomAxisSlider.cpp
 PVZoomAxisSliders.cpp
