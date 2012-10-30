@@ -287,6 +287,18 @@ void Picviz::PVScene::add_source(PVSource_p const& src)
 	add_child(src);
 }
 
+Picviz::PVSource_p Picviz::PVScene::add_source_from_description(const PVRush::PVSourceDescription& descr)
+{
+	PVSource_p src_p(
+		shared_from_this(),
+		descr.get_inputs(),
+		descr.get_source_creator(),
+		descr.get_format()
+	);
+
+	return src_p;
+}
+
 void Picviz::PVScene::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options, bool save_everything)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE

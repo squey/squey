@@ -79,7 +79,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
 
-	_is_project_untitled = true;
 	_ad2g_mw = NULL;
 
 	// SIZE STUFF
@@ -182,8 +181,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	_last_known_maj_release = pvconfig.value(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
 
 	update_check();
-
-	set_current_project_filename(QString());
 
 	// The default title isn't set, so do this by hand...
 	setWindowTitle(QString("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR));
@@ -820,7 +817,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 
 		Picviz::PVSource_sp import_source;
 		try {
-			import_source = Picviz::PVSource_p(current_scene()->shared_from_this(), inputs, fc.second, cur_format);
+			PVRush::PVSourceDescription src_desc(inputs, fc.second, cur_format);
+			Picviz::PVScene_p scene_p = current_scene()->shared_from_this();
+			import_source = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc);
 			import_source->set_invalid_elts_mode(save_inv_elts);
 		}
 		catch (PVRush::PVFormatException const& e) {
@@ -844,7 +843,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	menu_activate_is_file_opened(true);
 	show_start_page(false);
 	_projects_tab_widget->setVisible(true);
-	set_project_modified(true);
 }
 
 
@@ -1695,7 +1693,6 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 	}
 
 	//connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
-	//connect(current_tab, SIGNAL(source_changed()), this, SLOT(project_modified_Slot()));
 
 	//_projects_tab_widget->setCurrentIndex(new_tab_index);
 
@@ -1708,9 +1705,6 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add_source)>(PVCore::PVRecentItemsManager::get(), src->get_source_creator(), src->get_inputs(), src->get_format());
 
 	menu_activate_is_file_opened(true);
-	show_start_page(false);
-	_projects_tab_widget->setVisible(true);
-	set_project_modified(true);
 	return true;
 }
 
@@ -1787,7 +1781,6 @@ void PVInspector::PVMainWindow::set_color_selected(QColor const& color)
 	commit_selection_in_current_layer(current_tab->current_view());
 
 	// And tell that the project has been modified
-	set_project_modified(true);
 #endif
 }
 

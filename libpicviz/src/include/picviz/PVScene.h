@@ -15,6 +15,7 @@
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVInputType.h>
+#include <pvkernel/rush/PVSourceDescription.h>
 #include <picviz/PVAD2GView.h>
 #include <picviz/PVPtrObjects.h>
 #include <picviz/PVSource_types.h>
@@ -83,7 +84,9 @@ public:
 	inline PVAD2GView_p get_ad2g_view_p() { return _ad2g_view; }
 
 	inline bool is_empty() const { return get_children().size() == 0; }
+
 	void add_source(PVSource_p const& src);
+	Picviz::PVSource_p add_source_from_description(const PVRush::PVSourceDescription& descr);
 
 	virtual QString get_serialize_description() const { return "Scene"; }
 

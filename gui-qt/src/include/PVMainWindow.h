@@ -224,16 +224,12 @@ protected:
 
 private:
 	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
-	void set_current_project_filename(const QString& file);
-	bool is_project_untitled() { return _is_project_untitled; }
-	void set_project_modified(bool modified);
 	PVMainWindow* find_main_window(const QString& file);
 	void set_selection_from_layer(Picviz::PVView_sp view, Picviz::PVLayer const& layer);
 	void display_inv_elts();
 	void close_all_views();
 
 private slots:
-	void project_modified_Slot();
 	void cur_format_changed_Slot();
 
 private:
@@ -357,7 +353,6 @@ private:
 	QDialog* _ad2g_mw;
 	QString _cur_project_file;
 	bool _cur_project_save_everything;
-	bool _is_project_untitled;
 	static int sequence_n;
 
 private:

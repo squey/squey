@@ -527,27 +527,30 @@ Picviz::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 
 void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
 {
+	Picviz::PVScene_p scene_p;
+
 	if (_projects_tab_widget->projects_count() == 0) {
 		// No loaded project: create a new one and load the source
-		PVCore::PVDataTreeAutoShared<Picviz::PVScene> scene_p = project_new_Slot();
-		Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(scene_p, src_desc);
-		load_source(src_p);
+		scene_p = project_new_Slot();
 	}
 	else if (_projects_tab_widget->projects_count() == 1) {
 		// Only one project loaded: use it to load the source
-		Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(current_scene()->shared_from_this(), src_desc);
-		load_source(src_p);
+		scene_p = current_scene()->shared_from_this();
 	}
 	else {
 		// More than one project loaded: ask the user the project he wants to use to load the source
 		PVGuiQt::PVImportSourceToProjectDlg dlg(_projects_tab_widget->get_projects_list(), _projects_tab_widget->get_current_project_index());
-		if (dlg.exec() == QDialog::Accepted) {
-			int project_index = dlg.result();
-			select_scene(project_index);
-			Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(current_scene()->shared_from_this(), src_desc);
-			load_source(src_p);
+		if (dlg.exec() != QDialog::Accepted) {
+			return;
 		}
+		scene_p = current_scene()->shared_from_this();
+		int project_index = dlg.result();
+		select_scene(project_index);
 	}
+
+	Picviz::PVSource_p src_p = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc);
+	//Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(src_desc);
+	load_source(src_p);
 }
 
 /******************************************************************************
@@ -579,7 +582,6 @@ void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_
 	other->menu_activate_is_file_opened(true);
 	other->show_start_page(false);
 	//other->_workspaces_tab_widget->setVisible(true);
-	other->set_project_modified(true);
 
 	PVGuiQt::PVWorkspace* workspace = dynamic_cast<PVGuiQt::PVWorkspace*>(widget_workspace);
 	if (workspace) {
@@ -692,47 +694,10 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 	show_start_page(false);
 	//_workspaces_tab_widget->setVisible(true);
 
-	set_current_project_filename(file);
-	if (project_has_been_fixed) {
-		set_project_modified(true);
-	}
-
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 #endif
 
 	return true;
-}
-
-void PVInspector::PVMainWindow::set_current_project_filename(QString const& file) /*deprecated*/
-{
-	static int sequence_n = 1;
-
-	_is_project_untitled = file.isEmpty();
-
-	if (is_project_untitled()) {
-		_cur_project_file = tr("new-project%1." PICVIZ_SCENE_ARCHIVE_EXT).arg(sequence_n);
-		sequence_n++;
-	}
-	else {
-		_cur_project_file = QFileInfo(file).canonicalFilePath();
-	}
-
-	setWindowTitle(QString());
-	set_project_modified(false);
-	setWindowFilePath(_cur_project_file);
-}
-
-void PVInspector::PVMainWindow::set_project_modified(bool modified)
-{
-	setWindowModified(modified);
-#ifdef CUSTOMER_CAPABILITY_SAVE
-	project_save_Action->setEnabled(modified);
-#endif
-}
-
-void PVInspector::PVMainWindow::project_modified_Slot()
-{
-	set_project_modified(true);
 }
 
 /******************************************************************************
@@ -743,7 +708,7 @@ void PVInspector::PVMainWindow::project_modified_Slot()
 bool PVInspector::PVMainWindow::project_save_Slot()
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	if (is_project_untitled()) {
+	if (/*is_project_untitled()*/true) {
 		return project_saveas_Slot();
 	}
 	else {
@@ -793,7 +758,6 @@ bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSeri
 	}
 
 	current_scene()->set_path(file);
-	set_current_project_filename(file);
 
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 
