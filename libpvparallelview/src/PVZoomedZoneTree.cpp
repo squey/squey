@@ -42,7 +42,7 @@ static inline void compute_bci_projection_y1(const uint64_t y1,
 	if (y1p >= y_lim) {
 		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::DOWN;
 		bci.s.r = ((double)width * (double)(y_lim - y2)) / (double)(y1p - y2);
-	} else if (y1p <= y_min) {
+	} else if (y1p < y_min) {
 		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::UP;
 		bci.s.r = ((double)width * (double)(y2 - y_min)) / (double)(y2 - y1p);
 	} else {
@@ -73,7 +73,7 @@ static inline void compute_bci_projection_y2(const uint64_t y1,
 	if (y2p >= y_lim) {
 		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::DOWN;
 		bci.s.r = ((double)width * (double)(y_lim - y1)) / (double)(y2p - y1);
-	} else if (y2p <= y_min) {
+	} else if (y2p < y_min) {
 		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::UP;
 		bci.s.r = ((double)width * (double)(y1 - y_min)) / (double)(y1 - y2p);
 	} else {
