@@ -235,7 +235,6 @@ void PVParallelView::PVLibView::plotting_updated()
 
 void PVParallelView::PVLibView::axes_comb_updated()
 {
-#if 0
 	/* while the zones update, views must *not* access to them;
 	 * views have also to be disabled (jobs must be cancelled
 	 * and the widgets must be disabled in the Qt's way).
@@ -287,10 +286,9 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	PVCore::PVProgressBox::progress([&]() {
 			for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
 				request_zoomed_zone_trees(view->get_axis_index());
-				view->update_all();
+				view->update_all_async();
 			}
 		}, &pbox);
-#endif
 }
 
 void PVParallelView::PVLibView::remove_view(PVFullParallelScene *scene)

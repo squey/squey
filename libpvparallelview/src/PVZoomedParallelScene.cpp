@@ -572,7 +572,6 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 				if (_render_type == RENDER_ALL) { 
 					_renderable_zone_number++;
-					_right_zone->cancel_last_bg();
 					PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
 						right_zone_id(),
 						[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
@@ -626,11 +625,7 @@ void PVParallelView::PVZoomedParallelScene::connect_zr(PVZoneRendering<bbits>* z
 
 void PVParallelView::PVZoomedParallelScene::zr_finished(void* zr, int zid)
 {
-#ifdef NDEBUG
-	(void)(zid); // avoid unused warning
-#else
 	assert(is_zone_rendered(zid));
-#endif
 
 	_renderable_zone_number--;
 	PVLOG_INFO("in zr_finished: %d\n", _renderable_zone_number);
@@ -639,6 +634,22 @@ void PVParallelView::PVZoomedParallelScene::zr_finished(void* zr, int zid)
 	}
 
 	// We became responsible for freezing that zone rendering!
+	if (zid == left_zone_id()) {
+		if (_left_zone->last_zr_sel == zr) {
+			_left_zone->last_zr_sel = nullptr;
+		}
+		else {
+			_left_zone->last_zr_bg = nullptr;
+		}
+	}
+	else {
+		if (_right_zone->last_zr_sel == zr) {
+			_right_zone->last_zr_sel = nullptr;
+		}
+		else {
+			_right_zone->last_zr_bg = nullptr;
+		}
+	}
 	PVRenderingPipeline::free_zr(reinterpret_cast<PVZoneRenderingBase*>(zr));
 }
 

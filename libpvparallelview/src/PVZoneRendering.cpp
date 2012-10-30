@@ -4,8 +4,7 @@
 void PVParallelView::PVZoneRenderingBase::init()
 {
 	_should_cancel = false;
-	// Move this object to the main thread instance !
-	//moveToThread(Qapplication::instance()->thread());
+	_qobject_finished_success = nullptr;
 }
 
 void PVParallelView::PVZoneRenderingBase::finished()
@@ -21,7 +20,7 @@ void PVParallelView::PVZoneRenderingBase::finished()
 		return;
 	}
 
-	if (_qobject_finished_success) {
+	if (_qobject_finished_success != nullptr) {
 		const int zone_id = zid();
 		QMetaObject::invokeMethod(_qobject_finished_success, _qobject_slot, Qt::QueuedConnection,
 			Q_ARG(void*, (void*)this),

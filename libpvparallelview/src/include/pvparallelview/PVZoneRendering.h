@@ -38,7 +38,6 @@ public:
 		_x_start(x_start),
 		_zoom_y(zoom_y),
 		_reversed(reversed),
-		_qobject_finished_success(nullptr),
 		_finished(false)
 	{
 		init();
@@ -50,7 +49,6 @@ public:
 		_width(0),
 		_x_start(0),
 		_reversed(reversed),
-		_qobject_finished_success(nullptr),
 		_finished(false)
 	{
 		init();
@@ -80,6 +78,10 @@ public:
 public:
 	void wait_end()
 	{
+		// Do not send any signal to any Qt objects, because another
+		// thread is waiting. That will be the responsability of this caller
+		// to remove the PVZoneRendering object.
+		_qobject_finished_success = nullptr;
 		boost::unique_lock<boost::mutex> lock(_wait_mut);
 		while (!_finished) {
 			_wait_cond.wait(lock);
@@ -122,7 +124,7 @@ private:
 	tbb::atomic<bool> _should_cancel;
 
 	// Qt signalisation
-	QObject* _qobject_finished_success;
+	tbb::atomic<QObject*> _qobject_finished_success;
 	const char* _qobject_slot;
 
 	// Synchronisation
