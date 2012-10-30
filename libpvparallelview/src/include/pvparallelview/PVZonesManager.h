@@ -76,9 +76,7 @@ public:
 		return _zones[z].get_tree<Tree>();
 	}
 
-	void invalidate_selection();
-
-	bool filter_zone_by_sel(PVZoneID zid, const Picviz::PVSelection& sel);
+	void filter_zone_by_sel(PVZoneID zid, const Picviz::PVSelection& sel);
 
 public:
 	void set_uint_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);

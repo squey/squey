@@ -8,6 +8,7 @@
 #include <vector>
 #include <list>
 #include <tuple>
+#include <iostream>
 
 #define ROUTER_INPUT_IDX_DIRECT 0
 #define ROUTER_INPUT_IDX_POSTPROCESS 1
@@ -47,26 +48,33 @@ class PVRenderingPipelinePreprocessRouter
 
 	typedef tbb::flow::or_node< std::tuple<PVZoneRenderingBase*, PVZoneRenderingBase*> > process_or_type;
 
+	struct RouterData
+	{
+		std::vector<ZoneInfos> _zones_infos;
+		PVCore::PVHSVColor const* _colors;
+	};
+
 protected:
 	struct ZoneRenderingWithColors
 	{
 		// Used by TBB internally
 		ZoneRenderingWithColors() { }
 
-		ZoneRenderingWithColors(PVZoneRenderingBase* zr_, PVCore::PVHSVColor* colors_):
+		ZoneRenderingWithColors(PVZoneRenderingBase* zr_, PVCore::PVHSVColor const* colors_):
 			zr(zr_), colors(colors_)
 		{ }
 		
 		PVZoneRenderingBase* zr;
-		PVCore::PVHSVColor* colors;
+		PVCore::PVHSVColor const* colors;
 	};
 
 	typedef tbb::flow::multifunction_node<process_or_type::output_type, std::tuple<PVZoneRenderingBase*, ZoneRenderingWithColors, PVZoneRenderingBase*> > multinode_router;
 
 public:
-	PVRenderingPipelinePreprocessRouter(size_t nzones, PVCore::PVHSVColor* colors):
-		_colors(colors)
+	PVRenderingPipelinePreprocessRouter(size_t nzones, PVCore::PVHSVColor const* colors):
+		_d(new RouterData())
 	{
+		_d->_colors = colors;
 		set_zones_count(nzones);
 	}
 
@@ -112,14 +120,14 @@ public:
 			{
 				// Put everyone and waiters
 				if (!r->should_cancel()) {
-					std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(r, _colors));
+					std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(r, _d->_colors));
 				}
 				else {
 					std::get<OutIdxCancel>(op).try_put(r);
 				}
 				for (PVZoneRenderingBase* zr: infos.waiters) {
 					if (!zr->should_cancel()) {
-						std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(zr, _colors));
+						std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(zr, _d->_colors));
 					}
 					else {
 						std::get<OutIdxCancel>(op).try_put(r);
@@ -134,19 +142,18 @@ public:
 public:
 	inline void set_zones_count(size_t n)
 	{
-		_zones_infos.resize(n);
+		_d->_zones_infos.resize(n);
 	}
 
-	inline ZoneState zone_state(size_t i) const { assert(i < _zones_infos.size()); return _zones_infos[i].state; }
-	inline void set_zone_valid(size_t i) { assert(i < _zones_infos.size()); _zones_infos[i].state = ZoneStateValid; }
+	inline ZoneState zone_state(size_t i) const { assert(i < _d->_zones_infos.size()); return _d->_zones_infos[i].state; }
+	inline void set_zone_invalid(size_t i) { assert(i < _d->_zones_infos.size()); _d->_zones_infos[i].state = ZoneStateInvalid; }
 
 private:
-	inline ZoneInfos& zone_infos(size_t i) { assert(i < _zones_infos.size()); return _zones_infos[i]; }
-	inline ZoneInfos const& zone_infos(size_t i) const { assert(i < _zones_infos.size()); return _zones_infos[i]; }
+	inline ZoneInfos& zone_infos(size_t i) { assert(i < _d->_zones_infos.size()); return _d->_zones_infos[i]; }
+	inline ZoneInfos const& zone_infos(size_t i) const { assert(i < _d->_zones_infos.size()); return _d->_zones_infos[i]; }
 
 private:
-	std::vector<ZoneInfos> _zones_infos;
-	PVCore::PVHSVColor* _colors;
+	boost::shared_ptr<RouterData> _d;
 };
 
 }

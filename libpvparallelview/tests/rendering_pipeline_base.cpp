@@ -30,7 +30,7 @@ PVParallelView::PVZoneRendering<10>* new_zr(PVParallelView::PVBCIDrawingBackend&
 	dst_img = backend.create_image(1024, 10);
 	PVParallelView::PVZoneRendering<10>* zr = new PVParallelView::PVZoneRendering<10>(
 		0,
-		[n](PVCore::PVHSVColor* colors_, PVParallelView::PVBCICode<10>* codes)
+		[n](PVZoneID, PVCore::PVHSVColor const* colors_, PVParallelView::PVBCICode<10>* codes)
 		{
 			for (size_t i = 0; i < n; i++) {
 				codes[i].int_v = 0;
@@ -67,10 +67,11 @@ int main(int argc, char** argv)
 
 	PVParallelView::PVZonesProcessor p = pipeline->declare_processor([](PVZoneID z) { std::cout << "Preprocess for zone " << z << std::endl; }, colors, 2);
 
-#define NJOBS 19
+#define NJOBS 40
 	std::vector<PVParallelView::PVZoneRendering<10>*> zrs;
 	std::vector<PVParallelView::PVBCIBackendImage_p> dimgs;
 	zrs.reserve(NJOBS);
+	dimgs.reserve(NJOBS);
 	for (size_t i = 0; i < NJOBS; i++) {
 		PVParallelView::PVBCIBackendImage_p dst_img;
 		PVParallelView::PVZoneRendering<10>* zr = new_zr(backend, n, dst_img);
@@ -87,6 +88,7 @@ int main(int argc, char** argv)
 		zrs[i]->cancel();
 		std::cout << zrs[i] << " canceled." << std::endl;
 	}
+	
 	for (size_t i = 0; i < NJOBS; i++) {
 		std::cout << "Waiting for " << zrs[i] << " to finished" << std::endl;
 		tbb::tick_count start = tbb::tick_count::now();
@@ -94,11 +96,11 @@ int main(int argc, char** argv)
 		tbb::tick_count end = tbb::tick_count::now();
 		time_cancel += (end-start).seconds();
 	}
-	std::cout << "Average cancelation time: " << (time_cancel*1000.0)/((double)NJOBS) << " ms." << std::endl;*/
+	std::cout << "Average cancelation time: " << (time_cancel*1000.0)/((double)NJOBS) << " ms." << std::endl;
 
-	/*
+	
 	QApplication app(argc, argv);
-	for (size_t i = 0; i < 15; i++) {
+	for (size_t i = 0; i < NJOBS; i++) {
 		PVParallelView::PVZoneRendering<10>* zr = zrs[i];
 		if (zr->wait_end()) {
 			show_qimage(QString::number(i), dimgs[i]->qimage());

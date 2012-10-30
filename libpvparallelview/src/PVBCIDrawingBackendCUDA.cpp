@@ -177,7 +177,6 @@ void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage& dst_
 	data->done_function = render_done;
 	cudaStream_t stream = dev.stream;
 
-	BENCH_START(launch);
 	picviz_verify_cuda(cudaMemcpyAsync(dev.device_codes, codes, n*sizeof(codes), cudaMemcpyHostToDevice, stream));
 	switch (dst_img.height_bits()) {
 		case 10:
@@ -193,7 +192,6 @@ void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage& dst_
 	picviz_verify_cuda_kernel();
 	dst_img_cuda->copy_device_to_host(stream);
 	picviz_verify_cuda(cudaStreamAddCallback(stream, &PVBCIDrawingBackendCUDA::image_rendered_and_copied_callback, (void*) data, 0));
-	BENCH_END(launch, "kernel launch", 1, 1, 1, 1);
 }
 
 void PVParallelView::PVBCIDrawingBackendCUDA::image_rendered_and_copied_callback(cudaStream_t stream, cudaError_t status, void* data_)

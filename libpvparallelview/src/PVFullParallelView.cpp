@@ -44,7 +44,7 @@ void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent *event)
 	if(fps != nullptr) {
 		fps->update_viewport();
 		fps->update_scene();
-		fps->update_all();
+		fps->update_all_with_timer();
 
 		/* to force the view to be always at the top. Otherwise,
 		 * resizing the window to a smallet size automatically translates

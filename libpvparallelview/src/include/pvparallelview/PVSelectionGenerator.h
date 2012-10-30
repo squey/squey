@@ -39,8 +39,8 @@ public:
 	uint32_t compute_selection_from_sliders(PVZoneID zid, const typename PVAxisGraphicsItem::selection_ranges_t& ranges, Picviz::PVSelection& sel);
 
 private:
-	inline PVZonesManager& get_zones_manager() { return _lines_view.get_zones_manager(); }
 	inline PVZonesManager const& get_zones_manager() const { return _lines_view.get_zones_manager(); }
+
 private:
 	PVLinesView& _lines_view;
 };

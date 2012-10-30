@@ -357,7 +357,6 @@ static void show_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint
 	int nblocks = PVCuda::get_number_blocks();
 	int nblocks_x = (width+nthreads_x-1)/nthreads_x;
 	int nblocks_y = 1;
-	std::cout << "CUDA launch on stream " << stream << std::endl;
 	bcicode_raster_unroll2<Bbits, reverse><<<dim3(nblocks_x,nblocks_y),dim3(nthreads_x, nthreads_y), 0, stream>>>((uint2*) device_codes, n, width, device_img, img_width, x_start, zoom_y);
 }
 

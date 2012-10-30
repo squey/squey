@@ -23,9 +23,7 @@ public:
 	PVZone():
 		_ztree(new PVZoneTree()),
 		_zoomed_ztree(new PVZoomedZoneTree(_ztree->get_sel_elts()))
-	{
-		invalid_selection();
-	}
+	{ }
 
 public:
 	PVZoneTree& ztree() { return *_ztree; }
@@ -34,26 +32,9 @@ public:
 	PVZoomedZoneTree& zoomed_ztree() { return *_zoomed_ztree; }
 	PVZoomedZoneTree const& zoomed_ztree() const { return *_zoomed_ztree; }
 
-	void invalid_selection() { _zone_state = INVALID; }
-
-	bool filter_by_sel(const Picviz::PVSelection& sel, const PVRow nrows, bool& changed)
+	inline void filter_by_sel(const Picviz::PVSelection& sel, const PVRow nrows)
 	{
-		const zone_state_t cur_state = _zone_state.compare_and_swap(BEING_PROCESSED, INVALID);
-		if (cur_state == INVALID) {
-			_ztree->filter_by_sel(sel, nrows);
-			_zone_state = UP_TO_DATE;
-			changed = true;
-			return true;
-		}
-		else
-		if (cur_state == BEING_PROCESSED) {
-			changed = false;
-			return false;
-		}
-		else {
-			changed = false;
-			return true;
-		}
+		_ztree->filter_by_sel(sel, nrows);
 	}
 
 	template <class Tree>
@@ -72,21 +53,13 @@ public:
 
 	void reset()
 	{
-		_zone_state = INVALID;
 		_ztree.reset(new PVZoneTree());
 		_zoomed_ztree.reset(new PVZoomedZoneTree(_ztree->get_sel_elts()));
 	}
 
 private:
-	enum zone_state_t {
-		UP_TO_DATE,
-		BEING_PROCESSED,
-		INVALID
-	};
-private:
 	PVZoneTree_p _ztree;
 	PVZoomedZoneTree_p _zoomed_ztree;
-	tbb::atomic<zone_state_t> _zone_state;
 
 };
 

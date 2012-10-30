@@ -282,7 +282,6 @@ public:
 		}
 		if ((nelts_found > 0) &&
 		    (_nelts->fetch_and_add(-nelts_found) <= nelts_found)) {
-			PVLOG_INFO("TBBSelFilterMaxCount: all elts found. cancelling...\n");
 			_ctxt->cancel_group_execution();
 		}
 	}

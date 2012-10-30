@@ -7,6 +7,8 @@
 #ifndef PVPARALLELVIEW_PVLIBVIEW_H
 #define PVPARALLELVIEW_PVLIBVIEW_H
 
+#include <pvkernel/core/PVSharedPointer.h>
+
 #include <picviz/PVAxesCombination.h>
 #include <picviz/PVPlotting.h>
 #include <picviz/PVView_types.h>
@@ -14,10 +16,8 @@
 #include <pvhive/PVObserverSignal.h>
 #include <pvhive/PVCallHelper.h>
 
-#include <pvparallelview/PVFullParallelScene.h>
-#include <pvparallelview/PVZoomedParallelScene.h>
+#include <pvparallelview/PVZonesProcessor.h>
 #include <pvparallelview/PVZonesManager.h>
-#include <pvparallelview/PVSlidersManager.h>
 
 #include <QObject>
 
@@ -28,6 +28,11 @@ namespace PVParallelView
 
 class PVZonesManager;
 class PVFuncObserverSignal;
+class PVFullParallelScene;
+class PVFullParallelView;
+class PVZoomedParallelScene;
+class PVZoomedParallelView;
+class PVSlidersManager;
 
 class PVLibView
 {
@@ -62,12 +67,10 @@ protected:
 protected:
 	void common_init_view(Picviz::PVView_sp& view_sp);
 	void common_init_zm();
-	tbb::task* task_root() { return _task_root; }
-	tbb::task_group_context& task_group_context() { return _tasks_ctxt; }
 
 private:
 	PVZonesManager                            _zones_manager;
-	PVSlidersManager_p                        _sliders_manager_p;
+	PVCore::PVSharedPtr<PVSlidersManager>     _sliders_manager_p;
 	PVHive::PVObserver_p<Picviz::PVLayer>     _obs_output_layer;
 	PVHive::PVObserver_p<Picviz::PVSelection> _obs_sel;
 	PVHive::PVObserver_p<Picviz::PVView>      _obs_view;
@@ -76,11 +79,9 @@ private:
 	scene_list_t                              _parallel_scenes;
 	zoomed_scene_list_t                       _zoomed_parallel_scenes;
 	PVCore::PVHSVColor                 const* _colors;
-	tbb::task                                *_task_root;
-	tbb::task_group_context                   _tasks_ctxt;
 
-	PVZonesDrawing<PARALLELVIEW_ZT_BBITS>     _zd_zt;
-	PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>    _zd_zzt;
+	PVZonesProcessor _processor_sel;
+	PVZonesProcessor _processor_bg;
 };
 
 }

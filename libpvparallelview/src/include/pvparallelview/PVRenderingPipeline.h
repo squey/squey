@@ -9,11 +9,16 @@
 // The order here is important
 #include <pvparallelview/PVZoneRendering.h>
 #include <pvparallelview/PVRenderingPipelinePreprocessRouter.h>
+#include <pvparallelview/PVZonesProcessor.h>
 
 #include <functional>
 
 namespace PVCore {
 class PVHSVColor;
+}
+
+namespace Picviz {
+class PVSelection;
 }
 
 namespace PVParallelView {
@@ -23,38 +28,7 @@ class PVRenderingPipelinePreprocessRouter;
 class PVBCIDrawingBackend;
 class PVRenderingPipeline;
 
-struct PVZonesProcessor
-{
-	friend class PVRenderingPipeline;
-	typedef tbb::flow::receiver<PVZoneRenderingBase*> receiver_type;
-
-protected:
-	PVZonesProcessor(receiver_type& in_port):
-		_in_port(&in_port)
-	{ }
-
-public:
-	PVZonesProcessor(PVZonesProcessor const& zp):
-		_in_port(zp._in_port)
-	{ }
-
-	inline PVZonesProcessor& operator=(PVZonesProcessor const& zp)
-	{
-		if (&zp != this) {
-			_in_port = zp._in_port;
-		}
-		return *this;
-	}
-
-public:
-	inline bool add_job(PVZoneRenderingBase& zr)
-	{
-		return _in_port->try_put(&zr);
-	}
-
-private:
-	receiver_type* _in_port;
-};
+class PVZonesManager;
 
 class PVRenderingPipeline: boost::noncopyable
 {
@@ -89,7 +63,7 @@ class PVRenderingPipeline: boost::noncopyable
 
 		typedef tbb::flow::receiver<PVZoneRenderingBase*> input_port_type;
 
-		Preprocessor(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, preprocess_func_type const& f, PVCore::PVHSVColor* colors, size_t nzones);
+		Preprocessor(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones);
 
 		inline input_port_type& input_port() { return tbb::flow::input_port<PVRenderingPipelinePreprocessRouter::InputIdxDirect>(node_or); }
 
@@ -102,7 +76,7 @@ class PVRenderingPipeline: boost::noncopyable
 	struct DirectInput: boost::noncopyable
 	{
 		typedef tbb::flow::multifunction_node<PVZoneRenderingBase*, std::tuple<ZoneRenderingWithColors, PVZoneRenderingBase*>> direct_process_type;
-		DirectInput(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, PVCore::PVHSVColor* colors_);
+		DirectInput(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, PVCore::PVHSVColor const* colors_);
 
 		direct_process_type node_process;
 	};
@@ -126,8 +100,8 @@ public:
 	~PVRenderingPipeline();
 
 public:
-	PVZonesProcessor declare_processor(preprocess_func_type const& f, PVCore::PVHSVColor* colors, size_t nzones);
-	PVZonesProcessor declare_processor(PVCore::PVHSVColor* colors);
+	PVZonesProcessor declare_processor(preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones);
+	PVZonesProcessor declare_processor(PVCore::PVHSVColor const* colors);
 
 	void cancel_all();
 	void wait_for_all();

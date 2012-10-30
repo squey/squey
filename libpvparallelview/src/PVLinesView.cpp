@@ -4,86 +4,89 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#include <qtconcurrentrun.h>
-
+#include <pvparallelview/PVBCIDrawingBackend.h>
 #include <pvparallelview/PVLinesView.h>
-#include <pvparallelview/PVTaskFilterSel.h>
+#include <pvparallelview/PVZonesManager.h>
+#include <pvparallelview/PVRenderingPipeline.h>
+#include <pvparallelview/PVZoneRendering.h>
+#include <pvparallelview/PVZoneTree.h>
 
-#include <tbb/task.h>
-#include <tbb/task_group.h>
+#include <QObject>
+#include <QMetaMethod>
 
-PVParallelView::PVLinesView::PVLinesView(zones_drawing_t& zd, uint32_t zone_width /* = PVParallelView::ZoneMaxWidth */) :
-	_zd(&zd),
+PVParallelView::PVLinesView::PVLinesView(PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg, QObject* img_update_receiver, uint32_t zone_width):
 	_first_zone(0),
 	_zone_max_width(zone_width),
-	_visible_view_x(0)
+	_visible_view_x(0),
+	_processor_sel(zp_sel),
+	_processor_bg(zp_bg),
+	_zm(zm),
+	_backend(backend),
+	_img_update_receiver(img_update_receiver)
 {
 	set_nb_drawable_zones(get_zones_manager().get_number_zones());
 
-	_render_grp_sel = zd.new_render_group();
-	_render_grp_bg = zd.new_render_group();
 
-	PVLOG_INFO("render_grp_sel: %lu\n", _render_grp_sel);
-	PVLOG_INFO("render_grp_bg: %lu\n", _render_grp_bg);
-
-	_zones_width.reserve(get_zones_manager().get_number_zones());
-	for (PVZoneID z = 0; z < get_zones_manager().get_number_zones(); z++) {
-		_zones_width.emplace_back(PVParallelView::ZoneDefaultWidth);
-	}
+	_zones_width.resize(get_zones_manager().get_number_zones(), PVParallelView::ZoneDefaultWidth);
 }
 
-void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, tbb::task* root_sel, tbb::task_group& grp_bg, const float zoom_y, PVRenderingJob* job)
+void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width, const float zoom_y)
 {
 	// First, set new view x (before launching anything in the future !! ;))
 	
 	PVZoneID pre_first_zone = set_new_view(view_x, view_width);
 	if (pre_first_zone == _first_zone) {
 		// "Le changement, c'est pas maintenant !"
-		PVLOG_INFO("(do_translate) same first zone. Do nothing.\n");
 		return;
 	}
 
 	do_translate(pre_first_zone, view_width,
 	[&](PVZoneID z)
 	{
-		PVLOG_INFO("(translate) render zone %u\n", z);
 		assert(is_zone_drawn(z));
-		update_zone_images_width(z);
-		grp_bg.run([&,z,job, zoom_y] { this->render_zone_bg(z, zoom_y, job); });
-		filter_zone_by_sel_in_task(z, sel, root_sel);
-	},
-	job);
+		render_zone_all_imgs(z, zoom_y);
+	});
 }
 
-void PVParallelView::PVLinesView::render_zone_all_imgs(PVZoneID z, const Picviz::PVSelection& sel, tbb::task_group& grp_bg, tbb::task* root_sel, const float zoom_y, PVRenderingJob* job)
+void PVParallelView::PVLinesView::render_zone_all_imgs(PVZoneID z, const float zoom_y)
 {
 	assert(is_zone_drawn(z));
-	update_zone_images_width(z);
-	grp_bg.run([&,z,job, zoom_y](){ this->render_zone_bg(z, zoom_y, job); });
-	filter_zone_by_sel_in_task(z, sel, root_sel);
+	render_zone_bg(z, zoom_y);
+	render_zone_sel(z, zoom_y);
 }
 
-void PVParallelView::PVLinesView::render_all_zones_all_imgs(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, tbb::task_group& grp_bg, tbb::task* root_sel, const float zoom_y, PVRenderingJob* job_bg)
+void PVParallelView::PVLinesView::render_all_zones_all_imgs(int32_t view_x, uint32_t view_width, const float zoom_y)
 {
 	set_new_view(view_x, view_width);
 	visit_all_zones_to_render(view_width,
 	    [&](PVZoneID z)
 	    {
-			assert(z >= _first_zone);
-			render_zone_all_imgs(z, sel, grp_bg, root_sel, zoom_y, job_bg);
+			assert(is_zone_drawn(z));
+			render_zone_all_imgs(z, zoom_y);
 		}
 	);
 }
 
-void PVParallelView::PVLinesView::render_all_imgs_bg(uint32_t view_width, tbb::task_group& grp_bg, const float zoom_y, PVRenderingJob* job)
+void PVParallelView::PVLinesView::render_all_imgs_bg(int32_t view_x, uint32_t view_width, const float zoom_y)
 {
+	set_new_view(view_x, view_width);
 	visit_all_zones_to_render(view_width,
 	    [&](PVZoneID z)
 	    {
-			assert(z >= _first_zone);
-			update_zone_images_width(z);
-			grp_bg.run([&,z,job,zoom_y](){ this->render_zone_bg(z, zoom_y, job); });
-			//draw_zone_caller_t::call(_zd, *_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci, [=](){ PVLOG_INFO("Zone %d drawn!\n", z); });
+			assert(is_zone_drawn(z));
+			render_zone_bg(z, zoom_y);
+		}
+	);
+}
+
+void PVParallelView::PVLinesView::render_all_imgs_sel(int32_t view_x, uint32_t view_width, const float zoom_y)
+{
+	set_new_view(view_x, view_width);
+	visit_all_zones_to_render(view_width,
+	    [&](PVZoneID z)
+	    {
+			assert(is_zone_drawn(z));
+			render_zone_sel(z, zoom_y);
 		}
 	);
 }
@@ -105,7 +108,7 @@ void PVParallelView::PVLinesView::set_nb_drawable_zones(PVZoneID nb_zones)
 	if (nb_zones > old_nzones) {
 		const PVZoneID nnew = nb_zones-old_nzones;
 		for (PVZoneID z = 0; z < nnew; z++) {
-			_zones_imgs.push_back(ZoneImages(_zd, _zone_max_width));
+			_zones_imgs.emplace_back(this->backend(), _zone_max_width);
 		}
 	}
 	else {
@@ -117,7 +120,7 @@ void PVParallelView::PVLinesView::set_zone_max_width(uint32_t w)
 {
 	list_zone_images_t::iterator it;
 	for (it = _zones_imgs.begin(); it != _zones_imgs.end(); it++) {
-		it->create_image(_zd, w);
+		it->create_image(backend(), w);
 	}
 }
 
@@ -127,45 +130,75 @@ void PVParallelView::PVLinesView::left_shift_images(PVZoneID s)
 	std::rotate(_zones_imgs.begin(), _zones_imgs.begin()+s, _zones_imgs.end());
 }
 
-void PVParallelView::PVLinesView::filter_zone_by_sel_in_task(PVZoneID const z, Picviz::PVSelection const& sel, tbb::task* root)
+void PVParallelView::PVLinesView::render_zone_bg(PVZoneID z, const float zoom_y)
 {
-	root->increment_ref_count();
-	tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), z, sel);
-	// TODO: add priority
-	root->enqueue(child_task);
-}
+	assert(is_zone_drawn(z));
 
-void PVParallelView::PVLinesView::update_sel_tree(uint32_t view_width, const Picviz::PVSelection& sel, tbb::task* root)
-{
-	visit_all_zones_to_render(view_width,
-		[&](PVZoneID z)
+	ZoneImages& zi = get_zone_images(z);
+	zi.cancel_last_bg();
+	const uint32_t width = get_zone_width(z);
+	zi.bg->set_width(width);
+
+	PVZoneRendering<PARALLELVIEW_ZT_BBITS>* zr = new PVZoneRendering<PARALLELVIEW_ZT_BBITS>(z,
+		[&](PVZoneID z, PVCore::PVHSVColor const* colors, PVBCICode<PARALLELVIEW_ZT_BBITS>* codes)
 		{
-			assert(is_zone_drawn(z));
-			update_zone_images_width(z);
-			this->filter_zone_by_sel_in_task(z, sel, root);
-		}
-	);
+			return this->get_zones_manager().get_zone_tree<PVZoneTree>(z).browse_tree_bci(colors, codes);
+		},
+		*zi.bg,
+		0,
+		width,
+		zoom_y,
+		false // not reversed
+		);
+
+	connect_zr(zr, SLOT(zr_bg_finished(int)));
+	if (zi.last_zr_bg) {
+		zi.last_zr_bg->deleteLater();
+	}
+	zi.last_zr_bg = zr;
+
+	_processor_bg.add_job(*zr);
 }
 
-void PVParallelView::PVLinesView::render_zone_bg(PVZoneID z, const float zoom_y, PVRenderingJob* job)
+void PVParallelView::PVLinesView::render_zone_sel(PVZoneID z, const float zoom_y)
 {
 	assert(is_zone_drawn(z));
-	if (_zones_imgs[z-_first_zone].bg->width() != get_zone_width(z)) {
-		return;
+
+	ZoneImages& zi = get_zone_images(z);
+	zi.cancel_last_sel();
+	const uint32_t width = get_zone_width(z);
+	zi.sel->set_width(width);
+
+	PVZoneRendering<PARALLELVIEW_ZT_BBITS>* zr = new PVZoneRendering<PARALLELVIEW_ZT_BBITS>(z,
+		[&](PVZoneID z, PVCore::PVHSVColor const* colors, PVBCICode<PARALLELVIEW_ZT_BBITS>* codes)
+		{
+			return this->get_zones_manager().get_zone_tree<PVZoneTree>(z).browse_tree_bci_sel(colors, codes);
+		},
+		*zi.sel,
+		0,
+		width,
+		zoom_y,
+		false // not reversed
+		);
+
+	connect_zr(zr, SLOT(zr_sel_finished(int)));
+	if (zi.last_zr_sel) {
+		zi.last_zr_sel->deleteLater();
 	}
-	_zd->draw_zone(*_zones_imgs[z-_first_zone].bg, 0, z, get_zone_width(z), &PVParallelView::PVZoneTree::browse_tree_bci, zoom_y, []{}, [=](){ job->zone_finished(z); }, _render_grp_bg);
+	zi.last_zr_sel = zr;
+
+	_processor_sel.add_job(*zr);
 }
 
-void PVParallelView::PVLinesView::render_zone_sel(PVZoneID z, const float zoom_y, PVRenderingJob* job)
+void PVParallelView::PVLinesView::connect_zr(PVZoneRenderingBase* zr, const char* slot)
 {
-	assert(is_zone_drawn(z));
-	if (_zones_imgs[z-_first_zone].sel->width() != get_zone_width(z)) {
-		return;
+	if (_img_update_receiver) {
+		QObject::connect(zr, SIGNAL(render_finished_success(int)), _img_update_receiver, slot);
 	}
-	_zd->draw_zone(*_zones_imgs[z-_first_zone].sel, 0, z, get_zone_width(z), &PVParallelView::PVZoneTree::browse_tree_bci_sel, zoom_y, []{}, [=](){ job->zone_finished(z); }, _render_grp_sel);
+	//QObject::connect(zr, SIGNAL(render_finished(bool)), zr, SLOT(deleteLater()));
 }
 
-void PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width, std::function<void(PVZoneID)> fzone, PVRenderingJob* job /*= NULL*/)
+void PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width, std::function<void(PVZoneID)> const& fzone)
 {
 	int32_t view_x = _visible_view_x;
 	if (view_x < 0) {
@@ -193,9 +226,6 @@ void PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width,
 	uint32_t cur_width = 0;
 	PVZoneID cur_z = zfirst_visible;
 	while (cur_width < view_width && cur_z < nzones_total && zones_to_draw > 0) {
-		if (job && job->should_cancel()) {
-			return;
-		}
 		fzone(cur_z);
 		const uint32_t offset = get_zone_width(cur_z) + PVParallelView::AxisWidth;
 		cur_width += offset;
@@ -210,9 +240,6 @@ void PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width,
 		if (left_invisible_zone > _first_zone) {
 			left_invisible_zone--;
 			assert(left_invisible_zone >= _first_zone);
-			if (job && job->should_cancel()) {
-				return;
-			}
 			fzone(left_invisible_zone);
 			zones_to_draw--;
 			if (zones_to_draw == 0) {
@@ -221,9 +248,6 @@ void PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width,
 			one_done = true;
 		}
 		if (right_invisible_zone < nzones_total) {
-			if (job && job->should_cancel()) {
-				return;
-			}
 			fzone(right_invisible_zone);
 			right_invisible_zone++;
 			zones_to_draw--;
@@ -235,12 +259,12 @@ void PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width,
 	}
 }
 
-void PVParallelView::PVLinesView::do_translate(PVZoneID pre_first_zone, uint32_t view_width, std::function<void(PVZoneID)> fzone_draw, PVRenderingJob* job /*= NULL*/)
+void PVParallelView::PVLinesView::do_translate(PVZoneID pre_first_zone, uint32_t view_width, std::function<void(PVZoneID)> fzone_draw)
 {
 	const PVZoneID nzones_img = _zones_imgs.size();
 	const PVZoneID diff = std::abs(_first_zone - pre_first_zone);
 	if (diff >= nzones_img) {
-		visit_all_zones_to_render(view_width, fzone_draw, job);
+		visit_all_zones_to_render(view_width, fzone_draw);
 		return;
 	}
 
@@ -255,16 +279,18 @@ void PVParallelView::PVLinesView::do_translate(PVZoneID pre_first_zone, uint32_t
 		const PVZoneID last_z = picviz_min(nimgs+_first_zone, get_zones_manager().get_number_zones());
 
 		// If a rendering job is provided, tell him that we virtually have rendered from _first_zone to first_z_to_render images
-		if (job) {
+		/*if (job) {
 			for (PVZoneID z = _first_zone; z < first_z_to_render; z++) {
 				job->zone_finished(z);
+			}
+		}*/
+		if (_img_update_receiver) {
+			for (PVZoneID z = _first_zone; z < first_z_to_render; z++) {
+				call_refresh_slots(z);
 			}
 		}
 
 		for (PVZoneID z = first_z_to_render; z < last_z; z++) {
-			if (job && job->should_cancel()) {
-				return;
-			}
 			fzone_draw(z);
 		}
 	}
@@ -277,16 +303,18 @@ void PVParallelView::PVLinesView::do_translate(PVZoneID pre_first_zone, uint32_t
 		const PVZoneID last_z = picviz_min(_first_zone + n, get_zones_manager().get_number_zones());
 
 		// If a rendering job is provided, tell him that we virtually have rendered from last_z to get_last_drawn_zone()
-		if (job) {
+		/*if (job) {
 			for (PVZoneID z = last_z; z <= get_last_drawn_zone(); z++) {
 				job->zone_finished(z);
+			}
+		}*/
+		if (_img_update_receiver) {
+			for (PVZoneID z = last_z; z <= get_last_drawn_zone(); z++) {
+				call_refresh_slots(z);
 			}
 		}
 
 		for (PVZoneID z = last_z-1; z >= first_z_to_render; z--) {
-			if (job && job->should_cancel()) {
-				return;
-			}
 			fzone_draw(z);
 		}
 	}
@@ -313,11 +341,11 @@ PVZoneID PVParallelView::PVLinesView::get_first_zone_from_viewport(int32_t view_
 
 	const PVZoneID nzones_total = get_zones_manager().get_number_zones();
 	const PVZoneID zfirst_visible = get_zone_from_scene_pos(view_x);
-	PVZoneID zones_drawable = _zones_imgs.size();
+	int zones_drawable = _zones_imgs.size();
 
 	uint32_t cur_width = 0;
 	PVZoneID cur_z = zfirst_visible;
-	while (cur_width < view_width && cur_z < nzones_total) {
+	while (cur_width < view_width && cur_z < nzones_total && zones_drawable > 0) {
 		const uint32_t offset = get_zone_width(cur_z) + PVParallelView::AxisWidth;
 		cur_width += offset;
 		cur_z++;
@@ -377,4 +405,79 @@ int PVParallelView::PVLinesView::update_number_of_zones(int view_x, uint32_t vie
 	// Update first zone
 	set_new_view(view_x, view_width);
 	return (int)new_zones_count-(int)old_zones_count;
+}
+
+PVZoneID PVParallelView::PVLinesView::get_number_zones() const
+{
+	return get_zones_manager().get_number_zones();
+}
+
+void PVParallelView::PVLinesView::cancel_and_wait_all_rendering()
+{
+	for (ZoneImages& zi: _zones_imgs) {
+		zi.cancel_all_and_wait();
+	}
+}
+
+bool PVParallelView::PVLinesView::set_zone_width(PVZoneID z, uint32_t width)
+{
+	assert(z < (PVZoneID) _zones_width.size());
+	// Returns true if width was actual changed
+	uint32_t old_width = get_zone_width(z);
+	uint32_t new_width = PVCore::clamp(width, (uint32_t) PVParallelView::ZoneMinWidth, (uint32_t) PVParallelView::ZoneMaxWidth);
+	bool diff = new_width != old_width;
+	if (diff) {
+		_zones_width[z] = new_width;
+	}
+	return diff;
+}
+
+void PVParallelView::PVLinesView::call_refresh_slots(int zid)
+{
+	// Call both zr_sel_finished and zr_bg_finished slots on _img_update_receiver
+	if (!_img_update_receiver) {
+		return;
+	}
+
+	QMetaObject::invokeMethod(_img_update_receiver, "zr_sel_finished", Qt::QueuedConnection,
+			Q_ARG(int, zid));
+	QMetaObject::invokeMethod(_img_update_receiver, "zr_bg_finished",  Qt::QueuedConnection,
+			Q_ARG(int, zid));
+}
+
+// ZoneImages implementation
+//
+
+void PVParallelView::PVLinesView::ZoneImages::create_image(PVBCIDrawingBackend& backend, uint32_t width)
+{
+	sel = backend.create_image(width, PARALLELVIEW_ZT_BBITS);
+	bg = backend.create_image(width, PARALLELVIEW_ZT_BBITS);
+}
+
+void PVParallelView::PVLinesView::ZoneImages::set_width(uint32_t width)
+{
+	sel->set_width(width);
+	bg->set_width(width);
+}
+
+void PVParallelView::PVLinesView::ZoneImages::cancel_last_sel()
+{
+	if (last_zr_sel) {
+		last_zr_sel->cancel();
+		last_zr_sel->wait_end();
+	}
+}
+
+void PVParallelView::PVLinesView::ZoneImages::cancel_last_bg()
+{
+	if (last_zr_bg) {
+		last_zr_bg->cancel();
+		last_zr_bg->wait_end();
+	}
+}
+
+void PVParallelView::PVLinesView::ZoneImages::cancel_all_and_wait()
+{
+	cancel_last_bg();
+	cancel_last_sel();
 }

@@ -12,4 +12,6 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv);
 void usage(const char* path);
 Picviz::PVView_sp& get_view_sp();
 
+PVParallelView::PVZonesManager* create_zm_from_args(int argc, char** argv);
+
 #endif

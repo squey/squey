@@ -24,9 +24,11 @@ class PVRenderingPipeline;
 template <size_t Bbits>
 class PVBCICode;
 
-class PVZoneRenderingBase: boost::noncopyable
+class PVZoneRenderingBase: public QObject, boost::noncopyable
 {
-	typedef std::function<size_t(PVCore::PVHSVColor* colors, PVBCICodeBase* codes)> bci_func_type;
+	Q_OBJECT
+
+	typedef std::function<size_t(PVZoneID, PVCore::PVHSVColor const* colors, PVBCICodeBase* codes)> bci_func_type;
 	friend class PVRenderingPipeline;
 
 public:
@@ -43,6 +45,8 @@ public:
 		_should_cancel = false;
 	}
 
+	virtual ~PVZoneRenderingBase() { }
+
 public:
 	inline PVZoneID zid() const { return _zid; }
 	inline size_t img_width() const { return _width; }
@@ -50,35 +54,50 @@ public:
 	inline float render_zoom_y() const { return _zoom_y; }
 	inline bool render_reversed() const { return _reversed; }
 	inline bool should_cancel() const { return _should_cancel; }
+	PVBCIBackendImage& dst_img() const { return *_dst_img; }
+
 	inline void cancel() { _should_cancel = true; }
+	void set_dst_img(PVBCIBackendImage& dst_img) { _dst_img = &dst_img; }
 
 public:
-	bool wait_end()
+	void wait_end()
 	{
 		boost::unique_lock<boost::mutex> lock(_wait_mut);
 		while (!_finished) {
 			_wait_cond.wait(lock);
 		}
-		// Be ready if we get back in the game again!
-		const bool ret = _should_cancel;
+	}
+
+	void reset()
+	{
 		_should_cancel = false;
 		_finished = false;
-		return !ret;
 	}
+
+signals:
+	void render_finished(int zid, bool was_canceled);
+	void render_finished_success(int zid);
 
 protected:
 	// TODO: implement this
 	void finished()
 	{
+		bool was_canceled;
 		{
 			boost::lock_guard<boost::mutex> lock(_wait_mut);
 			_finished = true;
+			was_canceled = _should_cancel;
 		}
 		_wait_cond.notify_all();
+
+		if (!was_canceled) {
+			emit render_finished_success(zid());
+		}
+		emit render_finished(zid(), was_canceled);
 	}
 
 protected:
-	inline size_t compute_bci(PVCore::PVHSVColor* colors, PVBCICodeBase* codes) const { return _f_bci(colors, codes); }
+	inline size_t compute_bci(PVCore::PVHSVColor const* colors, PVBCICodeBase* codes) const { return _f_bci(zid(), colors, codes); }
 	inline void render_bci(PVBCIDrawingBackend& backend, PVBCICodeBase* codes, size_t n, std::function<void()> const& render_done = std::function<void()>())
 	{
 		backend(*_dst_img, img_x_start(), img_width(), codes, n, render_zoom_y(), render_reversed(), render_done);
@@ -115,9 +134,9 @@ public:
 	template <class Fbci>
 	PVZoneRendering(PVZoneID zid, Fbci const& f_bci, PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, float zoom_y = 1.0f, bool reversed = false):
 		PVZoneRenderingBase(zid,
-			[=](PVCore::PVHSVColor* colors, PVBCICodeBase* codes)
+			[=](PVZoneID z, PVCore::PVHSVColor const* colors, PVBCICodeBase* codes)
 				{
-					return f_bci(colors, reinterpret_cast<PVBCICode<Bbits>*>(codes));
+					return f_bci(z, colors, reinterpret_cast<PVBCICode<Bbits>*>(codes));
 				},
 			dst_img, x_start, width, zoom_y, reversed)
 	{ }

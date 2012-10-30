@@ -19,8 +19,8 @@ set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${QT_LIBRARIES} ${TBB_L
 
 enable_testing()
 
-#add_executable(full_parallel_view full_parallel_view.cpp common.cpp)
-#target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
+add_executable(full_parallel_view full_parallel_view.cpp common.cpp)
+target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
 
 #add_executable(full_parallel_view_selections_sync full_parallel_view_selections_sync.cpp common.cpp)
 #target_link_libraries(full_parallel_view_selections_sync ${LINK_LIBRARIES})
@@ -114,6 +114,10 @@ if (CUDA_FOUND)
 
 	add_executable(rendering_pipeline_base rendering_pipeline_base.cpp)
 	target_link_libraries(rendering_pipeline_base ${LINK_LIBRARIES})
+
+	QT4_WRAP_CPP(ZD_MOC zone_drawing_events.h OPTIONS ${QT4_WRAP_OPTIONS})
+	add_executable(zone_drawing zone_drawing.cpp ${ZD_MOC})
+	target_link_libraries(zone_drawing ${LINK_LIBRARIES})
 
 	#add_executable(zoomed_zone_tree_render zoomed_zone_tree_render.cpp)
 	#target_link_libraries(zoomed_zone_tree_render ${LINK_LIBRARIES})

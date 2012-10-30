@@ -224,26 +224,12 @@ void PVParallelView::PVZonesManager::lazy_init_from_view(Picviz::PVView const& v
 	_axes_comb = view.get_axes_combination().get_axes_index_list();
 }
 
-bool PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zid, const Picviz::PVSelection& sel)
+void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zid, const Picviz::PVSelection& sel)
 {
 	assert(zid < (PVZoneID) _zones.size());
 
 	PVParallelView::PVZoneProcessing zp(get_uint_plotted(), get_number_rows(), zid, zid+1);
-	bool changed = false;
-	bool valid = _zones[zid].filter_by_sel(sel, _nrows, changed);
-
-	if (valid) {
-		emit filter_by_sel_finished(zid, changed);
-	}
-
-	return valid;
-}
-
-void PVParallelView::PVZonesManager::invalidate_selection()
-{
-	for (PVZone& zone : _zones) {
-		zone.invalid_selection();
-	}
+	_zones[zid].filter_by_sel(sel, _nrows);
 }
 
 void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVView const& view)
