@@ -30,8 +30,8 @@ PVBCIBuffers.cpp
 PVParallelView.cpp
 PVTools.cpp
 PVZoomedZoneTree.cpp
-#PVZoomedParallelScene.cpp
-#PVZoomedParallelView.cpp
+PVZoomedParallelScene.cpp
+PVZoomedParallelView.cpp
 PVLinesView.cpp
 PVFullParallelScene.cpp
 PVFullParallelView.cpp
@@ -107,7 +107,7 @@ include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
 include/pvparallelview/PVSelectionSquareGraphicsItem.h
 include/pvparallelview/PVZonesManager.h
-#include/pvparallelview/PVZoomedParallelScene.h
+include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVSlidersGroup.h
 include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVAxisLabel.h

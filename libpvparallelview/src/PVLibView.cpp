@@ -19,6 +19,8 @@
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
+#include <pvparallelview/PVZoomedParallelView.h>
+#include <pvparallelview/PVZoomedParallelScene.h>
 
 #include <iostream>
 
@@ -119,7 +121,6 @@ PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidg
 
 PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_view(PVCol const axis, QWidget* parent)
 {
-#if 0
 	PVCore::PVProgressBox pbox("Initializing zoomed parallel view");
 
 	PVCore::PVProgressBox::progress([&]() {
@@ -128,25 +129,21 @@ PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_v
 
 	PVParallelView::PVZoomedParallelView* view = new PVParallelView::PVZoomedParallelView(parent);
 	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
-	PVParallelView::PVZoomedParallelScene *scene = new PVParallelView::PVZoomedParallelScene(view, view_sp, _sliders_manager_p, _zd_zzt, axis);
+	PVParallelView::PVZoomedParallelScene *scene = new PVParallelView::PVZoomedParallelScene(view, view_sp, _sliders_manager_p, _processor_sel, _processor_bg, _zones_manager, axis);
 	_zoomed_parallel_scenes.push_back(scene);
 	view->setScene(scene);
 
 	return view;
-#endif
-	return NULL;
 }
 
 void PVParallelView::PVLibView::request_zoomed_zone_trees(const PVCol axis)
 {
-#if 0
 	if (axis > 0) {
 		_zones_manager.request_zoomed_zone(axis - 1);
 	}
 	if (axis < _zones_manager.get_number_zones()) {
 		_zones_manager.request_zoomed_zone(axis);
 	}
-#endif
 }
 
 void PVParallelView::PVLibView::view_about_to_be_deleted()
@@ -156,11 +153,9 @@ void PVParallelView::PVLibView::view_about_to_be_deleted()
 		view->graphics_view()->deleteLater();
 	}
 
-#if 0
 	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
 		view->deleteLater();
 	}
-#endif
 
 	//PVParallelView::common::remove_lib_view(*lib_view());
 }
@@ -176,17 +171,18 @@ void PVParallelView::PVLibView::selection_updated()
 		view->update_new_selection();
 	}
 
-#if 0
 	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
-		view->update_new_selection();
+		view->update_new_selection_async();
 	}
-#endif
 }
 
 void PVParallelView::PVLibView::output_layer_updated()
 {
 	for (PVFullParallelScene* view: _parallel_scenes) {
 		view->update_all();
+	}
+	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
+		view->update_all_async();
 	}
 }
 
@@ -210,7 +206,6 @@ void PVParallelView::PVLibView::plotting_updated()
 		view->set_enabled(false);
 	}
 
-#if 0
 	QList<PVZoomedParallelScene*> concerned_zoom;
 	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
 		for (PVZoneID z: zones_to_update) {
@@ -221,7 +216,6 @@ void PVParallelView::PVLibView::plotting_updated()
 			}
 		}
 	}
-#endif
 
 	for (PVZoneID z: zones_to_update) {
 		get_zones_manager().update_zone(z);
@@ -232,13 +226,11 @@ void PVParallelView::PVLibView::plotting_updated()
 		view->update_all();
 	}
 
-#if 0
 	for (PVZoomedParallelScene* view: concerned_zoom) {
 		view->set_enabled(true);
 		request_zoomed_zone_trees(view->get_axis_index());
-		view->update_all();
+		view->update_all_async();
 	}
-#endif
 }
 
 void PVParallelView::PVLibView::axes_comb_updated()
@@ -314,7 +306,6 @@ void PVParallelView::PVLibView::remove_view(PVFullParallelScene *scene)
 
 void PVParallelView::PVLibView::remove_zoomed_view(PVZoomedParallelScene *scene)
 {
-#if 0
 	zoomed_scene_list_t::iterator it = std::find(_zoomed_parallel_scenes.begin(),
 	                                             _zoomed_parallel_scenes.end(),
 	                                             scene);
@@ -322,5 +313,4 @@ void PVParallelView::PVLibView::remove_zoomed_view(PVZoomedParallelScene *scene)
 	if (it != _zoomed_parallel_scenes.end()) {
 		_zoomed_parallel_scenes.erase(it);
 	}
-#endif
 }

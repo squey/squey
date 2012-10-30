@@ -39,7 +39,7 @@ void PVCuda::visit_usable_cuda_devices(std::function<void(int)> const& f)
 {
 #ifdef CUDA
 	cudaDeviceProp prop;
-	for (size_t i = 0; i < get_number_of_devices(); i++) {
+	for (size_t i = 1; i < get_number_of_devices(); i++) {
 		picviz_verify_cuda(cudaGetDeviceProperties(&prop, i));
 		if (prop.major >= 2) {
 			f(i);

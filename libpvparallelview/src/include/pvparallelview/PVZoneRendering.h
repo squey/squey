@@ -45,6 +45,17 @@ public:
 		_should_cancel = false;
 	}
 
+	PVZoneRenderingBase(bool reversed = false):
+		_zid(PVZONEID_INVALID),
+		_dst_img(nullptr),
+		_width(0),
+		_x_start(0),
+		_reversed(reversed),
+		_finished(false)
+	{
+		_should_cancel = false;
+	}
+
 	virtual ~PVZoneRenderingBase() { }
 
 public:
@@ -54,10 +65,15 @@ public:
 	inline float render_zoom_y() const { return _zoom_y; }
 	inline bool render_reversed() const { return _reversed; }
 	inline bool should_cancel() const { return _should_cancel; }
+	inline bool valid() const { return _zid != PVZONEID_INVALID && _width != 0 && _dst_img != nullptr; }
 	PVBCIBackendImage& dst_img() const { return *_dst_img; }
 
 	inline void cancel() { _should_cancel = true; }
-	void set_dst_img(PVBCIBackendImage& dst_img) { _dst_img = &dst_img; }
+
+	inline void set_dst_img(PVBCIBackendImage& dst_img) { assert(_finished); _dst_img = &dst_img; }
+	inline void set_zid(PVZoneID const z) { assert(_finished); _zid = z; }
+	inline void set_img_width(uint32_t w) { assert(_finished); _width = w; }
+	inline void set_img_x_start(uint32_t x) { assert(_finished); _x_start = x; }
 
 public:
 	void wait_end()

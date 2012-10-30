@@ -89,6 +89,6 @@ typedef PVCol PVZoneID;
 
 Q_DECLARE_METATYPE(PVZoneID);
 
-#define BCI_BUFFERS_COUNT 32
+#define BCI_BUFFERS_COUNT 10
 
 #endif

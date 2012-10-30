@@ -66,7 +66,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* par
 
 	_timer_render = new QTimer(this);
 	_timer_render->setSingleShot(true);
-	_timer_render->setInterval(70);
+	_timer_render->setInterval(100);
 	connect(_timer_render, SIGNAL(timeout()), this, SLOT(render_all_zones_all_imgs()));
 }
 

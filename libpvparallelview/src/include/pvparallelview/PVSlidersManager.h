@@ -4,11 +4,10 @@
 
 #include <pvbase/types.h>
 
-#include <pvkernel/core/PVSharedPointer.h>
-
 #include <picviz/PVAxesCombination.h>
 
 #include <pvparallelview/common.h>
+#include <pvparallelview/PVSlidersManager_types.h>
 
 #include <map>
 
@@ -131,8 +130,6 @@ private:
 	range_geometry_set_t _selection_geometries;
 	range_geometry_set_t _zoomed_selection_geometries;
 };
-
-typedef PVCore::PVSharedPtr<PVSlidersManager> PVSlidersManager_p;
 
 }
 
