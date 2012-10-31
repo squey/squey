@@ -13,10 +13,11 @@
 
 #define BENCH_START(var)\
 	tbb::tick_count __bench_start_##var = tbb::tick_count::now();
-#define BENCH_END_NODISP(var)\
+#define BENCH_STOP(var)\
 	tbb::tick_count __bench_end_##var = tbb::tick_count::now();
-#define BENCH_END(var, desc, nelts_start, size_elt_start, nelts_end, size_elt_end)\
-	BENCH_END_NODISP(var);\
+#define BENCH_END_NODISP(var)\
+	BENCH_STOP(var);
+#define BENCH_SHOW(var, desc, nelts_start, size_elt_start, nelts_end, size_elt_end)\
 	{\
 		double time = (__bench_end_##var-__bench_start_##var).seconds();\
 		double size_in_mb = (double)(nelts_start*size_elt_start)/(1024.0*1024.0);\
@@ -25,6 +26,9 @@
 		double bw_out = size_out_mb/time;\
 		std::cout << desc << ": in " << time*1000 << " ms. Input (#/size/BW): " << nelts_start << "/" << size_in_mb << " MB/" << bw_in << " MB/s | Output (#/size/BW): " << nelts_end << "/" << size_out_mb << " MB/" << bw_out << " MB/s" << std::endl;\
 	}
+#define BENCH_END(var, desc, nelts_start, size_elt_start, nelts_end, size_elt_end)\
+	BENCH_STOP(var);\
+	BENCH_SHOW(var, desc, nelts_start, size_elt_start, nelts_end, size_elt_end);
 
 #define BENCH_END_TIME(var)\
 		((__bench_end_##var-__bench_start_##var).seconds())

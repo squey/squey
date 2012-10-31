@@ -42,7 +42,7 @@ static inline void compute_bci_projection_y1(const uint64_t y1,
 	if (y1p >= y_lim) {
 		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::DOWN;
 		bci.s.r = ((double)width * (double)(y_lim - y2)) / (double)(y1p - y2);
-	} else if (y1p <= y_min) {
+	} else if (y1p < y_min) {
 		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::UP;
 		bci.s.r = ((double)width * (double)(y2 - y_min)) / (double)(y2 - y1p);
 	} else {
@@ -73,13 +73,175 @@ static inline void compute_bci_projection_y2(const uint64_t y1,
 	if (y2p >= y_lim) {
 		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::DOWN;
 		bci.s.r = ((double)width * (double)(y_lim - y1)) / (double)(y2p - y1);
-	} else if (y2p <= y_min) {
+	} else if (y2p < y_min) {
 		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::UP;
 		bci.s.r = ((double)width * (double)(y1 - y_min)) / (double)(y1 - y2p);
 	} else {
 		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::STRAIGHT;
 		bci.s.r = (((uint32_t)(y2p - y_min)) >> shift) & mask;
 	}
+}
+
+/*****************************************************************************
+ * compute_sec_coord_count_y1
+ *****************************************************************************/
+
+static inline uint32_t compute_sec_coord_count_y1(const uint32_t t1,
+                                                  const uint32_t t2,
+                                                  const uint64_t y_min,
+                                                  const uint64_t y_lim,
+                                                  const int shift,
+                                                  const uint32_t mask,
+                                                  const int zoom,
+                                                  const uint32_t width,
+                                                  const float beta)
+{
+	typedef PVParallelView::PVZoomedZoneTree::pv_bci_code_t bci_code_t;
+	typedef PVParallelView::PVZoomedZoneTree::zzt_constants constants;
+
+	bci_code_t bci_min, bci_max;
+	uint32_t y1_count;
+
+	compute_bci_projection_y1((uint64_t)BUCKET_ELT_COUNT * t1,
+	                          (uint64_t)BUCKET_ELT_COUNT * t2,
+	                          y_min, y_lim,
+	                          shift, mask,
+	                          width, beta, bci_min);
+
+	compute_bci_projection_y1((uint64_t)BUCKET_ELT_COUNT * (t1 + 1),
+	                          (uint64_t)BUCKET_ELT_COUNT * (t2 + 1),
+	                          y_min, y_lim,
+	                          shift, mask,
+	                          width, beta, bci_max);
+
+	if (bci_max.s.type == bci_code_t::UP) {
+		// whole top side
+		y1_count = PVCore::upper_power_of_2(bci_max.s.r - bci_min.s.r);
+	} else if (bci_min.s.type == bci_code_t::DOWN) {
+		// whole bottom side
+		y1_count = PVCore::upper_power_of_2(bci_min.s.r - bci_max.s.r);
+	} else if ((bci_min.s.type == bci_code_t::STRAIGHT)
+	           &&
+	           (bci_max.s.type == bci_code_t::STRAIGHT)) {
+		// opposite side
+		y1_count = 1U << PVCore::clamp(zoom, 0, PARALLELVIEW_ZZT_BBITS);
+	} else if (bci_min.s.type == bci_code_t::STRAIGHT) {
+		// partial bottom side
+
+		// opposite side
+		y1_count = constants::image_height - bci_max.s.r;
+
+		// + bottom side count
+		y1_count += PARALLELVIEW_ZOOM_WIDTH - bci_min.s.r;
+
+		y1_count = PVCore::upper_power_of_2(y1_count);
+	} else if (bci_max.s.type == bci_code_t::STRAIGHT) {
+		// partial top side
+
+		// opposite side count
+		y1_count = bci_min.s.r;
+
+		// + top side count
+		y1_count += PARALLELVIEW_ZOOM_WIDTH - bci_max.s.r;
+
+		y1_count = PVCore::upper_power_of_2(y1_count);
+	} else {
+		// from top side to bottom side
+
+		// opposite side count
+		y1_count = constants::image_height;
+
+		// + bottom side count
+		y1_count += PARALLELVIEW_ZOOM_WIDTH - bci_max.s.r;
+
+		// + top side count
+		y1_count += PARALLELVIEW_ZOOM_WIDTH - bci_min.s.r;
+
+		y1_count = PVCore::upper_power_of_2(y1_count);
+	}
+
+	return PVCore::max(1U, y1_count);
+}
+
+/*****************************************************************************
+ * compute_sec_coord_count_y2
+ *****************************************************************************/
+
+static inline uint32_t compute_sec_coord_count_y2(const uint32_t t1,
+                                                  const uint32_t t2,
+                                                  const uint64_t y_min,
+                                                  const uint64_t y_lim,
+                                                  const int shift,
+                                                  const uint32_t mask,
+                                                  const int zoom,
+                                                  const uint32_t width,
+                                                  const float beta)
+{
+	typedef PVParallelView::PVZoomedZoneTree::pv_bci_code_t bci_code_t;
+	typedef PVParallelView::PVZoomedZoneTree::zzt_constants constants;
+
+	bci_code_t bci_min, bci_max;
+	uint32_t y2_count;
+
+	compute_bci_projection_y2((uint64_t)BUCKET_ELT_COUNT * t1,
+	                          (uint64_t)BUCKET_ELT_COUNT * t2,
+	                          y_min, y_lim,
+	                          shift, mask,
+	                          width, beta, bci_min);
+
+	compute_bci_projection_y2((uint64_t)BUCKET_ELT_COUNT * (t1 + 1),
+	                          (uint64_t)BUCKET_ELT_COUNT * (t2 + 1),
+	                          y_min, y_lim,
+	                          shift, mask,
+	                          width, beta, bci_max);
+
+	if (bci_max.s.type == bci_code_t::UP) {
+		// whole top side
+		y2_count = PVCore::upper_power_of_2(bci_max.s.r - bci_min.s.r);
+	} else if (bci_min.s.type == bci_code_t::DOWN) {
+		// whole bottom side
+		y2_count = PVCore::upper_power_of_2(bci_min.s.r - bci_max.s.r);
+	} else if ((bci_min.s.type == bci_code_t::STRAIGHT)
+	           &&
+	           (bci_max.s.type == bci_code_t::STRAIGHT)) {
+		// opposite side
+		y2_count = 1U << PVCore::clamp(zoom, 0, PARALLELVIEW_ZZT_BBITS);
+	} else if (bci_min.s.type == bci_code_t::STRAIGHT) {
+		// partial bottom side
+
+		// opposite side
+		y2_count = constants::image_height - bci_max.s.r;
+
+		// + bottom side count
+		y2_count += PARALLELVIEW_ZOOM_WIDTH - bci_min.s.r;
+
+		y2_count = PVCore::upper_power_of_2(y2_count);
+	} else if (bci_max.s.type == bci_code_t::STRAIGHT) {
+		// partial top side
+
+		// opposite side count
+		y2_count = bci_min.s.r;
+
+		// + top side count
+		y2_count += PARALLELVIEW_ZOOM_WIDTH - bci_max.s.r;
+
+		y2_count = PVCore::upper_power_of_2(y2_count);
+	} else {
+		// from top side to bottom side
+
+		// opposite side count
+		y2_count = constants::image_height;
+
+		// + bottom side count
+		y2_count += PARALLELVIEW_ZOOM_WIDTH - bci_max.s.r;
+
+		// + top side count
+		y2_count += PARALLELVIEW_ZOOM_WIDTH - bci_min.s.r;
+
+		y2_count = PVCore::upper_power_of_2(y2_count);
+	}
+
+	return PVCore::max(1U, y2_count);
 }
 
 /*****************************************************************************
@@ -320,7 +482,22 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 	zzt_tls &tls = ctx.get_tls().local();
 	pv_tlr_buffer_t &tlr_buffer = tls.get_tlr_buffer();
 	pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
-	uint32_t y2_count = SEC_COORD_COUNT;
+
+	const insert_entry_f insert_f =
+		insert_entry_f([&](const PVQuadTreeEntry &e, pv_tlr_buffer_t &buffer)
+		               {
+			               pv_bci_code_t bci;
+			               compute_bci_projection_y2(e.y1, e.y2,
+			                                         y_min, y_lim,
+			                                         shift, mask_int_ycoord,
+			                                         width, beta, bci);
+			               pv_tlr_index_t tlr(bci.s.type,
+			                                  bci.s.l,
+			                                  bci.s.r);
+			               if (e.idx < buffer[tlr.v]) {
+				               buffer[tlr.v] = e.idx;
+			               }
+		               });
 
 	BENCH_START(extract);
 	for (uint32_t t1 = t1_min; t1 < t1_max; ++t1) {
@@ -335,24 +512,18 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 				continue;
 			}
 
+			/* compute the events number along the secondary coordinate
+			 */
+			const uint32_t y2_count =
+				compute_sec_coord_count_y2(t1, t2,
+				                           y_min, y_lim,
+				                           shift, mask_int_ycoord,
+				                           zoom, width, beta);
+
 			/* lines extraction
 			 */
 			extract_f(_trees[tree_idx], y2_count,
-			          quadtree_buffer,
-			          [&](const PVQuadTreeEntry &e)
-			          {
-				          pv_bci_code_t bci;
-				          compute_bci_projection_y2(e.y1, e.y2,
-				                                    y_min, y_lim,
-				                                    shift, mask_int_ycoord,
-				                                    width, beta, bci);
-				          pv_tlr_buffer_t::tlr_index_t tlr(bci.s.type,
-				                                           bci.s.l,
-				                                           bci.s.r);
-				          if (e.idx < tlr_buffer[tlr.v]) {
-					          tlr_buffer[tlr.v] = e.idx;
-				          }
-			          });
+			          quadtree_buffer, tlr_buffer, insert_f);
 		}
 	}
 	BENCH_END(extract, "extraction", 1, 1, 1, 1);
@@ -361,7 +532,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 	 */
 	BENCH_START(compute);
 	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
-		const pv_tlr_buffer_t::tlr_index_t tlr(i);
+		const pv_tlr_index_t tlr(i);
 
 		const uint32_t idx = tlr_buffer[i];
 		if (idx != UINT32_MAX) {
@@ -407,7 +578,22 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 	zzt_tls &tls = ctx.get_tls().local();
 	pv_tlr_buffer_t &tlr_buffer = tls.get_tlr_buffer();
 	pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
-	uint32_t y1_count = SEC_COORD_COUNT;
+
+	const insert_entry_f insert_f =
+		insert_entry_f([&](const PVQuadTreeEntry &e, pv_tlr_buffer_t &buffer)
+		               {
+			               pv_bci_code_t bci;
+			               compute_bci_projection_y1(e.y1, e.y2,
+			                                         y_min, y_lim,
+			                                         shift, mask_int_ycoord,
+			                                         width, beta, bci);
+			               pv_tlr_index_t tlr(bci.s.type,
+			                                  bci.s.l,
+			                                  bci.s.r);
+			               if (e.idx < buffer[tlr.v]) {
+				               buffer[tlr.v] = e.idx;
+			               }
+		               });
 
 	BENCH_START(extract);
 	for (uint32_t t2 = t2_min; t2 < t2_max; ++t2) {
@@ -422,24 +608,18 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 				continue;
 			}
 
+			/* compute the events number along the secondary coordinate
+			 */
+			const uint32_t y1_count =
+				compute_sec_coord_count_y1(t1, t2,
+				                           y_min, y_lim,
+				                           shift, mask_int_ycoord,
+				                           zoom, width, beta);
+
 			/* lines extraction
 			 */
 			extract_f(_trees[tree_idx], y1_count,
-			          quadtree_buffer,
-			          [&](const PVQuadTreeEntry &e)
-			          {
-				          pv_bci_code_t bci;
-				          compute_bci_projection_y1(e.y1, e.y2,
-				                                    y_min, y_lim,
-				                                    shift, mask_int_ycoord,
-				                                    width, beta, bci);
-				          pv_tlr_buffer_t::tlr_index_t tlr(bci.s.type,
-				                                           bci.s.l,
-				                                           bci.s.r);
-				          if (e.idx < tlr_buffer[tlr.v]) {
-					          tlr_buffer[tlr.v] = e.idx;
-				          }
-			          });
+			          quadtree_buffer, tlr_buffer, insert_f);
 		}
 	}
 	BENCH_END(extract, "extraction", 1, 1, 1, 1);
@@ -448,7 +628,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 	 */
 	BENCH_START(compute);
 	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
-		const pv_tlr_buffer_t::tlr_index_t tlr(i);
+		const pv_tlr_index_t tlr(i);
 
 		const uint32_t idx = tlr_buffer[i];
 		if (idx != UINT32_MAX) {
@@ -491,6 +671,22 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 	uint32_t t1_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
 	                                                    0U, 1024U);
 
+	const insert_entry_f insert_f =
+		insert_entry_f([&](const PVQuadTreeEntry &e, pv_tlr_buffer_t &buffer)
+		               {
+			               pv_bci_code_t bci;
+			               compute_bci_projection_y2(e.y1, e.y2,
+			                                         y_min, y_lim,
+			                                         shift, mask_int_ycoord,
+			                                         width, beta, bci);
+			               pv_tlr_index_t tlr(bci.s.type,
+			                                  bci.s.l,
+			                                  bci.s.r);
+			               if (e.idx < buffer[tlr.v]) {
+				               buffer[tlr.v] = e.idx;
+			               }
+		               });
+
 	BENCH_START(extract);
 	tbb::parallel_for(tbb::blocked_range2d<uint32_t>(t1_min, t1_max, 0, 1024),
 	                  [&] (const tbb::blocked_range2d<uint32_t> &r)
@@ -500,7 +696,6 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 		                  pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
 
 		                  size_t bci_idx = tls.get_index();
-		                  uint32_t y2_count = SEC_COORD_COUNT;
 
 		                  for (uint32_t t1 = r.rows().begin(); t1 != r.rows().end(); ++t1) {
 			                  for (uint32_t t2 = r.cols().begin(); t2 != r.cols().end(); ++t2) {
@@ -514,24 +709,18 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 					                  continue;
 				                  }
 
+				                  /* compute the events number along the secondary coordinate
+				                   */
+				                  const uint32_t y2_count =
+					                  compute_sec_coord_count_y2(t1, t2,
+					                                             y_min, y_lim,
+					                                             shift, mask_int_ycoord,
+					                                             zoom, width, beta);
+
 				                  /* lines extraction
 				                   */
 				                  extract_f(_trees[tree_idx], y2_count,
-				                            quadtree_buffer,
-				                            [&](const PVQuadTreeEntry &e)
-				                            {
-					                            pv_bci_code_t bci;
-					                            compute_bci_projection_y2(e.y1, e.y2,
-					                                                      y_min, y_lim,
-					                                                      shift, mask_int_ycoord,
-					                                                      width, beta, bci);
-					                            pv_tlr_buffer_t::tlr_index_t tlr(bci.s.type,
-					                                                             bci.s.l,
-					                                                             bci.s.r);
-					                            if (e.idx < tlr_buffer[tlr.v]) {
-						                            tlr_buffer[tlr.v] = e.idx;
-					                            }
-				                            });
+				                            quadtree_buffer, tlr_buffer, insert_f);
 			                  }
 		                  }
 
@@ -565,7 +754,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 	 */
 	BENCH_START(compute);
 	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
-		const pv_tlr_buffer_t::tlr_index_t tlr(i);
+		const pv_tlr_index_t tlr(i);
 
 		const uint32_t idx = tlr_buffer[i];
 		if (idx != UINT32_MAX) {
@@ -608,6 +797,23 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 	uint32_t t2_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
 	                                                    0U, 1024U);
 
+
+	const insert_entry_f insert_f =
+		insert_entry_f([&](const PVQuadTreeEntry &e, pv_tlr_buffer_t &buffer)
+		               {
+			               pv_bci_code_t bci;
+			               compute_bci_projection_y1(e.y1, e.y2,
+			                                         y_min, y_lim,
+			                                         shift, mask_int_ycoord,
+			                                         width, beta, bci);
+			               pv_tlr_index_t tlr(bci.s.type,
+			                                  bci.s.l,
+			                                  bci.s.r);
+			               if (e.idx < buffer[tlr.v]) {
+				               buffer[tlr.v] = e.idx;
+			               }
+		               });
+
 	BENCH_START(extract);
 	tbb::parallel_for(tbb::blocked_range2d<uint32_t>(t2_min, t2_max, 0, 1024),
 	                  [&] (const tbb::blocked_range2d<uint32_t> &r)
@@ -617,7 +823,6 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 		                  pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
 
 		                  size_t bci_idx = tls.get_index();
-		                  uint32_t y1_count = SEC_COORD_COUNT;
 
 		                  for (uint32_t t2 = r.rows().begin(); t2 != r.rows().end(); ++t2) {
 			                  for (uint32_t t1 = r.cols().begin(); t1 != r.cols().end(); ++t1) {
@@ -631,24 +836,18 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 					                  continue;
 				                  }
 
+				                  /* compute the events number along the secondary coordinate
+				                   */
+				                  const uint32_t y1_count =
+					                  compute_sec_coord_count_y1(t1, t2,
+					                                             y_min, y_lim,
+					                                             shift, mask_int_ycoord,
+					                                             zoom, width, beta);
+
 				                  /* lines extraction
 				                   */
 				                  extract_f(_trees[tree_idx], y1_count,
-				                            quadtree_buffer,
-				                            [&](const PVQuadTreeEntry &e)
-				                            {
-					                            pv_bci_code_t bci;
-					                            compute_bci_projection_y1(e.y1, e.y2,
-					                                                      y_min, y_lim,
-					                                                      shift, mask_int_ycoord,
-					                                                      width, beta, bci);
-					                            pv_tlr_buffer_t::tlr_index_t tlr(bci.s.type,
-					                                                             bci.s.l,
-					                                                             bci.s.r);
-					                            if (e.idx < tlr_buffer[tlr.v]) {
-						                            tlr_buffer[tlr.v] = e.idx;
-					                            }
-				                            });
+				                            quadtree_buffer, tlr_buffer, insert_f);
 			                  }
 		                  }
 
@@ -682,7 +881,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 	 */
 	BENCH_START(compute);
 	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
-		const pv_tlr_buffer_t::tlr_index_t tlr(i);
+		const pv_tlr_index_t tlr(i);
 
 		const uint32_t idx = tlr_buffer[i];
 		if (idx != UINT32_MAX) {

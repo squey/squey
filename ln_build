@@ -7,6 +7,11 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
+if [ ! -d "$1" ];then
+	echo "not a directory: $1" 1>&2
+	exit 1
+fi
+
 BUILDDIR=$(realpath $1)
 SRCDIR=$(realpath $(dirname $0))
 
