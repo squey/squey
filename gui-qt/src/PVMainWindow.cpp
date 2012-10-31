@@ -912,7 +912,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 {
 	QMainWindow::keyPressEvent(event);
 	PVLOG_INFO("keyPressEvent\n");
-#ifndef NDEBUG
+#ifdef PICVIZ_DEVELOPER_MODE
 	switch (event->key()) {
 
 		case Qt::Key_Dollar:
