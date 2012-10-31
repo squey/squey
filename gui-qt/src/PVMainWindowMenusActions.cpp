@@ -300,6 +300,8 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	tools_cur_format_Action->setEnabled(cond);
 	view_Menu->setEnabled(cond);
 	windows_Menu->setEnabled(cond);
+	project_save_Action->setEnabled(cond);
+	project_saveas_Action->setEnabled(cond);
 }
 
 /******************************************************************************

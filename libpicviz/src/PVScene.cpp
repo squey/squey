@@ -26,7 +26,7 @@ Picviz::PVScene::PVScene(QString scene_path) :
 	_ad2g_view(new PVAD2GView(this))
 {
 	QFileInfo info(_path);
-	_name = info.baseName();
+	_name = info.fileName();
 }
 
 /******************************************************************************
@@ -302,6 +302,7 @@ Picviz::PVSource_p Picviz::PVScene::add_source_from_description(const PVRush::PV
 void Picviz::PVScene::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options, bool save_everything)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
+	set_path(path);
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, PICVIZ_ARCHIVES_VERSION));
 	if (options) {
 		ar->set_options(options);

@@ -11,6 +11,7 @@
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
+#include <pvhive/PVFuncObserver.h>
 
 #include <pvkernel/core/lambda_connect.h>
 
@@ -40,6 +41,19 @@ namespace PVGuiQt
 class PVWorkspaceBase;
 class PVWorkspacesTabWidget;
 class PVTabBar;
+
+namespace __impl
+{
+	class PVSaveSceneToFileFuncObserver: public PVHive::PVFuncObserverSignal<Picviz::PVScene, FUNC(Picviz::PVScene::save_to_file)>
+	{
+	public:
+		PVSaveSceneToFileFuncObserver(PVWorkspacesTabWidget* parent) : _parent(parent) {}
+	public:
+		void update(const arguments_deep_copy_type& args) const;
+	private:
+		PVWorkspacesTabWidget* _parent;
+	};
+}
 
 class TabRenamerEventFilter : public QObject
 {
@@ -107,6 +121,7 @@ class PVWorkspacesTabWidget : public QTabWidget
 
 	friend class PVTabBar;
 	friend class PVWorkspaceTabBar;
+	friend class __impl::PVSaveSceneToFileFuncObserver;
 
 public:
 	PVWorkspacesTabWidget(Picviz::PVScene_p scene_p, QWidget* parent = 0);
@@ -127,7 +142,7 @@ signals:
 	void workspace_closed(Picviz::PVSource* source);
 	void is_empty();
 	void animation_finished();
-	void project_modified(bool);
+	void project_modified(bool, QString = QString());
 
 private slots:
 	void tabCloseRequested_Slot(int index);
@@ -137,7 +152,7 @@ private slots:
 	void set_tab_width(int tab_width);
 	void emit_workspace_dragged_outside(QWidget* workspace) { emit workspace_dragged_outside(workspace); }
 	void animation_state_changed(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state);
-	void set_project_modified(bool modified = true);
+	void set_project_modified(bool modified = true, QString path = QString());
 
 private:
 	Picviz::PVScene_p _scene_p;
@@ -152,6 +167,8 @@ private:
 
 	PVHive::PVObserverSignal<Picviz::PVScene> _obs_scene;
 	bool _project_modified = false;
+	bool _project_untitled = true;
+	__impl::PVSaveSceneToFileFuncObserver _save_scene_func_observer;
 };
 
 }

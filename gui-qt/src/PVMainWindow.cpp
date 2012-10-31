@@ -108,7 +108,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	pv_font_database.addApplicationFont(QString(":/Jura-DemiBold.ttf"));
 	pv_font_database.addApplicationFont(QString(":/OSP-DIN.ttf"));
 
-	setGeometry(20,10, 1024, 768);
+	setGeometry(20,10, 1024, 900);
 //	datatree = picviz_datatreerootitem_new();
 
 	//import_source = NULL;

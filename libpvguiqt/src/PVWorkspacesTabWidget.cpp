@@ -27,6 +27,10 @@
 #define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 500
 #define TAB_OPENING_EFFECT_MSEC 200
 
+void PVGuiQt::__impl::PVSaveSceneToFileFuncObserver::update(const arguments_deep_copy_type& args) const
+{
+	_parent->set_project_modified(false, std::get<0>(args));
+}
 
 bool PVGuiQt::TabRenamerEventFilter::eventFilter(QObject* watched, QEvent* event)
 {
@@ -253,7 +257,8 @@ void PVGuiQt::PVWorkspaceTabBar::create_new_workspace()
  *****************************************************************************/
 PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(QWidget* parent /* = 0 */) :
 	QTabWidget(parent),
-	_automatic_tab_switch_timer(this)
+	_automatic_tab_switch_timer(this),
+	_save_scene_func_observer(this)
 {
 	setObjectName("PVWorkspacesTabWidget");
 
@@ -275,10 +280,13 @@ PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(QWidget* parent /* = 0 */)
 PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(Picviz::PVScene_p scene_p, QWidget* parent /* = 0 */) :
 	QTabWidget(parent),
 	_scene_p(scene_p),
-	_automatic_tab_switch_timer(this)
+	_automatic_tab_switch_timer(this),
+	_save_scene_func_observer(this)
 {
 	PVHive::get().register_observer(scene_p, _obs_scene);
 	_obs_scene.connect_refresh(this, SLOT(set_project_modified()));
+
+	PVHive::get().register_func_observer(scene_p, _save_scene_func_observer);
 
 	_tab_bar = new PVTabBar(this);
 	setTabBar(_tab_bar);
@@ -286,13 +294,13 @@ PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(Picviz::PVScene_p scene_p,
 	init();
 }
 
-void PVGuiQt::PVWorkspacesTabWidget::set_project_modified(bool modified /* = true */)
+void PVGuiQt::PVWorkspacesTabWidget::set_project_modified(bool modified /* = true */, QString path /*= QString()*/)
 {
 	if (!_project_modified && modified) {
 		emit project_modified(true);
 	}
 	else if (_project_modified && !modified) {
-		emit project_modified(false);
+		emit project_modified(false, path);
 	}
 	_project_modified = modified;
 }

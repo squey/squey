@@ -749,15 +749,14 @@ bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSeri
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
 	try {
-		current_scene()->save_to_file(file, options);
+		Picviz::PVScene_p scene_p = current_scene()->shared_from_this();
+		PVHive::call<FUNC(Picviz::PVScene::save_to_file)>(scene_p, file, options, false);
 	}
 	catch (PVCore::PVSerializeArchiveError& e) {
 		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while saving project..."), tr("Error while saving project %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
 		box->exec();
 		return false;
 	}
-
-	current_scene()->set_path(file);
 
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 
