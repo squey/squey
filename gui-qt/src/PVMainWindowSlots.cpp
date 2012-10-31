@@ -1054,7 +1054,9 @@ void PVInspector::PVMainWindow::view_new_parallel_Slot()
 	pbox_lib->set_enable_cancel(false);
 	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*get_current_lib_view())), pbox_lib, parallel_lib_view);
 
-	QWidget *view = parallel_lib_view->create_view();
+	// reinterpret_cast is used because PVFullParallelScene is only forward declarated for now.
+	// This is done for compile-time sake!
+	QWidget *view = reinterpret_cast<QWidget*>(parallel_lib_view->create_view());
 
 	layout->addWidget(view);
 
@@ -1107,7 +1109,8 @@ void PVInspector::PVMainWindow::view_new_zoomed_parallel_Slot()
 		pbox_lib->set_enable_cancel(false);
 		PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*get_current_lib_view())), pbox_lib, parallel_lib_view);
 
-		QWidget *view = parallel_lib_view->create_zoomed_view(axis_index);
+		// see view_new_parallel_Slot for the explanation of this reinterpret_cast
+		QWidget *view = reinterpret_cast<QWidget*>(parallel_lib_view->create_zoomed_view(axis_index));
 
 		Picviz::PVView_sp view_sp(get_current_lib_view()->shared_from_this());
 		PVHive::get().register_observer(view_sp, *new_obs);

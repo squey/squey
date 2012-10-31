@@ -165,6 +165,7 @@ void PVParallelView::PVLibView::selection_updated()
 	// Set zones state as invalid in the according PVZonesProcessor
 	for (PVZoneID z = 0; z < get_zones_manager().get_number_zones(); z++) {
 		_processor_sel.invalidate_zone_preprocessing(z);
+		_processor_bg.invalidate_zone_preprocessing(z);
 	}
 
 	for (PVFullParallelScene* view: _parallel_scenes) {
