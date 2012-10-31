@@ -85,31 +85,18 @@ static inline uint32_t compute_sec_coord_count_y2(const uint32_t t1,
 	                          shift, mask,
 	                          width, beta, bci_max);
 
-	std::cout << "bci_code_t::STRAIGHT: " << bci_code_t::STRAIGHT << std::endl;
-	std::cout << "bci_code_t::UP      : " << bci_code_t::UP << std::endl;
-	std::cout << "bci_code_t::DOWN    : " << bci_code_t::DOWN << std::endl;
-
-	std::cout << "min: " << (uint64_t)BUCKET_ELT_COUNT * t1 << " " << (uint64_t)BUCKET_ELT_COUNT * t2
-	          << std::endl;
-	std::cout << "max: " << (uint64_t)BUCKET_ELT_COUNT * (t1+1) << " " << (uint64_t)BUCKET_ELT_COUNT * (t2+1)
-	          << std::endl;
-
 	if (bci_max.s.type == bci_code_t::UP) {
-		std::cout << "whole UP" << std::endl;
 		// whole top side
 		y2_count = PVCore::upper_power_of_2(bci_max.s.r - bci_min.s.r);
 	} else if (bci_min.s.type == bci_code_t::DOWN) {
-		std::cout << "whole DOWN" << std::endl;
 		// whole bottom side
 		y2_count = PVCore::upper_power_of_2(bci_min.s.r - bci_max.s.r);
 	} else if ((bci_min.s.type == bci_code_t::STRAIGHT)
 	           &&
 	           (bci_max.s.type == bci_code_t::STRAIGHT)) {
-		std::cout << "whole STRAIGHT" << std::endl;
 		// opposite side
 		y2_count = 1U << PVCore::clamp(zoom, 0, PARALLELVIEW_ZZT_BBITS);
 	} else if (bci_min.s.type == bci_code_t::STRAIGHT) {
-		std::cout << "partial DOWN" << std::endl;
 		// partial bottom side
 
 		// opposite side
@@ -120,7 +107,6 @@ static inline uint32_t compute_sec_coord_count_y2(const uint32_t t1,
 
 		y2_count = PVCore::upper_power_of_2(y2_count);
 	} else if (bci_max.s.type == bci_code_t::STRAIGHT) {
-		std::cout << "partial UP" << std::endl;
 		// partial top side
 
 		std::cout << "bci: " << std::endl
@@ -206,10 +192,11 @@ __attribute__((noinline)) void extract(quadtree_t &qt,
  */
 void usage(const char *program)
 {
-	std::cerr << "usage: " << basename(program) << " num zoom\n" << std::endl;
+	std::cerr << "usage: " << basename(program) << " depth num zoom\n" << std::endl;
 
-	std::cerr << "\tnum : number of events for each primary event coordinate" << std::endl;
-	std::cerr << "\tzoom: zoom level in [0,21]" << std::endl;
+	std::cerr << "\tdepth: max depth of quadtree" << std::endl;
+	std::cerr << "\tnum  : number of events for each primary coordinate event" << std::endl;
+	std::cerr << "\tzoom : zoom level in [0,21]" << std::endl;
 	std::cerr << std::endl;
 	std::cerr << "use option --toggle-collect=extract with valgrind to observ extraction" << std::endl;
 
@@ -222,22 +209,25 @@ int main(int argc, char **argv)
 {
 	data_t data;
 
-	if (argc != 3) {
+	if (argc != 4) {
 		usage(argv[0]);
 		exit(1);
 	}
 
 	/* data initialization
 	 */
-	size_t num = (size_t) atol(argv[1]);
+	int depth = (size_t) atol(argv[1]);
+	size_t num = (size_t) atol(argv[2]);
 
+	BENCH_START(init);
 	init_data(data, num);
+	BENCH_END(init, "data init", 0, 0, data.size, sizeof(uint32_t) * 2);
 
 	std::cout << "using " << data.size << " events" << std::endl;
 
 	/* quadtree initialization
 	 */
-	quadtree_t *qt = new quadtree_t(0U, QT_MAX_VALUE, 0U, QT_MAX_VALUE, 8);
+	quadtree_t *qt = new quadtree_t(0U, QT_MAX_VALUE, 0U, QT_MAX_VALUE, depth);
 
 	BENCH_START(insert);
 	for(size_t i = 0; i < data.size; ++i) {
@@ -254,7 +244,7 @@ int main(int argc, char **argv)
 	quadtree_buffer_entry_t *buffer = new quadtree_buffer_entry_t [QUADTREE_BUFFER_SIZE];
 	tlr_buffer_t *tlr = new tlr_buffer_t;
 
-	uint32_t zoom = (uint32_t) atol(argv[2]);
+	uint32_t zoom = (uint32_t) atol(argv[3]);
 
 	if (zoom > 21) {
 		std::cerr << "zoom too high, using 21" << std::endl;
@@ -301,6 +291,9 @@ int main(int argc, char **argv)
 
 	/* quadtree extraction
 	 */
+	quadtree_t::all_clear();
+	quadtree_t::all_count_clear();
+	quadtree_t::insert_count_clear();
 	BENCH_START(extract);
 	extract(*qt,
 	        y1_min, y1_max, zoom, y2_count,
@@ -318,5 +311,18 @@ int main(int argc, char **argv)
 	           data.size, sizeof(quadtree_entry_t),
 	           bci_num, sizeof(uint32_t));
 
+	double all_dt = quadtree_t::all_get();
+	std::cout << "QT::visit_y1::all time    : " << all_dt  * 1000. << " ms." << std::endl;
+	std::cout << "QT::visit_y1::all count   : " << quadtree_t::all_count_get() << " events." << std::endl;
+	std::cout << "QT::visit_y1::test count: " << quadtree_t::test_count_get() << " events." << std::endl;
+	std::cout << "QT::visit_y1::insert count: " << quadtree_t::insert_count_get() << " events." << std::endl;
+
 	return 0;
 }
+
+
+
+
+
+
+

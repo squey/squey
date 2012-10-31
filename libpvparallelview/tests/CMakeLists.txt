@@ -41,6 +41,9 @@ target_link_libraries(quadtree-create-bench ${LINK_LIBRARIES})
 add_executable(Pquadtree-perf quadtree-perf.cpp)
 target_link_libraries(Pquadtree-perf ${LINK_LIBRARIES})
 
+add_executable(Pqt-extract-sse qt-extract-sse.cpp)
+target_link_libraries(Pqt-extract-sse ${LINK_LIBRARIES})
+
 add_executable(sse_bci sse_bci.cpp)
 target_link_libraries(sse_bci ${LINK_LIBRARIES})
 
