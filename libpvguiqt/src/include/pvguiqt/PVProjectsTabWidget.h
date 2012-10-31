@@ -136,6 +136,7 @@ signals:
 	void new_format();
 	void load_format();
 	void edit_format(const QString & format);
+	void save_project();
 
 private:
 	bool maybe_save_project(int index);

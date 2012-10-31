@@ -162,7 +162,7 @@ bool PVGuiQt::PVProjectsTabWidget::maybe_save_project(int index)
 				QMessageBox::Save | QMessageBox::Discard
 				| QMessageBox::Cancel);
 		if (ret == QMessageBox::Save) {
-			return /*project_save_Slot()*/ true;
+			emit save_project();
 		}
 		if (ret == QMessageBox::Discard) {
 			return true;

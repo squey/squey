@@ -128,6 +128,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(project_new_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_project()), this, SLOT(project_load_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_project_from_path(const QString &)), this, SLOT(load_project(const QString &)));
+	connect(_projects_tab_widget, SIGNAL(save_project()), this, SLOT(project_save_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_source_from_description(PVRush::PVSourceDescription)), this, SLOT(load_source_from_description_Slot(PVRush::PVSourceDescription)));
 	connect(_projects_tab_widget, SIGNAL(import_type(const QString &)), this, SLOT(import_type_Slot(const QString &)) );
 	connect(_projects_tab_widget, SIGNAL(new_format()), this, SLOT(new_format_Slot()));
@@ -818,6 +819,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 
 		Picviz::PVSource_sp import_source;
 		try {
+			if (_projects_tab_widget->projects_count() == 0) {
+				project_new_Slot();
+			}
 			PVRush::PVSourceDescription src_desc(inputs, fc.second, cur_format);
 			Picviz::PVScene_p scene_p = current_scene()->shared_from_this();
 			import_source = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc);
@@ -875,10 +879,6 @@ void PVInspector::PVMainWindow::import_type_Slot()
 void PVInspector::PVMainWindow::import_type_Slot(const QString & itype)
 {
 	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(itype);
-	if (_projects_tab_widget->projects_count() == 0) {
-		// No loaded project: create a new one and load the source
-		project_new_Slot();
-	}
 	import_type(in_t);
 }
 
