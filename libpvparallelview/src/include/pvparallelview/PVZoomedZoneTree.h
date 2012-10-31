@@ -115,6 +115,7 @@ class PVZoomedZoneTree
 	                           const insert_entry_f &insert_f)> extract_entries_f;
 
 public:
+	typedef constants<bbits> zzt_constants;
 	typedef PVBCICode<bbits> pv_bci_code_t;
 
 public:
