@@ -300,7 +300,9 @@ void PVGuiQt::PVWorkspacesTabWidget::set_project_modified(bool modified /* = tru
 		emit project_modified(true);
 	}
 	else if (_project_modified && !modified) {
+		_project_untitled = false;
 		emit project_modified(false, path);
+
 	}
 	_project_modified = modified;
 }

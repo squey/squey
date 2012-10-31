@@ -56,6 +56,7 @@ void  PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	connect(_start_screen_widget, SIGNAL(new_project()), this, SIGNAL(new_project()));
 	connect(_start_screen_widget, SIGNAL(load_project()), this, SIGNAL(load_project()));
 	connect(_start_screen_widget, SIGNAL(load_project_from_path(const QString &)), this, SIGNAL(load_project_from_path(const QString &)));
+	connect(_start_screen_widget, SIGNAL(import_type(const QString &)), this, SIGNAL(import_type(const QString &)));
 	connect(_start_screen_widget, SIGNAL(new_format()), this, SIGNAL(new_format()));
 	connect(_start_screen_widget, SIGNAL(load_format()), this, SIGNAL(load_format()));
 	connect(_start_screen_widget, SIGNAL(edit_format(const QString &)), this, SIGNAL(edit_format(const QString &)));
@@ -104,17 +105,22 @@ void PVGuiQt::PVProjectsTabWidget::project_modified(bool modified, QString path 
 		_tab_widget->setTabText(index, text + "*");
 	}
 	else if (!modified && text.endsWith(star)) {
-		QFileInfo info(path);
-		QString basename = info.fileName();
-		_tab_widget->setTabToolTip(index, path);
-		_tab_widget->setTabText(index, basename);
+		if (path.isEmpty()) {
+			_tab_widget->setTabText(index, text.left(text.size()));
+		}
+		else {
+			QFileInfo info(path);
+			QString basename = info.fileName();
+			_tab_widget->setTabToolTip(index, path);
+			_tab_widget->setTabText(index, basename);
+		}
 	}
 }
 
 bool PVGuiQt::PVProjectsTabWidget::save_modified_projects()
 {
 	for (int i = 2; i < _tab_widget->count(); i++) {
-		PVWorkspacesTabWidget* tab_widget = (PVWorkspacesTabWidget*) _tab_widget->widget(i);
+		PVWorkspacesTabWidget* tab_widget = (PVWorkspacesTabWidget*) _stacked_widget->widget(i);
 		if (tab_widget->is_project_modified()) {
 			if (!tab_close_requested(i)) {
 				return false;
@@ -146,7 +152,7 @@ bool PVGuiQt::PVProjectsTabWidget::tab_close_requested(int index)
 bool PVGuiQt::PVProjectsTabWidget::maybe_save_project(int index)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	PVWorkspacesTabWidget* tab_widget = (PVWorkspacesTabWidget*) _tab_widget->widget(index);
+	PVWorkspacesTabWidget* tab_widget = (PVWorkspacesTabWidget*) _stacked_widget->widget(index);
 	if (tab_widget->is_project_modified()) {
 		QMessageBox::StandardButton ret;
 		QString project_name = _tab_widget->tabText(index).left(_tab_widget->tabText(index).size()-1);
@@ -241,8 +247,8 @@ PVGuiQt::PVWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::get_workspace_tab_
 
 Picviz::PVScene* PVGuiQt::PVProjectsTabWidget::get_scene_from_path(const QString & path)
 {
-	for (int i = 2 ; i < _tab_widget->count(); i++) {
-		Picviz::PVScene* scene = ((PVWorkspacesTabWidget* ) _tab_widget->widget(i))->get_scene();
+	for (int i = 2 ; i < _stacked_widget->count(); i++) {
+		Picviz::PVScene* scene = ((PVWorkspacesTabWidget* ) _stacked_widget->widget(i))->get_scene();
 		if (scene->get_path() == path) {
 			return scene;
 		}

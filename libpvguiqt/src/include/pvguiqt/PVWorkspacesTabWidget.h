@@ -132,6 +132,7 @@ public:
 	int addTab(PVWorkspaceBase* page, const QString & label);
 	int count() const;
 	bool is_project_modified() { return _project_modified; }
+	bool is_project_untitled() { return _project_untitled; }
 
 protected:
 	void tabInserted(int index) override;

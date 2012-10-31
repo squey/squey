@@ -70,9 +70,11 @@ signals:
 	void new_format();
 	void load_format();
 	void edit_format(const QString & project);
+	void import_type(const QString &);
 
 public slots:
 	void dispatch_action(const QString& id);
+	void import_type_Slot();
 
 private:
 	descr_strings_t get_string_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var);

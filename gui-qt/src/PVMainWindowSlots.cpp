@@ -708,7 +708,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 bool PVInspector::PVMainWindow::project_save_Slot()
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	if (/*is_project_untitled()*/true) {
+	if (is_project_untitled()) {
 		return project_saveas_Slot();
 	}
 	else {

@@ -178,6 +178,7 @@ public slots:
 	void filter_reprocess_last_Slot();
 	void import_type_default_Slot();
 	void import_type_Slot();
+	void import_type_Slot(const QString & itype);
 	void lines_display_unselected_Slot();
 	void lines_display_unselected_listing_Slot();
 	void lines_display_unselected_GLview_Slot();
@@ -246,6 +247,10 @@ private:
 	void auto_detect_formats(PVFormatDetectCtxt ctxt);
 
 private:
+	bool is_project_untitled()
+	{
+		return _projects_tab_widget->is_current_project_untitled();
+	}
 	bool load_scene(Picviz::PVScene* scene);
 	bool load_source(Picviz::PVSource_sp src);
 	bool fix_project_errors(boost::shared_ptr<PVCore::PVSerializeArchive> ar);

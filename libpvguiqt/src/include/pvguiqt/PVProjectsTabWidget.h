@@ -95,6 +95,7 @@ public:
 	void add_workspace(PVWorkspace* workspace);
 	void remove_workspace(PVWorkspace* workspace, bool animation = true);
 	bool save_modified_projects();
+	bool is_current_project_untitled() { return current_project() ? current_project()->is_project_untitled() : false; }
 	void collapse_tabs(bool collapse = true);
 
 	inline Picviz::PVScene* current_scene() const { return current_project()->get_scene(); }
@@ -131,6 +132,7 @@ signals:
 	void load_project();
 	void load_project_from_path(const QString & project);
 	void load_source();
+	void import_type(const QString &);
 	void new_format();
 	void load_format();
 	void edit_format(const QString & format);

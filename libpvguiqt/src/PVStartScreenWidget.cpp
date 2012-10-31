@@ -183,7 +183,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	format_widget_layout->addWidget(edit_format_button);
 
 	// Import buttons
-	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(import_widget_layout, this, SIGNAL(import_type())); // TODO: FIX THIS
+	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(import_widget_layout, this, SLOT(import_type_Slot()));
 
 	project_widget_layout->addWidget(create_new_project_button);
 	project_widget_layout->addWidget(open_project_button);
@@ -286,6 +286,13 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	PVHive::get().register_func_observer(PVCore::PVRecentItemsManager::get(), _recent_items_add_source_obs);
 
 	refresh_all_recent_items();
+}
+
+void PVGuiQt::PVStartScreenWidget::import_type_Slot()
+{
+	QAction* action_src = (QAction*) sender();
+	QString const& itype = action_src->data().toString();
+	emit import_type(itype);
 }
 
 void PVGuiQt::PVStartScreenWidget::refresh_all_recent_items()
