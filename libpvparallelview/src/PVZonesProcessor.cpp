@@ -22,3 +22,10 @@ void PVParallelView::PVZonesProcessor::invalidate_zone_preprocessing(const PVZon
 		_preprocess->set_zone_invalid(z);
 	}
 }
+
+void PVParallelView::PVZonesProcessor::set_number_zones(const PVZoneID z)
+{
+	if (_preprocess) {
+		_preprocess->set_zones_count(z);
+	}
+}

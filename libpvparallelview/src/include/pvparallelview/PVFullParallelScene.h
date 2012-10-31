@@ -57,23 +57,26 @@ public:
 	void update_viewport();
 	void update_scene(QGraphicsSceneWheelEvent* event = nullptr);
 
-	void update_number_of_zones();
-
 	void about_to_be_deleted();
 
 	PVFullParallelView* graphics_view() { return _parallel_view; }
 
 	void set_enabled(bool value)
 	{
+		if (!value) {
+			_lines_view.cancel_and_wait_all_rendering();
+		}
 		_parallel_view->setEnabled(value);
 	}
 
 	void update_new_selection_async();
 	void update_all_async();
+	void update_number_of_zones_async();
 
 private slots:
 	void update_new_selection();
 	void update_all();
+	void update_number_of_zones();
 
 private:
 	void update_zones_position(bool update_all = true, bool scale = true);

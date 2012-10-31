@@ -56,8 +56,9 @@ public:
 		assert(_in_port);
 		return _in_port->try_put(&zr);
 	}
-	inline void set_number_zones(const PVZoneID n) { }
 
+	// Preprocess router specific functions
+	void set_number_zones(const PVZoneID n);
 	void invalidate_zone_preprocessing(const PVZoneID z);
 
 public:

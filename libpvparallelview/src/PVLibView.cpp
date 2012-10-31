@@ -239,8 +239,8 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	 * views have also to be disabled (jobs must be cancelled
 	 * and the widgets must be disabled in the Qt's way).
 	 */
-	// FIXME: the running selection update must be stopped too.
 
+	// set_enabled *must* cancel al lcurrent rendering.
 	for (PVFullParallelScene* view: _parallel_scenes) {
 		view->set_enabled(false);
 	}
@@ -249,11 +249,21 @@ void PVParallelView::PVLibView::axes_comb_updated()
 		view->set_enabled(false);
 	}
 
-	get_zones_manager().update_from_axes_comb(*lib_view());
+	std::vector<PVZoneID> modified_zones(get_zones_manager().update_from_axes_comb(*lib_view()));
+
+	// Update preprocessors' number of zones
+	const PVZoneID nzones = get_zones_manager().get_number_zones();
+	_processor_sel.set_number_zones(nzones);
+	_processor_bg.set_number_zones(nzones);
+
+	// Invalidate modified zones
+	for (PVZoneID const z: modified_zones) {
+		_processor_sel.invalidate_zone_preprocessing(z);
+		_processor_bg.invalidate_zone_preprocessing(z);
+	}
 
 	for (PVFullParallelScene* view: _parallel_scenes) {
-		view->set_enabled(true);
-		view->update_number_of_zones();
+		view->update_number_of_zones_async();
 	}
 
 	zoomed_scene_list_t new_zps;

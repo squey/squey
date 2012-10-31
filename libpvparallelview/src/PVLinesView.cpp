@@ -474,12 +474,16 @@ void PVParallelView::PVLinesView::ZoneImages::cancel_all_and_wait()
 	if (last_zr_sel) {
 		last_zr_sel->cancel();
 		last_zr_sel->wait_end();
-		PVRenderingPipeline::free_zr(last_zr_sel);
+		PVZoneRenderingBase* zr = last_zr_sel;
+		last_zr_sel = nullptr;
+		PVRenderingPipeline::free_zr(zr);
 	}
 
 	if (last_zr_bg) {
 		last_zr_bg->cancel();
 		last_zr_bg->wait_end();
-		PVRenderingPipeline::free_zr(last_zr_bg);
+		last_zr_bg = nullptr;
+		PVZoneRenderingBase* zr = last_zr_bg;
+		PVRenderingPipeline::free_zr(zr);
 	}
 }

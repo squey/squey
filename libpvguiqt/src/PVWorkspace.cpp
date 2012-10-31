@@ -19,6 +19,7 @@
 #include <picviz/PVView.h>
 #include <picviz/widgets/editors/PVAxisIndexEditor.h>
 
+#include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>

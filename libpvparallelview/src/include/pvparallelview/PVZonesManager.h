@@ -51,8 +51,8 @@ public:
 
 	void update_all();
 	void reset_axes_comb();
-	void update_from_axes_comb(columns_indexes_t const& ac);
-	void update_from_axes_comb(Picviz::PVView const& view);
+	std::vector<PVZoneID> update_from_axes_comb(columns_indexes_t const& ac);
+	std::vector<PVZoneID> update_from_axes_comb(Picviz::PVView const& view);
 	void update_zone(PVZoneID zone);
 	void reverse_zone(PVZoneID zone);
 	void add_zone(PVZoneID zone);

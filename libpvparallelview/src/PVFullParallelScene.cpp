@@ -579,6 +579,11 @@ void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent*
 
 }
 
+void PVParallelView::PVFullParallelScene::update_number_of_zones_async()
+{
+	QMetaObject::invokeMethod(this, "update_number_of_zones", Qt::QueuedConnection);
+}
+
 void PVParallelView::PVFullParallelScene::update_number_of_zones()
 {
 	const uint32_t view_x = _parallel_view->horizontalScrollBar()->value();
@@ -639,7 +644,9 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 	}
 
 	update_zones_position(true, false);
-	//update_all();
+
+	set_enabled(true);
+	update_all();
 }
 
 void PVParallelView::PVFullParallelScene::add_zone_image()

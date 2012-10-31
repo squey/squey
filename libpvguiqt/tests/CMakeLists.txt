@@ -22,6 +22,9 @@ qt4_wrap_cpp(AXES_COMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
 add_executable(Tqt_axes_comb axes-comb.cpp ${AXES_COMB_MOC_SRC})
 target_link_libraries(Tqt_axes_comb ${COMMON_LIBRARIES})
 
+add_executable(Tqt_axes_comb_view axes-comb-view.cpp ${AXES_COMB_MOC_SRC})
+target_link_libraries(Tqt_axes_comb_view ${COMMON_LIBRARIES})
+
 # Picviz listing model
 add_executable(Tqt_listing_model listing_model.cpp common.cpp)
 target_link_libraries(Tqt_listing_model ${COMMON_LIBRARIES})

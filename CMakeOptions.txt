@@ -76,3 +76,9 @@ declare_customer_cap(CUSTOMER_CAN_UPDATE_MICRO 1 1)
 set(CFG_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/include/pvbase/customer.h")
 configure_file(include/pvbase/customer.h.cmake ${CFG_FILE_PATH})
 add_definitions(-DPICVIZ_CFG_FILE_PATH="${CFG_FILE_PATH}")
+
+# Generate build.h
+set(BUILD_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/include/pvbase/build.h")
+configure_file(include/pvbase/build.h.cmake ${BUILD_FILE_PATH})
+add_definitions(-DPICVIZ_BUILD_FILE_PATH="${BUILD_FILE_PATH}")
+
