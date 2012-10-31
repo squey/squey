@@ -156,7 +156,7 @@ public:
 	                              pv_tlr_buffer_t &tlr) const
 	{
 		visit_y1::get_n_m(*this, y1_min, y1_max, zoom, y2_count,
-		                  [&](const PVQuadTreeEntry &e) -> bool
+		                  [](const PVQuadTreeEntry &e, const uint64_t y1_min, const uint64_t y1_max) -> bool
 		                  {
 			                  return (e.y1 >= y1_min) && (e.y1 < y1_max);
 		                  },
@@ -171,7 +171,7 @@ public:
 	                              pv_tlr_buffer_t &tlr) const
 	{
 		visit_y2::get_n_m(*this, y2_min, y2_max, zoom, y1_count,
-		                  [&](const PVQuadTreeEntry &e) -> bool
+		                  [](const PVQuadTreeEntry &e, const uint64_t y2_min, const uint64_t y2_max) -> bool
 		                  {
 			                  return (e.y2 >= y2_min) && (e.y2 < y2_max);
 		                  },
@@ -187,7 +187,7 @@ public:
 	                                  pv_tlr_buffer_t &tlr) const
 	{
 		visit_y1::get_n_m(*this, y1_min, y1_max, zoom, y2_count,
-		                  [&](const PVQuadTreeEntry &e) -> bool
+		                  [&selection](const PVQuadTreeEntry &e, const uint64_t y1_min, const uint64_t y1_max) -> bool
 		                  {
 			                  return (e.y1 >= y1_min) && (e.y1 < y1_max)
 				                  && selection.get_line(e.idx);
@@ -204,7 +204,7 @@ public:
 	                                  pv_tlr_buffer_t &tlr) const
 	{
 		visit_y2::get_n_m(*this, y2_min, y2_max, zoom, y1_count,
-		                  [&](const PVQuadTreeEntry &e) -> bool
+		                  [&selection](const PVQuadTreeEntry &e, const uint64_t y2_min, const uint64_t y2_max) -> bool
 		                  {
 			                  return (e.y2 >= y2_min) && (e.y2 < y2_max)
 				                  && selection.get_line(e.idx);
@@ -453,7 +453,7 @@ private:
 				 */
 				for (size_t i = 0; i < obj._datas.size(); ++i) {
 					const PVQuadTreeEntry &e = obj._datas.at(i);
-					if (test_f(e) && (e.idx < result.idx)) {
+					if (test_f(e, y1_min, y1_max) && (e.idx < result.idx)) {
 						result = e;
 					}
 				}
@@ -483,7 +483,7 @@ private:
 			uint32_t remaining = clipped_max_count * y2_count;
 			for(size_t i = 0; i < obj._datas.size(); ++i) {
 				const PVQuadTreeEntry &e = obj._datas.at(i);
-				if (!test_f(e)) {
+				if (!test_f(e, y1_min, y1_max)) {
 					continue;
 				}
 				const uint32_t pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min) + clipped_max_count * ((e.y2 - y2_orig) / y2_scale);
@@ -651,7 +651,7 @@ private:
 				 */
 				for (size_t i = 0; i < obj._datas.size(); ++i) {
 					const PVQuadTreeEntry &e = obj._datas.at(i);
-					if (test_f(e) && (e.idx < result.idx)) {
+					if (test_f(e, y2_min, y2_max) && (e.idx < result.idx)) {
 						result = e;
 					}
 				}
@@ -681,7 +681,7 @@ private:
 			uint32_t remaining = clipped_max_count * y1_count;
 			for(size_t i = 0; i < obj._datas.size(); ++i) {
 				const PVQuadTreeEntry &e = obj._datas.at(i);
-				if (!test_f(e)) {
+				if (!test_f(e, y2_min, y2_max)) {
 					continue;
 				}
 				const uint32_t pos = (((e.y2 - y2_orig) / y2_scale) - ly2_min) + clipped_max_count * ((e.y1 - y1_orig) / y1_scale);
