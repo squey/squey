@@ -60,9 +60,38 @@ private:
 		PVZoneRenderingBase* last_zr_sel;
 		PVZoneRenderingBase* last_zr_bg;
 	};
+	
+	struct ZoneWidthWithZoomLevel
+	{
+		ZoneWidthWithZoomLevel()
+		{
+			_base_width = 128;
+			_base_zoom_level = 0;
+		}
+		
+		ZoneWidthWithZoomLevel(int16_t base_width, int16_t base_zoom_level)
+		{
+			_base_width = base_width;
+			_base_zoom_level = base_zoom_level;
+		}
+		
+		void decrease_zoom_level();
+		
+		int16_t get_base_zoom_level();
+		int16_t get_base_width();
+		
+		void increase_zoom_level();
+		
+		void set_base_width(int16_t base_width);
+		void set_base_zoom_level(int16_t base_zoom_level);
+		
+		int16_t _base_width;
+		int16_t _base_zoom_level;
+	};
 
 public:
 	typedef std::vector<ZoneImages> list_zone_images_t;
+	typedef std::vector<ZoneWidthWithZoomLevel> list_zone_width_with_zoom_level_t;
 
 public:
 	PVLinesView(PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg, QObject* img_update_receiver = NULL, uint32_t zone_width = PVParallelView::ZoneMaxWidth);
@@ -100,10 +129,10 @@ public:
 	const list_zone_images_t& get_zones_images() const { return _zones_imgs; }
 	list_zone_images_t& get_zones_images() { return _zones_imgs; }
 	inline PVZoneID get_first_drawn_zone() const { return _first_zone; }
-	inline PVZoneID get_last_drawn_zone() const { return picviz_min((PVZoneID)(_first_zone + _zones_imgs.size()-1), get_number_zones()-1); }
+	inline PVZoneID get_last_drawn_zone() const { return picviz_min((PVZoneID)(_first_zone + _zones_imgs.size()-1), get_number_of_zones()-1); }
 	bool is_zone_drawn(PVZoneID z) const { return (z >= get_first_drawn_zone() && z <= get_last_drawn_zone()); }
 	uint32_t get_zone_absolute_pos(PVZoneID z) const;
-	PVZoneID get_number_zones() const;
+	PVZoneID get_number_of_zones() const;
 
 	template <class F>
 	inline bool set_all_zones_width(F const& f)

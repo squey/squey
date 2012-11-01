@@ -61,7 +61,7 @@ void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVPlotted::uint_pl
 
 void PVParallelView::PVZonesManager::update_all()
 {
-	PVZoneID nzones = get_number_zones();
+	PVZoneID nzones = get_number_of_zones();
 	PVLOG_INFO("(PVZonesManager::update_all) number of zones = %d\n", nzones);
 	assert(nzones >= 1);
 	_zones.clear();
@@ -245,7 +245,7 @@ QSet<PVZoneID> PVParallelView::PVZonesManager::list_cols_to_zones(QSet<PVCol> co
 			ret << 0;
 		}
 		else
-		if (c == get_number_zones()) {
+		if (c == get_number_of_zones()) {
 			ret << c-1;
 		}
 		else {

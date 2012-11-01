@@ -45,7 +45,8 @@
 #error PARALLELVIEW_AXIS_WIDTH must be odd
 #endif
 
-#define PARALLELVIEW_ZONE_MIN_WIDTH 128
+// psaade : next value should be 128 according to aguinet, for the moment
+#define PARALLELVIEW_ZONE_MIN_WIDTH 16
 #define PARALLELVIEW_ZONE_DEFAULT_WIDTH 256
 #define PARALLELVIEW_ZONE_MAX_WIDTH 1024
 #define PARALLELVIEW_MAX_DRAWN_ZONES 30

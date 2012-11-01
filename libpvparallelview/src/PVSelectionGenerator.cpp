@@ -96,7 +96,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 
 	PVParallelView::PVBCode code_b;
 
-	if (zid < get_zones_manager().get_number_zones()) {
+	if (zid < get_zones_manager().get_number_of_zones()) {
 		// process the left side of zones
 		PVZoneTree const& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zid);
 

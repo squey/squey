@@ -141,7 +141,7 @@ void PVParallelView::PVLibView::request_zoomed_zone_trees(const PVCol axis)
 	if (axis > 0) {
 		_zones_manager.request_zoomed_zone(axis - 1);
 	}
-	if (axis < _zones_manager.get_number_zones()) {
+	if (axis < _zones_manager.get_number_of_zones()) {
 		_zones_manager.request_zoomed_zone(axis);
 	}
 }
@@ -163,7 +163,7 @@ void PVParallelView::PVLibView::view_about_to_be_deleted()
 void PVParallelView::PVLibView::selection_updated()
 {
 	// Set zones state as invalid in the according PVZonesProcessor
-	for (PVZoneID z = 0; z < get_zones_manager().get_number_zones(); z++) {
+	for (PVZoneID z = 0; z < get_zones_manager().get_number_of_zones(); z++) {
 		_processor_sel.invalidate_zone_preprocessing(z);
 		_processor_bg.invalidate_zone_preprocessing(z);
 	}
@@ -253,7 +253,7 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	std::vector<PVZoneID> modified_zones(get_zones_manager().update_from_axes_comb(*lib_view()));
 
 	// Update preprocessors' number of zones
-	const PVZoneID nzones = get_zones_manager().get_number_zones();
+	const PVZoneID nzones = get_zones_manager().get_number_of_zones();
 	_processor_sel.set_number_zones(nzones);
 	_processor_bg.set_number_zones(nzones);
 

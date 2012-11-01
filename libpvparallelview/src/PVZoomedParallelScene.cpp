@@ -300,7 +300,7 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
 	PVCol axis = _pvview.get_axes_combination().get_index_by_id(_axis_id);
 
 	if (axis == PVCOL_INVALID_VALUE) {
-		if (_axis_index > get_zones_manager().get_number_zones()) {
+		if (_axis_index > get_zones_manager().get_number_of_zones()) {
 			/* a candidate can not be found to replace the old
 			 * axis; the zoom view must be closed.
 			 */
@@ -353,7 +353,7 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
 		++_renderable_zone_number;
 	}
 
-	if (_axis_index < get_zones_manager().get_number_zones()) {
+	if (_axis_index < get_zones_manager().get_number_of_zones()) {
 		_right_zone = new zone_desc_t;
 		_right_zone->bg_image = common::backend().create_image(image_width, bbits);
 		_right_zone->sel_image = common::backend().create_image(image_width, bbits);
