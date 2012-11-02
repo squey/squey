@@ -91,17 +91,17 @@ private:
 	void wheelEvent(QGraphicsSceneWheelEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 
-	inline QPointF map_to_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->mapFromScene(p); }
-	inline QPointF map_from_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->mapToScene(p); }
-	QRect map_to_axis(PVZoneID zid, QRectF rect) const
+	inline QPointF map_to_axis(PVZoneID zone_id, QPointF p) const { return _axes[zone_id]->mapFromScene(p); }
+	inline QPointF map_from_axis(PVZoneID zone_id, QPointF p) const { return _axes[zone_id]->mapToScene(p); }
+	QRect map_to_axis(PVZoneID zone_id, QRectF rect) const
 	{
-		QRect r = _axes[zid]->map_from_scene(rect);
+		QRect r = _axes[zone_id]->map_from_scene(rect);
 
 		// top and bottom must be corrected according to the y zoom factor
 		r.setTop(r.top() / _zoom_y);
 		r.setBottom(r.bottom() / _zoom_y);
 
-		const int32_t zone_width = _lines_view.get_zone_width(zid);
+		const int32_t zone_width = _lines_view.get_zone_width(zone_id);
 		if (r.width() + r.x() > zone_width) {
 			r.setRight(zone_width-1);
 		}
@@ -122,10 +122,10 @@ private:
 	inline PVBCIDrawingBackend& backend() const { return _lines_view.backend(); }
 
 private slots:
-	void update_zone_pixmap_bg(int zid);
-	void update_zone_pixmap_sel(int zid);
-	void update_zone_pixmap_bgsel(int zid);
-	void scale_zone_images(PVZoneID zid);
+	void update_zone_pixmap_bg(int zone_id);
+	void update_zone_pixmap_sel(int zone_id);
+	void update_zone_pixmap_bgsel(int zone_id);
+	void scale_zone_images(PVZoneID zone_id);
 
 	void update_selection_from_sliders_Slot(axis_id_t axis_id);
 	void scrollbar_pressed_Slot();
@@ -144,8 +144,8 @@ private slots:
 
 private slots:
 	// Slots called from PVLinesView
-	void zr_sel_finished(void* zr, int zid);
-	void zr_bg_finished(void* zr, int zid);
+	void zr_sel_finished(void* zr, int zone_id);
+	void zr_bg_finished(void* zr, int zone_id);
 
 	void render_all_zones_all_imgs();
 
@@ -203,15 +203,15 @@ private:
 			clear();
 		}
 
-		PVZoneID zid1;
-		PVZoneID zid2;
+		PVZoneID zone_id1;
+		PVZoneID zone_id2;
 		double factor1;
 		double factor2;
 
 		void clear()
 		{
-			zid1 = PVZONEID_INVALID;
-			zid2 = PVZONEID_INVALID;
+			zone_id1 = PVZONEID_INVALID;
+			zone_id2 = PVZONEID_INVALID;
 			factor1 = 0.0;
 			factor2 = 0.0;
 		}

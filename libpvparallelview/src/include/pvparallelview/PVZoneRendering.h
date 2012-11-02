@@ -30,8 +30,8 @@ class PVZoneRenderingBase: boost::noncopyable
 	friend class PVRenderingPipeline;
 
 public:
-	PVZoneRenderingBase(PVZoneID zid, bci_func_type const& f_bci, PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, float zoom_y = 1.0f, bool reversed = false):
-		_zid(zid),
+	PVZoneRenderingBase(PVZoneID zone_id, bci_func_type const& f_bci, PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, float zoom_y = 1.0f, bool reversed = false):
+		_zone_id(zone_id),
 		_f_bci(f_bci),
 		_dst_img(&dst_img),
 		_width(width),
@@ -44,7 +44,7 @@ public:
 	}
 
 	PVZoneRenderingBase(bool reversed = false):
-		_zid(PVZONEID_INVALID),
+		_zone_id(PVZONEID_INVALID),
 		_dst_img(nullptr),
 		_width(0),
 		_x_start(0),
@@ -57,19 +57,19 @@ public:
 	virtual ~PVZoneRenderingBase() { }
 
 public:
-	inline PVZoneID zid() const { return _zid; }
+	inline PVZoneID zid() const { return _zone_id; }
 	inline size_t img_width() const { return _width; }
 	inline size_t img_x_start() const { return _x_start; }
 	inline float render_zoom_y() const { return _zoom_y; }
 	inline bool render_reversed() const { return _reversed; }
 	inline bool should_cancel() const { return _should_cancel; }
-	inline bool valid() const { return _zid != PVZONEID_INVALID && _width != 0 && _dst_img != nullptr; }
+	inline bool valid() const { return _zone_id != PVZONEID_INVALID && _width != 0 && _dst_img != nullptr; }
 	PVBCIBackendImage& dst_img() const { return *_dst_img; }
 
 	inline void cancel() { _should_cancel = true; }
 
 	inline void set_dst_img(PVBCIBackendImage& dst_img) { assert(_finished); _dst_img = &dst_img; }
-	inline void set_zid(PVZoneID const z) { assert(_finished); _zid = z; }
+	inline void set_zone_id(PVZoneID const z) { assert(_finished); _zone_id = z; }
 	inline void set_img_width(uint32_t w) { assert(_finished); _width = w; }
 	inline void set_img_x_start(uint32_t x) { assert(_finished); _x_start = x; }
 
@@ -108,7 +108,7 @@ private:
 	void init();
 
 private:
-	PVZoneID _zid;
+	PVZoneID _zone_id;
 	
 	// BCI computing function
 	// sizeof(std::function<...>) is 32 bytes.. :/
@@ -140,8 +140,8 @@ class PVZoneRendering: public PVZoneRenderingBase
 {
 public:
 	template <class Fbci>
-	PVZoneRendering(PVZoneID zid, Fbci const& f_bci, PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, float zoom_y = 1.0f, bool reversed = false):
-		PVZoneRenderingBase(zid,
+	PVZoneRendering(PVZoneID zone_id, Fbci const& f_bci, PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, float zoom_y = 1.0f, bool reversed = false):
+		PVZoneRenderingBase(zone_id,
 			[=](PVZoneID z, PVCore::PVHSVColor const* colors, PVBCICodeBase* codes)
 				{
 					return f_bci(z, colors, reinterpret_cast<PVBCICode<Bbits>*>(codes));

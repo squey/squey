@@ -76,7 +76,7 @@ public:
 		return _zones[z].get_tree<Tree>();
 	}
 
-	void filter_zone_by_sel(PVZoneID zid, const Picviz::PVSelection& sel);
+	void filter_zone_by_sel(PVZoneID zone_id, const Picviz::PVSelection& sel);
 
 public:
 	void set_uint_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
@@ -96,7 +96,7 @@ protected:
 	inline Picviz::PVPlotted::uint_plotted_table_t const& get_uint_plotted() const { assert(_uint_plotted); return *_uint_plotted; }
 
 signals:
-	void filter_by_sel_finished(int zid, bool changed);
+	void filter_by_sel_finished(int zone_id, bool changed);
 
 protected:
 	Picviz::PVPlotted::uint_plotted_table_t const* _uint_plotted = NULL;

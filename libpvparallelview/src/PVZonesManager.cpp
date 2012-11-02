@@ -186,9 +186,9 @@ std::vector<PVZoneID> PVParallelView::PVZonesManager::update_from_axes_comb(colu
 	_axes_comb = ac;
 
 	// finally, the new zones are updated
-	for (PVZoneID zid : zoneids) {
-		std::cout << "UPDATE ZONE " << zid << std::endl;
-		update_zone(zid);
+	for (PVZoneID zone_id : zoneids) {
+		std::cout << "UPDATE ZONE " << zone_id << std::endl;
+		update_zone(zone_id);
 	}
 
 	return std::move(zoneids);
@@ -226,10 +226,10 @@ void PVParallelView::PVZonesManager::lazy_init_from_view(Picviz::PVView const& v
 	_axes_comb = view.get_axes_combination().get_axes_index_list();
 }
 
-void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zid, const Picviz::PVSelection& sel)
+void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zone_id, const Picviz::PVSelection& sel)
 {
-	assert(zid < (PVZoneID) _zones.size());
-	_zones[zid].filter_by_sel(sel, _nrows);
+	assert(zone_id < (PVZoneID) _zones.size());
+	_zones[zone_id].filter_by_sel(sel, _nrows);
 }
 
 void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVView const& view)

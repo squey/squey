@@ -165,11 +165,11 @@ void PVParallelView::PVFullParallelScene::commit_volatile_selection_Slot()
 		return;
 	}
 
-	const PVZoneID zid_start = _lines_view.get_zone_from_scene_pos(srect.x());
-	const PVZoneID zid_end = _lines_view.get_zone_from_scene_pos(srect.x() + srect.width());
+	const PVZoneID zone_id_start = _lines_view.get_zone_from_scene_pos(srect.x());
+	const PVZoneID zone_id_end = _lines_view.get_zone_from_scene_pos(srect.x() + srect.width());
 
 	lib_view().get_volatile_selection().select_none();
-	for (PVZoneID z = zid_start; z <= zid_end; z++) {
+	for (PVZoneID z = zone_id_start; z <= zone_id_end; z++) {
 		QRect r = map_to_axis(z, srect);
 		r.setX(picviz_max(0, r.x()));
 		r.setRight(picviz_min(pos_end-1, r.right()));
@@ -215,8 +215,8 @@ void PVParallelView::PVFullParallelScene::first_render()
 void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 {
 	if (event->key() == Qt::Key_Space) {
-		for (PVZoneID zid = _lines_view.get_first_drawn_zone(); zid <= _lines_view.get_last_drawn_zone(); zid++) {
-			update_zone_pixmap_bgsel(zid);
+		for (PVZoneID zone_id = _lines_view.get_first_drawn_zone(); zone_id <= _lines_view.get_last_drawn_zone(); zone_id++) {
+			update_zone_pixmap_bgsel(zone_id);
 		}
 	}
 }
@@ -361,15 +361,15 @@ void PVParallelView::PVFullParallelScene::render_all_zones_all_imgs()
  * PVParallelView::PVFullParallelScene::scale_zone_images
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::scale_zone_images(PVZoneID zid)
+void PVParallelView::PVFullParallelScene::scale_zone_images(PVZoneID zone_id)
 {
-	const PVZoneID img_id = _lines_view.get_zone_image_idx(zid);
+	const PVZoneID img_id = _lines_view.get_zone_image_idx(zone_id);
 	PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
 
 	PVBCIBackendImage& img_sel = *images[img_id].sel;
 	PVBCIBackendImage& img_bg = *images[img_id].bg;
 
-	const uint32_t zone_width = _lines_view.get_zone_width(zid);
+	const uint32_t zone_width = _lines_view.get_zone_width(zone_id);
 	{
 		PVBCIBackendImage& scaled_img = *_zones[img_id].img_tmp_bg;
 		img_bg.resize_width(scaled_img, zone_width);
@@ -424,22 +424,22 @@ bool PVParallelView::PVFullParallelScene::sliders_moving() const
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::store_selection_square()
 {
-	PVZoneID& zid1 = _selection_barycenter.zid1;
-	PVZoneID& zid2 = _selection_barycenter.zid2;
+	PVZoneID& zone_id1 = _selection_barycenter.zone_id1;
+	PVZoneID& zone_id2 = _selection_barycenter.zone_id2;
 	double& factor1 = _selection_barycenter.factor1;
 	double& factor2 = _selection_barycenter.factor2;
 
 	uint32_t abs_left = _selection_square->rect().topLeft().x();
 	uint32_t abs_right = _selection_square->rect().bottomRight().x();
 
-	zid1 = _lines_view.get_zone_from_scene_pos(abs_left);
-	uint32_t z1_width = _lines_view.get_zone_width(zid1);
-	uint32_t alpha = map_to_axis(zid1, QPointF(abs_left, 0)).x();
+	zone_id1 = _lines_view.get_zone_from_scene_pos(abs_left);
+	uint32_t z1_width = _lines_view.get_zone_width(zone_id1);
+	uint32_t alpha = map_to_axis(zone_id1, QPointF(abs_left, 0)).x();
 	factor1 = (double) alpha / z1_width;
 
-	zid2 = _lines_view.get_zone_from_scene_pos(abs_right);
-	uint32_t z2_width = _lines_view.get_zone_width(zid2);
-	uint32_t beta = map_to_axis(zid2, QPointF(abs_right, 0)).x();
+	zone_id2 = _lines_view.get_zone_from_scene_pos(abs_right);
+	uint32_t z2_width = _lines_view.get_zone_width(zone_id2);
+	uint32_t beta = map_to_axis(zone_id2, QPointF(abs_right, 0)).x();
 	factor2 = (double) beta / z2_width;
 }
 
@@ -644,9 +644,9 @@ void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent*
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axis_id_t axis_id)
 {
-	PVZoneID zid = _lib_view.get_axes_combination().get_index_by_id(axis_id);
+	PVZoneID zone_id = _lib_view.get_axes_combination().get_index_by_id(axis_id);
 	_selection_square->clear_rect();
-	uint32_t nb_select = _selection_generator.compute_selection_from_sliders(zid, _axes[zid]->get_selection_ranges(), lib_view().get_volatile_selection());
+	uint32_t nb_select = _selection_generator.compute_selection_from_sliders(zone_id, _axes[zone_id]->get_selection_ranges(), lib_view().get_volatile_selection());
 	_parallel_view->set_selected_line_number(nb_select);
 
 	process_selection();
@@ -659,14 +659,14 @@ void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axi
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_selection_square()
 {
-	PVZoneID zid1 = _selection_barycenter.zid1;
-	PVZoneID zid2 = _selection_barycenter.zid2;
-	if ((zid1 == PVZONEID_INVALID) || (zid2 == PVZONEID_INVALID)) {
+	PVZoneID zone_id1 = _selection_barycenter.zone_id1;
+	PVZoneID zone_id2 = _selection_barycenter.zone_id2;
+	if ((zone_id1 == PVZONEID_INVALID) || (zone_id2 == PVZONEID_INVALID)) {
 		return;
 	}
 
-	if (zid1 >= _lines_view.get_zones_manager().get_number_of_zones() ||
-	    zid2 >= _lines_view.get_zones_manager().get_number_of_zones()) {
+	if (zone_id1 >= _lines_view.get_zones_manager().get_number_of_zones() ||
+	    zone_id2 >= _lines_view.get_zones_manager().get_number_of_zones()) {
 		clear_selection_square();
 		return;
 	}
@@ -674,8 +674,8 @@ void PVParallelView::PVFullParallelScene::update_selection_square()
 	double factor1 = _selection_barycenter.factor1;
 	double factor2 = _selection_barycenter.factor2;
 
-	uint32_t new_left = _lines_view.get_zone_absolute_pos(zid1) + (double) _lines_view.get_zone_width(zid1) * factor1;
-	uint32_t new_right = _lines_view.get_zone_absolute_pos(zid2) + (double) _lines_view.get_zone_width(zid2) * factor2;
+	uint32_t new_left = _lines_view.get_zone_absolute_pos(zone_id1) + (double) _lines_view.get_zone_width(zone_id1) * factor1;
+	uint32_t new_right = _lines_view.get_zone_absolute_pos(zone_id2) + (double) _lines_view.get_zone_width(zone_id2) * factor2;
 	uint32_t abs_top = _selection_square->rect().topLeft().y();
 	uint32_t abs_bottom = _selection_square->rect().bottomRight().y();
 
@@ -742,15 +742,15 @@ void PVParallelView::PVFullParallelScene::update_viewport()
  * PVParallelView::PVFullParallelScene::update_zone_pixmap_bg
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zid)
+void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zone_id)
 {
-	assert(_lines_view.is_zone_drawn(zid));
+	assert(_lines_view.is_zone_drawn(zone_id));
 
 	PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
-	const PVZoneID img_id = zid-_lines_view.get_first_drawn_zone();
+	const PVZoneID img_id = zone_id-_lines_view.get_first_drawn_zone();
 
 	// Check whether the image needs scaling.
-	const uint32_t zone_width = _lines_view.get_zone_width(zid);
+	const uint32_t zone_width = _lines_view.get_zone_width(zone_id);
 
 	PVBCIBackendImage& img_bg = *images[img_id].bg;
 
@@ -759,7 +759,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zid)
 	}
 
 	_zones[img_id].bg->setPixmap(QPixmap::fromImage(img_bg.qimage()));
-	_zones[img_id].bg->setPos(QPointF(_lines_view.get_zone_absolute_pos(zid), 0));
+	_zones[img_id].bg->setPos(QPointF(_lines_view.get_zone_absolute_pos(zone_id), 0));
 }
 
 /******************************************************************************
@@ -767,10 +767,10 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zid)
  * PVParallelView::PVFullParallelScene::update_zone_pixmap_bgsel
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::update_zone_pixmap_bgsel(int zid)
+void PVParallelView::PVFullParallelScene::update_zone_pixmap_bgsel(int zone_id)
 {
-	update_zone_pixmap_bg(zid);
-	update_zone_pixmap_sel(zid);
+	update_zone_pixmap_bg(zone_id);
+	update_zone_pixmap_sel(zone_id);
 }
 
 /******************************************************************************
@@ -778,13 +778,13 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bgsel(int zid)
  * PVParallelView::PVFullParallelScene::update_zone_pixmap_sel
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(int zid)
+void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(int zone_id)
 {
-	const PVZoneID img_id = _lines_view.get_zone_image_idx(zid);
+	const PVZoneID img_id = _lines_view.get_zone_image_idx(zone_id);
 	PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
 
 	// Check whether the image needs scaling.
-	const uint32_t zone_width = _lines_view.get_zone_width(zid);
+	const uint32_t zone_width = _lines_view.get_zone_width(zone_id);
 
 	PVBCIBackendImage& img_sel = *images[img_id].sel;
 
@@ -793,7 +793,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(int zid)
 	}
 
 	_zones[img_id].sel->setPixmap(QPixmap::fromImage(img_sel.qimage()));
-	_zones[img_id].sel->setPos(QPointF(_lines_view.get_zone_absolute_pos(zid), 0));
+	_zones[img_id].sel->setPos(QPointF(_lines_view.get_zone_absolute_pos(zone_id), 0));
 }
 
 /******************************************************************************
@@ -805,8 +805,8 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 {
 	if (scale) {
 		//BENCH_START(update);
-		for (PVZoneID zid = _lines_view.get_first_drawn_zone(); zid <= _lines_view.get_last_drawn_zone(); zid++) {
-			scale_zone_images(zid);
+		for (PVZoneID zone_id = _lines_view.get_first_drawn_zone(); zone_id <= _lines_view.get_last_drawn_zone(); zone_id++) {
+			scale_zone_images(zone_id);
 		}
 		//BENCH_END(update, "update_zone_pixmap", 1, 1, 1, 1);
 	}
@@ -857,20 +857,20 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 	const QPointF mouse_scene_pt = event->scenePos();
 	
 	// We get the Zone_Id under the current mouse position
-	PVZoneID mouse_zid = _lines_view.get_zone_from_scene_pos(mouse_scene_pt.x());
+	PVZoneID mouse_zone_id = _lines_view.get_zone_from_scene_pos(mouse_scene_pt.x());
 	
 	// We test if it a LOCAL zoom (applies only to a zone) or a GLOBAL zoom
 	if (event->modifiers() == Qt::ControlModifier) {
 		// Local zoom
-		const PVZoneID zid = mouse_zid;
+		const PVZoneID zone_id = mouse_zone_id;
 
-		uint32_t z_width = _lines_view.get_zone_width(zid);
-		if (_lines_view.set_zone_width(zid, z_width+zoom)) {
+		uint32_t z_width = _lines_view.get_zone_width(zone_id);
+		if (_lines_view.set_zone_width(zone_id, z_width+zoom)) {
 			update_viewport();
 			update_zones_position(true, true);
 			update_scene(event);
 
-			_lines_view.render_zone_all_imgs(zid, _zoom_y);
+			_lines_view.render_zone_all_imgs(zone_id, _zoom_y);
 		}
 		event->accept();
 	}
@@ -892,14 +892,14 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
  * PVParallelView::PVFullParallelScene::zr_bg_finished
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::zr_bg_finished(void* zr, int zid)
+void PVParallelView::PVFullParallelScene::zr_bg_finished(void* zr, int zone_id)
 {
-	update_zone_pixmap_bg(zid);
+	update_zone_pixmap_bg(zone_id);
 
 	if (zr) {
 		PVRenderingPipeline::free_zr(reinterpret_cast<PVZoneRenderingBase*>(zr));
 
-		const PVZoneID img_id = _lines_view.get_zone_image_idx(zid);
+		const PVZoneID img_id = _lines_view.get_zone_image_idx(zone_id);
 		PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
 		images[img_id].last_zr_bg = nullptr;
 	}
@@ -910,14 +910,14 @@ void PVParallelView::PVFullParallelScene::zr_bg_finished(void* zr, int zid)
  * PVParallelView::PVFullParallelScene::zr_sel_finished
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::zr_sel_finished(void* zr, int zid)
+void PVParallelView::PVFullParallelScene::zr_sel_finished(void* zr, int zone_id)
 {
-	update_zone_pixmap_sel(zid);
+	update_zone_pixmap_sel(zone_id);
 
 	if (zr) {
 		PVRenderingPipeline::free_zr(reinterpret_cast<PVZoneRenderingBase*>(zr));
 		
-		const PVZoneID img_id = _lines_view.get_zone_image_idx(zid);
+		const PVZoneID img_id = _lines_view.get_zone_image_idx(zone_id);
 		PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
 		images[img_id].last_zr_sel = nullptr;
 	}
