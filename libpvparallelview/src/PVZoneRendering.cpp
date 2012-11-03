@@ -21,7 +21,7 @@ void PVParallelView::PVZoneRenderingBase::finished()
 	}
 
 	if (_qobject_finished_success != nullptr) {
-		const int zone_id = zid();
+		const PVZoneID zone_id = get_zone_id();
 		QMetaObject::invokeMethod(_qobject_finished_success, _qobject_slot, Qt::QueuedConnection,
 			Q_ARG(void*, (void*)this),
 			Q_ARG(int, zone_id));

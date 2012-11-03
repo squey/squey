@@ -15,8 +15,8 @@ public:
 	LinesViewMw() { }
 
 public slots:
-	void zr_sel_finished(int zid);
-	void zr_bg_finished(int zid);
+	void zr_sel_finished(int zone_id);
+	void zr_bg_finished(int zone_id);
 };
 
 #endif

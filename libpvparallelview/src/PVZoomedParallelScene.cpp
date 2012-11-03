@@ -623,9 +623,9 @@ void PVParallelView::PVZoomedParallelScene::connect_zr(PVZoneRendering<bbits>* z
 	zr->set_render_finished_slot(this, slot);
 }
 
-void PVParallelView::PVZoomedParallelScene::zr_finished(void* zr, int zid)
+void PVParallelView::PVZoomedParallelScene::zr_finished(void* zr, int zone_id)
 {
-	assert(is_zone_rendered(zid));
+	assert(is_zone_rendered(zone_id));
 
 	_renderable_zone_number--;
 	PVLOG_INFO("in zr_finished: %d\n", _renderable_zone_number);
@@ -634,7 +634,7 @@ void PVParallelView::PVZoomedParallelScene::zr_finished(void* zr, int zid)
 	}
 
 	// We became responsible for freezing that zone rendering!
-	if (zid == left_zone_id()) {
+	if (zone_id == left_zone_id()) {
 		if (_left_zone->last_zr_sel == zr) {
 			_left_zone->last_zr_sel = nullptr;
 		}

@@ -90,9 +90,9 @@ public:
 			r = std::get<0>(in.result);
 		}
 
-		//std::cout << "Input: " << r.zid << "/" << r.p << ", " << std::get<1>(in) << std::endl;
-		const uint32_t zid = r->zid();
-		ZoneInfos& infos = zone_infos(zid);
+		//std::cout << "Input: " << r.zone_id << "/" << r.p << ", " << std::get<1>(in) << std::endl;
+		const uint32_t zone_id = r->get_zone_id();
+		ZoneInfos& infos = zone_infos(zone_id);
 		switch (infos.state) {
 			case ZoneStateInvalid:
 				if (!r->should_cancel()) {

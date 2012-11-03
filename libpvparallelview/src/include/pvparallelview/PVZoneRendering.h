@@ -57,7 +57,7 @@ public:
 	virtual ~PVZoneRenderingBase() { }
 
 public:
-	inline PVZoneID zid() const { return _zone_id; }
+	inline PVZoneID get_zone_id() const { return _zone_id; }
 	inline size_t img_width() const { return _width; }
 	inline size_t img_x_start() const { return _x_start; }
 	inline float render_zoom_y() const { return _zoom_y; }
@@ -69,7 +69,7 @@ public:
 	inline void cancel() { _should_cancel = true; }
 
 	inline void set_dst_img(PVBCIBackendImage& dst_img) { assert(_finished); _dst_img = &dst_img; }
-	inline void set_zone_id(PVZoneID const z) { assert(_finished); _zone_id = z; }
+	inline void set_zone_id(PVZoneID const zone_id) { assert(_finished); _zone_id = zone_id; }
 	inline void set_img_width(uint32_t w) { assert(_finished); _width = w; }
 	inline void set_img_x_start(uint32_t x) { assert(_finished); _x_start = x; }
 
@@ -98,7 +98,7 @@ protected:
 	void finished();
 
 protected:
-	inline size_t compute_bci(PVCore::PVHSVColor const* colors, PVBCICodeBase* codes) const { return _f_bci(zid(), colors, codes); }
+	inline size_t compute_bci(PVCore::PVHSVColor const* colors, PVBCICodeBase* codes) const { return _f_bci(get_zone_id(), colors, codes); }
 	inline void render_bci(PVBCIDrawingBackend& backend, PVBCICodeBase* codes, size_t n, std::function<void()> const& render_done = std::function<void()>())
 	{
 		backend(*_dst_img, img_x_start(), img_width(), codes, n, render_zoom_y(), render_reversed(), render_done);

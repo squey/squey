@@ -34,14 +34,14 @@ static void show_qimage(QString const& title, QImage const& img)
 	dlg->show();
 }
 
-void LinesViewMw::zr_sel_finished(int zid)
+void LinesViewMw::zr_sel_finished(int zone_id)
 {
-	PVLOG_INFO("Sel zone rendering finished for zone %d\n", zid);
+	PVLOG_INFO("Sel zone rendering finished for zone %d\n", zone_id);
 }
 
-void LinesViewMw::zr_bg_finished(int zid)
+void LinesViewMw::zr_bg_finished(int zone_id)
 {
-	PVLOG_INFO("Bg zone rendering finished for zone %d\n", zid);
+	PVLOG_INFO("Bg zone rendering finished for zone %d\n", zone_id);
 }
 
 static void init_rand_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)

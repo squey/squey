@@ -179,7 +179,7 @@ private slots:
 	void all_rendering_done();
 	void commit_volatile_selection_Slot();
 
-	void zr_finished(void* zr, int zid);
+	void zr_finished(void* zr, int zone_id);
 
 private:
 	class zoom_sliders_update_obs :
