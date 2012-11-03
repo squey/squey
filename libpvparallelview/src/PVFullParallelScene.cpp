@@ -304,7 +304,7 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
 int32_t PVParallelView::PVFullParallelScene::pos_last_axis() const
 {
 	const PVZoneID lastz = _lines_view.get_number_of_managed_zones()-1;
-	int32_t pos = _lines_view.get_zone_absolute_pos(lastz);
+	int32_t pos = _lines_view.get_zone_absolute_position(lastz);
 	pos += _lines_view.get_zone_width(lastz);
 	return pos;
 }
@@ -678,8 +678,8 @@ void PVParallelView::PVFullParallelScene::update_selection_square()
 	double factor1 = _selection_barycenter.factor1;
 	double factor2 = _selection_barycenter.factor2;
 
-	uint32_t new_left = _lines_view.get_zone_absolute_pos(zone_id1) + (double) _lines_view.get_zone_width(zone_id1) * factor1;
-	uint32_t new_right = _lines_view.get_zone_absolute_pos(zone_id2) + (double) _lines_view.get_zone_width(zone_id2) * factor2;
+	uint32_t new_left = _lines_view.get_zone_absolute_position(zone_id1) + (double) _lines_view.get_zone_width(zone_id1) * factor1;
+	uint32_t new_right = _lines_view.get_zone_absolute_position(zone_id2) + (double) _lines_view.get_zone_width(zone_id2) * factor2;
 	uint32_t abs_top = _selection_square->rect().topLeft().y();
 	uint32_t abs_bottom = _selection_square->rect().bottomRight().y();
 
@@ -763,7 +763,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zone_id)
 	}
 
 	_zones[img_id].bg->setPixmap(QPixmap::fromImage(img_bg.qimage()));
-	_zones[img_id].bg->setPos(QPointF(_lines_view.get_zone_absolute_pos(zone_id), 0));
+	_zones[img_id].bg->setPos(QPointF(_lines_view.get_zone_absolute_position(zone_id), 0));
 }
 
 /******************************************************************************
@@ -797,7 +797,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(int zone_id)
 	}
 
 	_zones[img_id].sel->setPixmap(QPixmap::fromImage(img_sel.qimage()));
-	_zones[img_id].sel->setPos(QPointF(_lines_view.get_zone_absolute_pos(zone_id), 0));
+	_zones[img_id].sel->setPos(QPointF(_lines_view.get_zone_absolute_position(zone_id), 0));
 }
 
 /******************************************************************************
@@ -815,7 +815,7 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 		//BENCH_END(update, "update_zone_pixmap", 1, 1, 1, 1);
 	}
 
-	// Update axes position
+	// We start by updating all axes positions
 	PVZoneID nzones = (PVZoneID) _lines_view.get_number_of_managed_zones()+1;
 	uint32_t pos = 0;
 
@@ -827,7 +827,7 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 	}
 	for (; z < nzones; z++) {
 		if (z < nzones-1) {
-			pos = _lines_view.get_zone_absolute_pos(z);
+			pos = _lines_view.get_zone_absolute_position(z);
 		}
 		else {
 			// Special case for last axis
@@ -837,10 +837,12 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 		_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 	}
 
+	// We now update all zones positions
 	for (PVZoneID z = _lines_view.get_first_visible_zone_index(); z <= _lines_view.get_last_visible_zone_index(); z++) {
-		_zones[_lines_view.get_zone_index_offset(z)].setPos(QPointF(_lines_view.get_zone_absolute_pos(z), 0));
+		_zones[_lines_view.get_zone_index_offset(z)].setPos(QPointF(_lines_view.get_zone_absolute_position(z), 0));
 	}
-		
+	
+	// It's time to refresh the current selection_square
 	update_selection_square();
 }
 

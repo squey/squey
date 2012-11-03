@@ -109,7 +109,7 @@ public:
 
 	inline SingleZoneImages& get_single_zone_images(const PVZoneID zone_id) { return _list_of_single_zone_images[get_zone_index_offset(zone_id)]; }
 
-	uint32_t get_zone_absolute_pos(PVZoneID zone_id) const;
+	uint32_t get_zone_absolute_position(PVZoneID zone_id) const;
 	PVZoneID get_zone_from_scene_pos(int32_t x) const;
 	PVZoneID get_zone_index_offset(PVZoneID zone_id) { assert(is_zone_drawn(zone_id)); return zone_id-get_first_visible_zone_index(); }
 	

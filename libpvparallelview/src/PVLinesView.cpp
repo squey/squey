@@ -214,10 +214,10 @@ PVZoneID PVParallelView::PVLinesView::get_number_of_managed_zones() const
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::get_zone_absolute_pos
+ * PVParallelView::PVLinesView::get_zone_absolute_position
  *
  *****************************************************************************/
-uint32_t PVParallelView::PVLinesView::get_zone_absolute_pos(PVZoneID zone_id) const
+uint32_t PVParallelView::PVLinesView::get_zone_absolute_position(PVZoneID zone_id) const
 {
 	assert(zone_id < (PVZoneID) _zones_width.size());
 	uint32_t pos = 0;
