@@ -63,7 +63,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	PVParallelView::PVLinesView::list_zone_images_t images = _lines_view.get_zones_images();
 
 	// Add ALL axes
-	const PVZoneID nzones = _lines_view.get_number_of_zones()+1;
+	const PVZoneID nzones = _lines_view.get_number_of_managed_zones()+1;
 	for (PVZoneID z = 0; z < nzones; z++) {
 		add_axis(z);
 	}
@@ -303,7 +303,7 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
  *****************************************************************************/
 int32_t PVParallelView::PVFullParallelScene::pos_last_axis() const
 {
-	const PVZoneID lastz = _lines_view.get_number_of_zones()-1;
+	const PVZoneID lastz = _lines_view.get_number_of_managed_zones()-1;
 	int32_t pos = _lines_view.get_zone_absolute_pos(lastz);
 	pos += _lines_view.get_zone_width(lastz);
 	return pos;
@@ -521,7 +521,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
 	_lines_view.update_number_of_zones(view_x, view_width);
-	PVZoneID const nb_zones = _lines_view.get_zones_manager().get_number_of_zones();
+	PVZoneID const nb_zones = _lines_view.get_number_of_managed_zones();
 	PVZoneID nb_zones_drawable = _lines_view.get_nb_drawable_zones();
 	if ((PVZoneID) _zones.size() != nb_zones_drawable) {
 		if ((PVZoneID) _zones.size() > nb_zones_drawable) {
@@ -669,8 +669,8 @@ void PVParallelView::PVFullParallelScene::update_selection_square()
 		return;
 	}
 
-	if (zone_id1 >= _lines_view.get_zones_manager().get_number_of_zones() ||
-	    zone_id2 >= _lines_view.get_zones_manager().get_number_of_zones()) {
+	if (zone_id1 >= _lines_view.get_number_of_managed_zones() ||
+	    zone_id2 >= _lines_view.get_number_of_managed_zones()) {
 		clear_selection_square();
 		return;
 	}
@@ -816,7 +816,7 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 	}
 
 	// Update axes position
-	PVZoneID nzones = (PVZoneID) _lines_view.get_zones_manager().get_number_of_zones()+1;
+	PVZoneID nzones = (PVZoneID) _lines_view.get_number_of_managed_zones()+1;
 	uint32_t pos = 0;
 
 	_axes[0]->setPos(QPointF(0, 0));
