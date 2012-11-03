@@ -62,8 +62,8 @@ void PVParallelView::PVLinesView::call_refresh_slots(PVZoneID zone_id)
  *****************************************************************************/
 void PVParallelView::PVLinesView::cancel_and_wait_all_rendering()
 {
-	for (ZoneImages& zi: _zones_imgs) {
-		zi.cancel_all_and_wait();
+	for (SingleZoneImages& single_zone_images: _zones_imgs) {
+		single_zone_images.cancel_all_and_wait();
 	}
 }
 
@@ -331,17 +331,17 @@ void PVParallelView::PVLinesView::render_zone_bg(PVZoneID zone_id, const float z
 {
 	assert(is_zone_drawn(zone_id));
 
-	ZoneImages& zi = get_zone_images(zone_id);
-	zi.cancel_last_bg();
+	SingleZoneImages& single_zone_images = get_zone_images(zone_id);
+	single_zone_images.cancel_last_bg();
 	const uint32_t width = get_zone_width(zone_id);
-	zi.bg->set_width(width);
+	single_zone_images.bg->set_width(width);
 
 	PVZoneRendering<PARALLELVIEW_ZT_BBITS>* zr = new (PVRenderingPipeline::allocate_zr<PARALLELVIEW_ZT_BBITS>()) PVZoneRendering<PARALLELVIEW_ZT_BBITS>(zone_id,
 		[&,width,zoom_y](PVZoneID zone_id, PVCore::PVHSVColor const* colors, PVBCICode<PARALLELVIEW_ZT_BBITS>* codes)
 		{
 			return this->get_zones_manager().get_zone_tree<PVZoneTree>(zone_id).browse_tree_bci(colors, codes);
 		},
-		*zi.bg,
+		*single_zone_images.bg,
 		0,
 		width,
 		zoom_y,
@@ -349,7 +349,7 @@ void PVParallelView::PVLinesView::render_zone_bg(PVZoneID zone_id, const float z
 		);
 
 	connect_zr(zr, "zr_bg_finished");
-	zi.last_zr_bg = zr;
+	single_zone_images.last_zr_bg = zr;
 
 	_processor_bg.add_job(*zr);
 }
@@ -363,17 +363,17 @@ void PVParallelView::PVLinesView::render_zone_sel(PVZoneID zone_id, const float 
 {
 	assert(is_zone_drawn(zone_id));
 
-	ZoneImages& zi = get_zone_images(zone_id);
-	zi.cancel_last_sel();
+	SingleZoneImages& single_zone_images = get_zone_images(zone_id);
+	single_zone_images.cancel_last_sel();
 	const uint32_t width = get_zone_width(zone_id);
-	zi.sel->set_width(width);
+	single_zone_images.sel->set_width(width);
 
 	PVZoneRendering<PARALLELVIEW_ZT_BBITS>* zr = new (PVRenderingPipeline::allocate_zr<PARALLELVIEW_ZT_BBITS>()) PVZoneRendering<PARALLELVIEW_ZT_BBITS>(zone_id,
 		[&,width,zoom_y](PVZoneID zone_id, PVCore::PVHSVColor const* colors, PVBCICode<PARALLELVIEW_ZT_BBITS>* codes)
 		{
 			return this->get_zones_manager().get_zone_tree<PVZoneTree>(zone_id).browse_tree_bci_sel(colors, codes);
 		},
-		*zi.sel,
+		*single_zone_images.sel,
 		0,
 		width,
 		zoom_y,
@@ -381,7 +381,7 @@ void PVParallelView::PVLinesView::render_zone_sel(PVZoneID zone_id, const float 
 		);
 
 	connect_zr(zr, "zr_sel_finished");
-	zi.last_zr_sel = zr;
+	single_zone_images.last_zr_sel = zr;
 
 	_processor_sel.add_job(*zr);
 }
@@ -568,17 +568,17 @@ void PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width,
 /******************************************************************************
  ******************************************************************************
  *
- * ZoneImages Implementation
+ * SingleZoneImages Implementation
  *
  ******************************************************************************
  *****************************************************************************/
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::ZoneImages::cancel_all_and_wait
+ * PVParallelView::PVLinesView::SingleZoneImages::cancel_all_and_wait
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::ZoneImages::cancel_all_and_wait()
+void PVParallelView::PVLinesView::SingleZoneImages::cancel_all_and_wait()
 {
 	if (last_zr_sel) {
 		last_zr_sel->cancel();
@@ -600,10 +600,10 @@ void PVParallelView::PVLinesView::ZoneImages::cancel_all_and_wait()
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::ZoneImages::cancel_last_bg
+ * PVParallelView::PVLinesView::SingleZoneImages::cancel_last_bg
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::ZoneImages::cancel_last_bg()
+void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_bg()
 {
 	if (last_zr_bg) {
 		last_zr_bg->cancel();
@@ -612,10 +612,10 @@ void PVParallelView::PVLinesView::ZoneImages::cancel_last_bg()
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::ZoneImages::cancel_last_sel
+ * PVParallelView::PVLinesView::SingleZoneImages::cancel_last_sel
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::ZoneImages::cancel_last_sel()
+void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_sel()
 {
 	if (last_zr_sel) {
 		last_zr_sel->cancel();
@@ -624,10 +624,10 @@ void PVParallelView::PVLinesView::ZoneImages::cancel_last_sel()
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::ZoneImages::create_image
+ * PVParallelView::PVLinesView::SingleZoneImages::create_image
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::ZoneImages::create_image(PVBCIDrawingBackend& backend, uint32_t width)
+void PVParallelView::PVLinesView::SingleZoneImages::create_image(PVBCIDrawingBackend& backend, uint32_t width)
 {
 	sel = backend.create_image(width, PARALLELVIEW_ZT_BBITS);
 	bg = backend.create_image(width, PARALLELVIEW_ZT_BBITS);
@@ -635,10 +635,10 @@ void PVParallelView::PVLinesView::ZoneImages::create_image(PVBCIDrawingBackend& 
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::ZoneImages::set_width
+ * PVParallelView::PVLinesView::SingleZoneImages::set_width
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::ZoneImages::set_width(uint32_t width)
+void PVParallelView::PVLinesView::SingleZoneImages::set_width(uint32_t width)
 {
 	sel->set_width(width);
 	bg->set_width(width);

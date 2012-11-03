@@ -31,7 +31,7 @@ class PVLinesView
 	constexpr static size_t bbits = PARALLELVIEW_ZT_BBITS;
 
 private:
-	struct ZoneImages
+	struct SingleZoneImages
 	{
 		PVBCIBackendImage_p sel;
 		PVBCIBackendImage_p bg;
@@ -39,13 +39,13 @@ private:
 		PVZoneRenderingBase* last_zr_sel;
 		PVZoneRenderingBase* last_zr_bg;
 
-		ZoneImages():
+		SingleZoneImages():
 			last_zr_sel(nullptr),
 			last_zr_bg(nullptr)
 		{ }
 	   		   
 
-		ZoneImages(PVBCIDrawingBackend& backend, uint32_t zone_width):
+		SingleZoneImages(PVBCIDrawingBackend& backend, uint32_t zone_width):
 			last_zr_sel(nullptr),
 			last_zr_bg(nullptr)
 		{
@@ -90,7 +90,7 @@ private:
 	};
 
 public:
-	typedef std::vector<ZoneImages> list_zone_images_t;
+	typedef std::vector<SingleZoneImages> list_zone_images_t;
 	typedef std::vector<ZoneWidthWithZoomLevel> list_zone_width_with_zoom_level_t;
 
 public:
@@ -146,7 +146,7 @@ public:
 
 	inline PVBCIDrawingBackend& backend() const { return _backend; }
 
-	inline ZoneImages& get_zone_images(const PVZoneID zone_id)
+	inline SingleZoneImages& get_zone_images(const PVZoneID zone_id)
 	{
 		return _zones_imgs[get_zone_image_idx(zone_id)];
 	}
