@@ -268,10 +268,10 @@ void PVParallelView::PVLinesView::render_all_imgs_bg(int32_t view_x, uint32_t vi
 {
 	set_new_view(view_x, view_width);
 	visit_all_zones_to_render(view_width,
-	    [&](PVZoneID z)
+	    [&](PVZoneID zone_id)
 	    {
-			assert(is_zone_drawn(z));
-			render_zone_bg(z, zoom_y);
+			assert(is_zone_drawn(zone_id));
+			render_zone_bg(zone_id, zoom_y);
 		}
 	);
 }
@@ -285,10 +285,10 @@ void PVParallelView::PVLinesView::render_all_imgs_sel(int32_t view_x, uint32_t v
 {
 	set_new_view(view_x, view_width);
 	visit_all_zones_to_render(view_width,
-	    [&](PVZoneID z)
+	    [&](PVZoneID zone_id)
 	    {
-			assert(is_zone_drawn(z));
-			render_zone_sel(z, zoom_y);
+			assert(is_zone_drawn(zone_id));
+			render_zone_sel(zone_id, zoom_y);
 		}
 	);
 }
@@ -314,10 +314,10 @@ void PVParallelView::PVLinesView::render_all_zones_all_imgs(int32_t view_x, uint
 {
 	set_new_view(view_x, view_width);
 	visit_all_zones_to_render(view_width,
-	    [&](PVZoneID z)
+	    [&](PVZoneID zone_id)
 	    {
-			assert(is_zone_drawn(z));
-			render_zone_all_imgs(z, zoom_y);
+			assert(is_zone_drawn(zone_id));
+			render_zone_all_imgs(zone_id, zoom_y);
 		}
 	);
 }

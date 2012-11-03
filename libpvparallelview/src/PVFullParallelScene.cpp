@@ -600,8 +600,11 @@ void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent*
 {
 	QRectF old_scene_rect = sceneRect();
 	QRectF items_bbox = itemsBoundingRect();
-	QRectF new_scene_rect(items_bbox.left() - SCENE_MARGIN, items_bbox.top(),
-	                      items_bbox.right() + (2*SCENE_MARGIN), items_bbox.bottom() + SCENE_MARGIN);
+	
+	// Computing a scene size so that left and right margins are nearly as large as the ViewPort,
+	//  so that you can nearly always scroll leftmost and rightmost to push the plot near the exit point.
+	QRectF new_scene_rect(items_bbox.left() - 0.9*_full_parallel_view->width(), items_bbox.top(),
+	                      items_bbox.right() + 1.8*_full_parallel_view->width(), items_bbox.bottom() + SCENE_MARGIN);
 
 	if (old_scene_rect.width() == new_scene_rect.width()) {
 		/* QGraphicsView::centerOn(...) is not stable:
