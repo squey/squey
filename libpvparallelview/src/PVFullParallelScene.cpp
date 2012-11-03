@@ -603,6 +603,7 @@ void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent*
 	
 	// Computing a scene size so that left and right margins are nearly as large as the ViewPort,
 	//  so that you can nearly always scroll leftmost and rightmost to push the plot near the exit point.
+	// FIXME One should use the exact positions of the first and last axes, instead of the itemsBoundingRect, so that scrolling leftmost and right most would show these extrem axes in a symetric situation (right now, the last axis label width is added to the position of the last axis, so that the itemsBoundingRect is not symetrically adjusted...
 	QRectF new_scene_rect(items_bbox.left() - 0.9*_full_parallel_view->width(), items_bbox.top(),
 	                      items_bbox.right() + 1.8*_full_parallel_view->width(), items_bbox.bottom() + SCENE_MARGIN);
 
