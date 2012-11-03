@@ -117,7 +117,7 @@ private:
 	Picviz::PVView const& lib_view() const { return _lib_view; }
 
 	void add_zone_image();
-	void add_axis(PVZoneID const z, int index = -1);
+	void add_axis(PVZoneID const zone_id, int index = -1);
 
 	inline PVBCIDrawingBackend& backend() const { return _lines_view.backend(); }
 

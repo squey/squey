@@ -103,10 +103,10 @@ void PVParallelView::PVFullParallelScene::about_to_be_deleted()
  * PVParallelView::PVFullParallelScene::add_axis
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const z, int index)
+void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int index)
 {
 	PVAxisGraphicsItem* axisw = new PVAxisGraphicsItem(_sm_p, lib_view(),
-	                                                   _lib_view.get_axes_combination().get_axes_comb_id(z));
+	                                                   _lib_view.get_axes_combination().get_axes_comb_id(zone_id));
 
 	axisw->get_sliders_group()->set_axis_scale(_zoom_y);
 	axisw->set_axis_length(_axis_length);
