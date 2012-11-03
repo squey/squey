@@ -353,7 +353,7 @@ void PVParallelView::PVFullParallelScene::render_all_zones_all_imgs()
 	PVLOG_INFO("!!!!!!!!!!in render_all_zones_all_imgs!!!!!!\n");
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
-	_lines_view.render_all_zones_all_imgs(view_x, view_width, _zoom_y);
+	_lines_view.render_all_zones_images(view_x, view_width, _zoom_y);
 }
 
 /******************************************************************************
@@ -498,7 +498,7 @@ void PVParallelView::PVFullParallelScene::update_new_selection()
 
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
-	_lines_view.render_all_imgs_sel(view_x, view_width, _zoom_y);
+	_lines_view.render_all_zones_sel_image(view_x, view_width, _zoom_y);
 }
 
 /******************************************************************************
@@ -874,7 +874,7 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 			update_zones_position(true, true);
 			update_scene(event);
 
-			_lines_view.render_zone_all_imgs(zone_id, _zoom_y);
+			_lines_view.render_single_zone_images(zone_id, _zoom_y);
 		}
 		event->accept();
 	}

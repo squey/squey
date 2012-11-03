@@ -106,18 +106,17 @@ public:
 	void cancel_and_wait_all_rendering();
 
 public:
-	void render_zone_bg(PVZoneID zone_id, const float zoom_y);
-	void render_zone_sel(PVZoneID zone_id, const float zoom_y);
-	void render_zone_all_imgs(PVZoneID zone_id, const float zoom_y);
+	void render_all_zones_bg_image(int32_t view_x, uint32_t view_width, const float zoom_y);
+	void render_all_zones_images(int32_t view_x, uint32_t view_width, const float zoom_y);
+	void render_all_zones_sel_image(int32_t view_x, uint32_t view_width, const float zoom_y);
+	void render_single_zone_bg_image(PVZoneID zone_id, const float zoom_y);
+	void render_single_zone_images(PVZoneID zone_id, const float zoom_y);
+	void render_single_zone_sel_image(PVZoneID zone_id, const float zoom_y);
 
 public:
 	void translate(int32_t view_x, uint32_t view_width, const float zoom_y);
 
 public:
-	void render_all_imgs_bg(int32_t view_x, uint32_t view_width, const float zoom_y);
-	void render_all_imgs_sel(int32_t view_x, uint32_t view_width, const float zoom_y);
-	void render_all_zones_all_imgs(int32_t view_x, uint32_t view_width, const float zoom_y);
-
 	PVZoneID get_zone_from_scene_pos(int32_t x) const;
 
 	bool set_zone_width(PVZoneID zone_id, uint32_t width);
@@ -146,7 +145,7 @@ public:
 
 	inline PVBCIDrawingBackend& backend() const { return _backend; }
 
-	inline SingleZoneImages& get_zone_images(const PVZoneID zone_id)
+	inline SingleZoneImages& get_single_zone_images(const PVZoneID zone_id)
 	{
 		return _zones_imgs[get_zone_image_idx(zone_id)];
 	}
@@ -160,15 +159,17 @@ public:
 private:
 	PVZoneID get_image_index_of_zone(PVZoneID zone_id) const;
 
-	inline void update_zone_sel_img_width(PVZoneID zone_id)
-	{
-		get_zone_images(zone_id).sel->set_width(get_zone_width(zone_id));
-	}
+	// FIXME : not used ??
+// 	inline void update_zone_sel_img_width(PVZoneID zone_id)
+// 	{
+// 		get_single_zone_images(zone_id).sel->set_width(get_zone_width(zone_id));
+// 	}
 
-	inline void update_zone_bg_img_width(PVZoneID zone_id)
-	{
-		get_zone_images(zone_id).bg->set_width(get_zone_width(zone_id));
-	}
+	// FIXME : not used ??
+// 	inline void update_zone_bg_img_width(PVZoneID zone_id)
+// 	{
+// 		get_single_zone_images(zone_id).bg->set_width(get_zone_width(zone_id));
+// 	}
 	
 	void visit_all_zones_to_render(uint32_t view_width, std::function<void(PVZoneID)> const& fzone);
 

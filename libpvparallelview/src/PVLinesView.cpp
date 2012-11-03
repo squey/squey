@@ -261,77 +261,77 @@ void PVParallelView::PVLinesView::left_shift_images(PVZoneID s)
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::render_all_imgs_bg
+ * PVParallelView::PVLinesView::render_all_zones_bg_image
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::render_all_imgs_bg(int32_t view_x, uint32_t view_width, const float zoom_y)
+void PVParallelView::PVLinesView::render_all_zones_bg_image(int32_t view_x, uint32_t view_width, const float zoom_y)
 {
 	set_new_view(view_x, view_width);
 	visit_all_zones_to_render(view_width,
 	    [&](PVZoneID zone_id)
 	    {
 			assert(is_zone_drawn(zone_id));
-			render_zone_bg(zone_id, zoom_y);
+			render_single_zone_bg_image(zone_id, zoom_y);
 		}
 	);
 }
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::render_all_imgs_sel
+ * PVParallelView::PVLinesView::render_all_zones_sel_image
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::render_all_imgs_sel(int32_t view_x, uint32_t view_width, const float zoom_y)
+void PVParallelView::PVLinesView::render_all_zones_sel_image(int32_t view_x, uint32_t view_width, const float zoom_y)
 {
 	set_new_view(view_x, view_width);
 	visit_all_zones_to_render(view_width,
 	    [&](PVZoneID zone_id)
 	    {
 			assert(is_zone_drawn(zone_id));
-			render_zone_sel(zone_id, zoom_y);
+			render_single_zone_sel_image(zone_id, zoom_y);
 		}
 	);
 }
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::render_zone_all_imgs
+ * PVParallelView::PVLinesView::render_single_zone_images
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::render_zone_all_imgs(PVZoneID zone_id, const float zoom_y)
+void PVParallelView::PVLinesView::render_single_zone_images(PVZoneID zone_id, const float zoom_y)
 {
 	assert(is_zone_drawn(zone_id));
-	render_zone_bg(zone_id, zoom_y);
-	render_zone_sel(zone_id, zoom_y);
+	render_single_zone_bg_image(zone_id, zoom_y);
+	render_single_zone_sel_image(zone_id, zoom_y);
 }
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::render_zone_all_imgs
+ * PVParallelView::PVLinesView::render_all_zones_images
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::render_all_zones_all_imgs(int32_t view_x, uint32_t view_width, const float zoom_y)
+void PVParallelView::PVLinesView::render_all_zones_images(int32_t view_x, uint32_t view_width, const float zoom_y)
 {
 	set_new_view(view_x, view_width);
 	visit_all_zones_to_render(view_width,
 	    [&](PVZoneID zone_id)
 	    {
 			assert(is_zone_drawn(zone_id));
-			render_zone_all_imgs(zone_id, zoom_y);
+			render_single_zone_images(zone_id, zoom_y);
 		}
 	);
 }
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::render_zone_bg
+ * PVParallelView::PVLinesView::render_single_zone_bg_image
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::render_zone_bg(PVZoneID zone_id, const float zoom_y)
+void PVParallelView::PVLinesView::render_single_zone_bg_image(PVZoneID zone_id, const float zoom_y)
 {
 	assert(is_zone_drawn(zone_id));
 
-	SingleZoneImages& single_zone_images = get_zone_images(zone_id);
+	SingleZoneImages& single_zone_images = get_single_zone_images(zone_id);
 	single_zone_images.cancel_last_bg();
 	const uint32_t width = get_zone_width(zone_id);
 	single_zone_images.bg->set_width(width);
@@ -356,14 +356,14 @@ void PVParallelView::PVLinesView::render_zone_bg(PVZoneID zone_id, const float z
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::render_zone_sel
+ * PVParallelView::PVLinesView::render_single_zone_sel_image
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::render_zone_sel(PVZoneID zone_id, const float zoom_y)
+void PVParallelView::PVLinesView::render_single_zone_sel_image(PVZoneID zone_id, const float zoom_y)
 {
 	assert(is_zone_drawn(zone_id));
 
-	SingleZoneImages& single_zone_images = get_zone_images(zone_id);
+	SingleZoneImages& single_zone_images = get_single_zone_images(zone_id);
 	single_zone_images.cancel_last_sel();
 	const uint32_t width = get_zone_width(zone_id);
 	single_zone_images.sel->set_width(width);
@@ -474,7 +474,7 @@ void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width,
 	[&](PVZoneID z)
 	{
 		assert(is_zone_drawn(z));
-		render_zone_all_imgs(z, zoom_y);
+		render_single_zone_images(z, zoom_y);
 	});
 }
 

@@ -205,7 +205,7 @@ int main(int argc, char** argv)
 
 	LinesViewMw* lvmw = new LinesViewMw();
 	PVParallelView::PVLinesView lines_view(backend, zm, sel_processor, bg_processor, lvmw);
-	lines_view.render_all_zones_all_imgs(0, 1900, 1.0f);
+	lines_view.render_all_zones_images(0, 1900, 1.0f);
 
 	/*show_qimage("even1", dst_img->qimage());
 	show_qimage("even2", dst_img2->qimage());
