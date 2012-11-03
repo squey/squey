@@ -133,15 +133,15 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::add_zone_image()
 {
-	ZoneImages zi;
-	zi.sel = addPixmap(QPixmap());
-	zi.bg = addPixmap(QPixmap());
-	zi.bg->setOpacity(0.25);
-	zi.bg->setZValue(0.0f);
-	zi.sel->setZValue(1.0f);
-	zi.img_tmp_sel = backend().create_image(PVParallelView::ZoneMaxWidth, PARALLELVIEW_ZT_BBITS);
-	zi.img_tmp_bg  = backend().create_image(PVParallelView::ZoneMaxWidth, PARALLELVIEW_ZT_BBITS);
-	_zones.push_back(zi);
+	SingleZoneImagesItems single_zone_images_items;
+	single_zone_images_items.sel = addPixmap(QPixmap());
+	single_zone_images_items.bg = addPixmap(QPixmap());
+	single_zone_images_items.bg->setOpacity(0.25);
+	single_zone_images_items.bg->setZValue(0.0f);
+	single_zone_images_items.sel->setZValue(1.0f);
+	single_zone_images_items.img_tmp_sel = backend().create_image(PVParallelView::ZoneMaxWidth, PARALLELVIEW_ZT_BBITS);
+	single_zone_images_items.img_tmp_bg  = backend().create_image(PVParallelView::ZoneMaxWidth, PARALLELVIEW_ZT_BBITS);
+	_zones.push_back(single_zone_images_items);
 }
 
 /******************************************************************************

@@ -153,7 +153,7 @@ private:
 	int32_t pos_last_axis() const;
 
 private:
-	struct ZoneImages
+	struct SingleZoneImagesItems
 	{
 		QGraphicsPixmapItem* sel;
 		QGraphicsPixmapItem* bg;
@@ -161,7 +161,7 @@ private:
 		PVBCIBackendImage_p img_tmp_sel;
 		PVBCIBackendImage_p img_tmp_bg;
 
-		ZoneImages()
+		SingleZoneImagesItems()
 		{
 		}
 
@@ -223,7 +223,7 @@ private:
 private:
 	PVParallelView::PVLinesView _lines_view;
 
-	std::vector<ZoneImages> _zones;
+	std::vector<SingleZoneImagesItems> _zones;
 	axes_list_t             _axes;
 
 	PVHive::PVActor<Picviz::PVView> _view_actor;
