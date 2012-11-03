@@ -1,12 +1,28 @@
+/**
+ * \file PVZoneRenderingBase.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvparallelview/PVZoneRendering.h>
 #include <QMetaObject>
 
+/******************************************************************************
+ *
+ * PVParallelView::PVZoneRenderingBase::init
+ *
+ *****************************************************************************/
 void PVParallelView::PVZoneRenderingBase::init()
 {
 	_should_cancel = false;
 	_qobject_finished_success = nullptr;
 }
 
+/******************************************************************************
+ *
+ * PVParallelView::PVZoneRenderingBase::finished
+ *
+ *****************************************************************************/
 void PVParallelView::PVZoneRenderingBase::finished()
 {
 	bool was_canceled;

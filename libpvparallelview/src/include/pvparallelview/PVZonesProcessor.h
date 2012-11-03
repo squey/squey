@@ -59,7 +59,7 @@ public:
 
 	// Preprocess router specific functions
 	void set_number_zones(const PVZoneID n);
-	void invalidate_zone_preprocessing(const PVZoneID z);
+	void invalidate_zone_preprocessing(const PVZoneID zone_id);
 
 public:
 	// Static helper functions, implemented in PVZonesProcessor.cpp
