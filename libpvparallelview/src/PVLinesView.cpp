@@ -209,7 +209,7 @@ PVZoneID PVParallelView::PVLinesView::get_image_index_of_zone(PVZoneID zone_id) 
  *****************************************************************************/
 PVZoneID PVParallelView::PVLinesView::get_number_of_managed_zones() const
 {
-	return get_zones_manager().get_number_of_zones();
+	return get_zones_manager().get_number_of_managed_zones();
 }
 
 /******************************************************************************

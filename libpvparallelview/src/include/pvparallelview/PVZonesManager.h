@@ -65,14 +65,14 @@ public:
 	template <class Tree>
 	inline Tree const& get_zone_tree(PVZoneID z) const
 	{
-		assert(z < get_number_of_zones());
+		assert(z < get_number_of_managed_zones());
 		return _zones[z].get_tree<Tree>();
 	}
 
 	template <class Tree>
 	inline Tree& get_zone_tree(PVZoneID z)
 	{
-		assert(z < get_number_of_zones());
+		assert(z < get_number_of_managed_zones());
 		return _zones[z].get_tree<Tree>();
 	}
 
@@ -82,14 +82,14 @@ public:
 	void set_uint_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
 	void set_uint_plotted(Picviz::PVView const& view);
 	void lazy_init_from_view(Picviz::PVView const& view);
-	inline PVZoneID get_number_of_zones() const { return _axes_comb.size()-1; }
+	inline PVZoneID get_number_of_managed_zones() const { return _axes_comb.size()-1; }
 	inline PVCol get_number_cols() const { return _ncols; }
 	inline PVRow get_number_rows() const { return _nrows; }
 
 protected:
 	inline void get_zone_cols(PVZoneID z, PVCol& a, PVCol& b)
 	{
-		assert(z < get_number_of_zones());
+		assert(z < get_number_of_managed_zones());
 		a = _axes_comb[z].get_axis();
 		b = _axes_comb[z+1].get_axis();
 	}

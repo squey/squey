@@ -30,7 +30,7 @@ PVParallelView::PVZonesProcessor PVParallelView::PVZonesProcessor::declare_proce
 		{
 			zm.filter_zone_by_sel(zone_id, sel);
 		},
-		colors, zm.get_number_of_zones());
+		colors, zm.get_number_of_managed_zones());
 }
 
 /******************************************************************************
