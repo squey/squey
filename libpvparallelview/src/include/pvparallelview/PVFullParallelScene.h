@@ -48,7 +48,7 @@ public:
 	typedef PVSlidersManager::axis_id_t axis_id_t;
 
 public:
-	PVFullParallelScene(PVFullParallelView* parallel_view, Picviz::PVView_sp& view_sp, PVParallelView::PVSlidersManager_p sm_p, PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg);
+	PVFullParallelScene(PVFullParallelView* full_parallel_view, Picviz::PVView_sp& view_sp, PVParallelView::PVSlidersManager_p sm_p, PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg);
 	virtual ~PVFullParallelScene();
 
 	void first_render();
@@ -59,14 +59,14 @@ public:
 
 	void about_to_be_deleted();
 
-	PVFullParallelView* graphics_view() { return _parallel_view; }
+	PVFullParallelView* graphics_view() { return _full_parallel_view; }
 
 	void set_enabled(bool value)
 	{
 		if (!value) {
 			_lines_view.cancel_and_wait_all_rendering();
 		}
-		_parallel_view->setEnabled(value);
+		_full_parallel_view->setEnabled(value);
 	}
 
 	void update_new_selection_async();
@@ -139,7 +139,7 @@ private slots:
 	}
 	void emit_new_zoomed_parallel_view(int axis_index)
 	{
-		emit _parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
+		emit _full_parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
 	}
 
 private slots:
@@ -229,7 +229,7 @@ private:
 	PVHive::PVActor<Picviz::PVView> _view_actor;
 	Picviz::PVView& _lib_view;
 
-	PVFullParallelView* _parallel_view;
+	PVFullParallelView* _full_parallel_view;
 
 	PVSelectionSquareGraphicsItem* _selection_square;
 	SelectionBarycenter _selection_barycenter;
