@@ -215,7 +215,7 @@ void PVParallelView::PVFullParallelScene::first_render()
 void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 {
 	if (event->key() == Qt::Key_Space) {
-		for (PVZoneID zone_id = _lines_view.get_first_drawn_zone(); zone_id <= _lines_view.get_last_drawn_zone(); zone_id++) {
+		for (PVZoneID zone_id = _lines_view.get_first_visible_zone_index(); zone_id <= _lines_view.get_last_visible_zone_index(); zone_id++) {
 			update_zone_pixmap_bgsel(zone_id);
 		}
 	}
@@ -363,7 +363,7 @@ void PVParallelView::PVFullParallelScene::render_all_zones_all_imgs()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::scale_zone_images(PVZoneID zone_id)
 {
-	const PVZoneID img_id = _lines_view.get_zone_image_idx(zone_id);
+	const PVZoneID img_id = _lines_view.get_zone_index_offset(zone_id);
 	PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
 
 	PVBCIBackendImage& img_sel = *images[img_id].sel;
@@ -522,7 +522,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 	const uint32_t view_width = _full_parallel_view->width();
 	_lines_view.update_number_of_zones(view_x, view_width);
 	PVZoneID const nb_zones = _lines_view.get_number_of_managed_zones();
-	PVZoneID nb_zones_drawable = _lines_view.get_nb_drawable_zones();
+	PVZoneID nb_zones_drawable = _lines_view.get_number_of_visible_zones();
 	if ((PVZoneID) _zones.size() != nb_zones_drawable) {
 		if ((PVZoneID) _zones.size() > nb_zones_drawable) {
 			for (PVZoneID zone_id = nb_zones_drawable; zone_id < (PVZoneID) _zones.size(); zone_id++) {
@@ -751,7 +751,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zone_id)
 	assert(_lines_view.is_zone_drawn(zone_id));
 
 	PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
-	const PVZoneID img_id = zone_id-_lines_view.get_first_drawn_zone();
+	const PVZoneID img_id = zone_id-_lines_view.get_first_visible_zone_index();
 
 	// Check whether the image needs scaling.
 	const uint32_t zone_width = _lines_view.get_zone_width(zone_id);
@@ -784,7 +784,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bgsel(int zone_id)
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(int zone_id)
 {
-	const PVZoneID img_id = _lines_view.get_zone_image_idx(zone_id);
+	const PVZoneID img_id = _lines_view.get_zone_index_offset(zone_id);
 	PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
 
 	// Check whether the image needs scaling.
@@ -809,7 +809,7 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 {
 	if (scale) {
 		//BENCH_START(update);
-		for (PVZoneID zone_id = _lines_view.get_first_drawn_zone(); zone_id <= _lines_view.get_last_drawn_zone(); zone_id++) {
+		for (PVZoneID zone_id = _lines_view.get_first_visible_zone_index(); zone_id <= _lines_view.get_last_visible_zone_index(); zone_id++) {
 			scale_zone_images(zone_id);
 		}
 		//BENCH_END(update, "update_zone_pixmap", 1, 1, 1, 1);
@@ -837,8 +837,8 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 		_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 	}
 
-	for (PVZoneID z = _lines_view.get_first_drawn_zone(); z <= _lines_view.get_last_drawn_zone(); z++) {
-		_zones[_lines_view.get_zone_image_idx(z)].setPos(QPointF(_lines_view.get_zone_absolute_pos(z), 0));
+	for (PVZoneID z = _lines_view.get_first_visible_zone_index(); z <= _lines_view.get_last_visible_zone_index(); z++) {
+		_zones[_lines_view.get_zone_index_offset(z)].setPos(QPointF(_lines_view.get_zone_absolute_pos(z), 0));
 	}
 		
 	update_selection_square();
@@ -903,7 +903,7 @@ void PVParallelView::PVFullParallelScene::zr_bg_finished(void* zr, int zone_id)
 	if (zr) {
 		PVRenderingPipeline::free_zr(reinterpret_cast<PVZoneRenderingBase*>(zr));
 
-		const PVZoneID img_id = _lines_view.get_zone_image_idx(zone_id);
+		const PVZoneID img_id = _lines_view.get_zone_index_offset(zone_id);
 		PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
 		images[img_id].last_zr_bg = nullptr;
 	}
@@ -921,7 +921,7 @@ void PVParallelView::PVFullParallelScene::zr_sel_finished(void* zr, int zone_id)
 	if (zr) {
 		PVRenderingPipeline::free_zr(reinterpret_cast<PVZoneRenderingBase*>(zr));
 		
-		const PVZoneID img_id = _lines_view.get_zone_image_idx(zone_id);
+		const PVZoneID img_id = _lines_view.get_zone_index_offset(zone_id);
 		PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
 		images[img_id].last_zr_sel = nullptr;
 	}

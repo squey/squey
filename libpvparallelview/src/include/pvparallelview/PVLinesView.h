@@ -101,21 +101,24 @@ public:
 
 	void cancel_and_wait_all_rendering();
 
-	inline PVZoneID get_first_drawn_zone() const { return _first_zone; }
-	inline PVZoneID get_last_drawn_zone() const { return picviz_min((PVZoneID)(_first_zone + _list_of_single_zone_images.size()-1), get_number_of_managed_zones()-1); }
-	PVZoneID get_nb_drawable_zones() const { return _list_of_single_zone_images.size(); }
-	inline SingleZoneImages& get_single_zone_images(const PVZoneID zone_id) { return _list_of_single_zone_images[get_zone_image_idx(zone_id)]; }
+	inline PVZoneID get_first_visible_zone_index() const { return _first_zone; }
+	inline PVZoneID get_last_visible_zone_index() const { return picviz_min((PVZoneID)(_first_zone + get_number_of_visible_zones()-1), get_number_of_managed_zones()-1); }
+
+	PVZoneID get_number_of_managed_zones() const;
+	PVZoneID get_number_of_visible_zones() const { return get_number_of_visible_zones(); }
+
+	inline SingleZoneImages& get_single_zone_images(const PVZoneID zone_id) { return _list_of_single_zone_images[get_zone_index_offset(zone_id)]; }
 
 	uint32_t get_zone_absolute_pos(PVZoneID zone_id) const;
 	PVZoneID get_zone_from_scene_pos(int32_t x) const;
-	PVZoneID get_zone_image_idx(PVZoneID zone_id) { assert(is_zone_drawn(zone_id)); return zone_id-get_first_drawn_zone(); }
+	PVZoneID get_zone_index_offset(PVZoneID zone_id) { assert(is_zone_drawn(zone_id)); return zone_id-get_first_visible_zone_index(); }
 	
 	inline const PVZonesManager& get_zones_manager() const { return _zm; }
 	inline uint32_t get_zone_width(PVZoneID zone_id) const { assert(zone_id < (PVZoneID) _zones_width.size()); return _zones_width[zone_id]; }
 	const list_zone_images_t& get_zones_images() const { return _list_of_single_zone_images; }
 	list_zone_images_t& get_zones_images() { return _list_of_single_zone_images; }
 
-	bool is_zone_drawn(PVZoneID zone_id) const { return (zone_id >= get_first_drawn_zone() && zone_id <= get_last_drawn_zone()); }
+	bool is_zone_drawn(PVZoneID zone_id) const { return (zone_id >= get_first_visible_zone_index() && zone_id <= get_last_visible_zone_index()); }
 
 	void render_all_zones_bg_image(int32_t view_x, uint32_t view_width, const float zoom_y);
 	void render_all_zones_images(int32_t view_x, uint32_t view_width, const float zoom_y);
@@ -126,7 +129,6 @@ public:
 
 
 	void set_nb_drawable_zones(PVZoneID nb_zones);
-	PVZoneID get_number_of_managed_zones() const;
 
 	void set_zone_max_width(uint32_t w);
 	bool set_zone_width(PVZoneID zone_id, uint32_t width);
