@@ -102,6 +102,7 @@ public:
 
 	void cancel_and_wait_all_rendering();
 	
+	void decrease_base_zoom_level_of_zone(PVZoneID zone_id);
 	void decrease_global_zoom_level();
 
 	inline PVZoneID get_first_visible_zone_index() const { return _first_zone; }
@@ -123,6 +124,7 @@ public:
 	const list_zone_images_t& get_zones_images() const { return _list_of_single_zone_images; }
 	list_zone_images_t& get_zones_images() { return _list_of_single_zone_images; }
 
+	void increase_base_zoom_level_of_zone(PVZoneID zone_id);
 	void increase_global_zoom_level();
 	bool is_zone_drawn(PVZoneID zone_id) const { return (zone_id >= get_first_visible_zone_index() && zone_id <= get_last_visible_zone_index()); }
 

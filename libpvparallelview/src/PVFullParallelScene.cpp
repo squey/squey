@@ -853,44 +853,91 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event)
 {
-	int zoom = event->delta() / 2;
-	
-	// In case of a negative zoom
-	if(zoom < 0) {
-		zoom = picviz_max(zoom, -PVParallelView::ZoneMinWidth);
-	}
-
-	const QPointF mouse_scene_pt = event->scenePos();
-	
-	// We get the Zone_Id under the current mouse position
-	PVZoneID mouse_zone_id = _lines_view.get_zone_from_scene_pos(mouse_scene_pt.x());
-	
-	// We test if it a LOCAL zoom (applies only to a zone) or a GLOBAL zoom
+	int delta = event->delta();
+	// We test if its a LOCAL zoom (applies only to a zone) or a GLOBAL zoom
 	if (event->modifiers() == Qt::ControlModifier) {
 		// Local zoom
-		const PVZoneID zone_id = mouse_zone_id;
-
-		uint32_t z_width = _lines_view.get_zone_width(zone_id);
-		if (_lines_view.set_zone_width(zone_id, z_width+zoom)) {
-			update_viewport();
-			update_zones_position(true, true);
-			update_scene(event);
-
-			_lines_view.render_single_zone_images(zone_id, _zoom_y);
+		// We get the zone_id of the zone under mouse cursor
+		const QPointF mouse_scene_pt = event->scenePos();
+		const PVZoneID zone_id = _lines_view.get_zone_from_scene_pos(mouse_scene_pt.x());
+		
+		// We change its base_zoom level accordingly
+		if (delta < 0) {
+			_lines_view.decrease_base_zoom_level_of_zone(zone_id);
 		}
+		else if (delta > 0) {
+			_lines_view.increase_base_zoom_level_of_zone(zone_id);
+		}
+		
+		update_viewport();
+		update_zones_position(true, true);
+		update_scene(event);
+		_lines_view.render_single_zone_images(zone_id, _zoom_y);
 		event->accept();
 	}
 	else if (event->modifiers() == Qt::NoModifier) {
-		//Global zoom
-		if (_lines_view.set_all_zones_width([=](uint32_t width) { return width+zoom; })) {
-			// at least one zone's width has been changed
-			update_viewport();
-			update_zones_position(true, true);
-			update_scene(event);
+ 		//Global zoom
+		if (delta < 0) {
+			_lines_view.decrease_global_zoom_level();
 		}
-		_timer_render->start();
+		else if (delta >0) {
+			_lines_view.increase_global_zoom_level();
+		}
+		
+		update_viewport();
+		update_zones_position(true, true);
+		update_scene(event);
 		event->accept();
 	}
+		
+ 		
+		
+	
+// 	int zoom = event->delta() / 2;
+// 	
+// 	if (zoom < 0) {
+// 		_lines_view.decrease_global_zoom_level();
+// 	}
+// 	else if (zoom >0) {
+// 		_lines_view.increase_global_zoom_level();
+// 	}
+// 	
+// 	// In case of a negative zoom
+// 	if(zoom < 0) {
+// 		zoom = picviz_max(zoom, -PVParallelView::ZoneMinWidth);
+// 	}
+// 
+// 	const QPointF mouse_scene_pt = event->scenePos();
+// 	
+// 	// We get the Zone_Id under the current mouse position
+// 	PVZoneID mouse_zone_id = _lines_view.get_zone_from_scene_pos(mouse_scene_pt.x());
+// 	
+// 	// We test if it a LOCAL zoom (applies only to a zone) or a GLOBAL zoom
+// 	if (event->modifiers() == Qt::ControlModifier) {
+// 		// Local zoom
+// 		const PVZoneID zone_id = mouse_zone_id;
+// 
+// 		uint32_t z_width = _lines_view.get_zone_width(zone_id);
+// 		if (_lines_view.set_zone_width(zone_id, z_width+zoom)) {
+// 			update_viewport();
+// 			update_zones_position(true, true);
+// 			update_scene(event);
+// 
+// 			_lines_view.render_single_zone_images(zone_id, _zoom_y);
+// 		}
+// 		event->accept();
+// 	}
+// 	else if (event->modifiers() == Qt::NoModifier) {
+// 		//Global zoom
+// 		if (_lines_view.set_all_zones_width([=](uint32_t width) { return width+zoom; })) {
+// 			// at least one zone's width has been changed
+// 			update_viewport();
+// 			update_zones_position(true, true);
+// 			update_scene(event);
+// 		}
+// 		_timer_render->start();
+// 		event->accept();
+// 	}
 }
 
 /******************************************************************************
