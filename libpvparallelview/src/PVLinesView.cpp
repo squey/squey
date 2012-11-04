@@ -220,10 +220,13 @@ PVZoneID PVParallelView::PVLinesView::get_number_of_managed_zones() const
 uint32_t PVParallelView::PVLinesView::get_zone_absolute_position(PVZoneID zone_id) const
 {
 	assert(zone_id < (PVZoneID) _zones_width.size());
+	
+	// We do stop after the right axis of the previous zone
 	uint32_t pos = 0;
 	for (PVZoneID z = 0; z < zone_id; z++) {
-		pos += _zones_width[z] + PVParallelView::AxisWidth;
+		pos += get_zone_width(z) + PVParallelView::AxisWidth;
 	}
+	
 	return pos;
 }
 
@@ -238,7 +241,7 @@ PVZoneID PVParallelView::PVLinesView::get_zone_from_scene_pos(int abs_pos) const
 	ssize_t pos = 0;
 	for (; zone_id < (PVZoneID) (_zones_width.size()-1) ; zone_id++)
 	{
-		pos += _zones_width[zone_id] + PVParallelView::AxisWidth;
+		pos += get_zone_width(zone_id) + PVParallelView::AxisWidth;
 		if (pos > abs_pos) {
 			break;
 		}
@@ -445,13 +448,17 @@ void PVParallelView::PVLinesView::set_zone_max_width(uint32_t w)
 bool PVParallelView::PVLinesView::set_zone_width(PVZoneID zone_id, uint32_t width)
 {
 	assert(zone_id < (PVZoneID) _zones_width.size());
-	// Returns true if width was actual changed
+	
+	// We want to return true if width was actually changed
 	uint32_t old_width = get_zone_width(zone_id);
 	uint32_t new_width = PVCore::clamp(width, (uint32_t) PVParallelView::ZoneMinWidth, (uint32_t) PVParallelView::ZoneMaxWidth);
 	bool diff = new_width != old_width;
+	
+	// We change the width only if it has changed...
 	if (diff) {
 		_zones_width[zone_id] = new_width;
 	}
+	
 	return diff;
 }
 

@@ -105,7 +105,7 @@ public:
 	inline PVZoneID get_last_visible_zone_index() const { return picviz_min((PVZoneID)(_first_zone + get_number_of_visible_zones()-1), get_number_of_managed_zones()-1); }
 
 	PVZoneID get_number_of_managed_zones() const;
-	PVZoneID get_number_of_visible_zones() const { return get_number_of_visible_zones(); }
+	PVZoneID get_number_of_visible_zones() const { return _list_of_single_zone_images.size(); }
 
 	inline SingleZoneImages& get_single_zone_images(const PVZoneID zone_id) { return _list_of_single_zone_images[get_zone_index_offset(zone_id)]; }
 
@@ -202,8 +202,10 @@ private:
 	int32_t _visible_view_x;
 
 	std::vector<uint32_t> _zones_width;
+	
 
 	list_zone_images_t _list_of_single_zone_images;
+	list_zone_width_with_zoom_level_t list_of_zone_width_with_zoom_level;
 
 	PVZonesProcessor& _processor_sel;
 	PVZonesProcessor& _processor_bg;
