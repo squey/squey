@@ -304,7 +304,7 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
 int32_t PVParallelView::PVFullParallelScene::pos_last_axis() const
 {
 	const PVZoneID lastz = _lines_view.get_number_of_managed_zones()-1;
-	int32_t pos = _lines_view.get_zone_absolute_position_in_scene(lastz);
+	int32_t pos = _lines_view.get_left_border_position_of_zone_in_scene(lastz);
 	pos += _lines_view.get_zone_width(lastz);
 	return pos;
 }
@@ -604,8 +604,10 @@ void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent*
 	// Computing a scene size so that left and right margins are nearly as large as the ViewPort,
 	//  so that you can nearly always scroll leftmost and rightmost to push the plot near the exit point.
 	// FIXME One should use the exact positions of the first and last axes, instead of the itemsBoundingRect, so that scrolling leftmost and right most would show these extrem axes in a symetric situation (right now, the last axis label width is added to the position of the last axis, so that the itemsBoundingRect is not symetrically adjusted...
-	QRectF new_scene_rect(items_bbox.left() - 0.9*_full_parallel_view->width(), items_bbox.top(),
-	                      items_bbox.right() + 1.8*_full_parallel_view->width(), items_bbox.bottom() + SCENE_MARGIN);
+// 	QRectF new_scene_rect(items_bbox.left() - 0.9*_full_parallel_view->width(), items_bbox.top(),
+// 	                      items_bbox.right() + 1.8*_full_parallel_view->width(), items_bbox.bottom() + SCENE_MARGIN);
+	QRectF new_scene_rect(_lines_view.get_left_border_position_of_zone_in_scene(0) - 0.9*_full_parallel_view->width(), items_bbox.top(),
+	                      _lines_view.get_right_border_position_of_zone_in_scene(_lines_view.get_number_of_managed_zones()-1) + 1.8*_full_parallel_view->width(), items_bbox.bottom() + SCENE_MARGIN);
 
 	if (old_scene_rect.width() == new_scene_rect.width()) {
 		/* QGraphicsView::centerOn(...) is not stable:
@@ -678,8 +680,8 @@ void PVParallelView::PVFullParallelScene::update_selection_square()
 	double factor1 = _selection_barycenter.factor1;
 	double factor2 = _selection_barycenter.factor2;
 
-	uint32_t new_left = _lines_view.get_zone_absolute_position_in_scene(zone_id1) + (double) _lines_view.get_zone_width(zone_id1) * factor1;
-	uint32_t new_right = _lines_view.get_zone_absolute_position_in_scene(zone_id2) + (double) _lines_view.get_zone_width(zone_id2) * factor2;
+	uint32_t new_left = _lines_view.get_left_border_position_of_zone_in_scene(zone_id1) + (double) _lines_view.get_zone_width(zone_id1) * factor1;
+	uint32_t new_right = _lines_view.get_left_border_position_of_zone_in_scene(zone_id2) + (double) _lines_view.get_zone_width(zone_id2) * factor2;
 	uint32_t abs_top = _selection_square->rect().topLeft().y();
 	uint32_t abs_bottom = _selection_square->rect().bottomRight().y();
 
@@ -763,7 +765,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zone_id)
 	}
 
 	_zones[img_id].bg->setPixmap(QPixmap::fromImage(img_bg.qimage()));
-	_zones[img_id].bg->setPos(QPointF(_lines_view.get_zone_absolute_position_in_scene(zone_id), 0));
+	_zones[img_id].bg->setPos(QPointF(_lines_view.get_left_border_position_of_zone_in_scene(zone_id), 0));
 }
 
 /******************************************************************************
@@ -797,7 +799,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(int zone_id)
 	}
 
 	_zones[img_id].sel->setPixmap(QPixmap::fromImage(img_sel.qimage()));
-	_zones[img_id].sel->setPos(QPointF(_lines_view.get_zone_absolute_position_in_scene(zone_id), 0));
+	_zones[img_id].sel->setPos(QPointF(_lines_view.get_left_border_position_of_zone_in_scene(zone_id), 0));
 }
 
 /******************************************************************************
@@ -827,7 +829,7 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 	}
 	for (; z < nzones; z++) {
 		if (z < nzones-1) {
-			pos = _lines_view.get_zone_absolute_position_in_scene(z);
+			pos = _lines_view.get_left_border_position_of_zone_in_scene(z);
 		}
 		else {
 			// Special case for last axis
@@ -839,7 +841,7 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 
 	// We now update all zones positions
 	for (PVZoneID z = _lines_view.get_first_visible_zone_index(); z <= _lines_view.get_last_visible_zone_index(); z++) {
-		_zones[_lines_view.get_zone_index_offset(z)].setPos(QPointF(_lines_view.get_zone_absolute_position_in_scene(z), 0));
+		_zones[_lines_view.get_zone_index_offset(z)].setPos(QPointF(_lines_view.get_left_border_position_of_zone_in_scene(z), 0));
 	}
 	
 	// It's time to refresh the current selection_square
@@ -887,6 +889,7 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 		update_viewport();
 		update_zones_position(true, true);
 		update_scene(event);
+		_timer_render->start();
 		event->accept();
 	}
 		

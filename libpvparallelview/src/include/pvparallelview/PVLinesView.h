@@ -107,13 +107,15 @@ public:
 
 	inline PVZoneID get_first_visible_zone_index() const { return _first_zone; }
 	inline PVZoneID get_last_visible_zone_index() const { return picviz_min((PVZoneID)(_first_zone + get_number_of_visible_zones()-1), get_number_of_managed_zones()-1); }
+	uint32_t get_left_border_position_of_zone_in_scene(PVZoneID zone_id) const;
 
 	PVZoneID get_number_of_managed_zones() const;
 	PVZoneID get_number_of_visible_zones() const { return _list_of_single_zone_images.size(); }
 
+	uint32_t get_right_border_position_of_zone_in_scene(PVZoneID zone_id) const;
+
 	inline SingleZoneImages& get_single_zone_images(const PVZoneID zone_id) { return _list_of_single_zone_images[get_zone_index_offset(zone_id)]; }
 
-	uint32_t get_zone_absolute_position_in_scene(PVZoneID zone_id) const;
 	PVZoneID get_zone_from_scene_pos(int32_t x) const;
 	PVZoneID get_zone_index_offset(PVZoneID zone_id) { assert(is_zone_drawn(zone_id)); return zone_id-get_first_visible_zone_index(); }
 	

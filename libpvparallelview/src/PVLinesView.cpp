@@ -242,20 +242,10 @@ PVZoneID PVParallelView::PVLinesView::get_image_index_of_zone(PVZoneID zone_id) 
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::get_number_of_managed_zones
+ * PVParallelView::PVLinesView::get_left_border_position_of_zone_in_scene
  *
  *****************************************************************************/
-PVZoneID PVParallelView::PVLinesView::get_number_of_managed_zones() const
-{
-	return get_zones_manager().get_number_of_managed_zones();
-}
-
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::get_zone_absolute_position_in_scene
- *
- *****************************************************************************/
-uint32_t PVParallelView::PVLinesView::get_zone_absolute_position_in_scene(PVZoneID zone_id) const
+uint32_t PVParallelView::PVLinesView::get_left_border_position_of_zone_in_scene(PVZoneID zone_id) const
 {
 	assert(zone_id < (PVZoneID) _zones_width.size());
 	
@@ -266,6 +256,38 @@ uint32_t PVParallelView::PVLinesView::get_zone_absolute_position_in_scene(PVZone
 	for (PVZoneID zid = 0; zid < zone_id; zid++) {
 		pos += get_zone_width(zid) + PVParallelView::AxisWidth;
 	}
+	
+	return pos;
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVLinesView::get_number_of_managed_zones
+ *
+ *****************************************************************************/
+PVZoneID PVParallelView::PVLinesView::get_number_of_managed_zones() const
+{
+	return get_zones_manager().get_number_of_managed_zones();
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVLinesView::get_right_border_position_of_zone_in_scene
+ *
+ *****************************************************************************/
+uint32_t PVParallelView::PVLinesView::get_right_border_position_of_zone_in_scene(PVZoneID zone_id) const
+{
+	assert(zone_id < (PVZoneID) _zones_width.size());
+	// FIXME : where is the first Axis ? 0, negative or more on the right ???
+	// The first zone start in scene at absciss 0
+	uint32_t pos = 0;
+	
+	// We do stop after the right axis of the previous zone
+	for (PVZoneID zid = 0; zid < zone_id; zid++) {
+		pos += get_zone_width(zid) + PVParallelView::AxisWidth;
+	}
+	
+	pos += get_zone_width(zone_id);
 	
 	return pos;
 }
