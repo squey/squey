@@ -65,7 +65,7 @@ private:
 	{
 		ZoneWidthWithZoomLevel()
 		{
-			_base_width = 128;
+			_base_width = 64;
 			_base_zoom_level = 0;
 		}
 		
@@ -79,6 +79,7 @@ private:
 		
 		int16_t get_base_zoom_level();
 		int16_t get_base_width();
+		uint32_t get_width(int16_t global_zoom_level) const;
 		
 		void increase_zoom_level();
 		
@@ -100,6 +101,8 @@ public:
 	inline PVBCIDrawingBackend& backend() const { return _backend; }
 
 	void cancel_and_wait_all_rendering();
+	
+	void decrease_global_zoom_level();
 
 	inline PVZoneID get_first_visible_zone_index() const { return _first_zone; }
 	inline PVZoneID get_last_visible_zone_index() const { return picviz_min((PVZoneID)(_first_zone + get_number_of_visible_zones()-1), get_number_of_managed_zones()-1); }
@@ -109,15 +112,18 @@ public:
 
 	inline SingleZoneImages& get_single_zone_images(const PVZoneID zone_id) { return _list_of_single_zone_images[get_zone_index_offset(zone_id)]; }
 
-	uint32_t get_zone_absolute_position(PVZoneID zone_id) const;
+	uint32_t get_zone_absolute_position_in_scene(PVZoneID zone_id) const;
 	PVZoneID get_zone_from_scene_pos(int32_t x) const;
 	PVZoneID get_zone_index_offset(PVZoneID zone_id) { assert(is_zone_drawn(zone_id)); return zone_id-get_first_visible_zone_index(); }
 	
 	inline const PVZonesManager& get_zones_manager() const { return _zm; }
-	inline uint32_t get_zone_width(PVZoneID zone_id) const { assert(zone_id < (PVZoneID) _zones_width.size()); return _zones_width[zone_id]; }
+//	inline uint32_t get_zone_width(PVZoneID zone_id) const { assert(zone_id < (PVZoneID) _zones_width.size()); return _zones_width[zone_id]; }
+	uint32_t get_zone_width(PVZoneID zone_id) const;
+		
 	const list_zone_images_t& get_zones_images() const { return _list_of_single_zone_images; }
 	list_zone_images_t& get_zones_images() { return _list_of_single_zone_images; }
 
+	void increase_global_zoom_level();
 	bool is_zone_drawn(PVZoneID zone_id) const { return (zone_id >= get_first_visible_zone_index() && zone_id <= get_last_visible_zone_index()); }
 
 	void render_all_zones_bg_image(int32_t view_x, uint32_t view_width, const float zoom_y);
@@ -172,22 +178,22 @@ private:
 
 	PVZoneID set_new_view(int32_t new_view_x, uint32_t view_width)
 	{
-		// Change view_x, and set new first zone
-		// Returns the old first zone
+		// Change view_x
 		_visible_view_x = new_view_x;
-		PVZoneID new_first_zone = get_first_zone_from_viewport(new_view_x, view_width);
-
+		
+		// and set new first zone
 		PVZoneID previous_first_zone = _first_zone;
+		_first_zone = update_and_get_first_zone_from_viewport(new_view_x, view_width);
 
-		PVLOG_INFO("set_new_view: new=%d/old=%d\n", new_first_zone, previous_first_zone);
+		PVLOG_INFO("set_new_view: new_first_zone_index=%d / old_first_zone_index=%d\n", _first_zone, previous_first_zone);
 
-		_first_zone = new_first_zone;
+		// Returns the previous first zone index
 		return previous_first_zone;
 	}
 
 	void do_translate(PVZoneID previous_first_zone, uint32_t view_width, std::function<void(PVZoneID)> fzone_draw);
 
-	PVZoneID get_first_zone_from_viewport(int32_t view_x, uint32_t view_width) const;
+	PVZoneID update_and_get_first_zone_from_viewport(int32_t view_x, uint32_t view_width) const;
 
 	void left_rotate_single_zone_images(PVZoneID s);
 	void right_rotate_single_zone_images(PVZoneID s);
@@ -197,23 +203,28 @@ private:
 
 	
 private:
-	PVZoneID _first_zone;
-	uint32_t _zone_max_width;
-	int32_t _visible_view_x;
+	PVBCIDrawingBackend& _backend;
 
-	std::vector<uint32_t> _zones_width;
+	PVZoneID _first_zone;
 	
+	int16_t _global_zoom_level;
+
+	QObject* _img_update_receiver;
 
 	list_zone_images_t _list_of_single_zone_images;
-	list_zone_width_with_zoom_level_t list_of_zone_width_with_zoom_level;
+	list_zone_width_with_zoom_level_t _list_of_zone_width_with_zoom_level;
 
 	PVZonesProcessor& _processor_sel;
 	PVZonesProcessor& _processor_bg;
 
-	PVZonesManager const& _zm;
-	PVBCIDrawingBackend& _backend;
+	
+	int32_t _visible_view_x;
 
-	QObject* _img_update_receiver; 
+	PVZonesManager const& _zm;
+	uint32_t _zone_max_width;
+	
+	std::vector<uint32_t> _zones_width;
+
 };
 
 }
