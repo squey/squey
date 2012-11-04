@@ -93,11 +93,11 @@ void PVParallelView::PVLinesView::do_translate(PVZoneID previous_first_zone, uin
 		return;
 	}
 
+	// We test whether translation happened on the left or on the right.
 	if (_first_zone > previous_first_zone) {
-		// Translation to the left
-
+		// The scene was translated to the left
 		const PVZoneID n = diff;
-		left_shift_images(n);
+		left_rotate_single_zone_images(n);
 
 		const PVZoneID nimgs = get_number_of_visible_zones();
 		PVZoneID first_z_to_render = _first_zone + nimgs - n;
@@ -122,7 +122,7 @@ void PVParallelView::PVLinesView::do_translate(PVZoneID previous_first_zone, uin
 	else {
 		// Translation to the right
 
-		right_shift_images(diff);
+		right_rotate_single_zone_images(diff);
 		const PVZoneID n = diff;
 		PVZoneID first_z_to_render = _first_zone;
 		const PVZoneID last_z = picviz_min(_first_zone + n, get_number_of_managed_zones());
@@ -253,10 +253,10 @@ PVZoneID PVParallelView::PVLinesView::get_zone_from_scene_pos(int abs_pos) const
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::left_shift_images
+ * PVParallelView::PVLinesView::left_rotate_single_zone_images
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::left_shift_images(PVZoneID s)
+void PVParallelView::PVLinesView::left_rotate_single_zone_images(PVZoneID s)
 {
 	assert(s < (PVZoneID) get_number_of_visible_zones());
 	std::rotate(_list_of_single_zone_images.begin(), _list_of_single_zone_images.begin()+s, _list_of_single_zone_images.end());
@@ -391,10 +391,10 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(PVZoneID zone_id,
 
 /******************************************************************************
  *
- * PVParallelView::PVLinesView::right_shift_images
+ * PVParallelView::PVLinesView::right_rotate_single_zone_images
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::right_shift_images(PVZoneID s)
+void PVParallelView::PVLinesView::right_rotate_single_zone_images(PVZoneID s)
 {
 	assert(s < (PVZoneID) get_number_of_visible_zones());
 	if (s > 0) {

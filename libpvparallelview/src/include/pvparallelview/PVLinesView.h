@@ -189,8 +189,8 @@ private:
 
 	PVZoneID get_first_zone_from_viewport(int32_t view_x, uint32_t view_width) const;
 
-	void left_shift_images(PVZoneID s);
-	void right_shift_images(PVZoneID s);
+	void left_rotate_single_zone_images(PVZoneID s);
+	void right_rotate_single_zone_images(PVZoneID s);
 
 	void connect_zr(PVZoneRenderingBase* zr, const char* slot);
 	void call_refresh_slots(PVZoneID zone_id);
