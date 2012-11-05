@@ -30,6 +30,8 @@
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVSelection.h>
 
+#include <pvguiqt/PVCorrelationMenu.h>
+
 #include <PVAxisPropertiesWidget.h>
 #include <PVExportSelectionDialog.h>
 #include <PVFilterWidget.h>
@@ -220,6 +222,11 @@ public slots:
 
 	void create_new_window_for_workspace(QWidget* workspace);
 
+	// Correlations
+	void add_correlation();
+	void show_correlation(int index);
+	void delete_correlation(int index);
+
 protected:
 	void closeEvent(QCloseEvent* event);
 
@@ -263,6 +270,7 @@ private:
 	QMenu *layer_Menu;
 	QMenu *lines_Menu;
 	QMenu *scene_Menu;
+	PVGuiQt::PVCorrelationMenu* correlation_Menu;
 	QMenu *selection_Menu;
 	QMenu* tools_Menu;
 	QMenu *view_Menu;

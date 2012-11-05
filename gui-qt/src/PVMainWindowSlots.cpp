@@ -590,6 +590,29 @@ void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_
 	}
 }
 
+void PVInspector::PVMainWindow::add_correlation()
+{
+	std::cout << "PVInspector::PVMainWindow::add_correlation" << std::endl;
+	get_root().add_correlation();
+}
+
+void PVInspector::PVMainWindow::show_correlation(int index)
+{
+	std::cout << "PVInspector::PVMainWindow::show_correlation" << std::endl;
+	QDialog* ad2g_dialog = new QDialog(this);
+	ad2g_dialog->setWindowTitle(tr("Correlations"));
+	PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(get_root().get_correlation(index));
+	QVBoxLayout* l = new QVBoxLayout();
+	l->addWidget(ad2g_w);
+	ad2g_dialog->setLayout(l);
+	ad2g_dialog->exec();
+}
+
+void PVInspector::PVMainWindow::delete_correlation(int index)
+{
+	get_root().delete_correlation(index);
+}
+
 bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p ar)
 {
 	// Fix errors due to invalid file paths

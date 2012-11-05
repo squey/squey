@@ -23,7 +23,7 @@
  *****************************************************************************/
 Picviz::PVScene::PVScene(QString scene_path) :
 	_path(scene_path),
-	_ad2g_view(new PVAD2GView(this))
+	_ad2g_view(new PVAD2GView(/*this*/))
 {
 	QFileInfo info(_path);
 	_name = info.fileName();
@@ -238,7 +238,7 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 	data_tree_scene_t::serialize_read(so, v);
 
 	// Correlation, make this optional for compatibility with old project (so that we are still in version 1 :))
-	_ad2g_view.reset(new Picviz::PVAD2GView(this));
+	_ad2g_view.reset(new Picviz::PVAD2GView(/*this*/));
 	so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);
 }
 

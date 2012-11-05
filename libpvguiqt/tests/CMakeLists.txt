@@ -62,3 +62,8 @@ target_link_libraries(Tqt_vertical_tabs ${COMMON_LIBRARIES})
 # PVImportSourceToProjectDlg
 add_executable(Tqt_import_source_to_project_dlg import_source_to_project_dlg.cpp)
 target_link_libraries(Tqt_import_source_to_project_dlg ${COMMON_LIBRARIES})
+
+# correlation menu
+add_executable(Tqt_correlation_menu correlation_menu.cpp)
+target_link_libraries(Tqt_correlation_menu ${COMMON_LIBRARIES})
+

@@ -35,6 +35,7 @@ PVProjectsTabWidget.cpp
 PVStartScreenWidget.cpp
 PVInputTypeMenuEntries.cpp
 PVImportSourceToProjectDlg.cpp
+PVCorrelationMenu.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
@@ -65,6 +66,7 @@ include/pvguiqt/PVProjectsTabWidget.h
 include/pvguiqt/PVStartScreenWidget.h
 include/pvguiqt/PVInputTypeMenuEntries.h
 include/pvguiqt/PVImportSourceToProjectDlg.h
+include/pvguiqt/PVCorrelationMenu.h
 )
 
 SET(UI_FILES

@@ -69,6 +69,29 @@ void Picviz::PVRoot::release()
 	_unique_root.reset();
 }
 
+
+/******************************************************************************
+ *
+ * Picviz::PVRoot::add_correlation
+ *
+ *****************************************************************************/
+void Picviz::PVRoot::add_correlation()
+{
+	_correlations.push_back(PVAD2GView_p(new PVAD2GView()));
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVRoot::delete_correlation
+ *
+ *****************************************************************************/
+void Picviz::PVRoot::delete_correlation(int index)
+{
+	correlations_t::iterator i = _correlations.begin();
+	std::advance(i, index);
+	_correlations.erase(i);
+}
+
 /******************************************************************************
  *
  * Picviz::PVRoot::load_axis_computation_filters

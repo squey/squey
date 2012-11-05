@@ -67,12 +67,12 @@ class PVAD2GView
 
 	typedef PVAD2GView_p p_type;
 public:
-	PVAD2GView(Picviz::PVScene* scene);
+	PVAD2GView(/*Picviz::PVScene* scene*/);
 	~PVAD2GView();
 
 public:
 	tlp::Graph *get_graph() { return _graph; }
-	PVScene* get_scene() { return _scene; }
+	//PVScene* get_scene() { return _scene; }
 
 	boost::shared_ptr<tlp::Graph> get_graph_serializable() const;
 
@@ -145,7 +145,7 @@ protected:
 private:
 	/* graph tulip object */
 	tlp::Graph *_graph;
-	PVScene* _scene;
+	//PVScene* _scene;
 	/* graph's property */
 	PVAD2GViewCorrelationProperty *_corr_info;
 };
