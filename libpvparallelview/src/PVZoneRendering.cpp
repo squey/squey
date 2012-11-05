@@ -17,7 +17,7 @@
 void PVParallelView::PVZoneRenderingBase::init()
 {
 	_qobject_finished_success = nullptr;
-	_cancel_state = cancel_state::value(false, false);
+	_cancel_state = cancel_state::value(false);
 }
 
 /******************************************************************************
@@ -25,13 +25,12 @@ void PVParallelView::PVZoneRenderingBase::init()
  * PVParallelView::PVZoneRenderingBase::finished
  *
  *****************************************************************************/
-bool PVParallelView::PVZoneRenderingBase::finished()
+void PVParallelView::PVZoneRenderingBase::finished(p_type const& this_sp)
 {
+	// Having `this_sp' as parameter allows not to have an internal weak_ptr in PVZoneRenderingBase
+	assert(this_sp.get() == this);
+
 	cancel_state state = (cancel_state)_cancel_state;
-	if (state.delete_on_finish()) {
-		// We can't notify anyone as we are going to be destructed by the calling TBB thread
-		return true;
-	}
 
 	// Cancellation state may have been changed in the middle, but the listeners are aware of that!
 	// We need to be coherent according to the state at the beggining of this function.
@@ -39,7 +38,7 @@ bool PVParallelView::PVZoneRenderingBase::finished()
 		assert(QThread::currentThread() != _qobject_finished_success->thread());
 		const int zone_id = zid();
 		QMetaObject::invokeMethod(_qobject_finished_success, _qobject_slot, Qt::QueuedConnection,
-				Q_ARG(void*, (void*)this),
+				Q_ARG(PVParallelView::PVZoneRenderingBase_p, this_sp),
 				Q_ARG(int, zone_id));
 	}
 
@@ -48,6 +47,4 @@ bool PVParallelView::PVZoneRenderingBase::finished()
 		_finished = true;
 	}
 	_wait_cond.notify_all();
-
-	return false;
 }

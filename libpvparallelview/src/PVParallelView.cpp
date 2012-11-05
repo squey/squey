@@ -6,6 +6,7 @@
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVRenderingPipeline.h>
+#include <pvparallelview/PVZoneRendering.h>
 
 PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::_s = nullptr;
 
@@ -25,6 +26,9 @@ PVParallelView::PVParallelViewImpl::PVParallelViewImpl():
 	const float win_a = pvconfig.value("pvgl/window_a", 1.0f).toFloat();
 
 	_color_view_bg.setRgbF(win_r, win_g, win_b, win_a);
+
+	qRegisterMetaType<PVParallelView::PVZoneRenderingBase_p>();
+	qRegisterMetaType<PVParallelView::PVZoneRenderingBase_p>("PVZoneRenderingBase_p");
 }
 
 /******************************************************************************

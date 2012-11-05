@@ -9,11 +9,15 @@
 
 #include <functional>
 
+#include <pvkernel/core/PVAlgorithms.h>
+
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCIBackendImage.h>
-#include <pvkernel/core/PVAlgorithms.h>
-#include <pvhive/PVCallHelper.h>
+#include <pvparallelview/PVZoneRendering_types.h>
+
 #include <picviz/PVSelection.h>
+
+#include <pvhive/PVCallHelper.h>
 
 namespace Picviz {
 class PVSelection;
@@ -23,7 +27,6 @@ namespace PVParallelView {
 
 class PVBCIDrawingBackend;
 class PVZonesProcessor;
-class PVZoneRenderingBase;
 class PVZonesManager;
 
 class PVLinesView
@@ -36,18 +39,18 @@ private:
 		PVBCIBackendImage_p sel;
 		PVBCIBackendImage_p bg;
 
-		PVZoneRenderingBase* last_zr_sel;
-		PVZoneRenderingBase* last_zr_bg;
+		PVZoneRenderingBase_p last_zr_sel;
+		PVZoneRenderingBase_p last_zr_bg;
 
 		SingleZoneImages():
-			last_zr_sel(nullptr),
-			last_zr_bg(nullptr)
+			last_zr_sel(),
+			last_zr_bg()
 		{ }
 	   		   
 
 		SingleZoneImages(PVBCIDrawingBackend& backend, uint32_t zone_width):
-			last_zr_sel(nullptr),
-			last_zr_bg(nullptr)
+			last_zr_sel(),
+			last_zr_bg()
 		{
 			create_image(backend, zone_width);
 		}

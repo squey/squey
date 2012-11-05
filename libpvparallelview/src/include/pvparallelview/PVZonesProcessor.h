@@ -2,6 +2,7 @@
 #define PVPARALLELVIEW_PVZONESPROCESSOR_H
 
 #include <pvparallelview/common.h>
+#include <pvparallelview/PVZoneRendering_types.h>
 
 #define TBB_PREVIEW_GRAPH_NODES 1
 #include <tbb/flow_graph.h>
@@ -16,7 +17,6 @@ class PVSelection;
 
 namespace PVParallelView {
 
-class PVZoneRenderingBase;
 class PVRenderingPipeline;
 class PVRenderingPipelinePreprocessRouter;
 class PVZonesManager;
@@ -24,7 +24,7 @@ class PVZonesManager;
 class PVZonesProcessor
 {
 	friend class PVRenderingPipeline;
-	typedef tbb::flow::receiver<PVZoneRenderingBase*> receiver_type;
+	typedef tbb::flow::receiver<PVZoneRenderingBase_p> receiver_type;
 
 protected:
 	PVZonesProcessor(receiver_type& in_port, PVRenderingPipelinePreprocessRouter* preprocess = nullptr):
@@ -51,10 +51,10 @@ public:
 	}
 
 public:
-	inline bool add_job(PVZoneRenderingBase& zr)
+	inline bool add_job(PVZoneRenderingBase_p const& zr)
 	{
 		assert(_in_port);
-		return _in_port->try_put(&zr);
+		return _in_port->try_put(zr);
 	}
 
 	// Preprocess router specific functions

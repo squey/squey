@@ -179,7 +179,7 @@ private slots:
 	void all_rendering_done();
 	void commit_volatile_selection_Slot();
 
-	void zr_finished(void* zr, int zone_id);
+	void zr_finished(PVParallelView::PVZoneRenderingBase_p zr, int zone_id);
 
 private:
 	class zoom_sliders_update_obs :
@@ -222,21 +222,21 @@ private:
 	struct zone_desc_t
 	{
 		zone_desc_t():
-			last_zr_sel(nullptr),
-			last_zr_bg(nullptr)
+			last_zr_sel(),
+			last_zr_bg()
 		{ }
 
 		inline void cancel_last_sel()
 		{
 			if (last_zr_sel) {
-				last_zr_sel->cancel(true);
+				last_zr_sel->cancel();
 			}
 		}
 
 		inline void cancel_last_bg()
 		{
 			if (last_zr_bg) {
-				last_zr_bg->cancel(true);
+				last_zr_bg->cancel();
 			}
 		}
 
@@ -251,8 +251,8 @@ private:
 		//zzt_context_t           context;    // the extraction context for ZZT
 		QGraphicsPixmapItem    *item;       // the scene's element
 		QPointF                 next_pos;   // the item position of the next rendering
-		PVZoneRendering<bbits>* last_zr_sel;
-		PVZoneRendering<bbits>* last_zr_bg;
+		PVZoneRendering_p<bbits> last_zr_sel;
+		PVZoneRendering_p<bbits> last_zr_bg;
 	};
 
 private:

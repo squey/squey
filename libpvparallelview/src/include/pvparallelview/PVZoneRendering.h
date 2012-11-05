@@ -1,16 +1,21 @@
 #ifndef PVPARALLELVIEW_PVZONERENDERING_H
 #define PVPARALLELVIEW_PVZONERENDERING_H
 
+#include <QMetaType>
+
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCIBackendImage_types.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
+#include <pvparallelview/PVZoneRendering_types.h>
 
 #include <tbb/atomic.h>
 
 #include <boost/utility.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
-#include <tbb/spin_rw_mutex.h>
 #include <boost/thread/condition_variable.hpp>
+
+#include <tbb/spin_rw_mutex.h>
 
 #include <functional>
 
@@ -35,16 +40,19 @@ class PVZoneRenderingBase: boost::noncopyable
 		union {
 			struct {
 				uint8_t should_cancel: 1;
-				uint8_t delete_on_finish: 1;
 			} s;
 			uint8_t v;
 		};   
 
 		bool should_cancel() const { return s.should_cancel; }
-		bool delete_on_finish() const { return s.delete_on_finish; }
+		//bool delete_on_finish() const { return s.delete_on_finish; }
 
-		static cancel_state value(bool cancel, bool del) { cancel_state ret; ret.v = (cancel | (del<<1)); return ret; }
+		static cancel_state value(bool cancel) { cancel_state ret; ret.v = cancel; return ret; } 
+		//static cancel_state value(bool cancel, bool del) { cancel_state ret; ret.v = (cancel | (del<<1)); return ret; }
 	};
+
+public:
+	typedef PVZoneRenderingBase_p p_type;
 
 public:
 	PVZoneRenderingBase(PVZoneID zone_id, bci_func_type const& f_bci, PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, float zoom_y = 1.0f, bool reversed = false):
@@ -87,9 +95,9 @@ public:
 	inline bool valid() const { return _zone_id != (PVZoneID) PVZONEID_INVALID && _width != 0 && _dst_img != nullptr; }
 	PVBCIBackendImage& dst_img() const { return *_dst_img; }
 
-	inline void cancel(bool delete_on_finish)
+	inline void cancel()
 	{
-		_cancel_state = cancel_state::value(true, delete_on_finish);
+		_cancel_state = cancel_state::value(true);
 	}
 
 	inline void set_dst_img(PVBCIBackendImage& dst_img) { assert(_finished); _dst_img = &dst_img; }
@@ -111,12 +119,11 @@ public:
 	void reset()
 	{
 		_finished = false;
-		_cancel_state = cancel_state::value(false, false);
+		_cancel_state = cancel_state::value(false);
 	}
 
 protected:
-	// return true if the object can be safely deleted
-	bool finished();
+	void finished(p_type const& this_sp);
 
 protected:
 	inline size_t compute_bci(PVCore::PVHSVColor const* colors, PVBCICodeBase* codes) const { return _f_bci(get_zone_id(), colors, codes); }
@@ -171,6 +178,11 @@ public:
 	{ }
 };
 
+template <size_t Bbits>
+using PVZoneRendering_p = boost::shared_ptr<PVZoneRendering<Bbits>>;
+
 }
+
+Q_DECLARE_METATYPE(PVParallelView::PVZoneRenderingBase_p)
 
 #endif

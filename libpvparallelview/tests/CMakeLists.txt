@@ -115,12 +115,12 @@ if (CUDA_FOUND)
 	add_executable(show_codes_cuda_lib show_codes_cuda_lib.cpp)
 	target_link_libraries(show_codes_cuda_lib ${LINK_LIBRARIES})
 
-	add_executable(rendering_pipeline_base rendering_pipeline_base.cpp)
-	target_link_libraries(rendering_pipeline_base ${LINK_LIBRARIES})
+	#add_executable(rendering_pipeline_base rendering_pipeline_base.cpp)
+	#target_link_libraries(rendering_pipeline_base ${LINK_LIBRARIES})
 
-	QT4_WRAP_CPP(ZD_MOC zone_drawing_events.h OPTIONS ${QT4_WRAP_OPTIONS})
-	add_executable(zone_drawing zone_drawing.cpp ${ZD_MOC})
-	target_link_libraries(zone_drawing ${LINK_LIBRARIES})
+	#QT4_WRAP_CPP(ZD_MOC zone_drawing_events.h OPTIONS ${QT4_WRAP_OPTIONS})
+	#add_executable(zone_drawing zone_drawing.cpp ${ZD_MOC})
+	#target_link_libraries(zone_drawing ${LINK_LIBRARIES})
 
 	#add_executable(zoomed_zone_tree_render zoomed_zone_tree_render.cpp)
 	#target_link_libraries(zoomed_zone_tree_render ${LINK_LIBRARIES})

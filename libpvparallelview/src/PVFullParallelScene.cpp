@@ -949,21 +949,27 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
  * PVParallelView::PVFullParallelScene::zr_bg_finished
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::zr_bg_finished(void* zr, int zid)
+void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRenderingBase_p zr, int zid)
 {
 	assert(QThread::currentThread() == this->thread());
-	PVZoneRenderingBase* zr_base = reinterpret_cast<PVZoneRenderingBase*>(zr);
-	if (zr_base) {
+
+	if (!_lines_view.is_zone_drawn(zid)) {
+		// This can occur if some events have been posted by a previous translation that is no longer valid!
+		return;
+	}
+
+	if (zr) {
 		const PVZoneID img_id = _lines_view.get_zone_index_offset(zid);
 		PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
-		images[img_id].last_zr_bg = nullptr;
-		if (zr_base->should_cancel()) {
+		if (zr == images[img_id].last_zr_bg) {
+			images[img_id].last_zr_bg.reset();
+		}
+
+		bool should_cancel = zr->should_cancel();
+		if (should_cancel) {
 			// Cancellation may have occured between the event posted in Qt's main loop and this call!
 			std::cout << "PVFullParallelScene::zr_bg_finished: canceled state for zone rendering." << std::endl;
 			return;
-		}
-		else {
-			images[img_id].last_zr_bg = nullptr;
 		}
 	}
 
@@ -975,20 +981,27 @@ void PVParallelView::PVFullParallelScene::zr_bg_finished(void* zr, int zid)
  * PVParallelView::PVFullParallelScene::zr_sel_finished
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::zr_sel_finished(void* zr, int zid)
+void PVParallelView::PVFullParallelScene::zr_sel_finished(PVZoneRenderingBase_p zr, int zid)
 {
 	assert(QThread::currentThread() == this->thread());
-	PVZoneRenderingBase* zr_base = reinterpret_cast<PVZoneRenderingBase*>(zr);
-	if (zr_base) {
+
+	if (!_lines_view.is_zone_drawn(zid)) {
+		// This can occur if some events have been posted by a previous translation that is no longer valid!
+		return;
+	}
+
+	if (zr) {
 		const PVZoneID img_id = _lines_view.get_zone_index_offset(zid);
 		PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
-		if (zr_base->should_cancel()) {
+		if (zr == images[img_id].last_zr_sel) {
+			images[img_id].last_zr_sel.reset();
+		}
+
+		bool should_cancel = zr->should_cancel();
+		if (should_cancel) {
 			// Cancellation may have occured between the event posted in Qt's main loop and this call!
 			std::cout << "PVFullParallelScene::zr_sel_finished: canceled state for zone rendering." << std::endl;
 			return;
-		}
-		else {
-			images[img_id].last_zr_sel = nullptr;
 		}
 	}
 

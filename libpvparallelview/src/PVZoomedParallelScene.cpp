@@ -495,7 +495,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 		if (_left_zone) {
 			if (_render_type == RENDER_ALL) { 
 				_renderable_zone_number++;
-				PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
+				PVZoneRendering_p<bbits> zr(new PVZoneRendering<bbits>(
 						left_zone_id(),
 						[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
 						{
@@ -509,15 +509,15 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 						0, // x_start
 						image_width,
 						alpha, // zoom_y
-						true); // reversed
+						true)); // reversed
 
-				connect_zr(zr, "zr_finished");
+				connect_zr(zr.get(), "zr_finished");
 				_left_zone->last_zr_bg = zr;
-				_zp_bg.add_job(*zr);
+				_zp_bg.add_job(zr);
 			}
 
 			_renderable_zone_number++;
-			PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
+			PVZoneRendering_p<bbits> zr(new PVZoneRendering<bbits>(
 					left_zone_id(),
 					[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
 					{
@@ -531,11 +531,11 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					0, // x_start
 					image_width,
 					alpha, // zoom_y
-					true); // reversed
+					true)); // reversed
 
-			connect_zr(zr, "zr_finished");
+			connect_zr(zr.get(), "zr_finished");
 			_left_zone->last_zr_sel = zr;
-			_zp_sel.add_job(*zr);
+			_zp_sel.add_job(zr);
 		}
 
 		if (_right_zone) {
@@ -572,7 +572,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 			if (_render_type == RENDER_ALL) { 
 				_renderable_zone_number++;
-				PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
+				PVZoneRendering_p<bbits> zr(new PVZoneRendering<bbits>(
 						right_zone_id(),
 						[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
 						{
@@ -586,15 +586,15 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 						0, // x_start
 						image_width,
 						alpha, // zoom_y
-						false); // reversed
+						false)); // reversed
 
-				connect_zr(zr, "zr_finished");
+				connect_zr(zr.get(), "zr_finished");
 				_right_zone->last_zr_bg = zr;
-				_zp_bg.add_job(*zr);
+				_zp_bg.add_job(zr);
 			}
 
 			_renderable_zone_number++;
-			PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
+			PVZoneRendering_p<bbits> zr(new PVZoneRendering<bbits>(
 					right_zone_id(),
 					[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
 					{
@@ -608,11 +608,11 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					0, // x_start
 					image_width,
 					alpha, // zoom_y
-					false); // reversed
+					false)); // reversed
 
-			connect_zr(zr, "zr_finished");
+			connect_zr(zr.get(), "zr_finished");
 			_right_zone->last_zr_sel = zr;
-			_zp_sel.add_job(*zr);
+			_zp_sel.add_job(zr);
 		}
 	}
 	BENCH_END(launch, "job launch", 1, 1, 1, 1);
@@ -623,11 +623,29 @@ void PVParallelView::PVZoomedParallelScene::connect_zr(PVZoneRendering<bbits>* z
 	zr->set_render_finished_slot(this, slot);
 }
 
-void PVParallelView::PVZoomedParallelScene::zr_finished(void* zr, int zone_id)
+void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRenderingBase_p zr, int zone_id)
 {
 	assert(is_zone_rendered(zone_id));
-	PVZoneRenderingBase* zr_base = reinterpret_cast<PVZoneRenderingBase*>(zr);
-	if (zr_base->should_cancel()) {
+	assert(QThread::currentThread() == this->thread());
+
+	if (zone_id == left_zone_id()) {
+		if (_left_zone->last_zr_sel == zr) {
+			_left_zone->last_zr_sel.reset();
+		}
+		else {
+			_left_zone->last_zr_bg.reset();
+		}
+	}
+	else {
+		if (_right_zone->last_zr_sel == zr) {
+			_right_zone->last_zr_sel.reset();
+		}
+		else {
+			_right_zone->last_zr_bg.reset();
+		}
+	}
+
+	if (zr->should_cancel()) {
 		// Cancellation may have occured between the event posted for this call
 		// in the Qt's main loop event and the actual call.
 		return;
@@ -638,25 +656,6 @@ void PVParallelView::PVZoomedParallelScene::zr_finished(void* zr, int zone_id)
 	if (_renderable_zone_number == 0) {
 		all_rendering_done();
 	}
-
-	// We became responsible for freezing that zone rendering!
-	if (zone_id == left_zone_id()) {
-		if (_left_zone->last_zr_sel == zr) {
-			_left_zone->last_zr_sel = nullptr;
-		}
-		else {
-			_left_zone->last_zr_bg = nullptr;
-		}
-	}
-	else {
-		if (_right_zone->last_zr_sel == zr) {
-			_right_zone->last_zr_sel = nullptr;
-		}
-		else {
-			_right_zone->last_zr_bg = nullptr;
-		}
-	}
-	PVRenderingPipeline::free_zr(zr_base);
 }
 
 /*****************************************************************************
