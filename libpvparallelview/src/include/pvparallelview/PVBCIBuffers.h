@@ -72,7 +72,8 @@ public:
 	bci_base_type* get_available_buffer()
 	{
 		bci_base_type* ret;
-		_free_bufs.pop(ret);
+		bool success = _free_bufs.try_pop(ret);
+		assert(success);
 		return ret;
 	}
 
@@ -80,18 +81,13 @@ public:
 	{
 		assert(buf >= _codes && buf < get_buffer_n(N));
 		assert(std::distance(_codes, buf) % PARALLELVIEW_MAX_BCI_CODES == 0);
-#ifdef NDEBUG
-		_free_bufs.try_push(buf);
-#else
-		bool success = _free_bufs.try_push(buf);
-		assert(success);
-#endif
+		_free_bufs.push(buf);
 	}
 
 private:
 	void init()
 	{
-		_free_bufs.set_capacity(N);
+		//_free_bufs.set_capacity(N);
 		for (size_t i = 0; i < N; i++) {
 			_free_bufs.push(get_buffer_n(i));
 		}
@@ -109,7 +105,7 @@ private:
 	bci_base_type* _codes;
 	bci_base_type* _org_codes;
 	PVBCIDrawingBackend* _backend;
-	tbb::concurrent_bounded_queue<bci_base_type*> _free_bufs;
+	tbb::concurrent_queue<bci_base_type*> _free_bufs;
 };
 
 }

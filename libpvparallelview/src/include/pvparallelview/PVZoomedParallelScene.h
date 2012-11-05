@@ -229,16 +229,14 @@ private:
 		inline void cancel_last_sel()
 		{
 			if (last_zr_sel) {
-				last_zr_sel->cancel();
-				//last_zr_sel->wait_end();
+				last_zr_sel->cancel(true);
 			}
 		}
 
 		inline void cancel_last_bg()
 		{
 			if (last_zr_bg) {
-				last_zr_bg->cancel();
-				//last_zr_bg->wait_end();
+				last_zr_bg->cancel(true);
 			}
 		}
 

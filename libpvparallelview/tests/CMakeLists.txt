@@ -12,8 +12,8 @@ set(CUDA_NVCC_FLAGS "-gencode arch=compute_30,code=sm_30" "-Xptxas=-v")
 #set(CUDA_NVCC_FLAGS "-g" "-G")
 
 add_definitions(${OpenMP_CXX_FLAGS})
-set(QT_USE_QTOPENGL TRUE)
-include(${QT_USE_FILE})
+#set(QT_USE_QTOPENGL TRUE)
+#include(${QT_USE_FILE})
 
 set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY} pvparallelview ${OpenMP_LIBRARIES})
 

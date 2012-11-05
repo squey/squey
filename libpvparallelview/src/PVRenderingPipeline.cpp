@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include <mcheck.h>
+
 static void _free_zr(PVParallelView::PVZoneRenderingBase* zr)
 {
 	PVParallelView::PVRenderingPipeline::free_zr(zr);
@@ -25,6 +27,7 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 		[&](ZoneRenderingWithColors const& zrc)
 		{
 			PVZoneRenderingBase* zr = zrc.zr;
+			std::cerr << "PIPELINE: BCI processing: " << zr << std::endl;
 			PVBCICodeBase* bci_buf = _bci_buffers.get_available_buffer();
 			const size_t n = zr->compute_bci(zrc.colors, bci_buf);
 			return ZoneRenderingWithBCI(zr, bci_buf, n);
@@ -39,6 +42,7 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 			(backend_sequential) ? tbb::flow::serial : tbb::flow::unlimited,
 			[&backend](ZoneRenderingWithBCI const& zrb)
 			{
+				std::cerr << "PIPELINE: BCI drawing: " << zrb.zr << std::endl;
 				zrb.zr->render_bci(backend, zrb.codes, zrb.ncodes, std::function<void()>());
 				return zrb;
 			}
@@ -52,6 +56,7 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 			{
 				tbb::flow::receiver<ZoneRenderingWithBCI>* const recv_port = static_cast<tbb::flow::receiver<ZoneRenderingWithBCI>*>(this->_node_cleanup_bci);
 				PVZoneRenderingBase* const zr = zrb.zr;
+				std::cerr << "PIPELINE: BCI drawing: " << zr << std::endl;
 				zr->render_bci(backend, zrb.codes, zrb.ncodes,
 					[zrb,recv_port]
 					{
@@ -67,12 +72,14 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 		[](ZoneRenderingWithColors const& zrc, cp_postlimiter_type::output_ports_type& op)
 		{
 			if (zrc.zr->should_cancel()) {
+				std::cerr << "PIPELINE: cancellation pointer post limiter triggered: " << zrc.zr << std::endl;
 				std::get<cp_cancel_port>(op).try_put(zrc.zr);
 				// We are post the limiter, and we directly send that job to the finish node.
 				// So, we need to manually trigger the limiter decrement port.
 				std::get<2>(op).try_put(tbb::flow::continue_msg());
 			}
 			else {
+				std::cerr << "PIPELINE: cancellation pointer post limiter continue: " << zrc.zr << std::endl;
 				std::get<cp_continue_port>(op).try_put(zrc);
 			}
 		});
@@ -80,9 +87,11 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 		[](ZoneRenderingWithBCI const& zrb, cp_postcomputebci_type::output_ports_type& op)
 		{
 			if (zrb.zr->should_cancel()) {
+				std::cerr << "PIPELINE: cancellation pointer post BCI triggered: " << zrb.zr << std::endl;
 				std::get<cp_cancel_port>(op).try_put(zrb);
 			}
 			else {
+				std::cerr << "PIPELINE: cancellation pointer post BCI continue: " << zrb.zr << std::endl;
 				std::get<cp_continue_port>(op).try_put(zrb);
 			}
 		});
@@ -93,6 +102,7 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 			tbb::flow::unlimited,
 			[&](ZoneRenderingWithBCI const& zrb)
 			{
+				std::cerr << "PIPELINE: BCI cleanup: " << zrb.zr << std::endl;
 				this->_bci_buffers.return_buffer(zrb.codes);
 				this->_node_limiter.decrement.try_put(tbb::flow::continue_msg());
 				return zrb.zr;
@@ -103,12 +113,14 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 			tbb::flow::unlimited,
 			[](PVZoneRenderingBase* zr)
 			{
-				zr->finished();
-				if (zr->should_cancel()) {
+				std::cerr << "PIPELINE: finish: " << zr;
+				if (zr->finished()) {
+					std::cerr << "freeing ZR ";
 					// gcc ask for "this" to be captured even w/ free_zr static..
 					//PVParallelView::PVRenderingPipeline::free_zr(zr);
 					_free_zr(zr);
 				}
+				std::cerr << "done" << std::endl;
 			});
 
 	// Connect this together
@@ -194,12 +206,16 @@ PVParallelView::PVRenderingPipeline::DirectInput::DirectInput(tbb::flow::graph& 
 	node_process(g, tbb::flow::unlimited,
 		[=](PVZoneRenderingBase* zr, direct_process_type::output_ports_type& op)
 		{
+			std::cout << "PIPELINE: direct input function: " << zr << " : ";
 			if (zr->should_cancel()) {
+				std::cerr << "was canceled";
 				std::get<1>(op).try_put(zr);
 			}
 			else {
+				std::cerr << "continue";
 				std::get<0>(op).try_put(ZoneRenderingWithColors(zr, colors_));
 			}
+			std::cerr << std::endl;
 		})
 {
 	tbb::flow::make_edge(tbb::flow::output_port<0>(node_process), node_in_job);

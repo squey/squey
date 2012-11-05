@@ -50,12 +50,12 @@
  *****************************************************************************/
 
 PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
-                                                             Picviz::PVView_sp& pvview_sp,
-                                                             PVParallelView::PVSlidersManager_p sliders_manager_p,
-															 PVZonesProcessor& zp_sel,
-															 PVZonesProcessor& zp_bg,
-															 PVZonesManager const& zm,
-                                                             PVCol axis_index) :
+		Picviz::PVView_sp& pvview_sp,
+		PVParallelView::PVSlidersManager_p sliders_manager_p,
+		PVZonesProcessor& zp_sel,
+		PVZonesProcessor& zp_bg,
+		PVZonesManager const& zm,
+		PVCol axis_index) :
 	QGraphicsScene(zpview),
 	_zpview(zpview),
 	_pvview(*pvview_sp),
@@ -84,14 +84,14 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 
 	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
 	connect(_selection_rect, SIGNAL(commit_volatile_selection()),
-	        this, SLOT(commit_volatile_selection_Slot()));
+			this, SLOT(commit_volatile_selection_Slot()));
 
 	_wheel_value = 0;
 
 	setSceneRect(-512, 0, 1024, 1024);
 
 	connect(_zpview->verticalScrollBar(), SIGNAL(valueChanged(int)),
-	        this, SLOT(scrollbar_changed_Slot(int)));
+			this, SLOT(scrollbar_changed_Slot(int)));
 
 	_sliders_group = new PVParallelView::PVSlidersGroup(sliders_manager_p, _axis_id);
 	_sliders_group->setPos(0., 0.);
@@ -105,15 +105,15 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	update_zones();
 
 	PVHive::PVHive::get().register_func_observer(sliders_manager_p,
-	                                             _zsu_obs);
+			_zsu_obs);
 
 	PVHive::PVHive::get().register_func_observer(sliders_manager_p,
-	                                             _zsd_obs);
+			_zsd_obs);
 
 	_updateall_timer.setInterval(150);
 	_updateall_timer.setSingleShot(true);
 	connect(&_updateall_timer, SIGNAL(timeout()),
-	        this, SLOT(updateall_timeout_Slot()));
+			this, SLOT(updateall_timeout_Slot()));
 
 	PVHive::get().register_actor(pvview_sp, _view_actor);
 }
@@ -140,13 +140,13 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 	if (_pending_deletion == false) {
 		_pending_deletion = true;
 		PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
-		                                                       _axis_id, _sliders_group);
+				_axis_id, _sliders_group);
 	}
 
 	if (_selection_sliders) {
 		PVHive::call<FUNC(PVSlidersManager::del_zoomed_selection_sliders)>(_sliders_manager_p,
-		                                                                   _axis_id,
-		                                                                   _selection_sliders);
+				_axis_id,
+				_selection_sliders);
 		_selection_sliders = nullptr;
 	}
 
@@ -191,8 +191,8 @@ void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMous
 			_selection_rect->clear_rect();
 			if (_selection_sliders) {
 				PVHive::call<FUNC(PVSlidersManager::del_zoomed_selection_sliders)>(_sliders_manager_p,
-				                                                                   _axis_id,
-				                                                                   _selection_sliders);
+						_axis_id,
+						_selection_sliders);
 				_selection_sliders = nullptr;
 			}
 		}
@@ -221,9 +221,9 @@ void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEv
 	} else if (!_sliders_group->sliders_moving() && (event->buttons() == Qt::LeftButton)) {
 		// trace square area
 		QPointF top_left(_selection_rect_pos.x(),
-		                 qMin(_selection_rect_pos.y(), event->scenePos().y()));
+				qMin(_selection_rect_pos.y(), event->scenePos().y()));
 		QPointF bottom_right(_selection_rect_pos.x(),
-		                     qMax(_selection_rect_pos.y(), event->scenePos().y()));
+				qMax(_selection_rect_pos.y(), event->scenePos().y()));
 
 		_selection_rect->update_rect(QRectF(top_left, bottom_right));
 		event->accept();
@@ -321,7 +321,7 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
 		_sliders_group->add_zoom_sliders(0, 1024);
 	} else {
 		/* the axes has only been moved, nothing special to do.
-		 */
+		*/
 		_axis_index = axis;
 	}
 
@@ -374,7 +374,7 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
  *****************************************************************************/
 
 void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
-                                                           const QRectF &/*rect*/)
+		const QRectF &/*rect*/)
 {
 	QRect screen_rect = _zpview->viewport()->rect();
 	int screen_center = screen_rect.center().x();
@@ -439,16 +439,16 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	uint64_t y_min = view_rect.top() * BUCKET_ELT_COUNT;
 	// the backend_image's lower limit in plotted coordinates system
 	uint64_t y_lim = PVCore::clamp<uint64_t>(y_min + (1 << bbits) * alpha * pixel_height,
-	                                         0ULL, 1ULL << 32);
+			0ULL, 1ULL << 32);
 	// the screen's lower limit in plotted coordinates system
 	// y_max can not be greater than y_lim
 	uint64_t y_max = PVCore::clamp<uint64_t>(y_min + screen_rect.height() * pixel_height,
-	                                         0ULL, y_lim);
+			0ULL, y_lim);
 
 	PVHive::call<FUNC(PVSlidersManager::update_zoom_sliders)>(_sliders_manager_p,
-	                                                          _axis_id, _sliders_group,
-	                                                          y_min, y_max,
-	                                                          PVParallelView::PVSlidersManager::ZoomSliderNone);
+			_axis_id, _sliders_group,
+			y_min, y_max,
+			PVParallelView::PVSlidersManager::ZoomSliderNone);
 	_last_y_min = y_min;
 	_last_y_max = y_max;
 
@@ -483,27 +483,27 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	BENCH_START(launch);
 
 	{
-			int zoom_level = get_zoom_level();
+		int zoom_level = get_zoom_level();
 
 #if 0
-			// a second to slow the rendering
-			for(int i = 0; i < 20; ++i) {
-				usleep(50000);
-			}
+		// a second to slow the rendering
+		for(int i = 0; i < 20; ++i) {
+			usleep(50000);
+		}
 #endif
 
-			if (_left_zone) {
-				if (_render_type == RENDER_ALL) { 
-					_renderable_zone_number++;
-					PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
+		if (_left_zone) {
+			if (_render_type == RENDER_ALL) { 
+				_renderable_zone_number++;
+				PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
 						left_zone_id(),
 						[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
 						{
-							zzt_context_t ctxt;
-							return get_zztree(z).browse_bci_by_y2(
-								ctxt,
-								y_min, y_max, y_lim,
-								zoom_level,	image_width, colors, codes, beta);
+						zzt_context_t ctxt;
+						return get_zztree(z).browse_bci_by_y2(
+							ctxt,
+							y_min, y_max, y_lim,
+							zoom_level,	image_width, colors, codes, beta);
 						},
 						*_left_zone->bg_image,
 						0, // x_start
@@ -511,21 +511,21 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 						alpha, // zoom_y
 						true); // reversed
 
-					connect_zr(zr, "zr_finished");
-					_left_zone->last_zr_bg = zr;
-					_zp_bg.add_job(*zr);
-				}
+				connect_zr(zr, "zr_finished");
+				_left_zone->last_zr_bg = zr;
+				_zp_bg.add_job(*zr);
+			}
 
-				_renderable_zone_number++;
-				PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
+			_renderable_zone_number++;
+			PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
 					left_zone_id(),
 					[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
 					{
-						zzt_context_t ctxt;
-						return get_zztree(z).browse_bci_sel_by_y2(
-							ctxt,
-							y_min, y_max,y_lim, real_selection(),
-							zoom_level,	image_width, colors, codes, beta);
+					zzt_context_t ctxt;
+					return get_zztree(z).browse_bci_sel_by_y2(
+						ctxt,
+						y_min, y_max,y_lim, real_selection(),
+						zoom_level,	image_width, colors, codes, beta);
 					},
 					*_left_zone->sel_image,
 					0, // x_start
@@ -533,54 +533,54 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					alpha, // zoom_y
 					true); // reversed
 
-				connect_zr(zr, "zr_finished");
-				_left_zone->last_zr_sel = zr;
-				_zp_sel.add_job(*zr);
-			}
+			connect_zr(zr, "zr_finished");
+			_left_zone->last_zr_sel = zr;
+			_zp_sel.add_job(*zr);
+		}
 
-			if (_right_zone) {
-				/*if (_render_type == RENDER_ALL) {
-					BENCH_START(render);
-					_zones_drawing.draw_zoomed_zone(_right_zone->context,
-				                                    *(_right_zone->bg_image), y_min, y_max, y_lim,
-					                                zoom_level, _axis_index,
-					                                &PVZoomedZoneTree::browse_bci_by_y1,
-					                                alpha, beta, false,
-					                                [&] {
-						                                sem.release(1);
-					                                },
-					                                [&] {
-						                                ++needed_rendering_count;
-					                                }, _render_group);
-					BENCH_END(render, "RIGHT background", 1, 1, 1, 1);
-				}
+		if (_right_zone) {
+			/*if (_render_type == RENDER_ALL) {
+			  BENCH_START(render);
+			  _zones_drawing.draw_zoomed_zone(_right_zone->context,
+			 *(_right_zone->bg_image), y_min, y_max, y_lim,
+			 zoom_level, _axis_index,
+			 &PVZoomedZoneTree::browse_bci_by_y1,
+			 alpha, beta, false,
+			 [&] {
+			 sem.release(1);
+			 },
+			 [&] {
+			 ++needed_rendering_count;
+			 }, _render_group);
+			 BENCH_END(render, "RIGHT background", 1, 1, 1, 1);
+			 }
 
-				BENCH_START(sel_render);
-				_zones_drawing.draw_zoomed_zone_sel(_right_zone->context,
-													*(_right_zone->sel_image),
-													y_min, y_max, y_lim, real_selection(),
-													zoom_level, _axis_index,
-													&PVZoomedZoneTree::browse_bci_sel_by_y1,
-													alpha, beta, false,
-													[&] {
-														sem.release(1);
-													},
-													[&] {
-														++needed_rendering_count;
-													}, _render_group);
-				BENCH_END(sel_render, "RIGHT selection", 1, 1, 1, 1);*/
+			 BENCH_START(sel_render);
+			 _zones_drawing.draw_zoomed_zone_sel(_right_zone->context,
+			 *(_right_zone->sel_image),
+			 y_min, y_max, y_lim, real_selection(),
+			 zoom_level, _axis_index,
+			 &PVZoomedZoneTree::browse_bci_sel_by_y1,
+			 alpha, beta, false,
+			 [&] {
+			 sem.release(1);
+			 },
+			 [&] {
+			 ++needed_rendering_count;
+			 }, _render_group);
+			 BENCH_END(sel_render, "RIGHT selection", 1, 1, 1, 1);*/
 
-				if (_render_type == RENDER_ALL) { 
-					_renderable_zone_number++;
-					PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
+			if (_render_type == RENDER_ALL) { 
+				_renderable_zone_number++;
+				PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
 						right_zone_id(),
 						[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
 						{
-							zzt_context_t ctxt;
-							return get_zztree(z).browse_bci_by_y1(
-								ctxt,
-								y_min, y_max, y_lim,
-								zoom_level,	image_width, colors, codes, beta);
+						zzt_context_t ctxt;
+						return get_zztree(z).browse_bci_by_y1(
+							ctxt,
+							y_min, y_max, y_lim,
+							zoom_level,	image_width, colors, codes, beta);
 						},
 						*_right_zone->bg_image,
 						0, // x_start
@@ -588,21 +588,21 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 						alpha, // zoom_y
 						false); // reversed
 
-					connect_zr(zr, "zr_finished");
-					_right_zone->last_zr_bg = zr;
-					_zp_bg.add_job(*zr);
-				}
+				connect_zr(zr, "zr_finished");
+				_right_zone->last_zr_bg = zr;
+				_zp_bg.add_job(*zr);
+			}
 
-				_renderable_zone_number++;
-				PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
+			_renderable_zone_number++;
+			PVZoneRendering<bbits>* zr = new (PVRenderingPipeline::allocate_zr<bbits>()) PVZoneRendering<bbits>(
 					right_zone_id(),
 					[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
 					{
-						zzt_context_t ctxt;
-						return get_zztree(z).browse_bci_sel_by_y1(
-							ctxt,
-							y_min, y_max,y_lim, real_selection(),
-							zoom_level,	image_width, colors, codes, beta);
+					zzt_context_t ctxt;
+					return get_zztree(z).browse_bci_sel_by_y1(
+						ctxt,
+						y_min, y_max,y_lim, real_selection(),
+						zoom_level,	image_width, colors, codes, beta);
 					},
 					*_right_zone->sel_image,
 					0, // x_start
@@ -610,10 +610,10 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					alpha, // zoom_y
 					false); // reversed
 
-				connect_zr(zr, "zr_finished");
-				_right_zone->last_zr_sel = zr;
-				_zp_sel.add_job(*zr);
-			}
+			connect_zr(zr, "zr_finished");
+			_right_zone->last_zr_sel = zr;
+			_zp_sel.add_job(*zr);
+		}
 	}
 	BENCH_END(launch, "job launch", 1, 1, 1, 1);
 }
@@ -626,6 +626,12 @@ void PVParallelView::PVZoomedParallelScene::connect_zr(PVZoneRendering<bbits>* z
 void PVParallelView::PVZoomedParallelScene::zr_finished(void* zr, int zone_id)
 {
 	assert(is_zone_rendered(zone_id));
+	PVZoneRenderingBase* zr_base = reinterpret_cast<PVZoneRenderingBase*>(zr);
+	if (zr_base->should_cancel()) {
+		// Cancellation may have occured between the event posted for this call
+		// in the Qt's main loop event and the actual call.
+		return;
+	}
 
 	_renderable_zone_number--;
 	PVLOG_INFO("in zr_finished: %d\n", _renderable_zone_number);
@@ -650,7 +656,7 @@ void PVParallelView::PVZoomedParallelScene::zr_finished(void* zr, int zone_id)
 			_right_zone->last_zr_bg = nullptr;
 		}
 	}
-	PVRenderingPipeline::free_zr(reinterpret_cast<PVZoneRenderingBase*>(zr));
+	PVRenderingPipeline::free_zr(zr_base);
 }
 
 /*****************************************************************************
@@ -674,7 +680,7 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 	sb->setValue(mid);
 
 	/* now, it's time to tell each QGraphicsPixmapItem where it must be.
-	 */
+	*/
 	if (_left_zone) {
 		QPointF p = _left_zone->item->pos();
 		double screen_left_x = _zpview->viewport()->rect().center().x();
@@ -838,11 +844,11 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(argu
 
 	if ((axis_id == _parent->_axis_id) && (id == _parent->_sliders_group)) {
 		int64_t y_min = std::get<2>(args);
-                int64_t y_max = std::get<3>(args);
+		int64_t y_max = std::get<3>(args);
 
-                if (y_max < y_min) {
-	                std::swap(y_min, y_max);
-                }
+		if (y_max < y_min) {
+			std::swap(y_min, y_max);
+		}
 
 		double sld_min = y_min / (double)BUCKET_ELT_COUNT;
 		double sld_max = y_max / (double)BUCKET_ELT_COUNT;
@@ -861,10 +867,10 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(argu
 
 		if (change == PVParallelView::PVSlidersManager::ZoomSliderMin) {
 			sld_max = round(PVCore::clamp<double>(sld_min + y_dist,
-			                                      0., image_height));
+						0., image_height));
 		} else if (change == PVParallelView::PVSlidersManager::ZoomSliderMax) {
 			sld_min = round(PVCore::clamp<double>(sld_max - y_dist,
-			                                      0., image_height));
+						0., image_height));
 		} else {
 			PVLOG_WARN("did you expect to move the 2 zoom sliders at the same time?\n");
 			return;

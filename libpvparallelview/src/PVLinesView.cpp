@@ -455,7 +455,8 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(PVZoneID zone_id, 
 	connect_zr(zr, "zr_bg_finished");
 	single_zone_images.last_zr_bg = zr;
 
-	_processor_bg.add_job(*zr);
+	bool ret = _processor_bg.add_job(*zr);
+	assert(ret);
 }
 
 /******************************************************************************
@@ -487,7 +488,8 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(PVZoneID zone_id,
 	connect_zr(zr, "zr_sel_finished");
 	single_zone_images.last_zr_sel = zr;
 
-	_processor_sel.add_job(*zr);
+	bool ret = _processor_sel.add_job(*zr);
+	assert(ret);
 }
 
 /******************************************************************************
@@ -689,20 +691,19 @@ void PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width,
 void PVParallelView::PVLinesView::SingleZoneImages::cancel_all_and_wait()
 {
 	if (last_zr_sel) {
-		last_zr_sel->cancel();
+		last_zr_sel->cancel(false);
 		last_zr_sel->wait_end();
 		PVZoneRenderingBase* zr = last_zr_sel;
 		last_zr_sel = nullptr;
-		PVRenderingPipeline::free_zr(zr);
+		//PVRenderingPipeline::free_zr(zr);
 	}
 
-	//FIXME : PhS : Why are these two codes different ???
 	if (last_zr_bg) {
-		last_zr_bg->cancel();
+		last_zr_bg->cancel(false);
 		last_zr_bg->wait_end();
 		last_zr_bg = nullptr;
 		PVZoneRenderingBase* zr = last_zr_bg;
-		PVRenderingPipeline::free_zr(zr);
+		//PVRenderingPipeline::free_zr(zr);
 	}
 }
 
@@ -714,7 +715,7 @@ void PVParallelView::PVLinesView::SingleZoneImages::cancel_all_and_wait()
 void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_bg()
 {
 	if (last_zr_bg) {
-		last_zr_bg->cancel();
+		last_zr_bg->cancel(true);
 	}
 }
 
@@ -726,7 +727,7 @@ void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_bg()
 void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_sel()
 {
 	if (last_zr_sel) {
-		last_zr_sel->cancel();
+		last_zr_sel->cancel(true);
 	}
 }
 
@@ -751,12 +752,6 @@ void PVParallelView::PVLinesView::SingleZoneImages::set_width(uint32_t width)
 	sel->set_width(width);
 	bg->set_width(width);
 }
-
-
-
-
-
-
 
 /******************************************************************************
  ******************************************************************************

@@ -153,7 +153,6 @@ void PVParallelView::PVFullParallelScene::commit_volatile_selection_Slot()
 {
 	_selection_square->finished();
 	QRectF srect = _selection_square->rect();
-	PVLOG_INFO("srect start: %f, srect end: %f\n", srect.x(), srect.x() + srect.width());
 	// Too much on the left dude!
 	if (srect.x() + srect.width() <= 0) {
 		return;
@@ -350,7 +349,6 @@ void PVParallelView::PVFullParallelScene::process_selection()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::render_all_zones_all_imgs()
 {
-	PVLOG_INFO("!!!!!!!!!!in render_all_zones_all_imgs!!!!!!\n");
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
 	_lines_view.render_all_zones_images(view_x, view_width, _zoom_y);
@@ -462,6 +460,7 @@ void PVParallelView::PVFullParallelScene::translate_and_update_zones_position()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_all()
 {
+	assert(QThread::currentThread() == this->thread());
 	render_all_zones_all_imgs();
 }
 
@@ -492,6 +491,7 @@ void PVParallelView::PVFullParallelScene::update_all_with_timer()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_new_selection()
 {
+	assert(QThread::currentThread() == this->thread());
 	// Change view's internal counter
 	const PVRow nlines = lib_view().get_real_output_selection().get_number_of_selected_lines_in_range(0, _lines_view.get_zones_manager().get_number_rows());
 	graphics_view()->set_selected_line_number(nlines);
@@ -518,6 +518,7 @@ void PVParallelView::PVFullParallelScene::update_new_selection_async()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_number_of_zones()
 {
+	assert(QThread::currentThread() == this->thread());
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
 	_lines_view.update_number_of_zones(view_x, view_width);
@@ -948,17 +949,25 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
  * PVParallelView::PVFullParallelScene::zr_bg_finished
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::zr_bg_finished(void* zr, int zone_id)
+void PVParallelView::PVFullParallelScene::zr_bg_finished(void* zr, int zid)
 {
-	update_zone_pixmap_bg(zone_id);
-
-	if (zr) {
-		PVRenderingPipeline::free_zr(reinterpret_cast<PVZoneRenderingBase*>(zr));
-
-		const PVZoneID img_id = _lines_view.get_zone_index_offset(zone_id);
+	assert(QThread::currentThread() == this->thread());
+	PVZoneRenderingBase* zr_base = reinterpret_cast<PVZoneRenderingBase*>(zr);
+	if (zr_base) {
+		const PVZoneID img_id = _lines_view.get_zone_index_offset(zid);
 		PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
 		images[img_id].last_zr_bg = nullptr;
+		if (zr_base->should_cancel()) {
+			// Cancellation may have occured between the event posted in Qt's main loop and this call!
+			std::cout << "PVFullParallelScene::zr_bg_finished: canceled state for zone rendering." << std::endl;
+			return;
+		}
+		else {
+			images[img_id].last_zr_bg = nullptr;
+		}
 	}
+
+	update_zone_pixmap_bg(zid);
 }
 
 /******************************************************************************
@@ -966,17 +975,22 @@ void PVParallelView::PVFullParallelScene::zr_bg_finished(void* zr, int zone_id)
  * PVParallelView::PVFullParallelScene::zr_sel_finished
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::zr_sel_finished(void* zr, int zone_id)
+void PVParallelView::PVFullParallelScene::zr_sel_finished(void* zr, int zid)
 {
-	update_zone_pixmap_sel(zone_id);
-
-	if (zr) {
-		PVRenderingPipeline::free_zr(reinterpret_cast<PVZoneRenderingBase*>(zr));
-		
-		const PVZoneID img_id = _lines_view.get_zone_index_offset(zone_id);
+	assert(QThread::currentThread() == this->thread());
+	PVZoneRenderingBase* zr_base = reinterpret_cast<PVZoneRenderingBase*>(zr);
+	if (zr_base) {
+		const PVZoneID img_id = _lines_view.get_zone_index_offset(zid);
 		PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
-		images[img_id].last_zr_sel = nullptr;
+		if (zr_base->should_cancel()) {
+			// Cancellation may have occured between the event posted in Qt's main loop and this call!
+			std::cout << "PVFullParallelScene::zr_sel_finished: canceled state for zone rendering." << std::endl;
+			return;
+		}
+		else {
+			images[img_id].last_zr_sel = nullptr;
+		}
 	}
+
+	update_zone_pixmap_sel(zid);
 }
-
-

@@ -166,17 +166,15 @@ public:
 private:
 	PVZoneID get_image_index_of_zone(PVZoneID zone_id) const;
 
-	// FIXME : not used ??
-// 	inline void update_zone_sel_img_width(PVZoneID zone_id)
-// 	{
-// 		get_single_zone_images(zone_id).sel->set_width(get_zone_width(zone_id));
-// 	}
+	inline void update_zone_sel_img_width(PVZoneID zone_id)
+	{
+		get_single_zone_images(zone_id).sel->set_width(get_zone_width(zone_id));
+	}
 
-	// FIXME : not used ??
-// 	inline void update_zone_bg_img_width(PVZoneID zone_id)
-// 	{
-// 		get_single_zone_images(zone_id).bg->set_width(get_zone_width(zone_id));
-// 	}
+	inline void update_zone_bg_img_width(PVZoneID zone_id)
+	{
+		get_single_zone_images(zone_id).bg->set_width(get_zone_width(zone_id));
+	}
 	
 	void visit_all_zones_to_render(uint32_t view_width, std::function<void(PVZoneID)> const& fzone);
 
@@ -188,8 +186,6 @@ private:
 		// and set new first zone
 		PVZoneID previous_first_zone = _first_zone;
 		_first_zone = update_and_get_first_zone_from_viewport(new_view_x, view_width);
-
-		PVLOG_INFO("set_new_view: new_first_zone_index=%d / old_first_zone_index=%d\n", _first_zone, previous_first_zone);
 
 		// Returns the previous first zone index
 		return previous_first_zone;

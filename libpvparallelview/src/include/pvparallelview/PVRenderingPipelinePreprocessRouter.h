@@ -10,6 +10,8 @@
 #include <tuple>
 #include <iostream>
 
+#include <tbb/atomic.h>
+
 #define ROUTER_INPUT_IDX_DIRECT 0
 #define ROUTER_INPUT_IDX_POSTPROCESS 1
 
@@ -29,9 +31,12 @@ class PVRenderingPipelinePreprocessRouter
 
 	struct ZoneInfos
 	{
-		ZoneInfos(): state(ZoneStateInvalid) { }
+		ZoneInfos()
+		{
+			state = ZoneStateInvalid;
+		}
 
-		ZoneState state;
+		tbb::atomic<ZoneState> state;
 		std::list<PVZoneRenderingBase*> waiters;
 	};
 
@@ -90,7 +95,7 @@ public:
 			r = std::get<0>(in.result);
 		}
 
-		//std::cout << "Input: " << r.zone_id << "/" << r.p << ", " << std::get<1>(in) << std::endl;
+		std::cerr << "PIPELINE: preprocess router: " << r << " : ";
 		const uint32_t zone_id = r->get_zone_id();
 		ZoneInfos& infos = zone_infos(zone_id);
 		switch (infos.state) {
@@ -100,6 +105,7 @@ public:
 					std::get<OutIdxPreprocess>(op).try_put(r);
 				}
 				else {
+					std::cerr << "cancellation pointer in preprocessor router (state invalid) triggered." << std::endl;
 					std::get<OutIdxCancel>(op).try_put(r);
 				}
 				break;
@@ -112,6 +118,7 @@ public:
 						infos.waiters.push_back(r);
 					}
 					else {
+						std::cerr << "cancellation pointer in preprocessor router (state processing) triggered." << std::endl;
 						std::get<OutIdxCancel>(op).try_put(r);
 					}
 					break;
@@ -123,6 +130,7 @@ public:
 					std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(r, _d->_colors));
 				}
 				else {
+					std::cerr << "cancellation pointer in preprocessor router (state valid) triggered." << std::endl;
 					std::get<OutIdxCancel>(op).try_put(r);
 				}
 				for (PVZoneRenderingBase* zr: infos.waiters) {
@@ -130,6 +138,7 @@ public:
 						std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(zr, _d->_colors));
 					}
 					else {
+						std::cerr << "cancellation pointer in preprocessor router (state valid) triggered." << std::endl;
 						std::get<OutIdxCancel>(op).try_put(r);
 					}
 				}

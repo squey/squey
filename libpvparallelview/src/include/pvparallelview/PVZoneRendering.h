@@ -9,6 +9,7 @@
 
 #include <boost/utility.hpp>
 #include <boost/thread/mutex.hpp>
+#include <tbb/spin_rw_mutex.h>
 #include <boost/thread/condition_variable.hpp>
 
 #include <functional>
@@ -28,6 +29,22 @@ class PVZoneRenderingBase: boost::noncopyable
 {
 	typedef std::function<size_t(PVZoneID, PVCore::PVHSVColor const* colors, PVBCICodeBase* codes)> bci_func_type;
 	friend class PVRenderingPipeline;
+
+	struct cancel_state
+	{   
+		union {
+			struct {
+				uint8_t should_cancel: 1;
+				uint8_t delete_on_finish: 1;
+			} s;
+			uint8_t v;
+		};   
+
+		bool should_cancel() const { return s.should_cancel; }
+		bool delete_on_finish() const { return s.delete_on_finish; }
+
+		static cancel_state value(bool cancel, bool del) { cancel_state ret; ret.v = (cancel | (del<<1)); return ret; }
+	};
 
 public:
 	PVZoneRenderingBase(PVZoneID zone_id, bci_func_type const& f_bci, PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, float zoom_y = 1.0f, bool reversed = false):
@@ -58,15 +75,22 @@ public:
 
 public:
 	inline PVZoneID get_zone_id() const { return _zone_id; }
+	inline PVZoneID zid() const { return _zone_id; }
 	inline size_t img_width() const { return _width; }
 	inline size_t img_x_start() const { return _x_start; }
 	inline float render_zoom_y() const { return _zoom_y; }
 	inline bool render_reversed() const { return _reversed; }
-	inline bool should_cancel() const { return _should_cancel; }
-	inline bool valid() const { return _zone_id != PVZONEID_INVALID && _width != 0 && _dst_img != nullptr; }
+	inline bool should_cancel() const
+	{
+		return ((cancel_state)_cancel_state).should_cancel();
+	}
+	inline bool valid() const { return _zone_id != (PVZoneID) PVZONEID_INVALID && _width != 0 && _dst_img != nullptr; }
 	PVBCIBackendImage& dst_img() const { return *_dst_img; }
 
-	inline void cancel() { _should_cancel = true; }
+	inline void cancel(bool delete_on_finish)
+	{
+		_cancel_state = cancel_state::value(true, delete_on_finish);
+	}
 
 	inline void set_dst_img(PVBCIBackendImage& dst_img) { assert(_finished); _dst_img = &dst_img; }
 	inline void set_zone_id(PVZoneID const zone_id) { assert(_finished); _zone_id = zone_id; }
@@ -78,10 +102,6 @@ public:
 public:
 	void wait_end()
 	{
-		// Do not send any signal to any Qt objects, because another
-		// thread is waiting. That will be the responsability of this caller
-		// to remove the PVZoneRendering object.
-		_qobject_finished_success = nullptr;
 		boost::unique_lock<boost::mutex> lock(_wait_mut);
 		while (!_finished) {
 			_wait_cond.wait(lock);
@@ -90,12 +110,13 @@ public:
 
 	void reset()
 	{
-		_should_cancel = false;
 		_finished = false;
+		_cancel_state = cancel_state::value(false, false);
 	}
 
 protected:
-	void finished();
+	// return true if the object can be safely deleted
+	bool finished();
 
 protected:
 	inline size_t compute_bci(PVCore::PVHSVColor const* colors, PVBCICodeBase* codes) const { return _f_bci(get_zone_id(), colors, codes); }
@@ -121,10 +142,10 @@ private:
 	float _zoom_y;
 
 	bool _reversed;
-	tbb::atomic<bool> _should_cancel;
+	tbb::atomic<cancel_state> _cancel_state;
 
 	// Qt signalisation
-	tbb::atomic<QObject*> _qobject_finished_success;
+	QObject* _qobject_finished_success;
 	const char* _qobject_slot;
 
 	// Synchronisation
