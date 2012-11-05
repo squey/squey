@@ -33,7 +33,6 @@ include/PVExpandSelDlg.h
 include/PVExportSelectionDialog.h
 include/PVFilesTypesSelWidget.h
 include/PVFilterWidget.h
-include/PVInputTypeMenuEntries.h
 include/PVInvestigationWizard.h
 #include/PVListColNrawDlg.h
 #include/PVListingModel.h
@@ -45,7 +44,6 @@ include/PVSaveSceneDialog.h
 include/PVSerializeOptionsModel.h
 include/PVSerializeOptionsWidget.h
 include/PVSimpleStringListModel.h
-include/PVStartScreenWidget.h
 include/PVStringListChooserWidget.h
 include/PVTabSplitter.h
 #include/PVViewsListingView.h
@@ -108,11 +106,9 @@ PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
 PVMapWidget.cpp
 #PVMappingPlottingEditDialog.cpp
-PVInputTypeMenuEntries.cpp
 PVSaveSceneDialog.cpp
 PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
-PVStartScreenWidget.cpp
 PVStringListChooserWidget.cpp
 PVTabSplitter.cpp
 #PVViewsListingView.cpp

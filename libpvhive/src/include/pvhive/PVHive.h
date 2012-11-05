@@ -28,6 +28,11 @@
 
 #include <tbb/recursive_mutex.h>
 
+namespace PVCore {
+class PVDataTreeObjectBase;
+class PVDataTreeObjectWithParentBase;
+}
+
 namespace PVHive
 {
 
@@ -467,7 +472,7 @@ protected:
 		// object must be a valid address
 		assert(object != nullptr);
 
-		do_about_to_refresh_observers((void*)object);
+		do_about_to_refresh_observers((void*) PVCore::PVTypeTraits::get_starting_address(object));
 	}
 
 	/**
@@ -480,9 +485,16 @@ protected:
 	{
 		// object must be a valid address
 		assert(object != nullptr);
-
-		do_refresh_observers((void*)object);
+		PVCore::PVDataTreeObjectWithParentBase const* dt = PVCore::PVTypeTraits::dynamic_cast_if_possible<PVCore::PVDataTreeObjectWithParentBase const*>(object);
+		if (dt) {
+			refresh_observers(dt, const_cast<void*>(PVCore::PVTypeTraits::dynamic_cast_if_possible<const void*>(object)));
+		}
+		else {
+			do_refresh_observers((void*) PVCore::PVTypeTraits::get_starting_address(object));
+		}
 	}
+
+	void refresh_observers(PVCore::PVDataTreeObjectWithParentBase const* object, void* obj_refresh);
 
 	/**
 	 * Tell all observers of function that a change is about to occure

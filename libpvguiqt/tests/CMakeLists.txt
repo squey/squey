@@ -45,7 +45,6 @@ target_link_libraries(Tqt_huge-model ${COMMON_LIBRARIES})
 add_executable(Tqt_css css.cpp)
 target_link_libraries(Tqt_css ${COMMON_LIBRARIES})
 
-
 # Workspaces
 if (CUDA_FOUND)
 	qt4_wrap_cpp(WORKSPACES_MOC_SRC workspaces.h OPTIONS ${QT4_WRAP_OPTIONS})
@@ -55,9 +54,19 @@ if (CUDA_FOUND)
 	target_link_libraries(Tqt_workspaces ${MOC_SRC} ${MOC_HEADERS} ${COMMON_LIBRARIES} ${CUDA_LIBRARIES} ${LINK_LIBRARIES} )
 endif(CUDA_FOUND)
 
-
-
-
 # Desktop geometry
 add_executable(Tqt_desktop_geometry desktop_geometry.cpp)
 target_link_libraries(Tqt_desktop_geometry ${COMMON_LIBRARIES})
+
+# Vertical tabs
+add_executable(Tqt_vertical_tabs vertical_tabs.cpp common.cpp)
+target_link_libraries(Tqt_vertical_tabs ${COMMON_LIBRARIES})
+
+# PVImportSourceToProjectDlg
+add_executable(Tqt_import_source_to_project_dlg import_source_to_project_dlg.cpp)
+target_link_libraries(Tqt_import_source_to_project_dlg ${COMMON_LIBRARIES})
+
+# correlation menu
+add_executable(Tqt_correlation_menu correlation_menu.cpp)
+target_link_libraries(Tqt_correlation_menu ${COMMON_LIBRARIES})
+

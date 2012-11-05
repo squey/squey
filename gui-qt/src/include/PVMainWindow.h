@@ -30,11 +30,13 @@
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVSelection.h>
 
+#include <pvguiqt/PVCorrelationMenu.h>
+
 #include <PVAxisPropertiesWidget.h>
 #include <PVExportSelectionDialog.h>
 #include <PVFilterWidget.h>
 //#include <PVMapWidget.h>
-#include <pvguiqt/PVWorkspacesTabWidget.h>
+#include <pvguiqt/PVProjectsTabWidget.h>
 #include <PVFilesTypesSelWidget.h>
 
 //#include <>
@@ -120,8 +122,7 @@ public:
 
 	PVExportSelectionDialog *pv_ExportSelectionDialog;
 
-	PVGuiQt::PVWorkspace  *current_tab;
-	PVGuiQt::PVWorkspacesTabWidget *pv_WorkspacesTabWidget;
+	PVGuiQt::PVProjectsTabWidget* _projects_tab_widget;
 
 	QMenuBar *menubar;
 	QMenu *filter_Menu;
@@ -132,7 +133,12 @@ public:
 	int report_image_index;
 	QString *report_filename;
 
-	/* QGridLayout *filter_widgets_layout; */
+	Picviz::PVView* current_view() { return _projects_tab_widget->current_view(); }
+	Picviz::PVView const* current_view() const { return _projects_tab_widget->current_view(); }
+
+	void select_scene(int index) { _projects_tab_widget->select_project(index); }
+	Picviz::PVScene* current_scene() const { return _projects_tab_widget->current_scene(); }
+
 	void commit_selection_in_current_layer(Picviz::PVView* view);
 	void move_selection_to_new_layer(Picviz::PVView* view);
 	void commit_selection_to_new_layer(Picviz::PVView* view);
@@ -144,11 +150,12 @@ public:
 	/* void import_type(); */
 	void update_statemachine_label(Picviz::PVView_sp view);
 
-	void close_source(int index);
 	void close_scene();
 
+protected:
+	bool event(QEvent* event) override;
+
 public slots:
-	void close_source(Picviz::PVSource* src);
 	void about_Slot();
 	void axes_editor_Slot();
 	void axes_mode_Slot();
@@ -173,6 +180,7 @@ public slots:
 	void filter_reprocess_last_Slot();
 	void import_type_default_Slot();
 	void import_type_Slot();
+	void import_type_Slot(const QString & itype);
 	void lines_display_unselected_Slot();
 	void lines_display_unselected_listing_Slot();
 	void lines_display_unselected_GLview_Slot();
@@ -180,7 +188,8 @@ public slots:
 	void lines_display_zombies_listing_Slot();
 	void lines_display_zombies_GLview_Slot();
 	void map_Slot();
-	void project_new_Slot();
+	void load_source_from_description_Slot(PVRush::PVSourceDescription);
+	Picviz::PVScene_p project_new_Slot();
 	void project_load_Slot();
 	bool project_save_Slot();
 	bool project_saveas_Slot();
@@ -211,23 +220,24 @@ public slots:
 	void display_icon_Slot();
 	bool load_project(const QString &file);
 
+	void create_new_window_for_workspace(QWidget* workspace);
+
+	// Correlations
+	void add_correlation();
+	void show_correlation(int index);
+	void delete_correlation(int index);
+
 protected:
 	void closeEvent(QCloseEvent* event);
 
 private:
 	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
-	void set_current_project_filename(const QString& file);
-	bool maybe_save_project();
-	bool is_project_untitled() { return _is_project_untitled; }
-	void set_project_modified(bool modified);
 	PVMainWindow* find_main_window(const QString& file);
 	void set_selection_from_layer(Picviz::PVView_sp view, Picviz::PVLayer const& layer);
-	void display_inv_elts(PVGuiQt::PVWorkspace* tab_src);
+	void display_inv_elts();
 	void close_all_views();
-	Picviz::PVView* get_current_lib_view() const;
 
 private slots:
-	void project_modified_Slot();
 	void cur_format_changed_Slot();
 
 private:
@@ -244,7 +254,11 @@ private:
 	void auto_detect_formats(PVFormatDetectCtxt ctxt);
 
 private:
-	bool load_scene();
+	bool is_project_untitled()
+	{
+		return _projects_tab_widget->is_current_project_untitled();
+	}
+	bool load_scene(Picviz::PVScene* scene);
 	bool load_source(Picviz::PVSource_sp src);
 	bool fix_project_errors(boost::shared_ptr<PVCore::PVSerializeArchive> ar);
 
@@ -256,6 +270,7 @@ private:
 	QMenu *layer_Menu;
 	QMenu *lines_Menu;
 	QMenu *scene_Menu;
+	PVGuiQt::PVCorrelationMenu* correlation_Menu;
 	QMenu *selection_Menu;
 	QMenu* tools_Menu;
 	QMenu *view_Menu;
@@ -315,18 +330,15 @@ private:
 
 	QSpacerItem* pv_mainSpacerTop;
 	QSpacerItem* pv_mainSpacerBottom;
-	QWidget *pv_centralStartWidget;
 	QWidget *pv_centralMainWidget;
 	QStackedWidget* pv_centralWidget;
 	QVBoxLayout *pv_mainLayout;
 	QVBoxLayout *pv_startLayout;
-	QLabel *pv_labelWelcomeIcon;
-	QPixmap  *pv_welcomeIcon;
 	QLabel* pv_lastCurVersion;
 	QLabel* pv_lastMajVersion;
 	QFileDialog _load_project_dlg;
 
-	PVStartScreenWidget* _start_screen_widget;
+	//PVStartScreenWidget* _start_screen_widget;
 	QString _current_save_project_folder;
 
 protected:
@@ -351,11 +363,10 @@ signals:
 	void zombie_mode_changed_Signal();
 
 private:
-	PVCore::PVDataTreeAutoShared<Picviz::PVScene> _scene;
 	QDialog* _ad2g_mw;
 	QString _cur_project_file;
 	bool _cur_project_save_everything;
-	bool _is_project_untitled;
+	static int sequence_n;
 
 private:
 	version_t _last_known_cur_release;

@@ -15,7 +15,6 @@
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVCallHelper.h>
-#include <pvhive/waxes/waxes.h>
 
 #include <pvguiqt/PVCustomQtRoles.h>
 #include <pvguiqt/PVListingModel.h>

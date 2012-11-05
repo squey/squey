@@ -25,6 +25,7 @@
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
+#include <pvguiqt/PVImportSourceToProjectDlg.h>
 #include <pvguiqt/PVWorkspace.h>
 
 #include <PVMainWindow.h>
@@ -44,7 +45,7 @@
  *
  *****************************************************************************/
 
-
+int PVInspector::PVMainWindow::sequence_n = 1;
 
 void PVInspector::PVMainWindow::about_Slot()
 {
@@ -55,11 +56,11 @@ void PVInspector::PVMainWindow::about_Slot()
 
 void PVInspector::PVMainWindow::axes_editor_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 	/*
-	PVAxisPropertiesWidget* dlg = current_tab->get_axes_properties_widget(current_tab->get_lib_view());
+	PVAxisPropertiesWidget* dlg = current_tab->get_axes_properties_widget(current_tab);
 	if (dlg->isVisible()) {
 		return;
 	}
@@ -68,11 +69,11 @@ void PVInspector::PVMainWindow::axes_editor_Slot()
 
 void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 
-	PVGuiQt::PVAxesCombinationDialog* dlg = current_tab->get_axes_combination_editor(current_tab->get_lib_view());
+	PVGuiQt::PVAxesCombinationDialog* dlg = ((PVGuiQt::PVWorkspaceBase*) _projects_tab_widget->current_workspace())->get_axes_combination_editor(current_view());
 	if (dlg->isVisible()) {
 		return;
 	}
@@ -90,10 +91,10 @@ void PVInspector::PVMainWindow::axes_mode_Slot()
 	PVLOG_INFO("%s\n", __FUNCTION__);
 	Picviz::PVView* current_lib_view;
 
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 
 	current_lib_view->state_machine->toggle_axes_mode();
 
@@ -134,12 +135,12 @@ void PVInspector::PVMainWindow::change_of_current_view_Slot()
 #if 0
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 	/* we set current_tab to it's new value */
-	current_tab = dynamic_cast<PVTabSplitter*>(pv_WorkspacesTabWidget->currentWidget());
+	current_tab = dynamic_cast<PVTabSplitter*>(_workspaces_tab_widget->currentWidget());
 	if(current_tab!=0){
 		connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
 		current_tab->updateFilterMenuEnabling();
 	}
-	if (!current_tab) {
+	if (!current_view()) {
 		// PVLOG_ERROR("PVInspector::PVMainWindow::%s We have a strange beast in the tab widget: %p!\n", __FUNCTION__, pv_WorkspacesTabWidget->currentWidget());
 		menu_activate_is_file_opened(false);
 	}
@@ -160,10 +161,10 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer_Slot()
 
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
-	if (pv_WorkspacesTabWidget->currentIndex() == -1) {
+	if (_projects_tab_widget->current_workspace() == nullptr) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 	commit_selection_in_current_layer(current_lib_view);
 }
 
@@ -174,21 +175,21 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::commit_selection_to_new_layer_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 
-	Picviz::PVView* current_lib_view = current_tab->get_lib_view();
+	Picviz::PVView* current_lib_view = current_view();
 	commit_selection_to_new_layer(current_lib_view);
 }
 
 void PVInspector::PVMainWindow::move_selection_to_new_layer_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 
-	Picviz::PVView* current_lib_view = current_tab->get_lib_view();
+	Picviz::PVView* current_lib_view = current_view();
 	move_selection_to_new_layer(current_lib_view);
 }
 
@@ -201,10 +202,10 @@ void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
 {
 	Picviz::PVView* current_lib_view;
 
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 
 	/* We refresh the listing */
 	Picviz::PVView_sp view_sp = current_lib_view->shared_from_this();
@@ -221,13 +222,13 @@ void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
 	Picviz::PVView* current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 	state_machine = current_lib_view->state_machine;
 
-	if (pv_WorkspacesTabWidget->currentIndex() == -1) {
+	if (_projects_tab_widget->current_workspace() == nullptr) {
 		return;
 	}
 
@@ -247,10 +248,10 @@ void PVInspector::PVMainWindow::lines_display_zombies_Slot()
 	Picviz::PVView* current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 	state_machine = current_lib_view->state_machine;
 
 	state_machine->toggle_listing_zombie_visibility();
@@ -275,10 +276,10 @@ void PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
 {
 	Picviz::PVView* current_lib_view;
 
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 
 	Picviz::PVView_sp view_sp = current_lib_view->shared_from_this();
 	PVHive::call<FUNC(Picviz::PVView::toggle_listing_zombie_visibility)>(view_sp);
@@ -294,10 +295,10 @@ void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
 	Picviz::PVView* current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+	current_lib_view = current_view();
 	state_machine = current_lib_view->state_machine;
 
 	state_machine->toggle_gl_zombie_visibility();
@@ -308,10 +309,10 @@ void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
 
 void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
-	Picviz::PVView* cur_view_p = current_tab->get_lib_view();
+	Picviz::PVView* cur_view_p = current_view();
 	PVExpandSelDlg* dlg = new PVExpandSelDlg(*cur_view_p, this);
 	Picviz::PVView &view = *cur_view_p;
 	if (dlg->exec() != QDialog::Accepted) {
@@ -373,7 +374,7 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 	QTextStream stream(&file);
 
 	// For now, save the NRAW !
-	Picviz::PVView* view = current_tab->get_lib_view();
+	Picviz::PVView* view = current_view();
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
 	view->get_real_output_selection().write_selected_lines_nraw(stream, nraw, 0);
 
@@ -393,12 +394,12 @@ void PVInspector::PVMainWindow::filter_select_all_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
-	if (!current_tab || !current_tab->get_lib_view()) {
+	if (!current_view()) {
 		return;
 	}
 	/* We do all that has to be done in the lib FIRST */
-	current_tab->get_lib_view()->apply_filter_named_select_all();
-	current_tab->get_lib_view()->process_from_eventline();
+	current_view()->apply_filter_named_select_all();
+	current_view()->process_from_eventline();
 
 	/* THEN we can emit the signal */
 	emit selection_changed_Signal();
@@ -412,15 +413,15 @@ void PVInspector::PVMainWindow::filter_select_all_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::filter_Slot(void)
 {
-	if (current_tab && current_tab->get_lib_view()) {
+	if (current_view()) {
 		QObject *s = sender();
-		Picviz::PVView* lib_view = current_tab->get_lib_view();
+		Picviz::PVView* lib_view = current_view();
 		QString filter_name = s->objectName();
 
 		Picviz::PVLayerFilter::p_type filter_org = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
 		Picviz::PVLayerFilter::p_type fclone = filter_org->clone<Picviz::PVLayerFilter>();
 		PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
-		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_tab->get_lib_view(), args, fclone);
+		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone);
 		filter_widget->show();
 	}
 }
@@ -432,8 +433,8 @@ void PVInspector::PVMainWindow::filter_Slot(void)
  *****************************************************************************/
 void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
 {
-	if (current_tab && current_tab->get_lib_view()) {
-		Picviz::PVView* lib_view = current_tab->get_lib_view();
+	if (current_view()) {
+		Picviz::PVView* lib_view = current_view();
 		if (!lib_view->is_last_filter_used_valid()) {
 			return;
 		}
@@ -441,7 +442,7 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
 		Picviz::PVLayerFilter::p_type filter_org = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
 		Picviz::PVLayerFilter::p_type fclone = filter_org->clone<Picviz::PVLayerFilter>();
 		PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
-		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_tab->get_lib_view(), args, fclone);
+		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone);
 		filter_widget->show();
 		filter_widget->preview_Slot();
 	}
@@ -454,7 +455,7 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::extractor_file_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		//TODO: this should not happen because the menu item should be disabled... !
 		return;
 	}
@@ -515,15 +516,41 @@ PVInspector::PVMainWindow* PVInspector::PVMainWindow::find_main_window(QString c
  * PVInspector::PVMainWindow::project_new_Slot
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::project_new_Slot()
+Picviz::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 {
-	/*if (maybe_save_project()) {
-		close_scene();
-		set_current_project_filename(QString());
-	}*/
-	PVMainWindow* new_mw = new PVMainWindow();
-	new_mw->move(x() + 40, y() + 40);
-	new_mw->show();
+	QString scene_name = tr("new-project%1." PICVIZ_SCENE_ARCHIVE_EXT).arg(sequence_n++);
+	PVCore::PVDataTreeAutoShared<Picviz::PVScene> scene_p = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(get_root_sp(), scene_name);
+	_projects_tab_widget->add_project(scene_p);
+
+	return scene_p;
+}
+
+void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
+{
+	Picviz::PVScene_p scene_p;
+
+	if (_projects_tab_widget->projects_count() == 0) {
+		// No loaded project: create a new one and load the source
+		scene_p = project_new_Slot();
+	}
+	else if (_projects_tab_widget->projects_count() == 1) {
+		// Only one project loaded: use it to load the source
+		scene_p = current_scene()->shared_from_this();
+	}
+	else {
+		// More than one project loaded: ask the user the project he wants to use to load the source
+		PVGuiQt::PVImportSourceToProjectDlg dlg(_projects_tab_widget->get_projects_list(), _projects_tab_widget->get_current_project_index());
+		if (dlg.exec() != QDialog::Accepted) {
+			return;
+		}
+		scene_p = current_scene()->shared_from_this();
+		int project_index = dlg.result();
+		select_scene(project_index);
+	}
+
+	Picviz::PVSource_p src_p = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc);
+	//Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(src_desc);
+	load_source(src_p);
 }
 
 /******************************************************************************
@@ -541,28 +568,49 @@ void PVInspector::PVMainWindow::project_load_Slot()
 	}
 	QString file = _load_project_dlg.selectedFiles().at(0);
 
-	//load_project(file);
-	PVMainWindow* existing = find_main_window(file);
-	if (existing) {
-		existing->show();
-		existing->raise();
-		existing->activateWindow();
-		return;
-	}
-	if (is_project_untitled() && _scene->is_empty() && !isWindowModified()) {
-		load_project(file);
-	}
-	else {
-		PVMainWindow* other = new PVMainWindow();
-		other->move(x() + 40, y() + 40);
-		other->show();
-		if (!other->load_project(file)) {
-			other->deleteLater();
-			return;
-		}
-	}
-
+	load_project(file);
 #endif
+}
+
+void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_workspace)
+{
+	PVMainWindow* other = new PVMainWindow();
+	other->move(QCursor::pos());
+	other->resize(size());
+	other->show();
+
+	other->menu_activate_is_file_opened(true);
+	other->show_start_page(false);
+	//other->_workspaces_tab_widget->setVisible(true);
+
+	PVGuiQt::PVWorkspace* workspace = dynamic_cast<PVGuiQt::PVWorkspace*>(widget_workspace);
+	if (workspace) {
+		_projects_tab_widget->remove_workspace(workspace, false);
+		other->_projects_tab_widget->add_workspace((PVGuiQt::PVWorkspace*) workspace);
+	}
+}
+
+void PVInspector::PVMainWindow::add_correlation()
+{
+	std::cout << "PVInspector::PVMainWindow::add_correlation" << std::endl;
+	get_root().add_correlation();
+}
+
+void PVInspector::PVMainWindow::show_correlation(int index)
+{
+	std::cout << "PVInspector::PVMainWindow::show_correlation" << std::endl;
+	QDialog* ad2g_dialog = new QDialog(this);
+	ad2g_dialog->setWindowTitle(tr("Correlations"));
+	PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(get_root().get_correlation(index));
+	QVBoxLayout* l = new QVBoxLayout();
+	l->addWidget(ad2g_w);
+	ad2g_dialog->setLayout(l);
+	ad2g_dialog->exec();
+}
+
+void PVInspector::PVMainWindow::delete_correlation(int index)
+{
+	get_root().delete_correlation(index);
 }
 
 bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p ar)
@@ -589,12 +637,23 @@ bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p 
 bool PVInspector::PVMainWindow::load_project(QString const& file)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	if (!maybe_save_project()) {
+	/*if (!maybe_save_project()) {
 		return false;
 	}
-	set_project_modified(false);
+	set_project_modified(false);*/
 
-	close_scene();
+	/*close_scene();*/
+
+
+	Picviz::PVScene* scene = _projects_tab_widget->get_scene_from_path(file);
+
+	if (scene) {
+		_projects_tab_widget->select_project(scene);
+		return false;
+	}
+
+	PVCore::PVDataTreeAutoShared<Picviz::PVScene> scene_p = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(get_root_sp(), file);
+
 	PVCore::PVSerializeArchive_p ar;
 	try {
 		ar.reset(new PVCore::PVSerializeArchiveZip(file, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
@@ -609,7 +668,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 	while (true) {
 		QString err_msg;
 		try {
-			_scene->load_from_archive(ar);
+			scene_p->load_from_archive(ar);
 		}
 		catch (PVCore::PVSerializeArchiveError& e) {
 			err_msg = tr("Error while loading project %1:\n%2").arg(file).arg(e.what());
@@ -637,7 +696,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 					QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading project..."), err_msg, QMessageBox::Ok, this);
 					box->exec();
 				}
-				close_scene();
+				//close_scene();
 				//_scene.reset();
 				return false;
 			}
@@ -645,58 +704,23 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 		break;
 	}
 
-	if (!load_scene()) {
+	if (!load_scene(scene_p.get())) {
 		PVLOG_ERROR("(PVMainWindow::project_load_Slot) error while processing the scene...\n");
-		close_scene();
+		//close_scene();
 		//_scene.reset();
 		return false;
 	}
 
+	//_projects_tab_widget->add_project(scene_p);
+
 	menu_activate_is_file_opened(true);
 	show_start_page(false);
-	pv_WorkspacesTabWidget->setVisible(true);
-
-	set_current_project_filename(file);
-	if (project_has_been_fixed) {
-		set_project_modified(true);
-	}
+	//_workspaces_tab_widget->setVisible(true);
 
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 #endif
 
 	return true;
-}
-
-void PVInspector::PVMainWindow::set_current_project_filename(QString const& file)
-{
-	static int sequence_n = 1;
-
-	_is_project_untitled = file.isEmpty();
-
-	if (is_project_untitled()) {
-		_cur_project_file = tr("new-project%1." PICVIZ_SCENE_ARCHIVE_EXT).arg(sequence_n);
-		sequence_n++;
-	}
-	else {
-		_cur_project_file = QFileInfo(file).canonicalFilePath();
-	}
-
-	setWindowTitle(QString());
-	set_project_modified(false);
-	setWindowFilePath(_cur_project_file);
-}
-
-void PVInspector::PVMainWindow::set_project_modified(bool modified)
-{
-	setWindowModified(modified);
-#ifdef CUSTOMER_CAPABILITY_SAVE
-	project_save_Action->setEnabled(modified);
-#endif
-}
-
-void PVInspector::PVMainWindow::project_modified_Slot()
-{
-	set_project_modified(true);
 }
 
 /******************************************************************************
@@ -711,7 +735,7 @@ bool PVInspector::PVMainWindow::project_save_Slot()
 		return project_saveas_Slot();
 	}
 	else {
-		PVCore::PVSerializeArchiveOptions_p options(_scene->get_default_serialize_options());
+		PVCore::PVSerializeArchiveOptions_p options(current_scene()->get_default_serialize_options());
 		return save_project(_cur_project_file, options);
 	}
 #endif
@@ -726,13 +750,13 @@ bool PVInspector::PVMainWindow::project_saveas_Slot()
 {
 	bool ret = false;
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	if (current_tab && current_tab->get_lib_view()) {
-		PVCore::PVSerializeArchiveOptions_p options(_scene->get_default_serialize_options());
-		PVSaveSceneDialog* dlg = new PVSaveSceneDialog(_scene, options, this);
+	if (current_scene()) {
+		PVCore::PVSerializeArchiveOptions_p options(current_scene()->get_default_serialize_options());
+		PVSaveSceneDialog* dlg = new PVSaveSceneDialog(current_scene()->shared_from_this(), options, this);
 		if (!_current_save_project_folder.isEmpty()) {
 			dlg->setDirectory(_current_save_project_folder);
 		}
-		dlg->selectFile(_cur_project_file);
+		dlg->selectFile(current_scene()->get_path());
 		if (dlg->exec() == QDialog::Accepted) {
 			QString file = dlg->selectedFiles().at(0);
 			ret = save_project(file, options);
@@ -748,7 +772,8 @@ bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSeri
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
 	try {
-		_scene->save_to_file(file, options);
+		Picviz::PVScene_p scene_p = current_scene()->shared_from_this();
+		PVHive::call<FUNC(Picviz::PVScene::save_to_file)>(scene_p, file, options, false);
 	}
 	catch (PVCore::PVSerializeArchiveError& e) {
 		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while saving project..."), tr("Error while saving project %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
@@ -756,33 +781,8 @@ bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSeri
 		return false;
 	}
 
-	set_current_project_filename(file);
-
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 
-	return true;
-#else
-	return false;
-#endif
-}
-
-bool PVInspector::PVMainWindow::maybe_save_project()
-{
-#ifdef CUSTOMER_CAPABILITY_SAVE
-	if (isWindowModified()) {
-		QMessageBox::StandardButton ret;
-		ret = QMessageBox::warning(this, tr("Picviz Inspector"),
-				tr("The project has been modified.\n"
-					"Do you want to save your changes?"),
-				QMessageBox::Save | QMessageBox::Discard
-				| QMessageBox::Cancel);
-		if (ret == QMessageBox::Save) {
-			return project_save_Slot();
-		}
-		if (ret == QMessageBox::Cancel) {
-			return false;
-		}
-	}
 	return true;
 #else
 	return false;
@@ -826,11 +826,11 @@ void PVInspector::PVMainWindow::select_scene_Slot()
 void PVInspector::PVMainWindow::selection_all_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 
-	Picviz::PVView_sp lib_view(current_tab->get_lib_view()->shared_from_this());
+	Picviz::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_all_nonzb_lines();
 		PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_real_output_selection)>(lib_view);
@@ -845,11 +845,11 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 void PVInspector::PVMainWindow::selection_none_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 
-	Picviz::PVView_sp lib_view(current_tab->get_lib_view()->shared_from_this());
+	Picviz::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_no_line();
 		PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_real_output_selection)>(lib_view);
@@ -864,11 +864,11 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 void PVInspector::PVMainWindow::selection_inverse_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 
-	Picviz::PVView_sp lib_view(current_tab->get_lib_view()->shared_from_this());
+	Picviz::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_inv_lines();
 		PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_real_output_selection)>(lib_view);
@@ -885,9 +885,9 @@ void PVInspector::PVMainWindow::set_color_Slot()
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
 	/* CODE */
-	if (!current_tab || !current_tab->get_lib_view())
+	if (!current_view())
 		return;
-	set_color(current_tab->get_lib_view());
+	set_color(current_view());
 }
 
 /******************************************************************************
@@ -918,8 +918,8 @@ void PVInspector::PVMainWindow::textedit_text_changed_Slot()
 
 		picviz_arguments_debug(args);
 
-		current_tab->get_lib_view()->apply_filter_from_name(last_sendername, args);
-		current_tab->get_lib_view()->process_from_eventline();
+		current_view()->apply_filter_from_name(last_sendername, args);
+		current_view()->process_from_eventline();
 
 		free(sender_name);
 
@@ -1029,12 +1029,12 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 	// Progress box!
 	PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
 	pbox_lib->set_enable_cancel(false);
-	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*get_current_lib_view())), pbox_lib, parallel_lib_view);
+	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*current_view())), pbox_lib, parallel_lib_view);
 
 	QWidget *view = parallel_lib_view->create_view(dlg);
 	layout->addWidget(view);
 
-	Picviz::PVView_sp view_sp(get_current_lib_view()->shared_from_this());
+	Picviz::PVView_sp view_sp(current_view()->shared_from_this());
 	PVHive::get().register_observer(view_sp, *new_obs);
 	dlg->show();
 }*/
@@ -1052,7 +1052,7 @@ void PVInspector::PVMainWindow::view_new_parallel_Slot()
 	// Progress box!
 	PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
 	pbox_lib->set_enable_cancel(false);
-	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*get_current_lib_view())), pbox_lib, parallel_lib_view);
+	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*current_view())), pbox_lib, parallel_lib_view);
 
 	// reinterpret_cast is used because PVFullParallelScene is only forward declarated for now.
 	// This is done for compile-time sake!
@@ -1076,7 +1076,7 @@ void PVInspector::PVMainWindow::view_new_zoomed_parallel_Slot()
 	QLabel *label = new QLabel("Open a zoomed view on axis:");
 	layout->addWidget(label);
 
-	PVWidgets::PVAxisIndexEditor *axes = new PVWidgets::PVAxisIndexEditor(*get_current_lib_view(), dlg);
+	PVWidgets::PVAxisIndexEditor *axes = new PVWidgets::PVAxisIndexEditor(*current_view(), dlg);
 	axes->set_axis_index(0);
 	layout->addWidget(axes);
 
@@ -1107,12 +1107,12 @@ void PVInspector::PVMainWindow::view_new_zoomed_parallel_Slot()
 		// Progress box!
 		PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
 		pbox_lib->set_enable_cancel(false);
-		PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*get_current_lib_view())), pbox_lib, parallel_lib_view);
+		PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*current_view())), pbox_lib, parallel_lib_view);
 
 		// see view_new_parallel_Slot for the explanation of this reinterpret_cast
 		QWidget *view = reinterpret_cast<QWidget*>(parallel_lib_view->create_zoomed_view(axis_index));
 
-		Picviz::PVView_sp view_sp(get_current_lib_view()->shared_from_this());
+		Picviz::PVView_sp view_sp(current_view()->shared_from_this());
 		PVHive::get().register_observer(view_sp, *new_obs);
 
 		view_layout->addWidget(view);
@@ -1157,8 +1157,11 @@ void PVInspector::PVMainWindow::new_format_Slot() {
  *****************************************************************************/
 void PVInspector::PVMainWindow::cur_format_Slot()
 {
-	Picviz::PVSource const* cur_src = current_tab->get_lib_src();
-	if (!current_tab || !cur_src) {
+	Picviz::PVSource* cur_src = nullptr;
+	if (current_view()) {
+		cur_src = current_view()->get_parent<Picviz::PVSource>();
+	}
+	if (!cur_src) {
 		return;
 	}
 	PVRush::PVFormat const& format = cur_src->get_format();
@@ -1166,7 +1169,7 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 		return;
 	}
 
-    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(current_tab);
+    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(_projects_tab_widget->current_workspace());
 	connect(editorWidget, SIGNAL(accepted()), this, SLOT(cur_format_changed_Slot()));
 	connect(editorWidget, SIGNAL(rejected()), this, SLOT(cur_format_changed_Slot()));
 	editorWidget->openFormat(format.get_full_path());
@@ -1175,7 +1178,7 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 
 void PVInspector::PVMainWindow::edit_format_Slot(const QString& format)
 {
-    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(current_tab);
+    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(_projects_tab_widget->current_workspace());
 	editorWidget->openFormat(format);
     editorWidget->show();
 }
@@ -1268,11 +1271,11 @@ void PVInspector::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* par
 
 void PVInspector::PVMainWindow::axes_new_Slot()
 {
-	if (!current_tab) {
+	if (!current_view()) {
 		return;
 	}
 	
-	Picviz::PVView* view = current_tab->get_lib_view();
+	Picviz::PVView* view = current_view();
 	/*
 	std::vector<PVCore::PVUnicodeString> vec_str;
 	PVRow nrows = view->get_rushnraw_parent().get_number_rows();
@@ -1325,16 +1328,16 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 
 void PVInspector::PVMainWindow::selection_set_from_current_layer_Slot()
 {
-	if (current_tab && current_tab->get_lib_view()) {
-		Picviz::PVView_sp view(current_tab->get_lib_view());
+	if (current_view()) {
+		Picviz::PVView_sp view(current_view());
 		set_selection_from_layer(view, view->get_current_layer());
 	}
 }
 
 void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 {
-	if (current_tab && current_tab->get_lib_view()) {
-		Picviz::PVView_sp view(current_tab->get_lib_view());
+	if (current_view()) {
+		Picviz::PVView_sp view(current_view());
 
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("sel-layer", tr("Choose a layer"))].setValue<Picviz::PVLayer*>(&view->get_current_layer());
@@ -1348,8 +1351,8 @@ void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 
 void PVInspector::PVMainWindow::view_display_inv_elts_Slot()
 {
-	if (current_tab && current_tab->get_lib_view()) {
-		display_inv_elts(current_tab);
+	if (current_view()) {
+		display_inv_elts();
 	}
 }
 
@@ -1358,7 +1361,7 @@ void PVInspector::PVMainWindow::show_correlation_Slot()
 	if (!_ad2g_mw) {
 		_ad2g_mw = new QDialog(this);
 		_ad2g_mw->setWindowTitle(tr("Correlations"));
-		PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(_scene->get_ad2g_view_p());
+		PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(current_scene()->get_ad2g_view_p());
 		QVBoxLayout* l = new QVBoxLayout();
 		l->addWidget(ad2g_w);
 		_ad2g_mw->setLayout(l);

@@ -538,10 +538,9 @@ void Picviz::PVPlotted::process_from_parent_mapped()
 	if (get_children_count() == 0) {
 		cur_view = PVView_p(shared_from_this());
 	}
-	else {
-		cur_view = current_view()->shared_from_this();
+	for (auto view : get_children<PVView>()) {
+		view->process_parent_plotted();
 	}
-	cur_view->process_parent_plotted();
 }
 
 bool Picviz::PVPlotted::is_uptodate() const

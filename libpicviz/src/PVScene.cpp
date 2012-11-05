@@ -4,6 +4,8 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
+#include <QFileInfo>
+
 #include <pvkernel/core/hash_sharedptr.h>
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
@@ -19,10 +21,12 @@
  * Picviz::PVScene::PVScene
  *
  *****************************************************************************/
-Picviz::PVScene::PVScene(QString scene_name):
-	_name(scene_name),
-	_ad2g_view(new PVAD2GView(this))
+Picviz::PVScene::PVScene(QString scene_path) :
+	_path(scene_path),
+	_ad2g_view(new PVAD2GView(/*this*/))
 {
+	QFileInfo info(_path);
+	_name = info.fileName();
 }
 
 /******************************************************************************
@@ -45,6 +49,53 @@ Picviz::PVScene::list_sources_t Picviz::PVScene::get_sources(PVRush::PVInputType
 		}
 	}
 	return ret;
+}
+
+Picviz::PVSource* Picviz::PVScene::current_source()
+{
+	return _current_source;
+}
+
+Picviz::PVSource const* Picviz::PVScene::current_source() const
+{
+	return _current_source;
+}
+
+void Picviz::PVScene::select_source(PVSource* source)
+{
+	assert(!source || (source && get_children<PVSource>().contains(source->shared_from_this())));
+	if (source) {
+		if (source->current_view()) {
+			_current_view = source->current_view();
+		}
+		else {
+			_current_view = source->last_current_view();
+		}
+		_current_source = source;
+	}
+	else {
+		if (_current_view) {
+			_current_source = _current_view->get_parent<PVSource>();
+		}
+	}
+}
+
+Picviz::PVView* Picviz::PVScene::current_view()
+{
+	return _current_source ? _current_view : nullptr;
+}
+
+Picviz::PVView const* Picviz::PVScene::current_view() const
+{
+	return const_cast<PVView const*>(const_cast<PVScene*>(this)->current_view());
+}
+
+void Picviz::PVScene::select_view(PVView& view)
+{
+	 assert(get_children<PVView>().contains(view.shared_from_this()));
+	 _current_view = &view;
+	 _current_source = view.get_parent<PVSource>();
+	 _current_source->set_last_current_view(_current_view);
 }
 
 PVRush::PVInputType::list_inputs_desc Picviz::PVScene::get_inputs_desc(PVRush::PVInputType const& type) const
@@ -187,7 +238,7 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 	data_tree_scene_t::serialize_read(so, v);
 
 	// Correlation, make this optional for compatibility with old project (so that we are still in version 1 :))
-	_ad2g_view.reset(new Picviz::PVAD2GView(this));
+	_ad2g_view.reset(new Picviz::PVAD2GView(/*this*/));
 	so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);
 }
 
@@ -236,9 +287,22 @@ void Picviz::PVScene::add_source(PVSource_p const& src)
 	add_child(src);
 }
 
+Picviz::PVSource_p Picviz::PVScene::add_source_from_description(const PVRush::PVSourceDescription& descr)
+{
+	PVSource_p src_p(
+		shared_from_this(),
+		descr.get_inputs(),
+		descr.get_source_creator(),
+		descr.get_format()
+	);
+
+	return src_p;
+}
+
 void Picviz::PVScene::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options, bool save_everything)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
+	set_path(path);
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, PICVIZ_ARCHIVES_VERSION));
 	if (options) {
 		ar->set_options(options);

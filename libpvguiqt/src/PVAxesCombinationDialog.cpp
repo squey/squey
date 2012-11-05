@@ -5,7 +5,6 @@
  */
 
 #include <pvhive/PVHive.h>
-#include <pvhive/waxes/waxes.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvguiqt/PVAxesCombinationWidget.h>
@@ -42,7 +41,7 @@ PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Picviz::PVView_sp& vie
 	PVHive::get().register_actor(view, _actor);
 
 
-	setWindowTitle("Edit axes combination...");
+	setWindowTitle("Edit axes combination... [" + view->get_name() + "]");
 }
 
 PVGuiQt::PVAxesCombinationDialog::~PVAxesCombinationDialog()

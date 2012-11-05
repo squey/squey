@@ -4,10 +4,14 @@
  * Copyright (C) Picviz Labs 2012
  */
 
-#include <QMenu>
-
 #include <QAbstractScrollArea>
+#include <QApplication>
+#include <QDesktopWidget>
+#include <QMenu>
+#include <QMouseEvent>
 #include <QScrollBar>
+
+#include <pvkernel/core/lambda_connect.h>
 
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVWorkspace.h>
@@ -17,12 +21,12 @@
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
-#include <pvhive/waxes/waxes.h>
 
-#include <QApplication>
-#include <QMouseEvent>
+#include <X11/Xlib.h>
+#include <QX11Info>
 
-PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspace* workspace) :
+
+PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspaceBase* workspace) :
 	QDockWidget((QWidget*)workspace),
 	_view(view),
 	_workspace(workspace)
@@ -31,7 +35,7 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 	setWidget(view_widget);
 	setWindowTitle(name);
 
-	view_widget->installEventFilter(new FocusInEventFilter(this));
+	installEventFilter(new FocusInEventFilter(this));
 	view_widget->setFocusPolicy(Qt::StrongFocus);
 
 	QAbstractScrollArea* scroll_area = dynamic_cast<QAbstractScrollArea*>(view_widget);
@@ -86,35 +90,39 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 				emit try_automatic_tab_switch();
 
 				QMouseEvent* mouse_event = (QMouseEvent*) event;
-				PVWorkspace* workspace = PVGuiQt::PVWorkspace::workspace_under_mouse();
+				PVWorkspaceBase* workspace = PVGuiQt::PVWorkspace::workspace_under_mouse();
 
-				if (workspace) {
+				if (workspace && workspace != parent()) {
 
-					if (workspace != parent()) {
+					QMouseEvent* fake_mouse_release = new QMouseEvent(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+					QApplication::postEvent(this, fake_mouse_release);
+					QApplication::processEvents(QEventLoop::AllEvents);
 
-						QMouseEvent fake_mouse_release(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-						QDockWidget::event(&fake_mouse_release);
+					qobject_cast<PVWorkspaceBase*>(parent())->removeDockWidget(this);
+					show();
 
-						qobject_cast<PVWorkspace*>(parent())->removeDockWidget(this);
-						show();
+					workspace->activateWindow();
+					workspace->addDockWidget(Qt::RightDockWidgetArea, this); // Qt::NoDockWidgetArea yields "QMainWindow::addDockWidget: invalid 'area' argument"
+					setFloating(true); // We don't want the dock widget to be docked right now
 
-						workspace->activateWindow();
-						workspace->addDockWidget(Qt::RightDockWidgetArea, this); // Qt::NoDockWidgetArea yields "QMainWindow::addDockWidget: invalid 'area' argument"
-						setFloating(true); // We don't want the dock widget to be docked right now
+					_workspace = workspace;
 
-						QCursor::setPos(mapToGlobal(_press_pt));
-						move(mapToGlobal(_press_pt));
+					QCursor::setPos(mapToGlobal(_press_pt));
+					move(mapToGlobal(_press_pt));
 
-						QMouseEvent* fake_mouse_press = new QMouseEvent(QEvent::MouseButtonPress, _press_pt, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-						QApplication::postEvent(this, fake_mouse_press);
+					XSync(QX11Info::display(), false);
+
+					QMouseEvent* fake_mouse_press = new QMouseEvent(QEvent::MouseButtonPress, _press_pt, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+					QApplication::postEvent(this, fake_mouse_press);
 
 
-						QApplication::processEvents(QEventLoop::AllEvents);
+					QApplication::processEvents(QEventLoop::AllEvents);
 
-						grabMouse();
+					QCursor::setPos(mapToGlobal(_press_pt));
 
-						return true;
-					}
+					grabMouse();
+
+					return true;
 				}
 			}
 			break;
@@ -128,6 +136,11 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 		case QEvent::MouseButtonRelease:
 		{
 			PVGuiQt::PVWorkspace::_drag_started = false;
+			break;
+		}
+		case QEvent::Move:
+		{
+			//PVGuiQt::PVWorkspace::_drag_started = true;
 			break;
 		}
 		default:
@@ -144,7 +157,7 @@ void PVGuiQt::PVViewDisplay::dragStarted(bool started)
 	if(started)
 	{
 		if(qobject_cast<PVViewDisplay*>(sender())) {
-			PVGuiQt::PVWorkspace::_drag_started = true;
+			PVGuiQt::PVWorkspaceBase::_drag_started = true;
 		}
 	}
 }
@@ -162,17 +175,47 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 
 	if (add_menu) {
 		QMenu* ctxt_menu = new QMenu(this);
+
+		// Set as central display
 		QAction* switch_action = new QAction(tr("Set as central display"), this);
 		connect(switch_action, SIGNAL(triggered(bool)), (QWidget*)_workspace, SLOT(switch_with_central_widget()));
 		ctxt_menu->addAction(switch_action);
+
+		// Maximize on left monitor
+		int screen_number = QApplication::desktop()->screenNumber(this);
+		if (screen_number > 0) {
+			QAction* maximize_left_action = new QAction(tr("<< Maximize on left screen"), this);
+			::connect(maximize_left_action, SIGNAL(triggered(bool)), [=]{maximize_on_screen(screen_number-1);});
+			ctxt_menu->addAction(maximize_left_action);
+		}
+
+		// Maximize on right monitor
+		if (screen_number < QApplication::desktop()->screenCount()-1) {
+			QAction* maximize_right_action = new QAction(tr(">> Maximize on right screen"), this);
+			::connect(maximize_right_action, SIGNAL(triggered(bool)), [=]{maximize_on_screen(screen_number+1);});
+			ctxt_menu->addAction(maximize_right_action);
+		}
+
 		ctxt_menu->popup(QCursor::pos());
 	}
+}
+
+void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
+{
+	QRect screenres = QApplication::desktop()->screenGeometry(screen_number);
+	setFloating(true);
+	move(QPoint(screenres.x(), screenres.y()));
+	resize(screenres.width(), screenres.height());
+	show();
 }
 
 void PVGuiQt::PVViewDisplay::set_current_view()
 {
 	if (_view) {
-		auto source = _view->get_parent<Picviz::PVSource>()->shared_from_this();
-		PVHive::call<FUNC(Picviz::PVSource::select_view)>(source, *_view);
+		auto scene = _view->get_parent<Picviz::PVScene>()->shared_from_this();
+		std::cout << "Picviz::PVScene::select_view: " << _view << std::endl;
+
+		_workspace->set_current_view(_view);
+		PVHive::call<FUNC(Picviz::PVScene::select_view)>(scene, *_view);
 	}
 }

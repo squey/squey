@@ -32,7 +32,7 @@ public:
 	PVSourceDescription(
 		const PVRush::PVInputType::list_inputs& inputs,
 		PVRush::PVSourceCreator_p source_creator_p,
-		PVRush::PVFormat& format
+		const PVRush::PVFormat& format
 	) :
 		_inputs(inputs),
 		_source_creator_p(source_creator_p),

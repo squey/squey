@@ -11,8 +11,9 @@
 #include <pvkernel/core/PVArgument.h>
 #include <picviz/PVSelRowFilteringFunction.h>
 #include <picviz/PVSparseSelection.h>
+#include <picviz/PVMapped_types.h>
 
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 //#define NTHREADS 2
 
@@ -21,7 +22,7 @@ namespace Picviz {
 class LibPicvizDecl PVRFFAxesBind: public PVSelRowFilteringFunction
 {
 private:
-	typedef boost::unordered_map<float,std::vector<PVRow> > hash_rows;
+	typedef std::unordered_map<Picviz::mapped_decimal_storage_type, std::vector<PVRow> > hash_rows;
 	//typedef boost::unordered_map<float, Picviz::PVSparseSelection> hash_rows;
 public:
 	PVRFFAxesBind(PVCore::PVArgumentList const& l = PVRFFAxesBind::default_args());

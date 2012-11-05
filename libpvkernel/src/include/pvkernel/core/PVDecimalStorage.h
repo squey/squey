@@ -4,6 +4,7 @@
 #include <boost/integer.hpp>
 #include <boost/integer/static_log2.hpp>
 
+#include <functional>
 #include <limits>
 #include <cassert>
 
@@ -75,6 +76,9 @@ public:
 
 	template <typename T>
 	typename std::enable_if<std::is_same<T, int_type>::value, T>::type const&  storage_cast() const { return storage_as_int(); };
+
+	inline bool operator<(PVDecimalStorageBase const& o) const { return _v < o._v; }
+	inline bool operator==(PVDecimalStorageBase const& o) const { return _v == o._v; }
 
 public:
 	template <typename C, typename... P>
@@ -201,6 +205,17 @@ public:
 	}
 };
 
+}
+
+namespace std {
+template<size_t storage_bits>
+class hash<PVCore::PVDecimalStorage<storage_bits> > {
+public:
+    size_t operator()(const PVCore::PVDecimalStorage<storage_bits> &s) const
+    {
+        return s.storage_as_uint();
+    }
+};
 }
 
 #ifdef __GNUG__

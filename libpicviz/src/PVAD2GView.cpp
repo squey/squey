@@ -211,8 +211,8 @@ const std::string PVAD2GViewCorrelationProperty::propertyTypename = "PVAD2GViewC
  * Picviz::PVAD2GView::PVAD2GView
  *
  *****************************************************************************/
-Picviz::PVAD2GView::PVAD2GView(Picviz::PVScene* scene) :
-	_scene(scene)
+Picviz::PVAD2GView::PVAD2GView(/*Picviz::PVScene* scene*/)// :
+	//_scene(scene)
 {
 	_graph = tlp::newGraph();
 	_corr_info = _graph->getLocalProperty<PVAD2GViewCorrelationProperty>(TLP_CORR_PROPERTY);

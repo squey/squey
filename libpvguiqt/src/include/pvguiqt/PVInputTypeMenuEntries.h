@@ -13,7 +13,7 @@
 
 #include <pvkernel/rush/PVInputType.h>
 
-namespace PVInspector {
+namespace PVGuiQt {
 
 class PVInputTypeMenuEntries
 {

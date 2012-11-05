@@ -160,14 +160,14 @@ void PVInspector::PVExtractorWidget::update_status_ext(PVCore::PVProgressBox* pb
 {
 	while (job->running()) {
 		pbox->set_status(job->status());
-		pbox->set_extended_status(QString("Number of rejected elements: %1").arg(job->rejected_elements()));
+		pbox->set_extended_status(QString("Number of rejected elements: %L1").arg(job->rejected_elements()));
 		boost::this_thread::sleep(boost::posix_time::milliseconds(200));
 	}
 }
 
 bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int nlines, QWidget* parent = NULL)
 {
-	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Extracting %1...").arg(desc), parent, 0, QString("Number of elements processed: %1/%2"));
+	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Extracting %1...").arg(desc), parent, 0, QString("Number of elements processed: %L1/%L2"));
 	QProgressBar *pbar = pbox->getProgressBar();
 	pbar->setValue(0);
 	pbar->setMaximum(nlines);

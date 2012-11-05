@@ -58,7 +58,7 @@ void PVWidgets::__impl::PVTableWidget::mouseMoveEvent(QMouseEvent* event)
 
 		QByteArray byte_array;
 		byte_array.reserve(sizeof(void*));
-		byte_array.append((const char*)ptr, sizeof(void*));
+		byte_array.append((const char*)&ptr, sizeof(void*));
 
 		mimeData->setData("application/x-qabstractitemmodeldatalist", byte_array);
 
@@ -181,7 +181,7 @@ PVWidgets::PVAD2GWidget::~PVAD2GWidget()
 void PVWidgets::PVAD2GWidget::add_view_Slot(QObject* mouse_event)
 {
 	QMouseEvent* event = (QMouseEvent*) mouse_event;
-	auto view_p = _ad2g->get_scene()->get_children<Picviz::PVView>()[_table->currentRow()];
+	auto view_p = Picviz::PVRoot::get_root().get_children<Picviz::PVView>()[_table->currentRow()];
 	add_view(event->pos(), view_p.get());
 }
 
@@ -345,13 +345,16 @@ void PVWidgets::PVAD2GWidget::update_list_views()
 	tlp::StringProperty* label = _graph->getProperty<tlp::StringProperty>("viewLabel");
 	tlp::IntegerProperty* view_id_prop = _graph->getProperty<tlp::IntegerProperty>("view_id");
 
-	auto all_views = _ad2g->get_scene()->get_children<Picviz::PVView>();
+	auto all_views =  Picviz::PVRoot::get_root().get_children<Picviz::PVView>();
 	_table->setRowCount(all_views.size());
+
+	int index = 0;
 	for (auto view_p : all_views) {
-		QTableWidgetItem* item = new QTableWidgetItem(view_p->get_parent<Picviz::PVSource>()->get_name());
+		QTableWidgetItem* item = new QTableWidgetItem(view_p->get_name());
 		item->setToolTip(view_p->get_window_name());
 		item->setData(Qt::UserRole, qVariantFromValue((void*) view_p.get()));
-		_table->setItem(view_p->get_view_id(), 0, item);
+		_table->setItem(index, 0, item);
+		index++;
 	}
 
 	// Disable all the view present in the graph from the list of views

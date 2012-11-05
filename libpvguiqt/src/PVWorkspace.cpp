@@ -11,6 +11,7 @@
 #include <QPalette>
 #include <QPushButton>
 #include <QToolBar>
+#include <QDateTime>
 
 #include <pvkernel/core/PVDataTreeAutoShared.h>
 #include <pvkernel/core/PVProgressBox.h>
@@ -34,13 +35,146 @@
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVViewDisplay.h>
 
-#include <QDateTime>
+#include <pvguiqt/PVWorkspacesTabWidget.h>
+#include <pvguiqt/PVProjectsTabWidget.h>
 
-uint64_t PVGuiQt::PVWorkspace::_z_order_counter = 0;
-bool PVGuiQt::PVWorkspace::_drag_started = false;
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVWorkspaceBase
+ *
+ *****************************************************************************/
+uint64_t PVGuiQt::PVWorkspaceBase::_z_order_counter = 0;
+bool PVGuiQt::PVWorkspaceBase::_drag_started = false;
+
+PVGuiQt::PVWorkspaceBase::~PVWorkspaceBase() {}
+
+PVGuiQt::PVWorkspaceBase* PVGuiQt::PVWorkspaceBase::workspace_under_mouse()
+{
+	QList<PVWorkspaceBase*> active_workspaces;
+	for (QWidget* top_widget : QApplication::topLevelWidgets()) {
+		QMainWindow* w = qobject_cast<QMainWindow*>(top_widget);
+		if (w) {
+			for (PVProjectsTabWidget* project_tab_widget : w->findChildren<PVProjectsTabWidget*>("PVProjectsTabWidget")) {
+				PVWorkspacesTabWidget* workspace_tab_widget = qobject_cast<PVWorkspacesTabWidget*>(project_tab_widget->current_project());
+				if (workspace_tab_widget) {
+					PVWorkspaceBase* workspace = qobject_cast<PVWorkspaceBase*>(workspace_tab_widget->currentWidget());
+					if (workspace) {
+						active_workspaces.append(workspace);
+					}
+				}
+			}
+		}
+	}
+
+	assert(active_workspaces.size() > 0); // Hierarchy is supposed to be: PVMainWindow > PVProjectsTabWidget > PVWorkspaceTabWidget > PVWorkspaceBase.
+
+	PVWorkspaceBase* workspace = nullptr;
+	int z_order = -1;
+
+	for (PVWorkspaceBase* w : active_workspaces) {
+		if (w->geometry().contains(w->mapFromGlobal(QCursor::pos()))) {
+			if (w->z_order() > z_order) {
+				z_order = w->z_order();
+				workspace = w;
+			}
+		}
+	}
+
+	return workspace;
+}
+
+void PVGuiQt::PVWorkspaceBase::changeEvent(QEvent *event)
+{
+	QMainWindow::changeEvent(event);
+
+	if (event->type() == QEvent::ActivationChange && isActiveWindow()) {
+		_z_order_index = ++_z_order_counter;
+	}
+}
+
+PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::add_view_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/, Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/)
+{
+	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, can_be_central_display, this);
+
+	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
+
+	view_display->setWindowTitle(name);
+	addDockWidget(area, view_display);
+	connect(view_display, SIGNAL(try_automatic_tab_switch()), this, SLOT(emit_try_automatic_tab_switch()));
+
+	_displays.append(view_display);
+
+	return view_display;
+}
+
+PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(Picviz::PVView* view, QWidget* view_widget, const QString& name)
+{
+	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, true, this);
+	view_display->setFeatures(QDockWidget::NoDockWidgetFeatures);
+	view_display->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+	setCentralWidget(view_display);
+
+	_displays.append(view_display);
+
+	return view_display;
+}
+
+void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(PVViewDisplay* display_dock /* = nullptr */)
+{
+	if (!display_dock) {
+		display_dock = (PVViewDisplay*) sender()->parent();
+	}
+	QWidget* display_widget = display_dock->widget();
+
+	PVViewDisplay* central_dock = (PVViewDisplay*) centralWidget();
+
+	if (central_dock) {
+		QWidget* central_widget = central_dock->widget();
+
+		// Exchange widgets
+		central_dock->setWidget(display_widget);
+		display_dock->setWidget(central_widget);
+
+		// Exchange titles
+		QString central_title = central_dock->windowTitle();
+		central_dock->setWindowTitle(display_dock->windowTitle());
+		display_dock->setWindowTitle(central_title);
+
+		// Exchange colors
+		QString style = QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ");
+		QColor col1 = central_dock->get_view()->get_color();
+		QColor col2 = display_dock->get_view()->get_color();
+		QString style1 = style.arg(col1.name()).arg(col1.name());
+		QString style2 = style.arg(col2.name()).arg(col2.name());
+		display_dock->setStyleSheet(style1);
+		central_dock->setStyleSheet(style2);
+
+		// Exchange views
+		Picviz::PVView* central_view = central_dock->get_view();
+		central_dock->set_view(display_dock->get_view());
+		display_dock->set_view(central_view);
+	}
+	else {
+		set_central_display(display_dock->get_view(), display_dock->widget(), display_dock->windowTitle());
+		removeDockWidget(display_dock);
+	}
+
+}
+
+void PVGuiQt::PVWorkspaceBase::display_destroyed(QObject* object /*= 0*/)
+{
+	PVGuiQt::PVViewDisplay* display = (PVGuiQt::PVViewDisplay*) object;
+	_displays.removeAll(display);
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVWorkspace
+ *
+ *****************************************************************************/
 PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
-	QMainWindow(parent),
+	PVWorkspaceBase(parent),
 	_source(source)
 {
 	//setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);
@@ -121,109 +255,6 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	for (auto view : _source->get_children<Picviz::PVView>()) {
 		create_layerstack(view.get());
 	}
-}
-
-PVGuiQt::PVWorkspace* PVGuiQt::PVWorkspace::workspace_under_mouse()
-{
-	QList<PVWorkspace*> active_workspaces;
-	for (QWidget* top_widget : QApplication::topLevelWidgets()) {
-		QMainWindow* w = qobject_cast<QMainWindow*>(top_widget);
-		if (w) {
-			for (QTabWidget* tab_widget : w->findChildren<QTabWidget*>()) {
-				PVWorkspace* workspace = qobject_cast<PVWorkspace*>(tab_widget->currentWidget());
-				if (workspace) {
-					active_workspaces.append(workspace);
-				}
-			}
-		}
-	}
-
-	assert(active_workspaces.size() > 0); // Hierarchy is supposed to be: PVMainWindow > PVWorkspaceTabWidget > PVWorkspace.
-
-	PVWorkspace* workspace = nullptr;
-	int z_oder = -1;
-
-	for (PVWorkspace* w : active_workspaces) {
-		if (w->geometry().contains(w->mapFromGlobal(QCursor::pos()))) {
-			if (w->z_order() > z_oder) {
-				z_oder = w->z_order();
-				workspace = w;
-			}
-		}
-	}
-
-	std::cout << "workspace=" << workspace << std::endl;
-	return workspace;
-}
-
-void PVGuiQt::PVWorkspace::changeEvent(QEvent *event)
-{
-	QMainWindow::changeEvent(event);
-
-	if (event->type() == QEvent::ActivationChange && isActiveWindow()) {
-		_z_order_index = ++_z_order_counter;
-	}
-}
-
-PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::add_view_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/, Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/)
-{
-	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, can_be_central_display, this);
-
-	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
-
-	view_display->setWindowTitle(name);
-	addDockWidget(area, view_display);
-	connect(view_display, SIGNAL(try_automatic_tab_switch()), this, SLOT(emit_try_automatic_tab_switch()));
-
-	_displays.append(view_display);
-
-	return view_display;
-}
-
-PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspace::set_central_display(Picviz::PVView* view, QWidget* view_widget, const QString& name)
-{
-	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, true, this);
-	view_display->setFeatures(QDockWidget::NoDockWidgetFeatures);
-	view_display->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
-	setCentralWidget(view_display);
-
-	_displays.append(view_display);
-
-	return view_display;
-}
-
-void PVGuiQt::PVWorkspace::switch_with_central_widget(PVViewDisplay* display_dock /* = nullptr */)
-{
-	if (!display_dock) {
-		display_dock = (PVViewDisplay*) sender()->parent();
-	}
-	QWidget* display_widget = display_dock->widget();
-
-	PVViewDisplay* central_dock = (PVViewDisplay*) centralWidget();
-	QWidget* central_widget = central_dock->widget();
-
-	// Exchange widgets
-	central_dock->setWidget(display_widget);
-	display_dock->setWidget(central_widget);
-
-	// Exchange titles
-	QString central_title = central_dock->windowTitle();
-	central_dock->setWindowTitle(display_dock->windowTitle());
-	display_dock->setWindowTitle(central_title);
-
-	// Exchange views
-	Picviz::PVView* central_view = central_dock->get_view();
-	central_dock->set_view(display_dock->get_view());
-	display_dock->set_view(central_view);
-
-	// Exchange colors
-	QString style = QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ");
-	QColor col1 = central_dock->get_view()->get_color();
-	QColor col2 = display_dock->get_view()->get_color();
-	QString style1 = style.arg(col1.name()).arg(col1.name());
-	QString style2 = style.arg(col2.name()).arg(col2.name());
-	display_dock->setStyleSheet(style1);
-	central_dock->setStyleSheet(style2);
 }
 
 void PVGuiQt::PVWorkspace::add_listing_view(bool central /*= false*/)
@@ -376,22 +407,6 @@ void PVGuiQt::PVWorkspace::check_datatree_button(bool check /*= false*/)
 	_datatree_view_action->setChecked(check);
 }
 
-void PVGuiQt::PVWorkspace::display_destroyed(QObject* object /*= 0*/)
-{
-	PVGuiQt::PVViewDisplay* display = (PVGuiQt::PVViewDisplay*) object;
-	_displays.removeAll(display);
-}
-
-Picviz::PVView* PVGuiQt::PVWorkspace::get_lib_view()
-{
-	return _source->current_view();
-}
-
-Picviz::PVView const* PVGuiQt::PVWorkspace::get_lib_view() const
-{
-	return _source->current_view();
-}
-
 void PVGuiQt::PVWorkspace::update_view_count(PVHive::PVObserverBase* /*obs_base*/)
 {
 	uint64_t views_count = _source->get_children<Picviz::PVView>().size();
@@ -401,9 +416,9 @@ void PVGuiQt::PVWorkspace::update_view_count(PVHive::PVObserverBase* /*obs_base*
 	}
 }
 
-const PVGuiQt::PVWorkspace::PVViewWidgets& PVGuiQt::PVWorkspace::get_view_widgets(Picviz::PVView* view)
+const PVGuiQt::PVWorkspaceBase::PVViewWidgets& PVGuiQt::PVWorkspaceBase::get_view_widgets(Picviz::PVView* view)
 {
-	assert(view->get_parent<Picviz::PVSource>() == _source);
+	//assert(view->get_parent<Picviz::PVSource>() == _source);
 	if (!_view_widgets.contains(view)) {
 		PVViewWidgets widgets(view, this);
 		return *(_view_widgets.insert(view, widgets));
@@ -456,4 +471,15 @@ void PVGuiQt::PVWorkspace::refresh_views_menus()
 		connect(action, SIGNAL(triggered(bool)), this, SLOT(create_zoomed_parallel_view()));
 		_zoomed_parallel_view_tool_button->addAction(action);
 	}
+}
+
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVOpenWorkspace
+ *
+ *****************************************************************************/
+PVGuiQt::PVOpenWorkspace::PVOpenWorkspace(QWidget* parent) : PVWorkspaceBase(parent)
+{
+
 }

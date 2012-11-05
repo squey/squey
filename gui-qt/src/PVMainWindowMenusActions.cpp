@@ -5,7 +5,7 @@
  */
 
 #include <PVMainWindow.h>
-#include <PVInputTypeMenuEntries.h>
+#include <pvguiqt/PVInputTypeMenuEntries.h>
 
 #include <QAction>
 #include <QMenuBar>
@@ -233,6 +233,9 @@ void PVInspector::PVMainWindow::create_menus()
 	//scene_Menu->addAction(select_scene_Action);
 	scene_Menu->addAction(correlation_scene_Action);
 	
+	correlation_Menu = new PVGuiQt::PVCorrelationMenu();
+	menubar->addMenu(correlation_Menu);
+
 	view_Menu = menubar->addMenu(tr("&View"));
 	//view_Menu->addAction(view_new_parallel_Action);
 	//view_Menu->addAction(view_new_zoomed_parallel_Action);
@@ -279,7 +282,7 @@ void PVInspector::PVMainWindow::create_menus()
  *****************************************************************************/
 void PVInspector::PVMainWindow::create_actions_import_types(QMenu* menu)
 {
-	PVInputTypeMenuEntries::add_inputs_to_menu(menu, this, SLOT(import_type_Slot()));
+	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(menu, this, SLOT(import_type_Slot()));
 }
 
 /******************************************************************************
@@ -296,10 +299,13 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	filter_Menu->setEnabled(cond);
 	lines_Menu->setEnabled(cond);
 	scene_Menu->setEnabled(cond);
+	correlation_Menu->setEnabled(cond);
 	selection_Menu->setEnabled(cond);
 	tools_cur_format_Action->setEnabled(cond);
 	view_Menu->setEnabled(cond);
 	windows_Menu->setEnabled(cond);
+	project_save_Action->setEnabled(cond);
+	project_saveas_Action->setEnabled(cond);
 }
 
 /******************************************************************************
@@ -340,6 +346,10 @@ void PVInspector::PVMainWindow::connect_actions()
 
 	scene_Menu->installEventFilter(scene_menu_event_filter);
 	connect(correlation_scene_Action, SIGNAL(triggered()), this, SLOT(show_correlation_Slot()));
+
+	connect(correlation_Menu, SIGNAL(correlation_added()), this, SLOT(add_correlation()));
+	connect(correlation_Menu, SIGNAL(correlation_shown(int)), this, SLOT(show_correlation(int)));
+	connect(correlation_Menu, SIGNAL(correlation_deleted(int)), this, SLOT(delete_correlation(int)));
 
 	//connect(commit_selection_in_current_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_in_current_layer_Slot()));
 	connect(commit_selection_to_new_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_to_new_layer_Slot()));

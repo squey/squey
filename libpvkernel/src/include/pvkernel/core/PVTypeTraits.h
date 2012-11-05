@@ -182,6 +182,18 @@ inline typename const_fwd<void, T>::type* get_starting_address(T* obj)
 	return reinterpret_cast<typename const_fwd<void, T>::type*>(obj);
 }
 
+template <typename U, typename T, typename std::enable_if<std::is_polymorphic<T>::value == true, int>::type = 0>
+inline typename const_fwd<typename std::remove_pointer<U>::type, T>::type* dynamic_cast_if_possible(T* obj)
+{
+	return dynamic_cast<typename const_fwd<typename std::remove_pointer<U>::type, T>::type*>(obj);
+}
+
+template <typename U, typename T, typename std::enable_if<std::is_polymorphic<T>::value == false, int>::type = 0>
+inline typename const_fwd<typename std::remove_pointer<U>::type, T>::type* dynamic_cast_if_possible(T* obj)
+{
+	return nullptr;
+}
+
 template <class T, class Tref>
 typename const_fwd<T, typename std::remove_reference<typename boost::call_traits<Tref>::param_type>::type>::type&& forward_with_const(typename std::remove_reference<T>::type& t)
 {
