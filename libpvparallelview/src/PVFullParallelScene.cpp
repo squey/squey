@@ -33,6 +33,7 @@
 #define CRAND() (127 + (random() & 0x7F))
 
 #define SCENE_MARGIN 32
+#define RENDER_TIMER_TIMEOUT 100 // in ms
 
 /******************************************************************************
  *
@@ -47,7 +48,8 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	_selection_square(new PVParallelView::PVSelectionSquareGraphicsItem(this)),
 	_selection_generator(_lines_view),
 	_zoom_y(1.0),
-	_sm_p(sm_p)
+	_sm_p(sm_p),
+	_zid_timer_render(PVZONEID_INVALID)
 {
 	PVHive::get().register_actor(view_sp, _view_actor);
 
@@ -72,8 +74,13 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 
 	_timer_render = new QTimer(this);
 	_timer_render->setSingleShot(true);
-	_timer_render->setInterval(100);
+	_timer_render->setInterval(RENDER_TIMER_TIMEOUT);
 	connect(_timer_render, SIGNAL(timeout()), this, SLOT(render_all_zones_all_imgs()));
+
+	_timer_render_single_zone = new QTimer(this);
+	_timer_render_single_zone->setSingleShot(true);
+	_timer_render_single_zone->setInterval(RENDER_TIMER_TIMEOUT);
+	connect(_timer_render, SIGNAL(timeout()), this, SLOT(render_single_zone_all_imgs()));
 }
 
 /******************************************************************************
@@ -352,6 +359,21 @@ void PVParallelView::PVFullParallelScene::render_all_zones_all_imgs()
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
 	_lines_view.render_all_zones_images(view_x, view_width, _zoom_y);
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVFullParallelScene::render_single_zone_all_imgs
+ *
+ *****************************************************************************/
+void PVParallelView::PVFullParallelScene::render_single_zone_all_imgs()
+{
+	assert(_zid_timer_render != PVZONEID_INVALID);
+	if (!_lines_view.is_zone_drawn(_zid_timer_render)) {
+		return;
+	}
+
+	_lines_view.render_single_zone_images(_zid_timer_render, _zoom_y);
 }
 
 /******************************************************************************
@@ -856,26 +878,31 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event)
 {
-	int delta = event->delta();
-	// We test if its a LOCAL zoom (applies only to a zone) or a GLOBAL zoom
+	const int delta = event->delta();
+
 	if (event->modifiers() == Qt::ControlModifier) {
-		// Local zoom
-		// We get the zone_id of the zone under mouse cursor
+		// Local zoom when the 'Ctrl' key is pressed
+
+		// Get the zone_id of the zone under mouse cursor
 		const QPointF mouse_scene_pt = event->scenePos();
 		const PVZoneID zone_id = _lines_view.get_zone_from_scene_pos(mouse_scene_pt.x());
 		
-		// We change its base_zoom level accordingly
 		if (delta < 0) {
 			_lines_view.decrease_base_zoom_level_of_zone(zone_id);
 		}
-		else if (delta > 0) {
+		else {
 			_lines_view.increase_base_zoom_level_of_zone(zone_id);
 		}
 		
 		update_viewport();
 		update_zones_position(true, true);
 		update_scene(event);
+
+		/*_timer_render_one_zone->stop();
+		_zid_timer_render = zone_id;
+		_timer_render_one_zone->start();*/
 		_lines_view.render_single_zone_images(zone_id, _zoom_y);
+
 		event->accept();
 	}
 	else if (event->modifiers() == Qt::NoModifier) {

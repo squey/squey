@@ -148,6 +148,7 @@ private slots:
 	void zr_bg_finished(PVParallelView::PVZoneRenderingBase_p  zr, int zone_id);
 
 	void render_all_zones_all_imgs();
+	void render_single_zone_all_imgs();
 
 private:
 	int32_t pos_last_axis() const;
@@ -243,6 +244,9 @@ private:
 	PVSlidersManager_p _sm_p;
 
 	QTimer* _timer_render;
+	QTimer* _timer_render_single_zone;
+
+	PVZoneID _zid_timer_render;
 };
 
 }
