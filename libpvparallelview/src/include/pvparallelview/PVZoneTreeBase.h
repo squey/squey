@@ -64,6 +64,7 @@ private:
 public:
 	PVRow DECLARE_ALIGN(16) _first_elts[NBUCKETS];
 	PVRow DECLARE_ALIGN(16) _sel_elts[NBUCKETS];
+	PVRow DECLARE_ALIGN(16) _bg_elts[NBUCKETS];
 };
 
 }

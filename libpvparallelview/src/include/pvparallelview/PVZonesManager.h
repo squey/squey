@@ -77,6 +77,7 @@ public:
 	}
 
 	void filter_zone_by_sel(PVZoneID zone_id, const Picviz::PVSelection& sel);
+	void filter_zone_by_sel_background(PVZoneID zone_id, const Picviz::PVSelection& sel);
 
 public:
 	void set_uint_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);

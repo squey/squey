@@ -33,6 +33,16 @@ PVParallelView::PVZonesProcessor PVParallelView::PVZonesProcessor::declare_proce
 		colors, zm.get_number_of_managed_zones());
 }
 
+PVParallelView::PVZonesProcessor PVParallelView::PVZonesProcessor::declare_background_processor_zm_sel(PVRenderingPipeline& pipeline, PVZonesManager& zm, PVCore::PVHSVColor const* colors, Picviz::PVSelection const& sel)
+{
+	return pipeline.declare_processor(
+		[&](PVZoneID zone_id)
+		{
+			zm.filter_zone_by_sel_background(zone_id, sel);
+		},
+		colors, zm.get_number_of_managed_zones());
+}
+
 /******************************************************************************
  *
  * PVParallelView::PVZonesProcessor::invalidate_zone_preprocessing

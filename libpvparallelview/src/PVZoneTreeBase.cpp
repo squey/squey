@@ -212,7 +212,8 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVCore::PVHSVColor co
 
 size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
 {
-	return browse_tree_bci_from_buffer(_first_elts, colors, codes);
+	//return browse_tree_bci_from_buffer(_first_elts, colors, codes);
+	return browse_tree_bci_from_buffer(_bg_elts, colors, codes);
 }
 
 size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_sel(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const

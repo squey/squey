@@ -60,6 +60,7 @@ public:
 protected:
 	void selection_updated();
 	void output_layer_updated();
+	void layer_stack_output_layer_updated();
 	void view_about_to_be_deleted();
 	void axes_comb_updated();
 	void plotting_updated();
@@ -72,6 +73,7 @@ private:
 	PVZonesManager                            _zones_manager;
 	PVCore::PVSharedPtr<PVSlidersManager>     _sliders_manager_p;
 	PVHive::PVObserver_p<Picviz::PVLayer>     _obs_output_layer;
+	PVHive::PVObserver_p<Picviz::PVLayer>     _obs_layer_stack_output_layer;
 	PVHive::PVObserver_p<Picviz::PVSelection> _obs_sel;
 	PVHive::PVObserver_p<Picviz::PVView>      _obs_view;
 	PVHive::PVObserver_p<Picviz::PVAxesCombination::columns_indexes_t> _obs_axes_comb;

@@ -60,6 +60,12 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 		[&](Picviz::PVLayer const*) { }
 	);
 
+	_obs_layer_stack_output_layer = PVHive::create_observer_callback_heap<Picviz::PVLayer>(
+	    [&](Picviz::PVLayer const*) { },
+		[&](Picviz::PVLayer const*) { this->layer_stack_output_layer_updated(); },
+		[&](Picviz::PVLayer const*) { }
+	);
+
 	_obs_axes_comb = PVHive::create_observer_callback_heap<Picviz::PVAxesCombination::columns_indexes_t>(
 	    [&](Picviz::PVAxesCombination::columns_indexes_t const*) { },
 		[&](Picviz::PVAxesCombination::columns_indexes_t const*) { this->axes_comb_updated(); },
@@ -81,6 +87,7 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_real_output_selection(); }, *_obs_sel);
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_output_layer(); }, *_obs_output_layer);
+	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_layer_stack_output_layer(); }, *_obs_layer_stack_output_layer);
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_axes_combination().get_axes_index_list(); }, *_obs_axes_comb);
 	PVHive::get().register_observer(view_sp, *_obs_view);
 
@@ -103,7 +110,9 @@ void PVParallelView::PVLibView::common_init_zm()
 		colors,
 		lib_view()->get_real_output_selection());
 
-	_processor_bg = PVZonesProcessor::declare_processor_direct(common::pipeline(), colors);
+	_processor_bg = PVZonesProcessor::declare_background_processor_zm_sel(common::pipeline(), _zones_manager,
+		colors,
+		lib_view()->get_output_layer().get_selection());
 }
 
 PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidget* parent)
@@ -165,7 +174,6 @@ void PVParallelView::PVLibView::selection_updated()
 	// Set zones state as invalid in the according PVZonesProcessor
 	for (PVZoneID z = 0; z < get_zones_manager().get_number_of_managed_zones(); z++) {
 		_processor_sel.invalidate_zone_preprocessing(z);
-		_processor_bg.invalidate_zone_preprocessing(z);
 	}
 
 	for (PVFullParallelScene* view: _parallel_scenes) {
@@ -177,6 +185,13 @@ void PVParallelView::PVLibView::selection_updated()
 	}
 }
 
+void PVParallelView::PVLibView::layer_stack_output_layer_updated()
+{
+	// Invalidate all background-related preprocessing
+	for (PVZoneID z = 0; z < get_zones_manager().get_number_of_managed_zones(); z++) {
+		_processor_bg.invalidate_zone_preprocessing(z);
+	}
+}
 void PVParallelView::PVLibView::output_layer_updated()
 {
 	for (PVFullParallelScene* view: _parallel_scenes) {

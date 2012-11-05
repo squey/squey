@@ -37,6 +37,11 @@ public:
 		_ztree->filter_by_sel(sel, nrows);
 	}
 
+	inline void filter_by_sel_background(const Picviz::PVSelection& sel, const PVRow nrows)
+	{
+		_ztree->filter_by_sel_background(sel, nrows);
+	}
+
 	template <class Tree>
 	Tree const& get_tree() const
 	{

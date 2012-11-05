@@ -180,6 +180,7 @@ public:
 	PVSelection const* get_selection_visible_listing() const;
 
 	PVSelection &get_nu_selection();
+	inline PVSelection const& get_nu_selection() const { return nu_selection; };
 	int get_number_of_selected_lines();
 
 	inline id_t get_view_id() const { return _view_id; }

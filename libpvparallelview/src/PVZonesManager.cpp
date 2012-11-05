@@ -277,6 +277,12 @@ void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zone_id, const 
 	_zones[zone_id].filter_by_sel(sel, _nrows);
 }
 
+void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone_id, const Picviz::PVSelection& sel)
+{
+	assert(zone_id < (PVZoneID) _zones.size());
+	_zones[zone_id].filter_by_sel_background(sel, _nrows);
+}
+
 /******************************************************************************
  *
  * PVParallelView::PVZonesManager::set_uint_plotted
