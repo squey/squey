@@ -601,25 +601,32 @@ void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRenderingBase_p zr
 {
 	assert(is_zone_rendered(zone_id));
 	assert(QThread::currentThread() == this->thread());
+	bool zr_catch = true;
 
 	if (zone_id == left_zone_id()) {
 		if (_left_zone->last_zr_sel == zr) {
 			_left_zone->last_zr_sel.reset();
 		}
-		else {
+		else if (_left_zone->last_zr_bg == zr) {
 			_left_zone->last_zr_bg.reset();
+		}
+		else {
+			zr_catch = false;
 		}
 	}
 	else {
 		if (_right_zone->last_zr_sel == zr) {
 			_right_zone->last_zr_sel.reset();
 		}
-		else {
+		else if (_right_zone->last_zr_bg == zr) {
 			_right_zone->last_zr_bg.reset();
+		}
+		else {
+			zr_catch = false;
 		}
 	}
 
-	if (zr->should_cancel()) {
+	if (!zr_catch || zr->should_cancel()) {
 		// Cancellation may have occured between the event posted for this call
 		// in the Qt's main loop event and the actual call.
 		return;
