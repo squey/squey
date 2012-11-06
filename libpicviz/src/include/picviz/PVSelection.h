@@ -39,7 +39,17 @@ class LibPicvizDecl PVSelection: public PVCore::PVSelBitField
 	friend class PVCore::PVSerializeObject;
 
 public:
+	struct tag_allocate_empty { };
+
+public:
 	PVSelection(): PVCore::PVSelBitField() { }
+	PVSelection(tag_allocate_empty):
+		PVCore::PVSelBitField()
+	{
+		allocate_table();
+		select_none();
+	}
+
 	PVSelection(PVSelection const& o): PVCore::PVSelBitField(o) { }
 	PVSelection(PVSelection&& o): PVCore::PVSelBitField(o) { }
 

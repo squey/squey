@@ -199,11 +199,11 @@ void test(
 		ztree->filter_by_sel_omp_treeb(sel);
 		}*/
 
-		{
+		/*{
 		Picviz::PVSelection sel;
 		sel.select_none();
 		ztree->filter_by_sel_tbb_treeb(sel, nrows);
-		}
+		}*/
 
 		delete ztree;
 	}

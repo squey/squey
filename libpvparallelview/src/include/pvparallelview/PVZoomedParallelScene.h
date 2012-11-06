@@ -7,7 +7,7 @@
 #ifndef PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 #define PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 
-#include <picviz/PVView.h>
+#include <picviz/PVView_types.h>
 #include <picviz/PVAxesCombination.h>
 
 #include <pvhive/PVHive.h>
@@ -15,12 +15,13 @@
 #include <pvhive/PVCallHelper.h>
 
 #include <pvparallelview/common.h>
-#include <pvparallelview/PVZoomedParallelView.h>
-#include <pvparallelview/PVZonesDrawing.h>
-#include <pvparallelview/PVSlidersManager.h>
+#include <pvparallelview/PVBCIBackendImage.h>
+#include <pvparallelview/PVSlidersManager_types.h>
 #include <pvparallelview/PVSlidersGroup.h>
-#include <pvparallelview/PVRenderingJob.h>
 #include <pvparallelview/PVSelectionSquareGraphicsItem.h>
+#include <pvparallelview/PVZoneRendering.h>
+#include <pvparallelview/PVZonesManager.h>
+#include <pvparallelview/PVZoomedParallelView.h>
 
 #include <QGraphicsPixmapItem>
 #include <QGraphicsSceneMouseEvent>
@@ -34,7 +35,9 @@
 namespace PVParallelView
 {
 
+class PVZoomedParallelView;
 class PVZoomedSelectionAxisSliders;
+class PVZonesProcessor;
 
 class PVZoomedParallelScene : public QGraphicsScene
 {
@@ -60,14 +63,15 @@ private:
 	typedef PVParallelView::PVZoomedZoneTree::context_t zzt_context_t;
 
 public:
-	typedef PVParallelView::PVZonesDrawing<bbits> zones_drawing_t;
-	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
+	typedef PVBCIBackendImage_p backend_image_p_t;
 
 public:
 	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
 	                      Picviz::PVView_sp& pvview_sp,
 	                      PVSlidersManager_p sliders_manager_p,
-	                      zones_drawing_t &zones_drawing,
+						  PVZonesProcessor& zp_sel,
+						  PVZonesProcessor& zp_bg,
+						  PVZonesManager const& zm,
 	                      PVCol axis_index);
 
 	~PVZoomedParallelScene();
@@ -80,8 +84,9 @@ public:
 
 	void keyPressEvent(QKeyEvent *event);
 
-	void invalidate_selection();
-	void update_new_selection(tbb::task* root);
+	void update_new_selection_async();
+	void update_all_async();
+
 	bool update_zones();
 
 	PVCol get_axis_index() const
@@ -91,21 +96,12 @@ public:
 
 	void set_enabled(bool value)
 	{
-		if (value == false) {
-			cancel_current_job();
-		}
 		_zpview->setEnabled(value);
 	}
 
 	virtual void drawBackground(QPainter *painter, const QRectF &rect);
 
 	void resize_display();
-
-	inline void update_all()
-	{
-		_render_type = RENDER_ALL;
-		update_display();
-	}
 
 	inline bool is_zone_rendered(PVZoneID z) const
 	{
@@ -119,12 +115,15 @@ public:
 		return ret;
 	}
 
-private:
-	void cancel_current_job();
-
+private slots:
 	inline void update_sel()
 	{
 		_render_type = RENDER_SEL;
+		update_display();
+	}
+	inline void update_all()
+	{
+		_render_type = RENDER_ALL;
 		update_display();
 	}
 
@@ -156,16 +155,31 @@ private:
 		return -zoom_steps * log2(a);
 	}
 
-	PVZonesManager& get_zones_manager() { return _zones_drawing.get_zones_manager(); }
+	inline PVZoneID left_zone_id() const
+	{
+		return (_left_zone) ? _axis_index-1 : PVZONEID_INVALID;
+	}
+
+	inline PVZoneID right_zone_id() const
+	{
+		return (_right_zone) ? _axis_index : PVZONEID_INVALID;
+	}
+
+	PVZonesManager const& get_zones_manager() const { return _zm; }
 
 	inline Picviz::PVSelection& real_selection() { return _pvview.get_real_output_selection(); }
 
+	inline PVZoomedZoneTree const& get_zztree(PVZoneID const z) { return _zm.get_zone_tree<PVZoomedZoneTree>(z); }
+
+	void connect_zr(PVZoneRendering<bbits>* zr, const char* slots);
+
 private slots:
 	void scrollbar_changed_Slot(int value);
-	void scrollbar_timeout_Slot();
-	void zone_rendered_Slot(int z);
-	void filter_by_sel_finished_Slot(int zid, bool changed);
+	void updateall_timeout_Slot();
+	void all_rendering_done();
 	void commit_volatile_selection_Slot();
+
+	void zr_finished(PVParallelView::PVZoneRenderingBase_p zr, int zone_id);
 
 private:
 	class zoom_sliders_update_obs :
@@ -197,7 +211,6 @@ private:
 	};
 
 private:
-	typedef typename zones_drawing_t::render_group_t render_group_t;
 	typedef PVParallelView::PVSlidersManager::axis_id_t axis_id_t;
 
 private:
@@ -208,11 +221,38 @@ private:
 
 	struct zone_desc_t
 	{
-		backend_image_p_t    bg_image;   // the image for unselected/zomby lines
-		backend_image_p_t    sel_image;  // the image for selected lines
-		zzt_context_t        context;    // the extraction context for ZZT
-		QGraphicsPixmapItem *item;       // the scene's element
-		QPointF              next_pos;   // the item position of the next rendering
+		zone_desc_t():
+			last_zr_sel(),
+			last_zr_bg()
+		{ }
+
+		inline void cancel_last_sel()
+		{
+			if (last_zr_sel) {
+				last_zr_sel->cancel();
+			}
+		}
+
+		inline void cancel_last_bg()
+		{
+			if (last_zr_bg) {
+				last_zr_bg->cancel();
+			}
+		}
+
+		void cancel_all()
+		{
+			cancel_last_sel();
+			cancel_last_bg();
+		}
+
+		backend_image_p_t       bg_image;   // the image for unselected/zomby lines
+		backend_image_p_t       sel_image;  // the image for selected lines
+		//zzt_context_t           context;    // the extraction context for ZZT
+		QGraphicsPixmapItem    *item;       // the scene's element
+		QPointF                 next_pos;   // the item position of the next rendering
+		PVZoneRendering_p<bbits> last_zr_sel;
+		PVZoneRendering_p<bbits> last_zr_bg;
 	};
 
 private:
@@ -222,9 +262,9 @@ private:
 	PVSlidersGroup                 *_sliders_group;
 	zoom_sliders_update_obs         _zsu_obs;
 	zoom_sliders_del_obs            _zsd_obs;
-	zones_drawing_t                &_zones_drawing;
 	PVCol                           _axis_index;
 	axis_id_t                       _axis_id;
+	PVZonesManager const&           _zm;
 
 	// this flag helps not killing twice through the hive and the destructor
 	bool                            _pending_deletion;
@@ -242,10 +282,9 @@ private:
 	uint32_t                        _last_y_max;
 
 	// about rendering
-	PVRenderingJob                 *_rendering_job;
-	QFuture<void>                   _rendering_future;
-	QTimer                          _scroll_timer;
-	render_group_t                  _render_group;
+	QTimer                          _updateall_timer;
+	PVZonesProcessor&				_zp_sel;
+	PVZonesProcessor&				_zp_bg;
 
 	// about selection in the zoom view
 	QPointF                         _selection_rect_pos;
@@ -256,7 +295,6 @@ private:
 	// about rendering invalidation
 	render_t                        _render_type;
 	int                             _renderable_zone_number;
-	int                             _updated_selection_count;
 };
 
 }

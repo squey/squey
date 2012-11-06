@@ -56,7 +56,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 
 	setLayout(main_layout);
 
-	connect(ok, SIGNAL(pressed()), this, SLOT(accept()));
+	connect(ok, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
 void PVGuiQt::PVAboutBoxDialog::keyPressEvent(QKeyEvent * event)

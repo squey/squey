@@ -236,11 +236,13 @@ class TBBSelFilterMaxCount {
 public:
 	TBBSelFilterMaxCount (
 		PVParallelView::PVZoneTree* tree,
+		PVRow* buf_elts,
 		const Picviz::PVSelection::const_pointer sel_buf,
 		tbb::atomic<ssize_t>& nelts,
 		tbb::task_group_context& ctxt
 	) :
 		_tree(tree),
+		_buf_elts(buf_elts),
 		_sel_buf(sel_buf),
 		_nelts(&nelts),
 		_ctxt(&ctxt)
@@ -255,6 +257,7 @@ public:
 		if (cur_remaing == 0) {
 			return;
 		}
+		PVRow* buf_elts = _buf_elts;
 
 		for (PVRow b = range.begin(); b != range.end(); b++) {
 			PVRow res = PVROW_INVALID_VALUE;
@@ -275,20 +278,20 @@ public:
 					}
 				}
 			}
-			_tree->_sel_elts[b] = res;
+			buf_elts[b] = res;
 			if (nelts_found >= *_nelts) {
 				break;
 			}
 		}
 		if ((nelts_found > 0) &&
 		    (_nelts->fetch_and_add(-nelts_found) <= nelts_found)) {
-			PVLOG_INFO("TBBSelFilterMaxCount: all elts found. cancelling...\n");
 			_ctxt->cancel_group_execution();
 		}
 	}
 
 private:
 	mutable PVParallelView::PVZoneTree* _tree;
+	mutable PVRow* _buf_elts;
 	Picviz::PVSelection::const_pointer _sel_buf;
 	mutable tbb::atomic<ssize_t>* _nelts;
 	mutable tbb::task_group_context* _ctxt;
@@ -558,7 +561,7 @@ void PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Picviz::PVSelection con
 	BENCH_END(subtree, "filter_by_sel_omp_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 
-void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows)
+void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts)
 {
 	// returns a zone tree with only the selected lines
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
@@ -568,16 +571,58 @@ void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection con
 	static_assert(NBUCKETS%4 == 0, "NBUCKETS isn't a multiple of 4");
 	const __m128i sse_invalid = _mm_set1_epi32(PVROW_INVALID_VALUE);
 	for (size_t b = 0; b < NBUCKETS; b += 4) {
-		_mm_stream_si128((__m128i*) &_sel_elts[b], sse_invalid);
+		_mm_stream_si128((__m128i*) &buf_elts[b], sse_invalid);
 	}
 	tbb::task_group_context context;
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilterMaxCount(this, sel_buf, nelts_sel, context), tbb::simple_partitioner(), context);
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilterMaxCount(this, buf_elts, sel_buf, nelts_sel, context), tbb::simple_partitioner(), context);
 	BENCH_END(subtree2, "filter_by_sel_tbb_treeb_maxcount", 1, 1, sizeof(PVRow), NBUCKETS);
 
 	/*
 	BENCH_START(subtree);
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilter(this, sel_buf), tbb::simple_partitioner());
 	BENCH_END(subtree, "filter_by_sel_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);*/
+}
+
+void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts)
+{
+	// returns a zone tree with only the selected lines
+	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	if (sel_buf == nullptr) {
+		// Empty selection
+		memcpy(buf_elts, _first_elts, sizeof(PVRow)*NBUCKETS);
+		return;
+	}
+	BENCH_START(subtree2);
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE),
+		[&](const tbb::blocked_range<size_t>& range)
+		{
+			PVRow* buf_elts_ = buf_elts;
+			PVZoneTree* tree = this;
+			for (PVRow b = range.begin(); b != range.end(); b++) {
+				PVRow res = PVROW_INVALID_VALUE;
+				if (tree->branch_valid(b)) {
+					const PVRow r = tree->get_first_elt_of_branch(b);
+					if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
+						res = r;
+					}
+					else {
+						for (size_t i=0; i< tree->_treeb[b].count; i++) {
+							const PVRow r = tree->_treeb[b].p[i];
+							if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
+								res = r;
+								break;
+							}
+						}
+					}
+					// If nothing from the nu_selection, take the first elts (a zombie line)
+					if (res == PVROW_INVALID_VALUE) {
+						res = r;
+					}
+				}
+				buf_elts_[b] = res;
+			}
+		});
+	BENCH_END(subtree2, "filter_by_sel_background_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 
 void PVParallelView::PVZoneTree::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)

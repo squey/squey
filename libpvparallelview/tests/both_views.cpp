@@ -1,5 +1,5 @@
 /**
- * \file full_parallel_view.cpp
+ * \file both_views.cpp
  *
  * Copyright (C) Picviz Labs 2010-2012
  */
@@ -33,6 +33,8 @@
 
 #include <QApplication>
 
+#include <mcheck.h>
+
 int main(int argc, char** argv)
 {
 	if (argc < 2) {
@@ -43,6 +45,7 @@ int main(int argc, char** argv)
 	QApplication app(argc, argv);
 
 	PVParallelView::common::init_cuda();
+	PVLOG_INFO("Pipeline in %p\n", &PVParallelView::common::pipeline());
 	PVParallelView::PVLibView* plib_view = create_lib_view_from_args(argc, argv);
 	if (plib_view == NULL) {
 		return 1;

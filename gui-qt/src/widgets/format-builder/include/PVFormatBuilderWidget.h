@@ -57,8 +57,8 @@ public:
     virtual ~PVFormatBuilderWidget();
 
 private:
-    	void closeEvent(QCloseEvent *event);
-	void init(QWidget* parent);
+    void closeEvent(QCloseEvent *event);
+	void init(QWidget* parent = 0);
 	bool somethingChanged(void);
 
 public:

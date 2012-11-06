@@ -14,15 +14,18 @@
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverCallback.h>
 
+#include <pvparallelview/common.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVFullParallelView.h>
+#include <pvparallelview/PVFullParallelScene.h>
+#include <pvparallelview/PVZoomedParallelView.h>
+#include <pvparallelview/PVZoomedParallelScene.h>
 
 #include <iostream>
 
 PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp):
-	_colors(view_sp->output_layer.get_lines_properties().get_buffer()),
-	_zd_zt(_zones_manager, common::backend_full(), *_colors),
-	_zd_zzt(_zones_manager, common::backend_zoom(), *_colors)
+	_colors(view_sp->output_layer.get_lines_properties().get_buffer())
 {
 	common_init_view(view_sp);
 	_zones_manager.lazy_init_from_view(*view_sp);
@@ -30,9 +33,7 @@ PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp):
 }
 
 PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols):
-	_colors(view_sp->get_output_layer_color_buffer()),
-	_zd_zt(_zones_manager, common::backend_full(), *_colors),
-	_zd_zzt(_zones_manager, common::backend_zoom(), *_colors)
+	_colors(view_sp->get_output_layer_color_buffer())
 {
 	common_init_view(view_sp);
 	_zones_manager.set_uint_plotted(plotted, nrows, ncols);
@@ -47,10 +48,6 @@ PVParallelView::PVLibView::~PVLibView()
 
 void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 {
-	// Create TBB root task
-	_task_root = new (tbb::task::allocate_root(_tasks_ctxt)) tbb::empty_task;
-	_task_root->set_ref_count(1);
-
 	_obs_sel = PVHive::create_observer_callback_heap<Picviz::PVSelection>(
 	    [&](Picviz::PVSelection const*) { },
 		[&](Picviz::PVSelection const*) { this->selection_updated(); },
@@ -60,6 +57,12 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 	_obs_output_layer = PVHive::create_observer_callback_heap<Picviz::PVLayer>(
 	    [&](Picviz::PVLayer const*) { },
 		[&](Picviz::PVLayer const*) { this->output_layer_updated(); },
+		[&](Picviz::PVLayer const*) { }
+	);
+
+	_obs_layer_stack_output_layer = PVHive::create_observer_callback_heap<Picviz::PVLayer>(
+	    [&](Picviz::PVLayer const*) { },
+		[&](Picviz::PVLayer const*) { this->layer_stack_output_layer_updated(); },
 		[&](Picviz::PVLayer const*) { }
 	);
 
@@ -84,6 +87,7 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_real_output_selection(); }, *_obs_sel);
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_output_layer(); }, *_obs_output_layer);
+	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_layer_stack_output_layer(); }, *_obs_layer_stack_output_layer);
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_axes_combination().get_axes_index_list(); }, *_obs_axes_comb);
 	PVHive::get().register_observer(view_sp, *_obs_view);
 
@@ -98,6 +102,17 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 void PVParallelView::PVLibView::common_init_zm()
 {
 	_zones_manager.update_all();
+
+	PVCore::PVHSVColor const* const colors = lib_view()->get_output_layer().get_lines_properties().get_buffer();
+
+	// Init zones processors
+	_processor_sel = PVZonesProcessor::declare_processor_zm_sel(common::pipeline(), _zones_manager,
+		colors,
+		lib_view()->get_real_output_selection());
+
+	_processor_bg = PVZonesProcessor::declare_background_processor_zm_sel(common::pipeline(), _zones_manager,
+		colors,
+		lib_view()->get_output_layer().get_selection());
 }
 
 PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidget* parent)
@@ -105,7 +120,7 @@ PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidg
 	PVParallelView::PVFullParallelView* view = new PVParallelView::PVFullParallelView(parent);
 	Picviz::PVView_sp vsp = lib_view()->shared_from_this();
 
-	PVParallelView::PVFullParallelScene *scene = new PVParallelView::PVFullParallelScene(view, vsp, _sliders_manager_p, _zd_zt, task_root());
+	PVParallelView::PVFullParallelScene *scene = new PVParallelView::PVFullParallelScene(view, vsp, _sliders_manager_p, common::backend(), _zones_manager, _processor_sel, _processor_bg);
 	_parallel_scenes.push_back(scene);
 	view->setScene(scene);
 	scene->first_render();
@@ -123,7 +138,7 @@ PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_v
 
 	PVParallelView::PVZoomedParallelView* view = new PVParallelView::PVZoomedParallelView(parent);
 	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
-	PVParallelView::PVZoomedParallelScene *scene = new PVParallelView::PVZoomedParallelScene(view, view_sp, _sliders_manager_p, _zd_zzt, axis);
+	PVParallelView::PVZoomedParallelScene *scene = new PVParallelView::PVZoomedParallelScene(view, view_sp, _sliders_manager_p, _processor_sel, _processor_bg, _zones_manager, axis);
 	_zoomed_parallel_scenes.push_back(scene);
 	view->setScene(scene);
 
@@ -135,7 +150,7 @@ void PVParallelView::PVLibView::request_zoomed_zone_trees(const PVCol axis)
 	if (axis > 0) {
 		_zones_manager.request_zoomed_zone(axis - 1);
 	}
-	if (axis < _zones_manager.get_number_zones()) {
+	if (axis < _zones_manager.get_number_of_managed_zones()) {
 		_zones_manager.request_zoomed_zone(axis);
 	}
 }
@@ -151,40 +166,39 @@ void PVParallelView::PVLibView::view_about_to_be_deleted()
 		view->deleteLater();
 	}
 
-	_task_root->destroy(*_task_root);
-
 	//PVParallelView::common::remove_lib_view(*lib_view());
 }
 
 void PVParallelView::PVLibView::selection_updated()
 {
-	tbb::task_group_context& ctxt = task_group_context();
-
-	// Cancel current tasks execution
-	PVLOG_INFO("PVLibView::process_selection: cancelling current tasks...\n");
-	ctxt.cancel_group_execution();
-	task_root()->wait_for_all();
-	PVLOG_INFO("PVLibView::process_selection: tasks stopped.\n");
-	ctxt.reset();
-
-	// Flag all zones selection as invalid
-	_zones_manager.invalidate_selection();
-
-	task_root()->set_ref_count(1);
+	// Set zones state as invalid in the according PVZonesProcessor
+	for (PVZoneID z = 0; z < get_zones_manager().get_number_of_managed_zones(); z++) {
+		_processor_sel.invalidate_zone_preprocessing(z);
+	}
 
 	for (PVFullParallelScene* view: _parallel_scenes) {
-		view->update_new_selection();
+		view->update_new_selection_async();
 	}
 
 	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
-		view->update_new_selection(task_root());
+		view->update_new_selection_async();
 	}
 }
 
+void PVParallelView::PVLibView::layer_stack_output_layer_updated()
+{
+	// Invalidate all background-related preprocessing
+	for (PVZoneID z = 0; z < get_zones_manager().get_number_of_managed_zones(); z++) {
+		_processor_bg.invalidate_zone_preprocessing(z);
+	}
+}
 void PVParallelView::PVLibView::output_layer_updated()
 {
 	for (PVFullParallelScene* view: _parallel_scenes) {
-		view->update_all();
+		view->update_all_async();
+	}
+	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
+		view->update_all_async();
 	}
 }
 
@@ -225,13 +239,13 @@ void PVParallelView::PVLibView::plotting_updated()
 
 	for (PVFullParallelScene* view: _parallel_scenes) {
 		view->set_enabled(true);
-		view->update_all();
+		view->update_all_async();
 	}
 
 	for (PVZoomedParallelScene* view: concerned_zoom) {
 		view->set_enabled(true);
 		request_zoomed_zone_trees(view->get_axis_index());
-		view->update_all();
+		view->update_all_async();
 	}
 }
 
@@ -241,8 +255,8 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	 * views have also to be disabled (jobs must be cancelled
 	 * and the widgets must be disabled in the Qt's way).
 	 */
-	// FIXME: the running selection update must be stopped too.
 
+	// set_enabled *must* cancel al lcurrent rendering.
 	for (PVFullParallelScene* view: _parallel_scenes) {
 		view->set_enabled(false);
 	}
@@ -251,11 +265,21 @@ void PVParallelView::PVLibView::axes_comb_updated()
 		view->set_enabled(false);
 	}
 
-	get_zones_manager().update_from_axes_comb(*lib_view());
+	std::vector<PVZoneID> modified_zones(get_zones_manager().update_from_axes_comb(*lib_view()));
+
+	// Update preprocessors' number of zones
+	const PVZoneID nzones = get_zones_manager().get_number_of_managed_zones();
+	_processor_sel.set_number_zones(nzones);
+	_processor_bg.set_number_zones(nzones);
+
+	// Invalidate modified zones
+	for (PVZoneID const z: modified_zones) {
+		_processor_sel.invalidate_zone_preprocessing(z);
+		_processor_bg.invalidate_zone_preprocessing(z);
+	}
 
 	for (PVFullParallelScene* view: _parallel_scenes) {
-		view->set_enabled(true);
-		view->update_number_of_zones();
+		view->update_number_of_zones_async();
 	}
 
 	zoomed_scene_list_t new_zps;
@@ -288,7 +312,7 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	PVCore::PVProgressBox::progress([&]() {
 			for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
 				request_zoomed_zone_trees(view->get_axis_index());
-				view->update_all();
+				view->update_all_async();
 			}
 		}, &pbox);
 }

@@ -51,8 +51,8 @@ public:
 
 	void update_all();
 	void reset_axes_comb();
-	void update_from_axes_comb(columns_indexes_t const& ac);
-	void update_from_axes_comb(Picviz::PVView const& view);
+	std::vector<PVZoneID> update_from_axes_comb(columns_indexes_t const& ac);
+	std::vector<PVZoneID> update_from_axes_comb(Picviz::PVView const& view);
 	void update_zone(PVZoneID zone);
 	void reverse_zone(PVZoneID zone);
 	void add_zone(PVZoneID zone);
@@ -65,40 +65,39 @@ public:
 	template <class Tree>
 	inline Tree const& get_zone_tree(PVZoneID z) const
 	{
-		assert(z < get_number_zones());
+		assert(z < get_number_of_managed_zones());
 		return _zones[z].get_tree<Tree>();
 	}
 
 	template <class Tree>
 	inline Tree& get_zone_tree(PVZoneID z)
 	{
-		assert(z < get_number_zones());
+		assert(z < get_number_of_managed_zones());
 		return _zones[z].get_tree<Tree>();
 	}
 
-	void invalidate_selection();
-
-	bool filter_zone_by_sel(PVZoneID zid, const Picviz::PVSelection& sel);
+	void filter_zone_by_sel(PVZoneID zone_id, const Picviz::PVSelection& sel);
+	void filter_zone_by_sel_background(PVZoneID zone_id, const Picviz::PVSelection& sel);
 
 public:
 	void set_uint_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
 	void set_uint_plotted(Picviz::PVView const& view);
 	void lazy_init_from_view(Picviz::PVView const& view);
-	inline PVZoneID get_number_zones() const { return _axes_comb.size()-1; }
+	inline PVZoneID get_number_of_managed_zones() const { return _axes_comb.size()-1; }
 	inline PVCol get_number_cols() const { return _ncols; }
 	inline PVRow get_number_rows() const { return _nrows; }
 
 protected:
 	inline void get_zone_cols(PVZoneID z, PVCol& a, PVCol& b)
 	{
-		assert(z < get_number_zones());
+		assert(z < get_number_of_managed_zones());
 		a = _axes_comb[z].get_axis();
 		b = _axes_comb[z+1].get_axis();
 	}
 	inline Picviz::PVPlotted::uint_plotted_table_t const& get_uint_plotted() const { assert(_uint_plotted); return *_uint_plotted; }
 
 signals:
-	void filter_by_sel_finished(int zid, bool changed);
+	void filter_by_sel_finished(int zone_id, bool changed);
 
 protected:
 	Picviz::PVPlotted::uint_plotted_table_t const* _uint_plotted = NULL;

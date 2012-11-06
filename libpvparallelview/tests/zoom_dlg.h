@@ -34,9 +34,9 @@ public:
 protected slots:
 	void create_zv()
 	{
-		PVCol zid = _zedit->text().toInt();
+		PVCol zone_id = _zedit->text().toInt();
 
-		PVParallelView::PVZoomedParallelView *zpv = _lv.create_zoomed_view(zid);
+		PVParallelView::PVZoomedParallelView *zpv = _lv.create_zoomed_view(zone_id);
 
 		zpv->resize(1024, 1024);
 		zpv->show();

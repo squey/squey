@@ -23,7 +23,6 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserver.h>
 #include <pvhive/PVObserverCallback.h>
-#include <pvhive/waxes/waxes.h>
 
 #include <pvguiqt/PVAxesCombinationModel.h>
 

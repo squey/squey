@@ -17,6 +17,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <picviz/PVRoot_types.h>
+#include <picviz/PVAD2GView.h>
 
 // Plugins prefix
 #define LAYER_FILTER_PREFIX "layer_filter"
@@ -35,6 +36,8 @@ typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<PVRoot>, PV
 class LibPicvizDecl PVRoot : public data_tree_root_t {
 public:
 	//typedef boost::shared_ptr<PVRoot> p_type;
+	typedef std::list<PVAD2GView_p> correlations_t;
+
 private:
 	PVRoot();
 
@@ -45,6 +48,16 @@ public:
 	static PVRoot& get_root(); 
 	static PVRoot_sp get_root_sp();
 	static void release();
+
+public:
+	PVAD2GView_p get_correlation(int index)
+	{
+		correlations_t::iterator i = _correlations.begin();
+		std::advance(i, index);
+		return *i;
+	}
+	void add_correlation();
+	void delete_correlation(int index);
 
 public:
 	virtual QString get_serialize_description() const { return "Root"; }
@@ -60,6 +73,7 @@ private:
 
 private:
 	static PVRoot_sp _unique_root;
+	correlations_t _correlations;
 };
 
 typedef PVRoot::p_type  PVRoot_p;

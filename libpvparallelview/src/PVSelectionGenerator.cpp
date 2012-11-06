@@ -14,31 +14,33 @@
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVAbstractAxisSlider.h>
 
-uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZoneID zid, QRect rect, Picviz::PVSelection& sel)
+#include <tbb/enumerable_thread_specific.h>
+
+uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZoneID zone_id, QRect rect, Picviz::PVSelection& sel)
 {
 	uint32_t nb_selected = 0;
 
-	int32_t width = _lines_view.get_zone_width(zid);
+	int32_t width = _lines_view.get_zone_width(zone_id);
 
-	PVZoneTree& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zid);
+	PVZoneTree const& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zone_id);
 	PVParallelView::PVBCode code_b;
 
+	sel.select_none();
 	if (rect.isNull()) {
-		memset(ztree._sel_elts, PVROW_INVALID_VALUE, NBUCKETS*sizeof(PVRow));
 		return 0;
 	}
 
 	BENCH_START(compute_selection_from_rect);
 	PVLineEqInt line;
 	line.b = -width;
-//#pragma omp parallel for num_threads(4) reduction(+:nb_selected)
+
+	//tbb::tag_tls_construct_args tag_c;
+	//tbb::enumerable_thread_specific<Picviz::PVSelection> sel_tls(tag_c, Picviz::PVSelection::tag_allocate_empty());
+	//tbb::enumerable_thread_specific<Picviz::PVSelection> sel_tls;
 	for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
 	{
-		PVRow r =  ztree.get_first_elt_of_branch(branch);
-		if(r == PVROW_INVALID_VALUE) {
-			ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
-			continue;
-		}
+		//PVRow r =  ztree.get_first_elt_of_branch(branch);
+		//Picviz::PVSelection& sel_th = sel_tls.local();
 		code_b.int_v = branch;
 		int32_t y1 = code_b.s.l;
 		int32_t y2 = code_b.s.r;
@@ -55,27 +57,36 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZon
 
 		if (is_line_selected)
 		{
-			ztree._sel_elts[branch] = r;
 			uint32_t branch_count = ztree.get_branch_count(branch);
 			for (size_t i = 0; i < branch_count; i++) {
 				const PVRow cur_r = ztree.get_branch_element(branch, i);
-				//sel.set_bit_fast(cur_r);
+				//sel_th.set_bit_fast(cur_r);
+				sel.set_bit_fast(cur_r);
 //#pragma omp atomic
-				sel.get_buffer()[Picviz::PVSelection::line_index_to_chunk(cur_r)] |= 1UL<<Picviz::PVSelection::line_index_to_chunk_bit(cur_r);
+				//sel.get_buffer()[Picviz::PVSelection::line_index_to_chunk(cur_r)] |= 1UL<<Picviz::PVSelection::line_index_to_chunk_bit(cur_r);
 			}
 			nb_selected += branch_count;
 		}
-		else {
-			ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
-		}
 	}
 	BENCH_END(compute_selection_from_rect, "compute_selection", sizeof(PVRow), NBUCKETS, 1, 1);
+
+	/*
+	if (nb_selected != 0) {
+		BENCH_START(merge);
+		decltype(sel_tls)::const_iterator it = sel_tls.begin();
+		sel = *it;
+		it++;
+		for (; it != sel_tls.end(); it++) {
+			sel.or_optimized(*it);
+		}
+		BENCH_END(merge, "compute_selection_merge", 1, 1, 1, 1);
+	}*/
 
 	return nb_selected;
 }
 
 uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
-	PVZoneID zid,
+	PVZoneID zone_id,
 	const typename PVAxisGraphicsItem::selection_ranges_t& ranges,
 	Picviz::PVSelection& sel)
 {
@@ -85,11 +96,9 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 
 	PVParallelView::PVBCode code_b;
 
-	if (zid < get_zones_manager().get_number_zones()) {
+	if (zone_id < get_zones_manager().get_number_of_managed_zones()) {
 		// process the left side of zones
-		PVZoneTree& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zid);
-
-		memset(ztree._sel_elts, 0xFFFFFFFF, NBUCKETS * sizeof(ztree._sel_elts[0]));
+		PVZoneTree const& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zone_id);
 
 		for (auto &range : ranges) {
 			uint64_t range_min = range.first;
@@ -145,7 +154,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 						continue;
 					}
 
-					ztree._sel_elts[branch] = r;
+					//ztree._sel_elts[branch] = r;
 					uint32_t branch_count = ztree.get_branch_count(branch);
 					for (size_t i = 0; i < branch_count; ++i) {
 						sel.set_bit_fast(ztree.get_branch_element(branch, i));
@@ -155,22 +164,20 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 			}
 
 			if (need_zzt_min) {
-				PVZoomedZoneTree& zztree = get_zones_manager().get_zone_tree<PVZoomedZoneTree>(zid);
+				PVZoomedZoneTree const& zztree = get_zones_manager().get_zone_tree<PVZoomedZoneTree>(zone_id);
 				nb_selected += zztree.compute_selection_y1(zzt_min_idx, range_min,
 				                                           range_max, sel);
 			}
 
 			if (need_zzt_max) {
-				PVZoomedZoneTree& zztree = get_zones_manager().get_zone_tree<PVZoomedZoneTree>(zid);
+				PVZoomedZoneTree const& zztree = get_zones_manager().get_zone_tree<PVZoomedZoneTree>(zone_id);
 				nb_selected += zztree.compute_selection_y1(zzt_max_idx, range_min,
 				                                           range_max, sel);
 			}
 		}
 	} else {
 		// process the right side of zones
-		PVZoneTree& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zid - 1);
-
-		memset(ztree._sel_elts, 0xFFFFFFFF, NBUCKETS * sizeof(ztree._sel_elts[0]));
+		PVZoneTree const& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zone_id - 1);
 
 		for (auto &range : ranges) {
 			uint64_t range_min = range.first;
@@ -226,7 +233,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 						continue;
 					}
 
-					ztree._sel_elts[branch] = r;
+					//ztree._sel_elts[branch] = r;
 					uint32_t branch_count = ztree.get_branch_count(branch);
 					for (size_t i = 0; i < branch_count; ++i) {
 						sel.set_bit_fast(ztree.get_branch_element(branch, i));
@@ -236,13 +243,13 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 			}
 
 			if (need_zzt_min) {
-				PVZoomedZoneTree& zztree = get_zones_manager().get_zone_tree<PVZoomedZoneTree>(zid - 1);
+				PVZoomedZoneTree const& zztree = get_zones_manager().get_zone_tree<PVZoomedZoneTree>(zone_id - 1);
 				nb_selected += zztree.compute_selection_y2(zzt_min_idx, range_min,
 				                                           range_max, sel);
 			}
 
 			if (need_zzt_max) {
-				PVZoomedZoneTree& zztree = get_zones_manager().get_zone_tree<PVZoomedZoneTree>(zid - 1);
+				PVZoomedZoneTree const& zztree = get_zones_manager().get_zone_tree<PVZoomedZoneTree>(zone_id - 1);
 				nb_selected += zztree.compute_selection_y2(zzt_max_idx, range_min,
 				                                           range_max, sel);
 			}

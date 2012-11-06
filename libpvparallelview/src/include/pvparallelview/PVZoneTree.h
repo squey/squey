@@ -175,7 +175,8 @@ public:
 public:
 	inline void process(PVZoneProcessing const& zp, ProcessData& pdata) { process_tbb_sse_treeb(zp, pdata); }
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
-	inline void filter_by_sel(Picviz::PVSelection const& sel, const PVRow nrows) { filter_by_sel_tbb_treeb(sel, nrows); }
+	inline void filter_by_sel(Picviz::PVSelection const& sel, const PVRow nrows) { filter_by_sel_tbb_treeb(sel, nrows, _sel_elts); }
+	inline void filter_by_sel_background(Picviz::PVSelection const& sel, const PVRow nrows) { filter_by_sel_background_tbb_treeb(sel, nrows, _bg_elts); }
 
 	inline uint32_t get_branch_count(uint32_t branch_id) const
 	{
@@ -199,7 +200,8 @@ public:
 	void process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp);
 
 	void filter_by_sel_omp_treeb(Picviz::PVSelection const& sel);
-	void filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows);
+	void filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
+	void filter_by_sel_background_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
 	void filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel);
 
 private:

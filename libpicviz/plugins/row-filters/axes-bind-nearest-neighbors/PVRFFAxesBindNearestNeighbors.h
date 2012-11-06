@@ -9,6 +9,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
+#include <picviz/PVMapped_types.h>
 #include <picviz/PVSelRowFilteringFunction.h>
 
 #include <boost/unordered_map.hpp>
@@ -19,7 +20,7 @@ namespace Picviz {
 class LibPicvizDecl PVRFFAxesBindNearestNeighbors: public PVSelRowFilteringFunction
 {
 private:
-	typedef std::map<float,std::vector<PVRow>, std::less<float> > map_rows;
+	typedef std::map<Picviz::mapped_decimal_storage_type, std::vector<PVRow>, std::less<Picviz::mapped_decimal_storage_type> > map_rows;
 
 public:
 	PVRFFAxesBindNearestNeighbors(PVCore::PVArgumentList const& l = PVRFFAxesBindNearestNeighbors::default_args());

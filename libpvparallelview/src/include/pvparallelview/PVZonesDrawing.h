@@ -35,7 +35,6 @@ class PVHSVColor;
 
 namespace PVParallelView {
 
-template <size_t Bbits>
 class PVBCIDrawingBackend;
 
 namespace __impl {
@@ -48,18 +47,17 @@ struct PVZonesDrawingBase
 
 }
 
-template <size_t Bbits = NBITS_INDEX>
+template <size_t Bbits>
 class PVZonesDrawing: boost::noncopyable, public __impl::PVZonesDrawingBase
 {
-	typedef boost::array<PVBCICode<Bbits>, NBUCKETS> array_codes_t;
+	typedef boost::array<PVBCICodeBase, NBUCKETS> array_codes_t;
 	typedef tbb::enumerable_thread_specific<array_codes_t> tls_codes_t;
 
 public:
-	typedef PVBCIDrawingBackend<Bbits> bci_backend_t;
+	typedef PVBCIDrawingBackend bci_backend_t;
 	typedef typename bci_backend_t::backend_image_t backend_image_t;
 	typedef typename bci_backend_t::backend_image_p_t backend_image_p_t;
-	typedef typename bci_backend_t::bci_codes_t bci_codes_t;
-	typedef typename bci_backend_t::render_group_t render_group_t;
+	typedef PVBCICodeBase bci_codes_t;
 	typedef PVZoomedZoneTree::context_t zzt_context_t;
 
 public:
@@ -80,10 +78,10 @@ public:
 	inline void set_backend(bci_backend_t const& backend) { _draw_backend = &backend; }
 
 public:
-	inline PVBCIBackendImage_p<Bbits> create_image(size_t width) const
+	inline PVBCIBackendImage_p create_image(size_t width) const
 	{
 		assert(_draw_backend);
-		PVBCIBackendImage_p<Bbits> ret = _draw_backend->create_image(width);
+		PVBCIBackendImage_p ret = _draw_backend->create_image(width, Bbits);
 		ret->set_width(width);
 		return ret;
 	}
@@ -145,7 +143,7 @@ public:
 #endif
 
 	template <class Fbci>
-	inline void draw_zone(PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, PVZoneID zone, uint32_t zone_width, Fbci const& f_bci, const float zoom_y, std::function<void()> const& cleaning_func = std::function<void()>(), std::function<void()> const& drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
+	inline void draw_zone(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, uint32_t zone_width, Fbci const& f_bci, const float zoom_y = 1.0f)
 	{
 		PVZoneTree const &zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
 		draw_bci_lambda<PVZoneTree>(zone_tree, dst_img, x_start, zone_width,
@@ -153,17 +151,14 @@ public:
 				{
 					return (zone_tree.*f_bci)(colors, codes);
 				},
-		                zoom_y,
-				false,
-				cleaning_func,
-				drawing_done,
-				rgrp
+				zoom_y,
+				false
 			);
 	}
 
 
 	template <class Fbci>
-	inline void draw_zoomed_zone(zzt_context_t &ctx, PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false, std::function<void()> cleaning_func = std::function<void()>(), std::function<void()> drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
+	inline void draw_zoomed_zone(zzt_context_t &ctx, PVBCIBackendImage &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false)
 	{
 		PVZoomedZoneTree const &zoomed_zone_tree = _zm.get_zone_tree<PVZoomedZoneTree>(zone);
 		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
@@ -175,11 +170,11 @@ public:
 				 return (zoomed_zone_tree.*f_bci)(ctx, y_min, y_max, y_lim, zoom,
 				                                  dst_img.width(), colors,
 				                                  codes, zoom_x);
-			 }, zoom_y, reverse, cleaning_func, drawing_done, rgrp);
+			 }, zoom_y, reverse);
 	}
 
 	template <class Fbci>
-	inline void draw_zoomed_zone_sel(zzt_context_t &ctx, PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, Picviz::PVSelection &selection, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false, std::function<void()> cleaning_func = std::function<void()>(), std::function<void()> drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
+	inline void draw_zoomed_zone_sel(zzt_context_t &ctx, PVBCIBackendImage &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, Picviz::PVSelection &selection, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false)
 	{
 		PVZoomedZoneTree const &zoomed_zone_tree = _zm.get_zone_tree<PVZoomedZoneTree>(zone);
 		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
@@ -191,27 +186,21 @@ public:
 				 return (zoomed_zone_tree.*f_bci)(ctx, y_min, y_max, y_lim, selection,
 				                                  zoom, dst_img.width(), colors,
 				                                  codes, zoom_x);
-			 }, zoom_y, reverse, cleaning_func, drawing_done, rgrp);
+			 }, zoom_y, reverse);
 	}
 
 
 	template <class Tree, class Fbci>
-	void draw_bci_lambda(Tree const &zone_tree, backend_image_t& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci, const float zoom_y, bool reverse = false, std::function<void()> cleaning_func = std::function<void()>(), std::function<void()> drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
+	void draw_bci_lambda(Tree const &zone_tree, backend_image_t& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci, const float zoom_y, bool reverse = false)
 	{
 		// Get a free BCI buffers
-		PVBCICode<Bbits>* bci_buf = _computed_codes.get_available_buffer<Bbits>();
+		PVBCICode<Bbits>* bci_buf = &_computed_codes.get_available_buffer()->as<Bbits>();
 		size_t ncodes = f_bci(zone_tree, _colors, bci_buf);
 		draw_bci(dst_img, x_start, width, bci_buf, ncodes, zoom_y, reverse,
 				[=]
 				{
-					if (cleaning_func) {
-						cleaning_func();
-					}
-					PVZonesDrawingBase::_computed_codes.return_buffer<Bbits>(bci_buf);
-				},
-				drawing_done,
-				rgrp);
-
+					PVZonesDrawingBase::_computed_codes.return_buffer(reinterpret_cast<PVBCICodeBase*>(bci_buf));
+				}, zoom_y, reverse);
 	}
 
 	inline const PVZonesManager&  get_zones_manager() const
@@ -224,26 +213,10 @@ public:
 		return _zm;
 	}
 
-	inline render_group_t new_render_group()
-	{
-		return _draw_backend->new_render_group();
-	}
-
-	inline void remove_render_group(render_group_t const g)
-	{
-		_draw_backend->remove_render_group(g);
-	}
-
-	inline void cancel_group(render_group_t const g)
-	{
-		_draw_backend->cancel_group(g);
-	}
-
 private:
-	void draw_bci(backend_image_t& dst_img, uint32_t x_start, size_t width, bci_codes_t* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false,
-	              std::function<void()> const& cleaning_func = std::function<void()>(), std::function<void()> const& drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
+	void draw_bci(backend_image_t& dst_img, uint32_t x_start, size_t width, bci_codes_t* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false)
 	{
-		_draw_backend->operator()(dst_img, x_start, width, codes, n, zoom_y, reverse, cleaning_func, drawing_done, rgrp);
+		(*_draw_backend)(dst_img, x_start, width, codes, n, zoom_y, reverse);
 	}
 
 private:

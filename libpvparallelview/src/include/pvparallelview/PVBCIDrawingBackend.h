@@ -9,6 +9,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvparallelview/common.h>
+#include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage_types.h>
 
 #include <QImage>
@@ -17,40 +18,58 @@
 
 namespace PVParallelView {
 
-template <size_t Bbits>
-class PVBCICode;
+class PVBCICodeBase;
 
-#define INVALID_RENDER_GROUP ((uint32_t)-1)
-
-template <size_t Bbits = NBITS_INDEX>
 class PVBCIDrawingBackend
 {
 public:
-	typedef PVBCIBackendImage<Bbits> backend_image_t;
-	typedef PVBCIBackendImage_p<Bbits> backend_image_p_t;
-	typedef PVBCICode<Bbits> bci_codes_t;
+	typedef PVBCIBackendImage backend_image_t;
+	typedef PVBCIBackendImage_p backend_image_p_t;
 
-	typedef std::function<void()> func_drawing_done_t;
-	typedef std::function<void()> func_cleaning_t;
-	typedef uint32_t render_group_t;
+	typedef enum {
+		Serial = 1,
+		Parallel = 2
+	} Flags;
 
 public:
 	virtual ~PVBCIDrawingBackend() { }
 
 public:
-	virtual backend_image_p_t create_image(size_t img_width) const = 0;
-	virtual void operator()(backend_image_t& dst_img, size_t x_start, size_t width, bci_codes_t* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false, func_cleaning_t cleaning_func = func_cleaning_t(), func_drawing_done_t drawing_done = func_drawing_done_t(), render_group_t const rgrp = -1) const = 0;
+	virtual backend_image_p_t create_image(size_t img_width, uint8_t height_bits) const = 0;
+	virtual Flags flags() const = 0;
+	virtual bool is_sync() const = 0;
 
-	virtual render_group_t new_render_group() { return -1; }
-	virtual void remove_render_group(render_group_t const /*g*/) { }
-	virtual void cancel_group(render_group_t const /*g*/) { }
+public:
+	virtual PVBCICodeBase* allocate_bci(size_t n) { return (PVBCICodeBase*) PVBCICode<>::allocate_codes(n); }
+	virtual void free_bci(PVBCICodeBase* buf) { return PVBCICode<>::free_codes((PVBCICode<>*)buf); }
+
+public:
+	// If this backend is synchronous, render_done must be ignored.
+	virtual void operator()(PVBCIBackendImage& dst_img, size_t x_start, size_t width, PVBCICodeBase* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false, std::function<void()> const& render_done = std::function<void()>()) = 0;
 
 protected:
+/*
 	template <class PixelType>
 	static inline PixelType* get_image_pointer_for_x_position_helper(PixelType* dst_img, size_t x)
 	{
-		return dst_img+x*backend_image_t::height();
+		return dst_img+x*dst_img->height();
 	}
+	*/
+};
+
+class PVBCIDrawingBackendSync: public PVBCIDrawingBackend
+{
+public:
+	bool is_sync() const override { return true; }
+};
+
+class PVBCIDrawingBackendAsync: public PVBCIDrawingBackend
+{
+public:
+	bool is_sync() const override { return false; }
+
+public:
+	virtual void wait_all() = 0;
 };
 
 }

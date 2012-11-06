@@ -11,9 +11,10 @@
 #include <QSettings>
 
 
-// "PICVIZ_CFG_FILE_PATH" and "PICVIZ_VERSION_FILE_PATH" are set by cmake (CMakeOptions.txt/CMakeVersionHandler.txt respectively)
+// "PICVIZ_CFG_FILE_PATH", "PICVIZ_VERSION_FILE_PATH" and "PICVIZ_BUILD_FILE_PATH" are set by cmake (CMakeOptions.txt/CMakeVersionHandler.txt respectively)
 #include PICVIZ_CFG_FILE_PATH
 #include PICVIZ_VERSION_FILE_PATH
+#include PICVIZ_BUILD_FILE_PATH
 
 #include "types.h"
 #include "export.h"

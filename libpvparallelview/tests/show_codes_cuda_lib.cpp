@@ -11,7 +11,6 @@
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVHSVColor.h>
-#include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVTools.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
@@ -54,7 +53,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	//QApplication app(argc, argv);
 
 	size_t width = WIDTH;
 	if (argc >= 3) {
@@ -64,21 +62,31 @@ int main(int argc, char** argv)
 	size_t n = atoll(argv[1]);
 
 	PVCuda::init_cuda();
+	PVParallelView::PVBCIDrawingBackendCUDA& backend_cuda = PVParallelView::PVBCIDrawingBackendCUDA::get();
 
 	PVParallelView::PVBCICode<BBITS>* codes = PVParallelView::PVBCICode<BBITS>::allocate_codes(n);
+	//PVParallelView::PVBCICode<BBITS>* codes;
+	//picviz_verify_cuda(cudaHostAlloc(&codes, n*sizeof(PVParallelView::PVBCICode<BBITS>*), cudaHostAllocPortable | cudaHostAllocWriteCombined));
 	PVParallelView::PVBCICode<BBITS>::init_random_codes(codes, n);
 
-	PVParallelView::PVBCIDrawingBackendCUDA<BBITS> backend_cuda;
-	PVParallelView::PVBCIBackendImage_p<BBITS> dst_img = backend_cuda.create_image(width);
+	PVParallelView::PVBCIBackendImage_p dst_img = backend_cuda.create_image(width, BBITS);
+	PVParallelView::PVBCIBackendImage_p dst_img2 = backend_cuda.create_image(width, BBITS);
 
-	backend_cuda(*dst_img, 0, width, codes, n);
+	backend_cuda(*dst_img, 0, width, (PVParallelView::PVBCICodeBase*) codes, n);
+	backend_cuda(*dst_img2, 0, width, (PVParallelView::PVBCICodeBase*) codes, n);
+
+	BENCH_START(b);
+	backend_cuda.wait_all();
+	BENCH_END(b, "wait_all", 1, 1, 1, 1);
 
 	QImage img(dst_img->qimage());
 	write(4, img.constBits(), img.height() * img.width() * sizeof(uint32_t));
 
-	//show_qimage("test", dst_img->qimage());
+	/*QApplication app(argc, argv);
+	show_qimage("test", dst_img->qimage());
+	app.exec();*/
 
-	//app.exec();
+	//picviz_verify_cuda(cudaFreeHost(codes));
 
 	return 0;
 }

@@ -15,15 +15,16 @@
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVInputType.h>
+#include <pvkernel/rush/PVSourceDescription.h>
 #include <picviz/PVAD2GView.h>
 #include <picviz/PVPtrObjects.h>
 #include <picviz/PVSource_types.h>
 #include <picviz/PVRoot.h>
 #include <picviz/PVView_types.h>
+#include <picviz/PVScene_types.h>
 
 
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 #define PICVIZ_SCENE_ARCHIVE_EXT "pv"
 #define PICVIZ_SCENE_ARCHIVE_FILTER "Picviz project files (*." PICVIZ_SCENE_ARCHIVE_EXT ")"
@@ -49,10 +50,24 @@ private:
 	typedef std::map<PVRush::PVInputType::base_registrable, PVCore::PVSerializeObject_p> hash_type_so_inputs;
 
 protected:
-	PVScene(QString scene_name = QString());
+	PVScene(QString scene_path = QString());
 
 public:
 	~PVScene();
+
+public:
+	void set_name(QString name) { _name = name; }
+	const QString & get_name() const { return _name; }
+	void set_path(QString path) { _path = path; }
+	const QString & get_path() const { return _path; }
+
+	PVSource* current_source();
+	PVSource const* current_source() const;
+	void select_source(PVSource* source);
+
+	PVView* current_view();
+	PVView const* current_view() const;
+	void select_view(PVView& view);
 
 public:
 	PVCore::PVSerializeArchiveOptions_p get_default_serialize_options();
@@ -69,7 +84,9 @@ public:
 	inline PVAD2GView_p get_ad2g_view_p() { return _ad2g_view; }
 
 	inline bool is_empty() const { return get_children().size() == 0; }
+
 	void add_source(PVSource_p const& src);
+	Picviz::PVSource_p add_source_from_description(const PVRush::PVSourceDescription& descr);
 
 	virtual QString get_serialize_description() const { return "Scene"; }
 
@@ -101,8 +118,11 @@ protected:
 	PVCore::PVSerializeObject_p get_so_inputs(PVSource const& src);
 
 private:
+	PVView* _current_view = nullptr;
+	PVSource* _current_source = nullptr;
 	hash_type_so_inputs _so_inputs;
 
+	QString _path;
 	QString _name;
 
 	// This is a shared pointer for current issues with the widget (which will be deleted by Qt *after*

@@ -7,6 +7,7 @@
 #include <QMetaType>
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVDataTreeObject.h>
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActorBase.h>
 #include <pvhive/PVObserver.h>
@@ -154,4 +155,13 @@ void PVHive::PVHive::do_about_to_refresh_observers(void* object)
 			it->about_to_be_refreshed();
 		}
 	}
+}
+
+void PVHive::PVHive::refresh_observers(PVCore::PVDataTreeObjectWithParentBase const* object, void* obj_refresh)
+{
+	// object must be a valid address
+	assert(object != nullptr);
+
+	do_refresh_observers(obj_refresh);
+	refresh_observers(object->get_parent_base());
 }

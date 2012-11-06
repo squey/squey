@@ -46,6 +46,7 @@ PVAxisLabel.cpp
 PVAxisGraphicsItem.cpp
 PVSelectionGenerator.cpp
 PVLibView.cpp
+PVRenderingPipeline.cpp
 PVSlidersManager.cpp
 PVSlidersGroup.cpp
 PVAbstractAxisSlider.cpp
@@ -53,6 +54,8 @@ PVAbstractAxisSliders.cpp
 PVAbstractRangeAxisSliders.cpp
 PVSelectionAxisSlider.cpp
 PVSelectionAxisSliders.cpp
+PVZoneRendering.cpp
+PVZonesProcessor.cpp
 PVZoomAxisSlider.cpp
 PVZoomAxisSliders.cpp
 PVZoomedSelectionAxisSlider.cpp
@@ -60,7 +63,8 @@ PVZoomedSelectionAxisSliders.cpp
 )
 
 set(CUDA_SRC_FILES
-PVBCIDrawingEngineCuda.cpp
+	#PVBCIDrawingEngineCuda.cpp
+	PVBCIDrawingBackendCUDA.cpp
 )
 
 SET(HEADER_FILES
@@ -98,6 +102,7 @@ include/pvparallelview/PVZoomedSelectionAxisSliders.h
 )
 
 SET(MOC_HEADERS
+include/pvparallelview/PVZoneRendering.h
 include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h

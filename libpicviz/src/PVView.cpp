@@ -123,6 +123,7 @@ void Picviz::PVView::set_fake_axes_comb(PVCol const ncols)
 	for (PVCol c = 0; c < ncols; c++) {
 		PVAxis axis;
 		axis.set_name(QString("axis ") + QString::number(c));
+		axis.set_titlecolor("#ffffff");
 		axes_combination.axis_append(axis);
 	}
 }

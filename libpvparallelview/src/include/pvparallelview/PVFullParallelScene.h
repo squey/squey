@@ -14,6 +14,7 @@
 #include <picviz/PVAxis.h>
 #include <picviz/PVView_types.h>
 
+#include <pvparallelview/PVBCIBackendImage_types.h>
 #include <pvparallelview/PVSelectionSquareGraphicsItem.h>
 #include <pvparallelview/PVSelectionGenerator.h>
 #include <pvparallelview/PVAxisGraphicsItem.h>
@@ -47,29 +48,35 @@ public:
 	typedef PVSlidersManager::axis_id_t axis_id_t;
 
 public:
-	PVFullParallelScene(PVFullParallelView* parallel_view, Picviz::PVView_sp& view_sp, PVParallelView::PVSlidersManager_p sm_p, PVLinesView::zones_drawing_t& zd, tbb::task* root_sel);
+	PVFullParallelScene(PVFullParallelView* full_parallel_view, Picviz::PVView_sp& view_sp, PVParallelView::PVSlidersManager_p sm_p, PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg);
 	virtual ~PVFullParallelScene();
 
 	void first_render();
-	void update_new_selection();
-	void update_all();
+	void update_all_with_timer();
 
 	void update_viewport();
 	void update_scene(QGraphicsSceneWheelEvent* event = nullptr);
 
-	void update_number_of_zones();
-
 	void about_to_be_deleted();
 
-	PVFullParallelView* graphics_view() { return _parallel_view; }
+	PVFullParallelView* graphics_view() { return _full_parallel_view; }
 
 	void set_enabled(bool value)
 	{
-		if (value == false) {
-			cancel_current_job();
+		if (!value) {
+			_lines_view.cancel_and_wait_all_rendering();
 		}
-		_parallel_view->setEnabled(value);
+		_full_parallel_view->setEnabled(value);
 	}
+
+	void update_new_selection_async();
+	void update_all_async();
+	void update_number_of_zones_async();
+
+private slots:
+	void update_new_selection();
+	void update_all();
+	void update_number_of_zones();
 
 private:
 	void update_zones_position(bool update_all = true, bool scale = true);
@@ -84,20 +91,17 @@ private:
 	void wheelEvent(QGraphicsSceneWheelEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 
-	void cancel_current_job();
-	void wait_end_current_job();
-
-	inline QPointF map_to_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->mapFromScene(p); }
-	inline QPointF map_from_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->mapToScene(p); }
-	QRect map_to_axis(PVZoneID zid, QRectF rect) const
+	inline QPointF map_to_axis(PVZoneID zone_id, QPointF p) const { return _axes[zone_id]->mapFromScene(p); }
+	inline QPointF map_from_axis(PVZoneID zone_id, QPointF p) const { return _axes[zone_id]->mapToScene(p); }
+	QRect map_to_axis(PVZoneID zone_id, QRectF rect) const
 	{
-		QRect r = _axes[zid]->map_from_scene(rect);
+		QRect r = _axes[zone_id]->map_from_scene(rect);
 
 		// top and bottom must be corrected according to the y zoom factor
 		r.setTop(r.top() / _zoom_y);
 		r.setBottom(r.bottom() / _zoom_y);
 
-		const int32_t zone_width = _lines_view.get_zone_width(zid);
+		const int32_t zone_width = _lines_view.get_zone_width(zone_id);
 		if (r.width() + r.x() > zone_width) {
 			r.setRight(zone_width-1);
 		}
@@ -109,27 +113,25 @@ private:
 
 	void process_selection();
 
-	void connect_draw_zone_sel();
-	void connect_rendering_job();
-
 	Picviz::PVView& lib_view() { return _lib_view; }
 	Picviz::PVView const& lib_view() const { return _lib_view; }
 
 	void add_zone_image();
-	void add_axis(PVZoneID const z, int index = -1);
+	void add_axis(PVZoneID const zone_id, int index = -1);
+
+	inline PVBCIDrawingBackend& backend() const { return _lines_view.backend(); }
 
 private slots:
-	void update_zone_pixmap_bg(int zid);
-	void update_zone_pixmap_sel(int zid);
-	void update_zone_pixmap_bgsel(int zid);
-	void scale_zone_images(PVZoneID zid);
+	void update_zone_pixmap_bg(int zone_id);
+	void update_zone_pixmap_sel(int zone_id);
+	void update_zone_pixmap_bgsel(int zone_id);
+	void scale_zone_images(PVZoneID zone_id);
 
 	void update_selection_from_sliders_Slot(axis_id_t axis_id);
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
 	void commit_volatile_selection_Slot();
-	void draw_zone_sel_Slot(int zid, bool changed);
-	void try_to_launch_zoom_job();
+
 	void clear_selection_square()
 	{
 		_selection_barycenter.clear();
@@ -137,21 +139,30 @@ private slots:
 	}
 	void emit_new_zoomed_parallel_view(int axis_index)
 	{
-		emit _parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
+		emit _full_parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
 	}
 
+private slots:
+	// Slots called from PVLinesView
+	void zr_sel_finished(PVParallelView::PVZoneRenderingBase_p zr, int zone_id);
+	void zr_bg_finished(PVParallelView::PVZoneRenderingBase_p  zr, int zone_id);
+
+	void render_all_zones_all_imgs();
+	void render_single_zone_all_imgs();
+
+private:
 	int32_t pos_last_axis() const;
 
 private:
-	struct ZoneImages
+	struct SingleZoneImagesItems
 	{
 		QGraphicsPixmapItem* sel;
 		QGraphicsPixmapItem* bg;
 
-		PVLinesView::backend_image_p_t img_tmp_sel;
-		PVLinesView::backend_image_p_t img_tmp_bg;
+		PVBCIBackendImage_p img_tmp_sel;
+		PVBCIBackendImage_p img_tmp_bg;
 
-		ZoneImages()
+		SingleZoneImagesItems()
 		{
 		}
 
@@ -193,15 +204,15 @@ private:
 			clear();
 		}
 
-		PVZoneID zid1;
-		PVZoneID zid2;
+		PVZoneID zone_id1;
+		PVZoneID zone_id2;
 		double factor1;
 		double factor2;
 
 		void clear()
 		{
-			zid1 = PVZONEID_INVALID;
-			zid2 = PVZONEID_INVALID;
+			zone_id1 = PVZONEID_INVALID;
+			zone_id2 = PVZONEID_INVALID;
 			factor1 = 0.0;
 			factor2 = 0.0;
 		}
@@ -213,20 +224,13 @@ private:
 private:
 	PVParallelView::PVLinesView _lines_view;
 
-	std::vector<ZoneImages> _zones;
+	std::vector<SingleZoneImagesItems> _zones;
 	axes_list_t             _axes;
-
-	PVRenderingJob* _rendering_job_sel;
-	PVRenderingJob* _rendering_job_bg;
-	PVRenderingJob* _rendering_job_all;
-
-	QFuture<void> _rendering_future;
-	QFuture<void> _sel_rendering_future;
 
 	PVHive::PVActor<Picviz::PVView> _view_actor;
 	Picviz::PVView& _lib_view;
 
-	PVFullParallelView* _parallel_view;
+	PVFullParallelView* _full_parallel_view;
 
 	PVSelectionSquareGraphicsItem* _selection_square;
 	SelectionBarycenter _selection_barycenter;
@@ -237,15 +241,12 @@ private:
 	float           _zoom_y;
 	float           _axis_length;
 
-	tbb::task_group _render_tasks_sel;
-	tbb::task_group _render_tasks_bg;
-
-	tbb::task* _root_sel;
-
-	QTimer* _heavy_job_timer;
-	QFuture<void> _task_waiter;
-
 	PVSlidersManager_p _sm_p;
+
+	QTimer* _timer_render;
+	QTimer* _timer_render_single_zone;
+
+	PVZoneID _zid_timer_render;
 };
 
 }

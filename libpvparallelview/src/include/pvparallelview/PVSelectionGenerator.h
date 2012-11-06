@@ -35,12 +35,12 @@ public:
 		_lines_view(lines_view)
 	{ }
 
-	uint32_t compute_selection_from_rect(PVZoneID zid, QRect rect, Picviz::PVSelection& sel);
-	uint32_t compute_selection_from_sliders(PVZoneID zid, const typename PVAxisGraphicsItem::selection_ranges_t& ranges, Picviz::PVSelection& sel);
+	uint32_t compute_selection_from_rect(PVZoneID zone_id, QRect rect, Picviz::PVSelection& sel);
+	uint32_t compute_selection_from_sliders(PVZoneID zone_id, const typename PVAxisGraphicsItem::selection_ranges_t& ranges, Picviz::PVSelection& sel);
 
 private:
-	inline PVZonesManager& get_zones_manager() { return _lines_view.get_zones_manager(); }
 	inline PVZonesManager const& get_zones_manager() const { return _lines_view.get_zones_manager(); }
+
 private:
 	PVLinesView& _lines_view;
 };

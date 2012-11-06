@@ -5,13 +5,20 @@
 #endif
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
+#include <pvparallelview/PVRenderingPipeline.h>
+#include <pvparallelview/PVZoneRendering.h>
+
+PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::_s = nullptr;
 
 
-PVParallelView::__impl::PVParallelView* PVParallelView::__impl::PVParallelView::_s = nullptr;
-
-PVParallelView::__impl::PVParallelView::PVParallelView():
-	_backend_full(nullptr),
-	_backend_zoom(nullptr)
+/******************************************************************************
+ *
+ * PVParallelView::PVParallelViewImpl::PVParallelViewImpl
+ *
+ *****************************************************************************/
+PVParallelView::PVParallelViewImpl::PVParallelViewImpl():
+	_backend(nullptr),
+	_pipeline(nullptr)
 {
 	const float win_r = pvconfig.value("pvgl/window_r", 0.2f).toFloat();
 	const float win_g = pvconfig.value("pvgl/window_g", 0.2f).toFloat();
@@ -19,42 +26,74 @@ PVParallelView::__impl::PVParallelView::PVParallelView():
 	const float win_a = pvconfig.value("pvgl/window_a", 1.0f).toFloat();
 
 	_color_view_bg.setRgbF(win_r, win_g, win_b, win_a);
+
+	qRegisterMetaType<PVParallelView::PVZoneRenderingBase_p>();
+	qRegisterMetaType<PVParallelView::PVZoneRenderingBase_p>("PVZoneRenderingBase_p");
 }
 
-PVParallelView::__impl::PVParallelView::~PVParallelView()
+/******************************************************************************
+ *
+ * PVParallelView::PVParallelViewImpl::~PVParallelViewImpl
+ *
+ *****************************************************************************/
+PVParallelView::PVParallelViewImpl::~PVParallelViewImpl()
 {
-	if (_backend_full) {
-		delete _backend_full;
-	}
-
-	if (_backend_zoom) {
-		delete _backend_zoom;
-	}
-
 	tbb::mutex::scoped_lock lock(_mutex);
 
 	map_lib_views::iterator it;
 	for (it = _lib_views.begin(); it != _lib_views.end(); it++) {
 		delete it->second;
 	}
+
+	if (_pipeline) {
+		delete _pipeline;
+	}
 }
 
-PVParallelView::__impl::PVParallelView* PVParallelView::__impl::PVParallelView::get()
+/******************************************************************************
+ *
+ * PVParallelView::PVParallelViewImpl::init_pipeline
+ *
+ *****************************************************************************/
+void PVParallelView::PVParallelViewImpl::init_pipeline()
+{
+	if (_pipeline) {
+		delete _pipeline;
+	}
+	_pipeline = new PVParallelView::PVRenderingPipeline(backend());
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVParallelViewImpl::get
+ *
+ *****************************************************************************/
+PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::get()
 {
 	if (_s == NULL) {
-		_s = new PVParallelView();
+		_s = new PVParallelViewImpl();
 	}
 	return _s;
 }
 
-void PVParallelView::__impl::PVParallelView::release()
+/******************************************************************************
+ *
+ * PVParallelView::PVParallelViewImpl::release
+ *
+ *****************************************************************************/
+void PVParallelView::PVParallelViewImpl::release()
 {
 	if (_s) {
 		delete _s;
 	}
 }
 
-PVParallelView::PVLibView* PVParallelView::__impl::PVParallelView::get_lib_view(Picviz::PVView& view)
+/******************************************************************************
+ *
+ * PVParallelView::PVParallelViewImpl::get_lib_view
+ *
+ *****************************************************************************/
+PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Picviz::PVView& view)
 {
 	tbb::mutex::scoped_lock lock(_mutex);
 
@@ -69,7 +108,12 @@ PVParallelView::PVLibView* PVParallelView::__impl::PVParallelView::get_lib_view(
 	return new_view;
 }
 
-PVParallelView::PVLibView* PVParallelView::__impl::PVParallelView::get_lib_view(Picviz::PVView& view, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols)
+/******************************************************************************
+ *
+ * PVParallelView::PVParallelViewImpl::get_lib_view
+ *
+ *****************************************************************************/
+PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Picviz::PVView& view, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols)
 {
 	tbb::mutex::scoped_lock lock(_mutex);
 
@@ -84,7 +128,12 @@ PVParallelView::PVLibView* PVParallelView::__impl::PVParallelView::get_lib_view(
 	return new_view;
 }
 
-void PVParallelView::__impl::PVParallelView::remove_lib_view(Picviz::PVView& view)
+/******************************************************************************
+ *
+ * PVParallelView::PVParallelViewImpl::remove_lib_view
+ *
+ *****************************************************************************/
+void PVParallelView::PVParallelViewImpl::remove_lib_view(Picviz::PVView& view)
 {
 	tbb::mutex::scoped_lock lock(_mutex);
 
@@ -94,6 +143,7 @@ void PVParallelView::__impl::PVParallelView::remove_lib_view(Picviz::PVView& vie
 		_lib_views.erase(it);
 	}
 }
+
 
 void PVParallelView::common::init_cuda()
 {

@@ -12,8 +12,8 @@ set(CUDA_NVCC_FLAGS "-gencode arch=compute_30,code=sm_30" "-Xptxas=-v")
 #set(CUDA_NVCC_FLAGS "-g" "-G")
 
 add_definitions(${OpenMP_CXX_FLAGS})
-set(QT_USE_QTOPENGL TRUE)
-include(${QT_USE_FILE})
+#set(QT_USE_QTOPENGL TRUE)
+#include(${QT_USE_FILE})
 
 set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY} pvparallelview ${OpenMP_LIBRARIES})
 
@@ -22,21 +22,21 @@ enable_testing()
 add_executable(full_parallel_view full_parallel_view.cpp common.cpp)
 target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
 
-add_executable(full_parallel_view_selections_sync full_parallel_view_selections_sync.cpp common.cpp)
-target_link_libraries(full_parallel_view_selections_sync ${LINK_LIBRARIES})
+#add_executable(full_parallel_view_selections_sync full_parallel_view_selections_sync.cpp common.cpp)
+#target_link_libraries(full_parallel_view_selections_sync ${LINK_LIBRARIES})
 
 QT4_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
 add_executable(both_views both_views.cpp ${ZOOM_DLG_MOC} common.cpp)
 target_link_libraries(both_views ${LINK_LIBRARIES})
 
-add_executable(zoomed_parallel_view zoomed_parallel_view.cpp)
+add_executable(zoomed_parallel_view zoomed_parallel_view.cpp common.cpp)
 target_link_libraries(zoomed_parallel_view ${LINK_LIBRARIES})
 
 add_executable(create_tree create_tree.cpp)
 target_link_libraries(create_tree ${LINK_LIBRARIES})
 
-add_executable(quadtree-create-bench quadtree-create-bench.cpp common.cpp)
-target_link_libraries(quadtree-create-bench ${LINK_LIBRARIES})
+#add_executable(quadtree-create-bench quadtree-create-bench.cpp common.cpp)
+#target_link_libraries(quadtree-create-bench ${LINK_LIBRARIES})
 
 add_executable(Pquadtree-perf quadtree-perf.cpp)
 target_link_libraries(Pquadtree-perf ${LINK_LIBRARIES})
@@ -56,8 +56,8 @@ target_link_libraries(create_zoomedzonetree ${LINK_LIBRARIES})
 add_executable(extract_quadtree extract_quadtree.cpp)
 target_link_libraries(extract_quadtree ${LINK_LIBRARIES})
 
-add_executable(quadtree_browse quadtree_browse.cpp)
-target_link_libraries(quadtree_browse ${LINK_LIBRARIES})
+#add_executable(quadtree_browse quadtree_browse.cpp)
+#target_link_libraries(quadtree_browse ${LINK_LIBRARIES})
 
 add_executable(Tquadtree_impl quadtree_impl.cpp)
 target_link_libraries(Tquadtree_impl ${LINK_LIBRARIES})
@@ -112,15 +112,22 @@ if (CUDA_FOUND)
 	add_executable(multiple_zones_cuda multiple_zones_cuda.cpp ${CUDA_KERNELS})
 	target_link_libraries(multiple_zones_cuda ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 
-	add_executable(lines_drawing lines_drawing.cpp)
-	target_link_libraries(lines_drawing ${LINK_LIBRARIES})
+	#add_executable(lines_drawing lines_drawing.cpp)
+	#target_link_libraries(lines_drawing ${LINK_LIBRARIES})
 
 	add_executable(show_codes_cuda_lib show_codes_cuda_lib.cpp)
 	target_link_libraries(show_codes_cuda_lib ${LINK_LIBRARIES})
 
-	add_executable(zoomed_zone_tree_render zoomed_zone_tree_render.cpp)
-	target_link_libraries(zoomed_zone_tree_render ${LINK_LIBRARIES})
+	#add_executable(rendering_pipeline_base rendering_pipeline_base.cpp)
+	#target_link_libraries(rendering_pipeline_base ${LINK_LIBRARIES})
 
-	add_executable(zoomed_zone_tree_render2 zoomed_zone_tree_render2.cpp)
-	target_link_libraries(zoomed_zone_tree_render2 ${LINK_LIBRARIES})
+	#QT4_WRAP_CPP(ZD_MOC zone_drawing_events.h OPTIONS ${QT4_WRAP_OPTIONS})
+	#add_executable(zone_drawing zone_drawing.cpp ${ZD_MOC})
+	#target_link_libraries(zone_drawing ${LINK_LIBRARIES})
+
+	#add_executable(zoomed_zone_tree_render zoomed_zone_tree_render.cpp)
+	#target_link_libraries(zoomed_zone_tree_render ${LINK_LIBRARIES})
+
+	#add_executable(zoomed_zone_tree_render2 zoomed_zone_tree_render2.cpp)
+	#target_link_libraries(zoomed_zone_tree_render2 ${LINK_LIBRARIES})
 endif (CUDA_FOUND)
