@@ -44,6 +44,9 @@ target_link_libraries(Pquadtree-perf ${LINK_LIBRARIES})
 add_executable(Pqt-extract-sse qt-extract-sse.cpp)
 target_link_libraries(Pqt-extract-sse ${LINK_LIBRARIES})
 
+add_executable(Eqt-tbb-tasks qt-tbb-tasks.cpp)
+target_link_libraries(Eqt-tbb-tasks ${LINK_LIBRARIES})
+
 add_executable(sse_bci sse_bci.cpp)
 target_link_libraries(sse_bci ${LINK_LIBRARIES})
 
