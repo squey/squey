@@ -77,10 +77,11 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	_timer_render->setInterval(RENDER_TIMER_TIMEOUT);
 	connect(_timer_render, SIGNAL(timeout()), this, SLOT(render_all_zones_all_imgs()));
 
+	/*
 	_timer_render_single_zone = new QTimer(this);
 	_timer_render_single_zone->setSingleShot(true);
 	_timer_render_single_zone->setInterval(RENDER_TIMER_TIMEOUT);
-	connect(_timer_render, SIGNAL(timeout()), this, SLOT(render_single_zone_all_imgs()));
+	connect(_timer_render, SIGNAL(timeout()), this, SLOT(render_single_zone_all_imgs()));*/
 }
 
 /******************************************************************************
