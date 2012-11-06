@@ -33,6 +33,7 @@ public:
 	{
 		_backend = static_cast<PVBCIDrawingBackend*>(&Backend::get());
 		init_pipeline();
+		register_displays();
 	}
 	PVLibView* get_lib_view(Picviz::PVView& view);
 	PVLibView* get_lib_view(Picviz::PVView& view, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
@@ -46,6 +47,7 @@ public:
 
 private:
 	void init_pipeline();
+	void register_displays();
 
 private:
 	PVParallelView::PVBCIDrawingBackend* _backend;

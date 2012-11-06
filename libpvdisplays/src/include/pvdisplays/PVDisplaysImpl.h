@@ -28,7 +28,7 @@ public:
 
 public:
 	template <typename F>
-	void visit_all_displays(F const& f, PVDisplayIf::Flags flags = PVDisplayIf::NoFlags) const
+	void visit_all_displays(F const& f, int flags = 0) const
 	{
 		visit_displays_by_if<PVDisplayViewIf>(f, flags);
 		visit_displays_by_if<PVDisplaySourceIf>(f, flags);
@@ -36,7 +36,7 @@ public:
 	}
 
 	template <typename If, typename F>
-	void visit_displays_by_if(F const& f, PVDisplayIf::Flags flags = PVDisplayIf::NoFlags) const
+	void visit_displays_by_if(F const& f, int flags = 0) const
 	{
 		// Interface of 'F' must be void f(If& obj), or with a base of If;
 		typename PVCore::PVClassLibrary<If>::list_classes const& lc = PVCore::PVClassLibrary<If>::get().get_list();

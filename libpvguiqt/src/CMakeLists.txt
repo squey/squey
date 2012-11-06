@@ -39,6 +39,7 @@ PVImportSourceToProjectDlg.cpp
 PVCorrelationMenu.cpp
 
 # Displays that will be registered to libpvdisplays
+PVDisplaySourceDataTree.cpp
 PVDisplayViewAxesCombination.cpp
 PVDisplayViewLayerStack.cpp
 PVDisplayViewListing.cpp

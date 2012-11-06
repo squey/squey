@@ -11,7 +11,7 @@ if (CUDA_FOUND)
 endif(CUDA_FOUND)
 
 
-set(LINK_LIBRARIES picviz pvhive pvkernel ${QT_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
+set(LINK_LIBRARIES pvdisplays picviz pvhive pvkernel ${QT_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
 
 # CUDA
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
@@ -60,6 +60,10 @@ PVZoomAxisSlider.cpp
 PVZoomAxisSliders.cpp
 PVZoomedSelectionAxisSlider.cpp
 PVZoomedSelectionAxisSliders.cpp
+
+# Display plugins
+PVDisplayViewAxisZoomed.cpp
+PVDisplayViewFullParallel.cpp
 )
 
 set(CUDA_SRC_FILES

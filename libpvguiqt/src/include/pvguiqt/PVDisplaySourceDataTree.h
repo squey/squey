@@ -12,7 +12,7 @@ public:
 	PVDisplaySourceDataTree();
 
 public:
-	QWidget* create_widget(Picviz::PVView* view, QWidget* parent) const override;
+	QWidget* create_widget(Picviz::PVSource* src, QWidget* parent) const override;
 
 	CLASS_REGISTRABLE(PVDisplaySourceDataTree)
 };

@@ -8,14 +8,13 @@
 #include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVZoneRendering.h>
 
+// Displays plugins
+#include <pvparallelview/PVDisplayViewAxisZoomed.h>
+#include <pvparallelview/PVDisplayViewFullParallel.h>
+
 PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::_s = nullptr;
 
 
-/******************************************************************************
- *
- * PVParallelView::PVParallelViewImpl::PVParallelViewImpl
- *
- *****************************************************************************/
 PVParallelView::PVParallelViewImpl::PVParallelViewImpl():
 	_backend(nullptr),
 	_pipeline(nullptr)
@@ -31,11 +30,6 @@ PVParallelView::PVParallelViewImpl::PVParallelViewImpl():
 	qRegisterMetaType<PVParallelView::PVZoneRenderingBase_p>("PVZoneRenderingBase_p");
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVParallelViewImpl::~PVParallelViewImpl
- *
- *****************************************************************************/
 PVParallelView::PVParallelViewImpl::~PVParallelViewImpl()
 {
 	tbb::mutex::scoped_lock lock(_mutex);
@@ -50,11 +44,6 @@ PVParallelView::PVParallelViewImpl::~PVParallelViewImpl()
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVParallelViewImpl::init_pipeline
- *
- *****************************************************************************/
 void PVParallelView::PVParallelViewImpl::init_pipeline()
 {
 	if (_pipeline) {
@@ -63,11 +52,12 @@ void PVParallelView::PVParallelViewImpl::init_pipeline()
 	_pipeline = new PVParallelView::PVRenderingPipeline(backend());
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVParallelViewImpl::get
- *
- *****************************************************************************/
+void PVParallelView::PVParallelViewImpl::register_displays()
+{
+	REGISTER_CLASS("parallelview_fullparallelview", PVDisplays::PVDisplayViewFullParallel);
+	REGISTER_CLASS("parallelview_zoomedparallelview", PVDisplays::PVDisplayViewAxisZoomed);
+}
+
 PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::get()
 {
 	if (_s == NULL) {
@@ -76,11 +66,6 @@ PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::get()
 	return _s;
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVParallelViewImpl::release
- *
- *****************************************************************************/
 void PVParallelView::PVParallelViewImpl::release()
 {
 	if (_s) {
@@ -88,11 +73,6 @@ void PVParallelView::PVParallelViewImpl::release()
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVParallelViewImpl::get_lib_view
- *
- *****************************************************************************/
 PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Picviz::PVView& view)
 {
 	tbb::mutex::scoped_lock lock(_mutex);
@@ -108,11 +88,6 @@ PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Picv
 	return new_view;
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVParallelViewImpl::get_lib_view
- *
- *****************************************************************************/
 PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Picviz::PVView& view, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols)
 {
 	tbb::mutex::scoped_lock lock(_mutex);
@@ -128,11 +103,6 @@ PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Picv
 	return new_view;
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVParallelViewImpl::remove_lib_view
- *
- *****************************************************************************/
 void PVParallelView::PVParallelViewImpl::remove_lib_view(Picviz::PVView& view)
 {
 	tbb::mutex::scoped_lock lock(_mutex);

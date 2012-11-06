@@ -6,8 +6,11 @@
 #include <picviz/PVSource.h>
 #include <picviz/PVView.h>
 
-#include <pvguiqt/common.h>
 #include <pvdisplays/PVDisplaysImpl.h>
+
+#include <pvguiqt/common.h>
+
+#include <pvparallelview/PVParallelView.h>
 
 #include <QApplication>
 
@@ -34,6 +37,7 @@ int main(int argc, char** argv)
 
 	QApplication app(argc, argv);
 
+	PVParallelView::common::init_cuda(); // Will also register displays
 	PVGuiQt::common::register_displays();
 
 	// Display all the possible Qt displays of this view and source
@@ -48,6 +52,13 @@ int main(int argc, char** argv)
 		[&](PVDisplays::PVDisplaySourceIf& obj)
 		{
 			QWidget* w = PVDisplays::get().get_widget(obj, src.get());
+			w->show();
+		});
+
+	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewAxisIf>(
+		[&](PVDisplays::PVDisplayViewAxisIf& obj)
+		{
+			QWidget* w = PVDisplays::get().get_widget(obj, view, 1);
 			w->show();
 		});
 

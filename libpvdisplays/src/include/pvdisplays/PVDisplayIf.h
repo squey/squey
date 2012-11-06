@@ -22,7 +22,6 @@ class PVDisplayIf
 
 public:
 	typedef enum {
-		NoFlags = 0,
 		UniquePerParameters = 1,
 		ShowInToolbar = 2,
 		ShowInDockWidget = 4,
@@ -30,7 +29,7 @@ public:
 	} Flags;
 
 protected:
-	PVDisplayIf(Flags flags = NoFlags):
+	PVDisplayIf(int flags = 0):
 		_flags(flags)
 	{ }
 
@@ -44,11 +43,11 @@ public:
 	virtual void static_release() const { }
 
 public:
-	inline Flags flags() const { return _flags; }
-	inline bool match_flags(Flags f) const { return (flags() & f) == f; }
+	inline int flags() const { return _flags; }
+	inline bool match_flags(int f) const { return (flags() & f) == f; }
 	
 private:
-	Flags _flags;
+	int _flags;
 };
 
 template <class T>
@@ -60,7 +59,7 @@ class PVDisplayDataTreeIf: public PVDisplayIf
 	typedef std::unordered_map<value_type*, QWidget*> hash_widgets_t;
 
 public:
-	PVDisplayDataTreeIf(Flags flags = NoFlags):
+	PVDisplayDataTreeIf(int flags = 0):
 		PVDisplayIf(flags)
 	{ }
 
@@ -95,7 +94,7 @@ public:
 	typedef boost::shared_ptr<RegAs> p_type;
 
 public:
-	PVDisplayViewIf(Flags flags = NoFlags):
+	PVDisplayViewIf(int flags = 0):
 		PVDisplayDataTreeIf<Picviz::PVView>(flags)
 	{ }
 };
@@ -107,7 +106,7 @@ public:
 	typedef boost::shared_ptr<RegAs> p_type;
 
 public:
-	PVDisplaySourceIf(Flags flags = NoFlags):
+	PVDisplaySourceIf(int flags = 0):
 		PVDisplayDataTreeIf<Picviz::PVSource>(flags)
 	{ }
 };
@@ -136,15 +135,15 @@ public:
 	typedef boost::shared_ptr<RegAs> p_type;
 
 public:
-	PVDisplayViewAxisIf(Flags flags):
+	PVDisplayViewAxisIf(int flags = 0):
 		PVDisplayIf(flags)
 	{ }
 
 protected:
-	QWidget* get_unique_widget(Picviz::PVView* view, PVCol axis_comb);
+	QWidget* get_unique_widget(Picviz::PVView* view, PVCol axis_comb, QWidget* parent = NULL);
 
 protected:
-	virtual QWidget* create_widget(Picviz::PVView* view, PVCol axis_comb) const = 0;
+	virtual QWidget* create_widget(Picviz::PVView* view, PVCol axis_comb, QWidget* parent = NULL) const = 0;
 
 private:
 	map_widgets_t _widgets;
