@@ -902,3 +902,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 
 	return bci_idx;
 }
+
+double PVParallelView::extract_stat::all_dt = 0;
+size_t PVParallelView::extract_stat::all_cnt = 0;
+size_t PVParallelView::extract_stat::test_cnt = 0;
+size_t PVParallelView::extract_stat::insert_cnt = 0;

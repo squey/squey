@@ -15,6 +15,7 @@
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVVector.h>
+#include <pvkernel/core/picviz_bench.h>
 
 #include <picviz/PVSelection.h>
 
@@ -27,11 +28,21 @@
 
 namespace PVParallelView {
 
+struct extract_stat {
+	static double all_dt;
+	static size_t all_cnt;
+	static size_t test_cnt;
+	static size_t insert_cnt;
+};
+
 #define SW 0
 #define SE 1
 #define NW 2
 #define NE 3
 
+/*****************************************************************************
+ * About Quadtrees entries
+ */
 #pragma pack(push)
 #pragma pack(4)
 
@@ -53,13 +64,88 @@ struct PVQuadTreeEntry {
 };
 #pragma pack(pop)
 
-
+/*****************************************************************************
+ * About bitfield use when extracting relevant entries from quadtrees
+ */
 #define __PV_IMPL_QUADTREE_BUFFER_ENTRY_COUNT (4096 * 2048)
 // we store bits
 #define QUADTREE_BUFFER_SIZE (__PV_IMPL_QUADTREE_BUFFER_ENTRY_COUNT >> 5)
 
 typedef uint32_t pv_quadtree_buffer_entry_t;
 
+/*****************************************************************************
+ * About SSE use when extracting relevant entries from quadtrees
+ */
+#define QUADTREE_USE_SSE_EXTRACT
+
+static inline bool test_sse(const __m128i &sse_y1,
+                            const __m128i &sse_y1_min,
+                            const __m128i &sse_y1_max,
+                            __m128i &sse_res)
+{
+	static const __m128i sse_full_ones  = _mm_set1_epi32(0xFFFFFFFF);
+	static const __m128i sse_full_zeros = _mm_set1_epi32(0);
+
+	/* expand 4x32b register into 2 2x64b registers
+	 */
+	const __m128i sse_y1_0 = _mm_unpacklo_epi32 (sse_y1, sse_full_zeros);
+	const __m128i sse_y1_1 = _mm_unpackhi_epi32 (sse_y1, sse_full_zeros);
+
+	/* doing registers test against min
+	 */
+	const __m128i sse_min0 = _mm_cmpgt_epi64(sse_y1_min, sse_y1_0);
+	const __m128i sse_min1 = _mm_cmpgt_epi64(sse_y1_min, sse_y1_1);
+
+	/* doing registers test against max
+	 */
+	const __m128i sse_max0 = _mm_cmpgt_epi64(sse_y1_max, sse_y1_0);
+	const __m128i sse_max1 = _mm_cmpgt_epi64(sse_y1_max, sse_y1_1);
+
+	/* results merge (by packing them from 64 bits to 32 bits)
+	 *
+	 * on 64 bits:
+	 * res0 = [ v01 | v00 ]
+	 * res1 = [ v11 | v10 ]
+	 *
+	 * <=>
+	 *
+	 * on 32 bits (because possible values are 0 or ~0)
+	 * res0 = [ v01 | v01 | v00 | v00 ]
+	 * res1 = [ v11 | v11 | v10 | v10 ]
+	 *
+	 * with a right shift of 4 bytes, we gather results in the
+	 * LSB 64 bits word:
+	 * =>
+	 * res0 = [ 0 | v01 | v01 | v00 ]
+	 * res1 = [ 0 | v11 | v11 | v10 ]
+	 *                   ~~~~~~~~~~~
+	 */
+
+	__m128i sse_ms0 = _mm_srli_si128(sse_min0, 4);
+	__m128i sse_ms1 = _mm_srli_si128(sse_min1, 4);
+
+	/* a call to unpacklo_epi64 helps to gather these 64 bits
+	 * word into 1 register:
+	 *
+	 * res = [ v11 | v10 | v01 | v00 ]
+	 */
+	const __m128i sse_tmin = _mm_unpacklo_epi64(sse_ms0, sse_ms1);
+
+	/* the same for tests with max
+	 */
+	sse_ms0 = _mm_srli_si128(sse_max0, 4);
+	sse_ms1 = _mm_srli_si128(sse_max1, 4);
+
+	const __m128i sse_tmax = _mm_unpacklo_epi64(sse_ms0, sse_ms1);
+
+	sse_res = _mm_andnot_si128(sse_tmin, sse_tmax);
+
+	return _mm_testz_si128(sse_res, sse_full_ones);
+}
+
+/*****************************************************************************
+ * About the quadtree
+ */
 // typedef PVCore::PVVector<PVQuadTreeEntry, tbb::scalable_allocator<PVQuadTreeEntry> > pvquadtree_entries_t;
 // typedef PVCore::PVVector<PVQuadTreeEntry, 1000, PVCore::PVJEMallocAllocator<PVQuadTreeEntry> > pvquadtree_entries_t;
 typedef PVCore::PVVector<PVQuadTreeEntry> pvquadtree_entries_t;
@@ -254,6 +340,46 @@ public:
 		return compute_selection_y2(*this, y2_min, y2_max, selection);
 	}
 
+	static void all_clear()
+	{
+		extract_stat::all_dt = 0;
+	}
+
+	static double all_get()
+	{
+		return extract_stat::all_dt;
+	}
+
+	static void all_count_clear()
+	{
+		extract_stat::all_cnt = 0;
+	}
+
+	static size_t all_count_get()
+	{
+		return extract_stat::all_cnt;
+	}
+
+	static void test_count_clear()
+	{
+		extract_stat::test_cnt = 0;
+	}
+
+	static size_t test_count_get()
+	{
+		return extract_stat::test_cnt;
+	}
+
+	static void insert_count_clear()
+	{
+		extract_stat::insert_cnt = 0;
+	}
+
+	static size_t insert_count_get()
+	{
+		return extract_stat::insert_cnt;
+	}
+
 private:
 	void init(const PVQuadTree &qt)
 	{
@@ -341,8 +467,13 @@ private:
 				/* this is a unsplitted node with data and an array of nxm
 				 * entries is needed
 				 */
-				extract(obj, y1_min, y1_max, zoom, y2_count,
-				        test_f, insert_f, buffer, tlr);
+#ifdef QUADTREE_USE_SSE_EXTRACT
+				extract_seq(obj, y1_min, y1_max, zoom, y2_count,
+				            test_f, insert_f, buffer, tlr);
+#else
+				extract_sse(obj, y1_min, y1_max, zoom, y2_count,
+				            test_f, insert_f, buffer, tlr);
+#endif
 			}
 		}
 
@@ -384,8 +515,13 @@ private:
 				/* this is a unsplitted node with data and an array of 1xm
 				 * entries is needed
 				 */
-				extract(obj, y1_min, y1_max, 0, y2_count,
-				        test_f, insert_f, buffer, tlr);
+#ifdef QUADTREE_USE_SSE_EXTRACT
+				extract_sse(obj, y1_min, y1_max, 0, y2_count,
+				            test_f, insert_f, buffer, tlr);
+#else
+				extract_seq(obj, y1_min, y1_max, 0, y2_count,
+				            test_f, insert_f, buffer, tlr);
+#endif
 			}
 		}
 
@@ -427,8 +563,13 @@ private:
 				/* this is a unsplitted node with data and an array of nx1
 				 * entries is needed
 				 */
-				extract(obj, y1_min, y1_max, zoom, 1,
-				        test_f, insert_f, buffer, tlr);
+#ifdef QUADTREE_USE_SSE_EXTRACT
+				extract_sse(obj, y1_min, y1_max, zoom, 1,
+				            test_f, insert_f, buffer, tlr);
+#else
+				extract_seq(obj, y1_min, y1_max, zoom, 1,
+				            test_f, insert_f, buffer, tlr);
+#endif
 			}
 		}
 
@@ -461,27 +602,195 @@ private:
 		}
 
 		template <typename Ftest>
-		static void extract(PVQuadTree const& obj,
-		                    const uint64_t y1_min, const uint64_t y1_max,
-		                    const uint32_t zoom, const uint32_t y2_count,
-		                    const Ftest &test_f,
-		                    const insert_entry_f &insert_f,
-		                    pv_quadtree_buffer_entry_t *buffer,
-		                    pv_tlr_buffer_t &tlr)
+		static void extract_seq(PVQuadTree const& obj,
+		                        const uint64_t y1_min, const uint64_t y1_max,
+		                        const uint32_t zoom, const uint32_t y2_count,
+		                        const Ftest &test_f,
+		                        const insert_entry_f &insert_f,
+		                        pv_quadtree_buffer_entry_t *buffer,
+		                        pv_tlr_buffer_t &tlr)
 		{
+			BENCH_START(extract);
 			const uint64_t max_count = 1 << zoom;
 			const uint64_t y1_orig = obj._y1_min_value;
 			const uint64_t y1_len = (obj._y1_mid_value - y1_orig) * 2;
 			const uint64_t y1_scale = y1_len / max_count;
+
 			const uint64_t y2_orig = obj._y2_min_value;
 			const uint64_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / y2_count;
+
 			const uint64_t ly1_min = (PVCore::clamp(y1_min, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 			const uint64_t ly1_max = (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 			const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
 			const size_t count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
 			memset(buffer, 0, count_aligned * sizeof(uint32_t));
 			uint32_t remaining = clipped_max_count * y2_count;
+
 			for(size_t i = 0; i < obj._datas.size(); ++i) {
+				++extract_stat::all_cnt;
+				const PVQuadTreeEntry &e = obj._datas.at(i);
+				if (!test_f(e, y1_min, y1_max)) {
+					continue;
+				}
+				const uint32_t pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min) + clipped_max_count * ((e.y2 - y2_orig) / y2_scale);
+				++extract_stat::test_cnt;
+				if (B_IS_SET(buffer[pos >> 5], pos & 31)) {
+					continue;
+				}
+				insert_f(e, tlr);
+				++extract_stat::insert_cnt;
+				B_SET(buffer[pos >> 5], pos & 31);
+				--remaining;
+				if (remaining == 0) {
+					break;
+				}
+			}
+			BENCH_STOP(extract);
+			extract_stat::all_dt += BENCH_END_TIME(extract);
+		}
+
+		template <typename Ftest>
+		static void extract_sse(PVQuadTree const& obj,
+		                        const uint64_t y1_min, const uint64_t y1_max,
+		                        const uint32_t zoom, const uint32_t y2_count,
+		                        const Ftest &test_f,
+		                        const insert_entry_f &insert_f,
+		                        pv_quadtree_buffer_entry_t *buffer,
+		                        pv_tlr_buffer_t &tlr)
+		{
+
+			const uint64_t max_count = 1 << zoom;
+			const uint64_t y1_orig = obj._y1_min_value;
+			const uint64_t y1_len = (obj._y1_mid_value - y1_orig) * 2;
+			const uint64_t y1_scale = y1_len / max_count;
+			const uint64_t y1_shift = PVCore::upper_power_of_2(y1_scale);
+			const uint64_t y2_orig = obj._y2_min_value;
+			const uint64_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / y2_count;
+			const uint64_t y2_shift = PVCore::upper_power_of_2(y2_scale);
+			const uint64_t ly1_min = (PVCore::clamp(y1_min, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
+			const uint64_t ly1_max = (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
+			const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
+			const size_t count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
+			memset(buffer, 0, count_aligned * sizeof(uint32_t));
+			uint32_t remaining = clipped_max_count * y2_count;
+
+			const __m128i sse_y1_min            = _mm_set1_epi64x(y1_min);
+			const __m128i sse_y1_max            = _mm_set1_epi64x(y1_max);
+			const __m128i sse_y1_orig           = _mm_set1_epi32(y1_orig);
+			const __m128i sse_y1_shift          = _mm_set1_epi32(y1_shift);
+			const __m128i sse_ly1_min           = _mm_set1_epi32(ly1_min);
+			const __m128i sse_y2_orig           = _mm_set1_epi32(y2_orig);
+			const __m128i sse_y2_shift          = _mm_set1_epi32(y2_shift);
+			const __m128i sse_clipped_max_count = _mm_set1_epi32(clipped_max_count);
+
+			const size_t size = obj._datas.size();
+			const size_t packed_size = size & ~3;
+
+			for(size_t i = 0; i < packed_size; i += 4) {
+				const PVQuadTreeEntry &e0 = obj._datas.at(i);
+				const PVQuadTreeEntry &e1 = obj._datas.at(i+1);
+				const PVQuadTreeEntry &e2 = obj._datas.at(i+2);
+				const PVQuadTreeEntry &e3 = obj._datas.at(i+3);
+
+				// TODO: compact all _mm_xxxxx expressions ;-)
+				__m128i sse_r0 = _mm_loadu_si128((const __m128i*) &e0);
+				__m128i sse_r1 = _mm_loadu_si128((const __m128i*) &e1);
+				__m128i sse_r2 = _mm_loadu_si128((const __m128i*) &e2);
+				__m128i sse_r3 = _mm_loadu_si128((const __m128i*) &e3);
+
+				/* partial "transposition" to have all y1 in one register
+				 * and all y2 in an other one
+				 */
+				__m128i sse_tmp01 = _mm_unpacklo_epi32(sse_r0, sse_r1);
+				__m128i sse_tmp23 = _mm_unpacklo_epi32(sse_r2, sse_r3);
+
+				__m128i sse_y1 = _mm_unpacklo_epi64(sse_tmp01, sse_tmp23);
+
+				__m128i sse_test;
+
+				if (test_sse(sse_y1, sse_y1_min, sse_y1_max, sse_test)) {
+					continue;
+				}
+
+				// sse_y2 is not needed before the call to test_sse
+				__m128i sse_y2 = _mm_unpackhi_epi64(sse_tmp01, sse_tmp23);
+
+				/*
+				 * pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min)
+				 * + clipped_max_count * ((e.y2 - y2_orig) / y2_scale)
+				 */
+				__m128i sse_0s  = _mm_sub_epi32(sse_y1, sse_y1_orig);
+				__m128i sse_0sd = _mm_srl_epi32(sse_0s, sse_y1_shift);
+				__m128i sse_0x  = _mm_sub_epi32(sse_0sd, sse_ly1_min);
+
+				__m128i sse_1s  = _mm_sub_epi32(sse_y2, sse_y2_orig);
+				__m128i sse_1sd = _mm_srl_epi32(sse_1s, sse_y2_shift);
+				__m128i sse_1y  = _mm_mullo_epi32(sse_1sd, sse_clipped_max_count);
+
+				__m128i sse_pos = _mm_add_epi32(sse_0x, sse_1y);
+
+				if(_mm_extract_epi32(sse_test, 0)) {
+					uint32_t p = _mm_extract_epi32(sse_pos, 0);
+					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
+						std::cout << "e0: " << e0.y1 << " " << e0.y2
+						          << " - " << p << " " << (p >> 5) << " " << (p & 31)
+						          << std::endl;
+						insert_f(e0, tlr);
+						B_SET(buffer[p >> 5], p & 31);
+						--remaining;
+						if (remaining == 0) {
+							break;
+						}
+					}
+				}
+
+				if(_mm_extract_epi32(sse_test, 1)) {
+					uint32_t p = _mm_extract_epi32(sse_pos, 1);
+					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
+						std::cout << "e1: " << e1.y1 << " " << e1.y2
+						          << " - " << p << " " << (p >> 5) << " " << (p & 31)
+						          << std::endl;
+						insert_f(e1, tlr);
+						B_SET(buffer[p >> 5], p & 31);
+						--remaining;
+						if (remaining == 0) {
+							break;
+						}
+					}
+				}
+
+				if(_mm_extract_epi32(sse_test, 2)) {
+					uint32_t p = _mm_extract_epi32(sse_pos, 2);
+					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
+						std::cout << "e2: " << e2.y1 << " " << e2.y2
+						          << " - " << p << " " << (p >> 5) << " " << (p & 31)
+						          << std::endl;
+						insert_f(e2, tlr);
+						B_SET(buffer[p >> 5], p & 31);
+						--remaining;
+						if (remaining == 0) {
+							break;
+						}
+					}
+				}
+
+				if(_mm_extract_epi32(sse_test, 3)) {
+					uint32_t p = _mm_extract_epi32(sse_pos, 3);
+					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
+						std::cout << "e3: " << e3.y1 << " " << e3.y2
+						          << " - " << p << " " << (p >> 5) << " " << (p & 31)
+						          << std::endl;
+						insert_f(e3, tlr);
+						B_SET(buffer[p >> 5], p & 31);
+						--remaining;
+						if (remaining == 0) {
+							break;
+						}
+					}
+				}
+			}
+
+			for(size_t i = packed_size; i < size; ++i) {
 				const PVQuadTreeEntry &e = obj._datas.at(i);
 				if (!test_f(e, y1_min, y1_max)) {
 					continue;
@@ -497,9 +806,11 @@ private:
 					break;
 				}
 			}
+
 		}
 	};
 
+#undef QUADTREE_USE_SSE_EXTRACT
 	struct visit_y2
 	{
 		template <typename Ftest>
@@ -542,8 +853,13 @@ private:
 				/* this is a unsplitted node with data and an array of nxm
 				 * entries is needed
 				 */
-				extract(obj, y2_min, y2_max, zoom, y1_count,
-				        test_f, insert_f, buffer, tlr);
+#ifdef QUADTREE_USE_SSE_EXTRACT
+				extract_sse(obj, y2_min, y2_max, zoom, y1_count,
+				            test_f, insert_f, buffer, tlr);
+#else
+				extract_seq(obj, y2_min, y2_max, zoom, y1_count,
+				            test_f, insert_f, buffer, tlr);
+#endif
 			}
 		}
 
@@ -585,8 +901,13 @@ private:
 				/* this is a unsplitted node with data and an array of 1xm
 				 * entries is needed
 				 */
-				extract(obj, y2_min, y2_max, 0, y1_count,
-				        test_f, insert_f, buffer, tlr);
+#ifdef QUADTREE_USE_SSE_EXTRACT
+				extract_sse(obj, y2_min, y2_max, 0, y1_count,
+				            test_f, insert_f, buffer, tlr);
+#else
+				extract_seq(obj, y2_min, y2_max, 0, y1_count,
+				            test_f, insert_f, buffer, tlr);
+#endif
 			}
 		}
 
@@ -624,8 +945,13 @@ private:
 				/* this is a unsplitted node with data and an array of nx1
 				 * entries is needed
 				 */
-				extract(obj, y2_min, y2_max, zoom, 1,
-				        test_f, insert_f, buffer, tlr);
+#ifdef QUADTREE_USE_SSE_EXTRACT
+				extract_sse(obj, y2_min, y2_max, zoom, 1,
+				            test_f, insert_f, buffer, tlr);
+#else
+				extract_seq(obj, y2_min, y2_max, zoom, 1,
+				            test_f, insert_f, buffer, tlr);
+#endif
 			}
 		}
 
@@ -659,13 +985,13 @@ private:
 		}
 
 		template <typename Ftest>
-		static void extract(PVQuadTree const& obj,
-		                    const uint64_t y2_min, const uint64_t y2_max,
-		                    const uint32_t zoom, const uint32_t y1_count,
-		                    const Ftest &test_f,
-		                    const insert_entry_f &insert_f,
-		                    pv_quadtree_buffer_entry_t *buffer,
-		                    pv_tlr_buffer_t &tlr)
+		static void extract_seq(PVQuadTree const& obj,
+		                        const uint64_t y2_min, const uint64_t y2_max,
+		                        const uint32_t zoom, const uint32_t y1_count,
+		                        const Ftest &test_f,
+		                        const insert_entry_f &insert_f,
+		                        pv_quadtree_buffer_entry_t *buffer,
+		                        pv_tlr_buffer_t &tlr)
 		{
 			const uint64_t max_count = 1 << zoom;
 			const uint64_t y1_orig = obj._y1_min_value;
@@ -695,6 +1021,153 @@ private:
 					break;
 				}
 			}
+		}
+
+		template <typename Ftest>
+		static void extract_sse(PVQuadTree const& obj,
+		                        const uint64_t y2_min, const uint64_t y2_max,
+		                        const uint32_t zoom, const uint32_t y1_count,
+		                        const Ftest &test_f,
+		                        const insert_entry_f &insert_f,
+		                        pv_quadtree_buffer_entry_t *buffer,
+		                        pv_tlr_buffer_t &tlr)
+		{
+			const uint64_t max_count = 1 << zoom;
+			const uint64_t y1_orig = obj._y1_min_value;
+			const uint64_t y1_scale = ((obj._y1_mid_value - y1_orig) * 2) / y1_count;
+			const uint64_t y1_shift = PVCore::upper_power_of_2(y1_scale);
+			const uint64_t y2_orig = obj._y2_min_value;
+			const uint64_t y2_len = (obj._y2_mid_value - y2_orig) * 2;
+			const uint64_t y2_scale = y2_len / max_count;
+			const uint64_t y2_shift = PVCore::upper_power_of_2(y2_scale);
+			const uint64_t ly2_min = (PVCore::clamp(y2_min, y2_orig, y2_orig + y2_len) - y2_orig) / y2_scale;
+			const uint64_t ly2_max = (PVCore::clamp(y2_max, y2_orig, y2_orig + y2_len) - y2_orig) / y2_scale;
+			const uint64_t clipped_max_count = PVCore::max(1UL, ly2_max - ly2_min);
+			const size_t count_aligned = ((clipped_max_count * y1_count) + 31) / 32;
+			memset(buffer, 0, count_aligned * sizeof(uint32_t));
+			uint32_t remaining = clipped_max_count * y1_count;
+
+			const __m128i sse_y2_min            = _mm_set1_epi64x(y2_min);
+			const __m128i sse_y2_max            = _mm_set1_epi64x(y2_max);
+			const __m128i sse_y2_orig           = _mm_set1_epi32(y2_orig);
+			const __m128i sse_y2_shift          = _mm_set1_epi32(y2_shift);
+			const __m128i sse_ly2_min           = _mm_set1_epi32(ly2_min);
+			const __m128i sse_y1_orig           = _mm_set1_epi32(y1_orig);
+			const __m128i sse_y1_shift          = _mm_set1_epi32(y1_shift);
+			const __m128i sse_clipped_max_count = _mm_set1_epi32(clipped_max_count);
+
+			const size_t size = obj._datas.size();
+			const size_t packed_size = size & ~3;
+
+			for(size_t i = 0; i < packed_size; i += 4) {
+				const PVQuadTreeEntry &e0 = obj._datas.at(i);
+				const PVQuadTreeEntry &e1 = obj._datas.at(i+1);
+				const PVQuadTreeEntry &e2 = obj._datas.at(i+2);
+				const PVQuadTreeEntry &e3 = obj._datas.at(i+3);
+
+				// TODO: compact all _mm_xxxxx expressions ;-)
+				__m128i sse_r0 = _mm_loadu_si128((const __m128i*) &e0);
+				__m128i sse_r1 = _mm_loadu_si128((const __m128i*) &e1);
+				__m128i sse_r2 = _mm_loadu_si128((const __m128i*) &e2);
+				__m128i sse_r3 = _mm_loadu_si128((const __m128i*) &e3);
+
+				/* partial "transposition" to have all y1 in one register
+				 * and all y2 in an other one
+				 */
+				__m128i sse_tmp01 = _mm_unpacklo_epi32(sse_r0, sse_r1);
+				__m128i sse_tmp23 = _mm_unpacklo_epi32(sse_r2, sse_r3);
+
+				__m128i sse_y2 = _mm_unpackhi_epi64(sse_tmp01, sse_tmp23);
+
+				__m128i sse_test;
+
+				if (test_sse(sse_y2, sse_y2_min, sse_y2_max, sse_test)) {
+					continue;
+				}
+
+				// sse_y1 is not needed before the call to test_sse
+				__m128i sse_y1 = _mm_unpacklo_epi64(sse_tmp01, sse_tmp23);
+
+				/*
+				 * pos = (((e.y2 - y2_orig) / y2_scale) - ly2_min)
+				 * + clipped_max_count * ((e.y1 - y1_orig) / y1_scale);
+				 */
+				__m128i sse_0s  = _mm_sub_epi32(sse_y2, sse_y2_orig);
+				__m128i sse_0sd = _mm_srl_epi32(sse_0s, sse_y2_shift);
+				__m128i sse_0x  = _mm_sub_epi32(sse_0sd, sse_ly2_min);
+
+				__m128i sse_1s  = _mm_sub_epi32(sse_y1, sse_y1_orig);
+				__m128i sse_1sd = _mm_srl_epi32(sse_1s, sse_y1_shift);
+				__m128i sse_1y  = _mm_mullo_epi32(sse_1sd, sse_clipped_max_count);
+
+				__m128i sse_pos = _mm_add_epi32(sse_0x, sse_1y);
+
+				if(_mm_extract_epi32(sse_test, 0)) {
+					uint32_t p = _mm_extract_epi32(sse_pos, 0);
+					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
+						insert_f(e0, tlr);
+						B_SET(buffer[p >> 5], p & 31);
+						--remaining;
+						if (remaining == 0) {
+							break;
+						}
+					}
+				}
+
+				if(_mm_extract_epi32(sse_test, 1)) {
+					uint32_t p = _mm_extract_epi32(sse_pos, 1);
+					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
+						insert_f(e1, tlr);
+						B_SET(buffer[p >> 5], p & 31);
+						--remaining;
+						if (remaining == 0) {
+							break;
+						}
+					}
+				}
+
+				if(_mm_extract_epi32(sse_test, 2)) {
+					uint32_t p = _mm_extract_epi32(sse_pos, 2);
+					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
+						insert_f(e2, tlr);
+						B_SET(buffer[p >> 5], p & 31);
+						--remaining;
+						if (remaining == 0) {
+							break;
+						}
+					}
+				}
+
+				if(_mm_extract_epi32(sse_test, 3)) {
+					uint32_t p = _mm_extract_epi32(sse_pos, 3);
+					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
+						insert_f(e3, tlr);
+						B_SET(buffer[p >> 5], p & 31);
+						--remaining;
+						if (remaining == 0) {
+							break;
+						}
+					}
+				}
+			}
+
+			for(size_t i = packed_size; i < size; ++i) {
+				const PVQuadTreeEntry &e = obj._datas.at(i);
+				if (!test_f(e, y2_min, y2_max)) {
+					continue;
+				}
+				const uint32_t pos = (((e.y2 - y2_orig) / y2_scale) - ly2_min) + clipped_max_count * ((e.y1 - y1_orig) / y1_scale);
+				if (B_IS_SET(buffer[pos >> 5], pos & 31)) {
+					continue;
+				}
+				insert_f(e, tlr);
+				B_SET(buffer[pos >> 5], pos & 31);
+				--remaining;
+				if (remaining == 0) {
+					break;
+				}
+			}
+
 		}
 	};
 
