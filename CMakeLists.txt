@@ -70,8 +70,8 @@ declare_internal_library(pvkernel)
 add_subdirectory(helpers)
 
 declare_internal_library(picviz)
-declare_internal_library(pvdisplays)
 declare_internal_library(pvhive)
+declare_internal_library(pvdisplays)
 declare_internal_library(pvparallelview)
 declare_internal_library(pvguiqt)
 

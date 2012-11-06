@@ -134,6 +134,9 @@ protected:
 	virtual base_registrable* _clone_me() const
 	{
 		// This is done so that this class can be instanciated and used as a key for std::map
+		// If this assert pops when a class is being registered (with REGISTER_CLASS for instance),
+		// it must mean that you forgot the CLASS_REGISTRABLE macro in the registered class declaration.
+		// See PVCore::PVRegistrableClass documentation for more information.
 		assert(false);
 		return NULL;
 	}

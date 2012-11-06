@@ -70,3 +70,6 @@ target_link_libraries(Tqt_import_source_to_project_dlg ${COMMON_LIBRARIES})
 add_executable(Tqt_correlation_menu correlation_menu.cpp)
 target_link_libraries(Tqt_correlation_menu ${COMMON_LIBRARIES})
 
+# Displays plugins
+add_executable(Tqt_displays_plugins displays_plugins.cpp common.cpp)
+target_link_libraries(Tqt_displays_plugins ${COMMON_LIBRARIES})

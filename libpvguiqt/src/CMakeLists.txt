@@ -4,6 +4,7 @@
 # Copyright (C) Picviz Labs 2010-2012
 
 set(LIBGUIQT_SRC_FILES
+common.cpp
 PVAxesCombinationDialog.cpp
 PVAxesCombinationModel.cpp
 PVAxesCombinationWidget.cpp
@@ -36,6 +37,11 @@ PVStartScreenWidget.cpp
 PVInputTypeMenuEntries.cpp
 PVImportSourceToProjectDlg.cpp
 PVCorrelationMenu.cpp
+
+# Displays that will be registered to libpvdisplays
+PVDisplayViewAxesCombination.cpp
+PVDisplayViewLayerStack.cpp
+PVDisplayViewListing.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
@@ -101,7 +107,7 @@ add_library(pvguiqt SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-set(PVGUIQT_LINK_LIBRARIES pvparallelview pvhive picviz pvkernel ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
+set(PVGUIQT_LINK_LIBRARIES pvdisplays pvparallelview pvhive picviz pvkernel ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 

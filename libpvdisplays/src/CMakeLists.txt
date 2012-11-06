@@ -5,10 +5,12 @@
 
 set(LIBDISPLAYS_SRC_FILES
 PVDisplayIf.cpp
+PVDisplaysImpl.cpp
 )
 
 set(LIBDISPLAYS_HEADER_FILES
 include/pvdisplays/PVDisplayIf.h
+include/pvdisplays/PVDisplaysImpl.h
 )
 
 SET(LIBDISPLAYS_MOC_HEADERS
