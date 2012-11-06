@@ -163,5 +163,11 @@ void PVHive::PVHive::refresh_observers(PVCore::PVDataTreeObjectWithParentBase co
 	assert(object != nullptr);
 
 	do_refresh_observers(obj_refresh);
-	refresh_observers(object->get_parent_base());
+
+	// AG: in test cases (mainly PVGuiQt and PVParallelView), we use "fake" objects that have no parents,
+	// thus this check is necessary!
+	PVCore::PVDataTreeObjectBase const* const parent = object->get_parent_base();
+	if (parent) {
+		refresh_observers(parent);
+	}
 }
