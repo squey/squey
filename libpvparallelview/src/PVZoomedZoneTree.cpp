@@ -499,6 +499,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 			               }
 		               });
 
+	BENCH_START(whole);
 	BENCH_START(extract);
 	for (uint32_t t1 = t1_min; t1 < t1_max; ++t1) {
 		for (uint32_t t2 = 0; t2 < 1024; ++t2) {
@@ -526,7 +527,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 			          quadtree_buffer, tlr_buffer, insert_f);
 		}
 	}
-	BENCH_END(extract, "extraction", 1, 1, 1, 1);
+	BENCH_STOP(extract);
 
 	/* extracting BCI codes from TLR buffer
 	 */
@@ -545,9 +546,20 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 			bci.s.color = colors[idx].h();
 		}
 	}
+	BENCH_STOP(compute);
+	BENCH_STOP(whole);
 
 	tlr_buffer.clear();
-	BENCH_END(compute, "computation", 1, 1, 1, 1);
+
+	if (use_sel) {
+		BENCH_SHOW(extract, "extraction  y1 seq sel", 1, 1, 1, 1);
+		BENCH_SHOW(compute, "computation y1 seq sel", 1, 1, 1, 1);
+		BENCH_SHOW(whole,   "whole       y1 seq sel", 1, 1, 1, 1);
+	} else {
+		BENCH_SHOW(extract, "extraction  y1 seq bg", 1, 1, 1, 1);
+		BENCH_SHOW(compute, "computation y1 seq bg", 1, 1, 1, 1);
+		BENCH_SHOW(whole,   "whole       y1 seq bg", 1, 1, 1, 1);
+	}
 
 	std::cout << "::browse_trees_bci_by_y1 -> " << bci_idx << std::endl;
 
@@ -595,6 +607,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 			               }
 		               });
 
+	BENCH_START(whole);
 	BENCH_START(extract);
 	for (uint32_t t2 = t2_min; t2 < t2_max; ++t2) {
 		for (uint32_t t1 = 0; t1 < 1024; ++t1) {
@@ -622,7 +635,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 			          quadtree_buffer, tlr_buffer, insert_f);
 		}
 	}
-	BENCH_END(extract, "extraction", 1, 1, 1, 1);
+	BENCH_STOP(extract);
 
 	/* extracting BCI codes from TLR buffer
 	 */
@@ -641,9 +654,20 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 			bci.s.color = colors[idx].h();
 		}
 	}
+	BENCH_STOP(compute);
+	BENCH_STOP(whole);
 
 	tlr_buffer.clear();
-	BENCH_END(compute, "computation", 1, 1, 1, 1);
+
+	if (use_sel) {
+		BENCH_SHOW(extract, "extraction  y2 seq sel", 1, 1, 1, 1);
+		BENCH_SHOW(compute, "computation y2 seq sel", 1, 1, 1, 1);
+		BENCH_SHOW(whole,   "whole       y2 seq sel", 1, 1, 1, 1);
+	} else {
+		BENCH_SHOW(extract, "extraction  y2 seq bg", 1, 1, 1, 1);
+		BENCH_SHOW(compute, "computation y2 seq bg", 1, 1, 1, 1);
+		BENCH_SHOW(whole,   "whole       y2 seq sel", 1, 1, 1, 1);
+	}
 
 	std::cout << "::browse_trees_bci_by_y2 -> " << bci_idx << std::endl;
 
@@ -687,6 +711,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 			               }
 		               });
 
+	BENCH_START(whole);
 	BENCH_START(extract);
 	tbb::parallel_for(tbb::blocked_range2d<uint32_t>(t1_min, t1_max, 0, 1024),
 	                  [&] (const tbb::blocked_range2d<uint32_t> &r)
@@ -726,7 +751,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 
 		                  tls.set_index(bci_idx);
 	                  });
-	BENCH_END(extract, "extraction", 1, 1, 1, 1);
+	BENCH_STOP(extract);
 
 	size_t bci_idx = 0;
 
@@ -748,7 +773,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 
 		tlr_buffer2.clear();
 	}
-	BENCH_END(merge, "merge", 1, 1, 1, 1);
+	BENCH_STOP(merge);
 
 	/* extracting BCI codes from TLR buffer
 	 */
@@ -767,9 +792,22 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 			bci.s.color = colors[idx].h();
 		}
 	}
+	BENCH_STOP(compute);
+	BENCH_STOP(whole);
 
 	tlr_buffer.clear();
-	BENCH_END(compute, "computation", 1, 1, 1, 1);
+
+	if (use_sel) {
+		BENCH_SHOW(extract, "extraction  y1 tbb sel", 1, 1, 1, 1);
+		BENCH_SHOW(merge,   "merge       y1 tbb sel", 1, 1, 1, 1);
+		BENCH_SHOW(compute, "computation y1 tbb sel", 1, 1, 1, 1);
+		BENCH_SHOW(whole,   "whole       y1 tbb sel", 1, 1, 1, 1);
+	} else {
+		BENCH_SHOW(extract, "extraction  y1 tbb bg", 1, 1, 1, 1);
+		BENCH_SHOW(merge,   "merge       y1 tbb bg", 1, 1, 1, 1);
+		BENCH_SHOW(compute, "computation y1 tbb bg", 1, 1, 1, 1);
+		BENCH_SHOW(whole,   "whole       y1 tbb bg", 1, 1, 1, 1);
+	}
 
 	std::cout << "::browse_trees_bci_by_y1_tbb -> " << bci_idx << std::endl;
 
@@ -814,6 +852,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 			               }
 		               });
 
+	BENCH_START(whole);
 	BENCH_START(extract);
 	tbb::parallel_for(tbb::blocked_range2d<uint32_t>(t2_min, t2_max, 0, 1024),
 	                  [&] (const tbb::blocked_range2d<uint32_t> &r)
@@ -853,7 +892,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 
 		                  tls.set_index(bci_idx);
 	                  });
-	BENCH_END(extract, "extraction", 1, 1, 1, 1);
+	BENCH_STOP(extract);
 
 	size_t bci_idx = 0;
 
@@ -875,7 +914,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 
 		tlr_buffer2.clear();
 	}
-	BENCH_END(merge, "merge", 1, 1, 1, 1);
+	BENCH_STOP(merge);
 
 	/* extracting BCI codes from TLR buffer
 	 */
@@ -894,9 +933,22 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 			bci.s.color = colors[idx].h();
 		}
 	}
+	BENCH_STOP(compute);
+	BENCH_STOP(whole);
 
 	tlr_buffer.clear();
-	BENCH_END(compute, "computation", 1, 1, 1, 1);
+
+	if (use_sel) {
+		BENCH_SHOW(extract, "extraction  y2 tbb sel", 1, 1, 1, 1);
+		BENCH_SHOW(merge,   "merge       y2 tbb sel", 1, 1, 1, 1);
+		BENCH_SHOW(compute, "computation y2 tbb sel", 1, 1, 1, 1);
+		BENCH_SHOW(whole,   "whole       y2 tbb sel", 1, 1, 1, 1);
+	} else {
+		BENCH_SHOW(extract, "extraction  y2 tbb bg", 1, 1, 1, 1);
+		BENCH_SHOW(merge,   "merge       y2 tbb bg", 1, 1, 1, 1);
+		BENCH_SHOW(compute, "computation y2 tbb bg", 1, 1, 1, 1);
+		BENCH_SHOW(whole,   "whole       y2 tbb bg", 1, 1, 1, 1);
+	}
 
 	std::cout << "::browse_trees_bci_by_y2_tbb -> " << bci_idx << std::endl;
 

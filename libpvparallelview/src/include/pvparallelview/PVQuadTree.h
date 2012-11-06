@@ -468,10 +468,10 @@ private:
 				 * entries is needed
 				 */
 #ifdef QUADTREE_USE_SSE_EXTRACT
-				extract_seq(obj, y1_min, y1_max, zoom, y2_count,
+				extract_sse(obj, y1_min, y1_max, zoom, y2_count,
 				            test_f, insert_f, buffer, tlr);
 #else
-				extract_sse(obj, y1_min, y1_max, zoom, y2_count,
+				extract_seq(obj, y1_min, y1_max, zoom, y2_count,
 				            test_f, insert_f, buffer, tlr);
 #endif
 			}
@@ -663,10 +663,10 @@ private:
 			const uint64_t y1_orig = obj._y1_min_value;
 			const uint64_t y1_len = (obj._y1_mid_value - y1_orig) * 2;
 			const uint64_t y1_scale = y1_len / max_count;
-			const uint64_t y1_shift = PVCore::upper_power_of_2(y1_scale);
+			const uint64_t y1_shift = log2(y1_scale);
 			const uint64_t y2_orig = obj._y2_min_value;
 			const uint64_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / y2_count;
-			const uint64_t y2_shift = PVCore::upper_power_of_2(y2_scale);
+			const uint64_t y2_shift = log2(y2_scale);
 			const uint64_t ly1_min = (PVCore::clamp(y1_min, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 			const uint64_t ly1_max = (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 			const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
@@ -732,9 +732,6 @@ private:
 				if(_mm_extract_epi32(sse_test, 0)) {
 					uint32_t p = _mm_extract_epi32(sse_pos, 0);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
-						std::cout << "e0: " << e0.y1 << " " << e0.y2
-						          << " - " << p << " " << (p >> 5) << " " << (p & 31)
-						          << std::endl;
 						insert_f(e0, tlr);
 						B_SET(buffer[p >> 5], p & 31);
 						--remaining;
@@ -747,9 +744,6 @@ private:
 				if(_mm_extract_epi32(sse_test, 1)) {
 					uint32_t p = _mm_extract_epi32(sse_pos, 1);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
-						std::cout << "e1: " << e1.y1 << " " << e1.y2
-						          << " - " << p << " " << (p >> 5) << " " << (p & 31)
-						          << std::endl;
 						insert_f(e1, tlr);
 						B_SET(buffer[p >> 5], p & 31);
 						--remaining;
@@ -762,9 +756,6 @@ private:
 				if(_mm_extract_epi32(sse_test, 2)) {
 					uint32_t p = _mm_extract_epi32(sse_pos, 2);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
-						std::cout << "e2: " << e2.y1 << " " << e2.y2
-						          << " - " << p << " " << (p >> 5) << " " << (p & 31)
-						          << std::endl;
 						insert_f(e2, tlr);
 						B_SET(buffer[p >> 5], p & 31);
 						--remaining;
@@ -777,9 +768,6 @@ private:
 				if(_mm_extract_epi32(sse_test, 3)) {
 					uint32_t p = _mm_extract_epi32(sse_pos, 3);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
-						std::cout << "e3: " << e3.y1 << " " << e3.y2
-						          << " - " << p << " " << (p >> 5) << " " << (p & 31)
-						          << std::endl;
 						insert_f(e3, tlr);
 						B_SET(buffer[p >> 5], p & 31);
 						--remaining;
@@ -806,11 +794,9 @@ private:
 					break;
 				}
 			}
-
 		}
 	};
 
-#undef QUADTREE_USE_SSE_EXTRACT
 	struct visit_y2
 	{
 		template <typename Ftest>
@@ -1035,11 +1021,11 @@ private:
 			const uint64_t max_count = 1 << zoom;
 			const uint64_t y1_orig = obj._y1_min_value;
 			const uint64_t y1_scale = ((obj._y1_mid_value - y1_orig) * 2) / y1_count;
-			const uint64_t y1_shift = PVCore::upper_power_of_2(y1_scale);
+			const uint64_t y1_shift = log2(y1_scale);
 			const uint64_t y2_orig = obj._y2_min_value;
 			const uint64_t y2_len = (obj._y2_mid_value - y2_orig) * 2;
 			const uint64_t y2_scale = y2_len / max_count;
-			const uint64_t y2_shift = PVCore::upper_power_of_2(y2_scale);
+			const uint64_t y2_shift = log2(y2_scale);
 			const uint64_t ly2_min = (PVCore::clamp(y2_min, y2_orig, y2_orig + y2_len) - y2_orig) / y2_scale;
 			const uint64_t ly2_max = (PVCore::clamp(y2_max, y2_orig, y2_orig + y2_len) - y2_orig) / y2_scale;
 			const uint64_t clipped_max_count = PVCore::max(1UL, ly2_max - ly2_min);
@@ -1167,7 +1153,6 @@ private:
 					break;
 				}
 			}
-
 		}
 	};
 
