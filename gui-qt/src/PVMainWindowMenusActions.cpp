@@ -347,7 +347,7 @@ void PVInspector::PVMainWindow::connect_actions()
 	scene_Menu->installEventFilter(scene_menu_event_filter);
 	connect(correlation_scene_Action, SIGNAL(triggered()), this, SLOT(show_correlation_Slot()));
 
-	connect(correlation_Menu, SIGNAL(correlation_added()), this, SLOT(add_correlation()));
+	connect(correlation_Menu, SIGNAL(correlation_added(const QString &)), this, SLOT(add_correlation(const QString &)));
 	connect(correlation_Menu, SIGNAL(correlation_shown(int)), this, SLOT(show_correlation(int)));
 	connect(correlation_Menu, SIGNAL(correlation_deleted(int)), this, SLOT(delete_correlation(int)));
 

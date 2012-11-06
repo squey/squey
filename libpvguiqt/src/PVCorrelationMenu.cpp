@@ -53,9 +53,9 @@ void PVGuiQt::PVCorrelationMenu::create_new_correlation()
 	line_edit->installEventFilter(new __impl::CreateNewCorrelationEventFilter(this, line_edit));
 }
 
-void PVGuiQt::PVCorrelationMenu::add_new_correlation(const QString & title)
+void PVGuiQt::PVCorrelationMenu::add_new_correlation(const QString & name)
 {
-	QMenu* correlation_sub_menu = new QMenu(title);
+	QMenu* correlation_sub_menu = new QMenu(name);
 	insertMenu(_separator_create_correlation, correlation_sub_menu);
 
 	QAction* show_action = correlation_sub_menu->addAction(tr("Show"));
@@ -64,7 +64,7 @@ void PVGuiQt::PVCorrelationMenu::add_new_correlation(const QString & title)
 	QAction* delete_action = correlation_sub_menu->addAction(tr("Delete"));
 	connect(delete_action, SIGNAL(triggered(bool)), this, SLOT(delete_correlation()));
 
-	emit correlation_added();
+	emit correlation_added(name);
 }
 
 void PVGuiQt::PVCorrelationMenu::show_correlation()

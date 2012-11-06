@@ -231,6 +231,9 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	_stacked_widget->setCurrentIndex(index); // Map QTabBar signal to QStackedWidget to keep the sync
 	if (index >= 2) {
 		_current_project_index = index;
+		PVWorkspacesTabWidget* workspace_tab_widget = (PVWorkspacesTabWidget*) _stacked_widget->widget(index);
+		int correlation_index = workspace_tab_widget->get_correlation_index();
+		Picviz::PVRoot::get_root().select_correlation(correlation_index);
 	}
 }
 

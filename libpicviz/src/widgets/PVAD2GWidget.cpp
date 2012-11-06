@@ -211,6 +211,11 @@ tlp::node PVWidgets::PVAD2GWidget::add_view(QPoint pos, Picviz::PVView* view)
 	tlp::StringProperty* label = graph->getProperty<tlp::StringProperty>("viewLabel");
 	label->setNodeValue(newNode, qPrintable(QString::number(view->get_display_view_id())));
 
+	// Add node color
+	QColor c = view->get_color();
+	tlp::ColorProperty* color_property = _graph->getLocalProperty<tlp::ColorProperty>("viewColor");
+	color_property->setNodeValue(newNode, tlp::Color(c.red(), c.green(), c.blue()));
+
 	// Set view id property
 	graph->getProperty<tlp::IntegerProperty>("view_id")->setNodeValue(newNode, view->get_display_view_id());
 

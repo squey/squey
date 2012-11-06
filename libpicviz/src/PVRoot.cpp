@@ -6,6 +6,7 @@
 
 #include <picviz/PVRoot.h>
 #include <picviz/PVScene.h>
+#include <picviz/PVView.h>
 #include <picviz/plugins.h>
 
 #include <pvkernel/core/PVClassLibrary.h>
@@ -69,15 +70,26 @@ void Picviz::PVRoot::release()
 	_unique_root.reset();
 }
 
+/******************************************************************************
+ *
+ * Picviz::PVRoot::get_correlation
+ *
+ *****************************************************************************/
+Picviz::PVAD2GView_p Picviz::PVRoot::get_correlation(int index)
+{
+	correlations_t::iterator i = _correlations.begin();
+	std::advance(i, index);
+	return *i;
+}
 
 /******************************************************************************
  *
  * Picviz::PVRoot::add_correlation
  *
  *****************************************************************************/
-void Picviz::PVRoot::add_correlation()
+void Picviz::PVRoot::add_correlation(const QString & name)
 {
-	_correlations.push_back(PVAD2GView_p(new PVAD2GView()));
+	_correlations.push_back(PVAD2GView_p(new PVAD2GView(name)));
 }
 
 /******************************************************************************
@@ -90,6 +102,27 @@ void Picviz::PVRoot::delete_correlation(int index)
 	correlations_t::iterator i = _correlations.begin();
 	std::advance(i, index);
 	_correlations.erase(i);
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVRoot::process_correlation
+ *
+ *****************************************************************************/
+QList<Picviz::PVView*> Picviz::PVRoot::process_correlation(PVView* src_view)
+{
+	QList<Picviz::PVView*> changed_views;
+	if (_current_correlation && !_correlation_running) {
+		_correlation_running = true;
+		_current_correlation->pre_process();
+		_current_correlation->run(src_view, &changed_views);
+		for (Picviz::PVView* view : changed_views) {
+			view->process_from_selection();
+		}
+		_correlation_running = false;
+	}
+
+	return changed_views;
 }
 
 /******************************************************************************

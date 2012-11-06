@@ -11,7 +11,9 @@
 
 #include <pvkernel/core/lambda_connect.h>
 
+#include <pvhive/PVHive.h>
 #include <pvhive/PVCallHelper.h>
+#include <pvhive/PVObserverSignal.h>
 
 #include <iostream>
 #include <QApplication>
@@ -149,7 +151,7 @@ void PVGuiQt::PVTabBar::start_drag(QWidget* workspace)
 		emit _tab_widget->emit_workspace_dragged_outside(workspace);
 	}
 	if (action == Qt::MoveAction) {
-		if (PVWorkspace* w = qobject_cast<PVWorkspace*>(workspace)) {
+		if (qobject_cast<PVWorkspace*>(workspace)) {
 			_tab_widget->_workspaces_count--;
 		}
 		else if (qobject_cast<PVOpenWorkspace*>(workspace)) {
@@ -294,19 +296,6 @@ PVGuiQt::PVWorkspacesTabWidget::PVWorkspacesTabWidget(Picviz::PVScene_p scene_p,
 	init();
 }
 
-void PVGuiQt::PVWorkspacesTabWidget::set_project_modified(bool modified /* = true */, QString path /*= QString()*/)
-{
-	if (!_project_modified && modified) {
-		emit project_modified(true);
-	}
-	else if (_project_modified && !modified) {
-		_project_untitled = false;
-		emit project_modified(false, path);
-
-	}
-	_project_modified = modified;
-}
-
 void PVGuiQt::PVWorkspacesTabWidget::init()
 {
 	setObjectName("PVWorkspacesTabWidget");
@@ -321,6 +310,30 @@ void PVGuiQt::PVWorkspacesTabWidget::init()
 
 	setTabsClosable(true);
 	connect(tabBar(), SIGNAL(tabCloseRequested(int)), this, SLOT(tabCloseRequested_Slot(int)));
+
+	_combo_box = new QComboBox();
+	connect(_combo_box, SIGNAL(activated(int)), this, SLOT(correlation_changed(int)));
+	update_correlations_list();
+	setCornerWidget(_combo_box, Qt::TopRightCorner);
+
+	// Register observers for correlations
+	Picviz::PVRoot_sp root_sp = Picviz::PVRoot::get_root_sp();
+	PVHive::PVObserverSignal<Picviz::PVRoot>* obs = new PVHive::PVObserverSignal<Picviz::PVRoot>(this);
+	PVHive::get().register_observer(root_sp, [=](Picviz::PVRoot& root) { return &root.get_correlations(); }, *obs);
+	obs->connect_refresh(this, SLOT(update_correlations_list()));
+}
+
+void PVGuiQt::PVWorkspacesTabWidget::set_project_modified(bool modified /* = true */, QString path /*= QString()*/)
+{
+	if (!_project_modified && modified) {
+		emit project_modified(true);
+	}
+	else if (_project_modified && !modified) {
+		_project_untitled = false;
+		emit project_modified(false, path);
+
+	}
+	_project_modified = modified;
 }
 
 int PVGuiQt::PVWorkspacesTabWidget::count() const
@@ -465,4 +478,24 @@ void PVGuiQt::PVWorkspacesTabWidget::animation_state_changed(QAbstractAnimation:
 		sender()->deleteLater();
 		emit animation_finished();
 	}
+}
+
+void PVGuiQt::PVWorkspacesTabWidget::update_correlations_list()
+{
+	_combo_box->clear();
+	_combo_box->addItem("(No correlation)");
+	for (auto correlation : Picviz::PVRoot::get_root().get_correlations()) {
+		_combo_box->addItem(correlation->get_name());
+	}
+	int index = get_correlation_index();
+	if (index == -1) {
+		Picviz::PVRoot::get_root().select_correlation(index++);
+	}
+	_combo_box->setCurrentIndex(index);
+}
+
+void PVGuiQt::PVWorkspacesTabWidget::correlation_changed(int index)
+{
+	Picviz::PVRoot::get_root().select_correlation(index-1);
+	_correlation_name = _combo_box->itemText(index);
 }

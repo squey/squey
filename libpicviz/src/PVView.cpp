@@ -710,6 +710,16 @@ void Picviz::PVView::process_filter()
 
 /******************************************************************************
  *
+ * Picviz::PVView::process_correlation
+ *
+ *****************************************************************************/
+QList<Picviz::PVView*> Picviz::PVView::process_correlation()
+{
+	return get_parent<Picviz::PVRoot>()->process_correlation(this);
+}
+
+/******************************************************************************
+ *
  * Picviz::PVView::process_from_eventline
  *
  *****************************************************************************/
@@ -736,7 +746,7 @@ void Picviz::PVView::process_from_filter()
  * Picviz::PVView::process_from_layer_stack
  *
  *****************************************************************************/
-void Picviz::PVView::process_from_layer_stack()
+QList<Picviz::PVView*> Picviz::PVView::process_from_layer_stack()
 {
 	tbb::tick_count start = tbb::tick_count::now();
 
@@ -746,9 +756,12 @@ void Picviz::PVView::process_from_layer_stack()
 	process_filter();
 	process_eventline();
 	process_visibility();
+	QList<Picviz::PVView*> changed_views = process_correlation();
 
 	tbb::tick_count end = tbb::tick_count::now();
 	PVLOG_INFO("(Picviz::PVView::process_from_layer_stack) function took %0.4f seconds.\n", (end-start).seconds());
+
+	return changed_views;
 }
 
 /******************************************************************************
@@ -756,19 +769,23 @@ void Picviz::PVView::process_from_layer_stack()
  * Picviz::PVView::process_from_selection
  *
  *****************************************************************************/
-void Picviz::PVView::process_from_selection()
+QList<Picviz::PVView*> Picviz::PVView::process_from_selection()
 {
 	PVLOG_DEBUG("Picviz::PVView::%s\n",__FUNCTION__);
 	process_selection();
 	process_filter();
 	process_eventline();
 	process_visibility();
+	QList<Picviz::PVView*> changed_views = process_correlation();
+
+	return changed_views;
 }
 
-void Picviz::PVView::process_real_output_selection()
+QList<Picviz::PVView*> Picviz::PVView::process_real_output_selection()
 {
 	// AG: TODO: should be optimised to only create real_output_selection
-	process_from_selection();
+	QList<Picviz::PVView*> changed_views = process_from_selection();
+	return changed_views;
 }
 
 /******************************************************************************

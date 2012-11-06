@@ -79,7 +79,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
 
-	_ad2g_mw = NULL;
+	//_ad2g_mw = NULL;
 
 	// SIZE STUFF
 	// WARNING: nothing should be set here.

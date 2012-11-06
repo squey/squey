@@ -33,7 +33,7 @@ Picviz::PVSelection Picviz::PVCombiningFunctionView::operator()(PVView const& vi
 	std::vector<PVSelection> out_sel;
 	out_sel.reserve(_tfs.size());
 	foreach(PVTransformationFunctionView_p const& tf, _tfs) {
-		out_sel.push_back((*tf)(view_src, view_dst, sel_src));
+		out_sel.emplace_back(std::move((*tf)(view_src, view_dst, sel_src)));
 	}
 
 	// Merge with an OR operation
@@ -42,10 +42,10 @@ Picviz::PVSelection Picviz::PVCombiningFunctionView::operator()(PVView const& vi
 	std::vector<PVSelection>::const_iterator it_sel = out_sel.begin();
 	it_sel++;
 	for (; it_sel != out_sel.end(); it_sel++) {
-		ret |= *it_sel;
+		ret.or_optimized(*it_sel);
 	}
 
-	return ret;
+	return std::move(ret);
 }
 
 Picviz::PVTFViewRowFiltering* Picviz::PVCombiningFunctionView::get_first_tf()

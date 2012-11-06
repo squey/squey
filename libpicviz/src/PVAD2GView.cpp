@@ -211,8 +211,8 @@ const std::string PVAD2GViewCorrelationProperty::propertyTypename = "PVAD2GViewC
  * Picviz::PVAD2GView::PVAD2GView
  *
  *****************************************************************************/
-Picviz::PVAD2GView::PVAD2GView(/*Picviz::PVScene* scene*/)// :
-	//_scene(scene)
+Picviz::PVAD2GView::PVAD2GView(const QString & name) :
+	_name(name)
 {
 	_graph = tlp::newGraph();
 	_corr_info = _graph->getLocalProperty<PVAD2GViewCorrelationProperty>(TLP_CORR_PROPERTY);
@@ -725,7 +725,9 @@ void Picviz::PVAD2GView::count_path_number_rec(const tlp::node& a, const tlp::no
 
 void Picviz::__impl::f_update_sel::operator()(Picviz::PVCombiningFunctionView& cf, Picviz::PVView& va, Picviz::PVView& vb) const
 {
-	PVSelection sel = cf(va, vb);
+	PVSelection sel(std::move(cf(va, vb)));
+	sel.visit_selected_lines([](PVRow const r) { std::cout << r << ","; }, va.get_row_count());
+	std::cout << std::endl;
 	vb.set_selection_view(sel);
 }
 

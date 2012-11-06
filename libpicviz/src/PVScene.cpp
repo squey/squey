@@ -22,8 +22,7 @@
  *
  *****************************************************************************/
 Picviz::PVScene::PVScene(QString scene_path) :
-	_path(scene_path),
-	_ad2g_view(new PVAD2GView(/*this*/))
+	_path(scene_path)
 {
 	QFileInfo info(_path);
 	_name = info.fileName();
@@ -136,8 +135,8 @@ QColor Picviz::PVScene::get_new_view_color() const
 
 void Picviz::PVScene::user_modified_sel(PVView* src_view, QList<Picviz::PVView*>* changed_views)
 {
-	_ad2g_view->pre_process();
-	_ad2g_view->run(src_view, changed_views);
+	/*_ad2g_view->pre_process();
+	_ad2g_view->run(src_view, changed_views);*/
 }
 
 void Picviz::PVScene::child_added(PVSource& /*src*/)
@@ -165,10 +164,10 @@ void Picviz::PVScene::child_added(PVSource& /*src*/)
 void Picviz::PVScene::child_about_to_be_removed(PVSource& src)
 {
 	// Remove underlying views from the AD2G graph
-	for (auto view : src.get_children<PVView>())
+	/*for (auto view : src.get_children<PVView>())
 	{
 		_ad2g_view->del_view(view.get());
-	}
+	}*/
 	
 #if 0
 	// Remove this source's inputs if they are no longer used by other sources
@@ -238,8 +237,8 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 	data_tree_scene_t::serialize_read(so, v);
 
 	// Correlation, make this optional for compatibility with old project (so that we are still in version 1 :))
-	_ad2g_view.reset(new Picviz::PVAD2GView(/*this*/));
-	so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);
+	//_ad2g_view.reset(new Picviz::PVAD2GView(/*this*/));
+	//so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);
 }
 
 void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
@@ -267,7 +266,7 @@ void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 	data_tree_scene_t::serialize_write(so);
 
 	// Correlation (optional)
-	so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);
+	//so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);
 }
 
 PVCore::PVSerializeObject_p Picviz::PVScene::get_so_inputs(PVSource const& src)

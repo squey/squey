@@ -79,10 +79,6 @@ public:
 	list_sources_t get_sources(PVRush::PVInputType const& type) const;
 	PVRush::PVInputType::list_inputs_desc get_inputs_desc(PVRush::PVInputType const& type) const;
 
-	inline PVAD2GView& get_ad2g_view() { return *_ad2g_view; }
-	inline PVAD2GView const& get_ad2g_view() const { return *_ad2g_view; }
-	inline PVAD2GView_p get_ad2g_view_p() { return _ad2g_view; }
-
 	inline bool is_empty() const { return get_children().size() == 0; }
 
 	void add_source(PVSource_p const& src);
@@ -124,10 +120,6 @@ private:
 
 	QString _path;
 	QString _name;
-
-	// This is a shared pointer for current issues with the widget (which will be deleted by Qt *after*
-	// this object).
-	PVAD2GView_p _ad2g_view;
 
 	PVCore::PVSerializeArchive_p _original_archive;
 

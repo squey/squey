@@ -62,7 +62,7 @@ protected:
 	}
 
 signals:
-	void correlation_added();
+	void correlation_added(const QString & name);
 	void correlation_shown(int index);
 	void correlation_deleted(int index);
 

@@ -590,10 +590,10 @@ void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_
 	}
 }
 
-void PVInspector::PVMainWindow::add_correlation()
+void PVInspector::PVMainWindow::add_correlation(const QString & name)
 {
-	std::cout << "PVInspector::PVMainWindow::add_correlation" << std::endl;
-	get_root().add_correlation();
+	Picviz::PVRoot_sp root_sp = get_root_sp();
+	PVHive::call<FUNC(Picviz::PVRoot::add_correlation)>(root_sp, name);
 }
 
 void PVInspector::PVMainWindow::show_correlation(int index)
@@ -610,7 +610,8 @@ void PVInspector::PVMainWindow::show_correlation(int index)
 
 void PVInspector::PVMainWindow::delete_correlation(int index)
 {
-	get_root().delete_correlation(index);
+	Picviz::PVRoot_sp root_sp = get_root_sp();
+	PVHive::call<FUNC(Picviz::PVRoot::delete_correlation)>(root_sp, index);
 }
 
 bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p ar)
@@ -1358,7 +1359,7 @@ void PVInspector::PVMainWindow::view_display_inv_elts_Slot()
 
 void PVInspector::PVMainWindow::show_correlation_Slot()
 {
-	if (!_ad2g_mw) {
+	/*if (!_ad2g_mw) {
 		_ad2g_mw = new QDialog(this);
 		_ad2g_mw->setWindowTitle(tr("Correlations"));
 		PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(current_scene()->get_ad2g_view_p());
@@ -1374,5 +1375,5 @@ void PVInspector::PVMainWindow::show_correlation_Slot()
 		ad2g_w->update_list_views();
 		ad2g_w->update_list_edges();
 	}
-	_ad2g_mw->exec();
+	_ad2g_mw->exec();*/
 }

@@ -26,6 +26,7 @@
 #include <QDrag>
 #include <QLineEdit>
 #include <QPropertyAnimation>
+#include <QComboBox>
 
 #include <iostream>
 
@@ -133,6 +134,7 @@ public:
 	int count() const;
 	bool is_project_modified() { return _project_modified; }
 	bool is_project_untitled() { return _project_untitled; }
+	int get_correlation_index() { return std::max(-1, _combo_box->findText(_correlation_name)-1); }
 
 protected:
 	void tabInserted(int index) override;
@@ -154,6 +156,8 @@ private slots:
 	void emit_workspace_dragged_outside(QWidget* workspace) { emit workspace_dragged_outside(workspace); }
 	void animation_state_changed(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state);
 	void set_project_modified(bool modified = true, QString path = QString());
+	void update_correlations_list();
+	void correlation_changed(int);
 
 private:
 	Picviz::PVScene_p _scene_p;
@@ -170,6 +174,9 @@ private:
 	bool _project_modified = false;
 	bool _project_untitled = true;
 	__impl::PVSaveSceneToFileFuncObserver _save_scene_func_observer;
+
+	QComboBox* _combo_box;
+	QString _correlation_name;
 };
 
 }

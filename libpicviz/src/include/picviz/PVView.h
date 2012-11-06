@@ -263,11 +263,12 @@ public:
 
 	void load_post_to_pre();
 
+	QList<Picviz::PVView*> process_correlation();
 	void process_from_eventline();
 	void process_from_filter();
-	void process_from_layer_stack();
-	void process_from_selection();
-	void process_real_output_selection();
+	QList<Picviz::PVView*> process_from_layer_stack();
+	QList<Picviz::PVView*> process_from_selection();
+	QList<Picviz::PVView*> process_real_output_selection();
 
 	void process_eventline();
 	void process_filter();

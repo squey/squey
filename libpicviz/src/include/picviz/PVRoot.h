@@ -29,6 +29,8 @@
 
 namespace Picviz {
 
+class PVView;
+
 /**
  * \class PVRoot
  */
@@ -50,14 +52,12 @@ public:
 	static void release();
 
 public:
-	PVAD2GView_p get_correlation(int index)
-	{
-		correlations_t::iterator i = _correlations.begin();
-		std::advance(i, index);
-		return *i;
-	}
-	void add_correlation();
+	PVAD2GView_p get_correlation(int index);
+	void select_correlation(int index) { if (index == -1) _current_correlation.reset(); else _current_correlation = get_correlation(index); }
+	void add_correlation(const QString & name);
 	void delete_correlation(int index);
+	correlations_t& get_correlations() { return _correlations; }
+	QList<Picviz::PVView*> process_correlation(PVView* src_view);
 
 public:
 	virtual QString get_serialize_description() const { return "Root"; }
@@ -74,6 +74,8 @@ private:
 private:
 	static PVRoot_sp _unique_root;
 	correlations_t _correlations;
+	PVAD2GView_p _current_correlation;
+	bool _correlation_running = false;
 };
 
 typedef PVRoot::p_type  PVRoot_p;
