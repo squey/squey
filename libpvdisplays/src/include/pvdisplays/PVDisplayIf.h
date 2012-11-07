@@ -29,13 +29,15 @@ public:
 		ShowInToolbar = 2,
 		ShowInDockWidget = 4,
 		ShowInCentralDockWidget = 8,
-		ShowInCtxtMenu = 16
+		ShowInCtxtMenu = 16,
+		DefaultPresenceInSourceWorkspace = 32
 	} Flags;
 
 protected:
-	PVDisplayIf(int flags = 0, QString const& tooltip_str = QString()):
+	PVDisplayIf(int flags = 0, QString const& tooltip_str = QString(), Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea):
 		_flags(flags),
-		_tooltip_str(tooltip_str)
+		_tooltip_str(tooltip_str),
+		_default_pos(def_pos)
 	{ }
 
 	virtual ~PVDisplayIf() { }
@@ -52,6 +54,8 @@ public:
 	inline bool match_flags(int f) const { return (flags() & f) == f; }
 
 	inline QString const& tooltip_str() const { return _tooltip_str; }
+	inline Qt::DockWidgetArea default_position_hint() const { return _default_pos; }
+	inline bool default_position_as_central_hint() const { return default_position_hint() == Qt::NoDockWidgetArea && match_flags(DefaultPresenceInSourceWorkspace); }
 
 public:
 	virtual QIcon toolbar_icon() const { return QIcon(); }
@@ -59,6 +63,8 @@ public:
 private:
 	int _flags;
 	QString _tooltip_str;
+	// When set to Qt::NoDockWidgetArea with the DefaultPresenceInSourceWorkspace flag on, it means that we want this widget as a central widget
+	Qt::DockWidgetArea _default_pos;
 };
 
 template <class T>
@@ -70,8 +76,8 @@ class PVDisplayDataTreeIf: public PVDisplayIf
 	typedef std::unordered_map<value_type*, QWidget*> hash_widgets_t;
 
 public:
-	PVDisplayDataTreeIf(int flags = 0, QString const& tooltip_str = QString()):
-		PVDisplayIf(flags, tooltip_str)
+	PVDisplayDataTreeIf(int flags = 0, QString const& tooltip_str = QString(), Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea):
+		PVDisplayIf(flags, tooltip_str, def_pos)
 	{ }
 
 public:
@@ -141,8 +147,8 @@ public:
 	typedef boost::shared_ptr<RegAs> p_type;
 
 public:
-	PVDisplayViewIf(int flags = 0, QString const& tooltip_str = QString()):
-		PVDisplayDataTreeIf<Picviz::PVView>(flags, tooltip_str)
+	PVDisplayViewIf(int flags = 0, QString const& tooltip_str = QString(), Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea):
+		PVDisplayDataTreeIf<Picviz::PVView>(flags, tooltip_str, def_pos)
 	{ }
 };
 
@@ -153,8 +159,8 @@ public:
 	typedef boost::shared_ptr<RegAs> p_type;
 
 public:
-	PVDisplaySourceIf(int flags = 0, QString const& tooltip_str = QString()):
-		PVDisplayDataTreeIf<Picviz::PVSource>(flags, tooltip_str)
+	PVDisplaySourceIf(int flags = 0, QString const& tooltip_str = QString(), Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea):
+		PVDisplayDataTreeIf<Picviz::PVSource>(flags, tooltip_str, def_pos)
 	{ }
 };
 
@@ -186,8 +192,8 @@ public:
 	typedef boost::shared_ptr<RegAs> p_type;
 
 public:
-	PVDisplayViewAxisIf(int flags = 0, QString const& tooltip_str = QString()):
-		PVDisplayIf(flags, tooltip_str)
+	PVDisplayViewAxisIf(int flags = 0, QString const& tooltip_str = QString(), Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea):
+		PVDisplayIf(flags, tooltip_str, def_pos)
 	{ }
 
 public:

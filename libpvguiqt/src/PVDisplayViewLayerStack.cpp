@@ -5,7 +5,7 @@
 #include <pvguiqt/PVDisplayViewLayerStack.h>
 
 PVDisplays::PVDisplayViewLayerStack::PVDisplayViewLayerStack():
-	PVDisplayViewIf(PVDisplayIf::ShowInToolbar, "Layer stack")
+	PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget | PVDisplayIf::DefaultPresenceInSourceWorkspace, "Layer stack", Qt::RightDockWidgetArea)
 {
 }
 

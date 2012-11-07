@@ -1690,16 +1690,11 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 		return false;
 	}
 
-	PVGuiQt::PVWorkspace* workspace = _projects_tab_widget->add_source(src.get());
+	_projects_tab_widget->add_source(src.get());
 
 	if (src->get_children<Picviz::PVView>().size() > 0) {
 		Picviz::PVView_sp first_view_p = src->get_children<Picviz::PVView>().at(0);
 		first_view_p->get_parent<Picviz::PVScene>()->select_view(*first_view_p);
-
-		PVGuiQt::PVListingView* listing_view = workspace->create_listing_view(first_view_p);
-		workspace->set_central_display(first_view_p.get(), listing_view, "Listing [" + first_view_p->get_name() + "]");
-
-		workspace->create_parallel_view(first_view_p.get());
 	}
 
 	//connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));

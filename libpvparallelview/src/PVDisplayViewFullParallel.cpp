@@ -7,7 +7,7 @@
 #include <pvparallelview/PVDisplayViewFullParallel.h>
 
 PVDisplays::PVDisplayViewFullParallel::PVDisplayViewFullParallel():
-	PVDisplayViewIf(PVDisplayIf::ShowInToolbar, "Full parallel view")
+	PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget | PVDisplayIf::DefaultPresenceInSourceWorkspace, "Full parallel view", Qt::TopDockWidgetArea)
 {
 }
 

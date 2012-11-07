@@ -7,7 +7,7 @@
 #include <picviz/PVView.h>
 
 PVDisplays::PVDisplayViewListing::PVDisplayViewListing():
-	PVDisplayViewIf(PVDisplayIf::ShowInToolbar)
+	PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget | PVDisplayIf::DefaultPresenceInSourceWorkspace, "Listing", Qt::NoDockWidgetArea)
 {
 }
 

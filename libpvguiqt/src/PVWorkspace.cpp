@@ -332,6 +332,30 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	_toolbar->addSeparator();
 
 	refresh_views_menus();
+
+	for (Picviz::PVView_sp const& view: _source->get_children<Picviz::PVView>()) {
+		bool already_center = false;
+		// Create default widgets
+		PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
+			[&](PVDisplays::PVDisplayViewIf& obj)
+			{
+				QWidget* w = PVDisplays::get().get_widget(obj, view.get());
+
+				const QString view_name = obj.widget_title(view.get());
+				const bool as_central = obj.default_position_as_central_hint();
+
+				if (as_central && !already_center) {
+					set_central_display(view.get(), w, view_name);
+				}
+				else {
+					Qt::DockWidgetArea pos = obj.default_position_hint();
+					if (as_central && already_center) {
+						pos = Qt::TopDockWidgetArea;
+					}
+					add_view_display(view.get(), w, view_name, obj.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), pos);
+				}
+			}, PVDisplays::PVDisplayIf::DefaultPresenceInSourceWorkspace);
+	}
 }
 
 void PVGuiQt::PVWorkspace::update_view_count(PVHive::PVObserverBase* /*obs_base*/)
