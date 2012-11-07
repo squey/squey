@@ -123,6 +123,7 @@ public:
 		return act;
 	}
 
+	void add_displays_view_axis_menu(QMenu& menu, QObject* receiver, const char* slot, Picviz::PVView* view, PVCol axis_comb) const;
 
 private:
 	void static_init();

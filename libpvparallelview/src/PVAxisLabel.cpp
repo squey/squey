@@ -11,6 +11,19 @@
 
 #include <iostream>
 
+/*
+template <typename T>
+typename std::remove_pointer<T>::value_type* get_qobject_parent_of_type(QObject* self)
+{
+	typedef typename std::remove_pointer<T>::value_type* pointer;
+	QObject* parent = self->parent();
+	pointer parent_cast = qobject_cast<pointer>(parent);
+	if (parent_cast) {
+		return parent_cast;
+	}
+	return get_qobject_parent_of_type<T>(parent);
+}*/
+
 /*****************************************************************************
  * PVParallelView::PVAxisLabel::PVAxisLabel
  *****************************************************************************/

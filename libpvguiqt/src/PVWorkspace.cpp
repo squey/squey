@@ -599,7 +599,9 @@ void PVGuiQt::PVWorkspace::refresh_views_menus()
 		// AG: this category could go into PVDisplayViewIf w/ a PVCore::PVArgumentList object with one axis !
 		for (std::pair<QToolButton*, PVDisplays::PVDisplayViewAxisIf*> const& p: _view_axis_display_if_btns) {
 			QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view.get(), PVCOL_INVALID_VALUE);
+			act->setText(action_name);
 			p.first->addAction(act);
+
 			connect(act, SIGNAL(triggered()), this, SLOT(create_view_axis_widget()));
 		}
 	}

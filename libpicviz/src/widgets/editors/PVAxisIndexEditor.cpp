@@ -40,7 +40,7 @@ void PVWidgets::PVAxisIndexEditor::set_axis_index(PVCore::PVAxisIndexType axis_i
 {
 	clear();
 	addItems(_view.get_axes_names_list());
-	setCurrentIndex(_view.axes_combination.get_combined_axis_column_index(axis_index.get_original_index()));
+	setCurrentIndex(axis_index.get_axis_index());
 }
 
 PVCore::PVAxisIndexType PVWidgets::PVAxisIndexEditor::get_axis_index() const

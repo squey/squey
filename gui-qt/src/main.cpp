@@ -34,6 +34,8 @@
 
 #include <pvparallelview/PVParallelView.h>
 
+#include <pvguiqt/common.h>
+
 #include <boost/program_options.hpp>
 
 #define JULY_5 1309856400
@@ -172,6 +174,7 @@ int main(int argc, char *argv[])
 #ifdef CUDA
 	PVParallelView::common::init_cuda();
 #endif
+	PVGuiQt::common::register_displays();
 
 	int ret = app.exec();
 
