@@ -145,6 +145,18 @@ void Picviz::PVRoot::delete_correlation(int index)
 
 /******************************************************************************
  *
+ * Picviz::PVRoot::remove_view_from_correlations
+ *
+ *****************************************************************************/
+void Picviz::PVRoot::remove_view_from_correlations(PVView* view)
+{
+	for (PVAD2GView_p correlation : _correlations) {
+		correlation->del_view(view);
+	}
+}
+
+/******************************************************************************
+ *
  * Picviz::PVRoot::process_correlation
  *
  *****************************************************************************/

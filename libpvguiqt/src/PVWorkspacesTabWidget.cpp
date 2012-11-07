@@ -64,6 +64,11 @@ PVGuiQt::PVSceneTabBar::PVSceneTabBar(PVWorkspacesTabWidgetBase* tab_widget) : _
 	connect(this, SIGNAL(currentChanged(int)), _tab_widget, SLOT(tab_changed(int)));
 }
 
+int PVGuiQt::PVSceneTabBar::count() const
+{
+	return QTabBar::count();
+}
+
 QSize PVGuiQt::PVSceneTabBar::tabSizeHint(int index) const
 {
 	return QTabBar::tabSizeHint(index);
@@ -322,9 +327,11 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::remove_workspace(int index, bool close_
 			this,
 			SLOT(animation_state_changed(QAbstractAnimation::State, QAbstractAnimation::State))
 		);
+		setCurrentIndex(index);
 		animation->setDuration(TAB_OPENING_EFFECT_MSEC);
 		animation->setEndValue(25);
 		_tab_animated_width = _tab_bar->tabSizeHint(index).width();
+		_tab_index = index;
 		animation->setStartValue(_tab_animated_width);
 		animation->start();
 
@@ -333,7 +340,7 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::remove_workspace(int index, bool close_
 		loop.exec();*/
 	}
 	else {
-		removeTab(currentIndex());
+		removeTab(index);
 	}
 }
 

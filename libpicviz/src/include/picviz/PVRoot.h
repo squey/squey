@@ -67,6 +67,7 @@ public:
 	correlations_t& get_correlations() { return _correlations; }
 	QList<Picviz::PVView*> process_correlation(PVView* src_view);
 	void enable_correlations(bool enabled) { _correlations_enabled = enabled; }
+	void remove_view_from_correlations(PVView* view);
 
 public:
 	virtual QString get_serialize_description() const { return "Root"; }

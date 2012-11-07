@@ -78,6 +78,7 @@ class PVSceneTabBar : public QTabBar
 public:
 	PVSceneTabBar(PVWorkspacesTabWidgetBase* tab_widget);
 	QSize tabSizeHint(int index) const;
+	virtual int count() const;
 
 public:
 	virtual void create_new_workspace() {}
@@ -131,7 +132,7 @@ public:
 	virtual int get_correlation_index() = 0;
 	virtual void remove_workspace(int index, bool close_animation = true);
 	int addTab(PVWorkspaceBase* page, const QString & label);
-	int count() const { return _tab_bar->count() -1; }
+	int count() const { return _tab_bar->count(); }
 
 protected:
 	void tabInserted(int index) override;
