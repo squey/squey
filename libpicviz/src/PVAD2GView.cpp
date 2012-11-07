@@ -726,8 +726,6 @@ void Picviz::PVAD2GView::count_path_number_rec(const tlp::node& a, const tlp::no
 void Picviz::__impl::f_update_sel::operator()(Picviz::PVCombiningFunctionView& cf, Picviz::PVView& va, Picviz::PVView& vb) const
 {
 	PVSelection sel(std::move(cf(va, vb)));
-	sel.visit_selected_lines([](PVRow const r) { std::cout << r << ","; }, va.get_row_count());
-	std::cout << std::endl;
 	vb.set_selection_view(sel);
 }
 

@@ -66,6 +66,7 @@ public:
 	void delete_correlation(int index);
 	correlations_t& get_correlations() { return _correlations; }
 	QList<Picviz::PVView*> process_correlation(PVView* src_view);
+	void enable_correlations(bool enabled) { _correlations_enabled = enabled; }
 
 public:
 	virtual QString get_serialize_description() const { return "Root"; }
@@ -84,6 +85,7 @@ private:
 	correlations_t _correlations;
 	PVAD2GView_p _current_correlation;
 	bool _correlation_running = false;
+	bool _correlations_enabled = true;
 
 	QRgb _view_colors[10] = { 0x9966CC, 0x6699CC, 0x778800, 0xFFCC66, 0x993366, 0x999999, 0x339999, 0xFF6633, 0x99FFCC, 0xFFFF99 } ;
 };

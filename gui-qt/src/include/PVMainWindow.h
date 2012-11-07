@@ -226,6 +226,7 @@ public slots:
 	void add_correlation(const QString &);
 	void show_correlation(int index);
 	void delete_correlation(int index);
+	void enable_correlations(bool enable);
 
 protected:
 	void closeEvent(QCloseEvent* event);

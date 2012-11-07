@@ -151,7 +151,7 @@ void Picviz::PVRoot::delete_correlation(int index)
 QList<Picviz::PVView*> Picviz::PVRoot::process_correlation(PVView* src_view)
 {
 	QList<Picviz::PVView*> changed_views;
-	if (_current_correlation && !_correlation_running) {
+	if (_correlations_enabled && _current_correlation && !_correlation_running) {
 		_correlation_running = true;
 		_current_correlation->pre_process();
 		_current_correlation->run(src_view, &changed_views);

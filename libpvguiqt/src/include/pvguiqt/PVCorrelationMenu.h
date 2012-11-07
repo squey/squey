@@ -65,6 +65,7 @@ signals:
 	void correlation_added(const QString & name);
 	void correlation_shown(int index);
 	void correlation_deleted(int index);
+	void correlations_enabled(bool enabled);
 
 private slots:
 	void create_new_correlation();

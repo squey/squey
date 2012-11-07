@@ -89,8 +89,8 @@ class PVProjectsTabWidget : public QWidget
 
 public:
 	PVProjectsTabWidget(QWidget* parent = 0);
-	PVWorkspacesTabWidget* add_project(Picviz::PVScene_p scene_p);
-	void remove_project(PVWorkspacesTabWidget* workspace_tab_widget);
+	PVSceneWorkspacesTabWidget* add_project(Picviz::PVScene_p scene_p);
+	void remove_project(PVSceneWorkspacesTabWidget* workspace_tab_widget);
 	PVWorkspace* add_source(Picviz::PVSource* source);
 	void add_workspace(PVWorkspace* workspace);
 	void remove_workspace(PVWorkspace* workspace, bool animation = true);
@@ -99,7 +99,9 @@ public:
 	void collapse_tabs(bool collapse = true);
 
 	inline Picviz::PVScene* current_scene() const { return current_project()->get_scene(); }
-	inline PVWorkspacesTabWidget* current_project() const { return (_current_project_index >= 2) ? (PVWorkspacesTabWidget*) _stacked_widget->widget(_current_project_index) : nullptr; }
+
+	inline PVWorkspacesTabWidgetBase* current_workspace_tab_widget() const { return (_current_workspace_tab_widget_index >= 1) ? (PVWorkspacesTabWidgetBase*) _stacked_widget->widget(_current_workspace_tab_widget_index) : nullptr; }
+	inline PVSceneWorkspacesTabWidget* current_project() const { return (_current_workspace_tab_widget_index >= 2) ? (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(_current_workspace_tab_widget_index) : nullptr; }
 	inline void select_project(Picviz::PVScene* scene) { _tab_widget->setCurrentIndex(_tab_widget->indexOf(get_workspace_tab_widget_from_scene(scene))); }
 	inline void select_project(int index) { _tab_widget->setCurrentIndex(index+2); }
 	inline PVWorkspaceBase* current_workspace() const { return  current_project() ? (PVWorkspaceBase*) current_project()->currentWidget() : nullptr; }
@@ -113,9 +115,9 @@ public:
 		}
 		return projects_list;
 	}
-	inline int get_current_project_index() { return _current_project_index-2; }
+	inline int get_current_project_index() { return _current_workspace_tab_widget_index-2; }
 	Picviz::PVScene* get_scene_from_path(const QString & path);
-	PVWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Picviz::PVScene* scene);
+	PVSceneWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Picviz::PVScene* scene);
 
 private slots:
 	void current_tab_changed(int index);
@@ -148,8 +150,8 @@ private:
 	__impl::PVTabWidget* _tab_widget = nullptr; // QTabWidget has a problem with CSS and background-color, that's why this class isn't inheriting from QTabWidget...
 	QStackedWidget* _stacked_widget = nullptr;
 	PVStartScreenWidget* _start_screen_widget;
-	PVWorkspacesTabWidget* _workspaces_tab_widget;
-	int _current_project_index;
+	PVOpenWorkspacesTabWidget* _workspaces_tab_widget;
+	int _current_workspace_tab_widget_index;
 };
 
 }

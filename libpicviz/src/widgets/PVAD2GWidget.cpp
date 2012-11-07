@@ -353,7 +353,8 @@ void PVWidgets::PVAD2GWidget::update_list_views()
 	_table->setRowCount(all_views.size());
 
 	for (auto view_p : all_views) {
-		QTableWidgetItem* item = new QTableWidgetItem(view_p->get_name());
+		QString name = QString("%1 - %2").arg(view_p->get_parent<Picviz::PVSource>()->get_name()).arg(view_p->get_name());
+		QTableWidgetItem* item = new QTableWidgetItem(name);
 		item->setBackground(QBrush(view_p->get_color()));
 		item->setToolTip(view_p->get_window_name());
 		item->setData(Qt::UserRole, qVariantFromValue((void*) view_p.get()));

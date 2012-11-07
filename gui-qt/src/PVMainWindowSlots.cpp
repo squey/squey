@@ -614,6 +614,12 @@ void PVInspector::PVMainWindow::delete_correlation(int index)
 	PVHive::call<FUNC(Picviz::PVRoot::delete_correlation)>(root_sp, index);
 }
 
+void PVInspector::PVMainWindow::enable_correlations(bool enabled)
+{
+	Picviz::PVRoot_sp root_sp = get_root_sp();
+	PVHive::call<FUNC(Picviz::PVRoot::enable_correlations)>(root_sp, enabled);
+}
+
 bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p ar)
 {
 	// Fix errors due to invalid file paths
