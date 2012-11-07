@@ -1,5 +1,8 @@
+#include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVClassLibrary.h>
+
 #include <pvdisplays/PVDisplaysImpl.h>
+#include <pvdisplays/PVDisplaysContainer.h>
 
 #include <QMenu>
 
@@ -60,8 +63,13 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu, QObjec
 		{
 			QAction* act = action_bound_to_params(interface, view, axis_comb);
 			act->setText(interface.axis_menu_name(view, axis_comb));
-			connect(act, SIGNAL(triggered), receiver, slot);
+			connect(act, SIGNAL(triggered()), receiver, slot);
 			menu.addAction(act);
 
 		}, PVDisplayIf::ShowInCtxtMenu);
+}
+
+PVDisplays::PVDisplaysContainer* PVDisplays::PVDisplaysImpl::get_parent_container(QWidget* self) const
+{
+	return PVCore::get_qobject_parent_of_type<PVDisplaysContainer*>(self);
 }

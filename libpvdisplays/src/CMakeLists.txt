@@ -14,6 +14,7 @@ include/pvdisplays/PVDisplaysImpl.h
 )
 
 SET(LIBDISPLAYS_MOC_HEADERS
+include/pvdisplays/PVDisplaysContainer.h
 )
 
 SET(UI_FILES

@@ -1,4 +1,4 @@
-
+#include <pvkernel/core/qobject_helpers.h>
 #include <picviz/PVView.h>
 
 #include <pvparallelview/PVAxisLabel.h>
@@ -8,21 +8,12 @@
 #include <QLayout>
 #include <QMenu>
 #include <QGraphicsScene>
+#include <QGraphicsView>
 
 #include <iostream>
 
-/*
-template <typename T>
-typename std::remove_pointer<T>::value_type* get_qobject_parent_of_type(QObject* self)
-{
-	typedef typename std::remove_pointer<T>::value_type* pointer;
-	QObject* parent = self->parent();
-	pointer parent_cast = qobject_cast<pointer>(parent);
-	if (parent_cast) {
-		return parent_cast;
-	}
-	return get_qobject_parent_of_type<T>(parent);
-}*/
+#include <pvdisplays/PVDisplaysImpl.h>
+#include <pvdisplays/PVDisplaysContainer.h>
 
 /*****************************************************************************
  * PVParallelView::PVAxisLabel::PVAxisLabel
@@ -55,11 +46,23 @@ PVParallelView::PVAxisLabel::~PVAxisLabel()
 
 void PVParallelView::PVAxisLabel::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
+	// Get parent PVDisplaysContainer if available
+	QList<QGraphicsView*> parent_views = scene()->views();
+	assert(parent_views.size() == 1);
+
+	QWidget* parent_view = parent_views.at(0);
+	PVDisplays::PVDisplaysContainer* container = PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(parent_view);
+
 	QMenu menu;
 
+	/*
 	QAction *azv = menu.addAction("New zoomed view");
-	connect(azv, SIGNAL(triggered()), this, SLOT(new_zoomed_parallel_view()));
+	connect(azv, SIGNAL(triggered()), this, SLOT(new_zoomed_parallel_view()));*/
 
+	if (container) {
+		PVDisplays::get().add_displays_view_axis_menu(menu, container, SLOT(create_view_axis_widget()), (Picviz::PVView*) &_lib_view, get_axis_index());
+		menu.addSeparator();
+	}
 	QAction *ars = menu.addAction("New selection cursors");
 	connect(ars, SIGNAL(triggered()), this, SLOT(new_selection_sliders()));
 
@@ -99,4 +102,9 @@ void PVParallelView::PVAxisLabel::new_zoomed_parallel_view()
 void PVParallelView::PVAxisLabel::new_selection_sliders()
 {
 	_sliders_group->add_selection_sliders(0, 1024);
+}
+
+PVCol PVParallelView::PVAxisLabel::get_axis_index() const
+{
+	return _lib_view.get_axes_combination().get_index_by_id(_sliders_group->get_axis_id()); 
 }

@@ -6,6 +6,8 @@
 
 namespace PVDisplays {
 
+class PVDisplaysContainer;
+
 class PVDisplaysImpl: public QObject
 {
 public:
@@ -124,6 +126,8 @@ public:
 	}
 
 	void add_displays_view_axis_menu(QMenu& menu, QObject* receiver, const char* slot, Picviz::PVView* view, PVCol axis_comb) const;
+
+	PVDisplaysContainer* get_parent_container(QWidget* self) const;
 
 private:
 	void static_init();

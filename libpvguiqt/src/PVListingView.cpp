@@ -20,6 +20,9 @@
 #include <pvguiqt/PVQNraw.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 
+#include <pvdisplays/PVDisplaysContainer.h>
+#include <pvdisplays/PVDisplaysImpl.h>
+
 #include <QAbstractButton>
 #include <QApplication>
 #include <QClipboard>
@@ -98,6 +101,7 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	_hhead_ctxt_menu = new QMenu(this);
 	_action_col_unique = new QAction(tr("List unique values of this axis..."), this);
 	_hhead_ctxt_menu->addAction(_action_col_unique);
+
 
 	// Context menu for the listing
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
@@ -310,19 +314,30 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 		if (act_sel == _act_copy) {
 			process_ctxt_menu_copy();
 		}
-		else if (act_sel == _act_set_color)
-		{
+		else
+		if (act_sel == _act_set_color) {
 			process_ctxt_menu_set_color();
 		}
 		else {
-			process_ctxt_menu_action(act_sel);
+				process_ctxt_menu_action(act_sel);
 		}
 	}
 }
 
 void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 {
-	PVCol col = lib_view().get_original_axis_index(horizontalHeader()->logicalIndexAt(pos));
+	PVCol comb_col = horizontalHeader()->logicalIndexAt(pos);
+	PVCol col = lib_view().get_original_axis_index(comb_col);
+
+	_hhead_ctxt_menu->clear();
+	PVDisplays::PVDisplaysContainer* container = PVDisplays::get().get_parent_container(this);
+	if (container) {
+		// Add entries to the horizontal header context menu for new widgets creation.
+		PVDisplays::get().add_displays_view_axis_menu(*_hhead_ctxt_menu, container, SLOT(create_view_axis_widget()), (Picviz::PVView*) &lib_view(), comb_col);
+		_hhead_ctxt_menu->addSeparator();
+	}
+	_hhead_ctxt_menu->addAction(_action_col_unique);
+
 	QAction* sel = _hhead_ctxt_menu->exec(QCursor::pos());
 	if (sel == _action_col_unique) {
 		PVQNraw::show_unique_values(lib_view().get_rushnraw_parent(), col, *lib_view().get_selection_visible_listing(), this);

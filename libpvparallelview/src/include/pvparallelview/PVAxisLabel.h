@@ -51,6 +51,8 @@ public:
 		return mapRectToScene(boundingRect());
 	}
 
+	inline PVCol get_axis_index() const;
+
 protected:
 	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 

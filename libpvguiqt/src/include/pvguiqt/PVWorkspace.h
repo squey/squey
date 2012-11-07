@@ -24,6 +24,8 @@
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
 
+#include <pvdisplays/PVDisplaysContainer.h>
+
 #include <pvguiqt/PVAxesCombinationDialog.h>
 
 namespace Picviz {
@@ -41,7 +43,7 @@ namespace PVGuiQt {
 class PVListingView;
 class PVViewDisplay;
 
-class PVWorkspaceBase : public QMainWindow
+class PVWorkspaceBase: public PVDisplays::PVDisplaysContainer
 {
 	Q_OBJECT
 
@@ -75,7 +77,7 @@ public:
 		friend class PVViewWidgets;
 
 public:
-	PVWorkspaceBase(QWidget* parent) : QMainWindow(parent) {}
+	PVWorkspaceBase(QWidget* parent): PVDisplays::PVDisplaysContainer(parent) {}
 	virtual ~PVWorkspaceBase() = 0;
 
 public:
@@ -96,6 +98,12 @@ public slots:
 	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr);
 	void display_destroyed(QObject* object = 0);
 	void emit_try_automatic_tab_switch() { emit try_automatic_tab_switch(); }
+
+public slots:
+	void create_view_widget() override;
+	void create_view_axis_widget() override; 
+	void toggle_unique_source_widget() override;
+
 
 signals:
 	void try_automatic_tab_switch();
@@ -129,20 +137,7 @@ public:
 	PVListingView* create_listing_view(Picviz::PVView_sp view_sp);
 
 public slots:
-	void add_listing_view(bool central = false);
-	void create_parallel_view(Picviz::PVView* view = nullptr);
-	void create_zoomed_parallel_view();
-	void create_zoomed_parallel_view(Picviz::PVView* view, int axis_id);
-	void show_datatree_view(bool show);
-	void check_datatree_button(bool check = false);
-	void create_layerstack(Picviz::PVView* view = nullptr);
-	void destroy_layerstack();
 	void update_view_count(PVHive::PVObserverBase* obs_base);
-
-private slots:
-	void create_view_widget();
-	void create_view_axis_widget(); 
-	void toggle_unique_source_widget();
 
 private:
 	void refresh_views_menus();
@@ -150,12 +145,6 @@ private:
 private:
 	Picviz::PVSource* _source = nullptr;
 	QToolBar* _toolbar;
-	QAction* _datatree_view_action;
-
-	QToolButton* _layerstack_tool_button;
-	QToolButton* _listing_tool_button;
-	QToolButton* _parallel_view_tool_button;
-	QToolButton* _zoomed_parallel_view_tool_button;
 
 	std::list<datatree_obs_t> _obs;
 	uint64_t _views_count;
