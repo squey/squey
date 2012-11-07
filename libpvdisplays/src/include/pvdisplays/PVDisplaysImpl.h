@@ -2,11 +2,19 @@
 #define PVDISPLAYS_PVDISPLAYSIMPL_H
 
 #include <pvdisplays/PVDisplayIf.h>
+#include <QMetaType>
 
 namespace PVDisplays {
 
-class PVDisplaysImpl
+class PVDisplaysImpl: public QObject
 {
+public:
+	struct ActionParams
+	{
+		PVDisplayIf* disp_if;
+		QVariant params;
+	};
+
 private:
 	PVDisplaysImpl()
 	{
@@ -59,6 +67,63 @@ public:
 		return interface.create_widget(std::forward<P>(args)...);
 	}
 
+	/*
+	 * AG: fix this!
+	QWidget* get_widget_from_action(QAction& action, QWidget* parent = NULL) const
+	{
+		QVariant org_data = action.data();
+
+		ActionParams p = action.data().value<ActionParams>();
+		PVDisplayIf& interface = *p.disp_if;
+
+		action.setData(p.params);
+
+		QWidget* ret;
+		if (interface.match_flags(PVDisplayIf::UniquePerParameters)) {
+			ret = interface.get_unique_widget_from_action(action, parent);
+		}
+		else {
+			ret = interface.create_widget_from_action(action, parent);
+		}
+
+		action.setData(org_data);
+
+		return ret;
+	}*/
+
+	template <typename If, typename... P>
+	If& get_params_from_action(QAction& action, P && ... args) const
+	{
+		QVariant org_data = action.data();
+
+		ActionParams p = action.data().value<ActionParams>();
+		If* interface = dynamic_cast<If*>(p.disp_if);
+		assert(interface);
+
+		action.setData(p.params);
+		interface->get_params_from_action(action, std::forward<P>(args)...);
+		action.setData(org_data);
+
+		return *interface;
+	}
+
+	template <typename If, typename... P>
+	inline QAction* action_bound_to_params(If& interface, P && ... args) const
+	{
+		// Get the action from the interface and add the interface itself as an argument to QAction
+		QAction* act = interface.action_bound_to_params(std::forward<P>(args)...);
+		ActionParams p;
+		p.disp_if = static_cast<PVDisplayIf*>(&interface);
+		p.params = act->data();
+		
+		QVariant var;
+		var.setValue<ActionParams>(p);
+		act->setData(var);
+
+		return act;
+	}
+
+
 private:
 	void static_init();
 	void static_release();
@@ -73,5 +138,7 @@ inline PVDisplaysImpl& get() { return PVDisplaysImpl::get(); }
 inline void release() { PVDisplaysImpl::release(); }
 
 }
+
+Q_DECLARE_METATYPE(PVDisplays::PVDisplaysImpl::ActionParams)
 
 #endif

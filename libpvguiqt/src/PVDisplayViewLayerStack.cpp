@@ -5,7 +5,7 @@
 #include <pvguiqt/PVDisplayViewLayerStack.h>
 
 PVDisplays::PVDisplayViewLayerStack::PVDisplayViewLayerStack():
-	PVDisplayViewIf(PVDisplayIf::ShowInToolbar)
+	PVDisplayViewIf(PVDisplayIf::ShowInToolbar, "Layer stack")
 {
 }
 
@@ -20,4 +20,14 @@ QWidget* PVDisplays::PVDisplayViewLayerStack::create_widget(Picviz::PVView* view
 	widget->setItemDelegate(delegate);
 
 	return widget;
+}
+
+QIcon PVDisplays::PVDisplayViewLayerStack::toolbar_icon() const
+{
+	return QIcon(":/layer-active.png");
+}
+
+QString PVDisplays::PVDisplayViewLayerStack::widget_title(Picviz::PVView* view) const 
+{
+	return QString("Layer stack [" + view->get_name() + "]");
 }

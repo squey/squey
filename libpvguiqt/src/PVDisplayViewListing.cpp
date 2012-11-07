@@ -4,6 +4,8 @@
 
 #include <pvguiqt/PVDisplayViewListing.h>
 
+#include <picviz/PVView.h>
+
 PVDisplays::PVDisplayViewListing::PVDisplayViewListing():
 	PVDisplayViewIf(PVDisplayIf::ShowInToolbar)
 {
@@ -20,4 +22,14 @@ QWidget* PVDisplays::PVDisplayViewListing::create_widget(Picviz::PVView* view, Q
 	widget->setModel(proxy_model);
 
 	return widget;
+}
+
+QIcon PVDisplays::PVDisplayViewListing::toolbar_icon() const
+{
+	return QIcon(":/view_display_listing");
+}
+
+QString PVDisplays::PVDisplayViewListing::widget_title(Picviz::PVView* view) const
+{
+	return QString("Listing [" + view->get_name() + "]"); 
 }

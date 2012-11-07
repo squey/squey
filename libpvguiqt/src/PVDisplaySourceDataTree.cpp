@@ -17,3 +17,8 @@ QWidget* PVDisplays::PVDisplaySourceDataTree::create_widget(Picviz::PVSource* sr
 
 	return widget;
 }
+
+QIcon PVDisplays::PVDisplaySourceDataTree::toolbar_icon() const
+{
+	return QIcon(":/view_display_datatree");
+}

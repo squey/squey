@@ -26,15 +26,18 @@
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
 
-namespace Picviz
-{
+namespace Picviz {
 class PVView;
+}
+
+namespace PVDisplays {
+class PVDisplayViewIf;
+class PVDisplayViewAxisIf;
 }
 
 Q_DECLARE_METATYPE(Picviz::PVView*)
 
-namespace PVGuiQt
-{
+namespace PVGuiQt {
 class PVListingView;
 class PVViewDisplay;
 
@@ -102,6 +105,8 @@ protected:
 
 protected:
 	QList<PVViewDisplay*> _displays;
+	QList<std::pair<QToolButton*, PVDisplays::PVDisplayViewIf*>> _view_display_if_btns;
+	QList<std::pair<QToolButton*, PVDisplays::PVDisplayViewAxisIf*>> _view_axis_display_if_btns;
 	int _z_order_index = 0;
 	static uint64_t _z_order_counter;
 	static bool _drag_started;
@@ -133,6 +138,11 @@ public slots:
 	void create_layerstack(Picviz::PVView* view = nullptr);
 	void destroy_layerstack();
 	void update_view_count(PVHive::PVObserverBase* obs_base);
+
+private slots:
+	void create_view_widget();
+	void create_view_axis_widget(); 
+	void toggle_unique_source_widget();
 
 private:
 	void refresh_views_menus();

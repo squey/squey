@@ -15,15 +15,21 @@
 
 #include <pvkernel/core/PVDataTreeAutoShared.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/PVAxisIndexType.h>
+#include <pvkernel/widgets/PVArgumentListWidget.h>
 
 #include <picviz/PVSource.h>
 #include <picviz/PVView.h>
-#include <picviz/widgets/editors/PVAxisIndexEditor.h>
+#include <picviz/widgets/PVArgumentListWidgetFactory.h>
 
+#include <pvdisplays/PVDisplaysImpl.h>
+
+#if 0
 #include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
+#endif
 
 #include <pvguiqt/PVLayerStackWidget.h>
 #include <pvguiqt/PVListingModel.h>
@@ -201,6 +207,53 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	_toolbar->setIconSize(QSize(32, 32));
 	addToolBar(_toolbar);
 
+	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
+		[&](PVDisplays::PVDisplaySourceIf& obj)
+		{
+			QAction* act = PVDisplays::get().action_bound_to_params(obj, source);
+			act->setCheckable(true);
+			act->setIcon(obj.toolbar_icon());
+			act->setToolTip(obj.tooltip_str());
+			_toolbar->addAction(act);
+
+			connect(act, SIGNAL(triggered()), this, SLOT(toggle_unique_source_widget()));
+		}, PVDisplays::PVDisplayIf::ShowInToolbar & PVDisplays::PVDisplayIf::UniquePerParameters);
+
+	_toolbar->addSeparator();
+
+	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
+		[&](PVDisplays::PVDisplayViewIf& obj)
+		{
+			if (!obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters)) {
+				QToolButton* btn = new QToolButton(_toolbar);
+				btn->setPopupMode(QToolButton::InstantPopup);
+				btn->setIcon(obj.toolbar_icon());
+				btn->setToolTip(obj.tooltip_str());
+				_toolbar->addWidget(btn);
+
+				_view_display_if_btns << std::make_pair(btn, &obj);
+			}
+		}, PVDisplays::PVDisplayIf::ShowInToolbar);
+
+	_toolbar->addSeparator();
+
+	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewAxisIf>(
+		[&](PVDisplays::PVDisplayViewAxisIf& obj)
+		{
+			if (!obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters)) {
+				QToolButton* btn = new QToolButton(_toolbar);
+				btn->setPopupMode(QToolButton::InstantPopup);
+				btn->setIcon(obj.toolbar_icon());
+				btn->setToolTip(obj.tooltip_str());
+				_toolbar->addWidget(btn);
+
+				_view_axis_display_if_btns << std::make_pair(btn, &obj);
+			}
+		}, PVDisplays::PVDisplayIf::ShowInToolbar);
+
+	_toolbar->addSeparator();
+
+#if 0
 	// Datatree views toolbar button
 	_datatree_view_action = new QAction(_toolbar);
 	_datatree_view_action->setCheckable(true);
@@ -249,12 +302,15 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	scatter_view_tool_button->setIcon(QIcon(":/view_display_scatter"));
 	scatter_view_tool_button->setToolTip(tr("Add scatter view"));
 	_toolbar->addWidget(scatter_view_tool_button);*/
+#endif
 
 	refresh_views_menus();
 
+#if 0
 	for (auto view : _source->get_children<Picviz::PVView>()) {
 		create_layerstack(view.get());
 	}
+#endif
 }
 
 void PVGuiQt::PVWorkspace::add_listing_view(bool central /*= false*/)
@@ -288,6 +344,7 @@ PVGuiQt::PVListingView* PVGuiQt::PVWorkspace::create_listing_view(Picviz::PVView
 
 void PVGuiQt::PVWorkspace::create_parallel_view(Picviz::PVView* view /*= nullptr*/)
 {
+#if 0
 	if (!view) {
 		QAction* action = (QAction*) sender();
 		QVariant var = action->data();
@@ -304,10 +361,12 @@ void PVGuiQt::PVWorkspace::create_parallel_view(Picviz::PVView* view /*= nullptr
 	connect(parallel_view, SIGNAL(new_zoomed_parallel_view(Picviz::PVView*, int)), this, SLOT(create_zoomed_parallel_view(Picviz::PVView*, int)));
 
 	add_view_display(view, parallel_view, "Parallel view [" + view->get_name() + "]");
+#endif
 }
 
 void PVGuiQt::PVWorkspace::create_zoomed_parallel_view()
 {
+#if 0
 	QAction* action = (QAction*) sender();
 	QVariant var = action->data();
 	Picviz::PVView* view = var.value<Picviz::PVView*>();
@@ -339,12 +398,15 @@ void PVGuiQt::PVWorkspace::create_zoomed_parallel_view()
 	}
 
 	dlg->deleteLater();
+#endif
 }
 
 void PVGuiQt::PVWorkspace::create_zoomed_parallel_view(Picviz::PVView* view, int axis_index)
 {
+#if 0
 	QWidget* zoomed_parallel_view = PVParallelView::common::get_lib_view(*view)->create_zoomed_view(axis_index);
 	add_view_display(view, zoomed_parallel_view, QString("Zoomed parallel view on axis '%1' [%2]").arg(view->get_axis_name(axis_index)).arg(view->get_name()));
+#endif
 }
 
 
@@ -426,8 +488,123 @@ const PVGuiQt::PVWorkspaceBase::PVViewWidgets& PVGuiQt::PVWorkspaceBase::get_vie
 	return _view_widgets[view];
 }
 
+void PVGuiQt::PVWorkspace::toggle_unique_source_widget()
+{
+	QAction* act = qobject_cast<QAction*>(sender());
+	if (!act) {
+		return;
+	}
+
+	Picviz::PVSource* src = nullptr;
+	PVDisplays::PVDisplaySourceIf& display_if = PVDisplays::get().get_params_from_action<PVDisplays::PVDisplaySourceIf>(*act, src);
+
+	if (!src) {
+		return;
+	}
+
+	QWidget* w = PVDisplays::get().get_widget(display_if, src);
+	if (!w) {
+		return;
+	}
+
+	PVViewDisplay* view_d = nullptr;
+	for (PVViewDisplay* d: _displays) {
+		if (d->widget() == w) {
+			view_d = d;
+			break;
+		}
+	}
+	if (view_d) {
+		view_d->setVisible(!view_d->isVisible());
+	}
+	else {
+		add_view_display(nullptr, w, display_if.widget_title(src), display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget));
+	}
+
+}
+
+void PVGuiQt::PVWorkspace::create_view_widget()
+{
+	QAction* act = qobject_cast<QAction*>(sender());
+	if (!act) {
+		return;
+	}
+
+	Picviz::PVView* view = nullptr;
+	PVDisplays::PVDisplayViewIf& display_if = PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewIf>(*act, view);
+
+	if (!view) {
+		return;
+	}
+
+	QWidget* w = PVDisplays::get().get_widget(display_if, view);
+	add_view_display(view, w, display_if.widget_title(view), display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget));
+}
+
+void PVGuiQt::PVWorkspace::create_view_axis_widget()
+{
+	// All this should be the same than create_view_widget w/ a PVCore::PVArgumentList passed to create_widget
+	QAction* act = qobject_cast<QAction*>(sender());
+	if (!act) {
+		return;
+	}
+
+	Picviz::PVView* view = nullptr;
+	PVCol axis_comb = PVCOL_INVALID_VALUE;
+	PVDisplays::PVDisplayViewAxisIf& display_if = PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewAxisIf>(*act, view, axis_comb);
+
+	if (!view) {
+		return;
+	}
+
+	if (axis_comb == PVCOL_INVALID_VALUE) {
+		PVCore::PVArgumentList args;
+		args[PVCore::PVArgumentKey("axis", tr("New view on axis:"))].setValue(PVCore::PVAxisIndexType(0));
+		if (!PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
+		     PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view),
+		     args, this)) {
+			return;
+		}
+		axis_comb = args["axis"].value<PVCore::PVAxisIndexType>().get_axis_index();
+	}
+
+	QWidget* w = PVDisplays::get().get_widget(display_if, view, axis_comb);
+	add_view_display(view, w, display_if.widget_title(view, axis_comb), display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget));
+}
+
 void PVGuiQt::PVWorkspace::refresh_views_menus()
 {
+	for (std::pair<QToolButton*, PVDisplays::PVDisplayViewIf*> const& p: _view_display_if_btns) {
+		for (QAction* act: p.first->actions()) {
+			p.first->removeAction(act);
+		}
+	}
+	for (std::pair<QToolButton*, PVDisplays::PVDisplayViewAxisIf*> const& p: _view_axis_display_if_btns) {
+		for (QAction* act: p.first->actions()) {
+			p.first->removeAction(act);
+		}
+	}
+
+	for (Picviz::PVView_sp const& view: _source->get_children<Picviz::PVView>()) {
+		QString action_name = view->get_name();
+
+		for (std::pair<QToolButton*, PVDisplays::PVDisplayViewIf*> const& p: _view_display_if_btns) {
+			QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view.get());
+			act->setText(action_name);
+			p.first->addAction(act);
+
+			connect(act, SIGNAL(triggered()), this, SLOT(create_view_widget()));
+		}
+
+		// AG: this category could go into PVDisplayViewIf w/ a PVCore::PVArgumentList object with one axis !
+		for (std::pair<QToolButton*, PVDisplays::PVDisplayViewAxisIf*> const& p: _view_axis_display_if_btns) {
+			QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view.get(), PVCOL_INVALID_VALUE);
+			p.first->addAction(act);
+			connect(act, SIGNAL(triggered()), this, SLOT(create_view_axis_widget()));
+		}
+	}
+
+#if 0
 	for (QAction* action : _layerstack_tool_button->actions()) {
 		_layerstack_tool_button->removeAction(action);
 	}
@@ -471,6 +648,7 @@ void PVGuiQt::PVWorkspace::refresh_views_menus()
 		connect(action, SIGNAL(triggered(bool)), this, SLOT(create_zoomed_parallel_view()));
 		_zoomed_parallel_view_tool_button->addAction(action);
 	}
+#endif
 }
 
 

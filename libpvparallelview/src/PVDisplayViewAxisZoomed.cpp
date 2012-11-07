@@ -16,3 +16,13 @@ QWidget* PVDisplays::PVDisplayViewAxisZoomed::create_widget(Picviz::PVView* view
 
 	return widget;
 }
+
+QIcon PVDisplays::PVDisplayViewAxisZoomed::toolbar_icon() const
+{
+	return QIcon(":/view_display_zoom");
+}
+
+QString PVDisplays::PVDisplayViewAxisZoomed::widget_title(Picviz::PVView* view, PVCol axis_comb) const
+{
+	return QString("Zoomed view [" + view->get_name() + " on axis " + view->get_axis_name(axis_comb) + "]");
+}

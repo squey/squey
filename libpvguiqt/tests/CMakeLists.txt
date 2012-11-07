@@ -6,7 +6,7 @@
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIR})
 include_directories(AFTER ${PVHIVE_INCLUDE_DIR})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIR})
-include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIR})
+include_directories(AFTER ${CMAKE_SOURCE_DIR}/libpvparallelview/src/include)
 
 set(COMMON_LIBRARIES pvparallelview pvguiqt pvhive picviz pvkernel ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${OpenMP_LIBRARIES})
 
@@ -51,7 +51,8 @@ if (CUDA_FOUND)
 	qt4_wrap_cpp(WORKSPACES_MOC_SRC workspaces.h OPTIONS ${QT4_WRAP_OPTIONS})
 	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES} /opt/cuda/lib64/libnpp.so)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
-	add_executable(Tqt_workspaces workspaces.cpp common.cpp ${WORKSPACES_MOC_SRC})
+	add_executable(Tqt_workspaces workspaces.cpp common.cpp)
+	#add_executable(Tqt_workspaces workspaces.cpp common.cpp ${WORKSPACES_MOC_SRC})
 	target_link_libraries(Tqt_workspaces ${MOC_SRC} ${MOC_HEADERS} ${COMMON_LIBRARIES} ${CUDA_LIBRARIES} ${LINK_LIBRARIES} )
 endif(CUDA_FOUND)
 
