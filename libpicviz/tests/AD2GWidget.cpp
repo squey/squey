@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 
 	Picviz::PVRoot_sp root = Picviz::PVRoot::get_root_sp();
 	Picviz::PVScene_p scene(root, "scene");
-	Picviz::PVAD2GView_p ad2gv(new Picviz::PVAD2GView());
+	Picviz::PVAD2GView_p ad2gv(new Picviz::PVAD2GView("test"));
 
 	PVWidgets::PVAD2GWidget* ad2g_widget = new PVWidgets::PVAD2GWidget(ad2gv, &w);
 	w.setCentralWidget(ad2g_widget);

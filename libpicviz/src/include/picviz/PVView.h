@@ -48,8 +48,9 @@ typedef typename PVCore::PVDataTreeObject<PVPlotted, PVCore::PVDataTreeNoChildre
 class LibPicvizDecl PVView: public data_tree_view_t
 {
 	friend class PVCore::PVSerializeObject;
-	friend class PVSource;
+	friend class PVRoot;
 	friend class PVScene;
+	friend class PVSource;
 	friend class PVCore::PVDataTreeAutoShared<PVView>;
 public:
 	typedef QHash<QString,PVCore::PVArgumentList> map_filter_arguments;
@@ -138,8 +139,6 @@ public:
 	QString get_axis_type(PVCol index) const;
 	PVAxis const& get_axis(PVCol const comb_index) const;
 	PVAxis const& get_axis_by_id(axes_comb_id_t const axes_comb_id) const;
-
-	void emit_user_modified_sel(QList<Picviz::PVView*>* changed_views = NULL);
 
 	const PVCore::PVHSVColor get_color_in_output_layer(PVRow index) const;
 	PVCol get_column_count() const;
@@ -263,11 +262,12 @@ public:
 
 	void load_post_to_pre();
 
+	QList<Picviz::PVView*> process_correlation();
 	void process_from_eventline();
 	void process_from_filter();
-	void process_from_layer_stack();
-	void process_from_selection();
-	void process_real_output_selection();
+	QList<Picviz::PVView*> process_from_layer_stack();
+	QList<Picviz::PVView*> process_from_selection();
+	QList<Picviz::PVView*> process_real_output_selection();
 
 	void process_eventline();
 	void process_filter();

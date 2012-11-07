@@ -79,10 +79,6 @@ public:
 	list_sources_t get_sources(PVRush::PVInputType const& type) const;
 	PVRush::PVInputType::list_inputs_desc get_inputs_desc(PVRush::PVInputType const& type) const;
 
-	inline PVAD2GView& get_ad2g_view() { return *_ad2g_view; }
-	inline PVAD2GView const& get_ad2g_view() const { return *_ad2g_view; }
-	inline PVAD2GView_p get_ad2g_view_p() { return _ad2g_view; }
-
 	inline bool is_empty() const { return get_children().size() == 0; }
 
 	void add_source(PVSource_p const& src);
@@ -91,10 +87,10 @@ public:
 	virtual QString get_serialize_description() const { return "Scene"; }
 
 protected:
-	int32_t get_new_view_id() const;
+	/*int32_t get_new_view_id() const;
 	void set_views_id();
 
-	QColor get_new_view_color() const;
+	QColor get_new_view_color() const;*/
 
 	virtual QString get_children_description() const { return "Source(s)"; }
 	virtual QString get_children_serialize_name() const { return "sources"; }
@@ -107,9 +103,6 @@ protected:
 	void child_added(PVSource& src);
 
 protected:
-	// From PVView
-	void user_modified_sel(Picviz::PVView* org, QList<Picviz::PVView*>* changed_views = NULL);
-
 	// Serialization
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
@@ -125,13 +118,7 @@ private:
 	QString _path;
 	QString _name;
 
-	// This is a shared pointer for current issues with the widget (which will be deleted by Qt *after*
-	// this object).
-	PVAD2GView_p _ad2g_view;
-
 	PVCore::PVSerializeArchive_p _original_archive;
-
-	QRgb _view_colors[4] = { 0x9966CC, 0x6699CC, 0x778800, 0xFFCC66 } ;
 
 };
 

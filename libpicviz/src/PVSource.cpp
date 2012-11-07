@@ -98,7 +98,7 @@ void Picviz::PVSource::set_parent_from_ptr(PVScene* parent)
 	data_tree_source_t::set_parent_from_ptr(parent);
 
 	if (parent) {
-		parent->set_views_id();
+		parent->get_parent<PVRoot>()->set_views_id();
 	}
 }
 
@@ -257,10 +257,10 @@ void Picviz::PVSource::add_view(PVView_sp view)
 	//if (!current_view()) {
 		get_parent<PVScene>()->select_view(*view);
 	//}
-	PVScene* scene = get_parent();
-	if (scene) {
-		view->set_view_id(scene->get_new_view_id());
-		view->set_color(scene->get_new_view_color());
+	PVRoot* root = get_parent<PVRoot>();
+	if (root) {
+		view->set_view_id(root->get_new_view_id());
+		view->set_color(root->get_new_view_color());
 	}
 }
 

@@ -36,8 +36,10 @@ PVGuiQt::PVCorrelationMenu::PVCorrelationMenu(QWidget* parent  /* = 0 */) : QMen
 {
 	setTitle("&Correlations");
 	QAction* enable_correlation_action = addAction("&Enable correlations");
-	_separator_first_correlation = addSeparator();
+	connect(enable_correlation_action, SIGNAL(toggled(bool)), this, SIGNAL(correlations_enabled(bool)));
 	enable_correlation_action->setCheckable(true);
+	enable_correlation_action->setChecked(true);
+	_separator_first_correlation = addSeparator();
 	_separator_create_correlation = addSeparator();
 	_action_create_correlation = addAction("&Create new correlation");
 }
@@ -53,9 +55,9 @@ void PVGuiQt::PVCorrelationMenu::create_new_correlation()
 	line_edit->installEventFilter(new __impl::CreateNewCorrelationEventFilter(this, line_edit));
 }
 
-void PVGuiQt::PVCorrelationMenu::add_new_correlation(const QString & title)
+void PVGuiQt::PVCorrelationMenu::add_new_correlation(const QString & name)
 {
-	QMenu* correlation_sub_menu = new QMenu(title);
+	QMenu* correlation_sub_menu = new QMenu(name);
 	insertMenu(_separator_create_correlation, correlation_sub_menu);
 
 	QAction* show_action = correlation_sub_menu->addAction(tr("Show"));
@@ -64,7 +66,7 @@ void PVGuiQt::PVCorrelationMenu::add_new_correlation(const QString & title)
 	QAction* delete_action = correlation_sub_menu->addAction(tr("Delete"));
 	connect(delete_action, SIGNAL(triggered(bool)), this, SLOT(delete_correlation()));
 
-	emit correlation_added();
+	emit correlation_added(name);
 }
 
 void PVGuiQt::PVCorrelationMenu::show_correlation()

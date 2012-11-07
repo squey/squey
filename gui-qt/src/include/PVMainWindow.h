@@ -223,9 +223,10 @@ public slots:
 	void create_new_window_for_workspace(QWidget* workspace);
 
 	// Correlations
-	void add_correlation();
+	void add_correlation(const QString &);
 	void show_correlation(int index);
 	void delete_correlation(int index);
+	void enable_correlations(bool enable);
 
 protected:
 	void closeEvent(QCloseEvent* event);
@@ -363,7 +364,7 @@ signals:
 	void zombie_mode_changed_Signal();
 
 private:
-	QDialog* _ad2g_mw;
+	//QDialog* _ad2g_mw;
 	QString _cur_project_file;
 	bool _cur_project_save_everything;
 	static int sequence_n;

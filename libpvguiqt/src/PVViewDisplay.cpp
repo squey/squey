@@ -22,9 +22,6 @@
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
 
-#include <X11/Xlib.h>
-#include <QX11Info>
-
 
 PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspaceBase* workspace) :
 	QDockWidget((QWidget*)workspace),
@@ -110,8 +107,6 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 					QCursor::setPos(mapToGlobal(_press_pt));
 					move(mapToGlobal(_press_pt));
 
-					XSync(QX11Info::display(), false);
-
 					QMouseEvent* fake_mouse_press = new QMouseEvent(QEvent::MouseButtonPress, _press_pt, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
 					QApplication::postEvent(this, fake_mouse_press);
 
@@ -131,6 +126,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 		{
 			QMouseEvent* mouse_event = (QMouseEvent*) event;
 			_press_pt = mouse_event->pos();
+			PVGuiQt::PVWorkspaceBase::_drag_started = true;
 			break;
 		}
 		case QEvent::MouseButtonRelease:

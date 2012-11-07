@@ -67,12 +67,14 @@ class PVAD2GView
 
 	typedef PVAD2GView_p p_type;
 public:
-	PVAD2GView(/*Picviz::PVScene* scene*/);
+	PVAD2GView(const QString & name);
 	~PVAD2GView();
 
 public:
 	tlp::Graph *get_graph() { return _graph; }
-	//PVScene* get_scene() { return _scene; }
+
+	const QString & get_name() const { return _name; }
+	void set_name(const QString & name) { _name = name; }
 
 	boost::shared_ptr<tlp::Graph> get_graph_serializable() const;
 
@@ -148,6 +150,7 @@ private:
 	//PVScene* _scene;
 	/* graph's property */
 	PVAD2GViewCorrelationProperty *_corr_info;
+	QString _name;
 };
 
 }

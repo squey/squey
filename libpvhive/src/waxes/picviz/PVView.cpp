@@ -45,21 +45,31 @@ IMPL_WAX(Picviz::PVView::process_visibility, view, args)
 
 IMPL_WAX(Picviz::PVView::process_from_selection, view, args)
 {
-	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::process_from_selection)>(view, args);
-	refresh_observers(&view->get_pre_filter_layer());
-	refresh_observers(&view->get_post_filter_layer());
-	refresh_observers(&view->get_output_layer());
-	refresh_observers(&view->get_real_output_selection());
+	QList<Picviz::PVView*> changed_views = call_object_default<Picviz::PVView, FUNC(Picviz::PVView::process_from_selection)>(view, args);
+	changed_views.push_front(view);
+	for (Picviz::PVView* v : changed_views) {
+		refresh_observers(&v->get_pre_filter_layer());
+		refresh_observers(&v->get_post_filter_layer());
+		refresh_observers(&v->get_output_layer());
+		refresh_observers(&v->get_real_output_selection());
+	}
+	changed_views.pop_front();
+	return changed_views;
 }
 
 IMPL_WAX(Picviz::PVView::process_from_layer_stack, view, args)
 {
-	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::process_from_layer_stack)>(view, args);
-	refresh_observers(&view->get_layer_stack_output_layer());
-	refresh_observers(&view->get_pre_filter_layer());
-	refresh_observers(&view->get_post_filter_layer());
-	refresh_observers(&view->get_output_layer());
-	refresh_observers(&view->get_real_output_selection());
+	QList<Picviz::PVView*> changed_views = call_object_default<Picviz::PVView, FUNC(Picviz::PVView::process_from_layer_stack)>(view, args);
+	changed_views.push_front(view);
+	for (Picviz::PVView* v : changed_views) {
+		refresh_observers(&v->get_layer_stack_output_layer());
+		refresh_observers(&v->get_pre_filter_layer());
+		refresh_observers(&v->get_post_filter_layer());
+		refresh_observers(&v->get_output_layer());
+		refresh_observers(&v->get_real_output_selection());
+	}
+	changed_views.pop_front();
+	return changed_views;
 }
 
 IMPL_WAX(Picviz::PVView::process_from_filter, view, args)
@@ -79,8 +89,13 @@ IMPL_WAX(Picviz::PVView::process_from_eventline, view, args)
 
 IMPL_WAX(Picviz::PVView::process_real_output_selection, view, args)
 {
-	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::process_real_output_selection)>(view, args);
-	refresh_observers(&view->get_real_output_selection());
+	QList<Picviz::PVView*> changed_views = call_object_default<Picviz::PVView, FUNC(Picviz::PVView::process_real_output_selection)>(view, args);
+	changed_views.push_front(view);
+	for (Picviz::PVView* v : changed_views) {
+		refresh_observers(&v->get_real_output_selection());
+	}
+	changed_views.pop_front();
+	return changed_views;
 }
 
 // Layer stack waxes

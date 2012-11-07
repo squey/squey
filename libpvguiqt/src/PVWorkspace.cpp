@@ -62,7 +62,7 @@ PVGuiQt::PVWorkspaceBase* PVGuiQt::PVWorkspaceBase::workspace_under_mouse()
 		QMainWindow* w = qobject_cast<QMainWindow*>(top_widget);
 		if (w) {
 			for (PVProjectsTabWidget* project_tab_widget : w->findChildren<PVProjectsTabWidget*>("PVProjectsTabWidget")) {
-				PVWorkspacesTabWidget* workspace_tab_widget = qobject_cast<PVWorkspacesTabWidget*>(project_tab_widget->current_project());
+				PVWorkspacesTabWidgetBase* workspace_tab_widget = project_tab_widget->current_workspace_tab_widget();
 				if (workspace_tab_widget) {
 					PVWorkspaceBase* workspace = qobject_cast<PVWorkspaceBase*>(workspace_tab_widget->currentWidget());
 					if (workspace) {

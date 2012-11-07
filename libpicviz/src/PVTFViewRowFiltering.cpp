@@ -51,7 +51,8 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 	const PVRow nlines_sel = view_src.get_row_count();
 	// Special case when all RFF have "OR" operation. We can be really faster by always writing into the same
 	// selection !
-	tbb::enumerable_thread_specific<PVSelection, tbb::tbb_allocator<PVSelection>, tbb::ets_key_per_instance> tls_sel;
+	tbb::tag_tls_construct_args tag_c;
+	tbb::enumerable_thread_specific<PVSelection, tbb::tbb_allocator<PVSelection>> tls_sel(tag_c, Picviz::PVSelection::tag_allocate_empty());
 
 	//const size_t ncores = PVCore::PVHardwareConcurrency::get_physical_core_number();
 	if (all_rff_or_operation()) {
@@ -83,11 +84,11 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 		//tbb::enumerable_thread_specific<PVSparseSelection, tbb::tbb_allocator<PVSparseSelection>, tbb::ets_key_per_instance> tls_sel_tmp_row;
 		//tbb::enumerable_thread_specific<PVSparseSelection, tbb::tbb_allocator<PVSparseSelection>, tbb::ets_key_per_instance> tls_sel_tmp_rff;
 
-#pragma omp parallel
+//#pragma omp parallel
 		{
-#pragma omp single
+//#pragma omp single
 			sel_org.visit_selected_lines([&](PVRow r) {
-#pragma omp task default(shared)
+//#pragma omp task default(shared)
 				{
 					Picviz::PVSparseSelection sel_tmp_row;
 					Picviz::PVSparseSelection sel_tmp_rff;
@@ -143,7 +144,7 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 				}
 			},
 			nlines_sel);
-#pragma omp taskwait
+//#pragma omp taskwait
 		}
 	}
 
@@ -152,7 +153,7 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 	}
 	PVSelection& final_sel = *tls_sel.begin();
 	// Merge all TLS selections
-	tbb::enumerable_thread_specific<PVSelection, tbb::tbb_allocator<PVSelection>, tbb::ets_key_per_instance>::const_iterator it_sel;
+	tbb::enumerable_thread_specific<PVSelection, tbb::tbb_allocator<PVSelection>>::const_iterator it_sel;
 	it_sel = tls_sel.begin();
 	it_sel++;
 	BENCH_START(sel_red);

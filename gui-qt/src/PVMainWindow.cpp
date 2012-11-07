@@ -79,7 +79,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
 
-	_ad2g_mw = NULL;
+	//_ad2g_mw = NULL;
 
 	// SIZE STUFF
 	// WARNING: nothing should be set here.
@@ -637,7 +637,7 @@ PVGuiQt::PVWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVVie
 {
 	// This returns the tab associated to a picviz view
 	const Picviz::PVScene* scene = picviz_view.get_parent<Picviz::PVScene>();
-	PVGuiQt::PVWorkspacesTabWidget* workspaces_tab_widget = _projects_tab_widget->get_workspace_tab_widget_from_scene(scene);
+	PVGuiQt::PVSceneWorkspacesTabWidget* workspaces_tab_widget = _projects_tab_widget->get_workspace_tab_widget_from_scene(scene);
 	for (int i = 0; workspaces_tab_widget && i < workspaces_tab_widget->count();i++) {
 		PVGuiQt::PVWorkspace *tab = dynamic_cast<PVGuiQt::PVWorkspace*>(workspaces_tab_widget->widget(i));
 		if (!tab) {
