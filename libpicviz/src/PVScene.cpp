@@ -109,7 +109,7 @@ PVRush::PVInputType::list_inputs_desc Picviz::PVScene::get_inputs_desc(PVRush::P
 	return ret_set.toList();
 }
 
-Picviz::PVView::id_t Picviz::PVScene::get_new_view_id() const
+/*Picviz::PVView::id_t Picviz::PVScene::get_new_view_id() const
 {
 	return get_children<PVView>().size();
 }
@@ -131,13 +131,7 @@ void Picviz::PVScene::set_views_id()
 QColor Picviz::PVScene::get_new_view_color() const
 {
 	return QColor(_view_colors[(get_new_view_id()-1) % (sizeof(_view_colors)/sizeof(QRgb))]);
-}
-
-void Picviz::PVScene::user_modified_sel(PVView* src_view, QList<Picviz::PVView*>* changed_views)
-{
-	/*_ad2g_view->pre_process();
-	_ad2g_view->run(src_view, changed_views);*/
-}
+}*/
 
 void Picviz::PVScene::child_added(PVSource& /*src*/)
 {
@@ -158,7 +152,7 @@ void Picviz::PVScene::child_added(PVSource& /*src*/)
 	}
 #endif
 
-	set_views_id();
+	get_parent<PVRoot>()->set_views_id();
 }
 
 void Picviz::PVScene::child_about_to_be_removed(PVSource& src)

@@ -158,7 +158,6 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView_p ad2g, QWidget* parent
 		_nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->setRenderingParameters(params);
 
 		tlp::ColorProperty* color_property = _graph->getLocalProperty<tlp::ColorProperty>("viewColor");
-		color_property->setAllNodeValue(tlp::Color(102, 0, 110));
 		color_property->setAllEdgeValue(tlp::Color(142, 142, 142));
 		_graph->getProperty<tlp::IntegerProperty>("viewFontSize")->setAllNodeValue(12);
 		_graph->getLocalProperty<tlp::ColorProperty>("viewLabelColor")->setAllNodeValue(tlp::Color(255, 255, 255));
@@ -323,11 +322,11 @@ void PVWidgets::PVAD2GWidget::initObservers()
 
 void PVWidgets::PVAD2GWidget::highlightViewItem(tlp::node n)
 {
-	Picviz::PVView* view = _ad2g->get_view(n);
+	/*Picviz::PVView* view = _ad2g->get_view(n);
 	for (int i = 0; i < _table->rowCount(); i++) {
 		QTableWidgetItem* item = _table->item(i, 0);
 		item->setSelected(item->data(Qt::UserRole).value<void*>() == (void*) view && n != tlp::node());
-	}
+	}*/
 }
 
 void PVWidgets::PVAD2GWidget::init_table()
@@ -353,13 +352,12 @@ void PVWidgets::PVAD2GWidget::update_list_views()
 	auto all_views =  Picviz::PVRoot::get_root().get_children<Picviz::PVView>();
 	_table->setRowCount(all_views.size());
 
-	int index = 0;
 	for (auto view_p : all_views) {
 		QTableWidgetItem* item = new QTableWidgetItem(view_p->get_name());
+		item->setBackground(QBrush(view_p->get_color()));
 		item->setToolTip(view_p->get_window_name());
 		item->setData(Qt::UserRole, qVariantFromValue((void*) view_p.get()));
-		_table->setItem(index, 0, item);
-		index++;
+		_table->setItem(view_p->get_view_id(), 0, item);
 	}
 
 	// Disable all the view present in the graph from the list of views

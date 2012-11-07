@@ -8,6 +8,7 @@
 #define PICVIZ_PVROOT_H
 
 #include <QList>
+#include <QRgb>
 #include <QStringList>
 
 #include <pvkernel/core/general.h>
@@ -37,6 +38,8 @@ class PVView;
 typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<PVRoot>, PVScene> data_tree_root_t;
 class LibPicvizDecl PVRoot : public data_tree_root_t {
 public:
+	friend class PVView;
+	friend class PVSource;
 	//typedef boost::shared_ptr<PVRoot> p_type;
 	typedef std::list<PVAD2GView_p> correlations_t;
 
@@ -50,6 +53,11 @@ public:
 	static PVRoot& get_root(); 
 	static PVRoot_sp get_root_sp();
 	static void release();
+
+public:
+	int32_t get_new_view_id() const;
+	void set_views_id();
+	QColor get_new_view_color() const;
 
 public:
 	PVAD2GView_p get_correlation(int index);
@@ -76,6 +84,8 @@ private:
 	correlations_t _correlations;
 	PVAD2GView_p _current_correlation;
 	bool _correlation_running = false;
+
+	QRgb _view_colors[10] = { 0x9966CC, 0x6699CC, 0x778800, 0xFFCC66, 0x993366, 0x999999, 0x339999, 0xFF6633, 0x99FFCC, 0xFFFF99 } ;
 };
 
 typedef PVRoot::p_type  PVRoot_p;

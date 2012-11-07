@@ -87,10 +87,10 @@ public:
 	virtual QString get_serialize_description() const { return "Scene"; }
 
 protected:
-	int32_t get_new_view_id() const;
+	/*int32_t get_new_view_id() const;
 	void set_views_id();
 
-	QColor get_new_view_color() const;
+	QColor get_new_view_color() const;*/
 
 	virtual QString get_children_description() const { return "Source(s)"; }
 	virtual QString get_children_serialize_name() const { return "sources"; }
@@ -103,9 +103,6 @@ protected:
 	void child_added(PVSource& src);
 
 protected:
-	// From PVView
-	void user_modified_sel(Picviz::PVView* org, QList<Picviz::PVView*>* changed_views = NULL);
-
 	// Serialization
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
@@ -122,8 +119,6 @@ private:
 	QString _name;
 
 	PVCore::PVSerializeArchive_p _original_archive;
-
-	QRgb _view_colors[4] = { 0x9966CC, 0x6699CC, 0x778800, 0xFFCC66 } ;
 
 };
 

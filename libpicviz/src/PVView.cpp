@@ -1382,7 +1382,7 @@ void Picviz::PVView::select_inv_lines()
 
 QString Picviz::PVView::get_name() const
 {
-	return QString("%1 (%2/%3)").arg(QString::number(get_view_id())).arg(get_parent<PVMapped>()->get_name()).arg(get_parent<PVPlotted>()->get_name());
+	return QString("%1 (%2/%3)").arg(QString::number(get_display_view_id())).arg(get_parent<PVMapped>()->get_name()).arg(get_parent<PVPlotted>()->get_name());
 }
 
 QString Picviz::PVView::get_window_name() const
@@ -1461,14 +1461,6 @@ Picviz::PVSortingFunc_p Picviz::PVView::get_sort_plugin_for_col(PVCol col) const
 		f_lib = PVSortingFunc_p(new PVDefaultSortingFunc());
 	}
 	return f_lib;
-}
-
-void Picviz::PVView::emit_user_modified_sel(QList<Picviz::PVView*>* changed_views)
-{
-	PVScene* scene = get_parent<PVScene>();
-	if (scene) {
-		scene->user_modified_sel(this, changed_views);
-	}
 }
 
 void Picviz::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes, PVAxesCombination::list_axes_t const& axes)

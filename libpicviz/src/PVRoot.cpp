@@ -72,6 +72,45 @@ void Picviz::PVRoot::release()
 
 /******************************************************************************
  *
+ * Picviz::PVRoot::get_new_view_id
+ *
+ *****************************************************************************/
+Picviz::PVView::id_t Picviz::PVRoot::get_new_view_id() const
+{
+	return get_children<PVView>().size()-1;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVRoot::set_views_id
+ *
+ *****************************************************************************/
+void Picviz::PVRoot::set_views_id()
+{
+	std::multimap<PVView::id_t, PVView*> map_views;
+	for (auto view : get_children<PVView>()) {
+		map_views.insert(std::make_pair(view->get_view_id(), view.get()));
+	}
+	PVView::id_t cur_id = 0;
+	std::multimap<PVView::id_t, PVView*>::iterator it;
+	for (it = map_views.begin(); it != map_views.end(); it++) {
+		it->second->set_view_id(cur_id);
+		cur_id++;
+	}
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVRoot::get_new_view_color
+ *
+ *****************************************************************************/
+QColor Picviz::PVRoot::get_new_view_color() const
+{
+	return QColor(_view_colors[(get_new_view_id()) % (sizeof(_view_colors)/sizeof(QRgb))]);
+}
+
+/******************************************************************************
+ *
  * Picviz::PVRoot::get_correlation
  *
  *****************************************************************************/
