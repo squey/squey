@@ -96,15 +96,16 @@ enum {
 	P_PROG = 0,
 	P_NUM,
 	P_ZOOM,
+	P_MIN,
 	P_MAX_VALUE
 };
 
-#define PROGNAME
 void usage(const char *program)
 {
-	std::cerr << "usage: " << basename(program) << " num zoom\n" << std::endl;
+	std::cerr << "usage: " << basename(program) << " num zoom min\n" << std::endl;
 	std::cerr << "\tnum  : number of events for each primary coordinate event" << std::endl;
 	std::cerr << "\tzoom : zoom level in [0,21]" << std::endl;
+	std::cerr << "\tmin  : low value of extraction range" << std::endl;
 }
 
 /*****************************************************************************
@@ -335,10 +336,10 @@ void extract_sse(const quadtree_entry_t *entries, const size_t size,
 	const uint64_t y1_orig = y1_min_value;
 	const uint64_t y1_len = (y1_mid_value - y1_orig) * 2;
 	const uint64_t y1_scale = y1_len / max_count;
-	const uint64_t y1_shift = PVCore::upper_power_of_2(y1_scale);
+	const uint64_t y1_shift = log2(y1_scale);
 	const uint64_t y2_orig = y2_min_value;
 	const uint64_t y2_scale = ((y2_mid_value - y2_orig) * 2) / y2_count;
-	const uint64_t y2_shift = PVCore::upper_power_of_2(y2_scale);
+	const uint64_t y2_shift = log2(y2_scale);
 	const uint64_t ly1_min = (PVCore::clamp(y1_min, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 	const uint64_t ly1_max = (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 	const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
@@ -544,7 +545,7 @@ int main(int argc, char **argv)
 
 	size_t ent_num = init_count(num);
 
-	const uint64_t y1_min = 1;
+	const uint64_t y1_min = (uint64_t) atol(argv[P_MIN]);
 	const uint64_t y1_max = y1_min + (1UL << (32 - zoom));
 	const uint64_t y1_lim = y1_max;
 	std::cout << "y1_min  : " << y1_min << std::endl;

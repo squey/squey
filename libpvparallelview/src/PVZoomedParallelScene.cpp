@@ -480,142 +480,116 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 	_renderable_zone_number = 0;
 
-	BENCH_START(launch);
-
-	{
-		int zoom_level = get_zoom_level();
+	int zoom_level = get_zoom_level();
 
 #if 0
-		// a second to slow the rendering
-		for(int i = 0; i < 20; ++i) {
-			usleep(50000);
-		}
+	// a second to slow the rendering
+	for(int i = 0; i < 20; ++i) {
+		usleep(50000);
+	}
 #endif
 
-		if (_left_zone) {
-			if (_render_type == RENDER_ALL) { 
-				_renderable_zone_number++;
-				PVZoneRendering_p<bbits> zr(new PVZoneRendering<bbits>(
-						left_zone_id(),
-						[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
-						{
-						zzt_context_t ctxt;
-						return get_zztree(z).browse_bci_by_y2(
-							ctxt,
-							y_min, y_max, y_lim,
-							zoom_level,	image_width, colors, codes, beta);
-						},
-						*_left_zone->bg_image,
-						0, // x_start
-						image_width,
-						alpha, // zoom_y
-						true)); // reversed
-
-				connect_zr(zr.get(), "zr_finished");
-				_left_zone->last_zr_bg = zr;
-				_zp_bg.add_job(zr);
-			}
-
+	if (_left_zone) {
+		if (_render_type == RENDER_ALL) {
 			_renderable_zone_number++;
-			PVZoneRendering_p<bbits> zr(new PVZoneRendering<bbits>(
-					left_zone_id(),
-					[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
-					{
-					zzt_context_t ctxt;
-					return get_zztree(z).browse_bci_sel_by_y2(
-						ctxt,
-						y_min, y_max,y_lim, real_selection(),
-						zoom_level,	image_width, colors, codes, beta);
-					},
-					*_left_zone->sel_image,
-					0, // x_start
-					image_width,
-					alpha, // zoom_y
-					true)); // reversed
+			PVZoneRendering_p<bbits>
+				zr(new PVZoneRendering<bbits>(left_zone_id(),
+				                              [&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z,
+				                                                                    PVCore::PVHSVColor const* colors,
+				                                                                    PVBCICode<bbits>* codes)
+				                              {
+					                              zzt_context_t ctxt;
+					                              return get_zztree(z).browse_bci_by_y2(ctxt,
+					                                                                    y_min, y_max, y_lim,
+					                                                                    zoom_level, image_width,
+					                                                                    colors, codes, beta);
+				                              },
+				                              *_left_zone->bg_image,
+				                              0, // x_start
+				                              image_width,
+				                              alpha, // zoom_y
+				                              true)); // reversed
 
 			connect_zr(zr.get(), "zr_finished");
-			_left_zone->last_zr_sel = zr;
-			_zp_sel.add_job(zr);
+			_left_zone->last_zr_bg = zr;
+			_zp_bg.add_job(zr);
 		}
 
-		if (_right_zone) {
-			/*if (_render_type == RENDER_ALL) {
-			  BENCH_START(render);
-			  _zones_drawing.draw_zoomed_zone(_right_zone->context,
-			 *(_right_zone->bg_image), y_min, y_max, y_lim,
-			 zoom_level, _axis_index,
-			 &PVZoomedZoneTree::browse_bci_by_y1,
-			 alpha, beta, false,
-			 [&] {
-			 sem.release(1);
-			 },
-			 [&] {
-			 ++needed_rendering_count;
-			 }, _render_group);
-			 BENCH_END(render, "RIGHT background", 1, 1, 1, 1);
-			 }
+		_renderable_zone_number++;
+		PVZoneRendering_p<bbits>
+			zr(new PVZoneRendering<bbits>(left_zone_id(),
+			                              [&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z,
+			                                                                    PVCore::PVHSVColor const* colors,
+			                                                                    PVBCICode<bbits>* codes)
+			                              {
+				                              zzt_context_t ctxt;
+				                              return get_zztree(z).browse_bci_sel_by_y2(ctxt,
+					                                                                y_min, y_max,y_lim,
+					                                                                real_selection(),
+					                                                                zoom_level, image_width,
+					                                                                colors, codes, beta);
+			                              },
+			                              *_left_zone->sel_image,
+			                              0, // x_start
+			                              image_width,
+			                              alpha, // zoom_y
+			                              true)); // reversed
 
-			 BENCH_START(sel_render);
-			 _zones_drawing.draw_zoomed_zone_sel(_right_zone->context,
-			 *(_right_zone->sel_image),
-			 y_min, y_max, y_lim, real_selection(),
-			 zoom_level, _axis_index,
-			 &PVZoomedZoneTree::browse_bci_sel_by_y1,
-			 alpha, beta, false,
-			 [&] {
-			 sem.release(1);
-			 },
-			 [&] {
-			 ++needed_rendering_count;
-			 }, _render_group);
-			 BENCH_END(sel_render, "RIGHT selection", 1, 1, 1, 1);*/
-
-			if (_render_type == RENDER_ALL) { 
-				_renderable_zone_number++;
-				PVZoneRendering_p<bbits> zr(new PVZoneRendering<bbits>(
-						right_zone_id(),
-						[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
-						{
-						zzt_context_t ctxt;
-						return get_zztree(z).browse_bci_by_y1(
-							ctxt,
-							y_min, y_max, y_lim,
-							zoom_level,	image_width, colors, codes, beta);
-						},
-						*_right_zone->bg_image,
-						0, // x_start
-						image_width,
-						alpha, // zoom_y
-						false)); // reversed
-
-				connect_zr(zr.get(), "zr_finished");
-				_right_zone->last_zr_bg = zr;
-				_zp_bg.add_job(zr);
-			}
-
-			_renderable_zone_number++;
-			PVZoneRendering_p<bbits> zr(new PVZoneRendering<bbits>(
-					right_zone_id(),
-					[&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes)
-					{
-					zzt_context_t ctxt;
-					return get_zztree(z).browse_bci_sel_by_y1(
-						ctxt,
-						y_min, y_max,y_lim, real_selection(),
-						zoom_level,	image_width, colors, codes, beta);
-					},
-					*_right_zone->sel_image,
-					0, // x_start
-					image_width,
-					alpha, // zoom_y
-					false)); // reversed
-
-			connect_zr(zr.get(), "zr_finished");
-			_right_zone->last_zr_sel = zr;
-			_zp_sel.add_job(zr);
-		}
+		connect_zr(zr.get(), "zr_finished");
+		_left_zone->last_zr_sel = zr;
+		_zp_sel.add_job(zr);
 	}
-	BENCH_END(launch, "job launch", 1, 1, 1, 1);
+
+	if (_right_zone) {
+		if (_render_type == RENDER_ALL) {
+			_renderable_zone_number++;
+			PVZoneRendering_p<bbits>
+				zr(new PVZoneRendering<bbits>(right_zone_id(),
+				                              [&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z,
+				                                                                    PVCore::PVHSVColor const* colors,
+				                                                                    PVBCICode<bbits>* codes)
+				                              {
+					                              zzt_context_t ctxt;
+					                              return get_zztree(z).browse_bci_by_y1(ctxt,
+					                                                                    y_min, y_max, y_lim,
+					                                                                    zoom_level, image_width,
+					                                                                    colors, codes, beta);
+				                              },
+				                              *_right_zone->bg_image,
+				                              0, // x_start
+				                              image_width,
+				                              alpha, // zoom_y
+				                              false)); // reversed
+
+			connect_zr(zr.get(), "zr_finished");
+			_right_zone->last_zr_bg = zr;
+			_zp_bg.add_job(zr);
+		}
+
+		_renderable_zone_number++;
+		PVZoneRendering_p<bbits>
+			zr(new PVZoneRendering<bbits>(right_zone_id(),
+			                              [&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z,
+			                                                                    PVCore::PVHSVColor const* colors,
+			                                                                    PVBCICode<bbits>* codes)
+			                              {
+				                              zzt_context_t ctxt;
+				                              return get_zztree(z).browse_bci_sel_by_y1(ctxt,
+					                                                                y_min, y_max,y_lim,
+					                                                                real_selection(),
+					                                                                zoom_level, image_width,
+					                                                                colors, codes, beta);
+			                              },
+			                              *_right_zone->sel_image,
+			                              0, // x_start
+			                              image_width,
+			                              alpha, // zoom_y
+			                              false)); // reversed
+
+		connect_zr(zr.get(), "zr_finished");
+		_right_zone->last_zr_sel = zr;
+		_zp_sel.add_job(zr);
+	}
 }
 
 void PVParallelView::PVZoomedParallelScene::connect_zr(PVZoneRendering<bbits>* zr, const char* slot)
@@ -627,25 +601,32 @@ void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRenderingBase_p zr
 {
 	assert(is_zone_rendered(zone_id));
 	assert(QThread::currentThread() == this->thread());
+	bool zr_catch = true;
 
 	if (zone_id == left_zone_id()) {
 		if (_left_zone->last_zr_sel == zr) {
 			_left_zone->last_zr_sel.reset();
 		}
-		else {
+		else if (_left_zone->last_zr_bg == zr) {
 			_left_zone->last_zr_bg.reset();
+		}
+		else {
+			zr_catch = false;
 		}
 	}
 	else {
 		if (_right_zone->last_zr_sel == zr) {
 			_right_zone->last_zr_sel.reset();
 		}
-		else {
+		else if (_right_zone->last_zr_bg == zr) {
 			_right_zone->last_zr_bg.reset();
+		}
+		else {
+			zr_catch = false;
 		}
 	}
 
-	if (zr->should_cancel()) {
+	if (!zr_catch || zr->should_cancel()) {
 		// Cancellation may have occured between the event posted for this call
 		// in the Qt's main loop event and the actual call.
 		return;
