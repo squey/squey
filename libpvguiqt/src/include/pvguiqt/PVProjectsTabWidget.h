@@ -109,7 +109,7 @@ public:
 	inline void select_project(Picviz::PVScene* scene) { _tab_widget->setCurrentIndex(_tab_widget->indexOf(get_workspace_tab_widget_from_scene(scene))); }
 	inline void select_project(int index) { _tab_widget->setCurrentIndex(index+2); }
 	inline PVWorkspaceBase* current_workspace() const { return  current_project() ? (PVWorkspaceBase*) current_project()->currentWidget() : nullptr; }
-	inline Picviz::PVView* current_view() const { return current_project() ? current_project()->get_scene()->current_view() : nullptr; }
+	inline Picviz::PVView* current_view() const { return _root.current_view(); }
 	inline int projects_count() { return _tab_widget->count() -2; }
 	inline const QStringList get_projects_list()
 	{

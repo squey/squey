@@ -10,6 +10,7 @@
 #include <pvhive/PVWax.h>
 #include <picviz/PVRoot.h>
 
+DECLARE_WAX(Picviz::PVRoot::select_view)
 DECLARE_WAX(Picviz::PVRoot::add_correlation)
 DECLARE_WAX(Picviz::PVRoot::delete_correlation)
 DECLARE_WAX(Picviz::PVRoot::process_correlation)

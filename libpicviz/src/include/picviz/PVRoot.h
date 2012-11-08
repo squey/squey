@@ -55,6 +55,11 @@ public:
 	static void release();
 
 public:
+	PVView* current_view();
+	PVView const* current_view() const;
+	void select_view(PVView& view);
+
+public:
 	int32_t get_new_view_id() const;
 	void set_views_id();
 	QColor get_new_view_color() const;
@@ -74,6 +79,9 @@ public:
 
 private:
 	static PVRoot_sp _unique_root;
+
+	PVView* _current_view = nullptr;
+
 	correlations_t _correlations;
 	PVAD2GView_p _current_correlation;
 	bool _correlation_running = false;

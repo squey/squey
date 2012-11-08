@@ -42,7 +42,12 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 
 	if (view) {
 		QColor view_color = view->get_color();
-		setStyleSheet(QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ").arg(view_color.name()).arg(view_color.name()));
+		//setStyleSheet(QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ").arg(view_color.name()).arg(view_color.name()));
+
+		QPalette Pal(palette());
+		Pal.setColor(QPalette::Background, view_color);
+		setAutoFillBackground(true);
+		setPalette(Pal);
 	}
 
 	if (delete_on_close) {
@@ -51,6 +56,7 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 
 	connect(this, SIGNAL(topLevelChanged(bool)), this, SLOT(dragStarted(bool)));
 	connect(this, SIGNAL(dockLocationChanged (Qt::DockWidgetArea)), this, SLOT(dragEnded()));
+	connect(view_widget, SIGNAL(destroyed(QObject*)), this, SLOT(close())); // Keep track of child deletion...
 }
 
 bool PVGuiQt::PVViewDisplay::event(QEvent* event)
@@ -214,10 +220,8 @@ void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
 void PVGuiQt::PVViewDisplay::set_current_view()
 {
 	if (_view) {
-		auto scene = _view->get_parent<Picviz::PVScene>()->shared_from_this();
-		std::cout << "Picviz::PVScene::select_view: " << _view << std::endl;
-
+		Picviz::PVRoot_sp root_sp = _view->get_parent<Picviz::PVRoot>()->shared_from_this();
 		_workspace->set_current_view(_view);
-		PVHive::call<FUNC(Picviz::PVScene::select_view)>(scene, *_view);
+		PVHive::call<FUNC(Picviz::PVRoot::select_view)>(root_sp, *_view);
 	}
 }

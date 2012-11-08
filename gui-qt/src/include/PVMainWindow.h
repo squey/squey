@@ -31,12 +31,10 @@
 #include <picviz/PVSelection.h>
 
 #include <pvguiqt/PVCorrelationMenu.h>
+#include <pvguiqt/PVProjectsTabWidget.h>
 
 #include <PVAxisPropertiesWidget.h>
 #include <PVExportSelectionDialog.h>
-#include <PVFilterWidget.h>
-//#include <PVMapWidget.h>
-#include <pvguiqt/PVProjectsTabWidget.h>
 #include <PVFilesTypesSelWidget.h>
 
 //#include <>
@@ -118,7 +116,6 @@ public:
 	PVMainWindow(QWidget *parent = 0);
 
 	PVAxisPropertiesWidget *pv_AxisProperties;
-	PVFilterWidget *pv_FilterWidget;
 
 	PVExportSelectionDialog *pv_ExportSelectionDialog;
 

@@ -32,7 +32,6 @@ include/PVDualSlider.h
 include/PVExpandSelDlg.h
 include/PVExportSelectionDialog.h
 include/PVFilesTypesSelWidget.h
-include/PVFilterWidget.h
 include/PVInvestigationWizard.h
 #include/PVListColNrawDlg.h
 #include/PVListingModel.h
@@ -45,7 +44,6 @@ include/PVSerializeOptionsModel.h
 include/PVSerializeOptionsWidget.h
 include/PVSimpleStringListModel.h
 include/PVStringListChooserWidget.h
-include/PVTabSplitter.h
 #include/PVViewsListingView.h
 #include/PVViewsiListingWidget.h
 include/PVViewsModel.h
@@ -96,7 +94,6 @@ PVExpandSelDlg.cpp
 PVColorDialog.cpp
 PVDualSlider.cpp
 PVExportSelectionDialog.cpp
-PVFilterWidget.cpp
 PVInvestigationWizard.cpp
 #PVListColNrawDlg.cpp
 #PVListingModel.cpp
@@ -110,7 +107,6 @@ PVSaveSceneDialog.cpp
 PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
 PVStringListChooserWidget.cpp
-PVTabSplitter.cpp
 #PVViewsListingView.cpp
 #PVViewsListingWidget.cpp
 PVViewsModel.cpp

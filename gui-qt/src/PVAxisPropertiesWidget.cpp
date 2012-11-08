@@ -8,7 +8,6 @@
 
 #include <PVAxisPropertiesWidget.h>
 #include <PVMainWindow.h>
-#include <PVTabSplitter.h>
 
 /******************************************************************************
  *
