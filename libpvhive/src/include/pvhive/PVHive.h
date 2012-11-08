@@ -494,7 +494,22 @@ protected:
 		}
 	}
 
+	template <typename T>
+	inline void refresh_observers_maybe_recursive(T const* object)
+	{
+		// object must be a valid address
+		assert(object != nullptr);
+		PVCore::PVDataTreeObjectWithParentBase const* dt = PVCore::PVTypeTraits::dynamic_cast_if_possible<PVCore::PVDataTreeObjectWithParentBase const*>(object);
+		if (dt) {
+			refresh_observers_maybe_recursive(dt, const_cast<void*>(PVCore::PVTypeTraits::dynamic_cast_if_possible<const void*>(object)));
+		}
+		else {
+			do_refresh_observers_maybe_recursive((void*) PVCore::PVTypeTraits::get_starting_address(object));
+		}
+	}
+
 	void refresh_observers(PVCore::PVDataTreeObjectWithParentBase const* object, void* obj_refresh);
+	void refresh_observers_maybe_recursive(PVCore::PVDataTreeObjectWithParentBase const* object, void* obj_refresh);
 
 	/**
 	 * Tell all observers of function that a change is about to occure
@@ -669,6 +684,7 @@ private:
 	 * @param object the object which has been modified
 	 */
 	void do_refresh_observers(void *object);
+	void do_refresh_observers_maybe_recursive(void *object);
 
 private:
 	// private to secure the singleton
