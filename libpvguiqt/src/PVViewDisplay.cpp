@@ -56,6 +56,7 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 
 	connect(this, SIGNAL(topLevelChanged(bool)), this, SLOT(dragStarted(bool)));
 	connect(this, SIGNAL(dockLocationChanged (Qt::DockWidgetArea)), this, SLOT(dragEnded()));
+	connect(view_widget, SIGNAL(destroyed(QObject*)), this, SLOT(close())); // Keep track of child deletion...
 }
 
 bool PVGuiQt::PVViewDisplay::event(QEvent* event)
