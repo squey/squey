@@ -256,6 +256,20 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	_root.select_correlation(correlation_index);
 }
 
+PVGuiQt::PVWorkspacesTabWidgetBase* PVGuiQt::PVProjectsTabWidget::current_workspace_tab_widget() const
+{
+	if (_current_workspace_tab_widget_index < 0) {
+		return nullptr;
+	}
+
+	QWidget* w = _stacked_widget->widget(_current_workspace_tab_widget_index);
+	if (_current_workspace_tab_widget_index == 1) {
+		return qobject_cast<PVOpenWorkspacesWidget*>(w)->workspace_tab_widget();
+	}
+
+	return qobject_cast<PVWorkspacesTabWidgetBase*>(w);
+}
+
 PVGuiQt::PVSceneWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::get_workspace_tab_widget_from_scene(const Picviz::PVScene* scene)
 {
 	for (int i = 2 ; i < _stacked_widget->count(); i++) {
