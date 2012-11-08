@@ -102,14 +102,6 @@ void PVInspector::PVMainWindow::create_actions()
 	filter_reprocess_last_filter->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
 
 	/************************
-	 * For the "Scene" menu entry
-	 ************************/
-	scene_menu_event_filter = new SceneMenuEventFilter(this);
-	new_scene_Action = new QAction(tr("&New Scene"), this);
-	select_scene_Action = new QAction(tr("&Select Scene"), this);
-	correlation_scene_Action = new QAction(tr("&Correlations..."), this);
-
-	/************************
 	 * For the "Tools" menu entry
 	 ************************/
 	tools_new_format_Action = new QAction(tr("&New format..."), this);
@@ -227,11 +219,6 @@ void PVInspector::PVMainWindow::create_menus()
 	// layer_Menu = menubar->addMenu(tr("&Layers"));
 	// layer_Menu->addAction(commit_selection_in_current_layer_Action);
 	// layer_Menu->addAction(commit_selection_to_new_layer_Action);
-
-	scene_Menu = menubar->addMenu(tr("S&cene"));
-	//scene_Menu->addAction(new_scene_Action);
-	//scene_Menu->addAction(select_scene_Action);
-	scene_Menu->addAction(correlation_scene_Action);
 	
 	correlation_Menu = new PVGuiQt::PVCorrelationMenu();
 	menubar->addMenu(correlation_Menu);
@@ -268,7 +255,7 @@ void PVInspector::PVMainWindow::create_menus()
 	tools_Menu->addAction(tools_new_format_Action);
 	tools_Menu->addAction(tools_cur_format_Action);
 
-	windows_Menu = menubar->addMenu(tr("&Windows"));
+	//windows_Menu = menubar->addMenu(tr("&Windows"));
 
 	help_Menu = menubar->addMenu(tr("&Help"));
 	//help_Menu->addAction(whats_this_Action);
@@ -298,12 +285,11 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	axes_Menu->setEnabled(cond);
 	filter_Menu->setEnabled(cond);
 	lines_Menu->setEnabled(cond);
-	scene_Menu->setEnabled(cond);
 	correlation_Menu->setEnabled(cond);
 	selection_Menu->setEnabled(cond);
 	tools_cur_format_Action->setEnabled(cond);
 	view_Menu->setEnabled(cond);
-	windows_Menu->setEnabled(cond);
+	//windows_Menu->setEnabled(cond);
 	project_save_Action->setEnabled(cond);
 	project_saveas_Action->setEnabled(cond);
 }
@@ -343,9 +329,6 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(expand_selection_on_axis_Action, SIGNAL(triggered()), this, SLOT(expand_selection_on_axis_Slot()));
 
 	connect(set_color_Action, SIGNAL(triggered()), this, SLOT(set_color_Slot()));
-
-	scene_Menu->installEventFilter(scene_menu_event_filter);
-	connect(correlation_scene_Action, SIGNAL(triggered()), this, SLOT(show_correlation_Slot()));
 
 	connect(correlation_Menu, SIGNAL(correlation_added(const QString &)), this, SLOT(add_correlation(const QString &)));
 	connect(correlation_Menu, SIGNAL(correlation_shown(int)), this, SLOT(show_correlation(int)));

@@ -32,7 +32,6 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 	setWidget(view_widget);
 	setWindowTitle(name);
 
-	installEventFilter(new FocusInEventFilter(this));
 	view_widget->setFocusPolicy(Qt::StrongFocus);
 
 	QAbstractScrollArea* scroll_area = dynamic_cast<QAbstractScrollArea*>(view_widget);
@@ -44,7 +43,6 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 	if (view) {
 		QColor view_color = view->get_color();
 		setStyleSheet(QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ").arg(view_color.name()).arg(view_color.name()));
-		setFocusPolicy(Qt::StrongFocus);
 	}
 
 	if (delete_on_close) {
@@ -103,6 +101,9 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 					setFloating(true); // We don't want the dock widget to be docked right now
 
 					_workspace = workspace;
+
+					disconnect(this, SIGNAL(try_automatic_tab_switch()), 0, 0);
+					connect(this, SIGNAL(try_automatic_tab_switch()), workspace, SIGNAL(try_automatic_tab_switch()));
 
 					QCursor::setPos(mapToGlobal(_press_pt));
 					move(mapToGlobal(_press_pt));

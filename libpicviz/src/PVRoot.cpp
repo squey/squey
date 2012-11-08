@@ -24,22 +24,6 @@ Picviz::PVRoot_sp Picviz::PVRoot::_unique_root;
  *****************************************************************************/
 Picviz::PVRoot::PVRoot() : data_tree_root_t()
 {
-	// Tulip initialisation
-	tlp::initTulipLib();
-
-	// PVRoot handle the filters
-	load_layer_filters();
-	load_mapping_filters();
-	load_plotting_filters();
-	load_row_filters();
-	load_axis_computation_filters();
-	load_sorting_functions_filters();
-
-	// Load PVRush plugins
-	PVRush::PVPluginsLoad::load_all_plugins();
-
-	// Load PVFilter plugins
-	PVFilter::PVPluginsLoad::load_all_plugins();
 }
 
 /******************************************************************************
@@ -176,12 +160,32 @@ QList<Picviz::PVView*> Picviz::PVRoot::process_correlation(PVView* src_view)
 	return changed_views;
 }
 
+void Picviz::common::load_filters()
+{
+	// Tulip initialisation
+	tlp::initTulipLib();
+
+	// PVRoot handle the filters
+	load_layer_filters();
+	load_mapping_filters();
+	load_plotting_filters();
+	load_row_filters();
+	load_axis_computation_filters();
+	load_sorting_functions_filters();
+
+	// Load PVRush plugins
+	PVRush::PVPluginsLoad::load_all_plugins();
+
+	// Load PVFilter plugins
+	PVFilter::PVPluginsLoad::load_all_plugins();
+}
+
 /******************************************************************************
  *
  * Picviz::PVRoot::load_axis_computation_filters
  *
  *****************************************************************************/
-int Picviz::PVRoot::load_axis_computation_filters()
+int Picviz::common::load_axis_computation_filters()
 {
 	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString(picviz_plugins_get_axis_computation_dir()), AXIS_COMPUTATION_PLUGINS_PREFIX);
 	if (ret == 0) {
@@ -200,7 +204,7 @@ int Picviz::PVRoot::load_axis_computation_filters()
  * Picviz::PVRoot::load_layer_filters
  *
  *****************************************************************************/
-int Picviz::PVRoot::load_layer_filters()
+int Picviz::common::load_layer_filters()
 {
 	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString(picviz_plugins_get_layer_filters_dir()), LAYER_FILTER_PREFIX);
 	if (ret == 0) {
@@ -220,7 +224,7 @@ int Picviz::PVRoot::load_layer_filters()
  * Picviz::PVRoot::load_mapping_filters
  *
  *****************************************************************************/
-int Picviz::PVRoot::load_mapping_filters()
+int Picviz::common::load_mapping_filters()
 {
 	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString(picviz_plugins_get_mapping_filters_dir()), MAPPING_FILTER_PREFIX);
 	if (ret == 0) {
@@ -239,7 +243,7 @@ int Picviz::PVRoot::load_mapping_filters()
  * Picviz::PVRoot::load_plotting_filters
  *
  *****************************************************************************/
-int Picviz::PVRoot::load_plotting_filters()
+int Picviz::common::load_plotting_filters()
 {
 	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString(picviz_plugins_get_plotting_filters_dir()), PLOTTING_FILTER_PREFIX);
 	if (ret == 0) {
@@ -259,7 +263,7 @@ int Picviz::PVRoot::load_plotting_filters()
  * Picviz::PVRoot::load_row_filters
  *
  *****************************************************************************/
-int Picviz::PVRoot::load_row_filters()
+int Picviz::common::load_row_filters()
 {
 	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString(picviz_plugins_get_row_filters_dir()), ROW_FILTER_PREFIX);
 	if (ret == 0) {
@@ -276,7 +280,7 @@ int Picviz::PVRoot::load_row_filters()
  * Picviz::PVRoot::load_sorting_functions_filters
  *
  *****************************************************************************/
-int Picviz::PVRoot::load_sorting_functions_filters()
+int Picviz::common::load_sorting_functions_filters()
 {
 	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString(picviz_plugins_get_sorting_functions_dir()), SORTING_FUNCTIONS_PLUGINS_PREFIX);
 	if (ret == 0) {
