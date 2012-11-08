@@ -36,6 +36,7 @@ IMPL_WAX(Picviz::PVRoot::process_correlation, root, args)
 		refresh_observers(&view->get_output_layer());
 		refresh_observers(&view->get_real_output_selection());
 	}
+	return changed_views;
 }
 
 PVHIVE_CALL_OBJECT_BLOCK_END()

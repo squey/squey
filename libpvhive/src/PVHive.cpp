@@ -146,6 +146,19 @@ void PVHive::PVHive::do_refresh_observers(void *object)
 	}
 }
 
+void PVHive::PVHive::do_refresh_observers_maybe_recursive(void *object)
+{
+	observables_t::const_accessor acc;
+
+	if (_observables.find(acc, object)) {
+		for (auto it : acc->second.observers) {
+			if (it->accept_recursive_refreshes()) {
+				it->refresh();
+			}
+		}
+	}
+}
+
 void PVHive::PVHive::do_about_to_refresh_observers(void* object)
 {
 	observables_t::const_accessor acc;
@@ -168,6 +181,21 @@ void PVHive::PVHive::refresh_observers(PVCore::PVDataTreeObjectWithParentBase co
 	// thus this check is necessary!
 	PVCore::PVDataTreeObjectBase const* const parent = object->get_parent_base();
 	if (parent) {
-		refresh_observers(parent);
+		refresh_observers_maybe_recursive(parent);
+	}
+}
+
+void PVHive::PVHive::refresh_observers_maybe_recursive(PVCore::PVDataTreeObjectWithParentBase const* object, void* obj_refresh)
+{
+	// object must be a valid address
+	assert(object != nullptr);
+
+	do_refresh_observers_maybe_recursive(obj_refresh);
+
+	// AG: in test cases (mainly PVGuiQt and PVParallelView), we use "fake" objects that have no parents,
+	// thus this check is necessary!
+	PVCore::PVDataTreeObjectBase const* const parent = object->get_parent_base();
+	if (parent) {
+		refresh_observers_maybe_recursive(parent);
 	}
 }

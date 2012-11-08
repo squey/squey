@@ -21,6 +21,8 @@ class PVObserverBase: public PVObserverObjectBase
 	friend class PVHive;
 
 public:
+	PVObserverBase()
+	{ }
 	virtual ~PVObserverBase();
 
 protected:
@@ -38,7 +40,6 @@ protected:
 	 * Action to do when the "about_to_be_deleted" event occurs.
 	 */
 	virtual void about_to_be_deleted() {};
-
 };
 
 /**
