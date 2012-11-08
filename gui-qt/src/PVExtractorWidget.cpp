@@ -221,17 +221,22 @@ void PVInspector::PVExtractorWidget::process_Slot()
 	size_t index = _slider_index->value();
 	_batch_size = _size_batch_widget->text().toLong();
 	
-	get_extractor().save_nraw();
-	
-	PVRush::PVControllerJob_p job = lib_src().extract_from_agg_nlines(index, _batch_size);
-	bool success = process_extraction_job(job);
+	//get_extractor().save_nraw();
+	Picviz::PVSource_sp src_clone = lib_src().clone_with_no_process();
+	PVRush::PVExtractor& ext = src_clone->get_extractor();
+
+	PVRush::PVControllerJob_p job = src_clone->extract_from_agg_nlines(index, _batch_size);
+	bool success = PVExtractorWidget::show_job_progress_bar(job, ext.get_format().get_format_name(), job->nb_elts_max(), this);
 
 	fill_source_list();
 
 	if (success) {
-		Picviz::PVSource_sp src = lib_src().shared_from_this();
-		PVHive::call<FUNC(Picviz::PVSource::process_from_source)>(src);
+		//Picviz::PVSource_sp src = lib_src().shared_from_this();
+		//PVHive::call<FUNC(Picviz::PVSource::process_from_source)>(src);
 		//_view->last_extractor_batch_size = _batch_size;
+	}
+	else {
+		src_clone->remove_from_tree();
 	}
 }
 

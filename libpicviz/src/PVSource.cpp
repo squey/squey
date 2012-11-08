@@ -81,10 +81,10 @@ void Picviz::PVSource::init()
 	_extractor.start_controller();
 }
 
-Picviz::PVSource_sp Picviz::PVSource::clone_with_no_process() const
+Picviz::PVSource_sp Picviz::PVSource::clone_with_no_process()
 {
-	//Picviz::PVSource_p src(get_parent(), _inputs, _src_plugin, get_format());
-	return Picviz::PVSource_sp();
+	Picviz::PVSource_p src(get_parent()->shared_from_this(), _inputs, _src_plugin, get_format());
+	return src;
 }
 
 Picviz::PVView* Picviz::PVSource::current_view()
