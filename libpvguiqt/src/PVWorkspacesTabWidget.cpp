@@ -347,19 +347,35 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::tabCloseRequested_Slot(int index)
 	remove_workspace(index);
 }
 
+QList<PVGuiQt::PVWorkspaceBase*> PVGuiQt::PVWorkspacesTabWidgetBase::list_workspaces() const
+{
+	QList<PVWorkspaceBase*> ret;
+	for (int i = 0; i < count(); i++) {
+		PVWorkspaceBase* workspace = qobject_cast<PVWorkspaceBase*>(widget(i));
+		assert(workspace);
+		ret << workspace;
+	}
+	return ret;
+}
+
 /******************************************************************************
  *
  * PVGuiQt::PVSceneWorkspacesTabWidget
  *
  *****************************************************************************/
-PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Picviz::PVScene_p scene_p, QWidget* parent /* = 0 */) :
+PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Picviz::PVScene& scene, QWidget* parent /* = 0 */) :
 	PVWorkspacesTabWidgetBase(parent),
-	_scene_p(scene_p),
 	_save_scene_func_observer(this)
 {
+	Picviz::PVScene_sp scene_p = scene.shared_from_this();
 	PVHive::get().register_observer(scene_p, _obs_scene);
 	_obs_scene.connect_refresh(this, SLOT(set_project_modified()));
+
+	// AG: we need to clear the way GUI-objects related to data-tree ones are created and destroyed.
+	// This way is one of the good ones, that is keeping track thanks to the hive of what exists in the data-tree and
+	// react in such consequence.
 	//_obs_scene.connect_refresh(this, SLOT(check_new_sources()));
+
 	PVHive::get().register_func_observer(scene_p, _save_scene_func_observer);
 	_obs_scene.set_accept_recursive_refreshes(true);
 
@@ -406,7 +422,7 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::remove_workspace(int index, bool close
 	PVGuiQt::PVWorkspace* workspace = qobject_cast<PVGuiQt::PVWorkspace*>(widget(index));
 
 	if (workspace && close_source) {
-		_scene_p->remove_child(*workspace->get_source());
+		get_scene()->remove_child(*workspace->get_source());
 	}
 
 	PVWorkspacesTabWidgetBase::remove_workspace(index, close_source);
@@ -423,9 +439,27 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::remove_workspace(int index, bool close
 	}
 }*/
 
-/*void PVGuiQt::PVSceneWorkspacesTabWidget::check_new_sources()
+void PVGuiQt::PVSceneWorkspacesTabWidget::check_new_sources()
 {
-}*/
+	QList<Picviz::PVSource*> known_srcs = list_sources();
+	for (Picviz::PVSource_sp& src: get_scene()->get_children<Picviz::PVSource>()) {
+		if (known_srcs.contains(src.get())) {
+			continue;
+		}
+
+		PVWorkspace* new_workspace = new PVWorkspace(src.get());
+		addTab(new_workspace, src->get_name());
+	}
+}
+
+QList<Picviz::PVSource*> PVGuiQt::PVSceneWorkspacesTabWidget::list_sources() const
+{
+	QList<Picviz::PVSource*> ret;
+	for (PVWorkspaceBase* w: list_workspaces()) {
+		ret << qobject_cast<PVWorkspace*>(w)->get_source();
+	}
+	return ret;
+}
 
 /******************************************************************************
  *
@@ -531,4 +565,11 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::switch_tab()
 {
 	//QApplication::restoreOverrideCursor();
 	setCurrentIndex(_tab_switch_index);
+}
+
+PVGuiQt::PVOpenWorkspace* PVGuiQt::PVOpenWorkspacesTabWidget::current_workspace_or_create()
+{
+	PVOpenWorkspace* ret = current_workspace();
+	if (!ret) {
+	}
 }

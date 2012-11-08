@@ -455,14 +455,13 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::extractor_file_Slot()
 {
-	/*if (!current_view()) {
+	if (!current_view()) {
 		//TODO: this should not happen because the menu item should be disabled... !
 		return;
-	}*/
+	}
 	
 	// For now, shows a modal dialog!
-	Picviz::PVSource_sp src = get_root().get_children<Picviz::PVSource>().at(0);
-	PVExtractorWidget* ext = new PVExtractorWidget(*src, this);
+	PVExtractorWidget* ext = new PVExtractorWidget(*current_view()->get_parent<Picviz::PVSource>(), _projects_tab_widget, this);
 	ext->exec();
 	ext->deleteLater();
 }

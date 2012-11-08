@@ -83,7 +83,7 @@ void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* = true */)
 
 PVGuiQt::PVSceneWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::add_project(Picviz::PVScene_p scene_p)
 {
-	PVSceneWorkspacesTabWidget* workspace_tab_widget = new PVSceneWorkspacesTabWidget(scene_p);
+	PVSceneWorkspacesTabWidget* workspace_tab_widget = new PVSceneWorkspacesTabWidget(*scene_p);
 	connect(workspace_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(emit_workspace_dragged_outside(QWidget*)));
 	connect(workspace_tab_widget, SIGNAL(is_empty()), this, SLOT(close_project()));
 	connect(workspace_tab_widget, SIGNAL(project_modified(bool, QString)), this, SLOT(project_modified(bool, QString)));

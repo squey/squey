@@ -20,12 +20,15 @@
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
-
 #include <picviz/general.h>
 #include <picviz/PVSource.h>
 
 namespace PVCore {
 class PVProgressBox;
+}
+
+namespace PVGuiQt {
+class PVProjectsTabWidget;
 }
 
 namespace PVInspector {
@@ -43,7 +46,7 @@ public:
 	/**
 	 * Constructor.
 	 */
-	PVExtractorWidget(Picviz::PVSource& lib_src, QWidget* parent = NULL);
+	PVExtractorWidget(Picviz::PVSource& lib_src, PVGuiQt::PVProjectsTabWidget* projects_tab, QWidget* parent = NULL);
 
 	void refresh_and_show();
 	static void update_status_ext(PVCore::PVProgressBox* pbox, PVRush::PVControllerJob_p job);
@@ -88,6 +91,7 @@ private:
 	Picviz::PVSource* _lib_src;
 	int _slider_pressed_value;
 	QLineEdit* _sources_number_lines;
+	PVGuiQt::PVProjectsTabWidget* _projects_tab;
 };
 
 }

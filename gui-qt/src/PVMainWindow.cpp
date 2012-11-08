@@ -1618,15 +1618,6 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 {
 	PVLOG_INFO("load_source: %p\n", src.get());
 	// Load a created source
-	
-	// Transient view. This need to be created before posting the "PVSDK_MESSENGER_FUNCTION_CREATE_VIEW" message,
-	// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
-	// for more informations.
-	/*
-	PVSDK::PVMessage message;
-	message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
-	message.pointer_1 = new QString(PVTabSplitter::get_current_view_name(src));
-	pvsdk_messenger->post_message_to_gl(message);*/
 
 	if (src->get_children<Picviz::PVMapped>().size() == 0) {
 		Picviz::PVMapped_p default_mapped(src);
@@ -1683,8 +1674,6 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 	}
 
 	if (!success) {
-		//message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-		//pvsdk_messenger->post_message_to_gl(message);
 		return false;
 	}
 

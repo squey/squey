@@ -143,12 +143,13 @@ void PVGuiQt::PVOpenWorkspacesWidget::create_views_widget()
 		return;
 	}
 
+	PVOpenWorkspace* cur_workspace = _tab_widget->current_workspace_or_create();
+
 	PVDisplays::PVDisplayViewIf& interface = *(reinterpret_cast<PVDisplays::PVDisplayViewIf*>(act->data().value<void*>()));
 	_root_view->visit_selected_objs_as<Picviz::PVView>(
 		[&](Picviz::PVView* view)
 		{
 			QAction* creation_act = PVDisplays::get().action_bound_to_params(interface, view);
-			PVOpenWorkspace* cur_workspace = _tab_widget->current_workspace();
 			cur_workspace->create_view_widget(creation_act);
 		});
 }

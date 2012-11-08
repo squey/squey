@@ -264,7 +264,7 @@ int main(int argc, char** argv)
 	root->dump();
 	src->dump();
 
-	PVGuiQt::PVSceneWorkspacesTabWidget* workspaces_tab_widget = new PVGuiQt::PVSceneWorkspacesTabWidget(src->get_parent()->shared_from_this());
+	PVGuiQt::PVSceneWorkspacesTabWidget* workspaces_tab_widget = new PVGuiQt::PVSceneWorkspacesTabWidget(*src->get_parent());
 
 	PVGuiQt::PVWorkspace* workspace = new PVGuiQt::PVWorkspace(src.get());
 	workspaces_tab_widget->addTab(workspace, "Workspace1");
