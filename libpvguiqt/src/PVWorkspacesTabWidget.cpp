@@ -114,7 +114,7 @@ void PVGuiQt::PVSceneTabBar::mouseMoveEvent(QMouseEvent* event)
 
 void PVGuiQt::PVSceneTabBar::leaveEvent(QEvent* ev)
 {
-	setCursor(Qt::ArrowCursor);
+	//setCursor(Qt::ArrowCursor);
 	QTabBar::leaveEvent(ev);
 }
 
@@ -447,7 +447,6 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::tabInserted(int index)
 {
 	if (count() > 0) {
 		PVWorkspaceBase* workspace = (PVWorkspaceBase*) widget(index);
-		std::cout << "tabInserted: workspace=" << workspace << std::endl;
 		connect(workspace, SIGNAL(try_automatic_tab_switch()), this, SLOT(start_checking_for_automatic_tab_switch()));
 	}
 }
@@ -455,8 +454,6 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::tabInserted(int index)
 void PVGuiQt::PVOpenWorkspacesTabWidget::tab_changed(int index)
 {
 
-	PVWorkspaceBase* workspace = (PVWorkspaceBase*) widget(index);
-	std::cout << "workspace=" << workspace << std::endl;
 	if (index == count()) {
 		setCurrentIndex(count()-1);
 	}
@@ -498,22 +495,21 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::tabRemoved(int index)
 
 void PVGuiQt::PVOpenWorkspacesTabWidget::start_checking_for_automatic_tab_switch()
 {
-	std::cout << "start_checking_for_automatic_tab_switch" << std::endl;
 	QPoint mouse_pos = tabBar()->mapFromGlobal(QCursor::pos());
 	_tab_switch_index = tabBar()->tabAt(mouse_pos);
 
 	if (_tab_switch_index != -1) {
 		_automatic_tab_switch_timer.start(AUTOMATIC_TAB_SWITCH_TIMER_MSEC);
-		QApplication::setOverrideCursor(Qt::PointingHandCursor);
+		//QApplication::setOverrideCursor(Qt::PointingHandCursor);
 	}
 	else {
 		_automatic_tab_switch_timer.stop();
-		QApplication::restoreOverrideCursor();
+		//QApplication::restoreOverrideCursor();
 	}
 }
 
 void PVGuiQt::PVOpenWorkspacesTabWidget::switch_tab()
 {
-	QApplication::restoreOverrideCursor();
+	//QApplication::restoreOverrideCursor();
 	setCurrentIndex(_tab_switch_index);
 }
