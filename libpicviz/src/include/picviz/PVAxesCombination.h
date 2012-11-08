@@ -216,7 +216,7 @@ public:
 	 * @return The list of all names of all current axes
 	 *
 	 */
-	QStringList get_original_axes_names_list();
+	QStringList get_original_axes_names_list() const;
 
 	/**
 	* Get the current column index of a currently used axes, from its index.

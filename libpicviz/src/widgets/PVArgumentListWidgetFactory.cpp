@@ -13,6 +13,7 @@
 #include <pvkernel/core/PVAxisIndexCheckBoxType.h>
 #include <pvkernel/core/PVSpinBoxType.h>
 
+#include <picviz/widgets/editors/PVOriginalAxisIndexEditor.h>
 #include <picviz/widgets/editors/PVAxisIndexEditor.h>
 #include <picviz/widgets/editors/PVAxesIndexEditor.h>
 #include <picviz/widgets/editors/PVLayerEnumEditor.h>
@@ -36,6 +37,7 @@ QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_
 	// Get core widgets and add ours
 	QItemEditorFactory* args_widget_factory = create_core_widgets_factory();
 
+	QItemEditorCreatorBase *pv_original_axis_index_creator = new PVViewArgumentEditorCreator<PVWidgets::PVOriginalAxisIndexEditor>(view);
 	QItemEditorCreatorBase *pv_axis_index_creator = new PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexEditor>(view);
 	QItemEditorCreatorBase *pv_axis_index_checkbox_creator = new PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexCheckBoxEditor>(view);
 	QItemEditorCreatorBase *pv_axes_index_creator = new PVViewArgumentEditorCreator<PVWidgets::PVAxesIndexEditor>(view);
@@ -43,6 +45,7 @@ QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_
 	QItemEditorCreatorBase *rowsspinbox_creator = new PVViewArgumentEditorCreator<PVWidgets::PVViewRowsSpinBoxEditor>(view);
 
 	// And register them into the factory
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVOriginalAxisIndexType>(), pv_original_axis_index_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexType>(), pv_axis_index_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexCheckBoxType>(), pv_axis_index_checkbox_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxesIndexType>(), pv_axes_index_creator);

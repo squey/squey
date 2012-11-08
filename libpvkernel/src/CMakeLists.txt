@@ -15,6 +15,7 @@ core/segfault_handler.cpp
 core/PVAllocators.cpp
 core/PVArchive.cpp
 core/PVArgument.cpp
+core/PVOriginalAxisIndexType.cpp
 core/PVAxisIndexType.cpp
 core/PVAxisIndexCheckBoxType.cpp
 core/PVBinaryOperation.cpp
@@ -80,6 +81,7 @@ include/pvkernel/core/hash_sharedptr.h
 
 include/pvkernel/core/PVArchive.h
 include/pvkernel/core/PVArgument.h
+include/pvkernel/core/PVOriginalAxisIndexType.h
 include/pvkernel/core/PVAxisIndexType.h
 include/pvkernel/core/PVAxesIndexType.h
 include/pvkernel/core/PVBitCount.h
