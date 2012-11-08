@@ -65,10 +65,10 @@ void PVGuiQt::PVRootTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 	}
 
 	// Double click on a view set this view as the current view of the parent source
-	Picviz::PVScene_sp scene(view->get_parent<Picviz::PVScene>()->shared_from_this());
+	Picviz::PVRoot_sp root_sp(view->get_parent<Picviz::PVRoot>()->shared_from_this());
 	
 	// Call select_view throught the Hive :)
-	PVHive::call<FUNC(Picviz::PVScene::select_view)>(scene, *view);
+	PVHive::call<FUNC(Picviz::PVRoot::select_view)>(root_sp, *view);
 
 	event->accept();
 }

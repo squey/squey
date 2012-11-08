@@ -89,13 +89,13 @@ Picviz::PVView const* Picviz::PVScene::current_view() const
 	return const_cast<PVView const*>(const_cast<PVScene*>(this)->current_view());
 }
 
-void Picviz::PVScene::select_view(PVView& view)
+/*void Picviz::PVScene::select_view(PVView& view)
 {
 	 assert(get_children<PVView>().contains(view.shared_from_this()));
 	 _current_view = &view;
 	 _current_source = view.get_parent<PVSource>();
 	 _current_source->set_last_current_view(_current_view);
-}
+}*/
 
 PVRush::PVInputType::list_inputs_desc Picviz::PVScene::get_inputs_desc(PVRush::PVInputType const& type) const
 {

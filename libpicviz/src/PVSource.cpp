@@ -90,7 +90,6 @@ Picviz::PVSource_sp Picviz::PVSource::clone_with_no_process() const
 Picviz::PVView* Picviz::PVSource::current_view()
 {
 	PVView* view = get_parent<PVScene>()->current_view();
-	assert(!view || (view && get_children<PVView>().contains(view->shared_from_this())));
 	return view;
 }
 
@@ -246,7 +245,7 @@ void Picviz::PVSource::create_default_view()
 	for (PVMapped_p& m: get_children()) {
 		PVPlotted_p def_plotted(m);
 		PVView_p def_view(def_plotted);
-		def_view->get_parent<PVScene>()->select_view(*def_view);
+		def_view->get_parent<PVRoot>()->select_view(*def_view);
 		process_from_source();
 	}
 }
@@ -261,7 +260,7 @@ void Picviz::PVSource::process_from_source()
 void Picviz::PVSource::add_view(PVView_sp view)
 {
 	//if (!current_view()) {
-		get_parent<PVScene>()->select_view(*view);
+		get_parent<PVRoot>()->select_view(*view);
 	//}
 	PVRoot* root = get_parent<PVRoot>();
 	if (root) {

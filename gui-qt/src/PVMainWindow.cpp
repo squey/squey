@@ -1692,7 +1692,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 
 	if (src->get_children<Picviz::PVView>().size() > 0) {
 		Picviz::PVView_sp first_view_p = src->get_children<Picviz::PVView>().at(0);
-		first_view_p->get_parent<Picviz::PVScene>()->select_view(*first_view_p);
+		first_view_p->get_parent<Picviz::PVRoot>()->select_view(*first_view_p);
 	}
 
 	//connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));

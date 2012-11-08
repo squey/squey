@@ -67,7 +67,6 @@ public:
 
 	PVView* current_view();
 	PVView const* current_view() const;
-	void select_view(PVView& view);
 
 public:
 	PVCore::PVSerializeArchiveOptions_p get_default_serialize_options();

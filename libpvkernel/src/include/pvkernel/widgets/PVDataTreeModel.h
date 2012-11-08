@@ -42,6 +42,7 @@ private:
 
 protected:
 	PVCore::PVDataTreeObjectWithChildrenBase* _root;
+	PVCore::PVDataTreeObjectBase* _root_base;
 };
 
 };
