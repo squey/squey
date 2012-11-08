@@ -342,6 +342,7 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::tabCloseRequested_Slot(int index)
 {
 	remove_workspace(index);
 }
+
 /******************************************************************************
  *
  * PVGuiQt::PVSceneWorkspacesTabWidget
@@ -412,7 +413,8 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 
 	Picviz::PVView* view = qobject_cast<PVWorkspaceBase*>(widget(index))->current_view();
 	if (view) {
-		PVHive::call<FUNC(Picviz::PVScene::select_view)>(_scene_p, *view);
+		Picviz::PVRoot_sp root_sp = _scene_p->get_parent<Picviz::PVRoot>()->shared_from_this();
+		PVHive::call<FUNC(Picviz::PVRoot::select_view)>(root_sp, *view);
 	}
 }
 /******************************************************************************

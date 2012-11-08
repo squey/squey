@@ -21,7 +21,12 @@ private slots:
 	void about_to_be_deleted(PVHive::PVObserverBase* o);
 
 private:
+	void register_all_observers();
+	bool is_object_observed(PVCore::PVDataTreeObjectBase* o) const;
+
+private:
 	std::list<datatree_obs_t> _obs;
+	PVHive::PVObserver_p<PVCore::PVDataTreeObjectBase> _root_recursive_observer;
 };
 
 }

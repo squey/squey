@@ -54,6 +54,22 @@ void Picviz::PVRoot::release()
 	_unique_root.reset();
 }
 
+Picviz::PVView* Picviz::PVRoot::current_view()
+{
+	return _current_view;
+}
+
+Picviz::PVView const* Picviz::PVRoot::current_view() const
+{
+	return const_cast<PVView const*>(const_cast<PVRoot*>(this)->current_view());
+}
+
+void Picviz::PVRoot::select_view(PVView& view)
+{
+	 _current_view = &view;
+}
+
+
 /******************************************************************************
  *
  * Picviz::PVRoot::get_new_view_id

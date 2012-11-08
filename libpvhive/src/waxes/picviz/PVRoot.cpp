@@ -14,6 +14,16 @@
 
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
+IMPL_WAX(Picviz::PVRoot::select_view, root, args)
+{
+	Picviz::PVView* old_cur_view = root->current_view();
+	call_object_default<Picviz::PVRoot, FUNC(Picviz::PVRoot::select_view)>(root, args);
+	if (old_cur_view) {
+		refresh_observers(old_cur_view);
+	}
+	refresh_observers(&std::get<0>(args));
+}
+
 IMPL_WAX(Picviz::PVRoot::add_correlation, root, args)
 {
 	call_object_default<Picviz::PVRoot, FUNC(Picviz::PVRoot::add_correlation)>(root, args);

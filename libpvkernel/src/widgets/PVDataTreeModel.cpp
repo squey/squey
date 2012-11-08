@@ -12,6 +12,7 @@
 PVWidgets::PVDataTreeModel::PVDataTreeModel(PVCore::PVDataTreeObjectBase& root, QObject* parent):
 	QAbstractItemModel(parent)
 {
+	_root_base = &root;
 	_root = root.cast_with_children();
 }
 

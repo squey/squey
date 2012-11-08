@@ -219,8 +219,8 @@ void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
 void PVGuiQt::PVViewDisplay::set_current_view()
 {
 	if (_view) {
-		auto scene = _view->get_parent<Picviz::PVScene>()->shared_from_this();
+		Picviz::PVRoot_sp root_sp = _view->get_parent<Picviz::PVRoot>()->shared_from_this();
 		_workspace->set_current_view(_view);
-		PVHive::call<FUNC(Picviz::PVScene::select_view)>(scene, *_view);
+		PVHive::call<FUNC(Picviz::PVRoot::select_view)>(root_sp, *_view);
 	}
 }
