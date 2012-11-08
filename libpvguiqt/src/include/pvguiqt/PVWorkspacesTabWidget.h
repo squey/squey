@@ -82,7 +82,7 @@ public:
 	virtual int count() const;
 
 public:
-	virtual void create_new_workspace() {}
+	virtual PVOpenWorkspace* create_new_workspace() { return nullptr; }
 
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
@@ -105,13 +105,16 @@ class PVOpenWorkspaceTabBar : public PVSceneTabBar
 public:
 	PVOpenWorkspaceTabBar(PVOpenWorkspacesTabWidget* tab_widget);
 	int count() const;
-	void create_new_workspace() override;
+	PVOpenWorkspace* create_new_workspace() override;
 
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
 	void wheelEvent(QWheelEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
+
+private:
+	int _workspace_id = 0;
 };
 
 /******************************************************************************
@@ -160,6 +163,7 @@ protected:
 private:
 	int _tab_animated_width;
 	bool _tab_animation_ongoing = false;
+	int _tab_animation_index;
 };
 
 /******************************************************************************
