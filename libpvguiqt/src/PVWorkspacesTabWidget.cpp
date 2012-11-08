@@ -61,7 +61,6 @@ PVGuiQt::PVSceneTabBar::PVSceneTabBar(PVWorkspacesTabWidgetBase* tab_widget) : _
 {
 	setTabsClosable(true);
 	connect(this, SIGNAL(tabCloseRequested(int)), tab_widget, SLOT(tabCloseRequested_Slot(int)));
-	connect(this, SIGNAL(currentChanged(int)), _tab_widget, SLOT(tab_changed(int)));
 }
 
 int PVGuiQt::PVSceneTabBar::count() const
@@ -171,6 +170,11 @@ void PVGuiQt::PVSceneTabBar::start_drag(QWidget* workspace)
  * PVGuiQt::PVOpenWorkspaceTabBar
  *
  *****************************************************************************/
+
+PVGuiQt::PVOpenWorkspaceTabBar::PVOpenWorkspaceTabBar(PVOpenWorkspacesTabWidget* tab_widget) : PVSceneTabBar(tab_widget)
+{
+	connect(this, SIGNAL(currentChanged(int)), _tab_widget, SLOT(tab_changed(int)));
+}
 
 int PVGuiQt::PVOpenWorkspaceTabBar::count() const
 {
@@ -408,7 +412,7 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::remove_workspace(int index, bool close
 	PVWorkspacesTabWidgetBase::remove_workspace(index, close_source);
 }
 
-void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
+/*void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 {
 	if (index == -1) return;
 
@@ -417,7 +421,7 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 		Picviz::PVRoot_sp root_sp = _scene_p->get_parent<Picviz::PVRoot>()->shared_from_this();
 		PVHive::call<FUNC(Picviz::PVRoot::select_view)>(root_sp, *view);
 	}
-}
+}*/
 
 /*void PVGuiQt::PVSceneWorkspacesTabWidget::check_new_sources()
 {
@@ -469,7 +473,9 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::tab_changed(int index)
 		if (_combo_box) {
 			PVOpenWorkspace * open_workspace = (PVOpenWorkspace*) widget(index);
 			if (open_workspace) {
-				_combo_box->setCurrentIndex(open_workspace->get_correlation_index());
+				int index = open_workspace->get_correlation_index();
+				_combo_box->setCurrentIndex(index);
+				Picviz::PVRoot::get_root().select_correlation(index-1);
 			}
 		}
 	}

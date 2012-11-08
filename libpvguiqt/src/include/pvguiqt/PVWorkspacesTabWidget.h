@@ -44,6 +44,7 @@ class PVWorkspaceBase;
 class PVWorkspacesTabWidgetBase;
 class PVSceneWorkspacesTabWidget;
 class PVOpenWorkspaceTabBar;
+class PVOpenWorkspacesTabWidget;
 class PVSceneTabBar;
 
 namespace __impl
@@ -102,7 +103,7 @@ class PVOpenWorkspaceTabBar : public PVSceneTabBar
 	Q_OBJECT
 
 public:
-	PVOpenWorkspaceTabBar(PVWorkspacesTabWidgetBase* tab_widget) : PVSceneTabBar(tab_widget) {}
+	PVOpenWorkspaceTabBar(PVOpenWorkspacesTabWidget* tab_widget);
 	int count() const;
 	void create_new_workspace() override;
 
@@ -138,9 +139,6 @@ signals:
 	void workspace_dragged_outside(QWidget*);
 	void workspace_closed(Picviz::PVSource* source);
 	void animation_finished();
-
-public slots:
-	virtual void tab_changed(int index) = 0;
 
 protected slots:
 	virtual void correlation_changed(int index) = 0;
@@ -193,7 +191,7 @@ signals:
 	void is_empty();
 
 public slots:
-	void tab_changed(int index);
+	//void tab_changed(int index);
 
 protected slots:
 	void correlation_changed(int index);
