@@ -456,9 +456,14 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 	int gap_y = (screen_rect_s.top() < 0)?round(-screen_rect_s.top()):0;
 
+	_renderable_zone_number = 0;
 	if (_left_zone) {
 		if (_render_type == RENDER_ALL) {
 			_left_zone->cancel_last_bg();
+		}
+		else {
+			// If the background is rendering, we need to wait for one more rendering!
+			_renderable_zone_number += (bool) _left_zone->last_zr_bg;
 		}
 		_left_zone->cancel_last_sel();
 
@@ -471,6 +476,10 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 		if (_render_type == RENDER_ALL) {
 			_right_zone->cancel_last_bg();
 		}
+		else {
+			// If the background is rendering, we need to wait for one more rendering!
+			_renderable_zone_number += (bool) _right_zone->last_zr_bg;
+		}
 		_right_zone->cancel_last_sel();
 
 		QPoint npos(screen_center + axis_half_width + 1, gap_y);
@@ -478,7 +487,6 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 		_right_zone->next_pos = _zpview->mapToScene(npos);
 	}
 
-	_renderable_zone_number = 0;
 
 	int zoom_level = get_zoom_level();
 
