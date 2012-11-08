@@ -32,7 +32,6 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 	setWidget(view_widget);
 	setWindowTitle(name);
 
-	installEventFilter(new FocusInEventFilter(this));
 	view_widget->setFocusPolicy(Qt::StrongFocus);
 
 	QAbstractScrollArea* scroll_area = dynamic_cast<QAbstractScrollArea*>(view_widget);
@@ -44,7 +43,6 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 	if (view) {
 		QColor view_color = view->get_color();
 		setStyleSheet(QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ").arg(view_color.name()).arg(view_color.name()));
-		setFocusPolicy(Qt::StrongFocus);
 	}
 
 	if (can_be_central_widget) {

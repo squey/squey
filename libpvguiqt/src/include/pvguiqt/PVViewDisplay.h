@@ -27,7 +27,7 @@ namespace PVGuiQt
 class PVWorkspaceBase;
 class PVWorkspace;
 class PVOpenWorkspace;
-class FocusInEventFilter;
+class DisplaysFocusInEventFilter;
 
 class PVViewDisplay : public QDockWidget
 {
@@ -36,11 +36,11 @@ class PVViewDisplay : public QDockWidget
 	friend PVWorkspaceBase;
 	friend PVWorkspace;
 	friend PVOpenWorkspace;
-	friend FocusInEventFilter;
 
 public:
 	Picviz::PVView* get_view() { return _view; }
 	void set_view(Picviz::PVView* view) { _view = view; }
+	void set_current_view();
 
 protected:
 	bool event(QEvent* event) override;
@@ -60,7 +60,6 @@ signals:
 	void try_automatic_tab_switch();
 
 private:
-	void set_current_view();
 	void maximize_on_screen(int screen_number);
 
 private:
@@ -70,24 +69,6 @@ private:
 	Picviz::PVView* _view;
 	PVWorkspaceBase* _workspace;
 	QPoint _press_pt;
-};
-
-class FocusInEventFilter : public QObject
-{
-public:
-	FocusInEventFilter(PVViewDisplay* parent) : _parent(parent) {}
-protected:
-	bool eventFilter(QObject* obj, QEvent *event)
-	{
-		if (event->type() == QEvent::FocusIn) {
-			_parent->set_current_view();
-			return true;
-		}
-
-		return QObject::eventFilter(obj, event);
-	}
-private:
-	PVViewDisplay* _parent;
 };
 
 }

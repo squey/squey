@@ -10,6 +10,9 @@ typename std::remove_pointer<T>::type* get_qobject_parent_of_type(QObject* self)
 {
 	typedef typename std::remove_pointer<T>::type* pointer;
 	QObject* parent = self->parent();
+	if (!parent) {
+		return nullptr;
+	}
 	pointer parent_cast = dynamic_cast<pointer>(parent);
 	if (parent_cast) {
 		return parent_cast;

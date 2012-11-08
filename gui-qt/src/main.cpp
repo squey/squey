@@ -29,6 +29,9 @@
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/segfault_handler.h>
 #include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/qobject_helpers.h>
+
+#include <pvguiqt/PVViewDisplay.h>
 
 #include <picviz/PVRoot.h>
 
@@ -43,6 +46,27 @@
 // #ifdef USE_UNIKEY
   // #include <UniKeyFR.h>
 // #endif
+class DisplaysFocusInEventFilter : public QObject
+{
+protected:
+	bool eventFilter(QObject* obj, QEvent *event)
+	{
+		if (event->type() == QEvent::FocusIn) {
+			// Is the widget a PVViewDisplay?
+			PVGuiQt::PVViewDisplay* display = qobject_cast<PVGuiQt::PVViewDisplay*>(obj);
+			if (!display) {
+				// Or a child of a PVViewDisplay ?
+				display = PVCore::get_qobject_parent_of_type<PVGuiQt::PVViewDisplay*>(obj);
+			}
+			if (display) {
+				display->set_current_view();
+			}
+		}
+
+		return QObject::eventFilter(obj, event);
+	}
+
+};
 
 class DragNDropTransparencyHack : public QObject
 {
@@ -159,6 +183,7 @@ int main(int argc, char *argv[])
 	app.setApplicationName("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR);
 	app.setWindowIcon(QIcon(":/picviz"));
 	app.installEventFilter(new DragNDropTransparencyHack());
+	app.installEventFilter(new DisplaysFocusInEventFilter());
 
 	pv_mw->show();
 
