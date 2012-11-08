@@ -233,9 +233,12 @@ void PVGuiQt::PVOpenWorkspaceTabBar::mousePressEvent(QMouseEvent* event)
 	PVSceneTabBar::mousePressEvent(event);
 }
 
-void PVGuiQt::PVOpenWorkspaceTabBar::create_new_workspace()
+PVGuiQt::PVOpenWorkspace* PVGuiQt::PVOpenWorkspaceTabBar::create_new_workspace()
 {
-	_tab_widget->addTab(new PVOpenWorkspace(this), QString("Workspace %1").arg(_tab_widget->count()+1));
+	PVOpenWorkspace* open_workspace = new PVOpenWorkspace(this);
+	_tab_widget->addTab(open_workspace, QString("Workspace %1").arg(++_workspace_id));
+
+	return open_workspace;
 }
 
 /******************************************************************************
@@ -297,7 +300,11 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::remove_workspace(int index, bool close_
 			this,
 			SLOT(animation_state_changed(QAbstractAnimation::State, QAbstractAnimation::State))
 		);
-		setCurrentIndex(index);
+		blockSignals(true);
+		_tab_animation_index = index;
+		setCurrentIndex(index); // Force current index in order to get the animation on the selected tab!
+		blockSignals(false);
+		_tab_animation_index = index;
 		animation->setDuration(TAB_OPENING_EFFECT_MSEC);
 		animation->setEndValue(25);
 		_tab_animated_width = _tab_bar->tabSizeHint(index).width();
@@ -317,7 +324,7 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::animation_state_changed(QAbstractAnimat
 {
 	if (new_state == QAbstractAnimation::Stopped && old_state == QAbstractAnimation::Running) {
 		tabBar()->setStyleSheet("");
-		removeTab(currentIndex());
+		removeTab(_tab_animation_index);
 		sender()->deleteLater();
 		emit animation_finished();
 	}
@@ -499,17 +506,18 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::tabInserted(int index)
 
 void PVGuiQt::PVOpenWorkspacesTabWidget::tab_changed(int index)
 {
-
 	if (index == count()) {
-		setCurrentIndex(count()-1);
+		/*int idx = std::max(0, count()-1);
+		std::cout << "setCurrentIndex(idx)=" << idx << std::endl;
+		setCurrentIndex(idx);*/
 	}
 	else {
 		if (_combo_box) {
 			PVOpenWorkspace * open_workspace = (PVOpenWorkspace*) widget(index);
 			if (open_workspace) {
-				int index = open_workspace->get_correlation_index();
-				_combo_box->setCurrentIndex(index);
-				Picviz::PVRoot::get_root().select_correlation(index-1);
+				int idx = open_workspace->get_correlation_index();
+				_combo_box->setCurrentIndex(idx);
+				Picviz::PVRoot::get_root().select_correlation(idx-1);
 			}
 		}
 	}
@@ -536,9 +544,13 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::correlation_changed(int index)
 void PVGuiQt::PVOpenWorkspacesTabWidget::tabRemoved(int index)
 {
 	if (count() == 0) {
+		// If there isn't any open workspace anymore, disable correlation.
 		_combo_box->setCurrentIndex(0);
 	}
-	QTabWidget::tabRemoved(index);
+	else if (index == count()) {
+		// Prevent selection of open workspace "+" tab.
+		setCurrentIndex(index-1);
+	}
 }
 
 PVGuiQt::PVOpenWorkspace* PVGuiQt::PVOpenWorkspacesTabWidget::current_workspace() const
