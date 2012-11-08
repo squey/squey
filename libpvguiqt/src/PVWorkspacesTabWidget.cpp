@@ -90,7 +90,8 @@ void PVGuiQt::PVSceneTabBar::mouseReleaseEvent(QMouseEvent* event)
 
 void PVGuiQt::PVSceneTabBar::mouseMoveEvent(QMouseEvent* event)
 {
-	int tab_index = tabAt(event->pos());
+	// Drag&drop is disabled for the moment...
+	/*int tab_index = tabAt(event->pos());
 
 	if (tab_index == count()) {
 		setCursor(Qt::PointingHandCursor);
@@ -108,7 +109,7 @@ void PVGuiQt::PVSceneTabBar::mouseMoveEvent(QMouseEvent* event)
 		start_drag(_tab_widget->widget(tab_index));
 	}
 
-	QTabBar::mouseMoveEvent(event);
+	QTabBar::mouseMoveEvent(event);*/
 }
 
 void PVGuiQt::PVSceneTabBar::leaveEvent(QEvent* ev)
@@ -239,18 +240,13 @@ void PVGuiQt::PVOpenWorkspaceTabBar::create_new_workspace()
  *
  *****************************************************************************/
 PVGuiQt::PVWorkspacesTabWidgetBase::PVWorkspacesTabWidgetBase(QWidget* parent /* = 0 */) :
-	QTabWidget(parent),
-	_automatic_tab_switch_timer(this)
+	QTabWidget(parent)
 {
 	setObjectName("PVWorkspacesTabWidget");
 
 	// To get notified of mouse events we must enable mouse tracking on *both* QTabWidget and its underlying QTabBar
 	setMouseTracking(true);
 	tabBar()->setMouseTracking(true);
-
-	// Automatic tab switching handling  for drag&drop
-	_automatic_tab_switch_timer.setSingleShot(true);
-	connect(&_automatic_tab_switch_timer, SIGNAL(timeout()), this, SLOT(switch_tab()));
 
 	_combo_box = new QComboBox();
 	connect(_combo_box, SIGNAL(activated(int)), this, SLOT(correlation_changed(int)));
@@ -279,36 +275,6 @@ int PVGuiQt::PVWorkspacesTabWidgetBase::addTab(PVWorkspaceBase* workspace, const
 	return index;
 }
 
-void PVGuiQt::PVWorkspacesTabWidgetBase::tabInserted(int index)
-{
-	PVWorkspaceBase* workspace = (PVWorkspaceBase*) widget(index);
-
-	//!\\ Qt is complaining about signal not existing but it definitively does!
-	connect(workspace, SIGNAL(try_automatic_tab_switch()), this, SLOT(start_checking_for_automatic_tab_switch()));
-	QTabWidget::tabInserted(index);
-}
-
-void PVGuiQt::PVWorkspacesTabWidgetBase::start_checking_for_automatic_tab_switch()
-{
-	QPoint mouse_pos = tabBar()->mapFromGlobal(QCursor::pos());
-	_tab_index = tabBar()->tabAt(mouse_pos);
-
-	if (_tab_index != -1) {
-		_automatic_tab_switch_timer.start(AUTOMATIC_TAB_SWITCH_TIMER_MSEC);
-		QApplication::setOverrideCursor(Qt::PointingHandCursor);
-	}
-	else {
-		_automatic_tab_switch_timer.stop();
-		QApplication::restoreOverrideCursor();
-	}
-}
-
-void PVGuiQt::PVWorkspacesTabWidgetBase::switch_tab()
-{
-	QApplication::restoreOverrideCursor();
-	setCurrentIndex(_tab_index);
-}
-
 void PVGuiQt::PVWorkspacesTabWidgetBase::set_tab_width(int tab_width)
 {
 	//QString str = QString("QTabBar::tab:selected { width: %1px; color: rgba(0, 0, 0, %2%);}").arg(tab_width).arg((float)tab_width / _tab_animated_width * 100);
@@ -331,7 +297,6 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::remove_workspace(int index, bool close_
 		animation->setDuration(TAB_OPENING_EFFECT_MSEC);
 		animation->setEndValue(25);
 		_tab_animated_width = _tab_bar->tabSizeHint(index).width();
-		_tab_index = index;
 		animation->setStartValue(_tab_animated_width);
 		animation->start();
 
@@ -447,7 +412,6 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 
 	Picviz::PVView* view = qobject_cast<PVWorkspaceBase*>(widget(index))->current_view();
 	if (view) {
-		std::cout << "Picviz::PVScene::select_view: " << view << std::endl;
 		PVHive::call<FUNC(Picviz::PVScene::select_view)>(_scene_p, *view);
 	}
 }
@@ -457,7 +421,8 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
  *
  *****************************************************************************/
 PVGuiQt::PVOpenWorkspacesTabWidget::PVOpenWorkspacesTabWidget(QWidget* parent /* = 0 */) :
-	PVWorkspacesTabWidgetBase(parent)
+	PVWorkspacesTabWidgetBase(parent),
+	_automatic_tab_switch_timer(this)
 {
 	_tab_bar = new PVOpenWorkspaceTabBar(this);
 	setTabBar(_tab_bar);
@@ -469,13 +434,29 @@ PVGuiQt::PVOpenWorkspacesTabWidget::PVOpenWorkspacesTabWidget(QWidget* parent /*
 	hidden_close_button->resize(QSize(0, 0));
 	tabBar()->setTabButton(0, QTabBar::RightSide, hidden_close_button);
 
+	// Automatic tab switching handling  for drag&drop
+	_automatic_tab_switch_timer.setSingleShot(true);
+	connect(&_automatic_tab_switch_timer, SIGNAL(timeout()), this, SLOT(switch_tab()));
+
 	((PVOpenWorkspaceTabBar*) _tab_bar)->create_new_workspace();
 
 	update_correlations_list();
 }
 
+void PVGuiQt::PVOpenWorkspacesTabWidget::tabInserted(int index)
+{
+	if (count() > 0) {
+		PVWorkspaceBase* workspace = (PVWorkspaceBase*) widget(index);
+		std::cout << "tabInserted: workspace=" << workspace << std::endl;
+		connect(workspace, SIGNAL(try_automatic_tab_switch()), this, SLOT(start_checking_for_automatic_tab_switch()));
+	}
+}
+
 void PVGuiQt::PVOpenWorkspacesTabWidget::tab_changed(int index)
 {
+
+	PVWorkspaceBase* workspace = (PVWorkspaceBase*) widget(index);
+	std::cout << "workspace=" << workspace << std::endl;
 	if (index == count()) {
 		setCurrentIndex(count()-1);
 	}
@@ -513,4 +494,26 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::tabRemoved(int index)
 		_combo_box->setCurrentIndex(0);
 	}
 	QTabWidget::tabRemoved(index);
+}
+
+void PVGuiQt::PVOpenWorkspacesTabWidget::start_checking_for_automatic_tab_switch()
+{
+	std::cout << "start_checking_for_automatic_tab_switch" << std::endl;
+	QPoint mouse_pos = tabBar()->mapFromGlobal(QCursor::pos());
+	_tab_switch_index = tabBar()->tabAt(mouse_pos);
+
+	if (_tab_switch_index != -1) {
+		_automatic_tab_switch_timer.start(AUTOMATIC_TAB_SWITCH_TIMER_MSEC);
+		QApplication::setOverrideCursor(Qt::PointingHandCursor);
+	}
+	else {
+		_automatic_tab_switch_timer.stop();
+		QApplication::restoreOverrideCursor();
+	}
+}
+
+void PVGuiQt::PVOpenWorkspacesTabWidget::switch_tab()
+{
+	QApplication::restoreOverrideCursor();
+	setCurrentIndex(_tab_switch_index);
 }

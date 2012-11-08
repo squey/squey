@@ -134,9 +134,6 @@ public:
 	int addTab(PVWorkspaceBase* page, const QString & label);
 	int count() const { return _tab_bar->count(); }
 
-protected:
-	void tabInserted(int index) override;
-
 signals:
 	void workspace_dragged_outside(QWidget*);
 	void workspace_closed(Picviz::PVSource* source);
@@ -151,8 +148,6 @@ protected slots:
 	void update_correlations_list();
 
 private slots:
-	void start_checking_for_automatic_tab_switch();
-	void switch_tab();
 	int get_tab_width() const { return 0; }
 	void set_tab_width(int tab_width);
 	void animation_state_changed(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state);
@@ -165,10 +160,8 @@ protected:
 	PVSceneTabBar* _tab_bar;
 
 private:
-	QTimer _automatic_tab_switch_timer;
 	int _tab_animated_width;
 	bool _tab_animation_ongoing = false;
-	int _tab_index;
 };
 
 /******************************************************************************
@@ -236,6 +229,7 @@ public:
 	int get_correlation_index() override;
 
 protected:
+	void tabInserted(int index) override;
 	void tabRemoved(int index) override;
 
 public slots:
@@ -243,6 +237,14 @@ public slots:
 
 protected slots:
 	void correlation_changed(int index);
+
+public slots:
+	void start_checking_for_automatic_tab_switch();
+	void switch_tab();
+
+private:
+	QTimer _automatic_tab_switch_timer;
+	int _tab_switch_index;
 };
 
 }

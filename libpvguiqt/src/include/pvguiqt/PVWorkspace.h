@@ -97,13 +97,11 @@ public:
 public slots:
 	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr);
 	void display_destroyed(QObject* object = 0);
-	void emit_try_automatic_tab_switch() { emit try_automatic_tab_switch(); }
 
 public slots:
 	void create_view_widget() override;
 	void create_view_axis_widget() override; 
 	void toggle_unique_source_widget() override;
-
 
 signals:
 	void try_automatic_tab_switch();

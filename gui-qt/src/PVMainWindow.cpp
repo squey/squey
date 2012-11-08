@@ -486,7 +486,7 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Picviz::PVView* picv
 void PVInspector::PVMainWindow::connect_widgets()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	connect(_projects_tab_widget, SIGNAL(currentChanged(int)), this, SLOT(change_of_current_view_Slot()));
+	//connect(_projects_tab_widget, SIGNAL(currentChanged(int)), this, SLOT(change_of_current_view_Slot()));
 
 	/* for the this::color_changed_Signal() */
 	connect(this, SIGNAL(color_changed_Signal()), this, SLOT(refresh_current_view_Slot()));

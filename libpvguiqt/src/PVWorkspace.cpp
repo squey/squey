@@ -102,7 +102,7 @@ PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::add_view_display(Picviz::PVVie
 
 	view_display->setWindowTitle(name);
 	addDockWidget(area, view_display);
-	connect(view_display, SIGNAL(try_automatic_tab_switch()), this, SLOT(emit_try_automatic_tab_switch()));
+	connect(view_display, SIGNAL(try_automatic_tab_switch()), this, SIGNAL(try_automatic_tab_switch()));
 
 	_displays.append(view_display);
 

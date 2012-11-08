@@ -102,6 +102,9 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 
 					_workspace = workspace;
 
+					disconnect(this, SIGNAL(try_automatic_tab_switch()), 0, 0);
+					connect(this, SIGNAL(try_automatic_tab_switch()), workspace, SIGNAL(try_automatic_tab_switch()));
+
 					QCursor::setPos(mapToGlobal(_press_pt));
 					move(mapToGlobal(_press_pt));
 
