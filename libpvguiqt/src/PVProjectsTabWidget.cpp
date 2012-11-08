@@ -198,7 +198,7 @@ void PVGuiQt::PVProjectsTabWidget::add_workspace(PVWorkspace* workspace)
 		workspace_tab_widget = add_project(scene->shared_from_this());
 	}
 
-	workspace_tab_widget->addTab(workspace, workspace->get_source()->get_name());
+	workspace_tab_widget->addTab(workspace, workspace->get_source()->get_window_name());
 	_tab_widget->setCurrentIndex(_stacked_widget->indexOf(workspace_tab_widget));
 }
 

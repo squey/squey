@@ -38,7 +38,7 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(Picviz::PVSource& lib_src, PVG
 	_lib_src(&lib_src),
 	_projects_tab(projects_tab)
 {
-	_batch_size = 10000;
+	_batch_size = lib_src.get_extraction_last_nlines();
 	_slider_pressed_value = 0;
 
 	//VARIABLES
@@ -104,6 +104,7 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(Picviz::PVSource& lib_src, PVG
 
 	// Init the slider and other infos
 	_slider_index->setMinimum(0);
+	_slider_index->setValue(lib_src.get_extraction_last_start());
 	_slider_index->setTickPosition(QSlider::TicksBelow);
 	QIntValidator *iv = new QIntValidator();
 	iv->setBottom(10);

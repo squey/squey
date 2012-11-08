@@ -93,7 +93,7 @@ public:
 	PVRush::PVSourceCreator_p get_source_creator() const { return _src_plugin; }
 	QString get_name() const { return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs); }
 	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
-	QString get_window_name() const { return get_name() + QString(" / ") + get_format_name(); }
+	QString get_window_name() const;
 
 	PVView* last_current_view() const { return _last_current_view; }
 	void set_last_current_view(PVView* view) { _last_current_view = view; }
@@ -135,6 +135,9 @@ public:
 
 		return descr_p;
 	}
+
+	size_t get_extraction_last_nlines() const { return _extractor.get_last_nlines(); }
+	size_t get_extraction_last_start() const { return _extractor.get_last_start(); }
 
 private:
 	void add_column(Picviz::PVAxis const& axis);
