@@ -73,15 +73,6 @@ public:
 	virtual QString get_serialize_description() const { return "Root"; }
 
 private:
-	// Plugins loading
-	static int load_layer_filters();
-	static int load_mapping_filters();
-	static int load_plotting_filters();
-	static int load_row_filters();
-	static int load_axis_computation_filters();
-	static int load_sorting_functions_filters();
-
-private:
 	static PVRoot_sp _unique_root;
 	correlations_t _correlations;
 	PVAD2GView_p _current_correlation;
@@ -92,6 +83,18 @@ private:
 };
 
 typedef PVRoot::p_type  PVRoot_p;
+
+namespace common {
+	void load_filters();
+
+	// Plugins loading
+	int load_layer_filters();
+	int load_mapping_filters();
+	int load_plotting_filters();
+	int load_row_filters();
+	int load_axis_computation_filters();
+	int load_sorting_functions_filters();
+}
 
 }
 

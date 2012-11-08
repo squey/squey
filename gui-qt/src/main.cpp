@@ -137,6 +137,11 @@ int main(int argc, char *argv[])
 		}
 	}
 
+#ifdef CUDA
+	PVParallelView::common::init_cuda();
+#endif
+	Picviz::common::load_filters();
+	PVGuiQt::common::register_displays();
 
 	//app.setStyle(new PVInspector::PVCustomStyle());
 	PVInspector::PVMainWindow* pv_mw = new PVInspector::PVMainWindow();
@@ -195,11 +200,6 @@ int main(int argc, char *argv[])
 	if (files.size() > 0) {
 		pv_mw->load_files(files, format);
 	}
-
-#ifdef CUDA
-	PVParallelView::common::init_cuda();
-#endif
-	PVGuiQt::common::register_displays();
 
 	int ret = app.exec();
 
