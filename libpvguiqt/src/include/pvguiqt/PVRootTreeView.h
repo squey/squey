@@ -32,6 +32,20 @@ class PVRootTreeView: public QTreeView
 public:
 	PVRootTreeView(PVRootTreeModel* model, QWidget* parent = 0);
 
+public:
+	template <typename T, typename F>
+	void visit_selected_objs_as(F const& f)
+	{
+		QModelIndexList sel = selectedIndexes();
+		for (QModelIndex const& idx: sel) {
+			PVCore::PVDataTreeObjectBase* obj_base = (PVCore::PVDataTreeObjectBase*) idx.internalPointer();
+			T* obj = dynamic_cast<T*>(obj_base);
+			if (obj) {
+				f(obj);
+			}
+		}
+	}
+
 protected:
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
 	void contextMenuEvent(QContextMenuEvent* event) override;

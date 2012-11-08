@@ -100,9 +100,9 @@ public slots:
 	void emit_try_automatic_tab_switch() { emit try_automatic_tab_switch(); }
 
 public slots:
-	void create_view_widget() override;
-	void create_view_axis_widget() override; 
-	void toggle_unique_source_widget() override;
+	void create_view_widget(QAction* act = nullptr) override;
+	void create_view_axis_widget(QAction* act = nullptr) override; 
+	void toggle_unique_source_widget(QAction* act = nullptr) override;
 
 
 signals:

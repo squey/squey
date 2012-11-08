@@ -122,7 +122,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	pv_FilterWidget = new PVFilterWidget(this);
 	pv_FilterWidget->hide();
 
-	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget();
+	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(get_root());
 	_projects_tab_widget->show();
 	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_window_for_workspace(QWidget*)));
 	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(project_new_Slot()));

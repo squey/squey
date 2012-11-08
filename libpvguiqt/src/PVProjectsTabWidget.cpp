@@ -4,12 +4,15 @@
  * Copyright (C) Picviz Labs 2012
  */
 
+#include <pvguiqt/PVOpenWorkspacesWidget.h>
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVStartScreenWidget.h>
 
 #include <QHBoxLayout>
 
-PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(QWidget* parent /*= 0*/) : QWidget(parent)
+PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Picviz::PVRoot& root, QWidget* parent /*= 0*/):
+	QWidget(parent),
+	_root(root)
 {
 	setObjectName("PVProjectsTabWidget");
 
@@ -62,7 +65,7 @@ void  PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	connect(_start_screen_widget, SIGNAL(edit_format(const QString &)), this, SIGNAL(edit_format(const QString &)));
 
 	// Open workspaces
-	_workspaces_tab_widget = new PVOpenWorkspacesTabWidget();
+	_workspaces_tab_widget = new PVOpenWorkspacesWidget(&_root);
 	_tab_widget->addTab(new QWidget(), "");
 	_tab_widget->tabBar()->tabButton(1, QTabBar::RightSide)->resize(0, 0);
 	_tab_widget->setTabToolTip(1, "Workspaces");
@@ -229,12 +232,28 @@ void PVGuiQt::PVProjectsTabWidget::remove_project(int index)
 void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 {
 	_stacked_widget->setCurrentIndex(index); // Map QTabBar signal to QStackedWidget to keep the sync
-	if (index >= 1) {
-		_current_workspace_tab_widget_index = index;
-		PVWorkspacesTabWidgetBase* workspace_tab_widget = (PVWorkspacesTabWidgetBase*) _stacked_widget->widget(index);
-		int correlation_index = workspace_tab_widget->get_correlation_index();
-		Picviz::PVRoot::get_root().select_correlation(correlation_index);
+	
+	if (index < 1) {
+		return;
 	}
+
+	_current_workspace_tab_widget_index = index;
+
+	QWidget* new_widget = _stacked_widget->widget(index);
+	PVWorkspacesTabWidgetBase* workspace_tab_widget;
+
+	if (index == 1) {
+		PVOpenWorkspacesWidget* w = qobject_cast<PVOpenWorkspacesWidget*>(new_widget);
+		assert(w);
+		workspace_tab_widget = w->workspace_tab_widget();
+	}
+	else {
+		workspace_tab_widget = qobject_cast<PVWorkspacesTabWidgetBase*>(new_widget);
+		assert(workspace_tab_widget);
+	}
+
+	int correlation_index = workspace_tab_widget->get_correlation_index();
+	_root.select_correlation(correlation_index);
 }
 
 PVGuiQt::PVSceneWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::get_workspace_tab_widget_from_scene(const Picviz::PVScene* scene)

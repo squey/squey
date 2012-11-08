@@ -15,9 +15,9 @@ public:
 	{ }
 
 public slots:
-	virtual void create_view_widget() { }
-	virtual void create_view_axis_widget() { }
-	virtual void toggle_unique_source_widget() { }
+	virtual void create_view_widget(QAction* act = nullptr) { }
+	virtual void create_view_axis_widget(QAction* act = nullptr) { }
+	virtual void toggle_unique_source_widget(QAction* act = nullptr) { }
 };
 
 }

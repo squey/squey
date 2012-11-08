@@ -234,6 +234,7 @@ public:
 
 public:
 	int get_correlation_index() override;
+	PVOpenWorkspace* current_workspace() const;
 
 protected:
 	void tabRemoved(int index) override;

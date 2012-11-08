@@ -514,3 +514,8 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::tabRemoved(int index)
 	}
 	QTabWidget::tabRemoved(index);
 }
+
+PVGuiQt::PVOpenWorkspace* PVGuiQt::PVOpenWorkspacesTabWidget::current_workspace() const
+{
+	return qobject_cast<PVOpenWorkspace*>(currentWidget());
+}

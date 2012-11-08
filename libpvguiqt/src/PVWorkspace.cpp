@@ -169,11 +169,14 @@ void PVGuiQt::PVWorkspaceBase::display_destroyed(QObject* object /*= 0*/)
 	_displays.removeAll(display);
 }
 
-void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget()
+void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(QAction* act)
 {
-	QAction* act = qobject_cast<QAction*>(sender());
+	// All this should be the same than create_view_widget w/ a PVCore::PVArgumentList passed to create_widget
 	if (!act) {
-		return;
+		act = qobject_cast<QAction*>(sender());
+		if (!act) {
+			return;
+		}
 	}
 
 	Picviz::PVSource* src = nullptr;
@@ -204,11 +207,13 @@ void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget()
 
 }
 
-void PVGuiQt::PVWorkspaceBase::create_view_widget()
+void PVGuiQt::PVWorkspaceBase::create_view_widget(QAction* act)
 {
-	QAction* act = qobject_cast<QAction*>(sender());
 	if (!act) {
-		return;
+		act = qobject_cast<QAction*>(sender());
+		if (!act) {
+			return;
+		}
 	}
 
 	Picviz::PVView* view = nullptr;
@@ -222,12 +227,14 @@ void PVGuiQt::PVWorkspaceBase::create_view_widget()
 	add_view_display(view, w, display_if.widget_title(view), display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), true);
 }
 
-void PVGuiQt::PVWorkspaceBase::create_view_axis_widget()
+void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(QAction* act)
 {
 	// All this should be the same than create_view_widget w/ a PVCore::PVArgumentList passed to create_widget
-	QAction* act = qobject_cast<QAction*>(sender());
 	if (!act) {
-		return;
+		act = qobject_cast<QAction*>(sender());
+		if (!act) {
+			return;
+		}
 	}
 
 	Picviz::PVView* view = nullptr;
