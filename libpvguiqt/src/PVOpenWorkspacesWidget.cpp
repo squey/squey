@@ -130,6 +130,11 @@ PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Picviz::PVRoot* root, QW
 
 	// Workspaces tab widget isn't collapsible
 	main_splitter->setCollapsible(1, false);
+	QList<int> sizes;
+	sizes << 1 << 2;
+	main_splitter->setSizes(sizes);
+	main_splitter->setStretchFactor(0, 0);
+	main_splitter->setStretchFactor(1, 8);
 
 	main_layout->addWidget(main_splitter);
 

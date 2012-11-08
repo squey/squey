@@ -583,5 +583,7 @@ PVGuiQt::PVOpenWorkspace* PVGuiQt::PVOpenWorkspacesTabWidget::current_workspace_
 {
 	PVOpenWorkspace* ret = current_workspace();
 	if (!ret) {
+		ret = _tab_bar->create_new_workspace();
 	}
+	return ret;
 }
