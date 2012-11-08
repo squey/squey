@@ -7,30 +7,9 @@
 #include <assert.h>
 
 #include <QMessageBox>
+#include <QInputDialog>
 
 #include <pvguiqt/PVCorrelationMenu.h>
-
-bool PVGuiQt::__impl::CreateNewCorrelationEventFilter::eventFilter(QObject* watched, QEvent* event)
-{
-	bool rename = false;
-	bool close = false;
-	if (event->type() == QEvent::Leave) {
-		rename = false;
-		close = true;
-	}
-	else if (event->type() == QEvent::KeyPress) {
-		QKeyEvent* key_event = (QKeyEvent*) event;
-		rename = key_event->key() == Qt::Key_Return;
-		close = key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Escape;
-	}
-	if (rename) {
-		_menu->add_new_correlation(_line_edit->text());
-	}
-	if (close) {
-		_line_edit->deleteLater();
-	}
-	return rename;
-}
 
 PVGuiQt::PVCorrelationMenu::PVCorrelationMenu(QWidget* parent  /* = 0 */) : QMenu(parent)
 {
@@ -42,17 +21,15 @@ PVGuiQt::PVCorrelationMenu::PVCorrelationMenu(QWidget* parent  /* = 0 */) : QMen
 	_separator_first_correlation = addSeparator();
 	_separator_create_correlation = addSeparator();
 	_action_create_correlation = addAction("&Create new correlation");
+	connect(_action_create_correlation, SIGNAL(triggered(bool)), this, SLOT(create_new_correlation()));
 }
 
 void PVGuiQt::PVCorrelationMenu::create_new_correlation()
 {
-	QLineEdit* line_edit = new QLineEdit(this);
-	QRect rect = actionGeometry(_action_create_correlation);
-	line_edit->move(rect.topLeft());
-	line_edit->resize(QSize(rect.width(), rect.height()));
-	line_edit->show();
-	line_edit->setFocus();
-	line_edit->installEventFilter(new __impl::CreateNewCorrelationEventFilter(this, line_edit));
+	QString name = QInputDialog::getText(this, "New correlation", "Correlation name:", QLineEdit::Normal);
+	if (!name.isEmpty()) {
+		add_new_correlation(name);
+	}
 }
 
 void PVGuiQt::PVCorrelationMenu::add_new_correlation(const QString & name)
@@ -67,6 +44,8 @@ void PVGuiQt::PVCorrelationMenu::add_new_correlation(const QString & name)
 	connect(delete_action, SIGNAL(triggered(bool)), this, SLOT(delete_correlation()));
 
 	emit correlation_added(name);
+
+	show_correlation(get_correlation_index_from_subaction(correlation_sub_menu->menuAction()));
 }
 
 void PVGuiQt::PVCorrelationMenu::show_correlation()
@@ -76,8 +55,11 @@ void PVGuiQt::PVCorrelationMenu::show_correlation()
 	QAction* correlation_action = ((QMenu* )correlation_show_action->parentWidget())->menuAction();
 	assert(correlation_action);
 
-	int index = get_correlation_index_from_subaction(correlation_action);
+	show_correlation(get_correlation_index_from_subaction(correlation_action));
+}
 
+void PVGuiQt::PVCorrelationMenu::show_correlation(int index)
+{
 	emit correlation_shown(index);
 }
 

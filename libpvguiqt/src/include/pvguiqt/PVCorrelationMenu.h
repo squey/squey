@@ -19,47 +19,12 @@
 namespace PVGuiQt
 {
 
-class PVCorrelationMenu;
-
-namespace __impl
-{
-
-class CreateNewCorrelationEventFilter : public QObject
-{
-public:
-	CreateNewCorrelationEventFilter(PVGuiQt::PVCorrelationMenu* menu, QLineEdit* line_edit) : _menu(menu), _line_edit(line_edit) {}
-
-protected:
-	bool eventFilter(QObject* watched, QEvent* event);
-
-private:
-	PVGuiQt::PVCorrelationMenu* _menu;
-	QLineEdit* _line_edit;
-};
-
-}
-
-
 class PVCorrelationMenu : public QMenu
 {
 	Q_OBJECT;
-	friend class __impl::CreateNewCorrelationEventFilter;
 
 public:
 	PVCorrelationMenu(QWidget* parent = 0);
-
-protected:
-	bool event(QEvent* event)
-	{
-		if (event->type() == QEvent::MouseButtonRelease) {
-			QMouseEvent* mouse_event = (QMouseEvent*) event;
-			if (actionGeometry(_action_create_correlation).contains(mouse_event->pos())) {
-				create_new_correlation();
-				return true;
-			}
-		}
-		return QMenu::event(event);
-	}
 
 signals:
 	void correlation_added(const QString & name);
@@ -70,6 +35,7 @@ signals:
 private slots:
 	void create_new_correlation();
 	void show_correlation();
+	void show_correlation(int index);
 	void delete_correlation();
 
 private:

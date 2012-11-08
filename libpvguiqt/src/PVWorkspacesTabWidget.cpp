@@ -354,7 +354,6 @@ PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Picviz::PVScene_
 {
 	PVHive::get().register_observer(scene_p, _obs_scene);
 	_obs_scene.connect_refresh(this, SLOT(set_project_modified()));
-
 	PVHive::get().register_func_observer(scene_p, _save_scene_func_observer);
 
 	_tab_bar = new PVSceneTabBar(this);
