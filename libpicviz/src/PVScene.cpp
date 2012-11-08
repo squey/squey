@@ -81,7 +81,7 @@ void Picviz::PVScene::select_source(PVSource* source)
 
 Picviz::PVView* Picviz::PVScene::current_view()
 {
-	return _current_source ? _current_view : nullptr;
+	return get_parent<PVRoot>()->current_view();
 }
 
 Picviz::PVView const* Picviz::PVScene::current_view() const
