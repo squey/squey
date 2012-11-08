@@ -90,7 +90,7 @@ PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Picviz::PVRoot* root, QW
 	_root_view = new PVRootTreeView(tree_model);
 	_root_view->setContextMenuPolicy(Qt::NoContextMenu); // Disable data-tree creation context menu
 	_root_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	_root_view->expandAll();
+	connect(tree_model, SIGNAL(modelReset()), _root_view, SLOT(expandAll()));
 
 	// View creation tab bar
 	QToolBar* toolbar = new QToolBar();

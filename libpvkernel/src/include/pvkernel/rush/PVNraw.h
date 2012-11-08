@@ -50,8 +50,6 @@ public:
 	void clear();
 
 	// Move an nraw data to another PVNraw object. No copy and allocations occurs.
-	static void swap(PVNraw &dst, PVNraw& src);
-
 	inline PVRow get_number_rows() const { return _real_nrows; }
 	inline PVCol get_number_cols() const { return _backend.get_number_cols(); }
 

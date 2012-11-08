@@ -460,6 +460,11 @@ void PVInspector::PVMainWindow::extractor_file_Slot()
 		return;
 	}
 	//current_tab->get_extractor_widget()->refresh_and_show();
+	
+	// For now, shows a modal dialog!
+	PVExtractorWidget* ext = new PVExtractorWidget(*current_view()->get_parent<Picviz::PVSource>(), this);
+	ext->exec();
+	ext->deleteLater();
 }
 
 /******************************************************************************
@@ -1203,6 +1208,7 @@ void PVInspector::PVMainWindow::open_format_Slot()
 
 void PVInspector::PVMainWindow::cur_format_changed_Slot()
 {
+#if 0
 	PVFormatBuilderWidget* editor = dynamic_cast<PVFormatBuilderWidget*>(sender());
 	assert(editor);
 	PVTabSplitter* src_tab = dynamic_cast<PVTabSplitter*>(editor->parent());
@@ -1218,7 +1224,6 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 		return;
 	}
 
-#if 0
 	// Too unstable, because it does not take into account the fact that the axes could have completely changed.
 	// We should recreate a new PVSource !
 	if (comp.need_extract()) {

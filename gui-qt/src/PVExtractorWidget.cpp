@@ -15,12 +15,14 @@
 #include <QStringList>
 
 #include <pvkernel/core/general.h>
-#include <PVExtractorWidget.h>
-#include <PVMainWindow.h>
-#include <PVTabSplitter.h>
 
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
+
+#include <pvhive/PVCallHelper.h>
+#include <pvhive/PVHive.h>
+
+#include <PVExtractorWidget.h>
 
 #include <boost/thread.hpp>
 
@@ -29,13 +31,11 @@
  * PVInspector::PVFilterWidget::PVFilterWidget
  *
  *****************************************************************************/
-PVInspector::PVExtractorWidget::PVExtractorWidget(PVTabSplitter* parent_tab) :
-	QDialog((QWidget*)parent_tab),
-	_ext(parent_tab->get_lib_view()->get_extractor())
+PVInspector::PVExtractorWidget::PVExtractorWidget(Picviz::PVSource& lib_src, QWidget* parent):
+	QDialog(parent),
+	_lib_src(&lib_src)
 {
-	_view = parent_tab->get_lib_view();
-	_inspector_tab = parent_tab;
-	_batch_size = _view->last_extractor_batch_size;
+	_batch_size = 10000;
 	_slider_pressed_value = 0;
 
 	//VARIABLES
@@ -120,12 +120,12 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(PVTabSplitter* parent_tab) :
 	connect(_size_batch_widget, SIGNAL(textEdited(QString const&)), this, SLOT(size_batch_edited_Slot(QString const&)));
 	connect(_source_starts_line, SIGNAL(textEdited(QString const&)), this, SLOT(line_start_edited_Slot(QString const&)));
 
-	_ext.get_agg().debug();
+	get_extractor().get_agg().debug();
 
 	update_infos();
 
 	setLayout(main_layout);
-	setWindowTitle(QString("Picviz source extractor: ") + parent_tab->get_tab_name());
+	setWindowTitle(QString("Picviz source extractor: ") + this->lib_src().get_window_name());
 }
 
 void PVInspector::PVExtractorWidget::refresh_and_show()
@@ -141,7 +141,7 @@ void PVInspector::PVExtractorWidget::fill_source_list()
 	_list_inputs->clear();
 	_total_nlines = 0;
 	PVRush::PVAggregator::list_inputs::const_iterator it;
-	const PVRush::PVAggregator::list_inputs& in = _ext.get_inputs();
+	const PVRush::PVAggregator::list_inputs& in = get_extractor().get_inputs();
 	QList<QTreeWidgetItem *> items;
 	for (it = in.begin(); it != in.end(); it++) {
 		size_t nlines = (*it)->last_elt_index();
@@ -163,6 +163,30 @@ void PVInspector::PVExtractorWidget::update_status_ext(PVCore::PVProgressBox* pb
 		pbox->set_extended_status(QString("Number of rejected elements: %L1").arg(job->rejected_elements()));
 		boost::this_thread::sleep(boost::posix_time::milliseconds(200));
 	}
+}
+bool PVInspector::PVExtractorWidget::process_extraction_job(PVRush::PVControllerJob_p job)
+{
+	bool ret = true;
+	PVRush::PVExtractor& ext = get_extractor();
+	// Show a progress box that will finish with "accept" when the job is done
+	if (!PVExtractorWidget::show_job_progress_bar(job, ext.get_format().get_format_name(), job->nb_elts_max(), this)) {
+		//ext.restore_nraw();
+		ret = false;
+	}
+	else {
+		lib_src().wait_extract_end(job);
+		if (ext.get_nraw().get_number_rows() == 0) {
+			// Empty extraction, cancel it.
+			QMessageBox::warning(this, tr("Empty extraction"), tr("The extraction just performed is empty. Returning to the previous state..."));
+			//ext.restore_nraw();
+			ret = false;
+		}
+		else {
+			//ext.clear_saved_nraw();
+		}
+	}
+
+	return ret;
 }
 
 bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int nlines, QWidget* parent = NULL)
@@ -197,14 +221,17 @@ void PVInspector::PVExtractorWidget::process_Slot()
 	size_t index = _slider_index->value();
 	_batch_size = _size_batch_widget->text().toLong();
 	
-	_ext.save_nraw();
-	PVRush::PVControllerJob_p job = _inspector_tab->get_lib_src()->extract_from_agg_nlines(index, _batch_size);
-	bool success = _inspector_tab->process_extraction_job(job);
+	get_extractor().save_nraw();
+	
+	PVRush::PVControllerJob_p job = lib_src().extract_from_agg_nlines(index, _batch_size);
+	bool success = process_extraction_job(job);
 
 	fill_source_list();
 
 	if (success) {
-		_view->last_extractor_batch_size = _batch_size;
+		Picviz::PVSource_sp src = lib_src().shared_from_this();
+		PVHive::call<FUNC(Picviz::PVSource::process_from_source)>(src);
+		//_view->last_extractor_batch_size = _batch_size;
 	}
 }
 
@@ -233,7 +260,7 @@ void PVInspector::PVExtractorWidget::slider_released_Slot()
 
 void PVInspector::PVExtractorWidget::read_all_Slot()
 {
-	PVRush::PVControllerJob_p job = _ext.read_everything(0);
+	PVRush::PVControllerJob_p job = get_extractor().read_everything(0);
 
 	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Counting elements..."), this);
 	connect(job.get(), SIGNAL(job_done_signal()), pbox, SLOT(accept()));
@@ -258,7 +285,7 @@ void PVInspector::PVExtractorWidget::update_infos()
 {
 	size_t index = _slider_index->value();
 	chunk_index offset = 0;
-	PVRush::PVRawSourceBase_p src = _ext.get_agg().agg_index_to_source(index, &offset);
+	PVRush::PVRawSourceBase_p src = get_extractor().get_agg().agg_index_to_source(index, &offset);
 	_cur_src = src;
 	_cur_src_offset = offset;
 	QString file;

@@ -50,11 +50,6 @@ void PVRush::PVNraw::clear()
 	_backend.clear_and_remove();
 }
 
-void PVRush::PVNraw::swap(PVNraw &dst, PVNraw& src)
-{
-	dst.format = src.format;
-}
-
 void PVRush::PVNraw::dump_csv()
 {
 	for (PVRow i = 0; i < get_number_rows(); i++) {

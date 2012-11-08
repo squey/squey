@@ -139,8 +139,10 @@ QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orient
 	switch (role) {
 		case (Qt::DisplayRole):
 			if (orientation == Qt::Horizontal) {
-				QString axis_name(lib_view().get_axis_name(section));
-				return QVariant(axis_name);
+				if (section >= 0) {
+					QString axis_name(lib_view().get_axis_name(section));
+					return QVariant(axis_name);
+				}
 			}
 			else
 			if (section >= 0) {
@@ -148,11 +150,13 @@ QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orient
 			}
 		case (Qt::FontRole):
 			if (orientation == Qt::Vertical) {
-				QFont f(vheader_font);
-				if (lib_view().get_real_output_selection().get_line(section)) {
-					f.setBold(true);
+				if (section >= 0) {
+					QFont f(vheader_font);
+					if (lib_view().get_real_output_selection().get_line(section)) {
+						f.setBold(true);
+					}
+					return f;
 				}
-				return f;
 			}
 			break;
 		case (Qt::TextAlignmentRole):

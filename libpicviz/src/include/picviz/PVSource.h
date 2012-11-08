@@ -62,6 +62,8 @@ public:
 	/* Functions */
 	PVCol get_column_count() const;
 
+	PVSource_sp clone_with_no_process() const;
+
 	PVRush::PVNraw& get_rushnraw();
 	const PVRush::PVNraw& get_rushnraw() const;
 

@@ -24,7 +24,8 @@ public:
 	typedef std::function<void(PVCore::PVChunk*, const PVRow)> chunk_function_type;
 	typedef std::vector<chunk_function_type> list_chunk_functions;
 public:
-	PVNrawOutput(PVNraw &nraw_dest);
+	PVNrawOutput();
+
 public:
 	// This is the output of a TBB pipeline
 	// It takes a PVCore::PVChunk* as a parameter, and do whatever he wants with it
@@ -36,10 +37,17 @@ public:
 	inline list_chunk_functions& chunk_functions() { return _chunk_funcs; }
 	inline list_chunk_functions const& chunk_functions() const { return _chunk_funcs; }
 
+	void set_nraw_dest(PVNraw& nraw) { _nraw_dest = &nraw; }
+
+public:
+	PVNraw const& nraw_dest() const { assert(_nraw_dest); return *_nraw_dest; }	
+	PVNraw& nraw_dest() { assert(_nraw_dest); return *_nraw_dest; }	
+
 protected:
 	void job_has_finished();
+	
 protected:
-	PVNraw &_nraw_dest;
+	PVNraw* _nraw_dest;
 	map_pvrow _pvrow_chunk_idx;
 	PVRow _nraw_cur_index;
 	list_chunk_functions _chunk_funcs;

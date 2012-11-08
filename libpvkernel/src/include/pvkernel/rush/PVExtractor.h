@@ -105,7 +105,8 @@ public:
 
 	/*! \brief Get a reference to the internal NRaw
 	 */
-	PVNraw& get_nraw();
+	inline PVNraw& get_nraw() { assert(_nraw); return *_nraw; }
+	inline PVNraw const& get_nraw() const { assert(_nraw); return *_nraw; }
 
 	/*! \brief Get a reference to the internal PVFormat of the internal NRaw
 	 */
@@ -180,8 +181,8 @@ protected:
 
 protected:
 	PVAggregator _agg;
-	PVNraw _nraw;
-	PVNraw _saved_nraw;
+	PVNraw *_nraw;
+	PVNraw *_saved_nraw;
 	bool _saved_nraw_valid;
 	PVController _ctrl;
 	PVControllerThread _ctrl_th;

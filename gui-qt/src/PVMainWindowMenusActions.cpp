@@ -279,7 +279,7 @@ void PVInspector::PVMainWindow::create_actions_import_types(QMenu* menu)
  *****************************************************************************/
 void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 {
-	extractor_file_Action->setEnabled(false);
+	extractor_file_Action->setEnabled(cond);
 	export_selection_Action->setEnabled(cond);
 
 	axes_Menu->setEnabled(cond);

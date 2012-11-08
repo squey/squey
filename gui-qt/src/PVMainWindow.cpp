@@ -119,8 +119,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	//We activate all available Windows
 	pv_ExportSelectionDialog = new PVExportSelectionDialog(this);
 	pv_ExportSelectionDialog->hide();
-	pv_FilterWidget = new PVFilterWidget(this);
-	pv_FilterWidget->hide();
 
 	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(get_root());
 	_projects_tab_widget->show();
