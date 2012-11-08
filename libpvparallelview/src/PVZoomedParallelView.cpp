@@ -9,6 +9,7 @@
 PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget *parent) :
 	QGraphicsView(parent)
 {
+	setMinimumHeight(300);
 }
 
 

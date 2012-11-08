@@ -16,10 +16,8 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent):
 	QGraphicsView(parent)
 {
 	setViewport(new QWidget());
-	resize(800, 600);
 	setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-	setMinimumHeight(40);
-	//show();
+	setMinimumHeight(300);
 }
 
 /******************************************************************************
