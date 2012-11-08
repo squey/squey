@@ -143,13 +143,16 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(PVViewDisplay* display
 		display_dock->setWindowTitle(central_title);
 
 		// Exchange colors
-		QString style = QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ");
 		QColor col1 = central_dock->get_view()->get_color();
 		QColor col2 = display_dock->get_view()->get_color();
-		QString style1 = style.arg(col1.name()).arg(col1.name());
-		QString style2 = style.arg(col2.name()).arg(col2.name());
-		display_dock->setStyleSheet(style1);
-		central_dock->setStyleSheet(style2);
+		QPalette Pal1(display_dock->palette());
+		Pal1.setColor(QPalette::Background, col1);
+		display_dock->setAutoFillBackground(true);
+		display_dock->setPalette(Pal1);
+		QPalette Pal2(central_dock->palette());
+		Pal2.setColor(QPalette::Background, col2);
+		central_dock->setAutoFillBackground(true);
+		central_dock->setPalette(Pal2);
 
 		// Exchange views
 		Picviz::PVView* central_view = central_dock->get_view();

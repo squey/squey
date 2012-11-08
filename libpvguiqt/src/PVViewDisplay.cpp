@@ -42,7 +42,12 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 
 	if (view) {
 		QColor view_color = view->get_color();
-		setStyleSheet(QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ").arg(view_color.name()).arg(view_color.name()));
+		//setStyleSheet(QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ").arg(view_color.name()).arg(view_color.name()));
+
+		QPalette Pal(palette());
+		Pal.setColor(QPalette::Background, view_color);
+		setAutoFillBackground(true);
+		setPalette(Pal);
 	}
 
 	if (delete_on_close) {
@@ -215,8 +220,6 @@ void PVGuiQt::PVViewDisplay::set_current_view()
 {
 	if (_view) {
 		auto scene = _view->get_parent<Picviz::PVScene>()->shared_from_this();
-		std::cout << "Picviz::PVScene::select_view: " << _view << std::endl;
-
 		_workspace->set_current_view(_view);
 		PVHive::call<FUNC(Picviz::PVScene::select_view)>(scene, *_view);
 	}
