@@ -641,8 +641,8 @@ void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRenderingBase_p zr
 	}
 
 	_renderable_zone_number--;
-	PVLOG_INFO("in zr_finished: %d\n", _renderable_zone_number);
-	if (_renderable_zone_number == 0) {
+	// "<=" just in case something went wrong, but it should'nt..
+	if (_renderable_zone_number <= 0) {
 		all_rendering_done();
 	}
 }

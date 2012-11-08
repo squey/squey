@@ -132,6 +132,10 @@ public:
 	 */
 	void restore_nraw();
 
+	/*! \brief Clear the current nraw and saved nraw, and create a new empty one.
+	 */
+	void reset_nraw();
+
 	/*! \brief Clear the NRaw previously saved by save_nraw
 	 *
 	 * Clear the NRaw previously saved thanks to save_nraw. If no NRaw has been saved, this function does nothing.
