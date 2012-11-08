@@ -1,0 +1,1833 @@
+Feb  9 16:03:00 xasus kernel: imklog 4.4.2, log source = /proc/kmsg started.
+Feb  9 16:03:00 xasus rsyslogd: [origin software="rsyslogd" swVersion="4.4.2" x-pid="1561" x-info="http://www.rsyslog.com"] (re)start
+Feb  9 16:05:06 xasus anacron[4203]: Job `cron.daily' terminated
+Feb  9 16:05:06 xasus anacron[4203]: Normal exit (1 job run)
+Feb  9 16:17:02 xasus /USR/SBIN/CRON[4672]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)
+Feb  9 17:17:01 xasus /USR/SBIN/CRON[5154]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)
+Feb  9 18:17:01 xasus /USR/SBIN/CRON[5611]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)
+Feb  9 18:29:08 xasus console-kit-daemon[2316]: WARNING: Unable to activate console: No such device or address
+Feb  9 18:29:08 xasus shutdown[5761]: shutting down for system halt
+Feb  9 18:29:09 xasus init: Switching to runlevel: 0
+Feb  9 18:29:10 xasus kernel: [16413.357729] [drm:i915_get_vblank_counter] *ERROR* trying to get vblank count for disabled pipe 0
+Feb  9 18:29:12 xasus bluetoothd[1985]: bridge pan0 removed
+Feb  9 18:29:12 xasus bluetoothd[1985]: Stopping SDP server
+Feb  9 18:29:12 xasus bluetoothd[1985]: Exit
+Feb  9 18:29:13 xasus NetworkManager: <WARN>  nm_signal_handler(): Caught signal 15, shutting down normally.
+Feb  9 18:29:13 xasus NetworkManager: <info>  (wlan0): now unmanaged
+Feb  9 18:29:13 xasus NetworkManager: <info>  (wlan0): device state change: 2 -> 1
+Feb  9 18:29:13 xasus NetworkManager: <info>  exiting (success)
+Feb  9 18:29:14 xasus mysqld: 100209 18:29:14 [Note] /usr/sbin/mysqld: Normal shutdown
+Feb  9 18:29:14 xasus mysqld: 
+Feb  9 18:29:14 xasus mysqld: 100209 18:29:14 [Note] Event Scheduler: Purging the queue. 0 events
+Feb  9 18:29:14 xasus mysqld: 100209 18:29:14  InnoDB: Starting shutdown...
+Feb  9 18:29:15 xasus mysqld: 100209 18:29:15  InnoDB: Shutdown completed; log sequence number 0 44233
+Feb  9 18:29:15 xasus mysqld: 100209 18:29:15 [Warning] Forcing shutdown of 1 plugins
+Feb  9 18:29:15 xasus mysqld: 100209 18:29:15 [Note] /usr/sbin/mysqld: Shutdown complete
+Feb  9 18:29:15 xasus mysqld: 
+Feb  9 18:29:15 xasus mysqld_safe: mysqld from pid file /var/run/mysqld/mysqld.pid ended
+Feb  9 18:29:16 xasus acpid: exiting
+Feb  9 18:29:16 xasus rpc.statd[1303]: Caught signal 15, un-registering and exiting.
+Feb  9 18:29:16 xasus portmap[6018]: connect from 134.214.157.146 to unset(status): request from non-local host
+Feb  9 18:29:16 xasus nm-system-settings:    SCPlugin-Ifupdown: devices removed (udi: /org/freedesktop/Hal/devices/net_00_13_02_27_12_39)
+Feb  9 18:29:16 xasus nm-system-settings:    SCPlugin-Ifupdown: devices removed (udi: /org/freedesktop/Hal/devices/net_00_17_31_16_4c_80)
+Feb  9 18:29:16 xasus nm-system-settings:    Ifupdown: get unmanaged devices count: 0
+Feb  9 18:29:17 xasus kernel: Kernel logging (proc) stopped.
+Feb  9 20:42:39 xasus kernel: imklog 4.4.2, log source = /proc/kmsg started.
+Feb  9 20:42:39 xasus kernel: [    0.000000] Initializing cgroup subsys cpuset
+Feb  9 20:42:39 xasus kernel: [    0.000000] Initializing cgroup subsys cpu
+Feb  9 20:42:39 xasus kernel: [    0.000000] Linux version 2.6.30-2-686 (Debian 2.6.30-8) (waldi@debian.org) (gcc version 4.3.4 (Debian 4.3.4-3) ) #1 SMP Sat Sep 26 01:16:22 UTC 2009
+Feb  9 20:42:39 xasus kernel: [    0.000000] KERNEL supported cpus:
+Feb  9 20:42:39 xasus kernel: [    0.000000]   Intel GenuineIntel
+Feb  9 20:42:39 xasus kernel: [    0.000000]   AMD AuthenticAMD
+Feb  9 20:42:39 xasus kernel: [    0.000000]   NSC Geode by NSC
+Feb  9 20:42:39 xasus kernel: [    0.000000]   Cyrix CyrixInstead
+Feb  9 20:42:39 xasus kernel: [    0.000000]   Centaur CentaurHauls
+Feb  9 20:42:39 xasus kernel: [    0.000000]   Transmeta GenuineTMx86
+Feb  9 20:42:39 xasus kernel: [    0.000000]   Transmeta TransmetaCPU
+Feb  9 20:42:39 xasus kernel: [    0.000000]   UMC UMC UMC UMC
+Feb  9 20:42:39 xasus kernel: [    0.000000] BIOS-provided physical RAM map:
+Feb  9 20:42:39 xasus kernel: [    0.000000]  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+Feb  9 20:42:39 xasus kernel: [    0.000000]  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+Feb  9 20:42:39 xasus kernel: [    0.000000]  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+Feb  9 20:42:39 xasus kernel: [    0.000000]  BIOS-e820: 0000000000100000 - 000000003f7c0000 (usable)
+Feb  9 20:42:39 xasus kernel: [    0.000000]  BIOS-e820: 000000003f7c0000 - 000000003f7ce000 (ACPI data)
+Feb  9 20:42:39 xasus kernel: [    0.000000]  BIOS-e820: 000000003f7ce000 - 000000003f800000 (ACPI NVS)
+Feb  9 20:42:39 xasus kernel: [    0.000000]  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+Feb  9 20:42:39 xasus kernel: [    0.000000]  BIOS-e820: 00000000ffb80000 - 0000000100000000 (reserved)
+Feb  9 20:42:39 xasus kernel: [    0.000000] DMI 2.3 present.
+Feb  9 20:42:39 xasus kernel: [    0.000000] AMI BIOS detected: BIOS may corrupt low RAM, working around it.
+Feb  9 20:42:39 xasus kernel: [    0.000000] e820 update range: 0000000000000000 - 0000000000010000 (usable) ==> (reserved)
+Feb  9 20:42:39 xasus kernel: [    0.000000] last_pfn = 0x3f7c0 max_arch_pfn = 0x100000
+Feb  9 20:42:39 xasus kernel: [    0.000000] MTRR default type: uncachable
+Feb  9 20:42:39 xasus kernel: [    0.000000] MTRR fixed ranges enabled:
+Feb  9 20:42:39 xasus kernel: [    0.000000]   00000-9FFFF write-back
+Feb  9 20:42:39 xasus kernel: [    0.000000]   A0000-BFFFF uncachable
+Feb  9 20:42:39 xasus kernel: [    0.000000]   C0000-CFFFF write-protect
+Feb  9 20:42:39 xasus kernel: [    0.000000]   D0000-DFFFF uncachable
+Feb  9 20:42:39 xasus kernel: [    0.000000]   E0000-EFFFF write-through
+Feb  9 20:42:39 xasus kernel: [    0.000000]   F0000-FFFFF write-protect
+Feb  9 20:42:39 xasus kernel: [    0.000000] MTRR variable ranges enabled:
+Feb  9 20:42:39 xasus kernel: [    0.000000]   0 base 000000000 mask FC0000000 write-back
+Feb  9 20:42:39 xasus kernel: [    0.000000]   1 base 03F800000 mask FFF800000 uncachable
+Feb  9 20:42:39 xasus kernel: [    0.000000]   2 disabled
+Feb  9 20:42:39 xasus kernel: [    0.000000]   3 disabled
+Feb  9 20:42:39 xasus kernel: [    0.000000]   4 disabled
+Feb  9 20:42:39 xasus kernel: [    0.000000]   5 disabled
+Feb  9 20:42:39 xasus kernel: [    0.000000]   6 disabled
+Feb  9 20:42:39 xasus kernel: [    0.000000]   7 disabled
+Feb  9 20:42:39 xasus kernel: [    0.000000] PAT not supported by CPU.
+Feb  9 20:42:39 xasus kernel: [    0.000000] init_memory_mapping: 0000000000000000-00000000377fe000
+Feb  9 20:42:39 xasus kernel: [    0.000000]  0000000000 - 0000400000 page 4k
+Feb  9 20:42:39 xasus kernel: [    0.000000]  0000400000 - 0037400000 page 2M
+Feb  9 20:42:39 xasus kernel: [    0.000000]  0037400000 - 00377fe000 page 4k
+Feb  9 20:42:39 xasus kernel: [    0.000000] kernel direct mapping tables up to 377fe000 @ 10000-15000
+Feb  9 20:42:39 xasus kernel: [    0.000000] RAMDISK: 378ff000 - 37fef02a
+Feb  9 20:42:39 xasus kernel: [    0.000000] Allocated new RAMDISK: 00545000 - 00c3502a
+Feb  9 20:42:39 xasus kernel: [    0.000000] Move RAMDISK from 00000000378ff000 - 0000000037fef029 to 00545000 - 00c35029
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: RSDP 000f7920 00014 (v00 ACPIAM)
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: RSDT 3f7c0000 00038 (v01 A M I  OEMRSDT  02000621 MSFT 00000097)
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: FACP 3f7c0200 00084 (v02 A M I  OEMFACP  02000621 MSFT 00000097)
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: DSDT 3f7c0460 07E65 (v01  W6F00 W6F00005 00000005 INTL 02002026)
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: FACS 3f7ce000 00040
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: APIC 3f7c0390 0005C (v01 A M I  OEMAPIC  02000621 MSFT 00000097)
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: MCFG 3f7c03f0 0003C (v01 A M I  OEMMCFG  02000621 MSFT 00000097)
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: BOOT 3f7c0430 00028 (v01 A M I  OEMBOOT  02000621 MSFT 00000097)
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: OEMB 3f7ce040 00046 (v01 A M I  AMI_OEM  02000621 MSFT 00000097)
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: Local APIC address 0xfee00000
+Feb  9 20:42:39 xasus kernel: [    0.000000] 127MB HIGHMEM available.
+Feb  9 20:42:39 xasus kernel: [    0.000000] 887MB LOWMEM available.
+Feb  9 20:42:39 xasus kernel: [    0.000000]   mapped low ram: 0 - 377fe000
+Feb  9 20:42:39 xasus kernel: [    0.000000]   low ram: 0 - 377fe000
+Feb  9 20:42:39 xasus kernel: [    0.000000]   node 0 low ram: 00000000 - 377fe000
+Feb  9 20:42:39 xasus kernel: [    0.000000]   node 0 bootmap 00011000 - 00017f00
+Feb  9 20:42:39 xasus kernel: [    0.000000] (9 early reservations) ==> bootmem [0000000000 - 00377fe000]
+Feb  9 20:42:39 xasus kernel: [    0.000000]   #0 [0000000000 - 0000001000]   BIOS data page ==> [0000000000 - 0000001000]
+Feb  9 20:42:39 xasus kernel: [    0.000000]   #1 [0000001000 - 0000002000]    EX TRAMPOLINE ==> [0000001000 - 0000002000]
+Feb  9 20:42:39 xasus kernel: [    0.000000]   #2 [0000006000 - 0000007000]       TRAMPOLINE ==> [0000006000 - 0000007000]
+Feb  9 20:42:39 xasus kernel: [    0.000000]   #3 [0000100000 - 0000541b10]    TEXT DATA BSS ==> [0000100000 - 0000541b10]
+Feb  9 20:42:39 xasus kernel: [    0.000000]   #4 [000009fc00 - 0000100000]    BIOS reserved ==> [000009fc00 - 0000100000]
+Feb  9 20:42:39 xasus kernel: [    0.000000]   #5 [0000542000 - 00005441d5]              BRK ==> [0000542000 - 00005441d5]
+Feb  9 20:42:39 xasus kernel: [    0.000000]   #6 [0000010000 - 0000011000]          PGTABLE ==> [0000010000 - 0000011000]
+Feb  9 20:42:39 xasus kernel: [    0.000000]   #7 [0000545000 - 0000c3502a]      NEW RAMDISK ==> [0000545000 - 0000c3502a]
+Feb  9 20:42:39 xasus kernel: [    0.000000]   #8 [0000011000 - 0000018000]          BOOTMAP ==> [0000011000 - 0000018000]
+Feb  9 20:42:39 xasus kernel: [    0.000000] found SMP MP-table at [c00ff780] ff780
+Feb  9 20:42:39 xasus kernel: [    0.000000] Zone PFN ranges:
+Feb  9 20:42:39 xasus kernel: [    0.000000]   DMA      0x00000010 -> 0x00001000
+Feb  9 20:42:39 xasus kernel: [    0.000000]   Normal   0x00001000 -> 0x000377fe
+Feb  9 20:42:39 xasus kernel: [    0.000000]   HighMem  0x000377fe -> 0x0003f7c0
+Feb  9 20:42:39 xasus kernel: [    0.000000] Movable zone start PFN for each node
+Feb  9 20:42:39 xasus kernel: [    0.000000] early_node_map[2] active PFN ranges
+Feb  9 20:42:39 xasus kernel: [    0.000000]     0: 0x00000010 -> 0x0000009f
+Feb  9 20:42:39 xasus kernel: [    0.000000]     0: 0x00000100 -> 0x0003f7c0
+Feb  9 20:42:39 xasus kernel: [    0.000000] On node 0 totalpages: 259919
+Feb  9 20:42:39 xasus kernel: [    0.000000] free_area_init_node: node 0, pgdat c040bd40, node_mem_map c1000200
+Feb  9 20:42:39 xasus kernel: [    0.000000]   DMA zone: 32 pages used for memmap
+Feb  9 20:42:39 xasus kernel: [    0.000000]   DMA zone: 0 pages reserved
+Feb  9 20:42:39 xasus kernel: [    0.000000]   DMA zone: 3951 pages, LIFO batch:0
+Feb  9 20:42:39 xasus kernel: [    0.000000]   Normal zone: 1744 pages used for memmap
+Feb  9 20:42:39 xasus kernel: [    0.000000]   Normal zone: 221486 pages, LIFO batch:31
+Feb  9 20:42:39 xasus kernel: [    0.000000]   HighMem zone: 256 pages used for memmap
+Feb  9 20:42:39 xasus kernel: [    0.000000]   HighMem zone: 32450 pages, LIFO batch:7
+Feb  9 20:42:39 xasus kernel: [    0.000000] Using APIC driver default
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: PM-Timer IO Port: 0x808
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: Local APIC address 0xfee00000
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+Feb  9 20:42:39 xasus kernel: [    0.000000] IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: IRQ0 used by override.
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: IRQ2 used by override.
+Feb  9 20:42:39 xasus kernel: [    0.000000] ACPI: IRQ9 used by override.
+Feb  9 20:42:39 xasus kernel: [    0.000000] Enabling APIC mode:  Flat.  Using 1 I/O APICs
+Feb  9 20:42:39 xasus kernel: [    0.000000] Using ACPI (MADT) for SMP configuration information
+Feb  9 20:42:39 xasus kernel: [    0.000000] SMP: Allowing 2 CPUs, 0 hotplug CPUs
+Feb  9 20:42:39 xasus kernel: [    0.000000] nr_irqs_gsi: 24
+Feb  9 20:42:39 xasus kernel: [    0.000000] PM: Registered nosave memory: 000000000009f000 - 00000000000a0000
+Feb  9 20:42:39 xasus kernel: [    0.000000] PM: Registered nosave memory: 00000000000a0000 - 00000000000e0000
+Feb  9 20:42:39 xasus kernel: [    0.000000] PM: Registered nosave memory: 00000000000e0000 - 0000000000100000
+Feb  9 20:42:39 xasus kernel: [    0.000000] Allocating PCI resources starting at 40000000 (gap: 3f800000:bf600000)
+Feb  9 20:42:39 xasus kernel: [    0.000000] NR_CPUS:32 nr_cpumask_bits:32 nr_cpu_ids:2 nr_node_ids:1
+Feb  9 20:42:39 xasus kernel: [    0.000000] PERCPU: Embedded 11 pages at c17f4000, static data 22172 bytes
+Feb  9 20:42:39 xasus kernel: [    0.000000] Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 257887
+Feb  9 20:42:39 xasus kernel: [    0.000000] Kernel command line: root=UUID=ac694085-f612-4aae-851f-c27d0662d3be ro 
+Feb  9 20:42:39 xasus kernel: [    0.000000] Enabling fast FPU save and restore... done.
+Feb  9 20:42:39 xasus kernel: [    0.000000] Enabling unmasked SIMD FPU exception support... done.
+Feb  9 20:42:39 xasus kernel: [    0.000000] Initializing CPU#0
+Feb  9 20:42:39 xasus kernel: [    0.000000] NR_IRQS:1280
+Feb  9 20:42:39 xasus kernel: [    0.000000] PID hash table entries: 4096 (order: 12, 16384 bytes)
+Feb  9 20:42:39 xasus kernel: [    0.000000] Fast TSC calibration using PIT
+Feb  9 20:42:39 xasus kernel: [    0.000000] Detected 1662.624 MHz processor.
+Feb  9 20:42:39 xasus kernel: [    0.004000] Console: colour VGA+ 80x25
+Feb  9 20:42:39 xasus kernel: [    0.004000] console [tty0] enabled
+Feb  9 20:42:39 xasus kernel: [    0.004000] Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Feb  9 20:42:39 xasus kernel: [    0.004000] Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Feb  9 20:42:39 xasus kernel: [    0.004000] Initializing HighMem for node 0 (000377fe:0003f7c0)
+Feb  9 20:42:39 xasus kernel: [    0.004000] Memory: 1018816k/1040128k available (2173k kernel code, 20532k reserved, 1150k data, 320k init, 130824k highmem)
+Feb  9 20:42:39 xasus kernel: [    0.004000] virtual kernel memory layout:
+Feb  9 20:42:39 xasus kernel: [    0.004000]     fixmap  : 0xffe16000 - 0xfffff000   (1956 kB)
+Feb  9 20:42:39 xasus kernel: [    0.004000]     pkmap   : 0xff800000 - 0xffc00000   (4096 kB)
+Feb  9 20:42:39 xasus kernel: [    0.004000]     vmalloc : 0xf7ffe000 - 0xff7fe000   ( 120 MB)
+Feb  9 20:42:39 xasus kernel: [    0.004000]     lowmem  : 0xc0000000 - 0xf77fe000   ( 887 MB)
+Feb  9 20:42:39 xasus kernel: [    0.004000]       .init : 0xc0446000 - 0xc0496000   ( 320 kB)
+Feb  9 20:42:39 xasus kernel: [    0.004000]       .data : 0xc031f73d - 0xc043f2f0   (1150 kB)
+Feb  9 20:42:39 xasus kernel: [    0.004000]       .text : 0xc0100000 - 0xc031f73d   (2173 kB)
+Feb  9 20:42:39 xasus kernel: [    0.004000] Checking if this processor honours the WP bit even in supervisor mode...Ok.
+Feb  9 20:42:39 xasus kernel: [    0.004016] Calibrating delay loop (skipped), value calculated using timer frequency.. 3325.24 BogoMIPS (lpj=6650496)
+Feb  9 20:42:39 xasus kernel: [    0.004188] Security Framework initialized
+Feb  9 20:42:39 xasus kernel: [    0.004244] SELinux:  Disabled at boot.
+Feb  9 20:42:39 xasus kernel: [    0.004316] Mount-cache hash table entries: 512
+Feb  9 20:42:39 xasus kernel: [    0.004563] Initializing cgroup subsys ns
+Feb  9 20:42:39 xasus kernel: [    0.004617] Initializing cgroup subsys cpuacct
+Feb  9 20:42:39 xasus kernel: [    0.004673] Initializing cgroup subsys devices
+Feb  9 20:42:39 xasus kernel: [    0.004725] Initializing cgroup subsys freezer
+Feb  9 20:42:39 xasus kernel: [    0.004777] Initializing cgroup subsys net_cls
+Feb  9 20:42:39 xasus kernel: [    0.004860] CPU: L1 I cache: 32K, L1 D cache: 32K
+Feb  9 20:42:39 xasus kernel: [    0.004941] CPU: L2 cache: 2048K
+Feb  9 20:42:39 xasus kernel: [    0.004992] CPU: Physical Processor ID: 0
+Feb  9 20:42:39 xasus kernel: [    0.005043] CPU: Processor Core ID: 0
+Feb  9 20:42:39 xasus kernel: [    0.005096] Intel machine check architecture supported.
+Feb  9 20:42:39 xasus kernel: [    0.005156] Intel machine check reporting enabled on CPU#0.
+Feb  9 20:42:39 xasus kernel: [    0.005212] using mwait in idle threads.
+Feb  9 20:42:39 xasus kernel: [    0.005272] Checking 'hlt' instruction... OK.
+Feb  9 20:42:39 xasus kernel: [    0.022041] ACPI: Core revision 20090320
+Feb  9 20:42:39 xasus kernel: [    0.040510] ..TIMER: vector=0x30 apic1=0 pin1=2 apic2=-1 pin2=-1
+Feb  9 20:42:39 xasus kernel: [    0.081274] CPU0: Genuine Intel(R) CPU           T2300  @ 1.66GHz stepping 08
+Feb  9 20:42:39 xasus kernel: [    0.084001] Booting processor 1 APIC 0x1 ip 0x6000
+Feb  9 20:42:39 xasus kernel: [    0.004000] Initializing CPU#1
+Feb  9 20:42:39 xasus kernel: [    0.004000] Calibrating delay using timer specific routine.. 3325.30 BogoMIPS (lpj=6650602)
+Feb  9 20:42:39 xasus kernel: [    0.004000] CPU: L1 I cache: 32K, L1 D cache: 32K
+Feb  9 20:42:39 xasus kernel: [    0.004000] CPU: L2 cache: 2048K
+Feb  9 20:42:39 xasus kernel: [    0.004000] CPU: Physical Processor ID: 0
+Feb  9 20:42:39 xasus kernel: [    0.004000] CPU: Processor Core ID: 1
+Feb  9 20:42:39 xasus kernel: [    0.004000] Intel machine check architecture supported.
+Feb  9 20:42:39 xasus kernel: [    0.004000] Intel machine check reporting enabled on CPU#1.
+Feb  9 20:42:39 xasus kernel: [    0.168765] CPU1: Genuine Intel(R) CPU           T2300  @ 1.66GHz stepping 08
+Feb  9 20:42:39 xasus kernel: [    0.169299] checking TSC synchronization [CPU#0 -> CPU#1]: passed.
+Feb  9 20:42:39 xasus kernel: [    0.172111] Brought up 2 CPUs
+Feb  9 20:42:39 xasus kernel: [    0.172163] Total of 2 processors activated (6650.54 BogoMIPS).
+Feb  9 20:42:39 xasus kernel: [    0.172272] CPU0 attaching sched-domain:
+Feb  9 20:42:39 xasus kernel: [    0.172278]  domain 0: span 0-1 level MC
+Feb  9 20:42:39 xasus kernel: [    0.172283]   groups: 0 1
+Feb  9 20:42:39 xasus kernel: [    0.172293] CPU1 attaching sched-domain:
+Feb  9 20:42:39 xasus kernel: [    0.172297]  domain 0: span 0-1 level MC
+Feb  9 20:42:39 xasus kernel: [    0.172302]   groups: 1 0
+Feb  9 20:42:39 xasus kernel: [    0.172418] net_namespace: 1088 bytes
+Feb  9 20:42:39 xasus kernel: [    0.172418] Booting paravirtualized kernel on bare hardware
+Feb  9 20:42:39 xasus kernel: [    0.172418] regulator: core version 0.5
+Feb  9 20:42:39 xasus kernel: [    0.172418] NET: Registered protocol family 16
+Feb  9 20:42:39 xasus kernel: [    0.172418] ACPI: bus type pci registered
+Feb  9 20:42:39 xasus kernel: [    0.176045] PCI: MCFG configuration 0: base e0000000 segment 0 buses 0 - 255
+Feb  9 20:42:39 xasus kernel: [    0.176105] PCI: Not using MMCONFIG.
+Feb  9 20:42:39 xasus kernel: [    0.176363] PCI: PCI BIOS revision 3.00 entry at 0xf0031, last bus=8
+Feb  9 20:42:39 xasus kernel: [    0.176419] PCI: Using configuration type 1 for base access
+Feb  9 20:42:39 xasus kernel: [    0.176528] bio: create slab <bio-0> at 0
+Feb  9 20:42:39 xasus kernel: [    0.180976] ACPI: EC: Look up EC in DSDT
+Feb  9 20:42:39 xasus kernel: [    0.203624] ACPI: Interpreter enabled
+Feb  9 20:42:39 xasus kernel: [    0.203689] ACPI: (supports S0 S3 S4 S5)
+Feb  9 20:42:39 xasus kernel: [    0.203897] ACPI: Using IOAPIC for interrupt routing
+Feb  9 20:42:39 xasus kernel: [    0.204089] PCI: MCFG configuration 0: base e0000000 segment 0 buses 0 - 255
+Feb  9 20:42:39 xasus kernel: [    0.221100] PCI: MCFG area at e0000000 reserved in ACPI motherboard resources
+Feb  9 20:42:39 xasus kernel: [    0.221160] PCI: updated MCFG configuration 0: base e0000000 segment 0 buses 0 - 63
+Feb  9 20:42:39 xasus kernel: [    0.221231] PCI: Using MMCONFIG for extended config space
+Feb  9 20:42:39 xasus kernel: [    0.236276] ACPI: EC: GPE = 0x1c, I/O: command/status = 0x66, data = 0x62
+Feb  9 20:42:39 xasus kernel: [    0.236276] ACPI: EC: driver started in poll mode
+Feb  9 20:42:39 xasus kernel: [    0.236349] ACPI: Power Resource [GFAN] (off)
+Feb  9 20:42:39 xasus kernel: [    0.236627] ACPI: No dock devices found.
+Feb  9 20:42:39 xasus kernel: [    0.236841] ACPI: PCI Root Bridge [PCI0] (0000:00)
+Feb  9 20:42:39 xasus kernel: [    0.236947] pci 0000:00:02.0: reg 10 32bit mmio: [0xfeb80000-0xfebfffff]
+Feb  9 20:42:39 xasus kernel: [    0.236947] pci 0000:00:02.0: reg 14 io port: [0xec00-0xec07]
+Feb  9 20:42:39 xasus kernel: [    0.236947] pci 0000:00:02.0: reg 18 32bit mmio: [0xd0000000-0xdfffffff]
+Feb  9 20:42:39 xasus kernel: [    0.236947] pci 0000:00:02.0: reg 1c 32bit mmio: [0xfeb40000-0xfeb7ffff]
+Feb  9 20:42:39 xasus kernel: [    0.236947] pci 0000:00:02.1: reg 10 32bit mmio: [0xfea80000-0xfeafffff]
+Feb  9 20:42:39 xasus kernel: [    0.236947] pci 0000:00:1b.0: reg 10 64bit mmio: [0xfeb3c000-0xfeb3ffff]
+Feb  9 20:42:39 xasus kernel: [    0.236947] pci 0000:00:1b.0: PME# supported from D0 D3hot D3cold
+Feb  9 20:42:39 xasus kernel: [    0.236947] pci 0000:00:1b.0: PME# disabled
+Feb  9 20:42:39 xasus kernel: [    0.236947] pci 0000:00:1c.0: PME# supported from D0 D3hot D3cold
+Feb  9 20:42:39 xasus kernel: [    0.236947] pci 0000:00:1c.0: PME# disabled
+Feb  9 20:42:39 xasus kernel: [    0.236947] pci 0000:00:1c.1: PME# supported from D0 D3hot D3cold
+Feb  9 20:42:39 xasus kernel: [    0.240051] pci 0000:00:1c.1: PME# disabled
+Feb  9 20:42:39 xasus kernel: [    0.240177] pci 0000:00:1d.0: reg 20 io port: [0xe880-0xe89f]
+Feb  9 20:42:39 xasus kernel: [    0.240254] pci 0000:00:1d.1: reg 20 io port: [0xe800-0xe81f]
+Feb  9 20:42:39 xasus kernel: [    0.240329] pci 0000:00:1d.2: reg 20 io port: [0xe480-0xe49f]
+Feb  9 20:42:39 xasus kernel: [    0.240404] pci 0000:00:1d.3: reg 20 io port: [0xe400-0xe41f]
+Feb  9 20:42:39 xasus kernel: [    0.240486] pci 0000:00:1d.7: reg 10 32bit mmio: [0xfeb3bc00-0xfeb3bfff]
+Feb  9 20:42:39 xasus kernel: [    0.240562] pci 0000:00:1d.7: PME# supported from D0 D3hot D3cold
+Feb  9 20:42:39 xasus kernel: [    0.240621] pci 0000:00:1d.7: PME# disabled
+Feb  9 20:42:39 xasus kernel: [    0.240848] pci 0000:00:1f.0: Force enabled HPET at 0xfed00000
+Feb  9 20:42:39 xasus kernel: [    0.240858] pci 0000:00:1f.0: quirk: region 0800-087f claimed by ICH6 ACPI/GPIO/TCO
+Feb  9 20:42:39 xasus kernel: [    0.240932] pci 0000:00:1f.0: quirk: region 0480-04bf claimed by ICH6 GPIO
+Feb  9 20:42:39 xasus kernel: [    0.240994] pci 0000:00:1f.0: ICH7 LPC Generic IO decode 3 PIO at 0250 (mask 000f)
+Feb  9 20:42:39 xasus kernel: [    0.241122] pci 0000:00:1f.1: reg 10 io port: [0x00-0x07]
+Feb  9 20:42:39 xasus kernel: [    0.241134] pci 0000:00:1f.1: reg 14 io port: [0x00-0x03]
+Feb  9 20:42:39 xasus kernel: [    0.241146] pci 0000:00:1f.1: reg 18 io port: [0x00-0x07]
+Feb  9 20:42:39 xasus kernel: [    0.241157] pci 0000:00:1f.1: reg 1c io port: [0x00-0x03]
+Feb  9 20:42:39 xasus kernel: [    0.241169] pci 0000:00:1f.1: reg 20 io port: [0xffa0-0xffaf]
+Feb  9 20:42:39 xasus kernel: [    0.241269] pci 0000:00:1c.0: bridge io port: [0x8000-0xcfff]
+Feb  9 20:42:39 xasus kernel: [    0.241277] pci 0000:00:1c.0: bridge 32bit mmio: [0xfbf00000-0xfe6fffff]
+Feb  9 20:42:39 xasus kernel: [    0.241288] pci 0000:00:1c.0: bridge 64bit mmio pref: [0xb5f00000-0xbfefffff]
+Feb  9 20:42:39 xasus kernel: [    0.241440] pci 0000:07:00.0: reg 10 32bit mmio: [0xfe7ff000-0xfe7fffff]
+Feb  9 20:42:39 xasus kernel: [    0.241686] pci 0000:07:00.0: PME# supported from D0 D3hot D3cold
+Feb  9 20:42:39 xasus kernel: [    0.241753] pci 0000:07:00.0: PME# disabled
+Feb  9 20:42:39 xasus kernel: [    0.241920] pci 0000:00:1c.1: bridge 32bit mmio: [0xfe700000-0xfe7fffff]
+Feb  9 20:42:39 xasus kernel: [    0.241988] pci 0000:08:03.0: reg 10 32bit mmio: [0xfe8ff800-0xfe8fffff]
+Feb  9 20:42:39 xasus kernel: [    0.242057] pci 0000:08:03.0: PME# supported from D0 D3hot D3cold
+Feb  9 20:42:39 xasus kernel: [    0.242115] pci 0000:08:03.0: PME# disabled
+Feb  9 20:42:39 xasus kernel: [    0.242214] pci 0000:08:03.1: reg 10 32bit mmio: [0xfe8ff400-0xfe8ff4ff]
+Feb  9 20:42:39 xasus kernel: [    0.242282] pci 0000:08:03.1: supports D1 D2
+Feb  9 20:42:39 xasus kernel: [    0.242287] pci 0000:08:03.1: PME# supported from D0 D1 D2 D3hot D3cold
+Feb  9 20:42:39 xasus kernel: [    0.242347] pci 0000:08:03.1: PME# disabled
+Feb  9 20:42:39 xasus kernel: [    0.242445] pci 0000:08:03.2: reg 10 32bit mmio: [0xfe8ff000-0xfe8ff0ff]
+Feb  9 20:42:39 xasus kernel: [    0.242514] pci 0000:08:03.2: supports D1 D2
+Feb  9 20:42:39 xasus kernel: [    0.242518] pci 0000:08:03.2: PME# supported from D0 D1 D2 D3hot D3cold
+Feb  9 20:42:39 xasus kernel: [    0.242579] pci 0000:08:03.2: PME# disabled
+Feb  9 20:42:39 xasus kernel: [    0.242676] pci 0000:08:03.3: reg 10 32bit mmio: [0xfe8fec00-0xfe8fecff]
+Feb  9 20:42:39 xasus kernel: [    0.242744] pci 0000:08:03.3: supports D1 D2
+Feb  9 20:42:39 xasus kernel: [    0.242749] pci 0000:08:03.3: PME# supported from D0 D1 D2 D3hot D3cold
+Feb  9 20:42:39 xasus kernel: [    0.242809] pci 0000:08:03.3: PME# disabled
+Feb  9 20:42:39 xasus kernel: [    0.242910] pci 0000:08:03.4: reg 10 32bit mmio: [0xfe8fe800-0xfe8fe8ff]
+Feb  9 20:42:39 xasus kernel: [    0.242978] pci 0000:08:03.4: supports D1 D2
+Feb  9 20:42:39 xasus kernel: [    0.242983] pci 0000:08:03.4: PME# supported from D0 D1 D2 D3hot D3cold
+Feb  9 20:42:39 xasus kernel: [    0.243042] pci 0000:08:03.4: PME# disabled
+Feb  9 20:42:39 xasus kernel: [    0.243148] pci 0000:08:04.0: reg 10 io port: [0xd800-0xd8ff]
+Feb  9 20:42:39 xasus kernel: [    0.243160] pci 0000:08:04.0: reg 14 32bit mmio: [0xfe8fe400-0xfe8fe4ff]
+Feb  9 20:42:39 xasus kernel: [    0.243223] pci 0000:08:04.0: supports D1 D2
+Feb  9 20:42:39 xasus kernel: [    0.243228] pci 0000:08:04.0: PME# supported from D1 D2 D3hot D3cold
+Feb  9 20:42:39 xasus kernel: [    0.243287] pci 0000:08:04.0: PME# disabled
+Feb  9 20:42:39 xasus kernel: [    0.243395] pci 0000:00:1e.0: transparent bridge
+Feb  9 20:42:39 xasus kernel: [    0.243451] pci 0000:00:1e.0: bridge io port: [0xd000-0xdfff]
+Feb  9 20:42:39 xasus kernel: [    0.243459] pci 0000:00:1e.0: bridge 32bit mmio: [0xfe800000-0xfe8fffff]
+Feb  9 20:42:39 xasus kernel: [    0.243490] pci_bus 0000:00: on NUMA node 0
+Feb  9 20:42:39 xasus kernel: [    0.243507] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+Feb  9 20:42:39 xasus kernel: [    0.244076] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P1._PRT]
+Feb  9 20:42:39 xasus kernel: [    0.244301] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P4._PRT]
+Feb  9 20:42:39 xasus kernel: [    0.244456] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P5._PRT]
+Feb  9 20:42:39 xasus kernel: [    0.253689] ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 *11 12)
+Feb  9 20:42:39 xasus kernel: [    0.253689] ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 *5 6 7 12)
+Feb  9 20:42:39 xasus kernel: [    0.256067] ACPI: PCI Interrupt Link [LNKC] (IRQs 3 *4 5 6 7 12)
+Feb  9 20:42:39 xasus kernel: [    0.256651] ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 *7 12)
+Feb  9 20:42:39 xasus kernel: [    0.257232] ACPI: PCI Interrupt Link [LNKE] (IRQs *3 4 5 6 7 12)
+Feb  9 20:42:39 xasus kernel: [    0.257815] ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 *6 7 12)
+Feb  9 20:42:39 xasus kernel: [    0.258398] ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 12) *0, disabled.
+Feb  9 20:42:39 xasus kernel: [    0.259040] ACPI: PCI Interrupt Link [LNKH] (IRQs *3 4 5 6 7 12)
+Feb  9 20:42:39 xasus kernel: [    0.259465] PCI: Using ACPI for IRQ routing
+Feb  9 20:42:39 xasus kernel: [    0.280162] hpet clockevent registered
+Feb  9 20:42:39 xasus kernel: [    0.280168] HPET: 3 timers in total, 0 timers will be used for per-cpu timer
+Feb  9 20:42:39 xasus kernel: [    0.280231] hpet0: at MMIO 0xfed00000, IRQs 2, 8, 0
+Feb  9 20:42:39 xasus kernel: [    0.280401] hpet0: 3 comparators, 64-bit 14.318180 MHz counter
+Feb  9 20:42:39 xasus kernel: [    0.304013] pnp: PnP ACPI init
+Feb  9 20:42:39 xasus kernel: [    0.304074] ACPI: bus type pnp registered
+Feb  9 20:42:39 xasus kernel: [    0.309609] pnp: PnP ACPI: found 14 devices
+Feb  9 20:42:39 xasus kernel: [    0.309661] ACPI: ACPI bus type pnp unregistered
+Feb  9 20:42:39 xasus kernel: [    0.309716] PnPBIOS: Disabled by ACPI PNP
+Feb  9 20:42:39 xasus kernel: [    0.309782] system 00:01: iomem range 0xfed13000-0xfed19fff has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.309853] system 00:08: ioport range 0x4d0-0x4d1 has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.309910] system 00:08: ioport range 0x800-0x87f has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.309968] system 00:08: ioport range 0x400-0x41f has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.310025] system 00:08: ioport range 0x480-0x4bf has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.310084] system 00:08: iomem range 0xfed1c000-0xfed1ffff has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.310142] system 00:08: iomem range 0xfed20000-0xfed3ffff has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.310202] system 00:08: iomem range 0xfed45000-0xfed89fff has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.310261] system 00:08: iomem range 0xffb00000-0xffbfffff could not be reserved
+Feb  9 20:42:39 xasus kernel: [    0.310334] system 00:08: iomem range 0xfff00000-0xffffffff has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.310397] system 00:09: iomem range 0xffb80000-0xffbfffff has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.310457] system 00:09: iomem range 0xfff80000-0xffffffff has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.310520] system 00:0a: iomem range 0xffc00000-0xfff7ffff could not be reserved
+Feb  9 20:42:39 xasus kernel: [    0.310596] system 00:0b: ioport range 0x250-0x253 has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.310654] system 00:0b: ioport range 0x256-0x25f has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.310713] system 00:0b: iomem range 0xfec00000-0xfec00fff could not be reserved
+Feb  9 20:42:39 xasus kernel: [    0.310786] system 00:0b: iomem range 0xfee00000-0xfee00fff has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.310845] system 00:0b: iomem range 0xfec10000-0xfec17fff has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.310904] system 00:0b: iomem range 0xfec18000-0xfec1ffff has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.310968] system 00:0c: iomem range 0xe0000000-0xe3ffffff has been reserved
+Feb  9 20:42:39 xasus kernel: [    0.311032] system 00:0d: iomem range 0x0-0x9ffff could not be reserved
+Feb  9 20:42:39 xasus kernel: [    0.311091] system 00:0d: iomem range 0xc0000-0xcffff could not be reserved
+Feb  9 20:42:39 xasus kernel: [    0.311149] system 00:0d: iomem range 0xe0000-0xfffff could not be reserved
+Feb  9 20:42:39 xasus kernel: [    0.311209] system 00:0d: iomem range 0x100000-0x3f7fffff could not be reserved
+Feb  9 20:42:39 xasus kernel: [    0.346649] pci 0000:00:1c.0: PCI bridge, secondary bus 0000:01
+Feb  9 20:42:39 xasus kernel: [    0.346708] pci 0000:00:1c.0:   IO window: 0x8000-0xcfff
+Feb  9 20:42:39 xasus kernel: [    0.346768] pci 0000:00:1c.0:   MEM window: 0xfbf00000-0xfe6fffff
+Feb  9 20:42:39 xasus kernel: [    0.346826] pci 0000:00:1c.0:   PREFETCH window: 0x000000b5f00000-0x000000bfefffff
+Feb  9 20:42:39 xasus kernel: [    0.346904] pci 0000:00:1c.1: PCI bridge, secondary bus 0000:07
+Feb  9 20:42:39 xasus kernel: [    0.346959] pci 0000:00:1c.1:   IO window: disabled
+Feb  9 20:42:39 xasus kernel: [    0.347017] pci 0000:00:1c.1:   MEM window: 0xfe700000-0xfe7fffff
+Feb  9 20:42:39 xasus kernel: [    0.347074] pci 0000:00:1c.1:   PREFETCH window: disabled
+Feb  9 20:42:39 xasus kernel: [    0.347136] pci 0000:00:1e.0: PCI bridge, secondary bus 0000:08
+Feb  9 20:42:39 xasus kernel: [    0.347193] pci 0000:00:1e.0:   IO window: 0xd000-0xdfff
+Feb  9 20:42:39 xasus kernel: [    0.347252] pci 0000:00:1e.0:   MEM window: 0xfe800000-0xfe8fffff
+Feb  9 20:42:39 xasus kernel: [    0.347309] pci 0000:00:1e.0:   PREFETCH window: disabled
+Feb  9 20:42:39 xasus kernel: [    0.347384] pci 0000:00:1c.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+Feb  9 20:42:39 xasus kernel: [    0.347445] pci 0000:00:1c.0: setting latency timer to 64
+Feb  9 20:42:39 xasus kernel: [    0.347459] pci 0000:00:1c.1: PCI INT B -> GSI 17 (level, low) -> IRQ 17
+Feb  9 20:42:39 xasus kernel: [    0.347517] pci 0000:00:1c.1: setting latency timer to 64
+Feb  9 20:42:39 xasus kernel: [    0.347529] pci 0000:00:1e.0: setting latency timer to 64
+Feb  9 20:42:39 xasus kernel: [    0.347536] pci_bus 0000:00: resource 0 io:  [0x00-0xffff]
+Feb  9 20:42:39 xasus kernel: [    0.347542] pci_bus 0000:00: resource 1 mem: [0x000000-0xffffffff]
+Feb  9 20:42:39 xasus kernel: [    0.347548] pci_bus 0000:01: resource 0 io:  [0x8000-0xcfff]
+Feb  9 20:42:39 xasus kernel: [    0.347554] pci_bus 0000:01: resource 1 mem: [0xfbf00000-0xfe6fffff]
+Feb  9 20:42:39 xasus kernel: [    0.347560] pci_bus 0000:01: resource 2 pref mem [0xb5f00000-0xbfefffff]
+Feb  9 20:42:39 xasus kernel: [    0.347566] pci_bus 0000:07: resource 1 mem: [0xfe700000-0xfe7fffff]
+Feb  9 20:42:39 xasus kernel: [    0.347572] pci_bus 0000:08: resource 0 io:  [0xd000-0xdfff]
+Feb  9 20:42:39 xasus kernel: [    0.347577] pci_bus 0000:08: resource 1 mem: [0xfe800000-0xfe8fffff]
+Feb  9 20:42:39 xasus kernel: [    0.347583] pci_bus 0000:08: resource 3 io:  [0x00-0xffff]
+Feb  9 20:42:39 xasus kernel: [    0.347588] pci_bus 0000:08: resource 4 mem: [0x000000-0xffffffff]
+Feb  9 20:42:39 xasus kernel: [    0.347680] NET: Registered protocol family 2
+Feb  9 20:42:39 xasus kernel: [    0.392119] IP route cache hash table entries: 32768 (order: 5, 131072 bytes)
+Feb  9 20:42:39 xasus kernel: [    0.392720] TCP established hash table entries: 131072 (order: 8, 1048576 bytes)
+Feb  9 20:42:39 xasus kernel: [    0.394048] TCP bind hash table entries: 65536 (order: 7, 524288 bytes)
+Feb  9 20:42:39 xasus kernel: [    0.394730] TCP: Hash tables configured (established 131072 bind 65536)
+Feb  9 20:42:39 xasus kernel: [    0.394788] TCP reno registered
+Feb  9 20:42:39 xasus kernel: [    0.404159] NET: Registered protocol family 1
+Feb  9 20:42:39 xasus kernel: [    0.404298] Trying to unpack rootfs image as initramfs...
+Feb  9 20:42:39 xasus kernel: [    0.781481] Switched to high resolution mode on CPU 1
+Feb  9 20:42:39 xasus kernel: [    0.784002] Switched to high resolution mode on CPU 0
+Feb  9 20:42:39 xasus kernel: [    0.825997] Freeing initrd memory: 7104k freed
+Feb  9 20:42:39 xasus kernel: [    0.831335] Simple Boot Flag at 0x52 set to 0x1
+Feb  9 20:42:39 xasus kernel: [    0.833373] audit: initializing netlink socket (disabled)
+Feb  9 20:42:39 xasus kernel: [    0.833451] type=2000 audit(1265748140.833:1): initialized
+Feb  9 20:42:39 xasus kernel: [    0.833853] highmem bounce pool size: 64 pages
+Feb  9 20:42:39 xasus kernel: [    0.833911] HugeTLB registered 4 MB page size, pre-allocated 0 pages
+Feb  9 20:42:39 xasus kernel: [    0.834132] VFS: Disk quotas dquot_6.5.2
+Feb  9 20:42:39 xasus kernel: [    0.834242] Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
+Feb  9 20:42:39 xasus kernel: [    0.834382] msgmni has been set to 1748
+Feb  9 20:42:39 xasus kernel: [    0.834739] alg: No test for stdrng (krng)
+Feb  9 20:42:39 xasus kernel: [    0.834888] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 253)
+Feb  9 20:42:39 xasus kernel: [    0.834963] io scheduler noop registered
+Feb  9 20:42:39 xasus kernel: [    0.835013] io scheduler anticipatory registered
+Feb  9 20:42:39 xasus kernel: [    0.835066] io scheduler deadline registered
+Feb  9 20:42:39 xasus kernel: [    0.835143] io scheduler cfq registered (default)
+Feb  9 20:42:39 xasus kernel: [    0.835216] pci 0000:00:02.0: Boot video device
+Feb  9 20:42:39 xasus kernel: [    0.835599] pcieport-driver 0000:00:1c.0: irq 24 for MSI/MSI-X
+Feb  9 20:42:39 xasus kernel: [    0.835624] pcieport-driver 0000:00:1c.0: setting latency timer to 64
+Feb  9 20:42:39 xasus kernel: [    0.835980] pcieport-driver 0000:00:1c.1: irq 25 for MSI/MSI-X
+Feb  9 20:42:39 xasus kernel: [    0.836000] pcieport-driver 0000:00:1c.1: setting latency timer to 64
+Feb  9 20:42:39 xasus kernel: [    0.836786] isapnp: Scanning for PnP cards...
+Feb  9 20:42:39 xasus kernel: [    1.190581] isapnp: No Plug & Play device found
+Feb  9 20:42:39 xasus kernel: [    1.196523] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+Feb  9 20:42:39 xasus kernel: [    1.200434] brd: module loaded
+Feb  9 20:42:39 xasus kernel: [    1.200666] PNP: PS/2 Controller [PNP0303:PS2K,PNP0f03:PS2M] at 0x60,0x64 irq 1,12
+Feb  9 20:42:39 xasus kernel: [    1.202929] i8042.c: Detected active multiplexing controller, rev 1.1.
+Feb  9 20:42:39 xasus kernel: [    1.204362] serio: i8042 KBD port at 0x60,0x64 irq 1
+Feb  9 20:42:39 xasus kernel: [    1.204421] serio: i8042 AUX0 port at 0x60,0x64 irq 12
+Feb  9 20:42:39 xasus kernel: [    1.204480] serio: i8042 AUX1 port at 0x60,0x64 irq 12
+Feb  9 20:42:39 xasus kernel: [    1.204537] serio: i8042 AUX2 port at 0x60,0x64 irq 12
+Feb  9 20:42:39 xasus kernel: [    1.204593] serio: i8042 AUX3 port at 0x60,0x64 irq 12
+Feb  9 20:42:39 xasus kernel: [    1.204852] mice: PS/2 mouse device common for all mice
+Feb  9 20:42:39 xasus kernel: [    1.205025] rtc_cmos 00:03: RTC can wake from S4
+Feb  9 20:42:39 xasus kernel: [    1.205185] rtc_cmos 00:03: rtc core: registered rtc_cmos as rtc0
+Feb  9 20:42:39 xasus kernel: [    1.205275] rtc0: alarms up to one month, 114 bytes nvram, hpet irqs
+Feb  9 20:42:39 xasus kernel: [    1.205401] cpuidle: using governor ladder
+Feb  9 20:42:39 xasus kernel: [    1.205453] cpuidle: using governor menu
+Feb  9 20:42:39 xasus kernel: [    1.205508] No iBFT detected.
+Feb  9 20:42:39 xasus kernel: [    1.206205] TCP cubic registered
+Feb  9 20:42:39 xasus kernel: [    1.206334] NET: Registered protocol family 10
+Feb  9 20:42:39 xasus kernel: [    1.207177] lo: Disabled Privacy Extensions
+Feb  9 20:42:39 xasus kernel: [    1.207786] Mobile IPv6
+Feb  9 20:42:39 xasus kernel: [    1.207848] NET: Registered protocol family 17
+Feb  9 20:42:39 xasus kernel: [    1.207907] Using IPI No-Shortcut mode
+Feb  9 20:42:39 xasus kernel: [    1.208240] registered taskstats version 1
+Feb  9 20:42:39 xasus kernel: [    1.208522] rtc_cmos 00:03: setting system clock to 2010-02-09 20:42:22 UTC (1265748142)
+Feb  9 20:42:39 xasus kernel: [    1.208678] Freeing unused kernel memory: 320k freed
+Feb  9 20:42:39 xasus kernel: [    1.209003] Write protecting the kernel text: 2176k
+Feb  9 20:42:39 xasus kernel: [    1.209095] Write protecting the kernel read-only data: 784k
+Feb  9 20:42:39 xasus kernel: [    1.233580] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input0
+Feb  9 20:42:39 xasus kernel: [    1.402886] fan PNP0C0B:00: registered as cooling_device0
+Feb  9 20:42:39 xasus kernel: [    1.402965] ACPI: Fan [FN00] (off)
+Feb  9 20:42:39 xasus kernel: [    1.778923] thermal LNXTHERM:01: registered as thermal_zone0
+Feb  9 20:42:39 xasus kernel: [    1.778991] ACPI: Thermal Zone [THRM] (27 C)
+Feb  9 20:42:39 xasus kernel: [    1.830152] Linux agpgart interface v0.103
+Feb  9 20:42:39 xasus kernel: [    1.835685] agpgart-intel 0000:00:00.0: Intel 945GM Chipset
+Feb  9 20:42:39 xasus kernel: [    1.836807] agpgart-intel 0000:00:00.0: detected 7932K stolen memory
+Feb  9 20:42:39 xasus kernel: [    1.841373] agpgart-intel 0000:00:00.0: AGP aperture is 256M @ 0xd0000000
+Feb  9 20:42:39 xasus kernel: [    1.888427] input: Video Bus as /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1c/input/input1
+Feb  9 20:42:39 xasus kernel: [    1.888514] ACPI: Video Device [VGA] (multi-head: yes  rom: no  post: no)
+Feb  9 20:42:39 xasus kernel: [    1.901498] usbcore: registered new interface driver usbfs
+Feb  9 20:42:39 xasus kernel: [    1.901602] usbcore: registered new interface driver hub
+Feb  9 20:42:39 xasus kernel: [    1.901717] usbcore: registered new device driver usb
+Feb  9 20:42:39 xasus kernel: [    1.904554] Uniform Multi-Platform E-IDE driver
+Feb  9 20:42:39 xasus kernel: [    1.912376] ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+Feb  9 20:42:39 xasus kernel: [    1.912486] ehci_hcd 0000:00:1d.7: PCI INT A -> GSI 23 (level, low) -> IRQ 23
+Feb  9 20:42:39 xasus kernel: [    1.912562] ehci_hcd 0000:00:1d.7: setting latency timer to 64
+Feb  9 20:42:39 xasus kernel: [    1.912569] ehci_hcd 0000:00:1d.7: EHCI Host Controller
+Feb  9 20:42:39 xasus kernel: [    1.912691] ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
+Feb  9 20:42:39 xasus kernel: [    1.916690] ehci_hcd 0000:00:1d.7: debug port 1
+Feb  9 20:42:39 xasus kernel: [    1.916748] ehci_hcd 0000:00:1d.7: cache line size of 32 is not supported
+Feb  9 20:42:39 xasus kernel: [    1.916773] ehci_hcd 0000:00:1d.7: irq 23, io mem 0xfeb3bc00
+Feb  9 20:42:39 xasus kernel: [    1.922204] firewire_ohci 0000:08:03.0: PCI INT A -> GSI 21 (level, low) -> IRQ 21
+Feb  9 20:42:39 xasus kernel: [    1.933014] ehci_hcd 0000:00:1d.7: USB 2.0 started, EHCI 1.00
+Feb  9 20:42:39 xasus kernel: [    1.933107] usb usb1: New USB device found, idVendor=1d6b, idProduct=0002
+Feb  9 20:42:39 xasus kernel: [    1.933164] usb usb1: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Feb  9 20:42:39 xasus kernel: [    1.933235] usb usb1: Product: EHCI Host Controller
+Feb  9 20:42:39 xasus kernel: [    1.933287] usb usb1: Manufacturer: Linux 2.6.30-2-686 ehci_hcd
+Feb  9 20:42:39 xasus kernel: [    1.933342] usb usb1: SerialNumber: 0000:00:1d.7
+Feb  9 20:42:39 xasus kernel: [    1.933507] usb usb1: configuration #1 chosen from 1 choice
+Feb  9 20:42:39 xasus kernel: [    1.933615] hub 1-0:1.0: USB hub found
+Feb  9 20:42:39 xasus kernel: [    1.933675] hub 1-0:1.0: 8 ports detected
+Feb  9 20:42:39 xasus kernel: [    1.948722] 8139too Fast Ethernet driver 0.9.28
+Feb  9 20:42:39 xasus kernel: [    1.949188] ricoh-mmc: Ricoh MMC Controller disabling driver
+Feb  9 20:42:39 xasus kernel: [    1.950135] ricoh-mmc: Copyright(c) Philip Langdale
+Feb  9 20:42:39 xasus kernel: [    1.960859] sdhci: Secure Digital Host Controller Interface driver
+Feb  9 20:42:39 xasus kernel: [    1.960920] sdhci: Copyright(c) Pierre Ossman
+Feb  9 20:42:39 xasus kernel: [    1.970415] uhci_hcd: USB Universal Host Controller Interface driver
+Feb  9 20:42:39 xasus kernel: [    1.970533] uhci_hcd 0000:00:1d.0: PCI INT A -> GSI 23 (level, low) -> IRQ 23
+Feb  9 20:42:39 xasus kernel: [    1.970600] uhci_hcd 0000:00:1d.0: setting latency timer to 64
+Feb  9 20:42:39 xasus kernel: [    1.970607] uhci_hcd 0000:00:1d.0: UHCI Host Controller
+Feb  9 20:42:39 xasus kernel: [    1.970712] uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 2
+Feb  9 20:42:39 xasus kernel: [    1.970818] uhci_hcd 0000:00:1d.0: irq 23, io base 0x0000e880
+Feb  9 20:42:39 xasus kernel: [    1.970936] usb usb2: New USB device found, idVendor=1d6b, idProduct=0001
+Feb  9 20:42:39 xasus kernel: [    1.970993] usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Feb  9 20:42:39 xasus kernel: [    1.971065] usb usb2: Product: UHCI Host Controller
+Feb  9 20:42:39 xasus kernel: [    1.971118] usb usb2: Manufacturer: Linux 2.6.30-2-686 uhci_hcd
+Feb  9 20:42:39 xasus kernel: [    1.971173] usb usb2: SerialNumber: 0000:00:1d.0
+Feb  9 20:42:39 xasus kernel: [    1.971331] usb usb2: configuration #1 chosen from 1 choice
+Feb  9 20:42:39 xasus kernel: [    1.971450] hub 2-0:1.0: USB hub found
+Feb  9 20:42:39 xasus kernel: [    1.971510] hub 2-0:1.0: 2 ports detected
+Feb  9 20:42:39 xasus kernel: [    1.971736] uhci_hcd 0000:00:1d.1: PCI INT B -> GSI 19 (level, low) -> IRQ 19
+Feb  9 20:42:39 xasus kernel: [    1.971799] uhci_hcd 0000:00:1d.1: setting latency timer to 64
+Feb  9 20:42:39 xasus kernel: [    1.971805] uhci_hcd 0000:00:1d.1: UHCI Host Controller
+Feb  9 20:42:39 xasus kernel: [    1.971899] uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 3
+Feb  9 20:42:39 xasus kernel: [    1.972025] uhci_hcd 0000:00:1d.1: irq 19, io base 0x0000e800
+Feb  9 20:42:39 xasus kernel: [    1.972130] usb usb3: New USB device found, idVendor=1d6b, idProduct=0001
+Feb  9 20:42:39 xasus kernel: [    1.972188] usb usb3: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Feb  9 20:42:39 xasus kernel: [    1.972259] usb usb3: Product: UHCI Host Controller
+Feb  9 20:42:39 xasus kernel: [    1.972313] usb usb3: Manufacturer: Linux 2.6.30-2-686 uhci_hcd
+Feb  9 20:42:39 xasus kernel: [    1.972368] usb usb3: SerialNumber: 0000:00:1d.1
+Feb  9 20:42:39 xasus kernel: [    1.972503] usb usb3: configuration #1 chosen from 1 choice
+Feb  9 20:42:39 xasus kernel: [    1.972605] hub 3-0:1.0: USB hub found
+Feb  9 20:42:39 xasus kernel: [    1.972663] hub 3-0:1.0: 2 ports detected
+Feb  9 20:42:39 xasus kernel: [    1.972877] uhci_hcd 0000:00:1d.2: PCI INT C -> GSI 18 (level, low) -> IRQ 18
+Feb  9 20:42:39 xasus kernel: [    1.972942] uhci_hcd 0000:00:1d.2: setting latency timer to 64
+Feb  9 20:42:39 xasus kernel: [    1.972948] uhci_hcd 0000:00:1d.2: UHCI Host Controller
+Feb  9 20:42:39 xasus kernel: [    1.973041] uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 4
+Feb  9 20:42:39 xasus kernel: [    1.973149] uhci_hcd 0000:00:1d.2: irq 18, io base 0x0000e480
+Feb  9 20:42:39 xasus kernel: [    1.973255] usb usb4: New USB device found, idVendor=1d6b, idProduct=0001
+Feb  9 20:42:39 xasus kernel: [    1.973313] usb usb4: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Feb  9 20:42:39 xasus kernel: [    1.973384] usb usb4: Product: UHCI Host Controller
+Feb  9 20:42:39 xasus kernel: [    1.973437] usb usb4: Manufacturer: Linux 2.6.30-2-686 uhci_hcd
+Feb  9 20:42:39 xasus kernel: [    1.973492] usb usb4: SerialNumber: 0000:00:1d.2
+Feb  9 20:42:39 xasus kernel: [    1.973627] usb usb4: configuration #1 chosen from 1 choice
+Feb  9 20:42:39 xasus kernel: [    1.973734] hub 4-0:1.0: USB hub found
+Feb  9 20:42:39 xasus kernel: [    1.973793] hub 4-0:1.0: 2 ports detected
+Feb  9 20:42:39 xasus kernel: [    1.974006] uhci_hcd 0000:00:1d.3: PCI INT D -> GSI 16 (level, low) -> IRQ 16
+Feb  9 20:42:39 xasus kernel: [    1.974068] uhci_hcd 0000:00:1d.3: setting latency timer to 64
+Feb  9 20:42:39 xasus kernel: [    1.974075] uhci_hcd 0000:00:1d.3: UHCI Host Controller
+Feb  9 20:42:39 xasus kernel: [    1.974168] uhci_hcd 0000:00:1d.3: new USB bus registered, assigned bus number 5
+Feb  9 20:42:39 xasus kernel: [    1.974277] uhci_hcd 0000:00:1d.3: irq 16, io base 0x0000e400
+Feb  9 20:42:39 xasus kernel: [    1.974381] usb usb5: New USB device found, idVendor=1d6b, idProduct=0001
+Feb  9 20:42:39 xasus kernel: [    1.974440] usb usb5: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Feb  9 20:42:39 xasus kernel: [    1.974510] usb usb5: Product: UHCI Host Controller
+Feb  9 20:42:39 xasus kernel: [    1.974563] usb usb5: Manufacturer: Linux 2.6.30-2-686 uhci_hcd
+Feb  9 20:42:39 xasus kernel: [    1.974618] usb usb5: SerialNumber: 0000:00:1d.3
+Feb  9 20:42:39 xasus kernel: [    1.974755] usb usb5: configuration #1 chosen from 1 choice
+Feb  9 20:42:39 xasus kernel: [    1.974856] hub 5-0:1.0: USB hub found
+Feb  9 20:42:39 xasus kernel: [    1.974915] hub 5-0:1.0: 2 ports detected
+Feb  9 20:42:39 xasus kernel: [    2.008730] firewire_ohci: Added fw-ohci device 0000:08:03.0, OHCI version 1.0
+Feb  9 20:42:39 xasus kernel: [    2.008959] 8139too 0000:08:04.0: PCI INT A -> GSI 20 (level, low) -> IRQ 20
+Feb  9 20:42:39 xasus kernel: [    2.010764] eth0: RealTek RTL8139 at 0xd800, 00:17:31:16:4c:80, IRQ 20
+Feb  9 20:42:39 xasus kernel: [    2.010823] eth0:  Identified 8139 chip type 'RTL-8101'
+Feb  9 20:42:39 xasus kernel: [    2.010863] ricoh-mmc: Ricoh MMC controller found at 0000:08:03.2 [1180:0843] (rev 1)
+Feb  9 20:42:39 xasus kernel: [    2.010968] ricoh-mmc: Controller is now disabled.
+Feb  9 20:42:39 xasus kernel: [    2.011238] sdhci-pci 0000:08:03.1: SDHCI controller found [1180:0822] (rev 19)
+Feb  9 20:42:39 xasus kernel: [    2.011331] sdhci-pci 0000:08:03.1: PCI INT B -> GSI 20 (level, low) -> IRQ 20
+Feb  9 20:42:39 xasus kernel: [    2.013491] Registered led device: mmc0::
+Feb  9 20:42:39 xasus kernel: [    2.014580] mmc0: SDHCI controller on PCI [0000:08:03.1] using PIO
+Feb  9 20:42:39 xasus kernel: [    2.015745] 8139cp: 10/100 PCI Ethernet driver v1.3 (Mar 22, 2004)
+Feb  9 20:42:39 xasus kernel: [    2.028980] piix 0000:00:1f.1: IDE controller (0x8086:0x27df rev 0x02)
+Feb  9 20:42:39 xasus kernel: [    2.029061] PIIX_IDE 0000:00:1f.1: PCI INT A -> GSI 18 (level, low) -> IRQ 18
+Feb  9 20:42:39 xasus kernel: [    2.029143] piix 0000:00:1f.1: IDE port disabled
+Feb  9 20:42:39 xasus kernel: [    2.029210] piix 0000:00:1f.1: not 100% native mode: will probe irqs later
+Feb  9 20:42:39 xasus kernel: [    2.029275]     ide0: BM-DMA at 0xffa0-0xffa7
+Feb  9 20:42:39 xasus kernel: [    2.029332] Probing IDE interface ide0...
+Feb  9 20:42:39 xasus kernel: [    2.316288] hda: HTS421210H9AT00, ATA DISK drive
+Feb  9 20:42:39 xasus kernel: [    2.508127] firewire_core: created device fw0: GUID 00e018000353a053, S400
+Feb  9 20:42:39 xasus kernel: [    2.820019] hdb: MATSHITADVD-RAM UJ-832S, ATAPI CD/DVD-ROM drive
+Feb  9 20:42:39 xasus kernel: [    2.820189] hda: host max PIO4 wanted PIO255(auto-tune) selected PIO4
+Feb  9 20:42:39 xasus kernel: [    2.820434] hda: UDMA/100 mode selected
+Feb  9 20:42:39 xasus kernel: [    2.820731] hdb: host max PIO4 wanted PIO255(auto-tune) selected PIO4
+Feb  9 20:42:39 xasus kernel: [    2.821075] hdb: UDMA/33 mode selected
+Feb  9 20:42:39 xasus kernel: [    2.821485] ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Feb  9 20:42:39 xasus kernel: [    2.882461] SCSI subsystem initialized
+Feb  9 20:42:39 xasus kernel: [    2.919970] libata version 3.00 loaded.
+Feb  9 20:42:39 xasus kernel: [    2.938845] ide-cd driver 5.00
+Feb  9 20:42:39 xasus kernel: [    2.939917] ide-cd: hdb: ATAPI 24X DVD-ROM DVD-R/RAM CD-R/RW drive, 2048kB Cache
+Feb  9 20:42:39 xasus kernel: [    2.940181] Uniform CD-ROM driver Revision: 3.20
+Feb  9 20:42:39 xasus kernel: [    2.948085] ide-gd driver 1.18
+Feb  9 20:42:39 xasus kernel: [    2.957064] hda: max request size: 512KiB
+Feb  9 20:42:39 xasus kernel: [    2.957498] hda: 195371568 sectors (100030 MB) w/7528KiB Cache, CHS=16383/255/63
+Feb  9 20:42:39 xasus kernel: [    2.957965] hda: cache flushes supported
+Feb  9 20:42:39 xasus kernel: [    2.958073]  hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 hda8 hda9 hda10 >
+Feb  9 20:42:39 xasus kernel: [    4.073797] PM: Starting manual resume from disk
+Feb  9 20:42:39 xasus kernel: [    4.170602] kjournald starting.  Commit interval 5 seconds
+Feb  9 20:42:39 xasus kernel: [    4.170673] EXT3-fs: mounted filesystem with ordered data mode.
+Feb  9 20:42:39 xasus kernel: [    6.272332] udev: starting version 146
+Feb  9 20:42:39 xasus kernel: [    7.282773] input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input2
+Feb  9 20:42:39 xasus kernel: [    7.282919] ACPI: Power Button [PWRF]
+Feb  9 20:42:39 xasus kernel: [    7.283120] input: Lid Switch as /devices/LNXSYSTM:00/device:00/PNP0C0D:00/input/input3
+Feb  9 20:42:39 xasus kernel: [    7.291716] ACPI: SSDT 3f7c82d0 00465 (v01    AMI   CPU1PM 00000001 INTL 02002026)
+Feb  9 20:42:39 xasus kernel: [    7.304135] ACPI: EC: non-query interrupt received, switching to interrupt mode
+Feb  9 20:42:39 xasus kernel: [    7.354344] ACPI: Lid Switch [LID]
+Feb  9 20:42:39 xasus kernel: [    7.354411] Asus Laptop ACPI Extras version 0.30
+Feb  9 20:42:39 xasus kernel: [    7.358532]   unsupported model W6F, trying default values
+Feb  9 20:42:39 xasus kernel: [    7.358586]   send /proc/acpi/dsdt to the developers
+Feb  9 20:42:39 xasus kernel: [    7.358822] input: Sleep Button as /devices/LNXSYSTM:00/device:00/PNP0C0E:00/input/input4
+Feb  9 20:42:39 xasus kernel: [    7.358960] ACPI: Sleep Button [SLPB]
+Feb  9 20:42:39 xasus kernel: [    7.359117] input: Power Button as /devices/LNXSYSTM:00/device:00/PNP0C0C:00/input/input5
+Feb  9 20:42:39 xasus kernel: [    7.359236] ACPI: Power Button [PWRB]
+Feb  9 20:42:39 xasus kernel: [    7.381511] ACPI: AC Adapter [AC0] (off-line)
+Feb  9 20:42:39 xasus kernel: [    7.452608] Marking TSC unstable due to TSC halts in idle
+Feb  9 20:42:39 xasus kernel: [    7.452808] ACPI: CPU0 (power states: C1[C1] C2[C2] C3[C3] C4[C3])
+Feb  9 20:42:39 xasus kernel: [    7.453071] processor ACPI_CPU:00: registered as cooling_device1
+Feb  9 20:42:39 xasus kernel: [    7.453133] ACPI: Processor [CPU1] (supports 8 throttling states)
+Feb  9 20:42:39 xasus kernel: [    7.453469] ACPI Warning (tbutils-0246): Incorrect checksum in table [SSDT] - 24, should be 25 [20090320]
+Feb  9 20:42:39 xasus kernel: [    7.453612] ACPI: SSDT 3f7c8740 00465 (v01    AMI   CPU2PM 00000001 INTL 02002026)
+Feb  9 20:42:39 xasus kernel: [    7.489183] ACPI: CPU1 (power states: C1[C1] C2[C2] C3[C3] C4[C3])
+Feb  9 20:42:39 xasus kernel: [    7.489461] processor ACPI_CPU:01: registered as cooling_device2
+Feb  9 20:42:39 xasus kernel: [    7.489525] ACPI: Processor [CPU2] (supports 8 throttling states)
+Feb  9 20:42:39 xasus kernel: [    7.512150] input: PC Speaker as /devices/platform/pcspkr/input/input6
+Feb  9 20:42:39 xasus kernel: [    7.580276] asus-laptop: Asus Laptop Support version 0.42
+Feb  9 20:42:39 xasus kernel: [    7.584879] asus-laptop:   W6F model detected
+Feb  9 20:42:39 xasus kernel: [    7.602825] ACPI: Battery Slot [BAT0] (battery present)
+Feb  9 20:42:39 xasus kernel: [    7.610568] intel_rng: FWH not detected
+Feb  9 20:42:39 xasus kernel: [    7.626229] input: Asus Laptop extra buttons as /devices/virtual/input/input7
+Feb  9 20:42:39 xasus kernel: [    7.626384] Registered led device: asus::touchpad
+Feb  9 20:42:39 xasus kernel: [    7.781187] cfg80211: Using static regulatory domain info
+Feb  9 20:42:39 xasus kernel: [    7.781249] cfg80211: Regulatory domain: US
+Feb  9 20:42:39 xasus kernel: [    7.781300] 	(start_freq - end_freq @ bandwidth), (max_antenna_gain, max_eirp)
+Feb  9 20:42:39 xasus kernel: [    7.781372] 	(2402000 KHz - 2472000 KHz @ 40000 KHz), (600 mBi, 2700 mBm)
+Feb  9 20:42:39 xasus kernel: [    7.781430] 	(5170000 KHz - 5190000 KHz @ 40000 KHz), (600 mBi, 2300 mBm)
+Feb  9 20:42:39 xasus kernel: [    7.781488] 	(5190000 KHz - 5210000 KHz @ 40000 KHz), (600 mBi, 2300 mBm)
+Feb  9 20:42:39 xasus kernel: [    7.781546] 	(5210000 KHz - 5230000 KHz @ 40000 KHz), (600 mBi, 2300 mBm)
+Feb  9 20:42:39 xasus kernel: [    7.781604] 	(5230000 KHz - 5330000 KHz @ 40000 KHz), (600 mBi, 2300 mBm)
+Feb  9 20:42:39 xasus kernel: [    7.781663] 	(5735000 KHz - 5835000 KHz @ 40000 KHz), (600 mBi, 3000 mBm)
+Feb  9 20:42:39 xasus kernel: [    7.781729] cfg80211: Calling CRDA for country: US
+Feb  9 20:42:39 xasus kernel: [    8.056754] Synaptics Touchpad, model: 1, fw: 6.2, id: 0x1a0b1, caps: 0xa04713/0x200000
+Feb  9 20:42:39 xasus kernel: [    8.101863] input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio4/input/input8
+Feb  9 20:42:39 xasus kernel: [    8.646606] iwl3945: Intel(R) PRO/Wireless 3945ABG/BG Network Connection driver for Linux, 1.2.26ks
+Feb  9 20:42:39 xasus kernel: [    8.646691] iwl3945: Copyright(c) 2003-2009 Intel Corporation
+Feb  9 20:42:39 xasus kernel: [    8.647013] iwl3945 0000:07:00.0: PCI INT A -> GSI 17 (level, low) -> IRQ 17
+Feb  9 20:42:39 xasus kernel: [    8.647086] iwl3945 0000:07:00.0: setting latency timer to 64
+Feb  9 20:42:39 xasus kernel: [    8.699905] iwl3945 0000:07:00.0: Tunable channels: 13 802.11bg, 23 802.11a channels
+Feb  9 20:42:39 xasus kernel: [    8.699980] iwl3945 0000:07:00.0: Detected Intel Wireless WiFi Link 3945ABG
+Feb  9 20:42:39 xasus kernel: [    8.700218] iwl3945 0000:07:00.0: irq 26 for MSI/MSI-X
+Feb  9 20:42:39 xasus kernel: [    9.296153] phy0: Selected rate control algorithm 'iwl-3945-rs'
+Feb  9 20:42:39 xasus kernel: [    9.408175] HDA Intel 0000:00:1b.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+Feb  9 20:42:39 xasus kernel: [    9.408305] HDA Intel 0000:00:1b.0: setting latency timer to 64
+Feb  9 20:42:39 xasus rsyslogd: [origin software="rsyslogd" swVersion="4.4.2" x-pid="1574" x-info="http://www.rsyslog.com"] (re)start
+Feb  9 20:42:39 xasus kernel: [    9.504268] input: HDA Digital PCBeep as /devices/pci0000:00/0000:00:1b.0/input/input9
+Feb  9 20:42:39 xasus kernel: [    9.780055] Clocksource tsc unstable (delta = -77957041 ns)
+Feb  9 20:42:39 xasus kernel: [   10.832897] Adding 522072k swap on /dev/hda5.  Priority:-1 extents:1 across:522072k 
+Feb  9 20:42:39 xasus kernel: [   11.051524] EXT3 FS on hda9, internal journal
+Feb  9 20:42:39 xasus kernel: [   11.296113] iwl3945 0000:07:00.0: Radio Frequency Kill Switch is On:
+Feb  9 20:42:39 xasus kernel: [   11.296118] Kill switch must be turned off for wireless networking to work.
+Feb  9 20:42:39 xasus kernel: [   11.374692] loop: module loaded
+Feb  9 20:42:39 xasus kernel: [   12.846895] kjournald starting.  Commit interval 5 seconds
+Feb  9 20:42:39 xasus kernel: [   12.847267] EXT3 FS on hda8, internal journal
+Feb  9 20:42:39 xasus kernel: [   12.847359] EXT3-fs: mounted filesystem with ordered data mode.
+Feb  9 20:42:39 xasus kernel: [   12.860834] kjournald starting.  Commit interval 5 seconds
+Feb  9 20:42:39 xasus kernel: [   12.873977] EXT3 FS on hda10, internal journal
+Feb  9 20:42:39 xasus kernel: [   12.874072] EXT3-fs: mounted filesystem with ordered data mode.
+Feb  9 20:42:39 xasus kernel: [   12.912641] kjournald starting.  Commit interval 5 seconds
+Feb  9 20:42:39 xasus kernel: [   12.913043] EXT3 FS on hda3, internal journal
+Feb  9 20:42:39 xasus kernel: [   12.913136] EXT3-fs: mounted filesystem with ordered data mode.
+Feb  9 20:42:39 xasus kernel: [   15.312090] eth0: link down
+Feb  9 20:42:39 xasus kernel: [   15.312575] ADDRCONF(NETDEV_UP): eth0: link is not ready
+Feb  9 20:42:39 xasus acpid: starting up with netlink and the input layer
+Feb  9 20:42:39 xasus kernel: [   18.702598] apm: BIOS not found.
+Feb  9 20:42:40 xasus acpid: 57 rules loaded
+Feb  9 20:42:40 xasus acpid: waiting for events: event logging is off
+Feb  9 20:42:40 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 5
+Feb  9 20:42:40 xasus /usr/sbin/cron[1658]: (CRON) INFO (pidfile fd = 3)
+Feb  9 20:42:40 xasus /usr/sbin/cron[1659]: (CRON) STARTUP (fork ok)
+Feb  9 20:42:40 xasus /usr/sbin/cron[1659]: (CRON) INFO (Running @reboot jobs)
+Feb  9 20:42:43 xasus mysqld_safe: Starting mysqld daemon with databases from /var/lib/mysql
+Feb  9 20:42:43 xasus mysqld: 100209 20:42:43 [Note] Plugin 'FEDERATED' is disabled.
+Feb  9 20:42:43 xasus mysqld: 100209 20:42:43  InnoDB: Started; log sequence number 0 44233
+Feb  9 20:42:43 xasus mysqld: 100209 20:42:43 [Note] Event Scheduler: Loaded 0 events
+Feb  9 20:42:43 xasus mysqld: 100209 20:42:43 [Note] /usr/sbin/mysqld: ready for connections.
+Feb  9 20:42:43 xasus mysqld: Version: '5.1.37-2'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  (Debian)
+Feb  9 20:42:44 xasus /etc/mysql/debian-start[1868]: Upgrading MySQL tables if necessary.
+Feb  9 20:42:45 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 5
+Feb  9 20:42:45 xasus /etc/mysql/debian-start[1872]: Looking for 'mysql' as: /usr/bin/mysql
+Feb  9 20:42:45 xasus /etc/mysql/debian-start[1872]: Looking for 'mysqlcheck' as: /usr/bin/mysqlcheck
+Feb  9 20:42:45 xasus /etc/mysql/debian-start[1872]: This installation of MySQL is already upgraded to 5.1.37, use --force if you still need to run mysql_upgrade
+Feb  9 20:42:45 xasus /etc/mysql/debian-start[1883]: Checking for insecure root accounts.
+Feb  9 20:42:45 xasus /etc/mysql/debian-start[1888]: Triggering myisam-recover for all MyISAM tables
+Feb  9 20:42:46 xasus avahi-daemon[1905]: Found user 'avahi' (UID 106) and group 'avahi' (GID 112).
+Feb  9 20:42:46 xasus avahi-daemon[1905]: Successfully dropped root privileges.
+Feb  9 20:42:46 xasus avahi-daemon[1905]: avahi-daemon 0.6.25 starting up.
+Feb  9 20:42:46 xasus avahi-daemon[1905]: Successfully called chroot().
+Feb  9 20:42:46 xasus avahi-daemon[1905]: Successfully dropped remaining capabilities.
+Feb  9 20:42:46 xasus avahi-daemon[1905]: No service file found in /etc/avahi/services.
+Feb  9 20:42:46 xasus avahi-daemon[1905]: Network interface enumeration completed.
+Feb  9 20:42:46 xasus avahi-daemon[1905]: Registering HINFO record with values 'I686'/'LINUX'.
+Feb  9 20:42:46 xasus avahi-daemon[1905]: Server startup complete. Host name is xasus.local. Local service cookie is 4019656664.
+Feb  9 20:42:46 xasus bluetoothd[1916]: Bluetooth daemon 4.42
+Feb  9 20:42:46 xasus bluetoothd[1916]: Starting SDP server
+Feb  9 20:42:46 xasus kernel: [   25.054265] Bluetooth: Core ver 2.15
+Feb  9 20:42:46 xasus kernel: [   25.054423] NET: Registered protocol family 31
+Feb  9 20:42:46 xasus kernel: [   25.054478] Bluetooth: HCI device and connection manager initialized
+Feb  9 20:42:46 xasus kernel: [   25.054538] Bluetooth: HCI socket layer initialized
+Feb  9 20:42:46 xasus kernel: [   25.098560] Bluetooth: L2CAP ver 2.13
+Feb  9 20:42:46 xasus kernel: [   25.098616] Bluetooth: L2CAP socket layer initialized
+Feb  9 20:42:46 xasus bluetoothd[1916]: Starting experimental netlink support
+Feb  9 20:42:46 xasus bluetoothd[1916]: Failed to find Bluetooth netlink family
+Feb  9 20:42:46 xasus kernel: [   25.208308] Bluetooth: BNEP (Ethernet Emulation) ver 1.3
+Feb  9 20:42:46 xasus kernel: [   25.208370] Bluetooth: BNEP filters: protocol multicast
+Feb  9 20:42:46 xasus kernel: [   25.267145] Bluetooth: RFCOMM socket layer initialized
+Feb  9 20:42:46 xasus kernel: [   25.267217] Bluetooth: RFCOMM TTY layer initialized
+Feb  9 20:42:46 xasus kernel: [   25.267269] Bluetooth: RFCOMM ver 1.11
+Feb  9 20:42:46 xasus kernel: [   25.315736] Bridge firewalling registered
+Feb  9 20:42:46 xasus bluetoothd[1916]: bridge pan0 created
+Feb  9 20:42:46 xasus kernel: [   25.613839] Bluetooth: SCO (Voice Link) ver 0.6
+Feb  9 20:42:46 xasus kernel: [   25.613897] Bluetooth: SCO socket layer initialized
+Feb  9 20:42:49 xasus acpid: client connected from 2405[107:115]
+Feb  9 20:42:49 xasus acpid: 1 client rule loaded
+Feb  9 20:42:49 xasus kernel: [   28.360604] lp: driver loaded but no devices found
+Feb  9 20:42:49 xasus kernel: [   28.384156] ppdev: user-space parallel port driver
+Feb  9 20:42:50 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 7
+Feb  9 20:42:50 xasus NetworkManager: <info>  starting...
+Feb  9 20:42:50 xasus NetworkManager: <info>  Found radio killswitch /org/freedesktop/Hal/devices/pci_8086_4222_rfkill_3945ABG_wlan
+Feb  9 20:42:50 xasus NetworkManager: <info>  Found radio killswitch /org/freedesktop/Hal/devices/iwl_wlan_switch
+Feb  9 20:42:50 xasus NetworkManager: <info>  (eth0): new Ethernet device (driver: '8139too')
+Feb  9 20:42:50 xasus NetworkManager: <info>  (eth0): exported as /org/freedesktop/Hal/devices/net_00_17_31_16_4c_80
+Feb  9 20:42:50 xasus NetworkManager: <info>  (wlan0): driver supports SSID scans (scan_capa 0x01).
+Feb  9 20:42:50 xasus NetworkManager: <info>  (wlan0): new 802.11 WiFi device (driver: 'iwl3945')
+Feb  9 20:42:50 xasus NetworkManager: <info>  (wlan0): exported as /org/freedesktop/Hal/devices/net_00_13_02_27_12_39
+Feb  9 20:42:50 xasus NetworkManager: <info>  Trying to start the supplicant...
+Feb  9 20:42:50 xasus NetworkManager: <info>  Trying to start the system settings daemon...
+Feb  9 20:42:50 xasus NetworkManager: <WARN>  killswitch_getpower_reply(): Error getting killswitch power: Method "GetPower" with signature "" on interface "org.freedesktop.Hal.Device.KillSwitch" doesn't exist#012.
+Feb  9 20:42:50 xasus NetworkManager: <info>  Wireless now disabled by radio killswitch
+Feb  9 20:42:51 xasus nm-system-settings:    SCPlugin-Ifupdown: init!
+Feb  9 20:42:51 xasus nm-system-settings:    SCPlugin-Ifupdown: update_system_hostname
+Feb  9 20:42:51 xasus nm-system-settings:    SCPluginIfupdown: guessed connection type (eth0) = 802-3-ethernet
+Feb  9 20:42:51 xasus nm-system-settings:    SCPlugin-Ifupdown: update_connection_setting_from_if_block: name:eth0, type:802-3-ethernet, autoconnect:0, id:Ifupdown (eth0), uuid: 681b428f-0000-0000-0000-000011000000
+Feb  9 20:42:51 xasus nm-system-settings:    SCPluginIfupdown: management mode: unmanaged
+Feb  9 20:42:51 xasus nm-system-settings:    SCPlugin-Ifupdown: devices added (udi: /org/freedesktop/Hal/devices/net_00_17_31_16_4c_80, iface: eth0)
+Feb  9 20:42:51 xasus nm-system-settings:    Ifupdown: get unmanaged devices count: 1
+Feb  9 20:42:51 xasus nm-system-settings:    SCPlugin-Ifupdown: (149387648) ... get_connections.
+Feb  9 20:42:51 xasus nm-system-settings:    SCPlugin-Ifupdown: (149387648) connections count: 1
+Feb  9 20:42:51 xasus nm-system-settings:    Ifupdown: get unmanaged devices count: 1
+Feb  9 20:42:51 xasus nm-system-settings:    SCPlugin-Ifupdown: devices added (udi: /org/freedesktop/Hal/devices/net_00_13_02_27_12_39, iface: wlan0)
+Feb  9 20:42:51 xasus nm-system-settings:    SCPlugin-Ifupdown: end _init.
+Feb  9 20:42:51 xasus nm-system-settings: Loaded plugin ifupdown: (C) 2008 Canonical Ltd.  To report bugs please use the NetworkManager mailing list.
+Feb  9 20:42:51 xasus NetworkManager: <info>  (wlan0): supplicant manager state:  down -> idle
+Feb  9 20:42:51 xasus nm-system-settings: Loaded plugin keyfile: (c) 2007 - 2008 Red Hat, Inc.  To report bugs please use the NetworkManager mailing list.
+Feb  9 20:42:51 xasus NetworkManager: <info>  (eth0): now unmanaged
+Feb  9 20:42:53 xasus acpid: client connected from 2486[0:0]
+Feb  9 20:42:53 xasus acpid: 1 client rule loaded
+Feb  9 20:42:53 xasus kernel: [   32.325713] [drm] Initialized drm 1.1.0 20060810
+Feb  9 20:42:53 xasus kernel: [   32.367635] pci 0000:00:02.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+Feb  9 20:42:53 xasus kernel: [   32.367645] pci 0000:00:02.0: setting latency timer to 64
+Feb  9 20:42:53 xasus kernel: [   32.372179] [drm] Initialized i915 1.6.0 20080730 for 0000:00:02.0 on minor 0
+Feb  9 20:42:55 xasus NetworkManager: <info>  (wlan0): device state change: 1 -> 2
+Feb  9 20:42:55 xasus NetworkManager: <info>  (wlan0): bringing up device.
+Feb  9 20:42:55 xasus kernel: [   33.709384] iwl3945 0000:07:00.0: firmware: requesting iwlwifi-3945-2.ucode
+Feb  9 20:42:55 xasus NetworkManager: <info>  (wlan0): deactivating device (reason: 2).
+Feb  9 20:42:55 xasus kernel: [   33.797634] iwl3945 0000:07:00.0: loaded firmware version 15.32.2.9
+Feb  9 20:42:55 xasus kernel: [   33.797851] iwl3945 0000:07:00.0: Radio disabled by HW RF Kill switch
+Feb  9 20:42:57 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 14
+Feb  9 20:43:11 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 16
+Feb  9 20:43:27 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 14
+Feb  9 20:43:41 xasus dhclient: No DHCPOFFERS received.
+Feb  9 20:43:41 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 20:43:41 xasus avahi-autoipd(eth0)[2560]: Found user 'avahi-autoipd' (UID 105) and group 'avahi-autoipd' (GID 111).
+Feb  9 20:43:41 xasus avahi-autoipd(eth0)[2560]: Successfully called chroot().
+Feb  9 20:43:41 xasus avahi-autoipd(eth0)[2560]: Successfully dropped root privileges.
+Feb  9 20:43:41 xasus avahi-autoipd(eth0)[2560]: Starting with address 169.254.5.108
+Feb  9 20:43:46 xasus avahi-autoipd(eth0)[2560]: Callout BIND, address 169.254.5.108 on interface eth0
+Feb  9 20:43:46 xasus avahi-daemon[1905]: Joining mDNS multicast group on interface eth0.IPv4 with address 169.254.5.108.
+Feb  9 20:43:46 xasus avahi-daemon[1905]: New relevant interface eth0.IPv4 for mDNS.
+Feb  9 20:43:46 xasus avahi-daemon[1905]: Registering new address record for 169.254.5.108 on eth0.IPv4.
+Feb  9 20:43:50 xasus avahi-autoipd(eth0)[2560]: Successfully claimed IP address 169.254.5.108
+Feb  9 20:43:50 xasus ntpdate[2594]: can't find host 0.debian.pool.ntp.org
+Feb  9 20:43:50 xasus ntpdate[2594]: can't find host 1.debian.pool.ntp.org
+Feb  9 20:43:50 xasus ntpdate[2594]: can't find host 2.debian.pool.ntp.org
+Feb  9 20:43:50 xasus ntpdate[2594]: can't find host 3.debian.pool.ntp.org
+Feb  9 20:43:50 xasus ntpdate[2594]: no servers can be used, exiting
+Feb  9 20:44:25 xasus shutdown[2643]: shutting down for system halt
+Feb  9 20:44:25 xasus init: Switching to runlevel: 0
+Feb  9 20:44:27 xasus bluetoothd[1916]: bridge pan0 removed
+Feb  9 20:44:27 xasus bluetoothd[1916]: Stopping SDP server
+Feb  9 20:44:27 xasus bluetoothd[1916]: Exit
+Feb  9 20:44:29 xasus kernel: [  127.768338] [drm:i915_get_vblank_counter] *ERROR* trying to get vblank count for disabled pipe 0
+Feb  9 20:44:29 xasus NetworkManager: <WARN>  nm_signal_handler(): Caught signal 15, shutting down normally.
+Feb  9 20:44:29 xasus NetworkManager: <info>  (wlan0): now unmanaged
+Feb  9 20:44:29 xasus NetworkManager: <info>  (wlan0): device state change: 2 -> 1
+Feb  9 20:44:29 xasus NetworkManager: <info>  exiting (success)
+Feb  9 20:44:29 xasus avahi-daemon[1905]: Got SIGTERM, quitting.
+Feb  9 20:44:29 xasus avahi-daemon[1905]: Leaving mDNS multicast group on interface eth0.IPv4 with address 169.254.5.108.
+Feb  9 20:44:29 xasus mysqld: 100209 20:44:29 [Note] /usr/sbin/mysqld: Normal shutdown
+Feb  9 20:44:29 xasus mysqld: 
+Feb  9 20:44:29 xasus mysqld: 100209 20:44:29 [Note] Event Scheduler: Purging the queue. 0 events
+Feb  9 20:44:29 xasus mysqld: 100209 20:44:29  InnoDB: Starting shutdown...
+Feb  9 20:44:30 xasus mysqld: 100209 20:44:30  InnoDB: Shutdown completed; log sequence number 0 44233
+Feb  9 20:44:30 xasus mysqld: 100209 20:44:30 [Warning] Forcing shutdown of 1 plugins
+Feb  9 20:44:30 xasus mysqld: 100209 20:44:30 [Note] /usr/sbin/mysqld: Shutdown complete
+Feb  9 20:44:30 xasus mysqld: 
+Feb  9 20:44:30 xasus mysqld_safe: mysqld from pid file /var/run/mysqld/mysqld.pid ended
+Feb  9 20:44:30 xasus rpc.statd[1314]: Caught signal 15, un-registering and exiting.
+Feb  9 20:44:30 xasus acpid: exiting
+Feb  9 20:44:30 xasus nm-system-settings:    SCPlugin-Ifupdown: devices removed (udi: /org/freedesktop/Hal/devices/net_00_13_02_27_12_39)
+Feb  9 20:44:30 xasus nm-system-settings:    SCPlugin-Ifupdown: devices removed (udi: /org/freedesktop/Hal/devices/net_00_17_31_16_4c_80)
+Feb  9 20:44:30 xasus nm-system-settings:    Ifupdown: get unmanaged devices count: 0
+Feb  9 20:44:30 xasus avahi-autoipd(eth0)[2560]: Got SIGTERM, quitting.
+Feb  9 20:44:30 xasus avahi-autoipd(eth0)[2560]: Callout STOP, address 169.254.5.108 on interface eth0
+Feb  9 20:44:30 xasus avahi-autoipd(eth0)[2561]: Killing child.
+Feb  9 20:44:30 xasus avahi-autoipd(eth0)[2561]: client: RTNETLINK answers: No such process
+Feb  9 20:44:31 xasus kernel: Kernel logging (proc) stopped.
+Feb  9 20:45:43 xasus kernel: imklog 4.4.2, log source = /proc/kmsg started.
+Feb  9 20:45:43 xasus kernel: [    0.000000] Initializing cgroup subsys cpuset
+Feb  9 20:45:43 xasus kernel: [    0.000000] Initializing cgroup subsys cpu
+Feb  9 20:45:43 xasus kernel: [    0.000000] Linux version 2.6.30-2-686 (Debian 2.6.30-8) (waldi@debian.org) (gcc version 4.3.4 (Debian 4.3.4-3) ) #1 SMP Sat Sep 26 01:16:22 UTC 2009
+Feb  9 20:45:43 xasus kernel: [    0.000000] KERNEL supported cpus:
+Feb  9 20:45:43 xasus kernel: [    0.000000]   Intel GenuineIntel
+Feb  9 20:45:43 xasus kernel: [    0.000000]   AMD AuthenticAMD
+Feb  9 20:45:43 xasus kernel: [    0.000000]   NSC Geode by NSC
+Feb  9 20:45:43 xasus kernel: [    0.000000]   Cyrix CyrixInstead
+Feb  9 20:45:43 xasus kernel: [    0.000000]   Centaur CentaurHauls
+Feb  9 20:45:43 xasus kernel: [    0.000000]   Transmeta GenuineTMx86
+Feb  9 20:45:43 xasus kernel: [    0.000000]   Transmeta TransmetaCPU
+Feb  9 20:45:43 xasus kernel: [    0.000000]   UMC UMC UMC UMC
+Feb  9 20:45:43 xasus kernel: [    0.000000] BIOS-provided physical RAM map:
+Feb  9 20:45:43 xasus kernel: [    0.000000]  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+Feb  9 20:45:43 xasus kernel: [    0.000000]  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+Feb  9 20:45:43 xasus kernel: [    0.000000]  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+Feb  9 20:45:43 xasus kernel: [    0.000000]  BIOS-e820: 0000000000100000 - 000000003f7c0000 (usable)
+Feb  9 20:45:43 xasus kernel: [    0.000000]  BIOS-e820: 000000003f7c0000 - 000000003f7ce000 (ACPI data)
+Feb  9 20:45:43 xasus kernel: [    0.000000]  BIOS-e820: 000000003f7ce000 - 000000003f800000 (ACPI NVS)
+Feb  9 20:45:43 xasus kernel: [    0.000000]  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+Feb  9 20:45:43 xasus kernel: [    0.000000]  BIOS-e820: 00000000ffb80000 - 0000000100000000 (reserved)
+Feb  9 20:45:43 xasus kernel: [    0.000000] DMI 2.3 present.
+Feb  9 20:45:43 xasus kernel: [    0.000000] AMI BIOS detected: BIOS may corrupt low RAM, working around it.
+Feb  9 20:45:43 xasus kernel: [    0.000000] e820 update range: 0000000000000000 - 0000000000010000 (usable) ==> (reserved)
+Feb  9 20:45:43 xasus kernel: [    0.000000] last_pfn = 0x3f7c0 max_arch_pfn = 0x100000
+Feb  9 20:45:43 xasus kernel: [    0.000000] MTRR default type: uncachable
+Feb  9 20:45:43 xasus kernel: [    0.000000] MTRR fixed ranges enabled:
+Feb  9 20:45:43 xasus kernel: [    0.000000]   00000-9FFFF write-back
+Feb  9 20:45:43 xasus kernel: [    0.000000]   A0000-BFFFF uncachable
+Feb  9 20:45:43 xasus kernel: [    0.000000]   C0000-CFFFF write-protect
+Feb  9 20:45:43 xasus kernel: [    0.000000]   D0000-DFFFF uncachable
+Feb  9 20:45:43 xasus kernel: [    0.000000]   E0000-EFFFF write-through
+Feb  9 20:45:43 xasus kernel: [    0.000000]   F0000-FFFFF write-protect
+Feb  9 20:45:43 xasus kernel: [    0.000000] MTRR variable ranges enabled:
+Feb  9 20:45:43 xasus kernel: [    0.000000]   0 base 000000000 mask FC0000000 write-back
+Feb  9 20:45:43 xasus kernel: [    0.000000]   1 base 03F800000 mask FFF800000 uncachable
+Feb  9 20:45:43 xasus kernel: [    0.000000]   2 disabled
+Feb  9 20:45:43 xasus kernel: [    0.000000]   3 disabled
+Feb  9 20:45:43 xasus kernel: [    0.000000]   4 disabled
+Feb  9 20:45:43 xasus kernel: [    0.000000]   5 disabled
+Feb  9 20:45:43 xasus kernel: [    0.000000]   6 disabled
+Feb  9 20:45:43 xasus kernel: [    0.000000]   7 disabled
+Feb  9 20:45:43 xasus kernel: [    0.000000] PAT not supported by CPU.
+Feb  9 20:45:43 xasus kernel: [    0.000000] init_memory_mapping: 0000000000000000-00000000377fe000
+Feb  9 20:45:43 xasus kernel: [    0.000000]  0000000000 - 0000400000 page 4k
+Feb  9 20:45:43 xasus kernel: [    0.000000]  0000400000 - 0037400000 page 2M
+Feb  9 20:45:43 xasus kernel: [    0.000000]  0037400000 - 00377fe000 page 4k
+Feb  9 20:45:43 xasus kernel: [    0.000000] kernel direct mapping tables up to 377fe000 @ 10000-15000
+Feb  9 20:45:43 xasus kernel: [    0.000000] RAMDISK: 378ff000 - 37fef02a
+Feb  9 20:45:43 xasus kernel: [    0.000000] Allocated new RAMDISK: 00545000 - 00c3502a
+Feb  9 20:45:43 xasus kernel: [    0.000000] Move RAMDISK from 00000000378ff000 - 0000000037fef029 to 00545000 - 00c35029
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: RSDP 000f7920 00014 (v00 ACPIAM)
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: RSDT 3f7c0000 00038 (v01 A M I  OEMRSDT  02000621 MSFT 00000097)
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: FACP 3f7c0200 00084 (v02 A M I  OEMFACP  02000621 MSFT 00000097)
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: DSDT 3f7c0460 07E65 (v01  W6F00 W6F00005 00000005 INTL 02002026)
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: FACS 3f7ce000 00040
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: APIC 3f7c0390 0005C (v01 A M I  OEMAPIC  02000621 MSFT 00000097)
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: MCFG 3f7c03f0 0003C (v01 A M I  OEMMCFG  02000621 MSFT 00000097)
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: BOOT 3f7c0430 00028 (v01 A M I  OEMBOOT  02000621 MSFT 00000097)
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: OEMB 3f7ce040 00046 (v01 A M I  AMI_OEM  02000621 MSFT 00000097)
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: Local APIC address 0xfee00000
+Feb  9 20:45:43 xasus kernel: [    0.000000] 127MB HIGHMEM available.
+Feb  9 20:45:43 xasus kernel: [    0.000000] 887MB LOWMEM available.
+Feb  9 20:45:43 xasus kernel: [    0.000000]   mapped low ram: 0 - 377fe000
+Feb  9 20:45:43 xasus kernel: [    0.000000]   low ram: 0 - 377fe000
+Feb  9 20:45:43 xasus kernel: [    0.000000]   node 0 low ram: 00000000 - 377fe000
+Feb  9 20:45:43 xasus kernel: [    0.000000]   node 0 bootmap 00011000 - 00017f00
+Feb  9 20:45:43 xasus kernel: [    0.000000] (9 early reservations) ==> bootmem [0000000000 - 00377fe000]
+Feb  9 20:45:43 xasus kernel: [    0.000000]   #0 [0000000000 - 0000001000]   BIOS data page ==> [0000000000 - 0000001000]
+Feb  9 20:45:43 xasus kernel: [    0.000000]   #1 [0000001000 - 0000002000]    EX TRAMPOLINE ==> [0000001000 - 0000002000]
+Feb  9 20:45:43 xasus kernel: [    0.000000]   #2 [0000006000 - 0000007000]       TRAMPOLINE ==> [0000006000 - 0000007000]
+Feb  9 20:45:43 xasus kernel: [    0.000000]   #3 [0000100000 - 0000541b10]    TEXT DATA BSS ==> [0000100000 - 0000541b10]
+Feb  9 20:45:43 xasus kernel: [    0.000000]   #4 [000009fc00 - 0000100000]    BIOS reserved ==> [000009fc00 - 0000100000]
+Feb  9 20:45:43 xasus kernel: [    0.000000]   #5 [0000542000 - 00005441d5]              BRK ==> [0000542000 - 00005441d5]
+Feb  9 20:45:43 xasus kernel: [    0.000000]   #6 [0000010000 - 0000011000]          PGTABLE ==> [0000010000 - 0000011000]
+Feb  9 20:45:43 xasus kernel: [    0.000000]   #7 [0000545000 - 0000c3502a]      NEW RAMDISK ==> [0000545000 - 0000c3502a]
+Feb  9 20:45:43 xasus kernel: [    0.000000]   #8 [0000011000 - 0000018000]          BOOTMAP ==> [0000011000 - 0000018000]
+Feb  9 20:45:43 xasus kernel: [    0.000000] found SMP MP-table at [c00ff780] ff780
+Feb  9 20:45:43 xasus kernel: [    0.000000] Zone PFN ranges:
+Feb  9 20:45:43 xasus kernel: [    0.000000]   DMA      0x00000010 -> 0x00001000
+Feb  9 20:45:43 xasus kernel: [    0.000000]   Normal   0x00001000 -> 0x000377fe
+Feb  9 20:45:43 xasus kernel: [    0.000000]   HighMem  0x000377fe -> 0x0003f7c0
+Feb  9 20:45:43 xasus kernel: [    0.000000] Movable zone start PFN for each node
+Feb  9 20:45:43 xasus kernel: [    0.000000] early_node_map[2] active PFN ranges
+Feb  9 20:45:43 xasus kernel: [    0.000000]     0: 0x00000010 -> 0x0000009f
+Feb  9 20:45:43 xasus kernel: [    0.000000]     0: 0x00000100 -> 0x0003f7c0
+Feb  9 20:45:43 xasus kernel: [    0.000000] On node 0 totalpages: 259919
+Feb  9 20:45:43 xasus kernel: [    0.000000] free_area_init_node: node 0, pgdat c040bd40, node_mem_map c1000200
+Feb  9 20:45:43 xasus kernel: [    0.000000]   DMA zone: 32 pages used for memmap
+Feb  9 20:45:43 xasus kernel: [    0.000000]   DMA zone: 0 pages reserved
+Feb  9 20:45:43 xasus kernel: [    0.000000]   DMA zone: 3951 pages, LIFO batch:0
+Feb  9 20:45:43 xasus kernel: [    0.000000]   Normal zone: 1744 pages used for memmap
+Feb  9 20:45:43 xasus kernel: [    0.000000]   Normal zone: 221486 pages, LIFO batch:31
+Feb  9 20:45:43 xasus kernel: [    0.000000]   HighMem zone: 256 pages used for memmap
+Feb  9 20:45:43 xasus kernel: [    0.000000]   HighMem zone: 32450 pages, LIFO batch:7
+Feb  9 20:45:43 xasus kernel: [    0.000000] Using APIC driver default
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: PM-Timer IO Port: 0x808
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: Local APIC address 0xfee00000
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+Feb  9 20:45:43 xasus kernel: [    0.000000] IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: IRQ0 used by override.
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: IRQ2 used by override.
+Feb  9 20:45:43 xasus kernel: [    0.000000] ACPI: IRQ9 used by override.
+Feb  9 20:45:43 xasus kernel: [    0.000000] Enabling APIC mode:  Flat.  Using 1 I/O APICs
+Feb  9 20:45:43 xasus kernel: [    0.000000] Using ACPI (MADT) for SMP configuration information
+Feb  9 20:45:43 xasus kernel: [    0.000000] SMP: Allowing 2 CPUs, 0 hotplug CPUs
+Feb  9 20:45:43 xasus kernel: [    0.000000] nr_irqs_gsi: 24
+Feb  9 20:45:43 xasus kernel: [    0.000000] PM: Registered nosave memory: 000000000009f000 - 00000000000a0000
+Feb  9 20:45:43 xasus kernel: [    0.000000] PM: Registered nosave memory: 00000000000a0000 - 00000000000e0000
+Feb  9 20:45:43 xasus kernel: [    0.000000] PM: Registered nosave memory: 00000000000e0000 - 0000000000100000
+Feb  9 20:45:43 xasus kernel: [    0.000000] Allocating PCI resources starting at 40000000 (gap: 3f800000:bf600000)
+Feb  9 20:45:43 xasus kernel: [    0.000000] NR_CPUS:32 nr_cpumask_bits:32 nr_cpu_ids:2 nr_node_ids:1
+Feb  9 20:45:43 xasus kernel: [    0.000000] PERCPU: Embedded 11 pages at c17f4000, static data 22172 bytes
+Feb  9 20:45:43 xasus kernel: [    0.000000] Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 257887
+Feb  9 20:45:43 xasus kernel: [    0.000000] Kernel command line: root=UUID=ac694085-f612-4aae-851f-c27d0662d3be ro 
+Feb  9 20:45:43 xasus kernel: [    0.000000] Enabling fast FPU save and restore... done.
+Feb  9 20:45:43 xasus kernel: [    0.000000] Enabling unmasked SIMD FPU exception support... done.
+Feb  9 20:45:43 xasus kernel: [    0.000000] Initializing CPU#0
+Feb  9 20:45:43 xasus kernel: [    0.000000] NR_IRQS:1280
+Feb  9 20:45:43 xasus kernel: [    0.000000] PID hash table entries: 4096 (order: 12, 16384 bytes)
+Feb  9 20:45:43 xasus kernel: [    0.000000] Fast TSC calibration using PIT
+Feb  9 20:45:43 xasus kernel: [    0.000000] Detected 1662.629 MHz processor.
+Feb  9 20:45:43 xasus kernel: [    0.004000] Console: colour VGA+ 80x25
+Feb  9 20:45:43 xasus kernel: [    0.004000] console [tty0] enabled
+Feb  9 20:45:43 xasus kernel: [    0.004000] Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Feb  9 20:45:43 xasus kernel: [    0.004000] Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Feb  9 20:45:43 xasus kernel: [    0.004000] Initializing HighMem for node 0 (000377fe:0003f7c0)
+Feb  9 20:45:43 xasus kernel: [    0.004000] Memory: 1018816k/1040128k available (2173k kernel code, 20532k reserved, 1150k data, 320k init, 130824k highmem)
+Feb  9 20:45:43 xasus kernel: [    0.004000] virtual kernel memory layout:
+Feb  9 20:45:43 xasus kernel: [    0.004000]     fixmap  : 0xffe16000 - 0xfffff000   (1956 kB)
+Feb  9 20:45:43 xasus kernel: [    0.004000]     pkmap   : 0xff800000 - 0xffc00000   (4096 kB)
+Feb  9 20:45:43 xasus kernel: [    0.004000]     vmalloc : 0xf7ffe000 - 0xff7fe000   ( 120 MB)
+Feb  9 20:45:43 xasus kernel: [    0.004000]     lowmem  : 0xc0000000 - 0xf77fe000   ( 887 MB)
+Feb  9 20:45:43 xasus kernel: [    0.004000]       .init : 0xc0446000 - 0xc0496000   ( 320 kB)
+Feb  9 20:45:43 xasus kernel: [    0.004000]       .data : 0xc031f73d - 0xc043f2f0   (1150 kB)
+Feb  9 20:45:43 xasus kernel: [    0.004000]       .text : 0xc0100000 - 0xc031f73d   (2173 kB)
+Feb  9 20:45:43 xasus kernel: [    0.004000] Checking if this processor honours the WP bit even in supervisor mode...Ok.
+Feb  9 20:45:43 xasus kernel: [    0.004013] Calibrating delay loop (skipped), value calculated using timer frequency.. 3325.25 BogoMIPS (lpj=6650516)
+Feb  9 20:45:43 xasus kernel: [    0.004186] Security Framework initialized
+Feb  9 20:45:43 xasus kernel: [    0.004243] SELinux:  Disabled at boot.
+Feb  9 20:45:43 xasus kernel: [    0.004316] Mount-cache hash table entries: 512
+Feb  9 20:45:43 xasus kernel: [    0.004562] Initializing cgroup subsys ns
+Feb  9 20:45:43 xasus kernel: [    0.004617] Initializing cgroup subsys cpuacct
+Feb  9 20:45:43 xasus kernel: [    0.004673] Initializing cgroup subsys devices
+Feb  9 20:45:43 xasus kernel: [    0.004725] Initializing cgroup subsys freezer
+Feb  9 20:45:43 xasus kernel: [    0.004777] Initializing cgroup subsys net_cls
+Feb  9 20:45:43 xasus kernel: [    0.004858] CPU: L1 I cache: 32K, L1 D cache: 32K
+Feb  9 20:45:43 xasus kernel: [    0.004941] CPU: L2 cache: 2048K
+Feb  9 20:45:43 xasus kernel: [    0.004993] CPU: Physical Processor ID: 0
+Feb  9 20:45:43 xasus kernel: [    0.005043] CPU: Processor Core ID: 0
+Feb  9 20:45:43 xasus kernel: [    0.005096] Intel machine check architecture supported.
+Feb  9 20:45:43 xasus kernel: [    0.005156] Intel machine check reporting enabled on CPU#0.
+Feb  9 20:45:43 xasus kernel: [    0.005210] using mwait in idle threads.
+Feb  9 20:45:43 xasus kernel: [    0.005271] Checking 'hlt' instruction... OK.
+Feb  9 20:45:43 xasus kernel: [    0.022050] ACPI: Core revision 20090320
+Feb  9 20:45:43 xasus kernel: [    0.040508] ..TIMER: vector=0x30 apic1=0 pin1=2 apic2=-1 pin2=-1
+Feb  9 20:45:43 xasus kernel: [    0.082150] CPU0: Genuine Intel(R) CPU           T2300  @ 1.66GHz stepping 08
+Feb  9 20:45:43 xasus kernel: [    0.084001] Booting processor 1 APIC 0x1 ip 0x6000
+Feb  9 20:45:43 xasus kernel: [    0.004000] Initializing CPU#1
+Feb  9 20:45:43 xasus kernel: [    0.004000] Calibrating delay using timer specific routine.. 3325.27 BogoMIPS (lpj=6650542)
+Feb  9 20:45:43 xasus kernel: [    0.004000] CPU: L1 I cache: 32K, L1 D cache: 32K
+Feb  9 20:45:43 xasus kernel: [    0.004000] CPU: L2 cache: 2048K
+Feb  9 20:45:43 xasus kernel: [    0.004000] CPU: Physical Processor ID: 0
+Feb  9 20:45:43 xasus kernel: [    0.004000] CPU: Processor Core ID: 1
+Feb  9 20:45:43 xasus kernel: [    0.004000] Intel machine check architecture supported.
+Feb  9 20:45:43 xasus kernel: [    0.004000] Intel machine check reporting enabled on CPU#1.
+Feb  9 20:45:43 xasus kernel: [    0.168714] CPU1: Genuine Intel(R) CPU           T2300  @ 1.66GHz stepping 08
+Feb  9 20:45:43 xasus kernel: [    0.169251] checking TSC synchronization [CPU#0 -> CPU#1]: passed.
+Feb  9 20:45:43 xasus kernel: [    0.172111] Brought up 2 CPUs
+Feb  9 20:45:43 xasus kernel: [    0.172162] Total of 2 processors activated (6650.52 BogoMIPS).
+Feb  9 20:45:43 xasus kernel: [    0.172270] CPU0 attaching sched-domain:
+Feb  9 20:45:43 xasus kernel: [    0.172275]  domain 0: span 0-1 level MC
+Feb  9 20:45:43 xasus kernel: [    0.172281]   groups: 0 1
+Feb  9 20:45:43 xasus kernel: [    0.172291] CPU1 attaching sched-domain:
+Feb  9 20:45:43 xasus kernel: [    0.172295]  domain 0: span 0-1 level MC
+Feb  9 20:45:43 xasus kernel: [    0.172300]   groups: 1 0
+Feb  9 20:45:43 xasus kernel: [    0.172414] net_namespace: 1088 bytes
+Feb  9 20:45:43 xasus kernel: [    0.172414] Booting paravirtualized kernel on bare hardware
+Feb  9 20:45:43 xasus kernel: [    0.172414] regulator: core version 0.5
+Feb  9 20:45:43 xasus kernel: [    0.172414] NET: Registered protocol family 16
+Feb  9 20:45:43 xasus kernel: [    0.172414] ACPI: bus type pci registered
+Feb  9 20:45:43 xasus kernel: [    0.176029] PCI: MCFG configuration 0: base e0000000 segment 0 buses 0 - 255
+Feb  9 20:45:43 xasus kernel: [    0.176088] PCI: Not using MMCONFIG.
+Feb  9 20:45:43 xasus kernel: [    0.176346] PCI: PCI BIOS revision 3.00 entry at 0xf0031, last bus=8
+Feb  9 20:45:43 xasus kernel: [    0.176402] PCI: Using configuration type 1 for base access
+Feb  9 20:45:43 xasus kernel: [    0.176509] bio: create slab <bio-0> at 0
+Feb  9 20:45:43 xasus kernel: [    0.180840] ACPI: EC: Look up EC in DSDT
+Feb  9 20:45:43 xasus kernel: [    0.205694] ACPI: Interpreter enabled
+Feb  9 20:45:43 xasus kernel: [    0.205758] ACPI: (supports S0 S3 S4 S5)
+Feb  9 20:45:43 xasus kernel: [    0.205966] ACPI: Using IOAPIC for interrupt routing
+Feb  9 20:45:43 xasus kernel: [    0.206146] PCI: MCFG configuration 0: base e0000000 segment 0 buses 0 - 255
+Feb  9 20:45:43 xasus kernel: [    0.223173] PCI: MCFG area at e0000000 reserved in ACPI motherboard resources
+Feb  9 20:45:43 xasus kernel: [    0.223232] PCI: updated MCFG configuration 0: base e0000000 segment 0 buses 0 - 63
+Feb  9 20:45:43 xasus kernel: [    0.223303] PCI: Using MMCONFIG for extended config space
+Feb  9 20:45:43 xasus kernel: [    0.236287] ACPI: EC: GPE = 0x1c, I/O: command/status = 0x66, data = 0x62
+Feb  9 20:45:43 xasus kernel: [    0.236287] ACPI: EC: driver started in poll mode
+Feb  9 20:45:43 xasus kernel: [    0.236348] ACPI: Power Resource [GFAN] (off)
+Feb  9 20:45:43 xasus kernel: [    0.236628] ACPI: No dock devices found.
+Feb  9 20:45:43 xasus kernel: [    0.240168] ACPI: PCI Root Bridge [PCI0] (0000:00)
+Feb  9 20:45:43 xasus kernel: [    0.240273] pci 0000:00:02.0: reg 10 32bit mmio: [0xfeb80000-0xfebfffff]
+Feb  9 20:45:43 xasus kernel: [    0.240273] pci 0000:00:02.0: reg 14 io port: [0xec00-0xec07]
+Feb  9 20:45:43 xasus kernel: [    0.240273] pci 0000:00:02.0: reg 18 32bit mmio: [0xd0000000-0xdfffffff]
+Feb  9 20:45:43 xasus kernel: [    0.240273] pci 0000:00:02.0: reg 1c 32bit mmio: [0xfeb40000-0xfeb7ffff]
+Feb  9 20:45:43 xasus kernel: [    0.240273] pci 0000:00:02.1: reg 10 32bit mmio: [0xfea80000-0xfeafffff]
+Feb  9 20:45:43 xasus kernel: [    0.240322] pci 0000:00:1b.0: reg 10 64bit mmio: [0xfeb3c000-0xfeb3ffff]
+Feb  9 20:45:43 xasus kernel: [    0.240389] pci 0000:00:1b.0: PME# supported from D0 D3hot D3cold
+Feb  9 20:45:43 xasus kernel: [    0.240449] pci 0000:00:1b.0: PME# disabled
+Feb  9 20:45:43 xasus kernel: [    0.240589] pci 0000:00:1c.0: PME# supported from D0 D3hot D3cold
+Feb  9 20:45:43 xasus kernel: [    0.240647] pci 0000:00:1c.0: PME# disabled
+Feb  9 20:45:43 xasus kernel: [    0.240791] pci 0000:00:1c.1: PME# supported from D0 D3hot D3cold
+Feb  9 20:45:43 xasus kernel: [    0.241726] pci 0000:00:1c.1: PME# disabled
+Feb  9 20:45:43 xasus kernel: [    0.241850] pci 0000:00:1d.0: reg 20 io port: [0xe880-0xe89f]
+Feb  9 20:45:43 xasus kernel: [    0.241926] pci 0000:00:1d.1: reg 20 io port: [0xe800-0xe81f]
+Feb  9 20:45:43 xasus kernel: [    0.242003] pci 0000:00:1d.2: reg 20 io port: [0xe480-0xe49f]
+Feb  9 20:45:43 xasus kernel: [    0.242079] pci 0000:00:1d.3: reg 20 io port: [0xe400-0xe41f]
+Feb  9 20:45:43 xasus kernel: [    0.242161] pci 0000:00:1d.7: reg 10 32bit mmio: [0xfeb3bc00-0xfeb3bfff]
+Feb  9 20:45:43 xasus kernel: [    0.242236] pci 0000:00:1d.7: PME# supported from D0 D3hot D3cold
+Feb  9 20:45:43 xasus kernel: [    0.242296] pci 0000:00:1d.7: PME# disabled
+Feb  9 20:45:43 xasus kernel: [    0.242523] pci 0000:00:1f.0: Force enabled HPET at 0xfed00000
+Feb  9 20:45:43 xasus kernel: [    0.242533] pci 0000:00:1f.0: quirk: region 0800-087f claimed by ICH6 ACPI/GPIO/TCO
+Feb  9 20:45:43 xasus kernel: [    0.242608] pci 0000:00:1f.0: quirk: region 0480-04bf claimed by ICH6 GPIO
+Feb  9 20:45:43 xasus kernel: [    0.242670] pci 0000:00:1f.0: ICH7 LPC Generic IO decode 3 PIO at 0250 (mask 000f)
+Feb  9 20:45:43 xasus kernel: [    0.242798] pci 0000:00:1f.1: reg 10 io port: [0x00-0x07]
+Feb  9 20:45:43 xasus kernel: [    0.242810] pci 0000:00:1f.1: reg 14 io port: [0x00-0x03]
+Feb  9 20:45:43 xasus kernel: [    0.242821] pci 0000:00:1f.1: reg 18 io port: [0x00-0x07]
+Feb  9 20:45:43 xasus kernel: [    0.242833] pci 0000:00:1f.1: reg 1c io port: [0x00-0x03]
+Feb  9 20:45:43 xasus kernel: [    0.242844] pci 0000:00:1f.1: reg 20 io port: [0xffa0-0xffaf]
+Feb  9 20:45:43 xasus kernel: [    0.242943] pci 0000:00:1c.0: bridge io port: [0x8000-0xcfff]
+Feb  9 20:45:43 xasus kernel: [    0.242951] pci 0000:00:1c.0: bridge 32bit mmio: [0xfbf00000-0xfe6fffff]
+Feb  9 20:45:43 xasus kernel: [    0.242963] pci 0000:00:1c.0: bridge 64bit mmio pref: [0xb5f00000-0xbfefffff]
+Feb  9 20:45:43 xasus kernel: [    0.243114] pci 0000:07:00.0: reg 10 32bit mmio: [0xfe7ff000-0xfe7fffff]
+Feb  9 20:45:43 xasus kernel: [    0.243359] pci 0000:07:00.0: PME# supported from D0 D3hot D3cold
+Feb  9 20:45:43 xasus kernel: [    0.243426] pci 0000:07:00.0: PME# disabled
+Feb  9 20:45:43 xasus kernel: [    0.243592] pci 0000:00:1c.1: bridge 32bit mmio: [0xfe700000-0xfe7fffff]
+Feb  9 20:45:43 xasus kernel: [    0.244010] pci 0000:08:03.0: reg 10 32bit mmio: [0xfe8ff800-0xfe8fffff]
+Feb  9 20:45:43 xasus kernel: [    0.244080] pci 0000:08:03.0: PME# supported from D0 D3hot D3cold
+Feb  9 20:45:43 xasus kernel: [    0.244138] pci 0000:08:03.0: PME# disabled
+Feb  9 20:45:43 xasus kernel: [    0.244237] pci 0000:08:03.1: reg 10 32bit mmio: [0xfe8ff400-0xfe8ff4ff]
+Feb  9 20:45:43 xasus kernel: [    0.244306] pci 0000:08:03.1: supports D1 D2
+Feb  9 20:45:43 xasus kernel: [    0.244310] pci 0000:08:03.1: PME# supported from D0 D1 D2 D3hot D3cold
+Feb  9 20:45:43 xasus kernel: [    0.244370] pci 0000:08:03.1: PME# disabled
+Feb  9 20:45:43 xasus kernel: [    0.244469] pci 0000:08:03.2: reg 10 32bit mmio: [0xfe8ff000-0xfe8ff0ff]
+Feb  9 20:45:43 xasus kernel: [    0.244538] pci 0000:08:03.2: supports D1 D2
+Feb  9 20:45:43 xasus kernel: [    0.244542] pci 0000:08:03.2: PME# supported from D0 D1 D2 D3hot D3cold
+Feb  9 20:45:43 xasus kernel: [    0.244602] pci 0000:08:03.2: PME# disabled
+Feb  9 20:45:43 xasus kernel: [    0.244700] pci 0000:08:03.3: reg 10 32bit mmio: [0xfe8fec00-0xfe8fecff]
+Feb  9 20:45:43 xasus kernel: [    0.244769] pci 0000:08:03.3: supports D1 D2
+Feb  9 20:45:43 xasus kernel: [    0.244774] pci 0000:08:03.3: PME# supported from D0 D1 D2 D3hot D3cold
+Feb  9 20:45:43 xasus kernel: [    0.244834] pci 0000:08:03.3: PME# disabled
+Feb  9 20:45:43 xasus kernel: [    0.244935] pci 0000:08:03.4: reg 10 32bit mmio: [0xfe8fe800-0xfe8fe8ff]
+Feb  9 20:45:43 xasus kernel: [    0.245003] pci 0000:08:03.4: supports D1 D2
+Feb  9 20:45:43 xasus kernel: [    0.245008] pci 0000:08:03.4: PME# supported from D0 D1 D2 D3hot D3cold
+Feb  9 20:45:43 xasus kernel: [    0.245067] pci 0000:08:03.4: PME# disabled
+Feb  9 20:45:43 xasus kernel: [    0.245172] pci 0000:08:04.0: reg 10 io port: [0xd800-0xd8ff]
+Feb  9 20:45:43 xasus kernel: [    0.245185] pci 0000:08:04.0: reg 14 32bit mmio: [0xfe8fe400-0xfe8fe4ff]
+Feb  9 20:45:43 xasus kernel: [    0.245248] pci 0000:08:04.0: supports D1 D2
+Feb  9 20:45:43 xasus kernel: [    0.245253] pci 0000:08:04.0: PME# supported from D1 D2 D3hot D3cold
+Feb  9 20:45:43 xasus kernel: [    0.245311] pci 0000:08:04.0: PME# disabled
+Feb  9 20:45:43 xasus kernel: [    0.245419] pci 0000:00:1e.0: transparent bridge
+Feb  9 20:45:43 xasus kernel: [    0.245476] pci 0000:00:1e.0: bridge io port: [0xd000-0xdfff]
+Feb  9 20:45:43 xasus kernel: [    0.245484] pci 0000:00:1e.0: bridge 32bit mmio: [0xfe800000-0xfe8fffff]
+Feb  9 20:45:43 xasus kernel: [    0.245515] pci_bus 0000:00: on NUMA node 0
+Feb  9 20:45:43 xasus kernel: [    0.245532] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+Feb  9 20:45:43 xasus kernel: [    0.245825] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P1._PRT]
+Feb  9 20:45:43 xasus kernel: [    0.246047] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P4._PRT]
+Feb  9 20:45:43 xasus kernel: [    0.246202] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P5._PRT]
+Feb  9 20:45:43 xasus kernel: [    0.256228] ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 *11 12)
+Feb  9 20:45:43 xasus kernel: [    0.256843] ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 *5 6 7 12)
+Feb  9 20:45:43 xasus kernel: [    0.257426] ACPI: PCI Interrupt Link [LNKC] (IRQs 3 *4 5 6 7 12)
+Feb  9 20:45:43 xasus kernel: [    0.258006] ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 *7 12)
+Feb  9 20:45:43 xasus kernel: [    0.258588] ACPI: PCI Interrupt Link [LNKE] (IRQs *3 4 5 6 7 12)
+Feb  9 20:45:43 xasus kernel: [    0.259168] ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 *6 7 12)
+Feb  9 20:45:43 xasus kernel: [    0.260019] ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 12) *0, disabled.
+Feb  9 20:45:43 xasus kernel: [    0.260663] ACPI: PCI Interrupt Link [LNKH] (IRQs *3 4 5 6 7 12)
+Feb  9 20:45:43 xasus kernel: [    0.261070] PCI: Using ACPI for IRQ routing
+Feb  9 20:45:43 xasus kernel: [    0.280161] hpet clockevent registered
+Feb  9 20:45:43 xasus kernel: [    0.280168] HPET: 3 timers in total, 0 timers will be used for per-cpu timer
+Feb  9 20:45:43 xasus kernel: [    0.280231] hpet0: at MMIO 0xfed00000, IRQs 2, 8, 0
+Feb  9 20:45:43 xasus kernel: [    0.280401] hpet0: 3 comparators, 64-bit 14.318180 MHz counter
+Feb  9 20:45:43 xasus kernel: [    0.304010] pnp: PnP ACPI init
+Feb  9 20:45:43 xasus kernel: [    0.304071] ACPI: bus type pnp registered
+Feb  9 20:45:43 xasus kernel: [    0.309684] pnp: PnP ACPI: found 14 devices
+Feb  9 20:45:43 xasus kernel: [    0.309737] ACPI: ACPI bus type pnp unregistered
+Feb  9 20:45:43 xasus kernel: [    0.309793] PnPBIOS: Disabled by ACPI PNP
+Feb  9 20:45:43 xasus kernel: [    0.309858] system 00:01: iomem range 0xfed13000-0xfed19fff has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.309928] system 00:08: ioport range 0x4d0-0x4d1 has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.309986] system 00:08: ioport range 0x800-0x87f has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.310044] system 00:08: ioport range 0x400-0x41f has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.310102] system 00:08: ioport range 0x480-0x4bf has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.310159] system 00:08: iomem range 0xfed1c000-0xfed1ffff has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.310219] system 00:08: iomem range 0xfed20000-0xfed3ffff has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.310279] system 00:08: iomem range 0xfed45000-0xfed89fff has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.310339] system 00:08: iomem range 0xffb00000-0xffbfffff could not be reserved
+Feb  9 20:45:43 xasus kernel: [    0.310412] system 00:08: iomem range 0xfff00000-0xffffffff has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.310476] system 00:09: iomem range 0xffb80000-0xffbfffff has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.310535] system 00:09: iomem range 0xfff80000-0xffffffff has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.310599] system 00:0a: iomem range 0xffc00000-0xfff7ffff could not be reserved
+Feb  9 20:45:43 xasus kernel: [    0.310680] system 00:0b: ioport range 0x250-0x253 has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.310738] system 00:0b: ioport range 0x256-0x25f has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.310797] system 00:0b: iomem range 0xfec00000-0xfec00fff could not be reserved
+Feb  9 20:45:43 xasus kernel: [    0.310870] system 00:0b: iomem range 0xfee00000-0xfee00fff has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.310928] system 00:0b: iomem range 0xfec10000-0xfec17fff has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.310988] system 00:0b: iomem range 0xfec18000-0xfec1ffff has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.311051] system 00:0c: iomem range 0xe0000000-0xe3ffffff has been reserved
+Feb  9 20:45:43 xasus kernel: [    0.311116] system 00:0d: iomem range 0x0-0x9ffff could not be reserved
+Feb  9 20:45:43 xasus kernel: [    0.311173] system 00:0d: iomem range 0xc0000-0xcffff could not be reserved
+Feb  9 20:45:43 xasus kernel: [    0.311233] system 00:0d: iomem range 0xe0000-0xfffff could not be reserved
+Feb  9 20:45:43 xasus kernel: [    0.311291] system 00:0d: iomem range 0x100000-0x3f7fffff could not be reserved
+Feb  9 20:45:43 xasus kernel: [    0.346717] pci 0000:00:1c.0: PCI bridge, secondary bus 0000:01
+Feb  9 20:45:43 xasus kernel: [    0.346776] pci 0000:00:1c.0:   IO window: 0x8000-0xcfff
+Feb  9 20:45:43 xasus kernel: [    0.346836] pci 0000:00:1c.0:   MEM window: 0xfbf00000-0xfe6fffff
+Feb  9 20:45:43 xasus kernel: [    0.346896] pci 0000:00:1c.0:   PREFETCH window: 0x000000b5f00000-0x000000bfefffff
+Feb  9 20:45:43 xasus kernel: [    0.346973] pci 0000:00:1c.1: PCI bridge, secondary bus 0000:07
+Feb  9 20:45:43 xasus kernel: [    0.347027] pci 0000:00:1c.1:   IO window: disabled
+Feb  9 20:45:43 xasus kernel: [    0.347085] pci 0000:00:1c.1:   MEM window: 0xfe700000-0xfe7fffff
+Feb  9 20:45:43 xasus kernel: [    0.347144] pci 0000:00:1c.1:   PREFETCH window: disabled
+Feb  9 20:45:43 xasus kernel: [    0.347205] pci 0000:00:1e.0: PCI bridge, secondary bus 0000:08
+Feb  9 20:45:43 xasus kernel: [    0.347262] pci 0000:00:1e.0:   IO window: 0xd000-0xdfff
+Feb  9 20:45:43 xasus kernel: [    0.347320] pci 0000:00:1e.0:   MEM window: 0xfe800000-0xfe8fffff
+Feb  9 20:45:43 xasus kernel: [    0.347378] pci 0000:00:1e.0:   PREFETCH window: disabled
+Feb  9 20:45:43 xasus kernel: [    0.347452] pci 0000:00:1c.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+Feb  9 20:45:43 xasus kernel: [    0.347511] pci 0000:00:1c.0: setting latency timer to 64
+Feb  9 20:45:43 xasus kernel: [    0.347525] pci 0000:00:1c.1: PCI INT B -> GSI 17 (level, low) -> IRQ 17
+Feb  9 20:45:43 xasus kernel: [    0.347586] pci 0000:00:1c.1: setting latency timer to 64
+Feb  9 20:45:43 xasus kernel: [    0.347597] pci 0000:00:1e.0: setting latency timer to 64
+Feb  9 20:45:43 xasus kernel: [    0.347606] pci_bus 0000:00: resource 0 io:  [0x00-0xffff]
+Feb  9 20:45:43 xasus kernel: [    0.347612] pci_bus 0000:00: resource 1 mem: [0x000000-0xffffffff]
+Feb  9 20:45:43 xasus kernel: [    0.347618] pci_bus 0000:01: resource 0 io:  [0x8000-0xcfff]
+Feb  9 20:45:43 xasus kernel: [    0.347624] pci_bus 0000:01: resource 1 mem: [0xfbf00000-0xfe6fffff]
+Feb  9 20:45:43 xasus kernel: [    0.347630] pci_bus 0000:01: resource 2 pref mem [0xb5f00000-0xbfefffff]
+Feb  9 20:45:43 xasus kernel: [    0.347636] pci_bus 0000:07: resource 1 mem: [0xfe700000-0xfe7fffff]
+Feb  9 20:45:43 xasus kernel: [    0.347642] pci_bus 0000:08: resource 0 io:  [0xd000-0xdfff]
+Feb  9 20:45:43 xasus kernel: [    0.347647] pci_bus 0000:08: resource 1 mem: [0xfe800000-0xfe8fffff]
+Feb  9 20:45:43 xasus kernel: [    0.347653] pci_bus 0000:08: resource 3 io:  [0x00-0xffff]
+Feb  9 20:45:43 xasus kernel: [    0.347658] pci_bus 0000:08: resource 4 mem: [0x000000-0xffffffff]
+Feb  9 20:45:43 xasus kernel: [    0.347749] NET: Registered protocol family 2
+Feb  9 20:45:43 xasus kernel: [    0.392116] IP route cache hash table entries: 32768 (order: 5, 131072 bytes)
+Feb  9 20:45:43 xasus kernel: [    0.392709] TCP established hash table entries: 131072 (order: 8, 1048576 bytes)
+Feb  9 20:45:43 xasus kernel: [    0.394040] TCP bind hash table entries: 65536 (order: 7, 524288 bytes)
+Feb  9 20:45:43 xasus kernel: [    0.394721] TCP: Hash tables configured (established 131072 bind 65536)
+Feb  9 20:45:43 xasus kernel: [    0.394778] TCP reno registered
+Feb  9 20:45:43 xasus kernel: [    0.404155] NET: Registered protocol family 1
+Feb  9 20:45:43 xasus kernel: [    0.404292] Trying to unpack rootfs image as initramfs...
+Feb  9 20:45:43 xasus kernel: [    0.781420] Switched to high resolution mode on CPU 1
+Feb  9 20:45:43 xasus kernel: [    0.783988] Switched to high resolution mode on CPU 0
+Feb  9 20:45:43 xasus kernel: [    0.826107] Freeing initrd memory: 7104k freed
+Feb  9 20:45:43 xasus kernel: [    0.831444] Simple Boot Flag at 0x52 set to 0x1
+Feb  9 20:45:43 xasus kernel: [    0.832890] audit: initializing netlink socket (disabled)
+Feb  9 20:45:43 xasus kernel: [    0.832964] type=2000 audit(1265748324.829:1): initialized
+Feb  9 20:45:43 xasus kernel: [    0.833350] highmem bounce pool size: 64 pages
+Feb  9 20:45:43 xasus kernel: [    0.833408] HugeTLB registered 4 MB page size, pre-allocated 0 pages
+Feb  9 20:45:43 xasus kernel: [    0.833637] VFS: Disk quotas dquot_6.5.2
+Feb  9 20:45:43 xasus kernel: [    0.833745] Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
+Feb  9 20:45:43 xasus kernel: [    0.833886] msgmni has been set to 1748
+Feb  9 20:45:43 xasus kernel: [    0.834226] alg: No test for stdrng (krng)
+Feb  9 20:45:43 xasus kernel: [    0.834380] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 253)
+Feb  9 20:45:43 xasus kernel: [    0.834453] io scheduler noop registered
+Feb  9 20:45:43 xasus kernel: [    0.834504] io scheduler anticipatory registered
+Feb  9 20:45:43 xasus kernel: [    0.834556] io scheduler deadline registered
+Feb  9 20:45:43 xasus kernel: [    0.834634] io scheduler cfq registered (default)
+Feb  9 20:45:43 xasus kernel: [    0.834705] pci 0000:00:02.0: Boot video device
+Feb  9 20:45:43 xasus kernel: [    0.835094] pcieport-driver 0000:00:1c.0: irq 24 for MSI/MSI-X
+Feb  9 20:45:43 xasus kernel: [    0.835116] pcieport-driver 0000:00:1c.0: setting latency timer to 64
+Feb  9 20:45:43 xasus kernel: [    0.835489] pcieport-driver 0000:00:1c.1: irq 25 for MSI/MSI-X
+Feb  9 20:45:43 xasus kernel: [    0.835510] pcieport-driver 0000:00:1c.1: setting latency timer to 64
+Feb  9 20:45:43 xasus kernel: [    0.836340] isapnp: Scanning for PnP cards...
+Feb  9 20:45:43 xasus kernel: [    1.190248] isapnp: No Plug & Play device found
+Feb  9 20:45:43 xasus kernel: [    1.196286] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+Feb  9 20:45:43 xasus kernel: [    1.200182] brd: module loaded
+Feb  9 20:45:43 xasus kernel: [    1.200421] PNP: PS/2 Controller [PNP0303:PS2K,PNP0f03:PS2M] at 0x60,0x64 irq 1,12
+Feb  9 20:45:43 xasus kernel: [    1.203025] i8042.c: Detected active multiplexing controller, rev 1.1.
+Feb  9 20:45:43 xasus kernel: [    1.204459] serio: i8042 KBD port at 0x60,0x64 irq 1
+Feb  9 20:45:43 xasus kernel: [    1.204517] serio: i8042 AUX0 port at 0x60,0x64 irq 12
+Feb  9 20:45:43 xasus kernel: [    1.204575] serio: i8042 AUX1 port at 0x60,0x64 irq 12
+Feb  9 20:45:43 xasus kernel: [    1.204631] serio: i8042 AUX2 port at 0x60,0x64 irq 12
+Feb  9 20:45:43 xasus kernel: [    1.204688] serio: i8042 AUX3 port at 0x60,0x64 irq 12
+Feb  9 20:45:43 xasus kernel: [    1.204950] mice: PS/2 mouse device common for all mice
+Feb  9 20:45:43 xasus kernel: [    1.205124] rtc_cmos 00:03: RTC can wake from S4
+Feb  9 20:45:43 xasus kernel: [    1.205275] rtc_cmos 00:03: rtc core: registered rtc_cmos as rtc0
+Feb  9 20:45:43 xasus kernel: [    1.205363] rtc0: alarms up to one month, 114 bytes nvram, hpet irqs
+Feb  9 20:45:43 xasus kernel: [    1.205484] cpuidle: using governor ladder
+Feb  9 20:45:43 xasus kernel: [    1.205537] cpuidle: using governor menu
+Feb  9 20:45:43 xasus kernel: [    1.205594] No iBFT detected.
+Feb  9 20:45:43 xasus kernel: [    1.206294] TCP cubic registered
+Feb  9 20:45:43 xasus kernel: [    1.206424] NET: Registered protocol family 10
+Feb  9 20:45:43 xasus kernel: [    1.207266] lo: Disabled Privacy Extensions
+Feb  9 20:45:43 xasus kernel: [    1.207887] Mobile IPv6
+Feb  9 20:45:43 xasus kernel: [    1.207937] NET: Registered protocol family 17
+Feb  9 20:45:43 xasus kernel: [    1.208059] Using IPI No-Shortcut mode
+Feb  9 20:45:43 xasus kernel: [    1.208445] registered taskstats version 1
+Feb  9 20:45:43 xasus kernel: [    1.208731] rtc_cmos 00:03: setting system clock to 2010-02-09 20:45:26 UTC (1265748326)
+Feb  9 20:45:43 xasus kernel: [    1.208884] Freeing unused kernel memory: 320k freed
+Feb  9 20:45:43 xasus kernel: [    1.209209] Write protecting the kernel text: 2176k
+Feb  9 20:45:43 xasus kernel: [    1.209300] Write protecting the kernel read-only data: 784k
+Feb  9 20:45:43 xasus kernel: [    1.233516] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input0
+Feb  9 20:45:43 xasus kernel: [    1.402865] fan PNP0C0B:00: registered as cooling_device0
+Feb  9 20:45:43 xasus kernel: [    1.402942] ACPI: Fan [FN00] (off)
+Feb  9 20:45:43 xasus kernel: [    1.778940] thermal LNXTHERM:01: registered as thermal_zone0
+Feb  9 20:45:43 xasus kernel: [    1.779009] ACPI: Thermal Zone [THRM] (32 C)
+Feb  9 20:45:43 xasus kernel: [    1.815881] Linux agpgart interface v0.103
+Feb  9 20:45:43 xasus kernel: [    1.824491] agpgart-intel 0000:00:00.0: Intel 945GM Chipset
+Feb  9 20:45:43 xasus kernel: [    1.825594] agpgart-intel 0000:00:00.0: detected 7932K stolen memory
+Feb  9 20:45:43 xasus kernel: [    1.830258] agpgart-intel 0000:00:00.0: AGP aperture is 256M @ 0xd0000000
+Feb  9 20:45:43 xasus kernel: [    1.916814] Uniform Multi-Platform E-IDE driver
+Feb  9 20:45:43 xasus kernel: [    1.923515] input: Video Bus as /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1c/input/input1
+Feb  9 20:45:43 xasus kernel: [    1.923610] ACPI: Video Device [VGA] (multi-head: yes  rom: no  post: no)
+Feb  9 20:45:43 xasus kernel: [    1.925458] piix 0000:00:1f.1: IDE controller (0x8086:0x27df rev 0x02)
+Feb  9 20:45:43 xasus kernel: [    1.925539] PIIX_IDE 0000:00:1f.1: PCI INT A -> GSI 18 (level, low) -> IRQ 18
+Feb  9 20:45:43 xasus kernel: [    1.925609] piix 0000:00:1f.1: IDE port disabled
+Feb  9 20:45:43 xasus kernel: [    1.925672] piix 0000:00:1f.1: not 100% native mode: will probe irqs later
+Feb  9 20:45:43 xasus kernel: [    1.925736]     ide0: BM-DMA at 0xffa0-0xffa7
+Feb  9 20:45:43 xasus kernel: [    1.925793] Probing IDE interface ide0...
+Feb  9 20:45:43 xasus kernel: [    1.947250] firewire_ohci 0000:08:03.0: PCI INT A -> GSI 21 (level, low) -> IRQ 21
+Feb  9 20:45:43 xasus kernel: [    1.975418] 8139too Fast Ethernet driver 0.9.28
+Feb  9 20:45:43 xasus kernel: [    1.981661] sdhci: Secure Digital Host Controller Interface driver
+Feb  9 20:45:43 xasus kernel: [    1.981723] sdhci: Copyright(c) Pierre Ossman
+Feb  9 20:45:43 xasus kernel: [    1.991200] ricoh-mmc: Ricoh MMC Controller disabling driver
+Feb  9 20:45:43 xasus kernel: [    1.991262] ricoh-mmc: Copyright(c) Philip Langdale
+Feb  9 20:45:43 xasus kernel: [    1.992599] usbcore: registered new interface driver usbfs
+Feb  9 20:45:43 xasus kernel: [    1.992714] usbcore: registered new interface driver hub
+Feb  9 20:45:43 xasus kernel: [    1.994108] usbcore: registered new device driver usb
+Feb  9 20:45:43 xasus kernel: [    1.998893] ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+Feb  9 20:45:43 xasus kernel: [    2.037024] firewire_ohci: Added fw-ohci device 0000:08:03.0, OHCI version 1.0
+Feb  9 20:45:43 xasus kernel: [    2.037309] 8139too 0000:08:04.0: PCI INT A -> GSI 20 (level, low) -> IRQ 20
+Feb  9 20:45:43 xasus kernel: [    2.039082] eth0: RealTek RTL8139 at 0xd800, 00:17:31:16:4c:80, IRQ 20
+Feb  9 20:45:43 xasus kernel: [    2.039140] eth0:  Identified 8139 chip type 'RTL-8101'
+Feb  9 20:45:43 xasus kernel: [    2.043949] 8139cp: 10/100 PCI Ethernet driver v1.3 (Mar 22, 2004)
+Feb  9 20:45:43 xasus kernel: [    2.044041] sdhci-pci 0000:08:03.1: SDHCI controller found [1180:0822] (rev 19)
+Feb  9 20:45:43 xasus kernel: [    2.044127] sdhci-pci 0000:08:03.1: PCI INT B -> GSI 20 (level, low) -> IRQ 20
+Feb  9 20:45:43 xasus kernel: [    2.047159] Registered led device: mmc0::
+Feb  9 20:45:43 xasus kernel: [    2.048249] mmc0: SDHCI controller on PCI [0000:08:03.1] using PIO
+Feb  9 20:45:43 xasus kernel: [    2.048362] ricoh-mmc: Ricoh MMC controller found at 0000:08:03.2 [1180:0843] (rev 1)
+Feb  9 20:45:43 xasus kernel: [    2.048453] ricoh-mmc: Controller is now disabled.
+Feb  9 20:45:43 xasus kernel: [    2.216288] hda: HTS421210H9AT00, ATA DISK drive
+Feb  9 20:45:43 xasus kernel: [    2.540122] firewire_core: created device fw0: GUID 00e018000353a053, S400
+Feb  9 20:45:43 xasus kernel: [    2.720013] hdb: MATSHITADVD-RAM UJ-832S, ATAPI CD/DVD-ROM drive
+Feb  9 20:45:43 xasus kernel: [    2.720183] hda: host max PIO4 wanted PIO255(auto-tune) selected PIO4
+Feb  9 20:45:43 xasus kernel: [    2.720430] hda: UDMA/100 mode selected
+Feb  9 20:45:43 xasus kernel: [    2.720725] hdb: host max PIO4 wanted PIO255(auto-tune) selected PIO4
+Feb  9 20:45:43 xasus kernel: [    2.721020] hdb: UDMA/33 mode selected
+Feb  9 20:45:43 xasus kernel: [    2.721431] ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Feb  9 20:45:43 xasus kernel: [    2.782333] SCSI subsystem initialized
+Feb  9 20:45:43 xasus kernel: [    2.782431] ehci_hcd 0000:00:1d.7: PCI INT A -> GSI 23 (level, low) -> IRQ 23
+Feb  9 20:45:43 xasus kernel: [    2.782512] ehci_hcd 0000:00:1d.7: setting latency timer to 64
+Feb  9 20:45:43 xasus kernel: [    2.782519] ehci_hcd 0000:00:1d.7: EHCI Host Controller
+Feb  9 20:45:43 xasus kernel: [    2.782637] ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
+Feb  9 20:45:43 xasus kernel: [    2.786616] ehci_hcd 0000:00:1d.7: debug port 1
+Feb  9 20:45:43 xasus kernel: [    2.786673] ehci_hcd 0000:00:1d.7: cache line size of 32 is not supported
+Feb  9 20:45:43 xasus kernel: [    2.786697] ehci_hcd 0000:00:1d.7: irq 23, io mem 0xfeb3bc00
+Feb  9 20:45:43 xasus kernel: [    2.828695] libata version 3.00 loaded.
+Feb  9 20:45:43 xasus kernel: [    2.828923] ehci_hcd 0000:00:1d.7: USB 2.0 started, EHCI 1.00
+Feb  9 20:45:43 xasus kernel: [    2.829017] usb usb1: New USB device found, idVendor=1d6b, idProduct=0002
+Feb  9 20:45:43 xasus kernel: [    2.829076] usb usb1: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Feb  9 20:45:43 xasus kernel: [    2.829148] usb usb1: Product: EHCI Host Controller
+Feb  9 20:45:43 xasus kernel: [    2.829202] usb usb1: Manufacturer: Linux 2.6.30-2-686 ehci_hcd
+Feb  9 20:45:43 xasus kernel: [    2.829258] usb usb1: SerialNumber: 0000:00:1d.7
+Feb  9 20:45:43 xasus kernel: [    2.829414] usb usb1: configuration #1 chosen from 1 choice
+Feb  9 20:45:43 xasus kernel: [    2.829521] hub 1-0:1.0: USB hub found
+Feb  9 20:45:43 xasus kernel: [    2.829582] hub 1-0:1.0: 8 ports detected
+Feb  9 20:45:43 xasus kernel: [    2.843955] ide-gd driver 1.18
+Feb  9 20:45:43 xasus kernel: [    2.844071] hda: max request size: 512KiB
+Feb  9 20:45:43 xasus kernel: [    2.844532] hda: 195371568 sectors (100030 MB) w/7528KiB Cache, CHS=16383/255/63
+Feb  9 20:45:43 xasus kernel: [    2.845025] hda: cache flushes supported
+Feb  9 20:45:43 xasus kernel: [    2.845148]  hda:<6>uhci_hcd: USB Universal Host Controller Interface driver
+Feb  9 20:45:43 xasus kernel: [    2.850778] uhci_hcd 0000:00:1d.0: PCI INT A -> GSI 23 (level, low) -> IRQ 23
+Feb  9 20:45:43 xasus kernel: [    2.850849] uhci_hcd 0000:00:1d.0: setting latency timer to 64
+Feb  9 20:45:43 xasus kernel: [    2.850856] uhci_hcd 0000:00:1d.0: UHCI Host Controller
+Feb  9 20:45:43 xasus kernel: [    2.850966] uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 2
+Feb  9 20:45:43 xasus kernel: [    2.851069] uhci_hcd 0000:00:1d.0: irq 23, io base 0x0000e880
+Feb  9 20:45:43 xasus kernel: [    2.851184] usb usb2: New USB device found, idVendor=1d6b, idProduct=0001
+Feb  9 20:45:43 xasus kernel: [    2.851241] usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Feb  9 20:45:43 xasus kernel: [    2.851312] usb usb2: Product: UHCI Host Controller
+Feb  9 20:45:43 xasus kernel: [    2.851365] usb usb2: Manufacturer: Linux 2.6.30-2-686 uhci_hcd
+Feb  9 20:45:43 xasus kernel: [    2.851420] usb usb2: SerialNumber: 0000:00:1d.0
+Feb  9 20:45:43 xasus kernel: [    2.851579] usb usb2: configuration #1 chosen from 1 choice
+Feb  9 20:45:43 xasus kernel: [    2.851686] hub 2-0:1.0: USB hub found
+Feb  9 20:45:43 xasus kernel: [    2.851746] hub 2-0:1.0: 2 ports detected
+Feb  9 20:45:43 xasus kernel: [    2.851977] uhci_hcd 0000:00:1d.1: PCI INT B -> GSI 19 (level, low) -> IRQ 19
+Feb  9 20:45:43 xasus kernel: [    2.852057] uhci_hcd 0000:00:1d.1: setting latency timer to 64
+Feb  9 20:45:43 xasus kernel: [    2.852063] uhci_hcd 0000:00:1d.1: UHCI Host Controller
+Feb  9 20:45:43 xasus kernel: [    2.852160] uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 3
+Feb  9 20:45:43 xasus kernel: [    2.852274] uhci_hcd 0000:00:1d.1: irq 19, io base 0x0000e800
+Feb  9 20:45:43 xasus kernel: [    2.852377] usb usb3: New USB device found, idVendor=1d6b, idProduct=0001
+Feb  9 20:45:43 xasus kernel: [    2.852436] usb usb3: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Feb  9 20:45:43 xasus kernel: [    2.852508] usb usb3: Product: UHCI Host Controller
+Feb  9 20:45:43 xasus kernel: [    2.852561] usb usb3: Manufacturer: Linux 2.6.30-2-686 uhci_hcd
+Feb  9 20:45:43 xasus kernel: [    2.852617] usb usb3: SerialNumber: 0000:00:1d.1
+Feb  9 20:45:43 xasus kernel: [    2.852757] usb usb3: configuration #1 chosen from 1 choice
+Feb  9 20:45:43 xasus kernel: [    2.852861] hub 3-0:1.0: USB hub found
+Feb  9 20:45:43 xasus kernel: [    2.852921] hub 3-0:1.0: 2 ports detected
+Feb  9 20:45:43 xasus kernel: [    2.853139] uhci_hcd 0000:00:1d.2: PCI INT C -> GSI 18 (level, low) -> IRQ 18
+Feb  9 20:45:43 xasus kernel: [    2.853202] uhci_hcd 0000:00:1d.2: setting latency timer to 64
+Feb  9 20:45:43 xasus kernel: [    2.853209] uhci_hcd 0000:00:1d.2: UHCI Host Controller
+Feb  9 20:45:43 xasus kernel: [    2.853297] uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 4
+Feb  9 20:45:43 xasus kernel: [    2.853406] uhci_hcd 0000:00:1d.2: irq 18, io base 0x0000e480
+Feb  9 20:45:43 xasus kernel: [    2.853508] usb usb4: New USB device found, idVendor=1d6b, idProduct=0001
+Feb  9 20:45:43 xasus kernel: [    2.853567] usb usb4: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Feb  9 20:45:43 xasus kernel: [    2.853638] usb usb4: Product: UHCI Host Controller
+Feb  9 20:45:43 xasus kernel: [    2.853690] usb usb4: Manufacturer: Linux 2.6.30-2-686 uhci_hcd
+Feb  9 20:45:43 xasus kernel: [    2.853746] usb usb4: SerialNumber: 0000:00:1d.2
+Feb  9 20:45:43 xasus kernel: [    2.853898] usb usb4: configuration #1 chosen from 1 choice
+Feb  9 20:45:43 xasus kernel: [    2.854008] hub 4-0:1.0: USB hub found
+Feb  9 20:45:43 xasus kernel: [    2.854068] hub 4-0:1.0: 2 ports detected
+Feb  9 20:45:43 xasus kernel: [    2.854287] uhci_hcd 0000:00:1d.3: PCI INT D -> GSI 16 (level, low) -> IRQ 16
+Feb  9 20:45:43 xasus kernel: [    2.854351] uhci_hcd 0000:00:1d.3: setting latency timer to 64
+Feb  9 20:45:43 xasus kernel: [    2.854357] uhci_hcd 0000:00:1d.3: UHCI Host Controller
+Feb  9 20:45:43 xasus kernel: [    2.854453] uhci_hcd 0000:00:1d.3: new USB bus registered, assigned bus number 5
+Feb  9 20:45:43 xasus kernel: [    2.854561] uhci_hcd 0000:00:1d.3: irq 16, io base 0x0000e400
+Feb  9 20:45:43 xasus kernel: [    2.854667] usb usb5: New USB device found, idVendor=1d6b, idProduct=0001
+Feb  9 20:45:43 xasus kernel: [    2.854727] usb usb5: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Feb  9 20:45:43 xasus kernel: [    2.854799] usb usb5: Product: UHCI Host Controller
+Feb  9 20:45:43 xasus kernel: [    2.854855] usb usb5: Manufacturer: Linux 2.6.30-2-686 uhci_hcd
+Feb  9 20:45:43 xasus kernel: [    2.854914] usb usb5: SerialNumber: 0000:00:1d.3
+Feb  9 20:45:43 xasus kernel: [    2.855067] usb usb5: configuration #1 chosen from 1 choice
+Feb  9 20:45:43 xasus kernel: [    2.855177] hub 5-0:1.0: USB hub found
+Feb  9 20:45:43 xasus kernel: [    2.855236] hub 5-0:1.0: 2 ports detected
+Feb  9 20:45:43 xasus kernel: [    2.856338]  hda1 hda2 hda3 hda4 <<6>ide-cd driver 5.00
+Feb  9 20:45:43 xasus kernel: [    2.884613]  hda5 hda6 hda7 hda8 hda9 hda10 >
+Feb  9 20:45:43 xasus kernel: [    2.965580] ide-cd: hdb: ATAPI 24X DVD-ROM DVD-R/RAM CD-R/RW drive, 2048kB Cache
+Feb  9 20:45:43 xasus kernel: [    2.965839] Uniform CD-ROM driver Revision: 3.20
+Feb  9 20:45:43 xasus kernel: [    4.035447] PM: Starting manual resume from disk
+Feb  9 20:45:43 xasus kernel: [    4.132265] kjournald starting.  Commit interval 5 seconds
+Feb  9 20:45:43 xasus kernel: [    4.132333] EXT3-fs: mounted filesystem with ordered data mode.
+Feb  9 20:45:43 xasus kernel: [    6.219877] udev: starting version 146
+Feb  9 20:45:43 xasus kernel: [    6.950923] input: PC Speaker as /devices/platform/pcspkr/input/input2
+Feb  9 20:45:43 xasus kernel: [    7.031520] Asus Laptop ACPI Extras version 0.30
+Feb  9 20:45:43 xasus kernel: [    7.035687]   unsupported model W6F, trying default values
+Feb  9 20:45:43 xasus kernel: [    7.035743]   send /proc/acpi/dsdt to the developers
+Feb  9 20:45:43 xasus kernel: [    7.057254] asus-laptop: Asus Laptop Support version 0.42
+Feb  9 20:45:43 xasus kernel: [    7.061425] asus-laptop:   W6F model detected
+Feb  9 20:45:43 xasus kernel: [    7.063304] ACPI: EC: non-query interrupt received, switching to interrupt mode
+Feb  9 20:45:43 xasus kernel: [    7.076593] input: Asus Laptop extra buttons as /devices/virtual/input/input3
+Feb  9 20:45:43 xasus kernel: [    7.076764] Registered led device: asus::touchpad
+Feb  9 20:45:43 xasus kernel: [    7.286941] ACPI: SSDT 3f7c82d0 00465 (v01    AMI   CPU1PM 00000001 INTL 02002026)
+Feb  9 20:45:43 xasus kernel: [    7.305547] Marking TSC unstable due to TSC halts in idle
+Feb  9 20:45:43 xasus kernel: [    7.305768] ACPI: CPU0 (power states: C1[C1] C2[C2] C3[C3] C4[C3])
+Feb  9 20:45:43 xasus kernel: [    7.306029] processor ACPI_CPU:00: registered as cooling_device1
+Feb  9 20:45:43 xasus kernel: [    7.306088] ACPI: Processor [CPU1] (supports 8 throttling states)
+Feb  9 20:45:43 xasus kernel: [    7.306324] input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input4
+Feb  9 20:45:43 xasus kernel: [    7.306464] ACPI: Power Button [PWRF]
+Feb  9 20:45:43 xasus kernel: [    7.306669] input: Lid Switch as /devices/LNXSYSTM:00/device:00/PNP0C0D:00/input/input5
+Feb  9 20:45:43 xasus kernel: [    7.310015] ACPI Warning (tbutils-0246): Incorrect checksum in table [SSDT] - 24, should be 25 [20090320]
+Feb  9 20:45:43 xasus kernel: [    7.310155] ACPI: SSDT 3f7c8740 00465 (v01    AMI   CPU2PM 00000001 INTL 02002026)
+Feb  9 20:45:43 xasus kernel: [    7.356170] Synaptics Touchpad, model: 1, fw: 6.2, id: 0x1a0b1, caps: 0xa04713/0x200000
+Feb  9 20:45:43 xasus kernel: [    7.361641] ACPI: Lid Switch [LID]
+Feb  9 20:45:43 xasus kernel: [    7.361814] input: Sleep Button as /devices/LNXSYSTM:00/device:00/PNP0C0E:00/input/input6
+Feb  9 20:45:43 xasus kernel: [    7.361947] ACPI: Sleep Button [SLPB]
+Feb  9 20:45:43 xasus kernel: [    7.362095] input: Power Button as /devices/LNXSYSTM:00/device:00/PNP0C0C:00/input/input7
+Feb  9 20:45:43 xasus kernel: [    7.362209] ACPI: Power Button [PWRB]
+Feb  9 20:45:43 xasus kernel: [    7.415073] input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio4/input/input8
+Feb  9 20:45:43 xasus kernel: [    7.420964] ACPI: CPU1 (power states: C1[C1] C2[C2] C3[C3] C4[C3])
+Feb  9 20:45:43 xasus kernel: [    7.421241] processor ACPI_CPU:01: registered as cooling_device2
+Feb  9 20:45:43 xasus kernel: [    7.421304] ACPI: Processor [CPU2] (supports 8 throttling states)
+Feb  9 20:45:43 xasus kernel: [    7.697866] ACPI: AC Adapter [AC0] (off-line)
+Feb  9 20:45:43 xasus kernel: [    7.737128] cfg80211: Using static regulatory domain info
+Feb  9 20:45:43 xasus kernel: [    7.737205] cfg80211: Regulatory domain: US
+Feb  9 20:45:43 xasus kernel: [    7.737261] 	(start_freq - end_freq @ bandwidth), (max_antenna_gain, max_eirp)
+Feb  9 20:45:43 xasus kernel: [    7.737333] 	(2402000 KHz - 2472000 KHz @ 40000 KHz), (600 mBi, 2700 mBm)
+Feb  9 20:45:43 xasus kernel: [    7.737392] 	(5170000 KHz - 5190000 KHz @ 40000 KHz), (600 mBi, 2300 mBm)
+Feb  9 20:45:43 xasus kernel: [    7.737450] 	(5190000 KHz - 5210000 KHz @ 40000 KHz), (600 mBi, 2300 mBm)
+Feb  9 20:45:43 xasus kernel: [    7.737509] 	(5210000 KHz - 5230000 KHz @ 40000 KHz), (600 mBi, 2300 mBm)
+Feb  9 20:45:43 xasus kernel: [    7.737566] 	(5230000 KHz - 5330000 KHz @ 40000 KHz), (600 mBi, 2300 mBm)
+Feb  9 20:45:43 xasus kernel: [    7.737624] 	(5735000 KHz - 5835000 KHz @ 40000 KHz), (600 mBi, 3000 mBm)
+Feb  9 20:45:43 xasus kernel: [    7.737688] cfg80211: Calling CRDA for country: US
+Feb  9 20:45:43 xasus kernel: [    7.777303] ACPI: Battery Slot [BAT0] (battery present)
+Feb  9 20:45:43 xasus kernel: [    7.816705] intel_rng: FWH not detected
+Feb  9 20:45:43 xasus kernel: [    8.664357] iwl3945: Intel(R) PRO/Wireless 3945ABG/BG Network Connection driver for Linux, 1.2.26ks
+Feb  9 20:45:43 xasus kernel: [    8.664442] iwl3945: Copyright(c) 2003-2009 Intel Corporation
+Feb  9 20:45:43 xasus kernel: [    8.664592] iwl3945 0000:07:00.0: PCI INT A -> GSI 17 (level, low) -> IRQ 17
+Feb  9 20:45:43 xasus kernel: [    8.664666] iwl3945 0000:07:00.0: setting latency timer to 64
+Feb  9 20:45:43 xasus kernel: [    8.717439] iwl3945 0000:07:00.0: Tunable channels: 13 802.11bg, 23 802.11a channels
+Feb  9 20:45:43 xasus kernel: [    8.717513] iwl3945 0000:07:00.0: Detected Intel Wireless WiFi Link 3945ABG
+Feb  9 20:45:43 xasus kernel: [    8.717741] iwl3945 0000:07:00.0: irq 26 for MSI/MSI-X
+Feb  9 20:45:43 xasus kernel: [    9.023080] phy0: Selected rate control algorithm 'iwl-3945-rs'
+Feb  9 20:45:43 xasus kernel: [    9.369666] HDA Intel 0000:00:1b.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+Feb  9 20:45:43 xasus kernel: [    9.369784] HDA Intel 0000:00:1b.0: setting latency timer to 64
+Feb  9 20:45:43 xasus kernel: [    9.465975] input: HDA Digital PCBeep as /devices/pci0000:00/0000:00:1b.0/input/input9
+Feb  9 20:45:43 xasus kernel: [    9.780055] Clocksource tsc unstable (delta = -96293929 ns)
+Feb  9 20:45:43 xasus kernel: [   10.752261] Adding 522072k swap on /dev/hda5.  Priority:-1 extents:1 across:522072k 
+Feb  9 20:45:43 xasus kernel: [   10.953969] EXT3 FS on hda9, internal journal
+Feb  9 20:45:43 xasus kernel: [   11.024080] iwl3945 0000:07:00.0: Radio Frequency Kill Switch is On:
+Feb  9 20:45:43 xasus kernel: [   11.024085] Kill switch must be turned off for wireless networking to work.
+Feb  9 20:45:43 xasus kernel: [   11.265870] loop: module loaded
+Feb  9 20:45:43 xasus kernel: [   12.723932] kjournald starting.  Commit interval 5 seconds
+Feb  9 20:45:43 xasus kernel: [   12.724286] EXT3 FS on hda8, internal journal
+Feb  9 20:45:43 xasus kernel: [   12.724375] EXT3-fs: mounted filesystem with ordered data mode.
+Feb  9 20:45:43 xasus kernel: [   12.737969] kjournald starting.  Commit interval 5 seconds
+Feb  9 20:45:43 xasus kernel: [   12.751046] EXT3 FS on hda10, internal journal
+Feb  9 20:45:43 xasus kernel: [   12.751138] EXT3-fs: mounted filesystem with ordered data mode.
+Feb  9 20:45:43 xasus kernel: [   12.789702] kjournald starting.  Commit interval 5 seconds
+Feb  9 20:45:43 xasus kernel: [   12.790102] EXT3 FS on hda3, internal journal
+Feb  9 20:45:43 xasus kernel: [   12.790192] EXT3-fs: mounted filesystem with ordered data mode.
+Feb  9 20:45:43 xasus kernel: [   15.146939] eth0: link down
+Feb  9 20:45:43 xasus kernel: [   15.147424] ADDRCONF(NETDEV_UP): eth0: link is not ready
+Feb  9 20:45:43 xasus rsyslogd: [origin software="rsyslogd" swVersion="4.4.2" x-pid="1564" x-info="http://www.rsyslog.com"] (re)start
+Feb  9 20:45:43 xasus acpid: starting up with netlink and the input layer
+Feb  9 20:45:43 xasus acpid: 57 rules loaded
+Feb  9 20:45:43 xasus acpid: waiting for events: event logging is off
+Feb  9 20:45:43 xasus kernel: [   18.509201] apm: BIOS not found.
+Feb  9 20:45:44 xasus /usr/sbin/cron[1648]: (CRON) INFO (pidfile fd = 3)
+Feb  9 20:45:44 xasus /usr/sbin/cron[1649]: (CRON) STARTUP (fork ok)
+Feb  9 20:45:44 xasus /usr/sbin/cron[1649]: (CRON) INFO (Running @reboot jobs)
+Feb  9 20:45:46 xasus mysqld_safe: Starting mysqld daemon with databases from /var/lib/mysql
+Feb  9 20:45:47 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 12
+Feb  9 20:45:47 xasus mysqld: 100209 20:45:47 [Note] Plugin 'FEDERATED' is disabled.
+Feb  9 20:45:47 xasus mysqld: 100209 20:45:47  InnoDB: Started; log sequence number 0 44233
+Feb  9 20:45:47 xasus mysqld: 100209 20:45:47 [Note] Event Scheduler: Loaded 0 events
+Feb  9 20:45:47 xasus mysqld: 100209 20:45:47 [Note] /usr/sbin/mysqld: ready for connections.
+Feb  9 20:45:47 xasus mysqld: Version: '5.1.37-2'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  (Debian)
+Feb  9 20:45:48 xasus /etc/mysql/debian-start[1858]: Upgrading MySQL tables if necessary.
+Feb  9 20:45:49 xasus /etc/mysql/debian-start[1862]: Looking for 'mysql' as: /usr/bin/mysql
+Feb  9 20:45:49 xasus /etc/mysql/debian-start[1862]: Looking for 'mysqlcheck' as: /usr/bin/mysqlcheck
+Feb  9 20:45:49 xasus /etc/mysql/debian-start[1862]: This installation of MySQL is already upgraded to 5.1.37, use --force if you still need to run mysql_upgrade
+Feb  9 20:45:49 xasus /etc/mysql/debian-start[1873]: Checking for insecure root accounts.
+Feb  9 20:45:49 xasus /etc/mysql/debian-start[1878]: Triggering myisam-recover for all MyISAM tables
+Feb  9 20:45:49 xasus avahi-daemon[1897]: Found user 'avahi' (UID 106) and group 'avahi' (GID 112).
+Feb  9 20:45:49 xasus avahi-daemon[1897]: Successfully dropped root privileges.
+Feb  9 20:45:49 xasus avahi-daemon[1897]: avahi-daemon 0.6.25 starting up.
+Feb  9 20:45:49 xasus avahi-daemon[1897]: Successfully called chroot().
+Feb  9 20:45:49 xasus avahi-daemon[1897]: Successfully dropped remaining capabilities.
+Feb  9 20:45:49 xasus avahi-daemon[1897]: No service file found in /etc/avahi/services.
+Feb  9 20:45:50 xasus avahi-daemon[1897]: Network interface enumeration completed.
+Feb  9 20:45:50 xasus avahi-daemon[1897]: Registering HINFO record with values 'I686'/'LINUX'.
+Feb  9 20:45:50 xasus avahi-daemon[1897]: Server startup complete. Host name is xasus.local. Local service cookie is 2667597266.
+Feb  9 20:45:50 xasus bluetoothd[1910]: Bluetooth daemon 4.42
+Feb  9 20:45:50 xasus bluetoothd[1910]: Starting SDP server
+Feb  9 20:45:50 xasus kernel: [   24.930888] Bluetooth: Core ver 2.15
+Feb  9 20:45:50 xasus kernel: [   24.931042] NET: Registered protocol family 31
+Feb  9 20:45:50 xasus kernel: [   24.931097] Bluetooth: HCI device and connection manager initialized
+Feb  9 20:45:50 xasus kernel: [   24.931157] Bluetooth: HCI socket layer initialized
+Feb  9 20:45:50 xasus kernel: [   24.958436] Bluetooth: L2CAP ver 2.13
+Feb  9 20:45:50 xasus kernel: [   24.958495] Bluetooth: L2CAP socket layer initialized
+Feb  9 20:45:50 xasus bluetoothd[1910]: Starting experimental netlink support
+Feb  9 20:45:50 xasus bluetoothd[1910]: Failed to find Bluetooth netlink family
+Feb  9 20:45:50 xasus kernel: [   25.064344] Bluetooth: BNEP (Ethernet Emulation) ver 1.3
+Feb  9 20:45:50 xasus kernel: [   25.064408] Bluetooth: BNEP filters: protocol multicast
+Feb  9 20:45:50 xasus bluetoothd[1910]: bridge pan0 created
+Feb  9 20:45:50 xasus kernel: [   25.136137] Bridge firewalling registered
+Feb  9 20:45:50 xasus kernel: [   25.146036] Bluetooth: RFCOMM socket layer initialized
+Feb  9 20:45:50 xasus kernel: [   25.146138] Bluetooth: RFCOMM TTY layer initialized
+Feb  9 20:45:50 xasus kernel: [   25.146193] Bluetooth: RFCOMM ver 1.11
+Feb  9 20:45:50 xasus kernel: [   25.277469] Bluetooth: SCO (Voice Link) ver 0.6
+Feb  9 20:45:50 xasus kernel: [   25.277531] Bluetooth: SCO socket layer initialized
+Feb  9 20:45:53 xasus acpid: client connected from 2401[107:115]
+Feb  9 20:45:53 xasus acpid: 1 client rule loaded
+Feb  9 20:45:53 xasus kernel: [   27.998219] lp: driver loaded but no devices found
+Feb  9 20:45:53 xasus kernel: [   28.021716] ppdev: user-space parallel port driver
+Feb  9 20:45:54 xasus NetworkManager: <info>  starting...
+Feb  9 20:45:54 xasus NetworkManager: <info>  Found radio killswitch /org/freedesktop/Hal/devices/pci_8086_4222_rfkill_3945ABG_wlan
+Feb  9 20:45:54 xasus NetworkManager: <info>  Found radio killswitch /org/freedesktop/Hal/devices/iwl_wlan_switch
+Feb  9 20:45:54 xasus NetworkManager: <info>  (eth0): new Ethernet device (driver: '8139too')
+Feb  9 20:45:54 xasus NetworkManager: <info>  (eth0): exported as /org/freedesktop/Hal/devices/net_00_17_31_16_4c_80
+Feb  9 20:45:54 xasus NetworkManager: <info>  (wlan0): driver supports SSID scans (scan_capa 0x01).
+Feb  9 20:45:54 xasus NetworkManager: <info>  (wlan0): new 802.11 WiFi device (driver: 'iwl3945')
+Feb  9 20:45:54 xasus NetworkManager: <info>  (wlan0): exported as /org/freedesktop/Hal/devices/net_00_13_02_27_12_39
+Feb  9 20:45:54 xasus NetworkManager: <info>  Trying to start the supplicant...
+Feb  9 20:45:54 xasus NetworkManager: <info>  Trying to start the system settings daemon...
+Feb  9 20:45:54 xasus NetworkManager: <WARN>  killswitch_getpower_reply(): Error getting killswitch power: Method "GetPower" with signature "" on interface "org.freedesktop.Hal.Device.KillSwitch" doesn't exist#012.
+Feb  9 20:45:54 xasus NetworkManager: <info>  Wireless now disabled by radio killswitch
+Feb  9 20:45:54 xasus NetworkManager: <info>  (wlan0): supplicant manager state:  down -> idle
+Feb  9 20:45:54 xasus nm-system-settings:    SCPlugin-Ifupdown: init!
+Feb  9 20:45:54 xasus nm-system-settings:    SCPlugin-Ifupdown: update_system_hostname
+Feb  9 20:45:54 xasus nm-system-settings:    SCPluginIfupdown: guessed connection type (eth0) = 802-3-ethernet
+Feb  9 20:45:54 xasus nm-system-settings:    SCPlugin-Ifupdown: update_connection_setting_from_if_block: name:eth0, type:802-3-ethernet, autoconnect:0, id:Ifupdown (eth0), uuid: 681b428f-0000-0000-0000-000011000000
+Feb  9 20:45:54 xasus nm-system-settings:    SCPluginIfupdown: management mode: unmanaged
+Feb  9 20:45:54 xasus nm-system-settings:    SCPlugin-Ifupdown: devices added (udi: /org/freedesktop/Hal/devices/net_00_17_31_16_4c_80, iface: eth0)
+Feb  9 20:45:54 xasus nm-system-settings:    Ifupdown: get unmanaged devices count: 1
+Feb  9 20:45:54 xasus nm-system-settings:    SCPlugin-Ifupdown: (148281728) ... get_connections.
+Feb  9 20:45:54 xasus nm-system-settings:    SCPlugin-Ifupdown: (148281728) connections count: 1
+Feb  9 20:45:54 xasus nm-system-settings:    Ifupdown: get unmanaged devices count: 1
+Feb  9 20:45:54 xasus nm-system-settings:    SCPlugin-Ifupdown: devices added (udi: /org/freedesktop/Hal/devices/net_00_13_02_27_12_39, iface: wlan0)
+Feb  9 20:45:54 xasus nm-system-settings:    SCPlugin-Ifupdown: end _init.
+Feb  9 20:45:54 xasus nm-system-settings: Loaded plugin ifupdown: (C) 2008 Canonical Ltd.  To report bugs please use the NetworkManager mailing list.
+Feb  9 20:45:55 xasus nm-system-settings: Loaded plugin keyfile: (c) 2007 - 2008 Red Hat, Inc.  To report bugs please use the NetworkManager mailing list.
+Feb  9 20:45:55 xasus NetworkManager: <info>  (eth0): now unmanaged
+Feb  9 20:45:56 xasus acpid: client connected from 2477[0:0]
+Feb  9 20:45:56 xasus acpid: 1 client rule loaded
+Feb  9 20:45:57 xasus kernel: [   32.103881] [drm] Initialized drm 1.1.0 20060810
+Feb  9 20:45:57 xasus kernel: [   32.145790] pci 0000:00:02.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+Feb  9 20:45:57 xasus kernel: [   32.145803] pci 0000:00:02.0: setting latency timer to 64
+Feb  9 20:45:57 xasus kernel: [   32.150331] [drm] Initialized i915 1.6.0 20080730 for 0000:00:02.0 on minor 0
+Feb  9 20:45:59 xasus NetworkManager: <info>  (wlan0): device state change: 1 -> 2
+Feb  9 20:45:59 xasus NetworkManager: <info>  (wlan0): bringing up device.
+Feb  9 20:45:59 xasus kernel: [   33.710054] iwl3945 0000:07:00.0: firmware: requesting iwlwifi-3945-2.ucode
+Feb  9 20:45:59 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 13
+Feb  9 20:45:59 xasus NetworkManager: <info>  (wlan0): deactivating device (reason: 2).
+Feb  9 20:45:59 xasus kernel: [   33.814603] iwl3945 0000:07:00.0: loaded firmware version 15.32.2.9
+Feb  9 20:45:59 xasus kernel: [   33.814807] iwl3945 0000:07:00.0: Radio disabled by HW RF Kill switch
+Feb  9 20:46:12 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 10
+Feb  9 20:46:22 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 10
+Feb  9 20:46:32 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 10
+Feb  9 20:46:42 xasus dhclient: No DHCPOFFERS received.
+Feb  9 20:46:42 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 20:46:42 xasus avahi-autoipd(eth0)[2551]: Found user 'avahi-autoipd' (UID 105) and group 'avahi-autoipd' (GID 111).
+Feb  9 20:46:42 xasus avahi-autoipd(eth0)[2551]: Successfully called chroot().
+Feb  9 20:46:42 xasus avahi-autoipd(eth0)[2551]: Successfully dropped root privileges.
+Feb  9 20:46:42 xasus avahi-autoipd(eth0)[2551]: Starting with address 169.254.5.108
+Feb  9 20:46:47 xasus avahi-autoipd(eth0)[2551]: Callout BIND, address 169.254.5.108 on interface eth0
+Feb  9 20:46:47 xasus avahi-daemon[1897]: Joining mDNS multicast group on interface eth0.IPv4 with address 169.254.5.108.
+Feb  9 20:46:47 xasus avahi-daemon[1897]: New relevant interface eth0.IPv4 for mDNS.
+Feb  9 20:46:47 xasus avahi-daemon[1897]: Registering new address record for 169.254.5.108 on eth0.IPv4.
+Feb  9 20:46:51 xasus avahi-autoipd(eth0)[2551]: Successfully claimed IP address 169.254.5.108
+Feb  9 20:46:51 xasus ntpdate[2585]: can't find host 0.debian.pool.ntp.org
+Feb  9 20:46:51 xasus ntpdate[2585]: can't find host 1.debian.pool.ntp.org
+Feb  9 20:46:51 xasus ntpdate[2585]: can't find host 2.debian.pool.ntp.org
+Feb  9 20:46:51 xasus ntpdate[2585]: can't find host 3.debian.pool.ntp.org
+Feb  9 20:46:51 xasus ntpdate[2585]: no servers can be used, exiting
+Feb  9 20:47:07 xasus console-kit-daemon[2236]: WARNING: Couldn't read /proc/2235/environ: Failed to open file '/proc/2235/environ': No such file or directory
+Feb  9 20:47:56 xasus kernel: [  151.700715] python[2919]: segfault at 6c5d1458 ip b7ed7913 sp bf8bb40c error 4 in libc-2.9.so[b7e61000+158000]
+Feb  9 20:49:47 xasus kernel: [  262.204170] usb 4-2: new full speed USB device using uhci_hcd and address 2
+Feb  9 20:49:47 xasus kernel: [  262.517199] usb 4-2: New USB device found, idVendor=0b05, idProduct=1712
+Feb  9 20:49:47 xasus kernel: [  262.517209] usb 4-2: New USB device strings: Mfr=0, Product=0, SerialNumber=3
+Feb  9 20:49:47 xasus kernel: [  262.517215] usb 4-2: SerialNumber: 0194E8-5B-0002
+Feb  9 20:49:47 xasus kernel: [  262.517366] usb 4-2: configuration #1 chosen from 1 choice
+Feb  9 20:49:47 xasus bluetoothd[1910]: HCI dev 0 registered
+Feb  9 20:49:47 xasus kernel: [  262.620309] Bluetooth: Generic Bluetooth USB driver ver 0.5
+Feb  9 20:49:47 xasus kernel: [  262.620407] usbcore: registered new interface driver btusb
+Feb  9 20:49:48 xasus bluetoothd[1910]: HCI dev 0 up
+Feb  9 20:49:48 xasus bluetoothd[1910]: Starting security manager 0
+Feb  9 20:49:48 xasus bluetoothd[1910]: Adapter /org/bluez/1910/hci0 has been enabled
+Feb  9 20:49:49 xasus NetworkManager: <info>  Wireless now enabled by radio killswitch
+Feb  9 20:49:49 xasus NetworkManager: <info>  (wlan0): bringing up device.
+Feb  9 20:49:49 xasus kernel: [  263.763231] Registered led device: iwl-phy0::radio
+Feb  9 20:49:49 xasus kernel: [  263.763306] Registered led device: iwl-phy0::assoc
+Feb  9 20:49:49 xasus kernel: [  263.763339] Registered led device: iwl-phy0::RX
+Feb  9 20:49:49 xasus kernel: [  263.763370] Registered led device: iwl-phy0::TX
+Feb  9 20:49:49 xasus kernel: [  263.781965] ADDRCONF(NETDEV_UP): wlan0: link is not ready
+Feb  9 20:49:49 xasus NetworkManager: <info>  (wlan0): device state change: 2 -> 3
+Feb  9 20:49:49 xasus NetworkManager: <info>  (wlan0): supplicant interface state:  starting -> ready
+Feb  9 20:49:49 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 20:49:49 xasus wpa_supplicant[2455]: Failed to initiate AP scan.
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0) starting connection 'ACPSLNX'
+Feb  9 20:49:49 xasus NetworkManager: <info>  (wlan0): device state change: 3 -> 4
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0) Stage 1 of 5 (Device Prepare) scheduled...
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0) Stage 1 of 5 (Device Prepare) started...
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0) Stage 2 of 5 (Device Configure) scheduled...
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0) Stage 1 of 5 (Device Prepare) complete.
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0) Stage 2 of 5 (Device Configure) starting...
+Feb  9 20:49:49 xasus NetworkManager: <info>  (wlan0): device state change: 4 -> 5
+Feb  9 20:49:49 xasus NetworkManager: <info>  (wlan0): preparing device.
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0/wireless): access point 'ACPSLNX' has security, but secrets are required.
+Feb  9 20:49:49 xasus NetworkManager: <info>  (wlan0): device state change: 5 -> 6
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0) Stage 2 of 5 (Device Configure) complete.
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0) Stage 1 of 5 (Device Prepare) scheduled...
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0) Stage 1 of 5 (Device Prepare) started...
+Feb  9 20:49:49 xasus NetworkManager: <info>  (wlan0): device state change: 6 -> 4
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0) Stage 2 of 5 (Device Configure) scheduled...
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0) Stage 1 of 5 (Device Prepare) complete.
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0) Stage 2 of 5 (Device Configure) starting...
+Feb  9 20:49:49 xasus NetworkManager: <info>  (wlan0): device state change: 4 -> 5
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0/wireless): connection 'ACPSLNX' has security, and secrets exist.  No new secrets needed.
+Feb  9 20:49:49 xasus NetworkManager: <info>  Config: added 'ssid' value 'ACPSLNX'
+Feb  9 20:49:49 xasus NetworkManager: <info>  Config: added 'scan_ssid' value '1'
+Feb  9 20:49:49 xasus NetworkManager: <info>  Config: added 'key_mgmt' value 'WPA-PSK'
+Feb  9 20:49:49 xasus NetworkManager: <info>  Config: added 'psk' value '<omitted>'
+Feb  9 20:49:49 xasus NetworkManager: <info>  Config: added 'pairwise' value 'TKIP CCMP'
+Feb  9 20:49:49 xasus NetworkManager: <info>  Config: added 'group' value 'TKIP CCMP'
+Feb  9 20:49:49 xasus NetworkManager: <info>  Activation (wlan0) Stage 2 of 5 (Device Configure) complete.
+Feb  9 20:49:49 xasus NetworkManager: <info>  Config: set interface ap_scan to 1
+Feb  9 20:49:49 xasus NetworkManager: <info>  (wlan0): supplicant connection state:  scanning -> disconnected
+Feb  9 20:49:51 xasus kernel: [  266.529141] wlan0: authenticate with AP 6a:58:a4:6b:98:86
+Feb  9 20:49:51 xasus kernel: [  266.530973] wlan0: authenticated
+Feb  9 20:49:51 xasus kernel: [  266.530977] wlan0: associate with AP 6a:58:a4:6b:98:86
+Feb  9 20:49:52 xasus kernel: [  266.728063] wlan0: associate with AP 6a:58:a4:6b:98:86
+Feb  9 20:49:52 xasus kernel: [  266.928099] wlan0: associate with AP 6a:58:a4:6b:98:86
+Feb  9 20:49:52 xasus wpa_supplicant[2455]: CTRL-EVENT-DISCONNECTED - Disconnect event - remove keys
+Feb  9 20:49:52 xasus kernel: [  267.128058] wlan0: association with AP 6a:58:a4:6b:98:86 timed out
+Feb  9 20:49:54 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 20:49:54 xasus wpa_supplicant[2455]: Trying to associate with 6a:58:a4:6b:98:84 (SSID='ACPSLNX' freq=2412 MHz)
+Feb  9 20:49:54 xasus kernel: [  268.879662] wlan0: authenticate with AP 6a:58:a4:6b:98:84
+Feb  9 20:49:54 xasus wpa_supplicant[2455]: Association request to the driver failed
+Feb  9 20:49:54 xasus NetworkManager: <info>  (wlan0): supplicant connection state:  disconnected -> associating
+Feb  9 20:49:54 xasus kernel: [  268.882956] wlan0: authenticate with AP 6a:58:a4:6b:98:84
+Feb  9 20:49:54 xasus kernel: [  268.882981] wlan0: authenticated
+Feb  9 20:49:54 xasus kernel: [  268.882985] wlan0: associate with AP 6a:58:a4:6b:98:84
+Feb  9 20:49:54 xasus kernel: [  268.887257] wlan0: authenticate with AP 6a:58:a4:6b:98:84
+Feb  9 20:49:54 xasus kernel: [  268.887285] wlan0: authenticated
+Feb  9 20:49:54 xasus kernel: [  268.887290] wlan0: associate with AP 6a:58:a4:6b:98:84
+Feb  9 20:49:54 xasus kernel: [  268.891360] wlan0: RX AssocResp from 6a:58:a4:6b:98:84 (capab=0x411 status=0 aid=3)
+Feb  9 20:49:54 xasus kernel: [  268.891367] wlan0: associated
+Feb  9 20:49:54 xasus wpa_supplicant[2455]: Associated with 6a:58:a4:6b:98:84
+Feb  9 20:49:54 xasus NetworkManager: <info>  (wlan0): supplicant connection state:  associating -> associated
+Feb  9 20:49:54 xasus kernel: [  268.893191] ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready
+Feb  9 20:49:55 xasus NetworkManager: <info>  (wlan0): supplicant connection state:  associated -> 4-way handshake
+Feb  9 20:49:55 xasus kernel: [  270.005152] padlock: VIA PadLock not detected.
+Feb  9 20:49:55 xasus NetworkManager: <info>  (wlan0): supplicant connection state:  4-way handshake -> group handshake
+Feb  9 20:49:55 xasus avahi-daemon[1897]: Joining mDNS multicast group on interface wlan0.IPv6 with address fe80::213:2ff:fe27:1239.
+Feb  9 20:49:55 xasus avahi-daemon[1897]: New relevant interface wlan0.IPv6 for mDNS.
+Feb  9 20:49:55 xasus avahi-daemon[1897]: Registering new address record for fe80::213:2ff:fe27:1239 on wlan0.*.
+Feb  9 20:49:56 xasus wpa_supplicant[2455]: WPA: Key negotiation completed with 6a:58:a4:6b:98:84 [PTK=CCMP GTK=TKIP]
+Feb  9 20:49:56 xasus wpa_supplicant[2455]: CTRL-EVENT-CONNECTED - Connection to 6a:58:a4:6b:98:84 completed (auth) [id=0 id_str=]
+Feb  9 20:49:56 xasus NetworkManager: <info>  (wlan0): supplicant connection state:  group handshake -> completed
+Feb  9 20:49:56 xasus NetworkManager: <info>  Activation (wlan0/wireless) Stage 2 of 5 (Device Configure) successful.  Connected to wireless network 'ACPSLNX'.
+Feb  9 20:49:56 xasus NetworkManager: <info>  Activation (wlan0) Stage 3 of 5 (IP Configure Start) scheduled.
+Feb  9 20:49:56 xasus NetworkManager: <info>  Activation (wlan0) Stage 3 of 5 (IP Configure Start) started...
+Feb  9 20:49:56 xasus NetworkManager: <info>  (wlan0): device state change: 5 -> 7
+Feb  9 20:49:56 xasus NetworkManager: <info>  Activation (wlan0) Beginning DHCP transaction.
+Feb  9 20:49:56 xasus NetworkManager: <info>  dhclient started with pid 3003
+Feb  9 20:49:56 xasus dhclient: Internet Systems Consortium DHCP Client V3.1.2p1
+Feb  9 20:49:56 xasus dhclient: Copyright 2004-2009 Internet Systems Consortium.
+Feb  9 20:49:56 xasus dhclient: All rights reserved.
+Feb  9 20:49:56 xasus dhclient: For info, please visit http://www.isc.org/sw/dhcp/
+Feb  9 20:49:56 xasus dhclient: 
+Feb  9 20:49:56 xasus NetworkManager: <info>  Activation (wlan0) Stage 3 of 5 (IP Configure Start) complete.
+Feb  9 20:49:56 xasus NetworkManager: <info>  DHCP: device wlan0 state changed (null) -> preinit
+Feb  9 20:49:56 xasus dhclient: Listening on LPF/wlan0/00:13:02:27:12:39
+Feb  9 20:49:56 xasus dhclient: Sending on   LPF/wlan0/00:13:02:27:12:39
+Feb  9 20:49:56 xasus dhclient: Sending on   Socket/fallback
+Feb  9 20:49:59 xasus dhclient: DHCPDISCOVER on wlan0 to 255.255.255.255 port 67 interval 8
+Feb  9 20:50:01 xasus dhclient: DHCPOFFER from 192.168.0.250
+Feb  9 20:50:01 xasus dhclient: DHCPREQUEST on wlan0 to 255.255.255.255 port 67
+Feb  9 20:50:01 xasus dhclient: DHCPACK from 192.168.0.250
+Feb  9 20:50:01 xasus NetworkManager: <info>  DHCP: device wlan0 state changed preinit -> bound
+Feb  9 20:50:01 xasus NetworkManager: <info>  Activation (wlan0) Stage 4 of 5 (IP Configure Get) scheduled...
+Feb  9 20:50:01 xasus NetworkManager: <info>  Activation (wlan0) Stage 4 of 5 (IP Configure Get) started...
+Feb  9 20:50:01 xasus NetworkManager: <info>    address 192.168.0.102
+Feb  9 20:50:01 xasus NetworkManager: <info>    prefix 24 (255.255.255.0)
+Feb  9 20:50:01 xasus NetworkManager: <info>    gateway 192.168.0.250
+Feb  9 20:50:01 xasus NetworkManager: <info>    nameserver '212.27.40.240'
+Feb  9 20:50:01 xasus NetworkManager: <info>    nameserver '212.27.40.241'
+Feb  9 20:50:01 xasus NetworkManager: <info>  Activation (wlan0) Stage 5 of 5 (IP Configure Commit) scheduled...
+Feb  9 20:50:01 xasus NetworkManager: <info>  Activation (wlan0) Stage 4 of 5 (IP Configure Get) complete.
+Feb  9 20:50:01 xasus NetworkManager: <info>  Activation (wlan0) Stage 5 of 5 (IP Configure Commit) started...
+Feb  9 20:50:01 xasus avahi-daemon[1897]: Joining mDNS multicast group on interface wlan0.IPv4 with address 192.168.0.102.
+Feb  9 20:50:01 xasus avahi-daemon[1897]: New relevant interface wlan0.IPv4 for mDNS.
+Feb  9 20:50:01 xasus avahi-daemon[1897]: Registering new address record for 192.168.0.102 on wlan0.IPv4.
+Feb  9 20:50:01 xasus dhclient: bound to 192.168.0.102 -- renewal in 331408 seconds.
+Feb  9 20:50:02 xasus NetworkManager: <info>  (wlan0): writing resolv.conf to /sbin/resolvconf
+Feb  9 20:50:04 xasus kernel: [  279.208035] wlan0: no IPv6 routers present
+Feb  9 20:50:14 xasus NetworkManager: <info>  (wlan0): device state change: 7 -> 8
+Feb  9 20:50:14 xasus NetworkManager: <info>  (wlan0): writing resolv.conf to /sbin/resolvconf
+Feb  9 20:50:14 xasus NetworkManager: <info>  Policy set 'ACPSLNX' (wlan0) as default for routing and DNS.
+Feb  9 20:50:14 xasus NetworkManager: <info>  Activation (wlan0) successful, device activated.
+Feb  9 20:50:14 xasus NetworkManager: <info>  Activation (wlan0) Stage 5 of 5 (IP Configure Commit) complete.
+Feb  9 20:50:17 xasus ntpdate[3072]: step time server 138.96.64.10 offset -0.768473 sec
+Feb  9 20:50:19 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 20:51:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 20:52:00 xasus kernel: [  395.617059] CE: hpet increasing min_delta_ns to 15000 nsec
+Feb  9 20:52:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 20:52:17 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3
+Feb  9 20:52:20 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 7
+Feb  9 20:52:27 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 20:52:35 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 10
+Feb  9 20:52:45 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 14
+Feb  9 20:52:59 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 15
+Feb  9 20:53:14 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 4
+Feb  9 20:53:18 xasus dhclient: No DHCPOFFERS received.
+Feb  9 20:53:18 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 20:53:21 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 20:55:01 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 20:57:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 20:57:49 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 20:57:57 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 18
+Feb  9 20:58:15 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 11
+Feb  9 20:58:26 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 20:58:34 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 20:58:42 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 20:58:50 xasus dhclient: No DHCPOFFERS received.
+Feb  9 20:58:50 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 20:59:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:01:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:03:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:04:38 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 21:04:46 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 17
+Feb  9 21:05:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:05:03 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 12
+Feb  9 21:05:15 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 12
+Feb  9 21:05:27 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 12
+Feb  9 21:05:39 xasus dhclient: No DHCPOFFERS received.
+Feb  9 21:05:39 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 21:07:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:09:03 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:11:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:13:01 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:13:04 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 6
+Feb  9 21:13:10 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 15
+Feb  9 21:13:25 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 17
+Feb  9 21:13:42 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 12
+Feb  9 21:13:54 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 11
+Feb  9 21:14:05 xasus dhclient: No DHCPOFFERS received.
+Feb  9 21:14:05 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 21:15:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:17:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:17:01 xasus /USR/SBIN/CRON[3331]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)
+Feb  9 21:19:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:21:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:21:03 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3
+Feb  9 21:21:06 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 21:21:14 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 7
+Feb  9 21:21:21 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 10
+Feb  9 21:21:31 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 15
+Feb  9 21:21:46 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 7
+Feb  9 21:21:53 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 9
+Feb  9 21:22:02 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 2
+Feb  9 21:22:04 xasus dhclient: No DHCPOFFERS received.
+Feb  9 21:22:04 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 21:23:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:25:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:25:35 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 21:25:43 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 14
+Feb  9 21:25:57 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 15
+Feb  9 21:26:12 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 21:26:20 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 15
+Feb  9 21:26:35 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 1
+Feb  9 21:26:36 xasus dhclient: No DHCPOFFERS received.
+Feb  9 21:26:36 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 21:27:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:29:01 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:31:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:33:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:33:39 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 5
+Feb  9 21:33:44 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 9
+Feb  9 21:33:53 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 12
+Feb  9 21:34:05 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 21
+Feb  9 21:34:26 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 7
+Feb  9 21:34:33 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 7
+Feb  9 21:34:40 xasus dhclient: No DHCPOFFERS received.
+Feb  9 21:34:40 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 21:35:01 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:37:01 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:39:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:39:06 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3
+Feb  9 21:39:09 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 21:39:17 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 17
+Feb  9 21:39:34 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 21
+Feb  9 21:39:55 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 9
+Feb  9 21:40:04 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3
+Feb  9 21:40:07 xasus dhclient: No DHCPOFFERS received.
+Feb  9 21:40:07 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 21:41:01 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:42:22 xasus anacron[3647]: Anacron 2.3 started on 2010-02-09
+Feb  9 21:42:22 xasus anacron[3647]: Normal exit (0 jobs run)
+Feb  9 21:43:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:45:01 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:47:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:47:32 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 4
+Feb  9 21:47:36 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 5
+Feb  9 21:47:41 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 12
+Feb  9 21:47:53 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 15
+Feb  9 21:48:08 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 13
+Feb  9 21:48:21 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 12
+Feb  9 21:48:33 xasus dhclient: No DHCPOFFERS received.
+Feb  9 21:48:33 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 21:49:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:51:01 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:51:28 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 6
+Feb  9 21:51:34 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 9
+Feb  9 21:51:43 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 14
+Feb  9 21:51:57 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 16
+Feb  9 21:52:13 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 12
+Feb  9 21:52:25 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 4
+Feb  9 21:52:29 xasus dhclient: No DHCPOFFERS received.
+Feb  9 21:52:29 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 21:53:01 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:55:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:57:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:58:22 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 21:58:30 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 11
+Feb  9 21:58:41 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 12
+Feb  9 21:58:53 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 16
+Feb  9 21:59:01 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 21:59:09 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 14
+Feb  9 21:59:23 xasus dhclient: No DHCPOFFERS received.
+Feb  9 21:59:23 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 22:01:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:02:08 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 22:02:16 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 22:02:24 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 15
+Feb  9 22:02:39 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 11
+Feb  9 22:02:50 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 12
+Feb  9 22:03:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:03:02 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 7
+Feb  9 22:03:09 xasus dhclient: No DHCPOFFERS received.
+Feb  9 22:03:09 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 22:05:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:07:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:08:00 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 7
+Feb  9 22:08:07 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 22:08:15 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 13
+Feb  9 22:08:28 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 9
+Feb  9 22:08:37 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 14
+Feb  9 22:08:51 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 10
+Feb  9 22:09:01 xasus dhclient: No DHCPOFFERS received.
+Feb  9 22:09:01 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 22:09:01 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:11:01 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:12:43 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 4
+Feb  9 22:12:47 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 11
+Feb  9 22:12:58 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 7
+Feb  9 22:13:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:13:05 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 13
+Feb  9 22:13:18 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 22:13:26 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 13
+Feb  9 22:13:39 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 5
+Feb  9 22:13:44 xasus dhclient: No DHCPOFFERS received.
+Feb  9 22:13:44 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 22:15:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:17:01 xasus /USR/SBIN/CRON[4156]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)
+Feb  9 22:17:04 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:19:03 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:20:04 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 22:20:12 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 13
+Feb  9 22:20:25 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 13
+Feb  9 22:20:38 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 15
+Feb  9 22:20:53 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 11
+Feb  9 22:21:04 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 1
+Feb  9 22:21:05 xasus dhclient: No DHCPOFFERS received.
+Feb  9 22:21:05 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 22:21:08 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:23:06 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:25:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:27:01 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:27:21 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 5
+Feb  9 22:27:26 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 14
+Feb  9 22:27:40 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 20
+Feb  9 22:28:00 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 22:28:08 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 14
+Feb  9 22:28:22 xasus dhclient: No DHCPOFFERS received.
+Feb  9 22:28:22 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 22:29:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:31:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:33:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:35:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:35:43 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3
+Feb  9 22:35:46 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3
+Feb  9 22:35:49 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 7
+Feb  9 22:35:56 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 14
+Feb  9 22:36:10 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8
+Feb  9 22:36:18 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 9
+Feb  9 22:36:27 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 13
+Feb  9 22:36:40 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 4
+Feb  9 22:36:44 xasus dhclient: No DHCPOFFERS received.
+Feb  9 22:36:44 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 22:37:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:39:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:41:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:41:40 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3
+Feb  9 22:41:43 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 6
+Feb  9 22:41:49 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 6
+Feb  9 22:41:55 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 12
+Feb  9 22:42:07 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 18
+Feb  9 22:42:25 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 16
+Feb  9 22:42:41 xasus dhclient: No DHCPOFFERS received.
+Feb  9 22:42:41 xasus dhclient: No working leases in persistent database - sleeping.
+Feb  9 22:43:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:45:00 xasus wpa_supplicant[2455]: CTRL-EVENT-SCAN-RESULTS 
+Feb  9 22:45:57 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 6
+Feb  9 22:46:03 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 15
+Feb  9 22:46:18 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 14
+Feb  9 22:46:32 xasus dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 17
