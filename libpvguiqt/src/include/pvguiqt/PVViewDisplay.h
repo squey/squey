@@ -64,7 +64,7 @@ private:
 	void maximize_on_screen(int screen_number);
 
 private:
-	PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspaceBase* parent);
+	PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, bool delete_on_close, PVWorkspaceBase* parent);
 
 private:
 	Picviz::PVView* _view;

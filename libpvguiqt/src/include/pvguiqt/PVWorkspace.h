@@ -89,8 +89,8 @@ public:
 	static PVWorkspaceBase* workspace_under_mouse();
 	static bool drag_started() { return _drag_started; }
 
-	PVViewDisplay* add_view_display(Picviz::PVView* view, QWidget* view_display, const QString& name, bool can_be_central_display = true, Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
-	PVViewDisplay* set_central_display(Picviz::PVView* view, QWidget* view_widget, const QString& name);
+	PVViewDisplay* add_view_display(Picviz::PVView* view, QWidget* view_display, const QString& name, bool can_be_central_display = true, bool delete_on_close = true, Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
+	PVViewDisplay* set_central_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool delete_on_close);
 	void set_central_display(PVViewDisplay* view_display);
 	inline int z_order() { return _z_order_index; }
 

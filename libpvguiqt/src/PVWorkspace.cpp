@@ -66,7 +66,9 @@ PVGuiQt::PVWorkspaceBase* PVGuiQt::PVWorkspaceBase::workspace_under_mouse()
 		}
 	}
 
-	assert(active_workspaces.size() > 0); // Hierarchy is supposed to be: PVMainWindow > PVProjectsTabWidget > PVWorkspaceTabWidget > PVWorkspaceBase.
+	if (active_workspaces.size() == 0) {
+		return nullptr;
+	}
 
 	PVWorkspaceBase* workspace = nullptr;
 	int z_order = -1;
@@ -92,9 +94,9 @@ void PVGuiQt::PVWorkspaceBase::changeEvent(QEvent *event)
 	}
 }
 
-PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::add_view_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/, Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/)
+PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::add_view_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_display /*= true*/, bool delete_on_close /* = true*/, Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/)
 {
-	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, can_be_central_display, this);
+	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, can_be_central_display, delete_on_close, this);
 
 	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
 
@@ -107,9 +109,9 @@ PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::add_view_display(Picviz::PVVie
 	return view_display;
 }
 
-PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(Picviz::PVView* view, QWidget* view_widget, const QString& name)
+PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool delete_on_close)
 {
-	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, true, this);
+	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, true, delete_on_close, this);
 	view_display->setFeatures(QDockWidget::NoDockWidgetFeatures);
 	view_display->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 	setCentralWidget(view_display);
@@ -155,7 +157,7 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(PVViewDisplay* display
 		display_dock->set_view(central_view);
 	}
 	else {
-		set_central_display(display_dock->get_view(), display_dock->widget(), display_dock->windowTitle());
+		set_central_display(display_dock->get_view(), display_dock->widget(), display_dock->windowTitle(), display_dock->testAttribute(Qt::WA_DeleteOnClose));
 		removeDockWidget(display_dock);
 	}
 
@@ -197,7 +199,7 @@ void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget()
 		view_d->setVisible(!view_d->isVisible());
 	}
 	else {
-		add_view_display(nullptr, w, display_if.widget_title(src), display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget));
+		add_view_display(nullptr, w, display_if.widget_title(src), display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), false);
 	}
 
 }
@@ -217,7 +219,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_widget()
 	}
 
 	QWidget* w = PVDisplays::get().get_widget(display_if, view);
-	add_view_display(view, w, display_if.widget_title(view), display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget));
+	add_view_display(view, w, display_if.widget_title(view), display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), true);
 }
 
 void PVGuiQt::PVWorkspaceBase::create_view_axis_widget()
@@ -248,7 +250,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget()
 	}
 
 	QWidget* w = PVDisplays::get().get_widget(display_if, view, axis_comb);
-	add_view_display(view, w, display_if.widget_title(view, axis_comb), display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget));
+	add_view_display(view, w, display_if.widget_title(view, axis_comb), display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), true);
 }
 
 
@@ -344,15 +346,16 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 				const QString view_name = obj.widget_title(view.get());
 				const bool as_central = obj.default_position_as_central_hint();
 
+				const bool delete_on_close = !obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters);
 				if (as_central && !already_center) {
-					set_central_display(view.get(), w, view_name);
+					set_central_display(view.get(), w, view_name, delete_on_close);
 				}
 				else {
 					Qt::DockWidgetArea pos = obj.default_position_hint();
 					if (as_central && already_center) {
 						pos = Qt::TopDockWidgetArea;
 					}
-					add_view_display(view.get(), w, view_name, obj.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), pos);
+					add_view_display(view.get(), w, view_name, obj.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), delete_on_close, pos);
 				}
 			}, PVDisplays::PVDisplayIf::DefaultPresenceInSourceWorkspace);
 	}
