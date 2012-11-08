@@ -270,7 +270,6 @@ private:
 	QMenu *edit_Menu;
 	QMenu *layer_Menu;
 	QMenu *lines_Menu;
-	QMenu *scene_Menu;
 	PVGuiQt::PVCorrelationMenu* correlation_Menu;
 	QMenu *selection_Menu;
 	QMenu* tools_Menu;

@@ -204,6 +204,7 @@ int main(int argc, char** argv)
 
 #include <pvkernel/core/picviz_intrin.h>
 
+#include <picviz/PVRoot.h>
 #include <picviz/PVMapped.h>
 #include <picviz/PVPlotted.h>
 #include <picviz/PVSource.h>
@@ -216,6 +217,7 @@ int main(int argc, char** argv)
 #include <pvparallelview/PVParallelView.h>
 
 #include <pvguiqt/common.h>
+#include <pvguiqt/PVOpenWorkspacesWidget.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 
@@ -267,6 +269,9 @@ int main(int argc, char** argv)
 	PVGuiQt::PVWorkspace* workspace = new PVGuiQt::PVWorkspace(src.get());
 	workspaces_tab_widget->addTab(workspace, "Workspace1");
 	workspaces_tab_widget->show();
+
+	PVGuiQt::PVOpenWorkspacesWidget* open_workspace = new PVGuiQt::PVOpenWorkspacesWidget(root.get(), NULL);
+	open_workspace->show();
 
 	return app.exec();
 }

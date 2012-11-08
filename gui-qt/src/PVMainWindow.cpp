@@ -122,7 +122,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	pv_FilterWidget = new PVFilterWidget(this);
 	pv_FilterWidget->hide();
 
-	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget();
+	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(get_root());
 	_projects_tab_widget->show();
 	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_window_for_workspace(QWidget*)));
 	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(project_new_Slot()));
@@ -486,7 +486,7 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Picviz::PVView* picv
 void PVInspector::PVMainWindow::connect_widgets()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	connect(_projects_tab_widget, SIGNAL(currentChanged(int)), this, SLOT(change_of_current_view_Slot()));
+	//connect(_projects_tab_widget, SIGNAL(currentChanged(int)), this, SLOT(change_of_current_view_Slot()));
 
 	/* for the this::color_changed_Signal() */
 	connect(this, SIGNAL(color_changed_Signal()), this, SLOT(refresh_current_view_Slot()));

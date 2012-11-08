@@ -11,6 +11,7 @@
 #include <list>
 
 #include <picviz/PVScene.h>
+#include <picviz/PVRoot_types.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
@@ -31,6 +32,8 @@ namespace PVGuiQt
 {
 
 class PVStartScreenWidget;
+class PVOpenWorkspacesWidget;
+class PVSceneWorkspacesTabWidget;
 
 namespace __impl
 {
@@ -88,7 +91,7 @@ class PVProjectsTabWidget : public QWidget
 	Q_OBJECT
 
 public:
-	PVProjectsTabWidget(QWidget* parent = 0);
+	PVProjectsTabWidget(Picviz::PVRoot& root, QWidget* parent = 0);
 	PVSceneWorkspacesTabWidget* add_project(Picviz::PVScene_p scene_p);
 	void remove_project(PVSceneWorkspacesTabWidget* workspace_tab_widget);
 	PVWorkspace* add_source(Picviz::PVSource* source);
@@ -100,7 +103,8 @@ public:
 
 	inline Picviz::PVScene* current_scene() const { return current_project()->get_scene(); }
 
-	inline PVWorkspacesTabWidgetBase* current_workspace_tab_widget() const { return (_current_workspace_tab_widget_index >= 1) ? (PVWorkspacesTabWidgetBase*) _stacked_widget->widget(_current_workspace_tab_widget_index) : nullptr; }
+	PVWorkspacesTabWidgetBase* current_workspace_tab_widget() const;
+
 	inline PVSceneWorkspacesTabWidget* current_project() const { return (_current_workspace_tab_widget_index >= 2) ? (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(_current_workspace_tab_widget_index) : nullptr; }
 	inline void select_project(Picviz::PVScene* scene) { _tab_widget->setCurrentIndex(_tab_widget->indexOf(get_workspace_tab_widget_from_scene(scene))); }
 	inline void select_project(int index) { _tab_widget->setCurrentIndex(index+2); }
@@ -150,8 +154,9 @@ private:
 	__impl::PVTabWidget* _tab_widget = nullptr; // QTabWidget has a problem with CSS and background-color, that's why this class isn't inheriting from QTabWidget...
 	QStackedWidget* _stacked_widget = nullptr;
 	PVStartScreenWidget* _start_screen_widget;
-	PVOpenWorkspacesTabWidget* _workspaces_tab_widget;
+	PVOpenWorkspacesWidget* _workspaces_tab_widget;
 	int _current_workspace_tab_widget_index;
+	Picviz::PVRoot& _root;
 };
 
 }

@@ -20,6 +20,7 @@ PVListUniqStringsDlg.cpp
 PVListingModel.cpp
 PVListingSortFilterProxyModel.cpp
 PVListingView.cpp
+PVOpenWorkspacesWidget.cpp
 PVRootTreeModel.cpp
 PVRootTreeView.cpp
 PVSortFilterProxyModel.cpp
@@ -60,6 +61,7 @@ include/pvguiqt/PVListUniqStringsDlg.h
 include/pvguiqt/PVListingModel.h
 include/pvguiqt/PVListingSortFilterProxyModel.h
 include/pvguiqt/PVListingView.h
+include/pvguiqt/PVOpenWorkspacesWidget.h
 include/pvguiqt/PVRootTreeModel.h
 include/pvguiqt/PVRootTreeView.h
 include/pvguiqt/PVHiveDataTreeModel.h
