@@ -256,7 +256,7 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	 * and the widgets must be disabled in the Qt's way).
 	 */
 
-	// set_enabled *must* cancel al lcurrent rendering.
+	// set_enabled *must* cancel all current rendering.
 	for (PVFullParallelScene* view: _parallel_scenes) {
 		view->set_enabled(false);
 	}
@@ -279,6 +279,7 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	}
 
 	for (PVFullParallelScene* view: _parallel_scenes) {
+		view->set_enabled(true);
 		view->update_number_of_zones_async();
 	}
 
@@ -311,6 +312,7 @@ void PVParallelView::PVLibView::axes_comb_updated()
 
 	PVCore::PVProgressBox::progress([&]() {
 			for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
+				view->set_enabled(true);
 				request_zoomed_zone_trees(view->get_axis_index());
 				view->update_all_async();
 			}
