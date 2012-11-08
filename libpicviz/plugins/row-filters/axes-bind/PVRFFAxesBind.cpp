@@ -9,7 +9,7 @@
 #include <picviz/PVSparseSelection.h>
 #include <picviz/PVView.h>
 
-#include <pvkernel/core/PVAxisIndexType.h>
+#include <pvkernel/core/PVOriginalAxisIndexType.h>
 
 #include <omp.h>
 
@@ -21,16 +21,16 @@ Picviz::PVRFFAxesBind::PVRFFAxesBind(PVCore::PVArgumentList const& l)
 DEFAULT_ARGS_FUNC(Picviz::PVRFFAxesBind)
 {
 	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey("axis_org", "Axis of original view")].setValue(PVCore::PVAxisIndexType(0));
-	args[PVCore::PVArgumentKey("axis_dst", "Axis of final view")].setValue(PVCore::PVAxisIndexType(0));
+	args[PVCore::PVArgumentKey("axis_org", "Axis of original view")].setValue(PVCore::PVOriginalAxisIndexType(0));
+	args[PVCore::PVArgumentKey("axis_dst", "Axis of final view")].setValue(PVCore::PVOriginalAxisIndexType(0));
 	return args;
 }
 
 void Picviz::PVRFFAxesBind::set_args(PVCore::PVArgumentList const& args)
 {
 	PVSelRowFilteringFunction::set_args(args);
-	_axis_org = args["axis_org"].value<PVCore::PVAxisIndexType>().get_original_index();
-	_axis_dst = args["axis_dst"].value<PVCore::PVAxisIndexType>().get_original_index();
+	_axis_org = args["axis_org"].value<PVCore::PVOriginalAxisIndexType>().get_original_index();
+	_axis_dst = args["axis_dst"].value<PVCore::PVOriginalAxisIndexType>().get_original_index();
 }
 
 QString Picviz::PVRFFAxesBind::get_human_name_with_args(const PVView& src_view, const PVView& dst_view) const

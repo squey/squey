@@ -126,6 +126,7 @@ public:
 	 *
 	 */
 	QStringList get_axes_names_list() const;
+	inline QStringList get_original_axes_names_list() const { return get_axes_combination().get_original_axes_names_list(); }
 	
 	/**
 	 * Gets the name of the chosen axis according to the actual PVAxesCombination

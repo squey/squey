@@ -23,7 +23,7 @@
 #include <pvhive/PVHive.h>
 
 
-PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, PVWorkspaceBase* workspace) :
+PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, bool delete_on_close, PVWorkspaceBase* workspace) :
 	QDockWidget((QWidget*)workspace),
 	_view(view),
 	_workspace(workspace)
@@ -45,7 +45,7 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 		setStyleSheet(QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ").arg(view_color.name()).arg(view_color.name()));
 	}
 
-	if (can_be_central_widget) {
+	if (delete_on_close) {
 		setAttribute(Qt::WA_DeleteOnClose, true);
 	}
 
@@ -123,13 +123,18 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 		case QEvent::MouseButtonPress:
 		{
 			QMouseEvent* mouse_event = (QMouseEvent*) event;
-			_press_pt = mouse_event->pos();
-			PVGuiQt::PVWorkspaceBase::_drag_started = true;
+			if (mouse_event->button() == Qt::LeftButton) {
+				_press_pt = mouse_event->pos();
+				PVGuiQt::PVWorkspaceBase::_drag_started = true;
+			}
 			break;
 		}
 		case QEvent::MouseButtonRelease:
 		{
-			PVGuiQt::PVWorkspace::_drag_started = false;
+			QMouseEvent* mouse_event = (QMouseEvent*) event;
+			if (mouse_event->button() == Qt::LeftButton) {
+				PVGuiQt::PVWorkspace::_drag_started = false;
+			}
 			break;
 		}
 		case QEvent::Move:

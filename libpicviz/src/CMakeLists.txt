@@ -170,6 +170,7 @@ include/picviz/widgets/editors/PVAxisIndexEditor.h
 include/picviz/widgets/editors/PVAxisIndexCheckBoxEditor.h
 include/picviz/widgets/editors/PVAxesIndexEditor.h
 include/picviz/widgets/editors/PVLayerEnumEditor.h
+include/picviz/widgets/editors/PVOriginalAxisIndexEditor.h
 include/picviz/widgets/editors/PVViewRowsSpinBoxEditor.h
 )
 
@@ -191,6 +192,7 @@ widgets/editors/PVAxisIndexEditor.cpp
 widgets/editors/PVAxisIndexCheckBoxEditor.cpp
 widgets/editors/PVAxesIndexEditor.cpp
 widgets/editors/PVLayerEnumEditor.cpp
+widgets/editors/PVOriginalAxisIndexEditor.cpp
 widgets/editors/PVViewRowsSpinBoxEditor.cpp
 )
 

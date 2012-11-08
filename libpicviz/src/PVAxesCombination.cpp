@@ -201,7 +201,7 @@ PVCol Picviz::PVAxesCombination::get_original_axes_count() const
  * Picviz::PVAxesCombination::get_original_axes_names_list
  *
  *****************************************************************************/
-QStringList Picviz::PVAxesCombination::get_original_axes_names_list()
+QStringList Picviz::PVAxesCombination::get_original_axes_names_list() const
 {
 	int         i;
 	QStringList output_list;
