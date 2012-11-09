@@ -531,15 +531,18 @@ Picviz::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 
 void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
 {
-	Picviz::PVScene_p scene_p;
+	Picviz::PVScene_sp scene_p;
 
-	if (_projects_tab_widget->projects_count() == 0) {
+	QList<Picviz::PVScene_p> scenes = get_root().get_children();
+
+	if (scenes.size() == 0) {
 		// No loaded project: create a new one and load the source
 		scene_p = project_new_Slot();
 	}
-	else if (_projects_tab_widget->projects_count() == 1) {
+	else if (scenes.size() == 1) {
 		// Only one project loaded: use it to load the source
-		scene_p = current_scene()->shared_from_this();
+		scene_p = scenes.at(0)->shared_from_this();
+		select_scene(0);
 	}
 	else {
 		// More than one project loaded: ask the user the project he wants to use to load the source
@@ -547,9 +550,9 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 		if (dlg.exec() != QDialog::Accepted) {
 			return;
 		}
-		scene_p = current_scene()->shared_from_this();
-		int project_index = dlg.result();
+		int project_index = dlg.get_project_index();
 		select_scene(project_index);
+		scene_p = current_scene()->shared_from_this();
 	}
 
 	Picviz::PVSource_p src_p = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc);

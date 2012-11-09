@@ -16,8 +16,12 @@ class PVHiveDataTreeModel: public PVWidgets::PVDataTreeModel
 public:
 	PVHiveDataTreeModel(PVCore::PVDataTreeObjectBase& root, QObject* parent = 0);
 
+protected:
+	int rowCount(const QModelIndex &index) const override;
+
 private slots:
 	void hive_refresh(PVHive::PVObserverBase* o);
+	void root_about_to_be_deleted(PVHive::PVObserverBase* o);
 	void about_to_be_deleted(PVHive::PVObserverBase* o);
 
 private:
@@ -27,6 +31,7 @@ private:
 private:
 	std::list<datatree_obs_t> _obs;
 	PVHive::PVObserver_p<PVCore::PVDataTreeObjectBase> _root_recursive_observer;
+	bool _view_valid = true;
 };
 
 }

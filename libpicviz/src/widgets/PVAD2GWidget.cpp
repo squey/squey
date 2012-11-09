@@ -352,13 +352,14 @@ void PVWidgets::PVAD2GWidget::update_list_views()
 	auto all_views =  Picviz::PVRoot::get_root().get_children<Picviz::PVView>();
 	_table->setRowCount(all_views.size());
 
+	int index = 0;
 	for (auto view_p : all_views) {
 		QString name = QString("%1 - %2").arg(view_p->get_parent<Picviz::PVSource>()->get_name()).arg(view_p->get_name());
 		QTableWidgetItem* item = new QTableWidgetItem(name);
 		item->setBackground(QBrush(view_p->get_color()));
 		item->setToolTip(view_p->get_window_name());
 		item->setData(Qt::UserRole, qVariantFromValue((void*) view_p.get()));
-		_table->setItem(view_p->get_view_id(), 0, item);
+		_table->setItem(index++, 0, item);
 	}
 
 	// Disable all the view present in the graph from the list of views

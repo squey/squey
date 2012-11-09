@@ -7,6 +7,7 @@
 #ifndef __PVGUIQT_PVWORKSPACE_H__
 #define __PVGUIQT_PVWORKSPACE_H__
 
+#include <functional>
 #include <list>
 #include <iostream>
 
@@ -89,10 +90,12 @@ public:
 	static PVWorkspaceBase* workspace_under_mouse();
 	static bool drag_started() { return _drag_started; }
 
-	PVViewDisplay* add_view_display(Picviz::PVView* view, QWidget* view_display, const QString& name, bool can_be_central_display = true, bool delete_on_close = true, Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
-	PVViewDisplay* set_central_display(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool delete_on_close);
+	PVViewDisplay* add_view_display(Picviz::PVView* view, QWidget* view_display, std::function<QString()> name, bool can_be_central_display = true, bool delete_on_close = true, Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
+	PVViewDisplay* set_central_display(Picviz::PVView* view, QWidget* view_widget, std::function<QString()> name, bool delete_on_close);
 	void set_central_display(PVViewDisplay* view_display);
 	inline int z_order() { return _z_order_index; }
+
+	void displays_about_to_be_deleted();
 
 public slots:
 	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr);

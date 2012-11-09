@@ -60,9 +60,9 @@ public:
 	void select_view(PVView& view);
 
 public:
-	int32_t get_new_view_id() const;
+	int32_t get_new_view_id();
 	void set_views_id();
-	QColor get_new_view_color() const;
+	QColor get_new_view_color();
 
 public:
 	PVAD2GView_p get_correlation(int index);
@@ -81,13 +81,15 @@ private:
 	static PVRoot_sp _unique_root;
 
 	PVView* _current_view = nullptr;
+	int _new_view_id = 0;
 
 	correlations_t _correlations;
 	PVAD2GView_p _current_correlation;
 	bool _correlation_running = false;
 	bool _correlations_enabled = true;
 
-	QRgb _view_colors[10] = { 0x9966CC, 0x6699CC, 0x778800, 0xFFCC66, 0x993366, 0x999999, 0x339999, 0xFF6633, 0x99FFCC, 0xFFFF99 } ;
+	QList<QRgb> _available_colors;
+	QList<QRgb> _used_colors;
 };
 
 typedef PVRoot::p_type  PVRoot_p;

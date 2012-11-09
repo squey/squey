@@ -59,6 +59,10 @@ PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Picviz::PVView_sp& lib_view, QWi
 	main_layout->addWidget(layer_stack_toolbar);
 
 	setLayout(main_layout);
+
+	PVHive::PVObserverSignal<Picviz::PVView*>* obs = new PVHive::PVObserverSignal<Picviz::PVView*>(this);
+	PVHive::get().register_observer(lib_view, *obs);
+	obs->connect_about_to_be_deleted(this, SLOT(deleteLater()));
 }
 
 /******************************************************************************

@@ -20,6 +20,8 @@ Picviz::PVRoot_sp Picviz::PVRoot::_unique_root;
  *****************************************************************************/
 Picviz::PVRoot::PVRoot() : data_tree_root_t()
 {
+
+	_available_colors << 0x9966CC << 0x6699CC << 0x778800 << 0xFFCC66 << 0x993366 << 0x999999 << 0x339999 << 0xFF6633 << 0x99FFCC << 0xFFFF99;
 }
 
 /******************************************************************************
@@ -71,9 +73,9 @@ void Picviz::PVRoot::select_view(PVView& view)
  * Picviz::PVRoot::get_new_view_id
  *
  *****************************************************************************/
-Picviz::PVView::id_t Picviz::PVRoot::get_new_view_id() const
+Picviz::PVView::id_t Picviz::PVRoot::get_new_view_id()
 {
-	return get_children<PVView>().size()-1;
+	return _new_view_id++;
 }
 
 /******************************************************************************
@@ -100,9 +102,15 @@ void Picviz::PVRoot::set_views_id()
  * Picviz::PVRoot::get_new_view_color
  *
  *****************************************************************************/
-QColor Picviz::PVRoot::get_new_view_color() const
+QColor Picviz::PVRoot::get_new_view_color()
 {
-	return QColor(_view_colors[(get_new_view_id()) % (sizeof(_view_colors)/sizeof(QRgb))]);
+	if (_available_colors.size() == 0) {
+		std::swap(_available_colors, _used_colors);
+	}
+	QRgb color = _available_colors.at(0);
+	_available_colors.pop_front();
+	_used_colors << color;
+	return color;
 }
 
 /******************************************************************************
