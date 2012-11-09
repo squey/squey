@@ -85,6 +85,13 @@ PVGuiQt::PVWorkspaceBase* PVGuiQt::PVWorkspaceBase::workspace_under_mouse()
 	return workspace;
 }
 
+void PVGuiQt::PVWorkspaceBase::displays_about_to_be_deleted()
+{
+	for (PVViewDisplay* display : _displays) {
+		display->about_to_be_deleted();
+	}
+}
+
 void PVGuiQt::PVWorkspaceBase::changeEvent(QEvent *event)
 {
 	QMainWindow::changeEvent(event);

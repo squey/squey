@@ -47,6 +47,8 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	PVHive::get().register_observer(view, _obs);
 	PVHive::get().register_actor(view, _actor);
 
+	_obs.connect_about_to_be_deleted(this, SLOT(deleteLater()));
+
 	//_ctxt_process = NULL;
 	
 	// SIZE STUFF

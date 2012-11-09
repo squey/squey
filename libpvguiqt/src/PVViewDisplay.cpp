@@ -21,8 +21,7 @@
 
 #include <picviz/PVView.h>
 
-#include <pvhive/PVCallHelper.h>
-#include <pvhive/PVHive.h>
+#include <pvhive/PVObserverCallback.h>
 
 
 PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, std::function<QString()> name, bool can_be_central_widget, bool delete_on_close, PVWorkspaceBase* workspace) :
@@ -59,15 +58,15 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 
 	connect(this, SIGNAL(topLevelChanged(bool)), this, SLOT(dragStarted(bool)));
 	connect(this, SIGNAL(dockLocationChanged (Qt::DockWidgetArea)), this, SLOT(dragEnded()));
-	connect(view_widget, SIGNAL(destroyed(QObject*)), this, SLOT(close())); // Keep track of child deletion...
+	connect(view_widget, SIGNAL(destroyed(QObject*)), this, SLOT(close()));
 
 	register_view(view);
 }
 
 void PVGuiQt::PVViewDisplay::register_view(Picviz::PVView* view)
 {
-	// Register for view name changes
 	if (view) {
+		// Register for view name changes
 		if (_obs_plotting) {
 			delete _obs_plotting;
 		}
@@ -75,6 +74,15 @@ void PVGuiQt::PVViewDisplay::register_view(Picviz::PVView* view)
 		Picviz::PVPlotted_sp plotted_sp = view->get_parent()->shared_from_this();
 		PVHive::get().register_observer(plotted_sp, [=](Picviz::PVPlotted& plotted) { return &plotted.get_plotting(); }, *_obs_plotting);
 		_obs_plotting->connect_refresh(this, SLOT(plotting_updated()));
+
+		// Register for view deletion
+		/*_obs_view = PVHive::create_observer_callback_heap<Picviz::PVView>(
+		    [&](Picviz::PVView const*) {},
+			[&](Picviz::PVView const*) {},
+			[&](Picviz::PVView const*) { this->close(); }
+		);
+		Picviz::PVView_sp view_sp = view->shared_from_this();
+		PVHive::get().register_observer(view_sp, *_obs_view);*/
 	}
 }
 
@@ -243,9 +251,10 @@ void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
 
 void PVGuiQt::PVViewDisplay::set_current_view()
 {
-	if (_view) {
+	if (_view && !_about_to_be_deleted) {
 		Picviz::PVRoot_sp root_sp = _view->get_parent<Picviz::PVRoot>()->shared_from_this();
 		_workspace->set_current_view(_view);
+		std::cout << "set_current_view:" << _view << std::endl;
 		PVHive::call<FUNC(Picviz::PVRoot::select_view)>(root_sp, *_view);
 	}
 }

@@ -95,6 +95,8 @@ public:
 	void set_central_display(PVViewDisplay* view_display);
 	inline int z_order() { return _z_order_index; }
 
+	void displays_about_to_be_deleted();
+
 public slots:
 	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr);
 	void display_destroyed(QObject* object = 0);

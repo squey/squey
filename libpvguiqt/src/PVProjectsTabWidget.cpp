@@ -234,6 +234,7 @@ void PVGuiQt::PVProjectsTabWidget::remove_project(int index)
 void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 {
 	_stacked_widget->setCurrentIndex(index); // Map QTabBar signal to QStackedWidget to keep the sync
+	_current_workspace_tab_widget_index = index;
 
 	if (index == 0) {
 		return;
@@ -243,7 +244,7 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	PVWorkspacesTabWidgetBase* workspace_tab_widget;
 
 	int correlation_index = -1;
-	_current_workspace_tab_widget_index = index;
+
 	if (index == 1) {
 		PVOpenWorkspacesWidget* w = qobject_cast<PVOpenWorkspacesWidget*>(new_widget);
 		assert(w);
@@ -261,7 +262,6 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 
 PVGuiQt::PVWorkspacesTabWidgetBase* PVGuiQt::PVProjectsTabWidget::current_workspace_tab_widget() const
 {
-	std::cout << "_current_workspace_tab_widget_index=" << _current_workspace_tab_widget_index << std::endl;
 	if (_current_workspace_tab_widget_index < 0) {
 		return nullptr;
 	}

@@ -46,6 +46,7 @@ public:
 	Picviz::PVView* get_view() { return _view; }
 	void set_view(Picviz::PVView* view) { _view = view; }
 	void set_current_view();
+	void about_to_be_deleted() { _about_to_be_deleted = true; }
 
 protected:
 	bool event(QEvent* event) override;
@@ -80,6 +81,8 @@ private:
 	PVWorkspaceBase* _workspace;
 	QPoint _press_pt;
 	PVHive::PVObserverSignal<Picviz::PVPlotting>*  _obs_plotting = nullptr;
+	//PVHive::PVObserver_p<Picviz::PVView> _obs_view;
+	bool _about_to_be_deleted = false;
 
 };
 

@@ -485,9 +485,17 @@ protected:
 	{
 		// object must be a valid address
 		assert(object != nullptr);
+
+		// Check if that object still exists
+		{
+			observables_t::const_accessor acc;
+			if (!_observables.find(acc, (void*) object)) {
+				return;
+			}
+		}
 		PVCore::PVDataTreeObjectWithParentBase const* dt = PVCore::PVTypeTraits::dynamic_cast_if_possible<PVCore::PVDataTreeObjectWithParentBase const*>(object);
 		if (dt) {
-			refresh_observers(dt, const_cast<void*>(PVCore::PVTypeTraits::dynamic_cast_if_possible<const void*>(object)));
+			refresh_observers(dt, (void*) PVCore::PVTypeTraits::get_starting_address(object));
 		}
 		else {
 			do_refresh_observers((void*) PVCore::PVTypeTraits::get_starting_address(object));

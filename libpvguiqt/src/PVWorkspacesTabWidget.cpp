@@ -351,6 +351,8 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::update_correlations_list()
 
 void PVGuiQt::PVWorkspacesTabWidgetBase::tabCloseRequested_Slot(int index)
 {
+	PVWorkspaceBase* workspace = qobject_cast<PVWorkspaceBase*>(widget(index));
+	workspace->displays_about_to_be_deleted();
 	remove_workspace(index);
 }
 
