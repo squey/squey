@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <pvbase/general.h>
+#include <picviz/common.h>
 
 #ifdef WIN32
 #define pv_setenv(a,b,c) putenv(a "=" b)
@@ -26,4 +27,5 @@ void init_env()
 	pv_setenv("PICVIZ_LAYER_FILTERS_DIR",PICVIZ_BUILD_DIRECTORY "/libpicviz/plugins/layer-filters",0);
 	pv_setenv("PICVIZ_ROW_FILTERS_DIR",PICVIZ_BUILD_DIRECTORY "/libpicviz/plugins/row-filters",0);
 	pv_setenv("PVGL_SHARE_DIR",PICVIZ_SOURCE_DIRECTORY "/libpvgl/data/",0);
+	Picviz::common::load_filters();
 }

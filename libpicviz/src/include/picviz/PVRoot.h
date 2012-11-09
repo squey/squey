@@ -92,18 +92,6 @@ private:
 
 typedef PVRoot::p_type  PVRoot_p;
 
-namespace common {
-	void load_filters();
-
-	// Plugins loading
-	int load_layer_filters();
-	int load_mapping_filters();
-	int load_plotting_filters();
-	int load_row_filters();
-	int load_axis_computation_filters();
-	int load_sorting_functions_filters();
-}
-
 }
 
 #endif	/* PICVIZ_PVROOT_H */
