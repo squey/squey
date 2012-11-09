@@ -34,6 +34,7 @@
 #include <pvguiqt/PVViewDisplay.h>
 
 #include <picviz/PVRoot.h>
+#include <picviz/common.h>
 
 #include <pvparallelview/PVParallelView.h>
 
