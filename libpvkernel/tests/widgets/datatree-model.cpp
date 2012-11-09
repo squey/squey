@@ -1,6 +1,8 @@
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/widgets/PVDataTreeModel.h>
 
+#include <pvkernel/widgets/PVDataTreeMaskProxyModel.h>
+
 #include <QApplication>
 #include <QMainWindow>
 #include <QDialog>
@@ -128,30 +130,35 @@ typedef typename B::p_type B_p;
 typedef typename C::p_type C_p;
 typedef typename D::p_type D_p;
 
+typedef PVWidgets::PVDataTreeMaskProxyModel<C_p> proxy_model_t;
+
 int main(int argc, char** argv)
 {
 	// Objects, let's create our tree !
 	A_p a;
 	B_p b1(a, 0);
-	B_p b2(a, 1);
+	// B_p b2(a, 1);
 	C_p c1(b1, 0);
-	C_p c2(b1, 1);
-	C_p c4(b2, 2);
-	C_p c5(b2, 3);
-	D_p d1(c1, 0);
-	D_p d2(c1, 1);
-	D_p d4(c2, 2);
-	D_p d5(c2, 3);
-	D_p d6(c4, 4);
-	D_p d7(c5, 5);
+	// C_p c2(b1, 1);
+	// C_p c4(b2, 2);
+	// C_p c5(b2, 3);
+	// D_p d1(c1, 0);
+	// D_p d2(c1, 1);
+	// D_p d4(c2, 2);
+	// D_p d5(c2, 3);
+	// D_p d6(c4, 4);
+	// D_p d7(c5, 5);
 
 	// Qt app
 	QApplication app(argc, argv);
 
 	// Create our model and view
 	PVWidgets::PVDataTreeModel* model = new PVWidgets::PVDataTreeModel(*a);
+
+	proxy_model_t *proxy = new proxy_model_t();
+	proxy->setSourceModel(model);
 	QTreeView* view = new QTreeView();
-	view->setModel(model);
+	view->setModel(proxy);
 
 	QMainWindow* mw = new QMainWindow();
 	mw->setCentralWidget(view);
