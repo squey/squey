@@ -21,7 +21,7 @@ PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(const QStringLis
 	QLabel* label = new QLabel(tr("Import source to project:"));
 
 	QComboBox* combo_box = new QComboBox();
-	connect(combo_box, SIGNAL(currentIndexChanged(int)), this, SLOT(setResult(int)));
+	connect(combo_box, SIGNAL(currentIndexChanged(int)), this, SLOT(set_project_index(int)));
 	combo_box->addItems(list);
 	combo_box->setCurrentIndex(default_index);
 

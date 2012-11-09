@@ -15,8 +15,18 @@ namespace PVGuiQt
 
 class PVImportSourceToProjectDlg : public QDialog
 {
+	Q_OBJECT;
 public:
 	PVImportSourceToProjectDlg(const QStringList & list, int default_index, QWidget* parent = 0);
+
+public:
+	int get_project_index() { return _project_index; }
+
+private slots:
+	void set_project_index(int index) { _project_index = index; }
+
+private:
+	int _project_index = 0;
 };
 
 }
