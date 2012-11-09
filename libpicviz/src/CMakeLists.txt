@@ -105,6 +105,8 @@ init.cpp
 #layer-stack.cpp 
 #line-properties.cpp 
 
+common.cpp
+
 PVAD2GView.cpp
 PVAxesCombination.cpp
 PVAxis.cpp
