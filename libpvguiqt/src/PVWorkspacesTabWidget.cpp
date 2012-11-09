@@ -61,7 +61,6 @@ PVGuiQt::PVSceneTabBar::PVSceneTabBar(PVWorkspacesTabWidgetBase* tab_widget) : _
 {
 	setTabsClosable(true);
 	connect(this, SIGNAL(tabCloseRequested(int)), tab_widget, SLOT(tabCloseRequested_Slot(int)));
-	connect(this, SIGNAL(currentChanged(int)), _tab_widget, SLOT(tab_changed(int)));
 }
 
 int PVGuiQt::PVSceneTabBar::count() const
@@ -172,6 +171,11 @@ void PVGuiQt::PVSceneTabBar::start_drag(QWidget* workspace)
  *
  *****************************************************************************/
 
+PVGuiQt::PVOpenWorkspaceTabBar::PVOpenWorkspaceTabBar(PVOpenWorkspacesTabWidget* tab_widget) : PVSceneTabBar(tab_widget)
+{
+	connect(this, SIGNAL(currentChanged(int)), _tab_widget, SLOT(tab_changed(int)));
+}
+
 int PVGuiQt::PVOpenWorkspaceTabBar::count() const
 {
 	return QTabBar::count() -1;
@@ -229,9 +233,12 @@ void PVGuiQt::PVOpenWorkspaceTabBar::mousePressEvent(QMouseEvent* event)
 	PVSceneTabBar::mousePressEvent(event);
 }
 
-void PVGuiQt::PVOpenWorkspaceTabBar::create_new_workspace()
+PVGuiQt::PVOpenWorkspace* PVGuiQt::PVOpenWorkspaceTabBar::create_new_workspace()
 {
-	_tab_widget->addTab(new PVOpenWorkspace(this), QString("Workspace %1").arg(_tab_widget->count()+1));
+	PVOpenWorkspace* open_workspace = new PVOpenWorkspace(this);
+	_tab_widget->addTab(open_workspace, QString("Workspace %1").arg(++_workspace_id));
+
+	return open_workspace;
 }
 
 /******************************************************************************
@@ -293,7 +300,11 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::remove_workspace(int index, bool close_
 			this,
 			SLOT(animation_state_changed(QAbstractAnimation::State, QAbstractAnimation::State))
 		);
-		setCurrentIndex(index);
+		blockSignals(true);
+		_tab_animation_index = index;
+		setCurrentIndex(index); // Force current index in order to get the animation on the selected tab!
+		blockSignals(false);
+		_tab_animation_index = index;
 		animation->setDuration(TAB_OPENING_EFFECT_MSEC);
 		animation->setEndValue(25);
 		_tab_animated_width = _tab_bar->tabSizeHint(index).width();
@@ -313,7 +324,7 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::animation_state_changed(QAbstractAnimat
 {
 	if (new_state == QAbstractAnimation::Stopped && old_state == QAbstractAnimation::Running) {
 		tabBar()->setStyleSheet("");
-		removeTab(currentIndex());
+		removeTab(_tab_animation_index);
 		sender()->deleteLater();
 		emit animation_finished();
 	}
@@ -343,20 +354,37 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::tabCloseRequested_Slot(int index)
 	remove_workspace(index);
 }
 
+QList<PVGuiQt::PVWorkspaceBase*> PVGuiQt::PVWorkspacesTabWidgetBase::list_workspaces() const
+{
+	QList<PVWorkspaceBase*> ret;
+	for (int i = 0; i < count(); i++) {
+		PVWorkspaceBase* workspace = qobject_cast<PVWorkspaceBase*>(widget(i));
+		assert(workspace);
+		ret << workspace;
+	}
+	return ret;
+}
+
 /******************************************************************************
  *
  * PVGuiQt::PVSceneWorkspacesTabWidget
  *
  *****************************************************************************/
-PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Picviz::PVScene_p scene_p, QWidget* parent /* = 0 */) :
+PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Picviz::PVScene& scene, QWidget* parent /* = 0 */) :
 	PVWorkspacesTabWidgetBase(parent),
-	_scene_p(scene_p),
 	_save_scene_func_observer(this)
 {
+	Picviz::PVScene_sp scene_p = scene.shared_from_this();
 	PVHive::get().register_observer(scene_p, _obs_scene);
 	_obs_scene.connect_refresh(this, SLOT(set_project_modified()));
+
+	// AG: we need to clear the way GUI-objects related to data-tree ones are created and destroyed.
+	// This way is one of the good ones, that is keeping track thanks to the hive of what exists in the data-tree and
+	// react in such consequence.
+	//_obs_scene.connect_refresh(this, SLOT(check_new_sources()));
+
 	PVHive::get().register_func_observer(scene_p, _save_scene_func_observer);
-	_save_scene_func_observer.set_accept_recursive_refreshes(true);
+	_obs_scene.set_accept_recursive_refreshes(true);
 
 	_tab_bar = new PVSceneTabBar(this);
 	setTabBar(_tab_bar);
@@ -401,13 +429,13 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::remove_workspace(int index, bool close
 	PVGuiQt::PVWorkspace* workspace = qobject_cast<PVGuiQt::PVWorkspace*>(widget(index));
 
 	if (workspace && close_source) {
-		_scene_p->remove_child(*workspace->get_source());
+		get_scene()->remove_child(*workspace->get_source());
 	}
 
 	PVWorkspacesTabWidgetBase::remove_workspace(index, close_source);
 }
 
-void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
+/*void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 {
 	if (index == -1) return;
 
@@ -416,7 +444,30 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 		Picviz::PVRoot_sp root_sp = _scene_p->get_parent<Picviz::PVRoot>()->shared_from_this();
 		PVHive::call<FUNC(Picviz::PVRoot::select_view)>(root_sp, *view);
 	}
+}*/
+
+void PVGuiQt::PVSceneWorkspacesTabWidget::check_new_sources()
+{
+	QList<Picviz::PVSource*> known_srcs = list_sources();
+	for (Picviz::PVSource_sp& src: get_scene()->get_children<Picviz::PVSource>()) {
+		if (known_srcs.contains(src.get())) {
+			continue;
+		}
+
+		PVWorkspace* new_workspace = new PVWorkspace(src.get());
+		addTab(new_workspace, src->get_name());
+	}
 }
+
+QList<Picviz::PVSource*> PVGuiQt::PVSceneWorkspacesTabWidget::list_sources() const
+{
+	QList<Picviz::PVSource*> ret;
+	for (PVWorkspaceBase* w: list_workspaces()) {
+		ret << qobject_cast<PVWorkspace*>(w)->get_source();
+	}
+	return ret;
+}
+
 /******************************************************************************
  *
  * PVGuiQt::PVOpenWorkspacesTabWidget
@@ -455,15 +506,18 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::tabInserted(int index)
 
 void PVGuiQt::PVOpenWorkspacesTabWidget::tab_changed(int index)
 {
-
 	if (index == count()) {
-		setCurrentIndex(count()-1);
+		/*int idx = std::max(0, count()-1);
+		std::cout << "setCurrentIndex(idx)=" << idx << std::endl;
+		setCurrentIndex(idx);*/
 	}
 	else {
 		if (_combo_box) {
 			PVOpenWorkspace * open_workspace = (PVOpenWorkspace*) widget(index);
 			if (open_workspace) {
-				_combo_box->setCurrentIndex(open_workspace->get_correlation_index());
+				int idx = open_workspace->get_correlation_index();
+				_combo_box->setCurrentIndex(idx);
+				Picviz::PVRoot::get_root().select_correlation(idx-1);
 			}
 		}
 	}
@@ -490,9 +544,13 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::correlation_changed(int index)
 void PVGuiQt::PVOpenWorkspacesTabWidget::tabRemoved(int index)
 {
 	if (count() == 0) {
+		// If there isn't any open workspace anymore, disable correlation.
 		_combo_box->setCurrentIndex(0);
 	}
-	QTabWidget::tabRemoved(index);
+	else if (index == count()) {
+		// Prevent selection of open workspace "+" tab.
+		setCurrentIndex(index-1);
+	}
 }
 
 PVGuiQt::PVOpenWorkspace* PVGuiQt::PVOpenWorkspacesTabWidget::current_workspace() const
@@ -519,4 +577,13 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::switch_tab()
 {
 	//QApplication::restoreOverrideCursor();
 	setCurrentIndex(_tab_switch_index);
+}
+
+PVGuiQt::PVOpenWorkspace* PVGuiQt::PVOpenWorkspacesTabWidget::current_workspace_or_create()
+{
+	PVOpenWorkspace* ret = current_workspace();
+	if (!ret) {
+		ret = _tab_bar->create_new_workspace();
+	}
+	return ret;
 }

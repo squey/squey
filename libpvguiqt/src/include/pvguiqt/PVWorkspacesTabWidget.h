@@ -44,6 +44,7 @@ class PVWorkspaceBase;
 class PVWorkspacesTabWidgetBase;
 class PVSceneWorkspacesTabWidget;
 class PVOpenWorkspaceTabBar;
+class PVOpenWorkspacesTabWidget;
 class PVSceneTabBar;
 
 namespace __impl
@@ -81,7 +82,7 @@ public:
 	virtual int count() const;
 
 public:
-	virtual void create_new_workspace() {}
+	virtual PVOpenWorkspace* create_new_workspace() { return nullptr; }
 
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
@@ -102,15 +103,18 @@ class PVOpenWorkspaceTabBar : public PVSceneTabBar
 	Q_OBJECT
 
 public:
-	PVOpenWorkspaceTabBar(PVWorkspacesTabWidgetBase* tab_widget) : PVSceneTabBar(tab_widget) {}
+	PVOpenWorkspaceTabBar(PVOpenWorkspacesTabWidget* tab_widget);
 	int count() const;
-	void create_new_workspace() override;
+	PVOpenWorkspace* create_new_workspace() override;
 
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
 	void wheelEvent(QWheelEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
+
+private:
+	int _workspace_id = 0;
 };
 
 /******************************************************************************
@@ -134,13 +138,12 @@ public:
 	int addTab(PVWorkspaceBase* page, const QString & label);
 	int count() const { return _tab_bar->count(); }
 
+	QList<PVWorkspaceBase*> list_workspaces() const;
+
 signals:
 	void workspace_dragged_outside(QWidget*);
 	void workspace_closed(Picviz::PVSource* source);
 	void animation_finished();
-
-public slots:
-	virtual void tab_changed(int index) = 0;
 
 protected slots:
 	virtual void correlation_changed(int index) = 0;
@@ -162,6 +165,7 @@ protected:
 private:
 	int _tab_animated_width;
 	bool _tab_animation_ongoing = false;
+	int _tab_animation_index;
 };
 
 /******************************************************************************
@@ -176,14 +180,16 @@ class PVSceneWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
 	friend class PVSceneTabBar;
 
 public:
-	PVSceneWorkspacesTabWidget(Picviz::PVScene_p scene_p, QWidget* parent = 0);
+	PVSceneWorkspacesTabWidget(Picviz::PVScene& scene, QWidget* parent = 0);
 
 public:
-	Picviz::PVScene* get_scene() { return _scene_p.get(); }
+	Picviz::PVScene* get_scene() { return _obs_scene.get_object(); }
 	bool is_project_modified() { return _project_modified; }
 	bool is_project_untitled() { return _project_untitled; }
 	int get_correlation_index() override { return std::max(-1, _combo_box->findText(_correlation_name)-1); }
 	void remove_workspace(int index, bool close_animation = true) override;
+
+	QList<Picviz::PVSource*> list_sources() const;
 
 protected:
 	void tabRemoved(int index) override;
@@ -193,16 +199,16 @@ signals:
 	void is_empty();
 
 public slots:
-	void tab_changed(int index);
+	//void tab_changed(int index);
 
 protected slots:
 	void correlation_changed(int index);
+	void check_new_sources();
 
 private slots:
 	void set_project_modified(bool modified = true, QString path = QString());
 
 private:
-	Picviz::PVScene_p _scene_p;
 	bool _project_modified = false;
 	bool _project_untitled = true;
 
@@ -228,6 +234,7 @@ public:
 public:
 	int get_correlation_index() override;
 	PVOpenWorkspace* current_workspace() const;
+	PVOpenWorkspace* current_workspace_or_create();
 
 protected:
 	void tabInserted(int index) override;

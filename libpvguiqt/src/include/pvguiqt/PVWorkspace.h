@@ -126,13 +126,11 @@ class PVWorkspace : public PVWorkspaceBase
 	Q_OBJECT
 
 public:
-	inline Picviz::PVSource* get_source() const { return _source; }
-
-public:
 	PVWorkspace(Picviz::PVSource* source, QWidget* parent = 0);
 
 public:
 	PVListingView* create_listing_view(Picviz::PVView_sp view_sp);
+	inline Picviz::PVSource* get_source() const { return _source; }
 
 public slots:
 	void update_view_count(PVHive::PVObserverBase* obs_base);

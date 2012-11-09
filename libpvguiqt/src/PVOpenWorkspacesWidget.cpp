@@ -130,6 +130,11 @@ PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Picviz::PVRoot* root, QW
 
 	// Workspaces tab widget isn't collapsible
 	main_splitter->setCollapsible(1, false);
+	QList<int> sizes;
+	sizes << 1 << 2;
+	main_splitter->setSizes(sizes);
+	main_splitter->setStretchFactor(0, 0);
+	main_splitter->setStretchFactor(1, 8);
 
 	main_layout->addWidget(main_splitter);
 
@@ -143,12 +148,13 @@ void PVGuiQt::PVOpenWorkspacesWidget::create_views_widget()
 		return;
 	}
 
+	PVOpenWorkspace* cur_workspace = _tab_widget->current_workspace_or_create();
+
 	PVDisplays::PVDisplayViewIf& interface = *(reinterpret_cast<PVDisplays::PVDisplayViewIf*>(act->data().value<void*>()));
 	_root_view->visit_selected_objs_as<Picviz::PVView>(
 		[&](Picviz::PVView* view)
 		{
 			QAction* creation_act = PVDisplays::get().action_bound_to_params(interface, view);
-			PVOpenWorkspace* cur_workspace = _tab_widget->current_workspace();
 			cur_workspace->create_view_widget(creation_act);
 		});
 }

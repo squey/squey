@@ -313,6 +313,13 @@ void Picviz::PVSource::set_invalid_elts_mode(bool restore_inv_elts)
 	set_format(format);
 }
 
+QString Picviz::PVSource::get_window_name() const
+{
+	const size_t line_start = get_extraction_last_start();
+	const size_t line_end   = line_start + get_row_count() - 1;
+	return get_name() + QString(" / ") + get_format_name() + QString("\n(%L1 -> %L2)").arg(line_start).arg(line_end);
+}
+
 void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 {
 	data_tree_source_t::serialize_write(so);

@@ -716,7 +716,12 @@ void Picviz::PVView::process_filter()
  *****************************************************************************/
 QList<Picviz::PVView*> Picviz::PVView::process_correlation()
 {
-	return get_parent<Picviz::PVRoot>()->process_correlation(this);
+	Picviz::PVRoot* root = get_parent<Picviz::PVRoot>();
+	// AG: in some test cases, there is no PVRoot!
+	if (root) {
+		return root->process_correlation(this);
+	}
+	return QList<Picviz::PVView*>();
 }
 
 /******************************************************************************

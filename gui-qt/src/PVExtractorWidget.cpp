@@ -22,6 +22,8 @@
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
 
+#include <pvguiqt/PVProjectsTabWidget.h>
+
 #include <PVExtractorWidget.h>
 
 #include <boost/thread.hpp>
@@ -31,11 +33,12 @@
  * PVInspector::PVFilterWidget::PVFilterWidget
  *
  *****************************************************************************/
-PVInspector::PVExtractorWidget::PVExtractorWidget(Picviz::PVSource& lib_src, QWidget* parent):
+PVInspector::PVExtractorWidget::PVExtractorWidget(Picviz::PVSource& lib_src, PVGuiQt::PVProjectsTabWidget* projects_tab, QWidget* parent):
 	QDialog(parent),
-	_lib_src(&lib_src)
+	_lib_src(&lib_src),
+	_projects_tab(projects_tab)
 {
-	_batch_size = 10000;
+	_batch_size = lib_src.get_extraction_last_nlines();
 	_slider_pressed_value = 0;
 
 	//VARIABLES
@@ -101,6 +104,7 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(Picviz::PVSource& lib_src, QWi
 
 	// Init the slider and other infos
 	_slider_index->setMinimum(0);
+	_slider_index->setValue(lib_src.get_extraction_last_start());
 	_slider_index->setTickPosition(QSlider::TicksBelow);
 	QIntValidator *iv = new QIntValidator();
 	iv->setBottom(10);
@@ -234,6 +238,8 @@ void PVInspector::PVExtractorWidget::process_Slot()
 		//Picviz::PVSource_sp src = lib_src().shared_from_this();
 		//PVHive::call<FUNC(Picviz::PVSource::process_from_source)>(src);
 		//_view->last_extractor_batch_size = _batch_size;
+		PVHive::call<FUNC(Picviz::PVSource::create_default_view)>(src_clone);
+		_projects_tab->add_source(src_clone.get());
 	}
 	else {
 		src_clone->remove_from_tree();

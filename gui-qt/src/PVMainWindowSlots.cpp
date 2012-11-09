@@ -459,10 +459,9 @@ void PVInspector::PVMainWindow::extractor_file_Slot()
 		//TODO: this should not happen because the menu item should be disabled... !
 		return;
 	}
-	//current_tab->get_extractor_widget()->refresh_and_show();
 	
 	// For now, shows a modal dialog!
-	PVExtractorWidget* ext = new PVExtractorWidget(*current_view()->get_parent<Picviz::PVSource>(), this);
+	PVExtractorWidget* ext = new PVExtractorWidget(*current_view()->get_parent<Picviz::PVSource>(), _projects_tab_widget, this);
 	ext->exec();
 	ext->deleteLater();
 }
