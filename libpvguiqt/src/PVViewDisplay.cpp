@@ -4,6 +4,8 @@
  * Copyright (C) Picviz Labs 2012
  */
 
+#include <functional>
+
 #include <QAbstractScrollArea>
 #include <QApplication>
 #include <QDesktopWidget>
@@ -23,14 +25,15 @@
 #include <pvhive/PVHive.h>
 
 
-PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, bool delete_on_close, PVWorkspaceBase* workspace) :
+PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, std::function<QString()> name, bool can_be_central_widget, bool delete_on_close, PVWorkspaceBase* workspace) :
 	QDockWidget((QWidget*)workspace),
 	_view(view),
+	_name(name),
 	_workspace(workspace)
 {
 	setFocusPolicy(Qt::StrongFocus);
 	setWidget(view_widget);
-	setWindowTitle(name);
+	setWindowTitle(_name());
 
 	view_widget->setFocusPolicy(Qt::StrongFocus);
 
@@ -57,6 +60,27 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 	connect(this, SIGNAL(topLevelChanged(bool)), this, SLOT(dragStarted(bool)));
 	connect(this, SIGNAL(dockLocationChanged (Qt::DockWidgetArea)), this, SLOT(dragEnded()));
 	connect(view_widget, SIGNAL(destroyed(QObject*)), this, SLOT(close())); // Keep track of child deletion...
+
+	register_view(view);
+}
+
+void PVGuiQt::PVViewDisplay::register_view(Picviz::PVView* view)
+{
+	// Register for view name changes
+	if (view) {
+		if (_obs_plotting) {
+			delete _obs_plotting;
+		}
+		_obs_plotting = new PVHive::PVObserverSignal<Picviz::PVPlotting>(this);
+		Picviz::PVPlotted_sp plotted_sp = view->get_parent()->shared_from_this();
+		PVHive::get().register_observer(plotted_sp, [=](Picviz::PVPlotted& plotted) { return &plotted.get_plotting(); }, *_obs_plotting);
+		_obs_plotting->connect_refresh(this, SLOT(plotting_updated()));
+	}
+}
+
+void PVGuiQt::PVViewDisplay::plotting_updated()
+{
+	setWindowTitle(_name());
 }
 
 bool PVGuiQt::PVViewDisplay::event(QEvent* event)

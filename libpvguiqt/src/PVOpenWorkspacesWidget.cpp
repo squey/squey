@@ -75,7 +75,15 @@ PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Picviz::PVRoot* root, QW
 	// Layouts
 	//
 	QHBoxLayout* main_layout = new QHBoxLayout();
+
+	// to make projects and workspaces tab aligned
+	main_layout->setContentsMargins(0, 0, 0, 0);
+
 	QVBoxLayout* left_layout = new QVBoxLayout();
+
+	// to make left widgets be aligned with the right widgets
+	left_layout->setContentsMargins(0, 0, 0, 0);
+	left_layout->setSpacing(0);
 
 	// Widgets
 	//
@@ -123,6 +131,7 @@ PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Picviz::PVRoot* root, QW
 	left_layout->addWidget(toolbar);
 	left_layout->addWidget(_root_view);
 	QWidget* left_widget = new QWidget(this);
+	left_widget->setAutoFillBackground(true);
 	left_widget->setLayout(left_layout);
 
 	main_splitter->addWidget(left_widget);
@@ -131,10 +140,8 @@ PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Picviz::PVRoot* root, QW
 	// Workspaces tab widget isn't collapsible
 	main_splitter->setCollapsible(1, false);
 	QList<int> sizes;
-	sizes << 1 << 2;
+	sizes << 1 << 1;
 	main_splitter->setSizes(sizes);
-	main_splitter->setStretchFactor(0, 0);
-	main_splitter->setStretchFactor(1, 8);
 
 	main_layout->addWidget(main_splitter);
 

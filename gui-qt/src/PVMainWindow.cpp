@@ -902,7 +902,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			}*/
 			PVLOG_INFO("Reloading CSS\n");
 
-			QFile css_file("gui-qt/src/resources/gui.css");
+			QFile css_file(PICVIZ_SOURCE_DIRECTORY "/gui-qt/src/resources/gui.css");
 			if (css_file.open(QFile::ReadOnly)) {
 				QTextStream css_stream(&css_file);
 				QString css_string(css_stream.readAll());

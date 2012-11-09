@@ -14,11 +14,13 @@
 #include <QFocusEvent>
 #include <QContextMenuEvent>
 
-#include <iostream>
+#include <pvhive/PVObserverSignal.h>
+#include <pvhive/PVCallHelper.h>
 
 namespace Picviz
 {
 class PVView;
+class PVPlotting;
 }
 
 namespace PVGuiQt
@@ -38,6 +40,9 @@ class PVViewDisplay : public QDockWidget
 	friend PVOpenWorkspace;
 
 public:
+	~PVViewDisplay() { delete _obs_plotting; }
+
+public:
 	Picviz::PVView* get_view() { return _view; }
 	void set_view(Picviz::PVView* view) { _view = view; }
 	void set_current_view();
@@ -55,20 +60,27 @@ public slots:
 	void dragStarted(bool started);
 	void dragEnded();
 
+private slots:
+	void plotting_updated();
+
 signals:
 	void display_closed();
 	void try_automatic_tab_switch();
 
 private:
 	void maximize_on_screen(int screen_number);
+	void register_view(Picviz::PVView* view);
 
 private:
-	PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, const QString& name, bool can_be_central_widget, bool delete_on_close, PVWorkspaceBase* parent);
+	PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, std::function<QString()> name, bool can_be_central_widget, bool delete_on_close, PVWorkspaceBase* parent);
 
 private:
 	Picviz::PVView* _view;
+	std::function<QString()> _name;
 	PVWorkspaceBase* _workspace;
 	QPoint _press_pt;
+	PVHive::PVObserverSignal<Picviz::PVPlotting>*  _obs_plotting = nullptr;
+
 };
 
 }

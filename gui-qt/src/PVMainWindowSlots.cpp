@@ -547,9 +547,9 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 		if (dlg.exec() != QDialog::Accepted) {
 			return;
 		}
-		scene_p = current_scene()->shared_from_this();
-		int project_index = dlg.result();
+		int project_index = dlg.get_project_index();
 		select_scene(project_index);
+		scene_p = current_scene()->shared_from_this();
 	}
 
 	Picviz::PVSource_p src_p = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc);

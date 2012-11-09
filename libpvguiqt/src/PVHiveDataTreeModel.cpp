@@ -16,6 +16,7 @@ PVGuiQt::PVHiveDataTreeModel::PVHiveDataTreeModel(PVCore::PVDataTreeObjectBase& 
 	auto datatree_o = root.base_shared_from_this();
 	PVHive::get().register_observer(datatree_o, *obs);
 	obs->connect_refresh(this, SLOT(hive_refresh(PVHive::PVObserverBase*)));
+	obs->connect_about_to_be_deleted(this, SLOT(root_about_to_be_deleted(PVHive::PVObserverBase*)));
 
 	_root_recursive_observer = PVHive::create_observer_callback_heap<PVCore::PVDataTreeObjectBase>(
 		[](PVCore::PVDataTreeObjectBase const*) { },
@@ -25,6 +26,15 @@ PVGuiQt::PVHiveDataTreeModel::PVHiveDataTreeModel(PVCore::PVDataTreeObjectBase& 
 
 	auto root_sp = root.base_shared_from_this();
 	PVHive::get().register_observer(root_sp, *_root_recursive_observer);
+}
+
+int PVGuiQt::PVHiveDataTreeModel::rowCount(const QModelIndex &index) const
+{
+	if (!_view_valid) {
+		return 0;
+	}
+
+	return PVWidgets::PVDataTreeModel::rowCount(index);
 }
 
 bool PVGuiQt::PVHiveDataTreeModel::is_object_observed(PVCore::PVDataTreeObjectBase* o) const
@@ -49,6 +59,14 @@ void PVGuiQt::PVHiveDataTreeModel::register_all_observers()
 				PVHive::get().register_observer(datatree_o, *obs);
 				obs->connect_refresh(this, SLOT(hive_refresh(PVHive::PVObserverBase*)));
 				obs->connect_about_to_be_deleted(this, SLOT(about_to_be_deleted(PVHive::PVObserverBase*)));
+
+				// Refresh parent
+				PVCore::PVDataTreeObjectWithParentBase* o_with_parent = o->cast_with_parent();
+				if (o_with_parent) {
+					/*QModelIndex idx = index_from_obj(o_with_parent->get_parent_base());
+					emit dataChanged(idx, idx);*/
+					reset();
+				}
 			}
 		}
 	);
@@ -72,9 +90,16 @@ void PVGuiQt::PVHiveDataTreeModel::hive_refresh(PVHive::PVObserverBase* o)
 	emit dataChanged(idx, idx);
 }
 
+void PVGuiQt::PVHiveDataTreeModel::root_about_to_be_deleted(PVHive::PVObserverBase* o)
+{
+	beginResetModel();
+	_view_valid = false;
+	endResetModel();
+}
+
 void PVGuiQt::PVHiveDataTreeModel::about_to_be_deleted(PVHive::PVObserverBase* o)
 {
-	/*datatree_obs_t* real_o = dynamic_cast<datatree_obs_t*>(o);
+	 /*datatree_obs_t* real_o = dynamic_cast<datatree_obs_t*>(o);
 	assert(real_o);
 	const PVCore::PVDataTreeObjectBase* obj_base = real_o->get_object();
 	QModelIndex idx = index_from_obj(obj_base);
