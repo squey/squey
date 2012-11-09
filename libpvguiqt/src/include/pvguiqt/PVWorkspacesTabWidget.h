@@ -130,7 +130,7 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 	friend class PVOpenWorkspaceTabBar;
 
 public:
-	PVWorkspacesTabWidgetBase(QWidget* parent = 0);
+	PVWorkspacesTabWidgetBase(Picviz::PVRoot& root, QWidget* parent = 0);
 
 public:
 	virtual int get_correlation_index() = 0;
@@ -148,7 +148,7 @@ signals:
 protected slots:
 	virtual void correlation_changed(int index) = 0;
 	void tabCloseRequested_Slot(int index);
-	void update_correlations_list();
+	virtual void update_correlations_list();
 
 private slots:
 	int get_tab_width() const { return 0; }
@@ -162,10 +162,16 @@ protected:
 	QComboBox* _combo_box;
 	PVSceneTabBar* _tab_bar;
 
+	inline Picviz::PVRoot const& get_root() const { return _root; }
+	inline Picviz::PVRoot& get_root() { return _root; }
+
 private:
 	int _tab_animated_width;
 	bool _tab_animation_ongoing = false;
 	int _tab_animation_index;
+	
+	PVHive::PVObserverSignal<Picviz::PVRoot>* _obs;
+	Picviz::PVRoot& _root;
 };
 
 /******************************************************************************
@@ -193,6 +199,9 @@ public:
 
 protected:
 	void tabRemoved(int index) override;
+
+protected slots:
+	void update_correlations_list() override;
 
 signals:
 	void project_modified(bool, QString = QString());
@@ -229,7 +238,7 @@ class PVOpenWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
 	friend class PVOpenWorkspaceTabBar;
 
 public:
-	PVOpenWorkspacesTabWidget(QWidget* parent = 0);
+	PVOpenWorkspacesTabWidget(Picviz::PVRoot& root, QWidget* parent = 0);
 
 public:
 	int get_correlation_index() override;

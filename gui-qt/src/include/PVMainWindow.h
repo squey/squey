@@ -348,8 +348,8 @@ protected:
 	void set_version_informations();
 
 private:
-	static Picviz::PVRoot& get_root();
-	static Picviz::PVRoot_sp get_root_sp();
+	Picviz::PVRoot& get_root();
+	Picviz::PVRoot_sp get_root_sp();
 
 signals:
 	void change_of_current_view_Signal();
@@ -364,6 +364,7 @@ private:
 	QString _cur_project_file;
 	bool _cur_project_save_everything;
 	static int sequence_n;
+	Picviz::PVRoot_sp _root;
 
 private:
 	version_t _last_known_cur_release;

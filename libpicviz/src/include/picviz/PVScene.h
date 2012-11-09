@@ -83,7 +83,7 @@ public:
 	void add_source(PVSource_p const& src);
 	Picviz::PVSource_p add_source_from_description(const PVRush::PVSourceDescription& descr);
 
-	virtual QString get_serialize_description() const { return "Scene"; }
+	virtual QString get_serialize_description() const { return get_name(); }
 
 protected:
 	/*int32_t get_new_view_id() const;

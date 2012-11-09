@@ -743,6 +743,14 @@ void Picviz::PVAD2GView::save_to_file(QString const& path)
 	ar->finish();
 }
 
+QList<Picviz::PVView*> Picviz::PVAD2GView::get_used_views() const
+{
+	QSet<Picviz::PVView*> ret;
+	visit_edges([&ret](Picviz::PVCombiningFunctionView&, Picviz::PVView& va, Picviz::PVView& vb)
+		{ ret << &va; ret << &vb; });
+	return ret.toList();
+}
+
 void Picviz::PVAD2GView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	// Get the tulip graph file

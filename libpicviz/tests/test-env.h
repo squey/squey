@@ -5,7 +5,9 @@
  */
 
 #include <stdlib.h>
-
+#include <picviz/common.h>
+#include <pvbase/general.h>
+#include <pvkernel/core/picviz_intrin.h>
 
 #ifdef WIN32
 #define pv_setenv(a,b,c) putenv(a "=" b)
@@ -15,14 +17,17 @@
 
 void init_env()
 {
-	pv_setenv("PVRUSH_NORMALIZE_DIR","../../libpvkernel/plugins/normalize",0);
-	pv_setenv("PVFILTER_NORMALIZE_DIR","../../libpvkernel/plugins/normalize",0);
-	pv_setenv("PVRUSH_NORMALIZE_HELPERS_DIR","../../libpvkernel/plugins/normalize-helpers:./test-formats",0);
-	//pv_setenv("PICVIZ_DEBUG_LEVEL","DEBUG",0);
+	PVCore::PVIntrinsics::init_cpuid();
+	pv_setenv("PVRUSH_NORMALIZE_DIR",PICVIZ_BUILD_DIRECTORY "/libpvkernel/plugins/normalize",0);
+	pv_setenv("PVFILTER_NORMALIZE_DIR",PICVIZ_BUILD_DIRECTORY "/libpvkernel/plugins/normalize",0);
+	pv_setenv("PVRUSH_NORMALIZE_HELPERS_DIR",PICVIZ_SOURCE_DIRECTORY "/libpvkernel/plugins/normalize-helpers:./test-formats",0);
 	pv_setenv("PICVIZ_CACHE_DIR","./cache",0);
-	pv_setenv("PVRUSH_INPUTTYPE_DIR","../../libpvkernel/plugins/input_types",0);
-	pv_setenv("PVRUSH_SOURCE_DIR","../../libpvkernel/plugins/sources",0);
-	pv_setenv("PICVIZ_MAPPING_FILTERS_DIR","../plugins/mapping-filters",0);
-	pv_setenv("PICVIZ_PLOTTING_FILTERS_DIR","../plugins/plotting-filters",0);
-	pv_setenv("PICVIZ_ROW_FILTERS_DIR","../plugins/row-filters",0);
+	pv_setenv("PVRUSH_INPUTTYPE_DIR",PICVIZ_BUILD_DIRECTORY "/libpvkernel/plugins/input_types",0);
+	pv_setenv("PVRUSH_SOURCE_DIR",PICVIZ_BUILD_DIRECTORY "/libpvkernel/plugins/sources",0);
+	pv_setenv("PICVIZ_MAPPING_FILTERS_DIR",PICVIZ_BUILD_DIRECTORY "/libpicviz/plugins/mapping-filters",0);
+	pv_setenv("PICVIZ_PLOTTING_FILTERS_DIR",PICVIZ_BUILD_DIRECTORY "/libpicviz/plugins/plotting-filters",0);
+	pv_setenv("PICVIZ_LAYER_FILTERS_DIR",PICVIZ_BUILD_DIRECTORY "/libpicviz/plugins/layer-filters",0);
+	pv_setenv("PICVIZ_ROW_FILTERS_DIR",PICVIZ_BUILD_DIRECTORY "/libpicviz/plugins/row-filters",0);
+	pv_setenv("PVGL_SHARE_DIR",PICVIZ_SOURCE_DIRECTORY "/libpvgl/data/",0);
+	Picviz::common::load_filters();
 }

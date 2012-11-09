@@ -26,8 +26,9 @@ IMPL_WAX(Picviz::PVRoot::select_view, root, args)
 
 IMPL_WAX(Picviz::PVRoot::add_correlation, root, args)
 {
-	call_object_default<Picviz::PVRoot, FUNC(Picviz::PVRoot::add_correlation)>(root, args);
+	Picviz::PVAD2GView* ret = call_object_default<Picviz::PVRoot, FUNC(Picviz::PVRoot::add_correlation)>(root, args);
 	refresh_observers(&root->get_correlations());
+	return ret;
 }
 
 IMPL_WAX(Picviz::PVRoot::delete_correlation, root, args)

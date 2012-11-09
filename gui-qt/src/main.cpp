@@ -31,13 +31,15 @@
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/qobject_helpers.h>
 
-#include <pvguiqt/PVViewDisplay.h>
-
+#include <picviz/common.h>
 #include <picviz/PVRoot.h>
 
 #include <pvparallelview/PVParallelView.h>
 
 #include <pvguiqt/common.h>
+#include <pvguiqt/PVViewDisplay.h>
+
+#include <pvdisplays/PVDisplaysImpl.h>
 
 #include <boost/program_options.hpp>
 
@@ -204,7 +206,7 @@ int main(int argc, char *argv[])
 	int ret = app.exec();
 
 	PVParallelView::common::release();
-	Picviz::PVRoot::release();
+	PVDisplays::release();
 
 	return ret;
 }

@@ -198,6 +198,23 @@ QList<PVRush::PVInputType_p> Picviz::PVScene::get_all_input_types() const
 	return ret;
 }
 
+void Picviz::PVScene::add_source(PVSource_p const& src)
+{
+	add_child(src);
+}
+
+Picviz::PVSource_p Picviz::PVScene::add_source_from_description(const PVRush::PVSourceDescription& descr)
+{
+	PVSource_p src_p(
+		shared_from_this(),
+		descr.get_inputs(),
+		descr.get_source_creator(),
+		descr.get_format()
+	);
+
+	return src_p;
+}
+
 void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
 	// Get the list of input types
@@ -230,9 +247,12 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 
 	data_tree_scene_t::serialize_read(so, v);
 
-	// Correlation, make this optional for compatibility with old project (so that we are still in version 1 :))
-	//_ad2g_view.reset(new Picviz::PVAD2GView(/*this*/));
-	//so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);
+	// Correlation
+	// Optional in version 1
+	PVRoot::correlations_t corrs;
+	if (so.list("correlations", corrs, QString(), (PVAD2GView*) NULL, QStringList(), true, true)) {
+		get_parent<PVRoot>()->add_correlations(corrs);
+	}
 }
 
 void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
@@ -260,7 +280,22 @@ void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 	data_tree_scene_t::serialize_write(so);
 
 	// Correlation (optional)
-	//so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);
+	// Save correlations that works for us
+	const bool root_corr_serialized = get_parent<PVRoot>()->are_correlations_serialized();
+	QList<PVAD2GView_p> corrs = get_parent<PVRoot>()->get_correlations_for_scene(*this);
+	if (root_corr_serialized) {
+		QStringList corrs_path;
+		for (PVAD2GView_p const& c: corrs) {
+			QString c_path = get_parent<PVRoot>()->get_serialized_correlation_path(c);
+			corrs_path << c_path;
+		}
+		so.list_attributes("correlations_path", corrs_path);
+	}
+	else {
+		PVCore::PVSerializeObject_p so_correlations = so.list("correlations", get_parent<PVRoot>()->get_correlations(), QObject::tr("Correlations"));
+		QString cur_path = so_correlations->get_child_path(get_parent<PVRoot>()->current_correlation());
+		so.attribute("current_correlation", cur_path);
+	}
 }
 
 PVCore::PVSerializeObject_p Picviz::PVScene::get_so_inputs(PVSource const& src)
@@ -273,23 +308,6 @@ PVCore::PVSerializeArchiveOptions_p Picviz::PVScene::get_default_serialize_optio
 	PVCore::PVSerializeArchiveOptions_p ar(new PVCore::PVSerializeArchiveOptions(PICVIZ_ARCHIVES_VERSION));
 	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
 	return ar;
-}
-
-void Picviz::PVScene::add_source(PVSource_p const& src)
-{
-	add_child(src);
-}
-
-Picviz::PVSource_p Picviz::PVScene::add_source_from_description(const PVRush::PVSourceDescription& descr)
-{
-	PVSource_p src_p(
-		shared_from_this(),
-		descr.get_inputs(),
-		descr.get_source_creator(),
-		descr.get_format()
-	);
-
-	return src_p;
 }
 
 void Picviz::PVScene::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options, bool save_everything)

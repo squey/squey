@@ -24,6 +24,8 @@
 #include <QCoreApplication>
 #include "test-env.h"
 
+#include <tulip/Graph.h>
+
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
@@ -57,27 +59,68 @@ int main(int argc, char** argv)
 
 	// Create the PVSource object
 	Picviz::PVRoot_p root;
-	Picviz::PVScene_p scene(root, "scene");
+	Picviz::PVScene_p scene(root, "scene0");
 	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	scene->add_source(src);
 	PVRush::PVControllerJob_p job = src->extract();
 	job->wait_end();
+	src->create_default_view();
+	src->create_default_view();
 
-	// Dump the NRAW
-	src->get_rushnraw().dump_csv();
+	Picviz::PVView& v0 = *src->get_children<Picviz::PVView>().at(0);
+	Picviz::PVView& v1 = *src->get_children<Picviz::PVView>().at(1);
 
-	// Serialize the scene
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::write, 1));
-	ar->get_root()->object("scene", *scene);
+	Picviz::PVScene_p scene2(root, "scene1");
+	Picviz::PVSource_p src2(scene2, PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	src2->create_default_view();
+	src2->create_default_view();
+
+	Picviz::PVView& v2 = *src2->get_children<Picviz::PVView>().at(0);
+	Picviz::PVView& v3 = *src2->get_children<Picviz::PVView>().at(1);
+
+	// Set correlations
+	Picviz::PVAD2GView& corr0 = *root->add_correlation("corr0");
+	corr0.add_view(&v0);
+	corr0.add_view(&v1);
+
+	Picviz::PVCombiningFunctionView_p cfv0(new Picviz::PVCombiningFunctionView());
+	corr0.set_edge_f(&v0, &v1, cfv0);
+
+	Picviz::PVAD2GView& corr1 = *root->add_correlation("corr1");
+	corr1.add_view(&v2);
+	corr1.add_view(&v3);
+
+	Picviz::PVCombiningFunctionView_p cfv1(new Picviz::PVCombiningFunctionView());
+	corr1.set_edge_f(&v2, &v3, cfv1);
+
+	Picviz::PVAD2GView& corr2 = *root->add_correlation("corr2");
+	corr2.add_view(&v0);
+	corr2.add_view(&v2);
+
+	Picviz::PVCombiningFunctionView_p cfv2(new Picviz::PVCombiningFunctionView());
+	corr2.set_edge_f(&v0, &v2, cfv2);
+
+	root->select_correlation(0);
+
+	// Serialize the root object
+	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive("/srv/tmp-picviz/test", PVCore::PVSerializeArchive::write, 1));
+	ar->get_root()->object("root", *root);
 	ar->finish();
+
+	src.reset();
+	scene.reset();
+	v0.remove_from_tree();
+	v1.remove_from_tree();
+	root.reset(new Picviz::PVRoot());
 
 	// Get it back !
-	src.reset();
-	scene = Picviz::PVScene_p(root, "scene");
-	ar.reset(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::read, 1));
-	ar->get_root()->object("scene", *scene);
+	ar.reset(new PVCore::PVSerializeArchive("/srv/tmp-picviz/test", PVCore::PVSerializeArchive::read, 1));
+	ar->get_root()->object("root", *root);
 	ar->finish();
 
+	root->dump();
+
+#if 0
 	Picviz::PVScene::list_sources_t srcs = scene->get_sources(*sc_file->supported_type_lib());
 	if (srcs.size() != 1) {
 		std::cerr << "No source was recreated !" << std::endl;
@@ -91,6 +134,7 @@ int main(int argc, char** argv)
 	std::cerr << "--------" << std::endl << "New output: " << std::endl << "----------" << std::endl << std::endl;
 	// Dump the NRAW
 	src->get_rushnraw().dump_csv();
+#endif
 
 	return 0;
 }

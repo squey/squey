@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 	}
 
 	// Create the PVSource object
-	Picviz::PVRoot_sp root = Picviz::PVRoot::get_root_sp();
+	Picviz::PVRoot_p root;
 	Picviz::PVScene_p scene(root, "scene");
 	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	PVRush::PVControllerJob_p job = src->extract();
@@ -91,7 +91,5 @@ int main(int argc, char** argv)
 	view->process_visibility();
 	BENCH_END(visibility, "visibility", 1, 1, 1, 1);
 	
-	Picviz::PVRoot::release();
-
 	return 0;
 }

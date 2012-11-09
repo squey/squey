@@ -11,14 +11,14 @@
 
 #include <tulip/TlpTools.h>
 
-Picviz::PVRoot_sp Picviz::PVRoot::_unique_root;
-
 /******************************************************************************
  *
  * Picviz::PVRoot::PVRoot
  *
  *****************************************************************************/
-Picviz::PVRoot::PVRoot() : data_tree_root_t()
+Picviz::PVRoot::PVRoot():
+	data_tree_root_t(),
+	_current_correlation(nullptr)
 {
 }
 
@@ -30,24 +30,6 @@ Picviz::PVRoot::PVRoot() : data_tree_root_t()
 Picviz::PVRoot::~PVRoot()
 {
 	PVLOG_INFO("In PVRoot destructor\n");
-}
-
-Picviz::PVRoot& Picviz::PVRoot::get_root()
-{
-	return *get_root_sp();
-}
-
-Picviz::PVRoot_sp Picviz::PVRoot::get_root_sp()
-{
-	if (!_unique_root) {
-		_unique_root.reset(new Picviz::PVRoot());
-	}
-	return _unique_root;
-}
-
-void Picviz::PVRoot::release()
-{
-	_unique_root.reset();
 }
 
 Picviz::PVView* Picviz::PVRoot::current_view()
@@ -122,9 +104,17 @@ Picviz::PVAD2GView_p Picviz::PVRoot::get_correlation(int index)
  * Picviz::PVRoot::add_correlation
  *
  *****************************************************************************/
-void Picviz::PVRoot::add_correlation(const QString & name)
+Picviz::PVAD2GView* Picviz::PVRoot::add_correlation(const QString & name)
 {
 	_correlations.push_back(PVAD2GView_p(new PVAD2GView(name)));
+	return _correlations.back().get();
+}
+
+void Picviz::PVRoot::add_correlations(correlations_t const& corrs)
+{
+	for (PVAD2GView_p const& c: corrs) {
+		_correlations.push_back(c);
+	}
 }
 
 /******************************************************************************
@@ -170,4 +160,43 @@ QList<Picviz::PVView*> Picviz::PVRoot::process_correlation(PVView* src_view)
 	}
 
 	return changed_views;
+}
+
+QList<Picviz::PVAD2GView_p> Picviz::PVRoot::get_correlations_for_scene(Picviz::PVScene const& scene) const
+{
+	QList<PVAD2GView_p> ret;
+	for (PVAD2GView_p const& c: get_correlations()) {
+		QList<Picviz::PVView*> c_views = c->get_used_views();	
+		if (scene.children_belongs_to_me(c_views)) {
+			ret << c;
+		}
+	}
+	return ret;
+}
+
+void Picviz::PVRoot::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+{
+	_correlations.clear();
+	_so_correlations = so.list("correlations", _correlations, QObject::tr("Correlations"));
+
+	QString cur_path;
+	so.attribute("current_correlation", cur_path);
+	PVCore::PVSerializeObject_p so_cur_corr = _so_correlations->get_object_by_path(cur_path);
+	_current_correlation = so_cur_corr->bound_obj_as<PVAD2GView>();
+	PVLOG_INFO("%d correlations loaded. %p is current one.\n", _correlations.size(), _current_correlation);
+	
+	data_tree_root_t::serialize_read(so, v);
+
+	_so_correlations.reset();
+}
+
+void Picviz::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
+{
+	_so_correlations = so.list("correlations", _correlations, QObject::tr("Correlations"));
+	QString cur_path = _so_correlations->get_child_path(_current_correlation);
+	so.attribute("current_correlation", cur_path);
+
+	data_tree_root_t::serialize_write(so);
+
+	_so_correlations.reset();
 }

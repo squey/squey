@@ -605,7 +605,7 @@ void PVInspector::PVMainWindow::show_correlation(int index)
 	std::cout << "PVInspector::PVMainWindow::show_correlation" << std::endl;
 	QDialog* ad2g_dialog = new QDialog(this);
 	ad2g_dialog->setWindowTitle(tr("Correlations"));
-	PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(get_root().get_correlation(index));
+	PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(get_root().get_correlation(index), get_root());
 	QVBoxLayout* l = new QVBoxLayout();
 	l->addWidget(ad2g_w);
 	ad2g_dialog->setLayout(l);

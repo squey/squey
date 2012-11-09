@@ -12,15 +12,15 @@
 #include <QTableWidget>
 #include <QTableWidget>
 
+#include <pvkernel/core/general.h>
+
+#include <picviz/PVAD2GView_types.h>
+#include <picviz/PVRoot_types.h>
+#include <picviz/widgets/PVAD2GEdgeEditor.h>
+
 #include <tulip/NodeLinkDiagramComponent.h>
 #include <tulip/Observable.h>
 #include <tulip/TlpQtTools.h>
-
-#include <pvkernel/core/general.h>
-#include <picviz/PVAD2GView_types.h>
-
-#include <picviz/widgets/PVAD2GEdgeEditor.h>
-
 
 namespace PVWidgets {
 
@@ -52,7 +52,7 @@ class LibPicvizDecl PVAD2GWidget : public QWidget, public tlp::Observable
 	typedef std::set<tlp::Observable*>::iterator ObserverIterator;
 
 public:
-	PVAD2GWidget(Picviz::PVAD2GView_p ad2g, QWidget* parent = NULL);
+	PVAD2GWidget(Picviz::PVAD2GView_p ad2g, Picviz::PVRoot& root, QWidget* parent = NULL);
 	virtual ~PVAD2GWidget();
 
 public:
@@ -85,6 +85,8 @@ private:
 	void clearObservers();
 	void set_enabled_view_item_in_table(Picviz::PVView* view, bool enabled);
 
+	Picviz::PVRoot& get_root() const { return _root; }
+
 private:
 	Picviz::PVAD2GView_p _ad2g;
 	AD2GNodeLinkDiagramComponent* _nodeLinkView;
@@ -97,6 +99,8 @@ private:
 
 	AD2GInteractor* _ad2g_interactor;
 	PVAD2GListEdgesWidget* _list_edges_widget ;
+
+	Picviz::PVRoot& _root;
 };
 
 namespace __impl {

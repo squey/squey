@@ -83,7 +83,7 @@ PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Picviz::PVRoot* root, QW
 	QSplitter* main_splitter = new QSplitter(Qt::Horizontal, this);
 
 	// Open workspaces
-	_tab_widget = new PVOpenWorkspacesTabWidget();
+	_tab_widget = new PVOpenWorkspacesTabWidget(*root);
 
 	// Data tree from PVRoot
 	__impl::RootTreeModelViewsSelectable* tree_model = new __impl::RootTreeModelViewsSelectable(*root);

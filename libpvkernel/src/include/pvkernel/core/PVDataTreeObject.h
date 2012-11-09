@@ -208,6 +208,18 @@ public:
 		std::cout << ")" << std::endl;
 	}
 
+	template <typename T>
+	bool children_belongs_to_me(T const& children) const
+	{
+		typedef typename T::value_type other_child_t;
+		for (other_child_t const& c: children) {
+			if (PVCore::PVTypeTraits::get_pointer(c)->template get_parent<real_type_t>() != static_cast<real_type_t const*>(this)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 public:
 	virtual children_base_t get_children_base() const
 	{

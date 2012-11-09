@@ -101,10 +101,11 @@ bool PVWidgets::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent
 	return false;
 }
 
-PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView_p ad2g, QWidget* parent):
+PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView_p ad2g, Picviz::PVRoot& root, QWidget* parent):
 	QWidget(parent),
 	_ad2g(ad2g),
-	_graph(_ad2g->get_graph())
+	_graph(_ad2g->get_graph()),
+	_root(root)
 {
 	// Widgets
 	_nodeLinkView = new AD2GNodeLinkDiagramComponent();
@@ -180,7 +181,7 @@ PVWidgets::PVAD2GWidget::~PVAD2GWidget()
 void PVWidgets::PVAD2GWidget::add_view_Slot(QObject* mouse_event)
 {
 	QMouseEvent* event = (QMouseEvent*) mouse_event;
-	auto view_p = Picviz::PVRoot::get_root().get_children<Picviz::PVView>()[_table->currentRow()];
+	auto view_p = get_root().get_children<Picviz::PVView>()[_table->currentRow()];
 	add_view(event->pos(), view_p.get());
 }
 
@@ -349,7 +350,7 @@ void PVWidgets::PVAD2GWidget::update_list_views()
 	tlp::StringProperty* label = _graph->getProperty<tlp::StringProperty>("viewLabel");
 	tlp::IntegerProperty* view_id_prop = _graph->getProperty<tlp::IntegerProperty>("view_id");
 
-	auto all_views =  Picviz::PVRoot::get_root().get_children<Picviz::PVView>();
+	auto all_views = get_root().get_children<Picviz::PVView>();
 	_table->setRowCount(all_views.size());
 
 	for (auto view_p : all_views) {

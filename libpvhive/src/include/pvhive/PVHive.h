@@ -71,12 +71,13 @@ inline void hive_deleter(void *ptr);
 
 
 // definition of PVCallReturn
-template <typename T, typename F, F f, bool is_void = std::is_void<typename PVCore::PVTypeTraits::function_traits<F>::result_type>::value>
+template <typename T, typename F, F f, bool is_void = std::is_void<typename PVCore::PVTypeTraits::function_traits<F>::result_type>::value,
+                                       bool is_ref  = std::is_reference<typename PVCore::PVTypeTraits::function_traits<F>::result_type>::value>
 class PVCallReturn;
 
-// Specialization for functions returning non-void
+// Specialization for functions returning non-void and non-reference
 template <typename T, typename F, F f>
-class PVCallReturn<T, F, f, false>
+class PVCallReturn<T, F, f, false, false>
 {
 public:
 	typedef typename PVCore::PVTypeTraits::function_traits<F>::result_type result_type;
@@ -91,9 +92,26 @@ private:
 	result_type _result;
 };
 
+// Specialization for functions returning non-void and reference
+template <typename T, typename F, F f>
+class PVCallReturn<T, F, f, false, true>
+{
+public:
+	typedef typename PVCore::PVTypeTraits::function_traits<F>::result_type result_type;
+
+public:
+	template<typename... P>
+	inline void call(T* object, P && ... params) { _result = &(object->*f)(std::forward<P>(params)...); }
+	inline result_type result() const { return *_result; }
+	inline result_type default_value() const { return *_result; }
+
+private:
+	typename std::remove_reference<result_type>::type * _result;
+};
+
 // Specialization for functions returning void
 template <typename T, typename F, F f>
-class PVCallReturn<T, F, f, true>
+class PVCallReturn<T, F, f, true, false>
 {
 public:
 	template<typename... P>

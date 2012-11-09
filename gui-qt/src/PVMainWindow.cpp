@@ -72,10 +72,9 @@ Q_DECLARE_METATYPE(Picviz::PVSource*);
 
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QMainWindow(parent),
-	_load_project_dlg(this, tr("Load a project..."), QString(), PICVIZ_SCENE_ARCHIVE_FILTER ";;" ALL_FILES_FILTER)
+	_load_project_dlg(this, tr("Load a project..."), QString(), PICVIZ_SCENE_ARCHIVE_FILTER ";;" ALL_FILES_FILTER),
+	_root(new Picviz::PVRoot())
 {
-	get_root();
-
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
 
@@ -228,14 +227,16 @@ bool PVInspector::PVMainWindow::event(QEvent* event)
 	return QMainWindow::event(event);
 }
 
+// These two methods are intentionally put in PVMainWindow's implementation
+// as this might change in the near future and save lots of compilation time.
 Picviz::PVRoot& PVInspector::PVMainWindow::get_root()
 {
-	return Picviz::PVRoot::get_root();
+	return *_root;
 }
 
 Picviz::PVRoot_sp PVInspector::PVMainWindow::get_root_sp()
 {
-	return Picviz::PVRoot::get_root_sp();
+	return _root;
 }
 
 /******************************************************************************

@@ -67,7 +67,7 @@ class PVAD2GView
 
 	typedef PVAD2GView_p p_type;
 public:
-	PVAD2GView(const QString & name);
+	PVAD2GView(const QString & name = QString());
 	~PVAD2GView();
 
 public:
@@ -83,6 +83,7 @@ public:
 	void del_view(Picviz::PVView *view);
 	void del_view_by_node(tlp::node node);
 	Picviz::PVView* get_view(tlp::node node);
+	QList<Picviz::PVView*> get_used_views() const;
 
 public:
 	tlp::edge set_edge_f(const Picviz::PVView *va, const Picviz::PVView *vb,
