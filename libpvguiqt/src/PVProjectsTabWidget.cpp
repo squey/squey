@@ -218,8 +218,10 @@ void PVGuiQt::PVProjectsTabWidget::remove_project(int index)
 {
 	if (index != -1) {
 		PVSceneWorkspacesTabWidget* tab_widget = (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(index);
+		tab_widget->get_scene()->remove_from_tree();
 		_tab_widget->removeTab(index);
 		_stacked_widget->removeWidget(tab_widget);
+
 		tab_widget->deleteLater();
 
 		if (_tab_widget->count() == 2) {
