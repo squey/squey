@@ -11,6 +11,8 @@
 
 #include <pvkernel/core/lambda_connect.h>
 
+#include <picviz/PVAD2GView.h>
+
 #include <pvhive/PVHive.h>
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVObserverSignal.h>
@@ -333,7 +335,7 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::animation_state_changed(QAbstractAnimat
 
 void PVGuiQt::PVWorkspacesTabWidgetBase::correlation_changed(int index)
 {
-	get_root().select_correlation(index-1);
+	get_root().select_correlation(get_correlation());
 }
 
 void PVGuiQt::PVWorkspacesTabWidgetBase::update_correlations_list()
@@ -343,12 +345,22 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::update_correlations_list()
 	Picviz::PVRoot::correlations_t const& corrs = get_root().get_correlations();
 	for (Picviz::PVAD2GView_p const& c: corrs) {
 		_combo_box->addItem(c->get_name());
+		_combo_box->setItemData(_combo_box->count()-1, qVariantFromValue((void*) c.get()), Qt::UserRole);
 	}
-	int index = get_correlation_index();
-	if (index == -1) {
-		get_root().select_correlation(index++);
+	Picviz::PVAD2GView* correlation = get_correlation();
+	get_root().select_correlation(correlation);
+	_combo_box->setCurrentIndex(get_index_from_correlation(correlation));
+}
+
+int PVGuiQt::PVWorkspacesTabWidgetBase::get_index_from_correlation(void* correlation)
+{
+	for (int i = 0; i < _combo_box->count(); i++) {
+		void* corr = _combo_box->itemData(i, Qt::UserRole).value<void*>();
+		if (correlation == corr) {
+			return i;
+		}
 	}
-	_combo_box->setCurrentIndex(index);
+	return 0;
 }
 
 void PVGuiQt::PVWorkspacesTabWidgetBase::tabCloseRequested_Slot(int index)
@@ -423,8 +435,9 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tabRemoved(int index)
 
 void PVGuiQt::PVSceneWorkspacesTabWidget::correlation_changed(int index)
 {
+	_correlation = (Picviz::PVAD2GView*) _combo_box->itemData(index, Qt::UserRole).value<void*>();
+
 	PVWorkspacesTabWidgetBase::correlation_changed(index);
-	_correlation_name = _combo_box->itemText(index);
 }
 
 void PVGuiQt::PVSceneWorkspacesTabWidget::remove_workspace(int index, bool close_source /*= true*/)
@@ -529,30 +542,32 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::tab_changed(int index)
 		if (_combo_box) {
 			PVOpenWorkspace * open_workspace = (PVOpenWorkspace*) widget(index);
 			if (open_workspace) {
-				int idx = open_workspace->get_correlation_index();
-				_combo_box->setCurrentIndex(idx);
-				get_root().select_correlation(idx-1);
+				Picviz::PVAD2GView* correlation = open_workspace->get_correlation();
+				_combo_box->setCurrentIndex(get_index_from_correlation(correlation));
+				get_root().select_correlation(correlation);
 			}
 		}
 	}
 }
 
-int PVGuiQt::PVOpenWorkspacesTabWidget::get_correlation_index()
+Picviz::PVAD2GView* PVGuiQt::PVOpenWorkspacesTabWidget::get_correlation()
 {
 	PVGuiQt::PVOpenWorkspace* open_workspace = qobject_cast<PVGuiQt::PVOpenWorkspace*>(currentWidget());
 	if (open_workspace) {
-		return open_workspace->get_correlation_index();
+		return open_workspace->get_correlation();
 	}
-	return 0;
+	return nullptr;
 }
 
 void PVGuiQt::PVOpenWorkspacesTabWidget::correlation_changed(int index)
 {
-	PVWorkspacesTabWidgetBase::correlation_changed(index);
 	PVGuiQt::PVOpenWorkspace* open_workspace = qobject_cast<PVGuiQt::PVOpenWorkspace*>(currentWidget());
 	if (open_workspace) {
-		open_workspace->set_correlation_index(index);
+		Picviz::PVAD2GView* correlation = (Picviz::PVAD2GView*) _combo_box->itemData(index, Qt::UserRole).value<void*>();
+		open_workspace->set_correlation(correlation);
 	}
+
+	PVWorkspacesTabWidgetBase::correlation_changed(index);
 }
 
 void PVGuiQt::PVOpenWorkspacesTabWidget::tabRemoved(int index)

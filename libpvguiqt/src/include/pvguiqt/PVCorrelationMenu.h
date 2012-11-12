@@ -14,7 +14,14 @@
 #include <QMouseEvent>
 #include <QLineEdit>
 
+#include <picviz/PVAD2GView_types.h>
+
 #include <iostream>
+
+namespace Picviz
+{
+class PVRoot;
+}
 
 namespace PVGuiQt
 {
@@ -24,25 +31,18 @@ class PVCorrelationMenu : public QMenu
 	Q_OBJECT;
 
 public:
-	PVCorrelationMenu(QWidget* parent = 0);
-
-signals:
-	void correlation_added(const QString & name);
-	void correlation_shown(int index);
-	void correlation_deleted(int index);
-	void correlations_enabled(bool enabled);
+	PVCorrelationMenu(Picviz::PVRoot* root, QWidget* parent = 0);
 
 private slots:
 	void create_new_correlation();
 	void show_correlation();
-	void show_correlation(int index);
+	void show_correlation(Picviz::PVAD2GView* correlation);
 	void delete_correlation();
+	void enable_correlations(bool enable);
 
 private:
-	void add_new_correlation(const QString & title);
-	int get_correlation_index_from_subaction(QAction* action);
+	Picviz::PVRoot* _root;
 
-private:
 	QAction* _separator_first_correlation;
 	QAction* _separator_create_correlation;
 	QAction* _action_create_correlation;

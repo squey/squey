@@ -12,7 +12,6 @@
 #include <pvkernel/core/PVVersion.h>
 
 #include <picviz/PVAxisComputation.h>
-#include <picviz/widgets/PVAD2GWidget.h>
 #include <picviz/PVPlotting.h>
 #include <picviz/PVMapping.h>
 
@@ -772,36 +771,6 @@ void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_
 		_projects_tab_widget->remove_workspace(workspace, false);
 		other->_projects_tab_widget->add_workspace((PVGuiQt::PVWorkspace*) workspace);
 	}
-}
-
-void PVInspector::PVMainWindow::add_correlation(const QString & name)
-{
-	Picviz::PVRoot_sp root_sp = get_root_sp();
-	PVHive::call<FUNC(Picviz::PVRoot::add_correlation)>(root_sp, name);
-}
-
-void PVInspector::PVMainWindow::show_correlation(int index)
-{
-	std::cout << "PVInspector::PVMainWindow::show_correlation" << std::endl;
-	QDialog* ad2g_dialog = new QDialog(this);
-	ad2g_dialog->setWindowTitle(tr("Correlations"));
-	PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(get_root().get_correlation(index), get_root());
-	QVBoxLayout* l = new QVBoxLayout();
-	l->addWidget(ad2g_w);
-	ad2g_dialog->setLayout(l);
-	ad2g_dialog->exec();
-}
-
-void PVInspector::PVMainWindow::delete_correlation(int index)
-{
-	Picviz::PVRoot_sp root_sp = get_root_sp();
-	PVHive::call<FUNC(Picviz::PVRoot::delete_correlation)>(root_sp, index);
-}
-
-void PVInspector::PVMainWindow::enable_correlations(bool enabled)
-{
-	Picviz::PVRoot_sp root_sp = get_root_sp();
-	PVHive::call<FUNC(Picviz::PVRoot::enable_correlations)>(root_sp, enabled);
 }
 
 bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p ar)

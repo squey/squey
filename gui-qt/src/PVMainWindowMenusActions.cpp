@@ -233,7 +233,7 @@ void PVInspector::PVMainWindow::create_menus()
 	// layer_Menu->addAction(commit_selection_in_current_layer_Action);
 	// layer_Menu->addAction(commit_selection_to_new_layer_Action);
 	
-	correlation_Menu = new PVGuiQt::PVCorrelationMenu();
+	correlation_Menu = new PVGuiQt::PVCorrelationMenu(&get_root());
 	menubar->addMenu(correlation_Menu);
 
 	view_Menu = menubar->addMenu(tr("&View"));
@@ -347,11 +347,6 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(expand_selection_on_axis_Action, SIGNAL(triggered()), this, SLOT(expand_selection_on_axis_Slot()));
 
 	connect(set_color_Action, SIGNAL(triggered()), this, SLOT(set_color_Slot()));
-
-	connect(correlation_Menu, SIGNAL(correlation_added(const QString &)), this, SLOT(add_correlation(const QString &)));
-	connect(correlation_Menu, SIGNAL(correlation_shown(int)), this, SLOT(show_correlation(int)));
-	connect(correlation_Menu, SIGNAL(correlation_deleted(int)), this, SLOT(delete_correlation(int)));
-	connect(correlation_Menu, SIGNAL(correlations_enabled(bool)), this, SLOT(enable_correlations(bool)));
 
 	//connect(commit_selection_in_current_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_in_current_layer_Slot()));
 	connect(commit_selection_to_new_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_to_new_layer_Slot()));

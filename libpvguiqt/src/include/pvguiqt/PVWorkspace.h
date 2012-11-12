@@ -150,11 +150,11 @@ class PVOpenWorkspace : public PVWorkspaceBase
 	Q_OBJECT
 public:
 	PVOpenWorkspace(QWidget* parent = 0);
-	void set_correlation_index(int index) { _correlation_index = index; }
-	int get_correlation_index() const { return _correlation_index; }
+	void set_correlation(Picviz::PVAD2GView* correlation) { _correlation = correlation; }
+	Picviz::PVAD2GView* get_correlation() const { return _correlation; }
 
 private:
-	int _correlation_index = 0;
+	Picviz::PVAD2GView* _correlation = nullptr;
 };
 
 }
