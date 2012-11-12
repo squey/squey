@@ -1614,7 +1614,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 	try {
 		job_import = src->extract();
 	}
-	catch (PVRush::PVInputException &e) {
+	catch (PVRush::PVInputException const& e) {
 		PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
 		return false;
 	}
