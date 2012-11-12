@@ -864,7 +864,6 @@ void PVInspector::PVMainWindow::import_type_Slot(const QString & itype)
 void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 {
 	QMainWindow::keyPressEvent(event);
-	PVLOG_INFO("keyPressEvent\n");
 #ifdef PICVIZ_DEVELOPER_MODE
 	switch (event->key()) {
 
