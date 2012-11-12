@@ -34,6 +34,7 @@ namespace Picviz
 {
 class PVSource;
 class PVScene;
+class PVAD2GView;
 }
 
 namespace PVGuiQt
@@ -133,12 +134,15 @@ public:
 	PVWorkspacesTabWidgetBase(Picviz::PVRoot& root, QWidget* parent = 0);
 
 public:
-	virtual int get_correlation_index() = 0;
+	virtual Picviz::PVAD2GView* get_correlation() = 0;
 	virtual void remove_workspace(int index, bool close_animation = true);
 	int addTab(PVWorkspaceBase* page, const QString & label);
 	int count() const { return _tab_bar->count(); }
 
 	QList<PVWorkspaceBase*> list_workspaces() const;
+
+protected:
+	int get_index_from_correlation(void* correlation);
 
 signals:
 	void workspace_dragged_outside(QWidget*);
@@ -192,7 +196,7 @@ public:
 	Picviz::PVScene* get_scene() { return _obs_scene.get_object(); }
 	bool is_project_modified() { return _project_modified; }
 	bool is_project_untitled() { return _project_untitled; }
-	int get_correlation_index() override { return std::max(-1, _combo_box->findText(_correlation_name)-1); }
+	Picviz::PVAD2GView* get_correlation() override { return _correlation; }
 	void remove_workspace(int index, bool close_animation = true) override;
 
 	QList<Picviz::PVSource*> list_sources() const;
@@ -221,7 +225,7 @@ private:
 	bool _project_modified = false;
 	bool _project_untitled = true;
 
-	QString _correlation_name;
+	Picviz::PVAD2GView* _correlation = nullptr;
 
 	PVHive::PVObserverSignal<Picviz::PVScene> _obs_scene;
 	__impl::PVSaveSceneToFileFuncObserver _save_scene_func_observer;
@@ -241,7 +245,7 @@ public:
 	PVOpenWorkspacesTabWidget(Picviz::PVRoot& root, QWidget* parent = 0);
 
 public:
-	int get_correlation_index() override;
+	Picviz::PVAD2GView* get_correlation() override;
 	PVOpenWorkspace* current_workspace() const;
 	PVOpenWorkspace* current_workspace_or_create();
 

@@ -10,6 +10,8 @@
 #include <QMenu>
 #include <QAction>
 
+#include <picviz/PVRoot.h>
+
 #include <pvguiqt/PVCorrelationMenu.h>
 
 int main(int argc, char** argv)
@@ -24,7 +26,8 @@ int main(int argc, char** argv)
 	QMenuBar* menu_bar = new QMenuBar();
 	mw->setMenuBar(menu_bar);
 
-	menu_bar->addMenu(new PVGuiQt::PVCorrelationMenu());
+	Picviz::PVRoot_p root_p;
+	menu_bar->addMenu(new PVGuiQt::PVCorrelationMenu(root_p.get()));
 
 	//connect(action_create_correlation, SIGNAL(triggered(bool)), this, SLOT(activer_enregistrement(bool)));
 
