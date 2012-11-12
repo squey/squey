@@ -119,6 +119,7 @@ PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::add_view_display(Picviz::PVVie
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(Picviz::PVView* view, QWidget* view_widget, std::function<QString()> name, bool delete_on_close)
 {
 	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, true, delete_on_close, this);
+	view_display->setStyleSheet("QDockWidget { font: bold }");
 	view_display->setFeatures(QDockWidget::NoDockWidgetFeatures);
 	view_display->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 	setCentralWidget(view_display);
@@ -160,6 +161,10 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(PVViewDisplay* display
 		Pal2.setColor(QPalette::Background, col2);
 		central_dock->setAutoFillBackground(true);
 		central_dock->setPalette(Pal2);
+
+		// Exchange bold
+		central_dock->setStyleSheet("QDockWidget { font: bold }");
+		display_dock->setStyleSheet("");
 
 		// Exchange name functions
 		std::function<QString()> tmp_name;
