@@ -6,7 +6,7 @@
 
 #include "PVLayerFilterAxisGradient.h"
 #include <pvkernel/core/PVColor.h>
-#include <pvkernel/core/PVAxisIndexType.h>
+#include <pvkernel/core/PVOriginalAxisIndexType.h>
 #include <picviz/PVView.h>
 
 #define ARG_NAME_AXIS "axis"
@@ -32,7 +32,7 @@ Picviz::PVLayerFilterAxisGradient::PVLayerFilterAxisGradient(PVCore::PVArgumentL
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterAxisGradient)
 {
 	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey(ARG_NAME_AXIS, QObject::tr(ARG_DESC_AXIS))].setValue(PVCore::PVAxisIndexType(0));
+	args[PVCore::PVArgumentKey(ARG_NAME_AXIS, QObject::tr(ARG_DESC_AXIS))].setValue(PVCore::PVOriginalAxisIndexType(0));
 	return args;
 }
 
@@ -49,7 +49,7 @@ void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 
 	//const PVSource* source = _view.get_source_parent();
 	const PVPlotted* plotted = _view->get_parent<PVPlotted>();
-	axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVAxisIndexType>().get_original_index();
+	axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>().get_original_index();
 
 	PVRow r_max,r_min;
 	plotted->get_col_minmax(r_min, r_max, in.get_selection(), axis_id);
@@ -86,10 +86,10 @@ QString Picviz::PVLayerFilterAxisGradient::detailed_description()
 	return QString("<b>Purpose</b><br/>This filter applies a color gradient on a wanted axis<hr><b>Behavior</b><br/>It will colorize with a gradient from green to red from the lowest axis value to the highest.");
 }
 
-PVCore::PVArgumentList Picviz::PVLayerFilterAxisGradient::gradient_menu(PVRow /*row*/, PVCol col, QString const& /*v*/)
+PVCore::PVArgumentList Picviz::PVLayerFilterAxisGradient::gradient_menu(PVRow /*row*/, PVCol /*col*/, PVCol org_col, QString const& /*v*/)
 {
 	PVCore::PVArgumentList args;
-	args[ARG_NAME_AXIS].setValue(PVCore::PVAxisIndexType(col));
+	args[ARG_NAME_AXIS].setValue(PVCore::PVOriginalAxisIndexType(org_col));
 	return args;
 
 }

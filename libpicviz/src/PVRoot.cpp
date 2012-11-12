@@ -269,7 +269,12 @@ void Picviz::PVRoot::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSer
 		QString cur_path;
 		so.attribute("current_correlation", cur_path);
 		PVCore::PVSerializeObject_p so_cur_corr = _so_correlations->get_object_by_path(cur_path);
-		_current_correlation = so_cur_corr->bound_obj_as<PVAD2GView>();
+		if (so_cur_corr) {
+			_current_correlation = so_cur_corr->bound_obj_as<PVAD2GView>();
+		}
+		else {
+			_current_correlation = nullptr;
+		}
 		PVLOG_INFO("%d correlations loaded. %p is current one.\n", _correlations.size(), _current_correlation);
 	}
 
@@ -278,7 +283,13 @@ void Picviz::PVRoot::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSer
 
 void Picviz::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 {
-	_so_correlations = so.list("correlations", _correlations, QObject::tr("Correlations"));
+	QStringList corr_desc;
+	corr_desc.reserve(_correlations.size());
+	for (PVAD2GView_p const& c: _correlations) {
+		corr_desc << c->get_name();
+	}
+
+	_so_correlations = so.list("correlations", _correlations, QObject::tr("Correlations"), (Picviz::PVAD2GView*) NULL, corr_desc, true, true);
 	QString cur_path = _so_correlations->get_child_path(_current_correlation);
 	so.attribute("current_correlation", cur_path);
 

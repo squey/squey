@@ -112,7 +112,10 @@ public:
 	QList<PVAD2GView_p> get_correlations_for_scene(Picviz::PVScene const& scene) const;
 
 public:
-	virtual QString get_serialize_description() const { return "Solution"; }
+	virtual QString get_serialize_description() const { return "Investigation"; }
+
+	virtual QString get_children_description() const { return "Data collection(s)"; }
+	virtual QString get_children_serialize_name() const { return "data-collections"; }
 
 protected:
 	void view_being_deleted(Picviz::PVView* view);

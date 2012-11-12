@@ -22,7 +22,7 @@ PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Picviz::PVRoot c
 	QVBoxLayout* layout = new QVBoxLayout();
 
 	QHBoxLayout* hbox_layout = new QHBoxLayout();
-	QLabel* label = new QLabel(tr("Import source to project:"));
+	QLabel* label = new QLabel(tr("Import source to data collection:"));
 
 	_combo_box = new QComboBox();
 

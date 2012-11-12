@@ -8,7 +8,7 @@
 #include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/PVPlainTextType.h>
 #include <pvkernel/core/PVEnumType.h>
-#include <pvkernel/core/PVAxisIndexType.h>
+#include <pvkernel/core/PVOriginalAxisIndexType.h>
 #include <picviz/PVView.h>
 
 #include <locale.h>
@@ -51,7 +51,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterMultipleSearch)
 {
 	PVCore::PVArgumentList args;
 	args[PVCore::PVArgumentKey(ARG_NAME_EXPS, QObject::tr(ARG_DESC_EXPS))].setValue(PVCore::PVPlainTextType());
-	args[PVCore::PVArgumentKey(ARG_NAME_AXIS, QObject::tr(ARG_DESC_AXIS))].setValue(PVCore::PVAxisIndexType(0));
+	args[PVCore::PVArgumentKey(ARG_NAME_AXIS, QObject::tr(ARG_DESC_AXIS))].setValue(PVCore::PVOriginalAxisIndexType(0));
 	args[PVCore::PVArgumentKey(ARG_NAME_INCLUDE, QObject::tr(ARG_DESC_INCLUDE))].setValue(PVCore::PVEnumType(QStringList() << QString("include") << QString("exclude"), 0));
 	args[PVCore::PVArgumentKey(ARG_NAME_CASE, QObject::tr(ARG_DESC_CASE))].setValue(PVCore::PVEnumType(QStringList() << QString("Does not match case") << QString("Match case") , 0));
 	args[PVCore::PVArgumentKey(ARG_NAME_ENTIRE, QObject::tr(ARG_DESC_ENTIRE))].setValue(PVCore::PVEnumType(QStringList() << QString("Part of the field") << QString("The entire field") , 0));
@@ -66,7 +66,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterMultipleSearch)
  *****************************************************************************/
 void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 {	
-	int axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVAxisIndexType>().get_original_index();
+	int axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>().get_original_index();
 	int interpret = _args[ARG_NAME_INTERPRET].value<PVCore::PVEnumType>().get_sel_index();
 	bool include = _args[ARG_NAME_INCLUDE].value<PVCore::PVEnumType>().get_sel_index() == 0;
 	bool case_match = _args[ARG_NAME_CASE].value<PVCore::PVEnumType>().get_sel_index() == 1;
@@ -189,11 +189,11 @@ QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterMultipleSearch::get_args_keys_
 	return keys;
 }
 
-PVCore::PVArgumentList Picviz::PVLayerFilterMultipleSearch::search_value_menu(PVRow /*row*/, PVCol col, QString const& v)
+PVCore::PVArgumentList Picviz::PVLayerFilterMultipleSearch::search_value_menu(PVRow /*row*/, PVCol /*col*/, PVCol org_col, QString const& v)
 {
 	PVCore::PVArgumentList args = default_args();
 	args[ARG_NAME_EXPS].setValue(PVCore::PVPlainTextType(v));
-	args[ARG_NAME_AXIS].setValue(PVCore::PVAxisIndexType(col));
+	args[ARG_NAME_AXIS].setValue(PVCore::PVOriginalAxisIndexType(org_col));
 
 	PVCore::PVEnumType e = args[ARG_NAME_CASE].value<PVCore::PVEnumType>();
 	e.set_sel(1);

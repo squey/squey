@@ -29,7 +29,7 @@ public:
 	virtual QString menu_name() const { return "Axis gradient"; }
 
 public:
-	static PVCore::PVArgumentList gradient_menu(PVRow row, PVCol col, QString const& v);
+	static PVCore::PVArgumentList gradient_menu(PVRow row, PVCol col, PVCol org_col, QString const& v);
 
 	CLASS_FILTER(Picviz::PVLayerFilterAxisGradient)
 

@@ -321,7 +321,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 			process_ctxt_menu_set_color();
 		}
 		else {
-				process_ctxt_menu_action(act_sel);
+			process_ctxt_menu_action(act_sel);
 		}
 	}
 }
@@ -427,19 +427,20 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
 	Picviz::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
 
 	// Get the arguments
-	PVCore::PVArgumentList &args = lib_view().get_last_args_filter(filter_name);
-	_ctxt_args = args_f(_ctxt_row, _ctxt_col, _ctxt_v);
+	_ctxt_args = lib_view().get_last_args_filter(filter_name);
+	PVCore::PVArgumentList custom_args = args_f(_ctxt_row, _ctxt_col, lib_view().get_original_axis_index(_ctxt_col), _ctxt_v);
+	PVCore::PVArgumentList_set_common_args_from(_ctxt_args, custom_args);
 
 	// Show the layout filter widget
 	Picviz::PVLayerFilter_p fclone = lib_filter->clone<Picviz::PVLayerFilter>();
+	assert(fclone);
 	if (_ctxt_process) {
 		_ctxt_process->deleteLater();
 	}
 
 	// Creating the PVLayerFilterProcessWidget will save the current args for this filter.
 	// Then we can change them !
-	_ctxt_process = new PVGuiQt::PVLayerFilterProcessWidget(&lib_view(), args, fclone);
-	_ctxt_process->change_args(_ctxt_args);
+	_ctxt_process = new PVGuiQt::PVLayerFilterProcessWidget(&lib_view(), _ctxt_args, fclone);
 	_ctxt_process->show();
 }
 
