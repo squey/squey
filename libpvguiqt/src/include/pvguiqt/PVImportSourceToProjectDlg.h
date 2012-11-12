@@ -8,7 +8,12 @@
 #define __PVGUIQT_PVIMPORTSOURCETOPROJECTDLG_H__
 
 #include <QDialog>
-#include <QStringList>
+#include <QComboBox>
+
+namespace Picviz {
+class PVScene;
+class PVRoot;
+}
 
 namespace PVGuiQt
 {
@@ -17,16 +22,13 @@ class PVImportSourceToProjectDlg : public QDialog
 {
 	Q_OBJECT;
 public:
-	PVImportSourceToProjectDlg(const QStringList & list, int default_index, QWidget* parent = 0);
+	PVImportSourceToProjectDlg(Picviz::PVRoot const& root, Picviz::PVScene const* sel_scene, QWidget* parent = 0);
 
 public:
-	int get_project_index() { return _project_index; }
-
-private slots:
-	void set_project_index(int index) { _project_index = index; }
+	Picviz::PVScene const* get_selected_scene() const;
 
 private:
-	int _project_index = 0;
+	QComboBox* _combo_box;
 };
 
 }

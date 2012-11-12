@@ -84,9 +84,6 @@ public:
 public:
 	typedef PVHive::PVObserverSignal<PVCore::PVDataTreeObjectBase> datatree_obs_t;
 
-	Picviz::PVView* current_view() const { return _current_view; }
-	void set_current_view(Picviz::PVView* view) { _current_view = view; }
-
 	static PVWorkspaceBase* workspace_under_mouse();
 	static bool drag_started() { return _drag_started; }
 
@@ -120,8 +117,6 @@ protected:
 	static uint64_t _z_order_counter;
 	static bool _drag_started;
 	QHash<Picviz::PVView const*, PVViewWidgets> _view_widgets;
-
-	Picviz::PVView* _current_view = nullptr;
 };
 
 class PVWorkspace : public PVWorkspaceBase

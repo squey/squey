@@ -45,6 +45,7 @@ PVInspector::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Picviz::PV
 		assert(has_mapping() || has_plotting());
 	}
 #endif
+	// TOFIX: take them for the parent PVSource!
 	if (has_mapping()) {
 		_axes = &(_mapping->get_mapped()->get_parent<Picviz::PVSource>()->current_view()->axes_combination.get_original_axes_list());
 	}

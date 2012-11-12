@@ -1,14 +1,13 @@
 /**
- * \file PVSaveSceneDialog.h
+ * \file PVSaveDataTreeDialog.h
  *
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef PVSAVESCENEDIALOG_H
-#define PVSAVESCENEDIALOG_H
+#ifndef PVSAVEDATATREEDIALOG_H
+#define PVSAVEDATATREEDIALOG_H
 
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
-#include <picviz/PVScene.h>
 
 #include <QCheckBox>
 #include <QFileDialog>
@@ -16,18 +15,17 @@
 
 namespace PVInspector {
 
-class PVSaveSceneDialog: public QFileDialog
+class PVSaveDataTreeDialog: public QFileDialog
 {
 	Q_OBJECT
 public:
-	PVSaveSceneDialog(Picviz::PVScene_p scene, PVCore::PVSerializeArchiveOptions_p options, QWidget* parent);
+	PVSaveDataTreeDialog(PVCore::PVSerializeArchiveOptions_p options, QString const& suffix, QString const& filter, QWidget* parent);
 
 protected slots:
 	void include_files_Slot(int state);
 	void tab_changed_Slot(int idx);
 
 protected:
-	Picviz::PVScene_p _scene;
 	PVCore::PVSerializeArchiveOptions& _options;
 	QCheckBox* _save_everything_checkbox;
 };

@@ -23,6 +23,12 @@ void PVInspector::PVMainWindow::create_actions()
 	 ************************/
 
 #ifdef CUSTOMER_CAPABILITY_SAVE
+	// The solution actions
+	solution_new_Action = new QAction(tr("&New solution"), this);
+	solution_load_Action = new QAction(tr("&Load a solution..."), this);
+	solution_save_Action = new QAction(tr("&Save solution"), this);
+	solution_saveas_Action = new QAction(tr("S&ave solution as..."), this);
+
 	// The project actions
 	project_new_Action = new QAction(tr("&New project"), this);
 	project_load_Action = new QAction(tr("&Load a project..."), this);
@@ -163,12 +169,19 @@ void PVInspector::PVMainWindow::create_menus()
 
 	file_Menu = menubar->addMenu(tr("&File"));
 #ifdef CUSTOMER_CAPABILITY_SAVE
+	QMenu *solution_Menu = new QMenu(tr("&Solution"));
+	solution_Menu->addAction(solution_new_Action);
+	solution_Menu->addAction(solution_load_Action);
+	solution_Menu->addAction(solution_save_Action);
+	solution_Menu->addAction(solution_saveas_Action);
+
 	QMenu *project_Menu = new QMenu(tr("&Project"));
 	project_Menu->addAction(project_new_Action);
 	project_Menu->addAction(project_load_Action);
 	project_Menu->addAction(project_save_Action);
 	project_Menu->addAction(project_saveas_Action);
 
+	file_Menu->addMenu(solution_Menu);
 	file_Menu->addMenu(project_Menu);
 	file_Menu->addSeparator();
 	file_Menu->addAction(extractor_file_Action);
@@ -303,6 +316,11 @@ void PVInspector::PVMainWindow::connect_actions()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 #ifdef CUSTOMER_CAPABILITY_SAVE
+	connect(solution_new_Action, SIGNAL(triggered()), this, SLOT(solution_new_Slot()));
+	connect(solution_load_Action, SIGNAL(triggered()), this, SLOT(solution_load_Slot()));
+	connect(solution_save_Action, SIGNAL(triggered()), this, SLOT(solution_save_Slot()));
+	connect(solution_saveas_Action, SIGNAL(triggered()), this, SLOT(solution_saveas_Slot()));
+
 	connect(project_new_Action, SIGNAL(triggered()), this, SLOT(project_new_Slot()));
 	connect(project_load_Action, SIGNAL(triggered()), this, SLOT(project_load_Slot()));
 	connect(project_save_Action, SIGNAL(triggered()), this, SLOT(project_save_Slot()));

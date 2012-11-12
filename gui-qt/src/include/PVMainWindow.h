@@ -130,11 +130,11 @@ public:
 	int report_image_index;
 	QString *report_filename;
 
-	Picviz::PVView* current_view() { return _projects_tab_widget->current_view(); }
-	Picviz::PVView const* current_view() const { return _projects_tab_widget->current_view(); }
+	Picviz::PVView* current_view() { return get_root().current_view(); }
+	Picviz::PVView const* current_view() const { return get_root().current_view(); }
 
-	void select_scene(int index) { _projects_tab_widget->select_project(index); }
-	Picviz::PVScene* current_scene() const { return _projects_tab_widget->current_scene(); }
+	Picviz::PVScene* current_scene() { return get_root().current_scene(); }
+	Picviz::PVScene const* current_scene() const { return get_root().current_scene(); }
 
 	void commit_selection_in_current_layer(Picviz::PVView* view);
 	void move_selection_to_new_layer(Picviz::PVView* view);
@@ -148,6 +148,8 @@ public:
 	void update_statemachine_label(Picviz::PVView_sp view);
 
 	void close_scene();
+
+	QString get_solution_path() const { return get_root().get_path(); }
 
 protected:
 	bool event(QEvent* event) override;
@@ -214,6 +216,11 @@ public slots:
 	void set_color_selected(QColor const& color);
 	void axes_combination_editor_Slot();
 
+	void solution_new_Slot();
+	void solution_load_Slot();
+	void solution_save_Slot();
+	void solution_saveas_Slot();
+
 	void display_icon_Slot();
 	bool load_project(const QString &file);
 
@@ -230,7 +237,6 @@ protected:
 
 private:
 	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
-	PVMainWindow* find_main_window(const QString& file);
 	void set_selection_from_layer(Picviz::PVView_sp view, Picviz::PVLayer const& layer);
 	void display_inv_elts();
 	void close_all_views();
@@ -256,6 +262,7 @@ private:
 	{
 		return _projects_tab_widget->is_current_project_untitled();
 	}
+	bool load_root();
 	bool load_scene(Picviz::PVScene* scene);
 	bool load_source(Picviz::PVSource_sp src);
 	bool fix_project_errors(boost::shared_ptr<PVCore::PVSerializeArchive> ar);
@@ -298,6 +305,10 @@ private:
 	QAction *project_load_Action;
 	QAction *project_save_Action;
 	QAction *project_saveas_Action;
+	QAction *solution_new_Action;
+	QAction *solution_load_Action;
+	QAction *solution_save_Action;
+	QAction *solution_saveas_Action;
 	QAction *export_file_Action;
 	QAction *export_selection_Action;
 	QAction *extractor_file_Action;
@@ -335,8 +346,7 @@ private:
 	QLabel* pv_lastMajVersion;
 	QFileDialog _load_project_dlg;
 
-	//PVStartScreenWidget* _start_screen_widget;
-	QString _current_save_project_folder;
+	QString _current_save_root_folder;
 
 protected:
 	void keyPressEvent(QKeyEvent *event);
@@ -348,8 +358,16 @@ protected:
 	void set_version_informations();
 
 private:
-	static Picviz::PVRoot& get_root();
-	static Picviz::PVRoot_sp get_root_sp();
+	Picviz::PVRoot& get_root();
+	Picviz::PVRoot const& get_root() const;
+	Picviz::PVRoot_sp get_root_sp();
+
+private:
+	static PVMainWindow* find_main_window(const QString& path);
+	bool is_solution_untitled() const { return get_solution_path().isEmpty(); }
+	void set_window_title_with_filename();
+	bool load_solution(QString const& file);
+	void save_solution(QString const& file, PVCore::PVSerializeArchiveOptions_p const& options);
 
 signals:
 	void change_of_current_view_Signal();
@@ -364,6 +382,7 @@ private:
 	QString _cur_project_file;
 	bool _cur_project_save_everything;
 	static int sequence_n;
+	Picviz::PVRoot_sp _root;
 
 private:
 	version_t _last_known_cur_release;

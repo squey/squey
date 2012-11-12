@@ -246,8 +246,9 @@ PVGuiQt::PVOpenWorkspace* PVGuiQt::PVOpenWorkspaceTabBar::create_new_workspace()
  * PVGuiQt::PVWorkspacesTabWidgetBase
  *
  *****************************************************************************/
-PVGuiQt::PVWorkspacesTabWidgetBase::PVWorkspacesTabWidgetBase(QWidget* parent /* = 0 */) :
-	QTabWidget(parent)
+PVGuiQt::PVWorkspacesTabWidgetBase::PVWorkspacesTabWidgetBase(Picviz::PVRoot& root, QWidget* parent /* = 0 */) :
+	QTabWidget(parent),
+	_root(root)
 {
 	setObjectName("PVWorkspacesTabWidget");
 
@@ -260,10 +261,10 @@ PVGuiQt::PVWorkspacesTabWidgetBase::PVWorkspacesTabWidgetBase(QWidget* parent /*
 	setCornerWidget(_combo_box, Qt::TopRightCorner);
 
 	// Register observers for correlations
-	Picviz::PVRoot_sp root_sp = Picviz::PVRoot::get_root_sp();
-	PVHive::PVObserverSignal<Picviz::PVRoot>* obs = new PVHive::PVObserverSignal<Picviz::PVRoot>(this);
-	PVHive::get().register_observer(root_sp, [=](Picviz::PVRoot& root) { return &root.get_correlations(); }, *obs);
-	obs->connect_refresh(this, SLOT(update_correlations_list()));
+	Picviz::PVRoot_sp root_sp = root.shared_from_this();
+	_obs = new PVHive::PVObserverSignal<Picviz::PVRoot>(this);
+	PVHive::get().register_observer(root_sp, [=](Picviz::PVRoot& root) { return &root.get_correlations(); }, *_obs);
+	_obs->connect_refresh(this, SLOT(update_correlations_list()));
 }
 
 
@@ -332,19 +333,20 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::animation_state_changed(QAbstractAnimat
 
 void PVGuiQt::PVWorkspacesTabWidgetBase::correlation_changed(int index)
 {
-	Picviz::PVRoot::get_root().select_correlation(index-1);
+	get_root().select_correlation(index-1);
 }
 
 void PVGuiQt::PVWorkspacesTabWidgetBase::update_correlations_list()
 {
 	_combo_box->clear();
 	_combo_box->addItem("(No correlation)");
-	for (auto correlation : Picviz::PVRoot::get_root().get_correlations()) {
-		_combo_box->addItem(correlation->get_name());
+	Picviz::PVRoot::correlations_t const& corrs = get_root().get_correlations();
+	for (Picviz::PVAD2GView_p const& c: corrs) {
+		_combo_box->addItem(c->get_name());
 	}
 	int index = get_correlation_index();
 	if (index == -1) {
-		Picviz::PVRoot::get_root().select_correlation(index++);
+		get_root().select_correlation(index++);
 	}
 	_combo_box->setCurrentIndex(index);
 }
@@ -373,7 +375,7 @@ QList<PVGuiQt::PVWorkspaceBase*> PVGuiQt::PVWorkspacesTabWidgetBase::list_worksp
  *
  *****************************************************************************/
 PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Picviz::PVScene& scene, QWidget* parent /* = 0 */) :
-	PVWorkspacesTabWidgetBase(parent),
+	PVWorkspacesTabWidgetBase(*scene.get_parent<Picviz::PVRoot>(), parent),
 	_save_scene_func_observer(this)
 {
 	Picviz::PVScene_sp scene_p = scene.shared_from_this();
@@ -470,13 +472,23 @@ QList<Picviz::PVSource*> PVGuiQt::PVSceneWorkspacesTabWidget::list_sources() con
 	return ret;
 }
 
+void PVGuiQt::PVSceneWorkspacesTabWidget::update_correlations_list()
+{
+	QList<Picviz::PVAD2GView_p> corrs = get_root().get_correlations_for_scene(*get_scene());
+	PVLOG_INFO("Match correlation for scene %s:\n", qPrintable(get_scene()->get_name()));
+	for (Picviz::PVAD2GView_p const& c: corrs) {
+		PVLOG_INFO("%s\n", qPrintable(c->get_name()));
+	}
+	PVWorkspacesTabWidgetBase::update_correlations_list();
+}
+
 /******************************************************************************
  *
  * PVGuiQt::PVOpenWorkspacesTabWidget
  *
  *****************************************************************************/
-PVGuiQt::PVOpenWorkspacesTabWidget::PVOpenWorkspacesTabWidget(QWidget* parent /* = 0 */) :
-	PVWorkspacesTabWidgetBase(parent),
+PVGuiQt::PVOpenWorkspacesTabWidget::PVOpenWorkspacesTabWidget(Picviz::PVRoot& root,QWidget* parent /* = 0 */) :
+	PVWorkspacesTabWidgetBase(root, parent),
 	_automatic_tab_switch_timer(this)
 {
 	_tab_bar = new PVOpenWorkspaceTabBar(this);
@@ -519,7 +531,7 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::tab_changed(int index)
 			if (open_workspace) {
 				int idx = open_workspace->get_correlation_index();
 				_combo_box->setCurrentIndex(idx);
-				Picviz::PVRoot::get_root().select_correlation(idx-1);
+				get_root().select_correlation(idx-1);
 			}
 		}
 	}

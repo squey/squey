@@ -14,8 +14,7 @@ using Picviz::PVRoot;
 int main(void)
 {
 	init_env();
-	Picviz::PVRoot::get_root();
-	Picviz::PVRoot::release();
+	Picviz::PVRoot_p root;
 
 	return 0;
 }

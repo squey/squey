@@ -98,8 +98,25 @@ struct pointer<boost::shared_ptr<T>& >
 	static inline type get(type obj) { return obj; }
 };
 
-namespace __impl
-{
+template <class T>
+inline T* get_pointer(T& p) { return &p; }
+
+template <class T>
+inline T const* get_pointer(T const& p) { return &p; }
+
+template <class T>
+inline T* get_pointer(T* p) { return p; }
+
+template <class T>
+inline T const* get_pointer(T const* p) { return p; }
+
+template <class T>
+inline T* get_pointer(boost::shared_ptr<T> const& p) { return p.get(); }
+
+template <class T>
+inline T const* get_pointer(boost::shared_ptr<T const> const& p) { return p.get(); }
+
+namespace __impl {
 	template <std::size_t mod>
 	struct is_size_multiple_impl
 	{

@@ -34,7 +34,7 @@
 
 Picviz::PVSource_p create_src(const QString &path_file, const QString &path_format)
 {
-	Picviz::PVRoot_sp root = Picviz::PVRoot::get_root_sp();
+	Picviz::PVRoot_p root;
         // Input file
         PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 

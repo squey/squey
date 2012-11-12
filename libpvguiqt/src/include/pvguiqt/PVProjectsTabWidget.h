@@ -101,16 +101,12 @@ public:
 	bool is_current_project_untitled() { return current_project() ? current_project()->is_project_untitled() : false; }
 	void collapse_tabs(bool collapse = true);
 
-	inline Picviz::PVScene* current_scene() const { return current_project()->get_scene(); }
+	inline Picviz::PVScene* current_scene() const { return _root.current_scene(); }
 
 	PVWorkspacesTabWidgetBase* current_workspace_tab_widget() const;
 
-	inline PVSceneWorkspacesTabWidget* current_project() const
-	{
-		return (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(std::max(2, _current_workspace_tab_widget_index));
-	}
-	inline void select_project(Picviz::PVScene* scene) { _tab_widget->setCurrentIndex(_tab_widget->indexOf(get_workspace_tab_widget_from_scene(scene))); }
-	inline void select_project(int index) { _tab_widget->setCurrentIndex(index+2); }
+	inline PVSceneWorkspacesTabWidget* current_project() const { return (_current_workspace_tab_widget_index >= 2) ? (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(_current_workspace_tab_widget_index) : nullptr; }
+	inline void select_tab_from_scene(Picviz::PVScene* scene);
 	inline PVWorkspaceBase* current_workspace() const { return  current_project() ? (PVWorkspaceBase*) current_project()->currentWidget() : nullptr; }
 	inline Picviz::PVView* current_view() const { return _root.current_view(); }
 	inline int projects_count() { return _tab_widget->count() -2; }
@@ -132,6 +128,7 @@ private slots:
 	bool tab_close_requested(int index);
 	void close_project();
 	void project_modified(bool, QString = QString());
+	void select_tab_from_current_scene();
 
 signals:
 	void is_empty();

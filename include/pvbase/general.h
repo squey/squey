@@ -54,7 +54,7 @@ static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 
 #define ALL_FILES_FILTER "All files (*.*)"
 
-#define PICVIZ_ARCHIVES_VERSION 1
+#define PICVIZ_ARCHIVES_VERSION 2
 
 #ifdef WIN32
 #define PICVIZ_PATH_SEPARATOR "\\"
