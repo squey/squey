@@ -93,6 +93,9 @@ public:
 		QModelIndex src_index = model_search_internal_pointer(src_model, index);
 
 		QModelIndex src_parent = src_model->parent(src_index);
+		if (!src_parent.isValid()) {
+			return QModelIndex();
+		}
 		PVCore::PVDataTreeObjectBase* parent_object = get_object(src_parent);
 		MaskedClass *mc = dynamic_cast<MaskedClass*>(parent_object);
 
