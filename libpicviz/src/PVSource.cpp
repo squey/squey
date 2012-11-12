@@ -399,7 +399,7 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 
 		// "Append" the files to the extractor
 		files_append_noextract();
-	}
 
-	data_tree_source_t::serialize_read(so, v);
+		data_tree_source_t::serialize_read(so, v);
+	}
 }

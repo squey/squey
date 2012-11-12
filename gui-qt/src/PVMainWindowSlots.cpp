@@ -586,7 +586,7 @@ void PVInspector::PVMainWindow::solution_load_Slot()
 	_load_solution_dlg.setAcceptMode(QFileDialog::AcceptOpen);
 	if (_load_solution_dlg.exec() != QDialog::Accepted) {
 		return;
-	}    
+	}
 	QString file = _load_solution_dlg.selectedFiles().at(0);
 
 	//load_project(file);
@@ -596,10 +596,10 @@ void PVInspector::PVMainWindow::solution_load_Slot()
 		existing->raise();
 		existing->activateWindow();
 		return;
-	}    
+	}
 	if (is_solution_untitled() && get_root().is_empty() && !isWindowModified()) {
 		load_solution(file);
-	}    
+	}
 	else {
 		PVMainWindow* other = new PVMainWindow();
 		other->move(x() + 40, y() + 40); 
@@ -607,8 +607,8 @@ void PVInspector::PVMainWindow::solution_load_Slot()
 		if (!other->load_solution(file)) {
 			other->deleteLater();
 			return;
-		}    
-	}   
+		}
+	}
 #endif
 }
 
@@ -716,7 +716,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		if (ar->has_repairable_errors()) {
 			if (fix_project_errors(ar)) {
 				solution_has_been_fixed = true;
-				_root.reset(new Picviz::PVRoot());
+				reset_root();
 				continue;
 			}    
 			else {
@@ -724,7 +724,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 					QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading solution..."), err_msg, QMessageBox::Ok, this);
 					box->exec();
 				}    
-				_root.reset(new Picviz::PVRoot());
+				reset_root();
 				return false;
 			}
 		}
@@ -733,7 +733,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 
 	if (!load_root()) {
 		PVLOG_ERROR("(PVMainWindow::solution_load) error while processing the solution...\n");
-		_root.reset(new Picviz::PVRoot());
+		reset_root();
 		return false;
 	}
 
@@ -746,7 +746,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		setWindowModified(true);
 	}
 
-	//PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
+	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 
 	return true;
 #endif

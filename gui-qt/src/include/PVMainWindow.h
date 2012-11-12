@@ -242,6 +242,7 @@ private:
 private slots:
 	void cur_format_changed_Slot();
 	void root_modified();
+	bool load_solution(QString const& file);
 
 private:
 	void connect_actions();
@@ -364,8 +365,8 @@ private:
 private:
 	static PVMainWindow* find_main_window(const QString& path);
 	bool is_solution_untitled() const { return get_solution_path().isEmpty(); }
-	bool load_solution(QString const& file);
 	void save_solution(QString const& file, PVCore::PVSerializeArchiveOptions_p const& options);
+	void reset_root();
 
 signals:
 	void change_of_current_view_Signal();

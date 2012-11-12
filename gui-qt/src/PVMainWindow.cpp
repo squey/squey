@@ -73,11 +73,12 @@ Q_DECLARE_METATYPE(Picviz::PVSource*);
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QMainWindow(parent),
 	_load_solution_dlg(this, tr("Load an investigation..."), QString(), PICVIZ_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER),
-	_root(new Picviz::PVRoot()),
-	_obs_root()
+	_root(new Picviz::PVRoot())
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
+
+	reset_root();
 
 	//_ad2g_mw = NULL;
 
@@ -123,10 +124,10 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(get_root());
 	_projects_tab_widget->show();
 	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_window_for_workspace(QWidget*)));
-	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(project_new_Slot()));
-	connect(_projects_tab_widget, SIGNAL(load_project()), this, SLOT(project_load_Slot()));
-	connect(_projects_tab_widget, SIGNAL(load_project_from_path(const QString &)), this, SLOT(load_project(const QString &)));
-	connect(_projects_tab_widget, SIGNAL(save_project()), this, SLOT(project_save_Slot()));
+	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(solution_new_Slot()));
+	connect(_projects_tab_widget, SIGNAL(load_project()), this, SLOT(solution_load_Slot()));
+	connect(_projects_tab_widget, SIGNAL(load_project_from_path(const QString &)), this, SLOT(load_solution(const QString &)));
+	connect(_projects_tab_widget, SIGNAL(save_project()), this, SLOT(solution_save_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_source_from_description(PVRush::PVSourceDescription)), this, SLOT(load_source_from_description_Slot(PVRush::PVSourceDescription)));
 	connect(_projects_tab_widget, SIGNAL(import_type(const QString &)), this, SLOT(import_type_Slot(const QString &)) );
 	connect(_projects_tab_widget, SIGNAL(new_format()), this, SLOT(new_format_Slot()));
@@ -192,11 +193,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QString css_string(css_stream.readAll());
 	css_file.close();
 	setStyleSheet(css_string);
-
-	// Recursive observer on PVRoot for solution modification
-	_obs_root.set_accept_recursive_refreshes(true);
-	_obs_root.connect_refresh(this, SLOT(root_modified()));
-	PVHive::get().register_observer(_root, _obs_root);
 
 	show();
 }
@@ -1909,6 +1905,11 @@ int PVInspector::PVMainWindow::update_check()
 #endif
 
 	return 0;
+}
+
+void PVInspector::PVMainWindow::reset_root()
+{
+	get_root().remove_all_children();
 }
 
 /******************************************************************************

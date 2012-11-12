@@ -220,6 +220,15 @@ public:
 		return true;
 	}
 
+	void remove_all_children()
+	{
+		for (int i = 0; i < _children.size(); i++) {
+			PVCore::PVSharedPtr<child_t> const& pchild = _children[i];
+			child_about_to_be_removed(*pchild);
+		}
+		_children.clear();
+	}
+
 public:
 	virtual children_base_t get_children_base() const
 	{

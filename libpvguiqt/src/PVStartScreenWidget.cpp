@@ -153,7 +153,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	format_label->setObjectName("PVStartScreenWidget_header");
 	QLabel *import_label = new QLabel("IMPORT SOURCES");
 	import_label->setObjectName("PVStartScreenWidget_header");
-	QLabel *project_label = new QLabel("PROJECTS");
+	QLabel *project_label = new QLabel("INVESTIGATIONS");
 	project_label->setObjectName("PVStartScreenWidget_header");
 	
 	// We add the labels
@@ -166,15 +166,15 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	create_new_format_button->setIcon(QIcon(":/new-icon-white"));
 	create_new_format_button->setCursor(Qt::PointingHandCursor);
 
-	QPushButton *edit_format_button = new QPushButton("Edit a format");
+	QPushButton *edit_format_button = new QPushButton("Edit a format...");
 	edit_format_button->setIcon(QIcon(":/edit-icon-white"));
 	edit_format_button->setCursor(Qt::PointingHandCursor);
 
-	QPushButton *create_new_project_button = new QPushButton("Create a new project");
+	QPushButton *create_new_project_button = new QPushButton("Create a new investigation");
 	create_new_project_button->setIcon(QIcon(":/new-icon-white"));
 	create_new_project_button->setCursor(Qt::PointingHandCursor);
 
-	QPushButton *open_project_button = new QPushButton("Open a project");
+	QPushButton *open_project_button = new QPushButton("Open an investigation...");
 	open_project_button->setIcon(QIcon(":/open-icon-white"));
 	open_project_button->setCursor(Qt::PointingHandCursor);
 
@@ -241,7 +241,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	QFrame* project_widget_line = new QFrame(import_widget);
 	project_widget_line->setFrameShape(QFrame::HLine);
 	project_widget_layout->addWidget(project_widget_line);
-	QLabel *project_text_label = new QLabel("Recent projects:", project_widget);
+	QLabel *project_text_label = new QLabel("Recent investigations:", project_widget);
 	project_text_label->setObjectName("PVStartScreenWidget_text");
 	project_widget_layout->addWidget(project_text_label);
 	QVBoxLayout* recent_projects_layout = new QVBoxLayout();
