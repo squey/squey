@@ -543,7 +543,15 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 		dlg->deleteLater();
 	}
 
-	Picviz::PVSource_p src_p = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc);
+	Picviz::PVSource_sp src_p;
+	try {
+		 src_p = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc);
+	}
+	catch (PVRush::PVInputException const& e) {
+		QMessageBox::critical(this, tr("Fatal error while loading source..."), tr("Fatal error while loading source: %1").arg(e.what().c_str()));
+		return;
+
+	}
 	//Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(src_desc);
 	load_source(src_p);
 }

@@ -260,8 +260,10 @@ Picviz::PVScene* Picviz::PVRoot::get_scene_from_path(const QString& path)
 void Picviz::PVRoot::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
 	_correlations.clear();
-	_so_correlations = so.list("correlations", _correlations, QObject::tr("Correlations"), (PVAD2GView*) NULL, QStringList(), true, true);
 
+	data_tree_root_t::serialize_read(so, v);
+
+	_so_correlations = so.list("correlations", _correlations, QObject::tr("Correlations"), (PVAD2GView*) NULL, QStringList(), true, true);
 	if (_so_correlations) {
 		QString cur_path;
 		so.attribute("current_correlation", cur_path);
@@ -269,8 +271,6 @@ void Picviz::PVRoot::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSer
 		_current_correlation = so_cur_corr->bound_obj_as<PVAD2GView>();
 		PVLOG_INFO("%d correlations loaded. %p is current one.\n", _correlations.size(), _current_correlation);
 	}
-	
-	data_tree_root_t::serialize_read(so, v);
 
 	_so_correlations.reset();
 }
