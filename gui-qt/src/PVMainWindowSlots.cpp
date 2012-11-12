@@ -556,16 +556,18 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
  *****************************************************************************/
 void PVInspector::PVMainWindow::project_load_Slot()
 {
+	/*
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	_load_project_dlg.setFileMode(QFileDialog::ExistingFile);
-	_load_project_dlg.setAcceptMode(QFileDialog::AcceptOpen);
-	if (_load_project_dlg.exec() != QDialog::Accepted) {
+	_load_solution_dlg.setFileMode(QFileDialog::ExistingFile);
+	_load_solution_dlg.setAcceptMode(QFileDialog::AcceptOpen);
+	if (_load_solution_dlg.exec() != QDialog::Accepted) {
 		return;
 	}
-	QString file = _load_project_dlg.selectedFiles().at(0);
+	QString file = _load_solution_dlg.selectedFiles().at(0);
 
 	load_project(file);
 #endif
+	*/
 }
 
 void PVInspector::PVMainWindow::solution_new_Slot()
@@ -581,12 +583,12 @@ void PVInspector::PVMainWindow::solution_new_Slot()
 void PVInspector::PVMainWindow::solution_load_Slot()
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	_load_project_dlg.setFileMode(QFileDialog::ExistingFile);
-	_load_project_dlg.setAcceptMode(QFileDialog::AcceptOpen);
-	if (_load_project_dlg.exec() != QDialog::Accepted) {
+	_load_solution_dlg.setFileMode(QFileDialog::ExistingFile);
+	_load_solution_dlg.setAcceptMode(QFileDialog::AcceptOpen);
+	if (_load_solution_dlg.exec() != QDialog::Accepted) {
 		return;
 	}    
-	QString file = _load_project_dlg.selectedFiles().at(0);
+	QString file = _load_solution_dlg.selectedFiles().at(0);
 
 	//load_project(file);
 	PVMainWindow* existing = find_main_window(file);
@@ -645,6 +647,35 @@ void PVInspector::PVMainWindow::solution_saveas_Slot()
 	dlg->deleteLater();
 #endif
 }
+
+bool PVInspector::PVMainWindow::maybe_save_solution()
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	if (isWindowModified()) {
+		QMessageBox::StandardButton ret;
+		QString solution_name = QFileInfo(windowFilePath()).fileName();
+		ret = QMessageBox::warning(this, tr("%1").arg(solution_name),
+				tr("The solution \"%1\"has been modified.\n"
+					"Do you want to save your changes?").arg(solution_name),
+				QMessageBox::Save | QMessageBox::Discard
+				| QMessageBox::Cancel);
+		if (ret == QMessageBox::Save) {
+			solution_save_Slot();
+			return true;
+		}
+		if (ret == QMessageBox::Discard) {
+			return true;
+		}
+		else if (ret == QMessageBox::Cancel) {
+			return false;
+		}
+	}
+	return true;
+#else
+	return false;
+#endif
+}
+
 
 bool PVInspector::PVMainWindow::load_solution(QString const& file)
 {
@@ -707,12 +738,11 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		return false;
 	}
 
-	/*menu_activate_is_file_opened(true);
-	show_start_page(false);
-	pv_WorkspacesTabWidget->setVisible(true);
+	_root->set_path(file);
 
-	set_current_project_filename(file);*/
+	menu_activate_is_file_opened(true);
 
+	set_window_title_with_filename();
 	if (solution_has_been_fixed) {
 		setWindowModified(true);
 	}
@@ -732,7 +762,7 @@ void PVInspector::PVMainWindow::save_solution(QString const& file, PVCore::PVSer
 		get_root().save_to_file(file, options);
 	}
 	catch (PVCore::PVSerializeArchiveError const& e) {
-		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while saving project..."), tr("Error while saving project %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
+		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while saving solution..."), tr("Error while saving solution %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
 		box->exec();
 	}
 
@@ -746,7 +776,7 @@ void PVInspector::PVMainWindow::set_window_title_with_filename()
 
 	QString file;
 	if (is_solution_untitled()) {
-		file = tr("new-solution%1.pvs").arg(sequenceNumber++);
+		file = tr("new-solution%1." PICVIZ_ROOT_ARCHIVE_EXT).arg(sequenceNumber++);
 	} else {
 		file = QFileInfo(get_solution_path()).canonicalFilePath();
 	}
@@ -836,6 +866,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 	/*close_scene();*/
 
 
+	/*
 	Picviz::PVScene* scene = get_root().get_scene_from_path(file);
 
 	if (scene) {
@@ -878,9 +909,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 		}
 		if (ar->has_repairable_errors()) {
 			if (fix_project_errors(ar)) {
-				//project_has_been_fixed = true;
-				close_scene();
-				//_scene.reset(new Picviz::PVScene("root", root.get()));
+				_root.reset(new Picviz::PVRoot());
 				continue;
 			}
 			else {
@@ -910,6 +939,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 	//_workspaces_tab_widget->setVisible(true);
 
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
+	*/
 #endif
 
 	return true;
@@ -1567,4 +1597,9 @@ void PVInspector::PVMainWindow::show_correlation_Slot()
 		ad2g_w->update_list_edges();
 	}
 	_ad2g_mw->exec();*/
+}
+
+void PVInspector::PVMainWindow::root_modified()
+{
+	setWindowModified(true);
 }

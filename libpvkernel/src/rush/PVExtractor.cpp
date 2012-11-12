@@ -156,6 +156,8 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_pvrow(PVRow start, P
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority)
 {
+	nlines = std::min(nlines, (chunk_index) CUSTOMER_LINESNUMBER);
+
 	set_sources_number_fields();
 	get_nraw().reserve(nlines, get_number_axes());
 
@@ -178,6 +180,8 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start, chunk_index end, int priority)
 {
+	end = std::min(end, start + ((chunk_index) CUSTOMER_LINESNUMBER) - 1);
+
 	set_sources_number_fields();
 	get_nraw().reserve(end-start, get_number_axes());
 

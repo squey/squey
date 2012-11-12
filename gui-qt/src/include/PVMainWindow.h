@@ -30,6 +30,9 @@
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVSelection.h>
 
+
+#include <pvhive/PVObserverSignal.h>
+
 #include <pvguiqt/PVCorrelationMenu.h>
 #include <pvguiqt/PVProjectsTabWidget.h>
 
@@ -147,9 +150,11 @@ public:
 	/* void import_type(); */
 	void update_statemachine_label(Picviz::PVView_sp view);
 
-	void close_scene();
-
 	QString get_solution_path() const { return get_root().get_path(); }
+
+	void set_window_title_with_filename();
+
+	bool maybe_save_solution();
 
 protected:
 	bool event(QEvent* event) override;
@@ -239,10 +244,10 @@ private:
 	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
 	void set_selection_from_layer(Picviz::PVView_sp view, Picviz::PVLayer const& layer);
 	void display_inv_elts();
-	void close_all_views();
 
 private slots:
 	void cur_format_changed_Slot();
+	void root_modified();
 
 private:
 	void connect_actions();
@@ -344,7 +349,7 @@ private:
 	QVBoxLayout *pv_startLayout;
 	QLabel* pv_lastCurVersion;
 	QLabel* pv_lastMajVersion;
-	QFileDialog _load_project_dlg;
+	QFileDialog _load_solution_dlg;
 
 	QString _current_save_root_folder;
 
@@ -365,7 +370,6 @@ private:
 private:
 	static PVMainWindow* find_main_window(const QString& path);
 	bool is_solution_untitled() const { return get_solution_path().isEmpty(); }
-	void set_window_title_with_filename();
 	bool load_solution(QString const& file);
 	void save_solution(QString const& file, PVCore::PVSerializeArchiveOptions_p const& options);
 
@@ -383,6 +387,7 @@ private:
 	bool _cur_project_save_everything;
 	static int sequence_n;
 	Picviz::PVRoot_sp _root;
+	PVHive::PVObserverSignal<Picviz::PVRoot> _obs_root;
 
 private:
 	version_t _last_known_cur_release;

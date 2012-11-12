@@ -72,8 +72,9 @@ Q_DECLARE_METATYPE(Picviz::PVSource*);
 
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QMainWindow(parent),
-	_load_project_dlg(this, tr("Load a project..."), QString(), PICVIZ_SCENE_ARCHIVE_FILTER ";;" ALL_FILES_FILTER),
-	_root(new Picviz::PVRoot())
+	_load_solution_dlg(this, tr("Load an investigation..."), QString(), PICVIZ_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER),
+	_root(new Picviz::PVRoot()),
+	_obs_root()
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
@@ -182,8 +183,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	update_check();
 
 	// The default title isn't set, so do this by hand...
-	setWindowTitle(QString("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR));
-
+	//setWindowTitle(QString("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR));
 
 	//Set stylesheet
 	QFile css_file(":/gui.css");
@@ -192,6 +192,11 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QString css_string(css_stream.readAll());
 	css_file.close();
 	setStyleSheet(css_string);
+
+	// Recursive observer on PVRoot for solution modification
+	_obs_root.set_accept_recursive_refreshes(true);
+	_obs_root.connect_refresh(this, SLOT(root_modified()));
+	PVHive::get().register_observer(_root, _obs_root);
 
 	show();
 }
@@ -367,48 +372,15 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
  *****************************************************************************/
 void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 {
-	if (_projects_tab_widget->save_modified_projects()) {
-		PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(tr("Closing Picviz Inspector..."), (QWidget*) this);
-		pbox->set_enable_cancel(false);
-		PVCore::PVProgressBox::progress(boost::bind(&PVMainWindow::close_all_views, this), pbox);
+	if (maybe_save_solution()) {
+		_root.reset();
+		deleteLater();
 		event->accept();
 	}
 	else {
 		event->ignore();
 	}
 }
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::close_all_views
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::close_all_views()
-{
-	close_scene();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::close_scene
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::close_scene()
-{
-	// Close sources one by one
-	/*int ntabs = _workspaces_tab_widget->count();
-	for (int i = 0; i < ntabs; i++) {
-		_workspaces_tab_widget->remove_workspace(0);
-	}
-	if (_ad2g_mw) {
-		_ad2g_mw->deleteLater();
-	}
-	_scene = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(get_root_sp(), "default");
-	_workspaces_tab_widget->set_scene(_scene.get());
-	_ad2g_mw = NULL;
-	set_project_modified(false);*/
-}
-
 
 /******************************************************************************
  *

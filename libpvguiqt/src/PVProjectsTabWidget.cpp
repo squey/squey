@@ -155,40 +155,8 @@ void PVGuiQt::PVProjectsTabWidget::close_project()
 
 bool PVGuiQt::PVProjectsTabWidget::tab_close_requested(int index)
 {
-	if (maybe_save_project(index)) {
-		remove_project(index);
-		return true;
-	}
-
-	return false;
-}
-
-bool PVGuiQt::PVProjectsTabWidget::maybe_save_project(int index)
-{
-#ifdef CUSTOMER_CAPABILITY_SAVE
-	PVSceneWorkspacesTabWidget* tab_widget = (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(index);
-	if (tab_widget->is_project_modified()) {
-		QMessageBox::StandardButton ret;
-		QString project_name = _tab_widget->tabText(index).left(_tab_widget->tabText(index).size()-1);
-		ret = QMessageBox::warning(this, tr("%1").arg(project_name),
-				tr("The project \"%1\"has been modified.\n"
-					"Do you want to save your changes?").arg(project_name),
-				QMessageBox::Save | QMessageBox::Discard
-				| QMessageBox::Cancel);
-		if (ret == QMessageBox::Save) {
-			emit save_project();
-		}
-		if (ret == QMessageBox::Discard) {
-			return true;
-		}
-		else if (ret == QMessageBox::Cancel) {
-			return false;
-		}
-	}
+	remove_project(index);
 	return true;
-#else
-	return false;
-#endif
 }
 
 PVGuiQt::PVWorkspace* PVGuiQt::PVProjectsTabWidget::add_source(Picviz::PVSource* source)

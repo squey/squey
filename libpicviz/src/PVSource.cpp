@@ -149,7 +149,7 @@ PVRush::PVControllerJob_p Picviz::PVSource::extract_from_agg_nlines(chunk_index 
 
 	set_mapping_function_in_extractor();
 
-	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(start, nlines);
+	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(start, std::min((size_t) nlines, (size_t) CUSTOMER_LINESNUMBER));
 	return job;
 }
 

@@ -24,10 +24,10 @@ void PVInspector::PVMainWindow::create_actions()
 
 #ifdef CUSTOMER_CAPABILITY_SAVE
 	// The solution actions
-	solution_new_Action = new QAction(tr("&New solution"), this);
-	solution_load_Action = new QAction(tr("&Load a solution..."), this);
-	solution_save_Action = new QAction(tr("&Save solution"), this);
-	solution_saveas_Action = new QAction(tr("S&ave solution as..."), this);
+	solution_new_Action = new QAction(tr("&New investigation"), this);
+	solution_load_Action = new QAction(tr("&Load an investigation..."), this);
+	solution_save_Action = new QAction(tr("&Save investigation"), this);
+	solution_saveas_Action = new QAction(tr("S&ave investigation as..."), this);
 
 	// The project actions
 	project_new_Action = new QAction(tr("&New project"), this);
@@ -169,20 +169,20 @@ void PVInspector::PVMainWindow::create_menus()
 
 	file_Menu = menubar->addMenu(tr("&File"));
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	QMenu *solution_Menu = new QMenu(tr("&Solution"));
+	QMenu *solution_Menu = new QMenu(tr("&Investigation"));
 	solution_Menu->addAction(solution_new_Action);
 	solution_Menu->addAction(solution_load_Action);
 	solution_Menu->addAction(solution_save_Action);
 	solution_Menu->addAction(solution_saveas_Action);
 
-	QMenu *project_Menu = new QMenu(tr("&Project"));
+	/*QMenu *project_Menu = new QMenu(tr("&Project"));
 	project_Menu->addAction(project_new_Action);
 	project_Menu->addAction(project_load_Action);
 	project_Menu->addAction(project_save_Action);
-	project_Menu->addAction(project_saveas_Action);
+	project_Menu->addAction(project_saveas_Action);*/
 
 	file_Menu->addMenu(solution_Menu);
-	file_Menu->addMenu(project_Menu);
+	//file_Menu->addMenu(project_Menu);
 	file_Menu->addSeparator();
 	file_Menu->addAction(extractor_file_Action);
 	file_Menu->addSeparator();
@@ -303,8 +303,8 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	tools_cur_format_Action->setEnabled(cond);
 	view_Menu->setEnabled(cond);
 	//windows_Menu->setEnabled(cond);
-	project_save_Action->setEnabled(cond);
-	project_saveas_Action->setEnabled(cond);
+	solution_save_Action->setEnabled(cond);
+	solution_saveas_Action->setEnabled(cond);
 }
 
 /******************************************************************************

@@ -203,6 +203,10 @@ int main(int argc, char *argv[])
 	if (files.size() > 0) {
 		pv_mw->load_files(files, format);
 	}
+	else {
+		// Set default title
+		pv_mw->set_window_title_with_filename();
+	}
 
 	int ret = app.exec();
 

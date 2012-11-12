@@ -22,8 +22,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#define PICVIZ_ROOT_ARCHIVE_EXT "pvl"
-#define PICVIZ_ROOT_ARCHIVE_FILTER "Picviz solution files (*." PICVIZ_SCENE_ARCHIVE_EXT ")"
+#define PICVIZ_ROOT_ARCHIVE_EXT "pvi"
+#define PICVIZ_ROOT_ARCHIVE_FILTER "Picviz solution files (*." PICVIZ_ROOT_ARCHIVE_EXT ")"
 
 // Plugins prefix
 #define LAYER_FILTER_PREFIX "layer_filter"
