@@ -126,7 +126,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_window_for_workspace(QWidget*)));
 	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(solution_new_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_project()), this, SLOT(solution_load_Slot()));
-	connect(_projects_tab_widget, SIGNAL(load_project_from_path(const QString &)), this, SLOT(load_solution(const QString &)));
+	connect(_projects_tab_widget, SIGNAL(load_project_from_path(const QString &)), this, SLOT(load_solution_and_create_mw(const QString &)));
 	connect(_projects_tab_widget, SIGNAL(save_project()), this, SLOT(solution_save_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_source_from_description(PVRush::PVSourceDescription)), this, SLOT(load_source_from_description_Slot(PVRush::PVSourceDescription)));
 	connect(_projects_tab_widget, SIGNAL(import_type(const QString &)), this, SLOT(import_type_Slot(const QString &)) );

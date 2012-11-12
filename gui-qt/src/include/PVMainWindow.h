@@ -243,6 +243,7 @@ private slots:
 	void cur_format_changed_Slot();
 	void root_modified();
 	bool load_solution(QString const& file);
+	void load_solution_and_create_mw(QString const& file);
 
 private:
 	void connect_actions();

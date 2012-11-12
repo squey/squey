@@ -588,8 +588,12 @@ void PVInspector::PVMainWindow::solution_load_Slot()
 		return;
 	}
 	QString file = _load_solution_dlg.selectedFiles().at(0);
+	load_solution_and_create_mw(file);
+#endif
+}
 
-	//load_project(file);
+void PVInspector::PVMainWindow::load_solution_and_create_mw(QString const& file)
+{
 	PVMainWindow* existing = find_main_window(file);
 	if (existing) {
 		existing->show();
@@ -609,7 +613,6 @@ void PVInspector::PVMainWindow::solution_load_Slot()
 			return;
 		}
 	}
-#endif
 }
 
 void PVInspector::PVMainWindow::solution_save_Slot()
@@ -674,7 +677,6 @@ bool PVInspector::PVMainWindow::maybe_save_solution()
 	return false;
 #endif
 }
-
 
 bool PVInspector::PVMainWindow::load_solution(QString const& file)
 {
