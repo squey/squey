@@ -27,10 +27,12 @@ PVGuiQt::PVCorrelationMenu::PVCorrelationMenu(Picviz::PVRoot* root, QWidget* par
 	connect(enable_correlation_action, SIGNAL(toggled(bool)), this, SLOT(enable_correlations(bool)));
 	enable_correlation_action->setCheckable(true);
 	enable_correlation_action->setChecked(true);
+
+	_action_create_correlation = addAction("&Create new correlation...");
+	connect(_action_create_correlation, SIGNAL(triggered(bool)), this, SLOT(create_new_correlation()));
+
 	addSeparator();
 	_separator_create_correlation = addSeparator();
-	_action_create_correlation = addAction("&Create new correlation");
-	connect(_action_create_correlation, SIGNAL(triggered(bool)), this, SLOT(create_new_correlation()));
 }
 
 void PVGuiQt::PVCorrelationMenu::load_correlations()
