@@ -21,8 +21,9 @@
 
 #include <QMenu>
 #include <QMouseEvent>
+#include <QAbstractItemModel>
 
-PVGuiQt::PVRootTreeView::PVRootTreeView(PVRootTreeModel* model, QWidget* parent):
+PVGuiQt::PVRootTreeView::PVRootTreeView(QAbstractItemModel* model, QWidget* parent):
 	QTreeView(parent)
 {
 	// Sizing

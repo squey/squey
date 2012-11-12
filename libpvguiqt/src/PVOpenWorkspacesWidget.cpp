@@ -8,6 +8,12 @@
 #include <picviz/PVRoot.h>
 #include <picviz/PVView.h>
 
+#include <picviz/PVMapped.h>
+#include <picviz/PVPlotted.h>
+
+#include <pvkernel/widgets/PVDataTreeMaskProxyModel.h>
+#include <picviz/PVSelection.h>
+
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QToolBar>
@@ -39,39 +45,14 @@ public:
 	}
 };
 
-#if 0
-class RootTreeProxyModel: public QAbstractProxyModel
-{
-protected:
-	QModelIndex mapFromSource(QModelIndex const& src_idx) const override
-	{
-		PVCore::PVDataTreeObjectBase const* obj = (PVCore::PVDataTreeObjectBase const*) index.internalPointer();
-		if (dynamic_cast<Picviz::PVMapped const*>(obj) || dynamic_cast<Picviz::PVPlotted const*>(obj)) {
-			return QModelIndex();
-		}
-
-		QModelIndex parent = src_idx.parent();
-		Picviz::PVView const* view = dynamic_cast<Picviz::PVView const*>(obj);
-		if (view) {
-			parent = qobject_cast<PVWidgets::PVDataTreeModel*>(sourceModel())->index_from_obj(view->get_parent<Picviz::PVScene*>(view));
-		}
-
-		return index(
-	}
-
-	QModelIndex mapToSource(QModelIndex const& idx) const override
-	{
-		PVCore::PVDataTreeObjectBase const* obj = (PVCore::PVDataTreeObjectBase const*) index.internalPointer();
-		return qobject_cast<PVWidgets::PVDataTreeModel*>(sourceModel())->index_from_obj(obj);
-	}
-};
-#endif
-
 } }
 
 PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Picviz::PVRoot* root, QWidget* parent):
 	QWidget(parent)
 {
+	typedef PVWidgets::PVDataTreeMaskProxyModel<Picviz::PVMapped> maping_mask_proxy_t;
+	typedef PVWidgets::PVDataTreeMaskProxyModel<Picviz::PVPlotted> plotting_mask_proxy_t;
+
 	// Layouts
 	//
 	QHBoxLayout* main_layout = new QHBoxLayout();
@@ -87,7 +68,6 @@ PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Picviz::PVRoot* root, QW
 
 	// Widgets
 	//
-	
 	QSplitter* main_splitter = new QSplitter(Qt::Horizontal, this);
 
 	// Open workspaces
@@ -95,10 +75,18 @@ PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Picviz::PVRoot* root, QW
 
 	// Data tree from PVRoot
 	__impl::RootTreeModelViewsSelectable* tree_model = new __impl::RootTreeModelViewsSelectable(*root);
-	_root_view = new PVRootTreeView(tree_model);
+
+	// the mask proxies
+	maping_mask_proxy_t* mapping_mask_proxy = new maping_mask_proxy_t();
+	mapping_mask_proxy->setSourceModel(tree_model);
+	plotting_mask_proxy_t* plotting_mask_proxy = new plotting_mask_proxy_t();
+	plotting_mask_proxy->setSourceModel(mapping_mask_proxy);
+
+	_root_view = new PVRootTreeView(plotting_mask_proxy);
+
+	_root_view->expandAll();
 	_root_view->setContextMenuPolicy(Qt::NoContextMenu); // Disable data-tree creation context menu
 	_root_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	connect(tree_model, SIGNAL(modelReset()), _root_view, SLOT(expandAll()));
 
 	// View creation tab bar
 	QToolBar* toolbar = new QToolBar();

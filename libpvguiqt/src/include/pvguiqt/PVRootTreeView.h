@@ -30,7 +30,7 @@ class PVRootTreeView: public QTreeView
 	Q_OBJECT
 
 public:
-	PVRootTreeView(PVRootTreeModel* model, QWidget* parent = 0);
+	PVRootTreeView(QAbstractItemModel* model, QWidget* parent = 0);
 
 public:
 	template <typename T, typename F>

@@ -9,6 +9,8 @@
 #include <QVBoxLayout>
 #include <QTreeView>
 
+#include <libgen.h>
+
 // Data-tree structure
 //
 
@@ -17,6 +19,7 @@ class A;
 class B;
 class C;
 class D;
+class E;
 
 #define PVSERIALIZEOBJECT_SPLIT\
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)\
@@ -98,7 +101,7 @@ private:
 	int _i;
 };
 
-typedef typename PVCore::PVDataTreeObject<C, PVCore::PVDataTreeNoChildren<D>> data_tree_d_t;
+typedef typename PVCore::PVDataTreeObject<C, E> data_tree_d_t;
 class D : public data_tree_d_t
 {
 	friend class PVCore::PVDataTreeAutoShared<D>;
@@ -125,45 +128,111 @@ private:
 	int _i;
 };
 
+
+typedef typename PVCore::PVDataTreeObject<D, PVCore::PVDataTreeNoChildren<E>> data_tree_e_t;
+class E : public data_tree_e_t
+{
+	friend class PVCore::PVDataTreeAutoShared<E>;
+
+protected:
+	E(int i = 0):
+		data_tree_e_t(),
+		_i(i)
+	{ }
+
+public:
+	virtual ~E()
+	{
+		std::cout << "~E(" << this << ")" << std::endl;
+	}
+
+public:
+	int get_i() const { return _i; }
+	void set_i(int i) { _i = i; }
+
+	virtual QString get_serialize_description() const { return QString("E: ") + QString::number(get_i()); }
+
+private:
+	int _i;
+};
+
 typedef typename A::p_type A_p;
 typedef typename B::p_type B_p;
 typedef typename C::p_type C_p;
 typedef typename D::p_type D_p;
+typedef typename E::p_type E_p;
 
-typedef PVWidgets::PVDataTreeMaskProxyModel<C_p> proxy_model_t;
+typedef PVWidgets::PVDataTreeMaskProxyModel<C> proxy_model_c_t;
+typedef PVWidgets::PVDataTreeMaskProxyModel<std::string> proxy_model_d_t;
+
+void usage(char *progname)
+{
+	std::cerr << "usage: " << basename(progname) << " [1|2|3]" << std::endl;
+	std::cerr << "\t1: to display only model view" << std::endl;
+	std::cerr << "\t2: to display only proxy view" << std::endl;
+	std::cerr << "\t3: to display model view and proxy view" << std::endl;
+}
 
 int main(int argc, char** argv)
 {
 	// Objects, let's create our tree !
 	A_p a;
 	B_p b1(a, 0);
-	// B_p b2(a, 1);
+	B_p b2(a, 1);
 	C_p c1(b1, 0);
-	// C_p c2(b1, 1);
-	// C_p c4(b2, 2);
-	// C_p c5(b2, 3);
-	// D_p d1(c1, 0);
-	// D_p d2(c1, 1);
-	// D_p d4(c2, 2);
-	// D_p d5(c2, 3);
-	// D_p d6(c4, 4);
-	// D_p d7(c5, 5);
+	C_p c2(b1, 1);
+	C_p c4(b2, 2);
+	C_p c5(b2, 3);
+	D_p d1(c1, 0);
+	D_p d2(c1, 1);
+	D_p d4(c2, 2);
+	D_p d5(c2, 3);
+	D_p d6(c4, 4);
+	D_p d7(c5, 5);
+	E_p e1(d1, 0);
+	E_p e2(d1, 1);
 
 	// Qt app
 	QApplication app(argc, argv);
 
-	// Create our model and view
+	int what = 3;
+
+	if (argc != 1) {
+		what = atoi(argv[1]);
+	}
+	if (what == 0) {
+		usage(argv[0]);
+		return 1;
+	}
+
+	// Create our model and its view
 	PVWidgets::PVDataTreeModel* model = new PVWidgets::PVDataTreeModel(*a);
 
-	proxy_model_t *proxy = new proxy_model_t();
-	proxy->setSourceModel(model);
 	QTreeView* view = new QTreeView();
-	view->setModel(proxy);
+	view->setModel(model);
+	view->expandAll();
 
 	QMainWindow* mw = new QMainWindow();
 	mw->setCentralWidget(view);
-
+	mw->setWindowTitle("Data Tree - Model");
 	mw->show();
+
+	// Create our proxy and its view
+	proxy_model_c_t *proxy_c = new proxy_model_c_t();
+	proxy_c->setSourceModel(model);
+
+	proxy_model_d_t *proxy_d = new proxy_model_d_t();
+	proxy_d->setSourceModel(proxy_c);
+
+	QTreeView* view2 = new QTreeView();
+	view2->setModel(proxy_d);
+	view2->expandAll();
+
+	QMainWindow* mw2 = new QMainWindow();
+	mw2->setWindowTitle("Data Tree - Proxy on class C");
+	mw2->setCentralWidget(view2);
+
+	mw2->show();
 
 	return app.exec();
 }
