@@ -168,6 +168,8 @@ void PVInspector::PVExtractorWidget::update_status_ext(PVCore::PVProgressBox* pb
 		boost::this_thread::sleep(boost::posix_time::milliseconds(200));
 	}
 }
+
+/*
 bool PVInspector::PVExtractorWidget::process_extraction_job(PVRush::PVControllerJob_p job)
 {
 	bool ret = true;
@@ -191,7 +193,7 @@ bool PVInspector::PVExtractorWidget::process_extraction_job(PVRush::PVController
 	}
 
 	return ret;
-}
+}*/
 
 bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int nlines, QWidget* parent = NULL)
 {

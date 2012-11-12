@@ -196,8 +196,10 @@ void Picviz::PVLinesProperties::set_linear(const PVRow n)
 
 void Picviz::PVLinesProperties::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	if (so.is_writing() && _table) {
-		so.buffer("lp_data", &_table[0], PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
+	if (so.is_writing()) {
+		if (_table) {
+			so.buffer("lp_data", &_table[0], PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
+		}
 	}
 	else {
 		if (so.buffer_exists("lp_data")) {

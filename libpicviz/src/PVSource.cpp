@@ -190,9 +190,9 @@ void Picviz::PVSource::extract_finished()
 	}
 
 	// Reset all views and process the current one
-	for (auto view_p : get_children<PVView>()) {
+	/*for (auto view_p : get_children<PVView>()) {
 		view_p->reset_layers();
-	}
+	}*/
 }
 
 void Picviz::PVSource::set_format(PVRush::PVFormat const& format)

@@ -107,7 +107,6 @@ public:
 	typedef QVector<axes_comb_id_t>  columns_indexes_t;
 
 private:
-	QVector<float>    abscissae_list;       //!< Axes positions, such as [0.0, 1.29, 2.5, 4.76]
 	list_axes_t       axes_list;            //!< Contains all the used axes
 	columns_indexes_t columns_indexes_list; //!< Contains the indices of the axes to place, such as [0,1,3,0]
 	list_axes_t       original_axes_list;   //!< All the axes, left as how they were upon loading the format.
@@ -144,16 +143,6 @@ public:
 	*/
 	bool decrease_axis_column_index(PVCol index);
 
-	/**
-	* Get the abscissae_list.
-	*
-	* @return a const pointer to the first absciss.
-	*/
-	const float *get_abscissae_list() const { return &abscissae_list[0]; }
-
-	/** @name getters
-	*  @{
-	*/
 	/**
 	* Get the current number of used axes.
 	*
