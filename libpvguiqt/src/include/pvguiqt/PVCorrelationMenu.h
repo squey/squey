@@ -33,6 +33,11 @@ class PVCorrelationMenu : public QMenu
 public:
 	PVCorrelationMenu(Picviz::PVRoot* root, QWidget* parent = 0);
 
+public:
+	void add_correlation(const QString & name);
+	void add_correlation(Picviz::PVAD2GView* correlation);
+	void load_correlations();
+
 private slots:
 	void create_new_correlation();
 	void show_correlation();
@@ -43,7 +48,6 @@ private slots:
 private:
 	Picviz::PVRoot* _root;
 
-	QAction* _separator_first_correlation;
 	QAction* _separator_create_correlation;
 	QAction* _action_create_correlation;
 };

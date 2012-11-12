@@ -27,38 +27,47 @@ PVGuiQt::PVCorrelationMenu::PVCorrelationMenu(Picviz::PVRoot* root, QWidget* par
 	connect(enable_correlation_action, SIGNAL(toggled(bool)), this, SLOT(enable_correlations(bool)));
 	enable_correlation_action->setCheckable(true);
 	enable_correlation_action->setChecked(true);
-	_separator_first_correlation = addSeparator();
+	addSeparator();
 	_separator_create_correlation = addSeparator();
 	_action_create_correlation = addAction("&Create new correlation");
 	connect(_action_create_correlation, SIGNAL(triggered(bool)), this, SLOT(create_new_correlation()));
 }
 
-void PVGuiQt::PVCorrelationMenu::enable_correlations(bool enabled)
+void PVGuiQt::PVCorrelationMenu::load_correlations()
 {
-	Picviz::PVRoot_sp root_sp = _root->shared_from_this();
-	PVHive::call<FUNC(Picviz::PVRoot::enable_correlations)>(root_sp, enabled);
+	for (auto correlation : _root->get_correlations()) {
+		add_correlation(correlation.get());
+	}
 }
-
 
 void PVGuiQt::PVCorrelationMenu::create_new_correlation()
 {
 	QString name = QInputDialog::getText(this, "New correlation", "Correlation name:", QLineEdit::Normal);
 	if (!name.isEmpty()) {
-		QMenu* correlation_sub_menu = new QMenu(name);
-		insertMenu(_separator_create_correlation, correlation_sub_menu);
-
-		QAction* show_action = correlation_sub_menu->addAction(tr("Show"));
-		connect(show_action, SIGNAL(triggered(bool)), this, SLOT(show_correlation()));
-
-		QAction* delete_action = correlation_sub_menu->addAction(tr("Delete"));
-		connect(delete_action, SIGNAL(triggered(bool)), this, SLOT(delete_correlation()));
-
-		Picviz::PVRoot_sp root_sp = _root->shared_from_this();
-		Picviz::PVAD2GView* correlation = PVHive::call<FUNC(Picviz::PVRoot::add_correlation)>(root_sp, name);
-		correlation_sub_menu->menuAction()->setData(qVariantFromValue((void*) correlation));
-
-		show_correlation(correlation);
+		add_correlation(name);
 	}
+}
+
+void PVGuiQt::PVCorrelationMenu::add_correlation(const QString & name)
+{
+	Picviz::PVRoot_sp root_sp = _root->shared_from_this();
+	Picviz::PVAD2GView* correlation = PVHive::call<FUNC(Picviz::PVRoot::add_correlation)>(root_sp, name);
+	add_correlation(correlation);
+	show_correlation(correlation);
+}
+
+void PVGuiQt::PVCorrelationMenu::add_correlation(Picviz::PVAD2GView* correlation)
+{
+	QMenu* correlation_sub_menu = new QMenu(correlation->get_name());
+	insertMenu(_separator_create_correlation, correlation_sub_menu);
+
+	QAction* show_action = correlation_sub_menu->addAction(tr("Show"));
+	connect(show_action, SIGNAL(triggered(bool)), this, SLOT(show_correlation()));
+
+	QAction* delete_action = correlation_sub_menu->addAction(tr("Delete"));
+	connect(delete_action, SIGNAL(triggered(bool)), this, SLOT(delete_correlation()));
+
+	correlation_sub_menu->menuAction()->setData(qVariantFromValue((void*) correlation));
 }
 
 void PVGuiQt::PVCorrelationMenu::show_correlation()
@@ -103,4 +112,10 @@ void PVGuiQt::PVCorrelationMenu::delete_correlation()
 		PVHive::call<FUNC(Picviz::PVRoot::delete_correlation)>(root_sp, correlation->shared_from_this());
 		removeAction(correlation_action);
 	}
+}
+
+void PVGuiQt::PVCorrelationMenu::enable_correlations(bool enabled)
+{
+	Picviz::PVRoot_sp root_sp = _root->shared_from_this();
+	PVHive::call<FUNC(Picviz::PVRoot::enable_correlations)>(root_sp, enabled);
 }
