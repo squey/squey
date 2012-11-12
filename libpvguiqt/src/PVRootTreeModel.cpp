@@ -16,11 +16,11 @@ QVariant PVGuiQt::PVRootTreeModel::data(const QModelIndex& index, int role) cons
 	if (role == Qt::FontRole) {
 		PVCore::PVDataTreeObjectBase const* obj = (PVCore::PVDataTreeObjectBase const*) index.internalPointer();
 		Picviz::PVView const* view = dynamic_cast<Picviz::PVView const*>(obj);
-		if (view && view->get_parent<Picviz::PVScene>()->current_view() == view) {
+		/*if (view && view->get_parent<Picviz::PVRoot>()->current_view() == view) {
 		   QFont font;
 		   font.setBold(true);
 		   return font;
-		}
+		}*/
 	}
 	else
 	if (role == Qt::ForegroundRole) {

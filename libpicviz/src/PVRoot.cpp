@@ -70,7 +70,35 @@ void Picviz::PVRoot::select_scene(PVScene& scene)
 	}
 }
 
+void Picviz::PVRoot::view_being_deleted(Picviz::PVView* view)
+{
+	if (_current_view == view) {
+		_current_view = nullptr;
+	}
+}
 
+void Picviz::PVRoot::scene_being_deleted(Picviz::PVScene* scene)
+{
+	if (_current_scene == scene) {
+		_current_scene = nullptr;
+	}
+	if (_current_source && _current_source->get_parent<PVScene>() == scene) {
+		_current_source = nullptr;
+	}
+	if (_current_view && _current_view->get_parent<PVScene>() == scene) {
+		_current_view = nullptr;
+	}
+}
+
+void Picviz::PVRoot::source_being_deleted(Picviz::PVSource* src)
+{
+	if (_current_source == src) {
+		_current_source = nullptr;
+	}
+	if (_current_view && _current_view->get_parent<PVSource>() == src) {
+		_current_view = nullptr;
+	}
+}
 
 /******************************************************************************
  *

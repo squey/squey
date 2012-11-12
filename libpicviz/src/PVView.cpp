@@ -136,7 +136,11 @@ void Picviz::PVView::set_fake_axes_comb(PVCol const ncols)
 Picviz::PVView::~PVView()
 {
 	PVLOG_INFO("In PVView destructor: 0x%x\n", this);
-	get_parent<PVRoot>()->remove_view_from_correlations(this);
+	PVRoot* root = get_parent<PVRoot>();
+	if (root) {
+		root->remove_view_from_correlations(this);
+		root->view_being_deleted(this);
+	}
 	delete state_machine;
 }
 

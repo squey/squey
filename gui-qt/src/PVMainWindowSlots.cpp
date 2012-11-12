@@ -528,7 +528,8 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 	else if (scenes.size() == 1) {
 		// Only one project loaded: use it to load the source
 		scene_p = scenes.at(0)->shared_from_this();
-		select_scene(0);
+		Picviz::PVRoot_sp root_sp = get_root().shared_from_this();
+		PVHive::call<FUNC(Picviz::PVRoot::select_scene)>(root_sp, *scene_p.get());
 	}
 	else {
 		// More than one project loaded: ask the user the project he wants to use to load the source

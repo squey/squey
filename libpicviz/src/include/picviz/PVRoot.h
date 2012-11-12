@@ -113,12 +113,17 @@ public:
 
 	void set_path(QString path) { _path = path; }
 	const QString& get_path() const { return _path; }
-=======
+
 public:
 	QList<PVAD2GView_p> get_correlations_for_scene(Picviz::PVScene const& scene) const;
 
 public:
 	virtual QString get_serialize_description() const { return "Solution"; }
+
+protected:
+	void view_being_deleted(Picviz::PVView* view);
+	void scene_being_deleted(Picviz::PVScene* view);
+	void source_being_deleted(Picviz::PVSource* view);
 
 protected:
 	bool are_correlations_serialized() const { return (bool) _so_correlations; }

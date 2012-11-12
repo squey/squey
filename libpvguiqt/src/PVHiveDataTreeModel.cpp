@@ -99,12 +99,13 @@ void PVGuiQt::PVHiveDataTreeModel::root_about_to_be_deleted(PVHive::PVObserverBa
 
 void PVGuiQt::PVHiveDataTreeModel::about_to_be_deleted(PVHive::PVObserverBase* o)
 {
-	 /*datatree_obs_t* real_o = dynamic_cast<datatree_obs_t*>(o);
+	/*datatree_obs_t* real_o = dynamic_cast<datatree_obs_t*>(o);
 	assert(real_o);
 	const PVCore::PVDataTreeObjectBase* obj_base = real_o->get_object();
 	QModelIndex idx = index_from_obj(obj_base);
-	assert(idx.isValid());
 
-	removeRows(idx.row(), idx.column(), idx.parent());*/
+	if (idx.isValid()) {
+		removeRows(idx.row(), idx.column(), idx.parent());
+	}*/
 	reset();
 }
