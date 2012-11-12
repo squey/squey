@@ -12,7 +12,76 @@
 #include <pvhive/PVCallHelper.h>
 
 #include <QHBoxLayout>
+#include <QInputDialog>
+#include <QMenu>
+#include <QAction>
 
+const QString star = "*";
+
+/******************************************************************************
+ *
+ * PVGuiQt::__impl::PVTabBar
+ *
+ *****************************************************************************/
+void PVGuiQt::__impl::PVTabBar::mouseDoubleClickEvent(QMouseEvent* event)
+{
+	int index = tabAt(event->pos());
+	rename_tab(index);
+	QTabBar::mouseDoubleClickEvent(event);
+}
+
+void PVGuiQt::__impl::PVTabBar::mousePressEvent(QMouseEvent* event)
+{
+	if (event->button() == Qt::RightButton) {
+		int index = tabAt(event->pos());
+		QMenu* menu = new QMenu(this);
+		QAction* rename_action = menu->addAction("&Rename");
+		rename_action->setData(qVariantFromValue(index));
+		connect(rename_action, SIGNAL(triggered(bool)), this, SLOT(rename_tab()));
+		menu->popup(event->globalPos());
+	}
+	QTabBar::mousePressEvent(event);
+}
+
+void PVGuiQt::__impl::PVTabBar::keyPressEvent(QKeyEvent * event)
+{
+	if (event->key() == Qt::Key_F2) {
+		rename_tab(currentIndex());
+	}
+	QTabBar::keyPressEvent(event);
+}
+
+void PVGuiQt::__impl::PVTabBar::rename_tab()
+{
+	QAction* rename_action = (QAction*) sender();
+	assert(rename_action);
+	int index = rename_action->data().toInt();
+	rename_tab(index);
+}
+
+void PVGuiQt::__impl::PVTabBar::rename_tab(int index)
+{
+	QString tab_name = tabText(index);
+	bool add_star = false;
+	if (tab_name.endsWith(star)) {
+		add_star = true;
+		tab_name = tab_name.left(tab_name.size()-1);
+	}
+	QString name = QInputDialog::getText(this, "Rename data collection", "New data collection name:", QLineEdit::Normal, tab_name);
+	if (!name.isEmpty()) {
+		setTabText(index, name + (add_star ? star : ""));
+		Picviz::PVScene* scene = _root.current_scene();
+		assert(scene);
+		Picviz::PVScene_p scene_p = scene->shared_from_this();
+		PVHive::call<FUNC(Picviz::PVScene::set_name)>(scene_p, name);
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVProjectsTabWidget
+ *
+ *****************************************************************************/
 PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Picviz::PVRoot& root, QWidget* parent /*= 0*/):
 	QWidget(parent),
 	_root(root)
@@ -21,7 +90,7 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Picviz::PVRoot& root, QWidget*
 
 	QHBoxLayout* main_layout = new QHBoxLayout();
 
-	_tab_widget = new __impl::PVTabWidget();
+	_tab_widget = new __impl::PVTabWidget(root);
 	_tab_widget->setTabsClosable(true);
 
 	_stacked_widget = new QStackedWidget();
@@ -114,7 +183,6 @@ void PVGuiQt::PVProjectsTabWidget::project_modified(bool modified, QString path 
 	assert(workspace_tab_widget);
 	int index = _stacked_widget->indexOf(workspace_tab_widget);
 	QString text = _tab_widget->tabText(index);
-	const QString star = "*";
 	if (modified && !text.endsWith(star)) {
 		_tab_widget->setTabText(index, text + "*");
 	}

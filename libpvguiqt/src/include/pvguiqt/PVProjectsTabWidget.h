@@ -27,6 +27,7 @@
 #include <QStackedWidget>
 #include <QSplitterHandle>
 #include <QSplitter>
+#include <QTabBar>
 
 namespace PVGuiQt
 {
@@ -38,10 +39,30 @@ class PVSceneWorkspacesTabWidget;
 namespace __impl
 {
 
+class PVTabBar : public QTabBar
+{
+	Q_OBJECT
+
+public:
+	PVTabBar(Picviz::PVRoot& root, QWidget* parent = 0) : QTabBar(parent), _root(root) {}
+
+protected:
+	void mouseDoubleClickEvent(QMouseEvent* event) override;
+	void mousePressEvent(QMouseEvent* event) override;
+	void keyPressEvent(QKeyEvent * event) override;
+
+private slots:
+	void rename_tab();
+	void rename_tab(int index);
+
+private:
+	Picviz::PVRoot& _root;
+};
+
 class PVTabWidget : public QTabWidget
 {
 public:
-	PVTabWidget(QWidget* parent = 0) : QTabWidget(parent) {}
+	PVTabWidget(Picviz::PVRoot& root, QWidget* parent = 0) : QTabWidget(parent) { setTabBar(new PVTabBar(root, this)); }
 
 public:
 	QTabBar* tabBar() const

@@ -507,7 +507,7 @@ void PVInspector::PVMainWindow::map_Slot()
  *****************************************************************************/
 Picviz::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 {
-	QString scene_name = tr("new-project%1." PICVIZ_SCENE_ARCHIVE_EXT).arg(sequence_n++);
+	QString scene_name = tr("Data collection %1").arg(sequence_n++);
 	PVCore::PVDataTreeAutoShared<Picviz::PVScene> scene_p = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(get_root_sp(), scene_name);
 	_projects_tab_widget->add_project(scene_p);
 

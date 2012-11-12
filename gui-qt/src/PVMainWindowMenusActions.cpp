@@ -30,10 +30,10 @@ void PVInspector::PVMainWindow::create_actions()
 	solution_saveas_Action = new QAction(tr("S&ave investigation as..."), this);
 
 	// The project actions
-	project_new_Action = new QAction(tr("&New project"), this);
-	project_load_Action = new QAction(tr("&Load a project..."), this);
-	project_save_Action = new QAction(tr("&Save project"), this);
-	project_saveas_Action = new QAction(tr("S&ave project as..."), this);
+	project_new_Action = new QAction(tr("&New data collection"), this);
+	project_load_Action = new QAction(tr("&Load a data collection..."), this);
+	project_save_Action = new QAction(tr("&Save data collection"), this);
+	project_saveas_Action = new QAction(tr("S&ave data collection as..."), this);
 #endif	// CUSTOMER_CAPABILITY_SAVE
 
 	// The new_file Action
@@ -175,14 +175,15 @@ void PVInspector::PVMainWindow::create_menus()
 	solution_Menu->addAction(solution_save_Action);
 	solution_Menu->addAction(solution_saveas_Action);
 
-	/*QMenu *project_Menu = new QMenu(tr("&Project"));
+	QMenu *project_Menu = new QMenu(tr("&Data collection"));
 	project_Menu->addAction(project_new_Action);
-	project_Menu->addAction(project_load_Action);
+	/*project_Menu->addAction(project_load_Action);
 	project_Menu->addAction(project_save_Action);
 	project_Menu->addAction(project_saveas_Action);*/
 
 	file_Menu->addMenu(solution_Menu);
-	//file_Menu->addMenu(project_Menu);
+	file_Menu->addSeparator();
+	file_Menu->addMenu(project_Menu);
 	file_Menu->addSeparator();
 	file_Menu->addSeparator();
 #endif
