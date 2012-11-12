@@ -320,6 +320,11 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(solution_load_Action, SIGNAL(triggered()), this, SLOT(solution_load_Slot()));
 	connect(solution_save_Action, SIGNAL(triggered()), this, SLOT(solution_save_Slot()));
 	connect(solution_saveas_Action, SIGNAL(triggered()), this, SLOT(solution_saveas_Slot()));
+
+	connect(project_new_Action, SIGNAL(triggered()), this, SLOT(project_new_Slot()));
+	connect(project_load_Action, SIGNAL(triggered()), this, SLOT(project_load_Slot()));
+	connect(project_save_Action, SIGNAL(triggered()), this, SLOT(project_save_Slot()));
+	connect(project_saveas_Action, SIGNAL(triggered()), this, SLOT(project_saveas_Slot()));
 #endif
 	connect(export_file_Action, SIGNAL(triggered()), this, SLOT(export_file_Slot()));
 	connect(export_selection_Action, SIGNAL(triggered()), this, SLOT(export_selection_Slot()));
