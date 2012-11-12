@@ -120,10 +120,10 @@ void PVInspector::PVMainWindow::create_actions()
 	view_new_zoomed_parallel_Action = new QAction(tr("New &zoomed parallel view"), this);
 	view_new_scatter_Action = new QAction(tr("New scatter &view"), this);
 	view_display_inv_elts_Action = new QAction(tr("&Display invalid elements..."), this);
-#ifndef NDEBUG
+/*#ifndef NDEBUG
 	view_screenshot_qt = new QAction(tr("Display view in Qt"), this);
 	view_screenshot_qt->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
-#endif
+#endif*/
 
 	/***************************
 	 * For the "Axes" menu entry
@@ -139,13 +139,13 @@ void PVInspector::PVMainWindow::create_actions()
 	/***************************
 	 * For the "Lines" menu entry
 	 ***************************/
-	lines_display_unselected_GLview_Action = new QAction(tr("Toggle unselected lines"), this);
-	lines_display_unselected_GLview_Action->setShortcut(QKeySequence(Qt::Key_U));
+	//lines_display_unselected_GLview_Action = new QAction(tr("Toggle unselected lines"), this);
+	//lines_display_unselected_GLview_Action->setShortcut(QKeySequence(Qt::Key_U));
 	lines_display_unselected_listing_Action = new QAction(tr("Toggle unselected lines in listing"), this);
 	lines_display_unselected_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_U));
 
-	lines_display_zombies_GLview_Action = new QAction(tr("Toggle zombies lines"), this);
-	lines_display_zombies_GLview_Action->setShortcut(QKeySequence(Qt::Key_Z));
+	//lines_display_zombies_GLview_Action = new QAction(tr("Toggle zombies lines"), this);
+	//lines_display_zombies_GLview_Action->setShortcut(QKeySequence(Qt::Key_Z));
 	lines_display_zombies_listing_Action = new QAction(tr("Toggle zombies lines in listing"), this);
 	lines_display_zombies_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Z));
 
@@ -184,7 +184,6 @@ void PVInspector::PVMainWindow::create_menus()
 	file_Menu->addMenu(solution_Menu);
 	//file_Menu->addMenu(project_Menu);
 	file_Menu->addSeparator();
-	file_Menu->addAction(extractor_file_Action);
 	file_Menu->addSeparator();
 #endif
 	file_Menu->addSeparator();
@@ -236,33 +235,37 @@ void PVInspector::PVMainWindow::create_menus()
 	correlation_Menu = new PVGuiQt::PVCorrelationMenu(&get_root());
 	menubar->addMenu(correlation_Menu);
 
+	source_Menu = menubar->addMenu(tr("&Source"));
+	source_Menu->addAction(extractor_file_Action);
+	source_Menu->addAction(view_display_inv_elts_Action);
+
 	view_Menu = menubar->addMenu(tr("&View"));
+	view_Menu->addAction(axes_combination_editor_Action);
 	//view_Menu->addAction(view_new_parallel_Action);
 	//view_Menu->addAction(view_new_zoomed_parallel_Action);
 	//view_Menu->addAction(view_new_scatter_Action);
 	//view_Menu->addSeparator();
-	view_Menu->addAction(view_display_inv_elts_Action);
-#ifndef NDEBUG
+/*#ifndef NDEBUG
 	view_Menu->addSeparator();
 	view_Menu->addAction(view_screenshot_qt);
-#endif
+#endif*/
 
-	axes_Menu = menubar->addMenu(tr("&Axes"));
+	/*axes_Menu = menubar->addMenu(tr("&Axes"));
 	axes_Menu->addAction(axes_editor_Action);
 	axes_Menu->addAction(axes_combination_editor_Action);
 	axes_Menu->addSeparator();
 	axes_Menu->addAction(axes_mode_Action);
 	axes_Menu->addAction(axes_display_edges_Action);
 	axes_Menu->addAction(axes_new_Action);
-	axes_Menu->addSeparator();
+	axes_Menu->addSeparator();*/
 
 
 	lines_Menu = menubar->addMenu(tr("&Lines"));
 	lines_Menu->addAction(lines_display_unselected_listing_Action);
-	lines_Menu->addAction(lines_display_unselected_GLview_Action);
-	lines_Menu->addSeparator();
+	//lines_Menu->addAction(lines_display_unselected_GLview_Action);
+	//lines_Menu->addSeparator();
 	lines_Menu->addAction(lines_display_zombies_listing_Action);
-	lines_Menu->addAction(lines_display_zombies_GLview_Action);
+	//lines_Menu->addAction(lines_display_zombies_GLview_Action);
 
 	tools_Menu = menubar->addMenu(tr("T&ools"));
 	tools_Menu->addAction(tools_new_format_Action);
@@ -295,12 +298,13 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	extractor_file_Action->setEnabled(cond);
 	export_selection_Action->setEnabled(cond);
 
-	axes_Menu->setEnabled(cond);
+	//axes_Menu->setEnabled(cond);
 	filter_Menu->setEnabled(cond);
 	lines_Menu->setEnabled(cond);
 	correlation_Menu->setEnabled(cond);
 	selection_Menu->setEnabled(cond);
 	tools_cur_format_Action->setEnabled(cond);
+	source_Menu->setEnabled(cond);
 	view_Menu->setEnabled(cond);
 	//windows_Menu->setEnabled(cond);
 	solution_save_Action->setEnabled(cond);
@@ -335,9 +339,9 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(view_new_zoomed_parallel_Action, SIGNAL(triggered()), this, SLOT(view_new_zoomed_parallel_Slot()));
 	connect(view_new_scatter_Action, SIGNAL(triggered()), this, SLOT(view_new_scatter_Slot()));
 	connect(view_display_inv_elts_Action, SIGNAL(triggered()), this, SLOT(view_display_inv_elts_Slot()));
-#ifndef NDEBUG
+/*#ifndef NDEBUG
 	connect(view_screenshot_qt, SIGNAL(triggered()), this, SLOT(view_screenshot_qt_Slot()));
-#endif
+#endif*/
 
 	connect(selection_all_Action, SIGNAL(triggered()), this, SLOT(selection_all_Slot()));
 	connect(selection_none_Action, SIGNAL(triggered()), this, SLOT(selection_none_Slot()));
@@ -361,9 +365,9 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(filter_reprocess_last_filter, SIGNAL(triggered()), this, SLOT(filter_reprocess_last_Slot()));
 
 	connect(lines_display_unselected_listing_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_listing_Slot()));
-	connect(lines_display_unselected_GLview_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_GLview_Slot()));
+	//connect(lines_display_unselected_GLview_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_GLview_Slot()));
 	connect(lines_display_zombies_listing_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_listing_Slot()));
-	connect(lines_display_zombies_GLview_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_GLview_Slot()));
+	//connect(lines_display_zombies_GLview_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_GLview_Slot()));
         
 	connect(tools_new_format_Action, SIGNAL(triggered()), this, SLOT(new_format_Slot()));
 	connect(tools_cur_format_Action, SIGNAL(triggered()), this, SLOT(cur_format_Slot()));

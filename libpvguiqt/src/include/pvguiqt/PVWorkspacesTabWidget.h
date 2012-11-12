@@ -212,7 +212,7 @@ signals:
 	void is_empty();
 
 public slots:
-	//void tab_changed(int index);
+	void tab_changed(int index);
 
 protected slots:
 	void correlation_changed(int index);

@@ -278,6 +278,7 @@ private:
 	PVGuiQt::PVCorrelationMenu* correlation_Menu;
 	QMenu *selection_Menu;
 	QMenu* tools_Menu;
+	QMenu *source_Menu;
 	QMenu *view_Menu;
 	QMenu *windows_Menu;
 	QMenu *help_Menu;
