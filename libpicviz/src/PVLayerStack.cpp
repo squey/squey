@@ -330,7 +330,6 @@ bool Picviz::PVLayerStack::contains_layer(PVLayer* layer) const
 void Picviz::PVLayerStack::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.list("layers", table, QString(), (PVLayer*) NULL, QStringList(), false);
-	so.attribute("layer_count", layer_count);
 	so.attribute("selected_layer_index", selected_layer_index);
 	so.object("lia", lia, QString(), false, (PVLayerIndexArray*) NULL, false);
 

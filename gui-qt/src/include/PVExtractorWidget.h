@@ -85,7 +85,7 @@ private:
 	inline Picviz::PVSource& lib_src() { return *_lib_src; }
 	inline PVRush::PVExtractor& get_extractor() { return lib_src().get_extractor(); }
 
-	bool process_extraction_job(PVRush::PVControllerJob_p job);
+	//bool process_extraction_job(PVRush::PVControllerJob_p job);
 
 private:
 	Picviz::PVSource* _lib_src;

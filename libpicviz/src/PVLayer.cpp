@@ -110,8 +110,8 @@ bool Picviz::PVLayer::get_max_for_col(PVCol col, PVRow& row) const
 
 void Picviz::PVLayer::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.object("selection", selection);
-	so.object("lp", lines_properties);
+	so.object("selection", selection, "selection", true, (PVSelection*) NULL, false);
+	so.object("lp", lines_properties, "lp", true, (PVLinesProperties*) NULL, false);
 	so.attribute("name", name);
 	so.attribute("visible", visible);
 	so.attribute("index", index);

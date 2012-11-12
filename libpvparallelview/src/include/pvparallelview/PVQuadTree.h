@@ -76,7 +76,7 @@ typedef uint32_t pv_quadtree_buffer_entry_t;
 /*****************************************************************************
  * About SSE use when extracting relevant entries from quadtrees
  */
-#define QUADTREE_USE_SSE_EXTRACT
+//#define QUADTREE_USE_SSE_EXTRACT
 
 static inline bool test_sse(const __m128i &sse_y1,
                             const __m128i &sse_y1_min,

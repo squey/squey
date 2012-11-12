@@ -694,8 +694,10 @@ ssize_t PVCore::PVSelBitField::get_max_last_nonzero_chunk_index(PVSelBitField co
 
 void PVCore::PVSelBitField::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	if (so.is_writing() && _table) {
-		so.buffer("selection_data", _table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	if (so.is_writing()) {
+		if (_table) {
+			so.buffer("selection_data", _table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+		}
 	}
 	else {
 		if (so.buffer_exists("selection_data")) {

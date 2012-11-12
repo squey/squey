@@ -22,8 +22,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#define PICVIZ_ROOT_ARCHIVE_EXT "pvl"
-#define PICVIZ_ROOT_ARCHIVE_FILTER "Picviz solution files (*." PICVIZ_SCENE_ARCHIVE_EXT ")"
+#define PICVIZ_ROOT_ARCHIVE_EXT "pvi"
+#define PICVIZ_ROOT_ARCHIVE_FILTER "Picviz solution files (*." PICVIZ_ROOT_ARCHIVE_EXT ")"
 
 // Plugins prefix
 #define LAYER_FILTER_PREFIX "layer_filter"
@@ -64,21 +64,15 @@ public:
 
 public:
 	PVAD2GView_p get_correlation(int index);
-	void select_correlation(int index)
-	{
-		if (index <= -1) {
-			_current_correlation = nullptr;
-		}
-		else {
-			_current_correlation = get_correlation(index).get();
-		}
-	}
+	
+	void select_correlation(PVAD2GView* correlation) { _current_correlation = correlation; }
 
-	PVAD2GView* add_correlation(const QString & name);
 	void add_correlations(correlations_t const& corrs);
-	void delete_correlation(int index);
 	void enable_correlations(bool enabled) { _correlations_enabled = enabled; }
 	PVAD2GView* current_correlation() { return _current_correlation; }
+	
+	PVAD2GView* add_correlation(const QString & name);
+	bool delete_correlation(PVAD2GView_p correlation_p);
 
 	correlations_t& get_correlations() { return _correlations; }
 	correlations_t const& get_correlations() const { return _correlations; }

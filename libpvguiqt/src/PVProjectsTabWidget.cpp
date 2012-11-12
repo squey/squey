@@ -155,40 +155,8 @@ void PVGuiQt::PVProjectsTabWidget::close_project()
 
 bool PVGuiQt::PVProjectsTabWidget::tab_close_requested(int index)
 {
-	if (maybe_save_project(index)) {
-		remove_project(index);
-		return true;
-	}
-
-	return false;
-}
-
-bool PVGuiQt::PVProjectsTabWidget::maybe_save_project(int index)
-{
-#ifdef CUSTOMER_CAPABILITY_SAVE
-	PVSceneWorkspacesTabWidget* tab_widget = (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(index);
-	if (tab_widget->is_project_modified()) {
-		QMessageBox::StandardButton ret;
-		QString project_name = _tab_widget->tabText(index).left(_tab_widget->tabText(index).size()-1);
-		ret = QMessageBox::warning(this, tr("%1").arg(project_name),
-				tr("The project \"%1\"has been modified.\n"
-					"Do you want to save your changes?").arg(project_name),
-				QMessageBox::Save | QMessageBox::Discard
-				| QMessageBox::Cancel);
-		if (ret == QMessageBox::Save) {
-			emit save_project();
-		}
-		if (ret == QMessageBox::Discard) {
-			return true;
-		}
-		else if (ret == QMessageBox::Cancel) {
-			return false;
-		}
-	}
+	remove_project(index);
 	return true;
-#else
-	return false;
-#endif
 }
 
 PVGuiQt::PVWorkspace* PVGuiQt::PVProjectsTabWidget::add_source(Picviz::PVSource* source)
@@ -254,18 +222,18 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	QWidget* new_widget = _stacked_widget->widget(index);
 	PVWorkspacesTabWidgetBase* workspace_tab_widget;
 
-	int correlation_index = -1;
+	Picviz::PVAD2GView* correlation = nullptr;
 
 	if (index == 1) {
 		PVOpenWorkspacesWidget* w = qobject_cast<PVOpenWorkspacesWidget*>(new_widget);
 		assert(w);
 		workspace_tab_widget = w->workspace_tab_widget();
-		correlation_index = workspace_tab_widget->get_correlation_index();
+		correlation = workspace_tab_widget->get_correlation();
 	}
 	else {
 		workspace_tab_widget = qobject_cast<PVWorkspacesTabWidgetBase*>(new_widget);
 		assert(workspace_tab_widget);
-		correlation_index = workspace_tab_widget->get_correlation_index()-1;
+		correlation = workspace_tab_widget->get_correlation();
 
 		PVSceneWorkspacesTabWidget* scene_tab = qobject_cast<PVSceneWorkspacesTabWidget*>(workspace_tab_widget);
 		assert(scene_tab);
@@ -274,9 +242,7 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 		PVHive::call<FUNC(Picviz::PVRoot::select_scene)>(root_sp, *scene_tab->get_scene());
 	}
 
-	// FIXME: !!!!
-	/*correlation_index = std::max(-1, correlation_index);
-	_root.select_correlation(correlation_index);*/
+	_root.select_correlation(correlation);
 }
 
 PVGuiQt::PVWorkspacesTabWidgetBase* PVGuiQt::PVProjectsTabWidget::current_workspace_tab_widget() const

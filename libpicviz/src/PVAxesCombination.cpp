@@ -12,8 +12,6 @@
 #include <picviz/PVAxis.h>
 #include <pvkernel/core/PVColor.h>
 
-#define ABSCISSAE_DIFF 1.0f
-
 /******************************************************************************
  *
  * Picviz::PVAxesCombination::PVAxesCombination
@@ -47,11 +45,6 @@ void Picviz::PVAxesCombination::axis_append(PVCol org_axis_id)
 	columns_indexes_list.push_back(axes_comb_id_t(org_axis_id,
 	                                              get_first_free_child_id(org_axis_id)));
 	axes_list.push_back(original_axes_list.at(org_axis_id));
-	float absciss = 0.0f;
-	if (abscissae_list.size() > 0) {
-		absciss = abscissae_list.back()+ ABSCISSAE_DIFF;
-	}
-	abscissae_list.push_back(absciss);
 }
 
 /******************************************************************************
@@ -62,7 +55,6 @@ void Picviz::PVAxesCombination::axis_append(PVCol org_axis_id)
 void Picviz::PVAxesCombination::clear()
 {
 	axes_list.clear();
-	abscissae_list.clear();
 	columns_indexes_list.clear();
 	original_axes_list.clear();
 }
@@ -388,7 +380,6 @@ void Picviz::PVAxesCombination::reset_to_default()
 	_is_consistent = false;
 	columns_indexes_list.clear();
 	axes_list.clear();
-	abscissae_list.clear();
 
 	for (PVCol i = 0; i < original_axes_list.size(); i++) {
 		axis_append(i);
@@ -559,7 +550,6 @@ void Picviz::PVAxesCombination::sort_by_name(bool order)
 	_is_consistent = false;
 	columns_indexes_list.clear();
 	axes_list.clear();
-	abscissae_list.clear();
 
 	std::vector<std::pair<QStringRef, PVCol> >::const_iterator it;
 	for (it = vec_tosort.begin(); it != vec_tosort.end(); it++) {
@@ -588,8 +578,11 @@ void Picviz::PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so, PV
 {
 	columns_indexes_list.clear();
 	so.list_attributes("columns_indexes_list", columns_indexes_list, [=](QVariant const& v) { return axes_comb_id_t::from_qvariant(v); });
-	//axes_list.clear();
+	axes_list.clear();
 	//so.list("axes_list", axes_list);
+	for (axes_comb_id_t id: columns_indexes_list) {
+		axes_list.append(original_axes_list.at(id.get_axis()));
+	}
 }
 
 void Picviz::PVAxesCombination::serialize_write(PVCore::PVSerializeObject& so)

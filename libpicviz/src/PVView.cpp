@@ -1483,6 +1483,7 @@ void Picviz::PVView::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.object("layer-stack", layer_stack, "Layers", true);
 	so.object("axes-combination", axes_combination, "Axes combination", true);
+	set_last_so(so.shared_from_this());
 }
 
 void Picviz::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)

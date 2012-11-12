@@ -149,7 +149,7 @@ PVRush::PVControllerJob_p Picviz::PVSource::extract_from_agg_nlines(chunk_index 
 
 	set_mapping_function_in_extractor();
 
-	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(start, nlines);
+	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(start, std::min((size_t) nlines, (size_t) CUSTOMER_LINESNUMBER));
 	return job;
 }
 
@@ -190,9 +190,9 @@ void Picviz::PVSource::extract_finished()
 	}
 
 	// Reset all views and process the current one
-	for (auto view_p : get_children<PVView>()) {
+	/*for (auto view_p : get_children<PVView>()) {
 		view_p->reset_layers();
-	}
+	}*/
 }
 
 void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
@@ -399,7 +399,7 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 
 		// "Append" the files to the extractor
 		files_append_noextract();
-	}
 
-	data_tree_source_t::serialize_read(so, v);
+		data_tree_source_t::serialize_read(so, v);
+	}
 }

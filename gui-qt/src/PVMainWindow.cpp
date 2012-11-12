@@ -72,11 +72,13 @@ Q_DECLARE_METATYPE(Picviz::PVSource*);
 
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QMainWindow(parent),
-	_load_project_dlg(this, tr("Load a project..."), QString(), PICVIZ_SCENE_ARCHIVE_FILTER ";;" ALL_FILES_FILTER),
+	_load_solution_dlg(this, tr("Load an investigation..."), QString(), PICVIZ_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER),
 	_root(new Picviz::PVRoot())
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
+
+	reset_root();
 
 	//_ad2g_mw = NULL;
 
@@ -122,10 +124,10 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(get_root());
 	_projects_tab_widget->show();
 	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_window_for_workspace(QWidget*)));
-	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(project_new_Slot()));
-	connect(_projects_tab_widget, SIGNAL(load_project()), this, SLOT(project_load_Slot()));
-	connect(_projects_tab_widget, SIGNAL(load_project_from_path(const QString &)), this, SLOT(load_project(const QString &)));
-	connect(_projects_tab_widget, SIGNAL(save_project()), this, SLOT(project_save_Slot()));
+	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(solution_new_Slot()));
+	connect(_projects_tab_widget, SIGNAL(load_project()), this, SLOT(solution_load_Slot()));
+	connect(_projects_tab_widget, SIGNAL(load_project_from_path(const QString &)), this, SLOT(load_solution_and_create_mw(const QString &)));
+	connect(_projects_tab_widget, SIGNAL(save_project()), this, SLOT(solution_save_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_source_from_description(PVRush::PVSourceDescription)), this, SLOT(load_source_from_description_Slot(PVRush::PVSourceDescription)));
 	connect(_projects_tab_widget, SIGNAL(import_type(const QString &)), this, SLOT(import_type_Slot(const QString &)) );
 	connect(_projects_tab_widget, SIGNAL(new_format()), this, SLOT(new_format_Slot()));
@@ -182,8 +184,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	update_check();
 
 	// The default title isn't set, so do this by hand...
-	setWindowTitle(QString("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR));
-
+	//setWindowTitle(QString("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR));
 
 	//Set stylesheet
 	QFile css_file(":/gui.css");
@@ -367,48 +368,15 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
  *****************************************************************************/
 void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 {
-	if (_projects_tab_widget->save_modified_projects()) {
-		PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(tr("Closing Picviz Inspector..."), (QWidget*) this);
-		pbox->set_enable_cancel(false);
-		PVCore::PVProgressBox::progress(boost::bind(&PVMainWindow::close_all_views, this), pbox);
+	if (maybe_save_solution()) {
+		_root.reset();
+		deleteLater();
 		event->accept();
 	}
 	else {
 		event->ignore();
 	}
 }
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::close_all_views
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::close_all_views()
-{
-	close_scene();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::close_scene
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::close_scene()
-{
-	// Close sources one by one
-	/*int ntabs = _workspaces_tab_widget->count();
-	for (int i = 0; i < ntabs; i++) {
-		_workspaces_tab_widget->remove_workspace(0);
-	}
-	if (_ad2g_mw) {
-		_ad2g_mw->deleteLater();
-	}
-	_scene = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(get_root_sp(), "default");
-	_workspaces_tab_widget->set_scene(_scene.get());
-	_ad2g_mw = NULL;
-	set_project_modified(false);*/
-}
-
 
 /******************************************************************************
  *
@@ -1646,7 +1614,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 	try {
 		job_import = src->extract();
 	}
-	catch (PVRush::PVInputException &e) {
+	catch (PVRush::PVInputException const& e) {
 		PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
 		return false;
 	}
@@ -1937,6 +1905,11 @@ int PVInspector::PVMainWindow::update_check()
 #endif
 
 	return 0;
+}
+
+void PVInspector::PVMainWindow::reset_root()
+{
+	get_root().remove_all_children();
 }
 
 /******************************************************************************
