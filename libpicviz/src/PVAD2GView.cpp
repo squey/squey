@@ -806,6 +806,8 @@ void Picviz::PVAD2GView::serialize_read(PVCore::PVSerializeObject& so, PVCore::P
 		}
 	}
 
+	so.attribute("name", _name);
+
 	//_graph->delLocalProperty(TLP_STR_CORR_PROPERTY);
 
 	// Remove invalid nodes
@@ -836,4 +838,5 @@ void Picviz::PVAD2GView::serialize_write(PVCore::PVSerializeObject& so)
 	std::string serialized_graph = ss_graph.str();
 
 	so.buffer("graph", (void*) serialized_graph.c_str(), serialized_graph.size());
+	so.attribute("name", _name);
 }
