@@ -55,7 +55,7 @@ if (NOT DEFINED USE_LTO)
 	endif()
 endif()
 
-declare_customer_cap(CUSTOMER_LINESNUMBER 400000000 400000000)
+declare_customer_cap(CUSTOMER_LINESNUMBER 4000000 4000000)
 declare_customer_cap(CUSTOMER_CAPABILITY_SAVE 1 0)
 declare_customer_cap(CUSTOMER_CAPABILITY_IMPORT_REMOTE 1 0)
 declare_customer_cap(CUSTOMER_CAPABILITY_IMPORT_DB 1 0)

@@ -113,12 +113,10 @@ private:
 	PVView* _current_view = nullptr;
 	PVSource* _current_source = nullptr;
 	hash_type_so_inputs _so_inputs;
+	PVCore::PVSerializeArchive_p _original_archive;
 
 	QString _path;
 	QString _name;
-
-	PVCore::PVSerializeArchive_p _original_archive;
-
 };
 
 typedef PVScene::p_type  PVScene_p;

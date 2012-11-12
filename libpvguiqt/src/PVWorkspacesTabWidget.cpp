@@ -537,13 +537,11 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::tab_changed(int index)
 
 int PVGuiQt::PVOpenWorkspacesTabWidget::get_correlation_index()
 {
-	QWidget* w = currentWidget();
-	if (!w) {
-		return 0;
+	PVGuiQt::PVOpenWorkspace* open_workspace = qobject_cast<PVGuiQt::PVOpenWorkspace*>(currentWidget());
+	if (open_workspace) {
+		return open_workspace->get_correlation_index();
 	}
-	PVGuiQt::PVOpenWorkspace* open_workspace = qobject_cast<PVGuiQt::PVOpenWorkspace*>(w);
-	assert(open_workspace);
-	return open_workspace->get_correlation_index();
+	return 0;
 }
 
 void PVGuiQt::PVOpenWorkspacesTabWidget::correlation_changed(int index)

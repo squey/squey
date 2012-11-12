@@ -227,9 +227,14 @@ bool PVInspector::PVMainWindow::event(QEvent* event)
 	return QMainWindow::event(event);
 }
 
-// These two methods are intentionally put in PVMainWindow's implementation
+// These methods are intentionally put in PVMainWindow's implementation
 // as this might change in the near future and save lots of compilation time.
 Picviz::PVRoot& PVInspector::PVMainWindow::get_root()
+{
+	return *_root;
+}
+
+Picviz::PVRoot const& PVInspector::PVMainWindow::get_root() const
 {
 	return *_root;
 }
@@ -238,6 +243,8 @@ Picviz::PVRoot_sp PVInspector::PVMainWindow::get_root_sp()
 {
 	return _root;
 }
+///////////////////////////////////////////////////////////////////////////
+
 
 /******************************************************************************
  *
@@ -848,8 +855,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	show_start_page(false);
 	_projects_tab_widget->setVisible(true);
 }
-
-
 
 /******************************************************************************
  *
@@ -1598,6 +1603,18 @@ bool PVInspector::PVMainWindow::load_scene(Picviz::PVScene* scene)
 	return true;
 }
 
+bool PVInspector::PVMainWindow::load_root()
+{
+	// Here, load the whole root !
+	for (Picviz::PVScene_sp const& scene_p: get_root().get_children()) {
+		if (!load_scene(scene_p.get())) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 void PVInspector::PVMainWindow::display_inv_elts()
 {
 	if (current_view()) {
@@ -1950,4 +1967,17 @@ bool PVInspector::PVMainWindow::SceneMenuEventFilter::eventFilter(QObject* obj, 
 		return true;
 	}
 	return QObject::eventFilter(obj, event);
+}
+
+// Mainly from Qt's SDI example
+PVInspector::PVMainWindow *PVInspector::PVMainWindow::find_main_window(const QString& path)
+{
+	QString canonicalFilePath = QFileInfo(path).canonicalFilePath();
+
+	foreach (QWidget *widget, qApp->topLevelWidgets()) {
+		PVMainWindow *mw = qobject_cast<PVMainWindow *>(widget);
+		if (mw && QFileInfo(mw->get_solution_path()).canonicalFilePath() == canonicalFilePath)
+			return mw;
+	}
+	return nullptr;
 }

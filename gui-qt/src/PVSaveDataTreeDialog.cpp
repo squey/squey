@@ -1,10 +1,10 @@
 /**
- * \file PVSaveSceneDialog.cpp
+ * \file PVSaveDataTreeDialog.cpp
  *
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#include "PVSaveSceneDialog.h"
+#include "PVSaveDataTreeDialog.h"
 #include "PVSerializeOptionsWidget.h"
 
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
@@ -19,15 +19,14 @@
 #include <QTabWidget>
 #include <QLabel>
 
-PVInspector::PVSaveSceneDialog::PVSaveSceneDialog(Picviz::PVScene_p scene, PVCore::PVSerializeArchiveOptions_p options, QWidget* parent):
+PVInspector::PVSaveDataTreeDialog::PVSaveDataTreeDialog(PVCore::PVSerializeArchiveOptions_p options, QString const& suffix, QString const& filter, QWidget* parent):
 	QFileDialog(parent),
-	_scene(scene),
 	_options(*options)
 {
 	setAcceptMode(QFileDialog::AcceptSave);
-	setDefaultSuffix(PICVIZ_SCENE_ARCHIVE_EXT);
+	setDefaultSuffix(suffix);
 	setWindowTitle(tr("Save project..."));
-	setNameFilters(QStringList() << PICVIZ_SCENE_ARCHIVE_FILTER << ALL_FILES_FILTER);
+	setNameFilters(QStringList() << filter << ALL_FILES_FILTER);
 
 	QGridLayout* main_layout = (QGridLayout*) layout();
 
@@ -73,14 +72,14 @@ PVInspector::PVSaveSceneDialog::PVSaveSceneDialog(Picviz::PVScene_p scene, PVCor
 	setLayout(layout);
 }
 
-void PVInspector::PVSaveSceneDialog::include_files_Slot(int state)
+void PVInspector::PVSaveDataTreeDialog::include_files_Slot(int state)
 {
 	if (state != Qt::PartiallyChecked) {
 		_options.include_all_files(state == Qt::Checked);
 	}
 }
 
-void PVInspector::PVSaveSceneDialog::tab_changed_Slot(int idx)
+void PVInspector::PVSaveDataTreeDialog::tab_changed_Slot(int idx)
 {
 	if (idx == 0) {
 		// AG: still part of the "include all" hack.

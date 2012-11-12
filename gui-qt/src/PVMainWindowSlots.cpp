@@ -34,8 +34,8 @@
 #include <picviz/widgets/PVArgumentListWidgetFactory.h>
 #include <PVFormatBuilderWidget.h>
 #include <PVExtractorWidget.h>
-#include <PVSaveSceneDialog.h>
 #include <PVAxisComputationDlg.h>
+#include <PVSaveDataTreeDialog.h>
 
 #include <pvguiqt/PVAboutBoxDialog.h>
 
@@ -501,20 +501,6 @@ void PVInspector::PVMainWindow::map_Slot()
 
 }
 
-PVInspector::PVMainWindow* PVInspector::PVMainWindow::find_main_window(QString const& file)
-{
-	// From Qt's example...
-	QString canonicalFilePath = QFileInfo(file).canonicalFilePath();
-
-	foreach (QWidget *widget, qApp->topLevelWidgets()) {
-		PVMainWindow *mainWin = qobject_cast<PVMainWindow *>(widget);
-		if (mainWin && mainWin->_cur_project_file == canonicalFilePath) {
-			return mainWin;
-		}
-	}
-	return NULL;
-}
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::project_new_Slot
@@ -575,6 +561,194 @@ void PVInspector::PVMainWindow::project_load_Slot()
 	load_project(file);
 #endif
 }
+
+void PVInspector::PVMainWindow::solution_new_Slot()
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	PVMainWindow* new_mw = new PVMainWindow();
+	new_mw->move(x() + 40, y() + 40);
+	new_mw->show();
+	new_mw->set_window_title_with_filename();
+#endif
+}
+
+void PVInspector::PVMainWindow::solution_load_Slot()
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	_load_project_dlg.setFileMode(QFileDialog::ExistingFile);
+	_load_project_dlg.setAcceptMode(QFileDialog::AcceptOpen);
+	if (_load_project_dlg.exec() != QDialog::Accepted) {
+		return;
+	}    
+	QString file = _load_project_dlg.selectedFiles().at(0);
+
+	//load_project(file);
+	PVMainWindow* existing = find_main_window(file);
+	if (existing) {
+		existing->show();
+		existing->raise();
+		existing->activateWindow();
+		return;
+	}    
+	if (is_solution_untitled() && get_root().is_empty() && !isWindowModified()) {
+		load_solution(file);
+	}    
+	else {
+		PVMainWindow* other = new PVMainWindow();
+		other->move(x() + 40, y() + 40); 
+		other->show();
+		if (!other->load_solution(file)) {
+			other->deleteLater();
+			return;
+		}    
+	}   
+#endif
+}
+
+void PVInspector::PVMainWindow::solution_save_Slot()
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	if (is_solution_untitled()) {
+		solution_saveas_Slot();
+	}
+	else {
+		PVCore::PVSerializeArchiveOptions_p options(get_root().get_default_serialize_options());
+		save_solution(get_solution_path(), options);
+	}
+#endif
+}
+
+void PVInspector::PVMainWindow::solution_saveas_Slot()
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	if (get_root().is_empty()) {
+		return;
+	}
+
+	PVCore::PVSerializeArchiveOptions_p options(get_root().get_default_serialize_options());
+	PVSaveDataTreeDialog* dlg = new PVSaveDataTreeDialog(options, PICVIZ_ROOT_ARCHIVE_EXT, PICVIZ_ROOT_ARCHIVE_FILTER, this);
+	if (!_current_save_root_folder.isEmpty()) {
+		dlg->setDirectory(_current_save_root_folder);
+	}    
+	dlg->selectFile(get_solution_path());
+	if (dlg->exec() == QDialog::Accepted) {
+		QString file = dlg->selectedFiles().at(0);
+		save_solution(file, options);
+	}    
+	_current_save_root_folder = dlg->directory().absolutePath();
+	dlg->deleteLater();
+#endif
+}
+
+bool PVInspector::PVMainWindow::load_solution(QString const& file)
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	setWindowModified(false);
+
+	PVCore::PVSerializeArchive_p ar;
+	try {
+		ar.reset(new PVCore::PVSerializeArchiveZip(file, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
+	}    
+	catch (PVCore::PVSerializeArchiveError& e) { 
+		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."), tr("Fatal error while loading solution %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
+		box->exec();
+		return false;
+	}    
+
+	bool solution_has_been_fixed = false;
+	while (true) {
+		QString err_msg;
+		try {
+			get_root().load_from_archive(ar);
+		}    
+		catch (PVCore::PVSerializeArchiveError& e) { 
+			err_msg = tr("Error while loading solution %1:\n%2").arg(file).arg(e.what());
+		}    
+		catch (PVRush::PVInputException const& e)
+		{    
+			err_msg = tr("Error while loading solution %1:\n%2").arg(file).arg(QString::fromStdString(e.what()));
+		}    
+		catch (...)
+		{    
+			err_msg = tr("Fatal error while loading solution %1:\n unhandled error(s).").arg(file);
+		}    
+		if (!err_msg.isEmpty()) {
+			QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."), err_msg, QMessageBox::Ok, this);
+			box->exec();
+			return false;
+		}
+		if (ar->has_repairable_errors()) {
+			if (fix_project_errors(ar)) {
+				solution_has_been_fixed = true;
+				_root.reset(new Picviz::PVRoot());
+				continue;
+			}    
+			else {
+				if (!err_msg.isEmpty()) {
+					QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading solution..."), err_msg, QMessageBox::Ok, this);
+					box->exec();
+				}    
+				_root.reset(new Picviz::PVRoot());
+				return false;
+			}
+		}
+		break;
+	}
+
+	if (!load_root()) {
+		PVLOG_ERROR("(PVMainWindow::solution_load) error while processing the solution...\n");
+		_root.reset(new Picviz::PVRoot());
+		return false;
+	}
+
+	/*menu_activate_is_file_opened(true);
+	show_start_page(false);
+	pv_WorkspacesTabWidget->setVisible(true);
+
+	set_current_project_filename(file);*/
+
+	if (solution_has_been_fixed) {
+		setWindowModified(true);
+	}
+
+	//PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
+
+	return true;
+#endif
+
+	return false;
+}
+
+void PVInspector::PVMainWindow::save_solution(QString const& file, PVCore::PVSerializeArchiveOptions_p const& options)
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	try {
+		get_root().save_to_file(file, options);
+	}
+	catch (PVCore::PVSerializeArchiveError const& e) {
+		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while saving project..."), tr("Error while saving project %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
+		box->exec();
+	}
+
+	set_window_title_with_filename();
+#endif
+}
+
+void PVInspector::PVMainWindow::set_window_title_with_filename()
+{
+	static int sequenceNumber = 1;
+
+	QString file;
+	if (is_solution_untitled()) {
+		file = tr("new-solution%1.pvs").arg(sequenceNumber++);
+	} else {
+		file = QFileInfo(get_solution_path()).canonicalFilePath();
+	}
+
+	setWindowModified(false);
+	setWindowFilePath(file);
+}
+
 
 void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_workspace)
 {
@@ -675,7 +849,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 		return false;
 	}
 
-	bool project_has_been_fixed = false;
+	//bool project_has_been_fixed = false;
 	while (true) {
 		QString err_msg;
 		try {
@@ -697,7 +871,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 		}
 		if (ar->has_repairable_errors()) {
 			if (fix_project_errors(ar)) {
-				project_has_been_fixed = true;
+				//project_has_been_fixed = true;
 				close_scene();
 				//_scene.reset(new Picviz::PVScene("root", root.get()));
 				continue;
@@ -763,16 +937,16 @@ bool PVInspector::PVMainWindow::project_saveas_Slot()
 #ifdef CUSTOMER_CAPABILITY_SAVE
 	if (current_scene()) {
 		PVCore::PVSerializeArchiveOptions_p options(current_scene()->get_default_serialize_options());
-		PVSaveSceneDialog* dlg = new PVSaveSceneDialog(current_scene()->shared_from_this(), options, this);
-		if (!_current_save_project_folder.isEmpty()) {
+		PVSaveDataTreeDialog* dlg = new PVSaveDataTreeDialog(options, PICVIZ_SCENE_ARCHIVE_EXT, PICVIZ_SCENE_ARCHIVE_FILTER, this);
+		/*if (!_current_save_project_folder.isEmpty()) {
 			dlg->setDirectory(_current_save_project_folder);
-		}
+		}*/
 		dlg->selectFile(current_scene()->get_path());
 		if (dlg->exec() == QDialog::Accepted) {
 			QString file = dlg->selectedFiles().at(0);
 			ret = save_project(file, options);
 		}
-		_current_save_project_folder = dlg->directory().absolutePath();
+		//_current_save_project_folder = dlg->directory().absolutePath();
 		dlg->deleteLater();
 	}
 #endif

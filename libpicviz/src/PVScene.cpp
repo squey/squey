@@ -220,6 +220,7 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 	// Get the list of input types
 	QStringList input_types;
 	so.list_attributes("types", input_types);
+	so.attribute("name", _name);
 
 	if (input_types.size() == 0) {
 		// No input types, thus no sources, thus nothing !
@@ -248,7 +249,7 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 	data_tree_scene_t::serialize_read(so, v);
 
 	// Correlation
-	// Optional in version 1
+	// Optional in both version 1 and 2
 	PVRoot::correlations_t corrs;
 	if (so.list("correlations", corrs, QString(), (PVAD2GView*) NULL, QStringList(), true, true)) {
 		get_parent<PVRoot>()->add_correlations(corrs);
@@ -276,6 +277,7 @@ void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 	}
 
 	so.list_attributes("types", in_types_str);
+	so.attribute("name", _name);
 
 	data_tree_scene_t::serialize_write(so);
 
@@ -292,9 +294,11 @@ void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 		so.list_attributes("correlations_path", corrs_path);
 	}
 	else {
-		PVCore::PVSerializeObject_p so_correlations = so.list("correlations", get_parent<PVRoot>()->get_correlations(), QObject::tr("Correlations"));
-		QString cur_path = so_correlations->get_child_path(get_parent<PVRoot>()->current_correlation());
-		so.attribute("current_correlation", cur_path);
+		PVCore::PVSerializeObject_p so_correlations = so.list("correlations", get_parent<PVRoot>()->get_correlations(), QObject::tr("Correlations"), (PVAD2GView*) NULL, QStringList(), true, true);
+		if (so_correlations) {
+			QString cur_path = so_correlations->get_child_path(get_parent<PVRoot>()->current_correlation());
+			so.attribute("current_correlation", cur_path);
+		}
 	}
 }
 

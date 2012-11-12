@@ -39,7 +39,7 @@ include/PVInvestigationWizard.h
 include/PVMainWindow.h
 #include/PVMappingPlottingEditDialog.h
 include/PVMapWidget.h
-include/PVSaveSceneDialog.h
+include/PVSaveDataTreeDialog.h
 include/PVSerializeOptionsModel.h
 include/PVSerializeOptionsWidget.h
 include/PVSimpleStringListModel.h
@@ -103,7 +103,7 @@ PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
 PVMapWidget.cpp
 #PVMappingPlottingEditDialog.cpp
-PVSaveSceneDialog.cpp
+PVSaveDataTreeDialog.cpp
 PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
 PVStringListChooserWidget.cpp

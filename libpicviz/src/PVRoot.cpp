@@ -11,6 +11,8 @@
 
 #include <tulip/TlpTools.h>
 
+#define ARCHIVE_ROOT_DESC (QObject::tr("Solution"))
+
 /******************************************************************************
  *
  * Picviz::PVRoot::PVRoot
@@ -177,13 +179,15 @@ QList<Picviz::PVAD2GView_p> Picviz::PVRoot::get_correlations_for_scene(Picviz::P
 void Picviz::PVRoot::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
 	_correlations.clear();
-	_so_correlations = so.list("correlations", _correlations, QObject::tr("Correlations"));
+	_so_correlations = so.list("correlations", _correlations, QObject::tr("Correlations"), (PVAD2GView*) NULL, QStringList(), true, true);
 
-	QString cur_path;
-	so.attribute("current_correlation", cur_path);
-	PVCore::PVSerializeObject_p so_cur_corr = _so_correlations->get_object_by_path(cur_path);
-	_current_correlation = so_cur_corr->bound_obj_as<PVAD2GView>();
-	PVLOG_INFO("%d correlations loaded. %p is current one.\n", _correlations.size(), _current_correlation);
+	if (_so_correlations) {
+		QString cur_path;
+		so.attribute("current_correlation", cur_path);
+		PVCore::PVSerializeObject_p so_cur_corr = _so_correlations->get_object_by_path(cur_path);
+		_current_correlation = so_cur_corr->bound_obj_as<PVAD2GView>();
+		PVLOG_INFO("%d correlations loaded. %p is current one.\n", _correlations.size(), _current_correlation);
+	}
 	
 	data_tree_root_t::serialize_read(so, v);
 
@@ -199,4 +203,41 @@ void Picviz::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 	data_tree_root_t::serialize_write(so);
 
 	_so_correlations.reset();
+}
+
+void Picviz::PVRoot::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options, bool save_everything)
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	set_path(path);
+	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, PICVIZ_ARCHIVES_VERSION));
+	if (options) {
+		ar->set_options(options);
+	}
+	ar->set_save_everything(save_everything);
+	ar->get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
+	ar->finish();
+#endif
+}
+
+void Picviz::PVRoot::load_from_file(QString const& path)
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
+	load_from_archive(ar);
+#endif
+}
+
+void Picviz::PVRoot::load_from_archive(PVCore::PVSerializeArchive_p ar)
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	ar->get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
+	_original_archive = ar;
+#endif
+}
+
+PVCore::PVSerializeArchiveOptions_p Picviz::PVRoot::get_default_serialize_options()
+{
+	PVCore::PVSerializeArchiveOptions_p ar(new PVCore::PVSerializeArchiveOptions(PICVIZ_ARCHIVES_VERSION));
+	ar->get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
+	return ar;
 }

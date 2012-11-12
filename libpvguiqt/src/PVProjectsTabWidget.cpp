@@ -256,7 +256,9 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 		correlation_index = workspace_tab_widget->get_correlation_index()-1;
 	}
 
-	_root.select_correlation(correlation_index);
+	// FIXME: !!!!
+	/*correlation_index = std::max(-1, correlation_index);
+	_root.select_correlation(correlation_index);*/
 }
 
 PVGuiQt::PVWorkspacesTabWidgetBase* PVGuiQt::PVProjectsTabWidget::current_workspace_tab_widget() const

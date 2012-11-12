@@ -14,6 +14,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVSerializeObject.h>
+#include <pvkernel/core/PVSerializeArchiveOptions.h>
 
 #include <picviz/PVAD2GView.h>
 #include <picviz/PVRoot_types.h>
@@ -21,6 +22,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#define PICVIZ_ROOT_ARCHIVE_EXT "pvl"
+#define PICVIZ_ROOT_ARCHIVE_FILTER "Picviz solution files (*." PICVIZ_SCENE_ARCHIVE_EXT ")"
 
 // Plugins prefix
 #define LAYER_FILTER_PREFIX "layer_filter"
@@ -55,6 +58,7 @@ public:
 	PVView* current_view();
 	PVView const* current_view() const;
 	void select_view(PVView& view);
+	bool is_empty() const { return get_children_count() == 0; }
 
 public:
 	int32_t get_new_view_id() const;
@@ -65,7 +69,7 @@ public:
 	PVAD2GView_p get_correlation(int index);
 	void select_correlation(int index)
 	{
-		if (index == -1) {
+		if (index <= -1) {
 			_current_correlation = nullptr;
 		}
 		else {
@@ -81,6 +85,15 @@ public:
 	void enable_correlations(bool enabled) { _correlations_enabled = enabled; }
 	void remove_view_from_correlations(PVView* view);
 	PVAD2GView* current_correlation() { return _current_correlation; }
+
+public:
+	void save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options = PVCore::PVSerializeArchiveOptions_p(), bool save_everything = false);
+	void load_from_file(QString const& path);
+	void load_from_archive(PVCore::PVSerializeArchive_p ar);
+	PVCore::PVSerializeArchiveOptions_p get_default_serialize_options();
+
+	void set_path(QString path) { _path = path; }
+	const QString& get_path() const { return _path; }
 
 public:
 	QList<PVAD2GView_p> get_correlations_for_scene(Picviz::PVScene const& scene) const;
@@ -109,6 +122,8 @@ private:
 
 private:
 	PVCore::PVSerializeObject_p _so_correlations;
+	PVCore::PVSerializeArchive_p _original_archive;
+	QString _path;
 };
 
 typedef PVRoot::p_type  PVRoot_p;
