@@ -65,10 +65,7 @@ public:
 public:
 	PVAD2GView_p get_correlation(int index);
 	
-	void select_correlation(PVAD2GView* correlation)
-	{
-		_current_correlation = correlation;
-	}
+	void select_correlation(PVAD2GView* correlation) { _current_correlation = correlation; }
 
 	void add_correlations(correlations_t const& corrs);
 	void enable_correlations(bool enabled) { _correlations_enabled = enabled; }

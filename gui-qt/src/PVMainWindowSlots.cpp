@@ -741,6 +741,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 
 	_root->set_path(file);
 
+	correlation_Menu->load_correlations();
 	menu_activate_is_file_opened(true);
 
 	set_window_title_with_filename();
