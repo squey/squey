@@ -649,7 +649,7 @@ PVGuiQt::PVWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVVie
 		if (!tab) {
 			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
 		} else {
-			if (tab->current_view() == &picviz_view) {
+			if (get_root().current_view() == &picviz_view) {
 				return tab;
 				/* We refresh the listing */
 			}

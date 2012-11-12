@@ -245,7 +245,6 @@ void PVGuiQt::PVViewDisplay::set_current_view()
 {
 	if (_view) {
 		Picviz::PVRoot_sp root_sp = _view->get_parent<Picviz::PVRoot>()->shared_from_this();
-		_workspace->set_current_view(_view);
 		PVHive::call<FUNC(Picviz::PVRoot::select_view)>(root_sp, *_view);
 	}
 }

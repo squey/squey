@@ -22,6 +22,7 @@
  *
  *****************************************************************************/
 Picviz::PVScene::PVScene(QString scene_path) :
+	_last_active_src(nullptr),
 	_path(scene_path)
 {
 	QFileInfo info(_path);
@@ -52,50 +53,39 @@ Picviz::PVScene::list_sources_t Picviz::PVScene::get_sources(PVRush::PVInputType
 
 Picviz::PVSource* Picviz::PVScene::current_source()
 {
-	return _current_source;
+	PVSource* cur_src = get_parent<PVRoot>()->current_source();
+	if (cur_src->get_parent<PVScene>() == this) {
+		return cur_src;
+	}
+	return nullptr;
 }
 
 Picviz::PVSource const* Picviz::PVScene::current_source() const
 {
-	return _current_source;
-}
-
-void Picviz::PVScene::select_source(PVSource* source)
-{
-	assert(!source || (source && get_children<PVSource>().contains(source->shared_from_this())));
-	if (source) {
-		if (source->current_view()) {
-			_current_view = source->current_view();
-		}
-		else {
-			_current_view = source->last_current_view();
-		}
-		_current_source = source;
+	PVSource const* cur_src = get_parent<PVRoot>()->current_source();
+	if (cur_src->get_parent<PVScene>() == this) {
+		return cur_src;
 	}
-	else {
-		if (_current_view) {
-			_current_source = _current_view->get_parent<PVSource>();
-		}
-	}
+	return nullptr;
 }
 
 Picviz::PVView* Picviz::PVScene::current_view()
 {
-	return get_parent<PVRoot>()->current_view();
+	PVView* cur_view = get_parent<PVRoot>()->current_view();
+	if (cur_view->get_parent<PVScene>() == this) {
+		return cur_view;
+	}
+	return nullptr;
 }
 
 Picviz::PVView const* Picviz::PVScene::current_view() const
 {
-	return const_cast<PVView const*>(const_cast<PVScene*>(this)->current_view());
+	PVView const* cur_view = get_parent<PVRoot>()->current_view();
+	if (cur_view->get_parent<PVScene>() == this) {
+		return cur_view;
+	}
+	return nullptr;
 }
-
-/*void Picviz::PVScene::select_view(PVView& view)
-{
-	 assert(get_children<PVView>().contains(view.shared_from_this()));
-	 _current_view = &view;
-	 _current_source = view.get_parent<PVSource>();
-	 _current_source->set_last_current_view(_current_view);
-}*/
 
 PVRush::PVInputType::list_inputs_desc Picviz::PVScene::get_inputs_desc(PVRush::PVInputType const& type) const
 {

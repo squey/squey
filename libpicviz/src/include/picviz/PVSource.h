@@ -42,6 +42,7 @@ typedef typename PVCore::PVDataTreeObject<PVScene, PVMapped> data_tree_source_t;
 class LibPicvizDecl PVSource: public data_tree_source_t
 {
 	friend class PVCore::PVSerializeObject;
+	friend class PVRoot;
 	friend class PVScene;
 	friend class PVView;
 	friend class PVPlotted;
@@ -95,8 +96,7 @@ public:
 	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
 	QString get_window_name() const;
 
-	PVView* last_current_view() const { return _last_current_view; }
-	void set_last_current_view(PVView* view) { _last_current_view = view; }
+	PVView* last_active_view() const { return _last_active_view; }
 
 	PVView* current_view();
 	PVView const* current_view() const;
@@ -152,6 +152,8 @@ protected:
 	void add_view(PVView_sp view);
 	void set_views_id();
 
+	inline void set_last_active_view(Picviz::PVView* view) { _last_active_view = view; }
+
 protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
@@ -164,7 +166,8 @@ private:
 	void extract_finished();
 
 private:
-	PVView* _last_current_view = nullptr;
+	PVView* _last_active_view = nullptr;
+
 	PVRush::PVExtractor _extractor;
 	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
 	PVRush::PVInputType::list_inputs _inputs;

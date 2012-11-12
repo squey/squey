@@ -40,6 +40,7 @@ typedef typename PVCore::PVDataTreeObject<PVRoot, PVSource> data_tree_scene_t;
 class LibPicvizDecl PVScene: public data_tree_scene_t
 {
 	friend class PVCore::PVSerializeObject;
+	friend class PVRoot;
 	friend class PVSource;
 	friend class PVView;
 	friend class PVCore::PVDataTreeAutoShared<PVScene>;
@@ -63,10 +64,12 @@ public:
 
 	PVSource* current_source();
 	PVSource const* current_source() const;
-	void select_source(PVSource* source);
 
 	PVView* current_view();
 	PVView const* current_view() const;
+
+	inline PVSource* last_active_source() { return _last_active_src; }
+	inline PVSource const* last_active_source() const { return _last_active_src; }
 
 public:
 	PVCore::PVSerializeArchiveOptions_p get_default_serialize_options();
@@ -96,6 +99,8 @@ protected:
 
 	QList<PVRush::PVInputType_p> get_all_input_types() const;
 
+	inline void set_last_active_source(PVSource* src) { _last_active_src = src; }
+
 protected:
 	// Events
 	void child_about_to_be_removed(PVSource& src);
@@ -110,8 +115,8 @@ protected:
 	PVCore::PVSerializeObject_p get_so_inputs(PVSource const& src);
 
 private:
-	PVView* _current_view = nullptr;
-	PVSource* _current_source = nullptr;
+	Picviz::PVSource* _last_active_src;
+
 	hash_type_so_inputs _so_inputs;
 	PVCore::PVSerializeArchive_p _original_archive;
 

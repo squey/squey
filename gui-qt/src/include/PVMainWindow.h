@@ -130,11 +130,11 @@ public:
 	int report_image_index;
 	QString *report_filename;
 
-	Picviz::PVView* current_view() { return _projects_tab_widget->current_view(); }
-	Picviz::PVView const* current_view() const { return _projects_tab_widget->current_view(); }
+	Picviz::PVView* current_view() { return get_root().current_view(); }
+	Picviz::PVView const* current_view() const { return get_root().current_view(); }
 
-	void select_scene(int index) { _projects_tab_widget->select_project(index); }
-	Picviz::PVScene* current_scene() const { return _projects_tab_widget->current_scene(); }
+	Picviz::PVScene* current_scene() { return get_root().current_scene(); }
+	Picviz::PVScene const* current_scene() const { return get_root().current_scene(); }
 
 	void commit_selection_in_current_layer(Picviz::PVView* view);
 	void move_selection_to_new_layer(Picviz::PVView* view);

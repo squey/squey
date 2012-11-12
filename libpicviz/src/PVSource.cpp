@@ -89,13 +89,20 @@ Picviz::PVSource_sp Picviz::PVSource::clone_with_no_process()
 
 Picviz::PVView* Picviz::PVSource::current_view()
 {
-	PVView* view = get_parent<PVScene>()->current_view();
-	return view;
+	PVView* view = get_parent<PVRoot>()->current_view();
+	if (view->get_parent<PVSource>() == this) {
+		return view;
+	}
+	return nullptr;
 }
 
 Picviz::PVView const* Picviz::PVSource::current_view() const
 {
-	return const_cast<PVView const*>(const_cast<PVSource*>(this)->current_view());
+	PVView const* view = get_parent<PVRoot>()->current_view();
+	if (view->get_parent<PVSource>() == this) {
+		return view;
+	}
+	return nullptr;
 }
 
 void Picviz::PVSource::set_parent_from_ptr(PVScene* parent)

@@ -529,13 +529,15 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 	}
 	else {
 		// More than one project loaded: ask the user the project he wants to use to load the source
-		PVGuiQt::PVImportSourceToProjectDlg dlg(_projects_tab_widget->get_projects_list(), _projects_tab_widget->get_current_project_index());
-		if (dlg.exec() != QDialog::Accepted) {
+		PVGuiQt::PVImportSourceToProjectDlg* dlg = new PVGuiQt::PVImportSourceToProjectDlg(get_root(), get_root().current_scene(), this);
+		if (dlg->exec() != QDialog::Accepted) {
 			return;
 		}
-		int project_index = dlg.get_project_index();
-		select_scene(project_index);
+
+		Picviz::PVRoot_sp root_sp = get_root().shared_from_this();
+		PVHive::call<FUNC(Picviz::PVRoot::select_scene)>(root_sp, *((Picviz::PVScene*) dlg->get_selected_scene()));
 		scene_p = current_scene()->shared_from_this();
+		dlg->deleteLater();
 	}
 
 	Picviz::PVSource_p src_p = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc);
@@ -830,10 +832,11 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 	/*close_scene();*/
 
 
-	Picviz::PVScene* scene = _projects_tab_widget->get_scene_from_path(file);
+	Picviz::PVScene* scene = get_root().get_scene_from_path(file);
 
 	if (scene) {
-		_projects_tab_widget->select_project(scene);
+		Picviz::PVRoot_sp root_sp = get_root().shared_from_this();
+		PVHive::call<FUNC(Picviz::PVRoot::select_scene)>(root_sp, *scene);
 		return false;
 	}
 

@@ -55,9 +55,6 @@ public:
 	~PVRoot();
 
 public:
-	PVView* current_view();
-	PVView const* current_view() const;
-	void select_view(PVView& view);
 	bool is_empty() const { return get_children_count() == 0; }
 
 public:
@@ -76,15 +73,37 @@ public:
 			_current_correlation = get_correlation(index).get();
 		}
 	}
+
 	PVAD2GView* add_correlation(const QString & name);
 	void add_correlations(correlations_t const& corrs);
 	void delete_correlation(int index);
+	void enable_correlations(bool enabled) { _correlations_enabled = enabled; }
+	PVAD2GView* current_correlation() { return _current_correlation; }
+
 	correlations_t& get_correlations() { return _correlations; }
 	correlations_t const& get_correlations() const { return _correlations; }
+
 	QList<Picviz::PVView*> process_correlation(PVView* src_view);
-	void enable_correlations(bool enabled) { _correlations_enabled = enabled; }
 	void remove_view_from_correlations(PVView* view);
-	PVAD2GView* current_correlation() { return _current_correlation; }
+
+	void select_view(PVView& view);
+	void select_scene(PVScene& scene);
+	void select_source(PVSource& source);
+
+	Picviz::PVView* current_view() { return _current_view; }
+	Picviz::PVView const* current_view() const  { return _current_view; }
+
+	Picviz::PVScene* current_scene() { return _current_scene; }
+	Picviz::PVScene const* current_scene() const { return _current_scene; }
+
+	Picviz::PVSource* current_source() { return _current_source; }
+	Picviz::PVSource const* current_source() const  { return _current_source; }
+
+	PVScene** get_current_scene_hive_property() { return &_current_scene; }
+	PVView** get_current_view_hive_property() { return &_current_view; }
+	PVSource** get_current_source_hive_property() { return &_current_source; }
+
+	PVScene* get_scene_from_path(const QString& path);
 
 public:
 	void save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options = PVCore::PVSerializeArchiveOptions_p(), bool save_everything = false);
@@ -111,7 +130,9 @@ protected:
 	PVSERIALIZEOBJECT_SPLIT
 
 private:
-	PVView* _current_view = nullptr;
+	PVScene* _current_scene;
+	PVSource* _current_source;
+	PVView* _current_view;
 
 	correlations_t _correlations;
 	PVAD2GView* _current_correlation;

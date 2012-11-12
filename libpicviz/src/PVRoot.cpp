@@ -20,6 +20,9 @@
  *****************************************************************************/
 Picviz::PVRoot::PVRoot():
 	data_tree_root_t(),
+	_current_scene(nullptr),
+	_current_source(nullptr),
+	_current_view(nullptr),
 	_current_correlation(nullptr)
 {
 }
@@ -34,20 +37,37 @@ Picviz::PVRoot::~PVRoot()
 	PVLOG_INFO("In PVRoot destructor\n");
 }
 
-Picviz::PVView* Picviz::PVRoot::current_view()
-{
-	return _current_view;
-}
-
-Picviz::PVView const* Picviz::PVRoot::current_view() const
-{
-	return const_cast<PVView const*>(const_cast<PVRoot*>(this)->current_view());
-}
-
 void Picviz::PVRoot::select_view(PVView& view)
 {
-	 _current_view = &view;
+	assert(view.get_parent<PVRoot>() == this);
+	_current_view = &view;
+	_current_scene = view.get_parent<PVScene>();
+	_current_source = view.get_parent<PVSource>();
+
+	_current_scene->set_last_active_source(_current_source);
+	_current_source->set_last_active_view(&view);
 }
+
+void Picviz::PVRoot::select_source(PVSource& src)
+{
+	assert(src.get_parent<PVRoot>() == this);
+	_current_source = &src;
+	_current_view = src.last_active_view();
+	_current_scene = src.get_parent<PVScene>();
+
+	_current_scene->set_last_active_source(&src);
+}
+
+void Picviz::PVRoot::select_scene(PVScene& scene)
+{
+	assert(scene.get_parent<PVRoot>() == this);
+	_current_scene = &scene;
+	_current_source = scene.last_active_source();
+	if (_current_source) {
+		_current_view = _current_source->last_active_view();
+	}
+}
+
 
 
 /******************************************************************************
@@ -174,6 +194,16 @@ QList<Picviz::PVAD2GView_p> Picviz::PVRoot::get_correlations_for_scene(Picviz::P
 		}
 	}
 	return ret;
+}
+
+Picviz::PVScene* Picviz::PVRoot::get_scene_from_path(const QString& path)
+{
+	for (Picviz::PVScene_sp const& scene: get_children()) {
+		if (scene->get_path() == path) {
+			return scene.get();
+		}
+	}
+	return nullptr;
 }
 
 void Picviz::PVRoot::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)

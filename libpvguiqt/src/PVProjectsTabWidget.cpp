@@ -8,6 +8,9 @@
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVStartScreenWidget.h>
 
+#include <pvhive/PVHive.h>
+#include <pvhive/PVCallHelper.h>
+
 #include <QHBoxLayout>
 
 PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Picviz::PVRoot& root, QWidget* parent /*= 0*/):
@@ -43,6 +46,13 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Picviz::PVRoot& root, QWidget*
 
 	connect(_tab_widget, SIGNAL(currentChanged(int)), this, SLOT(current_tab_changed(int)));
 	connect(_tab_widget->tabBar(), SIGNAL(tabCloseRequested(int)), this, SLOT(tab_close_requested(int)));
+
+	// Hive
+	// Register for current scene changing
+	Picviz::PVRoot_sp root_sp = root.shared_from_this();
+	PVHive::PVObserverSignal<Picviz::PVRoot>* obs = new PVHive::PVObserverSignal<Picviz::PVRoot>(this);
+	connect(obs, SIGNAL(refreshed(PVHive::PVObserverBase*)), this, SLOT(select_tab_from_current_scene()));
+	PVHive::get().register_observer(root_sp, [=](Picviz::PVRoot& root) { return root.get_current_scene_hive_property(); }, *obs);
 }
 
 void  PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
@@ -63,6 +73,7 @@ void  PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	connect(_start_screen_widget, SIGNAL(new_format()), this, SIGNAL(new_format()));
 	connect(_start_screen_widget, SIGNAL(load_format()), this, SIGNAL(load_format()));
 	connect(_start_screen_widget, SIGNAL(edit_format(const QString &)), this, SIGNAL(edit_format(const QString &)));
+
 
 	// Open workspaces
 	_workspaces_tab_widget = new PVOpenWorkspacesWidget(&_root);
@@ -254,6 +265,12 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 		assert(workspace_tab_widget);
 		_current_workspace_tab_widget_index = index;
 		correlation_index = workspace_tab_widget->get_correlation_index()-1;
+
+		PVSceneWorkspacesTabWidget* scene_tab = qobject_cast<PVSceneWorkspacesTabWidget*>(workspace_tab_widget);
+		assert(scene_tab);
+
+		Picviz::PVRoot_sp root_sp = _root.shared_from_this();
+		PVHive::call<FUNC(Picviz::PVRoot::select_scene)>(root_sp, *scene_tab->get_scene());
 	}
 
 	// FIXME: !!!!
@@ -286,14 +303,17 @@ PVGuiQt::PVSceneWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::get_workspace
 	return nullptr;
 }
 
-Picviz::PVScene* PVGuiQt::PVProjectsTabWidget::get_scene_from_path(const QString & path)
+void PVGuiQt::PVProjectsTabWidget::select_tab_from_scene(Picviz::PVScene* scene)
 {
-	for (int i = 2 ; i < _stacked_widget->count(); i++) {
-		Picviz::PVScene* scene = ((PVSceneWorkspacesTabWidget* ) _stacked_widget->widget(i))->get_scene();
-		if (scene->get_path() == path) {
-			return scene;
-		}
+	_tab_widget->setCurrentIndex(_tab_widget->indexOf(get_workspace_tab_widget_from_scene(scene)));
+}
+
+void PVGuiQt::PVProjectsTabWidget::select_tab_from_current_scene()
+{
+	Picviz::PVScene* cur_scene = _root.current_scene();
+	if (cur_scene->get_parent<Picviz::PVRoot>() != &_root) {
+		return;
 	}
 
-	return nullptr;
+	select_tab_from_scene(cur_scene);
 }

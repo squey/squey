@@ -16,13 +16,37 @@ PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 IMPL_WAX(Picviz::PVRoot::select_view, root, args)
 {
-	Picviz::PVView* old_cur_view = root->current_view();
+	about_to_refresh_observers(root->get_current_view_hive_property());
+	about_to_refresh_observers(root->get_current_source_hive_property());
+	about_to_refresh_observers(root->get_current_scene_hive_property());
 	call_object_default<Picviz::PVRoot, FUNC(Picviz::PVRoot::select_view)>(root, args);
-	if (old_cur_view) {
-		refresh_observers(old_cur_view);
-	}
-	refresh_observers(&std::get<0>(args));
+	refresh_observers(root->get_current_view_hive_property());
+	refresh_observers(root->get_current_source_hive_property());
+	refresh_observers(root->get_current_scene_hive_property());
 }
+
+IMPL_WAX(Picviz::PVRoot::select_source, root, args)
+{
+	about_to_refresh_observers(root->get_current_view_hive_property());
+	about_to_refresh_observers(root->get_current_source_hive_property());
+	about_to_refresh_observers(root->get_current_scene_hive_property());
+	call_object_default<Picviz::PVRoot, FUNC(Picviz::PVRoot::select_source)>(root, args);
+	refresh_observers(root->get_current_view_hive_property());
+	refresh_observers(root->get_current_source_hive_property());
+	refresh_observers(root->get_current_scene_hive_property());
+}
+
+IMPL_WAX(Picviz::PVRoot::select_scene, root, args)
+{
+	about_to_refresh_observers(root->get_current_view_hive_property());
+	about_to_refresh_observers(root->get_current_source_hive_property());
+	about_to_refresh_observers(root->get_current_scene_hive_property());
+	call_object_default<Picviz::PVRoot, FUNC(Picviz::PVRoot::select_scene)>(root, args);
+	refresh_observers(root->get_current_view_hive_property());
+	refresh_observers(root->get_current_source_hive_property());
+	refresh_observers(root->get_current_scene_hive_property());
+}
+
 
 IMPL_WAX(Picviz::PVRoot::add_correlation, root, args)
 {

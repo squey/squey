@@ -14,12 +14,8 @@ int main(int argc, char** argv)
 	// Qt app
 	QApplication app(argc, argv);
 
-
-	QStringList list;
-	list << "new-project1" << "new-project2" << "new-project3" << "new-project4";
-
-	PVGuiQt::PVImportSourceToProjectDlg dlg(list, 2);
-	dlg.exec();
+	/*PVGuiQt::PVImportSourceToProjectDlg dlg(list, 2);
+	dlg.exec();*/
 
 	return app.exec();
 }
