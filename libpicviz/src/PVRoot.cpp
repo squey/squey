@@ -36,6 +36,7 @@ Picviz::PVRoot::PVRoot():
  *****************************************************************************/
 Picviz::PVRoot::~PVRoot()
 {
+	remove_all_children();
 	PVLOG_INFO("In PVRoot destructor\n");
 }
 
