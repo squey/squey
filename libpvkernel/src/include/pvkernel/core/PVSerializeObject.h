@@ -335,6 +335,14 @@ private:
 	}
 
 	template <typename T>
+	void call_serialize(PVSharedPtr<T>& obj, p_type new_obj, T const*)
+	{
+		obj->serialize(*new_obj, get_version());
+		new_obj->_bound_obj = obj.get();
+		new_obj->_bound_obj_type = typeid(T);
+	}
+
+	template <typename T>
 	void call_serialize(PVDataTreeAutoShared<T>& obj, p_type new_obj, T const*)
 	{
 		obj->serialize(*new_obj, get_version());
