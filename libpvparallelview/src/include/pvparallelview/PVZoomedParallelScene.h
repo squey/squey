@@ -32,6 +32,8 @@
 #include <QPaintEvent>
 #include <QTimer>
 
+#include <tbb/atomic.h>
+
 namespace PVParallelView
 {
 
@@ -96,7 +98,10 @@ public:
 
 	void set_enabled(bool value)
 	{
-		_zpview->setEnabled(value);
+		if (!value) {
+			cancel_and_wait_all_rendering();
+		}
+		_zpview->setDisabled(!value);
 	}
 
 	virtual void drawBackground(QPainter *painter, const QRectF &rect);
@@ -115,6 +120,13 @@ public:
 		return ret;
 	}
 
+	inline void about_to_be_deleted()
+	{
+		_view_deleted = true;
+		_zpview->setDisabled(true);
+		cancel_and_wait_all_rendering();
+	}
+
 private slots:
 	inline void update_sel()
 	{
@@ -131,6 +143,8 @@ private slots:
 	void update_display();
 
 	void update_zoom();
+
+	void cancel_and_wait_all_rendering();
 
 private:
 	inline int get_zoom_level()
@@ -228,15 +242,19 @@ private:
 
 		inline void cancel_last_sel()
 		{
-			if (last_zr_sel) {
-				last_zr_sel->cancel();
+			// AG: that copy is important if we are multi-threading and another thread
+			// cleans our object after the following "if"
+			PVZoneRenderingBase_p zr = last_zr_sel;
+			if (zr) {
+				zr->cancel();
 			}
 		}
 
 		inline void cancel_last_bg()
 		{
-			if (last_zr_bg) {
-				last_zr_bg->cancel();
+			PVZoneRenderingBase_p zr = last_zr_bg;
+			if (zr) {
+				zr->cancel();
 			}
 		}
 
@@ -244,6 +262,23 @@ private:
 		{
 			cancel_last_sel();
 			cancel_last_bg();
+		}
+
+		void cancel_and_wait_all()
+		{
+			PVZoneRenderingBase_p zr = last_zr_sel;
+			if (zr) {
+				zr->cancel();
+				zr->wait_end();
+				last_zr_sel.reset();
+			}
+
+			zr = last_zr_bg;
+			if (zr) {
+				zr->cancel();
+				zr->wait_end();
+				last_zr_bg.reset();
+			}
 		}
 
 		backend_image_p_t       bg_image;   // the image for unselected/zomby lines
@@ -295,6 +330,8 @@ private:
 	// about rendering invalidation
 	render_t                        _render_type;
 	int                             _renderable_zone_number;
+
+	tbb::atomic<bool> _view_deleted;
 };
 
 }

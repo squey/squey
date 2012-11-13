@@ -89,6 +89,8 @@ void Picviz::PVSource::init()
 Picviz::PVSource_sp Picviz::PVSource::clone_with_no_process()
 {
 	Picviz::PVSource_p src(get_parent()->shared_from_this(), _inputs, _src_plugin, get_format());
+	Picviz::PVMapped_p mapped(src);
+	
 	return src;
 }
 

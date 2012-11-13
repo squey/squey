@@ -163,10 +163,11 @@ void PVParallelView::PVLibView::view_about_to_be_deleted()
 	}
 
 	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
+		view->about_to_be_deleted();
 		view->deleteLater();
 	}
 
-	//PVParallelView::common::remove_lib_view(*lib_view());
+	PVParallelView::common::remove_lib_view(*lib_view());
 }
 
 void PVParallelView::PVLibView::selection_updated()

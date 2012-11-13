@@ -692,15 +692,18 @@ void PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width,
  *****************************************************************************/
 void PVParallelView::PVLinesView::SingleZoneImages::cancel_all_and_wait()
 {
-	if (last_zr_sel) {
-		last_zr_sel->cancel();
-		last_zr_sel->wait_end();
+	// That copy is important if we are multi-threading!
+	PVZoneRenderingBase_p zr = last_zr_sel;
+	if (zr) {
+		zr->cancel();
+		zr->wait_end();
 		last_zr_sel.reset();
 	}
 
-	if (last_zr_bg) {
-		last_zr_bg->cancel();
-		last_zr_bg->wait_end();
+	zr = last_zr_bg;
+	if (zr) {
+		zr->cancel();
+		zr->wait_end();
 		last_zr_bg.reset();
 	}
 }
@@ -712,8 +715,10 @@ void PVParallelView::PVLinesView::SingleZoneImages::cancel_all_and_wait()
  *****************************************************************************/
 void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_bg()
 {
-	if (last_zr_bg) {
-		last_zr_bg->cancel();
+	// AG: that following copy is *important* !
+	PVZoneRenderingBase_p zr = last_zr_bg;
+	if (zr) {
+		zr->cancel();
 	}
 }
 
@@ -724,8 +729,10 @@ void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_bg()
  *****************************************************************************/
 void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_sel()
 {
-	if (last_zr_sel) {
-		last_zr_sel->cancel();
+	// AG: that following copy is *important* !
+	PVZoneRenderingBase_p zr = last_zr_sel;
+	if (zr) {
+		zr->cancel();
 	}
 }
 

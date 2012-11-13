@@ -71,6 +71,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zp_bg(zp_bg),
 	_selection_sliders(nullptr)
 {
+	_view_deleted = false;
+
 	_zpview->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	_zpview->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	_zpview->setResizeAnchor(QGraphicsView::AnchorViewCenter);
@@ -129,7 +131,9 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 		_selection_rect = nullptr;
 	}
 
-	common::get_lib_view(_pvview)->remove_zoomed_view(this);
+	if (!_view_deleted) {
+		common::get_lib_view(_pvview)->remove_zoomed_view(this);
+	}
 
 	if (_sliders_group) {
 		_sliders_group->delete_own_zoom_slider();
@@ -813,6 +817,16 @@ void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
 		 * what will lead to a selection update in PVFullParallelView
 		 */
 		_selection_sliders->set_value(y_min, y_max);
+	}
+}
+
+void PVParallelView::PVZoomedParallelScene::cancel_and_wait_all_rendering()
+{
+	if (_left_zone) {
+		_left_zone->cancel_and_wait_all();
+	}
+	if (_right_zone) {
+		_right_zone->cancel_and_wait_all();
 	}
 }
 

@@ -237,6 +237,7 @@ void PVInspector::PVExtractorWidget::process_Slot()
 	fill_source_list();
 
 	if (success) {
+		src_clone->wait_extract_end(job);
 		//Picviz::PVSource_sp src = lib_src().shared_from_this();
 		//PVHive::call<FUNC(Picviz::PVSource::process_from_source)>(src);
 		//_view->last_extractor_batch_size = _batch_size;

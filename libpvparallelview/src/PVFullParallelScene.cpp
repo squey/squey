@@ -11,6 +11,7 @@
 
 #include <pvhive/PVCallHelper.h>
 
+#include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVRenderingPipeline.h>
@@ -51,6 +52,8 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	_sm_p(sm_p),
 	_zid_timer_render(PVZONEID_INVALID)
 {
+	_view_deleted = false;
+
 	PVHive::get().register_actor(view_sp, _view_actor);
 
 	setBackgroundBrush(QBrush(common::color_view_bg()));
@@ -92,7 +95,9 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 PVParallelView::PVFullParallelScene::~PVFullParallelScene()
 {
 	PVLOG_INFO("In PVFullParallelScene destructor\n");
-	//common::get_lib_view(_lib_view)->remove_view(this);
+	if (!_view_deleted) {
+		common::get_lib_view(_lib_view)->remove_view(this);
+	}
 }
 
 /******************************************************************************
@@ -102,6 +107,8 @@ PVParallelView::PVFullParallelScene::~PVFullParallelScene()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::about_to_be_deleted()
 {
+	_view_deleted = true;
+	graphics_view()->setDisabled(true);
 	// Cancel everything!
 	_lines_view.cancel_and_wait_all_rendering();
 }

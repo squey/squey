@@ -26,6 +26,7 @@
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVFuncObserver.h>
 
+#include <tbb/atomic.h>
 #include <tbb/task_group.h>
 
 #include <QFuture>
@@ -66,7 +67,7 @@ public:
 		if (!value) {
 			_lines_view.cancel_and_wait_all_rendering();
 		}
-		_full_parallel_view->setEnabled(value);
+		_full_parallel_view->setDisabled(!value);
 	}
 
 	void update_new_selection_async();
@@ -247,6 +248,8 @@ private:
 	QTimer* _timer_render_single_zone;
 
 	PVZoneID _zid_timer_render;
+
+	tbb::atomic<bool> _view_deleted;
 };
 
 }
