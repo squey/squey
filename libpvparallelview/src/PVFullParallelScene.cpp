@@ -987,6 +987,9 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRenderingBase_p zr, int zid)
 {
 	assert(QThread::currentThread() == this->thread());
+	if (_view_deleted) {
+		return;
+	}
 
 	if (!_lines_view.is_zone_drawn(zid)) {
 		// This can occur if some events have been posted by a previous translation that is no longer valid!
@@ -1019,6 +1022,9 @@ void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRenderingBase_p z
 void PVParallelView::PVFullParallelScene::zr_sel_finished(PVZoneRenderingBase_p zr, int zid)
 {
 	assert(QThread::currentThread() == this->thread());
+	if (_view_deleted) {
+		return;
+	}
 
 	if (!_lines_view.is_zone_drawn(zid)) {
 		// This can occur if some events have been posted by a previous translation that is no longer valid!

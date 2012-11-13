@@ -359,6 +359,7 @@ include/pvkernel/widgets/PVComboBox.h
 include/pvkernel/widgets/PVColorDialog.h
 include/pvkernel/widgets/PVColorPicker.h
 include/pvkernel/widgets/PVDataTreeModel.h
+include/pvkernel/widgets/PVAbstractDataTreeMaskProxyModel.h
 
 include/pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h
 include/pvkernel/widgets/editors/PVEnumEditor.h
