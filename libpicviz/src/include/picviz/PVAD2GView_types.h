@@ -7,12 +7,12 @@
 #ifndef PICVIZ_PVAD2GVIEWTYPES_H
 #define PICVIZ_PVAD2GVIEWTYPES_H
 
-#include <boost/shared_ptr.hpp>
+#include <pvkernel/core/PVSharedPointer.h>
 
 namespace Picviz {
 
 class PVAD2GView;
-typedef boost::shared_ptr<PVAD2GView> PVAD2GView_p;
+typedef PVCore::PVSharedPtr<PVAD2GView> PVAD2GView_p;
 
 }
 

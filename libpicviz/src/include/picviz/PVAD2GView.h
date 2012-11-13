@@ -9,6 +9,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
+#include <pvkernel/core/PVEnableSharedFromThis.h>
 
 #include <picviz/PVAD2GView_types.h>
 #include <picviz/PVCombiningFunctionView.h>
@@ -21,7 +22,6 @@
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 // forward declaration of tlp::Graph and tlp::node
 namespace tlp {
@@ -57,7 +57,7 @@ namespace __impl {
 /**
  * \class PVAD2GView
  */
-class PVAD2GView : public boost::enable_shared_from_this<PVAD2GView>
+class PVAD2GView : public PVCore::PVEnableSharedFromThis<PVAD2GView>
 {
 	friend class PVCore::PVSerializeObject;
 

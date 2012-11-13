@@ -246,7 +246,7 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 	// Correlation
 	// Optional in both version 1 and 2
 	PVRoot::correlations_t corrs;
-	if (so.list("correlations", corrs, QString(), (PVAD2GView*) NULL, QStringList(), true, true)) {
+	if (so.list("correlations", corrs, QString(), (PVAD2GView*) nullptr, QStringList(), true, true)) {
 		get_parent<PVRoot>()->add_correlations(corrs);
 	}
 }

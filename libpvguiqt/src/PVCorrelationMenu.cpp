@@ -14,7 +14,7 @@
 
 #include <picviz/PVRoot.h>
 #include <picviz/PVAD2GView.h>
-#include <picviz/widgets/PVAD2GWidget.h>
+#include <pvguiqt/PVAD2GWidget.h>
 
 #include <pvguiqt/PVCorrelationMenu.h>
 
@@ -88,7 +88,7 @@ void PVGuiQt::PVCorrelationMenu::show_correlation(Picviz::PVAD2GView* correlatio
 {
 	QDialog* ad2g_dialog = new QDialog();
 	ad2g_dialog->setWindowTitle(tr("Correlations"));
-	PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(correlation->shared_from_this(), *_root);
+	PVGuiQt::PVAD2GWidget* ad2g_w = new PVGuiQt::PVAD2GWidget(correlation->shared_from_this(), *_root);
 	QVBoxLayout* l = new QVBoxLayout();
 	l->addWidget(ad2g_w);
 	ad2g_dialog->setLayout(l);

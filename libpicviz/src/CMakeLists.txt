@@ -156,9 +156,7 @@ update-protocol.cpp
 set(WIDGETS_MOC_HEADERS
 include/picviz/widgets/PVAD2GEdgeEditor.h
 include/picviz/widgets/PVAD2GFunctionPropertiesWidget.h
-include/picviz/widgets/PVAD2GInteractor.h
 include/picviz/widgets/PVAD2GListEdgesWidget.h
-include/picviz/widgets/PVAD2GWidget.h
 include/picviz/widgets/PVAD2GRFFListModel.h
 include/picviz/widgets/PVAxisTypeWidget.h
 include/picviz/widgets/PVArgumentListWidgetFactory.h
@@ -177,8 +175,6 @@ include/picviz/widgets/editors/PVViewRowsSpinBoxEditor.h
 )
 
 set(WIDGETS_SRC_FILES
-widgets/PVAD2GWidget.cpp
-widgets/PVAD2GInteractor.cpp
 widgets/PVAD2GEdgeEditor.cpp
 widgets/PVAD2GFunctionPropertiesWidget.cpp
 widgets/PVAD2GListEdgesWidget.cpp

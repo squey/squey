@@ -282,4 +282,40 @@ PVSharedPtr<T> dynamic_pointer_cast(PVSharedPtr<U> const & r)
 
 }
 
+namespace PVCore {
+
+namespace PVTypeTraits {
+
+template <class T>
+struct remove_shared_ptr<PVCore::PVSharedPtr<T> >
+{
+	typedef T type;
+};
+
+template <class T>
+struct pointer<PVCore::PVSharedPtr<T> >
+{
+	typedef PVCore::PVSharedPtr<T> type;
+	static inline type get(type obj) { return obj; }
+};
+
+template <class T>
+struct pointer<PVCore::PVSharedPtr<T>& >
+{
+	typedef PVCore::PVSharedPtr<T>& type;
+	static inline type get(type obj) { return obj; }
+};
+
+template <class Y, class T>
+struct dynamic_pointer_cast<PVCore::PVSharedPtr<Y>, PVCore::PVSharedPtr<T> >
+{
+	typedef typename PVCore::PVSharedPtr<T> org_pointer;
+	typedef typename PVCore::PVSharedPtr<Y> result_pointer;
+	static result_pointer cast(org_pointer const& p) { return PVCore::dynamic_pointer_cast<Y>(p); }
+};
+
+}
+
+}
+
 #endif // PVCORE_SHAREDPOINTER_H

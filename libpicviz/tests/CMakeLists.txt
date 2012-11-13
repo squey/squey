@@ -14,11 +14,6 @@ add_test(TestRoot Tpicviz_root)
 #add_executable(Tpicviz_bench_mapping_time bench_mapping-time.cpp)
 #target_link_libraries(Tpicviz_bench_mapping_time ${LINK_LIBRARIES})
 
-
-# AD2G Widget
-add_executable(Tpicviz_AD2GWidget AD2GWidget.cpp)
-target_link_libraries(Tpicviz_AD2GWidget ${LINK_LIBRARIES})
-
 add_executable(TPVSelection PVSelection.cpp)
 target_link_libraries(TPVSelection ${LINK_LIBRARIES})
 add_test(TestPVSelection TPVSelection)

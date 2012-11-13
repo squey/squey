@@ -38,6 +38,8 @@ PVStartScreenWidget.cpp
 PVInputTypeMenuEntries.cpp
 PVImportSourceToProjectDlg.cpp
 PVCorrelationMenu.cpp
+PVAD2GWidget.cpp
+PVAD2GInteractor.cpp
 
 # Displays that will be registered to libpvdisplays
 PVDisplaySourceDataTree.cpp
@@ -76,6 +78,8 @@ include/pvguiqt/PVStartScreenWidget.h
 include/pvguiqt/PVInputTypeMenuEntries.h
 include/pvguiqt/PVImportSourceToProjectDlg.h
 include/pvguiqt/PVCorrelationMenu.h
+include/pvguiqt/PVAD2GWidget.h
+include/pvguiqt/PVAD2GInteractor.h
 )
 
 SET(UI_FILES
