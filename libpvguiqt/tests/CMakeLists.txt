@@ -76,6 +76,11 @@ target_link_libraries(Tqt_correlation_menu ${COMMON_LIBRARIES})
 add_executable(Tqt_displays_plugins displays_plugins.cpp common.cpp)
 target_link_libraries(Tqt_displays_plugins ${COMMON_LIBRARIES})
 
+
 # AD2G Widget
 add_executable(Tqt_AD2GWidget AD2GWidget.cpp)
 target_link_libraries(Tqt_AD2GWidget ${COMMON_LIBRARIES})
+
+# Listing filter performance
+add_executable(Pqt_listing_sel_filter listing_sel_filter_perfs.cpp)
+target_link_libraries(Pqt_listing_sel_filter ${COMMON_LIBRARIES})
