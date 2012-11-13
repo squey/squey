@@ -422,9 +422,11 @@ Picviz::PVView* Picviz::PVAD2GView::get_view(tlp::node node)
  * Picviz::PVAD2GView::set_edge_f
  *
  *****************************************************************************/
-tlp::edge Picviz::PVAD2GView::set_edge_f(const Picviz::PVView *va,
-                                         const Picviz::PVView *vb,
-                                         PVCombiningFunctionView_p cfview)
+tlp::edge Picviz::PVAD2GView::set_edge_f(
+	const Picviz::PVView *va,
+    const Picviz::PVView *vb,
+    PVCombiningFunctionView_p cfview
+)
 {
 	tlp::node na, nb;
 	tlp::edge edge;
@@ -453,9 +455,11 @@ tlp::edge Picviz::PVAD2GView::set_edge_f(const Picviz::PVView *va,
  * Picviz::PVAD2GView::set_edge_f
  *
  *****************************************************************************/
-tlp::edge Picviz::PVAD2GView::set_edge_f(const tlp::node na,
-                                         const tlp::node nb,
-                                         PVCombiningFunctionView_p cfview)
+tlp::edge Picviz::PVAD2GView::set_edge_by_node_f(
+	const tlp::node na,
+    const tlp::node nb,
+    PVCombiningFunctionView_p cfview
+)
 {
 	tlp::edge edge = _graph->existEdge(na, nb, true);
 

@@ -257,10 +257,8 @@ tlp::edge PVGuiQt::PVAD2GWidget::add_combining_function(const tlp::node source, 
 {
 	Picviz::PVCombiningFunctionView_p cf_sp(new Picviz::PVCombiningFunctionView());
 
-	//Picviz::PVAD2GView_p ad2g_view_p = _ad2g->shared_from_this();
-	//tlp::edge newEdge = PVHive::call<FUNC_PROTOTYPE(void, Picviz::PVAD2GView, set_edge_f, tlp::node, tlp::node, Picviz::PVCombiningFunctionView_p)>(ad2g_view_p, source, target, cf_sp);
-
-	tlp::edge newEdge = _ad2g->set_edge_f(source, target, cf_sp);
+	Picviz::PVAD2GView_p ad2g_view_p = _ad2g->shared_from_this();
+	tlp::edge newEdge = PVHive::call<FUNC(Picviz::PVAD2GView::set_edge_by_node_f)>(ad2g_view_p, source, target, cf_sp);
 
 	_list_edges_widget->update_list_edges();
 
@@ -279,7 +277,8 @@ void PVGuiQt::PVAD2GWidget::remove_combining_function_Slot(int edge)
 
 		_list_edges_widget->clear_current_edge();
 
-		_ad2g->del_edge(e);
+		Picviz::PVAD2GView_p ad2g_view_p = _ad2g->shared_from_this();
+		PVHive::call<FUNC(Picviz::PVAD2GView::del_edge)>(ad2g_view_p, e);
 
 		_list_edges_widget->update_list_edges();
 
