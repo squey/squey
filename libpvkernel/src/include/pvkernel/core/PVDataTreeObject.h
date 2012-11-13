@@ -217,7 +217,7 @@ public:
 				return false;
 			}
 		}
-		return true;
+		return true && children.size() > 0;
 	}
 
 	void remove_all_children()

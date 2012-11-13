@@ -279,7 +279,7 @@ void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 	// Correlation (optional)
 	// Save correlations that works for us
 	const bool root_corr_serialized = get_parent<PVRoot>()->are_correlations_serialized();
-	QList<PVAD2GView_p> corrs = get_parent<PVRoot>()->get_correlations_for_scene(*this);
+	Picviz::PVRoot::correlations_t corrs = get_parent<PVRoot>()->get_correlations_for_scene(*this);
 	if (root_corr_serialized) {
 		QStringList corrs_path;
 		for (PVAD2GView_p const& c: corrs) {
