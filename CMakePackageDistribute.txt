@@ -207,6 +207,6 @@ else(WIN32)
 	#
 	# CUDA + NPP
 	#
-	install(FILES /opt/cuda/lib64/libcudart.so /opt/cuda/lib64/libcudart.so.5.0 /opt/cuda/lib64/libcudart.so.5.0.7 /opt/cuda/lib64/libnpp.so /opt/cuda/lib64/libnpp.so.5.0 /opt/cuda/lib64/libnpp.so.5.0.7 DESTINATION .)
+	install(FILES /opt/cuda/lib64/libcudart.so /opt/cuda/lib64/libcudart.so.5.0 /opt/cuda/lib64/libcudart.so.5.0.35 /opt/cuda/lib64/libnpp.so /opt/cuda/lib64/libnpp.so.5.0 /opt/cuda/lib64/libnpp.so.5.0.35 DESTINATION .)
 
 endif(WIN32)

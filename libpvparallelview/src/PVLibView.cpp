@@ -236,6 +236,8 @@ void PVParallelView::PVLibView::plotting_updated()
 
 	for (PVZoneID z: zones_to_update) {
 		get_zones_manager().update_zone(z);
+		_processor_bg.invalidate_zone_preprocessing(z);
+		_processor_sel.invalidate_zone_preprocessing(z);
 	}
 
 	for (PVFullParallelScene* view: _parallel_scenes) {
