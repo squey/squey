@@ -63,14 +63,11 @@ void PVGuiQt::PVListingSortFilterProxyModel::filter_source_indexes(vec_indexes_t
 
 	// Filter out lines according to the good selection.
 	src_idxes_out.clear();
-	// AG: the allocation strategy isn't trivial. Indeed, in order to get the number
-	// of visible lines, we need to check every bits of PVSelection (that's what's done in
-	// get_number_of_selected_lines_in_range). There was an attempt to optimise this w/ SSE
-	// and w/ noi branchment, but it gave false result.
-	// Until this is not fixed, we will reserve for "src_idxes_out" the same number of lines than in
-	// "src_idxes_in".
-	//PVRow nvisible_lines = sel->get_number_of_selected_lines_in_range(0, _lib_view->get_row_count());
-	src_idxes_out.reserve(src_idxes_in.size());
+	const PVRow nvisible_lines = sel->get_number_of_selected_lines_in_range(0, _lib_view.get_row_count());
+	if (nvisible_lines == 0) {
+		return;
+	}
+	src_idxes_out.reserve(nvisible_lines);
 	vec_indexes_t::const_iterator it;
 	for (it = src_idxes_in.begin(); it != src_idxes_in.end(); it++) {
 		PVRow line = *it;
