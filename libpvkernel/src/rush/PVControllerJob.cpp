@@ -150,10 +150,9 @@ bool PVRush::PVControllerJob::cancel()
 	return true;
 }
 
-void PVRush::PVControllerJob::job_has_run()
+void PVRush::PVControllerJob::job_has_run_no_output_update()
 {
 	_tc_end = tbb::tick_count::now();
-	_out_filter->job_has_finished();
 	PVLOG_DEBUG("PVControllerJob: job has finish to run.\n");
 	{
 		boost::lock_guard<boost::mutex> lock(_job_finished_mut);
@@ -162,6 +161,12 @@ void PVRush::PVControllerJob::job_has_run()
 	_job_finished.notify_all();
 
 	emit job_done_signal();
+}
+
+void PVRush::PVControllerJob::job_has_run()
+{
+	_out_filter->job_has_finished();
+	job_has_run_no_output_update();
 }
 
 bool PVRush::PVControllerJob::running() const

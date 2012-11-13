@@ -106,6 +106,7 @@ public:
 protected:
 	tbb::filter_t<void,void> create_tbb_filter();
 	void job_has_run(); // Called by PVController when the job has finish to run
+	void job_has_run_no_output_update(); // Called by PVController when the job has finish to run
 	void job_goingto_start(PVController& ctrl); // Called by PVController when the job is going to be launched
 
 protected:

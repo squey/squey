@@ -6,6 +6,7 @@
 
 #include <pvbase/qhashes.h>
 #include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/picviz_assert.h>
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/rush/PVNrawDiskBackend.h>
 
@@ -43,6 +44,7 @@ PVRush::PVNrawDiskBackend::~PVNrawDiskBackend()
 {
 	if (_serial_read_buffer) {
 		PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(_serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
+		_serial_read_buffer = nullptr;
 	}
 	close_files();
 }
@@ -74,11 +76,11 @@ void PVRush::PVNrawDiskBackend::init(const char* nraw_folder, const uint64_t num
 		// Create buffer
 		uint64_t buffer_size = _write_buffers_size_pattern[0];
 		column.buffer_write = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(buffer_size);
+		memset(column.buffer_write, 0, buffer_size);
 		column.buffer_write_ptr = column.buffer_write;
 		column.buffer_write_end_ptr = column.buffer_write + buffer_size;
 		column.field_length = 0; // Or any value grater than 0 to specify a fixed field length;
 	}
-
 	_indexes.resize(_next_indexes_nrows, num_cols);
 	_next_indexes_nrows += _index_fields_size_pattern[++_fields_size_idx];
 
@@ -194,6 +196,9 @@ void PVRush::PVNrawDiskBackend::flush()
 			}
 		}
 		PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(column.buffer_write, _write_buffers_size_pattern[column.buffers_write_size_idx]);
+		column.buffer_write = nullptr;
+		column.buffer_write_ptr = nullptr;
+		column.buffer_write_end_ptr = nullptr;
 		//column.reset();
 	}
 

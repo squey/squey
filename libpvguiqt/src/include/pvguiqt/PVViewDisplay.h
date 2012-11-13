@@ -81,7 +81,7 @@ private:
 	PVWorkspaceBase* _workspace;
 	QPoint _press_pt;
 	PVHive::PVObserverSignal<Picviz::PVPlotting>*  _obs_plotting = nullptr;
-	//PVHive::PVObserver_p<Picviz::PVView> _obs_view;
+	PVHive::PVObserver_p<Picviz::PVView> _obs_view;
 	bool _about_to_be_deleted = false;
 
 };

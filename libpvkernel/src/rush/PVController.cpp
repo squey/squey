@@ -61,6 +61,8 @@ void PVRush::PVController::operator()()
 				_cur_job->job_goingto_start(*this);
 				tbb::task::spawn_root_and_wait(*_pipeline);
 				_pipeline = NULL;
+
+				_cur_job->job_has_run();
 				break;
 			}
 
@@ -68,14 +70,13 @@ void PVRush::PVController::operator()()
 			{
 				assert(_cur_job->_agg);
 				_cur_job->_agg->read_all_chunks_from_beggining();
+				_cur_job->job_has_run_no_output_update();
 				break;
 			}
 			
 			default:
 				assert(false);
 		}
-
-		_cur_job->job_has_run();
 		
 		PVLOG_DEBUG("(PVController) Job finished\n");
 
