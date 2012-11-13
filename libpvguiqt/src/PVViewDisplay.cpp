@@ -76,13 +76,13 @@ void PVGuiQt::PVViewDisplay::register_view(Picviz::PVView* view)
 		_obs_plotting->connect_refresh(this, SLOT(plotting_updated()));
 
 		// Register for view deletion
-		/*_obs_view = PVHive::create_observer_callback_heap<Picviz::PVView>(
+		_obs_view = PVHive::create_observer_callback_heap<Picviz::PVView>(
 		    [&](Picviz::PVView const*) {},
 			[&](Picviz::PVView const*) {},
-			[&](Picviz::PVView const*) { this->close(); }
+			[&](Picviz::PVView const*) { _about_to_be_deleted = true; }
 		);
 		Picviz::PVView_sp view_sp = view->shared_from_this();
-		PVHive::get().register_observer(view_sp, *_obs_view);*/
+		PVHive::get().register_observer(view_sp, *_obs_view);
 	}
 }
 
