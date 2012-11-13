@@ -89,7 +89,7 @@ public:
 public:
 	tlp::edge set_edge_f(const Picviz::PVView *va, const Picviz::PVView *vb,
 	                     PVCombiningFunctionView_p cfview);
-	tlp::edge set_edge_f(const tlp::node na, const tlp::node nb,
+	tlp::edge set_edge_by_node_f(const tlp::node na, const tlp::node nb,
 	                     PVCombiningFunctionView_p cfview);
 	Picviz::PVCombiningFunctionView_p get_edge_f(const tlp::edge edge) const;
 	graph_edge_views_t get_edge_views(const tlp::edge edge) const;

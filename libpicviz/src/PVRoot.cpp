@@ -238,17 +238,11 @@ QList<Picviz::PVView*> Picviz::PVRoot::process_correlation(PVView* src_view)
 
 Picviz::PVRoot::correlations_t Picviz::PVRoot::get_correlations_for_scene(Picviz::PVScene const& scene) const
 {
-	std::cout << "get_correlations_for_scene" << std::endl;
 	Picviz::PVRoot::correlations_t ret;
 	for (PVAD2GView_p const& c: get_correlations()) {
 		QList<Picviz::PVView*> c_views = c->get_used_views();
-		std::cout << "c_views.size()=" << c_views.size() << std::endl;
-		for (auto view : c_views) {
-			std::cout << "view=" << qPrintable(view->get_name()) << std::endl;
-		}
 		if (scene.children_belongs_to_me(c_views)) {
 			ret.push_back(c);
-			std::cout << "ret.push_back(c);" << std::endl;
 		}
 	}
 	return ret;
