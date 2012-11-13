@@ -13,6 +13,8 @@
 
 #include <omp.h>
 
+// #define TEST_OMP_TBC
+
 template <typename T>
 class Buffer
 {
@@ -31,46 +33,51 @@ public:
 		clear();
 	}
 
-	void clear()
+	inline void clear()
 	{
 		_data = data_ptr_t();
 		_index = 0;
 	}
 
-	void reserve(size_t n)
+	inline void reserve(size_t n)
 	{
 		_data = data_ptr_t(allocator_t().allocate(n));
 		_index = 0;
 	}
 
-	pointer_t pointer()
+	inline pointer_t get()
 	{
 		return _data.get();
 	}
 
-	size_t size() const
+	inline size_t size() const
 	{
 		return _index;
 	}
 
-	const T &at(size_t i) const
+	inline void set_size(size_t s)
+	{
+		_index = s;
+	}
+
+	inline const T &at(size_t i) const
 	{
 		return _data.get()[i];
 	}
 
-	T &at(size_t i)
+	inline T &at(size_t i)
 	{
 		return _data.get()[i];
 	}
 
-	Buffer<T> &operator=(const Buffer<T> &buffer)
+	inline Buffer<T> &operator=(const Buffer<T> &buffer)
 	{
 		_data = buffer._data;
 		_index = buffer._index;
 		return *this;
 	}
 
-	void push_back(const T &v)
+	inline void push_back(const T &v)
 	{
 		_data.get()[_index++] = v;
 	}
@@ -101,7 +108,7 @@ void filter_indexes(QVector<PVRow> const& src_idxes_in, QVector<PVRow>& src_idxe
 	const PVRow nvisible_lines = sel->get_number_of_selected_lines_in_range(0, n);
 	if (nvisible_lines == 0) {
 		return;
-	} else if (nvisible_lines == PICVIZ_SELECTION_NUMBER_OF_ROWS) {
+	} else if (nvisible_lines == n) {
 		src_idxes_out = src_idxes_in;
 		return;
 	}
@@ -124,7 +131,7 @@ void filter_indexes_simple(vector_t const& src_idxes_in, vector_t& src_idxes_out
 	const PVRow nvisible_lines = sel->get_number_of_selected_lines_in_range(0, n);
 	if (nvisible_lines == 0) {
 		return;
-	} else if (nvisible_lines == PICVIZ_SELECTION_NUMBER_OF_ROWS) {
+	} else if (nvisible_lines == n) {
 		src_idxes_out = src_idxes_in;
 		return;
 	}
@@ -170,7 +177,7 @@ int get_local_index_sum()
 
 }
 
-void filter_indexes_omp_4buf(QVector<PVRow> const& src_idxes_in, Picviz::PVSelection const* sel, size_t n)
+void filter_indexes_omp_4buf(vector_t const& src_idxes_in, vector_t &src_idxes_out, Picviz::PVSelection const* sel, size_t n)
 {
 	const PVRow nvisible_lines = sel->get_number_of_selected_lines_in_range(0, n);
 	if (nvisible_lines == 0) {
@@ -178,6 +185,9 @@ void filter_indexes_omp_4buf(QVector<PVRow> const& src_idxes_in, Picviz::PVSelec
 		local_index[1] = 0;
 		local_index[2] = 0;
 		local_index[3] = 0;
+		return;
+	} else if (nvisible_lines == n) {
+		src_idxes_out = src_idxes_in;
 		return;
 	}
 
@@ -192,12 +202,28 @@ void filter_indexes_omp_4buf(QVector<PVRow> const& src_idxes_in, Picviz::PVSelec
 		for (i = 0; i < (size_t)src_idxes_in.size(); ++i) {
 			const PVRow line = src_idxes_in.at(i);
 			if (sel->get_line(line)) {
-				buffer[idx++] = line;
+				buffer[idx] = line;
+				++idx;
 			}
 		}
 
 		local_index[tid] = idx;
 	}
+
+	/* merge
+	 */
+
+	BENCH_START(b);
+	src_idxes_out.reserve(get_local_index_sum());
+	PVRow *buffer = src_idxes_out.get();
+	size_t offset = 0;
+	for(int i = 0; i < 4; ++i) {
+		size_t size = local_index[i];
+		memcpy(buffer + offset, local_buffer[i], size * sizeof(PVRow));
+		offset += size;
+	}
+	BENCH_END(b, "merge", 1, 1, offset, sizeof(PVRow));
+	src_idxes_out.set_size(offset);
 }
 
 int main(int argc, char** argv)
@@ -227,7 +253,7 @@ int main(int argc, char** argv)
 	for (size_t i = 0; i < n; i++) {
 		src_idxes_in.push_back(i);
 	}
-	BENCH_END(b0, "vector filling w/ continous indexes", 1, 1, sizeof(PVRow), n);
+	BENCH_END(b0, "vector filling w/ continous indexes", 1, 1, n, sizeof(PVRow));
 
 	vector_t src_idxes_in_2;
 	src_idxes_in_2.reserve(n);
@@ -236,7 +262,7 @@ int main(int argc, char** argv)
 	for (size_t i = 0; i < n; i++) {
 		src_idxes_in_2.push_back(i);
 	}
-	BENCH_END(b1, "vector_simple filling w/ continous indexes", 1, 1, sizeof(PVRow), n);
+	BENCH_END(b1, "vector_simple filling w/ continous indexes", 1, 1, n, sizeof(PVRow));
 
 	QVector<PVRow> src_idxes_out;
 	vector_t src_idxes_out_2;
@@ -250,22 +276,24 @@ int main(int argc, char** argv)
 	{
 		BENCH_START(b);
 		filter_indexes(src_idxes_in, src_idxes_out, &sel, n);
-		BENCH_END(b, "full-selection", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out.size());
+		BENCH_END(b, "full-selection", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
 	}
 	{
 		BENCH_START(b);
 		filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
-		BENCH_END(b, "full-selection_simple", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out_2.size());
+		BENCH_END(b, "full-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
 	}
+#ifdef TEST_OMP_TBC
 	{
 		BENCH_START(b);
 		filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
-		BENCH_END(b, "full-selection_omp_tcv", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out_3.size());
+		BENCH_END(b, "full-selection_omp_tcv", n, sizeof(PVRow), src_idxes_out_3.size(), sizeof(PVRow));
 	}
+#endif
 	{
 		BENCH_START(b);
-		filter_indexes_omp_4buf(src_idxes_in, &sel, n);
-		BENCH_END(b, "full-selection_omp_4buf", sizeof(PVRow), n, sizeof(PVRow), get_local_index_sum());
+		filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
+		BENCH_END(b, "full-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
 	}
 
 	// Create an "even" selection
@@ -275,22 +303,24 @@ int main(int argc, char** argv)
 	{
 		BENCH_START(b);
 		filter_indexes(src_idxes_in, src_idxes_out, &sel, n);
-		BENCH_END(b, "even-selection", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out.size());
+		BENCH_END(b, "even-selection", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
 	}
 	{
 		BENCH_START(b);
 		filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
-		BENCH_END(b, "even-selection_simple", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out_2.size());
+		BENCH_END(b, "even-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
 	}
+#ifdef TEST_OMP_TBC
 	{
 		BENCH_START(b);
 		filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
-		BENCH_END(b, "even-selection_omp_tcv", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out_3.size());
+		BENCH_END(b, "even-selection_omp_tcv", n, sizeof(PVRow), src_idxes_out_3.size(), sizeof(PVRow));
 	}
+#endif
 	{
 		BENCH_START(b);
-		filter_indexes_omp_4buf(src_idxes_in, &sel, n);
-		BENCH_END(b, "even-selection_omp_4buf", sizeof(PVRow), n, sizeof(PVRow), get_local_index_sum());
+		filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
+		BENCH_END(b, "even-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
 	}
 
 	// Create a random selection
@@ -300,22 +330,24 @@ int main(int argc, char** argv)
 	{
 		BENCH_START(b);
 		filter_indexes(src_idxes_in, src_idxes_out, &sel, n);
-		BENCH_END(b, "rand-selection", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out.size());
+		BENCH_END(b, "rand-selection", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
 	}
 	{
 		BENCH_START(b);
 		filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
-		BENCH_END(b, "rand-selection_simple", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out_2.size());
+		BENCH_END(b, "rand-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
 	}
+#ifdef TEST_OMP_TBC
 	{
 		BENCH_START(b);
 		filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
 		BENCH_END(b, "rand-selection_omp_tcv", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out_3.size());
 	}
+#endif
 	{
 		BENCH_START(b);
-		filter_indexes_omp_4buf(src_idxes_in, &sel, n);
-		BENCH_END(b, "rand-selection_omp_4buf", sizeof(PVRow), n, sizeof(PVRow), get_local_index_sum());
+		filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
+		BENCH_END(b, "rand-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
 	}
 
 	// Create an empty selection
@@ -325,22 +357,24 @@ int main(int argc, char** argv)
 	{
 		BENCH_START(b);
 		filter_indexes(src_idxes_in, src_idxes_out, &sel, n);
-		BENCH_END(b, "empty-selection", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out.size());
+		BENCH_END(b, "empty-selection", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
 	}
 	{
 		BENCH_START(b);
 		filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
-		BENCH_END(b, "empty-selection_simple", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out_2.size());
+		BENCH_END(b, "empty-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
 	}
+#ifdef TEST_OMP_TBC
 	{
 		BENCH_START(b);
 		filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
-		BENCH_END(b, "empty-selection_omp_tcv", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out_3.size());
+		BENCH_END(b, "empty-selection_omp_tcv", n, sizeof(PVRow), src_idxes_out_3.size(), sizeof(PVRow));
 	}
+#endif
 	{
 		BENCH_START(b);
-		filter_indexes_omp_4buf(src_idxes_in, &sel, n);
-		BENCH_END(b, "empty-selection_omp_4buf", sizeof(PVRow), n, sizeof(PVRow), get_local_index_sum());
+		filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
+		BENCH_END(b, "empty-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
 	}
 
 	return 0;
