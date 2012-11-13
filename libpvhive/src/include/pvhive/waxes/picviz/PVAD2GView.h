@@ -10,8 +10,8 @@
 #include <pvhive/PVWax.h>
 #include <picviz/PVAD2GView.h>
 
-DECLARE_WAX(Picviz::PVAD2GView::add_view)
 DECLARE_WAX(Picviz::PVAD2GView::del_view_by_node)
-//DECLARE_WAX(Picviz::PVAD2GView::set_edge_f)
+DECLARE_WAX(Picviz::PVAD2GView::del_edge)
+DECLARE_WAX(Picviz::PVAD2GView::set_edge_by_node_f)
 
 #endif // __PICVIZ_PVAD2GVIEW_H__

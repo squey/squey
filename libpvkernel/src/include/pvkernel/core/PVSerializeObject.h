@@ -351,6 +351,12 @@ private:
 	template <typename T>
 	void call_serialize(PVSharedPtr<T>& obj, p_type new_obj, T const*)
 	{
+		if (!obj) {
+			assert(!is_writing());
+			T* new_p;
+			new_p = new T();
+			obj.reset(new_p);
+		}
 		obj->serialize(*new_obj, get_version());
 		new_obj->_bound_obj = obj.get();
 		new_obj->_bound_obj_type = typeid(T);
