@@ -82,7 +82,8 @@ PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Picviz::PVRoot* root, QW
 	plotting_mask_proxy_t* plotting_mask_proxy = new plotting_mask_proxy_t();
 	plotting_mask_proxy->setSourceModel(mapping_mask_proxy);
 
-	_root_view = new PVRootTreeView(plotting_mask_proxy);
+	//_root_view = new PVRootTreeView(plotting_mask_proxy);
+	_root_view = new PVRootTreeView(tree_model);
 
 	_root_view->expandAll();
 	_root_view->setContextMenuPolicy(Qt::NoContextMenu); // Disable data-tree creation context menu

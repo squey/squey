@@ -45,6 +45,7 @@ Picviz::PVMapped::PVMapped()
  *****************************************************************************/
 Picviz::PVMapped::~PVMapped()
 {
+	remove_all_children();
 	PVLOG_INFO("In PVMapped destructor\n");
 }
 

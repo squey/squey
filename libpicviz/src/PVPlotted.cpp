@@ -36,6 +36,7 @@ Picviz::PVPlotted::PVPlotted()
 
 Picviz::PVPlotted::~PVPlotted()
 {
+	remove_all_children();
 	PVLOG_INFO("In PVPlotted destructor\n");
 	for (PVView_sp& v: get_children()) {
 		std::cout << v.use_count() << std::endl;

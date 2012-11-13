@@ -54,6 +54,7 @@ Picviz::PVSource::PVSource(const PVSource& org):
 
 Picviz::PVSource::~PVSource()
 {
+	remove_all_children();
 	PVRoot* root = get_parent<PVRoot>();
 	if (root) {
 		root->source_being_deleted(this);
