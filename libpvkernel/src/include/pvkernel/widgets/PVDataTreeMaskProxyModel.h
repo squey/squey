@@ -3,17 +3,17 @@
 #define PVWIDGETS_PVDATATREEMASKPROXYMODEL_H
 
 #include <pvkernel/core/PVDataTreeObject.h>
+#include <pvkernel/widgets/PVAbstractDataTreeMaskProxyModel.h>
 
-#include <QAbstractProxyModel>
-
-namespace PVWidgets {
+namespace PVWidgets
+{
 
 template <class MaskedClass>
-class PVDataTreeMaskProxyModel : public QAbstractProxyModel
+class PVDataTreeMaskProxyModel : public PVAbstractDataTreeMaskProxyModel
 {
 public:
 	PVDataTreeMaskProxyModel(QObject *parent = nullptr) :
-		QAbstractProxyModel(parent)
+		PVAbstractDataTreeMaskProxyModel(parent)
 	{}
 
 	PVCore::PVDataTreeObjectBase* get_object(QModelIndex const& index) const
@@ -227,7 +227,7 @@ public:
 
 	bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole)
 	{
-		return true;
+		return sourceModel()->setData(mapToSource(index), value, role);
 	}
 
 	QVariant data(const QModelIndex &index, int role) const
@@ -238,6 +238,17 @@ public:
 	Qt::ItemFlags flags(const QModelIndex& index) const
 	{
 		return sourceModel()->flags(mapToSource(index));
+	}
+
+protected slots:
+	virtual void data_changed(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+	{
+		emit dataChanged(mapFromSource(topLeft), mapFromSource(bottomRight));
+	}
+
+	virtual void model_about_to_be_reset()
+	{
+		reset();
 	}
 
 private:

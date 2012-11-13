@@ -343,7 +343,7 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::update_correlations_list()
 {
 	_combo_box->clear();
 	_combo_box->addItem("(No correlation)");
-	Picviz::PVRoot::correlations_t const& corrs = get_root().get_correlations();
+	Picviz::PVRoot::correlations_t corrs = get_correlations();
 	for (Picviz::PVAD2GView_p const& c: corrs) {
 		_combo_box->addItem(c->get_name());
 		_combo_box->setItemData(_combo_box->count()-1, qVariantFromValue((void*) c.get()), Qt::UserRole);
@@ -483,16 +483,6 @@ QList<Picviz::PVSource*> PVGuiQt::PVSceneWorkspacesTabWidget::list_sources() con
 		ret << qobject_cast<PVWorkspace*>(w)->get_source();
 	}
 	return ret;
-}
-
-void PVGuiQt::PVSceneWorkspacesTabWidget::update_correlations_list()
-{
-	QList<Picviz::PVAD2GView_p> corrs = get_root().get_correlations_for_scene(*get_scene());
-	PVLOG_INFO("Match correlation for scene %s:\n", qPrintable(get_scene()->get_name()));
-	for (Picviz::PVAD2GView_p const& c: corrs) {
-		PVLOG_INFO("%s\n", qPrintable(c->get_name()));
-	}
-	PVWorkspacesTabWidgetBase::update_correlations_list();
 }
 
 /******************************************************************************

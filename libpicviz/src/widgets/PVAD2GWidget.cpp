@@ -20,6 +20,7 @@
 #include <picviz/PVView.h>
 #include <picviz/PVView_types.h>
 
+#include <pvhive/PVCallHelper.h>
 
 namespace PVWidgets {
 
@@ -191,7 +192,8 @@ tlp::node PVWidgets::PVAD2GWidget::add_view(QPoint pos, Picviz::PVView* view)
 	tlp::Observable::holdObservers();
 
 	// Add view to graph
-	tlp::node newNode = _ad2g->add_view(view);
+	Picviz::PVAD2GView_p ad2g_view_p = _ad2g->shared_from_this();
+	tlp::node newNode = PVHive::call<FUNC(Picviz::PVAD2GView::add_view)>(ad2g_view_p, view);
 
 	// Compute view position
 	tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();

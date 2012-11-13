@@ -14,4 +14,6 @@
 #include <pvhive/waxes/picviz/PVSource.h>
 #include <pvhive/waxes/picviz/PVView.h>
 
+#include <pvhive/waxes/picviz/PVAD2GView.h>
+
 #endif

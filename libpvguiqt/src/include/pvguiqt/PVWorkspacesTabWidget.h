@@ -135,6 +135,7 @@ public:
 
 public:
 	virtual Picviz::PVAD2GView* get_correlation() = 0;
+	virtual Picviz::PVRoot::correlations_t get_correlations() = 0;
 	virtual void remove_workspace(int index, bool close_animation = true);
 	int addTab(PVWorkspaceBase* page, const QString & label);
 	int count() const { return _tab_bar->count(); }
@@ -197,15 +198,12 @@ public:
 	bool is_project_modified() { return _project_modified; }
 	bool is_project_untitled() { return _project_untitled; }
 	Picviz::PVAD2GView* get_correlation() override { return _correlation; }
+	Picviz::PVRoot::correlations_t get_correlations() override { return get_root().get_correlations_for_scene(*get_scene()); }
 	void remove_workspace(int index, bool close_animation = true) override;
 
 	QList<Picviz::PVSource*> list_sources() const;
-
 protected:
 	void tabRemoved(int index) override;
-
-protected slots:
-	void update_correlations_list() override;
 
 signals:
 	void project_modified(bool, QString = QString());
@@ -246,6 +244,7 @@ public:
 
 public:
 	Picviz::PVAD2GView* get_correlation() override;
+	Picviz::PVRoot::correlations_t get_correlations() override { return get_root().get_correlations(); }
 	PVOpenWorkspace* current_workspace() const;
 	PVOpenWorkspace* current_workspace_or_create();
 
