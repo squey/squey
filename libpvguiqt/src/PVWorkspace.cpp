@@ -150,18 +150,6 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(PVViewDisplay* display
 		central_dock->setWindowTitle(display_dock->windowTitle());
 		display_dock->setWindowTitle(central_title);
 
-		// Exchange colors
-		QColor col1 = central_dock->get_view()->get_color();
-		QColor col2 = display_dock->get_view()->get_color();
-		QPalette Pal1(display_dock->palette());
-		Pal1.setColor(QPalette::Background, col1);
-		display_dock->setAutoFillBackground(true);
-		display_dock->setPalette(Pal1);
-		QPalette Pal2(central_dock->palette());
-		Pal2.setColor(QPalette::Background, col2);
-		central_dock->setAutoFillBackground(true);
-		central_dock->setPalette(Pal2);
-
 		// Exchange bold
 		central_dock->setStyleSheet("QDockWidget { font: bold }");
 		display_dock->setStyleSheet("");
@@ -179,6 +167,18 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(PVViewDisplay* display
 		central_dock->register_view(display_view);
 		display_dock->set_view(central_view);
 		display_dock->register_view(central_view);
+
+		// Exchange colors
+		QColor col1 = central_dock->get_view()->get_color();
+		QColor col2 = display_dock->get_view()->get_color();
+		QPalette Pal1(display_dock->palette());
+		Pal1.setColor(QPalette::Background, col2);
+		display_dock->setAutoFillBackground(true);
+		display_dock->setPalette(Pal1);
+		QPalette Pal2(central_dock->palette());
+		Pal2.setColor(QPalette::Background, col1);
+		central_dock->setAutoFillBackground(true);
+		central_dock->setPalette(Pal2);
 	}
 	else {
 		set_central_display(display_dock->get_view(), display_dock->widget(), display_dock->_name, display_dock->testAttribute(Qt::WA_DeleteOnClose));
