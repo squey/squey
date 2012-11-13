@@ -127,6 +127,11 @@ public:
 	bool is_empty_between(PVRow const a, PVRow const b) const;
 
 	/**
+	 * Select random lines
+	 */
+	void select_random();
+
+	/**
 	 * This is the copy operator
 	 * B = A
 	 *

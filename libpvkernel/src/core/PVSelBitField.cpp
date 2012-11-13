@@ -174,7 +174,6 @@ bool PVCore::PVSelBitField::is_empty_between(PVRow const a, PVRow b) const
 	return (_table[chunk_end] << (PICVIZ_SELECTION_CHUNK_SIZE-line_index_to_chunk_bit(b)-1)) == 0;
 }
 
-
 /******************************************************************************
  *
  * PVCore::PVSelBitField::operator=
@@ -506,6 +505,18 @@ void PVCore::PVSelBitField::select_all()
 	}
 	memset(_table, 0xFF, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }
+
+void PVCore::PVSelBitField::select_random()
+{
+	if (!_table) {
+		allocate_table();
+	}
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		_table[i] = (uint64_t) (rand()) | ((uint64_t)(rand()) << 32);
+	}
+}
+
+
 
 /******************************************************************************
  *
