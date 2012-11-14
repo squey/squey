@@ -87,6 +87,14 @@ public:
 	}
 };
 
+static __attribute__((noinline)) void __check__t()
+{
+	// License validity test : it's a simple "time" check
+	if (time(NULL) >= CUSTOMER_RELEASE_EXPIRATION_DATE) {
+		exit(0);
+	}
+}
+
 namespace bpo = boost::program_options;
 
 int main(int argc, char *argv[])
@@ -139,6 +147,8 @@ int main(int argc, char *argv[])
 			files.push_back(QString::fromLocal8Bit(it->c_str(), it->size()));
 		}
 	}
+
+	__check__t();
 
 #ifdef CUDA
 	PVParallelView::common::init_cuda();

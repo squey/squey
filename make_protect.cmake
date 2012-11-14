@@ -14,10 +14,13 @@ SRCDIR=@CMAKE_CURRENT_SOURCE_DIR@
 echo "" >"$BINDIR/gui-qt/src/gen_table.c"
 #CC=icecc && CXX=icecc cmake -DPROTECT_PASS=1 . ||exit $?
 #cmake -DPROTECT_PASS=1 . ||exit $?
+make -j$1
+
+export CCACHE_DISABLE=1
 touch "$SRCDIR/gui-qt/src/main.cpp"
 make -j$1
 make -j$1
-make -j$1
+
 make ||exit $?
 
 cd "$BINDIR/gui-qt/src"
