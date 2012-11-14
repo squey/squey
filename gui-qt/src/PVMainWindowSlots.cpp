@@ -520,9 +520,11 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 
 	QList<Picviz::PVScene_p> scenes = get_root().get_children();
 
+	bool new_scene = false;
 	if (scenes.size() == 0) {
 		// No loaded project: create a new one and load the source
 		scene_p = project_new_Slot();
+		new_scene = true;
 	}
 	else if (scenes.size() == 1) {
 		// Only one project loaded: use it to load the source
@@ -548,6 +550,9 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 		 src_p = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc);
 	}
 	catch (PVRush::PVInputException const& e) {
+		if (new_scene) {
+			_projects_tab_widget->remove_project(_projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get()));
+		}
 		QMessageBox::critical(this, tr("Fatal error while loading source..."), tr("Fatal error while loading source: %1").arg(e.what().c_str()));
 		return;
 
