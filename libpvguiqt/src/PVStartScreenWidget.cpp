@@ -461,7 +461,8 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 		}
 		case PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS:
 		{
-			emit edit_format(var.toString());
+			PVRush::PVFormat format = var.value<PVRush::PVFormat>();
+			emit edit_format(format.get_full_path());
 			break;
 		}
 		default:
