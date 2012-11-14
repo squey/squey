@@ -103,8 +103,7 @@ QLabel* PVInspector::PVMappingPlottingEditDialog::create_label(QString const& te
  * PVInspector::PVMappingPlottingEditDialog::finish_layout
  *
  *****************************************************************************/
-void PVInspector::PVMappingPlottingEditDialog::
-()
+void PVInspector::PVMappingPlottingEditDialog::finish_layout()
 {
 	PVLOG_DEBUG("PVInspector::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
 	

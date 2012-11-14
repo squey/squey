@@ -121,7 +121,7 @@ void PVWidgets::PVMappingModeWidget::change_params()
 	}
 
 	// Get argument from the properties and modify them
-	PVCore::PVArgumentList args = _props->get_args();
+	PVCore::PVArgumentList args = _cur_filter_params;
 	if (args.size() == 0) {
 		return;
 	}
