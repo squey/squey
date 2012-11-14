@@ -102,7 +102,7 @@ private:
 	size_t     _index;
 };
 
-void filter_indexes(QVector<PVRow> const& src_idxes_in, QVector<PVRow>& src_idxes_out, Picviz::PVSelection const* sel, size_t n)
+void filter_indexes_ref(QVector<PVRow> const& src_idxes_in, QVector<PVRow>& src_idxes_out, Picviz::PVSelection const* sel, size_t n)
 {
 	src_idxes_out.clear();
 	const PVRow nvisible_lines = sel->get_number_of_selected_lines_in_range(0, n);
@@ -275,13 +275,18 @@ int main(int argc, char** argv)
 	sel.select_all();
 	{
 		BENCH_START(b);
-		filter_indexes(src_idxes_in, src_idxes_out, &sel, n);
-		BENCH_END(b, "full-selection", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
+		filter_indexes_ref(src_idxes_in, src_idxes_out, &sel, n);
+		BENCH_END(b, "full-selection_ref", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
 	}
 	{
 		BENCH_START(b);
 		filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
 		BENCH_END(b, "full-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+	}
+	if (src_idxes_out_2 == src_idxes_out) {
+		std::cout << "outputs are equal" << std::endl;
+	} else {
+		std::cout << "outputs differs" << std::endl;
 	}
 #ifdef TEST_OMP_TBC
 	{
@@ -289,11 +294,21 @@ int main(int argc, char** argv)
 		filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
 		BENCH_END(b, "full-selection_omp_tcv", n, sizeof(PVRow), src_idxes_out_3.size(), sizeof(PVRow));
 	}
+	if (src_idxes_out_3 == src_idxes_out) {
+		std::cout << "outputs are equal" << std::endl;
+	} else {
+		std::cout << "outputs differs" << std::endl;
+	}
 #endif
 	{
 		BENCH_START(b);
 		filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
 		BENCH_END(b, "full-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+	}
+	if (src_idxes_out_2 == src_idxes_out) {
+		std::cout << "outputs are equal" << std::endl;
+	} else {
+		std::cout << "outputs differs" << std::endl;
 	}
 
 	// Create an "even" selection
@@ -302,13 +317,18 @@ int main(int argc, char** argv)
 	sel.select_even();
 	{
 		BENCH_START(b);
-		filter_indexes(src_idxes_in, src_idxes_out, &sel, n);
-		BENCH_END(b, "even-selection", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
+		filter_indexes_ref(src_idxes_in, src_idxes_out, &sel, n);
+		BENCH_END(b, "even-selection_ref", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
 	}
 	{
 		BENCH_START(b);
 		filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
 		BENCH_END(b, "even-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+	}
+	if (src_idxes_out_2 == src_idxes_out) {
+		std::cout << "outputs are equal" << std::endl;
+	} else {
+		std::cout << "outputs differs" << std::endl;
 	}
 #ifdef TEST_OMP_TBC
 	{
@@ -316,11 +336,21 @@ int main(int argc, char** argv)
 		filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
 		BENCH_END(b, "even-selection_omp_tcv", n, sizeof(PVRow), src_idxes_out_3.size(), sizeof(PVRow));
 	}
+	if (src_idxes_out_3 == src_idxes_out) {
+		std::cout << "outputs are equal" << std::endl;
+	} else {
+		std::cout << "outputs differs" << std::endl;
+	}
 #endif
 	{
 		BENCH_START(b);
 		filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
 		BENCH_END(b, "even-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+	}
+	if (src_idxes_out_2 == src_idxes_out) {
+		std::cout << "outputs are equal" << std::endl;
+	} else {
+		std::cout << "outputs differs" << std::endl;
 	}
 
 	// Create a random selection
@@ -329,13 +359,18 @@ int main(int argc, char** argv)
 	sel.select_random();
 	{
 		BENCH_START(b);
-		filter_indexes(src_idxes_in, src_idxes_out, &sel, n);
-		BENCH_END(b, "rand-selection", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
+		filter_indexes_ref(src_idxes_in, src_idxes_out, &sel, n);
+		BENCH_END(b, "rand-selection_ref", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
 	}
 	{
 		BENCH_START(b);
 		filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
 		BENCH_END(b, "rand-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+	}
+	if (src_idxes_out_2 == src_idxes_out) {
+		std::cout << "outputs are equal" << std::endl;
+	} else {
+		std::cout << "outputs differs" << std::endl;
 	}
 #ifdef TEST_OMP_TBC
 	{
@@ -343,11 +378,21 @@ int main(int argc, char** argv)
 		filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
 		BENCH_END(b, "rand-selection_omp_tcv", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out_3.size());
 	}
+	if (src_idxes_out_3 == src_idxes_out) {
+		std::cout << "outputs are equal" << std::endl;
+	} else {
+		std::cout << "outputs differs" << std::endl;
+	}
 #endif
 	{
 		BENCH_START(b);
 		filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
 		BENCH_END(b, "rand-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+	}
+	if (src_idxes_out_2 == src_idxes_out) {
+		std::cout << "outputs are equal" << std::endl;
+	} else {
+		std::cout << "outputs differs" << std::endl;
 	}
 
 	// Create an empty selection
@@ -356,13 +401,18 @@ int main(int argc, char** argv)
 	sel.select_none();
 	{
 		BENCH_START(b);
-		filter_indexes(src_idxes_in, src_idxes_out, &sel, n);
-		BENCH_END(b, "empty-selection", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
+		filter_indexes_ref(src_idxes_in, src_idxes_out, &sel, n);
+		BENCH_END(b, "empty-selection_ref", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
 	}
 	{
 		BENCH_START(b);
 		filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
 		BENCH_END(b, "empty-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+	}
+	if (src_idxes_out_2 == src_idxes_out) {
+		std::cout << "outputs are equal" << std::endl;
+	} else {
+		std::cout << "outputs differs" << std::endl;
 	}
 #ifdef TEST_OMP_TBC
 	{
@@ -370,11 +420,21 @@ int main(int argc, char** argv)
 		filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
 		BENCH_END(b, "empty-selection_omp_tcv", n, sizeof(PVRow), src_idxes_out_3.size(), sizeof(PVRow));
 	}
+	if (src_idxes_out_3 == src_idxes_out) {
+		std::cout << "outputs are equal" << std::endl;
+	} else {
+		std::cout << "outputs differs" << std::endl;
+	}
 #endif
 	{
 		BENCH_START(b);
 		filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
 		BENCH_END(b, "empty-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+	}
+	if (src_idxes_out_2 == src_idxes_out) {
+		std::cout << "outputs are equal" << std::endl;
+	} else {
+		std::cout << "outputs differs" << std::endl;
 	}
 
 	return 0;
