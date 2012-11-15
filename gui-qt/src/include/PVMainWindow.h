@@ -365,6 +365,7 @@ private:
 	bool is_solution_untitled() const { return get_solution_path().isEmpty(); }
 	void save_solution(QString const& file, PVCore::PVSerializeArchiveOptions_p const& options);
 	void reset_root();
+	void close_solution();
 
 signals:
 	void change_of_current_view_Signal();

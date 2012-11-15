@@ -1911,6 +1911,15 @@ void PVInspector::PVMainWindow::reset_root()
 	get_root().remove_all_children();
 }
 
+void PVInspector::PVMainWindow::close_solution()
+{
+	if (!maybe_save_solution()) {
+		return;
+	}
+	_root.reset(new Picviz::PVRoot());
+	set_window_title_with_filename();
+}
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::update_statemachine_label
