@@ -15,7 +15,7 @@ set(LINK_LIBRARIES pvdisplays picviz pvhive pvkernel ${QT_LIBRARIES} ${GLEW_LIBR
 
 # CUDA
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
-set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC -gencode arch=compute_20,code=sm_20" "-Xptxas=-v")
+set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC -gencode ${CMAKE_NVCC_ARCH_FLAGS}" "-Xptxas=-v")
 #set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC -gencode arch=compute_30,code=sm_30" "-Xptxas=-v")
 #set(CUDA_NVCC_FLAGS "-g -G -Xcompiler=-fPIC -gencode arch=compute_20,code=sm_20" "-Xptxas=-v")
 
