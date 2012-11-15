@@ -13,8 +13,14 @@
 
 #include <omp.h>
 
+#define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
+#include <tbb/parallel_reduce.h>
+#include <tbb/task_scheduler_init.h>
+
 // #define TEST_OMP_TBC
 
+/*****************************************************************************
+ */
 template <typename T>
 class Buffer
 {
@@ -102,6 +108,63 @@ private:
 	size_t     _index;
 };
 
+template <typename T>
+class FilterIndexes
+{
+public:
+	typedef Buffer<T> buffer_t;
+	typedef tbb::blocked_range<size_t> blocked_range;
+
+public:
+	FilterIndexes() : _count(0)
+	{}
+
+	FilterIndexes(buffer_t const& src_idxes_in, buffer_t& src_idxes_out, Picviz::PVSelection const* sel) :
+		_offset(0), _count(0),
+		_in(src_idxes_in), _out(src_idxes_out), _sel(sel)
+	{}
+
+	FilterIndexes(FilterIndexes& s, tbb::split) :
+		_offset(0), _count(0),
+		_in(s._in), _out(s._out), _sel(s._sel)
+	{}
+
+	size_t get_count()
+	{
+		return _count;
+	}
+
+	void operator()(const blocked_range& r)
+	{
+		size_t offset = _offset = r.begin();
+		for(size_t i = r.begin(); i != r.end(); ++i) {
+			const PVRow line = _in.at(i);
+			if (_sel->get_line(line)) {
+				_out.at(offset) = line;
+				++_count;
+				++offset;
+			}
+		}
+	}
+
+	void join(FilterIndexes& rhs)
+	{
+		memmove(_out.get() + _offset + _count,
+		        _out.get() + rhs._offset, sizeof(T) * rhs._count);
+		_count += rhs._count;
+	}
+
+private:
+	size_t                     _offset;
+	size_t                     _count;
+	const buffer_t            &_in;
+	buffer_t                  &_out;
+	const Picviz::PVSelection *_sel;
+
+};
+
+/*****************************************************************************
+ */
 void filter_indexes_ref(QVector<PVRow> const& src_idxes_in, QVector<PVRow>& src_idxes_out, Picviz::PVSelection const* sel, size_t n)
 {
 	src_idxes_out.clear();
@@ -226,17 +289,51 @@ void filter_indexes_omp_4buf(vector_t const& src_idxes_in, vector_t &src_idxes_o
 	src_idxes_out.set_size(offset);
 }
 
+void filter_indexes_par_red(Buffer<PVRow> const& src_idxes_in, Buffer<PVRow>& src_idxes_out, Picviz::PVSelection const* sel,
+                            size_t n, int thread_num, size_t block_num = 0)
+{
+	const PVRow nvisible_lines = sel->get_number_of_selected_lines_in_range(0, n);
+	if (nvisible_lines == 0) {
+		return;
+	} else if (nvisible_lines == n) {
+		src_idxes_out = src_idxes_in;
+		return;
+	}
+
+	src_idxes_out.reserve(src_idxes_in.size());
+
+	typedef FilterIndexes<PVRow> filter_indexes_t;
+
+	tbb::task_scheduler_init init(thread_num);
+
+	if (block_num == 0) {
+		block_num = thread_num;
+	}
+
+	filter_indexes_t fi(src_idxes_in, src_idxes_out, sel);
+	tbb::parallel_deterministic_reduce(filter_indexes_t::blocked_range(0, n, n / block_num), fi);
+	src_idxes_out.set_size(fi.get_count());
+}
+
 int main(int argc, char** argv)
 {
 	// Simulate PVGuiQt::PVListingSortFilterProxyModel::filter_source_indexes in order
-	// to benchmark its performance.
-	
-	if (argc < 2) {
-		std::cerr << "Usage: " << argv[0] << " row_count" << std::endl;
+	// to benchmark its performance and experiment other methods
+
+	if ((argc != 3) && (argc != 4)) {
+		std::cerr << "Usage: " << argv[0] << " row_count num_thread [block_num]" << std::endl;
 		return 1;
 	}
 
+	srand(0);
 	size_t n = atoll(argv[1]);
+	size_t thread_num = atoll(argv[2]);
+
+	size_t block_num = 0;
+
+	if (argc == 4) {
+		block_num = atoll(argv[3]);
+	}
 
 	for(int i = 0; i < 4; ++i) {
 		local_buffer[i] = new PVRow [n];
@@ -246,14 +343,20 @@ int main(int argc, char** argv)
 	QVector<PVRow> src_idxes_in;
 	src_idxes_in.reserve(n);
 
-	std::cout << "##############################################################################" << std::endl;
-	std::cout << "#" << std::endl;
+	if (block_num == 0) {
+		std::cout << "##############################################################################" << std::endl;
+		std::cout << "#" << std::endl;
+	}
 
 	BENCH_START(b0);
 	for (size_t i = 0; i < n; i++) {
 		src_idxes_in.push_back(i);
 	}
-	BENCH_END(b0, "vector filling w/ continous indexes", 1, 1, n, sizeof(PVRow));
+	BENCH_STOP(b0);
+
+	if (block_num == 0) {
+		BENCH_SHOW(b0, "vector filling w/ continous indexes", 1, 1, n, sizeof(PVRow));
+	}
 
 	vector_t src_idxes_in_2;
 	src_idxes_in_2.reserve(n);
@@ -262,7 +365,10 @@ int main(int argc, char** argv)
 	for (size_t i = 0; i < n; i++) {
 		src_idxes_in_2.push_back(i);
 	}
-	BENCH_END(b1, "vector_simple filling w/ continous indexes", 1, 1, n, sizeof(PVRow));
+	BENCH_STOP(b1);
+	if (block_num == 0) {
+		BENCH_SHOW(b1, "vector_simple filling w/ continous indexes", 1, 1, n, sizeof(PVRow));
+	}
 
 	QVector<PVRow> src_idxes_out;
 	vector_t src_idxes_out_2;
@@ -270,171 +376,227 @@ int main(int argc, char** argv)
 
 	Picviz::PVSelection sel;
 	// Create a full selection
-	std::cout << "##############################################################################" << std::endl;
-	std::cout << "#" << std::endl;
-	sel.select_all();
-	{
-		BENCH_START(b);
-		filter_indexes_ref(src_idxes_in, src_idxes_out, &sel, n);
-		BENCH_END(b, "full-selection_ref", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
-	}
-	{
-		BENCH_START(b);
-		filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
-		BENCH_END(b, "full-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
-	}
-	if (src_idxes_out_2 == src_idxes_out) {
-		std::cout << "outputs are equal" << std::endl;
-	} else {
-		std::cout << "outputs differs" << std::endl;
-	}
+	if (block_num == 0) {
+		std::cout << "##############################################################################" << std::endl;
+		std::cout << "#" << std::endl;
+		sel.select_all();
+		{
+			BENCH_START(b);
+			filter_indexes_ref(src_idxes_in, src_idxes_out, &sel, n);
+			BENCH_END(b, "full-selection_ref", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
+		}
+		{
+			BENCH_START(b);
+			filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
+			BENCH_END(b, "full-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_2 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
 #ifdef TEST_OMP_TBC
-	{
-		BENCH_START(b);
-		filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
-		BENCH_END(b, "full-selection_omp_tcv", n, sizeof(PVRow), src_idxes_out_3.size(), sizeof(PVRow));
-	}
-	if (src_idxes_out_3 == src_idxes_out) {
-		std::cout << "outputs are equal" << std::endl;
-	} else {
-		std::cout << "outputs differs" << std::endl;
-	}
+		{
+			BENCH_START(b);
+			filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
+			BENCH_END(b, "full-selection_omp_tcv", n, sizeof(PVRow), src_idxes_out_3.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_3 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
 #endif
-	{
-		BENCH_START(b);
-		filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
-		BENCH_END(b, "full-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
-	}
-	if (src_idxes_out_2 == src_idxes_out) {
-		std::cout << "outputs are equal" << std::endl;
-	} else {
-		std::cout << "outputs differs" << std::endl;
+		{
+			BENCH_START(b);
+			filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
+			BENCH_END(b, "full-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_2 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
+		{
+			BENCH_START(b);
+			filter_indexes_par_red(src_idxes_in_2, src_idxes_out_2, &sel, n, thread_num);
+			BENCH_END(b, "full-selection_par_red", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_2 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
 	}
 
 	// Create an "even" selection
-	std::cout << "##############################################################################" << std::endl;
-	std::cout << "#" << std::endl;
 	sel.select_even();
-	{
+	if (block_num == 0) {
+		std::cout << "##############################################################################" << std::endl;
+		std::cout << "#" << std::endl;
+	}
+	if (thread_num == 1) {
 		BENCH_START(b);
 		filter_indexes_ref(src_idxes_in, src_idxes_out, &sel, n);
 		BENCH_END(b, "even-selection_ref", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
 	}
-	{
-		BENCH_START(b);
-		filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
-		BENCH_END(b, "even-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
-	}
-	if (src_idxes_out_2 == src_idxes_out) {
-		std::cout << "outputs are equal" << std::endl;
-	} else {
-		std::cout << "outputs differs" << std::endl;
-	}
+	if (block_num == 0) {
+		{
+			BENCH_START(b);
+			filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
+			BENCH_END(b, "even-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_2 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
 #ifdef TEST_OMP_TBC
-	{
-		BENCH_START(b);
-		filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
-		BENCH_END(b, "even-selection_omp_tcv", n, sizeof(PVRow), src_idxes_out_3.size(), sizeof(PVRow));
-	}
-	if (src_idxes_out_3 == src_idxes_out) {
-		std::cout << "outputs are equal" << std::endl;
-	} else {
-		std::cout << "outputs differs" << std::endl;
-	}
+		{
+			BENCH_START(b);
+			filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
+			BENCH_END(b, "even-selection_omp_tcv", n, sizeof(PVRow), src_idxes_out_3.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_3 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
 #endif
-	{
-		BENCH_START(b);
-		filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
-		BENCH_END(b, "even-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+		{
+			BENCH_START(b);
+			filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
+			BENCH_END(b, "even-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_2 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
 	}
-	if (src_idxes_out_2 == src_idxes_out) {
-		std::cout << "outputs are equal" << std::endl;
-	} else {
-		std::cout << "outputs differs" << std::endl;
+	if (thread_num != 1) {
+		BENCH_START(b);
+		if (block_num) {
+			filter_indexes_par_red(src_idxes_in_2, src_idxes_out_2, &sel, n, thread_num, block_num);
+		} else {
+			filter_indexes_par_red(src_idxes_in_2, src_idxes_out_2, &sel, n, thread_num);
+		}
+		BENCH_END(b, "even-selection_par_red", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+	}
+	if (block_num == 0) {
+		if (src_idxes_out_2 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
 	}
 
 	// Create a random selection
-	std::cout << "##############################################################################" << std::endl;
-	std::cout << "#" << std::endl;
-	sel.select_random();
-	{
-		BENCH_START(b);
-		filter_indexes_ref(src_idxes_in, src_idxes_out, &sel, n);
-		BENCH_END(b, "rand-selection_ref", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
-	}
-	{
-		BENCH_START(b);
-		filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
-		BENCH_END(b, "rand-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
-	}
-	if (src_idxes_out_2 == src_idxes_out) {
-		std::cout << "outputs are equal" << std::endl;
-	} else {
-		std::cout << "outputs differs" << std::endl;
-	}
+	if (block_num == 0) {
+		std::cout << "##############################################################################" << std::endl;
+		std::cout << "#" << std::endl;
+		sel.select_random();
+		{
+			BENCH_START(b);
+			filter_indexes_ref(src_idxes_in, src_idxes_out, &sel, n);
+			BENCH_END(b, "rand-selection_ref", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
+		}
+		{
+			BENCH_START(b);
+			filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
+			BENCH_END(b, "rand-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_2 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
 #ifdef TEST_OMP_TBC
-	{
-		BENCH_START(b);
-		filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
-		BENCH_END(b, "rand-selection_omp_tcv", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out_3.size());
-	}
-	if (src_idxes_out_3 == src_idxes_out) {
-		std::cout << "outputs are equal" << std::endl;
-	} else {
-		std::cout << "outputs differs" << std::endl;
-	}
+		{
+			BENCH_START(b);
+			filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
+			BENCH_END(b, "rand-selection_omp_tcv", sizeof(PVRow), n, sizeof(PVRow), src_idxes_out_3.size());
+		}
+		if (src_idxes_out_3 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
 #endif
-	{
-		BENCH_START(b);
-		filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
-		BENCH_END(b, "rand-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
-	}
-	if (src_idxes_out_2 == src_idxes_out) {
-		std::cout << "outputs are equal" << std::endl;
-	} else {
-		std::cout << "outputs differs" << std::endl;
+		{
+			BENCH_START(b);
+			filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
+			BENCH_END(b, "rand-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_2 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
+		{
+			BENCH_START(b);
+			filter_indexes_par_red(src_idxes_in_2, src_idxes_out_2, &sel, n, thread_num);
+			BENCH_END(b, "rand-selection_par_red", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_2 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
 	}
 
 	// Create an empty selection
-	std::cout << "##############################################################################" << std::endl;
-	std::cout << "#" << std::endl;
-	sel.select_none();
-	{
-		BENCH_START(b);
-		filter_indexes_ref(src_idxes_in, src_idxes_out, &sel, n);
-		BENCH_END(b, "empty-selection_ref", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
-	}
-	{
-		BENCH_START(b);
-		filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
-		BENCH_END(b, "empty-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
-	}
-	if (src_idxes_out_2 == src_idxes_out) {
-		std::cout << "outputs are equal" << std::endl;
-	} else {
-		std::cout << "outputs differs" << std::endl;
-	}
+	if (block_num == 0) {
+		std::cout << "##############################################################################" << std::endl;
+		std::cout << "#" << std::endl;
+		sel.select_none();
+		{
+			BENCH_START(b);
+			filter_indexes_ref(src_idxes_in, src_idxes_out, &sel, n);
+			BENCH_END(b, "empty-selection_ref", n, sizeof(PVRow), src_idxes_out.size(), sizeof(PVRow));
+		}
+		{
+			BENCH_START(b);
+			filter_indexes_simple(src_idxes_in_2, src_idxes_out_2, &sel, n);
+			BENCH_END(b, "empty-selection_simple", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_2 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
 #ifdef TEST_OMP_TBC
-	{
-		BENCH_START(b);
-		filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
-		BENCH_END(b, "empty-selection_omp_tcv", n, sizeof(PVRow), src_idxes_out_3.size(), sizeof(PVRow));
-	}
-	if (src_idxes_out_3 == src_idxes_out) {
-		std::cout << "outputs are equal" << std::endl;
-	} else {
-		std::cout << "outputs differs" << std::endl;
-	}
+		{
+			BENCH_START(b);
+			filter_indexes_omp_tcv(src_idxes_in, src_idxes_out_3, &sel, n);
+			BENCH_END(b, "empty-selection_omp_tcv", n, sizeof(PVRow), src_idxes_out_3.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_3 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
 #endif
-	{
-		BENCH_START(b);
-		filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
-		BENCH_END(b, "empty-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
-	}
-	if (src_idxes_out_2 == src_idxes_out) {
-		std::cout << "outputs are equal" << std::endl;
-	} else {
-		std::cout << "outputs differs" << std::endl;
+		{
+			BENCH_START(b);
+			filter_indexes_omp_4buf(src_idxes_in_2, src_idxes_out_2, &sel, n);
+			BENCH_END(b, "empty-selection_omp_4buf", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_2 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
+		{
+			BENCH_START(b);
+			filter_indexes_par_red(src_idxes_in_2, src_idxes_out_2, &sel, n, thread_num);
+			BENCH_END(b, "empty-selection_par_red", n, sizeof(PVRow), src_idxes_out_2.size(), sizeof(PVRow));
+		}
+		if (src_idxes_out_2 == src_idxes_out) {
+			std::cout << "outputs are equal" << std::endl;
+		} else {
+			std::cout << "outputs differs" << std::endl;
+		}
 	}
 
 	return 0;

@@ -66,9 +66,15 @@ private:
 	
 	struct ZoneWidthWithZoomLevel
 	{
+		constexpr static int zoom_divisor = 5;
+		constexpr static int32_t default_base_width = 64;
+		constexpr static double zoom_root_value = pow(2.0, 1.0 / zoom_divisor);
+		constexpr static int32_t min_zoom_level = (log2(PARALLELVIEW_ZONE_MIN_WIDTH) - log2(default_base_width)) * zoom_divisor;
+		constexpr static int32_t max_zoom_level = (log2(PARALLELVIEW_ZONE_MAX_WIDTH) - log2(default_base_width)) * zoom_divisor;
+
 		ZoneWidthWithZoomLevel()
 		{
-			_base_width = 64;
+			_base_width = default_base_width;
 			_base_zoom_level = 0;
 		}
 		
@@ -82,7 +88,8 @@ private:
 		
 		int16_t get_base_zoom_level();
 		int16_t get_base_width();
-		uint32_t get_width(int16_t global_zoom_level) const;
+
+		uint32_t get_width() const;
 		
 		void increase_zoom_level();
 		
@@ -210,8 +217,6 @@ private:
 
 	PVZoneID _first_zone;
 	
-	int16_t _global_zoom_level;
-
 	QObject* _img_update_receiver;
 
 	list_zone_images_t _list_of_single_zone_images;

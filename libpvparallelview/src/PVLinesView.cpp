@@ -24,7 +24,6 @@
 PVParallelView::PVLinesView::PVLinesView(PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg, QObject* img_update_receiver, uint32_t zone_width):
 	_backend(backend),
 	_first_zone(0),
-	_global_zoom_level(0),
 	_img_update_receiver(img_update_receiver),
 	_processor_sel(zp_sel),
 	_processor_bg(zp_bg),
@@ -103,8 +102,8 @@ void PVParallelView::PVLinesView::decrease_base_zoom_level_of_zone(PVZoneID zone
  *****************************************************************************/
 void PVParallelView::PVLinesView::decrease_global_zoom_level()
 {
-	if (_global_zoom_level > -10000) {
-		--_global_zoom_level;
+	for(ZoneWidthWithZoomLevel &z: _list_of_zone_width_with_zoom_level) {
+		z.decrease_zoom_level();
 	}
 }
 
@@ -323,7 +322,7 @@ uint32_t PVParallelView::PVLinesView::get_zone_width(PVZoneID zone_id) const
  {
 	 assert(zone_id < (PVZoneID) _zones_width.size());
 	 
-	 uint32_t width = _list_of_zone_width_with_zoom_level[zone_id].get_width(_global_zoom_level);
+	 uint32_t width = _list_of_zone_width_with_zoom_level[zone_id].get_width();
 	 
 	 return width;	
 }
@@ -347,8 +346,8 @@ void PVParallelView::PVLinesView::increase_base_zoom_level_of_zone(PVZoneID zone
  *****************************************************************************/
 void PVParallelView::PVLinesView::increase_global_zoom_level()
 {
-	if (_global_zoom_level < 10000) {
-		++_global_zoom_level;
+	for(ZoneWidthWithZoomLevel &z: _list_of_zone_width_with_zoom_level) {
+		z.increase_zoom_level();
 	}
 }
 
@@ -774,7 +773,7 @@ void PVParallelView::PVLinesView::SingleZoneImages::set_width(uint32_t width)
  *****************************************************************************/
 void PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::decrease_zoom_level()
 {
-	if (_base_zoom_level > -10000) {
+	if (_base_zoom_level > min_zoom_level) {
 		--_base_zoom_level;
 	}
 }
@@ -804,20 +803,24 @@ int16_t PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_base_width()
  * PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_width
  *
  *****************************************************************************/
-uint32_t PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_width(int16_t global_zoom_level) const
+uint32_t PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_width() const
 {
 	// We compute the current real zoom level
-	int32_t zoom_level = global_zoom_level + _base_zoom_level;
+	int32_t zoom_level = PVCore::clamp((int32_t)_base_zoom_level,
+	                                   min_zoom_level, max_zoom_level);
+
 	// We compute the quotient and remainder modulo 5
-	int32_t primary_zoom_level = zoom_level / 5;  // this one for the powers of 2
-	int32_t secondary_zoom_level = zoom_level %5;  // this one is for the powers of the 5th root of 2.
-	
+	int32_t primary_zoom_level = zoom_level / zoom_divisor;  // this one for the powers of 2
+	int32_t secondary_zoom_level = zoom_level % zoom_divisor;  // this one is for the powers of the 5th root of 2.
+
 	// We compute the width without Min or Max constraints
-	float alpha = 1.148698355;
-	uint32_t brut_width = _base_width * pow(2.0, primary_zoom_level) * pow(alpha, secondary_zoom_level);
+	uint32_t brut_width = _base_width * pow(2.0, primary_zoom_level) * pow(zoom_root_value, secondary_zoom_level);
+
 	// We clamp the value before returning anything...
-	uint32_t clamped_width = PVCore::clamp(brut_width, (uint32_t) PVParallelView::ZoneMinWidth, (uint32_t) PVParallelView::ZoneMaxWidth);
-	
+	uint32_t clamped_width = PVCore::clamp(brut_width,
+	                                       (uint32_t) PVParallelView::ZoneMinWidth,
+	                                       (uint32_t) PVParallelView::ZoneMaxWidth);
+
 	return clamped_width;
 }
 
@@ -828,7 +831,7 @@ uint32_t PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_width(int16_t 
  *****************************************************************************/
 void PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::increase_zoom_level()
 {
-	if (_base_zoom_level < 10000) {
+	if (_base_zoom_level <= max_zoom_level) {
 		++_base_zoom_level;
 	}
 }

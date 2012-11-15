@@ -25,6 +25,13 @@ if (NOT DEFINED CMAKE_CXX_ARCH_FLAGS)
 	message(STATUS "CMAKE_CXX_ARCH_FLAGS isn't set. Flag has been guessed to ${CMAKE_CXX_ARCH_FLAGS}")
 endif()
 
+if (NOT DEFINED CMAKE_NVCC_ARCH_FLAGS)
+	# Use "arch=compute_20,code=sm_20" by default
+	# TODO: should guess thanks to nvcc!
+	set(CMAKE_NVCC_ARCH_FLAGS "arch=compute_20,code=sm_20")
+	message(STATUS "CMAKE_NVCC_ARCH_FLAGS isn't set. Flag has been set to '${CMAKE_NVCC_ARCH_FLAGS}' by default.")
+endif()
+
 # Set default values for capabilities
 if (NOT DEFINED USER_TARGET)
 	set(USER_TARGET "developer")
