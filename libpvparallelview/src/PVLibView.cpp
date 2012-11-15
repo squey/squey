@@ -112,7 +112,7 @@ void PVParallelView::PVLibView::common_init_zm()
 
 	_processor_bg = PVZonesProcessor::declare_background_processor_zm_sel(common::pipeline(), _zones_manager,
 		colors,
-		lib_view()->get_output_layer().get_selection());
+		lib_view()->get_layer_stack_output_layer().get_selection());
 }
 
 PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidget* parent)
