@@ -629,6 +629,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones_async()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent* event)
 {
+#if 0
 	QRectF old_scene_rect = sceneRect();
 	QRectF items_bbox = itemsBoundingRect();
 	
@@ -671,7 +672,47 @@ void PVParallelView::PVFullParallelScene::update_scene(QGraphicsSceneWheelEvent*
 	qreal new_center_y = items_bbox.top() + screen_rect.center().y();
 
 	_full_parallel_view->centerOn(new_center_x, new_center_y);
+#else
+	QRectF old_scene_rect = sceneRect();
+	QRectF items_bbox = itemsBoundingRect();
 
+	QRectF new_scene_rect(_lines_view.get_left_border_position_of_zone_in_scene(0) - 0.9*_full_parallel_view->width(), items_bbox.top(),
+	                      _lines_view.get_right_border_position_of_zone_in_scene(_lines_view.get_number_of_managed_zones()-1) + 1.8*_full_parallel_view->width(), items_bbox.height() + SCENE_MARGIN);
+
+
+	if (old_scene_rect.width() == new_scene_rect.width()) {
+		/* QGraphicsView::centerOn(...) is not stable:
+		 * centerOn(scene_center) may differ from scene_center. Thx Qt's guys!
+		 */
+		return;
+	}
+
+	QRect screen_rect = _full_parallel_view->viewport()->rect();
+	qreal old_center_x = _full_parallel_view->mapToScene(screen_rect.center()).x();
+
+	// center's ordinate must always show axes names
+	qreal new_center_y = items_bbox.top() + screen_rect.center().y();
+
+	if (event == nullptr) {
+		// it's a resize event, recentering the view on its x old center
+		_full_parallel_view->centerOn(old_center_x, new_center_y);
+		return;
+	}
+
+	qreal old_mouse_x = event->scenePos().x();
+
+	// set scene's bounding box because Qt never shrinks the sceneRect (see Qt Doc)
+	setSceneRect(new_scene_rect);
+
+	qreal new_center_x;
+
+	qreal dx = old_center_x - old_mouse_x;
+	qreal scale = (qreal)old_scene_rect.width() / (qreal)new_scene_rect.width();
+
+	new_center_x = old_center_x + dx * scale;
+
+	_full_parallel_view->centerOn(new_center_x, new_center_y);
+#endif
 }
 
 /******************************************************************************
