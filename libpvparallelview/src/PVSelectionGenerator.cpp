@@ -25,7 +25,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZon
 	PVZoneTree const& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zone_id);
 	PVParallelView::PVBCode code_b;
 
-	sel.select_none();
 	if (rect.isNull()) {
 		return 0;
 	}

@@ -119,7 +119,12 @@ public:
 	PVZoneID get_number_of_managed_zones() const;
 	PVZoneID get_number_of_visible_zones() const { return _list_of_single_zone_images.size(); }
 
-	uint32_t get_right_border_position_of_zone_in_scene(PVZoneID zone_id) const;
+	int32_t get_left_border_of_scene() const { return get_left_border_position_of_zone_in_scene(0); }
+	int32_t get_right_border_of_scene() const
+	{
+		const PVZoneID last_z = get_number_of_managed_zones()-1;
+		return get_left_border_position_of_zone_in_scene(last_z) + 2*PVParallelView::AxisWidth + get_zone_width(last_z);
+	}
 
 	inline SingleZoneImages& get_single_zone_images(const PVZoneID zone_id) { return _list_of_single_zone_images[get_zone_index_offset(zone_id)]; }
 

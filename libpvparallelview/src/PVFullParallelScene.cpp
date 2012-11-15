@@ -634,8 +634,8 @@ void PVParallelView::PVFullParallelScene::update_scene(bool recenter_view)
 	QRectF old_scene_rect = sceneRect();
 	QRectF items_bbox = itemsBoundingRect();
 
-	QRectF new_scene_rect(_lines_view.get_left_border_position_of_zone_in_scene(0) - 0.9*_full_parallel_view->width(), items_bbox.top(),
-	                      _lines_view.get_right_border_position_of_zone_in_scene(_lines_view.get_number_of_managed_zones()-1) + 1.8*_full_parallel_view->width(), items_bbox.height() + SCENE_MARGIN);
+	QRectF new_scene_rect(_lines_view.get_left_border_of_scene() - 0.9*_full_parallel_view->width(), items_bbox.top(),
+	                      _lines_view.get_right_border_of_scene() + 1.8*_full_parallel_view->width(), items_bbox.height() + SCENE_MARGIN);
 
 
 	if (old_scene_rect.width() == new_scene_rect.width()) {
