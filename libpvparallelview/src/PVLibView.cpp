@@ -191,6 +191,7 @@ void PVParallelView::PVLibView::layer_stack_output_layer_updated()
 	// Invalidate all background-related preprocessing
 	for (PVZoneID z = 0; z < get_zones_manager().get_number_of_managed_zones(); z++) {
 		_processor_bg.invalidate_zone_preprocessing(z);
+		_processor_sel.invalidate_zone_preprocessing(z);
 	}
 }
 void PVParallelView::PVLibView::output_layer_updated()
