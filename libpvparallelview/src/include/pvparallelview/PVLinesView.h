@@ -89,7 +89,7 @@ private:
 		int16_t get_base_zoom_level();
 		int16_t get_base_width();
 
-		uint32_t get_width(int16_t global_zoom_level) const;
+		uint32_t get_width() const;
 		
 		void increase_zoom_level();
 		
@@ -217,8 +217,6 @@ private:
 
 	PVZoneID _first_zone;
 	
-	int16_t _global_zoom_level;
-
 	QObject* _img_update_receiver;
 
 	list_zone_images_t _list_of_single_zone_images;
