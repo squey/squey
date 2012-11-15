@@ -19,6 +19,8 @@
 
 #include <pvhive/PVCallHelper.h>
 
+#include <boost/integer/static_log2.hpp>
+
 namespace Picviz {
 class PVSelection;
 }
@@ -66,15 +68,10 @@ private:
 	
 	struct ZoneWidthWithZoomLevel
 	{
-		constexpr static int zoom_divisor = 5;
-		constexpr static int32_t default_base_width = 64;
-		constexpr static double zoom_root_value = pow(2.0, 1.0 / zoom_divisor);
-		constexpr static int32_t min_zoom_level = (log2(PARALLELVIEW_ZONE_MIN_WIDTH) - log2(default_base_width)) * zoom_divisor;
-		constexpr static int32_t max_zoom_level = (log2(PARALLELVIEW_ZONE_MAX_WIDTH) - log2(default_base_width)) * zoom_divisor;
 
 		ZoneWidthWithZoomLevel()
 		{
-			_base_width = default_base_width;
+			_base_width = PARALLELVIEW_BASE_ZONE_WIDTH;
 			_base_zoom_level = 0;
 		}
 		

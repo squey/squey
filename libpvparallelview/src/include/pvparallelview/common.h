@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <QMetaType>
 
+#include <boost/integer/static_log2.hpp>
+
 #define NBITS_INDEX 10
 #define NBUCKETS ((1UL<<(2*NBITS_INDEX)))
 
@@ -47,9 +49,16 @@
 
 // psaade : next value should be 128 according to aguinet, for the moment
 #define PARALLELVIEW_ZONE_MIN_WIDTH 16
+#define PARALLELVIEW_BASE_ZONE_WIDTH 64
 #define PARALLELVIEW_ZONE_DEFAULT_WIDTH 256
 #define PARALLELVIEW_ZONE_MAX_WIDTH 1024
 #define PARALLELVIEW_MAX_DRAWN_ZONES 30
+
+#ifndef __CUDACC__
+static_assert((1<<(boost::static_log2<PARALLELVIEW_ZONE_MIN_WIDTH>::value) == PARALLELVIEW_ZONE_MIN_WIDTH), "Must be a power of two");
+static_assert((1<<(boost::static_log2<PARALLELVIEW_BASE_ZONE_WIDTH>::value) == PARALLELVIEW_BASE_ZONE_WIDTH), "Must be a power of two");
+static_assert((1<<(boost::static_log2<PARALLELVIEW_ZONE_MAX_WIDTH>::value) == PARALLELVIEW_ZONE_MAX_WIDTH), "Must be a power of two");
+#endif
 
 #define MASK_INT_PLOTTED (~(1UL<<(32-NBITS_INDEX))-1)
 
