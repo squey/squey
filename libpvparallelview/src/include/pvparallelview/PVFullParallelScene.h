@@ -56,7 +56,7 @@ public:
 	void update_all_with_timer();
 
 	void update_viewport();
-	void update_scene(QGraphicsSceneWheelEvent* event = nullptr);
+	void update_scene(bool recenter_view);
 
 	void about_to_be_deleted();
 
