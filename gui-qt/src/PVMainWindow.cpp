@@ -121,7 +121,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	pv_ExportSelectionDialog = new PVExportSelectionDialog(this);
 	pv_ExportSelectionDialog->hide();
 
-	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(get_root());
+	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(&get_root());
 	_projects_tab_widget->show();
 	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_window_for_workspace(QWidget*)));
 	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(solution_new_Slot()));
@@ -133,7 +133,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	connect(_projects_tab_widget, SIGNAL(new_format()), this, SLOT(new_format_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_format()), this, SLOT(open_format_Slot()));
 	connect(_projects_tab_widget, SIGNAL(edit_format(const QString &)), this, SLOT(edit_format_Slot(const QString &)));
-	connect(_projects_tab_widget, SIGNAL(is_empty()), this, SLOT(display_icon_Slot()) );
+	connect(_projects_tab_widget, SIGNAL(is_empty()), this, SLOT(close_solution_Slot()) );
 
 	// We display the PV Icon together with a button to import files
 	pv_centralMainWidget = new QWidget();
@@ -591,8 +591,10 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
  * PVInspector::PVMainWindow::display_icon_Slot
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::display_icon_Slot()
+void PVInspector::PVMainWindow::close_solution_Slot()
 {
+	reset_root();
+	set_window_title_with_filename();
 	menu_activate_is_file_opened(false);
 }
 
@@ -1908,7 +1910,7 @@ int PVInspector::PVMainWindow::update_check()
 
 void PVInspector::PVMainWindow::reset_root()
 {
-	get_root().remove_all_children();
+	get_root().clear();
 }
 
 void PVInspector::PVMainWindow::close_solution()
@@ -1916,8 +1918,7 @@ void PVInspector::PVMainWindow::close_solution()
 	if (!maybe_save_solution()) {
 		return;
 	}
-	_root.reset(new Picviz::PVRoot());
-	set_window_title_with_filename();
+	close_solution_Slot();
 }
 
 /******************************************************************************

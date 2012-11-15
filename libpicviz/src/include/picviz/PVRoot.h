@@ -56,6 +56,8 @@ public:
 
 public:
 	bool is_empty() const { return get_children_count() == 0; }
+	void clear();
+	void reset_colors();
 
 public:
 	int32_t get_new_view_id();
@@ -143,7 +145,6 @@ private:
 
 	QList<QRgb> _available_colors;
 	QList<QRgb> _used_colors;
-	QRgb _view_colors[10] = { 0x9966CC, 0x6699CC, 0x778800, 0xFFCC66, 0x993366, 0x999999, 0x339999, 0xFF6633, 0x99FFCC, 0xFFFF99 } ;
 
 private:
 	int _new_view_id = 0;

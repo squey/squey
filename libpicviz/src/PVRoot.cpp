@@ -25,8 +25,7 @@ Picviz::PVRoot::PVRoot():
 	_current_view(nullptr),
 	_current_correlation(nullptr)
 {
-
-	_available_colors << 0x9966CC << 0x6699CC << 0x778800 << 0xFFCC66 << 0x993366 << 0x999999 << 0x339999 << 0xFF6633 << 0x99FFCC << 0xFFFF99;
+	reset_colors();
 }
 
 /******************************************************************************
@@ -38,6 +37,30 @@ Picviz::PVRoot::~PVRoot()
 {
 	remove_all_children();
 	PVLOG_INFO("In PVRoot destructor\n");
+}
+
+void Picviz::PVRoot::clear()
+{
+	remove_all_children();
+	_current_scene = nullptr;
+	_current_source = nullptr;
+	_current_view = nullptr;
+	_current_correlation = nullptr;
+	_correlations.clear();
+	_correlation_running = false;
+	_correlations_enabled = true;
+	_so_correlations.reset();
+	_original_archive.reset();
+	_path.clear();
+	_new_view_id = 0;
+	reset_colors();
+}
+
+void Picviz::PVRoot::reset_colors()
+{
+	_available_colors.clear();
+	_available_colors << 0x9966CC << 0x6699CC << 0x778800 << 0xFFCC66 << 0x993366 << 0x999999 << 0x339999 << 0xFF6633 << 0x99FFCC << 0xFFFF99;
+	_used_colors.clear();
 }
 
 void Picviz::PVRoot::select_view(PVView& view)
