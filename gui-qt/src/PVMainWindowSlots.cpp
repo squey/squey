@@ -621,7 +621,7 @@ void PVInspector::PVMainWindow::load_solution_and_create_mw(QString const& file)
 		PVMainWindow* other = new PVMainWindow();
 		other->move(x() + 40, y() + 40); 
 		other->show();
-		if (!other->load_solution(file)) {
+		if (!load_solution(file)) {
 			other->deleteLater();
 			return;
 		}
@@ -698,7 +698,12 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 
 	PVCore::PVSerializeArchive_p ar;
 	try {
-		ar.reset(new PVCore::PVSerializeArchiveZip(file, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
+		PVCore::PVProgressBox* pbox_solution = new PVCore::PVProgressBox("Loading investigation...", this);
+		pbox_solution->set_enable_cancel(true);
+		bool ret = PVCore::PVProgressBox::progress([&] {ar.reset(new PVCore::PVSerializeArchiveZip(file, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));}, pbox_solution);
+		if (!ret) {
+			return false;
+		}
 	}    
 	catch (PVCore::PVSerializeArchiveError& e) { 
 		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."), tr("Fatal error while loading solution %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
@@ -774,7 +779,12 @@ void PVInspector::PVMainWindow::save_solution(QString const& file, PVCore::PVSer
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
 	try {
-		get_root().save_to_file(file, options);
+		PVCore::PVProgressBox* pbox_solution = new PVCore::PVProgressBox("Saving investigation...", this);
+		pbox_solution->set_enable_cancel(true);
+		bool ret = PVCore::PVProgressBox::progress([&] {get_root().save_to_file(file, options);}, pbox_solution);
+		if (!ret) {
+			return;
+		}
 	}
 	catch (PVCore::PVSerializeArchiveError const& e) {
 		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while saving solution..."), tr("Error while saving solution %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
@@ -1216,118 +1226,6 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 void PVInspector::PVMainWindow::view_new_scatter_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-}
-
-/*void PVInspector::PVMainWindow::view_new_parallel_Slot()
-{
-	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-
-	QDialog* dlg = new QDialog(this);
-	PVHive::PVObserverSignal<Picviz::PVView>* new_obs = new PVHive::PVObserverSignal<Picviz::PVView>(dlg);
-	new_obs->connect_about_to_be_deleted(dlg, SLOT(reject()));
-	dlg->setAttribute(Qt::WA_DeleteOnClose, true);
-
-	QLayout *layout = new QVBoxLayout(this);
-	layout->setContentsMargins(0, 0, 0, 0);
-	dlg->setLayout(layout);
-	PVParallelView::PVLibView* parallel_lib_view;
-
-	// Progress box!
-	PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
-	pbox_lib->set_enable_cancel(false);
-	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*current_view())), pbox_lib, parallel_lib_view);
-
-	QWidget *view = parallel_lib_view->create_view(dlg);
-	layout->addWidget(view);
-
-	Picviz::PVView_sp view_sp(current_view()->shared_from_this());
-	PVHive::get().register_observer(view_sp, *new_obs);
-	dlg->show();
-}*/
-
-void PVInspector::PVMainWindow::view_new_parallel_Slot()
-{
-	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	QDialog* dlg = new QDialog(this);
-
-	QLayout *layout = new QVBoxLayout(this);
-	layout->setContentsMargins(0, 0, 0, 0);
-	dlg->setLayout(layout);
-	PVParallelView::PVLibView* parallel_lib_view;
-
-	// Progress box!
-	PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
-	pbox_lib->set_enable_cancel(false);
-	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*current_view())), pbox_lib, parallel_lib_view);
-
-	// reinterpret_cast is used because PVFullParallelScene is only forward declarated for now.
-	// This is done for compile-time sake!
-	QWidget *view = reinterpret_cast<QWidget*>(parallel_lib_view->create_view());
-
-	layout->addWidget(view);
-
-	dlg->show();
-}
-
-void PVInspector::PVMainWindow::view_new_zoomed_parallel_Slot()
-{
-	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	QDialog *dlg = new QDialog(this);
-	dlg->setModal(true);
-
-	QLayout *layout = new QVBoxLayout();
-	dlg->setLayout(layout);
-
-	QLabel *label = new QLabel("Open a zoomed view on axis:");
-	layout->addWidget(label);
-
-	PVWidgets::PVAxisIndexEditor *axes = new PVWidgets::PVAxisIndexEditor(*current_view(), dlg);
-	axes->set_axis_index(0);
-	layout->addWidget(axes);
-
-	QDialogButtonBox *dbb = new QDialogButtonBox(QDialogButtonBox::Open | QDialogButtonBox::Cancel);
-
-	QObject::connect(dbb, SIGNAL(accepted()), dlg, SLOT(accept()));
-	QObject::connect(dbb, SIGNAL(rejected()), dlg, SLOT(reject()));
-
-	layout->addWidget(dbb);
-
-	if (dlg->exec() == QDialog::Accepted) {
-		QDialog *view_dlg = new QDialog();
-		PVHive::PVObserverSignal<Picviz::PVView>* new_obs = new PVHive::PVObserverSignal<Picviz::PVView>(view_dlg);
-		new_obs->connect_about_to_be_deleted(view_dlg, SLOT(reject()));
-
-		view_dlg->setMaximumWidth(1024);
-		view_dlg->setMaximumHeight(1024);
-		view_dlg->setAttribute(Qt::WA_DeleteOnClose, true);
-
-		QLayout *view_layout = new QVBoxLayout(view_dlg);
-		view_layout->setContentsMargins(0, 0, 0, 0);
-		view_dlg->setLayout(view_layout);
-
-		int axis_index = axes->get_axis_index().get_original_index();
-
-		PVParallelView::PVLibView* parallel_lib_view;
-
-		// Progress box!
-		PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
-		pbox_lib->set_enable_cancel(false);
-		PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*current_view())), pbox_lib, parallel_lib_view);
-
-		// see view_new_parallel_Slot for the explanation of this reinterpret_cast
-		QWidget *view = reinterpret_cast<QWidget*>(parallel_lib_view->create_zoomed_view(axis_index));
-
-		Picviz::PVView_sp view_sp(current_view()->shared_from_this());
-		PVHive::get().register_observer(view_sp, *new_obs);
-
-		view_layout->addWidget(view);
-		view_dlg->show();
-	}
-
-	dlg->deleteLater();
-
 }
 
 void PVInspector::PVMainWindow::view_screenshot_qt_Slot()

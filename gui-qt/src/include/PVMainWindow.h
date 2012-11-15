@@ -206,8 +206,6 @@ public slots:
 	void enable_menu_filter_Slot(bool);
 	void set_color_Slot();
 	void textedit_text_changed_Slot();
-	void view_new_parallel_Slot();
-	void view_new_zoomed_parallel_Slot();
 	void view_new_scatter_Slot();
 	void view_display_inv_elts_Slot();
 	void view_screenshot_qt_Slot();
@@ -331,8 +329,6 @@ private:
 	QAction *undo_Action;
 	QAction *undo_history_Action;
 	QAction *view_Action;
-	QAction *view_new_parallel_Action;
-	QAction *view_new_zoomed_parallel_Action;
 	QAction *view_new_scatter_Action;
 	QAction *view_display_inv_elts_Action;
 	QAction *view_screenshot_qt;
