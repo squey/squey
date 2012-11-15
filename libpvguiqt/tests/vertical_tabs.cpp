@@ -102,7 +102,7 @@ int main(int argc, char** argv)
 
 	CustomMainWindow* mw = new CustomMainWindow();
 
-	PVGuiQt::PVProjectsTabWidget* projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(*root, mw);
+	PVGuiQt::PVProjectsTabWidget* projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(root.get(), mw);
 
 	projects_tab_widget->add_source(src.get());
 
