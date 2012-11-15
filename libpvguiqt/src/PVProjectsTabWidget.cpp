@@ -120,7 +120,7 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Picviz::PVRoot& root, QWidget*
 	// Register for current scene changing
 	Picviz::PVRoot_sp root_sp = root.shared_from_this();
 	PVHive::PVObserverSignal<Picviz::PVRoot>* obs = new PVHive::PVObserverSignal<Picviz::PVRoot>(this);
-	connect(obs, SIGNAL(refreshed(PVHive::PVObserverBase*)), this, SLOT(select_tab_from_current_scene()));
+	obs->connect_refresh(this, SLOT(select_tab_from_current_scene()));
 	PVHive::get().register_observer(root_sp, [=](Picviz::PVRoot& root) { return root.get_current_scene_hive_property(); }, *obs);
 }
 
@@ -142,7 +142,6 @@ void  PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	connect(_start_screen_widget, SIGNAL(new_format()), this, SIGNAL(new_format()));
 	connect(_start_screen_widget, SIGNAL(load_format()), this, SIGNAL(load_format()));
 	connect(_start_screen_widget, SIGNAL(edit_format(const QString &)), this, SIGNAL(edit_format(const QString &)));
-
 
 	// Open workspaces
 	_workspaces_tab_widget = new PVOpenWorkspacesWidget(&_root);

@@ -7,7 +7,10 @@
 #include <archive.h>
 #include <archive_entry.h>
 
+#include <boost/thread.hpp>
+
 #include <pvkernel/core/PVArchive.h>
+#include <pvkernel/core/PVDirectory.h>
 
 #include <QDir>
 #include <QDirIterator>
@@ -147,37 +150,10 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 		read_raw = true;
 	}
 
-	for (;;) {
-		if (r == ARCHIVE_EOF)
-			break;
-		if (r != ARCHIVE_OK) {
-			PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
-			return false;
-		}
-		if (r < ARCHIVE_WARN) {
-			return false;
-		}
-		QString qentry(archive_entry_pathname(entry));
-		qentry = qentry.trimmed();
-		if (qentry.startsWith(QChar('/')) || qentry.startsWith(QChar('\\'))) {
-			qentry = qentry.mid(1,-1);
-		}
-		path_extract = qdir_dest.cleanPath(qdir_dest.absoluteFilePath(qentry));
-		path_extract_local = path_extract.toLocal8Bit();
-		filename_ext = path_extract_local.constData();
-
-		//PVLOG_INFO("Extract %s from %s to %s...\n", archive_entry_pathname(entry), filename, filename_ext);
-		archive_entry_set_pathname(entry, filename_ext);
-		if (read_raw) {
-			archive_entry_set_perm(entry, 0400);
-		}
-		r = archive_write_header(ext, entry);
-		if (r != ARCHIVE_OK) {
-			PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
-		}
-		else
-		if (archive_entry_size(entry) > 0 || read_raw) {
-			r = copy_data(a, ext);
+	try {
+		for (;;) {
+			if (r == ARCHIVE_EOF)
+				break;
 			if (r != ARCHIVE_OK) {
 				PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
 				return false;
@@ -185,18 +161,55 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 			if (r < ARCHIVE_WARN) {
 				return false;
 			}
-		}
-		r = archive_write_finish_entry(ext);
-		if (r != ARCHIVE_OK) {
-			PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
-			return false;
-		}
-		if (r < ARCHIVE_WARN) {
-			return false;
-		}
-		extracted_files.push_back(path_extract);
+			QString qentry(archive_entry_pathname(entry));
+			qentry = qentry.trimmed();
+			if (qentry.startsWith(QChar('/')) || qentry.startsWith(QChar('\\'))) {
+				qentry = qentry.mid(1,-1);
+			}
+			path_extract = qdir_dest.cleanPath(qdir_dest.absoluteFilePath(qentry));
+			path_extract_local = path_extract.toLocal8Bit();
+			filename_ext = path_extract_local.constData();
 
-		r = archive_read_next_header(a, &entry);
+			//PVLOG_INFO("Extract %s from %s to %s...\n", archive_entry_pathname(entry), filename, filename_ext);
+			archive_entry_set_pathname(entry, filename_ext);
+			if (read_raw) {
+				archive_entry_set_perm(entry, 0400);
+			}
+			r = archive_write_header(ext, entry);
+			if (r != ARCHIVE_OK) {
+				PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
+			}
+			else
+			if (archive_entry_size(entry) > 0 || read_raw) {
+				r = copy_data(a, ext);
+				if (r != ARCHIVE_OK) {
+					PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
+					return false;
+				}
+				if (r < ARCHIVE_WARN) {
+					return false;
+				}
+			}
+			r = archive_write_finish_entry(ext);
+			if (r != ARCHIVE_OK) {
+				PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
+				return false;
+			}
+			if (r < ARCHIVE_WARN) {
+				return false;
+			}
+			extracted_files.push_back(path_extract);
+
+			r = archive_read_next_header(a, &entry);
+			boost::this_thread::interruption_point();
+		}
+	}
+	catch (boost::thread_interrupted const& e) {
+		PVLOG_INFO("(PVArchive::extract) Extraction canceled.\n");
+		//archive_read_finish(a);
+		//archive_write_finish(ext);
+		PVCore::PVDirectory::remove_rec(dir_dest); // cleanup
+		throw e;
 	}
 	archive_read_finish(a);
 	archive_write_finish(ext);
@@ -229,35 +242,45 @@ bool PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir
 	}
 
 	QDirIterator it(dir_path_abs, QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot | QDir::Hidden, QDirIterator::Subdirectories);
-	while (it.hasNext()) {
-		it.next();
-		QString path = it.fileInfo().canonicalFilePath();
-		stat(qPrintable(path), &st);
-		QString ar_en_path = path.mid(dir_path_abs.size());
-		while (ar_en_path.at(0) == PICVIZ_PATH_SEPARATOR_CHAR) {
-			ar_en_path = ar_en_path.mid(1);
-		}
-		QByteArray ar_en_path_ba = ar_en_path.toLocal8Bit();
-		entry = archive_entry_new();
-		archive_entry_set_pathname(entry, ar_en_path_ba.constData());
-		archive_entry_set_size(entry, st.st_size);
-		archive_entry_set_filetype(entry, AE_IFREG);
-		archive_entry_set_perm(entry, 0644);
-		archive_entry_set_mtime(entry, st.st_mtime, 0);
-		archive_entry_set_atime(entry, st.st_atime, 0);
-		archive_write_header(a, entry);
+	try {
+		while (it.hasNext()) {
+			it.next();
+			QString path = it.fileInfo().canonicalFilePath();
+			stat(qPrintable(path), &st);
+			QString ar_en_path = path.mid(dir_path_abs.size());
+			while (ar_en_path.at(0) == PICVIZ_PATH_SEPARATOR_CHAR) {
+				ar_en_path = ar_en_path.mid(1);
+			}
+			QByteArray ar_en_path_ba = ar_en_path.toLocal8Bit();
+			entry = archive_entry_new();
+			archive_entry_set_pathname(entry, ar_en_path_ba.constData());
+			archive_entry_set_size(entry, st.st_size);
+			archive_entry_set_filetype(entry, AE_IFREG);
+			archive_entry_set_perm(entry, 0644);
+			archive_entry_set_mtime(entry, st.st_mtime, 0);
+			archive_entry_set_atime(entry, st.st_atime, 0);
+			archive_write_header(a, entry);
 
-		QFile f(path);
-		if (!f.open(QIODevice::ReadOnly)) {
-			return false;
-		}
-		len = f.read(buff, sizeof(buff));
-		while ( len > 0 ) {
-			archive_write_data(a, buff, len);
+			QFile f(path);
+			if (!f.open(QIODevice::ReadOnly)) {
+				return false;
+			}
 			len = f.read(buff, sizeof(buff));
+			while ( len > 0 ) {
+				archive_write_data(a, buff, len);
+				len = f.read(buff, sizeof(buff));
+			}
+			f.close();
+			archive_entry_free(entry);
+			boost::this_thread::interruption_point();
 		}
-		f.close();
-		archive_entry_free(entry);
+	}
+	catch (boost::thread_interrupted const& e) {
+		PVLOG_INFO("(PVArchive::create_tarbz2) Compression canceled.\n");
+		//archive_write_close(a);
+		//archive_write_finish(a);
+		PVCore::PVDirectory::remove_rec(dir_path); // cleanup
+		throw e;
 	}
 	archive_write_close(a);
 	archive_write_finish(a);
