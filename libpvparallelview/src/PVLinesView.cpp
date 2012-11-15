@@ -16,6 +16,11 @@
 #include <QObject>
 #include <QMetaMethod>
 
+constexpr static int zoom_divisor = 5;
+constexpr static double zoom_root_value = pow(2.0, 1.0 / zoom_divisor);
+constexpr static int32_t min_zoom_level = (boost::static_log2<PARALLELVIEW_ZONE_MIN_WIDTH>::value - boost::static_log2<PARALLELVIEW_BASE_ZONE_WIDTH>::value) * zoom_divisor;
+constexpr static int32_t max_zoom_level = (boost::static_log2<PARALLELVIEW_ZONE_MAX_WIDTH>::value - boost::static_log2<PARALLELVIEW_BASE_ZONE_WIDTH>::value) * zoom_divisor;
+
 /******************************************************************************
  *
  * PVParallelView::PVLinesView::PVLinesView

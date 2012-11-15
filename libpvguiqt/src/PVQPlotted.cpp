@@ -14,7 +14,7 @@ bool PVGuiQt::PVQPlotted::edit_plotted(Picviz::PVPlotted& plotted, QWidget* pare
 
 	if (plotted.is_current_plotted()) {
 		Picviz::PVPlotted_sp plotted_sp = plotted.shared_from_this();
-		PVHive::call<FUNC(Picviz::PVPlotted::process_from_parent_mapped)>(plotted_sp);
+		PVHive::call<FUNC(Picviz::PVPlotted::process_parent_mapped)>(plotted_sp);
 	}
 
 	return true;
