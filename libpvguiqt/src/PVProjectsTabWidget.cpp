@@ -26,7 +26,9 @@ const QString star = "*";
 void PVGuiQt::__impl::PVTabBar::mouseDoubleClickEvent(QMouseEvent* event)
 {
 	int index = tabAt(event->pos());
-	rename_tab(index);
+	if (index >= 2) {
+		rename_tab(index);
+	}
 	QTabBar::mouseDoubleClickEvent(event);
 }
 
@@ -34,11 +36,13 @@ void PVGuiQt::__impl::PVTabBar::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::RightButton) {
 		int index = tabAt(event->pos());
-		QMenu* menu = new QMenu(this);
-		QAction* rename_action = menu->addAction("&Rename");
-		rename_action->setData(qVariantFromValue(index));
-		connect(rename_action, SIGNAL(triggered(bool)), this, SLOT(rename_tab()));
-		menu->popup(event->globalPos());
+		if (index >= 2) {
+			QMenu* menu = new QMenu(this);
+			QAction* rename_action = menu->addAction("&Rename");
+			rename_action->setData(qVariantFromValue(index));
+			connect(rename_action, SIGNAL(triggered(bool)), this, SLOT(rename_tab()));
+			menu->popup(event->globalPos());
+		}
 	}
 	QTabBar::mousePressEvent(event);
 }
@@ -46,7 +50,10 @@ void PVGuiQt::__impl::PVTabBar::mousePressEvent(QMouseEvent* event)
 void PVGuiQt::__impl::PVTabBar::keyPressEvent(QKeyEvent * event)
 {
 	if (event->key() == Qt::Key_F2) {
-		rename_tab(currentIndex());
+		int index = currentIndex();
+		if (index >= 2) {
+			rename_tab(index);
+		}
 	}
 	QTabBar::keyPressEvent(event);
 }
