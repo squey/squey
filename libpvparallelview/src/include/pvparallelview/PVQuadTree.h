@@ -646,7 +646,9 @@ private:
 				}
 			}
 			BENCH_STOP(extract);
+#ifdef PICVIZ_DEVELOPER_MODE
 			extract_stat::all_dt += BENCH_END_TIME(extract);
+#endif
 		}
 
 		template <typename Ftest>
