@@ -43,7 +43,7 @@ PVGuiQt::PVLayerStackModel::PVLayerStackModel(Picviz::PVView_sp& lib_view, QObje
  *****************************************************************************/
 int PVGuiQt::PVLayerStackModel::columnCount(const QModelIndex& /*index*/) const
 {
-	return 3;
+	return 2;
 }
 
 /******************************************************************************
@@ -92,17 +92,17 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex &index, int role) co
 				case 0:
 					return (int)lib_layer_stack().get_layer_n(lib_index).get_visible();
 
-				case 1:
-					return (int)lib_layer_stack().get_layer_n(lib_index).get_locked();
+				/*case 1:
+					return (int)lib_layer_stack().get_layer_n(lib_index).get_locked();*/
 
-				case 2:
+				case 1:
 					return lib_layer_stack().get_layer_n(lib_index).get_name();
 			}
 			break;
 
 		case (Qt::EditRole):
 			switch (index.column()) {
-				case 2:
+				case 1:
 					return lib_layer_stack().get_layer_n(lib_index).get_name();
 			}
 			break;
@@ -180,11 +180,11 @@ bool PVGuiQt::PVLayerStackModel::setData(const QModelIndex &index, const QVarian
 					_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 					return true;
 
-				case 1:
+				/*case 1:
 					_actor.call<FUNC(Picviz::PVView::toggle_layer_stack_layer_n_locked_state)>(lib_index);
-					return true;
+					return true;*/
 
-				case 2:
+				case 1:
 					_actor.call<FUNC(Picviz::PVView::set_layer_stack_layer_n_name)>(lib_index, value.toString());
 					return true;
 

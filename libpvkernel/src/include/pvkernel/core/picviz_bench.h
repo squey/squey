@@ -7,6 +7,8 @@
 #ifndef __BENCH_H
 #define __BENCH_H
 
+#ifdef PICVIZ_DEVELOPER_MODE
+
 #include <tbb/tick_count.h>
 #include <iostream>
 #include <pvkernel/core/PVAllocators.h>
@@ -46,6 +48,21 @@
 	double diff_vm_mb = (__mem_bench_##var_vm_end-__mem_bench_##var_vm)/(1024.0);\
 	double diff_rss_mb = (__mem_bench_##var_rss_end-__mem_bench_##var_rss)/(1024.0);\
 	std::cout << desc << ": memory footprint is: VM=" << diff_vm_mb << " MB / RES=" << diff_rss_mb << " MB" << std::endl;
+
+#else
+
+#define BENCH_START(var)
+#define BENCH_STOP(var)
+#define BENCH_END_NODISP(var)
+#define BENCH_SHOW(var, desc, nelts_start, size_elt_start, nelts_end, size_elt_end)
+#define BENCH_END(var, desc, nelts_start, size_elt_start, nelts_end, size_elt_end)
+#define BENCH_END_TIME(var) (0)
+#define BENCH_END_SAME_TYPE(var, desc, nelts_in, nelts_out, size_elt) BENCH_END(var, desc, nelts_in, size_elt, nelts_out, size_elt)
+#define BENCH_END_TRANSFORM(var, desc, nelts, size_elt) BENCH_END_SAME_TYPE(var, desc, nelts, nelts, size_elt)
+#define MEM_START(var)
+#define MEM_END(var, desc)
+
+#endif
 
 #define CHECK(v) __CHECK(v, __FILE__, __LINE__)
 #define __CHECK(v,F,L)\

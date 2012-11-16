@@ -979,7 +979,6 @@ void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRenderingBase_p z
 		bool should_cancel = zr->should_cancel();
 		if (should_cancel) {
 			// Cancellation may have occured between the event posted in Qt's main loop and this call!
-			std::cout << "PVFullParallelScene::zr_bg_finished: canceled state for zone rendering." << std::endl;
 			return;
 		}
 	}
@@ -1014,7 +1013,6 @@ void PVParallelView::PVFullParallelScene::zr_sel_finished(PVZoneRenderingBase_p 
 		bool should_cancel = zr->should_cancel();
 		if (should_cancel) {
 			// Cancellation may have occured between the event posted in Qt's main loop and this call!
-			std::cout << "PVFullParallelScene::zr_sel_finished: canceled state for zone rendering." << std::endl;
 			return;
 		}
 	}
