@@ -7,6 +7,7 @@
 #include <QAction>
 #include <QToolBar>
 #include <QVBoxLayout>
+#include <QHeaderView>
 
 #include <pvguiqt/PVLayerStackDelegate.h>
 #include <pvguiqt/PVLayerStackModel.h>
@@ -38,11 +39,12 @@ PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Picviz::PVView_sp& lib_view, QWi
 	
 	// PVLAYERSTACKVIEW
 	PVLayerStackModel* model = new PVLayerStackModel(lib_view);
-	PVLayerStackDelegate* delegate = new PVLayerStackDelegate(*lib_view);
+	PVLayerStackDelegate* delegate = new PVLayerStackDelegate(*lib_view, this);
 	_layer_stack_view = new PVLayerStackView();
 	_layer_stack_view->setItemDelegate(delegate);
 	_layer_stack_view->setModel(model);
 	_layer_stack_view->resizeColumnsToContents();
+	_layer_stack_view->horizontalHeader()->setStretchLastSection(true);
 
 	// TOOLBAR
 	// We create the ToolBar of the PVLayerStackWidget

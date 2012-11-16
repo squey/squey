@@ -70,13 +70,13 @@ bool PVGuiQt::PVLayerStackDelegate::editorEvent(QEvent *event, QAbstractItemMode
 			}
 			break;
 
-		case 1:
+		/*case 1:
 			if (event->type() == QEvent::MouseButtonPress) {
 				model->setData(index, QVariant());
 				//lib_view->toggle_layer_stack_layer_n_locked_state(lib_index);
 				return true;
 			}
-			break;
+			break;*/
 	}
 	return false;
 }
@@ -102,7 +102,7 @@ void PVGuiQt::PVLayerStackDelegate::paint(QPainter *painter, const QStyleOptionV
 			painter->restore();
 			break;
 
-		case 1:
+		/*case 1:
 			painter->save();
 			painter->fillRect(option.rect, option.palette.base());
 
@@ -113,7 +113,7 @@ void PVGuiQt::PVLayerStackDelegate::paint(QPainter *painter, const QStyleOptionV
 				painter->drawPixmap(0, 0, QPixmap(":/pv-white-20"));
 			}
 			painter->restore();
-			break;
+			break;*/
 
 		default:
 			QStyledItemDelegate::paint(painter, option, index);
@@ -155,7 +155,7 @@ QSize PVGuiQt::PVLayerStackDelegate::sizeHint(const QStyleOptionViewItem &option
 {
 	switch (index.column()) {
 		case 0:
-			return QSize(24,24);
+			return QSize(24, 24);
 			break;
 
 		default:
@@ -163,5 +163,4 @@ QSize PVGuiQt::PVLayerStackDelegate::sizeHint(const QStyleOptionViewItem &option
 			break;
 	}
 }
-
 

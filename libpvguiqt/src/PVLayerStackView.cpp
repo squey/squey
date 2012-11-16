@@ -130,7 +130,7 @@ void PVGuiQt::PVLayerStackView::mouseDoubleClickEvent(QMouseEvent* event)
 		return;
 	}
 
-	if (idx.column() == 2) {
+	if (idx.column() == 1) {
 		edit(idx);
 	}
 }
