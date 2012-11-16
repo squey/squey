@@ -561,7 +561,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 		BENCH_SHOW(whole,   "whole       y1 seq bg", 1, 1, 1, 1);
 	}
 
-	std::cout << "::browse_trees_bci_by_y1 -> " << bci_idx << std::endl;
+	PVLOG_DEBUG("::browse_trees_bci_by_y1_seq -> %lu\n", bci_idx);
 
 	return bci_idx;
 }
@@ -669,7 +669,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 		BENCH_SHOW(whole,   "whole       y2 seq sel", 1, 1, 1, 1);
 	}
 
-	std::cout << "::browse_trees_bci_by_y2 -> " << bci_idx << std::endl;
+	PVLOG_DEBUG("::browse_trees_bci_by_y2_seq -> %lu\n", bci_idx);
 
 	return bci_idx;
 }
@@ -809,7 +809,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 		BENCH_SHOW(whole,   "whole       y1 tbb bg", 1, 1, 1, 1);
 	}
 
-	std::cout << "::browse_trees_bci_by_y1_tbb -> " << bci_idx << std::endl;
+	PVLOG_DEBUG("::browse_trees_bci_by_y1_tbb -> %lu\n", bci_idx);
 
 	return bci_idx;
 }
@@ -950,7 +950,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 		BENCH_SHOW(whole,   "whole       y2 tbb bg", 1, 1, 1, 1);
 	}
 
-	std::cout << "::browse_trees_bci_by_y2_tbb -> " << bci_idx << std::endl;
+	PVLOG_DEBUG("::browse_trees_bci_by_y2_tbb -> %lu\n", bci_idx);
 
 	return bci_idx;
 }
