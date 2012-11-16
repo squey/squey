@@ -3,19 +3,23 @@
 
 This major release add the following features:
 
- * Complete rewrite of the underlying graphic engines, 
+ * Complete rewrite of the underlying graphic engines
     - improved rendering speed
-    - 
+    - customisable rendering backends
+    - multiple graphic cards support
+
+ * Improved data storage,
+    - increased number of supported events
+    - enhanced hardware efficiency
+
  * Improved user interface
-    - dockable windows for every type of representation
-    - open workspaces
+    - improved zoom mode
+    - new selection mode using sliders
+    - dockable windows for every type of data representation, making the correlation between multiple sources of data easier
+    - increased interface responsiveness
+    - data representations implemented as plugins allowing easier application extension
 
  * Export display compliance
-
-This major release fixes:
-
- * 
- 
 
 2.6.1 (31/07/2012)
 ------------------
