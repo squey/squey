@@ -46,7 +46,7 @@ Picviz::PVMapped::PVMapped()
 Picviz::PVMapped::~PVMapped()
 {
 	remove_all_children();
-	PVLOG_INFO("In PVMapped destructor\n");
+	PVLOG_DEBUG("In PVMapped destructor\n");
 }
 
 void Picviz::PVMapped::set_parent_from_ptr(PVSource* source)

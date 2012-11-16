@@ -37,7 +37,7 @@ Picviz::PVScene::PVScene(QString scene_path) :
 Picviz::PVScene::~PVScene()
 {
 	remove_all_children();
-	PVLOG_INFO("In PVScene destructor\n");
+	PVLOG_DEBUG("In PVScene destructor\n");
 	PVRoot* root = get_parent<PVRoot>();
 	if (root) {
 		root->scene_being_deleted(this);

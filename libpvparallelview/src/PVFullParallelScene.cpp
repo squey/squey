@@ -94,7 +94,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
  *****************************************************************************/
 PVParallelView::PVFullParallelScene::~PVFullParallelScene()
 {
-	PVLOG_INFO("In PVFullParallelScene destructor\n");
+	PVLOG_DEBUG("In PVFullParallelScene destructor\n");
 	if (!_view_deleted) {
 		common::get_lib_view(_lib_view)->remove_view(this);
 	}
