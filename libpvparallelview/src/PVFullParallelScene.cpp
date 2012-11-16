@@ -434,7 +434,6 @@ void PVParallelView::PVFullParallelScene::scrollbar_pressed_Slot()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::scrollbar_released_Slot()
 {
-	PVLOG_INFO("scrollbar_x: %d\n", graphics_view()->horizontalScrollBar()->value());
 	translate_and_update_zones_position();
 }
 
