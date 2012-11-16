@@ -232,6 +232,13 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		for (PVZoneID zone_id = _lines_view.get_first_visible_zone_index(); zone_id <= _lines_view.get_last_visible_zone_index(); zone_id++) {
 			update_zone_pixmap_bgsel(zone_id);
 		}
+		event->accept();
+	} else if (event->key() == Qt::Key_Home) {
+		layout_view_to_default();
+		update_all_with_timer();
+		event->accept();
+	} else {
+		QGraphicsScene::keyPressEvent(event);
 	}
 }
 
@@ -1015,3 +1022,35 @@ void PVParallelView::PVFullParallelScene::zr_sel_finished(PVZoneRenderingBase_p 
 
 	update_zone_pixmap_sel(zid);
 }
+
+/******************************************************************************
+ * PVParallelView::PVFullParallelScene::layout_view_to_default
+ *****************************************************************************/
+
+void PVParallelView::PVFullParallelScene::layout_view_to_default()
+{
+	QRect screen_rect = _full_parallel_view->viewport()->rect();
+
+	bool fit_in = _lines_view.initialize_zones_width(screen_rect.width());
+
+	update_viewport();
+	update_zones_position(true, true);
+
+	update_scene(false);
+
+	// time to replace the viewport at the right position
+	QRectF items_bbox = itemsBoundingRect();
+
+	qreal view_center_x;
+	if (fit_in) {
+		// center zones
+		view_center_x = sceneRect().center().x();
+	} else {
+		// align zone to the left
+		view_center_x = (screen_rect.width() / 2) - SCENE_MARGIN;
+	}
+
+	_full_parallel_view->centerOn(view_center_x,
+	                              items_bbox.top() + screen_rect.center().y());
+}
+

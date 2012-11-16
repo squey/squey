@@ -140,6 +140,17 @@ public:
 
 	void increase_base_zoom_level_of_zone(PVZoneID zone_id);
 	void increase_global_zoom_level();
+
+	/**
+	 * Initialize the zones width for make them get in the viewport. If there not enough
+	 * space, the default zone width is used to make zones understandable.
+	 *
+	 * @param view_width the width of the view in which the zones should fit in
+	 *
+	 * @return true if the zones fit in width; otherwise false
+	 */
+	bool initialize_zones_width(int view_width);
+
 	bool is_zone_drawn(PVZoneID zone_id) const { return (zone_id >= get_first_visible_zone_index() && zone_id <= get_last_visible_zone_index()); }
 
 	void render_all_zones_bg_image(int32_t view_x, uint32_t view_width, const float zoom_y);
@@ -148,7 +159,6 @@ public:
 	void render_single_zone_bg_image(PVZoneID zone_id, const float zoom_y);
 	void render_single_zone_images(PVZoneID zone_id, const float zoom_y);
 	void render_single_zone_sel_image(PVZoneID zone_id, const float zoom_y);
-
 
 	void set_nb_drawable_zones(PVZoneID nb_zones);
 

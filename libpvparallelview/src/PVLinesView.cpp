@@ -336,6 +336,39 @@ void PVParallelView::PVLinesView::increase_global_zoom_level()
 
 /******************************************************************************
  *
+ * PVParallelView::PVLinesView::initialize_zones_width
+ *
+ *****************************************************************************/
+bool PVParallelView::PVLinesView::initialize_zones_width(int view_width)
+{
+	bool fit_in_view = false;
+
+	// reduding the width to add a margin
+	view_width *= 0.95;
+
+	PVZoneID zones_number = get_number_of_managed_zones();
+
+	int zone_width = PVParallelView::ZoneDefaultWidth;
+
+	if ((zones_number * zone_width) < view_width) {
+		// there is still empty space, growing zones width to fit in
+		zone_width = view_width / zones_number;
+		fit_in_view = true;
+	}
+
+	int32_t new_zoom_level = log2(zone_width / PVParallelView::ZoneBaseWidth) * zoom_divisor;
+	int16_t zoom_level = PVCore::clamp(new_zoom_level, min_zoom_level, max_zoom_level);
+
+	for(ZoneWidthWithZoomLevel &z: _list_of_zone_width_with_zoom_level) {
+		z.set_base_zoom_level(zoom_level);
+
+	}
+
+	return fit_in_view;
+}
+
+/******************************************************************************
+ *
  * PVParallelView::PVLinesView::left_rotate_single_zone_images
  *
  *****************************************************************************/
