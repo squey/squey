@@ -49,14 +49,14 @@
 
 // psaade : next value should be 128 according to aguinet, for the moment
 #define PARALLELVIEW_ZONE_MIN_WIDTH 16
-#define PARALLELVIEW_BASE_ZONE_WIDTH 64
+#define PARALLELVIEW_ZONE_BASE_WIDTH 64
 #define PARALLELVIEW_ZONE_DEFAULT_WIDTH 256
 #define PARALLELVIEW_ZONE_MAX_WIDTH 1024
 #define PARALLELVIEW_MAX_DRAWN_ZONES 30
 
 #ifndef __CUDACC__
 static_assert((1<<(boost::static_log2<PARALLELVIEW_ZONE_MIN_WIDTH>::value) == PARALLELVIEW_ZONE_MIN_WIDTH), "Must be a power of two");
-static_assert((1<<(boost::static_log2<PARALLELVIEW_BASE_ZONE_WIDTH>::value) == PARALLELVIEW_BASE_ZONE_WIDTH), "Must be a power of two");
+static_assert((1<<(boost::static_log2<PARALLELVIEW_ZONE_BASE_WIDTH>::value) == PARALLELVIEW_ZONE_BASE_WIDTH), "Must be a power of two");
 static_assert((1<<(boost::static_log2<PARALLELVIEW_ZONE_MAX_WIDTH>::value) == PARALLELVIEW_ZONE_MAX_WIDTH), "Must be a power of two");
 #endif
 
@@ -71,6 +71,7 @@ enum {
 	ZoneMinWidth = PARALLELVIEW_ZONE_MIN_WIDTH,
 	ZoneMaxWidth = PARALLELVIEW_ZONE_MAX_WIDTH,
 	ZoneDefaultWidth = PARALLELVIEW_ZONE_DEFAULT_WIDTH,
+	ZoneBaseWidth = PARALLELVIEW_ZONE_BASE_WIDTH,
 	MaxDrawnZones = PARALLELVIEW_MAX_DRAWN_ZONES,
 	MaxBciCodes = PARALLELVIEW_MAX_BCI_CODES
 };

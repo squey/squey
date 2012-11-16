@@ -13,7 +13,8 @@
  *
  *****************************************************************************/
 PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent):
-	QGraphicsView(parent)
+	QGraphicsView(parent),
+	_first_resize(true)
 {
 	setViewport(new QWidget());
 	setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
@@ -64,11 +65,16 @@ void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent *event)
 	PVParallelView::PVFullParallelScene *fps = (PVParallelView::PVFullParallelScene*)scene();
 	if(fps != nullptr) {
 		fps->update_viewport();
-		fps->update_scene(true);
+		if(_first_resize) {
+			_first_resize = false;
+			fps->layout_view_to_default();
+		} else {
+			fps->update_scene(true);
+		}
 		fps->update_all_with_timer();
 
 		/* to force the view to be always at the top. Otherwise,
-		 * resizing the window to a smallet size automatically translates
+		 * resizing the window to a smaller size automatically translates
 		 * the view in a wrong way.
 		 */
 		verticalScrollBar()->setValue(verticalScrollBar()->minimum());

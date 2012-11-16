@@ -18,8 +18,8 @@
 
 constexpr static int zoom_divisor = 5;
 constexpr static double zoom_root_value = pow(2.0, 1.0 / zoom_divisor);
-constexpr static int32_t min_zoom_level = (boost::static_log2<PARALLELVIEW_ZONE_MIN_WIDTH>::value - boost::static_log2<PARALLELVIEW_BASE_ZONE_WIDTH>::value) * zoom_divisor;
-constexpr static int32_t max_zoom_level = (boost::static_log2<PARALLELVIEW_ZONE_MAX_WIDTH>::value - boost::static_log2<PARALLELVIEW_BASE_ZONE_WIDTH>::value) * zoom_divisor;
+constexpr static int32_t min_zoom_level = (boost::static_log2<PVParallelView::ZoneMinWidth>::value - boost::static_log2<PVParallelView::ZoneBaseWidth>::value) * zoom_divisor;
+constexpr static int32_t max_zoom_level = (boost::static_log2<PVParallelView::ZoneMaxWidth>::value - boost::static_log2<PVParallelView::ZoneBaseWidth>::value) * zoom_divisor;
 
 /******************************************************************************
  *
@@ -332,6 +332,39 @@ void PVParallelView::PVLinesView::increase_global_zoom_level()
 	for(ZoneWidthWithZoomLevel &z: _list_of_zone_width_with_zoom_level) {
 		z.increase_zoom_level();
 	}
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVLinesView::initialize_zones_width
+ *
+ *****************************************************************************/
+bool PVParallelView::PVLinesView::initialize_zones_width(int view_width)
+{
+	bool fit_in_view = false;
+
+	// reduding the width to add a margin
+	view_width *= 0.95;
+
+	PVZoneID zones_number = get_number_of_managed_zones();
+
+	int zone_width = PVParallelView::ZoneDefaultWidth;
+
+	if ((zones_number * zone_width) < view_width) {
+		// there is still empty space, growing zones width to fit in
+		zone_width = view_width / zones_number;
+		fit_in_view = true;
+	}
+
+	int32_t new_zoom_level = log2(zone_width / PVParallelView::ZoneBaseWidth) * zoom_divisor;
+	int16_t zoom_level = PVCore::clamp(new_zoom_level, min_zoom_level, max_zoom_level);
+
+	for(ZoneWidthWithZoomLevel &z: _list_of_zone_width_with_zoom_level) {
+		z.set_base_zoom_level(zoom_level);
+
+	}
+
+	return fit_in_view;
 }
 
 /******************************************************************************

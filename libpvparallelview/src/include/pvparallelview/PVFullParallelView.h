@@ -47,6 +47,7 @@ signals:
 private:
 	uint32_t _total_lines = 0;
 	uint32_t _selected_lines = 0;
+	bool     _first_resize;
 };
 
 }
