@@ -1,12 +1,20 @@
 3.0.0 "Retribution" (12/11/2012)
 --------------------------------
 
-This major release add the features:
-* Improved user interface
-* Increased capacity
-* Export display compliance
+This major release add the following features:
+
+ * Complete rewrite of the underlying graphic engines, 
+    - improved rendering speed
+    - 
+ * Improved user interface
+    - dockable windows for every type of representation
+    - open workspaces
+
+ * Export display compliance
 
 This major release fixes:
+
+ * 
  
 
 2.6.1 (31/07/2012)
