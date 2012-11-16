@@ -71,7 +71,7 @@ private:
 
 		ZoneWidthWithZoomLevel()
 		{
-			_base_width = PARALLELVIEW_BASE_ZONE_WIDTH;
+			_base_width = PVParallelView::ZoneBaseWidth;
 			_base_zoom_level = 0;
 		}
 		
