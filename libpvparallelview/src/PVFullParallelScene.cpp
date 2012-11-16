@@ -234,7 +234,7 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		}
 		event->accept();
 	} else if (event->key() == Qt::Key_Home) {
-		layout_view_to_default();
+		reset_zones_layout_to_default();
 		update_all_with_timer();
 		event->accept();
 	} else {
@@ -1023,10 +1023,10 @@ void PVParallelView::PVFullParallelScene::zr_sel_finished(PVZoneRenderingBase_p 
 }
 
 /******************************************************************************
- * PVParallelView::PVFullParallelScene::layout_view_to_default
+ * PVParallelView::PVFullParallelScene::reset_zones_layout_to_default
  *****************************************************************************/
 
-void PVParallelView::PVFullParallelScene::layout_view_to_default()
+void PVParallelView::PVFullParallelScene::reset_zones_layout_to_default()
 {
 	QRect screen_rect = _full_parallel_view->viewport()->rect();
 

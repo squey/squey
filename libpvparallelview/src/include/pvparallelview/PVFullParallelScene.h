@@ -75,12 +75,11 @@ public:
 	void update_number_of_zones_async();
 
 	/**
-	 * Layout zones and view to their default parameters:
-	 * - zones are resized to try to fit in the view
-	 * - if zones fit in view, they are centered in the viewport; otherwise, they are
-	 *   aligned to the left
+	 * Reset the zones layout and viewport to the following way: zones are resized to try fit
+	 * in the viewport (according to the view's width); if zones fit in view, they are centered;
+	 * otherwise, they are aligned to the left
 	 */
-	void layout_view_to_default();
+	void reset_zones_layout_to_default();
 
 private slots:
 	void update_new_selection();

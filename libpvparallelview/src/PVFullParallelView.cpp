@@ -67,7 +67,7 @@ void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent *event)
 		fps->update_viewport();
 		if(_first_resize) {
 			_first_resize = false;
-			fps->layout_view_to_default();
+			fps->reset_zones_layout_to_default();
 		} else {
 			fps->update_scene(true);
 		}
