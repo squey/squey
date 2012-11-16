@@ -1603,7 +1603,6 @@ void PVInspector::PVMainWindow::display_inv_elts()
  *****************************************************************************/
 bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 {
-	PVLOG_INFO("load_source: %p\n", src.get());
 	// Load a created source
 
 	if (src->get_children<Picviz::PVMapped>().size() == 0) {
