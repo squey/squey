@@ -30,15 +30,6 @@ public:
 	PVLayerStackDelegate(Picviz::PVView const& view, QObject* parent = NULL);
 
 	/**
-	 *  @param parent
-	 *  @param option
-	 *  @param index
-	 *
-	 *  @return
-	 */
-	QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-
-	/**
 	 *  @param event
 	 *  @param model
 	 *  @param option
@@ -55,30 +46,6 @@ public:
 	 *
 	 */
 	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index ) const;
-
-	/**
-	 *  @param editor
-	 *  @param index
-	 *
-	 */
-	void setEditorData(QWidget *editor, const QModelIndex &index) const;
-
-	/**
-	 * @param editor
-	 * @param model
-	 * @param index
-	 *
-	 */
-	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
-
-	/**
-	 *
-	 * @param option
-	 * @param index
-	 *
-	 * @return
-	 */
-	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index ) const;
 
 private:
 	Picviz::PVView const& lib_view() const { return _view; }

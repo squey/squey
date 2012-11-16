@@ -60,13 +60,15 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex &index, int role) co
 	int lib_index = layer_count -1 - index.row();
 
 	switch (role) {
-		case (Qt::CheckStateRole):
+		case Qt::DecorationRole:
 			switch (index.column()) {
-				case 0:
-					if (lib_layer_stack().get_layer_n(lib_index).get_visible()) {
-						return Qt::Checked;
-					}
-					return Qt::Unchecked;
+			case 0:
+				if (lib_layer_stack().get_layer_n(lib_index).get_visible()) {
+					return QPixmap(":/layer-active.png");
+				} else {
+					return QPixmap(":/layer-inactive.png");
+				}
+				break;
 			}
 			break;
 
@@ -89,9 +91,6 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex &index, int role) co
 
 		case (Qt::DisplayRole):
 			switch (index.column()) {
-				case 0:
-					return (int)lib_layer_stack().get_layer_n(lib_index).get_visible();
-
 				/*case 1:
 					return (int)lib_layer_stack().get_layer_n(lib_index).get_locked();*/
 
@@ -108,7 +107,14 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex &index, int role) co
 			break;
 
 		case (Qt::TextAlignmentRole):
-			return (Qt::AlignLeft + Qt::AlignVCenter);
+			switch (index.column()) {
+				case 0:
+					return (Qt::AlignCenter + Qt::AlignVCenter);
+
+				default:
+					return (Qt::AlignLeft + Qt::AlignVCenter);
+			}
+			break;
 	}
 	return QVariant();
 }
