@@ -59,7 +59,7 @@ Picviz::PVSource::~PVSource()
 	if (root) {
 		root->source_being_deleted(this);
 	}
-	PVLOG_INFO("In PVSource destructor: %p\n", this);
+	PVLOG_DEBUG("In PVSource destructor: %p\n", this);
 	_extractor.force_stop_controller();
 	/*for (auto& m: get_children()) {
 		PVMapped* pm = m.get();

@@ -28,7 +28,7 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent):
  *****************************************************************************/
 PVParallelView::PVFullParallelView::~PVFullParallelView()
 {
-	PVLOG_INFO("In PVFullParallelView destructor\n");
+	PVLOG_DEBUG("In PVFullParallelView destructor\n");
 	if (scene()) {
 		scene()->deleteLater();
 	}

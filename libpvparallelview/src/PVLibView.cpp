@@ -42,8 +42,7 @@ PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp, Picviz::PVPlott
 
 PVParallelView::PVLibView::~PVLibView()
 {
-	PVLOG_INFO("In PVLibView destructor\n");
-
+	PVLOG_DEBUG("In PVLibView destructor\n");
 }
 
 void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
