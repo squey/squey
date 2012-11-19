@@ -5,8 +5,7 @@
  */
 
 
-#include <pvkernel/core/general.h>
-#include <picviz/PVView.h>
+#include <assert.h>
 
 #include <QApplication>
 #include <QFileInfo>
@@ -20,14 +19,16 @@
 #include <QSpacerItem>
 
 #include <pvguiqt/PVStartScreenWidget.h>
+#include <pvguiqt/PVInputTypeMenuEntries.h>
 
 #include <picviz/PVSource.h>
+#include <picviz/PVView.h>
 
+#include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVSourceDescription.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/widgets/PVUtils.h>
 
-#include <pvguiqt/PVInputTypeMenuEntries.h>
 
 void PVGuiQt::PVAddRecentItemFuncObserver::update(const arguments_deep_copy_type& args) const
 {
@@ -183,7 +184,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	format_widget_layout->addWidget(edit_format_button);
 
 	// Import buttons
-	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(import_widget_layout, this, SLOT(import_type_Slot()));
+	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(import_widget_layout, this, SLOT(import_type()));
 
 	project_widget_layout->addWidget(create_new_project_button);
 	project_widget_layout->addWidget(open_project_button);
@@ -288,9 +289,10 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	refresh_all_recent_items();
 }
 
-void PVGuiQt::PVStartScreenWidget::import_type_Slot()
+void PVGuiQt::PVStartScreenWidget::import_type()
 {
 	QAction* action_src = (QAction*) sender();
+	assert(action_src);
 	QString const& itype = action_src->data().toString();
 	emit import_type(itype);
 }
@@ -321,7 +323,7 @@ void PVGuiQt::PVStartScreenWidget::refresh_recent_items(int cat)
 		QString short_string;
 		QString long_string;
 		QStringList filenames;
-		std::tie(short_string, long_string, filenames) = get_string_from_variant(category, var);
+		std::tie(short_string, long_string, filenames) = get_strings_from_variant(category, var);
 
 		QWidget* widget = new QWidget();
 		QHBoxLayout* layout = new QHBoxLayout();
@@ -357,7 +359,7 @@ void PVGuiQt::PVStartScreenWidget::refresh_recent_items(int cat)
 	}
 }
 
-PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_string_from_variant(
+PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_strings_from_variant(
 	PVCore::PVRecentItemsManager::Category category,
 	const QVariant& var
 )
@@ -376,11 +378,11 @@ PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_
 		}
 		case PVCore::PVRecentItemsManager::Category::SOURCES:
 		{
-			return get_string_from_source_description(var);
+			return get_strings_from_source_description(var);
 		}
 		case PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS:
 		{
-			return get_string_from_format(var);
+			return get_strings_from_format(var);
 		}
 		default:
 		{
@@ -390,7 +392,7 @@ PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_
 	}
 }
 
-PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_string_from_format(const QVariant& var)
+PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_strings_from_format(const QVariant& var)
 {
 	PVRush::PVFormat format = var.value<PVRush::PVFormat>();
 
@@ -402,7 +404,7 @@ PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_
 	return std::make_tuple(short_string, long_string, filenames);
 }
 
-PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_string_from_source_description(const QVariant& var)
+PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_strings_from_source_description(const QVariant& var)
 {
 	PVRush::PVSourceDescription src_desc = var.value<PVRush::PVSourceDescription>();
 

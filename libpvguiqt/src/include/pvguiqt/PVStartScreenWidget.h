@@ -9,10 +9,7 @@
 
 #include <tuple>
 
-#include <QWidget>
 #include <QStringList>
-#include <QVBoxLayout>
-#include <QListWidgetItem>
 #include <QListWidget>
 
 #include <pvhive/PVCallHelper.h>
@@ -46,23 +43,37 @@ private:
 };
 
 /**
- *  \class PVStartScreenWidget
+ * \class PVRecentItemsManager
+ *
+ * \note This class is the start screen widget of the application.
+ *       It displays the recent items accessed by the user/application and allow to load/edit them.
  */
 class PVStartScreenWidget : public QWidget
 {
 	Q_OBJECT
 public:
+	// Store the description strings under a 3-tuple of: short_string, long_string, filenames
 	typedef std::tuple<QString, QString, QStringList> descr_strings_t;
-	//typedef PVWidgets::PVSizeHintListWidget<QListWidget, 42> custom_listwidget_t;
 	typedef QListWidget custom_listwidget_t;
 
 public:
 	PVStartScreenWidget(QWidget* parent = 0);
+
+public:
+	/*! \brief Refresh the recent items of all categories.
+	 */
 	void refresh_all_recent_items();
+
+	/*! \brief Refresh the recent sources items.
+	 */
 	void refresh_recent_sources_items();
+
+	/*! \brief Refresh the recent items of a given category.
+	*/
 	void refresh_recent_items(int category);
 
 signals:
+	// These signals are used by to the PVMainWindow.
 	void new_project();
 	void load_project();
 	void load_project_from_path(const QString & project);
@@ -73,13 +84,32 @@ signals:
 	void import_type(const QString &);
 
 public slots:
+	/*! \brief Slot called when clicking on the hyperlink of a recent item and emitting the proper signal.
+	 *  \param[in] id The item identifier under the following format: "category_index;item_index"
+	 */
 	void dispatch_action(const QString& id);
-	void import_type_Slot();
+
+	/*! \brief Slot emitting the proper "import_type" signal.
+	 *  \note used by PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout
+	 */
+	void import_type();
 
 private:
-	descr_strings_t get_string_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var);
-	descr_strings_t get_string_from_format(const QVariant& var);
-	descr_strings_t get_string_from_source_description(const QVariant& var);
+	/*! \brief Extract a descr_strings_t from a QVariant of a given category.
+	 *  \param[in] category The given category.
+	 *  \param[in] var      The QVariant to convert to descr_strings_t.
+	 */
+	descr_strings_t get_strings_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var);
+
+	/*! \brief Extract a descr_strings_t from a Picviz::PVFormat QVariant.
+	 *  \param[in] var The Picviz::PVFormat QVariant to convert to descr_strings_t.
+	 */
+	descr_strings_t get_strings_from_format(const QVariant& var);
+
+	/*! \brief Extract a descr_strings_t from a PVRush::PVSourceDescription QVariant.
+	 *  \param[in] var The PVRush::PVSourceDescription QVariant to convert to descr_strings_t.
+	 */
+	descr_strings_t get_strings_from_source_description(const QVariant& var);
 
 private:
 	QWidget* format_widget;

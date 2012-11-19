@@ -266,7 +266,7 @@ int main(int argc, char** argv)
 
 	PVGuiQt::PVSceneWorkspacesTabWidget* workspaces_tab_widget = new PVGuiQt::PVSceneWorkspacesTabWidget(*src->get_parent());
 
-	PVGuiQt::PVWorkspace* workspace = new PVGuiQt::PVWorkspace(src.get());
+	PVGuiQt::PVSourceWorkspace* workspace = new PVGuiQt::PVSourceWorkspace(src.get());
 	workspaces_tab_widget->addTab(workspace, "Workspace1");
 	workspaces_tab_widget->show();
 

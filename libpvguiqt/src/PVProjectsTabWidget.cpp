@@ -238,16 +238,16 @@ bool PVGuiQt::PVProjectsTabWidget::tab_close_requested(int index)
 	return true;
 }
 
-PVGuiQt::PVWorkspace* PVGuiQt::PVProjectsTabWidget::add_source(Picviz::PVSource* source)
+PVGuiQt::PVSourceWorkspace* PVGuiQt::PVProjectsTabWidget::add_source(Picviz::PVSource* source)
 {
-	PVGuiQt::PVWorkspace* workspace = new PVGuiQt::PVWorkspace(source);
+	PVGuiQt::PVSourceWorkspace* workspace = new PVGuiQt::PVSourceWorkspace(source);
 
 	add_workspace(workspace);
 
 	return workspace;
 }
 
-void PVGuiQt::PVProjectsTabWidget::add_workspace(PVWorkspace* workspace)
+void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 {
 	Picviz::PVScene* scene = workspace->get_source()->get_parent<Picviz::PVScene>();
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(scene);
@@ -256,11 +256,11 @@ void PVGuiQt::PVProjectsTabWidget::add_workspace(PVWorkspace* workspace)
 		workspace_tab_widget = add_project(scene->shared_from_this());
 	}
 
-	workspace_tab_widget->addTab(workspace, workspace->get_source()->get_window_name());
+	workspace_tab_widget->add_workspace(workspace, workspace->get_source()->get_window_name());
 	_tab_widget->setCurrentIndex(_stacked_widget->indexOf(workspace_tab_widget));
 }
 
-void PVGuiQt::PVProjectsTabWidget::remove_workspace(PVWorkspace* workspace, bool animation /* = true */)
+void PVGuiQt::PVProjectsTabWidget::remove_workspace(PVSourceWorkspace* workspace, bool animation /* = true */)
 {
 	Picviz::PVScene* scene = workspace->get_source()->get_parent<Picviz::PVScene>();
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(scene);

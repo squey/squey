@@ -214,10 +214,10 @@ bool PVInspector::PVMainWindow::event(QEvent* event)
 			dropEvent->acceptProposedAction();
 			const QMimeData* mimeData = dropEvent->mimeData();
 			QByteArray byte_array = mimeData->data(mime_type);
-			if (byte_array.size() < (int)sizeof(PVGuiQt::PVWorkspace*)) {
+			if (byte_array.size() < (int)sizeof(PVGuiQt::PVSourceWorkspace*)) {
 				return false;
 			}
-			PVGuiQt::PVWorkspace* workspace = *(reinterpret_cast<PVGuiQt::PVWorkspace* const*>(byte_array.constData()));
+			PVGuiQt::PVSourceWorkspace* workspace = *(reinterpret_cast<PVGuiQt::PVSourceWorkspace* const*>(byte_array.constData()));
 
 			_projects_tab_widget->add_workspace(workspace);
 
@@ -604,18 +604,18 @@ void PVInspector::PVMainWindow::close_solution_Slot()
  * PVInspector::PVMainWindow::get_tab_from_view
  *
  *****************************************************************************/
-PVGuiQt::PVWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView* picviz_view)
+PVGuiQt::PVSourceWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView* picviz_view)
 {
 	return get_tab_from_view(*picviz_view);
 }
 
-PVGuiQt::PVWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView const& picviz_view)
+PVGuiQt::PVSourceWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView const& picviz_view)
 {
 	// This returns the tab associated to a picviz view
 	const Picviz::PVScene* scene = picviz_view.get_parent<Picviz::PVScene>();
 	PVGuiQt::PVSceneWorkspacesTabWidget* workspaces_tab_widget = _projects_tab_widget->get_workspace_tab_widget_from_scene(scene);
 	for (int i = 0; workspaces_tab_widget && i < workspaces_tab_widget->count();i++) {
-		PVGuiQt::PVWorkspace *tab = dynamic_cast<PVGuiQt::PVWorkspace*>(workspaces_tab_widget->widget(i));
+		PVGuiQt::PVSourceWorkspace *tab = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspaces_tab_widget->widget(i));
 		if (!tab) {
 			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
 		} else {
