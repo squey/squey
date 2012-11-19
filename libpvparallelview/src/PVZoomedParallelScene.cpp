@@ -155,12 +155,12 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 	}
 
 	if (_left_zone) {
-		_left_zone->cancel_all();
+		_left_zone->cancel_and_wait_all();
 		delete _left_zone;
 	}
 
 	if (_right_zone) {
-		_right_zone->cancel_all();
+		_right_zone->cancel_and_wait_all();
 		delete _right_zone;
 	}
 }

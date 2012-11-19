@@ -86,24 +86,38 @@ void PVParallelView::PVBCIBackendImageCUDA::resize_width(PVBCIBackendImage& dst,
 	cudaEventDestroy(end);
 
 	dst_img->set_width(width);
+	dst_img->set_current_device();
 	dst_img->copy_device_to_host();
 }
 
 PVParallelView::PVBCIDrawingBackendCUDA::PVBCIDrawingBackendCUDA()
 {
 	// List all usable cuda engines and create stream and appropriate structure
+	std::vector<int> list_ids;
 	PVCuda::visit_usable_cuda_devices([&](int id)
 			{
 				cudaSetDevice(id);
 				cudaDeviceReset();
 				// Set scheduling to yield, as we need all processes!
 				cudaSetDeviceFlags(cudaDeviceScheduleYield | cudaDeviceMapHost);
+				list_ids.push_back(id);
 
 				device_t dev;
 				picviz_verify_cuda(cudaMalloc(&dev.device_codes, PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase)));
 				picviz_verify_cuda(cudaStreamCreate(&dev.stream));
 				this->_devices.insert(std::make_pair(id, dev));
 			});
+
+	// Enable full P2P access!
+	if (list_ids.size() > 1) {
+		std::sort(list_ids.begin(), list_ids.end());
+		do {
+			cudaSetDevice(*list_ids.begin());
+			cudaDeviceEnablePeerAccess(*(list_ids.begin()+1), 0);
+		}
+		while (std::next_permutation(list_ids.begin(), list_ids.end()));
+	}
+
 
 	/*
 	// Init stream pools
@@ -155,6 +169,26 @@ PVParallelView::PVBCIBackendImage_p PVParallelView::PVBCIDrawingBackendCUDA::cre
 	//PVBCIBackendImage_p ret(new PVBCIBackendImageCUDA(img_width, height_bits, 0));
 	PVBCIBackendImage_p ret(new PVBCIBackendImageCUDA(img_width, height_bits, dev, _last_image_dev->second.stream));
 	++_last_image_dev;
+	return ret;
+}
+
+PVParallelView::PVBCIBackendImage_p PVParallelView::PVBCIDrawingBackendCUDA::create_image_on_same_device(size_t img_width, uint8_t height_bits, backend_image_t const& ref) const
+{
+	assert(_devices.size() >= 1);
+
+	PVBCIBackendImageCUDA const* ref_cuda = dynamic_cast<PVBCIBackendImageCUDA const*>(&ref);
+	int dev;
+	if (ref_cuda) {
+		dev = ref_cuda->get_cuda_device();
+	}
+	else {
+		if (_last_image_dev == _devices.end()) {
+			_last_image_dev = _devices.begin();
+		}
+		dev = _last_image_dev->first;
+		++_last_image_dev;
+	}
+	PVBCIBackendImage_p ret(new PVBCIBackendImageCUDA(img_width, height_bits, dev, _devices[dev].stream));
 	return ret;
 }
 
