@@ -822,10 +822,10 @@ void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_
 	other->show_start_page(false);
 	//other->_workspaces_tab_widget->setVisible(true);
 
-	PVGuiQt::PVWorkspace* workspace = dynamic_cast<PVGuiQt::PVWorkspace*>(widget_workspace);
+	PVGuiQt::PVSourceWorkspace* workspace = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(widget_workspace);
 	if (workspace) {
 		_projects_tab_widget->remove_workspace(workspace, false);
-		other->_projects_tab_widget->add_workspace((PVGuiQt::PVWorkspace*) workspace);
+		other->_projects_tab_widget->add_workspace((PVGuiQt::PVSourceWorkspace*) workspace);
 	}
 }
 

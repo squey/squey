@@ -6,36 +6,21 @@
 
 #include <QAction>
 #include <QApplication>
-#include <QHBoxLayout>
-#include <QMenu>
 #include <QPalette>
-#include <QPushButton>
 #include <QToolBar>
-#include <QDateTime>
+#include <QToolButton>
 
-#include <pvkernel/core/PVDataTreeAutoShared.h>
-#include <pvkernel/core/PVProgressBox.h>
-#include <pvkernel/core/PVAxisIndexType.h>
-#include <pvkernel/widgets/PVArgumentListWidget.h>
-
-#include <picviz/PVSource.h>
-#include <picviz/PVView.h>
-#include <picviz/widgets/PVArgumentListWidgetFactory.h>
+#include <pvguiqt/PVWorkspace.h>
+#include <pvguiqt/PVViewDisplay.h>
+#include <pvguiqt/PVWorkspacesTabWidget.h>
+#include <pvguiqt/PVProjectsTabWidget.h>
 
 #include <pvdisplays/PVDisplaysImpl.h>
 
-#include <pvguiqt/PVLayerStackWidget.h>
-#include <pvguiqt/PVListingModel.h>
-#include <pvguiqt/PVListingSortFilterProxyModel.h>
-#include <pvguiqt/PVListingView.h>
-#include <pvguiqt/PVViewDisplay.h>
-#include <pvguiqt/PVRootTreeModel.h>
-#include <pvguiqt/PVRootTreeView.h>
-#include <pvguiqt/PVWorkspace.h>
-#include <pvguiqt/PVViewDisplay.h>
+#include <picviz/widgets/PVArgumentListWidgetFactory.h>
 
-#include <pvguiqt/PVWorkspacesTabWidget.h>
-#include <pvguiqt/PVProjectsTabWidget.h>
+#include <pvkernel/core/PVAxisIndexType.h>
+#include <pvkernel/widgets/PVArgumentListWidget.h>
 
 
 /******************************************************************************
@@ -101,7 +86,14 @@ void PVGuiQt::PVWorkspaceBase::changeEvent(QEvent *event)
 	}
 }
 
-PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::add_view_display(Picviz::PVView* view, QWidget* view_widget, std::function<QString()> name, bool can_be_central_display /*= true*/, bool delete_on_close /* = true*/, Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/)
+PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::add_view_display(
+	Picviz::PVView* view,
+	QWidget* view_widget,
+	std::function<QString()> name,
+	bool can_be_central_display /*= true*/,
+	bool delete_on_close /* = true*/,
+	Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/
+)
 {
 	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, can_be_central_display, delete_on_close, this);
 
@@ -116,7 +108,12 @@ PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::add_view_display(Picviz::PVVie
 	return view_display;
 }
 
-PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(Picviz::PVView* view, QWidget* view_widget, std::function<QString()> name, bool delete_on_close)
+PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(
+	Picviz::PVView* view,
+	QWidget* view_widget,
+	std::function<QString()> name,
+	bool delete_on_close
+)
 {
 	PVViewDisplay* view_display = new PVViewDisplay(view, view_widget, name, true, delete_on_close, this);
 	view_display->setStyleSheet("QDockWidget { font: bold }");
@@ -285,10 +282,10 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(QAction* act)
 
 /******************************************************************************
  *
- * PVGuiQt::PVWorkspace
+ * PVGuiQt::PVSourceWorkspace
  *
  *****************************************************************************/
-PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
+PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	PVWorkspaceBase(parent),
 	_source(source)
 {
@@ -391,7 +388,7 @@ PVGuiQt::PVWorkspace::PVWorkspace(Picviz::PVSource* source, QWidget* parent) :
 	}
 }
 
-void PVGuiQt::PVWorkspace::update_view_count(PVHive::PVObserverBase* /*obs_base*/)
+void PVGuiQt::PVSourceWorkspace::update_view_count(PVHive::PVObserverBase* /*obs_base*/)
 {
 	uint64_t views_count = _source->get_children<Picviz::PVView>().size();
 	if (views_count != _views_count) {
@@ -402,7 +399,6 @@ void PVGuiQt::PVWorkspace::update_view_count(PVHive::PVObserverBase* /*obs_base*
 
 const PVGuiQt::PVWorkspaceBase::PVViewWidgets& PVGuiQt::PVWorkspaceBase::get_view_widgets(Picviz::PVView* view)
 {
-	//assert(view->get_parent<Picviz::PVSource>() == _source);
 	if (!_view_widgets.contains(view)) {
 		PVViewWidgets widgets(view, this);
 		return *(_view_widgets.insert(view, widgets));
@@ -410,7 +406,7 @@ const PVGuiQt::PVWorkspaceBase::PVViewWidgets& PVGuiQt::PVWorkspaceBase::get_vie
 	return _view_widgets[view];
 }
 
-void PVGuiQt::PVWorkspace::refresh_views_menus()
+void PVGuiQt::PVSourceWorkspace::refresh_views_menus()
 {
 	for (std::pair<QToolButton*, PVDisplays::PVDisplayViewIf*> const& p: _view_display_if_btns) {
 		for (QAction* act: p.first->actions()) {
@@ -443,15 +439,4 @@ void PVGuiQt::PVWorkspace::refresh_views_menus()
 			connect(act, SIGNAL(triggered()), this, SLOT(create_view_axis_widget()));
 		}
 	}
-}
-
-
-/******************************************************************************
- *
- * PVGuiQt::PVOpenWorkspace
- *
- *****************************************************************************/
-PVGuiQt::PVOpenWorkspace::PVOpenWorkspace(QWidget* parent) : PVWorkspaceBase(parent)
-{
-
 }

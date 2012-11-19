@@ -59,7 +59,7 @@ class PVSerializeArchive;
 
 namespace PVGuiQt
 {
-class PVWorkspace;
+class PVSourceWorkspace;
 class PVAboutBoxDialog;
 }
 
@@ -350,8 +350,8 @@ protected:
 	void keyPressEvent(QKeyEvent *event);
 	int update_check();
 	void treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors);
-	PVGuiQt::PVWorkspace* get_tab_from_view(Picviz::PVView* picviz_view);
-	PVGuiQt::PVWorkspace* get_tab_from_view(Picviz::PVView const& picviz_view);
+	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Picviz::PVView* picviz_view);
+	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Picviz::PVView const& picviz_view);
 	void show_start_page(bool visible);
 	void set_version_informations();
 

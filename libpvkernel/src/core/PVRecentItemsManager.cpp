@@ -5,6 +5,7 @@
  */
 
 #include <pvkernel/core/PVRecentItemsManager.h>
+#include <pvkernel/rush/PVFormat.h>
 
 typename PVCore::PVRecentItemsManager::PVRecentItemsManager_p PVCore::PVRecentItemsManager::_recent_items_manager_p = PVRecentItemsManager_p();
 
@@ -19,7 +20,7 @@ void PVCore::PVRecentItemsManager::add(const QString& item_path, Category catego
 	_recents_settings.setValue(recent_items_key, files);
 }
 
-void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_creator_p, const PVRush::PVInputType::list_inputs& inputs, PVRush::PVFormat& format)
+void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_creator_p, const PVRush::PVInputType::list_inputs& inputs, const PVRush::PVFormat& format)
 {
 	_recents_settings.beginGroup(_recents_items_keys[SOURCES]);
 
@@ -143,7 +144,6 @@ const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager:
 
 uint64_t PVCore::PVRecentItemsManager::get_source_timestamp_to_replace(const PVRush::PVSourceDescription& source_description)
 {
-
 	QStringList sources = _recents_settings.childGroups();
 
 	uint64_t older_timestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();

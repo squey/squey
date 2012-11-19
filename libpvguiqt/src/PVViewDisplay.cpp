@@ -7,33 +7,42 @@
 #include <functional>
 
 #include <QAbstractScrollArea>
+#include <QAction>
 #include <QApplication>
+#include <QContextMenuEvent>
 #include <QDesktopWidget>
+#include <QEvent>
 #include <QMenu>
 #include <QMouseEvent>
 #include <QScrollBar>
-
-#include <pvkernel/core/lambda_connect.h>
 
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 
-#include <picviz/PVView.h>
-
 #include <pvhive/PVObserverCallback.h>
 
+#include <picviz/PVView.h>
 
-PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget, std::function<QString()> name, bool can_be_central_widget, bool delete_on_close, PVWorkspaceBase* workspace) :
+/*! \brief Maximize a view display on a given screen.
+ */
+PVGuiQt::PVViewDisplay::PVViewDisplay(
+	Picviz::PVView* view,
+	QWidget* view_widget,
+	std::function<QString()> name,
+	bool can_be_central_widget,
+	bool delete_on_close,
+	PVWorkspaceBase* workspace
+) :
 	QDockWidget((QWidget*)workspace),
 	_view(view),
 	_name(name),
 	_workspace(workspace)
 {
-	setFocusPolicy(Qt::StrongFocus);
 	setWidget(view_widget);
 	setWindowTitle(_name());
 
+	setFocusPolicy(Qt::StrongFocus);
 	view_widget->setFocusPolicy(Qt::StrongFocus);
 
 	QAbstractScrollArea* scroll_area = dynamic_cast<QAbstractScrollArea*>(view_widget);
@@ -43,9 +52,8 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 	}
 
 	if (view) {
+		// Set view color
 		QColor view_color = view->get_color();
-		//setStyleSheet(QString("QDockWidget::title {background: %1;} QDockWidget { background: %2;} ").arg(view_color.name()).arg(view_color.name()));
-
 		QPalette Pal(palette());
 		Pal.setColor(QPalette::Background, view_color);
 		setAutoFillBackground(true);
@@ -56,8 +64,7 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Picviz::PVView* view, QWidget* view_widget
 		setAttribute(Qt::WA_DeleteOnClose, true);
 	}
 
-	connect(this, SIGNAL(topLevelChanged(bool)), this, SLOT(dragStarted(bool)));
-	connect(this, SIGNAL(dockLocationChanged (Qt::DockWidgetArea)), this, SLOT(dragEnded()));
+	connect(this, SIGNAL(topLevelChanged(bool)), this, SLOT(drag_started(bool)));
 	connect(view_widget, SIGNAL(destroyed(QObject*)), this, SLOT(close()));
 
 	register_view(view);
@@ -86,14 +93,8 @@ void PVGuiQt::PVViewDisplay::register_view(Picviz::PVView* view)
 	}
 }
 
-void PVGuiQt::PVViewDisplay::plotting_updated()
-{
-	setWindowTitle(_name());
-}
-
 bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 {
-// Allow PVViewDisplay to be docked inside any other PVWorkspace
 //                ,
 //          ._  \/, ,|_
 //          -\| \|;|,'_
@@ -119,12 +120,13 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 	switch (event->type()) {
 		case QEvent::MouseMove:
 		{
-			if (PVGuiQt::PVWorkspace::_drag_started) {
+			if (PVGuiQt::PVSourceWorkspace::_drag_started) {
 				emit try_automatic_tab_switch();
 
 				QMouseEvent* mouse_event = (QMouseEvent*) event;
-				PVWorkspaceBase* workspace = PVGuiQt::PVWorkspace::workspace_under_mouse();
+				PVWorkspaceBase* workspace = PVGuiQt::PVSourceWorkspace::workspace_under_mouse();
 
+				// If we are over a new workspace...
 				if (workspace && workspace != parent()) {
 
 					QMouseEvent* fake_mouse_release = new QMouseEvent(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
@@ -149,7 +151,6 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 					QMouseEvent* fake_mouse_press = new QMouseEvent(QEvent::MouseButtonPress, _press_pt, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
 					QApplication::postEvent(this, fake_mouse_press);
 
-
 					QApplication::processEvents(QEventLoop::AllEvents);
 
 					QCursor::setPos(mapToGlobal(_press_pt));
@@ -166,7 +167,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 			QMouseEvent* mouse_event = (QMouseEvent*) event;
 			if (mouse_event->button() == Qt::LeftButton) {
 				_press_pt = mouse_event->pos();
-				PVGuiQt::PVWorkspaceBase::_drag_started = true;
+				drag_started(true);
 			}
 			break;
 		}
@@ -174,13 +175,12 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 		{
 			QMouseEvent* mouse_event = (QMouseEvent*) event;
 			if (mouse_event->button() == Qt::LeftButton) {
-				PVGuiQt::PVWorkspace::_drag_started = false;
+				drag_started(false);
 			}
 			break;
 		}
 		case QEvent::Move:
 		{
-			//PVGuiQt::PVWorkspace::_drag_started = true;
 			break;
 		}
 		default:
@@ -192,23 +192,10 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 	return QDockWidget::event(event);
 }
 
-void PVGuiQt::PVViewDisplay::dragStarted(bool started)
-{
-	if(started)
-	{
-		if(qobject_cast<PVViewDisplay*>(sender())) {
-			PVGuiQt::PVWorkspaceBase::_drag_started = true;
-		}
-	}
-}
-
-void PVGuiQt::PVViewDisplay::dragEnded()
-{
-	PVGuiQt::PVWorkspace::_drag_started = false;
-}
 
 void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 {
+	// FIXME: QApplication::desktop()->screenNumber() indexes are not necessarily ordered from left to right...
 	bool add_menu = true;
 	add_menu &= _workspace->centralWidget() != this;
 	add_menu &=  !widget()->isAncestorOf(childAt(event->pos()));
@@ -255,4 +242,14 @@ void PVGuiQt::PVViewDisplay::set_current_view()
 		Picviz::PVRoot_sp root_sp = _view->get_parent<Picviz::PVRoot>()->shared_from_this();
 		PVHive::call<FUNC(Picviz::PVRoot::select_view)>(root_sp, *_view);
 	}
+}
+
+void PVGuiQt::PVViewDisplay::drag_started(bool started)
+{
+	PVGuiQt::PVSourceWorkspace::_drag_started = started;
+}
+
+void PVGuiQt::PVViewDisplay::plotting_updated()
+{
+	setWindowTitle(_name());
 }

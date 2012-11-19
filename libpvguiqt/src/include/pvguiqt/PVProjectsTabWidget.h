@@ -107,26 +107,34 @@ protected:
 
 }
 
+/**
+ * \class PVProjectsTabWidget
+ *
+ * \note This class is representing a project tab widget.
+ */
 class PVProjectsTabWidget : public QWidget
 {
 	Q_OBJECT
 
 public:
 	PVProjectsTabWidget(Picviz::PVRoot* root, QWidget* parent = 0);
+
 	PVSceneWorkspacesTabWidget* add_project(Picviz::PVScene_p scene_p);
 	void remove_project(PVSceneWorkspacesTabWidget* workspace_tab_widget);
-	PVWorkspace* add_source(Picviz::PVSource* source);
-	void add_workspace(PVWorkspace* workspace);
-	void remove_workspace(PVWorkspace* workspace, bool animation = true);
+
+	PVSourceWorkspace* add_source(Picviz::PVSource* source);
+
+	void add_workspace(PVSourceWorkspace* workspace);
+	void remove_workspace(PVSourceWorkspace* workspace, bool animation = true);
+
 	bool save_modified_projects();
 	bool is_current_project_untitled() { return current_project() ? current_project()->is_project_untitled() : false; }
 	void collapse_tabs(bool collapse = true);
 
 	inline Picviz::PVScene* current_scene() const { return _root->current_scene(); }
-
 	PVWorkspacesTabWidgetBase* current_workspace_tab_widget() const;
-
 	inline PVSceneWorkspacesTabWidget* current_project() const { return (_current_workspace_tab_widget_index >= 2) ? (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(_current_workspace_tab_widget_index) : nullptr; }
+
 	inline void select_tab_from_scene(Picviz::PVScene* scene);
 	inline PVWorkspaceBase* current_workspace() const { return  current_project() ? (PVWorkspaceBase*) current_project()->currentWidget() : nullptr; }
 	inline Picviz::PVView* current_view() const { return _root->current_view(); }

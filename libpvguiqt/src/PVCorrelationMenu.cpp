@@ -6,17 +6,19 @@
 
 #include <assert.h>
 
+#include <QAction>
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QVBoxLayout>
+
+#include <pvguiqt/PVCorrelationMenu.h>
+#include <pvguiqt/PVAD2GWidget.h>
 
 #include <pvhive/PVCallHelper.h>
 
 #include <picviz/PVRoot.h>
 #include <picviz/PVAD2GView.h>
-#include <pvguiqt/PVAD2GWidget.h>
 
-#include <pvguiqt/PVCorrelationMenu.h>
 
 PVGuiQt::PVCorrelationMenu::PVCorrelationMenu(Picviz::PVRoot* root, QWidget* parent  /* = 0 */) :
 	QMenu(parent),
