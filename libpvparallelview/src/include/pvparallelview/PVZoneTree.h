@@ -38,7 +38,7 @@ class TBBMergeTreesTask;
 class TBBCreateTreeTask;
 class TBBComputeAllocSizeAndFirstElts;
 class TBBSelFilter;
-class TBBSelFilterMaxCount; 
+class TBBSelFilterMaxCount;
 }
 
 class PVZoneProcessing;
@@ -124,16 +124,26 @@ protected:
 			_zp(zp), _pdata(pdata)
 		{
 			_ranges = new PVRange[pdata.ntasks];
-			PVRow begin = 0;
-			PVRow range_size = (((max_val/pdata.ntasks)+4-1)/4)*4;
-			for (uint32_t task = 0 ; task < pdata.ntasks-1 ; task++)
-			{
-				_ranges[task].begin = begin;
-				_ranges[task].end = begin+range_size;
-				begin += range_size;
+
+			if (max_val < 4 * pdata.ntasks) {
+				// too few elements, using only one task, other will do nothing!
+				_ranges[0].begin = 0;
+				_ranges[0].end = max_val;
+				for (uint32_t task = 1; task < pdata.ntasks; ++task) {
+					_ranges[task].begin = 0;
+					_ranges[task].end = 0;
+				}
+			} else {
+				PVRow begin = 0;
+				PVRow range_size = (((max_val/pdata.ntasks)+4-1)/4)*4;
+				for (uint32_t task = 0; task < pdata.ntasks-1; ++task) {
+					_ranges[task].begin = begin;
+					_ranges[task].end = begin+range_size;
+					begin += range_size;
+				}
+				_ranges[pdata.ntasks-1].begin = begin;
+				_ranges[pdata.ntasks-1].end = max_val;
 			}
-			_ranges[pdata.ntasks-1].begin = begin;
-			_ranges[pdata.ntasks-1].end = max_val;
 		}
 
 		~PVTreeParams()
