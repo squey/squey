@@ -1783,12 +1783,13 @@ void PVInspector::PVMainWindow::set_selection_from_layer(Picviz::PVView_sp view,
  *****************************************************************************/
 void PVInspector::PVMainWindow::set_version_informations()
 {
+	/*
 	if (_last_known_cur_release != PICVIZ_VERSION_INVALID) {
 		pv_lastCurVersion->setText(PVCore::PVVersion::to_str(_last_known_cur_release));
 	}
 	if (_last_known_maj_release != PICVIZ_VERSION_INVALID) {
 		pv_lastMajVersion->setText(PVCore::PVVersion::to_str(_last_known_maj_release));
-	}
+	}*/
 }
 
 
