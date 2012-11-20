@@ -125,8 +125,10 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		shared_img[threadIdx.x + y*blockDim.x] = 0xFFFFFFFF;
 	}
 
+#if 0
 	const unsigned int size_grid2 = size_grid<<1;
 	const unsigned int n_end = (n/(size_grid2))*(size_grid2);
+#endif
 
 	__syncthreads();
 
