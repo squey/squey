@@ -165,8 +165,8 @@ nsresult nsUniversalDetector::HandleData(const char* aBuf, PRUint32 aLen)
 	const __m128i sse_a0 = _mm_set1_epi8('\xA0');
 	//const __m128i sse_033 = _mm_set1_epi8('\033');
 	//const __m128i sse_ctrl = _mm_set1_epi16(0x7b7e); // == '~{'
-	const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFF);
-	const __m128i sse_rightshift = _mm_set_epi8(15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0);
+	//const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFF);
+	//const __m128i sse_rightshift = _mm_set_epi8(15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0);
 	char* aBufSSE = (char*) aBuf;
 	for (i = 0; i < nsse; i++)
 	{

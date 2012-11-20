@@ -109,11 +109,10 @@ bool PVRush::PVChunkAlignUTF16Char::operator()(PVCore::PVChunk &cur_chunk, PVCor
 	}
 	UChar* str_found;
 	unsigned int nelts = 0;
-	PVCore::list_elts &elts = cur_chunk.elements();
 	while ((str_found = u_memchr_nosurr(str_cur, _cu, sstr_remains)) != NULL) {
 		UChar* start = str_cur;
 		UChar* end = str_found;
-		
+
 		cur_chunk.add_element((char*) start, (char*) end);
 		nelts++;
 
@@ -129,7 +128,7 @@ bool PVRush::PVChunkAlignUTF16Char::operator()(PVCore::PVChunk &cur_chunk, PVCor
 	if (sstr_remains <= 0) {
 		return true;
 	}
-	// What's remaining goes to the next_chunk	
+	// What's remaining goes to the next_chunk
 	memcpy(next_chunk.begin(), (char*) str_cur, sizeof(UChar)*(sstr_remains));
 	next_chunk.set_end(next_chunk.begin() + sizeof(UChar)*(sstr_remains));
 

@@ -102,9 +102,9 @@ __global__ void bcicode_raster(uint2* bci_codes, unsigned int n, unsigned int wi
 		return;
 	}
 
-	const unsigned int bci_block_idx = blockIdx.x + blockIdx.y*gridDim.x;
-	const unsigned int bci_size_grid = gridDim.x*gridDim.y*blockDim.x*blockDim.y;
-	const unsigned int img_size_grid = blockDim.y;
+	// const unsigned int bci_block_idx = blockIdx.x + blockIdx.y*gridDim.x;
+	// const unsigned int bci_size_grid = gridDim.x*gridDim.y*blockDim.x*blockDim.y;
+	// const unsigned int img_size_grid = blockDim.y;
 	unsigned int bci_thread_idx = threadIdx.x + threadIdx.y*blockDim.x;
 
 	const float alpha = (float)(width-band_x)/(float)width;

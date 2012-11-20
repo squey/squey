@@ -42,6 +42,8 @@ namespace Test {
 #pragma pack(push)
 #pragma pack(4)
 
+// #define ENABLE_INSERTION
+
 struct PVQuadTreeEntry {
 	uint32_t y1;
 	uint32_t y2;
@@ -746,25 +748,32 @@ private:
 			const uint64_t y1_orig = obj._y1_min_value;
 			const uint64_t y1_len = (obj._y1_mid_value - y1_orig) * 2;
 			const uint64_t y1_scale = y1_len / max_count;
+#ifdef ENABLE_INSERTION
 			const uint64_t y1_shift = log2(y1_scale);
+
 			const uint64_t y2_orig = obj._y2_min_value;
 			const uint64_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / y2_count;
 			const uint64_t y2_shift = log2(y2_scale);
+#endif
 			const uint64_t ly1_min = (PVCore::clamp(y1_min, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 			const uint64_t ly1_max = (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 			const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
 			const size_t count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
 			memset(buffer, 0, count_aligned * sizeof(uint32_t));
-			uint32_t remaining = clipped_max_count * y2_count;
 
 			const __m128i sse_y1_min            = _mm_set1_epi64x(y1_min);
 			const __m128i sse_y1_max            = _mm_set1_epi64x(y1_max);
+
+#ifdef ENABLE_INSERTION
+			uint32_t remaining = clipped_max_count * y2_count;
+
 			const __m128i sse_y1_orig           = _mm_set1_epi32(y1_orig);
 			const __m128i sse_y1_shift          = _mm_set1_epi32(y1_shift);
 			const __m128i sse_ly1_min           = _mm_set1_epi32(ly1_min);
 			const __m128i sse_y2_orig           = _mm_set1_epi32(y2_orig);
 			const __m128i sse_y2_shift          = _mm_set1_epi32(y2_shift);
 			const __m128i sse_clipped_max_count = _mm_set1_epi32(clipped_max_count);
+#endif
 
 			const size_t size = obj._datas.size();
 			const size_t packed_size = size & ~3;
@@ -795,6 +804,7 @@ private:
 					continue;
 				}
 
+#if ENABLE_INSERTION
 				// sse_y2 is not needed before the call to test_sse
 				__m128i sse_y2 = _mm_unpackhi_epi64(sse_tmp01, sse_tmp23);
 
@@ -812,7 +822,6 @@ private:
 
 				__m128i sse_pos = _mm_add_epi32(sse_0x, sse_1y);
 
-#if 0
 				if(_mm_extract_epi32(sse_test, 0)) {
 					uint32_t p = _mm_extract_epi32(sse_pos, 0);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
@@ -862,7 +871,7 @@ private:
 				}
 #endif
 			}
-#if 0
+#if ENABLE_INSERTION
 			for(size_t i = packed_size; i < size; ++i) {
 				const PVQuadTreeEntry &e = obj._datas.at(i);
 				if (!test_f(e, y1_min, y1_max)) {
@@ -1729,34 +1738,45 @@ private:
 		{
 			const uint64_t y1_min = ctx.get_y_min();
 			const uint64_t y1_max = ctx.get_y_max();
+#if ENABLE_INSERTION
 			const insert_entry_f &insert_f = ctx.get_insert_f();
+#endif
 			visit_tls &tls = ctx.get_tls().local();
 			pv_quadtree_buffer_entry_t *buffer = tls.get_quadtree_buffer();
+#if ENABLE_INSERTION
 			pv_tlr_buffer_t &tlr = tls.get_tlr_buffer();
+#endif
 
 			const uint64_t max_count = 1 << zoom;
 			const uint64_t y1_orig = obj._y1_min_value;
 			const uint64_t y1_len = (obj._y1_mid_value - y1_orig) * 2;
 			const uint64_t y1_scale = y1_len / max_count;
+#if ENABLE_INSERTION
 			const uint64_t y1_shift = log2(y1_scale);
+
 			const uint64_t y2_orig = obj._y2_min_value;
 			const uint64_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / y2_count;
 			const uint64_t y2_shift = log2(y2_scale);
+#endif
 			const uint64_t ly1_min = (PVCore::clamp(y1_min, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 			const uint64_t ly1_max = (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 			const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
 			const size_t count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
 			memset(buffer, 0, count_aligned * sizeof(uint32_t));
-			uint32_t remaining = clipped_max_count * y2_count;
 
 			const __m128i sse_y1_min            = _mm_set1_epi64x(y1_min);
 			const __m128i sse_y1_max            = _mm_set1_epi64x(y1_max);
+
+#if ENABLE_INSERTION
+			uint32_t remaining = clipped_max_count * y2_count;
+
 			const __m128i sse_y1_orig           = _mm_set1_epi32(y1_orig);
 			const __m128i sse_y1_shift          = _mm_set1_epi32(y1_shift);
 			const __m128i sse_ly1_min           = _mm_set1_epi32(ly1_min);
 			const __m128i sse_y2_orig           = _mm_set1_epi32(y2_orig);
 			const __m128i sse_y2_shift          = _mm_set1_epi32(y2_shift);
 			const __m128i sse_clipped_max_count = _mm_set1_epi32(clipped_max_count);
+#endif
 
 			const size_t size = obj._datas.size();
 			const size_t packed_size = size & ~3;
@@ -1787,6 +1807,7 @@ private:
 					continue;
 				}
 
+#if ENABLE_INSERTION
 				// sse_y2 is not needed before the call to test_sse
 				__m128i sse_y2 = _mm_unpackhi_epi64(sse_tmp01, sse_tmp23);
 
@@ -1804,7 +1825,6 @@ private:
 
 				__m128i sse_pos = _mm_add_epi32(sse_0x, sse_1y);
 
-#if 0
 				if(_mm_extract_epi32(sse_test, 0)) {
 					uint32_t p = _mm_extract_epi32(sse_pos, 0);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
@@ -1855,7 +1875,7 @@ private:
 #endif
 			}
 
-#if 0
+#if ENABLE_INSERTION
 			for(size_t i = packed_size; i < size; ++i) {
 				const PVQuadTreeEntry &e = obj._datas.at(i);
 				if (!test_f(e, y1_min, y1_max)) {

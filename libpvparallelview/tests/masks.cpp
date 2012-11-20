@@ -24,7 +24,7 @@ int main()
 	printf("Mask for r: %lx\n", code.int_v >> 32);
 
 	code.int_v = 0;
-	code.s.color = 511;
+	code.s.color = 255;
 	printf("Mask for color: %lx\n", code.int_v >> 32);
 
 	return 0;
