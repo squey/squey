@@ -1001,7 +1001,7 @@ void PVRush::PVXmlTreeNodeDom::getGroupsByType(types_groups_t& grps)
 		}
 	}
 
-	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
+	for (int ichild = 0; ichild < getChildren().size(); ichild++) {
 		getChild(ichild)->getGroupsByType(grps);
 	}
 }
