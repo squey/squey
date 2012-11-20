@@ -75,45 +75,6 @@ int main(int argc, char **argv)
 	}
 
 	std::cout << std::endl;
-	pvquadtree *subtree = 0;
-
-	{
-		std::cout << "extract subtree from full y1" << std::endl;
-		BENCH_START(extract);
-		subtree = qt->get_subtree_from_y1(0, MAX_VALUE);
-		BENCH_END(extract, "extract", 1, 1, 1, 1);
-		std::cout << "memory used: " << subtree->memory() << std::endl;
-		delete subtree;
-	}
-
-	{
-		std::cout << "extract subtree from half y1" << std::endl;
-		BENCH_START(extract);
-		subtree = qt->get_subtree_from_y1(0, MAX_VALUE >> 1);
-		BENCH_END(extract, "extract", 1, 1, 1, 1);
-		std::cout << "memory used: " << subtree->memory() << std::endl;
-		delete subtree;
-	}
-
-	{
-		std::cout << "extract subtree from full y1y2" << std::endl;
-		BENCH_START(extract);
-		subtree = qt->get_subtree_from_y1y2(0, MAX_VALUE, 0, MAX_VALUE);
-		BENCH_END(extract, "extract", 1, 1, 1, 1);
-		std::cout << "memory used: " << subtree->memory() << std::endl;
-		delete subtree;
-	}
-
-	{
-		std::cout << "extract subtree from quarter y1y2" << std::endl;
-		BENCH_START(extract);
-		subtree = qt->get_subtree_from_y1y2(0, MAX_VALUE >> 1, 0, MAX_VALUE >> 1);
-		BENCH_END(extract, "extract", 1, 1, 1, 1);
-		std::cout << "memory used: " << subtree->memory() << std::endl;
-		delete subtree;
-	}
-
-	std::cout << std::endl;
 
 	if (qt) {
 		delete qt;

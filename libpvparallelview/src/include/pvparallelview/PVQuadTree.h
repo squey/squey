@@ -24,16 +24,20 @@
 #include <pvparallelview/PVTLRBuffer.h>
 
 /* TODO: try to move code into .cpp, etc.
+ *
+ * TODO: replace the visitors zoom parameter with a y?_count
  */
 
 namespace PVParallelView {
 
+#ifdef PICVIZ_DEVELOPER_MODE
 struct extract_stat {
 	static double all_dt;
 	static size_t all_cnt;
 	static size_t test_cnt;
 	static size_t insert_cnt;
 };
+#endif
 
 #define SW 0
 #define SE 1
@@ -46,6 +50,11 @@ struct extract_stat {
 #pragma pack(push)
 #pragma pack(4)
 
+/**
+ * @struct PVQuadTreeEntry
+ *
+ * This structure is the quadtree's internal structure used to store events
+ */
 struct PVQuadTreeEntry {
 	uint32_t y1;
 	uint32_t y2;
@@ -101,7 +110,7 @@ static inline bool test_sse(const __m128i &sse_y1,
 	const __m128i sse_max0 = _mm_cmpgt_epi64(sse_y1_max, sse_y1_0);
 	const __m128i sse_max1 = _mm_cmpgt_epi64(sse_y1_max, sse_y1_1);
 
-	/* results merge (by packing them from 64 bits to 32 bits)
+	/* results merge (by unpacking them from 64 bits to 32 bits)
 	 *
 	 * on 64 bits:
 	 * res0 = [ v01 | v00 ]
@@ -109,7 +118,7 @@ static inline bool test_sse(const __m128i &sse_y1,
 	 *
 	 * <=>
 	 *
-	 * on 32 bits (because possible values are 0 or ~0)
+	 * on 32 bits (because lone possible values are 0 or ~0)
 	 * res0 = [ v01 | v01 | v00 | v00 ]
 	 * res1 = [ v11 | v11 | v10 | v10 ]
 	 *
@@ -125,7 +134,7 @@ static inline bool test_sse(const __m128i &sse_y1,
 	__m128i sse_ms1 = _mm_srli_si128(sse_min1, 4);
 
 	/* a call to unpacklo_epi64 helps to gather these 64 bits
-	 * word into 1 register:
+	 * words into 1 register:
 	 *
 	 * res = [ v11 | v10 | v01 | v00 ]
 	 */
@@ -150,6 +159,71 @@ static inline bool test_sse(const __m128i &sse_y1,
 // typedef PVCore::PVVector<PVQuadTreeEntry, 1000, PVCore::PVJEMallocAllocator<PVQuadTreeEntry> > pvquadtree_entries_t;
 typedef PVCore::PVVector<PVQuadTreeEntry> pvquadtree_entries_t;
 
+/**
+ * @class PVQuadTree
+ *
+ * This class implements a quadtree to store events.
+ *
+ * It has been initially written to have an efficient data structure when
+ * zooming in views based on parallel coordinates.
+ *
+ * This implementation does not use usual range bounds to describe the
+ * quadtree's bounding rectangle. The upper bound is replaced with the
+ * range's middle because this value is more often used to traverse a
+ * quadtree than the upper bound (which can computed from lower bound
+ * and the middle).
+ *
+ * The extraction processes are done using 2 types of visitors: one when
+ * constraints are on the y1 coordinate which correspond to the left border of
+ * a visual representation of events, the other when constraints are on the y2
+ * coordinate which correspond to the right border of a visual representation
+ * of events. In fact, there is constraints on the other coordinate too.
+ * Visitors also traverse the quadtree using strong constraints on one
+ * coordinate and weak constraints on the other coordinate.
+ *
+ * weak constraints are a number of elements uniformly distributed along the
+ * coordinate. Strong constraints are a half closed range and a zoom level; the
+ * zoom level is internally used to compute the number of uniformly distributed
+ * elements along the coordinate. Uniform distribution is discussed later.
+ *
+ * As we store in the quadtree only the Y coordinate of 2D points pairs
+ * defining lines between 2 axes, the stored datas in the quadtree can be
+ * considered as 2D points. The used extraction process has been adapted to
+ * take it into account.
+ *
+ * A little mental sketch will be helpful :-)
+ *
+ * Consider a quadtree whose coordinates ranges are equal; i.e. its bounding
+ * quadrilateral in an orthogonal cartesian coordinate system is a rectangle.
+ * If we want to render this quadtree as a 2 pixels height image, the number
+ * of lines to extract is
+ *  easy to compute, it's 4:
+ * - pixel 0 to pixel 0
+ * - pixel 0 to pixel 1
+ * - pixel 1 to pixel 0
+ * - pixel 1 to pixel 1
+ *
+ * In quadtree's space, these resulting lines can be considered (respectively)
+ * as:
+ * - one point in the bottom left quarter
+ * - one point in the top left quarter
+ * - one point in the bottom right quarter
+ * - one point in the top right quarter
+ *
+ * So that, extracting lines to fill a N pixels height image correspond to
+ * extracting points which are uniformly distributed on a NxN grid.
+ *
+ * As coordinates constraints are not symetrical, the grid can be a rectangle,
+ * we have to search for N "pixels" for one coordinate and M "pixels" on the
+ * others. So that, events extraction is expressed as a extraction of events
+ * uniformly distributed on a NxM grid.
+ *
+ * When doing an extraction, only the events with the lowest index are kept,
+ * that's why we talk about "first" events in the next comments.
+ *
+ * To make the first events extraction efficient, each unsplitted quadtrees
+ * nodes store events in ascending order relatively to their indices.
+ */
 template<int MAX_ELEMENTS_PER_NODE = 10000, int REALLOC_ELEMENT_COUNT = 1000, int PREALLOC_ELEMENT_COUNT = 0, size_t Bbits = NBITS_INDEX>
 class PVQuadTree
 {
@@ -160,6 +234,15 @@ public:
 	typedef std::function<void(const PVQuadTreeEntry &entry, pv_tlr_buffer_t &buffer)> insert_entry_f;
 
 public:
+	/**
+	 * Create and initialize a quadtree.
+	 *
+	 * @param y1_min_value the inclusive minimal bound along the y1 coordinate
+	 * @param y1_max_value the exclusive maximal bound along the y1 coordinate
+	 * @param y2_min_value the inclusive minimal bound along the y2 coordinate
+	 * @param y2_max_value the exclusive maximal bound along the y2 coordinate
+	 * @param max_level the depth limit to stop splitting the quadtres
+	 */
 	PVQuadTree(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level)
 	{
 		uint32_t y1_mid = y1_min_value + ((y1_max_value - y1_min_value) >> 1);
@@ -168,11 +251,15 @@ public:
 		init(y1_min_value, y1_mid, y2_min_value, y2_mid, max_level);
 	}
 
-	// CTOR to use with call to init()
+	/**
+	 * Create a quadtree without initializing it, this constructor has to be used with init.
+	 */
 	PVQuadTree()
-	{
-	}
+	{}
 
+	/**
+	 * Destruct a quadtree and its sub-quadtrees.
+	 */
 	~PVQuadTree() {
 		if (_nodes == 0) {
 			_datas.clear();
@@ -181,6 +268,15 @@ public:
 		}
 	}
 
+	/**
+	 * Initialize a quadtree.
+	 *
+	 * @param y1_min_value the inclusive minimal bound along the y1 coordinate
+	 * @param y1_mid_value the range middle value along the y1 coordinate
+	 * @param y2_min_value the inclusive minimal bound along the y2 coordinate
+	 * @param y2_mid_value the range middle value bound along the y2 coordinate
+	 * @param max_level the depth limit to stop splitting the quadtres
+	 */
 	void init(uint32_t y1_min_value, uint32_t y1_mid_value, uint32_t y2_min_value, uint32_t y2_mid_value, int max_level)
 	{
 		_y1_min_value = y1_min_value;
@@ -196,6 +292,14 @@ public:
 		_nodes = 0;
 	}
 
+	/**
+	 * Insert an event.
+	 *
+	 * This method use the scholar algorithm because the non-linear memory accesses
+	 * do not suit parallel algorithms.
+	 *
+	 * @param e the event to insert represented as a quadtree internal structure
+	 */
 	void insert(const PVQuadTreeEntry &e) {
 		// searching for the right child
 		register PVQuadTree *qt = this;
@@ -212,6 +316,18 @@ public:
 		}
 	}
 
+	/**
+	 * Reduce the memory usage.
+	 *
+	 * The internal structure (actually a PVVector) grows automatically and often store less
+	 * entries that it can really contain.
+	 *
+	 * Due to memory managment performance, it is better to compact the quadtrees while a
+	 * preprocessing pass.
+	 *
+	 * This method must not be inlined; some tests show that doing it implies important
+	 * performance lose.
+	 */
 	__attribute__((noinline)) void compact()
 	{
 		if (_nodes) {
@@ -223,6 +339,11 @@ public:
 		}
 	}
 
+	/**
+	 * Compute the memory used.
+	 *
+	 * @return the used memory
+	 */
 	inline size_t memory() const
 	{
 		size_t mem = sizeof (PVQuadTree) - sizeof(pvquadtree_entries_t) + _datas.memory();
@@ -235,6 +356,21 @@ public:
 		return mem;
 	}
 
+	/**
+	 * Extract the first events according to constraints on y1 coordinate (y1_min, y1_max, zoom)
+	 * and on y2 coordinate (y2_count).
+	 *
+	 * This method is initially (and principally) used to extract events for the right zone of a zoomed
+	 * parallel view.
+	 *
+	 * @param y1_min the incluse minimal bound along the y1 coordinate
+	 * @param y1_max the excluse maximal bound along the y1 coordinate
+	 * @param zoom the zoom level
+	 * @param y2_count the number of required events along the y2 coordinate
+	 * @param buffer a temporary buffer used for event extraction
+	 * @param insert_f the function executed for each relevant found event
+	 * @param tls a TLR buffer used to store the result of extraction
+	 */
 	inline void get_first_from_y1(uint64_t y1_min, uint64_t y1_max, uint32_t zoom,
 	                              uint32_t y2_count,
 	                              pv_quadtree_buffer_entry_t *buffer,
@@ -249,7 +385,21 @@ public:
 		                  insert_f, buffer, tlr);
 	}
 
-
+	/**
+	 * Extract the first events according to constraints on y2 coordinate (y2_min, y2_max, zoom)
+	 * and on y1 coordinate (y1_count).
+	 *
+	 * This method is initially (and principally) used to extract events for the left zone of a zoomed
+	 * parallel view.
+	 *
+	 * @param y2_min the incluse minimal bound along the y2 coordinate
+	 * @param y2_max the excluse maximal bound along the y2 coordinate
+	 * @param zoom the zoom level
+	 * @param y1_count the number of required events along the y1 coordinate
+	 * @param buffer a temporary buffer used for event extraction
+	 * @param insert_f the function executed for each relevant found event
+	 * @param tls a TLR buffer used to store the result of extraction
+	 */
 	inline void get_first_from_y2(uint64_t y2_min, uint64_t y2_max, uint32_t zoom,
 	                              uint32_t y1_count,
 	                              pv_quadtree_buffer_entry_t *buffer,
@@ -264,7 +414,21 @@ public:
 		                  insert_f, buffer, tlr);
 	}
 
-
+	/**
+	 * Extract the first selected events according to constraints on y1 coordinate (y1_min, y1_max,
+	 * zoom) and on y2 coordinate (y2_count).
+	 *
+	 * This method is initially (and principally) used to extract events for the right zone of a zoomed
+	 * parallel view.
+	 *
+	 * @param y1_min the incluse minimal bound along the y1 coordinate
+	 * @param y1_max the excluse maximal bound along the y1 coordinate
+	 * @param zoom the zoom level
+	 * @param y2_count the number of required events along the y2 coordinate
+	 * @param buffer a temporary buffer used for event extraction
+	 * @param insert_f the function executed for each relevant found event
+	 * @param tls a TLR buffer used to store the result of extraction
+	 */
 	inline void get_first_sel_from_y1(uint64_t y1_min, uint64_t y1_max,
 	                                  const Picviz::PVSelection &selection,
 	                                  uint32_t zoom, uint32_t y2_count,
@@ -281,7 +445,21 @@ public:
 		                  insert_f, buffer, tlr);
 	}
 
-
+	/**
+	 * Extract the first selected events according to constraints on y2 coordinate (y2_min, y2_max,
+	 * zoom) and on y1 coordinate (y1_count).
+	 *
+	 * This method is initially (and principally) used to extract events for the left zone of a zoomed
+	 * parallel view.
+	 *
+	 * @param y2_min the incluse minimal bound along the y2 coordinate
+	 * @param y2_max the excluse maximal bound along the y2 coordinate
+	 * @param zoom the zoom level
+	 * @param y1_count the number of required events along the y1 coordinate
+	 * @param buffer a temporary buffer used for event extraction
+	 * @param insert_f the function executed for each relevant found event
+	 * @param tls a TLR buffer used to store the result of extraction
+	 */
 	inline void get_first_sel_from_y2(uint64_t y2_min, uint64_t y2_max,
 	                                  const Picviz::PVSelection &selection,
 	                                  uint32_t zoom, uint32_t y1_count,
@@ -298,89 +476,126 @@ public:
 		                  insert_f, buffer, tlr);
 	}
 
-	PVQuadTree *get_subtree_from_y1(uint32_t y1_min, uint32_t y1_max)
-	{
-		PVQuadTree *new_tree = new PVQuadTree(*this);
-		new_tree->init(*this);
-		get_subtree_from_y1(*new_tree, y1_min, y1_max);
-		return new_tree;
-	}
-
-	PVQuadTree *get_subtree_from_y2(uint32_t y2_min, uint32_t y2_max)
-	{
-		PVQuadTree *new_tree = new PVQuadTree(*this);
-		new_tree->init(*this);
-		get_subtree_from_y2(*new_tree, y2_min, y2_max);
-		return new_tree;
-	}
-
-	PVQuadTree *get_subtree_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max)
-	{
-		PVQuadTree *new_tree = new PVQuadTree(*this);
-		new_tree->init(*this);
-		get_subtree_from_y1y2(*new_tree, y1_min, y1_max, y2_min, y2_max);
-		return new_tree;
-	}
-
-	PVQuadTree *get_subtree_from_selection(const Picviz::PVSelection &selection)
-	{
-		PVQuadTree *new_tree = new PVQuadTree(*this);
-		new_tree->init(*this);
-		get_subtree_from_selection(*new_tree, selection);
-		return new_tree;
-	}
-
+	/**
+	 * Search for all events whose y1 coordinates are in in the range [y1_min,y1_max) and
+	 * mark them as selected in \selection.
+	 *
+	 * There is no constraint on the y1 coordinate.
+	 *
+	 * @param y1_min the incluse minimal bound along the y1 coordinate
+	 * @param y1_max the excluse maximal bound along the y1 coordinate
+	 * @param selection the structure containing the result
+	 *
+	 * @return the number of selected events
+	 */
 	size_t compute_selection_y1(const uint64_t y1_min, const uint64_t y1_max, Picviz::PVSelection &selection) const
 	{
 		return compute_selection_y1(*this, y1_min, y1_max, selection);
 	}
 
+	/**
+	 * Search for all events whose y2 coordinates are in the range [y2_min,y2_max) and
+	 * mark them as selected in \selection.
+	 *
+	 * There is no constraint on the y1 coordinate.
+	 *
+	 * @param y2_min the incluse minimal bound along the y2 coordinate
+	 * @param y2_max the excluse maximal bound along the y2 coordinate
+	 * @param selection the structure containing the result
+	 *
+	 * @return the number of selected events
+	 */
 	size_t compute_selection_y2(const uint64_t y2_min, const uint64_t y2_max, Picviz::PVSelection &selection) const
 	{
 		return compute_selection_y2(*this, y2_min, y2_max, selection);
 	}
 
+#ifdef PICVIZ_DEVELOPER_MODE
+	/**
+	 * Clear the chronometer used to measure the whole extraction process time.
+	 */
 	static void all_clear()
 	{
 		extract_stat::all_dt = 0;
 	}
 
+	/**
+	 * Read the chronometer used to measure the whole extraction process time.
+	 *
+	 * For test purpose only.
+	 */
 	static double all_get()
 	{
 		return extract_stat::all_dt;
 	}
 
+	/**
+	 * Clear the parsed events counter used while extraction.
+	 *
+	 * For test purpose only.
+	 */
 	static void all_count_clear()
 	{
 		extract_stat::all_cnt = 0;
 	}
 
+	/**
+	 * Read the parsed events counter used while extraction.
+	 *
+	 * For test purpose only.
+	 */
 	static size_t all_count_get()
 	{
 		return extract_stat::all_cnt;
 	}
 
+	/**
+	 * Clear the tested events counter used while extraction.
+	 *
+	 * For test purpose only.
+	 */
 	static void test_count_clear()
 	{
 		extract_stat::test_cnt = 0;
 	}
 
+	/**
+	 * Read the tested events counter used while extraction.
+	 *
+	 * For test purpose only.
+	 */
 	static size_t test_count_get()
 	{
 		return extract_stat::test_cnt;
 	}
 
+	/**
+	 * Clear the inserted events counter used while extraction.
+	 *
+	 * For test purpose only.
+	 */
 	static void insert_count_clear()
 	{
 		extract_stat::insert_cnt = 0;
 	}
 
+	/**
+	 * Read the inserted events counter used while extraction.
+	 *
+	 * For test purpose only.
+	 */
 	static size_t insert_count_get()
 	{
 		return extract_stat::insert_cnt;
 	}
+#endif
 
 private:
+	/**
+	 * Initialize a quadtree given an other quadtree.
+	 *
+	 * @param qt the quadtree from which parameters are copied
+	 */
 	void init(const PVQuadTree &qt)
 	{
 		_y1_min_value = qt._y1_min_value;
@@ -391,11 +606,21 @@ private:
 		_nodes = 0;
 	}
 
+	/**
+	 * Compute the sub-quadtree's index corresponding to an entry.
+	 *
+	 * @param e the event to test
+	 *
+	 * @return the subtree's index corresponding to \e
+	 */
 	inline int compute_index(const PVQuadTreeEntry &e) const
 	{
 		return ((e.y2 > _y2_mid_value) << 1) | (e.y1 > _y1_mid_value);
 	}
 
+	/**
+	 * Subdivide a non-splitted quadtree into 4 non-splitted sub-quadtrees.
+	 */
 	void create_next_level()
 	{
 		uint32_t y1_step = (_y1_mid_value - _y1_min_value) >> 1;
@@ -426,8 +651,26 @@ private:
 	}
 
 private:
+	/**
+	 * @struct visit_y1
+	 *
+	 * Visitor used for quadtree traversal using strong constraints on y1 coordinate.
+	 */
 	struct visit_y1
 	{
+		/**
+		 * Traversal function to extract a NxM events grid.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y1_min the incluse minimal bound along the y1 coordinate
+		 * @param y1_max the excluse maximal bound along the y1 coordinate
+		 * @param zoom the zoom level
+		 * @param y2_count the number of required events along the y2 coordinate
+		 * @param test_f the function executed to test if an event is relevant or not
+		 * @param insert_f the function executed for each relevant found event
+		 * @param buffer a temporary buffer used for event extraction
+		 * @param tls a TLR buffer used to store the result of extraction
+		 */
 		template <typename Ftest>
 		static void get_n_m(PVQuadTree const& obj,
 		                    const uint64_t y1_min, const uint64_t y1_max,
@@ -477,6 +720,18 @@ private:
 			}
 		}
 
+		/**
+		 * Traversal function to extract a 1xM events grid.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y1_min the incluse minimal bound along the y1 coordinate
+		 * @param y1_max the excluse maximal bound along the y1 coordinate
+		 * @param y2_count the number of required events along the y2 coordinate
+		 * @param test_f the function executed to test if an event is relevant or not
+		 * @param insert_f the function executed for each relevant found event
+		 * @param buffer a temporary buffer used for event extraction
+		 * @param tls a TLR buffer used to store the result of extraction
+		 */
 		template <typename Ftest>
 		static void get_1_m(PVQuadTree const& obj,
 		                    const uint64_t y1_min, const uint64_t y1_max,
@@ -525,6 +780,18 @@ private:
 			}
 		}
 
+		/**
+		 * Traversal function to extract a Nx1 events grid.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y1_min the incluse minimal bound along the y1 coordinate
+		 * @param y1_max the excluse maximal bound along the y1 coordinate
+		 * @param zoom the zoom level
+		 * @param test_f the function executed to test if an event is relevant or not
+		 * @param insert_f the function executed for each relevant found event
+		 * @param buffer a temporary buffer used for event extraction
+		 * @param tls a TLR buffer used to store the result of extraction
+		 */
 		template <typename Ftest>
 		static void get_n_1(PVQuadTree const& obj,
 		                    const uint64_t y1_min, const uint64_t y1_max,
@@ -573,6 +840,15 @@ private:
 			}
 		}
 
+		/**
+		 * Traversal function to extract only one event for a quadtree.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y1_min the incluse minimal bound along the y1 coordinate
+		 * @param y1_max the excluse maximal bound along the y1 coordinate
+		 * @param test_f the function executed to test if an event is relevant or not
+		 * @param insert_f the function executed for each relevant found event
+		 */
 		template <typename Ftest>
 		static void get_1_1(PVQuadTree const& obj,
 		                    const uint64_t y1_min, const uint64_t y1_max,
@@ -601,6 +877,19 @@ private:
 			}
 		}
 
+		/**
+		 * Sequential function to extract a NxM events grid from a non-splitted quadtree.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y1_min the incluse minimal bound along the y1 coordinate
+		 * @param y1_max the excluse maximal bound along the y1 coordinate
+		 * @param zoom the zoom level
+		 * @param y2_count the number of required events along the y2 coordinate
+		 * @param test_f the function executed to test if an event is relevant or not
+		 * @param insert_f the function executed for each relevant found event
+		 * @param buffer a temporary buffer used for event extraction
+		 * @param tls a TLR buffer used to store the result of extraction
+		 */
 		template <typename Ftest>
 		static void extract_seq(PVQuadTree const& obj,
 		                        const uint64_t y1_min, const uint64_t y1_max,
@@ -651,6 +940,19 @@ private:
 #endif
 		}
 
+		/**
+		 * SSE function to extract a NxM events grid from a non-splitted quadtree.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y1_min the incluse minimal bound along the y1 coordinate
+		 * @param y1_max the excluse maximal bound along the y1 coordinate
+		 * @param zoom the zoom level
+		 * @param y2_count the number of required events along the y2 coordinate
+		 * @param test_f the function executed to test if an event is relevant or not
+		 * @param insert_f the function executed for each relevant found event
+		 * @param buffer a temporary buffer used for event extraction
+		 * @param tls a TLR buffer used to store the result of extraction
+		 */
 		template <typename Ftest>
 		static void extract_sse(PVQuadTree const& obj,
 		                        const uint64_t y1_min, const uint64_t y1_max,
@@ -799,8 +1101,26 @@ private:
 		}
 	};
 
+	/**
+	 * @struct visit_y2
+	 *
+	 * Visitor used for quadtree traversal using strong constraints on y2 coordinate.
+	 */
 	struct visit_y2
 	{
+		/**
+		 * Traversal function to extract a NxM events grid.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y2_min the incluse minimal bound along the y2 coordinate
+		 * @param y2_max the excluse maximal bound along the y2 coordinate
+		 * @param zoom the zoom level
+		 * @param y1_count the number of required events along the y1 coordinate
+		 * @param test_f the function executed to test if an event is relevant or not
+		 * @param insert_f the function executed for each relevant found event
+		 * @param buffer a temporary buffer used for event extraction
+		 * @param tls a TLR buffer used to store the result of extraction
+		 */
 		template <typename Ftest>
 		static void get_n_m(PVQuadTree const& obj,
 		                    const uint64_t y2_min, const uint64_t y2_max,
@@ -851,6 +1171,18 @@ private:
 			}
 		}
 
+		/**
+		 * Traversal function to extract a 1xM events grid.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y2_min the incluse minimal bound along the y2 coordinate
+		 * @param y2_max the excluse maximal bound along the y2 coordinate
+		 * @param y1_count the number of required events along the y1 coordinate
+		 * @param test_f the function executed to test if an event is relevant or not
+		 * @param insert_f the function executed for each relevant found event
+		 * @param buffer a temporary buffer used for event extraction
+		 * @param tls a TLR buffer used to store the result of extraction
+		 */
 		template <typename Ftest>
 		static void get_1_m(PVQuadTree const& obj,
 		                    const uint64_t y2_min, const uint64_t y2_max,
@@ -899,6 +1231,18 @@ private:
 			}
 		}
 
+		/**
+		 * Traversal function to extract a Nx1 events grid.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y2_min the incluse minimal bound along the y2 coordinate
+		 * @param y2_max the excluse maximal bound along the y2 coordinate
+		 * @param zoom the zoom level
+		 * @param test_f the function executed to test if an event is relevant or not
+		 * @param insert_f the function executed for each relevant found event
+		 * @param buffer a temporary buffer used for event extraction
+		 * @param tls a TLR buffer used to store the result of extraction
+		 */
 		template <typename Ftest>
 		static void get_n_1(PVQuadTree const& obj,
 		                    const uint64_t y2_min, const uint64_t y2_max,
@@ -943,6 +1287,14 @@ private:
 			}
 		}
 
+		/**
+		 * Traversal function to extract only one event for a quadtree.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y2_min the incluse minimal bound along the y2 coordinate
+		 * @param y2_max the excluse maximal bound along the y2 coordinate
+		 * @param test_f the function executed to test if an event is relevant or not
+		 */
 		template <typename Ftest>
 		static void get_1_1(PVQuadTree const& obj,
 		                    const uint64_t y2_min, const uint64_t y2_max,
@@ -972,6 +1324,19 @@ private:
 			}
 		}
 
+		/**
+		 * Sequential function to extract a NxM events grid from a non-splitted quadtree.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y2_min the incluse minimal bound along the y2 coordinate
+		 * @param y2_max the excluse maximal bound along the y2 coordinate
+		 * @param zoom the zoom level
+		 * @param y1_count the number of required events along the y1 coordinate
+		 * @param test_f the function executed to test if an event is relevant or not
+		 * @param insert_f the function executed for each relevant found event
+		 * @param buffer a temporary buffer used for event extraction
+		 * @param tls a TLR buffer used to store the result of extraction
+		 */
 		template <typename Ftest>
 		static void extract_seq(PVQuadTree const& obj,
 		                        const uint64_t y2_min, const uint64_t y2_max,
@@ -1011,6 +1376,19 @@ private:
 			}
 		}
 
+		/**
+		 * SSE function to extract a NxM events grid from a non-splitted quadtree.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y2_min the incluse minimal bound along the y2 coordinate
+		 * @param y2_max the excluse maximal bound along the y2 coordinate
+		 * @param zoom the zoom level
+		 * @param y1_count the number of required events along the y1 coordinate
+		 * @param test_f the function executed to test if an event is relevant or not
+		 * @param insert_f the function executed for each relevant found event
+		 * @param buffer a temporary buffer used for event extraction
+		 * @param tls a TLR buffer used to store the result of extraction
+		 */
 		template <typename Ftest>
 		static void extract_sse(PVQuadTree const& obj,
 		                        const uint64_t y2_min, const uint64_t y2_max,
@@ -1158,74 +1536,17 @@ private:
 		}
 	};
 
-	void get_subtree_from_y1(PVQuadTree& new_tree, uint32_t y1_min, uint32_t y1_max)
-	{
-		if(_nodes != 0) {
-			new_tree._nodes = new PVQuadTree [4];
-			for (int i = 0; i < 4; ++i) {
-				new_tree._nodes[i].init(_nodes[i]);
-			}
-			if(_y1_mid_value < y1_max) {
-				_nodes[NE].get_subtree_from_y1(new_tree._nodes[NE], y1_min, y1_max);
-				_nodes[SE].get_subtree_from_y1(new_tree._nodes[SE], y1_min, y1_max);
-			}
-			if(y1_min < _y1_mid_value) {
-				_nodes[NW].get_subtree_from_y1(new_tree._nodes[NW], y1_min, y1_max);
-				_nodes[SW].get_subtree_from_y1(new_tree._nodes[SW], y1_min, y1_max);
-			}
-		} else {
-			new_tree._datas = _datas;
-		}
-	}
-
-	void get_subtree_from_y2(PVQuadTree& new_tree, uint32_t y2_min, uint32_t y2_max)
-	{
-		if(_nodes != 0) {
-			new_tree._nodes = new PVQuadTree [4];
-			for (int i = 0; i < 4; ++i) {
-				new_tree._nodes[i].init(_nodes[i]);
-			}
-			if(_y2_mid_value < y2_max) {
-				_nodes[NW].get_subtree_from_y2(new_tree._nodes[NW], y2_min, y2_max);
-				_nodes[NE].get_subtree_from_y2(new_tree._nodes[NE], y2_min, y2_max);
-			}
-			if(y2_min < _y2_mid_value) {
-				_nodes[SW].get_subtree_from_y2(new_tree._nodes[SW], y2_min, y2_max);
-				_nodes[SE].get_subtree_from_y2(new_tree._nodes[SE], y2_min, y2_max);
-			}
-		} else {
-			new_tree._datas = _datas;
-		}
-	}
-
-	void get_subtree_from_y1y2(PVQuadTree& new_tree, uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max)
-	{
-		if(_nodes != 0) {
-			new_tree._nodes = new PVQuadTree [4];
-			for (int i = 0; i < 4; ++i) {
-				new_tree._nodes[i].init(_nodes[i]);
-			}
-			if(_y1_mid_value < y1_max) {
-				if(_y2_mid_value < y2_max) {
-					_nodes[NE].get_subtree_from_y1y2(new_tree._nodes[NE], y1_min, y1_max, y2_min, y2_max);
-				}
-				if(y2_min < _y2_mid_value) {
-					_nodes[SE].get_subtree_from_y1y2(new_tree._nodes[SE], y1_min, y1_max, y2_min, y2_max);
-				}
-			}
-			if(y1_min < _y1_mid_value) {
-				if(_y2_mid_value < y2_max) {
-					_nodes[NW].get_subtree_from_y1y2(new_tree._nodes[NW], y1_min, y1_max, y2_min, y2_max);
-				}
-				if(y2_min < _y2_mid_value) {
-					_nodes[SW].get_subtree_from_y1y2(new_tree._nodes[SW], y1_min, y1_max, y2_min, y2_max);
-				}
-			}
-		} else {
-			new_tree._datas = _datas;
-		}
-	}
-
+	/**
+	 * Traverse a quadtree to mark as selected all events in the range [y1_min,y1_max); there is no
+	 * constraint on the y2 coordinate.
+	 *
+	 * @param obj the quadtree to visit
+	 * @param y1_min the incluse minimal bound along the y1 coordinate
+	 * @param y1_max the excluse maximal bound along the y1 coordinate
+	 * @param selection the structure containing the result
+	 *
+	 * @return the count of selected events in selection
+	 */
 	size_t compute_selection_y1(PVQuadTree const& obj, const uint64_t y1_min, const uint64_t y1_max, Picviz::PVSelection &selection) const
 	{
 		size_t num = 0;
@@ -1250,6 +1571,17 @@ private:
 		return num;
 	}
 
+	/**
+	 * Traverse a quadtree to mark as selected all events in the range [y2_min,y2_max); there is no
+	 * constraint on the y1 coordinate.
+	 *
+	 * @param obj the quadtree to visit
+	 * @param y2_min the incluse minimal bound along the y2 coordinate
+	 * @param y2_max the excluse maximal bound along the y2 coordinate
+	 * @param selection the structure containing the result
+	 *
+	 * @return the count of selected events in selection
+	 */
 	size_t compute_selection_y2(PVQuadTree const& obj, const uint64_t y2_min, const uint64_t y2_max, Picviz::PVSelection &selection) const
 	{
 		size_t num = 0;

@@ -27,15 +27,31 @@
 
 #define BROWSE_TBB
 
+// forward declaration
 namespace PVCore {
 class PVHSVColor;
 }
 
 namespace PVParallelView {
 
+// forward declaration
 template <size_t Bbits>
 class PVBCICode;
 
+/**
+ * @class PVZoomedZoneTree
+ *
+ * This class is the high-level data structure used to store events relatively to a zone.
+ *
+ * It is firstly designed to be used to zoom in parallel coordinates representations of data sets.
+ * It reuse the same structuring than PVZoneTree: a fixed sized array of data structures which
+ * contains the events. this array is a first partition of the events space. The lesser level
+ * data structure, a quadtree, store and index each partition.
+ *
+ * The similary between PVZoneTree and PVZoomedZoneTree can be helpful to initialize a PVZoomedZoneTree
+ * from its corresponding PVZoneTree: each quadtree can be created from its corresponding PVZoneTree
+ *  sub-structure.
+ */
 class PVZoomedZoneTree
 {
 	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
@@ -57,43 +73,54 @@ public:
 	typedef PVBCICode<bbits> pv_bci_code_t;
 
 public:
+	/**
+	 * @class zzt_tls
+	 *
+	 * This class is the Thread Local Storage data structure needed by parallel
+	 * algorithms used on PVZoomedZoneTree.
+	 */
 	class zzt_tls
 	{
 	public:
+		/**
+		 * Constructor
+		 */
 		zzt_tls()
-		{
-			_index = 0;
-		}
+		{}
 
+		/**
+		 * Destructor
+		 */
 		~zzt_tls()
-		{
-		}
+		{}
 
+		/**
+		 * Getter for the local TLR buffer.
+		 */
 		pv_tlr_buffer_t &get_tlr_buffer()
 		{
 			return _tlr_buffer;
 		}
 
+		/**
+		 * Getter for the local quadtree's bitfield.
+		 */
 		pv_quadtree_buffer_entry_t *get_quadtree_buffer()
 		{
 			return &_quadtree_buffer[0];
-		}
-		size_t get_index() const
-		{
-			return _index;
-		}
-
-		void set_index(const size_t index)
-		{
-			_index = index;
 		}
 
 	private:
 		pv_quadtree_buffer_entry_t _quadtree_buffer[QUADTREE_BUFFER_SIZE];
 		pv_tlr_buffer_t            _tlr_buffer;
-		size_t                     _index;
 	};
 
+	/**
+	 * @class context_t
+	 *
+	 * This class store the Thread Local Storage data structures needed by parallel
+	 * algorithms used on PVZoomedZoneTree.
+	 */
 	class context_t {
 	public:
 		typedef tbb::enumerable_thread_specific<zzt_tls> tls_set_t;
@@ -113,10 +140,24 @@ public:
 	};
 
 public:
+	/**
+	 * Constructor
+	 *
+	 * @param sel_elts the buffer where PVZoneTree store selected events
+	 * @param max_level the depth limit for quadtree
+	 */
 	PVZoomedZoneTree(const PVRow *sel_elts, uint32_t max_level = 8);
 
+	/**
+	 * Destructor
+	 */
 	~PVZoomedZoneTree();
 
+	/**
+	 * Compute the memory used.
+	 *
+	 * @return the used memory
+	 */
 	inline size_t memory() const
 	{
 		size_t mem = sizeof(PVZoomedZoneTree);
@@ -126,24 +167,70 @@ public:
 		return mem;
 	}
 
+	/**
+	 * Tell if this PVZoomedTree has been initialized.
+	 *
+	 * @return true if it is initialized; false otherwise
+	 */
 	bool is_initialized() const
 	{
 		return _initialized;
 	}
 
+	/**
+	 * Free all internal data structures.
+	 */
 	void reset();
 
+	/**
+	 * Process \zp and \zt to construct the internal data structures.
+	 *
+	 * @param zp the underlying PVZoneProcessing
+	 * @param zt the twin PVZoneTree
+	 */
 	void process(const PVZoneProcessing &zp, PVZoneTree &zt);
 
 public:
+	/**
+	 * Sequential processing of \zp to construct the internal data structures.
+	 *
+	 * @param zp the underlying PVZoneProcessing
+	 */
 	void process_seq(const PVZoneProcessing &zp);
 
+	/**
+	 * Sequential processing of \zt to construct the internal data structures.
+	 *
+	 * @param zp the underlying PVZoneProcessing
+	 * @param zt the twin PVZoneTree
+	 */
 	__attribute__((noinline)) void process_seq_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
 
+	/**
+	 * Parallel processing of \zp to construct the internal data structures.
+	 *
+	 * @param zp the underlying PVZoneProcessing
+	 */
 	void process_omp(const PVZoneProcessing &zp);
 
+	/**
+	 * Parallel processing of \zt to construct the internal data structures.
+	 *
+	 * @param zp the underlying PVZoneProcessing
+	 * @param zt the twin PVZoneTree
+	 */
 	void process_omp_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
 
+	/**
+	 * Search for all events whose primary coordinates are in in the range [y1_min,y1_max) and
+	 * mark them as selected in \selection.
+	 *
+	 * @param y1_min the incluse minimal bound along the primary coordinate
+	 * @param y1_max the excluse maximal bound along the primary coordinate
+	 * @param selection the structure containing the result
+	 *
+	 * @return the count of selected events in selection
+	 */
 	inline size_t compute_selection_y1(PVRow t1, const uint64_t y_min, const uint64_t y_max,
 	                                   Picviz::PVSelection &selection) const
 	{
@@ -162,6 +249,16 @@ public:
 		return num;
 	}
 
+	/**
+	 * Search for all events whose secondary coordinates are in the range [y2_min,y2_max) and
+	 * mark them as selected in \selection.
+	 *
+	 * @param y1_min the incluse minimal bound along the primary coordinate
+	 * @param y1_max the excluse maximal bound along the primary coordinate
+	 * @param selection the structure containing the result
+	 *
+	 * @return the count of selected events in selection
+	 */
 	inline size_t compute_selection_y2(PVRow t2, const uint64_t y_min, const uint64_t y_max,
 	                                   Picviz::PVSelection &selection) const
 	{
@@ -180,6 +277,22 @@ public:
 		return num;
 	}
 
+	/**
+	 * Extract all events needed for background image with constraints on primary coordinate.
+	 *
+	 *
+	 * @param ctx the extraction context
+	 * @param y_min the incluse minimal bound along the primary coordinate
+	 * @param y_max the excluse maximal bound along the primary coordinate
+	 * @param y_lim the excluse maximal bound corresponding to the bottom of the resulting image
+	 * @param zoom the zoom level
+	 * @param width the resulting image's width
+	 * @param colors the current color map
+	 * @param codes the buffer to store resulting BCI codes
+	 * @param beta the horizontal scale factor
+	 *
+	 * @return the count of found events
+	 */
 	inline size_t browse_bci_by_y1(context_t &ctx,
 	                               uint64_t y_min, uint64_t y_max, uint64_t y_lim,
 	                               int zoom, uint32_t width,
@@ -209,6 +322,22 @@ public:
 		                                  colors, codes, beta);
 	}
 
+	/**
+	 * Extract all events needed for background image with constraints on secondary coordinate.
+	 *
+	 *
+	 * @param ctx the extraction context
+	 * @param y_min the incluse minimal bound along the secondary coordinate
+	 * @param y_max the excluse maximal bound along the secondary coordinate
+	 * @param y_lim the excluse maximal bound corresponding to the bottom of the resulting image
+	 * @param zoom the zoom level
+	 * @param width the resulting image's width
+	 * @param colors the current color map
+	 * @param codes the buffer to store resulting BCI codes
+	 * @param beta the horizontal scale factor
+	 *
+	 * @return the count of found events
+	 */
 	inline size_t browse_bci_by_y2(context_t &ctx,
 	                               uint64_t y_min, uint64_t y_max, uint64_t y_lim,
 	                               int zoom, uint32_t width,
@@ -238,6 +367,22 @@ public:
 		                                  colors, codes, beta);
 	}
 
+	/**
+	 * Extract all events needed for selection image with constraints on primary coordinate.
+	 *
+	 *
+	 * @param ctx the extraction context
+	 * @param y_min the incluse minimal bound along the primary coordinate
+	 * @param y_max the excluse maximal bound along the primary coordinate
+	 * @param y_lim the excluse maximal bound corresponding to the bottom of the resulting image
+	 * @param zoom the zoom level
+	 * @param width the resulting image's width
+	 * @param colors the current color map
+	 * @param codes the buffer to store resulting BCI codes
+	 * @param beta the horizontal scale factor
+	 *
+	 * @return the count of found events
+	 */
 	inline size_t browse_bci_sel_by_y1(context_t &ctx,
 	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
 	                                   const Picviz::PVSelection &selection,
@@ -269,6 +414,22 @@ public:
 		                                  colors, codes, beta, true);
 	}
 
+	/**
+	 * Extract all events needed for selection image with constraints on secondary coordinate.
+	 *
+	 *
+	 * @param ctx the extraction context
+	 * @param y_min the incluse minimal bound along the secondary coordinate
+	 * @param y_max the excluse maximal bound along the secondary coordinate
+	 * @param y_lim the excluse maximal bound corresponding to the bottom of the resulting image
+	 * @param zoom the zoom level
+	 * @param width the resulting image's width
+	 * @param colors the current color map
+	 * @param codes the buffer to store resulting BCI codes
+	 * @param beta the horizontal scale factor
+	 *
+	 * @return the count of found events
+	 */
 	inline size_t browse_bci_sel_by_y2(context_t &ctx,
 	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
 	                                   const Picviz::PVSelection &selection,
@@ -300,7 +461,10 @@ public:
 		                                  colors, codes, beta, true);
 	}
 
-	// needed for test program quadtree_browse
+	/**
+	 * Test function for sequential implementation of browse_bci_by_y1
+	 *
+	 */
 	inline size_t browse_bci_by_y1_seq(context_t &ctx,
 	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
 	                                   int zoom, uint32_t width,
@@ -327,6 +491,10 @@ public:
 		                                  colors, codes, beta);
 	}
 
+	/**
+	 * Test function for parallel implementation of browse_bci_by_y1
+	 *
+	 */
 	inline size_t browse_bci_by_y1_tbb(context_t &ctx,
 	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
 	                                   int zoom, uint32_t width,
@@ -353,6 +521,10 @@ public:
 		                                  colors, codes, beta);
 	}
 
+	/**
+	 * Test function for sequential implementation of browse_bci_by_y2
+	 *
+	 */
 	inline size_t browse_bci_by_y2_seq(context_t &ctx,
 	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
 	                                   int zoom, uint32_t width,
@@ -379,6 +551,10 @@ public:
 		                                  colors, codes, beta);
 	}
 
+	/**
+	 * Test function for parallel implementation of browse_bci_by_y2
+	 *
+	 */
 	inline size_t browse_bci_by_y2_tbb(context_t &ctx,
 	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
 	                                   int zoom, uint32_t width,
@@ -406,6 +582,10 @@ public:
 	}
 
 private:
+	/**
+	 * Sequential implementation used by browse_bci_by_y2 and browse_bci_sel_by_y2.
+	 *
+	 */
 	size_t browse_trees_bci_by_y1_seq(context_t &ctx,
 	                                  uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
 	                                  uint32_t width,
@@ -414,6 +594,10 @@ private:
 	                                  const float beta = 1.0f,
 	                                  const bool use_sel = false) const;
 
+	/**
+	 * Sequential implementation used by browse_bci_by_y2 and browse_bci_sel_by_y2.
+	 *
+	 */
 	size_t browse_trees_bci_by_y2_seq(context_t &ctx,
 	                                  uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
 	                                  uint32_t width,
@@ -422,6 +606,10 @@ private:
 	                                  const float beta = 1.0f,
 	                                  const bool use_sel = false) const;
 
+	/**
+	 * Parallel implementation used by browse_bci_by_y1 and browse_bci_sel_by_y1.
+	 *
+	 */
 	size_t browse_trees_bci_by_y1_tbb(context_t &ctx,
 	                                  uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
 	                                  uint32_t width,
@@ -430,6 +618,10 @@ private:
 	                                  const float beta = 1.0f,
 	                                  const bool use_sel = false) const;
 
+	/**
+	 * Parallel implementation used by browse_bci_by_y2 and browse_bci_sel_by_y2.
+	 *
+	 */
 	size_t browse_trees_bci_by_y2_tbb(context_t &ctx,
 	                                  uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
 	                                  uint32_t width,
@@ -438,12 +630,23 @@ private:
 	                                  const float beta = 1.0f,
 	                                  const bool use_sel = false) const;
 
+	/**
+	 * Compute the index in the quadtee forest given 2 coordinates.
+	 *
+	 * @param y1 the primary coordinate
+	 * @param y1 the secondary coordinate
+	 */
 	inline uint32_t compute_index(uint32_t y1, uint32_t y2) const
 	{
 		return  (((y2 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD) << NBITS_INDEX) +
 			((y1 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD);
 	}
 
+	/**
+	 * Compute the index in the quadtee forest given one quadtree's internal representation of event.
+	 *
+	 * @param e the quadtree's internal representation of event
+	 */
 	inline uint32_t compute_index(const PVParallelView::PVQuadTreeEntry &e) const
 	{
 		return compute_index(e.y1, e.y2);

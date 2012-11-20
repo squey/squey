@@ -14,6 +14,7 @@
 #include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVZoomedSelectionAxisSliders.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
+#include <pvparallelview/PVSelectionSquareGraphicsItem.h>
 
 #include <QMetaObject>
 #include <QScrollBar>
@@ -22,12 +23,6 @@
  * IDEA: keep ratio between the width of the 2 zones in full parallel view
  *       => stores the scale for each beta (for the left one and the right one)
  * RH: AG said this feature is not still planned (TODO -> IDEA)
- *
- * TODO: configure scene's view from the PVAxis
- *
- * TODO: finalize selection stuff
- *
- * TODO: make 0 be at the bottom of the view, not at the top
  */
 
 /* NOTE: when zooming, the smallest backend_image's height is 1024 (2048 / 2).
@@ -411,15 +406,6 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 #endif
 
 	painter->setPen(old_pen);
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::resize_display
- *****************************************************************************/
-
-void PVParallelView::PVZoomedParallelScene::resize_display()
-{
-	update_zoom();
 }
 
 /*****************************************************************************

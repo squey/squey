@@ -474,7 +474,6 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
                                                                     const float beta,
                                                                     const bool use_sel) const
 {
-	size_t bci_idx = 0;
 	uint32_t shift = (32 - bbits) - zoom;
 	uint32_t t1_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t1_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
@@ -531,6 +530,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 
 	/* extracting BCI codes from TLR buffer
 	 */
+	size_t bci_idx = 0;
+
 	BENCH_START(compute);
 	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
 		const pv_tlr_index_t tlr(i);
@@ -582,7 +583,6 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
                                                                     const float beta,
                                                                     const bool use_sel) const
 {
-	size_t bci_idx = 0;
 	uint32_t shift = (32 - bbits) - zoom;
 	uint32_t t2_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t2_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
@@ -639,6 +639,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 
 	/* extracting BCI codes from TLR buffer
 	 */
+	size_t bci_idx = 0;
+
 	BENCH_START(compute);
 	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
 		const pv_tlr_index_t tlr(i);
@@ -720,8 +722,6 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 		                  pv_tlr_buffer_t &tlr_buffer = tls.get_tlr_buffer();
 		                  pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
 
-		                  size_t bci_idx = tls.get_index();
-
 		                  for (uint32_t t1 = r.rows().begin(); t1 != r.rows().end(); ++t1) {
 			                  for (uint32_t t2 = r.cols().begin(); t2 != r.cols().end(); ++t2) {
 				                  PVRow tree_idx = (t2 * 1024) + t1;
@@ -748,12 +748,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 				                            quadtree_buffer, tlr_buffer, insert_f);
 			                  }
 		                  }
-
-		                  tls.set_index(bci_idx);
 	                  });
 	BENCH_STOP(extract);
-
-	size_t bci_idx = 0;
 
 	/* merging all TLR buffers
 	 */
@@ -777,6 +773,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 
 	/* extracting BCI codes from TLR buffer
 	 */
+	size_t bci_idx = 0;
+
 	BENCH_START(compute);
 	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
 		const pv_tlr_index_t tlr(i);
@@ -861,8 +859,6 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 		                  pv_tlr_buffer_t &tlr_buffer = tls.get_tlr_buffer();
 		                  pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
 
-		                  size_t bci_idx = tls.get_index();
-
 		                  for (uint32_t t2 = r.rows().begin(); t2 != r.rows().end(); ++t2) {
 			                  for (uint32_t t1 = r.cols().begin(); t1 != r.cols().end(); ++t1) {
 				                  PVRow tree_idx = (t2 * 1024) + t1;
@@ -889,12 +885,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 				                            quadtree_buffer, tlr_buffer, insert_f);
 			                  }
 		                  }
-
-		                  tls.set_index(bci_idx);
 	                  });
 	BENCH_STOP(extract);
-
-	size_t bci_idx = 0;
 
 	/* merging all TLR buffers
 	 */
@@ -918,6 +910,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 
 	/* extracting BCI codes from TLR buffer
 	 */
+	size_t bci_idx = 0;
+
 	BENCH_START(compute);
 	for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
 		const pv_tlr_index_t tlr(i);
@@ -955,7 +949,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 	return bci_idx;
 }
 
+#ifdef PICVIZ_DEVELOPER_MODE
 double PVParallelView::extract_stat::all_dt = 0;
 size_t PVParallelView::extract_stat::all_cnt = 0;
 size_t PVParallelView::extract_stat::test_cnt = 0;
 size_t PVParallelView::extract_stat::insert_cnt = 0;
+#endif

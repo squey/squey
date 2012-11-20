@@ -18,7 +18,6 @@
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVSlidersManager_types.h>
 #include <pvparallelview/PVSlidersGroup.h>
-#include <pvparallelview/PVSelectionSquareGraphicsItem.h>
 #include <pvparallelview/PVZoneRendering.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoomedParallelView.h>
@@ -37,10 +36,17 @@
 namespace PVParallelView
 {
 
-class PVZoomedParallelView;
+// forward declaration
 class PVZoomedSelectionAxisSliders;
 class PVZonesProcessor;
+class PVSelectionSquareGraphicsItem;
 
+/**
+ * @class PVZoomedParallelScene
+ *
+ * A derived class of QGraphicsScene to use when displaying a zoom view of parallel coordinates
+ * representation of events.
+ */
 class PVZoomedParallelScene : public QGraphicsScene
 {
 Q_OBJECT
@@ -68,34 +74,105 @@ public:
 	typedef PVBCIBackendImage_p backend_image_p_t;
 
 public:
+	/**
+	 * Constructor
+	 *
+	 * @param zpview the container/layout
+	 * @param pvview_sp a shared pointer on the corresponding Picviz::PVView
+	 * @param sliders_manager_p a shared pointer on the sliders manager
+	 * @param zp_sel the PVZonesProcessor used for selection image
+	 * @param zp_bg the PVZonesProcessor used for background image
+	 * @param zm the corresponding zones manager
+	 * @param axis_index the axis index this scene zoom on
+
+	 */
 	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
 	                      Picviz::PVView_sp& pvview_sp,
 	                      PVSlidersManager_p sliders_manager_p,
-						  PVZonesProcessor& zp_sel,
-						  PVZonesProcessor& zp_bg,
-						  PVZonesManager const& zm,
+	                      PVZonesProcessor& zp_sel,
+	                      PVZonesProcessor& zp_bg,
+	                      PVZonesManager const& zm,
 	                      PVCol axis_index);
 
+	/**
+	 * Destructor
+	 */
 	~PVZoomedParallelScene();
 
+	/**
+	 * Overloaded methods when a mouse button is pressed.
+	 *
+	 * Control "drag & drop" panning and selection tool.
+	 *
+	 * @param event the pressed button event
+	 */
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+
+	/**
+	 * Overloaded methods when a mouse button is released.
+	 *
+	 * Control "drag & drop" panning and selection tool.
+	 *
+	 * @param event the released button event
+	 */
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+
+	/**
+	 * Overloaded methods when the mouse cursor moves.
+	 *
+	 * Control "drag & drop" panning and selection tool.
+	 *
+	 * @param event the movement event
+	 */
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 
+	/**
+	 * Overloaded method for zooming and panning.
+	 *
+	 * @param event the wheel event
+	 */
 	void wheelEvent(QGraphicsSceneWheelEvent* event);
 
+	/**
+	 * Overloaded method when a key is pressed.
+	 *
+	 * lone key is "Enter" to force redraw.
+	 *
+	 * @param event the key pressed event
+	 */
 	void keyPressEvent(QKeyEvent *event);
 
+	/**
+	 * Start asynchronously an update of selection rendering.
+	 */
 	void update_new_selection_async();
+	/**
+	 * Start asynchronously an update of selection and background rendering.
+	 */
 	void update_all_async();
 
+	/**
+	 * Update the zoomed view relatively to its PVView's axes combination.
+	 */
 	bool update_zones();
 
+	/**
+	 * Getter of the axis index used by this view.
+	 */
 	PVCol get_axis_index() const
 	{
 		return _axis_index;
 	}
 
+	/**
+	 * Enable/disable the scene.
+	 *
+	 * In some case, the scene must be updated without having any side effect (Qt event,
+	 * Hive propagation, new rendering in background, etc.). This method helps isolating the
+	 * scene.
+	 *
+	 * @param value the state to apply
+	 */
 	void set_enabled(bool value)
 	{
 		if (!value) {
@@ -104,9 +181,31 @@ public:
 		_zpview->setDisabled(!value);
 	}
 
+	/**
+	 * Overloaded method to draw the background.
+	 *
+	 * Principally: background color, axis, etc.
+	 *
+	 * @param painter the used QPainter
+	 * @param rect the (unused) area to redraw
+	 */
 	virtual void drawBackground(QPainter *painter, const QRectF &rect);
 
-	void resize_display();
+	/**
+	 * Function to call when the view is resized.
+	 */
+	void resize_display()
+	{
+		update_zoom();
+	}
+
+	/**
+	 * Test if the zone \z has been rendered or not.
+	 *
+	 * @param z the zone id to test
+	 *
+	 * @return true if \z has been rendered; false otherwise
+	 */
 
 	inline bool is_zone_rendered(PVZoneID z) const
 	{
@@ -120,6 +219,9 @@ public:
 		return ret;
 	}
 
+	/**
+	 * Prepare the zoomed view to be deleted.
+	 */
 	inline void about_to_be_deleted()
 	{
 		_view_deleted = true;
@@ -128,74 +230,159 @@ public:
 	}
 
 private slots:
+	/**
+	 * Start an update of the selection images.
+	 */
 	inline void update_sel()
 	{
 		_render_type = RENDER_SEL;
 		update_display();
 	}
+	/**
+	 * Start an update of the selection and background images.
+	 */
 	inline void update_all()
 	{
 		_render_type = RENDER_ALL;
 		update_display();
 	}
 
-	// must not be called directly, use ::update_all() or ::update_sel()
+	/**
+	 * Start an update of images given the internal state _render_type.
+	 *
+	 * must never be called directly, use ::update_all() or ::update_sel()
+	 */
 	void update_display();
 
+	/**
+	 * Update the graphical elements after a change of zoom parameter (mouse event or through the hive).
+	 */
 	void update_zoom();
 
+	/**
+	 * Stops all pending rendering and wait for their ends.
+	 */
 	void cancel_and_wait_all_rendering();
 
 private:
+	/**
+	 * Get the zoom level corresponding to the current mouse wheel state.
+	 */
 	inline int get_zoom_level()
 	{
 		return _wheel_value / zoom_steps;
 	}
 
+	/**
+	 * Get the zoom step corresponding to the current mouse wheel state.
+	 */
 	inline int get_zoom_step()
 	{
 		return _wheel_value % zoom_steps;
 	}
 
+	/**
+	 * Get the scale factor corresponding to the current mouse wheel state.
+	 */
 	inline double get_scale_factor()
 	{
 		// Phillipe's magic formula: 2^n × a^k
 		return pow(2, get_zoom_level()) * pow(root_step, get_zoom_step());
 	}
 
+	/**
+	 * Get the mouse wheel state from zoom level.
+	 *
+	 * This method is used by updater when the corresponding zoom sliders has been changed.
+	 *
+	 * @param a the desired scale factor
+	 */
 	inline double retrieve_wheel_value_from_alpha(const double &a)
 	{
 		// non simplified formula is: log2(1/a) / log2(root_steps)
 		return -zoom_steps * log2(a);
 	}
 
+	/**
+	 * Get the left zone's identifier.
+	 */
 	inline PVZoneID left_zone_id() const
 	{
 		return (_left_zone) ? _axis_index-1 : PVZONEID_INVALID;
 	}
 
+	/**
+	 * Get the right zone's identifier.
+	 */
 	inline PVZoneID right_zone_id() const
 	{
 		return (_right_zone) ? _axis_index : PVZONEID_INVALID;
 	}
 
+	/**
+	 * Getter of the underlying VPZonesManager.
+	 */
 	PVZonesManager const& get_zones_manager() const { return _zm; }
 
+	/**
+	 * Getter of the shared selection.
+	 */
 	inline Picviz::PVSelection& real_selection() { return _pvview.get_real_output_selection(); }
 
+	/**
+	 * Get the \z zone's PVZoomedZoneTree.
+	 *
+	 * @param z the zone
+	 */
 	inline PVZoomedZoneTree const& get_zztree(PVZoneID const z) { return _zm.get_zone_tree<PVZoomedZoneTree>(z); }
 
+	/**
+	 * Connect in Qt's sense the slot \slots to the PVZoneRendering \zr.
+	 *
+	 * @param zr the zone rendering to connect to
+	 * @param slots the slot
+	 */
 	void connect_zr(PVZoneRendering<bbits>* zr, const char* slots);
 
 private slots:
+	/**
+	 * The slot called when the vertical scrollbar's value has changed.
+	 *
+	 * @param value the new scrollbar's value
+	 */
 	void scrollbar_changed_Slot(int value);
+
+	/**
+	 * The slot called when the update time has expired.
+	 */
 	void updateall_timeout_Slot();
+
+	/**
+	 * The slot called when the all pending rendering has been done.
+	 *
+	 * It recreates each zone composed image.
+	 */
 	void all_rendering_done();
+	/**
+	 * The slot called when the selection rectangle commit an update.
+	 */
 	void commit_volatile_selection_Slot();
 
+	/**
+	 * The slot called when one pending rendering has been done.
+	 *
+	 * It recreates each zone composed image.
+	 * @param zr the PVZoneRendering corresponding to the finished rendering
+	 * @param zone_id the zone id corresponding to the finished rendering
+	 */
 	void zr_finished(PVParallelView::PVZoneRenderingBase_p zr, int zone_id);
 
 private:
+	/**
+	 * @class zoom_sliders_update_obs
+	 *
+	 * PVHive observer when a zoom sliders has been updated.
+	 */
 	class zoom_sliders_update_obs :
 		public PVHive::PVFuncObserver<PVSlidersManager,
 		                              FUNC(PVSlidersManager::update_zoom_sliders)>
@@ -210,6 +397,11 @@ private:
 		PVZoomedParallelScene *_parent;
 	};
 
+	/**
+	 * @class zoom_sliders_del_obs
+	 *
+	 * PVHive observer when a zoom sliders is deleted.
+	 */
 	class zoom_sliders_del_obs :
 		public PVHive::PVFuncObserver<PVSlidersManager,
 		                              FUNC(PVSlidersManager::del_zoom_sliders)>
@@ -228,10 +420,22 @@ private:
 	typedef PVParallelView::PVSlidersManager::axis_id_t axis_id_t;
 
 private:
+	/**
+	 * @enum render_t
+	 *
+	 * Type of rendering when an update is requested.
+	 */
 	typedef enum {
 		RENDER_ALL,
 		RENDER_SEL
 	} render_t;
+
+	/**
+	 * @class zone_desc_t
+	 *
+	 * This class groups together all informations relevant for a zone: Backend images, Qt images,
+	 * PVZoneRendering, etc.
+	 */
 
 	struct zone_desc_t
 	{
@@ -281,11 +485,10 @@ private:
 			}
 		}
 
-		backend_image_p_t       bg_image;   // the image for unselected/zomby lines
-		backend_image_p_t       sel_image;  // the image for selected lines
-		//zzt_context_t           context;    // the extraction context for ZZT
-		QGraphicsPixmapItem    *item;       // the scene's element
-		QPointF                 next_pos;   // the item position of the next rendering
+		backend_image_p_t        bg_image;   // the image for unselected/zomby lines
+		backend_image_p_t        sel_image;  // the image for selected lines
+		QGraphicsPixmapItem     *item;       // the scene's element
+		QPointF                  next_pos;   // the item position of the next rendering
 		PVZoneRendering_p<bbits> last_zr_sel;
 		PVZoneRendering_p<bbits> last_zr_bg;
 	};
@@ -318,8 +521,8 @@ private:
 
 	// about rendering
 	QTimer                          _updateall_timer;
-	PVZonesProcessor&				_zp_sel;
-	PVZonesProcessor&				_zp_bg;
+	PVZonesProcessor&		_zp_sel;
+	PVZonesProcessor&		_zp_bg;
 
 	// about selection in the zoom view
 	QPointF                         _selection_rect_pos;
@@ -331,7 +534,7 @@ private:
 	render_t                        _render_type;
 	int                             _renderable_zone_number;
 
-	tbb::atomic<bool> _view_deleted;
+	tbb::atomic<bool>               _view_deleted;
 };
 
 }
