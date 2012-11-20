@@ -1,12 +1,11 @@
 
 def test_add_correlation():
-    activateItem(waitForObjectItem(":new-solution1.pvi[*] — Picviz Inspector 3.0.0_QMenuBar", "Correlations"))
+    activateItem(waitForObjectItem(":new-solution1.pvi[*] — Picviz Inspector 3.0.0_QMenuBar_2", "Correlations"))
     activateItem(waitForObjectItem(":Correlations_PVGuiQt::PVCorrelationMenu", "Create new correlation..."))
-    type(waitForObject(":Correlation name:_QLineEdit"), "TestCorrelation")
+    type(waitForObject(":Correlation name:_QLineEdit"), "TestCorrelation1")
     type(waitForObject(":Correlation name:_QLineEdit"), "<Return>")
     sendEvent("QCloseEvent", waitForObject(":Correlations_QDialog"))
-    waitFor("object.exists(':Correlations.TestCorrelation_QAction')", 20000)
-    test.compare(findObject(":Correlations.TestCorrelation_QAction").iconText, "TestCorrelation")
+    test.compare(findObject(":Correlations.TestCorrelation_QAction").iconText, "TestCorrelation1")
 
 def main():
     

@@ -1,6 +1,20 @@
 
 def main():
     startApplication("picviz-inspector.sh")
-    sendEvent("QMouseEvent", waitForObject(":new-solution1.pvi[*] — Picviz Inspector 3.0.0.Import files..._QPushButton_2"), QEvent.MouseButtonPress, 246, 19, Qt.LeftButton, 1, 0)
-    sendEvent("QMouseEvent", waitForObject(":new-solution1.pvi[*] — Picviz Inspector 3.0.0.Import files..._QPushButton_2"), QEvent.MouseButtonRelease, 246, 19, Qt.LeftButton, 0, 0)
-
+    clickButton(waitForObject(":new-solution1.pvi[*] — Picviz Inspector 3.0.0.Import files..._QPushButton_2"))
+    doubleClick(waitForObject(":stackedWidget.listView_QListView"), 72, 16, 0, Qt.LeftButton)
+    waitForObjectItem(":stackedWidget.listView_QListView", "test-petit\\.pvi")
+    doubleClickItem(":stackedWidget.listView_QListView", "test-petit\\.pvi", 72, 7, 0, Qt.LeftButton)
+    clickButton(waitForObject(":Import files: archive detected.Cancel_QPushButton"))
+    clickButton(waitForObject(":new-solution1.pvi[*] — Picviz Inspector 3.0.0.Import files..._QPushButton_2"))
+    clickButton(waitForObject(":Import file.toParentButton_QToolButton"))
+    waitForObjectItem(":stackedWidget.listView_QListView", "sources")
+    doubleClickItem(":stackedWidget.listView_QListView", "sources", 52, 5, 0, Qt.LeftButton)
+    waitForObjectItem(":stackedWidget.listView_QListView", "test-petit\\.log")
+    doubleClickItem(":stackedWidget.listView_QListView", "test-petit\\.log", 60, 8, 0, Qt.LeftButton)
+    activateItem(waitForObjectItem(":new-solution1.pvi[*] — Picviz Inspector 3.0.0_QMenuBar_2", "Correlations"))
+    activateItem(waitForObjectItem(":Correlations_PVGuiQt::PVCorrelationMenu", "Create new correlation..."))
+    type(waitForObject(":Correlation name:_QLineEdit"), "TestCorrelation")
+    type(waitForObject(":Correlation name:_QLineEdit"), "<1>")
+    type(waitForObject(":Correlation name:_QLineEdit"), "<Return>")
+    sendEvent("QCloseEvent", waitForObject(":Correlations_QDialog"))
