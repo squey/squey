@@ -158,12 +158,9 @@ include/picviz/widgets/PVAD2GEdgeEditor.h
 include/picviz/widgets/PVAD2GFunctionPropertiesWidget.h
 include/picviz/widgets/PVAD2GListEdgesWidget.h
 include/picviz/widgets/PVAD2GRFFListModel.h
-include/picviz/widgets/PVAxisTypeWidget.h
-include/picviz/widgets/PVArgumentListWidgetFactory.h
 include/picviz/widgets/PVCombinOpDelegate.h
 include/picviz/widgets/PVMappingModeWidget.h
 include/picviz/widgets/PVPlottingModeWidget.h
-include/picviz/widgets/PVViewArgumentEditorCreator.h
 include/picviz/widgets/PVMappingPlottingEditDialog.h
 
 include/picviz/widgets/editors/PVAxisIndexEditor.h

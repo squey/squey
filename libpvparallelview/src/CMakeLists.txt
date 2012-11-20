@@ -106,7 +106,6 @@ include/pvparallelview/PVZoomedSelectionAxisSliders.h
 )
 
 SET(MOC_HEADERS
-include/pvparallelview/PVZoneRendering.h
 include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
