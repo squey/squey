@@ -1,0 +1,51 @@
+:Correlation name:_QLineEdit	{buddy=':New correlation.Correlation name:_QLabel' type='QLineEdit' unnamed='1' visible='1'}
+:Correlations.TestCorrelation_QAction	{container=':Correlations_PVGuiQt::PVCorrelationMenu_2' text='TestCorrelation' type='QAction' unnamed='1' visible='true'}
+:Correlations.Test_QAction	{container=':Correlations_PVGuiQt::PVCorrelationMenu_2' text='Test' type='QAction' unnamed='1' visible='true'}
+:Correlations_PVGuiQt::PVCorrelationMenu	{title='Correlations' type='PVGuiQt::PVCorrelationMenu' unnamed='1' visible='1'}
+:Correlations_PVGuiQt::PVCorrelationMenu_2	{title='Correlations' type='PVGuiQt::PVCorrelationMenu' unnamed='1' visible='0'}
+:Correlations_QDialog	{type='QDialog' unnamed='1' visible='1' windowTitle='Correlations'}
+:Extracting text:squid....Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Extracting text:squid..._PVCore::PVProgressBox'}
+:Extracting text:squid..._PVCore::PVProgressBox	{type='PVCore::PVProgressBox' unnamed='1' visible='1' windowTitle='Extracting text:squid...'}
+:Extracting text:syslog..._PVCore::PVProgressBox	{type='PVCore::PVProgressBox' unnamed='1' visible='1' windowTitle='Extracting text:syslog...'}
+:Import file.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Import file_PVRush::PVImportFileDialog'}
+:Import file.File name:_QLabel	{name='fileNameLabel' text='File name:' type='QLabel' visible='1' window=':Import file_PVRush::PVImportFileDialog'}
+:Import file.Open_QPushButton	{text='Open' type='QPushButton' unnamed='1' visible='1' window=':Import file_PVRush::PVImportFileDialog'}
+:Import file.fileTypeCombo_QComboBox	{name='fileTypeCombo' type='QComboBox' visible='1' window=':Import file_PVRush::PVImportFileDialog'}
+:Import file.lookInCombo_QComboBox	{name='lookInCombo' type='QComboBox' visible='1' window=':Import file_PVRush::PVImportFileDialog'}
+:Import file.splitter_QSplitter	{name='splitter' type='QSplitter' visible='1' window=':Import file_PVRush::PVImportFileDialog'}
+:Import file.toParentButton_QToolButton	{name='toParentButton' type='QToolButton' visible='1' window=':Import file_PVRush::PVImportFileDialog'}
+:Import file_PVRush::PVImportFileDialog	{name='QFileDialog' type='PVRush::PVImportFileDialog' visible='1' windowTitle='Import file'}
+:Import_QMenu	{title='Import' type='QMenu' unnamed='1' visible='1'}
+:Load an investigation....Back_QToolButton	{text='Back' type='QToolButton' unnamed='1' visible='1' window=':Load an investigation..._KFileDialog'}
+:Load an investigation....Name:_QLabel	{text='Name:' type='QLabel' unnamed='1' visible='1' window=':Load an investigation..._KFileDialog'}
+:Load an investigation....Open_KPushButton	{text='Open' type='KPushButton' unnamed='1' visible='1' window=':Load an investigation..._KFileDialog'}
+:Load an investigation..._KFileDialog	{type='KFileDialog' unnamed='1' visible='1' windowTitle='Load an investigation...'}
+:Name:_KUrlComboBox	{buddy=':Load an investigation....Name:_QLabel' type='KUrlComboBox' unnamed='1' visible='1'}
+:New correlation.Correlation name:_QLabel	{text='Correlation name:' type='QLabel' unnamed='1' visible='1' window=':New correlation_QInputDialog'}
+:New correlation.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':New correlation_QInputDialog'}
+:New correlation_QInputDialog	{type='QInputDialog' unnamed='1' visible='1' windowTitle='New correlation'}
+:Parallel view [1 (default/default)].qt_dockwidget_floatbutton_PVParallelView::PVFullParallelView	{aboveWidget=':Parallel view [1 (default/default)].qt_dockwidget_floatbutton_QDockWidgetTitleButton' container=':Parallel view [1 (default/default)]_PVGuiQt::PVViewDisplay' type='PVParallelView::PVFullParallelView' unnamed='1' visible='1'}
+:Parallel view [1 (default/default)].qt_dockwidget_floatbutton_QDockWidgetTitleButton	{container=':Parallel view [1 (default/default)]_PVGuiQt::PVViewDisplay' name='qt_dockwidget_floatbutton' type='QDockWidgetTitleButton' visible='1'}
+:Parallel view [1 (default/default)]_PVGuiQt::PVViewDisplay	{container=':qt_tabwidget_stackedwidget_PVGuiQt::PVSourceWorkspace' type='PVGuiQt::PVViewDisplay' unnamed='1' visible='1' windowTitle='Parallel view [1 (default/default)]'}
+:RecentProjectItem.<a href="1;0">/home/jbleonesio/dev/picviz-inspector/squish/files/sources/test-petit.log [text:syslog]</a>_QLabel	{container=':new-solution1.pvi[*] — Picviz Inspector 3.0.0.RecentProjectItem_QListWidget' text='<a href="1;0">/home/jbleonesio/dev/picviz-inspector/squish/files/sources/test-petit.log [text:syslog]</a>' type='QLabel' unnamed='1' visible='1'}
+:RecentProjectItem.<a href="1;0">/home/jbleonesio/dev/picviz-inspector/test_petit.log [text:syslog]</a>_QLabel	{container=':new-solution1.pvi[*] — Picviz Inspector 3.0.0.RecentProjectItem_QListWidget' text='<a href="1;0">/home/jbleonesio/dev/picviz-inspector/test_petit.log [text:syslog]</a>' type='QLabel' unnamed='1' visible='1'}
+:_QListView	{type='QListView' unnamed='1' visible='1'}
+:fileNameEdit_QLineEdit	{buddy=':Import file.File name:_QLabel' name='fileNameEdit' type='QLineEdit' visible='1'}
+:frame.stackedWidget_QStackedWidget	{container=':splitter.frame_QFrame' name='stackedWidget' type='QStackedWidget' visible='1'}
+:listView_QScrollBar	{container=':stackedWidget.listView_QListView' type='QScrollBar' unnamed='1' visible='1'}
+:new-solution1.pvi[*] — Picviz Inspector 3.0.0.File_QMenu	{title='File' type='QMenu' unnamed='1' visible='1' window=':new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow'}
+:new-solution1.pvi[*] — Picviz Inspector 3.0.0.Import files..._QPushButton	{text='Import files...' type='QPushButton' unnamed='1' visible='1' window=':new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow'}
+:new-solution1.pvi[*] — Picviz Inspector 3.0.0.Import files..._QPushButton_2	{text='Import files...' type='QPushButton' unnamed='1' visible='1' window=':new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow_2'}
+:new-solution1.pvi[*] — Picviz Inspector 3.0.0.Open an investigation..._QPushButton	{text='Open an investigation...' type='QPushButton' unnamed='1' visible='1' window=':new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow'}
+:new-solution1.pvi[*] — Picviz Inspector 3.0.0.Open an investigation..._QPushButton_2	{text='Open an investigation...' type='QPushButton' unnamed='1' visible='1' window=':new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow_2'}
+:new-solution1.pvi[*] — Picviz Inspector 3.0.0.RecentProjectItem_QListWidget	{name='RecentProjectItem' occurrence='2' type='QListWidget' visible='1' window=':new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow'}
+:new-solution1.pvi[*] — Picviz Inspector 3.0.0.qt_tabwidget_stackedwidget_QStackedWidget	{name='qt_tabwidget_stackedwidget' type='QStackedWidget' visible='1' window=':new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow'}
+:new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow	{name='PVMainWindow' type='PVInspector::PVMainWindow' visible='1' windowTitle=':new-solution1.pvi[*] — Picviz Inspector 3.0.0'}
+:new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow_2	{name='PVMainWindow' type='PVInspector::PVMainWindow' visible='1' windowTitle='new-solution1.pvi[*] — Picviz Inspector 3.0.0'}
+:new-solution1.pvi[*] — Picviz Inspector 3.0.0_QMenuBar	{type='QMenuBar' unnamed='1' visible='1' window=':new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow'}
+:qt_dockwidget_floatbutton_QGraphicsPixmapItem	{acceptDrops='no' container=':Parallel view [1 (default/default)].qt_dockwidget_floatbutton_PVParallelView::PVFullParallelView' enabled='yes' focusable='no' lineColor='#000000' movable='no' occurrence='5' selectable='no' type='QGraphicsPixmapItem' visible='yes'}
+:qt_dockwidget_floatbutton_QGraphicsPixmapItem_2	{acceptDrops='no' container=':Parallel view [1 (default/default)].qt_dockwidget_floatbutton_PVParallelView::PVFullParallelView' enabled='yes' focusable='no' lineColor='#000000' movable='no' occurrence='6' selectable='no' type='QGraphicsPixmapItem' visible='yes'}
+:qt_tabwidget_stackedwidget_PVGuiQt::PVSourceWorkspace	{container=':new-solution1.pvi[*] — Picviz Inspector 3.0.0.qt_tabwidget_stackedwidget_QStackedWidget' type='PVGuiQt::PVSourceWorkspace' unnamed='1' visible='1'}
+:splitter.frame_QFrame	{container=':Import file.splitter_QSplitter' name='frame' type='QFrame' visible='1'}
+:splitter.sidebar_QSidebar	{container=':Import file.splitter_QSplitter' name='sidebar' type='QSidebar' visible='1'}
+:stackedWidget.listView_QListView	{container=':frame.stackedWidget_QStackedWidget' name='listView' type='QListView' visible='1'}
