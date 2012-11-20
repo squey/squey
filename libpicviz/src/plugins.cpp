@@ -11,9 +11,9 @@
 #include <picviz/plugins.h>
 
 
-char * picviz_plugins_get_functions_dir(void)
+const char * picviz_plugins_get_functions_dir(void)
 {
-	char *pluginsdir;
+	const char *pluginsdir;
 
 	pluginsdir = getenv("PICVIZ_FUNCTIONS_DIR");
 	if ( ! pluginsdir ) {
@@ -24,9 +24,9 @@ char * picviz_plugins_get_functions_dir(void)
 }
 
 
-char *picviz_plugins_get_filters_dir(void)
+const char *picviz_plugins_get_filters_dir(void)
 {
-	char *pluginsdir;
+	const char *pluginsdir;
 
 	pluginsdir = getenv("PICVIZ_FILTERS_DIR");
 	if ( ! pluginsdir ) {
@@ -36,9 +36,9 @@ char *picviz_plugins_get_filters_dir(void)
 	return pluginsdir;
 }
 
-char *picviz_plugins_get_layer_filters_dir(void)
+const char *picviz_plugins_get_layer_filters_dir(void)
 {
-	char *pluginsdir;
+	const char *pluginsdir;
 
 	pluginsdir = getenv("PICVIZ_LAYER_FILTERS_DIR");
 	if ( ! pluginsdir ) {
@@ -48,9 +48,9 @@ char *picviz_plugins_get_layer_filters_dir(void)
 	return pluginsdir;
 }
 
-char *picviz_plugins_get_layer_filters_config_dir(void)
+const char *picviz_plugins_get_layer_filters_config_dir(void)
 {
-	char *pluginsdir;
+	const char *pluginsdir;
 
 	pluginsdir = getenv("PICVIZ_LAYER_FILTERS_CONFIG_DIR");
 	if ( ! pluginsdir ) {
@@ -60,9 +60,9 @@ char *picviz_plugins_get_layer_filters_config_dir(void)
 	return pluginsdir;
 }
 
-char *picviz_plugins_get_mapping_filters_dir(void)
+const char *picviz_plugins_get_mapping_filters_dir(void)
 {
-	char *pluginsdir;
+	const char *pluginsdir;
 
 	pluginsdir = getenv("PICVIZ_MAPPING_FILTERS_DIR");
 	if ( ! pluginsdir ) {
@@ -72,9 +72,9 @@ char *picviz_plugins_get_mapping_filters_dir(void)
 	return pluginsdir;
 }
 
-char *picviz_plugins_get_plotting_filters_dir(void)
+const char *picviz_plugins_get_plotting_filters_dir(void)
 {
-	char *pluginsdir;
+	const char *pluginsdir;
 
 	pluginsdir = getenv("PICVIZ_PLOTTING_FILTERS_DIR");
 	if ( ! pluginsdir ) {
@@ -84,9 +84,9 @@ char *picviz_plugins_get_plotting_filters_dir(void)
 	return pluginsdir;
 }
 
-char *picviz_plugins_get_row_filters_dir(void)
+const char *picviz_plugins_get_row_filters_dir(void)
 {
-	char *pluginsdir;
+	const char *pluginsdir;
 
 	pluginsdir = getenv("PICVIZ_ROW_FILTERS_DIR");
 	if ( ! pluginsdir ) {
@@ -96,9 +96,9 @@ char *picviz_plugins_get_row_filters_dir(void)
 	return pluginsdir;
 }
 
-char *picviz_plugins_get_axis_computation_dir(void)
+const char *picviz_plugins_get_axis_computation_dir(void)
 {
-	char *pluginsdir;
+	const char *pluginsdir;
 
 	pluginsdir = getenv("PICVIZ_AXIS_COMPUTATION_PLUGINS_DIR");
 	if ( ! pluginsdir ) {
@@ -108,9 +108,9 @@ char *picviz_plugins_get_axis_computation_dir(void)
 	return pluginsdir;
 }
 
-char *picviz_plugins_get_sorting_functions_dir(void)
+const char *picviz_plugins_get_sorting_functions_dir(void)
 {
-	char *pluginsdir;
+	const char *pluginsdir;
 
 	pluginsdir = getenv("PICVIZ_SORTING_FUNCTIONS_PLUGINS_DIR");
 	if ( ! pluginsdir ) {

@@ -21,7 +21,7 @@
 
 void stream_callback(cudaStream_t stream, cudaError_t status, void* userData)
 {
-	printf("stream %d is finished\n", stream);
+	printf("stream %p is finished\n", stream);
 }
 
 int main(int argc, char** argv)
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 	device_codes[0] = init_cuda_codes(0);
 	device_codes[1] = init_cuda_codes(1);
 
-	const int nzones = width/zone_width; 
+	const int nzones = width/zone_width;
 	cudaStream_t *cstreams = new cudaStream_t[nzones];
 	for (int z = 0; z < nzones; z++) {
 		picviz_verify_cuda(cudaSetDevice(z & 1));
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
 	for (int z = 0; z < nzones; z++) {
 		int device = z & 1;
 		cudaSetDevice(device);
-		printf("Launching kernel on stream %d w/ device %d\n", cstreams[z], device);
+		printf("Launching kernel on stream %p w/ device %d\n", cstreams[z], device);
 		copy_codes_to_cuda(device_codes[device], host_codes, n, cstreams[z]);
 		show_codes_cuda(device_codes[device], n, zone_width, device_img, width, z*zone_width, cstreams[z]);
 		picviz_verify_cuda(cudaStreamAddCallback(cstreams[z], &stream_callback, NULL, 0));

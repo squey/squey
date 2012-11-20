@@ -25,7 +25,7 @@ void check_value(const char* buf, size_t s, size_t r)
 	sscanf(buf, "%lu %s", &read_r, rbuf);
 	bool valid = (read_r == r) && (strlen(rbuf) == get_buf_size(r));
 	if (!valid) {
-		printf("line %llu: ", r);
+		printf("line %lu: ", r);
 		fwrite(buf, 1, s, stdout);
 		printf("  INVALID!!");
 		printf("\n");
@@ -162,7 +162,7 @@ int main(int argc, char** argv)
 	backend.visit_column2_sel(0, [&](size_t r, const char* bread, size_t n)
 		{
 			check_value(bread, n, r);
-			printf("line: %llu, ", r);
+			printf("line: %lu, ", r);
 			fwrite(bread, 1, n, stdout);
 			printf("\n");
 		},
@@ -171,7 +171,7 @@ int main(int argc, char** argv)
 	backend.visit_column_tbb_sel(0, [&](size_t r, const char* bread, size_t n)
 		{
 			check_value(bread, n, r);
-			printf("line: %llu, ", r);
+			printf("line: %lu, ", r);
 			fwrite(bread, 1, n, stdout);
 			printf("\n");
 		},

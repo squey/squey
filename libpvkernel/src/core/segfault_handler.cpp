@@ -8,6 +8,7 @@
 
 #ifdef PICVIZ_DEVELOPER_MODE
 
+
 #ifndef WIN32
 #include <stdio.h>
 #include <execinfo.h>
@@ -23,6 +24,10 @@
 #include <sys/sysctl.h>
 
 #include <tbb/atomic.h>
+
+//#define PICVIZ_DEV_USE_SIGACTION
+
+#ifdef PICVIZ_DEV_USE_SIGACTION
 
 // From http://stackoverflow.com/questions/3596781/detect-if-gdb-is-running
 static bool are_we_ptraced()
@@ -104,7 +109,7 @@ static void segfault_handler(int sig, siginfo_t* sinfo, void* uctxt)
 	}
 	process_path[ret] = '\0';
 	pid_t child_pid = fork();
-	if (!child_pid) {           
+	if (!child_pid) {
 		execlp("gdb", "gdb", process_path, pid_buf, NULL);
 		// If this execlp fails, it means we're still in the same process. So abort
 		fprintf(stderr, "GDB failed to start !\n");
@@ -114,12 +119,14 @@ static void segfault_handler(int sig, siginfo_t* sinfo, void* uctxt)
 	}
 	abort();
 }
+#endif
 
 void init_segfault_handler()
 {
+#ifdef PICVIZ_DEV_USE_SIGACTION
 	// If we are already ptraced (like if gdb is alreadu running on top of us),
 	// do nothing here.
-	/*if (are_we_ptraced()) {
+	if (are_we_ptraced()) {
 		return;
 	}
 
@@ -129,7 +136,8 @@ void init_segfault_handler()
 	sa.sa_flags = SA_SIGINFO | SA_RESTART;
 	sa.sa_sigaction = segfault_handler;
 
-	sigaction(SIGSEGV, &sa, NULL);*/
+	sigaction(SIGSEGV, &sa, NULL);
+#endif
 }
 
 #else // WIN32
