@@ -5,7 +5,7 @@
 
 set(SAD_LIBRARY ${picviz-inspector_SOURCE_DIR}/helpers/libsad/src/libsad.so)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Set SAD_PLUGINS_DIR
 if(WIN32)
