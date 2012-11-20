@@ -76,7 +76,7 @@ void PVGuiQt::PVLogoScene::drawBackground(QPainter *painter, const QRectF &)
         glPushMatrix();
         glLoadIdentity();
 
-        const float pos[] = { (m_lightPosition.x - width() / 2), (height() / 2 - m_lightPosition.y), m_lightPosition.z, 0 };
+        //const float pos[] = { (m_lightPosition.x - width() / 2), (height() / 2 - m_lightPosition.y), m_lightPosition.z, 0 };
         //glLightfv(GL_LIGHT0, GL_POSITION, pos);
         glColor4f(m_modelColor.redF(), m_modelColor.greenF(), m_modelColor.blueF(), 1.0f);
 

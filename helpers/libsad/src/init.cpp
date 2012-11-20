@@ -12,7 +12,8 @@
 
 int Sad::initialize(void)
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(get_plugins_dir(), PLUGIN_PREFIX);
+	// number of loaded class is ignored
+	PVCore::PVClassLibraryLibLoader::load_class_from_dirs(get_plugins_dir(), PLUGIN_PREFIX);
 
 	return 0;
 }

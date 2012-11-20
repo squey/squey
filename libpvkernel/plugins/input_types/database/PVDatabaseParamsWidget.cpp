@@ -174,7 +174,8 @@ void PVRush::PVDatabaseParamsWidget::preset_new_Slot(const QString& name)
 	QString query = get_query();
 
 	// Set the new presets
-	PVDBPresets::id_t id = PVDBPresets::get().add(name, new_infos, query);
+	// ignore returned value
+	PVDBPresets::get().add(name, new_infos, query);
 }
 
 void PVRush::PVDatabaseParamsWidget::preset_load_Slot(const QString& preset)

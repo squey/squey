@@ -22,11 +22,8 @@ int main(void)
 	Picviz::PVSelection *selection3 = new Picviz::PVSelection();
 	Picviz::PVSelection a;
 	Picviz::PVSelection b;
-	
-	
 
 	int i, good;
-	int line_index;
 
 	PVRow last_index;
 	PVRow count;
