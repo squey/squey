@@ -16,6 +16,8 @@ class PVPythonInitializer;
 class LibKernelDecl PVPythonClassDecl
 {
 	friend class PVPythonInitializer;
+public:
+	virtual ~PVPythonClassDecl() {}
 protected:
 	virtual void declare() = 0;
 	virtual PVPythonClassDecl* clone() const = 0;
