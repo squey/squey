@@ -1,4 +1,5 @@
 :Correlation name:_QLineEdit	{buddy=':New correlation.Correlation name:_QLabel' type='QLineEdit' unnamed='1' visible='1'}
+:Correlations.TestCorrelation1_QAction	{container=':Correlations_PVGuiQt::PVCorrelationMenu_2' text='TestCorrelation1' type='QAction' unnamed='1' visible='true'}
 :Correlations.TestCorrelation_QAction	{container=':Correlations_PVGuiQt::PVCorrelationMenu_2' text='TestCorrelation' type='QAction' unnamed='1' visible='true'}
 :Correlations.Test_QAction	{container=':Correlations_PVGuiQt::PVCorrelationMenu_2' text='Test' type='QAction' unnamed='1' visible='true'}
 :Correlations_PVGuiQt::PVCorrelationMenu	{title='Correlations' type='PVGuiQt::PVCorrelationMenu' unnamed='1' visible='1'}
@@ -15,6 +16,8 @@
 :Import file.splitter_QSplitter	{name='splitter' type='QSplitter' visible='1' window=':Import file_PVRush::PVImportFileDialog'}
 :Import file.toParentButton_QToolButton	{name='toParentButton' type='QToolButton' visible='1' window=':Import file_PVRush::PVImportFileDialog'}
 :Import file_PVRush::PVImportFileDialog	{name='QFileDialog' type='PVRush::PVImportFileDialog' visible='1' windowTitle='Import file'}
+:Import files: archive detected.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Import files: archive detected_QMessageBox'}
+:Import files: archive detected_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='Import files: archive detected'}
 :Import_QMenu	{title='Import' type='QMenu' unnamed='1' visible='1'}
 :Load an investigation....Back_QToolButton	{text='Back' type='QToolButton' unnamed='1' visible='1' window=':Load an investigation..._KFileDialog'}
 :Load an investigation....Name:_QLabel	{text='Name:' type='QLabel' unnamed='1' visible='1' window=':Load an investigation..._KFileDialog'}
@@ -43,6 +46,7 @@
 :new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow	{name='PVMainWindow' type='PVInspector::PVMainWindow' visible='1' windowTitle=':new-solution1.pvi[*] — Picviz Inspector 3.0.0'}
 :new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow_2	{name='PVMainWindow' type='PVInspector::PVMainWindow' visible='1' windowTitle='new-solution1.pvi[*] — Picviz Inspector 3.0.0'}
 :new-solution1.pvi[*] — Picviz Inspector 3.0.0_QMenuBar	{type='QMenuBar' unnamed='1' visible='1' window=':new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow'}
+:new-solution1.pvi[*] — Picviz Inspector 3.0.0_QMenuBar_2	{type='QMenuBar' unnamed='1' visible='1' window=':new-solution1.pvi[*] — Picviz Inspector 3.0.0_PVInspector::PVMainWindow_2'}
 :qt_dockwidget_floatbutton_QGraphicsPixmapItem	{acceptDrops='no' container=':Parallel view [1 (default/default)].qt_dockwidget_floatbutton_PVParallelView::PVFullParallelView' enabled='yes' focusable='no' lineColor='#000000' movable='no' occurrence='5' selectable='no' type='QGraphicsPixmapItem' visible='yes'}
 :qt_dockwidget_floatbutton_QGraphicsPixmapItem_2	{acceptDrops='no' container=':Parallel view [1 (default/default)].qt_dockwidget_floatbutton_PVParallelView::PVFullParallelView' enabled='yes' focusable='no' lineColor='#000000' movable='no' occurrence='6' selectable='no' type='QGraphicsPixmapItem' visible='yes'}
 :qt_tabwidget_stackedwidget_PVGuiQt::PVSourceWorkspace	{container=':new-solution1.pvi[*] — Picviz Inspector 3.0.0.qt_tabwidget_stackedwidget_QStackedWidget' type='PVGuiQt::PVSourceWorkspace' unnamed='1' visible='1'}
