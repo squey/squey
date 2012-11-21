@@ -246,7 +246,6 @@ bool Picviz::PVPlotted::load_buffer_from_file(uint_plotted_table_t& buf, PVRow& 
 	const size_t nuints = size_buf/sizeof(uint32_t);
 	nrows = nuints/ncols;
 	const size_t nrows_aligned = ((nrows+PVROW_VECTOR_ALIGNEMENT-1)/(PVROW_VECTOR_ALIGNEMENT))*PVROW_VECTOR_ALIGNEMENT;
-	const size_t size_read_col = nrows*sizeof(uint32_t);
 	buf.resize(nrows_aligned*ncols);
 
 	PVLOG_INFO("(Picviz::load_buffer_from_file) number of cols: %d , nuint: %u, nrows: %u\n", ncols, nuints, nuints/ncols);

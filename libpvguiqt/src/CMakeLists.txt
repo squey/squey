@@ -75,7 +75,6 @@ include/pvguiqt/PVViewDisplay.h
 include/pvguiqt/PVAboutBoxDialog.h
 include/pvguiqt/PVProjectsTabWidget.h
 include/pvguiqt/PVStartScreenWidget.h
-include/pvguiqt/PVInputTypeMenuEntries.h
 include/pvguiqt/PVImportSourceToProjectDlg.h
 include/pvguiqt/PVCorrelationMenu.h
 include/pvguiqt/PVAD2GWidget.h

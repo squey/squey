@@ -24,8 +24,6 @@ include/PVAxisComputationDlg.h
 include/PVAxisPropertiesWidget.h
 #include/PVAxesCombinationWidget.h
 #include/PVAxesCombinationDialog.h
-include/PVCustomStyle.h
-include/PVCustomTitleDialog.h
 include/PVExtractorWidget.h
 include/PVColorDialog.h
 include/PVDualSlider.h
@@ -38,15 +36,11 @@ include/PVInvestigationWizard.h
 #include/PVListingSortFilterProxyModel.h
 include/PVMainWindow.h
 #include/PVMappingPlottingEditDialog.h
-include/PVMapWidget.h
 include/PVSaveDataTreeDialog.h
-include/PVSerializeOptionsModel.h
 include/PVSerializeOptionsWidget.h
-include/PVSimpleStringListModel.h
 include/PVStringListChooserWidget.h
 #include/PVViewsListingView.h
 #include/PVViewsiListingWidget.h
-include/PVViewsModel.h
 
 widgets/PVCheckableComboBox.h
 
@@ -64,9 +58,7 @@ widgets/format-builder/include/PVXmlParamWidget.h
 widgets/format-builder/include/PVXmlParamWidgetBoardAxis.h
 widgets/format-builder/include/PVXmlParamWidgetBoardFilter.h
 widgets/format-builder/include/PVXmlParamWidgetBoardSplitterRegEx.h
-widgets/format-builder/include/PVXmlParamWidgetEditorBox.h
 widgets/format-builder/include/PVXmlRegValidatorHighLight.h
-widgets/format-builder/include/PVXmlTreeItemDelegate.h
 widgets/format-builder/include/PVXmlTimeValidatorHighLight.h
 
 # include/logviewer/addmachinedialog.h

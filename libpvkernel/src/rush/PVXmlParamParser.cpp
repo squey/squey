@@ -199,7 +199,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 		}
 	}
 
-	for(size_t i = 0; i < nchilds; i++){
+	for(int i = 0; i < nchilds; i++){
 		QDomElement child = childs.at(i).toElement();
 
 		if (getNodeType(child) == "axis") {

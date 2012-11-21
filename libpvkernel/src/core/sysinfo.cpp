@@ -98,9 +98,9 @@ QStringList PVCore::SysInfo::get_card_from_id(QString id)
 
 int PVCore::SysInfo::gpu_count()
 {
-
 	int gpu_counter = 0;
 #ifdef LINUX
+	// FIXME: this following code does not count anything, is it natural?
 	QFile pcifile(LINUX_PCI_DEVICES_FILE);
 	QByteArray data;
 
@@ -123,11 +123,11 @@ int PVCore::SysInfo::gpu_count()
 	}
 
 	pcifile.close();
-	
-	return 0;
-#elif WIN32
-	return 1;
+
+#elifdef WIN32
+	gpu_counter = 1;
 #endif
+	return gpu_counter;
 }
 
 //QList <QStringList> pvcore_device_graphical_cards_scan

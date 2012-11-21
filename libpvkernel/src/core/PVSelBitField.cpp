@@ -48,14 +48,14 @@ PVCore::PVSelBitField::PVSelBitField(PVSelBitField const& o):
  * PVCore::PVSelBitField::get_number_of_selected_lines_in_range
  *
  *****************************************************************************/
-int PVCore::PVSelBitField::get_number_of_selected_lines_in_range(PVRow a, PVRow b) const
+size_t PVCore::PVSelBitField::get_number_of_selected_lines_in_range(PVRow a, PVRow b) const
 {
 	if (!_table) {
 		return 0;
 	}
 #if 0	
 	PVRow line_index;
-	int count = 0; 
+	size_t count = 0;
 
 	for (line_index = a; line_index<b; line_index++) { 
 		if (get_line(line_index)) { 

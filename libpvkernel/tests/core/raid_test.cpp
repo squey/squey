@@ -202,7 +202,7 @@ public:
 
 		this->CreateFolder(folder);
 
-		for (int i = 0 ; i < _num_cols ; i++) {
+		for (uint64_t i = 0 ; i < _num_cols ; i++) {
 			_files[i] = this->Open(this->_filenames[i]);
 		}
 	}
@@ -215,7 +215,7 @@ public:
 
 		system((std::string("mkdir ") + _folder + " 2> /dev/null").c_str());
 
-		for (int i = 0 ; i < _num_cols ; i++) {
+		for (uint64_t i = 0 ; i < _num_cols ; i++) {
 			std::stringstream st;
 			st << _folder << "/file_" << i;
 			_filenames[i] = st.str().c_str();
@@ -260,14 +260,14 @@ public:
 
 	void flush_all()
 	{
-		for (int i = 0 ; i < _num_cols ; i++) {
+		for (uint64_t i = 0 ; i < _num_cols ; i++) {
 			this->Flush(_files[i]);
 		}
 	}
 
 	~Writer()
 	{
-		for (int i = 0 ; i < _num_cols ; i++) {
+		for (uint64_t i = 0 ; i < _num_cols ; i++) {
 			this->Close(_files[i]);
 		}
 

@@ -178,11 +178,8 @@ int main(void) {
 
 #define SHUFFLE _MM_SHUFFLE(0,3,2,1)
 
-	__m128i sse_index ;
-	sse_index = _mm_insert_epi32(sse_index, 0xAAAAAAAA, 0);
-	sse_index = _mm_insert_epi32(sse_index, 0xBBBBBBBB, 1);
-	sse_index = _mm_insert_epi32(sse_index, 0xCCCCCCCC, 2);
-	sse_index = _mm_insert_epi32(sse_index, 0xDDDDDDDD, 3);
+	//                                value[3]    value[2]    value[1]    value[0]
+	__m128i sse_index = _mm_set_epi32(0xDDDDDDDD, 0xCCCCCCCC, 0xBBBBBBBB, 0xAAAAAAAA);
 
 	std::cout << std::hex << _mm_extract_epi32(sse_index, 0) << endl;
 	std::cout << std::hex << _mm_extract_epi32(sse_index, 1) << endl;

@@ -352,13 +352,9 @@ set(WIDGETS_MOC_HEADERS
 include/pvkernel/widgets/qkeysequencewidget.h
 include/pvkernel/widgets/qkeysequencewidget_p.h
 include/pvkernel/widgets/PVPresetsWidget.h
-include/pvkernel/widgets/PVArgumentListModel.h
 include/pvkernel/widgets/PVArgumentListWidget.h
-include/pvkernel/widgets/PVArgumentListWidgetFactory.h
-include/pvkernel/widgets/PVComboBox.h
 include/pvkernel/widgets/PVColorDialog.h
 include/pvkernel/widgets/PVColorPicker.h
-include/pvkernel/widgets/PVDataTreeModel.h
 include/pvkernel/widgets/PVAbstractDataTreeMaskProxyModel.h
 
 include/pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h

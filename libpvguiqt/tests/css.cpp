@@ -56,7 +56,7 @@ public:
 		css_file.close();
 
 		setStyleSheet(css_string);
-		setStyle(QApplication::style());QVBoxLayout* layout2 = new QVBoxLayout();
+		setStyle(QApplication::style());
 	}
 };
 

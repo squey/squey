@@ -916,7 +916,7 @@ void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row
 {
 	PVRush::PVNraw const& nraw = _log_extract->get_nraw();
 	// We could use QList::fromVector(QVector::fromStdVector(nraw_table_line)), but that's not really efficient...
-	if (row >= nraw.get_number_rows()) {
+	if ((PVRow)row >= nraw.get_number_rows()) {
 		PVLOG_WARN("(PVFormatBuilderWidget::set_axes_name_selected_row_Slot) row index '%d' does not exist in the current NRAW (size '%d').\n", row, nraw.get_number_rows());
 		return;
 	}

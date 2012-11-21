@@ -322,12 +322,15 @@ public:
 			const size_t diff_off = off-prev_off;
 			assert(diff_off <= SERIAL_READ_BUFFER_SIZE);
 			read_size = this->Read(column.file, _serial_read_buffer, diff_off);
-			if (read_size != diff_off) {
+			if (read_size < 0) {
+				assert(false);
+				return false;
+			} else if ((size_t)read_size != diff_off) {
 				assert(false);
 				return false;
 			}
 			const size_t processed_size = visit_column_process_chunk_sse(cur_field, end_field-1, _serial_read_buffer, read_size, f);
-			if ((processed_size != read_size) || (cur_field != end_field)) {
+			if ((processed_size != (size_t)read_size) || (cur_field != end_field)) {
 				assert(false);
 				return false;
 			}
@@ -372,7 +375,10 @@ public:
 			if (!sel.is_empty_between(cur_field, end_field)) {
 				this->Seek(column.file, prev_off);
 				read_size = this->Read(column.file, _serial_read_buffer, diff_off);
-				if (read_size != diff_off) {
+				if (read_size < 0) {
+					assert(false);
+					return false;
+				} else if ((size_t)read_size != diff_off) {
 					assert(false);
 					return false;
 				}

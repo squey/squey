@@ -54,7 +54,7 @@ static void get_cpuid_infos(CPUIDinfo* infos, int InfoType)
 }
 
 
-static int _isSSE4Supported(const int CHECKBITS) 
+static int _isSSE4Supported(const unsigned int CHECKBITS)
 { 
 	// returns 1 if is a Nehalem or later processor, 0 if prior to Nehalem 
 
@@ -84,13 +84,13 @@ static int _isSSE4Supported(const int CHECKBITS)
 
 int isSSE41Supported(void) 
 { 
-	const int CHECKBITS = SSE4_1_FLAG;
+	const unsigned int CHECKBITS = SSE4_1_FLAG;
 	return _isSSE4Supported(CHECKBITS);
 } 
 
 int isSSE41andSSE42supported(void)
 {
-	const int CHECKBITS = SSE4_1_FLAG | SSE4_2_FLAG; 
+	const unsigned int CHECKBITS = SSE4_1_FLAG | SSE4_2_FLAG;
 	return _isSSE4Supported(CHECKBITS);
 }
 
