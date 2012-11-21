@@ -203,6 +203,8 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 
 bool PVGuiQt::PVLayerFilterProcessWidget::process()
 {
+	_args_widget->force_submit();
+
 	_view->process_selection();
 	_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 

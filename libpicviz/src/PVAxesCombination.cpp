@@ -120,7 +120,7 @@ PVCol Picviz::PVAxesCombination::get_axis_column_index(PVCol index) const
 	assert(!axes_list.empty());
 
 	/* We check that the given axis' index is not out of range */
-	if (index >= axes_list.size()) {
+	if (index >= columns_indexes_list.size()) {
 		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
 		return columns_indexes_list.last().get_axis();
 	}
