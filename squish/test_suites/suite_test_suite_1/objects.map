@@ -1,4 +1,5 @@
 :Correlation name:_QLineEdit	{buddy=':New correlation.Correlation name:_QLabel' type='QLineEdit' unnamed='1' visible='1'}
+:Correlations.TestCorrelation1_QAction	{container=':Correlations_PVGuiQt::PVCorrelationMenu_2' text='TestCorrelation1' type='QAction' unnamed='1' visible='true'}
 :Correlations.TestCorrelation_QAction	{container=':Correlations_PVGuiQt::PVCorrelationMenu_2' text='TestCorrelation' type='QAction' unnamed='1' visible='true'}
 :Correlations.Test_QAction	{container=':Correlations_PVGuiQt::PVCorrelationMenu_2' text='Test' type='QAction' unnamed='1' visible='true'}
 :Correlations_PVGuiQt::PVCorrelationMenu	{title='Correlations' type='PVGuiQt::PVCorrelationMenu' unnamed='1' visible='1'}

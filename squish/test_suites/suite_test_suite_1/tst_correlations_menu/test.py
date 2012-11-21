@@ -5,7 +5,7 @@ def test_add_correlation():
     type(waitForObject(":Correlation name:_QLineEdit"), "TestCorrelation1")
     type(waitForObject(":Correlation name:_QLineEdit"), "<Return>")
     sendEvent("QCloseEvent", waitForObject(":Correlations_QDialog"))
-    test.compare(findObject(":Correlations.TestCorrelation_QAction").iconText, "TestCorrelation1")
+    test.compare(findObject(":Correlations.TestCorrelation1_QAction").iconText, "TestCorrelation1")
 
 def main():
     
