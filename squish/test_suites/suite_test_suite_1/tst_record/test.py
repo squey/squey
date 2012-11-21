@@ -1,6 +1,6 @@
 
 def main():
-    startApplication("picviz-inspector.sh")
+    startApplication("inspector.sh")
     clickButton(waitForObject(":new-solution1.pvi[*] — Picviz Inspector 3.0.0.Import files..._QPushButton_2"))
     clickButton(waitForObject(":Import file.toParentButton_QToolButton"))
     waitForObjectItem(":stackedWidget.listView_QListView", "sources")
@@ -17,3 +17,4 @@ def main():
     sendEvent("QCloseEvent", waitForObject(":Correlations_QDialog"))
     waitFor("object.exists(':Correlations.TestCorrelation1_QAction')", 20000)
     test.compare(findObject(":Correlations.TestCorrelation1_QAction").text, "TestCorrelation1")
+
