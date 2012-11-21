@@ -184,6 +184,7 @@ else(WIN32)
 		DESTINATION .)
 
 
+	install(FILES ${LINUX_MISCLIB_PATH_64}/libpcrecpp.so ${LINUX_MISCLIB_PATH_64}/libpcrecpp.so.0 ${LINUX_MISCLIB_PATH_64}/libpcrecpp.so.0.0.0 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH_64}/libgomp.so.1 ${LINUX_MISCLIB_PATH_64}/libgomp.so.1.0.0 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH_64}/libpcap.so.0.8 ${LINUX_MISCLIB_PATH_64}/libpcap.so.1.3.0 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH_64}/libarchive.so.12 ${LINUX_MISCLIB_PATH_64}/libarchive.so.12.0.4 DESTINATION .)
