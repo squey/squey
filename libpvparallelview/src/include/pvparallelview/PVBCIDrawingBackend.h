@@ -36,6 +36,7 @@ public:
 
 public:
 	virtual backend_image_p_t create_image(size_t img_width, uint8_t height_bits) const = 0;
+	virtual backend_image_p_t create_image_on_same_device(size_t img_width, uint8_t height_bits, backend_image_t const& /*ref*/) const { return create_image(img_width, height_bits); }
 	virtual Flags flags() const = 0;
 	virtual bool is_sync() const = 0;
 
