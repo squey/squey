@@ -152,18 +152,18 @@ int main(void)
 	// Test of is_empty_between ([a,b[)
 	a.select_none();
 	a.set_bit_fast(6);
-	ASSERT_VALID(a.is_empty_between(0, 6));
-	ASSERT_VALID(a.is_empty_between(7, PICVIZ_LINES_MAX));
+	PV_ASSERT_VALID(a.is_empty_between(0, 6));
+	PV_ASSERT_VALID(a.is_empty_between(7, PICVIZ_LINES_MAX));
 	a.set_bit_fast(65);
-	ASSERT_VALID(a.is_empty_between(66, PICVIZ_LINES_MAX));
+	PV_ASSERT_VALID(a.is_empty_between(66, PICVIZ_LINES_MAX));
 	a.set_bit_fast(88);
-	ASSERT_VALID(a.is_empty_between(66, 88));
-	ASSERT_VALID(a.is_empty_between(66, 89) == false);
-	ASSERT_VALID(a.is_empty_between(65, 88) == false);
-	ASSERT_VALID(a.is_empty_between(89, 10000));
-	ASSERT_VALID(a.is_empty_between(88, 10000) == false);
+	PV_ASSERT_VALID(a.is_empty_between(66, 88));
+	PV_ASSERT_VALID(a.is_empty_between(66, 89) == false);
+	PV_ASSERT_VALID(a.is_empty_between(65, 88) == false);
+	PV_ASSERT_VALID(a.is_empty_between(89, 10000));
+	PV_ASSERT_VALID(a.is_empty_between(88, 10000) == false);
 	a.set_bit_fast(1024);
-	ASSERT_VALID(a.is_empty_between(100, 10000) == false);
+	PV_ASSERT_VALID(a.is_empty_between(100, 10000) == false);
 	a.set_bit_fast(5);
 	a.set_bit_fast(63);
 	a.set_bit_fast(64);

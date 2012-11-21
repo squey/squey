@@ -10,7 +10,7 @@ int main()
 {
 	PVCore::PVHugePODVector<uint32_t, 16> v;
 	v.resize(N);
-	ASSERT_VALID((uintptr_t)(v.begin()) % 16 == 0);
+	PV_ASSERT_VALID((uintptr_t)(v.begin()) % 16 == 0);
 	std::cout << "mmap done for 16GB." << std::endl;
 	std::cout << "Press a key to write them!" << std::endl;
 	getchar();
@@ -21,7 +21,7 @@ int main()
 	std::cout << "Shrink done. Press enter to check that values are correct." << std::endl;
 	getchar();
 	for (size_t i = 0; i < N/4; i++) {
-		ASSERT_VALID(v.at(i) == 0x0A0A0A0AU);
+		PV_ASSERT_VALID(v.at(i) == 0x0A0A0A0AU);
 	}
 	std::cout << "All valid. Press enter to clear the buffer." << std::endl;
 	getchar();
