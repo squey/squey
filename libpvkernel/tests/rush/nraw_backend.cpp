@@ -30,7 +30,7 @@ void check_value(const char* buf, size_t s, size_t r)
 		printf("  INVALID!!");
 		printf("\n");
 	}
-	ASSERT_VALID(valid);
+	PV_ASSERT_VALID(valid);
 }
 
 int main(int argc, char** argv)
@@ -111,14 +111,14 @@ int main(int argc, char** argv)
 		printf("%lu: ", i);
 		fwrite(bread, 1, sret, stdout);
 		printf("\n");*/
-		ASSERT_VALID(sret == get_buf_size(i));
+		PV_ASSERT_VALID(sret == get_buf_size(i));
 	}
 	BENCH_END(at, "at", sizeof(char), stotal, 1, 1);
 #endif
 
 	PVLOG_INFO("Checking values with visit_column()...\n");
 	BENCH_START(visit);
-	ASSERT_VALID(backend.visit_column2(0, [=](size_t r, const char* buf, size_t n)
+	PV_ASSERT_VALID(backend.visit_column2(0, [=](size_t r, const char* buf, size_t n)
 			{
 				check_value(buf, n, r);
 			}));
@@ -126,7 +126,7 @@ int main(int argc, char** argv)
 
 	PVLOG_INFO("Checking values with visit_column_tbb()...\n");
 	BENCH_START(visit2);
-	ASSERT_VALID(backend.visit_column_tbb(0, [=](size_t r, const char* buf, size_t n)
+	PV_ASSERT_VALID(backend.visit_column_tbb(0, [=](size_t r, const char* buf, size_t n)
 			{
 				check_value(buf, n, r);
 			}));
@@ -185,7 +185,7 @@ int main(int argc, char** argv)
 			/*printf("line: %llu, ", r);
 			fwrite(bread, 1, n, stdout);
 			printf("\n");*/
-			//ASSERT_VALID(n == get_buf_size(r));
+			//PV_ASSERT_VALID(n == get_buf_size(r));
 		},
 		sel);
 	BENCH_END(visit_sel, "visit_sel", sizeof(char), stotal, 1, 1);
@@ -196,7 +196,7 @@ int main(int argc, char** argv)
 			/*printf("line: %llu, ", r);
 			fwrite(bread, 1, n, stdout);
 			printf("\n");*/
-			//ASSERT_VALID(n == get_buf_size(r));
+			//PV_ASSERT_VALID(n == get_buf_size(r));
 		},
 		sel);
 	BENCH_END(visit_sel2, "visit_sel (cached)", sizeof(char), stotal, 1, 1);
@@ -204,7 +204,7 @@ int main(int argc, char** argv)
 	BENCH_START(visit_sel_tbb);
 	backend.visit_column_tbb_sel(0, [&](size_t r, const char* bread, size_t n)
 		{
-			//ASSERT_VALID(n == get_buf_size(r));
+			//PV_ASSERT_VALID(n == get_buf_size(r));
 		},
 		sel);
 	BENCH_END(visit_sel_tbb, "visit_sel_tbb (cached)", sizeof(char), stotal, 1, 1);
@@ -218,7 +218,7 @@ int main(int argc, char** argv)
 			/*printf("line: %llu, ", r);
 			fwrite(bread, 1, n, stdout);
 			printf("\n");*/
-			//ASSERT_VALID(n == get_buf_size(r));
+			//PV_ASSERT_VALID(n == get_buf_size(r));
 		},
 		sel);
 	BENCH_END(visit_sel4, "visit_sel (cached) (two rows)", sizeof(char), stotal, 1, 1);
@@ -226,7 +226,7 @@ int main(int argc, char** argv)
 	BENCH_START(visit_sel_tbb2);
 	backend.visit_column_tbb_sel(0, [&](size_t r, const char* bread, size_t n)
 		{
-			//ASSERT_VALID(n == get_buf_size(r));
+			//PV_ASSERT_VALID(n == get_buf_size(r));
 		},
 		sel);
 	BENCH_END(visit_sel_tbb2, "visit_sel_tbb (cached) (two rows)", sizeof(char), stotal, 1, 1);

@@ -117,10 +117,10 @@ int main()
 	for (size_t i = 0; i < NSLICE; i++) {
 		PVCore::PVByteVisitor::visit_nth_slice((const uint8_t*) str2, str2_size, i, [=](uint8_t const* str, size_t n)
 				{
-					ASSERT_VALID(n == get_slice_size(i));
+					PV_ASSERT_VALID(n == get_slice_size(i));
 					char buf[get_slice_size(i)];
 					memset(&buf[0], 'a' + i%26, get_slice_size(i));
-					ASSERT_VALID(memcmp(str, buf, n) == 0);
+					PV_ASSERT_VALID(memcmp(str, buf, n) == 0);
 					//fwrite(str, 1, n, stdout);
 					//printf("\n");
 				});

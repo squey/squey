@@ -67,7 +67,7 @@ int main()
 
 	std::vector<size_t> set_bits; set_bits.reserve(nbits);
 	s.to_list(set_bits);
-	ASSERT_VALID(check_equals(nbits, &bits[0], set_bits));
+	PV_ASSERT_VALID(check_equals(nbits, &bits[0], set_bits));
 
 	// Set randomely bits and check
 	nbits = 10000;
@@ -82,7 +82,7 @@ int main()
 	std::sort(bits_ref.begin(), bits_ref.end());
 	set_bits.clear(); set_bits.reserve(nbits);
 	s.to_list(set_bits);
-	ASSERT_VALID(check_equals(bits_ref.size(), &bits_ref[0], set_bits));
+	PV_ASSERT_VALID(check_equals(bits_ref.size(), &bits_ref[0], set_bits));
 
 	// Check the AND operator
 	Picviz::PVSparseSelection s2;
@@ -103,7 +103,7 @@ int main()
 	s.to_list(set_bits);
 	{
 		const size_t bits_ref[] = {1,65,1245678901ULL,1245678902ULL};
-		ASSERT_VALID(check_equals(4, (size_t*) bits_ref, set_bits));
+		PV_ASSERT_VALID(check_equals(4, (size_t*) bits_ref, set_bits));
 	}
 
 	// Check the OR operator
@@ -122,7 +122,7 @@ int main()
 	s.to_list(set_bits);
 	{
 		const size_t bits_ref[] = {1,64,65,66,67,10000ULL,10000000ULL};
-		ASSERT_VALID(check_equals(sizeof(bits_ref)/sizeof(size_t), (size_t*) bits_ref, set_bits));
+		PV_ASSERT_VALID(check_equals(sizeof(bits_ref)/sizeof(size_t), (size_t*) bits_ref, set_bits));
 	}
 
 	// Performance tests

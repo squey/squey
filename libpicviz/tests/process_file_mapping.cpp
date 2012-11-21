@@ -88,13 +88,13 @@ int main(int argc, char** argv)
 	//mapped->to_csv();
 	
 	// Compare table
-	ASSERT_VALID(save.size() == mapped->get_table().size());
+	PV_ASSERT_VALID(save.size() == mapped->get_table().size());
 	for (size_t i = 0; i < save.size(); i++) {
 		Picviz::PVMapped::mapped_row_t const& rsave = save[i];
 		Picviz::PVMapped::mapped_row_t const& rcmp  = mapped->get_table()[i];
 
-		ASSERT_VALID(rsave.size() == rcmp.size());
-		//ASSERT_VALID(memcmp(&rsave.at(0), &rcmp.at(0), rsave.size()*sizeof(Picviz::PVMapped::decimal_storage_type)) == 0);
+		PV_ASSERT_VALID(rsave.size() == rcmp.size());
+		//PV_ASSERT_VALID(memcmp(&rsave.at(0), &rcmp.at(0), rsave.size()*sizeof(Picviz::PVMapped::decimal_storage_type)) == 0);
 		write(4, &rsave.at(0), rsave.size()*sizeof(Picviz::PVMapped::decimal_storage_type));
 		write(5, &rcmp.at(0),  rcmp.size()*sizeof(Picviz::PVMapped::decimal_storage_type));
 	}
