@@ -13,4 +13,4 @@ def mainwindow_name_regexp_for_project(project_name):
     return "^%s\[\*\] — Picviz Inspector \d+\.\d+\.\d+" % project_name
 
 def path_files(file):
-    return os.path.join(SQUISH_FILES, file)
+    return os.path.join(INSPECTOR_FILES_DIR, file)

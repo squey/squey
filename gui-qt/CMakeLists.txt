@@ -5,6 +5,9 @@
 
 project(gui-qt)
 
+include(CTest)
+set(CTEST_PROJECT_NAME "GuiQt")
+
 option(USE_OWN_LIBCURL "We have problems with quite some distributions with libcurl. Use installed version in /opt/curl/" TRUE)
 
 if (WIN32)
@@ -23,3 +26,4 @@ include_directories(AFTER src/include)
 include_directories(AFTER src/widgets/format-builder/include)
 
 add_subdirectory(src)
+add_subdirectory(tests)

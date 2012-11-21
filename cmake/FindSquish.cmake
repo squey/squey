@@ -199,7 +199,7 @@ function(SQUISH_V4_ADD_TEST testName)
     message(STATUS "Using squish_v4_add_test(), but SQUISH_VERSION_MAJOR is ${SQUISH_VERSION_MAJOR}.\nThis may not work.")
   endif()
 
-  set(oneValueArgs AUT SUITE TEST SETTINGSGROUP PRE_COMMAND POST_COMMAND)
+  set(oneValueArgs AUT_PATH SUITE TEST SETTINGSGROUP PRE_COMMAND POST_COMMAND)
 
   cmake_parse_arguments(_SQUISH "" "${oneValueArgs}" "" ${ARGN} )
 
@@ -207,8 +207,8 @@ function(SQUISH_V4_ADD_TEST testName)
     message(FATAL_ERROR "Unknown keywords given to SQUISH_ADD_TEST(): \"${_SQUISH_UNPARSED_ARGUMENTS}\"")
   endif()
 
-  if(NOT _SQUISH_AUT)
-    message(FATAL_ERROR "Required argument AUT not given for SQUISH_ADD_TEST()")
+  if(NOT _SQUISH_AUT_PATH)
+	  message(FATAL_ERROR "Required argument AUT_PATH not given for SQUISH_ADD_TEST()")
   endif()
 
   if(NOT _SQUISH_SUITE)
@@ -219,9 +219,9 @@ function(SQUISH_V4_ADD_TEST testName)
     message(FATAL_ERROR "Required argument TEST not given for SQUISH_ADD_TEST()")
   endif()
 
-  get_target_property(testAUTLocation ${_SQUISH_AUT} LOCATION)
-  get_filename_component(testAUTDir ${testAUTLocation} PATH)
-  get_filename_component(testAUTName ${testAUTLocation} NAME)
+  #get_target_property(testAUTLocation ${_SQUISH_AUT} LOCATION)
+  get_filename_component(testAUTDir ${_SQUISH_AUT_PATH} PATH)
+  get_filename_component(testAUTName ${_SQUISH_AUT_PATH} NAME)
 
   get_filename_component(absTestSuite "${_SQUISH_SUITE}" ABSOLUTE)
   if(NOT EXISTS "${absTestSuite}")
@@ -247,7 +247,7 @@ function(SQUISH_V4_ADD_TEST testName)
     "-Dsquish_libqtdir:STRING=${QT_LIBRARY_DIR}"
     "-Dsquish_test_suite:STRING=${absTestSuite}"
     "-Dsquish_test_case:STRING=${_SQUISH_TEST}"
-    "-Dsquish_env_vars:STRING=${envVars}"
+    "-Dsquish_env_vars:STRING=${envVar}"
     "-Dsquish_wrapper:STRING=${testWraper}"
     "-Dsquish_module_dir:STRING=${_SQUISH_MODULE_DIR}"
     "-Dsquish_settingsgroup:STRING=${_SQUISH_SETTINGSGROUP}"

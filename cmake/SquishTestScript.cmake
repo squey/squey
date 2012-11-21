@@ -67,6 +67,7 @@ if("${squish_version}" STREQUAL "4")
     execute_process(COMMAND ${squish_module_dir}/Squish4RunTestCase.sh ${squish_server_executable} ${squish_client_executable} ${squish_test_suite} ${squish_test_case} ${squish_aut} ${squish_aut_dir} ${squish_settingsgroup}
                     RESULT_VARIABLE test_rv )
   endif ()
+  MESSAGE(STATUS ${test_rv})
 
 else()
 
