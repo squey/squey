@@ -298,9 +298,6 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 	// Get the string associated (that is, taken from the NRAW)
 	QString v = idx_click.data().toString();
 
-	// Get the real axis index
-	PVCol col = lib_view().get_real_axis_index(idx_click.column());
-
 	// Get the real row index
 	PVRow row = get_listing_model()->mapToSource(idx_click).row();
 
@@ -308,7 +305,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 	// to the menu's actions.
 	_ctxt_v = v;
 	_ctxt_row = row;
-	_ctxt_col = col;
+	_ctxt_col = idx_click.column(); // This is the *combined* axis index
 
 	// Show the menu at the given pos
 	QAction* act_sel = _ctxt_menu->exec(QCursor::pos());
