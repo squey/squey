@@ -13,7 +13,7 @@ def main():
     source(findFile("scripts", "common.py"))
     
     # Start picviz
-    startApplication("picviz-inspector.sh")
+    startApplication("inspector.sh")
     
     # Import a small source
     import_source(path_files("sources/test-petit.log"))#load_investigation(path_files("roots/test-petit.pvi"))
