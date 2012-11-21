@@ -296,3 +296,9 @@ find_package(HWLoc REQUIRED)
 if (HWLOC_FOUND)
   include_directories(${HWLOC_INCLUDE_DIRS})
 endif ()
+
+# 
+# Check for Squish 4.0
+#
+set(SQUISH_INSTALL_DIR /opt/squish)
+find_package(Squish 4.0)
