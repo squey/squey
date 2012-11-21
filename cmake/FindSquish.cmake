@@ -261,9 +261,9 @@ endfunction()
 
 function(ADD_SQUISH_TEST testName autName suiteName testCase)
     if (SQUISH_FOUND)
-        SQUISH_V4_ADD_TEST(testName AUT_PATH ${autName} SUITE ${CMAKE_CURRENT_SOURCE_DIR}/${suiteName} TEST ${testCase})
-        SET_PROPERTY(TEST testName PROPERTY ENVIRONMENT "SQUISH_SCRIPT_DIR=@CMAKE_SOURCE_DIR@/tests/squish/scripts")
-        SET_PROPERTY(TEST testName PROPERTY ENVIRONMENT "INSPECTOR_TESTS_DIR=@CMAKE_SOURCE_DIR@/tests")
+        SQUISH_V4_ADD_TEST(${testName} AUT_PATH ${autName} SUITE ${CMAKE_CURRENT_SOURCE_DIR}/${suiteName} TEST ${testCase})
+		SET_PROPERTY(TEST ${testName} APPEND PROPERTY ENVIRONMENT "SQUISH_SCRIPT_DIR=@CMAKE_SOURCE_DIR@/tests/squish/scripts")
+		SET_PROPERTY(TEST ${testName} APPEND PROPERTY ENVIRONMENT "INSPECTOR_TESTS_DIR=@CMAKE_SOURCE_DIR@/tests")
     endif()
 endfunction()
 
