@@ -90,5 +90,9 @@ endif(CUDA_FOUND)
 configure_file(inspector.sh.cmake inspector.sh @ONLY)
 configure_file(make_protect.cmake make_protect @ONLY)
 
+# generate tests scripts
+configure_file(squish_run.sh.cmake squish_run.sh @ONLY)
+configure_file(squish_ide.sh.cmake squish_ide.sh @ONLY)
+
 include(CMakePackage.txt)
 include(CMakePackageDistribute.txt)
