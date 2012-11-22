@@ -85,7 +85,7 @@ static bool set_field(int pos, PVCore::PVField** fields, const uint16_t* str, fu
 		new_f->set_begin((char*) field_str);
 		new_f->set_end((char*) (field_str + ff.size));
 		new_f->set_physical_end((char*) (field_str + ff.size));
-		assert(new_f->end() <= new_f->elt_parent()->end());
+		//assert(new_f->end() <= new_f->elt_parent()->end());
 	}
 	else {
 		new_f->set_begin((char*) &empty_str);
