@@ -54,6 +54,9 @@ add_test(TestGrepRegexp test_grep_regexp.sh)
 declare_pv_test(Trush_filter_composition "filter_composition.cpp;helpers.cpp" "${LINK_LIBRARIES}")
 add_test(TestFilterComposition diff_stdout.py test-files/filter_composition.out test-files/filter_composition.diff ./Trush_filter_composition test-files/filter_composition 6000)
 
+declare_pv_test(Trush_splitter_duplicate "splitter_duplicate.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+add_test(TestSplitterDuplicate test_splitter_duplicate.sh)
+
 # Plugin input tests
 
 # Format parsing
