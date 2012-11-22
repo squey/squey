@@ -128,5 +128,28 @@ QString PVRush::PVNraw::get_value(PVRow row, PVCol col) const
 
 QString PVRush::PVNraw::nraw_line_to_csv(PVRow idx) const
 {
-	return QString();
+	assert(idx < get_number_rows());
+	QString ret;
+	static QLatin1String quote("\"");
+	static QLatin1String escaped_quote("\\\"");
+	static QLatin1String sep(",");
+	PVCol c;
+	for (c = 0; c < get_number_cols()-1; c++) {
+		QString v(at(idx,c));
+		bool do_quote = false;
+		if (v.contains(QChar(','))) {
+			do_quote = true;
+		}
+		if (v.contains(QChar('"'))) {
+			do_quote = true;
+			v.replace(quote, escaped_quote);
+		}
+		if (do_quote) {
+			v.append(quote);
+			v.prepend(quote);
+		}
+		ret += at(idx, c) + sep;
+	}
+	ret += at(idx, c);
+	return ret;
 }

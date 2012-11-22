@@ -51,6 +51,10 @@ bool PVRush::PVTests::get_file_sc(PVInputDescription_p file, PVRush::PVFormat co
 				sc_file = sc;
 			}
 		}
+		if (!sc_file) {
+			// Take the first one
+			sc_file = pre_discovered_c.front();
+		}
 		std::cerr << "Chose source creator '" << qPrintable(sc_file->name()) << "' with success rate of " << success_rate << std::endl;
 	}
 
