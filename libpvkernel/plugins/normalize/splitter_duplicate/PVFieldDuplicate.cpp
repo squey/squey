@@ -40,7 +40,10 @@ PVCore::list_fields::size_type PVFilter::PVFieldDuplicate::one_to_many(PVCore::l
 	PVCore::list_fields::size_type ret = 0;
 
 	for (size_t i = 0; i < _n; i++) {
-		l.insert(it_ins, field);
+		PVCore::PVField &ins_f(*l.insert(it_ins, field));
+		ins_f.allocate_new(field.size());
+		memcpy(ins_f.begin(), field.begin(), field.size());
+		ins_f.set_end(ins_f.begin() + field.size());
 		ret++;
 	}
 

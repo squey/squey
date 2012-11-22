@@ -28,6 +28,7 @@ endmacro(declare_library)
 
 SET(CSV_MOC_HEADERS
 splitter_csv/PVFieldSplitterCSVParamWidget.h
+#splitter_csv/PVFieldSplitterDuplicateParamWidget.h
 )
 
 QT4_WRAP_CPP(CSV_MOC_SRCS ${CSV_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
@@ -58,7 +59,12 @@ add_library(normalize_filter_grep_regexp SHARED grep_regexp/PVFieldFilterRegexpG
 target_link_libraries(normalize_filter_grep_regexp pvkernel ${QT_LIBRARIES})
 declare_library(normalize_filter_grep_regexp)
 
-add_library(normalize_filter_splitter_duplicate SHARED splitter_duplicate/PVFieldDuplicate.cpp splitter_duplicate/PVFieldDuplicate.h splitter_duplicate/register.cpp)
+SET(DUPLICATE_MOC_HEADERS
+splitter_duplicate/PVFieldSplitterDuplicateParamWidget.h
+)
+
+QT4_WRAP_CPP(DUPLICATE_MOC_SRCS ${DUPLICATE_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+add_library(normalize_filter_splitter_duplicate SHARED splitter_duplicate/PVFieldDuplicate.cpp splitter_duplicate/PVFieldDuplicate.h splitter_duplicate/PVFieldSplitterDuplicateParamWidget.cpp ${DUPLICATE_MOC_SRCS} splitter_duplicate/register.cpp)
 target_link_libraries(normalize_filter_splitter_duplicate pvkernel ${QT_LIBRARIES})
 declare_library(normalize_filter_splitter_duplicate)
 
