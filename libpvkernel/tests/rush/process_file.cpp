@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, 1000000);
 		job->wait_end();
 
-		//dump_nraw_csv(ext.get_nraw());
+		dump_nraw_csv(ext.get_nraw());
 
 	}
 
