@@ -16,10 +16,11 @@ mapping_filter_ipv4_default
 mapping_filter_enum_default
 mapping_filter_host_default
 mapping_filter_string_default
-#mapping_filter_string_4Bsort
+mapping_filter_string_4Bsort
 #mapping_filter_string_sort
 mapping_filter_time_24h
 mapping_filter_time_default
+mapping_filter_time_week
 #mapping_filter_userdefined_default
 mapping_filter_mandatory_minmax
 )
