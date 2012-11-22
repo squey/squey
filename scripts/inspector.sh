@@ -4,8 +4,10 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-INSPECTOR_SOURCE_ROOT_DIR=.
+INSPECTOR_SOURCE_ROOT_DIR=$(/usr/bin/realpath $(dirname $0))
 ISRD=$INSPECTOR_SOURCE_ROOT_DIR
+
+cd $ISRD
 
 PVCORE_PATH=$ISRD/
 PVRUSH_PATH=$ISRD/
@@ -25,9 +27,6 @@ export PVRUSH_SOURCE_DIR=$ISRD/sources/
 
 export PVFILTER_NORMALIZE_DIR=$ISRD/normalize-filters/
 
-export LD_LIBRARY_PATH=$ISRD/.:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$ISRD/.:$ISRD/libtulip/lib:$LD_LIBRARY_PATH
 
 $ISRD/picviz-inspector
-
-
-
