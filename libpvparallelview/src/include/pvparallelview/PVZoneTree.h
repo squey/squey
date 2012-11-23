@@ -31,6 +31,9 @@
 #include <tbb/task_scheduler_init.h>
 
 
+#define TREE_CREATION_GRAINSIZE 1024
+static_assert(TREE_CREATION_GRAINSIZE % 4 == 0, "TREE_CREATION_GRAINSIZE must be a multiple of 4!");
+
 namespace PVParallelView {
 
 namespace __impl {
@@ -113,6 +116,7 @@ protected:
 
 	struct PVTreeParams
 	{
+		// This range is goes from begin (included) to end (*not* included)
 		struct PVRange
 		{
 			PVRow begin;
@@ -120,29 +124,42 @@ protected:
 		};
 
 	public:
-		PVTreeParams(PVZoneProcessing const& zp, PVZoneTree::ProcessData& pdata, uint32_t max_val):
+		PVTreeParams(PVZoneProcessing const& zp, PVZoneTree::ProcessData& pdata, uint32_t nrows):
 			_zp(zp), _pdata(pdata)
 		{
 			_ranges = new PVRange[pdata.ntasks];
+			if (nrows == 0) {
+				pdata.ntasks = 0;
+				return;
+			}
 
-			if (max_val < 4 * pdata.ntasks) {
-				// too few elements, using only one task, other will do nothing!
-				_ranges[0].begin = 0;
-				_ranges[0].end = max_val;
-				for (uint32_t task = 1; task < pdata.ntasks; ++task) {
-					_ranges[task].begin = 0;
-					_ranges[task].end = 0;
+			// Compute the number of tasks according to a minimum grain size
+			const uint32_t max_tasks = (nrows+TREE_CREATION_GRAINSIZE-1)/TREE_CREATION_GRAINSIZE;
+			const uint32_t ntasks = pdata.ntasks;
+			if (max_tasks < ntasks) {
+				PVRow cur_r = 0;
+				uint32_t t;
+				for (t = 0; t < max_tasks-1; t++) {
+					_ranges[t].begin = cur_r;
+					cur_r += TREE_CREATION_GRAINSIZE;
+					_ranges[t].end = cur_r;
 				}
-			} else {
-				PVRow begin = 0;
-				PVRow range_size = (((max_val/pdata.ntasks)+4-1)/4)*4;
-				for (uint32_t task = 0; task < pdata.ntasks-1; ++task) {
-					_ranges[task].begin = begin;
-					_ranges[task].end = begin+range_size;
-					begin += range_size;
+				_ranges[t].begin = cur_r;
+				_ranges[t].end = nrows;
+				pdata.ntasks = max_tasks;
+			}
+			else {
+				PVRow cur_r = 0;
+				// The range size is nrows/ntasks, aligned on the next multiple of 4
+				PVRow range_size = (((nrows/ntasks)+3)/4)*4;
+				uint32_t t;
+				for (t = 0; t < ntasks-1; t++) {
+					_ranges[t].begin = cur_r;
+					cur_r += range_size;
+					_ranges[t].end = cur_r;
 				}
-				_ranges[pdata.ntasks-1].begin = begin;
-				_ranges[pdata.ntasks-1].end = max_val;
+				_ranges[t].begin = cur_r;
+				_ranges[t].end = nrows;
 			}
 		}
 
@@ -155,6 +172,7 @@ protected:
 		inline PVZoneProcessing const& zp() const { return _zp; }
 		inline ProcessData& pdata() const { return _pdata; }
 		inline const PVRange& range(uint32_t task_num) const { return _ranges[task_num]; }
+		inline uint32_t tasks_count() const { return _pdata.ntasks; }
 
 	private:
 		PVZoneProcessing const& _zp;
@@ -202,6 +220,8 @@ public:
 	{
 		return _treeb[branch_id].p[i] = value;
 	}
+
+	void dump_branches() const;
 
 public:
 	void process_omp_sse_treeb(PVZoneProcessing const& zp);
