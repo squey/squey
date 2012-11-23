@@ -160,6 +160,7 @@ private:
 	PVParallelView::PVZoneTree* _ztree;
 	PVParallelView::PVZoneTree::ProcessData& _pdata;
 	mutable size_t _alloc_size;
+	uint32_t _nranges;
 };
 
 class TBBMergeTreesTask
@@ -339,8 +340,9 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 	BENCH_START(trees);
 	tbb::task_group group;
 	PVTreeParams create_tree_params(zp, pdata, nrows);
-	for (uint32_t task_num = 0; task_num < pdata.ntasks; ++task_num) {
-		group.run(__impl::TBBCreateTreeTask(create_tree_params, task_num));
+	const size_t ntasks = create_tree_params.tasks_count();
+	for (uint32_t t = 0; t < ntasks; t++) {
+		group.run(__impl::TBBCreateTreeTask(create_tree_params, t));
 	}
 	group.wait();
 	BENCH_END(trees, "TREES", nrows*2, sizeof(float), nrows*2, sizeof(float));
@@ -367,8 +369,8 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 	// Merge trees
 	BENCH_START(merge);
 	PVTreeParams merge_tree_params(zp, pdata, NBUCKETS);
-	for (uint32_t task_num = 0; task_num < pdata.ntasks; ++task_num) {
-		group.run(__impl::TBBMergeTreesTask(this, merge_tree_params, task_num));
+	for (uint32_t t = 0; t < ntasks; t++) {
+		group.run(__impl::TBBMergeTreesTask(this, merge_tree_params, t));
 	}
 	group.wait();
 	BENCH_END(merge, "MERGE", nrows*2, sizeof(float), nrows*2, sizeof(float));
@@ -636,6 +638,19 @@ void PVParallelView::PVZoneTree::get_float_pts(pts_t& pts, Picviz::PVPlotted::pl
 			pts.push_back(1.0f);
 			pts.push_back(org_plotted[col_b*nrows+idx_first]);
 		
+		}
+	}
+}
+
+void PVParallelView::PVZoneTree::dump_branches() const
+{
+	for (size_t i = 0; i < NBUCKETS; i++) {
+		if (branch_valid(i) > 0) {
+			std::cout << "branch " << i << ": ";
+			for (size_t r = 0; r < get_branch_count(i); r++) {
+				std::cout << get_branch_element(i, r) << ",";
+			}
+			std::cout << std::endl;
 		}
 	}
 }
