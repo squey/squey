@@ -58,6 +58,10 @@ add_library(normalize_filter_grep_regexp SHARED grep_regexp/PVFieldFilterRegexpG
 target_link_libraries(normalize_filter_grep_regexp pvkernel ${QT_LIBRARIES})
 declare_library(normalize_filter_grep_regexp)
 
+add_library(normalize_filter_splitter_duplicate SHARED splitter_duplicate/PVFieldDuplicate.cpp splitter_duplicate/PVFieldDuplicate.h splitter_duplicate/register.cpp)
+target_link_libraries(normalize_filter_splitter_duplicate pvkernel ${QT_LIBRARIES})
+declare_library(normalize_filter_splitter_duplicate)
+
 INSTALL(TARGETS ${NORMALIZE_FILTERS_DIST_LIST} LIBRARY DESTINATION normalize-filters
                                                RUNTIME DESTINATION normalize-filters)
 INSTALL(FILES ${NORMALIZE_FILTERS_DIST_FILES} DESTINATION normalize-filters)
