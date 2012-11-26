@@ -182,6 +182,7 @@ private:
 	PVZonesManager const& get_zones_manager() const { return _zm; }
 
 	inline Picviz::PVSelection& real_selection() { return _pvview.get_real_output_selection(); }
+	inline Picviz::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
 
 	inline PVZoomedZoneTree const& get_zztree(PVZoneID const z) { return _zm.get_zone_tree<PVZoomedZoneTree>(z); }
 

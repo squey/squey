@@ -22,7 +22,7 @@ class PVZone
 public:
 	PVZone():
 		_ztree(new PVZoneTree()),
-		_zoomed_ztree(new PVZoomedZoneTree(_ztree->get_sel_elts()))
+		_zoomed_ztree(new PVZoomedZoneTree(_ztree->get_sel_elts(), _ztree->get_bg_elts()))
 	{ }
 
 public:
@@ -59,7 +59,7 @@ public:
 	void reset()
 	{
 		_ztree.reset(new PVZoneTree());
-		_zoomed_ztree.reset(new PVZoomedZoneTree(_ztree->get_sel_elts()));
+		_zoomed_ztree.reset(new PVZoomedZoneTree(_ztree->get_sel_elts(), _ztree->get_bg_elts()));
 	}
 
 private:

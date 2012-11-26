@@ -249,9 +249,11 @@ static inline uint32_t compute_sec_coord_count_y2(const uint32_t t1,
  *****************************************************************************/
 
 PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(const PVRow *sel_elts,
+                                                   const PVRow *bg_elts,
                                                    uint32_t max_level) :
 	_trees(nullptr),
 	_sel_elts(sel_elts),
+	_bg_elts(bg_elts),
 	_max_level(max_level),
 	_initialized(false)
 {
@@ -472,7 +474,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
                                                                     const PVCore::PVHSVColor *colors,
                                                                     pv_bci_code_t *codes,
                                                                     const float beta,
-                                                                    const bool use_sel) const
+                                                                    const PVRow* sel_elts) const
 {
 	size_t bci_idx = 0;
 	uint32_t shift = (32 - bbits) - zoom;
@@ -505,7 +507,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 		for (uint32_t t2 = 0; t2 < 1024; ++t2) {
 			PVRow tree_idx = (t2 * 1024) + t1;
 
-			if (use_sel && (_sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
+			if (sel_elts && (sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
 				/* when searching for entries using the selection, if there is no
 				 * drawn selected line for the corresponding ZoneTree, it is useless
 				 * to search for a selected line in the quadtree
@@ -551,7 +553,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 
 	tlr_buffer.clear();
 
-	if (use_sel) {
+	if (sel_elts) {
 		BENCH_SHOW(extract, "extraction  y1 seq sel", 1, 1, 1, 1);
 		BENCH_SHOW(compute, "computation y1 seq sel", 1, 1, 1, 1);
 		BENCH_SHOW(whole,   "whole       y1 seq sel", 1, 1, 1, 1);
@@ -580,7 +582,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
                                                                     const PVCore::PVHSVColor *colors,
                                                                     pv_bci_code_t *codes,
                                                                     const float beta,
-                                                                    const bool use_sel) const
+                                                                    const PVRow* sel_elts) const
 {
 	size_t bci_idx = 0;
 	uint32_t shift = (32 - bbits) - zoom;
@@ -613,7 +615,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 		for (uint32_t t1 = 0; t1 < 1024; ++t1) {
 			PVRow tree_idx = (t2 * 1024) + t1;
 
-			if (use_sel && (_sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
+			if (sel_elts && (sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
 				/* when searching for entries using the selection, if there is no
 				 * drawn selected line for the corresponding ZoneTree, it is useless
 				 * to search for a selected line in the quadtree
@@ -659,7 +661,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 
 	tlr_buffer.clear();
 
-	if (use_sel) {
+	if (sel_elts) {
 		BENCH_SHOW(extract, "extraction  y2 seq sel", 1, 1, 1, 1);
 		BENCH_SHOW(compute, "computation y2 seq sel", 1, 1, 1, 1);
 		BENCH_SHOW(whole,   "whole       y2 seq sel", 1, 1, 1, 1);
@@ -688,7 +690,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
                                                                     const PVCore::PVHSVColor *colors,
                                                                     pv_bci_code_t *codes,
                                                                     const float beta,
-                                                                    const bool use_sel) const
+                                                                    const PVRow* sel_elts) const
 {
 	uint32_t shift = (32 - bbits) - zoom;
 	uint32_t t1_min = y_min >> (32 - NBITS_INDEX);
@@ -722,11 +724,14 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 
 		                  size_t bci_idx = tls.get_index();
 
+						  // AG: copy this variable to the local stack (or better, register), which may reduce the number
+						  // of loads from the original stack.
+						  const PVRow* sel_elts_ = sel_elts;
 		                  for (uint32_t t1 = r.rows().begin(); t1 != r.rows().end(); ++t1) {
 			                  for (uint32_t t2 = r.cols().begin(); t2 != r.cols().end(); ++t2) {
 				                  PVRow tree_idx = (t2 * 1024) + t1;
 
-				                  if (use_sel && (_sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
+				                  if (sel_elts_ && (sel_elts_[tree_idx] == PVROW_INVALID_VALUE)) {
 					                  /* when searching for entries using the selection, if there is no
 					                   * drawn selected line for the corresponding ZoneTree, it is useless
 					                   * to search for a selected line in the quadtree
@@ -797,7 +802,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 
 	tlr_buffer.clear();
 
-	if (use_sel) {
+	if (sel_elts) {
 		BENCH_SHOW(extract, "extraction  y1 tbb sel", 1, 1, 1, 1);
 		BENCH_SHOW(merge,   "merge       y1 tbb sel", 1, 1, 1, 1);
 		BENCH_SHOW(compute, "computation y1 tbb sel", 1, 1, 1, 1);
@@ -828,7 +833,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
                                                                     const PVCore::PVHSVColor *colors,
                                                                     pv_bci_code_t *codes,
                                                                     const float beta,
-                                                                    const bool use_sel) const
+                                                                    const PVRow* sel_elts) const
 {
 	uint32_t shift = (32 - bbits) - zoom;
 	uint32_t t2_min = y_min >> (32 - NBITS_INDEX);
@@ -863,11 +868,13 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 
 		                  size_t bci_idx = tls.get_index();
 
+						  // AG: this copy is wanted. cf. browse_trees_bci_by_y1_tbb.
+						  const PVRow* sel_elts_ = sel_elts;
 		                  for (uint32_t t2 = r.rows().begin(); t2 != r.rows().end(); ++t2) {
 			                  for (uint32_t t1 = r.cols().begin(); t1 != r.cols().end(); ++t1) {
 				                  PVRow tree_idx = (t2 * 1024) + t1;
 
-				                  if (use_sel && (_sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
+				                  if (sel_elts_ && (sel_elts_[tree_idx] == PVROW_INVALID_VALUE)) {
 					                  /* when searching for entries using the selection, if there is no
 					                   * drawn selected line for the corresponding ZoneTree, it is useless
 					                   * to search for a selected line in the quadtree
@@ -938,7 +945,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 
 	tlr_buffer.clear();
 
-	if (use_sel) {
+	if (sel_elts) {
 		BENCH_SHOW(extract, "extraction  y2 tbb sel", 1, 1, 1, 1);
 		BENCH_SHOW(merge,   "merge       y2 tbb sel", 1, 1, 1, 1);
 		BENCH_SHOW(compute, "computation y2 tbb sel", 1, 1, 1, 1);

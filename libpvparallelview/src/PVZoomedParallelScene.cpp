@@ -511,8 +511,9 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				                                                                    PVBCICode<bbits>* codes)
 				                              {
 					                              zzt_context_t ctxt;
-					                              return get_zztree(z).browse_bci_by_y2(ctxt,
+					                              return get_zztree(z).browse_bci_bg_by_y2(ctxt,
 					                                                                    y_min, y_max, y_lim,
+																						layer_stack_output_selection(),
 					                                                                    zoom_level, image_width,
 					                                                                    colors, codes, beta);
 				                              },
@@ -562,8 +563,9 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				                                                                    PVBCICode<bbits>* codes)
 				                              {
 					                              zzt_context_t ctxt;
-					                              return get_zztree(z).browse_bci_by_y1(ctxt,
+					                              return get_zztree(z).browse_bci_bg_by_y1(ctxt,
 					                                                                    y_min, y_max, y_lim,
+																						layer_stack_output_selection(),
 					                                                                    zoom_level, image_width,
 					                                                                    colors, codes, beta);
 				                              },
