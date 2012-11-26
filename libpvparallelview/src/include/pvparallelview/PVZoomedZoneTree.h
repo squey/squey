@@ -146,7 +146,7 @@ public:
 	 * @param sel_elts the buffer where PVZoneTree store selected events
 	 * @param max_level the depth limit for quadtree
 	 */
-	PVZoomedZoneTree(const PVRow *sel_elts, uint32_t max_level = 8);
+	PVZoomedZoneTree(const PVRow *sel_elts, const PVRow *bg_elts, uint32_t max_level = 8);
 
 	/**
 	 * Destructor
@@ -411,7 +411,7 @@ public:
 			                                                             zoom, y2_count,
 			                                                             buffer, insert_f, tlr);
 		                                  },
-		                                  colors, codes, beta, true);
+		                                  colors, codes, beta, _sel_elts);
 	}
 
 	/**
@@ -458,8 +458,82 @@ public:
 			                                                             zoom, y1_count,
 			                                                             buffer, insert_f, tlr);
 		                                  },
-		                                  colors, codes, beta, true);
+		                                  colors, codes, beta, _sel_elts);
 	}
+
+	inline size_t browse_bci_bg_by_y1(context_t &ctx,
+	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
+	                                   const Picviz::PVSelection &unselected,
+	                                   int zoom, uint32_t width,
+	                                   const PVCore::PVHSVColor *colors,
+	                                   pv_bci_code_t *codes,
+	                                   const float beta = 1.0f) const
+	{
+		if (_initialized == false) {
+			return 0;
+		}
+
+#ifdef BROWSE_TBB
+		return browse_trees_bci_by_y1_tbb(ctx, y_min, y_max, y_lim, zoom, width,
+#else
+		return browse_trees_bci_by_y1_seq(ctx, y_min, y_max, y_lim, zoom, width,
+#endif
+		                                  [&](const pvquadtree &tree,
+		                                      const uint32_t y2_count,
+		                                      pv_quadtree_buffer_entry_t *buffer,
+		                                      pv_tlr_buffer_t &tlr,
+		                                      const insert_entry_f &insert_f)
+		                                  {
+			                                  size_t ret = tree.get_first_sel_from_y1(y_min, y_max,
+			                                                             unselected,
+			                                                             zoom, y2_count,
+			                                                             buffer, insert_f, tlr);
+											  if (ret == 0) {
+												  tree.get_first_from_y1(y_min, y_max,
+																		 zoom, y2_count,
+																		 buffer, insert_f, tlr);
+											  }
+		                                  },
+		                                  colors, codes, beta, _bg_elts);
+	}
+
+	inline size_t browse_bci_bg_by_y2(context_t &ctx,
+	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
+	                                   const Picviz::PVSelection &unselected,
+	                                   int zoom, uint32_t width,
+	                                   const PVCore::PVHSVColor *colors,
+	                                   pv_bci_code_t *codes,
+	                                   const float beta = 1.0f) const
+	{
+		if (_initialized == false) {
+			return 0;
+		}
+
+#ifdef BROWSE_TBB
+		return browse_trees_bci_by_y2_tbb(ctx, y_min, y_max, y_lim, zoom, width,
+#else
+		return browse_trees_bci_by_y2_seq(ctx, y_min, y_max, y_lim, zoom, width,
+#endif
+		                                  [&](const pvquadtree &tree,
+		                                      const uint32_t y1_count,
+		                                      pv_quadtree_buffer_entry_t *buffer,
+		                                      pv_tlr_buffer_t &tlr,
+		                                      const insert_entry_f &insert_f)
+		                                  {
+										      size_t ret = tree.get_first_sel_from_y2(y_min, y_max,
+			                                                             unselected,
+			                                                             zoom, y1_count,
+			                                                             buffer, insert_f, tlr);
+											  if (ret == 0) {
+												  tree.get_first_from_y2(y_min, y_max,
+																		 zoom, y1_count,
+																		 buffer, insert_f, tlr);
+											  }
+			                            
+		                                  },
+		                                  colors, codes, beta, _bg_elts);
+	}
+
 
 	/**
 	 * Test function for sequential implementation of browse_bci_by_y1
@@ -592,7 +666,7 @@ private:
 	                                  const extract_entries_f &extract_f,
 	                                  const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
 	                                  const float beta = 1.0f,
-	                                  const bool use_sel = false) const;
+	                                  const PVRow* sel_elts = nullptr) const;
 
 	/**
 	 * Sequential implementation used by browse_bci_by_y2 and browse_bci_sel_by_y2.
@@ -604,7 +678,7 @@ private:
 	                                  const extract_entries_f &extract_f,
 	                                  const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
 	                                  const float beta = 1.0f,
-	                                  const bool use_sel = false) const;
+	                                  const PVRow* sel_elts = nullptr) const;
 
 	/**
 	 * Parallel implementation used by browse_bci_by_y1 and browse_bci_sel_by_y1.
@@ -616,7 +690,7 @@ private:
 	                                  const extract_entries_f &extract_f,
 	                                  const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
 	                                  const float beta = 1.0f,
-	                                  const bool use_sel = false) const;
+	                                  const PVRow* sel_elts = nullptr) const;
 
 	/**
 	 * Parallel implementation used by browse_bci_by_y2 and browse_bci_sel_by_y2.
@@ -628,7 +702,7 @@ private:
 	                                  const extract_entries_f &extract_f,
 	                                  const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
 	                                  const float beta = 1.0f,
-	                                  const bool use_sel = false) const;
+	                                  const PVRow* sel_elts = nullptr) const;
 
 	/**
 	 * Compute the index in the quadtee forest given 2 coordinates.
@@ -655,6 +729,7 @@ private:
 private:
 	pvquadtree      *_trees;
 	const PVRow     *_sel_elts;
+	const PVRow     *_bg_elts;
 	uint32_t         _max_level;
 	bool             _initialized;
 };

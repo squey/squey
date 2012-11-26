@@ -371,13 +371,13 @@ public:
 	 * @param insert_f the function executed for each relevant found event
 	 * @param tls a TLR buffer used to store the result of extraction
 	 */
-	inline void get_first_from_y1(uint64_t y1_min, uint64_t y1_max, uint32_t zoom,
+	inline size_t get_first_from_y1(uint64_t y1_min, uint64_t y1_max, uint32_t zoom,
 	                              uint32_t y2_count,
 	                              pv_quadtree_buffer_entry_t *buffer,
 	                              const insert_entry_f &insert_f,
 	                              pv_tlr_buffer_t &tlr) const
 	{
-		visit_y1::get_n_m(*this, y1_min, y1_max, zoom, y2_count,
+		return visit_y1::get_n_m(*this, y1_min, y1_max, zoom, y2_count,
 		                  [](const PVQuadTreeEntry &e, const uint64_t y1_min, const uint64_t y1_max) -> bool
 		                  {
 			                  return (e.y1 >= y1_min) && (e.y1 < y1_max);
@@ -400,13 +400,13 @@ public:
 	 * @param insert_f the function executed for each relevant found event
 	 * @param tls a TLR buffer used to store the result of extraction
 	 */
-	inline void get_first_from_y2(uint64_t y2_min, uint64_t y2_max, uint32_t zoom,
+	inline size_t get_first_from_y2(uint64_t y2_min, uint64_t y2_max, uint32_t zoom,
 	                              uint32_t y1_count,
 	                              pv_quadtree_buffer_entry_t *buffer,
 	                              const insert_entry_f &insert_f,
 	                              pv_tlr_buffer_t &tlr) const
 	{
-		visit_y2::get_n_m(*this, y2_min, y2_max, zoom, y1_count,
+		return visit_y2::get_n_m(*this, y2_min, y2_max, zoom, y1_count,
 		                  [](const PVQuadTreeEntry &e, const uint64_t y2_min, const uint64_t y2_max) -> bool
 		                  {
 			                  return (e.y2 >= y2_min) && (e.y2 < y2_max);
@@ -429,14 +429,14 @@ public:
 	 * @param insert_f the function executed for each relevant found event
 	 * @param tls a TLR buffer used to store the result of extraction
 	 */
-	inline void get_first_sel_from_y1(uint64_t y1_min, uint64_t y1_max,
+	inline size_t get_first_sel_from_y1(uint64_t y1_min, uint64_t y1_max,
 	                                  const Picviz::PVSelection &selection,
 	                                  uint32_t zoom, uint32_t y2_count,
 	                                  pv_quadtree_buffer_entry_t *buffer,
 	                                  const insert_entry_f &insert_f,
 	                                  pv_tlr_buffer_t &tlr) const
 	{
-		visit_y1::get_n_m(*this, y1_min, y1_max, zoom, y2_count,
+		return visit_y1::get_n_m(*this, y1_min, y1_max, zoom, y2_count,
 		                  [&selection](const PVQuadTreeEntry &e, const uint64_t y1_min, const uint64_t y1_max) -> bool
 		                  {
 			                  return (e.y1 >= y1_min) && (e.y1 < y1_max)
@@ -460,14 +460,14 @@ public:
 	 * @param insert_f the function executed for each relevant found event
 	 * @param tls a TLR buffer used to store the result of extraction
 	 */
-	inline void get_first_sel_from_y2(uint64_t y2_min, uint64_t y2_max,
+	inline size_t get_first_sel_from_y2(uint64_t y2_min, uint64_t y2_max,
 	                                  const Picviz::PVSelection &selection,
 	                                  uint32_t zoom, uint32_t y1_count,
 	                                  pv_quadtree_buffer_entry_t *buffer,
 	                                  const insert_entry_f &insert_f,
 	                                  pv_tlr_buffer_t &tlr) const
 	{
-		visit_y2::get_n_m(*this, y2_min, y2_max, zoom, y1_count,
+		return visit_y2::get_n_m(*this, y2_min, y2_max, zoom, y1_count,
 		                  [&selection](const PVQuadTreeEntry &e, const uint64_t y2_min, const uint64_t y2_max) -> bool
 		                  {
 			                  return (e.y2 >= y2_min) && (e.y2 < y2_max)
@@ -672,37 +672,38 @@ private:
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static void get_n_m(PVQuadTree const& obj,
+		static size_t get_n_m(PVQuadTree const& obj,
 		                    const uint64_t y1_min, const uint64_t y1_max,
 		                    const uint32_t zoom, const uint32_t y2_count,
 		                    const Ftest &test_f, const insert_entry_f &insert_f,
 		                    pv_quadtree_buffer_entry_t *buffer,
 		                    pv_tlr_buffer_t &tlr)
 		{
+			size_t ret = 0;
 			if (zoom == 0) {
 				/* need a 1 entry width band along y1
 				 */
-				get_1_m(obj, y1_min, y1_max, y2_count, test_f, insert_f, buffer, tlr);
+				ret += get_1_m(obj, y1_min, y1_max, y2_count, test_f, insert_f, buffer, tlr);
 			} else if (y2_count == 1) {
 				/* need a 1 entry width band along y2
 				 */
-				get_n_1(obj, y1_min, y1_max, zoom, test_f, insert_f, buffer, tlr);
+				ret += get_n_1(obj, y1_min, y1_max, zoom, test_f, insert_f, buffer, tlr);
 			} else if (obj._nodes != 0) {
 				/* recursive search can be processed
 				 */
 				if (obj._y1_mid_value < y1_max) {
-					get_n_m(obj._nodes[NE], y1_min, y1_max,
+					ret += get_n_m(obj._nodes[NE], y1_min, y1_max,
 					        zoom - 1, y2_count >> 1,
 					        test_f, insert_f, buffer, tlr);
-					get_n_m(obj._nodes[SE], y1_min, y1_max,
+					ret += get_n_m(obj._nodes[SE], y1_min, y1_max,
 					        zoom - 1, y2_count >> 1,
 					        test_f, insert_f, buffer, tlr);
 				}
 				if (y1_min < obj._y1_mid_value) {
-					get_n_m(obj._nodes[NW], y1_min, y1_max,
+					ret += get_n_m(obj._nodes[NW], y1_min, y1_max,
 					        zoom - 1, y2_count >> 1,
 					        test_f, insert_f, buffer, tlr);
-					get_n_m(obj._nodes[SW], y1_min, y1_max,
+					ret += get_n_m(obj._nodes[SW], y1_min, y1_max,
 					        zoom - 1, y2_count >> 1,
 					        test_f, insert_f, buffer, tlr);
 				}
@@ -711,13 +712,14 @@ private:
 				 * entries is needed
 				 */
 #ifdef QUADTREE_USE_SSE_EXTRACT
-				extract_sse(obj, y1_min, y1_max, zoom, y2_count,
+				ret += extract_sse(obj, y1_min, y1_max, zoom, y2_count,
 				            test_f, insert_f, buffer, tlr);
 #else
-				extract_seq(obj, y1_min, y1_max, zoom, y2_count,
+				ret += extract_seq(obj, y1_min, y1_max, zoom, y2_count,
 				            test_f, insert_f, buffer, tlr);
 #endif
 			}
+			return ret;
 		}
 
 		/**
@@ -733,7 +735,7 @@ private:
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static void get_1_m(PVQuadTree const& obj,
+		static size_t get_1_m(PVQuadTree const& obj,
 		                    const uint64_t y1_min, const uint64_t y1_max,
 		                    const uint32_t y2_count,
 		                    const Ftest &test_f,
@@ -741,6 +743,7 @@ private:
 		                    pv_quadtree_buffer_entry_t *buffer,
 		                    pv_tlr_buffer_t &tlr)
 		{
+			size_t ret = 0;
 			if (y2_count == 1) {
 				/* time to extract
 				 */
@@ -749,20 +752,21 @@ private:
 				if (e.idx != UINT32_MAX) {
 					insert_f(e, tlr);
 				}
+				ret = 1;
 			} else  if (obj._nodes != 0) {
 				if (obj._y1_mid_value < y1_max) {
-					get_1_m(obj._nodes[NE], y1_min, y1_max,
+					ret += get_1_m(obj._nodes[NE], y1_min, y1_max,
 					        y2_count >> 1, test_f, insert_f,
 					        buffer, tlr);
-					get_1_m(obj._nodes[SE], y1_min, y1_max,
+					ret += get_1_m(obj._nodes[SE], y1_min, y1_max,
 					        y2_count >> 1, test_f, insert_f,
 					        buffer, tlr);
 				}
 				if (y1_min < obj._y1_mid_value) {
-					get_1_m(obj._nodes[NW], y1_min, y1_max,
+					ret += get_1_m(obj._nodes[NW], y1_min, y1_max,
 					        y2_count >> 1, test_f, insert_f,
 					        buffer, tlr);
-					get_1_m(obj._nodes[SW], y1_min, y1_max,
+					ret += get_1_m(obj._nodes[SW], y1_min, y1_max,
 					        y2_count >> 1, test_f, insert_f,
 					        buffer, tlr);
 				}
@@ -771,13 +775,14 @@ private:
 				 * entries is needed
 				 */
 #ifdef QUADTREE_USE_SSE_EXTRACT
-				extract_sse(obj, y1_min, y1_max, 0, y2_count,
+				ret += extract_sse(obj, y1_min, y1_max, 0, y2_count,
 				            test_f, insert_f, buffer, tlr);
 #else
-				extract_seq(obj, y1_min, y1_max, 0, y2_count,
+				ret += extract_seq(obj, y1_min, y1_max, 0, y2_count,
 				            test_f, insert_f, buffer, tlr);
 #endif
 			}
+			return ret;
 		}
 
 		/**
@@ -793,7 +798,7 @@ private:
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static void get_n_1(PVQuadTree const& obj,
+		static size_t get_n_1(PVQuadTree const& obj,
 		                    const uint64_t y1_min, const uint64_t y1_max,
 		                    const uint32_t zoom,
 		                    const Ftest &test_f,
@@ -801,6 +806,7 @@ private:
 		                    pv_quadtree_buffer_entry_t *buffer,
 		                    pv_tlr_buffer_t &tlr)
 		{
+			size_t ret = 0;
 			if (zoom == 0) {
 				/* time to extract
 				 */
@@ -809,20 +815,21 @@ private:
 				if (e.idx != UINT32_MAX) {
 					insert_f(e, tlr);
 				}
+				ret = 1;
 			} else if (obj._nodes != 0) {
 				if (obj._y1_mid_value < y1_max) {
-					get_n_1(obj._nodes[NE], y1_min, y1_max,
+					ret += get_n_1(obj._nodes[NE], y1_min, y1_max,
 					        zoom - 1, test_f, insert_f,
 					        buffer, tlr);
-					get_n_1(obj._nodes[SE], y1_min, y1_max,
+					ret += get_n_1(obj._nodes[SE], y1_min, y1_max,
 					        zoom - 1, test_f, insert_f,
 					        buffer, tlr);
 				}
 				if (y1_min < obj._y1_mid_value) {
-					get_n_1(obj._nodes[NW], y1_min, y1_max,
+					ret += get_n_1(obj._nodes[NW], y1_min, y1_max,
 					        zoom - 1, test_f, insert_f,
 					        buffer, tlr);
-					get_n_1(obj._nodes[SW], y1_min, y1_max,
+					ret += get_n_1(obj._nodes[SW], y1_min, y1_max,
 					        zoom - 1, test_f, insert_f,
 					        buffer, tlr);
 				}
@@ -831,13 +838,14 @@ private:
 				 * entries is needed
 				 */
 #ifdef QUADTREE_USE_SSE_EXTRACT
-				extract_sse(obj, y1_min, y1_max, zoom, 1,
+				ret += extract_sse(obj, y1_min, y1_max, zoom, 1,
 				            test_f, insert_f, buffer, tlr);
 #else
-				extract_seq(obj, y1_min, y1_max, zoom, 1,
+				ret += extract_seq(obj, y1_min, y1_max, zoom, 1,
 				            test_f, insert_f, buffer, tlr);
 #endif
 			}
+			return ret;
 		}
 
 		/**
@@ -891,7 +899,7 @@ private:
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static void extract_seq(PVQuadTree const& obj,
+		static size_t extract_seq(PVQuadTree const& obj,
 		                        const uint64_t y1_min, const uint64_t y1_max,
 		                        const uint32_t zoom, const uint32_t y2_count,
 		                        const Ftest &test_f,
@@ -915,19 +923,27 @@ private:
 			memset(buffer, 0, count_aligned * sizeof(uint32_t));
 			uint32_t remaining = clipped_max_count * y2_count;
 
+			size_t ninsert = 0;
 			for(size_t i = 0; i < obj._datas.size(); ++i) {
+#ifdef PICVIZ_DEVELOPER_MODE
 				++extract_stat::all_cnt;
+#endif
 				const PVQuadTreeEntry &e = obj._datas.at(i);
 				if (!test_f(e, y1_min, y1_max)) {
 					continue;
 				}
 				const uint32_t pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min) + clipped_max_count * ((e.y2 - y2_orig) / y2_scale);
+#ifdef PICVIZ_DEVELOPER_MODE
 				++extract_stat::test_cnt;
+#endif
 				if (B_IS_SET(buffer[pos >> 5], pos & 31)) {
 					continue;
 				}
 				insert_f(e, tlr);
+#ifdef PICVIZ_DEVELOPER_MODE
 				++extract_stat::insert_cnt;
+#endif
+				ninsert++;
 				B_SET(buffer[pos >> 5], pos & 31);
 				--remaining;
 				if (remaining == 0) {
@@ -938,6 +954,7 @@ private:
 #ifdef PICVIZ_DEVELOPER_MODE
 			extract_stat::all_dt += BENCH_END_TIME(extract);
 #endif
+			return ninsert;
 		}
 
 		/**
@@ -1122,7 +1139,7 @@ private:
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static void get_n_m(PVQuadTree const& obj,
+		static size_t get_n_m(PVQuadTree const& obj,
 		                    const uint64_t y2_min, const uint64_t y2_max,
 		                    const uint32_t zoom, const uint32_t y1_count,
 		                    const Ftest &test_f,
@@ -1130,30 +1147,31 @@ private:
 		                    pv_quadtree_buffer_entry_t *buffer,
 		                    pv_tlr_buffer_t &tlr)
 		{
+			size_t ret = 0;
 			if (zoom == 0) {
 				/* need a 1 entry width band along y2
 				 */
-				get_1_m(obj, y2_min, y2_max, y1_count, test_f, insert_f, buffer, tlr);
+				ret += get_1_m(obj, y2_min, y2_max, y1_count, test_f, insert_f, buffer, tlr);
 			} else if (y1_count == 1) {
 				/* need a 1 entry width band along y1
 				 */
-				get_n_1(obj, y2_min, y2_max, zoom, test_f, insert_f, buffer, tlr);
+				ret += get_n_1(obj, y2_min, y2_max, zoom, test_f, insert_f, buffer, tlr);
 			} else if (obj._nodes != 0) {
 				/* recursive search can be processed
 				 */
 				if (obj._y2_mid_value < y2_max) {
-					get_n_m(obj._nodes[NE], y2_min, y2_max,
+					ret += get_n_m(obj._nodes[NE], y2_min, y2_max,
 					        zoom - 1, y1_count >> 1,
 					        test_f, insert_f, buffer, tlr);
-					get_n_m(obj._nodes[NW], y2_min, y2_max,
+					ret += get_n_m(obj._nodes[NW], y2_min, y2_max,
 					        zoom - 1, y1_count >> 1,
 					        test_f, insert_f, buffer, tlr);
 				}
 				if (y2_min < obj._y2_mid_value) {
-					get_n_m(obj._nodes[SE], y2_min, y2_max,
+					ret += get_n_m(obj._nodes[SE], y2_min, y2_max,
 					        zoom - 1, y1_count >> 1,
 					        test_f, insert_f, buffer, tlr);
-					get_n_m(obj._nodes[SW], y2_min, y2_max,
+					ret += get_n_m(obj._nodes[SW], y2_min, y2_max,
 					        zoom - 1, y1_count >> 1,
 					        test_f, insert_f, buffer, tlr);
 				}
@@ -1162,13 +1180,14 @@ private:
 				 * entries is needed
 				 */
 #ifdef QUADTREE_USE_SSE_EXTRACT
-				extract_sse(obj, y2_min, y2_max, zoom, y1_count,
+				ret += extract_sse(obj, y2_min, y2_max, zoom, y1_count,
 				            test_f, insert_f, buffer, tlr);
 #else
-				extract_seq(obj, y2_min, y2_max, zoom, y1_count,
+				ret += extract_seq(obj, y2_min, y2_max, zoom, y1_count,
 				            test_f, insert_f, buffer, tlr);
 #endif
 			}
+			return ret;
 		}
 
 		/**
@@ -1184,7 +1203,7 @@ private:
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static void get_1_m(PVQuadTree const& obj,
+		static size_t get_1_m(PVQuadTree const& obj,
 		                    const uint64_t y2_min, const uint64_t y2_max,
 		                    const uint32_t y1_count,
 		                    const Ftest &test_f,
@@ -1192,6 +1211,7 @@ private:
 		                    pv_quadtree_buffer_entry_t *buffer,
 		                    pv_tlr_buffer_t &tlr)
 		{
+			size_t ret = 0;
 			if (y1_count == 1) {
 				/* time to extract
 				 */
@@ -1200,20 +1220,21 @@ private:
 				if (e.idx != UINT32_MAX) {
 					insert_f(e, tlr);
 				}
+				ret = 1;
 			} else  if (obj._nodes != 0) {
 				if (obj._y2_mid_value < y2_max) {
-					get_1_m(obj._nodes[NE], y2_min, y2_max,
+					ret += get_1_m(obj._nodes[NE], y2_min, y2_max,
 					        y1_count >> 1, test_f, insert_f,
 					        buffer, tlr);
-					get_1_m(obj._nodes[NW], y2_min, y2_max,
+					ret += get_1_m(obj._nodes[NW], y2_min, y2_max,
 					        y1_count >> 1, test_f, insert_f,
 					        buffer, tlr);
 				}
 				if (y2_min < obj._y2_mid_value) {
-					get_1_m(obj._nodes[SE], y2_min, y2_max,
+					ret += get_1_m(obj._nodes[SE], y2_min, y2_max,
 					        y1_count >> 1, test_f, insert_f,
 					        buffer, tlr);
-					get_1_m(obj._nodes[SW], y2_min, y2_max,
+					ret += get_1_m(obj._nodes[SW], y2_min, y2_max,
 					        y1_count >> 1, test_f, insert_f,
 					        buffer, tlr);
 				}
@@ -1222,13 +1243,14 @@ private:
 				 * entries is needed
 				 */
 #ifdef QUADTREE_USE_SSE_EXTRACT
-				extract_sse(obj, y2_min, y2_max, 0, y1_count,
+				ret += extract_sse(obj, y2_min, y2_max, 0, y1_count,
 				            test_f, insert_f, buffer, tlr);
 #else
-				extract_seq(obj, y2_min, y2_max, 0, y1_count,
+				ret += extract_seq(obj, y2_min, y2_max, 0, y1_count,
 				            test_f, insert_f, buffer, tlr);
 #endif
 			}
+			return ret;
 		}
 
 		/**
@@ -1244,7 +1266,7 @@ private:
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static void get_n_1(PVQuadTree const& obj,
+		static size_t get_n_1(PVQuadTree const& obj,
 		                    const uint64_t y2_min, const uint64_t y2_max,
 		                    const uint32_t zoom,
 		                    const Ftest &test_f,
@@ -1252,6 +1274,7 @@ private:
 		                    pv_quadtree_buffer_entry_t *buffer,
 		                    pv_tlr_buffer_t &tlr)
 		{
+			size_t ret = 0;
 			if (zoom == 0) {
 				/* time to extract
 				 */
@@ -1260,17 +1283,18 @@ private:
 				if (e.idx != UINT32_MAX) {
 					insert_f(e, tlr);
 				}
+				ret = 1;
 			} else if (obj._nodes != 0) {
 				if (obj._y2_mid_value < y2_max) {
-					get_n_1(obj._nodes[NE], y2_min, y2_max,
+					ret += get_n_1(obj._nodes[NE], y2_min, y2_max,
 					        zoom - 1, test_f, insert_f, buffer, tlr);
-					get_n_1(obj._nodes[NW], y2_min, y2_max,
+					ret += get_n_1(obj._nodes[NW], y2_min, y2_max,
 					        zoom - 1, test_f, insert_f, buffer, tlr);
 				}
 				if (y2_min < obj._y2_mid_value) {
-					get_n_1(obj._nodes[SE], y2_min, y2_max,
+					ret += get_n_1(obj._nodes[SE], y2_min, y2_max,
 					        zoom - 1, test_f, insert_f, buffer, tlr);
-					get_n_1(obj._nodes[SW], y2_min, y2_max,
+					ret += get_n_1(obj._nodes[SW], y2_min, y2_max,
 					        zoom - 1, test_f, insert_f, buffer, tlr);
 				}
 			} else if (obj._datas.size() != 0) {
@@ -1278,13 +1302,14 @@ private:
 				 * entries is needed
 				 */
 #ifdef QUADTREE_USE_SSE_EXTRACT
-				extract_sse(obj, y2_min, y2_max, zoom, 1,
+				ret += extract_sse(obj, y2_min, y2_max, zoom, 1,
 				            test_f, insert_f, buffer, tlr);
 #else
-				extract_seq(obj, y2_min, y2_max, zoom, 1,
+				ret += extract_seq(obj, y2_min, y2_max, zoom, 1,
 				            test_f, insert_f, buffer, tlr);
 #endif
 			}
+			return ret;
 		}
 
 		/**
@@ -1338,7 +1363,7 @@ private:
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static void extract_seq(PVQuadTree const& obj,
+		static size_t extract_seq(PVQuadTree const& obj,
 		                        const uint64_t y2_min, const uint64_t y2_max,
 		                        const uint32_t zoom, const uint32_t y1_count,
 		                        const Ftest &test_f,
@@ -1358,6 +1383,7 @@ private:
 			const size_t count_aligned = ((clipped_max_count * y1_count) + 31) / 32;
 			memset(buffer, 0, count_aligned * sizeof(uint32_t));
 			uint32_t remaining = clipped_max_count * y1_count;
+			size_t ret = 0;
 			for(size_t i = 0; i < obj._datas.size(); ++i) {
 				const PVQuadTreeEntry &e = obj._datas.at(i);
 				if (!test_f(e, y2_min, y2_max)) {
@@ -1368,12 +1394,14 @@ private:
 					continue;
 				}
 				insert_f(e, tlr);
+				ret++;
 				B_SET(buffer[pos >> 5], pos & 31);
 				--remaining;
 				if (remaining == 0) {
 					break;
 				}
 			}
+			return ret;
 		}
 
 		/**

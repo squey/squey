@@ -328,6 +328,7 @@ private:
 	 * Getter of the shared selection.
 	 */
 	inline Picviz::PVSelection& real_selection() { return _pvview.get_real_output_selection(); }
+	inline Picviz::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
 
 	/**
 	 * Get the \z zone's PVZoomedZoneTree.

@@ -52,6 +52,11 @@ public:
 		return _sel_elts;
 	}
 
+	inline const PVRow *get_bg_elts() const
+	{
+		return _bg_elts;
+	}
+
 	size_t browse_tree_bci(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 	size_t browse_tree_bci_sel(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 
