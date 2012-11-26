@@ -79,5 +79,6 @@ void PVFilter::PVFieldSplitterDuplicateParamWidget::updateNChilds(int n)
 	args["n"] = n;
 	get_filter()->set_args(args);
 	set_child_count(n);
+    emit args_changed_Signal();
 	emit nchilds_changed_Signal();
 }
