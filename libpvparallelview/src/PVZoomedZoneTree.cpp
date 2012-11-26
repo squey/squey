@@ -724,8 +724,6 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 		                  pv_tlr_buffer_t &tlr_buffer = tls.get_tlr_buffer();
 		                  pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
 
-		                  size_t bci_idx = tls.get_index();
-
 						  // AG: copy this variable to the local stack (or better, register), which may reduce the number
 						  // of loads from the original stack.
 						  const PVRow* sel_elts_ = sel_elts;
@@ -865,8 +863,6 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 		                  zzt_tls &tls = ctx.get_tls().local();
 		                  pv_tlr_buffer_t &tlr_buffer = tls.get_tlr_buffer();
 		                  pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
-
-		                  size_t bci_idx = tls.get_index();
 
 						  // AG: this copy is wanted. cf. browse_trees_bci_by_y1_tbb.
 						  const PVRow* sel_elts_ = sel_elts;
