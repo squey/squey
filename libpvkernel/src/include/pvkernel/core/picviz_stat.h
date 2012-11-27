@@ -38,7 +38,7 @@
  * @param NAME the statistic's name
  * @param VALUE the statistic's value
  */
-#define PV_STAT_MEM_USE(NAME, VALUE) PV_STAT(NAME, "Mio", VALUE)
+#define PV_STAT_MEM_USE(NAME, VALUE) PV_STAT((NAME), "Mio", (VALUE))
 
 /**
  * @def PV_STAT_MEM_BW(NAME, VALUE)
@@ -48,7 +48,7 @@
  * @param NAME the statistic's name
  * @param VALUE the statistic's value
  */
-#define PV_STAT_MEM_BW(NAME, VALUE) PV_STAT(NAME, "Mio/s", VALUE)
+#define PV_STAT_MEM_BW(NAME, VALUE) PV_STAT((NAME), "Mio/s", (VALUE))
 
 /**
  * @def PV_STAT_TIME_SEC(NAME, VALUE)
@@ -58,13 +58,13 @@
  * @param NAME the statistic's name
  * @param VALUE the statistic's value
  */
-#define PV_STAT_TIME_SEC(NAME, VALUE) PV_STAT(NAME, "s", VALUE)
+#define PV_STAT_TIME_SEC(NAME, VALUE) PV_STAT((NAME), "s", (VALUE))
 
 /**
  * @def PV_STAT_TIME_MSEC(NAME, VALUE)
  *
  * Print a statistic line about time in milliseconds.
  */
-#define PV_STAT_TIME_MSEC(NAME, VALUE) PV_STAT(NAME, "ms", VALUE)
+#define PV_STAT_TIME_MSEC(NAME, VALUE) PV_STAT((NAME), "ms", (VALUE))
 
 #endif // PVCORE_PICVIZSTAT_H

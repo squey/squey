@@ -21,6 +21,46 @@
 namespace PVAssert
 {
 
+namespace __impl
+{
+
+/* A convenient way to print a list of heterogeneous values.
+ * ::print_with_comma() must never be called (obvious reason).
+ */
+template <typename... P>
+struct va_printer
+{
+	static void print() {}
+};
+
+template <typename N, typename V, typename... P>
+struct va_printer<N, V, P...>
+{
+	static void print_with_comma(const N &name, const V &value, P... p) {
+		std::cerr << ", " << name << "=" << value;
+		va_printer<P...>::print_with_comma(p...);
+	}
+
+	static void print(const N &name, const V &value, P... p) {
+		std::cerr << name << "=" << value;
+		va_printer<P...>::print_with_comma(p...);
+	}
+};
+
+
+template <>
+struct va_printer<>
+{
+	static void print_with_comma() {
+	}
+
+	static void print() {
+	}
+};
+
+
+}
+
 /**
  * @fn void printer(const char* expr, const T& value, const T& expected)
  *
@@ -111,7 +151,7 @@ bool checker(const T& value, const T& expected)
 }
 
 /**
- * @fn void validate(const char* file, int line, const char* expr, const T& value, const T& expected, const bool print_info_anytime)
+ * @fn void validate(const char* file, int line, const char* expr, const T& value, const T& expected, const bool print_info_anytime, P... p)
  *
  * @brief entry point function for assertion and unit tests.
  *
@@ -127,10 +167,10 @@ bool checker(const T& value, const T& expected)
  * @param expected the expression's expected value
  * @param print_info_anytime to tell if @a expr, @a value, and @a expected must be printed whatever
  * the result of comparison between @a value and @a expected or only when the test fails
- *
+ * @param p... extra parameters to be displayed when an error occurs, the list must be presented as follow: param1's name, param1's value, ..., paramN's name, paramN's value.
  */
-template <typename T>
-void validate(const char* file, int line, const char* expr, const T& value, const T& expected, const bool print_info_anytime)
+template <typename T, typename... P>
+void validate(const char* file, int line, const char* expr, const T& value, const T& expected, const bool print_info_anytime, P... p)
 {
 	if (print_info_anytime) {
 		printer<T>(expr, value, expected);
@@ -139,7 +179,13 @@ void validate(const char* file, int line, const char* expr, const T& value, cons
 		if (!print_info_anytime) {
 			printer<T>(expr, value, expected);
 		}
-		std::cerr << file << ":" << line << ": statement '" << expr << "' fails" << std::endl;
+
+		std::cerr << file << ":" << line << ": statement '" << expr << "' fails";
+		if(sizeof...(P) != 0) {
+			std::cerr << " with ";
+			__impl::va_printer<P...>::print(p...);
+		}
+		std::cerr << std::endl;
 		exit(1);
 	}
 }
@@ -147,27 +193,27 @@ void validate(const char* file, int line, const char* expr, const T& value, cons
 }
 
 /**
- * @def PV_VALID(expr, expected_value)
+ * @def PV_VALID(expr, expected_value, ...)
  *
  * if an expression is equal to an expected value nothing is done; otherwise, the
  * program exits on error printing the expression, the expression's value, the
  * expected value, and the error's line and file.
  */
-#define PV_VALID(EXPR, EXPECTED_VALUE) PVAssert::validate(__FILE__, __LINE__, #EXPR, (EXPR), (EXPECTED_VALUE), false)
+#define PV_VALID(EXPR, EXPECTED_VALUE, ...) PVAssert::validate(__FILE__, __LINE__, #EXPR, (EXPR), (EXPECTED_VALUE), false, ##__VA_ARGS__)
 
 /**
- * @def PV_VALID_P(expr, expected_value)
+ * @def PV_VALID_P(expr, expected_value, ...)
  *
  * prints the expression, the expression's value, the expected value and, if the
  * the expression's value differs from the expected value, exits printing the
  * error's line and file
  */
-#define PV_VALID_P(EXPR, EXPECTED_VALUE) PVAssert::validate(__FILE__, __LINE__, #EXPR, (EXPR), (EXPECTED_VALUE), true)
+#define PV_VALID_P(EXPR, EXPECTED_VALUE, ...) PVAssert::validate(__FILE__, __LINE__, #EXPR, (EXPR), (EXPECTED_VALUE), true, ##__VA_ARGS__)
 
 /**
- * @def PV_ASSERT_VALID(expr)
- * A short-cut for #PV_VALID (expr, true)
+ * @def PV_ASSERT_VALID(expr, ...)
+ * An equivalent of #PV_VALID (expr, true, ...)
 */
-#define PV_ASSERT_VALID(b) PV_VALID(b, true)
+#define PV_ASSERT_VALID(EXPR, ...) PVAssert::validate(__FILE__, __LINE__, #EXPR, (EXPR), true, true, ##__VA_ARGS__)
 
 #endif // PVCORE_PICVIZASSERT_H
