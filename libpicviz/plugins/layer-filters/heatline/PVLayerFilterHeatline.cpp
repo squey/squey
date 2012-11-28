@@ -141,29 +141,38 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 	}
 	assert(min_n <= max_n);
 
-	const double diff = max_n - min_n;
-	const double log_diff = log(diff);
+	if (max_n == min_n) {
+		in.get_selection().visit_selected_lines(
+			[&](const PVRow r)
+			{
+				this->post(in, out, 1.0/(double)freqs.size(), r);
+			}, nrows);
+	}
+	else {
+		const double diff = max_n - min_n;
+		const double log_diff = log(diff);
 
-	in.get_selection().visit_selected_lines(
-		[&](const PVRow r)
-		{
-			assert(r < row_values.size());
-			const PVRow freq = *row_values[r];
-			double ratio;
-			if (bLog) {
-				if (freq == min_n) {
-					ratio = 0;
+		in.get_selection().visit_selected_lines(
+			[&](const PVRow r)
+			{
+				assert(r < row_values.size());
+				const PVRow freq = *row_values[r];
+				double ratio;
+				if (bLog) {
+					if (freq == min_n) {
+						ratio = 0;
+					}
+					else {
+						ratio = log(freq-min_n)/log_diff;
+					}
 				}
 				else {
-					ratio = log(freq-min_n)/log_diff;
+					ratio = (double)(freq-min_n)/diff;
 				}
-			}
-			else {
-				ratio = (double)(freq-min_n)/diff;
-			}
-			//std::cout << "line " << r << ", n=" << freq << ", ratio=" << std::setprecision(7) << ratio << std::endl;
-			this->post(in, out, ratio, r);
-		}, nrows);
+				//std::cout << "line " << r << ", n=" << freq << ", ratio=" << std::setprecision(7) << ratio << std::endl;
+				this->post(in, out, ratio, r);
+			}, nrows);
+	}
 
 	BENCH_END(heatline, "heatline", 1, 1, sizeof(PVRow), nrows);
 }
