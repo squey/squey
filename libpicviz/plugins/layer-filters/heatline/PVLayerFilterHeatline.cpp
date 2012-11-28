@@ -129,7 +129,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 	lines_hash_t::const_iterator it;
 	PVRow max_n = 0;
 	for (it = freqs.begin(); it != freqs.end(); it++) {
-		std::cout << it->first << ": " << it->second << std::endl;
+		//std::cout << it->first << ": " << it->second << std::endl;
 		const PVRow cur_n = it->second;
 		if (cur_n > max_n) {
 			max_n = cur_n;
@@ -150,7 +150,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 			else {
 				ratio = (double)freq/(double)max_n;
 			}
-			std::cout << "line " << r << ", n=" << freq << ", ratio=" << std::setprecision(7) << ratio << std::endl;
+			//std::cout << "line " << r << ", n=" << freq << ", ratio=" << std::setprecision(7) << ratio << std::endl;
 			this->post(in, out, ratio, r);
 		}, nrows);
 
