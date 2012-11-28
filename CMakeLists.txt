@@ -94,5 +94,15 @@ configure_file(make_protect.cmake make_protect @ONLY)
 configure_file(squish_run.sh.cmake squish_run.sh @ONLY)
 configure_file(squish_ide.sh.cmake squish_ide.sh @ONLY)
 
+# generate statistic script
+if(STAT_RUN)
+  execute_process(COMMAND realpath ${STAT_RUN} OUTPUT_VARIABLE STAT_RUN)
+  string(REGEX REPLACE "(\r?\n)+$" "" STAT_RUN ${STAT_RUN})
+  configure_file(stat_run.sh.cmake stat_run.sh @ONLY)
+  message(STATUS "STAT_RUN='" ${STAT_RUN} "'")
+else(STAT_RUN)
+  file(REMOVE stat_run.sh)
+endif(STAT_RUN)
+
 include(CMakePackage.txt)
 include(CMakePackageDistribute.txt)
