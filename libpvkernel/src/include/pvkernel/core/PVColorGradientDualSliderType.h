@@ -19,10 +19,10 @@ class PVColorGradientDualSliderType: public PVArgumentType<PVColorGradientDualSl
 {
 public:
 	PVColorGradientDualSliderType() { _sliders_positions[0] = 0; _sliders_positions[1] = 1; };
-	PVColorGradientDualSliderType(const float positions[2]) { set_positions(positions); }
+	PVColorGradientDualSliderType(const double positions[2]) { set_positions(positions); }
 
-	inline const float* get_positions() const { return _sliders_positions; }
-	inline void set_positions(const float pos[2]) { _sliders_positions[0]= pos[0]; _sliders_positions[1] = pos[1]; }
+	inline const double* get_positions() const { return _sliders_positions; }
+	inline void set_positions(const double pos[2]) { _sliders_positions[0]= pos[0]; _sliders_positions[1] = pos[1]; }
 
 	QString to_string() const
 	{
@@ -36,7 +36,7 @@ public:
 
 		QStringList strList = str.split(",");
 		if (strList.count() == 2) {
-			float pos[2] = {strList[0].toFloat(&ok1), strList[1].toFloat(&ok2)};
+			double pos[2] = {strList[0].toDouble(&ok1), strList[1].toDouble(&ok2)};
 			arg.setValue(PVColorGradientDualSliderType(pos));
 		}
 
@@ -54,7 +54,7 @@ public:
 	}
 
 protected:
-	float _sliders_positions[2];
+	double _sliders_positions[2];
 };
 
 }

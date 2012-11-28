@@ -36,15 +36,15 @@ PVWidgets::PVColorGradientDualSliderEditor::PVColorGradientDualSliderEditor(QWid
 PVCore::PVColorGradientDualSliderType PVWidgets::PVColorGradientDualSliderEditor::get_values() const
 {
 	PVCore::PVColorGradientDualSliderType ret;
-	float pos[2];
-	pos[0] = (float)(interval_left().h() -x0())/(x_interval());
-	pos[1] = (float)(interval_right().h()-x0())/(x_interval());
+	double pos[2];
+	pos[0] = (double)(interval_left().h() -x0())/(x_interval());
+	pos[1] = (double)(interval_right().h()-x0())/(x_interval());
 	ret.set_positions(pos);
 	return ret;
 }
 
 void PVWidgets::PVColorGradientDualSliderEditor::set_values(PVCore::PVColorGradientDualSliderType v)
 {
-	const float* pos = v.get_positions();
+	const double* pos = v.get_positions();
 	set_interval((uint8_t)(pos[0]*x_interval()+x0()), (uint8_t)(pos[1]*x_interval()+x0()));
 }
