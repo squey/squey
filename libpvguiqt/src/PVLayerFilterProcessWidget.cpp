@@ -216,7 +216,7 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 	_view->pre_filter_layer.get_selection() &= _view->layer_stack.get_selected_layer().get_selection();
 
 	PVCore::PVProgressBox *progressDialog = new PVCore::PVProgressBox(tr("Previewing filter..."), this, 0);
-	QFuture<void> worker = QtConcurrent::run<>(process_layer_filter, filter_p.get(), &_view->pre_filter_layer);
+	QFuture<void> worker = QtConcurrent::run<>(process_layer_filter, filter_p.get(), &_view->pre_filter_layer, &_view->post_filter_layer);
 	QFutureWatcher<void> watcher;
 	watcher.setFuture(worker);
 	QObject::connect(&watcher, SIGNAL(finished()), progressDialog, SLOT(accept()), Qt::QueuedConnection);
@@ -236,7 +236,9 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 
 	// We made it ! :)
 	// _view->pre_filter_layer = _view->post_filter_layer;
-	// _view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	_view->get_floating_selection().select_none();
+	_view->get_volatile_selection() = _view->get_post_filter_layer().get_selection();
 
 	// We reprocess the pipeline from the eventline stage
 	Picviz::PVView_sp view_p(_view->shared_from_this());
@@ -281,8 +283,9 @@ void PVGuiQt::PVLayerFilterProcessWidget::reset_Slot()
 	change_args(_filter_p->get_default_args_for_view(*_view));
 }
 
-void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* layer)
+void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* in_layer, Picviz::PVLayer* out_layer)
 {
-	filter->operator()(*layer);
+	filter->set_output(out_layer);
+	filter->operator()(*in_layer);
 }
 

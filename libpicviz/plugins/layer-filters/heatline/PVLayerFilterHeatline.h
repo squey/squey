@@ -27,7 +27,7 @@ public:
 	virtual QList<PVCore::PVArgumentKey> get_args_keys_for_preset() const;
 	PVCore::PVArgumentList get_default_args_for_view(PVView const& view);
 protected:
-	virtual void post(PVLayer &in, PVLayer &out, float ratio, PVRow line_id);
+	virtual void post(PVLayer &in, PVLayer &out, double ratio, PVRow line_id);
 
 	CLASS_FILTER(Picviz::PVLayerFilterHeatlineBase)
 
@@ -37,7 +37,7 @@ class PVLayerFilterHeatlineColor : public PVLayerFilterHeatlineBase {
 public:
 	PVLayerFilterHeatlineColor(PVCore::PVArgumentList const& l = PVLayerFilterHeatlineColor::default_args());
 protected:
-	virtual void post(PVLayer &in, PVLayer &out, float ratio, PVRow line_id);
+	virtual void post(PVLayer &in, PVLayer &out, double ratio, PVRow line_id);
 
 	CLASS_FILTER(Picviz::PVLayerFilterHeatlineColor)
 };
@@ -46,7 +46,7 @@ class PVLayerFilterHeatlineSel : public PVLayerFilterHeatlineBase {
 public:
 	PVLayerFilterHeatlineSel(PVCore::PVArgumentList const& l = PVLayerFilterHeatlineSel::default_args());
 protected:
-	virtual void post(PVLayer &in, PVLayer &out, float ratio, PVRow line_id);
+	virtual void post(PVLayer &in, PVLayer &out, double ratio, PVRow line_id);
 
 	CLASS_FILTER(Picviz::PVLayerFilterHeatlineSel)
 };
@@ -55,7 +55,7 @@ class PVLayerFilterHeatlineSelAndCol : public PVLayerFilterHeatlineBase {
 public:
 	PVLayerFilterHeatlineSelAndCol(PVCore::PVArgumentList const& l = PVLayerFilterHeatlineSelAndCol::default_args());
 protected:
-	virtual void post(PVLayer &in, PVLayer &out, float ratio, PVRow line_id);
+	virtual void post(PVLayer &in, PVLayer &out, double ratio, PVRow line_id);
 	virtual QString menu_name() const { return "Frequency gradient"; }
 
 	CLASS_FILTER(Picviz::PVLayerFilterHeatlineSelAndCol)

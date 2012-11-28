@@ -119,7 +119,7 @@ int main()
 	mustFail.append(true);
 
 	// PVColorGradientDualSliderType
-	float pos[2] = {0.01, 0.99};
+	double pos[2] = {0.01, 0.99};
 	vars.append(QVariant::fromValue(PVCore::PVColorGradientDualSliderType(pos)));
 	expectedStrings.append("0.01,0.99");
 	mustFail.append(true);

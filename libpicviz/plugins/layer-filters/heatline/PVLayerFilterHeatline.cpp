@@ -117,7 +117,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 			std::string_tbb tmp_str(buf, size);
 			lines_hash_t::iterator it = freqs.find(tmp_str);
 			if (it == freqs.end()) {
-				it = freqs.emplace(std::move(tmp_str), 0).first;
+				it = freqs.emplace(std::move(tmp_str), 1).first;
 			}
 			else {
 				it->second++;
@@ -129,26 +129,28 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 	lines_hash_t::const_iterator it;
 	PVRow max_n = 0;
 	for (it = freqs.begin(); it != freqs.end(); it++) {
+		std::cout << it->first << ": " << it->second << std::endl;
 		const PVRow cur_n = it->second;
 		if (cur_n > max_n) {
 			max_n = cur_n;
 		}
 	}
 
-	const float max_n_log = logf(max_n);
+	const double max_n_log = log(max_n);
 
-	_view->get_pre_filter_layer().get_selection().visit_selected_lines(
+	in.get_selection().visit_selected_lines(
 		[&](const PVRow r)
 		{
 			assert(r < row_values.size());
 			const PVRow freq = *row_values[r];
-			float ratio;
+			double ratio;
 			if (bLog) {
-				ratio = logf(freq)/max_n_log;
+				ratio = log(freq)/max_n_log;
 			}
 			else {
-				ratio = (float)((double)freq/(double)max_n);
+				ratio = (double)freq/(double)max_n;
 			}
+			std::cout << "line " << r << ", n=" << freq << ", ratio=" << std::setprecision(7) << ratio << std::endl;
 			this->post(in, out, ratio, r);
 		}, nrows);
 
@@ -162,7 +164,7 @@ QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterHeatlineBase::get_args_keys_fo
 	return keys;
 }
 
-void Picviz::PVLayerFilterHeatlineBase::post(PVLayer& /*in*/, PVLayer& /*out*/, float /*ratio*/, PVRow /*line_id*/)
+void Picviz::PVLayerFilterHeatlineBase::post(PVLayer& /*in*/, PVLayer& /*out*/, double /*ratio*/, PVRow /*line_id*/)
 {
 	// The base filter does nothing
 }
@@ -183,9 +185,9 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineColor)
 	return Picviz::PVLayerFilterHeatlineBase::default_args();
 }
 
-void Picviz::PVLayerFilterHeatlineColor::post(PVLayer& /*in*/, PVLayer& out, float ratio, PVRow line_id)
+void Picviz::PVLayerFilterHeatlineColor::post(PVLayer& /*in*/, PVLayer& out, double ratio, PVRow line_id)
 {
-	const PVCore::PVHSVColor color((uint8_t)((float)(HSV_COLOR_RED-HSV_COLOR_GREEN)*ratio + (float)HSV_COLOR_GREEN));
+	const PVCore::PVHSVColor color((uint8_t)((double)(HSV_COLOR_RED-HSV_COLOR_GREEN)*ratio + (double)HSV_COLOR_GREEN));
 	out.get_lines_properties().line_set_color(line_id, color);
 }
 
@@ -207,14 +209,14 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineSel)
 	return args;
 }
 
-void Picviz::PVLayerFilterHeatlineSel::post(PVLayer& /*in*/, PVLayer& out, float ratio, PVRow line_id)
+void Picviz::PVLayerFilterHeatlineSel::post(PVLayer& /*in*/, PVLayer& out, double ratio, PVRow line_id)
 {
 	PVCore::PVColorGradientDualSliderType ratios = _args[ARG_NAME_COLORS].value<PVCore::PVColorGradientDualSliderType>();
 
-	const float *v = ratios.get_positions();
+	const double *v = ratios.get_positions();
 
-	float fmin = v[0];
-	float fmax = v[1];
+	double fmin = v[0];
+	double fmax = v[1];
 
 	if ((ratio > fmax) || (ratio < fmin)) {
 		out.get_selection().set_line(line_id, 0);
@@ -237,19 +239,19 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineSelAndCol)
 	return args;
 }
 
-void Picviz::PVLayerFilterHeatlineSelAndCol::post(PVLayer& /*in*/, PVLayer& out, float ratio, PVRow line_id)
+void Picviz::PVLayerFilterHeatlineSelAndCol::post(PVLayer& /*in*/, PVLayer& out, double ratio, PVRow line_id)
 {
 	// Colorize
-	const PVCore::PVHSVColor color((uint8_t)((float)(HSV_COLOR_RED-HSV_COLOR_GREEN)*ratio + (float)HSV_COLOR_GREEN));
+	const PVCore::PVHSVColor color((uint8_t)((double)(HSV_COLOR_RED-HSV_COLOR_GREEN)*ratio + (double)HSV_COLOR_GREEN));
 	out.get_lines_properties().line_set_color(line_id, color);
 
 	// Select
 	PVCore::PVColorGradientDualSliderType ratios = _args.value(ARG_NAME_COLORS).value<PVCore::PVColorGradientDualSliderType>();
 
-	const float *v = ratios.get_positions();
+	const double *v = ratios.get_positions();
 
-	float fmin = v[0];
-	float fmax = v[1];
+	double fmin = v[0];
+	double fmax = v[1];
 
 	if ((ratio > fmax) || (ratio < fmin)) {
 		out.get_selection().set_line(line_id, 0);
