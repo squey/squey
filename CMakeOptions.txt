@@ -63,6 +63,11 @@ if (NOT DEFINED USE_LTO)
 	endif()
 endif()
 
+# Default values for tests files root
+if (NOT DEFINED TESTS_FILES_ROOT)
+	set(TESTS_FILES_ROOT "${CMAKE_SOURCE_DIR}/tests/files")
+endif()
+
 declare_customer_cap(CUSTOMER_LINESNUMBER 200000000 200000000)
 declare_customer_cap(CUSTOMER_CAPABILITY_SAVE 1 0)
 declare_customer_cap(CUSTOMER_CAPABILITY_IMPORT_REMOTE 1 0)

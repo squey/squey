@@ -104,5 +104,11 @@ else(STAT_RUN)
   file(REMOVE stat_run.sh)
 endif(STAT_RUN)
 
+# Check that the test files are at the good revision
+execute_process(COMMAND /bin/bash -c "\"${CMAKE_SOURCE_DIR}/tests/check-files-svn-rev.sh\" \"${TESTS_FILES_ROOT}\" \"${CMAKE_SOURCE_DIR}/tests/files-svn-rev\"" RESULT_VARIABLE TEST_FILES_OK)
+if(NOT TEST_FILES_OK EQUAL 0)
+	message(WARNING "Tests files aren't valid. You are likely to see lots of failing test cases.. !")
+endif()
+
 include(CMakePackage.txt)
 include(CMakePackageDistribute.txt)
