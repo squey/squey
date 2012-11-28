@@ -128,15 +128,21 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 
 	lines_hash_t::const_iterator it;
 	PVRow max_n = 0;
+	PVRow min_n = 0xFFFFFFFF;
 	for (it = freqs.begin(); it != freqs.end(); it++) {
 		//std::cout << it->first << ": " << it->second << std::endl;
 		const PVRow cur_n = it->second;
 		if (cur_n > max_n) {
 			max_n = cur_n;
 		}
+		if (cur_n < min_n) {
+			min_n = cur_n;
+		}
 	}
+	assert(min_n <= max_n);
 
-	const double max_n_log = log(max_n);
+	const double diff = max_n - min_n;
+	const double log_diff = log(diff);
 
 	in.get_selection().visit_selected_lines(
 		[&](const PVRow r)
@@ -145,10 +151,15 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 			const PVRow freq = *row_values[r];
 			double ratio;
 			if (bLog) {
-				ratio = log(freq)/max_n_log;
+				if (freq == min_n) {
+					ratio = 0;
+				}
+				else {
+					ratio = log(freq-min_n)/log_diff;
+				}
 			}
 			else {
-				ratio = (double)freq/(double)max_n;
+				ratio = (double)(freq-min_n)/diff;
 			}
 			//std::cout << "line " << r << ", n=" << freq << ", ratio=" << std::setprecision(7) << ratio << std::endl;
 			this->post(in, out, ratio, r);
@@ -218,7 +229,7 @@ void Picviz::PVLayerFilterHeatlineSel::post(PVLayer& /*in*/, PVLayer& out, doubl
 	double fmin = v[0];
 	double fmax = v[1];
 
-	if ((ratio > fmax) || (ratio < fmin)) {
+	if ((ratio >= fmin) && (ratio <= fmax)) {
 		out.get_selection().set_line(line_id, 0);
 	}
 }
@@ -253,7 +264,7 @@ void Picviz::PVLayerFilterHeatlineSelAndCol::post(PVLayer& /*in*/, PVLayer& out,
 	double fmin = v[0];
 	double fmax = v[1];
 
-	if ((ratio > fmax) || (ratio < fmin)) {
+	if ((ratio < fmin) || (ratio > fmax)) {
 		out.get_selection().set_line(line_id, 0);
 	}
 }
