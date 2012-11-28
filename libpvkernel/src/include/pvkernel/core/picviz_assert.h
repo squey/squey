@@ -180,7 +180,7 @@ void validate(const char* file, int line, const char* expr, const T& value, cons
 			printer<T>(expr, value, expected);
 		}
 
-		std::cerr << file << ":" << line << ": statement '" << expr << "' fails";
+		std::cerr << file << ":" << line << ": statement fails";
 		if(sizeof...(P) != 0) {
 			std::cerr << " with ";
 			__impl::va_printer<P...>::print(p...);
@@ -214,6 +214,6 @@ void validate(const char* file, int line, const char* expr, const T& value, cons
  * @def PV_ASSERT_VALID(expr, ...)
  * An equivalent of #PV_VALID (expr, true, ...)
 */
-#define PV_ASSERT_VALID(EXPR, ...) PVAssert::validate(__FILE__, __LINE__, #EXPR, (EXPR), true, true, ##__VA_ARGS__)
+#define PV_ASSERT_VALID(EXPR, ...) PVAssert::validate(__FILE__, __LINE__, #EXPR, (EXPR), true, false, ##__VA_ARGS__)
 
 #endif // PVCORE_PICVIZASSERT_H
