@@ -150,6 +150,7 @@ private:
 	{
 		assert(_buf);
 		char_allocator_type().deallocate((char*)_buf, real_buffer_size());
+		_size = 0;
 	}
 
 	void move(PVHugePODVector && o)
