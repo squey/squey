@@ -45,7 +45,7 @@ protected:
 	bool process();
 
 private:
-	static void process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* layer);
+	static void process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* layer, Picviz::PVLayer* out_layer);
 
 protected:
 	Picviz::PVView* _view;

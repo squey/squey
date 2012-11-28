@@ -164,8 +164,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	_apply_btn->setFocus(Qt::MouseFocusReason);
 
 	if (_has_apply) {
-		// We test if we haven't made a selection different from the one we previewed
-		if ((_view->state_machine->get_square_area_mode() != Picviz::PVStateMachine::AREA_MODE_OFF) || _args_widget->args_changed()) {
+		if (_args_widget->args_changed()) {
 			if (!process()) {
 				// It has been canceled, so don't close the window !
 				return;
@@ -183,17 +182,14 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	// _view->post_filter_layer.A2B_copy_restricted_by_selection_and_nelts(current_selected_layer, _view->real_output_selection, _view->row_count);
 
 	// we change current layer's lines properties with post filter layer's lines properties
-	_view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), _view->real_output_selection, _view->row_count);
-	// we just process the layer stack
-	_view->process_layer_stack();
-	// we deactivate the square area
-	_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
-	// we apply the selection
-	_view->process_selection();
-	// we use the selection of post filter layer
-	_view->pre_filter_layer.get_selection() = _view->post_filter_layer.get_selection();
+	// _view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), _view->real_output_selection, _view->row_count);
+	//
+	_view->get_post_filter_layer().get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), _view->real_output_selection, _view->row_count);
+	// volatile selection has been set by `process'
+	_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+
 	Picviz::PVView_sp view_p(_view->shared_from_this());
-	PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_from_filter)>(view_p);
+	PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_from_layer_stack)>(view_p);
 
 	// Save last used filter
 	_view->set_last_used_filter(_filter_p->registered_name());
@@ -205,18 +201,18 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 {
 	_args_widget->force_submit();
 
-	_view->process_selection();
-	_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
+	//_view->process_selection();
+	//_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 
 	Picviz::PVLayerFilter_p filter_p = _filter_p->clone<Picviz::PVLayerFilter>();
 	filter_p->set_args(*_args_widget->get_args());
 	filter_p->set_view(_view->shared_from_this());
 	filter_p->set_output(&_view->post_filter_layer);
 
-	_view->pre_filter_layer.get_selection() &= _view->layer_stack.get_selected_layer().get_selection();
+	//_view->pre_filter_layer.get_selection() &= _view->layer_stack.get_selected_layer().get_selection();
 
 	PVCore::PVProgressBox *progressDialog = new PVCore::PVProgressBox(tr("Previewing filter..."), this, 0);
-	QFuture<void> worker = QtConcurrent::run<>(process_layer_filter, filter_p.get(), &_view->pre_filter_layer);
+	QFuture<void> worker = QtConcurrent::run<>(process_layer_filter, filter_p.get(), &_view->pre_filter_layer, &_view->post_filter_layer);
 	QFutureWatcher<void> watcher;
 	watcher.setFuture(worker);
 	QObject::connect(&watcher, SIGNAL(finished()), progressDialog, SLOT(accept()), Qt::QueuedConnection);
@@ -236,7 +232,8 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 
 	// We made it ! :)
 	// _view->pre_filter_layer = _view->post_filter_layer;
-	// _view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	_view->get_floating_selection() = _view->get_post_filter_layer().get_selection();
+	_view->get_volatile_selection() = _view->get_post_filter_layer().get_selection();
 
 	// We reprocess the pipeline from the eventline stage
 	Picviz::PVView_sp view_p(_view->shared_from_this());
@@ -281,8 +278,9 @@ void PVGuiQt::PVLayerFilterProcessWidget::reset_Slot()
 	change_args(_filter_p->get_default_args_for_view(*_view));
 }
 
-void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* layer)
+void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* in_layer, Picviz::PVLayer* out_layer)
 {
-	filter->operator()(*layer);
+	filter->set_output(out_layer);
+	filter->operator()(*in_layer);
 }
 

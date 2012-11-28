@@ -167,7 +167,7 @@ void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 
 			sel = !(sel ^ include);
 			tls_sel.local().set_line(r, sel);
-		}, _view->get_pre_filter_layer().get_selection());
+		}, in.get_selection());
 	BENCH_END(visit, "multiple-search", 1, 1, 1, 1);
 
 	setlocale(LC_COLLATE, old_locale);
