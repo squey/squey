@@ -18,6 +18,9 @@ template <class C, int INCREMENT = 1000, class Alloc = PVCore::PVReallocableCAll
 class PVVector
 {
 public:
+	typedef C value_type;
+	typedef unsigned size_type;
+
 	PVVector() :
 		_array(0),
 		_size(0),
@@ -129,6 +132,16 @@ public:
 		} else {
 			return (memcmp(_array, v._array, _index * sizeof(C)) == 0);
 		}
+	}
+
+	value_type *get_pointer() const
+	{
+		return _array;
+	}
+
+	void set_index(unsigned index)
+	{
+		_index = index;
 	}
 
 private:

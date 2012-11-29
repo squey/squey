@@ -16,12 +16,17 @@
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVVector.h>
 #include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/PVLogger.h>
 
 #include <picviz/PVSelection.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVTLRBuffer.h>
+
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
 
 /* TODO: try to move code into .cpp, etc.
  *
@@ -254,7 +259,7 @@ public:
 	/**
 	 * Create a quadtree without initializing it, this constructor has to be used with init.
 	 */
-	PVQuadTree()
+	PVQuadTree() : _nodes(nullptr)
 	{}
 
 	/**
@@ -509,6 +514,246 @@ public:
 	{
 		return compute_selection_y2(*this, y2_min, y2_max, selection);
 	}
+
+#ifdef PICVIZ_DEVELOPER_MODE
+	/**
+	 * Equality test.
+	 *
+	 * @param qt the second quadtree
+	 *
+	 * @return true if the 2 quadtrees have the same structure and the
+	 * same content; false otherwise.
+	 */
+	bool operator==(const PVQuadTree &qt) const
+	{
+		if ((_y1_min_value != qt._y1_min_value) || (_y1_mid_value != qt._y1_mid_value) || (_y2_min_value != qt._y2_min_value) || (_y2_mid_value != qt._y2_mid_value)) {
+			return false;
+		} else if (((_nodes != nullptr) != (qt._nodes != nullptr))) {
+			return false;
+		} else if ((_nodes != nullptr) && (qt._nodes != nullptr)) {
+			// compare the sub-quadtrees
+			for(int i = 0; i < 4; ++i) {
+				if (_nodes[i] == qt._nodes[i]) {
+					continue;
+				}
+				return false;
+			}
+			return true;
+		} else if (_datas == qt._datas) {
+			// compare the vectors
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Save the quadtree into a file.
+	 *
+	 * @param filename the output filename
+	 *
+	 * @return true on success; false otherwise and an error is printed.
+	 */
+	bool dump_to_file(const char *filename) const
+	{
+		FILE *fp = fopen(filename, "w");
+		if (fp == NULL) {
+			PVLOG_ERROR("Error while opening %s for writing: %s.\n",
+			            filename, strerror(errno));
+			return false;
+		}
+
+		bool ret = dump_to_file(filename, fp);
+
+		fclose(fp);
+		return ret;
+	}
+
+	/**
+	 * Dump the quadtree to a FILE*.
+	 *
+	 * @param filename the output filename
+	 * @param fp the opened output FILE*
+	 *
+	 * @return true on success; false otherwise and an error is printed.
+	 */
+	bool dump_to_file(const char *filename, FILE *fp) const
+	{
+		if (fwrite(&_y1_min_value, sizeof(_y1_min_value), 1, fp) != 1) {
+			PVLOG_ERROR("Error while writing %s: %s.\n",
+			            filename, strerror(errno));
+			return false;
+		}
+
+		if (fwrite(&_y1_mid_value, sizeof(_y1_mid_value), 1, fp) != 1) {
+			PVLOG_ERROR("Error while writing %s: %s.\n",
+			            filename, strerror(errno));
+			return false;
+		}
+
+		if (fwrite(&_y2_min_value, sizeof(_y2_min_value), 1, fp) != 1) {
+			PVLOG_ERROR("Error while writing %s: %s.\n",
+			            filename, strerror(errno));
+			return false;
+		}
+
+		if (fwrite(&_y2_mid_value, sizeof(_y2_mid_value), 1, fp) != 1) {
+			PVLOG_ERROR("Error while writing %s: %s.\n",
+			            filename, strerror(errno));
+			return false;
+		}
+
+		if (fwrite(&_max_level, sizeof(_max_level), 1, fp) != 1) {
+			PVLOG_ERROR("Error while writing %s: %s.\n",
+			            filename, strerror(errno));
+			return false;
+		}
+
+		int splitted = (_nodes != nullptr);
+		if (fwrite(&splitted, sizeof(splitted), 1, fp) != 1) {
+			PVLOG_ERROR("Error while writing %s: %s.\n",
+			            filename, strerror(errno));
+			return false;
+		}
+
+		if (splitted) {
+			for(int i = 0; i < 4; ++i) {
+				if (_nodes[i].dump_to_file(filename, fp) == false) {
+					return false;
+				}
+			}
+		} else {
+			pvquadtree_entries_t::size_type count = _datas.size();
+
+			if (fwrite(&count, sizeof(count), 1, fp) != 1) {
+				PVLOG_ERROR("Error while writing %s: %s.\n",
+				            filename, strerror(errno));
+				return false;
+			}
+
+			if (count != 0) {
+				size_t size_elt = sizeof(pvquadtree_entries_t::value_type);
+
+				if (fwrite(_datas.get_pointer(), size_elt, count, fp) != count) {
+					PVLOG_ERROR("Error while writing %s: %s.\n",
+					            filename, strerror(errno));
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Load the quadtree from a file.
+	 *
+	 * @param filename the input filename
+	 *
+	 * @return true on success; false otherwise and an error is printed.
+	 */
+	static PVQuadTree *load_from_file(const char *filename)
+	{
+		FILE *fp = fopen(filename, "r");
+		if (fp == nullptr) {
+			PVLOG_ERROR("Error while opening %s for reading: %s.\n",
+			            filename, strerror(errno));
+			return nullptr;
+		}
+
+		PVQuadTree* qt = new PVQuadTree();
+		bool ret = qt->load_from_file(filename, fp);
+
+		fclose(fp);
+
+		if (ret == false) {
+			delete qt;
+			qt = nullptr;
+		}
+		return qt;
+	}
+
+	/**
+	 * Load recursively quadtree from a FILE*.
+	 *
+	 * @param filename the input filename
+	 * @param fp the opened input FILE*
+	 *
+	 * @return true on success; false otherwise and an error is printed.
+	 */
+	bool load_from_file(const char *filename, FILE *fp)
+	{
+		if (fread(&_y1_min_value, sizeof(_y1_min_value), 1, fp) != 1) {
+			PVLOG_ERROR("Error while reading %s: %s.\n",
+			            filename, strerror(errno));
+			return false;
+		}
+
+		if (fread(&_y1_mid_value, sizeof(_y1_mid_value), 1, fp) != 1) {
+			PVLOG_ERROR("Error while reading %s: %s.\n",
+			            filename, strerror(errno));
+			return false;
+		}
+
+		if (fread(&_y2_min_value, sizeof(_y2_min_value), 1, fp) != 1) {
+			PVLOG_ERROR("Error while reading %s: %s.\n",
+			            filename, strerror(errno));
+			return false;
+		}
+
+		if (fread(&_y2_mid_value, sizeof(_y2_mid_value), 1, fp) != 1) {
+			PVLOG_ERROR("Error while reading %s: %s.\n",
+			            filename, strerror(errno));
+			return false;
+		}
+
+		if (fread(&_max_level, sizeof(_max_level), 1, fp) != 1) {
+			PVLOG_ERROR("Error while reading %s: %s.\n",
+			            filename, strerror(errno));
+			return false;
+		}
+
+		int splitted;
+		if (fread(&splitted, sizeof(splitted), 1, fp) != 1) {
+			PVLOG_ERROR("Error while reading %s: %s.\n",
+			            filename, strerror(errno));
+			return false;
+		}
+
+		if (splitted) {
+			_nodes = new PVQuadTree [4];
+			for(int i = 0; i < 4; ++i) {
+				if (_nodes[i].load_from_file(filename, fp) == false) {
+					return false;
+				}
+			}
+		} else {
+			pvquadtree_entries_t::size_type count;
+
+			if (fread(&count, sizeof(count), 1, fp) != 1) {
+				PVLOG_ERROR("Error while reading %s: %s.\n",
+				            filename, strerror(errno));
+				return false;
+			}
+
+			if (count != 0) {
+				_datas.reserve(count);
+
+				size_t size_elt = sizeof(pvquadtree_entries_t::value_type);
+				if (fread(_datas.get_pointer(), size_elt, count, fp) != count) {
+					PVLOG_ERROR("Error while reading %s: %s.\n",
+					            filename, strerror(errno));
+					return false;
+				}
+
+				_datas.set_index(count);
+			} else {
+				_datas.clear();
+			}
+		}
+		return true;
+	}
+#endif
 
 #ifdef PICVIZ_DEVELOPER_MODE
 	/**
