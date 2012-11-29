@@ -182,7 +182,7 @@ public:
 	class PVMatrixLine
 	{
 	public:
-		PVMatrixLine(PVMatrix<T, IndexRow, IndexCol, Alloc> const& parent, index_row row)
+		PVMatrixLine(PVMatrix<T, IndexRow, IndexCol, Alloc>& parent, index_row row)
 		{
 			_p = parent.get_row_ptr(row);
 			_size = parent.get_width();
