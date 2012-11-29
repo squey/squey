@@ -30,6 +30,11 @@ include(CMakeRequiredLibraries.txt)
 #
 include(CMakeVersionHandler.txt)
 
+# 
+# Tests helpers
+#
+include(CMakePVTests.txt)
+
 # OpenMP for everyone
 add_definitions(${OpenMP_CXX_FLAGS})
 message(STATUS "OpenMP flags: ${OpenMP_CXX_FLAGS}")
@@ -89,26 +94,6 @@ endif(CUDA_FOUND)
 # Set inspector.sh and make_protect for current build
 configure_file(inspector.sh.cmake inspector.sh @ONLY)
 configure_file(make_protect.cmake make_protect @ONLY)
-
-# generate tests scripts
-configure_file(squish_run.sh.cmake squish_run.sh @ONLY)
-configure_file(squish_ide.sh.cmake squish_ide.sh @ONLY)
-
-# generate statistic script
-if(STAT_RUN)
-  execute_process(COMMAND realpath ${STAT_RUN} OUTPUT_VARIABLE STAT_RUN)
-  string(REGEX REPLACE "(\r?\n)+$" "" STAT_RUN ${STAT_RUN})
-  configure_file(stat_run.sh.cmake stat_run.sh @ONLY)
-  message(STATUS "STAT_RUN='" ${STAT_RUN} "'")
-else(STAT_RUN)
-  file(REMOVE stat_run.sh)
-endif(STAT_RUN)
-
-# Check that the test files are at the good revision
-execute_process(COMMAND /bin/bash -c "\"${CMAKE_SOURCE_DIR}/tests/check-files-svn-rev.sh\" \"${TESTS_FILES_ROOT}\" \"${CMAKE_SOURCE_DIR}/tests/files-svn-rev\"" RESULT_VARIABLE TEST_FILES_OK)
-if(NOT TEST_FILES_OK EQUAL 0)
-	message(WARNING "Tests files aren't valid. You are likely to see lots of failing test cases.. !")
-endif()
 
 include(CMakePackage.txt)
 include(CMakePackageDistribute.txt)

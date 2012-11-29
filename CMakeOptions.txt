@@ -64,8 +64,8 @@ if (NOT DEFINED USE_LTO)
 endif()
 
 # Default values for tests files root
-if (NOT DEFINED TESTS_FILES_ROOT)
-	set(TESTS_FILES_ROOT "${CMAKE_SOURCE_DIR}/tests/files")
+if (NOT DEFINED TESTS_FILES_DIR)
+	set(TESTS_FILES_DIR "${CMAKE_SOURCE_DIR}/tests/files")
 endif()
 
 declare_customer_cap(CUSTOMER_LINESNUMBER 200000000 200000000)

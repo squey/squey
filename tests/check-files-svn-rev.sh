@@ -30,7 +30,7 @@ if [ $? -ne 0 ]; then
 fi
 CMP_REV=$(cat "$FILE_REV")
 
-if [ $REV -ne $CMP_REV ]; then
+if [ "$REV" -ne "$CMP_REV" ]; then
 	echo "Test files are at the revision $REV, and $CMP_REV is needed (as specified by $FILE_REV). Please update your SVN repository according to this revision." 1>&2
 	exit 1
 fi

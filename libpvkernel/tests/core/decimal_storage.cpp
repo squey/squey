@@ -31,7 +31,7 @@ int main(int argc, char** argv)
 {
 	PVCore::PVDecimalStorage<32> s;
 
-	std::cout << "is_pod = " << std::is_pod<PVCore::PVDecimalStorage<32>>::value << std::endl;
+	static_assert(std::is_pod<PVCore::PVDecimalStorage<32>>::value, "PVCore::PVDecimalStorage isn't a POD!"); 
 
 	s.storage_as_int() = -4;
 

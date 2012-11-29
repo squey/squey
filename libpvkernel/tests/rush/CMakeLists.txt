@@ -7,29 +7,63 @@ set(LINK_LIBRARIES pvkernel ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY})
 
 #add_definitions(-DPV_USE_RINGBUFFER)
 
+set(PVRUSH_TEST_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test-files")
+set(PVRUSH_TEST_FILES_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/test-files")
+
 # Test UTF16 conversion
 declare_pv_test(Trush_conv_utf16 "conv_utf16.cpp;helpers.cpp" "${LINK_LIBRARIES}")
 
-add_test(TestConvUtf16_utf8 test_conv.sh utf8)
-add_test(TestConvUtf16_utf16 test_conv.sh utf16)
-add_test(TestConvUtf16_utf32 test_conv.sh utf32)
-add_test(TestConvUtf16_latin1 test_conv.sh latin1)
+macro(PV_ADD_TEST_CONV_UTF16 charset)
+	add_test(TestConvUtf16_${charset} ${TEST_DIFF_STDOUT}
+		${PVRUSH_TEST_FILES}/charset/${charset}.out
+		${PVRUSH_TEST_FILES_OUTPUT}/charset/${charset}.diff
+		${CMAKE_CURRENT_BINARY_DIR}/Trush_conv_utf16_align ${PVRUSH_TEST_FILES}/charset/${charset} 20000)
+endmacro()
+
+PV_ADD_TEST_CONV_UTF16("utf8")
+PV_ADD_TEST_CONV_UTF16("utf16")
+PV_ADD_TEST_CONV_UTF16("utf32")
+PV_ADD_TEST_CONV_UTF16("latin1")
 
 # Test UTF16 conversion and alignement on a newline (PVUnicodeSource object)
 declare_pv_test(Trush_conv_utf16_align "conv_utf16_align.cpp;helpers.cpp" "${LINK_LIBRARIES}")
 
-add_test(TestConvUtf16Align diff_stdout.py test-files/conv_utf16_align.out test-files/conv_utf16_align.diff ./Trush_conv_utf16_align test-files/conv_utf16_align 20000)
-add_test(TestConvUtf16Align_smallchunksize diff_stdout.py test-files/conv_utf16_align.out test-files/conv_utf16_align.smallchunk.diff ./Trush_conv_utf16_align test-files/conv_utf16_align 2000)
+add_test(TestConvUtf16Align ${TEST_DIFF_STDOUT}
+	${PVRUSH_TEST_FILES}/conv_utf16_align.out
+	${PVRUSH_TEST_FILES_OUTPUT}/conv_utf16_align.diff
+	${CMAKE_CURRENT_BINARY_DIR}/Trush_conv_utf16_align
+	${PVRUSH_TEST_FILES}/conv_utf16_align 20000)
+add_test(TestConvUtf16Align_smallchunksize ${TEST_DIFF_STDOUT}
+	${PVRUSH_TEST_FILES}/conv_utf16_align.out
+	${PVRUSH_TEST_FILES_OUTPUT}/conv_utf16_align.smallchunk.diff
+	${CMAKE_CURRENT_BINARY_DIR}/Trush_conv_utf16_align
+	${PVRUSH_TEST_FILES}/conv_utf16_align 2000)
 
 # Test the aggregator
 declare_pv_test(Trush_agg "agg.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestAggregator diff_stdout.py test-files/aggregator/set1.out test-files/aggregator/set1.diff ./Trush_agg 6000 test-files/aggregator/set1)
-add_test(TestAggregator diff_stdout.py test-files/aggregator/set2.out test-files/aggregator/set2.diff ./Trush_agg 6000 test-files/aggregator/set2)
+add_test(TestAggregator1 ${TEST_DIFF_STDOUT}
+	${PVRUSH_TEST_FILES}/aggregator/set1.out
+	${PVRUSH_TEST_FILES_OUTPUT}/aggregator/set1.diff
+	${CMAKE_CURRENT_BINARY_DIR}/Trush_agg 6000
+	${PVRUSH_TEST_FILES}/aggregator/set1)
+add_test(TestAggregator2 ${TEST_DIFF_STDOUT}
+	${PVRUSH_TEST_FILES}/aggregator/set2.out
+	${PVRUSH_TEST_FILES_OUTPUT}/aggregator/set2.diff
+	${CMAKE_CURRENT_BINARY_DIR}/Trush_agg 6000
+	${PVRUSH_TEST_FILES}/aggregator/set2)
 
 # Test the aggregator in strict mode
 declare_pv_test(Trush_agg_strict "agg_strict.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestAggregatorStrict diff_stdout.py test-files/aggregator/set1.strict.out test-files/aggregator/set1.strict.diff ./Trush_agg_strict 6000 test-files/aggregator/set1)
-add_test(TestAggregatorStrict diff_stdout.py test-files/aggregator/set2.strict.out test-files/aggregator/set2.strict.diff ./Trush_agg_strict 6000 test-files/aggregator/set2)
+add_test(TestAggregatorStrict1 ${TEST_DIFF_STDOUT}
+	${PVRUSH_TEST_FILES}/aggregator/set1.strict.out
+	${PVRUSH_TEST_FILES_OUTPUT}/aggregator/set1.strict.diff
+	${CMAKE_CURRENT_BINARY_DIR}/Trush_agg_strict 6000
+	${PVRUSH_TEST_FILES}/aggregator/set1)
+add_test(TestAggregatorStrict2 ${TEST_DIFF_STDOUT}
+	${PVRUSH_TEST_FILES}/aggregator/set2.strict.out
+	${PVRUSH_TEST_FILES_OUTPUT}/aggregator/set2.strict.diff
+	${CMAKE_CURRENT_BINARY_DIR}/Trush_agg_strict 6000
+	${PVRUSH_TEST_FILES}/aggregator/set2)
 
 # Test the controller
 
@@ -37,31 +71,35 @@ add_test(TestAggregatorStrict diff_stdout.py test-files/aggregator/set2.strict.o
 
 # Filters tests
 declare_pv_test(Trush_splitter_regexp "splitter_regexp.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestSplitterRegexp test_splitter_regexp.sh)
+add_test(TestSplitterRegexp ${CMAKE_CURRENT_SOURCE_DIR}/test_splitter_regexp.sh)
 
 declare_pv_test(Trush_splitter_csv "splitter_csv.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestSplitterCSV test_splitter_csv.sh)
+add_test(TestSplitterCSV ${CMAKE_CURRENT_SOURCE_DIR}/test_splitter_csv.sh)
 
 declare_pv_test(Trush_splitter_url "splitter_url.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestSplitterURL test_splitter_url.sh)
+add_test(TestSplitterURL ${CMAKE_CURRENT_SOURCE_DIR}/test_splitter_url.sh)
 
 declare_pv_test(Trush_splitter_pcap "splitter_pcap.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestSplitterPCAP test_splitter_pcap.sh)
+add_test(TestSplitterPCAP ${CMAKE_CURRENT_SOURCE_DIR}/test_splitter_pcap.sh)
 
 declare_pv_test(Trush_grep_regexp "grep_regexp.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestGrepRegexp test_grep_regexp.sh)
+add_test(TestGrepRegexp ${CMAKE_CURRENT_SOURCE_DIR}/test_grep_regexp.sh)
 
 declare_pv_test(Trush_filter_composition "filter_composition.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestFilterComposition diff_stdout.py test-files/filter_composition.out test-files/filter_composition.diff ./Trush_filter_composition test-files/filter_composition 6000)
+add_test(TestFilterComposition ${TEST_DIFF_STDOUT}
+	${PVRUSH_TEST_FILES}/filter_composition.out
+	${PVRUSH_TEST_FILES}/filter_composition.diff
+	${CMAKE_CURRENT_BINARY_DIR}/Trush_filter_composition
+	${PVRUSH_TEST_FILES}/filter_composition 6000)
 
 declare_pv_test(Trush_splitter_duplicate "splitter_duplicate.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestSplitterDuplicate test_splitter_duplicate.sh)
+add_test(TestSplitterDuplicate ${CMAKE_CURRENT_SOURCE_DIR}/test_splitter_duplicate.sh)
 
 # Plugin input tests
 
 # Format parsing
 declare_pv_test(Trush_format "format.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestFormats Trush_format test-files/formats)
+add_test(TestFormats Trush_format ${PVRUSH_TEST_FILES}/formats)
 
 declare_pv_test(Trush_format_dump "format_dump.cpp;helpers.cpp" "${LINK_LIBRARIES}")
 
@@ -69,20 +107,20 @@ declare_pv_test(Trush_format_dump "format_dump.cpp;helpers.cpp" "${LINK_LIBRARIE
 # Show the output NRAW as a CSV file
 # Used to test the whole PVRush processing w/ files that had some issues with their processing ("had_issues" directory)
 declare_pv_test(Trush_process_file "process_file.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestHadIssues ./test_issues.sh)
+add_test(TestHadIssues ${CMAKE_CURRENT_SOURCE_DIR}/test_issues.sh)
 
 # Auto-discovery test
 declare_pv_test(Trush_process_file_auto_discovery "process_file_auto_discovery.cpp;helpers.cpp" "${LINK_LIBRARIES}")
 
 # Test cases for tickets
 declare_pv_test(Trush_ticket_1 "ticket_1.cpp" "${LINK_LIBRARIES}")
-add_test(TestTicket1 ./Trush_ticket_1)
+add_test(TestTicket1 ${CMAKE_CURRENT_SOURCE_DIR}/Trush_ticket_1)
 
 declare_pv_test(Trush_ticket_2 "ticket_2.cpp" "${LINK_LIBRARIES}")
-add_test(TestTicket2 ./Trush_ticket_2)
+add_test(TestTicket2 ${CMAKE_CURRENT_SOURCE_DIR}/Trush_ticket_2)
 
 declare_pv_test(Trush_ticket_28 "ticket_28.cpp" "${LINK_LIBRARIES}")
-add_test(TestTicket28 ./Trush_ticket_28)
+add_test(TestTicket28 ${CMAKE_CURRENT_SOURCE_DIR}/Trush_ticket_28)
 
 # Benchmark for the whole extractor
 #add_executable(Trush_bench bench_extractor.cpp)

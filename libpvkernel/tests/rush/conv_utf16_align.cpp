@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 	PVChunk* pc = source();
 
 	while (pc) {
-		dump_chunk_csv(*pc);
+		dump_chunk_raw(*pc);
 		pc->free();
 		pc = source();
 	}

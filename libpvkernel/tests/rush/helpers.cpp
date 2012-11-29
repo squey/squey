@@ -135,14 +135,12 @@ void dump_chunk_raw(PVChunk& c)
 		PVElement& elt = *(*it);
 		list_fields& l = elt.fields();
 		list_fields::iterator itf;
+		cout.flush();
 		for (itf = l.begin(); itf != l.end(); itf++) {
 			PVField& f = *itf;
 			char* start = f.begin();
 			char* end = f.end();
-			while (start <= end) {
-				cout << *start;
-				start++;
-			}
+			write(1, start, ((ptrdiff_t)end-(ptrdiff_t)start));
 		}
 		cout << endl;
 	}

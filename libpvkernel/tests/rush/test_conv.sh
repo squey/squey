@@ -14,9 +14,10 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
-INPUT="./test-files/charset/$1"
+INPUT=$1
 DIFF="$INPUT.diff"
 OUT="$INPUT.out"
+SCRIPT_PATH=$(/usr/bin/realpath $(dirname $0))
 
-./diff_stdout.py "$OUT" "$DIFF" ./Trush_conv_utf16 "$INPUT" 20000
+"$SCRIPT_PATH/diff_stdout.py" "$OUT" "$DIFF" ./Trush_conv_utf16 "$INPUT" 20000
 exit $?
