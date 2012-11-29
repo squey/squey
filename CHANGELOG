@@ -1,12 +1,17 @@
 3.0.3
 -----
 
+This minor release add the following features:
+
+ * add a "duplicate" splitter into the format builder, so that a field can be
+   duplicate, so that different processing can be applied
+
 This minor release fixes:
 
- * invalid values for the frequency gradient in some rare cases
- * some arguments weren't updated when using a filter
- * selection ivnertion works after a filter has been applied
- * invalid lines were displayed in some rare cases in the zoomed parallel views
+ * invalid values for the frequency gradient in some rare cases some arguments
+ * weren't updated when using a filter selection ivnertion works after a filter
+ * has been applied invalid lines were displayed in some rare cases in the
+ * zoomed parallel views
 
 3.0.0 "Retribution" (12/11/2012)
 --------------------------------
