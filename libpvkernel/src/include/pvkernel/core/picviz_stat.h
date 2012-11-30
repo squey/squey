@@ -67,4 +67,11 @@
  */
 #define PV_STAT_TIME_MSEC(NAME, VALUE) PV_STAT((NAME), "ms", (VALUE))
 
+/**
+ * @def PV_STAT_TIME_MSEC(NAME, VALUE)
+ *
+ * Print a statistic line about time in milliseconds.
+ */
+#define PV_STAT_TIME_MICROSEC(NAME, VALUE) PV_STAT((NAME), "µs", (VALUE))
+
 #endif // PVCORE_PICVIZSTAT_H
