@@ -86,7 +86,7 @@
 #define BENCH_SHOW(var, desc, nelts_start, size_elt_start, nelts_end, size_elt_end)
 #define BENCH_END(var, desc, nelts_start, size_elt_start, nelts_end, size_elt_end)
 #define BENCH_STAT_TIME(var)
-#define BENCH_STAT_IN_BW(var, nelts_in, size_elt_start, in)
+#define BENCH_STAT_IN_BW(var, nelts_in, size_elt_in)
 #define BENCH_STAT_OUT_BW(var, nelts_out, size_elt_out)
 #define BENCH_STAT(var, nelts_in, size_elt_in, nelts_out, size_elt_out)
 #define BENCH_END_TIME(var) (0)
