@@ -8,6 +8,8 @@
 #include <pvkernel/core/picviz_bench.h>
 #include <iostream>
 
+#include <pvkernel/core/picviz_assert.h>
+
 #include <cstdlib>
 #include <ctime>
 
@@ -42,13 +44,9 @@ int main(int argc, char** argv)
 	for (uint32_t i = 0; i < 0xFFFFFFFFUL; i++) {
 		size_t ref = bit_count_ref(i);
 		size_t test = PVCore::PVBitCount::bit_count(i);
-		if (ref != test) {
+
 #pragma omp critical
-			{
-				std::cout << "bit count failed for 32-bit " << i << " : " << test << " vs. " << ref << " (ref)" << std::endl;
-				ret = 1;
-			}
-		}
+		PV_VALID(ref, test, "i", i);
 	}
 	BENCH_END(b, "time", 1, 1, 1, 1);
 	if (ret) {
@@ -66,10 +64,8 @@ int main(int argc, char** argv)
 			uint64_t vrand = rand()*rand();
 			size_t ref = bit_count_ref(vrand);
 			size_t test = PVCore::PVBitCount::bit_count(vrand);
-			if (ref != test) {
-				std::cerr << "bit count failed for 64-bit " << i << " : " << test << " vs. " << ref << " (ref)" << std::endl;
-				ret = 1;
-			}
+
+			PV_VALID(ref, test, "i", i);
 		}
 	}
 	else {
@@ -77,16 +73,11 @@ int main(int argc, char** argv)
 		for (uint64_t i = 0xFFFFFFFFULL; i < 0xFFFFFFFFFFFFFFFFULL; i++) {
 			size_t ref = bit_count_ref(i);
 			size_t test = PVCore::PVBitCount::bit_count(i);
-			if (ref != test) {
 #pragma omp critical
-				{
-					std::cerr << "bit count failed for 64-bit " << i << " : " << test << " vs. " << ref << " (ref)" << std::endl;
-					ret = 1;
-				}
-			}
+			PV_VALID(ref, test, "i", i);
 		}
 	}
-	
+
 	std::cout << "64-bit tests done..." << std::endl;
 
 	return ret;

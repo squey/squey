@@ -4,30 +4,37 @@
 
 #include <iostream>
 
-#define N (4*1024ULL*1024*1024)
+#define N (4*1024UL*1024*1024)
+#define N2 (N / 4)
 
 int main()
 {
-	PVCore::PVHugePODVector<uint32_t, 16> v;
+	typedef PVCore::PVHugePODVector<uint32_t, 16> pod_vector;
+
+	pod_vector v;
 	v.resize(N);
 	PV_ASSERT_VALID((uintptr_t)(v.begin()) % 16 == 0);
+	PV_VALID(v.size(), N);
 	std::cout << "mmap done for 16GB." << std::endl;
-	std::cout << "Press a key to write them!" << std::endl;
-	getchar();
+
+	std::cout << "Write them." << std::endl;
 	memset(v.begin(), 0x0A, N*sizeof(uint32_t));
-	std::cout << "4GB written. Press a key to shrink to 1GB" << std::endl;
-	getchar();
-	v.resize(N/4);
-	std::cout << "Shrink done. Press enter to check that values are correct." << std::endl;
-	getchar();
+	std::cout << "4 Gio written." << std::endl;
+
+	std::cout << "Shrinking to 1GB." << std::endl;
+	v.resize(N2);
+	PV_VALID(v.size(), N2);
+	std::cout << "Shrink done" << std::endl;
+
+	std::cout << "Checking that values are correct." << std::endl;
 	for (size_t i = 0; i < N/4; i++) {
-		PV_ASSERT_VALID(v.at(i) == 0x0A0A0A0AU);
+		PV_ASSERT_VALID(v.at(i) == 0x0A0A0A0AU, "i", i);
 	}
-	std::cout << "All valid. Press enter to clear the buffer." << std::endl;
-	getchar();
+	std::cout << "All valid" << std::endl;
+	std::cout << "Clear the buffer." << std::endl;
 	v.clear();
-	std::cout << "Buffer cleared. Press enter to exit." << std::endl;
-	getchar();
+	PV_VALID(v.size(), (size_t)0);
+	PV_VALID(v.begin(), (pod_vector::pointer)NULL);
 
 	return 0;
 }

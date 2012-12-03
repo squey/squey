@@ -4,44 +4,30 @@
 
 #include <pvkernel/core/picviz_assert.h>
 
+#include "is_const.h"
+
 struct A
 {
 	bool is_const() { return false; }
 	bool is_const() const { return true; }
+
+	operator std::string () const
+	{
+		std::stringstream ret;
+		ret << std::string("class A(") << this << ")";
+		return ret.str();
+	}
 };
+
+
+std::ostream& operator << (std::ostream& o, const A& a)
+{
+	o << std::string(a);
+	return o;
+}
+
 
 class B { };
-
-
-template <typename T>
-struct defined_with_const
-{
-	constexpr static bool value = false;
-};
-
-template <typename T>
-struct defined_with_const<const T>
-{
-	constexpr static bool value = true;
-};
-
-template <typename T>
-struct defined_with_const<const T*>
-{
-	constexpr static bool value = true;
-};
-
-template <typename T>
-struct defined_with_const<const T&>
-{
-	constexpr static bool value = true;
-};
-
-template <typename T>
-bool is_const(T&)
-{
-	return defined_with_const<T>::value;
-}
 
 int main()
 {
@@ -66,7 +52,7 @@ int main()
 
 	PV_VALID_P(is_const(gnaa), false);
 
-	PV_VALID_P(is_const(gna10), true);
+	PV_VALID_P(is_const(gna10), false, "gna10", gna10, "i", 10);
 
 	return 0;
 }

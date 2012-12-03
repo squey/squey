@@ -8,6 +8,9 @@
 
 #include <pvkernel/rush/PVNrawDiskBackend.h>
 
+#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/picviz_stat.h>
+
 constexpr uint64_t DEFAULT_CONTENT_SIZE = 1024*1024*1024/2;
 constexpr uint64_t DEFAULT_WRITE_CHUNK_SIZE = 8*1024*1024;
 constexpr uint64_t DEFAULT_READ_CHUNK_SIZE = 32*1024*1024;
@@ -91,7 +94,7 @@ struct UnbufferedPolicy
 			std::cout << "errno=" << errno << std::endl;
 			std::cout << strerror(errno) << std::endl;
 		}
-		return r;
+		return (r >= 0);
 	}
 
 	inline int64_t Read(file_t file, void* buffer,  uint64_t buf_size)
@@ -446,17 +449,20 @@ void write_nraw_disk_backend(std::string const& folder)
 
 #if 1
 	uint64_t write_size = 0;
-	BENCH_START(t);
+	size_t input_size = 0;
+	BENCH_START(nraw_write_test);
 	for (uint64_t i = 0 ; i < nb_fields_per_column; i++) {
 		std::stringstream st;
 		st << i << " ";
 		for (uint64_t col : shuffled_col_sequence) {
+			input_size += st.str().length();
 			write_size += nraw_backend.add(col, st.str().c_str(), st.str().length());
 			//write_size += nraw_backend.add(col, field.c_str(),field.length()); // Note: Generating strings takes a loooot of time!
 		}
 	}
 	nraw_backend.flush();
-	BENCH_END(t, "nraw write test", sizeof(char), write_size, 1, 1);
+	BENCH_STOP(nraw_write_test);
+	BENCH_STAT(nraw_write_test, 1, input_size, 1, write_size);
 
 #else
 	nraw_backend.load_index_from_disk();
@@ -478,7 +484,7 @@ void write_nraw_disk_backend(std::string const& folder)
 		}
 	}
 	tbb::tick_count t2 = tbb::tick_count::now();
-	std::cout << "latency (linear)=" << ((t2-t1).seconds()*1000*1000)/nb_fields_per_column << " μ sec" << std::endl;
+	PV_STAT_TIME_MICROSEC("latency_linear", ((t2-t1).seconds()*1000*1000)/nb_fields_per_column);
 
 	std::vector<uint64_t> shuffled_field_sequence;
 	shuffled_col_sequence.reserve(nb_fields_per_column);
@@ -499,7 +505,8 @@ void write_nraw_disk_backend(std::string const& folder)
 		//}
 	}
 	tbb::tick_count t4 = tbb::tick_count::now();
-	std::cout << "latency (random)=" << ((t4-t3).seconds()*1000)/MAX_FIELDS << " milli sec" << std::endl;
+
+	PV_STAT_TIME_MSEC("latency_random", ((t4-t3).seconds()*1000)/MAX_FIELDS);
 
 	nraw_backend.print_stats();
 #endif

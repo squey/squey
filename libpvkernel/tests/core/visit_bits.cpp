@@ -25,7 +25,7 @@ static uint32_t count_bits(size_t n, const uint64_t* data)
 	for (size_t i = 0; i < n; i++) {
 		uint64_t v = data[i];
 		COUNT_BITS_UINT64(ret,v);
-	}   
+	}
 	return ret;
 }
 
@@ -35,7 +35,7 @@ static uint32_t count_bits_sse(size_t n, const uint64_t* data)
 	for (size_t i = 0; i < n; i++) {
 		const uint64_t v = data[i];
 		ret += _mm_popcnt_u64(v);
-	}   
+	}
 	return ret;
 }
 
@@ -57,20 +57,26 @@ int main()
 	memset(buf, 0xA0, sizeof(uint64_t)*SIZE_BUF);
 
 	srand(time(NULL));
-	/*
+#if 0
 	BENCH_START(sse4);
 	uint32_t ret1 = count_bits_sse(SIZE_BUF, buf);
-	BENCH_END(sse4, "sse4", sizeof(uint64_t), SIZE_BUF, sizeof(uint32_t), 1);
+	BENCH_STOP(sse4);
+	PV_STAT_PROCESS_BW("count_bits_sse", (sizeof(uint64_t) * SIZE_BUF) / BENCH_END_TIME(sse4));
 
 	BENCH_START(vec);
 	uint32_t ret0 = count_bits(SIZE_BUF, buf);
-	BENCH_END(vec, "vec", sizeof(uint64_t), SIZE_BUF, sizeof(uint32_t), 1);
+	BENCH_STOP(vec);
+	PV_STAT_PROCESS_BW("count_bits_vec", (sizeof(uint64_t) * SIZE_BUF) / BENCH_END_TIME(vec));
 
 	BENCH_START(lib);
 	uint32_t ret2 = PVCore::PVBitCount::bit_count(SIZE_BUF, buf);
-	BENCH_END(lib, "lib", sizeof(uint64_t), SIZE_BUF, sizeof(uint32_t), 1);
+	BENCH_STOP(lib);
+	PV_STAT_PROCESS_BW("count_bits_lib", (sizeof(uint64_t) * SIZE_BUF) / BENCH_END_TIME(lib));
 
-	printf("%u %u %u\n", ret0, ret1, ret2);*/
+	PV_ASSERT_VALID(ret0 == ret1, "ret0", ret0, "ret1", ret1);
+	PV_ASSERT_VALID(ret0 == ret2, "ret0", ret0, "ret2", ret2);
+	PV_ASSERT_VALID(ret1 == ret2, "ret1", ret1, "ret2", ret2);
+#endif
 
 	v = (0xFFULL<<(2*8)) | (0xFFULL<<(4*8)) | (0xFFULL<<(5*8)) | (0xFFULL<<(7*8));
 	PVCore::PVByteVisitor::visit_bytes(v, [=](size_t b) { std::cout << b << std::endl; });
@@ -93,8 +99,8 @@ int main()
 	for (int i = 0; i < 40; i++) {
 		PVCore::PVByteVisitor::visit_nth_slice((const uint8_t*) str_test, 132, i, [=](uint8_t const* str, size_t n)
 			{
-				fwrite(str, 1, n, stdout);
-				printf("\n");
+				// fwrite(str, 1, n, stdout);
+				// printf("\n");
 			});
 	}
 
@@ -126,8 +132,9 @@ int main()
 				});
 	}
 #endif
-	BENCH_END(slice, "slice", sizeof(char), str2_size, 1, 1);
-
+	//BENCH_END(slice, "slice", sizeof(char), str2_size, 1, 1);
+	BENCH_STOP(slice);
+	PV_STAT_PROCESS_BW("visit_nth_slice", str2_size / BENCH_END_TIME(slice));
 	free(str2);
 
 	return 0;
