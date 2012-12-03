@@ -14,6 +14,9 @@
 
 #include "massive_common.h"
 
+#include <pvkernel/core/picviz_stat.h>
+
+#if 0
 void print_size(const char *text, size_t size, int num)
 {
 	static const char *units[] = {"o", "Kio", "Mio", "Gio", "Tio", "Pio"};
@@ -46,6 +49,7 @@ void print_size(const char *text, size_t size, int num)
 	printf("%s: %g %s for %d element(s) -> %g %s per element\n",
 	       text, dgmem, units[gindex], num, demem, units[eindex]);
 }
+#endif
 
 class Block2
 {
@@ -77,6 +81,7 @@ int main(int argc, char **argv)
 	PVHive::PVHive &hive = PVHive::PVHive::get();
 	base = hive.memory();
 	std::cout << "hive usage: " << base << " o" << std::endl;
+	PV_STAT_MEM_USE_O("hive", base);
 	std::cout << std::endl;
 
 	Block2_p *blocks2 = new Block2_p [element_num];
@@ -98,7 +103,8 @@ int main(int argc, char **argv)
 		MEM_END(obj, "registered objects");
 	}
 	next = hive.memory();
-	print_size("object usage", next - base, element_num);
+	// print_size("object usage", next - base, element_num);
+	PV_STAT_MEM_USE_O("object", (next - base) / element_num);
 	std::cout << std::endl;
 
 
@@ -112,7 +118,8 @@ int main(int argc, char **argv)
 		MEM_END(prop, "registered properties");
 	}
 	next = hive.memory();
-	print_size("property usage", next - base, element_num);
+	// print_size("property usage", next - base, element_num);
+	PV_STAT_MEM_USE_O("property", (next - base) / element_num);
 	std::cout << std::endl;
 
 
@@ -126,7 +133,8 @@ int main(int argc, char **argv)
 		MEM_END(objobs, "registered objects observers");
 	}
 	next = hive.memory();
-	print_size("object observer usage", next - base, element_num);
+	// print_size("object observer usage", next - base, element_num);
+	PV_STAT_MEM_USE_O("object_observer", (next - base) / element_num);
 	std::cout << std::endl;
 
 
@@ -141,7 +149,8 @@ int main(int argc, char **argv)
 		MEM_END(propobs, "registered properties observers");
 	}
 	next = hive.memory();
-	print_size("property observer usage", next - base, element_num);
+	// print_size("property observer usage", next - base, element_num);
+	PV_STAT_MEM_USE_O("property_observer", (next - base) / element_num);
 	std::cout << std::endl;
 
 
@@ -155,7 +164,8 @@ int main(int argc, char **argv)
 		MEM_END(objact, "registered objects actors");
 	}
 	next = hive.memory();
-	print_size("object actor usage", next - base, element_num);
+	// print_size("object actor usage", next - base, element_num);
+	PV_STAT_MEM_USE_O("object_actor", (next - base) / element_num);
 	std::cout << std::endl;
 
 
@@ -169,7 +179,8 @@ int main(int argc, char **argv)
 		MEM_END(propact, "registered properties actors");
 	}
 	next = hive.memory();
-	print_size("property actor usage", next - base, element_num);
+	// print_size("property actor usage", next - base, element_num);
+	PV_STAT_MEM_USE_O("property_actor", (next - base) / element_num);
 	std::cout << std::endl;
 
 	return 0;

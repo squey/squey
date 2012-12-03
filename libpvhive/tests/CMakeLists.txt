@@ -43,17 +43,21 @@ target_link_libraries(Tmodal ${COMMON_LIBRARIES})
 add_executable(Tmultithreads multithreads.cpp)
 target_link_libraries(Tmultithreads ${COMMON_LIBRARIES})
 
-add_executable(Tmassive-mem massive-mem.cpp massive_common.cpp)
-target_link_libraries(Tmassive-mem ${COMMON_LIBRARIES})
+add_executable(Thive_massive_mem massive-mem.cpp massive_common.cpp)
+target_link_libraries(Thive_massive_mem ${COMMON_LIBRARIES})
+add_test(TestHiveMemory Thive_massive_mem 100000)
 
-add_executable(Tmassive-register massive-register.cpp massive_common.cpp)
-target_link_libraries(Tmassive-register ${COMMON_LIBRARIES})
+add_executable(Thive_massive_register massive-register.cpp massive_common.cpp)
+target_link_libraries(Thive_massive_register ${COMMON_LIBRARIES})
+add_test(TestHiveRegister run-massive-register.sh)
 
-add_executable(Tmassive-call-obj massive-call-obj.cpp massive_common.cpp)
-target_link_libraries(Tmassive-call-obj ${COMMON_LIBRARIES})
+add_executable(Thive_massive_call_obj massive-call-obj.cpp massive_common.cpp)
+target_link_libraries(Thive_massive_call_obj ${COMMON_LIBRARIES})
+add_test(TestHiveCallObject run-massive-call-obj.sh)
 
-add_executable(Tmassive-call-prop massive-call-prop.cpp massive_common.cpp)
-target_link_libraries(Tmassive-call-prop ${COMMON_LIBRARIES})
+add_executable(Thive_massive_call_prop massive-call-prop.cpp massive_common.cpp)
+target_link_libraries(Thive_massive_call_prop ${COMMON_LIBRARIES})
+add_test(TestHiveCallProperty run-massive-call-prop.sh)
 
 QT4_WRAP_CPP(TEST_MQ_MOC_SRC message-queue.h OPTIONS ${QT4_WRAP_OPTIONS})
 
@@ -62,8 +66,9 @@ target_link_libraries(Tmessage-queue ${COMMON_LIBRARIES})
 
 include_directories(AFTER ${PICVIZ_INCLUDE_DIR})
 
-add_executable(Tcall_helper call_helper.cpp)
-target_link_libraries(Tcall_helper ${COMMON_LIBRARIES})
+add_executable(Thive_call_helper call_helper.cpp)
+target_link_libraries(Thive_call_helper ${COMMON_LIBRARIES})
+add_test(TestHiveCallHelper Thive_call_helper)
 
 QT4_WRAP_CPP(TEST_FUNC_OBSERVER_THREAD_MOC_SRC func_observer_thread.h OPTIONS ${QT4_WRAP_OPTIONS})
 add_executable(Tcore_func_observer_thread func_observer_thread.cpp ${TEST_FUNC_OBSERVER_THREAD_MOC_SRC})
