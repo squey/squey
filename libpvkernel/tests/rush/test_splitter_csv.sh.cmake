@@ -6,13 +6,12 @@
 
 #
 
-
 ROOTDIR="@CMAKE_SOURCE_DIR@/libpvkernel/tests/rush"
-TESTSDIR="$ROOTDIR/test-files/splitters/csv"
+DIR="$ROOTDIR/test-files/splitters/csv"
 
-test ! -d "$TESTDIR" && echo "no input directory" && exit 1
+test ! -d "$DIR" && echo "'$DIR' is not a directory" && exit 1
 
-for f in "$TESTDIR"/*.csv; do
+for f in $DIR/*.csv; do
 	INPUT=$f
 	REF=$f.out
 	echo "Testing $INPUT..."

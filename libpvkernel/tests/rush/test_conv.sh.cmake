@@ -14,9 +14,13 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
-INPUT="./test-files/charset/$1"
+ROOTDIR="@CMAKE_SOURCE_DIR@/libpvkernel/tests/rush"
+
+INPUT="$ROOTDIR/test-files/charset/$1"
 DIFF="$INPUT.diff"
 OUT="$INPUT.out"
 
-./diff_stdout.py "$OUT" "$DIFF" ./Trush_conv_utf16 "$INPUT" 20000
+test ! -r "$INPUT" && echo "'$INPUT' is not a file or is not readable" && exit 1
+
+"$ROOTDIR"/diff_stdout.py "$OUT" "$DIFF" ./Trush_conv_utf16 "$INPUT" 20000
 exit $?

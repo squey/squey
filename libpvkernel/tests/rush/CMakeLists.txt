@@ -3,6 +3,16 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+configure_file(test_conv.sh.cmake test_conv.sh @ONLY)
+configure_file(test_issues.sh.cmake test_issues.sh @ONLY)
+configure_file(test_splitter_csv.sh.cmake test_splitter_csv.sh @ONLY)
+configure_file(test_splitter_duplicate.sh.cmake test_splitter_duplicate.sh @ONLY)
+configure_file(test_splitter_pcap.sh.cmake test_splitter_pcap.sh @ONLY)
+configure_file(test_splitter_regexp.sh.cmake test_splitter_regexp.sh @ONLY)
+configure_file(test_splitter_url.sh.cmake test_splitter_url.sh @ONLY)
+configure_file(test_grep_regexp.sh.cmake test_grep_regexp.sh @ONLY)
+configure_file(test_run_diff.sh.cmake test_run_diff.sh @ONLY)
+
 set(LINK_LIBRARIES pvkernel ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY})
 
 #add_definitions(-DPV_USE_RINGBUFFER)
@@ -18,18 +28,18 @@ add_test(TestConvUtf16_latin1 test_conv.sh latin1)
 # Test UTF16 conversion and alignement on a newline (PVUnicodeSource object)
 declare_pv_test(Trush_conv_utf16_align "conv_utf16_align.cpp;helpers.cpp" "${LINK_LIBRARIES}")
 
-add_test(TestConvUtf16Align diff_stdout.py test-files/conv_utf16_align.out test-files/conv_utf16_align.diff ./Trush_conv_utf16_align test-files/conv_utf16_align 20000)
-add_test(TestConvUtf16Align_smallchunksize diff_stdout.py test-files/conv_utf16_align.out test-files/conv_utf16_align.smallchunk.diff ./Trush_conv_utf16_align test-files/conv_utf16_align 2000)
+add_test(TestConvUtf16Align test_run_diff.sh test-files/conv_utf16_align.out test-files/conv_utf16_align.diff ./Trush_conv_utf16_align test-files/conv_utf16_align 20000)
+add_test(TestConvUtf16Align_smallchunksize test_run_diff.sh test-files/conv_utf16_align.out test-files/conv_utf16_align.smallchunk.diff ./Trush_conv_utf16_align test-files/conv_utf16_align 2000)
 
 # Test the aggregator
 declare_pv_test(Trush_agg "agg.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestAggregator diff_stdout.py test-files/aggregator/set1.out test-files/aggregator/set1.diff ./Trush_agg 6000 test-files/aggregator/set1)
-add_test(TestAggregator diff_stdout.py test-files/aggregator/set2.out test-files/aggregator/set2.diff ./Trush_agg 6000 test-files/aggregator/set2)
+add_test(TestAggregator test_run_diff.sh test-files/aggregator/set1.out test-files/aggregator/set1.diff ./Trush_agg 6000 test-files/aggregator/set1)
+add_test(TestAggregator test_run_diff.sh test-files/aggregator/set2.out test-files/aggregator/set2.diff ./Trush_agg 6000 test-files/aggregator/set2)
 
 # Test the aggregator in strict mode
 declare_pv_test(Trush_agg_strict "agg_strict.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestAggregatorStrict diff_stdout.py test-files/aggregator/set1.strict.out test-files/aggregator/set1.strict.diff ./Trush_agg_strict 6000 test-files/aggregator/set1)
-add_test(TestAggregatorStrict diff_stdout.py test-files/aggregator/set2.strict.out test-files/aggregator/set2.strict.diff ./Trush_agg_strict 6000 test-files/aggregator/set2)
+add_test(TestAggregatorStrict test_run_diff.sh test-files/aggregator/set1.strict.out test-files/aggregator/set1.strict.diff ./Trush_agg_strict 6000 test-files/aggregator/set1)
+add_test(TestAggregatorStrict test_run_diff.sh test-files/aggregator/set2.strict.out test-files/aggregator/set2.strict.diff ./Trush_agg_strict 6000 test-files/aggregator/set2)
 
 # Test the controller
 
@@ -52,7 +62,7 @@ declare_pv_test(Trush_grep_regexp "grep_regexp.cpp;helpers.cpp" "${LINK_LIBRARIE
 add_test(TestGrepRegexp test_grep_regexp.sh)
 
 declare_pv_test(Trush_filter_composition "filter_composition.cpp;helpers.cpp" "${LINK_LIBRARIES}")
-add_test(TestFilterComposition diff_stdout.py test-files/filter_composition.out test-files/filter_composition.diff ./Trush_filter_composition test-files/filter_composition 6000)
+add_test(TestFilterComposition test_run_diff.sh test-files/filter_composition.out test-files/filter_composition.diff ./Trush_filter_composition test-files/filter_composition 6000)
 
 declare_pv_test(Trush_splitter_duplicate "splitter_duplicate.cpp;helpers.cpp" "${LINK_LIBRARIES}")
 add_test(TestSplitterDuplicate test_splitter_duplicate.sh)
