@@ -2,7 +2,7 @@
 
 run()
 {
-    ./bin/Thive_massive_call_obj $@
+    ./Thive_massive_call_prop $@
 }
 
 run 10000000 1       0
@@ -15,10 +15,7 @@ run 10       1000000 1
 
 run 1000000 1       1000
 run 1000    1000    1000
-run 1       1000000 1000
+run 10      100000  1000
 
 run 1000    1    1000000
-run 1       1000 1000000
-
-
-rm -f log.$$
+run 10      100  1000000

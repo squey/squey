@@ -3,6 +3,11 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+configure_file(run-massive-call-obj.sh.cmake run-massive-call-obj.sh @ONLY)
+configure_file(run-massive-call-prop.sh.cmake run-massive-call-prop.sh @ONLY)
+configure_file(run-massive-register.sh.cmake run-massive-register.sh @ONLY)
+
+
 set(COMMON_LIBRARIES pvhive pvkernel picviz ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${QT_LIBRARIES})
 
 add_executable(Tsimplistic simplistic.cpp)
