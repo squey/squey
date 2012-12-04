@@ -115,6 +115,9 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 
 	// A double click on the vertical header select the line in the lib view
 	connect(verticalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnVHead(int)));
+
+	// Save horizontal headers width to be persistent across axes combination changes
+	connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(columnResized(int, int, int)));
 }
 
 /******************************************************************************
@@ -272,10 +275,36 @@ void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 	{
 		int colIndex = columnAt(e->pos().x());
 		int d = e->delta() / 12;
-		setColumnWidth(colIndex, columnWidth(colIndex) + d);
+		uint32_t width = std::max(columnWidth(colIndex) + d, horizontalHeader()->minimumSectionSize());
+		setColumnWidth(colIndex, width);
+		_headers_width[lib_view().get_real_axis_index(colIndex)] = width;
 	}
 	else {
 		QTableView::wheelEvent(e);
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::columnResized
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::columnResized(int column, int /*oldWidth*/, int newWidth)
+{
+	_headers_width[lib_view().get_real_axis_index(column)] = newWidth;
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::reset
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::reset()
+{
+	uint32_t default_width = horizontalHeader()->defaultSectionSize();
+	for (int i = 0; i <  horizontalHeader()->count(); i++) {
+		uint32_t axis_index = lib_view().get_real_axis_index(i);
+		setColumnWidth(i, _headers_width[axis_index] ? _headers_width[axis_index] : default_width);
 	}
 }
 

@@ -33,7 +33,6 @@ public:
 	PVListingView(Picviz::PVView_sp& view, QWidget* parent = NULL);
 
 	void refresh_listing_filter();
-	void wheelEvent(QWheelEvent* e);
 
 	PVListingSortFilterProxyModel* get_listing_model();
 
@@ -44,6 +43,8 @@ public slots:
 protected:
 	void mouseDoubleClickEvent(QMouseEvent* event);
 	void keyPressEvent(QKeyEvent* event) override;
+	void wheelEvent(QWheelEvent* e);
+	void reset() override;
 
 private:
 	QVector<PVRow> get_selected_rows();
@@ -64,6 +65,7 @@ private slots:
 	void show_ctxt_menu(const QPoint& pos);
 	void show_hhead_ctxt_menu(const QPoint& pos);
 	void set_color_selected(const QColor& color);
+	void columnResized(int column, int oldWidth, int newWidth);
 
 private:
 	QMenu* _ctxt_menu;
@@ -78,6 +80,8 @@ private:
 	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process;
 	QAction* _act_copy;
 	QAction* _act_set_color;
+
+	std::unordered_map<uint32_t, uint32_t> _headers_width;
 
 private:
 	// Observers
