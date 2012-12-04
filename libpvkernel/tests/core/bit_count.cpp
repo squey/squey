@@ -39,46 +39,52 @@ int main(int argc, char** argv)
 {
 	int ret = 0;
 
-	BENCH_START(b);
+	std::cout << "32-bit tests. It can take a while..." << std::endl;
 #pragma omp parallel for
 	for (uint32_t i = 0; i < 0xFFFFFFFFUL; i++) {
 		size_t ref = bit_count_ref(i);
 		size_t test = PVCore::PVBitCount::bit_count(i);
-
+		if (ref != test) {
 #pragma omp critical
-		PV_VALID(ref, test, "i", i);
+			std::cerr << "failed at " << i << ": " << test
+			          << " but " << ref << " was expected" << std::endl;
+			ret = 1;
+		}
 	}
-	BENCH_END(b, "time", 1, 1, 1, 1);
-	if (ret) {
-		return ret;
-	}
+	PV_ASSERT_VALID(ret == 0);
+	std::cout << "done" << std::endl;
 
-	std::cout << "32-bit tests done..." << std::endl;
 
 	// For 64-bit tests, 2 modes: full-test (takes really a HUGE time, but that's the only
 	// way to be sure of our algorithms), or random mode.
 	if (argc >= 2) {
 		srand(time(NULL));
 		size_t n = atoll(argv[1]);
+		std::cout << "64-bit tests (random). It can take a while..." << std::endl;
 		for (size_t i = 0; i < n; i++) {
 			uint64_t vrand = rand()*rand();
 			size_t ref = bit_count_ref(vrand);
 			size_t test = PVCore::PVBitCount::bit_count(vrand);
 
-			PV_VALID(ref, test, "i", i);
+			PV_VALID(ref, test);
 		}
-	}
-	else {
+		std::cout << "done..." << std::endl;
+	} else {
+		std::cout << "64-bit tests (full). It will take a while..." << std::endl;
 #pragma omp parallel for
 		for (uint64_t i = 0xFFFFFFFFULL; i < 0xFFFFFFFFFFFFFFFFULL; i++) {
 			size_t ref = bit_count_ref(i);
 			size_t test = PVCore::PVBitCount::bit_count(i);
+			if (ref != test) {
 #pragma omp critical
-			PV_VALID(ref, test, "i", i);
+				std::cerr << "failed at " << i << ": " << test
+				          << " but " << ref << " was expected" << std::endl;
+				ret = 1;
+			}
 		}
+		std::cout << "done..." << std::endl;
+		PV_ASSERT_VALID(ret == 0);
 	}
-
-	std::cout << "64-bit tests done..." << std::endl;
 
 	return ret;
 }
