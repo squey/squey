@@ -11,7 +11,9 @@
 
 static Picviz::PVView_sp g_fake_view;
 static Picviz::PVPlotted::uint_plotted_table_t g_norm_plotted;
-
+static const char *extra_param_text = nullptr;
+static int extra_param_num = 0;
+static bool input_is_file = false;
 
 static void init_rand_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
@@ -41,9 +43,33 @@ static void init_qt_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nr
 	}
 }
 
+void set_extra_param(int num, const char* usage_text)
+{
+	extra_param_num = num;
+	extra_param_text = usage_text;
+}
+
 void usage(const char* path)
 {
-	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl;
+	std::cerr << "Usage: " << path << " plotted_file (0|1) | (0|1) nrows ncols";
+	if (extra_param_num != 0) {
+		std::cerr << " " << extra_param_text;
+	}
+	std::cerr << std::endl;
+}
+
+int extra_param_start_at()
+{
+	if (input_is_file) {
+		return 3;
+	} else {
+		return 4;
+	}
+}
+
+bool input_is_a_file()
+{
+	return input_is_file;
 }
 
 Picviz::PVView_sp& get_view_sp() { return g_fake_view; }
@@ -56,7 +82,7 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 	Picviz::PVPlotted::uint_plotted_table_t &norm_plotted = g_norm_plotted;
 	QString fplotted(argv[1]);
 	if ((fplotted == "0") || (fplotted == "1")) {
-		if (argc < 4) {
+		if (argc < (4 + extra_param_num)) {
 			usage(argv[0]);
 			return NULL;
 		}
@@ -76,15 +102,16 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 		} else {
 			init_qt_plotted(norm_plotted, nrows, ncols);
 		}
+		input_is_file = false;
 	}
 	else
 	{
-		bool plotted_uint = false;
-		if (argc >= 3) {
-			plotted_uint = (argv[2][0] == '1');
+		if (argc < (3 + extra_param_num)) {
+			usage(argv[0]);
+			return NULL;
 		}
 
-		if (plotted_uint) {
+		if (argv[2][0] == '1') {
 			if (!Picviz::PVPlotted::load_buffer_from_file(norm_plotted, nrows, ncols, true, QString(argv[1]))) {
 				std::cerr << "Unable to load plotted !" << std::endl;
 				return NULL;
@@ -104,6 +131,8 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
 			return NULL;
 		}
+
+		input_is_file = true;
 	}
 
 	//PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
