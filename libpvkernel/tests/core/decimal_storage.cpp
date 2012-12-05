@@ -2,6 +2,8 @@
 #include <iostream>
 #include <type_traits>
 
+#include <libgen.h>
+
 typedef PVCore::PVDecimalStorage<32> decimal_t;
 
 void f(size_t n, float* fr, float const* fa, float const* fb)
@@ -27,8 +29,18 @@ struct holder
 	}
 };
 
+void usage(char* progname)
+{
+	std::cout << "usage: " << basename(progname) << " size" << std::endl;
+}
+
 int main(int argc, char** argv)
 {
+	if (argc != 2) {
+		usage(argv[0]);
+		return 1;
+	}
+
 	PVCore::PVDecimalStorage<32> s;
 
 	static_assert(std::is_pod<PVCore::PVDecimalStorage<32>>::value, "PVCore::PVDecimalStorage isn't a POD!"); 

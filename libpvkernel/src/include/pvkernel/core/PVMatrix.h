@@ -163,6 +163,7 @@ public:
 template <typename T, typename IndexRow = uint32_t, typename IndexCol = uint32_t, template <class Talloc> class Alloc = std::allocator>
 class PVMatrix
 {
+public:
 	typedef Alloc<T> allocator_type;
 	typedef T value_type;
 	typedef boost::is_pod<value_type> value_pod;
@@ -182,7 +183,7 @@ public:
 	class PVMatrixLine
 	{
 	public:
-		PVMatrixLine(PVMatrix<T, IndexRow, IndexCol, Alloc> const& parent, index_row row)
+		PVMatrixLine(PVMatrix<T, IndexRow, IndexCol, Alloc>& parent, index_row row)
 		{
 			_p = parent.get_row_ptr(row);
 			_size = parent.get_width();

@@ -8,26 +8,42 @@
 #include <pvkernel/core/PVUnicodeString.h>
 #include <iostream>
 
+#include <pvkernel/core/picviz_assert.h>
+
 int main()
 {
 	QString refstr("salut");
 	PVCore::PVUnicodeString16 unistr((const PVCore::PVUnicodeString16::utf_char*) refstr.constData(), refstr.size());
-	std::cout << unistr.compare("salut") << " " << refstr.compare("salut") << std::endl;
-	std::cout << unistr.compare("salu") << " " << refstr.compare("salu") << std::endl;
-	std::cout << unistr.compare("salute") << " " << refstr.compare("salute") << std::endl;
 
+	PV_VALID(unistr.compare("salut"), 0);
+	PV_VALID(refstr.compare("salut"), 0);
+
+	PV_VALID(unistr.compare("salu"), 1);
+	PV_VALID(refstr.compare("salu"), 1);
+
+	PV_VALID(unistr.compare("salute"), -1);
+	PV_VALID(refstr.compare("salute"), -1);
+
+	/* sorted_strs must be sorted by hand (sorry:)
+	 * ress must be initialized according to the sorting algorithm, hoping it won't change :-)
+	 */
 	const char* strs[] = {"Alarme","éa","Éb","FTW","test","Coralie","Damned","1924test"};
-	const size_t size = sizeof(strs)/sizeof(const char*);
-	std::cout << size << std::endl;
-	std::sort(strs, strs+size, [=](const char* a, const char* b)
+	const char* sorted_strs[] = {strs[7], strs[0], strs[5], strs[6], strs[1], strs[2], strs[3], strs[4]};
+	const int ress[]   = {1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, 1, -1 };
+
+	const size_t size = sizeof(strs)/sizeof(strs[0]);
+
+	size_t i = 0;
+	std::sort(strs, strs+size, [=, &i, &ress](const char* a, const char* b)
 			{
-				std::cout << "Compare " << a << " and " << b << ": ";
 				int ret = PVCore::PVUnicodeString(a, strlen(a)).compareNoCase(PVCore::PVUnicodeString(b, strlen(b)));
-				std::cout << ret << std::endl;
+				PV_VALID(ret, ress[i], "a", a, "b", b);
+				++i;
 				return ret < 0;
 			});
-	for (const char* s: strs) {
-		std::cout << s << std::endl;
+
+	for (size_t i = 0; i < size; ++i) {
+		PV_VALID(strs[i], sorted_strs[i]);
 	}
 
 	return 0;

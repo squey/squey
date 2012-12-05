@@ -12,6 +12,8 @@
 #include <time.h>
 #include <tbb/tick_count.h>
 
+#include <pvkernel/core/picviz_stat.h>
+
 typedef std::pair<int, int> pair_int_t;
 typedef std::vector<pair_int_t> vec_t;
 
@@ -69,25 +71,25 @@ int main(int argc, char** argv)
 	start = tbb::tick_count::now();
 	std::stable_sort(v.begin(), v.end(), less_p);
 	end = tbb::tick_count::now();
-	std::cout << "stable sort: " << (end-start).seconds() << std::endl;
+	PV_STAT_TIME_SEC("stable_sort", (end-start).seconds());
 	vec_t v_save = v;
 
 	start = tbb::tick_count::now();
 	PVCore::stable_sort_reverse(v.begin(), v.end(), comp);
 	end = tbb::tick_count::now();
-	std::cout << "stable reverse: " << (end-start).seconds() << std::endl;
+	PV_STAT_TIME_SEC("stable_reverse", (end-start).seconds());
 
 	v = v_save;
 	start = tbb::tick_count::now();
 	std::stable_sort(v.begin(), v.end(), greater_p);
 	end = tbb::tick_count::now();
-	std::cout << "reverse sort from sorted: " << (end-start).seconds() << std::endl;
+	PV_STAT_TIME_SEC("reverse_sort_from_sorted", (end-start).seconds());
 
 	v = v_org;
 	start = tbb::tick_count::now();
 	std::stable_sort(v.begin(), v.end(), greater_p);
 	end = tbb::tick_count::now();
-	std::cout << "reverse sort from original: " << (end-start).seconds() << std::endl;
+	PV_STAT_TIME_SEC("reverse_sort_from_original", (end-start).seconds());
 
 	return 0;
 }

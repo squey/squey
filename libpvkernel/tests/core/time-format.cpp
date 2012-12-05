@@ -15,6 +15,8 @@
 
 #include <iostream>
 
+#include <pvkernel/core/picviz_assert.h>
+
 // Reference values are computed thanks to http://www.epochconverter.com/
 int main(int argc, char** argv)
 {
@@ -42,6 +44,7 @@ int main(int argc, char** argv)
 	UErrorCode err_ = U_ZERO_ERROR;
 	Calendar* cal = Calendar::createInstance(err_);
 	Calendar* cal_copy = Calendar::createInstance(err_);
+	size_t line_num = 0;
 	while (!in.atEnd()) {
 		QString line = in.readLine().trimmed();
 		if (line.size() == 0)
@@ -67,44 +70,35 @@ int main(int argc, char** argv)
 			continue;
 
 		PVCore::PVDateTimeParser parser(QStringList() << time_format);
-		if (!parser.mapping_time_to_cal(time_str, cal)) {
-			std::cout << "Unable to parse " << qPrintable(time_str) << std::endl;
-			return 1;
-		}
+
+		PV_ASSERT_VALID(parser.mapping_time_to_cal(time_str, cal),
+		                "time_str", qPrintable(time_str));
+
 		// Copy the date time parser and try it !
 		PVCore::PVDateTimeParser parser_copy(parser);
-		if (!parser_copy.mapping_time_to_cal(time_str, cal_copy)) {
-			std::cout << "Unable to parse " << qPrintable(time_str) << " with a copy of the parser object." << std::endl;
-			return 1;
-		}
-		if (!cal->equals(*cal_copy, err_)) {
-			UErrorCode err = U_ZERO_ERROR;
-			std::cout << "A copy of the parser object gave us another value: org " << cal->getTime(err) << " != " << cal_copy->getTime(err) << std::endl;
-			return 1;
-		}
+
+		PV_ASSERT_VALID(parser_copy.mapping_time_to_cal(time_str, cal_copy),
+		                "time_str", qPrintable(time_str));
+
 		UErrorCode err = U_ZERO_ERROR;
+		PV_ASSERT_VALID(cal->equals(*cal_copy, err_) != 0,
+		                "line_num", line_num,
+		                "time_str", qPrintable(time_str),
+		                "cal", cal->getTime(err),
+		                "cal_copy", cal_copy->getTime(err));
+
+		err = U_ZERO_ERROR;
 		int64_t res = cal->getTime(err);
 		int32_t s = cal->get(UCAL_SECOND, err);
 		int32_t m = cal->get(UCAL_MINUTE, err);
 		int32_t h = cal->get(UCAL_HOUR_OF_DAY, err);
-		std::cout << qPrintable(time_str) << "," << qPrintable(time_format) << "," << res << "," << h_ref << "," << m_ref << "," << s_ref;
-		if (res != res_ref) {
-			std::cout << " failed (res!= " << res_ref << ")" << std::endl;
-			return 1;
-		}
-		if (h != h_ref) {
-			std::cout << " failed (h!=" << h << ")" << std::endl;
-			return 1;
-		}
-		if (m != m_ref) {
-			std::cout << " failed (m!=" << m << ")" << std::endl;
-			return 1;
-		}
-		if (s != s_ref) {
-			std::cout << " failed (s!=" << s << ")" << std::endl;
-			return 1;
-		}
-		std::cout << std::endl;
+
+		PV_VALID(res, res_ref);
+		PV_VALID(h, h_ref);
+		PV_VALID(m, m_ref);
+		PV_VALID(s, s_ref);
+
+		++line_num;
 	}
 
 	delete cal;

@@ -74,12 +74,12 @@ declare_pv_test(Tcore_datatree "datatree.cpp" "pvkernel;${QT_LIBRARIES}")
 add_test(TestDataTree Tcore_datatree)
 
 # Shared Pointer
-#add_executable(Tcore_shared_ptr shared_ptr.cpp)
-#target_link_libraries(Tcore_shared_ptr pvkernel)
+add_executable(Tcore_shared_ptr shared_ptr.cpp)
+target_link_libraries(Tcore_shared_ptr pvkernel)
 
 # Weak Pointer
-#add_executable(Tcore_weak_ptr weak_ptr.cpp)
-#target_link_libraries(Tcore_weak_ptr pvkernel)
+add_executable(Tcore_weak_ptr weak_ptr.cpp)
+target_link_libraries(Tcore_weak_ptr pvkernel)
 
 # Function traits
 declare_pv_test(Tcore_function_traits "function_traits.cpp" "pvkernel")

@@ -31,6 +31,9 @@
 
 #include <valgrind/callgrind.h>
 
+#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/picviz_stat.h>
+
 #define NLINES 10000000
 
 #define NTRIES 1
@@ -100,7 +103,6 @@ double bench(PVRush::PVExtractor &ext, size_t nlines, size_t nthreads)
 	fflush(stdout);
 	ext.force_number_axes(7);
 	ext.start_controller();
-	double dur = 0;
 	std::vector<double> durs;
 	durs.reserve(NTRIES);
 	for (int i = 0; i < NTRIES; i++) {
@@ -225,23 +227,21 @@ int main(int argc, char** argv)
 	bool only_rx = atoi(argv[3]) == 1;
 
 	PVFilter::PVChunkFilter chk_flt_null;
-	tbb::tick_count::interval_t durd;
 
 	PVFilter::PVPluginsLoad::load_all_plugins();
 
 	// Disk reading performance
 	printf("Disk reading performance..");
 	clear_disk_cache();
-	tbb::tick_count start = tbb::tick_count::now();
+	BENCH_START(read_files);
 	size_t total_read = read_files(files, nfiles, chunk_size);
-	tbb::tick_count end = tbb::tick_count::now();
-	durd = end-start;
-	printf(" read %0.4f MB in %0.4f s", (double)(total_read)/(1024*1024), durd.seconds());
-	print_perf(durd.seconds(), total_read);
+	BENCH_STOP(read_files);
+	printf(" read %0.4f MB in %0.4f s", (double)(total_read)/(1024*1024), BENCH_END_TIME(read_files));
+	BENCH_STAT_IN_BW(read_files, 1, total_read);
 
 	//clear_disk_cache();
 
-	double dur;	
+	double dur;
 
 	// Regexp setup
 	PVFilter::PVFieldsSplitter::p_type regexp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
@@ -257,18 +257,18 @@ int main(int argc, char** argv)
 		// Serial reading performance with no transformation ("architecture" overhead)
 		printf("Serial reading performance with no transformation (\"architecture\" overhead)");
 		dur = bench(lfiles, chk_flt_null.f(), chunk_size, NLINES, nchunks);
-		print_perf(dur, total_read);
+		PV_STAT_MEM_BW("serial_reading_simple", total_read / dur);
 		// Serial reading with UTF16 transformation
 		printf("Serial reading with UTF16 transformation");
 		//CALLGRIND_START_INSTRUMENTATION
 		dur = bench_utf16(lfiles, chk_flt_null.f(), chunk_size, NLINES, nchunks);
 		//CALLGRIND_STOP_INSTRUMENTATION
-		print_perf(dur, total_read);
+		PV_STAT_MEM_BW("serial_reading_utf16", total_read / dur);
 
 		// Serial reading with UTF16 transformation and alignement
 		printf("Serial reading with UTF16 transformation and alignement");
 		dur = bench_utf16_align(lfiles, chk_flt_null.f(), chunk_size, NLINES, nchunks);
-		print_perf(dur, total_read);
+		PV_STAT_MEM_BW("serial_reading_utf16_align", total_read / dur);
 
 		// Field creation
 		printf("Parallel field creation (2)");
@@ -276,13 +276,15 @@ int main(int argc, char** argv)
 		PVFilter::PVElementFilterByFields felt2(filter_fc.f());
 		PVFilter::PVChunkFilterByElt fchunk2(felt2.f());
 		dur = bench_utf16_align(lfiles, fchunk2.f(), chunk_size, NLINES, nchunks);
-		print_perf(dur, total_read);
+		PV_STAT_MEM_BW("parallel_reading_utf16_align_2", total_read / dur);
 
 		for (int i = 2; i < 10; i++) {
+			char title[256];
 			filter_fc.set_nfields(i*2);
 			printf("Parallel field creation (%d)", i*2);
+			snprintf(title, 256, "parallel_reading_utf16_align_%d", i * 2);
 			dur = bench_utf16_align(lfiles, fchunk2.f(), chunk_size, NLINES, nchunks);
-			print_perf(dur, total_read);
+			PV_STAT_MEM_BW(title, total_read / dur);
 		}
 
 		// Parallel URL splitter only
@@ -291,7 +293,7 @@ int main(int argc, char** argv)
 		printf("Parallel simple regexp splitter only");
 
 		dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES, nchunks);
-		print_perf(dur, total_read);
+		PV_STAT_MEM_BW("parallel_simple_url_splitter", total_read / dur);
 	}
 
 #if 0
@@ -315,9 +317,8 @@ int main(int argc, char** argv)
 	args["full-line"] = true;
 	fre_in->set_args(args);
 	dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES, nchunks);
-	print_perf(dur, total_read);
+	PV_STAT_MEM_BW("parallel_squid_url_splitter", total_read / dur);
 	// Parallel regexp grep only
-	
 
 	return 0;
 }

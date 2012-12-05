@@ -17,6 +17,7 @@
 #include <QDir>
 #include "helpers.h"
 
+// FIXME: what can be asserted or measured?
 using std::cout;
 using std::cerr;
 using std::endl;

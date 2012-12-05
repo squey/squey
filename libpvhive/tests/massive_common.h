@@ -197,11 +197,4 @@ private:
 
 Property* get_prop(Block& b, int i);
 
-
-/*****************************************************************************
- * display stats
- *****************************************************************************/
-
-void print_stat(const char *what, tbb::tick_count t1, tbb::tick_count t2, long num);
-
 #endif // MASSIVE_COMMON_H

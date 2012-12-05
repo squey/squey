@@ -83,6 +83,14 @@ target_link_libraries(masks ${LINK_LIBRARIES})
 #add_executable(qgraphicsitem_events qgraphicsitem_events.cpp)
 #target_link_libraries(qgraphicsitem_events ${LINK_LIBRARIES})
 
+add_executable(Tquadtree_dump_load quadtree_dump_load.cpp)
+target_link_libraries(Tquadtree_dump_load ${LINK_LIBRARIES})
+add_test(TestQuadTreeDumpLoad Tquadtree_dump_load 100000000 42)
+
+add_executable(Tzoomed_zone_tree_dump_load zoomed_zone_tree_dump_load.cpp common.cpp)
+target_link_libraries(Tzoomed_zone_tree_dump_load ${LINK_LIBRARIES})
+#add_test(TestZoomedZoneTreeDumpLoad Tzoomed_zone_tree_dump_load 0 100 2)
+
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 	cuda_compile(CUDA_KERNELS bci_cuda.cu)

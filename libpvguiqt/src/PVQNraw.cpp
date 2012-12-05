@@ -18,6 +18,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(PVRush::PVNraw const& nraw, PVCol c, P
 
 	// PVListUniqStringsDlg takes ownership of strings inside `values'
 	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(values, parent);
+	dlg->setWindowTitle("Unique values of axis '" + nraw.get_axis_name(c) +"'");
 	dlg->exec();
 
 	return true;

@@ -425,7 +425,7 @@ PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_
 			short_strings << info.fileName();
 			filenames << input->human_name();
 		}
-		short_string = short_strings.join(", ") + " [" + src_desc.get_format().get_format_name() +"]";
+		short_string = "Aggregation [" + src_desc.get_format().get_format_name() +"]";
 		long_string = "[" + src_desc.get_format().get_format_name() +"]\n" + filenames.join("\n");
 	}
 

@@ -20,12 +20,10 @@ if [ ! -d "$FILES_DIR" ]; then
 	exit 1
 fi
 
-pushd $FILES_DIR 1>/dev/null 2>/dev/null
-REV=$(/usr/bin/svnversion)
-popd 1>/dev/null 2>/dev/null
+REV=$(cd "$FILES_DIR"; /usr/bin/svnversion)
 
-if [ $? -ne 0 ]; then
-	echo "Unable to get SVN revision froù $FILES_DIR" 1>&2
+if echo $REV | egrep -q -v '^[0-9]*:[0-9]*$'; then
+	echo "Unable to get SVN revision from $FILES_DIR" 1>&2
 	exit 1
 fi
 CMP_REV=$(cat "$FILE_REV")

@@ -10,24 +10,34 @@
 
 #include <pvkernel/core/PVSharedPointer.h>
 
+#include <pvkernel/core/picviz_assert.h>
+
 struct pouet
 {
-	std::string print()
+	pouet *get_addr()
 	{
-		std::stringstream ss;
-		ss << "pouet: " << this;
-		return ss.str();
+		return this;
 	}
 };
 
 typedef struct PVCore::PVSharedPtr<pouet> pouet_p;
 
-template <typename T>
-void deleter(T *p)
+/* This code is required because GCC seems to distinguish a lambda function using
+ * upper-scope variables and a lambda function which does not use upper-scope
+ * variables.
+ */
+static bool deleted_status;
+
+static void deleted_status_set()
 {
-	std::cout << "    template deleter for address "
-	          << p  << std::endl;
-	delete p;
+	deleted_status = true;
+}
+
+// same as above
+void deleter(void *p)
+{
+	(void)p;
+	deleted_status = true;
 }
 
 int main()
@@ -36,44 +46,42 @@ int main()
 	std::cout << "creation" << std::endl;
 	std::cout << "  p_p1 = new pouet..." << std::endl;
 	pouet_p p_p1(new pouet);
+	pouet_p p_p2;
 
-	std::cout << "p_p1.use_count()" << p_p1.use_count() << std::endl;
-	assert(p_p1.use_count() == 1);
-	std::cout << "    p_p1.use_count() -> " << p_p1.use_count() << std::endl;
+	std::cout << "##########################################" << std::endl;
+	std::cout << "test of ::get()" << std::endl;
+	PV_VALID(p_p1.use_count(), 1L);
+	PV_ASSERT_VALID(p_p1.get() != nullptr);
+
+	PV_VALID(p_p2.use_count(), 1L);
+	PV_ASSERT_VALID(p_p2.get() == nullptr);
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test in sub scope" << std::endl;
 	{
 		std::cout << "  enter scope" << std::endl;
 		pouet_p p_p2 = p_p1;
-
 		std::cout << "    p_p2 = p_p1" << std::endl;
-		assert(p_p1.use_count() == 2);
-		assert(p_p2.use_count() == 2);
-		std::cout << "    p_p1.use_count() -> " << p_p1.use_count() << std::endl;
-		std::cout << "    p_p2.use_count() -> " << p_p2.use_count() << std::endl;
+
+		PV_ASSERT_VALID(p_p2.get() == p_p1.get());
+		PV_VALID(p_p1.use_count(), 2L);
+		PV_VALID(p_p2.use_count(), 2L);
 	}
 
 	std::cout << "  leave scope" << std::endl;
-	std::cout << "    p_p1.use_count() -> " << p_p1.use_count() << std::endl;
+	PV_VALID(p_p1.use_count(), 1L);
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of reset()" << std::endl;
 	std::cout << "  p_p2 = p_p1" << std::endl;
-	pouet_p p_p2 = p_p1;
+	p_p2 = p_p1;
 
-	assert(p_p1.use_count() == 2);
-	assert(p_p2.use_count() == 2);
-
-	std::cout << "    p_p1.use_count() -> " << p_p1.use_count() << std::endl;
 	std::cout << "  call to p_p2.reset()" << std::endl;
 	p_p2.reset();
 
-	assert(p_p1.use_count() == 1);
-	assert(p_p2.use_count() == 1);
-
-	std::cout << "    p_p1.use_count() -> " << p_p1.use_count() << std::endl;
-	std::cout << "    p_p2.use_count() -> " << p_p2.use_count() << std::endl;
+	PV_ASSERT_VALID(p_p2.get() != p_p1.get());
+	PV_VALID(p_p1.use_count(), 1L);
+	PV_VALID(p_p2.use_count(), 1L);
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of reset() in sub scope" << std::endl;
@@ -82,58 +90,41 @@ int main()
 		std::cout << "    p_p3 = p_p1" << std::endl;
 		pouet_p p_p3 = p_p1;
 
-		std::cout << "    p_p1.use_count() -> " << p_p1.use_count() << std::endl;
-		std::cout << "    p_p3.use_count() -> " << p_p3.use_count() << std::endl;
+		PV_ASSERT_VALID(p_p3.get() == p_p1.get());
+		PV_VALID(p_p1.use_count(), 2L);
+		PV_VALID(p_p3.use_count(), 2L);
 
 		std::cout << "  call to p_p3.reset()" << std::endl;
 		p_p3.reset();
 
-		assert(p_p1.use_count() == 1);
-		assert(p_p3.use_count() == 1);
-
-		std::cout << "    p_p1.use_count() -> " << p_p1.use_count() << std::endl;
-		std::cout << "    p_p3.use_count() -> " << p_p3.use_count() << std::endl;
+		PV_ASSERT_VALID(p_p3.get() != p_p1.get());
+		PV_VALID(p_p1.use_count(), 1L);
+		PV_VALID(p_p3.use_count(), 1L);
 	}
 
 	std::cout << "  leave scope" << std::endl;
-	std::cout << "    p_p1.use_count() -> " << p_p1.use_count() << std::endl;
-	assert(p_p1.use_count() == 1);
+	PV_VALID(p_p1.use_count(), 1L);
 
 	std::cout << std::boolalpha;
 
 	std::cout << "##########################################" << std::endl;
-	std::cout << "test of get()" << std::endl;
-	std::cout << "  p_1 is set" << std::endl;
-	std::cout << "  p_2 is reset" << std::endl;
-	p_p2.reset();
-
-	assert(p_p1.get() != nullptr);
-	std::cout << "    p_1.get() -> " << p_p1.get() << std::endl;
-	assert(p_p2.get() == nullptr);
-	std::cout << "    p_2.get() -> " << p_p2.get() << std::endl;
-
-	std::cout << "##########################################" << std::endl;
 	std::cout << "test of operator->" << std::endl;
 
-	std::cout << "    p_1->print() -> '" << p_p1->print() << "'" << std::endl;
-	//std::cout << "    p_2->print() -> '" << p_p2->print() << "'" << std::endl;
+	PV_VALID(p_p1->get_addr(), p_p1.get());
+	PV_VALID(p_p2->get_addr(), p_p2.get());
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of operator*" << std::endl;
 
-	std::cout << "    (*p_1).print() -> '" << (*p_p1).print() << "'" << std::endl;
-	//std::cout << "    (*p_2).print() -> '" << (*p_p2).print() << "'" << std::endl;
+	PV_VALID((*p_p1).get_addr(), p_p1.get());
+	PV_VALID((*p_p2).get_addr(), p_p2.get());
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of operator bool" << std::endl;
-	std::cout << "  p_1 is set" << std::endl;
-	std::cout << "  p_2 is reset" << std::endl;
 	p_p2.reset();
 
-	assert(p_p1);
-	std::cout << "    (bool)p_1 -> " << (bool)p_p1 << std::endl;
-	assert(!p_p2);
-	std::cout << "    (bool)p_2 -> " << (bool)p_p2 << std::endl;
+	PV_VALID((bool)p_p1, true);
+	PV_VALID((bool)p_p2, false);
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of comparison operator" << std::endl;
@@ -144,69 +135,63 @@ int main()
 	pouet_p p_p3 = pouet_p(new pouet);
 
 	std::cout << "  operator ==" << std::endl;
-	assert(p_p1 == p_p2);
-	std::cout << "    p_1 == p_p2 -> " << (p_p1 == p_p2) << std::endl;
-	assert(p_p1 != p_p3);
-	std::cout << "    p_1 == p_p3 -> " << (p_p1 == p_p3) << std::endl;
+	PV_VALID(p_p1 == p_p2, true);
+	PV_VALID(p_p1 == p_p3, false);
 
 	std::cout << "  operator !=" << std::endl;
-	assert(!(p_p1 != p_p2));
-	std::cout << "    p_1 != p_p2 -> " << (p_p1 != p_p2) << std::endl;
-	assert(!(p_p1 == p_p3));
-	std::cout << "    p_1 != p_p3 -> " << (p_p1 != p_p3) << std::endl;
+
+	PV_VALID(p_p1 != p_p2, false);
+	PV_VALID(p_p1 != p_p3, true);
 
 	std::cout << "  operator <" << std::endl;
-	assert(!(p_p1 < p_p2));
-	std::cout << "    p_1 < p_p2 -> " << (p_p1 < p_p2) << std::endl;
-	std::cout << "    p_1 < p_p3 -> " << (p_p1 < p_p3) << std::endl;
+
+	PV_VALID(p_p1 < p_p2, false);
+	PV_VALID(p_p1 < p_p3, true);
 
 	std::cout << "  operator <=" << std::endl;
-	assert(p_p1 <= p_p2);
-	std::cout << "    p_1 <= p_p2 -> " << (p_p1 <= p_p2) << std::endl;
-	std::cout << "    p_1 <= p_p3 -> " << (p_p1 <= p_p3) << std::endl;
+
+	PV_VALID(p_p1 <= p_p2, true);
+	PV_VALID(p_p1 <= p_p3, true);
 
 	std::cout << "  operator >" << std::endl;
-	assert(!(p_p1 > p_p2));
-	std::cout << "    p_1 > p_p2 -> " << (p_p1 > p_p2) << std::endl;
-	std::cout << "    p_1 > p_p3 -> " << (p_p1 > p_p3) << std::endl;
+	PV_VALID(p_p1 > p_p2, false);
+	PV_VALID(p_p1 > p_p3, false);
 
 	std::cout << "  operator >=" << std::endl;
-	assert(p_p1 >= p_p2);
-	std::cout << "    p_1 >= p_p2 -> " << (p_p1 >= p_p2) << std::endl;
-	std::cout << "    p_1 >= p_p3 -> " << (p_p1 >= p_p3) << std::endl;
+	PV_VALID(p_p1 >= p_p2, true);
+	PV_VALID(p_p1 >= p_p3, false);
 
-	std::cout << "##########################################" << std::endl;
-	std::cout << "p_p1.reset() (needed for next steps)" << std::endl;
-	p_p1.reset();
+	pouet *p;
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of lambda deleter on one shared_ptr" << std::endl;
-	pouet *p = new pouet;
-	std::cout << "  p = " << p << std::endl;
+	p = new pouet;
 
 	p_p2 = pouet_p(p);
 	std::cout << "  p_p2 is set" << std::endl;
 	std::cout << "  p_p2.set_deleter(...)" << std::endl;
-	p_p2.set_deleter([&](pouet* p)
+	p_p2.set_deleter([](void *a)
 	                 {
-		                 std::cout << "    lambda deleter for type pouet "
-		                           << p << std::endl;
-		                 delete p;
+		                 deleted_status_set();
 	                 });
+	deleted_status = false;
 	std::cout << "  p_p2.reset()" << std::endl;
 	p_p2.reset();
+	PV_VALID(deleted_status, true);
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of template deleter on one shared_ptr" << std::endl;
 	p = new pouet;
-	std::cout << "  p = " << p << std::endl;
 
 	p_p2 = pouet_p(p);
 	std::cout << "  p_p2 is set" << std::endl;
 	std::cout << "  p_p2.set_delete(...)" << std::endl;
-	p_p2.set_deleter(deleter<pouet>);
+	p_p2.set_deleter(deleter);
+
+	deleted_status = false;
 	std::cout << "  p_p2.reset()" << std::endl;
 	p_p2.reset();
+	PV_VALID(deleted_status, true);
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of deleter between two shared_ptr" << std::endl;
@@ -215,63 +200,63 @@ int main()
 	p_p2 = p_p3;
 
 	std::cout << "  p_p2.set_deleter(...)" << std::endl;
-	p_p2.set_deleter([&](pouet* p)
+	p_p2.set_deleter([](void* p)
 	                 {
-		                 std::cout << "    lambda deleter for type pouet "
-		                           << p << std::endl;
-		                 delete p;
+		                 deleted_status_set();
 	                 });
+
+	deleted_status = false;
 	std::cout << "  p_p2.reset()" << std::endl;
 	p_p2.reset();
+	PV_VALID(deleted_status, false);
 	std::cout << "  p_p3.reset()" << std::endl;
 	p_p3.reset();
+	PV_VALID(deleted_status, true);
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of make_shared(p)" << std::endl;
 
 	p = new pouet;
-	std::cout << "  p = " << p << std::endl;
 
 	p_p2 = PVCore::make_shared<pouet>(p);
-	std::cout << "  p_p2 is set" << std::endl;
-	std::cout << "  (bool)p_p2 -> " << (bool)p_p2 << std::endl;
-	std::cout << "  p_p2.get() -> " << p_p2.get() << std::endl;
-	std::cout << "  p_p2.use_count() -> " << p_p2.use_count() << std::endl;
-	std::cout << "  p_p2.reset()" << std::endl;
+
+	PV_VALID((bool)p_p2, true);
+	PV_VALID(p_p2.get(), p);
+	PV_VALID(p_p2.use_count(), 1L);
 	p_p2.reset();
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of make_shared(p, lambda deleter)" << std::endl;
 
 	p = new pouet;
-	std::cout << "  p = " << p << std::endl;
 
-	p_p2 = PVCore::make_shared<pouet>(p, [&](pouet* p)
+	p_p2 = PVCore::make_shared<pouet>(p, [](void* p)
 	                                  {
-		                                  std::cout << "    lambda deleter for type pouet "
-		                                            << p  << std::endl;
-		                                  delete p;
+		                                  deleted_status_set();
 	                                  });
-	std::cout << "  p_p2 is set" << std::endl;
-	std::cout << "  (bool)p_p2 -> " << (bool)p_p2 << std::endl;
-	std::cout << "  p_p2.get() -> " << p_p2.get() << std::endl;
-	std::cout << "  p_p2.use_count() -> " << p_p2.use_count() << std::endl;
+
+	PV_VALID((bool)p_p2, true);
+	PV_VALID(p_p2.get(), p);
+	PV_VALID(p_p2.use_count(), 1L);
+	deleted_status = false;
 	std::cout << "  p_p2.reset()" << std::endl;
 	p_p2.reset();
+	PV_VALID(deleted_status, true);
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of make_shared(p, template deleter)" << std::endl;
 
 	p = new pouet;
-	std::cout << "  p = " << p << std::endl;
 
-	p_p2 = PVCore::make_shared<pouet>(p, deleter<pouet>);
-	std::cout << "  p_p2 is set" << std::endl;
-	std::cout << "  (bool)p_p2 -> " << (bool)p_p2 << std::endl;
-	std::cout << "  p_p2.get() -> " << p_p2.get() << std::endl;
-	std::cout << "  p_p2.use_count() -> " << p_p2.use_count() << std::endl;
+	p_p2 = PVCore::make_shared<pouet>(p, deleter);
+
+	PV_VALID((bool)p_p2, true);
+	PV_VALID(p_p2.get(), p);
+	PV_VALID(p_p2.use_count(), 1L);
+	deleted_status = false;
 	std::cout << "  p_p2.reset()" << std::endl;
 	p_p2.reset();
+	PV_VALID(deleted_status, true);
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "end (there must be no text after)" << std::endl;

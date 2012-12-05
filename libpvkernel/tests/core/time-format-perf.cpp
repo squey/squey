@@ -14,6 +14,8 @@
 
 #include <iostream>
 
+#include <pvkernel/core/picviz_stat.h>
+
 int main(int argc, char** argv)
 {
 	QCoreApplication app(argc, argv);
@@ -35,7 +37,7 @@ int main(int argc, char** argv)
 		parser.mapping_time_to_cal(time, cal);
 	}
 	end = tbb::tick_count::now();
-	std::cout << "Mapping of " << i << " time strings in " << (end-start).seconds() << "s" << std::endl;
+	PV_STAT_PROCESS_BW("mapping_bw", i / (end-start).seconds());
 
 	return 0;
 }

@@ -22,4 +22,6 @@ int main()
 	std::cout << "sizeof PVUnicodeString:" << sizeof(PVCore::PVUnicodeString) << std::endl;
 	std::cout << "sizeof QString:" << sizeof(QString) << std::endl;
 	std::cout << "sizeof PVColor:" << sizeof(PVCore::PVColor) << ", is POD:" << boost::is_pod<PVCore::PVColor>::value << std::endl;
+
+	return 0;
 }

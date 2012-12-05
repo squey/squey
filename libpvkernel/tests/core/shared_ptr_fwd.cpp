@@ -14,6 +14,7 @@ typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, Test> d
 struct B: public data_tree_plotted_t
 { };
 
+// FIXME: what is this program supposed to test?
 int main()
 {
 	Test_p t1,t2;

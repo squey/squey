@@ -12,6 +12,8 @@
 
 using namespace PVFilter;
 
+//FIXME: what this program is supposed to test?
+
 std::list<PVFilter::PVFieldsFilterReg_p> container;
 PVFieldsBaseFilter_f get_f()
 {
@@ -26,7 +28,7 @@ int main()
 	init_env();
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVFieldsBaseFilter_f f = get_f();
-	char* test = "salut";
+	const char* test = "salut";
 
 	return 0;
 }

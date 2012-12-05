@@ -10,6 +10,9 @@
 #include <tbb/tick_count.h>
 
 #include <iostream>
+#include <sstream>
+
+#include <pvkernel/core/picviz_stat.h>
 
 int main(int argc, char** argv)
 {
@@ -22,23 +25,6 @@ int main(int argc, char** argv)
 	size_t ncols = atol(argv[2]);
 
 	PVCore::PVMatrix<float, uint32_t, uint32_t> matrix,transp;
-	matrix.resize(10, 10);
-	transp.resize(10, 10);
-	for (int i = 0; i < 10; i++) {
-		for (int j = 0; j < 10; j++) {
-			matrix.set_value(i, j, i);
-			std::cout << matrix.at(i, j) << "\t";
-		}
-		std::cout << std::endl;
-	}
-	matrix.transpose_to(transp);
-	for (int i = 0; i < 10; i++) {
-		for (int j = 0; j < 10; j++) {
-			std::cout << transp.at(i, j) << "\t";
-		}
-		std::cout << std::endl;
-	}
-
 	matrix.resize(nrows, ncols, 0);
 	transp.resize(ncols, nrows);
 
@@ -51,13 +37,18 @@ int main(int argc, char** argv)
 	matrix.transpose_to(transp);
 	end = tbb::tick_count::now();
 
-	std::cout << "Transposition time (optimised): " << (end-start).seconds() << std::endl;
+	double opt_time = (end-start).seconds();
 
 	start = tbb::tick_count::now();
 	mnoop.transpose_to(tnoop);
 	end = tbb::tick_count::now();
 
-	std::cout << "Transposition time: " << (end-start).seconds() << std::endl;
+	double time = (end-start).seconds();
+
+	std::stringstream ss;
+	ss << "transposition_speedup_" << nrows << "_" << ncols;
+
+	PV_STAT_SPEEDUP(ss.str(), time / opt_time);
 
 	return 0;
 }

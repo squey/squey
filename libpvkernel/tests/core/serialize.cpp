@@ -12,6 +12,8 @@
 
 #include <boost/enable_shared_from_this.hpp>
 
+#include <pvkernel/core/picviz_assert.h>
+
 #include <list>
 
 class PVTestChild: public boost::enable_shared_from_this<PVTestChild>
@@ -24,6 +26,16 @@ public:
 	PVTestChild(int a):
 		_a(a)
 	{ }
+
+	bool operator==(const PVTestChild& rhs) const
+	{
+		return _a == rhs._a;
+	}
+
+	bool operator!=(const PVTestChild& rhs) const
+	{
+		return _a != rhs._a;
+	}
 
 public:
 	void dump() const
@@ -48,10 +60,32 @@ public:
 	{
 		buf[0] = buf[1] = buf[2] = buf[3] = 0;
 	}
+
 	void set_buf()
 	{
 		buf[0] = buf[1] = buf[2] = buf[3] = 10;
 	}
+
+	bool operator==(const PVTestBuf& rhs) const
+	{
+		for (int i = 0; i < 4; i++) {
+			if(buf[i] != rhs.buf[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	bool operator!=(const PVTestBuf& rhs) const
+	{
+		for (int i = 0; i < 4; i++) {
+			if(buf[i] != rhs.buf[i]) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	void dump() const
 	{
 		std::cout << "buf:" << std::endl;
@@ -105,6 +139,57 @@ public:
 		_list_p1.push_back(p2);
 		_list_p2.push_back(p1);
 		_list_p2.push_back(p2);
+	}
+
+	bool operator==(const PVTestObj& rhs) const
+	{
+		if (_str != rhs._str) {
+			std::cerr << "_str not equal" << std::endl;
+			return false;
+		}
+
+		if (_a != rhs._a) {
+			std::cerr << "_a not equal" << std::endl;
+			return false;
+		}
+
+#if 0
+		// child is not saved
+		if (_child != rhs._child) {
+			std::cerr << "_child not equal" << std::endl;
+			return false;
+		}
+#endif
+
+		if (_list_children != rhs._list_children) {
+			std::cerr << "_list_children not equal" << std::endl;
+			return false;
+		}
+
+		if (_list_ints != rhs._list_ints) {
+			std::cerr << "_list_ints not equal" << std::endl;
+			return false;
+		}
+
+		if (_buf != rhs._buf) {
+			std::cerr << "_buf not equal" << std::endl;
+			return false;
+		}
+
+#if 0
+		// not saved
+		if (_list_p1 != rhs._list_p1) {
+			std::cerr << "_list_p1 not equal" << std::endl;
+			return false;
+		}
+
+		if (_list_p2 != rhs._list_p2) {
+			std::cerr << "_list_p2 not equal" << std::endl;
+			return false;
+		}
+#endif
+
+		return true;
 	}
 
 public:
@@ -186,6 +271,8 @@ int main(int argc, char** argv)
 	ar->get_root()->object("obj", obj_r);
 	obj_r.dump();
 
+	PV_ASSERT_VALID(obj == obj_r);
+
 	// Same with zip archives
 	ar = PVCore::PVSerializeArchive_p(new PVCore::PVSerializeArchiveZip("/tmp/testarch.pv", PVCore::PVSerializeArchive::write, 1));
 	ar->get_root()->object("obj", obj);
@@ -197,6 +284,8 @@ int main(int argc, char** argv)
 	ar->get_root()->object("obj", obj_r2);
 	ar->finish();
 	obj_r2.dump();
+
+	PV_ASSERT_VALID(obj == obj_r2);
 
 	return 0;
 }

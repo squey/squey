@@ -3,6 +3,16 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+configure_file(test_conv.sh.cmake test_conv.sh @ONLY)
+configure_file(test_issues.sh.cmake test_issues.sh @ONLY)
+configure_file(test_splitter_csv.sh.cmake test_splitter_csv.sh @ONLY)
+configure_file(test_splitter_duplicate.sh.cmake test_splitter_duplicate.sh @ONLY)
+configure_file(test_splitter_pcap.sh.cmake test_splitter_pcap.sh @ONLY)
+configure_file(test_splitter_regexp.sh.cmake test_splitter_regexp.sh @ONLY)
+configure_file(test_splitter_url.sh.cmake test_splitter_url.sh @ONLY)
+configure_file(test_grep_regexp.sh.cmake test_grep_regexp.sh @ONLY)
+configure_file(test_run_diff.sh.cmake test_run_diff.sh @ONLY)
+
 set(LINK_LIBRARIES pvkernel ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY})
 
 #add_definitions(-DPV_USE_RINGBUFFER)

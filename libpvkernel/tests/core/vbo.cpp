@@ -11,6 +11,19 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <sstream>
+
+#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/picviz_stat.h>
+
+std::string get_full_name(const char* name, size_t nrows, size_t ncols)
+{
+	std::stringstream ss;
+	ss << name << "_" << nrows << "_" << ncols;
+	return ss.str();
+}
+
+#define FN(NAME) get_full_name(NAME, nrows, ncols)
 
 void original_fill(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end, PVCol* cols, size_t ncols)
 {
@@ -42,7 +55,7 @@ void fill_sse(float* res, const float* plotted, size_t plotted_ncols, PVRow star
 
 void omp_fill(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end, PVCol* cols, size_t ncols)
 {
-#pragma omp parallel for num_threads(12) 
+#pragma omp parallel for num_threads(12)
 	for (PVRow r = start; r < end; r++) {
 		size_t offset_row_res = r*ncols;
 		const float* plotted_line = &plotted[r*plotted_ncols];
@@ -124,29 +137,34 @@ int main(int argc, char** argv)
 
 		BENCH_START(org);
 		original_fill(ref_res, plotted.get_data(), ncols, 0, nrows, &all_cols[0], ncols);
-		BENCH_END_TRANSFORM(org, "original", ncols*nrows, sizeof(float));
+		BENCH_STOP(org);
+		double org_time = BENCH_END_TIME(org);
 
 		BENCH_START(sse);
 		fill_sse(res, plotted.get_data(), ncols, 0, nrows, &all_cols[0], ncols);
-		BENCH_END_TRANSFORM(sse, "sse", ncols*nrows, sizeof(float));
-
-
-		CHECK(memcmp(res, ref_res, nrows*ncols*sizeof(float)) == 0);
+		BENCH_STOP(sse);
+		double sse_time = BENCH_END_TIME(sse);
+		PV_STAT_SPEEDUP(FN("fill_sse"), org_time / sse_time);
+		PV_VALID(memcmp(res, ref_res, nrows*ncols*sizeof(float)), 0);
 
 		BENCH_START(omp2);
 		omp_fill(res, plotted.get_data(), ncols, 0, nrows, &all_cols[0], ncols);
-		BENCH_END_TRANSFORM(omp2, "omp2", ncols*nrows, sizeof(float));
-		CHECK(memcmp(res, ref_res, nrows*ncols*sizeof(float)) == 0);
+		BENCH_STOP(omp2);
+		double omp2_time = BENCH_END_TIME(omp2);
+		PV_STAT_SPEEDUP(FN("fill_omp2"), org_time / omp2_time);
+		PV_VALID(memcmp(res, ref_res, nrows*ncols*sizeof(float)), 0);
 
 		BENCH_START(transp);
 		trans_fill(res, trans_plotted.get_data(), nrows, 0, nrows, &all_cols[0], ncols);
-		BENCH_END_TRANSFORM(transp, "transp", ncols*nrows, sizeof(float));
-		CHECK(memcmp(res, ref_res, nrows*ncols*sizeof(float)) == 0);
+		BENCH_STOP(transp);
+		double transp_time = BENCH_END_TIME(transp);
 
 		BENCH_START(transp2);
 		trans_fill2(res, trans_plotted.get_data(), nrows, 0, nrows, &all_cols[0], ncols);
-		BENCH_END_TRANSFORM(transp2, "transp2", ncols*nrows, sizeof(float));
-		CHECK(memcmp(res, ref_res, nrows*ncols*sizeof(float)) == 0);
+		BENCH_STOP(transp2);
+		double transp2_time = BENCH_END_TIME(transp2);
+		PV_STAT_SPEEDUP(FN("transpose_v2"), transp_time / transp2_time);
+		PV_VALID(memcmp(res, ref_res, nrows*ncols*sizeof(float)), 0);
 
 		free(res); free(ref_res);
 	}
@@ -156,19 +174,20 @@ int main(int argc, char** argv)
 		PVCore::PVMatrix<float, size_t, size_t> plotted,trans_plotted;
 		init_data(plotted, trans_plotted, &res, &ref_res, nrows, ncols);
 
-		BENCH_START(org);
 		original_fill(ref_res, plotted.get_data(), ncols, 0, nrows, &all_cols[0], ncols/2);
-		BENCH_END_TRANSFORM(org, "original", (ncols/2)*nrows, sizeof(float));
 
 		BENCH_START(transp);
 		trans_fill(res, trans_plotted.get_data(), nrows, 0, nrows, &all_cols[0], ncols/2);
-		BENCH_END_TRANSFORM(transp, "transp", (ncols/2)*nrows, sizeof(float));
-		CHECK(memcmp(res, ref_res, nrows*(ncols/2)*sizeof(float)) == 0);
+		BENCH_STOP(transp);
+		double transp_time = BENCH_END_TIME(transp);
+		PV_VALID(memcmp(res, ref_res, nrows*(ncols/2)*sizeof(float)), 0);
 
 		BENCH_START(transp2);
 		trans_fill2(res, trans_plotted.get_data(), nrows, 0, nrows, &all_cols[0], ncols/2);
-		BENCH_END_TRANSFORM(transp2, "transp2", (ncols/2)*nrows, sizeof(float));
-		CHECK(memcmp(res, ref_res, nrows*(ncols/2)*sizeof(float)) == 0);
+		BENCH_STOP(transp2);
+		double transp2_time = BENCH_END_TIME(transp2);
+		PV_STAT_SPEEDUP(FN("transpose_half_v2"), transp_time / transp2_time);
+		PV_VALID(memcmp(res, ref_res, nrows*(ncols/2)*sizeof(float)), 0);
 
 		free(res); free(ref_res);
 	}

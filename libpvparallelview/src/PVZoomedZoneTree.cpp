@@ -461,6 +461,65 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 }
 
 /*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::dump_to_file
+ *****************************************************************************/
+
+#ifdef PICVIZ_DEVELOPER_MODE
+
+bool PVParallelView::PVZoomedZoneTree::dump_to_file(const char *filename) const
+{
+	FILE *fp = fopen(filename, "w");
+	if (fp == NULL) {
+		PVLOG_ERROR("Error while opening %s for writing: %s.\n",
+		            filename, strerror(errno));
+		return false;
+	}
+
+	for (size_t i = 0; i < NBUCKETS; ++i) {
+		if (_trees[i].dump_to_file(filename, fp) == false) {
+			return false;
+		}
+	}
+
+	fclose(fp);
+	return true;
+}
+#endif
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1
+ *****************************************************************************/
+
+#ifdef PICVIZ_DEVELOPER_MODE
+
+PVParallelView::PVZoomedZoneTree *
+PVParallelView::PVZoomedZoneTree::load_from_file(const char *filename)
+{
+	FILE *fp = fopen(filename, "r");
+	if (fp == nullptr) {
+		PVLOG_ERROR("Error while opening %s for reading: %s.\n",
+		            filename, strerror(errno));
+		return nullptr;
+	}
+
+	PVZoomedZoneTree *zzt = new PVZoomedZoneTree(nullptr, nullptr, 8);
+
+	zzt->_trees = new pvquadtree [NBUCKETS];
+
+	for(size_t i = 0; i < NBUCKETS; ++i) {
+		if (zzt->_trees[i].load_from_file(filename, fp) == false) {
+			fclose(fp);
+			return nullptr;
+		}
+	}
+
+	fclose(fp);
+
+	return zzt;
+}
+#endif
+
+/*****************************************************************************
  * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1
  *****************************************************************************/
 

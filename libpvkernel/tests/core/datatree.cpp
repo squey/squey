@@ -8,6 +8,8 @@
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 
+#include <pvkernel/core/picviz_assert.h>
+
 #include <QList>
 
 /******************************************************************************
@@ -245,13 +247,7 @@ typedef typename B::p_type B_p;
 typedef typename C::p_type C_p;
 typedef typename D::p_type D_p;
 
-bool my_assert(bool res)
-{
-	assert(res);
-	return res;
-}
-
-bool delete_use_case()
+void delete_use_case()
 {
 	std::cout << "Delete use case" << std::endl;
 	A_p a1(4);
@@ -263,11 +259,9 @@ bool delete_use_case()
 	}
 
 	a1.reset();
-
-	return true;
 }
 
-bool standard_use_case()
+void standard_use_case()
 {
 	//////////////////////////////////////////
 	//  Test1 - Parent access
@@ -282,24 +276,24 @@ bool standard_use_case()
 	D_p d(c);
 
 	// Check "child_added"
-	my_assert(b1->a_was_here());
-	my_assert(b2->a_was_here());
-	my_assert(b3->a_was_here());
+	PV_ASSERT_VALID(b1->a_was_here());
+	PV_ASSERT_VALID(b2->a_was_here());
+	PV_ASSERT_VALID(b3->a_was_here());
 
 	// Auto shared check
 	B_p b1_other = b1;
 	std::cout << "B1 other: " << b1_other.get() << " , b1: " << b1.get() << std::endl;
-	my_assert(b1_other.get() == b1.get());
-	my_assert(b1_other->i() == 5);
+	PV_ASSERT_VALID(b1_other.get() == b1.get());
+	PV_ASSERT_VALID(b1_other->i() == 5);
 	b1_other = b2;
 	std::cout << "B2 other: " << b1_other.get() << " , b2: " << b2.get() << std::endl;
-	my_assert(b1_other.get() == b2.get());
-	my_assert(b1_other->i() == 0);
+	PV_ASSERT_VALID(b1_other.get() == b2.get());
+	PV_ASSERT_VALID(b1_other->i() == 0);
 
 
 	// Check invalid pointers
 	C_p c_inv = C_p::invalid();
-	my_assert(c_inv.get() == NULL);
+	PV_ASSERT_VALID(c_inv.get() == nullptr);
 
 	b1->f();
 
@@ -317,42 +311,39 @@ bool standard_use_case()
 	a2->dump();
 	std::cout << std::endl;
 
-	bool parent_access = true;
-	parent_access &= my_assert(b1->get_parent() == a1.get());
-	parent_access &= my_assert(b2->get_parent() == a1.get());
-	parent_access &= my_assert(b3->get_parent() == a2.get());
-	parent_access &= my_assert(c->get_parent() == b1.get());
-	parent_access &= my_assert(c->get_parent<A>() == a1.get());
-	parent_access &= my_assert(d->get_parent() == c.get());
-	parent_access &= my_assert(d->get_parent<B>() == b1.get());
-	parent_access &= my_assert(d->get_parent<A>() == a1.get());
-	parent_access &= my_assert(d->get_parent<C>() == c.get());
-	PVLOG_INFO("Parent access passed: %d\n", parent_access);
+	PV_ASSERT_VALID(b1->get_parent() == a1.get());
+	PV_ASSERT_VALID(b2->get_parent() == a1.get());
+	PV_ASSERT_VALID(b3->get_parent() == a2.get());
+	PV_ASSERT_VALID(c->get_parent() == b1.get());
+	PV_ASSERT_VALID(c->get_parent<A>() == a1.get());
+	PV_ASSERT_VALID(d->get_parent() == c.get());
+	PV_ASSERT_VALID(d->get_parent<B>() == b1.get());
+	PV_ASSERT_VALID(d->get_parent<A>() == a1.get());
+	PV_ASSERT_VALID(d->get_parent<C>() == c.get());
+	PVLOG_INFO("Parent access passed\n");
 
 
 	//////////////////////////////////////////
 	//  Test2 - Children access
 	//////////////////////////////////////////
-	bool children_access = true;
 	{
-	auto a1_children = a1->get_children();
-	children_access &= my_assert(a1_children.size() == 2 && a1_children[0] == b1 && a1_children[1] == b2);
-	auto a2_children = a2->get_children();
-	children_access &= my_assert(a2_children.size() == 1 && a2_children[0] == b3);
-	auto b1_children = b1->get_children();
-	children_access &= my_assert(b1_children.size() == 1 && b1_children[0] == c);
-	children_access &= my_assert(b2->get_children().size() == 0);
-	children_access &= my_assert(b3->get_children().size() == 0);
-	auto c_children = c->get_children();
-	children_access &= my_assert(c_children.size() == 1 && c_children[0] == d);
+		auto a1_children = a1->get_children();
+		PV_ASSERT_VALID(a1_children.size() == 2 && a1_children[0] == b1 && a1_children[1] == b2);
+		auto a2_children = a2->get_children();
+		PV_ASSERT_VALID(a2_children.size() == 1 && a2_children[0] == b3);
+		auto b1_children = b1->get_children();
+		PV_ASSERT_VALID(b1_children.size() == 1 && b1_children[0] == c);
+		PV_ASSERT_VALID(b2->get_children().size() == 0);
+		PV_ASSERT_VALID(b3->get_children().size() == 0);
+		auto c_children = c->get_children();
+		PV_ASSERT_VALID(c_children.size() == 1 && c_children[0] == d);
 	}
-	PVLOG_INFO("Children access passed: %d\n", children_access);
+	PVLOG_INFO("Children access passed\n");
 
 
 	//////////////////////////////////////////
 	//  Test3 - Same parent
 	//////////////////////////////////////////
-	bool same_parent = true;
 	//a1->set_parent(nullptr);
 	//a2->set_parent(nullptr);
 	b1->set_parent(a1);
@@ -364,27 +355,27 @@ bool standard_use_case()
 	d->set_parent(c);
 
 	{
-	//same_parent &= my_assert(a1->get_parent() == nullptr);
-	//same_parent &= my_assert(a2->get_parent() == nullptr);
-	same_parent &= my_assert(b1->get_parent() == a1.get());
-	same_parent &= my_assert(b2->get_parent() == a1.get());
-	same_parent &= my_assert(b3->get_parent() == a2.get());
-	same_parent &= my_assert(c->get_parent() == b1.get());
-	same_parent &= my_assert(c->get_parent<A>() == a1.get());
-	same_parent &= my_assert(d->get_parent() == c.get());
-	same_parent &= my_assert(d->get_parent<B>() == b1.get());
-	same_parent &= my_assert(d->get_parent<A>() == a1.get());
-	same_parent &= my_assert(d->get_parent<C>() == c.get());
-	auto a1_children = a1->get_children();
-	same_parent &= my_assert(a1_children.size() == 2 && a1_children[0] == b1 && a1_children[1] == b2);
-	auto a2_children = a2->get_children();
-	same_parent &= my_assert(a2_children.size() == 1 && a2_children[0] == b3);
-	auto b1_children = b1->get_children();
-	same_parent &= my_assert(b1_children.size() == 1 && b1_children[0] == c);
-	same_parent &= my_assert(b2->get_children().size() == 0);
-	same_parent &= my_assert(b3->get_children().size() == 0);
-	auto c_children = c->get_children();
-	same_parent &= my_assert(c_children.size() == 1 && c_children[0] == d);
+		//PV_ASSERT_VALID(a1->get_parent() == nullptr);
+		//PV_ASSERT_VALID(a2->get_parent() == nullptr);
+		PV_ASSERT_VALID(b1->get_parent() == a1.get());
+		PV_ASSERT_VALID(b2->get_parent() == a1.get());
+		PV_ASSERT_VALID(b3->get_parent() == a2.get());
+		PV_ASSERT_VALID(c->get_parent() == b1.get());
+		PV_ASSERT_VALID(c->get_parent<A>() == a1.get());
+		PV_ASSERT_VALID(d->get_parent() == c.get());
+		PV_ASSERT_VALID(d->get_parent<B>() == b1.get());
+		PV_ASSERT_VALID(d->get_parent<A>() == a1.get());
+		PV_ASSERT_VALID(d->get_parent<C>() == c.get());
+		auto a1_children = a1->get_children();
+		PV_ASSERT_VALID(a1_children.size() == 2 && a1_children[0] == b1 && a1_children[1] == b2);
+		auto a2_children = a2->get_children();
+		PV_ASSERT_VALID(a2_children.size() == 1 && a2_children[0] == b3);
+		auto b1_children = b1->get_children();
+		PV_ASSERT_VALID(b1_children.size() == 1 && b1_children[0] == c);
+		PV_ASSERT_VALID(b2->get_children().size() == 0);
+		PV_ASSERT_VALID(b3->get_children().size() == 0);
+		auto c_children = c->get_children();
+		PV_ASSERT_VALID(c_children.size() == 1 && c_children[0] == d);
 	}
 
 	std::cout << "a1:" << std::endl;
@@ -393,12 +384,11 @@ bool standard_use_case()
 	a2->dump(); std::cout << std::endl;
 
 
-	PVLOG_INFO("Reaffecting same parent passed: %d\n", same_parent);
+	PVLOG_INFO("Reaffecting same parent passed\n");
 
 	//////////////////////////////////////////
 	//  Test4 - Changing parent
 	//////////////////////////////////////////
-	bool changing_parent = true;
 	b1->set_parent(a2);
 
 	std::cout << "a1:" << std::endl;
@@ -408,37 +398,35 @@ bool standard_use_case()
 
 
 	{
-	// a1 <-> b2
-	auto a1_children = a1->get_children();
-	changing_parent &= my_assert(a1_children.size() == 1);
-	changing_parent &= my_assert(a1_children[0] == b2);
-	changing_parent &= my_assert(b2->get_parent() == a1.get());
-	changing_parent &= my_assert(b2->get_children().size() == 0);
+		// a1 <-> b2
+		auto a1_children = a1->get_children();
+		PV_ASSERT_VALID(a1_children.size() == 1);
+		PV_ASSERT_VALID(a1_children[0] == b2);
+		PV_ASSERT_VALID(b2->get_parent() == a1.get());
+		PV_ASSERT_VALID(b2->get_children().size() == 0);
 
-	// a2 <-> (b1, b3)
-	auto a2_children = a2->get_children();
-	changing_parent &= my_assert(a2_children.size() == 2);
-	changing_parent &= my_assert(a2_children[0] == b3);
-	changing_parent &= my_assert(a2_children[1] == b1);
-	changing_parent &= my_assert(b1->get_parent() == a2.get());
-	changing_parent &= my_assert(b3->get_parent() == a2.get());
+		// a2 <-> (b1, b3)
+		auto a2_children = a2->get_children();
+		PV_ASSERT_VALID(a2_children.size() == 2);
+		PV_ASSERT_VALID(a2_children[0] == b3);
+		PV_ASSERT_VALID(a2_children[1] == b1);
+		PV_ASSERT_VALID(b1->get_parent() == a2.get());
+		PV_ASSERT_VALID(b3->get_parent() == a2.get());
 
-	// (b1, b3) <-> c
-	auto b1_children = b1->get_children();
-	changing_parent &= my_assert(b1_children.size() == 1);
-	changing_parent &= my_assert(b1_children[0] == c);
-	changing_parent &= my_assert(c->get_parent() == b1.get());
-	changing_parent &= my_assert(b3->get_children().size() == 0);
+		// (b1, b3) <-> c
+		auto b1_children = b1->get_children();
+		PV_ASSERT_VALID(b1_children.size() == 1);
+		PV_ASSERT_VALID(b1_children[0] == c);
+		PV_ASSERT_VALID(c->get_parent() == b1.get());
+		PV_ASSERT_VALID(b3->get_children().size() == 0);
 
-	// c <-> d
-	changing_parent &= my_assert(d->get_parent() == c.get());
-	auto c_children = c->get_children();
-	changing_parent &= my_assert(c_children.size() == 1);
-	changing_parent &= my_assert(c_children[0] == d);
+		// c <-> d
+		PV_ASSERT_VALID(d->get_parent() == c.get());
+		auto c_children = c->get_children();
+		PV_ASSERT_VALID(c_children.size() == 1);
+		PV_ASSERT_VALID(c_children[0] == d);
 	}
-
-
-	PVLOG_INFO("Changing parent passed: %d\n", changing_parent);
+	PVLOG_INFO("Changing parent passed\n");
 
 	//////////////////////////////////////////
 	//  Test5 - Changing child
@@ -450,58 +438,55 @@ bool standard_use_case()
 	std::cout << "a2:" << std::endl;
 	a2->dump(); std::cout << std::endl;
 
-
-	bool changing_child = true;
 	{
-	// a1 <-> b2
-	auto a1_children = a1->get_children();
-	changing_child &= my_assert(a1_children.size() == 1 && a1_children[0] == b2);
-	changing_child &= my_assert(b2->get_parent() == a1.get());
+		// a1 <-> b2
+		auto a1_children = a1->get_children();
+		PV_ASSERT_VALID(a1_children.size() == 1 && a1_children[0] == b2);
+		PV_ASSERT_VALID(b2->get_parent() == a1.get());
 
-	// b2 <-> c
-	auto b2_children = b2->get_children();
-	changing_child &= my_assert(b2_children.size() == 1 && b2_children[0] == c);
-	changing_child &= my_assert(c->get_parent() == b2.get());
+		// b2 <-> c
+		auto b2_children = b2->get_children();
+		PV_ASSERT_VALID(b2_children.size() == 1 && b2_children[0] == c);
+		PV_ASSERT_VALID(c->get_parent() == b2.get());
 
-	// c <-> d
-	auto c_children = c->get_children();
-	changing_child &= my_assert(c_children.size() == 1 && c_children[0] == d);
-	changing_child &= my_assert(d->get_parent() == c.get());
+		// c <-> d
+		auto c_children = c->get_children();
+		PV_ASSERT_VALID(c_children.size() == 1 && c_children[0] == d);
+		PV_ASSERT_VALID(d->get_parent() == c.get());
 
-	// a2 <-> (b1, b3)
-	auto a2_children = a2->get_children();
-	changing_child &= my_assert(a2_children.size() == 2 && a2_children[0] == b3 && a2_children[1] == b1);
-	changing_child &= my_assert(b1->get_parent() == a2.get());
-	changing_child &= my_assert(b3->get_parent() == a2.get());
-	changing_child &= my_assert(b1->get_children().size() == 0);
-	changing_child &= my_assert(b3->get_children().size() == 0);
+		// a2 <-> (b1, b3)
+		auto a2_children = a2->get_children();
+		PV_ASSERT_VALID(a2_children.size() == 2 && a2_children[0] == b3 && a2_children[1] == b1);
+		PV_ASSERT_VALID(b1->get_parent() == a2.get());
+		PV_ASSERT_VALID(b3->get_parent() == a2.get());
+		PV_ASSERT_VALID(b1->get_children().size() == 0);
+		PV_ASSERT_VALID(b3->get_children().size() == 0);
 	}
 
-	PVLOG_INFO("Changing child passed: %d\n", changing_child);
+	PVLOG_INFO("Changing child passed\n");
 
 	//////////////////////////////////////////
 	//  Test6 - Create with parent and set same parent
 	//////////////////////////////////////////
 	PVCore::PVDataTreeAutoShared<C> c2(b2);
 
-	bool create_with_parent_and_set_same_parent = true;
 	{
 		// a1 <-> b2
 		auto a1_children = a1->get_children();
-		create_with_parent_and_set_same_parent &= my_assert(a1_children.size() == 1 && a1_children[0] == b2);
+		PV_ASSERT_VALID(a1_children.size() == 1 && a1_children[0] == b2);
 
 		// b2 <-> (c, c2)
-		create_with_parent_and_set_same_parent &= my_assert(b2->get_parent() == a1.get());
+		PV_ASSERT_VALID(b2->get_parent() == a1.get());
 		auto b2_children = b2->get_children();
-		create_with_parent_and_set_same_parent &= my_assert(b2_children.size() == 2 && b2_children[0] == c && b2_children[1] == c2);
-		create_with_parent_and_set_same_parent &= my_assert(c->get_parent() == b2.get());
-		create_with_parent_and_set_same_parent &= my_assert(c2->get_parent() == b2.get());
-		create_with_parent_and_set_same_parent &= my_assert(c2->get_children().size() == 0);
+		PV_ASSERT_VALID(b2_children.size() == 2 && b2_children[0] == c && b2_children[1] == c2);
+		PV_ASSERT_VALID(c->get_parent() == b2.get());
+		PV_ASSERT_VALID(c2->get_parent() == b2.get());
+		PV_ASSERT_VALID(c2->get_children().size() == 0);
 
 		// c <-> d
-		create_with_parent_and_set_same_parent &= my_assert(d->get_parent() == c.get());
+		PV_ASSERT_VALID(d->get_parent() == c.get());
 		auto c_children = c->get_children();
-		create_with_parent_and_set_same_parent &= my_assert(c_children.size() == 1 && c_children[0] == d);
+		PV_ASSERT_VALID(c_children.size() == 1 && c_children[0] == d);
 	}
 
 	std::cout << "a1:" << std::endl;
@@ -509,7 +494,7 @@ bool standard_use_case()
 	std::cout << "a2:" << std::endl;
 	a2->dump(); std::cout << std::endl;
 
-	PVLOG_INFO("Create with parent and set same parent: %d\n", create_with_parent_and_set_same_parent);
+	PVLOG_INFO("Create with parent and set same parent passed\n");
 
 	//////////////////////////////////////////
 	//  Test7 - Remove child
@@ -517,9 +502,8 @@ bool standard_use_case()
 
 	a1->remove_child(b2);
 
-	bool removing_child = true;
 	{
-		removing_child &= my_assert(a1->get_children().size() == 0);
+		PV_ASSERT_VALID(a1->get_children().size() == 0);
 	}
 
 	std::cout << "a1:" << std::endl;
@@ -527,22 +511,20 @@ bool standard_use_case()
 	std::cout << "a2:" << std::endl;
 	a2->dump(); std::cout << std::endl;
 
-	PVLOG_INFO("Removing child passed: %d\n", removing_child);
+	PVLOG_INFO("Removing child passed\n");
 
-	bool removing_parent = true;
 #if 0
 	//////////////////////////////////////////
 	//  Test8 - Remove parent
 	//////////////////////////////////////////
 	b1->set_parent(nullptr);
 
-	bool removing_parent = true;
 	{
-		removing_parent &= my_assert(a2->get_parent() == nullptr);
+		PV_ASSERT_VALID(a2->get_parent() == nullptr);
 		auto a2_children = a2->get_children();
-		removing_parent &= my_assert(a2_children.size() == 1 && a2_children[0] == b3);
-		removing_parent &= my_assert(b3->get_parent() == a2.get());
-		removing_parent &= my_assert(b3->get_children().size() == 0);
+		PV_ASSERT_VALID(a2_children.size() == 1 && a2_children[0] == b3);
+		PV_ASSERT_VALID(b3->get_parent() == a2.get());
+		PV_ASSERT_VALID(b3->get_children().size() == 0);
 	}
 
 	std::cout << "a1:" << std::endl;
@@ -550,7 +532,7 @@ bool standard_use_case()
 	std::cout << "a2:" << std::endl;
 	a2->dump(); std::cout << std::endl;
 
-	PVLOG_INFO("Removing parent passed: %d\n", removing_parent);
+	PVLOG_INFO("Removing parent passed\n");
 #endif
 
 	//////////////////////////////////////////
@@ -565,24 +547,22 @@ bool standard_use_case()
 	std::cout << "a2:" << std::endl;
 	a2->dump(); std::cout << std::endl;
 
-	bool create_without_parent_and_set_parent = true;
 	{
-		create_without_parent_and_set_parent &= my_assert(c3->get_parent() == b3.get());
+		PV_ASSERT_VALID(c3->get_parent() == b3.get());
 		auto b3_children = b3->get_children();
-		create_without_parent_and_set_parent &= my_assert(b3_children.size() == 1 && b3_children[0] == c3);
+		PV_ASSERT_VALID(b3_children.size() == 1 && b3_children[0] == c3);
 	}
 
-	PVLOG_INFO("Create without parent and set parent passed: %d\n", create_without_parent_and_set_parent);
+	PVLOG_INFO("Create without parent and set parent passed\n");
 #endif
 	//////////////////////////////////////////
 	//  Test10 - Get null ancestor if parent is null
 	//////////////////////////////////////////
 	D_p d3;
 
-	bool null_parent_null_ancestor = true;
-	null_parent_null_ancestor &= my_assert(d3->get_parent() == nullptr && d3->get_parent<A>() == nullptr);
+	PV_ASSERT_VALID(d3->get_parent() == nullptr && d3->get_parent<A>() == nullptr);
 
-	PVLOG_INFO("Get null ancestor if parent is null: %d\n", null_parent_null_ancestor);
+	PVLOG_INFO("Get null ancestor if parent is null passed\n");
 
 	//////////////////////////////////////////
 	//  Test11 - Start from a PVDataTreeObjectBase and check its property
@@ -591,54 +571,53 @@ bool standard_use_case()
 	PVCore::PVDataTreeObjectBase* obase = static_cast<PVCore::PVDataTreeObjectBase*>(a1.get());
 	PVCore::PVDataTreeObjectBase::base_p_type obase_p = obase->base_shared_from_this();
 	PVLOG_INFO("a1=%p obase=%p obase_get=%p\n", a1.get(), obase, obase_p.get());
-	bool test11 = true;
-	test11 &= my_assert(obase_p.get() == obase);
-	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) == nullptr);
-	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) != nullptr);
+
+	PV_ASSERT_VALID(obase_p.get() == obase);
+	PV_ASSERT_VALID(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) == nullptr);
+	PV_ASSERT_VALID(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) != nullptr);
+
 	obase = static_cast<PVCore::PVDataTreeObjectBase*>(b1.get());
-	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) != nullptr);
-	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) != nullptr);
+	PV_ASSERT_VALID(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) != nullptr);
+	PV_ASSERT_VALID(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) != nullptr);
+
 	obase = static_cast<PVCore::PVDataTreeObjectBase*>(d.get());
-	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) != nullptr);
-	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) == nullptr);
+	PV_ASSERT_VALID(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) != nullptr);
+	PV_ASSERT_VALID(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) == nullptr);
 
 	//////////////////////////////////////////
 	//  Test11 - Start from a PVDataTreeObjectBase and check that casting works
 	//////////////////////////////////////////
 	// obase is 'd' here
-	bool test12 = true;
 	std::cout << "Base object pointer = " << obase << std::endl;
 	std::cout << "Starting address of final object = " << PVCore::PVTypeTraits::get_starting_address(obase) << std::endl;
 	std::cout << "Final object (D) pointer is = " << d.get() << std::endl;
-	test12 &= my_assert(PVCore::PVTypeTraits::get_starting_address(obase) == d.get());
+	PV_ASSERT_VALID(PVCore::PVTypeTraits::get_starting_address(obase) == d.get());
 
 	// Delete the remaining hierarchy
 	std::cout << std::endl << "=DELETING REMAINING TREES=" << std::endl;
 	a1.reset();
 	a2.reset();
-
-	return (parent_access && children_access && same_parent && changing_parent && changing_child && create_with_parent_and_set_same_parent && removing_child && removing_parent && null_parent_null_ancestor && test11 && test12);
 }
 
-bool serialize_use_case()
+void serialize_use_case()
 {
 	std::cout << std::endl << std::endl;
 
 	// Serialize datatree
 	{
-	A_p a1(5);
-	B_p b1(a1, 4);
-	B_p b2(a1, 3);
-	C_p c(b1, 2);
-	c->set_j(c->get_j() * 10);
-	D_p d(c, 1);
-	d->set_j(d->get_j() * 10);
-	std::cout << "b1 = " << b1.get() << std::endl;
-	std::cout << "b2 = " << b2.get() << std::endl;
+		A_p a1(5);
+		B_p b1(a1, 4);
+		B_p b2(a1, 3);
+		C_p c(b1, 2);
+		c->set_j(c->get_j() * 10);
+		D_p d(c, 1);
+		d->set_j(d->get_j() * 10);
+		std::cout << "b1 = " << b1.get() << std::endl;
+		std::cout << "b2 = " << b2.get() << std::endl;
 
-	a1->dump();
+		a1->dump();
 
-	a1->save_to_file("datatree_serialized");
+		a1->save_to_file("datatree_serialized");
 	}
 
 	std::cout << std::endl << std::endl;
@@ -649,64 +628,52 @@ bool serialize_use_case()
 	a1->dump();
 	std::cout << std::endl;
 
-	bool hierarchical_serialization = true;
-	bool class_content = false;
-	bool content_from_parent = false;
 	auto a1_children = a1->get_children();
-	hierarchical_serialization &= a1_children.size() == 2;
-	if (hierarchical_serialization) {
-		auto b1 = a1_children[0];
-		auto b2 = a1_children[1];
-		auto b1_children = b1->get_children();
-		auto b2_children = b2->get_children();
-		hierarchical_serialization &= b1_children.size() == 1;
-		if (hierarchical_serialization) {
-			auto c = b1_children[0];
-			auto c_children = c->get_children();
-			hierarchical_serialization &= c_children.size() == 1;
-			if (hierarchical_serialization) {
-				auto d = c_children[0];
 
-				// a1 <-> (b1, b2)
-				hierarchical_serialization &= my_assert(a1_children.size() == 2 && a1_children[0] == b1 && a1_children[1] == b2);
-				hierarchical_serialization &= my_assert(b1->get_parent() == a1.get() && b2->get_parent() == a1.get());
-				hierarchical_serialization &= my_assert(b2_children.size() == 0);
+	PV_ASSERT_VALID(a1_children.size() == 2);
 
-				// b1 <-> c
-				hierarchical_serialization &= my_assert(b1->get_parent() == a1.get());
-				hierarchical_serialization &= my_assert(b1_children.size() == 1 && b1_children[0] == c);
-				hierarchical_serialization &= my_assert(c->get_parent() == b1.get());
+	auto b1 = a1_children[0];
+	auto b2 = a1_children[1];
+	auto b1_children = b1->get_children();
+	auto b2_children = b2->get_children();
 
-				// c <-> d
-				hierarchical_serialization &= my_assert(d->get_parent() == c.get());
-				hierarchical_serialization &= my_assert(c_children.size() == 1 && c_children[0] == d);
+	PV_ASSERT_VALID(b1_children.size() == 1);
 
-				if (hierarchical_serialization) {
+	auto c = b1_children[0];
+	auto c_children = c->get_children();
 
-					class_content = true;
-					class_content &= my_assert(a1->get_i() == 5);
-					class_content &= my_assert(b1->get_i() == 4 && b2->get_i() == 3);
-					class_content &= my_assert(c->get_i() == 2);
-					class_content &= my_assert(d->get_i() == 1);
+	PV_ASSERT_VALID(c_children.size() == 1);
 
-					if (class_content) {
+	auto d = c_children[0];
 
-						content_from_parent = true;
-						content_from_parent &= my_assert(b1->get_j() == b1->get_parent()->get_i()*2);
-						content_from_parent &= my_assert(b2->get_j() == b2->get_parent()->get_i()*2);
-						content_from_parent &= my_assert(c->get_j() == c->get_parent()->get_i()*2*10);
-						content_from_parent &= my_assert(d->get_j() == d->get_parent()->get_i()*2*10);
-					}
-				}
-			}
-		}
-	}
+	// a1 <-> (b1, b2)
+	PV_ASSERT_VALID(a1_children.size() == 2 && a1_children[0] == b1 && a1_children[1] == b2);
+	PV_ASSERT_VALID(b1->get_parent() == a1.get() && b2->get_parent() == a1.get());
+	PV_ASSERT_VALID(b2_children.size() == 0);
 
-	PVLOG_INFO("Hierarchical serialization/deserialization passed: %d\n", hierarchical_serialization);
-	PVLOG_INFO("Class content integrity passed: %d\n", class_content);
-	PVLOG_INFO("Class content from parent integrity passed: %d\n", content_from_parent);
+	// b1 <-> c
+	PV_ASSERT_VALID(b1->get_parent() == a1.get());
+	PV_ASSERT_VALID(b1_children.size() == 1 && b1_children[0] == c);
+	PV_ASSERT_VALID(c->get_parent() == b1.get());
 
-	return hierarchical_serialization && class_content && content_from_parent;
+	// c <-> d
+	PV_ASSERT_VALID(d->get_parent() == c.get());
+	PV_ASSERT_VALID(c_children.size() == 1 && c_children[0] == d);
+
+	PV_ASSERT_VALID(a1->get_i() == 5);
+	PV_ASSERT_VALID(b1->get_i() == 4 && b2->get_i() == 3);
+	PV_ASSERT_VALID(c->get_i() == 2);
+	PV_ASSERT_VALID(d->get_i() == 1);
+
+	PV_ASSERT_VALID(b1->get_j() == b1->get_parent()->get_i()*2);
+	PV_ASSERT_VALID(b2->get_j() == b2->get_parent()->get_i()*2);
+	PV_ASSERT_VALID(c->get_j() == c->get_parent()->get_i()*2*10);
+	PV_ASSERT_VALID(d->get_j() == d->get_parent()->get_i()*2*10);
+
+	PVLOG_INFO("Class content integrity passed\n");
+	PVLOG_INFO("Class content from parent integrity passed\n");
+
+	PVLOG_INFO("Hierarchical serialization/deserialization passed\n");
 }
 
 /******************************************************************************
@@ -717,5 +684,10 @@ bool serialize_use_case()
 
 int main()
 {
-	return !(standard_use_case() && serialize_use_case() && delete_use_case());
+
+	standard_use_case();
+	serialize_use_case();
+	delete_use_case();
+
+	return 0;
 }

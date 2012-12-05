@@ -13,6 +13,8 @@
 #include <boost/thread.hpp>
 #include <boost/type_traits.hpp>
 
+#include <pvkernel/core/picviz_assert.h>
+
 void f(int a, short b, char c, uint64_t d)
 {
 	std::cout << a << " " << b << " " << (int) c << " " << d << std::endl;
@@ -77,7 +79,7 @@ int main(int /*argc*/, char** /*argv*/)
 		typedef PVCore::PVTypeTraits::function_traits<decltype(&A::f)> ftraits_af;
 		ftraits_af::arguments_type args_af;
 		args_af.set_args(6);
-		std::cout << "Should print 24: " << ftraits_af::call<&A::f>(a, args_af) << std::endl;
+		PV_VALID(ftraits_af::call<&A::f>(a, args_af), (size_t)24, "a._i", 4, "args_af", (size_t)6);
 	}
 
 	{
@@ -87,8 +89,7 @@ int main(int /*argc*/, char** /*argv*/)
 		ftraits_aadd::arguments_deep_copy_type args;
 		args.set_args(i);
 		ftraits_aadd::call<&A::add>(a, args);
-		std::cout << "Should print 5: " << i << std::endl;
-
+		PV_VALID(i, (size_t)5, "old i", (size_t)4);
 	}
 
 	return 0;
