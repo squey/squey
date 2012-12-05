@@ -15,6 +15,9 @@ file_out = file_ref + ".run"
 
 prog = sys.argv[3:]
 
+if not os.path.isfile(file_ref):
+	print "'%s' does not exist or is not a file" % (file_ref)
+	sys.exit(1)
 
 with open(file_out, "w") as f:
 	p = subprocess.Popen(prog, stdout=f)

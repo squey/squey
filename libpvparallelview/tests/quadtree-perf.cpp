@@ -208,6 +208,9 @@ void usage(const char *program)
 int main(int argc, char **argv)
 {
 	data_t data;
+	std::stringstream ss;
+	std::string prefix;
+	double dt;
 
 	if (argc != 4) {
 		usage(argv[0]);
@@ -218,6 +221,12 @@ int main(int argc, char **argv)
 	 */
 	int depth = (size_t) atol(argv[1]);
 	size_t num = (size_t) atol(argv[2]);
+	uint32_t zoom = (uint32_t) atol(argv[3]);
+
+	if (zoom > 21) {
+		std::cerr << "zoom too high, using 21" << std::endl;
+		return 1;
+	}
 
 	BENCH_START(init);
 	init_data(data, num);
@@ -233,9 +242,25 @@ int main(int argc, char **argv)
 	for(size_t i = 0; i < data.size; ++i) {
 		qt->insert(quadtree_entry_t(data.col_a[i], data.col_b[i], i));
 	}
-	BENCH_END(insert, "insertion",
-	          data.size, sizeof(uint32_t) * 2,
-	          data.size, sizeof(quadtree_entry_t));
+	BENCH_STOP(insert);
+
+	dt = BENCH_END_TIME(insert);
+
+	ss.str("");
+	ss << "insert_" << depth << "_" << num << "_" << zoom;
+	prefix = ss.str();
+
+	ss << "_time";
+	PV_STAT_TIME_SEC(ss.str(), dt);
+	ss.str("");
+
+	ss << prefix << "_in_bw";
+	PV_STAT_MEM_BW(ss.str(), (data.size * sizeof(uint32_t) * 2) / (1024. * 1024 * dt));
+	ss.str("");
+
+	ss << prefix << "_out_bw";
+	PV_STAT_MEM_BW(ss.str(), (data.size * sizeof(quadtree_entry_t)) / (1024. * 1024 * dt));
+	ss.str("");
 
 	std::cout << "memory before ::compact: " << qt->memory() << std::endl;
 	qt->compact();
@@ -243,13 +268,6 @@ int main(int argc, char **argv)
 
 	quadtree_buffer_entry_t *buffer = new quadtree_buffer_entry_t [QUADTREE_BUFFER_SIZE];
 	tlr_buffer_t *tlr = new tlr_buffer_t;
-
-	uint32_t zoom = (uint32_t) atol(argv[3]);
-
-	if (zoom > 21) {
-		std::cerr << "zoom too high, using 21" << std::endl;
-		zoom = 21;
-	}
 
 	/* quadtree extraction's initialization :-P
 	 */
@@ -307,10 +325,21 @@ int main(int argc, char **argv)
 		}
 	}
 
-	BENCH_SHOW(extract, "extraction",
-	           data.size, sizeof(quadtree_entry_t),
-	           bci_num, sizeof(uint32_t));
+	dt = BENCH_END_TIME(extract);
 
+	ss.str("");
+	ss << "extract_" << depth << "_" << num << "_" << zoom;
+	prefix = ss.str();
+
+	ss << "_time";
+	PV_STAT_TIME_SEC(ss.str(), dt);
+	ss.str("");
+
+	ss << prefix << "_in_bw";
+	PV_STAT_MEM_BW(ss.str(), (data.size * sizeof(quadtree_entry_t)) / (1024. * 1024 * dt));
+	ss.str("");
+
+	std::cout << "bci_num: " << bci_num << std::endl;
 	double all_dt = quadtree_t::all_get();
 	std::cout << "QT::visit_y1::all time    : " << all_dt  * 1000. << " ms." << std::endl;
 	std::cout << "QT::visit_y1::all count   : " << quadtree_t::all_count_get() << " events." << std::endl;
