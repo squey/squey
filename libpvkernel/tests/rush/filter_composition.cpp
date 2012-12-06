@@ -40,9 +40,10 @@ int main(int argc, char** argv)
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVFilter::PVFieldsSplitter::p_type url_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("url");
 	PVFilter::PVFieldsSplitter::p_type regexp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
+	PVFilter::PVFieldsSplitter::p_type duplicate_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("duplicate");
 	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type grep_lib_p = LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_class_by_name("regexp");
 
-	if (!url_lib_p || !regexp_lib_p || !grep_lib_p) {
+	if (!url_lib_p || !regexp_lib_p || !duplicate_lib_p || !grep_lib_p) {
 		cerr << "Unable to load one of the filters" << endl;
 		return 1;
 	}
@@ -54,6 +55,10 @@ int main(int argc, char** argv)
 	args["reverse"] = true;
 	grep_lib_p->set_args(args);
 
+	args.clear();
+	args["n"] = 4;
+	duplicate_lib_p->set_args(args);
+
 	// Mapping filters
 	
 	// Mapping filter for the URL splitter
@@ -63,15 +68,22 @@ int main(int argc, char** argv)
 	mf[indx] = url_lib_p->f();
 	PVFilter::PVFieldsMappingFilter mapping_url(mf);
 
-	// Mapping filter for the URL splitter
+	// Mapping filter for the grep filter
 	indx.clear();
 	mf.clear();
 	indx.push_back(4);
 	mf[indx] = grep_lib_p->f();
 	PVFilter::PVFieldsMappingFilter mapping_grep(mf);
 
+	// Mapping filter for the duplicate filter on the last axis after our regexp
+	indx.clear();
+	mf.clear();
+	indx.push_back(6);
+	mf[indx] = duplicate_lib_p->f();
+	PVFilter::PVFieldsMappingFilter mapping_duplicate(mf);
+
 	// Final composition
-	PVFilter::PVFieldsBaseFilter_f f_final = boost::bind(mapping_grep.f(), boost::bind(mapping_url.f(), boost::bind(regexp_lib_p->f(), _1)));
+	PVFilter::PVFieldsBaseFilter_f f_final = boost::bind(mapping_grep.f(), boost::bind(mapping_url.f(), boost::bind(mapping_duplicate.f(), boost::bind(regexp_lib_p->f(), _1))));
 
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(f_final);
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
