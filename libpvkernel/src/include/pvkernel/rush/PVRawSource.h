@@ -61,6 +61,9 @@ public:
 			if (_curc->size() > 0) {
 				// Create a final element with what's currently in the chunk and returns it
 				_align_base(*_curc, *_nextc);
+				_curc->set_elements_index();
+				_curc->init_elements_fields();
+
 				PVCore::PVChunk* ret = _curc;
 				// _nextc is empty, so the next call to this function will return NULL
 				_curc = _nextc;

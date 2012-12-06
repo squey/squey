@@ -5,6 +5,7 @@
  */
 
 #define SIMULATE_PIPELINE
+#include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVChunkAlign.h>
 #include <pvkernel/rush/PVChunkTransformUTF16.h>
@@ -29,6 +30,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	PVCore::PVIntrinsics::init_cpuid();
 	PVInput_p ifile(new PVInputFile(argv[1]));
 	PVChunkAlign calign;
 	PVChunkTransformUTF16 transform;

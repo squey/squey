@@ -126,23 +126,41 @@ void dump_chunk_size_elts(PVChunk& c)
 	}
 }
 
-void dump_chunk_raw(PVChunk& c)
+void dump_chunk_raw(PVChunk const& c)
 {
-	list_elts& l = c.elements();
-	list_elts::iterator it,ite;
+	list_elts const& l = c.c_elements();
+	list_elts::const_iterator it,ite;
 	ite = l.end();
 	for (it = l.begin(); it != ite; it++) {
-		PVElement& elt = *(*it);
-		list_fields& l = elt.fields();
-		list_fields::iterator itf;
-		cout.flush();
+		PVElement const& elt = *(*it);
+		list_fields const& l = elt.c_fields();
+		list_fields::const_iterator itf;
 		for (itf = l.begin(); itf != l.end(); itf++) {
-			PVField& f = *itf;
-			char* start = f.begin();
-			char* end = f.end();
+			PVField const& f = *itf;
+			const char* start = f.begin();
+			const char* end = f.end();
 			write(1, start, ((ptrdiff_t)end-(ptrdiff_t)start));
 		}
-		cout << endl;
+	}
+}
+
+void dump_chunk_newline(PVChunk const& c)
+{
+	list_elts const& l = c.c_elements();
+	list_elts::const_iterator it,ite;
+	ite = l.end();
+	const uint16_t newline = 0x0A;
+	for (it = l.begin(); it != ite; it++) {
+		PVElement const& elt = *(*it);
+		list_fields const& l = elt.c_fields();
+		list_fields::const_iterator itf;
+		for (itf = l.begin(); itf != l.end(); itf++) {
+			PVField const& f = *itf;
+			const char* start = f.begin();
+			const char* end = f.end();
+			write(1, start, ((ptrdiff_t)end-(ptrdiff_t)start));
+		}
+		write(1, &newline, 2);
 	}
 }
 

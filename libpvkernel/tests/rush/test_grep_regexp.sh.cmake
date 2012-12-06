@@ -6,7 +6,7 @@
 
 #
 
-ROOTDIR="@CMAKE_SOURCE_DIR@/libpvkernel/tests/rush"
+ROOTDIR="@CMAKE_CURRENT_SOURCE_DIR@"
 DIR="$ROOTDIR/test-files/grep/regexp"
 
 test ! -d "$DIR" && echo "'$DIR' is not a directory" && exit 1
@@ -16,5 +16,5 @@ for f in $DIR/*.regexp; do
 	REF=$INPUT.out
 	REGEXP=$(cat $f)
 	echo "Testing $INPUT..."
-	"$ROOTDIR"/diff_stdout.py "$REF" "$INPUT.diff" ./Trush_grep_regexp "$INPUT" 6000 "$REGEXP" || (echo "Failed" && exit 1)
+	"@TEST_DIFF_STDOUT@" "$REF" "$INPUT.diff" "@CMAKE_CURRENT_BINARY_DIR@/Trush_grep_regexp" "$INPUT" 6000 "$REGEXP" || (echo "Failed" && exit 1)
 done

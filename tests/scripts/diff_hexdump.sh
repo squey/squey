@@ -25,9 +25,6 @@ tmpfifo2=$(/bin/mktemp -u)
 trap cleanup EXIT
 /usr/bin/mkfifo -m 600 "$tmpfifo2" || exit 1
 
-echo "FIFO created in $tmpfifo1" 1>&2
-echo "FIFO created in $tmpfifo2" 1>&2
-
 $HEXDUMP -C $1 >$tmpfifo1 &
 PID1=$!
 $HEXDUMP -C $2 >$tmpfifo2 &

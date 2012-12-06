@@ -33,6 +33,11 @@
 
 int main(int argc, char** argv)
 {
+	if (argc < 2) {
+		std::cerr << "Usage: " << argv[0] << " test-files-directory" << std::endl;
+		return 1;
+	}
+
 	// Initialisation
 	init_env();
 	PVFilter::PVPluginsLoad::load_all_plugins();
@@ -40,7 +45,7 @@ int main(int argc, char** argv)
 	QCoreApplication app(argc, argv);
 
 	// Format reading
-	QDir dir_files("test-files/tickets/1/");
+	QDir dir_files(QString::fromLocal8Bit(argv[1]) + QLatin1String("/tickets/1/"));
 	QStringList files = dir_files.entryList(QStringList() << QString("*.format"), QDir::Files | QDir::Readable, QDir::Name);
 
 	// Text file source creator

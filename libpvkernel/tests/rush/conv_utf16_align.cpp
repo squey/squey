@@ -5,6 +5,7 @@
  */
 
 #define SIMULATE_PIPELINE
+#include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVChunkAlign.h>
@@ -31,6 +32,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	PVCore::PVIntrinsics::init_cpuid();
 	PVInput_p ifile(new PVInputFile(argv[1]));
 	PVFilter::PVChunkFilter null;
 	PVUnicodeSource<> source(ifile, atoi(argv[2]), null);
@@ -38,7 +40,7 @@ int main(int argc, char** argv)
 	PVChunk* pc = source();
 
 	while (pc) {
-		dump_chunk_raw(*pc);
+		dump_chunk_newline(*pc);
 		pc->free();
 		pc = source();
 	}

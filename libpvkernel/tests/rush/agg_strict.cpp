@@ -4,6 +4,7 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVChunkAlignUTF16Char.h>
 #include <pvkernel/filter/PVChunkFilter.h>
@@ -51,6 +52,7 @@ int main(int argc, char** argv)
 		cerr << "Uses files in 'directory'" << endl;
 		return 1;
 	}
+	PVCore::PVIntrinsics::init_cpuid();
 	QCoreApplication(argc, argv);
 
 	PVFilter::PVChunkFilter null;
