@@ -637,7 +637,6 @@ void PVParallelView::PVZoneTree::get_float_pts(pts_t& pts, Picviz::PVPlotted::pl
 			pts.push_back(org_plotted[col_a*nrows+idx_first]);
 			pts.push_back(1.0f);
 			pts.push_back(org_plotted[col_b*nrows+idx_first]);
-		
 		}
 	}
 }
@@ -654,3 +653,136 @@ void PVParallelView::PVZoneTree::dump_branches() const
 		}
 	}
 }
+
+#ifdef PICVIZ_DEVELOPER_MODE
+
+bool PVParallelView::PVZoneTree::operator==(PVParallelView::PVZoneTree &zt) const
+{
+	for (size_t i = 0; i < NBUCKETS; ++i) {
+		if (get_branch_count(i) != zt.get_branch_count(i)) {
+			return false;
+		}
+		for (size_t r = 0; r < get_branch_count(i); ++r) {
+			if (get_branch_element(i, r) != zt.get_branch_element(i, r)) {
+				return false;
+			}
+		}
+	}
+
+	if (memcmp(_first_elts, zt._first_elts, NBUCKETS * sizeof(PVRow)) != 0) {
+		return false;
+	} else if (memcmp(_sel_elts, zt._sel_elts, NBUCKETS * sizeof(PVRow)) != 0) {
+		return false;
+	} else if (memcmp(_bg_elts, zt._bg_elts, NBUCKETS * sizeof(PVRow)) != 0) {
+		return false;
+	}
+
+	return true;
+}
+
+bool PVParallelView::PVZoneTree::dump_to_file(const char *filename) const
+{
+	FILE *fp = fopen(filename, "w");
+	if (fp == NULL) {
+		PVLOG_ERROR("Error while opening %s for writing: %s.\n",
+		            filename, strerror(errno));
+		return false;
+	}
+
+	bool err = false;
+	for (size_t i = 0; i < NBUCKETS; ++i) {
+		const PVBranch &b = _treeb[i];
+		size_t count = b.count;
+		if (fwrite(&count, sizeof(count), 1, fp) != 1) {
+			PVLOG_ERROR("Error while writing %s: %s.\n",
+			            filename, strerror(errno));
+			err = true;
+			break;
+		}
+
+		if (fwrite(b.p, sizeof(PVRow), count, fp) != count) {
+			PVLOG_ERROR("Error while writing %s: %s.\n",
+			            filename, strerror(errno));
+			err = true;
+			break;
+		}
+	}
+
+	if (fwrite(_first_elts, sizeof(PVRow), NBUCKETS, fp) != NBUCKETS) {
+		PVLOG_ERROR("Error while writing %s: %s.\n",
+		            filename, strerror(errno));
+		err = true;
+	} else if (fwrite(_sel_elts, sizeof(PVRow), NBUCKETS, fp) != NBUCKETS) {
+		PVLOG_ERROR("Error while writing %s: %s.\n",
+		            filename, strerror(errno));
+		err = true;
+	} else if (fwrite(_bg_elts, sizeof(PVRow), NBUCKETS, fp) != NBUCKETS) {
+		PVLOG_ERROR("Error while writing %s: %s.\n",
+		            filename, strerror(errno));
+		err = true;
+	}
+
+	fclose(fp);
+	return !err;
+}
+
+
+PVParallelView::PVZoneTree *PVParallelView::PVZoneTree::load_from_file(const char *filename)
+{
+	FILE *fp = fopen(filename, "r");
+	if (fp == nullptr) {
+		PVLOG_ERROR("Error while opening %s for reading: %s.\n",
+		            filename, strerror(errno));
+		return nullptr;
+	}
+
+	PVZoneTree *zt = new PVZoneTree();
+	bool err = false;
+
+	for (size_t i = 0; i < NBUCKETS; ++i) {
+		PVBranch &b = zt->_treeb[i];
+		size_t count = b.count;
+		if (fread(&count, sizeof(count), 1, fp) != 1) {
+			PVLOG_ERROR("Error while reading %s: %s.\n",
+			            filename, strerror(errno));
+			err = true;
+			break;
+		}
+		b.count = count;
+		b.p = new PVRow [count];
+
+		if (fread(b.p, sizeof(PVRow), count, fp) != count) {
+			PVLOG_ERROR("Error while reading %s: %s.\n",
+			            filename, strerror(errno));
+			err = true;
+			break;
+		}
+	}
+
+	if (err == false) {
+		if (fread(zt->_first_elts, sizeof(PVRow), NBUCKETS, fp) != NBUCKETS) {
+			PVLOG_ERROR("Error while reading %s: %s.\n",
+			            filename, strerror(errno));
+			err = true;
+		} else if (fread(zt->_sel_elts, sizeof(PVRow), NBUCKETS, fp) != NBUCKETS) {
+			PVLOG_ERROR("Error while reading %s: %s.\n",
+			            filename, strerror(errno));
+			err = true;
+		} else if (fread(zt->_bg_elts, sizeof(PVRow), NBUCKETS, fp) != NBUCKETS) {
+			PVLOG_ERROR("Error while reading %s: %s.\n",
+			            filename, strerror(errno));
+			err = true;
+		}
+	}
+
+	fclose(fp);
+
+	if (err) {
+		delete zt;
+		zt = nullptr;
+	}
+
+	return zt;
+}
+
+#endif

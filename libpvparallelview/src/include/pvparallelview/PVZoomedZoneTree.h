@@ -227,7 +227,7 @@ public:
 	 *
 	 * @param qt the second zoomed zone tree
 	 *
-	 * @return true if the 2 zoomed zone tree have the same structure and the
+	 * @return true if the 2 zoomed zone trees have the same structure and the
 	 * same content; false otherwise.
 	 */
 	bool operator==(PVZoomedZoneTree &zzt) const

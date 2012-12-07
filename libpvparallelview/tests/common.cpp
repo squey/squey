@@ -51,7 +51,7 @@ void set_extra_param(int num, const char* usage_text)
 
 void usage(const char* path)
 {
-	std::cerr << "Usage: " << path << " plotted_file (0|1) | (0|1) nrows ncols";
+	std::cerr << "Usage: " << path << " (plotted_file (0|1) | (0|1) nrows ncols)";
 	if (extra_param_num != 0) {
 		std::cerr << " " << extra_param_text;
 	}

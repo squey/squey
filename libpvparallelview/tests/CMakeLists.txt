@@ -83,21 +83,30 @@ target_link_libraries(masks ${LINK_LIBRARIES})
 #add_executable(qgraphicsitem_events qgraphicsitem_events.cpp)
 #target_link_libraries(qgraphicsitem_events ${LINK_LIBRARIES})
 
+add_executable(Tpview_zone_tree_dump_load zone_tree_dump_load.cpp common.cpp)
+target_link_libraries(Tpview_zone_tree_dump_load ${LINK_LIBRARIES})
+add_test(TestZoneTreeDumpLoad Tpview_zone_tree_dump_load 100000000 42)
+
 add_executable(Tpview_quadtree_dump_load quadtree_dump_load.cpp)
 target_link_libraries(Tpview_quadtree_dump_load ${LINK_LIBRARIES})
-add_test(PerfQuadTreeDumpLoad Tpview_quadtree_dump_load 100000000 42)
+add_test(TestQuadTreeDumpLoad Tpview_quadtree_dump_load 100000000 42)
 
 add_executable(Tpview_zoomed_zone_tree_dump_load zoomed_zone_tree_dump_load.cpp common.cpp)
 target_link_libraries(Tpview_zoomed_zone_tree_dump_load ${LINK_LIBRARIES})
-#add_test(PerfZoomedZoneTreeDumpLoad Tpview_zoomed_zone_tree_dump_load 0 100 2)
+add_test(TestZoomedZoneTreeDumpLoad Tpview_zoomed_zone_tree_dump_load 0 100 2)
 
 add_executable(Ppview_zoomed_zone_tree_perf zoomed_zone_tree_perf.cpp common.cpp)
 target_link_libraries(Ppview_zoomed_zone_tree_perf ${LINK_LIBRARIES})
 #add_test(PerfZoomedZoneTreeCreate Ppview_zoomed_zone_tree_perf 0 100 2)
 
-add_executable(dump_zoomed_zone_tree dump_zoomed_zone_tree.cpp common.cpp)
-target_link_libraries(dump_zoomed_zone_tree ${LINK_LIBRARIES})
+add_executable(Tpview_dump_zoomed_zone_tree dump_zoomed_zone_tree.cpp common.cpp)
+target_link_libraries(Tpview_dump_zoomed_zone_tree ${LINK_LIBRARIES})
 
+add_executable(Tpview_dump_zone_tree dump_zone_tree.cpp common.cpp)
+target_link_libraries(Tpview_dump_zone_tree ${LINK_LIBRARIES})
+
+add_executable(Tpview_dump_all_trees dump_all_trees.cpp common.cpp)
+target_link_libraries(Tpview_dump_all_trees ${LINK_LIBRARIES})
 
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})

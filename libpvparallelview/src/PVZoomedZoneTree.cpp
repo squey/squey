@@ -506,14 +506,20 @@ PVParallelView::PVZoomedZoneTree::load_from_file(const char *filename)
 
 	zzt->_trees = new pvquadtree [NBUCKETS];
 
+	bool err = false;
 	for(size_t i = 0; i < NBUCKETS; ++i) {
 		if (zzt->_trees[i].load_from_file(filename, fp) == false) {
-			fclose(fp);
-			return nullptr;
+			err = true;
+			break;
 		}
 	}
 
 	fclose(fp);
+
+	if (err) {
+		delete zzt;
+		zzt = nullptr;
+	}
 
 	return zzt;
 }
