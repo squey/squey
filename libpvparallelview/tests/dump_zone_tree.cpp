@@ -3,7 +3,7 @@
 
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVZonesManager.h>
-#include <pvparallelview/PVZoomedZoneTree.h>
+#include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/common.h>
 
@@ -11,7 +11,7 @@
 
 #include <stdlib.h>
 
-typedef PVParallelView::PVZoomedZoneTree zzt_t;
+typedef PVParallelView::PVZoneTree zt_t;
 
 int main(int argc, char **argv)
 {
@@ -51,13 +51,10 @@ int main(int argc, char **argv)
 	}
 
 	for (PVZoneID zid = zmin; zid < zmax; ++zid) {
-		zm.request_zoomed_zone(zid);
-		zzt_t &zzt = zm.get_zone_tree<zzt_t>(zid);
-
+		zt_t &zt = zm.get_zone_tree<zt_t>(zid);
 		snprintf(dump_filename, 2048, dump_format, zid);
-		std::cout << "  dumping zoomed zone " << zid << std::endl;
-		PV_ASSERT_VALID(zzt.dump_to_file(dump_filename));
-		zzt.reset();
+		std::cout << "  dumping zone " << zid << std::endl;
+		PV_ASSERT_VALID(zt.dump_to_file(dump_filename));
 	}
 
 	return 0;

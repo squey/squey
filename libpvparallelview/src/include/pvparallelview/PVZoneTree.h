@@ -223,6 +223,36 @@ public:
 
 	void dump_branches() const;
 
+#ifdef PICVIZ_DEVELOPER_MODE
+	/**
+	 * Equality test.
+	 *
+	 * @param qt the second zoomed zone tree
+	 *
+	 * @return true if the 2 zone trees have the same structure and the
+	 * same content; false otherwise.
+	 */
+	bool operator==(PVZoneTree &zt) const;
+
+	/**
+	 * Save the zone tree into a file.
+	 *
+	 * @param filename the output filename
+	 *
+	 * @return true on success; false otherwise and an error is printed.
+	 */
+	bool dump_to_file(const char *filename) const;
+
+	/**
+	 * Create and load a zone tree from a file.
+	 *
+	 * @param filename the input filename
+	 *
+	 * @return a zone tree on success; nullptr otherwise and an error is printed.
+	 */
+	static PVZoneTree *load_from_file(const char *filename);
+#endif
+
 public:
 	void process_omp_sse_treeb(PVZoneProcessing const& zp);
 	inline void process_tbb_sse_treeb(PVZoneProcessing const& zp) { ProcessData pdata; process_tbb_sse_treeb(zp, pdata); }
