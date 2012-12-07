@@ -82,8 +82,23 @@ test ! -r "$1" && echo "'$1' is not a file or is not readable" && exit 1
 test ! -r "$2" && echo "'$2' is not a file or is not readable" && exit 1
 
 REAL_INPUT_FILE=`realpath "$1"`
-REAL_INPUT_FILE_NAME=`basename "$REAL_INPUT_FILE"`
 REAL_INPUT_FORMAT=`realpath "$2"`
+
+expr "$REAL_INPUT_FILE" : "$PI_FILES_DIR/sources" > /dev/null 2>&1
+if test $? -ne 0
+then
+    echo "the data file '$1' must be in $PI_FILES_DIR/sources" 1>&2
+    exit 1
+fi
+
+expr "$REAL_INPUT_FORMAT" : "$PI_FILES_DIR/formats" > /dev/null 2>&1
+if test $? -ne 0
+then
+    echo "the format file '$2' must be in $PI_FILES_DIR/formats" 1>&2
+    exit 1
+fi
+
+REAL_INPUT_FILE_NAME=`basename "$REAL_INPUT_FILE"`
 
 # Check if a test-case already use these 2 files. It's done by finding
 # test-cases which use the same input file and to tests their format file.
