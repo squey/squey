@@ -8,6 +8,8 @@ include_directories(AFTER ${PVHIVE_INCLUDE_DIR})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIR})
 include_directories(AFTER ${CMAKE_SOURCE_DIR}/libpvparallelview/src/include)
 
+add_subdirectory(squish)
+
 set(COMMON_LIBRARIES pvparallelview pvguiqt pvhive picviz pvkernel ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${OpenMP_LIBRARIES})
 
 # Datatree model

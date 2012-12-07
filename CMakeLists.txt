@@ -94,6 +94,7 @@ endif(CUDA_FOUND)
 # Set inspector.sh and make_protect for current build
 configure_file(inspector.sh.cmake inspector.sh @ONLY)
 configure_file(make_protect.cmake make_protect @ONLY)
+configure_file(squish_ide.sh.cmake squish_ide.sh @ONLY)
 
 include(CMakePackage.txt)
 include(CMakePackageDistribute.txt)
