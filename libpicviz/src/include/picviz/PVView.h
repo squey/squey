@@ -165,6 +165,9 @@ public:
 	inline PVLayer const& get_current_layer() const { return layer_stack.get_selected_layer(); }
 	inline PVLayer& get_current_layer() { return layer_stack.get_selected_layer(); }
 
+	inline void move_selected_layer_up() { layer_stack.move_selected_layer_up(); }
+	inline void move_selected_layer_down() { layer_stack.move_selected_layer_down(); }
+
 	inline PVCore::PVHSVColor const* get_output_layer_color_buffer() const { return output_layer.get_lines_properties().get_buffer(); }
 	
 	bool get_line_state_in_layer_stack_output_layer(PVRow index);

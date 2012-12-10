@@ -242,6 +242,22 @@ void PVGuiQt::PVLayerStackModel::add_new_layer()
 	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 }
 
+void PVGuiQt::PVLayerStackModel::move_selected_layer_up()
+{
+	beginResetModel();
+	_actor.call<FUNC(Picviz::PVView::move_selected_layer_up)>();
+	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	endResetModel();
+}
+
+void PVGuiQt::PVLayerStackModel::move_selected_layer_down()
+{
+	beginResetModel();
+	_actor.call<FUNC(Picviz::PVView::move_selected_layer_down)>();
+	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	endResetModel();
+}
+
 void PVGuiQt::PVLayerStackModel::delete_selected_layer()
 {
 	_actor.call<FUNC(Picviz::PVView::delete_selected_layer)>();

@@ -44,6 +44,8 @@ public:
 	void add_new_layer();
 	void add_new_layer_from_file(const QString& path);
 	void load_from_file(const QString& file);
+	void move_selected_layer_up();
+	void move_selected_layer_down();
 
 public:
 	Picviz::PVLayerStack const& lib_layer_stack() const { return *_obs.get_object(); }
