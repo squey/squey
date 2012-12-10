@@ -4,8 +4,8 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef PVINSPECTOR_PVSIMPLELISTSTRINGMODEL_H
-#define PVINSPECTOR_PVSIMPLELISTSTRINGMODEL_H
+#ifndef __PVQUIQT_PVSIMPLELISTSTRINGMODEL_H__
+#define __PVQUIQT_PVSIMPLELISTSTRINGMODEL_H__
 
 #include <boost/type_traits/is_same.hpp>
 #include <boost/static_assert.hpp>
@@ -13,7 +13,7 @@
 #include <QString>
 #include <QAbstractListModel>
 
-namespace PVInspector {
+namespace PVGuiQt {
 
 template <class Container>
 class PVSimpleStringListModel: public QAbstractListModel
@@ -69,4 +69,4 @@ private:
 
 }
 
-#endif
+#endif // __PVQUIQT_PVSIMPLELISTSTRINGMODEL_H__

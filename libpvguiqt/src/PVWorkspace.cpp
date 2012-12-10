@@ -14,6 +14,7 @@
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVProjectsTabWidget.h>
+#include <pvguiqt/PVSimpleStringListModel.h>
 
 #include <pvdisplays/PVDisplaysImpl.h>
 
@@ -292,6 +293,13 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Picviz::PVSource* source, QWidget*
 	//setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);
 
 	_views_count = _source->get_children<Picviz::PVView>().size();
+
+	// Invalid elements widget
+	PVSimpleStringListModel<QStringList>* inv_elts_model = new PVSimpleStringListModel<QStringList>(source->get_invalid_elts());
+	PVGuiQt::PVListDisplayDlg* inv_dlg = new PVGuiQt::PVListDisplayDlg(inv_elts_model, this);
+	inv_dlg->setWindowTitle(tr("Invalid elements"));
+	inv_dlg->set_description(tr("There were invalid elements during the extraction:"));
+	_inv_elts_dlg = inv_dlg;
 
 	// Register observers on the mapped and plotted
 	source->depth_first_list(

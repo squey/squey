@@ -1588,7 +1588,10 @@ void PVInspector::PVMainWindow::display_inv_elts()
 {
 	if (current_view()) {
 		if (current_view()->get_parent<Picviz::PVSource>()->get_invalid_elts().size() > 0) {
-			//tab_src->get_source_invalid_elts_dlg()->show();
+			PVGuiQt::PVWorkspaceBase* workspace = _projects_tab_widget->current_workspace();
+			if (PVGuiQt::PVSourceWorkspace* source_workspace = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)) {
+				source_workspace->get_source_invalid_elts_dlg()->show();
+			}
 		}
 		else {
 			QMessageBox::information(this, tr("Invalid elements"), tr("No invalid element have been saved or created during the extraction of this source."));

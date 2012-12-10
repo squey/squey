@@ -15,6 +15,7 @@ class QWidget;
 #include <QList>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
+#include <pvguiqt/PVListDisplayDlg.h>
 
 #include <pvdisplays/PVDisplaysContainer.h>
 
@@ -204,6 +205,7 @@ public:
 public:
 	PVListingView* create_listing_view(Picviz::PVView_sp view_sp);
 	inline Picviz::PVSource* get_source() const { return _source; }
+	inline PVGuiQt::PVListDisplayDlg* get_source_invalid_elts_dlg() const { return _inv_elts_dlg; }
 
 private slots:
 	/*! \brief Check if the view count has changed in order to refresh toolbar menus.
@@ -220,6 +222,8 @@ private:
 	QToolBar* _toolbar;
 	std::list<datatree_obs_t> _obs;
 	uint64_t _views_count;
+
+	PVGuiQt::PVListDisplayDlg* _inv_elts_dlg;
 };
 
 /**

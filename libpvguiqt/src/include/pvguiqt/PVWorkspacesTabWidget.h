@@ -153,7 +153,7 @@ public:
 public:
 	/*! \brief Add a workspace with or without animation.
 	 */
-	int add_workspace(PVWorkspaceBase* page, const QString & label, bool animation = true);
+	virtual int add_workspace(PVWorkspaceBase* page, const QString & label, bool animation = true);
 
 	/*! \brief Remove a workspace with or without animation.
 	 */
@@ -245,6 +245,7 @@ public:
 	PVSceneWorkspacesTabWidget(Picviz::PVScene& scene, QWidget* parent = 0);
 
 public:
+
 	/*! \brief Remove the workspace and close its associated source if needed.
      */
 	void remove_workspace(int index, bool close_source = true) override;
