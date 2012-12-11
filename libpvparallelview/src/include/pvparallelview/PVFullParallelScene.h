@@ -85,6 +85,7 @@ private slots:
 	void update_new_selection();
 	void update_all();
 	void update_number_of_zones();
+	void toggle_unselected_zombie_visibility();
 
 private:
 	void update_zones_position(bool update_all = true, bool scale = true);

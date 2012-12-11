@@ -1462,6 +1462,16 @@ void Picviz::PVView::toggle_listing_zombie_visibility()
 	state_machine->toggle_listing_zombie_visibility();
 }
 
+void Picviz::PVView::toggle_parallelview_unselected_zombie_visibility()
+{
+	state_machine->toggle_parallelview_unselected_zombie_visibility();
+}
+
+bool& Picviz::PVView::are_parallelview_unselected_zombie_visibile()
+{
+	return state_machine->are_parallelview_unselected_zombie_visible();
+}
+
 Picviz::PVSortingFunc_p Picviz::PVView::get_sort_plugin_for_col(PVCol col) const
 {
 	// Temporary, waiting for all of this to be configurable
@@ -1494,4 +1504,3 @@ void Picviz::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSer
 	}
 	so.object("axes-combination", axes_combination, "Axes combination", true);
 }
-

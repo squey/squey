@@ -56,6 +56,11 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 
 	PVHive::get().register_actor(view_sp, _view_actor);
 
+	// Register view for unselected & zombie lines toggle
+	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
+	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.are_parallelview_unselected_zombie_visibile(); }, *obs);
+	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
+
 	setBackgroundBrush(QBrush(common::color_view_bg()));
 
 	// this scrollbar is totally useless
@@ -1051,3 +1056,14 @@ void PVParallelView::PVFullParallelScene::reset_zones_layout_to_default()
 	                              items_bbox.top() + screen_rect.center().y());
 }
 
+/******************************************************************************
+ * PVParallelView::PVFullParallelScene::toggle_unselected_zombie_visibility
+ *****************************************************************************/
+void PVParallelView::PVFullParallelScene::toggle_unselected_zombie_visibility()
+{
+	bool visible = _lib_view.are_parallelview_unselected_zombie_visibile();
+
+	for (PVZoneID z = _lines_view.get_first_visible_zone_index(); z <= _lines_view.get_last_visible_zone_index(); z++) {
+		_zones[z].bg->setVisible(visible);
+	}
+}

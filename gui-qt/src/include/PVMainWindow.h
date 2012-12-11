@@ -191,6 +191,7 @@ public slots:
 	void lines_display_zombies_Slot();
 	void lines_display_zombies_listing_Slot();
 	void lines_display_zombies_GLview_Slot();
+	void lines_display_unselected_zombies_parallelview_Slot();
 	void map_Slot();
 	void load_source_from_description_Slot(PVRush::PVSourceDescription);
 	Picviz::PVScene_p project_new_Slot();
@@ -295,6 +296,7 @@ private:
 	QAction *lines_display_unselected_GLview_Action;
 	QAction *lines_display_zombies_listing_Action;
 	QAction *lines_display_zombies_GLview_Action;
+	QAction* lines_display_unselected_zombies_parallelview_Action;
 	QAction *copy_Action;
 	QAction *commit_selection_in_current_layer_Action;
 	QAction *commit_selection_to_new_layer_Action;

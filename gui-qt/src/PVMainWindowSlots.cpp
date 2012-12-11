@@ -306,6 +306,25 @@ void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
 	//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 }
 
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::lines_display_unselected_zombies_parallelview_Slot()
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::lines_display_unselected_zombies_parallelview_Slot()
+{
+	Picviz::PVView* current_lib_view;
+
+	if (!current_view()) {
+		return;
+	}
+	current_lib_view = current_view();
+
+	/* We refresh the listing */
+	Picviz::PVView_sp view_sp = current_lib_view->shared_from_this();
+	PVHive::call<FUNC(Picviz::PVView::toggle_parallelview_unselected_zombie_visibility)>(view_sp);
+}
+
 void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
 {
 	if (!current_view()) {

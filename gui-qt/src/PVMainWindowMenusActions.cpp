@@ -147,6 +147,9 @@ void PVInspector::PVMainWindow::create_actions()
 	lines_display_zombies_listing_Action = new QAction(tr("Toggle zombies lines in listing"), this);
 	lines_display_zombies_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Z));
 
+	lines_display_unselected_zombies_parallelview_Action = new QAction(tr("Toggle unselected and zombies lines"), this);
+	lines_display_unselected_zombies_parallelview_Action->setShortcut(QKeySequence(Qt::Key_U));
+
 	/**************************
 	 * For the "Help" menu entry
 	 **************************/
@@ -265,6 +268,8 @@ void PVInspector::PVMainWindow::create_menus()
 	//lines_Menu->addSeparator();
 	lines_Menu->addAction(lines_display_zombies_listing_Action);
 	//lines_Menu->addAction(lines_display_zombies_GLview_Action);
+	lines_Menu->addSeparator();
+	lines_Menu->addAction(lines_display_unselected_zombies_parallelview_Action);
 
 	tools_Menu = menubar->addMenu(tr("T&ools"));
 	tools_Menu->addAction(tools_new_format_Action);
@@ -365,6 +370,8 @@ void PVInspector::PVMainWindow::connect_actions()
 	//connect(lines_display_unselected_GLview_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_GLview_Slot()));
 	connect(lines_display_zombies_listing_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_listing_Slot()));
 	//connect(lines_display_zombies_GLview_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_GLview_Slot()));
+	connect(lines_display_unselected_zombies_parallelview_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_zombies_parallelview_Slot()));
+
         
 	connect(tools_new_format_Action, SIGNAL(triggered()), this, SLOT(new_format_Slot()));
 	connect(tools_cur_format_Action, SIGNAL(triggered()), this, SLOT(cur_format_Slot()));
