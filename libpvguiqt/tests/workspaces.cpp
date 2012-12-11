@@ -12,20 +12,24 @@
 
 #include <iostream>
 #include <QDateTime>
+#include <QMainWindow>
 
 static bool drag_started = false;
 
 unsigned int CustomMainWindow::zOrderCounter = 0;
 
-CustomMainWindow::CustomMainWindow(QWidget* parent /* = 0*/) : QMainWindow(parent)
+struct CustomMainWindow : public QMainWindow
 {
-        setGeometry(
-                QStyle::alignedRect(
-                        Qt::LeftToRight,
-                        Qt::AlignCenter,
-                        size(),
-                        QApplication::desktop()->availableGeometry()
-                ));
+	CustomMainWindow(QWidget* parent = 0) : QMainWindow(parent)
+	{
+			setGeometry(
+					QStyle::alignedRect(
+							Qt::LeftToRight,
+							Qt::AlignCenter,
+							size(),
+							QApplication::desktop()->availableGeometry()
+					));
+	}
 }
 
 void CustomMainWindow::dragStarted(bool started)

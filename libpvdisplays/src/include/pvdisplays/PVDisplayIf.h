@@ -1,3 +1,9 @@
+/**
+ * \file PVDisplaysIf.h
+ *
+ * Copyright (C) Picviz Labs 2012
+ */
+
 #ifndef PVDISPLAYS_PVDISPLAYIF_H
 #define PVDISPLAYS_PVDISPLAYIF_H
 

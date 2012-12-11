@@ -203,7 +203,6 @@ public:
 	PVSourceWorkspace(Picviz::PVSource* source, QWidget* parent = 0);
 
 public:
-	PVListingView* create_listing_view(Picviz::PVView_sp view_sp);
 	inline Picviz::PVSource* get_source() const { return _source; }
 	inline PVGuiQt::PVListDisplayDlg* get_source_invalid_elts_dlg() const { return _inv_elts_dlg; }
 

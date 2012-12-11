@@ -70,6 +70,8 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setSelectionBehavior(QAbstractItemView::SelectRows);
 
+	horizontalHeader()->setStretchLastSection(true);
+
 	// Sorting
 	setSortingEnabled(false);
 	
@@ -183,6 +185,12 @@ void PVGuiQt::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
 	else {
 		QTableView::mouseDoubleClickEvent(event);
 	}
+}
+
+void PVGuiQt::PVListingView::resizeEvent(QResizeEvent * event)
+{
+	QTableView::resizeEvent(event);
+	emit resized();
 }
 
 /******************************************************************************

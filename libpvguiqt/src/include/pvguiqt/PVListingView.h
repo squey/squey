@@ -28,6 +28,7 @@ class PVListingSortFilterProxyModel;
 class PVListingView : public QTableView
 {
 	Q_OBJECT
+	friend class PVStatsListingWidget;
 
 public:
 	PVListingView(Picviz::PVView_sp& view, QWidget* parent = NULL);
@@ -45,6 +46,10 @@ protected:
 	void keyPressEvent(QKeyEvent* event) override;
 	void wheelEvent(QWheelEvent* e);
 	void reset() override;
+	void resizeEvent(QResizeEvent * event) override;
+
+signals:
+	void resized();
 
 private:
 	QVector<PVRow> get_selected_rows();

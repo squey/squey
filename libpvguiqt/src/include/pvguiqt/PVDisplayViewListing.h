@@ -1,3 +1,9 @@
+/**
+ * \file PVDisplayViewListing.h
+ *
+ * Copyright (C) Picviz Labs 2012
+ */
+
 #ifndef PVDISPLAYS_PVDISPLAYVIEWLISTING_H
 #define PVDISPLAYS_PVDISPLAYVIEWLISTING_H
 
