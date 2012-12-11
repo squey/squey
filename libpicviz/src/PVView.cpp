@@ -1467,7 +1467,7 @@ void Picviz::PVView::toggle_parallelview_unselected_zombie_visibility()
 	state_machine->toggle_parallelview_unselected_zombie_visibility();
 }
 
-bool& Picviz::PVView::are_parallelview_unselected_zombie_visibile()
+bool& Picviz::PVView::are_parallelview_unselected_zombie_visible()
 {
 	return state_machine->are_parallelview_unselected_zombie_visible();
 }

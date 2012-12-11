@@ -167,7 +167,7 @@ IMPL_WAX(Picviz::PVView::toggle_layer_stack_layer_n_visible_state, view, args)
 IMPL_WAX(Picviz::PVView::toggle_parallelview_unselected_zombie_visibility, view, args)
 {
 	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::toggle_parallelview_unselected_zombie_visibility)>(view, args);
-	refresh_observers(&view->are_parallelview_unselected_zombie_visibile());
+	refresh_observers(&view->are_parallelview_unselected_zombie_visible());
 }
 
 // Axes combination waxes

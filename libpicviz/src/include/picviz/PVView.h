@@ -246,7 +246,7 @@ public:
 	void toggle_listing_unselected_visibility();
 	void toggle_listing_zombie_visibility();
 	void toggle_parallelview_unselected_zombie_visibility();
-	bool& are_parallelview_unselected_zombie_visibile();
+	bool& are_parallelview_unselected_zombie_visible();
 
 	PVSortingFunc_p get_sort_plugin_for_col(PVCol col) const;
 
