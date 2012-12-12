@@ -1156,7 +1156,7 @@ private:
 			const uint64_t max_count = 1 << zoom;
 			const uint64_t y1_orig = obj._y1_min_value;
 			const uint64_t y1_len = (obj._y1_mid_value - y1_orig) * 2;
-			const uint64_t y1_scale = y1_len / max_count;
+			const uint64_t y1_scale = PVCore::max(1UL, y1_len / max_count);
 
 			const uint64_t y2_orig = obj._y2_min_value;
 			const uint64_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / y2_count;
@@ -1228,7 +1228,7 @@ private:
 			const uint64_t max_count = 1 << zoom;
 			const uint64_t y1_orig = obj._y1_min_value;
 			const uint64_t y1_len = (obj._y1_mid_value - y1_orig) * 2;
-			const uint64_t y1_scale = y1_len / max_count;
+			const uint64_t y1_scale = PVCore::max(1UL, y1_len / max_count);
 			const uint64_t y1_shift = log2(y1_scale);
 			const uint64_t y2_orig = obj._y2_min_value;
 			const uint64_t y2_scale = ((obj._y2_mid_value - y2_orig) * 2) / y2_count;
@@ -1621,7 +1621,7 @@ private:
 			const uint64_t y1_scale = ((obj._y1_mid_value - y1_orig) * 2) / y1_count;
 			const uint64_t y2_orig = obj._y2_min_value;
 			const uint64_t y2_len = (obj._y2_mid_value - y2_orig) * 2;
-			const uint64_t y2_scale = y2_len / max_count;
+			const uint64_t y2_scale = PVCore::max(1UL, y2_len / max_count);
 			const uint64_t ly2_min = (PVCore::clamp(y2_min, y2_orig, y2_orig + y2_len) - y2_orig) / y2_scale;
 			const uint64_t ly2_max = (PVCore::clamp(y2_max, y2_orig, y2_orig + y2_len) - y2_orig) / y2_scale;
 			const uint64_t clipped_max_count = PVCore::max(1UL, ly2_max - ly2_min);
@@ -1677,7 +1677,7 @@ private:
 			const uint64_t y1_shift = log2(y1_scale);
 			const uint64_t y2_orig = obj._y2_min_value;
 			const uint64_t y2_len = (obj._y2_mid_value - y2_orig) * 2;
-			const uint64_t y2_scale = y2_len / max_count;
+			const uint64_t y2_scale = PVCore::max(1UL, y2_len / max_count);
 			const uint64_t y2_shift = log2(y2_scale);
 			const uint64_t ly2_min = (PVCore::clamp(y2_min, y2_orig, y2_orig + y2_len) - y2_orig) / y2_scale;
 			const uint64_t ly2_max = (PVCore::clamp(y2_max, y2_orig, y2_orig + y2_len) - y2_orig) / y2_scale;
