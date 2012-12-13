@@ -16,15 +16,15 @@
 #include <pvguiqt/PVQNraw.h>
 
 // Originally from http://stackoverflow.com/questions/8766633/how-to-determine-the-correct-size-of-a-qtablewidget
-static QSize compute_qtablewidget_size(QTableWidget* t)
+static QSize compute_qtablewidget_size(QTableWidget* stats, QTableView* listing)
 {
-   int w = t->verticalHeader()->width() + t->verticalScrollBar()->width() + 4; // +4 seems to be needed
-   for (int i = 0; i < t->columnCount(); i++)
-      w += t->columnWidth(i); // seems to include gridline (on my machine)
+   int w = listing->verticalHeader()->width() + /*listing->verticalScrollBar()->width()*/ + 4;
+   for (int i = 0; i < listing->horizontalHeader()->count(); i++)
+      w += listing->columnWidth(i);
 
-   int h = t->horizontalHeader()->height() + 4;
-   for (int i = 0; i < t->rowCount(); i++)
-      h += t->rowHeight(i);
+   int h = stats->horizontalHeader()->height() + 4;
+   for (int i = 0; i < stats->verticalHeader()->count(); i++)
+      h += stats->rowHeight(i);
 
    return QSize(w, h);
 }
@@ -70,6 +70,7 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 
 	connect(_listing_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(update_header_width(int, int, int)));
 	connect(_listing_view, SIGNAL(resized()), this, SLOT(resize_panel()));
+	connect(_listing_view->horizontalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(update_scrollbar_position()));
 
 	// Observe selection to handle automatic refresh mode
 	PVHive::PVObserverSignal<Picviz::PVSelection>* obs_sel = new PVHive::PVObserverSignal<Picviz::PVSelection>(this);
@@ -82,16 +83,21 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); }, *obs_axes_comb);
 	obs_axes_comb->connect_refresh(this, SLOT(axes_comb_changed()));
 
+	init_plugins();
+
+	_stats_panel->verticalHeader()->viewport()->installEventFilter(this);
+	_stats_panel->verticalHeader()->setMinimumSectionSize(10);
+
+	resize_panel();
+	refresh();
+}
+void PVGuiQt::PVStatsListingWidget::init_plugins()
+{
 	init_plugin<__impl::PVUniqueValuesCellWidget>("unique\nvalues");
 
 	for (PVCol col=0; col < _listing_view->horizontalHeader()->count(); col++) {
 		_stats_panel->setColumnWidth(col, _listing_view->horizontalHeader()->sectionSize(col));
 	}
-
-	_stats_panel->verticalHeader()->viewport()->installEventFilter(this);
-
-	refresh();
-	resize_panel();
 }
 
 bool PVGuiQt::PVStatsListingWidget::eventFilter(QObject* obj, QEvent* event)
@@ -110,7 +116,19 @@ bool PVGuiQt::PVStatsListingWidget::eventFilter(QObject* obj, QEvent* event)
 
 void PVGuiQt::PVStatsListingWidget::refresh()
 {
-	// TODO: refresh when axes combination change... (it would be nice to avoid useless recomputations)
+	// Sync tables vertical header width
+	int stats_header_width = _stats_panel->verticalHeader()->sizeHint().width();
+	int listing_header_width = _listing_view->verticalHeader()->width();
+
+	if (stats_header_width > listing_header_width) {
+		_listing_view->verticalHeader()->setFixedWidth(stats_header_width);
+		QMetaObject::invokeMethod(_listing_view, "updateGeometries");
+	}
+	else {
+		_stats_panel->verticalHeader()->setFixedWidth(listing_header_width);
+		QMetaObject::invokeMethod(_stats_panel, "updateGeometries");
+	}
+
 	for (PVCol col=0; col < _stats_panel->columnCount(); col++) {
 		for (int row=0; row < _stats_panel->rowCount(); row++) {
 			((__impl::PVCellWidgetBase*)_stats_panel->cellWidget(row, col))->auto_refresh();
@@ -130,12 +148,42 @@ void PVGuiQt::PVStatsListingWidget::update_header_width(int column, int /*old_wi
 
 void PVGuiQt::PVStatsListingWidget::resize_panel()
 {
-	_stats_panel->setMaximumSize(compute_qtablewidget_size(_stats_panel));
+	_stats_panel->setMaximumSize(compute_qtablewidget_size(_stats_panel, _listing_view));
+	for (PVCol col=0; col < _stats_panel->columnCount(); col++) {
+		_stats_panel->setColumnWidth(col, _listing_view->columnWidth(col));
+	}
+}
+
+void PVGuiQt::PVStatsListingWidget::update_scrollbar_position()
+{
+	// Difference between QScrollBar::value() and QScrollBar::sliderPosition():
+	// From Qt documentation: If tracking is enabled (the default), the slider emits the valueChanged() signal while the slider is being dragged.
+	//                        If tracking is disabled, the slider emits the valueChanged() signal only when the user releases the slider.
+	_stats_panel->horizontalScrollBar()->setSliderPosition(_listing_view->horizontalScrollBar()->sliderPosition());
 }
 
 void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
 {
-	PVLOG_INFO("axes_comb_changed\n");
+	int old_count = _stats_panel->columnCount();
+	int new_count = _listing_view->lib_view().get_axes_count();
+	int delta = new_count - old_count;
+	if (delta > 0) {
+		for (int row=0; row < _stats_panel->rowCount(); row++) {
+			for (PVCol col=old_count-1; col < new_count-1; col++) {
+				create_item<__impl::PVUniqueValuesCellWidget>(row, col);
+			}
+		}
+	}
+	else {
+		_stats_panel->setColumnCount(_listing_view->lib_view().get_axes_count()); // Widgets gets deleted
+	}
+	resize_panel();
+	for (PVCol col=0; col < _stats_panel->columnCount(); col++) {
+		for (int row=0; row < _stats_panel->rowCount(); row++) {
+			((__impl::PVCellWidgetBase*)_stats_panel->cellWidget(row, col))->refresh(true);
+		}
+		_stats_panel->setColumnWidth(col, _listing_view->columnWidth(col));
+	}
 }
 
 /******************************************************************************
@@ -143,7 +191,7 @@ void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
  * PVGuiQt::__impl::PVUniqueValuesCellWidget
  *
  *****************************************************************************/
-std::unordered_map<uint32_t, bool> PVGuiQt::__impl::PVUniqueValuesCellWidget::_auto_refresh;
+std::unordered_map<uint32_t, std::tuple<bool, uint32_t> > PVGuiQt::__impl::PVUniqueValuesCellWidget::_params;
 
 PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) :
 	PVCellWidgetBase(table, view, item),
@@ -152,7 +200,7 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
 	_no_autorefresh_pixmap(QPixmap::fromImage(QImage(":/icon_unlinked"))),
 	_unique_values_pixmap(QPixmap::fromImage(QImage(":/fileslist_black")))
 {
-	_auto_refresh.clear();
+	_params.clear();
 	_text = new QLabel();
 
 	_refresh_icon = new QPushButton();
@@ -199,26 +247,53 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::auto_refresh() //override
 {
 	int col = _view.get_real_axis_index(_table->column(_item));
 
-	_refreshed = false;
-	if (_auto_refresh[col]) {
+	std::get<EParams::CACHED_VALUE>(_params[col]) = 0;
+	bool auto_refresh = std::get<EParams::AUTO_REFRESH>(_params[col]);
+	if (auto_refresh) {
 		refresh();
 	}
 	else {
-		_item->setBackgroundColor(_invalid_color);
-		_text->setText("N/A");
+		set_invalid();
 	}
 }
 
-void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh() //override
+void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh(bool from_cache /* = false */) //override
 {
-	if (!_refreshed) {
-		int col = _view.get_real_axis_index(_table->column(_item));
-		PVRush::PVNraw::unique_values_t values;
-		_view.get_rushnraw_parent().get_unique_values_for_col_with_sel(col, values, *_view.get_selection_visible_listing());
-		_text->setText(QString("%1").arg(values.size()));
-		_item->setBackground(QBrush(Qt::NoBrush));
-		_refreshed = true;
+	int col = _view.get_real_axis_index(_table->column(_item));
+
+	uint32_t cached_value = std::get<EParams::CACHED_VALUE>(_params[col]);
+	bool auto_refresh = std::get<EParams::AUTO_REFRESH>(_params[col]);
+
+	if (!from_cache) {
+		if (!cached_value) {
+			PVRush::PVNraw::unique_values_t values;
+			_view.get_rushnraw_parent().get_unique_values_for_col_with_sel(col, values, *_view.get_selection_visible_listing());
+			cached_value = values.size();
+			std::get<EParams::CACHED_VALUE>(_params[col]) = cached_value;
+		}
+		set_valid(cached_value, auto_refresh);
 	}
+	else if (from_cache && cached_value) {
+		set_valid(cached_value, auto_refresh);
+	}
+	else {
+		set_invalid();
+		std::get<EParams::CACHED_VALUE>(_params[col]) = 0;
+	}
+}
+
+void PVGuiQt::__impl::PVUniqueValuesCellWidget::set_invalid()
+{
+	_item->setBackgroundColor(_invalid_color);
+	_text->setText("N/A");
+}
+
+void PVGuiQt::__impl::PVUniqueValuesCellWidget::set_valid(uint32_t value, bool auto_refresh)
+{
+	_text->setText(QString("%1").arg(value));
+	_autorefresh_icon->setIcon(auto_refresh ? _autorefresh_pixmap : _no_autorefresh_pixmap);
+	_refresh_icon->setVisible(!auto_refresh);
+	_item->setBackground(QBrush(Qt::NoBrush));
 }
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::vertical_header_clicked(int index)  //override
@@ -229,12 +304,11 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::vertical_header_clicked(int inde
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::toggle_auto_refresh()
 {
 	int col = _view.get_real_axis_index(_table->column(_item));
-	bool auto_refresh = !_auto_refresh[col];
-	_auto_refresh[col] = auto_refresh;
+	bool& auto_refresh = std::get<EParams::AUTO_REFRESH>(_params[col]);
+	auto_refresh = !auto_refresh;
 
 	_autorefresh_icon->setIcon(auto_refresh ? _autorefresh_pixmap : _no_autorefresh_pixmap);
 	_refresh_icon->setVisible(!auto_refresh);
-	refresh(); // or maybe not...
 }
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()

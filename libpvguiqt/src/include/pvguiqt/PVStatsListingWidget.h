@@ -38,16 +38,15 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 
 private:
+	void init_plugins();
+
 	template <typename T>
 	void init_plugin(QString header_text)
 	{
 		int row = _stats_panel->rowCount();
 		_stats_panel->insertRow(row);
 		for (PVCol col=0; col < _listing_view->horizontalHeader()->count(); col++) {
-			_stats_panel->insertColumn(col);
-			QTableWidgetItem* item = new QTableWidgetItem();
-			_stats_panel->setItem(row, col, item);
-			_stats_panel->setCellWidget(row, col, new T(_stats_panel, _listing_view->lib_view(), item));
+			create_item<T>(row, col);
 		}
 
 		QStringList vertical_headers;
@@ -55,9 +54,19 @@ private:
 		_stats_panel->verticalHeaderItem(row)->setToolTip("Refresh all");
 	}
 
+	template <typename T>
+	void create_item(int row, int col)
+	{
+		_stats_panel->insertColumn(col);
+		QTableWidgetItem* item = new QTableWidgetItem();
+		_stats_panel->setItem(row, col, item);
+		_stats_panel->setCellWidget(row, col, new T(_stats_panel, _listing_view->lib_view(), item));
+	}
+
 private slots:
 	void toggle_stats_panel_visibility();
 	void update_header_width(int column, int old_width, int new_width);
+	void update_scrollbar_position();
 	void refresh();
 	void resize_panel();
 	void axes_comb_changed();
@@ -70,6 +79,11 @@ private:
 namespace __impl
 {
 
+enum EParams {
+	AUTO_REFRESH,
+	CACHED_VALUE,
+};
+
 class PVCellWidgetBase : public QWidget
 {
 	Q_OBJECT;
@@ -81,7 +95,7 @@ public:
 	}
 
 public:
-	virtual void refresh() = 0;
+	virtual void refresh(bool use_cache = false) = 0;
 
 public slots:
 	virtual void auto_refresh() = 0;
@@ -107,7 +121,7 @@ public:
 	void set_auto_refresh(bool auto_refresh);
 
 public slots:
-	void refresh() override;
+	void refresh(bool use_cache = false) override;
 	void vertical_header_clicked(int index) override;
 
 private slots:
@@ -115,9 +129,13 @@ private slots:
 	void show_unique_values_dlg();
 
 private:
+	void set_valid(uint32_t value, bool autorefresh);
+	void set_invalid();
+
+private:
 	QLabel* _text;
 
-	bool _refreshed = false;
+	uint32_t _unique_values_number;
 
 	QPushButton* _refresh_icon;
 	QPushButton* _autorefresh_icon;
@@ -128,7 +146,7 @@ private:
 	const QPixmap _no_autorefresh_pixmap;
 	const QPixmap _unique_values_pixmap;
 
-	static std::unordered_map<uint32_t, bool> _auto_refresh;
+	static std::unordered_map<uint32_t, std::tuple<bool, uint32_t>> _params;
 };
 
 }

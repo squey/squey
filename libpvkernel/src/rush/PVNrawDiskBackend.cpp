@@ -537,12 +537,17 @@ bool PVRush::PVNrawDiskBackend::get_unique_values_for_col(PVCol const c, unique_
 		return false;
 	}
 	typename decltype(tbb_qset)::iterator it_tls = tbb_qset.begin();
-	unique_values_t& final = *it_tls;
-	it_tls++;
-	for (; it_tls != tbb_qset.end(); it_tls++) {
-		final.unite(*it_tls);
-	}   
-	ret = final;
+	if (it_tls != tbb_qset.end()) {
+		unique_values_t& final = *it_tls;
+		it_tls++;
+		for (; it_tls != tbb_qset.end(); it_tls++) {
+			final.unite(*it_tls);
+		}
+		ret = final;
+	}
+	else {
+		ret.clear();
+	}
 	return true;
 }
 
@@ -560,11 +565,16 @@ bool PVRush::PVNrawDiskBackend::get_unique_values_for_col_with_sel(PVCol const c
 		return false;
 	}
 	typename decltype(tbb_qset)::iterator it_tls = tbb_qset.begin();
-	unique_values_t& final = *it_tls;
-	it_tls++;
-	for (; it_tls != tbb_qset.end(); it_tls++) {
-		final.unite(*it_tls);
-	}   
-	ret = final;
+	if (it_tls != tbb_qset.end()) {
+		unique_values_t& final = *it_tls;
+		it_tls++;
+		for (; it_tls != tbb_qset.end(); it_tls++) {
+			final.unite(*it_tls);
+		}
+		ret = final;
+	}
+	else {
+		ret.clear();
+	}
 	return true;
 }
