@@ -34,7 +34,11 @@ static inline void compute_bci_projection_y1(const uint64_t y1,
                                              const float beta,
                                              PVParallelView::PVZoomedZoneTree::pv_bci_code_t &bci)
 {
-	bci.s.l = ((y2 - y_min) >> shift) & mask;
+	if (shift < 0) {
+		bci.s.l = ((y2 - y_min) & mask ) << -shift;
+	} else {
+		bci.s.l = ((y2 - y_min) >> shift) & mask;
+	}
 
 	int64_t d = (int64_t)y1 - (int64_t)y2;
 	double y1p = (double)y2 + d * (double)beta;
@@ -47,7 +51,11 @@ static inline void compute_bci_projection_y1(const uint64_t y1,
 		bci.s.r = ((double)width * (double)(y2 - y_min)) / (double)(y2 - y1p);
 	} else {
 		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::STRAIGHT;
-		bci.s.r = (((uint32_t)(y1p - y_min)) >> shift) & mask;
+		if (shift < 0) {
+			bci.s.r = (((uint32_t)(y1p - y_min)) & mask) << -shift;
+		} else {
+			bci.s.r = (((uint32_t)(y1p - y_min)) >> shift) & mask;
+		}
 	}
 }
 
@@ -65,7 +73,11 @@ static inline void compute_bci_projection_y2(const uint64_t y1,
                                              const float beta,
                                              PVParallelView::PVZoomedZoneTree::pv_bci_code_t &bci)
 {
-	bci.s.l = ((y1 - y_min) >> shift) & mask;
+	if (shift < 0) {
+		bci.s.l = ((y1 - y_min) & mask) << -shift;
+	} else {
+		bci.s.l = ((y1 - y_min) >> shift) & mask;
+	}
 
 	int64_t dy = (int64_t)y2 - (int64_t)y1;
 	double y2p = (double)y1 + dy * (double)beta;
@@ -78,7 +90,11 @@ static inline void compute_bci_projection_y2(const uint64_t y1,
 		bci.s.r = ((double)width * (double)(y1 - y_min)) / (double)(y1 - y2p);
 	} else {
 		bci.s.type = PVParallelView::PVZoomedZoneTree::pv_bci_code_t::STRAIGHT;
-		bci.s.r = (((uint32_t)(y2p - y_min)) >> shift) & mask;
+		if (shift < 0) {
+			bci.s.r = (((uint32_t)(y2p - y_min)) & mask) << -shift;
+		} else {
+			bci.s.r = (((uint32_t)(y2p - y_min)) >> shift) & mask;
+		}
 	}
 }
 

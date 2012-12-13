@@ -65,7 +65,12 @@ private:
 
 	constexpr static int zoom_steps = 5;
 	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
-	constexpr static int max_wheel_value = 21 * zoom_steps;
+
+	// to make 2 consecutive values be separated by 1 pixel
+	constexpr static int max_zoom_value = (32 - bbits);
+	// to permit 2 consecutive values to be separated by 2^N pixels
+	constexpr static int extra_zoom = 0; // actually inactive
+	constexpr static int max_wheel_value = (max_zoom_value + extra_zoom) * zoom_steps;
 
 private:
 	typedef PVParallelView::PVZoomedZoneTree::context_t zzt_context_t;
