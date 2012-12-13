@@ -1,6 +1,7 @@
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVListingView.h>
+#include <pvguiqt/PVStatsListingWidget.h>
 
 #include <pvguiqt/PVDisplayViewListing.h>
 
@@ -20,8 +21,9 @@ QWidget* PVDisplays::PVDisplayViewListing::create_widget(Picviz::PVView* view, Q
 	proxy_model->setSourceModel(model);
 	PVGuiQt::PVListingView* widget = new PVGuiQt::PVListingView(view_sp, parent);
 	widget->setModel(proxy_model);
+	PVGuiQt::PVStatsListingWidget* stats_listing = new PVGuiQt::PVStatsListingWidget(widget);
 
-	return widget;
+	return stats_listing;
 }
 
 QIcon PVDisplays::PVDisplayViewListing::toolbar_icon() const

@@ -32,6 +32,10 @@ target_link_libraries(Tqt_axes_comb_view ${COMMON_LIBRARIES})
 add_executable(Tqt_listing_model listing_model.cpp common.cpp)
 target_link_libraries(Tqt_listing_model ${COMMON_LIBRARIES})
 
+# Stats listing
+add_executable(Tqt_stats_listing stats_listing.cpp common.cpp)
+target_link_libraries(Tqt_stats_listing ${COMMON_LIBRARIES})
+
 # Picviz layer-stack model
 add_executable(Tqt_layerstack layerstack-model.cpp common.cpp)
 target_link_libraries(Tqt_layerstack ${COMMON_LIBRARIES})
