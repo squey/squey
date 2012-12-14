@@ -111,6 +111,7 @@ public:
 
 	Comparaison comp(PVFormat const& original) const;
 	
+	PVFilter::PVChunkFilter_f create_tbb_filters_autodetect(float timeout, bool *cancellation = nullptr);
 	PVFilter::PVChunkFilter_f create_tbb_filters();
 	PVFilter::PVElementFilter_f create_tbb_filters_elt();
 

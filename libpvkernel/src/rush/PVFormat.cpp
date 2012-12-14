@@ -20,6 +20,7 @@
 #include <pvkernel/rush/PVNormalizer.h>
 
 #include <pvkernel/filter/PVChunkFilterByElt.h>
+#include <pvkernel/filter/PVChunkFilterByEltCancellable.h>
 #include <pvkernel/filter/PVChunkFilterByEltRestoreInvalid.h>
 #include <pvkernel/filter/PVChunkFilterByEltSaveInvalid.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
@@ -231,6 +232,14 @@ PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()
 	else {
 		chk_flt = new PVFilter::PVChunkFilterByElt(elt_f);
 	}
+	return chk_flt->f();
+}
+
+PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters_autodetect(float timeout, bool *cancellation)
+{
+	PVFilter::PVElementFilter_f elt_f = create_tbb_filters_elt();
+	assert(elt_f);
+	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilterByEltCancellable(elt_f, timeout, cancellation);
 	return chk_flt->f();
 }
 
