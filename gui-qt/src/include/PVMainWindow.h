@@ -243,6 +243,7 @@ private slots:
 	void root_modified();
 	bool load_solution(QString const& file);
 	void load_solution_and_create_mw(QString const& file);
+	void set_auto_detect_cancellation(bool cancel = true) { _auto_detect_cancellation = cancel; }
 
 private:
 	void connect_actions();
@@ -384,6 +385,7 @@ private:
 	static int sequence_n;
 	Picviz::PVRoot_sp _root;
 	PVHive::PVObserverSignal<Picviz::PVRoot> _obs_root;
+	bool _auto_detect_cancellation;
 
 private:
 	version_t _last_known_cur_release;

@@ -308,7 +308,7 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 			//QString const& str_format = itfc.key();
 			QString const& str_format = dis_formats.at(i);
 			try {
-				float success_rate = PVRush::PVSourceCreatorFactory::discover_input(pfc, *itin);
+				float success_rate = PVRush::PVSourceCreatorFactory::discover_input(pfc, *itin, &_auto_detect_cancellation);
 
 				if (success_rate > 0) {
 #pragma omp critical
@@ -696,7 +696,11 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 
 	if (choosenFormat.compare(PICVIZ_AUTOMATIC_FORMAT_STR) == 0) {
 		PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(tr("Auto-detecting file format..."), (QWidget*) this);
-		pbox->set_enable_cancel(false);
+		pbox->set_enable_cancel(true);
+		set_auto_detect_cancellation(false);
+		// set_auto_detect_cancellation() implictly set to true
+		connect(pbox, SIGNAL(rejected()), this, SLOT(set_auto_detect_cancellation()));
+
 		if (!PVCore::PVProgressBox::progress(boost::bind(&PVMainWindow::auto_detect_formats, this, PVFormatDetectCtxt(inputs, hash_input_name, formats, format_creator, files_multi_formats, discovered, formats_error, lcr, in_t, discovered_types)), pbox)) {
 			return;
 		}

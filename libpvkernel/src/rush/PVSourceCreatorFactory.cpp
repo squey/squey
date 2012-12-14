@@ -71,7 +71,7 @@ PVRush::hash_format_creator PVRush::PVSourceCreatorFactory::get_supported_format
 	return ret;
 }
 
-float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_, PVInputDescription_p input)
+float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_, PVInputDescription_p input, bool *cancellation)
 {
 	PVFormat format = format_.first;
 	tbb::tick_count start,end;
@@ -83,7 +83,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 	PVLOG_INFO("Format %s population took %0.4f.\n", qPrintable(format.get_format_name()), (end-start).seconds());
 	PVSourceCreator_p sc = format_.second;
 
-	PVFilter::PVChunkFilter_f chk_flt = format.create_tbb_filters();
+	PVFilter::PVChunkFilter_f chk_flt = format.create_tbb_filters_autodetect(1.0, cancellation);
 	PVSourceCreator::source_p src = sc->create_discovery_source_from_input(input, format);
 	src->set_number_cols_to_reserve(format.get_axes().size());
 
