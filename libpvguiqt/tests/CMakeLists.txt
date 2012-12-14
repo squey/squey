@@ -33,7 +33,8 @@ add_executable(Tqt_listing_model listing_model.cpp common.cpp)
 target_link_libraries(Tqt_listing_model ${COMMON_LIBRARIES})
 
 # Stats listing
-add_executable(Tqt_stats_listing stats_listing.cpp common.cpp)
+qt4_wrap_cpp(STATS_LISTING_MOC_SRC stats_listing.h OPTIONS ${QT4_WRAP_OPTIONS})
+add_executable(Tqt_stats_listing stats_listing.cpp common.cpp ${STATS_LISTING_MOC_SRC})
 target_link_libraries(Tqt_stats_listing ${COMMON_LIBRARIES})
 
 # Picviz layer-stack model

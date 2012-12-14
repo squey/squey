@@ -4,3 +4,5 @@
 # Copyright (C) Picviz Labs 2012
 
 ADD_SQUISH_TEST(Tsquish_listing_model ${CMAKE_BINARY_DIR}/libpvguiqt/tests/Tqt_listing_model suite_listing tst_listing_selection)
+
+ADD_SQUISH_TEST(Tsquish_stats_panel ${CMAKE_BINARY_DIR}/libpvguiqt/tests/Tqt_stats_listing suite_listing tst_stats_panel)
