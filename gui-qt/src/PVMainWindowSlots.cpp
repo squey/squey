@@ -697,16 +697,22 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 	setWindowModified(false);
 
 	PVCore::PVSerializeArchive_p ar;
-	try {
-		PVCore::PVProgressBox* pbox_solution = new PVCore::PVProgressBox("Loading investigation...", this);
-		pbox_solution->set_enable_cancel(true);
-		bool ret = PVCore::PVProgressBox::progress([&] {ar.reset(new PVCore::PVSerializeArchiveZip(file, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));}, pbox_solution);
-		if (!ret) {
-			return false;
-		}
-	}    
-	catch (PVCore::PVSerializeArchiveError& e) { 
-		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."), tr("Fatal error while loading solution %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
+	PVCore::PVSerializeArchiveError read_exception = PVCore::PVSerializeArchiveError(QString());
+	PVCore::PVProgressBox* pbox_solution = new PVCore::PVProgressBox("Loading investigation...", this);
+	pbox_solution->set_enable_cancel(true);
+	bool ret = PVCore::PVProgressBox::progress([&] {
+			try {
+				ar.reset(new PVCore::PVSerializeArchiveZip(file, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
+			} catch (const PVCore::PVSerializeArchiveError& e) {
+				read_exception = e;
+			}
+		}, pbox_solution);
+	if (!ret) {
+		return false;
+	}
+
+	if (!read_exception.what().isEmpty()) {
+		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."), tr("Fatal error while loading solution %1:\n%2").arg(file).arg(read_exception.what()), QMessageBox::Ok, this);
 		box->exec();
 		return false;
 	}    
