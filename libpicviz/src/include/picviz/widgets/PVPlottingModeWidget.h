@@ -44,6 +44,9 @@ public:
 	bool set_mode(QString const& mode) { return _combo->select_userdata(mode); }
 	inline QString get_mode() const { return _combo->get_sel_userdata().toString(); }
 
+public:
+	PVComboBox *get_combo_box() { return _combo; }
+
 private:
 	void init(bool params_btn);
 
