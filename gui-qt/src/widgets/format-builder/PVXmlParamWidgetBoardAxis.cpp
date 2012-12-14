@@ -166,8 +166,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::disableConnexion(){
     disconnect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(updatePlotMapping(const QString&)));
     disconnect(textName, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
-    disconnect(comboMapping, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
-    disconnect(comboPlotting, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
+    disconnect(comboMapping->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
+    disconnect(comboPlotting->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(listTags, SIGNAL(itemSelectionChanged()), this, SLOT(slotSetValues()));
     disconnect(group, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
 	disconnect(btnGroupAdd, SIGNAL(clicked()), this, SLOT(slotAddGroup()));
@@ -277,11 +277,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion() {
     connect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(updatePlotMapping(const QString&)));
     connect(textName, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
-    connect(comboMapping, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
-    connect(comboMapping, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(updateMappingParams()));
+    connect(comboMapping->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
 	connect(_params_mapping, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsMapping()));
-    connect(comboPlotting, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
-    connect(comboPlotting, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(updatePlottingParams()));
+    connect(comboPlotting->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
 	connect(_params_plotting, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsPlotting()));
     connect(listTags, SIGNAL(itemSelectionChanged()), this, SLOT(slotSetValues()));
 	connect(btnTagHelp, SIGNAL(clicked()), this, SLOT(slotShowTagHelp()));
