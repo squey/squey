@@ -46,6 +46,7 @@ public:
 	void load_from_file(const QString& file);
 	void move_selected_layer_up();
 	void move_selected_layer_down();
+	void reset_layer(const int idx);
 
 public:
 	Picviz::PVLayerStack const& lib_layer_stack() const { return *_obs.get_object(); }

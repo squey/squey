@@ -1,3 +1,26 @@
+:....1,355_QLabel	{container=':..._QTableWidget' text='1,355' type='QLabel' unnamed='1' visible='1'}
+:....1_QLabel	{container=':..._QTableWidget' text='1' type='QLabel' unnamed='1' visible='1'}
+:....1_QLabel_2	{container=':..._QTableWidget' occurrence='2' text='1' type='QLabel' unnamed='1' visible='1'}
+:....20_QLabel	{container=':..._QTableWidget' text='20' type='QLabel' unnamed='1' visible='1'}
+:....265_QLabel	{container=':..._QTableWidget' text='265' type='QLabel' unnamed='1' visible='1'}
+:....Close_QPushButton	{container=':..._QTableWidget' text='Close' type='QPushButton' unnamed='1' visible='1'}
+:....N/A_QLabel	{container=':..._QTableWidget' text='N/A' type='QLabel' unnamed='1' visible='1'}
+:....N/A_QLabel_2	{container=':..._QTableWidget' occurrence='2' text='N/A' type='QLabel' unnamed='1' visible='1'}
+:....N/A_QLabel_3	{container=':..._QTableWidget' occurrence='3' text='N/A' type='QLabel' unnamed='1' visible='1'}
+:....N/A_QLabel_4	{container=':..._QTableWidget' occurrence='4' text='N/A' type='QLabel' unnamed='1' visible='1'}
+:....N/A_QPushButton	{container=':..._QTableWidget' leftWidget=':....N/A_QLabel' type='QPushButton' unnamed='1' visible='1'}
+:....N/A_QPushButton_2	{container=':..._QTableWidget' leftWidget=':....N/A_QLabel_4' type='QPushButton' unnamed='1' visible='1'}
+:....N/A_QPushButton_3	{container=':..._QTableWidget' leftWidget=':....N/A_QLabel_2' type='QPushButton' unnamed='1' visible='1'}
+:..._QHeaderView	{container=':..._QTableWidget' orientation='2' type='QHeaderView' unnamed='1' visible='1'}
+:..._QPushButton	{text='...' type='QPushButton' unnamed='1' visible='1' window=':_QMainWindow'}
+:..._QPushButton_2	{container=':..._QTableWidget' occurrence='5' type='QPushButton' unnamed='1' visible='1'}
+:..._QPushButton_3	{container=':..._QTableWidget' occurrence='7' type='QPushButton' unnamed='1' visible='1'}
+:..._QPushButton_4	{container=':..._QTableWidget' occurrence='3' type='QPushButton' unnamed='1' visible='1'}
+:..._QPushButton_5	{container=':..._QTableWidget' occurrence='6' type='QPushButton' unnamed='1' visible='1'}
+:..._QPushButton_6	{container=':..._QTableWidget' occurrence='9' type='QPushButton' unnamed='1' visible='1'}
+:..._QPushButton_7	{container=':..._QTableWidget' occurrence='15' type='QPushButton' unnamed='1' visible='1'}
+:..._QScrollBar	{container=':..._QTableWidget' occurrence='11' type='QScrollBar' unnamed='1' visible='0'}
+:..._QTableWidget	{aboveWidget=':..._QPushButton' type='QTableWidget' unnamed='1' visible='1' window=':_QMainWindow'}
 :Correlation name:_QLineEdit	{buddy=':New correlation.Correlation name:_QLabel' type='QLineEdit' unnamed='1' visible='1'}
 :Correlations.TestCorrelation1_QAction	{container=':Correlations_PVGuiQt::PVCorrelationMenu_2' text='TestCorrelation1' type='QAction' unnamed='1' visible='true'}
 :Correlations.TestCorrelation_QAction	{container=':Correlations_PVGuiQt::PVCorrelationMenu_2' text='TestCorrelation' type='QAction' unnamed='1' visible='true'}
@@ -111,6 +134,8 @@
 :PVListingView.9_1_QModelIndex	{column='1' container=':PVListingView_PVGuiQt::PVListingView' row='9' type='QModelIndex'}
 :PVListingView.9_2_QModelIndex	{column='2' container=':PVListingView_PVGuiQt::PVListingView' row='9' type='QModelIndex'}
 :PVListingView.9_3_QModelIndex	{column='3' container=':PVListingView_PVGuiQt::PVListingView' row='9' type='QModelIndex'}
+:PVListingView.horizontalHeader_of_PVListingView_QHeaderView	{container=':PVListingView_PVGuiQt::PVListingView' name='horizontalHeader_of_PVListingView' orientation='1' type='QHeaderView' visible='1'}
+:PVListingView.horizontalScrollBar_of_PVListingView_QScrollBar	{container=':PVListingView_PVGuiQt::PVListingView' name='horizontalScrollBar_of_PVListingView' type='QScrollBar' visible='1'}
 :PVListingView.verticalHeader_of_PVListingView_QHeaderView	{container=':PVListingView_PVGuiQt::PVListingView' name='verticalHeader_of_PVListingView' orientation='2' type='QHeaderView' visible='1'}
 :PVListingView_PVGuiQt::PVListingView	{name='PVListingView' type='PVGuiQt::PVListingView' visible='1' window=':_QMainWindow'}
 :Parallel view [1 (default/default)].qt_dockwidget_floatbutton_PVParallelView::PVFullParallelView	{aboveWidget=':Parallel view [1 (default/default)].qt_dockwidget_floatbutton_QDockWidgetTitleButton' container=':Parallel view [1 (default/default)]_PVGuiQt::PVViewDisplay' type='PVParallelView::PVFullParallelView' unnamed='1' visible='1'}
@@ -118,6 +143,9 @@
 :Parallel view [1 (default/default)]_PVGuiQt::PVViewDisplay	{container=':qt_tabwidget_stackedwidget_PVGuiQt::PVSourceWorkspace' type='PVGuiQt::PVViewDisplay' unnamed='1' visible='1' windowTitle='Parallel view [1 (default/default)]'}
 :RecentProjectItem.<a href="1;0">/home/jbleonesio/dev/picviz-inspector/squish/files/sources/test-petit.log [text:syslog]</a>_QLabel	{container=':new-solution1.pvi[*] — Picviz Inspector 3.0.0.RecentProjectItem_QListWidget' text='<a href="1;0">/home/jbleonesio/dev/picviz-inspector/squish/files/sources/test-petit.log [text:syslog]</a>' type='QLabel' unnamed='1' visible='1'}
 :RecentProjectItem.<a href="1;0">/home/jbleonesio/dev/picviz-inspector/test_petit.log [text:syslog]</a>_QLabel	{container=':new-solution1.pvi[*] — Picviz Inspector 3.0.0.RecentProjectItem_QListWidget' text='<a href="1;0">/home/jbleonesio/dev/picviz-inspector/test_petit.log [text:syslog]</a>' type='QLabel' unnamed='1' visible='1'}
+:Unique values of axis 'Machine'_PVGuiQt::PVListUniqStringsDlg	{name='PVListDisplayDlg' type='PVGuiQt::PVListUniqStringsDlg' visible='1' windowTitle='Unique values of axis \\'Machine\\''}
+:Unique values of axis 'Message'_PVGuiQt::PVListUniqStringsDlg	{name='PVListDisplayDlg' type='PVGuiQt::PVListUniqStringsDlg' visible='1' windowTitle='Unique values of axis \\'Message\\''}
+:Unique values of axis 'Service'_PVGuiQt::PVListUniqStringsDlg	{name='PVListDisplayDlg' type='PVGuiQt::PVListUniqStringsDlg' visible='1' windowTitle='Unique values of axis \\'Service\\''}
 :_QListView	{type='QListView' unnamed='1' visible='1'}
 :_QMainWindow	{type='QMainWindow' unnamed='1' visible='1'}
 :fileNameEdit_QLineEdit	{buddy=':Import file.File name:_QLabel' name='fileNameEdit' type='QLineEdit' visible='1'}
@@ -140,3 +168,4 @@
 :splitter.frame_QFrame	{container=':Import file.splitter_QSplitter' name='frame' type='QFrame' visible='1'}
 :splitter.sidebar_QSidebar	{container=':Import file.splitter_QSplitter' name='sidebar' type='QSidebar' visible='1'}
 :stackedWidget.listView_QListView	{container=':frame.stackedWidget_QStackedWidget' name='listView' type='QListView' visible='1'}
+:unique\nvalues_HeaderViewItem	{container=':..._QHeaderView' text='unique\nvalues' type='HeaderViewItem'}

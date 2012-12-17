@@ -180,6 +180,7 @@ void PVGuiQt::PVLayerStackWidget::move_up()
 void PVGuiQt::PVLayerStackWidget::new_layer()
 {
 	ls_model()->add_new_layer();
+	ls_model()->reset_layer(ls_model()->lib_layer_stack().get_layer_count()-1);
 }
 
 PVGuiQt::PVLayerStackModel* PVGuiQt::PVLayerStackWidget::ls_model()

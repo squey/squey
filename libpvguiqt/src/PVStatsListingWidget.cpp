@@ -290,7 +290,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::set_invalid()
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::set_valid(uint32_t value, bool auto_refresh)
 {
-	_text->setText(QString("%1").arg(value));
+	_text->setText(QString("%L1").arg(value));
 	_autorefresh_icon->setIcon(auto_refresh ? _autorefresh_pixmap : _no_autorefresh_pixmap);
 	_refresh_icon->setVisible(!auto_refresh);
 	_item->setBackground(QBrush(Qt::NoBrush));

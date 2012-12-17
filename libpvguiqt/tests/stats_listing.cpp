@@ -1,5 +1,5 @@
 /**
- * \file stats_listing.h
+ * \file stats_listing.cpp
  *
  * Copyright (C) Picviz Labs 2012
  */
@@ -17,16 +17,20 @@
 #include <pvguiqt/PVListingView.h>
 #include <pvguiqt/PVStatsListingWidget.h>
 
+#include <QObject>
 #include <QApplication>
 #include <QMainWindow>
 #include <QTableView>
 #include <QVBoxLayout>
 #include <QDesktopWidget>
+#include <QShortcut>
 
 #include <boost/thread.hpp>
 
 #include "common.h"
 #include "test-env.h"
+
+#include "stats_listing.h"
 
 struct CustomMainWindow : public QMainWindow
 {
@@ -69,6 +73,7 @@ int main(int argc, char** argv)
 	qt_view->setModel(proxy_model);
 
 
+	ViewSlots view_slots(*view);
 
 	view.reset();
 
@@ -78,6 +83,14 @@ int main(int argc, char** argv)
 	mw->setCentralWidget(stats_listing);
 
 	mw->show();
+
+	QShortcut* select_all = new QShortcut(QKeySequence(Qt::Key_A), mw);
+	select_all->setContext(Qt::ApplicationShortcut);
+	QObject::connect(select_all, SIGNAL(activated()), &view_slots, SLOT(select_all()));
+
+	QShortcut* change_axes_comb = new QShortcut(QKeySequence(Qt::Key_B), mw);
+	select_all->setContext(Qt::ApplicationShortcut);
+	QObject::connect(change_axes_comb, SIGNAL(activated()), &view_slots, SLOT(change_axes_combination()));
 
 	// Remove listing when pressing enter
 	boost::thread key_thread([&]

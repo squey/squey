@@ -106,7 +106,9 @@ protected:
 	Picviz::PVView const& _view;
 	QTableWidgetItem* _item;
 
-	QColor _invalid_color = QColor(0xe7, 0xa3, 0xa3);
+	QLabel* _text;
+
+	QColor _invalid_color = QColor(0xf9, 0xd7, 0xd7);
 };
 
 class PVUniqueValuesCellWidget : public PVCellWidgetBase
@@ -133,7 +135,6 @@ private:
 	void set_invalid();
 
 private:
-	QLabel* _text;
 
 	uint32_t _unique_values_number;
 
