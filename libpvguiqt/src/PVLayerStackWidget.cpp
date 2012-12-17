@@ -153,9 +153,6 @@ void PVGuiQt::PVLayerStackWidget::duplicate_layer()
  *****************************************************************************/
 void PVGuiQt::PVLayerStackWidget::move_down()
 {
-	PVLayerStackModel *layer_stack_model = ls_model();
-
-	//layer_stack_model->lib_layer_stack().move_selected_layer_down();
 	ls_model()->move_selected_layer_down();
 }
 
@@ -166,9 +163,6 @@ void PVGuiQt::PVLayerStackWidget::move_down()
  *****************************************************************************/
 void PVGuiQt::PVLayerStackWidget::move_up()
 {
-	PVLayerStackModel *layer_stack_model = ls_model();
-
-	//layer_stack_model->lib_layer_stack().move_selected_layer_up();
 	ls_model()->move_selected_layer_up();
 }
 
