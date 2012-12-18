@@ -9,8 +9,7 @@
 
 #include <QAbstractProxyModel>
 #include <QModelIndex>
-
-#include <pvkernel/core/PVSharedBuffer.h>
+#include <QVector>
 
 #include <boost/date_time/time_duration.hpp>
 
@@ -30,7 +29,7 @@ class PVSortFilterProxyModel: public QAbstractProxyModel
 	friend class __impl::PVSortProxyDesc;
 	friend class __impl::PVSortProxyComp;
 public:
-	typedef PVCore::PVSharedBuffer<int> vec_indexes_t;
+	typedef QVector<int> vec_indexes_t;
 
 public:
 	PVSortFilterProxyModel(QObject* parent = NULL);

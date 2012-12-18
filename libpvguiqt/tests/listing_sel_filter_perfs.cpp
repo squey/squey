@@ -24,17 +24,9 @@
 template <typename T>
 class Buffer
 {
-public:
 	typedef PVCore::PVSharedPtr<T>             data_ptr_t;
-	typedef PVCore::PVAlignedAllocator<T, 16>  allocator_type;
-
-	typedef typename allocator_type::pointer         pointer;
-	typedef typename allocator_type::const_pointer   const_pointer;
-	typedef typename allocator_type::reference       reference;
-	typedef typename allocator_type::const_reference const_reference;
-	typedef typename allocator_type::size_type       size_type;
-	typedef pointer                                  iterator;
-	typedef const_pointer                            const_iterator;
+	typedef T*                                 pointer_t;
+	typedef PVCore::PVReallocableCAllocator<T> allocator_t;
 
 public:
 	Buffer()
@@ -55,26 +47,21 @@ public:
 
 	inline void reserve(size_t n)
 	{
-		_data = data_ptr_t(allocator_type().allocate(n));
+		_data = data_ptr_t(allocator_t().allocate(n));
 		_index = 0;
 	}
 
-	inline pointer get()
+	inline pointer_t get()
 	{
 		return _data.get();
 	}
 
-	inline const_pointer get() const
-	{
-		return _data.get();
-	}
-
-	inline size_type size() const
+	inline size_t size() const
 	{
 		return _index;
 	}
 
-	inline void set_size(size_type s)
+	inline void set_size(size_t s)
 	{
 		_index = s;
 	}
@@ -100,12 +87,6 @@ public:
 	{
 		_data.get()[_index++] = v;
 	}
-
-	iterator begin() { return get(); }
-	const_iterator begin() const { return get(); }
-
-	iterator end() { return get() + size(); }
-	const_iterator end() const { return get() + size(); }
 
 	bool operator==(const QVector<T> &v)
 	{
@@ -219,9 +200,9 @@ void filter_indexes_simple(vector_t const& src_idxes_in, vector_t& src_idxes_out
 	}
 
 	src_idxes_out.reserve(nvisible_lines);
-	vector_t::const_iterator it;
-	for (it = src_idxes_in.begin(); it != src_idxes_in.end(); it++) {
-		const PVRow line = *it;
+	size_t i;
+	for (i = 0; i < src_idxes_in.size(); ++i) {
+		const PVRow line = src_idxes_in.at(i);
 		if (sel->get_line(line)) {
 			src_idxes_out.push_back(line);
 		}

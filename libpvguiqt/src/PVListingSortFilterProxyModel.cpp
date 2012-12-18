@@ -4,75 +4,12 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
-#include <tbb/parallel_reduce.h>
-#include <tbb/task_scheduler_init.h>
-
 #include <pvkernel/core/PVUnicodeString.h>
-#include <pvkernel/core/PVHardwareConcurrency.h>
 
 #include <picviz/PVView.h>
 
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVCustomQtRoles.h>
-
-template <typename T>
-class ParallelFilterIndexes
-{
-public:
-	typedef PVGuiQt::PVSortFilterProxyModel::vec_indexes_t buffer_t;
-	typedef tbb::blocked_range<size_t> blocked_range;
-
-public:
-	ParallelFilterIndexes() : _count(0)
-	{}
-
-	ParallelFilterIndexes(const buffer_t &src_idxes_in,
-	                      buffer_t &src_idxes_out,
-	                      Picviz::PVSelection const* sel) :
-		_offset(0), _count(0),
-		_in(src_idxes_in), _out(src_idxes_out), _sel(sel)
-	{}
-
-	ParallelFilterIndexes(ParallelFilterIndexes& s, tbb::split) :
-		_offset(0), _count(0),
-		_in(s._in), _out(s._out), _sel(s._sel)
-	{}
-
-	size_t get_count()
-	{
-		return _count;
-	}
-
-	void operator()(const blocked_range &r)
-	{
-		size_t offset = _offset = r.begin();
-		for(size_t i = r.begin(); i != r.end(); ++i) {
-			const PVRow line = _in.at(i);
-			if (_sel->get_line(line)) {
-				_out.at(offset) = line;
-				++_count;
-				++offset;
-			}
-		}
-	}
-
-	void join(ParallelFilterIndexes &rhs)
-	{
-		memmove(_out.get() + _offset + _count,
-		        _out.get() + rhs._offset,
-		        sizeof(T) * rhs._count);
-		_count += rhs._count;
-	}
-
-private:
-	size_t                     _offset;
-	size_t                     _count;
-	const buffer_t            &_in;
-	buffer_t                  &_out;
-	const Picviz::PVSelection *_sel;
-
-};
 
 void PVGuiQt::__impl::PVListingVisbilityObserver::update(arguments_type const&) const
 {
@@ -131,17 +68,13 @@ void PVGuiQt::PVListingSortFilterProxyModel::filter_source_indexes(vec_indexes_t
 		return;
 	}
 	src_idxes_out.reserve(nvisible_lines);
-
-	typedef ParallelFilterIndexes<PVRow> pfi_t;
-
-	int thread_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
-	tbb::task_scheduler_init init(thread_num);
-	int count = src_idxes_in.size();
-	pfi_t pfi(src_idxes_in, src_idxes_out, sel);
-	tbb::parallel_deterministic_reduce(pfi_t::blocked_range(0, count,
-	                                                        count / thread_num),
-	                                   pfi);
-	src_idxes_out.set_size(pfi.get_count());
+	vec_indexes_t::const_iterator it;
+	for (it = src_idxes_in.begin(); it != src_idxes_in.end(); it++) {
+		PVRow line = *it;
+		if (sel->get_line(line)) {
+			src_idxes_out.push_back(line);
+		}
+	}
 }
 
 void PVGuiQt::PVListingSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes)
