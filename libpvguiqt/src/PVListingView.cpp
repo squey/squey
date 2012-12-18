@@ -19,6 +19,7 @@
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVQNraw.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
+#include <pvguiqt/PVToolTipDelegate.h>
 
 #include <pvdisplays/PVDisplaysContainer.h>
 #include <pvdisplays/PVDisplaysImpl.h>
@@ -64,7 +65,9 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	verticalHeader()->setObjectName("verticalHeader_of_PVListingView");
 	horizontalScrollBar()->setObjectName("horizontalScrollBar_of_PVListingView");
 	verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
-	
+
+	setItemDelegate(new PVToolTipDelegate(this));
+
 	// FOCUS POLICY
 	setFocusPolicy(Qt::StrongFocus);
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
