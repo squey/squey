@@ -13,11 +13,11 @@
 namespace PVCore
 {
 
-	template <typename T, size_t Align = sizeof(T)>
+template <typename T, class Alloc = std::allocator<T> >
 class PVSharedBuffer
 {
 	typedef PVCore::PVSharedPtr<T>                   data_ptr_t;
-	typedef PVCore::PVAlignedAllocator<T, Align>     allocator_type;
+	typedef Alloc                                    allocator_type;
 
 public:
 	typedef T                                        value_type;
