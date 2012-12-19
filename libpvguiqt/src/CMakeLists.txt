@@ -41,6 +41,7 @@ PVCorrelationMenu.cpp
 PVAD2GWidget.cpp
 PVAD2GInteractor.cpp
 PVStatsListingWidget.cpp
+PVToolTipDelegate.cpp
 
 # Displays that will be registered to libpvdisplays
 PVDisplaySourceDataTree.cpp
@@ -81,6 +82,7 @@ include/pvguiqt/PVCorrelationMenu.h
 include/pvguiqt/PVAD2GWidget.h
 include/pvguiqt/PVAD2GInteractor.h
 include/pvguiqt/PVStatsListingWidget.h
+include/pvguiqt/PVToolTipDelegate.h
 )
 
 SET(UI_FILES

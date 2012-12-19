@@ -16,6 +16,7 @@ namespace PVWidgets
 namespace PVUtils
 {
 	QString shorten_path(const QString& s, const QFont& font, uint64_t nb_px);
+	void html_word_wrap_text(QString& string, const QFont& font, uint64_t nb_px);
 };
 
 }
