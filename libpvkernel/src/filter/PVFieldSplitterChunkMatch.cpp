@@ -7,10 +7,142 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
+#include <pvkernel/core/picviz_bench.h>
 
-#include <list>
-#include <utility>
+#include <QHash>
 
+#include <iostream>
+
+namespace PVFilter
+{
+
+/**
+ * @class PVGuessReducingTree
+ *
+ * This class is used for the search of a relevant splitter configuration when
+ * detecting a format to use with a input.
+ *
+ * The normal use of this class is to insert all identified pair (argument list,
+ * field number) to count their occurrences, reduce it to remove entries which
+ * are not relevant and to get its entry which have the highest occurrence.
+ * see PVFilter::PVFieldSplitterChunkMatch::get_match() for an example.
+ */
+class PVGuessReducingTree
+{
+	typedef QHash<size_t, int>                            size_map_t;
+	typedef std::pair<PVCore::PVArgumentList, size_map_t> data_t;
+	typedef QHash<QString, data_t>                        data_map_t;
+
+public:
+	/**
+	 * Add or increment the occurrence counter for the pair (al, nfields).
+	 *
+	 * @param[in] al the argument list to reference
+	 * @param[in] nfields the fields number to reference
+	 */
+	void add(const PVCore::PVArgumentList &al, const size_t nfields)
+	{
+		if (nfields == 0) {
+			return;
+		}
+
+		QString str;
+
+		for (PVCore::PVArgumentList::const_iterator it = al.begin(); it != al.end(); ++it) {
+			// use of a non-printable character as arguments values separator
+			str.append("\01"+it->toString());
+		}
+
+		data_map_t::iterator it = _data_map.find(str);
+		if (it == _data_map.end()) {
+			data_t &d = _data_map[str];
+			d.first = al;
+			d.second[nfields] = 1;
+		} else {
+			it->second[nfields] += 1;
+		}
+	}
+
+	/**
+	 * Write the content to stdout.
+	 *
+	 * For debug purpose only.
+	 */
+	void dump() const
+	{
+		for (data_map_t::const_iterator dm_it = _data_map.begin(); dm_it != _data_map.end(); ++dm_it) {
+			std::cout << "key: " << qPrintable(dm_it.key()) << std::endl << "  al :";
+
+			for (PVCore::PVArgumentList::const_iterator al_it = dm_it->first.begin(); al_it != dm_it->first.end(); ++al_it) {
+				std::cout << " (" << qPrintable(al_it->toString()) << ")";
+			}
+			std::cout << std::endl << "  cnt:";
+
+			for (size_map_t::const_iterator sm_it = dm_it->second.begin(); sm_it != dm_it->second.end(); ++sm_it) {
+				std::cout << " " << sm_it.key() << " (" << *sm_it << ")";
+			}
+			std::cout << std::endl;
+		}
+	}
+
+	/**
+	 * Remove entries which are not a stable splitting scheme (those for
+	 * which a argument list have more than fields count).
+	 */
+	void reduce()
+	{
+		data_map_t::iterator dm_it = _data_map.begin();
+		while (dm_it != _data_map.end()) {
+			if (dm_it->second.size() > 1) {
+				dm_it = _data_map.erase(dm_it);
+			} else {
+				++dm_it;
+			}
+		}
+	}
+
+	/**
+	 * Retrieve the first entry with the highest occurrence number.
+	 *
+	 * @param[out] al the found argument list
+	 * @param[out] nfields  the found fields number
+	 *
+	 * @return true if an entry has been found; false otherwise.
+	 */
+	bool get_highest_entry(PVCore::PVArgumentList &al, size_t &nfields) const
+	{
+		bool ret = false;
+		int highest = -1;
+
+		for (data_map_t::const_iterator dm_it = _data_map.begin(); dm_it != _data_map.end(); ++dm_it) {
+			for (size_map_t::const_iterator sm_it = dm_it->second.begin(); sm_it != dm_it->second.end(); ++sm_it) {
+				if (highest < *sm_it) {
+					ret = true;
+					al = dm_it->first;
+					nfields = sm_it.key();
+					highest = *sm_it;
+				}
+			}
+		}
+
+		return ret;
+	}
+
+	size_t size() const
+	{
+		size_t s = 0;
+		for (data_map_t::const_iterator dm_it = _data_map.begin(); dm_it != _data_map.end(); ++dm_it) {
+			s += dm_it->second.size();
+		}
+
+		return s;
+	}
+
+private:
+	data_map_t _data_map;
+};
+
+}
 
 void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* chunk)
 {
@@ -20,50 +152,35 @@ void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* chunk)
 
 	PVCore::list_elts const& le = chunk->c_elements();
 	PVCore::list_elts::const_iterator it_elt;
+	BENCH_START(guessing);
 	for (it_elt = le.begin(); it_elt != le.end(); it_elt++) {
 		PVCore::PVField const& first_f = (*it_elt)->c_fields().front();
 		sp->guess(_guess_res, first_f);
 	}
+	BENCH_END(guessing, "processing chunk's elements", le.size(), 1, _guess_res.size(), 1);
 }
 
 bool PVFilter::PVFieldSplitterChunkMatch::get_match(PVCore::PVArgumentList& args, size_t& nfields)
 {
 	// Reduce _guess_res and check which args always returns the same number of fields
-	typedef std::list< std::pair<PVCore::PVArgumentList, size_t> > list_args_n_t;
-	list_args_n_t red;
+	PVGuessReducingTree red;
 
+	BENCH_START(reduction);
 	PVFilter::list_guess_result_t::iterator it;
+
 	for (it = _guess_res.begin(); it != _guess_res.end(); it++) {
-		PVCore::PVArgumentList const& args_test = it->first;
-		size_t nfields = it->second.size();
-
-		// Look for "args" in "red"
-		list_args_n_t::iterator it_red_args;
-		for (it_red_args = red.begin(); it_red_args != red.end(); it_red_args++) {
-			if (it_red_args->first == args_test) {
-				break;
-			}
-		}
-
-		if (it_red_args != red.end() && it_red_args->second != nfields) {
-			// This is an invalid set of arguments. Clear it for now.
-			red.erase(it_red_args);
-		}
-		else {
-			// This is a new set of args. Add it to the "reduction" list.
-			red.push_back(list_args_n_t::value_type(args_test, nfields));
-		}
+		red.add(it->first, it->second.size());
 	}
 
-	if (red.size() == 0) {
-		// No match here
-		return false;
-	}
+	red.reduce();
+	BENCH_END(reduction, "configuration detection", _guess_res.size(), 1, red.size(), 1);
 
-	args = red.front().first;
-	nfields = red.front().second;
+#ifdef PICVIZ_DEVELOPER_MODE
+	PVLOG_INFO("encountered splitting schemes\n");
+	red.dump();
+#endif
 
-	return true;
+	return red.get_highest_entry(args, nfields);
 }
 
 PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_p src, PVCol &naxes)
