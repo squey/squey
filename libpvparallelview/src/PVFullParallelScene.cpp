@@ -54,6 +54,8 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 {
 	_view_deleted = false;
 
+	_selection_square->hide();
+
 	PVHive::get().register_actor(view_sp, _view_actor);
 
 	// Register view for unselected & zombie lines toggle
@@ -293,6 +295,13 @@ void PVParallelView::PVFullParallelScene::mousePressEvent(QGraphicsSceneMouseEve
 		event->accept();
 	} else if (event->button() == Qt::LeftButton) {
 		_selection_square_pos = event->scenePos();
+
+		/* setting the selection "square" to a "zero" square at mouse
+		 * position and make it visible
+		 */
+		_selection_square->update_rect(QRectF(_selection_square_pos,
+		                                      _selection_square_pos));
+		_selection_square->show();
 		event->accept();
 	}
 }
@@ -313,6 +322,7 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
 		if (_selection_square_pos == event->scenePos()) {
 			// Remove selection
 			_selection_square->clear_rect();
+			_selection_square->hide();
 		}
 		_selection_square->finished();
 		commit_volatile_selection_Slot();
