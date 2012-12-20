@@ -65,7 +65,8 @@ private:
 
 		void cancel_all_and_wait();
 	};
-	
+
+public:
 	struct ZoneWidthWithZoomLevel
 	{
 
@@ -170,6 +171,15 @@ public:
 
 	int update_number_of_zones(int view_x, uint32_t view_width);
 
+	const list_zone_width_with_zoom_level_t &get_list_of_zone_width_with_zoom_level() const
+	{
+		return 	_list_of_zone_width_with_zoom_level;
+	}
+
+	void set_list_of_zone_width_with_zoom_level(list_zone_width_with_zoom_level_t &list)
+	{
+		_list_of_zone_width_with_zoom_level = list;
+	}
 
 public:
 	template <class F>
