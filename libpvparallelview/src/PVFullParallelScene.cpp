@@ -916,7 +916,12 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 
 	const double rel_pos = (double)(mouse_scene_x-zmouse_x)/((double)_lines_view.get_zone_width(zmouse));
 
-	if (event->modifiers() == Qt::ControlModifier) {
+	if (event->modifiers() & Qt::ShiftModifier) {
+		/* we do not want the QGraphicsScene's behaviour using shift (+ other modifier) + wheel:
+		 * a vertical scroll.
+		 */
+		event->accept();
+	} else if (event->modifiers() == Qt::ControlModifier) {
 		// Local zoom when the 'Ctrl' key is pressed
 
 		if (delta < 0) {
