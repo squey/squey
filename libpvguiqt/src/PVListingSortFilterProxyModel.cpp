@@ -130,18 +130,19 @@ void PVGuiQt::PVListingSortFilterProxyModel::filter_source_indexes(vec_indexes_t
 	if (nvisible_lines == 0) {
 		return;
 	}
-	src_idxes_out.reserve(nvisible_lines);
+	int count = src_idxes_in.size();
+	src_idxes_out.reserve(count);
 
 	typedef ParallelFilterIndexes<PVRow> pfi_t;
 
 	int thread_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
 	tbb::task_scheduler_init init(thread_num);
-	int count = src_idxes_in.size();
 	pfi_t pfi(src_idxes_in, src_idxes_out, sel);
 	tbb::parallel_deterministic_reduce(pfi_t::blocked_range(0, count,
 	                                                        count / thread_num),
 	                                   pfi);
 	src_idxes_out.set_size(pfi.get_count());
+	src_idxes_out.shrink_to_fit();
 }
 
 void PVGuiQt::PVListingSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes)

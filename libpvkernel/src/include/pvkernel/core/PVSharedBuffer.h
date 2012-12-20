@@ -52,6 +52,16 @@ public:
 		_index = 0;
 	}
 
+	inline void shrink_to_fit()
+	{
+		pointer ptr = nullptr;
+		if (_index) {
+			ptr = allocator_type().allocate(_index);
+			memcpy(ptr, _data.get(), _index * sizeof(value_type));
+		}
+		_data = data_ptr_t(ptr);
+	}
+
 public:
 	inline pointer get()
 	{
