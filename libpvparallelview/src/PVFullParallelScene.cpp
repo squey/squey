@@ -592,10 +592,20 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 	// there are nb_zones+1 axes
 	new_axes.resize(nb_zones + 1, nullptr);
 
+	const PVLinesView::list_zone_width_with_zoom_level_t &old_wz_list =
+		_lines_view.get_list_of_zone_width_with_zoom_level();
+
+	PVLinesView::list_zone_width_with_zoom_level_t new_wz_list;
+	// use of a negative width to indicate an uninitialized entry
+	new_wz_list.resize(nb_zones + 1, PVLinesView::ZoneWidthWithZoomLevel(-1, 0));
+
 	/* to create the new axes list, already used axes are got back and
 	 * moved to their new position in an array initialized to nullptr.
 	 * Missing axes are deleted. Remainding nullptr entries in the new axes
 	 * list are for new axes which are created.
+	 *
+	 * the same is done for PVLinesView::_list_zone_width_with_zoom_level
+	 * to preserve kept zones widths.
 	 */
 	for (size_t i = 0; i < _axes.size(); ++i) {
 		PVCol index = _lib_view.get_axes_combination().get_index_by_id(_axes[i]->get_axis_id());
@@ -611,6 +621,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 		} else {
 			new_axes[index] = _axes[i];
 			new_axes[index]->update_axis_info();
+			new_wz_list[index] = old_wz_list[i];
 		}
 
 		_axes[i] = nullptr;
@@ -622,8 +633,14 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 		if (_axes[i] == nullptr) {
 			add_axis(i, i);
 		}
+
+		if (new_wz_list[i].get_base_width() < 0) {
+			// initialization of newly created zones widths
+			new_wz_list[i] = PVLinesView::ZoneWidthWithZoomLevel();
+		}
 	}
 
+	_lines_view.set_list_of_zone_width_with_zoom_level(new_wz_list);
 	update_zones_position(true, false);
 
 	set_enabled(true);
