@@ -203,6 +203,7 @@ public:
 	 */
 	PVSelBitField& operator|=(const PVSelBitField &rhs);
 	PVSelBitField& or_optimized(const PVSelBitField &rhs);
+	PVSelBitField& or_range(const PVSelBitField &rhs, PVRow start, PVRow end);
 
 	/**
 	 * This is the binary outplaced 'SUBSTRACTION' operation on two selections

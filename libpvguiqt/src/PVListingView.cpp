@@ -7,6 +7,9 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVAlgorithms.h>
+#include <pvkernel/core/PVHardwareConcurrency.h>
+#include <pvkernel/core/picviz_bench.h>
 
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVView.h>
@@ -36,11 +39,9 @@
 #include <QMenu>
 #include <QWheelEvent>
 
+#define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
 #include <tbb/parallel_reduce.h>
 #include <tbb/task_scheduler_init.h>
-#include <pvkernel/core/PVHardwareConcurrency.h>
-
-#include <pvkernel/core/picviz_bench.h>
 
 namespace PVGuiQt
 {
@@ -72,10 +73,14 @@ public:
 
 		_sel.select_none();
 
+		_min = INT_MAX;
+		_max = 0;
 		for (int i = r.begin(); i < r.end(); ++i) {
 			QModelIndex index = list_model->index(i, 0, QModelIndex());
 			if (sel_model->isSelected(index)) {
 				int row_index = list_model->mapToSource(index).row();
+				_min = PVCore::min(_min, row_index);
+				_max = PVCore::max(_max, row_index);
 				_sel.set_bit_fast(row_index);
 			}
 		}
@@ -83,12 +88,15 @@ public:
 
 	void join(PVListingViewSelectionExtractor &rhs)
 	{
-		_sel.or_optimized(rhs._sel);
+		_sel.or_range(rhs._sel, rhs._min, rhs._max);
+		_min = PVCore::min(_min, rhs._min);
+		_max = PVCore::max(_max, rhs._max);
 	}
 
 private:
 	PVGuiQt::PVListingView *_lv;
 	Picviz::PVSelection     _sel;
+	int                     _min, _max;
 };
 
 }
@@ -287,9 +295,9 @@ void PVGuiQt::PVListingView::extract_selection(Picviz::PVSelection &sel)
 	int count = model()->rowCount(QModelIndex());
 	tvse_t tvse(this);
 	BENCH_START(sel_create);
-	tbb::parallel_reduce(tvse_t::blocked_range(0, count,
-	                                           count / thread_num),
-	                     tvse);
+	tbb::parallel_deterministic_reduce(tvse_t::blocked_range(0, count,
+	                                                         count / thread_num),
+	                                   tvse);
 	BENCH_END(sel_create, "extract_selection", 1, 1, 1, 1);
 	sel = tvse.get_selection();
 }
