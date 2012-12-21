@@ -36,6 +36,65 @@
 #include <QMenu>
 #include <QWheelEvent>
 
+#include <tbb/parallel_reduce.h>
+#include <tbb/task_scheduler_init.h>
+#include <pvkernel/core/PVHardwareConcurrency.h>
+
+#include <pvkernel/core/picviz_bench.h>
+
+namespace PVGuiQt
+{
+
+namespace __impl
+{
+
+class PVListingViewSelectionExtractor
+{
+public:
+	typedef tbb::blocked_range<int> blocked_range;
+
+	PVListingViewSelectionExtractor(PVGuiQt::PVListingView *lv) : _lv(lv)
+	{}
+
+	PVListingViewSelectionExtractor(PVListingViewSelectionExtractor& e, tbb::split) :
+		_lv(e._lv)
+	{}
+
+	Picviz::PVSelection &get_selection()
+	{
+		return _sel;
+	}
+
+	void operator()(const blocked_range &r)
+	{
+		const PVGuiQt::PVListingSortFilterProxyModel* list_model = _lv->get_listing_model();
+		QItemSelectionModel *sel_model = _lv->selectionModel();
+
+		_sel.select_none();
+
+		for (int i = r.begin(); i < r.end(); ++i) {
+			QModelIndex index = list_model->index(i, 0, QModelIndex());
+			if (sel_model->isSelected(index)) {
+				int row_index = list_model->mapToSource(index).row();
+				_sel.set_bit_fast(row_index);
+			}
+		}
+	}
+
+	void join(PVListingViewSelectionExtractor &rhs)
+	{
+		_sel.or_optimized(rhs._sel);
+	}
+
+private:
+	PVGuiQt::PVListingView *_lv;
+	Picviz::PVSelection     _sel;
+};
+
+}
+
+}
+
 /******************************************************************************
  *
  * PVGuiQt::PVListingView::PVListingView
@@ -150,7 +209,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	}
 	else
-	if (modifiers == Qt::ControlModifier) {	
+	if (modifiers == Qt::ControlModifier) {
 		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 	}
 	else
@@ -163,15 +222,10 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 
 	/* We define the volatile_selection using selection in the listing */
 	Picviz::PVSelection& vsel = lib_view().get_volatile_selection();
-	vsel.select_none();
-	QVector<PVRow> selected_rows_vector = get_selected_rows();
-	foreach (PVRow line, selected_rows_vector) {
-		vsel.set_bit_fast(line);
-	}
+	extract_selection(vsel);
 
 	/* We reprocess the view from the selection */
 	_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
-
 }
 
 /******************************************************************************
@@ -217,6 +271,27 @@ QVector<PVRow> PVGuiQt::PVListingView::get_selected_rows()
 	}
 
 	return selected_rows_vector;
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::extract_selection
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::extract_selection(Picviz::PVSelection &sel)
+{
+	typedef __impl::PVListingViewSelectionExtractor tvse_t;
+
+	int thread_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	tbb::task_scheduler_init init(thread_num);
+	int count = model()->rowCount(QModelIndex());
+	tvse_t tvse(this);
+	BENCH_START(sel_create);
+	tbb::parallel_reduce(tvse_t::blocked_range(0, count,
+	                                           count / thread_num),
+	                     tvse);
+	BENCH_END(sel_create, "extract_selection", 1, 1, 1, 1);
+	sel = tvse.get_selection();
 }
 
 /******************************************************************************
