@@ -171,6 +171,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 
 	/* We reprocess the view from the selection */
 	_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
+
 }
 
 /******************************************************************************
@@ -182,7 +183,7 @@ void PVGuiQt::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
 {
 	// Here is the reference:
 	// * if a double click is made on a line, then this line is selected in the table view *and* in the lib view
-	if (selectedIndexes().size() > 0) {
+	if (selectionModel()->hasSelection()) {
 		update_view_selection_from_listing_selection();
 	}
 	else {
@@ -260,7 +261,7 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 	switch (event->key()) {
 		case Qt::Key_Return:
 		case Qt::Key_Enter:
-			if (selectedIndexes().size() > 0) {
+			if (selectionModel()->hasSelection()) {
 				update_view_selection_from_listing_selection();
 			}
 			break;
