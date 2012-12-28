@@ -105,8 +105,15 @@ void Picviz::PVMapped::init_pure_mapping_functions(PVFilter::PVPureMappingProces
 
 void Picviz::PVMapped::finish_process_from_rush_pipeline()
 {
+	const PVRow nrows = get_parent()->get_row_count();
+
+	if (nrows == 0) {
+		_trans_table.clear();
+		return;
+	}
+
 	// Give back unused memory (over-allocated)
-	reallocate_table(get_parent()->get_row_count());
+	reallocate_table(nrows);
 
 	// Process mandatory mapping filters
 	std::vector<PVMandatoryMappingFilter::p_type> mand_mapping_filters;
