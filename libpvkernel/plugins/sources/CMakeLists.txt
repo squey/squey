@@ -7,6 +7,7 @@ set(SOURCES_DIST_LIST
 source_text_file
 source_pcap_file
 #source_perl_file
+source_arcsight
 )
 
 
@@ -48,6 +49,10 @@ if(HDFS_FOUND)
 #	add_library(source_text_hdfs SHARED hdfs/text/PVSourceCreatorTexthdfs.cpp hdfs/text/PVSourceCreatorTexthdfs.h ../common/hdfs/PVInputHDFSFile.cpp ../common/hdfs/PVInputHDFSServer.cpp hdfs/PVInputHDFS.cpp hdfs/PVChunkAlignHadoop.cpp  hdfs/PVHadoopResultServer.cpp  hdfs/PVHadoopTaskResult.cpp  hdfs/PVInputHDFS.cpp hdfs/text/register.cpp)
 #	target_link_libraries(source_text_hdfs pvkernel ${HDFS_LIBRARIES})
 endif(HDFS_FOUND)
+
+# Arcsight
+add_library(source_arcsight SHARED arcsight/PVArcsightSource.cpp arcsight/PVSourceCreatorArcsight.cpp arcsight/register.cpp ../common/arcsight/PVArcsightInfos.cpp ../common/arcsight/PVArcsightQuery.cpp)
+target_link_libraries(source_arcsight /usr/local/lib/libarcsight.a pvkernel ${QT_LIBRARIES} gsoap++)
 
 INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION sources
                                      RUNTIME DESTINATION sources)

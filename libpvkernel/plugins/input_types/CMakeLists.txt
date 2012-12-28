@@ -76,6 +76,20 @@ include_directories(AFTER ${CURL_INCLUDE_DIR})
 add_library(input_type_remotefile SHARED remote_file/addmachinedialog.cpp remote_file/fileconnectiondialog.cpp remote_file/filedownloader.cpp remote_file/logviewerwidget.cpp remote_file/PVLogViewerDialog.cpp remote_file/PVInputTypeRemoteFilename.cpp remote_file/register.cpp ${REMOTEFILE_MOC_SRCS} file/PVInputTypeFilename.cpp)
 target_link_libraries(input_type_remotefile pvkernel ${QT_LIBRARIES} ${ARCHIVE_LIBRARY} ${CURL_LIBRARY})
 
+#
+# Arcsight
+#
+set(ARCSIGHT_MOC_HEADERS
+arcsight/PVArcsightParamsWidget.h
+#arcsight/PVArcsightPreviewWidget.h
+)
+QT4_WRAP_CPP(ARCSIGHT_MOC_SRCS ${ARCSIGHT_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+
+set(ARCSIGHT_UI arcsight/arcsight_params.ui)
+PV_QT4_WRAP_UI(ARCSIGHT_UI_SRCS ${ARCSIGHT_UI})
+
+add_library(input_type_arcsight SHARED arcsight/PVArcsightParamsWidget.cpp arcsight/PVInputTypeArcsight.cpp arcsight/register.cpp ${ARCSIGHT_MOC_SRCS} ../common/arcsight/PVArcsightInfos.cpp ../common/arcsight/PVArcsightQuery.cpp ${ARCSIGHT_UI_SRCS})
+target_link_libraries(input_type_arcsight pvkernel ${QT_LIBRARIES} /usr/local/lib/libarcsight.a gsoap++)
 
 INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION input-types
                                     RUNTIME DESTINATION input-types)

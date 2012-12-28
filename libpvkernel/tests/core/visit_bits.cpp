@@ -134,7 +134,6 @@ int main()
 #endif
 	//BENCH_END(slice, "slice", sizeof(char), str2_size, 1, 1);
 	BENCH_STOP(slice);
-	PV_STAT_PROCESS_BW("visit_nth_slice", str2_size / BENCH_END_TIME(slice));
 	free(str2);
 
 	return 0;
