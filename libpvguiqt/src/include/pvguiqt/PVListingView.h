@@ -53,6 +53,7 @@ signals:
 
 private:
 	QVector<PVRow> get_selected_rows();
+	void extract_selection(Picviz::PVSelection &sel);
 	void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
