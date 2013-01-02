@@ -67,6 +67,7 @@ void PVGuiQt::PVListingSortFilterProxyModel::filter_source_indexes(vec_indexes_t
 	if (nvisible_lines == 0) {
 		return;
 	}
+
 	src_idxes_out.reserve(nvisible_lines);
 	vec_indexes_t::const_iterator it;
 	for (it = src_idxes_in.begin(); it != src_idxes_in.end(); it++) {

@@ -685,6 +685,30 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::or_optimized(const PVSelBitField& 
 	return *this;
 }
 
+PVCore::PVSelBitField& PVCore::PVSelBitField::or_range(const PVSelBitField &rhs,
+                                                       PVRow start, PVRow end)
+{
+	if ((&rhs == this) || (!rhs._table)) {
+		return *this;
+	}
+
+	if (!_table) {
+		allocate_table();
+		copy_from(rhs);
+		return *this;
+	}
+
+	PVRow chunk_start = line_index_to_chunk(start);
+	PVRow chunk_end = line_index_to_chunk(end);
+
+	for (PVRow i = chunk_start; i <= chunk_end; ++i) {
+		_table[i] |= rhs._table[i];
+	}
+
+	return *this;
+}
+
+
 ssize_t PVCore::PVSelBitField::get_min_last_nonzero_chunk_index(PVSelBitField const& other) const
 {
 	if (!_table) {
