@@ -23,9 +23,9 @@ class PVListingSortFilterProxyModel;
 
 namespace __impl {
 
-struct PVListingVisbilityObserver: public PVHive::PVFuncObserver<Picviz::PVView, FUNC(Picviz::PVView::toggle_listing_unselected_visibility)>
+struct PVListingVisibilityObserver: public PVHive::PVFuncObserver<Picviz::PVView, FUNC(Picviz::PVView::toggle_listing_unselected_visibility)>
 {
-	PVListingVisbilityObserver(PVGuiQt::PVListingSortFilterProxyModel* parent):
+	PVListingVisibilityObserver(PVGuiQt::PVListingSortFilterProxyModel* parent):
 		_parent(parent)
 	{ }
 
@@ -36,9 +36,9 @@ private:
 	PVGuiQt::PVListingSortFilterProxyModel* _parent;
 };
 
-struct PVListingVisbilityZombieObserver: public PVHive::PVFuncObserver<Picviz::PVView, FUNC(Picviz::PVView::toggle_listing_zombie_visibility)>
+struct PVListingVisibilityZombieObserver: public PVHive::PVFuncObserver<Picviz::PVView, FUNC(Picviz::PVView::toggle_listing_zombie_visibility)>
 {
-	PVListingVisbilityZombieObserver(PVGuiQt::PVListingSortFilterProxyModel* parent):
+	PVListingVisibilityZombieObserver(PVGuiQt::PVListingSortFilterProxyModel* parent):
 		_parent(parent)
 	{ }
 
@@ -56,7 +56,7 @@ class PVListingSortFilterProxyModel: public PVSortFilterProxyModel
 	Q_OBJECT
 
 public:
-	PVListingSortFilterProxyModel(Picviz::PVView_sp& lib_view, QObject* parent = NULL);
+	PVListingSortFilterProxyModel(Picviz::PVView_sp& lib_view, QTableView* view, QObject* parent = NULL);
 
 public slots:
 	void refresh_filter();
@@ -65,7 +65,7 @@ protected:
 	bool less_than(const QModelIndex &left, const QModelIndex &right) const;
 	bool is_equal(const QModelIndex &left, const QModelIndex &right) const;
 	void sort(int column, Qt::SortOrder order);
-	void sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes);
+	void sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes, tbb::task_group_context* ctxt = NULL);
 	void filter_source_indexes(vec_indexes_t const& src_idxes_in, vec_indexes_t& src_idxes_out);
 
 private:
@@ -77,8 +77,8 @@ private:
 	//__impl::PVSelFuncObserver _obs_sel;
 	PVHive::PVObserverSignal<Picviz::PVLayer> _obs_output_layer;
 	PVHive::PVObserverSignal<Picviz::PVSelection> _obs_sel;
-	__impl::PVListingVisbilityObserver _obs_vis;
-	__impl::PVListingVisbilityZombieObserver _obs_zomb;
+	__impl::PVListingVisibilityObserver _obs_vis;
+	__impl::PVListingVisibilityZombieObserver _obs_zomb;
 
 	// Temporary
 	Picviz::PVDefaultSortingFunc _def_sort;

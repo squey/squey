@@ -517,3 +517,14 @@ void PVGuiQt::PVListingView::corner_button_clicked()
 	get_listing_model()->reset_to_default_ordering_or_reverse();
 	sortByColumn(-1, Qt::AscendingOrder);
 }
+
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::sort_cancelled_for_column
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::sort_cancelled_for_column(int column)
+{
+
+}

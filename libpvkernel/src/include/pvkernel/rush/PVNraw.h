@@ -88,9 +88,9 @@ public:
 	}
 
 	template <typename F>
-	inline bool visit_column_tbb(PVCol const c, F const& f) const
+	inline bool visit_column_tbb(PVCol const c, F const& f, tbb::task_group_context* ctxt = NULL) const
 	{
-		return _backend.visit_column_tbb(c, f);
+		return _backend.visit_column_tbb(c, f, ctxt);
 	}
 
 	template <typename F>

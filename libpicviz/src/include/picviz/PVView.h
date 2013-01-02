@@ -336,10 +336,11 @@ public:
 
 	// L must be a vector of integers
 	template <class L>
-	void sort_indexes(PVCol column, Qt::SortOrder order, L& idxes) const
+	void sort_indexes(PVCol column, Qt::SortOrder order, L& idxes, tbb::task_group_context* ctxt = NULL) const
 	{
-		PVSortingFunc_p sp = get_sort_plugin_for_col(column);
-		__impl::stable_sort_indexes_f(&get_rushnraw_parent(), column, sp->f(), order, idxes);
+		/*PVSortingFunc_p sp = get_sort_plugin_for_col(column);
+		__impl::stable_sort_indexes_f(&get_rushnraw_parent(), column, sp->f(), order, idxes);*/
+		__impl::nraw_sort_indexes_f(&get_rushnraw_parent(), *get_selection_visible_listing(), column, order, idxes, ctxt);
 	}
 
 	// L must be a vector of integers
@@ -361,9 +362,9 @@ public:
 
 	// Helper functions for sorting
 	template <class L>
-	inline void sort_indexes_with_axes_combination(PVCol column, Qt::SortOrder order, L& idxes) const
+	inline void sort_indexes_with_axes_combination(PVCol column, Qt::SortOrder order, L& idxes, tbb::task_group_context* ctxt = NULL) const
 	{
-		sort_indexes<L>(axes_combination.get_axis_column_index(column), order, idxes);
+		sort_indexes<L>(axes_combination.get_axis_column_index(column), order, idxes, ctxt);
 	}
 	template <class L>
 	inline void unique_indexes_copy_with_axes_combination(PVCol column, L const& idxes_in, L& idxes_out) const

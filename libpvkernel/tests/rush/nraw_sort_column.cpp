@@ -22,11 +22,11 @@
 
 #define MIN_SIZE 1
 #define MAX_SIZE 256
-#define N (1*(1<<20))
+#define N 10000000
 
 #define VERBOSE 0
 #define STD_SORT 0
-#define INSERT_SORT 1
+#define INSERT_SORT 0
 #define PARALLEL_INSERT_SORT 1
 
 PVRush::PVNrawDiskBackend backend;
@@ -50,6 +50,7 @@ bool sort_compare(uint32_t i, uint32_t j)
 }
 
 typedef std::pair<std::string_tbb, uint32_t> string_index_t;
+typedef std::vector<uint32_t, tbb::scalable_allocator<uint32_t>> vector_uint32_tbb_t;
 
 struct MultimapCompare
 {
@@ -158,14 +159,17 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	std::cout << "sizeof(multiset):" << sizeof(multiset_string_index_t) << std::endl;
+	std::cout << "sizeof(std::vector<std::string_tbb>):" << sizeof(std::vector<std::string_tbb>) << std::endl;
+
 	const char* nraw_path = argv[1];
 
 	backend.init(nraw_path, 1);
 	PVLOG_INFO("Writing NRAW...\n");
 	char buf[MAX_SIZE];
 
-	std::vector<uint32_t> random_vec;
-	std::vector<uint32_t> vec;
+	vector_uint32_tbb_t random_vec;
+	vector_uint32_tbb_t vec;
 	vec.reserve(N);
 	random_vec.reserve(N);
 	for (uint32_t i = 0; i < N; i++) {
@@ -229,8 +233,8 @@ int main(int argc, char** argv)
 	bool sorted = true;
 	std::string_tbb previous = multimap_ref.begin()->first;
 	for (const string_index_t& pair : multimap_ref) {
-		previous = pair.first;
 		sorted &= pair.first.compare(previous) <= 0;
+		previous = pair.first;
 	}
 	std::cout << "sorted:" << std::boolalpha << sorted << std::endl;
 
@@ -279,7 +283,6 @@ int main(int argc, char** argv)
 	#endif
 	equal_to_ref = (multimap_ref.size() == multiset.size()) && std::equal(multimap_ref.begin(), multimap_ref.end(), multiset.begin(), MultimapMultisetEqual());
 	std::cout << "equal to reference:" << std::boolalpha << equal_to_ref << std::endl;
-
 #endif
 
 #if PARALLEL_INSERT_SORT
@@ -305,16 +308,41 @@ int main(int argc, char** argv)
 	// Serial multiset merge
 	multiset_string_index_t serial_reduced_multiset;
 	multiset_serial_merge(tbb_multiset, total_column_size, serial_reduced_multiset);
-	//std::cout << "multimap_ref.size()=" << multimap_ref.size()<< " serial_reduced_multiset.size()" << serial_reduced_multiset.size() << std::endl;
+#if INSERT_SORT
 	equal_to_ref = (multimap_ref.size() == serial_reduced_multiset.size()) && std::equal(multimap_ref.begin(), multimap_ref.end(), serial_reduced_multiset.begin(), MultimapMultisetEqual());
 	std::cout << "equal to reference:" << std::boolalpha << equal_to_ref << std::endl;
+#endif
 
 	// Parallel multiset merge
 	multiset_parallel_merge(tbb_multiset, total_column_size);
 	const multiset_string_index_t& reduced_multiset = *tbb_multiset.begin();
+#if INSERT_SORT
 	equal_to_ref = (multimap_ref.size() == reduced_multiset.size()) && std::equal(multimap_ref.begin(), multimap_ref.end(), reduced_multiset.begin(), MultimapMultisetEqual());
 	std::cout << "equal to reference:" << std::boolalpha << equal_to_ref << std::endl;
+#endif
 
+	// Serial vector of indexes extraction
+	BENCH_START(serial_indexes_extraction);
+	vector_uint32_tbb_t vec_indexes;
+	vec_indexes.reserve(N);
+	uint32_t index = 0;
+	for (const string_index_t& pair : reduced_multiset) {
+		vec_indexes[index++] = pair.second;
+	}
+	BENCH_END(serial_indexes_extraction, "serial_indexes_extraction", 1, 1, 1, total_column_size);
+#if INSERT_SORT
+	sorted = true;
+	size_t size;
+	const char* field = backend.at(0, 0, size);
+	previous = std::string_tbb(field, size);
+	for (uint32_t index : vec_indexes) {
+		const char* field = backend.at(index, 0, size);
+		std::string_tbb current(field, size);
+		sorted &= current.compare(previous) <= 0;
+		previous = std::move(current);
+	}
+	std::cout << "sorted:" << std::boolalpha << sorted << std::endl;
+#endif
 #endif
 }
 
