@@ -172,7 +172,7 @@ void PVGuiQt::PVSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 void PVGuiQt::PVSortFilterProxyModel::reprocess_source()
 {
 	if (_dyn_sort && _sort_idx >= 0 && _sort_idx < sourceModel()->columnCount()) {
-		if (sourceModel()->rowCount() != _vec_sort_m2s.size()) {
+		if (sourceModel()->rowCount() != (int)_vec_sort_m2s.size()) {
 			// Size has changed, recreate a default sort array.
 			int sort_idx = _sort_idx;
 			init_default_sort();
@@ -205,7 +205,7 @@ void PVGuiQt::PVSortFilterProxyModel::invalidate_filter()
 void PVGuiQt::PVSortFilterProxyModel::invalidate_all()
 {
 	// Force a sort if suitable
-	if (sourceModel() != NULL && sourceModel()->rowCount() != _vec_sort_m2s.size()) {
+	if (sourceModel() != NULL && sourceModel()->rowCount() != (int)_vec_sort_m2s.size()) {
 		// Size has changed, recreate a default sort array.
 		int sort_idx = _sort_idx;
 		init_default_sort();
@@ -228,7 +228,7 @@ QModelIndex PVGuiQt::PVSortFilterProxyModel::mapFromSource(QModelIndex const& sr
 	// Reverse search of the original index to save in the source index
 	int search_src_row = src_idx.row();
 	int proxy_row;
-	for (proxy_row = 0; proxy_row < _vec_filtered_m2s.size(); proxy_row++) {
+	for (proxy_row = 0; proxy_row < (int)_vec_filtered_m2s.size(); proxy_row++) {
 		int src_row = _vec_filtered_m2s.at(proxy_row);
 		if (src_row == search_src_row) {
 			return index(proxy_row, src_idx.column(), QModelIndex());
@@ -252,7 +252,7 @@ QModelIndex PVGuiQt::PVSortFilterProxyModel::mapToSource(QModelIndex const& src_
 		return sourceModel()->index(0, src_idx.column(), QModelIndex());
 	}
 
-	if (src_idx.row() >= _vec_filtered_m2s.size()) {
+	if (src_idx.row() >= (int)_vec_filtered_m2s.size()) {
 		return QModelIndex();
 	}
 
