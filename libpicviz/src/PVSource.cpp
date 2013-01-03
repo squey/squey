@@ -158,7 +158,7 @@ PVRush::PVControllerJob_p Picviz::PVSource::extract_from_agg_nlines(chunk_index 
 
 void Picviz::PVSource::set_mapping_function_in_extractor()
 {
-	PVRush::PVNrawOutput::list_chunk_functions& funcs = _extractor.chunk_functions();
+	PVFilter::PVSeqChunkFunction::list_chunk_functions& funcs = _extractor.chunk_functions();
 	PVFilter::PVPureMappingProcessing::list_pure_mapping_t& m_funcs = _extractor.pure_mapping_functions();
 	funcs.clear();
 	m_funcs.clear();
