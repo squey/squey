@@ -221,7 +221,6 @@ public:
 	 */
 	void process_omp_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
 
-#ifdef PICVIZ_DEVELOPER_MODE
 	/**
 	 * Equality test.
 	 *
@@ -259,7 +258,6 @@ public:
 	 * @return a zoomed zone tree on success; nullptr otherwise and an error is printed.
 	 */
 	static PVZoomedZoneTree *load_from_file(const char *filename);
-#endif
 
 	/**
 	 * Search for all events whose primary coordinates are in in the range [y1_min,y1_max) and

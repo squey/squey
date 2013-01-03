@@ -654,8 +654,6 @@ void PVParallelView::PVZoneTree::dump_branches() const
 	}
 }
 
-#ifdef PICVIZ_DEVELOPER_MODE
-
 bool PVParallelView::PVZoneTree::operator==(PVParallelView::PVZoneTree &zt) const
 {
 	for (size_t i = 0; i < NBUCKETS; ++i) {
@@ -784,5 +782,3 @@ PVParallelView::PVZoneTree *PVParallelView::PVZoneTree::load_from_file(const cha
 
 	return zt;
 }
-
-#endif

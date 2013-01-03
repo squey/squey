@@ -223,7 +223,6 @@ public:
 
 	void dump_branches() const;
 
-#ifdef PICVIZ_DEVELOPER_MODE
 	/**
 	 * Equality test.
 	 *
@@ -251,7 +250,6 @@ public:
 	 * @return a zone tree on success; nullptr otherwise and an error is printed.
 	 */
 	static PVZoneTree *load_from_file(const char *filename);
-#endif
 
 public:
 	void process_omp_sse_treeb(PVZoneProcessing const& zp);
