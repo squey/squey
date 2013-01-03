@@ -63,6 +63,14 @@ public:
 		return PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size);
 	}
 	inline QString at(PVRow row, PVCol col) const { return get_value(row, col); }
+	inline std::string at_string(PVRow row, PVCol col) const
+	{
+		assert(row < get_number_rows());
+		assert(col < get_number_cols());
+		size_t size;
+		const char* buf = _backend.at(row, col, size);
+		return std::string(buf, size);
+	}
 
 	bool add_chunk_utf16(PVCore::PVChunk const& chunk);
 

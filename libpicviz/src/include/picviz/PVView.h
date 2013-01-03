@@ -338,9 +338,8 @@ public:
 	template <class L>
 	void sort_indexes(PVCol column, Qt::SortOrder order, L& idxes, tbb::task_group_context* ctxt = NULL) const
 	{
-		/*PVSortingFunc_p sp = get_sort_plugin_for_col(column);
-		__impl::stable_sort_indexes_f(&get_rushnraw_parent(), column, sp->f(), order, idxes);*/
-		__impl::nraw_sort_indexes_f(&get_rushnraw_parent(), *get_selection_visible_listing(), column, order, idxes, ctxt);
+		PVSortingFunc_p sp = get_sort_plugin_for_col(column);
+		__impl::nraw_sort_indexes_f(&get_rushnraw_parent(), column, sp->f(), order, idxes, ctxt);
 	}
 
 	// L must be a vector of integers

@@ -106,10 +106,8 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 		}
 		case (PVCustomQtRoles::Sort):
 		{
-			/*QVariant ret;
-			ret.setValue<void*>((void*) &lib_view().get_parent<Picviz::PVSource>()->get_data_unistr_raw(index.row(), index.column()));
-			return ret;*/
-			return QVariant();
+			QVariant ret(QVariant::fromValue<std::string>(std::move(lib_view().get_parent<Picviz::PVSource>()->get_rushnraw().at_string(index.row(), index.column()))));
+			return ret;
 		}
 	}
 	return QVariant();

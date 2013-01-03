@@ -46,9 +46,11 @@ bool PVGuiQt::PVListingSortFilterProxyModel::less_than(const QModelIndex &left, 
 
 bool PVGuiQt::PVListingSortFilterProxyModel::is_equal(const QModelIndex &left, const QModelIndex &right) const
 {
-	PVCore::PVUnicodeString const* sleft = (PVCore::PVUnicodeString const*) sourceModel()->data(left, PVCustomQtRoles::Sort).value<void*>();
-	PVCore::PVUnicodeString const* sright = (PVCore::PVUnicodeString const*) sourceModel()->data(right, PVCustomQtRoles::Sort).value<void*>();
-	return _equals_f(*sleft, *sright);
+	const std::string& strleft = sourceModel()->data(left, PVCustomQtRoles::Sort).value<std::string>();
+	const std::string& strright = sourceModel()->data(right, PVCustomQtRoles::Sort).value<std::string>();
+	PVCore::PVUnicodeString sleft(strleft.c_str(), strleft.length());
+	PVCore::PVUnicodeString sright(strright.c_str(), strright.length());
+	return _equals_f(sleft, sright);
 }
 
 void PVGuiQt::PVListingSortFilterProxyModel::filter_source_indexes(vec_indexes_t const& src_idxes_in, vec_indexes_t& src_idxes_out)
