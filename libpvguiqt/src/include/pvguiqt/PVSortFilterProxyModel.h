@@ -12,6 +12,8 @@
 #include <QVector>
 #include <QTableView>
 
+#include <pvkernel/core/PVSharedBuffer.h>
+
 #include <boost/date_time/time_duration.hpp>
 
 #include "tbb/task.h"
@@ -32,7 +34,7 @@ class PVSortFilterProxyModel: public QAbstractProxyModel
 	friend class __impl::PVSortProxyDesc;
 	friend class __impl::PVSortProxyComp;
 public:
-	typedef QVector<int> vec_indexes_t;
+	typedef PVCore::PVSharedBuffer<int> vec_indexes_t;
 
 public:
 	PVSortFilterProxyModel(QTableView* view, QObject* parent = NULL);

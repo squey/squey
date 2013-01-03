@@ -217,12 +217,9 @@ void nraw_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortin
 {
 	typedef typename L::value_type Tint;
 	L tmp_indexes;
+	tmp_indexes.reserve(idxes.size());
 	tmp_indexes.resize(idxes.size());
 	bool succes = false;
-
-	// TODO: base
-	typedef PVMultisetSortAsc<string_index_t> sort_asc_t;
-	typedef PVMultisetSortDesc<string_index_t> sort_desc_t;
 
 	tbb::tag_tls_construct_args tag_c;
 
