@@ -17,6 +17,7 @@
 #include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVPureMappingProcessing.h>
+#include <pvkernel/filter/PVSeqChunkFunction.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 namespace PVRush {
@@ -169,8 +170,8 @@ public:
 	void debug();
 
 public:
-	inline PVNrawOutput::list_chunk_functions& chunk_functions() { return _out_nraw.chunk_functions(); }
-	inline PVNrawOutput::list_chunk_functions const& chunk_functions() const { return _out_nraw.chunk_functions(); }
+	inline PVFilter::PVSeqChunkFunction::list_chunk_functions& chunk_functions() { return _seq_chunk_flt.chunk_functions(); }
+	inline PVFilter::PVSeqChunkFunction::list_chunk_functions const& chunk_functions() const { return _seq_chunk_flt.chunk_functions(); }
 
 	inline PVFilter::PVPureMappingProcessing::list_pure_mapping_t& pure_mapping_functions() { return _mapping_flt.pure_mappings(); } 
 	inline PVFilter::PVPureMappingProcessing::list_pure_mapping_t const& pure_mapping_functions() const { return _mapping_flt.pure_mappings(); } 
@@ -192,6 +193,7 @@ protected:
 	PVControllerThread _ctrl_th;
 	PVNrawOutput _out_nraw; // Linked to _nraw
 	PVFilter::PVPureMappingProcessing _mapping_flt;
+	PVFilter::PVSeqChunkFunction _seq_chunk_flt;
 	PVFilter::PVChunkFilter_f _chk_flt;
 	unsigned int _chunks;
 	bool _dump_inv_elts;

@@ -21,8 +21,6 @@ namespace PVRush {
 class LibKernelDecl PVNrawOutput : public PVRush::PVOutput {
 public:
 	typedef std::map<PVRow,chunk_index> map_pvrow;
-	typedef std::function<void(PVCore::PVChunk*, const PVRow)> chunk_function_type;
-	typedef std::vector<chunk_function_type> list_chunk_functions;
 public:
 	PVNrawOutput();
 
@@ -33,9 +31,6 @@ public:
 	void operator()(PVCore::PVChunk* out);
 	map_pvrow const& get_pvrow_index_map() const;
 	void clear_pvrow_index_map();
-
-	inline list_chunk_functions& chunk_functions() { return _chunk_funcs; }
-	inline list_chunk_functions const& chunk_functions() const { return _chunk_funcs; }
 
 	void set_nraw_dest(PVNraw& nraw) { _nraw_dest = &nraw; }
 
@@ -50,7 +45,6 @@ protected:
 	PVNraw* _nraw_dest;
 	map_pvrow _pvrow_chunk_idx;
 	PVRow _nraw_cur_index;
-	list_chunk_functions _chunk_funcs;
 
 	CLASS_FILTER_NONREG(PVNrawOutput)
 };
