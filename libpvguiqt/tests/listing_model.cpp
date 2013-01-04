@@ -40,10 +40,11 @@ int main(int argc, char** argv)
 
 	Picviz::PVView_sp view = src->current_view()->shared_from_this();
 	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(view);
-	PVGuiQt::PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view);
-	proxy_model->setSourceModel(model);
+
 
 	PVGuiQt::PVListingView* qt_view = new PVGuiQt::PVListingView(view);
+	PVGuiQt::PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view, qt_view);
+	proxy_model->setSourceModel(model);
 	qt_view->setModel(proxy_model);
 
 	view.reset();

@@ -143,7 +143,7 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	horizontalHeader()->setStretchLastSection(true);
 
 	// Sorting
-	setSortingEnabled(false);
+	setSortingEnabled(true);
 	
 	// Custom context menu.
 	// It is created based on what layer filter plugins tell us.
@@ -600,4 +600,15 @@ void PVGuiQt::PVListingView::corner_button_clicked()
 	// Reset to default ordering
 	get_listing_model()->reset_to_default_ordering_or_reverse();
 	sortByColumn(-1, Qt::AscendingOrder);
+}
+
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::sort_cancelled_for_column
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::sort_cancelled_for_column(int column)
+{
+
 }

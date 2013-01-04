@@ -7,6 +7,9 @@
 #ifndef PVGUIQT_PVCUSTOMQTROLES_H
 #define PVGUIQT_PVCUSTOMQTROLES_H
 
+#include <QMetaType>
+Q_DECLARE_METATYPE(std::string)
+
 namespace PVGuiQt {
 
 namespace PVCustomQtRoles {

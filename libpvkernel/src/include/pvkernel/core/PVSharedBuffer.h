@@ -78,18 +78,18 @@ public:
 		return _index;
 	}
 
-	inline void set_size(const size_type s)
+	inline void resize(const size_type s)
 	{
 		_index = s;
 	}
 
 public:
-	inline const_reference at(const size_type i) const
+	inline const_reference operator[](const size_type i) const
 	{
 		return _data.get()[i];
 	}
 
-	inline reference at(const size_type i)
+	inline reference  operator[](const size_type i)
 	{
 		return _data.get()[i];
 	}

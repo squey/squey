@@ -9,10 +9,14 @@
 
 #include <QAbstractProxyModel>
 #include <QModelIndex>
+#include <QVector>
+#include <QTableView>
 
 #include <pvkernel/core/PVSharedBuffer.h>
 
 #include <boost/date_time/time_duration.hpp>
+
+#include "tbb/task.h"
 
 namespace PVGuiQt {
 
@@ -33,7 +37,7 @@ public:
 	typedef PVCore::PVSharedBuffer<int> vec_indexes_t;
 
 public:
-	PVSortFilterProxyModel(QObject* parent = NULL);
+	PVSortFilterProxyModel(QTableView* view, QObject* parent = NULL);
 
 	// Public interface
 	inline void set_dynamic_sort(bool enable) { _dyn_sort = enable; }
@@ -65,7 +69,7 @@ protected:
 	 *  Global sorting function to implement in order to sot directly the array of indexes.
 	 *  Default implementation uses the values returned by lees_than.
 	 */
-	virtual void sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes);
+	virtual void sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes, tbb::task_group_context* ctxt = NULL);
 
 	/*! \brief Filter source indexes.
 	 *  This function can be reimplemented to filter a list of source indexes.
@@ -92,13 +96,16 @@ public:
 	virtual QModelIndex index(int row, int col, const QModelIndex&) const;
 	virtual QModelIndex parent(const QModelIndex& idx) const;
 
+signals:
+	void sort_cancelled_for_column(int column);
+
 private:
 	void reverse_sort_order();
 	void do_sort(int column, Qt::SortOrder order);
 	void do_filter();
 	void init_default_sort();
 	void reprocess_source();
-	void __do_sort(int column, Qt::SortOrder order);
+	void __do_sort(int column, Qt::SortOrder order, tbb::task_group_context* ctxt = NULL);
 	bool __reverse_sort_order();
 
 private slots:
@@ -106,6 +113,9 @@ private slots:
 	void src_layout_changed();
 	void src_model_about_reset();
 	void src_model_reset();
+
+protected:
+	QTableView* _view;
 
 private:
 	vec_indexes_t _vec_sort_m2s; // map-to-source indexes after sorting

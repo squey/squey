@@ -124,7 +124,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 			}
 			row_values[r] = &it->second;
 		},
-		_view->get_pre_filter_layer().get_selection());
+		in.get_selection());
 
 	lines_hash_t::const_iterator it;
 	PVRow max_n = 0;
@@ -156,7 +156,12 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 			[&](const PVRow r)
 			{
 				assert(r < row_values.size());
-				const PVRow freq = *row_values[r];
+				const PVRow *pfreq = row_values[r];
+				// AG: fixme: that should be an assert
+				if (!pfreq) {
+					return;
+				}
+				const PVRow freq = *pfreq;
 				double ratio;
 				if (bLog) {
 					if (freq == min_n) {

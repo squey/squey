@@ -82,7 +82,7 @@ public:
 	 */
 	PVControllerJob(job_action a, int priority);
 	virtual ~PVControllerJob();
-	void set_params(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVFilter::PVChunkFilter& mapping_filter, PVOutput& out_filter, size_t nchunks, bool dump_inv_elts = false, bool dump_all_elts = false);
+	void set_params(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVFilter::PVChunkFilter& mapping_filter, PVFilter::PVChunkFilter& seq_chunk_function_filter, PVOutput& out_filter, size_t nchunks, bool dump_inv_elts = false, bool dump_all_elts = false);
 	bool done() const;
 	bool running() const;
 	bool cancel();
@@ -136,6 +136,7 @@ protected:
 	PVAggregator* _agg;
 	PVFilter::PVChunkFilter_f _filter;
 	PVFilter::PVChunkFilter* _mapping_filter;
+	PVFilter::PVChunkFilter* _seq_chunk_function_filter;
 	PVOutput* _out_filter;
 
 	// Filter that count valid elements

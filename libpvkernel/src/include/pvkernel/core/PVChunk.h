@@ -126,7 +126,8 @@ public:
 	chunk_index last_elt_agg_index() const { return _agg_index + _elts.size() - 1; };
 	inline void set_index(chunk_index i) { _index = i; };
 	inline void set_elts_stat(size_t nelts_org, size_t nelts_valid) { _nelts_org = nelts_org; _nelts_valid = nelts_valid; }
-	inline void get_elts_stat(size_t& nelts_org, size_t& nelts_valid) { nelts_org = _nelts_org; nelts_valid = _nelts_valid; }
+	inline void get_elts_stat(size_t& nelts_org, size_t& nelts_valid) const { nelts_org = _nelts_org; nelts_valid = _nelts_valid; }
+	inline size_t get_nelts_valid() const { return _nelts_valid; }
 
 	size_t size() const { return (size_t) ((uintptr_t)_logical_end - (uintptr_t)begin()); };
 	size_t avail() const { return (size_t) ((uintptr_t)_physical_end - (uintptr_t)_logical_end); };

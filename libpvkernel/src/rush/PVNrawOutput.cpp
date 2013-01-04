@@ -18,22 +18,7 @@ PVRush::PVNrawOutput::PVNrawOutput():
 
 void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
-	bool ret_add;
-	if (_chunk_funcs.size() > 0) {
-		const size_t cur_number_rows = nraw_dest().get_number_rows();
-		tbb::parallel_invoke(
-			[&] {
-				for (chunk_function_type const& f: this->_chunk_funcs) {
-					f(out, cur_number_rows);
-				}
-			},
-			[&] {
-				ret_add = this->nraw_dest().add_chunk_utf16(*out);
-			});
-	}
-	else {
-		ret_add = nraw_dest().add_chunk_utf16(*out);
-	}
+	const bool ret_add = nraw_dest().add_chunk_utf16(*out);
 
 	if (ret_add) {
 		// Save the chunk corresponding index

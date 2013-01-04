@@ -48,9 +48,9 @@ public:
 	{
 		size_t offset = _offset = r.begin();
 		for(size_t i = r.begin(); i != r.end(); ++i) {
-			const PVRow line = _in.at(i);
+			const PVRow line = _in[i];
 			if (_sel->get_line(line)) {
-				_out.at(offset) = line;
+				_out[offset] = line;
 				++_count;
 				++offset;
 			}
@@ -74,18 +74,18 @@ private:
 
 };
 
-void PVGuiQt::__impl::PVListingVisbilityObserver::update(arguments_type const&) const
+void PVGuiQt::__impl::PVListingVisibilityObserver::update(arguments_type const&) const
 {
 	_parent->refresh_filter();
 }
 
-void PVGuiQt::__impl::PVListingVisbilityZombieObserver::update(arguments_type const&) const
+void PVGuiQt::__impl::PVListingVisibilityZombieObserver::update(arguments_type const&) const
 {
 	_parent->refresh_filter();
 }
 
-PVGuiQt::PVListingSortFilterProxyModel::PVListingSortFilterProxyModel(Picviz::PVView_sp& lib_view, QObject* parent):
-	PVSortFilterProxyModel(parent),
+PVGuiQt::PVListingSortFilterProxyModel::PVListingSortFilterProxyModel(Picviz::PVView_sp& lib_view, QTableView* view, QObject* parent):
+	PVSortFilterProxyModel(view, parent),
 	_lib_view(*lib_view.get()),
 	_obs_vis(this),
 	_obs_zomb(this)
@@ -109,9 +109,11 @@ bool PVGuiQt::PVListingSortFilterProxyModel::less_than(const QModelIndex &left, 
 
 bool PVGuiQt::PVListingSortFilterProxyModel::is_equal(const QModelIndex &left, const QModelIndex &right) const
 {
-	PVCore::PVUnicodeString const* sleft = (PVCore::PVUnicodeString const*) sourceModel()->data(left, PVCustomQtRoles::Sort).value<void*>();
-	PVCore::PVUnicodeString const* sright = (PVCore::PVUnicodeString const*) sourceModel()->data(right, PVCustomQtRoles::Sort).value<void*>();
-	return _equals_f(*sleft, *sright);
+	const std::string& strleft = sourceModel()->data(left, PVCustomQtRoles::Sort).value<std::string>();
+	const std::string& strright = sourceModel()->data(right, PVCustomQtRoles::Sort).value<std::string>();
+	PVCore::PVUnicodeString sleft(strleft.c_str(), strleft.length());
+	PVCore::PVUnicodeString sright(strright.c_str(), strright.length());
+	return _equals_f(sleft, sright);
 }
 
 void PVGuiQt::PVListingSortFilterProxyModel::filter_source_indexes(vec_indexes_t const& src_idxes_in, vec_indexes_t& src_idxes_out)
@@ -130,24 +132,20 @@ void PVGuiQt::PVListingSortFilterProxyModel::filter_source_indexes(vec_indexes_t
 	if (nvisible_lines == 0) {
 		return;
 	}
-	int count = src_idxes_in.size();
-	src_idxes_out.reserve(count);
 
-	typedef ParallelFilterIndexes<PVRow> pfi_t;
-
-	int thread_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
-	tbb::task_scheduler_init init(thread_num);
-	pfi_t pfi(src_idxes_in, src_idxes_out, sel);
-	tbb::parallel_deterministic_reduce(pfi_t::blocked_range(0, count,
-	                                                        count / thread_num),
-	                                   pfi);
-	src_idxes_out.set_size(pfi.get_count());
-	src_idxes_out.shrink_to_fit();
+	src_idxes_out.reserve(nvisible_lines);
+	vec_indexes_t::const_iterator it;
+	for (it = src_idxes_in.begin(); it != src_idxes_in.end(); it++) {
+		PVRow line = *it;
+		if (sel->get_line(line)) {
+			src_idxes_out.push_back(line);
+		}
+	}
 }
 
-void PVGuiQt::PVListingSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes)
+void PVGuiQt::PVListingSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes, tbb::task_group_context* ctxt /*= NULL*/)
 {
-	_lib_view.sort_indexes_with_axes_combination(column, order, vec_idxes);
+	_lib_view.sort_indexes_with_axes_combination(column, order, vec_idxes, ctxt);
 }
 
 void PVGuiQt::PVListingSortFilterProxyModel::sort(int column, Qt::SortOrder order)

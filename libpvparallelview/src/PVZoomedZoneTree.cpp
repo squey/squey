@@ -480,8 +480,6 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
  * PVParallelView::PVZoomedZoneTree::dump_to_file
  *****************************************************************************/
 
-#ifdef PICVIZ_DEVELOPER_MODE
-
 bool PVParallelView::PVZoomedZoneTree::dump_to_file(const char *filename) const
 {
 	FILE *fp = fopen(filename, "w");
@@ -500,13 +498,10 @@ bool PVParallelView::PVZoomedZoneTree::dump_to_file(const char *filename) const
 	fclose(fp);
 	return true;
 }
-#endif
 
 /*****************************************************************************
  * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1
  *****************************************************************************/
-
-#ifdef PICVIZ_DEVELOPER_MODE
 
 PVParallelView::PVZoomedZoneTree *
 PVParallelView::PVZoomedZoneTree::load_from_file(const char *filename)
@@ -539,7 +534,6 @@ PVParallelView::PVZoomedZoneTree::load_from_file(const char *filename)
 
 	return zzt;
 }
-#endif
 
 /*****************************************************************************
  * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1

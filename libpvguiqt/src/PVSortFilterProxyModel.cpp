@@ -20,8 +20,11 @@
 
 #include <boost/bind.hpp>
 
-PVGuiQt::PVSortFilterProxyModel::PVSortFilterProxyModel(QObject* parent):
-	QAbstractProxyModel(parent)
+#include <QHeaderView>
+
+PVGuiQt::PVSortFilterProxyModel::PVSortFilterProxyModel(QTableView* view, QObject* parent):
+	QAbstractProxyModel(parent),
+	_view(view)
 {
 	_sort_idx = -1;
 	set_dynamic_sort(false);
@@ -37,7 +40,7 @@ void PVGuiQt::PVSortFilterProxyModel::init_default_sort()
 	for (int i = 0; i < row_count; i++) {
 		_vec_sort_m2s.push_back(i);
 	}
-	_sort_idx = -1;
+	//_sort_idx = -1;
 	BENCH_END(b, "PVSortFilterProxyModel::init_default_sort", 1, 1, row_count, sizeof(int));
 }
 
@@ -77,7 +80,7 @@ bool PVGuiQt::PVSortFilterProxyModel::__reverse_sort_order()
 	double time_adapt = _sort_time/2.0;
 	PVCore::launch_adaptive(
 			boost::bind(&PVCore::stable_sort_reverse<vec_indexes_t::iterator, __impl::PVSortProxyComp, void()>, _vec_sort_m2s.begin(), _vec_sort_m2s.end(), comp, boost::ref(boost::this_thread::interruption_point)),
-			boost::bind(&PVSortFilterProxyModel::__do_sort, this, _sort_idx, (Qt::SortOrder) !_cur_order),
+			boost::bind(&PVSortFilterProxyModel::__do_sort, this, _sort_idx, (Qt::SortOrder) !_cur_order, nullptr),
 			boost::posix_time::milliseconds(time_adapt*1000)
 			);
 	_sort_idx = sort_idx;
@@ -117,7 +120,7 @@ void PVGuiQt::PVSortFilterProxyModel::do_filter()
 	BENCH_END(b, "PVSortFilterProxyModel::do_filter", 1, 1, 1, 1);
 }
 
-void PVGuiQt::PVSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes)
+void PVGuiQt::PVSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes, tbb::task_group_context* ctxt /*= NULL*/)
 {
 	if (order == Qt::AscendingOrder) {
 		__impl::PVSortProxyAsc s(this, column);
@@ -129,11 +132,11 @@ void PVGuiQt::PVSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder ord
 	}
 }
 
-void PVGuiQt::PVSortFilterProxyModel::__do_sort(int column, Qt::SortOrder order)
+void PVGuiQt::PVSortFilterProxyModel::__do_sort(int column, Qt::SortOrder order, tbb::task_group_context* ctxt /*= NULL*/)
 {
 	tbb::tick_count start = tbb::tick_count::now();
 	init_default_sort();
-	sort_indexes(column, order, _vec_sort_m2s);
+	sort_indexes(column, order, _vec_sort_m2s, ctxt);
 	tbb::tick_count end = tbb::tick_count::now();
 	PVLOG_INFO("Sorting took %0.4f seconds.\n", (end-start).seconds());
 	_sort_time =(end-start).seconds();
@@ -144,10 +147,17 @@ void PVGuiQt::PVSortFilterProxyModel::do_sort(int column, Qt::SortOrder order)
 	assert(column >= 0 && column < sourceModel()->columnCount());
 	QWidget* parent_ = dynamic_cast<QWidget*>(QObject::parent());
 	PVCore::PVProgressBox* box = new PVCore::PVProgressBox(tr("Sorting..."), parent_);
-	box->set_enable_cancel(false);
-	PVCore::PVProgressBox::progress(boost::bind(&PVGuiQt::PVSortFilterProxyModel::__do_sort, this, column, order), box);
-	_sort_idx = column;
-	_cur_order = order;
+	box->set_enable_cancel(true);
+	tbb::task_group_context ctxt;
+	bool changed = PVCore::PVProgressBox::progress(boost::bind(&PVGuiQt::PVSortFilterProxyModel::__do_sort, this, column, order, &ctxt), ctxt, box);
+	if (changed) {
+		_sort_idx = column;
+		_cur_order = order;
+	}
+	else {
+		_view->verticalHeader()->setSortIndicator(_sort_idx, _cur_order);
+		std::cout << "_view->verticalHeader()->setSortIndicator(" << _sort_idx << ", " << _cur_order << ");" << std::endl;
+	}
 }
 
 void PVGuiQt::PVSortFilterProxyModel::sort(int column, Qt::SortOrder order)
@@ -229,7 +239,7 @@ QModelIndex PVGuiQt::PVSortFilterProxyModel::mapFromSource(QModelIndex const& sr
 	int search_src_row = src_idx.row();
 	int proxy_row;
 	for (proxy_row = 0; proxy_row < (int)_vec_filtered_m2s.size(); proxy_row++) {
-		int src_row = _vec_filtered_m2s.at(proxy_row);
+		int src_row = _vec_filtered_m2s[proxy_row];
 		if (src_row == search_src_row) {
 			return index(proxy_row, src_idx.column(), QModelIndex());
 		}
@@ -256,7 +266,7 @@ QModelIndex PVGuiQt::PVSortFilterProxyModel::mapToSource(QModelIndex const& src_
 		return QModelIndex();
 	}
 
-	return sourceModel()->index(_vec_filtered_m2s.at(src_idx.row()), src_idx.column(), QModelIndex());
+	return sourceModel()->index(_vec_filtered_m2s[src_idx.row()], src_idx.column(), QModelIndex());
 }
 
 void PVGuiQt::PVSortFilterProxyModel::filter_source_indexes(vec_indexes_t const& src_idxes_in, vec_indexes_t& src_idxes_out)

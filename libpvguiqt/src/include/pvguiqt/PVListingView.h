@@ -66,6 +66,9 @@ private:
 	Picviz::PVView const& lib_view() const { return *_obs.get_object(); }
 	Picviz::PVView& lib_view() { return *_obs.get_object(); }
 
+public slots:
+	void sort_cancelled_for_column(int column);
+
 private slots:
 	void slotDoubleClickOnVHead(int);
 	void show_ctxt_menu(const QPoint& pos);

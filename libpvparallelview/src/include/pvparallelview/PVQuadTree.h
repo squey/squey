@@ -515,7 +515,6 @@ public:
 		return compute_selection_y2(*this, y2_min, y2_max, selection);
 	}
 
-#ifdef PICVIZ_DEVELOPER_MODE
 	/**
 	 * Equality test.
 	 *
@@ -753,9 +752,9 @@ public:
 		}
 		return true;
 	}
-#endif
 
 #ifdef PICVIZ_DEVELOPER_MODE
+	
 	/**
 	 * Clear the chronometer used to measure the whole extraction process time.
 	 */

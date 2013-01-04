@@ -162,6 +162,7 @@ filter/PVFieldSplitterUTF16Char.cpp
 filter/PVFieldsFilterParamWidget.cpp
 filter/PVPureMappingProcessing.cpp
 filter/PVPluginsLoad.cpp
+filter/PVSeqChunkFunction.cpp
 )
 
 SET(FILTER_HEADER_FILES
@@ -185,6 +186,7 @@ include/pvkernel/filter/PVFieldSplitterUTF16Char.h
 include/pvkernel/filter/PVFieldsMappingFilter.h
 include/pvkernel/filter/PVPluginsLoad.h
 include/pvkernel/filter/PVPureMappingProcessing.h
+include/pvkernel/filter/PVSeqChunkFunction.h
 )
 
 SET(FILTER_MOC_HEADERS
