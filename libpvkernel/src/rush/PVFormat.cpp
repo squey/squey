@@ -296,10 +296,6 @@ QHash<QString, PVRush::PVFormat> PVRush::PVFormat::list_formats_in_dir(QString c
 
 	for (int counter=0; counter < normalize_helpers_dir_list.count(); counter++) {
 		QString normalize_helpers_dir_str(normalize_helpers_dir_list[counter]);
-		if (normalize_helpers_dir_str.startsWith ("~/")) {
-			normalize_helpers_dir_str.replace (0, 1, QDir::homePath());
-		}
-
 		PVLOG_INFO("Search for formats in %s\n", qPrintable(normalize_helpers_dir_str));	
 		QDir normalize_helpers_dir(normalize_helpers_dir_str);
 		normalize_helpers_dir.setNameFilters(QStringList() << "*.format" << "*.pcre");

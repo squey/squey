@@ -52,6 +52,16 @@ public:
 		_index = 0;
 	}
 
+	inline void shrink_to_fit()
+	{
+		pointer ptr = nullptr;
+		if (_index) {
+			ptr = allocator_type().allocate(_index);
+			memcpy(ptr, _data.get(), _index * sizeof(value_type));
+		}
+		_data = data_ptr_t(ptr);
+	}
+
 public:
 	inline pointer get()
 	{
@@ -89,16 +99,6 @@ public:
 		_data.get()[_index] = v;
 		++_index;
 	}
-	
-	inline void shrink_to_fit()
-	{
-		pointer ptr = nullptr;
-		if (_index) {
-			ptr = allocator_type().allocate(_index);
-			memcpy(ptr, _data.get(), _index * sizeof(value_type));
-		}
-		_data = data_ptr_t(ptr);
-	}
 
 public:
 	inline PVSharedBuffer &operator=(const PVSharedBuffer &buffer)
@@ -118,7 +118,6 @@ public:
 private:
 	data_ptr_t _data;
 	size_type  _index;
-
 };
 
 }
