@@ -56,11 +56,14 @@ endif()
 # Default value for LTO
 if (NOT DEFINED USE_LTO)
 	# By default, not set only in release mode
-	if (CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
-		set(USE_LTO false)
-	else()
-		set(USE_LTO true)
-	endif()
+	#if (CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
+	#	set(USE_LTO false)
+	#else()
+	#	set(USE_LTO true)
+	#endif()
+
+	# AG: until this works (GCC 4.8 ?), never use LTO by default
+	set(USE_LTO false)
 endif()
 
 # Default values for tests files root
