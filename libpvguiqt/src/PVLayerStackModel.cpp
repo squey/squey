@@ -243,9 +243,9 @@ void PVGuiQt::PVLayerStackModel::layer_stack_refreshed(PVHive::PVObserverBase* /
 	endResetModel();
 }
 
-void PVGuiQt::PVLayerStackModel::add_new_layer()
+void PVGuiQt::PVLayerStackModel::add_new_layer(QString name)
 {
-	_actor.call<FUNC(Picviz::PVView::add_new_layer)>();
+	_actor.call<FUNC(Picviz::PVView::add_new_layer)>(name);
 	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 }
 
