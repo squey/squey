@@ -343,6 +343,12 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 	}
 }
 
+template <size_t Bbits>
+static inline int get_nthread_x_from_width(int width)
+{
+	return (picviz_min(width, (SMEM_IMG_KB*1024)/(PVParallelView::constants<Bbits>::image_height*sizeof(img_zbuffer_t))));
+}
+
 template <size_t Bbits, bool reverse>
 static void show_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream)
 {
@@ -351,7 +357,7 @@ static void show_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint
 	}
 	assert((zoom_y > 0) && (zoom_y <= 1.0f));
 	// Compute number of threads per block
-	int nthreads_x = (picviz_min(width, (SMEM_IMG_KB*1024)/(PVParallelView::constants<Bbits>::image_height*sizeof(img_zbuffer_t))));
+	int nthreads_x = get_nthread_x_from_width<Bbits>(width);
 	int nthreads_y = NTHREADS_BLOCK/nthreads_x;
 	assert(nthreads_x*nthreads_y <= NTHREADS_BLOCK);
 
@@ -359,7 +365,34 @@ static void show_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint
 	int nblocks = PVCuda::get_number_blocks();
 	int nblocks_x = (width+nthreads_x-1)/nthreads_x;
 	int nblocks_y = 1;
+
+	// Launch CUDA kernel!
 	bcicode_raster_unroll2<Bbits, reverse><<<dim3(nblocks_x,nblocks_y),dim3(nthreads_x, nthreads_y), 0, stream>>>((uint2*) device_codes, n, width, device_img, img_width, x_start, zoom_y);
+}
+
+template <size_t Bbits, bool reverse>
+static float show_and_perf_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream, double* kernel_bw)
+{
+	// WARNING!
+	// This will imply a synchronous call to the CUDA kernel, thus must not be used
+	// inside the Picviz rendering pipeline!!
+	cudaEvent_t start, stop;
+	cudaEventCreate(&start);
+	cudaEventCreateWithFlags(&stop, cudaEventBlockingSync);
+
+	cudaEventRecord(start, stream);
+	show_codes_cuda<Bbits, reverse>(device_codes, n, width, device_img, img_width, x_start, zoom_y, stream);
+	picviz_verify_cuda_kernel();
+	cudaEventRecord(stop, stream);
+	cudaEventSynchronize(stop);
+
+	float time = 0.0f;
+	cudaEventElapsedTime(&time, start, stop);
+	if (kernel_bw) {
+		*kernel_bw = (double)(n*sizeof(PVBCICode<Bbits>))/(double)((time/1000.0)*1024.0*1024.0);
+	}
+
+	return time;
 }
 
 void show_codes_cuda10(PVParallelView::PVBCICode<10>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream)
@@ -375,4 +408,14 @@ void show_codes_cuda11(PVParallelView::PVBCICode<11>* device_codes, uint32_t n, 
 void show_codes_cuda11_reverse(PVParallelView::PVBCICode<11>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream)
 {
 	show_codes_cuda<11, true>(device_codes, n, width, device_img, img_width, x_start, zoom_y, stream);
+}
+
+float show_and_perf_codes_cuda10(PVParallelView::PVBCICode<10>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream, double* bw)
+{
+	return show_and_perf_codes_cuda<10, false>(device_codes, n, width, device_img, img_width, x_start, zoom_y, stream, bw);
+}
+
+float show_and_perf_codes_cuda11(PVParallelView::PVBCICode<11>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream, double* bw)
+{
+	return show_and_perf_codes_cuda<11, false>(device_codes, n, width, device_img, img_width, x_start, zoom_y, stream, bw);
 }

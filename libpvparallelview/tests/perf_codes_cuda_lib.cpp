@@ -5,15 +5,12 @@
  */
 
 #include <pvkernel/core/picviz_bench.h>
-#include <picviz/PVPlotted.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
-#include <pvkernel/core/PVHSVColor.h>
+#include <pvparallelview/cuda/bci_cuda.h>
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/PVTools.h>
-#include <pvparallelview/PVZonesDrawing.h>
-#include <pvparallelview/PVZonesManager.h>
 
 #include <iostream>
 #include <cstdlib>
@@ -25,16 +22,10 @@
 #include <QLabel>
 #include <QString>
 
-#include <boost/random/normal_distribution.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/variate_generator.hpp>
-
 #include "helpers.h"
 
 #define WIDTH 1024
 #define BBITS 10
-
-typedef PVParallelView::PVZonesDrawing<BBITS> zones_drawing_t;
 
 void show_qimage(QString const& title, QImage const& img)
 {
@@ -57,11 +48,28 @@ PVParallelView::PVBCIBackendImage_p do_test(size_t n, size_t width, int pattern)
 	PVParallelView::PVBCIPatterns<Bbits>::init_codes_pattern(codes, n, pattern);
 
 	PVParallelView::PVBCIBackendImage_p dst_img = backend_cuda.create_image(width, Bbits);
+	PVParallelView::PVBCIBackendImageCUDA* dst_img_cuda = dynamic_cast<PVParallelView::PVBCIBackendImageCUDA*>(dst_img.get());
+	assert(dst_img_cuda);
+	
+	PVParallelView::PVBCICodeBase* dev_codes;
+	picviz_verify_cuda(cudaMalloc(&dev_codes, n * sizeof(PVParallelView::PVBCICodeBase)));
+	picviz_verify_cuda(cudaMemcpy(dev_codes, codes, n*sizeof(codes), cudaMemcpyHostToDevice));
+	double bw;
+	float time;
+	switch (Bbits) {
+		case 10:
+			time = show_and_perf_codes_cuda10(&dev_codes->as<10>(), n, width, dst_img_cuda->device_img(), width, 0, 1.0f, NULL, &bw);
+			break;
+		case 11:
+			time = show_and_perf_codes_cuda11(&dev_codes->as<11>(), n, width, dst_img_cuda->device_img(), width, 0, 1.0f, NULL, &bw);
+			break;
+	}
 
-	backend_cuda(*dst_img, 0, width, (PVParallelView::PVBCICodeBase*) codes, n);
-	BENCH_START(render);
-	backend_cuda.wait_all();
-	BENCH_END(render, "render", 1, 1, 1, 1);
+	std::cout << "Kernel launch in " << time << "ms, BW = " << bw << "MB/s" << std::endl;
+
+	dst_img_cuda->copy_device_to_host();
+	QImage img(dst_img->qimage());
+	write(4, img.constBits(), img.height() * img.width() * sizeof(uint32_t));
 
 	//picviz_verify_cuda(cudaFreeHost(codes));
 	
@@ -110,14 +118,6 @@ int main(int argc, char** argv)
 			dst_img = do_test<11>(n, width, pattern);
 			break;
 	}
-
-	QImage img(dst_img->qimage());
-	write(4, img.constBits(), img.height() * img.width() * sizeof(uint32_t));
-
-	QApplication app(argc, argv);
-	show_qimage("test", dst_img->qimage());
-	app.exec();
-
 
 	return 0;
 }

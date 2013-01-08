@@ -42,7 +42,8 @@ public:
 public:
 	virtual void resize_width(PVBCIBackendImage& dst, const uint32_t width) const override;
 
-protected:
+// AG: should be protected, but used directly in some benchmarking tests
+public:
 	pixel_pointer_t device_img() { return _device_img; }
 	pixel_pointer_t host_img() { return _host_img; }
 

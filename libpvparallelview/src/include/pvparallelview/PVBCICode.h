@@ -47,40 +47,6 @@ struct PVBCICode
 		DOWN = 2
 	} _type_t;
 
-	static void init_random_codes(PVBCICode* codes, size_t n)
-	{
-		for (size_t i = 0; i < n; i++) {
-			PVBCICode c;
-			c.int_v = 0;
-			//c.s.idx = rand();
-			c.s.idx = n-i;
-			//c.s.l = ((i/1024)*4)%1024;
-			//c.s.l = i&(MASK_INT_YCOORD);
-			//c.s.l = rand()&constants<Bbits>::mask_int_ycoord;
-			//c.s.r = rand()&constants<Bbits>::mask_int_ycoord;
-			//c.s.r = (c.s.l+10)&constants<Bbits>::mask_int_ycoord;
-			if (i < 1024) {
-				c.s.l = constants<Bbits>::mask_int_ycoord/2;
-				c.s.type = UP;
-				c.s.color = HSV_COLOR_WHITE;
-			}
-			else 
-			if (i < 3072) {
-				c.s.l = constants<Bbits>::mask_int_ycoord/2;
-				c.s.type = DOWN;
-				c.s.color = HSV_COLOR_BLACK;
-			}
-			else {
-				c.s.l = constants<Bbits>::mask_int_ycoord/5;
-				c.s.color = i%((1<<HSV_COLOR_NBITS_ZONE)*6);
-			}
-			c.s.r = i&(constants<Bbits>::mask_int_ycoord);
-			//c.s.color = rand()&((1<<9)-1);
-			//c.s.color = i%((1<<HSV_COLOR_NBITS_ZONE)*6);
-			codes[i] = c;
-		}
-	}
-
 	static PVBCICode* allocate_codes(size_t n)
 	{
 		PVBCICode* ret = PVBCICode::allocator().allocate(n);

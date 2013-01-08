@@ -11,6 +11,8 @@
 #include "bci_cuda.h"
 #include <pvparallelview/simple_lines_int_view.h>
 
+#include "helpers.h"
+
 #include <iostream>
 
 #define WIDTH 1024
@@ -68,7 +70,7 @@ int main(int argc, char** argv)
 	size_t n = atoll(argv[1]);
 
 	PVParallelView::PVBCICode<NBITS_INDEX>* codes = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(n);
-	PVParallelView::PVBCICode<NBITS_INDEX>::init_random_codes(codes, n);
+	PVParallelView::PVBCIPatterns<NBITS_INDEX>::init_random_codes(codes, n);
 
 	uint32_t* img = new uint32_t[width*IMAGE_HEIGHT];
 

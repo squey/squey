@@ -12,6 +12,8 @@
 
 #include <iostream>
 
+#include "helpers.h"
+
 void show_codes(PVParallelView::PVBCICode<NBITS_INDEX>* codes, size_t n)
 {
 	QMainWindow* mw = new QMainWindow();
@@ -45,7 +47,7 @@ int main(int argc, char** argv)
 	size_t n = atoll(argv[1]);
 
 	PVParallelView::PVBCICode<NBITS_INDEX>* codes = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(n);
-	PVParallelView::PVBCICode<NBITS_INDEX>::init_random_codes(codes, n);
+	PVParallelView::PVBCIPatterns<NBITS_INDEX>::init_random_codes(codes, n);
 
 	show_codes(codes, n);
 

@@ -10,6 +10,7 @@
 #include <pvparallelview/PVBCICode.h>
 #include "multiple_zones_cuda.h"
 #include <pvparallelview/simple_lines_int_view.h>
+#include "helpers.h"
 
 #include <iostream>
 
@@ -52,7 +53,7 @@ int main(int argc, char** argv)
 	size_t n = atoll(argv[1]);
 
 	PVParallelView::PVBCICode<NBITS_INDEX>* host_codes = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(n);
-	PVParallelView::PVBCICode<NBITS_INDEX>::init_random_codes(host_codes, n);
+	PVParallelView::PVBCIPatterns<NBITS_INDEX>::init_random_codes(host_codes, n);
 
 	uint32_t* device_img = init_cuda_image(width);
 	PVParallelView::PVBCICode<NBITS_INDEX>* device_codes[2];

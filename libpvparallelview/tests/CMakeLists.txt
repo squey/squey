@@ -143,8 +143,11 @@ if (CUDA_FOUND)
 	#add_executable(lines_drawing lines_drawing.cpp)
 	#target_link_libraries(lines_drawing ${LINK_LIBRARIES})
 
-	add_executable(show_codes_cuda_lib show_codes_cuda_lib.cpp)
+	add_executable(show_codes_cuda_lib show_codes_cuda_lib.cpp helpers.cpp)
 	target_link_libraries(show_codes_cuda_lib ${LINK_LIBRARIES})
+
+	add_executable(perf_codes_cuda_lib perf_codes_cuda_lib.cpp helpers.cpp)
+	target_link_libraries(perf_codes_cuda_lib ${LINK_LIBRARIES})
 
 	#add_executable(rendering_pipeline_base rendering_pipeline_base.cpp)
 	#target_link_libraries(rendering_pipeline_base ${LINK_LIBRARIES})

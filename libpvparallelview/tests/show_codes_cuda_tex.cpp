@@ -25,6 +25,8 @@
 
 #include <QGLBuffer>
 
+#include "helpers.h"
+
 void init_codes(LBView* v, PVParallelView::PVBCICode<NBITS_INDEX>* codes, size_t n)
 {
 	v->set_size(WIDTH, 1024);
@@ -72,7 +74,7 @@ int main(int argc, char** argv)
 	size_t n = atoll(argv[1]);
 
 	PVParallelView::PVBCICode<NBITS_INDEX>* codes = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(n);
-	PVParallelView::PVBCICode<NBITS_INDEX>::init_random_codes(codes, n);
+	PVParallelView::PVBCIPatterns<NBITS_INDEX>::init_random_codes(codes, n);
 
 	v->set_size(WIDTH, 1024);
 	v->set_ortho(1, 1024);
