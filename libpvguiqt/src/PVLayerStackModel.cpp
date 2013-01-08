@@ -242,9 +242,9 @@ void PVGuiQt::PVLayerStackModel::layer_stack_refreshed(PVHive::PVObserverBase* /
 	endResetModel();
 }
 
-void PVGuiQt::PVLayerStackModel::add_new_layer()
+void PVGuiQt::PVLayerStackModel::add_new_layer(QString const& name)
 {
-	_actor.call<FUNC(Picviz::PVView::add_new_layer)>();
+	_actor.call<FUNC(Picviz::PVView::add_new_layer)>(name);
 	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 }
 
@@ -289,4 +289,11 @@ void PVGuiQt::PVLayerStackModel::load_from_file(const QString& file)
 {
 	_actor.call<FUNC(Picviz::PVView::load_from_file)>(file);
 	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+}
+
+void PVGuiQt::PVLayerStackModel::reset_layer(const int idx)
+{
+	Picviz::PVLayerStack& layerstack = lib_layer_stack();
+	Picviz::PVLayer& layer = layerstack.get_layer_n(idx);
+	layer.reset_to_full_and_default_color();
 }

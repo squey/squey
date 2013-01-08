@@ -257,7 +257,7 @@ public:
 ******************************************************************************
 *****************************************************************************/
 
-	void add_new_layer();
+	void add_new_layer(QString name = QString());
 	void add_new_layer_from_file(const QString& path);
 	void delete_layer_n(int idx);
 	void delete_selected_layer();

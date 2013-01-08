@@ -157,8 +157,6 @@ void PVGuiQt::PVLayerStackWidget::duplicate_layer()
  *****************************************************************************/
 void PVGuiQt::PVLayerStackWidget::move_down()
 {
-	PVLayerStackModel *layer_stack_model = ls_model();
-
 	//layer_stack_model->lib_layer_stack().move_selected_layer_down();
 	ls_model()->move_selected_layer_down();
 }
@@ -170,8 +168,6 @@ void PVGuiQt::PVLayerStackWidget::move_down()
  *****************************************************************************/
 void PVGuiQt::PVLayerStackWidget::move_up()
 {
-	PVLayerStackModel *layer_stack_model = ls_model();
-
 	//layer_stack_model->lib_layer_stack().move_selected_layer_up();
 	ls_model()->move_selected_layer_up();
 }
@@ -183,7 +179,12 @@ void PVGuiQt::PVLayerStackWidget::move_up()
  *****************************************************************************/
 void PVGuiQt::PVLayerStackWidget::new_layer()
 {
-	ls_model()->add_new_layer();
+	QString name = ls_model()->lib_layer_stack().get_new_layer_name_from_dialog(this);
+
+	if (!name.isEmpty()) {
+		ls_model()->add_new_layer(name);
+		ls_model()->reset_layer(ls_model()->lib_layer_stack().get_layer_count()-1);
+	}
 }
 
 PVGuiQt::PVLayerStackModel* PVGuiQt::PVLayerStackWidget::ls_model()

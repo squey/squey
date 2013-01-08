@@ -188,9 +188,9 @@ void Picviz::PVView::reset_layers()
  * Picviz::PVView::add_new_layer
  *
  *****************************************************************************/
-void Picviz::PVView::add_new_layer()
+void Picviz::PVView::add_new_layer(QString name)
 {
-	layer_stack.append_new_layer();
+	layer_stack.append_new_layer(name);
 }
 
 void Picviz::PVView::add_new_layer_from_file(const QString& path)

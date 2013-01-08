@@ -61,7 +61,7 @@ Picviz::PVLayer* Picviz::PVLayerStack::append_new_layer(QString const& name)
 		layer_name = name;
 	}
 	++next_new_layer_counter;
-	return append_layer(PVLayer(name));
+	return append_layer(PVLayer(layer_name));
 }
 
 /******************************************************************************
