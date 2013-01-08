@@ -9,7 +9,7 @@
 #include <picviz/PVLayerStack.h>
 #include <picviz/PVSelection.h>
 
-
+#include <QInputDialog>
 
 
 /******************************************************************************
@@ -27,15 +27,37 @@ Picviz::PVLayerStack::PVLayerStack(PVRow row_count) :
 
 /******************************************************************************
  *
+ * Picviz::PVLayerStack::get_new_layer_name
+ *
+ *****************************************************************************/
+QString Picviz::PVLayerStack::get_new_layer_name() const
+{
+	return QString("New layer %1").arg(next_new_layer_counter);
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVLayerStack::get_new_layer_name_from_dialog
+ *
+ *****************************************************************************/
+QString Picviz::PVLayerStack::get_new_layer_name_from_dialog(QWidget* parent /*=nullptr*/) const
+{
+	return QInputDialog::getText(nullptr, "New layer", "Layer name:", QLineEdit::Normal, get_new_layer_name());
+}
+
+/******************************************************************************
+ *
  * Picviz::PVLayerStack::append_layer
  *
  *****************************************************************************/
-Picviz::PVLayer* Picviz::PVLayerStack::append_new_layer()
+Picviz::PVLayer* Picviz::PVLayerStack::append_new_layer(QString name)
 {
 	/* We prepare the string for the name of the new layer */
-	const QString new_layer_automatic_name = QString("New layer %1").arg(next_new_layer_counter);
+	if (name.isEmpty()) {
+		name = get_new_layer_name();
+	}
 	++next_new_layer_counter;
-	return append_layer(PVLayer(new_layer_automatic_name));
+	return append_layer(PVLayer(name));
 }
 
 /******************************************************************************
