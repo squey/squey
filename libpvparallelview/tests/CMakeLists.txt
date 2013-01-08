@@ -124,6 +124,10 @@ if (CUDA_FOUND)
 	add_executable(show_codes_cuda24_atomic show_codes_cuda.cpp ${CUDA_KERNELS})
 	target_link_libraries(show_codes_cuda24_atomic ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 
+	cuda_compile(CUDA_KERNELS bci_cuda_z24_atomic_sm30_straight.cu)
+	add_executable(show_codes_cuda24_atomic_sm30_straight show_codes_cuda_test_30.cpp helpers.cpp ${CUDA_KERNELS})
+	target_link_libraries(show_codes_cuda24_atomic_sm30_straight ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+
 	#cuda_compile(CUDA_KERNELS bci_cuda_z24_unroll_x.cu)
 	#add_executable(show_codes_cuda24_unroll_x show_codes_cuda.cpp ${CUDA_KERNELS})
 	#target_link_libraries(show_codes_cuda24_unroll_x ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
