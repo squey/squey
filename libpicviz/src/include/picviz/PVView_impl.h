@@ -244,6 +244,11 @@ bool stable_insert_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, TLS& mu
 {
 	typedef typename TLS::value_type multiset_t;
 
+	tbb::task_group_context my_ctxt;
+	if (ctxt == NULL) {
+		ctxt = &my_ctxt;
+	}
+
 	nraw->visit_column_tbb(col, [&multiset_tls](size_t i, const char* buf, size_t size)
 	{
 		std::string_tbb s(buf, size);
@@ -258,21 +263,17 @@ bool stable_insert_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, TLS& mu
 		multiset_pointers[index++] = &multiset;
 	}
 	PVMultisetReduce<multiset_t> multiset_reduce(multiset_pointers, ctxt);
-	if (ctxt) {
-		tbb::parallel_deterministic_reduce(tbb::blocked_range<uint32_t>(0, multiset_tls.size(), 1), multiset_reduce, *ctxt);
-	}
-	else {
-		tbb::parallel_deterministic_reduce(tbb::blocked_range<uint32_t>(0, multiset_tls.size(), 1), multiset_reduce);
-	}
+
+	tbb::parallel_deterministic_reduce(tbb::blocked_range<uint32_t>(0, multiset_tls.size(), 1), multiset_reduce, *ctxt);
 
 	// Extract vector of indexes
-	bool cancelled = ctxt && ctxt->is_group_execution_cancelled();
+	bool cancelled = ctxt->is_group_execution_cancelled();
 	if (!cancelled) {
 		const multiset_t& reduced_multiset = multiset_reduce.get_reduced_multiset();
 		index = 0;
 		for (const string_index_t& pair : reduced_multiset) {
 			idxes[index++] = pair.second;
-			if (unlikely(index % 1000 == 0 && ctxt && ctxt->is_group_execution_cancelled())) {
+			if (unlikely(index % 1000 == 0 && ctxt->is_group_execution_cancelled())) {
 				return false;
 			}
 		}

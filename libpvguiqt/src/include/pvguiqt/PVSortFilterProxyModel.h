@@ -100,13 +100,13 @@ signals:
 	void sort_cancelled_for_column(int column);
 
 private:
-	void reverse_sort_order();
-	void do_sort(int column, Qt::SortOrder order);
+	bool reverse_sort_order();
+	bool do_sort(int column, Qt::SortOrder order);
 	void do_filter();
 	void init_default_sort();
 	void reprocess_source();
 	void __do_sort(int column, Qt::SortOrder order, tbb::task_group_context* ctxt = NULL);
-	bool __reverse_sort_order();
+	bool __reverse_sort_order(tbb::task_group_context* ctxt = NULL);
 
 private slots:
 	void src_layout_about_changed();

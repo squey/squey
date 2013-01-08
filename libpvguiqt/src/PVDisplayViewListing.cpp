@@ -24,7 +24,6 @@ QWidget* PVDisplays::PVDisplayViewListing::create_widget(Picviz::PVView* view, Q
 	proxy_model->setSourceModel(model);
 
 	listing_view->setModel(proxy_model);
-	QObject::connect(proxy_model, SIGNAL(sort_cancelled_for_column(int)), listing_view, SLOT(sort_cancelled_for_column(int)));
 	PVGuiQt::PVStatsListingWidget* stats_listing = new PVGuiQt::PVStatsListingWidget(listing_view);
 
 	return stats_listing;
