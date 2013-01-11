@@ -263,6 +263,7 @@ public:
 	void add_new_layer_from_file(const QString& path);
 	void delete_layer_n(int idx);
 	void delete_selected_layer();
+	void duplicate_selected_layer(const QString &name);
 	void load_from_file(const QString& file);
 	void commit_to_new_layer();
 
