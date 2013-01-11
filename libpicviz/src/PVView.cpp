@@ -213,6 +213,11 @@ void Picviz::PVView::delete_layer_n(int idx)
 	layer_stack.append_new_layer();
 }
 
+void Picviz::PVView::duplicate_selected_layer(const QString &name)
+{
+	layer_stack.duplicate_selected_layer(name);
+}
+
 void Picviz::PVView::load_from_file(const QString& file)
 {
 	layer_stack.load_from_file(file);

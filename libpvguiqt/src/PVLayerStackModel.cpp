@@ -264,6 +264,14 @@ void PVGuiQt::PVLayerStackModel::delete_selected_layer()
 	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 }
 
+void PVGuiQt::PVLayerStackModel::duplicate_selected_layer(const QString &name)
+{
+	beginResetModel();
+	_actor.call<FUNC(Picviz::PVView::duplicate_selected_layer)>(name);
+	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	endResetModel();
+}
+
 void PVGuiQt::PVLayerStackModel::delete_layer_n(const int idx)
 {
 	assert(idx < rowCount());

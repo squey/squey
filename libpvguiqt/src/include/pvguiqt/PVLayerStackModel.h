@@ -41,6 +41,7 @@ public:
 public:
 	void delete_layer_n(const int idx);
 	void delete_selected_layer();
+	void duplicate_selected_layer(const QString &name);
 	void add_new_layer();
 	void add_new_layer_from_file(const QString& path);
 	void load_from_file(const QString& file);
