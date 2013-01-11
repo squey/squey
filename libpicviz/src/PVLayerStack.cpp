@@ -292,6 +292,18 @@ void Picviz::PVLayerStack::process(PVLayer &output_layer, PVRow row_count)
  *
  * This function is a starter...
  *
+ * HOW IT WORKS.
+ *
+ * the LIA is a reverse-access data structure used to find the first layer in
+ * which an event appears.
+ *
+ * To construct it, the layer stack is processed from top to bottom:
+ * for each layer, if a contained event has not already been referenced in
+ * the LIA, it's value is set to the current layer's index.
+ *
+ * To speed-up the processing, a PVSelection is used to reference already
+ * processed events.
+ *
  *****************************************************************************/
 /**********************************************************************
  *
