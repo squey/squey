@@ -75,7 +75,7 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent):
 	_ctxt_menu->addAction(_ctxt_menu_load_ls_act);
 	_ctxt_menu->addSeparator();
 #endif
-	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer..."), NULL);
+	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer's content..."), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_set_sel_layer);
 }
 

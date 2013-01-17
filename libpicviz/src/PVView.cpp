@@ -210,7 +210,12 @@ void Picviz::PVView::delete_selected_layer()
 
 void Picviz::PVView::delete_layer_n(int idx)
 {
-	layer_stack.append_new_layer();
+	layer_stack.delete_by_index(idx);
+}
+
+void Picviz::PVView::duplicate_selected_layer(const QString &name)
+{
+	layer_stack.duplicate_selected_layer(name);
 }
 
 void Picviz::PVView::load_from_file(const QString& file)

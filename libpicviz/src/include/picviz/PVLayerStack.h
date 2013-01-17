@@ -65,6 +65,9 @@ public:
 	void delete_by_index(int index);
 	void delete_all_layers();
 	void delete_selected_layer();
+
+	void duplicate_selected_layer(const QString &name);
+
 // 
 // 	picviz_layer_t *layer_get_by_index(int index);
 

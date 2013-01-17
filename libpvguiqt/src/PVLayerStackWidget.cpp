@@ -143,7 +143,11 @@ void PVGuiQt::PVLayerStackWidget::delete_layer()
  *****************************************************************************/
 void PVGuiQt::PVLayerStackWidget::duplicate_layer()
 {
+	QString name = ls_model()->lib_layer_stack().get_new_layer_name_from_dialog(this);
 
+	if (!name.isEmpty()) {
+		ls_model()->duplicate_selected_layer(name);
+	}
 }
 
 /******************************************************************************

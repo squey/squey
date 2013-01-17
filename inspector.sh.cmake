@@ -44,7 +44,7 @@ CMD_ARGS=("$@")
 if [ "$1" == "debug" ]
 then
 LOAD_PROJECT=""
-if [ ${2: -3} == ".pv" ]
+if [ "${2: -3}" == ".pv" ]
 then
 	LOAD_PROJECT="--project "
 fi

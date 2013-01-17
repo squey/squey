@@ -83,8 +83,7 @@ private:
     QFile logFile;///!< file we open to edit the format
     int lastSplitterPluginAdding;
     
-    static QFileDialog _open_dialog;
-    static QFileDialog _save_dialog;
+     QFileDialog _file_dialog;
     
     void actionAllocation();
     
@@ -163,7 +162,9 @@ protected:
 
 	// Invalid lines
 	QListWidget* _inv_lines_widget;
-    
+
+	static QList<QUrl> _original_shortcuts;
+
 protected:
 	QString _cur_file;
 

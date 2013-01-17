@@ -65,41 +65,49 @@ void PVGuiQt::PVSortFilterProxyModel::reset_to_default_ordering_or_reverse()
 	}
 }
 
-bool PVGuiQt::PVSortFilterProxyModel::__reverse_sort_order()
+bool PVGuiQt::PVSortFilterProxyModel::__reverse_sort_order(tbb::task_group_context* ctxt /*= NULL*/)
 {
-	// We have to be invariant about this varaible, which may be modified by __do_sort.
+	tbb::task_group_context my_ctxt;
+	if (ctxt == NULL) {
+		ctxt = &my_ctxt;
+	}
+
+	// We have to be invariant about this variable, which may be modified by __do_sort.
 	int sort_idx = _sort_idx;
 	__impl::PVSortProxyComp comp(this, _sort_idx);
 	// If the stable reverse code takes more than 1/5th of the stable code, use the stable reverse code
 	assert(_sort_time != -1.0);
 	if (_sort_time == -1.0) {
 		// Should not happen !!
-		__do_sort(_sort_idx, (Qt::SortOrder) !_cur_order);
-		return true;
+		__do_sort(_sort_idx, (Qt::SortOrder) !_cur_order, ctxt);
+		return !ctxt->is_group_execution_cancelled();
 	}
 	double time_adapt = _sort_time/2.0;
+
 	PVCore::launch_adaptive(
-			boost::bind(&PVCore::stable_sort_reverse<vec_indexes_t::iterator, __impl::PVSortProxyComp, void()>, _vec_sort_m2s.begin(), _vec_sort_m2s.end(), comp, boost::ref(boost::this_thread::interruption_point)),
-			boost::bind(&PVSortFilterProxyModel::__do_sort, this, _sort_idx, (Qt::SortOrder) !_cur_order, nullptr),
-			boost::posix_time::milliseconds(time_adapt*1000)
-			);
-	_sort_idx = sort_idx;
-	return true;
+		//boost::bind(&PVCore::stable_sort_reverse<vec_indexes_t::iterator, __impl::PVSortProxyComp, void()>, _vec_sort_m2s.begin(), _vec_sort_m2s.end(), comp, boost::ref(boost::this_thread::interruption_point)),
+		boost::bind(&PVSortFilterProxyModel::__do_sort, this, _sort_idx, (Qt::SortOrder) !_cur_order, ctxt),
+		boost::bind(&PVSortFilterProxyModel::__do_sort, this, _sort_idx, (Qt::SortOrder) !_cur_order, ctxt),
+		boost::posix_time::milliseconds(time_adapt*1000)
+	);
+	bool changed = !ctxt->is_group_execution_cancelled();
+	if (changed) {
+		_sort_idx = sort_idx;
+	}
+
+	return changed;
 }
 
-void PVGuiQt::PVSortFilterProxyModel::reverse_sort_order()
+bool PVGuiQt::PVSortFilterProxyModel::reverse_sort_order()
 {
 	// In-place reverse of our first cache
-	bool changed = false;
 	QWidget* parent_ = dynamic_cast<QWidget*>(QObject::parent());
 	PVCore::PVProgressBox* box = new PVCore::PVProgressBox(tr("Reverse sorting order..."), parent_);
-	box->set_enable_cancel(false);
-	PVCore::PVProgressBox::progress(boost::bind(&PVGuiQt::PVSortFilterProxyModel::__reverse_sort_order, this), box, changed);
-	if (changed) {
-		// If the sorting order has changed, reprocess the filter
-		do_filter();
-	}
-	_cur_order = (Qt::SortOrder) !_cur_order;
+	box->set_enable_cancel(true);
+	tbb::task_group_context ctxt;
+	bool changed = PVCore::PVProgressBox::progress(boost::bind(&PVGuiQt::PVSortFilterProxyModel::__reverse_sort_order, this, &ctxt), ctxt, box);
+
+	return changed;
 }
 
 void PVGuiQt::PVSortFilterProxyModel::do_filter()
@@ -142,7 +150,7 @@ void PVGuiQt::PVSortFilterProxyModel::__do_sort(int column, Qt::SortOrder order,
 	_sort_time =(end-start).seconds();
 }
 
-void PVGuiQt::PVSortFilterProxyModel::do_sort(int column, Qt::SortOrder order)
+bool PVGuiQt::PVSortFilterProxyModel::do_sort(int column, Qt::SortOrder order)
 {
 	assert(column >= 0 && column < sourceModel()->columnCount());
 	QWidget* parent_ = dynamic_cast<QWidget*>(QObject::parent());
@@ -150,18 +158,15 @@ void PVGuiQt::PVSortFilterProxyModel::do_sort(int column, Qt::SortOrder order)
 	box->set_enable_cancel(true);
 	tbb::task_group_context ctxt;
 	bool changed = PVCore::PVProgressBox::progress(boost::bind(&PVGuiQt::PVSortFilterProxyModel::__do_sort, this, column, order, &ctxt), ctxt, box);
-	if (changed) {
-		_sort_idx = column;
-		_cur_order = order;
-	}
-	else {
-		_view->verticalHeader()->setSortIndicator(_sort_idx, _cur_order);
-		std::cout << "_view->verticalHeader()->setSortIndicator(" << _sort_idx << ", " << _cur_order << ");" << std::endl;
-	}
+
+	return changed;
 }
 
 void PVGuiQt::PVSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 {
+	_view->horizontalHeader()->setSortIndicatorShown(false);
+
+	bool changed = false;
 	if (column == -1) {
 		init_default_sort();
 		do_filter();
@@ -169,14 +174,23 @@ void PVGuiQt::PVSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 	}
 
 	if (_sort_idx == column && _cur_order != order) {
-		if (_cur_order != order) {
-			reverse_sort_order();
-		}
-		return;
+		changed = reverse_sort_order();
+	}
+	else {
+		changed = do_sort(column, order);
 	}
 
-	do_sort(column, order);
-	do_filter();
+	if (changed) {
+		do_filter();
+		_sort_idx = column;
+		_cur_order = order;
+	} else {
+		_view->horizontalHeader()->blockSignals(true);
+		_view->horizontalHeader()->setSortIndicator(_sort_idx, _cur_order);
+		_view->horizontalHeader()->blockSignals(false);
+	}
+
+	_view->horizontalHeader()->setSortIndicatorShown(true);
 }
 
 void PVGuiQt::PVSortFilterProxyModel::reprocess_source()
