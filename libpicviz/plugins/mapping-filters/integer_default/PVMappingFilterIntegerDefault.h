@@ -22,6 +22,8 @@ struct integer_mapping
 
 class PVMappingFilterIntegerDefault: public PVPureMappingFilter<integer_mapping>
 {
+	friend class integer_mapping;
+
 public:
 	PVMappingFilterIntegerDefault(PVCore::PVArgumentList const& args = PVMappingFilterIntegerDefault::default_args());
 
@@ -29,6 +31,9 @@ public:
 	QString get_human_name() const override { return QString("default"); }
 	PVCore::DecimalType get_decimal_type() const override;
 	void set_args(PVCore::PVArgumentList const& args) override;
+
+protected:
+	inline bool is_signed() const { return _signed; }
 
 private:
 	bool _signed;
