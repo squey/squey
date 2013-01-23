@@ -31,7 +31,7 @@ PVCore::DecimalType Picviz::PVMappingFilterIntegerDefault::get_decimal_type() co
 	return (_signed) ? PVCore::IntegerType : PVCore::UnsignedIntegerType;
 }
 
-Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_utf8(const char* buf, const size_t size, PVMappingFilter*)
+Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_utf8(const char* buf, const size_t size, PVMappingFilter* m)
 {
 	ssize_t i = 0;
 	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
@@ -42,6 +42,20 @@ Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_u
 
 	ssize_t start = i;
 	uint32_t pow10 = 1;
+	const char first_char = buf[start];
+	bool set_negative = false;
+	if (first_char == '+' || first_char == '-') {
+		start++;
+		if (first_char == '-') {
+			if (static_cast<PVMappingFilterIntegerDefault*>(m)->is_signed()) {
+				set_negative = true;
+			}
+			else {
+				return ret_ds;
+			}
+		}
+	}
+
 	for (i = size-1; i >= start; i--) {
 		const char c = buf[i];
 		if (isspace(c)) {
@@ -56,10 +70,14 @@ Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_u
 		}
 	}
 
+	if (set_negative) {
+		ret_ds.storage_as_int() = -(ret_ds.storage_as_int());
+	}
+
 	return ret_ds;
 }
 
-Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_utf16(const uint16_t* buf, size_t size, PVMappingFilter*)
+Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_utf16(const uint16_t* buf, size_t size, PVMappingFilter* m)
 {
 	ssize_t i = 0;
 	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
@@ -76,6 +94,22 @@ Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_u
 
 	ssize_t start = i;
 	uint32_t pow10 = 1;
+	const uint16_t first_char = buf[start];
+	if ((first_char & 0xFF00) != 0) {
+		return ret_ds;
+	}
+	bool set_negative = false;
+	if (first_char == '+' || first_char == '-') {
+		start++;
+		if (first_char == '-') {
+			if (static_cast<PVMappingFilterIntegerDefault*>(m)->is_signed()) {
+				set_negative = true;
+			}
+			else {
+				return ret_ds;
+			}
+		}
+	}
 	for (i = size-1; i >= start; i--) {
 		const uint16_t c = buf[i];
 		if ((c & 0xFF00) != 0) {
@@ -91,6 +125,10 @@ Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_u
 		else {
 			break;
 		}
+	}
+
+	if (set_negative) {
+		ret_ds.storage_as_int() = -(ret_ds.storage_as_int());
 	}
 
 	return ret_ds;

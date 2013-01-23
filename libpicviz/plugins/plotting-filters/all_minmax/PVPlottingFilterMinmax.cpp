@@ -23,12 +23,10 @@ uint32_t* Picviz::PVPlottingFilterMinmax::operator()(mapped_decimal_storage_type
 		return _dest;
 	}
 
-	if (_decimal_type == PVCore::IntegerType ||
-	    _decimal_type == PVCore::UnsignedIntegerType) {
-
-		int64_t ymin, ymax;
-		ymin = (int64_t) (*it_min).second.second.storage_as_uint();
-		ymax = (int64_t) (*it_max).second.second.storage_as_uint();
+	if (_decimal_type == PVCore::UnsignedIntegerType) {
+		uint32_t ymin, ymax;
+		ymin = (*it_min).second.second.storage_as_uint();
+		ymax = (*it_max).second.second.storage_as_uint();
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
@@ -36,11 +34,33 @@ uint32_t* Picviz::PVPlottingFilterMinmax::operator()(mapped_decimal_storage_type
 			}
 			return _dest;
 		}
+		assert(ymax > ymin);
 
-		const int64_t diff = ymax - ymin;
+		const uint64_t diff = (uint64_t)ymax - (uint64_t)ymin;
 #pragma omp parallel for
 		for (ssize_t i = 0; i < size; i++) {
-			const int64_t v_tmp = ((((int64_t) values[i].storage_as_uint() - ymin)*(int64_t)(UINT_MAX))/diff);
+			const uint64_t v_tmp = (((int64_t) values[i].storage_as_uint() - ymin)*(int64_t)(UINT_MAX))/diff;
+			_dest[i] = ~((uint32_t) (v_tmp & 0x00000000FFFFFFFFULL));
+		}
+	}
+	else
+	if (_decimal_type == PVCore::IntegerType) {
+		int32_t ymin, ymax;
+		ymin = (*it_min).second.second.storage_as_int();
+		ymax = (*it_max).second.second.storage_as_int();
+
+		if (ymin == ymax) {
+			for (int64_t i = 0; i < size; i++) {
+				_dest[i] = ~(UINT_MAX>>1);
+			}
+			return _dest;
+		}
+		assert(ymax > ymin);
+
+		const int64_t diff = (int64_t)ymax - (int64_t)ymin;
+#pragma omp parallel for
+		for (ssize_t i = 0; i < size; i++) {
+			const uint64_t v_tmp = (((int64_t) values[i].storage_as_int() - ymin)*(int64_t)(UINT_MAX))/diff;
 			_dest[i] = ~((uint32_t) (v_tmp & 0x00000000FFFFFFFFULL));
 		}
 	}
