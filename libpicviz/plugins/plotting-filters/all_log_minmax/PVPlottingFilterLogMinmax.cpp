@@ -44,11 +44,37 @@ uint32_t* Picviz::PVPlottingFilterLogMinmax::operator()(mapped_decimal_storage_t
 		return _dest;
 	}
 	
-	if (_decimal_type == PVCore::IntegerType ||
-	    _decimal_type == PVCore::UnsignedIntegerType) {
+	if (_decimal_type == PVCore::IntegerType) {
 		int64_t ymin, ymax;
-		ymin = (int64_t) (*it_min).second.second.storage_as_uint();
-		ymax = (int64_t) (*it_max).second.second.storage_as_uint();
+		ymin = (*it_min).second.second.storage_as_int();
+		ymax = (*it_max).second.second.storage_as_int();
+
+		if (ymin == ymax) {
+			for (int64_t i = 0; i < size; i++) {
+				_dest[i] = ~(UINT_MAX>>1);
+			}
+			return _dest;
+		}
+
+		int64_t offset = 0;
+		if (ymin <= 0) {
+			offset = -ymin + 1;
+			ymin += offset;
+			ymax += offset;
+		}
+
+		const double log_ymin = log2(ymin);
+		const double div = log2(ymax) - log_ymin;
+#pragma omp parallel for
+		for (ssize_t i = 0; i < size; i++) {
+			_dest[i] = ~((uint32_t) (((log2((int64_t)(values[i].storage_as_int())+offset) - log_ymin) / div)*((double)(UINT_MAX))));
+		}
+	}
+	else
+	if (_decimal_type == PVCore::UnsignedIntegerType) {
+		int64_t ymin, ymax;
+		ymin = (*it_min).second.second.storage_as_uint();
+		ymax = (*it_max).second.second.storage_as_uint();
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
@@ -97,6 +123,7 @@ uint32_t* Picviz::PVPlottingFilterLogMinmax::operator()(mapped_decimal_storage_t
 			_dest[i] = ~((uint32_t) (((log2(values[i].storage_as_float()+offset) - log_ymin) / div)*((double)(UINT_MAX))));
 		}
 	}
+
 
 	return _dest;
 }
