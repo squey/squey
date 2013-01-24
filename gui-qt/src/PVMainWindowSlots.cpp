@@ -1459,7 +1459,7 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 void PVInspector::PVMainWindow::selection_set_from_current_layer_Slot()
 {
 	if (current_view()) {
-		Picviz::PVView_sp view(current_view());
+		Picviz::PVView_sp view(current_view()->shared_from_this());
 		set_selection_from_layer(view, view->get_current_layer());
 	}
 }
@@ -1467,7 +1467,7 @@ void PVInspector::PVMainWindow::selection_set_from_current_layer_Slot()
 void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 {
 	if (current_view()) {
-		Picviz::PVView_sp view(current_view());
+		Picviz::PVView_sp view(current_view()->shared_from_this());
 
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("sel-layer", tr("Choose a layer"))].setValue<Picviz::PVLayer*>(&view->get_current_layer());

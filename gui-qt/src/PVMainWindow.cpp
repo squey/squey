@@ -1790,8 +1790,11 @@ void PVInspector::PVMainWindow::set_color_selected(QColor const& color)
  *****************************************************************************/
 void PVInspector::PVMainWindow::set_selection_from_layer(Picviz::PVView_sp view, Picviz::PVLayer const& layer)
 {
-	view->set_selection_from_layer(layer);
-	//update_pvglview(view, PVSDK_MESSENGER_REFRESH_SELECTION);
+	PVHive::PVActor<Picviz::PVView> actor;
+	PVHive::get().register_actor(view, actor);
+
+	actor.call<FUNC(Picviz::PVView::set_selection_from_layer)>(layer);
+	actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
 }
 
 

@@ -1271,7 +1271,6 @@ void Picviz::PVView::set_selection_from_layer(PVLayer const& layer)
 {
 	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection = layer.get_selection();
-	process_from_selection();
 }
 
 /******************************************************************************
@@ -1283,7 +1282,6 @@ void Picviz::PVView::set_selection_view(PVSelection const& sel)
 {
 	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection = sel;
-	process_from_selection();
 }
 /******************************************************************************
  *
