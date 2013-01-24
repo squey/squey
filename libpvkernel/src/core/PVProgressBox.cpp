@@ -98,6 +98,11 @@ void PVCore::PVProgressBox::update_status_Slot()
 	_ext_str_mutex.unlock();
 }
 
+void PVCore::PVProgressBox::set_cancel_btn_text(QString const& str)
+{
+	_btnCancel->setText(str);
+}
+
 /******************************************************************************
  *
  * PVCore::PVProgressBox::getProgressBar
