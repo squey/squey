@@ -50,14 +50,18 @@ QString Picviz::PVLayerStack::get_new_layer_name_from_dialog(QWidget* parent /*=
  * Picviz::PVLayerStack::append_layer
  *
  *****************************************************************************/
-Picviz::PVLayer* Picviz::PVLayerStack::append_new_layer(QString name)
+Picviz::PVLayer* Picviz::PVLayerStack::append_new_layer(QString const& name)
 {
 	/* We prepare the string for the name of the new layer */
+	QString layer_name;
 	if (name.isEmpty()) {
-		name = get_new_layer_name();
+		layer_name = get_new_layer_name();
+	}
+	else {
+		layer_name = name;
 	}
 	++next_new_layer_counter;
-	return append_layer(PVLayer(name));
+	return append_layer(PVLayer(layer_name));
 }
 
 /******************************************************************************

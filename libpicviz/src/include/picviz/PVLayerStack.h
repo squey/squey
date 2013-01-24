@@ -56,7 +56,7 @@ public:
 	void update_layer_index_array_completely();
 // 
 	PVLayer* append_layer(const PVLayer & layer);
-	PVLayer* append_new_layer(QString name = QString());
+	PVLayer* append_new_layer(QString const& name = QString());
  	PVLayer* append_new_layer_from_selection_and_lines_properties(PVSelection const& selection, PVLinesProperties const& lines_properties);
 	bool contains_layer(PVLayer* layer) const;
 
