@@ -115,6 +115,12 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex &index, int role) co
 					return (Qt::AlignLeft + Qt::AlignVCenter);
 			}
 			break;
+
+		case (PVCustomQtRoles::UnderlyingObject): {
+			QVariant ret;
+			ret.setValue<void*>((void*) &lib_layer_stack().get_layer_n(lib_index));
+			return ret;
+		}
 	}
 	return QVariant();
 }

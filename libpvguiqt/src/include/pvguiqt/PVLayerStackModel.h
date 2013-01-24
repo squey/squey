@@ -51,6 +51,7 @@ public:
 public:
 	Picviz::PVLayerStack const& lib_layer_stack() const { return *_obs.get_object(); }
 	Picviz::PVLayerStack& lib_layer_stack() { return *_obs.get_object(); }
+	PVHive::PVActor<Picviz::PVView>& view_actor() { return _actor; }
 
 private slots:
 	void layer_stack_about_to_be_deleted(PVHive::PVObserverBase* o);

@@ -156,18 +156,21 @@ void PVGuiQt::PVLayerStackView::load_layer_stack()
  * PVGuiQt::PVLayerStackView::save_layer
  *
  *****************************************************************************/
-void PVGuiQt::PVLayerStackView::save_layer(int /*idx*/)
+void PVGuiQt::PVLayerStackView::save_layer(int idx)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	Picviz::PVLayer layer = ls_model()->lib_layer_stack().get_selected_layer();
 	QString file = _layer_dialog.getSaveFileName(this, tr("Export this layer..."), _layer_dialog.directory().absolutePath(), PICVIZ_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
 	if (!file.isEmpty()) {
-		layer.save_to_file(file);
+		get_layer_from_idx(idx).save_to_file(file);
 	}
 #endif
 }
 
-
+Picviz::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int layer_idx)
+{
+	QVariant var = ls_model()->data(ls_model()->index(layer_idx, 0), PVCustomQtRoles::UnderlyingObject);
+	return *reinterpret_cast<Picviz::PVLayer*>(var.value<void*>());
+}
 
 /******************************************************************************
  *
@@ -198,7 +201,7 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 
 	QAction* act = _ctxt_menu->exec(QCursor::pos());
 	if (act == _ctxt_menu_set_sel_layer) {
-		//main_window->selection_set_from_current_layer_Slot();
+		set_current_selection_from_layer(idx_click.row());
 		return;
 	}
 #ifdef CUSTOMER_CAPABILITY_SAVE
@@ -219,6 +222,13 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 		load_layer_stack();
 	}
 #endif
+}
+
+void PVGuiQt::PVLayerStackView::set_current_selection_from_layer(int layer_idx)
+{
+	Picviz::PVLayer const& layer = get_layer_from_idx(layer_idx);
+	ls_model()->view_actor().call<FUNC(Picviz::PVView::set_selection_from_layer)>(layer);
+	ls_model()->view_actor().call<FUNC(Picviz::PVView::process_real_output_selection)>();
 }
 
 void PVGuiQt::PVLayerStackView::layer_clicked(QModelIndex const& idx)

@@ -10,6 +10,7 @@
 #include <QFileDialog>
 #include <QTableView>
 
+#include <picviz/PVLayer_types.h>
 #include <picviz/PVView_types.h>
 
 namespace PVGuiQt {
@@ -34,6 +35,9 @@ private:
 	void import_layer();
 	void save_layer_stack();
 	void load_layer_stack();
+	void set_current_selection_from_layer(int layer_idx);
+
+	Picviz::PVLayer& get_layer_from_idx(int layer_idx);
 
 private slots:
 	void show_ctxt_menu(QPoint const& pt);
