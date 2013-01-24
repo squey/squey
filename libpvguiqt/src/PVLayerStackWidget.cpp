@@ -183,7 +183,6 @@ void PVGuiQt::PVLayerStackWidget::new_layer()
 
 	if (!name.isEmpty()) {
 		ls_model()->add_new_layer(name);
-		ls_model()->reset_layer(ls_model()->lib_layer_stack().get_layer_count()-1);
 	}
 }
 

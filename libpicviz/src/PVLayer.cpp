@@ -64,6 +64,16 @@ void Picviz::PVLayer::reset_to_empty_and_default_color()
 
 /******************************************************************************
  *
+ * Picviz::PVLayer::reset_to_default_color
+ *
+ *****************************************************************************/
+void Picviz::PVLayer::reset_to_default_color()
+{
+	lines_properties.reset_to_default_color();
+}
+
+/******************************************************************************
+ *
  * Picviz::PVLayer::reset_to_full_and_default_color
  *
  *****************************************************************************/

@@ -48,11 +48,15 @@ public:
 	void load_from_file(const QString& file);
 	void move_selected_layer_up();
 	void move_selected_layer_down();
+	void reset_layer_colors(const int idx);
 
 public:
 	Picviz::PVLayerStack const& lib_layer_stack() const { return *_obs.get_object(); }
 	Picviz::PVLayerStack& lib_layer_stack() { return *_obs.get_object(); }
 	PVHive::PVActor<Picviz::PVView>& view_actor() { return _actor; }
+
+private:
+	inline int lib_index_from_model_index(int model_index) const { assert(model_index < rowCount()); return rowCount() - model_index - 1; }
 
 private slots:
 	void layer_stack_about_to_be_deleted(PVHive::PVObserverBase* o);

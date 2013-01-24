@@ -77,6 +77,8 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent):
 #endif
 	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer..."), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_set_sel_layer);
+	_ctxt_menu_reset_colors = new QAction(tr("Reset layer colors to default..."), NULL);
+	_ctxt_menu->addAction(_ctxt_menu_reset_colors);
 }
 
 
@@ -166,9 +168,9 @@ void PVGuiQt::PVLayerStackView::save_layer(int idx)
 #endif
 }
 
-Picviz::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int layer_idx)
+Picviz::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int model_idx)
 {
-	QVariant var = ls_model()->data(ls_model()->index(layer_idx, 0), PVCustomQtRoles::UnderlyingObject);
+	QVariant var = ls_model()->data(ls_model()->index(model_idx, 0), PVCustomQtRoles::UnderlyingObject);
 	return *reinterpret_cast<Picviz::PVLayer*>(var.value<void*>());
 }
 
@@ -204,6 +206,9 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 		set_current_selection_from_layer(idx_click.row());
 		return;
 	}
+	if (act == _ctxt_menu_reset_colors) {
+		reset_layer_colors(idx_click.row());
+	}
 #ifdef CUSTOMER_CAPABILITY_SAVE
 	_ctxt_menu_save_act->setEnabled(idx_click.isValid());
 	if (act == _ctxt_menu_save_act) {
@@ -224,16 +229,20 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 #endif
 }
 
-void PVGuiQt::PVLayerStackView::set_current_selection_from_layer(int layer_idx)
+void PVGuiQt::PVLayerStackView::set_current_selection_from_layer(int model_idx)
 {
-	Picviz::PVLayer const& layer = get_layer_from_idx(layer_idx);
+	Picviz::PVLayer const& layer = get_layer_from_idx(model_idx);
 	ls_model()->view_actor().call<FUNC(Picviz::PVView::set_selection_from_layer)>(layer);
 	ls_model()->view_actor().call<FUNC(Picviz::PVView::process_real_output_selection)>();
 }
 
+void PVGuiQt::PVLayerStackView::reset_layer_colors(int layer_idx)
+{
+	ls_model()->reset_layer_colors(layer_idx);
+}
+
 void PVGuiQt::PVLayerStackView::layer_clicked(QModelIndex const& idx)
 {
-	PVLOG_INFO("PVLayerStackView::layer_clicked\n");
 	if (!idx.isValid()) {
 		// Qt says it's only called when idx is valid, but still..
 		return;
@@ -244,5 +253,4 @@ void PVGuiQt::PVLayerStackView::layer_clicked(QModelIndex const& idx)
 
 void PVGuiQt::PVLayerStackView::layer_double_clicked(QModelIndex const& idx)
 {
-	PVLOG_INFO("PVLayerStackView::layer_double_clicked\n");
 }

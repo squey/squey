@@ -53,11 +53,13 @@ int PVGuiQt::PVLayerStackModel::columnCount(const QModelIndex& /*index*/) const
  *****************************************************************************/
 QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex &index, int role) const
 {
-	// AG: this comment is kept for the sake of history...
+	// AG: the two following lines are kept for the sake of history...
 	/* We prepare a direct acces to the total number of layers */
-	int layer_count = lib_layer_stack().get_layer_count();
+	//int layer_count = lib_layer_stack().get_layer_count();
+	
+	// AG: this comment is also kept for history :)
 	/* We create and store the true index of the layer in the lib */
-	int lib_index = layer_count -1 - index.row();
+	int lib_index = lib_index_from_model_index(index.row());
 
 	switch (role) {
 		case Qt::DecorationRole:
@@ -237,6 +239,14 @@ void PVGuiQt::PVLayerStackModel::add_new_layer_from_file(const QString& path)
 	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 }
 
+void PVGuiQt::PVLayerStackModel::reset_layer_colors(const int idx)
+{
+	Picviz::PVLayerStack& layerstack = lib_layer_stack();
+	Picviz::PVLayer& layer = layerstack.get_layer_n(lib_index_from_model_index(idx));
+	layer.reset_to_default_color();
+	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+}
+
 void PVGuiQt::PVLayerStackModel::layer_stack_refreshed(PVHive::PVObserverBase* /*o*/)
 {
 	endResetModel();
@@ -245,6 +255,7 @@ void PVGuiQt::PVLayerStackModel::layer_stack_refreshed(PVHive::PVObserverBase* /
 void PVGuiQt::PVLayerStackModel::add_new_layer(QString const& name)
 {
 	_actor.call<FUNC(Picviz::PVView::add_new_layer)>(name);
+	lib_layer_stack().get_layer_n(rowCount() - 1).reset_to_full_and_default_color();
 	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 }
 
