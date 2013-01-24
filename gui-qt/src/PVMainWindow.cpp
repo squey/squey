@@ -1723,7 +1723,7 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView* picviz_view)
 	PVCore::PVHSVColor color = pv_ColorDialog->color();
 
 	PVHive::PVActor<Picviz::PVView> actor;
-	Picviz::PVView_sp view_sp = picviz_view->shared_from_this();
+	Picviz::PVView_sp view_sp(picviz_view->shared_from_this());
 	PVHive::get().register_actor(view_sp, actor);
 
 	//actor.call<FUNC(Picviz::PVView::set_color_on_post_filter_layer)>(color);

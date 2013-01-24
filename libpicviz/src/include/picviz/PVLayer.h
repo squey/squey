@@ -72,6 +72,7 @@ public:
 
 	void reset_to_empty_and_default_color();
 	void reset_to_full_and_default_color();
+	void reset_to_default_color();
 
 	void set_index(int index_) {index = index_;}
 	void set_locked(bool locked_) {locked = locked_;}
