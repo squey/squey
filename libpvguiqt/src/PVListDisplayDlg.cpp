@@ -42,6 +42,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 
 	connect(_btn_copy_clipboard, SIGNAL(clicked()), this, SLOT(copy_to_clipboard()));
 	connect(_btn_copy_file, SIGNAL(clicked()), this, SLOT(copy_to_file()));
+	connect(_btn_append_file, SIGNAL(clicked()), this, SLOT(append_to_file()));
 }
 
 bool PVGuiQt::PVListDisplayDlg::write_values(QDataStream* stream)
@@ -95,20 +96,37 @@ void PVGuiQt::PVListDisplayDlg::copy_to_clipboard()
 	QMessageBox::information(this, tr("Copy to clipboard..."), tr("Copy done."));
 }
 
-void PVGuiQt::PVListDisplayDlg::copy_to_file()
+void PVGuiQt::PVListDisplayDlg::write_to_file_ui(bool append)
 {
-	QString path = _file_dlg.getSaveFileName(this, tr("Save to file..."));
+	QFileDialog::Options options = 0;
+	if (append) {
+		options = QFileDialog::DontConfirmOverwrite;
+	}
+	QString path = _file_dlg.getSaveFileName(this, tr("Save to file..."), QString(), QString(), NULL, options);
 	if (path.isEmpty()) {
 		return;
 	}
 
 	QFile file(path);
-	if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+	QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
+	if (append) {
+		mode |= QIODevice::Append;
+	}
+	else {
+		mode |= QIODevice::Truncate;
+	}
+	if (!file.open(mode)) {
 		QMessageBox::critical(this, tr("Copy to file..."), tr("Unable to open '%1' for writing: %2.").arg(path).arg(file.errorString()));
 		return;
 	}
+	write_to_file(file);
+}
 
+void PVGuiQt::PVListDisplayDlg::write_to_file(QFile& file)
+{
+	QString path(file.fileName());
 	QDataStream ds(&file);
+
 	bool write_success = false;
 	bool process_done = PVCore::PVProgressBox::progress(boost::bind(&PVListDisplayDlg::write_values, this, &ds), tr("Copying values..."), write_success, this);
 	if (!process_done) {

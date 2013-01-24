@@ -32,10 +32,13 @@ protected:
 
 private slots:
 	void copy_to_clipboard();
-	void copy_to_file();
 	void copy_value_clipboard();
+	void copy_to_file() { write_to_file_ui(false); }
+	void append_to_file() { write_to_file_ui(true); }
 
 private:
+	void write_to_file_ui(bool append);
+	void write_to_file(QFile& file);
 	bool write_values(QDataStream* stream);
 
 private:

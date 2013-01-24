@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- \file PVListDisplayDlg.ui -->
-<!-- Copyright (C) Picviz Labs 2010-2012 -->
 <ui version="4.0">
  <class>PVListDisplayDlg</class>
  <widget class="QDialog" name="PVListDisplayDlg">
@@ -9,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>310</height>
+    <height>313</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -135,6 +133,13 @@
           </property>
           <property name="text">
            <string>Copy to file...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="_btn_append_file">
+          <property name="text">
+           <string>Append to file...</string>
           </property>
          </widget>
         </item>
