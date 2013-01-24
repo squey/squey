@@ -50,6 +50,7 @@ public:
 	void set_status(int status);
 	void set_enable_cancel(bool cancel);
 	void set_extended_status(QString const& str);
+	void set_cancel_btn_text(QString const& str);
 
 private:
 	template <class F>
