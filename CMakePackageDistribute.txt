@@ -14,7 +14,8 @@ set(WIN_CURL_PATH "C:\\\\dev\\\\curl")
 set(WIN_ICU_PATH "c:\\\\dev\\\\icu-amd64\\\\bin64")
 set(WIN_BOOST_PATH "c:\\\\dev\\\\boost\\\\install-root\\\\lib")
 
-set(LINUX_QT4_PATH "/usr/lib/x86_64-linux-gnu")
+#set(LINUX_QT4_PATH "/usr/lib/x86_64-linux-gnu")
+set(LINUX_QT4_PATH "/opt/qt-picviz/lib/x86_64-linux-gnu")
 
 set(QTLIBS_MAJOR "4")
 set(QTLIBS_MINOR "8")
