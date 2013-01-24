@@ -12,6 +12,7 @@ set(FILTERS_DIST_LIST
 mapping_filter_float_default
 mapping_filter_float_fraction
 mapping_filter_integer_default
+mapping_filter_integer_hex
 mapping_filter_ipv4_default
 mapping_filter_enum_default
 mapping_filter_host_default
@@ -38,6 +39,9 @@ target_link_libraries(mapping_filter_float_fraction ${LINK_LIBRARIES})
 
 add_library(mapping_filter_integer_default SHARED integer_default/PVMappingFilterIntegerDefault.cpp integer_default/register.cpp)
 target_link_libraries(mapping_filter_integer_default ${LINK_LIBRARIES})
+
+add_library(mapping_filter_integer_hex SHARED integer_hex/PVMappingFilterIntegerHex.cpp integer_hex/register.cpp)
+target_link_libraries(mapping_filter_integer_hex ${LINK_LIBRARIES})
 
 add_library(mapping_filter_ipv4_default SHARED ipv4_default/PVMappingFilterIPv4Default.cpp ipv4_default/register.cpp)
 target_link_libraries(mapping_filter_ipv4_default ${LINK_LIBRARIES})
