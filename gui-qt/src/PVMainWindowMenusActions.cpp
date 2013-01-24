@@ -219,8 +219,8 @@ void PVInspector::PVMainWindow::create_menus()
 	//selection_Menu->addAction(commit_selection_in_current_layer_Action);
 	selection_Menu->addAction(commit_selection_to_new_layer_Action);
 	selection_Menu->addAction(move_selection_to_new_layer_Action);
-	selection_Menu->addSeparator();
-	selection_Menu->addAction(expand_selection_on_axis_Action);
+	//selection_Menu->addSeparator();
+	//selection_Menu->addAction(expand_selection_on_axis_Action);
 
 	filter_Menu = menubar->addMenu(tr("Fil&ters"));
 	filter_Menu->addAction(filter_reprocess_last_filter);
