@@ -39,7 +39,8 @@ public:
 	 */
 	PVLayerStack(PVRow row_count = 0);
 
-	
+	QString get_new_layer_name_from_dialog(QWidget* parent = nullptr) const;
+	QString get_new_layer_name() const;
 	int get_layer_count() const {return layer_count;}
  	PVLayer const& get_layer_n(int n) const { return table[n]; };
  	PVLayer& get_layer_n(int n) { return table[n]; };
@@ -55,7 +56,7 @@ public:
 	void update_layer_index_array_completely();
 // 
 	PVLayer* append_layer(const PVLayer & layer);
-	PVLayer* append_new_layer();
+	PVLayer* append_new_layer(QString const& name = QString());
  	PVLayer* append_new_layer_from_selection_and_lines_properties(PVSelection const& selection, PVLinesProperties const& lines_properties);
 	bool contains_layer(PVLayer* layer) const;
 
