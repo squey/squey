@@ -51,7 +51,6 @@ PVRush::PVNrawDiskBackend::~PVNrawDiskBackend()
 
 void PVRush::PVNrawDiskBackend::close_files()
 {
-	// Close files
 	for (uint64_t col_idx = 0 ; col_idx < get_number_cols(); col_idx++) {
 		PVColumn& column = get_col(col_idx);
 		this->Close(column.file);
@@ -325,8 +324,6 @@ void PVRush::PVNrawDiskBackend::clear()
 		nraw_c.field_length = 0; // Or any value grater than 0 to specify a fixed field length;
 	}
 
-	//_next_indexes_nrows = _index_fields_size_pattern[0];
-	//_indexes.resize_nrows(_next_indexes_nrows);
 	_fields_size_idx = 0;
 	_next_indexes_nrows += _index_fields_size_pattern[++_fields_size_idx];
 	_nrows = 0;

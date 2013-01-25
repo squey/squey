@@ -157,6 +157,12 @@ struct BufferedFilePolicy
 	}
 };
 
+/**
+ * \class PVNrawDiskBackend
+ *
+ * \note This policy based class is handling the storage of the Nraw on disk.
+ *
+ */
 class PVNrawDiskBackend: private RawFilePolicy
 {
 	static constexpr uint64_t BUF_ALIGN = 512;
@@ -215,15 +221,12 @@ public:
 	private:
 		chunk_t* _chunks;
 		size_t   _n;
-		//std::queue<chunk_t*> _queue;
 		tbb::concurrent_bounded_queue<chunk_t*> _queue;
 	};
-
 
 public:
 	typedef RawFilePolicy file_policy_t;
 	typedef typename file_policy_t::file_t file_t;
-	//typedef std::pair<uint64_t, uint64_t> offset_fields_t;
 	typedef PVCore::PVMatrix<offset_fields_t, PVRow, PVCol> index_table_t;
 	typedef PVNrawDiskBackend this_type;
 	typedef QSet<std::string_tbb> unique_values_t;
@@ -233,17 +236,59 @@ public:
 	~PVNrawDiskBackend();
 
 public:
+	/*! \brief Initialize the Nraw disk backend.
+	 *
+	 *  \param[in] nraw_folder Path to the existing nraw folder on disk.
+	 *  \param[in] num_cols The number of columns of the Nraw.
+	 */
 	void init(const char* nraw_folder, const uint64_t num_cols);
+
+	/*! \brief Enable or disable direct mode that bypass system cache in order to enhance performances.
+	 *
+	 *  \param[in] direct Specify if direct mode must be enabled or not.
+	 *
+	 *  \note /!\ Direct mode needs the buffer address to be aligned on 512 and the buffer size to be a multiple of 512.
+	 */
 	void set_direct_mode(bool direct = true);
+
 	void clear();
 	void clear_and_remove();
 
+	/*! \brief Store the columns indexation files to disk.
+     */
 	void store_index_to_disk();
+
+	/*! \brief Load the columns indexation files from disk.
+     */
 	void load_index_from_disk();
+
 public:
+	/*! \brief Add a field to the end of a given column.
+	 *
+	 *  \param[in] col_idx The column index.
+	 *  \param[in] field The field buffer.
+	 *  \param[in] size_ret The field buffer size.
+	 *
+	 *  \return The number of bytes actually written.
+	 */
 	uint64_t add(PVCol col_idx, const char* field, const uint64_t field_size);
+
+	/*! \brief Flush the part of the columns remaining in memory onto disk.
+	 */
 	void flush();
 
+	/*! \brief Returns the string located at a given row/column.
+	 *
+	 *  \param[in] field The string row.
+	 *  \param[in] col The string column.
+	 *  \param[out] size_ret The string size.
+	 *
+	 *  \note This method uses a cache pool to enhance performances.
+	 *        Therefore the returned string is only valid as long as the cache is still valid.
+	 *        The last returned row index is kept in memory in order to optimize sequencial access.
+	 *
+	 *  \return A pointer to the buffer.
+	 */
 	inline const char* at(PVRow field, PVCol col, size_t& size_ret)
 	{
 		PVColumn& column = get_col(col);
@@ -251,16 +296,9 @@ public:
 		return next(col, nb_fields_left, column.buffer_read_ptr, size_ret);
 	}
 
+	/*! \brief Returns the number of columns.
+	 */
 	size_t get_number_cols() const { return _columns.size(); }
-
-	/*
-	 * AG: we need to be able to go to the next chunk when this is necessary!
-	inline const char* next(uint64_t col, size_t& size_ret)
-	{
-		PVColumn& column = get_col(col);
-		assert(column.buffer_read != nullptr);
-		return next(col, 1, column.buffer_read_ptr, size_ret);
-	}*/
 
 public:
 	void print_stats();
@@ -596,7 +634,19 @@ private:
 	std::string get_disk_index_file() const;
 	std::string get_disk_column_file(uint64_t col) const;
  
+	/*! \brief Returns a string based on its index relative to a given buffer.
+	 *
+	 *  \param[in] col The column index.
+	 *  \param[in] nb_fields The number of fields to skip.
+	 *  \param[in] buffer The working buffer.
+	 *  \param[out] buffer The returned string size.
+	 *
+	 *  \return A pointer to the buffer.
+	 */
 	char* next(uint64_t col, uint64_t nb_fields, char* buffer, size_t& size_ret);
+
+	/*! \brief Close all the column files of the Nraw.
+	 */
 	void close_files();
 
 private:
@@ -730,6 +780,11 @@ private:
 	}
 
 private:
+	/**
+	 * \class PVColumn
+	 *
+	 * \note
+	 */
 	struct PVColumn
 	{
 	public:
@@ -783,9 +838,25 @@ private:
 		~PVCachePool();
 
 	public:
+		/*! \brief Initialize the cache for a given couple row/column.
+		 *
+		 *  \param[in] field The field index.
+		 *  \param[in] col The column index.
+		 *
+		 *  \note The cache buffer pointer is then located in "get_col(col).buffer_read_ptr"
+		 *
+		 *  \return The number of fields left in the cache.
+		 */
 		uint64_t get_cache(uint64_t field, uint64_t col);
 
 	private:
+		/*! \brief Returns the cache index in the pool cache for a given couple column/row.
+		 *
+		 *  \param[in] col The column index.
+		 *  \param[in] field The field index.
+		 *
+		 *  \return The cache index in the pool cache or -1 if no valid cache can be found.
+		 */
 		int64_t get_index(uint64_t col, uint64_t field);
 
 	private:
@@ -801,10 +872,16 @@ private:
 
 	private:
 		PVReadCache _caches[NB_CACHE_BUFFERS];
-		PVRush::PVNrawDiskBackend& _parent;
+		PVRush::PVNrawDiskBackend& _backend;
 	};
 
 private:
+	/*! \brief Returns a reference to the PVColumn of the given index.
+	 *
+	 *  \param[in] col The column index.
+	 *
+	 *  \return A reference to the PVColumn of the given index.
+	 */
 	inline PVColumn& get_col(uint64_t col) { assert(col < _columns.size()); return _columns[col]; }
 
 private:
@@ -840,7 +917,6 @@ private:
 	uint64_t _indexes_nrows = 0;
 
 	tbb::tick_count::interval_t _matrix_resize_interval;
-	tbb::tick_count::interval_t _search_interval;
 
 	size_t _nrows;
 	char* _serial_read_buffer;
