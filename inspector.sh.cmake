@@ -35,25 +35,29 @@ export PVRUSH_SOURCE_DIR=$PVKERNEL_PATH/plugins/sources
 
 export PVFILTER_NORMALIZE_DIR=$PVKERNEL_PATH/plugins/normalize
 
-#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PVKERNEL_PATH/src/:$PICVIZ_PATH/src/
+export LD_LIBRARY_PATH=/opt/qt-picviz/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 
 VALGRIND_ALLOC_FNS="--alloc-fn=scalable_aligned_malloc --alloc-fn=scalable_malloc --alloc-fn=scalable_posix_memalign"
 
 CMD_ARGS=("$@")
 
-if [ "$1" == "debug" ]
-then
-LOAD_PROJECT=""
-if [ "${2: -3}" == ".pv" ]
-then
-	LOAD_PROJECT="--project "
-fi
-export PICVIZ_DEBUG_LEVEL="DEBUG"
-#export PICVIZ_DEBUG_FILE="debug.txt"
+if [ "$1" == "debug" ]; then
+	LOAD_PROJECT=""
+	if [ "${2: -3}" == ".pv" ]; then
+		LOAD_PROJECT="--project "
+	fi
+	export PICVIZ_DEBUG_LEVEL="DEBUG"
+	#export PICVIZ_DEBUG_FILE="debug.txt"
 	unset CMD_ARGS[0]
 	gdb -ex run --args $ISRD/gui-qt/src/picviz-inspector $LOAD_PROJECT ${CMD_ARGS[@]}
 	exit 0
 fi
+
+if [ "$1" == "qdebug" ]; then
+	qtcreator -debug $ISRD/gui-qt/src/picviz-inspector
+	exit 0
+fi
+
 if [ "$1" == "ddd" ]
 then
 export PICVIZ_DEBUG_LEVEL="DEBUG"
