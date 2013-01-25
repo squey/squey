@@ -13,6 +13,7 @@
 #include <tbb/enumerable_thread_specific.h>
 
 static const std::string INDEX_FILENAME = std::string("nraw.idx");
+const uint64_t PVRush::PVNrawDiskBackend::READ_BUFFER_SIZE = std::max<size_t>(PVCore::PVHardwareConcurrency::get_level_n_cache_size(1), 256*1024);
 
 // class tbb_chunks_t
 PVRush::PVNrawDiskBackend::tbb_chunks_t::tbb_chunks_t(size_t n):

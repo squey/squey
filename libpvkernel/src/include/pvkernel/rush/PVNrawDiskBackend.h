@@ -25,6 +25,7 @@
 #include <pvkernel/core/PVByteVisitor.h>
 #include <pvkernel/core/PVSelBitField.h>
 #include <pvkernel/core/string_tbb.h>
+#include <pvkernel/core/PVHardwareConcurrency.h>
 
 #include <QSet>
 
@@ -166,10 +167,10 @@ struct BufferedFilePolicy
 class PVNrawDiskBackend: private RawFilePolicy
 {
 	static constexpr uint64_t BUF_ALIGN = 512;
-	static constexpr uint64_t READ_BUFFER_SIZE = 256*1024;
+	static const uint64_t READ_BUFFER_SIZE; // = L2 cache size
 	static constexpr uint64_t NB_CACHE_BUFFERS = 10;
 	static constexpr uint64_t INVALID = std::numeric_limits<uint64_t>::max();
-	static constexpr size_t   SERIAL_READ_BUFFER_SIZE = 2*1024*1024;
+	static constexpr size_t SERIAL_READ_BUFFER_SIZE = 2*1024*1024;
 
 private:
 	struct offset_fields_t
