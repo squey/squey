@@ -297,6 +297,41 @@ public:
 		return next(col, nb_fields_left, column.buffer_read_ptr, size_ret);
 	}
 
+	inline const std::string at_no_cache(PVRow field, PVCol col)
+	{
+		// Fetch content from disk
+		PVColumn& column = get_col(col);
+		char buffer[256*1024+BUF_ALIGN];
+		int64_t field_index = _cache_pool.get_index(col, field);
+		uint64_t disk_offset = field_index == -1 ? 0 : _indexes.at(field_index, col).offset;
+		uint64_t aligned_disk_offset = disk_offset;
+		if (_direct_mode) {
+			aligned_disk_offset = (disk_offset / BUF_ALIGN) * BUF_ALIGN;
+		}
+		int64_t read_size = this->ReadAt(column.file, aligned_disk_offset, buffer, READ_BUFFER_SIZE);
+		if(read_size <= 0) {
+			PVLOG_ERROR("PVNrawDiskBackend: Error reading column %d [offset=%d] from disk (%s)\n", col, aligned_disk_offset, strerror(errno));
+			return 0;
+		}
+		uint64_t first_field = field_index == -1 ? 0 :_indexes.at(field_index, col).field;
+		uint64_t nb_fields = field - first_field;
+
+		// Search field in content
+		size_t size_ret;
+		char* buffer_ptr = buffer;
+		if (column.field_length > 0) {
+			buffer_ptr += nb_fields * column.field_length;
+			size_ret = column.field_length;
+		}
+		else {
+			uint64_t size_to_read = READ_BUFFER_SIZE - (buffer - column.buffer_read_ptr);
+			PVCore::PVByteVisitor::visit_nth_slice((const uint8_t*) buffer, size_to_read, nb_fields,  [&](const uint8_t* found_buf, size_t sbuf) { buffer_ptr = (char*) found_buf; size_ret = sbuf; });
+		}
+
+		return std::string(buffer_ptr, size_ret);
+
+	}
+
 	/*! \brief Returns the number of columns.
 	 */
 	size_t get_number_cols() const { return _columns.size(); }
@@ -850,13 +885,12 @@ private:
 		 */
 		uint64_t get_cache(uint64_t field, uint64_t col);
 
-	private:
-		/*! \brief Returns the cache index in the pool cache for a given couple column/row.
+		/*! \brief Returns the field index in the index map.
 		 *
 		 *  \param[in] col The column index.
 		 *  \param[in] field The field index.
 		 *
-		 *  \return The cache index in the pool cache or -1 if no valid cache can be found.
+		 *  \return The field index or -1 in case of error.
 		 */
 		int64_t get_index(uint64_t col, uint64_t field);
 
@@ -864,7 +898,6 @@ private:
 		struct PVReadCache
 		{
 			char* buffer = nullptr;
-			char* buffer_ptr = nullptr;
 			uint64_t column = INVALID;
 			tbb::tick_count timestamp = tbb::tick_count::now();
 			uint64_t first_field = INVALID;

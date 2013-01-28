@@ -169,6 +169,9 @@ declare_pv_test(Trush_nraw_sort_uniq "nraw_sort_uniq.cpp" "${LINK_LIBRARIES}")
 # NRAW sort-column
 declare_pv_test(Trush_nraw_sort_column "nraw_sort_column.cpp" "${LINK_LIBRARIES}")
 
+# NRAW bench
+declare_pv_test(Trush_nraw_bench "nraw_bench.cpp" "${LINK_LIBRARIES}")
+
 declare_pv_test(arcsight_src "test_arcsight_source.cpp;helpers.cpp;${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightInfos.cpp;${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightQuery.cpp;" "${LINK_LIBRARIES}")
 
 if(PYTHONLIBS_FOUND)
