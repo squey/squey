@@ -10,10 +10,9 @@
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/rush/PVNrawDiskBackend.h>
 
-#include <tbb/enumerable_thread_specific.h>
-
 static const std::string INDEX_FILENAME = std::string("nraw.idx");
-const uint64_t PVRush::PVNrawDiskBackend::READ_BUFFER_SIZE = std::max<size_t>(PVCore::PVHardwareConcurrency::get_level_n_cache_size(1), 256*1024);
+//const uint64_t PVRush::PVNrawDiskBackend::READ_BUFFER_SIZE = std::max<size_t>(PVCore::PVHardwareConcurrency::get_level_n_cache_size(1), 256*1024);
+const uint64_t PVRush::PVNrawDiskBackend::READ_BUFFER_SIZE = 4*1024;
 
 // class tbb_chunks_t
 PVRush::PVNrawDiskBackend::tbb_chunks_t::tbb_chunks_t(size_t n):
@@ -54,7 +53,14 @@ void PVRush::PVNrawDiskBackend::close_files()
 {
 	for (uint64_t col_idx = 0 ; col_idx < get_number_cols(); col_idx++) {
 		PVColumn& column = get_col(col_idx);
-		this->Close(column.file);
+
+		// Close write file descriptor
+		this->Close(column.write_file);
+
+		// Close read files descriptors
+		for (file_t& read_file : column.read_file_tls) {
+			this->Close(read_file);
+		}
 	}
 }
 
@@ -68,7 +74,7 @@ void PVRush::PVNrawDiskBackend::init(const char* nraw_folder, const uint64_t num
 
 		// Open file
 		column.filename = std::move(get_disk_column_file(col));
-		if(!this->Open(column.filename, &column.file, true, true)) {
+		if(!this->Open(column.filename, &column.write_file, _direct_mode, _direct_mode)) {
 			PVLOG_ERROR("PVNrawDiskBackend: Error opening file %s (%s)\n", column.filename.c_str(), strerror(errno));
 			return;
 		}
@@ -105,7 +111,7 @@ uint64_t PVRush::PVNrawDiskBackend::add(PVCol col_idx, const char* field, const 
 	// Index field
 	if (column.fields_ignored_size + written_field_size > READ_BUFFER_SIZE) {
 		assert(column.buffer_write <= column.buffer_write_ptr);
-		uint64_t field_offset_in_file = this->Tell(column.file) + ((uintptr_t)column.buffer_write_ptr - (uintptr_t)column.buffer_write) ;
+		uint64_t field_offset_in_file = this->Tell(column.write_file) + ((uintptr_t)column.buffer_write_ptr - (uintptr_t)column.buffer_write) ;
 
 		// Resize indexes matrix if needed
 		if (column.fields_indexed == _indexes.get_nrows()) {
@@ -148,7 +154,7 @@ uint64_t PVRush::PVNrawDiskBackend::add(PVCol col_idx, const char* field, const 
 
 	// Write buffer_write to disk
 	if (column.buffer_write_ptr == column.buffer_write_end_ptr) {
-		write_size = this->Write(column.buffer_write, _write_buffers_size_pattern[column.buffers_write_size_idx], column.file);
+		write_size = this->Write(column.buffer_write, _write_buffers_size_pattern[column.buffers_write_size_idx], column.write_file);
 		if(write_size <= 0) {
 			PVLOG_ERROR("PVNrawDiskBackend: Error writing column %d to disk (%s)\n", col_idx, strerror(errno));
 			return 0;
@@ -190,7 +196,7 @@ void PVRush::PVNrawDiskBackend::flush()
 		PVColumn& column = get_col(col_idx);
 		uint64_t partial_buffer_size = column.buffer_write_ptr - column.buffer_write;
 		if (partial_buffer_size > 0) {
-			if(!this->Write(column.buffer_write, partial_buffer_size, column.file)) {
+			if(!this->Write(column.buffer_write, partial_buffer_size, column.write_file)) {
 				PVLOG_ERROR("PVNrawDiskBackend: Error writing column %d to disk (%s)\n", col_idx, strerror(errno));
 				return;
 			}
@@ -220,7 +226,7 @@ uint64_t PVRush::PVNrawDiskBackend::search_in_column(uint64_t col_idx, std::stri
 	bool last_chunk = false;
 	do
 	{
-		read_size = this->Read(column.file, buffer+BUF_ALIGN, chunk_size-BUF_ALIGN);
+		read_size = this->Read(column.write_file, buffer+BUF_ALIGN, chunk_size-BUF_ALIGN);
 		last_chunk = read_size < (chunk_size-BUF_ALIGN);
 
 		// TODO: clean this mess
@@ -265,10 +271,10 @@ void PVRush::PVNrawDiskBackend::set_direct_mode(bool direct)
 
 	for (size_t col = 0 ; col < get_number_cols() ; col++) {
 		PVColumn& column = get_col(col);
-		uint64_t pos = this->Tell(column.file);
-		this->Close(column.file);
-		this->Open(column.filename, &column.file, direct);
-		this->Seek(column.file, pos);
+		uint64_t pos = this->Tell(column.write_file);
+		this->Close(column.write_file);
+		this->Open(column.filename, &column.write_file, direct);
+		this->Seek(column.write_file, pos);
 	}
 	_direct_mode = direct;
 }
@@ -319,7 +325,7 @@ void PVRush::PVNrawDiskBackend::clear()
 	unlink(get_disk_index_file().c_str());
 	for (uint64_t c = 0 ; c < get_number_cols() ; c++) {
 		PVColumn& nraw_c = _columns[c];
-		this->Truncate(nraw_c.file, 0);
+		this->Truncate(nraw_c.write_file, 0);
 
 		nraw_c.buffer_write_ptr = nraw_c.buffer_write;
 		nraw_c.field_length = 0; // Or any value grater than 0 to specify a fixed field length;
@@ -444,7 +450,7 @@ uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint6
 			aligned_disk_offset = (disk_offset / BUF_ALIGN) * BUF_ALIGN;
 			buffer_ptr += (disk_offset - aligned_disk_offset);
 		}
-		int64_t read_size = _backend.ReadAt(column.file, aligned_disk_offset, cache.buffer, READ_BUFFER_SIZE);
+		int64_t read_size = _backend.ReadAt(column.write_file, aligned_disk_offset, cache.buffer, READ_BUFFER_SIZE);
 		if(read_size <= 0) {
 			PVLOG_ERROR("PVNrawDiskBackend: Error reading column %d [offset=%d] from disk (%s)\n", col, aligned_disk_offset, strerror(errno));
 			return 0;
