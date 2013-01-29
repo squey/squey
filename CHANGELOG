@@ -1,3 +1,28 @@
+3.0.5 (29/01/2012)
+-----------------
+
+This minor releases add the following features:
+
+ * hexadecimal integer mapping
+ * improve automatic splitter detection in the format builder
+ * add "reset layer to default color" feature
+ * duplication of an existing layer is now possible
+
+This minor releases fixes:
+
+ * in some cases, incorrect progress values were reported during the normalisation process
+ * fix crash when loading incorrect Picviz project
+ * fix crash when no lines have matched the given format during normalisation
+ * fix signed integer mapping
+ * fix "set selection from current layer"
+ * fix layer stack up/down/new features
+ * minor improvements in the GUI
+
+3.0.4
+-----
+
+(internal release)
+
 3.0.3
 -----
 
