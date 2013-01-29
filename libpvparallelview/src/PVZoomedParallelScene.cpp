@@ -391,7 +391,7 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 		const QRectF &/*rect*/)
 {
 	QRect screen_rect = _zpview->get_viewport()->rect();
-	int screen_center = screen_rect.center().x();
+	int screen_center = screen_rect.center().x() + 1;
 
 	// save the painter's state to restore it later because the scene
 	// transformation matrix is unneeded for what we have to draw
@@ -674,11 +674,13 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 	int64_t mid = ((int64_t)sb->maximum() + sb->minimum()) / 2;
 	sb->setValue(mid);
 
+	qreal center_x = _zpview->get_viewport()->rect().center().x();
+
 	/* now, it's time to tell each QGraphicsPixmapItem where it must be.
 	*/
 	if (_left_zone) {
 		QPointF p = _left_zone->item->pos();
-		double screen_left_x = _zpview->get_viewport()->rect().center().x();
+		double screen_left_x = center_x + 1;
 
 		/* the image's size depends on its last computed beta factor
 		 * and the current scale factor (it's obvious to prove but I
@@ -687,43 +689,18 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 		screen_left_x -= image_width * (_current_beta * scale_factor);
 		screen_left_x -= axis_half_width;
 
-#if 0
-		/* mapToScene use ints, so, to avoid artefacts (due to the cast
-		 * from double to int (a floor)), a rounded value is needed.
-		 */
-		if (screen_left_x < 0) {
-			screen_left_x -= 0.5;
-		} else {
-			screen_left_x += 0.5;
-		}
-#endif
-
 		QPointF np = _zpview->map_to_scene(QPointF(screen_left_x, 0));
 
-		_left_zone->item->setPos(QPointF(np.x(), p.y()));
+		_left_zone->item->setPos(np.x(), p.y());
 	}
 
 	if (_right_zone) {
 		QPointF p = _right_zone->item->pos();
-		int screen_right_x = _zpview->get_viewport()->rect().center().x() + axis_half_width + 1;
-
-#if 0
-		/* mapToScene use ints, so, to avoid artefacts (due to the cast
-		 * from double to int (a floor)), a rounded value is needed.
-		 *
-		 * RH: I am not sure about doing like left zone but I notice
-		 *     less artefacts
-		 */
-		if (screen_right_x < 0) {
-			screen_right_x -= 0.5;
-		} else {
-			screen_right_x += 0.5;
-		}
-#endif
+		int screen_right_x = center_x + axis_half_width + 2;
 
 		QPointF np = _zpview->map_to_scene(QPointF(screen_right_x, 0));
 
-		_right_zone->item->setPos(QPointF(np.x(), p.y()));
+		_right_zone->item->setPos(np.x(), p.y());
 	}
 
 	_updateall_timer.start();
