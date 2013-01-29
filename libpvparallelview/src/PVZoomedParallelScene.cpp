@@ -123,6 +123,11 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 
 PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 {
+	if (_zpview != nullptr) {
+		_zpview->set_scene(nullptr);
+		_zpview = nullptr;
+	}
+
 	if (_selection_rect) {
 		delete _selection_rect;
 		_selection_rect = nullptr;
@@ -880,7 +885,9 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_del_obs::update(argumen
 	if ((axis_id == _parent->_axis_id) && (id == _parent->_sliders_group)) {
 		if (_parent->_pending_deletion == false) {
 			_parent->_pending_deletion = true;
-			_parent->_zpview->parentWidget()->close();
+			if (_parent->_zpview != nullptr) {
+				_parent->_zpview->parentWidget()->close();
+			}
 		}
 	}
 }
