@@ -7,20 +7,20 @@
 #include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 
-#include <QScrollBar>
+#include <QScrollBar64>
 
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelView::PVZoomedParallelView
  *****************************************************************************/
 
 PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget *parent) :
-	QGraphicsView(parent)
+	PVWidgets::PVGraphicsView(parent)
 {
 	setCursor(Qt::CrossCursor);
 	setMinimumHeight(300);
 
-	verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
-	horizontalScrollBar()->setObjectName("horizontalScrollBar_of_PVListingView");
+	get_vertical_scrollbar()->setObjectName("verticalScrollBar_of_PVListingView");
+	get_horizontal_scrollbar()->setObjectName("horizontalScrollBar_of_PVListingView");
 }
 
 
@@ -30,8 +30,8 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget *parent) :
 
 PVParallelView::PVZoomedParallelView::~PVZoomedParallelView()
 {
-	if (scene()) {
-		scene()->deleteLater();
+	if (get_scene()) {
+		get_scene()->deleteLater();
 	}
 }
 
@@ -41,9 +41,9 @@ PVParallelView::PVZoomedParallelView::~PVZoomedParallelView()
 
 void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent *event)
 {
-	QGraphicsView::resizeEvent(event);
+	PVWidgets::PVGraphicsView::resizeEvent(event);
 
-	PVParallelView::PVZoomedParallelScene *zps = (PVParallelView::PVZoomedParallelScene*)scene();
+	PVParallelView::PVZoomedParallelScene *zps = (PVParallelView::PVZoomedParallelScene*)get_scene();
 	if(zps != nullptr) {
 		zps->resize_display();
 	}

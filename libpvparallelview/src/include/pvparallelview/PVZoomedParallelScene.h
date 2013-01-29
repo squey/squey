@@ -22,6 +22,7 @@
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoomedParallelView.h>
 
+#include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneWheelEvent>
@@ -356,7 +357,7 @@ private slots:
 	 *
 	 * @param value the new scrollbar's value
 	 */
-	void scrollbar_changed_Slot(int value);
+	void scrollbar_changed_Slot(qint64 value);
 
 	/**
 	 * The slot called when the update time has expired.
@@ -515,7 +516,7 @@ private:
 
 	// about mouse
 	int                             _wheel_value;
-	int                             _pan_reference_y;
+	qint64                          _pan_reference_y;
 
 	// about zones rendering/display
 	zone_desc_t                    *_left_zone;
