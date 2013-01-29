@@ -376,6 +376,27 @@ void PVWidgets::PVGraphicsView::contextMenuEvent(QContextMenuEvent *event)
 }
 
 /*****************************************************************************
+ * PVWidgets::PVGraphicsView::event
+ *****************************************************************************/
+
+bool PVWidgets::PVGraphicsView::event(QEvent *event)
+{
+	bool ret = QWidget::event(event);
+
+	if (ret) {
+		switch(event->type()) {
+		case QEvent::Paint:
+			break;
+		default:
+			update();
+			break;
+		}
+	}
+
+	return ret;
+}
+
+/*****************************************************************************
  * PVWidgets::PVGraphicsView::focusInEvent
  *****************************************************************************/
 

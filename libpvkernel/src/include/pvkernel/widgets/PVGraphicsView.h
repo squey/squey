@@ -296,6 +296,8 @@ protected:
 protected:
 	void contextMenuEvent(QContextMenuEvent *event);
 
+	bool event(QEvent *event);
+
 	void focusInEvent(QFocusEvent *event);
 	// bool focusNextPrevChild(bool next); does not need reimplementation
 	void focusOutEvent(QFocusEvent *event);
@@ -315,7 +317,6 @@ protected:
 	virtual void dragLeaveEvent(QDragLeaveEvent *event);
 	virtual void dragMoveEvent(QDragMoveEvent *event);
 	virtual void dropEvent(QDropEvent *event);
-	virtual bool event(QEvent *event);
 	virtual void inputMethodEvent(QInputMethodEvent *event);
 	virtual void showEvent(QShowEvent *event);
 	virtual bool viewportEvent(QEvent *event);
