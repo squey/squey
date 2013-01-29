@@ -73,7 +73,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zpview->set_vertical_scrollbar_policy(Qt::ScrollBarAlwaysOn);
 	_zpview->set_resize_anchor(PVWidgets::PVGraphicsView::AnchorViewCenter);
 	_zpview->set_transformation_anchor(PVWidgets::PVGraphicsView::AnchorUnderMouse);
-	// to have usable mouse centered zoom
+	// to have usable mouse centered zoom and every update
 	_zpview->setMouseTracking(true);
 
 	_zpview->setMaximumWidth(1024);
@@ -168,6 +168,14 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 
 void PVParallelView::PVZoomedParallelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+	// do item's hover stuff
+	QGraphicsScene::mousePressEvent(event);
+
+	if (event->isAccepted()) {
+		// a QGraphicsItem has already done something (usually a contextMenuEvent)
+		return;
+	}
+
 	if (event->button() == Qt::RightButton) {
 		_pan_reference_y = event->screenPos().y();
 		event->accept();
@@ -175,9 +183,6 @@ void PVParallelView::PVZoomedParallelScene::mousePressEvent(QGraphicsSceneMouseE
 		_selection_rect_pos = event->scenePos();
 		event->accept();
 	}
-
-	// do item's hover stuff
-	QGraphicsScene::mousePressEvent(event);
 }
 
 /*****************************************************************************
@@ -289,6 +294,14 @@ void PVParallelView::PVZoomedParallelScene::keyPressEvent(QKeyEvent *event)
 	if (event->key() == Qt::Key_Space) {
 		PVLOG_INFO("PVZoomedParallelScene: forcing full redraw\n");
 		update_all();
+	}
+}
+
+void PVParallelView::PVZoomedParallelScene::update(const QRectF &rect)
+{
+	QGraphicsScene::update(rect);
+	if (_zpview) {
+		_zpview->update();
 	}
 }
 

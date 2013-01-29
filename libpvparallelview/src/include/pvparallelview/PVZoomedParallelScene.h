@@ -148,6 +148,8 @@ public:
 	 */
 	void keyPressEvent(QKeyEvent *event);
 
+	void update(const QRectF &rect = QRectF());
+
 	/**
 	 * Start asynchronously an update of selection rendering.
 	 */
