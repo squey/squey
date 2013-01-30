@@ -93,9 +93,14 @@ void PVWidgets::PVGraphicsView::set_scene(QGraphicsScene *scene)
 	}
 
 	_scene = scene;
+
+	if (_scene == nullptr) {
+		return;
+	}
+
 	recompute_viewport();
 
-	if (_scene && hasFocus()) {
+	if (hasFocus()) {
 		_scene->setFocus();
 	}
 }
