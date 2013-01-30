@@ -185,9 +185,18 @@ void PVWidgets::PVGraphicsView::set_transform(const QTransform &t, bool combine)
 	_inv_transform = _transform.inverted();
 
 	recompute_viewport();
-	center_view(_transformation_anchor);
 
-	_viewport->update();
+	/* if _transformation_anchor is equal to AnchorUnderMouse while the
+	 * mouse is not on the view, there is an translation effect due to the
+	 * use of QCursor::pos().
+	 * So, when the mouse pointer is outside of the view, AnchorUnderMouse
+	 * *must not* be used.
+	 */
+	if (underMouse()) {
+		center_view(_transformation_anchor);
+	} else {
+		center_view(AnchorViewCenter);
+	}
 }
 
 /*****************************************************************************
@@ -335,13 +344,10 @@ void PVWidgets::PVGraphicsView::paintEvent(QPaintEvent *event)
 
 void PVWidgets::PVGraphicsView::resizeEvent(QResizeEvent *event)
 {
-	if (_resize_anchor == NoAnchor) {
-		recompute_viewport();
-	} else {
-		QPointF center_pos = map_to_scene(_viewport->rect().center());
-		recompute_viewport();
-		center_on(center_pos);
-	}
+	recompute_viewport();
+	center_view(_resize_anchor);
+
+	event->setAccepted(true);
 }
 
 /*****************************************************************************
@@ -776,18 +782,14 @@ void PVWidgets::PVGraphicsView::recompute_viewport()
 
 void PVWidgets::PVGraphicsView::center_view(ViewportAnchor anchor)
 {
-	switch(anchor) {
-	case NoAnchor:
-		break;
-	case  AnchorViewCenter:
-		//center_on(_last_center_coord);
-		break;
-	case AnchorUnderMouse:
+	if (anchor == AnchorViewCenter) {
+		QPointF p = map_to_scene(_viewport->rect().center());
+		center_on(p);
+	} else if (anchor == AnchorUnderMouse) {
 		QPointF delta = map_to_scene(_viewport->rect().center());
 		delta -= map_to_scene(_viewport->mapFromGlobal(QCursor::pos()));
 		center_on(_last_mouse_move_scene_coord + delta);
-		break;
-	}
+	} // else if (anchor == NoAnchor) do nothing
 }
 
 /*****************************************************************************

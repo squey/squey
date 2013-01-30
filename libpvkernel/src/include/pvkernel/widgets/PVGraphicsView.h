@@ -27,8 +27,6 @@ namespace PVWidgets {
  * - no caching when rendering (the repainted area is always renderer from
  *   scratch)
  * - no support for alignment
- * - AnchorUnderMouse is not supported as resize anchor
- * - AnchorViewCenter is not supported as transformation anchor
  * - no added border when computing the transformation matrix to make the
  *   scene enter in the viewport. So that the rendering differs from
  *   QGraphicsView.
