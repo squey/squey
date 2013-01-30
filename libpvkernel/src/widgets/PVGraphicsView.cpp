@@ -525,7 +525,7 @@ void PVWidgets::PVGraphicsView::mouseMoveEvent(QMouseEvent *event)
 	if (scene_event.isAccepted()) {
 		event->setAccepted(true);
 	} else {
-		QWidget::mouseDoubleClickEvent(event);
+		QWidget::mouseMoveEvent(event);
 	}
 }
 
