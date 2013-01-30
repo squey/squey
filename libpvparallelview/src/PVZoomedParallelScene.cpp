@@ -73,8 +73,6 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zpview->set_vertical_scrollbar_policy(Qt::ScrollBarAlwaysOn);
 	_zpview->set_resize_anchor(PVWidgets::PVGraphicsView::AnchorViewCenter);
 	_zpview->set_transformation_anchor(PVWidgets::PVGraphicsView::AnchorUnderMouse);
-	// to have usable mouse centered zoom and every update
-	_zpview->setMouseTracking(true);
 
 	_zpview->setMaximumWidth(1024);
 	_zpview->setMaximumHeight(1024);

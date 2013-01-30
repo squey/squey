@@ -269,6 +269,11 @@ void PVWidgets::PVGraphicsView::set_resize_anchor(const PVWidgets::PVGraphicsVie
 		qWarning("anchor AnchorUnderMouse is not supported for resize event");
 		break;
 	}
+
+	if (anchor == AnchorUnderMouse) {
+		_viewport->setMouseTracking(true);
+		setMouseTracking(true);
+	}
 }
 
 /*****************************************************************************
@@ -290,6 +295,7 @@ void PVWidgets::PVGraphicsView::set_transformation_anchor(const PVWidgets::PVGra
 
 	if (anchor == AnchorUnderMouse) {
 		_viewport->setMouseTracking(true);
+		setMouseTracking(true);
 	}
 }
 
