@@ -676,8 +676,6 @@ void PVWidgets::PVGraphicsView::set_view(const QRectF &area, Qt::AspectRatioMode
 	transfo.scale(1. / x_scale, 1. / y_scale);
 
 	set_transform(transfo);
-
-	recompute_viewport();
 }
 
 /*****************************************************************************
