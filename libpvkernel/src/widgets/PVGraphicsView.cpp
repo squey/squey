@@ -692,7 +692,7 @@ void PVWidgets::PVGraphicsView::init()
 {
 	_hbar_policy = Qt::ScrollBarAsNeeded;
 	_vbar_policy = Qt::ScrollBarAsNeeded;
-	_resize_anchor = AnchorUnderMouse;
+	_resize_anchor = NoAnchor;
 	_transformation_anchor = AnchorViewCenter;
 
 	_transform.reset();
