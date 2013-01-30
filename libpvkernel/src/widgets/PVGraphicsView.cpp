@@ -10,6 +10,10 @@
 #include <QGraphicsSceneWheelEvent>
 #include <QScrollBar64>
 
+// to mimic QGraphicsView::::sizeHint() :-D
+#include <QApplication>
+#include <QDesktopWidget>
+
 #include <iostream>
 
 static inline qint64 sb_round(const qreal &d)
@@ -351,20 +355,6 @@ void PVWidgets::PVGraphicsView::resizeEvent(QResizeEvent *event)
 }
 
 /*****************************************************************************
- * PVWidgets::PVGraphicsView::drawBackground
- *****************************************************************************/
-
-void PVWidgets::PVGraphicsView::drawBackground(QPainter *, const QRectF &)
-{}
-
-/*****************************************************************************
- * PVWidgets::PVGraphicsView::drawForeground
- *****************************************************************************/
-
-void PVWidgets::PVGraphicsView::drawForeground(QPainter *, const QRectF &)
-{}
-
-/*****************************************************************************
  * PVWidgets::PVGraphicsView::contextMenuEvent
  *****************************************************************************/
 
@@ -639,6 +629,34 @@ void PVWidgets::PVGraphicsView::wheelEvent(QWheelEvent *event)
 }
 
 /*****************************************************************************
+ * PVWidgets::PVGraphicsView::drawBackground
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::drawBackground(QPainter *, const QRectF &)
+{}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::drawForeground
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::drawForeground(QPainter *, const QRectF &)
+{}
+
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::sizehint
+ *****************************************************************************/
+
+QSize PVWidgets::PVGraphicsView::sizeHint() const
+{
+	if (_scene) {
+		QSizeF s = _transform.mapRect(get_scene_rect()).size();
+		return s.boundedTo((3 * QApplication::desktop()->size()) / 4).toSize();
+	}
+	return QSize(256, 192);
+}
+
+/*****************************************************************************
  * PVWidgets::PVGraphicsView::set_view
  *****************************************************************************/
 
@@ -697,6 +715,8 @@ void PVWidgets::PVGraphicsView::init()
 
 	_transform.reset();
 	_inv_transform.reset();
+
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 	_layout = new QGridLayout(this);
 	_layout->setSpacing(3);

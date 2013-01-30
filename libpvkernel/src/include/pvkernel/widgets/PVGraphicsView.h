@@ -275,7 +275,6 @@ public:
 	 */
 	ViewportAnchor get_transformation_anchor() const;
 
-
 protected:
 	/**
 	 * Redraws the widget according to the paint event.
@@ -338,6 +337,11 @@ protected:
 	 * @param rect the area to redraw
 	 */
 	virtual void drawForeground(QPainter *painter, const QRectF &rect);
+
+	/**
+	 * \reimpl
+	 */
+	QSize sizeHint() const;
 
 protected:
 	/**
