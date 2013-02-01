@@ -77,6 +77,61 @@ void count_y1_seq_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
 	}
 }
 
+inline __m256i mm256_srli_epi32(__m256i v, const int count)
+{
+	const __m128i v0 = _mm256_extractf128_si256(v, 0);
+	const __m128i v1 = _mm256_extractf128_si256(v, 0);
+
+	const __m128i v0s = _mm_srli_epi32(v0, count);
+	const __m128i v1s = _mm_srli_epi32(v1, count);
+
+	const __m256i ret = _mm256_castsi128_si256(v0s);
+	return _mm256_insertf128_si256(ret, v1s, 1);
+}
+
+void count_y1_avx_v3(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
+                     const Picviz::PVSelection &selection,
+                     const uint64_t y_min, const uint64_t y_max, const int zoom,
+                     size_t *buffer, const size_t buffer_size)
+{
+	const int idx_shift = (32 - 10) - zoom;
+	const int zoom_shift = 32 - zoom;
+	const uint32_t idx_mask = (1 << 10) - 1;
+	const uint32_t zoom_base = y_min >> zoom_shift;
+
+	const uint32_t row_count_avx = (row_count/8)*8;
+	const __m256i avx_idx_mask = _mm256_set1_epi32(idx_mask);
+	const __m256i avx_zoom_base = _mm256_set1_epi32(zoom_base);
+
+	size_t i;
+	for(i = 0; i < row_count_avx; i += 8) {
+		const __m256i avx_y = _mm256_load_si256((__m256i const*) &col_y1[i]);
+		const __m256i avx_block_base = mm256_srli_epi32(avx_y, zoom_shift);
+		const __m256i avx_block_idx = reinterpret_cast<__m256i>(_mm256_and_ps(reinterpret_cast<__m256>(mm256_srli_epi32(avx_y, idx_shift)),
+		                                                                      reinterpret_cast<__m256>(avx_idx_mask)));
+
+		const __m256i avx_cmp = reinterpret_cast<__m256i>(_mm256_cmp_ps(reinterpret_cast<__m256>(avx_block_base), reinterpret_cast<__m256>(avx_zoom_base), _CMP_EQ_OQ));
+		if (_mm256_testc_si256(avx_cmp, _mm256_setzero_si256())) {
+			// They are all false
+			continue;
+		}
+
+		for (int j = 0; j < 8; j++) {
+			if (_mm256_extract_epi32(avx_cmp, j)) {
+				buffer[_mm256_extract_epi32(avx_block_idx, j)]++;
+			}
+		}
+	}
+	for (; i < row_count; i++) {
+		const uint32_t y = col_y1[i];
+		const uint32_t block_base = y >> zoom_shift;
+		if (block_base == zoom_base) {
+			const uint32_t block_idx = (y >> idx_shift) & idx_mask;
+			++buffer[block_idx];
+		}
+	}
+}
+
 /*****************************************************************************
  * SSE algos
  *****************************************************************************/
@@ -213,8 +268,10 @@ int main(int argc, char **argv)
 	CMP_TEST(seq_v2, seq_v1);
 
 	DEF_TEST(seq_v3);
-	CMP_TEST(seq_v3, seq_v1);
+	//CMP_TEST(seq_v3, seq_v1);
 	// not comparable
+	DEF_TEST(avx_v3);
+	CMP_TEST(avx_v3, seq_v3);
 
 	return 0;
 }
