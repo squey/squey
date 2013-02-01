@@ -5,6 +5,8 @@
 
 #include <pvparallelview/PVZoneProcessing.h>
 
+#include "common.h"
+
 #include <iostream>
 
 /* TODO:
@@ -216,39 +218,29 @@ void count_y1_sse_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
  *****************************************************************************/
 
 typedef enum {
-	ARG_PROG,
-	ARG_FILE,
-	ARG_COL,
+	ARG_COL = 0,
 	ARG_MIN,
 	ARG_ZOOM,
-	ARG_COUNT
 } EXTRA_ARG;
-
-void usage(const char *prog)
-{
-	std::cerr << "usage: " << prog << "file col y_min zoom" << std::endl;
-}
 
 int main(int argc, char **argv)
 {
-	if (argc != ARG_COUNT) {
-		usage(argv[ARG_PROG]);
-		exit(1);
-	}
+	set_extra_param(3, "col y_min zoom");
 
 	Picviz::PVPlotted::uint_plotted_table_t plotted;
 	PVCol col_count;
 	PVRow row_count;
 
 	std::cout << "loading data" << std::endl;
-	if (false == Picviz::PVPlotted::load_buffer_from_file(plotted, row_count, col_count, true, argv[ARG_FILE])) {
-		usage(argv[ARG_PROG]);
+	if (false == create_plotted_table_from_args(plotted, row_count, col_count, argc, argv)) {
 		exit(1);
 	}
 
-	int col = atoi(argv[ARG_COL]);
-	uint64_t y_min = atol(argv[ARG_MIN]);
-	int zoom = atol(argv[ARG_ZOOM]);
+	int pos = extra_param_start_at();
+
+	int col = atoi(argv[pos + ARG_COL]);
+	uint64_t y_min = atol(argv[pos + ARG_MIN]);
+	int zoom = atol(argv[pos + ARG_ZOOM]);
 	uint64_t y_max = y_min + (1UL << (32 - zoom));
 
 	PVParallelView::PVZoneProcessing zp(plotted, row_count, col, col + 1);
