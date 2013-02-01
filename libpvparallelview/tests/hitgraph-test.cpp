@@ -79,16 +79,15 @@ void count_y1_seq_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
 	}
 }
 
-inline __m256i mm256_srli_epi32(__m256i v, const int count)
+inline __m256i mm256_srli_epi32(const __m256i v, const int count)
 {
 	const __m128i v0 = _mm256_extractf128_si256(v, 0);
-	const __m128i v1 = _mm256_extractf128_si256(v, 0);
+	const __m128i v1 = _mm256_extractf128_si256(v, 1);
 
 	const __m128i v0s = _mm_srli_epi32(v0, count);
 	const __m128i v1s = _mm_srli_epi32(v1, count);
 
-	const __m256i ret = _mm256_castsi128_si256(v0s);
-	return _mm256_insertf128_si256(ret, v1s, 1);
+	return _mm256_insertf128_si256(_mm256_castsi128_si256(v0s), v1s, 1);
 }
 
 void count_y1_avx_v3(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
@@ -98,12 +97,13 @@ void count_y1_avx_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
 {
 	const int idx_shift = (32 - 10) - zoom;
 	const int zoom_shift = 32 - zoom;
-	const uint32_t idx_mask = (1 << 10) - 1;
+	constexpr uint32_t idx_mask = (1 << 10) - 1;
 	const uint32_t zoom_base = y_min >> zoom_shift;
 
 	const uint32_t row_count_avx = (row_count/8)*8;
 	const __m256i avx_idx_mask = _mm256_set1_epi32(idx_mask);
 	const __m256i avx_zoom_base = _mm256_set1_epi32(zoom_base);
+	const __m256i avx_ff = _mm256_set1_epi32(0xFFFFFFFF);
 
 	size_t i;
 	for(i = 0; i < row_count_avx; i += 8) {
@@ -113,7 +113,7 @@ void count_y1_avx_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
 		                                                                      reinterpret_cast<__m256>(avx_idx_mask)));
 
 		const __m256i avx_cmp = reinterpret_cast<__m256i>(_mm256_cmp_ps(reinterpret_cast<__m256>(avx_block_base), reinterpret_cast<__m256>(avx_zoom_base), _CMP_EQ_OQ));
-		if (_mm256_testc_si256(avx_cmp, _mm256_setzero_si256())) {
+		if (_mm256_testz_si256(avx_cmp, avx_ff)) {
 			// They are all false
 			continue;
 		}
