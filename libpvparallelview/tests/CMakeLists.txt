@@ -106,7 +106,7 @@ add_executable(Tpview_dump_all_trees dump_all_trees.cpp common.cpp)
 target_link_libraries(Tpview_dump_all_trees ${LINK_LIBRARIES})
 
 add_executable(Ehitgraph-test hitgraph-test.cpp common.cpp)
-target_link_libraries(Ehitgraph-test ${LINK_LIBRARIES})
+target_link_libraries(Ehitgraph-test ${LINK_LIBRARIES} -lnuma)
 
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})

@@ -13,6 +13,7 @@
 #include <stdlib.h> // posix_memalign
 
 #include <omp.h>
+#include <numa.h>
 
 /* TODO:
  * - coder l'algo séquentiel
@@ -20,7 +21,6 @@
  * - paralléliser (omp et tbb)
  * - ajouter l'utilisation d'une sélection
  */
-
 
 /*****************************************************************************
  * sequential algos
@@ -220,8 +220,22 @@ struct omp_sse_v3_ctx_t
 	{
 		core_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
 		buffers = new uint32_t * [core_num];
+		buffer_size = size;
+
+		if (getenv("USE_NUMA") != NULL) {
+			use_numa = true;
+			std::cout << "using numa grouped reduction buffer" << std::endl;
+		} else {
+			use_numa = false;
+			std::cout << "using normally allocated reduction buffer" << std::endl;
+		}
+
 		for(uint32_t i = 0; i < core_num; ++i) {
-			posix_memalign((void**)&(buffers[i]), 16, size * sizeof(uint32_t));
+			if (use_numa) {
+				buffers[i] = (uint32_t*)numa_alloc_onnode(size * sizeof(uint32_t), numa_node_of_cpu(i));
+			} else {
+				posix_memalign((void**)&(buffers[i]), 16, size * sizeof(uint32_t));
+			}
 			memset(buffers[i], 0, size * sizeof(uint32_t));
 		}
 	}
@@ -231,15 +245,21 @@ struct omp_sse_v3_ctx_t
 		if (buffers) {
 			for(uint32_t i = 0; i < core_num; ++i) {
 				if (buffers[i]) {
-					free(buffers[i]);
+					if (use_numa) {
+						numa_free(buffers[i], buffer_size * sizeof(uint32_t));
+					} else {
+						free(buffers[i]);
+					}
 				}
 			}
 			delete buffers;
 		}
 	}
 
-	uint32_t core_num;
-	uint32_t  **buffers;
+	uint32_t   buffer_size;
+	uint32_t   core_num;
+	uint32_t **buffers;
+	bool       use_numa;
 };
 
 void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
