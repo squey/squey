@@ -8,6 +8,7 @@
 #include "common.h"
 
 #include <iostream>
+#include <x86intrin.h>
 
 /* TODO:
  * - coder l'algo séquentiel
@@ -156,11 +157,6 @@ void count_y1_sse_v1(const PVRow row_count, const uint32_t *col_y1, const uint32
 	}
 }
 
-
-#if 0
-
-/* TODO: change it to use SSE intrinsics (and libdivide, see in pvkernel/core)
- */
 void count_y1_sse_v3(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
                      const Picviz::PVSelection &selection,
                      const uint64_t y_min, const uint64_t y_max, const int zoom,
@@ -168,25 +164,43 @@ void count_y1_sse_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
 {
 	const int idx_shift = (32 - 10) - zoom;
 	const uint32_t idx_mask = (1 << 10) - 1;
+	const __m128i idx_mask_sse = _mm_set1_epi32(idx_mask);
 	const uint32_t zoom_shift = 32 - zoom;
 	const uint32_t zoom_base = y_min >> zoom_shift;
+	const __m128i zoom_base_sse = _mm_set1_epi32(zoom_base);
+	const __m128i all_zeros_mask_sse = _mm_set1_epi32(-1);
 
-	for(size_t i = 0; i < row_count; ++i) {
-		const uint32_t y = col_y1[i];
-		const uint32_t block_base = y >> zoom_shift;
+	size_t packed_row_count = row_count & ~3;
+	for(size_t i = 0; i < packed_row_count; i += 4) {
+		const __m128i y_sse = _mm_loadu_si128((const __m128i*) &col_y1[i]);
+		const __m128i block_base_sse = _mm_srli_epi32(y_sse, zoom_shift);
 
-		if (/* all 0*/) {
+		const __m128i test_res_sse = _mm_cmpeq_epi32(block_base_sse, zoom_base_sse);
+
+		if (_mm_test_all_zeros(test_res_sse, all_zeros_mask_sse)) {
 			continue;
 		}
 
-		const uint32_t block_idx = (y >> idx_shift) & idx_mask;
+		const __m128i block_idx_sse = _mm_and_si128(_mm_srli_epi32(y_sse, idx_shift),
+		                                            idx_mask_sse);
+
+		for (int j = 0; j < 4; ++j) {
+			if(_mm_extract_epi32(test_res_sse, j)) {
+				++buffer[_mm_extract_epi32(block_idx_sse, j)];
+			}
+		}
+	}
+
+	for(size_t i = packed_row_count; i < row_count; ++i) {
+		const uint32_t y = col_y1[i];
+		const uint32_t block_base = y >> zoom_shift;
 
 		if (block_base == zoom_base) {
+			const uint32_t block_idx = (y >> idx_shift) & idx_mask;
 			++buffer[block_idx];
 		}
 	}
 }
-#endif
 
 /*****************************************************************************
  * some macros to reduce code duplication
@@ -241,6 +255,12 @@ int main(int argc, char **argv)
 	int col = atoi(argv[pos + ARG_COL]);
 	uint64_t y_min = atol(argv[pos + ARG_MIN]);
 	int zoom = atol(argv[pos + ARG_ZOOM]);
+
+	if (zoom == 0) {
+		zoom = 1;
+		std::cout << "INFO: setting zoom to 1 because block algorithm have an exception for zoom == 0"
+		          << std::endl;
+	}
 	uint64_t y_max = y_min + (1UL << (32 - zoom));
 
 	PVParallelView::PVZoneProcessing zp(plotted, row_count, col, col + 1);
@@ -260,10 +280,14 @@ int main(int argc, char **argv)
 	CMP_TEST(seq_v2, seq_v1);
 
 	DEF_TEST(seq_v3);
-	//CMP_TEST(seq_v3, seq_v1);
-	// not comparable
+	CMP_TEST(seq_v3, seq_v1);
+
+	DEF_TEST(sse_v3);
+	CMP_TEST(sse_v3, seq_v1);
+	
 	DEF_TEST(avx_v3);
 	CMP_TEST(avx_v3, seq_v3);
+
 
 	return 0;
 }
