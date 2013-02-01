@@ -286,12 +286,11 @@ int main(int argc, char **argv)
 
 	DEF_TEST(sse_v3);
 	CMP_TEST(sse_v3, seq_v1);
-	
+
 #ifdef __AVX__
 	DEF_TEST(avx_v3);
-	CMP_TEST(avx_v3, seq_v3);
+	CMP_TEST(avx_v3, seq_v1);
 #endif
-
 
 	return 0;
 }
