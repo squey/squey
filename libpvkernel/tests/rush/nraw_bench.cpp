@@ -12,7 +12,7 @@
 #include <pvkernel/rush/PVNrawDiskBackend.h>
 #include <pvkernel/core/picviz_bench.h>
 
-#define N (500000)
+#define N (5000000)
 #define LATENCY_N N
 
 int main(int argc, char** argv)
@@ -24,7 +24,11 @@ int main(int argc, char** argv)
 
 	const char* nraw_path = argv[1];
 	PVRush::PVNrawDiskBackend backend;
+
+	backend.set_direct_mode(false);
+
 	backend.init(nraw_path, 1);
+
 
 	std::vector<std::string> vec;
 	vec.reserve(N);
