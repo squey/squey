@@ -1,0 +1,220 @@
+
+#include <pvkernel/core/picviz_bench.h>
+
+#include <picviz/PVPlotted.h>
+
+#include <pvparallelview/PVZoneProcessing.h>
+
+#include <iostream>
+
+/* TODO:
+ * - coder l'algo séquentiel
+ * - vectoriser (Cf le code du quadtree)
+ * - paralléliser (omp et tbb)
+ * - ajouter l'utilisation d'une sélection
+ */
+
+/*****************************************************************************
+ * sequential algos
+ *****************************************************************************/
+
+void count_y1_seq_v1(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
+                     const Picviz::PVSelection &selection,
+                     const uint64_t y_min, const uint64_t y_max, const int zoom,
+                     size_t *buffer, const size_t buffer_size)
+{
+	const uint64_t dy = y_max - y_min;
+
+	for(size_t i = 0; i < row_count; ++i) {
+		const uint32_t y = col_y1[i];
+		if ((y < y_min) || (y > y_max))
+			continue;
+		const uint64_t idx = ((y - y_min) * buffer_size) / dy;
+		++buffer[idx];
+	}
+}
+
+/* sequential version using shift'n mask but which keeps relative indexes
+ */
+void count_y1_seq_v2(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
+                     const Picviz::PVSelection &selection,
+                     const uint64_t y_min, const uint64_t y_max, const int zoom,
+                     size_t *buffer, const size_t buffer_size)
+{
+	const int shift = (32 - 10) - zoom;
+	const uint32_t mask = (1 << 10) - 1;
+	const uint32_t y_m = y_min;
+
+	for(size_t i = 0; i < row_count; ++i) {
+		const uint32_t y = col_y1[i];
+		if ((y < y_min) || (y > y_max))
+			continue;
+		const uint32_t idx = ((y - y_m) >> shift) & mask;
+		++buffer[idx];
+	}
+}
+
+
+/* sequential version using shift'n mask which uses indexed block
+ */
+void count_y1_seq_v3(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
+                     const Picviz::PVSelection &selection,
+                     const uint64_t y_min, const uint64_t y_max, const int zoom,
+                     size_t *buffer, const size_t buffer_size)
+{
+	const int idx_shift = (32 - 10) - zoom;
+	const uint32_t idx_mask = (1 << 10) - 1;
+	const uint32_t zoom_shift = 32 - zoom;
+	const uint32_t zoom_base = y_min >> zoom_shift;
+
+	for(size_t i = 0; i < row_count; ++i) {
+		const uint32_t y = col_y1[i];
+		const uint32_t block_base = y >> zoom_shift;
+		if (block_base == zoom_base) {
+			const uint32_t block_idx = (y >> idx_shift) & idx_mask;
+			++buffer[block_idx];
+		}
+	}
+}
+
+/*****************************************************************************
+ * SSE algos
+ *****************************************************************************/
+
+/* TODO: change it to use SSE intrinsics (and libdivide, see in pvkernel/core)
+ */
+void count_y1_sse_v1(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
+                     const Picviz::PVSelection &selection,
+                     const uint64_t y_min, const uint64_t y_max, const int zoom,
+                     size_t *buffer, const size_t buffer_size)
+{
+	const uint64_t dy = y_max - y_min;
+
+	for(size_t i = 0; i < row_count; ++i) {
+		const uint32_t y = col_y1[i];
+		// if ((y < y_min) || (y > y_max))
+		// 	continue;
+		const uint64_t idx = ((y - y_min) * buffer_size) / dy;
+		++buffer[idx];
+	}
+}
+
+
+#if 0
+
+/* TODO: change it to use SSE intrinsics (and libdivide, see in pvkernel/core)
+ */
+void count_y1_sse_v3(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
+                     const Picviz::PVSelection &selection,
+                     const uint64_t y_min, const uint64_t y_max, const int zoom,
+                     size_t *buffer, const size_t buffer_size)
+{
+	const int idx_shift = (32 - 10) - zoom;
+	const uint32_t idx_mask = (1 << 10) - 1;
+	const uint32_t zoom_shift = 32 - zoom;
+	const uint32_t zoom_base = y_min >> zoom_shift;
+
+	for(size_t i = 0; i < row_count; ++i) {
+		const uint32_t y = col_y1[i];
+		const uint32_t block_base = y >> zoom_shift;
+
+		if (/* all 0*/) {
+			continue;
+		}
+
+		const uint32_t block_idx = (y >> idx_shift) & idx_mask;
+
+		if (block_base == zoom_base) {
+			++buffer[block_idx];
+		}
+	}
+}
+#endif
+
+/*****************************************************************************
+ * some macros to reduce code duplication
+ *****************************************************************************/
+
+#define DEF_TEST(ALGO) \
+	size_t *buffer_ ## ALGO = new size_t [buffer_size]; \
+	memset(buffer_ ## ALGO, 0, sizeof(size_t) * buffer_size); \
+	{ \
+		BENCH_START(ALGO); \
+		count_y1_ ## ALGO (row_count, col_y1, col_y2, selection, y_min, y_max, zoom, buffer_ ## ALGO, buffer_size); \
+		BENCH_END(ALGO, #ALGO " count", row_count, sizeof(uint32_t) * 2, buffer_size, sizeof(size_t)); \
+	}
+
+#define CMP_TEST(ALGO,ALGO_REF)	  \
+	if (memcmp(buffer_ ## ALGO, buffer_ ## ALGO_REF, buffer_size * sizeof(size_t)) != 0) { \
+		std::cerr << "algorithms count_y1_" #ALGO " and count_y1_" #ALGO_REF " differ" << std::endl; \
+		for(int i = 0; i < buffer_size; ++i) { \
+			if (buffer_ ## ALGO [i] != buffer_ ## ALGO_REF [i]) { \
+				std::cerr << "  at " << i << ": ref == " << buffer_ ## ALGO_REF [i] << " buffer == " << buffer_ ## ALGO [i] << std::endl; \
+			} \
+		} \
+	} else { \
+		std::cout << "count_y1_" #ALGO " is ok" << std::endl; \
+	}
+
+/*****************************************************************************
+ * main & cie
+ *****************************************************************************/
+
+typedef enum {
+	ARG_PROG,
+	ARG_FILE,
+	ARG_COL,
+	ARG_MIN,
+	ARG_ZOOM,
+	ARG_COUNT
+} EXTRA_ARG;
+
+void usage(const char *prog)
+{
+	std::cerr << "usage: " << prog << "file col y_min zoom" << std::endl;
+}
+
+int main(int argc, char **argv)
+{
+	if (argc != ARG_COUNT) {
+		usage(argv[ARG_PROG]);
+		exit(1);
+	}
+
+	Picviz::PVPlotted::uint_plotted_table_t plotted;
+	PVCol col_count;
+	PVRow row_count;
+
+	std::cout << "loading data" << std::endl;
+	if (false == Picviz::PVPlotted::load_buffer_from_file(plotted, row_count, col_count, true, argv[ARG_FILE])) {
+		usage(argv[ARG_PROG]);
+		exit(1);
+	}
+
+	int col = atoi(argv[ARG_COL]);
+	uint64_t y_min = atol(argv[ARG_MIN]);
+	int zoom = atol(argv[ARG_ZOOM]);
+	uint64_t y_max = y_min + (1UL << (32 - zoom));
+
+	PVParallelView::PVZoneProcessing zp(plotted, row_count, col, col + 1);
+
+	const uint32_t *col_y1 = zp.get_plotted_col_a();
+	const uint32_t *col_y2 = zp.get_plotted_col_b();
+
+	int buffer_size = 1024;
+
+	Picviz::PVSelection selection;
+
+	std::cout << "start test" << std::endl;
+
+	DEF_TEST(seq_v1);
+
+	DEF_TEST(seq_v2);
+	CMP_TEST(seq_v2, seq_v1);
+
+	DEF_TEST(seq_v3);
+	CMP_TEST(seq_v3, seq_v1);
+	// not comparable
+
+	return 0;
+}

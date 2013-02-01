@@ -4,7 +4,7 @@
 # Copyright (C) Picviz Labs 2010-2012
 
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libparallelview/src/include)
-add_definitions(${PICVIZ_DEFINITIONS})
+add_definitions(${PICVIZ_DEFINITIONS} -ftree-vectorizer-verbose=5)
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
@@ -104,6 +104,9 @@ target_link_libraries(Tpview_dump_zone_tree ${LINK_LIBRARIES})
 
 add_executable(Tpview_dump_all_trees dump_all_trees.cpp common.cpp)
 target_link_libraries(Tpview_dump_all_trees ${LINK_LIBRARIES})
+
+add_executable(Ehitgraph-test hitgraph-test.cpp)
+target_link_libraries(Ehitgraph-test ${LINK_LIBRARIES})
 
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
