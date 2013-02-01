@@ -80,6 +80,7 @@ void count_y1_seq_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
 	}
 }
 
+#ifdef __AVX__
 inline __m256i mm256_srli_epi32(const __m256i v, const int count)
 {
 	const __m128i v0 = _mm256_extractf128_si256(v, 0);
@@ -91,7 +92,6 @@ inline __m256i mm256_srli_epi32(const __m256i v, const int count)
 	return _mm256_insertf128_si256(_mm256_castsi128_si256(v0s), v1s, 1);
 }
 
-#ifdef __AVX__
 void count_y1_avx_v3(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
                      const Picviz::PVSelection &selection,
                      const uint64_t y_min, const uint64_t y_max, const int zoom,
