@@ -74,24 +74,22 @@ bool input_is_a_file()
 
 Picviz::PVView_sp& get_view_sp() { return g_fake_view; }
 
-PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
-{
-	PVCol ncols;
-	PVRow nrows;
 
-	Picviz::PVPlotted::uint_plotted_table_t &norm_plotted = g_norm_plotted;
+bool create_plotted_table_from_args(Picviz::PVPlotted::uint_plotted_table_t &norm_plotted,
+                                    PVRow &nrows, PVCol &ncols, int argc, char** argv)
+{
 	QString fplotted(argv[1]);
 	if ((fplotted == "0") || (fplotted == "1")) {
 		if (argc < (4 + extra_param_num)) {
 			usage(argv[0]);
-			return NULL;
+			return false;
 		}
 		srand(time(NULL));
 		nrows = atol(argv[2]);
 
 		if (nrows > PICVIZ_LINES_MAX) {
 			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
-			return NULL;
+			return false;
 		}
 
 		ncols = atol(argv[3]);
@@ -108,20 +106,20 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 	{
 		if (argc < (3 + extra_param_num)) {
 			usage(argv[0]);
-			return NULL;
+			return false;
 		}
 
 		if (argv[2][0] == '1') {
 			if (!Picviz::PVPlotted::load_buffer_from_file(norm_plotted, nrows, ncols, true, QString(argv[1]))) {
 				std::cerr << "Unable to load plotted !" << std::endl;
-				return NULL;
+				return false;
 			}
 		}
 		else {
 			Picviz::PVPlotted::plotted_table_t plotted;
 			if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
 				std::cerr << "Unable to load plotted !" << std::endl;
-				return NULL;
+				return false;
 			}
 			nrows = plotted.size()/ncols;
 			Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
@@ -129,10 +127,24 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 
 		if (nrows > PICVIZ_LINES_MAX) {
 			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
-			return NULL;
+			return false;
 		}
 
 		input_is_file = true;
+	}
+
+	return true;
+}
+
+PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
+{
+	PVCol ncols;
+	PVRow nrows;
+
+	Picviz::PVPlotted::uint_plotted_table_t &norm_plotted = g_norm_plotted;
+
+	if (!create_plotted_table_from_args(norm_plotted, nrows, ncols, argc, argv)) {
+		return NULL;
 	}
 
 	//PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
