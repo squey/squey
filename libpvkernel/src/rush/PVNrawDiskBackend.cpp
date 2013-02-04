@@ -61,6 +61,11 @@ void PVRush::PVNrawDiskBackend::close_files()
 		for (file_t& read_file : column.read_file_tls) {
 			this->Close(read_file);
 		}
+
+		// Delete thread-safe read buffers
+		for (char* read_buffer : column.read_buffer_tls) {
+			delete [] read_buffer;
+		}
 	}
 }
 
@@ -345,7 +350,7 @@ void PVRush::PVNrawDiskBackend::print_indexes()
 {
 	for (uint64_t r=0; r < _indexes_nrows; r++) {
 		for (uint64_t c=0; c < get_number_cols(); c++) {
-			PVLOG_INFO("index[%d][%d] = %d (offset), %d (field)\n", r, c, _indexes.at(r, c).offset, _indexes.at(r, c).field);
+			PVLOG_INFO("index[%ul][%ul] = %ul (offset), %ul (field)\n", r, c, _indexes.at(r, c).offset, _indexes.at(r, c).field);
 		}
 	}
 }

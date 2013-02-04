@@ -1,5 +1,5 @@
 /**
- * \file nraw_bench.cpp
+ * \file nraw_load_bench.cpp
  *
  * Copyright (C) Picviz Labs 2010-2012
  */
@@ -12,8 +12,8 @@
 #include <pvkernel/rush/PVNrawDiskBackend.h>
 #include <pvkernel/core/picviz_bench.h>
 
-#define N (5000000)
-#define LATENCY_N N
+#define N 2000000000
+#define M 1000000
 
 int main(int argc, char** argv)
 {
@@ -28,34 +28,40 @@ int main(int argc, char** argv)
 	backend.set_direct_mode(false);
 
 	backend.init(nraw_path, 1);
-
-
-	std::vector<std::string> vec;
-	vec.reserve(N);
-	for (int i = 0 ; i < N; i++) {
-		std::stringstream st;
-		st << i << " ";
-		vec.push_back(st.str());
-		backend.add(0, st.str().c_str(), st.str().length());
-	}
-	backend.flush();
+	backend.load_index_from_disk();
+	backend.print_indexes();
 
 	size_t ret;
 
-	std::vector<unsigned int> shuffled_fields_sequence;
-	shuffled_fields_sequence.reserve(LATENCY_N);
-	for (unsigned int i = 0; i < LATENCY_N; i++) {
-		shuffled_fields_sequence.push_back(i);
+	// Sequential string vector
+	std::vector<std::string> vec;
+	vec.reserve(M);
+	for (int i = 0 ; i < M; i++) {
+		std::stringstream st;
+		st << i << " ";
+		vec.push_back(st.str());
 	}
-	std::random_shuffle(shuffled_fields_sequence.begin(), shuffled_fields_sequence.end());
+
+	// Shuffled vector
+	std::vector<unsigned int> shuffled_fields_sequence;
+	std::vector<std::string> shuffled_fields_sequence_string;
+	shuffled_fields_sequence.reserve(M);
+	shuffled_fields_sequence_string.reserve(M);
+	for (unsigned int i = 0; i < M; i++) {
+		shuffled_fields_sequence.push_back(rand() % N);
+		std::stringstream st;
+		st << i;
+		shuffled_fields_sequence_string.push_back(st.str());
+	}
 
 	// Sequential with cache
 	{
 	bool test_passed = true;
 	BENCH_START(nraw_sequential_with_cache);
-	for (int i = 0 ; i < N && test_passed; i++) {
+	for (int i = 0 ; i < M; i++) {
 		const char* field = backend.at(i, 0, ret);
 		test_passed &= (strcmp(field, vec[i].c_str()) == 0);
+		std::cout << "field=" << field << " vec[i].c_str()=" << vec[i].c_str() << std::endl;
 	}
 	BENCH_END(nraw_sequential_with_cache, "nraw_sequential_with_cache", 1, 1, 1, 1);
 	std::cout << "test passed: " << std::boolalpha << test_passed << std::endl;
@@ -90,16 +96,16 @@ int main(int argc, char** argv)
 	}
 
 	// Sequential without cache
-	{
+	/*{
 	bool test_passed = true;
 	BENCH_START(nraw_sequential_without_cache);
-	for (int i = 0 ; i < N && test_passed; i++) {
-		const char* field = backend.at_no_cache(i, 0).c_str();
+	for (int i = 0 ; i < RAND && test_passed; i++) {
+		const char* field = backend.at_no_cache(i, 0, ret);
 		test_passed &= (strcmp(field, vec[i].c_str()) == 0);
 	}
 	BENCH_END(nraw_sequential_without_cache, "nraw_sequential_without_cache", 1, 1, 1, 1);
 	std::cout << "test passed: " << std::boolalpha << test_passed << std::endl;
-	}
+	}*/
 
 	// Random with cache
 	{
@@ -107,7 +113,9 @@ int main(int argc, char** argv)
 	BENCH_START(nraw_random_with_cache);
 	for (unsigned int i : shuffled_fields_sequence) {
 		const char* field = backend.at(i, 0, ret);
-		test_passed &= (strcmp(field, vec[i].c_str()) == 0);
+		std::stringstream st;
+		st << i;
+		test_passed &= (strcmp(field, st.str().c_str()) == 0);
 	}
 	BENCH_END(nraw_random_with_cache, "nraw_random_with_cache", 1, 1, 1, 1);
 	std::cout << "test passed: " << std::boolalpha << test_passed << std::endl;
@@ -118,13 +126,31 @@ int main(int argc, char** argv)
 	bool test_passed = true;
 	BENCH_START(nraw_random_without_cache);
 	for (unsigned int i : shuffled_fields_sequence) {
-		const char* field = backend.at_no_cache(i, 0).c_str();
-		test_passed &= (strcmp(field, vec[i].c_str()) == 0);
+		const char* field = backend.at_no_cache(i, 0, ret);
+		std::stringstream st;
+		st << i;
+		test_passed &= (strcmp(field, st.str().c_str()) == 0);
 	}
 	BENCH_END(nraw_random_without_cache, "nraw_random_without_cache", 1, 1, 1, 1);
 	std::cout << "test passed: " << std::boolalpha << test_passed << std::endl;
 	}
 
-	backend.clear();
+	// Random omp without cache
+	{
+	bool test_passed = true;
+	BENCH_START(nraw_random_omp_without_cache);
+#pragma omp parallel for
+	for (unsigned int j = 0 ; j < shuffled_fields_sequence.size(); j++) {
+		int i = shuffled_fields_sequence[j];
+		const char* field = backend.at_no_cache(i, 0, ret);
+		std::stringstream st;
+		st << i;
+		test_passed &= (strcmp(field, st.str().c_str()) == 0);
+	}
+	BENCH_END(nraw_random_omp_without_cache, "nraw_random_omp_without_cache", 1, 1, 1, 1);
+	std::cout << "test passed: " << std::boolalpha << test_passed << std::endl;
+	double time = BENCH_END_TIME(nraw_random_omp_without_cache);
+	std::cout << "op/time=" << shuffled_fields_sequence.size()/time << std::endl;
+	}
 }
 

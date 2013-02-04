@@ -299,13 +299,13 @@ public:
 		return next(col, nb_fields_left, column.buffer_read_ptr, size_ret);
 	}
 
-	inline const std::string at_no_cache(PVRow field, PVCol col)
+	inline const char* at_no_cache(PVRow field, PVCol col, size_t& size_ret)
 	{
 		// Fetch content from disk
 		PVColumn& column = get_col(col);
-		char buffer[256*1024+BUF_ALIGN];
+		char* buffer = column.read_buffer_tls.local();
 		int64_t field_index = _cache_pool.get_index(col, field);
-		uint64_t disk_offset = field_index == -1 ? 0 : _indexes.at(field_index, col).offset;
+		uint64_t disk_offset = unlikely(field_index == -1) ? 0 : _indexes.at(field_index, col).offset;
 		uint64_t aligned_disk_offset = disk_offset;
 		if (unlikely(_direct_mode)) {
 			aligned_disk_offset = (disk_offset / BUF_ALIGN) * BUF_ALIGN;
@@ -323,18 +323,16 @@ public:
 		uint64_t nb_fields = field - first_field;
 
 		// Search field in content
-		size_t size_ret;
 		char* buffer_ptr = buffer;
 		if (column.field_length > 0) {
 			buffer_ptr += nb_fields * column.field_length;
 			size_ret = column.field_length;
 		}
 		else {
-			uint64_t size_to_read = READ_BUFFER_SIZE - (buffer - column.buffer_read_ptr);
-			PVCore::PVByteVisitor::visit_nth_slice((const uint8_t*) buffer, size_to_read, nb_fields,  [&](const uint8_t* found_buf, size_t sbuf) { buffer_ptr = (char*) found_buf; size_ret = sbuf; });
+			PVCore::PVByteVisitor::visit_nth_slice((const uint8_t*) buffer, read_size, nb_fields,  [&](const uint8_t* found_buf, size_t sbuf) { buffer_ptr = (char*) found_buf; size_ret = sbuf; });
 		}
 
-		return std::string(buffer_ptr, size_ret);
+		return buffer_ptr;
 
 	}
 
@@ -830,9 +828,13 @@ private:
 	struct PVColumn
 	{
 		typedef tbb::enumerable_thread_specific<file_t> tls_file_t;
+		typedef tbb::enumerable_thread_specific<char*> tls_read_buffer_t;
 
 	public:
-		PVColumn() : read_file_tls([](){ return 0;}) { reset(); }
+		PVColumn() : read_file_tls([](){ return 0; }), read_buffer_tls([](){ return new char[READ_BUFFER_SIZE+BUF_ALIGN]; })
+		{
+			reset();
+		}
 		bool end_char() { return field_length == 0; }
 
 		void reset()
@@ -857,6 +859,7 @@ private:
 	public:
 		file_t write_file = 0;
 		tls_file_t read_file_tls;
+		tls_read_buffer_t read_buffer_tls;
 		std::string filename;
 
 		char* buffer_write;
