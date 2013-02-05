@@ -10,6 +10,7 @@
 
 #include <omp.h>       // OMP
 #include <numa.h>      // numa_*
+#include <numaif.h>    // mbind
 #include <sys/mman.h>  // madvise
 
 static bool verbose = false;
@@ -240,7 +241,7 @@ struct omp_sse_v3_ctx_t
 					}
 				}
 			}
-			delete buffers;
+			delete [] buffers;
 		}
 	}
 
@@ -248,6 +249,9 @@ struct omp_sse_v3_ctx_t
 	{
 		for(uint32_t i = 0; i < core_num; ++i) {
 			memset(buffers[i], 0, buffer_size * sizeof(uint32_t));
+			for(int j = 0; j < 1024; j+=16) {
+				_mm_clflush(&buffers[i][j]);
+			}
 		}
 	}
 
@@ -435,6 +439,7 @@ inline void bench_median(const char *text, const RunFn& run, const CleanFn &clea
 #define DEF_TEST_SEQ(ALGO,DATA,...)	  \
 	uint32_t *buffer_ ## ALGO; \
 	posix_memalign((void**)&buffer_ ## ALGO, 16, buffer_size * sizeof(uint32_t)); \
+	memset(buffer_ ## ALGO, 0, buffer_size * sizeof(uint32_t)); \
 	bench_median(#ALGO, \
 	             [&]() { \
 		             count_y1_ ## ALGO (row_count, DATA, selection, y_min, y_max, zoom, buffer_ ## ALGO, buffer_size, ##__VA_ARGS__); \
@@ -447,6 +452,7 @@ inline void bench_median(const char *text, const RunFn& run, const CleanFn &clea
 #define DEF_TEST_OMP(ALGO, DATA)	  \
 	uint32_t *buffer_ ## ALGO; \
 	posix_memalign((void**)&buffer_ ## ALGO, 16, buffer_size * sizeof(uint32_t)); \
+	memset(buffer_ ## ALGO, 0, buffer_size * sizeof(uint32_t)); \
 	omp_sse_v3_ctx_t ALGO ## _ctx(buffer_size); \
 	bench_median(#ALGO, \
 	             [&]() { \
@@ -460,15 +466,18 @@ inline void bench_median(const char *text, const RunFn& run, const CleanFn &clea
 
 #define CMP_TEST(ALGO,ALGO_REF)	  \
 	if (memcmp(buffer_ ## ALGO, buffer_ ## ALGO_REF, buffer_size * sizeof(uint32_t)) != 0) { \
-		std::cerr << "algorithms count_y1_" #ALGO " and count_y1_" #ALGO_REF " differ" << std::endl; \
+		std::cout << "algorithms count_y1_" #ALGO " and count_y1_" #ALGO_REF " differ" << std::endl; \
 		for(int i = 0; i < buffer_size; ++i) { \
 			if (buffer_ ## ALGO [i] != buffer_ ## ALGO_REF [i]) { \
-				std::cerr << "  at " << i << ": ref == " << buffer_ ## ALGO_REF [i] << " buffer == " << buffer_ ## ALGO [i] << std::endl; \
+				std::cout << "  at " << i << ": ref == " << buffer_ ## ALGO_REF [i] << " buffer == " << buffer_ ## ALGO [i] << std::endl; \
 			} \
 		} \
 	} else { \
 		std::cout << "count_y1_" #ALGO " is ok" << std::endl; \
 	}
+
+#define DEL_TEST(ALGO)	\
+	free(buffer_ ## ALGO);
 
 uint32_t get_aligned(PVRow row_count)
 {
@@ -487,24 +496,25 @@ void do_one_run(const std::string text,
                 PVRow row_count, PVCol col_count, PVCol col,
                 uint64_t y_min, uint64_t y_max, int zoom)
 {
+	std::cout << text << std::endl;
+
 	Picviz::PVSelection selection;
 	int buffer_size = 1024;
-	uint64_t real_count = get_aligned(row_count) * col_count;
-	uint32_t *whole_data = allocate(real_count);
+	size_t real_count = get_aligned(row_count) * col_count;
 
-	if (whole_data == nullptr) {
+	uint32_t *local_data = allocate(real_count);
+
+	if (local_data == nullptr) {
 		throw std::bad_alloc();
 	}
 
-	mem_modifier(whole_data, real_count);
+	mem_modifier(local_data, real_count);
 
 	uint32_t *data = 0;
 
-	data = get_col(whole_data, row_count, col);
+	data = get_col(local_data, row_count, col);
 
 	memcpy(data, get_col(orig_data, row_count, col), sizeof(uint32_t) * row_count);
-
-	std::cout << text << std::endl;
 
 	DEF_TEST_SEQ(seq_v1, data);
 
@@ -512,35 +522,43 @@ void do_one_run(const std::string text,
 	if (verbose) {
 		CMP_TEST(seq_v2, seq_v1);
 	}
+	DEL_TEST(seq_v2);
 
 	DEF_TEST_SEQ(seq_v3, data);
 	if (verbose) {
 		CMP_TEST(seq_v3, seq_v1);
 	}
+	DEL_TEST(seq_v3);
 
 	DEF_TEST_SEQ(sse_v3, data);
 	if (verbose) {
 		CMP_TEST(sse_v3, seq_v1);
 	}
+	DEL_TEST(sse_v3);
 
 #ifdef __AVX__
 	DEF_TEST_SEQ(avx_v3, data);
 	if (verbose) {
 		CMP_TEST(avx_v3, seq_v1);
 	}
+	DEL_TEST(avx_v3);
 #endif
 
 	DEF_TEST_OMP(omp_sse_v3, data);
 	if (verbose) {
 		CMP_TEST(omp_sse_v3, seq_v1);
 	}
+	DEL_TEST(omp_sse_v3);
 
 	DEF_TEST_OMP(omp_sse_v3_2, data);
 	if (verbose) {
 		CMP_TEST(omp_sse_v3_2, seq_v1);
 	}
+	DEL_TEST(omp_sse_v3_2);
 
-	deallocate(whole_data, real_count);
+	deallocate(local_data, real_count);
+
+	DEL_TEST(seq_v1);
 }
 
 template <typename Fn1>
@@ -553,9 +571,9 @@ void do_one_allocator(const std::string text, const Fn1& mem_modifier,
 	           [](size_t n) {
 		           uint32_t *mem;
 		           if (posix_memalign((void**) &mem, 16, sizeof(uint32_t) * n) < 0) {
+			           perror("posix_memalign");
 			           throw std::bad_alloc();
 		           }
-
 		           return mem;
 	           },
 	           [](uint32_t *p, size_t) {
@@ -570,9 +588,9 @@ void do_one_allocator(const std::string text, const Fn1& mem_modifier,
 		                                          MAP_PRIVATE|MAP_ANONYMOUS,
 		                                          -1, 0);
 		           if (mem == (intptr_t)-1) {
+			           perror("mmap");
 			           throw std::bad_alloc();
 		           }
-
 		           return (uint32_t*)mem;
 	           },
 	           [](uint32_t *p, size_t n) {
@@ -581,15 +599,17 @@ void do_one_allocator(const std::string text, const Fn1& mem_modifier,
 	           mem_modifier,
 	           data, row_count, col_count, col, y_min, y_max, zoom);
 
+#if 0
+	// trop contraignant
 	do_one_run("mem=hugepages"+text,
 	           [](size_t n) {
 		           intptr_t mem = (intptr_t) mmap(NULL, sizeof(uint32_t)*n, PROT_WRITE|PROT_READ,
 		                                          MAP_PRIVATE|MAP_ANONYMOUS|MAP_HUGETLB,
 		                                          -1, 0);
 		           if (mem == (intptr_t)-1) {
+			           perror("mmap(HUGETLB)");
 			           throw std::bad_alloc();
 		           }
-
 		           return (uint32_t*)mem;
 	           },
 	           [](uint32_t *p, size_t n) {
@@ -597,15 +617,15 @@ void do_one_allocator(const std::string text, const Fn1& mem_modifier,
 	           },
 	           mem_modifier,
 	           data, row_count, col_count, col, y_min, y_max, zoom);
+#endif
 
 	do_one_run("mem=numa_local"+text,
 	           [](size_t n) {
 		           uint32_t *mem = (uint32_t*)numa_alloc_local(sizeof(uint32_t)*n);
-
 		           if (mem == nullptr) {
+			           perror("numa_alloc_local");
 			           throw std::bad_alloc();
 		           }
-
 		           return mem;
 	           },
 	           [](uint32_t *p, size_t n) {
@@ -617,11 +637,10 @@ void do_one_allocator(const std::string text, const Fn1& mem_modifier,
 	do_one_run("mem=numa_interleaved"+text,
 	           [](size_t n) {
 		           uint32_t *mem = (uint32_t*)numa_alloc_interleaved(sizeof(uint32_t)*n);
-
 		           if (mem == nullptr) {
+			           perror("numa_alloc_interleaved");
 			           throw std::bad_alloc();
 		           }
-
 		           return mem;
 	           },
 	           [](uint32_t *p, size_t n) {
@@ -629,6 +648,38 @@ void do_one_allocator(const std::string text, const Fn1& mem_modifier,
 	           },
 	           mem_modifier,
 	           data, row_count, col_count, col, y_min, y_max, zoom);
+
+#if 0
+	// comme hugepages : trop contraignant
+	do_one_run("mem=numa_interleaved+hugepages"+text,
+	           [](size_t n) {
+		           intptr_t ret = (intptr_t) mmap(NULL, sizeof(uint32_t)*n, PROT_WRITE|PROT_READ,
+		                                          MAP_PRIVATE|MAP_ANONYMOUS|MAP_HUGETLB,
+		                                          -1, 0);
+		           if (ret == (intptr_t)-1) {
+			           perror("numa_alloc_interleaved_hugepages");
+			           throw std::bad_alloc();
+		           }
+		           uint32_t *mem = (uint32_t*)ret;
+		           unsigned long nodemask = 0;
+		           int maxnode = numa_max_node();
+		           for (int i = 0; i <= maxnode; ++i) {
+			           nodemask |= (1<<(i));
+		           }
+		           std::cout << "nodemask: " << nodemask << std::endl;
+		           std::cout << "maxnode: " << maxnode << std::endl;
+		           if (mbind(mem, sizeof(uint32_t)*n, MPOL_INTERLEAVE, &nodemask, maxnode, 0) < 0) {
+			           perror("mbind");
+			           throw std::bad_alloc();
+		           }
+		           return mem;
+	           },
+	           [](uint32_t *p, size_t n) {
+		           munmap(p, sizeof(uint32_t)*n);
+	           },
+	           mem_modifier,
+	           data, row_count, col_count, col, y_min, y_max, zoom);
+#endif
 }
 
 /*****************************************************************************
@@ -647,7 +698,7 @@ typedef enum {
 
 void usage(const char* prog)
 {
-	std::cerr << "usage: " << basename(prog) << " [-v] row_count col_count col y_min zoom" << std::endl;
+	std::cout << "usage: " << basename(prog) << " [-v] row_count col_count col y_min zoom" << std::endl;
 }
 
 int main(int argc, char **argv)
@@ -710,13 +761,38 @@ int main(int argc, char **argv)
 	                 [](uint32_t* p, size_t n) {},
 	                 get_col(data, row_count, col), row_count, col_count, col, y_min, y_max, zoom);
 
-	// add madvise
-	do_one_allocator(std::string("+madvise"),
+	// add sequential
+	do_one_allocator(std::string("+seq"),
 	                 [](uint32_t* p, size_t n) {
-		                 madvise(p, sizeof(uint32_t)*n, MADV_SEQUENTIAL);
+		                 if (madvise(p, sizeof(uint32_t)*n, MADV_SEQUENTIAL) < 0) {
+			                 std::cout << "I: MADV_SEQUENTIAL fails" << std::endl;
+		                 }
 	                 },
 	                 get_col(data, row_count, col), row_count, col_count, col, y_min, y_max, zoom);
 
+	// add transparent huge pages
+	do_one_allocator(std::string("+thp"),
+	                 [](uint32_t* p, size_t n) {
+		                 if (madvise(p, sizeof(uint32_t)*n, MADV_HUGEPAGE) < 0) {
+			                 std::cout << "I: MADV_HUGEPAGE fails" << std::endl;
+		                 }
+	                 },
+	                 get_col(data, row_count, col), row_count, col_count, col, y_min, y_max, zoom);
+
+	// add sequential and transparent huge pages
+	do_one_allocator(std::string("+seq+thp"),
+	                 [](uint32_t* p, size_t n) {
+		                 if (madvise(p, sizeof(uint32_t)*n, MADV_SEQUENTIAL) < 0) {
+			                 std::cout << "I: MADV_SEQUENTIAL fails" << std::endl;
+		                 }
+		                 if (madvise(p, sizeof(uint32_t)*n, MADV_HUGEPAGE) < 0) {
+			                 std::cout << "I: MADV_HUGEPAGE fails" << std::endl;
+		                 }
+
+	                 },
+	                 get_col(data, row_count, col), row_count, col_count, col, y_min, y_max, zoom);
+
+	delete [] data;
 
 	return 0;
 }
