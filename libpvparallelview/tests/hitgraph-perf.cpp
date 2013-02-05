@@ -22,6 +22,9 @@ static bool verbose = false;
  * - ajouter l'utilisation d'une sélection
  */
 
+#define NBITS 11
+#define BUFFER_SIZE (1<<NBITS)
+
 /*****************************************************************************
  * sequential algos
  *****************************************************************************/
@@ -37,7 +40,7 @@ void count_y1_seq_v1(const PVRow row_count, const uint32_t *col_y1,
 		const uint32_t y = col_y1[i];
 		if ((y < y_min) || (y > y_max))
 			continue;
-		const uint64_t idx = ((y - y_min) * buffer_size) / dy;
+		const uint64_t idx = ((y - y_min) * BUFFER_SIZE) / dy;
 		++buffer[idx];
 	}
 }
@@ -49,8 +52,8 @@ void count_y1_seq_v2(const PVRow row_count, const uint32_t *col_y1,
                      const uint64_t y_min, const uint64_t y_max, const int zoom,
                      uint32_t *buffer, const size_t buffer_size)
 {
-	const int shift = (32 - 10) - zoom;
-	const uint32_t mask = (1 << 10) - 1;
+	const int shift = (32 - NBITS) - zoom;
+	const uint32_t mask = (1 << NBITS) - 1;
 	const uint32_t y_m = y_min;
 
 	for(size_t i = 0; i < row_count; ++i) {
@@ -70,8 +73,8 @@ void count_y1_seq_v3(const PVRow row_count, const uint32_t *col_y1,
                      const uint64_t y_min, const uint64_t y_max, const int zoom,
                      uint32_t *buffer, const size_t buffer_size)
 {
-	const int idx_shift = (32 - 10) - zoom;
-	const uint32_t idx_mask = (1 << 10) - 1;
+	const int idx_shift = (32 - NBITS) - zoom;
+	const uint32_t idx_mask = (1 << NBITS) - 1;
 	const uint32_t zoom_shift = 32 - zoom;
 	const uint32_t zoom_base = y_min >> zoom_shift;
 
@@ -102,9 +105,9 @@ void count_y1_avx_v3(const PVRow row_count, const uint32_t *col_y1,
                      const uint64_t y_min, const uint64_t y_max, const int zoom,
                      uint32_t *buffer, const size_t buffer_size)
 {
-	const int idx_shift = (32 - 10) - zoom;
+	const int idx_shift = (32 - NBITS) - zoom;
 	const int zoom_shift = 32 - zoom;
-	constexpr uint32_t idx_mask = (1 << 10) - 1;
+	constexpr uint32_t idx_mask = (1 << NBITS) - 1;
 	const uint32_t zoom_base = y_min >> zoom_shift;
 
 	const uint32_t row_count_avx = (row_count/8)*8;
@@ -151,8 +154,8 @@ void count_y1_sse_v3(const PVRow row_count, const uint32_t *col_y1,
                      const uint64_t y_min, const uint64_t y_max, const int zoom,
                      uint32_t *buffer, const size_t buffer_size)
 {
-	const int idx_shift = (32 - 10) - zoom;
-	const uint32_t idx_mask = (1 << 10) - 1;
+	const int idx_shift = (32 - NBITS) - zoom;
+	const uint32_t idx_mask = (1 << NBITS) - 1;
 	const __m128i idx_mask_sse = _mm_set1_epi32(idx_mask);
 	const uint32_t zoom_shift = 32 - zoom;
 	const uint32_t zoom_base = y_min >> zoom_shift;
@@ -249,7 +252,7 @@ struct omp_sse_v3_ctx_t
 	{
 		for(uint32_t i = 0; i < core_num; ++i) {
 			memset(buffers[i], 0, buffer_size * sizeof(uint32_t));
-			for(int j = 0; j < 1024; j+=16) {
+			for(int j = 0; j < BUFFER_SIZE; j+=16) {
 				_mm_clflush(&buffers[i][j]);
 			}
 		}
@@ -266,8 +269,8 @@ void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t *col_y1,
                          const uint64_t y_min, const uint64_t y_max, const int zoom,
                          uint32_t *buffer, const size_t buffer_size, omp_sse_v3_ctx_t &ctx)
 {
-	const int idx_shift = (32 - 10) - zoom;
-	const uint32_t idx_mask = (1 << 10) - 1;
+	const int idx_shift = (32 - NBITS) - zoom;
+	const uint32_t idx_mask = (1 << NBITS) - 1;
 	const __m128i idx_mask_sse = _mm_set1_epi32(idx_mask);
 	const uint32_t zoom_shift = 32 - zoom;
 	const uint32_t zoom_base = y_min >> zoom_shift;
@@ -333,8 +336,8 @@ void count_y1_omp_sse_v3_2(const PVRow row_count, const uint32_t *col_y1,
                            const uint64_t y_min, const uint64_t y_max, const int zoom,
                            uint32_t *buffer, const size_t buffer_size, omp_sse_v3_ctx_t &ctx)
 {
-	const int idx_shift = (32 - 10) - zoom;
-	const uint32_t idx_mask = (1 << 10) - 1;
+	const int idx_shift = (32 - NBITS) - zoom;
+	const uint32_t idx_mask = (1 << NBITS) - 1;
 	const __m128i idx_mask_sse = _mm_set1_epi32(idx_mask);
 	const uint32_t zoom_shift = 32 - zoom;
 	const uint32_t zoom_base = y_min >> zoom_shift;
@@ -499,7 +502,7 @@ void do_one_run(const std::string text,
 	std::cout << text << std::endl;
 
 	Picviz::PVSelection selection;
-	int buffer_size = 1024;
+	int buffer_size = BUFFER_SIZE;
 	size_t real_count = get_aligned(row_count) * col_count;
 
 	uint32_t *local_data = allocate(real_count);
