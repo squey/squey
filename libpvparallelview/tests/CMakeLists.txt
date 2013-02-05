@@ -108,6 +108,9 @@ target_link_libraries(Tpview_dump_all_trees ${LINK_LIBRARIES})
 add_executable(Ehitgraph-test hitgraph-test.cpp common.cpp)
 target_link_libraries(Ehitgraph-test ${LINK_LIBRARIES} -lnuma)
 
+add_executable(Ehitgraph-zonetree hitgraph-zonetree.cpp common.cpp)
+target_link_libraries(Ehitgraph-zonetree ${LINK_LIBRARIES} -lnuma)
+
 add_executable(Ehitgraph-perf hitgraph-perf.cpp)
 target_link_libraries(Ehitgraph-perf ${LINK_LIBRARIES} -lnuma)
 
