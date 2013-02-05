@@ -253,6 +253,19 @@ typedef enum {
 	ARG_ZOOM,
 } EXTRA_ARG;
 
+bool compare(uint32_t *ref, uint32_t *tab)
+{
+	for(int i = 0; i < BUFFER_SIZE; ++i) {
+		if (tab[i] != ref[i]) {
+			std::cerr << "differs at " << i
+			          << ": " << tab[i] << " instead of " << ref[i]
+			          << std::endl;
+			return false;
+		}
+	}
+	return true;
+}
+
 int main(int argc, char **argv)
 {
 	set_extra_param(3, "col y_min zoom");
@@ -280,25 +293,41 @@ int main(int argc, char **argv)
 	PVParallelView::PVZoneProcessing zp(plotted, row_count, col, col + 1);
 
 	const uint32_t *col_a = zp.get_plotted_col_a();
-	uint32_t *hist_buffer = new uint32_t [BUFFER_SIZE];
 
-	// sequential
-	uint32_t *res_seq = hist_plotted_seq(y_min, zoom, hist_buffer,
+	/* sequential
+	 */
+	uint32_t *hist_seq = new uint32_t [BUFFER_SIZE];
+	BENCH_START(seq);
+	uint32_t *res_seq = hist_plotted_seq(y_min, zoom, hist_seq,
 	                                     col_a, row_count);
-	std::cout << res_seq << std::endl;
+	BENCH_END(seq, "hist_seq", row_count, sizeof(uint32_t), BUFFER_SIZE, sizeof(uint32_t));
 
-	// SSE
-	uint32_t *res_sse = hist_plotted_sse(y_min, zoom, hist_buffer,
+	/* SSE
+	 */
+	uint32_t *hist_sse = new uint32_t [BUFFER_SIZE];
+	BENCH_START(sse);
+	uint32_t *res_sse = hist_plotted_sse(y_min, zoom, hist_sse,
 	                                     col_a, row_count);
-	std::cout << res_sse << std::endl;
+	BENCH_END(sse, "hist_sse", row_count, sizeof(uint32_t), BUFFER_SIZE, sizeof(uint32_t));
+	std::cout << "compare to ref: ";
+	if (compare(res_seq, res_sse)) {
+		std::cout << "ok" << std::endl;
+	}
 
-	// OMP+SSE
+	/* OMP+SSE
+	 */
+	uint32_t *hist_omp_sse = new uint32_t [BUFFER_SIZE];
 	omp_sse_v3_ctx_t omp_sse_ctx;
 	omp_sse_ctx.clear();
 
-	uint32_t *res_omp_sse = hist_plotted_omp_sse(y_min, zoom, hist_buffer,
+	BENCH_START(omp_sse);
+	uint32_t *res_omp_sse = hist_plotted_omp_sse(y_min, zoom, hist_omp_sse,
 	                                             col_a, row_count, omp_sse_ctx);
-	std::cout << res_omp_sse << std::endl;
+	BENCH_END(omp_sse, "hist_omp_sse", row_count, sizeof(uint32_t), BUFFER_SIZE, sizeof(uint32_t));
+	std::cout << "compare to ref: ";
+	if (compare(res_seq, res_omp_sse)) {
+		std::cout << "ok" << std::endl;
+	}
 
 	return 0;
 }
