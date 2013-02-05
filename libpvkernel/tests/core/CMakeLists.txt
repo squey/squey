@@ -95,6 +95,9 @@ add_test(TestBitCount Tcore_bit_count 65535)
 declare_pv_test(Tcore_visit_bits "visit_bits.cpp" "pvkernel;${QT_LIBRARIES};${OpenMP_LIBRARIES}")
 add_test(TestVisitBits Tcore_visit_bits)
 
+# Bit field
+declare_pv_test(Tcore_bit_field_visit_packed "bit_field_visit_packed.cpp" "pvkernel;${QT_LIBRARIES};${OpenMP_LIBRARIES}")
+
 # POD tree
 declare_pv_test(Tcore_pod_tree "pod_tree.cpp" "pvkernel;${QT_LIBRARIES}")
 

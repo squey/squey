@@ -488,6 +488,46 @@ public:
 #endif
 	}
 
+	template <size_t N, class Fpacked, class Funpacked>
+	void visit_selected_lines_packed(Fpacked const& fpacked, Funpacked const& funpacked, PVRow b = PICVIZ_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
+	{
+		PVRow packed_rows[N];
+		int cur_packed = 0;
+		visit_selected_lines(
+			[&](PVRow const r)
+			{
+				if (cur_packed == N) {
+					fpacked(packed_rows);
+					cur_packed = 0;
+				}
+				packed_rows[cur_packed] = r;
+				cur_packed++;
+			},
+			b, a);
+		for (int i = 0; i < cur_packed; i++) {
+			funpacked(packed_rows[i]);
+		}
+	}
+
+	template <class Fpacked, class Funpacked, class Fload>
+	void visit_selected_lines_gather_sse(Fpacked const& fpacked, Funpacked const& funpacked, Fload const& fload, PVRow b = PICVIZ_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
+	{
+		visit_selected_lines_packed<4>(
+			[&](PVRow const packed_rows[4])
+			{
+				const int32_t v0 = fload(packed_rows[0]);
+				const int32_t v1 = fload(packed_rows[1]);
+				const int32_t v2 = fload(packed_rows[2]);
+				const int32_t v3 = fload(packed_rows[3]);
+				fpacked(_mm_set_epi32(v3, v2, v1, v0));
+			},
+			[&](PVRow const r)
+			{
+				funpacked(fload(r));
+			},
+			b, a);
+	}
+
 	/**
 	 * Get the float table from PVSelBitField.
 	 */
