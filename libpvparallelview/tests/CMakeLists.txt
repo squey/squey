@@ -114,6 +114,8 @@ target_link_libraries(Ehitgraph-zonetree ${LINK_LIBRARIES} -lnuma)
 add_executable(Ehitgraph-perf hitgraph-perf.cpp)
 target_link_libraries(Ehitgraph-perf ${LINK_LIBRARIES} -lnuma)
 
+add_executable(Ehist_plotted_perf hist_plotted_perf.cpp common.cpp)
+target_link_libraries(Ehist_plotted_perf ${LINK_LIBRARIES} -lnuma)
 
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
