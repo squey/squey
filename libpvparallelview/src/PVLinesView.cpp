@@ -185,27 +185,23 @@ void PVParallelView::PVLinesView::do_translate(PVZoneID previous_first_zone, uin
  *****************************************************************************/
 PVZoneID PVParallelView::PVLinesView::update_and_get_first_zone_from_viewport(int32_t view_x, uint32_t view_width) const
 {
-	// We test whether the viewport has some unused area on the left, before any zones.
 	if (view_x < 0) {
 		// There is some empty area on the left.
 		uint32_t unused_width = (uint32_t) (-view_x);
-		// THIS SHOULD NEVER HAPPEN : We test if the viewport is completely empty of zones (everything pushed too far on the right...)
 		if (unused_width >= view_width) {
-			// If so, we limit the offset so that it stops just at the rightmost limit
 			unused_width = view_width;
 		}
 		
-		// ??? 
+		// `view_x' and `view_width' are set as the part of the viewport that has zone images
+		// (thus we substract the "unused_width")
 		view_width -= unused_width;
 		view_x = 0;
 	}
 
-	// We init some counters
 	const PVZoneID total_number_of_zones = get_number_of_managed_zones();
 	const PVZoneID zone_index_of_first_visible_zone = get_zone_from_scene_pos(view_x);
 	int counter_of_visible_zones_to_draw = get_number_of_visible_zones();
 
-	// We start 
 	uint32_t current_width = 0;
 	PVZoneID current_zone_index = zone_index_of_first_visible_zone;
 	while (current_width < view_width && current_zone_index < total_number_of_zones && counter_of_visible_zones_to_draw > 0) {
