@@ -101,6 +101,16 @@ message(STATUS "OpenMP Libraries: ${OpenMP_LIBRARIES}")
 message(STATUS "OpenMP C FLAGS: ${OpenMP_C_FLAGS}")
 message(STATUS "OpenMP CXX FLAGS: ${OpenMP_CXX_FLAGS}")
 
+#
+# Check for libnuma
+#
+find_package(LibNUMA REQUIRED)
+if (LIBNUMA_FOUND)
+  set(LibNUMA_LIBRARIES "-lnuma")
+  message(STATUS "NUMA Libraries: ${LibNUMA_LIBRARIES}")
+else()
+  message(ERROR "libNUMA not found!")
+endif()
 
 ########################
 # Needed for libpvrush #

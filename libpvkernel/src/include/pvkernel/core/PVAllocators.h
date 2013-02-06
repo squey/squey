@@ -20,6 +20,9 @@
 #include <jemalloc/jemalloc.h>
 #endif
 
+#include <numa.h>     // for numa_*
+#include <sys/mman.h> // for madvise
+
 namespace PVCore {
 
 /*! \brief Defines a C++ compliant allocator that can use pre-allocated memory (hack).
@@ -241,6 +244,67 @@ public:
 		if (munmap(p, sizeof(value_type)*n) != 0) {
 			PVLOG_ERROR("munmap failed.\n");
 		}
+	}
+
+	size_type max_size() const throw()
+	{
+		// From TBB's scalable allocator
+		size_type absolutemax = static_cast<size_type>(-1) / sizeof (value_type);
+		return (absolutemax > 0 ? absolutemax : 1);
+	}
+
+	void construct(pointer p, const_reference val)
+	{
+		::new((void*) p) value_type(val);
+	}
+
+	void destroy(pointer p)
+	{
+		p->~value_type();
+	}
+};
+
+
+/*! \brief C++ compliant allocator class that uses libnuma's allocation schemes.
+ *
+ * \todo Make this work under Windows (which has a different memory management system than Linux.. !)
+ */
+template <class T>
+class PVNUMAHugePagedInterleavedAllocator
+{
+public:
+	typedef T value_type;
+	typedef T* pointer;
+	typedef T& reference;
+	typedef const T* const_pointer;
+	typedef const T& const_reference;
+	typedef size_t size_type;
+	typedef ptrdiff_t difference_type;
+	template<class U> struct rebind {
+		typedef PVMMapAllocator<U> other;
+	};
+
+public:
+	pointer address(reference x) const { return &x; }
+	const_pointer address(const_reference x) const { return &x; }
+
+	pointer allocate(size_type n)
+	{
+		pointer mem;
+
+		mem = numa_alloc_interleaved(sizeof(value_type)*n);
+		if (mem) {
+			if (madvise(mem, sizeof(value_type)*n, MADV_HUGEPAGE) < 0) {
+				PVLOG_WARN("can not set hugepage attribute.\n");
+			}
+		}
+
+		return mem;
+	}
+
+	void deallocate(pointer p, size_type n)
+	{
+		numa_free(p, n);
 	}
 
 	size_type max_size() const throw()
