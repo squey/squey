@@ -389,11 +389,20 @@ public:
 		assert(b > a);
 		assert(b <= PICVIZ_SELECTION_NUMBER_OF_ROWS);
 		b--;
-#ifdef __SSE4_1__
-		ssize_t chunk_start = a/PICVIZ_SELECTION_CHUNK_SIZE;
+		ssize_t chunk_start = line_index_to_chunk(a);
 		ssize_t chunk_end = get_last_nonzero_chunk_index(chunk_start, line_index_to_chunk(b));
 		if (chunk_end < chunk_start) {
 			// No lines are selected !
+			return;
+		}
+
+		// If there are less than or exactly 3 chunks, use the sequential version
+		if ((chunk_end-chunk_start+1) <= 3) {
+			PVRow new_b = b+1;
+			if (line_index_to_chunk(b) > chunk_end) {
+				new_b = chunk_to_line_index(chunk_end)+1;
+			}
+			visit_selected_lines_serial(f, new_b, a);
 			return;
 		}
 
@@ -401,20 +410,14 @@ public:
 		if (cbit > 0) {
 			// Prelogue
 			uint64_t cv = _table[chunk_start];
-			if (chunk_end == chunk_start) {
-				const size_t off = PICVIZ_SELECTION_CHUNK_SIZE-line_index_to_chunk_bit(b)-1;
-				cv = (cv << off) >> off;
-				PVCore::PVBitVisitor::visit_bits((cv >> cbit) << cbit, f, chunk_to_line_index(chunk_start));
-				return;
-			}
 			PVCore::PVBitVisitor::visit_bits((cv >> cbit) << cbit, f, chunk_to_line_index(chunk_start));
 			chunk_start++;
 		}
 
 		// Main loop
 		ssize_t c;
-		const ssize_t chunk_start_aligned = ((chunk_start+1)>>1)<<1;
-		const ssize_t chunk_end_sse = (((size_t)(chunk_end))>>1)<<1;
+		const ssize_t chunk_start_aligned = (chunk_start+1) & (~(ssize_t)1);
+		const ssize_t chunk_end_sse = chunk_end & (~(ssize_t)1);
 		for (c = chunk_start; c < chunk_start_aligned; c++) {
 			const uint64_t sel_buf = _table[c];
 			PVCore::PVBitVisitor::visit_bits(sel_buf, f, chunk_to_line_index(c));
@@ -430,61 +433,64 @@ public:
 
 		// Epilogue
 		PVCore::PVBitVisitor::visit_bits(_table[chunk_end], [=,&f](const PVRow r){ if (r <= b) f(r); }, chunk_to_line_index(chunk_end));
-
-
-
-#if 0
-		__m128i sse_sel;
-		size_t last_chunk_sse = (((size_t)(last_chunk))>>1)<<1;
-		size_t i;
-		for (i = 0; i < last_chunk_sse; i += 2) {
-			sse_sel = _mm_load_si128((__m128i*) &_table[i]);
-			PVCore::PVBitVisitor::visit_bits(sse_sel, f, chunk_to_line_index(i));
-		}
-		for (; i < (size_t) last_chunk; i++) {
-			const uint64_t sel_buf = _table[i];
-			PVCore::PVBitVisitor::visit_bits(sel_buf, f, chunk_to_line_index(i));
-		}
-		// On last chunk, do not overflow !
-		PVCore::PVBitVisitor::visit_bits(_table[last_chunk], [=,&f](const PVRow r){ if (r < nrows) f(r); }, chunk_to_line_index(last_chunk));
-#endif
-#else
-		visit_selected_lines_serial(f, b, a);
-#endif
 	}
 
 	template <class F>
-	void visit_selected_lines_tbb(F const& f, const PVRow nrows = PICVIZ_SELECTION_NUMBER_OF_ROWS) const
+	void visit_selected_lines_tbb(F const& f, PVRow b = PICVIZ_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
 	{
-		if (!_table || (nrows <= 0)) {
+		if (!_table || (b <= 0)) {
 			return;
 		}
-#ifdef __SSE4_1__
-		const ssize_t last_chunk = get_last_nonzero_chunk_index(0, line_index_to_chunk(nrows - 1));
-		if (last_chunk == -1) {
+		assert(b > a);
+		assert(b <= PICVIZ_SELECTION_NUMBER_OF_ROWS);
+		b--;
+		ssize_t chunk_start = line_index_to_chunk(a);
+		ssize_t chunk_end = get_last_nonzero_chunk_index(chunk_start, line_index_to_chunk(b));
+		if (chunk_end < chunk_start) {
 			// No lines are selected !
 			return;
 		}
-		size_t last_chunk_sse = (((size_t)(last_chunk))>>1)<<1;
-		size_t i;
-		tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 2>(9, last_chunk_sse),
-			[&](PVCore::PVAlignedBlockedRange<size_t, 2> const& range)
+
+		// If there are less than or exactly 3 chunks, use the sequential version
+		if ((chunk_end-chunk_start+1) <= 3) {
+			PVRow new_b = b+1;
+			if (line_index_to_chunk(b) > chunk_end) {
+				new_b = chunk_to_line_index(chunk_end)+1;
+			}
+			visit_selected_lines_serial(f, new_b, a);
+			return;
+		}
+
+		const PVRow cbit = line_index_to_chunk_bit(a);
+		if (cbit > 0) {
+			// Prelogue
+			uint64_t cv = _table[chunk_start];
+			PVCore::PVBitVisitor::visit_bits((cv >> cbit) << cbit, f, chunk_to_line_index(chunk_start));
+			chunk_start++;
+		}
+
+		// Main loop
+		const ssize_t chunk_start_aligned = (chunk_start+1) & (~(ssize_t)1);
+		const ssize_t chunk_end_sse = chunk_end & (~(ssize_t)1);
+		for (ssize_t c = chunk_start; c < chunk_start_aligned; c++) {
+			const uint64_t sel_buf = _table[c];
+			PVCore::PVBitVisitor::visit_bits(sel_buf, f, chunk_to_line_index(c));
+		}
+		tbb::parallel_for(PVCore::PVAlignedBlockedRange<ssize_t, 2>(chunk_start_aligned, chunk_end_sse),
+			[&](PVCore::PVAlignedBlockedRange<ssize_t, 2> const& range)
 			{
-				__m128i sse_sel;
-				for (size_t i = range.begin(); i != range.end(); i++) {
-					sse_sel = _mm_load_si128((__m128i*) &_table[i]);
-					PVCore::PVBitVisitor::visit_bits(sse_sel, f, chunk_to_line_index(i));
+				for (ssize_t c = range.begin(); c != range.end(); c += 2) {
+					const __m128i sse_sel = _mm_load_si128((__m128i*) &_table[c]);
+					PVCore::PVBitVisitor::visit_bits(sse_sel, f, chunk_to_line_index(c));
 				}
 			});
-		for (; i < last_chunk; i++) {
-			const uint64_t sel_buf = _table[i];
-			PVCore::PVBitVisitor::visit_bits(sel_buf, f, chunk_to_line_index(i));
+		for (ssize_t c = chunk_end_sse; c < chunk_end; c++) {
+			const uint64_t sel_buf = _table[c];
+			PVCore::PVBitVisitor::visit_bits(sel_buf, f, chunk_to_line_index(c));
 		}
-		// On last chunk, do not overflow !
-		PVCore::PVBitVisitor::visit_bits(_table[last_chunk], [=,&f](const PVRow r){ if (r < nrows) f(r); }, chunk_to_line_index(last_chunk));
-#else
-		visit_selected_lines_serial(f, nrows, start);
-#endif
+
+		// Epilogue
+		PVCore::PVBitVisitor::visit_bits(_table[chunk_end], [=,&f](const PVRow r){ if (r <= b) f(r); }, chunk_to_line_index(chunk_end));
 	}
 
 	/**
@@ -532,30 +538,45 @@ public:
 
 		b--;
 
-		size_t chunk_start = a/PICVIZ_SELECTION_CHUNK_SIZE;
-		const size_t chunk_end = b/PICVIZ_SELECTION_CHUNK_SIZE;
+		size_t chunk_start = line_index_to_chunk(a);
+		const size_t chunk_end = line_index_to_chunk(b);
 		
 		const PVRow cbit = line_index_to_chunk_bit(a);
 		if (cbit > 0) {
 			// Prelogue
 			uint64_t cv = _table[chunk_start];
-			if (chunk_end == chunk_start) {
-				const size_t off = PICVIZ_SELECTION_CHUNK_SIZE-line_index_to_chunk_bit(b)-1;
-				cv = (cv << off) >> off;
-				PVCore::PVBitVisitor::visit_bits((cv >> cbit) << cbit, f, chunk_to_line_index(chunk_start));
+			PVRow end_bit = PICVIZ_SELECTION_CHUNK_SIZE-1;
+			bool same = (chunk_end == chunk_start);
+			if (same) {
+				end_bit = line_index_to_chunk_bit(b);
+			}
+
+			const PVRow offset = chunk_to_line_index(chunk_start);
+			for (PVRow b = cbit; b <= end_bit; b++) {
+				if ((cv & (1ULL<<b)) != 0) {
+					f(b + offset);
+				}
+			}
+			if (same) {
 				return;
 			}
-			PVCore::PVBitVisitor::visit_bits((cv >> cbit) << cbit, f, chunk_to_line_index(chunk_start));
 			chunk_start++;
 		}
 
 		// Main loop
-		for (size_t c = chunk_start; c < chunk_end; c++) {
+		size_t c;
+		for (c = chunk_start; c < chunk_end; c++) {
 			PVCore::PVBitVisitor::visit_bits(_table[c], f, chunk_to_line_index(c));
 		}
 
-		// Epilogue
-		PVCore::PVBitVisitor::visit_bits(_table[chunk_end], [=,&f](const PVRow r){ if (r <= b) f(r); }, chunk_to_line_index(chunk_end));
+		uint64_t cv = _table[chunk_end];
+		const PVRow end_bit = line_index_to_chunk_bit(b);
+		const PVRow offset = chunk_to_line_index(chunk_end);
+		for (PVRow b = 0; b <= end_bit; b++) {
+			if ((cv & (1ULL<<b)) != 0) {
+				f(b + offset);
+			}
+		}
 	}
 
 protected:
