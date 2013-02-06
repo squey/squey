@@ -22,7 +22,8 @@ static bool verbose = false;
  * - ajouter l'utilisation d'une sélection
  */
 
-#define NBITS 11
+#define NBITS 10
+#define V4_N 1
 #define BUFFER_SIZE (1<<NBITS)
 
 /*****************************************************************************
@@ -76,15 +77,41 @@ void count_y1_seq_v3(const PVRow row_count, const uint32_t *col_y1,
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t idx_mask = (1 << NBITS) - 1;
 	const uint32_t zoom_shift = 32 - zoom;
-	const uint32_t zoom_base = y_min >> zoom_shift;
+	const int32_t zoom_base = y_min >> zoom_shift;
 
 	for(size_t i = 0; i < row_count; ++i) {
 		const uint32_t y = col_y1[i];
-		const uint32_t block_base = y >> zoom_shift;
-		if (block_base == zoom_base) {
-			const uint32_t block_idx = (y >> idx_shift) & idx_mask;
-			++buffer[block_idx];
+		const int32_t block_base = y >> zoom_shift;
+		if (block_base != zoom_base) {
+			continue;
 		}
+		const uint32_t block_idx = (y >> idx_shift) & idx_mask;
+		++buffer[block_idx];
+	}
+}
+
+
+/* sequential version using shift'n mask and N block
+ */
+void count_y1_seq_v4(const PVRow row_count, const uint32_t *col_y1,
+                     const Picviz::PVSelection &selection,
+                     const uint64_t y_min, const uint64_t y_max, const int zoom,
+                     uint32_t *buffer, const size_t buffer_size)
+{
+	const int idx_shift = (32 - NBITS) - zoom;
+	const uint32_t idx_mask = (1 << NBITS) - 1;
+	const uint32_t zoom_shift = 32 - zoom;
+	const int32_t base_y = y_min >> zoom_shift;
+
+	for(size_t i = 0; i < row_count; ++i) {
+		const uint32_t y = col_y1[i];
+		const int32_t base = y >> zoom_shift;
+		int p = base - base_y;
+		if ((p < 0) || (p>=V4_N)) {
+			continue;
+		}
+		const uint32_t idx = (y >> idx_shift) & idx_mask;
+		++buffer[(p<<NBITS) + idx];
 	}
 }
 
@@ -195,6 +222,55 @@ void count_y1_sse_v3(const PVRow row_count, const uint32_t *col_y1,
 	}
 }
 
+void count_y1_sse_v4(const PVRow row_count, const uint32_t *col_y1,
+                     const Picviz::PVSelection &selection,
+                     const uint64_t y_min, const uint64_t y_max, const int zoom,
+                     uint32_t *buffer, const size_t buffer_size)
+{
+	const int idx_shift = (32 - NBITS) - zoom;
+	const uint32_t idx_mask = (1 << NBITS) - 1;
+	const __m128i idx_mask_sse = _mm_set1_epi32(idx_mask);
+	const uint32_t zoom_shift = 32 - zoom;
+	const uint32_t base_y = y_min >> zoom_shift;
+	const __m128i base_y_sse = _mm_set1_epi32(base_y);
+
+	PVRow packed_row_count = row_count & ~3;
+
+	for(PVRow i = 0; i < packed_row_count; i += 4) {
+		const __m128i y_sse = _mm_load_si128((const __m128i*) &col_y1[i]);
+		const __m128i base_sse = _mm_srli_epi32(y_sse, zoom_shift);
+		const __m128i p_sse = _mm_sub_epi32(base_sse, base_y_sse);
+
+		const __m128i res_sse = _mm_andnot_si128(_mm_cmplt_epi32(p_sse, _mm_set1_epi32(0)),
+		                                         _mm_cmplt_epi32(p_sse, _mm_set1_epi32(V4_N)));
+
+		if (_mm_test_all_zeros(res_sse, _mm_set1_epi32(-1))) {
+			continue;
+		}
+
+		const __m128i off_sse = _mm_add_epi32(_mm_slli_epi32(p_sse, NBITS),
+		                                      _mm_and_si128(_mm_srli_epi32(y_sse, idx_shift),
+		                                                    idx_mask_sse));
+
+		for (int j = 0; j < 4; ++j) {
+			if(_mm_extract_epi32(res_sse, j)) {
+				++buffer[_mm_extract_epi32(off_sse, j)];
+			}
+		}
+	}
+
+	for(PVRow i = packed_row_count; i < row_count; ++i) {
+		const uint32_t y = col_y1[i];
+		const uint32_t base = y >> zoom_shift;
+		int p = base - base_y;
+		if ((p < 0) || (p>=V4_N)) {
+			continue;
+		}
+		const uint32_t idx = (y >> idx_shift) & idx_mask;
+		++buffer[(p<<NBITS) + idx];
+	}
+}
+
 /*****************************************************************************
  * OMP + SSE algos
  *****************************************************************************/
@@ -207,19 +283,19 @@ struct omp_sse_v3_ctx_t
 		buffers = new uint32_t * [core_num];
 		buffer_size = size;
 
-		if (verbose) {
-			std::cout << "allocating " << core_num << " reduction buffers" << std::endl;
-		}
+		// if (verbose) {
+		// 	std::cout << "allocating " << core_num << " reduction buffers" << std::endl;
+		// }
 		if (getenv("USE_NUMA") != NULL) {
 			use_numa = true;
-			if (verbose) {
-				std::cout << "using numa grouped reduction buffer" << std::endl;
-			}
+			// if (verbose) {
+			// 	std::cout << "using numa grouped reduction buffer" << std::endl;
+			// }
 		} else {
 			use_numa = false;
-			if (verbose) {
-				std::cout << "using normally allocated reduction buffer" << std::endl;
-			}
+			// if (verbose) {
+			// 	std::cout << "using normally allocated reduction buffer" << std::endl;
+			// }
 		}
 
 		for(uint32_t i = 0; i < core_num; ++i) {
@@ -252,7 +328,7 @@ struct omp_sse_v3_ctx_t
 	{
 		for(uint32_t i = 0; i < core_num; ++i) {
 			memset(buffers[i], 0, buffer_size * sizeof(uint32_t));
-			for(int j = 0; j < BUFFER_SIZE; j+=16) {
+			for(size_t j = 0; j < buffer_size; j+=16) {
 				_mm_clflush(&buffers[i][j]);
 			}
 		}
@@ -398,6 +474,77 @@ void count_y1_omp_sse_v3_2(const PVRow row_count, const uint32_t *col_y1,
 	}
 }
 
+
+void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
+                     const Picviz::PVSelection &selection,
+                     const uint64_t y_min, const uint64_t y_max, const int zoom,
+                     uint32_t *buffer, const size_t buffer_size, omp_sse_v3_ctx_t &ctx)
+{
+	const int idx_shift = (32 - NBITS) - zoom;
+	const uint32_t idx_mask = (1 << NBITS) - 1;
+	const __m128i idx_mask_sse = _mm_set1_epi32(idx_mask);
+	const uint32_t zoom_shift = 32 - zoom;
+	const int32_t base_y = y_min >> zoom_shift;
+	const __m128i base_y_sse = _mm_set1_epi32(base_y);
+
+	PVRow packed_row_count = row_count & ~3;
+
+#pragma omp parallel num_threads(ctx.core_num)
+	{
+		uint32_t *my_buffer = ctx.buffers[omp_get_thread_num()];
+
+#pragma omp for
+		for(PVRow i = 0; i < packed_row_count; i += 4) {
+			const __m128i y_sse = _mm_load_si128((const __m128i*) &col_y1[i]);
+			const __m128i base_sse = _mm_srli_epi32(y_sse, zoom_shift);
+			const __m128i p_sse = _mm_sub_epi32(base_sse, base_y_sse);
+
+			const __m128i res_sse = _mm_andnot_si128(_mm_cmplt_epi32(p_sse, _mm_set1_epi32(0)),
+			                                         _mm_cmplt_epi32(p_sse, _mm_set1_epi32(V4_N)));
+
+			if (_mm_test_all_zeros(res_sse, _mm_set1_epi32(-1))) {
+				continue;
+			}
+
+			const __m128i off_sse = _mm_add_epi32(_mm_slli_epi32(p_sse, NBITS),
+			                                      _mm_and_si128(_mm_srli_epi32(y_sse, idx_shift),
+			                                                    idx_mask_sse));
+
+			for (int j = 0; j < 4; ++j) {
+				if(_mm_extract_epi32(res_sse, j)) {
+					++my_buffer[_mm_extract_epi32(off_sse, j)];
+				}
+			}
+		}
+	}
+
+	// last values
+	uint32_t *first_buffer = ctx.buffers[0];
+	for(PVRow i = packed_row_count; i < row_count; ++i) {
+		const uint32_t y = col_y1[i];
+		const int32_t base = y >> zoom_shift;
+		int p = base - base_y;
+		if ((p < 0) || (p>=V4_N)) {
+			continue;
+		}
+		const uint32_t idx = (y >> idx_shift) & idx_mask;
+		++first_buffer[(p<<NBITS) + idx];
+	}
+
+	// final reduction
+	size_t packed_size = (buffer_size * V4_N) & ~3;
+	for (size_t j = 0; j < packed_size; j += 4) {
+		__m128i global_sse = _mm_setzero_si128();
+
+		for(size_t i = 0; i < ctx.core_num; ++i) {
+			uint32_t *core_buffer = ctx.buffers[i];
+			const __m128i local_sse = _mm_load_si128((const __m128i*) &core_buffer[j]);
+			global_sse = _mm_add_epi32(global_sse, local_sse);
+		}
+		_mm_store_si128((__m128i*) &buffer[j], global_sse);
+	}
+}
+
 /*****************************************************************************
  * some code to reduce code duplication
  *****************************************************************************/
@@ -441,36 +588,36 @@ inline void bench_median(const char *text, const RunFn& run, const CleanFn &clea
 
 #define DEF_TEST_SEQ(ALGO,DATA,...)	  \
 	uint32_t *buffer_ ## ALGO; \
-	posix_memalign((void**)&buffer_ ## ALGO, 16, buffer_size * sizeof(uint32_t)); \
-	memset(buffer_ ## ALGO, 0, buffer_size * sizeof(uint32_t)); \
+	posix_memalign((void**)&buffer_ ## ALGO, 16, buffer_size * V4_N * sizeof(uint32_t)); \
+	memset(buffer_ ## ALGO, 0, buffer_size * V4_N * sizeof(uint32_t)); \
 	bench_median(#ALGO, \
 	             [&]() { \
 		             count_y1_ ## ALGO (row_count, DATA, selection, y_min, y_max, zoom, buffer_ ## ALGO, buffer_size, ##__VA_ARGS__); \
 	             }, \
 	             [&]() { \
-		             memset(buffer_ ## ALGO, 0, sizeof(uint32_t) * buffer_size); \
+		             memset(buffer_ ## ALGO, 0, sizeof(uint32_t) * V4_N * buffer_size); \
 	             }, \
 	             row_count, sizeof(uint32_t));
 
 #define DEF_TEST_OMP(ALGO, DATA)	  \
 	uint32_t *buffer_ ## ALGO; \
-	posix_memalign((void**)&buffer_ ## ALGO, 16, buffer_size * sizeof(uint32_t)); \
-	memset(buffer_ ## ALGO, 0, buffer_size * sizeof(uint32_t)); \
-	omp_sse_v3_ctx_t ALGO ## _ctx(buffer_size); \
+	posix_memalign((void**)&buffer_ ## ALGO, 16, buffer_size * V4_N * sizeof(uint32_t)); \
+	memset(buffer_ ## ALGO, 0, buffer_size * V4_N * sizeof(uint32_t)); \
+	omp_sse_v3_ctx_t ALGO ## _ctx(buffer_size * V4_N); \
 	bench_median(#ALGO, \
 	             [&]() { \
 		             count_y1_ ## ALGO (row_count, DATA, selection, y_min, y_max, zoom, buffer_ ## ALGO, buffer_size, ALGO ## _ctx); \
 	             }, \
 	             [&]() { \
-		             memset(buffer_ ## ALGO, 0, sizeof(uint32_t) * buffer_size); \
+		             memset(buffer_ ## ALGO, 0, sizeof(uint32_t) * V4_N * buffer_size); \
 		             ALGO ## _ctx.clear(); \
 	             }, \
 	             row_count, sizeof(uint32_t));
 
 #define CMP_TEST(ALGO,ALGO_REF)	  \
-	if (memcmp(buffer_ ## ALGO, buffer_ ## ALGO_REF, buffer_size * sizeof(uint32_t)) != 0) { \
+	if (memcmp(buffer_ ## ALGO, buffer_ ## ALGO_REF, buffer_size * V4_N * sizeof(uint32_t)) != 0) { \
 		std::cout << "algorithms count_y1_" #ALGO " and count_y1_" #ALGO_REF " differ" << std::endl; \
-		for(int i = 0; i < buffer_size; ++i) { \
+		for(int i = 0; i < buffer_size * V4_N; ++i) { \
 			if (buffer_ ## ALGO [i] != buffer_ ## ALGO_REF [i]) { \
 				std::cout << "  at " << i << ": ref == " << buffer_ ## ALGO_REF [i] << " buffer == " << buffer_ ## ALGO [i] << std::endl; \
 			} \
@@ -525,19 +672,26 @@ void do_one_run(const std::string text,
 	if (verbose) {
 		CMP_TEST(seq_v2, seq_v1);
 	}
-	DEL_TEST(seq_v2);
 
 	DEF_TEST_SEQ(seq_v3, data);
 	if (verbose) {
 		CMP_TEST(seq_v3, seq_v1);
 	}
-	DEL_TEST(seq_v3);
+
+	DEF_TEST_SEQ(seq_v4, data);
+	if (verbose) {
+		CMP_TEST(seq_v4, seq_v3);
+	}
 
 	DEF_TEST_SEQ(sse_v3, data);
 	if (verbose) {
 		CMP_TEST(sse_v3, seq_v1);
 	}
-	DEL_TEST(sse_v3);
+
+	DEF_TEST_SEQ(sse_v4, data);
+	if (verbose) {
+		CMP_TEST(sse_v4, seq_v4);
+	}
 
 #ifdef __AVX__
 	DEF_TEST_SEQ(avx_v3, data);
@@ -549,15 +703,27 @@ void do_one_run(const std::string text,
 
 	DEF_TEST_OMP(omp_sse_v3, data);
 	if (verbose) {
-		CMP_TEST(omp_sse_v3, seq_v1);
+		CMP_TEST(omp_sse_v3, seq_v3);
 	}
-	DEL_TEST(omp_sse_v3);
 
 	DEF_TEST_OMP(omp_sse_v3_2, data);
 	if (verbose) {
-		CMP_TEST(omp_sse_v3_2, seq_v1);
+		CMP_TEST(omp_sse_v3_2, seq_v3);
 	}
+
+	DEF_TEST_OMP(omp_sse_v4, data);
+	if (verbose) {
+		CMP_TEST(omp_sse_v4, seq_v4);
+	}
+
+	DEL_TEST(seq_v2);
+	DEL_TEST(seq_v3);
+	DEL_TEST(seq_v4);
+	DEL_TEST(sse_v3);
+	DEL_TEST(sse_v4);
+	DEL_TEST(omp_sse_v3);
 	DEL_TEST(omp_sse_v3_2);
+	DEL_TEST(omp_sse_v4);
 
 	deallocate(local_data, real_count);
 
@@ -740,7 +906,7 @@ int main(int argc, char **argv)
 
 	for (PVCol j = 0; j < col_count; ++j) {
 		for (PVRow i = 0; i < row_count; ++i) {
-			data[j*row_count_aligned+i] = (rand() << 1) | (rand()&1);
+			data[j*row_count_aligned+i] = (rand() << 10) | (rand()&1023);
 		}
 	}
 
