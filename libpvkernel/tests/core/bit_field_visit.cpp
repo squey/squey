@@ -93,8 +93,9 @@ int main()
 	ranges.push_back(std::make_pair(60, 205));
 	ranges.push_back(std::make_pair(63, 215));
 	// More than 4 chunks involved
-	ranges.push_back(std::make_pair(65, 100008));
-	ranges.push_back(std::make_pair(111, 1000008));
+	ranges.push_back(std::make_pair(65, std::min(1000008, PICVIZ_LINES_MAX)));
+	ranges.push_back(std::make_pair(111, std::min(1000008, PICVIZ_LINES_MAX)));
+	ranges.push_back(std::make_pair(0, std::min(1500000, PICVIZ_LINES_MAX)));
 
 	std::cout << "Tests with full selection..." << std::endl;
 	bits.select_all();
