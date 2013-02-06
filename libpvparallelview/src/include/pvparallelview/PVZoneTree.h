@@ -107,13 +107,13 @@ public:
 		uint32_t ntasks;
 	};
 
-protected:
 	struct PVBranch
 	{
 		PVRow* p;
 		size_t count;
 	};
 
+protected:
 	struct PVTreeParams
 	{
 		// This range is goes from begin (included) to end (*not* included)
@@ -132,6 +132,7 @@ protected:
 				pdata.ntasks = 0;
 				return;
 			}
+
 
 			// Compute the number of tasks according to a minimum grain size
 			const uint32_t max_tasks = (nrows+TREE_CREATION_GRAINSIZE-1)/TREE_CREATION_GRAINSIZE;
@@ -251,6 +252,15 @@ public:
 	 */
 	static PVZoneTree *load_from_file(const char *filename);
 
+	/**
+	 * Get the number of lines that goes throught a 10-bit plotted value on the right axis of this zone.
+	 *
+	 * @return the number of lines that goes throught that value
+	 */
+	inline uint32_t get_right_axis_count(const uint32_t branch_r) const { return get_right_axis_count_seq(branch_r); }
+
+	//inline uint32_t get_right_axis_count(const uint32_t branch_r) const { return get_right_axis_count_seq(branch_r); }
+
 public:
 	void process_omp_sse_treeb(PVZoneProcessing const& zp);
 	inline void process_tbb_sse_treeb(PVZoneProcessing const& zp) { ProcessData pdata; process_tbb_sse_treeb(zp, pdata); }
@@ -261,6 +271,11 @@ public:
 	void filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
 	void filter_by_sel_background_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
 	void filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel);
+
+	uint32_t get_right_axis_count_seq(const uint32_t branch_r) const;
+
+	PVBranch& get_branch(uint32_t branch_id) { return _treeb[branch_id]; }
+	PVBranch const& get_branch(uint32_t branch_id) const { return _treeb[branch_id]; }
 
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);

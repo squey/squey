@@ -627,6 +627,54 @@ void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Picviz::PVSe
 	BENCH_END(subtree2, "filter_by_sel_background_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 
+uint32_t PVParallelView::PVZoneTree::get_right_axis_count_seq(const uint32_t branch_r) const
+{
+	PVBCode b_start;
+	b_start.s.r = branch_r;
+	b_start.s.l = 0;
+
+	PVBCode b_end;
+	b_end.s.r = branch_r;
+	b_end.s.l = (1<<NBITS_INDEX)-1;
+
+	// The advantage of doing this on the right axis is that our
+	// indexes are sequentials !
+	uint32_t count = 0;
+	for (uint32_t b = b_start.int_v; b < b_end.int_v; b++) {
+		count += _treeb[b].count;
+	}
+
+	return count;
+}
+
+/*
+uint32_t PVParallelView::PVZoneTree::get_right_axis_count_sse(const uint32_t branch_r) const
+{
+	PVBCode b_start;
+	b_start.s.r = branch_r;
+	b_start.s.l = 0;
+
+	PVBCode b_end;
+	b_end.s.r = branch_r;
+	b_end.s.l = (1<<NBITS_INDEX)-1;
+
+	// The advantage of doing this on the right axis is that our
+	// indexes are sequentials !
+	BENCH_START(bcount);
+	__m128i sse_count = _mm_setzero_si128();
+	for (uint32_t b = b_start.int_v; b < b_end.int_v; b += 4) {
+		const __m128i sse_branch_0 = _mm_load_si128(&_treeb[b]);
+		const __m128i sse_branch_1 = _mm_load_si128(&_treeb[b+1]);
+		const __m128i sse_branch_2 = _mm_load_si128(&_treeb[b+2]);
+		const __m128i sse_branch_3 = _mm_load_si128(&_treeb[b+3]);
+
+		count += _treeb[b].count;
+	}
+	BENCH_END(bcount, "count-sse", b_end.int_v-b_start.int_v, 1023, sizeof(uint32_t), 1);
+
+	return count;
+}*/
+
 void PVParallelView::PVZoneTree::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
 {
 	pts.reserve(NBUCKETS*4);
