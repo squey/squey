@@ -359,7 +359,7 @@ public:
 		}
 
 		// Epilogue
-		PVCore::PVBitVisitor::visit_bits(_table[chunk_end], [=,&f](const PVRow r){ if (r <= b) f(r); }, chunk_to_line_index(chunk_end));
+		PVCore::PVBitVisitor::visit_bits(_table[chunk_end] & ((1ULL<<(line_index_to_chunk_bit(b)+1))-1), f, chunk_to_line_index(chunk_end));
 	}
 
 	template <class F>
@@ -417,7 +417,7 @@ public:
 		}
 
 		// Epilogue
-		PVCore::PVBitVisitor::visit_bits(_table[chunk_end], [=,&f](const PVRow r){ if (r <= b) f(r); }, chunk_to_line_index(chunk_end));
+		PVCore::PVBitVisitor::visit_bits(_table[chunk_end] & ((1ULL<<(line_index_to_chunk_bit(b)+1))-1), f, chunk_to_line_index(chunk_end));
 	}
 
 	template <size_t N, class Fpacked, class Funpacked>
