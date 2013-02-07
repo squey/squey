@@ -281,7 +281,7 @@ public:
 	typedef size_t size_type;
 	typedef ptrdiff_t difference_type;
 	template<class U> struct rebind {
-		typedef PVMMapAllocator<U> other;
+		typedef PVNUMAHugePagedInterleavedAllocator<U> other;
 	};
 
 public:
@@ -292,7 +292,7 @@ public:
 	{
 		pointer mem;
 
-		mem = numa_alloc_interleaved(sizeof(value_type)*n);
+		mem = (pointer)numa_alloc_interleaved(sizeof(value_type)*n);
 		if (mem) {
 			if (madvise(mem, sizeof(value_type)*n, MADV_HUGEPAGE) < 0) {
 				PVLOG_WARN("can not set hugepage attribute.\n");
