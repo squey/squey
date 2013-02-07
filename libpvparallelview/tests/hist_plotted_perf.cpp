@@ -461,6 +461,7 @@ int main(int argc, char **argv)
 	/* sequential
 	 */
 	uint32_t *hist_seq = new uint32_t [real_buffer_size];
+	memset(hist_seq, 0, real_buffer_size * sizeof(uint32_t));
 	BENCH_START(seq);
 	uint32_t *res_seq = hist_plotted_seq(y_min, zoom, hist_seq,
 	                                     col_a, row_count, block_count);
@@ -469,6 +470,7 @@ int main(int argc, char **argv)
 	/* SSE
 	 */
 	uint32_t *hist_sse = new uint32_t [real_buffer_size];
+	memset(hist_sse, 0, real_buffer_size * sizeof(uint32_t));
 	BENCH_START(sse);
 	uint32_t *res_sse = hist_plotted_sse(y_min, zoom, hist_sse,
 	                                     col_a, row_count, block_count);
@@ -481,6 +483,7 @@ int main(int argc, char **argv)
 	/* OMP+SSE
 	 */
 	uint32_t *hist_omp_sse = new uint32_t [real_buffer_size];
+	memset(hist_omp_sse, 0, real_buffer_size * sizeof(uint32_t));
 	omp_ctx_t omp_sse_ctx(real_buffer_size);
 	omp_sse_ctx.clear();
 
