@@ -4,6 +4,8 @@
 #include <tbb/concurrent_vector.h>
 #include <tbb/parallel_sort.h>
 
+#include <pvkernel/core/picviz_assert.h>
+
 #define N 100000000
 
 template <class A, class B>
@@ -74,6 +76,19 @@ void do_tests(PVCore::PVSelBitField const& bits, std::vector<std::pair<PVRow, PV
 	}
 }
 
+void do_tests_packet(PVCore::PVSelBitField& bits)
+{
+	for (uint32_t i = 0; i < 16; ++i) {
+		uint32_t v = (i << 28) | (i << 24) | (i << 20) | (i << 16) | (i << 12) | (i << 8) | (i << 4) | (i);
+		memset(bits.get_buffer(), v, 2048);
+		for(uint32_t j = 0; j < 32; ++j) {
+			for(uint32_t k = 0; k < 64; k += 4) {
+				PV_VALID(bits.get_lines_fast((j*32)+k, 4), i, "i", i, "j", j, "k", k);
+			}
+		}
+	}
+}
+
 int main()
 {
 	PVCore::PVSelBitField bits;
@@ -120,6 +135,9 @@ int main()
 	std::cout << "Tests with random selection (2)..." << std::endl;
 	bits.select_random();
 	do_tests(bits, ranges);
+
+	std::cout << "Tests of get_lines_fast..." << std::endl;
+	do_tests_packet(bits);
 
 	return 0;
 }
