@@ -10,6 +10,7 @@
 #include <pvkernel/core/stdint.h>
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/PVAllocators.h>
+#include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVBitVisitor.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVAlignedBlockedRange.h>
@@ -109,6 +110,40 @@ public:
 		 */
 
 		return (_table[pos] & (1UL<<shift));
+	}
+
+	/**
+	 * Fast version of get_line() (i.e. no check for _table existence)
+	 */
+	inline bool get_line_fast (PVRow line_index) const
+	{
+		const PVRow pos = line_index_to_chunk(line_index);
+		const PVRow shift = line_index_to_chunk_bit(line_index);
+		return (_table[pos] & (1UL<<shift));
+	}
+
+	/**
+	 * Get the state of C lines starting at line N in the PVSelBitField
+	 *
+	 * This method must be used with caution:
+	 * - bits can not be extracted accross chunks
+	 * - C must be a power of two
+	 * - L must be a multiple of C
+	 *
+	 * @param line_index The index of the first line we are interested in
+	 * @param count The number of lines we are interested in
+	 *
+	 * @return An unsigned stating whether they are set or not
+	 */
+	inline uint32_t get_lines_fast (PVRow line_index, uint32_t count) const
+	{
+		assert(PVAlgorithms::is_power_of_two(count));
+		assert((line_index % count) == 0);
+
+		const PVRow pos = line_index_to_chunk(line_index);
+		const PVRow shift = line_index_to_chunk_bit(line_index);
+
+		return (_table[pos] >> shift) & ((1UL << count)-1);
 	}
 
 	/**
