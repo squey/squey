@@ -137,7 +137,7 @@ public:
 	 */
 	inline uint32_t get_lines_fast (PVRow line_index, uint32_t count) const
 	{
-		assert(PVAlgorithms::is_power_of_two(count));
+		assert(PVCore::is_power_of_two(count));
 		assert((line_index % count) == 0);
 
 		const PVRow pos = line_index_to_chunk(line_index);
