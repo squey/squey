@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <iterator>
 #include <pvkernel/core/PVFunctions.h>
+#include <pvkernel/core/picviz_intrin.h>
 
 namespace PVCore {
 
@@ -158,6 +159,24 @@ inline uint64_t upper_power_of_2(uint64_t v)
 
 #ifdef __GNUG__
 #pragma GCC diagnostic pop
+#endif
+}
+
+/**
+ * Test if a positive integer is a power of two
+ *
+ * SSE 4.2 powered or fallback to http://graphics.stanford.edu/~seander/bithacks.html#DetermineIfPowerOf2
+ *
+ * @param v the value to test
+ *
+ * return true is v is a power of 2, false otherwise
+ */
+inline bool is_power_of_two(uint32_t v)
+{
+#ifdef __SSE4_2__
+	return (_mm_popcnt_u32(v) == 1);
+#else
+	return (v && !(v & (v - 1)));
 #endif
 }
 
