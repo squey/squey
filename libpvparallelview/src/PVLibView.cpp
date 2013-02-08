@@ -139,7 +139,7 @@ PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_v
 	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
 	PVParallelView::PVZoomedParallelScene *scene = new PVParallelView::PVZoomedParallelScene(view, view_sp, _sliders_manager_p, _processor_sel, _processor_bg, _zones_manager, axis);
 	_zoomed_parallel_scenes.push_back(scene);
-	view->setScene(scene);
+	view->set_scene(scene);
 
 	return view;
 }

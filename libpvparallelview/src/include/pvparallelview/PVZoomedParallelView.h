@@ -7,7 +7,7 @@
 #ifndef PVPARALLELVIEW_PVZOOMEDPARALLELVIEW_H
 #define PVPARALLELVIEW_PVZOOMEDPARALLELVIEW_H
 
-#include <QGraphicsView>
+#include <pvkernel/widgets/PVGraphicsView.h>
 
 namespace PVParallelView
 {
@@ -21,7 +21,7 @@ class PVZoomedParallelScene;
  * A derived class of QGraphicsView to use when displaying a zoom view of parallel coordinates
  * representation of events.
  */
-class PVZoomedParallelView : public QGraphicsView
+class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 {
 public:
 	/**

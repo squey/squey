@@ -18,3 +18,9 @@ target_link_libraries(Twidgets_color-picker pvkernel ${QT_LIBRARIES})
 # Color dialog
 add_executable(Twidgets_color-dialog color-dialog.cpp)
 target_link_libraries(Twidgets_color-dialog pvkernel ${QT_LIBRARIES})
+
+# QGraphicsView reimplementation to use QScrollBar64
+QT4_WRAP_CPP(PVGV_MOC mygraphicsview.h OPTIONS ${QT4_WRAP_OPTIONS})
+add_executable(Epvgraphicsview pvgraphicsview.cpp ${PVGV_MOC})
+target_link_libraries(Epvgraphicsview pvkernel ${QT_LIBRARIES})
+
