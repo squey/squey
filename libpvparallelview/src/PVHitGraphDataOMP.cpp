@@ -21,7 +21,7 @@ PVParallelView::PVHitGraphDataOMP::omp_ctx_t::omp_ctx_t(uint32_t size)
 
 	for(uint32_t i = 0; i < _core_num; ++i) {
 		_buffers[i] = (uint32_t*)numa_alloc_onnode(_buffer_size * sizeof(uint32_t),
-				numa_node_of_cpu(i));
+		                                           numa_node_of_cpu(i));
 		memset(_buffers[i], 0, size * sizeof(uint32_t));
 	}
 }
@@ -32,7 +32,7 @@ PVParallelView::PVHitGraphDataOMP::omp_ctx_t::~omp_ctx_t()
 		for(uint32_t i = 0; i < _core_num; ++i) {
 			if (_buffers[i]) {
 				numa_free(_buffers[i],
-						_buffer_size * sizeof(uint32_t));
+				          _buffer_size * sizeof(uint32_t));
 			}
 		}
 		delete [] _buffers;
@@ -85,10 +85,17 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 			                                                     idx_shift),
 			                                      idx_mask_sse);
 
-			for (int j = 0; j < 4; ++j) {
-				if(_mm_extract_epi32(res_sse, j)) {
-					++my_buffer[_mm_extract_epi32(off_sse, j)];
-				}
+			if(_mm_extract_epi32(res_sse, 0)) {
+				++my_buffer[_mm_extract_epi32(off_sse, 0)];
+			}
+			if(_mm_extract_epi32(res_sse, 1)) {
+				++my_buffer[_mm_extract_epi32(off_sse, 1)];
+			}
+			if(_mm_extract_epi32(res_sse, 2)) {
+				++my_buffer[_mm_extract_epi32(off_sse, 2)];
+			}
+			if(_mm_extract_epi32(res_sse, 3)) {
+				++my_buffer[_mm_extract_epi32(off_sse, 3)];
 			}
 		}
 	}
@@ -158,10 +165,17 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 			                                                                   idx_shift),
 			                                                    idx_mask_sse));
 
-			for (int j = 0; j < 4; ++j) {
-				if(_mm_extract_epi32(res_sse, j)) {
-					++my_buffer[_mm_extract_epi32(off_sse, j)];
-				}
+			if(_mm_extract_epi32(res_sse, 0)) {
+				++my_buffer[_mm_extract_epi32(off_sse, 0)];
+			}
+			if(_mm_extract_epi32(res_sse, 1)) {
+				++my_buffer[_mm_extract_epi32(off_sse, 1)];
+			}
+			if(_mm_extract_epi32(res_sse, 2)) {
+				++my_buffer[_mm_extract_epi32(off_sse, 2)];
+			}
+			if(_mm_extract_epi32(res_sse, 3)) {
+				++my_buffer[_mm_extract_epi32(off_sse, 3)];
 			}
 		}
 	}
