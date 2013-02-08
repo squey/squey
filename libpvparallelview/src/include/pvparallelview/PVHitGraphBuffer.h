@@ -14,7 +14,7 @@ class PVHitGraphBuffer: boost::noncopyable
 {
 public:
 	static constexpr size_t NBITS = PVHitGraphCommon::NBITS;
-	static constexpr size_t SIZE_BLOCK = (1<<NBITS)-1;
+	static constexpr size_t SIZE_BLOCK = 1<<NBITS;
 	static constexpr size_t NBLOCKS = PVHitGraphCommon::NBLOCKS;
 
 public:
