@@ -27,6 +27,9 @@ add_definitions(${OpenMP_CXX_FLAGS})
 
 SET(SRC_FILES
 PVBCIBuffers.cpp
+PVHitGraphBuffer.cpp
+PVHitGraphDataInterface.cpp
+PVHitGraphDataOMP.cpp
 PVParallelView.cpp
 PVTools.cpp
 PVZoomedZoneTree.cpp
