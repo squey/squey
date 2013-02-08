@@ -784,15 +784,16 @@ typedef enum {
 
 bool compare(uint32_t *ref, uint32_t *tab, int block_count)
 {
+	bool ret = true;
 	for(int i = 0; i < BUFFER_SIZE * block_count; ++i) {
 		if (tab[i] != ref[i]) {
 			std::cerr << "differs at " << i
 			          << ": " << tab[i] << " instead of " << ref[i]
 			          << std::endl;
-			return false;
+			ret = false;
 		}
 	}
-	return true;
+	return ret;
 }
 
 void test_no_sel(const size_t real_buffer_size,
