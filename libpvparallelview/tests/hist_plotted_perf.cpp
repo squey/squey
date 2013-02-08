@@ -5,6 +5,8 @@
 #include <pvkernel/core/picviz_intrin.h>
 #include <picviz/PVPlotted.h>
 
+#include <pvparallelview/PVHitGraphData.h>
+#include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVZoneProcessing.h>
 
 #include <numa.h>      // numa_*
@@ -794,7 +796,7 @@ bool compare(uint32_t *ref, uint32_t *tab, int block_count)
 }
 
 void test_no_sel(const size_t real_buffer_size,
-                 const uint32_t y_min, const int zoom,
+                 const uint32_t y_min, const int zoom, PVParallelView::PVZoneTree const& zt,
                  const uint32_t* col_a, const size_t row_count,
                  const int block_count)
 {
@@ -833,6 +835,16 @@ void test_no_sel(const size_t real_buffer_size,
 	BENCH_END(omp_sse, "hist_omp_sse", row_count, sizeof(uint32_t), BUFFER_SIZE, sizeof(uint32_t));
 	std::cout << "compare to ref: ";
 	if (compare(res_seq, res_omp_sse, block_count)) {
+		std::cout << "ok" << std::endl;
+	}
+
+	/* Library code
+	 */
+	PVParallelView::PVHitGraphData lib_omp;
+	BENCH_START(lib);
+	lib_omp.process_all(zt, col_a, row_count, y_min, zoom, 0, block_count);
+	BENCH_END(lib, "library-code", row_count, sizeof(uint32_t), BUFFER_SIZE, sizeof(uint32_t));
+	if (compare(res_seq, lib_omp.buffer_all().buffer(), block_count)) {
 		std::cout << "ok" << std::endl;
 	}
 
@@ -957,11 +969,13 @@ int main(int argc, char **argv)
 	}
 
 	PVParallelView::PVZoneProcessing zp(plotted, row_count, col, col + 1);
+	PVParallelView::PVZoneTree& zt = *new PVParallelView::PVZoneTree();
+	zt.process(zp);
 
 	const uint32_t *col_a = zp.get_plotted_col_a();
 	int real_buffer_size = BUFFER_SIZE * block_count;
 
-	test_no_sel(real_buffer_size, y_min, zoom, col_a, row_count, block_count);
+	test_no_sel(real_buffer_size, y_min, zoom, zt, col_a, row_count, block_count);
 
 	Picviz::PVSelection sel;
 
