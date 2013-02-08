@@ -192,10 +192,17 @@ void count_y1_sse_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
 		const __m128i block_idx_sse = _mm_and_si128(_mm_srli_epi32(y_sse, idx_shift),
 		                                            idx_mask_sse);
 
-		for (int j = 0; j < 4; ++j) {
-			if(_mm_extract_epi32(test_res_sse, j)) {
-				++buffer[_mm_extract_epi32(block_idx_sse, j)];
-			}
+		if(_mm_extract_epi32(test_res_sse, 0)) {
+			++buffer[_mm_extract_epi32(block_idx_sse, 0)];
+		}
+		if(_mm_extract_epi32(test_res_sse, 1)) {
+			++buffer[_mm_extract_epi32(block_idx_sse, 1)];
+		}
+		if(_mm_extract_epi32(test_res_sse, 2)) {
+			++buffer[_mm_extract_epi32(block_idx_sse, 2)];
+		}
+		if(_mm_extract_epi32(test_res_sse, 3)) {
+			++buffer[_mm_extract_epi32(block_idx_sse, 3)];
 		}
 	}
 
@@ -218,7 +225,7 @@ struct omp_sse_v3_ctx_t
 {
 	omp_sse_v3_ctx_t(uint32_t size)
 	{
-		core_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
+		core_num = PVCore::PVHardwareConcurrency::get_logical_core_number();
 		buffers = new uint32_t * [core_num];
 		buffer_size = size;
 
@@ -295,10 +302,17 @@ void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t *col_y1, const ui
 			const __m128i block_idx_sse = _mm_and_si128(_mm_srli_epi32(y_sse, idx_shift),
 			                                            idx_mask_sse);
 
-			for (int j = 0; j < 4; ++j) {
-				if(_mm_extract_epi32(test_res_sse, j)) {
-					++my_buffer[_mm_extract_epi32(block_idx_sse, j)];
-				}
+			if(_mm_extract_epi32(test_res_sse, 0)) {
+				++my_buffer[_mm_extract_epi32(block_idx_sse, 0)];
+			}
+			if(_mm_extract_epi32(test_res_sse, 1)) {
+				++my_buffer[_mm_extract_epi32(block_idx_sse, 1)];
+			}
+			if(_mm_extract_epi32(test_res_sse, 2)) {
+				++my_buffer[_mm_extract_epi32(block_idx_sse, 2)];
+			}
+			if(_mm_extract_epi32(test_res_sse, 3)) {
+				++my_buffer[_mm_extract_epi32(block_idx_sse, 3)];
 			}
 		}
 	}
@@ -359,10 +373,17 @@ void count_y1_omp_sse_v3_2(const PVRow row_count, const uint32_t *col_y1, const 
 			const __m128i block_idx_sse = _mm_and_si128(_mm_srli_epi32(y_sse, idx_shift),
 			                                            idx_mask_sse);
 
-			for (int j = 0; j < 4; ++j) {
-				if(_mm_extract_epi32(test_res_sse, j)) {
-					++my_buffer[_mm_extract_epi32(block_idx_sse, j)];
-				}
+			if(_mm_extract_epi32(test_res_sse, 0)) {
+				++my_buffer[_mm_extract_epi32(block_idx_sse, 0)];
+			}
+			if(_mm_extract_epi32(test_res_sse, 1)) {
+				++my_buffer[_mm_extract_epi32(block_idx_sse, 1)];
+			}
+			if(_mm_extract_epi32(test_res_sse, 2)) {
+				++my_buffer[_mm_extract_epi32(block_idx_sse, 2)];
+			}
+			if(_mm_extract_epi32(test_res_sse, 3)) {
+				++my_buffer[_mm_extract_epi32(block_idx_sse, 3)];
 			}
 		}
 	}
