@@ -915,21 +915,15 @@ void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex
 void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row)
 {
 	PVRush::PVNraw const& nraw = _log_extract->get_nraw();
-	// We could use QList::fromVector(QVector::fromStdVector(nraw_table_line)), but that's not really efficient...
-	if (row >= nraw.get_number_rows()) {
-		PVLOG_WARN("(PVFormatBuilderWidget::set_axes_name_selected_row_Slot) row index '%d' does not exist in the current NRAW (size '%d').\n", row, nraw.get_number_rows());
+	if ((PVRow)row >= nraw.get_number_rows()) {
 		return;
 	}
-	/*
 	QStringList names;
-	PVRush::PVNraw::const_nraw_table_line line = nraw.get_table().get_row(row);
-	for (PVCol j = 0; j < line.size(); j++) {
+	for (PVCol j = 0; j < nraw.get_number_cols(); j++) {
 		// We need to do a deep copy of this
-		QString const& v = line[j].get_qstr();
-		QString deep_copy((const QChar*) v.constData(), v.size());
-		names << deep_copy;
+		names << nraw.at(row, j);
 	}
-	myTreeModel->setAxesNames(names);*/
+	myTreeModel->setAxesNames(names);
 }
 
 void PVInspector::PVFormatBuilderWidget::set_axes_type_selected_row_Slot(int row)
