@@ -155,10 +155,17 @@ void count_y1_avx_v3(const PVRow row_count, const uint32_t *col_y1,
 			continue;
 		}
 
-		for (int j = 0; j < 8; j++) {
-			if (_mm256_extract_epi32(avx_cmp, j)) {
-				buffer[_mm256_extract_epi32(avx_block_idx, j)]++;
-			}
+		if (_mm256_extract_epi32(avx_cmp, 0)) {
+			buffer[_mm256_extract_epi32(avx_block_idx, 0)]++;
+		}
+		if (_mm256_extract_epi32(avx_cmp, 1)) {
+			buffer[_mm256_extract_epi32(avx_block_idx, 1)]++;
+		}
+		if (_mm256_extract_epi32(avx_cmp, 2)) {
+			buffer[_mm256_extract_epi32(avx_block_idx, 2)]++;
+		}
+		if (_mm256_extract_epi32(avx_cmp, 3)) {
+			buffer[_mm256_extract_epi32(avx_block_idx, 3)]++;
 		}
 	}
 	for (; i < row_count; i++) {
