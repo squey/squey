@@ -13,7 +13,7 @@ class PVHugePODVector
 
 public:
 	typedef T value_type;
-	typedef PVMMapAllocator<value_type> allocator_type;
+	typedef PVNUMAHugePagedInterleavedAllocator<value_type> allocator_type;
 	typedef typename allocator_type::pointer pointer;
 	typedef typename allocator_type::const_pointer const_pointer;
 	typedef typename allocator_type::reference reference;

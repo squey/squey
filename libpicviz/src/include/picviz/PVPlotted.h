@@ -69,7 +69,8 @@ private:
 public:
 	typedef std::vector<float> plotted_table_t;
 	//typedef std::vector<uint32_t, PVCore::PVAlignedAllocator<uint32_t, 16> > uint_plotted_table_t;
-	typedef std::vector<uint32_t, PVCore::PVNUMAHugePagedInterleavedAllocator<uint32_t> > uint_plotted_table_t;
+	//typedef std::vector<uint32_t, PVCore::PVNUMAHugePagedInterleavedAllocator<uint32_t> > uint_plotted_table_t;
+	typedef PVCore::PVHugePODVector<uint32_t, 16> uint_plotted_table_t;
 	typedef std::vector< std::pair<PVCol,uint32_t> > plotted_sub_col_t;
 	typedef std::list<ExpandedSelection> list_expanded_selection_t;
 
