@@ -219,6 +219,10 @@ void PVRush::PVNrawDiskBackend::flush()
 uint64_t PVRush::PVNrawDiskBackend::search_in_column(uint64_t col_idx, std::string const& field)
 {
 	PVColumn& column = get_col(col_idx);
+	file_t& read_file = column.read_file_tls.local();
+	if (unlikely(!read_file)) {
+		this->Open(column.filename, &read_file, _direct_mode);
+	}
 
 	uint64_t chunk_size = _write_buffers_size_pattern[_max_write_size_idx];
 	uint64_t total_read_size = 0;
@@ -231,7 +235,7 @@ uint64_t PVRush::PVNrawDiskBackend::search_in_column(uint64_t col_idx, std::stri
 	bool last_chunk = false;
 	do
 	{
-		read_size = this->Read(column.write_file, buffer+BUF_ALIGN, chunk_size-BUF_ALIGN);
+		read_size = this->Read(read_file, buffer+BUF_ALIGN, chunk_size-BUF_ALIGN);
 		last_chunk = read_size < (chunk_size-BUF_ALIGN);
 
 		// TODO: clean this mess
@@ -447,6 +451,10 @@ uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint6
 	// Fetch data from disk
 	uint64_t nb_fields_left = 0;
 	if (cache_miss) {
+		file_t& read_file = column.read_file_tls.local();
+		if (unlikely(!read_file)) {
+			this->Open(column.filename, &read_file, _backend._direct_mode);
+		}
 		char* buffer_ptr = cache.buffer;
 		int64_t field_index = get_index(col, field);
 		uint64_t disk_offset = field_index == -1 ? 0 : _backend._indexes.at(field_index, col).offset;
@@ -455,7 +463,7 @@ uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint6
 			aligned_disk_offset = (disk_offset / BUF_ALIGN) * BUF_ALIGN;
 			buffer_ptr += (disk_offset - aligned_disk_offset);
 		}
-		int64_t read_size = _backend.ReadAt(column.write_file, aligned_disk_offset, cache.buffer, READ_BUFFER_SIZE);
+		int64_t read_size = _backend.ReadAt(read_file, aligned_disk_offset, cache.buffer, READ_BUFFER_SIZE);
 		if(read_size <= 0) {
 			PVLOG_ERROR("PVNrawDiskBackend: Error reading column %d [offset=%d] from disk (%s)\n", col, aligned_disk_offset, strerror(errno));
 			return 0;
@@ -490,31 +498,33 @@ PVRush::PVNrawDiskBackend::PVCachePool::~PVCachePool()
 	}
 }
 
-int64_t PVRush::PVNrawDiskBackend::PVCachePool::get_index(uint64_t col, uint64_t field)
+int64_t PVRush::PVNrawDiskBackend::PVCachePool::get_index(uint64_t col, uint64_t field) const
 {
 	index_table_t& indexes = _backend._indexes;
-	/*int64_t first = 0;
-	  int64_t index = 0;
-	  int64_t last = _parent._indexes_nrows-1;
+#if 0
+    int64_t first = 0;
+	int64_t index = 0;
+	int64_t last = _backend._indexes_nrows-1;
 
-	  if (field >= indexes.at(last, col).field) return last;
+	if (field >= indexes.at(last, col).field) return last;
 
-	  while (first <= last) {
-	  int index = (first + last) / 2;
+	while (first <= last) {
+		int index = (first + last) / 2;
 
-	  if (field >= indexes.at(index, col).field) {
-	  if (field < indexes.at(index+1, col).field) {
-	  return index;
-	  }
-	  first = index + 1;
-	  }
-	  else if (field < indexes.at(index, col).field) {
-	  last = index - 1;
-	  if (last < 0) {
-	  return 0;
-	  }
-	  }
-	  }*/
+		if (field >= indexes.at(index, col).field) {
+			if (field < indexes.at(index+1, col).field) {
+				return index;
+			}
+		    first = index + 1;
+		}
+		else if (field < indexes.at(index, col).field) {
+			last = index - 1;
+			if (last < 0) {
+				return -1;
+			}
+		}
+	}
+#else
 	const size_t findexed = _backend.get_col(col).fields_indexed;
 	if (findexed == 0) {
 		return -1;
@@ -525,6 +535,7 @@ int64_t PVRush::PVNrawDiskBackend::PVCachePool::get_index(uint64_t col, uint64_t
 			return index;
 		}
 	}
+#endif
 	return -1;
 }
 

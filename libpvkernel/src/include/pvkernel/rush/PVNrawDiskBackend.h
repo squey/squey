@@ -299,10 +299,15 @@ public:
 		return next(col, nb_fields_left, column.buffer_read_ptr, size_ret);
 	}
 
-	inline const char* at_no_cache(PVRow field, PVCol col, size_t& size_ret)
+	inline const char* at_no_cache(PVRow field, PVCol col, size_t& size_ret) const
 	{
 		// Fetch content from disk
-		PVColumn& column = get_col(col);
+		const PVColumn& column = get_col(col);
+		file_t& read_file = column.read_file_tls.local();
+		if (unlikely(!read_file)) {
+			this->Open(column.filename, &read_file, _direct_mode);
+		}
+
 		char* buffer = column.read_buffer_tls.local();
 		int64_t field_index = _cache_pool.get_index(col, field);
 		uint64_t disk_offset = unlikely(field_index == -1) ? 0 : _indexes.at(field_index, col).offset;
@@ -310,10 +315,7 @@ public:
 		if (unlikely(_direct_mode)) {
 			aligned_disk_offset = (disk_offset / BUF_ALIGN) * BUF_ALIGN;
 		}
-		file_t& read_file = column.read_file_tls.local();
-		if (unlikely(!read_file)) {
-			this->Open(column.filename, &read_file, _direct_mode);
-		}
+
 		int64_t read_size = this->ReadAt(read_file, aligned_disk_offset, buffer, READ_BUFFER_SIZE);
 		if(unlikely(read_size <= 0)) {
 			PVLOG_ERROR("PVNrawDiskBackend: Error reading column %d [offset=%d] from disk (%s)\n", col, aligned_disk_offset, strerror(errno));
@@ -354,14 +356,18 @@ public:
 
 		// Sequential version
 		PVColumn& column = get_col(col_idx);
-		this->Seek(column.write_file, 0);
+		file_t& read_file = column.read_file_tls.local();
+		if (unlikely(!read_file)) {
+			this->Open(column.filename, &read_file, _direct_mode);
+		}
+		this->Seek(read_file, 0);
 
 		ssize_t read_size;
 		//size_t cur_idx = 0;
 		size_t cur_field = 0;
 		char* cur_rbuf = _serial_read_buffer;
 		while (true) {
-			read_size = this->Read(column.write_file, cur_rbuf, SERIAL_READ_BUFFER_SIZE-std::distance(_serial_read_buffer, cur_rbuf));
+			read_size = this->Read(read_file, cur_rbuf, SERIAL_READ_BUFFER_SIZE-std::distance(_serial_read_buffer, cur_rbuf));
 			if (read_size <= 0) {
 				break;
 			}
@@ -387,7 +393,11 @@ public:
 
 		// Sequential version
 		PVColumn& column = get_col(col_idx);
-		this->Seek(column.write_file, 0);
+		file_t& read_file = column.read_file_tls.local();
+		if (unlikely(!read_file)) {
+			this->Open(column.filename, &read_file, _direct_mode);
+		}
+		this->Seek(read_file, 0);
 
 		ssize_t read_size;
 		size_t prev_off = 0;
@@ -399,7 +409,7 @@ public:
 			const size_t end_field = off_field.field;
 			const size_t diff_off = off-prev_off;
 			assert(diff_off <= SERIAL_READ_BUFFER_SIZE);
-			read_size = this->Read(column.write_file, _serial_read_buffer, diff_off);
+			read_size = this->Read(read_file, _serial_read_buffer, diff_off);
 			if (read_size < 0) {
 				assert(false);
 				return false;
@@ -417,7 +427,7 @@ public:
 		// Finish off !
 		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
 		// necessary !
-		read_size = this->Read(column.write_file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
+		read_size = this->Read(read_file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
 		visit_column_process_chunk_sse(cur_field, _nrows-1, _serial_read_buffer, read_size, f);
 
 		return cur_field == _nrows;
@@ -430,7 +440,11 @@ public:
 
 		// Sequential version
 		PVColumn& column = get_col(col_idx);
-		this->Seek(column.write_file, 0);
+		file_t& read_file = column.read_file_tls.local();
+		if (unlikely(!read_file)) {
+			this->Open(column.filename, &read_file, _direct_mode);
+		}
+		this->Seek(read_file, 0);
 
 		size_t rows_to_find = sel.get_number_of_selected_lines_in_range(0, _nrows);
 
@@ -451,8 +465,8 @@ public:
 			// Check that something is selected in that chunk
 			// is_empty_between is between [a,b[ (b is *not* included)
 			if (!sel.is_empty_between(cur_field, end_field)) {
-				this->Seek(column.write_file, prev_off);
-				read_size = this->Read(column.write_file, _serial_read_buffer, diff_off);
+				this->Seek(read_file, prev_off);
+				read_size = this->Read(read_file, _serial_read_buffer, diff_off);
 				if (read_size < 0) {
 					assert(false);
 					return false;
@@ -476,8 +490,8 @@ public:
 		// Finish off !
 		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
 		// necessary !
-		this->Seek(column.write_file, prev_off);
-		read_size = this->Read(column.write_file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
+		this->Seek(read_file, prev_off);
+		read_size = this->Read(read_file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
 		visit_column_process_chunk_sel(cur_field, _nrows-1, _serial_read_buffer, read_size, sel, f);
 
 		return true;
@@ -491,7 +505,11 @@ public:
 
 		// TBB version
 		PVColumn& column = get_col(col_idx);
-		this->Seek(column.write_file, 0);
+		file_t& read_file = column.read_file_tls.local();
+		if (unlikely(!read_file)) {
+			this->Open(column.filename, &read_file, _direct_mode);
+		}
+		this->Seek(read_file, 0);
 
 		// Task context
 		tbb::task_group_context my_ctxt;
@@ -518,7 +536,7 @@ public:
 					const size_t end_field = off_field.field;
 					const size_t diff_off = off-prev_off;
 					assert(diff_off <= SERIAL_READ_BUFFER_SIZE);
-					const ssize_t read_size = this->Read(column.write_file, chunk->buf, diff_off);
+					const ssize_t read_size = this->Read(read_file, chunk->buf, diff_off);
 					if ((ssize_t) read_size != (ssize_t) diff_off) {
 						assert(false);
 						fc.stop();
@@ -560,7 +578,7 @@ public:
 		// Finish off !
 		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
 		// necessary !
-		size_t read_size = this->Read(column.write_file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
+		size_t read_size = this->Read(read_file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
 		visit_column_process_chunk_sse(cur_field, _nrows-1, _serial_read_buffer, read_size, f);
 
 		return cur_field == _nrows;
@@ -573,7 +591,11 @@ public:
 
 		// TBB version
 		PVColumn& column = get_col(col_idx);
-		this->Seek(column.write_file, 0);
+		file_t& read_file = column.read_file_tls.local();
+		if (unlikely(!read_file)) {
+			this->Open(column.filename, &read_file, _direct_mode);
+		}
+		this->Seek(read_file, 0);
 
 		// Task context
 		tbb::task_group_context my_ctxt;
@@ -623,8 +645,8 @@ public:
 					nrows_to_find -= sel_lines_in_chunk;
 
 					typename tbb_chunks_t::chunk_t* chunk = this->_chunks.get_chunk();
-					this->Seek(column.write_file, prev_off);
-					const ssize_t read_size = this->Read(column.write_file, chunk->buf, diff_off);
+					this->Seek(read_file, prev_off);
+					const ssize_t read_size = this->Read(read_file, chunk->buf, diff_off);
 					if ((ssize_t) read_size != (ssize_t) diff_off) {
 						assert(false);
 						fc.stop();
@@ -660,8 +682,8 @@ public:
 		// Finish off !
 		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
 		// necessary !
-		this->Seek(column.write_file, prev_off);
-		size_t read_size = this->Read(column.write_file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
+		this->Seek(read_file, prev_off);
+		size_t read_size = this->Read(read_file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
 		visit_column_process_chunk_sel(cur_field, _nrows-1, _serial_read_buffer, read_size, sel, f);
 
 		return true;
@@ -831,7 +853,7 @@ private:
 		typedef tbb::enumerable_thread_specific<char*> tls_read_buffer_t;
 
 	public:
-		PVColumn() : read_file_tls([](){ return 0; }), read_buffer_tls([](){ return new char[READ_BUFFER_SIZE+BUF_ALIGN]; })
+		PVColumn() : read_file_tls([](){ return 0; }), read_buffer_tls([&](){ return new char[READ_BUFFER_SIZE+BUF_ALIGN]; })
 		{
 			reset();
 		}
@@ -858,8 +880,8 @@ private:
 
 	public:
 		file_t write_file = 0;
-		tls_file_t read_file_tls;
-		tls_read_buffer_t read_buffer_tls;
+		mutable tls_file_t read_file_tls;
+		mutable tls_read_buffer_t read_buffer_tls;
 		std::string filename;
 
 		char* buffer_write;
@@ -905,7 +927,7 @@ private:
 		 *
 		 *  \return The field index or -1 in case of error.
 		 */
-		int64_t get_index(uint64_t col, uint64_t field);
+		int64_t get_index(uint64_t col, uint64_t field) const;
 
 	private:
 		struct PVReadCache
@@ -930,6 +952,7 @@ private:
 	 *  \return A reference to the PVColumn of the given index.
 	 */
 	inline PVColumn& get_col(uint64_t col) { assert(col < _columns.size()); return _columns[col]; }
+	inline const PVColumn& get_col(uint64_t col) const { assert(col < _columns.size()); return _columns[col]; }
 
 private:
 	std::string _nraw_folder;
