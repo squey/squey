@@ -40,8 +40,8 @@ public:
 	inline PVCol& col_b() { return _col_b; }
 	inline PVRow nrows_aligned() const { return _nrows_aligned; }
 
-	inline uint32_t get_plotted_value(PVRow r, PVCol c) const { return (_plotted)[c*_nrows_aligned + r]; }
-	inline uint32_t const* get_plotted_col(PVCol c) const { return &((_plotted)[c*_nrows_aligned]); }
+	inline uint32_t get_plotted_value(PVRow r, PVCol c) const { return (_plotted)[(size_t)c*(size_t)_nrows_aligned + (size_t)r]; }
+	inline uint32_t const* get_plotted_col(PVCol c) const { return &((_plotted)[(size_t)c*(size_t)_nrows_aligned]); }
 
 	inline uint32_t const* get_plotted_col_a() const { return get_plotted_col(col_a()); }
 	inline uint32_t const* get_plotted_col_b() const { return get_plotted_col(col_b()); }
