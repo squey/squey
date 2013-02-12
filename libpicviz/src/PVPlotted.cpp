@@ -67,7 +67,7 @@ int Picviz::PVPlotted::create_table()
 	// Align the number of lines on a mulitple of 4, in order to have 16-byte aligned starting adresses for each axis
 	
 	const PVRow nrows_aligned = get_aligned_row_count();
-	_uint_table.resize(mapped_col_count * nrows_aligned);
+	_uint_table.resize((size_t) mapped_col_count * (size_t) nrows_aligned);
 	
 	tbb::tick_count tstart = tbb::tick_count::now();
 	
