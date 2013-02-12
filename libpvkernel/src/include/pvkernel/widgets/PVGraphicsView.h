@@ -26,7 +26,8 @@ namespace PVWidgets {
  * - the members functions name have been adapted to Picviz Labs coding style
  * - no caching when rendering (the repainted area is always renderer from
  *   scratch)
- * - no support for alignment
+ * - margins can be defined in viewport space to have free space around the
+ *   area used to render the scene.
  * - no added border when computing the transformation matrix to make the
  *   scene enter in the viewport. So that the rendering differs from
  *   QGraphicsView.
@@ -346,6 +347,23 @@ public:
 		return _viewport->rect().width() - (_scene_margin_left + _scene_margin_right);
 	}
 
+	/**
+	 * Set scene alignment when it fits in viewport.
+	 *
+	 * @param the ored values for horizontal and vertical alignment mode
+	 */
+	void set_alignment(const Qt::Alignment align);
+
+	/**
+	 * Returns the scene alignment mode when it fits in viewport.
+	 *
+	 * @return the used ored values for horizontal and vertical alignment mode
+	 */
+	Qt::Alignment get_alignment() const
+	{
+		return _alignment;
+	}
+
 protected:
 	/**
 	 * Redraws the widget according to the paint event.
@@ -437,6 +455,35 @@ private:
 	void recompute_viewport();
 
 	/**
+	 * Computes the new value of _screen_offset_x
+	 *
+	 * It depends on the horizontal aligment mode and the scene margins.
+	 *
+	 * @param view_width the width of the viewport area used to render the scene
+	 * @param scene_rect the scene rectangle projected into the screen coordinates
+	 * system.
+	 *
+	 * @return the new _screen_offset_x value
+	 */
+	qreal compute_screen_offset_x(const qint64 view_width, const QRectF scene_rect) const;
+
+	/**
+	 * Computes the new value of _screen_offset_y
+	 *
+	 * It depends on the vertical aligment mode and the scene margins.
+	 *
+	 * @param view_height the height of the viewport area used to render the scene
+	 * @param scene_rect the scene rectangle projected into the screen coordinates
+	 * system.
+	 *
+	 * @return the new _screen_offset_y value
+	 */
+	qreal compute_screen_offset_y(const qint64 view_height, const QRectF scene_rect) const;
+
+	/**
+	 * Recenter the view according to the given anchor
+	 *
+	 * @param anchor the anchor mode to use.
 	 */
 	void center_view(ViewportAnchor anchor);
 
@@ -476,6 +523,8 @@ private:
 	int                 _scene_margin_right;
 	int                 _scene_margin_top;
 	int                 _scene_margin_bottom;
+
+	Qt::Alignment       _alignment;
 
 	QPointF             _scene_offset;
 	qreal               _screen_offset_x;

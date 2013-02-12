@@ -339,6 +339,18 @@ void PVWidgets::PVGraphicsView::set_scene_margins(const int left,
 }
 
 /*****************************************************************************
+ * PVWidgets::PVGraphicsView::set_alignment
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::set_alignment(const Qt::Alignment align)
+{
+	if (_alignment != align) {
+		_alignment = align;
+		recompute_viewport();
+	}
+}
+
+/*****************************************************************************
  * PVWidgets::PVGraphicsView::paintEvent
  *****************************************************************************/
 
@@ -745,6 +757,8 @@ void PVWidgets::PVGraphicsView::init()
 	_scene_margin_top = 0;
 	_scene_margin_bottom = 0;
 
+	_alignment = Qt::AlignHCenter | Qt::AlignVCenter;
+
 	_layout = new QGridLayout(this);
 	_layout->setSpacing(0);
 	_layout->setContentsMargins(0, 0, 0, 0);
@@ -784,7 +798,7 @@ void PVWidgets::PVGraphicsView::recompute_viewport()
 	if (_hbar_policy == Qt::ScrollBarAlwaysOff) {
 		_hbar->setRange(0, 0);
 		_hbar->setVisible(false);
-		_screen_offset_x = _scene_margin_left + 0.5 * (view_width - (scene_rect.left() + scene_rect.right()));
+		_screen_offset_x = compute_screen_offset_x(view_width, scene_rect);
 	} else {
 		qint64 scene_left = sb_round(scene_rect.left());
 		qint64 scene_right = sb_round(scene_rect.right() - view_width);
@@ -792,7 +806,7 @@ void PVWidgets::PVGraphicsView::recompute_viewport()
 		if (scene_left >= scene_right) {
 			_hbar->setRange(0, 0);
 			_hbar->setVisible(_hbar_policy == Qt::ScrollBarAlwaysOn);
-			_screen_offset_x = _scene_margin_left + 0.5 * (view_width - (scene_rect.left() + scene_rect.right()));
+			_screen_offset_x = compute_screen_offset_x(view_width, scene_rect);
 		} else {
 			_hbar->setRange(scene_left, scene_right);
 			_hbar->setPageStep(view_width);
@@ -805,7 +819,7 @@ void PVWidgets::PVGraphicsView::recompute_viewport()
 	if (_vbar_policy == Qt::ScrollBarAlwaysOff) {
 		_vbar->setRange(0, 0);
 		_vbar->setVisible(false);
-		_screen_offset_y = _scene_margin_top + 0.5 * (view_height - (scene_rect.top() + scene_rect.bottom()));
+		_screen_offset_y = compute_screen_offset_y(view_height, scene_rect);
 	} else {
 		qint64 scene_top = sb_round(scene_rect.top());
 		qint64 scene_bottom = sb_round(scene_rect.bottom() - view_height);
@@ -813,7 +827,7 @@ void PVWidgets::PVGraphicsView::recompute_viewport()
 		if (scene_top >= scene_bottom) {
 			_vbar->setRange(0, 0);
 			_vbar->setVisible(_vbar_policy == Qt::ScrollBarAlwaysOn);
-			_screen_offset_y = _scene_margin_top + 0.5 * (view_height - (scene_rect.top() + scene_rect.bottom()));
+			_screen_offset_y = compute_screen_offset_y(view_height, scene_rect);
 		} else {
 			_vbar->setRange(scene_top, scene_bottom);
 			_vbar->setPageStep(view_height);
@@ -822,6 +836,50 @@ void PVWidgets::PVGraphicsView::recompute_viewport()
 			_screen_offset_y = _scene_margin_top;
 		}
 	}
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::recompute_screen_offset_x
+ *****************************************************************************/
+
+qreal PVWidgets::PVGraphicsView::compute_screen_offset_x(const qint64 view_width,
+                                                         const QRectF scene_rect) const
+{
+	qreal ret = _scene_margin_left;
+
+	switch(_alignment & Qt::AlignHorizontal_Mask) {
+	case Qt::AlignLeft:
+		break;
+	case Qt::AlignRight:
+		ret += view_width - (scene_rect.left() + scene_rect.width());
+		break;
+	case Qt::AlignHCenter:
+		ret += 0.5 * (view_width - (scene_rect.left() + scene_rect.right()));
+		break;
+	}
+	return ret;
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::recompute_screen_offset_y
+ *****************************************************************************/
+
+qreal PVWidgets::PVGraphicsView::compute_screen_offset_y(const qint64 view_height,
+                                                         const QRectF scene_rect) const
+{
+	qreal ret = _scene_margin_top;
+
+	switch(_alignment & Qt::AlignVertical_Mask) {
+	case Qt::AlignTop:
+		break;
+	case Qt::AlignBottom:
+		ret += view_height - (scene_rect.top() + scene_rect.height());
+		break;
+	case Qt::AlignVCenter:
+		ret += 0.5 * (view_height - (scene_rect.top() + scene_rect.bottom()));
+		break;
+	}
+	return ret;
 }
 
 /*****************************************************************************
