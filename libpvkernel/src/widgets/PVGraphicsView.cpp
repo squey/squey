@@ -1,4 +1,3 @@
-
 #include <pvkernel/widgets/PVGraphicsView.h>
 
 #include <QGridLayout>
@@ -322,6 +321,24 @@ PVWidgets::PVGraphicsView::ViewportAnchor PVWidgets::PVGraphicsView::get_transfo
 }
 
 /*****************************************************************************
+ * PVWidgets::PVGraphicsView::set_scene_margins
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::set_scene_margins(const int left,
+                                                  const int right,
+                                                  const int top,
+                                                  const int bottom)
+{
+	if ((_scene_margin_left != left) || (_scene_margin_right = right) || (_scene_margin_top = top) || (_scene_margin_bottom = bottom)) {
+		_scene_margin_left = left;
+		_scene_margin_right = right;
+		_scene_margin_top = top;
+		_scene_margin_bottom = bottom;
+		recompute_viewport();
+	}
+}
+
+/*****************************************************************************
  * PVWidgets::PVGraphicsView::paintEvent
  *****************************************************************************/
 
@@ -332,14 +349,19 @@ void PVWidgets::PVGraphicsView::paintEvent(QPaintEvent *event)
 		return;
 	}
 
-	QRectF view_area = event->rect().intersected(_viewport->rect());
-	QRectF scene_area = map_to_scene(view_area);
+	QRectF viewport_rect = event->rect().intersected(_viewport->rect());
+
+	QRect real_viewport_rect = QRect(_scene_margin_left,
+	                                 _scene_margin_top,
+	                                 get_real_viewport_width(),
+	                                 get_real_viewport_height());
+	QRectF real_viewport_area = map_to_scene(event->rect().intersected(real_viewport_rect));
 
 	QPainter painter(this);
 
-	drawBackground(&painter, view_area);
-	_scene->render(&painter, view_area, scene_area, Qt::IgnoreAspectRatio);
-	drawForeground(&painter, view_area);
+	drawBackground(&painter, viewport_rect);
+	_scene->render(&painter, real_viewport_rect, real_viewport_area, Qt::IgnoreAspectRatio);
+	drawForeground(&painter, viewport_rect);
 }
 
 /*****************************************************************************
@@ -718,8 +740,13 @@ void PVWidgets::PVGraphicsView::init()
 
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+	_scene_margin_left = 0;
+	_scene_margin_right = 0;
+	_scene_margin_top = 0;
+	_scene_margin_bottom = 0;
+
 	_layout = new QGridLayout(this);
-	_layout->setSpacing(3);
+	_layout->setSpacing(0);
 	_layout->setContentsMargins(0, 0, 0, 0);
 
 	setLayout(_layout);
@@ -742,21 +769,22 @@ void PVWidgets::PVGraphicsView::init()
 	_layout->addWidget(_hbar, 1, 0);
 	_layout->addWidget(_vbar, 0, 1);
 }
+
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::recompute_viewport
  *****************************************************************************/
 
 void PVWidgets::PVGraphicsView::recompute_viewport()
 {
- 	qint64 view_width = _viewport->width();
-	qint64 view_height = _viewport->height();
+	qint64 view_width = get_real_viewport_width();
+	qint64 view_height = get_real_viewport_height();
 
 	QRectF scene_rect = _transform.mapRect(get_scene_rect().translated(-_scene_offset));
 
 	if (_hbar_policy == Qt::ScrollBarAlwaysOff) {
 		_hbar->setRange(0, 0);
 		_hbar->setVisible(false);
-		_screen_offset_x = 0.5 * (view_width - (scene_rect.left() + scene_rect.right()));
+		_screen_offset_x = _scene_margin_left + 0.5 * (view_width - (scene_rect.left() + scene_rect.right()));
 	} else {
 		qint64 scene_left = sb_round(scene_rect.left());
 		qint64 scene_right = sb_round(scene_rect.right() - view_width);
@@ -764,20 +792,20 @@ void PVWidgets::PVGraphicsView::recompute_viewport()
 		if (scene_left >= scene_right) {
 			_hbar->setRange(0, 0);
 			_hbar->setVisible(_hbar_policy == Qt::ScrollBarAlwaysOn);
-			_screen_offset_x = 0.5 * (view_width - (scene_rect.left() + scene_rect.right()));
+			_screen_offset_x = _scene_margin_left + 0.5 * (view_width - (scene_rect.left() + scene_rect.right()));
 		} else {
 			_hbar->setRange(scene_left, scene_right);
 			_hbar->setPageStep(view_width);
 			_hbar->setSingleStep(view_width / 20);
 			_hbar->setVisible(true);
-			_screen_offset_x = 0.;
+			_screen_offset_x = _scene_margin_left;
 		}
 	}
 
 	if (_vbar_policy == Qt::ScrollBarAlwaysOff) {
 		_vbar->setRange(0, 0);
 		_vbar->setVisible(false);
-		_screen_offset_y = 0.5 * (view_height - (scene_rect.top() + scene_rect.bottom()));
+		_screen_offset_y = _scene_margin_top + 0.5 * (view_height - (scene_rect.top() + scene_rect.bottom()));
 	} else {
 		qint64 scene_top = sb_round(scene_rect.top());
 		qint64 scene_bottom = sb_round(scene_rect.bottom() - view_height);
@@ -785,13 +813,13 @@ void PVWidgets::PVGraphicsView::recompute_viewport()
 		if (scene_top >= scene_bottom) {
 			_vbar->setRange(0, 0);
 			_vbar->setVisible(_vbar_policy == Qt::ScrollBarAlwaysOn);
-			_screen_offset_y = 0.5 * (view_height - (scene_rect.top() + scene_rect.bottom()));
+			_screen_offset_y = _scene_margin_top + 0.5 * (view_height - (scene_rect.top() + scene_rect.bottom()));
 		} else {
 			_vbar->setRange(scene_top, scene_bottom);
 			_vbar->setPageStep(view_height);
 			_vbar->setSingleStep(view_height / 20);
 			_vbar->setVisible(true);
-			_screen_offset_y = 0.;
+			_screen_offset_y = _scene_margin_top;
 		}
 	}
 }

@@ -271,9 +271,80 @@ public:
 	void set_transformation_anchor(const ViewportAnchor anchor);
 
 	/**
-	 * Returns the anchor's type used  when a...
+	 * Returns the anchor's type used when a transformation change
+	 * occurs.
 	 */
 	ViewportAnchor get_transformation_anchor() const;
+
+	/**
+	 * Set the scene's margins
+	 *
+	 * Defining margins reduces the scene rendering area to have space to
+	 * display something else around it.
+	 *
+	 * @ param left the left margin width
+	 * @ param right the right margin width
+	 * @ param top the top margin height
+	 * @ param bottom the bottom margin height
+	 */
+	void set_scene_margins(const int left, const int right,
+	                       const int top, const int bottom);
+
+	/**
+	 * Returns the scene's left margin value.
+	 */
+	int get_scene_left_margin() const
+	{
+		return _scene_margin_left;
+	}
+
+	/**
+	 * Returns the scene's right margin value.
+	 */
+	int get_scene_right_margin() const
+	{
+		return _scene_margin_right;
+	}
+
+	/**
+	 * Returns the scene's top margin value.
+	 */
+	int get_scene_top_margin() const
+	{
+		return _scene_margin_top;
+	}
+
+	/**
+	 * Returns the scene's left margin value.
+	 */
+	int get_scene_bottom_margin() const
+	{
+		return _scene_margin_bottom;
+	}
+
+	/**
+	 * Return the viewport's height in which the scene is rendered.
+	 *
+	 * This value depends on scene's margins.
+	 *
+	 * @return the viewport height used to render the scene
+	 */
+	int get_real_viewport_height() const
+	{
+		return _viewport->rect().height() - (_scene_margin_top + _scene_margin_bottom);
+	}
+
+	/**
+	 * Return the viewport's width in which the scene is rendered.
+	 *
+	 * This value depends on scene's margins.
+	 *
+	 * @return the viewport width used to render the scene
+	 */
+	int get_real_viewport_width() const
+	{
+		return _viewport->rect().width() - (_scene_margin_left + _scene_margin_right);
+	}
 
 protected:
 	/**
@@ -401,12 +472,16 @@ private:
 	ViewportAnchor      _resize_anchor;
 	ViewportAnchor      _transformation_anchor;
 
+	int                 _scene_margin_left;
+	int                 _scene_margin_right;
+	int                 _scene_margin_top;
+	int                 _scene_margin_bottom;
+
 	QPointF             _scene_offset;
 	qreal               _screen_offset_x;
 	qreal               _screen_offset_y;
 	QTransform          _transform;
 	QTransform          _inv_transform;
-
 
 	Qt::MouseButton     _mouse_pressed_button;
 	QPoint              _mouse_pressed_screen_coord;
