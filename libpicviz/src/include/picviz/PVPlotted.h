@@ -136,8 +136,8 @@ public:
 		return ((ret+PVROW_VECTOR_ALIGNEMENT-1)/(PVROW_VECTOR_ALIGNEMENT))*PVROW_VECTOR_ALIGNEMENT;
 	}
 	PVSource* get_source_parent();
-	inline uint32_t const* get_column_pointer(PVCol const j) const { return &_uint_table[j*get_aligned_row_count()]; }
-	inline uint32_t* get_column_pointer(PVCol const j) { return &_uint_table[j*get_aligned_row_count()]; }
+	inline uint32_t const* get_column_pointer(PVCol const j) const { return &_uint_table[(size_t)j*(size_t)get_aligned_row_count()]; }
+	inline uint32_t* get_column_pointer(PVCol const j) { return &_uint_table[(size_t)j*(size_t)get_aligned_row_count()]; }
 	inline uint32_t get_value(PVRow const i, PVCol const j) const { return get_column_pointer(j)[i]; }
 
 	void get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min, uint32_t& max, PVSelection const& sel, PVCol col) const;
