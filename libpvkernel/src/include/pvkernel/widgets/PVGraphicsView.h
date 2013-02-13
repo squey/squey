@@ -15,6 +15,10 @@ class QResizeEvent;
 
 namespace PVWidgets {
 
+namespace __impl {
+class PVViewportEventFilter;
+}
+
 /**
  * @class PVGraphicsView
  *
@@ -34,6 +38,9 @@ namespace PVWidgets {
  */
 class PVGraphicsView : public QWidget
 {
+	Q_OBJECT
+
+	friend class __impl::PVViewportEventFilter;
 public:
 	typedef enum {
 		NoAnchor,
@@ -52,6 +59,11 @@ public:
 	 * Returns the viewport.
 	 */
 	QWidget *get_viewport() const;
+
+	/**
+	 * Set the viewport's widget.
+	 */
+	void set_viewport(QWidget* w);
 
 public:
 	/**
@@ -268,7 +280,6 @@ public:
 	 */
 	ViewportAnchor get_resize_anchor() const;
 
-
 	void set_transformation_anchor(const ViewportAnchor anchor);
 
 	/**
@@ -348,6 +359,14 @@ public:
 	}
 
 	/**
+	 * Returns the current viewport widget.
+	 */
+	inline QWidget* get_viewport()
+	{
+		return _viewport;
+	}
+
+	/**
 	 * Set scene alignment when it fits in viewport.
 	 *
 	 * @param the ored values for horizontal and vertical alignment mode
@@ -370,7 +389,7 @@ protected:
 	 *
 	 * @param event the corresponding paint event
 	 */
-	virtual void paintEvent(QPaintEvent *event);
+	//virtual void paintEvent(QPaintEvent *event);
 
 	/**
 	 * Resizes the widget according to the resize event.
@@ -378,6 +397,10 @@ protected:
 	 * @param event the corresponding resize event
 	 */
 	virtual void resizeEvent(QResizeEvent *event);
+
+protected:
+	// Called by PVViewportEventFilter
+	bool viewportPaintEvent(QPaintEvent* event);
 
 protected:
 	void contextMenuEvent(QContextMenuEvent *event);
@@ -541,6 +564,8 @@ private:
 	QPointF             _last_mouse_move_scene_coord;
 
 	QPointF             _last_center_coord;
+
+	__impl::PVViewportEventFilter* _viewport_event_filter;
 };
 
 }

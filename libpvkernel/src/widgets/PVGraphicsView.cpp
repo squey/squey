@@ -56,12 +56,38 @@ void __print_transform(const char *text, const T &t)
 	          << t.m13() << " " << t.m23() << " " << t.m33() << std::endl;
 }
 
+namespace PVWidgets { namespace __impl {
+
+class PVViewportEventFilter: public QObject
+{
+public:
+	PVViewportEventFilter(PVWidgets::PVGraphicsView* view):
+		_view(view)
+	{ }
+
+protected:
+	bool eventFilter(QObject* obj, QEvent* event)
+	{
+		if (obj == _view->get_viewport() &&
+		    event->type() == QEvent::Paint) {
+			return _view->viewportPaintEvent(static_cast<QPaintEvent*>(event));
+		}
+
+		return QObject::eventFilter(obj, event);
+	}
+
+private:
+	PVWidgets::PVGraphicsView* _view;
+};
+
+} }
+
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::PVGraphicsView
  *****************************************************************************/
 
 PVWidgets::PVGraphicsView::PVGraphicsView(QWidget *parent)
-	: QWidget(parent), _scene(nullptr)
+	: QWidget(parent), _viewport(nullptr), _scene(nullptr)
 {
 	init();
 }
@@ -71,9 +97,10 @@ PVWidgets::PVGraphicsView::PVGraphicsView(QWidget *parent)
  *****************************************************************************/
 
 PVWidgets::PVGraphicsView::PVGraphicsView(QGraphicsScene *scene, QWidget *parent)
-	: QWidget(parent), _scene(scene)
+	: QWidget(parent), _viewport(nullptr), _scene(nullptr)
 {
 	init();
+	set_scene(scene);
 }
 
 /*****************************************************************************
@@ -351,14 +378,13 @@ void PVWidgets::PVGraphicsView::set_alignment(const Qt::Alignment align)
 }
 
 /*****************************************************************************
- * PVWidgets::PVGraphicsView::paintEvent
+ * PVWidgets::PVGraphicsView::viewportPaintEvent
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::paintEvent(QPaintEvent *event)
+bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 {
 	if(_scene == nullptr) {
-		QWidget::paintEvent(event);
-		return;
+		return false;
 	}
 
 	QRectF viewport_rect = event->rect().intersected(_viewport->rect());
@@ -369,11 +395,13 @@ void PVWidgets::PVGraphicsView::paintEvent(QPaintEvent *event)
 	                                 get_real_viewport_height());
 	QRectF real_viewport_area = map_to_scene(event->rect().intersected(real_viewport_rect));
 
-	QPainter painter(this);
+	QPainter painter(get_viewport());
 
 	drawBackground(&painter, viewport_rect);
 	_scene->render(&painter, real_viewport_rect, real_viewport_area, Qt::IgnoreAspectRatio);
 	drawForeground(&painter, viewport_rect);
+
+	return true;
 }
 
 /*****************************************************************************
@@ -766,12 +794,9 @@ void PVWidgets::PVGraphicsView::init()
 
 	setLayout(_layout);
 
-	_viewport = new QWidget();
-	// needed to make sure the viewport can received key events
-	_viewport->setFocusPolicy(Qt::StrongFocus);
-	_viewport->setParent(this);
-	_viewport->setFocusProxy(this);
-	_layout->addWidget(_viewport, 0, 0);
+	_viewport_event_filter = new __impl::PVViewportEventFilter(this);
+
+	set_viewport(new QWidget());
 
 	_hbar = new QScrollBar64(Qt::Horizontal);
 	_vbar = new QScrollBar64(Qt::Vertical);
@@ -783,6 +808,21 @@ void PVWidgets::PVGraphicsView::init()
 
 	_layout->addWidget(_hbar, 1, 0);
 	_layout->addWidget(_vbar, 0, 1);
+}
+
+void PVWidgets::PVGraphicsView::set_viewport(QWidget* w)
+{
+	if (_viewport) {
+		_layout->removeWidget(_viewport);
+		get_viewport()->deleteLater();
+	}
+
+	_viewport = w;
+	// needed to make sure the viewport can received key events
+	_viewport->setFocusPolicy(Qt::StrongFocus);
+	_viewport->setFocusProxy(this);
+	_viewport->installEventFilter(_viewport_event_filter);
+	_layout->addWidget(_viewport, 0, 0);
 }
 
 /*****************************************************************************
