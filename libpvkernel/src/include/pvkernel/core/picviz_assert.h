@@ -8,6 +8,7 @@
 #define PVCORE_PICVIZASSERT_H
 
 #include <iostream>
+#include <cassert>
 
 /**
  * @file picviz_assert.h
@@ -186,6 +187,7 @@ void validate(const char* file, int line, const char* expr, const T& value, cons
 			__impl::va_printer<P...>::print(p...);
 		}
 		std::cerr << std::endl;
+		assert(false);
 		exit(1);
 	}
 }

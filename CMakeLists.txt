@@ -79,6 +79,7 @@ declare_internal_library(pvhive)
 declare_internal_library(pvdisplays)
 declare_internal_library(pvparallelview)
 declare_internal_library(pvguiqt)
+#declare_internal_library(pvhitgraph)
 
 add_subdirectory(gui-qt)
 

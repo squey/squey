@@ -20,6 +20,7 @@ core/PVAxisIndexType.cpp
 core/PVAxisIndexCheckBoxType.cpp
 core/PVBinaryOperation.cpp
 core/PVBitCount.cpp
+core/PVByteVisitor.cpp
 core/PVBufferSlice.cpp
 core/PVChunk.cpp
 core/PVColor.cpp

@@ -121,7 +121,11 @@ public:
 };
 #endif
 
-}
+
+uint8_t const* get_nth_slice_serial(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret);
+uint8_t const* get_nth_slice_sse(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret);
+
+} // __impl
 
 template <typename T, typename F>
 inline void visit_bytes(const T chunk, F const& f, const size_t offset = 0)
@@ -130,105 +134,21 @@ inline void visit_bytes(const T chunk, F const& f, const size_t offset = 0)
 	__impl::visit_bytes<T, F>::f(chunk, f, offset);
 }
 
+inline uint8_t const* get_nth_slice(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret) { return __impl::get_nth_slice_sse(buffer, sbuf, n, size_ret); }
+
 // Get back the n-th slice, that is, if a buffer is like this:
 // [data 0] \0 [data 1] \0,
 // the 0'th slice is data 0, the "1-th" slice is data 1, etc...
 template <typename F>
-void visit_nth_slice(uint8_t const* buffer, size_t sbuf, size_t n, F const& f)
+bool visit_nth_slice(uint8_t const* buffer, size_t sbuf, size_t n, F const& f)
 {
-	n++;
-	// n now is the number of '\0' that we have to look for
-	size_t nfound = 0;
-	// Algorithm to vectorize:
-#if 0
-	size_t off_start = 0;
-	for (size_t i = 0; i < size; i++) {
-		if (buffer[i]) {
-			ndone++;
-			if (ndone == n) {
-				f(&buffer[off_start], i-off_start);
-				return;
-			}
-			off_start=i+1;
-		}
+	size_t size_final;
+	uint8_t const* const buf_start = get_nth_slice(buffer, sbuf, n, size_final);
+	if (buf_start) {
+		f(buf_start, size_final);
+		return true;
 	}
-#endif
-	const size_t sse_sbuf = (sbuf>>4)<<4;
-	const __m128i sse_zero = _mm_setzero_si128();
-	const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFF);
-	__m128i sse_buf, sse_cmp;
-	// TODO: prelogue for alignement!
-	size_t off_start = 0;
-	size_t i;
-	for (i = 0; i < sse_sbuf; i += 16) {
-		sse_buf = _mm_loadu_si128((const __m128i*) &buffer[i]);
-		sse_cmp = _mm_cmpeq_epi8(sse_buf, sse_zero);
-		if (_mm_testz_si128(sse_cmp, sse_ff) == 1) {
-			continue;
-		}
-		// Count the number of bits set, and divide them by 8 !
-		const uint64_t b0 = _mm_extract_epi64(sse_cmp, 0);
-		const uint64_t b1 = _mm_extract_epi64(sse_cmp, 1); 
-		const uint64_t p0 = _mm_popcnt_u64(b0)>>3;
-		const uint64_t p1 = _mm_popcnt_u64(b1)>>3;
-		const uint64_t total = p0+p1;
-		if (nfound + total >= n) {
-			// The end is somewhere in here
-			if (p0 > 0) {
-				for (size_t j = 0; j < sizeof(uint64_t); j++) {
-					if ((b0 & (0xFFULL << (j << 3))) != 0) {
-						nfound++;
-						if (nfound == n) {
-							f(&buffer[off_start], (i+j)-off_start);
-							return;
-						}
-						off_start = i+j+1;
-					}
-				}
-			}
-			for (size_t j = 0; j < sizeof(uint64_t); j++) {
-				if ((b1 & (0xFFULL << (j << 3))) != 0) {
-					nfound++;
-					if (nfound == n) {
-						f(&buffer[off_start], (i+j+sizeof(uint64_t))-off_start);
-						return;
-					}
-					off_start = i+j+sizeof(uint64_t)+1;
-				}
-			}
-		}
-		else {
-			// Find out the last one to update off_start
-			unsigned int last_off;
-			uint64_t blast;
-			if (p1 > 0) {
-				blast = b1;
-				last_off = sizeof(uint64_t);
-			}
-			else {
-				blast = b0;
-				last_off = 0;
-			}
-			for (int j = sizeof(uint64_t)-1; j >= 0; j--) {
-				// use _mm_extract_epi8 from the sse_cmp register ?
-				if ((blast & (0xFFULL << (j << 3))) != 0) {
-					off_start = i+j+last_off+1;
-					break;
-				}
-			}
-			nfound += total;
-		}
-	} 
-	for (; i < sbuf; i++) {
-		if (buffer[i] == 0) {
-			nfound++;
-			if (nfound == n) {
-				f(&buffer[off_start], i-off_start);
-				return;
-			}
-			off_start = i+1;
-		}
-	}
+	return false;
 }
 
 }

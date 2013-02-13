@@ -95,6 +95,10 @@ add_test(TestBitCount Tcore_bit_count 65535)
 declare_pv_test(Tcore_visit_bits "visit_bits.cpp" "pvkernel;${QT_LIBRARIES};${OpenMP_LIBRARIES}")
 add_test(TestVisitBits Tcore_visit_bits)
 
+# Byte visitor performances 
+declare_pv_test(Tcore_visit_bytes_perf "visit_bytes_perf.cpp" "pvkernel;${QT_LIBRARIES};${OpenMP_LIBRARIES}")
+add_test(TestVisitBytesPerf Tcore_visit_bytes_perf)
+
 # Bit field
 declare_pv_test(Tcore_bit_field_visit "bit_field_visit.cpp" "pvkernel;${QT_LIBRARIES};${OpenMP_LIBRARIES}")
 add_test(TestBitFieldVisit Tcore_bit_field_visit)
@@ -122,3 +126,7 @@ declare_pv_test(Tcore_huge_vector "huge_vector.cpp" "pvkernel")
 
 # lambda_connect
 declare_pv_test(Tcore_lambda_connect "lambda_connect.cpp" "pvkernel;${QT_LIBRARIES}")
+
+# Intrinsics
+declare_pv_test(Tcore_intrinsics "intrinsics.cpp" "pvkernel")
+add_test(TestIntrinsics Tcore_intrinsics)
