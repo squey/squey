@@ -13,6 +13,12 @@ configure_file(test_grep_regexp.sh.cmake test_grep_regexp.sh @ONLY)
 
 set(LINK_LIBRARIES pvkernel ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY})
 
+# Temporary output directory for NRAW disk backend based tests
+if (NOT DEFINED PVKERNEL_RUSH_TEST_NRAW_TMP)
+	message(WARNING "PVKERNEL_RUSH_TEST_NRAW_TMP not defined, /tmp will be used by default")
+	set(PVKERNEL_RUSH_TEST_NRAW_TMP "/tmp")
+endif()
+
 #add_definitions(-DPV_USE_RINGBUFFER)
 
 set(PVRUSH_TEST_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test-files")
@@ -177,6 +183,7 @@ declare_pv_test(Trush_nraw_load_bench "nraw_load_bench.cpp" "${LINK_LIBRARIES}")
 
 # NRAW integrity test
 declare_pv_test(Trush_nraw_integrity_test "nraw_integrity_test.cpp" "${LINK_LIBRARIES}")
+add_test(TestNrawIntegrity Trush_nraw_integrity_test ${PVKERNEL_RUSH_TEST_NRAW_TMP})
 
 declare_pv_test(arcsight_src "test_arcsight_source.cpp;helpers.cpp;${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightInfos.cpp;${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightQuery.cpp;" "${LINK_LIBRARIES}")
 

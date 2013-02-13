@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <stdlib.h>
 
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
@@ -15,6 +16,9 @@
 #include <pvkernel/rush/PVNrawDiskBackend.h>
 #include <pvkernel/core/picviz_assert.h>
 #include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/PVDirectory.h>
+
+#include <QDir>
 
 constexpr uint32_t COLUMN_COUNT = 2;
 constexpr uint32_t ROW_COUNT = 300000;
@@ -50,19 +54,30 @@ std::string random_string(uint32_t length)
 	return result;
 }
 
+QString g_nraw_folder;
+
+void cleanup()
+{
+	std::cout << std::endl << "cleaning up " << qPrintable(g_nraw_folder) << " folder" << std::endl;
+	PVCore::PVDirectory::remove_rec(g_nraw_folder);
+}
+
 int main(int argc, char** argv)
 {
 	if (argc < 2) {
 		std::cerr << "Usage: " << argv[0] << " path_nraw" << std::endl;
 		return 1;
 	}
+	g_nraw_folder = PVCore::PVDirectory::temp_dir(QDir(argv[1]), "nraw-disk-backend-test-integrity-XXXXXX");
 
+	QDir dir;
+	dir.mkdir(g_nraw_folder);
+	atexit(cleanup);
 	srand(time(NULL));
 
 	// Generate nraw
-	const char* nraw_path = argv[1];
 	PVRush::PVNrawDiskBackend backend;
-	backend.init(nraw_path, COLUMN_COUNT);
+	backend.init(qPrintable(g_nraw_folder), COLUMN_COUNT);
 	std::vector<std::vector<std::string>> random_strings_vect;
 	random_strings_vect.resize(COLUMN_COUNT);
 	for (uint32_t c = 0 ; c < COLUMN_COUNT; c++) {
@@ -125,7 +140,7 @@ int main(int argc, char** argv)
 	sel.select_random();
 	std::vector<bool> vec_sel;
 	vec_sel.resize(ROW_COUNT);
-	for(int i = 0; i < ROW_COUNT; i++) {
+	for(uint32_t i = 0; i < ROW_COUNT; i++) {
 		vec_sel[i] = sel.get_line_fast(i);
 	}
 	for (uint32_t c = 0 ; c < COLUMN_COUNT; c++) {
@@ -215,7 +230,7 @@ int main(int argc, char** argv)
 #pragma omp parallel for
 		for (uint32_t r = 0 ; r < ROW_COUNT; r++) {
 			uint32_t index = shuffled_indexes[r];
-			size_t size;
+			size_t size = 0;
 			const char* buf1 = backend.at_no_cache(index, c, size);
 			PV_ASSERT_VALID(random_strings_vect[c][index].compare(0, size, buf1) == 0);
 		}
