@@ -117,6 +117,9 @@ target_link_libraries(Ehitgraph-perf ${LINK_LIBRARIES} -lnuma)
 add_executable(Ehist_plotted_perf hist_plotted_perf.cpp common.cpp)
 target_link_libraries(Ehist_plotted_perf ${LINK_LIBRARIES} -lnuma)
 
+add_executable(zoomable_drawing_area_test zoomable_drawing_area_test.cpp)
+target_link_libraries(zoomable_drawing_area_test ${LINK_LIBRARIES})
+
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 	cuda_compile(CUDA_KERNELS bci_cuda.cu)

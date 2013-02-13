@@ -67,6 +67,9 @@ PVZoomedSelectionAxisSliders.cpp
 # Display plugins
 PVDisplayViewAxisZoomed.cpp
 PVDisplayViewFullParallel.cpp
+
+# ZoomableDrawingArea & co
+PVZoomableDrawingArea.cpp
 )
 
 set(CUDA_SRC_FILES
@@ -106,6 +109,9 @@ include/pvparallelview/PVZoomAxisSlider.h
 include/pvparallelview/PVZoomAxisSliders.h
 include/pvparallelview/PVZoomedSelectionAxisSlider.h
 include/pvparallelview/PVZoomedSelectionAxisSliders.h
+
+# ZoomableDrawingArea & co
+include/pvparallelview/PVZoomableDrawingArea.h
 )
 
 SET(MOC_HEADERS
