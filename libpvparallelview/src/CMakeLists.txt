@@ -30,6 +30,7 @@ PVBCIBuffers.cpp
 PVHitGraphBuffer.cpp
 PVHitGraphDataInterface.cpp
 PVHitGraphDataOMP.cpp
+PVHitGraphDataZT.cpp
 PVParallelView.cpp
 PVTools.cpp
 PVZoomedZoneTree.cpp
