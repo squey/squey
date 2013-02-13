@@ -700,10 +700,11 @@ void PVWidgets::PVGraphicsView::set_view(const QRectF &area, Qt::AspectRatioMode
 	 * by ::recompute_viewport because _viewport's size has changed.
 	 */
 	QTransform transfo;
-	QRectF view = _viewport->rect();
+	qreal viewport_width = get_real_viewport_width();
+	qreal viewport_height = get_real_viewport_height();
 
-	qreal x_scale = area.width() / view.width();
-	qreal y_scale = area.height() / view.height();
+	qreal x_scale = area.width() / viewport_width;
+	qreal y_scale = area.height() / viewport_height;
 	qreal tx = area.x();
 	qreal ty = area.y();
 
@@ -712,19 +713,19 @@ void PVWidgets::PVGraphicsView::set_view(const QRectF &area, Qt::AspectRatioMode
 		break;
 	case Qt::KeepAspectRatio:
 		if (x_scale < y_scale) {
-			tx -= 0.5 * (view.width() * y_scale - area.width());
+			tx -= 0.5 * (viewport_height * y_scale - area.width());
 			x_scale = y_scale;
 		} else {
-			ty -= 0.5 * (view.height() * x_scale - area.height());
+			ty -= 0.5 * (viewport_height * x_scale - area.height());
 			y_scale = x_scale;
 		}
 		break;
 	case Qt::KeepAspectRatioByExpanding:
 		if (x_scale < y_scale) {
-			ty -= 0.5 * (view.height() * x_scale - area.height());
+			ty -= 0.5 * (viewport_height * x_scale - area.height());
 			y_scale = x_scale;
 		} else {
-			tx -= 0.5 * (view.width() * y_scale - area.width());
+			tx -= 0.5 * (viewport_height * y_scale - area.width());
 			x_scale = y_scale;
 		}
 		break;
@@ -893,7 +894,8 @@ void PVWidgets::PVGraphicsView::center_view(ViewportAnchor anchor)
 		center_on(p);
 	} else if (anchor == AnchorUnderMouse) {
 		QPointF delta = map_to_scene(_viewport->rect().center());
-		delta -= map_to_scene(_viewport->mapFromGlobal(QCursor::pos()));
+		delta -= map_to_scene(_viewport->mapFromGlobal(QCursor::pos())
+		                      - QPoint(_scene_margin_left, _scene_margin_top));
 		center_on(_last_mouse_move_scene_coord + delta);
 	} // else if (anchor == NoAnchor) do nothing
 }

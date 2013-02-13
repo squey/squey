@@ -175,6 +175,9 @@ declare_pv_test(Trush_nraw_create "nraw_create.cpp" "${LINK_LIBRARIES}")
 # NRAW load bench
 declare_pv_test(Trush_nraw_load_bench "nraw_load_bench.cpp" "${LINK_LIBRARIES}")
 
+# NRAW integrity test
+declare_pv_test(Trush_nraw_integrity_test "nraw_integrity_test.cpp" "${LINK_LIBRARIES}")
+
 declare_pv_test(arcsight_src "test_arcsight_source.cpp;helpers.cpp;${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightInfos.cpp;${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightQuery.cpp;" "${LINK_LIBRARIES}")
 
 if(PYTHONLIBS_FOUND)
