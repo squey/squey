@@ -49,10 +49,10 @@ bool PVCore::PVDirectory::remove_rec(QString const& dirName)
 	return result;
 }
 
-QString PVCore::PVDirectory::temp_dir(QString const& pattern)
+QString PVCore::PVDirectory::temp_dir(QDir const& directory, QString const& pattern)
 {
 	QFileInfo fi(pattern);
-	QString tmp_dir_pattern = QDir::temp().absoluteFilePath(fi.fileName());
+	QString tmp_dir_pattern = directory.absoluteFilePath(fi.fileName());
 	QByteArray tmp_dir_ba = tmp_dir_pattern.toLocal8Bit();
 	char* tmp_dir_p = mkdtemp(tmp_dir_ba.data());
 	if (tmp_dir_p == NULL) {
@@ -61,3 +61,9 @@ QString PVCore::PVDirectory::temp_dir(QString const& pattern)
 	QString tmp_dir(tmp_dir_p);
 	return tmp_dir;
 }
+
+QString PVCore::PVDirectory::temp_dir(QString const& pattern)
+{
+	return temp_dir(QDir::temp(), pattern);
+}
+

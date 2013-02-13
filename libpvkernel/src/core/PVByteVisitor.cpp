@@ -32,12 +32,25 @@ uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_sse(uint8_t const* b
 
 	const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFF);
 
-	assert(((uintptr_t)buffer % 16) == 0);
-
 	size_t off_start = 0;
 
-	size_t i;
-	for (i = 0; i < sbuf_sse; i += 16) {
+	size_t i = 0;
+	const uint8_t align_idx = ((uintptr_t)buffer & (15U));
+	if (align_idx) {
+		const uint8_t read_align = 16-align_idx;
+		for (; i < read_align; i++) {
+			if (buffer[i] == 0) {
+				nfound++;
+				if (nfound == n) {
+					size_ret = i-off_start;
+					return &buffer[off_start];
+				}
+				off_start = i+1;
+			}
+		}
+	}
+
+	for (; i < sbuf_sse; i += 16) {
 		const __m128i sse_buf = _mm_load_si128((__m128i const*) &buffer[i]);
 		__m128i sse_cmp = _mm_cmpeq_epi8(sse_buf, _mm_setzero_si128());
 		if (_mm_test_all_zeros(sse_cmp, sse_ff)) {
