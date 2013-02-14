@@ -455,6 +455,7 @@ bool PVWidgets::PVGraphicsView::event(QEvent *event)
 	if (ret) {
 		switch(event->type()) {
 		case QEvent::Paint:
+		case QEvent::UpdateRequest:
 			break;
 		default:
 			update();
