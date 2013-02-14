@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#include <array>
 #include <queue>
 #include <sstream>
 #include <string>
@@ -169,7 +170,7 @@ struct BufferedFilePolicy
 class PVNrawDiskBackend: private RawFilePolicy
 {
 	static constexpr uint64_t BUF_ALIGN = 512;
-	static const uint64_t READ_BUFFER_SIZE; // = L2 cache size
+	static constexpr uint64_t READ_BUFFER_SIZE = 4*1024;
 	static constexpr uint64_t NB_CACHE_BUFFERS = 10;
 	static constexpr uint64_t INVALID = std::numeric_limits<uint64_t>::max();
 	static constexpr size_t SERIAL_READ_BUFFER_SIZE = 2*1024*1024;
@@ -290,6 +291,8 @@ public:
 	 *        Therefore the returned string is only valid as long as the cache is still valid.
 	 *        The last returned row index is kept in memory in order to optimize sequencial access.
 	 *
+	 *  \remark This method is *not* thread-sage
+	 *
 	 *  \return A pointer to the buffer.
 	 */
 	inline const char* at(PVRow field, PVCol col, size_t& size_ret)
@@ -301,42 +304,11 @@ public:
 
 	inline const char* at_no_cache(PVRow field, PVCol col, size_t& size_ret) const
 	{
-		// Fetch content from disk
-		const PVColumn& column = get_col(col);
-		file_t& read_file = column.read_file_tls.local();
-		if (unlikely(!read_file)) {
-			this->Open(column.filename, &read_file, _direct_mode);
-		}
-
-		char* buffer = column.read_buffer_tls.local();
-		int64_t field_index = _cache_pool.get_index(col, field);
-		uint64_t disk_offset = unlikely(field_index == -1) ? 0 : _indexes.at(field_index, col).offset;
-		uint64_t aligned_disk_offset = disk_offset;
-		if (unlikely(_direct_mode)) {
-			aligned_disk_offset = (disk_offset / BUF_ALIGN) * BUF_ALIGN;
-		}
-
-		int64_t read_size = this->ReadAt(read_file, aligned_disk_offset, buffer, READ_BUFFER_SIZE);
-		if(unlikely(read_size <= 0)) {
-			PVLOG_ERROR("PVNrawDiskBackend: Error reading column %d [offset=%d] from disk (%s)\n", col, aligned_disk_offset, strerror(errno));
-			return 0;
-		}
-		uint64_t first_field = field_index == -1 ? 0 :_indexes.at(field_index, col).field;
-		uint64_t nb_fields = field - first_field;
-
-		// Search field in content
-		char* buffer_ptr = buffer;
-		if (column.field_length > 0) {
-			buffer_ptr += nb_fields * column.field_length;
-			size_ret = column.field_length;
-		}
-		else {
-			PVCore::PVByteVisitor::visit_nth_slice((const uint8_t*) buffer, read_size, nb_fields,  [&](const uint8_t* found_buf, size_t sbuf) { buffer_ptr = (char*) found_buf; size_ret = sbuf; });
-		}
-
-		return buffer_ptr;
-
+		PVColumn const& column = get_col(col);
+		return at_no_cache(field, col, size_ret, &column.read_buffer_tls.local()[0]);
 	}
+
+	const char* at_no_cache(PVRow field, PVCol col, size_t& size_ret, char* read_buffer) const;
 
 	/*! \brief Returns the number of columns.
 	 */
@@ -826,20 +798,19 @@ private:
 		sel.visit_selected_lines([&](const PVRow r)
 			{
 				assert(r >= last_r);
-				PVCore::PVByteVisitor::visit_nth_slice((const uint8_t*) cur_buf, (uintptr_t)buf_end-(uintptr_t)cur_buf, r-last_r,
-				//PVCore::PVByteVisitor::visit_nth_slice((uint8_t const*) buf, size_buf, r-field_start,
-					[&](const uint8_t* slice, size_t slice_size)
-					{
-						f(r, (const char*) slice, slice_size);
-						cur_buf = (const char*) (slice+slice_size+1);
-						last_r = r+1;
-						nfound++;
-					});
+				size_t slice_size;
+				const char* slice = (const char*) PVCore::PVByteVisitor::get_nth_slice((const uint8_t*) cur_buf, (uintptr_t)buf_end-(uintptr_t)cur_buf, r-last_r, slice_size);
+				f(r, (const char*) slice, slice_size);
+				cur_buf = (const char*) (slice+slice_size+1);
+				last_r = r+1;
+				nfound++;
 			},
 			field_end+1,
 			field_start);
 		return nfound;
 	}
+
+	static constexpr size_t read_buffer_size() { return READ_BUFFER_SIZE+BUF_ALIGN; }
 
 private:
 	/**
@@ -850,10 +821,11 @@ private:
 	struct PVColumn
 	{
 		typedef tbb::enumerable_thread_specific<file_t> tls_file_t;
-		typedef tbb::enumerable_thread_specific<char*> tls_read_buffer_t;
+		typedef tbb::enumerable_thread_specific<std::array<char, PVNrawDiskBackend::READ_BUFFER_SIZE+PVNrawDiskBackend::BUF_ALIGN>> tls_read_buffer_t;
 
 	public:
-		PVColumn() : read_file_tls([](){ return 0; }), read_buffer_tls([&](){ return new char[READ_BUFFER_SIZE+BUF_ALIGN]; })
+		PVColumn():
+			read_file_tls([](){ return 0; })
 		{
 			reset();
 		}

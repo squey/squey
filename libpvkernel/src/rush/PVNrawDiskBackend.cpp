@@ -12,7 +12,7 @@
 
 static const std::string INDEX_FILENAME = std::string("nraw.idx");
 //const uint64_t PVRush::PVNrawDiskBackend::READ_BUFFER_SIZE = std::max<size_t>(PVCore::PVHardwareConcurrency::get_level_n_cache_size(1), 256*1024);
-const uint64_t PVRush::PVNrawDiskBackend::READ_BUFFER_SIZE = 4*1024;
+//const uint64_t PVRush::PVNrawDiskBackend::READ_BUFFER_SIZE = 4*1024;
 
 // class tbb_chunks_t
 PVRush::PVNrawDiskBackend::tbb_chunks_t::tbb_chunks_t(size_t n):
@@ -60,11 +60,6 @@ void PVRush::PVNrawDiskBackend::close_files()
 		// Close read files descriptors
 		for (file_t& read_file : column.read_file_tls) {
 			this->Close(read_file);
-		}
-
-		// Delete thread-safe read buffers
-		for (char* read_buffer : column.read_buffer_tls) {
-			delete [] read_buffer;
 		}
 	}
 }
@@ -386,6 +381,45 @@ char* PVRush::PVNrawDiskBackend::next(uint64_t col, uint64_t nb_fields, char* bu
 	}
 
 	column.buffer_read_ptr = buffer_ptr;
+
+	return buffer_ptr;
+}
+
+const char* PVRush::PVNrawDiskBackend::at_no_cache(PVRow field, PVCol col, size_t& size_ret, char* read_buffer) const
+{
+	// Read buffer must have a length >= READ_BUFFER_SIZE+BUF_ALIGN
+	// Fetch content from disk
+	const PVColumn& column = get_col(col);
+	file_t& read_file = column.read_file_tls.local();
+	if (unlikely(!read_file)) {
+		this->Open(column.filename, &read_file, _direct_mode);
+	}
+
+	char* buffer = read_buffer;
+	int64_t field_index = _cache_pool.get_index(col, field);
+	uint64_t disk_offset = unlikely(field_index == -1) ? 0 : _indexes.at(field_index, col).offset;
+	uint64_t aligned_disk_offset = disk_offset;
+	if (unlikely(_direct_mode)) {
+		aligned_disk_offset = (disk_offset / BUF_ALIGN) * BUF_ALIGN;
+	}
+
+	int64_t read_size = this->ReadAt(read_file, aligned_disk_offset, buffer, READ_BUFFER_SIZE);
+	if(unlikely(read_size <= 0)) {
+		PVLOG_ERROR("PVNrawDiskBackend: Error reading column %d [offset=%d] from disk (%s)\n", col, aligned_disk_offset, strerror(errno));
+		return 0;
+	}
+	uint64_t first_field = field_index == -1 ? 0 :_indexes.at(field_index, col).field;
+	uint64_t nb_fields = field - first_field;
+
+	// Search field in content
+	char* buffer_ptr = buffer;
+	if (column.field_length > 0) {
+		buffer_ptr += nb_fields * column.field_length;
+		size_ret = column.field_length;
+	}
+	else {
+		buffer_ptr = (char*) PVCore::PVByteVisitor::get_nth_slice((const uint8_t*) buffer, read_size, nb_fields, size_ret);
+	}
 
 	return buffer_ptr;
 }
