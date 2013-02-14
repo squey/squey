@@ -1,3 +1,13 @@
+3.0.6 (14/02/2012)
+-----------------
+
+This minor releases fixes:
+
+ * critical issue that gives wrong results in some cases when searching a
+ * column one interger overflow when number of rows * number of columns was
+ * above 32-bits fix regression: in the format builder, it is now possible to
+   set the axes' name according to a given line
+
 3.0.5 (29/01/2012)
 -----------------
 
