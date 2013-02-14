@@ -503,7 +503,8 @@ uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint6
 			return 0;
 		}
 		cache.first_field = field_index == -1 ? 0 :_backend._indexes.at(field_index, col).field;
-		cache.last_field = _backend._indexes.at(field_index+1, col).field-1;
+		PVRow index = std::min<PVRow>(_backend._indexes.get_nrows()-1, field_index+1);
+		cache.last_field = _backend._indexes.at(index, col).field-1;
 		nb_fields_left = field - cache.first_field;
 		column.buffer_read = buffer_ptr;
 		column.buffer_read_ptr = buffer_ptr;

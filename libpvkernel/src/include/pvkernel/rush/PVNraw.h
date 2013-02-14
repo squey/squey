@@ -135,6 +135,7 @@ public:
 	void fit_to_content();
 
 	void dump_csv();
+	void dump_csv(const QString& file_path);
 
 	PVFormat_p& get_format() { return format; }
 	PVFormat_p const& get_format() const { return format; }
