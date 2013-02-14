@@ -18,7 +18,7 @@ bool show_diff(A const& cmp, B const& ref)
 	}	
 	for (size_t i = 0; i < std::min(size_cmp, size_ref); i++) {
 		if (cmp[i] != ref[i]) {
-			//std::cerr << i << ": cmp " << cmp[i] << " != ref " << ref[i] << std::endl;
+			std::cerr << i << ": cmp " << cmp[i] << " != ref " << ref[i] << std::endl;
 			ret = true;
 		}
 	}
@@ -96,6 +96,12 @@ int main()
 	ranges.push_back(std::make_pair(65, std::min(1000008, PICVIZ_LINES_MAX)));
 	ranges.push_back(std::make_pair(111, std::min(1000008, PICVIZ_LINES_MAX)));
 	ranges.push_back(std::make_pair(0, std::min(1500000, PICVIZ_LINES_MAX)));
+	// Prime-number ranges
+	ranges.push_back(std::make_pair(89767, std::min(99991, PICVIZ_LINES_MAX)));
+	// Previous bugous ranges
+	//
+	// There was an issue with the epilogue if the last chunk was indeed full
+	ranges.push_back(std::make_pair(57262, std::min(58624, PICVIZ_LINES_MAX)));
 
 	std::cout << "Tests with full selection..." << std::endl;
 	bits.select_all();

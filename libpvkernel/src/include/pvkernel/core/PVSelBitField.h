@@ -432,7 +432,12 @@ public:
 		}
 
 		// Epilogue
-		PVCore::PVBitVisitor::visit_bits(_table[chunk_end], [=,&f](const PVRow r){ if (r <= b) f(r); }, chunk_to_line_index(chunk_end));
+		uint64_t last_chunk = _table[chunk_end];
+		const int last_bit = line_index_to_chunk_bit(b);
+		if (last_bit < PICVIZ_SELECTION_CHUNK_SIZE-1) {
+			last_chunk &= ((1ULL<<(last_bit+1))-1);
+		}
+		PVCore::PVBitVisitor::visit_bits(last_chunk, f, chunk_to_line_index(chunk_end));
 	}
 
 	template <class F>
@@ -490,7 +495,12 @@ public:
 		}
 
 		// Epilogue
-		PVCore::PVBitVisitor::visit_bits(_table[chunk_end], [=,&f](const PVRow r){ if (r <= b) f(r); }, chunk_to_line_index(chunk_end));
+		uint64_t last_chunk = _table[chunk_end];
+		const int last_bit = line_index_to_chunk_bit(b);
+		if (last_bit < PICVIZ_SELECTION_CHUNK_SIZE-1) {
+			last_chunk &= ((1ULL<<(last_bit+1))-1);
+		}
+		PVCore::PVBitVisitor::visit_bits(last_chunk, f, chunk_to_line_index(chunk_end));
 	}
 
 	/**
