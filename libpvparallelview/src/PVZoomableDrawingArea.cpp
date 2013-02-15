@@ -1,4 +1,6 @@
 
+#include <pvkernel/core/PVAlgorithms.h>
+
 #include <pvparallelview/PVZoomableDrawingArea.h>
 
 #include <QGraphicsScene>
@@ -39,6 +41,20 @@ PVParallelView::PVZoomableDrawingArea::PVZoomableDrawingArea(QWidget *parent) :
 PVParallelView::PVZoomableDrawingArea::~PVZoomableDrawingArea()
 {
 	get_scene()->deleteLater();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingArea::set_zoom_value
+ *****************************************************************************/
+
+void PVParallelView::PVZoomableDrawingArea::set_zoom_value(const qint64 value)
+{
+	qint64 new_zoom_value = PVCore::clamp(value, _zoom_min, _zoom_max);
+
+	if (new_zoom_value != _zoom_value) {
+		_zoom_value = new_zoom_value;
+		update_zoom();
+	}
 }
 
 /*****************************************************************************
@@ -169,7 +185,6 @@ void PVParallelView::PVZoomableDrawingArea::wheelEvent(QWheelEvent *event)
 			qint64 v = sb->value();
 			if (v < sb->maximum()) {
 				sb->setValue(v + 1);
-				std::cout << "wheel precise panning" << std::endl;
 			}
 		}
 	} else if (event->modifiers() == PAN_MODIFIER) {
@@ -180,7 +195,6 @@ void PVParallelView::PVZoomableDrawingArea::wheelEvent(QWheelEvent *event)
 		} else {
 			sb->triggerAction(QAbstractSlider64::SliderSingleStepAdd);
 		}
-		std::cout << "wheel panning" << std::endl;
 	}
 
 	event->setAccepted(true);

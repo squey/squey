@@ -35,6 +35,9 @@ class PVViewportEventFilter;
  * - no added border when computing the transformation matrix to make the
  *   scene enter in the viewport. So that the rendering differs from
  *   QGraphicsView.
+ *
+ * @todo restrict scene events in the display area (i.e. viewport minus the
+ * margins)?
  */
 class PVGraphicsView : public QWidget
 {
