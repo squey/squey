@@ -31,7 +31,7 @@ public:
 	QWidget* get_param_widget();
 
 	size_t force_number_children() {
-		return get_filter()->get_args()["n"].toUInt();
+		return 0;
 	}
 
 private slots:
