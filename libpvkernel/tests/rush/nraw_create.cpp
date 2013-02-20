@@ -4,34 +4,79 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#define SIMULATE_PIPELINE
+#include <pvkernel/filter/PVPluginsLoad.h>
+#include <pvkernel/rush/PVPluginsLoad.h>
+#include <pvkernel/rush/PVExtractor.h>
+#include <pvkernel/rush/PVControllerJob.h>
+#include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVTests.h>
+#include <pvkernel/rush/PVFileDescription.h>
+#include <cstdlib>
 #include <iostream>
-#include <vector>
-
-#include <tbb/tick_count.h>
-
-#include <pvkernel/rush/PVNrawDiskBackend.h>
-#include <pvkernel/core/picviz_bench.h>
-
-#define N 2000000000
+#include "helpers.h"
+#include <QCoreApplication>
+#include "test-env.h"
 
 int main(int argc, char** argv)
 {
-	if (argc < 2) {
-		std::cerr << "Usage: " << argv[0] << " path_nraw" << std::endl;
+	if (argc <= 3) {
+		std::cerr << "Usage: " << argv[0] << " input_log_file format output_csv_file [lines_count=1000000]" << std::endl;
+		return 1;
+	}
+	uint64_t nb_lines = 1000000;
+	if (argc >= 5) {
+		nb_lines = atoi(argv[4]);
+	}
+
+	init_env();
+	QCoreApplication app(argc, argv);
+	PVFilter::PVPluginsLoad::load_all_plugins();
+	PVRush::PVPluginsLoad::load_all_plugins();
+
+	// Input file
+	QString path_file(argv[1]);
+	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
+
+	// Load the given format file
+	QString path_format(argv[2]);
+	PVLOG_INFO("Load format...\n");
+	PVRush::PVFormat format("format", path_format);
+	if (!format.populate(true)) {
+		std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;
+		return 1;
+	}
+	PVLOG_INFO("Format loaded.\n");
+
+	// Get the source creator
+	QString file_path(argv[1]);
+	PVRush::PVSourceCreator_p sc_file;
+	if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
 		return 1;
 	}
 
-	const char* nraw_path = argv[1];
-	PVRush::PVNrawDiskBackend backend;
-
-	backend.init(nraw_path, 1);
-	backend.set_direct_mode(false);
-
-	for (int i = 0 ; i < N; i++) {
-		std::stringstream st;
-		st << i << " ";
-		backend.add(0, st.str().c_str(), st.str().length());
+	// Process that file with the found source creator thanks to the extractor
+	PVLOG_INFO("Creating source...\n");
+	PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file, format);
+	if (!src) {
+		std::cerr << "Unable to create PVRush source from file " << argv[1] << std::endl;
+		return 1;
 	}
-	backend.flush();
-}
+	PVLOG_INFO("Source created.\n");
 
+	// Create the extractor
+	PVRush::PVExtractor ext;
+	ext.start_controller();
+	ext.add_source(src);
+	ext.set_format(format);
+	ext.set_chunk_filter(format.create_tbb_filters());
+
+	PVLOG_INFO("Asking for %lu lines...\n", nb_lines);
+	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, nb_lines);
+	job->wait_end();
+
+	// Dump the NRAW to file
+	dump_nraw_csv(ext.get_nraw(), argv[3]);
+
+	return 0;
+}

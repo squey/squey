@@ -57,6 +57,17 @@ void PVRush::PVNraw::dump_csv()
 	}
 }
 
+void PVRush::PVNraw::dump_csv(const QString& file_path)
+{
+	FILE* file = fopen(qPrintable(file_path), "w");
+	for (PVRow i = 0; i < get_number_rows(); i++) {
+		const std::string& csv_line = nraw_line_to_csv(i).toStdString();
+		fwrite(csv_line.c_str(), csv_line.length(), 1, file);
+		fputc('\n', file);
+	}
+	fclose(file);
+}
+
 void PVRush::PVNraw::reserve_tmp_buf(size_t n)
 {
 	if (_tmp_conv_buf) {

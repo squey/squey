@@ -7,8 +7,6 @@
 #include "helpers.h"
 #include <iostream>
 
-#include <QString>
-
 using PVCore::PVChunk;
 using PVCore::PVElement;
 using PVCore::PVField;
@@ -194,4 +192,9 @@ bool process_filter(PVRush::PVRawSourceBase& source, PVFilter::PVChunkFilter_f f
 void dump_nraw_csv(PVRush::PVNraw& nraw_)
 {
 	nraw_.dump_csv();
+}
+
+void dump_nraw_csv(PVRush::PVNraw& nraw_, const QString& csv_path)
+{
+	nraw_.dump_csv(csv_path);
 }

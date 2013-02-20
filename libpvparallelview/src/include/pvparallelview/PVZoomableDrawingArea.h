@@ -14,6 +14,19 @@ class QWheelEvent;
 namespace PVParallelView
 {
 
+/**
+ * @class PVZoomableDrawingArea
+ *
+ * A canvas to display a QGraphicsScene with few conveniences:
+ * - zoom and pan are already implemented, you just have to define
+ *   the scene's bounding box, the range of wheel value and the
+ *   convertion method between wheel and the zoom effect;
+ * - zoom and pan can be enabled/disabled along each axes.
+ *
+ * @see zoomable_drazwing_area_test.cpp for a minimalist zoomed
+ * parallel view widget.
+ */
+
 class PVZoomableDrawingArea : public PVWidgets::PVGraphicsView
 {
 public:
@@ -53,6 +66,35 @@ public:
 	AxesPolicy get_zoom_policy() const
 	{
 		return (AxesPolicy)_zoom_policy;
+	}
+
+	/**
+	 * Set the current zoom value
+	 *
+	 * It is clamped to its range.
+	 *
+	 * @param value the new value
+	 */
+	void set_zoom_value(const qint64 value);
+
+	/**
+	 * Return the current zoom value
+	 *
+	 * @return the current zoom value
+	 */
+	qint64 get_zoom_value() const
+	{
+		return _zoom_value;
+	}
+
+	/**
+	 * Return the current zoom value relatively to the lowest zoom value
+	 *
+	 * @return the current relative zoom value
+	 */
+	qint64 get_relative_zoom_value() const
+	{
+		return _zoom_value - _zoom_min;
 	}
 
 	/**

@@ -8,9 +8,10 @@
 #include <QMouseEvent>
 
 #include <pvparallelview/PVZoomableDrawingArea.h>
+#include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 
 #include <iostream>
-
+#include <stdio.h>
 
 #define print_rect(R) __print_rect(#R, R)
 
@@ -23,12 +24,25 @@ void __print_rect(const char *text, const R &r)
 	          << std::endl;
 }
 
-class MyPlottingZDA : public PVParallelView::PVZoomableDrawingArea
+
+#define print_scalar(V) __print_scalar(#V, V)
+
+template <typename V>
+void __print_scalar(const char *text, const V &v)
 {
+	std::cout << text << ": "
+	          << v
+	          << std::endl;
+}
+
+class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
+{
+	constexpr static int zoom_steps = 5;
+	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
+
 public:
-	MyPlottingZDA(QWidget *parent = nullptr) :
-		PVParallelView::PVZoomableDrawingArea(parent),
-		_first_resize(true)
+	MyPlottingZDAWA(QWidget *parent = nullptr) :
+		PVParallelView::PVZoomableDrawingAreaWithAxes(parent)
 	{
 		QGraphicsScene *scn = get_scene();
 
@@ -38,91 +52,83 @@ public:
 			scn->addLine(v,  0,    v, -(1L << 32), QPen(Qt::blue, 0));
 		}
 
-		_top = _right = 20;
-		_left = _bottom = 50;
 		QRectF r(0, -(1L << 32), (1L << 32), (1L << 32));
 		set_scene_rect(r);
 
-		print_rect(scn->sceneRect());
+		set_zoom_range(-110, 30);
+		set_zoom_value(-110);
 
-		set_scene_margins(_left, _right, _top, _bottom);
-		set_alignment(Qt::AlignLeft | Qt::AlignBottom);
-		set_transformation_anchor(PVWidgets::PVGraphicsView::AnchorUnderMouse);
-		set_zoom_range(-200, 200);
+		set_x_legend("Axis N");
+		set_y_legend("occurrence count");
+
+		set_decoration_color(Qt::white);
+
+		set_ticks_count(8);
 	}
 
+protected:
 	qreal zoom_to_scale(const int z) const
 	{
-		constexpr static int zoom_steps = 5;
-		constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
-
 		return pow(2, z / zoom_steps) * pow(root_step, z % zoom_steps);
+	}
+
+	void drawBackground(QPainter *painter, const QRectF &rect)
+	{
+		painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
+
+		PVParallelView::PVZoomableDrawingAreaWithAxes::drawBackground(painter, rect);
 	}
 
 
 	void drawForeground(QPainter *painter, const QRectF &rect)
 	{
-		int top = _top;
-		int left = _left;
-		int right = rect.width() - _right;
-		int bottom = rect.height() - _bottom;
-		painter->save();
-		painter->resetTransform();
-		painter->drawLine(left, bottom, right, bottom);
-		painter->drawText(left, bottom, get_real_viewport_width(), 50,
-		                  Qt::AlignRight | Qt::AlignBottom,
-		                  QString("axis N"), nullptr);
+		PVParallelView::PVZoomableDrawingAreaWithAxes::drawForeground(painter, rect);
 
-		painter->drawLine(left, top, left, bottom);
-		painter->drawText(left, 0, get_real_viewport_width(), 20,
-		                  Qt::AlignLeft | Qt::AlignTop,
-		                  QString("occurences number"), nullptr);
+		int top = get_scene_left_margin();
+		int bottom = get_scene_bottom_margin();
+		int left = get_scene_left_margin();
+		int right = get_scene_right_margin();
+
+		QRectF screen = QRectF(left, top,
+		                       rect.width() - left -right,
+		                       rect.height() - top -bottom);
+
+		QRectF scene_in_screen = map_from_scene(get_scene_rect());
+
+		QRectF screen_in_scene = map_to_scene(screen);
+
+		print_rect(scene_in_screen);
+		print_rect(screen_in_scene);
+
+		qreal scene_width  = get_scene_rect().width();
+		qreal scene_width_in_screen = scene_in_screen.width();
+
+		//printf("sw/swis: %f\n", scene_width / scene_width_in_screen);
+
+		qreal tick_gap_0 = scene_width / (qreal)get_ticks_count();
+		print_scalar(tick_gap_0);
+
+		qreal log_tick_gap_0 = log(tick_gap_0) / log(get_ticks_count());
+		print_scalar(log_tick_gap_0);
+
+		qreal tick_gap_n = scene_in_screen.width() / (qreal)get_ticks_count();
+		print_scalar(tick_gap_n);
+
+		qreal log_tick_gap_n = log(tick_gap_n) / log(get_ticks_count());
+		print_scalar(log_tick_gap_n);
 
 
-		QPen pen(Qt::blue);
-		painter->setPen(pen);
-		painter->drawLine(left, bottom, left, bottom + 5);
 
-		QRectF s = map_to_scene(QRectF(left, top, right - left - 1, bottom - top));
+		// print_scalar(scene_width_in_screen / scene_width);
 
-		painter->drawText(left, bottom + 5, get_real_viewport_width(), 20,
-		                  Qt::AlignLeft | Qt::AlignTop,
-		                  QString::number((long)(s.x())) + " " + QString::number(log2(s.x())), nullptr);
+		// int ticks = get_ticks_count();
+		// qreal r = (get_scene_rect().right() - get_scene_rect().left()) / ticks;
 
-
-		painter->drawLine(right, bottom, right, bottom + 5);
-		painter->drawText(left, bottom + 5, get_real_viewport_width(), 20,
-		                  Qt::AlignRight | Qt::AlignTop,
-		                  QString::number((long)((s.x() + s.width()))) + " " +
-		                  QString::number(log2(s.x() + s.width())), nullptr);
-
-
-		painter->restore();
+		// print_scalar(r);
+		// print_scalar(log(r) / log(ticks));
 	}
 
-	void keyPressEvent(QKeyEvent *event)
-	{
-		if (event->key() == Qt::Key_Space) {
-			center_on(0., 0.);
-			event->accept();
-		} else {
-			PVParallelView::PVZoomableDrawingArea::keyPressEvent(event);
-		}
-	}
-
-	void resizeEvent(QResizeEvent *event)
-	{
-		PVParallelView::PVZoomableDrawingArea::resizeEvent(event);
-		if (_first_resize) {
-			center_on(0., 0.);
-			_first_resize = false;
-		}
-	}
-private:
-	bool _first_resize;
-	int _top, _left, _bottom, _right;
 };
-
 
 class MyZoomingZDA : public PVParallelView::PVZoomableDrawingArea
 {
@@ -170,21 +176,19 @@ public:
 	}
 };
 
-
-
 int main(int argc, char **argv)
 {
 	QApplication app(argc, argv);
 
-	PVParallelView::PVZoomableDrawingArea *pzda = new MyPlottingZDA;
-	pzda->resize(600, 400);
-	pzda->show();
-	pzda->setWindowTitle("Plotting test");
+	PVParallelView::PVZoomableDrawingAreaWithAxes *pzdawa = new MyPlottingZDAWA;
+	pzdawa->resize(600, 400);
+	pzdawa->show();
+	pzdawa->setWindowTitle("PV Plotting test");
 
-	PVParallelView::PVZoomableDrawingArea *zzda = new MyZoomingZDA;
-	zzda->resize(600, 400);
-	zzda->show();
-	zzda->setWindowTitle("Zooming test");
+	// PVParallelView::PVZoomableDrawingArea *zzda = new MyZoomingZDA;
+	// zzda->resize(600, 400);
+	// zzda->show();
+	// zzda->setWindowTitle("My Zooming test");
 
 	app.exec();
 

@@ -177,7 +177,7 @@ declare_pv_test(Trush_nraw_sort_column "nraw_sort_column.cpp" "${LINK_LIBRARIES}
 declare_pv_test(Trush_nraw_sort_column_ssd "nraw_sort_column_ssd.cpp" "${LINK_LIBRARIES}")
 
 # NRAW create
-declare_pv_test(Trush_nraw_create "nraw_create.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_nraw_create "nraw_create.cpp;helpers.cpp" "${LINK_LIBRARIES}")
 
 # NRAW load bench
 declare_pv_test(Trush_nraw_load_bench "nraw_load_bench.cpp" "${LINK_LIBRARIES}")
