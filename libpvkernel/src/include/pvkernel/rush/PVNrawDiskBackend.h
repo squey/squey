@@ -15,6 +15,7 @@
 #include <sstream>
 #include <string>
 
+#include <tbb/atomic.h>
 #include <tbb/concurrent_queue.h>
 #include <tbb/pipeline.h>
 #include <tbb/task.h>
@@ -169,6 +170,7 @@ struct BufferedFilePolicy
  */
 class PVNrawDiskBackend: private RawFilePolicy
 {
+public:
 	static constexpr uint64_t BUF_ALIGN = 512;
 	static constexpr uint64_t READ_BUFFER_SIZE = 4*1024;
 	static constexpr uint64_t NB_CACHE_BUFFERS = 10;
@@ -664,6 +666,17 @@ public:
 	bool get_unique_values_for_col(PVCol const c, unique_values_t& ret, tbb::task_group_context* ctxt = NULL);
 	bool get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL);
 
+	void clear_stats()
+	{
+		_stats_getindex = 0.0;
+		_stats_read = 0.0;
+		_stats_search = 0.0;
+	}
+
+	double get_stats_getindex() const { return (double)_stats_getindex/1000000.0; }
+	double get_stats_read() const { return (double)_stats_read/1000000.0; }
+	double get_stats_search() const { return (double)_stats_search/1000000.0; }
+
 private:
 	std::string get_disk_index_file() const;
 	std::string get_disk_column_file(uint64_t col) const;
@@ -811,6 +824,7 @@ private:
 	}
 
 	static constexpr size_t read_buffer_size() { return READ_BUFFER_SIZE+BUF_ALIGN; }
+
 
 private:
 	/**
@@ -964,6 +978,10 @@ private:
 	char* _serial_read_buffer;
 
 	tbb_chunks_t _chunks;
+
+	mutable tbb::atomic<uint64_t> _stats_getindex;
+	mutable tbb::atomic<uint64_t> _stats_read;
+	mutable tbb::atomic<uint64_t> _stats_search;
 };
 
 }
