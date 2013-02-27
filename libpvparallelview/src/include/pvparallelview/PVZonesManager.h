@@ -87,6 +87,8 @@ public:
 	inline PVCol get_number_cols() const { return _ncols; }
 	inline PVRow get_number_rows() const { return _nrows; }
 
+	inline Picviz::PVPlotted::uint_plotted_table_t const& get_uint_plotted() const { assert(_uint_plotted); return *_uint_plotted; }
+
 protected:
 	inline void get_zone_cols(PVZoneID z, PVCol& a, PVCol& b)
 	{
@@ -94,7 +96,6 @@ protected:
 		a = _axes_comb[z].get_axis();
 		b = _axes_comb[z+1].get_axis();
 	}
-	inline Picviz::PVPlotted::uint_plotted_table_t const& get_uint_plotted() const { assert(_uint_plotted); return *_uint_plotted; }
 
 signals:
 	void filter_by_sel_finished(int zone_id, bool changed);
