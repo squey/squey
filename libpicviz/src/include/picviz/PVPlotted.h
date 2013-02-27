@@ -132,15 +132,61 @@ public:
 	// Data access
 	PVRow get_row_count() const;
 	PVCol get_column_count() const;
+
+	/**
+	 * Returns the aligned row count given a row count
+	 *
+	 * @param nrows the rows number
+	 *
+	 * @return the aligned row count corresponding to nrows
+	 */
+	static PVRow get_aligned_row_count(const PVRow nrows)
+	{
+		return ((nrows+PVROW_VECTOR_ALIGNEMENT-1)/(PVROW_VECTOR_ALIGNEMENT))*PVROW_VECTOR_ALIGNEMENT;
+	}
+
+	/**
+	 * Returns the aligned row count of this plotted
+	 *
+	 * @return the corresponding aligned row count
+	 */
 	inline PVRow get_aligned_row_count() const
 	{
-		const PVRow ret = get_row_count();
-		return ((ret+PVROW_VECTOR_ALIGNEMENT-1)/(PVROW_VECTOR_ALIGNEMENT))*PVROW_VECTOR_ALIGNEMENT;
+		return get_aligned_row_count(get_row_count());
 	}
+
 	PVSource* get_source_parent();
 	inline uint32_t const* get_column_pointer(PVCol const j) const { return &_uint_table[(size_t)j*(size_t)get_aligned_row_count()]; }
 	inline uint32_t* get_column_pointer(PVCol const j) { return &_uint_table[(size_t)j*(size_t)get_aligned_row_count()]; }
 	inline uint32_t get_value(PVRow const i, PVCol const j) const { return get_column_pointer(j)[i]; }
+
+	/**
+	 * Returns the base address of a column in a plotted's buffer
+	 *
+	 * @param plotted the plotted's base address
+	 * @param nrows the plotted's rows number
+	 * @param col the wanted column number
+	 *
+	 * @return the base address of the column
+	 */
+	static const uint32_t *get_plotted_col_addr(const uint32_t *plotted, const PVRow nrows, const PVCol col)
+	{
+		return plotted + (get_aligned_row_count(nrows) * col);
+	}
+
+	/**
+	 * Returns the base address of a column in a plotted
+	 *
+	 * @param plotted the plotted's base address
+	 * @param nrows the plotted's rows number
+	 * @param col the wanted column number
+	 *
+	 * @return the base address of the column
+	 */
+	static const uint32_t *get_plotted_col_addr(const uint_plotted_table_t &plotted, const PVRow nrows, const PVCol col)
+	{
+		return get_plotted_col_addr(&plotted.at(0), nrows, col);
+	}
 
 	void get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min, uint32_t& max, PVSelection const& sel, PVCol col) const;
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;

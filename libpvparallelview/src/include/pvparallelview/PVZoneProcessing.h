@@ -25,7 +25,7 @@ public:
 		_nrows(nrows),
 		_col_a(col_a),
 		_col_b(col_b),
-		_nrows_aligned(((nrows+PVROW_VECTOR_ALIGNEMENT-1)/PVROW_VECTOR_ALIGNEMENT)*PVROW_VECTOR_ALIGNEMENT)
+		_nrows_aligned(Picviz::PVPlotted::get_aligned_row_count(nrows))
 	{ }
 
 public:
@@ -40,8 +40,15 @@ public:
 	inline PVCol& col_b() { return _col_b; }
 	inline PVRow nrows_aligned() const { return _nrows_aligned; }
 
-	inline uint32_t get_plotted_value(PVRow r, PVCol c) const { return (_plotted)[(size_t)c*(size_t)_nrows_aligned + (size_t)r]; }
-	inline uint32_t const* get_plotted_col(PVCol c) const { return &((_plotted)[(size_t)c*(size_t)_nrows_aligned]); }
+	inline uint32_t get_plotted_value(PVRow r, PVCol c) const
+	{
+		return get_plotted_col(c)[r];
+	}
+
+	inline uint32_t const* get_plotted_col(PVCol c) const
+	{
+		return Picviz::PVPlotted::get_plotted_col_addr(&_plotted.at(0), _nrows, c);
+	}
 
 	inline uint32_t const* get_plotted_col_a() const { return get_plotted_col(col_a()); }
 	inline uint32_t const* get_plotted_col_b() const { return get_plotted_col(col_b()); }
