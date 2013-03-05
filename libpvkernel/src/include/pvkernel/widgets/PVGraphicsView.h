@@ -362,6 +362,19 @@ public:
 	}
 
 	/**
+	 * Returns the effective area used to display the scene.
+	 *
+	 * This value depends on scene's margins.
+	 *
+	 * @return the effective drawing area rectangle
+	 */
+	QRect get_real_viewport_rect() const
+	{
+		return QRect(_scene_margin_left, _scene_margin_top,
+		             get_real_viewport_width(), get_real_viewport_height());
+	}
+
+	/**
 	 * Returns the current viewport widget.
 	 */
 	inline QWidget* get_viewport()
