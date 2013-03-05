@@ -102,14 +102,14 @@ QTransform PVParallelView::PVZoomableDrawingArea::scale_to_transform(const qreal
 		{
 			QRectF v = get_real_viewport_rect();
 			QRectF s = get_scene_rect();
-			transfo.scale(v.width() / s.width(), v.width() / s.width());
+			transfo.scale(v.width() / s.width(), v.height() / s.height());
 		}
 		break;
 	case AlongX:
 		{
 			QRectF v = get_real_viewport_rect();
 			QRectF s = get_scene_rect();
-			transfo.scale(scale_value, v.width() / s.width());
+			transfo.scale(scale_value, v.height() / s.height());
 		}
 		break;
 	case AlongY:
