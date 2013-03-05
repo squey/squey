@@ -85,7 +85,7 @@ set(Boost_LIBRARIES ${Boost_LIBRARIES_SAVE})
 # Check for libFGP (Function Graph Processing)
 #
 
-find_package(FGP REQUIRED)
+find_package(FGP)
 
 #
 # Check for OpenMP
