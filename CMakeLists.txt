@@ -67,6 +67,7 @@ ADD_CUSTOM_TARGET(alltests COMMAND make)
 PV_QT4_UI_INC_DIR(QT_UI_INCLUDE_DIR)
 
 add_subdirectory(scripts)
+
 declare_internal_library(pvkernel)
 
 # Helpers means various stuff we can use
@@ -82,6 +83,11 @@ declare_internal_library(pvguiqt)
 #declare_internal_library(pvhitgraph)
 
 add_subdirectory(gui-qt)
+
+# Declare test suite target
+# It has been populated thanks to the declare_pv_test macro
+message(STATUS ${__TESTS_TARGETS})
+add_custom_target(testsuite DEPENDS ${__TESTS_TARGETS})
 
 
 message(STATUS "CUDA found: " ${CUDA_FOUND})

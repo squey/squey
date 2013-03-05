@@ -25,7 +25,8 @@ set(PVRUSH_TEST_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test-files")
 set(PVRUSH_TEST_FILES_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/test-files")
 
 # Test UTF16 conversion
-declare_pv_test(Trush_conv_utf16 "conv_utf16.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_conv_utf16 "conv_utf16.cpp;helpers.cpp")
+target_link_libraries(Trush_conv_utf16 ${LINK_LIBRARIES})
 
 macro(PV_ADD_TEST_CONV_UTF16 charset)
 	add_test(TestConvUtf16_${charset} ${TEST_DIFF_STDOUT}
@@ -40,7 +41,8 @@ PV_ADD_TEST_CONV_UTF16("utf32")
 PV_ADD_TEST_CONV_UTF16("latin1")
 
 # Test UTF16 conversion and alignement on a newline (PVUnicodeSource object)
-declare_pv_test(Trush_conv_utf16_align "conv_utf16_align.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_conv_utf16_align "conv_utf16_align.cpp;helpers.cpp")
+target_link_libraries(Trush_conv_utf16_align ${LINK_LIBRARIES})
 
 macro(PV_ADD_TEST_CONV_UTF16_ALIGN CASE CHUNK_SIZE)
 	add_test(TestConvUtf16Align_${CASE}_${CHUNK_SIZE} ${TEST_DIFF_STDOUT}
@@ -56,7 +58,8 @@ PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align_newline 20000)
 PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align_newline 2000)
 
 # Test the aggregator
-declare_pv_test(Trush_agg "agg.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_agg "agg.cpp;helpers.cpp")
+target_link_libraries(Trush_agg ${LINK_LIBRARIES})
 add_test(TestAggregator1 ${TEST_DIFF_STDOUT}
 	${PVRUSH_TEST_FILES}/aggregator/set1.out
 	${PVRUSH_TEST_FILES_OUTPUT}/aggregator/set1.diff
@@ -69,7 +72,8 @@ add_test(TestAggregator2 ${TEST_DIFF_STDOUT}
 	${PVRUSH_TEST_FILES}/aggregator/set2)
 
 # Test the aggregator in strict mode
-declare_pv_test(Trush_agg_strict "agg_strict.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_agg_strict "agg_strict.cpp;helpers.cpp")
+target_link_libraries(Trush_agg_strict ${LINK_LIBRARIES})
 add_test(TestAggregatorStrict1 ${TEST_DIFF_STDOUT}
 	${PVRUSH_TEST_FILES}/aggregator/set1.strict.out
 	${PVRUSH_TEST_FILES_OUTPUT}/aggregator/set1.strict.diff
@@ -85,25 +89,32 @@ add_test(TestAggregatorStrict2 ${TEST_DIFF_STDOUT}
 
 # Test the extractor
 
-declare_pv_test(Trush_splitter_regexp "splitter_regexp.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_splitter_regexp "splitter_regexp.cpp;helpers.cpp")
+target_link_libraries(Trush_splitter_regexp ${LINK_LIBRARIES})
 add_test(TestSplitterRegexp ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_regexp.sh)
 
-declare_pv_test(Trush_splitter_csv "splitter_csv.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_splitter_csv "splitter_csv.cpp;helpers.cpp")
+target_link_libraries(Trush_splitter_csv ${LINK_LIBRARIES})
 add_test(TestSplitterCSV ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_csv.sh)
 
-declare_pv_test(Trush_splitter_url "splitter_url.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_splitter_url "splitter_url.cpp;helpers.cpp")
+target_link_libraries(Trush_splitter_url ${LINK_LIBRARIES})
 add_test(TestSplitterURL ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_url.sh)
 
-declare_pv_test(Trush_splitter_pcap "splitter_pcap.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_splitter_pcap "splitter_pcap.cpp;helpers.cpp")
+target_link_libraries(Trush_splitter_pcap ${LINK_LIBRARIES})
 add_test(TestSplitterPCAP ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_pcap.sh)
 
-declare_pv_test(Trush_grep_regexp "grep_regexp.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_grep_regexp "grep_regexp.cpp;helpers.cpp")
+target_link_libraries(Trush_grep_regexp ${LINK_LIBRARIES})
 add_test(TestGrepRegexp ${CMAKE_CURRENT_BINARY_DIR}/test_grep_regexp.sh)
 
-declare_pv_test(Trush_splitter_duplicate "splitter_duplicate.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_splitter_duplicate "splitter_duplicate.cpp;helpers.cpp")
+target_link_libraries(Trush_splitter_duplicate ${LINK_LIBRARIES})
 add_test(TestSplitterDuplicate ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_duplicate.sh)
 
-declare_pv_test(Trush_filter_composition "filter_composition.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_filter_composition "filter_composition.cpp;helpers.cpp")
+target_link_libraries(Trush_filter_composition ${LINK_LIBRARIES})
 add_test(TestFilterComposition ${TEST_DIFF_STDOUT}
 	${PVRUSH_TEST_FILES}/filter_composition.out
 	${PVRUSH_TEST_FILES}/filter_composition.diff
@@ -113,29 +124,36 @@ add_test(TestFilterComposition ${TEST_DIFF_STDOUT}
 # Plugin input tests
 
 # Format parsing
-declare_pv_test(Trush_format "format.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_format "format.cpp;helpers.cpp")
+target_link_libraries(Trush_format ${LINK_LIBRARIES})
 add_test(TestFormats Trush_format ${PVRUSH_TEST_FILES}/formats)
 
-declare_pv_test(Trush_format_dump "format_dump.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_format_dump "format_dump.cpp;helpers.cpp")
+target_link_libraries(Trush_format_dump ${LINK_LIBRARIES})
 
 # For disk file, using source plugins and process through the extractor
 # Show the output NRAW as a CSV file
 # Used to test the whole PVRush processing w/ files that had some issues with their processing ("had_issues" directory)
 # AG: this will be done with a better test method that test every elements of the processing pipeline
-#declare_pv_test(Trush_process_file "process_file.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+#declare_pv_test(Trush_process_file "process_file.cpp;helpers.cpp")
+#target_link_libraries(Trush_process_file ${LINK_LIBRARIES})
 #add_test(TestHadIssues ${CMAKE_CURRENT_SOURCE_DIR}/test_issues.sh)
 
 # Auto-discovery test
-declare_pv_test(Trush_process_file_auto_discovery "process_file_auto_discovery.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_process_file_auto_discovery "process_file_auto_discovery.cpp;helpers.cpp")
+target_link_libraries(Trush_process_file_auto_discovery ${LINK_LIBRARIES})
 
 # Test cases for tickets
-declare_pv_test(Trush_ticket_1 "ticket_1.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_ticket_1 "ticket_1.cpp")
+target_link_libraries(Trush_ticket_1 ${LINK_LIBRARIES})
 add_test(TestTicket1 Trush_ticket_1 ${PVRUSH_TEST_FILES})
 
-declare_pv_test(Trush_ticket_2 "ticket_2.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_ticket_2 "ticket_2.cpp")
+target_link_libraries(Trush_ticket_2 ${LINK_LIBRARIES})
 add_test(TestTicket2 Trush_ticket_2)
 
-declare_pv_test(Trush_ticket_28 "ticket_28.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_ticket_28 "ticket_28.cpp")
+target_link_libraries(Trush_ticket_28 ${LINK_LIBRARIES})
 add_test(TestTicket28 Trush_ticket_28 ${PVRUSH_TEST_FILES})
 
 # Benchmark for the whole extractor
@@ -144,49 +162,63 @@ add_test(TestTicket28 Trush_ticket_28 ${PVRUSH_TEST_FILES})
 #add_test(TestBench Trush_bench)
 
 # Memory footprint benchmark
-declare_pv_test(Trush_mem "bench_memory.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_mem "bench_memory.cpp")
+target_link_libraries(Trush_mem ${LINK_LIBRARIES})
 
-declare_pv_test(Trush_input_hdfs "input_hdfs.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_input_hdfs "input_hdfs.cpp")
+target_link_libraries(Trush_input_hdfs ${LINK_LIBRARIES})
 
 if(HDFS_FOUND)
 	#add_executable(Trush_input_hadoop input_hadoop.cpp helpers.cpp ../../plugins/common/hdfs/PVInputHDFSFile.cpp ../../plugins/common/hdfs/PVInputHDFSServer.cpp)
 	#target_link_libraries(Trush_input_hadoop ${LINK_LIBRARIES} ${HDFS_LIBRARIES})
 endif(HDFS_FOUND)
 
-declare_pv_test(Trush_fake_hadoop_src "fake_hadoop_src.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_fake_hadoop_src "fake_hadoop_src.cpp")
+target_link_libraries(Trush_fake_hadoop_src ${LINK_LIBRARIES})
 
 # libarchive auto detect
 #add_executable(Trush_archive_detect archive_detect.cpp ../plugins/input_types/file/extract.cpp)
 #target_link_libraries(Trush_archive_detect ${LINK_LIBRARIES})
 
 # Filter guessing
-declare_pv_test(Trush_filter_guess "filter_guess.cpp" "${LINK_LIBRARIES}")
-declare_pv_test(Trush_parser "parser.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_filter_guess "filter_guess.cpp")
+target_link_libraries(Trush_filter_guess ${LINK_LIBRARIES})
+declare_pv_test(Trush_parser "parser.cpp")
+target_link_libraries(Trush_parser ${LINK_LIBRARIES})
 
 # Format conversion
-declare_pv_test(Trush_format_conv "format_conv.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_format_conv "format_conv.cpp")
+target_link_libraries(Trush_format_conv ${LINK_LIBRARIES})
 
 # NRAW backend
-declare_pv_test(Trush_nraw_backend "nraw_backend.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_nraw_backend "nraw_backend.cpp")
+target_link_libraries(Trush_nraw_backend ${LINK_LIBRARIES})
 
 # NRAW sort-uniq
-declare_pv_test(Trush_nraw_sort_uniq "nraw_sort_uniq.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_nraw_sort_uniq "nraw_sort_uniq.cpp")
+target_link_libraries(Trush_nraw_sort_uniq ${LINK_LIBRARIES})
 
 # NRAW sort-column
-declare_pv_test(Trush_nraw_sort_column "nraw_sort_column.cpp" "${LINK_LIBRARIES}")
-declare_pv_test(Trush_nraw_sort_column_ssd "nraw_sort_column_ssd.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_nraw_sort_column "nraw_sort_column.cpp")
+target_link_libraries(Trush_nraw_sort_column ${LINK_LIBRARIES})
+declare_pv_test(Trush_nraw_sort_column_ssd "nraw_sort_column_ssd.cpp")
+target_link_libraries(Trush_nraw_sort_column_ssd ${LINK_LIBRARIES})
 
 # NRAW create
-declare_pv_test(Trush_nraw_create "nraw_create.cpp;helpers.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_nraw_create "nraw_create.cpp;helpers.cpp")
+target_link_libraries(Trush_nraw_create ${LINK_LIBRARIES})
 
 # NRAW load bench
-declare_pv_test(Trush_nraw_load_bench "nraw_load_bench.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_nraw_load_bench "nraw_load_bench.cpp")
+target_link_libraries(Trush_nraw_load_bench ${LINK_LIBRARIES})
 
 # NRAW integrity test
-declare_pv_test(Trush_nraw_integrity_test "nraw_integrity_test.cpp" "${LINK_LIBRARIES}")
+declare_pv_test(Trush_nraw_integrity_test "nraw_integrity_test.cpp")
+target_link_libraries(Trush_nraw_integrity_test ${LINK_LIBRARIES})
 add_test(TestNrawIntegrity Trush_nraw_integrity_test ${PVKERNEL_RUSH_TEST_NRAW_TMP})
 
-declare_pv_test(arcsight_src "test_arcsight_source.cpp;helpers.cpp;${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightInfos.cpp;${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightQuery.cpp;" "${LINK_LIBRARIES}")
+declare_pv_test(arcsight_src "test_arcsight_source.cpp;helpers.cpp;${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightInfos.cpp;${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightQuery.cpp;")
+target_link_libraries(arcsight_src ${LINK_LIBRARIES})
 
 if(PYTHONLIBS_FOUND)
 	# Python NRAW
