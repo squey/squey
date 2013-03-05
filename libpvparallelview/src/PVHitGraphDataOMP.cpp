@@ -320,6 +320,8 @@ void PVParallelView::PVHitGraphDataOMP::process_all(ProcessParams const& p)
 		return;
 	}
 
+	_omp_ctx.clear();
+
 	uint32_t* const buf_block = buffer_all().buffer_block(p.block_start);
 	if (nblocks_ == 1) {
 		count_y1_omp_sse_v4(p.nrows, p.col_plotted, p.y_min, p.zoom, buf_block, _omp_ctx);
@@ -335,6 +337,8 @@ void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p, Picv
 	if (nblocks_ <= 0) {
 		return;
 	}
+
+	_omp_ctx.clear();
 
 	uint32_t* const buf_block = buffer_all().buffer_block(p.block_start);
 	count_y1_sel_omp_sse_v4(p.nrows, p.col_plotted, sel, p.y_min, p.zoom, buf_block, nblocks_, _omp_ctx);
