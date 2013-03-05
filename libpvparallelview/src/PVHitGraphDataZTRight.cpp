@@ -2,7 +2,7 @@
 #include <picviz/PVSelection.h>
 #include <pvparallelview/PVBCode.h>
 #include <pvparallelview/PVBCode.h>
-#include <pvparallelview/PVHitGraphDataZT.h>
+#include <pvparallelview/PVHitGraphDataZTRight.h>
 #include <pvparallelview/PVZoneTree.h>
 
 #include <numa.h>
@@ -66,27 +66,28 @@ static void hist_from_zt_one_branch(PVParallelView::PVZoneTree const& zt, uint32
 // Public interfaces
 //
 
-void PVParallelView::PVHitGraphDataZT::process_all(PVZoneTree const& zt, uint32_t const* col_plotted, PVRow const nrows, uint32_t const y_min, int const zoom, int const block_start, int const nblocks)
+void PVParallelView::PVHitGraphDataZTRight::process_all(ProcessParams const& p)
 {
-	int nblocks_ = std::min(nblocks, PVHitGraphCommon::NBLOCKS - block_start);
+	int nblocks_ = std::min(p.nblocks, PVHitGraphCommon::NBLOCKS - p.block_start);
 	if (nblocks_ <= 0) {
 		return;
 	}
 
+	const int zoom = p.zoom;
 	if (zoom == 0) {
 		assert(nblocks_ == 1);
-		hist_from_zt_zoom0(zt, buffer_all().buffer_block(block_start));
+		hist_from_zt_zoom0(p.zt, buffer_all().buffer_block(p.block_start));
 		return;
 	}
 
 	if (zoom >=1 && zoom <= PARALLELVIEW_ZT_BBITS) {
-		hist_from_zt(zt, col_plotted, y_min, zoom, nblocks, buffer_all().buffer_block(block_start));
+		hist_from_zt(p.zt, p.col_plotted, p.y_min, zoom, p.nblocks, buffer_all().buffer_block(p.block_start));
 		return;
 	}
 
-	hist_from_zt_one_branch(zt, col_plotted, y_min, zoom, nblocks, buffer_all().buffer_block(block_start));
+	hist_from_zt_one_branch(p.zt, p.col_plotted, p.y_min, p.zoom, p.nblocks, buffer_all().buffer_block(p.block_start));
 }
 
-void PVParallelView::PVHitGraphDataZT::process_sel(PVZoneTree const&, uint32_t const* col_plotted, PVRow const nrows, uint32_t const y_min, int const zoom, int const block_start, int const nblocks, Picviz::PVSelection const& sel)
+void PVParallelView::PVHitGraphDataZTRight::process_sel(ProcessParams const& p, Picviz::PVSelection const& sel)
 {
 }

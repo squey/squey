@@ -27,8 +27,8 @@ void PVParallelView::PVHitGraphDataInterface::shift_right(int n)
 	buffer_sel().shift_right(n);
 }
 
-void PVParallelView::PVHitGraphDataInterface::process_allandsel(PVZoneTree const& zt, uint32_t const* col_plotted, PVRow const nrows, uint32_t const y_min, int const zoom, int const block_start, int const nblocks, Picviz::PVSelection const& sel)
+void PVParallelView::PVHitGraphDataInterface::process_allandsel(ProcessParams const& params, Picviz::PVSelection const& sel)
 {
-	process_all(zt, col_plotted, nrows, y_min, zoom, block_start, nblocks);
-	process_sel(zt, col_plotted, nrows, y_min, zoom, block_start, nblocks, sel);
+	process_all(params);
+	process_sel(params, sel);
 }
