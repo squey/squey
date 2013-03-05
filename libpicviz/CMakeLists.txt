@@ -107,3 +107,4 @@ add_subdirectory(src)
 add_subdirectory(plugins)
 
 add_subdirectory(tests)
+propagate_tests_targets_to_parent()

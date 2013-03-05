@@ -1,7 +1,8 @@
 macro(declare_internal_library libname)
 	string(TOUPPER ${libname} libname_upper)
-	set(${libname_upper}_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/lib${libname}/src/include")
-	add_subdirectory(lib${libname})
+	string(TOLOWER ${libname} libname_lower)
+	set(${libname_upper}_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/lib${libname_lower}/src/include")
+	add_subdirectory(lib${libname_lower})
 endmacro()
 
 macro(declare_customer_cap cap default_dev default_customer)
@@ -15,11 +16,20 @@ macro(declare_customer_cap cap default_dev default_customer)
 	endif()
 endmacro()
 
-macro(declare_pv_test target files libs)
-	#add_executable(${target} EXCLUDE_FROM_ALL ${files})
-	add_executable(${target} ${files})
-	target_link_libraries(${target} ${libs})
-	add_dependencies(alltests ${target})
+macro(declare_pv_test target)
+	add_executable(${target} EXCLUDE_FROM_ALL ${ARGN})
+	set(__OWN_TESTS_TARGETS "${__OWN_TESTS_TARGETS};${target}")
+	set(__TESTS_TARGETS "${__OWN_TESTS_TARGETS};${__TESTS_TARGETS}" PARENT_SCOPE)
+endmacro()
+
+macro(propagate_tests_targets_to_parent)
+	set(__TESTS_TARGETS ${__TESTS_TARGETS} PARENT_SCOPE)
+endmacro()
+
+macro(declare_lib_tests_target)
+	add_custom_target(testsuite DEPENDS ${__OWN_TESTS_TARGETS})
+	# JBL's special request
+	add_custom_target(love DEPENDS testsuite)
 endmacro()
 
 function(strcasecmp res str1 str2)

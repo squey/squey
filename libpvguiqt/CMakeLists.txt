@@ -18,3 +18,4 @@ include_directories(AFTER ${QT_UI_INCLUDE_DIR})
 
 add_subdirectory(src)
 add_subdirectory(tests)
+propagate_tests_targets_to_parent()

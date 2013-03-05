@@ -10,71 +10,73 @@ configure_file(run-massive-register.sh.cmake run-massive-register.sh @ONLY)
 
 set(COMMON_LIBRARIES pvhive pvkernel picviz ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${QT_LIBRARIES})
 
-add_executable(Tsimplistic simplistic.cpp)
+declare_pv_test(Tsimplistic simplistic.cpp)
 target_link_libraries(Tsimplistic ${COMMON_LIBRARIES})
 
-add_executable(Tproperties properties.cpp)
+declare_pv_test(Tproperties properties.cpp)
 target_link_libraries(Tproperties ${COMMON_LIBRARIES})
 
-add_executable(Tthread_safe thread_safe.cpp)
+declare_pv_test(Tthread_safe thread_safe.cpp)
 target_link_libraries(Tthread_safe ${COMMON_LIBRARIES})
 
 QT4_WRAP_CPP(TEST_ADRIEN_MOC_SRC adrien_dlg.h adrien_hdr.h OPTIONS ${QT4_WRAP_OPTIONS})
 
-add_executable(Tadrien-boost_thread adrien_main-boost_thread.cpp ${TEST_ADRIEN_MOC_SRC})
+declare_pv_test(Tadrien-boost_thread adrien_main-boost_thread.cpp ${TEST_ADRIEN_MOC_SRC})
 target_link_libraries(Tadrien-boost_thread ${COMMON_LIBRARIES})
 
-add_executable(Tadrien-qt_thread adrien_main-qt_thread.cpp ${TEST_ADRIEN_MOC_SRC})
+declare_pv_test(Tadrien-qt_thread adrien_main-qt_thread.cpp ${TEST_ADRIEN_MOC_SRC})
 target_link_libraries(Tadrien-qt_thread ${COMMON_LIBRARIES})
 
 QT4_WRAP_CPP(TEST_FUNCTIONAL_MOC_SRC functional_dlg.h functional_objs.h OPTIONS ${QT4_WRAP_OPTIONS})
 
-add_executable(Tfunctional functional_main.cpp functional_objs.cpp ${TEST_FUNCTIONAL_MOC_SRC})
+declare_pv_test(Tfunctional functional_main.cpp functional_objs.cpp ${TEST_FUNCTIONAL_MOC_SRC})
 target_link_libraries(Tfunctional ${COMMON_LIBRARIES})
 
-add_executable(Tinter-threads inter-threads.cpp)
+declare_pv_test(Tinter-threads inter-threads.cpp)
 target_link_libraries(Tinter-threads ${COMMON_LIBRARIES})
 
 QT4_WRAP_CPP(TEST_DIT_MOC_SRC data-in-thread_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
 
-add_executable(Tdata-in-thread data-in-thread.cpp ${TEST_DIT_MOC_SRC})
+declare_pv_test(Tdata-in-thread data-in-thread.cpp ${TEST_DIT_MOC_SRC})
 target_link_libraries(Tdata-in-thread ${COMMON_LIBRARIES})
 
 QT4_WRAP_CPP(TEST_MODAL_MOC_SRC modal_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
 
-add_executable(Tmodal modal.cpp ${TEST_MODAL_MOC_SRC})
+declare_pv_test(Tmodal modal.cpp ${TEST_MODAL_MOC_SRC})
 target_link_libraries(Tmodal ${COMMON_LIBRARIES})
 
-add_executable(Tmultithreads multithreads.cpp)
+declare_pv_test(Tmultithreads multithreads.cpp)
 target_link_libraries(Tmultithreads ${COMMON_LIBRARIES})
 
-add_executable(Thive_massive_mem massive-mem.cpp massive_common.cpp)
+declare_pv_test(Thive_massive_mem massive-mem.cpp massive_common.cpp)
 target_link_libraries(Thive_massive_mem ${COMMON_LIBRARIES})
 add_test(TestHiveMemory Thive_massive_mem 100000)
 
-add_executable(Thive_massive_register massive-register.cpp massive_common.cpp)
+declare_pv_test(Thive_massive_register massive-register.cpp massive_common.cpp)
 target_link_libraries(Thive_massive_register ${COMMON_LIBRARIES})
 add_test(TestHiveRegister run-massive-register.sh)
 
-add_executable(Thive_massive_call_obj massive-call-obj.cpp massive_common.cpp)
+declare_pv_test(Thive_massive_call_obj massive-call-obj.cpp massive_common.cpp)
 target_link_libraries(Thive_massive_call_obj ${COMMON_LIBRARIES})
 add_test(TestHiveCallObject run-massive-call-obj.sh)
 
-add_executable(Thive_massive_call_prop massive-call-prop.cpp massive_common.cpp)
+declare_pv_test(Thive_massive_call_prop massive-call-prop.cpp massive_common.cpp)
 target_link_libraries(Thive_massive_call_prop ${COMMON_LIBRARIES})
 add_test(TestHiveCallProperty run-massive-call-prop.sh)
 
 QT4_WRAP_CPP(TEST_MQ_MOC_SRC message-queue.h OPTIONS ${QT4_WRAP_OPTIONS})
 
-add_executable(Tmessage-queue message-queue.cpp ${TEST_MQ_MOC_SRC})
+declare_pv_test(Tmessage-queue message-queue.cpp ${TEST_MQ_MOC_SRC})
 target_link_libraries(Tmessage-queue ${COMMON_LIBRARIES})
 
 include_directories(AFTER ${PICVIZ_INCLUDE_DIR})
 
-add_executable(Thive_call_helper call_helper.cpp)
+declare_pv_test(Thive_call_helper call_helper.cpp)
 target_link_libraries(Thive_call_helper ${COMMON_LIBRARIES})
 add_test(TestHiveCallHelper Thive_call_helper)
 
 QT4_WRAP_CPP(TEST_FUNC_OBSERVER_THREAD_MOC_SRC func_observer_thread.h OPTIONS ${QT4_WRAP_OPTIONS})
-add_executable(Tcore_func_observer_thread func_observer_thread.cpp ${TEST_FUNC_OBSERVER_THREAD_MOC_SRC})
+declare_pv_test(Tcore_func_observer_thread func_observer_thread.cpp ${TEST_FUNC_OBSERVER_THREAD_MOC_SRC})
 target_link_libraries(Tcore_func_observer_thread ${COMMON_LIBRARIES})
+
+declare_lib_tests_target()

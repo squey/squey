@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(picviz-inspector)
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
+cmake_policy(SET CMP0002 OLD)
 
 include(CTest)
 
@@ -67,6 +68,7 @@ ADD_CUSTOM_TARGET(alltests COMMAND make)
 PV_QT4_UI_INC_DIR(QT_UI_INCLUDE_DIR)
 
 add_subdirectory(scripts)
+
 declare_internal_library(pvkernel)
 
 # Helpers means various stuff we can use
@@ -82,6 +84,13 @@ declare_internal_library(pvguiqt)
 #declare_internal_library(pvhitgraph)
 
 add_subdirectory(gui-qt)
+
+# Declare test suite target
+# It has been populated thanks to the declare_pv_test macro
+#
+add_custom_target(testsuite DEPENDS ${__TESTS_TARGETS})
+# JBL's special request
+add_custom_target(love DEPENDS testsuite)
 
 
 message(STATUS "CUDA found: " ${CUDA_FOUND})
