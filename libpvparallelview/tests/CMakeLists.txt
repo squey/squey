@@ -181,3 +181,5 @@ if (CUDA_FOUND)
 	#declare_pv_test(zoomed_zone_tree_render2 zoomed_zone_tree_render2.cpp)
 	#target_link_libraries(zoomed_zone_tree_render2 ${LINK_LIBRARIES})
 endif (CUDA_FOUND)
+
+declare_lib_tests_target()

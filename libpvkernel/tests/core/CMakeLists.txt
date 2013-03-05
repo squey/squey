@@ -163,3 +163,5 @@ target_link_libraries(Tcore_lambda_connect pvkernel ${QT_LIBRARIES})
 declare_pv_test(Tcore_intrinsics intrinsics.cpp)
 target_link_libraries(Tcore_intrinsics pvkernel)
 add_test(TestIntrinsics Tcore_intrinsics)
+
+declare_lib_tests_target()

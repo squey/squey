@@ -26,6 +26,12 @@ macro(propagate_tests_targets_to_parent)
 	set(__TESTS_TARGETS ${__TESTS_TARGETS} PARENT_SCOPE)
 endmacro()
 
+macro(declare_lib_tests_target)
+	add_custom_target(testsuite DEPENDS ${__OWN_TESTS_TARGETS})
+	# JBL's special request
+	add_custom_target(love DEPENDS testsuite)
+endmacro()
+
 function(strcasecmp res str1 str2)
 	string(TOLOWER ${str1} str1_lower)
 	string(TOLOWER ${str2} str2_lower)

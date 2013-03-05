@@ -78,3 +78,5 @@ add_test(TestHiveCallHelper Thive_call_helper)
 QT4_WRAP_CPP(TEST_FUNC_OBSERVER_THREAD_MOC_SRC func_observer_thread.h OPTIONS ${QT4_WRAP_OPTIONS})
 declare_pv_test(Tcore_func_observer_thread func_observer_thread.cpp ${TEST_FUNC_OBSERVER_THREAD_MOC_SRC})
 target_link_libraries(Tcore_func_observer_thread ${COMMON_LIBRARIES})
+
+declare_lib_tests_target()

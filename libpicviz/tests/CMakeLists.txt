@@ -71,3 +71,5 @@ target_link_libraries(Tpicviz_cat_plotted ${LINK_LIBRARIES})
 
 declare_pv_test(Tpicviz_process picviz-process.cpp)
 target_link_libraries(Tpicviz_process ${LINK_LIBRARIES})
+
+declare_lib_tests_target()

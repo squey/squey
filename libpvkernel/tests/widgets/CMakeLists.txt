@@ -24,3 +24,4 @@ QT4_WRAP_CPP(PVGV_MOC mygraphicsview.h OPTIONS ${QT4_WRAP_OPTIONS})
 declare_pv_test(Epvgraphicsview pvgraphicsview.cpp ${PVGV_MOC})
 target_link_libraries(Epvgraphicsview pvkernel ${QT_LIBRARIES})
 
+declare_lib_tests_target()

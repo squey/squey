@@ -91,3 +91,5 @@ target_link_libraries(Tqt_AD2GWidget ${COMMON_LIBRARIES})
 # Listing filter performance
 declare_pv_test(Pqt_listing_sel_filter listing_sel_filter_perfs.cpp)
 target_link_libraries(Pqt_listing_sel_filter ${COMMON_LIBRARIES})
+
+declare_lib_tests_target()
