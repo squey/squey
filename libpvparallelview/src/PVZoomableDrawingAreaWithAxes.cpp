@@ -107,11 +107,11 @@ QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_y_value_at(const qint
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomableDrawingAreaWithAxes::drawBackground
+ * PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_margins
  *****************************************************************************/
 
-void PVParallelView::PVZoomableDrawingAreaWithAxes::drawBackground(QPainter *painter,
-                                                                   const QRectF &rect)
+void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_margins(QPainter *painter,
+	                                                              const QRectF &rect)
 {
 	int margin_top = get_scene_top_margin();
 	int margin_left = get_scene_left_margin();
@@ -135,11 +135,11 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::drawBackground(QPainter *pai
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomableDrawingAreaWithAxes::drawForeground
+ * PVParallelView::PVZoomableDrawingAreaWithAxes::draw_decorations
  *****************************************************************************/
 
-void PVParallelView::PVZoomableDrawingAreaWithAxes::drawForeground(QPainter *painter,
-                                                                   const QRectF &rect)
+void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_decorations(QPainter *painter,
+                                                                     const QRectF &rect)
 {
 	qreal top = get_scene_top_margin();
 	qreal left = get_scene_left_margin();
@@ -187,7 +187,6 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::drawForeground(QPainter *pai
 	}
 #else
 	qreal ticks_gap = scene_in_screen.width() / (qreal)_ticks_count;
-	
 #endif
 
 	/* y scale
@@ -218,6 +217,17 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::drawForeground(QPainter *pai
 	}
 
 	painter->restore();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingAreaWithAxes::drawBackground
+ *****************************************************************************/
+
+void PVParallelView::PVZoomableDrawingAreaWithAxes::drawBackground(QPainter *painter,
+                                                                   const QRectF &rect)
+{
+	recompute_margins(painter, rect);
+	draw_decorations(painter, rect);
 }
 
 /*****************************************************************************
