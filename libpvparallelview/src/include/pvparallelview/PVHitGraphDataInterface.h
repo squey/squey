@@ -27,9 +27,31 @@ public:
 	virtual ~PVHitGraphDataInterface();
 
 public:
-	virtual void process_all(PVZoneTree const& zt, uint32_t const* col_plotted, PVRow const nrows, uint32_t const y_min, int const zoom, int const block_start, int const nblocks) = 0;
-	virtual void process_sel(PVZoneTree const& zt, uint32_t const* col_plotted, PVRow const nrows, uint32_t const y_min, int const zoom, int const block_start, int const nblocks, Picviz::PVSelection const& sel) = 0;
-	virtual void process_allandsel(PVZoneTree const& zt, uint32_t const* col_plotted, PVRow const nrows, uint32_t const y_min, int const zoom, int const block_start, int const nblocks, Picviz::PVSelection const& sel);
+	struct ProcessParams
+	{
+		ProcessParams(PVZoneTree const& zt_, uint32_t const* col_plotted_, PVRow const nrows_, uint32_t const y_min_, int const zoom_, int const block_start_, int const nblocks_):
+			zt(zt_),
+			col_plotted(col_plotted_),
+			nrows(nrows_),
+			y_min(y_min_),
+			zoom(zoom_),
+			block_start(block_start_),
+			nblocks(nblocks_)
+		{ }
+
+		PVZoneTree const& zt;
+		uint32_t const* col_plotted;
+		PVRow const nrows;
+		uint32_t const y_min;
+		int const zoom;
+		int const block_start;
+		int const nblocks;
+	};
+
+public:
+	virtual void process_all(ProcessParams const& params) = 0;
+	virtual void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel) = 0;
+	virtual void process_allandsel(ProcessParams const& params, Picviz::PVSelection const& sel);
 
 public:
 	void shift_left(int n);

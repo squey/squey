@@ -6,7 +6,7 @@
 
 #include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/PVHitGraphDataOMP.h>
-#include <pvparallelview/PVHitGraphDataZT.h>
+#include <pvparallelview/PVHitGraphDataZTRight.h>
 
 #include "common.h"
 
@@ -67,9 +67,6 @@ int main(int argc, char **argv)
 
 	PVParallelView::PVHitGraphDataOMP lib_omp;
 	lib_omp.process(zt, col_y2, row_count, 0, 
-
-	PVParallelView::PVHitGraphDataZT lib_zt;
-	lib_zt.process(
 
 	return 0;
 }

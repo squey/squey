@@ -313,29 +313,29 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 // Public interfaces
 //
 
-void PVParallelView::PVHitGraphDataOMP::process_all(PVZoneTree const&, uint32_t const* col_plotted, PVRow const nrows, uint32_t const y_min, int const zoom, int const block_start, int const nblocks)
+void PVParallelView::PVHitGraphDataOMP::process_all(ProcessParams const& p)
 {
-	int nblocks_ = std::min(nblocks, PVHitGraphCommon::NBLOCKS - block_start);
+	int nblocks_ = std::min(p.nblocks, PVHitGraphCommon::NBLOCKS - p.block_start);
 	if (nblocks_ <= 0) {
 		return;
 	}
 
-	uint32_t* const buf_block = buffer_all().buffer_block(block_start);
+	uint32_t* const buf_block = buffer_all().buffer_block(p.block_start);
 	if (nblocks_ == 1) {
-		count_y1_omp_sse_v4(nrows, col_plotted, y_min, zoom, buf_block, _omp_ctx);
+		count_y1_omp_sse_v4(p.nrows, p.col_plotted, p.y_min, p.zoom, buf_block, _omp_ctx);
 	}
 	else {
-		count_y1_omp_sse_v4(nrows, col_plotted, y_min, zoom, buf_block, nblocks_, _omp_ctx);
+		count_y1_omp_sse_v4(p.nrows, p.col_plotted, p.y_min, p.zoom, buf_block, nblocks_, _omp_ctx);
 	}
 }
 
-void PVParallelView::PVHitGraphDataOMP::process_sel(PVZoneTree const&, uint32_t const* col_plotted, PVRow const nrows, uint32_t const y_min, int const zoom, int const block_start, int const nblocks, Picviz::PVSelection const& sel)
+void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p, Picviz::PVSelection const& sel)
 {
-	int nblocks_ = std::min(nblocks, PVHitGraphCommon::NBLOCKS - block_start);
+	int nblocks_ = std::min(p.nblocks, PVHitGraphCommon::NBLOCKS - p.block_start);
 	if (nblocks_ <= 0) {
 		return;
 	}
 
-	uint32_t* const buf_block = buffer_all().buffer_block(block_start);
-	count_y1_sel_omp_sse_v4(nrows, col_plotted, sel, y_min, zoom, buf_block, nblocks_, _omp_ctx);
+	uint32_t* const buf_block = buffer_all().buffer_block(p.block_start);
+	count_y1_sel_omp_sse_v4(p.nrows, p.col_plotted, sel, p.y_min, p.zoom, buf_block, nblocks_, _omp_ctx);
 }

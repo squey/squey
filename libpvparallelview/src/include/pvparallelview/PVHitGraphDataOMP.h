@@ -9,8 +9,8 @@ namespace PVParallelView {
 class PVHitGraphDataOMP: public PVHitGraphDataInterface
 {
 public:
-	void process_all(PVZoneTree const& zt, uint32_t const* col_plotted, PVRow const nrows, uint32_t const y_min, int const zoom, int const block_start, int const nblocks) override;
-	void process_sel(PVZoneTree const& zt, uint32_t const* col_plotted, PVRow const nrows, uint32_t const y_min, int const zoom, int const block_start, int const nblocks, Picviz::PVSelection const& sel) override;
+	void process_all(ProcessParams const& params) override;
+	void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel) override;
 
 public:
 	struct omp_ctx_t
