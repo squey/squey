@@ -19,12 +19,14 @@ PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(PVZoneTree cons
 
 bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint32_t y_min, const int zoom, const float alpha)
 {
-	if (last_zoom() != zoom) {
+	if (last_zoom() != zoom ||
+	    (full_view() && (alpha != 0.5f))) {
 		// Reprocess everything
 		_data_params.zoom = zoom;
 		_data_params.y_min = y_min;
 		_data_params.block_start = 0;
 		_data_params.nblocks = full_view() ? 1 : nblocks();
+		_last_alpha = alpha;
 
 		process_all();
 		return true;
