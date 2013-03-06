@@ -49,9 +49,9 @@ public:
 	};
 
 public:
-	virtual void process_all(ProcessParams const& params) = 0;
+	virtual void process_bg(ProcessParams const& params) = 0;
 	virtual void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel) = 0;
-	virtual void process_allandsel(ProcessParams const& params, Picviz::PVSelection const& sel);
+	virtual void process_bgandsel(ProcessParams const& params, Picviz::PVSelection const& sel);
 
 	void process_zoom_reduction(const float alpha);
 

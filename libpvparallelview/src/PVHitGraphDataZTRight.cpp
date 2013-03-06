@@ -66,7 +66,7 @@ static void hist_from_zt_one_branch(PVParallelView::PVZoneTree const& zt, uint32
 // Public interfaces
 //
 
-void PVParallelView::PVHitGraphDataZTRight::process_all(ProcessParams const& p)
+void PVParallelView::PVHitGraphDataZTRight::process_bg(ProcessParams const& p)
 {
 	int nblocks_ = std::min(p.nblocks, PVHitGraphCommon::NBLOCKS - p.block_start);
 	if (nblocks_ <= 0) {

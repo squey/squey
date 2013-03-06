@@ -12,7 +12,7 @@ public:
 	PVHitGraphDataOMP(uint32_t nbits, uint32_t nblocks);
 
 public:
-	void process_all(ProcessParams const& params) override;
+	void process_bg(ProcessParams const& params) override;
 	void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel) override;
 
 public:

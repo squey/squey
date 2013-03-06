@@ -9,7 +9,7 @@ namespace PVParallelView {
 class PVHitGraphDataZTRight: public PVHitGraphDataInterface
 {
 public:
-	void process_all(ProcessParams const& params);
+	void process_bg(ProcessParams const& params);
 	void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel) override;
 };
 

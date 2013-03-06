@@ -25,9 +25,9 @@ public:
 
 public:
 	bool change_and_process_view(const uint32_t y_min, const int zoom, const float alpha);
-	void process_all();
+	void process_bg();
 	void process_sel();
-	void process_allandsel();
+	void process_bgandsel();
 
 public:
 	uint32_t const* buffer_all() const;
