@@ -145,8 +145,20 @@ protected:
 	 */
 	virtual QString get_y_value_at(const qint64 value) const;
 
+
+	int get_x_axis_length() const
+	{
+		return _x_axis_length;
+	}
+
+	int get_y_axis_length() const
+	{
+		return _y_axis_length;
+	}
+
 protected:
 	virtual void recompute_margins(QPainter *painter, const QRectF &rect);
+	virtual void recompute_decorations_geometry();
 	virtual void draw_decorations(QPainter *painter, const QRectF &rect);
 
 protected:
@@ -159,6 +171,9 @@ private:
 	QString _y_legend;
 
 	int _ticks_count;
+
+	int _x_axis_length;
+	int _y_axis_length;
 
 	bool _first_resize;
 };
