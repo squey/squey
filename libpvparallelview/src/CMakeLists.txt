@@ -69,10 +69,14 @@ PVZoomedSelectionAxisSliders.cpp
 # Display plugins
 PVDisplayViewAxisZoomed.cpp
 PVDisplayViewFullParallel.cpp
+PVDisplayViewHitCount.cpp
 
 # ZoomableDrawingArea & co
 PVZoomableDrawingArea.cpp
 PVZoomableDrawingAreaWithAxes.cpp
+
+# views
+PVHitCountView.cpp
 )
 
 set(CUDA_SRC_FILES
@@ -116,6 +120,9 @@ include/pvparallelview/PVZoomedSelectionAxisSliders.h
 # ZoomableDrawingArea & co
 include/pvparallelview/PVZoomableDrawingArea.h
 include/pvparallelview/PVZoomableDrawingAreaWithAxes.h
+
+# views
+include/pvparallelview/PVHitCountView.h
 )
 
 SET(MOC_HEADERS
@@ -134,6 +141,7 @@ include/pvparallelview/PVSelectionAxisSliders.h
 include/pvparallelview/PVZoomAxisSliders.h
 include/pvparallelview/PVZoomedSelectionAxisSliders.h
 include/pvparallelview/PVZoomableDrawingArea.h
+include/pvparallelview/PVHitCountView.h
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})

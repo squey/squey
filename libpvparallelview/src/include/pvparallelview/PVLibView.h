@@ -32,6 +32,7 @@ class PVFullParallelScene;
 class PVFullParallelView;
 class PVZoomedParallelScene;
 class PVZoomedParallelView;
+class PVHitCountView;
 class PVSlidersManager;
 
 class PVLibView
@@ -39,6 +40,7 @@ class PVLibView
 private:
 	typedef std::list<PVFullParallelScene*> scene_list_t;
 	typedef std::vector<PVZoomedParallelScene*> zoomed_scene_list_t;
+	typedef std::vector<PVHitCountView*> hit_count_view_list_t;
 	friend class process_selection_Observer;
 
 public:
@@ -50,12 +52,15 @@ public:
 public:
 	PVFullParallelView* create_view(QWidget* parent = NULL);
 	PVZoomedParallelView* create_zoomed_view(PVCol const axis, QWidget* parent = NULL);
+	PVHitCountView* create_hit_count_view(PVCol const axis, QWidget* parent = NULL);
+
 	void request_zoomed_zone_trees(const PVCol axis);
 	PVZonesManager& get_zones_manager() { return _zones_manager; }
 	Picviz::PVView* lib_view() { return _obs_view->get_object(); }
 
 	void remove_view(PVFullParallelScene *scene);
 	void remove_zoomed_view(PVZoomedParallelScene *scene);
+	void remove_hit_count_view(PVHitCountView *view);
 
 protected:
 	void selection_updated();
@@ -80,6 +85,7 @@ private:
 	PVHive::PVObserver_p<Picviz::PVPlotting>  _obs_plotting;
 	scene_list_t                              _parallel_scenes;
 	zoomed_scene_list_t                       _zoomed_parallel_scenes;
+	hit_count_view_list_t                     _hit_count_views;
 	PVCore::PVHSVColor                 const* _colors;
 
 	PVZonesProcessor _processor_sel;

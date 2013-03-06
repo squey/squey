@@ -21,6 +21,7 @@
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
+#include <pvparallelview/PVHitCountView.h>
 
 #include <iostream>
 
@@ -144,6 +145,28 @@ PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_v
 	return view;
 }
 
+PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view(PVCol const axis,
+	                                                                         QWidget* parent)
+{
+	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
+
+	const uint32_t *uint_plotted =
+		Picviz::PVPlotted::get_plotted_col_addr(_zones_manager.get_uint_plotted(),
+		                                        _zones_manager.get_number_rows(),
+		                                        axis);
+
+	PVHitCountView* view = new PVHitCountView(view_sp,
+	                                          _zones_manager.get_zone_tree<PVZoneTree>(axis),
+	                                          uint_plotted,
+	                                          _zones_manager.get_number_rows(),
+	                                          axis,
+	                                          parent);
+
+	_hit_count_views.push_back(view);
+
+	return view;
+}
+
 void PVParallelView::PVLibView::request_zoomed_zone_trees(const PVCol axis)
 {
 	if (axis > 0) {
@@ -166,6 +189,11 @@ void PVParallelView::PVLibView::view_about_to_be_deleted()
 		view->deleteLater();
 	}
 
+	for (PVHitCountView* view: _hit_count_views) {
+		view->about_to_be_deleted();
+		view->deleteLater();
+	}
+
 	PVParallelView::common::remove_lib_view(*lib_view());
 }
 
@@ -180,7 +208,7 @@ void PVParallelView::PVLibView::selection_updated()
 		view->update_new_selection_async();
 	}
 
-	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
+	for (PVHitCountView* view: _hit_count_views) {
 		view->update_new_selection_async();
 	}
 }
@@ -198,7 +226,12 @@ void PVParallelView::PVLibView::output_layer_updated()
 	for (PVFullParallelScene* view: _parallel_scenes) {
 		view->update_all_async();
 	}
+
 	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
+		view->update_all_async();
+	}
+
+	for (PVHitCountView* view: _hit_count_views) {
 		view->update_all_async();
 	}
 }
@@ -234,6 +267,10 @@ void PVParallelView::PVLibView::plotting_updated()
 		}
 	}
 
+	for (PVHitCountView* view: _hit_count_views) {
+		view->set_enabled(false);
+	}
+
 	for (PVZoneID z: zones_to_update) {
 		get_zones_manager().update_zone(z);
 		_processor_bg.invalidate_zone_preprocessing(z);
@@ -248,6 +285,11 @@ void PVParallelView::PVLibView::plotting_updated()
 	for (PVZoomedParallelScene* view: concerned_zoom) {
 		view->set_enabled(true);
 		request_zoomed_zone_trees(view->get_axis_index());
+		view->update_all_async();
+	}
+
+	for (PVHitCountView* view: _hit_count_views) {
+		view->set_enabled(true);
 		view->update_all_async();
 	}
 }
@@ -343,3 +385,15 @@ void PVParallelView::PVLibView::remove_zoomed_view(PVZoomedParallelScene *scene)
 		_zoomed_parallel_scenes.erase(it);
 	}
 }
+
+void PVParallelView::PVLibView::remove_hit_count_view(PVHitCountView *view)
+{
+	hit_count_view_list_t::iterator it = std::find(_hit_count_views.begin(),
+	                                               _hit_count_views.end(),
+	                                               view);
+
+	if (it != _hit_count_views.end()) {
+		_hit_count_views.erase(it);
+	}
+}
+
