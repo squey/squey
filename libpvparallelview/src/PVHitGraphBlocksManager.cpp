@@ -1,6 +1,8 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
 
+#include <cassert>
+
 inline static uint32_t masked_y_min(const uint32_t ymin)
 {
 	return ymin >> (32-PARALLELVIEW_ZZT_BBITS);
@@ -10,7 +12,8 @@ PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(PVZoneTree cons
 	_data_z0(PARALLELVIEW_ZT_BBITS, 1),
 	_data(PARALLELVIEW_ZZT_BBITS, nblocks),
 	_sel(sel),
-	_data_params(zt, col_plotted, nrows, 0, -1, 0, nblocks)
+	_data_params(zt, col_plotted, nrows, 0, -1, 0, nblocks),
+	_last_alpha(0.5f)
 {
 }
 
@@ -54,7 +57,9 @@ void PVParallelView::PVHitGraphBlocksManager::process_all()
 		_data_z0.process_all(_data_params);
 	}
 	else {
+		assert(_last_alpha != 0.0f);
 		_data.process_all(_data_params);
+		_data.buffer_all().process_zoom_reduction(_last_alpha);
 	}
 }
 
@@ -64,7 +69,9 @@ void PVParallelView::PVHitGraphBlocksManager::process_sel()
 		_data_z0.process_sel(_data_params, _sel);
 	}
 	else {
+		assert(_last_alpha != 0.0f);
 		_data.process_sel(_data_params, _sel);
+		_data.buffer_sel().process_zoom_reduction(_last_alpha);
 	}
 }
 
@@ -74,7 +81,9 @@ void PVParallelView::PVHitGraphBlocksManager::process_allandsel()
 		_data_z0.process_allandsel(_data_params, _sel);
 	}
 	else {
+		assert(_last_alpha != 0.0f);
 		_data.process_allandsel(_data_params, _sel);
+		_data.process_zoom_reduction(_last_alpha);
 	}
 }
 
@@ -98,5 +107,5 @@ uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_sel() const
 
 uint32_t const PVParallelView::PVHitGraphBlocksManager::y_start() const
 {
-	return masked_y_min(_data_params.y_min);
+	return masked_y_min(_data_params.y_min) << (32-PARALLELVIEW_ZZT_BBITS);
 }
