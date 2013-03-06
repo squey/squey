@@ -17,16 +17,16 @@ PVParallelView::PVHitGraphDataInterface::~PVHitGraphDataInterface()
 {
 }
 
-void PVParallelView::PVHitGraphDataInterface::shift_left(const uint32_t n, const float alpha)
+void PVParallelView::PVHitGraphDataInterface::shift_left(const uint32_t n)
 {
-	buffer_all().shift_left(n, alpha);
-	buffer_sel().shift_left(n, alpha);
+	buffer_all().shift_left(n);
+	buffer_sel().shift_left(n);
 }
 
-void PVParallelView::PVHitGraphDataInterface::shift_right(const uint32_t n, const float alpha)
+void PVParallelView::PVHitGraphDataInterface::shift_right(const uint32_t n)
 {
-	buffer_all().shift_right(n, alpha);
-	buffer_sel().shift_right(n, alpha);
+	buffer_all().shift_right(n);
+	buffer_sel().shift_right(n);
 }
 
 void PVParallelView::PVHitGraphDataInterface::process_allandsel(ProcessParams const& params, Picviz::PVSelection const& sel)

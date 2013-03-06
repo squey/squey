@@ -24,7 +24,7 @@ public:
 	PVHitGraphBlocksManager(PVZoneTree const& zt, const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Picviz::PVSelection const& sel);
 
 public:
-	void change_and_process_view(const uint32_t y_min, const int zoom, const float alpha);
+	bool change_and_process_view(const uint32_t y_min, const int zoom, const float alpha);
 	void process_all();
 	void process_sel();
 	void process_allandsel();
@@ -41,6 +41,10 @@ protected:
 	inline float last_alpha() const { return _last_alpha; }
 	inline uint32_t nblocks() const { return _data.nblocks(); }
 	inline bool full_view() const { return _data_params.zoom == 0; }
+	PVHitGraphData& hgdata();
+	PVHitGraphData const& hgdata() const;
+
+	void shift_blocks(int blocks_shift);
 
 protected:
 	PVHitGraphData _data_z0; // Data for initial zoom (with 10-bit precision)

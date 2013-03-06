@@ -75,8 +75,10 @@ public:
 
 public:
 	void set_zero();
-	void shift_left(const uint32_t nblocks, const float alpha);
-	void shift_right(const uint32_t nblocks, const float alpha);
+	void shift_left(const uint32_t nblocks);
+	void shift_right(const uint32_t nblocks);
+	void shift_zoomed_left(const uint32_t nblocks, const float alpha);
+	void shift_zoomed_right(const uint32_t nblocks, const float alpha);
 	void process_zoom_reduction_inplace(const float alpha);
 	inline void process_zoom_reduction(const float alpha) { process_zoom_reduction(alpha, _zoomed_buf); }
 
