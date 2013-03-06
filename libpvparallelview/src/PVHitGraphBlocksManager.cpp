@@ -26,7 +26,7 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 		_data_params.block_start = 0;
 		_data_params.nblocks = full_view() ? 1 : nblocks();
 
-		process_bgandsel();
+		process_all();
 		return true;
 	}
 
@@ -44,7 +44,7 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 			// Reprocess all
 			_data_params.block_start = 0;
 			_data_params.nblocks = full_view() ? 1 : nblocks();
-			process_bgandsel();
+			process_all();
 			return true;
 		}
 
@@ -64,7 +64,7 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 			_data_params.nblocks = blocks_shift;
 		}
 
-		process_bgandsel();
+		process_all();
 		
 		// Set last params to the full block range
 		// (in case a reprocessing will be necessary)
@@ -116,16 +116,16 @@ void PVParallelView::PVHitGraphBlocksManager::process_sel()
 	}
 }
 
-void PVParallelView::PVHitGraphBlocksManager::process_bgandsel()
+void PVParallelView::PVHitGraphBlocksManager::process_all()
 {
 	if (full_view()) {
 		_data_z0.set_zero();
-		_data_z0.process_bgandsel(_data_params, _sel);
+		_data_z0.process_all(_data_params, _sel);
 	}
 	else {
 		assert(_last_alpha != 0.0f);
 		_data.set_zero();
-		_data.process_bgandsel(_data_params, _sel);
+		_data.process_all(_data_params, _sel);
 		_data.process_zoom_reduction(_last_alpha);
 	}
 }
