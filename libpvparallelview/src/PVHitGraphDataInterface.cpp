@@ -5,7 +5,9 @@
 // PVHitGraphData
 //
 
-PVParallelView::PVHitGraphDataInterface::PVHitGraphDataInterface()
+PVParallelView::PVHitGraphDataInterface::PVHitGraphDataInterface(uint32_t nbits, uint32_t nblocks):
+	_buf_all(nbits, nblocks),
+	_buf_sel(nbits, nblocks)
 {
 	buffer_all().set_zero();
 	buffer_sel().set_zero();
@@ -31,4 +33,10 @@ void PVParallelView::PVHitGraphDataInterface::process_allandsel(ProcessParams co
 {
 	process_all(params);
 	process_sel(params, sel);
+}
+
+void PVParallelView::PVHitGraphDataInterface::process_zoom_reduction(const float alpha)
+{
+	buffer_all().process_zoom_reduction(alpha);
+	buffer_sel().process_zoom_reduction(alpha);
 }

@@ -6,8 +6,8 @@
 #include <omp.h>
 
 // Constants used by the OMP code
-#define NBITS (PVParallelView::PVHitGraphCommon::NBITS) // Number of bits used by the reduction
-#define BUFFER_SIZE (PVParallelView::PVHitGraphBuffer::SIZE_BLOCK) // Number of integers in one block
+//#define NBITS (PVParallelView::PVHitGraphCommon::NBITS) // Number of bits used by the reduction
+//#define BUFFER_SIZE (PVParallelView::PVHitGraphBuffer::SIZE_BLOCK) // Number of integers in one block
 
 //
 // OMP specific context structure
@@ -15,6 +15,8 @@
 
 PVParallelView::PVHitGraphDataOMP::omp_ctx_t::omp_ctx_t(uint32_t size)
 {
+	// "size" is the number of integers of a thread-specific buffer
+	// (thus = nblocks * size_int_block)
 	_core_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
 	_buffers = new uint32_t * [_core_num];
 	_buffer_size = size;
@@ -53,10 +55,11 @@ void PVParallelView::PVHitGraphDataOMP::omp_ctx_t::clear()
 // Optimised version for 1 block, no-selection
 static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
                          const uint64_t y_min, const int zoom,
-                         uint32_t *buffer, PVParallelView::PVHitGraphDataOMP::omp_ctx_t &ctx)
+                         uint32_t *buffer, PVParallelView::PVHitGraphDataOMP::omp_ctx_t &ctx,
+						 size_t nbits, size_t size_block_int)
 {
-	const int idx_shift = (32 - NBITS) - zoom;
-	const uint32_t idx_mask = (1 << NBITS) - 1;
+	const int idx_shift = (32 - nbits) - zoom;
+	const uint32_t idx_mask = (1 << nbits) - 1;
 	const __m128i idx_mask_sse = _mm_set1_epi32(idx_mask);
 	const uint32_t zoom_shift = 32 - zoom;
 	const int32_t base_y = y_min >> zoom_shift;
@@ -114,7 +117,7 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 	}
 
 	// final reduction
-	size_t packed_size = BUFFER_SIZE & ~3;
+	size_t packed_size = size_block_int & ~3;
 	for (size_t j = 0; j < packed_size; j += 4) {
 		__m128i global_sse = _mm_setzero_si128();
 
@@ -130,10 +133,11 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 // Version for N blocks (N >= 2), no-selection
 static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
                          const uint64_t y_min, const int zoom,
-                         uint32_t *buffer, int block_count, PVParallelView::PVHitGraphDataOMP::omp_ctx_t &ctx)
+                         uint32_t *buffer, int block_count, PVParallelView::PVHitGraphDataOMP::omp_ctx_t &ctx,
+						 size_t nbits, size_t size_block_int)
 {
-	const int idx_shift = (32 - NBITS) - zoom;
-	const uint32_t idx_mask = (1 << NBITS) - 1;
+	const int idx_shift = (32 - nbits) - zoom;
+	const uint32_t idx_mask = (1 << nbits) - 1;
 	const __m128i idx_mask_sse = _mm_set1_epi32(idx_mask);
 	const uint32_t zoom_shift = 32 - zoom;
 	const int32_t base_y = y_min >> zoom_shift;
@@ -160,7 +164,7 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 				continue;
 			}
 
-			const __m128i off_sse = _mm_add_epi32(_mm_slli_epi32(p_sse, NBITS),
+			const __m128i off_sse = _mm_add_epi32(_mm_slli_epi32(p_sse, nbits),
 			                                      _mm_and_si128(_mm_srli_epi32(y_sse,
 			                                                                   idx_shift),
 			                                                    idx_mask_sse));
@@ -190,11 +194,11 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 			continue;
 		}
 		const uint32_t idx = (y >> idx_shift) & idx_mask;
-		++first_buffer[(p<<NBITS) + idx];
+		++first_buffer[(p<<nbits) + idx];
 	}
 
 	// final reduction
-	size_t packed_size = (BUFFER_SIZE * block_count) & ~3;
+	size_t packed_size = (size_block_int * block_count) & ~3;
 	for (size_t j = 0; j < packed_size; j += 4) {
 		__m128i global_sse = _mm_setzero_si128();
 
@@ -211,7 +215,8 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
                              const Picviz::PVSelection &selection,
                              const uint64_t y_min, const int zoom,
-                             uint32_t *buffer, int block_count, PVParallelView::PVHitGraphDataOMP::omp_ctx_t &ctx)
+                             uint32_t *buffer, int block_count, PVParallelView::PVHitGraphDataOMP::omp_ctx_t &ctx,
+                             size_t nbits, size_t size_block_int)
 {
 	static DECLARE_ALIGN(16)__m128i mask[16] = { _mm_set_epi32( 0,  0,  0,  0),
 	                                             _mm_set_epi32( 0,  0,  0, -1),
@@ -230,8 +235,8 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 	                                             _mm_set_epi32(-1, -1, -1,  0),
 	                                             _mm_set_epi32(-1, -1, -1, -1) };
 
-	const int idx_shift = (32 - NBITS) - zoom;
-	const uint32_t idx_mask = (1 << NBITS) - 1;
+	const int idx_shift = (32 - nbits) - zoom;
+	const uint32_t idx_mask = (1 << nbits) - 1;
 	const __m128i idx_mask_sse = _mm_set1_epi32(idx_mask);
 	const uint32_t zoom_shift = 32 - zoom;
 	const uint32_t base_y = y_min >> zoom_shift;
@@ -261,7 +266,7 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 				continue;
 			}
 
-			const __m128i off_sse = _mm_add_epi32(_mm_slli_epi32(p_sse, NBITS),
+			const __m128i off_sse = _mm_add_epi32(_mm_slli_epi32(p_sse, nbits),
 			                                      _mm_and_si128(_mm_srli_epi32(y_sse, idx_shift),
 			                                                    idx_mask_sse));
 
@@ -292,11 +297,11 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 			continue;
 		}
 		const uint32_t idx = (y >> idx_shift) & idx_mask;
-		++first_buffer[(p<<NBITS) + idx];
+		++first_buffer[(p<<nbits) + idx];
 	}
 
 	// final reduction
-	size_t packed_size = (BUFFER_SIZE * block_count) & ~3;
+	size_t packed_size = (size_block_int * block_count) & ~3;
 	for (size_t j = 0; j < packed_size; j += 4) {
 		__m128i global_sse = _mm_setzero_si128();
 
@@ -313,9 +318,14 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 // Public interfaces
 //
 
+PVParallelView::PVHitGraphDataOMP::PVHitGraphDataOMP(uint32_t nbits, uint32_t nblocks):
+	PVHitGraphDataInterface(nbits, nblocks),
+	_omp_ctx(nblocks*size_block())
+{
+}
 void PVParallelView::PVHitGraphDataOMP::process_all(ProcessParams const& p)
 {
-	int nblocks_ = std::min(p.nblocks, PVHitGraphCommon::NBLOCKS - p.block_start);
+	int nblocks_ = std::min((uint32_t) p.nblocks, nblocks() - p.block_start);
 	if (nblocks_ <= 0) {
 		return;
 	}
@@ -324,16 +334,16 @@ void PVParallelView::PVHitGraphDataOMP::process_all(ProcessParams const& p)
 
 	uint32_t* const buf_block = buffer_all().buffer_block(p.block_start);
 	if (nblocks_ == 1) {
-		count_y1_omp_sse_v4(p.nrows, p.col_plotted, p.y_min, p.zoom, buf_block, _omp_ctx);
+		count_y1_omp_sse_v4(p.nrows, p.col_plotted, p.y_min, p.zoom, buf_block, _omp_ctx, nbits(), size_block());
 	}
 	else {
-		count_y1_omp_sse_v4(p.nrows, p.col_plotted, p.y_min, p.zoom, buf_block, nblocks_, _omp_ctx);
+		count_y1_omp_sse_v4(p.nrows, p.col_plotted, p.y_min, p.zoom, buf_block, nblocks_, _omp_ctx, nbits(), size_block());
 	}
 }
 
 void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p, Picviz::PVSelection const& sel)
 {
-	int nblocks_ = std::min(p.nblocks, PVHitGraphCommon::NBLOCKS - p.block_start);
+	int nblocks_ = std::min((uint32_t) p.nblocks, nblocks() - p.block_start);
 	if (nblocks_ <= 0) {
 		return;
 	}
@@ -341,5 +351,5 @@ void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p, Picv
 	_omp_ctx.clear();
 
 	uint32_t* const buf_block = buffer_all().buffer_block(p.block_start);
-	count_y1_sel_omp_sse_v4(p.nrows, p.col_plotted, sel, p.y_min, p.zoom, buf_block, nblocks_, _omp_ctx);
+	count_y1_sel_omp_sse_v4(p.nrows, p.col_plotted, sel, p.y_min, p.zoom, buf_block, nblocks_, _omp_ctx, nbits(), size_block());
 }

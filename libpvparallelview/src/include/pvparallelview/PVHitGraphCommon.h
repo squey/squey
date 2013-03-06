@@ -5,10 +5,10 @@ namespace PVParallelView {
 
 namespace PVHitGraphCommon {
 
-enum {
+/*enum {
 	NBITS = 10,
 	NBLOCKS = 2
-};
+};*/
 
 }
 

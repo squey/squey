@@ -23,7 +23,7 @@ class PVZoneTree;
 class PVHitGraphDataInterface: boost::noncopyable
 {
 public:
-	PVHitGraphDataInterface();
+	PVHitGraphDataInterface(uint32_t nbits, uint32_t nblocks);
 	virtual ~PVHitGraphDataInterface();
 
 public:
@@ -41,17 +41,19 @@ public:
 
 		PVZoneTree const& zt;
 		uint32_t const* col_plotted;
-		PVRow const nrows;
-		uint32_t const y_min;
-		int const zoom;
-		int const block_start;
-		int const nblocks;
+		PVRow nrows;
+		uint32_t y_min;
+		int zoom;
+		int block_start;
+		int nblocks;
 	};
 
 public:
 	virtual void process_all(ProcessParams const& params) = 0;
 	virtual void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel) = 0;
 	virtual void process_allandsel(ProcessParams const& params, Picviz::PVSelection const& sel);
+
+	void process_zoom_reduction(const float alpha);
 
 public:
 	void shift_left(int n);
@@ -63,6 +65,11 @@ public:
 
 	PVHitGraphBuffer& buffer_all() { return _buf_all; }
 	PVHitGraphBuffer& buffer_sel() { return _buf_sel; }
+
+public:
+	inline uint32_t nbits() const { return buffer_all().nbits(); }
+	inline uint32_t size_block() const { return buffer_all().size_block(); }
+	inline uint32_t nblocks() const { return buffer_all().nblocks(); }
 
 private:
 	PVHitGraphBuffer _buf_all;
