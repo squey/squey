@@ -50,6 +50,8 @@ public:
 		return *this;
 	}
 
+	bool copy_from(PVHitGraphBuffer const& other);
+
 public:
 	inline uint32_t* buffer() { return _buf; }
 	inline uint32_t const* buffer() const { return _buf; }

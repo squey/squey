@@ -92,3 +92,15 @@ void PVParallelView::PVHitGraphBuffer::process_zoom_reduction(const float alpha,
 		res[new_idx] += _buf[idx];
 	}
 }
+
+bool PVParallelView::PVHitGraphBuffer::copy_from(PVHitGraphBuffer const& o)
+{
+	if (o.size_int() != size_int()) {
+		return false;
+	}
+
+	memcpy(_buf, o._buf, size_bytes());
+	memcpy(_zoomed_buf, o._zoomed_buf, size_bytes());
+
+	return true;
+}

@@ -120,6 +120,9 @@ target_link_libraries(Ehist_plotted_perf ${LINK_LIBRARIES} -lnuma)
 declare_pv_test(zoomable_drawing_area_test zoomable_drawing_area_test.cpp)
 target_link_libraries(zoomable_drawing_area_test ${LINK_LIBRARIES})
 
+declare_pv_test(hitgraph-buffer hitgraph-buffer.cpp)
+target_link_libraries(hitgraph-buffer ${LINK_LIBRARIES})
+
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 	cuda_compile(CUDA_KERNELS bci_cuda.cu)

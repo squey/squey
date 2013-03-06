@@ -841,13 +841,13 @@ void test_no_sel(const size_t real_buffer_size,
 
 	/* Library code
 	 */
-	PVParallelView::PVHitGraphData lib_omp;
+	/*PVParallelView::PVHitGraphData lib_omp;
 	BENCH_START(lib);
 	lib_omp.process_all(PVParallelView::PVHitGraphData::ProcessParams(zt, col_a, row_count, y_min, zoom, 0, block_count));
 	BENCH_END(lib, "library-code", row_count, sizeof(uint32_t), BUFFER_SIZE, sizeof(uint32_t));
 	if (compare(res_seq, lib_omp.buffer_all().buffer(), block_count)) {
 		std::cout << "ok" << std::endl;
-	}
+	}*/
 
 	delete [] hist_seq;
 	delete [] hist_sse;
