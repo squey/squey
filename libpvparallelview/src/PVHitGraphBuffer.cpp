@@ -60,8 +60,8 @@ void PVParallelView::PVHitGraphBuffer::shift_right(const uint32_t n, const float
 	memset(buffer(), 0, n*size_block()*sizeof(uint32_t));
 
 	// Zoomed buffer
-	memmove(zoomed_buffer_block(n, alpha), zoomed_buffer(), nb_moved_blocks*size_block()*sizeof(uint32_t));
-	memset(zoomed_buffer(), 0, n*size_block()*sizeof(uint32_t));
+	memmove(zoomed_buffer_block(n, alpha), zoomed_buffer(), nb_moved_blocks*size_zoomed_block(alpha)*sizeof(uint32_t));
+	memset(zoomed_buffer(), 0, n*size_zoomed_block(alpha)*sizeof(uint32_t));
 }
 
 void PVParallelView::PVHitGraphBuffer::process_zoom_reduction_inplace(const float alpha)
