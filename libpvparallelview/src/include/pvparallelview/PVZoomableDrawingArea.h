@@ -29,6 +29,8 @@ namespace PVParallelView
 
 class PVZoomableDrawingArea : public PVWidgets::PVGraphicsView
 {
+	Q_OBJECT
+
 public:
 	typedef enum {
 		AlongNone = 0,
@@ -158,20 +160,63 @@ protected:
 	 */
 	virtual int scale_to_zoom(const qreal scale_value) const;
 
+	/**
+	 * Returns a transformation given a scale factor
+	 *
+	 * This method has to be overridden if you wish to define
+	 * your own transformation when rendering the scene.
+	 *
+	 * The default behaviour is: zoom controls scale along axes
+	 * which have zoom policy on and forces scene to fit in the
+	 * viewport for those whose zoom policy is off.
+	 *
+	 * @param scale_value a scale value
+	 *
+	 * @return the transformation for scene to viewport rendering
+	 */
+	virtual QTransform scale_to_transform(qreal scale_value);
+
+protected:
 	virtual void mousePressEvent(QMouseEvent *event);
 	virtual void mouseReleaseEvent(QMouseEvent *event);
 	virtual void mouseMoveEvent(QMouseEvent *event);
 	virtual void resizeEvent(QResizeEvent *event);
 	virtual void wheelEvent(QWheelEvent *event);
 
+signals:
+	/**
+	 * This signal is emitted each time a zoom change has been done.
+	 */
+	void zoom_has_changed();
+
+	/**
+	 * This signal is emitted each time a pan change has been done.
+	 */
+	void pan_has_changed();
+
 private:
+	/**
+	 * This method is volontarily private, so use the scene provided
+	 * by ::get_scene()
+	 */
 	void set_scene(QGraphicsScene *scene)
 	{
 		PVWidgets::PVGraphicsView::set_scene(scene);
 	}
 
+	/**
+	 * Simply process from "zoom to scale" to "update widget".
+	 *
+	 * @note If you need to make it protected, your design is necessarily
+	 * wrong.
+	 */
 	void update_zoom();
-	void update_pan();
+
+	/**
+	 * as tranformation updates may changed scrollbars values, those may
+	 * have to be readjusted.
+	 */
+	void adjust_pan();
 
 private:
 	int        _zoom_policy;

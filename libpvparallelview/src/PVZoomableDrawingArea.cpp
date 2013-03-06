@@ -31,7 +31,6 @@ PVParallelView::PVZoomableDrawingArea::PVZoomableDrawingArea(QWidget *parent) :
 
 	QGraphicsScene *scene = new QGraphicsScene();
 	set_scene(scene);
-	update_zoom();
 }
 
 /*****************************************************************************
@@ -91,6 +90,44 @@ int PVParallelView::PVZoomableDrawingArea::scale_to_zoom(const qreal scale_value
 }
 
 /*****************************************************************************
+ * PVParallelView::PVZoomableDrawingArea::scale_to_zoom
+ *****************************************************************************/
+
+QTransform PVParallelView::PVZoomableDrawingArea::scale_to_transform(const qreal scale_value)
+{
+	QTransform transfo;
+
+	switch(_zoom_policy) {
+	case AlongNone:
+		{
+			QRectF v = get_real_viewport_rect();
+			QRectF s = get_scene_rect();
+			transfo.scale(v.width() / s.width(), v.height() / s.height());
+		}
+		break;
+	case AlongX:
+		{
+			QRectF v = get_real_viewport_rect();
+			QRectF s = get_scene_rect();
+			transfo.scale(scale_value, v.height() / s.height());
+		}
+		break;
+	case AlongY:
+		{
+			QRectF v = get_real_viewport_rect();
+			QRectF s = get_scene_rect();
+			transfo.scale(v.width() / s.width(), scale_value);
+		}
+		break;
+	case AlongBoth:
+		transfo.scale(scale_value, scale_value);
+		break;
+	}
+
+	return transfo;
+}
+
+/*****************************************************************************
  * PVParallelView::PVZoomableDrawingArea::mousePressEvent
  *****************************************************************************/
 
@@ -126,6 +163,7 @@ void PVParallelView::PVZoomableDrawingArea::mouseMoveEvent(QMouseEvent *event)
 	PVWidgets::PVGraphicsView::mouseMoveEvent(event);
 
 	if (event->buttons() == Qt::RightButton) {
+		bool has_moved = false;
 		QPoint delta = _pan_reference - event->pos();
 		_pan_reference = event->pos();
 
@@ -134,12 +172,19 @@ void PVParallelView::PVZoomableDrawingArea::mouseMoveEvent(QMouseEvent *event)
 		if (_pan_policy & AlongX) {
 			sb = get_horizontal_scrollbar();
 			sb->setValue(sb->value() + delta.x());
+			has_moved |= true;
 		}
 
 		if (_pan_policy & AlongY) {
 			sb = get_vertical_scrollbar();
 			sb->setValue(sb->value() + delta.y());
+			has_moved |= true;
 		}
+
+		if (has_moved) {
+			emit pan_has_changed();
+		}
+
 		event->accept();
 	}
 }
@@ -151,7 +196,7 @@ void PVParallelView::PVZoomableDrawingArea::mouseMoveEvent(QMouseEvent *event)
 void PVParallelView::PVZoomableDrawingArea::resizeEvent(QResizeEvent *event)
 {
 	PVWidgets::PVGraphicsView::resizeEvent(event);
-	update_pan();
+	update_zoom();
 }
 
 /*****************************************************************************
@@ -166,11 +211,13 @@ void PVParallelView::PVZoomableDrawingArea::wheelEvent(QWheelEvent *event)
 			if (_zoom_value < _zoom_max) {
 				++_zoom_value;
 				update_zoom();
+				emit zoom_has_changed();
 			}
 		} else {
 			if (_zoom_value > _zoom_min) {
 				--_zoom_value;
 				update_zoom();
+				emit zoom_has_changed();
 			}
 		}
 	} else if (event->modifiers() == SLOW_PAN_MODIFIER) {
@@ -180,11 +227,13 @@ void PVParallelView::PVZoomableDrawingArea::wheelEvent(QWheelEvent *event)
 			qint64 v = sb->value();
 			if (v > sb->minimum()) {
 				sb->setValue(v - 1);
+				emit pan_has_changed();
 			}
 		} else {
 			qint64 v = sb->value();
 			if (v < sb->maximum()) {
 				sb->setValue(v + 1);
+				emit pan_has_changed();
 			}
 		}
 	} else if (event->modifiers() == PAN_MODIFIER) {
@@ -192,8 +241,10 @@ void PVParallelView::PVZoomableDrawingArea::wheelEvent(QWheelEvent *event)
 		QScrollBar64 *sb = get_vertical_scrollbar();
 		if (event->delta() > 0) {
 			sb->triggerAction(QAbstractSlider64::SliderSingleStepSub);
+			emit pan_has_changed();
 		} else {
 			sb->triggerAction(QAbstractSlider64::SliderSingleStepAdd);
+			emit pan_has_changed();
 		}
 	}
 
@@ -206,34 +257,20 @@ void PVParallelView::PVZoomableDrawingArea::wheelEvent(QWheelEvent *event)
 
 void PVParallelView::PVZoomableDrawingArea::update_zoom()
 {
-	qreal scale_factor = zoom_to_scale(_zoom_value);
-	QTransform transfo;
-	switch(_zoom_policy) {
-	case AlongNone:
-		break;
-	case AlongX:
-		transfo.scale(scale_factor, 1.);
-		break;
-	case AlongY:
-		transfo.scale(1., scale_factor);
-		break;
-	case AlongBoth:
-		transfo.scale(scale_factor, scale_factor);
-		break;
-	}
+	QTransform transfo = scale_to_transform(zoom_to_scale(_zoom_value));
 
 	set_transform(transfo);
 
-	update_pan();
+	adjust_pan();
 
 	update();
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomableDrawingArea::update_pan
+ * PVParallelView::PVZoomableDrawingArea::adjust_pan
  *****************************************************************************/
 
-void PVParallelView::PVZoomableDrawingArea::update_pan()
+void PVParallelView::PVZoomableDrawingArea::adjust_pan()
 {
 	switch(_pan_policy) {
 	case AlongNone:

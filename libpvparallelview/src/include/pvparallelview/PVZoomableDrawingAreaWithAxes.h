@@ -38,6 +38,14 @@ namespace PVParallelView
  *
  * @todo axes actually hide "0" values. They also must be moved (one pixel to
  * the bottom for the abscissae and one pixel to the left for ordinates").
+ *
+ * @todo the ticks must be moving instead of being fixed
+ *
+ * @todo allow to specify per axis scale type : linear, logarithm
+ *
+ * @todo: allow to specify scale position
+ *
+ * @todo allow to have a context menu.
  */
 
 class PVZoomableDrawingAreaWithAxes : public PVZoomableDrawingArea
@@ -138,8 +146,11 @@ protected:
 	virtual QString get_y_value_at(const qint64 value) const;
 
 protected:
+	virtual void recompute_margins(QPainter *painter, const QRectF &rect);
+	virtual void draw_decorations(QPainter *painter, const QRectF &rect);
+
+protected:
 	virtual void drawBackground(QPainter *painter, const QRectF &rect);
-	virtual void drawForeground(QPainter *painter, const QRectF &rect);
 	virtual void resizeEvent(QResizeEvent *event);
 
 private:
