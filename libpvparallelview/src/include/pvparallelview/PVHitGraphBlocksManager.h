@@ -30,7 +30,7 @@ public:
 	void process_all();
 
 public:
-	uint32_t const* buffer_all() const;
+	uint32_t const* buffer_bg() const;
 	uint32_t const* buffer_sel() const;
 
 	uint32_t const y_start() const;

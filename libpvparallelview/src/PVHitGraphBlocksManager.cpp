@@ -132,7 +132,7 @@ void PVParallelView::PVHitGraphBlocksManager::process_all()
 	}
 }
 
-uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_all() const
+uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_bg() const
 {
 	if (full_view()) {
 		return _data_z0.buffer_all().buffer();
