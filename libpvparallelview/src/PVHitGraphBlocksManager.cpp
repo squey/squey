@@ -54,10 +54,12 @@ void PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 void PVParallelView::PVHitGraphBlocksManager::process_all()
 {
 	if (full_view()) {
+		_data_z0.buffer_all().set_zero();
 		_data_z0.process_all(_data_params);
 	}
 	else {
 		assert(_last_alpha != 0.0f);
+		_data.buffer_all().set_zero();
 		_data.process_all(_data_params);
 		_data.buffer_all().process_zoom_reduction(_last_alpha);
 	}
@@ -66,10 +68,12 @@ void PVParallelView::PVHitGraphBlocksManager::process_all()
 void PVParallelView::PVHitGraphBlocksManager::process_sel()
 {
 	if (full_view()) {
+		_data_z0.buffer_sel().set_zero();
 		_data_z0.process_sel(_data_params, _sel);
 	}
 	else {
 		assert(_last_alpha != 0.0f);
+		_data.buffer_sel().set_zero();
 		_data.process_sel(_data_params, _sel);
 		_data.buffer_sel().process_zoom_reduction(_last_alpha);
 	}
@@ -78,10 +82,12 @@ void PVParallelView::PVHitGraphBlocksManager::process_sel()
 void PVParallelView::PVHitGraphBlocksManager::process_allandsel()
 {
 	if (full_view()) {
+		_data_z0.set_zero();
 		_data_z0.process_allandsel(_data_params, _sel);
 	}
 	else {
 		assert(_last_alpha != 0.0f);
+		_data.set_zero();
 		_data.process_allandsel(_data_params, _sel);
 		_data.process_zoom_reduction(_last_alpha);
 	}

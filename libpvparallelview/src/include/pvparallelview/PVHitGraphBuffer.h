@@ -54,24 +54,35 @@ public:
 	inline uint32_t* buffer() { return _buf; }
 	inline uint32_t const* buffer() const { return _buf; }
 
-	inline uint32_t* buffer_block(int n) { return &_buf[n*size_block()]; }
-	inline uint32_t const* buffer_block(int n) const { return &_buf[n*size_block()]; }
+	inline uint32_t* buffer_block(uint32_t n) { return &_buf[n*size_block()]; }
+	inline uint32_t const* buffer_block(uint32_t n) const { return &_buf[n*size_block()]; }
 
-	inline uint32_t at(int block, int idx) const { return buffer_block(block)[idx]; }
+	inline uint32_t at(uint32_t block, uint32_t idx) const { return buffer_block(block)[idx]; }
 
 	inline uint32_t* zoomed_buffer() { return _zoomed_buf; }
 	inline uint32_t const* zoomed_buffer() const { return _zoomed_buf; }
 
+	inline uint32_t* zoomed_buffer_block(uint32_t n, const float alpha)
+	{
+		return &_zoomed_buf[n*size_zoomed_block(alpha)];
+	}
+	inline uint32_t const* zoomed_buffer_block(uint32_t n, const float alpha) const
+	{
+		return &_zoomed_buf[n*size_zoomed_block(alpha)];
+	}
+
 public:
 	void set_zero();
-	void shift_left(int nblocks);
-	void shift_right(int nblocks);
+	void shift_left(const uint32_t nblocks, const float alpha);
+	void shift_right(const uint32_t nblocks, const float alpha);
 	void process_zoom_reduction_inplace(const float alpha);
 	inline void process_zoom_reduction(const float alpha) { process_zoom_reduction(alpha, _zoomed_buf); }
 
 public:
 	inline uint32_t nbits() const { return _nbits; }
+	// returned size is in number of integers
 	inline uint32_t size_block() const { return _size_block; }
+	inline uint32_t size_zoomed_block(const float alpha) const { return (int)((float)size_block()*alpha); }
 	inline uint32_t nblocks() const { return _nblocks; }
 
 private:

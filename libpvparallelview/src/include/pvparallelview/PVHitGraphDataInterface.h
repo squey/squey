@@ -56,8 +56,8 @@ public:
 	void process_zoom_reduction(const float alpha);
 
 public:
-	void shift_left(int n);
-	void shift_right(int n);
+	void shift_left(const uint32_t nblocks, const float alpha);
+	void shift_right(const uint32_t nblocks, const float alpha);
 
 public:
 	PVHitGraphBuffer const& buffer_all() const { return _buf_all; }
@@ -65,6 +65,12 @@ public:
 
 	PVHitGraphBuffer& buffer_all() { return _buf_all; }
 	PVHitGraphBuffer& buffer_sel() { return _buf_sel; }
+
+	void set_zero()
+	{
+		buffer_all().set_zero();
+		buffer_sel().set_zero();
+	}
 
 public:
 	inline uint32_t nbits() const { return buffer_all().nbits(); }

@@ -34,15 +34,34 @@ void PVParallelView::PVHitGraphBuffer::set_zero()
 }
 
 
-void PVParallelView::PVHitGraphBuffer::shift_left(int n)
+void PVParallelView::PVHitGraphBuffer::shift_left(const uint32_t n, const float alpha)
 {
 	assert(n <= nblocks());
+	// We need to shift both the original buffer and the "zoom reduced" one
+	const uint32_t nb_moved_blocks = nblocks()-n;
 	
+	// Original buffer
+	memmove(buffer(), buffer_block(n), nb_moved_blocks*size_block()*sizeof(uint32_t));
+	memset(buffer_block(nb_moved_blocks), 0, n*size_block()*sizeof(uint32_t));
+
+	// Zoomed buffer
+	memmove(zoomed_buffer(), zoomed_buffer_block(n, alpha), nb_moved_blocks*size_zoomed_block(alpha)*sizeof(uint32_t));
+	memset(zoomed_buffer_block(nb_moved_blocks, alpha), 0, n*size_zoomed_block(alpha)*sizeof(uint32_t));
 }
 
-void PVParallelView::PVHitGraphBuffer::shift_right(int n)
+void PVParallelView::PVHitGraphBuffer::shift_right(const uint32_t n, const float alpha)
 {
-	// TODO: implement
+	assert(n <= nblocks());
+	// We need to shift both the original buffer and the "zoom reduced" one
+	const uint32_t nb_moved_blocks = nblocks()-n;
+	
+	// Original buffer
+	memmove(buffer_block(n), buffer(), nb_moved_blocks*size_block()*sizeof(uint32_t));
+	memset(buffer(), 0, n*size_block()*sizeof(uint32_t));
+
+	// Zoomed buffer
+	memmove(zoomed_buffer_block(n, alpha), zoomed_buffer(), nb_moved_blocks*size_block()*sizeof(uint32_t));
+	memset(zoomed_buffer(), 0, n*size_block()*sizeof(uint32_t));
 }
 
 void PVParallelView::PVHitGraphBuffer::process_zoom_reduction_inplace(const float alpha)
