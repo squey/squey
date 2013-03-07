@@ -244,7 +244,7 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 
 	PVRow packed_row_count = row_count & ~3;
 
-#pragma omp parallel
+#pragma omp parallel num_threads(ctx.get_core_num())
 	{
 		uint32_t *my_buffer = ctx.get_core_buffer(omp_get_thread_num());
 
