@@ -9,8 +9,6 @@
 
 #include <pvkernel/core/PVSharedPointer.h>
 
-#include <picviz/PVSelection.h>
-
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
 
@@ -66,6 +64,13 @@ protected:
 	void drawBackground(QPainter *painter, const QRectF &rect);
 	void resizeEvent(QResizeEvent *event);
 
+private:
+	void draw_lines(QPainter *painter,
+	                const int src_x, const int view_top,
+	                const int offset, const double &ratio,
+	                const double rel_scale,
+	                const uint32_t *buffer);
+
 private slots:
 	void do_zoom_change();
 	void do_pan_change();
@@ -76,22 +81,16 @@ private slots:
 	void update_sel();
 
 private:
-	void recompute_back_buffer();
-
-private:
 	uint32_t                  _red_buffer[1024];
 	const Picviz::PVView_sp  &_pvview_sp;
-	const PVZoneTree         &_zt;
-	const uint32_t           *_col_plotted;
-	const PVRow               _nrows;
 	const PVCol               _axis_index;
-	QTimer                     _update_all_timer;
-	uint32_t                  _back_image_pos;
-	QImage                    _back_image;
+	QTimer                    _update_all_timer;
 
-	Picviz::PVSelection       _selection;
 	PVHitGraphBlocksManager   _hit_graph_manager;
 	bool                      _view_deleted;
+	uint32_t                  _max_count;
+	uint32_t                  _block_base_pos;
+	int                       _block_zoom_level;
 };
 
 }
