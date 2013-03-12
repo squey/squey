@@ -22,11 +22,12 @@ int main(int argc, char **argv)
 	QApplication app(argc, argv);
 
 	PVParallelView::PVLibView* lv = create_lib_view_from_args(argc, argv);
-	lv->lib_view()->get_real_output_selection().select_all();
 
 	if (lv == nullptr) {
 		return 1;
 	}
+
+	lv->lib_view()->get_real_output_selection().select_all();
 
 	int pos = extra_param_start_at();
 
