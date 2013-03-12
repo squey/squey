@@ -3,9 +3,19 @@
 
 #include <cassert>
 
-inline static uint32_t masked_y_min(const uint32_t ymin, const uint32_t zoom)
+inline static uint32_t y_to_block_idx(const uint32_t y, const uint32_t zoom)
 {
-	return ymin >> (32-zoom);
+	return y >> (32-zoom);
+}
+
+inline static uint32_t y_to_idx_in_buffer(const uint32_t y, const uint32_t zoom)
+{
+	return y >> (32-(zoom+PARALLELVIEW_ZZT_BBITS));
+}
+
+inline static uint32_t y_to_idx_in_red_buffer(const uint32_t y, const uint32_t zoom, const float alpha)
+{
+	return ((double)y_to_idx_in_buffer(y, zoom))*alpha;
 }
 
 PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(PVZoneTree const& zt, const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Picviz::PVSelection const& sel):
@@ -19,11 +29,15 @@ PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(PVZoneTree cons
 
 bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint32_t y_min, const int zoom, const float alpha)
 {
+	const uint32_t block_idx = y_to_block_idx(y_min, zoom);
+	const uint32_t y_min_block = block_idx << (32-zoom);
+
+
 	if (last_zoom() != zoom ||
 	    (full_view() && (alpha != 0.5f))) {
 		// Reprocess everything
 		_data_params.zoom = zoom;
-		_data_params.y_min = y_min;
+		_data_params.y_min = y_min_block;
 		_data_params.block_start = 0;
 		_data_params.nblocks = full_view() ? 1 : nblocks();
 		_last_alpha = alpha;
@@ -32,18 +46,17 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 		return true;
 	}
 
-	const uint32_t y_min_masked = masked_y_min(y_min, zoom);
-	const uint32_t last_y_min_masked = masked_y_min(last_y_min(), zoom);
-	if (y_min_masked != last_y_min_masked) {
-		// Translation
-		
-		_data_params.y_min = y_min;
-		_last_alpha = alpha;
+	const int32_t y_min_idx_in_red_buffer = y_to_idx_in_red_buffer(y_min_block, zoom, alpha);
+	const int32_t last_y_min_idx_in_red_buffer = y_to_idx_in_red_buffer(last_y_min(), zoom, alpha);
+	const int32_t blocks_shift = (last_y_min_idx_in_red_buffer-y_min_idx_in_red_buffer)/((int)((double)(size_block())*alpha));
 
-		int32_t blocks_shift = (int32_t)y_min_masked - (int32_t)last_y_min_masked;
+	if (blocks_shift != 0) {
+		// Translation
+		_last_alpha = alpha;
 
 		if (abs(blocks_shift) >= (int) nblocks()) {
 			// Reprocess all
+			_data_params.y_min = y_min_block;
 			_data_params.block_start = 0;
 			_data_params.nblocks = full_view() ? 1 : nblocks();
 			process_all();
@@ -56,20 +69,25 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 		// Compute empty blocks
 		if (blocks_shift > 0) {
 			// We did a shift on the right. Let's process the first missing blocks.
+			_data_params.y_min = y_min_block;
 			_data_params.block_start = 0;
 			_data_params.nblocks = blocks_shift;
 		}
 		else {
 			// The shift was on the left, so let's process the last missing blocks.
-			blocks_shift = -blocks_shift;
-			_data_params.block_start = nblocks() - blocks_shift;
-			_data_params.nblocks = blocks_shift;
+			const int abs_blocks_shift = -blocks_shift;
+			_data_params.block_start = nblocks() - abs_blocks_shift;
+			_data_params.y_min = (block_idx + _data_params.block_start)<<(32-zoom);
+			_data_params.nblocks = abs_blocks_shift;
 		}
 
-		process_all();
+
+		_data.process_all(_data_params, _sel);
+		_data.process_zoom_reduction(_last_alpha);
 		
 		// Set last params to the full block range
 		// (in case a reprocessing will be necessary)
+		_data_params.y_min = y_min_block;
 		_data_params.block_start = 0;
 		_data_params.nblocks = nblocks();
 
@@ -152,7 +170,7 @@ uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_sel() const
 
 uint32_t const PVParallelView::PVHitGraphBlocksManager::y_start() const
 {
-	return masked_y_min(_data_params.y_min, _data_params.zoom) << (32-_data_params.zoom);
+	return y_to_block_idx(_data_params.y_min, _data_params.zoom) << (32-_data_params.zoom);
 }
 
 void PVParallelView::PVHitGraphBlocksManager::shift_blocks(int blocks_shift)

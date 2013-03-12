@@ -243,7 +243,7 @@ void PVParallelView::PVHitCountView::draw_lines(QPainter *painter,
 {
 	int y_axis_length = get_y_axis_length();
 
-	const int count = (get_relative_zoom_value() == 0)?1024:2048;
+	const int count = (get_relative_zoom_value() == 0)?1024:(2048*_hit_graph_manager.nblocks());
 
 #if 0
 	for (int y = 0; y < count; ++y) {
@@ -320,7 +320,7 @@ void PVParallelView::PVHitCountView::do_update_all()
 		alpha = 0.5 * pow(root_step, calc_steps);
 	}
 
-	_hit_graph_manager.change_and_process_view(block_y_min, calc_zoom, alpha);
+	_hit_graph_manager.change_and_process_view(y_min, calc_zoom, alpha);
 
 	_block_base_pos = block_y_min;
 	_block_zoom_level = get_zoom_value();
