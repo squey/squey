@@ -123,7 +123,7 @@ target_link_libraries(zoomable_drawing_area_test ${LINK_LIBRARIES})
 declare_pv_test(hitgraph-buffer hitgraph-buffer.cpp)
 target_link_libraries(hitgraph-buffer ${LINK_LIBRARIES})
 
-add_executable(hit_count_view hit_count_view.cpp common.cpp)
+declare_pv_test(hit_count_view hit_count_view.cpp common.cpp)
 target_link_libraries(hit_count_view ${LINK_LIBRARIES})
 
 if (CUDA_FOUND)

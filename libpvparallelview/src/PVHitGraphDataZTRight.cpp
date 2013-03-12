@@ -27,7 +27,7 @@ static void hist_from_zt_zoom0(PVParallelView::PVZoneTree const& zt, uint32_t* b
 
 static void hist_from_zt(PVParallelView::PVZoneTree const& zt, uint32_t const* plotted, uint32_t const y_min, uint32_t const zoom, int const nblocks, uint32_t* buf_red)
 {
-	assert(zoom >=1 && zoom <= 10);
+	assert(zoom >=1 && zoom <= PARALLELVIEW_ZT_BBITS);
 	const int idx_shift = (32 - NBITS_INDEX) - zoom;
 	const uint32_t idx_mask = (1 << NBITS_INDEX) - 1;
 	const uint32_t mask_branch = ((1<<zoom) - 1) << (32 - zoom);
@@ -74,18 +74,19 @@ void PVParallelView::PVHitGraphDataZTRight::process_bg(ProcessParams const& p)
 	}
 
 	const int zoom = p.zoom;
+	uint32_t* buf_res = buffer_all().buffer_block(p.block_start);
 	if (zoom == 0) {
 		assert(nblocks_ == 1);
-		hist_from_zt_zoom0(p.zt, buffer_all().buffer_block(p.block_start));
+		hist_from_zt_zoom0(p.zt, buf_res);
 		return;
 	}
 
-	if (zoom >=1 && zoom <= PARALLELVIEW_ZT_BBITS) {
-		hist_from_zt(p.zt, p.col_plotted, p.y_min, zoom, p.nblocks, buffer_all().buffer_block(p.block_start));
+	if (zoom >= 1 && zoom <= PARALLELVIEW_ZT_BBITS) {
+		hist_from_zt(p.zt, p.col_plotted, p.y_min, zoom, p.nblocks, buf_res);
 		return;
 	}
 
-	hist_from_zt_one_branch(p.zt, p.col_plotted, p.y_min, p.zoom, p.nblocks, buffer_all().buffer_block(p.block_start));
+	hist_from_zt_one_branch(p.zt, p.col_plotted, p.y_min, p.zoom, p.nblocks, buf_res);
 }
 
 void PVParallelView::PVHitGraphDataZTRight::process_sel(ProcessParams const& p, Picviz::PVSelection const& sel)
