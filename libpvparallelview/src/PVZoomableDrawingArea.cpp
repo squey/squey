@@ -68,6 +68,9 @@ void PVParallelView::PVZoomableDrawingArea::set_zoom_range(const qint64 z_min,
 	if(_zoom_value < z_min) {
 		_zoom_value = z_min;
 		update_zoom();
+	} else if (_zoom_value > z_max) {
+		_zoom_value = z_max;
+		update_zoom();
 	}
 }
 
