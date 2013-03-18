@@ -14,6 +14,11 @@
 #define PAN_MODIFIER      Qt::ControlModifier
 #define SLOW_PAN_MODIFIER Qt::ShiftModifier
 
+#define SYNCHRONIZED_ZOOM_MODIFIER Qt::ControlModifier
+#define SECONDARY_ZOOM_MODIFIER Qt::ShiftModifier
+
+#define UnBindMask 4
+
 /*****************************************************************************
  * PVParallelView::PVZoomableDrawingArea::PVZoomableDrawingArea
  *****************************************************************************/
@@ -21,9 +26,12 @@
 PVParallelView::PVZoomableDrawingArea::PVZoomableDrawingArea(QWidget *parent) :
 	PVWidgets::PVGraphicsView(parent),
 	_zoom_policy(PVParallelView::PVZoomableDrawingArea::AlongBoth),
-	_zoom_min(0),
-	_zoom_max(100),
-	_zoom_value(0),
+	_x_zoom_min(0),
+	_x_zoom_max(100),
+	_x_zoom_value(0),
+	_y_zoom_min(0),
+	_y_zoom_max(100),
+	_y_zoom_value(0),
 	_pan_policy(PVParallelView::PVZoomableDrawingArea::AlongBoth)
 {
 	set_transformation_anchor(AnchorUnderMouse);
@@ -43,16 +51,71 @@ PVParallelView::PVZoomableDrawingArea::~PVZoomableDrawingArea()
 }
 
 /*****************************************************************************
+ * PVParallelView::PVZoomableDrawingArea::adjust_zoom_values
+ *****************************************************************************/
+
+void PVParallelView::PVZoomableDrawingArea::adjust_zoom_values()
+{
+}
+
+/*****************************************************************************
  * PVParallelView::PVZoomableDrawingArea::set_zoom_value
  *****************************************************************************/
 
-void PVParallelView::PVZoomableDrawingArea::set_zoom_value(const qint64 value)
+void PVParallelView::PVZoomableDrawingArea::set_zoom_value(const qint64 value,
+                                                           const bool propagate_update)
 {
-	qint64 new_zoom_value = PVCore::clamp(value, _zoom_min, _zoom_max);
+	bool need_update = false;
+	qint64 new_zoom_value = PVCore::clamp(value, _x_zoom_min, _x_zoom_max);
 
-	if (new_zoom_value != _zoom_value) {
-		_zoom_value = new_zoom_value;
+	if (new_zoom_value != _x_zoom_value) {
+		_x_zoom_value = new_zoom_value;
+		need_update |= true;
+	}
+
+	new_zoom_value = PVCore::clamp(value, _x_zoom_min, _x_zoom_max);
+
+	if (new_zoom_value != _y_zoom_value) {
+		_y_zoom_value = new_zoom_value;
+		need_update |= true;
+	}
+
+	if (need_update && propagate_update) {
 		update_zoom();
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingArea::set_x_zoom_value
+ *****************************************************************************/
+
+void PVParallelView::PVZoomableDrawingArea::set_x_zoom_value(const qint64 value,
+                                                             const bool propagate_update)
+{
+	qint64 new_zoom_value = PVCore::clamp(value, _x_zoom_min, _x_zoom_max);
+
+	if (new_zoom_value != _x_zoom_value) {
+		_x_zoom_value = new_zoom_value;
+		if (propagate_update) {
+			update_zoom();
+		}
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingArea::set_y_zoom_value
+ *****************************************************************************/
+
+void PVParallelView::PVZoomableDrawingArea::set_y_zoom_value(const qint64 value,
+                                                             const bool propagate_update)
+{
+	qint64 new_zoom_value = PVCore::clamp(value, _y_zoom_min, _y_zoom_max);
+
+	if (new_zoom_value != _y_zoom_value) {
+		_y_zoom_value = new_zoom_value;
+		if (propagate_update) {
+			update_zoom();
+		}
 	}
 }
 
@@ -61,15 +124,82 @@ void PVParallelView::PVZoomableDrawingArea::set_zoom_value(const qint64 value)
  *****************************************************************************/
 
 void PVParallelView::PVZoomableDrawingArea::set_zoom_range(const qint64 z_min,
-                                                           const qint64 z_max)
+                                                           const qint64 z_max,
+                                                           const bool propagate_update)
 {
-	_zoom_min = z_min;
-	_zoom_max = z_max;
-	if(_zoom_value < z_min) {
-		_zoom_value = z_min;
+	bool need_update = false;
+
+	_x_zoom_min = _y_zoom_min = z_min;
+	_x_zoom_max = _y_zoom_max = z_max;
+
+	if(_x_zoom_value < z_min) {
+		_x_zoom_value = z_min;
+		need_update |= true;
+	} else if (_x_zoom_value > z_max) {
+		_x_zoom_value = z_max;
+		need_update |= true;
+	}
+
+	if(_y_zoom_value < z_min) {
+		_y_zoom_value = z_min;
+		need_update |= true;
+	} else if (_y_zoom_value > z_max) {
+		_y_zoom_value = z_max;
+		need_update |= true;
+	}
+
+	if (need_update && propagate_update) {
 		update_zoom();
-	} else if (_zoom_value > z_max) {
-		_zoom_value = z_max;
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingArea::set_x_zoom_range
+ *****************************************************************************/
+
+void PVParallelView::PVZoomableDrawingArea::set_x_zoom_range(const qint64 z_min,
+                                                             const qint64 z_max,
+                                                             const bool propagate_update)
+{
+	bool need_update = false;
+
+	_x_zoom_min = z_min;
+	_x_zoom_max = z_max;
+
+	if(_x_zoom_value < z_min) {
+		_x_zoom_value = z_min;
+		need_update |= true;
+	} else if (_x_zoom_value > z_max) {
+		_x_zoom_value = z_max;
+		need_update |= true;
+	}
+
+	if (need_update && propagate_update) {
+		update_zoom();
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingArea::set_y_zoom_range
+ *****************************************************************************/
+
+void PVParallelView::PVZoomableDrawingArea::set_y_zoom_range(const qint64 z_min,
+                                                             const qint64 z_max,
+                                                             const bool propagate_update)
+{
+	bool need_update = false;
+
+	_y_zoom_min = z_min;
+	_y_zoom_max = z_max;
+	if(_y_zoom_value < z_min) {
+		_y_zoom_value = z_min;
+		need_update |= true;
+	} else if (_y_zoom_value > z_max) {
+		_y_zoom_value = z_max;
+		need_update |= true;
+	}
+
+	if (need_update && propagate_update) {
 		update_zoom();
 	}
 }
@@ -84,6 +214,24 @@ qreal PVParallelView::PVZoomableDrawingArea::zoom_to_scale(const int zoom_value)
 }
 
 /*****************************************************************************
+ * PVParallelView::PVZoomableDrawingArea::x_zoom_to_scale
+ *****************************************************************************/
+
+qreal PVParallelView::PVZoomableDrawingArea::x_zoom_to_scale(const int zoom_value) const
+{
+	return PVZoomableDrawingArea::zoom_to_scale(zoom_value);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingArea::y_zoom_to_scale
+ *****************************************************************************/
+
+qreal PVParallelView::PVZoomableDrawingArea::y_zoom_to_scale(const int zoom_value) const
+{
+	return PVZoomableDrawingArea::zoom_to_scale(zoom_value);
+}
+
+/*****************************************************************************
  * PVParallelView::PVZoomableDrawingArea::scale_to_zoom
  *****************************************************************************/
 
@@ -93,10 +241,29 @@ int PVParallelView::PVZoomableDrawingArea::scale_to_zoom(const qreal scale_value
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomableDrawingArea::scale_to_zoom
+ * PVParallelView::PVZoomableDrawingArea::x_scale_to_zoom
  *****************************************************************************/
 
-QTransform PVParallelView::PVZoomableDrawingArea::scale_to_transform(const qreal scale_value)
+int PVParallelView::PVZoomableDrawingArea::x_scale_to_zoom(const qreal scale_value) const
+{
+	return PVZoomableDrawingArea::scale_to_zoom(scale_value);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingArea::y_scale_to_zoom
+ *****************************************************************************/
+
+int PVParallelView::PVZoomableDrawingArea::y_scale_to_zoom(const qreal scale_value) const
+{
+	return PVZoomableDrawingArea::scale_to_zoom(scale_value);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingArea::scale_to_transform
+ *****************************************************************************/
+
+QTransform PVParallelView::PVZoomableDrawingArea::scale_to_transform(const qreal x_scale_value,
+                                                                     const qreal y_scale_value) const
 {
 	QTransform transfo;
 
@@ -112,18 +279,20 @@ QTransform PVParallelView::PVZoomableDrawingArea::scale_to_transform(const qreal
 		{
 			QRectF v = get_real_viewport_rect();
 			QRectF s = get_scene_rect();
-			transfo.scale(scale_value, v.height() / s.height());
+			transfo.scale(x_scale_value, v.height() / s.height());
 		}
 		break;
 	case AlongY:
 		{
 			QRectF v = get_real_viewport_rect();
 			QRectF s = get_scene_rect();
-			transfo.scale(v.width() / s.width(), scale_value);
+			transfo.scale(v.width() / s.width(), y_scale_value);
 		}
 		break;
 	case AlongBoth:
-		transfo.scale(scale_value, scale_value);
+	case BoundMajorX:
+	case BoundMajorY:
+		transfo.scale(x_scale_value, y_scale_value);
 		break;
 	}
 
@@ -208,6 +377,9 @@ void PVParallelView::PVZoomableDrawingArea::resizeEvent(QResizeEvent *event)
 
 void PVParallelView::PVZoomableDrawingArea::wheelEvent(QWheelEvent *event)
 {
+	bool has_zoomed = false;
+
+#if 0
 	if (event->modifiers() == ZOOM_MODIFIER) {
 		// zoom
 		if (event->delta() > 0) {
@@ -223,7 +395,8 @@ void PVParallelView::PVZoomableDrawingArea::wheelEvent(QWheelEvent *event)
 				emit zoom_has_changed();
 			}
 		}
-	} else if (event->modifiers() == SLOW_PAN_MODIFIER) {
+	}
+	else if (event->modifiers() == SLOW_PAN_MODIFIER) {
 		// precise panning
 		QScrollBar64 *sb = get_vertical_scrollbar();
 		if (event->delta() > 0) {
@@ -238,6 +411,7 @@ void PVParallelView::PVZoomableDrawingArea::wheelEvent(QWheelEvent *event)
 				sb->setValue(v + 1);
 				emit pan_has_changed();
 			}
+
 		}
 	} else if (event->modifiers() == PAN_MODIFIER) {
 		// panning
@@ -250,6 +424,12 @@ void PVParallelView::PVZoomableDrawingArea::wheelEvent(QWheelEvent *event)
 			emit pan_has_changed();
 		}
 	}
+#endif
+
+	if (has_zoomed) {
+		update_zoom();
+		emit zoom_has_changed();
+	}
 
 	event->setAccepted(true);
 }
@@ -260,7 +440,10 @@ void PVParallelView::PVZoomableDrawingArea::wheelEvent(QWheelEvent *event)
 
 void PVParallelView::PVZoomableDrawingArea::update_zoom()
 {
-	QTransform transfo = scale_to_transform(zoom_to_scale(_zoom_value));
+	adjust_zoom_values();
+
+	QTransform transfo = scale_to_transform(x_zoom_to_scale(_x_zoom_value),
+	                                        y_zoom_to_scale(_y_zoom_value));
 
 	set_transform(transfo);
 
@@ -293,6 +476,8 @@ void PVParallelView::PVZoomableDrawingArea::adjust_pan()
 		}
 		break;
 	case AlongBoth:
+	case BoundMajorX:
+	case BoundMajorY:
 		break;
 	}
 }
