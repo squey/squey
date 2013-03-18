@@ -362,6 +362,7 @@ include/pvkernel/widgets/PVColorDialog.h
 include/pvkernel/widgets/PVColorPicker.h
 include/pvkernel/widgets/PVPresetsWidget.h
 include/pvkernel/widgets/PVGraphicsView.h
+include/pvkernel/widgets/PVGraphicsViewInteractor.h
 
 include/pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h
 include/pvkernel/widgets/editors/PVEnumEditor.h
@@ -384,6 +385,7 @@ widgets/PVColorDialog.cpp
 widgets/PVColorPicker.cpp
 widgets/PVDataTreeModel.cpp
 widgets/PVGraphicsView.cpp
+widgets/PVGraphicsViewInteractor.cpp
 
 widgets/editors/PVColorGradientDualSliderEditor.cpp
 widgets/editors/PVEnumEditor.cpp

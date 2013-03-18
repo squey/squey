@@ -15,6 +15,8 @@ class QResizeEvent;
 
 namespace PVWidgets {
 
+class PVGraphicsViewInteractorBase;
+
 namespace __impl {
 class PVViewportEventFilter;
 }
@@ -398,6 +400,17 @@ public:
 	{
 		return _alignment;
 	}
+
+public:
+	template <class T, typename... P>
+	T* install_interactor(P && ... params)
+	{
+		T* new_interactor = new T(this, std::forward<P>(params)...);
+		installEventFilter(new_interactor);
+		return new_interactor;
+	}
+
+	void remove_interactor(PVGraphicsViewInteractorBase* interactor);
 
 protected:
 	/**
