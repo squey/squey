@@ -17,16 +17,15 @@ namespace PVParallelView
 /**
  * @class PVZoomableDrawingArea
  *
- * A canvas to display a QGraphicsScene with few conveniences:
- * - zoom and pan are already implemented, you just have to define
- *   the scene's bounding box, the range of wheel value and the
- *   convertion method between wheel and the zoom effect;
- * - zoom and pan can be enabled/disabled along each axes.
+ * A generic canvas to create views with few conveniences:
+ * - customizable axis zoom value constraints using PVAxisZoom
+ * - customizable mapping between zoom value and scale value using PVZoomConverter
+ * - customizable zoom and pan controls using PVZoomableDrawingAreaInteractor
+ * - customizable zoom and pan behaviours using PVZoomableDrawingAreaConstraints
  *
- * @see zoomable_drazwing_area_test.cpp for a minimalist zoomed
- * parallel view widget.
- *
- * @todo update this comment
+ * @attention the lone drawback of this system is that you have to make sure that
+ * the PVZoomableDrawingAreaInteractor and the PVZoomableDrawingAreaConstraints
+ * you use are compatible.
  */
 
 namespace __impl
