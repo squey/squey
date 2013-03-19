@@ -36,6 +36,30 @@ void __print_scalar(const char *text, const V &v)
 	          << std::endl;
 }
 
+class PVZoomableDrawingAreaInteractorSameZoom: public PVZoomableDrawingAreaInteractor
+{
+
+	friend class PVWidgets::PVGraphicsView;
+
+protected:
+	PVZoomableDrawingAreaInteractorSameZoom(PVWidgets::PVGraphicsView* parent) :
+		PVZoomableDrawingAreaInteractor(parent)
+	{}
+
+protected:
+	bool wheelEvent(PVZoomableDrawingArea* zda, QWheelEvent* event) override
+	{
+		PVLOG_INFO("In wheelEvent interactor\n");
+		return false;
+	}
+
+	bool keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent* event) override
+	{
+		PVLOG_INFO("In keyPressEvent interactor\n");
+		return false;
+	}
+};
+
 class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 {
 	constexpr static int zoom_steps = 5;

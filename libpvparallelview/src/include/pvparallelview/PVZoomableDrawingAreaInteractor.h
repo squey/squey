@@ -6,6 +6,10 @@
 
 namespace PVParallelView {
 
+/**
+ * @class PVZoomableDrawingAreaInteractor
+ */
+
 typedef PVWidgets::PVGraphicsViewInteractor<PVZoomableDrawingArea> PVZoomableDrawingAreaInteractor;
 
 class PVZoomableDrawingAreaInteractorSameZoom: public PVZoomableDrawingAreaInteractor
