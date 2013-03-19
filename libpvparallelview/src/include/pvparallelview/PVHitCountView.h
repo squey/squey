@@ -57,12 +57,15 @@ public:
 protected:
 	qreal zoom_to_scale(const int zoom_value) const;
 	int scale_to_zoom(const qreal scale_value) const;
+	QTransform scale_to_transform(const qreal x_scale_value,
+	                              const qreal y_scale_value) const;
 
 	QString get_y_value_at(const qint64 pos) const;
 
 protected:
 	void drawBackground(QPainter *painter, const QRectF &rect);
 	void resizeEvent(QResizeEvent *event);
+	void keyPressEvent(QKeyEvent *event);
 
 private:
 	void draw_lines(QPainter *painter,
@@ -70,6 +73,13 @@ private:
 	                const int offset, const double &ratio,
 	                const double rel_scale,
 	                const uint32_t *buffer);
+
+	void draw_clamped_lines(QPainter *painter,
+	                        const int x_min, const int x_max,
+	                        const int src_x, const int view_top,
+	                        const int offset,
+	                        const double rel_scale,
+	                        const uint32_t *buffer);
 
 private slots:
 	void do_zoom_change();
@@ -91,6 +101,7 @@ private:
 	uint32_t                  _max_count;
 	uint32_t                  _block_base_pos;
 	int                       _block_zoom_level;
+	bool                      _show_bg;
 };
 
 }
