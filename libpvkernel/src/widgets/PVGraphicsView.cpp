@@ -1,4 +1,5 @@
 #include <pvkernel/widgets/PVGraphicsView.h>
+#include <pvkernel/widgets/PVGraphicsViewInteractor.h>
 
 #include <QGridLayout>
 #include <QGraphicsScene>
@@ -14,6 +15,7 @@
 #include <QDesktopWidget>
 
 #include <iostream>
+#include <cassert>
 
 static inline qint64 sb_round(const qreal &d)
 {
@@ -966,4 +968,10 @@ const qreal PVWidgets::PVGraphicsView::get_scroll_y() const
 const QPointF PVWidgets::PVGraphicsView::get_scroll() const
 {
 	return QPointF(get_scroll_x(), get_scroll_y());
+}
+
+void PVWidgets::PVGraphicsView::remove_interactor(PVGraphicsViewInteractorBase* interactor)
+{
+	assert(interactor);
+	removeEventFilter(interactor);
 }
