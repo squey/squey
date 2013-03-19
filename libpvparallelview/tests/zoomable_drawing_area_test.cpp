@@ -47,6 +47,8 @@ public:
 	{
 		QGraphicsScene *scn = get_scene();
 
+		install_interactor<PVParallelView::PVZoomableDrawingAreaInteractorSameZoom>();
+
 		for(long i = 0; i < (1L<<32); i += 1024 * 1024) {
 			long v = i;
 			scn->addLine(0, -v, 1L << 32,    -v, QPen(Qt::red, 0));
@@ -182,7 +184,6 @@ int main(int argc, char **argv)
 	QApplication app(argc, argv);
 
 	PVParallelView::PVZoomableDrawingAreaWithAxes *pzdawa = new MyPlottingZDAWA;
-	pzdawa->install_interactor<PVParallelView::PVZoomableDrawingAreaInteractorSameZoom>();
 	pzdawa->resize(600, 400);
 	pzdawa->show();
 	pzdawa->setWindowTitle("PV Plotting test");
