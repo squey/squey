@@ -12,19 +12,6 @@ namespace PVParallelView {
 
 typedef PVWidgets::PVGraphicsViewInteractor<PVZoomableDrawingArea> PVZoomableDrawingAreaInteractor;
 
-class PVZoomableDrawingAreaInteractorSameZoom: public PVZoomableDrawingAreaInteractor
-{
-
-	friend class PVWidgets::PVGraphicsView;
-
-protected:
-	PVZoomableDrawingAreaInteractorSameZoom(PVWidgets::PVGraphicsView* parent);
-
-protected:
-	bool wheelEvent(PVZoomableDrawingArea* zda, QWheelEvent* event) override;
-	bool keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent* event) override;
-};
-
 }
 
 
