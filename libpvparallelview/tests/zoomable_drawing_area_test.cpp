@@ -7,6 +7,8 @@
 #include <QPainter>
 #include <QMouseEvent>
 
+#include <pvkernel/core/general.h>
+
 #include <pvparallelview/PVZoomableDrawingArea.h>
 #include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
@@ -36,24 +38,24 @@ void __print_scalar(const char *text, const V &v)
 	          << std::endl;
 }
 
-class PVZoomableDrawingAreaInteractorSameZoom: public PVZoomableDrawingAreaInteractor
+class PVZoomableDrawingAreaInteractorSameZoom : public PVParallelView::PVZoomableDrawingAreaInteractor
 {
 
 	friend class PVWidgets::PVGraphicsView;
 
 protected:
 	PVZoomableDrawingAreaInteractorSameZoom(PVWidgets::PVGraphicsView* parent) :
-		PVZoomableDrawingAreaInteractor(parent)
+		PVParallelView::PVZoomableDrawingAreaInteractor(parent)
 	{}
 
 protected:
-	bool wheelEvent(PVZoomableDrawingArea* zda, QWheelEvent* event) override
+	bool wheelEvent(PVParallelView::PVZoomableDrawingArea* zda, QWheelEvent* event) override
 	{
 		PVLOG_INFO("In wheelEvent interactor\n");
 		return false;
 	}
 
-	bool keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent* event) override
+	bool keyPressEvent(PVParallelView::PVZoomableDrawingArea* zda, QKeyEvent* event) override
 	{
 		PVLOG_INFO("In keyPressEvent interactor\n");
 		return false;
@@ -71,7 +73,7 @@ public:
 	{
 		QGraphicsScene *scn = get_scene();
 
-		install_interactor<PVParallelView::PVZoomableDrawingAreaInteractorSameZoom>();
+		install_interactor<PVZoomableDrawingAreaInteractorSameZoom>();
 
 		for(long i = 0; i < (1L<<32); i += 1024 * 1024) {
 			long v = i;
