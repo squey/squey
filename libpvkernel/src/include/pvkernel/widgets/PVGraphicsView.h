@@ -401,7 +401,24 @@ public:
 		return _alignment;
 	}
 
-public:
+protected:
+	/*! \brief Set a new interactor for this view.
+	 *
+	 * This function install a new interactor of type T on this view.
+	 * T must be a subclass of PVWidgets::PVGraphicsViewInteractor<V>, where V
+	 * is a subclass of PVGraphicsView.
+	 *
+	 * A new object T is created and installed as a QObject's event filter. If
+	 * parameters are needed for the construction of T, you can pass them to
+	 * install_interactor.
+	 *
+	 * \return A pointer to the allocated interactor.
+	 *
+	 * \note 
+	 * The last installed interactor is the first to filter events. It means
+	 * that, if for instance the wheelEvent is captured by the last installed
+	 * interactor, then no other interactor will be able to catch this event.
+	 */
 	template <class T, typename... P>
 	T* install_interactor(P && ... params)
 	{
@@ -410,6 +427,11 @@ public:
 		return new_interactor;
 	}
 
+	/*! \brief Remove a previously installed interactor
+	 *
+	 * \param[in] The pointer to the interactor to remove (previously returned by install_interactor).
+	 * \sa install_interactor
+	 */
 	void remove_interactor(PVGraphicsViewInteractorBase* interactor);
 
 protected:

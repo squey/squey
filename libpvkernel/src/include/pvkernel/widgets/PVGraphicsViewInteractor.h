@@ -21,6 +21,17 @@ protected:
 	PVGraphicsViewInteractorBase(PVGraphicsView* parent);
 };
 
+/*! \brief Template class that defines an interactor for a PVGraphicsView-based class.
+ *
+ * This class defines an interactor for a PVGraphicsView-based class. Thus, T must be a subclass of PVGraphicsView.
+ * It is recommanded to set a public typedef for any PVGraphicsView-based class, so that it is easier to create a new interactor for that type of view.
+ *
+ * For instance, in the parallel view library, this typedef is defined in PVZoomableDrawingAreaInteractor.h:
+ *
+ * \code
+ * typedef PVWidgets::PVGraphicsViewInteractor<PVZoomableDrawingArea> PVZoomableDrawingAreaInteractor;
+ * \endcode
+ */
 template <class T>
 class PVGraphicsViewInteractor: public PVGraphicsViewInteractorBase
 {
@@ -33,7 +44,22 @@ protected:
 	{ }
 
 protected:
+	/*! \brief Called when a wheel event has occured.
+	 *  \param[in] obj   A pointer to the view that received the event
+	 *  \param[in] event a QWheelEvent object that describes the event
+	 *
+	 *  \return true if the event has been processed and must not be processed
+	 *  by the other interactors. false otherwise.
+	 */
 	virtual bool wheelEvent(object_type* obj, QWheelEvent* event) { return false; }
+
+	/*! \brief Called when a key event has occured.
+	 *  \param[in] obj   A pointer to the view that received the event
+	 *  \param[in] event a QKeyEvent object that describes the event
+	 *
+	 *  \return true if the event has been processed and must not be processed
+	 *  by the other interactors. false otherwise.
+	 */
 	virtual bool keyPressEvent(object_type* obj, QKeyEvent* event) { return false; }
 
 private:
