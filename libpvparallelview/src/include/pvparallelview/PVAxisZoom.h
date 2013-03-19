@@ -23,8 +23,10 @@ public:
 	 * @param vmin [in] the inclusive lower bound of the current value
 	 * @param vmax [in] the inclusive uper bound of the current value
 	 * @param zoom_converter [in] the zoom converter to associate to this PVAxisZoom
+	 *
+	 * @attention @a zoom_converter's deletion is not PVAxisZoom's job.
 	 */
-	PVAxisZoom(int vdefault, int vmin, int vmax, PVZoomConverter *zoom_converter) :
+	PVAxisZoom(int vdefault, int vmin, int vmax, const PVZoomConverter *zoom_converter) :
 		_value(vdefault),
 		_value_min(vmin),
 		_value_max(vmax),
