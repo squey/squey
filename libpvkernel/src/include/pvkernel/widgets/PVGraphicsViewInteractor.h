@@ -44,6 +44,33 @@ protected:
 	{ }
 
 protected:
+	/*! \brief Called when a mouse button press event has occured.
+	 *  \param[in] obj   A pointer to the view that received the event
+	 *  \param[in] event a QMouseEvent object that describes the event
+	 *
+	 *  \return true if the event has been processed and must not be processed
+	 *  by the other interactors. false otherwise.
+	 */
+	virtual bool mousePressEvent(object_type* obj, QMouseEvent* event) { return false; }
+
+	/*! \brief Called when a mouse button release event has occured.
+	 *  \param[in] obj   A pointer to the view that received the event
+	 *  \param[in] event a QMouseEvent object that describes the event
+	 *
+	 *  \return true if the event has been processed and must not be processed
+	 *  by the other interactors. false otherwise.
+	 */
+	virtual bool mouseReleaseEvent(object_type* obj, QMouseEvent* event) { return false; }
+
+	/*! \brief Called when a mouse move event has occured.
+	 *  \param[in] obj   A pointer to the view that received the event
+	 *  \param[in] event a QMouseEvent object that describes the event
+	 *
+	 *  \return true if the event has been processed and must not be processed
+	 *  by the other interactors. false otherwise.
+	 */
+	virtual bool mouseMoveEvent(object_type* obj, QMouseEvent* event) { return false; }
+
 	/*! \brief Called when a wheel event has occured.
 	 *  \param[in] obj   A pointer to the view that received the event
 	 *  \param[in] event a QWheelEvent object that describes the event
@@ -74,6 +101,12 @@ private:
 		{
 			case QEvent::Wheel:
 				return wheelEvent(real_obj, static_cast<QWheelEvent*>(event));
+			case QEvent::MouseButtonPress:
+				return mousePressEvent(real_obj, static_cast<QMouseEvent*>(event));
+			case QEvent::MouseButtonRelease:
+				return mouseReleaseEvent(real_obj, static_cast<QMouseEvent*>(event));
+			case QEvent::MouseMove:
+				return mouseMoveEvent(real_obj, static_cast<QMouseEvent*>(event));
 			case QEvent::KeyPress:
 				return keyPressEvent(real_obj, static_cast<QKeyEvent*>(event));
 			default:
