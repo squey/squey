@@ -48,7 +48,7 @@ public:
 
 public:
 	QString get_human_name() const override { return QString("Default"); }
-	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
+	PVCore::DecimalType get_decimal_type() const override { return PVCore::IntegerType; }
 	void init() override;
 
 protected:
