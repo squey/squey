@@ -43,14 +43,17 @@ uint32_t* Picviz::PVPlottingFilterTimeDefault::operator()(mapped_decimal_storage
 	}
 	else
 	if (_mapping_mode.compare("24h") == 0) {
+		ymin = 0;
 		ymax = PICVIZ_TIME_24H_MAX;
 	}
 	else
 	if (_mapping_mode.compare("week") == 0) {
+		ymin = 0;
 		ymax = PICVIZ_TIME_WEEK_MAX;
 	}
 	else
 	if (_mapping_mode.compare("month") == 0) {
+		ymin = 0;
 		ymax = PICVIZ_TIME_MONTH_MAX;
 	}
 	else {
