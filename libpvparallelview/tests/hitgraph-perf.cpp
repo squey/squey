@@ -708,6 +708,7 @@ void do_one_run(const std::string text,
 
 	memcpy(data, get_col(orig_data, row_count, col), sizeof(uint32_t) * row_count);
 
+#if 0
 	DEF_TEST_SEQ(seq_v1, data);
 
 	DEF_TEST_SEQ(seq_v2, data);
@@ -743,28 +744,30 @@ void do_one_run(const std::string text,
 	DEL_TEST(avx_v3);
 #endif
 
+#endif
+
 	DEF_TEST_OMP(omp_sse_v3, data);
 	if (verbose) {
-		CMP_TEST(omp_sse_v3, seq_v3);
+		// CMP_TEST(omp_sse_v3, seq_v3);
 	}
 
 	DEF_TEST_OMP(omp_sse_v3_2, data);
 	if (verbose) {
-		CMP_TEST(omp_sse_v3_2, seq_v3);
+		// CMP_TEST(omp_sse_v3_2, seq_v3);
 	}
 
 	DEF_TEST_OMP(omp_sse_v4, data);
 	if (verbose) {
-		CMP_TEST(omp_sse_v4, seq_v4);
+		// CMP_TEST(omp_sse_v4, seq_v4);
 	}
 
-	DEL_TEST(seq_v1);
-	DEL_TEST(seq_v2);
-	DEL_TEST(seq_v3);
-	DEL_TEST(seq_v4);
+	// DEL_TEST(seq_v1);
+	// DEL_TEST(seq_v2);
+	// DEL_TEST(seq_v3);
+	// DEL_TEST(seq_v4);
 
-	DEL_TEST(sse_v3);
-	DEL_TEST(sse_v4);
+	// DEL_TEST(sse_v3);
+	// DEL_TEST(sse_v4);
 
 	DEL_TEST(omp_sse_v3);
 	DEL_TEST(omp_sse_v3_2);
@@ -779,6 +782,7 @@ void do_one_allocator(const std::string text, const Fn1& mem_modifier,
                       PVRow row_count, PVCol col_count, PVCol col,
                       uint64_t y_min, uint64_t y_max, int zoom)
 {
+#if 0
 	do_one_run("mem=aligned"+text,
 	           [](size_t n) {
 		           uint32_t *mem;
@@ -810,6 +814,7 @@ void do_one_allocator(const std::string text, const Fn1& mem_modifier,
 	           },
 	           mem_modifier,
 	           data, row_count, col_count, col, y_min, y_max, zoom);
+#endif
 
 #if 0
 	// trop contraignant
@@ -829,7 +834,6 @@ void do_one_allocator(const std::string text, const Fn1& mem_modifier,
 	           },
 	           mem_modifier,
 	           data, row_count, col_count, col, y_min, y_max, zoom);
-#endif
 
 	do_one_run("mem=numa_local"+text,
 	           [](size_t n) {
@@ -845,6 +849,7 @@ void do_one_allocator(const std::string text, const Fn1& mem_modifier,
 	           },
 	           mem_modifier,
 	           data, row_count, col_count, col, y_min, y_max, zoom);
+#endif
 
 	do_one_run("mem=numa_interleaved"+text,
 	           [](size_t n) {
@@ -973,6 +978,7 @@ int main(int argc, char **argv)
 	                 [](uint32_t* p, size_t n) {},
 	                 get_col(data, row_count, col), row_count, col_count, col, y_min, y_max, zoom);
 
+#if 0
 	// add sequential
 	do_one_allocator(std::string("+seq"),
 	                 [](uint32_t* p, size_t n) {
@@ -981,6 +987,7 @@ int main(int argc, char **argv)
 		                 }
 	                 },
 	                 get_col(data, row_count, col), row_count, col_count, col, y_min, y_max, zoom);
+#endif
 
 	// add transparent huge pages
 	do_one_allocator(std::string("+thp"),
@@ -991,6 +998,7 @@ int main(int argc, char **argv)
 	                 },
 	                 get_col(data, row_count, col), row_count, col_count, col, y_min, y_max, zoom);
 
+#if 0
 	// add sequential and transparent huge pages
 	do_one_allocator(std::string("+seq+thp"),
 	                 [](uint32_t* p, size_t n) {
@@ -1003,6 +1011,7 @@ int main(int argc, char **argv)
 
 	                 },
 	                 get_col(data, row_count, col), row_count, col_count, col, y_min, y_max, zoom);
+#endif
 
 	delete [] data;
 

@@ -6,6 +6,14 @@
 
 #include <pvkernel/widgets/PVGraphicsView.h>
 
+#include <pvparallelview/PVAxisZoom.h>
+
+/* must include it because MOC does shit
+ * replace it with a forward declaration when signals will be
+ * replaced with virtual methods
+ */
+#include <pvparallelview/PVZoomableDrawingAreaConstraints.h>
+
 class QWidget;
 class QGraphicsScene;
 class QMouseEvent;
@@ -13,6 +21,19 @@ class QWheelEvent;
 
 namespace PVParallelView
 {
+
+class PVZoomableDrawingAreaInteractor;
+
+namespace __impl
+{
+
+typedef enum {
+	XIsNeeded = 1,
+	YIsNeeded = 2,
+	Bound     = 4
+} AxesPolicyValue;
+
+}
 
 /**
  * @class PVZoomableDrawingArea
@@ -28,20 +49,11 @@ namespace PVParallelView
  * you use are compatible.
  */
 
-namespace __impl
-{
-
-typedef enum {
-	XIsNeeded = 1,
-	YIsNeeded = 2,
-	Bound     = 4
-} AxesPolicyValue;
-
-}
-
 class PVZoomableDrawingArea : public PVWidgets::PVGraphicsView
 {
 	Q_OBJECT
+
+	friend class PVZoomableDrawingAreaInteractor;
 
 public:
 	typedef enum {
@@ -70,6 +82,8 @@ public:
 	 * Set how the zoom controls affect the zoom transformation.
 	 *
 	 * @param policy @see AxesPolicy
+	 *
+	 * @todo: to remove
 	 */
 	void set_zoom_policy(const AxesPolicy policy)
 	{
@@ -80,6 +94,8 @@ public:
 	 * Return the current zoom policy
 	 *
 	 * @return the zoom policy
+	 *
+	 * @todo: to remove
 	 */
 	AxesPolicy get_zoom_policy() const
 	{
@@ -96,6 +112,8 @@ public:
 	 * or ::set_y_zoom_value() to false to avoid looping update.
 	 *
 	 * By default, this method does nothing
+	 *
+	 * @todo: to remove
 	 */
 	virtual void adjust_zoom_values();
 
@@ -106,6 +124,8 @@ public:
 	 *
 	 * @param value the new value
 	 * @param propagate_update to request or not an update of the view when a change occurs
+	 *
+	 * @todo: to remove
 	 */
 	void set_zoom_value(const qint64 value, const bool propagate_update = true);
 
@@ -117,6 +137,8 @@ public:
 	 *
 	 * @param value the new value
 	 * @param propagate_update to request or not an update of the view when a change occurs
+	 *
+	 * @todo: to remove
 	 */
 	void set_x_zoom_value(const qint64 value, const bool propagate_update = true);
 
@@ -127,6 +149,8 @@ public:
 	 *
 	 * @param value the new value
 	 * @param propagate_update to request or not an update of the view when a change occurs
+	 *
+	 * @todo: to remove
 	 */
 	void set_y_zoom_value(const qint64 value, const bool propagate_update = true);
 
@@ -134,6 +158,8 @@ public:
 	 * Return the current zoom value
 	 *
 	 * @return the current zoom value
+	 *
+	 * @todo: to remove
 	 */
 	qint64 get_zoom_value() const
 	{
@@ -159,6 +185,8 @@ public:
 	 * Return the current zoom value along x
 	 *
 	 * @return the current zoom value
+	 *
+	 * @todo: to remove
 	 */
 	qint64 get_x_zoom_value() const
 	{
@@ -169,6 +197,8 @@ public:
 	 * Return the current zoom value along y
 	 *
 	 * @return the current zoom value
+	 *
+	 * @todo: to remove
 	 */
 	qint64 get_y_zoom_value() const
 	{
@@ -179,10 +209,12 @@ public:
 	 * Return the current zoom value relatively to the lowest zoom value
 	 *
 	 * @return the current relative zoom value
+	 *
+	 * @todo: to remove
 	 */
 	qint64 get_relative_zoom_value() const
 	{
-		/**
+		/**v
 		 * same remark than ::get_zoom_value()
 		 */
 		if (_zoom_policy & AlongX) {
@@ -196,6 +228,8 @@ public:
 	 * Return the current x zoom value relatively to the lowest x zoom value
 	 *
 	 * @return the current relative x zoom value
+	 *
+	 * @todo: to remove
 	 */
 	qint64 get_relative_x_zoom_value() const
 	{
@@ -206,6 +240,8 @@ public:
 	 * Return the current y zoom value relatively to the lowest y zoom value
 	 *
 	 * @return the current relative y zoom value
+	 *
+	 * @todo: to remove
 	 */
 	qint64 get_relative_y_zoom_value() const
 	{
@@ -218,6 +254,8 @@ public:
 	 * @param z_min the inclusive lowest value
 	 * @param z_max the inclusive highest value
 	 * @param propagate_update to request or not an update of the view when a change occurs
+	 *
+	 * @todo: to remove
 	 */
 	void set_zoom_range(const qint64 z_min, const qint64 z_max, const bool propagate_update = true);
 
@@ -227,6 +265,8 @@ public:
 	 * @param z_min the inclusive lowest value
 	 * @param z_max the inclusive highest value
 	 * @param propagate_update to request or not an update of the view when a change occurs
+	 *
+	 * @todo: to remove
 	 */
 	void set_x_zoom_range(const qint64 z_min, const qint64 z_max, const bool propagate_update = true);
 
@@ -236,6 +276,8 @@ public:
 	 * @param z_min the inclusive lowest value
 	 * @param z_max the inclusive highest value
 	 * @param propagate_update to request or not an update of the view when a change occurs
+	 *
+	 * @todo: to remove
 	 */
 	void set_y_zoom_range(const qint64 z_min, const qint64 z_max, const bool propagate_update = true);
 
@@ -245,6 +287,8 @@ public:
 	 * depend on zoom policy
 	 *
 	 * @return the lowest zoom's value
+	 *
+	 * @todo: to remove
 	 */
 	qint64 get_zoom_min() const
 	{
@@ -264,6 +308,8 @@ public:
 	 * depend on zoom policy
 	 *
 	 * @return the highest zoom's value
+	 *
+	 * @todo: to remove
 	 */
 	qint64 get_zoom_max() const
 	{
@@ -281,6 +327,8 @@ public:
 	 * Return the lowest zoom's value along X
 	 *
 	 * @return the lowest zoom's value
+	 *
+	 * @todo: to remove
 	 */
 	qint64 get_x_zoom_min() const
 	{
@@ -291,6 +339,8 @@ public:
 	 * Return the highest zoom's value along Y
 	 *
 	 * @return the highest zoom's value
+	 *
+	 * @todo: to remove
 	 */
 	qint64 get_x_zoom_max() const
 	{
@@ -301,6 +351,8 @@ public:
 	 * Return the lowest zoom's value along Y
 	 *
 	 * @return the lowest zoom's value
+	 *
+	 * @todo: to remove
 	 */
 	qint64 get_y_zoom_min() const
 	{
@@ -311,6 +363,8 @@ public:
 	 * Return the highest zoom's value along Y
 	 *
 	 * @return the highest zoom's value
+	 *
+	 * @todo: to remove
 	 */
 	qint64 get_y_zoom_max() const
 	{
@@ -322,6 +376,8 @@ public:
 	 * Set how the pan controls affect the pan transformation.
 	 *
 	 * @param policy @see AxesPolicy
+	 *
+	 * @todo: to remove
 	 */
 	void set_pan_policy(const AxesPolicy policy)
 	{
@@ -341,6 +397,8 @@ public:
 	 * Return the current pan policy
 	 *
 	 * @return the pan policy
+	 *
+	 * @todo: to remove
 	 */
 	AxesPolicy get_pan_policy() const
 	{
@@ -348,49 +406,105 @@ public:
 	}
 
 protected:
+	bool set_zoom_value(int axes, int value)
+	{
+		return _constraints->set_zoom_value(axes, value, _x_axis_zoom, _y_axis_zoom);
+	}
+
+	bool increment_zoom_value(int axes, int value)
+	{
+		return _constraints->increment_zoom_value(axes, value, _x_axis_zoom, _y_axis_zoom);
+	}
+
+	PVAxisZoom& get_x_axis_zoom()
+	{
+		return _x_axis_zoom;
+	}
+
+	const PVAxisZoom& get_x_axis_zoom() const
+	{
+		return _x_axis_zoom;
+	}
+
+	PVAxisZoom& get_y_axis_zoom()
+	{
+		return _y_axis_zoom;
+	}
+
+	const PVAxisZoom& get_y_axis_zoom() const
+	{
+		return _y_axis_zoom;
+	}
+
+protected:
+	void set_constraints(PVZoomableDrawingAreaConstraints *constraints)
+	{
+		_constraints = constraints;
+	}
+
+	PVZoomableDrawingAreaConstraints* get_constraints()
+	{
+		assert(_constraints != nullptr);
+		return _constraints;
+	}
+
+	const PVZoomableDrawingAreaConstraints* get_constraints() const
+	{
+		assert(_constraints != nullptr);
+		return _constraints;
+	}
+
 	/**
 	 * convert zoom value into scale factor
 	 *
 	 * @param wheel_value a valid zoom
+	 *
+	 * @todo: to remove
 	 */
 	virtual qreal zoom_to_scale(const int zoom_value) const;
 
 	/**
-	 * convert x zoom value into scale factor
+	 * proxy function to retrieve scale factor along X
 	 *
-	 * default call to ::zoom_to_scale
+	 * @param value [in] the zoom value to convert
 	 *
-	 * @param wheel_value a valid zoom
+	 * @return the corresponding scale value
 	 */
-	virtual qreal x_zoom_to_scale(const int zoom_value) const;
+	qreal x_zoom_to_scale(const int value) const;
 
 	/**
-	 * convert y zoom value into scale factor
+	 * proxy function to retrieve scale factor along Y
 	 *
-	 * default call to ::zoom_to_scale
+	 * @param value [in] the zoom value to convert
 	 *
-	 * @param wheel_value a valid zoom
+	 * @return the corresponding scale value
 	 */
-	virtual qreal y_zoom_to_scale(const int zoom_value) const;
+	qreal y_zoom_to_scale(const int value) const;
 
 	/**
 	 * convert zoom value into scale factor
+	 *
+	 * @todo: to remove
 	 */
 	virtual int scale_to_zoom(const qreal scale_value) const;
 
 	/**
-	 * convert y zoom value into scale factor
+	 * proxy function to retrieve zoom factor along X
 	 *
-	 * default call to ::scale_to_zoom
+	 * @param value [in] the scale value to convert
+	 *
+	 * @return the corresponding zoom value
 	 */
-	virtual int y_scale_to_zoom(const qreal scale_value) const;
+	int x_scale_to_zoom(const qreal value) const;
 
 	/**
-	 * convert x zoom value into scale factor
+	 * proxy function to retrieve zoom factor along Y
 	 *
-	 * default call to ::scale_to_zoom
+	 * @param value [in] the scale value to convert
+	 *
+	 * @return the corresponding zoom value
 	 */
-	virtual int x_scale_to_zoom(const qreal scale_value) const;
+	int y_scale_to_zoom(const qreal value) const;
 
 	/**
 	 * Returns a transformation given scale factors along x and y
@@ -406,16 +520,18 @@ protected:
 	 * @param y_scale_value the scale value along y
 	 *
 	 * @return the transformation for scene to viewport rendering
+	 *
+	 * @todo : to remove
 	 */
 	virtual QTransform scale_to_transform(const qreal x_scale_value,
 	                                      const qreal y_scale_value) const;
 
 protected:
-	virtual void mousePressEvent(QMouseEvent *event);
-	virtual void mouseReleaseEvent(QMouseEvent *event);
-	virtual void mouseMoveEvent(QMouseEvent *event);
-	virtual void resizeEvent(QResizeEvent *event);
-	virtual void wheelEvent(QWheelEvent *event);
+	// virtual void mousePressEvent(QMouseEvent *event);
+	// virtual void mouseReleaseEvent(QMouseEvent *event);
+	// virtual void mouseMoveEvent(QMouseEvent *event);
+	// virtual void resizeEvent(QResizeEvent *event);
+	// virtual void wheelEvent(QWheelEvent *event);
 
 signals:
 	/**
@@ -434,6 +550,9 @@ protected:
 	 */
 	void update_zoom();
 
+public:
+	void reconfigure_view();
+
 private:
 	/**
 	 * This method is volontarily private, so use the scene provided
@@ -443,12 +562,6 @@ private:
 	{
 		PVWidgets::PVGraphicsView::set_scene(scene);
 	}
-
-	/**
-	 * as tranformation updates may changed scrollbars values, those may
-	 * have to be readjusted.
-	 */
-	void adjust_pan();
 
 private:
 	int        _zoom_policy;
@@ -463,6 +576,11 @@ private:
 
 	int        _pan_policy;
 	QPoint     _pan_reference;
+
+	PVAxisZoom _x_axis_zoom;
+	PVAxisZoom _y_axis_zoom;
+
+	PVZoomableDrawingAreaConstraints *_constraints;
 };
 
 }

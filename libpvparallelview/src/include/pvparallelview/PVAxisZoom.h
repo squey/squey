@@ -2,11 +2,13 @@
 #ifndef PVPARALLELVIEW_PVAXISZOOM_H
 #define PVPARALLELVIEW_PVAXISZOOM_H
 
-#include <pvkernel/PVAlgorithms.h>
+#include <pvkernel/core/PVAlgorithms.h>
 #include <pvparallelview/PVZoomConverter.h>
 
 namespace PVParallelView
 {
+
+class PVZoomableDrawingAreaConstraints;
 
 /**
  * @class PVAxisZoom
@@ -15,31 +17,21 @@ namespace PVParallelView
  */
 class PVAxisZoom
 {
+	friend class PVZoomableDrawingAreaConstraints;
+
 public:
 	/**
-	 * CTOR :-p
+	 * CTOR
 	 *
-	 * @param vdefault [in] the default value, its used to initialize the current value too
-	 * @param vmin [in] the inclusive lower bound of the current value
-	 * @param vmax [in] the inclusive uper bound of the current value
-	 * @param zoom_converter [in] the zoom converter to associate to this PVAxisZoom
+	 * you have to explicitely call setters to intialize it.
 	 *
 	 * @attention @a zoom_converter's deletion is not PVAxisZoom's job.
-	 */
-	PVAxisZoom(int vdefault, int vmin, int vmax, const PVZoomConverter *zoom_converter) :
-		_value(vdefault),
-		_value_min(vmin),
-		_value_max(vmax),
-		_value_default(vdefault),
-		_zoom_converter(zoom_converter)
-	{}
 
-	/**
-	 * Change the stored value.
-	 *
-	 * @param value [in] the new value
 	 */
-	void set_value(const int value) { _value = PVCore::clamp(value, _value_min, _value_max); }
+	PVAxisZoom() :
+		_value(0), _value_min(INT_MIN), _value_max(INT_MAX), _value_default(0),
+		_zoom_converter(nullptr)
+	{}
 
 	/**
 	 * Returns the current value.
@@ -49,9 +41,50 @@ public:
 	int get_value() const { return _value; }
 
 	/**
-	 * Resets the current value to its default value
+	 * Returns the current value restricted in its range.
+	 *
+	 * @return the restricted value
 	 */
-	void reset_to_default() { _value = _value_default; }
+	int get_clamped_value() const { return PVCore::clamp(_value, _value_min, _value_max); }
+
+	/**
+	 * Returns the value relative to the lower bound
+	 *
+	 * @return the relative value
+	 */
+	int get_relative_value() const { return _value - _value_min; }
+
+	/**
+	 * set range
+	 *
+	 * @param vmin the lower bound
+	 * @param vmax the upper bound
+	 */
+	void set_range(int vmin, int vmax)
+	{
+		_value_min = vmin;
+		_value_max = vmax;
+	}
+
+	/**
+	 * set default value
+	 *
+	 * @param vdefault the default value
+	 */
+	void set_default_value(int vdefault)
+	{
+		_value_default = vdefault;
+	}
+
+	/**
+	 * set associated PVZoomConverter
+	 *
+	 * @param vdefault the default value
+	 */
+	void set_zoom_converter(PVZoomConverter *zoom_converter)
+	{
+		_zoom_converter = zoom_converter;
+	}
 
 	/**
 	 * Returns the lower bound.
@@ -79,14 +112,27 @@ public:
 	 *
 	 * @return the associated zoom converter
 	 */
-	PVZoomConverter *get_zoom_converter() const { return _zoom_converter; }
+	const PVZoomConverter *get_zoom_converter() const { return _zoom_converter; }
+
+protected:
+	/**
+	 * Change the stored value.
+	 *
+	 * @param value [in] the new value
+	 */
+	void set_value(const int value) { _value = value; }
+
+	/**
+	 * Resets the current value to its default value
+	 */
+	void reset_to_default() { _value = _value_default; }
 
 private:
-	int              _value;
-	int              _value_min;
-	int              _value_max;
-	int              _value_default;
-	PVZoomConverter *_zoom_converter;
+	int                    _value;
+	int                    _value_min;
+	int                    _value_max;
+	int                    _value_default;
+	const PVZoomConverter *_zoom_converter;
 };
 
 

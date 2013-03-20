@@ -12,6 +12,9 @@
 #define TICK_LENGTH (SMALL_TICK_LENGTH * 2)
 #define SCALE_VALUE_OFFSET 8
 
+#define DEFAULT_HMARGIN 50
+#define DEFAULT_VMARGIN 40
+
 /**
  * NOTE:
  * * do not forget the scene is defined in (0, -N, N, N), the screen's top value
@@ -26,7 +29,8 @@ PVParallelView::PVZoomableDrawingAreaWithAxes::PVZoomableDrawingAreaWithAxes(QWi
 	PVZoomableDrawingArea(parent),
 	_ticks_count(10)
 {
-	set_scene_margins(50, 50, 40, 40);
+	set_scene_margins(DEFAULT_HMARGIN, DEFAULT_HMARGIN,
+	                  DEFAULT_VMARGIN, DEFAULT_VMARGIN);
 	set_alignment(Qt::AlignLeft | Qt::AlignBottom);
 	set_transformation_anchor(PVWidgets::PVGraphicsView::AnchorUnderMouse);
 	set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOn);
@@ -128,7 +132,8 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations(QPaint
 	QRectF scene_in_screen = map_from_scene(get_scene_rect());
 
 	_x_axis_length = PVCore::min(scene_in_screen.width(), right - margin_left - 1.);
-	_y_axis_length = PVCore::min(scene_in_screen.height(), bottom - margin_top);
+	_y_axis_length = PVCore::min(scene_in_screen.height(), bottom - DEFAULT_HMARGIN);
+	int t = bottom - _y_axis_length;
 
 	int l = PVCore::max(painter->fontMetrics().boundingRect(get_y_value_at(-view_in_scene.y())).width(),
 	                    painter->fontMetrics().boundingRect(get_y_value_at(-(view_in_scene.y() + view_in_scene.height()))).width());
@@ -137,8 +142,8 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations(QPaint
 	l += 2 * SCALE_VALUE_OFFSET;
 	r = (r / 2) + SCALE_VALUE_OFFSET;
 
-	if ((l > margin_left) || ( r > margin_right) || (margin_top != (bottom - _y_axis_length))) {
-		set_scene_margins(l, r, bottom - _y_axis_length, margin_bottom);
+	if ((l > margin_left) || ( r > margin_right) || (t != margin_top)) {
+		set_scene_margins(l, r, t, margin_bottom);
 	}
 }
 

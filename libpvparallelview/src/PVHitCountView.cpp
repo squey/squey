@@ -60,8 +60,12 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	 */
 	set_alignment(Qt::AlignLeft | Qt::AlignTop);
 
-	set_zoom_range(-110, 30);
-	set_zoom_value(-110);
+	get_x_axis_zoom().set_range(-110, 30);
+	get_x_axis_zoom().set_default_value(-110);
+	get_y_axis_zoom().set_range(-110, 30);
+	get_y_axis_zoom().set_default_value(-110);
+	set_zoom_value(PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y,
+	               -110);
 
 	// setMaximumWidth(1024);
 	// setMaximumHeight(1024);
@@ -172,6 +176,11 @@ int PVParallelView::PVHitCountView::scale_to_zoom(const qreal scale_value) const
 QTransform PVParallelView::PVHitCountView::scale_to_transform(const qreal x_scale_value,
                                                               const qreal y_scale_value) const
 {
+	/**
+	 * This code will be useless because, auto-scale is replaced with a
+	 * formula to find the correct X zoom value to make the data be in
+	 * the view
+	 */
 	QTransform transfo;
 	if (_show_bg) {
 		transfo = PVZoomableDrawingAreaWithAxes::scale_to_transform(x_scale_value,

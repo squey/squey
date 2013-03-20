@@ -22,6 +22,13 @@ class PVZoomConverter
 {
 public:
 	/**
+	 * Needed virtual DTOR to compile
+	 */
+	virtual ~PVZoomConverter()
+	{}
+
+public:
+	/**
 	 * retrieve a zoom value from a scale value
 	 *
 	 * @param value [in] the scale value

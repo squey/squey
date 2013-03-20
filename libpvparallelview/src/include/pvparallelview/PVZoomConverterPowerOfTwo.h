@@ -17,12 +17,12 @@ namespace PVParallelView
 class PVZoomConverterPowerOfTwo : public PVZoomConverter
 {
 public:
-	int scale_to_zoom(const qreal value) const
+	int scale_to_zoom(const qreal value) const override
 	{
 		return log(scale_value) / log(2.0);
 	}
 
-	qreal zoom_to_scale(const int value) const
+	qreal zoom_to_scale(const int value) const override
 	{
 		return pow(2.0, value);
 	}

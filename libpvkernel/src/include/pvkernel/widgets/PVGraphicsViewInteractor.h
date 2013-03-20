@@ -41,7 +41,10 @@ class PVGraphicsViewInteractor: public PVGraphicsViewInteractorBase
 protected:
 	PVGraphicsViewInteractor(PVGraphicsView* parent):
 		PVGraphicsViewInteractorBase(parent)
-	{ }
+	{}
+
+	virtual	~PVGraphicsViewInteractor()
+	{}
 
 protected:
 	/*! \brief Called when a mouse button press event has occured.

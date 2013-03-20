@@ -494,30 +494,30 @@ int main(int argc, char **argv)
 
 	std::cout << "start test" << std::endl;
 
-	DEF_TEST(seq_v1);
+	// DEF_TEST(seq_v1);
 
-	DEF_TEST(seq_v2);
-	CMP_TEST(seq_v2, seq_v1);
+	// DEF_TEST(seq_v2);
+	// CMP_TEST(seq_v2, seq_v1);
 
-	DEF_TEST(seq_v3);
-	CMP_TEST(seq_v3, seq_v1);
+	// DEF_TEST(seq_v3);
+	// CMP_TEST(seq_v3, seq_v1);
 
-	DEF_TEST(sse_v3);
-	CMP_TEST(sse_v3, seq_v1);
+	// DEF_TEST(sse_v3);
+	// CMP_TEST(sse_v3, seq_v1);
 
 #ifdef __AVX__
 	DEF_TEST(avx_v3);
-	CMP_TEST(avx_v3, seq_v1);
+	// CMP_TEST(avx_v3, seq_v1);
 #endif
 
 	omp_sse_v3_ctx_t omp_sse_v3_ctx(buffer_size);
 
 	DEF_TEST(omp_sse_v3, omp_sse_v3_ctx);
-	CMP_TEST(omp_sse_v3, seq_v1);
+	// CMP_TEST(omp_sse_v3, seq_v1);
 
 	omp_sse_v3_ctx_t omp_sse_v32_ctx(buffer_size);
 	DEF_TEST(omp_sse_v3_2, omp_sse_v32_ctx);
-	CMP_TEST(omp_sse_v3_2, seq_v1);
+	// CMP_TEST(omp_sse_v3_2, seq_v1);
 
 	return 0;
 }
