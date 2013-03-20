@@ -104,9 +104,10 @@ Picviz::PVMappingFilter::decimal_storage_type Picviz::time_mapping::process_utf1
 int32_t Picviz::PVMappingFilterTimeDefault::cal_to_int(Calendar* cal, bool& success)
 {
 	UErrorCode err = U_ZERO_ERROR;
-	int32_t ret = (int32_t) cal->getTime(err);
+	int64_t ret = (int64_t) cal->getTime(err);
 	success = U_SUCCESS(err);
-	return ret;
+	// 'ret' is in ms, we are expecting seconds
+	return ret/1000;
 }
 
 IMPL_FILTER_NOPARAM(Picviz::PVMappingFilterTimeDefault)
