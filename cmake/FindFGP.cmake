@@ -20,7 +20,7 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(HWloc  DEFAULT_MSG
                                   HWLOC_LIBRARY HWLOC_INCLUDE_DIR)
 
-message(INFO "FGP include dirs: ${FGP_INCLUDE_DIRS}")
-message(INFO "FGP libraries: ${FGP_LIBRARIES}")
+message(STATUS "FGP include dirs: ${FGP_INCLUDE_DIRS}")
+message(STATUS "FGP libraries: ${FGP_LIBRARIES}")
 
 mark_as_advanced(FGP_INCLUDE_DIR FGP_LIBRARY )
