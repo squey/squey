@@ -6,7 +6,7 @@
 
 # Generate Qt assistant compatible documentation collection
 
-for l in libpvkernel libpicviz gui-qt
+for l in libpvkernel libpicviz gui-qt libpvparallelview
 do
 	pushd ../$l/doc
 	doxygen Doxyfile
@@ -14,7 +14,7 @@ do
 done
 
 qcollectiongenerator collection.qhcp -o collection.qhc
-for l in libpvkernel libpicviz gui-qt
+for l in libpvkernel libpicviz gui-qt libpvparallelview
 do
 	assistant -collectionFile collection.qhc -register ../$l/doc/html/$l.qch
 done
