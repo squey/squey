@@ -25,6 +25,7 @@
 
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVListingView.h>
+#include <picviz/widgets/PVNewLayerDialog.h>
 
 #include <pvkernel/core/PVRecentItemsManager.h>
 
@@ -413,9 +414,15 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView* pi
 	PVHive::PVActor<Picviz::PVView> actor;
 	PVHive::get().register_actor(view_sp, actor);
 
-	QString name = view_sp->get_layer_stack().get_new_layer_name_from_dialog(this);
+	bool& should_hide_layers = view_sp->get_layer_stack().should_hide_layers();
+	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(view_sp->get_layer_stack().get_new_layer_name(), should_hide_layers);
 
 	if (!name.isEmpty()) {
+
+		if (should_hide_layers) {
+			actor.call<FUNC(Picviz::PVView::hide_layers)>();
+		}
+
 		actor.call<FUNC(Picviz::PVView::add_new_layer)>(name);
 		Picviz::PVLayer &new_layer = picviz_view->layer_stack.get_selected_layer();
 
@@ -443,8 +450,13 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Picviz::PVView* picv
 
 	Picviz::PVLayer& current_layer = picviz_view->layer_stack.get_selected_layer();
 	
-	QString name = view_sp->get_layer_stack().get_new_layer_name_from_dialog(this);
+	bool& should_hide_layers = view_sp->get_layer_stack().should_hide_layers();
+	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(view_sp->get_layer_stack().get_new_layer_name(), should_hide_layers);
 	if (!name.isEmpty()) {
+
+		if (should_hide_layers) {
+			actor.call<FUNC(Picviz::PVView::hide_layers)>();
+		}
 
 		actor.call<FUNC(Picviz::PVView::add_new_layer)>(name);
 		Picviz::PVLayer& new_layer = picviz_view->layer_stack.get_selected_layer();

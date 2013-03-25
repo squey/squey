@@ -14,6 +14,8 @@
 #include <pvguiqt/PVLayerStackView.h>
 #include <pvguiqt/PVLayerStackWidget.h>
 
+#include <picviz/widgets/PVNewLayerDialog.h>
+
 /******************************************************************************
  *
  * PVGuiQt::PVLayerStackWidget::PVLayerStackWidget
@@ -143,9 +145,15 @@ void PVGuiQt::PVLayerStackWidget::delete_layer()
  *****************************************************************************/
 void PVGuiQt::PVLayerStackWidget::duplicate_layer()
 {
-	QString name = ls_model()->lib_layer_stack().get_new_layer_name_from_dialog(this);
+	bool& should_hide_layers = ls_model()->lib_layer_stack().should_hide_layers();
+	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(ls_model()->lib_layer_stack().get_new_layer_name(), should_hide_layers);
 
 	if (!name.isEmpty()) {
+
+		if (should_hide_layers) {
+			ls_model()->lib_layer_stack().hide_layers();
+		}
+
 		ls_model()->duplicate_selected_layer(name);
 	}
 }
@@ -179,9 +187,14 @@ void PVGuiQt::PVLayerStackWidget::move_up()
  *****************************************************************************/
 void PVGuiQt::PVLayerStackWidget::new_layer()
 {
-	QString name = ls_model()->lib_layer_stack().get_new_layer_name_from_dialog(this);
+	bool& should_hide_layers = ls_model()->lib_layer_stack().should_hide_layers();
+	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(ls_model()->lib_layer_stack().get_new_layer_name(), should_hide_layers);
 
 	if (!name.isEmpty()) {
+		if (should_hide_layers) {
+			ls_model()->lib_layer_stack().hide_layers();
+		}
+
 		ls_model()->add_new_layer(name);
 	}
 }

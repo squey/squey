@@ -170,6 +170,12 @@ IMPL_WAX(Picviz::PVView::toggle_layer_stack_layer_n_visible_state, view, args)
 	return std::move(ret);
 }
 
+IMPL_WAX(Picviz::PVView::hide_layers, view, args)
+{
+	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::hide_layers)>(view, args);
+	refresh_observers(&view->get_layer_stack());
+}
+
 // Axes combination waxes
 //
 

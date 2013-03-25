@@ -7,6 +7,7 @@
 #ifndef PVLAYERSTACKWIDGET_H
 #define PVLAYERSTACKWIDGET_H
 
+#include <QDialog>
 #include <QToolBar>
 #include <QWidget>
 
@@ -16,6 +17,14 @@ namespace PVGuiQt {
 
 class PVLayerStackModel;
 class PVLayerStackView;
+
+/**
+ *  \class PVNewLayerDialog
+ */
+class PVNewLayerDialog : public QDialog
+{
+	Q_OBJECT
+};
 
 /**
  *  \class PVLayerStackWidget
