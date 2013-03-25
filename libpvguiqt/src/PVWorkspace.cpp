@@ -316,6 +316,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Picviz::PVSource* source, QWidget*
 	);
 
 	_toolbar = new QToolBar(this);
+	_toolbar->toggleViewAction()->setVisible(false);
 	_toolbar->setFloatable(false);
 	_toolbar->setMovable(false);
 	_toolbar->setIconSize(QSize(32, 32));
