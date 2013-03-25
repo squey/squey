@@ -38,6 +38,7 @@ DECLARE_WAX(Picviz::PVView::set_layer_stack_layer_n_name)
 DECLARE_WAX(Picviz::PVView::toggle_layer_stack_layer_n_locked_state)
 DECLARE_WAX(Picviz::PVView::toggle_layer_stack_layer_n_visible_state)
 DECLARE_WAX(Picviz::PVView::toggle_parallelview_unselected_zombie_visibility)
+DECLARE_WAX(Picviz::PVView::hide_layers)
 
 // Axes combination waxes
 //

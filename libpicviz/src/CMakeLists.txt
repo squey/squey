@@ -162,6 +162,7 @@ include/picviz/widgets/PVCombinOpDelegate.h
 include/picviz/widgets/PVMappingModeWidget.h
 include/picviz/widgets/PVPlottingModeWidget.h
 include/picviz/widgets/PVMappingPlottingEditDialog.h
+include/picviz/widgets/PVNewLayerDialog.h
 
 include/picviz/widgets/editors/PVAxisIndexEditor.h
 include/picviz/widgets/editors/PVAxisIndexCheckBoxEditor.h
@@ -182,6 +183,7 @@ widgets/PVCombinOpDelegate.cpp
 widgets/PVMappingModeWidget.cpp
 widgets/PVPlottingModeWidget.cpp
 widgets/PVMappingPlottingEditDialog.cpp
+widgets/PVNewLayerDialog.cpp
 
 widgets/editors/PVAxisIndexEditor.cpp
 widgets/editors/PVAxisIndexCheckBoxEditor.cpp

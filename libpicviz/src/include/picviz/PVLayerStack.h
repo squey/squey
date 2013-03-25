@@ -32,6 +32,7 @@ private:
 	int               next_new_layer_counter; // counter for layers creation
 	int               selected_layer_index;
 	QList<PVLayer>    table;
+	bool			  _should_hide_layers = true;
 public:
 
 	/**
@@ -39,8 +40,8 @@ public:
 	 */
 	PVLayerStack(PVRow row_count = 0);
 
-	QString get_new_layer_name_from_dialog(QWidget* parent = nullptr) const;
 	QString get_new_layer_name() const;
+	bool& should_hide_layers() { return _should_hide_layers; }
 	int get_layer_count() const {return layer_count;}
  	PVLayer const& get_layer_n(int n) const { return table[n]; };
  	PVLayer& get_layer_n(int n) { return table[n]; };
@@ -75,6 +76,7 @@ public:
 	void move_layer_up(int index);
 	void move_selected_layer_down();
 	void move_selected_layer_up();
+	void hide_layers();
 
 	PVLayerIndexArray& get_lia() {return lia;}
 	const PVLayerIndexArray& get_lia() const {return lia;}
@@ -87,6 +89,7 @@ public:
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+
 
 
 // 	void debug();

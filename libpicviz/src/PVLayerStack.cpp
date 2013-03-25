@@ -9,8 +9,6 @@
 #include <picviz/PVLayerStack.h>
 #include <picviz/PVSelection.h>
 
-#include <QInputDialog>
-
 
 /******************************************************************************
  *
@@ -37,12 +35,16 @@ QString Picviz::PVLayerStack::get_new_layer_name() const
 
 /******************************************************************************
  *
- * Picviz::PVLayerStack::get_new_layer_name_from_dialog
+ * PVGuiQt::PVLayerStackModel::hide_layers
  *
  *****************************************************************************/
-QString Picviz::PVLayerStack::get_new_layer_name_from_dialog(QWidget* parent /*=nullptr*/) const
+void Picviz::PVLayerStack::hide_layers()
 {
-	return QInputDialog::getText(nullptr, "New layer", "Layer name:", QLineEdit::Normal, get_new_layer_name());
+	for (int i = 0; i < layer_count; i++) {
+		PVLayer &layer = get_layer_n(i);
+		layer.set_visible(false);
+	}
+	update_layer_index_array_completely();
 }
 
 /******************************************************************************

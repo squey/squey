@@ -176,6 +176,12 @@ IMPL_WAX(Picviz::PVView::toggle_parallelview_unselected_zombie_visibility, view,
 	refresh_observers(&view->are_parallelview_unselected_zombie_visible());
 }
 
+IMPL_WAX(Picviz::PVView::hide_layers, view, args)
+{
+	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::hide_layers)>(view, args);
+	refresh_observers(&view->get_layer_stack());
+}
+
 // Axes combination waxes
 //
 

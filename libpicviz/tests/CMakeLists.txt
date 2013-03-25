@@ -72,4 +72,8 @@ target_link_libraries(Tpicviz_cat_plotted ${LINK_LIBRARIES})
 declare_pv_test(Tpicviz_process picviz-process.cpp)
 target_link_libraries(Tpicviz_process ${LINK_LIBRARIES})
 
+# New Layer Dialog
+add_executable(Tqt_new_layer_dialog new_layer_dialog.cpp)
+target_link_libraries(Tqt_new_layer_dialog ${LINK_LIBRARIES})
+
 declare_lib_tests_target()
