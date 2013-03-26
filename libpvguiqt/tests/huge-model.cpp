@@ -8,7 +8,7 @@
 #include <QHeaderView>
 
 #define NROWS 1000000000 // OK w/ 71580000, not w/ 71590000
-#define NCOLS 4
+#define NCOLS 1
 
 class MyModel: public QAbstractTableModel
 {
@@ -39,7 +39,13 @@ int main(int argc, char** argv)
 	table->verticalHeader()->setResizeMode(QHeaderView::Fixed);
 	table->verticalHeader()->setStretchLastSection(false);*/
 	table->setWordWrap(false);
+	table->horizontalHeader()->setStretchLastSection(true);
+	table->verticalHeader()->setDefaultSectionSize(table->verticalHeader()->minimumSectionSize());
 	table->setModel(model);
+	table->setGridStyle(Qt::NoPen);
+	table->horizontalHeader()->hide();
+	table->setContextMenuPolicy(Qt::ActionsContextMenu);
+	table->verticalHeader()->hide();
 
 	PVLOG_INFO("Done. Creating main window and showing...\n");
 	QMainWindow* mw = new QMainWindow();
