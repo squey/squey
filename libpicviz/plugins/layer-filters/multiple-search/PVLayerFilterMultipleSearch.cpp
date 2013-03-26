@@ -175,10 +175,15 @@ void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 	typename decltype(tls_sel)::const_iterator it_tls = tls_sel.begin();
 	PVSelection& out_sel = out.get_selection();
 	// Save one copy with std::move :) !
-	out_sel = std::move(*it_tls);
-	it_tls++;
-	for (; it_tls != tls_sel.end(); it_tls++) {
-		out_sel.or_optimized(*it_tls);
+	if (it_tls == tls_sel.end()) {
+		out_sel.select_none();
+	}
+	else {
+		out_sel = std::move(*it_tls);
+		it_tls++;
+		for (; it_tls != tls_sel.end(); it_tls++) {
+			out_sel.or_optimized(*it_tls);
+		}
 	}
 }
 
