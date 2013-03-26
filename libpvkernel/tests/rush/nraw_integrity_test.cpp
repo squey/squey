@@ -123,9 +123,8 @@ int main(int argc, char** argv)
 	ranges.push_back(abstract_generator_sp(new fixed_generator(MAX_FIELD_LENGTH)));
 	ranges.push_back(abstract_generator_sp(new increasing_generator(0, MAX_FIELD_LENGTH)));
 	ranges.push_back(abstract_generator_sp(new random_generator(0, 4)));
+	ranges.push_back(abstract_generator_sp(new random_generator(MAX_FIELD_LENGTH-4, MAX_FIELD_LENGTH)));
 	ranges.push_back(abstract_generator_sp(new random_generator(128, MAX_FIELD_LENGTH)));
-	ranges.push_back(abstract_generator_sp(new random_generator(MAX_FIELD_LENGTH-1, MAX_FIELD_LENGTH-1)));
-	ranges.push_back(abstract_generator_sp(new random_generator(MAX_FIELD_LENGTH, MAX_FIELD_LENGTH)));
 	ranges.push_back(abstract_generator_sp(new random_generator(0, MAX_FIELD_LENGTH)));
 	ranges.push_back(abstract_generator_sp(new random_gaussian_generator(0, MAX_FIELD_LENGTH, 0.3, 0.1)));
 
