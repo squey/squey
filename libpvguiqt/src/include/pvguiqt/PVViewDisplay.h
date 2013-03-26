@@ -8,11 +8,12 @@
 #define __PVGUIQT_PVVIEWDISPLAY_H__
 
 #include <QAction>
-#include <QEvent>
 #include <QCloseEvent>
-#include <QDockWidget>
-#include <QFocusEvent>
 #include <QContextMenuEvent>
+#include <QDockWidget>
+#include <QEvent>
+#include <QFocusEvent>
+#include <QSignalMapper>
 
 #include <pvhive/PVObserverSignal.h>
 #include <pvhive/PVCallHelper.h>
@@ -39,6 +40,8 @@ class PVViewDisplay : public QDockWidget
 	friend PVWorkspace;
 	friend PVOpenWorkspace;
 
+	enum EState{ HIDDEN, CAN_MAXIMIZE, CAN_RESTORE };
+
 public:
 	~PVViewDisplay() { delete _obs_plotting; }
 
@@ -63,13 +66,14 @@ public slots:
 
 private slots:
 	void plotting_updated();
+	void maximize_on_screen(int screen_number);
+	void restore();
 
 signals:
 	void display_closed();
 	void try_automatic_tab_switch();
 
 private:
-	void maximize_on_screen(int screen_number);
 	void register_view(Picviz::PVView* view);
 
 private:
@@ -83,6 +87,14 @@ private:
 	PVHive::PVObserverSignal<Picviz::PVPlotting>*  _obs_plotting = nullptr;
 	PVHive::PVObserver_p<Picviz::PVView> _obs_view;
 	bool _about_to_be_deleted = false;
+
+	int _width;
+	int _height;
+	int _x;
+	int _y;
+	EState _state = HIDDEN;
+
+	QSignalMapper* _screenSignalMapper;
 
 };
 
