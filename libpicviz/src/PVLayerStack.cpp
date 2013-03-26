@@ -30,7 +30,7 @@ Picviz::PVLayerStack::PVLayerStack(PVRow row_count) :
  *****************************************************************************/
 QString Picviz::PVLayerStack::get_new_layer_name() const
 {
-	return QString("New layer %1").arg(next_new_layer_counter);
+	return QString("New layer %1").arg(next_new_layer_counter+1);
 }
 
 /******************************************************************************
