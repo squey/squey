@@ -65,7 +65,11 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(
 	}
 
 	connect(this, SIGNAL(topLevelChanged(bool)), this, SLOT(drag_started(bool)));
+	connect(this, SIGNAL(dockLocationChanged (Qt::DockWidgetArea)), this, SLOT(drag_ended()));
 	connect(view_widget, SIGNAL(destroyed(QObject*)), this, SLOT(close()));
+
+	_screenSignalMapper = new QSignalMapper(this);
+	connect(_screenSignalMapper, SIGNAL(mapped(int)), this, SLOT(maximize_on_screen(int)));
 
 	register_view(view);
 }
@@ -138,7 +142,9 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 
 					workspace->activateWindow();
 					workspace->addDockWidget(Qt::RightDockWidgetArea, this); // Qt::NoDockWidgetArea yields "QMainWindow::addDockWidget: invalid 'area' argument"
-					setFloating(true); // We don't want the dock widget to be docked right now
+					if (!isFloating()) {
+						setFloating(true); // We don't want the dock widget to be docked right now
+					}
 
 					_workspace = workspace;
 
@@ -192,6 +198,22 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 	return QDockWidget::event(event);
 }
 
+void PVGuiQt::PVViewDisplay::drag_started(bool started)
+{
+	if(started)
+	{
+		if(qobject_cast<PVViewDisplay*>(sender())) {
+			PVGuiQt::PVWorkspaceBase::_drag_started = true;
+		}
+	}
+	_state = EState::CAN_MAXIMIZE;
+}
+
+void PVGuiQt::PVViewDisplay::drag_ended()
+{
+	PVGuiQt::PVWorkspaceBase::_drag_started = false;
+	_state = EState::HIDDEN;
+}
 
 void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 {
@@ -208,18 +230,34 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 		connect(switch_action, SIGNAL(triggered(bool)), (QWidget*)_workspace, SLOT(switch_with_central_widget()));
 		ctxt_menu->addAction(switch_action);
 
-		// Maximize on left monitor
 		int screen_number = QApplication::desktop()->screenNumber(this);
+
+		// Maximize & Restore
+		if (_state == EState::CAN_MAXIMIZE) {
+			QAction* maximize_action = new QAction(tr("Maximize"), this);
+			connect(maximize_action, SIGNAL(triggered(bool)), _screenSignalMapper, SLOT(map()));
+			_screenSignalMapper->setMapping(maximize_action, screen_number);
+			ctxt_menu->addAction(maximize_action);
+		}
+		else if (_state == EState::CAN_RESTORE) {
+			QAction* restore_action = new QAction(tr("Restore"), this);
+			connect(restore_action, SIGNAL(triggered(bool)), this, SLOT(restore()));
+			ctxt_menu->addAction(restore_action);
+		}
+
+		// Maximize on left monitor
 		if (screen_number > 0) {
 			QAction* maximize_left_action = new QAction(tr("<< Maximize on left screen"), this);
-			::connect(maximize_left_action, SIGNAL(triggered(bool)), [=]{maximize_on_screen(screen_number-1);});
+			connect(maximize_left_action, SIGNAL(triggered(bool)), _screenSignalMapper, SLOT(map()));
+			_screenSignalMapper->setMapping(maximize_left_action, screen_number-1);
 			ctxt_menu->addAction(maximize_left_action);
 		}
 
 		// Maximize on right monitor
 		if (screen_number < QApplication::desktop()->screenCount()-1) {
 			QAction* maximize_right_action = new QAction(tr(">> Maximize on right screen"), this);
-			::connect(maximize_right_action, SIGNAL(triggered(bool)), [=]{maximize_on_screen(screen_number+1);});
+			connect(maximize_right_action, SIGNAL(triggered(bool)), _screenSignalMapper, SLOT(map()));
+			_screenSignalMapper->setMapping(maximize_right_action, screen_number+1);
 			ctxt_menu->addAction(maximize_right_action);
 		}
 
@@ -229,11 +267,39 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 
 void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
 {
+	_width = width();
+	_height = height();
+	_x = x();
+	_y = y();
+
+	bool can_restore = QApplication::desktop()->screenNumber(this) == screen_number;
+
 	QRect screenres = QApplication::desktop()->screenGeometry(screen_number);
-	setFloating(true);
-	move(QPoint(screenres.x(), screenres.y()));
+
+	// JBL: You may be wondering why the hell I am messing so much with the floating state of the widget,
+	//      well, this is to workaround a Qt bug preventing it to be moved on the proper screen...
+	//      So please, don't try to "optimize" this weird methode because you would surely break something!
+	//      (Note: A test case is being written in order to open a bug report)
+	if(!isFloating()) {
+		setFloating(true);
+	}
 	resize(screenres.width(), screenres.height());
-	show();
+	move(QPoint(screenres.x(), screenres.y()));
+	setFloating(true);
+
+	if (can_restore) {
+		_state = EState::CAN_RESTORE;
+	}
+	else {
+		_state =  EState::HIDDEN;
+	}
+}
+
+void PVGuiQt::PVViewDisplay::restore()
+{
+	resize(_width, _height);
+	move(_x, _y);
+	_state = EState::CAN_MAXIMIZE;
 }
 
 void PVGuiQt::PVViewDisplay::set_current_view()
@@ -242,11 +308,6 @@ void PVGuiQt::PVViewDisplay::set_current_view()
 		Picviz::PVRoot_sp root_sp = _view->get_parent<Picviz::PVRoot>()->shared_from_this();
 		PVHive::call<FUNC(Picviz::PVRoot::select_view)>(root_sp, *_view);
 	}
-}
-
-void PVGuiQt::PVViewDisplay::drag_started(bool started)
-{
-	PVGuiQt::PVSourceWorkspace::_drag_started = started;
 }
 
 void PVGuiQt::PVViewDisplay::plotting_updated()
