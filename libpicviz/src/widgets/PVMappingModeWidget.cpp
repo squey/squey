@@ -31,7 +31,7 @@ PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Picviz::PVMap
 PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Picviz::PVView& view, bool params_btn, QWidget* parent):
 	QWidget(parent)
 {
-	init(params_btn);
+init(params_btn);
 	populate_from_mapping(axis_id, *view.get_parent<Picviz::PVMapped>()->get_mapping());
 }
 

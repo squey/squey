@@ -53,7 +53,6 @@ PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Picviz::PVMa
 		_axes = &(_plotting->get_plotted()->get_parent<Picviz::PVSource>()->current_view()->axes_combination.get_original_axes_list());
 	}
 
-	// We set the nale of the Dialog Window
 	setWindowTitle(tr("Edit properties..."));
 
 	// We generate and populate the Layout
@@ -258,6 +257,7 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 			QString mode = map_combo->get_mode();
 
 			prop.set_type(type, mode);
+			prop.set_args(map_combo->get_cur_filter_params());
 		}
 		if (has_plotting()) {
 			PVWidgets::PVPlottingModeWidget* combo = dynamic_cast<PVWidgets::PVPlottingModeWidget*>(_main_grid->itemAtPosition(row, col++)->widget());
