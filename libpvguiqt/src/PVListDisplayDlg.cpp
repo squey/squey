@@ -26,9 +26,22 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	_field_separator_btn->setKeySequence(QKeySequence(Qt::Key_Return));
 	_field_separator_btn->setMaxNumKey(1);
 
-	_values_view->setUniformItemSizes(true);
+	// `_values_view' is a QTableView, because QListView suffers from the same
+	// bug than QTableView used to suffer when a "large" (> 75000000) number of
+	// items are present in the model. See
+	// https://bugreports.qt-project.org/browse/QTBUG-18490 for more
+	// informations.
+	// The order of the calls here are important, especially the call to
+	// setDefaultSectionSize that must be called *before* setModel, or it could
+	// take a huge amount of time.
+	_values_view->horizontalHeader()->setStretchLastSection(true);
+	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
 	_values_view->setModel(_model);
+	_values_view->setGridStyle(Qt::NoPen);
+	_values_view->horizontalHeader()->hide();
 	_values_view->setContextMenuPolicy(Qt::ActionsContextMenu);
+	_values_view->verticalHeader()->hide();
+
 
 	QAction* copy_values_act = new QAction(tr("Copy value in the clipboard..."), this);
 	connect(copy_values_act, SIGNAL(triggered()), this, SLOT(copy_value_clipboard()));
