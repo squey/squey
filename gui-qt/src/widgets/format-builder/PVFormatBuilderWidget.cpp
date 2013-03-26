@@ -1007,6 +1007,6 @@ void PVInspector::PVFormatBuilderWidget::slotMainTabChanged(int idx)
 
 		// Get the list of axes and update the axis combination
 		myTreeModel->updateAxesCombination();
-		//_axes_comb_widget->update_all();
+		_axes_comb_widget->update_all();
 	}
 }
