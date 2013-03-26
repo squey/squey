@@ -74,6 +74,9 @@ private slots:
 private:
 	PVListingView* _listing_view;
 	QTableWidget* _stats_panel;
+
+	int _old_maximum_width;
+	bool _maxed = false;
 };
 
 namespace __impl

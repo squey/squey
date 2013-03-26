@@ -15,14 +15,16 @@
 #include <pvguiqt/PVStatsListingWidget.h>
 #include <pvguiqt/PVQNraw.h>
 
+constexpr int QTABLEWIDGET_OFFSET = 4;
+
 // Originally from http://stackoverflow.com/questions/8766633/how-to-determine-the-correct-size-of-a-qtablewidget
 static QSize compute_qtablewidget_size(QTableWidget* stats, QTableView* listing)
 {
-   int w = listing->verticalHeader()->width() + /*listing->verticalScrollBar()->width()*/ + 4;
+   int w = listing->verticalHeader()->width() + /*listing->verticalScrollBar()->width()*/ + QTABLEWIDGET_OFFSET;
    for (int i = 0; i < listing->horizontalHeader()->count(); i++)
       w += listing->columnWidth(i);
 
-   int h = stats->horizontalHeader()->height() + 4;
+   int h = stats->horizontalHeader()->height() + QTABLEWIDGET_OFFSET;
    for (int i = 0; i < stats->verticalHeader()->count(); i++)
       h += stats->rowHeight(i);
 
@@ -159,6 +161,20 @@ void PVGuiQt::PVStatsListingWidget::update_scrollbar_position()
 	// Difference between QScrollBar::value() and QScrollBar::sliderPosition():
 	// From Qt documentation: If tracking is enabled (the default), the slider emits the valueChanged() signal while the slider is being dragged.
 	//                        If tracking is disabled, the slider emits the valueChanged() signal only when the user releases the slider.
+
+	// In order to avoid an offset between the stats and listing tables when the vertical scrollbar is on the rightmost position
+	// the maximum width of the stats panel is in this case reduced of by the vertical scrollbar width. (fix bug #238)
+	if (_listing_view->horizontalScrollBar()->sliderPosition() == _listing_view->horizontalScrollBar()->maximum()) {
+		_old_maximum_width = _stats_panel->maximumSize().width();
+		_stats_panel->setMaximumWidth(_stats_panel->minimumSize().width() + _listing_view->horizontalScrollBar()->width() +QTABLEWIDGET_OFFSET/2);
+		_maxed = true;
+	}
+	else {
+		if (_maxed) {
+			_stats_panel->setMaximumWidth(_old_maximum_width);
+			_maxed = false;
+		}
+	}
 	_stats_panel->horizontalScrollBar()->setSliderPosition(_listing_view->horizontalScrollBar()->sliderPosition());
 }
 
