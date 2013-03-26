@@ -274,7 +274,7 @@ void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
 
 	bool can_restore = QApplication::desktop()->screenNumber(this) == screen_number;
 
-	QRect screenres = QApplication::desktop()->screenGeometry(screen_number);
+	QRect screenres = QApplication::desktop()->availableGeometry(screen_number);
 
 	// JBL: You may be wondering why the hell I am messing so much with the floating state of the widget,
 	//      well, this is to workaround a Qt bug preventing it to be moved on the proper screen...
@@ -285,7 +285,6 @@ void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
 	}
 	resize(screenres.width(), screenres.height());
 	move(QPoint(screenres.x(), screenres.y()));
-	setFloating(true);
 
 	if (can_restore) {
 		_state = EState::CAN_RESTORE;
