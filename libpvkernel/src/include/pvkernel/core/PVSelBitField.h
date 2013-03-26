@@ -389,11 +389,16 @@ public:
 		assert(b > a);
 		assert(b <= PICVIZ_SELECTION_NUMBER_OF_ROWS);
 		b--;
+		int last_bit = line_index_to_chunk_bit(b);
+		const ssize_t org_chunk_end = line_index_to_chunk(b);
 		ssize_t chunk_start = line_index_to_chunk(a);
-		ssize_t chunk_end = get_last_nonzero_chunk_index(chunk_start, line_index_to_chunk(b));
+		ssize_t chunk_end = get_last_nonzero_chunk_index(chunk_start, org_chunk_end);
 		if (chunk_end < chunk_start) {
 			// No lines are selected !
 			return;
+		}
+		if (chunk_end != org_chunk_end) {
+			last_bit = PICVIZ_SELECTION_CHUNK_SIZE-1;
 		}
 
 		// If there are less than or exactly 3 chunks, use the sequential version
@@ -433,7 +438,6 @@ public:
 
 		// Epilogue
 		uint64_t last_chunk = _table[chunk_end];
-		const int last_bit = line_index_to_chunk_bit(b);
 		if (last_bit < PICVIZ_SELECTION_CHUNK_SIZE-1) {
 			last_chunk &= ((1ULL<<(last_bit+1))-1);
 		}
@@ -449,11 +453,16 @@ public:
 		assert(b > a);
 		assert(b <= PICVIZ_SELECTION_NUMBER_OF_ROWS);
 		b--;
+		int last_bit = line_index_to_chunk_bit(b);
+		const ssize_t org_chunk_end = line_index_to_chunk(b);
 		ssize_t chunk_start = line_index_to_chunk(a);
-		ssize_t chunk_end = get_last_nonzero_chunk_index(chunk_start, line_index_to_chunk(b));
+		ssize_t chunk_end = get_last_nonzero_chunk_index(chunk_start, org_chunk_end);
 		if (chunk_end < chunk_start) {
 			// No lines are selected !
 			return;
+		}
+		if (chunk_end != org_chunk_end) {
+			last_bit = PICVIZ_SELECTION_CHUNK_SIZE-1;
 		}
 
 		// If there are less than or exactly 3 chunks, use the sequential version
@@ -496,7 +505,6 @@ public:
 
 		// Epilogue
 		uint64_t last_chunk = _table[chunk_end];
-		const int last_bit = line_index_to_chunk_bit(b);
 		if (last_bit < PICVIZ_SELECTION_CHUNK_SIZE-1) {
 			last_chunk &= ((1ULL<<(last_bit+1))-1);
 		}

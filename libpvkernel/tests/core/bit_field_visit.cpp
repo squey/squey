@@ -102,6 +102,8 @@ int main()
 	//
 	// There was an issue with the epilogue if the last chunk was indeed full
 	ranges.push_back(std::make_pair(57262, std::min(58624, PICVIZ_LINES_MAX)));
+	// Related to #245
+	ranges.push_back(std::make_pair(81990, std::min(102886, PICVIZ_LINES_MAX)));
 
 	std::cout << "Tests with full selection..." << std::endl;
 	bits.select_all();
@@ -125,6 +127,14 @@ int main()
 
 	std::cout << "Tests with random selection (2)..." << std::endl;
 	bits.select_random();
+	do_tests(bits, ranges);
+
+	std::cout << "Tests with 88104, 88106, 88111, 88113 (related to #245)..." << std::endl;
+	bits.select_none();
+	bits.set_bit_fast(88104);
+	bits.set_bit_fast(88106);
+	bits.set_bit_fast(88111);
+	bits.set_bit_fast(88113);
 	do_tests(bits, ranges);
 
 	return 0;
