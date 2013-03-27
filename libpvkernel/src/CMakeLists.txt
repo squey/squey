@@ -52,6 +52,7 @@ core/PVAllocators.cpp
 core/PVRecentItemsManager.cpp
 core/string_tbb.cpp
 core/PVConfig.cpp
+core/PVFileHelper.cpp
 )
 
 if(PYTHONLIBS_FOUND)
@@ -120,6 +121,7 @@ include/pvkernel/core/PVVersion.h
 include/pvkernel/core/PVRecentItemsManager.h
 include/pvkernel/core/PVConfig.h
 include/pvkernel/core/PVVector.h
+include/pvkernel/core/PVFileHelper.h
 )
 
 if(PYTHONLIBS_FOUND)

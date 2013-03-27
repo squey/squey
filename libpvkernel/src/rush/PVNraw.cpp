@@ -4,16 +4,33 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <pvkernel/core/PVFileHelper.h>
 #include <pvkernel/core/PVDirectory.h>
+#include <pvkernel/core/PVDirectory.h>
+
 #include <pvkernel/rush/PVNraw.h>
-#include <unistd.h>
+
 #include <tbb/tick_count.h>
+
 #include <iostream>
+
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <QDir>
+#include <QDirIterator>
+#include <QFileInfo>
+
 #define DEFAULT_LINE_SIZE 100
 #define MAX_SIZE_RESERVE (size_t(1024*1024*1024u)) // 1GB
+
+#define CONFIG_NRAW_TMP "pvkernel/nraw_tmp"
+
+#define NRAW_TMP_PATTERN "nraw-XXXXXX"
+#define NRAW_TMP_NAME_REGEXP  "nraw-??????"
+
+static const QString default_tmp_path = QDir::tempPath() + "/picviz";
 
 PVRush::PVNraw::PVNraw():
 	_tmp_conv_buf(nullptr)
@@ -33,9 +50,7 @@ PVRush::PVNraw::~PVNraw()
 void PVRush::PVNraw::reserve(PVRow const /*nrows*/, PVCol const ncols)
 {
 	// Generate random path
-	QString def_tmp_path = QDir::tempPath() + "/picviz";
-	QDir::temp().mkdir("picviz");
-	QString nraw_dir_base = pvconfig.value("pvkernel/nraw_tmp", def_tmp_path).toString() + "/nraw-XXXXXX";
+	QString nraw_dir_base = pvconfig.value(CONFIG_NRAW_TMP, default_tmp_path).toString() + QDir::separator() + NRAW_TMP_PATTERN;
 	QByteArray nstr = nraw_dir_base.toLocal8Bit();
 	mkdtemp(nstr.data());
 	_backend.init(nstr.constData(), ncols);
@@ -152,4 +167,57 @@ QString PVRush::PVNraw::nraw_line_to_csv(PVRow idx) const
 	}
 	ret += at(idx, c);
 	return ret;
+}
+
+QStringList PVRush::PVNraw::list_unused_nraw_directories(const QString &base_directory,
+                                                         const QString &name_filter)
+{
+	QDir nraw_dir_base(base_directory, name_filter);
+	QStringList result;
+
+	for (const QString &sub_dir_name : nraw_dir_base.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+		QString sub_dir_path(base_directory + QDir::separator() + sub_dir_name);
+		QDirIterator it(sub_dir_path,
+		                QDir::Files | QDir::NoDotAndDotDot,
+		                QDirIterator::Subdirectories);
+		bool has_opened_file = false;
+
+		while(it.hasNext()) {
+			if (it.fileName().isEmpty()) {
+				it.next();
+				continue;
+			}
+
+			const char *c_file_name = it.filePath().toLocal8Bit().data();
+			has_opened_file |= PVCore::PVFileHelper::is_already_opened(c_file_name);
+
+			it.next();
+		}
+
+		if(has_opened_file == false) {
+			result << base_directory + QDir::separator() + sub_dir_name;
+		}
+	}
+
+	return result;
+}
+
+void PVRush::PVNraw::remove_unused_nraw_directories(const QString &base_directory,
+                                                    const QString &name_filter)
+{
+	QStringList sl = list_unused_nraw_directories(base_directory, name_filter);
+
+	for (const QString& dir : sl) {
+		PVCore::PVDirectory::remove_rec(dir);
+	}
+}
+
+void PVRush::PVNraw::remove_unused_nraw_directories()
+{
+	QString base_dir(pvconfig.value(CONFIG_NRAW_TMP,
+	                                default_tmp_path).toString());
+	QString regexp(NRAW_TMP_NAME_REGEXP);
+
+	remove_unused_nraw_directories(base_dir, regexp);
+
 }
