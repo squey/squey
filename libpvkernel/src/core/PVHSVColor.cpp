@@ -92,3 +92,9 @@ QColor PVCore::PVHSVColor::toQColor() const
 	toQColor(ret);
 	return std::move(ret);
 }
+
+bool PVCore::PVHSVColor::is_valid() const
+{
+	// Checks that the value stored is valid
+	return (_h < HSV_COLOR_COUNT) || (_h == HSV_COLOR_BLACK) || (_h == HSV_COLOR_WHITE);
+}

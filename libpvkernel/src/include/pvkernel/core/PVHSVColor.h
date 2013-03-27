@@ -17,12 +17,14 @@
 
 #define HSV_COLOR_NBITS_ZONE 5
 #define HSV_COLOR_MASK_ZONE 31
+#define HSV_COLOR_COUNT 192 // = (2**5)*6, without black & white
 
 // Special colors
 #define HSV_COLOR_WHITE 255
 #define HSV_COLOR_BLACK 254
 
 // Some colors that can be useful
+#define HSV_COLOR_BLUE  10
 #define HSV_COLOR_GREEN 59
 #define HSV_COLOR_RED   126
 
@@ -44,6 +46,7 @@ public:
 	inline T& h() { return _h; };
 	inline T  h() const { return _h; };
 	static PVHSVColor* init_colors(PVRow nb_colors);
+	bool is_valid() const;
 
 public:
 	void to_rgb(T& r, T& g, T& b) const;
