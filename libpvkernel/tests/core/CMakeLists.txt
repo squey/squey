@@ -134,6 +134,11 @@ add_test(TestBitFieldVisitPacked Tcore_bit_field_visit_packed)
 declare_pv_test(Tcore_pod_tree pod_tree.cpp)
 target_link_libraries(Tcore_pod_tree pvkernel ${QT_LIBRARIES})
 
+# file helper
+declare_pv_test(Tcore_file_helper file_helper.cpp)
+target_link_libraries(Tcore_file_helper pvkernel)
+add_test(TestFileHelper Tcore_file_helper)
+
 # Hardware concurrency
 declare_pv_test(Tcore_hardware_concurrency hardware_concurrency.cpp)
 target_link_libraries(Tcore_hardware_concurrency pvkernel ${QT_LIBRARIES})

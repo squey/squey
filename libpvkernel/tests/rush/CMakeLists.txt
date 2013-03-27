@@ -220,6 +220,10 @@ add_test(TestNrawIntegrity Trush_nraw_integrity_test ${PVKERNEL_RUSH_TEST_NRAW_T
 declare_pv_test(arcsight_src "test_arcsight_source.cpp;helpers.cpp;${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightInfos.cpp;${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightQuery.cpp;")
 target_link_libraries(arcsight_src ${LINK_LIBRARIES})
 
+# NRAW unused directory cleaning test
+declare_pv_test(Trush_nraw_unused_directories nraw_unused_directories.cpp "${LINK_LIBRARIES}")
+add_test(TestNrawUnusedDirectories Trush_nraw_unused_directories ${PVKERNEL_RUSH_TEST_NRAW_TMP})
+
 if(PYTHONLIBS_FOUND)
 	# Python NRAW
 	#	add_executable(Trush_python_nraw python_nraw.cpp)
