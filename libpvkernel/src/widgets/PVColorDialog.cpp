@@ -5,7 +5,7 @@
 
 //static PVCore::PVHSVColor g_predefined_colors[] = {HSV_COLOR_WHITE, HSV_COLOR_RED, HSV_COLOR_GREEN, HSV_COLOR_BLUE};
 
-#define GRID_COL_SIZE 8
+#define GRID_COL_SIZE 11
 #define HSV_COLOR_PROPERTY "picviz_hsv_color_property"
 #define HSV_COLOR_INDEX    "picviz_hsv_color_index"
 
@@ -144,7 +144,7 @@ void PVWidgets::PVColorDialog::init()
 
 	// Fill the last row with a spacer
 	const size_t last_row = (colors.size() + (GRID_COL_SIZE-1)) / GRID_COL_SIZE;
-	const int last_empty_col = (colors.size() + 1) % GRID_COL_SIZE;
+	const int last_empty_col = colors.size() % GRID_COL_SIZE;
 	if (last_empty_col > 0) {
 		_predefined_grid->addItem(new QSpacerItem(1, 0, QSizePolicy::Expanding), last_row, last_empty_col, GRID_COL_SIZE-last_empty_col);
 	}
