@@ -43,7 +43,13 @@ void PVWidgets::PVColorPicker::init()
 void PVWidgets::PVColorPicker::set_color(PVCore::PVHSVColor const& c)
 {
 	if (!is_interval_mode()) {
-		_c.h() = PVCore::clamp(c.h(), x0(), x1());
+		if (c.h() == HSV_COLOR_WHITE) {
+			// Special case for white color
+			_c = c;
+		}
+		else {
+			_c.h() = PVCore::clamp(c.h(), x0(), x1());
+		}
 		update();
 	}
 }
@@ -78,8 +84,7 @@ int PVWidgets::PVColorPicker::h_to_x_screen(uint8_t h) const
 
 QSize PVWidgets::PVColorPicker::sizeHint() const
 {
-	constexpr static size_t color_max = ((1<<HSV_COLOR_NBITS_ZONE)*6);
-	return QSize(color_max, 10);
+	return QSize(HSV_COLOR_COUNT, 10);
 }
 
 void PVWidgets::PVColorPicker::mousePressEvent(QMouseEvent* event)
@@ -142,11 +147,14 @@ void PVWidgets::PVColorPicker::paintEvent(QPaintEvent* event)
 		painter.fillRect(QRect(x, VERT_MARGIN, 1, height-2*VERT_MARGIN), color);
 	}
 
-	draw_up_triangle(c0_x, painter);
-	draw_down_triangle(c0_x, painter);
-	if (is_interval_mode()) {
-		draw_up_triangle(c1_x, painter);
-		draw_down_triangle(c1_x, painter);
+	// For the white color, do not draw anything
+	if (_c.h() != HSV_COLOR_WHITE || is_interval_mode()) {
+		draw_up_triangle(c0_x, painter);
+		draw_down_triangle(c0_x, painter);
+		if (is_interval_mode()) {
+			draw_up_triangle(c1_x, painter);
+			draw_down_triangle(c1_x, painter);
+		}
 	}
 
 	// Draw the cross

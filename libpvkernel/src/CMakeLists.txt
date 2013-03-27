@@ -33,6 +33,7 @@ core/PVField.cpp
 core/PVFileSerialize.cpp
 core/PVHardwareConcurrency.cpp
 core/PVHSVColor.cpp
+core/PVPredefinedHSVColors.cpp
 core/PVLogger.cpp
 core/PVMatrix.cpp
 core/PVPCRESplitter.cpp
