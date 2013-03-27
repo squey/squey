@@ -1,9 +1,3 @@
-/**
- * \file PVColorPicker.h
- *
- * Copyright (C) Picviz Labs 2012
- */
-
 #ifndef PVWIDGETS_PVCOLORPICKER_H
 #define PVWIDGETS_PVCOLORPICKER_H
 
