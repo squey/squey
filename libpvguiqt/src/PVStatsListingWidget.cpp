@@ -11,6 +11,9 @@
 #include <QLabel>
 #include <QCursor>
 #include <QPushButton>
+#include <QMovie>
+
+#include <pvkernel/core/qobject_helpers.h>
 
 #include <pvguiqt/PVStatsListingWidget.h>
 #include <pvguiqt/PVQNraw.h>
@@ -36,11 +39,15 @@ static QSize compute_qtablewidget_size(QTableWidget* stats, QTableView* listing)
  * PVGuiQt::PVStatsListingWidget
  *
  *****************************************************************************/
+QColor PVGuiQt::PVStatsListingWidget::INVALID_COLOR = QColor(0xf9, 0xd7, 0xd7);
+
 PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* listing_view) : _listing_view(listing_view)
 {
+	_params.clear();
+
 	QVBoxLayout* main_layout = new QVBoxLayout();
 
-	_stats_panel = new QTableWidget();
+	_stats_panel = new QTableWidget(this);
 	_stats_panel->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	_stats_panel->hide();
 	_stats_panel->viewport()->setFocusPolicy(Qt::NoFocus);
@@ -204,11 +211,21 @@ void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
 
 /******************************************************************************
  *
+ * PVGuiQt::__impl::PVCellWidgetBase
+ *
+ *****************************************************************************/
+typename PVGuiQt::PVStatsListingWidget::param_t& PVGuiQt::__impl::PVCellWidgetBase::get_params()
+{
+	PVGuiQt::PVStatsListingWidget* stats_panel = (PVGuiQt::PVStatsListingWidget*) PVCore::get_qobject_parent_of_type<PVGuiQt::PVStatsListingWidget*>(this);
+	assert(stats_panel);
+	return stats_panel->get_params();
+}
+
+/******************************************************************************
+ *
  * PVGuiQt::__impl::PVUniqueValuesCellWidget
  *
  *****************************************************************************/
-std::unordered_map<uint32_t, std::tuple<bool, uint32_t> > PVGuiQt::__impl::PVUniqueValuesCellWidget::_params;
-
 PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) :
 	PVCellWidgetBase(table, view, item),
 	_refresh_pixmap(QPixmap::fromImage(QImage(":/refresh_small_grey"))),
@@ -216,7 +233,6 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
 	_no_autorefresh_pixmap(QPixmap::fromImage(QImage(":/icon_unlinked"))),
 	_unique_values_pixmap(QPixmap::fromImage(QImage(":/fileslist_black")))
 {
-	_params.clear();
 	_text = new QLabel();
 
 	_refresh_icon = new QPushButton();
@@ -255,7 +271,6 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
 	main_layout->addWidget(_autorefresh_icon);
 	main_layout->addWidget(_unique_values_dlg_icon);
 
-
 	setLayout(main_layout);
 }
 
@@ -263,8 +278,8 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::auto_refresh() //override
 {
 	int col = _view.get_real_axis_index(_table->column(_item));
 
-	std::get<EParams::CACHED_VALUE>(_params[col]) = 0;
-	bool auto_refresh = std::get<EParams::AUTO_REFRESH>(_params[col]);
+	get_params()[col].cached_value = 0;
+	bool auto_refresh = get_params()[col].auto_refresh;
 	if (auto_refresh) {
 		refresh();
 	}
@@ -277,15 +292,15 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh(bool from_cache /* = fal
 {
 	int col = _view.get_real_axis_index(_table->column(_item));
 
-	uint32_t cached_value = std::get<EParams::CACHED_VALUE>(_params[col]);
-	bool auto_refresh = std::get<EParams::AUTO_REFRESH>(_params[col]);
+	uint32_t cached_value = get_params()[col].cached_value;
+	bool auto_refresh = get_params()[col].auto_refresh;
 
 	if (!from_cache) {
 		if (!cached_value) {
 			PVRush::PVNraw::unique_values_t values;
 			_view.get_rushnraw_parent().get_unique_values_for_col_with_sel(col, values, *_view.get_selection_visible_listing());
 			cached_value = values.size();
-			std::get<EParams::CACHED_VALUE>(_params[col]) = cached_value;
+			get_params()[col].cached_value = cached_value;
 		}
 		set_valid(cached_value, auto_refresh);
 	}
@@ -294,13 +309,13 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh(bool from_cache /* = fal
 	}
 	else {
 		set_invalid();
-		std::get<EParams::CACHED_VALUE>(_params[col]) = 0;
+		get_params()[col].cached_value = 0;
 	}
 }
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::set_invalid()
 {
-	_item->setBackgroundColor(_invalid_color);
+	_item->setBackgroundColor(PVGuiQt::PVStatsListingWidget::INVALID_COLOR);
 	_text->setText("N/A");
 }
 
@@ -320,7 +335,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::vertical_header_clicked(int inde
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::toggle_auto_refresh()
 {
 	int col = _view.get_real_axis_index(_table->column(_item));
-	bool& auto_refresh = std::get<EParams::AUTO_REFRESH>(_params[col]);
+	bool& auto_refresh = get_params()[col].auto_refresh;
 	auto_refresh = !auto_refresh;
 
 	_autorefresh_icon->setIcon(auto_refresh ? _autorefresh_pixmap : _no_autorefresh_pixmap);

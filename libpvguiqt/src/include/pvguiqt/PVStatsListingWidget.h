@@ -26,13 +26,27 @@ namespace __impl
 class PVUniqueValuesCellWidget;
 }
 
+struct PVParams {
+	uint32_t cached_value;
+	bool auto_refresh;
+};
+
 class PVStatsListingWidget : public QWidget
 {
 	Q_OBJECT
+
+public:
+	typedef std::unordered_map<uint32_t, PVParams> param_t;
+
 	friend class __impl::PVUniqueValuesCellWidget;
+
+	static QColor INVALID_COLOR;
 
 public:
 	PVStatsListingWidget(PVListingView* listing_view);
+
+public:
+	param_t& get_params() { return _params; }
 
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
@@ -75,17 +89,14 @@ private:
 	PVListingView* _listing_view;
 	QTableWidget* _stats_panel;
 
+	param_t _params;
+
 	int _old_maximum_width;
 	bool _maxed = false;
 };
 
 namespace __impl
 {
-
-enum EParams {
-	AUTO_REFRESH,
-	CACHED_VALUE,
-};
 
 class PVCellWidgetBase : public QWidget
 {
@@ -105,13 +116,14 @@ public slots:
 	virtual void vertical_header_clicked(int index) = 0;
 
 protected:
+	typename PVStatsListingWidget::param_t& get_params();
+
+protected:
 	QTableWidget* _table;
 	Picviz::PVView const& _view;
 	QTableWidgetItem* _item;
 
 	QLabel* _text;
-
-	QColor _invalid_color = QColor(0xf9, 0xd7, 0xd7);
 };
 
 class PVUniqueValuesCellWidget : public PVCellWidgetBase
@@ -149,8 +161,6 @@ private:
 	const QPixmap _autorefresh_pixmap;
 	const QPixmap _no_autorefresh_pixmap;
 	const QPixmap _unique_values_pixmap;
-
-	static std::unordered_map<uint32_t, std::tuple<bool, uint32_t>> _params;
 };
 
 }
