@@ -1,10 +1,12 @@
 
 #include <pvkernel/core/picviz_assert.h>
 #include <pvkernel/core/PVDirectory.h>
+#include <pvkernel/core/PVLogger.h>
 
 #include <pvkernel/rush/PVNraw.h>
 
 #include <unistd.h>
+#include <assert.h>
 
 #include <QDirIterator>
 
@@ -54,8 +56,7 @@ int main(int argc, char** argv)
 
 	std::cout << "creating random directories and files" << std::endl;
 	for(int i = 0; i < 10; ++i) {
-		QString d = PVCore::PVDirectory::temp_dir(root_dir,
-		                                          DIR_PATTERN);
+		QString d = PVCore::PVDirectory::temp_dir(root_dir_name + QDir::separator() + DIR_PATTERN);
 
 		all_dirs << d;
 		root_dir.mkpath(d);
@@ -81,7 +82,7 @@ int main(int argc, char** argv)
 		                                             DIR_REGEXP);
 	unused_dirs.sort();
 
-	PV_ASSERT_VALID(all_dirs == unused_dirs);
+	ASSERT_VALID(all_dirs == unused_dirs);
 
 	std::cout << "testing with one opened file ("
 	          << qPrintable(file_to_open)
@@ -99,7 +100,7 @@ int main(int argc, char** argv)
 		                                             DIR_REGEXP);
 	unused_dirs.sort();
 
-	PV_ASSERT_VALID(all_dirs != unused_dirs);
+	ASSERT_VALID(all_dirs != unused_dirs);
 
 	std::cout << "checking that unused dirs + used dirs == all dirs" << std::endl;
 
@@ -108,7 +109,7 @@ int main(int argc, char** argv)
 
 	unused_dirs.sort();
 
-	PV_ASSERT_VALID(all_dirs == unused_dirs);
+	ASSERT_VALID(all_dirs == unused_dirs);
 
 	f.close();
 
@@ -124,7 +125,7 @@ int main(int argc, char** argv)
 		PVRush::PVNraw::list_unused_nraw_directories(root_dir.absolutePath(),
 		                                             DIR_REGEXP);
 
-	PV_ASSERT_VALID(unused_dirs.isEmpty());
+	ASSERT_VALID(unused_dirs.isEmpty());
 
 	std::cout << "cleaning test root dir" << std::endl;
 
