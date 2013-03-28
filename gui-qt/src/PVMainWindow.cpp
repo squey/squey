@@ -195,6 +195,9 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	css_file.close();
 	setStyleSheet(css_string);
 
+	splash.showMessage("cleaning temporary files");
+	PVRush::PVNraw::remove_unused_nraw_directories();
+
 	show();
 }
 

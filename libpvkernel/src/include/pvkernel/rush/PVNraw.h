@@ -131,6 +131,41 @@ public:
 	PVFormat_p& get_format() { return format; }
 	PVFormat_p const& get_format() const { return format; }
 
+public:
+	/**
+	 * List Nraw directories which are not used anymore (i.e. a previous PVI instance has crashed,
+	 * leaving its nraw files).
+	 *
+	 * @param root_directory [in] the root directory where unused temporary directories are stored
+	 * @param dir_name_filter [in] the regexp used to identify directories to test
+	 *
+	 * @return the list of unused nraw directories
+	 *
+	 * @note this method is (initially) defined for test purpose.
+	 */
+	static QStringList list_unused_nraw_directories(const QString &root_directory,
+	                                                const QString &dir_name_filter);
+
+	/**
+	 * Remove Nraw directories which are not used anymore given a root_directory and a filter.
+	 *
+	 * @param root_directory [in] the root directory where unused temporary directories are stored
+	 * @param dir_name_filter [in] the regexp used to identify directories to test
+	 *
+	 * @return the list of unused nraw directories
+	 *
+	 * @note this method is (initially) defined for test purpose.
+	 */
+	static void remove_unused_nraw_directories(const QString &root_directory,
+	                                           const QString &dir_name_filter);
+
+	/**
+	 * Remove Nraw directories which are not used anymore.
+	 *
+	 * @note you have to theorycally used this method to clear nraw temporary directory
+	 */
+	static void remove_unused_nraw_directories();
+
 private:
 	void clear_table();
 	void reserve_tmp_buf(size_t n);

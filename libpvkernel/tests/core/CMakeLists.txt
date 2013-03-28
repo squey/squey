@@ -102,6 +102,10 @@ add_test(TestBitFieldVisit Tcore_bit_field_visit)
 # POD tree
 declare_pv_test(Tcore_pod_tree "pod_tree.cpp" "pvkernel;${QT_LIBRARIES}")
 
+# file helper
+declare_pv_test(Tcore_file_helper file_helper.cpp pvkernel)
+add_test(TestFileHelper Tcore_file_helper)
+
 # Hardware concurrency
 declare_pv_test(Tcore_hardware_concurrency "hardware_concurrency.cpp" "pvkernel;${QT_LIBRARIES}")
 

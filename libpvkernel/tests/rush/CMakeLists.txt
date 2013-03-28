@@ -123,6 +123,10 @@ declare_pv_test(Trush_nraw_sort_uniq "nraw_sort_uniq.cpp" "${LINK_LIBRARIES}")
 # NRAW integrity test
 declare_pv_test(Trush_nraw_integrity_test "nraw_integrity_test.cpp" "${LINK_LIBRARIES}")
 
+# NRAW unused directory cleaning test
+declare_pv_test(Trush_nraw_unused_directories nraw_unused_directories.cpp "${LINK_LIBRARIES}")
+add_test(TestNrawUnusedDirectories Trush_nraw_unused_directories ${PVKERNEL_RUSH_TEST_NRAW_TMP})
+
 if(PYTHONLIBS_FOUND)
 	# Python NRAW
 	#	add_executable(Trush_python_nraw python_nraw.cpp)
