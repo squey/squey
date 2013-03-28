@@ -222,8 +222,7 @@ void PVParallelView::PVFullParallelScene::first_render()
 	update_zones_position(true, false);
 
 	// Change view's internal counter
-	const PVRow nlines = lib_view().get_real_output_selection().get_number_of_selected_lines_in_range(0, _lines_view.get_zones_manager().get_number_rows());
-	graphics_view()->set_selected_line_number(nlines);
+	update_selected_line_number();
 
 	update_all();
 }
@@ -515,6 +514,7 @@ void PVParallelView::PVFullParallelScene::update_all()
 {
 	assert(QThread::currentThread() == this->thread());
 	render_all_zones_all_imgs();
+	update_selected_line_number();
 }
 
 /******************************************************************************
@@ -539,6 +539,17 @@ void PVParallelView::PVFullParallelScene::update_all_with_timer()
 
 /******************************************************************************
  *
+ * PVParallelView::PVFullParallelScene::update_selected_line_number
+ *
+ *****************************************************************************/
+void PVParallelView::PVFullParallelScene::update_selected_line_number()
+{
+	const PVRow nlines = lib_view().get_real_output_selection().get_number_of_selected_lines_in_range(0, _lines_view.get_zones_manager().get_number_rows());
+	graphics_view()->set_selected_line_number(nlines);
+}
+
+/******************************************************************************
+ *
  * PVParallelView::PVFullParallelScene::update_new_selection
  *
  *****************************************************************************/
@@ -546,8 +557,7 @@ void PVParallelView::PVFullParallelScene::update_new_selection()
 {
 	assert(QThread::currentThread() == this->thread());
 	// Change view's internal counter
-	const PVRow nlines = lib_view().get_real_output_selection().get_number_of_selected_lines_in_range(0, _lines_view.get_zones_manager().get_number_rows());
-	graphics_view()->set_selected_line_number(nlines);
+	update_selected_line_number();
 
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
@@ -706,8 +716,9 @@ void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axi
 {
 	PVZoneID zone_id = _lib_view.get_axes_combination().get_index_by_id(axis_id);
 	_selection_square->clear_rect();
-	uint32_t nb_select = _selection_generator.compute_selection_from_sliders(zone_id, _axes[zone_id]->get_selection_ranges(), lib_view().get_volatile_selection());
-	_full_parallel_view->set_selected_line_number(nb_select);
+	_selection_generator.compute_selection_from_sliders(zone_id,
+	                                                    _axes[zone_id]->get_selection_ranges(),
+	                                                    lib_view().get_volatile_selection());
 
 	process_selection();
 }
