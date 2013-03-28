@@ -15,6 +15,7 @@
 #include <string>
 
 #include <tbb/concurrent_queue.h>
+#include <tbb/enumerable_thread_specific.h>
 #include <tbb/pipeline.h>
 #include <tbb/task.h>
 #include <tbb/tick_count.h>
@@ -372,14 +373,14 @@ public:
 			if (!sel.is_empty_between(cur_field, end_field)) {
 				this->Seek(column.file, prev_off);
 				read_size = this->Read(column.file, _serial_read_buffer, diff_off);
-				if (read_size != diff_off) {
+				if (read_size != (ssize_t) diff_off) {
 					assert(false);
 					return false;
 				}
 				const size_t rows_found = visit_column_process_chunk_sel(cur_field, end_field-1, _serial_read_buffer, read_size, sel, f);
 				//const size_t rows_found = sel.get_number_of_selected_lines_in_range(cur_field, end_field);
 				assert(rows_found <= rows_to_find);
-				assert(rows_found == sel.get_number_of_selected_lines_in_range(cur_field, end_field));
+				assert(rows_found == (size_t) sel.get_number_of_selected_lines_in_range(cur_field, end_field));
 				if (rows_found == rows_to_find) {
 					// That's the end of it!
 					return true;
@@ -800,6 +801,7 @@ private:
 
 private:
 	inline PVColumn& get_col(uint64_t col) { assert(col < _columns.size()); return _columns[col]; }
+	static bool merge_tls(unique_values_t& ret, tbb::enumerable_thread_specific<unique_values_t>& tbb_qset);
 
 private:
 	std::string _nraw_folder;
