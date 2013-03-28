@@ -81,6 +81,12 @@ public:
 	 */
 	void reset_zones_layout_to_default();
 
+protected:
+	/**
+	 * recompute the selected line number and update the displayed statistics
+	 */
+	void update_selected_line_number();
+
 private slots:
 	void update_new_selection();
 	void update_all();
