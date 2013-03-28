@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
-    <height>240</height>
+    <width>440</width>
+    <height>300</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -142,7 +142,6 @@
        </spacer>
       </item>
      </layout>
-     <zorder>horizontalSpacer_2</zorder>
     </widget>
    </item>
    <item>

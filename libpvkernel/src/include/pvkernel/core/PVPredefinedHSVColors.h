@@ -10,7 +10,7 @@ namespace PVCore {
 class PVPredefinedHSVColors
 {
 public:
-	static inline constexpr size_t get_predefined_colors_count() { return 16; }
+	static inline constexpr size_t get_predefined_colors_count() { return 22; }
 
 	static std::vector<PVCore::PVHSVColor> get_predefined_colors();
 	static bool set_predefined_color(size_t i, PVCore::PVHSVColor c);
