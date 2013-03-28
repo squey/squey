@@ -95,6 +95,9 @@
 	
 	<!-- ABOUT BOX -->
 	<file alias="logo3d">resources/logo.obj</file>
+	
+	<!-- LOADING STUFF -->
+	<file alias="picviz-loading-animation">resources/picviz_loading_animation.gif</file>
 
 	<!-- QSCROLLBAR ICONS -->
 	<file alias="horizontal-scrollbar-handle">resources/trafik/elements-interface/ascenceur-horizontal-barre-defilement.png</file>

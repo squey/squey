@@ -3,20 +3,24 @@
  *
  * Copyright (C) Picviz Labs 2012
  */
+#include <unistd.h> // for usleep
 
-#include <QHBoxLayout>
+#include <QApplication>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QScrollBar>
 #include <QLabel>
 #include <QCursor>
 #include <QPushButton>
-#include <QMovie>
 
 #include <pvkernel/core/qobject_helpers.h>
 
 #include <pvguiqt/PVStatsListingWidget.h>
 #include <pvguiqt/PVQNraw.h>
+
+#ifdef PICVIZ_DEVELOPER_MODE
+	#define SIMULATE_LONG_COMPUTATION 0
+#endif
 
 constexpr int QTABLEWIDGET_OFFSET = 4;
 
@@ -39,7 +43,7 @@ static QSize compute_qtablewidget_size(QTableWidget* stats, QTableView* listing)
  * PVGuiQt::PVStatsListingWidget
  *
  *****************************************************************************/
-QColor PVGuiQt::PVStatsListingWidget::INVALID_COLOR = QColor(0xf9, 0xd7, 0xd7);
+const QColor PVGuiQt::PVStatsListingWidget::INVALID_COLOR = QColor(0xf9, 0xd7, 0xd7);
 
 PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* listing_view) : _listing_view(listing_view)
 {
@@ -49,14 +53,12 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 
 	_stats_panel = new QTableWidget(this);
 	_stats_panel->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	_stats_panel->hide();
 	_stats_panel->viewport()->setFocusPolicy(Qt::NoFocus);
-
+	_stats_panel->hide();
 	QStringList horizontal_header_labels;
 	for (PVCol col=0; col < _listing_view->horizontalHeader()->count(); col++) {
 		horizontal_header_labels << _listing_view->model()->headerData(col, Qt::Horizontal).toString();
 	}
-
 	_stats_panel->setHorizontalHeaderLabels(horizontal_header_labels);
 	_stats_panel->horizontalHeader()->setStretchLastSection(true);
 	_stats_panel->horizontalHeader()->hide();
@@ -85,7 +87,7 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	PVHive::PVObserverSignal<Picviz::PVSelection>* obs_sel = new PVHive::PVObserverSignal<Picviz::PVSelection>(this);
 	Picviz::PVView_sp view_sp = _listing_view->lib_view().shared_from_this();
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_real_output_selection(); }, *obs_sel);
-	obs_sel->connect_refresh(this, SLOT(refresh()));
+	obs_sel->connect_refresh(this, SLOT(selection_changed()));
 
 	// Observer axes combination changes
 	PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t>* obs_axes_comb = new PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t>;
@@ -112,14 +114,14 @@ void PVGuiQt::PVStatsListingWidget::init_plugins()
 bool PVGuiQt::PVStatsListingWidget::eventFilter(QObject* obj, QEvent* event)
 {
 	// This is needed as _stats_panel->verticalHeader()->setCursor(QCursor(Qt::PointingHandCursor)) isn't working obviously...
-	if (event->type() == QEvent::Enter) {
+	/*if (event->type() == QEvent::Enter) {
 		setCursor(QCursor(Qt::PointingHandCursor));
 		return true;
 	}
 	else if (event->type() == QEvent::Leave) {
 		setCursor(QCursor(Qt::ArrowCursor));
 		return true;
-	}
+	}*/
 	return QWidget::eventFilter(obj, event);
 }
 
@@ -185,6 +187,22 @@ void PVGuiQt::PVStatsListingWidget::update_scrollbar_position()
 	_stats_panel->horizontalScrollBar()->setSliderPosition(_listing_view->horizontalScrollBar()->sliderPosition());
 }
 
+void PVGuiQt::PVStatsListingWidget::selection_changed()
+{
+	// Abort the thread if running
+	__impl::PVCellWidgetBase::cancel_thread();
+	refresh();
+}
+
+void PVGuiQt::PVStatsListingWidget::set_refresh_buttons_enabled(bool loading)
+{
+	for (PVCol col=0; col < _stats_panel->columnCount(); col++) {
+		for (int row=0; row < _stats_panel->rowCount(); row++) {
+			((__impl::PVCellWidgetBase*)_stats_panel->cellWidget(row, col))->set_refresh_button_enabled(loading);
+		}
+	}
+}
+
 void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
 {
 	int old_count = _stats_panel->columnCount();
@@ -214,25 +232,21 @@ void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
  * PVGuiQt::__impl::PVCellWidgetBase
  *
  *****************************************************************************/
-typename PVGuiQt::PVStatsListingWidget::param_t& PVGuiQt::__impl::PVCellWidgetBase::get_params()
-{
-	PVGuiQt::PVStatsListingWidget* stats_panel = (PVGuiQt::PVStatsListingWidget*) PVCore::get_qobject_parent_of_type<PVGuiQt::PVStatsListingWidget*>(this);
-	assert(stats_panel);
-	return stats_panel->get_params();
-}
+QMovie* PVGuiQt::__impl::PVCellWidgetBase::_loading_movie = nullptr;
+std::thread PVGuiQt::__impl::PVCellWidgetBase::_thread = std::thread();
+tbb::task_group_context* PVGuiQt::__impl::PVCellWidgetBase::_ctxt = new tbb::task_group_context();
+bool PVGuiQt::__impl::PVCellWidgetBase::_thread_running = false;
 
-/******************************************************************************
- *
- * PVGuiQt::__impl::PVUniqueValuesCellWidget
- *
- *****************************************************************************/
-PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) :
-	PVCellWidgetBase(table, view, item),
+PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) :
+	_table(table),
+	_view(view),
+	_item(item),
 	_refresh_pixmap(QPixmap::fromImage(QImage(":/refresh_small_grey"))),
-	_autorefresh_pixmap(QPixmap::fromImage(QImage(":/icon_linked"))),
-	_no_autorefresh_pixmap(QPixmap::fromImage(QImage(":/icon_unlinked"))),
-	_unique_values_pixmap(QPixmap::fromImage(QImage(":/fileslist_black")))
+	_autorefresh_on_pixmap(QPixmap::fromImage(QImage(":/icon_linked"))),
+	_autorefresh_off_pixmap(QPixmap::fromImage(QImage(":/icon_unlinked")))
 {
+	//connect(table->verticalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(vertical_header_clicked(int)));
+
 	_text = new QLabel();
 
 	_refresh_icon = new QPushButton();
@@ -244,37 +258,112 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
 	_refresh_icon->setToolTip("Refresh");
 	connect(_refresh_icon, SIGNAL(clicked(bool)), this, SLOT(refresh()));
 
+	_loading_label = new QLabel(this);
+	_loading_label->setMovie(get_movie());
+	_loading_label->setStyleSheet("QLabel { padding-right: 4px}");
+	_loading_label->setVisible(false);
+
 	_autorefresh_icon = new QPushButton();
 	_autorefresh_icon->setCursor(QCursor(Qt::PointingHandCursor));
 	_autorefresh_icon->setFlat(true);
 	_autorefresh_icon->setStyleSheet("QPushButton { border: none; }");
-	_autorefresh_icon->setIcon(_no_autorefresh_pixmap);
+	_autorefresh_icon->setIcon(_autorefresh_off_pixmap);
 	_autorefresh_icon->setFocusPolicy(Qt::NoFocus);
 	_autorefresh_icon->setToolTip("Toggle auto refresh");
+	_autorefresh_icon->setVisible(false); // Disabled before having a better job handling pipeline
 	connect(_autorefresh_icon, SIGNAL(clicked(bool)), this, SLOT(toggle_auto_refresh()));
 
-	_unique_values_dlg_icon = new QPushButton();
-	_unique_values_dlg_icon->setCursor(QCursor(Qt::PointingHandCursor));
-	_unique_values_dlg_icon->setFlat(true);
-	_unique_values_dlg_icon->setStyleSheet("QPushButton { border: none; } QPushButton:pressed { padding-left : 0px; }");
-	_unique_values_dlg_icon->setIcon(_unique_values_pixmap);
-	_unique_values_dlg_icon->setFocusPolicy(Qt::NoFocus);
-	_unique_values_dlg_icon->setToolTip("List unique values");
-	connect(_unique_values_dlg_icon, SIGNAL(clicked(bool)), this, SLOT(show_unique_values_dlg()));
+	connect(this, SIGNAL(refresh_impl_finished(int, bool)), this, SLOT(refreshed(int, bool)));
 
-	QHBoxLayout* main_layout = new QHBoxLayout();
-	main_layout->setSpacing(2);
-	main_layout->setContentsMargins(2, 0, 2, 0);
-	main_layout->addWidget(_text);
-	main_layout->addStretch(1);
-	main_layout->addWidget(_refresh_icon);
-	main_layout->addWidget(_autorefresh_icon);
-	main_layout->addWidget(_unique_values_dlg_icon);
+	_main_layout = new QHBoxLayout();
+	_main_layout->setSpacing(2);
+	_main_layout->setContentsMargins(2, 0, 2, 0);
+	_main_layout->addWidget(_text);
+	_main_layout->addStretch(1);
+	_main_layout->addWidget(_refresh_icon);
+	_main_layout->addWidget(_loading_label);
+	_main_layout->addWidget(_autorefresh_icon);
 
-	setLayout(main_layout);
+	setLayout(_main_layout);
 }
 
-void PVGuiQt::__impl::PVUniqueValuesCellWidget::auto_refresh() //override
+PVGuiQt::PVStatsListingWidget* PVGuiQt::__impl::PVCellWidgetBase::get_panel()
+{
+	return (PVGuiQt::PVStatsListingWidget*) PVCore::get_qobject_parent_of_type<PVGuiQt::PVStatsListingWidget*>(this);
+}
+
+typename PVGuiQt::PVStatsListingWidget::param_t& PVGuiQt::__impl::PVCellWidgetBase::get_params()
+{
+	PVGuiQt::PVStatsListingWidget* stats_panel = get_panel();
+	assert(stats_panel);
+	return stats_panel->get_params();
+}
+
+QMovie* PVGuiQt::__impl::PVCellWidgetBase::get_movie()
+{
+	if (_loading_movie == nullptr) {
+		_loading_movie = new QMovie(":/picviz-loading-animation");
+		_loading_movie->setScaledSize(QSize(16, 16));
+	}
+	return _loading_movie;
+}
+
+void PVGuiQt::__impl::PVCellWidgetBase::set_loading(bool loading)
+{
+	_refresh_icon->setVisible(!loading);
+	_loading_label->setVisible(loading);
+	if (loading) {
+		get_movie()->start();
+	}
+	else {
+		get_movie()->stop();
+	}
+	get_panel()->set_refresh_buttons_enabled(loading);
+}
+
+void PVGuiQt::__impl::PVCellWidgetBase::cancel_thread()
+{
+	_ctxt->cancel_group_execution();
+	if (_thread.joinable()) {
+		_thread.join();
+	}
+	_ctxt->reset();
+	_thread_running = false;
+}
+
+void PVGuiQt::__impl::PVCellWidgetBase::refresh(bool from_cache /* = false */)
+{
+	int col = _view.get_real_axis_index(_table->column(_item));
+
+	uint32_t cached_value = get_params()[col].cached_value;
+	bool auto_refresh = get_params()[col].auto_refresh;
+
+	if (!from_cache) {
+		if (!cached_value) {
+			if (!_thread_running) {
+				set_loading(true);
+				if (_thread.joinable()) {
+					_thread.join();
+				}
+				_thread_running = true;
+				std::thread th(&PVGuiQt::__impl::PVCellWidgetBase::refresh_impl, this);
+				_thread.swap(th);
+			}
+		}
+		else {
+			set_valid(cached_value, auto_refresh);
+		}
+	}
+	else if (from_cache && cached_value) {
+		set_valid(cached_value, auto_refresh);
+	}
+	else {
+		set_invalid();
+		get_params()[col].cached_value = 0;
+	}
+}
+
+void PVGuiQt::__impl::PVCellWidgetBase::auto_refresh()
 {
 	int col = _view.get_real_axis_index(_table->column(_item));
 
@@ -288,58 +377,97 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::auto_refresh() //override
 	}
 }
 
-void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh(bool from_cache /* = false */) //override
+void PVGuiQt::__impl::PVCellWidgetBase::refreshed(int value, bool valid)
 {
-	int col = _view.get_real_axis_index(_table->column(_item));
-
-	uint32_t cached_value = get_params()[col].cached_value;
-	bool auto_refresh = get_params()[col].auto_refresh;
-
-	if (!from_cache) {
-		if (!cached_value) {
-			PVRush::PVNraw::unique_values_t values;
-			_view.get_rushnraw_parent().get_unique_values_for_col_with_sel(col, values, *_view.get_selection_visible_listing());
-			cached_value = values.size();
-			get_params()[col].cached_value = cached_value;
-		}
-		set_valid(cached_value, auto_refresh);
-	}
-	else if (from_cache && cached_value) {
+	if (valid) {
+		int col = _view.get_real_axis_index(_table->column(_item));
+		uint32_t cached_value = value;
+		get_params()[col].cached_value = cached_value;
+		bool auto_refresh = get_params()[col].auto_refresh;
 		set_valid(cached_value, auto_refresh);
 	}
 	else {
 		set_invalid();
-		get_params()[col].cached_value = 0;
 	}
+	set_loading(false);
+	_thread_running = false;
 }
 
-void PVGuiQt::__impl::PVUniqueValuesCellWidget::set_invalid()
+void PVGuiQt::__impl::PVCellWidgetBase::set_refresh_button_enabled(bool loading)
 {
+	//_refresh_icon->setCursor(QCursor(loading ? Qt::ArrowCursor : Qt::PointingHandCursor));
+	if (_valid) {
+		return;
+	}
+	_refresh_icon->setEnabled(!loading);
+}
+
+void PVGuiQt::__impl::PVCellWidgetBase::set_invalid()
+{
+	_refresh_icon->setEnabled(true);
 	_item->setBackgroundColor(PVGuiQt::PVStatsListingWidget::INVALID_COLOR);
 	_text->setText("N/A");
+	_valid = false;
 }
 
-void PVGuiQt::__impl::PVUniqueValuesCellWidget::set_valid(uint32_t value, bool auto_refresh)
+void PVGuiQt::__impl::PVCellWidgetBase::set_valid(uint32_t value, bool auto_refresh)
 {
 	_text->setText(QString("%L1").arg(value));
-	_autorefresh_icon->setIcon(auto_refresh ? _autorefresh_pixmap : _no_autorefresh_pixmap);
+	_refresh_icon->setEnabled(false);
+	_autorefresh_icon->setIcon(auto_refresh ? _autorefresh_on_pixmap : _autorefresh_off_pixmap);
 	_refresh_icon->setVisible(!auto_refresh);
 	_item->setBackground(QBrush(Qt::NoBrush));
+	_valid = true;
 }
 
-void PVGuiQt::__impl::PVUniqueValuesCellWidget::vertical_header_clicked(int index)  //override
+void PVGuiQt::__impl::PVCellWidgetBase::vertical_header_clicked(int index)
 {
 	refresh();
 }
 
-void PVGuiQt::__impl::PVUniqueValuesCellWidget::toggle_auto_refresh()
+void PVGuiQt::__impl::PVCellWidgetBase::toggle_auto_refresh()
 {
 	int col = _view.get_real_axis_index(_table->column(_item));
 	bool& auto_refresh = get_params()[col].auto_refresh;
 	auto_refresh = !auto_refresh;
 
-	_autorefresh_icon->setIcon(auto_refresh ? _autorefresh_pixmap : _no_autorefresh_pixmap);
+	_autorefresh_icon->setIcon(auto_refresh ? _autorefresh_on_pixmap : _autorefresh_off_pixmap);
 	_refresh_icon->setVisible(!auto_refresh);
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::__impl::PVUniqueValuesCellWidget
+ *
+ *****************************************************************************/
+PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) :
+	PVCellWidgetBase(table, view, item),
+	_unique_values_pixmap(QPixmap::fromImage(QImage(":/fileslist_black")))
+{
+	_unique_values_dlg_icon = new QPushButton();
+	_unique_values_dlg_icon->setCursor(QCursor(Qt::PointingHandCursor));
+	_unique_values_dlg_icon->setFlat(true);
+	_unique_values_dlg_icon->setStyleSheet("QPushButton { border: none; } QPushButton:pressed { padding-left : 0px; }");
+	_unique_values_dlg_icon->setIcon(_unique_values_pixmap);
+	_unique_values_dlg_icon->setFocusPolicy(Qt::NoFocus);
+	_unique_values_dlg_icon->setToolTip("List unique values");
+	connect(_unique_values_dlg_icon, SIGNAL(clicked(bool)), this, SLOT(show_unique_values_dlg()));
+
+	_main_layout->addWidget(_unique_values_dlg_icon);
+}
+
+void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
+{
+	PVRush::PVNraw::unique_values_t values;
+	int col = _view.get_real_axis_index(_table->column(_item));
+	bool valid = _view.get_rushnraw_parent().get_unique_values_for_col_with_sel(col, values, *_view.get_selection_visible_listing(), _ctxt);
+#if SIMULATE_LONG_COMPUTATION
+	for (uint32_t i = 0; i < 10 && !_ctxt->is_group_execution_cancelled(); i++) {
+		usleep(300000);
+	}
+	valid = !_ctxt->is_group_execution_cancelled();
+#endif
+	emit refresh_impl_finished(values.size(), valid); // We must go back on the Qt thread to update the GUI
 }
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
