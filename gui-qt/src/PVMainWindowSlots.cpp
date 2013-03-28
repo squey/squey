@@ -576,8 +576,23 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 		return;
 
 	}
-	//Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(src_desc);
-	load_source(src_p);
+
+	if (load_source(src_p)) {
+		// the source has been fully or partially loaded
+		return;
+	}
+
+	/* the source has not been loaded (user action, error, etc.).
+	 * Spring cleaning's time
+	 */
+	scene_p->remove_child(src_p);
+	if(new_scene) {
+		get_root().remove_child(scene_p);
+		PVGuiQt::PVSceneWorkspacesTabWidget *tab =
+			_projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get());
+		_projects_tab_widget->remove_project(tab);
+		tab->deleteLater();
+	}
 }
 
 /******************************************************************************
