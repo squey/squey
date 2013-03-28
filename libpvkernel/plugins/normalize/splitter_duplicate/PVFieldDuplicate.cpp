@@ -47,6 +47,12 @@ PVCore::list_fields::size_type PVFilter::PVFieldDuplicate::one_to_many(PVCore::l
 		ret++;
 	}
 
+	if ((_fields_expected > 0) && (_fields_expected != _n)) {
+		field.set_invalid();
+		field.elt_parent()->set_invalid();
+		return 0;
+	}
+
 	return ret;
 }
 
