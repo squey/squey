@@ -76,10 +76,14 @@ void do_tests(PVCore::PVSelBitField const& bits, std::vector<std::pair<PVRow, PV
 
 int main()
 {
+	srand(time(NULL));
+
 	PVCore::PVSelBitField bits;
 
 	std::vector<std::pair<PVRow, PVRow>> ranges;
+	// Ranges are semi-open ([X, Y[)
 	// Only 1 chunk (64-bits per chunk) involved
+	ranges.push_back(std::make_pair(0, 5));
 	ranges.push_back(std::make_pair(0, 11));
 	ranges.push_back(std::make_pair(7, 10));
 	ranges.push_back(std::make_pair(8, 18));
@@ -135,6 +139,50 @@ int main()
 	bits.set_bit_fast(88106);
 	bits.set_bit_fast(88111);
 	bits.set_bit_fast(88113);
+	do_tests(bits, ranges);
+
+	std::cout << "Tests with 0, 1, 2, 3, 4..." << std::endl;
+	bits.select_none();
+	bits.set_bit_fast(0);
+	bits.set_bit_fast(1);
+	bits.set_bit_fast(2);
+	bits.set_bit_fast(3);
+	bits.set_bit_fast(4);
+	do_tests(bits, ranges);
+
+	std::cout << "Tests with the first chunk full and a random second-one..." << std::endl;
+	bits.select_none();
+	for (size_t i = 0; i < PICVIZ_SELECTION_CHUNK_SIZE; i++) {
+		bits.set_bit_fast(i);
+	}
+	for (size_t i = PICVIZ_SELECTION_CHUNK_SIZE; i < PICVIZ_SELECTION_CHUNK_SIZE*2; i++) {
+		if (rand() & 1) {
+			bits.set_bit_fast(i);
+		}
+	}
+	do_tests(bits, ranges);
+
+	std::cout << "Tests with the two first chunks full and a random third one..." << std::endl;
+	bits.select_none();
+	for (size_t i = 0; i < PICVIZ_SELECTION_CHUNK_SIZE*2; i++) {
+		bits.set_bit_fast(i);
+	}
+	for (size_t i = PICVIZ_SELECTION_CHUNK_SIZE*2; i < PICVIZ_SELECTION_CHUNK_SIZE*3; i++) {
+		if (rand() & 1) {
+			bits.set_bit_fast(i);
+		}
+	}
+	do_tests(bits, ranges);
+
+
+	for (size_t i = 1; i <= 128; i++) {
+		std::cout << "Tests with " << i << " randomly selected lines" << std::endl;
+		bits.select_random(i);
+		do_tests(bits, ranges);
+	}
+
+	std::cout << "Tests with 10000 randomly selected lines" << std::endl;
+	bits.select_random(10000);
 	do_tests(bits, ranges);
 
 	return 0;

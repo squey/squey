@@ -516,6 +516,19 @@ void PVCore::PVSelBitField::select_random()
 	}
 }
 
+void PVCore::PVSelBitField::select_random(const PVRow n)
+{
+	if (!_table) {
+		allocate_table();
+	}
+
+	select_none();
+
+	for (PVRow i = 0; i < n; i++) {
+		set_bit_fast(rand() % PICVIZ_SELECTION_NUMBER_OF_ROWS);
+	}
+}
+
 
 
 /******************************************************************************
@@ -617,7 +630,7 @@ ssize_t PVCore::PVSelBitField::get_last_nonzero_chunk_index(ssize_t starting_chu
 		return -1;
 	}
 #ifdef __SSE4_1__
-	__m128i ones = _mm_set1_epi32(0xFFFFFFFF);
+	const __m128i ones = _mm_set1_epi32(0xFFFFFFFF);
 	__m128i vec;
 	const ssize_t ending_chunk_aligned = (ssize_t)(((size_t)ending_chunk>>1)<<1);
 	if (ending_chunk_aligned <= starting_chunk) {
@@ -633,7 +646,8 @@ ssize_t PVCore::PVSelBitField::get_last_nonzero_chunk_index(ssize_t starting_chu
 				return i;
 			}
 		}
-		for (ssize_t i = ((ssize_t)ending_chunk_aligned)-2; i >= starting_chunk; i -= 2) {
+		const ssize_t starting_chunk_aligned = ((starting_chunk+3)/2)*2;
+		for (ssize_t i = ((ssize_t)ending_chunk_aligned)-2; i >= starting_chunk_aligned; i -= 2) {
 			vec = _mm_load_si128((__m128i*) &_table[i]);
 			if (_mm_testz_si128(vec, ones) == 0) {
 				uint64_t DECLARE_ALIGN(16) final_sel[2];
@@ -645,6 +659,11 @@ ssize_t PVCore::PVSelBitField::get_last_nonzero_chunk_index(ssize_t starting_chu
 				//uint8_t reg_pos_last2 = (preg_last2[1] != 0);
 				//return i + (reg_pos<<1) + reg_pos_last2;
 				return i + (reg_pos<<1);
+			}
+		}
+		for (ssize_t i = starting_chunk_aligned-1; i >= starting_chunk; i--) {
+			if (_table[i] != 0) {
+				return i;
 			}
 		}
 	}
