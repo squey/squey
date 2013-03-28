@@ -110,7 +110,7 @@ int main(int argc, char** argv)
 		std::cerr << "Usage: " << argv[0] << " path_nraw" << std::endl;
 		return 1;
 	}
-	g_nraw_folder = PVCore::PVDirectory::temp_dir(QDir(argv[1]), "nraw-disk-backend-test-integrity-XXXXXX");
+	g_nraw_folder = PVCore::PVDirectory::temp_dir(QString(argv[1]) + QDir::separator() + "nraw-disk-backend-test-integrity-XXXXXX");
 
 	QDir dir;
 	dir.mkdir(g_nraw_folder);
