@@ -43,6 +43,7 @@
 	<file alias="add-url">resources/22x22/add-url.png</file>
 	<file alias="help">resources/22x22/help.png</file>
 	
+	<file alias="append_file">resources/append_file.png</file>
 	<file alias="import_file">resources/import_file.png</file>
 	<file alias="export_file">resources/export_file.png</file>
 	

@@ -38,13 +38,18 @@ PVWidgets::PVPlainTextEditor::PVPlainTextEditor(QWidget *parent):
 	QPushButton* import_file = new QPushButton();
 	import_file->setIcon(QIcon(":/import_file"));
 	import_file->setIconSize(QSize(24, 24));
-	import_file->setToolTip(tr("Import"));
+	import_file->setToolTip(tr("Import from file..."));
 	import_file->setFlat(true);
 	QPushButton* export_file = new QPushButton();
 	export_file->setIcon(QIcon(":/export_file"));
 	export_file->setIconSize(QSize(24, 24));
-	export_file->setToolTip(tr("Export"));
+	export_file->setToolTip(tr("Export to file..."));
 	export_file->setFlat(true);
+	QPushButton* export_and_append_file = new QPushButton();
+	export_and_append_file->setIcon(QIcon(":/append_file"));
+	export_and_append_file->setIconSize(QSize(24, 24));
+	export_and_append_file->setToolTip(tr("Export and append to file..."));
+	export_and_append_file->setFlat(true);
 
 	QHBoxLayout* layout = new QHBoxLayout();
 	layout->addWidget(_text_edit);
@@ -52,23 +57,56 @@ PVWidgets::PVPlainTextEditor::PVPlainTextEditor(QWidget *parent):
 	layout->addLayout(files_layer);
 	files_layer->addWidget(import_file);
 	files_layer->addWidget(export_file);
+	files_layer->addWidget(export_and_append_file);
 
 	setLayout(layout);
 	setFocusPolicy(Qt::WheelFocus);
 
 	connect(import_file, SIGNAL(clicked()), this, SLOT(slot_import_file()));
 	connect(export_file, SIGNAL(clicked()), this, SLOT(slot_export_file()));
+	connect(export_and_append_file, SIGNAL(clicked()), this, SLOT(slot_export_and_import_file()));
 }
 
-void PVWidgets::PVPlainTextEditor::slot_export_file()
+void PVWidgets::PVPlainTextEditor::save_to_file(const bool append)
 {
 	QString file = _file_dlg.getSaveFileName(this, tr("Save text file..."), _file_dlg.directory().absolutePath());
 
     QFile outfile;
     outfile.setFileName(file);
-    outfile.open(QIODevice::Append | QIODevice::Text);
+	QIODevice::OpenMode flags = QIODevice::Text | QIODevice::WriteOnly;
+	if (append) {
+		flags |= QIODevice::ReadOnly;
+	}
+    outfile.open(flags);
+
+	const size_t file_size = outfile.size();
+	if (append && file_size > 0) {
+		outfile.seek(file_size-1);
+		char last_char = 0;
+		outfile.read(&last_char, 1);
+		if (last_char != '\n') {
+			last_char = '\n';
+			outfile.write(&last_char, 1);
+		}
+	}
+
     QTextStream out(&outfile);
-    out << _text_edit->toPlainText();
+	out.setCodec(QTextCodec::codecForName("UTF-8"));
+	QString text_write = _text_edit->toPlainText();
+	if (*(text_write.constEnd()-1) != QChar('\n')) {
+		text_write.append(QChar('\n'));
+	}
+    out << text_write;
+}
+
+void PVWidgets::PVPlainTextEditor::slot_export_file()
+{
+	save_to_file(false);
+}
+
+void PVWidgets::PVPlainTextEditor::slot_export_and_import_file()
+{
+	save_to_file(true);
 }
 
 void PVWidgets::PVPlainTextEditor::slot_import_file()
