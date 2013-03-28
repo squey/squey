@@ -90,8 +90,11 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterRegexp::one_to_many(PVCo
 	QRegExp regexp(_regexp);
 	PVCore::list_fields::size_type n = field.split_regexp<PVCore::list_fields>(l, regexp, it_ins, _full_line);
 #endif
-	if (n == 0) {
+	if ((n == 0) || ((_fields_expected > 0) && (_fields_expected != n))) {
+
 		field.set_invalid();
+		field.elt_parent()->set_invalid();
+		return 0;
 	}
 	return n;
 }
