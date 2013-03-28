@@ -940,6 +940,8 @@ private:
 	inline PVColumn& get_col(uint64_t col) { assert(col < _columns.size()); return _columns[col]; }
 	inline const PVColumn& get_col(uint64_t col) const { assert(col < _columns.size()); return _columns[col]; }
 
+	static bool merge_tls(unique_values_t& ret, tbb::enumerable_thread_specific<unique_values_t>& tbb_qset);
+
 private:
 	std::string _nraw_folder;
 	bool _direct_mode = true;
