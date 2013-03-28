@@ -120,6 +120,9 @@ declare_pv_test(Trush_nraw_backend "nraw_backend.cpp" "${LINK_LIBRARIES}")
 # NRAW sort-uniq
 declare_pv_test(Trush_nraw_sort_uniq "nraw_sort_uniq.cpp" "${LINK_LIBRARIES}")
 
+# NRAW integrity test
+declare_pv_test(Trush_nraw_integrity_test "nraw_integrity_test.cpp" "${LINK_LIBRARIES}")
+
 if(PYTHONLIBS_FOUND)
 	# Python NRAW
 	#	add_executable(Trush_python_nraw python_nraw.cpp)
