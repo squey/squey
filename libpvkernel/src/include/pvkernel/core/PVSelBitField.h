@@ -167,6 +167,11 @@ public:
 	void select_random();
 
 	/**
+	 * Select randomly `n' lines
+	 */
+	void select_random(const PVRow n);
+
+	/**
 	 * This is the copy operator
 	 * B = A
 	 *
@@ -363,11 +368,11 @@ public:
 			last_bit = PICVIZ_SELECTION_CHUNK_SIZE-1;
 		}
 
-		// If there are less than or exactly 3 chunks, use the sequential version
+		// If there are less than or exactly 3 chunks, use the serial version
 		if ((chunk_end-chunk_start+1) <= 3) {
 			PVRow new_b = b+1;
 			if (line_index_to_chunk(b) > chunk_end) {
-				new_b = chunk_to_line_index(chunk_end)+1;
+				new_b = chunk_to_line_index(chunk_end+1);
 			}
 			visit_selected_lines_serial(f, new_b, a);
 			return;
@@ -427,11 +432,11 @@ public:
 			last_bit = PICVIZ_SELECTION_CHUNK_SIZE-1;
 		}
 
-		// If there are less than or exactly 3 chunks, use the sequential version
+		// If there are less than or exactly 3 chunks, use the serial version
 		if ((chunk_end-chunk_start+1) <= 3) {
 			PVRow new_b = b+1;
 			if (line_index_to_chunk(b) > chunk_end) {
-				new_b = chunk_to_line_index(chunk_end)+1;
+				new_b = chunk_to_line_index(chunk_end+1);
 			}
 			visit_selected_lines_serial(f, new_b, a);
 			return;
