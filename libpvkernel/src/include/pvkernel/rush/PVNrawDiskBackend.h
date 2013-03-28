@@ -10,17 +10,15 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#include <array>
 #include <queue>
 #include <sstream>
 #include <string>
 
-#include <tbb/atomic.h>
 #include <tbb/concurrent_queue.h>
+#include <tbb/enumerable_thread_specific.h>
 #include <tbb/pipeline.h>
 #include <tbb/task.h>
 #include <tbb/tick_count.h>
-#include <tbb/enumerable_thread_specific.h>
 
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/PVAllocators.h>
@@ -28,8 +26,6 @@
 #include <pvkernel/core/PVByteVisitor.h>
 #include <pvkernel/core/PVSelBitField.h>
 #include <pvkernel/core/string_tbb.h>
-#include <pvkernel/core/PVHardwareConcurrency.h>
-#include <pvkernel/core/PVUtils.h>
 
 #include <QSet>
 
@@ -162,20 +158,13 @@ struct BufferedFilePolicy
 	}
 };
 
-/**
- * \class PVNrawDiskBackend
- *
- * \note This policy based class is handling the storage of the Nraw on disk.
- *
- */
 class PVNrawDiskBackend: private RawFilePolicy
 {
-public:
 	static constexpr uint64_t BUF_ALIGN = 512;
-	static constexpr uint64_t READ_BUFFER_SIZE = 4*1024;
+	static constexpr uint64_t READ_BUFFER_SIZE = 256*1024;
 	static constexpr uint64_t NB_CACHE_BUFFERS = 10;
 	static constexpr uint64_t INVALID = std::numeric_limits<uint64_t>::max();
-	static constexpr size_t SERIAL_READ_BUFFER_SIZE = 2*1024*1024;
+	static constexpr size_t   SERIAL_READ_BUFFER_SIZE = 2*1024*1024;
 
 private:
 	struct offset_fields_t
@@ -227,12 +216,15 @@ public:
 	private:
 		chunk_t* _chunks;
 		size_t   _n;
+		//std::queue<chunk_t*> _queue;
 		tbb::concurrent_bounded_queue<chunk_t*> _queue;
 	};
+
 
 public:
 	typedef RawFilePolicy file_policy_t;
 	typedef typename file_policy_t::file_t file_t;
+	//typedef std::pair<uint64_t, uint64_t> offset_fields_t;
 	typedef PVCore::PVMatrix<offset_fields_t, PVRow, PVCol> index_table_t;
 	typedef PVNrawDiskBackend this_type;
 	typedef QSet<std::string_tbb> unique_values_t;
@@ -242,61 +234,17 @@ public:
 	~PVNrawDiskBackend();
 
 public:
-	/*! \brief Initialize the Nraw disk backend.
-	 *
-	 *  \param[in] nraw_folder Path to the existing nraw folder on disk.
-	 *  \param[in] num_cols The number of columns of the Nraw.
-	 */
 	void init(const char* nraw_folder, const uint64_t num_cols);
-
-	/*! \brief Enable or disable direct mode that bypass system cache in order to enhance performances.
-	 *
-	 *  \param[in] direct Specify if direct mode must be enabled or not.
-	 *
-	 *  \note /!\ Direct mode needs the buffer address to be aligned on 512 and the buffer size to be a multiple of 512.
-	 */
 	void set_direct_mode(bool direct = true);
-
 	void clear();
 	void clear_and_remove();
 
-	/*! \brief Store the columns indexation files to disk.
-     */
 	void store_index_to_disk();
-
-	/*! \brief Load the columns indexation files from disk.
-     */
 	void load_index_from_disk();
-
 public:
-	/*! \brief Add a field to the end of a given column.
-	 *
-	 *  \param[in] col_idx The column index.
-	 *  \param[in] field The field buffer.
-	 *  \param[in] size_ret The field buffer size.
-	 *
-	 *  \return The number of bytes actually written.
-	 */
 	uint64_t add(PVCol col_idx, const char* field, const uint64_t field_size);
-
-	/*! \brief Flush the part of the columns remaining in memory onto disk.
-	 */
 	void flush();
 
-	/*! \brief Returns the string located at a given row/column.
-	 *
-	 *  \param[in] field The string row.
-	 *  \param[in] col The string column.
-	 *  \param[out] size_ret The string size.
-	 *
-	 *  \note This method uses a cache pool to enhance performances.
-	 *        Therefore the returned string is only valid as long as the cache is still valid.
-	 *        The last returned row index is kept in memory in order to optimize sequencial access.
-	 *
-	 *  \remark This method is *not* thread-sage
-	 *
-	 *  \return A pointer to the buffer.
-	 */
 	inline const char* at(PVRow field, PVCol col, size_t& size_ret)
 	{
 		PVColumn& column = get_col(col);
@@ -304,17 +252,16 @@ public:
 		return next(col, nb_fields_left, column.buffer_read_ptr, size_ret);
 	}
 
-	inline const char* at_no_cache(PVRow field, PVCol col, size_t& size_ret) const
-	{
-		PVColumn const& column = get_col(col);
-		return at_no_cache(field, col, size_ret, &column.read_buffer_tls.local()[0]);
-	}
-
-	const char* at_no_cache(PVRow field, PVCol col, size_t& size_ret, char* read_buffer) const;
-
-	/*! \brief Returns the number of columns.
-	 */
 	size_t get_number_cols() const { return _columns.size(); }
+
+	/*
+	 * AG: we need to be able to go to the next chunk when this is necessary!
+	inline const char* next(uint64_t col, size_t& size_ret)
+	{
+		PVColumn& column = get_col(col);
+		assert(column.buffer_read != nullptr);
+		return next(col, 1, column.buffer_read_ptr, size_ret);
+	}*/
 
 public:
 	void print_stats();
@@ -330,18 +277,14 @@ public:
 
 		// Sequential version
 		PVColumn& column = get_col(col_idx);
-		file_t& read_file = column.read_file_tls.local();
-		if (unlikely(!read_file)) {
-			this->Open(column.filename, &read_file, _direct_mode);
-		}
-		this->Seek(read_file, 0);
+		this->Seek(column.file, 0);
 
 		ssize_t read_size;
 		//size_t cur_idx = 0;
 		size_t cur_field = 0;
 		char* cur_rbuf = _serial_read_buffer;
 		while (true) {
-			read_size = this->Read(read_file, cur_rbuf, SERIAL_READ_BUFFER_SIZE-std::distance(_serial_read_buffer, cur_rbuf));
+			read_size = this->Read(column.file, cur_rbuf, SERIAL_READ_BUFFER_SIZE-std::distance(_serial_read_buffer, cur_rbuf));
 			if (read_size <= 0) {
 				break;
 			}
@@ -367,11 +310,7 @@ public:
 
 		// Sequential version
 		PVColumn& column = get_col(col_idx);
-		file_t& read_file = column.read_file_tls.local();
-		if (unlikely(!read_file)) {
-			this->Open(column.filename, &read_file, _direct_mode);
-		}
-		this->Seek(read_file, 0);
+		this->Seek(column.file, 0);
 
 		ssize_t read_size;
 		size_t prev_off = 0;
@@ -383,16 +322,13 @@ public:
 			const size_t end_field = off_field.field;
 			const size_t diff_off = off-prev_off;
 			assert(diff_off <= SERIAL_READ_BUFFER_SIZE);
-			read_size = this->Read(read_file, _serial_read_buffer, diff_off);
-			if (read_size < 0) {
-				assert(false);
-				return false;
-			} else if ((size_t)read_size != diff_off) {
+			read_size = this->Read(column.file, _serial_read_buffer, diff_off);
+			if (read_size != diff_off) {
 				assert(false);
 				return false;
 			}
 			const size_t processed_size = visit_column_process_chunk_sse(cur_field, end_field-1, _serial_read_buffer, read_size, f);
-			if ((processed_size != (size_t)read_size) || (cur_field != end_field)) {
+			if ((processed_size != read_size) || (cur_field != end_field)) {
 				assert(false);
 				return false;
 			}
@@ -401,7 +337,7 @@ public:
 		// Finish off !
 		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
 		// necessary !
-		read_size = this->Read(read_file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
+		read_size = this->Read(column.file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
 		visit_column_process_chunk_sse(cur_field, _nrows-1, _serial_read_buffer, read_size, f);
 
 		return cur_field == _nrows;
@@ -414,11 +350,7 @@ public:
 
 		// Sequential version
 		PVColumn& column = get_col(col_idx);
-		file_t& read_file = column.read_file_tls.local();
-		if (unlikely(!read_file)) {
-			this->Open(column.filename, &read_file, _direct_mode);
-		}
-		this->Seek(read_file, 0);
+		this->Seek(column.file, 0);
 
 		size_t rows_to_find = sel.get_number_of_selected_lines_in_range(0, _nrows);
 
@@ -439,19 +371,16 @@ public:
 			// Check that something is selected in that chunk
 			// is_empty_between is between [a,b[ (b is *not* included)
 			if (!sel.is_empty_between(cur_field, end_field)) {
-				this->Seek(read_file, prev_off);
-				read_size = this->Read(read_file, _serial_read_buffer, diff_off);
-				if (read_size < 0) {
-					assert(false);
-					return false;
-				} else if ((size_t)read_size != diff_off) {
+				this->Seek(column.file, prev_off);
+				read_size = this->Read(column.file, _serial_read_buffer, diff_off);
+				if (read_size != (ssize_t) diff_off) {
 					assert(false);
 					return false;
 				}
 				const size_t rows_found = visit_column_process_chunk_sel(cur_field, end_field-1, _serial_read_buffer, read_size, sel, f);
 				//const size_t rows_found = sel.get_number_of_selected_lines_in_range(cur_field, end_field);
 				assert(rows_found <= rows_to_find);
-				assert(rows_found == sel.get_number_of_selected_lines_in_range(cur_field, end_field));
+				assert(rows_found == (size_t) sel.get_number_of_selected_lines_in_range(cur_field, end_field));
 				if (rows_found == rows_to_find) {
 					// That's the end of it!
 					return true;
@@ -464,8 +393,8 @@ public:
 		// Finish off !
 		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
 		// necessary !
-		this->Seek(read_file, prev_off);
-		read_size = this->Read(read_file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
+		this->Seek(column.file, prev_off);
+		read_size = this->Read(column.file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
 		visit_column_process_chunk_sel(cur_field, _nrows-1, _serial_read_buffer, read_size, sel, f);
 
 		return true;
@@ -479,11 +408,7 @@ public:
 
 		// TBB version
 		PVColumn& column = get_col(col_idx);
-		file_t& read_file = column.read_file_tls.local();
-		if (unlikely(!read_file)) {
-			this->Open(column.filename, &read_file, _direct_mode);
-		}
-		this->Seek(read_file, 0);
+		this->Seek(column.file, 0);
 
 		// Task context
 		tbb::task_group_context my_ctxt;
@@ -510,7 +435,7 @@ public:
 					const size_t end_field = off_field.field;
 					const size_t diff_off = off-prev_off;
 					assert(diff_off <= SERIAL_READ_BUFFER_SIZE);
-					const ssize_t read_size = this->Read(read_file, chunk->buf, diff_off);
+					const ssize_t read_size = this->Read(column.file, chunk->buf, diff_off);
 					if ((ssize_t) read_size != (ssize_t) diff_off) {
 						assert(false);
 						fc.stop();
@@ -552,7 +477,7 @@ public:
 		// Finish off !
 		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
 		// necessary !
-		size_t read_size = this->Read(read_file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
+		size_t read_size = this->Read(column.file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
 		visit_column_process_chunk_sse(cur_field, _nrows-1, _serial_read_buffer, read_size, f);
 
 		return cur_field == _nrows;
@@ -565,11 +490,7 @@ public:
 
 		// TBB version
 		PVColumn& column = get_col(col_idx);
-		file_t& read_file = column.read_file_tls.local();
-		if (unlikely(!read_file)) {
-			this->Open(column.filename, &read_file, _direct_mode);
-		}
-		this->Seek(read_file, 0);
+		this->Seek(column.file, 0);
 
 		// Task context
 		tbb::task_group_context my_ctxt;
@@ -619,8 +540,8 @@ public:
 					nrows_to_find -= sel_lines_in_chunk;
 
 					typename tbb_chunks_t::chunk_t* chunk = this->_chunks.get_chunk();
-					this->Seek(read_file, prev_off);
-					const ssize_t read_size = this->Read(read_file, chunk->buf, diff_off);
+					this->Seek(column.file, prev_off);
+					const ssize_t read_size = this->Read(column.file, chunk->buf, diff_off);
 					if ((ssize_t) read_size != (ssize_t) diff_off) {
 						assert(false);
 						fc.stop();
@@ -656,8 +577,8 @@ public:
 		// Finish off !
 		// We have an index at most every BUFFER_READ, so as SERIAL_READ_BUFFER_SIZE > BUFFER_READ, only one read is now
 		// necessary !
-		this->Seek(read_file, prev_off);
-		size_t read_size = this->Read(read_file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
+		this->Seek(column.file, prev_off);
+		size_t read_size = this->Read(column.file, _serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
 		visit_column_process_chunk_sel(cur_field, _nrows-1, _serial_read_buffer, read_size, sel, f);
 
 		return true;
@@ -666,34 +587,11 @@ public:
 	bool get_unique_values_for_col(PVCol const c, unique_values_t& ret, tbb::task_group_context* ctxt = NULL);
 	bool get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL);
 
-	void clear_stats()
-	{
-		_stats_getindex = 0.0;
-		_stats_read = 0.0;
-		_stats_search = 0.0;
-	}
-
-	double get_stats_getindex() const { return (double)_stats_getindex/1000000.0; }
-	double get_stats_read() const { return (double)_stats_read/1000000.0; }
-	double get_stats_search() const { return (double)_stats_search/1000000.0; }
-
 private:
 	std::string get_disk_index_file() const;
 	std::string get_disk_column_file(uint64_t col) const;
  
-	/*! \brief Returns a string based on its index relative to a given buffer.
-	 *
-	 *  \param[in] col The column index.
-	 *  \param[in] nb_fields The number of fields to skip.
-	 *  \param[in] buffer The working buffer.
-	 *  \param[out] buffer The returned string size.
-	 *
-	 *  \return A pointer to the buffer.
-	 */
 	char* next(uint64_t col, uint64_t nb_fields, char* buffer, size_t& size_ret);
-
-	/*! \brief Close all the column files of the Nraw.
-	 */
 	void close_files();
 
 private:
@@ -811,38 +709,26 @@ private:
 		sel.visit_selected_lines([&](const PVRow r)
 			{
 				assert(r >= last_r);
-				size_t slice_size;
-				const char* slice = (const char*) PVCore::PVByteVisitor::get_nth_slice((const uint8_t*) cur_buf, (uintptr_t)buf_end-(uintptr_t)cur_buf, r-last_r, slice_size);
-				f(r, (const char*) slice, slice_size);
-				cur_buf = (const char*) (slice+slice_size+1);
-				last_r = r+1;
-				nfound++;
+				PVCore::PVByteVisitor::visit_nth_slice((const uint8_t*) cur_buf, (uintptr_t)buf_end-(uintptr_t)cur_buf, r-last_r,
+				//PVCore::PVByteVisitor::visit_nth_slice((uint8_t const*) buf, size_buf, r-field_start,
+					[&](const uint8_t* slice, size_t slice_size)
+					{
+						f(r, (const char*) slice, slice_size);
+						cur_buf = (const char*) (slice+slice_size+1);
+						last_r = r+1;
+						nfound++;
+					});
 			},
 			field_end+1,
 			field_start);
 		return nfound;
 	}
 
-	static constexpr size_t read_buffer_size() { return READ_BUFFER_SIZE+BUF_ALIGN; }
-
-
 private:
-	/**
-	 * \class PVColumn
-	 *
-	 * \note
-	 */
 	struct PVColumn
 	{
-		typedef tbb::enumerable_thread_specific<file_t> tls_file_t;
-		typedef tbb::enumerable_thread_specific<std::array<char, PVNrawDiskBackend::READ_BUFFER_SIZE+PVNrawDiskBackend::BUF_ALIGN>> tls_read_buffer_t;
-
 	public:
-		PVColumn():
-			read_file_tls([](){ return 0; })
-		{
-			reset();
-		}
+		PVColumn() { reset(); }
 		bool end_char() { return field_length == 0; }
 
 		void reset()
@@ -863,11 +749,8 @@ private:
 			cache_index = INVALID;
 			last_read_field = INVALID;
 		}
-
 	public:
-		file_t write_file = 0;
-		mutable tls_file_t read_file_tls;
-		mutable tls_read_buffer_t read_buffer_tls;
+		file_t file = 0;
 		std::string filename;
 
 		char* buffer_write;
@@ -895,30 +778,16 @@ private:
 		~PVCachePool();
 
 	public:
-		/*! \brief Initialize the cache for a given couple row/column.
-		 *
-		 *  \param[in] field The field index.
-		 *  \param[in] col The column index.
-		 *
-		 *  \note The cache buffer pointer is then located in "get_col(col).buffer_read_ptr"
-		 *
-		 *  \return The number of fields left in the cache.
-		 */
 		uint64_t get_cache(uint64_t field, uint64_t col);
 
-		/*! \brief Returns the field index in the index map.
-		 *
-		 *  \param[in] col The column index.
-		 *  \param[in] field The field index.
-		 *
-		 *  \return The field index or -1 in case of error.
-		 */
-		int64_t get_index(uint64_t col, uint64_t field) const;
+	private:
+		int64_t get_index(uint64_t col, uint64_t field);
 
 	private:
 		struct PVReadCache
 		{
 			char* buffer = nullptr;
+			char* buffer_ptr = nullptr;
 			uint64_t column = INVALID;
 			tbb::tick_count timestamp = tbb::tick_count::now();
 			uint64_t first_field = INVALID;
@@ -927,18 +796,12 @@ private:
 
 	private:
 		PVReadCache _caches[NB_CACHE_BUFFERS];
-		PVRush::PVNrawDiskBackend& _backend;
+		PVRush::PVNrawDiskBackend& _parent;
 	};
 
 private:
-	/*! \brief Returns a reference to the PVColumn of the given index.
-	 *
-	 *  \param[in] col The column index.
-	 *
-	 *  \return A reference to the PVColumn of the given index.
-	 */
 	inline PVColumn& get_col(uint64_t col) { assert(col < _columns.size()); return _columns[col]; }
-	inline const PVColumn& get_col(uint64_t col) const { assert(col < _columns.size()); return _columns[col]; }
+	static bool merge_tls(unique_values_t& ret, tbb::enumerable_thread_specific<unique_values_t>& tbb_qset);
 
 private:
 	std::string _nraw_folder;
@@ -973,15 +836,12 @@ private:
 	uint64_t _indexes_nrows = 0;
 
 	tbb::tick_count::interval_t _matrix_resize_interval;
+	tbb::tick_count::interval_t _search_interval;
 
 	size_t _nrows;
 	char* _serial_read_buffer;
 
 	tbb_chunks_t _chunks;
-
-	mutable tbb::atomic<uint64_t> _stats_getindex;
-	mutable tbb::atomic<uint64_t> _stats_read;
-	mutable tbb::atomic<uint64_t> _stats_search;
 };
 
 }

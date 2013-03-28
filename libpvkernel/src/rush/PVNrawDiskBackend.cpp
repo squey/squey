@@ -10,9 +10,9 @@
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/rush/PVNrawDiskBackend.h>
 
+#include <tbb/enumerable_thread_specific.h>
+
 static const std::string INDEX_FILENAME = std::string("nraw.idx");
-//const uint64_t PVRush::PVNrawDiskBackend::READ_BUFFER_SIZE = std::max<size_t>(PVCore::PVHardwareConcurrency::get_level_n_cache_size(1), 256*1024);
-//const uint64_t PVRush::PVNrawDiskBackend::READ_BUFFER_SIZE = 4*1024;
 
 // class tbb_chunks_t
 PVRush::PVNrawDiskBackend::tbb_chunks_t::tbb_chunks_t(size_t n):
@@ -51,16 +51,10 @@ PVRush::PVNrawDiskBackend::~PVNrawDiskBackend()
 
 void PVRush::PVNrawDiskBackend::close_files()
 {
+	// Close files
 	for (uint64_t col_idx = 0 ; col_idx < get_number_cols(); col_idx++) {
 		PVColumn& column = get_col(col_idx);
-
-		// Close write file descriptor
-		this->Close(column.write_file);
-
-		// Close read files descriptors
-		for (file_t& read_file : column.read_file_tls) {
-			this->Close(read_file);
-		}
+		this->Close(column.file);
 	}
 }
 
@@ -74,7 +68,7 @@ void PVRush::PVNrawDiskBackend::init(const char* nraw_folder, const uint64_t num
 
 		// Open file
 		column.filename = std::move(get_disk_column_file(col));
-		if(!this->Open(column.filename, &column.write_file, _direct_mode, _direct_mode)) {
+		if(!this->Open(column.filename, &column.file, true, true)) {
 			PVLOG_ERROR("PVNrawDiskBackend: Error opening file %s (%s)\n", column.filename.c_str(), strerror(errno));
 			return;
 		}
@@ -111,7 +105,7 @@ uint64_t PVRush::PVNrawDiskBackend::add(PVCol col_idx, const char* field, const 
 	// Index field
 	if (column.fields_ignored_size + written_field_size > READ_BUFFER_SIZE) {
 		assert(column.buffer_write <= column.buffer_write_ptr);
-		uint64_t field_offset_in_file = this->Tell(column.write_file) + ((uintptr_t)column.buffer_write_ptr - (uintptr_t)column.buffer_write) ;
+		uint64_t field_offset_in_file = this->Tell(column.file) + ((uintptr_t)column.buffer_write_ptr - (uintptr_t)column.buffer_write) ;
 
 		// Resize indexes matrix if needed
 		if (column.fields_indexed == _indexes.get_nrows()) {
@@ -154,7 +148,7 @@ uint64_t PVRush::PVNrawDiskBackend::add(PVCol col_idx, const char* field, const 
 
 	// Write buffer_write to disk
 	if (column.buffer_write_ptr == column.buffer_write_end_ptr) {
-		write_size = this->Write(column.buffer_write, _write_buffers_size_pattern[column.buffers_write_size_idx], column.write_file);
+		write_size = this->Write(column.buffer_write, _write_buffers_size_pattern[column.buffers_write_size_idx], column.file);
 		if(write_size <= 0) {
 			PVLOG_ERROR("PVNrawDiskBackend: Error writing column %d to disk (%s)\n", col_idx, strerror(errno));
 			return 0;
@@ -196,7 +190,7 @@ void PVRush::PVNrawDiskBackend::flush()
 		PVColumn& column = get_col(col_idx);
 		uint64_t partial_buffer_size = column.buffer_write_ptr - column.buffer_write;
 		if (partial_buffer_size > 0) {
-			if(!this->Write(column.buffer_write, partial_buffer_size, column.write_file)) {
+			if(!this->Write(column.buffer_write, partial_buffer_size, column.file)) {
 				PVLOG_ERROR("PVNrawDiskBackend: Error writing column %d to disk (%s)\n", col_idx, strerror(errno));
 				return;
 			}
@@ -214,10 +208,6 @@ void PVRush::PVNrawDiskBackend::flush()
 uint64_t PVRush::PVNrawDiskBackend::search_in_column(uint64_t col_idx, std::string const& field)
 {
 	PVColumn& column = get_col(col_idx);
-	file_t& read_file = column.read_file_tls.local();
-	if (unlikely(!read_file)) {
-		this->Open(column.filename, &read_file, _direct_mode);
-	}
 
 	uint64_t chunk_size = _write_buffers_size_pattern[_max_write_size_idx];
 	uint64_t total_read_size = 0;
@@ -230,7 +220,7 @@ uint64_t PVRush::PVNrawDiskBackend::search_in_column(uint64_t col_idx, std::stri
 	bool last_chunk = false;
 	do
 	{
-		read_size = this->Read(read_file, buffer+BUF_ALIGN, chunk_size-BUF_ALIGN);
+		read_size = this->Read(column.file, buffer+BUF_ALIGN, chunk_size-BUF_ALIGN);
 		last_chunk = read_size < (chunk_size-BUF_ALIGN);
 
 		// TODO: clean this mess
@@ -275,10 +265,10 @@ void PVRush::PVNrawDiskBackend::set_direct_mode(bool direct)
 
 	for (size_t col = 0 ; col < get_number_cols() ; col++) {
 		PVColumn& column = get_col(col);
-		uint64_t pos = this->Tell(column.write_file);
-		this->Close(column.write_file);
-		this->Open(column.filename, &column.write_file, direct);
-		this->Seek(column.write_file, pos);
+		uint64_t pos = this->Tell(column.file);
+		this->Close(column.file);
+		this->Open(column.filename, &column.file, direct);
+		this->Seek(column.file, pos);
 	}
 	_direct_mode = direct;
 }
@@ -329,12 +319,14 @@ void PVRush::PVNrawDiskBackend::clear()
 	unlink(get_disk_index_file().c_str());
 	for (uint64_t c = 0 ; c < get_number_cols() ; c++) {
 		PVColumn& nraw_c = _columns[c];
-		this->Truncate(nraw_c.write_file, 0);
+		this->Truncate(nraw_c.file, 0);
 
 		nraw_c.buffer_write_ptr = nraw_c.buffer_write;
 		nraw_c.field_length = 0; // Or any value grater than 0 to specify a fixed field length;
 	}
 
+	//_next_indexes_nrows = _index_fields_size_pattern[0];
+	//_indexes.resize_nrows(_next_indexes_nrows);
 	_fields_size_idx = 0;
 	_next_indexes_nrows += _index_fields_size_pattern[++_fields_size_idx];
 	_nrows = 0;
@@ -342,6 +334,7 @@ void PVRush::PVNrawDiskBackend::clear()
 
 void PVRush::PVNrawDiskBackend::print_stats()
 {
+	PVLOG_INFO("search: %d msec\n", this->_search_interval.seconds()*1000);
 	PVLOG_INFO("resize: %d msec\n", this->_matrix_resize_interval.seconds()*1000);
 }
 
@@ -349,13 +342,15 @@ void PVRush::PVNrawDiskBackend::print_indexes()
 {
 	for (uint64_t r=0; r < _indexes_nrows; r++) {
 		for (uint64_t c=0; c < get_number_cols(); c++) {
-			PVLOG_INFO("index[%ul][%ul] = %ul (offset), %ul (field)\n", r, c, _indexes.at(r, c).offset, _indexes.at(r, c).field);
+			PVLOG_INFO("index[%d][%d] = %d (offset), %d (field)\n", r, c, _indexes.at(r, c).offset, _indexes.at(r, c).field);
 		}
 	}
 }
 
 char* PVRush::PVNrawDiskBackend::next(uint64_t col, uint64_t nb_fields, char* buffer, size_t& size_ret)
 {
+	tbb::tick_count t1 = tbb::tick_count::now();
+
 	PVColumn& column = get_col(col);
 
 	if (buffer == nullptr) return nullptr;
@@ -368,59 +363,22 @@ char* PVRush::PVNrawDiskBackend::next(uint64_t col, uint64_t nb_fields, char* bu
 	}
 	else {
 		uint64_t size_to_read = READ_BUFFER_SIZE - (buffer - column.buffer_read_ptr);
-		buffer_ptr = (char*) PVCore::PVByteVisitor::get_nth_slice((const uint8_t*) buffer, size_to_read, nb_fields, size_ret);
+		// TODO: vectorize this!
+		/*for (uint64_t i = 0; i < nb_fields; i++) {
+			end_field_ptr = (char*) memchr(buffer_ptr, '\0', size_to_read);
+			assert(end_field_ptr && ((uintptr_t)end_field_ptr - (uintptr_t)column.buffer_read <= (size_t)READ_BUFFER_SIZE));
+			uint64_t field_length = (end_field_ptr - buffer_ptr)+1;
+			size_to_read -= field_length;
+			buffer_ptr += field_length;
+		}*/
+		//size_ret = strnlen(buffer_ptr, size_to_read);
+		PVCore::PVByteVisitor::visit_nth_slice((const uint8_t*) buffer, size_to_read, nb_fields,  [&](const uint8_t* found_buf, size_t sbuf) { buffer_ptr = (char*) found_buf; size_ret = sbuf; });
 	}
 
 	column.buffer_read_ptr = buffer_ptr;
 
-	return buffer_ptr;
-}
-
-const char* PVRush::PVNrawDiskBackend::at_no_cache(PVRow field, PVCol col, size_t& size_ret, char* read_buffer) const
-{
-	// Read buffer must have a length >= READ_BUFFER_SIZE+BUF_ALIGN
-	// Fetch content from disk
-	const PVColumn& column = get_col(col);
-	file_t& read_file = column.read_file_tls.local();
-	if (unlikely(!read_file)) {
-		this->Open(column.filename, &read_file, _direct_mode);
-	}
-
-	char* buffer = read_buffer;
-	//BENCH_START(getindex);
-	int64_t field_index = _cache_pool.get_index(col, field);
-	//BENCH_STOP(getindex);
-	//_stats_getindex += (uint64_t) (BENCH_END_TIME(getindex)*1000000.0);
-	uint64_t disk_offset = unlikely(field_index == -1) ? 0 : _indexes.at(field_index, col).offset;
-	uint64_t aligned_disk_offset = disk_offset;
-	if (unlikely(_direct_mode)) {
-		aligned_disk_offset = (disk_offset / BUF_ALIGN) * BUF_ALIGN;
-	}
-
-	//BENCH_START(read);
-	int64_t read_size = this->ReadAt(read_file, aligned_disk_offset, buffer, READ_BUFFER_SIZE);
-	//BENCH_STOP(read);
-	//_stats_read += (uint64_t) (BENCH_END_TIME(read)*1000000.0);
-	if(unlikely(read_size <= 0)) {
-		PVLOG_ERROR("PVNrawDiskBackend: Error reading column %d [offset=%d] from disk (%s)\n", col, aligned_disk_offset, strerror(errno));
-		return 0;
-	}
-	uint64_t first_field = field_index == -1 ? 0 :_indexes.at(field_index, col).field;
-	uint64_t nb_fields = field - first_field;
-
-	// Search field in content
-	char* buffer_ptr = buffer;
-	if (column.field_length > 0) {
-		buffer_ptr += nb_fields * column.field_length;
-		size_ret = column.field_length;
-	}
-	else {
-		//BENCH_START(search);
-		buffer_ptr = (char*) PVCore::PVByteVisitor::get_nth_slice((const uint8_t*) buffer, read_size, nb_fields, size_ret);
-		//BENCH_STOP(search);
-		//_stats_search += (uint64_t) (BENCH_END_TIME(search)*1000000.0);
-	}
-
+	tbb::tick_count t2 = tbb::tick_count::now();
+	_search_interval += (t2-t1);
 	return buffer_ptr;
 }
 
@@ -440,7 +398,7 @@ std::string PVRush::PVNrawDiskBackend::get_disk_column_file(uint64_t col) const
 }
 
 // class PVCachePool
-PVRush::PVNrawDiskBackend::PVCachePool::PVCachePool(PVRush::PVNrawDiskBackend& parent) : _backend(parent)
+PVRush::PVNrawDiskBackend::PVCachePool::PVCachePool(PVRush::PVNrawDiskBackend& parent) : _parent(parent)
 {
 	for (uint64_t cache_idx = 0; cache_idx < NB_CACHE_BUFFERS; cache_idx++) {
 		_caches[cache_idx].buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(READ_BUFFER_SIZE);
@@ -451,7 +409,7 @@ uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint6
 {
 	bool cache_miss = true;
 
-	PVColumn& column = _backend.get_col(col);
+	PVColumn& column = _parent.get_col(col);
 	uint64_t cache_idx = column.cache_index;
 
 	// Is there a cache for this column?
@@ -473,7 +431,7 @@ uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint6
 			}
 		}
 		if (_caches[cache_idx].column != INVALID) {
-			_backend.get_col(_caches[cache_idx].column).cache_index = INVALID;  // Tell the column that we are stealing its cache...
+			_parent.get_col(_caches[cache_idx].column).cache_index = INVALID;  // Tell the column that we are stealing its cache...
 		}
 
 		column.cache_index = cache_idx;
@@ -485,26 +443,21 @@ uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint6
 	// Fetch data from disk
 	uint64_t nb_fields_left = 0;
 	if (cache_miss) {
-		file_t& read_file = column.read_file_tls.local();
-		if (unlikely(!read_file)) {
-			this->Open(column.filename, &read_file, _backend._direct_mode);
-		}
 		char* buffer_ptr = cache.buffer;
 		int64_t field_index = get_index(col, field);
-		uint64_t disk_offset = field_index == -1 ? 0 : _backend._indexes.at(field_index, col).offset;
+		uint64_t disk_offset = field_index == -1 ? 0 : _parent._indexes.at(field_index, col).offset;
 		uint64_t aligned_disk_offset = disk_offset;
-		if (_backend._direct_mode) {
+		if (_parent._direct_mode) {
 			aligned_disk_offset = (disk_offset / BUF_ALIGN) * BUF_ALIGN;
 			buffer_ptr += (disk_offset - aligned_disk_offset);
 		}
-		int64_t read_size = _backend.ReadAt(read_file, aligned_disk_offset, cache.buffer, READ_BUFFER_SIZE);
+		int64_t read_size = _parent.ReadAt(column.file, aligned_disk_offset, cache.buffer, READ_BUFFER_SIZE);
 		if(read_size <= 0) {
 			PVLOG_ERROR("PVNrawDiskBackend: Error reading column %d [offset=%d] from disk (%s)\n", col, aligned_disk_offset, strerror(errno));
 			return 0;
 		}
-		cache.first_field = field_index == -1 ? 0 :_backend._indexes.at(field_index, col).field;
-		PVRow index = std::min<PVRow>(_backend._indexes.get_nrows()-1, field_index+1);
-		cache.last_field = _backend._indexes.at(index, col).field-1;
+		cache.first_field = field_index == -1 ? 0 :_parent._indexes.at(field_index, col).field;
+		cache.last_field = _parent._indexes.at(field_index+1, col).field-1;
 		nb_fields_left = field - cache.first_field;
 		column.buffer_read = buffer_ptr;
 		column.buffer_read_ptr = buffer_ptr;
@@ -533,47 +486,41 @@ PVRush::PVNrawDiskBackend::PVCachePool::~PVCachePool()
 	}
 }
 
-int64_t PVRush::PVNrawDiskBackend::PVCachePool::get_index(uint64_t col, uint64_t field) const
+int64_t PVRush::PVNrawDiskBackend::PVCachePool::get_index(uint64_t col, uint64_t field)
 {
-	index_table_t& indexes = _backend._indexes;
-	const size_t findexed = _backend.get_col(col).fields_indexed;
+	index_table_t& indexes = _parent._indexes;
+	/*int64_t first = 0;
+	  int64_t index = 0;
+	  int64_t last = _parent._indexes_nrows-1;
+
+	  if (field >= indexes.at(last, col).field) return last;
+
+	  while (first <= last) {
+	  int index = (first + last) / 2;
+
+	  if (field >= indexes.at(index, col).field) {
+	  if (field < indexes.at(index+1, col).field) {
+	  return index;
+	  }
+	  first = index + 1;
+	  }
+	  else if (field < indexes.at(index, col).field) {
+	  last = index - 1;
+	  if (last < 0) {
+	  return 0;
+	  }
+	  }
+	  }*/
+	const size_t findexed = _parent.get_col(col).fields_indexed;
 	if (findexed == 0) {
 		return -1;
 	}
 
-    int64_t first = 0;
-	int64_t last = findexed-1;
-
-	while (first <= (last-8)) {
-		const int64_t index = (first + last) / 2;
-
-		if (field >= indexes.at(index, col).field) {
-			if (field < indexes.at(index+1, col).field) {
-				return index;
-			}
-		    first = index + 1;
-		}
-		else {
-			last = index - 1;
-			if (last < 0) {
-				return -1;
-			}
-		}
-	}
-
-	for (int64_t index = last; index >= first; index--) {
-		if (indexes.at(index, col).field <= field) {
-			return index;
-		}
-	}
-
-#if 0
 	for (int64_t index = findexed-1; index >= 0; index--) {
 		if (indexes.at(index, col).field <= field) {
 			return index;
 		}
 	}
-#endif
 	return -1;
 }
 
@@ -589,24 +536,12 @@ bool PVRush::PVNrawDiskBackend::get_unique_values_for_col(PVCol const c, unique_
 	if (!vret) {
 		return false;
 	}
-	typename decltype(tbb_qset)::iterator it_tls = tbb_qset.begin();
-	if (it_tls != tbb_qset.end()) {
-		unique_values_t& final = *it_tls;
-		it_tls++;
-		for (; it_tls != tbb_qset.end(); it_tls++) {
-			final.unite(*it_tls);
-		}
-		ret = final;
-	}
-	else {
-		ret.clear();
-	}
-	return true;
+
+	return merge_tls(ret, tbb_qset);
 }
 
 bool PVRush::PVNrawDiskBackend::get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt)
 {
-	// AG: TODO: factorize w/ the previous function!
 	const size_t nreserve = std::sqrt(_nrows);
 	tbb::enumerable_thread_specific<unique_values_t> tbb_qset([nreserve]{ unique_values_t ret; ret.reserve(nreserve); return ret; }); 
 	bool vret = visit_column_tbb_sel(c, [&tbb_qset](size_t, const char* buf, size_t n)
@@ -617,17 +552,24 @@ bool PVRush::PVNrawDiskBackend::get_unique_values_for_col_with_sel(PVCol const c
 	if (!vret) {
 		return false;
 	}
-	typename decltype(tbb_qset)::iterator it_tls = tbb_qset.begin();
+
+	return merge_tls(ret, tbb_qset);
+}
+
+bool PVRush::PVNrawDiskBackend::merge_tls(unique_values_t& ret, tbb::enumerable_thread_specific<unique_values_t>& tbb_qset)
+{
+	tbb::enumerable_thread_specific<unique_values_t>::iterator it_tls = tbb_qset.begin();
 	if (it_tls != tbb_qset.end()) {
 		unique_values_t& final = *it_tls;
 		it_tls++;
 		for (; it_tls != tbb_qset.end(); it_tls++) {
 			final.unite(*it_tls);
 		}
-		ret = final;
+		ret = std::move(final);
 	}
 	else {
 		ret.clear();
 	}
+	// return false if it has been cancelled
 	return true;
 }
