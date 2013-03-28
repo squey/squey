@@ -33,10 +33,12 @@ public:
 
 protected:
 	virtual bool eventFilter(QObject *object, QEvent *event);
+	void save_to_file(bool append);
 
 protected slots:
 	void slot_import_file();
 	void slot_export_file();
+	void slot_export_and_import_file();
 
 protected:
 	QPlainTextEdit* _text_edit;
