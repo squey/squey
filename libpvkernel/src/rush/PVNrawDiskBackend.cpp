@@ -589,24 +589,12 @@ bool PVRush::PVNrawDiskBackend::get_unique_values_for_col(PVCol const c, unique_
 	if (!vret) {
 		return false;
 	}
-	typename decltype(tbb_qset)::iterator it_tls = tbb_qset.begin();
-	if (it_tls != tbb_qset.end()) {
-		unique_values_t& final = *it_tls;
-		it_tls++;
-		for (; it_tls != tbb_qset.end(); it_tls++) {
-			final.unite(*it_tls);
-		}
-		ret = final;
-	}
-	else {
-		ret.clear();
-	}
-	return true;
+
+	return merge_tls(ret, tbb_qset);
 }
 
 bool PVRush::PVNrawDiskBackend::get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt)
 {
-	// AG: TODO: factorize w/ the previous function!
 	const size_t nreserve = std::sqrt(_nrows);
 	tbb::enumerable_thread_specific<unique_values_t> tbb_qset([nreserve]{ unique_values_t ret; ret.reserve(nreserve); return ret; }); 
 	bool vret = visit_column_tbb_sel(c, [&tbb_qset](size_t, const char* buf, size_t n)
@@ -617,17 +605,24 @@ bool PVRush::PVNrawDiskBackend::get_unique_values_for_col_with_sel(PVCol const c
 	if (!vret) {
 		return false;
 	}
-	typename decltype(tbb_qset)::iterator it_tls = tbb_qset.begin();
+
+	return merge_tls(ret, tbb_qset);
+}
+
+bool PVRush::PVNrawDiskBackend::merge_tls(unique_values_t& ret, tbb::enumerable_thread_specific<unique_values_t>& tbb_qset)
+{
+	tbb::enumerable_thread_specific<unique_values_t>::iterator it_tls = tbb_qset.begin();
 	if (it_tls != tbb_qset.end()) {
 		unique_values_t& final = *it_tls;
 		it_tls++;
 		for (; it_tls != tbb_qset.end(); it_tls++) {
 			final.unite(*it_tls);
 		}
-		ret = final;
+		ret = std::move(final);
 	}
 	else {
 		ret.clear();
 	}
+	// return false if it has been cancelled
 	return true;
 }
