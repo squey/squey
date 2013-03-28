@@ -7,9 +7,13 @@
 #ifndef __PVSTATSLISTINGWIDGET_H__
 #define __PVSTATSLISTINGWIDGET_H__
 
-#include <QWidget>
-#include <QTableWidget>
+#include <thread>
+
+#include <QHBoxLayout>
 #include <QHeaderView>
+#include <QMovie>
+#include <QTableWidget>
+#include <QWidget>
 class QEvent;
 class QLabel;
 class QPixmap;
@@ -38,15 +42,12 @@ class PVStatsListingWidget : public QWidget
 public:
 	typedef std::unordered_map<uint32_t, PVParams> param_t;
 
-	friend class __impl::PVUniqueValuesCellWidget;
-
-	static QColor INVALID_COLOR;
-
 public:
 	PVStatsListingWidget(PVListingView* listing_view);
 
 public:
 	param_t& get_params() { return _params; }
+	void set_refresh_buttons_enabled(bool loading);
 
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
@@ -65,7 +66,7 @@ private:
 
 		QStringList vertical_headers;
 		_stats_panel->setVerticalHeaderItem(row, new QTableWidgetItem(header_text));
-		_stats_panel->verticalHeaderItem(row)->setToolTip("Refresh all");
+		//_stats_panel->verticalHeaderItem(row)->setToolTip("Refresh all");
 	}
 
 	template <typename T>
@@ -83,7 +84,11 @@ private slots:
 	void update_scrollbar_position();
 	void refresh();
 	void resize_panel();
+	void selection_changed();
 	void axes_comb_changed();
+
+public:
+	static const QColor INVALID_COLOR;
 
 private:
 	PVListingView* _listing_view;
@@ -103,27 +108,57 @@ class PVCellWidgetBase : public QWidget
 	Q_OBJECT;
 
 public:
-	PVCellWidgetBase(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) : _table(table), _view(view), _item(item)
-	{
-		connect(table->verticalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(vertical_header_clicked(int)));
-	}
+	PVCellWidgetBase(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item);
+	virtual ~PVCellWidgetBase() {}
 
 public:
-	virtual void refresh(bool use_cache = false) = 0;
+	static QMovie* get_movie(); // Singleton to share the animation among all the widgets in order to keep them synchronized
+	virtual void set_loading(bool loading);
+	void set_refresh_button_enabled(bool loading);
+	static void cancel_thread();
 
 public slots:
-	virtual void auto_refresh() = 0;
-	virtual void vertical_header_clicked(int index) = 0;
+	void refresh(bool use_cache = false);
+	void auto_refresh();
+
+protected slots:
+	void refreshed(int value, bool valid);
+
+private slots:
+	virtual void vertical_header_clicked(int index);
+	void toggle_auto_refresh();
+
+signals:
+	void refresh_impl_finished(int value, bool valid);
 
 protected:
+	virtual void refresh_impl() = 0;
 	typename PVStatsListingWidget::param_t& get_params();
+	PVGuiQt::PVStatsListingWidget* get_panel();
+	void set_valid(uint32_t value, bool autorefresh);
+	void set_invalid();
 
 protected:
 	QTableWidget* _table;
 	Picviz::PVView const& _view;
 	QTableWidgetItem* _item;
 
+	bool _valid = false;
+
+	QHBoxLayout* _main_layout;
+	QPushButton* _refresh_icon;
+	QPushButton* _autorefresh_icon;
+	QLabel* _loading_label;
+	static QMovie* _loading_movie;
+	const QPixmap _refresh_pixmap;
+	const QPixmap _autorefresh_on_pixmap;
+	const QPixmap _autorefresh_off_pixmap;
+
 	QLabel* _text;
+
+	static std::thread _thread;
+	static tbb::task_group_context* _ctxt;
+	static bool _thread_running;
 };
 
 class PVUniqueValuesCellWidget : public PVCellWidgetBase
@@ -133,33 +168,15 @@ class PVUniqueValuesCellWidget : public PVCellWidgetBase
 public:
 	PVUniqueValuesCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item);
 
-public:
-	void auto_refresh() override;
-	void set_auto_refresh(bool auto_refresh);
-
 public slots:
-	void refresh(bool use_cache = false) override;
-	void vertical_header_clicked(int index) override;
+	virtual void refresh_impl() override;
 
 private slots:
-	void toggle_auto_refresh();
 	void show_unique_values_dlg();
 
 private:
-	void set_valid(uint32_t value, bool autorefresh);
-	void set_invalid();
-
-private:
-
 	uint32_t _unique_values_number;
-
-	QPushButton* _refresh_icon;
-	QPushButton* _autorefresh_icon;
 	QPushButton* _unique_values_dlg_icon;
-
-	const QPixmap _refresh_pixmap;
-	const QPixmap _autorefresh_pixmap;
-	const QPixmap _no_autorefresh_pixmap;
 	const QPixmap _unique_values_pixmap;
 };
 

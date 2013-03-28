@@ -119,14 +119,14 @@ public:
 		return _backend.visit_column_tbb_sel(c, f, sel, ctxt);
 	}
 
-	inline void get_unique_values_for_col(PVCol const c, unique_values_t& ret, tbb::task_group_context* ctxt = NULL) const
+	inline bool get_unique_values_for_col(PVCol const c, unique_values_t& ret, tbb::task_group_context* ctxt = NULL) const
 	{
-		_backend.get_unique_values_for_col(c, ret, ctxt);
+		return _backend.get_unique_values_for_col(c, ret, ctxt);
 	}
 
-	inline void get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL) const
+	inline bool get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL) const
 	{
-		_backend.get_unique_values_for_col_with_sel(c, ret, sel, ctxt);
+		return _backend.get_unique_values_for_col_with_sel(c, ret, sel, ctxt);
 	}
 
 	QString nraw_line_to_csv(PVRow idx) const;
