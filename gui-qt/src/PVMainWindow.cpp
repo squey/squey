@@ -15,7 +15,6 @@
 #include <QLine>
 #include <QMenuBar>
 #include <QMessageBox>
-#include <QSplashScreen>
 #include <QStatusBar>
 #include <QVBoxLayout>
 
@@ -89,16 +88,11 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	// OBJECTNAME STUFF
 	setObjectName("PVMainWindow");
 	
-	// SPLASH SCREEN : we create the Splash screen
-	QSplashScreen splash(QPixmap(":/splash-screen"));
 
 	// License validity test : it's a simple "time" check
 	if (time(NULL) >= CUSTOMER_RELEASE_EXPIRATION_DATE) {
 		exit(0);
 	}
-	
-	//We can show the Splash Screen
-	splash.show();
 
 	//setWindowFlags(Qt::FramelessWindowHint);
 
@@ -194,9 +188,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QString css_string(css_stream.readAll());
 	css_file.close();
 	setStyleSheet(css_string);
-
-	splash.showMessage("cleaning temporary files");
-	PVRush::PVNraw::remove_unused_nraw_directories();
 
 	show();
 }
