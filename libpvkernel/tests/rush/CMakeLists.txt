@@ -221,7 +221,8 @@ declare_pv_test(arcsight_src "test_arcsight_source.cpp;helpers.cpp;${CMAKE_SOURC
 target_link_libraries(arcsight_src ${LINK_LIBRARIES})
 
 # NRAW unused directory cleaning test
-declare_pv_test(Trush_nraw_unused_directories nraw_unused_directories.cpp "${LINK_LIBRARIES}")
+declare_pv_test(Trush_nraw_unused_directories nraw_unused_directories.cpp)
+target_link_libraries(Trush_nraw_unused_directories  ${LINK_LIBRARIES})
 add_test(TestNrawUnusedDirectories Trush_nraw_unused_directories ${PVKERNEL_RUSH_TEST_NRAW_TMP})
 
 if(PYTHONLIBS_FOUND)
