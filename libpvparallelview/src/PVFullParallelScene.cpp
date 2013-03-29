@@ -46,15 +46,12 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	_lines_view(backend, zm, zp_sel, zp_bg, this),
 	_lib_view(*view_sp),
 	_full_parallel_view(full_parallel_view),
-	_selection_square(new PVParallelView::PVSelectionSquareGraphicsItem(this)),
-	_selection_generator(_lines_view),
+	_selection_square(new PVSelectionSquare(this)),
 	_zoom_y(1.0),
 	_sm_p(sm_p),
 	_zid_timer_render(PVZONEID_INVALID)
 {
 	_view_deleted = false;
-
-	_selection_square->hide();
 
 	PVHive::get().register_actor(view_sp, _view_actor);
 
@@ -65,7 +62,6 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 
 	connect(_full_parallel_view->horizontalScrollBar(), SIGNAL(sliderPressed()), this, SLOT(scrollbar_pressed_Slot()));
 	connect(_full_parallel_view->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(scrollbar_released_Slot()));
-	connect(_selection_square, SIGNAL(commit_volatile_selection()), this, SLOT(commit_volatile_selection_Slot()));
 
 	PVParallelView::PVLinesView::list_zone_images_t images = _lines_view.get_zones_images();
 
@@ -163,42 +159,6 @@ void PVParallelView::PVFullParallelScene::add_zone_image()
 
 /******************************************************************************
  *
- * PVParallelView::PVFullParallelScene::commit_volatile_selection_Slot
- *
- *****************************************************************************/
-void PVParallelView::PVFullParallelScene::commit_volatile_selection_Slot()
-{
-	_selection_square->finished();
-	QRectF srect = _selection_square->rect();
-	// Too much on the left dude!
-	if (srect.x() + srect.width() <= 0) {
-		return;
-	}
-
-	// Too much on the right, stop drinking!
-	const int32_t pos_end = pos_last_axis();
-	if (srect.x() >= pos_end) {
-		return;
-	}
-
-	const PVZoneID zone_id_start = _lines_view.get_zone_from_scene_pos(srect.x());
-	const PVZoneID zone_id_end = _lines_view.get_zone_from_scene_pos(srect.x() + srect.width());
-
-	lib_view().get_volatile_selection().select_none();
-	for (PVZoneID z = zone_id_start; z <= zone_id_end; z++) {
-		QRect r = map_to_axis(z, srect);
-		r.setX(picviz_max(0, r.x()));
-		r.setRight(picviz_min(pos_end-1, r.right()));
-		_selection_generator.compute_selection_from_rect(z, r, lib_view().get_volatile_selection());
-	}
-
-	store_selection_square();
-
-	process_selection();
-}
-
-/******************************************************************************
- *
  * PVParallelView::PVFullParallelScene::first_render
  *
  *****************************************************************************/
@@ -238,7 +198,56 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		reset_zones_layout_to_default();
 		update_all_with_timer();
 		event->accept();
-	} else {
+	}
+	else if (event->key() == Qt::Key_Left) {
+		if (event->modifiers() & Qt::ShiftModifier) {
+			_selection_square->grow_horizontally();
+		}
+		else if (event->modifiers() & Qt::ControlModifier) {
+			_selection_square->move_left_by_width();
+		}
+		else {
+			_selection_square->move_left_by_step();
+		}
+		event->accept();
+	}
+	else if (event->key() == Qt::Key_Right) {
+		if (event->modifiers() & Qt::ShiftModifier) {
+			_selection_square->shrink_horizontally();
+		}
+		else if (event->modifiers() & Qt::ControlModifier) {
+			_selection_square->move_right_by_width();
+		}
+		else {
+			_selection_square->move_right_by_step();
+		}
+		event->accept();
+	}
+	else if (event->key() == Qt::Key_Up) {
+		if (event->modifiers() & Qt::ShiftModifier) {
+			_selection_square->grow_vertically();
+		}
+		else if (event->modifiers() & Qt::ControlModifier) {
+			_selection_square->move_up_by_height();
+		}
+		else {
+			_selection_square->move_up_by_step();
+		}
+		event->accept();
+	}
+	else if (event->key() == Qt::Key_Down) {
+		if (event->modifiers() & Qt::ShiftModifier) {
+			_selection_square->shrink_vertically();
+		}
+		else if (event->modifiers() & Qt::ControlModifier) {
+			_selection_square->move_down_by_height();
+		}
+		else {
+			_selection_square->move_down_by_step();
+		}
+		event->accept();
+	}
+	else {
 		QGraphicsScene::keyPressEvent(event);
 	}
 }
@@ -259,10 +268,8 @@ void PVParallelView::PVFullParallelScene::mouseMoveEvent(QGraphicsSceneMouseEven
 	else if (!sliders_moving() && event->buttons() == Qt::LeftButton)
 	{
 		// trace square area
-		QPointF top_left(qMin(_selection_square_pos.x(), event->scenePos().x()), qMin(_selection_square_pos.y(), event->scenePos().y()));
-		QPointF bottom_right(qMax(_selection_square_pos.x(), event->scenePos().x()), qMax(_selection_square_pos.y(), event->scenePos().y()));
+		_selection_square->end(event->scenePos().x(), event->scenePos().y());
 
-		_selection_square->update_rect(QRectF(top_left, bottom_right));
 		event->accept();
 	}
 
@@ -288,14 +295,16 @@ void PVParallelView::PVFullParallelScene::mousePressEvent(QGraphicsSceneMouseEve
 		_translation_start_x = event->scenePos().x();
 		event->accept();
 	} else if (event->button() == Qt::LeftButton) {
-		_selection_square_pos = event->scenePos();
+
 
 		/* setting the selection "square" to a "zero" square at mouse
 		 * position and make it visible
 		 */
+		/*_selection_square_pos = event->scenePos();
 		_selection_square->update_rect(QRectF(_selection_square_pos,
 		                                      _selection_square_pos));
-		_selection_square->show();
+		_selection_square->show();*/
+		_selection_square->begin(event->scenePos().x(), event->scenePos().y());
 		event->accept();
 	}
 }
@@ -313,13 +322,7 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
 		event->accept();
 	}
 	else if (!sliders_moving()) {
-		if (_selection_square_pos == event->scenePos()) {
-			// Remove selection
-			_selection_square->clear_rect();
-			_selection_square->hide();
-		}
-		_selection_square->finished();
-		commit_volatile_selection_Slot();
+		_selection_square->commit();
 		event->accept();
 	}
 
@@ -344,19 +347,19 @@ int32_t PVParallelView::PVFullParallelScene::pos_last_axis() const
  * PVParallelView::PVFullParallelScene::process_selection
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::process_selection()
+void PVParallelView::PVFullParallelScene::process_mouse_selection()
 {
 	unsigned int modifiers = (unsigned int) QApplication::keyboardModifiers();
 	/* We don't care about a keypad button being pressed */
 	modifiers &= ~Qt::KeypadModifier;
-	
+
 	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier aren't really
 	 * constants */
 	if (modifiers == (unsigned int) (Qt::ShiftModifier | Qt::ControlModifier)) {
 		_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	}
 	else
-	if (modifiers == Qt::ControlModifier) {	
+	if (modifiers == Qt::ControlModifier) {
 		_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 	}
 	else
@@ -366,6 +369,16 @@ void PVParallelView::PVFullParallelScene::process_selection()
 	else {
 		_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	}
+
+	/* Commit the previous volatile selection */
+	_view_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
+
+	_view_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
+}
+
+void PVParallelView::PVFullParallelScene::process_key_selection()
+{
+	_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 
 	/* Commit the previous volatile selection */
 	_view_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
@@ -459,32 +472,6 @@ bool PVParallelView::PVFullParallelScene::sliders_moving() const
 		}
 	}
 	return false;
-}
-
-/******************************************************************************
- *
- * PVParallelView::PVFullParallelScene::store_selection_square
- *
- *****************************************************************************/
-void PVParallelView::PVFullParallelScene::store_selection_square()
-{
-	PVZoneID& zone_id1 = _selection_barycenter.zone_id1;
-	PVZoneID& zone_id2 = _selection_barycenter.zone_id2;
-	double& factor1 = _selection_barycenter.factor1;
-	double& factor2 = _selection_barycenter.factor2;
-
-	uint32_t abs_left = _selection_square->rect().topLeft().x();
-	uint32_t abs_right = _selection_square->rect().bottomRight().x();
-
-	zone_id1 = _lines_view.get_zone_from_scene_pos(abs_left);
-	uint32_t z1_width = _lines_view.get_zone_width(zone_id1);
-	uint32_t alpha = map_to_axis(zone_id1, QPointF(abs_left, 0)).x();
-	factor1 = (double) alpha / z1_width;
-
-	zone_id2 = _lines_view.get_zone_from_scene_pos(abs_right);
-	uint32_t z2_width = _lines_view.get_zone_width(zone_id2);
-	uint32_t beta = map_to_axis(zone_id2, QPointF(abs_right, 0)).x();
-	factor2 = (double) beta / z2_width;
 }
 
 /******************************************************************************
@@ -710,42 +697,15 @@ void PVParallelView::PVFullParallelScene::update_scene(bool recenter_view)
 void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axis_id_t axis_id)
 {
 	PVZoneID zone_id = _lib_view.get_axes_combination().get_index_by_id(axis_id);
-	_selection_square->clear_rect();
-	_selection_generator.compute_selection_from_sliders(zone_id,
-	                                                    _axes[zone_id]->get_selection_ranges(),
-	                                                    lib_view().get_volatile_selection());
+	_selection_square->clear();
+	PVSelectionGenerator::compute_selection_from_sliders(
+		_lines_view,
+		zone_id,
+	    _axes[zone_id]->get_selection_ranges(),
+	    lib_view().get_volatile_selection()
+	);
 
-	process_selection();
-}
-
-/******************************************************************************
- *
- * PVParallelView::PVFullParallelScene::update_selection_square
- *
- *****************************************************************************/
-void PVParallelView::PVFullParallelScene::update_selection_square()
-{
-	PVZoneID zone_id1 = _selection_barycenter.zone_id1;
-	PVZoneID zone_id2 = _selection_barycenter.zone_id2;
-	if ((zone_id1 == PVZONEID_INVALID) || (zone_id2 == PVZONEID_INVALID)) {
-		return;
-	}
-
-	if (zone_id1 >= _lines_view.get_number_of_managed_zones() ||
-	    zone_id2 >= _lines_view.get_number_of_managed_zones()) {
-		clear_selection_square();
-		return;
-	}
-
-	double factor1 = _selection_barycenter.factor1;
-	double factor2 = _selection_barycenter.factor2;
-
-	uint32_t new_left = _lines_view.get_left_border_position_of_zone_in_scene(zone_id1) + (double) _lines_view.get_zone_width(zone_id1) * factor1;
-	uint32_t new_right = _lines_view.get_left_border_position_of_zone_in_scene(zone_id2) + (double) _lines_view.get_zone_width(zone_id2) * factor2;
-	uint32_t abs_top = _selection_square->rect().topLeft().y();
-	uint32_t abs_bottom = _selection_square->rect().bottomRight().y();
-
-	_selection_square->setRect(QRectF(QPointF(new_left, abs_top), QPointF(new_right, abs_bottom)));
+	process_mouse_selection();
 }
 
 /******************************************************************************
@@ -776,7 +736,7 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 		axis->set_axis_length(_axis_length);
 	}
 
-	QRectF r = _selection_square->rect();
+	QRectF r = _selection_square->get_rect();
 
 	if (r.isNull() == false) {
 		/* if the selection rectangle exists, it must be unscaled (using
@@ -798,7 +758,6 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 		r.setTop(r.top() * _zoom_y);
 		r.setBottom(r.bottom() * _zoom_y);
 		// AG: don't do an update_rect here since it will change the current selection!
-		//_selection_square->update_rect(r);
 		_selection_square->update_rect_no_commit(r);
 	}
 }
@@ -905,7 +864,7 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 	}
 	
 	// It's time to refresh the current selection_square
-	update_selection_square();
+	_selection_square->update_position();
 }
 
 /******************************************************************************

@@ -7,6 +7,7 @@
 #ifndef __PVFULLPARALLELSCENE_h__
 #define __PVFULLPARALLELSCENE_h__
 
+#include <QFuture>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneWheelEvent>
@@ -15,12 +16,12 @@
 #include <picviz/PVView_types.h>
 
 #include <pvparallelview/PVBCIBackendImage_types.h>
-#include <pvparallelview/PVSelectionSquareGraphicsItem.h>
-#include <pvparallelview/PVSelectionGenerator.h>
+#include <pvparallelview/PVSelectionSquare.h>
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVSlidersManager.h>
+
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
@@ -29,7 +30,6 @@
 #include <tbb/atomic.h>
 #include <tbb/task_group.h>
 
-#include <QFuture>
 
 namespace tbb {
 class task;
@@ -41,6 +41,7 @@ class PVFullParallelScene : public QGraphicsScene
 {
 	Q_OBJECT
 
+	friend class PVSelectionSquare;
 	friend class draw_zone_Observer;
 	friend class draw_zone_sel_Observer;
 	friend class process_selection_Observer;
@@ -61,6 +62,12 @@ public:
 	void about_to_be_deleted();
 
 	PVFullParallelView* graphics_view() { return _full_parallel_view; }
+
+	PVParallelView::PVLinesView& get_lines_view() { return _lines_view; }
+	PVParallelView::PVLinesView const& get_lines_view() const { return _lines_view; }
+
+	Picviz::PVView& lib_view() { return _lib_view; }
+	Picviz::PVView const& lib_view() const { return _lib_view; }
 
 	void set_enabled(bool value)
 	{
@@ -125,10 +132,8 @@ private:
 
 	bool sliders_moving() const;
 
-	void process_selection();
-
-	Picviz::PVView& lib_view() { return _lib_view; }
-	Picviz::PVView const& lib_view() const { return _lib_view; }
+	void process_mouse_selection();
+	void process_key_selection();
 
 	void add_zone_image();
 	void add_axis(PVZoneID const zone_id, int index = -1);
@@ -144,13 +149,7 @@ private slots:
 	void update_selection_from_sliders_Slot(axis_id_t axis_id);
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
-	void commit_volatile_selection_Slot();
 
-	void clear_selection_square()
-	{
-		_selection_barycenter.clear();
-		_selection_square->clear_rect();
-	}
 	void emit_new_zoomed_parallel_view(int axis_index)
 	{
 		emit _full_parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
@@ -211,27 +210,6 @@ private:
 		}
 	};
 
-	struct SelectionBarycenter
-	{
-		SelectionBarycenter()
-		{
-			clear();
-		}
-
-		PVZoneID zone_id1;
-		PVZoneID zone_id2;
-		double factor1;
-		double factor2;
-
-		void clear()
-		{
-			zone_id1 = PVZONEID_INVALID;
-			zone_id2 = PVZONEID_INVALID;
-			factor1 = 0.0;
-			factor2 = 0.0;
-		}
-	};
-
 private:
 	typedef std::vector<PVParallelView::PVAxisGraphicsItem*> axes_list_t;
 
@@ -246,10 +224,7 @@ private:
 
 	PVFullParallelView* _full_parallel_view;
 
-	PVSelectionSquareGraphicsItem* _selection_square;
-	SelectionBarycenter _selection_barycenter;
-	PVParallelView::PVSelectionGenerator _selection_generator;
-	QPointF _selection_square_pos;
+	PVSelectionSquare* _selection_square;
 	qreal _translation_start_x = 0.0;
 
 	float           _zoom_y;
