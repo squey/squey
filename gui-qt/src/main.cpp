@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 
 	splash.showMessage(QObject::tr("Cleaning temporary files..."));
 	app.processEvents();
-	PVRush::PVNraw::remove_unused_nraw_directories();
+	//PVRush::PVNraw::remove_unused_nraw_directories();
 
 	splash.showMessage(QObject::tr("Finishing initialisation..."));
 	app.processEvents();
