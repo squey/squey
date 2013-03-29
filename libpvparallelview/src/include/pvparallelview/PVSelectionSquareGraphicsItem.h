@@ -53,10 +53,15 @@ public:
 		return rect().bottom();
 	}
 
-	void update_rect(const QRectF & rectangle)
+	void update_rect(const QRectF & rectangle, bool now = false)
 	{
 		setRect(rectangle);
-		handle_volatile_selection();
+		if (now) {
+			emit commit_volatile_selection();
+		}
+		else {
+			handle_volatile_selection();
+		}
 	}
 
 	void update_rect_no_commit(const QRectF & rectangle)
@@ -96,6 +101,7 @@ private:
 
 private:
 	QTimer* _volatile_selection_timer;
+	QPointF _selection_square_pos;
 };
 
 }

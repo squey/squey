@@ -28,21 +28,10 @@ struct PVLineEqInt
 	inline int operator()(int X, int Y) const { return a*X+b*Y+c; }
 };
 
-class PVSelectionGenerator
+struct PVSelectionGenerator
 {
-public:
-	PVSelectionGenerator(PVLinesView& lines_view):
-		_lines_view(lines_view)
-	{ }
-
-	uint32_t compute_selection_from_rect(PVZoneID zone_id, QRect rect, Picviz::PVSelection& sel);
-	uint32_t compute_selection_from_sliders(PVZoneID zone_id, const typename PVAxisGraphicsItem::selection_ranges_t& ranges, Picviz::PVSelection& sel);
-
-private:
-	inline PVZonesManager const& get_zones_manager() const { return _lines_view.get_zones_manager(); }
-
-private:
-	PVLinesView& _lines_view;
+	static uint32_t compute_selection_from_rect(PVLinesView& lines_view, PVZoneID zone_id, QRect rect, Picviz::PVSelection& sel);
+	static uint32_t compute_selection_from_sliders(PVLinesView& lines_view, PVZoneID zone_id, const typename PVAxisGraphicsItem::selection_ranges_t& ranges, Picviz::PVSelection& sel);
 };
 
 }

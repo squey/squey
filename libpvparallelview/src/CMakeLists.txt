@@ -50,6 +50,7 @@ simple_lines_int_view.cpp
 PVAxisLabel.cpp
 PVAxisGraphicsItem.cpp
 PVSelectionGenerator.cpp
+PVSelectionSquare.cpp
 PVLibView.cpp
 PVRenderingPipeline.cpp
 PVSlidersManager.cpp
@@ -131,6 +132,7 @@ include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
 include/pvparallelview/PVSelectionSquareGraphicsItem.h
+include/pvparallelview/PVSelectionSquare.h
 include/pvparallelview/PVZonesManager.h
 include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVSlidersGroup.h
