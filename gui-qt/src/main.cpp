@@ -14,6 +14,7 @@
 #include <QTextCodec>
 #include <QObject>
 #include <QWidget>
+#include <QSplashScreen>
 
 #include <PVMainWindow.h>
 #include <PVCustomStyle.h>
@@ -150,11 +151,26 @@ int main(int argc, char *argv[])
 
 	__check__t();
 
+	QSplashScreen splash(QPixmap(":/splash-screen"));
+	splash.show();
+	app.processEvents();
+
 #ifdef CUDA
+	splash.showMessage(QObject::tr("Initialising CUDA..."));
+	app.processEvents();
 	PVParallelView::common::init_cuda();
 #endif
+	splash.showMessage(QObject::tr("Loading plugins..."));
+	app.processEvents();
 	Picviz::common::load_filters();
 	PVGuiQt::common::register_displays();
+
+	splash.showMessage(QObject::tr("Cleaning temporary files..."));
+	app.processEvents();
+	PVRush::PVNraw::remove_unused_nraw_directories();
+
+	splash.showMessage(QObject::tr("Finishing initialisation..."));
+	app.processEvents();
 
 	//app.setStyle(new PVInspector::PVCustomStyle());
 	PVInspector::PVMainWindow* pv_mw = new PVInspector::PVMainWindow();
@@ -204,6 +220,7 @@ int main(int argc, char *argv[])
 	app.installEventFilter(new DisplaysFocusInEventFilter());
 
 	pv_mw->show();
+	splash.finish(pv_mw);
 
 	if (vm.count("project")) {
 		QString prj_path = QString::fromLocal8Bit(vm["project"].as<std::string>().c_str());
