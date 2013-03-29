@@ -557,8 +557,10 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 		return;
 
 	}
-	//Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(src_desc);
-	load_source(src_p);
+
+	if (!load_source(src_p.get())) {
+		remove_source(src_p.get());
+	}
 }
 
 /******************************************************************************

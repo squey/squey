@@ -15,7 +15,6 @@
 #include <QLine>
 #include <QMenuBar>
 #include <QMessageBox>
-#include <QSplashScreen>
 #include <QStatusBar>
 #include <QVBoxLayout>
 
@@ -89,16 +88,11 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	// OBJECTNAME STUFF
 	setObjectName("PVMainWindow");
 	
-	// SPLASH SCREEN : we create the Splash screen
-	QSplashScreen splash(QPixmap(":/splash-screen"));
 
 	// License validity test : it's a simple "time" check
 	if (time(NULL) >= CUSTOMER_RELEASE_EXPIRATION_DATE) {
 		exit(0);
 	}
-	
-	//We can show the Splash Screen
-	splash.show();
 
 	//setWindowFlags(Qt::FramelessWindowHint);
 
@@ -194,9 +188,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QString css_string(css_stream.readAll());
 	css_file.close();
 	setStyleSheet(css_string);
-
-	splash.showMessage("cleaning temporary files");
-	PVRush::PVNraw::remove_unused_nraw_directories();
 
 	show();
 }
@@ -820,14 +811,14 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		PVRush::PVControllerJob_p job_import;
 		PVRush::PVFormat const& cur_format = fc.first;
 
-		Picviz::PVSource_sp import_source;
+		Picviz::PVSource* import_source;
 		try {
 			if (_projects_tab_widget->projects_count() == 0) {
 				project_new_Slot();
 			}
 			PVRush::PVSourceDescription src_desc(inputs, fc.second, cur_format);
 			Picviz::PVScene_p scene_p = current_scene()->shared_from_this();
-			import_source = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc);
+			import_source = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc).get();
 			import_source->set_invalid_elts_mode(save_inv_elts);
 		}
 		catch (PVRush::PVFormatException const& e) {
@@ -836,6 +827,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		}
 
 		if (!load_source(import_source)) {
+			remove_source(import_source);
 			continue;
 		}
 		//import_source->set_parent(_scene);
@@ -1591,7 +1583,8 @@ bool PVInspector::PVMainWindow::load_scene(Picviz::PVScene* scene)
 {
 	// Here, load the whole scene.
 	for (auto source_p : scene->get_children<Picviz::PVSource>()) {
-		if (!load_source(source_p)) {
+		if (!load_source(source_p.get())) {
+			remove_source(source_p.get());
 			return false;
 		}
 	}
@@ -1628,12 +1621,12 @@ void PVInspector::PVMainWindow::display_inv_elts()
  * PVInspector::PVMainWindow::load_source
  *
  *****************************************************************************/
-bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
+bool PVInspector::PVMainWindow::load_source(Picviz::PVSource* src)
 {
 	// Load a created source
 
 	if (src->get_children<Picviz::PVMapped>().size() == 0) {
-		Picviz::PVMapped_p default_mapped(src);
+		Picviz::PVMapped_p default_mapped(src->shared_from_this());
 	}
 
 	// Extract the source
@@ -1676,12 +1669,12 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 	// keeping the existing layers !
 	bool success = true;
 	if (src->get_children<Picviz::PVView>().size() == 0) {
-		if (!PVCore::PVProgressBox::progress(boost::bind<void>(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
+		if (!PVCore::PVProgressBox::progress(boost::bind<void>(&Picviz::PVSource::create_default_view, src), tr("Processing..."), (QWidget*) this)) {
 			success = false;
 		}
 	}
 	else {
-		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVSource::process_from_source, src.get()), tr("Processing..."), (QWidget*) this)) {
+		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVSource::process_from_source, src), tr("Processing..."), (QWidget*) this)) {
 			success = false;
 		}
 	}
@@ -1690,7 +1683,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 		return false;
 	}
 
-	_projects_tab_widget->add_source(src.get());
+	_projects_tab_widget->add_source(src);
 
 	if (src->get_children<Picviz::PVView>().size() > 0) {
 		Picviz::PVView_sp first_view_p = src->get_children<Picviz::PVView>().at(0);
@@ -1713,6 +1706,26 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_sp src)
 	return true;
 }
 
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::remove_source
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::remove_source(Picviz::PVSource* src_p)
+{
+	Picviz::PVScene_sp scene_p = src_p->get_parent()->shared_from_this();
+
+	scene_p->remove_child(src_p->shared_from_this());
+	if (scene_p->get_children().size() == 0) {
+		PVGuiQt::PVSceneWorkspacesTabWidget *tab =
+			_projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get());
+		if (tab != nullptr) {
+			_projects_tab_widget->remove_project(tab);
+			tab->deleteLater();
+		}
+		get_root().remove_child(scene_p->shared_from_this());
+	}
+}
 
 /******************************************************************************
  *

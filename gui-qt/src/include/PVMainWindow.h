@@ -157,6 +157,9 @@ public:
 	bool maybe_save_solution();
 
 protected:
+	void remove_source(Picviz::PVSource* src_p);
+
+protected:
 	bool event(QEvent* event) override;
 
 public slots:
@@ -263,7 +266,7 @@ private:
 	}
 	bool load_root();
 	bool load_scene(Picviz::PVScene* scene);
-	bool load_source(Picviz::PVSource_sp src);
+	bool load_source(Picviz::PVSource* src);
 	bool fix_project_errors(boost::shared_ptr<PVCore::PVSerializeArchive> ar);
 
 private:
