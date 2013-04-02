@@ -17,7 +17,7 @@ PVWidgets::PVNewLayerDialog::PVNewLayerDialog(const QString& layer_name, bool hi
 	_text = new QLineEdit(layer_name);
 	_text->setSelection(0, layer_name.length());
 	label->setBuddy(_text);
-	_checkbox = new QCheckBox("Hide visible layers");
+	_checkbox = new QCheckBox("Hide all other layers");
 	_checkbox->setChecked(hide_layers);
 
 	QDialogButtonBox* button_box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
