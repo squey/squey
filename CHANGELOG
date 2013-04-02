@@ -17,7 +17,8 @@ This minor release add the following features:
 This minor release fixes:
 
  * fix regression: axis combination configuration in format builder works again
- * fix regression: display supported minimimum values in the full parallel view on demand ('y' shortcut by default)
+ * fix regression: display supported minimimum and maximum values in the full
+   parallel view on demand ('y' shortcut by default)
  * fix regression: rectangular selection is movable with keyboard shortcuts in the full parallel view
  * fix default time mapping
  * list unique values widget hung when number of values is >75 000 000
