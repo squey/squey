@@ -4,13 +4,18 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
+#include <pvkernel/core/lambda_connect.h>
 #include <pvkernel/core/PVProgressBox.h>
+
+#include <QApplication>
+#include <QStyle>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QLabel>
 #include <QWidget>
 #include <QTimer>
+#include <QMessageBox>
 
 /******************************************************************************
  *
@@ -52,17 +57,33 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget *parent, Qt::WindowFla
 	widgetCancel = new QWidget(this);
 	layoutCancel = new QHBoxLayout();
 	widgetCancel->setLayout(layoutCancel);
-	_btnCancel = new QPushButton(QString(tr("Cancel")));
+	_btnCancel2 = new QPushButton(QApplication::style()->standardIcon(QStyle::SP_DialogOkButton), QString(tr("")));
+	_btnCancel = new QPushButton(QApplication::style()->standardIcon(QStyle::SP_DialogCancelButton), QString(tr("Cancel")));
+	_btnCancel2->setVisible(false);
 	layoutCancel->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
+	layoutCancel->addWidget(_btnCancel2);
 	layoutCancel->addWidget(_btnCancel);
 		
 	//layout->addItem(layoutCancel);
 	layout->addWidget(widgetCancel);
-	connect(_btnCancel,SIGNAL(clicked()),this,SLOT(reject()));
+	::connect(_btnCancel, SIGNAL(clicked()), [&]{_cancel_state = CANCEL; cancel();});
+	::connect(_btnCancel2, SIGNAL(clicked()), [&]{_cancel_state = CANCEL2; cancel();});
 
 	setWindowTitle(msg);
 
 	_status = 0;
+}
+
+void PVCore::PVProgressBox::cancel()
+{
+	if (_need_confirmation) {
+		QMessageBox confirm(QMessageBox::Question, tr("Confirm"), tr("Are you sure?"), QMessageBox::Yes | QMessageBox::No);
+		connect(this, SIGNAL(accepted()), &confirm, SLOT(accept()));
+		if (confirm.exec() == QMessageBox::No) {
+			return;
+		}
+	}
+	reject();
 }
 
 void PVCore::PVProgressBox::launch_timer_status()
@@ -101,6 +122,12 @@ void PVCore::PVProgressBox::update_status_Slot()
 void PVCore::PVProgressBox::set_cancel_btn_text(QString const& str)
 {
 	_btnCancel->setText(str);
+}
+
+void PVCore::PVProgressBox::set_cancel2_btn_text(QString const& str)
+{
+	_btnCancel2->setVisible(true);
+	_btnCancel2->setText(str);
 }
 
 /******************************************************************************

@@ -40,6 +40,10 @@ signals:
 class LibKernelDecl PVProgressBox: public QDialog
 {
 	Q_OBJECT
+
+public:
+	enum CancelState { CANCEL, CANCEL2 };
+
 public:
 	PVProgressBox (QString msg, QWidget * parent = 0, Qt::WindowFlags f = 0, QString const& format_detail = QString());
 	/**
@@ -51,6 +55,9 @@ public:
 	void set_enable_cancel(bool cancel);
 	void set_extended_status(QString const& str);
 	void set_cancel_btn_text(QString const& str);
+	void set_cancel2_btn_text(QString const& str);
+	CancelState get_cancel_state() { return _cancel_state; }
+	void set_confirmation(bool confirm) { _need_confirmation = confirm; }
 
 private:
 	template <class F>
@@ -150,15 +157,21 @@ private:
 	static bool process_worker_thread(__impl::ThreadEndSignal* watcher, boost::thread& worker, PVProgressBox* pbox, tbb::task_group_context& ctxt);
 
 private:
+	void cancel();
+
+private:
 	QLabel *message;
 	QProgressBar *progress_bar;
 	int _status;
 	QPushButton *_btnCancel;
+	QPushButton *_btnCancel2;
 	QString _format_detail;
 	QString _extended_status;
 	QLabel* _detail_label;
 	QLabel* _extended_detail_label;
 	QMutex _ext_str_mutex;
+	CancelState _cancel_state = CANCEL;
+	bool _need_confirmation = false;
 };
 
 }
