@@ -25,10 +25,17 @@ class PVMappingFilterIntegerDefault: public PVPureMappingFilter<integer_mapping>
 	friend class integer_mapping;
 
 public:
-	PVMappingFilterIntegerDefault(PVCore::PVArgumentList const& args = PVMappingFilterIntegerDefault::default_args());
+	PVMappingFilterIntegerDefault(bool signed_, PVCore::PVArgumentList const& args = PVMappingFilterIntegerDefault::default_args());
 
 public:
-	QString get_human_name() const override { return QString("default"); }
+	QString get_human_name() const override
+	{
+		if (_signed) {
+			return QString("Signed decimal");
+		} else {
+			return QString("Unsigned decimal");
+		}
+	}
 	PVCore::DecimalType get_decimal_type() const override;
 	void set_args(PVCore::PVArgumentList const& args) override;
 
