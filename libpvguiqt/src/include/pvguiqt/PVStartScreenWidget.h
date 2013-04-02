@@ -111,6 +111,9 @@ private:
 	 */
 	descr_strings_t get_strings_from_source_description(const QVariant& var);
 
+	void clear_category(PVCore::PVRecentItemsManager::Category cat);
+
+
 private:
 	QWidget* format_widget;
 	QWidget* import_widget;

@@ -79,13 +79,14 @@ public:
 	 */
 	void add_source(PVRush::PVSourceCreator_p source_creator_p, const PVRush::PVInputType::list_inputs& inputs, const PVRush::PVFormat& format);
 
-	/*! \brief Return the recent items for a given category as a list of QVariant.
+	/*! \brief Return a source description from the settings current group.
 	 */
 	const variant_list_t get_list(Category category);
 
+	void clear(Category category);
+
 private:
-	/*! \brief Return a source description from the settings current group.
-	 */
+	void clear_source();
 	PVRush::PVSourceDescription deserialize_source_description() const;
 
 	/*! \brief Get the best source timestamp to replace (oldest, matching the same source description or 0).
