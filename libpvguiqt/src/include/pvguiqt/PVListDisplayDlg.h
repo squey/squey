@@ -17,6 +17,8 @@
 
 namespace PVGuiQt {
 
+class PVStringSortProxyModel;
+
 class PVListDisplayDlg: public QDialog, Ui::PVListDisplayDlg
 {
 	Q_OBJECT
@@ -28,13 +30,15 @@ public:
 	void set_description(QString const& desc);
 
 protected:
-	inline QAbstractListModel* model() { return _model; }
+	QAbstractListModel* model();
+	PVStringSortProxyModel* proxy_model();
 
 private slots:
 	void copy_to_clipboard();
 	void copy_value_clipboard();
 	void copy_to_file() { write_to_file_ui(false); }
 	void append_to_file() { write_to_file_ui(true); }
+	void sort();
 
 private:
 	void write_to_file_ui(bool append);
@@ -42,7 +46,6 @@ private:
 	bool write_values(QDataStream* stream);
 
 private:
-	QAbstractListModel* _model;
 	QFileDialog _file_dlg;
 };
 
