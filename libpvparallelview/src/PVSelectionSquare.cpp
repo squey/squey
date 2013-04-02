@@ -13,7 +13,7 @@ PVParallelView::PVSelectionSquare::PVSelectionSquare(PVFullParallelScene* s) :
 	_selection_graphics_item(new PVSelectionSquareGraphicsItem((QGraphicsScene*)s))
 {
 	_selection_graphics_item->hide();
-	connect(_selection_graphics_item, SIGNAL(commit_volatile_selection()), this, SLOT(commit()));
+	connect(_selection_graphics_item, SIGNAL(commit_volatile_selection(bool)), this, SLOT(commit(bool)));
 }
 
 void PVParallelView::PVSelectionSquare::begin(int x, int y)
@@ -22,13 +22,20 @@ void PVParallelView::PVSelectionSquare::begin(int x, int y)
 	_selection_graphics_item->show();
 }
 
-void PVParallelView::PVSelectionSquare::end(int x, int y, bool now /*= false */)
+void PVParallelView::PVSelectionSquare::end(int x, int y, bool use_selection_modifiers /* = true */, bool now /*= false */)
 {
-	qreal xF = qreal(x);
-	qreal yF = qreal(y);
-	QPointF top_left(qMin(_selection_graphics_item_pos.x(), xF), qMin(_selection_graphics_item_pos.y(), yF));
-	QPointF bottom_right(qMax(_selection_graphics_item_pos.x(), xF), qMax(_selection_graphics_item_pos.y(), yF));
-	_selection_graphics_item->update_rect(QRectF(top_left, bottom_right), now);
+	if (_selection_graphics_item_pos != QPointF(x, y)) {
+		qreal xF = qreal(x);
+		qreal yF = qreal(y);
+		QPointF top_left(qMin(_selection_graphics_item_pos.x(), xF), qMin(_selection_graphics_item_pos.y(), yF));
+		QPointF bottom_right(qMax(_selection_graphics_item_pos.x(), xF), qMax(_selection_graphics_item_pos.y(), yF));
+		_selection_graphics_item->update_rect(QRectF(top_left, bottom_right), use_selection_modifiers, now);
+	}
+	else {
+		clear();
+		lib_view().get_volatile_selection().select_none();
+		scene_parent()->process_selection(false);
+	}
 }
 
 void PVParallelView::PVSelectionSquare::clear()
@@ -37,7 +44,7 @@ void PVParallelView::PVSelectionSquare::clear()
 	_selection_graphics_item->clear_rect();
 }
 
-void PVParallelView::PVSelectionSquare::commit()
+void PVParallelView::PVSelectionSquare::commit(bool use_selection_modifiers)
 {
 	_selection_graphics_item->finished();
 	QRectF srect = _selection_graphics_item->rect();
@@ -65,12 +72,7 @@ void PVParallelView::PVSelectionSquare::commit()
 
 	store();
 
-	if (_mouse) {
-		scene_parent()->process_mouse_selection();
-	}
-	else {
-		scene_parent()->process_key_selection();
-	}
+	scene_parent()->process_selection(use_selection_modifiers);
 }
 
 void PVParallelView::PVSelectionSquare::store()
@@ -121,25 +123,19 @@ void PVParallelView::PVSelectionSquare::update_position()
 
 void PVParallelView::PVSelectionSquare::move_by(qreal hstep, qreal vstep)
 {
-	_mouse = false;
-
 	qreal width = _selection_graphics_item->rect().width();
 	qreal height = _selection_graphics_item->rect().height();
 	qreal x = _selection_graphics_item->rect().x();
 	qreal y = _selection_graphics_item->rect().y();
 
 	begin(x+hstep, y+vstep);
-	end(x+hstep+width, y+vstep+height, true);
-
-	_mouse = true;
+	end(x+hstep+width, y+vstep+height, false);
 }
 
 void PVParallelView::PVSelectionSquare::grow_by(qreal hratio, qreal vratio)
 {
-	_mouse = false;
-
-	qreal width = _selection_graphics_item->rect().width();
-	qreal height = _selection_graphics_item->rect().height();
+	qreal width = std::max((qreal)1, _selection_graphics_item->rect().width());
+	qreal height = std::max((qreal)1,_selection_graphics_item->rect().height());
 	qreal x = _selection_graphics_item->rect().x();
 	qreal y = _selection_graphics_item->rect().y();
 
@@ -147,9 +143,7 @@ void PVParallelView::PVSelectionSquare::grow_by(qreal hratio, qreal vratio)
 	qreal voffset = (height-height*vratio);
 
 	begin(x-hoffset/2, y-voffset/2);
-	end(x+hoffset+width, y+voffset+height, true);
-
-	_mouse = true;
+	end(x+hoffset+width, y+voffset+height, false);
 }
 
 QRectF PVParallelView::PVSelectionSquare::get_rect()

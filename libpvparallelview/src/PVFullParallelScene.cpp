@@ -322,7 +322,7 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
 		event->accept();
 	}
 	else if (!sliders_moving()) {
-		_selection_square->commit();
+		_selection_square->end(event->scenePos().x(), event->scenePos().y(), true, true);
 		event->accept();
 	}
 
@@ -347,7 +347,7 @@ int32_t PVParallelView::PVFullParallelScene::pos_last_axis() const
  * PVParallelView::PVFullParallelScene::process_selection
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::process_mouse_selection()
+void PVParallelView::PVFullParallelScene::process_selection(bool use_modifiers /*= true*/)
 {
 	unsigned int modifiers = (unsigned int) QApplication::keyboardModifiers();
 	/* We don't care about a keypad button being pressed */
@@ -355,30 +355,18 @@ void PVParallelView::PVFullParallelScene::process_mouse_selection()
 
 	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier aren't really
 	 * constants */
-	if (modifiers == (unsigned int) (Qt::ShiftModifier | Qt::ControlModifier)) {
+	if (use_modifiers && modifiers == (unsigned int) (Qt::ShiftModifier | Qt::ControlModifier)) {
 		_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	}
-	else
-	if (modifiers == Qt::ControlModifier) {
+	else if (use_modifiers && modifiers == Qt::ControlModifier) {
 		_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 	}
-	else
-	if (modifiers == Qt::ShiftModifier) {
+	else if (use_modifiers && modifiers == Qt::ShiftModifier) {
 		_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
 	}
 	else {
 		_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	}
-
-	/* Commit the previous volatile selection */
-	_view_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
-
-	_view_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
-}
-
-void PVParallelView::PVFullParallelScene::process_key_selection()
-{
-	_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 
 	/* Commit the previous volatile selection */
 	_view_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
@@ -705,7 +693,7 @@ void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axi
 	    lib_view().get_volatile_selection()
 	);
 
-	process_mouse_selection();
+	process_selection();
 }
 
 /******************************************************************************
