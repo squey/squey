@@ -59,9 +59,10 @@ public:
 
 public:
 	void begin(int x, int y);
-	void end(int x, int y, bool now = false);
+	void end(int x, int y, bool use_selection_modifiers = true, bool now = false);
 	void update_position();
 	void clear();
+
 	void update_rect_no_commit(const QRectF& r);
 	QRectF get_rect();
 
@@ -86,7 +87,7 @@ private:
 	void grow_by(qreal hratio, qreal vratio);
 
 public slots:
-	void commit();
+	void commit(bool use_selection_modifiers);
 
 private:
 	void store();
@@ -104,7 +105,6 @@ private:
 	PVSelectionSquareGraphicsItem* _selection_graphics_item;
 	__impl::PVSelectionBarycenter _selection_barycenter;
 	QPointF _selection_graphics_item_pos;
-	bool _mouse = true;
 };
 
 }

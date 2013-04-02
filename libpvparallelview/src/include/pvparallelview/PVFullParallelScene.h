@@ -133,8 +133,7 @@ private:
 
 	bool sliders_moving() const;
 
-	void process_mouse_selection();
-	void process_key_selection();
+	void process_selection(bool use_modifiers = true);
 
 	void add_zone_image();
 	void add_axis(PVZoneID const zone_id, int index = -1);

@@ -53,11 +53,12 @@ public:
 		return rect().bottom();
 	}
 
-	void update_rect(const QRectF & rectangle, bool now = false)
+	void update_rect(const QRectF & rectangle, bool use_selection_modifiers = true, bool now = false)
 	{
+		_use_selection_modifiers = use_selection_modifiers;
 		setRect(rectangle);
 		if (now) {
-			emit commit_volatile_selection();
+			emit commit_volatile_selection(use_selection_modifiers);
 		}
 		else {
 			handle_volatile_selection();
@@ -78,13 +79,13 @@ public:
 	}
 
 signals:
-	void commit_volatile_selection();
+	void commit_volatile_selection(bool use_selection_modifiers);
 
 private slots:
 	void volatile_selection_timeout_Slot()
 	{
 		finished();
-		emit commit_volatile_selection();
+		emit commit_volatile_selection(_use_selection_modifiers);
 	}
 
 private:
@@ -102,6 +103,7 @@ private:
 private:
 	QTimer* _volatile_selection_timer;
 	QPointF _selection_square_pos;
+	bool _use_selection_modifiers = true;
 };
 
 }
