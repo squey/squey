@@ -19,6 +19,9 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 
+class QScrollArea;
+class QGroupBox;
+
 namespace Picviz {
 class PVMapping;
 class PVPlotting;
@@ -52,9 +55,12 @@ private:
 	QGridLayout* _main_grid;
 	QVBoxLayout* _main_layout;
 	QLineEdit* _edit_name;
+	QScrollArea* _main_scroll_area;
+	QGroupBox* _main_group_box;
 	Picviz::PVMapping* _mapping;
 	Picviz::PVPlotting* _plotting;
 	const Picviz::PVAxesCombination::list_axes_t* _axes;
+
 };
 
 }
