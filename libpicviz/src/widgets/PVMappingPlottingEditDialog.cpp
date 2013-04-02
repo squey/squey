@@ -23,7 +23,7 @@
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QScrollArea>
-
+#include <QScrollBar>
 
 
 /******************************************************************************
@@ -61,6 +61,9 @@ PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Picviz::PVMa
 	load_settings();
 	// We can set the layout in the Widget
 	finish_layout();
+
+	// Adapt scroll area width so that everything fits in (closes #0x100)
+	_main_group_box->setMinimumWidth(_main_scroll_area->viewport()->width());
 }
 
 
@@ -123,7 +126,6 @@ void PVWidgets::PVMappingPlottingEditDialog::init_layout()
 {
 	PVLOG_DEBUG("PVWidgets::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
 	
-	// We need a QVBoxLayout for that Widget
 	_main_layout = new QVBoxLayout();
 	_main_layout->setSpacing(29);
 
@@ -154,16 +156,17 @@ void PVWidgets::PVMappingPlottingEditDialog::init_layout()
 		_main_grid->addWidget(create_label(tr("Plotting")), row, col);
 		col++;
 	}
-	QScrollArea* scroll_area = new QScrollArea();
-	scroll_area->setWidget(grid_widget);
-	scroll_area->setWidgetResizable(true);
+	_main_scroll_area = new QScrollArea();
+	_main_scroll_area->setWidget(grid_widget);
+	_main_scroll_area->setWidgetResizable(true);
 
 	QVBoxLayout* scroll_layout = new QVBoxLayout();
-	scroll_layout->addWidget(scroll_area);
+	scroll_layout->addWidget(_main_scroll_area);
 
-	QGroupBox* box = new QGroupBox(tr("Parameters"));
-	box->setLayout(scroll_layout);
-	_main_layout->addWidget(box);
+	_main_group_box = new QGroupBox(tr("Parameters"));
+	_main_group_box->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+	_main_group_box->setLayout(scroll_layout);
+	_main_layout->addWidget(_main_group_box);
 
 	setLayout(_main_layout);
 }
