@@ -243,8 +243,54 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		reset_zones_layout_to_default();
 		update_all_with_timer();
 		event->accept();
-	} else {
-		QGraphicsScene::keyPressEvent(event);
+	}
+	else if (event->key() == Qt::Key_Left) {
+		if (event->modifiers() & Qt::ShiftModifier) {
+			_selection_square->grow_horizontally();
+		}
+		else if (event->modifiers() & Qt::ControlModifier) {
+			_selection_square->move_left_by_width();
+		}
+		else {
+			_selection_square->move_left_by_step();
+		}
+		event->accept();
+	}
+	else if (event->key() == Qt::Key_Right) {
+		if (event->modifiers() & Qt::ShiftModifier) {
+			_selection_square->shrink_horizontally();
+		}
+		else if (event->modifiers() & Qt::ControlModifier) {
+			_selection_square->move_right_by_width();
+		}
+		else {
+			_selection_square->move_right_by_step();
+		}
+		event->accept();
+	}
+	else if (event->key() == Qt::Key_Up) {
+		if (event->modifiers() & Qt::ShiftModifier) {
+			_selection_square->grow_vertically();
+		}
+		else if (event->modifiers() & Qt::ControlModifier) {
+			_selection_square->move_up_by_height();
+		}
+		else {
+			_selection_square->move_up_by_step();
+		}
+		event->accept();
+	}
+	else if (event->key() == Qt::Key_Down) {
+		if (event->modifiers() & Qt::ShiftModifier) {
+			_selection_square->shrink_vertically();
+		}
+		else if (event->modifiers() & Qt::ControlModifier) {
+			_selection_square->move_down_by_height();
+		}
+		else {
+			_selection_square->move_down_by_step();
+		}
+		event->accept();
 	}
 }
 
