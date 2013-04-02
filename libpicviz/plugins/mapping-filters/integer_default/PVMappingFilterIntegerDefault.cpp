@@ -6,9 +6,10 @@
 
 #include "PVMappingFilterIntegerDefault.h"
 
-Picviz::PVMappingFilterIntegerDefault::PVMappingFilterIntegerDefault(PVCore::PVArgumentList const& args):
+Picviz::PVMappingFilterIntegerDefault::PVMappingFilterIntegerDefault(bool signed_,
+                                                                     PVCore::PVArgumentList const& args):
 	PVPureMappingFilter<integer_mapping>(),
-	_signed(true) // This will be changed by set_args anyway
+	_signed(signed_)
 {
 	INIT_FILTER(PVMappingFilterIntegerDefault, args);
 }
@@ -16,14 +17,12 @@ Picviz::PVMappingFilterIntegerDefault::PVMappingFilterIntegerDefault(PVCore::PVA
 DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterIntegerDefault)
 {
 	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey("signed", "Signed integers")].setValue<bool>(true);
 	return args;
 }
 
 void Picviz::PVMappingFilterIntegerDefault::set_args(PVCore::PVArgumentList const& args)
 {
 	Picviz::PVMappingFilter::set_args(args);
-	_signed = args["signed"].toBool();
 }
 
 PVCore::DecimalType Picviz::PVMappingFilterIntegerDefault::get_decimal_type() const
