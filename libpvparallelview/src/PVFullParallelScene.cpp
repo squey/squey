@@ -247,9 +247,6 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		}
 		event->accept();
 	}
-	else {
-		QGraphicsScene::keyPressEvent(event);
-	}
 }
 
 /******************************************************************************
