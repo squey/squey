@@ -14,5 +14,6 @@
 LibCPPExport void register_class()
 {
 	// Register under the name "type_format"
-	REGISTER_CLASS("integer_default", Picviz::PVMappingFilterIntegerDefault);
+	REGISTER_CLASS_WITH_ARGS("integer_default", Picviz::PVMappingFilterIntegerDefault, true);
+	REGISTER_CLASS_WITH_ARGS("integer_unsigned", Picviz::PVMappingFilterIntegerDefault, false);
 }
