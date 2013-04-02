@@ -801,7 +801,7 @@ private:
 
 private:
 	inline PVColumn& get_col(uint64_t col) { assert(col < _columns.size()); return _columns[col]; }
-	static bool merge_tls(unique_values_t& ret, tbb::enumerable_thread_specific<unique_values_t>& tbb_qset);
+	static bool merge_tls(unique_values_t& ret, tbb::enumerable_thread_specific<unique_values_t>& tbb_qset, tbb::task_group_context* ctxt);
 
 private:
 	std::string _nraw_folder;

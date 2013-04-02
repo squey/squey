@@ -7,6 +7,9 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVAlgorithms.h>
+#include <pvkernel/core/PVHardwareConcurrency.h>
+#include <pvkernel/core/picviz_bench.h>
 
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVView.h>
@@ -19,6 +22,7 @@
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVQNraw.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
+#include <pvguiqt/PVToolTipDelegate.h>
 
 #include <pvdisplays/PVDisplaysContainer.h>
 #include <pvdisplays/PVDisplaysImpl.h>
@@ -34,6 +38,70 @@
 #include <QStatusBar>
 #include <QMenu>
 #include <QWheelEvent>
+
+#define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
+#include <tbb/parallel_reduce.h>
+#include <tbb/task_scheduler_init.h>
+
+namespace PVGuiQt
+{
+
+namespace __impl
+{
+
+class PVListingViewSelectionExtractor
+{
+public:
+	typedef tbb::blocked_range<int> blocked_range;
+
+	PVListingViewSelectionExtractor(PVGuiQt::PVListingView *lv) : _lv(lv)
+	{}
+
+	PVListingViewSelectionExtractor(PVListingViewSelectionExtractor& e, tbb::split) :
+		_lv(e._lv)
+	{}
+
+	Picviz::PVSelection &get_selection()
+	{
+		return _sel;
+	}
+
+	void operator()(const blocked_range &r)
+	{
+		const PVGuiQt::PVListingSortFilterProxyModel* list_model = _lv->get_listing_model();
+		QItemSelectionModel *sel_model = _lv->selectionModel();
+
+		_sel.select_none();
+
+		_min = INT_MAX;
+		_max = 0;
+		for (int i = r.begin(); i < r.end(); ++i) {
+			QModelIndex index = list_model->index(i, 0, QModelIndex());
+			if (sel_model->isSelected(index)) {
+				int row_index = list_model->mapToSource(index).row();
+				_min = PVCore::min(_min, row_index);
+				_max = PVCore::max(_max, row_index);
+				_sel.set_bit_fast(row_index);
+			}
+		}
+	}
+
+	void join(PVListingViewSelectionExtractor &rhs)
+	{
+		_sel.or_range(rhs._sel, rhs._min, rhs._max);
+		_min = PVCore::min(_min, rhs._min);
+		_max = PVCore::max(_max, rhs._max);
+	}
+
+private:
+	PVGuiQt::PVListingView *_lv;
+	Picviz::PVSelection     _sel;
+	int                     _min, _max;
+};
+
+}
+
+}
 
 /******************************************************************************
  *
@@ -64,14 +132,18 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	verticalHeader()->setObjectName("verticalHeader_of_PVListingView");
 	horizontalScrollBar()->setObjectName("horizontalScrollBar_of_PVListingView");
 	verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
-	
+
+	setItemDelegate(new PVToolTipDelegate(this));
+
 	// FOCUS POLICY
 	setFocusPolicy(Qt::StrongFocus);
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setSelectionBehavior(QAbstractItemView::SelectRows);
 
+	horizontalHeader()->setStretchLastSection(true);
+
 	// Sorting
-	setSortingEnabled(false);
+	setSortingEnabled(true);
 	
 	// Custom context menu.
 	// It is created based on what layer filter plugins tell us.
@@ -115,6 +187,9 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 
 	// A double click on the vertical header select the line in the lib view
 	connect(verticalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnVHead(int)));
+
+	// Save horizontal headers width to be persistent across axes combination changes
+	connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(columnResized(int, int, int)));
 }
 
 /******************************************************************************
@@ -142,7 +217,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	}
 	else
-	if (modifiers == Qt::ControlModifier) {	
+	if (modifiers == Qt::ControlModifier) {
 		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 	}
 	else
@@ -155,11 +230,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 
 	/* We define the volatile_selection using selection in the listing */
 	Picviz::PVSelection& vsel = lib_view().get_volatile_selection();
-	vsel.select_none();
-	QVector<PVRow> selected_rows_vector = get_selected_rows();
-	foreach (PVRow line, selected_rows_vector) {
-		vsel.set_bit_fast(line);
-	}
+	extract_selection(vsel);
 
 	/* We reprocess the view from the selection */
 	_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
@@ -174,12 +245,18 @@ void PVGuiQt::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
 {
 	// Here is the reference:
 	// * if a double click is made on a line, then this line is selected in the table view *and* in the lib view
-	if (selectedIndexes().size() > 0) {
+	if (selectionModel()->hasSelection()) {
 		update_view_selection_from_listing_selection();
 	}
 	else {
 		QTableView::mouseDoubleClickEvent(event);
 	}
+}
+
+void PVGuiQt::PVListingView::resizeEvent(QResizeEvent * event)
+{
+	QTableView::resizeEvent(event);
+	emit resized();
 }
 
 /******************************************************************************
@@ -202,6 +279,27 @@ QVector<PVRow> PVGuiQt::PVListingView::get_selected_rows()
 	}
 
 	return selected_rows_vector;
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::extract_selection
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::extract_selection(Picviz::PVSelection &sel)
+{
+	typedef __impl::PVListingViewSelectionExtractor tvse_t;
+
+	int thread_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	tbb::task_scheduler_init init(thread_num);
+	int count = model()->rowCount(QModelIndex());
+	tvse_t tvse(this);
+	BENCH_START(sel_create);
+	tbb::parallel_deterministic_reduce(tvse_t::blocked_range(0, count,
+	                                                         count / thread_num),
+	                                   tvse);
+	BENCH_END(sel_create, "extract_selection", 1, 1, 1, 1);
+	sel = tvse.get_selection();
 }
 
 /******************************************************************************
@@ -246,7 +344,7 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 	switch (event->key()) {
 		case Qt::Key_Return:
 		case Qt::Key_Enter:
-			if (selectedIndexes().size() > 0) {
+			if (selectionModel()->hasSelection()) {
 				update_view_selection_from_listing_selection();
 			}
 			break;
@@ -272,10 +370,36 @@ void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 	{
 		int colIndex = columnAt(e->pos().x());
 		int d = e->delta() / 12;
-		setColumnWidth(colIndex, columnWidth(colIndex) + d);
+		uint32_t width = std::max(columnWidth(colIndex) + d, horizontalHeader()->minimumSectionSize());
+		setColumnWidth(colIndex, width);
+		_headers_width[lib_view().get_real_axis_index(colIndex)] = width;
 	}
 	else {
 		QTableView::wheelEvent(e);
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::columnResized
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::columnResized(int column, int /*oldWidth*/, int newWidth)
+{
+	_headers_width[lib_view().get_real_axis_index(column)] = newWidth;
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::reset
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::reset()
+{
+	uint32_t default_width = horizontalHeader()->defaultSectionSize();
+	for (int i = 0; i <  horizontalHeader()->count(); i++) {
+		uint32_t axis_index = lib_view().get_real_axis_index(i);
+		setColumnWidth(i, _headers_width[axis_index] ? _headers_width[axis_index] : default_width);
 	}
 }
 

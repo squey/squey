@@ -95,6 +95,9 @@
 	
 	<!-- ABOUT BOX -->
 	<file alias="logo3d">resources/logo.obj</file>
+	
+	<!-- LOADING STUFF -->
+	<file alias="picviz-loading-animation">resources/picviz_loading_animation.gif</file>
 
 	<!-- QSCROLLBAR ICONS -->
 	<file alias="horizontal-scrollbar-handle">resources/trafik/elements-interface/ascenceur-horizontal-barre-defilement.png</file>
@@ -112,6 +115,13 @@
 	<file alias="view_display_zoom">resources/view_display_zoom.png</file>
 	<file alias="view_display_scatter">resources/view_display_scatter.png</file>
 	<file alias="view_display_datatree">resources/view_display_datatree.png</file>
+	
+	<!-- LISTING STATS PANEL -->
+	<file alias="icon_linked">resources/trafik/elements-interface/icone-lier-actif.png</file>
+	<file alias="icon_unlinked">resources/trafik/elements-interface/icone-lier-passif.png</file>
+	<file alias="fileslist_black">resources/trafik/elements-interface/icone-listefichiers-noir.png</file>
+	<file alias="refresh_small_grey">resources/refresh.png</file>
+	
 
     </qresource>
 </RCC>

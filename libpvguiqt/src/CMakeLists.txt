@@ -35,6 +35,8 @@ PVViewDisplay.cpp
 PVAboutBoxDialog.cpp
 PVProjectsTabWidget.cpp
 PVStartScreenWidget.cpp
+PVStatsListingWidget.cpp
+PVToolTipDelegate.cpp
 PVInputTypeMenuEntries.cpp
 PVImportSourceToProjectDlg.cpp
 PVCorrelationMenu.cpp
@@ -75,6 +77,8 @@ include/pvguiqt/PVViewDisplay.h
 include/pvguiqt/PVAboutBoxDialog.h
 include/pvguiqt/PVProjectsTabWidget.h
 include/pvguiqt/PVStartScreenWidget.h
+include/pvguiqt/PVStatsListingWidget.h
+include/pvguiqt/PVToolTipDelegate.h
 include/pvguiqt/PVInputTypeMenuEntries.h
 include/pvguiqt/PVImportSourceToProjectDlg.h
 include/pvguiqt/PVCorrelationMenu.h

@@ -24,7 +24,7 @@ QString PVWidgets::PVUtils::shorten_path(const QString& s, const QFont& font, ui
 	uint64_t separator_count = list.length()-1;
 	str_width += QFontMetrics(font).width(elipsis);
 
-	uint64_t index;
+	uint64_t index = 0;
 	for (; str_width > nb_px && separator_count > 2; separator_count--)
 	{
 		index = (separator_count+1)/2;
@@ -35,4 +35,24 @@ QString PVWidgets::PVUtils::shorten_path(const QString& s, const QFont& font, ui
 	str = list.join(separator);
 
 	return str;
+}
+
+void PVWidgets::PVUtils::html_word_wrap_text(QString& string, const QFont& font, uint64_t nb_px)
+{
+	static const QString carriage_return("<br>");
+
+	int insert_pos = 0;
+	QString line;
+	while (insert_pos < string.size()) {
+		line += string[insert_pos];
+		int line_width = QFontMetrics(font).width(line);
+		if (line_width > (int) nb_px) {
+			string = string.insert(insert_pos, carriage_return);
+			insert_pos += carriage_return.size();
+			line.clear();
+		}
+		else {
+			insert_pos++;
+		}
+	}
 }
