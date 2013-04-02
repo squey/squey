@@ -77,7 +77,7 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget *parent, Qt::WindowFla
 void PVCore::PVProgressBox::cancel()
 {
 	if (_need_confirmation) {
-		QMessageBox confirm(QMessageBox::Question, tr("Confirm"), tr("Are you sure?"), QMessageBox::Yes | QMessageBox::No);
+		QMessageBox confirm(QMessageBox::Question, tr("Confirm"), tr("Are you sure?"), QMessageBox::Yes | QMessageBox::No, this);
 		connect(this, SIGNAL(accepted()), &confirm, SLOT(accept()));
 		if (confirm.exec() == QMessageBox::No) {
 			return;
