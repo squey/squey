@@ -95,8 +95,6 @@ public:
 			zr_in = std::get<0>(in.result);
 		}
 
-		std::stringstream ss;
-		ss << "PIPELINE: preprocess router: " << zr_in << " : ";
 		const uint32_t zone_id = zr_in->get_zone_id();
 		ZoneInfos& infos = zone_infos(zone_id);
 		switch (infos.state) {
@@ -106,7 +104,6 @@ public:
 					std::get<OutIdxPreprocess>(op).try_put(zr_in);
 				}
 				else {
-					ss << "cancellation pointer in preprocessor router (state invalid) triggered." << std::endl;
 					std::get<OutIdxCancel>(op).try_put(zr_in);
 				}
 				break;
@@ -119,7 +116,6 @@ public:
 						infos.waiters.push_back(zr_in);
 					}
 					else {
-						ss << "cancellation pointer in preprocessor router (state processing) triggered." << std::endl;
 						std::get<OutIdxCancel>(op).try_put(zr_in);
 					}
 					break;
@@ -131,7 +127,6 @@ public:
 					std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(zr_in, _d->_colors));
 				}
 				else {
-					ss << "cancellation pointer in preprocessor router (state valid) triggered." << std::endl;
 					std::get<OutIdxCancel>(op).try_put(zr_in);
 				}
 				for (PVZoneRenderingBase_p const& zr_wait: infos.waiters) {
@@ -139,7 +134,6 @@ public:
 						std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(zr_wait, _d->_colors));
 					}
 					else {
-						ss << "cancellation pointer in preprocessor router (state valid) triggered." << std::endl;
 						std::get<OutIdxCancel>(op).try_put(zr_wait);
 					}
 				}
@@ -147,7 +141,6 @@ public:
 				break;
 			}
 		}
-		//PVLOG_INFO("%s\n", ss.str().c_str());
 	}
 
 public:
