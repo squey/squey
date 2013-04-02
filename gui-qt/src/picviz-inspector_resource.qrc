@@ -52,7 +52,7 @@
 	<file alias="remove-preset">resources/22x22/remove-preset.png</file>
 	
 	<file alias="picvizlabs-logo">resources/logo.png</file>
-	<file alias="splash-screen">resources/splash.png</file>
+	<file alias="splash-screen">resources/splash_noversion.png</file>
 
 	<file alias="save32-32.png">resources/save32-32.png</file>
 
