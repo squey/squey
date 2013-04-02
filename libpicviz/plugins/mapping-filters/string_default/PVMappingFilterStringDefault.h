@@ -31,6 +31,7 @@ public:
 	// Overloaded from PVFunctionArgs::set_args
 	void set_args(PVCore::PVArgumentList const& args);
 	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
+	QString get_human_name() const override { return "Default"; }
 
 protected:
 	bool case_sensitive() const { return _case_sensitive; }
