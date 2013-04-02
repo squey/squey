@@ -717,8 +717,8 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::or_range(const PVSelBitField &rhs,
 		return *this;
 	}
 
-	PVRow chunk_start = line_index_to_chunk(start);
-	PVRow chunk_end = line_index_to_chunk(end);
+	const PVRow chunk_start = line_index_to_chunk(start);
+	const PVRow chunk_end = line_index_to_chunk(end);
 
 	for (PVRow i = chunk_start; i <= chunk_end; ++i) {
 		_table[i] |= rhs._table[i];
