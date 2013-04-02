@@ -6,7 +6,7 @@ bool PVGuiQt::PVStringSortProxyModel::is_equal(const QModelIndex& left, const QM
 	return sourceModel()->data(left).toString() == sourceModel()->data(right).toString();
 }
 
-void PVGuiQt::PVStringSortProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes)
+void PVGuiQt::PVStringSortProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes, tbb::task_group_context* /*ctxt*/)
 {
 	if (order == Qt::AscendingOrder) {
 		tbb::parallel_sort(vec_idxes.begin(), vec_idxes.end(),

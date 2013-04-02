@@ -26,7 +26,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	_field_separator_btn->setMaxNumKey(1);
 
 	// Sort proxy model
-	PVStringSortProxyModel* proxy_model = new PVStringSortProxyModel();
+	PVStringSortProxyModel* proxy_model = new PVStringSortProxyModel(_values_view);
 	proxy_model->setSourceModel(model);
 
 	// `_values_view' is a QTableView, because QListView suffers from the same
