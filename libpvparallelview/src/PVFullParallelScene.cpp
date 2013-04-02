@@ -608,7 +608,9 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 		} else {
 			new_axes[index] = _axes[i];
 			new_axes[index]->update_axis_info();
-			new_wz_list[index] = old_wz_list[i];
+			if(i < (size_t)nb_zones) {
+				new_wz_list[index] = old_wz_list[i];
+			}
 		}
 
 		_axes[i] = nullptr;
@@ -623,7 +625,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 
 		if (new_wz_list[i].get_base_width() < 0) {
 			// initialization of newly created zones widths
-			new_wz_list[i] = PVLinesView::ZoneWidthWithZoomLevel();
+			new_wz_list[i] = PVLinesView::ZoneWidthWithZoomLevel(PVParallelView::ZoneDefaultWidth, 0);
 		}
 	}
 
