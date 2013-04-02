@@ -198,7 +198,9 @@ bool PVInspector::PVExtractorWidget::process_extraction_job(PVRush::PVController
 bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int nlines, QWidget* parent = NULL)
 {
 	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Extracting %1...").arg(desc), parent, 0, QString("Number of elements processed: %L1/%L2"));
-	pbox->set_cancel_btn_text(tr("Stop"));
+	pbox->set_cancel2_btn_text(tr("Stop and process"));
+	pbox->set_cancel_btn_text(tr("Discard"));
+	pbox->set_confirmation(true);
 	QProgressBar *pbar = pbox->getProgressBar();
 	pbar->setValue(0);
 	pbar->setMaximum(nlines);
@@ -217,8 +219,7 @@ bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJ
 	// Cancel this job and ask the user if he wants to keep the extracted data.
 	job->cancel();
 	PVLOG_DEBUG("extractor: job canceled !\n");
-	QMessageBox msgbox(QMessageBox::Question, tr("Extraction of %1 canceled").arg(desc), tr("Extraction has been canceled. Do you want to proceed with the %1 lines that have been processed ?").arg(job->status()), QMessageBox::Yes | QMessageBox::No, parent);
-	return msgbox.exec() == QMessageBox::Yes;
+	return (pbox->get_cancel_state() == PVCore::PVProgressBox::CANCEL2);
 }
 
 void PVInspector::PVExtractorWidget::process_Slot()
