@@ -77,6 +77,8 @@ public slots:
 	void import_type_Slot();
 
 private:
+	void clear_category(PVCore::PVRecentItemsManager::Category cat);
+
 	descr_strings_t get_string_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var);
 	descr_strings_t get_string_from_format(const QVariant& var);
 	descr_strings_t get_string_from_source_description(const QVariant& var);

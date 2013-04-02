@@ -46,7 +46,28 @@ void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_c
 	_recents_settings.endGroup();
 }
 
+void PVCore::PVRecentItemsManager::clear(Category category)
+{
+	if (category == Category::SOURCES) {
+		clear_source();
+	}
+	else {
+		QStringList string_list = _recents_settings.allKeys();
+		for (QString s: string_list) {
+			_recents_settings.remove(s);
+		}
+	}
+}
 
+void PVCore::PVRecentItemsManager::clear_source()
+{
+	_recents_settings.beginGroup(_recents_items_keys[Category::SOURCES]);
+	QStringList string_list = _recents_settings.allKeys();
+	for (QString s: string_list) {
+		_recents_settings.remove(s);
+	}
+	_recents_settings.endGroup();
+}
 
 const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager::get_list(Category category)
 {

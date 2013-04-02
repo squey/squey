@@ -16,6 +16,7 @@
 #include <QFontMetrics>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QSpacerItem>
 
@@ -26,6 +27,7 @@
 #include <pvkernel/rush/PVSourceDescription.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/widgets/PVUtils.h>
+#include <pvkernel/core/lambda_connect.h>
 
 #include <pvguiqt/PVInputTypeMenuEntries.h>
 
@@ -197,7 +199,17 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 		format_text_used_label->setObjectName("PVStartScreenWidget_text");
 		format_widget_layout->addWidget(format_used_widget_line);
 		format_widget_layout->addWidget(format_text_used_label);
+		QHBoxLayout* used_format_header_layout = new QHBoxLayout();
+		QPushButton* clear_used_format_history = new QPushButton("Clear");
+		clear_used_format_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
+		clear_used_format_history->setFocusPolicy(Qt::NoFocus);
+		clear_used_format_history->setCursor(Qt::PointingHandCursor);
+		::connect(clear_used_format_history, SIGNAL(clicked()), [&]{clear_category(PVCore::PVRecentItemsManager::Category::USED_FORMATS);});
+		used_format_header_layout->addWidget(format_text_used_label);
+		used_format_header_layout->addStretch();
+		used_format_header_layout->addWidget(clear_used_format_history);
 		QVBoxLayout* recent_used_formats_layout = new QVBoxLayout();
+		format_widget_layout->addLayout(used_format_header_layout);
 		format_widget_layout->addLayout(recent_used_formats_layout);
 		custom_listwidget_t* recent_used_formats_list = new custom_listwidget_t();
 		recent_used_formats_layout->addWidget(recent_used_formats_list);
@@ -211,7 +223,16 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 		QLabel *format_text_edited_label = new QLabel("Recent edited formats:", format_widget);
 		format_text_edited_label->setObjectName("PVStartScreenWidget_text");
 		format_widget_layout->addWidget(format_edited_widget_line);
-		format_widget_layout->addWidget(format_text_edited_label);
+		QHBoxLayout* edited_format_header_layout = new QHBoxLayout();
+		QPushButton* clear_edited_format_history = new QPushButton("Clear");
+		clear_edited_format_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
+		clear_edited_format_history->setFocusPolicy(Qt::NoFocus);
+		clear_edited_format_history->setCursor(Qt::PointingHandCursor);
+		::connect(clear_edited_format_history, SIGNAL(clicked()), [&]{clear_category(PVCore::PVRecentItemsManager::Category::USED_FORMATS);});
+		edited_format_header_layout->addWidget(format_text_edited_label);
+		edited_format_header_layout->addStretch();
+		edited_format_header_layout->addWidget(clear_edited_format_history);
+		format_widget_layout->addLayout(edited_format_header_layout);
 		QVBoxLayout* recent_edited_formats_layout = new QVBoxLayout();
 		format_widget_layout->addLayout(recent_edited_formats_layout);
 		custom_listwidget_t* recent_edited_formats_list = new custom_listwidget_t();
@@ -243,11 +264,18 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	project_widget_layout->addWidget(project_widget_line);
 	QLabel *project_text_label = new QLabel("Recent investigations:", project_widget);
 	project_text_label->setObjectName("PVStartScreenWidget_text");
-	project_widget_layout->addWidget(project_text_label);
-	QVBoxLayout* recent_projects_layout = new QVBoxLayout();
-	project_widget_layout->addLayout(recent_projects_layout);
+	QHBoxLayout* projects_header_layout = new QHBoxLayout();
+	QPushButton* clear_project_history = new QPushButton("Clear");
+	clear_project_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
+	clear_project_history->setFocusPolicy(Qt::NoFocus);
+	clear_project_history->setCursor(Qt::PointingHandCursor);
+	::connect(clear_project_history, SIGNAL(clicked()), [&]{clear_category(PVCore::PVRecentItemsManager::Category::PROJECTS);});
+	project_widget_layout->addLayout(projects_header_layout);
+	projects_header_layout->addWidget(project_text_label);
+	projects_header_layout->addStretch();
+	projects_header_layout->addWidget(clear_project_history);
 	custom_listwidget_t* recent_projects_list = new custom_listwidget_t();
-	recent_projects_layout->addWidget(recent_projects_list);
+	project_widget_layout->addWidget(recent_projects_list);
 	recent_projects_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	recent_projects_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
 	_recent_list_widgets[PVCore::PVRecentItemsManager::Category::PROJECTS] = recent_projects_list;
@@ -256,9 +284,19 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	QFrame* import_widget_line = new QFrame(project_widget);
 	import_widget_line->setFrameShape(QFrame::HLine);
 	QLabel *import_text_label = new QLabel("Recent sources:", import_widget);
+	QHBoxLayout* sources_header_layout = new QHBoxLayout();
+	import_text_label->setCursor(Qt::PointingHandCursor);
+	QPushButton* clear_source_history = new QPushButton("Clear");
+	clear_source_history->setFocusPolicy(Qt::NoFocus);
+	clear_source_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
+	clear_source_history->setCursor(Qt::PointingHandCursor);
+	::connect(clear_source_history, SIGNAL(clicked()), [&]{clear_category(PVCore::PVRecentItemsManager::Category::SOURCES);});
 	import_text_label->setObjectName("PVStartScreenWidget_text");
 	import_widget_layout->addWidget(import_widget_line);
-	import_widget_layout->addWidget(import_text_label);
+	sources_header_layout->addWidget(import_text_label);
+	sources_header_layout->addStretch();
+	sources_header_layout->addWidget(clear_source_history);
+	import_widget_layout->addLayout(sources_header_layout);
 	QVBoxLayout* recent_imports_layout = new QVBoxLayout();
 	import_widget_layout->addLayout(recent_imports_layout);
 	QVBoxLayout* recent_sources_layout = new QVBoxLayout();
@@ -469,5 +507,15 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 		{
 			break;
 		}
+	}
+}
+
+void PVGuiQt::PVStartScreenWidget::clear_category(PVCore::PVRecentItemsManager::Category category)
+{
+	QMessageBox confirm(QMessageBox::Question, tr("Please confirm"), tr("Clear history?"), QMessageBox::Yes | QMessageBox::No, this);
+	if (confirm.exec() == QMessageBox::Yes) {
+		PVCore::PVRecentItemsManager::get()->clear(category);
+		custom_listwidget_t* list = _recent_list_widgets[category];
+		list->clear();
 	}
 }

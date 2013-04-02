@@ -456,9 +456,6 @@ QListWidgetItem:hover  {
 }
 
 #PVStartScreenWidget QPushButton {
-	/*background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-				stop:0 #787878,
-				stop:1 #808080$);*/
 	background-color: qradialgradient(cx: 0.3, cy: -0.4,
 		fx: 0.3, fy: -0.4,
 		radius: 1.35, stop: 0 #909090, stop: 1 #707070);
@@ -478,4 +475,20 @@ QListWidgetItem:hover  {
 	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
 				stop:0 #515151,
 				stop:1 #202020);
+}
+
+QPushButton#PVStartScreenWidget_clearHistoryButton
+{
+	color: "#979797";
+	background-color: "#e0e0e0";
+	border-radius: 8px;
+	padding: 8px 4px 8px 4px;
+}
+
+QPushButton#PVStartScreenWidget_clearHistoryButton:hover
+{
+	color: "#505050";
+	background-color: "#e0e0e0";
+	border-radius: 8px;
+	padding: 8px 4px 8px 4px;
 }
