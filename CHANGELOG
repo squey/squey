@@ -23,14 +23,14 @@ This minor release fixes:
    parallel view on demand ('y' shortcut by default)
  * fix regression: rectangular selection is movable with keyboard shortcuts in the full parallel view
  * fix default time mapping
- * list unique values widget hung when number of values is >75 000 000
+ * list unique values widget hung when number of values was >75 000 000
  * mapping and/or plotting arguments needed to be changed twice
  * inconsistent results while searching and/or listing unique values
- * crashes with some inconsistent formats
+ * crashed with some inconsistent formats
  * url splitter: a host without a subdomain had an empty domain
  * the number of selected lines displayed in the full parallel view didn't take
    into account the selected layers
- * disabled some useless keyboard interactions in the full parallel view
+ * disable useless keyboard interactions in the full parallel view
 
 
 3.0.6 (14/02/2012)
