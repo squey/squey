@@ -69,10 +69,11 @@ private:
 public:
 	struct ZoneWidthWithZoomLevel
 	{
+		constexpr static int default_base_width = PVParallelView::ZoneBaseWidth;
 
 		ZoneWidthWithZoomLevel()
 		{
-			_base_width = PVParallelView::ZoneBaseWidth;
+			_base_width = default_base_width;
 			_base_zoom_level = 0;
 		}
 		
