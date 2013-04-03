@@ -237,6 +237,8 @@ private:
 	PVZoneID _zid_timer_render;
 
 	tbb::atomic<bool> _view_deleted;
+
+	bool              _show_min_max_values;
 };
 
 }
