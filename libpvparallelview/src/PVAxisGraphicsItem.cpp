@@ -60,8 +60,15 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	_axis_max_value = new QGraphicsTextItem(this);
 	addToGroup(_axis_max_value);
 	_layer_min_value = new QGraphicsTextItem(this);
+	QFont font = _layer_min_value->font();
+	font.setStyle(QFont::StyleItalic);
+	_layer_min_value->setFont(font);
 	addToGroup(_layer_min_value);
+
 	_layer_max_value = new QGraphicsTextItem(this);
+	font = _layer_max_value->font();
+	font.setStyle(QFont::StyleItalic);
+	_layer_max_value->setFont(font);
 	addToGroup(_layer_max_value);
 
 	connect(_label, SIGNAL(new_zoomed_parallel_view(int)), this, SLOT(emit_new_zoomed_parallel_view(int)));
@@ -202,10 +209,10 @@ void PVParallelView::PVAxisGraphicsItem::update_layer_min_max_info()
 	const Picviz::PVLayer::list_row_indexes_t &vmins = _lib_view.get_current_layer().get_mins();
 	const Picviz::PVLayer::list_row_indexes_t &vmaxs = _lib_view.get_current_layer().get_maxs();
 
-	QString tmin("- ");
+	QString tmin;
 
 	if ((size_t)cur_axis < vmins.size()) {
-		tmin += _lib_view.get_data(vmins[cur_axis], cur_axis);
+		tmin = _lib_view.get_data(vmins[cur_axis], cur_axis);
 	}
 
 	QString etmin, ttmin;
@@ -214,10 +221,10 @@ void PVParallelView::PVAxisGraphicsItem::update_layer_min_max_info()
 	_layer_min_value->setToolTip(ttmin);
 	_layer_min_value->setDefaultTextColor(Qt::white);
 
-	QString tmax("- ");
+	QString tmax;
 
 	if ((size_t)cur_axis < vmaxs.size()) {
-		tmax += _lib_view.get_data(vmaxs[cur_axis], cur_axis);
+		tmax = _lib_view.get_data(vmaxs[cur_axis], cur_axis);
 	}
 
 	QString etmax, ttmax;
