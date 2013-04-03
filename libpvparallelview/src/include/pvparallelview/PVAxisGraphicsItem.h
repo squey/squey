@@ -49,15 +49,7 @@ public:
 
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-	void update_axis_label_info();
-	void update_axis_label_position(const bool visible);
-
-	void update_axis_min_max_info();
-	void update_axis_min_max_position();
-	void update_layer_min_max_info();
-	void update_layer_min_max_position();
-
-	void set_min_max_visible(const bool visible);
+	void update_axis_info();
 
 	PVSlidersGroup *get_sliders_group()
 	{
@@ -79,11 +71,6 @@ public:
 	void set_axis_length(int l)
 	{
 		_axis_length = l;
-	}
-
-	void set_zone_width(int w)
-	{
-		_zone_width = w;
 	}
 
 	QRect map_from_scene(QRectF rect) const
@@ -117,11 +104,6 @@ private:
 	PVSlidersGroup                 *_sliders_group;
 	PVAxisLabel                    *_label;
 	int                             _axis_length;
-	int                             _zone_width;
-	QGraphicsTextItem              *_axis_min_value;
-	QGraphicsTextItem              *_axis_max_value;
-	QGraphicsTextItem              *_layer_min_value;
-	QGraphicsTextItem              *_layer_max_value;
 };
 
 }
