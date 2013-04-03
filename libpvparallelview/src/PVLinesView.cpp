@@ -357,6 +357,7 @@ bool PVParallelView::PVLinesView::initialize_zones_width(int view_width)
 
 	for(ZoneWidthWithZoomLevel &z: _list_of_zone_width_with_zoom_level) {
 		z.set_base_zoom_level(zoom_level);
+		z.set_base_width(PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::default_base_width);
 
 	}
 
