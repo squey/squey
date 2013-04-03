@@ -7,7 +7,7 @@ This minor release add the following features:
  * unique values listing is now sorted
  * automatic hiding of existing layers when a new one is created (on user demand)
  * improved color picker widget
- * integer maping is splitted into two different mappings for better clarity:
+ * integer mapping is splitted into two different mappings for better clarity:
    signed and unsigned integer. Default is still "signed".
  * recent histories can be cleared
  * dock widgets can be maximised
