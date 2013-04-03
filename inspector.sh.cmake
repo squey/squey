@@ -54,6 +54,12 @@ export PICVIZ_DEBUG_LEVEL="DEBUG"
 	gdb -ex run --args $ISRD/gui-qt/src/picviz-inspector $LOAD_PROJECT ${CMD_ARGS[@]}
 	exit 0
 fi
+
+if [ "$1" == "qdebug" ]; then
+	qtcreator -debug $ISRD/gui-qt/src/picviz-inspector
+	exit 0
+fi
+
 if [ "$1" == "ddd" ]
 then
 export PICVIZ_DEBUG_LEVEL="DEBUG"
