@@ -9,6 +9,7 @@
 #include <pvkernel/core/PVDirectory.h>
 
 #include <pvkernel/rush/PVNraw.h>
+#include <pvkernel/rush/PVNrawException.h>
 
 #include <tbb/tick_count.h>
 
@@ -52,7 +53,9 @@ void PVRush::PVNraw::reserve(PVRow const /*nrows*/, PVCol const ncols)
 	// Generate random path
 	QString nraw_dir_base = pvconfig.value(CONFIG_NRAW_TMP, default_tmp_path).toString() + QDir::separator() + NRAW_TMP_PATTERN;
 	QByteArray nstr = nraw_dir_base.toLocal8Bit();
-	mkdtemp(nstr.data());
+	if (mkdtemp(nstr.data()) == nullptr) {
+		throw PVNrawException(QObject::tr("unable to create temporary directory ") + nraw_dir_base);
+	}
 	_backend.init(nstr.constData(), ncols);
 }
 
