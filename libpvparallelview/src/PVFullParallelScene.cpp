@@ -507,8 +507,11 @@ void PVParallelView::PVFullParallelScene::update_all()
 {
 	assert(QThread::currentThread() == this->thread());
 	render_all_zones_all_imgs();
-	for (PVAxisGraphicsItem* axis : _axes) {
-		//axis->update_axis_min_max_info();
+	if (_show_min_max_values) {
+		for (PVAxisGraphicsItem* axis : _axes) {
+			axis->update_axis_min_max_info();
+			axis->update_layer_min_max_info();
+		}
 	}
 	update_selected_line_number();
 }
@@ -885,12 +888,16 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 	PVZoneID i;
 	for(i = 0; i < _lines_view.get_number_of_managed_zones(); ++i) {
 		_axes[i]->set_zone_width(_lines_view.get_zone_width(i));
+		if (_show_min_max_values) {
+			_axes[i]->update_axis_min_max_info();
+			_axes[i]->update_layer_min_max_info();
+		}
+	}
+	_axes[i]->set_zone_width(256);
+	if (_show_min_max_values) {
 		_axes[i]->update_axis_min_max_info();
 		_axes[i]->update_layer_min_max_info();
 	}
-	_axes[i]->set_zone_width(256);
-	_axes[i]->update_axis_min_max_info();
-	_axes[i]->update_layer_min_max_info();
 
 	// It's time to refresh the current selection_square
 	_selection_square->update_position();
