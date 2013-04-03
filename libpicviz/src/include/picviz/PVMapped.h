@@ -77,6 +77,7 @@ public:
 
 	QList<PVCol> get_columns_indexes_values_within_range(decimal_storage_type const min, decimal_storage_type const max, double rate = 1.0);
 	QList<PVCol> get_columns_indexes_values_not_within_range(decimal_storage_type const min, decimal_storage_type const max, double rate = 1.0);
+	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
 
 	virtual QString get_serialize_description() const { return "Mapping: " + get_name(); }
 

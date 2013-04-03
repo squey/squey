@@ -82,6 +82,7 @@ int Picviz::PVPlotted::create_table()
 	}
 
 	_last_updated_cols.clear();
+	_minmax_values.resize(mapped_col_count);
 
 	try {
 
@@ -110,6 +111,8 @@ int Picviz::PVPlotted::create_table()
 			boost::this_thread::interruption_point();
 			_plotting->set_uptodate_for_col(j);
 			_last_updated_cols.push_back(j);
+
+			get_col_minmax(_minmax_values[j].min, _minmax_values[j].max, j);
 		}
 		PVLOG_INFO("(PVPlotted::create_table) end parallel plotting\n");
 
@@ -516,6 +519,49 @@ void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const
 			min = i;
 		}
 	}, nrows);
+
+	// We need to swap as the plotted has been reversed
+	std::swap(min, max);
+}
+
+void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) const
+{
+	uint32_t vmin,vmax;
+	vmin = UINT_MAX;
+	vmax = 0;
+	PVRow min_local = 0;
+	PVRow max_local = 0;
+	const PVRow nrows = get_row_count();
+	// TODO: use the SSE4.2 optimised version here
+	for (PVRow i = 0; i < nrows; i++) {
+		const uint32_t v = this->get_value(i, col);
+		if (v > vmax) {
+			vmax = v;
+			max_local = i;
+		}
+		if (v < vmin) {
+			vmin = v;
+			min_local = i;
+		}
+	}
+
+	// We need to swap as the plotted has been reversed
+	std::swap(min_local, max_local);
+
+	min = min_local;
+	max = max_local;
+}
+
+PVRow Picviz::PVPlotted::get_min_value_row(PVCol const c) const
+{
+	assert(c < get_column_count());
+	return _minmax_values[c].min;
+}
+
+PVRow Picviz::PVPlotted::get_max_value_row(PVCol const c) const
+{
+	assert(c < get_column_count());
+	return _minmax_values[c].max;
 }
 
 void Picviz::PVPlotted::process_parent_mapped()

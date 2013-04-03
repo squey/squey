@@ -66,11 +66,19 @@ private:
 			so.object("selection", sel_p, QString(), false, (PVSelection*) NULL, false);
 		}
 	};
+
+	struct MinMax
+	{
+		PVRow min;
+		PVRow max;
+	};
+
 public:
 	typedef std::vector<float> plotted_table_t;
 	typedef std::vector<uint32_t, PVCore::PVAlignedAllocator<uint32_t, 16> > uint_plotted_table_t;
 	typedef std::vector< std::pair<PVCol,uint32_t> > plotted_sub_col_t;
 	typedef std::list<ExpandedSelection> list_expanded_selection_t;
+	typedef std::vector<PVRow> rows_vector_t;
 
 public:
 	PVPlotted();
@@ -142,6 +150,7 @@ public:
 
 	void get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min, uint32_t& max, PVSelection const& sel, PVCol col) const;
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
+	void get_col_minmax(PVRow& min, PVRow& max, PVCol const col) const;
 
 	inline PVView* current_view() { return get_parent<PVSource>()->current_view(); }
 	inline const PVView* current_view() const { return get_parent<PVSource>()->current_view(); }
@@ -153,6 +162,9 @@ public:
 	static bool load_buffer_from_file(plotted_table_t& buf, PVCol& ncols, bool get_transposed_version, QString const& file);
 
 	inline QList<PVCol> const& last_updated_cols() const { return _last_updated_cols; }
+
+	PVRow get_min_value_row(PVCol const c) const;
+	PVRow get_max_value_row(PVCol const c) const;
 
 public:
 	// Debug
@@ -171,6 +183,7 @@ private:
 	uint_plotted_table_t _uint_table;
 	list_expanded_selection_t _expanded_sels;
 	QList<PVCol> _last_updated_cols;
+	std::vector<MinMax> _minmax_values;
 };
 
 typedef PVPlotted::p_type  PVPlotted_p;
