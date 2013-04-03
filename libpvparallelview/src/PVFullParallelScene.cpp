@@ -10,6 +10,8 @@
 #include <picviz/widgets/editors/PVAxisIndexEditor.h>
 
 #include <pvhive/PVCallHelper.h>
+#include <pvhive/PVHive.h>
+#include <pvhive/PVObserverCallback.h>
 
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
@@ -60,6 +62,14 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.are_parallelview_unselected_zombie_visible(); }, *obs);
 	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
+
+	_obs_selected_layer = PVHive::create_observer_callback_heap<int>(
+	    [&](int const*) { },
+		[&](int const*) { this->update_axes_layer_min_max(); },
+		[&](int const*) { }
+	);
+
+	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_layer_stack().get_selected_layer_index(); }, *_obs_selected_layer);
 
 	setBackgroundBrush(QBrush(common::color_view_bg()));
 
@@ -498,8 +508,7 @@ void PVParallelView::PVFullParallelScene::update_all()
 	assert(QThread::currentThread() == this->thread());
 	render_all_zones_all_imgs();
 	for (PVAxisGraphicsItem* axis : _axes) {
-		axis->update_axis_min_max_info();
-		axis->update_layer_min_max_info();
+		//axis->update_axis_min_max_info();
 	}
 	update_selected_line_number();
 }
@@ -971,6 +980,13 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 		update_scene(false);
 		_timer_render->start();
 		event->accept();
+	}
+}
+
+void PVParallelView::PVFullParallelScene::update_axes_layer_min_max()
+{
+	for (PVParallelView::PVAxisGraphicsItem* axis: _axes) {
+		//axis->update_layer_min_max_info();
 	}
 }
 

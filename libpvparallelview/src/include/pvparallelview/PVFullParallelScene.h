@@ -26,6 +26,7 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVFuncObserver.h>
+#include <pvhive/PVObserverSignal.h>
 
 #include <tbb/atomic.h>
 #include <tbb/task_group.h>
@@ -163,6 +164,8 @@ private slots:
 	void render_all_zones_all_imgs();
 	void render_single_zone_all_imgs();
 
+	void update_axes_layer_min_max();
+
 private:
 	int32_t pos_last_axis() const;
 
@@ -220,6 +223,8 @@ private:
 	axes_list_t             _axes;
 
 	PVHive::PVActor<Picviz::PVView> _view_actor;
+	PVHive::PVObserver_p<int>       _obs_selected_layer;
+
 	Picviz::PVView& _lib_view;
 
 	PVFullParallelView* _full_parallel_view;

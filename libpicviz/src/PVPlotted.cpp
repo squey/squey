@@ -559,13 +559,13 @@ void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) 
 	max = max_local;
 }
 
-PVRow Picviz::PVPlotted::get_min_value_row(PVCol const c) const
+PVRow Picviz::PVPlotted::get_col_min_row(PVCol const c) const
 {
 	assert(c < get_column_count());
 	return _minmax_values[c].min;
 }
 
-PVRow Picviz::PVPlotted::get_max_value_row(PVCol const c) const
+PVRow Picviz::PVPlotted::get_col_max_row(PVCol const c) const
 {
 	assert(c < get_column_count());
 	return _minmax_values[c].max;

@@ -136,20 +136,23 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_min_max_info()
 	}
 
 	const PVCol cur_axis = _lib_view.axes_combination.get_axis_column_index(_lib_view.axes_combination.get_index_by_id(_axis_id));
-	const Picviz::mandatory_param_map &mand_params = mapping->get_mandatory_params_for_col(cur_axis);
-	Picviz::mandatory_param_map::const_iterator it_min = mand_params.find(Picviz::mandatory_ymin);
-	Picviz::mandatory_param_map::const_iterator it_max = mand_params.find(Picviz::mandatory_ymax);
+//	const Picviz::mandatory_param_map &mand_params = mapping->get_mandatory_params_for_col(cur_axis);
+//	Picviz::mandatory_param_map::const_iterator it_min = mand_params.find(Picviz::mandatory_ymin);
+//	Picviz::mandatory_param_map::const_iterator it_max = mand_params.find(Picviz::mandatory_ymax);
 
-	if (it_min == mand_params.end() || it_max == mand_params.end()) {
-		PVLOG_WARN("ymin and/or ymax don't exist for axis %d. Maybe the mandatory minmax mapping hasn't be runned ?\n", cur_axis);
-		return;
-	}
+//	if (it_min == mand_params.end() || it_max == mand_params.end()) {
+//		PVLOG_WARN("ymin and/or ymax don't exist for axis %d. Maybe the mandatory minmax mapping hasn't be runned ?\n", cur_axis);
+//		return;
+//	}
 
 	QColor col = lib_axis()->get_titlecolor().toQColor();
 	// 42 because the tooltip has margins...
 	int tooltip_width = QApplication::desktop()->screenGeometry().width() - 42;
 
-	QString tmin = (*it_min).second.first;
+	const PVRow min_row = _lib_view.get_parent<Picviz::PVPlotted>()->get_col_min_row(cur_axis);
+	const PVRow max_row = _lib_view.get_parent<Picviz::PVPlotted>()->get_col_max_row(cur_axis);
+
+	QString tmin = _lib_view.get_data(min_row, cur_axis);
 	if (tmin.isEmpty()) {
 		tmin = QString("(empty string)");
 	}
@@ -160,7 +163,7 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_min_max_info()
 	_axis_min_value->setToolTip(ttmin);
 	_axis_min_value->setDefaultTextColor(col);
 
-	QString tmax = (*it_max).second.first;
+	QString tmax = _lib_view.get_data(max_row, cur_axis);
 	if (tmax.isEmpty()) {
 		tmax = QString("(empty string)");
 	}

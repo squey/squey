@@ -251,6 +251,8 @@ public:
 
 	PVSortingFunc_p get_sort_plugin_for_col(PVCol col) const;
 
+	void compute_layer_min_max(Picviz::PVLayer& layer);
+
 
 /******************************************************************************
 ******************************************************************************
