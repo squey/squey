@@ -10,21 +10,24 @@
 #include <picviz/PVView.h>
 
 #include <pvguiqt/PVListDisplayDlg.h>
+#include <pvguiqt/PVStringSortProxyModel.h>
 
 #include <QClipboard>
 #include <QMessageBox>
 
-// PVlistColNrawDlg
-//
+#define AUTOMATIC_SORT_MAX_NUMBER 32768
 
 PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* parent):
-	QDialog(parent),
-	_model(model)
+	QDialog(parent)
 {
 	setupUi(this);
 	_field_separator_btn->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	_field_separator_btn->setKeySequence(QKeySequence(Qt::Key_Return));
 	_field_separator_btn->setMaxNumKey(1);
+
+	// Sort proxy model
+	PVStringSortProxyModel* proxy_model = new PVStringSortProxyModel();
+	proxy_model->setSourceModel(model);
 
 	// `_values_view' is a QTableView, because QListView suffers from the same
 	// bug than QTableView used to suffer when a "large" (> 75000000) number of
@@ -36,7 +39,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	// take a huge amount of time.
 	_values_view->horizontalHeader()->setStretchLastSection(true);
 	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
-	_values_view->setModel(_model);
+	_values_view->setModel(proxy_model);
 	_values_view->setGridStyle(Qt::NoPen);
 	_values_view->horizontalHeader()->hide();
 	_values_view->setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -56,6 +59,11 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	connect(_btn_copy_clipboard, SIGNAL(clicked()), this, SLOT(copy_to_clipboard()));
 	connect(_btn_copy_file, SIGNAL(clicked()), this, SLOT(copy_to_file()));
 	connect(_btn_append_file, SIGNAL(clicked()), this, SLOT(append_to_file()));
+	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort()));
+
+	if (model->rowCount() < AUTOMATIC_SORT_MAX_NUMBER) {
+		sort();
+	}
 }
 
 bool PVGuiQt::PVListDisplayDlg::write_values(QDataStream* stream)
@@ -68,11 +76,11 @@ bool PVGuiQt::PVListDisplayDlg::write_values(QDataStream* stream)
 	QByteArray tmp;
 	// Write the values into that data stream.
 	// Values are converted into the system locale.
-	for (int i = 0; i < _model->rowCount(); i++) {
+	for (int i = 0; i < model()->rowCount(); i++) {
 		if (i % 64 == 0) {
 			boost::this_thread::interruption_point();
 		}
-		tmp = _model->data(_model->index(i, 0)).toString().toLocal8Bit();
+		tmp = proxy_model()->data(proxy_model()->index(i, 0, QModelIndex())).toString().toLocal8Bit();
 		int len = stream->writeRawData(tmp.constData(), tmp.size());
 		if (len != tmp.size()) {
 			return false;
@@ -162,7 +170,7 @@ void PVGuiQt::PVListDisplayDlg::copy_value_clipboard()
 {
 	QModelIndex idx = _values_view->currentIndex();
 	if (idx.isValid()) {
-		QString txt = _model->data(idx).toString();
+		QString txt = proxy_model()->data(idx).toString();
 		QApplication::clipboard()->setText(txt);
 	}
 }
@@ -176,4 +184,20 @@ void PVGuiQt::PVListDisplayDlg::set_description(QString const& desc)
 		_desc_label->setVisible(true);
 		_desc_label->setText(desc);
 	}
+}
+
+PVGuiQt::PVStringSortProxyModel* PVGuiQt::PVListDisplayDlg::proxy_model()
+{
+	return static_cast<PVStringSortProxyModel*>(_values_view->model());
+}
+
+QAbstractListModel* PVGuiQt::PVListDisplayDlg::model()
+{
+	return static_cast<QAbstractListModel*>(proxy_model()->sourceModel());
+}
+
+void PVGuiQt::PVListDisplayDlg::sort()
+{
+	proxy_model()->sort(0, Qt::AscendingOrder);
+	_btn_sort->hide();
 }

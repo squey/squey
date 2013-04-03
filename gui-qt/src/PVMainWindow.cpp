@@ -189,7 +189,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	css_file.close();
 	setStyleSheet(css_string);
 
-	show();
+	showMaximized();
 }
 
 bool PVInspector::PVMainWindow::event(QEvent* event)

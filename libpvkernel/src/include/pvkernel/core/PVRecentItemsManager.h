@@ -62,9 +62,11 @@ public:
 
 	void add(const QString& item_path, Category category);
 	void add_source(PVRush::PVSourceCreator_p source_creator_p, const PVRush::PVInputType::list_inputs& inputs, PVRush::PVFormat& format);
+	void clear(Category category);
 	const variant_list_t get_list(Category category);
 
 private:
+	void clear_source();
 	PVRush::PVSourceDescription deserialize_source_description() const;
 	uint64_t get_source_timestamp_to_replace(const PVRush::PVSourceDescription& source_description);
 
