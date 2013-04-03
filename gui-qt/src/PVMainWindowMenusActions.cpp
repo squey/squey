@@ -55,6 +55,7 @@ void PVInspector::PVMainWindow::create_actions()
 	export_file_Action = new QAction(tr("&Export"), this);
 
 	quit_Action = new QAction(tr("&Quit"), this);
+	quit_Action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
 
 
 
