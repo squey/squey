@@ -71,6 +71,7 @@ public:
 	inline bool is_uptodate() const { return _mapping->is_uptodate(); };
 
 	PVMapping* get_mapping() { return _mapping.get(); }
+	const PVMapping* get_mapping() const { return _mapping.get(); }
 	void set_mapping(PVMapping* mapping) { _mapping = PVMapping_p(mapping); }
 	void set_name(QString const& name) { _mapping->set_name(name); }
 	QString const& get_name() const { return _mapping->get_name(); }

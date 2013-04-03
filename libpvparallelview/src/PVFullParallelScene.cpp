@@ -33,7 +33,7 @@
 
 #define CRAND() (127 + (random() & 0x7F))
 
-#define SCENE_MARGIN 32
+#define SCENE_MARGIN 16
 #define RENDER_TIMER_TIMEOUT 100 // in ms
 
 /******************************************************************************
@@ -49,7 +49,8 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	_selection_square(new PVSelectionSquare(this)),
 	_zoom_y(1.0),
 	_sm_p(sm_p),
-	_zid_timer_render(PVZONEID_INVALID)
+	_zid_timer_render(PVZONEID_INVALID),
+	_show_min_max_values(false)
 {
 	_view_deleted = false;
 
@@ -250,6 +251,16 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		else {
 			_selection_square->move_down_by_step();
 		}
+		event->accept();
+	}
+	else if (event->key() == Qt::Key_Y) {
+		_show_min_max_values ^= true;
+		for(PVAxisGraphicsItem* axis : _axes) {
+			axis->set_min_max_visible(_show_min_max_values);
+		}
+		update_viewport();
+		update_all();
+		update_scene(true);
 		event->accept();
 	}
 }
@@ -486,6 +497,10 @@ void PVParallelView::PVFullParallelScene::update_all()
 {
 	assert(QThread::currentThread() == this->thread());
 	render_all_zones_all_imgs();
+	for (PVAxisGraphicsItem* axis : _axes) {
+		axis->update_axis_min_max_info();
+		axis->update_layer_min_max_info();
+	}
 	update_selected_line_number();
 }
 
@@ -607,7 +622,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 			delete _axes[i];
 		} else {
 			new_axes[index] = _axes[i];
-			new_axes[index]->update_axis_info();
+			new_axes[index]->update_axis_label_info();
 			if(i < (size_t)nb_zones) {
 				new_wz_list[index] = old_wz_list[i];
 			}
@@ -712,6 +727,7 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 	QRectF axes_names_bbox_f;
 
 	for(PVAxisGraphicsItem *axis : _axes) {
+		axis->update_axis_label_position(_show_min_max_values);
 		axes_names_bbox_f |= axis->get_label_scene_bbox();
 	}
 
@@ -726,6 +742,8 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 
 	for(PVAxisGraphicsItem *axis : _axes) {
 		axis->set_axis_length(_axis_length);
+		axis->update_axis_min_max_position();
+		axis->update_layer_min_max_position();
 	}
 
 	QRectF r = _selection_square->get_rect();
@@ -854,7 +872,17 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 	for (PVZoneID z = _lines_view.get_first_visible_zone_index(); z <= _lines_view.get_last_visible_zone_index(); z++) {
 		_zones[_lines_view.get_zone_index_offset(z)].setPos(QPointF(_lines_view.get_left_border_position_of_zone_in_scene(z), 0));
 	}
-	
+
+	PVZoneID i;
+	for(i = 0; i < _lines_view.get_number_of_managed_zones(); ++i) {
+		_axes[i]->set_zone_width(_lines_view.get_zone_width(i));
+		_axes[i]->update_axis_min_max_info();
+		_axes[i]->update_layer_min_max_info();
+	}
+	_axes[i]->set_zone_width(256);
+	_axes[i]->update_axis_min_max_info();
+	_axes[i]->update_layer_min_max_info();
+
 	// It's time to refresh the current selection_square
 	_selection_square->update_position();
 }
