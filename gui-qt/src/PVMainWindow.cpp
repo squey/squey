@@ -43,6 +43,7 @@
 #include <pvkernel/core/PVVersion.h>
 
 #include <pvkernel/rush/PVFileDescription.h>
+#include <pvkernel/rush/PVNrawException.h>
 
 #include <pvkernel/widgets/PVColorDialog.h>
 
@@ -1643,6 +1644,10 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource* src)
 	}
 	catch (PVRush::PVInputException const& e) {
 		PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
+		return false;
+	}
+	catch (PVRush::PVNrawException const& e) {
+		PVLOG_ERROR("Error while creating source: %s\n", e.what());
 		return false;
 	}
 

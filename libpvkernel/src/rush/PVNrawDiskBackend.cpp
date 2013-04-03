@@ -611,17 +611,12 @@ bool PVRush::PVNrawDiskBackend::get_unique_values_for_col_with_sel(PVCol const c
 
 bool PVRush::PVNrawDiskBackend::merge_tls(unique_values_t& ret, tbb::enumerable_thread_specific<unique_values_t>& tbb_qset, tbb::task_group_context* ctxt /* = nullptr */)
 {
-	tbb::task_group_context my_ctxt;
-	if (ctxt == NULL) {
-		ctxt = &my_ctxt;
-	}
-
 	tbb::enumerable_thread_specific<unique_values_t>::iterator it_tls = tbb_qset.begin();
 	if (it_tls != tbb_qset.end()) {
 		unique_values_t& final = *it_tls;
 		it_tls++;
 		for (; it_tls != tbb_qset.end(); it_tls++) {
-			if (ctxt->is_group_execution_cancelled()) {
+			if (ctxt && ctxt->is_group_execution_cancelled()) {
 				ret.clear();
 				return false; 	// return false if it has been cancelled
 			}
