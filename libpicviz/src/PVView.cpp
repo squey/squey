@@ -245,7 +245,8 @@ void Picviz::PVView::commit_to_new_layer()
 	const PVSelection& sel = post_filter_layer.get_selection();
 	const PVLinesProperties &lp = output_layer.get_lines_properties();
 
-	layer_stack.append_new_layer_from_selection_and_lines_properties(sel, lp);
+	PVLayer *layer = layer_stack.append_new_layer_from_selection_and_lines_properties(sel, lp);
+	layer->compute_min_max(*get_parent<Picviz::PVPlotted>());
 }
 
 void Picviz::PVView::commit_volatile_in_floating_selection()
