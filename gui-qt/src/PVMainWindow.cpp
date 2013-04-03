@@ -426,7 +426,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView* pi
 		picviz_view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(new_layer.get_lines_properties(), new_layer.get_selection(), picviz_view->row_count);
 
 		/* We need to reprocess the layer stack */
-		new_layer.compute_min_max(*picviz_view->get_parent<Picviz::PVPlotted>());
+		actor.call<FUNC(Picviz::PVView::compute_layer_min_max)>(new_layer);
 
 		actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 	}
@@ -464,7 +464,7 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Picviz::PVView* picv
 		current_layer.get_selection().and_not(new_layer.get_selection());
 
 		/* We need to reprocess the layer stack */
-		new_layer.compute_min_max(*picviz_view->get_parent<Picviz::PVPlotted>());
+		actor.call<FUNC(Picviz::PVView::compute_layer_min_max)>(new_layer);
 
 		actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 	}

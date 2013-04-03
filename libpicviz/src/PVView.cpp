@@ -1476,6 +1476,11 @@ Picviz::PVSortingFunc_p Picviz::PVView::get_sort_plugin_for_col(PVCol col) const
 	return f_lib;
 }
 
+void Picviz::PVView::compute_layer_min_max(Picviz::PVLayer& layer)
+{
+	layer.compute_min_max(*get_parent<Picviz::PVPlotted>());
+}
+
 void Picviz::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes, PVAxesCombination::list_axes_t const& axes)
 {
 	get_axes_combination().set_axes_index_list(idxes, axes);
