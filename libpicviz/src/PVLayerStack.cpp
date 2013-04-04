@@ -144,10 +144,10 @@ void Picviz::PVLayerStack::delete_selected_layer()
  * Picviz::PVLayerStack::duplicate_selected_layer
  *
  *****************************************************************************/
-void Picviz::PVLayerStack::duplicate_selected_layer(const QString &name)
+Picviz::PVLayer* Picviz::PVLayerStack::duplicate_selected_layer(const QString &name)
 {
 	if ((selected_layer_index < 0) || (selected_layer_index >= layer_count)) {
-		return;
+		return nullptr;
 	}
 
 	const PVLayer &selected_layer = table.at(selected_layer_index);
@@ -158,6 +158,8 @@ void Picviz::PVLayerStack::duplicate_selected_layer(const QString &name)
 
 	/* FIXME! This is before we do something more clever... */
 	update_layer_index_array_completely();
+
+	return new_layer;
 }
 
 /******************************************************************************

@@ -111,6 +111,7 @@ private:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
 	void wheelEvent(QGraphicsSceneWheelEvent* event) override;
+	void helpEvent(QGraphicsSceneHelpEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 
 	inline QPointF map_to_axis(PVZoneID zone_id, QPointF p) const { return _axes[zone_id]->mapFromScene(p); }
