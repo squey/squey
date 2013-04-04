@@ -30,12 +30,19 @@ class QGraphicsSimpleTextItem;
 namespace PVParallelView
 {
 
+namespace __impl {
+
+class PVMinMaxHelpEventFilter;
+
+}
+
 class PVAxisLabel;
 
 class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 {
 	Q_OBJECT
 
+	friend class __impl::PVMinMaxHelpEventFilter;
 public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
 	typedef PVSlidersManager::axis_id_t        axis_id_t;
@@ -122,6 +129,7 @@ private:
 	QGraphicsTextItem              *_axis_max_value;
 	QGraphicsTextItem              *_layer_min_value;
 	QGraphicsTextItem              *_layer_max_value;
+	__impl::PVMinMaxHelpEventFilter *_event_filter;
 };
 
 }
