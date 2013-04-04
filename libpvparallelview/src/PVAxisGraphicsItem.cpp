@@ -309,8 +309,7 @@ void PVParallelView::PVAxisGraphicsItem::show_tooltip(QGraphicsTextItem* gti, QG
 
 	// Word wrap it
 	// 42 because the tooltip has margins...
-	const int tooltip_width = QApplication::desktop()->screenGeometry(event->widget()).width() - 42;
-	PVWidgets::PVUtils::html_word_wrap_text(text, gti->font(), tooltip_width);
+	PVWidgets::PVUtils::html_word_wrap_text(text, gti->font(), PVWidgets::PVUtils::tooltip_max_width(event->widget()));
 
 	// And finally show this tooltip !
 	QToolTip::showText(event->screenPos(), text, event->widget());

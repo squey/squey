@@ -7,6 +7,8 @@
 #include <pvkernel/widgets/PVUtils.h>
 #include <pvbase/general.h>
 
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QFontMetrics>
 #include <QStringList>
 
@@ -55,4 +57,9 @@ void PVWidgets::PVUtils::html_word_wrap_text(QString& string, const QFont& font,
 			insert_pos++;
 		}
 	}
+}
+
+uint32_t PVWidgets::PVUtils::tooltip_max_width(QWidget* w)
+{
+	return QApplication::desktop()->screenGeometry(w).width()/2;
 }
