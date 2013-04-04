@@ -404,6 +404,9 @@ public:
 
 	PVCol get_real_axis_index(PVCol col) const;
 
+	PVRow get_plotted_col_min_row(PVCol const combined_col) const;
+	PVRow get_plotted_col_max_row(PVCol const combined_col) const;
+
 public:
 	// State machine
 	inline void set_square_area_mode(PVStateMachine::SquareAreaModes mode) { state_machine->set_square_area_mode(mode); }

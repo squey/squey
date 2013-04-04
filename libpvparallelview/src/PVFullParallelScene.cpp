@@ -32,6 +32,7 @@
 #include <QLabel>
 #include <QDialogButtonBox>
 #include <QRect>
+#include <QToolTip>
 
 #define CRAND() (127 + (random() & 0x7F))
 
@@ -901,6 +902,59 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 
 	// It's time to refresh the current selection_square
 	_selection_square->update_position();
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVFullParallelScene::helpEvent
+ *
+ *****************************************************************************/
+void PVParallelView::PVFullParallelScene::helpEvent(QGraphicsSceneHelpEvent* event)
+{
+	// Inspired by Qt's original QGraphicsScene::helpEvent.
+	// The advantage of this implemntation is that the help event is forwarded
+	// to the top-most items, thus enabling a custom behavior if needed (as in
+	// PVAxisGraphicsItem).
+	// If the event isn't accepted by any items, the default behavior is
+	// provided (that is, showing the tooltip text of the first non-empty
+	// object's tooltip property).
+	
+	QList<QGraphicsItem*> items_at_pos = items(event->scenePos(), Qt::IntersectsItemShape, Qt::DescendingOrder, graphics_view()->viewportTransform());
+
+	// `event' is created in QGraphicsView::viewportEvent. As events are
+	// "accepted" by default and it is not cleared when created, we need to
+	// clear it here before forwarding it to the top-level items !
+	event->ignore();
+
+	for (QGraphicsItem* const item: items_at_pos) {
+		sendEvent(item, event);
+		if (event->isAccepted()) {
+			return;
+		}
+	}
+
+	// If we're here, provide the default behavior. The original function can't
+	// just be called because, for proxy widgets, the event would se sent twice
+	// ! (cf. QGraphicsScene::helpEvent original source code).
+	
+	// Find out the first item with a valid tooltip.
+	QGraphicsItem* tooltip_item = nullptr;
+	for (QGraphicsItem* const item: items_at_pos) {
+		if (!item->toolTip().isEmpty()) {
+			tooltip_item = item;
+			break;
+		}
+	}
+
+	// Show or hide the tooltip
+	QString text;
+	QPoint point;
+	if (tooltip_item) {
+		text = tooltip_item->toolTip();
+		point = event->screenPos();
+	}
+	QToolTip::showText(point, text, event->widget());
+	event->setAccepted(tooltip_item != nullptr);
 }
 
 /******************************************************************************

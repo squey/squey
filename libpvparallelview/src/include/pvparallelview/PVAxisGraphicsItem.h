@@ -30,10 +30,9 @@ class QGraphicsSimpleTextItem;
 namespace PVParallelView
 {
 
-namespace __impl {
-
-class PVMinMaxHelpEventFilter;
-
+namespace __impl
+{
+class PVToolTipEventFilter;
 }
 
 class PVAxisLabel;
@@ -42,7 +41,8 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 {
 	Q_OBJECT
 
-	friend class __impl::PVMinMaxHelpEventFilter;
+	friend class __impl::PVToolTipEventFilter;
+
 public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
 	typedef PVSlidersManager::axis_id_t        axis_id_t;
@@ -81,6 +81,16 @@ public:
 		return _axis_id;
 	}
 
+	const PVCol get_combined_axis_column() const
+	{
+		return _lib_view.axes_combination.get_index_by_id(_axis_id);
+	}
+
+	const PVCol get_original_axis_column() const
+	{
+		return _lib_view.axes_combination.get_axis_column_index(_lib_view.axes_combination.get_index_by_id(_axis_id));
+	}
+
 	QRectF get_label_scene_bbox() const;
 
 	void set_axis_length(int l)
@@ -110,11 +120,15 @@ public slots:
 		emit new_zoomed_parallel_view(axis_id);
 	}
 
+protected:
+	void show_tooltip(QGraphicsTextItem* gti, QGraphicsSceneHelpEvent* event) const;
+
 signals:
 	void new_zoomed_parallel_view(int axis_id);
 
 private:
 	Picviz::PVAxis const* lib_axis() const;
+	void set_axis_text_value(QGraphicsTextItem* item, PVRow const r);
 
 private:
 	PVSlidersManager_p              _sliders_manager_p;
@@ -129,7 +143,7 @@ private:
 	QGraphicsTextItem              *_axis_max_value;
 	QGraphicsTextItem              *_layer_min_value;
 	QGraphicsTextItem              *_layer_max_value;
-	__impl::PVMinMaxHelpEventFilter *_event_filter;
+	__impl::PVToolTipEventFilter *_event_filter;
 };
 
 }
