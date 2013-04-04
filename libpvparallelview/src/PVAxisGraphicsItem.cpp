@@ -29,6 +29,48 @@ static void make_min_max_text(const QFont &font, const QString &text,
 	PVWidgets::PVUtils::html_word_wrap_text(tooltip_text, font, tooltip_width);
 }
 
+namespace PVParallelView
+{
+
+namespace __impl
+{
+
+class PVMinMaxHelpEventFilter : public QObject
+{
+public:
+	PVMinMaxHelpEventFilter(PVAxisGraphicsItem* parent):
+	QObject(parent)
+	{}
+
+protected:
+	bool eventFilter(QObject *obj, QEvent *ev)
+	{
+		QGraphicsTextItem* gti = static_cast<QGraphicsTextItem*>(obj);
+		switch (ev->type()) {
+		case QEvent::ToolTip:
+			// agi_parent()->label_button_pressed(gti, static_cast<QHelpEvent*>(ev));
+			std::cout << "######### POUET" << std::endl;
+			break;
+		default:
+			std::cout << "@@@@@@@@@ " << ev->type() << std::endl;
+			break;
+		}
+
+		return false;
+	};
+
+private:
+	inline PVAxisGraphicsItem* agi_parent()
+	{
+		assert(qobject_cast<PVAxisGraphicsItem*>(parent()));
+		return static_cast<PVAxisGraphicsItem*>(parent());
+	}
+};
+
+}
+
+}
+
 /*****************************************************************************
  * PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem
  *****************************************************************************/
@@ -39,6 +81,9 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	_axis_id(axis_id),
 	_lib_view(view)
 {
+	_event_filter = new __impl::PVMinMaxHelpEventFilter(this);
+	installEventFilter(_event_filter);
+
 	// This is needed to let the children of the group handle their events.
 	setHandlesChildEvents(false);
 
@@ -56,19 +101,25 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	_label->setPos(0, - 6 * axis_extend);
 
 	_axis_min_value = new QGraphicsTextItem(this);
+	_axis_min_value->installEventFilter(_event_filter);
 	addToGroup(_axis_min_value);
+
 	_axis_max_value = new QGraphicsTextItem(this);
+	_axis_max_value->installEventFilter(_event_filter);
 	addToGroup(_axis_max_value);
+
 	_layer_min_value = new QGraphicsTextItem(this);
 	QFont font = _layer_min_value->font();
 	font.setStyle(QFont::StyleItalic);
 	_layer_min_value->setFont(font);
+	_layer_min_value->installEventFilter(_event_filter);
 	addToGroup(_layer_min_value);
 
 	_layer_max_value = new QGraphicsTextItem(this);
 	font = _layer_max_value->font();
 	font.setStyle(QFont::StyleItalic);
 	_layer_max_value->setFont(font);
+	_layer_max_value->installEventFilter(_event_filter);
 	addToGroup(_layer_max_value);
 
 	connect(_label, SIGNAL(new_zoomed_parallel_view(int)), this, SLOT(emit_new_zoomed_parallel_view(int)));
