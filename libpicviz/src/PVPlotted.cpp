@@ -490,7 +490,7 @@ void Picviz::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min
 		{
 			const uint32_t v = this->get_value(r, col);
 			if (v > max) {
-			   local_max = v;
+				local_max = v;
 			}
 			if (v < min) {
 				local_min = v;
@@ -511,7 +511,6 @@ void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const
 	vmax = 0;
 	local_min = 0;
 	local_max = 0;
-	const PVRow nrows = get_row_count();
 	sel.visit_selected_lines([&](PVRow i) {
 		const uint32_t v = this->get_value(i, col);
 		if (v > vmax) {
@@ -522,9 +521,9 @@ void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const
 			vmin = v;
 			local_min = i;
 		}
-	}, nrows);
+	}, get_row_count());
 
-	// swap because the plotted has been reversed...
+	// We need to swap as the plotted has been reversed
 	std::swap(local_min, local_max);
 
 	min = local_min;
