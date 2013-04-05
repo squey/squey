@@ -482,46 +482,53 @@ QList<PVCol> Picviz::PVPlotted::get_columns_indexes_values_not_within_range(uint
 
 void Picviz::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min, uint32_t& max, PVSelection const& sel, PVCol col) const
 {
-	min = UINT_MAX;
-	max = 0;
+	uint32_t local_min, local_max;
+	local_min = UINT_MAX;
+	local_max = 0;
 	const PVRow size = get_row_count();
 	ret.reserve(sel.get_number_of_selected_lines_in_range(0, size));
 	sel.visit_selected_lines([&](PVRow const r)
 		{
 			const uint32_t v = this->get_value(r, col);
 			if (v > max) {
-			   max = v;
+				local_max = v;
 			}
 			if (v < min) {
-				min = v;
+				local_min = v;
 			}		
 			ret.push_back(plotted_sub_col_t::value_type(r, v));
 		},
 		size);
+
+	min = local_min;
+	max = local_max;
 }
 
 void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const
 {
+	PVRow local_min,local_max;
 	uint32_t vmin,vmax;
 	vmin = UINT_MAX;
 	vmax = 0;
-	min = 0;
-	max = 0;
-	const PVRow nrows = get_row_count();
+	local_min = 0;
+	local_max = 0;
 	sel.visit_selected_lines([&](PVRow i) {
 		const uint32_t v = this->get_value(i, col);
 		if (v > vmax) {
 			vmax = v;
-			max = i;
+			local_max = i;
 		}
 		if (v < vmin) {
 			vmin = v;
-			min = i;
+			local_min = i;
 		}
-	}, nrows);
+	}, get_row_count());
 
 	// We need to swap as the plotted has been reversed
-	std::swap(min, max);
+	std::swap(local_min, local_max);
+
+	min = local_min;
+	max = local_max;
 }
 
 void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) const
@@ -552,13 +559,13 @@ void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) 
 	max = max_local;
 }
 
-PVRow Picviz::PVPlotted::get_min_value_row(PVCol const c) const
+PVRow Picviz::PVPlotted::get_col_min_row(PVCol const c) const
 {
 	assert(c < get_column_count());
 	return _minmax_values[c].min;
 }
 
-PVRow Picviz::PVPlotted::get_max_value_row(PVCol const c) const
+PVRow Picviz::PVPlotted::get_col_max_row(PVCol const c) const
 {
 	assert(c < get_column_count());
 	return _minmax_values[c].max;

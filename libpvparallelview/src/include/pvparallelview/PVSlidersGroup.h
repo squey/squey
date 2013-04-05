@@ -62,11 +62,7 @@ public:
 		return _axis_scale;
 	}
 
-	QRectF boundingRect() const
-	{
-		// TODO: the width depend of the children's width
-		return QRectF(-10, 0, 10, 1024);
-	}
+	QRectF boundingRect() const override;
 
 	void add_zoom_sliders(int64_t y_min, int64_t y_max);
 

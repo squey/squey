@@ -15,13 +15,12 @@
 #include <pvguiqt/PVToolTipDelegate.h>
 #include <pvkernel/widgets/PVUtils.h>
 
-#define TOOLTIP_MAX_WIDTH 800
-
 bool PVGuiQt::PVToolTipDelegate::helpEvent(QHelpEvent* e, QAbstractItemView* view, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
     if (!e || !view) {
     	return false;
     }
+
 
     if (e->type() == QEvent::ToolTip) {
         QRect rect = view->visualRect(index);
@@ -30,9 +29,10 @@ bool PVGuiQt::PVToolTipDelegate::helpEvent(QHelpEvent* e, QAbstractItemView* vie
             QVariant tooltip = index.data(Qt::DisplayRole);
             if (tooltip.canConvert<QString>()) {
             	QString tooltip_text = Qt::escape(tooltip.toString());
+				const uint32_t tooltip_max_width = PVWidgets::PVUtils::tooltip_max_width(view);
             	int tooltip_width = QFontMetrics(view->font()).width(tooltip.toString());
-            	if (tooltip_width > TOOLTIP_MAX_WIDTH) {
-            		PVWidgets::PVUtils::html_word_wrap_text(tooltip_text, QToolTip::font(), TOOLTIP_MAX_WIDTH);
+            	if (tooltip_width > tooltip_max_width) {
+            		PVWidgets::PVUtils::html_word_wrap_text(tooltip_text, QToolTip::font(), tooltip_max_width);
             	}
                 QToolTip::showText(e->globalPos(), QString("<div>%1</div>").arg(tooltip_text), view);
                 return true;

@@ -10,6 +10,8 @@
 #include <picviz/widgets/editors/PVAxisIndexEditor.h>
 
 #include <pvhive/PVCallHelper.h>
+#include <pvhive/PVHive.h>
+#include <pvhive/PVObserverCallback.h>
 
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
@@ -30,10 +32,11 @@
 #include <QLabel>
 #include <QDialogButtonBox>
 #include <QRect>
+#include <QToolTip>
 
 #define CRAND() (127 + (random() & 0x7F))
 
-#define SCENE_MARGIN 32
+#define SCENE_MARGIN 16
 #define RENDER_TIMER_TIMEOUT 100 // in ms
 
 /******************************************************************************
@@ -49,16 +52,25 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	_selection_square(new PVSelectionSquare(this)),
 	_zoom_y(1.0),
 	_sm_p(sm_p),
-	_zid_timer_render(PVZONEID_INVALID)
+	_zid_timer_render(PVZONEID_INVALID),
+	_show_min_max_values(false)
 {
 	_view_deleted = false;
 
 	PVHive::get().register_actor(view_sp, _view_actor);
 
+	_obs_selected_layer = PVHive::create_observer_callback_heap<int>(
+	    [&](int const*) { },
+		[&](int const*) { this->update_axes_layer_min_max(); },
+		[&](int const*) { }
+	);
+
+	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_layer_stack().get_selected_layer_index(); }, *_obs_selected_layer);
+
 	setBackgroundBrush(QBrush(common::color_view_bg()));
 
 	// this scrollbar is totally useless
-	_full_parallel_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	//_full_parallel_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	connect(_full_parallel_view->horizontalScrollBar(), SIGNAL(sliderPressed()), this, SLOT(scrollbar_pressed_Slot()));
 	connect(_full_parallel_view->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(scrollbar_released_Slot()));
@@ -247,6 +259,22 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		}
 		event->accept();
 	}
+	else if (event->key() == Qt::Key_Y) {
+		_show_min_max_values ^= true;
+		for(PVAxisGraphicsItem* axis : _axes) {
+			axis->set_min_max_visible(_show_min_max_values);
+		}
+		update_viewport();
+		update_scene(true);
+		update_all();
+		event->accept();
+	}
+#ifdef PICVIZ_DEVELOPER_MODE
+	else if ((event->key() == Qt::Key_B) && (event->modifiers() & Qt::ControlModifier)) {
+		common::toggle_show_bboxes();
+		update();
+	}
+#endif
 }
 
 /******************************************************************************
@@ -415,12 +443,12 @@ void PVParallelView::PVFullParallelScene::scale_zone_images(PVZoneID zone_id)
 	{
 		PVBCIBackendImage& scaled_img = *_zones[img_id].img_tmp_bg;
 		img_bg.resize_width(scaled_img, zone_width);
-		_zones[img_id].bg->setPixmap(QPixmap::fromImage(scaled_img.qimage()));
+		_zones[img_id].bg->setPixmap(QPixmap::fromImage(scaled_img.qimage(qimage_height())));
 	}
 	{
 		PVBCIBackendImage& scaled_img = *_zones[img_id].img_tmp_sel;
 		img_sel.resize_width(scaled_img, zone_width);
-		_zones[img_id].sel->setPixmap(QPixmap::fromImage(scaled_img.qimage()));
+		_zones[img_id].sel->setPixmap(QPixmap::fromImage(scaled_img.qimage(qimage_height())));
 	}
 }
 
@@ -481,6 +509,12 @@ void PVParallelView::PVFullParallelScene::update_all()
 {
 	assert(QThread::currentThread() == this->thread());
 	render_all_zones_all_imgs();
+	if (_show_min_max_values) {
+		for (PVAxisGraphicsItem* axis : _axes) {
+			axis->update_axis_min_max_info();
+			axis->update_layer_min_max_info();
+		}
+	}
 	update_selected_line_number();
 }
 
@@ -602,7 +636,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 			delete _axes[i];
 		} else {
 			new_axes[index] = _axes[i];
-			new_axes[index]->update_axis_info();
+			new_axes[index]->update_axis_label_info();
 			if(i < (size_t)nb_zones) {
 				new_wz_list[index] = old_wz_list[i];
 			}
@@ -641,6 +675,15 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones_async()
 	QMetaObject::invokeMethod(this, "update_number_of_zones", Qt::QueuedConnection);
 }
 
+QRectF PVParallelView::PVFullParallelScene::axes_scene_bounding_box() const
+{
+	QRectF ret;
+	for (PVAxisGraphicsItem* axis: _axes) {
+		ret |= axis->sceneBoundingRect();
+	}
+	return ret;
+}
+
 /******************************************************************************
  *
  * PVParallelView::PVFullParallelScene::update_scene
@@ -648,25 +691,13 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones_async()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_scene(bool recenter_view)
 {
-	QRectF old_scene_rect = sceneRect();
-	QRectF items_bbox = itemsBoundingRect();
-
-	QRectF new_scene_rect(_lines_view.get_left_border_of_scene() - 0.9*_full_parallel_view->width(), items_bbox.top(),
-	                      _lines_view.get_right_border_of_scene() + 1.8*_full_parallel_view->width(), items_bbox.height() + SCENE_MARGIN);
-
-
-	if (old_scene_rect.width() == new_scene_rect.width()) {
-		/* QGraphicsView::centerOn(...) is not stable:
-		 * centerOn(scene_center) may differ from scene_center. Thx Qt's guys!
-		 */
-		return;
-	}
+	QRectF items_bbox = axes_scene_bounding_box();
 
 	QRect screen_rect = _full_parallel_view->viewport()->rect();
 	qreal old_center_x = _full_parallel_view->mapToScene(screen_rect.center()).x();
 
 	// set scene's bounding box because Qt never shrinks the sceneRect (see Qt Doc)
-	setSceneRect(new_scene_rect);
+	setSceneRect(items_bbox);
 
 	if (recenter_view) {
 		// center's ordinate must always show axes names
@@ -702,21 +733,24 @@ void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axi
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_viewport()
 {
-	int screen_height = _full_parallel_view->viewport()->rect().height();
+	const int screen_height = _full_parallel_view->viewport()->rect().height();
 
-	QRectF axes_names_bbox_f;
+	QRectF axes_top_decoration_bbox;
+	QRectF axes_bottom_decoration_bbox;
 
 	for(PVAxisGraphicsItem *axis : _axes) {
-		axes_names_bbox_f |= axis->get_label_scene_bbox();
+		axes_top_decoration_bbox    |= axis->get_top_decoration_scene_bbox();
+		axes_bottom_decoration_bbox |= axis->get_bottom_decoration_scene_bbox();
 	}
 
 	/* the bbox is extended to 0 to consider the offset between the labels and
 	 * the top of the axis, and the offset 0 and the axis top
 	 */
-	axes_names_bbox_f.setBottom(0.);
+	//axes_names_bbox_f.setBottom(0.);
 
-	int labels_height = _full_parallel_view->mapFromScene(axes_names_bbox_f).boundingRect().height();
-	_axis_length = PVCore::clamp(screen_height - (labels_height + SCENE_MARGIN),
+	const int top_height =    _full_parallel_view->mapFromScene(axes_top_decoration_bbox).boundingRect().height();
+	const int bottom_height = _full_parallel_view->mapFromScene(axes_bottom_decoration_bbox).boundingRect().height();
+	_axis_length = PVCore::clamp(screen_height - (top_height + bottom_height + SCENE_MARGIN),
 	                             0, 1024);
 
 	for(PVAxisGraphicsItem *axis : _axes) {
@@ -770,7 +804,8 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zone_id)
 		return;
 	}
 
-	_zones[img_id].bg->setPixmap(QPixmap::fromImage(img_bg.qimage()));
+	QPixmap px = QPixmap::fromImage(img_bg.qimage(qimage_height()));
+	_zones[img_id].bg->setPixmap(px);
 	_zones[img_id].bg->setPos(QPointF(_lines_view.get_left_border_position_of_zone_in_scene(zone_id), 0));
 }
 
@@ -804,7 +839,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(int zone_id)
 		return;
 	}
 
-	_zones[img_id].sel->setPixmap(QPixmap::fromImage(img_sel.qimage()));
+	_zones[img_id].sel->setPixmap(QPixmap::fromImage(img_sel.qimage(qimage_height())));
 	_zones[img_id].sel->setPos(QPointF(_lines_view.get_left_border_position_of_zone_in_scene(zone_id), 0));
 }
 
@@ -816,11 +851,9 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(int zone_id)
 void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all, bool scale)
 {
 	if (scale) {
-		//BENCH_START(update);
 		for (PVZoneID zone_id = _lines_view.get_first_visible_zone_index(); zone_id <= _lines_view.get_last_visible_zone_index(); zone_id++) {
 			scale_zone_images(zone_id);
 		}
-		//BENCH_END(update, "update_zone_pixmap", 1, 1, 1, 1);
 	}
 
 	// We start by updating all axes positions
@@ -849,9 +882,79 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 	for (PVZoneID z = _lines_view.get_first_visible_zone_index(); z <= _lines_view.get_last_visible_zone_index(); z++) {
 		_zones[_lines_view.get_zone_index_offset(z)].setPos(QPointF(_lines_view.get_left_border_position_of_zone_in_scene(z), 0));
 	}
-	
+
+	PVZoneID i;
+	for(i = 0; i < _lines_view.get_number_of_managed_zones(); ++i) {
+		_axes[i]->set_zone_width(_lines_view.get_zone_width(i));
+		if (_show_min_max_values) {
+			// Need to be done because eluded text could change
+			_axes[i]->update_axis_min_max_info();
+			_axes[i]->update_layer_min_max_info();
+		}
+	}
+
+	// Last axis needs a fake zone width, and update its info
+	_axes[i]->set_zone_width(256);
+	if (_show_min_max_values) {
+		_axes[i]->update_axis_min_max_info();
+		_axes[i]->update_layer_min_max_info();
+	}
+
 	// It's time to refresh the current selection_square
 	_selection_square->update_position();
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVFullParallelScene::helpEvent
+ *
+ *****************************************************************************/
+void PVParallelView::PVFullParallelScene::helpEvent(QGraphicsSceneHelpEvent* event)
+{
+	// Inspired by Qt's original QGraphicsScene::helpEvent.
+	// The advantage of this implemntation is that the help event is forwarded
+	// to the top-most items, thus enabling a custom behavior if needed (as in
+	// PVAxisGraphicsItem).
+	// If the event isn't accepted by any items, the default behavior is
+	// provided (that is, showing the tooltip text of the first non-empty
+	// object's tooltip property).
+	
+	QList<QGraphicsItem*> items_at_pos = items(event->scenePos(), Qt::IntersectsItemShape, Qt::DescendingOrder, graphics_view()->viewportTransform());
+
+	// `event' is created in QGraphicsView::viewportEvent. As events are
+	// "accepted" by default and it is not cleared when created, we need to
+	// clear it here before forwarding it to the top-level items !
+	event->ignore();
+
+	for (QGraphicsItem* const item: items_at_pos) {
+		sendEvent(item, event);
+		if (event->isAccepted()) {
+			return;
+		}
+	}
+
+	// If we're here, provide the default behavior. The original function can't
+	// just be called because, for proxy widgets, the event would se sent twice
+	// ! (cf. QGraphicsScene::helpEvent original source code).
+	
+	// Find out the first item with a valid tooltip.
+	QGraphicsItem* tooltip_item = nullptr;
+	for (QGraphicsItem* const item: items_at_pos) {
+		if (!item->toolTip().isEmpty()) {
+			tooltip_item = item;
+			break;
+		}
+	}
+
+	// Show or hide the tooltip
+	QString text;
+	QPoint point;
+	if (tooltip_item) {
+		text = tooltip_item->toolTip();
+		point = event->screenPos();
+	}
+	QToolTip::showText(point, text, event->widget());
+	event->setAccepted(tooltip_item != nullptr);
 }
 
 /******************************************************************************
@@ -938,6 +1041,13 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 		update_scene(false);
 		_timer_render->start();
 		event->accept();
+	}
+}
+
+void PVParallelView::PVFullParallelScene::update_axes_layer_min_max()
+{
+	for (PVParallelView::PVAxisGraphicsItem* axis: _axes) {
+		axis->update_layer_min_max_info();
 	}
 }
 

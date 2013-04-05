@@ -215,7 +215,8 @@ void Picviz::PVView::delete_layer_n(int idx)
 
 void Picviz::PVView::duplicate_selected_layer(const QString &name)
 {
-	layer_stack.duplicate_selected_layer(name);
+	PVLayer* new_layer = layer_stack.duplicate_selected_layer(name);
+	compute_layer_min_max(*new_layer);
 }
 
 void Picviz::PVView::load_from_file(const QString& file)
@@ -245,7 +246,8 @@ void Picviz::PVView::commit_to_new_layer()
 	const PVSelection& sel = post_filter_layer.get_selection();
 	const PVLinesProperties &lp = output_layer.get_lines_properties();
 
-	layer_stack.append_new_layer_from_selection_and_lines_properties(sel, lp);
+	PVLayer *layer = layer_stack.append_new_layer_from_selection_and_lines_properties(sel, lp);
+	layer->compute_min_max(*get_parent<Picviz::PVPlotted>());
 }
 
 void Picviz::PVView::commit_volatile_in_floating_selection()
@@ -1475,9 +1477,26 @@ Picviz::PVSortingFunc_p Picviz::PVView::get_sort_plugin_for_col(PVCol col) const
 	return f_lib;
 }
 
+void Picviz::PVView::compute_layer_min_max(Picviz::PVLayer& layer)
+{
+	layer.compute_min_max(*get_parent<Picviz::PVPlotted>());
+}
+
 void Picviz::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes, PVAxesCombination::list_axes_t const& axes)
 {
 	get_axes_combination().set_axes_index_list(idxes, axes);
+}
+
+PVRow Picviz::PVView::get_plotted_col_min_row(PVCol const combined_col) const
+{
+	PVCol const col = axes_combination.get_axis_column_index(combined_col);
+	return get_parent<PVPlotted>()->get_col_min_row(col);
+}
+
+PVRow Picviz::PVView::get_plotted_col_max_row(PVCol const combined_col) const
+{
+	PVCol const col = axes_combination.get_axis_column_index(combined_col);
+	return get_parent<PVPlotted>()->get_col_max_row(col);
 }
 
 // Load/save and serialization

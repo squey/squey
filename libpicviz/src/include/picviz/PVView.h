@@ -249,6 +249,8 @@ public:
 
 	PVSortingFunc_p get_sort_plugin_for_col(PVCol col) const;
 
+	void compute_layer_min_max(Picviz::PVLayer& layer);
+
 
 /******************************************************************************
 ******************************************************************************
@@ -399,6 +401,9 @@ public:
 	void recreate_mapping_plotting();
 
 	PVCol get_real_axis_index(PVCol col) const;
+
+	PVRow get_plotted_col_min_row(PVCol const combined_col) const;
+	PVRow get_plotted_col_max_row(PVCol const combined_col) const;
 
 public:
 	// State machine

@@ -30,11 +30,19 @@ class QGraphicsSimpleTextItem;
 namespace PVParallelView
 {
 
+namespace __impl
+{
+class PVToolTipEventFilter;
+}
+
 class PVAxisLabel;
+class PVFullParallelScene;
 
 class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 {
 	Q_OBJECT
+
+	friend class __impl::PVToolTipEventFilter;
 
 public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
@@ -47,9 +55,14 @@ public:
 	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVView const& view, const axis_id_t &axis_id);
 	~PVAxisGraphicsItem();
 
-	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) override;
+	QRectF boundingRect() const override;
 
-	void update_axis_info();
+	void update_axis_label_info();
+	void update_axis_min_max_info();
+	void update_layer_min_max_info();
+
+	void set_min_max_visible(const bool visible);
 
 	PVSlidersGroup *get_sliders_group()
 	{
@@ -66,11 +79,24 @@ public:
 		return _axis_id;
 	}
 
-	QRectF get_label_scene_bbox() const;
-
-	void set_axis_length(int l)
+	const PVCol get_combined_axis_column() const
 	{
-		_axis_length = l;
+		return _lib_view.axes_combination.get_index_by_id(_axis_id);
+	}
+
+	const PVCol get_original_axis_column() const
+	{
+		return _lib_view.axes_combination.get_axis_column_index(_lib_view.axes_combination.get_index_by_id(_axis_id));
+	}
+
+	QRectF get_top_decoration_scene_bbox() const;
+	QRectF get_bottom_decoration_scene_bbox() const;
+
+	void set_axis_length(int l);
+
+	void set_zone_width(int w)
+	{
+		_zone_width = w;
 	}
 
 	QRect map_from_scene(QRectF rect) const
@@ -90,11 +116,20 @@ public slots:
 		emit new_zoomed_parallel_view(axis_id);
 	}
 
+protected:
+	void show_tooltip(QGraphicsTextItem* gti, QGraphicsSceneHelpEvent* event) const;
+
 signals:
 	void new_zoomed_parallel_view(int axis_id);
 
 private:
 	Picviz::PVAxis const* lib_axis() const;
+	void set_axis_text_value(QGraphicsTextItem* item, PVRow const r);
+	inline bool show_min_max_values() const { return _minmax_visible; }
+
+	void update_axis_label_position();
+	void update_axis_min_max_position();
+	void update_layer_min_max_position();
 
 private:
 	PVSlidersManager_p              _sliders_manager_p;
@@ -104,6 +139,13 @@ private:
 	PVSlidersGroup                 *_sliders_group;
 	PVAxisLabel                    *_label;
 	int                             _axis_length;
+	int                             _zone_width;
+	QGraphicsTextItem              *_axis_min_value;
+	QGraphicsTextItem              *_axis_max_value;
+	QGraphicsTextItem              *_layer_min_value;
+	QGraphicsTextItem              *_layer_max_value;
+	__impl::PVToolTipEventFilter   *_event_filter;
+	bool                            _minmax_visible;
 };
 
 }

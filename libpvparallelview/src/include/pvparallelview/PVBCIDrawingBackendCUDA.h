@@ -69,10 +69,11 @@ protected:
 	int get_cuda_device() const { return _cuda_device; }
 
 public:
-	virtual QImage qimage() const
+	virtual QImage qimage(size_t crop_height) const
 	{
+		assert(crop_height <= PVBCIBackendImage::height());
 		// This is really important to use the const constructor version of QImage, so that no data copy is made !
-		return QImage((const uchar*) _host_img, PVBCIBackendImage::width(), PVBCIBackendImage::height(), _org_width*sizeof(uint32_t), QImage::Format_ARGB32_Premultiplied);
+		return QImage((const uchar*) _host_img, PVBCIBackendImage::width(), crop_height, _org_width*sizeof(uint32_t), QImage::Format_ARGB32_Premultiplied);
 	}
 
 	virtual bool set_width(uint32_t width)

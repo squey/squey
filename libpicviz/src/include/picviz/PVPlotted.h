@@ -163,8 +163,8 @@ public:
 
 	inline QList<PVCol> const& last_updated_cols() const { return _last_updated_cols; }
 
-	PVRow get_min_value_row(PVCol const c) const;
-	PVRow get_max_value_row(PVCol const c) const;
+	PVRow get_col_min_row(PVCol const c) const;
+	PVRow get_col_max_row(PVCol const c) const;
 
 public:
 	// Debug

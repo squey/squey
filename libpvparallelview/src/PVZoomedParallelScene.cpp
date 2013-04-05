@@ -767,9 +767,9 @@ void PVParallelView::PVZoomedParallelScene::all_rendering_done()
 		image.fill(Qt::transparent);
 
 		painter.setOpacity(0.25);
-		painter.drawImage(0, 0, _left_zone->bg_image->qimage());
+		painter.drawImage(0, 0, _left_zone->bg_image->qimage(qimage_height()));
 		painter.setOpacity(1.0);
-		painter.drawImage(0, 0, _left_zone->sel_image->qimage());
+		painter.drawImage(0, 0, _left_zone->sel_image->qimage(qimage_height()));
 
 		_left_zone->item->setPos(_left_zone->next_pos);
 		_left_zone->item->setScale(_current_beta);
@@ -780,9 +780,9 @@ void PVParallelView::PVZoomedParallelScene::all_rendering_done()
 		image.fill(Qt::transparent);
 
 		painter.setOpacity(0.25);
-		painter.drawImage(0, 0, _right_zone->bg_image->qimage());
+		painter.drawImage(0, 0, _right_zone->bg_image->qimage(qimage_height()));
 		painter.setOpacity(1.0);
-		painter.drawImage(0, 0, _right_zone->sel_image->qimage());
+		painter.drawImage(0, 0, _right_zone->sel_image->qimage(qimage_height()));
 
 		_right_zone->item->setPos(_right_zone->next_pos);
 		_right_zone->item->setScale(_current_beta);

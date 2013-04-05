@@ -49,7 +49,7 @@ public:
  	PVLayer& get_selected_layer() { return table[get_selected_layer_index()]; }
  	PVLayer const& get_selected_layer() const { return table[get_selected_layer_index()]; }
 
-	int get_selected_layer_index() const {return selected_layer_index;}
+	int const& get_selected_layer_index() const {return selected_layer_index;}
 	
 	void set_selected_layer_index(int index) {selected_layer_index = index;}
 // 
@@ -67,7 +67,7 @@ public:
 	void delete_all_layers();
 	void delete_selected_layer();
 
-	void duplicate_selected_layer(const QString &name);
+	PVLayer* duplicate_selected_layer(const QString &name);
 
 // 
 // 	picviz_layer_t *layer_get_by_index(int index);

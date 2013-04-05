@@ -105,36 +105,42 @@ IMPL_WAX(Picviz::PVView::add_new_layer, view, args)
 {
 	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::add_new_layer)>(view, args);
 	refresh_observers(&view->get_layer_stack());
+	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Picviz::PVView::add_new_layer_from_file, view, args)
 {
 	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::add_new_layer_from_file)>(view, args);
 	refresh_observers(&view->get_layer_stack());
+	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Picviz::PVView::delete_layer_n, view, args)
 {
 	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::delete_layer_n)>(view, args);
 	refresh_observers(&view->get_layer_stack());
+	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Picviz::PVView::delete_selected_layer, view, args)
 {
 	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::delete_selected_layer)>(view, args);
 	refresh_observers(&view->get_layer_stack());
+	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Picviz::PVView::duplicate_selected_layer, view, args)
 {
 	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::duplicate_selected_layer)>(view, args);
 	refresh_observers(&view->get_layer_stack());
+	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Picviz::PVView::commit_to_new_layer, view, args)
 {
 	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::commit_to_new_layer)>(view, args);
 	refresh_observers(&view->get_layer_stack());
+	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Picviz::PVView::reset_layers, view, args)
@@ -147,6 +153,7 @@ IMPL_WAX(Picviz::PVView::set_layer_stack_selected_layer_index, view, args)
 {
 	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::set_layer_stack_selected_layer_index)>(view, args);
 	refresh_observers(&view->get_layer_stack());
+	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Picviz::PVView::set_layer_stack_layer_n_name, view, args)
@@ -174,6 +181,12 @@ IMPL_WAX(Picviz::PVView::hide_layers, view, args)
 {
 	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::hide_layers)>(view, args);
 	refresh_observers(&view->get_layer_stack());
+}
+
+IMPL_WAX(Picviz::PVView::compute_layer_min_max, view, args)
+{
+	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::compute_layer_min_max)>(view, args);
+	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 // Axes combination waxes

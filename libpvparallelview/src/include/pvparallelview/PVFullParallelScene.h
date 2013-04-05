@@ -26,6 +26,7 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVFuncObserver.h>
+#include <pvhive/PVObserverSignal.h>
 
 #include <tbb/atomic.h>
 #include <tbb/task_group.h>
@@ -88,6 +89,15 @@ public:
 	 */
 	void reset_zones_layout_to_default();
 
+	QRectF axis_scene_bounding_box(int axis) const
+	{
+		QRectF ret = _axes[axis]->sceneBoundingRect();
+		return ret;
+	}
+	size_t axes_count() const { return _axes.size(); }
+
+	QRectF axes_scene_bounding_box() const;
+
 protected:
 	/**
 	 * recompute the selected line number and update the displayed statistics
@@ -110,6 +120,7 @@ private:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
 	void wheelEvent(QGraphicsSceneWheelEvent* event) override;
+	void helpEvent(QGraphicsSceneHelpEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 
 	inline QPointF map_to_axis(PVZoneID zone_id, QPointF p) const { return _axes[zone_id]->mapFromScene(p); }
@@ -139,6 +150,8 @@ private:
 
 	inline PVBCIDrawingBackend& backend() const { return _lines_view.backend(); }
 
+	inline size_t qimage_height() const { return (double)(1<<PARALLELVIEW_ZT_BBITS) * _zoom_y; }
+
 private slots:
 	void update_zone_pixmap_bg(int zone_id);
 	void update_zone_pixmap_sel(int zone_id);
@@ -161,6 +174,8 @@ private slots:
 
 	void render_all_zones_all_imgs();
 	void render_single_zone_all_imgs();
+
+	void update_axes_layer_min_max();
 
 private:
 	int32_t pos_last_axis() const;
@@ -219,6 +234,8 @@ private:
 	axes_list_t             _axes;
 
 	PVHive::PVActor<Picviz::PVView> _view_actor;
+	PVHive::PVObserver_p<int>       _obs_selected_layer;
+
 	Picviz::PVView& _lib_view;
 
 	PVFullParallelView* _full_parallel_view;
@@ -237,6 +254,8 @@ private:
 	PVZoneID _zid_timer_render;
 
 	tbb::atomic<bool> _view_deleted;
+
+	bool              _show_min_max_values;
 };
 
 }
