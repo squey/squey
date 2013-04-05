@@ -3,6 +3,7 @@
 
 #include <pvparallelview/PVAbstractAxisSlider.h>
 #include <pvparallelview/PVAbstractAxisSliders.h>
+#include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVSlidersGroup.h>
 
 #include <QPainter>
@@ -145,4 +146,18 @@ void PVParallelView::PVAbstractAxisSlider::contextMenuEvent(QGraphicsSceneContex
 			event->accept();
 		}
 	}
+}
+
+void PVParallelView::PVAbstractAxisSlider::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+#ifdef PICVIZ_DEVELOPER_MODE
+	if (common::show_bboxes()) {
+		painter->save();
+		painter->setPen(QColor(0xFF, 0, 0));
+		painter->setBrush(QColor(0xFF, 0, 0, 128));
+		const QRectF br = boundingRect();
+		painter->drawRect(br);
+		painter->restore();
+	}
+#endif
 }

@@ -525,3 +525,8 @@ void PVParallelView::PVSlidersGroup::zoomed_selection_sliders_del_obs::update(ar
 		_parent->del_zoomed_selection_sliders(std::get<1>(args));
 	}
 }
+
+QRectF PVParallelView::PVSlidersGroup::boundingRect() const
+{
+	return childrenBoundingRect();
+}

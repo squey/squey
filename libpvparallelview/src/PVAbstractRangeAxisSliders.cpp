@@ -44,9 +44,12 @@ PVParallelView::PVAbstractRangeAxisSliders::~PVAbstractRangeAxisSliders()
  *****************************************************************************/
 
 void PVParallelView::PVAbstractRangeAxisSliders::paint(QPainter *painter,
-                                                       const QStyleOptionGraphicsItem *,
-                                                       QWidget *)
+                                                       const QStyleOptionGraphicsItem *option,
+                                                       QWidget *widget)
 {
+	qreal vmin = _sl_min->pos().y();
+	_text->setPos(0, vmin);
+
 	if (is_moving()) {
 		painter->save();
 
@@ -55,15 +58,15 @@ void PVParallelView::PVAbstractRangeAxisSliders::paint(QPainter *painter,
 		QPen new_pen(Qt::white);
 		new_pen.setWidth(0);
 		painter->setPen(new_pen);
-		qreal vmin = _sl_min->pos().y();
 		qreal vmax = _sl_max->pos().y();
 		painter->drawLine(QPointF(0., vmin), QPointF(0., vmax));
 
-		_text->setPos(0, vmin);
 		_text->show();
 
 		painter->restore();
 	} else {
 		_text->hide();
 	}
+
+	PVAbstractAxisSliders::paint(painter, option, widget);
 }

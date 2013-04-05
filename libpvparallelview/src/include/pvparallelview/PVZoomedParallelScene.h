@@ -353,6 +353,8 @@ private:
 	 */
 	void connect_zr(PVZoneRendering<bbits>* zr, const char* slots);
 
+	inline size_t qimage_height() const { return 1<<PARALLELVIEW_ZZT_BBITS; }
+
 private slots:
 	/**
 	 * The slot called when the vertical scrollbar's value has changed.

@@ -31,6 +31,9 @@ public:
 
 	virtual void refresh() = 0;
 
+	QRectF boundingRect() const override;
+	void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0) override;
+
 public slots:
 	virtual void remove_from_axis() = 0;
 

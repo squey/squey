@@ -14,6 +14,7 @@
 
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVAxisLabel.h>
+#include <pvparallelview/PVParallelView.h>
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -88,7 +89,8 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
                                                        Picviz::PVView const& view, const axis_id_t &axis_id) :
 	_sliders_manager_p(sm_p),
 	_axis_id(axis_id),
-	_lib_view(view)
+	_lib_view(view),
+	_axis_length(10)
 {
 	_event_filter = new __impl::PVToolTipEventFilter(this);
 
@@ -131,8 +133,12 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 
 	connect(_label, SIGNAL(new_zoomed_parallel_view(int)), this, SLOT(emit_new_zoomed_parallel_view(int)));
 
-	update_axis_label_info();
 	set_min_max_visible(false);
+
+	update_axis_label_info();
+	update_axis_label_position();
+	update_axis_min_max_position();
+	update_layer_min_max_position();
 }
 
 PVParallelView::PVAxisGraphicsItem::~PVAxisGraphicsItem()
@@ -140,6 +146,27 @@ PVParallelView::PVAxisGraphicsItem::~PVAxisGraphicsItem()
 	if (scene()) {
 		scene()->removeItem(this);
 	}
+}
+
+QRectF PVParallelView::PVAxisGraphicsItem::boundingRect() const
+{
+	// The geometry of the axis changes whether min/max values are displayed or not !
+	// WARNING: if one graphics item is added to the axis group, its geometry must be added here !!
+	
+	QRectF ret = _label->mapToParent(_label->boundingRect()).boundingRect();
+	if (show_min_max_values()) {
+		ret |= _axis_min_value->mapToParent(_axis_min_value->boundingRect()).boundingRect()   |
+               _axis_max_value->mapToParent(_axis_max_value->boundingRect()).boundingRect()   |
+               _layer_min_value->mapToParent(_layer_min_value->boundingRect()).boundingRect() |
+               _layer_max_value->mapToParent(_layer_max_value->boundingRect()).boundingRect();
+	}
+	else {
+		int new_bottom = ret.bottom() + _axis_length + 2*axis_extend;
+		ret.setBottom(new_bottom);
+	}
+
+	return ret;
+	//return childrenBoundingRect();
 }
 
 /*****************************************************************************
@@ -157,6 +184,13 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 	    _axis_length + (2 * axis_extend),
 	    lib_axis()->get_color().toQColor()
 	);
+
+#ifdef PICVIZ_DEVELOPER_MODE
+	if (common::show_bboxes()) {
+		painter->setPen(QColor(0, 0xFF, 0));
+		painter->drawRect(boundingRect());
+	}
+#endif
 
 	QGraphicsItemGroup::paint(painter, option, widget);
 }
@@ -179,9 +213,9 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_label_info()
  * PVParallelView::PVAxisGraphicsItem::update_axis_position
  *****************************************************************************/
 
-void PVParallelView::PVAxisGraphicsItem::update_axis_label_position(const bool visible)
+void PVParallelView::PVAxisGraphicsItem::update_axis_label_position()
 {
-	if (visible) {
+	if (show_min_max_values()) {
 		_label->setPos(0, - 6 * axis_extend);
 	} else {
 		_label->setPos(0, - 2 * axis_extend);
@@ -277,6 +311,9 @@ void PVParallelView::PVAxisGraphicsItem::update_layer_min_max_position()
 
 void PVParallelView::PVAxisGraphicsItem::set_min_max_visible(const bool visible)
 {
+	prepareGeometryChange();
+
+	_minmax_visible = visible;
 	_axis_min_value->setVisible(visible);
 	_axis_max_value->setVisible(visible);
 	_layer_min_value->setVisible(visible);
@@ -287,9 +324,27 @@ void PVParallelView::PVAxisGraphicsItem::set_min_max_visible(const bool visible)
  * PVParallelView::PVAxisGraphicsItem::get_label_scene_bbox
  *****************************************************************************/
 
-QRectF PVParallelView::PVAxisGraphicsItem::get_label_scene_bbox() const
+QRectF PVParallelView::PVAxisGraphicsItem::get_top_decoration_scene_bbox() const
 {
-	return _label->get_scene_bbox();
+	QRectF ret = _label->get_scene_bbox();
+	if (show_min_max_values()) {
+		ret |= _axis_max_value->sceneBoundingRect() | _layer_max_value->sceneBoundingRect();
+	}
+	ret.setTop(ret.top() - axis_extend);
+	return ret;
+}
+
+QRectF PVParallelView::PVAxisGraphicsItem::get_bottom_decoration_scene_bbox() const
+{
+	QRectF ret;
+	if (show_min_max_values()) {
+		ret = _axis_min_value->sceneBoundingRect() | _layer_min_value->sceneBoundingRect();
+		ret.setBottom(ret.bottom() + axis_extend);
+	}
+	else {
+		ret = mapToScene(QRectF(0, axis_extend, 0.1, axis_extend)).boundingRect();
+	}
+	return ret;
 }
 
 /*****************************************************************************
@@ -312,4 +367,14 @@ void PVParallelView::PVAxisGraphicsItem::show_tooltip(QGraphicsTextItem* gti, QG
 
 	// And finally show this tooltip !
 	QToolTip::showText(event->screenPos(), text, event->widget());
+}
+
+void PVParallelView::PVAxisGraphicsItem::set_axis_length(int l)
+{
+	prepareGeometryChange();
+
+	_axis_length = l;
+	update_axis_label_position();
+	update_axis_min_max_position();
+	update_layer_min_max_position();
 }

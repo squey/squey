@@ -28,8 +28,8 @@ QRectF PVParallelView::PVZoomAxisSlider::boundingRect() const
  *****************************************************************************/
 
 void PVParallelView::PVZoomAxisSlider::paint(QPainter *painter,
-                                             const QStyleOptionGraphicsItem *,
-                                             QWidget *)
+                                             const QStyleOptionGraphicsItem *option,
+                                             QWidget *widget)
 {
 	static const QPointF min_points[3] = {
 		QPointF(             0.0,              0.0),
@@ -63,4 +63,6 @@ void PVParallelView::PVZoomAxisSlider::paint(QPainter *painter,
 	                  QPointF(ZOOM_LINE_WIDTH, 0));
 
 	painter->restore();
+
+	PVAbstractAxisSlider::paint(painter, option, widget);
 }
