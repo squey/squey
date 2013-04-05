@@ -143,7 +143,7 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	horizontalHeader()->setStretchLastSection(true);
 
 	// Sorting
-	setSortingEnabled(true);
+	setSortingEnabled(false);
 	
 	// Custom context menu.
 	// It is created based on what layer filter plugins tell us.
