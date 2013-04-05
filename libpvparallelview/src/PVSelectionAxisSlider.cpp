@@ -28,8 +28,8 @@ QRectF PVParallelView::PVSelectionAxisSlider::boundingRect() const
  *****************************************************************************/
 
 void PVParallelView::PVSelectionAxisSlider::paint(QPainter *painter,
-                                                  const QStyleOptionGraphicsItem *,
-                                                  QWidget *)
+                                                  const QStyleOptionGraphicsItem *option,
+                                                  QWidget *widget)
 {
 	static const QRectF min_rect(QPointF(- SLIDER_HALF_WIDTH, 0),
 	                             QPointF(SLIDER_HALF_WIDTH, -4));
@@ -66,4 +66,6 @@ void PVParallelView::PVSelectionAxisSlider::paint(QPainter *painter,
 	}
 
 	painter->restore();
+
+	PVAbstractAxisSlider::paint(painter, option, widget);
 }

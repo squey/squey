@@ -188,6 +188,8 @@ private:
 
 	void connect_zr(PVZoneRendering<bbits>* zr, const char* slots);
 
+	inline size_t qimage_height() const { return 1<<PARALLELVIEW_ZZT_BBITS; }
+
 private slots:
 	void scrollbar_changed_Slot(int value);
 	void updateall_timeout_Slot();

@@ -36,6 +36,7 @@ class PVToolTipEventFilter;
 }
 
 class PVAxisLabel;
+class PVFullParallelScene;
 
 class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 {
@@ -54,15 +55,12 @@ public:
 	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVView const& view, const axis_id_t &axis_id);
 	~PVAxisGraphicsItem();
 
-	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) override;
+	QRectF boundingRect() const override;
 
 	void update_axis_label_info();
-	void update_axis_label_position(const bool visible);
-
 	void update_axis_min_max_info();
-	void update_axis_min_max_position();
 	void update_layer_min_max_info();
-	void update_layer_min_max_position();
 
 	void set_min_max_visible(const bool visible);
 
@@ -91,12 +89,10 @@ public:
 		return _lib_view.axes_combination.get_axis_column_index(_lib_view.axes_combination.get_index_by_id(_axis_id));
 	}
 
-	QRectF get_label_scene_bbox() const;
+	QRectF get_top_decoration_scene_bbox() const;
+	QRectF get_bottom_decoration_scene_bbox() const;
 
-	void set_axis_length(int l)
-	{
-		_axis_length = l;
-	}
+	void set_axis_length(int l);
 
 	void set_zone_width(int w)
 	{
@@ -129,6 +125,11 @@ signals:
 private:
 	Picviz::PVAxis const* lib_axis() const;
 	void set_axis_text_value(QGraphicsTextItem* item, PVRow const r);
+	inline bool show_min_max_values() const { return _minmax_visible; }
+
+	void update_axis_label_position();
+	void update_axis_min_max_position();
+	void update_layer_min_max_position();
 
 private:
 	PVSlidersManager_p              _sliders_manager_p;
@@ -143,7 +144,8 @@ private:
 	QGraphicsTextItem              *_axis_max_value;
 	QGraphicsTextItem              *_layer_min_value;
 	QGraphicsTextItem              *_layer_max_value;
-	__impl::PVToolTipEventFilter *_event_filter;
+	__impl::PVToolTipEventFilter   *_event_filter;
+	bool                            _minmax_visible;
 };
 
 }

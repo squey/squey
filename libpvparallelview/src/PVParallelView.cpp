@@ -17,7 +17,8 @@ PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::_s = nul
 
 PVParallelView::PVParallelViewImpl::PVParallelViewImpl():
 	_backend(nullptr),
-	_pipeline(nullptr)
+	_pipeline(nullptr),
+	_show_bboxes(false)
 {
 	const float win_r = pvconfig.value("pvgl/window_r", 0.2f).toFloat();
 	const float win_g = pvconfig.value("pvgl/window_g", 0.2f).toFloat();

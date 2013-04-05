@@ -33,7 +33,8 @@ public:
 	virtual ~PVBCIBackendImage() { }
 
 public:
-	virtual QImage qimage() const = 0;
+	inline QImage qimage() const { return qimage(height()); }
+	virtual QImage qimage(size_t height_crop) const = 0;
 	virtual bool set_width(uint32_t width) { _width = width; return true; }
 
 	inline uint32_t width() const { return _width; }

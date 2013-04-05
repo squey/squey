@@ -89,6 +89,15 @@ public:
 	 */
 	void reset_zones_layout_to_default();
 
+	QRectF axis_scene_bounding_box(int axis) const
+	{
+		QRectF ret = _axes[axis]->sceneBoundingRect();
+		return ret;
+	}
+	size_t axes_count() const { return _axes.size(); }
+
+	QRectF axes_scene_bounding_box() const;
+
 protected:
 	/**
 	 * recompute the selected line number and update the displayed statistics
@@ -140,6 +149,8 @@ private:
 	void add_axis(PVZoneID const zone_id, int index = -1);
 
 	inline PVBCIDrawingBackend& backend() const { return _lines_view.backend(); }
+
+	inline size_t qimage_height() const { return (double)(1<<PARALLELVIEW_ZT_BBITS) * _zoom_y; }
 
 private slots:
 	void update_zone_pixmap_bg(int zone_id);

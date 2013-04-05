@@ -62,7 +62,7 @@ public:
 public:
 	virtual QRectF boundingRect () const = 0;
 
-	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) = 0;
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) override;
 
 signals:
 	void slider_moved();

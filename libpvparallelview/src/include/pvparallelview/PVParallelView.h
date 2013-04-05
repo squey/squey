@@ -45,6 +45,11 @@ public:
 
 	QColor const& color_view_bg() const { return _color_view_bg; }
 
+#ifdef PICVIZ_DEVELOPER_MODE
+	bool show_bboxes() const { return _show_bboxes; }
+	void toggle_show_bboxes() { _show_bboxes = !_show_bboxes; }
+#endif
+
 private:
 	void init_pipeline();
 	void register_displays();
@@ -59,6 +64,10 @@ private:
 	tbb::mutex _mutex;
 
 	QColor _color_view_bg;
+
+	// This is used in developer mode to tell whether bounding boxes should be visible
+	// This is let even if non developer mode not to change the size of this structure...
+	bool _show_bboxes;
 
 private:
 	static PVParallelViewImpl* _s;
@@ -79,6 +88,8 @@ namespace common {
 	inline PVBCIDrawingBackend& backend() { return PVParallelView::PVParallelViewImpl::get()->backend(); }
 	inline PVRenderingPipeline& pipeline() { return PVParallelView::PVParallelViewImpl::get()->pipeline(); }
 	inline QColor const& color_view_bg() { return PVParallelView::PVParallelViewImpl::get()->color_view_bg(); }
+	inline bool show_bboxes() { return PVParallelView::PVParallelViewImpl::get()->show_bboxes(); }
+	inline void toggle_show_bboxes() { return PVParallelView::PVParallelViewImpl::get()->toggle_show_bboxes(); }
 }
 
 }
