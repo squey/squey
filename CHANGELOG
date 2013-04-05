@@ -1,3 +1,12 @@
+3.0.8 (05/04/2012)
+-----------------
+
+This minor release add the following features:
+ * display min/max values in the full parallel view when using the 'y' key
+
+This minor release fixes:
+ * disable the sorting feature that was mistakenly enabled (that will be for the 3.1 version).
+
 3.0.7 (03/04/2012)
 ------------------
 
