@@ -568,7 +568,6 @@ PVRow Picviz::PVPlotted::get_col_max_row(PVCol const c) const
 {
 	assert(c < get_column_count());
 	return _minmax_values[c].max;
->>>>>>> e02425c... Add min/max for plotting
 }
 
 void Picviz::PVPlotted::process_parent_mapped()
