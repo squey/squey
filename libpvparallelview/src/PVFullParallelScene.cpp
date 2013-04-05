@@ -702,7 +702,13 @@ void PVParallelView::PVFullParallelScene::update_scene(bool recenter_view)
 	qreal old_center_x = _full_parallel_view->mapToScene(screen_rect.center()).x();
 
 	// set scene's bounding box because Qt never shrinks the sceneRect (see Qt Doc)
-	setSceneRect(items_bbox);
+	// Compute view's size into the scene
+	QRectF view_in_scene = _full_parallel_view->mapToScene(QRect(QPoint(0,0), _full_parallel_view->size())).boundingRect();
+	const double view_width = view_in_scene.width();
+	//const double view_width = _full_parallel_view->width();
+    QRectF new_scene_rect(items_bbox.left()  - 0.9*view_width, items_bbox.top(),
+	                      items_bbox.right() + 1.8*view_width, items_bbox.height());
+	setSceneRect(new_scene_rect);
 
 	if (recenter_view) {
 		// center's ordinate must always show axes names
@@ -1052,7 +1058,7 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 void PVParallelView::PVFullParallelScene::update_axes_layer_min_max()
 {
 	for (PVParallelView::PVAxisGraphicsItem* axis: _axes) {
-		//axis->update_layer_min_max_info();
+		axis->update_layer_min_max_info();
 	}
 }
 
