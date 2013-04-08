@@ -88,8 +88,10 @@ namespace common {
 	inline PVBCIDrawingBackend& backend() { return PVParallelView::PVParallelViewImpl::get()->backend(); }
 	inline PVRenderingPipeline& pipeline() { return PVParallelView::PVParallelViewImpl::get()->pipeline(); }
 	inline QColor const& color_view_bg() { return PVParallelView::PVParallelViewImpl::get()->color_view_bg(); }
+#ifdef PICVIZ_DEVELOPER_MODE
 	inline bool show_bboxes() { return PVParallelView::PVParallelViewImpl::get()->show_bboxes(); }
 	inline void toggle_show_bboxes() { return PVParallelView::PVParallelViewImpl::get()->toggle_show_bboxes(); }
+#endif
 }
 
 }
