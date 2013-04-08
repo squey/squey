@@ -5,7 +5,7 @@ This minor release add the following features:
  * display min/max values in the full parallel view when using the 'y' key
 
 This minor release fixes:
- * disable the sorting feature that was mistakenly enabled (that will be for the 3.1 version).
+ * disabled the sorting feature that was enabled by mistake (will be included in version 3.1)
 
 3.0.7 (03/04/2012)
 ------------------
