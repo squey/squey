@@ -1,5 +1,7 @@
+
 #include <pvkernel/widgets/PVGraphicsView.h>
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
+#include <pvkernel/widgets/PVGraphicsViewInteractorScene.h>
 
 #include <QGridLayout>
 #include <QGraphicsScene>
@@ -16,6 +18,8 @@
 
 #include <iostream>
 #include <cassert>
+
+#include <algorithm>
 
 static inline qint64 sb_round(const qreal &d)
 {
@@ -85,6 +89,21 @@ private:
 } }
 
 /*****************************************************************************
+ * PVWidgets::PVGraphicsView::_usable_events
+ *****************************************************************************/
+
+QEvent::Type PVWidgets::PVGraphicsView::_usable_events[] = {
+	QEvent::MouseButtonDblClick,
+	QEvent::MouseButtonPress, QEvent::MouseButtonRelease,
+	QEvent::MouseMove,
+	QEvent::Wheel,
+	QEvent::KeyPress, QEvent::KeyRelease,
+	QEvent::Resize
+};
+
+QEvent::Type* PVWidgets::PVGraphicsView::_usable_events_end = PVWidgets::PVGraphicsView::_usable_events + (sizeof(PVWidgets::PVGraphicsView::_usable_events) / sizeof(QEvent::Type));
+
+/*****************************************************************************
  * PVWidgets::PVGraphicsView::PVGraphicsView
  *****************************************************************************/
 
@@ -103,6 +122,18 @@ PVWidgets::PVGraphicsView::PVGraphicsView(QGraphicsScene *scene, QWidget *parent
 {
 	init();
 	set_scene(scene);
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::~PVGraphicsView
+ *****************************************************************************/
+
+PVWidgets::PVGraphicsView::~PVGraphicsView()
+{
+	for (PVGraphicsViewInteractorBase* inter : _interactor_enum) {
+		unregister_all(inter);
+		delete inter;
+	}
 }
 
 /*****************************************************************************
@@ -412,10 +443,7 @@ bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 
 void PVWidgets::PVGraphicsView::resizeEvent(QResizeEvent *event)
 {
-	recompute_viewport();
-	center_view(_resize_anchor);
-
-	event->setAccepted(true);
+	call_interactor(event);
 }
 
 /*****************************************************************************
@@ -501,10 +529,7 @@ void PVWidgets::PVGraphicsView::focusOutEvent(QFocusEvent *event)
 
 void PVWidgets::PVGraphicsView::keyPressEvent(QKeyEvent *event)
 {
-	if (_scene) {
-		QApplication::sendEvent(_scene, event);
-	}
-	if (!event->isAccepted()) {
+	if (!call_interactor(event)) {
 		QWidget::keyPressEvent(event);
 	}
 }
@@ -515,10 +540,7 @@ void PVWidgets::PVGraphicsView::keyPressEvent(QKeyEvent *event)
 
 void PVWidgets::PVGraphicsView::keyReleaseEvent(QKeyEvent *event)
 {
-	if (_scene) {
-		QApplication::sendEvent(_scene, event);
-	}
-	if (!event->isAccepted()) {
+	if (!call_interactor(event)) {
 		QWidget::keyReleaseEvent(event);
 	}
 }
@@ -529,36 +551,7 @@ void PVWidgets::PVGraphicsView::keyReleaseEvent(QKeyEvent *event)
 
 void PVWidgets::PVGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-	_mouse_pressed_button = event->button();
-
-	_mouse_pressed_screen_coord = event->globalPos();
-	_mouse_pressed_view_coord = event->pos();
-	_mouse_pressed_scene_coord = map_to_scene(_mouse_pressed_view_coord);
-
-	_last_mouse_move_screen_coord = _mouse_pressed_screen_coord;
-	_last_mouse_move_scene_coord = _mouse_pressed_scene_coord;
-
-	QGraphicsSceneMouseEvent scene_event(QEvent::GraphicsSceneMouseDoubleClick);
-
-	scene_event.setButtonDownScenePos(_mouse_pressed_button, _mouse_pressed_scene_coord);
-	scene_event.setButtonDownScreenPos(_mouse_pressed_button, _mouse_pressed_screen_coord);
-
-	scene_event.setScenePos(_mouse_pressed_scene_coord);
-	scene_event.setScreenPos(_mouse_pressed_screen_coord);
-	scene_event.setLastScenePos(_last_mouse_move_scene_coord);
-	scene_event.setLastScreenPos(_last_mouse_move_screen_coord);
-
-	scene_event.setButtons(event->buttons());
-	scene_event.setButton(event->button());
-	scene_event.setModifiers(event->modifiers());
-	scene_event.setWidget(_viewport);
-	scene_event.setAccepted(false);
-
-	QApplication::sendEvent(_scene, &scene_event);
-
-	if (scene_event.isAccepted()) {
-		event->setAccepted(true);
-	} else {
+	if (!call_interactor(event)) {
 		QWidget::mouseDoubleClickEvent(event);
 	}
 }
@@ -569,29 +562,7 @@ void PVWidgets::PVGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void PVWidgets::PVGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
-	QGraphicsSceneMouseEvent scene_event(QEvent::GraphicsSceneMouseMove);
-
-	scene_event.setButtonDownScenePos(_mouse_pressed_button, _mouse_pressed_scene_coord);
-	scene_event.setButtonDownScreenPos(_mouse_pressed_button, _mouse_pressed_screen_coord);
-	scene_event.setScenePos(map_to_scene(event->pos()));
-	scene_event.setScreenPos(event->globalPos());
-	scene_event.setLastScenePos(_last_mouse_move_scene_coord);
-	scene_event.setLastScreenPos(_last_mouse_move_screen_coord);
-
-	_last_mouse_move_scene_coord = scene_event.scenePos();
-	_last_mouse_move_screen_coord = scene_event.screenPos();
-
-	scene_event.setButtons(event->buttons());
-	scene_event.setButton(event->button());
-	scene_event.setModifiers(event->modifiers());
-	scene_event.setWidget(_viewport);
-	scene_event.setAccepted(false);
-
-	QApplication::sendEvent(_scene, &scene_event);
-
-	if (scene_event.isAccepted()) {
-		event->setAccepted(true);
-	} else {
+	if (!call_interactor(event)) {
 		QWidget::mouseMoveEvent(event);
 	}
 }
@@ -602,36 +573,7 @@ void PVWidgets::PVGraphicsView::mouseMoveEvent(QMouseEvent *event)
 
 void PVWidgets::PVGraphicsView::mousePressEvent(QMouseEvent *event)
 {
-	_mouse_pressed_button = event->button();
-
-	_mouse_pressed_screen_coord = event->globalPos();
-	_mouse_pressed_view_coord = event->pos();
-	_mouse_pressed_scene_coord = map_to_scene(_mouse_pressed_view_coord);
-
-	_last_mouse_move_screen_coord = _mouse_pressed_screen_coord;
-	_last_mouse_move_scene_coord = _mouse_pressed_scene_coord;
-
-	QGraphicsSceneMouseEvent scene_event(QEvent::GraphicsSceneMousePress);
-
-	scene_event.setButtonDownScenePos(_mouse_pressed_button, _mouse_pressed_scene_coord);
-	scene_event.setButtonDownScreenPos(_mouse_pressed_button, _mouse_pressed_screen_coord);
-
-	scene_event.setScenePos(_mouse_pressed_scene_coord);
-	scene_event.setScreenPos(_mouse_pressed_screen_coord);
-	scene_event.setLastScenePos(_last_mouse_move_scene_coord);
-	scene_event.setLastScreenPos(_last_mouse_move_screen_coord);
-
-	scene_event.setButtons(event->buttons());
-	scene_event.setButton(event->button());
-	scene_event.setModifiers(event->modifiers());
-	scene_event.setWidget(_viewport);
-	scene_event.setAccepted(false);
-
-	QApplication::sendEvent(_scene, &scene_event);
-
-	if (scene_event.isAccepted()) {
-		event->setAccepted(true);
-	} else {
+	if (!call_interactor(event)) {
 		QWidget::mousePressEvent(event);
 	}
 }
@@ -642,27 +584,7 @@ void PVWidgets::PVGraphicsView::mousePressEvent(QMouseEvent *event)
 
 void PVWidgets::PVGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
-	QGraphicsSceneMouseEvent scene_event(QEvent::GraphicsSceneMouseRelease);
-
-	scene_event.setWidget(_viewport);
-	scene_event.setButtonDownScenePos(_mouse_pressed_button, _mouse_pressed_scene_coord);
-	scene_event.setButtonDownScreenPos(_mouse_pressed_button, _mouse_pressed_screen_coord);
-
-	scene_event.setScenePos(map_to_scene(event->pos()));
-	scene_event.setScreenPos(event->globalPos());
-	scene_event.setLastScenePos(_last_mouse_move_scene_coord);
-	scene_event.setLastScreenPos(_last_mouse_move_screen_coord);
-	scene_event.setButtons(event->buttons());
-	scene_event.setButton(event->button());
-	scene_event.setModifiers(event->modifiers());
-
-	scene_event.setAccepted(false);
-
-	QApplication::sendEvent(_scene, &scene_event);
-
-	if (scene_event.isAccepted()) {
-		event->setAccepted(true);
-	} else {
+	if (!call_interactor(event)) {
 		QWidget::mouseReleaseEvent(event);
 	}
 }
@@ -673,22 +595,7 @@ void PVWidgets::PVGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 
 void PVWidgets::PVGraphicsView::wheelEvent(QWheelEvent *event)
 {
-	QGraphicsSceneWheelEvent scene_event(QEvent::GraphicsSceneWheel);
-
-	scene_event.setWidget(_viewport);
-	scene_event.setScenePos(map_to_scene(event->pos()));
-	scene_event.setScreenPos(event->globalPos());
-	scene_event.setButtons(event->buttons());
-	scene_event.setModifiers(event->modifiers());
-	scene_event.setDelta(event->delta());
-	scene_event.setOrientation(event->orientation());
-	scene_event.setAccepted(false);
-
-	QApplication::sendEvent(_scene, &scene_event);
-
-	if (scene_event.isAccepted()) {
-		event->setAccepted(true);
-	} else {
+	if (!call_interactor(event)) {
 		QWidget::wheelEvent(event);
 	}
 }
@@ -970,8 +877,150 @@ const QPointF PVWidgets::PVGraphicsView::get_scroll() const
 	return QPointF(get_scroll_x(), get_scroll_y());
 }
 
-void PVWidgets::PVGraphicsView::remove_interactor(PVGraphicsViewInteractorBase* interactor)
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::remove_interactor
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::undeclare_interactor(PVGraphicsViewInteractorBase* interactor)
 {
 	assert(interactor);
-	removeEventFilter(interactor);
+
+	unregister_all(interactor);
+
+	interactor_enum_t::iterator it = std::find(_interactor_enum.begin(),
+	                                           _interactor_enum.end(),
+	                                           interactor);
+
+	if (it != _interactor_enum.end()) {
+		_interactor_enum.erase(it);
+	}
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::register_front_one
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::register_front_one(QEvent::Type type,
+                                                   PVWidgets::PVGraphicsViewInteractorBase* interactor)
+{
+	assert(is_event_supported(type));
+	assert(interactor);
+
+	unregister_one(type, interactor);
+
+	_interactor_map[type].push_front(interactor);
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::register_front_all
+ *****************************************************************************/
+
+
+void PVWidgets::PVGraphicsView::register_front_all(PVWidgets::PVGraphicsViewInteractorBase* interactor)
+{
+	assert(interactor);
+
+	for (QEvent::Type type : _usable_events) {
+		_interactor_map[type].push_front(interactor);
+	}
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::register_back_one
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::register_back_one(QEvent::Type type,
+                                                  PVWidgets::PVGraphicsViewInteractorBase* interactor)
+{
+	assert(is_event_supported(type));
+	assert(interactor);
+
+	unregister_one(type, interactor);
+
+	_interactor_map[type].push_back(interactor);
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::register_back_all
+ *****************************************************************************/
+
+
+void PVWidgets::PVGraphicsView::register_back_all(PVWidgets::PVGraphicsViewInteractorBase* interactor)
+{
+	assert(interactor);
+
+	for (QEvent::Type type : _usable_events) {
+		_interactor_map[type].push_back(interactor);
+	}
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::unregister_one
+ *****************************************************************************/
+void PVWidgets::PVGraphicsView::unregister_one(QEvent::Type type,
+                                               PVWidgets::PVGraphicsViewInteractorBase* interactor)
+{
+	assert(is_event_supported(type));
+	assert(interactor);
+
+	interactor_list_t &ilist = _interactor_map[type];
+	interactor_list_t::iterator it = std::find(ilist.begin(), ilist.end(), interactor);
+
+	if (it != ilist.end()) {
+		ilist.erase(it);
+	}
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::unregister_all
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::unregister_all(PVWidgets::PVGraphicsViewInteractorBase* interactor)
+{
+	assert(interactor);
+
+	for (QEvent::Type type : _usable_events) {
+		unregister_one(type, interactor);
+	}
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::is_event_supported
+ *****************************************************************************/
+
+bool PVWidgets::PVGraphicsView::is_event_supported(QEvent::Type type)
+{
+	return std::find(_usable_events, _usable_events_end, type) != _usable_events_end;
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::call_interactor
+ *****************************************************************************/
+
+bool PVWidgets::PVGraphicsView::call_interactor(QEvent *event)
+{
+	assert(is_event_supported(event->type()));
+
+	for (PVGraphicsViewInteractorBase* i : _interactor_map[event->type()]) {
+		if (i->call(this, event)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::install_default_scene_interactor
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::install_default_scene_interactor()
+{
+	PVWidgets::PVGraphicsViewInteractorBase *inter =
+		declare_interactor<PVWidgets::PVGraphicsViewInteractorScene>();
+	register_back_all(inter);
+
+	register_front_one(QEvent::MouseButtonDblClick, inter);
+	register_front_one(QEvent::MouseMove, inter);
+	register_front_one(QEvent::MouseButtonPress, inter);
+	register_front_one(QEvent::MouseButtonRelease, inter);
 }

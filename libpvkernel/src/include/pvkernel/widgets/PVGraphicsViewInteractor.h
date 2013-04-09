@@ -17,6 +17,8 @@ class PVGraphicsViewInteractorBase: public QObject
 
 	friend class PVGraphicsView;
 
+	virtual bool call(QObject *obj, QEvent *event) = 0;
+
 protected:
 	PVGraphicsViewInteractorBase(PVGraphicsView* parent);
 };
@@ -47,6 +49,15 @@ protected:
 	{}
 
 protected:
+	/*! \brief Called when a mouse button press event has occured.
+	 *  \param[in] obj   A pointer to the view that received the event
+	 *  \param[in] event a QMouseEvent object that describes the event
+	 *
+	 *  \return true if the event has been processed and must not be processed
+	 *  by the other interactors. false otherwise.
+	 */
+	virtual bool mouseDoubleClickEvent(object_type* obj, QMouseEvent *event) { return false; }
+
 	/*! \brief Called when a mouse button press event has occured.
 	 *  \param[in] obj   A pointer to the view that received the event
 	 *  \param[in] event a QMouseEvent object that describes the event
@@ -91,6 +102,56 @@ protected:
 	 *  by the other interactors. false otherwise.
 	 */
 	virtual bool keyPressEvent(object_type* obj, QKeyEvent* event) { return false; }
+
+	/*! \brief Called when a key event has occured.
+	 *  \param[in] obj   A pointer to the view that received the event
+	 *  \param[in] event a QKeyEvent object that describes the event
+	 *
+	 *  \return true if the event has been processed and must not be processed
+	 *  by the other interactors. false otherwise.
+	 */
+	virtual bool keyReleaseEvent(object_type* obj, QKeyEvent* event) { return false; }
+
+	/*! \brief Called when a resize event has occured.
+	 *  \param[in] obj   A pointer to the view that received the event
+	 *  \param[in] event a QResizeEvent object that describes the event
+	 *
+	 *  \return true if the event has been processed and must not be processed
+	 *  by the other interactors. false otherwise.
+	 */
+	virtual bool resizeEvent(object_type* obj, QResizeEvent* event) { return false; }
+
+protected:
+	bool call(QObject* obj, QEvent* event) override
+	{
+		object_type* real_obj = qobject_cast<object_type*>(obj);
+		if (!real_obj) {
+			return false;
+		}
+
+		switch (event->type()) {
+		case QEvent::Wheel:
+			return wheelEvent(real_obj, static_cast<QWheelEvent*>(event));
+		case QEvent::MouseButtonDblClick:
+			return mouseDoubleClickEvent(real_obj, static_cast<QMouseEvent*>(event));
+		case QEvent::MouseButtonPress:
+			return mousePressEvent(real_obj, static_cast<QMouseEvent*>(event));
+		case QEvent::MouseButtonRelease:
+			return mouseReleaseEvent(real_obj, static_cast<QMouseEvent*>(event));
+		case QEvent::MouseMove:
+			return mouseMoveEvent(real_obj, static_cast<QMouseEvent*>(event));
+		case QEvent::KeyPress:
+			return keyPressEvent(real_obj, static_cast<QKeyEvent*>(event));
+		case QEvent::KeyRelease:
+			return keyReleaseEvent(real_obj, static_cast<QKeyEvent*>(event));
+		case QEvent::Resize:
+			return resizeEvent(real_obj, static_cast<QResizeEvent*>(event));
+		default:
+			break;
+		}
+
+		return false;
+	}
 
 private:
 	bool eventFilter(QObject* obj, QEvent* event) override

@@ -4,6 +4,13 @@
 
 #include <QWidget>
 #include <QTransform>
+#include <QEvent>
+
+#include <vector>
+#include <list>
+#include <map>
+
+#include <pvkernel/widgets/PVGraphicsViewInteractor.h>
 
 class QScrollBar64;
 
@@ -15,7 +22,7 @@ class QResizeEvent;
 
 namespace PVWidgets {
 
-class PVGraphicsViewInteractorBase;
+class PVGraphicsViewInteractorScene;
 
 namespace __impl {
 class PVViewportEventFilter;
@@ -46,6 +53,12 @@ class PVGraphicsView : public QWidget
 	Q_OBJECT
 
 	friend class __impl::PVViewportEventFilter;
+	friend class PVGraphicsViewInteractorScene;
+
+	typedef std::vector<PVGraphicsViewInteractorBase*> interactor_enum_t;
+	typedef std::list<PVGraphicsViewInteractorBase*> interactor_list_t;
+	typedef std::map<QEvent::Type, interactor_list_t > interactor_affectation_map_t;
+
 public:
 	typedef enum {
 		NoAnchor,
@@ -58,6 +71,8 @@ public:
 
 	PVGraphicsView(QGraphicsScene *scene = nullptr,
 	               QWidget *parent = nullptr);
+
+	~PVGraphicsView();
 
 public:
 	/**
@@ -402,37 +417,102 @@ public:
 	}
 
 protected:
-	/*! \brief Set a new interactor for this view.
+	/**
+	 * declare a new interactor in the instance context
 	 *
-	 * This function install a new interactor of type T on this view.
-	 * T must be a subclass of PVWidgets::PVGraphicsViewInteractor<V>, where V
-	 * is a subclass of PVGraphicsView.
+	 * @param params the parameter list to pass to the constructor
 	 *
-	 * A new object T is created and installed as a QObject's event filter. If
-	 * parameters are needed for the construction of T, you can pass them to
-	 * install_interactor.
-	 *
-	 * \return A pointer to the allocated interactor.
-	 *
-	 * \note 
-	 * The last installed interactor is the first to filter events. It means
-	 * that, if for instance the wheelEvent is captured by the last installed
-	 * interactor, then no other interactor will be able to catch this event.
+	 * @return a pointer on the declared interactor
 	 */
-	template <class T, typename... P>
-	T* install_interactor(P && ... params)
+	template <typename T, typename... P>
+	T* declare_interactor(P && ... params)
 	{
 		T* new_interactor = new T(this, std::forward<P>(params)...);
-		installEventFilter(new_interactor);
+		_interactor_enum.push_back(new_interactor);
 		return new_interactor;
 	}
 
-	/*! \brief Remove a previously installed interactor
+	/**
+	 *  Remove a previously installed interactor
 	 *
-	 * \param[in] The pointer to the interactor to remove (previously returned by install_interactor).
-	 * \sa install_interactor
+	 * the interactor is implictly unregistered.
+	 *
+	 * @param interactor [in] The pointer to the interactor to remove (previously returned by install_interactor).
+	 *
+	 * @note the interactor is not freed.
+	 *
+	 * @sa declare_interactor
 	 */
-	void remove_interactor(PVGraphicsViewInteractorBase* interactor);
+	void undeclare_interactor(PVGraphicsViewInteractorBase* interactor);
+
+	/**
+	 * register an interactor as the first to process for a given QEvent:Type
+	 *
+	 * @param type the event's type to attach an interactor to
+	 * @param interactor the interactor to attach
+	 */
+	void register_front_one(QEvent::Type type, PVGraphicsViewInteractorBase* interactor);
+
+	/**
+	 * register an interactor as the first to process for all supported QEvent::Type
+	 *
+	 * @param type the event's type to attach an interactor to
+	 * @param interactor the interactor to attach
+	 */
+	void register_front_all(PVGraphicsViewInteractorBase* interactor);
+
+	/**
+	 * register an interactor as the last to process for a given QEvent:Type
+	 *
+	 * @param type the event's type to attach an interactor to
+	 * @param interactor the interactor to attach
+	 */
+	void register_back_one(QEvent::Type type, PVGraphicsViewInteractorBase* interactor);
+
+	/**
+	 * register an interactor as the last to process for all supported QEvent::Type
+	 *
+	 * @param type the event's type to attach an interactor to
+	 * @param interactor the interactor to attach
+	 */
+	void register_back_all(PVGraphicsViewInteractorBase* interactor);
+
+	/**
+	 * unregister an interactor for a given QEvent:Type
+	 *
+	 * @param type the event's type to detach an interactor to
+	 * @param interactor the interactor to detach
+	 */
+	void unregister_one(QEvent::Type type, PVGraphicsViewInteractorBase* interactor);
+
+	/**
+	 * unregister an interactor for a all supported QEvent:Type
+	 *
+	 * @param interactor the interactor to detach
+	 */
+	void unregister_all(PVGraphicsViewInteractorBase* interactor);
+
+	/**
+	 * tell if a QEvent type is supported or not
+	 */
+	static bool is_event_supported(QEvent::Type type);
+
+	/**
+	 * process the event according to its interactors list
+	 *
+	 * @param event the QEvent to process
+	 */
+	bool call_interactor(QEvent *event);
+
+	/**
+	 * install a default PVGraphicsViewInteractorScene
+	 *
+	 * i.e.: all events are registered last except for mouse's ones which
+	 * are registered first.
+	 *
+	 * @note This method is not implictly called.
+	 */
+	void install_default_scene_interactor();
 
 protected:
 	/**
@@ -440,39 +520,41 @@ protected:
 	 *
 	 * @param event the corresponding paint event
 	 */
-	//virtual void paintEvent(QPaintEvent *event);
+	//virtual void paintEvent(QPaintEvent *event) override;
 
 	/**
 	 * Resizes the widget according to the resize event.
 	 *
 	 * @param event the corresponding resize event
 	 */
-	virtual void resizeEvent(QResizeEvent *event);
+	virtual void resizeEvent(QResizeEvent *event) override;
 
 protected:
 	// Called by PVViewportEventFilter
 	bool viewportPaintEvent(QPaintEvent* event);
 
 protected:
-	void contextMenuEvent(QContextMenuEvent *event);
+	void contextMenuEvent(QContextMenuEvent *event) override;
 
-	bool event(QEvent *event);
+	bool event(QEvent *event) override;
 
-	void focusInEvent(QFocusEvent *event);
-	// bool focusNextPrevChild(bool next); does not need reimplementation
-	void focusOutEvent(QFocusEvent *event);
+	void focusInEvent(QFocusEvent *event) override;
+	// does not need reimplementation
+	// bool focusNextPrevChild(bool next) override;
+	void focusOutEvent(QFocusEvent *event) override;
 
-	void keyPressEvent(QKeyEvent *event);
-	void keyReleaseEvent(QKeyEvent *event);
+	void keyPressEvent(QKeyEvent *event) override;
+	void keyReleaseEvent(QKeyEvent *event) override;
 
-	void mouseDoubleClickEvent(QMouseEvent *event);
-	void mouseMoveEvent(QMouseEvent *event);
-	void mousePressEvent(QMouseEvent *event);
-	void mouseReleaseEvent(QMouseEvent *event);
+	void mouseDoubleClickEvent(QMouseEvent *event) override;
+	void mouseMoveEvent(QMouseEvent *event) override;
+	void mousePressEvent(QMouseEvent *event) override;
+	void mouseReleaseEvent(QMouseEvent *event) override;
 
-	void wheelEvent(QWheelEvent *event);
+	void wheelEvent(QWheelEvent *event) override;
 
 #if 0
+	// needed or not?
 	virtual void dragEnterEvent(QDragEnterEvent *event);
 	virtual void dragLeaveEvent(QDragLeaveEvent *event);
 	virtual void dragMoveEvent(QDragMoveEvent *event);
@@ -617,6 +699,13 @@ private:
 	QPointF             _last_center_coord;
 
 	__impl::PVViewportEventFilter* _viewport_event_filter;
+
+	interactor_enum_t            _interactor_enum;
+	interactor_affectation_map_t _interactor_map;
+
+private:
+	static QEvent::Type  _usable_events[];
+	static QEvent::Type *_usable_events_end;
 };
 
 }

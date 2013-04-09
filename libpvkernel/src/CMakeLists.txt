@@ -389,6 +389,7 @@ widgets/PVColorPicker.cpp
 widgets/PVDataTreeModel.cpp
 widgets/PVGraphicsView.cpp
 widgets/PVGraphicsViewInteractor.cpp
+widgets/PVGraphicsViewInteractorScene.cpp
 
 widgets/editors/PVColorGradientDualSliderEditor.cpp
 widgets/editors/PVEnumEditor.cpp
