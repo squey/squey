@@ -44,13 +44,13 @@ public:
 	 */
 	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
 
-	int scale_to_zoom(const qreal value) const override
+	virtual int scale_to_zoom(const qreal value) const override
 	{
 		// non simplified formula is: log2(1/value) / log2(root_steps)
 		return -zoom_steps * log2(value);
 	}
 
-	qreal zoom_to_scale(const int value) const override
+	virtual qreal zoom_to_scale(const int value) const override
 	{
 		return zoom_to_scale_integer(value) * zoom_to_scale_decimal(value);
 	}

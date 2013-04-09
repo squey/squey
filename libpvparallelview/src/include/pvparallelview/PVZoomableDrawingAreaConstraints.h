@@ -2,7 +2,7 @@
 #ifndef PVPARALLELVIEW_PVZOOMABLEDRAWINGAREACONSTRAINTS_H
 #define PVPARALLELVIEW_PVZOOMABLEDRAWINGAREACONSTRAINTS_H
 
-#include <pvparallelview/PVZoomableDrawingArea.h>
+#include <pvparallelview/PVAxisZoom.h>
 
 class QScrollBar64;
 
@@ -99,6 +99,21 @@ protected:
 	static inline void set_value(PVParallelView::PVAxisZoom &az, int value)
 	{
 		az.set_value(value);
+	}
+
+	/**
+	 * Set current value of @a az to @a value
+	 *
+	 * The value is clamped before it is set.
+	 *
+	 * Why this method? Simply because friendship can not be inherited in C++.
+	 *
+	 * @param az the PVAxisZoom to update
+	 * @param value [in] the new value.
+	 */
+	static inline void set_clamped_value(PVParallelView::PVAxisZoom &az, int value)
+	{
+		az.set_clamped_value(value);
 	}
 };
 

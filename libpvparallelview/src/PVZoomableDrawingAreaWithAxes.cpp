@@ -27,7 +27,8 @@
 
 PVParallelView::PVZoomableDrawingAreaWithAxes::PVZoomableDrawingAreaWithAxes(QWidget *parent) :
 	PVZoomableDrawingArea(parent),
-	_ticks_count(10)
+	_ticks_count(10),
+	_first_resize(true)
 {
 	set_scene_margins(DEFAULT_HMARGIN, DEFAULT_HMARGIN,
 	                  DEFAULT_VMARGIN, DEFAULT_VMARGIN);

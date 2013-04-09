@@ -12,9 +12,10 @@
 #include <pvparallelview/PVAxisZoom.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
 #include <pvparallelview/PVZoomableDrawingArea.h>
+#include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
+
 #include <pvparallelview/PVZoomableDrawingAreaConstraints.h>
 #include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
-#include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 
 #include <iostream>
 #include <stdio.h>
@@ -275,7 +276,7 @@ public:
 	{}
 
 protected:
-	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
+	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event) override
 	{
 		PVLOG_INFO("In mousePressEvent interactor\n");
 
@@ -286,7 +287,7 @@ protected:
 		return event->isAccepted();
 	}
 
-	bool mouseMoveEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
+	bool mouseMoveEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event) override
 	{
 		PVLOG_INFO("In mouseMoveEvent interactor\n");
 
@@ -317,6 +318,12 @@ protected:
 
 		event->setAccepted(true);
 
+		return true;
+	}
+
+	bool resizeEvent(PVParallelView::PVZoomableDrawingArea* zda, QResizeEvent* event) override
+	{
+		zda->reconfigure_view();
 		return true;
 	}
 
@@ -377,13 +384,17 @@ public:
 	{
 		QGraphicsScene *scn = get_scene();
 
+		PVWidgets::PVGraphicsViewInteractorBase *inter;
 #if 0
-		install_interactor<PVZoomableDrawingAreaInteractorHomothetic>();
+		inter = declare_interactor<PVZoomableDrawingAreaInteractorHomothetic>();
 		set_constraints(new PVZoomableDrawingAreaConstraintsHomothetic());
 #else
-		install_interactor<PVZoomableDrawingAreaInteractorFree>();
+		inter = declare_interactor<PVZoomableDrawingAreaInteractorFree>();
 		set_constraints(new PVZoomableDrawingAreaConstraintsFree());
 #endif
+		register_front_all(inter);
+
+		install_default_scene_interactor();
 
 		for(long i = 0; i < (1L<<32); i += 1024 * 1024) {
 			long v = i;
@@ -504,8 +515,12 @@ public:
 		set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOff);
 		set_vertical_scrollbar_policy(Qt::ScrollBarAlwaysOn);
 
-		install_interactor<PVZoomableDrawingAreaInteractorZPV>();
+		PVWidgets::PVGraphicsViewInteractorBase *inter =
+			declare_interactor<PVZoomableDrawingAreaInteractorZPV>();
+		register_front_all(inter);
 		set_constraints(new PVZoomableDrawingAreaConstraintsZPV());
+
+		install_default_scene_interactor();
 
 		for(int i = 0; i < 255; ++i) {
 			int v = i * 4;
@@ -563,10 +578,12 @@ int main(int argc, char **argv)
 	pzdawa->show();
 	pzdawa->setWindowTitle("PV Plotting test");
 
+	//#if 0
 	PVParallelView::PVZoomableDrawingArea *zzda = new MyZoomingZDA;
 	zzda->resize(600, 600);
 	zzda->show();
 	zzda->setWindowTitle("My Zooming test");
+	//#endif
 
 	app.exec();
 

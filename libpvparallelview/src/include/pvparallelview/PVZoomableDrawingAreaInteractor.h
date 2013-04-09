@@ -18,6 +18,13 @@ public:
 	{}
 
 protected:
+	virtual bool resizeEvent(PVParallelView::PVZoomableDrawingArea* zda, QResizeEvent* /*event*/) override
+	{
+		zda->reconfigure_view();
+		return true;
+	}
+
+protected:
 	/**
 	 * Change the PVZoomableDrawingArea's zoom value given its parameters
 	 *
@@ -46,11 +53,25 @@ protected:
 		return zda->increment_zoom_value(axes, value);
 	}
 
+	/**
+	 * emit a PVZoomableDrawingArea::zoom_has_changed signal
+	 *
+	 * Why this method? Simply because friendship can not be inherited in C++.
+	 *
+	 * @param zda the corresponding PVZoomDrawingArea
+	 */
 	static inline void zoom_has_changed(PVZoomableDrawingArea *zda)
 	{
 		emit zda->zoom_has_changed();
 	}
 
+	/**
+	 * emit a PVZoomableDrawingArea::pan_has_changed signal
+	 *
+	 * Why this method? Simply because friendship can not be inherited in C++.
+	 *
+	 * @param zda the corresponding PVZoomDrawingArea
+	 */
 	static inline void pan_has_changed(PVZoomableDrawingArea *zda)
 	{
 		emit zda->pan_has_changed();

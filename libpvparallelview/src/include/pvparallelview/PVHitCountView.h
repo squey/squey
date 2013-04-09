@@ -11,7 +11,7 @@
 
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
-
+#include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
 
 #include <QTimer>
 #include <QImage>
@@ -31,12 +31,21 @@ namespace PVParallelView
 
 class PVZoneTree;
 
+template <int STEPS>
+class PVHitCountViewZoomConverter;
+
+class PVHitCountViewInteractor;
+
 class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 {
 	Q_OBJECT
 
+	friend class PVHitCountViewInteractor;
+
 	constexpr static int zoom_steps = 5;
-	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
+
+private:
+	typedef PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
 
 public:
 	PVHitCountView(const Picviz::PVView_sp &pvview_sp,
@@ -55,30 +64,25 @@ public:
 	void set_enabled(const bool value);
 
 protected:
-	qreal zoom_to_scale(const int zoom_value) const;
-	int scale_to_zoom(const qreal scale_value) const;
-	QTransform scale_to_transform(const qreal x_scale_value,
-	                              const qreal y_scale_value) const;
-
-	QString get_y_value_at(const qint64 pos) const;
+	QString get_y_value_at(const qint64 pos) const override;
 
 protected:
-	void drawBackground(QPainter *painter, const QRectF &rect);
-	void resizeEvent(QResizeEvent *event);
-	void keyPressEvent(QKeyEvent *event);
+	void drawBackground(QPainter *painter, const QRectF &rect) override;
 
 private:
+	void reset_view();
+
 	void draw_lines(QPainter *painter,
 	                const int src_x, const int view_top,
 	                const int offset, const double &ratio,
-	                const double rel_scale,
+	                const double rel_y_scale,
 	                const uint32_t *buffer);
 
 	void draw_clamped_lines(QPainter *painter,
 	                        const int x_min, const int x_max,
 	                        const int src_x, const int view_top,
 	                        const int offset,
-	                        const double rel_scale,
+	                        const double rel_y_scale,
 	                        const uint32_t *buffer);
 
 private slots:
@@ -91,17 +95,20 @@ private slots:
 	void update_sel();
 
 private:
-	uint32_t                  _red_buffer[1024];
-	const Picviz::PVView_sp  &_pvview_sp;
-	const PVCol               _axis_index;
-	QTimer                    _update_all_timer;
+	Picviz::PVView_sp                            _pvview_sp;
+	PVCol                                        _axis_index;
+	QTimer                                       _update_all_timer;
 
-	PVHitGraphBlocksManager   _hit_graph_manager;
-	bool                      _view_deleted;
-	uint32_t                  _max_count;
-	uint32_t                  _block_base_pos;
-	int                       _block_zoom_level;
-	bool                      _show_bg;
+	PVHitGraphBlocksManager                      _hit_graph_manager;
+	bool                                         _view_deleted;
+	uint32_t                                     _max_count;
+	uint32_t                                     _block_base_pos;
+	int                                          _block_zoom_level;
+	bool                                         _show_bg;
+
+	PVHitCountViewZoomConverter<zoom_steps>     *_x_zoom_converter;
+	PVZoomConverterScaledPowerOfTwo<zoom_steps>  _y_zoom_converter;
+
 };
 
 }

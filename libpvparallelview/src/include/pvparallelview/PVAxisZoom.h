@@ -54,6 +54,8 @@ public:
 	 */
 	int get_relative_value() const { return _value - _value_min; }
 
+	int get_clamped_relative_value() const { return PVCore::clamp(_value, _value_min, _value_max)  - _value_min; }
+
 	/**
 	 * set range
 	 *
@@ -121,6 +123,15 @@ protected:
 	 * @param value [in] the new value
 	 */
 	void set_value(const int value) { _value = value; }
+
+	/**
+	 * Change the stored value.
+	 *
+	 * The value is clamped before it is set.
+	 *
+	 * @param value [in] the new value
+	 */
+	void set_clamped_value(const int value) { _value = PVCore::clamp(value, _value_min, _value_max); }
 
 	/**
 	 * Resets the current value to its default value
