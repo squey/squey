@@ -21,6 +21,8 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget *parent) :
 
 	get_vertical_scrollbar()->setObjectName("verticalScrollBar_of_PVListingView");
 	get_horizontal_scrollbar()->setObjectName("horizontalScrollBar_of_PVListingView");
+
+	install_default_scene_interactor();
 }
 
 
