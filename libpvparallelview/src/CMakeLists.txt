@@ -74,8 +74,12 @@ PVDisplayViewHitCount.cpp
 
 # ZoomableDrawingArea & co
 PVZoomableDrawingArea.cpp
-PVZoomableDrawingAreaInteractor.cpp
 PVZoomableDrawingAreaWithAxes.cpp
+
+PVZoomableDrawingAreaInteractor.cpp
+PVZoomableDrawingAreaInteractorMajorY.cpp
+
+PVZoomableDrawingAreaConstraintsMajorY.cpp
 
 # views
 PVHitCountView.cpp
