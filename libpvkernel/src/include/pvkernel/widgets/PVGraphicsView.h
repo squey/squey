@@ -33,9 +33,8 @@ class PVViewportEventFilter;
  *
  * @brief a widget which mimics QGraphicsView but which uses QScrollbar64.
  *
- * This widget reproduces QGraphicsView's behaviours used in Picviz Inspector
- *
- * The differences are:
+ * This widget reproduces QGraphicsView's behaviours used in Picviz Inspector.
+ * So that, the differences are:
  * - the members functions name have been adapted to Picviz Labs coding style
  * - no caching when rendering (the repainted area is always renderer from
  *   scratch)
@@ -44,6 +43,14 @@ class PVViewportEventFilter;
  * - no added border when computing the transformation matrix to make the
  *   scene enter in the viewport. So that the rendering differs from
  *   QGraphicsView.
+ *
+ * But the real difference between PVGraphicsView and QGraphicsView is the way
+ * events are processed.
+ *
+ * QGraphicsView uses virtual method and signals/slots to do the job,
+ * PVGraphicsView is based on a interactors system. This sytem mimics the QEventFilter
+ * approach but it allows to specify the order of the filter (that QEventFilter does
+ * not allow).
  *
  * @todo restrict scene events in the display area (i.e. viewport minus the
  * margins)?
