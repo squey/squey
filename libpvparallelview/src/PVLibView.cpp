@@ -208,6 +208,10 @@ void PVParallelView::PVLibView::selection_updated()
 		view->update_new_selection_async();
 	}
 
+	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
+		view->update_new_selection_async();
+	}
+
 	for (PVHitCountView* view: _hit_count_views) {
 		view->update_new_selection_async();
 	}
