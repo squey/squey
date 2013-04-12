@@ -32,6 +32,8 @@ size_t PVCuda::get_number_of_devices()
 	int ret;
 	picviz_verify_cuda(cudaGetDeviceCount(&ret));
 	return ret;
+#else
+	return 0;
 #endif
 }
 
@@ -65,6 +67,8 @@ int PVCuda::get_number_blocks()
 	cudaDeviceProp prop;
 	cudaGetDeviceProperties(&prop, cur_device);
 	return prop.multiProcessorCount;
+#else
+	return -1;
 #endif
 }
 
@@ -76,5 +80,7 @@ size_t PVCuda::get_shared_mem_size()
 	cudaDeviceProp prop;
 	cudaGetDeviceProperties(&prop, cur_device);
 	return prop.sharedMemPerBlock;
+#else
+	return 0;
 #endif
 }

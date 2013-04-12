@@ -80,7 +80,15 @@ public:
 	void shift_zoomed_left(const uint32_t nblocks, const float alpha);
 	void shift_zoomed_right(const uint32_t nblocks, const float alpha);
 	void process_zoom_reduction_inplace(const float alpha);
-	inline void process_zoom_reduction(const float alpha) { process_zoom_reduction(alpha, _zoomed_buf); }
+	inline void process_zoom_reduction(const float alpha)
+	{
+		if (alpha == 0.5f) {
+			process_zoom_reduction_org(alpha, _zoomed_buf);
+		}
+		else {
+			process_zoom_reduction_linear(alpha, _zoomed_buf);
+		}
+	}
 
 public:
 	inline uint32_t nbits() const { return _nbits; }
@@ -90,7 +98,8 @@ public:
 	inline uint32_t nblocks() const { return _nblocks; }
 
 private:
-	void process_zoom_reduction(const float alpha, uint32_t* res);
+	void process_zoom_reduction_org(const float alpha, uint32_t* res);
+	void process_zoom_reduction_linear(const float alpha, uint32_t* res);
 
 private:
 	uint32_t* _buf;

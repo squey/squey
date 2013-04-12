@@ -9,9 +9,9 @@
 
 // Ensure CUDA is set if using nvcc
 #ifdef __CUDACC__
-#ifndef CUDA
-#define CUDA
-#endif
+	#ifndef CUDA
+		#define CUDA
+	#endif
 #endif
 
 #ifdef CUDA
@@ -20,7 +20,9 @@
 #include <cuda_gl_interop.h>
 #endif
 
+#ifndef __CUDACC__
 #include <functional>
+#endif
 
 #include <pvkernel/cuda/constexpr.h>
 

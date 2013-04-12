@@ -9,9 +9,12 @@
 
 #include <vector>
 #include <stdint.h>
-#include <QMetaType>
+#include <pvbase/types.h>
 
+#ifndef __CUDACC__
+#include <QMetaType>
 #include <boost/integer/static_log2.hpp>
+#endif
 
 #define NBITS_INDEX 10
 #define NBUCKETS ((1UL<<(2*NBITS_INDEX)))
@@ -93,12 +96,14 @@ struct constants
 
 }
 
-#include <pvkernel/core/PVAllocators.h>
+//#include <pvkernel/core/PVAllocators.h>
 
 typedef PVCol PVZoneID;
 #define PVZONEID_INVALID (-1)
 
+#ifndef __CUDACC__
 Q_DECLARE_METATYPE(PVZoneID);
+#endif
 
 #define BCI_BUFFERS_COUNT 10
 

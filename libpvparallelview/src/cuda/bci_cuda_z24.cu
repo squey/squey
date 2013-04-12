@@ -4,9 +4,7 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVHSVColor.h>
-
 #include <pvkernel/cuda/common.h>
 
 #include <pvparallelview/common.h>
@@ -14,7 +12,9 @@
 #include <pvparallelview/cuda/bci_cuda.h>
 
 #include <cassert>
+#include <algorithm>
 #include <iostream>
+#include <stdio.h>
 
 #define NTHREADS_BLOCK 512
 #define SMEM_IMG_KB (4*4)
@@ -346,7 +346,7 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 template <size_t Bbits>
 static inline int get_nthread_x_from_width(int width)
 {
-	return (picviz_min(width, (SMEM_IMG_KB*1024)/(PVParallelView::constants<Bbits>::image_height*sizeof(img_zbuffer_t))));
+	return std::min(width, (int)((SMEM_IMG_KB*1024)/(PVParallelView::constants<Bbits>::image_height*sizeof(img_zbuffer_t))));
 }
 
 template <size_t Bbits, bool reverse>

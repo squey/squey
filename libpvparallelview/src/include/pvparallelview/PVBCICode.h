@@ -8,8 +8,8 @@
 #define PARALLELVIEW_PVBCICODE_H
 
 #include <stdint.h>
-#include <pvkernel/core/general.h>
-#include <pvkernel/core/PVAllocators.h>
+//#include <pvkernel/core/general.h>
+//#include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/common.h>
 #include <tbb/cache_aligned_allocator.h>

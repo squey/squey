@@ -7,10 +7,13 @@
 #ifndef PVCORE_HSVCOLOR_H
 #define PVCORE_HSVCOLOR_H
 
-#include <pvkernel/core/general.h>
-#include <pvkernel/core/stdint.h>
-
+//#include <pvkernel/core/general.h>
+//#include <pvkernel/core/stdint.h>
+#include <pvbase/types.h>
+#include <stdint.h>
 #include <pvkernel/cuda/constexpr.h>
+
+#include <QColor>
 
 //#define HSV_COLOR_NBITS_ZONE 6
 //#define HSV_COLOR_MASK_ZONE 63
