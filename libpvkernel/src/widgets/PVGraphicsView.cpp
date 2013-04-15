@@ -129,12 +129,7 @@ PVWidgets::PVGraphicsView::PVGraphicsView(QGraphicsScene *scene, QWidget *parent
  *****************************************************************************/
 
 PVWidgets::PVGraphicsView::~PVGraphicsView()
-{
-	for (PVGraphicsViewInteractorBase* inter : _interactor_enum) {
-		unregister_all(inter);
-		delete inter;
-	}
-}
+{}
 
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::get_viewport
