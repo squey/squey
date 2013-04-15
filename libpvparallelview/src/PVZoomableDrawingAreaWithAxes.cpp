@@ -12,6 +12,8 @@
 #define TICK_LENGTH (SMALL_TICK_LENGTH * 2)
 #define SCALE_VALUE_OFFSET 8
 
+#define SUBTICK_RATIO 0.45
+
 #define DEFAULT_HMARGIN 50
 #define DEFAULT_VMARGIN 40
 
@@ -27,7 +29,7 @@
 
 PVParallelView::PVZoomableDrawingAreaWithAxes::PVZoomableDrawingAreaWithAxes(QWidget *parent) :
 	PVZoomableDrawingArea(parent),
-	_ticks_count(10),
+	_ticks_per_level(10),
 	_first_resize(true)
 {
 	set_scene_margins(DEFAULT_HMARGIN, DEFAULT_HMARGIN,
@@ -85,10 +87,10 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::set_y_legend(const QString &
  * PVParallelView::PVZoomableDrawingAreaWithAxes::set_ticks_count
  *****************************************************************************/
 
-void PVParallelView::PVZoomableDrawingAreaWithAxes::set_ticks_count(int count)
+void PVParallelView::PVZoomableDrawingAreaWithAxes::set_ticks_per_level(int n)
 {
-	if (_ticks_count != count) {
-		_ticks_count = count;
+	if (_ticks_per_level != n) {
+		_ticks_per_level = n;
 		update();
 	}
 }
@@ -155,77 +157,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations(QPaint
 void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_decorations(QPainter *painter,
                                                                      const QRectF &rect)
 {
-	qreal top = get_scene_top_margin();
-	qreal left = get_scene_left_margin();
-	//qreal right = rect.width() - get_scene_right_margin();
-	qreal margin_bottom = get_scene_bottom_margin();
-	qreal bottom = rect.height() - margin_bottom;
-
-	painter->save();
-	painter->resetTransform();
-	painter->setPen(_decoration_color);
-
-	QFontMetrics fm = painter->fontMetrics();
-	int fm_ascent = fm.ascent();
-
-	/* x scale
-	 */
-
-	// axis
-	painter->drawLine(left, bottom - _y_axis_length, left, bottom);
-
-	// legend
-	if (!_x_legend.isNull()) {
-		painter->drawText(left, bottom,
-		                  _x_axis_length, margin_bottom,
-		                  Qt::AlignRight | Qt::AlignBottom,
-		                  _x_legend);
-	}
-
-#if 1
-	// ticks
-	qreal x_step = _x_axis_length / (qreal)_ticks_count;
-	for(int i = 0; i <= _ticks_count; ++i) {
-		qreal v = i * x_step;
-		QString s = get_x_value_at(map_to_scene(left + i * x_step, 0).x());
-		int s_len = fm.boundingRect(s).width();
-		painter->drawLine(left + v, bottom, left + v, bottom + TICK_LENGTH);
-		painter->drawText(left + v - (s_len / 2),
-		                  bottom + SCALE_VALUE_OFFSET + fm_ascent,
-		                  s);
-	}
-#else
-	qreal ticks_gap = scene_in_screen.width() / (qreal)_ticks_count;
-#endif
-
-	/* y scale
-	 */
-
-	// axis
-	painter->drawLine(left, bottom, left + _x_axis_length, bottom);
-
-	// legend
-	if (!_y_legend.isNull()) {
-		painter->drawText(left, 0,
-		                  _x_axis_length, top,
-		                  Qt::AlignLeft | Qt::AlignTop,
-		                  _y_legend);
-	}
-
-	// ticks
-	qreal y_step = _y_axis_length / (qreal)_ticks_count;
-	for(int i = 0; i <= _ticks_count; ++i) {
-		qreal v = i * y_step;
-		QString s = get_y_value_at(-map_to_scene(0, top + i * y_step).y());
-		int s_len = fm.boundingRect(s).width();
-		painter->drawLine(left, bottom - _y_axis_length + v,
-		                  left - TICK_LENGTH, bottom - _y_axis_length + v);
-		painter->drawText(left - s_len - SCALE_VALUE_OFFSET,
-		                  bottom - _y_axis_length + v,
-		                  s);
-	}
-
-	painter->restore();
+	draw_deco_v2(painter, rect);
 }
 
 /*****************************************************************************
@@ -255,4 +187,215 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::resizeEvent(QResizeEvent *ev
 		center_on(0., 0.);
 		_first_resize = false;
 	}
+}
+
+
+void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v1(QPainter *painter,
+                                                                 const QRectF &rect)
+{
+	qreal top = get_scene_top_margin();
+	qreal left = get_scene_left_margin();
+	//qreal right = rect.width() - get_scene_right_margin();
+	qreal margin_bottom = get_scene_bottom_margin();
+	qreal bottom = rect.height() - margin_bottom;
+
+	painter->save();
+	painter->resetTransform();
+	painter->setPen(_decoration_color);
+
+	QFontMetrics fm = painter->fontMetrics();
+	int fm_ascent = fm.ascent();
+
+	/* x scale
+	 */
+
+	// axis
+	painter->drawLine(left, bottom - _y_axis_length, left, bottom);
+
+	// legend
+	if (!_x_legend.isNull()) {
+		painter->drawText(left, bottom,
+		                  _x_axis_length, margin_bottom,
+		                  Qt::AlignRight | Qt::AlignBottom,
+		                  _x_legend);
+	}
+
+	// ticks
+	qreal x_step = _x_axis_length / (qreal)_ticks_per_level;
+	for(int i = 0; i <= _ticks_per_level; ++i) {
+		qreal v = i * x_step;
+		QString s = get_x_value_at(map_to_scene(left + i * x_step, 0).x());
+		int s_len = fm.boundingRect(s).width();
+		painter->drawLine(left + v, bottom, left + v, bottom + TICK_LENGTH);
+		painter->drawText(left + v - (s_len / 2),
+		                  bottom + SCALE_VALUE_OFFSET + fm_ascent,
+		                  s);
+	}
+
+	/* y scale
+	 */
+
+	// axis
+	painter->drawLine(left, bottom, left + _x_axis_length, bottom);
+
+	// legend
+	if (!_y_legend.isNull()) {
+		painter->drawText(left, 0,
+		                  _x_axis_length, top,
+		                  Qt::AlignLeft | Qt::AlignTop,
+		                  _y_legend);
+	}
+
+	// ticks
+	qreal y_step = _y_axis_length / (qreal)_ticks_per_level;
+	for(int i = 0; i <= _ticks_per_level; ++i) {
+		qreal v = i * y_step;
+		QString s = get_y_value_at(-map_to_scene(0, top + i * y_step).y());
+		int s_len = fm.boundingRect(s).width();
+		painter->drawLine(left, bottom - _y_axis_length + v,
+		                  left - TICK_LENGTH, bottom - _y_axis_length + v);
+		painter->drawText(left - s_len - SCALE_VALUE_OFFSET,
+		                  bottom - _y_axis_length + v,
+		                  s);
+	}
+
+	painter->restore();
+}
+
+void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v2(QPainter *painter,
+                                                                 const QRectF &rect)
+{
+	QRectF scene_in_screen = map_from_scene(get_scene_rect());
+	int ticks_per_level = get_ticks_per_level();
+	qreal log_ticks_per_level = log(ticks_per_level);
+	int base_tick_size = 1024 / ticks_per_level;
+	// int base_tick_size = pow(ticks_per_level, round(log(1024) / log_ticks_per_level)) / ticks_per_level;
+
+	int left = get_scene_left_margin();
+	int right = left + get_x_axis_length();
+	int top = get_scene_top_margin();
+	int bottom = top + get_y_axis_length();
+
+	painter->save();
+	painter->resetTransform();
+	painter->setPen(Qt::white);
+
+	painter->drawLine(left, top, left, bottom);
+	painter->drawLine(left, bottom, right, bottom);
+
+	QFontMetrics fm = painter->fontMetrics();
+	int fm_ascent = fm.ascent();
+
+	/* horizontal ticks
+	 */
+
+	// first we need the ticks subdivision level
+	qreal scene_width = scene_in_screen.width();
+	qreal x_tick_count = scene_width / base_tick_size;
+	// qreal x_tick_count = pow(ticks_per_level, (int)(log(scene_width) / log_ticks_per_level)) / base_tick_size;
+	int x_tick_level = (int)(log(x_tick_count) / log_ticks_per_level);
+	int64_t x_real_tick_count = pow(ticks_per_level, x_tick_level);
+
+	// to know if intermediate ticks have to be drawn or not
+	bool need_x_subticks = (x_real_tick_count / x_tick_count) < SUBTICK_RATIO;
+
+	// and to deduce needed ticks width in screen and scene spaces
+	x_real_tick_count *= ticks_per_level;
+	qreal screen_subtick_width = scene_width / (x_real_tick_count);
+	qreal scene_subtick_width = get_scene_rect().width() / (x_real_tick_count);
+
+	// next, some information about the first tick position
+	qreal scene_left = map_to_scene(QPoint(left, 0)).x();
+	int64_t x_tick_index = ceil(scene_left / scene_subtick_width);
+	qreal t_left = x_tick_index * scene_subtick_width;
+	int screen_left = map_from_scene(QPointF(t_left, 0)).x();
+
+	qreal screen_pos = screen_left;
+	qreal scene_pos = t_left;
+
+	// let's draw
+	while ((int)screen_pos <= right) {
+		if ((x_tick_index % ticks_per_level) != 0) {
+			if (need_x_subticks) {
+				painter->drawLine(round(screen_pos),
+				                  bottom,
+				                  round(screen_pos),
+				                  bottom + SMALL_TICK_LENGTH);
+			}
+		} else {
+			// QString s = QString::number(scene_pos, 'f');
+			QString s = get_x_value_at(scene_pos);
+			int s_len = fm.boundingRect(s).width();
+
+			painter->drawText(screen_pos - (s_len / 2),
+			                  bottom + SCALE_VALUE_OFFSET + fm_ascent,
+			                  s);
+			painter->drawLine(round(screen_pos),
+			                  bottom,
+			                  round(screen_pos),
+			                  bottom + TICK_LENGTH);
+		}
+
+		screen_pos += screen_subtick_width;
+		scene_pos += scene_subtick_width;
+		++x_tick_index;
+	}
+
+	/* vertical scale
+	 */
+
+	// first we need the ticks subdivision level
+	qreal scene_height = scene_in_screen.height();
+	qreal y_tick_count = scene_height / base_tick_size;
+	int y_tick_level = (int)(log(y_tick_count) / log_ticks_per_level);
+	int64_t y_real_tick_count = pow(ticks_per_level, y_tick_level);
+
+	// to know if intermediate ticks have to be drawn or not
+	bool need_y_subticks = (y_real_tick_count / y_tick_count) < SUBTICK_RATIO;
+
+	// and to deduce needed ticks width in screen and scene spaces
+	y_real_tick_count *= ticks_per_level;
+	qreal screen_subtick_height = scene_height / (y_real_tick_count);
+	qreal scene_subtick_height = get_scene_rect().height() / (y_real_tick_count);
+
+	// next, some information about the first tick position
+	qreal scene_top = map_to_scene(QPoint(0, top)).y();
+	int64_t y_tick_index = ceil(scene_top / scene_subtick_height);
+	qreal t_top = y_tick_index * scene_subtick_height;
+	qreal screen_top = map_from_scene(QPointF(0, t_top)).y();
+
+	screen_pos = screen_top;
+	scene_pos = t_top;
+
+	// let's draw
+	while ((int)screen_pos <= bottom) {
+		if ((y_tick_index % ticks_per_level) != 0) {
+			if (need_y_subticks) {
+				painter->drawLine(left,
+				                  round(screen_pos),
+				                  left - SMALL_TICK_LENGTH,
+				                  round(screen_pos));
+			}
+		} else {
+			// QString s = QString::number(-scene_pos, 'f');
+			QString s = get_y_value_at(-scene_pos);
+			int s_len = fm.boundingRect(s).width();
+
+			painter->drawText(left - s_len - SCALE_VALUE_OFFSET,
+			                  round(screen_pos),
+			                  s);
+
+			painter->drawLine(left,
+			                  round(screen_pos),
+			                  left - TICK_LENGTH,
+			                  round(screen_pos));
+
+		}
+
+		screen_pos += screen_subtick_height;
+		scene_pos += scene_subtick_height;
+		++y_tick_index;
+	}
+
+	painter->restore();
 }

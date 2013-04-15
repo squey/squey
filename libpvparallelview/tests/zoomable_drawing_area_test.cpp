@@ -31,7 +31,7 @@ void __print_rect(const char *text, const R &r)
 	          << std::endl;
 }
 
-
+#define print_s(V) print_scalar(V)
 #define print_scalar(V) __print_scalar(#V, V)
 
 template <typename V>
@@ -56,8 +56,6 @@ public:
 protected:
 	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
 	{
-		PVLOG_INFO("In mousePressEvent interactor\n");
-
 		if (event->button() == Qt::RightButton) {
 			_pan_reference = event->pos();
 			event->setAccepted(true);
@@ -67,8 +65,6 @@ protected:
 
 	bool mouseMoveEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
 	{
-		PVLOG_INFO("In mouseMoveEvent interactor\n");
-
 		if (event->buttons() == Qt::RightButton) {
 
 			QPoint delta = _pan_reference - event->pos();
@@ -90,8 +86,6 @@ protected:
 
 	bool wheelEvent(PVParallelView::PVZoomableDrawingArea* zda, QWheelEvent* event) override
 	{
-		PVLOG_INFO("In wheelEvent interactor\n");
-
 		if (event->modifiers() == Qt::NoModifier) {
 			int inc = (event->delta() > 0)?1:-1;
 			bool ret = increment_zoom_value(zda,
@@ -127,8 +121,8 @@ class PVZoomableDrawingAreaConstraintsHomothetic : public PVParallelView::PVZoom
 	                    PVParallelView::PVAxisZoom &zx,
 	                    PVParallelView::PVAxisZoom &zy)
 	{
-		set_value(zx, value);
-		set_value(zy, value);
+		set_clamped_value(zx, value);
+		set_clamped_value(zy, value);
 		return true;
 	}
 
@@ -136,8 +130,8 @@ class PVZoomableDrawingAreaConstraintsHomothetic : public PVParallelView::PVZoom
 	                          PVParallelView::PVAxisZoom &zx,
 	                          PVParallelView::PVAxisZoom &zy)
 	{
-		set_value(zx, zx.get_value() + value);
-		set_value(zy, zy.get_value() + value);
+		set_clamped_value(zx, zx.get_value() + value);
+		set_clamped_value(zy, zy.get_value() + value);
 		return true;
 	}
 
@@ -159,8 +153,6 @@ public:
 protected:
 	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
 	{
-		PVLOG_INFO("In mousePressEvent interactor\n");
-
 		if (event->button() == Qt::RightButton) {
 			_pan_reference = event->pos();
 			event->setAccepted(true);
@@ -170,8 +162,6 @@ protected:
 
 	bool mouseMoveEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
 	{
-		PVLOG_INFO("In mouseMoveEvent interactor\n");
-
 		if (event->buttons() == Qt::RightButton) {
 
 			QPoint delta = _pan_reference - event->pos();
@@ -193,8 +183,6 @@ protected:
 
 	bool wheelEvent(PVParallelView::PVZoomableDrawingArea* zda, QWheelEvent* event) override
 	{
-		PVLOG_INFO("In wheelEvent interactor\n");
-
 		int inc = (event->delta() > 0)?1:-1;
 		int mask = 0;
 
@@ -239,10 +227,10 @@ class PVZoomableDrawingAreaConstraintsFree : public PVParallelView::PVZoomableDr
 	                    PVParallelView::PVAxisZoom &zy)
 	{
 		if (axes & PVParallelView::PVZoomableDrawingAreaConstraints::X) {
-			set_value(zx, value);
+			set_clamped_value(zx, value);
 		}
 		if (axes & PVParallelView::PVZoomableDrawingAreaConstraints::Y) {
-			set_value(zy, value);
+			set_clamped_value(zy, value);
 		}
 		return true;
 	}
@@ -252,10 +240,10 @@ class PVZoomableDrawingAreaConstraintsFree : public PVParallelView::PVZoomableDr
 	                          PVParallelView::PVAxisZoom &zy)
 	{
 		if (axes & PVParallelView::PVZoomableDrawingAreaConstraints::X) {
-			set_value(zx, zx.get_value() + value);
+			set_clamped_value(zx, zx.get_value() + value);
 		}
 		if (axes & PVParallelView::PVZoomableDrawingAreaConstraints::Y) {
-			set_value(zy, zy.get_value() + value);
+			set_clamped_value(zy, zy.get_value() + value);
 		}
 		return true;
 	}
@@ -278,8 +266,6 @@ public:
 protected:
 	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event) override
 	{
-		PVLOG_INFO("In mousePressEvent interactor\n");
-
 		if (event->button() == Qt::RightButton) {
 			_pan_reference = event->pos();
 			event->setAccepted(true);
@@ -289,8 +275,6 @@ protected:
 
 	bool mouseMoveEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event) override
 	{
-		PVLOG_INFO("In mouseMoveEvent interactor\n");
-
 		if (event->buttons() == Qt::RightButton) {
 
 			QPoint delta = _pan_reference - event->pos();
@@ -306,8 +290,6 @@ protected:
 
 	bool wheelEvent(PVParallelView::PVZoomableDrawingArea* zda, QWheelEvent* event) override
 	{
-		PVLOG_INFO("In wheelEvent interactor\n");
-
 		int inc = (event->delta() > 0)?1:-1;
 
 		if (increment_zoom_value(zda, PVParallelView::PVZoomableDrawingAreaConstraints::X | PVParallelView::PVZoomableDrawingAreaConstraints::Y, inc)) {
@@ -347,8 +329,8 @@ class PVZoomableDrawingAreaConstraintsZPV : public PVParallelView::PVZoomableDra
 	                    PVParallelView::PVAxisZoom &zx,
 	                    PVParallelView::PVAxisZoom &zy)
 	{
-		set_value(zx, value);
-		set_value(zy, value);
+		set_clamped_value(zx, value);
+		set_clamped_value(zy, value);
 		return true;
 	}
 
@@ -356,8 +338,8 @@ class PVZoomableDrawingAreaConstraintsZPV : public PVParallelView::PVZoomableDra
 	                          PVParallelView::PVAxisZoom &zx,
 	                          PVParallelView::PVAxisZoom &zy)
 	{
-		set_value(zx, zx.get_value() + value);
-		set_value(zy, zy.get_value() + value);
+		set_clamped_value(zx, zx.get_value() + value);
+		set_clamped_value(zy, zy.get_value() + value);
 		return true;
 	}
 
@@ -426,7 +408,7 @@ public:
 
 		set_decoration_color(Qt::white);
 
-		set_ticks_count(8);
+		set_ticks_per_level(8);
 	}
 
 	~MyPlottingZDAWA()
@@ -578,12 +560,10 @@ int main(int argc, char **argv)
 	pzdawa->show();
 	pzdawa->setWindowTitle("PV Plotting test");
 
-	//#if 0
 	PVParallelView::PVZoomableDrawingArea *zzda = new MyZoomingZDA;
 	zzda->resize(600, 600);
-	zzda->show();
+	//zzda->show();
 	zzda->setWindowTitle("My Zooming test");
-	//#endif
 
 	app.exec();
 

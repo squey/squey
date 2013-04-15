@@ -16,6 +16,7 @@
 #include <QGraphicsScene>
 #include <QScrollBar64>
 
+#define print_r(R) __print_rect(R)
 #define print_rect(R) __print_rect(#R, R)
 
 template <typename R>
@@ -24,6 +25,17 @@ void __print_rect(const char *text, const R &r)
 	std::cout << text << ": "
 	          << r.x() << " " << r.y() << ", "
 	          << r.width() << " " << r.height()
+	          << std::endl;
+}
+
+#define print_s(V) print_scalar(V)
+#define print_scalar(V) __print_scalar(#V, V)
+
+template <typename V>
+void __print_scalar(const char *text, const V &v)
+{
+	std::cout << text << ": "
+	          << v
 	          << std::endl;
 }
 
@@ -68,6 +80,7 @@ public:
 
 	bool  keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent *event) override
 	{
+#if 0
 		if (event->key() == Qt::Key_Tab) {
 			PVHitCountView *hcv = get_hit_count_view(zda);
 
@@ -82,8 +95,11 @@ public:
 			hcv->update_all();
 
 			return true;
-		} else if(event->key() == Qt::Key_Home) {
+		} else
+#endif
+			if(event->key() == Qt::Key_Home) {
 			get_hit_count_view(zda)->reset_view();
+			zda->update();
 			return true;
 		}
 
@@ -164,12 +180,15 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	// setMaximumHeight(1024);
 
 	set_alignment(Qt::AlignLeft | Qt::AlignTop);
+#if 0
 	set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOff);
-
+#else
+	set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOn);
+#endif
 	set_x_legend("occurrence count");
 	set_y_legend(pvview_sp->get_axis_name(axis_index));
 	set_decoration_color(Qt::white);
-	set_ticks_count(8);
+	set_ticks_per_level(8);
 
 	_block_zoom_level = get_y_axis_zoom().get_clamped_value();
 
@@ -276,7 +295,9 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	int dy = view_top - img_top;
 
 	int src_x = get_scene_left_margin();
+#if 0
 	double ratio = get_x_axis_length() / (double)_max_count;
+#endif
 
 	int zoom_level = get_y_axis_zoom().get_clamped_value();
 	double rel_y_scale = y_zoom_to_scale(zoom_level - _block_zoom_level);
@@ -284,6 +305,7 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
 	painter->setPen(QPen(Qt::white));
 
+#if 0
 	if(_show_bg) {
 		painter->setOpacity(0.25);
 		draw_lines(painter, src_x, view_top, dy, ratio, rel_y_scale,
@@ -293,6 +315,7 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 		draw_lines(painter, src_x, view_top, dy, ratio, rel_y_scale,
 		           _hit_graph_manager.buffer_sel());
 	} else {
+#endif
 		painter->setOpacity(0.25);
 		draw_clamped_lines(painter,
 		                   map_from_scene(QPointF(0., 0.)).x(),
@@ -305,7 +328,9 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 		                   map_from_scene(QPointF(_max_count, 0.)).x(),
 		                   src_x, view_top, dy, rel_y_scale,
 		                   _hit_graph_manager.buffer_sel());
+#if 0
 	}
+#endif
 
 	draw_decorations(painter, rect);
 }

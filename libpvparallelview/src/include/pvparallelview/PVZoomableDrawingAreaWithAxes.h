@@ -110,14 +110,14 @@ public:
 	/**
 	 * Set the ticks count per level
 	 */
-	void set_ticks_count(int count);
+	void set_ticks_per_level(int n);
 
 	/**
 	 * Return the current ticks count
 	 */
-	int get_ticks_count() const
+	int get_ticks_per_level() const
 	{
-		return _ticks_count;
+		return _ticks_per_level;
 	}
 
 protected:
@@ -165,11 +165,15 @@ protected:
 	virtual void resizeEvent(QResizeEvent *event);
 
 private:
+	void draw_deco_v1(QPainter *painter, const QRectF &rect);
+	void draw_deco_v2(QPainter *painter, const QRectF &rect);
+
+private:
 	QColor  _decoration_color;
 	QString _x_legend;
 	QString _y_legend;
 
-	int _ticks_count;
+	int _ticks_per_level;
 
 	int _x_axis_length;
 	int _y_axis_length;
