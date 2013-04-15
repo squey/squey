@@ -83,6 +83,4 @@ void PVParallelView::PVZoomableDrawingArea::reconfigure_view()
 
 	get_constraints()->adjust_pan(get_horizontal_scrollbar(),
 	                              get_vertical_scrollbar());
-
-	update();
 }

@@ -95,6 +95,7 @@ protected:
 
 			if (ret) {
 				zda->reconfigure_view();
+				zda->update();
 			}
 		}
 
@@ -199,6 +200,7 @@ protected:
 
 			if (increment_zoom_value(zda, mask, inc)) {
 				zda->reconfigure_view();
+				zda->update();
 				zoom_has_changed(zda);
 			}
 		}
@@ -295,6 +297,7 @@ protected:
 		if (increment_zoom_value(zda, PVParallelView::PVZoomableDrawingAreaConstraints::X | PVParallelView::PVZoomableDrawingAreaConstraints::Y, inc)) {
 			std::cout << "update!" << std::endl;
 			zda->reconfigure_view();
+			zda->update();
 			zoom_has_changed(zda);
 		}
 
