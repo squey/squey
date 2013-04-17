@@ -148,7 +148,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::set_btns_layout()
 
 void PVGuiQt::PVLayerFilterProcessWidget::connect_btns()
 {
-	connect(_cancel_btn, SIGNAL(pressed()), this, SLOT(cancel_Slot()));
+	connect(_cancel_btn, SIGNAL(pressed()), this, SLOT(reject()));
 	connect(_reset_btn, SIGNAL(pressed()), this, SLOT(reset_Slot()));
 	connect(_preview_btn, SIGNAL(pressed()), this, SLOT(preview_Slot()));
 	connect(_apply_btn, SIGNAL(pressed()), this, SLOT(save_Slot()));
@@ -156,6 +156,26 @@ void PVGuiQt::PVLayerFilterProcessWidget::connect_btns()
 		QMessageBox *msgBox = new QMessageBox(QMessageBox::Information, "Filter help", _filter_p->detailed_description(), QMessageBox::Ok, this);
 		connect(_help_btn, SIGNAL(pressed()), msgBox, SLOT(exec()));
 	}
+}
+
+void PVGuiQt::PVLayerFilterProcessWidget::reject()
+{
+	if (!_has_apply) {
+		QDialog::reject();
+		return;
+	}
+
+	// Restore original arguments of this layer filter
+	*_args_widget->get_args() = _args_org;
+
+	// Restore the original post_filter_layer
+	//_view->post_filter_layer = _view->pre_filter_layer;
+
+	// Update everything
+	Picviz::PVView_sp view_p(_view->shared_from_this());
+	PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_from_layer_stack)>(view_p);
+
+	QDialog::reject();
 }
 
 void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
@@ -251,26 +271,6 @@ void PVGuiQt::PVLayerFilterProcessWidget::preview_Slot()
 	_preview_btn->setFocus(Qt::MouseFocusReason);
 
 	process();
-}
-
-void PVGuiQt::PVLayerFilterProcessWidget::cancel_Slot()
-{
-	if (!_has_apply) {
-		reject();
-		return;
-	}
-
-	// Restore original arguments of this layer filter
-	*_args_widget->get_args() = _args_org;
-
-	// Restore the original post_filter_layer
-	//_view->post_filter_layer = _view->pre_filter_layer;
-
-	// Update everything
-	Picviz::PVView_sp view_p(_view->shared_from_this());
-	PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_from_layer_stack)>(view_p);
-
-	reject();
 }
 
 void PVGuiQt::PVLayerFilterProcessWidget::reset_Slot()
