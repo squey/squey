@@ -12,6 +12,7 @@
 #include <pvparallelview/PVDisplayViewAxisZoomed.h>
 #include <pvparallelview/PVDisplayViewFullParallel.h>
 #include <pvparallelview/PVDisplayViewHitCount.h>
+#include <pvparallelview/PVDisplayViewScatter.h>
 
 PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::_s = nullptr;
 
@@ -59,6 +60,7 @@ void PVParallelView::PVParallelViewImpl::register_displays()
 	REGISTER_CLASS("parallelview_fullparallelview", PVDisplays::PVDisplayViewFullParallel);
 	REGISTER_CLASS("parallelview_zoomedparallelview", PVDisplays::PVDisplayViewAxisZoomed);
 	REGISTER_CLASS("parallelview_hitgraphview", PVDisplays::PVDisplayViewHitCount);
+	REGISTER_CLASS("parallelview_scatterview", PVDisplays::PVDisplayViewScatter);
 }
 
 PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::get()

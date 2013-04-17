@@ -22,6 +22,7 @@
 #include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVHitCountView.h>
+#include <pvparallelview/PVScatterView.h>
 
 #include <iostream>
 
@@ -167,6 +168,25 @@ PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view
 	return view;
 }
 
+
+PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(
+	const PVCol axis,
+	QWidget* parent
+)
+{
+	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
+
+	PVScatterView* view = new PVScatterView(
+		view_sp,
+        _zones_manager.get_zone_tree<PVZoneTree>(axis),
+        parent
+    );
+
+	_scatter_views.push_back(view);
+
+	return view;
+}
+
 void PVParallelView::PVLibView::request_zoomed_zone_trees(const PVCol axis)
 {
 	if (axis > 0) {
@@ -194,6 +214,11 @@ void PVParallelView::PVLibView::view_about_to_be_deleted()
 		view->deleteLater();
 	}
 
+	for (PVScatterView* view: _scatter_views) {
+		view->about_to_be_deleted();
+		view->deleteLater();
+	}
+
 	PVParallelView::common::remove_lib_view(*lib_view());
 }
 
@@ -213,6 +238,10 @@ void PVParallelView::PVLibView::selection_updated()
 	}
 
 	for (PVHitCountView* view: _hit_count_views) {
+		view->update_new_selection_async();
+	}
+
+	for (PVScatterView* view: _scatter_views) {
 		view->update_new_selection_async();
 	}
 }
@@ -236,6 +265,10 @@ void PVParallelView::PVLibView::output_layer_updated()
 	}
 
 	for (PVHitCountView* view: _hit_count_views) {
+		view->update_all_async();
+	}
+
+	for (PVScatterView* view: _scatter_views) {
 		view->update_all_async();
 	}
 }
@@ -294,6 +327,11 @@ void PVParallelView::PVLibView::plotting_updated()
 
 	for (PVHitCountView* view: _hit_count_views) {
 		view->set_enabled(true);
+		view->update_all_async();
+	}
+
+	for (PVScatterView* view: _scatter_views) {
+		//view->set_enabled(true);
 		view->update_all_async();
 	}
 }
@@ -401,3 +439,15 @@ void PVParallelView::PVLibView::remove_hit_count_view(PVHitCountView *view)
 	}
 }
 
+void PVParallelView::PVLibView::remove_scatter_view(PVScatterView *view)
+{
+	scatter_view_list_t::iterator it = std::find(
+		_scatter_views.begin(),
+		_scatter_views.end(),
+	    view
+	);
+
+	if (it != _scatter_views.end()) {
+		_scatter_views.erase(it);
+	}
+}
