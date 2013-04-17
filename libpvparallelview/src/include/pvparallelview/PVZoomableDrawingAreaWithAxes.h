@@ -167,6 +167,7 @@ protected:
 private:
 	void draw_deco_v1(QPainter *painter, const QRectF &rect);
 	void draw_deco_v2(QPainter *painter, const QRectF &rect);
+	void draw_deco_v3(QPainter *painter, const QRectF &rect);
 
 private:
 	QColor  _decoration_color;
