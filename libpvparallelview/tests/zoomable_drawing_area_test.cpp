@@ -360,9 +360,12 @@ class PVZoomableDrawingAreaConstraintsZPV : public PVParallelView::PVZoomableDra
 class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 {
 	constexpr static int zoom_steps = 5;
+	constexpr static int zoom_min = -22 * zoom_steps;
+	constexpr static int zoom_max = 8 * zoom_steps;
+
 	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
 
-	typedef PVParallelView::PVZoomConverterScaledPowerOfTwo<5> zoom_converter_t;
+	typedef PVParallelView::PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
 public:
 	MyPlottingZDAWA(QWidget *parent = nullptr) :
 		PVParallelView::PVZoomableDrawingAreaWithAxes(parent)
@@ -395,16 +398,16 @@ public:
 
 		PVParallelView::PVZoomConverter *zc = new zoom_converter_t();
 
-		get_x_axis_zoom().set_range(-110, 30);
-		get_x_axis_zoom().set_default_value(-110);
+		get_x_axis_zoom().set_range(zoom_min, zoom_max);
+		get_x_axis_zoom().set_default_value(zoom_min);
 		get_x_axis_zoom().set_zoom_converter(zc);
 
-		get_y_axis_zoom().set_range(-110, 30);
-		get_y_axis_zoom().set_default_value(-110);
+		get_y_axis_zoom().set_range(zoom_min, zoom_max);
+		get_y_axis_zoom().set_default_value(zoom_min);
 		get_y_axis_zoom().set_zoom_converter(zc);
 		set_zoom_value(PVParallelView::PVZoomableDrawingAreaConstraints::X
 		               | PVParallelView::PVZoomableDrawingAreaConstraints::Y,
-		               -110);
+		               zoom_min);
 
 		set_x_legend("Axis N");
 		set_y_legend("occurrence count");
