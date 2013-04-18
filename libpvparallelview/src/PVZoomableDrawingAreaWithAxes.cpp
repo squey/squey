@@ -181,6 +181,11 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations(QPaint
 void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_decorations(QPainter *painter,
                                                                      const QRectF &rect)
 {
+	if (get_scene_rect().isNull()) {
+		PVLOG_WARN("using a PVZoomableDrawingArea with no defined scene\n");
+		return;
+	}
+
 	draw_deco_v3(painter, rect);
 }
 
@@ -290,10 +295,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v2(QPainter *paint
                                                                  const QRectF &rect)
 {
 	QRectF scene_in_screen = map_from_scene(get_scene_rect());
-	// FIXME!
-	if (scene_in_screen.width() == 0 || scene_in_screen.height() == 0) {
-		return;
-	}
+
 	int ticks_per_level = get_ticks_per_level();
 	qreal log_ticks_per_level = log(ticks_per_level);
 	int base_tick_size = 1024 / ticks_per_level;
