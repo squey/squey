@@ -95,7 +95,7 @@ private slots:
 	void update_sel();
 
 private:
-	Picviz::PVView_sp                            _pvview_sp;
+	Picviz::PVView&                              _pvview;
 	PVCol                                        _axis_index;
 	QTimer                                       _update_all_timer;
 
