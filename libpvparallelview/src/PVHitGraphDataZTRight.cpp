@@ -1,7 +1,6 @@
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <picviz/PVSelection.h>
 #include <pvparallelview/PVBCode.h>
-#include <pvparallelview/PVBCode.h>
 #include <pvparallelview/PVHitGraphDataZTRight.h>
 #include <pvparallelview/PVZoneTree.h>
 

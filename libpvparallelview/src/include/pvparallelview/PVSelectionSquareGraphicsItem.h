@@ -58,7 +58,7 @@ public:
 		_use_selection_modifiers = use_selection_modifiers;
 		setRect(rectangle);
 		if (now) {
-			emit commit_volatile_selection(use_selection_modifiers);
+			volatile_selection_timeout_Slot();
 		}
 		else {
 			handle_volatile_selection();

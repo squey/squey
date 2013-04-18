@@ -25,43 +25,18 @@ namespace PVParallelView {
 
 class PVFullParallelScene;
 
-namespace __impl {
-
-struct PVSelectionBarycenter
-{
-	PVSelectionBarycenter()
-	{
-		clear();
-	}
-
-	PVZoneID zone_id1;
-	PVZoneID zone_id2;
-	double factor1;
-	double factor2;
-
-	void clear()
-	{
-		zone_id1 = PVZONEID_INVALID;
-		zone_id2 = PVZONEID_INVALID;
-		factor1 = 0.0;
-		factor2 = 0.0;
-	}
-};
-
-}
-
 class PVSelectionSquare : public QObject
 {
 	Q_OBJECT;
 
 public:
-	PVSelectionSquare(PVFullParallelScene* s);
+	PVSelectionSquare(Picviz::PVView& view, QGraphicsScene* s);
+	virtual ~PVSelectionSquare() {};
 
 public:
 	void begin(int x, int y);
 	void end(int x, int y, bool use_selection_modifiers = true, bool now = false);
-	void update_position();
-	void clear();
+	virtual void clear();
 
 	void update_rect_no_commit(const QRectF& r);
 	QRectF get_rect();
@@ -82,28 +57,16 @@ public:
 	void grow_vertically() { grow_by(1, 1/GROW_STEP_RATIO); };
 	void shrink_vertically() { grow_by(1, GROW_STEP_RATIO); };
 
+protected slots:
+	virtual void commit(bool use_selection_modifiers) = 0;
+
 private:
 	void move_by(qreal hratio, qreal vratio);
 	void grow_by(qreal hratio, qreal vratio);
 
-public slots:
-	void commit(bool use_selection_modifiers);
-
-private:
-	void store();
-
-	PVFullParallelScene* scene_parent();
-	PVFullParallelScene const* scene_parent() const;
-
-	PVLinesView& get_lines_view();
-	PVLinesView const& get_lines_view() const;
-
-	Picviz::PVView& lib_view();
-	Picviz::PVView const& lib_view() const;
-
-private:
+protected:
+	Picviz::PVView& _view;
 	PVSelectionSquareGraphicsItem* _selection_graphics_item;
-	__impl::PVSelectionBarycenter _selection_barycenter;
 	QPointF _selection_graphics_item_pos;
 };
 

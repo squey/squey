@@ -6,6 +6,8 @@
 
 #include <pvkernel/core/picviz_bench.h>
 
+#include <QApplication>
+
 #include <picviz/PVSelection.h>
 
 #include <pvparallelview/PVSelectionGenerator.h>
@@ -16,7 +18,7 @@
 
 #include <tbb/enumerable_thread_specific.h>
 
-uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(
+uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_view_rect(
 	PVLinesView& lines_view,
 	PVZoneID zone_id,
 	QRect rect,
@@ -34,7 +36,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(
 		return 0;
 	}
 
-	BENCH_START(compute_selection_from_rect);
+	BENCH_START(compute_selection_from_parallel_view_rect);
 	PVLineEqInt line;
 	line.b = -width;
 
@@ -72,7 +74,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(
 			nb_selected += branch_count;
 		}
 	}
-	BENCH_END(compute_selection_from_rect, "compute_selection", sizeof(PVRow), NBUCKETS, 1, 1);
+	BENCH_END(compute_selection_from_parallel_view_rect, "compute_selection", sizeof(PVRow), NBUCKETS, 1, 1);
 
 	/*
 	if (nb_selected != 0) {
@@ -89,7 +91,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(
 	return nb_selected;
 }
 
-uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
+uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_view_sliders(
 	PVLinesView& lines_view,
 	PVZoneID zone_id,
 	const typename PVAxisGraphicsItem::selection_ranges_t& ranges,
@@ -264,3 +266,66 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 	return nb_selected;
 }
 
+uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_view_rect(
+	PVZoneTree const& ztree,
+	QRectF rect,
+	Picviz::PVSelection& sel
+)
+{
+	if (rect.isNull()) {
+		return 0;
+	}
+
+	sel.select_none();
+
+	uint32_t nb_selected = 0;
+	PVParallelView::PVBCode code_b;
+
+	for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
+	{
+		if (ztree.branch_valid(branch)) {
+			const PVRow row = ztree.get_first_elt_of_branch(branch);
+			code_b.int_v = branch;
+			int32_t x = code_b.s.l;
+			int32_t y = code_b.s.r;
+
+			if (x >= rect.x() && x <= (rect.x()+rect.width()) && y >= rect.y() && y <= (rect.y()+rect.height())) {
+				sel.set_bit_fast(row);
+			}
+		}
+	}
+
+	return nb_selected;
+}
+
+void PVParallelView::PVSelectionGenerator::process_selection(Picviz::PVView_sp view_sp, bool use_modifiers /*= true*/)
+{
+	PVHive::PVActor<Picviz::PVView> view_actor;
+	PVHive::get().register_actor(view_sp, view_actor);
+
+	unsigned int modifiers = (unsigned int) QApplication::keyboardModifiers();
+	/* We don't care about a keypad button being pressed */
+	modifiers &= ~Qt::KeypadModifier;
+
+	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier aren't really
+	 * constants */
+	if (use_modifiers && modifiers == (unsigned int) (Qt::ShiftModifier | Qt::ControlModifier)) {
+		view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
+	}
+	else if (use_modifiers && modifiers == Qt::ControlModifier) {
+		view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
+	}
+	else if (use_modifiers && modifiers == Qt::ShiftModifier) {
+		view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
+	}
+	else {
+		view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	}
+
+	/* Commit the previous volatile selection */
+	view_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
+
+	view_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
+
+	PVHive::get().unregister_actor(view_actor);
+}

@@ -51,6 +51,7 @@ PVAxisLabel.cpp
 PVAxisGraphicsItem.cpp
 PVSelectionGenerator.cpp
 PVSelectionSquare.cpp
+PVSelectionSquareFullParallelView.cpp
 PVLibView.cpp
 PVRenderingPipeline.cpp
 PVSlidersManager.cpp
@@ -71,6 +72,7 @@ PVZoomedSelectionAxisSliders.cpp
 PVDisplayViewAxisZoomed.cpp
 PVDisplayViewFullParallel.cpp
 PVDisplayViewHitCount.cpp
+PVDisplayViewScatter.cpp
 
 # ZoomableDrawingArea & co
 PVZoomableDrawingArea.cpp
@@ -83,6 +85,7 @@ PVZoomableDrawingAreaConstraintsMajorY.cpp
 
 # views
 PVHitCountView.cpp
+PVScatterView.cpp
 )
 
 set(CUDA_SRC_FILES
@@ -129,6 +132,7 @@ include/pvparallelview/PVZoomableDrawingAreaWithAxes.h
 
 # views
 include/pvparallelview/PVHitCountView.h
+include/pvparallelview/PVScatterView.h
 )
 
 SET(MOC_HEADERS
@@ -137,6 +141,8 @@ include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
 include/pvparallelview/PVSelectionSquareGraphicsItem.h
 include/pvparallelview/PVSelectionSquare.h
+include/pvparallelview/PVSelectionSquareFullParallelView.h
+include/pvparallelview/PVSelectionSquareScatterView.h
 include/pvparallelview/PVZonesManager.h
 include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVSlidersGroup.h
@@ -149,6 +155,7 @@ include/pvparallelview/PVZoomAxisSliders.h
 include/pvparallelview/PVZoomedSelectionAxisSliders.h
 include/pvparallelview/PVZoomableDrawingArea.h
 include/pvparallelview/PVHitCountView.h
+include/pvparallelview/PVScatterView.h
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})

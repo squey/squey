@@ -267,7 +267,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(QAction* act)
 
 	if (axis_comb == PVCOL_INVALID_VALUE) {
 		PVCore::PVArgumentList args;
-		args[PVCore::PVArgumentKey("axis", tr("New view on axis:"))].setValue(PVCore::PVAxisIndexType(0));
+		args[PVCore::PVArgumentKey("axis", tr("New view on axis"))].setValue(PVCore::PVAxisIndexType(0));
 		if (!PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
 		     PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view),
 		     args, this)) {

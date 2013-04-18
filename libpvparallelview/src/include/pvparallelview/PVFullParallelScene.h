@@ -16,14 +16,13 @@
 #include <picviz/PVView_types.h>
 
 #include <pvparallelview/PVBCIBackendImage_types.h>
-#include <pvparallelview/PVSelectionSquare.h>
+#include <pvparallelview/PVSelectionSquareFullParallelView.h>
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVSlidersManager.h>
 
 
-#include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVFuncObserver.h>
 #include <pvhive/PVObserverSignal.h>
@@ -42,7 +41,7 @@ class PVFullParallelScene : public QGraphicsScene
 {
 	Q_OBJECT
 
-	friend class PVSelectionSquare;
+	friend class PVSelectionSquareFullParallelView;
 	friend class draw_zone_Observer;
 	friend class draw_zone_sel_Observer;
 	friend class process_selection_Observer;
@@ -144,8 +143,6 @@ private:
 
 	bool sliders_moving() const;
 
-	void process_selection(bool use_modifiers = true);
-
 	void add_zone_image();
 	void add_axis(PVZoneID const zone_id, int index = -1);
 
@@ -234,14 +231,13 @@ private:
 	std::vector<SingleZoneImagesItems> _zones;
 	axes_list_t             _axes;
 
-	PVHive::PVActor<Picviz::PVView> _view_actor;
 	PVHive::PVObserver_p<int>       _obs_selected_layer;
 
 	Picviz::PVView& _lib_view;
 
 	PVFullParallelView* _full_parallel_view;
 
-	PVSelectionSquare* _selection_square;
+	PVSelectionSquareFullParallelView* _selection_square;
 	qreal _translation_start_x = 0.0;
 
 	float           _zoom_y;

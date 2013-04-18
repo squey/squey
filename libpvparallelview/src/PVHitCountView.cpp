@@ -126,7 +126,7 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
                                                const PVCol axis_index,
                                                QWidget *parent) :
 	PVParallelView::PVZoomableDrawingAreaWithAxes(parent),
-	_pvview_sp(pvview_sp),
+	_pvview(*pvview_sp),
 	_axis_index(axis_index),
 	_hit_graph_manager(zt, col_plotted, nrows, 2, pvview_sp->get_real_output_selection()),
 	_view_deleted(false),
@@ -213,7 +213,7 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 PVParallelView::PVHitCountView::~PVHitCountView()
 {
 	if (!_view_deleted) {
-		common::get_lib_view(*_pvview_sp.get())->remove_hit_count_view(this);
+		common::get_lib_view(_pvview)->remove_hit_count_view(this);
 	}
 
 	delete _x_zoom_converter;

@@ -29,7 +29,6 @@ public:
 public slots:
 	void save_Slot();
 	void preview_Slot();
-	void cancel_Slot();
 	void reset_Slot();
 	void load_preset_Slot(const QString& preset);
 	void add_preset_Slot(const QString& preset);
@@ -38,6 +37,8 @@ public slots:
 	void rename_preset_Slot(const QString& old_preset, const QString& new_preset);
 
 protected:
+	void reject() override;
+
 	void create_btns();
 	void set_btns_layout();
 	void connect_btns();

@@ -33,6 +33,7 @@ class PVFullParallelView;
 class PVZoomedParallelScene;
 class PVZoomedParallelView;
 class PVHitCountView;
+class PVScatterView;
 class PVSlidersManager;
 
 class PVLibView
@@ -41,6 +42,7 @@ private:
 	typedef std::list<PVFullParallelScene*> scene_list_t;
 	typedef std::vector<PVZoomedParallelScene*> zoomed_scene_list_t;
 	typedef std::vector<PVHitCountView*> hit_count_view_list_t;
+	typedef std::vector<PVScatterView*> scatter_view_list_t;
 	friend class process_selection_Observer;
 
 public:
@@ -53,6 +55,7 @@ public:
 	PVFullParallelView* create_view(QWidget* parent = NULL);
 	PVZoomedParallelView* create_zoomed_view(PVCol const axis, QWidget* parent = NULL);
 	PVHitCountView* create_hit_count_view(PVCol const axis, QWidget* parent = NULL);
+	PVScatterView* create_scatter_view(PVCol const axis, QWidget* parent = NULL);
 
 	void request_zoomed_zone_trees(const PVCol axis);
 	PVZonesManager& get_zones_manager() { return _zones_manager; }
@@ -61,6 +64,7 @@ public:
 	void remove_view(PVFullParallelScene *scene);
 	void remove_zoomed_view(PVZoomedParallelScene *scene);
 	void remove_hit_count_view(PVHitCountView *view);
+	void remove_scatter_view(PVScatterView *view);
 
 protected:
 	void selection_updated();
@@ -86,6 +90,7 @@ private:
 	scene_list_t                              _parallel_scenes;
 	zoomed_scene_list_t                       _zoomed_parallel_scenes;
 	hit_count_view_list_t                     _hit_count_views;
+	scatter_view_list_t                       _scatter_views;
 	PVCore::PVHSVColor                 const* _colors;
 
 	PVZonesProcessor _processor_sel;
