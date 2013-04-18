@@ -148,7 +148,7 @@ private:
 
 	inline PVBCIDrawingBackend& backend() const { return _lines_view.backend(); }
 
-	inline size_t qimage_height() const { return (double)(1<<PARALLELVIEW_ZT_BBITS) * _zoom_y; }
+	size_t qimage_height() const;
 
 private slots:
 	void update_zone_pixmap_bg(int zone_id);
