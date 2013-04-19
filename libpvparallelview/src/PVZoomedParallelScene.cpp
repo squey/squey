@@ -80,7 +80,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_axis_id = _pvview.get_axes_combination().get_axes_comb_id(axis_index);
 
 	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
-	connect(_selection_rect, SIGNAL(commit_volatile_selection()),
+	connect(_selection_rect, SIGNAL(commit_volatile_selection(bool)),
 			this, SLOT(commit_volatile_selection_Slot()));
 
 	_wheel_value = 0;
@@ -205,7 +205,7 @@ void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMous
 				_selection_sliders = nullptr;
 			}
 		}
-		commit_volatile_selection_Slot();
+		//commit_volatile_selection_Slot();
 		_selection_rect->clear_rect();
 		event->accept();
 	}

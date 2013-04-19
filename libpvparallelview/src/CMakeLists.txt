@@ -82,6 +82,8 @@ PVZoomableDrawingAreaInteractor.cpp
 PVZoomableDrawingAreaInteractorMajorY.cpp
 
 PVZoomableDrawingAreaConstraintsMajorY.cpp
+PVZoomableDrawingAreaInteractorHomothetic.cpp
+PVZoomableDrawingAreaConstraintsHomothetic.cpp
 
 # views
 PVHitCountView.cpp

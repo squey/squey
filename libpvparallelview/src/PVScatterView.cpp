@@ -23,25 +23,49 @@
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVSelectionSquareScatterView.h>
-#include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
+#include <pvparallelview/PVZoomableDrawingAreaInteractorHomothetic.h>
+#include <pvparallelview/PVZoomableDrawingAreaConstraintsHomothetic.h>
 
 namespace PVParallelView
 {
 
-class PVScatterViewInteractor : public PVWidgets::PVGraphicsViewInteractor<PVWidgets::PVGraphicsView>
+template <int STEPS>
+class PVScatterViewZoomConverter : public PVZoomConverterScaledPowerOfTwo<STEPS>
 {
-	typedef PVWidgets::PVGraphicsViewInteractor<PVWidgets::PVGraphicsView> parent_type;
+public:
+	PVScatterViewZoomConverter(const qreal s) :
+		_scale_factor(s)
+	{}
+
+	int scale_to_zoom(const qreal value) const override
+	{
+		return PVZoomConverterScaledPowerOfTwo<STEPS>::scale_to_zoom(value / _scale_factor);
+	}
+
+	qreal zoom_to_scale(const int value) const override
+	{
+		return PVZoomConverterScaledPowerOfTwo<STEPS>::zoom_to_scale(value) * _scale_factor;
+	}
+
+private:
+	qreal _scale_factor;
+};
+
+class PVScatterViewInteractor : public PVZoomableDrawingAreaInteractorHomothetic
+{
 
 public:
 	PVScatterViewInteractor(PVWidgets::PVGraphicsView* parent, Picviz::PVView& view, const PVZoneTree &zt) :
-		parent_type(parent),
+		PVZoomableDrawingAreaInteractorHomothetic(parent),
 		_view(view),
 		_scatter_view(static_cast<PVScatterView*>(parent)),
 		_selection_square(new PVSelectionSquareScatterView(view, zt, _scatter_view->get_scene()))
 	{}
 
-	bool keyPressEvent(PVWidgets::PVGraphicsView* zda, QKeyEvent* event) override
+	bool keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent* event) override
 	{
+		PVZoomableDrawingAreaInteractorHomothetic::keyPressEvent(zda, event);
+
 		if (event->key() == Qt::Key_Left) {
 			if (event->modifiers() & Qt::ShiftModifier) {
 				_selection_square->grow_horizontally();
@@ -94,8 +118,10 @@ public:
 		return false;
 	}
 
-	bool mousePressEvent(PVWidgets::PVGraphicsView* obj, QMouseEvent* event) override
+	bool mousePressEvent(PVZoomableDrawingArea* obj, QMouseEvent* event) override
 	{
+		PVZoomableDrawingAreaInteractorHomothetic::mousePressEvent(obj, event);
+
 		if (event->button() == Qt::LeftButton) {
 			_selection_square->begin(event->pos().x()-_scatter_view->get_real_viewport_rect().x(), event->pos().y()-_scatter_view->get_real_viewport_rect().y());
 			event->accept();
@@ -103,8 +129,10 @@ public:
 		return false;
 	}
 
-	bool mouseReleaseEvent(PVWidgets::PVGraphicsView* obj, QMouseEvent* event) override
+	bool mouseReleaseEvent(PVZoomableDrawingArea* obj, QMouseEvent* event) override
 	{
+		PVZoomableDrawingAreaInteractorHomothetic::mouseReleaseEvent(obj, event);
+
 		if (event->button() == Qt::LeftButton) {
 			_selection_square->end(event->pos().x()-_scatter_view->get_real_viewport_rect().x(), event->pos().y()-_scatter_view->get_real_viewport_rect().y(), true, true);
 			event->accept();
@@ -112,8 +140,10 @@ public:
 		return false;
 	}
 
-	bool mouseMoveEvent(PVWidgets::PVGraphicsView* obj, QMouseEvent* event) override
+	bool mouseMoveEvent(PVZoomableDrawingArea* obj, QMouseEvent* event) override
 	{
+		PVZoomableDrawingAreaInteractorHomothetic::mouseMoveEvent(obj, event);
+
 		if (event->buttons() == Qt::LeftButton)
 		{
 			_selection_square->end(event->pos().x()-_scatter_view->get_real_viewport_rect().x(), event->pos().y()-_scatter_view->get_real_viewport_rect().y());
@@ -142,16 +172,40 @@ PVParallelView::PVScatterView::PVScatterView(
 	_view_deleted(false)
 {
 	setCursor(Qt::CrossCursor);
-	//QRectF r(0, -(1L << 32), (1L << 32), (1L << 32));
-	//get_scene()->setSceneRect(r);
-	get_scene()->setSceneRect(0, 0, 1024, 1024);
+	QRectF r(0, -(1L << 32), (1L << 32), (1L << 32));
+	get_scene()->setSceneRect(r);
+	//get_scene()->setSceneRect(0, 0, 1024, 1024);
 
-	// interactor/constraints
+	// interactor
 	PVWidgets::PVGraphicsViewInteractorBase* inter = declare_interactor<PVScatterViewInteractor>(_view, _zt);
 	register_front_all(inter);
 	register_front_one(QEvent::Resize, inter);
 	register_front_one(QEvent::KeyPress, inter);
 	install_default_scene_interactor();
+
+	// constraints
+	set_constraints(new PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic());
+
+	// decorations
+	set_alignment(Qt::AlignLeft | Qt::AlignTop);
+	#if 0
+		set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOff);
+	#else
+		set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOn);
+	#endif
+	//set_x_legend("occurrence count");
+	//set_y_legend(pvview_sp->get_axis_name(axis_index));
+	set_decoration_color(Qt::white);
+	set_ticks_per_level(8);
+
+	_zoom_converter = new PVScatterViewZoomConverter<zoom_steps>(r.height() / r.width());
+	get_x_axis_zoom().set_range(-110, 30);
+	get_x_axis_zoom().set_default_value(-110);
+	get_x_axis_zoom().set_zoom_converter(_zoom_converter);
+	get_y_axis_zoom().set_range(-110, 30);
+	get_y_axis_zoom().set_default_value(-110);
+	get_y_axis_zoom().set_zoom_converter(_zoom_converter);
+	set_zoom_value(PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y, -110);
 }
 
 /*****************************************************************************
@@ -195,14 +249,22 @@ void PVParallelView::PVScatterView::update_all_async()
 void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRectF& rect)
 {
 	painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
-	PVZoomableDrawingAreaWithAxes::drawBackground(painter, rect);
-	draw_points(painter);
+
+	//painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
+	//PVZoomableDrawingAreaWithAxes::drawBackground(painter, rect);
+	recompute_decorations(painter, rect);
+
+	draw_points(painter, rect);
+
+	painter->setOpacity(1.0);
+	painter->setPen(QPen(Qt::white));
+	draw_decorations(painter, rect);
 }
 
 /*****************************************************************************
  * PVParallelView::PVScatterView::draw_points
  *****************************************************************************/
-void PVParallelView::PVScatterView::draw_points(QPainter *painter)
+void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF& rect)
 {
 	PVParallelView::PVBCode code_b;
 

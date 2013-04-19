@@ -54,6 +54,11 @@ public:
 	 */
 	int get_relative_value() const { return _value - _value_min; }
 
+	/**
+	 * Returns the clamped value relative to the lower bound.
+	 *
+	 * @return the relative value
+	 */
 	int get_clamped_relative_value() const { return PVCore::clamp(_value, _value_min, _value_max)  - _value_min; }
 
 	/**

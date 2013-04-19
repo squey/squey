@@ -4,6 +4,8 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <math.h>
+
 #include <picviz/PVStateMachine.h>
 #include <picviz/PVView.h>
 
@@ -1139,4 +1141,12 @@ void PVParallelView::PVFullParallelScene::toggle_unselected_zombie_visibility()
 	for (PVZoneID z = _lines_view.get_first_visible_zone_index(); z <= _lines_view.get_last_visible_zone_index(); z++) {
 		_zones[z].bg->setVisible(visible);
 	}
+}
+
+/******************************************************************************
+ * PVParallelView::PVFullParallelScene::qimage_height
+ *****************************************************************************/
+size_t PVParallelView::PVFullParallelScene::qimage_height() const
+{
+	return ceil((double)(1<<PARALLELVIEW_ZT_BBITS) * _zoom_y) + 1.0;
 }
