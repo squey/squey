@@ -148,7 +148,7 @@ private:
 		zoom_sliders_del_obs(PVSlidersGroup *parent) : _parent(parent)
 		{}
 
-		void update(arguments_deep_copy_type const& args) const;
+		void about_to_be_updated(arguments_deep_copy_type const& args) const;
 
 	private:
 		PVSlidersGroup *_parent;
@@ -162,7 +162,7 @@ private:
 		selection_sliders_del_obs(PVSlidersGroup *parent) : _parent(parent)
 		{}
 
-		void update(arguments_deep_copy_type const& args) const;
+		void about_to_be_updated(arguments_deep_copy_type const& args) const;
 
 	private:
 		PVSlidersGroup *_parent;
@@ -176,7 +176,7 @@ private:
 		zoomed_selection_sliders_del_obs(PVSlidersGroup *parent) : _parent(parent)
 		{}
 
-		void update(arguments_deep_copy_type const& args) const;
+		void about_to_be_updated(arguments_deep_copy_type const& args) const;
 
 	private:
 		PVSlidersGroup *_parent;

@@ -274,10 +274,10 @@ void PVParallelView::PVSlidersGroup::del_zoom_sliders(id_t id)
 	zas_set_t::const_iterator it = _zoom_sliders.find(id);
 
 	if (it != _zoom_sliders.end()) {
+		removeFromGroup(it->second);
 		if (scene()) {
 			scene()->removeItem(it->second);
 		}
-		removeFromGroup(it->second);
 		delete it->second;
 		_zoom_sliders.erase(it);
 	}
@@ -293,10 +293,10 @@ void PVParallelView::PVSlidersGroup::del_selection_sliders(id_t id)
 	sas_set_t::const_iterator it = _selection_sliders.find(id);
 
 	if (it != _selection_sliders.end()) {
+		removeFromGroup(it->second);
 		if (scene()) {
 			scene()->removeItem(it->second);
 		}
-		removeFromGroup(it->second);
 		delete it->second;
 		_selection_sliders.erase(it);
 	}
@@ -312,10 +312,10 @@ void PVParallelView::PVSlidersGroup::del_zoomed_selection_sliders(id_t id)
 	zsas_set_t::const_iterator it = _zoomed_selection_sliders.find(id);
 
 	if (it != _zoomed_selection_sliders.end()) {
+		removeFromGroup(it->second);
 		if (scene()) {
 			scene()->removeItem(it->second);
 		}
-		removeFromGroup(it->second);
 		delete it->second;
 		_zoomed_selection_sliders.erase(it);
 	}
@@ -491,7 +491,7 @@ void PVParallelView::PVSlidersGroup::zoomed_selection_sliders_new_obs::update(ar
  * PVParallelView::PVSlidersGroup::zoom_sliders_del_obs::update
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::zoom_sliders_del_obs::update(arguments_deep_copy_type const& args) const
+void PVParallelView::PVSlidersGroup::zoom_sliders_del_obs::about_to_be_updated(arguments_deep_copy_type const& args) const
 {
 	const axis_id_t &axis_id = std::get<0>(args);
 
@@ -504,7 +504,7 @@ void PVParallelView::PVSlidersGroup::zoom_sliders_del_obs::update(arguments_deep
  * PVParallelView::PVSlidersGroup::selection_sliders_del_obs::update
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::selection_sliders_del_obs::update(arguments_deep_copy_type const& args) const
+void PVParallelView::PVSlidersGroup::selection_sliders_del_obs::about_to_be_updated(arguments_deep_copy_type const& args) const
 {
 	const axis_id_t &axis_id = std::get<0>(args);
 
@@ -517,7 +517,7 @@ void PVParallelView::PVSlidersGroup::selection_sliders_del_obs::update(arguments
  * PVParallelView::PVSlidersGroup::zoomed_selection_sliders_del_obs::update
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::zoomed_selection_sliders_del_obs::update(arguments_deep_copy_type const& args) const
+void PVParallelView::PVSlidersGroup::zoomed_selection_sliders_del_obs::about_to_be_updated(arguments_deep_copy_type const& args) const
 {
 	const axis_id_t &axis_id = std::get<0>(args);
 

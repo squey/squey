@@ -57,6 +57,8 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 {
 	_view_deleted = false;
 
+	setItemIndexMethod(QGraphicsScene::NoIndex);
+
 	// Register view for unselected & zombie lines toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.are_parallelview_unselected_zombie_visible(); }, *obs);
