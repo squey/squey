@@ -17,25 +17,30 @@ PVParallelView::PVSelectionSquare::PVSelectionSquare(Picviz::PVView& view, QGrap
 	connect(_selection_graphics_item, SIGNAL(commit_volatile_selection(bool)), this, SLOT(commit(bool)));
 }
 
-void PVParallelView::PVSelectionSquare::begin(int x, int y)
+void PVParallelView::PVSelectionSquare::begin(qreal x, qreal y)
 {
-	_selection_graphics_item_pos = QPointF(qreal(x), qreal(y));
+	_selection_graphics_item_pos = QPointF(x, y);
 	_selection_graphics_item->show();
 }
 
-void PVParallelView::PVSelectionSquare::end(int x, int y, bool use_selection_modifiers /* = true */, bool now /*= false */)
+void PVParallelView::PVSelectionSquare::end(qreal x, qreal y, bool use_selection_modifiers /* = true */, bool now /*= false */)
 {
-	if (_selection_graphics_item_pos != QPointF(x, y)) {
-		qreal xF = qreal(x);
-		qreal yF = qreal(y);
-		QPointF top_left(qMin(_selection_graphics_item_pos.x(), xF), qMin(_selection_graphics_item_pos.y(), yF));
-		QPointF bottom_right(qMax(_selection_graphics_item_pos.x(), xF), qMax(_selection_graphics_item_pos.y(), yF));
-		_selection_graphics_item->update_rect(QRectF(top_left, bottom_right), use_selection_modifiers, now);
+	QPointF p(x, y);
+
+	if (_selection_graphics_item_pos != p) {
+		QPointF top_left(qMin(_selection_graphics_item_pos.x(), p.x()),
+		                 qMin(_selection_graphics_item_pos.y(), p.y()));
+		QPointF bottom_right(qMax(_selection_graphics_item_pos.x(), p.x()),
+		                     qMax(_selection_graphics_item_pos.y(), p.y()));
+		_selection_graphics_item->update_rect(QRectF(top_left, bottom_right),
+		                                      use_selection_modifiers, now);
 	}
 	else {
 		clear();
-		_view.get_volatile_selection().select_none();//lib_view().get_volatile_selection().select_none();
-		PVSelectionGenerator::process_selection(_view.shared_from_this(), false);//scene_parent()->process_selection(false);
+		_view.get_volatile_selection().select_none();
+		//lib_view().get_volatile_selection().select_none();
+		PVSelectionGenerator::process_selection(_view.shared_from_this(), false);
+		//scene_parent()->process_selection(false);
 	}
 }
 

@@ -8,6 +8,7 @@
 #define __PVPARALLELVIEW_PVSELECTIONSQUARE_H__
 
 #include <QObject>
+#include <QPointF>
 
 #include <iostream>
 
@@ -34,8 +35,8 @@ public:
 	virtual ~PVSelectionSquare() {};
 
 public:
-	void begin(int x, int y);
-	void end(int x, int y, bool use_selection_modifiers = true, bool now = false);
+	void begin(qreal x, qreal y);
+	void end(qreal x, qreal y, bool use_selection_modifiers = true, bool now = false);
 	virtual void clear();
 
 	void update_rect_no_commit(const QRectF& r);

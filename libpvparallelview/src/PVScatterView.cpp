@@ -123,7 +123,8 @@ public:
 		PVZoomableDrawingAreaInteractorHomothetic::mousePressEvent(obj, event);
 
 		if (event->button() == Qt::LeftButton) {
-			_selection_square->begin(event->pos().x()-_scatter_view->get_real_viewport_rect().x(), event->pos().y()-_scatter_view->get_real_viewport_rect().y());
+			QPointF p = obj->map_to_scene(event->pos());
+			_selection_square->begin(p.x(), p.y());
 			event->accept();
 		}
 		return false;
@@ -134,7 +135,8 @@ public:
 		PVZoomableDrawingAreaInteractorHomothetic::mouseReleaseEvent(obj, event);
 
 		if (event->button() == Qt::LeftButton) {
-			_selection_square->end(event->pos().x()-_scatter_view->get_real_viewport_rect().x(), event->pos().y()-_scatter_view->get_real_viewport_rect().y(), true, true);
+			QPointF p = obj->map_to_scene(event->pos());
+			_selection_square->end(p.x(), p.y(), true, true);
 			event->accept();
 		}
 		return false;
@@ -146,9 +148,11 @@ public:
 
 		if (event->buttons() == Qt::LeftButton)
 		{
-			_selection_square->end(event->pos().x()-_scatter_view->get_real_viewport_rect().x(), event->pos().y()-_scatter_view->get_real_viewport_rect().y());
+			QPointF p = obj->map_to_scene(event->pos());
+			_selection_square->end(p.x(), p.y());
 			event->accept();
 		}
+
 		return false;
 	}
 
@@ -173,6 +177,7 @@ PVParallelView::PVScatterView::PVScatterView(
 {
 	setCursor(Qt::CrossCursor);
 	QRectF r(0, -(1L << 32), (1L << 32), (1L << 32));
+	set_scene_rect(r);
 	get_scene()->setSceneRect(r);
 	//get_scene()->setSceneRect(0, 0, 1024, 1024);
 
@@ -193,6 +198,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	#else
 		set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOn);
 	#endif
+
 	//set_x_legend("occurrence count");
 	//set_y_legend(pvview_sp->get_axis_name(axis_index));
 	set_decoration_color(Qt::white);
@@ -272,13 +278,20 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 	//PVCore::PVHSVColor const* const colors = _pvview_sp->get_output_layer().get_lines_properties().get_buffer();
 	//lib_view().get_color_in_output_layer(r);
 
+	qreal ref_left = get_scene_left_margin();
+	qreal ref_bottom = get_scene_top_margin() + get_y_axis_length();
+
 	for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
 	{
 		if (_zt.branch_valid(branch)) {
 			const PVRow row = _zt.get_first_elt_of_branch(branch);
 			code_b.int_v = branch;
-			int32_t x = code_b.s.l;
-			int32_t y = code_b.s.r;
+			int32_t x = ref_left + code_b.s.l;
+			int32_t y = ref_bottom - code_b.s.r;
+
+			if (!get_real_viewport_rect().contains(x, y)) {
+				continue;
+			}
 
 			painter->setPen(_view.get_color_in_output_layer(row).toQColor());
 
@@ -290,7 +303,7 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 				// Draw background
 				painter->setOpacity(0.25);
 			}
-			painter->drawPoint(x+get_real_viewport_rect().x(), y+get_real_viewport_rect().y());
+			painter->drawPoint(x, y);
 		}
 	}
 }

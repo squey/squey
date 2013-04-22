@@ -286,10 +286,9 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_vi
 		if (ztree.branch_valid(branch)) {
 			const PVRow row = ztree.get_first_elt_of_branch(branch);
 			code_b.int_v = branch;
-			int32_t x = code_b.s.l;
-			int32_t y = code_b.s.r;
-
-			if (x >= rect.x() && x <= (rect.x()+rect.width()) && y >= rect.y() && y <= (rect.y()+rect.height())) {
+			if (rect.contains((uint32_t)code_b.s.l << (32 - NBITS_INDEX),
+			                  (uint32_t)code_b.s.r << (32 - NBITS_INDEX))) {
+			//if (x >= rect.x() && x <= (rect.x()+rect.width()) && y >= rect.y() && y <= (rect.y()+rect.height())) {
 				sel.set_bit_fast(row);
 			}
 		}

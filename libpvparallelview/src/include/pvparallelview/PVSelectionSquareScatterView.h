@@ -21,7 +21,10 @@ public:
 protected:
 	void commit(bool use_selection_modifiers) override
 	{
-		PVSelectionGenerator::compute_selection_from_scatter_view_rect(_zt, _selection_graphics_item->rect(), _view.get_volatile_selection());
+		QRectF r = _selection_graphics_item->rect();
+		QRectF rr(QPointF(r.left(), -r.top()),
+		          QPointF(r.right(), -r.bottom()));
+		PVSelectionGenerator::compute_selection_from_scatter_view_rect(_zt, rr, _view.get_volatile_selection());
 		PVSelectionGenerator::process_selection(_view.shared_from_this(), use_selection_modifiers);
 	}
 
