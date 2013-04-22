@@ -205,7 +205,7 @@ void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMous
 				_selection_sliders = nullptr;
 			}
 		}
-		//commit_volatile_selection_Slot();
+		commit_volatile_selection_Slot();
 		_selection_rect->clear_rect();
 		event->accept();
 	}
