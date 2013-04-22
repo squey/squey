@@ -13,7 +13,6 @@
 #define SCALE_VALUE_OFFSET 8
 
 #define SUBTICK_RATIO 0.45
-#define SUBTICK_MINSIZE 32
 
 #define DEFAULT_HMARGIN 50
 #define DEFAULT_VMARGIN 40
@@ -456,8 +455,8 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 	int left = get_scene_left_margin();
 	int right = left + get_x_axis_length();
 	int top = get_scene_top_margin();
-	int margin_bottom = get_y_axis_length();
-	int bottom = top + margin_bottom;
+	int margin_bottom = get_scene_bottom_margin();
+	int bottom = top + get_y_axis_length();
 
 	QRectF rect_in_scene = map_to_scene(QRect(0, 0, 1024, 1024)).intersected(get_scene_rect());
 
@@ -493,7 +492,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 	qreal scene_subtick_width = pow(ticks_per_level, (int)x_level) / ticks_per_level;
 	qreal screen_subtick_width = scene_subtick_width * x_scale;
 
-	bool need_x_subticks = (screen_subtick_width > SUBTICK_MINSIZE);
+	bool need_x_subticks = (screen_subtick_width > subtick_min_gap);
 
 	qreal scene_left = map_to_scene(QPoint(left, 0)).x();
 	int64_t x_subtick_index = ceil(scene_left / scene_subtick_width);
@@ -534,7 +533,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 	qreal scene_subtick_height = pow(ticks_per_level, (int)y_level) / ticks_per_level;
 	qreal screen_subtick_height = scene_subtick_height * y_scale;
 
-	bool need_y_subticks = (screen_subtick_height > SUBTICK_MINSIZE);
+	bool need_y_subticks = (screen_subtick_height > subtick_min_gap);
 
 	qreal scene_top = map_to_scene(QPoint(0, top)).y();
 	int64_t y_subtick_index = ceil(scene_top / scene_subtick_height);
@@ -615,7 +614,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v4(QPainter *paint
 	qreal scene_pos = x_subtick_index * scene_subtick_width;
 	qreal screen_pos = map_from_scene(QPointF(scene_pos, 0)).x();
 
-	bool need_x_subticks = (screen_subtick_width > SUBTICK_MINSIZE);
+	bool need_x_subticks = (screen_subtick_width > subtick_min_gap);
 
 	// let's draw
 	while ((int)screen_pos <= right) {

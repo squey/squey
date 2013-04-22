@@ -50,6 +50,10 @@ namespace PVParallelView
 
 class PVZoomableDrawingAreaWithAxes : public PVZoomableDrawingArea
 {
+protected:
+	// minimum gap (in pixel) between 2 subticks to make them visible of not.
+	constexpr static int subtick_min_gap = 32;
+
 public:
 	/**
 	 * CTOR
