@@ -43,6 +43,13 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 	friend class PVHitCountViewInteractor;
 
 	constexpr static int zoom_steps = 5;
+	// the "digital" zoom level (to space consecutive values)
+	constexpr static int x_zoom_extra_level = 8;
+	constexpr static int x_zoom_extra = x_zoom_extra_level * zoom_steps;
+	constexpr static int y_zoom_extra_level = 0;
+	constexpr static int y_zoom_extra = y_zoom_extra_level * zoom_steps;
+	// -22 because we want a scale factor of 1 when the view fits in a 1024x1024 window
+	constexpr static int zoom_min = -22 * zoom_steps;
 
 private:
 	typedef PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
@@ -70,6 +77,9 @@ protected:
 	void drawBackground(QPainter *painter, const QRectF &rect) override;
 
 private:
+	int get_x_zoom_max_limit(const uint64_t value = 1L << 32,
+	                         const uint64_t max_value = 1L << 32) const;
+
 	void reset_view();
 
 	void draw_lines(QPainter *painter,
@@ -101,7 +111,7 @@ private:
 
 	PVHitGraphBlocksManager                      _hit_graph_manager;
 	bool                                         _view_deleted;
-	uint32_t                                     _max_count;
+	uint64_t                                     _max_count;
 	uint32_t                                     _block_base_pos;
 	int                                          _block_zoom_level;
 	bool                                         _show_bg;
@@ -109,6 +119,8 @@ private:
 	PVHitCountViewZoomConverter<zoom_steps>     *_x_zoom_converter;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>  _y_zoom_converter;
 
+	PVZoomableDrawingAreaInteractor             *_my_inteactor;
+	PVZoomableDrawingAreaInteractor             *_hcv_inteactor;
 };
 
 }

@@ -16,7 +16,11 @@
 #include <QGraphicsScene>
 #include <QScrollBar64>
 
-#define print_r(R) __print_rect(R)
+/**
+ * @todo "optical" zoom does not work
+ * @todo how do we want to use that view
+ */
+#define print_r(R) __print_rect(#R, R)
 #define print_rect(R) __print_rect(#R, R)
 
 template <typename R>
@@ -46,8 +50,7 @@ template <int STEPS>
 class PVHitCountViewZoomConverter : public PVZoomConverterScaledPowerOfTwo<STEPS>
 {
 public:
-	PVHitCountViewZoomConverter(const qreal s) :
-		_scale_factor(s)
+	PVHitCountViewZoomConverter()
 	{}
 
 	int scale_to_zoom(const qreal value) const override
@@ -58,6 +61,11 @@ public:
 	qreal zoom_to_scale(const int value) const override
 	{
 		return PVZoomConverterScaledPowerOfTwo<STEPS>::zoom_to_scale(value) * _scale_factor;
+	}
+
+	void set_scale_factor(const qreal &s)
+	{
+		_scale_factor = s;
 	}
 
 private:
@@ -73,7 +81,15 @@ public:
 
 	bool resizeEvent(PVZoomableDrawingArea* zda, QResizeEvent *event) override
 	{
-		get_hit_count_view(zda)->_update_all_timer.start();
+		PVHitCountView *hcv = get_hit_count_view(zda);
+
+		QRectF r = hcv->get_scene_rect();
+
+		qreal s = r.height() / r.width();
+		hcv->_x_zoom_converter->set_scale_factor(s * (hcv->get_real_viewport_width() / 1024.));
+
+		hcv->reconfigure_view();
+		hcv->_update_all_timer.start();
 
 		return false;
 	}
@@ -97,13 +113,63 @@ public:
 			return true;
 		} else
 #endif
+
 			if(event->key() == Qt::Key_Home) {
-			get_hit_count_view(zda)->reset_view();
-			zda->update();
+			PVHitCountView *hcv = get_hit_count_view(zda);
+			hcv->reset_view();
+			hcv->reconfigure_view();
+			hcv->_update_all_timer.start();
+
 			return true;
 		}
 
 		return false;
+	}
+
+	bool wheelEvent(PVZoomableDrawingArea* zda, QWheelEvent* event)
+	{
+		int mask = 0;
+
+		if (event->modifiers() == Qt::NoModifier) {
+			mask = PVZoomableDrawingAreaConstraints::Y;
+		} else if (event->modifiers() == Qt::ControlModifier) {
+			mask = PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y;
+		} else if (event->modifiers() == Qt::ShiftModifier) {
+			mask = PVZoomableDrawingAreaConstraints::X;
+		}
+
+		if (mask & PVZoomableDrawingAreaConstraints::X) {
+			PVHitCountView *hcv = get_hit_count_view(zda);
+			int inc = (event->delta() > 0)?1:-1;
+
+			event->setAccepted(true);
+
+			if (increment_zoom_value(hcv, mask, inc)) {
+				int screen_ref = hcv->get_scene_left_margin();
+				qreal xpos = hcv->map_to_scene(QPoint(screen_ref, 0)).x();
+
+				hcv->reconfigure_view();
+
+				int screen_pos = hcv->map_from_scene(QPointF(xpos, 0)).x();
+				QScrollBar64 *sb = hcv->get_horizontal_scrollbar();
+				sb->setValue(sb->value() + (screen_pos - screen_ref));
+
+				hcv->update();
+				zoom_has_changed(hcv);
+			}
+		} else 	if (mask != 0) {
+			int inc = (event->delta() > 0)?1:-1;
+
+			event->setAccepted(true);
+
+			if (increment_zoom_value(zda, mask, inc)) {
+				zda->reconfigure_view();
+				zda->update();
+				zoom_has_changed(zda);
+			}
+		}
+
+		return event->isAccepted();
 	}
 
 protected:
@@ -148,30 +214,35 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	set_scene_rect(r);
 	get_scene()->setSceneRect(r);
 
-	/* interactor/constraints
-	 */
-	PVWidgets::PVGraphicsViewInteractorBase *inter =
-		declare_interactor<PVZoomableDrawingAreaInteractorMajorY>();
-	register_front_all(inter);
-	inter = declare_interactor<PVHitCountViewInteractor>();
-	register_front_one(QEvent::Resize, inter);
-	register_front_one(QEvent::KeyPress, inter);
-	install_default_scene_interactor();
-
-	set_constraints(new PVParallelView::PVZoomableDrawingAreaConstraintsMajorY());
-
 	/* X zoom converter
 	 */
-	_x_zoom_converter = new PVHitCountViewZoomConverter<zoom_steps>(r.height() / r.width());
+	_x_zoom_converter = new PVHitCountViewZoomConverter<zoom_steps>;
+	_x_zoom_converter->set_scale_factor(r.height() / r.width());
+	get_x_axis_zoom().set_zoom_converter(_x_zoom_converter);
+
+	get_y_axis_zoom().set_zoom_converter(&_y_zoom_converter);
+
+	/* interactor/constraints
+	 */
+	_my_inteactor = declare_interactor<PVZoomableDrawingAreaInteractorMajorY>();
+	register_front_all(_my_inteactor);
+
+	_hcv_inteactor = declare_interactor<PVHitCountViewInteractor>();
+	register_front_one(QEvent::Resize, _hcv_inteactor);
+	register_front_one(QEvent::KeyPress, _hcv_inteactor);
+	register_front_one(QEvent::Wheel, _hcv_inteactor);
+	install_default_scene_interactor();
+
+	/* constraints
+	 */
+	set_constraints(new PVParallelView::PVZoomableDrawingAreaConstraintsMajorY());
 
 	/* PVAxisZoom
 	 */
-	get_x_axis_zoom().set_range(-110, 30);
-	get_x_axis_zoom().set_default_value(-110);
-	get_x_axis_zoom().set_zoom_converter(_x_zoom_converter);
-	get_y_axis_zoom().set_range(-110, 30);
-	get_y_axis_zoom().set_default_value(-110);
-	get_y_axis_zoom().set_zoom_converter(&_y_zoom_converter);
+	get_x_axis_zoom().set_range(zoom_min, get_x_zoom_max_limit(_max_count));
+	get_x_axis_zoom().set_default_value(zoom_min);
+	get_y_axis_zoom().set_range(zoom_min, y_zoom_extra - 1);
+	get_y_axis_zoom().set_default_value(zoom_min);
 	reset_view();
 
 	/* view configuration
@@ -189,8 +260,6 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	set_y_legend(pvview_sp->get_axis_name(axis_index));
 	set_decoration_color(Qt::white);
 	set_ticks_per_level(8);
-
-	_block_zoom_level = get_y_axis_zoom().get_clamped_value();
 
 	_update_all_timer.setInterval(150);
 	_update_all_timer.setSingleShot(true);
@@ -216,7 +285,10 @@ PVParallelView::PVHitCountView::~PVHitCountView()
 		common::get_lib_view(_pvview)->remove_hit_count_view(this);
 	}
 
+	delete get_constraints();
 	delete _x_zoom_converter;
+	delete _my_inteactor;
+	delete _hcv_inteactor;
 }
 
 /*****************************************************************************
@@ -269,6 +341,19 @@ QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 pos) const
 }
 
 /*****************************************************************************
+ * PVParallelView::PVHitCountView::get_zoom_max_limit
+ *****************************************************************************/
+
+int PVParallelView::PVHitCountView::get_x_zoom_max_limit(const uint64_t value,
+                                                         const uint64_t max_value) const
+{
+	double vv = ceil(log2(value)) - log2(max_value);
+	int v = zoom_steps * vv;
+
+	return (v + x_zoom_extra) - 1;
+}
+
+/*****************************************************************************
  * PVParallelView::PVHitCountView::reset_view
  *****************************************************************************/
 
@@ -276,7 +361,8 @@ void PVParallelView::PVHitCountView::reset_view()
 {
 	set_zoom_value(PVZoomableDrawingAreaConstraints::X
 	               | PVZoomableDrawingAreaConstraints::Y,
-	               -110);
+	               zoom_min);
+	_block_zoom_level = get_y_axis_zoom().get_clamped_value();
 }
 
 /*****************************************************************************
@@ -286,6 +372,11 @@ void PVParallelView::PVHitCountView::reset_view()
 void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
                                                     const QRectF &rect)
 {
+	// std::cout << "#############################################" << std::endl;
+	// print_s(get_x_axis_zoom().get_clamped_value());
+	// print_s(get_x_axis_zoom().get_min());
+	// print_s(get_x_axis_zoom().get_max());
+
 	recompute_decorations(painter, rect);
 
 	int y_axis_length = get_y_axis_length();
@@ -316,16 +407,20 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 		           _hit_graph_manager.buffer_sel());
 	} else {
 #endif
+		int x_axis_left = map_from_scene(QPointF(0., 0.)).x();
+		int x_axis_right = std::min((int)map_from_scene(QPointF(_max_count, 0.)).x(),
+		                            get_scene_left_margin() + get_x_axis_length());
+
 		painter->setOpacity(0.25);
 		draw_clamped_lines(painter,
-		                   map_from_scene(QPointF(0., 0.)).x(),
-		                   map_from_scene(QPointF(_max_count, 0.)).x(),
+		                   x_axis_left,
+		                   x_axis_right,
 		                   src_x, view_top, dy, rel_y_scale,
 		                   _hit_graph_manager.buffer_bg());
 		painter->setOpacity(1.0);
 		draw_clamped_lines(painter,
-		                   map_from_scene(QPointF(0., 0.)).x(),
-		                   map_from_scene(QPointF(_max_count, 0.)).x(),
+		                   x_axis_left,
+		                   x_axis_right,
 		                   src_x, view_top, dy, rel_y_scale,
 		                   _hit_graph_manager.buffer_sel());
 #if 0
@@ -363,6 +458,7 @@ void PVParallelView::PVHitCountView::draw_lines(QPainter *painter,
 		y_val += view_top;
 
 		int dst_x = src_x + ceil(v * ratio);
+
 		painter->drawLine(src_x, y_val, dst_x, y_val);
 	}
 }
@@ -432,6 +528,10 @@ void PVParallelView::PVHitCountView::do_pan_change()
 
 void PVParallelView::PVHitCountView::do_update_all()
 {
+	// std::cout << "##################################################" << std::endl;
+	// std::cout << "# x zoom: " << get_x_axis_zoom().get_clamped_value() << std::endl;
+	// std::cout << "# y zoom: " << get_y_axis_zoom().get_clamped_value() << std::endl;
+
 	int rel_zoom = get_y_axis_zoom().get_clamped_relative_value();
 	int calc_zoom = rel_zoom / zoom_steps;
 
@@ -441,10 +541,10 @@ void PVParallelView::PVHitCountView::do_update_all()
 
 	double alpha = 0.5 * _y_zoom_converter.zoom_to_scale_decimal(rel_zoom);
 
-	BENCH_START(hcv_data_compute);
+	// BENCH_START(hcv_data_compute);
 	_hit_graph_manager.change_and_process_view(block_y_min, calc_zoom, alpha);
-	BENCH_STOP(hcv_data_compute);
-	BENCH_STAT_TIME(hcv_data_compute);
+	// BENCH_STOP(hcv_data_compute);
+	// BENCH_STAT_TIME(hcv_data_compute);
 
 	_block_base_pos = block_y_min;
 	_block_zoom_level = get_y_axis_zoom().get_clamped_value();
