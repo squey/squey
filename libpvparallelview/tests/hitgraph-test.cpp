@@ -1,6 +1,7 @@
 
 #include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
+#include <pvkernel/core/picviz_intrin.h>
 
 #include <picviz/PVPlotted.h>
 
@@ -71,7 +72,6 @@ void count_y1_seq_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
                      uint32_t *buffer, const size_t buffer_size)
 {
 	const int idx_shift = (32 - 10) - zoom;
-	const uint32_t idx_mask = (1 << 10) - 1;
 	const uint32_t zoom_shift = 32 - zoom;
 	const uint32_t zoom_mask = (1 << zoom_shift) - 1;
 	const uint32_t zoom_base = y_min >> zoom_shift;
@@ -82,6 +82,7 @@ void count_y1_seq_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
 		if (block_base == zoom_base) {
 			// const uint32_t block_idx = (y >> idx_shift) & idx_mask;
 			const uint32_t block_idx = ((uint32_t)((y & zoom_mask) * alpha)) >> idx_shift;
+			// std::cout << "set at " << block_idx << std::endl;
 			++buffer[block_idx];
 		}
 	}
@@ -179,8 +180,6 @@ void count_y1_sse_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
                      uint32_t *buffer, const size_t buffer_size)
 {
 	const int idx_shift = (32 - 10) - zoom;
-	const uint32_t idx_mask = (1 << 10) - 1;
-	const __m128i idx_mask_sse = _mm_set1_epi32(idx_mask);
 	const uint32_t zoom_shift = 32 - zoom;
 	const uint32_t zoom_mask = (1 << zoom_shift) -1;
 	const __m128i zoom_mask_sse = _mm_set1_epi32(zoom_mask);
@@ -189,7 +188,11 @@ void count_y1_sse_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
 	const __m128i all_zeros_mask_sse = _mm_set1_epi32(-1);
 
 #ifdef __AVX__
-	const __m256d alpha_sse = _mm256_set1_pd(alpha);
+	const __m256d alpha_avx = _mm256_set1_pd(alpha);
+#elif defined __SSE2__
+	const __m128d alpha_sse = _mm_set1_pd(alpha);
+#else
+#error you need at least SSE2 intrinsics
 #endif
 
 	size_t packed_row_count = row_count & ~3;
@@ -207,26 +210,9 @@ void count_y1_sse_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
 #ifdef __AVX__
 		const __m128i tmp1_sse = _mm_and_si128(y_sse, zoom_mask_sse);
 		const __m256d tmp1_avx = _mm256_cvtepi32_pd (tmp1_sse);
-		const __m256d tmp2_avx = _mm256_mul_pd(tmp1_avx, alpha_sse);
+		const __m256d tmp2_avx = _mm256_mul_pd(tmp1_avx, alpha_avx);
 		const __m128i tmp2_sse = _mm256_cvttpd_epi32(tmp2_avx);
 		const __m128i block_idx_sse = _mm_srli_epi32(tmp2_sse, idx_shift);
-#if 0
-		const __m128i block_idx2_sse = _mm_and_si128(_mm_srli_epi32(y_sse, idx_shift),
-		                                             idx_mask_sse);
-
-		const __m128i res = _mm_cmpeq_epi32(block_idx_sse, block_idx2_sse);
-		if (!_mm_test_all_ones(res)) {
-			std::cout << "differs at " << i << std::endl;
-			std::cout << "  " << _mm_extract_epi32(block_idx_sse, 0) << " " << _mm_extract_epi32(block_idx2_sse, 0) << std::endl;
-			std::cout << "  " << _mm_extract_epi32(block_idx_sse, 1) << " " << _mm_extract_epi32(block_idx2_sse, 1) << std::endl;
-			std::cout << "  " << _mm_extract_epi32(block_idx_sse, 2) << " " << _mm_extract_epi32(block_idx2_sse, 2) << std::endl;
-			std::cout << "  " << _mm_extract_epi32(block_idx_sse, 3) << " " << _mm_extract_epi32(block_idx2_sse, 3) << std::endl;
-		}
-#endif
-#else
-		const __m128i block_idx_sse = _mm_and_si128(_mm_srli_epi32(y_sse, idx_shift),
-		                                            idx_mask_sse);
-#endif
 
 		if(_mm_extract_epi32(test_res_sse, 0)) {
 			++buffer[_mm_extract_epi32(block_idx_sse, 0)];
@@ -240,6 +226,34 @@ void count_y1_sse_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
 		if(_mm_extract_epi32(test_res_sse, 3)) {
 			++buffer[_mm_extract_epi32(block_idx_sse, 3)];
 		}
+#elif defined __SSE2__
+		const __m128i tmp_sse = _mm_and_si128(y_sse, zoom_mask_sse);
+		const __m128i tmp1_lo_sse = tmp_sse;
+		const __m128i tmp1_hi_sse = _mm_shuffle_epi32(tmp_sse, _MM_SHUFFLE(0, 0, 3, 2));
+		const __m128d tmp2_lo_sse = _mm_cvtepi32_pd(tmp1_lo_sse);
+		const __m128d tmp2_hi_sse = _mm_cvtepi32_pd(tmp1_hi_sse);
+		const __m128d tmp3_lo_sse = _mm_mul_pd(tmp2_lo_sse, alpha_sse);
+		const __m128d tmp3_hi_sse = _mm_mul_pd(tmp2_hi_sse, alpha_sse);
+		const __m128i tmp4_lo_sse = _mm_cvttpd_epi32(tmp3_lo_sse);
+		const __m128i tmp4_hi_sse = _mm_cvttpd_epi32(tmp3_hi_sse);
+		const __m128i tmp5_lo_sse = _mm_srli_epi32(tmp4_lo_sse, idx_shift);
+		const __m128i tmp5_hi_sse = _mm_srli_epi32(tmp4_hi_sse, idx_shift);
+
+		if(_mm_extract_epi32(test_res_sse, 0)) {
+			++buffer[_mm_extract_epi32(tmp5_lo_sse, 0)];
+		}
+		if(_mm_extract_epi32(test_res_sse, 1)) {
+			++buffer[_mm_extract_epi32(tmp5_lo_sse, 1)];
+		}
+		if(_mm_extract_epi32(test_res_sse, 2)) {
+			++buffer[_mm_extract_epi32(tmp5_hi_sse, 0)];
+		}
+		if(_mm_extract_epi32(test_res_sse, 3)) {
+			++buffer[_mm_extract_epi32(tmp5_hi_sse, 1)];
+		}
+#else
+#error you need at least SSE2 intrinsics
+#endif
 	}
 
 	for(size_t i = packed_row_count; i < row_count; ++i) {
@@ -311,8 +325,6 @@ void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t *col_y1, const ui
                          uint32_t *buffer, const size_t buffer_size, omp_sse_v3_ctx_t &ctx)
 {
 	const int idx_shift = (32 - 10) - zoom;
-	const uint32_t idx_mask = (1 << 10) - 1;
-	const __m128i idx_mask_sse = _mm_set1_epi32(idx_mask);
 	const uint32_t zoom_shift = 32 - zoom;
 	const uint32_t zoom_mask = (1 << zoom_shift) -1;
 	const __m128i zoom_mask_sse = _mm_set1_epi32(zoom_mask);
@@ -321,7 +333,11 @@ void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t *col_y1, const ui
 	const __m128i all_zeros_mask_sse = _mm_set1_epi32(-1);
 
 #ifdef __AVX__
-	const __m256d alpha_sse = _mm256_set1_pd(alpha);
+	const __m256d alpha_avx = _mm256_set1_pd(alpha);
+#elif defined __SSE2__
+	const __m128d alpha_sse = _mm_set1_pd(alpha);
+#else
+#error you need at least SSE2 intrinsics
 #endif
 
 	size_t packed_row_count = row_count & ~3;
@@ -344,13 +360,9 @@ void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t *col_y1, const ui
 #ifdef __AVX__
 			const __m128i tmp1_sse = _mm_and_si128(y_sse, zoom_mask_sse);
 			const __m256d tmp1_avx = _mm256_cvtepi32_pd (tmp1_sse);
-			const __m256d tmp2_avx = _mm256_mul_pd(tmp1_avx, alpha_sse);
+			const __m256d tmp2_avx = _mm256_mul_pd(tmp1_avx, alpha_avx);
 			const __m128i tmp2_sse = _mm256_cvttpd_epi32(tmp2_avx);
 			const __m128i block_idx_sse = _mm_srli_epi32(tmp2_sse, idx_shift);
-#else
-			const __m128i block_idx_sse = _mm_and_si128(_mm_srli_epi32(y_sse, idx_shift),
-			                                            idx_mask_sse);
-#endif
 
 			if(_mm_extract_epi32(test_res_sse, 0)) {
 				++my_buffer[_mm_extract_epi32(block_idx_sse, 0)];
@@ -364,6 +376,34 @@ void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t *col_y1, const ui
 			if(_mm_extract_epi32(test_res_sse, 3)) {
 				++my_buffer[_mm_extract_epi32(block_idx_sse, 3)];
 			}
+#elif defined __SSE2__
+			const __m128i tmp_sse = _mm_and_si128(y_sse, zoom_mask_sse);
+			const __m128i tmp1_lo_sse = tmp_sse;
+			const __m128i tmp1_hi_sse = _mm_shuffle_epi32(tmp_sse, _MM_SHUFFLE(0, 0, 3, 2));
+			const __m128d tmp2_lo_sse = _mm_cvtepi32_pd(tmp1_lo_sse);
+			const __m128d tmp2_hi_sse = _mm_cvtepi32_pd(tmp1_hi_sse);
+			const __m128d tmp3_lo_sse = _mm_mul_pd(tmp2_lo_sse, alpha_sse);
+			const __m128d tmp3_hi_sse = _mm_mul_pd(tmp2_hi_sse, alpha_sse);
+			const __m128i tmp4_lo_sse = _mm_cvttpd_epi32(tmp3_lo_sse);
+			const __m128i tmp4_hi_sse = _mm_cvttpd_epi32(tmp3_hi_sse);
+			const __m128i tmp5_lo_sse = _mm_srli_epi32(tmp4_lo_sse, idx_shift);
+			const __m128i tmp5_hi_sse = _mm_srli_epi32(tmp4_hi_sse, idx_shift);
+
+			if(_mm_extract_epi32(test_res_sse, 0)) {
+				++my_buffer[_mm_extract_epi32(tmp5_lo_sse, 0)];
+			}
+			if(_mm_extract_epi32(test_res_sse, 1)) {
+				++my_buffer[_mm_extract_epi32(tmp5_lo_sse, 1)];
+			}
+			if(_mm_extract_epi32(test_res_sse, 2)) {
+				++my_buffer[_mm_extract_epi32(tmp5_hi_sse, 0)];
+			}
+			if(_mm_extract_epi32(test_res_sse, 3)) {
+				++my_buffer[_mm_extract_epi32(tmp5_hi_sse, 1)];
+			}
+#else
+#error you need at least SSE2 intrinsics
+#endif
 		}
 	}
 
@@ -396,8 +436,6 @@ void count_y1_omp_sse_v3_2(const PVRow row_count, const uint32_t *col_y1, const 
                            uint32_t *buffer, const size_t buffer_size, omp_sse_v3_ctx_t &ctx)
 {
 	const int idx_shift = (32 - 10) - zoom;
-	const uint32_t idx_mask = (1 << 10) - 1;
-	const __m128i idx_mask_sse = _mm_set1_epi32(idx_mask);
 	const uint32_t zoom_shift = 32 - zoom;
 	const uint32_t zoom_mask = (1 << zoom_shift) -1;
 	const __m128i zoom_mask_sse = _mm_set1_epi32(zoom_mask);
@@ -406,7 +444,11 @@ void count_y1_omp_sse_v3_2(const PVRow row_count, const uint32_t *col_y1, const 
 	const __m128i all_zeros_mask_sse = _mm_set1_epi32(-1);
 
 #ifdef __AVX__
-	const __m256d alpha_sse = _mm256_set1_pd(alpha);
+	const __m256d alpha_avx = _mm256_set1_pd(alpha);
+#elif defined __SSE2__
+	const __m128d alpha_sse = _mm_set1_pd(alpha);
+#else
+#error you need at least SSE2 intrinsics
 #endif
 
 	size_t packed_row_count = row_count & ~3;
@@ -429,13 +471,9 @@ void count_y1_omp_sse_v3_2(const PVRow row_count, const uint32_t *col_y1, const 
 #ifdef __AVX__
 			const __m128i tmp1_sse = _mm_and_si128(y_sse, zoom_mask_sse);
 			const __m256d tmp1_avx = _mm256_cvtepi32_pd (tmp1_sse);
-			const __m256d tmp2_avx = _mm256_mul_pd(tmp1_avx, alpha_sse);
+			const __m256d tmp2_avx = _mm256_mul_pd(tmp1_avx, alpha_avx);
 			const __m128i tmp2_sse = _mm256_cvttpd_epi32(tmp2_avx);
 			const __m128i block_idx_sse = _mm_srli_epi32(tmp2_sse, idx_shift);
-#else
-			const __m128i block_idx_sse = _mm_and_si128(_mm_srli_epi32(y_sse, idx_shift),
-			                                            idx_mask_sse);
-#endif
 
 			if(_mm_extract_epi32(test_res_sse, 0)) {
 				++my_buffer[_mm_extract_epi32(block_idx_sse, 0)];
@@ -449,6 +487,34 @@ void count_y1_omp_sse_v3_2(const PVRow row_count, const uint32_t *col_y1, const 
 			if(_mm_extract_epi32(test_res_sse, 3)) {
 				++my_buffer[_mm_extract_epi32(block_idx_sse, 3)];
 			}
+#elif defined __SSE2__
+			const __m128i tmp_sse = _mm_and_si128(y_sse, zoom_mask_sse);
+			const __m128i tmp1_lo_sse = tmp_sse;
+			const __m128i tmp1_hi_sse = _mm_shuffle_epi32(tmp_sse, _MM_SHUFFLE(0, 0, 3, 2));
+			const __m128d tmp2_lo_sse = _mm_cvtepi32_pd(tmp1_lo_sse);
+			const __m128d tmp2_hi_sse = _mm_cvtepi32_pd(tmp1_hi_sse);
+			const __m128d tmp3_lo_sse = _mm_mul_pd(tmp2_lo_sse, alpha_sse);
+			const __m128d tmp3_hi_sse = _mm_mul_pd(tmp2_hi_sse, alpha_sse);
+			const __m128i tmp4_lo_sse = _mm_cvttpd_epi32(tmp3_lo_sse);
+			const __m128i tmp4_hi_sse = _mm_cvttpd_epi32(tmp3_hi_sse);
+			const __m128i tmp5_lo_sse = _mm_srli_epi32(tmp4_lo_sse, idx_shift);
+			const __m128i tmp5_hi_sse = _mm_srli_epi32(tmp4_hi_sse, idx_shift);
+
+			if(_mm_extract_epi32(test_res_sse, 0)) {
+				++my_buffer[_mm_extract_epi32(tmp5_lo_sse, 0)];
+			}
+			if(_mm_extract_epi32(test_res_sse, 1)) {
+				++my_buffer[_mm_extract_epi32(tmp5_lo_sse, 1)];
+			}
+			if(_mm_extract_epi32(test_res_sse, 2)) {
+				++my_buffer[_mm_extract_epi32(tmp5_hi_sse, 0)];
+			}
+			if(_mm_extract_epi32(test_res_sse, 3)) {
+				++my_buffer[_mm_extract_epi32(tmp5_hi_sse, 1)];
+			}
+#else
+#error you need at least SSE2 intrinsics
+#endif
 		}
 	}
 
@@ -577,7 +643,7 @@ int main(int argc, char **argv)
 
 	DEF_TEST(seq_v3);
 	CMP_TEST(seq_v3, seq_v2);
-	
+
 	DEF_TEST(sse_v3);
 	CMP_TEST(sse_v3, seq_v3);
 
@@ -587,7 +653,6 @@ int main(int argc, char **argv)
 #endif
 
 	omp_sse_v3_ctx_t omp_sse_v3_ctx(buffer_size);
-
 	DEF_TEST(omp_sse_v3, omp_sse_v3_ctx);
 	CMP_TEST(omp_sse_v3, seq_v3);
 
