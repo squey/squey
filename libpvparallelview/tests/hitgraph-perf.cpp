@@ -725,12 +725,14 @@ void do_one_run(const std::string text,
 	if (verbose) {
 		CMP_TEST(seq_v4, seq_v3);
 	}
+#endif
 
 	DEF_TEST_SEQ(sse_v3, data);
 	if (verbose) {
-		CMP_TEST(sse_v3, seq_v1);
+		// CMP_TEST(sse_v3, seq_v1);
 	}
 
+#if 0
 	DEF_TEST_SEQ(sse_v4, data);
 	if (verbose) {
 		CMP_TEST(sse_v4, seq_v4);
@@ -766,7 +768,7 @@ void do_one_run(const std::string text,
 	// DEL_TEST(seq_v3);
 	// DEL_TEST(seq_v4);
 
-	// DEL_TEST(sse_v3);
+	DEL_TEST(sse_v3);
 	// DEL_TEST(sse_v4);
 
 	DEL_TEST(omp_sse_v3);
@@ -909,7 +911,7 @@ typedef enum {
 	ARG_COL,
 	ARG_MIN,
 	ARG_ZOOM,
-	ARG_COUNT = ARG_ZOOM
+	ARG_COUNT
 } EXTRA_ARG;
 
 
@@ -922,19 +924,27 @@ int main(int argc, char **argv)
 {
 	int argv_base = 0;
 
-	if (argc < ARG_COUNT) {
+	if (argc == 0) {
 		usage(argv[0]);
 		exit(1);
 	}
 
 	if (strncmp(argv[1], "-v", 2) == 0) {
-		if (argc < (ARG_COUNT+1)) {
+		if (argc != (ARG_COUNT+1)) {
 			usage(argv[0]);
 			exit(1);
 		}
 
 		verbose = true;
 		argv_base = 1;
+	} else {
+		if (argc != ARG_COUNT) {
+			usage(argv[0]);
+			exit(1);
+		}
+
+		verbose = false;
+		argv_base = 0;
 	}
 
 	PVRow row_count = atol(argv[argv_base + ARG_ROW_NUM]);
