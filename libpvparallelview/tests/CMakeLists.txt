@@ -114,6 +114,9 @@ target_link_libraries(Ehitgraph-zonetree ${LINK_LIBRARIES} -lnuma)
 declare_pv_test(Ehitgraph-perf hitgraph-perf.cpp)
 target_link_libraries(Ehitgraph-perf ${LINK_LIBRARIES} -lnuma)
 
+declare_pv_test(Ehitgraph-alpha-perf hitgraph-alpha-perf.cpp)
+target_link_libraries(Ehitgraph-alpha-perf ${LINK_LIBRARIES} -lnuma)
+
 declare_pv_test(Ehist_plotted_perf hist_plotted_perf.cpp common.cpp)
 target_link_libraries(Ehist_plotted_perf ${LINK_LIBRARIES} -lnuma)
 
