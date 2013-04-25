@@ -8,13 +8,14 @@
 
 #include <pvparallelview/PVFullParallelScene.h>
 
-PVParallelView::PVSelectionSquareFullParallelView::PVSelectionSquareFullParallelView(Picviz::PVView& view, QGraphicsScene* s) :
-	PVSelectionSquare(view, s)
+PVParallelView::PVSelectionSquareFullParallelView::PVSelectionSquareFullParallelView(QGraphicsScene* s) :
+	PVSelectionSquare(s)
 {
 }
 
 void PVParallelView::PVSelectionSquareFullParallelView::commit(bool use_selection_modifiers)
 {
+	Picviz::PVView& view = lib_view();
 	_selection_graphics_item->finished();
 	QRectF srect = _selection_graphics_item->rect();
 	// Too much on the left dude!
@@ -41,7 +42,7 @@ void PVParallelView::PVSelectionSquareFullParallelView::commit(bool use_selectio
 
 	store();
 
-	PVSelectionGenerator::process_selection(_view.shared_from_this(), use_selection_modifiers);
+	PVSelectionGenerator::process_selection(view.shared_from_this(), use_selection_modifiers);
 }
 
 void PVParallelView::PVSelectionSquareFullParallelView::clear()
@@ -103,4 +104,3 @@ PVParallelView::PVLinesView& PVParallelView::PVSelectionSquareFullParallelView::
 PVParallelView::PVLinesView const& PVParallelView::PVSelectionSquareFullParallelView::get_lines_view() const { return scene_parent()->get_lines_view(); }
 
 Picviz::PVView& PVParallelView::PVSelectionSquareFullParallelView::lib_view() { return scene_parent()->lib_view(); }
-Picviz::PVView const& PVParallelView::PVSelectionSquareFullParallelView::lib_view() const { return scene_parent()->lib_view(); }

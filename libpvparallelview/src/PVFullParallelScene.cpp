@@ -51,13 +51,14 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	_lines_view(backend, zm, zp_sel, zp_bg, this),
 	_lib_view(*view_sp),
 	_full_parallel_view(full_parallel_view),
-	_selection_square(new PVSelectionSquareFullParallelView(*view_sp.get(), this)),
 	_zoom_y(1.0),
 	_sm_p(sm_p),
 	_zid_timer_render(PVZONEID_INVALID),
 	_show_min_max_values(false)
 {
 	_view_deleted = false;
+
+	_selection_square = new PVSelectionSquareFullParallelView(this);
 
 	setItemIndexMethod(QGraphicsScene::NoIndex);
 

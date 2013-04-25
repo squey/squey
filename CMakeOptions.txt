@@ -26,10 +26,14 @@ if (NOT DEFINED CMAKE_CXX_ARCH_FLAGS)
 endif()
 
 if (NOT DEFINED CMAKE_NVCC_ARCH_FLAGS)
-	# Use "arch=compute_20,code=sm_20" by default
-	# TODO: should guess thanks to nvcc!
-	set(CMAKE_NVCC_ARCH_FLAGS "arch=compute_20,code=sm_20")
-	message(STATUS "CMAKE_NVCC_ARCH_FLAGS isn't set. Flag has been set to '${CMAKE_NVCC_ARCH_FLAGS}' by default.")
+	# Will use "-gencode arch=compute_20,code=sm_20 -gencode
+	# arch=compute_30,code=sm_30" by default, so that it will works on both
+	# Fermi and Kepler GPUs. See libpvparallelview/src/CMakeLists.txt for more
+	# informations.
+	message(STATUS "CMAKE_NVCC_ARCH_FLAGS isn't set. Will use '-gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30' for flags with nvcc")
+	set(CMAKE_NVCC_GENCODE_FLAGS "-gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30")
+else()
+	set(CMAKE_NVCC_GENCODE_FLAGS "-gencode ${CMAKE_NVCC_ARCH_FLAGS}")
 endif()
 
 # Set default values for capabilities

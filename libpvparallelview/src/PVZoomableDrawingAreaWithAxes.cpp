@@ -278,7 +278,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v1(QPainter *paint
 	qreal y_step = _y_axis_length / (qreal)_ticks_per_level;
 	for(int i = 0; i <= _ticks_per_level; ++i) {
 		qreal v = i * y_step;
-		QString s = get_y_value_at(-map_to_scene(0, top + i * y_step).y());
+		QString s = get_y_value_at(map_to_scene(0, top + i * y_step).y());
 		int s_len = fm.boundingRect(s).width();
 		painter->drawLine(left, bottom - _y_axis_length + v,
 		                  left - TICK_LENGTH, bottom - _y_axis_length + v);
@@ -424,7 +424,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v2(QPainter *paint
 			}
 		} else {
 			// QString s = QString::number(-scene_pos, 'f');
-			QString s = get_y_value_at(-scene_pos);
+			QString s = get_y_value_at(scene_pos);
 			int s_len = fm.boundingRect(s).width();
 
 			painter->drawText(left - s_len - SCALE_VALUE_OFFSET,
@@ -553,7 +553,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 			}
 		} else {
 			// QString s = QString::number(-scene_pos, 'f', 2);
-			QString s = get_y_value_at(-scene_pos);
+			QString s = get_y_value_at(scene_pos);
 			int s_len = fm.boundingRect(s).width();
 
 			painter->drawText(left - s_len - SCALE_VALUE_OFFSET,

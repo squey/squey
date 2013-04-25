@@ -15,7 +15,7 @@ set(LINK_LIBRARIES pvdisplays picviz pvhive pvkernel ${QT_LIBRARIES} ${GLEW_LIBR
 
 # CUDA
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
-set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC -gencode ${CMAKE_NVCC_ARCH_FLAGS}" "-Xptxas=-v")
+set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC ${CMAKE_NVCC_GENCODE_FLAGS}" "-Xptxas=-v")
 #set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC -gencode arch=compute_30,code=sm_30" "-Xptxas=-v")
 #set(CUDA_NVCC_FLAGS "-g -G -Xcompiler=-fPIC -gencode arch=compute_20,code=sm_20" "-Xptxas=-v")
 
@@ -26,47 +26,48 @@ add_definitions(${PICVIZ_DEFINITIONS})
 add_definitions(${OpenMP_CXX_FLAGS})
 
 SET(SRC_FILES
-PVBCIBuffers.cpp
-PVHitGraphBuffer.cpp
-PVHitGraphBlocksManager.cpp
-PVHitGraphDataInterface.cpp
-PVHitGraphDataOMP.cpp
-#PVHitGraphDataZTRight.cpp
-PVParallelView.cpp
-PVTools.cpp
-PVZoomedZoneTree.cpp
-PVZoomedParallelScene.cpp
-PVZoomedParallelView.cpp
-PVLinesView.cpp
-PVFullParallelScene.cpp
-PVFullParallelView.cpp
-PVSelectionSquareGraphicsItem.cpp
-PVZonesManager.cpp
-PVZoneTree.cpp
-PVZoneTreeBase.cpp
-PVZoneTreeNoAlloc.cpp
-simple_lines_float_view.cpp
-simple_lines_int_view.cpp
-PVAxisLabel.cpp
-PVAxisGraphicsItem.cpp
-PVSelectionGenerator.cpp
-PVSelectionSquare.cpp
-PVSelectionSquareFullParallelView.cpp
-PVLibView.cpp
-PVRenderingPipeline.cpp
-PVSlidersManager.cpp
-PVSlidersGroup.cpp
 PVAbstractAxisSlider.cpp
 PVAbstractAxisSliders.cpp
 PVAbstractRangeAxisSliders.cpp
+PVAxisGraphicsItem.cpp
+PVAxisLabel.cpp
+PVBCIBuffers.cpp
+PVFullParallelScene.cpp
+PVFullParallelView.cpp
+PVHitGraphBlocksManager.cpp
+PVHitGraphBuffer.cpp
+PVHitGraphDataInterface.cpp
+PVHitGraphDataOMP.cpp
+#PVHitGraphDataZTRight.cpp
+PVLibView.cpp
+PVLinesView.cpp
+PVParallelView.cpp
+PVRenderingPipeline.cpp
 PVSelectionAxisSlider.cpp
 PVSelectionAxisSliders.cpp
+PVSelectionGenerator.cpp
+PVSelectionSquare.cpp
+PVSelectionSquareFullParallelView.cpp
+PVSelectionSquareGraphicsItem.cpp
+PVSelectionSquareScatterView.cpp
+PVSlidersGroup.cpp
+PVSlidersManager.cpp
+PVTools.cpp
 PVZoneRendering.cpp
+PVZoneTree.cpp
+PVZoneTreeBase.cpp
+PVZoneTreeNoAlloc.cpp
+PVZonesManager.cpp
 PVZonesProcessor.cpp
 PVZoomAxisSlider.cpp
 PVZoomAxisSliders.cpp
+PVZoomedParallelScene.cpp
+PVZoomedParallelView.cpp
 PVZoomedSelectionAxisSlider.cpp
 PVZoomedSelectionAxisSliders.cpp
+PVZoomedZoneTree.cpp
+simple_lines_float_view.cpp
+simple_lines_int_view.cpp
 
 # Display plugins
 PVDisplayViewAxisZoomed.cpp
@@ -81,9 +82,9 @@ PVZoomableDrawingAreaWithAxes.cpp
 PVZoomableDrawingAreaInteractor.cpp
 PVZoomableDrawingAreaInteractorMajorY.cpp
 
+PVZoomableDrawingAreaConstraintsHomothetic.cpp
 PVZoomableDrawingAreaConstraintsMajorY.cpp
 PVZoomableDrawingAreaInteractorHomothetic.cpp
-PVZoomableDrawingAreaConstraintsHomothetic.cpp
 
 # views
 PVHitCountView.cpp

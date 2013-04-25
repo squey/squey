@@ -13,23 +13,20 @@
 namespace PVParallelView
 {
 
+class PVScatterView;
+
 class PVSelectionSquareScatterView : public PVSelectionSquare
 {
 public:
-	PVSelectionSquareScatterView(Picviz::PVView& view, const PVZoneTree &zt, QGraphicsScene* s) : PVSelectionSquare(view, s), _zt(zt) {};
+	PVSelectionSquareScatterView(const PVZoneTree &zt, PVScatterView* sv);
 
 protected:
-	void commit(bool use_selection_modifiers) override
-	{
-		QRectF r = _selection_graphics_item->rect();
-		QRectF rr(QPointF(r.left(), -r.top()),
-		          QPointF(r.right(), -r.bottom()));
-		PVSelectionGenerator::compute_selection_from_scatter_view_rect(_zt, rr, _view.get_volatile_selection());
-		PVSelectionGenerator::process_selection(_view.shared_from_this(), use_selection_modifiers);
-	}
+	void commit(bool use_selection_modifiers) override;
+	Picviz::PVView& lib_view() override;
 
 private:
 	const PVZoneTree &_zt;
+	PVScatterView* _sv;
 };
 
 }

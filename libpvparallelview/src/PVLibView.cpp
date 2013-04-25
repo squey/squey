@@ -178,7 +178,8 @@ PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(
 
 	PVScatterView* view = new PVScatterView(
 		view_sp,
-        _zones_manager.get_zone_tree<PVZoneTree>(axis),
+        _zones_manager,
+		axis,
         parent
     );
 

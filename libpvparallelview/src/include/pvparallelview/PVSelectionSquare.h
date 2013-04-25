@@ -24,14 +24,12 @@ class PVView;
 
 namespace PVParallelView {
 
-class PVFullParallelScene;
-
-class PVSelectionSquare : public QObject
+class PVSelectionSquare : protected QObject
 {
 	Q_OBJECT;
 
 public:
-	PVSelectionSquare(Picviz::PVView& view, QGraphicsScene* s);
+	PVSelectionSquare(QGraphicsScene* scene);
 	virtual ~PVSelectionSquare() {};
 
 public:
@@ -58,15 +56,17 @@ public:
 	void grow_vertically() { grow_by(1, 1/GROW_STEP_RATIO); };
 	void shrink_vertically() { grow_by(1, GROW_STEP_RATIO); };
 
+	QGraphicsScene* scene() const;
+
 protected slots:
 	virtual void commit(bool use_selection_modifiers) = 0;
+	virtual Picviz::PVView& lib_view() = 0;
 
 private:
 	void move_by(qreal hratio, qreal vratio);
 	void grow_by(qreal hratio, qreal vratio);
 
 protected:
-	Picviz::PVView& _view;
 	PVSelectionSquareGraphicsItem* _selection_graphics_item;
 	QPointF _selection_graphics_item_pos;
 };

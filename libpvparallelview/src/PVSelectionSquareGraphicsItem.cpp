@@ -6,7 +6,8 @@
 
 #include <pvparallelview/PVSelectionSquareGraphicsItem.h>
 
-PVParallelView::PVSelectionSquareGraphicsItem::PVSelectionSquareGraphicsItem(QGraphicsScene* s) :
+PVParallelView::PVSelectionSquareGraphicsItem::PVSelectionSquareGraphicsItem(QGraphicsItem* parent):
+	QGraphicsRectItem(parent),
 	_volatile_selection_timer(new QTimer(this))
 {
 	_volatile_selection_timer->setSingleShot(true);
@@ -19,7 +20,4 @@ PVParallelView::PVSelectionSquareGraphicsItem::PVSelectionSquareGraphicsItem(QGr
 	setPen(cur_pen);
 
 	setZValue(std::numeric_limits<qreal>::max());
-	if (s) {
-		s->addItem(this);
-	}
 }

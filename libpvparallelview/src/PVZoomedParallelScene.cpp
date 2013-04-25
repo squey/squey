@@ -79,7 +79,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 
 	_axis_id = _pvview.get_axes_combination().get_axes_comb_id(axis_index);
 
-	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
+	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem();
+	addItem(_selection_rect);
 	connect(_selection_rect, SIGNAL(commit_volatile_selection(bool)),
 			this, SLOT(commit_volatile_selection_Slot()));
 
@@ -124,11 +125,6 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 	if (_zpview != nullptr) {
 		_zpview->set_scene(nullptr);
 		_zpview = nullptr;
-	}
-
-	if (_selection_rect) {
-		delete _selection_rect;
-		_selection_rect = nullptr;
 	}
 
 	if (!_view_deleted) {

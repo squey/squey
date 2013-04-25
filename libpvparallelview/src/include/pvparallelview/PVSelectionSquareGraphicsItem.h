@@ -31,7 +31,7 @@ class PVSelectionSquareGraphicsItem : public QObject, public QGraphicsRectItem
 	Q_OBJECT;
 
 public:
-	PVSelectionSquareGraphicsItem(QGraphicsScene* s);
+	PVSelectionSquareGraphicsItem(QGraphicsItem* parent = nullptr);
 
 	bool is_null() const
 	{

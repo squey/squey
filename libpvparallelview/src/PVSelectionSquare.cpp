@@ -8,12 +8,16 @@
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVLinesView.h>
 
-PVParallelView::PVSelectionSquare::PVSelectionSquare(Picviz::PVView& view, QGraphicsScene* s) :
-	QObject((QObject*)s),
-	_view(view),
-	_selection_graphics_item(new PVSelectionSquareGraphicsItem((QGraphicsScene*)s))
+PVParallelView::PVSelectionSquare::PVSelectionSquare(QGraphicsScene* s):
+	QObject(static_cast<QObject*>(s)),
+	_selection_graphics_item(new PVSelectionSquareGraphicsItem())
 {
+	// PVselectionSquare will belong to the parent QGraphicsScene, thus will be
+	// deleted by the scene when it will be deleted.
+	// The same goes for _selection_graphics_item.
+	s->addItem(_selection_graphics_item);
 	_selection_graphics_item->hide();
+
 	connect(_selection_graphics_item, SIGNAL(commit_volatile_selection(bool)), this, SLOT(commit(bool)));
 }
 
@@ -25,6 +29,8 @@ void PVParallelView::PVSelectionSquare::begin(qreal x, qreal y)
 
 void PVParallelView::PVSelectionSquare::end(qreal x, qreal y, bool use_selection_modifiers /* = true */, bool now /*= false */)
 {
+	Picviz::PVView& view = lib_view();
+
 	QPointF p(x, y);
 
 	if (_selection_graphics_item_pos != p) {
@@ -37,9 +43,8 @@ void PVParallelView::PVSelectionSquare::end(qreal x, qreal y, bool use_selection
 	}
 	else {
 		clear();
-		_view.get_volatile_selection().select_none();
-		//lib_view().get_volatile_selection().select_none();
-		PVSelectionGenerator::process_selection(_view.shared_from_this(), false);
+		view.get_volatile_selection().select_none();
+		PVSelectionGenerator::process_selection(view.shared_from_this(), false);
 		//scene_parent()->process_selection(false);
 	}
 }
@@ -82,4 +87,9 @@ QRectF PVParallelView::PVSelectionSquare::get_rect()
 void PVParallelView::PVSelectionSquare::update_rect_no_commit(const QRectF& r)
 {
 	_selection_graphics_item->update_rect_no_commit(r);
+}
+
+QGraphicsScene* PVParallelView::PVSelectionSquare::scene() const
+{
+	return _selection_graphics_item->scene();
 }

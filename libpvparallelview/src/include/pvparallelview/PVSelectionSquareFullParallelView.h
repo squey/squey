@@ -42,7 +42,7 @@ struct PVSelectionBarycenter
 class PVSelectionSquareFullParallelView : public PVSelectionSquare
 {
 public:
-	PVSelectionSquareFullParallelView(Picviz::PVView& view, QGraphicsScene* s);
+	PVSelectionSquareFullParallelView(QGraphicsScene* s);
 
 public:
 	void update_position();
@@ -62,8 +62,7 @@ private:
 	PVLinesView& get_lines_view();
 	PVLinesView const& get_lines_view() const;
 
-	Picviz::PVView& lib_view();
-	Picviz::PVView const& lib_view() const;
+	Picviz::PVView& lib_view() override;
 
 private:
 	__impl::PVSelectionBarycenter _selection_barycenter;
