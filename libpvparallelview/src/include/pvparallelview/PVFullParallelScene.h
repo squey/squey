@@ -55,6 +55,7 @@ public:
 
 	void first_render();
 	void update_all_with_timer();
+	void scale_all_zones_images();
 
 	void update_viewport();
 	void update_scene(bool recenter_view);
@@ -183,9 +184,6 @@ private:
 	{
 		QGraphicsPixmapItem* sel;
 		QGraphicsPixmapItem* bg;
-
-		PVBCIBackendImage_p img_tmp_sel;
-		PVBCIBackendImage_p img_tmp_bg;
 
 		SingleZoneImagesItems()
 		{

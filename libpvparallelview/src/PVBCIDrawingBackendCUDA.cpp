@@ -92,12 +92,16 @@ void PVParallelView::PVBCIBackendImageCUDA::resize_width(PVBCIBackendImage& dst,
 
 PVParallelView::PVBCIDrawingBackendCUDA::PVBCIDrawingBackendCUDA()
 {
+	PVCuda::init_cuda();
+
 	// List all usable cuda engines and create stream and appropriate structure
 	std::vector<int> list_ids;
 	PVCuda::visit_usable_cuda_devices([&](int id)
 			{
-				cudaSetDevice(id);
-				cudaDeviceReset();
+				picviz_verify_cuda(cudaSetDevice(id));
+				picviz_verify_cuda(cudaDeviceReset());
+				picviz_verify_cuda(cudaGLSetGLDevice(id));
+				picviz_verify_cuda(cudaDeviceReset());
 				// Set scheduling to yield, as we need all processes!
 				cudaSetDeviceFlags(cudaDeviceScheduleYield | cudaDeviceMapHost);
 				list_ids.push_back(id);

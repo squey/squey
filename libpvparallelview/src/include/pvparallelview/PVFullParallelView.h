@@ -35,11 +35,13 @@ public:
 	~PVFullParallelView();
 
 public:
-	void paintEvent(QPaintEvent *event);
-	void resizeEvent(QResizeEvent *event);
-
 	void set_total_line_number(uint32_t total_lines) { _total_lines = total_lines; }
 	void set_selected_line_number(uint32_t selected_lines) { _selected_lines = selected_lines; }
+
+protected:
+	void paintEvent(QPaintEvent *event) override;
+	void resizeEvent(QResizeEvent *event) override;
+	void drawForeground(QPainter* painter, const QRectF& rect) override;
 
 signals:
 	void new_zoomed_parallel_view(Picviz::PVView* view, int axis_index);

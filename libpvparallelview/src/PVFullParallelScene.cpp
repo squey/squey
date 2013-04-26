@@ -172,8 +172,6 @@ void PVParallelView::PVFullParallelScene::add_zone_image()
 	single_zone_images_items.bg->setOpacity(0.25);
 	single_zone_images_items.bg->setZValue(0.0f);
 	single_zone_images_items.sel->setZValue(1.0f);
-	single_zone_images_items.img_tmp_sel = backend().create_image(PVParallelView::ZoneMaxWidth, PARALLELVIEW_ZT_BBITS);
-	single_zone_images_items.img_tmp_bg  = backend().create_image(PVParallelView::ZoneMaxWidth, PARALLELVIEW_ZT_BBITS);
 	_zones.push_back(single_zone_images_items);
 }
 
@@ -402,6 +400,13 @@ void PVParallelView::PVFullParallelScene::render_single_zone_all_imgs()
 	_lines_view.render_single_zone_images(_zid_timer_render, _zoom_y);
 }
 
+void PVParallelView::PVFullParallelScene::scale_all_zones_images()
+{
+	for (PVZoneID zone_id = _lines_view.get_first_visible_zone_index(); zone_id <= _lines_view.get_last_visible_zone_index(); zone_id++) {
+		scale_zone_images(zone_id);
+	}
+}
+
 /******************************************************************************
  *
  * PVParallelView::PVFullParallelScene::scale_zone_images
@@ -410,21 +415,20 @@ void PVParallelView::PVFullParallelScene::render_single_zone_all_imgs()
 void PVParallelView::PVFullParallelScene::scale_zone_images(PVZoneID zone_id)
 {
 	const PVZoneID img_id = _lines_view.get_zone_index_offset(zone_id);
-	PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
-
-	PVBCIBackendImage& img_sel = *images[img_id].sel;
-	PVBCIBackendImage& img_bg = *images[img_id].bg;
-
 	const uint32_t zone_width = _lines_view.get_zone_width(zone_id);
+
 	{
-		PVBCIBackendImage& scaled_img = *_zones[img_id].img_tmp_bg;
-		img_bg.resize_width(scaled_img, zone_width);
-		_zones[img_id].bg->setPixmap(QPixmap::fromImage(scaled_img.qimage(qimage_height())));
+		QTransform trans;
+		trans.scale((double)zone_width/(double)_zones[img_id].bg->pixmap().width(),
+		            (double)qimage_height()/(double)_zones[img_id].bg->pixmap().height());
+		_zones[img_id].bg->setTransform(trans, false);
 	}
+
 	{
-		PVBCIBackendImage& scaled_img = *_zones[img_id].img_tmp_sel;
-		img_sel.resize_width(scaled_img, zone_width);
-		_zones[img_id].sel->setPixmap(QPixmap::fromImage(scaled_img.qimage(qimage_height())));
+		QTransform trans;
+		trans.scale((double)zone_width/(double)_zones[img_id].sel->pixmap().width(),
+		            (double)qimage_height()/(double)_zones[img_id].sel->pixmap().height());
+		_zones[img_id].sel->setTransform(trans, false);
 	}
 }
 
@@ -786,7 +790,9 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zone_id)
 		return;
 	}
 
-	QPixmap px = QPixmap::fromImage(img_bg.qimage(qimage_height()));
+	QImage qimg = img_bg.qimage(qimage_height()).copy();
+	QPixmap px = QPixmap::fromImage(qimg);
+	_zones[img_id].bg->resetTransform();
 	_zones[img_id].bg->setPixmap(px);
 	_zones[img_id].bg->setPos(QPointF(_lines_view.get_left_border_position_of_zone_in_scene(zone_id), 0));
 }
@@ -821,7 +827,10 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(int zone_id)
 		return;
 	}
 
-	_zones[img_id].sel->setPixmap(QPixmap::fromImage(img_sel.qimage(qimage_height())));
+	QImage qimg = img_sel.qimage(qimage_height()).copy();
+	QPixmap px = QPixmap::fromImage(qimg);
+	_zones[img_id].sel->resetTransform();
+	_zones[img_id].sel->setPixmap(px);
 	_zones[img_id].sel->setPos(QPointF(_lines_view.get_left_border_position_of_zone_in_scene(zone_id), 0));
 }
 
@@ -833,9 +842,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(int zone_id)
 void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all, bool scale)
 {
 	if (scale) {
-		for (PVZoneID zone_id = _lines_view.get_first_visible_zone_index(); zone_id <= _lines_view.get_last_visible_zone_index(); zone_id++) {
-			scale_zone_images(zone_id);
-		}
+		scale_all_zones_images();
 	}
 
 	// We start by updating all axes positions
@@ -1149,5 +1156,5 @@ void PVParallelView::PVFullParallelScene::toggle_unselected_zombie_visibility()
  *****************************************************************************/
 size_t PVParallelView::PVFullParallelScene::qimage_height() const
 {
-	return ceil((double)(1<<PARALLELVIEW_ZT_BBITS) * _zoom_y) + 1.0;
+	return std::min((size_t)(ceil((double)(1<<PARALLELVIEW_ZT_BBITS) * _zoom_y) + 2.0), (size_t) (1UL<<PARALLELVIEW_ZT_BBITS));
 }

@@ -8,6 +8,9 @@
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVParallelView.h>
 
+#include <QPaintEvent>
+#include <QGLWidget>
+
 /******************************************************************************
  *
  * PVParallelView::PVFullParallelView::PVFullParallelView
@@ -44,33 +47,55 @@ PVParallelView::PVFullParallelView::~PVFullParallelView()
 void PVParallelView::PVFullParallelView::paintEvent(QPaintEvent *event)
 {
     QGraphicsView::paintEvent(event);
+}
 
-    QPainter painter(viewport());
+void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const QRectF& rect)
+{
+	// Get back in view's coordinates system
+	painter->save();
+	painter->resetTransform();
+
+	QRectF rect_view = mapFromScene(rect).boundingRect();
+
 	QPen pen(QColor(0x16, 0xe8, 0x2a));
-	painter.setPen(pen);
+	painter->setPen(pen);
 	
-	// We set the string that gives the number of selected events, % and total number
 	QString count = QString("%L1 (%2 %) / %L3").arg(_selected_lines).arg((uint32_t) (100.0*(double)_selected_lines/(double)_total_lines)).arg(_total_lines);
-	
-	painter.drawText(width() - QFontMetrics(painter.font()).width(count) - 20, 20, count);
+
+	// The "count" string is drawn only if necessary
+	QFontMetrics fm(painter->font());
+	QSize text_size = fm.size(Qt::TextSingleLine, count);
+	QPoint text_pos(width() - text_size.width() - 20, 20);
+	if (QRectF(text_pos, text_size).intersects(rect_view)) {
+		painter->drawText(text_pos, count);
+	}
 
 #ifdef PICVIZ_DEVELOPER_MODE
 	if (common::show_bboxes()) {
-		painter.setPen(pen);
+		painter->setPen(pen);
 
 		const QPolygonF scene_rect = mapFromScene(scene()->sceneRect());
-		painter.setPen(QColor(0xFF, 0, 0));
-		painter.setBrush(QColor(0xFF, 0, 0, 40));
-		painter.drawPolygon(scene_rect);
+		painter->setPen(QColor(0xFF, 0, 0));
+		painter->setBrush(QColor(0xFF, 0, 0, 40));
+		painter->drawPolygon(scene_rect);
 
 		pen.setColor(QColor(0xf6, 0xf2, 0x40));
-		painter.setPen(pen);
+		painter->setPen(pen);
 		const QPolygonF items_rect = mapFromScene(scene()->itemsBoundingRect());
-		painter.drawPolygon(items_rect);
+		painter->drawPolygon(items_rect);
+
+		pen.setColor(QColor(0x00, 0x00, 0xFF));
+		painter->setPen(pen);
+		QList<QGraphicsItem*> pixmaps = scene()->items();
+		for (QGraphicsItem* p: pixmaps) {
+			if (dynamic_cast<QGraphicsPixmapItem*>(p)) {
+				painter->drawPolygon(mapFromScene(p->sceneBoundingRect()));
+			}
+		}
 	}
 #endif
-	
-	painter.end();
+
+	painter->restore();
 }
 
 /******************************************************************************
@@ -91,6 +116,7 @@ void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent *event)
 		} else {
 			fps->update_scene(true);
 		}
+		fps->scale_all_zones_images();
 		fps->update_all_with_timer();
 
 		/* to force the view to be always at the top. Otherwise,
