@@ -83,7 +83,7 @@ void count_y1_seq_v3(const PVRow row_count, const uint32_t *col_y1,
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
-	const uint32_t zoom_mask = (1 << zoom_shift) - 1;
+	const uint32_t zoom_mask = ((1ULL << zoom_shift) - 1ULL);
 	const int32_t zoom_base = y_min >> zoom_shift;
 
 	for(size_t i = 0; i < row_count; ++i) {
@@ -108,7 +108,7 @@ void count_y1_seq_v4(const PVRow row_count, const uint32_t *col_y1,
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
-	const uint32_t zoom_mask = (1 << zoom_shift) -1;
+	const uint32_t zoom_mask = ((1ULL << zoom_shift) - 1ULL);
 	const int32_t base_y = y_min >> zoom_shift;
 	const uint32_t y_min_ref = (uint32_t)base_y << zoom_shift;
 
@@ -203,7 +203,7 @@ void count_y1_sse_v3(const PVRow row_count, const uint32_t *col_y1,
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
-	const uint32_t zoom_mask = (1 << zoom_shift) -1;
+	const uint32_t zoom_mask = ((1ULL << zoom_shift) - 1ULL);
 	const __m128i zoom_mask_sse = _mm_set1_epi32(zoom_mask);
 	const uint32_t zoom_base = y_min >> zoom_shift;
 	const __m128i zoom_base_sse = _mm_set1_epi32(zoom_base);
@@ -297,7 +297,7 @@ void count_y1_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
-	const uint32_t zoom_mask = (1 << zoom_shift) -1;
+	const uint32_t zoom_mask = ((1ULL << zoom_shift) - 1ULL);
 	const __m128i zoom_mask_sse = _mm_set1_epi32(zoom_mask);
 	const uint32_t base_y = y_min >> zoom_shift;
 	const __m128i base_y_sse = _mm_set1_epi32(base_y);
@@ -464,7 +464,7 @@ void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t *col_y1,
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
-	const uint32_t zoom_mask = (1 << zoom_shift) -1;
+	const uint32_t zoom_mask = ((1ULL << zoom_shift) - 1ULL);
 	const __m128i zoom_mask_sse = _mm_set1_epi32(zoom_mask);
 	const uint32_t zoom_base = y_min >> zoom_shift;
 	const __m128i zoom_base_sse = _mm_set1_epi32(zoom_base);
@@ -579,7 +579,7 @@ void count_y1_omp_sse_v3_2(const PVRow row_count, const uint32_t *col_y1,
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
-	const uint32_t zoom_mask = (1 << zoom_shift) -1;
+	const uint32_t zoom_mask = ((1ULL << zoom_shift) - 1ULL);
 	const __m128i zoom_mask_sse = _mm_set1_epi32(zoom_mask);
 	const uint32_t zoom_base = y_min >> zoom_shift;
 	const __m128i zoom_base_sse = _mm_set1_epi32(zoom_base);
@@ -695,7 +695,7 @@ void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
-	const uint32_t zoom_mask = (1 << zoom_shift) -1;
+	const uint32_t zoom_mask = ((1ULL << zoom_shift) - 1ULL);
 	const __m128i zoom_mask_sse = _mm_set1_epi32(zoom_mask);
 	const int32_t base_y = y_min >> zoom_shift;
 	const __m128i base_y_sse = _mm_set1_epi32(base_y);
