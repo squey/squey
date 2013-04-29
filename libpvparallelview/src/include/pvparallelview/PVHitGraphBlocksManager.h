@@ -38,10 +38,10 @@ public:
 
 protected:
 	inline float last_zoom() const { return _data_params.zoom; }
+	inline float last_alpha() const { return _data_params.alpha; }
 	inline float last_y_min() const { return _data_params.y_min; }
-	inline float last_alpha() const { return _last_alpha; }
 	inline uint32_t size_block() const { return _data.size_block(); }
-	inline bool full_view() const { return _data_params.zoom == 0 && _last_alpha == 0.5f; }
+	inline bool full_view() const { return (_data_params.zoom == 0) && (_data_params.alpha == 1.0f); }
 	PVHitGraphData& hgdata();
 	PVHitGraphData const& hgdata() const;
 
@@ -54,7 +54,6 @@ protected:
 	Picviz::PVSelection const& _sel;
 
 	DataProcessParams _data_params;
-	float _last_alpha;
 };
 
 }

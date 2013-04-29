@@ -71,9 +71,6 @@ public:
 	void set_enabled(const bool value);
 
 protected:
-	QString get_y_value_at(const qint64 pos) const override;
-
-protected:
 	void drawBackground(QPainter *painter, const QRectF &rect) override;
 
 private:
