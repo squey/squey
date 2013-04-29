@@ -129,6 +129,9 @@ target_link_libraries(hitgraph-buffer ${LINK_LIBRARIES})
 declare_pv_test(hit_count_view hit_count_view.cpp common.cpp)
 target_link_libraries(hit_count_view ${LINK_LIBRARIES})
 
+declare_pv_test(Tqt_random_points random_points.cpp)
+target_link_libraries(Tqt_random_points ${LINK_LIBRARIES})
+
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 	cuda_compile(CUDA_KERNELS bci_cuda.cu)
