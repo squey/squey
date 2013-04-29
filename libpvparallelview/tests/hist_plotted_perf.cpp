@@ -841,13 +841,14 @@ void test_no_sel(const size_t real_buffer_size,
 
 	/* Library code
 	 */
-	/*PVParallelView::PVHitGraphData lib_omp;
+	PVParallelView::PVHitGraphData lib_omp(NBITS, block_count);
 	BENCH_START(lib);
-	lib_omp.process_all(PVParallelView::PVHitGraphData::ProcessParams(zt, col_a, row_count, y_min, zoom, 0, block_count));
+	lib_omp.process_bg(PVParallelView::PVHitGraphData::ProcessParams(zt, col_a, row_count, y_min, zoom, 1, 0, block_count));
 	BENCH_END(lib, "library-code", row_count, sizeof(uint32_t), BUFFER_SIZE, sizeof(uint32_t));
+	std::cout << "compare to ref: ";
 	if (compare(res_seq, lib_omp.buffer_all().buffer(), block_count)) {
 		std::cout << "ok" << std::endl;
-	}*/
+	}
 
 	delete [] hist_seq;
 	delete [] hist_sse;
@@ -857,6 +858,7 @@ void test_no_sel(const size_t real_buffer_size,
 void test_sel(const size_t real_buffer_size,
               const uint32_t y_min, const int zoom,
               const Picviz::PVSelection &selection,
+              PVParallelView::PVZoneTree const& zt,
               const uint32_t* col_a, const size_t row_count,
               const int block_count)
 {
@@ -942,6 +944,17 @@ void test_sel(const size_t real_buffer_size,
 	if (compare(hist_sel_seq_v4, hist_sel_packed_v5, block_count)) {
 		std::cout << "ok" << std::endl;
 	}
+
+	/* Library code
+	 */
+	PVParallelView::PVHitGraphData lib_omp(NBITS, block_count);
+	BENCH_START(lib);
+	lib_omp.process_sel(PVParallelView::PVHitGraphData::ProcessParams(zt, col_a, row_count, y_min, zoom, 1, 0, block_count), selection);
+	BENCH_END(lib, "library-code", row_count, sizeof(uint32_t), BUFFER_SIZE, sizeof(uint32_t));
+	std::cout << "compare to ref: ";
+	if (compare(hist_sel_seq_v4, lib_omp.buffer_sel().buffer(), block_count)) {
+		std::cout << "ok" << std::endl;
+	}
 }
 
 int main(int argc, char **argv)
@@ -982,15 +995,15 @@ int main(int argc, char **argv)
 
 	std::cout << "select_all()" << std::endl;
 	sel.select_all();
-	test_sel(real_buffer_size, y_min, zoom, sel, col_a, row_count, block_count);
+	test_sel(real_buffer_size, y_min, zoom, sel, zt, col_a, row_count, block_count);
 
 	std::cout << "select_none()" << std::endl;
 	sel.select_none();
-	test_sel(real_buffer_size, y_min, zoom, sel, col_a, row_count, block_count);
+	test_sel(real_buffer_size, y_min, zoom, sel, zt, col_a, row_count, block_count);
 
 	std::cout << "select_random()" << std::endl;
 	sel.select_random();
-	test_sel(real_buffer_size, y_min, zoom, sel, col_a, row_count, block_count);
+	test_sel(real_buffer_size, y_min, zoom, sel, zt, col_a, row_count, block_count);
 
 	return 0;
 }

@@ -22,8 +22,7 @@ PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(PVZoneTree cons
 	_data_z0(PARALLELVIEW_ZT_BBITS, 1),
 	_data(PARALLELVIEW_ZZT_BBITS, nblocks),
 	_sel(sel),
-	_data_params(zt, col_plotted, nrows, 0, -1, 0, nblocks),
-	_last_alpha(0.5f)
+	_data_params(zt, col_plotted, nrows, 0, -1, 0.5, 0, nblocks)
 {
 }
 
@@ -32,27 +31,14 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 	const uint32_t block_idx = y_to_block_idx(y_min, zoom);
 	const uint32_t y_min_block = block_idx << (32-zoom);
 
-
-	if (last_zoom() != zoom ||
-	    (full_view() && (alpha != 0.5f))) {
-		// Reprocess everything
-		_data_params.zoom = zoom;
-		_data_params.y_min = y_min_block;
-		_data_params.block_start = 0;
-		_data_params.nblocks = full_view() ? 1 : nblocks();
-		_last_alpha = alpha;
-
-		process_all();
-		return true;
-	}
-
+#if 0
 	const int32_t y_min_idx_in_red_buffer = y_to_idx_in_red_buffer(y_min_block, zoom, alpha);
 	const int32_t last_y_min_idx_in_red_buffer = y_to_idx_in_red_buffer(last_y_min(), zoom, alpha);
 	const int32_t blocks_shift = (last_y_min_idx_in_red_buffer-y_min_idx_in_red_buffer)/((int)((double)(size_block())*alpha));
 
 	if (blocks_shift != 0) {
 		// Translation
-		_last_alpha = alpha;
+		_data_params.alpha = alpha;
 
 		if (abs(blocks_shift) >= (int) nblocks()) {
 			// Reprocess all
@@ -63,7 +49,7 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 			return true;
 		}
 
-		// Left or right shift blocks 
+		// Left or right shift blocks
 		shift_blocks(blocks_shift);
 
 		// Compute empty blocks
@@ -81,10 +67,8 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 			_data_params.nblocks = abs_blocks_shift;
 		}
 
-
 		_data.process_all(_data_params, _sel);
-		_data.process_zoom_reduction(_last_alpha);
-		
+
 		// Set last params to the full block range
 		// (in case a reprocessing will be necessary)
 		_data_params.y_min = y_min_block;
@@ -93,19 +77,21 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 
 		return true;
 	}
+#endif
 
-	if (alpha != last_alpha()) {
-		if (full_view()) {
-			return false;
-		}
-
-		_last_alpha = alpha;
-		_data.process_zoom_reduction(alpha);
-		return true;
+	if ((alpha == 0.5f) && (zoom == 0)) {
+		_data_params.alpha = 1.0f;
+	} else {
+		_data_params.alpha = alpha;
 	}
+	_data_params.zoom = zoom;
+	_data_params.y_min = y_min_block;
+	_data_params.block_start = 0;
+	_data_params.nblocks = full_view() ? 1 : nblocks();
 
-	// Returning false means that no computation has occured.
-	return false;
+	process_all();
+
+	return true;
 }
 
 void PVParallelView::PVHitGraphBlocksManager::process_bg()
@@ -115,10 +101,8 @@ void PVParallelView::PVHitGraphBlocksManager::process_bg()
 		_data_z0.process_bg(_data_params);
 	}
 	else {
-		assert(_last_alpha != 0.0f);
 		_data.buffer_all().set_zero();
 		_data.process_bg(_data_params);
-		_data.buffer_all().process_zoom_reduction(_last_alpha);
 	}
 }
 
@@ -129,10 +113,8 @@ void PVParallelView::PVHitGraphBlocksManager::process_sel()
 		_data_z0.process_sel(_data_params, _sel);
 	}
 	else {
-		assert(_last_alpha != 0.0f);
 		_data.buffer_sel().set_zero();
 		_data.process_sel(_data_params, _sel);
-		_data.buffer_sel().process_zoom_reduction(_last_alpha);
 	}
 }
 
@@ -143,10 +125,8 @@ void PVParallelView::PVHitGraphBlocksManager::process_all()
 		_data_z0.process_all(_data_params, _sel);
 	}
 	else {
-		assert(_last_alpha != 0.0f);
 		_data.set_zero();
 		_data.process_all(_data_params, _sel);
-		_data.process_zoom_reduction(_last_alpha);
 	}
 }
 
@@ -156,7 +136,7 @@ uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_bg() const
 		return _data_z0.buffer_all().buffer();
 	}
 
-	return _data.buffer_all().zoomed_buffer();
+	return _data.buffer_all().buffer();
 }
 
 uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_sel() const
@@ -165,7 +145,7 @@ uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_sel() const
 		return _data_z0.buffer_sel().buffer();
 	}
 
-	return _data.buffer_sel().zoomed_buffer();
+	return _data.buffer_sel().buffer();
 }
 
 uint32_t const PVParallelView::PVHitGraphBlocksManager::y_start() const

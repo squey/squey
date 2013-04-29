@@ -300,7 +300,7 @@ struct omp_sse_v3_ctx_t
 {
 	omp_sse_v3_ctx_t(uint32_t size)
 	{
-		core_num = PVCore::PVHardwareConcurrency::get_logical_core_number();
+		core_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
 		buffers = new uint32_t * [core_num];
 		buffer_size = size;
 
