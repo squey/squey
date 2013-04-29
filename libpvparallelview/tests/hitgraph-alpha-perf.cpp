@@ -699,6 +699,7 @@ void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 	const __m128i zoom_mask_sse = _mm_set1_epi32(zoom_mask);
 	const int32_t base_y = y_min >> zoom_shift;
 	const __m128i base_y_sse = _mm_set1_epi32(base_y);
+
 	const uint32_t y_min_ref = (uint32_t)base_y << zoom_shift;
 	const __m128i y_min_ref_sse = _mm_set1_epi32(y_min_ref);
 
@@ -976,17 +977,15 @@ void do_one_run(const std::string text,
 #endif
 #endif
 
-#if 0
 	DEF_TEST_OMP(omp_sse_v3, data);
 	if (verbose) {
-		// CMP_TEST(omp_sse_v3, seq_v3);
+		CMP_TEST(omp_sse_v3, seq_v3);
 	}
 
 	DEF_TEST_OMP(omp_sse_v3_2, data);
 	if (verbose) {
-		// CMP_TEST(omp_sse_v3_2, seq_v3);
+		CMP_TEST(omp_sse_v3_2, seq_v3);
 	}
-#endif
 
 	DEF_TEST_OMP(omp_sse_v4, data);
 	if (verbose) {
@@ -1003,9 +1002,11 @@ void do_one_run(const std::string text,
 
 	delete zt;
 
+#if 0
 	for(int i = 0; i < buffer_size * V4_N; ++i) {
 		std::cout << "buffer[" << i << "] =  " << buffer_seq_v1[i] << std::endl;
 	}
+#endif
 
 	DEL_TEST(seq_v1);
 	DEL_TEST(seq_v2);
@@ -1015,9 +1016,9 @@ void do_one_run(const std::string text,
 	DEL_TEST(sse_v3);
 	DEL_TEST(sse_v4);
 
-	// DEL_TEST(omp_sse_v3);
-	// DEL_TEST(omp_sse_v3_2);
-	// DEL_TEST(omp_sse_v4);
+	DEL_TEST(omp_sse_v3);
+	DEL_TEST(omp_sse_v3_2);
+	DEL_TEST(omp_sse_v4);
 
 	deallocate(local_data, real_count);
 }
