@@ -238,7 +238,6 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 
 	//painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
 	//PVZoomableDrawingAreaWithAxes::drawBackground(painter, rect);
-	recompute_decorations(painter, rect);
 
 	draw_points(painter, rect);
 
