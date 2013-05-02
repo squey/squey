@@ -37,7 +37,7 @@ public:
 	inline uint32_t nblocks() const { return _data.nblocks(); }
 
 protected:
-	inline float last_zoom() const { return _data_params.zoom; }
+	inline int last_zoom() const { return _data_params.zoom; }
 	inline float last_alpha() const { return _data_params.alpha; }
 	inline float last_y_min() const { return _data_params.y_min; }
 	inline uint32_t size_block() const { return _data.size_block(); }
@@ -45,7 +45,7 @@ protected:
 	PVHitGraphData& hgdata();
 	PVHitGraphData const& hgdata() const;
 
-	void shift_blocks(int blocks_shift);
+	void shift_blocks(int blocks_shift, const float alpha);
 
 protected:
 	PVHitGraphData _data_z0; // Data for initial zoom (with 10-bit precision)

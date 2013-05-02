@@ -16,8 +16,10 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mousePressEvent(PVPa
 	if (event->button() == Qt::RightButton) {
 		_pan_reference = event->pos();
 		event->setAccepted(true);
+		return true;
 	}
-	return event->isAccepted();
+
+	return false;
 }
 
 /*****************************************************************************
@@ -40,9 +42,10 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mouseMoveEvent(PVPar
 		sb->setValue(sb->value() + delta.y());
 		pan_has_changed(zda);
 		event->setAccepted(true);
+		return true;
 	}
 
-	return event->isAccepted();
+	return false;
 }
 
 /*****************************************************************************
@@ -71,7 +74,9 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::wheelEvent(PVParalle
 			zda->update();
 			zoom_has_changed(zda);
 		}
+
+		return true;
 	}
 
-	return event->isAccepted();
+	return false;
 }
