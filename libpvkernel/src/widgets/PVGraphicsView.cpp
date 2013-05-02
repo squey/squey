@@ -242,6 +242,7 @@ void PVWidgets::PVGraphicsView::set_transform(const QTransform &t, bool combine)
 
 	_inv_transform = _transform.inverted();
 
+	recompute_margins();
 	recompute_viewport();
 
 	/* if _transformation_anchor is equal to AnchorUnderMouse while the
@@ -384,13 +385,13 @@ void PVWidgets::PVGraphicsView::set_scene_margins(const int left,
                                                   const int top,
                                                   const int bottom)
 {
-	if ((_scene_margin_left != left) || (_scene_margin_right = right) || (_scene_margin_top = top) || (_scene_margin_bottom = bottom)) {
+	//if ((_scene_margin_left != left) || (_scene_margin_right != right) || (_scene_margin_top != top) || (_scene_margin_bottom != bottom)) {
 		_scene_margin_left = left;
 		_scene_margin_right = right;
 		_scene_margin_top = top;
 		_scene_margin_bottom = bottom;
 		recompute_viewport();
-	}
+	//}
 }
 
 /*****************************************************************************
@@ -728,6 +729,13 @@ void PVWidgets::PVGraphicsView::set_viewport(QWidget* w)
 	_viewport->setFocusProxy(this);
 	_viewport->installEventFilter(_viewport_event_filter);
 	_layout->addWidget(_viewport, 0, 0);
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::recompute_margins
+ *****************************************************************************/
+void PVWidgets::PVGraphicsView::recompute_margins()
+{
 }
 
 /*****************************************************************************

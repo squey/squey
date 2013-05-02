@@ -136,13 +136,20 @@ QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_y_value_at(const qint
 	return QString::number(pos);
 }
 
+void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_margins()
+{
+	recompute_decorations();
+}
+
 /*****************************************************************************
  * PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations
  *****************************************************************************/
 
-void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations(QPainter *painter,
-                                                                          const QRectF &rect)
+void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations()
 {
+	QFontMetrics fm(get_viewport()->font());
+	QSize viewport_rect = get_viewport()->size();
+
 	int margin_top = get_scene_top_margin();
 	int margin_left = get_scene_left_margin();
 	int margin_right = get_scene_right_margin();
@@ -152,8 +159,8 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations(QPaint
 
 	QRectF view_in_scene = map_to_scene(QRectF(margin_left,
 	                                           margin_top,
-	                                           rect.width() - margin_right,
-	                                           rect.height() - margin_bottom));
+	                                           viewport_rect.width() - margin_right,
+	                                           viewport_rect.height() - margin_bottom));
 
 	QRectF scene_in_screen = map_from_scene(get_scene_rect());
 
@@ -161,9 +168,9 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations(QPaint
 	_y_axis_length = PVCore::min(scene_in_screen.height(), bottom - DEFAULT_HMARGIN);
 	int t = bottom - _y_axis_length;
 
-	int l = PVCore::max(painter->fontMetrics().boundingRect(get_y_value_at(-view_in_scene.y())).width(),
-	                    painter->fontMetrics().boundingRect(get_y_value_at(-(view_in_scene.y() + view_in_scene.height()))).width());
-	int r = painter->fontMetrics().boundingRect(get_y_value_at(-(view_in_scene.x() + view_in_scene.width()))).width();
+	int l = PVCore::max(fm.boundingRect(get_y_value_at(-view_in_scene.y())).width(),
+	                    fm.boundingRect(get_y_value_at(-(view_in_scene.y() + view_in_scene.height()))).width());
+	int r = fm.boundingRect(get_y_value_at(-(view_in_scene.x() + view_in_scene.width()))).width();
 
 	l += 2 * SCALE_VALUE_OFFSET;
 	r = (r / 2) + SCALE_VALUE_OFFSET;
@@ -195,7 +202,6 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_decorations(QPainter *p
 void PVParallelView::PVZoomableDrawingAreaWithAxes::drawBackground(QPainter *painter,
                                                                    const QRectF &rect)
 {
-	recompute_decorations(painter, rect);
 	draw_decorations(painter, rect);
 }
 

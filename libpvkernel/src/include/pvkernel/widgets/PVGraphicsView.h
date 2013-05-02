@@ -612,6 +612,11 @@ private:
 	void init();
 
 	/**
+	 * Recomputes the margins if necessary. This function can safely call recompute_viewport.
+	 */
+	virtual void recompute_margins();
+
+	/**
 	 * Recomputes the viewport geometry and update scrollbars visibility
 	 * if needed.
 	 */

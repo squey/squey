@@ -370,8 +370,6 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	// print_s(get_x_axis_zoom().get_min());
 	// print_s(get_x_axis_zoom().get_max());
 
-	recompute_decorations(painter, rect);
-
 	int y_axis_length = get_y_axis_length();
 	int view_top = rect.height() - (get_scene_bottom_margin() + y_axis_length);
 	int img_top = map_from_scene(QPointF(0, _block_base_pos)).y();

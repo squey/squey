@@ -161,7 +161,8 @@ protected:
 	}
 
 protected:
-	virtual void recompute_decorations(QPainter *painter, const QRectF &rect);
+	void recompute_margins() override;
+	void recompute_decorations();
 	virtual void draw_decorations(QPainter *painter, const QRectF &rect);
 
 protected:
