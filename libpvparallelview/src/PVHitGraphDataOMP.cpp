@@ -9,6 +9,7 @@
 //#define NBITS (PVParallelView::PVHitGraphCommon::NBITS) // Number of bits used by the reduction
 //#define BUFFER_SIZE (PVParallelView::PVHitGraphBuffer::SIZE_BLOCK) // Number of integers in one block
 
+#ifdef __AVX__
 static __m256d _mm256_cvtepu32_pd(__m128i const v)
 {
 	const __m128i mask_carry_sse = _mm_set1_epi32(0x7fffffff);
@@ -26,11 +27,42 @@ static __m128i _mm256_cvttpd_epu32(__m256d const v)
 	__m128i ret = _mm256_cvttpd_epi32(v_under);
 
 	uint64_t bitmask = _mm256_movemask_pd(mask_over);
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#endif
 	__m128i mask_sse;
 	mask_sse = _mm_insert_epi64(mask_sse, ((bitmask & 1U)<<31) | ((bitmask & 2U) << 62), 0); 
 	mask_sse = _mm_insert_epi64(mask_sse, ((bitmask & 4U)<<29) | ((bitmask & 8U) << 60), 1); 
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 	return _mm_or_si128(ret, mask_sse);
 }
+#endif
+
+#ifdef __SSE2__
+static __m128d _mm_cvtepu32_pd(__m128i const v)
+{
+	const __m128i mask_carry_sse = _mm_set1_epi32(0x7fffffff);
+	__m128d conv_31 = _mm_cvtepi32_pd(_mm_and_si128(v, mask_carry_sse));
+	__m128i v_carry = _mm_srli_epi32(v, 31);
+	__m128d v_carry_dble = _mm_cvtepi32_pd(v_carry);
+	return _mm_add_pd(conv_31, _mm_mul_pd(v_carry_dble, _mm_set1_pd(1U<<31)));
+}
+
+static __m128i _mm_cvttpd_epu32(__m128d const v)
+{
+	const __m128d sse_31_pd = _mm_set1_pd(1U<<31);
+	const __m128d mask_over = _mm_cmpgt_pd(v, sse_31_pd);
+	__m128d v_under = _mm_sub_pd(v, _mm_and_pd(sse_31_pd, mask_over));
+	__m128i ret = _mm_cvttpd_epi32(v_under);
+
+	__m128i mask_over_int = reinterpret_cast<__m128i>(_mm_shuffle_epi32(reinterpret_cast<__m128i>(mask_over), 0 | (2 << 2) | (1 << 4) | (3 << 6)));
+
+	return _mm_or_si128(ret, _mm_and_si128(mask_over_int, _mm_set1_epi32(1U<<31)));
+}
+#endif
 
 //
 // OMP specific context structure
@@ -163,12 +195,12 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 			y_sse = _mm_sub_epi32(y_sse, y_min_ref_sse);
 			const __m128i tmp1_lo_sse = _mm_shuffle_epi32(y_sse, _MM_SHUFFLE(0, 0, 2, 0));
 			const __m128i tmp1_hi_sse = _mm_shuffle_epi32(y_sse, _MM_SHUFFLE(0, 0, 3, 1));
-			const __m128d tmp2_lo_sse = _mm_cvtepi32_pd(tmp1_lo_sse);
-			const __m128d tmp2_hi_sse = _mm_cvtepi32_pd(tmp1_hi_sse);
+			const __m128d tmp2_lo_sse = _mm_cvtepu32_pd(tmp1_lo_sse);
+			const __m128d tmp2_hi_sse = _mm_cvtepu32_pd(tmp1_hi_sse);
 			const __m128d tmp3_lo_sse = _mm_mul_pd(tmp2_lo_sse, alpha_sse);
 			const __m128d tmp3_hi_sse = _mm_mul_pd(tmp2_hi_sse, alpha_sse);
-			const __m128i tmp4_lo_sse = _mm_cvttpd_epi32(tmp3_lo_sse);
-			const __m128i tmp4_hi_sse = _mm_cvttpd_epi32(tmp3_hi_sse);
+			const __m128i tmp4_lo_sse = _mm_cvttpd_epu32(tmp3_lo_sse);
+			const __m128i tmp4_hi_sse = _mm_cvttpd_epu32(tmp3_hi_sse);
 
 			y_sse = _mm_unpacklo_epi32(tmp4_lo_sse, tmp4_hi_sse);
 
@@ -283,12 +315,12 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 			y_sse = _mm_sub_epi32(y_sse, y_min_ref_sse);
 			const __m128i tmp1_lo_sse = _mm_shuffle_epi32(y_sse, _MM_SHUFFLE(0, 0, 2, 0));
 			const __m128i tmp1_hi_sse = _mm_shuffle_epi32(y_sse, _MM_SHUFFLE(0, 0, 3, 1));
-			const __m128d tmp2_lo_sse = _mm_cvtepi32_pd(tmp1_lo_sse);
-			const __m128d tmp2_hi_sse = _mm_cvtepi32_pd(tmp1_hi_sse);
+			const __m128d tmp2_lo_sse = _mm_cvtepu32_pd(tmp1_lo_sse);
+			const __m128d tmp2_hi_sse = _mm_cvtepu32_pd(tmp1_hi_sse);
 			const __m128d tmp3_lo_sse = _mm_mul_pd(tmp2_lo_sse, alpha_sse);
 			const __m128d tmp3_hi_sse = _mm_mul_pd(tmp2_hi_sse, alpha_sse);
-			const __m128i tmp4_lo_sse = _mm_cvttpd_epi32(tmp3_lo_sse);
-			const __m128i tmp4_hi_sse = _mm_cvttpd_epi32(tmp3_hi_sse);
+			const __m128i tmp4_lo_sse = _mm_cvttpd_epu32(tmp3_lo_sse);
+			const __m128i tmp4_hi_sse = _mm_cvttpd_epu32(tmp3_hi_sse);
 
 			y_sse = _mm_unpacklo_epi32(tmp4_lo_sse, tmp4_hi_sse);
 			p_sse = _mm_srli_epi32(y_sse, zoom_shift);
@@ -427,12 +459,12 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 			y_sse = _mm_sub_epi32(y_sse, y_min_ref_sse);
 			const __m128i tmp1_lo_sse = _mm_shuffle_epi32(y_sse, _MM_SHUFFLE(0, 0, 2, 0));
 			const __m128i tmp1_hi_sse = _mm_shuffle_epi32(y_sse, _MM_SHUFFLE(0, 0, 3, 1));
-			const __m128d tmp2_lo_sse = _mm_cvtepi32_pd(tmp1_lo_sse);
-			const __m128d tmp2_hi_sse = _mm_cvtepi32_pd(tmp1_hi_sse);
+			const __m128d tmp2_lo_sse = _mm_cvtepu32_pd(tmp1_lo_sse);
+			const __m128d tmp2_hi_sse = _mm_cvtepu32_pd(tmp1_hi_sse);
 			const __m128d tmp3_lo_sse = _mm_mul_pd(tmp2_lo_sse, alpha_sse);
 			const __m128d tmp3_hi_sse = _mm_mul_pd(tmp2_hi_sse, alpha_sse);
-			const __m128i tmp4_lo_sse = _mm_cvttpd_epi32(tmp3_lo_sse);
-			const __m128i tmp4_hi_sse = _mm_cvttpd_epi32(tmp3_hi_sse);
+			const __m128i tmp4_lo_sse = _mm_cvttpd_epu32(tmp3_lo_sse);
+			const __m128i tmp4_hi_sse = _mm_cvttpd_epu32(tmp3_hi_sse);
 
 			y_sse = _mm_unpacklo_epi32(tmp4_lo_sse, tmp4_hi_sse);
 			p_sse = _mm_srli_epi32(y_sse, zoom_shift);
