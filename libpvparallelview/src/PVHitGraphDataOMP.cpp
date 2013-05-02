@@ -9,6 +9,61 @@
 //#define NBITS (PVParallelView::PVHitGraphCommon::NBITS) // Number of bits used by the reduction
 //#define BUFFER_SIZE (PVParallelView::PVHitGraphBuffer::SIZE_BLOCK) // Number of integers in one block
 
+#ifdef __AVX__
+static __m256d _mm256_cvtepu32_pd(__m128i const v)
+{
+	const __m128i mask_carry_sse = _mm_set1_epi32(0x7fffffff);
+	__m256d conv_31 = _mm256_cvtepi32_pd(_mm_and_si128(v, mask_carry_sse));
+	__m128i v_carry = _mm_srli_epi32(v, 31);
+	__m256d v_carry_dble = _mm256_cvtepi32_pd(v_carry);
+	return _mm256_add_pd(conv_31, _mm256_mul_pd(v_carry_dble, _mm256_set1_pd(1U<<31)));
+}
+
+static __m128i _mm256_cvttpd_epu32(__m256d const v)
+{
+	const __m256d avx_31_pd = _mm256_set1_pd(1U<<31);
+	const __m256d mask_over = _mm256_cmp_pd(v, avx_31_pd, _CMP_GT_OQ);
+	__m256d v_under = _mm256_sub_pd(v, _mm256_and_pd(avx_31_pd, mask_over));
+	__m128i ret = _mm256_cvttpd_epi32(v_under);
+
+	uint64_t bitmask = _mm256_movemask_pd(mask_over);
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#endif
+	__m128i mask_sse;
+	mask_sse = _mm_insert_epi64(mask_sse, ((bitmask & 1U)<<31) | ((bitmask & 2U) << 62), 0); 
+	mask_sse = _mm_insert_epi64(mask_sse, ((bitmask & 4U)<<29) | ((bitmask & 8U) << 60), 1); 
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+	return _mm_or_si128(ret, mask_sse);
+}
+#endif
+
+#ifdef __SSE2__
+static __m128d _mm_cvtepu32_pd(__m128i const v)
+{
+	const __m128i mask_carry_sse = _mm_set1_epi32(0x7fffffff);
+	__m128d conv_31 = _mm_cvtepi32_pd(_mm_and_si128(v, mask_carry_sse));
+	__m128i v_carry = _mm_srli_epi32(v, 31);
+	__m128d v_carry_dble = _mm_cvtepi32_pd(v_carry);
+	return _mm_add_pd(conv_31, _mm_mul_pd(v_carry_dble, _mm_set1_pd(1U<<31)));
+}
+
+static __m128i _mm_cvttpd_epu32(__m128d const v)
+{
+	const __m128d sse_31_pd = _mm_set1_pd(1U<<31);
+	const __m128d mask_over = _mm_cmpgt_pd(v, sse_31_pd);
+	__m128d v_under = _mm_sub_pd(v, _mm_and_pd(sse_31_pd, mask_over));
+	__m128i ret = _mm_cvttpd_epi32(v_under);
+
+	__m128i mask_over_int = reinterpret_cast<__m128i>(_mm_shuffle_epi32(reinterpret_cast<__m128i>(mask_over), 0 | (2 << 2) | (1 << 4) | (3 << 6)));
+
+	return _mm_or_si128(ret, _mm_and_si128(mask_over_int, _mm_set1_epi32(1U<<31)));
+}
+#endif
+
 //
 // OMP specific context structure
 //
@@ -48,6 +103,30 @@ void PVParallelView::PVHitGraphDataOMP::omp_ctx_t::clear()
 	}
 }
 
+static void merge_ctx_buffers(uint32_t* __restrict buffer, PVParallelView::PVHitGraphDataOMP::omp_ctx_t& ctx, size_t size_int_merge)
+{
+	size_t packed_size = size_int_merge & ~3;
+	size_t j;
+	for (j = 0; j < packed_size; j += 4) {
+		__m128i global_sse = _mm_setzero_si128();
+
+		for(int i = 0; i < ctx.get_core_num(); i++) {
+			uint32_t *core_buffer = ctx.get_core_buffer(i);
+			const __m128i local_sse = _mm_load_si128((const __m128i*) &core_buffer[j]);
+			global_sse = _mm_add_epi32(global_sse, local_sse);
+		}
+		_mm_storeu_si128((__m128i*) &buffer[j], global_sse);
+	}
+	for (; j < size_int_merge; j++) {
+		uint32_t v = 0;
+		for (int i = 0; i < ctx.get_core_num(); i++) {
+			uint32_t *core_buffer = ctx.get_core_buffer(i);
+			v += core_buffer[j];
+		}
+		buffer[j] = v;
+	}
+}
+
 //
 // OMP algorithms
 //
@@ -55,7 +134,7 @@ void PVParallelView::PVHitGraphDataOMP::omp_ctx_t::clear()
 // Optimised version for 1 block, no-selection
 static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
                                 const uint64_t y_min, const int zoom,
-                                const double &alpha,
+                                const double alpha,
                                 uint32_t *buffer,
                                 PVParallelView::PVHitGraphDataOMP::omp_ctx_t &ctx,
                                 size_t nbits, size_t size_block_int)
@@ -64,10 +143,10 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 	const uint32_t zoom_shift = 32 - zoom;
 	const uint32_t zoom_mask = ((1ULL << zoom_shift) - 1ULL);
 	const __m128i zoom_mask_sse = _mm_set1_epi32(zoom_mask);
-	const int32_t base_y = y_min >> zoom_shift;
+	const int32_t base_y = (uint64_t)(y_min) >> zoom_shift;
 	const __m128i base_y_sse = _mm_set1_epi32(base_y);
 
-	const uint32_t y_min_ref = (uint32_t)base_y << zoom_shift;
+	const uint32_t y_min_ref = (uint64_t)base_y << zoom_shift;
 	const __m128i y_min_ref_sse = _mm_set1_epi32(y_min_ref);
 
 #ifdef __AVX__
@@ -105,9 +184,9 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 			 * off =  = (y & zoom_mask) >> idx_shift
 			 */
 #ifdef __AVX__
-			const __m256d tmp1_avx = _mm256_cvtepi32_pd (_mm_sub_epi32(y_sse, y_min_ref_sse));
+			const __m256d tmp1_avx = _mm256_cvtepu32_pd (_mm_sub_epi32(y_sse, y_min_ref_sse));
 			const __m256d tmp2_avx = _mm256_mul_pd(tmp1_avx, alpha_sse);
-			y_sse = _mm256_cvttpd_epi32(tmp2_avx);
+			y_sse = _mm256_cvttpd_epu32(tmp2_avx);
 
 			const __m128i off_sse = _mm_srli_epi32(_mm_and_si128(y_sse,
 			                                                     zoom_mask_sse),
@@ -116,12 +195,12 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 			y_sse = _mm_sub_epi32(y_sse, y_min_ref_sse);
 			const __m128i tmp1_lo_sse = _mm_shuffle_epi32(y_sse, _MM_SHUFFLE(0, 0, 2, 0));
 			const __m128i tmp1_hi_sse = _mm_shuffle_epi32(y_sse, _MM_SHUFFLE(0, 0, 3, 1));
-			const __m128d tmp2_lo_sse = _mm_cvtepi32_pd(tmp1_lo_sse);
-			const __m128d tmp2_hi_sse = _mm_cvtepi32_pd(tmp1_hi_sse);
+			const __m128d tmp2_lo_sse = _mm_cvtepu32_pd(tmp1_lo_sse);
+			const __m128d tmp2_hi_sse = _mm_cvtepu32_pd(tmp1_hi_sse);
 			const __m128d tmp3_lo_sse = _mm_mul_pd(tmp2_lo_sse, alpha_sse);
 			const __m128d tmp3_hi_sse = _mm_mul_pd(tmp2_hi_sse, alpha_sse);
-			const __m128i tmp4_lo_sse = _mm_cvttpd_epi32(tmp3_lo_sse);
-			const __m128i tmp4_hi_sse = _mm_cvttpd_epi32(tmp3_hi_sse);
+			const __m128i tmp4_lo_sse = _mm_cvttpd_epu32(tmp3_lo_sse);
+			const __m128i tmp4_hi_sse = _mm_cvttpd_epu32(tmp3_hi_sse);
 
 			y_sse = _mm_unpacklo_epi32(tmp4_lo_sse, tmp4_hi_sse);
 
@@ -150,7 +229,8 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 	// last values
 	uint32_t *first_buffer = ctx.get_core_buffer(0);
 	for(PVRow i = packed_row_count; i < row_count; ++i) {
-		uint32_t y = col_y1[i];
+		// AG: a 64-bit integer is used for 'y', because if zoom_shift is 32, then y >> 32 wouldn't be 0 !
+		uint64_t y = col_y1[i];
 		const int32_t base = y >> zoom_shift;
 		int32_t p = base - base_y;
 		if (p != 0) {
@@ -162,35 +242,26 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 	}
 
 	// final reduction
-	size_t packed_size = size_block_int & ~3;
-	for (size_t j = 0; j < packed_size; j += 4) {
-		__m128i global_sse = _mm_setzero_si128();
-
-		for(int i = 0; i < ctx.get_core_num(); ++i) {
-			uint32_t *core_buffer = ctx.get_core_buffer(i);
-			const __m128i local_sse = _mm_load_si128((const __m128i*) &core_buffer[j]);
-			global_sse = _mm_add_epi32(global_sse, local_sse);
-		}
-		_mm_store_si128((__m128i*) &buffer[j], global_sse);
-	}
+	size_t merge_size = size_block_int * alpha;
+	merge_ctx_buffers(buffer, ctx, merge_size);
 }
 
 // Version for N blocks (N >= 2), no-selection
 static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
                                 const uint64_t y_min, const int zoom,
-                                const double &alpha,
+                                const double alpha,
                                 uint32_t *buffer, int block_count,
                                 PVParallelView::PVHitGraphDataOMP::omp_ctx_t &ctx,
                                 size_t nbits, size_t size_block_int)
 {
 	const int idx_shift = (32 - nbits) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
-	const uint32_t zoom_mask = (1 << zoom_shift) -1;
+	const uint32_t zoom_mask = ((1ULL << zoom_shift) - 1ULL);
 	const __m128i zoom_mask_sse = _mm_set1_epi32(zoom_mask);
-	const int32_t base_y = y_min >> zoom_shift;
+	const int32_t base_y = (uint64_t)(y_min) >> zoom_shift;
 	const __m128i base_y_sse = _mm_set1_epi32(base_y);
 
-	const uint32_t y_min_ref = (uint32_t)base_y << zoom_shift;
+	const uint32_t y_min_ref = (uint64_t)base_y << zoom_shift;
 	const __m128i y_min_ref_sse = _mm_set1_epi32(y_min_ref);
 
 
@@ -221,31 +292,35 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 			const __m128i res_sse = _mm_andnot_si128(_mm_cmplt_epi32(p_sse, _mm_set1_epi32(0)),
 			                                         _mm_cmplt_epi32(p_sse, _mm_set1_epi32(block_count)));
 
+			if (_mm_test_all_zeros(res_sse, _mm_set1_epi32(-1))) {
+				continue;
+			}
+
 			/* y = (y - y_min_ref) * alpha
 			 * p = y >> zoom_mask (i.e. base)
-			 * off =  = (p << nbits) + (y & zoom_mask) >> idx_shift
+			 * off =  = (p << nbits) + ((y & zoom_mask) >> idx_shift)
 			 */
 #ifdef __AVX__
 			y_sse = _mm_sub_epi32(y_sse, y_min_ref_sse);
-			const __m256d tmp1_avx = _mm256_cvtepi32_pd (y_sse);
+			const __m256d tmp1_avx = _mm256_cvtepu32_pd(y_sse);
 			const __m256d tmp2_avx = _mm256_mul_pd(tmp1_avx, alpha_sse);
-			y_sse = _mm256_cvttpd_epi32(tmp2_avx);
+			y_sse = _mm256_cvttpd_epu32(tmp2_avx);
 			p_sse = _mm_srli_epi32(y_sse, zoom_shift);
 
-			const __m128i off_sse = _mm_add_epi32(_mm_slli_epi32(p_sse, nbits),
-			                                      _mm_srli_epi32(_mm_and_si128(y_sse,
-			                                                                   zoom_mask_sse),
-			                                                     idx_shift));
+			const __m128i off_sse = _mm_or_si128(_mm_slli_epi32(p_sse, nbits),
+			                                     _mm_srli_epi32(_mm_and_si128(y_sse,
+			                                                                  zoom_mask_sse),
+			                                                    idx_shift));
 #elif defined __SSE2__
 			y_sse = _mm_sub_epi32(y_sse, y_min_ref_sse);
 			const __m128i tmp1_lo_sse = _mm_shuffle_epi32(y_sse, _MM_SHUFFLE(0, 0, 2, 0));
 			const __m128i tmp1_hi_sse = _mm_shuffle_epi32(y_sse, _MM_SHUFFLE(0, 0, 3, 1));
-			const __m128d tmp2_lo_sse = _mm_cvtepi32_pd(tmp1_lo_sse);
-			const __m128d tmp2_hi_sse = _mm_cvtepi32_pd(tmp1_hi_sse);
+			const __m128d tmp2_lo_sse = _mm_cvtepu32_pd(tmp1_lo_sse);
+			const __m128d tmp2_hi_sse = _mm_cvtepu32_pd(tmp1_hi_sse);
 			const __m128d tmp3_lo_sse = _mm_mul_pd(tmp2_lo_sse, alpha_sse);
 			const __m128d tmp3_hi_sse = _mm_mul_pd(tmp2_hi_sse, alpha_sse);
-			const __m128i tmp4_lo_sse = _mm_cvttpd_epi32(tmp3_lo_sse);
-			const __m128i tmp4_hi_sse = _mm_cvttpd_epi32(tmp3_hi_sse);
+			const __m128i tmp4_lo_sse = _mm_cvttpd_epu32(tmp3_lo_sse);
+			const __m128i tmp4_hi_sse = _mm_cvttpd_epu32(tmp3_hi_sse);
 
 			y_sse = _mm_unpacklo_epi32(tmp4_lo_sse, tmp4_hi_sse);
 			p_sse = _mm_srli_epi32(y_sse, zoom_shift);
@@ -257,11 +332,6 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 #else
 #error you need at least SSE2 intrinsics
 #endif
-
-			if (_mm_test_all_zeros(res_sse, _mm_set1_epi32(-1))) {
-				continue;
-			}
-
 			if(_mm_extract_epi32(res_sse, 0)) {
 				++my_buffer[_mm_extract_epi32(off_sse, 0)];
 			}
@@ -280,30 +350,22 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 	// last values
 	uint32_t *first_buffer = ctx.get_core_buffer(0);
 	for(PVRow i = packed_row_count; i < row_count; ++i) {
-		uint32_t y = col_y1[i];
-		const int32_t base = y >> zoom_shift;
+		// AG: a 64-bit integer is used for 'y', because if zoom_shift is 32, then y >> 32 wouldn't be 0 !
+		uint64_t y = col_y1[i];
+		const int32_t base = (uint64_t)(y) >> zoom_shift;
 		int p = base - base_y;
 		if ((p < 0) || (p >= block_count)) {
 			continue;
 		}
 		y = (y-y_min_ref)*alpha;
-		p = y >> zoom_shift;
+		p = (uint64_t)(y) >> zoom_shift;
 		const uint32_t idx = ((uint32_t)(y & zoom_mask)) >> idx_shift;
-		++first_buffer[(p<<nbits) + idx];
+		++first_buffer[(p<<nbits) | idx];
 	}
 
 	// final reduction
-	size_t packed_size = (size_block_int * block_count) & ~3;
-	for (size_t j = 0; j < packed_size; j += 4) {
-		__m128i global_sse = _mm_setzero_si128();
-
-		for(int i = 0; i < ctx.get_core_num(); ++i) {
-			uint32_t *core_buffer = ctx.get_core_buffer(i);
-			const __m128i local_sse = _mm_load_si128((const __m128i*) &core_buffer[j]);
-			global_sse = _mm_add_epi32(global_sse, local_sse);
-		}
-		_mm_store_si128((__m128i*) &buffer[j], global_sse);
-	}
+	size_t merge_size = ((size_t)(size_block_int * alpha)) * block_count;
+	merge_ctx_buffers(buffer, ctx, merge_size);
 }
 
 // Version for N blocks (N>=1), with selection
@@ -334,12 +396,12 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 
 	const int idx_shift = (32 - nbits) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
-	const uint32_t zoom_mask = (1 << zoom_shift) -1;
+	const uint32_t zoom_mask = ((1ULL << zoom_shift) - 1ULL);
 	const __m128i zoom_mask_sse = _mm_set1_epi32(zoom_mask);
-	const uint32_t base_y = y_min >> zoom_shift;
+	const uint32_t base_y = (uint64_t)(y_min) >> zoom_shift;
 	const __m128i base_y_sse = _mm_set1_epi32(base_y);
 
-	const uint32_t y_min_ref = (uint32_t)base_y << zoom_shift;
+	const uint32_t y_min_ref = (uint64_t)base_y << zoom_shift;
 	const __m128i y_min_ref_sse = _mm_set1_epi32(y_min_ref);
 
 #ifdef __AVX__
@@ -384,9 +446,9 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 			 */
 #ifdef __AVX__
 			y_sse = _mm_sub_epi32(y_sse, y_min_ref_sse);
-			const __m256d tmp1_avx = _mm256_cvtepi32_pd (y_sse);
+			const __m256d tmp1_avx = _mm256_cvtepu32_pd (y_sse);
 			const __m256d tmp2_avx = _mm256_mul_pd(tmp1_avx, alpha_sse);
-			y_sse = _mm256_cvttpd_epi32(tmp2_avx);
+			y_sse = _mm256_cvttpd_epu32(tmp2_avx);
 			p_sse = _mm_srli_epi32(y_sse, zoom_shift);
 
 			const __m128i off_sse = _mm_add_epi32(_mm_slli_epi32(p_sse, nbits),
@@ -397,12 +459,12 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 			y_sse = _mm_sub_epi32(y_sse, y_min_ref_sse);
 			const __m128i tmp1_lo_sse = _mm_shuffle_epi32(y_sse, _MM_SHUFFLE(0, 0, 2, 0));
 			const __m128i tmp1_hi_sse = _mm_shuffle_epi32(y_sse, _MM_SHUFFLE(0, 0, 3, 1));
-			const __m128d tmp2_lo_sse = _mm_cvtepi32_pd(tmp1_lo_sse);
-			const __m128d tmp2_hi_sse = _mm_cvtepi32_pd(tmp1_hi_sse);
+			const __m128d tmp2_lo_sse = _mm_cvtepu32_pd(tmp1_lo_sse);
+			const __m128d tmp2_hi_sse = _mm_cvtepu32_pd(tmp1_hi_sse);
 			const __m128d tmp3_lo_sse = _mm_mul_pd(tmp2_lo_sse, alpha_sse);
 			const __m128d tmp3_hi_sse = _mm_mul_pd(tmp2_hi_sse, alpha_sse);
-			const __m128i tmp4_lo_sse = _mm_cvttpd_epi32(tmp3_lo_sse);
-			const __m128i tmp4_hi_sse = _mm_cvttpd_epi32(tmp3_hi_sse);
+			const __m128i tmp4_lo_sse = _mm_cvttpd_epu32(tmp3_lo_sse);
+			const __m128i tmp4_hi_sse = _mm_cvttpd_epu32(tmp3_hi_sse);
 
 			y_sse = _mm_unpacklo_epi32(tmp4_lo_sse, tmp4_hi_sse);
 			p_sse = _mm_srli_epi32(y_sse, zoom_shift);
@@ -435,7 +497,8 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 		if (!selection.get_line_fast(i)) {
 			continue;
 		}
-		uint32_t y = col_y1[i];
+		// AG: a 64-bit integer is used for 'y', because if zoom_shift is 32, then y >> 32 wouldn't be 0 !
+		uint64_t y = col_y1[i];
 		const uint32_t base = y >> zoom_shift;
 		int p = base - base_y;
 		if ((p < 0) || (p >= block_count)) {
@@ -448,17 +511,8 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 	}
 
 	// final reduction
-	size_t packed_size = (size_block_int * block_count) & ~3;
-	for (size_t j = 0; j < packed_size; j += 4) {
-		__m128i global_sse = _mm_setzero_si128();
-
-		for(int i = 0; i < ctx.get_core_num(); ++i) {
-			uint32_t *core_buffer = ctx.get_core_buffer(i);
-			const __m128i local_sse = _mm_load_si128((const __m128i*) &core_buffer[j]);
-			global_sse = _mm_add_epi32(global_sse, local_sse);
-		}
-		_mm_store_si128((__m128i*) &buffer[j], global_sse);
-	}
+	size_t merge_size = size_block_int * block_count * alpha;
+	merge_ctx_buffers(buffer, ctx, merge_size);
 }
 
 //
@@ -479,7 +533,7 @@ void PVParallelView::PVHitGraphDataOMP::process_bg(ProcessParams const& p)
 
 	_omp_ctx.clear();
 
-	uint32_t* const buf_block = buffer_all().buffer_block(p.block_start);
+	uint32_t* const buf_block = buffer_all().zoomed_buffer_block(p.block_start, p.alpha);
 	if (nblocks_ == 1) {
 		count_y1_omp_sse_v4(p.nrows, p.col_plotted, p.y_min, p.zoom, p.alpha, buf_block, _omp_ctx, nbits(), size_block());
 	}
@@ -497,6 +551,6 @@ void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p, Picv
 
 	_omp_ctx.clear();
 
-	uint32_t* const buf_block = buffer_sel().buffer_block(p.block_start);
+	uint32_t* const buf_block = buffer_sel().zoomed_buffer_block(p.block_start, p.alpha);
 	count_y1_sel_omp_sse_v4(p.nrows, p.col_plotted, sel, p.y_min, p.zoom, p.alpha, buf_block, nblocks_, _omp_ctx, nbits(), size_block());
 }

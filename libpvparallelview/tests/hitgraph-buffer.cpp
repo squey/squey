@@ -7,7 +7,7 @@
 void print_buffer(PVParallelView::PVHitGraphBuffer const& b)
 {
 	for (size_t i = 0; i < b.size_int(); i++) {
-		std::cout << i << "\t = " << b.buffer()[i] << " / " << b.zoomed_buffer()[i] << std::endl;
+		std::cout << i << "\t = " << b.buffer()[i] << " / " << b.buffer()[i] << std::endl;
 	}
 }
 

@@ -2,6 +2,7 @@
 #include <pvparallelview/PVHitGraphBlocksManager.h>
 
 #include <cassert>
+#include <iostream>
 
 inline static uint32_t y_to_block_idx(const uint32_t y, const uint32_t zoom)
 {
@@ -26,19 +27,29 @@ PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(PVZoneTree cons
 {
 }
 
-bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint32_t y_min, const int zoom, const float alpha)
+bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint32_t y_min, const int zoom, float alpha)
 {
 	const uint32_t block_idx = y_to_block_idx(y_min, zoom);
 	const uint32_t y_min_block = block_idx << (32-zoom);
 
-#if 0
 	const int32_t y_min_idx_in_red_buffer = y_to_idx_in_red_buffer(y_min_block, zoom, alpha);
 	const int32_t last_y_min_idx_in_red_buffer = y_to_idx_in_red_buffer(last_y_min(), zoom, alpha);
-	const int32_t blocks_shift = (last_y_min_idx_in_red_buffer-y_min_idx_in_red_buffer)/((int)((double)(size_block())*alpha));
+	int32_t blocks_shift = (last_y_min_idx_in_red_buffer-y_min_idx_in_red_buffer)/((int)((double)(size_block())*alpha));
 
-	if (blocks_shift != 0) {
-		// Translation
+	// This is done because, at the original zoom, a reduction over 10 bits is done
+	if ((alpha == 0.5f) && (zoom == 0)) {
+		alpha = 1.0f;
+		blocks_shift = 0;
+	}
+	if (zoom == last_zoom() && alpha == last_alpha()) {
 		_data_params.alpha = alpha;
+
+		if (blocks_shift == 0) {
+			return false;
+		}
+
+		// Translation
+		//
 
 		if (abs(blocks_shift) >= (int) nblocks()) {
 			// Reprocess all
@@ -50,7 +61,7 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 		}
 
 		// Left or right shift blocks
-		shift_blocks(blocks_shift);
+		shift_blocks(blocks_shift, alpha);
 
 		// Compute empty blocks
 		if (blocks_shift > 0) {
@@ -77,13 +88,8 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 
 		return true;
 	}
-#endif
 
-	if ((alpha == 0.5f) && (zoom == 0)) {
-		_data_params.alpha = 1.0f;
-	} else {
-		_data_params.alpha = alpha;
-	}
+	_data_params.alpha = alpha;
 	_data_params.zoom = zoom;
 	_data_params.y_min = y_min_block;
 	_data_params.block_start = 0;
@@ -153,13 +159,13 @@ uint32_t const PVParallelView::PVHitGraphBlocksManager::y_start() const
 	return y_to_block_idx(_data_params.y_min, _data_params.zoom) << (32-_data_params.zoom);
 }
 
-void PVParallelView::PVHitGraphBlocksManager::shift_blocks(int blocks_shift)
+void PVParallelView::PVHitGraphBlocksManager::shift_blocks(const int blocks_shift, const float alpha)
 {
 	if (blocks_shift > 0) {
-		hgdata().shift_right(blocks_shift);
+		hgdata().shift_right(blocks_shift, alpha);
 	}
 	else {
-		hgdata().shift_left(-blocks_shift);
+		hgdata().shift_left(-blocks_shift, alpha);
 	}
 }
 
