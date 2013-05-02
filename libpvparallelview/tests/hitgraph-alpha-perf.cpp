@@ -815,7 +815,6 @@ void count_y1_lib(const PVRow row_count, const uint32_t *col_y1,
 {
 
 	lib_omp.process_bg(PVParallelView::PVHitGraphData::ProcessParams(zt, col_y1, row_count, y_min, zoom, alpha, 0, V4_N));
-	memcpy(buffer, lib_omp.buffer_all().buffer(), lib_omp.buffer_all().size_bytes());
 }
 
 /*****************************************************************************
@@ -997,15 +996,12 @@ void do_one_run(const std::string text,
 	PVParallelView::PVHitGraphData lib_omp(NBITS, V4_N);
 
 	DEF_TEST_OMP(lib, data, lib_omp, *zt);
+	memcpy(buffer_lib, lib_omp.buffer_all().buffer(), lib_omp.buffer_all().size_bytes());
 	if (verbose) {
 		CMP_TEST(lib, sse_v4);
 	}
 
 	delete zt;
-
-	for(int i = 0; i < buffer_size * V4_N; ++i) {
-		std::cout << "buffer[" << i << "] =  " << buffer_seq_v1[i] << std::endl;
-	}
 
 	DEL_TEST(seq_v1);
 	DEL_TEST(seq_v2);

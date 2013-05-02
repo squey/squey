@@ -4,7 +4,14 @@
 #include <cassert>
 #include <cstdlib>
 #include <string.h>
+#include <iostream>
 
+void dump_graph_buffer(uint32_t const* buf, const size_t n)
+{
+	for (size_t i = 0; i < n; i++) {
+		std::cerr << i << "\t" << buf[i] << std::endl;
+	}
+}
 // 
 // PVHitGraphBuffer
 //
@@ -15,16 +22,12 @@ PVParallelView::PVHitGraphBuffer::PVHitGraphBuffer(uint32_t nbits, uint32_t nblo
 	_size_block(1<<nbits)
 {
 	posix_memalign((void**) &_buf, 16, size_bytes());
-	posix_memalign((void**) &_zoomed_buf, 16, size_bytes());
 }
 
 PVParallelView::PVHitGraphBuffer::~PVHitGraphBuffer()
 {
 	if (_buf) {
 		free(_buf);
-	}
-	if (_zoomed_buf) {
-		free(_zoomed_buf);
 	}
 }
 
@@ -48,7 +51,7 @@ void PVParallelView::PVHitGraphBuffer::shift_zoomed_left(const uint32_t n, const
 	assert(n <= nblocks());
 	const uint32_t nb_moved_blocks = nblocks()-n;
 
-	memmove(zoomed_buffer(), zoomed_buffer_block(n, alpha), nb_moved_blocks*size_zoomed_block(alpha)*sizeof(uint32_t));
+	memmove(buffer(), zoomed_buffer_block(n, alpha), nb_moved_blocks*size_zoomed_block(alpha)*sizeof(uint32_t));
 	memset(zoomed_buffer_block(nb_moved_blocks, alpha), 0, n*size_zoomed_block(alpha)*sizeof(uint32_t));
 }
 
@@ -66,37 +69,8 @@ void PVParallelView::PVHitGraphBuffer::shift_zoomed_right(const uint32_t n, cons
 	assert(n <= nblocks());
 	const uint32_t nb_moved_blocks = nblocks()-n;
 
-	memmove(zoomed_buffer_block(n, alpha), zoomed_buffer(), nb_moved_blocks*size_zoomed_block(alpha)*sizeof(uint32_t));
-	memset(zoomed_buffer(), 0, n*size_zoomed_block(alpha)*sizeof(uint32_t));
-}
-
-void PVParallelView::PVHitGraphBuffer::process_zoom_reduction_inplace(const float alpha)
-{
-	assert((alpha >= 0.5f) && (alpha < 1.0f));
-	const int sint = size_int();
-	for (int idx = 1; idx < sint; idx++) {
-		// AG: this must be the same "rounding" method than the one used
-		// in the CUDA kernel.
-		// TODO: this formula should be exported in a common place and used
-		// everywhere a "pixel" position is needed for a given zoom level.
-		const int new_idx = (int) ((float)idx*alpha);
-		if (new_idx != idx) {
-			_buf[new_idx] += _buf[idx];
-			_buf[idx] = 0;
-		}
-	}
-}
-
-void PVParallelView::PVHitGraphBuffer::process_zoom_reduction(const float alpha, uint32_t* res)
-{
-	assert((alpha >= 0.5f) && (alpha < 1.0f));
-	memset(res, 0, size_bytes());
-	res[0] = _buf[0];
-	const int sint = size_int();
-	for (int idx = 1; idx < sint; idx++) {
-		const int new_idx = (int) ((float)idx*alpha);
-		res[new_idx] += _buf[idx];
-	}
+	memmove(zoomed_buffer_block(n, alpha), buffer(), nb_moved_blocks*size_zoomed_block(alpha)*sizeof(uint32_t));
+	memset(buffer(), 0, n*size_zoomed_block(alpha)*sizeof(uint32_t));
 }
 
 bool PVParallelView::PVHitGraphBuffer::copy_from(PVHitGraphBuffer const& o)
@@ -106,7 +80,6 @@ bool PVParallelView::PVHitGraphBuffer::copy_from(PVHitGraphBuffer const& o)
 	}
 
 	memcpy(_buf, o._buf, size_bytes());
-	memcpy(_zoomed_buf, o._zoomed_buf, size_bytes());
 
 	return true;
 }

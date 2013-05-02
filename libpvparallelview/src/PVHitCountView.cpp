@@ -114,8 +114,8 @@ public:
 		} else
 #endif
 
-			if(event->key() == Qt::Key_Home) {
-			PVHitCountView *hcv = get_hit_count_view(zda);
+		PVHitCountView *hcv = get_hit_count_view(zda);
+		if(event->key() == Qt::Key_Home) {
 			hcv->reset_view();
 			hcv->reconfigure_view();
 			hcv->_update_all_timer.start();
@@ -194,7 +194,7 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	PVParallelView::PVZoomableDrawingAreaWithAxes(parent),
 	_pvview(*pvview_sp),
 	_axis_index(axis_index),
-	_hit_graph_manager(zt, col_plotted, nrows, 1, pvview_sp->get_real_output_selection()),
+	_hit_graph_manager(zt, col_plotted, nrows, 2, pvview_sp->get_real_output_selection()),
 	_view_deleted(false),
 	_show_bg(true)
 {
@@ -410,12 +410,12 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 		                   x_axis_right,
 		                   src_x, view_top, dy, rel_y_scale,
 		                   _hit_graph_manager.buffer_bg());
-		// painter->setOpacity(1.0);
-		// draw_clamped_lines(painter,
-		//                    x_axis_left,
-		//                    x_axis_right,
-		//                    src_x, view_top, dy, rel_y_scale,
-		//                    _hit_graph_manager.buffer_sel());
+		painter->setOpacity(1.0);
+		draw_clamped_lines(painter,
+		                   x_axis_left,
+		                   x_axis_right,
+		                   src_x, view_top, dy, rel_y_scale,
+		                   _hit_graph_manager.buffer_sel());
 #if 0
 	}
 #endif
@@ -472,19 +472,6 @@ void PVParallelView::PVHitCountView::draw_clamped_lines(QPainter *painter,
 	const int y_axis_length = get_y_axis_length();
 	const int count = (get_y_axis_zoom().get_clamped_relative_value() == 0)?1024:(2048*_hit_graph_manager.nblocks());
 
-	std::cout << "########################################################" << std::endl;
-	// int i = 0;
-
-	int a = 0;
-	for(int i = 0; i < count; ++i) {
-		if (buffer[i] != 0) {
-			std::cout << i << ": " << buffer[i] << std::endl;
-			a++;
-		}
-	}
-
-	std::cout << "# " << a << " non-nul value" << std::endl;
-
 	for (int y = 0; y < count; ++y) {
 		const uint32_t v = buffer[y];
 		if (v == 0) {
@@ -506,11 +493,6 @@ void PVParallelView::PVHitCountView::draw_clamped_lines(QPainter *painter,
 
 		vx = PVCore::min(x_max, vx);
 
-		// printf("%8d ", vx);
-		// ++i;
-		// if (i % 10) {
-		// 	std::cout << std::endl;
-		// }
 		painter->drawLine(src_x, y_val, vx, y_val);
 	}
 }

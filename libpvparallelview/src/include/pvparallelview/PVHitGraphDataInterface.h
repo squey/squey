@@ -55,11 +55,9 @@ public:
 	virtual void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel) = 0;
 	virtual void process_all(ProcessParams const& params, Picviz::PVSelection const& sel);
 
-	void process_zoom_reduction(const float alpha);
-
 public:
-	void shift_left(const uint32_t nblocks);
-	void shift_right(const uint32_t nblocks);
+	void shift_left(const uint32_t nblocks, const float alpha);
+	void shift_right(const uint32_t nblocks, const float alpha);
 
 public:
 	PVHitGraphBuffer const& buffer_all() const { return _buf_all; }

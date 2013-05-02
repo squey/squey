@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <iostream>
 
+#include <boost/random/normal_distribution.hpp>
+#include <boost/random/mersenne_twister.hpp>
+
 #include "common.h"
 
 static Picviz::PVView_sp g_fake_view;
@@ -17,13 +20,16 @@ static bool input_is_file = false;
 
 static void init_rand_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
-	srand(time(NULL));
+	static boost::random::mt19937 rng;
+	//srand(time(NULL));
 	p.clear();
 	const PVRow nrows_aligned = ((nrows+3)/4)*4;
 	p.resize(nrows_aligned*ncols);
 	for (PVCol j = 0; j < ncols; j++) {
+		boost::random::normal_distribution<double> normd(1U<<31, 1U<<29);
 		for (PVRow i = 0; i < nrows; i++) {
 			p[j*nrows_aligned+i] = (rand() << 1) | (rand()&1);
+			//p[j*nrows_aligned+i] = normd(rng);
 		}
 	}
 }
