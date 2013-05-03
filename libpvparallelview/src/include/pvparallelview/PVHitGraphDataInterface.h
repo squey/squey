@@ -56,8 +56,8 @@ public:
 	virtual void process_all(ProcessParams const& params, Picviz::PVSelection const& sel);
 
 public:
-	void shift_left(const uint32_t nblocks, const float alpha);
-	void shift_right(const uint32_t nblocks, const float alpha);
+	void shift_left(const uint32_t nblocks, const double alpha);
+	void shift_right(const uint32_t nblocks, const double alpha);
 
 public:
 	PVHitGraphBuffer const& buffer_all() const { return _buf_all; }
@@ -75,6 +75,7 @@ public:
 public:
 	inline uint32_t nbits() const { return buffer_all().nbits(); }
 	inline uint32_t size_block() const { return buffer_all().size_block(); }
+	inline uint32_t size_int() const { return buffer_all().size_int(); }
 	inline uint32_t nblocks() const { return buffer_all().nblocks(); }
 
 private:

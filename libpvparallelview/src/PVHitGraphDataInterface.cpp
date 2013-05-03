@@ -17,13 +17,13 @@ PVParallelView::PVHitGraphDataInterface::~PVHitGraphDataInterface()
 {
 }
 
-void PVParallelView::PVHitGraphDataInterface::shift_left(const uint32_t n, const float alpha)
+void PVParallelView::PVHitGraphDataInterface::shift_left(const uint32_t n, const double alpha)
 {
 	buffer_all().shift_zoomed_left(n, alpha);
 	buffer_sel().shift_zoomed_left(n, alpha);
 }
 
-void PVParallelView::PVHitGraphDataInterface::shift_right(const uint32_t n, const float alpha)
+void PVParallelView::PVHitGraphDataInterface::shift_right(const uint32_t n, const double alpha)
 {
 	buffer_all().shift_zoomed_right(n, alpha);
 	buffer_sel().shift_zoomed_right(n, alpha);

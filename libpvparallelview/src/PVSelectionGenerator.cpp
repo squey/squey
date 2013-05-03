@@ -15,6 +15,7 @@
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVAbstractAxisSlider.h>
+#include <pvparallelview/PVHitGraphBlocksManager.h>
 
 #include <tbb/enumerable_thread_specific.h>
 
@@ -298,6 +299,53 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_vi
 
 	return nb_selected;
 }
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_view_rect
+ *****************************************************************************/
+
+uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_view_rect(
+	const PVHitGraphBlocksManager& manager,
+	const QRectF& rect,
+	const uint32_t max_count,
+	Picviz::PVSelection& sel)
+{
+	uint32_t v_min = PVCore::clamp((uint32_t)floor(rect.top()), 0U, UINT32_MAX);
+	uint32_t v_max = PVCore::clamp((uint32_t)ceil(rect.bottom()), 0U, UINT32_MAX);
+
+	uint32_t c_min = PVCore::clamp((uint32_t)ceil(rect.left()), 0U, max_count);
+	uint32_t c_max = PVCore::clamp((uint32_t)floor(rect.right()), 0U, max_count);
+
+	uint32_t nb_selected = 0;
+
+	sel.select_none();
+
+	const uint32_t* plotted = manager.get_plotted();
+	for(PVRow i = 0; i < manager.get_nrows(); ++i) {
+		PVRow v = plotted[i];
+		if ((v < v_min) || (v >= v_max)) {
+			continue;
+		}
+
+		uint32_t c = manager.get_count_for(v);
+		if (c == 0) {
+			continue;
+		}
+		if ((c < c_min) || (c > c_max)) {
+			continue;
+		}
+
+		sel.set_bit_fast(i);
+		++nb_selected;
+	}
+
+	return nb_selected;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionGenerator::process_selection
+ *****************************************************************************/
+
 
 void PVParallelView::PVSelectionGenerator::process_selection(Picviz::PVView_sp view_sp, bool use_modifiers /*= true*/)
 {

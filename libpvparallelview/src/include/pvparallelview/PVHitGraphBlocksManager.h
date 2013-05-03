@@ -1,6 +1,7 @@
 #ifndef PVPARALLELVIEW_PVHITGRAPHBLOCKSMANAGER_H
 #define PVPARALLELVIEW_PVHITGRAPHBLOCKSMANAGER_H
 
+#include <pvparallelview/common.h>
 #include <pvparallelview/PVHitGraphData.h>
 
 namespace Picviz {
@@ -9,14 +10,8 @@ class PVSelection;
 
 namespace PVParallelView {
 
-namespace __impl {
-class PVHitGraphBlocksManager;
-}
-
 class PVHitGraphBlocksManager: boost::noncopyable
 {
-	friend class __impl::PVHitGraphBlocksManager;
-
 protected:
 	typedef PVHitGraphData::ProcessParams DataProcessParams ;
 
@@ -24,7 +19,7 @@ public:
 	PVHitGraphBlocksManager(PVZoneTree const& zt, const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Picviz::PVSelection const& sel);
 
 public:
-	bool change_and_process_view(const uint32_t y_min, const int zoom, const float alpha);
+	bool change_and_process_view(const uint32_t y_min, const int zoom, double alpha);
 	void process_bg();
 	void process_sel();
 	void process_all();
@@ -36,16 +31,23 @@ public:
 	uint32_t const y_start() const;
 	inline uint32_t nblocks() const { return _data.nblocks(); }
 
+	inline uint32_t size_int() const { return hgdata().size_int(); }
+
+	inline const uint32_t* get_plotted() const { return _data_params.col_plotted; }
+	inline PVRow get_nrows() const { return _data_params.nrows; }
+
+	uint32_t get_count_for(const uint32_t value) const;
+
 protected:
 	inline int last_zoom() const { return _data_params.zoom; }
-	inline float last_alpha() const { return _data_params.alpha; }
-	inline float last_y_min() const { return _data_params.y_min; }
+	inline double last_alpha() const { return _data_params.alpha; }
+	inline uint32_t last_y_min() const { return _data_params.y_min; }
 	inline uint32_t size_block() const { return _data.size_block(); }
-	inline bool full_view() const { return (_data_params.zoom == 0) && (_data_params.alpha == 1.0f); }
+	inline bool full_view() const { return (_data_params.zoom == 0) && (_data_params.alpha == 1.0); }
 	PVHitGraphData& hgdata();
 	PVHitGraphData const& hgdata() const;
 
-	void shift_blocks(int blocks_shift, const float alpha);
+	void shift_blocks(int blocks_shift, const double alpha);
 
 protected:
 	PVHitGraphData _data_z0; // Data for initial zoom (with 10-bit precision)

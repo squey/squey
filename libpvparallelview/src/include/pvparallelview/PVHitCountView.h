@@ -35,6 +35,8 @@ template <int STEPS>
 class PVHitCountViewZoomConverter;
 
 class PVHitCountViewInteractor;
+class PVSelectionRectangleHitCountView;
+class PVSelectionRectangleInteractor;
 
 class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 {
@@ -69,6 +71,20 @@ public:
 	void update_new_selection_async();
 	void update_all_async();
 	void set_enabled(const bool value);
+
+	inline uint32_t get_max_count() const { return _max_count; }
+
+	inline Picviz::PVView& lib_view() { return _pvview; }
+
+	inline const PVHitGraphBlocksManager& get_hit_graph_manager() const
+	{
+		return _hit_graph_manager;
+	}
+
+	inline PVHitGraphBlocksManager& get_hit_graph_manager()
+	{
+		return _hit_graph_manager;
+	}
 
 protected:
 	void drawBackground(QPainter *painter, const QRectF &rect) override;
@@ -116,8 +132,11 @@ private:
 	PVHitCountViewZoomConverter<zoom_steps>     *_x_zoom_converter;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>  _y_zoom_converter;
 
-	PVZoomableDrawingAreaInteractor             *_my_inteactor;
-	PVZoomableDrawingAreaInteractor             *_hcv_inteactor;
+	PVZoomableDrawingAreaInteractor             *_my_interactor;
+	PVZoomableDrawingAreaInteractor             *_hcv_interactor;
+
+	PVSelectionRectangleHitCountView            *_sel_rect;
+	PVSelectionRectangleInteractor              *_sel_rect_interactor;
 };
 
 }

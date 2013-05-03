@@ -14,7 +14,7 @@ inline static uint32_t y_to_idx_in_buffer(const uint32_t y, const uint32_t zoom)
 	return y >> (32-(zoom+PARALLELVIEW_ZZT_BBITS));
 }
 
-inline static uint32_t y_to_idx_in_red_buffer(const uint32_t y, const uint32_t zoom, const float alpha)
+inline static uint32_t y_to_idx_in_red_buffer(const uint32_t y, const uint32_t zoom, const double alpha)
 {
 	return ((double)y_to_idx_in_buffer(y, zoom))*alpha;
 }
@@ -27,7 +27,7 @@ PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(PVZoneTree cons
 {
 }
 
-bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint32_t y_min, const int zoom, float alpha)
+bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint32_t y_min, const int zoom, double alpha)
 {
 	const uint32_t block_idx = y_to_block_idx(y_min, zoom);
 	const uint32_t y_min_block = block_idx << (32-zoom);
@@ -37,8 +37,8 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 	int32_t blocks_shift = (last_y_min_idx_in_red_buffer-y_min_idx_in_red_buffer)/((int)((double)(size_block())*alpha));
 
 	// This is done because, at the original zoom, a reduction over 10 bits is done
-	if ((alpha == 0.5f) && (zoom == 0)) {
-		alpha = 1.0f;
+	if ((alpha == 0.5) && (zoom == 0)) {
+		alpha = 1.0;
 		blocks_shift = 0;
 	}
 	if (zoom == last_zoom() && alpha == last_alpha()) {
@@ -159,7 +159,33 @@ uint32_t const PVParallelView::PVHitGraphBlocksManager::y_start() const
 	return y_to_block_idx(_data_params.y_min, _data_params.zoom) << (32-_data_params.zoom);
 }
 
-void PVParallelView::PVHitGraphBlocksManager::shift_blocks(const int blocks_shift, const float alpha)
+uint32_t PVParallelView::PVHitGraphBlocksManager::get_count_for(const uint32_t value) const
+{
+	const PVParallelView::PVHitGraphData& data = hgdata();
+
+	const int zoom = last_zoom();
+	const int nbits = data.nbits();
+	const int idx_shift = (32 - nbits) - zoom;
+	const uint32_t zoom_shift = 32 - zoom;
+	const uint32_t zoom_mask = ((1ULL << zoom_shift) - 1ULL);
+	const int32_t base_y = (uint64_t)(_data_params.y_min) >> zoom_shift;
+	const uint32_t y_min_ref = (uint64_t)base_y << zoom_shift;
+
+	uint64_t y = value;
+	const int32_t base = (uint64_t)(y) >> zoom_shift;
+
+	int p = base - base_y;
+	if ((p < 0) || (p >= (int)data.nblocks())) {
+		return 0;
+	}
+
+	y = (y - y_min_ref) * last_alpha();
+
+	const uint32_t idx = ((uint32_t)(y & zoom_mask)) >> idx_shift;
+	return data.buffer_all().buffer()[idx];
+}
+
+void PVParallelView::PVHitGraphBlocksManager::shift_blocks(const int blocks_shift, const double alpha)
 {
 	if (blocks_shift > 0) {
 		hgdata().shift_right(blocks_shift, alpha);
