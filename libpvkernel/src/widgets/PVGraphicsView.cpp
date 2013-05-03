@@ -12,6 +12,10 @@
 #include <QGraphicsSceneWheelEvent>
 #include <QScrollBar64>
 
+#ifndef QT_NO_OPENGL
+#include <QGLWidget>
+#endif
+
 // to mimic QGraphicsView::::sizeHint() :-D
 #include <QApplication>
 #include <QDesktopWidget>
@@ -734,6 +738,29 @@ void PVWidgets::PVGraphicsView::set_viewport(QWidget* w)
 	_viewport->setFocusProxy(this);
 	_viewport->installEventFilter(_viewport_event_filter);
 	_layout->addWidget(_viewport, 0, 0);
+}
+
+bool PVWidgets::PVGraphicsView::set_gl_viewport(QGLFormat const& format)
+{
+#ifdef QT_NO_OPENGL
+	return false;
+#else
+	QGLWidget* w = new QGLWidget(format);
+	if (!w->isValid()) {
+		return false;
+	}
+	set_viewport(w);
+	return true;
+#endif
+}
+
+bool PVWidgets::PVGraphicsView::set_gl_viewport()
+{
+#ifdef QT_NO_OPENGL
+	return false;
+#else
+	return set_gl_viewport(QGLFormat());
+#endif
 }
 
 /*****************************************************************************
