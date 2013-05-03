@@ -9,7 +9,6 @@
 #include <pvparallelview/PVParallelView.h>
 
 #include <QPaintEvent>
-#include <QGLWidget>
 
 /******************************************************************************
  *
@@ -21,7 +20,6 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent):
 	_first_resize(true)
 {
 	setCursor(Qt::CrossCursor);
-	setViewport(new QWidget());
 	setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 	setMinimumHeight(300);
 }

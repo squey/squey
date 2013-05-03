@@ -66,7 +66,7 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::wheelEvent(PVPar
 
 		if (ret) {
 			zda->reconfigure_view();
-			zda->update();
+			zda->get_viewport()->update();
 		}
 	}
 

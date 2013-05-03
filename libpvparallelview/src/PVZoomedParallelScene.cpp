@@ -300,7 +300,7 @@ void PVParallelView::PVZoomedParallelScene::update(const QRectF &rect)
 {
 	QGraphicsScene::update(rect);
 	if (_zpview) {
-		_zpview->update();
+		_zpview->get_viewport()->update();
 	}
 }
 

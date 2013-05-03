@@ -424,11 +424,14 @@ bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 	                                 get_real_viewport_height());
 	QRectF real_viewport_area = map_to_scene(event->rect().intersected(real_viewport_rect));
 
-	QPainter painter(get_viewport());
+	QPainter painter;
+	painter.begin(get_viewport());
 
 	drawBackground(&painter, viewport_rect);
 	_scene->render(&painter, real_viewport_rect, real_viewport_area, Qt::IgnoreAspectRatio);
 	drawForeground(&painter, viewport_rect);
+
+	painter.end();
 
 	return true;
 }
@@ -484,7 +487,9 @@ bool PVWidgets::PVGraphicsView::event(QEvent *event)
 		case QEvent::UpdateRequest:
 			break;
 		default:
-			update();
+			if (get_viewport()) {
+				get_viewport()->update();
+			}
 			break;
 		}
 	}

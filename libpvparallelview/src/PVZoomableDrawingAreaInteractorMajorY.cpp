@@ -71,7 +71,7 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::wheelEvent(PVParalle
 
 		if (increment_zoom_value(zda, mask, inc)) {
 			zda->reconfigure_view();
-			zda->update();
+			zda->get_viewport()->update();
 			zoom_has_changed(zda);
 		}
 

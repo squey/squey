@@ -78,7 +78,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::set_decoration_color(const Q
 {
 	if (_decoration_color != color) {
 		_decoration_color = color;
-		update();
+		get_viewport()->update();
 	}
 }
 
@@ -90,7 +90,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::set_x_legend(const QString &
 {
 	if (_x_legend != legend) {
 		_x_legend = legend;
-		update();
+		get_viewport()->update();
 	}
 }
 
@@ -102,7 +102,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::set_y_legend(const QString &
 {
 	if (_y_legend != legend) {
 		_y_legend = legend;
-		update();
+		get_viewport()->update();
 	}
 }
 
@@ -114,7 +114,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::set_ticks_per_level(int n)
 {
 	if (_ticks_per_level != n) {
 		_ticks_per_level = n;
-		update();
+		get_viewport()->update();
 	}
 }
 

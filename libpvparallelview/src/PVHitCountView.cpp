@@ -154,7 +154,7 @@ public:
 				QScrollBar64 *sb = hcv->get_horizontal_scrollbar();
 				sb->setValue(sb->value() + (screen_pos - screen_ref));
 
-				hcv->update();
+				hcv->get_viewport()->update();
 				zoom_has_changed(hcv);
 			}
 		} else 	if (mask != 0) {
@@ -164,7 +164,7 @@ public:
 
 			if (increment_zoom_value(zda, mask, inc)) {
 				zda->reconfigure_view();
-				zda->update();
+				zda->get_viewport()->update();
 				zoom_has_changed(zda);
 			}
 		}
@@ -540,7 +540,7 @@ void PVParallelView::PVHitCountView::do_update_all()
 	_block_base_pos = block_y_min;
 	_block_zoom_level = get_y_axis_zoom().get_clamped_value();
 
-	update();
+	get_viewport()->update();
 }
 
 /*****************************************************************************
@@ -550,7 +550,7 @@ void PVParallelView::PVHitCountView::do_update_all()
 void PVParallelView::PVHitCountView::update_all()
 {
 	_hit_graph_manager.process_all();
-	update();
+	get_viewport()->update();
 }
 
 /*****************************************************************************
@@ -560,5 +560,5 @@ void PVParallelView::PVHitCountView::update_all()
 void PVParallelView::PVHitCountView::update_sel()
 {
 	_hit_graph_manager.process_sel();
-	update();
+	get_viewport()->update();
 }
