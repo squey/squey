@@ -20,16 +20,13 @@ static bool input_is_file = false;
 
 static void init_rand_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
-	static boost::random::mt19937 rng;
-	//srand(time(NULL));
+	srand(time(NULL));
 	p.clear();
 	const PVRow nrows_aligned = ((nrows+3)/4)*4;
 	p.resize(nrows_aligned*ncols);
 	for (PVCol j = 0; j < ncols; j++) {
-		boost::random::normal_distribution<double> normd(1U<<31, 1U<<29);
 		for (PVRow i = 0; i < nrows; i++) {
 			p[j*nrows_aligned+i] = (rand() << 1) | (rand()&1);
-			//p[j*nrows_aligned+i] = normd(rng);
 		}
 	}
 }
@@ -49,6 +46,20 @@ static void init_qt_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nr
 	}
 }
 
+static void init_gauss_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
+{
+	static boost::random::mt19937 rng;
+	p.clear();
+	const PVRow nrows_aligned = ((nrows+3)/4)*4;
+	p.resize(nrows_aligned*ncols);
+	for (PVCol j = 0; j < ncols; j++) {
+		boost::random::normal_distribution<double> normd(1U<<31, 1U<<29);
+		for (PVRow i = 0; i < nrows; i++) {
+			p[j*nrows_aligned+i] = normd(rng);
+		}
+	}
+}
+
 void set_extra_param(int num, const char* usage_text)
 {
 	extra_param_num = num;
@@ -57,7 +68,7 @@ void set_extra_param(int num, const char* usage_text)
 
 void usage(const char* path)
 {
-	std::cerr << "Usage: " << path << " (plotted_file (0|1) | (0|1) nrows ncols)";
+	std::cerr << "Usage: " << path << " (plotted_file (0|1) | (0|1|2) nrows ncols)";
 	if (extra_param_num != 0) {
 		std::cerr << " " << extra_param_text;
 	}
@@ -85,7 +96,7 @@ bool create_plotted_table_from_args(Picviz::PVPlotted::uint_plotted_table_t &nor
                                     PVRow &nrows, PVCol &ncols, int argc, char** argv)
 {
 	QString fplotted(argv[1]);
-	if ((fplotted == "0") || (fplotted == "1")) {
+	if ((fplotted == "0") || (fplotted == "1") || (fplotted == "2")) {
 		if (argc < (4 + extra_param_num)) {
 			usage(argv[0]);
 			return false;
@@ -103,8 +114,10 @@ bool create_plotted_table_from_args(Picviz::PVPlotted::uint_plotted_table_t &nor
 		if (fplotted == "0") {
 			init_rand_plotted(norm_plotted, nrows, ncols);
 			//Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
-		} else {
+		} else if (fplotted == "1") {
 			init_qt_plotted(norm_plotted, nrows, ncols);
+		} else {
+			init_gauss_plotted(norm_plotted, nrows, ncols);
 		}
 		input_is_file = false;
 	}
