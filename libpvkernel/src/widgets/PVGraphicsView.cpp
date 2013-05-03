@@ -1,4 +1,3 @@
-
 #include <pvkernel/widgets/PVGraphicsView.h>
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
 #include <pvkernel/widgets/PVGraphicsViewInteractorScene.h>
@@ -747,6 +746,7 @@ bool PVWidgets::PVGraphicsView::set_gl_viewport(QGLFormat const& format)
 #else
 	QGLWidget* w = new QGLWidget(format);
 	if (!w->isValid()) {
+		w->deleteLater();
 		return false;
 	}
 	set_viewport(w);
