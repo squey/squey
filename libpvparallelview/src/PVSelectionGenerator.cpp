@@ -445,16 +445,13 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 			// _mm_andnot_si128(a,b) = ~a & b
 			// _mm_cmplt_epi32(a,b) = a < b;
 			// thus andnot(cmplt(a,b),cmplt(a,c)) <=> (!(a < b)) && (a < c) <=> (a >=b) && (a < c)
-			const __m128i mask_y = _mm_andnot_si128(_mm_cmplt_epi32(y_sse, v_min_sse),
-													_mm_cmplt_epi32(y_sse, v_max_sse));
+			const __m128i mask_y = picviz_mm_cmprange_epu32(y_sse, v_min_sse, v_max_sse);
 
 			if (!_mm_test_all_zeros(mask_y, _mm_set1_epi32(0xFFFFFFFFU))) {
 
 				const __m128i count_sse = manager.get_count_for(y_sse);
 
-				// Same trick as above
-				const __m128i mask_count = _mm_andnot_si128(_mm_cmplt_epi32(count_sse, c_min_sse),
-															_mm_cmplt_epi32(count_sse, c_max_sse));
+				const __m128i mask_count = picviz_mm_cmprange_epi32(count_sse, c_min_sse, c_max_sse);
 
 				const __m128i mask = _mm_and_si128(mask_y, mask_count);
 
@@ -536,11 +533,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 		uint64_t chunk = 0;
 		for (int j = 0; j < 64; j += 4) {
 			const __m128i y_sse = _mm_load_si128((__m128i const*) &plotted[i+j]);
-			// _mm_andnot_si128(a,b) = ~a & b
-			// _mm_cmplt_epi32(a,b) = a < b;
-			// thus andnot(cmplt(a,b),cmplt(a,c)) <=> (!(a < b)) && (a < c) <=> (a >=b) && (a < c)
-			const __m128i mask_y = _mm_andnot_si128(_mm_cmplt_epi32(y_sse, v_min_sse),
-													_mm_cmplt_epi32(y_sse, v_max_sse));
+			const __m128i mask_y = picviz_mm_cmprange_epu32(y_sse, v_min_sse, v_max_sse);
 
 			if (!_mm_test_all_zeros(mask_y, _mm_set1_epi32(0xFFFFFFFFU))) {
 
@@ -548,8 +541,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 				const __m128i base_sse = _mm_srli_epi32(y_sse, zoom_shift);
 				const __m128i p_sse = _mm_sub_epi32(base_sse, base_y_sse);
 
-				const __m128i res_sse = _mm_andnot_si128(_mm_cmplt_epi32(p_sse, _mm_setzero_si128()),
-				                                         _mm_cmplt_epi32(p_sse, nblocks_sse));
+				const __m128i res_sse = picviz_mm_cmprange_epi32(p_sse, _mm_setzero_si128(), nblocks_sse);
 
 				if (!_mm_test_all_zeros(res_sse, _mm_set1_epi32(0xFFFFFFFFU))) {
 					const __m128i idx_sse = PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(y_sse, p_sse, y_min_ref_sse, alpha_sse, zoom_mask_sse, idx_shift, zoom_shift, nbits);
@@ -560,8 +552,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 					                                        buffer[_mm_extract_epi32(idx_sse, 0)]);
 
 					// Same trick as above
-					const __m128i mask_count = _mm_andnot_si128(_mm_cmplt_epi32(count_sse, c_min_sse),
-																_mm_cmplt_epi32(count_sse, c_max_sse));
+					const __m128i mask_count = picviz_mm_cmprange_epi32(count_sse, c_min_sse, c_max_sse);
 
 					const __m128i mask = _mm_and_si128(mask_y, mask_count);
 

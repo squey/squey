@@ -148,6 +148,43 @@ inline static __m128i picviz_mm_cvttpd_epu32(__m128d const v)
 }
 #endif
 
+/*! \brief This intrinsics emulation compare packed unsigned 32-bit signed integers for strict "less-than"
+ * The result using _mm_cmplt_epi32 (signed version) is wrong iif only one of the two operand is negative.
+ * This function fixes that issue.
+ *
+ * res[i] = (a[i] < b[i])
+ */
+inline __m128i picviz_mm_cmplt_epu32(__m128i const a, __m128i const b)
+{
+	const __m128i cmp_signed = _mm_cmplt_epi32(a, b);
+	const __m128i cmp_a_31 = _mm_cmplt_epi32(a, _mm_setzero_si128());
+	const __m128i cmp_b_31 = _mm_cmplt_epi32(b, _mm_setzero_si128());
+	return reinterpret_cast<__m128i>(_mm_blendv_ps(reinterpret_cast<__m128>(cmp_signed), // if mask[i][31] == 0
+	                                               reinterpret_cast<__m128>(cmp_b_31),   // if mask[i][31] == 1
+	                                               reinterpret_cast<__m128>(_mm_xor_si128(cmp_a_31, cmp_b_31)))); // "mask" register
+}
 
+/*! \brief This intrinsics emulation compare packed signed 32-bit integers for inclusive within a range [a, b[
+ *
+ * res[i] = (v[i] >= a[i]) && (v[i] < b[i])
+ */
+inline __m128i picviz_mm_cmprange_epi32(__m128i const v, __m128i const a, __m128i const b)
+{
+	// _mm_andnot_si128(a,b) = ~a & b
+	// _mm_cmplt_epi32(a,b) = a < b;
+	// thus andnot(cmplt(a,b),cmplt(a,c)) <=> (!(a < b)) && (a < c) <=> (a >=b) && (a < c)
+	return _mm_andnot_si128(_mm_cmplt_epi32(v, a),
+	                        _mm_cmplt_epi32(v, b));
+}
+
+/*! \brief This intrinsics emulation compare packed unsigned 32-bit integers for inclusive within a range [a, b[
+ *
+ * res[i] = (v[i] >= a[i]) && (v[i] < b[i])
+ */
+inline __m128i picviz_mm_cmprange_epu32(__m128i const v, __m128i const a, __m128i const b)
+{
+	return _mm_andnot_si128(picviz_mm_cmplt_epu32(v, a),
+	                        picviz_mm_cmplt_epu32(v, b));
+}
 
 #endif
