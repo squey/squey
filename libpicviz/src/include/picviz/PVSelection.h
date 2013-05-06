@@ -63,6 +63,7 @@ public:
 	inline PVSelection& operator&=(const PVSelection &rhs) { PVCore::PVSelBitField::operator&=(rhs); return *this; };
 	inline PVSelection& operator-=(const PVSelection &rhs) { PVCore::PVSelBitField::operator-=(rhs); return *this; };
 	inline PVSelection& operator^=(const PVSelection &rhs) { PVCore::PVSelBitField::operator^=(rhs); return *this; };
+	inline bool operator==(const PVSelection &rhs) const { return PVCore::PVSelBitField::operator==(rhs); }
 
 	inline PVSelection operator&(const PVSelection &rhs) const
 	{

@@ -38,6 +38,7 @@ PVHitGraphBlocksManager.cpp
 PVHitGraphBuffer.cpp
 PVHitGraphDataInterface.cpp
 PVHitGraphDataOMP.cpp
+PVHitGraphSSEHelpers.cpp
 #PVHitGraphDataZTRight.cpp
 PVLibView.cpp
 PVLinesView.cpp

@@ -37,7 +37,7 @@ private:
 
 // Get the position of the maximum 16-bits word in v
 // sse_ff must be a vector full of 0xFF (must be given for performance reasons)
-inline int picviz_mm_getpos_max_epi16(__m128i v, __m128i const sse_ff)
+inline static int picviz_mm_getpos_max_epi16(__m128i v, __m128i const sse_ff)
 {
 	// Get ~v
 	v = _mm_andnot_si128(v, sse_ff);
@@ -51,7 +51,7 @@ inline int picviz_mm_getpos_max_epi16(__m128i v, __m128i const sse_ff)
 
 // Assumes that v is full of zero but with one 8-bits word equals to non-zero
 // This functions finds the position of that 8-bits word.
-inline int picviz_mm_getpos_nonzero_epi8(__m128i v, __m128i const sse_ff)
+inline static int picviz_mm_getpos_nonzero_epi8(__m128i v, __m128i const sse_ff)
 {
 	// Get ~v
 	v = _mm_andnot_si128(v, sse_ff);
@@ -67,7 +67,7 @@ inline int picviz_mm_getpos_nonzero_epi8(__m128i v, __m128i const sse_ff)
 }
 
 // This functions finds the position of the *last* non-null 8-bit word of 'v'
-inline int picviz_mm_getpos_lastnonzero_epi8(__m128i const ssev)
+inline static int picviz_mm_getpos_lastnonzero_epi8(__m128i const ssev)
 {
 	uint64_t v = _mm_extract_epi64(ssev, 1);
 	int pos64 = 1;
@@ -87,12 +87,66 @@ inline int picviz_mm_getpos_lastnonzero_epi8(__m128i const ssev)
 	return pos64<<3 | pos32<<2 | pos16<<1 | ((v & 0xFF00ULL) != 0);
 }
 
-inline int mm_popcnt_u128(__m128i const v)
+inline static int mm_popcnt_u128(__m128i const v)
 {
 	const uint64_t b0 = _mm_extract_epi64(v, 0);
 	const uint64_t b1 = _mm_extract_epi64(v, 1); 
 	return _mm_popcnt_u64(b0) + _mm_popcnt_u64(b1);
 }
+
+#ifdef __AVX__
+inline static __m256d picviz_mm256_cvtepu32_pd(__m128i const v)
+{
+	const __m128i mask_carry_sse = _mm_set1_epi32(0x7fffffff);
+	const __m256d conv_31 = _mm256_cvtepi32_pd(_mm_and_si128(v, mask_carry_sse));
+	const __m256d v_carry_dble = _mm256_cvtepi32_pd(_mm_srli_epi32(v, 31));
+	return _mm256_add_pd(conv_31, _mm256_mul_pd(v_carry_dble, _mm256_set1_pd(1U<<31)));
+}
+
+inline static __m128i picviz_mm256_cvttpd_epu32(__m256d const v)
+{
+	const __m256d avx_31_pd = _mm256_set1_pd(1U<<31);
+	const __m256d mask_over = _mm256_cmp_pd(v, avx_31_pd, _CMP_GT_OQ);
+	const __m256d v_under = _mm256_sub_pd(v, _mm256_and_pd(avx_31_pd, mask_over));
+	__m128i ret = _mm256_cvttpd_epi32(v_under);
+
+	const uint64_t bitmask = _mm256_movemask_pd(mask_over);
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#endif
+	__m128i mask_sse;
+	mask_sse = _mm_insert_epi64(mask_sse, ((bitmask & 1U)<<31) | ((bitmask & 2U) << 62), 0); 
+	mask_sse = _mm_insert_epi64(mask_sse, ((bitmask & 4U)<<29) | ((bitmask & 8U) << 60), 1); 
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+	return _mm_or_si128(ret, mask_sse);
+}
+#endif
+
+#ifdef __SSE2__
+inline static __m128d picviz_mm_cvtepu32_pd(__m128i const v)
+{
+	const __m128i mask_carry_sse = _mm_set1_epi32(0x7fffffff);
+	__m128d conv_31 = _mm_cvtepi32_pd(_mm_and_si128(v, mask_carry_sse));
+	__m128i v_carry = _mm_srli_epi32(v, 31);
+	__m128d v_carry_dble = _mm_cvtepi32_pd(v_carry);
+	return _mm_add_pd(conv_31, _mm_mul_pd(v_carry_dble, _mm_set1_pd(1U<<31)));
+}
+
+inline static __m128i picviz_mm_cvttpd_epu32(__m128d const v)
+{
+	const __m128d sse_31_pd = _mm_set1_pd(1U<<31);
+	const __m128d mask_over = _mm_cmpgt_pd(v, sse_31_pd);
+	__m128d v_under = _mm_sub_pd(v, _mm_and_pd(sse_31_pd, mask_over));
+	__m128i ret = _mm_cvttpd_epi32(v_under);
+
+	__m128i mask_over_int = reinterpret_cast<__m128i>(_mm_shuffle_epi32(reinterpret_cast<__m128i>(mask_over), 0 | (2 << 2) | (1 << 4) | (3 << 6)));
+
+	return _mm_or_si128(ret, _mm_and_si128(mask_over_int, _mm_set1_epi32(1U<<31)));
+}
+#endif
 
 
 

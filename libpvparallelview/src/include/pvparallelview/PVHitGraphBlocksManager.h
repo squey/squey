@@ -1,6 +1,8 @@
 #ifndef PVPARALLELVIEW_PVHITGRAPHBLOCKSMANAGER_H
 #define PVPARALLELVIEW_PVHITGRAPHBLOCKSMANAGER_H
 
+#include <pvkernel/core/picviz_intrin.h>
+
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVHitGraphData.h>
 
@@ -37,15 +39,21 @@ public:
 	inline PVRow get_nrows() const { return _data_params.nrows; }
 
 	uint32_t get_count_for(const uint32_t value) const;
+	__m128i  get_count_for(__m128i value) const;
 
-protected:
+	uint32_t get_max_value_all() const;
+
+public:
 	inline int last_zoom() const { return _data_params.zoom; }
 	inline double last_alpha() const { return _data_params.alpha; }
 	inline uint32_t last_y_min() const { return _data_params.y_min; }
 	inline uint32_t size_block() const { return _data.size_block(); }
+
+	PVHitGraphData const& hgdata() const;
+
+protected:
 	inline bool full_view() const { return (_data_params.zoom == 0) && (_data_params.alpha == 1.0); }
 	PVHitGraphData& hgdata();
-	PVHitGraphData const& hgdata() const;
 
 	void shift_blocks(int blocks_shift, const double alpha);
 

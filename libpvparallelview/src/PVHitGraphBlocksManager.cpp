@@ -1,5 +1,8 @@
+#include <pvkernel/core/picviz_intrin.h>
+
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
+#include <pvparallelview/PVHitGraphSSEHelpers.h>
 
 #include <cassert>
 #include <iostream>
@@ -183,6 +186,54 @@ uint32_t PVParallelView::PVHitGraphBlocksManager::get_count_for(const uint32_t v
 
 	const uint32_t idx = ((uint32_t)(y & zoom_mask)) >> idx_shift;
 	return data.buffer_all().buffer()[idx];
+}
+
+__m128i PVParallelView::PVHitGraphBlocksManager::get_count_for(__m128i value) const
+{
+	/*return _mm_set_epi32(get_count_for(_mm_extract_epi32(value, 3)),
+	                     get_count_for(_mm_extract_epi32(value, 2)),
+	                     get_count_for(_mm_extract_epi32(value, 1)),
+	                     get_count_for(_mm_extract_epi32(value, 0)));*/
+
+	const PVParallelView::PVHitGraphData& data = hgdata();
+
+	const int zoom = last_zoom();
+	const int nbits = data.nbits();
+	const int idx_shift = (32 - nbits) - zoom;
+	const uint32_t zoom_shift = 32 - zoom;
+	const uint32_t zoom_mask = ((1ULL << zoom_shift) - 1ULL);
+	const int32_t base_y = (uint64_t)(_data_params.y_min) >> zoom_shift;
+	const uint32_t y_min_ref = (uint64_t)base_y << zoom_shift;
+
+	const __m128i base_y_sse = _mm_set1_epi32(base_y);
+#ifdef __AVX__
+	const __m256d alpha_sse = _mm256_set1_pd(last_alpha());
+#else
+	const __m128d alpha_sse = _mm_set1_pd(last_alpha());
+#endif
+
+	const __m128i zoom_mask_sse = _mm_set1_epi32(zoom_mask);
+	const __m128i y_min_ref_sse = _mm_set1_epi32(y_min_ref);
+
+	const __m128i base_sse = _mm_srli_epi32(value, zoom_shift);
+	const __m128i p_sse = _mm_sub_epi32(base_sse, base_y_sse);
+
+	const __m128i res_sse = _mm_andnot_si128(_mm_cmplt_epi32(p_sse, _mm_setzero_si128()),
+	                                         _mm_cmplt_epi32(p_sse, _mm_set1_epi32(data.nblocks())));
+
+	if (_mm_test_all_zeros(res_sse, _mm_set1_epi32(0xFFFFFFFFU))) {
+		return _mm_setzero_si128();
+	}   
+
+	const __m128i idx_sse = PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(value, p_sse, y_min_ref_sse, alpha_sse, zoom_mask_sse, idx_shift, zoom_shift, nbits);
+
+	const uint32_t* buffer = data.buffer_all().buffer();
+
+	// Waiting for gather support in AVX2...
+	return _mm_set_epi32(buffer[_mm_extract_epi32(idx_sse, 3)],
+	                     buffer[_mm_extract_epi32(idx_sse, 2)],
+	                     buffer[_mm_extract_epi32(idx_sse, 1)],
+	                     buffer[_mm_extract_epi32(idx_sse, 0)]);
 }
 
 void PVParallelView::PVHitGraphBlocksManager::shift_blocks(const int blocks_shift, const double alpha)

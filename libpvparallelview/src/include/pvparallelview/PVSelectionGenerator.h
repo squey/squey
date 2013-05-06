@@ -45,9 +45,29 @@ struct PVSelectionGenerator
 	static uint32_t compute_selection_from_hit_count_view_rect(const PVHitGraphBlocksManager& manager,
 	                                                           const QRectF& rect,
 	                                                           const uint32_t max_count,
-	                                                           Picviz::PVSelection& sel);
+	                                                           Picviz::PVSelection& sel)
+	{ return compute_selection_from_hit_count_view_rect_sse_invariant_omp(manager, rect, max_count, sel); }
 
 	static void process_selection(Picviz::PVView_sp view, bool use_modifiers = true);
+
+	// Implementations
+	static uint32_t compute_selection_from_hit_count_view_rect_serial(const PVHitGraphBlocksManager& manager,
+	                                                                  const QRectF& rect,
+	                                                                  const uint32_t max_count,
+	                                                                  Picviz::PVSelection& sel);
+	static uint32_t compute_selection_from_hit_count_view_rect_serial_invariant(const PVHitGraphBlocksManager& manager,
+	                                                                  const QRectF& rect,
+	                                                                  const uint32_t max_count,
+	                                                                  Picviz::PVSelection& sel);
+	static uint32_t compute_selection_from_hit_count_view_rect_sse(const PVHitGraphBlocksManager& manager,
+	                                                               const QRectF& rect,
+	                                                               const uint32_t max_count,
+	                                                               Picviz::PVSelection& sel);
+	static uint32_t compute_selection_from_hit_count_view_rect_sse_invariant_omp(
+			const PVHitGraphBlocksManager& manager,
+			const QRectF& rect,
+			const uint32_t max_count,
+			Picviz::PVSelection& sel);
 };
 
 }
