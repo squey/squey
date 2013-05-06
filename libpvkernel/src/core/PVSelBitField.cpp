@@ -43,6 +43,14 @@ PVCore::PVSelBitField::PVSelBitField(PVSelBitField const& o):
 	allocate_and_copy_from(o);
 }
 
+
+void PVCore::PVSelBitField::ensure_allocated()
+{
+	if (!_table) {
+		allocate_table();
+	}
+}
+
 /******************************************************************************
  *
  * PVCore::PVSelBitField::get_number_of_selected_lines_in_range
@@ -172,6 +180,22 @@ bool PVCore::PVSelBitField::is_empty_between(PVRow const a, PVRow b) const
 
 	// Epilogue
 	return (_table[chunk_end] << (PICVIZ_SELECTION_CHUNK_SIZE-line_index_to_chunk_bit(b)-1)) == 0;
+}
+
+bool PVCore::PVSelBitField::operator==(const PVSelBitField &rhs) const
+{
+	if (&rhs == this) {
+		return true;
+	}
+
+	if ((_table == nullptr) ^ (rhs._table == nullptr)) {
+		return false;
+	}
+	if ((_table == nullptr) && (rhs._table == nullptr)) {
+		return true;
+	}
+
+	return memcmp(_table, rhs._table, PICVIZ_SELECTION_NUMBER_OF_BYTES) == 0;
 }
 
 /******************************************************************************

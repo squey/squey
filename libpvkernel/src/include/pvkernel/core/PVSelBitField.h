@@ -44,9 +44,10 @@ class LibKernelDecl PVSelBitField
 	friend class Picviz::PVSelection;
 
 public:
-	typedef uint64_t DECLARE_ALIGN(16) * pointer;
-	typedef uint64_t DECLARE_ALIGN(16) const* const_pointer;
-	typedef PVCore::PVAlignedAllocator<uint64_t, 16> allocator;
+	typedef uint64_t chunk_t;
+	typedef chunk_t DECLARE_ALIGN(16) * pointer;
+	typedef chunk_t DECLARE_ALIGN(16) const* const_pointer;
+	typedef PVCore::PVAlignedAllocator<chunk_t, 16> allocator;
 
 protected:
 	pointer _table;
@@ -80,6 +81,19 @@ public:
 		_table = o._table;
 		o._table = NULL;
 	}
+
+	/*! \brief Ensure that selection buffer is allocated.
+	 *
+	 * This function will allocate the selection buffer if it has not already been.
+	 *
+	 * Warning: in the case the allocation is performed, the content of the
+	 * selection is undetermined! It is the responsability of the caller to
+	 * call next select_none, select_all or do anything he likes with the
+	 * selection. This is done for performance reason, so that in some
+	 * situations, the selection buffer is only written once (and a useless
+	 * select_none is avoided).
+	 */
+	void ensure_allocated();
 
 	/**
 	 * Destructor
@@ -170,6 +184,8 @@ public:
 	 * Select randomly `n' lines
 	 */
 	void select_random(const PVRow n);
+
+	bool operator==(const PVSelBitField &rhs) const;
 
 	/**
 	 * This is the copy operator
@@ -341,7 +357,32 @@ public:
 	 */
 	void set_line_select_only(PVRow line_index, bool bool_value);
 
-	inline void set_bit_fast(PVRow line_index) { _table[line_index_to_chunk(line_index)] |= 1UL << (line_index_to_chunk_bit(line_index)); }
+	inline void set_bit_fast(PVRow const line_index)   { _table[line_index_to_chunk(line_index)] |= 1UL << (line_index_to_chunk_bit(line_index)); }
+	inline void clear_bit_fast(PVRow const line_index) { _table[line_index_to_chunk(line_index)] &= ~(1UL << (line_index_to_chunk_bit(line_index))); }
+
+	/*! \brief Set the four bits of \a bits from line_index
+	 *
+	 * Warning: this can't be used to set bits accross chunk !
+	 */
+	inline void set_4bit_fast(PVRow const line_index, const uint32_t bits)
+	{
+		const PVRow pos = line_index_to_chunk(line_index);
+		const PVRow shift = line_index_to_chunk_bit(line_index);
+		assert(shift <= (PICVIZ_SELECTION_CHUNK_SIZE-4));
+
+		_table[pos] |= ((chunk_t)bits << shift);
+	}
+
+	/*! \brief Set a complete chunk
+	 *  \param chunk_index The index of the chunk (warning, not the line index !)
+	 *
+	 * Set a complete chunk.
+	 */
+	inline void set_chunk_fast(PVRow const chunk_index, chunk_t const chunk)
+	{
+		assert(chunk_index < PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		_table[chunk_index] = chunk;
+	}
 
 	// Returns the index of the chunk following the last chunk that contains a line
 	// Thus, returns 0 if no chunk is empty
