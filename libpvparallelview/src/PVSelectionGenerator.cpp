@@ -310,11 +310,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 	const uint32_t max_count,
 	Picviz::PVSelection& sel)
 {
-	uint32_t v_min = PVCore::clamp((uint32_t)floor(rect.top()), 0U, UINT32_MAX);
-	uint32_t v_max = PVCore::clamp((uint32_t)ceil(rect.bottom()), 0U, UINT32_MAX);
+	uint32_t v_min = PVCore::clamp(floor(rect.top()), 0., (double)UINT32_MAX);
+	uint32_t v_max = PVCore::clamp(ceil(rect.bottom()), 0., (double)UINT32_MAX);
 
-	uint32_t c_min = PVCore::clamp((uint32_t)ceil(rect.left()), 0U, max_count);
-	uint32_t c_max = PVCore::clamp((uint32_t)floor(rect.right()), 0U, max_count);
+	uint32_t c_min = PVCore::clamp(ceil(rect.left()), 0., (double)max_count);
+	uint32_t c_max = PVCore::clamp(floor(rect.right()), 0., (double)max_count);
 
 	uint32_t nb_selected = 0;
 
