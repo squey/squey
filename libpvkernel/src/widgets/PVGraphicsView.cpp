@@ -170,9 +170,9 @@ void PVWidgets::PVGraphicsView::set_scene(QGraphicsScene *scene)
  * PVWidgets::PVGraphicsView::map_to_scene
  *****************************************************************************/
 
-QPointF PVWidgets::PVGraphicsView::map_margined_to_scene(const QPointF &p) const
+QPointF PVWidgets::PVGraphicsView::map_to_scene(const QPointF &p) const
 {
-	QPointF np = p + QPointF(_hbar->value(), _vbar->value());
+	QPointF np = p + get_scroll();
 	return _inv_transform.map(np) + _scene_offset;
 }
 
@@ -180,9 +180,9 @@ QPointF PVWidgets::PVGraphicsView::map_margined_to_scene(const QPointF &p) const
  * PVWidgets::PVGraphicsView::map_to_scene
  *****************************************************************************/
 
-QRectF PVWidgets::PVGraphicsView::map_margined_to_scene(const QRectF &r) const
+QRectF PVWidgets::PVGraphicsView::map_to_scene(const QRectF &r) const
 {
-	QRectF tr = r.translated(QPointF(_hbar->value(), _vbar->value()));
+	QRectF tr = r.translated(get_scroll());
 	return _inv_transform.mapRect(tr).translated(_scene_offset);
 }
 
@@ -190,10 +190,10 @@ QRectF PVWidgets::PVGraphicsView::map_margined_to_scene(const QRectF &r) const
  * PVWidgets::PVGraphicsView::map_from_scene
  *****************************************************************************/
 
-QPointF PVWidgets::PVGraphicsView::map_margined_from_scene(const QPointF &p) const
+QPointF PVWidgets::PVGraphicsView::map_from_scene(const QPointF &p) const
 {
 	QPointF np = _transform.map(p - _scene_offset);
-	np -= QPointF(_hbar->value(), _vbar->value());
+	np -= get_scroll();
 	return np;
 }
 
@@ -201,10 +201,10 @@ QPointF PVWidgets::PVGraphicsView::map_margined_from_scene(const QPointF &p) con
  * PVWidgets::PVGraphicsView::map_from_scene
  *****************************************************************************/
 
-QRectF PVWidgets::PVGraphicsView::map_margined_from_scene(const QRectF &r) const
+QRectF PVWidgets::PVGraphicsView::map_from_scene(const QRectF &r) const
 {
 	QRectF nr = _transform.mapRect(r.translated(-_scene_offset));
-	nr.translate(-QPointF(_hbar->value(), _vbar->value()));
+	nr.translate(-get_scroll());
 	return nr;
 }
 

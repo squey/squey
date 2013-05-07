@@ -525,11 +525,11 @@ public:
 
 		PVParallelView::PVZoomConverter *zc = new zoom_converter_t();
 
-		get_x_axis_zoom().set_range(0, 100);
+		get_x_axis_zoom().set_range(-10, 100);
 		get_x_axis_zoom().set_default_value(0);
 		get_x_axis_zoom().set_zoom_converter(zc);
 
-		get_y_axis_zoom().set_range(0, 100);
+		get_y_axis_zoom().set_range(-10, 100);
 		get_y_axis_zoom().set_default_value(0);
 		get_y_axis_zoom().set_zoom_converter(zc);
 		set_zoom_value(PVParallelView::PVZoomableDrawingAreaConstraints::X

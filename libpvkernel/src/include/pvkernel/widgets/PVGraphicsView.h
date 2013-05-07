@@ -153,7 +153,10 @@ public:
 	 *
 	 * @param p the point to transform in scene space
 	 */
-	QPointF map_margined_to_scene(const QPointF &p) const;
+	QPointF map_margined_to_scene(const QPointF &p) const
+	{
+		return map_to_scene(map_from_margined(p));
+	}
 
 	/**
 	 * This convenience function is equivalent to calling
@@ -169,7 +172,10 @@ public:
 	 *
 	 * @param r the rectangle to map in scene space
 	 */
-	QRectF map_margined_to_scene(const QRectF &r) const;
+	QRectF map_margined_to_scene(const QRectF &r) const
+	{
+		return map_to_scene(map_from_margined(r));
+	}
 
 	/**
 	 * This convenience function is equivalent to calling
@@ -186,7 +192,10 @@ public:
 	 *
 	 * @param r the rectangle to map in scene space
 	 */
-	QPointF map_margined_from_scene(const QPointF &p) const;
+	QPointF map_margined_from_scene(const QPointF &p) const
+	{
+		return map_to_margined(map_from_scene(p));
+	}
 
 	/**
 	 * This convenience function is equivalent to calling
@@ -202,7 +211,10 @@ public:
 	 *
 	 * @param r the rectangle to map in the scene space
 	 */
-	QRectF map_margined_from_scene(const QRectF &r) const;
+	QRectF map_margined_from_scene(const QRectF &r) const
+	{
+		return map_to_margined(map_from_scene(r));
+	}
 
 	/**
 	 * This convenience function is equivalent to calling
@@ -220,10 +232,7 @@ public:
 	 *
 	 * @param p the point to transform in scene space
 	 */
-	QPointF map_to_scene(const QPointF &p) const
-	{
-		return map_margined_to_scene(map_to_margined(p));
-	}
+	QPointF map_to_scene(const QPointF &p) const;
 
 	/**
 	 * This convenience function is equivalent to calling
@@ -239,10 +248,7 @@ public:
 	 *
 	 * @param r the rectangle to map in scene space
 	 */
-	QRectF map_to_scene(const QRectF &r) const
-	{
-		return map_margined_to_scene(map_to_margined(r));
-	}
+	QRectF map_to_scene(const QRectF &r) const;
 
 	/**
 	 * This convenience function is equivalent to calling
@@ -259,10 +265,7 @@ public:
 	 *
 	 * @param r the rectangle to map in scene space
 	 */
-	QPointF map_from_scene(const QPointF &p) const
-	{
-		return map_from_margined(map_margined_from_scene(p));
-	}
+	QPointF map_from_scene(const QPointF &p) const;
 
 	/**
 	 * This convenience function is equivalent to calling
@@ -278,10 +281,7 @@ public:
 	 *
 	 * @param r the rectangle to map in the scene space
 	 */
-	QRectF map_from_scene(const QRectF &r) const
-	{
-		return map_from_margined(map_margined_from_scene(r));
-	}
+	QRectF map_from_scene(const QRectF &r) const;
 
 	/**
 	 * This convenience function is equivalent to calling
