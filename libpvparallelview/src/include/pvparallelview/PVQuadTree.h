@@ -420,6 +420,37 @@ public:
 	}
 
 	/**
+	 * Extract the first events according to constraints on both y1 and y2 coordinates (y1_min, y1_max, y2_min, y2_max, zoom)
+	 *
+	 * This method is initially (and principally) used to extract events for the right zone of a zoomed
+	 * parallel view.
+	 *
+	 * @param y1_min the included minimal bound along the y1 coordinate
+	 * @param y1_max the excluded maximal bound along the y1 coordinate
+	 * @param y2_min the included minimal bound along the y2 coordinate
+	 * @param y2_max the excluded maximal bound along the y2 coordinate
+	 * @param zoom the zoom level
+	 * @param buffer a temporary buffer used for event extraction
+	 * @param insert_f the function executed for each relevant found event
+	 * @param tls a TLR buffer used to store the result of extraction
+	 */
+	inline size_t get_first_from_y1_y2(
+			uint64_t y1_min, uint64_t y1_max,
+			uint64_t y2_min, uint64_t y2_max,
+			uint32_t zoom,
+			pv_quadtree_buffer_entry_t *buffer,
+			const insert_entry_f &insert_f,
+			pv_tlr_buffer_t &tlr) const
+		{
+			return visit_y1_y2::get_n_m(*this, y1_min, y1_max, y2_min, y2_max, zoom,
+			[](const PVQuadTreeEntry &e, const uint64_t y1_min, const uint64_t y1_max, const uint64_t y2_min, const uint64_t y2_max) -> bool
+			{
+				return (e.y1 >= y1_min) && (e.y1 < y1_max) && (e.y2 >= y2_min) && (e.y2 < y2_max);
+			},
+			insert_f, buffer, tlr);
+		}
+
+	/**
 	 * Extract the first selected events according to constraints on y1 coordinate (y1_min, y1_max,
 	 * zoom) and on y2 coordinate (y2_count).
 	 *
@@ -1805,6 +1836,112 @@ private:
 					break;
 				}
 			}
+		}
+	};
+
+	/**
+	 * @struct visit_y1_y2
+	 *
+	 * Visitor used for quadtree traversal using strong constraints on both y1 and y2 coordinates.
+	 */
+	struct visit_y1_y2
+	{
+		/**
+		 * Traversal function to extract a NxM events grid.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y1_min the included minimal bound along the y2 coordinate
+		 * @param y1_max the excluded maximal bound along the y2 coordinate
+		 * @param y2_min the included minimal bound along the y2 coordinate
+		 * @param y2_max the excluded maximal bound along the y2 coordinate
+		 * @param zoom the zoom level
+		 * @param test_f the function executed to test if an event is relevant or not
+		 * @param insert_f the function executed for each relevant found event
+		 * @param buffer a temporary buffer used for event extraction
+		 * @param tls a TLR buffer used to store the result of extraction
+		 */
+		template <typename Ftest>
+		static size_t get_n_m(
+			PVQuadTree const& obj,
+			const uint64_t y1_min, const uint64_t y1_max,
+			const uint64_t y2_min, const uint64_t y2_max,
+			const uint32_t zoom,
+			const Ftest &test_f, const insert_entry_f &insert_f,
+			pv_quadtree_buffer_entry_t *buffer,
+			pv_tlr_buffer_t &tlr)
+		{
+			size_t ret = 0;
+			if (obj._nodes != 0) {
+				/* recursive search can be processed
+				 */
+				if (obj._y1_mid_value < y1_max) {
+					if (obj._y2_mid_value < y2_max) {
+						ret += get_n_m(obj._nodes[NE], y1_min, y1_max, y2_min, y2_max,
+						zoom - 1,
+						test_f, insert_f, buffer, tlr);
+					}
+					if (y2_min < obj._y2_mid_value) {
+						ret += get_n_m(obj._nodes[SE], y1_min, y1_max, y2_min, y2_max,
+						zoom - 1,
+						test_f, insert_f, buffer, tlr);
+					}
+				}
+				if (y1_min < obj._y1_mid_value) {
+					if (obj._y2_mid_value < y2_max) {
+						ret += get_n_m(obj._nodes[NW], y1_min, y1_max, y2_min, y2_max,
+						zoom - 1,
+						test_f, insert_f, buffer, tlr);
+					}
+					if (y2_min < obj._y2_mid_value) {
+						ret += get_n_m(obj._nodes[SW], y1_min, y1_max, y2_min, y2_max,
+						zoom - 1,
+						test_f, insert_f, buffer, tlr);
+					}
+				}
+			} else if (obj._datas.size() != 0) {
+				/* this is a unsplitted node with data and an array of nxm
+				 * entries is needed
+				 */
+				ret += extract_seq(obj, y1_min, y1_max, y2_min, y2_max, zoom,
+							test_f, insert_f, buffer, tlr);
+			}
+			return ret;
+		}
+
+		/**
+		 * Sequential function to extract a NxM events grid from a non-splitted quadtree.
+		 *
+		 * @param obj the quadtree to visit
+		 * @param y1_min the included minimal bound along the y1 coordinate
+		 * @param y1_max the excluded maximal bound along the y1 coordinate
+		 * @param y2_min the included minimal bound along the y1 coordinate
+		 * @param y2_max the excluded maximal bound along the y1 coordinate
+		 * @param zoom the zoom level
+		 * @param test_f the function executed to test if an event is relevant or not
+		 * @param insert_f the function executed for each relevant found event
+		 * @param buffer a temporary buffer used for event extraction
+		 * @param tls a TLR buffer used to store the result of extraction
+		 */
+		template <typename Ftest>
+		static size_t extract_seq(PVQuadTree const& obj,
+			const uint64_t y1_min, const uint64_t y1_max,
+			const uint64_t y2_min, const uint64_t y2_max,
+			const uint32_t zoom,
+			const Ftest &test_f,
+			const insert_entry_f &insert_f,
+			pv_quadtree_buffer_entry_t *buffer,
+			pv_tlr_buffer_t &tlr)
+		{
+			size_t ret = 0;
+			for(size_t i = 0; i < obj._datas.size(); ++i) {
+				const PVQuadTreeEntry &e = obj._datas.at(i);
+				if (!test_f(e, y1_min, y1_max, y2_min, y2_max)) {
+					continue;
+				}
+				insert_f(e, tlr);
+				ret++;
+			}
+			return ret;
 		}
 	};
 

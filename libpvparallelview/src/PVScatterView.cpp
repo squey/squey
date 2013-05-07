@@ -6,8 +6,6 @@
 
 #include <pvparallelview/PVScatterView.h>
 
-#include <stdlib.h>     // for rand()
-
 #include <QApplication>
 #include <QGraphicsScene>
 #include <QPainter>
@@ -25,7 +23,6 @@
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVSelectionSquareScatterView.h>
-#include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
 #include <pvparallelview/PVZoomableDrawingAreaInteractorHomothetic.h>
 #include <pvparallelview/PVZoomableDrawingAreaConstraintsHomothetic.h>
 
@@ -97,6 +94,12 @@ public:
 			event->accept();
 		}
 
+#ifdef PICVIZ_DEVELOPER_MODE
+	else if ((event->key() == Qt::Key_B) && (event->modifiers() & Qt::ControlModifier)) {
+		PVScatterView::toggle_show_quadtrees();
+	}
+#endif
+
 		return false;
 	}
 
@@ -128,7 +131,6 @@ public:
 			_selection_square->end(p.x(), p.y());
 			event->accept();
 		}
-
 		return false;
 	}
 
@@ -138,15 +140,18 @@ private:
 
 }
 
+bool PVParallelView::PVScatterView::_show_quadtrees = false;
+
 PVParallelView::PVScatterView::PVScatterView(
 	const Picviz::PVView_sp &pvview_sp,
-	PVZonesManager const& zm,
+	PVZonesManager & zm,
 	PVCol const axis_index,
 	QWidget* parent /*= nullptr*/
 ) :
 	PVZoomableDrawingAreaWithAxes(parent),
 	_view(*pvview_sp),
 	_zt(zm.get_zone_tree<PVParallelView::PVZoneTree>(axis_index)),
+	_zzt(zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(axis_index)),
 	_view_deleted(false)
 {
 	//setCursor(Qt::CrossCursor);
@@ -190,6 +195,11 @@ PVParallelView::PVScatterView::PVScatterView(
 	set_zoom_value(PVZoomableDrawingAreaConstraints::X
 	               | PVZoomableDrawingAreaConstraints::Y,
 	               zoom_min);
+
+	get_scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
+
+	// Request quadtrees creation
+	zm.request_zoomed_zone(axis_index);
 }
 
 /*****************************************************************************
@@ -236,9 +246,6 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 {
 	painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
 
-	//painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
-	//PVZoomableDrawingAreaWithAxes::drawBackground(painter, rect);
-
 	draw_points(painter, rect);
 
 	painter->setOpacity(1.0);
@@ -251,35 +258,76 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
  *****************************************************************************/
 void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF& rect)
 {
-	PVParallelView::PVBCode code_b;
-
 	Picviz::PVSelection const& sel = _view.get_real_output_selection();
 
-	for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
-	{
-		if (_zt.branch_valid(branch)) {
-			const PVRow row = _zt.get_first_elt_of_branch(branch);
-			code_b.int_v = branch;
-			const double x_scene = ((uint32_t)code_b.s.l) << (32-PARALLELVIEW_ZT_BBITS);
-			const double y_scene = ((uint32_t)code_b.s.r) << (32-PARALLELVIEW_ZT_BBITS);
+	PVZoomedZoneTree::context_t ctxt;
 
-			const double x_rect_scene = ((uint32_t)((code_b.s.l+1) << (32-PARALLELVIEW_ZT_BBITS))) - 1;
-			const double y_rect_scene = ((uint32_t)((code_b.s.r+1) << (32-PARALLELVIEW_ZT_BBITS))) - 1;
+	typedef PVParallelView::PVBCICode<PARALLELVIEW_ZZT_BBITS>bcicode_t;
+	static bcicode_t* bcicodes = new bcicode_t[NBUCKETS];
 
-			QPointF view_point = map_from_scene(QPointF(x_scene, y_scene));
-			QPointF view_point_rect = map_from_scene(QPointF(x_rect_scene, y_rect_scene));
+	int rel_zoom = get_y_axis_zoom().get_clamped_relative_value();
 
-			painter->setPen(_view.get_color_in_output_layer(row).toQColor());
+	QRectF screen_rect = get_viewport()->rect();
+	screen_rect.translate(get_scene_left_margin(), get_scene_top_margin());
+	QRectF screen_rect_s = map_to_scene(screen_rect);
+	QRectF view_rect = get_scene_rect().intersected(screen_rect_s);
 
-			if (sel.get_line_fast(row)) {
-				// Draw selection
-				painter->setOpacity(1.0);
+	uint64_t y1_min = view_rect.x();
+	uint64_t y1_max = view_rect.x()+view_rect.width();
+	uint64_t y2_min = view_rect.y();
+	uint64_t y2_max = view_rect.y()+view_rect.height();
+
+	double alpha = 0.5 * _zoom_converter->zoom_to_scale_decimal(rel_zoom);
+
+	size_t bci_count = _zzt.browse_bci_by_y1_y2(
+		ctxt,
+		y1_min,
+		y1_max,
+		y2_min,
+		y2_max,
+		rel_zoom/zoom_steps,
+		alpha,
+		bcicodes
+	);
+
+	painter->setPen(Qt::white);
+	painter->setOpacity(1.0);
+
+	for (uint32_t i = 0; i < bci_count; ++i) {
+		bcicode_t code_bci = bcicodes[i];
+		painter->setPen(_view.get_color_in_output_layer(code_bci.s.idx).toQColor());
+		painter->drawPoint(code_bci.s.l + get_scene_left_margin(), code_bci.s.r+ get_scene_top_margin());
+		//painter->drawEllipse(code_bci.s.l + get_scene_left_margin(), code_bci.s.r + get_scene_top_margin(), 10, 10);
+	}
+
+	if (_show_quadtrees) {
+		PVParallelView::PVBCode code_b;
+		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
+		{
+			if (_zt.branch_valid(branch)) {
+				const PVRow row = _zt.get_first_elt_of_branch(branch);
+				code_b.int_v = branch;
+				const double x_scene = ((uint32_t)code_b.s.l) << (32-PARALLELVIEW_ZT_BBITS);
+				const double y_scene = ((uint32_t)code_b.s.r) << (32-PARALLELVIEW_ZT_BBITS);
+
+				const double x_rect_scene = ((uint32_t)((code_b.s.l+1) << (32-PARALLELVIEW_ZT_BBITS))) - 1;
+				const double y_rect_scene = ((uint32_t)((code_b.s.r+1) << (32-PARALLELVIEW_ZT_BBITS))) - 1;
+
+				QPointF view_point = map_from_scene(QPointF(x_scene, y_scene));
+				QPointF view_point_rect = map_from_scene(QPointF(x_rect_scene, y_rect_scene));
+
+				painter->setPen(_view.get_color_in_output_layer(row).toQColor());
+
+				if (sel.get_line_fast(row)) {
+					// Draw selection
+					painter->setOpacity(1.0);
+				}
+				else {
+					// Draw background
+					painter->setOpacity(0.25);
+				}
+				painter->drawRect(QRectF(view_point, view_point_rect));
 			}
-			else {
-				// Draw background
-				painter->setOpacity(0.25);
-			}
-			painter->drawRect(QRectF(view_point, view_point_rect));
 		}
 	}
 }

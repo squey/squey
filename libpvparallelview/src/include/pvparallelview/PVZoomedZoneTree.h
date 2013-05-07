@@ -68,6 +68,11 @@ class PVZoomedZoneTree
 	                           pv_tlr_buffer_t &tlr,
 	                           const insert_entry_f &insert_f)> extract_entries_f;
 
+	typedef std::function<void(const pvquadtree &tree,
+	                           pv_quadtree_buffer_entry_t *buffer,
+	                           pv_tlr_buffer_t &tlr,
+	                           const insert_entry_f &insert_f)> extract_entries_y1_y2_f;
+
 public:
 	typedef constants<bbits> zzt_constants;
 	typedef PVBCICode<bbits> pv_bci_code_t;
@@ -359,6 +364,32 @@ public:
 		                                  },
 		                                  colors, codes, beta);
 	}
+
+
+
+	inline size_t browse_bci_by_y1_y2(
+		context_t &ctx,
+		uint64_t y1_min,
+		uint64_t y1_max,
+		uint64_t y2_min,
+		uint64_t y2_max,
+		int zoom,
+		double alpha,
+		pv_bci_code_t *codes,
+		const PVRow* sel_elts = nullptr
+	) const
+	{
+		return browse_trees_bci_by_y1_y2_seq(ctx, y1_min, y1_max, y2_min, y2_max, zoom, alpha,
+			[&](const pvquadtree &tree,
+			  pv_quadtree_buffer_entry_t *buffer,
+			  pv_tlr_buffer_t &tlr,
+			  const insert_entry_f &insert_f)
+			{
+				tree.get_first_from_y1_y2(y1_min, y1_max, y2_min, y2_max, zoom, buffer, insert_f, tlr);
+			},
+			codes);
+	}
+
 
 	/**
 	 * Extract all events needed for background image with constraints on secondary coordinate.
@@ -741,6 +772,32 @@ private:
 	                                  const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
 	                                  const float beta = 1.0f,
 	                                  const PVRow* sel_elts = nullptr) const;
+
+	size_t browse_trees_bci_by_y1_y2_tbb(
+		context_t &ctx,
+		uint64_t y1_min,
+		uint64_t y1_max,
+		uint64_t y2_min,
+		uint64_t y2_max,
+		int zoom,
+		const extract_entries_f &extract_f,
+		const PVCore::PVHSVColor *colors,
+		pv_bci_code_t *codes,
+		const PVRow* sel_elts = nullptr
+	) const;
+
+	size_t browse_trees_bci_by_y1_y2_seq(
+		context_t &ctx,
+		uint64_t y1_min,
+		uint64_t y1_max,
+		uint64_t y2_min,
+		uint64_t y2_max,
+		int zoom,
+		double alpha,
+		const extract_entries_y1_y2_f &extract_f,
+		pv_bci_code_t *codes,
+		const PVRow* sel_elts = nullptr
+	) const;
 
 	/**
 	 * Compute the index in the quadtee forest given 2 coordinates.

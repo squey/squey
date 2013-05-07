@@ -132,6 +132,9 @@ target_link_libraries(hit_count_view ${LINK_LIBRARIES})
 declare_pv_test(hit_count_sel_perf hit_count_sel_perf.cpp common.cpp)
 target_link_libraries(hit_count_sel_perf ${LINK_LIBRARIES})
 
+declare_pv_test(scatter_view scatter_view.cpp common.cpp)
+target_link_libraries(scatter_view ${LINK_LIBRARIES})
+
 declare_pv_test(Tqt_random_points random_points.cpp)
 target_link_libraries(Tqt_random_points ${LINK_LIBRARIES})
 

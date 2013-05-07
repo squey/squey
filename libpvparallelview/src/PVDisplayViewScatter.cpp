@@ -53,7 +53,7 @@ QString PVDisplays::PVDisplayViewScatter::widget_title(
     PVCol 			axis_comb
 ) const
 {
-	return QString("Scatter view");
+	return QString("Scatter view on axes '"+view->get_axis_name(axis_comb)+"' and '" + view->get_axis_name(axis_comb+1) + "'");
 }
 
 /*****************************************************************************

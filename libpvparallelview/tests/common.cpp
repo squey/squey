@@ -38,7 +38,8 @@ static void init_qt_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nr
 	p.resize(nrows_aligned*ncols);
 	for (PVCol j = 0; j < (ncols/2)*2; j += 2) {
 		for (PVRow i = 0; i < nrows; i++) {
-			p[j*nrows_aligned+i] = 1<<22;
+			p[j*nrows_aligned+i] = 1<<31;;
+			//p[j*nrows_aligned+i] = (1023-(i&1023))*(1<<22)+4;
 		}
 		for (PVRow i = 0; i < nrows; i++) {
 			p[(j+1)*nrows_aligned+i] = (i&1023)*(1<<22)+4;

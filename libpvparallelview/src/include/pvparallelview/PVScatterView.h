@@ -10,6 +10,7 @@
 #include <pvkernel/core/PVSharedPointer.h>
 
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
+#include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
 
 class QPainter;
 
@@ -27,6 +28,7 @@ namespace PVParallelView
 class PVSelectionSquare;
 class PVSelectionSquareScatterView;
 class PVZoneTree;
+class PVZoomedZoneTree;
 class PVZonesManager;
 class PVZoomConverter;
 
@@ -45,7 +47,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 public:
 	PVScatterView(
 		const Picviz::PVView_sp &pvview_sp,
-		PVZonesManager const& zm,
+		PVZonesManager & zm,
 		PVCol const axis_index,
 		QWidget *parent = nullptr
 	);
@@ -58,6 +60,9 @@ public:
 
 	inline Picviz::PVView& lib_view() { return _view; }
 
+public:
+	static void toggle_show_quadtrees() { _show_quadtrees = !_show_quadtrees; }
+
 protected:
 	void drawBackground(QPainter *painter, const QRectF &rect) override;
 
@@ -67,9 +72,11 @@ private slots:
 private:
 	Picviz::PVView& _view;
 	PVZoneTree const& _zt;
+	PVZoomedZoneTree const& _zzt;
 	bool _view_deleted;
-	PVZoomConverter *_zoom_converter;
+	PVZoomConverterScaledPowerOfTwo<zoom_steps> *_zoom_converter;
 	PVSelectionSquareScatterView* _selection_square;
+	static bool _show_quadtrees;
 };
 
 }

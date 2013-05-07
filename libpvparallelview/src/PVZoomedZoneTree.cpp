@@ -753,6 +753,80 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 	return bci_idx;
 }
 
+size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
+	context_t &ctx,
+	uint64_t y1_min,
+	uint64_t y1_max,
+	uint64_t y2_min,
+	uint64_t y2_max,
+	int zoom,
+	double alpha,
+	const extract_entries_y1_y2_f &extract_f,
+	pv_bci_code_t *codes,
+	const PVRow* sel_elts
+) const
+{
+	uint32_t shift = (32 - bbits) - zoom;
+	uint32_t t1_min = y1_min >> (32 - NBITS_INDEX);
+	uint32_t t1_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y1_max >> (32 - NBITS_INDEX)),
+														0U, 1024U);
+
+	uint32_t t2_min = y2_min >> (32 - NBITS_INDEX);
+	uint32_t t2_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y2_max >> (32 - NBITS_INDEX)),
+															0U, 1024U);
+
+	zzt_tls &tls = ctx.get_tls().local();
+	pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
+	pv_tlr_buffer_t &tlr_buffer = tls.get_tlr_buffer();
+
+	size_t nbci = 0;
+	const insert_entry_f insert_f =
+		insert_entry_f([&](const PVQuadTreeEntry &e, pv_tlr_buffer_t&)
+			   {
+					pv_bci_code_t bci;
+					uint32_t l = ((uint32_t) ((e.y1 - y1_min) * alpha)) >> shift;
+					uint32_t r = ((uint32_t) ((e.y2 - y2_min) * alpha)) >> shift;
+					if ((l < 2048) && (r < 2048)) {
+						bci.s.l = l;
+						bci.s.r = r;
+						bci.s.idx = e.idx;
+						codes[nbci] = bci;
+						nbci++;
+					}
+			   });
+
+	BENCH_START(extract);
+	for (uint32_t t2 = t2_min; t2 < t2_max; ++t2) {
+		for (uint32_t t1 = t1_min; t1 < t1_max; ++t1) {
+			PVRow tree_idx = (t2 * 1024) + t1;
+
+			if (sel_elts && (sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
+				/* when searching for entries using the selection, if there is no
+				 * drawn selected line for the corresponding ZoneTree, it is useless
+				 * to search for a selected line in the quadtree
+				 */
+				continue;
+			}
+
+			/* lines extraction
+			 */
+			extract_f(_trees[tree_idx], quadtree_buffer, tlr_buffer, insert_f);
+		}
+	}
+	BENCH_STOP(extract);
+
+	if (sel_elts) {
+		BENCH_SHOW(extract, "extraction  y1 y2 seq sel", 1, 1, 1, 1);
+	} else {
+		BENCH_SHOW(extract, "extraction  y1 y2 seq bg", 1, 1, 1, 1);
+	}
+
+	PVLOG_DEBUG("::browse_trees_bci_by_y1_y2_seq -> %lu\n", nbci);
+
+	return nbci;
+}
+
+
 /*****************************************************************************
  * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb
  *****************************************************************************/
