@@ -89,7 +89,7 @@ public:
 		QRectF r = hcv->get_scene_rect();
 
 		qreal s = r.height() / r.width();
-		hcv->_x_zoom_converter->set_scale_factor(s * (hcv->get_real_viewport_width() / 1024.));
+		hcv->_x_zoom_converter->set_scale_factor(s * (hcv->get_margined_viewport_width() / 1024.));
 
 		hcv->reconfigure_view();
 		hcv->_update_all_timer.start();
@@ -148,14 +148,13 @@ public:
 			event->setAccepted(true);
 
 			if (increment_zoom_value(hcv, mask, inc)) {
-				int screen_ref = hcv->get_scene_left_margin();
-				qreal xpos = hcv->map_to_scene(QPoint(screen_ref, 0)).x();
+				qreal xpos = hcv->map_margined_to_scene(QPoint(0, 0)).x();
 
 				hcv->reconfigure_view();
 
-				int screen_pos = hcv->map_from_scene(QPointF(xpos, 0)).x();
+				int screen_pos = hcv->map_margined_from_scene(QPointF(xpos, 0)).x();
 				QScrollBar64 *sb = hcv->get_horizontal_scrollbar();
-				sb->setValue(sb->value() + (screen_pos - screen_ref));
+				sb->setValue(sb->value() + screen_pos);
 
 				hcv->get_viewport()->update();
 				zoom_has_changed(hcv);
@@ -402,62 +401,37 @@ void PVParallelView::PVHitCountView::reset_view()
  *****************************************************************************/
 
 void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
-                                                    const QRectF &rect)
+                                                    const QRectF &margined_rect)
 {
-	// std::cout << "#############################################" << std::endl;
-	// print_s(get_x_axis_zoom().get_clamped_value());
-	// print_s(get_x_axis_zoom().get_min());
-	// print_s(get_x_axis_zoom().get_max());
-
-	int y_axis_length = get_y_axis_length();
-	int view_top = rect.height() - (get_scene_bottom_margin() + y_axis_length);
-	int img_top = map_from_scene(QPointF(0, _block_base_pos)).y();
+	int view_top = 0;
+	int img_top = map_margined_from_scene(QPointF(0, _block_base_pos)).y();
 
 	int dy = view_top - img_top;
-
-	int src_x = get_scene_left_margin();
-#if 0
-	double ratio = get_x_axis_length() / (double)_max_count;
-#endif
 
 	int zoom_level = get_y_axis_zoom().get_clamped_value();
 	double rel_y_scale = y_zoom_to_scale(zoom_level - _block_zoom_level);
 
-	painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
+	painter->fillRect(margined_rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
 	painter->setPen(QPen(Qt::white));
 
-#if 0
-	if(_show_bg) {
-		painter->setOpacity(0.25);
-		draw_lines(painter, src_x, view_top, dy, ratio, rel_y_scale,
-		           _hit_graph_manager.buffer_bg());
+	int x_axis_left = map_margined_from_scene(QPointF(0., 0.)).x();
+	int x_axis_right = std::min((int)map_margined_from_scene(QPointF(_max_count, 0.)).x(),
+								get_x_axis_length());
 
-		painter->setOpacity(1.0);
-		draw_lines(painter, src_x, view_top, dy, ratio, rel_y_scale,
-		           _hit_graph_manager.buffer_sel());
-	} else {
-#endif
-		int x_axis_left = map_from_scene(QPointF(0., 0.)).x();
-		int x_axis_right = std::min((int)map_from_scene(QPointF(_max_count, 0.)).x(),
-		                            get_scene_left_margin() + get_x_axis_length());
+	painter->setOpacity(0.25);
+	draw_clamped_lines(painter,
+					   x_axis_left,
+					   x_axis_right,
+					   view_top, dy, rel_y_scale,
+					   _hit_graph_manager.buffer_bg());
+	painter->setOpacity(1.0);
+	draw_clamped_lines(painter,
+					   x_axis_left,
+					   x_axis_right,
+					   view_top, dy, rel_y_scale,
+					   _hit_graph_manager.buffer_sel());
 
-		painter->setOpacity(0.25);
-		draw_clamped_lines(painter,
-		                   x_axis_left,
-		                   x_axis_right,
-		                   src_x, view_top, dy, rel_y_scale,
-		                   _hit_graph_manager.buffer_bg());
-		painter->setOpacity(1.0);
-		draw_clamped_lines(painter,
-		                   x_axis_left,
-		                   x_axis_right,
-		                   src_x, view_top, dy, rel_y_scale,
-		                   _hit_graph_manager.buffer_sel());
-#if 0
-	}
-#endif
-
-	draw_decorations(painter, rect);
+	PVParallelView::PVZoomableDrawingAreaWithAxes::drawBackground(painter, margined_rect);
 }
 
 /*****************************************************************************
@@ -501,7 +475,6 @@ void PVParallelView::PVHitCountView::draw_lines(QPainter *painter,
 void PVParallelView::PVHitCountView::draw_clamped_lines(QPainter *painter,
                                                         const int x_min,
                                                         const int x_max,
-                                                        const int src_x,
                                                         const int view_top,
                                                         const int offset,
                                                         const double rel_y_scale,
@@ -523,15 +496,15 @@ void PVParallelView::PVHitCountView::draw_clamped_lines(QPainter *painter,
 
 		y_val += view_top;
 
-		int vx = map_from_scene(QPointF(v, 0.)).x();
+		int vx = map_margined_from_scene(QPointF(v, 0.)).x();
 
-		if (vx < src_x) {
+		if (vx < 0) {
 			continue;
 		}
 
 		vx = PVCore::min(x_max, vx);
 
-		painter->drawLine(src_x, y_val, vx, y_val);
+		painter->drawLine(0, y_val, vx, y_val);
 	}
 }
 
@@ -566,7 +539,7 @@ void PVParallelView::PVHitCountView::do_update_all()
 	int rel_zoom = get_y_axis_zoom().get_clamped_relative_value();
 	int calc_zoom = rel_zoom / zoom_steps;
 
-	uint32_t y_min = map_to_scene(0, get_scene_top_margin()).y();
+	uint32_t y_min = map_margined_to_scene(0, 0).y();
 	uint64_t block_size = 1L << (32-calc_zoom);
 	uint32_t block_y_min = (uint64_t)y_min & ~(block_size - 1);
 

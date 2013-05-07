@@ -386,11 +386,11 @@ public:
 
 		for(long i = 0; i < (1L<<32); i += 1024 * 1024) {
 			long v = i;
-			scn->addLine(0, -v, 1L << 32,    -v, QPen(Qt::red, 0));
-			scn->addLine(v,  0,    v, -(1L << 32), QPen(Qt::blue, 0));
+			scn->addLine(0, v, 1L << 32,    v, QPen(Qt::red, 0));
+			scn->addLine(v,  0,    v, (1L << 32), QPen(Qt::blue, 0));
 		}
 
-		QRectF r(0, -(1L << 32), (1L << 32), (1L << 32));
+		QRectF r(0, 0, (1L << 32), (1L << 32));
 		set_scene_rect(r);
 
 		// setMaximumWidth(1024);
@@ -499,8 +499,10 @@ public:
 	{
 		QGraphicsScene *scn = get_scene();
 
+		set_scene_margins(40, 0, 40, 0);
+
 		set_transformation_anchor(PVWidgets::PVGraphicsView::AnchorUnderMouse);
-		set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOff);
+		set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOn);
 		set_vertical_scrollbar_policy(Qt::ScrollBarAlwaysOn);
 
 		PVWidgets::PVGraphicsViewInteractorBase *inter =
@@ -510,13 +512,14 @@ public:
 
 		install_default_scene_interactor();
 
+		QRectF r(-512, 0, 1024, 1024);
+		scn->addRect(r.adjusted(1, 1, -1, -1), QPen(Qt::blue));
 		for(int i = 0; i < 255; ++i) {
 			int v = i * 4;
 			scn->addLine(-10, v, 10, v, QColor(255 - i, i, 0));
 		}
 		scn->addLine(-10, 1024, 10, 1024, QColor(0, 255, 0));
 
-		QRectF r(-512, 0, 1024, 1024);
 		set_scene_rect(r);
 		scn->setSceneRect(r);
 
@@ -532,6 +535,7 @@ public:
 		set_zoom_value(PVParallelView::PVZoomableDrawingAreaConstraints::X
 		               | PVParallelView::PVZoomableDrawingAreaConstraints::Y,
 		               0);
+
 	}
 
 	~MyZoomingZDA()
@@ -545,14 +549,24 @@ public:
 
 	void drawForeground(QPainter *painter, const QRectF &rect)
 	{
+		/*
 		int c = rect.width() / 2;
 		QPen pen(Qt::red);
 		pen.setWidth(3);
 
-		painter->save();
-		painter->resetTransform();
+		//painter->save();
+		//painter->resetTransform();
 		painter->setPen(pen);
 		painter->drawLine(c, 0, c, rect.height());
+		//painter->restore();*/
+
+		painter->save();
+		QPen pen(Qt::red);
+		pen.setWidth(4);
+		painter->setPen(pen);
+
+		QRectF rect_draw = map_from_scene(get_visible_scene_rect());
+		painter->drawRect(rect_draw);
 		painter->restore();
 	}
 };
@@ -568,7 +582,7 @@ int main(int argc, char **argv)
 
 	PVParallelView::PVZoomableDrawingArea *zzda = new MyZoomingZDA;
 	zzda->resize(600, 600);
-	//zzda->show();
+	zzda->show();
 	zzda->setWindowTitle("My Zooming test");
 
 	app.exec();
