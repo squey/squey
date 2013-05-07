@@ -45,6 +45,14 @@ class PVViewportEventFilter;
  *   scene enter in the viewport. So that the rendering differs from
  *   QGraphicsView.
  *
+ * Four coordinates system are thus living here:
+ * - the scene coordinate system
+ * - the margined viewport coordinate system (with margins taken into account)
+ * - the view coordinate system (with margins taken into account). This can be
+ *   defined as the margined viewport coordinate system translated by the scrollbar
+ *   values.
+ * - the viewport coordinate system (the full viewport)
+ *
  * But the real difference between PVGraphicsView and QGraphicsView is the way
  * events are processed.
  *
@@ -110,7 +118,7 @@ public:
 	 * This will use a default QGLFormat.
 	 *
 	 * \note This function is provided so that QGLFormat can be
-	 * forward-declarated here, thus provided a stable API even if no OpenGL
+	 * forward-declarated here, thus providing a stable API even if no OpenGL
 	 * support has been built within Qt.
 	 */
 	bool set_gl_viewport();
@@ -141,9 +149,88 @@ public:
 
 public:
 	/**
-	 * Maps a point from view's space to scene's space.
+	 * Maps a point from margined viewport's space to scene's space.
 	 *
-	 * @param p the point to transform
+	 * @param p the point to transform in scene space
+	 */
+	QPointF map_margined_to_scene(const QPointF &p) const
+	{
+		return map_to_scene(map_from_margined(p));
+	}
+
+	/**
+	 * This convenience function is equivalent to calling
+	 * map_to_scene(QPointF(@a x, @a y)).
+	 */
+	QPointF map_margined_to_scene(const qreal x, const qreal y) const
+	{
+		return map_margined_to_scene(QPointF(x, y));
+	}
+
+	/**
+	 * Maps a rectangle from margined viewport's space to scene's space.
+	 *
+	 * @param r the rectangle to map in scene space
+	 */
+	QRectF map_margined_to_scene(const QRectF &r) const
+	{
+		return map_to_scene(map_from_margined(r));
+	}
+
+	/**
+	 * This convenience function is equivalent to calling
+	 * map_to_scene(QRectF(@a x, @a y, @a w, @a h)).
+	 */
+	QRectF map_margined_to_scene(const qreal x, const qreal y,
+	                    const qreal w, const qreal h) const
+	{
+		return map_margined_to_scene(QRectF(x, y, w, h));
+	}
+
+	/**
+	 * Maps a point from scene's space to margined viewport's space.
+	 *
+	 * @param r the rectangle to map in scene space
+	 */
+	QPointF map_margined_from_scene(const QPointF &p) const
+	{
+		return map_to_margined(map_from_scene(p));
+	}
+
+	/**
+	 * This convenience function is equivalent to calling
+	 * map_from_scene(QPointF(@a x, @a y)).
+	 */
+	QPointF map_margined_from_scene(const qreal x, const qreal y) const
+	{
+		return map_margined_from_scene(QPointF(x, y));
+	}
+
+	/**
+	 * Maps a rectangle from scene's space to margined viewport's space.
+	 *
+	 * @param r the rectangle to map in the scene space
+	 */
+	QRectF map_margined_from_scene(const QRectF &r) const
+	{
+		return map_to_margined(map_from_scene(r));
+	}
+
+	/**
+	 * This convenience function is equivalent to calling
+	 * map_from_scene(QRectF(@a x, @a y, @a w, @a h)).
+	 */
+	QRectF map_margined_from_scene(const qreal x, const qreal y,
+	                    const qreal w, const qreal h) const
+	{
+		return map_margined_from_scene(QRectF(x, y, w, h));
+	}
+
+public:
+	/**
+	 * Maps a point from viewport's space to scene's space.
+	 *
+	 * @param p the point to transform in scene space
 	 */
 	QPointF map_to_scene(const QPointF &p) const;
 
@@ -157,9 +244,9 @@ public:
 	}
 
 	/**
-	 * Maps a rectangle from view's space to scene's space.
+	 * Maps a rectangle from margined viewport's space to scene's space.
 	 *
-	 * @param r the rectangle to map
+	 * @param r the rectangle to map in scene space
 	 */
 	QRectF map_to_scene(const QRectF &r) const;
 
@@ -174,9 +261,9 @@ public:
 	}
 
 	/**
-	 * Maps a point from scene's space to view's space.
+	 * Maps a point from scene's space to margined viewport's space.
 	 *
-	 * @param r the rectangle to map
+	 * @param r the rectangle to map in scene space
 	 */
 	QPointF map_from_scene(const QPointF &p) const;
 
@@ -190,9 +277,9 @@ public:
 	}
 
 	/**
-	 * Maps a rectangle from scene's space to view's space.
+	 * Maps a rectangle from scene's space to margined viewport's space.
 	 *
-	 * @param r the rectangle to map
+	 * @param r the rectangle to map in the scene space
 	 */
 	QRectF map_from_scene(const QRectF &r) const;
 
@@ -208,13 +295,52 @@ public:
 
 public:
 	/**
+	 * Maps a rectange from margined viewport's space to viewport's space.
+	 *
+	 * @param r Rectangle in the margined view coordinate system to map
+	 */
+	QRectF map_from_margined(QRectF const& r) const;
+
+	/**
+	 * Maps a point from margined viewport's space to viewport's space.
+	 *
+	 * @param p Point in the margined view coordinate system to map
+	 */
+	QPointF map_from_margined(QPointF const& p) const;
+
+	/**
+	 * Maps a rectange to margined viewport's space from viewport's space.
+	 *
+	 * @param r Rectangle in the viewport coordinate system to map
+	 */
+	QRectF map_to_margined(QRectF const& r) const;
+
+	/**
+	 * Maps a point to margined viewport's space from viewport's space.
+	 *
+	 * @param p Point in the viewport coordinate system to map
+	 */
+	QPointF map_to_margined(QPointF const& p) const;
+
+	/**
+	 * Returns the transformation that maps the unmargined viewport to the margined viewport.
+	 */
+	QTransform get_transform_to_margined_viewport() const;
+
+	/**
+	 * Returns the transformation that maps the margined viewport to the unmargined viewport.
+	 */
+	QTransform get_transform_from_margined_viewport() const;
+
+public:
+	/**
 	 * Sets the scene's visible area.
 	 *
 	 * This method configures the scene's area the view can display. To
 	 * reset the visible area to the entire scene rectangle, use a null
 	 * rectangle as parameter.
 	 *
-	 * @param r the visible area
+	 * @param r the visible area in scene space
 	 */
 	void set_scene_rect(const QRectF &r);
 
@@ -233,7 +359,7 @@ public:
 	QRectF get_scene_rect() const;
 
 	/**
-	 * Sets a transformation (scene to screen)
+	 * Sets a transformation (scene to view)
 	 *
 	 * @param t the transformation
 	 * @param combine a flag telling if @a t is combined with the current
@@ -385,41 +511,48 @@ public:
 	}
 
 	/**
-	 * Return the viewport's height in which the scene is rendered.
+	 * Return the margined viewport's height in which the scene is rendered.
 	 *
 	 * This value depends on scene's margins.
 	 *
-	 * @return the viewport height used to render the scene
+	 * @return the margined viewport height used to render the scene
 	 */
-	int get_real_viewport_height() const
+	int get_margined_viewport_height() const
 	{
 		return _viewport->rect().height() - (_scene_margin_top + _scene_margin_bottom);
 	}
 
 	/**
-	 * Return the viewport's width in which the scene is rendered.
+	 * Return the margined viewport's width in which the scene is rendered.
 	 *
 	 * This value depends on scene's margins.
 	 *
-	 * @return the viewport width used to render the scene
+	 * @return the margined viewport width used to render the scene
 	 */
-	int get_real_viewport_width() const
+	int get_margined_viewport_width() const
 	{
 		return _viewport->rect().width() - (_scene_margin_left + _scene_margin_right);
 	}
 
 	/**
-	 * Returns the effective area used to display the scene.
+	 * Returns the effective area used to display the scene in viewport coordinate system.
 	 *
-	 * This value depends on scene's margins.
+	 * This value depends on scene's margins, and uses the viewport coordinate system.
 	 *
-	 * @return the effective drawing area rectangle
+	 * @return the effective drawing area rectangle in viewport space.
 	 */
-	QRect get_real_viewport_rect() const
+	QRect get_margined_viewport_rect() const
 	{
 		return QRect(_scene_margin_left, _scene_margin_top,
-		             get_real_viewport_width(), get_real_viewport_height());
+		             get_margined_viewport_width(), get_margined_viewport_height());
 	}
+
+	/**
+	 * Returns scene rectangle that is visible (and will be rendered)
+	 *
+	 * @return The scene rectange that is visible, in scene space.
+	 */
+	QRectF get_visible_scene_rect() const;
 
 	/**
 	 * Returns the current viewport widget.
@@ -600,18 +733,22 @@ protected:
 	/**
 	 * Draws scene's background.
 	 *
+	 * The painter is set so that it uses the margined viewport coordinate system.
+	 *
 	 * @param painter the used painter
-	 * @param rect the area to redraw
+	 * @param margined_rect the area to redraw, in the margined viewport coordinate system.
 	 */
-	virtual void drawBackground(QPainter *painter, const QRectF &rect);
+	virtual void drawBackground(QPainter *painter, const QRectF &margined_rect);
 
 	/**
 	 * Draws scene's foreground.
 	 *
+	 * The painter is set so that it uses the margined viewport coordinate system.
+	 *
 	 * @param painter the used painter
-	 * @param rect the area to redraw
+	 * @param margined_rect the area to redraw, in the margined viewport coordinate system.
 	 */
-	virtual void drawForeground(QPainter *painter, const QRectF &rect);
+	virtual void drawForeground(QPainter *painter, const QRectF &margined_rect);
 
 	/**
 	 * \reimpl

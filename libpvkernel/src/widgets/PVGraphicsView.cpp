@@ -409,6 +409,46 @@ void PVWidgets::PVGraphicsView::set_alignment(const Qt::Alignment align)
 	}
 }
 
+QRectF PVWidgets::PVGraphicsView::map_from_margined(QRectF const& r) const
+{
+	return get_transform_from_margined_viewport().mapRect(r);
+}
+
+QPointF PVWidgets::PVGraphicsView::map_from_margined(QPointF const& p) const
+{
+	return get_transform_from_margined_viewport().map(p);
+}
+
+QRectF PVWidgets::PVGraphicsView::map_to_margined(QRectF const& r) const
+{
+	return get_transform_to_margined_viewport().mapRect(r);
+}
+
+QPointF PVWidgets::PVGraphicsView::map_to_margined(QPointF const& p) const
+{
+	return get_transform_to_margined_viewport().map(p);
+}
+
+
+QTransform PVWidgets::PVGraphicsView::get_transform_to_margined_viewport() const
+{
+	QTransform ret;
+	ret.translate(-_scene_margin_left, -_scene_margin_top);
+	return ret;
+}
+
+QTransform PVWidgets::PVGraphicsView::get_transform_from_margined_viewport() const
+{
+	QTransform ret;
+	ret.translate(_scene_margin_left, _scene_margin_top);
+	return ret;
+}
+
+QRectF PVWidgets::PVGraphicsView::get_visible_scene_rect() const
+{
+	return map_to_scene(QRectF(0, 0, get_margined_viewport_width(), get_margined_viewport_height()));
+}
+
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::viewportPaintEvent
  *****************************************************************************/
@@ -419,20 +459,26 @@ bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 		return false;
 	}
 
+	/*
 	QRectF viewport_rect = event->rect().intersected(_viewport->rect());
 
 	QRect real_viewport_rect = QRect(_scene_margin_left,
 	                                 _scene_margin_top,
-	                                 get_real_viewport_width(),
-	                                 get_real_viewport_height());
-	QRectF real_viewport_area = map_to_scene(event->rect().intersected(real_viewport_rect));
+	                                 get_view_width(),
+	                                 get_view_height());
+	QRectF real_viewport_area = map_to_scene(event->rect().intersected(real_viewport_rect));*/
+
+	const QRectF unmargined_render_rect = event->rect();
+	const QRectF margined_render_rect = map_to_margined(unmargined_render_rect);
+	const QRectF margined_scene_render_rect = map_to_margined(unmargined_render_rect.intersected(get_margined_viewport_rect()));
 
 	QPainter painter;
 	painter.begin(get_viewport());
+	painter.setTransform(get_transform_from_margined_viewport(), false);
 
-	drawBackground(&painter, viewport_rect);
-	_scene->render(&painter, real_viewport_rect, real_viewport_area, Qt::IgnoreAspectRatio);
-	drawForeground(&painter, viewport_rect);
+	drawBackground(&painter, margined_render_rect);
+	_scene->render(&painter, margined_scene_render_rect, map_margined_to_scene(margined_scene_render_rect), Qt::IgnoreAspectRatio);
+	drawForeground(&painter, margined_render_rect);
 
 	painter.end();
 
@@ -642,8 +688,8 @@ void PVWidgets::PVGraphicsView::set_view(const QRectF &area, Qt::AspectRatioMode
 	 * by ::recompute_viewport because _viewport's size has changed.
 	 */
 	QTransform transfo;
-	qreal viewport_width = get_real_viewport_width();
-	qreal viewport_height = get_real_viewport_height();
+	qreal viewport_width = get_margined_viewport_width();
+	qreal viewport_height = get_margined_viewport_height();
 
 	qreal x_scale = area.width() / viewport_width;
 	qreal y_scale = area.height() / viewport_height;
@@ -776,8 +822,8 @@ void PVWidgets::PVGraphicsView::recompute_margins()
 
 void PVWidgets::PVGraphicsView::recompute_viewport()
 {
-	qint64 view_width = get_real_viewport_width();
-	qint64 view_height = get_real_viewport_height();
+	qint64 view_width =  get_margined_viewport_width();
+	qint64 view_height = get_margined_viewport_height();
 
 	QRectF scene_rect = _transform.mapRect(get_scene_rect().translated(-_scene_offset));
 

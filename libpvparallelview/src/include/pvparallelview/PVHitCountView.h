@@ -103,8 +103,7 @@ private:
 
 	void draw_clamped_lines(QPainter *painter,
 	                        const int x_min, const int x_max,
-	                        const int src_x, const int view_top,
-	                        const int offset,
+	                        const int view_top, const int offset,
 	                        const double rel_y_scale,
 	                        const uint32_t *buffer);
 

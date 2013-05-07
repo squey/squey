@@ -148,7 +148,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_margins()
 void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations()
 {
 	QFontMetrics fm(get_viewport()->font());
-	QSize viewport_rect = get_viewport()->size();
+	//QSize viewport_rect = get_viewport()->size();
 
 	int margin_top = get_scene_top_margin();
 	int margin_left = get_scene_left_margin();
@@ -157,11 +157,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations()
 	qreal right = get_viewport()->width() - margin_right;
 	qreal bottom = get_viewport()->height() - margin_bottom;
 
-	QRectF view_in_scene = map_to_scene(QRectF(margin_left,
-	                                           margin_top,
-	                                           viewport_rect.width() - margin_right,
-	                                           viewport_rect.height() - margin_bottom));
-
+	QRectF view_in_scene = get_visible_scene_rect();
 	QRectF scene_in_screen = map_from_scene(get_scene_rect());
 
 	_x_axis_length = PVCore::min(scene_in_screen.width(), right - margin_left - 1.);
@@ -185,14 +181,19 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations()
  *****************************************************************************/
 
 void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_decorations(QPainter *painter,
-                                                                     const QRectF &rect)
+                                                                     const QRectF &margined_rect)
 {
 	if (get_scene_rect().isNull()) {
 		PVLOG_WARN("using a PVZoomableDrawingArea with no defined scene\n");
 		return;
 	}
 
-	draw_deco_v3(painter, rect);
+	// draw_deco_v* functions expect a painter that uses the viewport coordinate system.
+	QRectF viewport_rect = map_from_margined(margined_rect);
+	painter->save();
+	painter->resetTransform();
+	draw_deco_v3(painter, viewport_rect);
+	painter->restore();
 }
 
 /*****************************************************************************
@@ -258,7 +259,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v1(QPainter *paint
 	qreal x_step = _x_axis_length / (qreal)_ticks_per_level;
 	for(int i = 0; i <= _ticks_per_level; ++i) {
 		qreal v = i * x_step;
-		QString s = get_x_value_at(map_to_scene(left + i * x_step, 0).x());
+		QString s = get_x_value_at(map_to_scene(QPointF(left + i * x_step, 0)).x());
 		int s_len = fm.boundingRect(s).width();
 		painter->drawLine(left + v, bottom, left + v, bottom + TICK_LENGTH);
 		painter->drawText(left + v - (s_len / 2),
@@ -284,7 +285,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v1(QPainter *paint
 	qreal y_step = _y_axis_length / (qreal)_ticks_per_level;
 	for(int i = 0; i <= _ticks_per_level; ++i) {
 		qreal v = i * y_step;
-		QString s = get_y_value_at(map_to_scene(0, top + i * y_step).y());
+		QString s = get_y_value_at(map_to_scene(QPointF(0, top + i * y_step)).y());
 		int s_len = fm.boundingRect(s).width();
 		painter->drawLine(left, bottom - _y_axis_length + v,
 		                  left - TICK_LENGTH, bottom - _y_axis_length + v);

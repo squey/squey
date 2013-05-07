@@ -49,7 +49,7 @@ void PVParallelView::PVFullParallelView::paintEvent(QPaintEvent *event)
 
 void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const QRectF& rect)
 {
-	// Get back in view's coordinates system
+	// Get back in viewport's coordinates system
 	painter->save();
 	painter->resetTransform();
 
