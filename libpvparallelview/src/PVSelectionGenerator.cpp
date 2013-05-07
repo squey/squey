@@ -322,8 +322,8 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()) + 1, 0.0, (double)UINT32_MAX);
 
 	// "null" counted event can't be selected, so let's clamp c_min between [1,max_count]
-	const uint32_t c_min = PVCore::clamp(ceil(rect.left()), 1.0, (double)max_count);
-	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 0.0, (double)max_count);
+	const uint32_t c_min = PVCore::clamp(ceil(rect.left()),  1.0, (double)(max_count+1));
+	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 1.0, (double)(max_count+1));
 
 	uint32_t nb_selected = 0;
 
@@ -359,11 +359,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 
 	// The intervals described here are of the type [a,b[ (that is the maximum isn't taken into account)
 	const uint32_t v_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
-	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()) + 1, 0.0, (double)UINT32_MAX);
+	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()) + 1.0, 0.0, (double)UINT32_MAX);
 
 	// "null" counted event can't be selected, so let's clamp c_min between [1,max_count]
-	const uint32_t c_min = PVCore::clamp(ceil(rect.left()), 1.0, (double)max_count);
-	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 0.0, (double)max_count);
+	const uint32_t c_min = PVCore::clamp(ceil(rect.left()),  1.0, (double)(max_count+1));
+	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 1.0, (double)(max_count+1));
 
 	uint32_t nb_selected = 0;
 
@@ -417,12 +417,12 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 	sel.ensure_allocated();
 
 	// The intervals described here are of the type [a,b[ (that is the maximum isn't taken into account)
-	const uint32_t v_min = PVCore::clamp((uint32_t)floor(rect.top()), 0U, UINT32_MAX);
-	const uint32_t v_max = PVCore::clamp((uint64_t)ceil(rect.bottom()) + 1, 0UL, (uint64_t)UINT32_MAX);
+	const uint32_t v_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
+	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()) + 1.0, 0.0, (double)UINT32_MAX);
 
 	// "null" counted event can't be selected, so let's clamp c_min between [1,max_count]
-	const uint32_t c_min = PVCore::clamp((uint32_t)ceil(rect.left()), 1U, max_count);
-	const uint32_t c_max = PVCore::clamp((uint32_t)ceil(rect.right()), 0U, max_count);
+	const uint32_t c_min = PVCore::clamp(ceil(rect.left()),  1.0, (double)(max_count+1));
+	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 1.0, (double)(max_count+1));
 
 	const __m128i v_min_sse = _mm_set1_epi32(v_min);
 	const __m128i v_max_sse = _mm_set1_epi32(v_max);
@@ -489,12 +489,12 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 	sel.ensure_allocated();
 
 	// The intervals described here are of the type [a,b[ (that is the maximum isn't taken into account)
-	const uint32_t v_min = PVCore::clamp((uint32_t)floor(rect.top()), 0U, UINT32_MAX);
-	const uint32_t v_max = PVCore::clamp((uint64_t)ceil(rect.bottom()) + 1, 0UL, (uint64_t)UINT32_MAX);
+	const uint32_t v_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
+	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()) + 1.0, 0.0, (double)UINT32_MAX);
 
 	// "null" counted event can't be selected, so let's clamp c_min between [1,max_count]
-	const uint32_t c_min = PVCore::clamp((uint32_t)ceil(rect.left()), 1U, max_count);
-	const uint32_t c_max = PVCore::clamp((uint32_t)ceil(rect.right()), 0U, max_count);
+	const uint32_t c_min = PVCore::clamp(ceil(rect.left()),  1.0, (double)(max_count+1));
+	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 1.0, (double)(max_count+1));
 
 	const __m128i v_min_sse = _mm_set1_epi32(v_min);
 	const __m128i v_max_sse = _mm_set1_epi32(v_max);
@@ -551,7 +551,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 					                                        buffer[_mm_extract_epi32(idx_sse, 1)],
 					                                        buffer[_mm_extract_epi32(idx_sse, 0)]);
 
-					// Same trick as above
 					const __m128i mask_count = picviz_mm_cmprange_epi32(count_sse, c_min_sse, c_max_sse);
 
 					const __m128i mask = _mm_and_si128(mask_y, mask_count);
