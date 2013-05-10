@@ -229,7 +229,7 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	_view_deleted(false),
 	_show_bg(true)
 {
-	//set_gl_viewport();
+	set_gl_viewport();
 
 	/* computing the highest scene width to setup it
 	 */
