@@ -468,8 +468,12 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(PVZoneID zone_id, 
 	connect_zr(zr.get(), "zr_bg_finished");
 	single_zone_images.last_zr_bg = zr;
 
+#ifdef NDEBUG
+	_processor_bg.add_job(zr);
+#else
 	bool ret = _processor_bg.add_job(zr);
 	assert(ret);
+#endif
 }
 
 /******************************************************************************
@@ -502,8 +506,12 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(PVZoneID zone_id,
 	connect_zr(zr.get(), "zr_sel_finished");
 	single_zone_images.last_zr_sel = zr;
 
+#ifdef NDEBUG
+	_processor_sel.add_job(zr);
+#else
 	bool ret = _processor_sel.add_job(zr);
 	assert(ret);
+#endif
 }
 
 /******************************************************************************
