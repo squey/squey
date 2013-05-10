@@ -521,17 +521,17 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 
 	const uint32_t* plotted = manager.get_plotted();
 	const uint32_t nrows = manager.get_nrows();
-	const uint32_t nrows_sse = nrows & ~63U;
+	const uint32_t nrows_sse = nrows & ~31U;
 
 	const uint32_t* buffer = data.buffer_all().buffer();
 
 	BENCH_START(b);
 	PVRow i;
 #pragma omp parallel for num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())
-	for (i = 0; i < nrows_sse; i += 64) {
+	for (i = 0; i < nrows_sse; i += 32) {
 		// Compute one chunk of the selection
-		uint64_t chunk = 0;
-		for (int j = 0; j < 64; j += 4) {
+		int32_t chunk = 0;
+		for (int j = 0; j < 32; j += 4) {
 			const __m128i y_sse = _mm_load_si128((__m128i const*) &plotted[i+j]);
 			const __m128i mask_y = picviz_mm_cmprange_epu32(y_sse, v_min_sse, v_max_sse);
 
@@ -565,12 +565,12 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 					const __m128i mask = _mm_and_si128(mask_y, mask_count);
 
 					// Get selection bits and write them
-					const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask));
+					const int32_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask));
 					chunk |= sel_bits << j;
 				}
 			}
 		}
-		sel.set_chunk_fast(Picviz::PVSelection::line_index_to_chunk(i), chunk);
+		sel.set_chunk32_fast_stream(Picviz::PVSelection::line_index_to_chunk32(i), chunk);
 	}
 	for (i = nrows_sse; i < nrows; i++) {
 		const uint32_t v = plotted[i];

@@ -384,6 +384,18 @@ public:
 		_table[chunk_index] = chunk;
 	}
 
+	/*! \brief Set a complete chunk using one stream instructions
+	 *  \param chunk_index The index of the chunk as if chunks were 32-bits wide !
+	 *
+	 * Set a complete chunk.
+	 * \warning The chunk_index given here must be computed as if chunks were
+	 * 32 bits wide ! The line_index_to_chunk32 function can help with that.
+	 */
+	inline void set_chunk32_fast_stream(PVRow const chunk_index, int32_t const chunk)
+	{
+		_mm_stream_si32(&((int32_t*)_table)[chunk_index], chunk);
+	}
+
 	// Returns the index of the chunk following the last chunk that contains a line
 	// Thus, returns 0 if no chunk is empty
 	ssize_t get_last_nonzero_chunk_index(ssize_t starting_chunk = 0, ssize_t ending_chunk = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1) const;
@@ -565,6 +577,7 @@ public:
 	std::vector<PVRow> get_rows_table();
 
 	static inline PVRow line_index_to_chunk(const PVRow r) { return r>>6; }
+	static inline PVRow line_index_to_chunk32(const PVRow r) { return r>>5; }
 	static inline PVRow chunk_to_line_index(const PVRow r) { return r<<6; }
 	static inline PVRow line_index_to_chunk_bit(const PVRow r) { return r & 63; }
 
