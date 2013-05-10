@@ -279,12 +279,11 @@ void PVWidgets::PVGraphicsView::fit_in_view(Qt::AspectRatioMode mode)
  *****************************************************************************/
 void PVWidgets::PVGraphicsView::center_on(const QPointF &pos)
 {
-	QPointF new_pos = _transform.map(pos - _scene_offset);
-	QRectF view_rect = _viewport->rect();
-	new_pos -= QPointF(0.5 * view_rect.width(), 0.5 *view_rect.height());
+	QPointF pos_view = _transform.map(pos - _scene_offset);
+	pos_view -= QPointF(get_margined_viewport_width()/2.0, get_margined_viewport_height()/2.0);
 
-	_hbar->setValue(new_pos.x());
-	_vbar->setValue(new_pos.y());
+	_hbar->setValue(pos_view.x());
+	_vbar->setValue(pos_view.y());
 }
 
 /*****************************************************************************
@@ -388,13 +387,13 @@ void PVWidgets::PVGraphicsView::set_scene_margins(const int left,
                                                   const int top,
                                                   const int bottom)
 {
-	//if ((_scene_margin_left != left) || (_scene_margin_right != right) || (_scene_margin_top != top) || (_scene_margin_bottom != bottom)) {
+	if ((_scene_margin_left != left) || (_scene_margin_right != right) || (_scene_margin_top != top) || (_scene_margin_bottom != bottom)) {
 		_scene_margin_left = left;
 		_scene_margin_right = right;
 		_scene_margin_top = top;
 		_scene_margin_bottom = bottom;
 		recompute_viewport();
-	//}
+	}
 }
 
 /*****************************************************************************
@@ -504,8 +503,8 @@ void PVWidgets::PVGraphicsView::contextMenuEvent(QContextMenuEvent *event)
 	_mouse_pressed_view_coord = event->pos();
 	_mouse_pressed_scene_coord = map_to_scene(_mouse_pressed_view_coord);
 
-	_last_mouse_move_screen_coord = _mouse_pressed_screen_coord;
-	_last_mouse_move_scene_coord = _mouse_pressed_scene_coord;
+	//_last_mouse_move_screen_coord = _mouse_pressed_screen_coord;
+	//_last_mouse_move_scene_coord = _mouse_pressed_scene_coord;
 
 	QGraphicsSceneContextMenuEvent scene_event(QEvent::GraphicsSceneContextMenu);
 
@@ -739,6 +738,7 @@ void PVWidgets::PVGraphicsView::init()
 	_transform.reset();
 	_inv_transform.reset();
 
+	setFocusPolicy(Qt::StrongFocus);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 	_scene_margin_left = 0;
@@ -756,15 +756,10 @@ void PVWidgets::PVGraphicsView::init()
 
 	_viewport_event_filter = new __impl::PVViewportEventFilter(this);
 
-	set_viewport(new QWidget());
-
 	_hbar = new QScrollBar64(Qt::Horizontal);
 	_vbar = new QScrollBar64(Qt::Vertical);
 
-	connect(_hbar, SIGNAL(valueChanged(qint64)),
-	        _viewport, SLOT(update()));
-	connect(_vbar, SIGNAL(valueChanged(qint64)),
-	        _viewport, SLOT(update()));
+	set_viewport(new QWidget());
 
 	_layout->addWidget(_hbar, 1, 0);
 	_layout->addWidget(_vbar, 0, 1);
@@ -772,15 +767,27 @@ void PVWidgets::PVGraphicsView::init()
 
 void PVWidgets::PVGraphicsView::set_viewport(QWidget* w)
 {
-	if (_viewport) {
+	bool mouse_tracking = w->hasMouseTracking();
+	if (get_viewport()) {
+		mouse_tracking = get_viewport()->hasMouseTracking();
 		_layout->removeWidget(_viewport);
 		get_viewport()->deleteLater();
 	}
 
 	_viewport = w;
-	// needed to make sure the viewport can received key events
+	// Redirect any focus and key/mouse event to this widget
 	_viewport->setFocusPolicy(Qt::StrongFocus);
 	_viewport->setFocusProxy(this);
+
+	// If mouse tracking was enabled, re-enable it !
+	_viewport->setMouseTracking(mouse_tracking);
+
+	// Connect hbar and vbar valueChanged events
+	connect(_hbar, SIGNAL(valueChanged(qint64)),
+	        _viewport, SLOT(update()));
+	connect(_vbar, SIGNAL(valueChanged(qint64)),
+	        _viewport, SLOT(update()));
+
 	_viewport->installEventFilter(_viewport_event_filter);
 	_layout->addWidget(_viewport, 0, 0);
 }
@@ -924,9 +931,8 @@ void PVWidgets::PVGraphicsView::center_view(ViewportAnchor anchor)
 		QPointF p = map_to_scene(_viewport->rect().center());
 		center_on(p);
 	} else if (anchor == AnchorUnderMouse) {
-		QPointF delta = map_to_scene(_viewport->rect().center());
-		delta -= map_to_scene(_viewport->mapFromGlobal(QCursor::pos())
-		                      - QPoint(_scene_margin_left, _scene_margin_top));
+		QPointF delta = map_to_scene(get_margined_viewport_rect().center());
+		delta -= map_to_scene(get_viewport()->mapFromGlobal(QCursor::pos()));
 		center_on(_last_mouse_move_scene_coord + delta);
 	} // else if (anchor == NoAnchor) do nothing
 }

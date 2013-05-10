@@ -379,9 +379,11 @@ public:
 	void fit_in_view(Qt::AspectRatioMode mode = Qt::KeepAspectRatio);
 
 	/**
-	 * Centers the view on a given position.
+	 * Centers the view on a given scene position.
 	 *
 	 * This method simply translate the view.
+	 *
+	 * \param pos Position in scene coordinate system on which the view must be centered
 	 */
 	void center_on(const QPointF &pos);
 
