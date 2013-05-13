@@ -18,14 +18,16 @@ class PVScatterView;
 class PVSelectionSquareScatterView : public PVSelectionSquare
 {
 public:
-	PVSelectionSquareScatterView(const PVZoneTree &zt, PVScatterView* sv);
+	PVSelectionSquareScatterView(const uint32_t* y1_plotted, const uint32_t* y2_plotted, const PVRow nrows, PVScatterView* sv);
 
 protected:
 	void commit(bool use_selection_modifiers) override;
 	Picviz::PVView& lib_view() override;
 
 private:
-	const PVZoneTree &_zt;
+	const uint32_t* _y1_plotted;
+	const uint32_t* _y2_plotted;
+	const PVRow _nrows;
 	PVScatterView* _sv;
 };
 
