@@ -75,7 +75,7 @@ void PVParallelView::PVSelectionSquare::grow_by(qreal hratio, qreal vratio)
 	qreal hoffset = (width-width*hratio);
 	qreal voffset = (height-height*vratio);
 
-	begin(x-hoffset/2, y-voffset/2);
+	begin(x-hoffset, y-voffset);
 	end(x+hoffset+width, y+voffset+height, false);
 }
 
