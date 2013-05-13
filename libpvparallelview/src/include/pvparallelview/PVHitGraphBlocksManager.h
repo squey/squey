@@ -18,7 +18,7 @@ protected:
 	typedef PVHitGraphData::ProcessParams DataProcessParams ;
 
 public:
-	PVHitGraphBlocksManager(PVZoneTree const& zt, const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Picviz::PVSelection const& sel);
+	PVHitGraphBlocksManager(const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Picviz::PVSelection const& sel);
 
 public:
 	bool change_and_process_view(const uint32_t y_min, const int zoom, double alpha);

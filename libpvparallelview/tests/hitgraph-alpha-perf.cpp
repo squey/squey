@@ -812,10 +812,10 @@ void count_y1_lib(const PVRow row_count, const uint32_t *col_y1,
                   double alpha,
                   uint32_t *buffer, const size_t buffer_size, omp_sse_v3_ctx_t &ctx,
                   PVParallelView::PVHitGraphData &lib_omp,
-                  PVParallelView::PVZoneTree &zt)
+                  PVParallelView::PVZoneTree&)
 {
 
-	lib_omp.process_bg(PVParallelView::PVHitGraphData::ProcessParams(zt, col_y1, row_count, y_min, zoom, alpha, 0, V4_N));
+	lib_omp.process_bg(PVParallelView::PVHitGraphData::ProcessParams(col_y1, row_count, y_min, zoom, alpha, 0, V4_N));
 }
 
 /*****************************************************************************

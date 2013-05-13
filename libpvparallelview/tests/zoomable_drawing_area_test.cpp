@@ -370,6 +370,8 @@ public:
 	MyPlottingZDAWA(QWidget *parent = nullptr) :
 		PVParallelView::PVZoomableDrawingAreaWithAxes(parent)
 	{
+		set_gl_viewport();
+
 		QGraphicsScene *scn = get_scene();
 
 		PVWidgets::PVGraphicsViewInteractorBase *inter;
@@ -485,6 +487,13 @@ protected:
 			// std::cout << "draw sub-ticks for " << ratio << std::endl;
 		}
 #endif
+	}
+
+	void keyPressEvent(QKeyEvent* event) override
+	{
+		if (event->key() == Qt::Key_Home) {
+			center_on(get_scene_rect().center());
+		}
 	}
 
 };

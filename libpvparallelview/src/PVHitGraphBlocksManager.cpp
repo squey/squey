@@ -22,11 +22,11 @@ inline static uint32_t y_to_idx_in_red_buffer(const uint32_t y, const uint32_t z
 	return ((double)y_to_idx_in_buffer(y, zoom))*alpha;
 }
 
-PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(PVZoneTree const& zt, const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Picviz::PVSelection const& sel):
+PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Picviz::PVSelection const& sel):
 	_data_z0(PARALLELVIEW_ZT_BBITS, 1),
 	_data(PARALLELVIEW_ZZT_BBITS, nblocks),
 	_sel(sel),
-	_data_params(zt, col_plotted, nrows, 0, -1, 0.5, 0, nblocks)
+	_data_params(col_plotted, nrows, 0, -1, 0.5, 0, nblocks)
 {
 }
 

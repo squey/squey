@@ -29,8 +29,7 @@ public:
 public:
 	struct ProcessParams
 	{
-		ProcessParams(PVZoneTree const& zt_, uint32_t const* col_plotted_, PVRow const nrows_, uint32_t const y_min_, int const zoom_, const double &alpha_, int const block_start_, int const nblocks_):
-			zt(zt_),
+		ProcessParams(uint32_t const* col_plotted_, PVRow const nrows_, uint32_t const y_min_, int const zoom_, const double &alpha_, int const block_start_, int const nblocks_):
 			col_plotted(col_plotted_),
 			nrows(nrows_),
 			y_min(y_min_),
@@ -40,7 +39,6 @@ public:
 			nblocks(nblocks_)
 		{ }
 
-		PVZoneTree const& zt;
 		uint32_t const* col_plotted;
 		PVRow nrows;
 		uint32_t y_min;

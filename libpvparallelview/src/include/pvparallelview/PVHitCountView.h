@@ -29,8 +29,6 @@ typedef PVCore::PVSharedPtr<PVView> PVView_sp;
 namespace PVParallelView
 {
 
-class PVZoneTree;
-
 template <int STEPS>
 class PVHitCountViewZoomConverter;
 
@@ -58,7 +56,6 @@ private:
 
 public:
 	PVHitCountView(const Picviz::PVView_sp &pvview_sp,
-	               const PVZoneTree &zt,
 	               const uint32_t *col_plotted,
 	               const PVRow nrows,
 	               const PVCol axis_index,

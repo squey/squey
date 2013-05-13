@@ -5,7 +5,6 @@
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVHitCountView.h>
 #include <pvparallelview/PVHitGraphData.h>
-#include <pvparallelview/PVZoneTree.h>
 
 #include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
 #include <pvparallelview/PVZoomableDrawingAreaInteractorMajorY.h>
@@ -217,7 +216,6 @@ private:
  *****************************************************************************/
 
 PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_sp,
-                                               const PVZoneTree &zt,
                                                const uint32_t *col_plotted,
                                                const PVRow nrows,
                                                const PVCol axis_index,
@@ -225,7 +223,7 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	PVParallelView::PVZoomableDrawingAreaWithAxes(parent),
 	_pvview(*pvview_sp),
 	_axis_index(axis_index),
-	_hit_graph_manager(zt, col_plotted, nrows, 2, pvview_sp->get_real_output_selection()),
+	_hit_graph_manager(col_plotted, nrows, 2, pvview_sp->get_real_output_selection()),
 	_view_deleted(false),
 	_show_bg(true)
 {

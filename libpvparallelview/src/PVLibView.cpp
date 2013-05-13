@@ -157,7 +157,6 @@ PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view
 		                                        axis);
 
 	PVHitCountView* view = new PVHitCountView(view_sp,
-	                                          _zones_manager.get_zone_tree<PVZoneTree>(axis),
 	                                          uint_plotted,
 	                                          _zones_manager.get_number_rows(),
 	                                          axis,
