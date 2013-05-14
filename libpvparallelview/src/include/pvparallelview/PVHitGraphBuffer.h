@@ -66,6 +66,9 @@ public:
 		return &_buf[n*size_zoomed_block(alpha)];
 	}
 
+	uint32_t get_zoomed_max_count(const float alpha) const;
+	uint32_t get_max_count() const;
+
 public:
 	void set_zero();
 	void shift_left(const uint32_t nblocks);

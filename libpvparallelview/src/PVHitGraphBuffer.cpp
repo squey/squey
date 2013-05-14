@@ -83,3 +83,31 @@ bool PVParallelView::PVHitGraphBuffer::copy_from(PVHitGraphBuffer const& o)
 
 	return true;
 }
+
+uint32_t PVParallelView::PVHitGraphBuffer::get_max_count() const
+{
+	// GCC should vectorize this !
+	const size_t nints = size_block()*nblocks();
+	uint32_t ret = 0;
+	for (size_t i = 0; i < nints; i++) {
+		const uint32_t v = _buf[i];
+		if (v > ret) {
+			ret = v;
+		}
+	}
+	return ret;
+}
+
+uint32_t PVParallelView::PVHitGraphBuffer::get_zoomed_max_count(const float alpha) const
+{
+	// GCC should vectorize this !
+	const size_t nints = size_zoomed_block(alpha)*nblocks();
+	uint32_t ret = 0;
+	for (size_t i = 0; i < nints; i++) {
+		const uint32_t v = _buf[i];
+		if (v > ret) {
+			ret = v;
+		}
+	}
+	return ret;
+}

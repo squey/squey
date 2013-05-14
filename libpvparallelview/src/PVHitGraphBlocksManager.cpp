@@ -265,3 +265,19 @@ PVParallelView::PVHitGraphData const& PVParallelView::PVHitGraphBlocksManager::h
 		return _data;
 	}
 }
+
+uint32_t PVParallelView::PVHitGraphBlocksManager::get_max_count_all() const
+{
+	if (full_view()) {
+		return _data_z0.buffer_all().get_max_count();
+	}
+	return _data.buffer_all().get_zoomed_max_count(last_alpha());
+}
+
+uint32_t PVParallelView::PVHitGraphBlocksManager::get_max_count_sel() const
+{
+	if (full_view()) {
+		return _data_z0.buffer_sel().get_max_count();
+	}
+	return _data.buffer_sel().get_zoomed_max_count(last_alpha());
+}

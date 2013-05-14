@@ -41,7 +41,8 @@ public:
 	uint32_t get_count_for(const uint32_t value) const;
 	__m128i  get_count_for(__m128i value) const;
 
-	uint32_t get_max_value_all() const;
+	uint32_t get_max_count_all() const;
+	uint32_t get_max_count_sel() const;
 
 public:
 	inline int last_zoom() const { return _data_params.zoom; }
