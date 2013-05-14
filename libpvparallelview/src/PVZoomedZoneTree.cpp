@@ -761,8 +761,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 	uint64_t y2_max,
 	int zoom,
 	double alpha,
+	const PVCore::PVHSVColor* colors,
+	PVCore::PVHSVColor* image,
 	const extract_entries_y1_y2_f &extract_f,
-	pv_bci_code_t *codes,
 	const PVRow* sel_elts
 ) const
 {
@@ -780,19 +781,12 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 	pv_tlr_buffer_t &tlr_buffer = tls.get_tlr_buffer();
 
 	size_t nbci = 0;
-	const insert_entry_f insert_f =
-		insert_entry_f([&](const PVQuadTreeEntry &e, pv_tlr_buffer_t&)
+	const insert_entry_y1_y2_f insert_f =
+		insert_entry_y1_y2_f([&](const PVQuadTreeEntry &e, PVCore::PVHSVColor* image)
 			   {
-					pv_bci_code_t bci;
 					uint32_t l = ((uint32_t)(((e.y1 - y1_min) * alpha))) >> shift;
 					uint32_t r = ((uint32_t)(((e.y2 - y2_min) * alpha))) >> shift;
-					if ((l < 2048) && (r < 2048)) {
-						bci.s.l = l;
-						bci.s.r = r;
-						bci.s.idx = e.idx;
-						codes[nbci] = bci;
-						nbci++;
-					}
+					image[r*2048+l] = colors[e.idx];
 			   });
 
 	BENCH_START(extract);
@@ -810,7 +804,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 
 			/* lines extraction
 			 */
-			extract_f(_trees[tree_idx], quadtree_buffer, tlr_buffer, insert_f);
+			extract_f(_trees[tree_idx], image, insert_f);
 		}
 	}
 	BENCH_STOP(extract);

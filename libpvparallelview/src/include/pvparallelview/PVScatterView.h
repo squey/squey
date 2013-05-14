@@ -44,6 +44,9 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 	// -22 because we want a scale factor of 1 when the view fits in a 1024x1024 window
 	constexpr static int zoom_min = -22 * zoom_steps;
 
+	constexpr static uint32_t image_width = 2048;
+	constexpr static uint32_t image_height = image_width;
+
 public:
 	PVScatterView(
 		const Picviz::PVView_sp &pvview_sp,

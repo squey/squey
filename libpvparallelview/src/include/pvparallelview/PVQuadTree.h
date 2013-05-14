@@ -237,6 +237,7 @@ class PVQuadTree
 public:
 	typedef PVTLRBuffer<Bbits> pv_tlr_buffer_t;
 	typedef std::function<void(const PVQuadTreeEntry &entry, pv_tlr_buffer_t &buffer)> insert_entry_f;
+	typedef std::function<void(const PVQuadTreeEntry &entry, PVCore::PVHSVColor* image)> insert_entry_y1_y2_f;
 
 public:
 	/**
@@ -439,16 +440,16 @@ public:
 			uint64_t y1_min, uint64_t y1_max,
 			uint64_t y2_min, uint64_t y2_max,
 			uint32_t zoom,
-			pv_quadtree_buffer_entry_t *buffer,
-			const insert_entry_f &insert_f,
-			pv_tlr_buffer_t &tlr) const
+			PVCore::PVHSVColor* image,
+			const insert_entry_y1_y2_f &insert_f
+			) const
 		{
-			return visit_y1_y2::get_n_m(*this, y1_min, y1_max, y2_min, y2_max, zoom,
+			return visit_y1_y2::get_n_m(*this, y1_min, y1_max, y2_min, y2_max, zoom, zoom,
 			[](const PVQuadTreeEntry &e, const uint64_t y1_min, const uint64_t y1_max, const uint64_t y2_min, const uint64_t y2_max) -> bool
 			{
 				return (e.y1 >= y1_min) && (e.y1 < y1_max) && (e.y2 >= y2_min) && (e.y2 < y2_max);
 			},
-			insert_f, buffer, tlr);
+			insert_f, image);
 		}
 
 	/**
@@ -1881,17 +1882,17 @@ private:
 			PVQuadTree const& obj,
 			const uint64_t y1_min, const uint64_t y1_max,
 			const uint64_t y2_min, const uint64_t y2_max,
-			const uint32_t zoom,
-			const Ftest &test_f, const insert_entry_f &insert_f,
-			pv_quadtree_buffer_entry_t *buffer,
-			pv_tlr_buffer_t &tlr)
+			const uint32_t current_zoom,
+			const uint32_t max_zoom,
+			const Ftest &test_f, const insert_entry_y1_y2_f &insert_f,
+			PVCore::PVHSVColor* image)
 		{
 			size_t ret = 0;
 			if (obj._nodes != 0) {
-				if (zoom == 0) {
+				if (current_zoom == 0) {
 					assert(obj._index_min != PVROW_INVALID_VALUE);
 					const PVQuadTreeEntry e(obj._y1_mid_value, obj._y2_mid_value, obj._index_min);
-					insert_f(e, tlr);
+					insert_f(e, image);
 					return 1;
 				}
 
@@ -1900,33 +1901,33 @@ private:
 				if (obj._y1_mid_value < y1_max) {
 					if (obj._y2_mid_value < y2_max) {
 						ret += get_n_m(obj._nodes[NE], y1_min, y1_max, y2_min, y2_max,
-						zoom - 1,
-						test_f, insert_f, buffer, tlr);
+						current_zoom - 1, max_zoom,
+						test_f, insert_f, image);
 					}
 					if (y2_min < obj._y2_mid_value) {
 						ret += get_n_m(obj._nodes[SE], y1_min, y1_max, y2_min, y2_max,
-						zoom - 1,
-						test_f, insert_f, buffer, tlr);
+						current_zoom - 1, max_zoom,
+						test_f, insert_f, image);
 					}
 				}
 				if (y1_min < obj._y1_mid_value) {
 					if (obj._y2_mid_value < y2_max) {
 						ret += get_n_m(obj._nodes[NW], y1_min, y1_max, y2_min, y2_max,
-						zoom - 1,
-						test_f, insert_f, buffer, tlr);
+						current_zoom - 1, max_zoom,
+						test_f, insert_f, image);
 					}
 					if (y2_min < obj._y2_mid_value) {
 						ret += get_n_m(obj._nodes[SW], y1_min, y1_max, y2_min, y2_max,
-						zoom - 1,
-						test_f, insert_f, buffer, tlr);
+						current_zoom - 1, max_zoom,
+						test_f, insert_f, image);
 					}
 				}
 			} else if (obj._datas.size() != 0) {
 				/* this is a unsplitted node with data and an array of nxm
 				 * entries is needed
 				 */
-				ret += extract_seq(obj, y1_min, y1_max, y2_min, y2_max, zoom,
-							test_f, insert_f, buffer, tlr);
+				ret += extract_seq(obj, y1_min, y1_max, y2_min, y2_max, current_zoom, max_zoom,
+							test_f, insert_f, image);
 			}
 			return ret;
 		}
@@ -1949,19 +1950,20 @@ private:
 		static size_t extract_seq(PVQuadTree const& obj,
 			const uint64_t y1_min, const uint64_t y1_max,
 			const uint64_t y2_min, const uint64_t y2_max,
-			const uint32_t /*zoom*/,
+			const uint32_t current_zoom, const uint32_t max_zoom,
 			const Ftest &test_f,
-			const insert_entry_f &insert_f,
-			pv_quadtree_buffer_entry_t* /*buffer*/,
-			pv_tlr_buffer_t& tlr)
+			const insert_entry_y1_y2_f &insert_f,
+			PVCore::PVHSVColor* image)
 		{
 			size_t ret = 0;
+			uint32_t extraction_count = pow(4, max_zoom - current_zoom);
+			PV_UNUSED(extraction_count);
 			for(size_t i = 0; i < obj._datas.size(); ++i) {
 				const PVQuadTreeEntry &e = obj._datas.at(i);
 				if (!test_f(e, y1_min, y1_max, y2_min, y2_max)) {
 					continue;
 				}
-				insert_f(e, tlr);
+				insert_f(e, image);
 				ret++;
 			}
 			return ret;
