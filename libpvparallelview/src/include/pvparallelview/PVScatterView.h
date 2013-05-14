@@ -65,6 +65,7 @@ public:
 
 protected:
 	void drawBackground(QPainter *painter, const QRectF &rect) override;
+	void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
 	void draw_points(QPainter *painter, const QRectF& rect);

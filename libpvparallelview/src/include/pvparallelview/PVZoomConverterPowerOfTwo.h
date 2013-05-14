@@ -19,7 +19,7 @@ class PVZoomConverterPowerOfTwo : public PVZoomConverter
 public:
 	int scale_to_zoom(const qreal value) const override
 	{
-		return log(scale_value) / log(2.0);
+		return log2(value);
 	}
 
 	qreal zoom_to_scale(const int value) const override

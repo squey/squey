@@ -358,15 +358,15 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_vi
 	const __m128i y2_min_sse = _mm_set1_epi32(y2_min);
 	const __m128i y2_max_sse = _mm_set1_epi32(y2_max);
 
-	const uint32_t nrows_sse = nrows & ~63U;
+	const uint32_t nrows_sse = nrows & ~31U;
 
 	BENCH_START(scatter_view_plotted_selection_sse);
 
 	PVRow i = 0;
 #pragma omp parallel for num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())
-	for(i = 0; i < nrows_sse; i += 64) {
+	for(i = 0; i < nrows_sse; i += 32) {
 		uint64_t chunk = 0;
-		for (int j = 0; j < 64; j += 4) {
+		for (int j = 0; j < 32; j += 4) {
 			const __m128i y1_sse = _mm_load_si128((__m128i const*) &y1_plotted[i+j]);
 			const __m128i mask_y1 = picviz_mm_cmprange_epu32(y1_sse, y1_min_sse, y1_max_sse);
 
@@ -379,9 +379,8 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_vi
 				const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask_y1_y2));
 				chunk |= sel_bits << j;
 			}
-
-			sel.set_chunk_fast(Picviz::PVSelection::line_index_to_chunk(i), chunk);
 		}
+		sel.set_chunk32_fast_stream(Picviz::PVSelection::line_index_to_chunk32(i), chunk);
 	}
 	for (; i < nrows; i++) {
 		const uint32_t y1 = y1_plotted[i];

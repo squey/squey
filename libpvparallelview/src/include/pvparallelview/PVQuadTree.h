@@ -229,7 +229,7 @@ typedef PVCore::PVVector<PVQuadTreeEntry> pvquadtree_entries_t;
  * To make the first events extraction efficient, each unsplitted quadtrees
  * nodes store events in ascending order relatively to their indices.
  */
-template<int MAX_ELEMENTS_PER_NODE = 10000, int REALLOC_ELEMENT_COUNT = 1000, int PREALLOC_ELEMENT_COUNT = 0, size_t Bbits = NBITS_INDEX>
+template<int MAX_ELEMENTS_PER_NODE = 512, int REALLOC_ELEMENT_COUNT = 1000, int PREALLOC_ELEMENT_COUNT = 0, size_t Bbits = NBITS_INDEX>
 class PVQuadTree
 {
 	constexpr static uint32_t mask_int_ycoord = (((uint32_t)1)<<Bbits)-1;
@@ -259,7 +259,7 @@ public:
 	/**
 	 * Create a quadtree without initializing it, this constructor has to be used with init.
 	 */
-	PVQuadTree() : _nodes(nullptr)
+	PVQuadTree() : _nodes(nullptr), _index_min(PVROW_INVALID_VALUE)
 	{}
 
 	/**
@@ -289,6 +289,7 @@ public:
 		_y2_min_value = y2_min_value;
 		_y2_mid_value = y2_mid_value;
 		_max_level = max_level;
+		_index_min = PVROW_INVALID_VALUE;
 		if (PREALLOC_ELEMENT_COUNT != 0) {
 			_datas.reserve(PREALLOC_ELEMENT_COUNT);
 		} else {
@@ -316,7 +317,7 @@ public:
 		qt->_datas.push_back(e);
 
 		// does the current node must be splitted?
-		if ((qt->_datas.size() >= MAX_ELEMENTS_PER_NODE) && qt->_max_level) {
+		if ((qt->_datas.size() >= MAX_ELEMENTS_PER_NODE)/* && (qt->_max_level > 0)*/) {
 			qt->create_next_level();
 		}
 	}
@@ -898,6 +899,8 @@ private:
 	 */
 	void create_next_level()
 	{
+		assert(_datas.size() > 0);
+
 		uint32_t y1_step = (_y1_mid_value - _y1_min_value) >> 1;
 		uint32_t y2_step = (_y2_mid_value - _y2_min_value) >> 1;
 
@@ -918,11 +921,24 @@ private:
 		                _y2_mid_value, _y2_mid_value + y2_step,
 		                _max_level - 1);
 
+		_index_min = _datas.at(0).idx;
+
 		for (unsigned i = 0; i < _datas.size(); ++i) {
 			const PVQuadTreeEntry &e = _datas.at(i);
 			_nodes[compute_index(e)]._datas.push_back(e);
 		}
 		_datas.clear();
+	}
+
+	uint32_t get_first_elt_index() const
+	{
+		if (_index_min != PVROW_INVALID_VALUE) {
+			return _index_min;
+		}
+		if (_datas.size() > 0) {
+			return _datas.at(0).idx;
+		}
+		return PVROW_INVALID_VALUE;
 	}
 
 private:
@@ -1850,8 +1866,8 @@ private:
 		 * Traversal function to extract a NxM events grid.
 		 *
 		 * @param obj the quadtree to visit
-		 * @param y1_min the included minimal bound along the y2 coordinate
-		 * @param y1_max the excluded maximal bound along the y2 coordinate
+		 * @param y1_min the included minimal bound along the y1 coordinate
+		 * @param y1_max the excluded maximal bound along the y1 coordinate
 		 * @param y2_min the included minimal bound along the y2 coordinate
 		 * @param y2_max the excluded maximal bound along the y2 coordinate
 		 * @param zoom the zoom level
@@ -1872,6 +1888,13 @@ private:
 		{
 			size_t ret = 0;
 			if (obj._nodes != 0) {
+				if (zoom == 0) {
+					assert(obj._index_min != PVROW_INVALID_VALUE);
+					const PVQuadTreeEntry e(obj._y1_mid_value, obj._y2_mid_value, obj._index_min);
+					insert_f(e, tlr);
+					return 1;
+				}
+
 				/* recursive search can be processed
 				 */
 				if (obj._y1_mid_value < y1_max) {
@@ -2024,7 +2047,8 @@ private:
 	uint32_t              _y2_min_value;
 	uint32_t              _y2_mid_value;
 
-	uint32_t              _max_level;
+	int32_t              _max_level;
+	uint32_t			  _index_min;
 };
 
 #undef SW
