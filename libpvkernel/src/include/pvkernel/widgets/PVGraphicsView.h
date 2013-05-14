@@ -821,13 +821,13 @@ private:
 	 * Returns the horizontal offset used to center the scene in the viewport
 	 * when the first is entirely contained in the second.
 	 */
-	const qreal get_scroll_x() const;
+	qreal get_scroll_x() const;
 
 	/**
 	 * Returns the vertical offset used to center the scene in the viewport
 	 * when the first is entirely contained in the second.
 	 */
-	const qreal get_scroll_y() const;
+	qreal get_scroll_y() const;
 
 	/**
 	 * Returns the offset vector used to center the scene in the viewport

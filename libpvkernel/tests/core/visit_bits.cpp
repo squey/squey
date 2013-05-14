@@ -42,7 +42,7 @@ static uint32_t count_bits_sse(size_t n, const uint64_t* data)
 #define SIZE_BUF ((1UL<<(32-6))-1)
 
 #define MAX_SLICE_SIZE 1024
-size_t get_slice_size(size_t i)
+size_t get_slice_size(size_t /*i*/)
 {
 	return rand()%MAX_SLICE_SIZE + 1;
 }

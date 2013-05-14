@@ -30,7 +30,7 @@ public:
 	uint32_t const* buffer_bg() const;
 	uint32_t const* buffer_sel() const;
 
-	uint32_t const y_start() const;
+	uint32_t y_start() const;
 	inline uint32_t nblocks() const { return _data.nblocks(); }
 
 	inline uint32_t size_int() const { return hgdata().size_int(); }

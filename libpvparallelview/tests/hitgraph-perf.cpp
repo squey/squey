@@ -30,6 +30,11 @@ static bool verbose = false;
  * sequential algos
  *****************************************************************************/
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 void count_y1_seq_v1(const PVRow row_count, const uint32_t *col_y1,
                      const Picviz::PVSelection &selection,
                      const uint64_t y_min, const uint64_t y_max, const int zoom,
@@ -587,6 +592,10 @@ void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 	}
 }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
 /*****************************************************************************
  * some code to reduce code duplication
  *****************************************************************************/
@@ -985,7 +994,7 @@ int main(int argc, char **argv)
 
 	// nothing special
 	do_one_allocator(std::string(""),
-	                 [](uint32_t* p, size_t n) {},
+	                 [](uint32_t* /*p*/, size_t /*n*/) {},
 	                 get_col(data, row_count, col), row_count, col_count, col, y_min, y_max, zoom);
 
 #if 0

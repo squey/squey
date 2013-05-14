@@ -157,7 +157,7 @@ uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_sel() const
 	return _data.buffer_sel().buffer();
 }
 
-uint32_t const PVParallelView::PVHitGraphBlocksManager::y_start() const
+uint32_t PVParallelView::PVHitGraphBlocksManager::y_start() const
 {
 	return y_to_block_idx(_data_params.y_min, _data_params.zoom) << (32-_data_params.zoom);
 }

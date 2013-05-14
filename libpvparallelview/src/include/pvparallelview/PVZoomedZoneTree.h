@@ -379,6 +379,8 @@ public:
 		const PVRow* sel_elts = nullptr
 	) const
 	{
+		// AG: TODO: this should be used ;)
+		PV_UNUSED(sel_elts);
 		return browse_trees_bci_by_y1_y2_seq(ctx, y1_min, y1_max, y2_min, y2_max, zoom, alpha,
 			[&](const pvquadtree &tree,
 			  pv_quadtree_buffer_entry_t *buffer,

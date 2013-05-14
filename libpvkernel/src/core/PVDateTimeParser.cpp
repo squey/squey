@@ -39,16 +39,6 @@ PVCore::PVDateTimeParser& PVCore::PVDateTimeParser::operator=(const PVDateTimePa
 	return *this;
 }
 
-void PVCore::PVDateTimeParser::destroy_tf(TimeFormat* p)
-{
-	//_alloc_tf.destroy(p);
-}
-
-void PVCore::PVDateTimeParser::destroy_tfe(TimeFormatEpoch* p)
-{
-	//_alloc_tfe.destroy(p);
-}
-
 PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format):
 	_org_time_format(time_format)
 {
@@ -222,12 +212,6 @@ PVCore::PVDateTimeParser::TimeFormat& PVCore::PVDateTimeParser::TimeFormat::oper
 		copy(src);
 	}
 	return *this;
-}
-
-void PVCore::PVDateTimeParser::TimeFormat::destroy_sdf(SimpleDateFormat* p)
-{
-	//p->~SimpleDateFormat();
-	//_alloc_df.free(p);
 }
 
 void PVCore::PVDateTimeParser::TimeFormat::copy(TimeFormat const& src)

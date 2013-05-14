@@ -53,10 +53,7 @@ PVInspector::PVXmlTreeItemDelegate::~PVXmlTreeItemDelegate() {
  *  PVInspector::PVXmlTreeItemDelegate::sizeHint
  *
  *****************************************************************************/
-QSize PVInspector::PVXmlTreeItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
-    
-    return QSize(300, 30);
+QSize PVInspector::PVXmlTreeItemDelegate::sizeHint(const QStyleOptionViewItem& /*option*/, const QModelIndex& /*index*/) const
+{
+	return QSize(300, 30);
 }
-
-
-    

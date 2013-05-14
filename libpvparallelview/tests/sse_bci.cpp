@@ -80,7 +80,7 @@ using namespace std;
 	//}
 }*/
 
-void sse_bci(unsigned int* bcodes, unsigned int* indexes, PVCore::PVHSVColor* colors, PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes)
+void sse_bci(unsigned int* bcodes, unsigned int* /*indexes*/, PVCore::PVHSVColor* colors, PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes)
 {
 	size_t idx_code = 0;
 	int sse_ndx = 0;

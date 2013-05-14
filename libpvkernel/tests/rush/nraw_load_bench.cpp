@@ -74,6 +74,8 @@ int main(int argc, char** argv)
 	int i = 0;
 	backend.visit_column2(0, [=,&i,&test_passed](size_t r, const char* field, size_t n)
 	{
+		PV_UNUSED(r);
+		PV_UNUSED(n);
 		test_passed &= (strcmp(field, vec[i].c_str()) == 0);
 		i++;
 	});
@@ -88,6 +90,8 @@ int main(int argc, char** argv)
 	int i = 0;
 	backend.visit_column_tbb(0, [=,&i,&test_passed](size_t r, const char* field, size_t n)
 	{
+		PV_UNUSED(r);
+		PV_UNUSED(n);
 		test_passed &= (strcmp(field, vec[i].c_str()) == 0);
 		i++;
 	});

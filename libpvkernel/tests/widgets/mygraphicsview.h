@@ -85,7 +85,7 @@ class MyPVGraphicsView : public PVWidgets::PVGraphicsView
 	{}
 
 public slots:
-	void frame_has_changed (int frame)
+	void frame_has_changed (int /*frame*/)
 	{
 		if (get_scene() == nullptr) {
 			return;
@@ -160,7 +160,7 @@ class MyQGraphicsView : public QGraphicsView
 	}
 
 public slots:
-	void frame_has_changed (int frame)
+	void frame_has_changed (int /*frame*/)
 	{
 		if (scene() == nullptr) {
 			return;

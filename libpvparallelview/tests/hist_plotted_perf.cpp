@@ -797,7 +797,7 @@ bool compare(uint32_t *ref, uint32_t *tab, int block_count)
 }
 
 void test_no_sel(const size_t real_buffer_size,
-                 const uint32_t y_min, const int zoom, PVParallelView::PVZoneTree const& zt,
+                 const uint32_t y_min, const int zoom, PVParallelView::PVZoneTree const& /*zt*/,
                  const uint32_t* col_a, const size_t row_count,
                  const int block_count)
 {
@@ -858,7 +858,7 @@ void test_no_sel(const size_t real_buffer_size,
 void test_sel(const size_t real_buffer_size,
               const uint32_t y_min, const int zoom,
               const Picviz::PVSelection &selection,
-              PVParallelView::PVZoneTree const& zt,
+              PVParallelView::PVZoneTree const& /*zt*/,
               const uint32_t* col_a, const size_t row_count,
               const int block_count)
 {

@@ -158,7 +158,7 @@ int PVInspector::PVNrawListingWidget::get_selected_row()
 	return _nraw_table->currentIndex().row();
 }
 
-void PVInspector::PVNrawListingWidget::nraw_custom_menu_Slot(const QPoint& pt)
+void PVInspector::PVNrawListingWidget::nraw_custom_menu_Slot(const QPoint&)
 {
 	if (_nraw_table->model()->rowCount() == 0) {
 		return;

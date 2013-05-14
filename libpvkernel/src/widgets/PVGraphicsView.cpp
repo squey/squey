@@ -941,7 +941,7 @@ void PVWidgets::PVGraphicsView::center_view(ViewportAnchor anchor)
  * PVWidgets::PVGraphicsView::get_scroll_x
  *****************************************************************************/
 
-const qreal PVWidgets::PVGraphicsView::get_scroll_x() const
+qreal PVWidgets::PVGraphicsView::get_scroll_x() const
 {
 	return _hbar->value() - _screen_offset_x;
 }
@@ -950,7 +950,7 @@ const qreal PVWidgets::PVGraphicsView::get_scroll_x() const
  * PVWidgets::PVGraphicsView::get_scroll_y
  *****************************************************************************/
 
-const qreal PVWidgets::PVGraphicsView::get_scroll_y() const
+qreal PVWidgets::PVGraphicsView::get_scroll_y() const
 {
 	return _vbar->value() - _screen_offset_y;
 }

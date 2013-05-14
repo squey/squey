@@ -25,7 +25,7 @@ typedef PVCore::PVWeakPtr<Test3> Test3_wp;
 static int g_deleter_count = 0;
 
 template <typename T>
-inline void deleter(void *ptr)
+inline void deleter(void* /*ptr*/)
 {
 	std::cout << "deleter" << std::endl;
 	g_deleter_count++;

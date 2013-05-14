@@ -48,7 +48,6 @@
 #include <pvkernel/widgets/PVColorDialog.h>
 
 #include <picviz/general.h>
-#include <picviz/arguments.h>
 #include <picviz/PVSelection.h>
 #include <picviz/PVMapping.h>
 #include <picviz/PVPlotting.h>
@@ -846,7 +845,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	}
 
 	menu_activate_is_file_opened(true);
-	show_start_page(false);
 	_projects_tab_widget->setVisible(true);
 }
 
@@ -1772,7 +1770,7 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView* picviz_view)
  * PVInspector::PVMainWindow::set_color_selected
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::set_color_selected(QColor const& color)
+void PVInspector::PVMainWindow::set_color_selected(QColor const&)
 {
 #if 0
 	Picviz::PVView& picviz_view = dlg->current_view();
@@ -1846,25 +1844,6 @@ void PVInspector::PVMainWindow::set_version_informations()
 		pv_lastMajVersion->setText(PVCore::PVVersion::to_str(_last_known_maj_release));
 	}*/
 }
-
-
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::show_start_page
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::show_start_page(bool visible)
-{
-	/*if (visible) {
-		pv_centralWidget->setCurrentWidget(pv_centralStartWidget);
-	}
-	else {
-		pv_centralWidget->setCurrentWidget(pv_centralMainWidget);
-	}*/
-}
-
-
 
 /******************************************************************************
  *

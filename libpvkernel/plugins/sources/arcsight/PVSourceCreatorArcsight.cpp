@@ -3,7 +3,7 @@
 
 #include <pvkernel/filter/PVChunkFilter.h>
 
-PVRush::PVSourceCreatorArcsight::source_p PVRush::PVSourceCreatorArcsight::create_discovery_source_from_input(PVInputDescription_p input, const PVFormat& format) const
+PVRush::PVSourceCreatorArcsight::source_p PVRush::PVSourceCreatorArcsight::create_discovery_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
 {
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	source_p src(new PVRush::PVArcsightSource(input, 128, chk_flt->f()));
@@ -21,7 +21,7 @@ QString PVRush::PVSourceCreatorArcsight::supported_type() const
 	return QString("arcsight");
 }
 
-bool PVRush::PVSourceCreatorArcsight::pre_discovery(PVInputDescription_p input) const
+bool PVRush::PVSourceCreatorArcsight::pre_discovery(PVInputDescription_p /*input*/) const
 {
 	return true;
 }

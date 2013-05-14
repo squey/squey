@@ -251,6 +251,6 @@ void PVGuiQt::PVLayerStackView::layer_clicked(QModelIndex const& idx)
 	ls_model()->setData(idx, QVariant(true), PVCustomQtRoles::RoleSetSelectedItem);
 }
 
-void PVGuiQt::PVLayerStackView::layer_double_clicked(QModelIndex const& idx)
+void PVGuiQt::PVLayerStackView::layer_double_clicked(QModelIndex const&)
 {
 }

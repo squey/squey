@@ -69,7 +69,7 @@ public:
     {
       mTotalRel++;
       //count this sequence to its category counter
-      mRelSample[jp2CharContext[mLastCharOrder][order]]++;
+      mRelSample[(int)jp2CharContext[(int)mLastCharOrder][order]]++;
     }
     mLastCharOrder = order;
   }

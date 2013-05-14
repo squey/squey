@@ -97,28 +97,6 @@ void Picviz::PVLinesProperties::A2B_copy_zombie_off_restricted_by_selection_and_
 
 /******************************************************************************
  *
- * Picviz::PVLinesProperties::A2B_copy_zombie_on_restricted_by_selection_and_nelts
- *
- *****************************************************************************/
-void Picviz::PVLinesProperties::A2B_copy_zombie_on_restricted_by_selection_and_nelts(Picviz::PVLinesProperties &b, PVSelection const& selection, PVRow nelts)
-{
-	/*
-	PVRow row;
-
-	for (row=0; row < nelts; row++) {
-		if (selection.get_line(row)) {
-			b.table[row] = table[row];
-		} else {
-			b.table[row].a() = line_get_a(row)/2;
-			b.table[row].b() = line_get_b(row)/2;
-			b.table[row].g() = line_get_g(row)/2;
-			b.table[row].r() = line_get_r(row)/2;
-		}
-	}*/
-}
-
-/******************************************************************************
- *
  * Picviz::PVLinesProperties::operator=
  *
  *****************************************************************************/

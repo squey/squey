@@ -23,19 +23,8 @@ set(HEADER_FILES
 include/bithacks.h
 include/picviz
 
-include/picviz/arguments.h
-include/picviz/defs.h
-include/picviz/discover.h
-include/picviz/eventline.h
 include/picviz/general.h
-include/picviz/index-array.h
-include/picviz/init.h
-include/picviz/layer.h
-include/picviz/layer-index-array.h
-include/picviz/layer-stack.h
 include/picviz/limits.h
-#include/picviz/line-properties.h
-include/picviz/memory.h
 include/picviz/plugins.h
 
 include/picviz/PVAD2GView.h
@@ -76,12 +65,6 @@ include/picviz/PVTFViewRowFiltering.h
 include/picviz/PVTFViewRowFilterFastIPv4.h
 include/picviz/PVTransformationFunctionView.h
 include/picviz/PVTransformationFunctionView_types.h
-
-include/picviz/square-area.h
-include/picviz/tags.h
-include/picviz/time.h
-include/picviz/type-discovery.h
-include/picviz/z-level-array.h
 )
 
 set(NONCUDA_SRC_FILES
@@ -99,7 +82,6 @@ set(SRC_FILES
 discover.cpp
 #eventline.cpp
 #index-array.cpp 
-init.cpp
 #layer.cpp 
 #layer-index-array.cpp 
 #layer-stack.cpp 
@@ -145,7 +127,6 @@ PVCombiningFunctionView.cpp
 PVTFViewRowFiltering.cpp
 PVTFViewRowFilterFastIPv4.cpp
 
-memory.cpp
 plugins.cpp
 #square-area.cpp
 type-discovery.cpp 

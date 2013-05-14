@@ -49,12 +49,12 @@ unsigned int qHash(PVCore::PVUnicodeStringHashNoCase const& str)
 	return hash_lowercase(str.str().buffer(), str.str().size());
 }
 
-double PVCore::PVUnicodeString::to_double(bool& ok) const
+double PVCore::PVUnicodeString::to_double(bool& /*ok*/) const
 {
 	return 0.0;
 }
 
-float PVCore::PVUnicodeString::to_float(bool& ok) const
+float PVCore::PVUnicodeString::to_float(bool& /*ok*/) const
 {
 	return 0.0;
 }

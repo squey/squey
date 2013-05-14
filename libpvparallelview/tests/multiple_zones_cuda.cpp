@@ -20,7 +20,7 @@
 #include <QApplication>
 #include <QMainWindow>
 
-void stream_callback(cudaStream_t stream, cudaError_t status, void* userData)
+void stream_callback(cudaStream_t stream, cudaError_t /*status*/, void* /*userData*/)
 {
 	printf("stream %p is finished\n", stream);
 }

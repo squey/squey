@@ -21,7 +21,7 @@ PVParallelView::PVSelectionRectangleInteractor::PVSelectionRectangleInteractor(P
  * PVParallelView::PVSelectionRectangleInteractor::keyPressEvent
  *****************************************************************************/
 
-bool PVParallelView::PVSelectionRectangleInteractor::keyPressEvent(PVWidgets::PVGraphicsView* view,
+bool PVParallelView::PVSelectionRectangleInteractor::keyPressEvent(PVWidgets::PVGraphicsView* /*view*/,
                                                                    QKeyEvent* event)
 {
 	if (event->key() == Qt::Key_Left) {

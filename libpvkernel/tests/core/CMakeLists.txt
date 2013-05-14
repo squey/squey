@@ -31,10 +31,6 @@ add_test(TestNetwork Tcore_network)
 # target_link_libraries(Tcore_process ${PVLIBRARIES} pthread)
 # add_test(TestProcess Tcore_process)
 
-declare_pv_test(Tcore_sysinfo sysinfo.cpp)
-target_link_libraries(Tcore_sysinfo pvkernel ${QT_LIBRARIES})
-add_test(TestSysinfo Tcore_sysinfo)
-
 declare_pv_test(Tcore_logger logger.cpp)
 target_link_libraries(Tcore_logger pvkernel ${QT_LIBRARIES})
 add_test(TestLogger Tcore_logger)

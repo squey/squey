@@ -31,7 +31,7 @@ void test_right_shift(PVParallelView::PVHitGraphBuffer const& b, uint32_t n)
 	PV_ASSERT_VALID(memcmp(b.buffer(), bshift.buffer_block(n), (b.nblocks()-n)*b.size_block()*sizeof(uint32_t)) == 0);
 }
 
-int main(int argc, char** argv)
+int main()
 {
 	PVParallelView::PVHitGraphBuffer buffer_11(11, 7);
 	for (uint32_t i = 0; i < buffer_11.size_int(); i++) {

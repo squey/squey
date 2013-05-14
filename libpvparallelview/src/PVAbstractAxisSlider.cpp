@@ -148,7 +148,7 @@ void PVParallelView::PVAbstractAxisSlider::contextMenuEvent(QGraphicsSceneContex
 	}
 }
 
-void PVParallelView::PVAbstractAxisSlider::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void PVParallelView::PVAbstractAxisSlider::paint(QPainter *painter, const QStyleOptionGraphicsItem* /*option*/, QWidget* /*widget*/)
 {
 #ifdef PICVIZ_DEVELOPER_MODE
 	if (common::show_bboxes()) {

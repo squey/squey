@@ -420,7 +420,7 @@ void PVGuiQt::__impl::PVCellWidgetBase::set_valid(uint32_t value, bool auto_refr
 	_valid = true;
 }
 
-void PVGuiQt::__impl::PVCellWidgetBase::vertical_header_clicked(int index)
+void PVGuiQt::__impl::PVCellWidgetBase::vertical_header_clicked(int)
 {
 	refresh();
 }

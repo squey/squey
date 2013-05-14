@@ -9,7 +9,6 @@ core/environ.cpp
 core/network.cpp
 core/picviz_intrin.cpp
 core/sse4detector.cpp
-core/sysinfo.cpp
 core/segfault_handler.cpp
 
 core/PVAllocators.cpp
@@ -79,7 +78,6 @@ include/pvkernel/core/sse4detector.h
 include/pvkernel/core/pv_pcre_splitter.h
 include/pvkernel/core/pv_splitter.h
 include/pvkernel/core/PVStringUtils.h
-include/pvkernel/core/sysinfo.h
 include/pvkernel/core/hash_sharedptr.h
 
 include/pvkernel/core/PVArchive.h

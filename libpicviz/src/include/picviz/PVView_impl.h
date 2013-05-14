@@ -240,7 +240,7 @@ void nraw_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortin
 }
 
 template <class L, class Comp, class TLS>
-bool stable_insert_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, TLS& multiset_tls, Comp& sort, Qt::SortOrder order, L& idxes, tbb::task_group_context* ctxt = NULL)
+bool stable_insert_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, TLS& multiset_tls, Comp& /*sort*/, Qt::SortOrder /*order*/, L& idxes, tbb::task_group_context* ctxt = NULL)
 {
 	typedef typename TLS::value_type multiset_t;
 

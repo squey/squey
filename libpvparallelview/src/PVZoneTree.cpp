@@ -585,7 +585,7 @@ void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection con
 	BENCH_END(subtree, "filter_by_sel_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);*/
 }
 
-void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts)
+void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Picviz::PVSelection const& sel, const PVRow /*nrows*/, PVRow* buf_elts)
 {
 	// returns a zone tree with only the selected lines
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();

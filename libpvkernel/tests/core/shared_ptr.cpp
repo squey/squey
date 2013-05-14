@@ -170,7 +170,7 @@ int main()
 	p_p2 = pouet_p(p);
 	std::cout << "  p_p2 is set" << std::endl;
 	std::cout << "  p_p2.set_deleter(...)" << std::endl;
-	p_p2.set_deleter([](void *a)
+	p_p2.set_deleter([](void*)
 	                 {
 		                 deleted_status_set();
 	                 });
@@ -200,7 +200,7 @@ int main()
 	p_p2 = p_p3;
 
 	std::cout << "  p_p2.set_deleter(...)" << std::endl;
-	p_p2.set_deleter([](void* p)
+	p_p2.set_deleter([](void*)
 	                 {
 		                 deleted_status_set();
 	                 });
@@ -230,7 +230,7 @@ int main()
 
 	p = new pouet;
 
-	p_p2 = PVCore::make_shared<pouet>(p, [](void* p)
+	p_p2 = PVCore::make_shared<pouet>(p, [](void*)
 	                                  {
 		                                  deleted_status_set();
 	                                  });

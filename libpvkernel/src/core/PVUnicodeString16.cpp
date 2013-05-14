@@ -70,12 +70,12 @@ unsigned int qHash(PVCore::PVUnicodeString16HashNoCase const& str)
 	return hash_lowercase(str.str().buffer(), str.str().size());
 }
 
-double PVCore::PVUnicodeString16::to_double(bool& ok) const
+double PVCore::PVUnicodeString16::to_double(bool& /*ok*/) const
 {
 	return 0.0;
 }
 
-float PVCore::PVUnicodeString16::to_float(bool& ok) const
+float PVCore::PVUnicodeString16::to_float(bool& /*ok*/) const
 {
 	return 0.0;
 }

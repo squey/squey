@@ -24,13 +24,11 @@
 
 #include <picviz/PVView.h>
 
-/*! \brief Maximize a view display on a given screen.
- */
 PVGuiQt::PVViewDisplay::PVViewDisplay(
 	Picviz::PVView* view,
 	QWidget* view_widget,
 	std::function<QString()> name,
-	bool can_be_central_widget,
+	bool /*can_be_central_widget*/,
 	bool delete_on_close,
 	PVWorkspaceBase* workspace
 ) :

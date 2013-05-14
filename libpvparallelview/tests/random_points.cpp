@@ -27,9 +27,9 @@ int main()
 	// Points generation
 	std::vector<random_point_t> vec;
 	vec.reserve(PIXEL_COUNT);
+#if RANDOM
 	uint32_t row = 0;
 	uint32_t col = 0;
-#if RANDOM
 	for (uint32_t i = 0; i < PIXEL_COUNT ; i++) {
 		row = rand() % IMAGE_HEIGHT;
 		col = rand() % IMAGE_WIDTH;

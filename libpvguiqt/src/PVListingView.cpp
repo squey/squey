@@ -307,7 +307,7 @@ void PVGuiQt::PVListingView::extract_selection(Picviz::PVSelection &sel)
  * PVGuiQt::PVListingView::selectionChanged
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+void PVGuiQt::PVListingView::selectionChanged(const QItemSelection& /*selected*/, const QItemSelection& /*deselected*/)
 {
 #if 0
 	bool has_sel = selected.indexes().size() > 0;
@@ -503,7 +503,7 @@ void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
  * PVGuiQt::PVListingView::set_color_selected
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::set_color_selected(const QColor& c)
+void PVGuiQt::PVListingView::set_color_selected(const QColor& /*c*/)
 {
 #if 0
 	if (!c.isValid()) {

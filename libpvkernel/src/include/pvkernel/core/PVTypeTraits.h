@@ -206,7 +206,7 @@ inline typename const_fwd<typename std::remove_pointer<U>::type, T>::type* dynam
 }
 
 template <typename U, typename T, typename std::enable_if<std::is_polymorphic<T>::value == false, int>::type = 0>
-inline typename const_fwd<typename std::remove_pointer<U>::type, T>::type* dynamic_cast_if_possible(T* obj)
+inline typename const_fwd<typename std::remove_pointer<U>::type, T>::type* dynamic_cast_if_possible(T*)
 {
 	return nullptr;
 }

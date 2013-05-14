@@ -56,7 +56,7 @@ protected:
 	 *  \return true if the event has been processed and must not be processed
 	 *  by the other interactors. false otherwise.
 	 */
-	virtual bool mouseDoubleClickEvent(object_type* obj, QMouseEvent *event) { return false; }
+	virtual bool mouseDoubleClickEvent(object_type* /*obj*/, QMouseEvent* /*event*/) { return false; }
 
 	/*! \brief Called when a mouse button press event has occured.
 	 *  \param[in] obj   A pointer to the view that received the event
@@ -65,7 +65,7 @@ protected:
 	 *  \return true if the event has been processed and must not be processed
 	 *  by the other interactors. false otherwise.
 	 */
-	virtual bool mousePressEvent(object_type* obj, QMouseEvent* event) { return false; }
+	virtual bool mousePressEvent(object_type* /*obj*/, QMouseEvent* /*event*/) { return false; }
 
 	/*! \brief Called when a mouse button release event has occured.
 	 *  \param[in] obj   A pointer to the view that received the event
@@ -74,7 +74,7 @@ protected:
 	 *  \return true if the event has been processed and must not be processed
 	 *  by the other interactors. false otherwise.
 	 */
-	virtual bool mouseReleaseEvent(object_type* obj, QMouseEvent* event) { return false; }
+	virtual bool mouseReleaseEvent(object_type* /*obj*/, QMouseEvent* /*event*/) { return false; }
 
 	/*! \brief Called when a mouse move event has occured.
 	 *  \param[in] obj   A pointer to the view that received the event
@@ -83,7 +83,7 @@ protected:
 	 *  \return true if the event has been processed and must not be processed
 	 *  by the other interactors. false otherwise.
 	 */
-	virtual bool mouseMoveEvent(object_type* obj, QMouseEvent* event) { return false; }
+	virtual bool mouseMoveEvent(object_type* /*obj*/, QMouseEvent* /*event*/) { return false; }
 
 	/*! \brief Called when a wheel event has occured.
 	 *  \param[in] obj   A pointer to the view that received the event
@@ -92,7 +92,7 @@ protected:
 	 *  \return true if the event has been processed and must not be processed
 	 *  by the other interactors. false otherwise.
 	 */
-	virtual bool wheelEvent(object_type* obj, QWheelEvent* event) { return false; }
+	virtual bool wheelEvent(object_type* /*obj*/, QWheelEvent* /*event*/) { return false; }
 
 	/*! \brief Called when a key event has occured.
 	 *  \param[in] obj   A pointer to the view that received the event
@@ -101,7 +101,7 @@ protected:
 	 *  \return true if the event has been processed and must not be processed
 	 *  by the other interactors. false otherwise.
 	 */
-	virtual bool keyPressEvent(object_type* obj, QKeyEvent* event) { return false; }
+	virtual bool keyPressEvent(object_type* /*obj*/, QKeyEvent* /*event*/) { return false; }
 
 	/*! \brief Called when a key event has occured.
 	 *  \param[in] obj   A pointer to the view that received the event
@@ -110,7 +110,7 @@ protected:
 	 *  \return true if the event has been processed and must not be processed
 	 *  by the other interactors. false otherwise.
 	 */
-	virtual bool keyReleaseEvent(object_type* obj, QKeyEvent* event) { return false; }
+	virtual bool keyReleaseEvent(object_type* /*obj*/, QKeyEvent* /*event*/) { return false; }
 
 	/*! \brief Called when a resize event has occured.
 	 *  \param[in] obj   A pointer to the view that received the event
@@ -119,7 +119,7 @@ protected:
 	 *  \return true if the event has been processed and must not be processed
 	 *  by the other interactors. false otherwise.
 	 */
-	virtual bool resizeEvent(object_type* obj, QResizeEvent* event) { return false; }
+	virtual bool resizeEvent(object_type* /*obj*/, QResizeEvent* /*event*/) { return false; }
 
 protected:
 	bool call(QObject* obj, QEvent* event) override

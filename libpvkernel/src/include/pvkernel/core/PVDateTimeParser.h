@@ -81,7 +81,6 @@ protected:
 	private:
 		void create_parsers(QString const& time_format);
 		void copy(TimeFormat const& src);
-		static void destroy_sdf(SimpleDateFormat* p);
 
 	private:
 		boost::object_pool<SimpleDateFormat> _alloc_df;
@@ -102,9 +101,6 @@ protected:
 	//boost::object_pool<TimeFormatEpoch> _alloc_tfe;
 
 private:
-	static void destroy_tf(TimeFormat* p);
-	static void destroy_tfe(TimeFormatEpoch* p);
-
 	static UnicodeString icuFromQStringAlias(const QString& src);
 
 

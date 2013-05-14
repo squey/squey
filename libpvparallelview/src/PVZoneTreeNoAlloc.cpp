@@ -80,7 +80,7 @@ public:
 
 }
 
-size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_by_sel(PVCore::PVHSVColor* colors, PVBCICode<NBITS_INDEX>* codes, Picviz::PVSelection const& sel)
+size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_by_sel(PVCore::PVHSVColor* colors, PVBCICode<NBITS_INDEX>* /*codes*/, Picviz::PVSelection const& sel)
 {
 	size_t idx_code = 0;
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();

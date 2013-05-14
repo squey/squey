@@ -54,7 +54,7 @@ public:
 	{}
 
 protected:
-	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
+	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea*, QMouseEvent* event)
 	{
 		if (event->button() == Qt::RightButton) {
 			_pan_reference = event->pos();
@@ -136,7 +136,7 @@ class PVZoomableDrawingAreaConstraintsHomothetic : public PVParallelView::PVZoom
 		return true;
 	}
 
-	void adjust_pan(QScrollBar64 */*xsb*/, QScrollBar64 */*ysb*/)
+	void adjust_pan(QScrollBar64* /*xsb*/, QScrollBar64* /*ysb*/)
 	{}
 };
 
@@ -152,7 +152,7 @@ public:
 	{}
 
 protected:
-	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
+	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea*, QMouseEvent* event)
 	{
 		if (event->button() == Qt::RightButton) {
 			_pan_reference = event->pos();
@@ -201,7 +201,7 @@ protected:
 			if (increment_zoom_value(zda, mask, inc)) {
 				zda->reconfigure_view();
 				zda->get_viewport()->update();
-				zoom_has_changed(zda);
+				zoom_has_changed(zda, mask);
 			}
 		}
 
@@ -266,7 +266,7 @@ public:
 	{}
 
 protected:
-	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event) override
+	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea*, QMouseEvent* event) override
 	{
 		if (event->button() == Qt::RightButton) {
 			_pan_reference = event->pos();
@@ -298,7 +298,7 @@ protected:
 			std::cout << "update!" << std::endl;
 			zda->reconfigure_view();
 			zda->get_viewport()->update();
-			zoom_has_changed(zda);
+			zoom_has_changed(zda, PVParallelView::PVZoomableDrawingAreaConstraints::X | PVParallelView::PVZoomableDrawingAreaConstraints::Y);
 		}
 
 		event->setAccepted(true);
@@ -306,7 +306,7 @@ protected:
 		return true;
 	}
 
-	bool resizeEvent(PVParallelView::PVZoomableDrawingArea* zda, QResizeEvent* event) override
+	bool resizeEvent(PVParallelView::PVZoomableDrawingArea* zda, QResizeEvent*) override
 	{
 		zda->reconfigure_view();
 		return true;
@@ -556,7 +556,7 @@ public:
 		delete get_x_axis_zoom().get_zoom_converter();
 	}
 
-	void drawForeground(QPainter *painter, const QRectF &rect)
+	void drawForeground(QPainter *painter, const QRectF&)
 	{
 		/*
 		int c = rect.width() / 2;

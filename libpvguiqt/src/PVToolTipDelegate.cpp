@@ -29,7 +29,7 @@ bool PVGuiQt::PVToolTipDelegate::helpEvent(QHelpEvent* e, QAbstractItemView* vie
             QVariant tooltip = index.data(Qt::DisplayRole);
             if (tooltip.canConvert<QString>()) {
             	QString tooltip_text = Qt::escape(tooltip.toString());
-				const uint32_t tooltip_max_width = PVWidgets::PVUtils::tooltip_max_width(view);
+				const int32_t tooltip_max_width = PVWidgets::PVUtils::tooltip_max_width(view);
             	int tooltip_width = QFontMetrics(view->font()).width(tooltip.toString());
             	if (tooltip_width > tooltip_max_width) {
             		PVWidgets::PVUtils::html_word_wrap_text(tooltip_text, QToolTip::font(), tooltip_max_width);

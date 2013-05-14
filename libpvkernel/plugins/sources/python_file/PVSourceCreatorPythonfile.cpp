@@ -37,7 +37,7 @@ QString PVRush::PVSourceCreatorPythonfile::supported_type() const
 	return QString("file");
 }
 
-bool PVRush::PVSourceCreatorPythonfile::pre_discovery(PVInputDescription_p input) const
+bool PVRush::PVSourceCreatorPythonfile::pre_discovery(PVInputDescription_p /*input*/) const
 {
 	return true;
 }

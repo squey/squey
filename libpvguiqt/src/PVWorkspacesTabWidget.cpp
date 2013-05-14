@@ -37,7 +37,7 @@ void PVGuiQt::__impl::PVSaveSceneToFileFuncObserver::update(const arguments_deep
 	_parent->set_project_modified(false, std::get<0>(args));
 }
 
-bool PVGuiQt::__impl::TabRenamerEventFilter::eventFilter(QObject* watched, QEvent* event)
+bool PVGuiQt::__impl::TabRenamerEventFilter::eventFilter(QObject* /*watched*/, QEvent* event)
 {
 	bool rename = false;
 	if (event->type() == QEvent::Leave) {
@@ -91,7 +91,7 @@ void PVGuiQt::PVSceneTabBar::mouseReleaseEvent(QMouseEvent* event)
 	QTabBar::mouseReleaseEvent(event);
 }
 
-void PVGuiQt::PVSceneTabBar::mouseMoveEvent(QMouseEvent* event)
+void PVGuiQt::PVSceneTabBar::mouseMoveEvent(QMouseEvent*)
 {
 	// Drag&drop is disabled for the moment...
 	/*int tab_index = tabAt(event->pos());
@@ -337,7 +337,7 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::animation_state_changed(QAbstractAnimat
 	}
 }
 
-void PVGuiQt::PVWorkspacesTabWidgetBase::correlation_changed(int index)
+void PVGuiQt::PVWorkspacesTabWidgetBase::correlation_changed(int /*index*/)
 {
 	get_root().select_correlation(get_correlation());
 }

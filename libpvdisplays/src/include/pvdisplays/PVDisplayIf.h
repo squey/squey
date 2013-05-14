@@ -87,7 +87,7 @@ public:
 	{ }
 
 public:
-	virtual QString widget_title(value_type* obj) const { return QString(); }
+	virtual QString widget_title(value_type* /*obj*/) const { return QString(); }
 
 protected:
 	QWidget* get_unique_widget(value_type* obj, QWidget* parent = NULL)
@@ -203,8 +203,8 @@ public:
 	{ }
 
 public:
-	virtual QString widget_title(Picviz::PVView* obj, PVCol axis_comb) const { return QString(); }
-	virtual QString axis_menu_name(Picviz::PVView const* obj, PVCol axis_comb) const { return QString(); }
+	virtual QString widget_title(Picviz::PVView* /*obj*/, PVCol /*axis_comb*/) const { return QString(); }
+	virtual QString axis_menu_name(Picviz::PVView const* /*obj*/, PVCol /*axis_comb*/) const { return QString(); }
 
 protected:
 	QWidget* get_unique_widget(Picviz::PVView* view, PVCol axis_comb, QWidget* parent = NULL);

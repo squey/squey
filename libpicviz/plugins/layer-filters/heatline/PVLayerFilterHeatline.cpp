@@ -64,7 +64,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineBase)
  * Picviz::PVLayerFilterHeatlineBase::get_default_args_for_view
  *
  *****************************************************************************/
-PVCore::PVArgumentList Picviz::PVLayerFilterHeatlineBase::get_default_args_for_view(PVView const& view)
+PVCore::PVArgumentList Picviz::PVLayerFilterHeatlineBase::get_default_args_for_view(PVView const&)
 {
 	PVCore::PVArgumentList args = get_default_args();
 	// Default args with the "key" tag

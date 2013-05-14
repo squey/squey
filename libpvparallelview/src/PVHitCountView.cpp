@@ -55,7 +55,7 @@ public:
 		PVZoomableDrawingAreaInteractor(parent)
 	{}
 
-	bool resizeEvent(PVZoomableDrawingArea* zda, QResizeEvent *event) override
+	bool resizeEvent(PVZoomableDrawingArea* zda, QResizeEvent*) override
 	{
 		PVHitCountView *hcv = get_hit_count_view(zda);
 		hcv->set_x_axis_zoom();
@@ -375,19 +375,16 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	painter->fillRect(margined_rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
 	painter->setPen(QPen(Qt::white));
 
-	int x_axis_left = map_margined_from_scene(QPointF(0., 0.)).x();
 	int x_axis_right = std::min((int)map_margined_from_scene(QPointF(_max_count, 0.)).x(),
 								get_x_axis_length());
 
 	painter->setOpacity(0.25);
 	draw_clamped_lines(painter,
-					   x_axis_left,
 					   x_axis_right,
 					   view_top, dy, rel_y_scale,
 					   get_hit_graph_manager().buffer_bg());
 	painter->setOpacity(1.0);
 	draw_clamped_lines(painter,
-					   x_axis_left,
 					   x_axis_right,
 					   view_top, dy, rel_y_scale,
 					   get_hit_graph_manager().buffer_sel());
@@ -395,7 +392,7 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	PVParallelView::PVZoomableDrawingAreaWithAxes::drawBackground(painter, margined_rect);
 }
 
-void PVParallelView::PVHitCountView::drawForeground(QPainter *painter, const QRectF &rect)
+void PVParallelView::PVHitCountView::drawForeground(QPainter *painter, const QRectF& /*rect*/)
 {
 	painter->save();
 	painter->resetTransform();
@@ -444,7 +441,6 @@ void PVParallelView::PVHitCountView::draw_lines(QPainter *painter,
  *****************************************************************************/
 
 void PVParallelView::PVHitCountView::draw_clamped_lines(QPainter *painter,
-                                                        const int x_min,
                                                         const int x_max,
                                                         const int view_top,
                                                         const int offset,

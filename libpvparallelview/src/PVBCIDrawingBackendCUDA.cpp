@@ -230,9 +230,8 @@ void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage& dst_
 	picviz_verify_cuda(cudaStreamAddCallback(stream, &PVBCIDrawingBackendCUDA::image_rendered_and_copied_callback, (void*) data, 0));
 }
 
-void PVParallelView::PVBCIDrawingBackendCUDA::image_rendered_and_copied_callback(cudaStream_t stream, cudaError_t status, void* data_)
+void PVParallelView::PVBCIDrawingBackendCUDA::image_rendered_and_copied_callback(cudaStream_t /*stream*/, cudaError_t /*status*/, void* data_)
 {
-	assert(stream);
 	assert(data_);
 
 	cuda_job_data* data = reinterpret_cast<cuda_job_data*>(data_);

@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 	if (argc >= 4) {
 		sep = argv[3][0];
 		// Force an ascii characters
-		if (sep <= 0 || sep >= 128) {
+		if (sep <= 0) {
 			sep = ',';
 		}
 	}

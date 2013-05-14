@@ -101,10 +101,14 @@ QModelIndex PVInspector::PVSerializeOptionsModel::parent(const QModelIndex & ind
 	QList<PVCore::PVSerializeObject_p> childs_p = childs.values();
 	QList<PVCore::PVSerializeObject_p>::const_iterator it;
 	int idx = 0;
+#ifndef NDEBUG
 	bool found = false;
+#endif
 	for (it = childs_p.begin(); it != childs_p.end(); it++) {
 		if (it->get() == parent) {
+#ifndef NDEBUG
 			found = true;
+#endif
 			break;
 		}
 		idx++;

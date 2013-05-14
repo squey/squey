@@ -63,7 +63,6 @@ public:
 	tlp::edge add_combining_function(const tlp::node source, const tlp::node target);
 	void edit_combining_function(tlp::edge edge, tlp::node src, tlp::node dst);
 	//void select_edge(Picviz::PVView* view_src, Picviz::PVView* view_dst);
-	void highlightViewItem(tlp::node n);
 
 	__impl::PVTableWidget* get_table() { return _table; }
 	Picviz::PVAD2GView& get_ad2g() { return *_ad2g; }

@@ -846,7 +846,6 @@ void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_
 	other->show();
 
 	other->menu_activate_is_file_opened(true);
-	other->show_start_page(false);
 	//other->_workspaces_tab_widget->setVisible(true);
 
 	PVGuiQt::PVSourceWorkspace* workspace = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(widget_workspace);
@@ -877,7 +876,7 @@ bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p 
 	return !ar->has_repairable_errors();
 }
 
-bool PVInspector::PVMainWindow::load_project(QString const& file)
+bool PVInspector::PVMainWindow::load_project(QString const& /*file*/)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
 	/*if (!maybe_save_project()) {

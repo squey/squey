@@ -179,6 +179,7 @@ int main(int argc, char** argv)
 
 	sel.select_odd();
 
+#if 0
 	BENCH_START(visit_sel);
 	backend.visit_column2_sel(0, [&](size_t r, const char* bread, size_t n)
 		{
@@ -230,6 +231,7 @@ int main(int argc, char** argv)
 		},
 		sel);
 	BENCH_END(visit_sel_tbb2, "visit_sel_tbb (cached) (two rows)", sizeof(char), stotal, 1, 1);
+#endif
 
 	return 0;
 }

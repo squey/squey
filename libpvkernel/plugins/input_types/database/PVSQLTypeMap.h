@@ -38,15 +38,15 @@ public:
 class PVSQLTypeMapODBC: public PVSQLTypeMap
 {
 public:
-	QString map(int type) const { return "unknown"; }
-	QString map_picviz(int type) const { return "enum"; }
+	QString map(int /*type*/) const { return "unknown"; }
+	QString map_picviz(int /*type*/) const { return "enum"; }
 };
 
 class PVSQLTypeMapSQLite: public PVSQLTypeMap
 {
 public:
-	QString map(int type) const { return "unknown"; }
-	QString map_picviz(int type) const { return "enum"; }
+	QString map(int /*type*/) const { return "unknown"; }
+	QString map_picviz(int /*type*/) const { return "enum"; }
 };
 
 }

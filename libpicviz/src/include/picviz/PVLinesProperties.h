@@ -74,7 +74,6 @@ public:
 
 	void A2B_copy_restricted_by_selection_and_nelts(PVLinesProperties &b, PVSelection const& selection, PVRow nelts);
 	void A2B_copy_zombie_off_restricted_by_selection_and_nelts(PVLinesProperties &b,  PVSelection const& selection, PVRow nelts);
-	void A2B_copy_zombie_on_restricted_by_selection_and_nelts(PVLinesProperties &b,  PVSelection const& selection, PVRow nelts);
 	void reset_to_default_color();
 	void selection_set_color(PVSelection const& selection, const PVRow nelts, const PVCore::PVHSVColor c);
 	void set_random(const PVRow n);

@@ -165,7 +165,7 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 /*****************************************************************************
  * PVParallelView::PVScatterView::draw_points
  *****************************************************************************/
-void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF& margined_rect)
+void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF& /*margined_rect*/)
 {
 	Picviz::PVSelection const& sel = _view.get_real_output_selection();
 

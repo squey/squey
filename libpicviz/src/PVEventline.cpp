@@ -49,7 +49,7 @@ int Picviz::PVEventline::get_first_index() const
 float Picviz::PVEventline::get_kth_slider_position(int k) const
 {
 	/* VARIABLES */
-	float slider_position;
+	float slider_position = 0;
 
 	/* CODE */
 	/* We need to check that we are not in a weird situation where there would be only one row... */

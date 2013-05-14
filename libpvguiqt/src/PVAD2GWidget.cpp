@@ -330,15 +330,6 @@ void PVGuiQt::PVAD2GWidget::initObservers()
 	}
 }
 
-void PVGuiQt::PVAD2GWidget::highlightViewItem(tlp::node n)
-{
-	/*Picviz::PVView* view = _ad2g->get_view(n);
-	for (int i = 0; i < _table->rowCount(); i++) {
-		QTableWidgetItem* item = _table->item(i, 0);
-		item->setSelected(item->data(Qt::UserRole).value<void*>() == (void*) view && n != tlp::node());
-	}*/
-}
-
 void PVGuiQt::PVAD2GWidget::init_table()
 {
 	_table->setColumnCount(1);

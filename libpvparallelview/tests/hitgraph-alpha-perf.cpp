@@ -34,6 +34,11 @@ static bool verbose = false;
  * sequential algos
  *****************************************************************************/
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 void count_y1_seq_v1(const PVRow row_count, const uint32_t *col_y1,
                      const Picviz::PVSelection &selection,
                      const uint64_t y_min, const uint64_t y_max, const int zoom,
@@ -818,6 +823,10 @@ void count_y1_lib(const PVRow row_count, const uint32_t *col_y1,
 	lib_omp.process_bg(PVParallelView::PVHitGraphData::ProcessParams(col_y1, row_count, y_min, zoom, alpha, 0, V4_N));
 }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
 /*****************************************************************************
  * some code to reduce code duplication
  *****************************************************************************/
@@ -1226,13 +1235,13 @@ int main(int argc, char **argv)
 
 	// nothing special
 	do_one_allocator(std::string(""),
-	                 [](uint32_t* p, size_t n) {},
+	                 [](uint32_t* /*p*/, size_t /*n*/) {},
 	                 get_col(data, row_count, col), row_count, col_count, col, y_min, y_max, zoom, alpha);
 
 #if 0
 	// add sequential
 	do_one_allocator(std::string("+seq"),
-	                 [](uint32_t* p, size_t n) {
+	                 [](uint32_t* /*p*/, size_t /*n*/) {},
 		                 if (madvise(p, sizeof(uint32_t)*n, MADV_SEQUENTIAL) < 0) {
 			                 std::cout << "I: MADV_SEQUENTIAL fails" << std::endl;
 		                 }
@@ -1241,7 +1250,7 @@ int main(int argc, char **argv)
 
 	// add transparent huge pages
 	do_one_allocator(std::string("+thp"),
-	                 [](uint32_t* p, size_t n) {
+	                 [](uint32_t* /*p*/, size_t /*n*/) {},
 		                 if (madvise(p, sizeof(uint32_t)*n, MADV_HUGEPAGE) < 0) {
 			                 std::cout << "I: MADV_HUGEPAGE fails" << std::endl;
 		                 }
@@ -1250,7 +1259,7 @@ int main(int argc, char **argv)
 
 	// add sequential and transparent huge pages
 	do_one_allocator(std::string("+seq+thp"),
-	                 [](uint32_t* p, size_t n) {
+	                 [](uint32_t* /*p*/, size_t /*n*/) {},
 		                 if (madvise(p, sizeof(uint32_t)*n, MADV_SEQUENTIAL) < 0) {
 			                 std::cout << "I: MADV_SEQUENTIAL fails" << std::endl;
 		                 }

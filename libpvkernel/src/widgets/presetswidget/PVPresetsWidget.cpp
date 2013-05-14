@@ -243,7 +243,7 @@ bool PVWidgets::PVPresetsWidget::is_preset_txt_new(const QString& str) const
 	return _list->findItems(str, Qt::MatchFixedString).count() == 0;
 }
 
-PVWidgets::PVSavePresetAsDialog::PVSavePresetAsDialog(PVPresetsWidget* parent /*= 0*/, Qt::WindowFlags f /*= 0*/) :
+PVWidgets::PVSavePresetAsDialog::PVSavePresetAsDialog(PVPresetsWidget* parent /*= 0*/, Qt::WindowFlags /*f = 0*/) :
 	QDialog(parent, Qt::Dialog),
 	_parent(parent)
 {

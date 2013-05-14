@@ -178,7 +178,7 @@ void PVRush::PVDatabaseParamsWidget::preset_new_Slot(const QString& name)
 	PVDBPresets::get().add(name, new_infos, query);
 }
 
-void PVRush::PVDatabaseParamsWidget::preset_load_Slot(const QString& preset)
+void PVRush::PVDatabaseParamsWidget::preset_load_Slot(const QString& /*preset*/)
 {
 	PVDBPresets::id_t id = get_current_preset_id();
 	load_preset(id);
@@ -207,7 +207,7 @@ void PVRush::PVDatabaseParamsWidget::load_preset(PVDBPresets::id_t id)
 	_last_load_preset = id;
 }
 
-void PVRush::PVDatabaseParamsWidget::preset_save_Slot(const QString& preset)
+void PVRush::PVDatabaseParamsWidget::preset_save_Slot(const QString& /*preset*/)
 {
 	PVDBPresets::id_t id = get_current_preset_id();
 	QString query = get_query();
@@ -218,7 +218,7 @@ void PVRush::PVDatabaseParamsWidget::preset_save_Slot(const QString& preset)
 	PVDBPresets::get().set(id, new_infos, query);
 }
 
-void PVRush::PVDatabaseParamsWidget::preset_remove_Slot(const QString& preset)
+void PVRush::PVDatabaseParamsWidget::preset_remove_Slot(const QString& /*preset*/)
 {
 	PVDBPresets::id_t id = get_current_preset_id();
 	PVDBPresets::get().rm(id);

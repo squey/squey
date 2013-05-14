@@ -87,7 +87,6 @@ protected:
 
 	inline int32_t get_x_zoom_min() const
 	{
-		assert(_x_zoom_converter);
 		return x_zoom_converter().scale_to_zoom((double)get_margined_viewport_width()/(double)_max_count);
 	}
 
@@ -102,7 +101,7 @@ private:
 	                const uint32_t *buffer);
 
 	void draw_clamped_lines(QPainter *painter,
-	                        const int x_min, const int x_max,
+	                        const int x_max,
 	                        const int view_top, const int offset,
 	                        const double rel_y_scale,
 	                        const uint32_t *buffer);

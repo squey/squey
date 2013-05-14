@@ -74,7 +74,7 @@ void init_small(QGraphicsScene *scene, PVWidgets::PVGraphicsView *, QTimeLine *t
 	scene->setSceneRect(QRectF(-1., 0, 1.0, 100));
 }
 
-void init_hori_box(QGraphicsScene *scene, PVWidgets::PVGraphicsView *pgv, QGraphicsView *qgv)
+void init_hori_box(QGraphicsScene *scene, PVWidgets::PVGraphicsView*, QGraphicsView*)
 {
 	scene->addRect(QRectF(-3., -2., 1., 1.));
 	scene->addRect(QRectF(-3., 1., 1., 1.));

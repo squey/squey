@@ -79,12 +79,12 @@ public:
 		return _axis_id;
 	}
 
-	const PVCol get_combined_axis_column() const
+	PVCol get_combined_axis_column() const
 	{
 		return _lib_view.axes_combination.get_index_by_id(_axis_id);
 	}
 
-	const PVCol get_original_axis_column() const
+	PVCol get_original_axis_column() const
 	{
 		return _lib_view.axes_combination.get_axis_column_index(_lib_view.axes_combination.get_index_by_id(_axis_id));
 	}

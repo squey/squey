@@ -298,7 +298,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v1(QPainter *paint
 }
 
 void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v2(QPainter *painter,
-                                                                 const QRectF &rect)
+                                                                 const QRectF& /*rect*/)
 {
 	QRectF scene_in_screen = map_from_scene(get_scene_rect());
 
@@ -454,7 +454,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v2(QPainter *paint
 }
 
 void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *painter,
-                                                                 const QRectF &rect)
+                                                                 const QRectF& /*rect*/)
 {
 	int ticks_per_level = get_ticks_per_level();
 	qreal log_ticks_per_level = log(ticks_per_level);
@@ -583,7 +583,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 }
 
 void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v4(QPainter *painter,
-                                                                 const QRectF &rect)
+                                                                 const QRectF& /*rect*/)
 {
 	int ticks_per_level = get_ticks_per_level();
 	qreal log_ticks_per_level = log(ticks_per_level);

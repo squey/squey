@@ -1926,11 +1926,11 @@ private:
 		static size_t extract_seq(PVQuadTree const& obj,
 			const uint64_t y1_min, const uint64_t y1_max,
 			const uint64_t y2_min, const uint64_t y2_max,
-			const uint32_t zoom,
+			const uint32_t /*zoom*/,
 			const Ftest &test_f,
 			const insert_entry_f &insert_f,
-			pv_quadtree_buffer_entry_t *buffer,
-			pv_tlr_buffer_t &tlr)
+			pv_quadtree_buffer_entry_t* /*buffer*/,
+			pv_tlr_buffer_t& tlr)
 		{
 			size_t ret = 0;
 			for(size_t i = 0; i < obj._datas.size(); ++i) {

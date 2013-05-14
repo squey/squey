@@ -72,8 +72,12 @@ public:
 	bci_base_type* get_available_buffer()
 	{
 		bci_base_type* ret;
+#ifdef NDEBUG
+		_free_bufs.try_pop(ret);
+#else
 		bool success = _free_bufs.try_pop(ret);
 		assert(success);
+#endif
 		return ret;
 	}
 

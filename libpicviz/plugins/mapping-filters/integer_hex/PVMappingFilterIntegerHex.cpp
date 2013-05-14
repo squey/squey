@@ -34,7 +34,7 @@ PVCore::DecimalType Picviz::PVMappingFilterIntegerHex::get_decimal_type() const
 	return PVCore::UnsignedIntegerType;
 }
 
-Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_utf8(const char* buf, const size_t size, PVMappingFilter* m)
+Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_utf8(const char* buf, const size_t /*size*/, PVMappingFilter*)
 {
 	char* end;
 	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
@@ -43,7 +43,7 @@ Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_u
 	return ret_ds;
 }
 
-Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_utf16(const uint16_t* buf, size_t size, PVMappingFilter* m)
+Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_utf16(const uint16_t* buf, size_t size, PVMappingFilter*)
 {
 	static tbb::enumerable_thread_specific<QString, tbb::scalable_allocator<QString>, tbb::ets_key_per_instance> tls_qs;
 

@@ -15,7 +15,7 @@ PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::PVZoomableDrawingArea
  * PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::mousePressEvent
  *****************************************************************************/
 
-bool PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::mousePressEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
+bool PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::mousePressEvent(PVParallelView::PVZoomableDrawingArea*, QMouseEvent* event)
 {
 	if (event->button() == Qt::RightButton) {
 		_pan_reference = event->pos();

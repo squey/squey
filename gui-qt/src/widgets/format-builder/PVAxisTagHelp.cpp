@@ -9,7 +9,7 @@
 
 #include <PVAxisTagHelp.h>
 
-PVInspector::PVAxisTagHelp::PVAxisTagHelp(QStringList sel_tags, QWidget* parent):
+PVInspector::PVAxisTagHelp::PVAxisTagHelp(QStringList /*sel_tags*/, QWidget* parent):
 	QDialog(parent)
 {
 	setupUi(this);

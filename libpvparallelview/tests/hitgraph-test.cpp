@@ -23,6 +23,11 @@
  * - ajouter l'utilisation d'une sélection
  */
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 /*****************************************************************************
  * sequential algos
  *****************************************************************************/
@@ -543,6 +548,10 @@ void count_y1_omp_sse_v3_2(const PVRow row_count, const uint32_t *col_y1, const 
 		_mm_store_si128((__m128i*) &buffer[j], global_sse);
 	}
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 /*****************************************************************************
  * some macros to reduce code duplication

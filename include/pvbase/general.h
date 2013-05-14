@@ -92,4 +92,6 @@ static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 #define NEXT_MULTIPLE(n, align) ((((n)*(align)-1)/(align))*(align))
 #define PREV_MULTIPLE(n, align) (((n)/(align))*(align))
 
+#define PV_UNUSED(v) ((void)v)
+
 #endif	/* PVBASE_GENERAL_H */

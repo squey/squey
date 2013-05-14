@@ -7,7 +7,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 
-PVCore::PVOriginalAxisIndexType::PVOriginalAxisIndexType(bool append_none_axis)
+PVCore::PVOriginalAxisIndexType::PVOriginalAxisIndexType(bool /*append_none_axis*/)
 {
 	_origin_axis_index = -1;
 }

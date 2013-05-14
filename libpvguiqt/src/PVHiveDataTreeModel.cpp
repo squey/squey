@@ -90,14 +90,14 @@ void PVGuiQt::PVHiveDataTreeModel::hive_refresh(PVHive::PVObserverBase* o)
 	emit dataChanged(idx, idx);
 }
 
-void PVGuiQt::PVHiveDataTreeModel::root_about_to_be_deleted(PVHive::PVObserverBase* o)
+void PVGuiQt::PVHiveDataTreeModel::root_about_to_be_deleted(PVHive::PVObserverBase*)
 {
 	beginResetModel();
 	_view_valid = false;
 	endResetModel();
 }
 
-void PVGuiQt::PVHiveDataTreeModel::about_to_be_deleted(PVHive::PVObserverBase* o)
+void PVGuiQt::PVHiveDataTreeModel::about_to_be_deleted(PVHive::PVObserverBase*)
 {
 	/*datatree_obs_t* real_o = dynamic_cast<datatree_obs_t*>(o);
 	assert(real_o);

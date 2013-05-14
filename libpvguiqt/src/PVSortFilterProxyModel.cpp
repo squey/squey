@@ -128,7 +128,7 @@ void PVGuiQt::PVSortFilterProxyModel::do_filter()
 	BENCH_END(b, "PVSortFilterProxyModel::do_filter", 1, 1, 1, 1);
 }
 
-void PVGuiQt::PVSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes, tbb::task_group_context* ctxt /*= NULL*/)
+void PVGuiQt::PVSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes, tbb::task_group_context* /*ctxt = NULL*/)
 {
 	if (order == Qt::AscendingOrder) {
 		__impl::PVSortProxyAsc s(this, column);

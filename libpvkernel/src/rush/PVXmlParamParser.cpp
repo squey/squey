@@ -75,7 +75,7 @@ void PVRush::PVXmlParamParser::parseFromRootNode(QDomElement const& rootNode)
 	dump_filters();
 }
 
-void PVRush::PVXmlParamParser::setVersionFromRootNode(QDomElement const& node)
+void PVRush::PVXmlParamParser::setVersionFromRootNode(QDomElement const& /*node*/)
 {
 }
 

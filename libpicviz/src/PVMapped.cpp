@@ -415,10 +415,10 @@ void Picviz::PVMapped::validate_all()
 	_mapping->validate_all();
 }
 
+#if 0
 QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_within_range(decimal_storage_type const min, decimal_storage_type const max, double rate)
 {
 	QList<PVCol> cols_ret;
-#if 0
 	const PVRow nrows = get_row_count();
 	const PVCol ncols = get_column_count();
 
@@ -441,7 +441,6 @@ QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_within_range(decimal_s
 			cols_ret << j;
 		}
 	}
-#endif
 
 	return cols_ret;
 }
@@ -449,7 +448,6 @@ QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_within_range(decimal_s
 QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_not_within_range(decimal_storage_type const min, decimal_storage_type const max, double rate)
 {
 	QList<PVCol> cols_ret;
-#if 0
 	const PVRow nrows = get_row_count();
 	const PVCol ncols = get_column_count();
 
@@ -472,10 +470,10 @@ QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_not_within_range(decim
 			cols_ret << j;
 		}
 	}
-#endif
 
 	return cols_ret;
 }
+#endif
 
 bool Picviz::PVMapped::is_current_mapped() const
 {

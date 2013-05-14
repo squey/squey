@@ -10,7 +10,6 @@
 #include <QString>
 
 #include <picviz/general.h>
-#include <picviz/square-area.h>
 
 namespace Picviz {
 
@@ -49,7 +48,6 @@ namespace Picviz {
 
         private:
             SquareAreaModes square_area_mode;
-            picviz_square_area_t *square_area;
 
         public:
             PVStateMachine();
@@ -132,10 +130,6 @@ namespace Picviz {
 
 	    QString get_string();
             
-            picviz_square_area_t *get_square_area()const {
-                return square_area;
-            }
-
             SquareAreaModes get_square_area_mode()const {
                 return square_area_mode;
             }

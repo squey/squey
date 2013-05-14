@@ -220,11 +220,9 @@ void PVGuiQt::AD2GInteractorComponent::update_selection(tlp::Graph* graph, tlp::
 			selection->setAllEdgeValue(false);
 			selection->setAllNodeValue(false);
 			selection->setNodeValue(_tmpNode, true);
-			_widget->highlightViewItem(_tmpNode);
 		}
 	}
 	else {
-		_widget->highlightViewItem(tlp::node());
 		if (hoveringOverEdge) {
 			if (!selection->getEdgeValue(_tmpEdge)) {
 				selection->setAllEdgeValue(false);

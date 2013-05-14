@@ -150,7 +150,7 @@ void Picviz::PVScene::child_added(PVSource& /*src*/)
 	get_parent<PVRoot>()->set_views_id();
 }
 
-void Picviz::PVScene::child_about_to_be_removed(PVSource& src)
+void Picviz::PVScene::child_about_to_be_removed(PVSource&)
 {
 	// Remove underlying views from the AD2G graph
 	/*for (auto view : src.get_children<PVView>())

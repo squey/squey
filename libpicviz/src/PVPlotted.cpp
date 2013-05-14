@@ -136,7 +136,7 @@ void Picviz::PVPlotted::process_expanded_selections()
 	}
 }
 
-void Picviz::PVPlotted::expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, QString const& mode, bool add)
+void Picviz::PVPlotted::expand_selection_on_axis(PVSelection const& /*sel*/, PVCol /*axis_id*/, QString const& /*mode*/, bool /*add*/)
 {
 	// Recompute a part of the plotted by expanding a selection through the whole axis
 	//

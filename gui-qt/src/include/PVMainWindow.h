@@ -22,7 +22,6 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 
-#include <picviz/init.h>
 #include <picviz/PVRoot_types.h>
 #include <picviz/PVScene_types.h>
 #include <picviz/PVSource_types.h>
@@ -358,7 +357,6 @@ protected:
 	void treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors);
 	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Picviz::PVView* picviz_view);
 	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Picviz::PVView const& picviz_view);
-	void show_start_page(bool visible);
 	void set_version_informations();
 
 private:

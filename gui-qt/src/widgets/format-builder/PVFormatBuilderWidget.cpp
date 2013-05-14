@@ -82,7 +82,7 @@ void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent *event)
 	}
 }
 
-void PVInspector::PVFormatBuilderWidget::init(QWidget* parent /* = 0 */)
+void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 {
 	setWindowTitle(FORMAT_BUILDER_TITLE);
     
@@ -844,12 +844,13 @@ void PVInspector::PVFormatBuilderWidget::set_format_from_dom()
  * PVInspector::PVFormatBuilderWidget::showParamBoard
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::showParamBoard(PVRush::PVXmlTreeNodeDom *node){
-        assert(node);
-        PVLOG_DEBUG("PVInspector::PVFormatBuilderWidget::showParamBoard()\n");
-        
-        //myParamBord=node->getSplitterPlugin()->get_param_widget();
+void PVInspector::PVFormatBuilderWidget::showParamBoard(PVRush::PVXmlTreeNodeDom *node)
+{
+	PV_UNUSED(node);
+	assert(node);
+	PVLOG_DEBUG("PVInspector::PVFormatBuilderWidget::showParamBoard()\n");
 
+	//myParamBord=node->getSplitterPlugin()->get_param_widget();
 }
 
 void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
@@ -977,7 +978,7 @@ void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row
 	myTreeModel->setAxesNames(names);
 }
 
-void PVInspector::PVFormatBuilderWidget::set_axes_type_selected_row_Slot(int row)
+void PVInspector::PVFormatBuilderWidget::set_axes_type_selected_row_Slot(int /*row*/)
 {
 }
 

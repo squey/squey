@@ -206,12 +206,12 @@ public:
 			_y_min(y_min), _y_max(y_max), _insert_f(insert_f)
 		{}
 
-		const uint64_t get_y_min() const
+		uint64_t get_y_min() const
 		{
 			return _y_min;
 		}
 
-		const uint64_t get_y_max() const
+		uint64_t get_y_max() const
 		{
 			return _y_max;
 		}
@@ -738,10 +738,10 @@ private:
 		static void extract_sse(PVQuadTree const& obj,
 		                        const uint64_t y1_min, const uint64_t y1_max,
 		                        const uint32_t zoom, const uint32_t y2_count,
-		                        const Ftest &test_f,
-		                        const insert_entry_f &insert_f,
+		                        const Ftest& /*test_f*/,
+		                        const insert_entry_f& /*insert_f*/,
 		                        pv_quadtree_buffer_entry_t *buffer,
-		                        pv_tlr_buffer_t &tlr)
+		                        pv_tlr_buffer_t& /*tlr*/)
 		{
 
 			const uint64_t max_count = 1 << zoom;
@@ -1734,7 +1734,7 @@ private:
 		static void extract_sse(PVQuadTree const& obj,
 		                        visit_context_t &ctx,
 		                        const uint32_t zoom, const uint32_t y2_count,
-		                        const Ftest &test_f)
+		                        const Ftest& /*test_f*/)
 		{
 			const uint64_t y1_min = ctx.get_y_min();
 			const uint64_t y1_max = ctx.get_y_max();

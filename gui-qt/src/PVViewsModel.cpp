@@ -179,11 +179,15 @@ QModelIndex PVInspector::PVViewsModel::parent(const QModelIndex & index) const
 	Picviz::PVMapped* mapped = plotted->get_parent<Picviz::PVMapped>();
 
 	Picviz::PVSource::list_mapped_t::const_iterator it;
+#ifndef NDEBUG
 	bool found = false;
+#endif
 	int idx = 0;
 	for (auto mapped_p : mappeds) {
 		if (mapped_p.get() == mapped) {
+#ifndef NDEBUG
 			found = true;
+#endif
 			break;
 		}
 		idx++;

@@ -29,7 +29,7 @@ Picviz::PVIndexArray::PVIndexArray(PVRow initial_row_count)
 {
 	index_count = 0;
 
-	if ( (0 <= initial_row_count) && (initial_row_count <= PICVIZ_INDEX_ARRAY_MAX_SIZE) ) {
+	if (initial_row_count <= PICVIZ_INDEX_ARRAY_MAX_SIZE) {
 		row_count = initial_row_count;
 	} else {
 		PVLOG_ERROR("Cannot set row_count while creating picviz_index_array because it is out of range!\n");

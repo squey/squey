@@ -75,7 +75,7 @@ public:
 	bool add_chunk_utf16(PVCore::PVChunk const& chunk);
 
 	template <class Iterator>
-	bool add_column(Iterator begin, Iterator end)
+	bool add_column(Iterator /*begin*/, Iterator /*end*/)
 	{
 		return false;
 	}

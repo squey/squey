@@ -3,7 +3,7 @@
 
 #define N 100000000
 
-inline const PVRow gather_func(const PVRow r) { return 4*r; }
+inline PVRow gather_func(const PVRow r) { return 4*r; }
 
 void show_diff(std::vector<PVRow> const& packed, std::vector<PVRow> const& ref)
 {
