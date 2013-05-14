@@ -270,7 +270,7 @@ PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(const PVRow *sel_elts,
 	_trees(nullptr),
 	_sel_elts(sel_elts),
 	_bg_elts(bg_elts),
-	_max_level(max_level),
+	_max_level(quadtree_max_level),
 	_initialized(false)
 {
 }
@@ -766,7 +766,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 	const PVRow* sel_elts
 ) const
 {
-	uint32_t shift = (32 - bbits) - zoom;
+	uint32_t shift = (32 - PARALLELVIEW_ZT_BBITS) - zoom;
 	uint32_t t1_min = y1_min >> (32 - NBITS_INDEX);
 	uint32_t t1_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y1_max >> (32 - NBITS_INDEX)),
 														0U, 1024U);
@@ -784,8 +784,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 		insert_entry_f([&](const PVQuadTreeEntry &e, pv_tlr_buffer_t&)
 			   {
 					pv_bci_code_t bci;
-					uint32_t l = ((uint32_t) ((e.y1 - y1_min) * alpha)) >> shift;
-					uint32_t r = ((uint32_t) ((e.y2 - y2_min) * alpha)) >> shift;
+					uint32_t l = ((uint32_t)(((e.y1 - y1_min) * alpha))) >> shift;
+					uint32_t r = ((uint32_t)(((e.y2 - y2_min) * alpha))) >> shift;
 					if ((l < 2048) && (r < 2048)) {
 						bci.s.l = l;
 						bci.s.r = r;

@@ -42,7 +42,7 @@ static void init_qt_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nr
 			//p[j*nrows_aligned+i] = (1023-(i&1023))*(1<<22)+4;
 		}
 		for (PVRow i = 0; i < nrows; i++) {
-			p[(j+1)*nrows_aligned+i] = (i&1023)*(1<<22)+4;
+			p[(j+1)*nrows_aligned+i] = i;
 		}
 	}
 }
@@ -54,7 +54,7 @@ static void init_gauss_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow
 	const PVRow nrows_aligned = ((nrows+3)/4)*4;
 	p.resize(nrows_aligned*ncols);
 	for (PVCol j = 0; j < ncols; j++) {
-		boost::random::normal_distribution<double> normd(1U<<31, 1U<<29);
+		boost::random::normal_distribution<double> normd(1U<<31, 1U<<25);
 		for (PVRow i = 0; i < nrows; i++) {
 			p[j*nrows_aligned+i] = normd(rng);
 		}
