@@ -48,6 +48,11 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 
 	constexpr static int zoom_min = -y_min_zoom_level * zoom_steps;
 
+	/* RH: nbits is 11, so that, the max level before needing a
+	 * digital zoom is 21 instead of 22
+	 */
+	constexpr static int digital_zoom_level = y_min_zoom_level - 1;
+
 private:
 	typedef PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
 
@@ -133,7 +138,7 @@ private:
 	bool                                         _view_deleted;
 	uint64_t                                     _max_count;
 	uint32_t                                     _block_base_pos;
-	int                                          _block_zoom_level;
+	int                                          _block_zoom_value;
 	bool                                         _show_bg;
 
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>  _x_zoom_converter;
