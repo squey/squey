@@ -29,9 +29,6 @@ typedef PVCore::PVSharedPtr<PVView> PVView_sp;
 namespace PVParallelView
 {
 
-template <int STEPS>
-class PVHitCountViewZoomConverter;
-
 class PVHitCountViewInteractor;
 class PVSelectionRectangleHitCountView;
 class PVSelectionRectangleInteractor;
@@ -44,8 +41,6 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 
 	constexpr static int zoom_steps = 5;
 	// the "digital" zoom level (to space consecutive values)
-	constexpr static int x_zoom_extra_level = 8;
-	constexpr static int x_zoom_extra = x_zoom_extra_level * zoom_steps;
 	constexpr static int y_zoom_extra_level = 0;
 	constexpr static int y_zoom_extra = y_zoom_extra_level * zoom_steps;
 	// -22 because we want a scale factor of 1 when the view fits in a 1024x1024 window
@@ -85,11 +80,19 @@ public:
 
 protected:
 	void drawBackground(QPainter *painter, const QRectF &rect) override;
+	void drawForeground(QPainter *painter, const QRectF &rect) override;
+
+	void set_x_axis_zoom();
+	void set_x_zoom_level_from_sel();
+
+	inline int32_t get_x_zoom_min() const
+	{
+		assert(_x_zoom_converter);
+		return x_zoom_converter().scale_to_zoom((double)get_margined_viewport_width()/(double)_max_count);
+	}
+
 
 private:
-	int get_x_zoom_max_limit(const uint64_t value = 1L << 32,
-	                         const uint64_t max_value = 1L << 32) const;
-
 	void reset_view();
 
 	void draw_lines(QPainter *painter,
@@ -104,8 +107,15 @@ private:
 	                        const double rel_y_scale,
 	                        const uint32_t *buffer);
 
+private:
+	PVZoomConverterScaledPowerOfTwo<zoom_steps>&       x_zoom_converter()       { return _x_zoom_converter; }
+	PVZoomConverterScaledPowerOfTwo<zoom_steps> const& x_zoom_converter() const { return _x_zoom_converter; }
+
+	PVZoomConverterScaledPowerOfTwo<zoom_steps>&       y_zoom_converter()       { return _y_zoom_converter; }
+	PVZoomConverterScaledPowerOfTwo<zoom_steps> const& y_zoom_converter() const { return _y_zoom_converter; }
+
 private slots:
-	void do_zoom_change();
+	void do_zoom_change(int axes);
 	void do_pan_change();
 	void do_update_all();
 
@@ -125,7 +135,7 @@ private:
 	int                                          _block_zoom_level;
 	bool                                         _show_bg;
 
-	PVHitCountViewZoomConverter<zoom_steps>     *_x_zoom_converter;
+	PVZoomConverterScaledPowerOfTwo<zoom_steps>  _x_zoom_converter;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>  _y_zoom_converter;
 
 	PVZoomableDrawingAreaInteractor             *_my_interactor;

@@ -47,7 +47,7 @@ public:
 	virtual int scale_to_zoom(const qreal value) const override
 	{
 		// non simplified formula is: log2(1/value) / log2(root_steps)
-		return -zoom_steps * log2(value);
+		return floor(zoom_steps * log2(value));
 	}
 
 	virtual qreal zoom_to_scale(const int value) const override

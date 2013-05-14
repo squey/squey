@@ -151,8 +151,10 @@ public:
 signals:
 	/**
 	 * This signal is emitted each time a zoom change has been done.
+	 *
+	 * \param axes Axes for which the zoom value has changed
 	 */
-	void zoom_has_changed();
+	void zoom_has_changed(int axes);
 
 	/**
 	 * This signal is emitted each time a pan change has been done.

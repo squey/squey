@@ -40,6 +40,8 @@ public:
 	void update_rect_no_commit(const QRectF& r);
 	QRectF get_rect();
 
+	inline void hide() { _selection_graphics_item->hide(); }
+
 public:
 	void move_left_by_step() { move_by(-MOVE_STEP_PX, 0); }
 	void move_right_by_step() { move_by(MOVE_STEP_PX, 0); }

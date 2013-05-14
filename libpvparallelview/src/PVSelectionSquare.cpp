@@ -24,6 +24,7 @@ PVParallelView::PVSelectionSquare::PVSelectionSquare(QGraphicsScene* s):
 void PVParallelView::PVSelectionSquare::begin(qreal x, qreal y)
 {
 	_selection_graphics_item_pos = QPointF(x, y);
+	_selection_graphics_item->setRect(QRectF(_selection_graphics_item_pos, _selection_graphics_item_pos));
 	_selection_graphics_item->show();
 }
 

@@ -58,11 +58,12 @@ protected:
 	 *
 	 * Why this method? Simply because friendship can not be inherited in C++.
 	 *
-	 * @param zda the corresponding PVZoomDrawingArea
+	 * @param zda  the corresponding PVZoomDrawingArea
+	 * @param axes axes for which the zoom value has changed
 	 */
-	static inline void zoom_has_changed(PVZoomableDrawingArea *zda)
+	static inline void zoom_has_changed(PVZoomableDrawingArea *zda, int axes)
 	{
-		emit zda->zoom_has_changed();
+		emit zda->zoom_has_changed(axes);
 	}
 
 	/**
