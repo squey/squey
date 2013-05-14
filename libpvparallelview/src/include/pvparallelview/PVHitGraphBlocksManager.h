@@ -31,6 +31,7 @@ public:
 	uint32_t const* buffer_sel() const;
 
 	uint32_t const y_start() const;
+	int nbits() const;
 	inline uint32_t nblocks() const { return _data.nblocks(); }
 
 	inline uint32_t size_int() const { return hgdata().size_int(); }
@@ -45,6 +46,7 @@ public:
 
 public:
 	inline int last_zoom() const { return _data_params.zoom; }
+	inline int last_nbits() const { return _data_params.nbits; }
 	inline double last_alpha() const { return _data_params.alpha; }
 	inline uint32_t last_y_min() const { return _data_params.y_min; }
 	inline uint32_t size_block() const { return _data.size_block(); }

@@ -26,7 +26,7 @@ PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(const uint32_t*
 	_data_z0(PARALLELVIEW_ZT_BBITS, 1),
 	_data(PARALLELVIEW_ZZT_BBITS, nblocks),
 	_sel(sel),
-	_data_params(col_plotted, nrows, 0, -1, 0.5, 0, nblocks)
+	_data_params(col_plotted, nrows, 0, -1, PARALLELVIEW_ZT_BBITS, 0.5, 0, nblocks)
 {
 }
 
@@ -53,6 +53,7 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 
 		// Translation
 		//
+		_data_params.nbits = nbits();
 
 		if (abs(blocks_shift) >= (int) nblocks()) {
 			// Reprocess all
@@ -97,6 +98,7 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 	_data_params.y_min = y_min_block;
 	_data_params.block_start = 0;
 	_data_params.nblocks = full_view() ? 1 : nblocks();
+	_data_params.nbits = nbits();
 
 	process_all();
 
@@ -160,6 +162,11 @@ uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_sel() const
 uint32_t const PVParallelView::PVHitGraphBlocksManager::y_start() const
 {
 	return y_to_block_idx(_data_params.y_min, _data_params.zoom) << (32-_data_params.zoom);
+}
+
+int PVParallelView::PVHitGraphBlocksManager::nbits() const
+{
+	return full_view()?PARALLELVIEW_ZT_BBITS:PARALLELVIEW_ZZT_BBITS;
 }
 
 uint32_t PVParallelView::PVHitGraphBlocksManager::get_count_for(const uint32_t value) const
