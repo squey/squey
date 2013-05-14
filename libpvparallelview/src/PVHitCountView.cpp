@@ -373,7 +373,7 @@ void PVParallelView::PVHitCountView::reset_view()
 {
 	set_zoom_value(PVZoomableDrawingAreaConstraints::X, get_x_zoom_min());
 	set_zoom_value(PVZoomableDrawingAreaConstraints::Y, zoom_min);
-	_block_zoom_level = get_y_axis_zoom().get_clamped_value();
+	_block_zoom_value = get_y_axis_zoom().get_clamped_value();
 }
 
 void PVParallelView::PVHitCountView::set_x_zoom_level_from_sel()
@@ -397,7 +397,7 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	int dy = view_top - img_top;
 
 	int zoom_level = get_y_axis_zoom().get_clamped_value();
-	double rel_y_scale = y_zoom_to_scale(zoom_level - _block_zoom_level);
+	double rel_y_scale = y_zoom_to_scale(zoom_level - _block_zoom_value);
 
 	painter->fillRect(margined_rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
 	painter->setPen(QPen(Qt::white));
@@ -525,22 +525,23 @@ void PVParallelView::PVHitCountView::draw_clamped_lines(QPainter *painter,
                                                         const uint32_t *buffer)
 {
 	const int y_axis_length = get_y_axis_length();
-	const int count = get_hit_graph_manager().size_int();
+	const size_t buffer_size = get_hit_graph_manager().size_int();
 
-	for (int y = 0; y < count; ++y) {
-		const uint32_t v = buffer[y];
-		if (v == 0) {
+	for (uint32_t idx = 0; idx < buffer_size; ++idx) {
+		const uint32_t count = buffer[idx];
+		if (count == 0) {
 			continue;
 		}
 
-		int y_val = (rel_y_scale * y) - offset;
+		int y_val = (rel_y_scale * idx) - offset;
+
 		if ((y_val < 0) || (y_val >= y_axis_length)) {
 			continue;
 		}
 
 		y_val += view_top;
 
-		int vx = map_margined_from_scene(QPointF(v, 0.)).x();
+		int vx = map_margined_from_scene(QPointF(count, 0.)).x();
 
 		if (vx < 0) {
 			continue;
@@ -583,28 +584,25 @@ void PVParallelView::PVHitCountView::do_update_all()
 	// std::cout << std::fixed << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
 
 	int rel_zoom = get_y_axis_zoom().get_clamped_relative_value();
-	int calc_zoom = rel_zoom / zoom_steps;
+	int zoom_level = rel_zoom / zoom_steps;
 
-	if (calc_zoom >= y_min_zoom_level) {
-		calc_zoom = y_min_zoom_level - 1;
+	if (zoom_level > y_min_zoom_level) {
+		zoom_level = digital_zoom_level;
 	}
 
-	// print_s(calc_zoom);
-
 	double alpha = 0.5 * _y_zoom_converter.zoom_to_scale_decimal(rel_zoom);
-	// print_s(alpha);
 
 	uint32_t y_min = map_margined_to_scene(0, 0).y();
-	uint64_t block_size = 1L << (32-calc_zoom);
+	uint64_t block_size = 1L << (32-zoom_level);
 	uint32_t block_y_min = (uint64_t)y_min & ~(block_size - 1);
 
 	// BENCH_START(hcv_data_compute);
-	get_hit_graph_manager().change_and_process_view(block_y_min, calc_zoom, alpha);
+	get_hit_graph_manager().change_and_process_view(block_y_min, zoom_level, alpha);
 	// BENCH_STOP(hcv_data_compute);
 	// BENCH_STAT_TIME(hcv_data_compute);
 
 	_block_base_pos = block_y_min;
-	_block_zoom_level = get_y_axis_zoom().get_clamped_value();
+	_block_zoom_value = get_y_axis_zoom().get_clamped_value();
 
 	get_viewport()->update();
 }
