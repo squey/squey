@@ -11,6 +11,10 @@ PVParallelView::PVZoomableDrawingAreaInteractorMajorY::PVZoomableDrawingAreaInte
 	PVParallelView::PVZoomableDrawingAreaInteractor(parent)
 {}
 
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mousePressEvent
+ *****************************************************************************/
+
 bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mousePressEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
 {
 	if (event->button() == Qt::RightButton) {
@@ -20,6 +24,15 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mousePressEvent(PVPa
 	}
 
 	return false;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mouseReleaseEvent
+ *****************************************************************************/
+
+bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mouseReleaseEvent(PVParallelView::PVZoomableDrawingArea*, QMouseEvent*)
+{
+	return true;
 }
 
 /*****************************************************************************
