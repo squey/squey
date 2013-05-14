@@ -821,7 +821,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 		BENCH_SHOW(extract, "extraction  y1 y2 seq bg", 1, 1, 1, 1);
 	}
 
-	PVLOG_DEBUG("::browse_trees_bci_by_y1_y2_seq -> %lu\n", nbci);
+	PVLOG_INFO("::browse_trees_bci_by_y1_y2_seq -> %lu\n", nbci);
 
 	return nbci;
 }

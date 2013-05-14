@@ -36,7 +36,7 @@ if (WIN32)
 #	set(CMAKE_MODULE_LINKER_FLAGS ${MSVC_LINKER_FLAGS})
 
 else()
-	set(CMAKE_CXX_COMMON_FLAGS "-std=c++11 -Wall -Wno-unused-local-typedefs -Wno-pmf-conversions")
+	set(CMAKE_CXX_COMMON_FLAGS "-std=c++11 -Wall -Wextra -Wno-unused-local-typedefs -Wno-pmf-conversions")
 	set(LD_IS_GOLD_USED FALSE)
 
 	if (USE_LTO)

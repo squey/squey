@@ -273,8 +273,24 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 }
 
 uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_view_rect(
-	PVZoneTree const& ztree,
-	QRectF rect,
+	const uint32_t* y1_plotted,
+	const uint32_t* y2_plotted,
+	const PVRow nrows,
+	const QRectF& rect,
+	Picviz::PVSelection& sel
+)
+{
+	return compute_selection_from_scatter_view_rect_plotted_sse(y1_plotted, y2_plotted, nrows, rect, sel);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_view_rect_plotted_seq
+ *****************************************************************************/
+uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_view_rect_plotted_seq(
+	const uint32_t* y1_plotted,
+	const uint32_t* y2_plotted,
+	const PVRow nrows,
+	const QRectF& rect,
 	Picviz::PVSelection& sel
 )
 {
@@ -282,25 +298,105 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_vi
 		return 0;
 	}
 
-	sel.select_none();
+	sel.ensure_allocated();
+
+	const uint32_t y1_min = PVCore::clamp(floor(rect.left()),  0.0, (double) UINT32_MAX);
+	const uint32_t y1_max = PVCore::clamp(ceil(rect.right()), 0.0, (double) UINT32_MAX);
+
+	const uint32_t y2_min = PVCore::clamp(floor(rect.top()), 0.0, (double) UINT32_MAX);
+	const uint32_t y2_max = PVCore::clamp(ceil(rect.bottom()), 0.0, (double) UINT32_MAX);
 
 	uint32_t nb_selected = 0;
-	PVParallelView::PVBCode code_b;
 
-	for (uint32_t branch = 0 ; branch < NBUCKETS; branch++) {
-		if (ztree.branch_valid(branch)) {
-			code_b.int_v = branch;
-			if (rect.contains((uint32_t)code_b.s.l << (32 - NBITS_INDEX),
-			                  (uint32_t)code_b.s.r << (32 - NBITS_INDEX))) {
-				const uint32_t branch_count = ztree.get_branch_count(branch);
-				for (size_t i = 0; i < branch_count; i++) {
-					const PVRow cur_r = ztree.get_branch_element(branch, i);
-					sel.set_bit_fast(cur_r);
-				}
-				nb_selected += branch_count;
+	BENCH_START(scatter_view_plotted_selection_serial);
+	for(PVRow i = 0; i < nrows; ++i) {
+
+		const uint32_t y1 = y1_plotted[i];
+		const uint32_t y2 = y2_plotted[i];
+
+		if ((y1 >= y1_min) && (y1 <= y1_max) && (y2 >= y2_min) && (y2 <= y2_max)) {
+			sel.set_bit_fast(i);
+			++nb_selected;
+			continue;
+		}
+
+		sel.clear_bit_fast(i);
+	}
+	BENCH_END(scatter_view_plotted_selection_serial, "scatter_view_plotted_selection_serial", 2*nrows, sizeof(uint32_t), 1, 1);
+
+	return nb_selected;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_view_rect_plotted_sse
+ *****************************************************************************/
+uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_view_rect_plotted_sse(
+	const uint32_t* y1_plotted,
+	const uint32_t* y2_plotted,
+	const PVRow nrows,
+	const QRectF& rect,
+	Picviz::PVSelection& sel
+)
+{
+	if (rect.isNull()) {
+		return 0;
+	}
+
+	sel.ensure_allocated();
+
+	const uint32_t y1_min = PVCore::clamp(floor(rect.left()),  0.0, (double) UINT32_MAX);
+	const uint32_t y1_max = PVCore::clamp(ceil(rect.right()) + 1, 0.0, (double) UINT32_MAX);
+
+	const uint32_t y2_min = PVCore::clamp(floor(rect.top()), 0.0, (double) UINT32_MAX);
+	const uint32_t y2_max = PVCore::clamp(ceil(rect.bottom()) + 1, 0.0, (double) UINT32_MAX);
+
+	uint32_t nb_selected = 0;
+
+	const __m128i y1_min_sse = _mm_set1_epi32(y1_min);
+	const __m128i y1_max_sse = _mm_set1_epi32(y1_max);
+
+	const __m128i y2_min_sse = _mm_set1_epi32(y2_min);
+	const __m128i y2_max_sse = _mm_set1_epi32(y2_max);
+
+	const uint32_t nrows_sse = nrows & ~63U;
+
+	BENCH_START(scatter_view_plotted_selection_sse);
+
+	PVRow i = 0;
+#pragma omp parallel for num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())
+	for(i = 0; i < nrows_sse; i += 64) {
+		uint64_t chunk = 0;
+		for (int j = 0; j < 64; j += 4) {
+			const __m128i y1_sse = _mm_load_si128((__m128i const*) &y1_plotted[i+j]);
+			const __m128i mask_y1 = picviz_mm_cmprange_epu32(y1_sse, y1_min_sse, y1_max_sse);
+
+			if (!(_mm_test_all_zeros(mask_y1, _mm_set1_epi32(0xFFFFFFFFU)))) {
+
+				const __m128i y2_sse = _mm_load_si128((__m128i const*) &y2_plotted[i+j]);
+				const __m128i mask_y2 = picviz_mm_cmprange_epu32(y2_sse, y2_min_sse, y2_max_sse);
+				const __m128i mask_y1_y2 = _mm_and_si128(mask_y1, mask_y2);
+
+				const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask_y1_y2));
+				chunk |= sel_bits << j;
 			}
+
+			sel.set_chunk_fast(Picviz::PVSelection::line_index_to_chunk(i), chunk);
 		}
 	}
+	for (; i < nrows; i++) {
+		const uint32_t y1 = y1_plotted[i];
+		const uint32_t y2 = y2_plotted[i];
+
+		if ((y1 >= y1_min) && (y1 < y1_max) && (y2 >= y2_min) && (y2 < y2_max)) {
+			sel.set_bit_fast(i);
+			++nb_selected;
+			continue;
+		}
+
+		sel.clear_bit_fast(i);
+	}
+
+	BENCH_END(scatter_view_plotted_selection_sse, "scatter_view_plotted_selection_sse", 2*nrows, sizeof(uint32_t), 1, 1);
 
 	return nb_selected;
 }

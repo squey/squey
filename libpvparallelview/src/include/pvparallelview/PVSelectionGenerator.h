@@ -41,7 +41,30 @@ struct PVSelectionGenerator
 {
 	static uint32_t compute_selection_from_parallel_view_rect(PVLinesView& lines_view, PVZoneID zone_id, QRect rect, Picviz::PVSelection& sel);
 	static uint32_t compute_selection_from_parallel_view_sliders(PVLinesView& lines_view, PVZoneID zone_id, const typename PVAxisGraphicsItem::selection_ranges_t& ranges, Picviz::PVSelection& sel);
-	static uint32_t compute_selection_from_scatter_view_rect(PVZoneTree const& ztree, QRectF rect, Picviz::PVSelection& sel);
+
+
+	static uint32_t compute_selection_from_scatter_view_rect(
+		const uint32_t* y1_plotted,
+		const uint32_t* y2_plotted,
+		const PVRow nrows,
+		const QRectF& rect,
+		Picviz::PVSelection& sel
+	);
+	static uint32_t compute_selection_from_scatter_view_rect_plotted_seq(
+		const uint32_t* y1_plotted,
+		const uint32_t* y2_plotted,
+		const PVRow nrows,
+		const QRectF& rect,
+		Picviz::PVSelection& sel
+	);
+	static uint32_t compute_selection_from_scatter_view_rect_plotted_sse(
+		const uint32_t* y1_plotted,
+		const uint32_t* y2_plotted,
+		const PVRow nrows,
+		const QRectF& rect,
+		Picviz::PVSelection& sel
+	);
+
 	static uint32_t compute_selection_from_hit_count_view_rect(const PVHitGraphBlocksManager& manager,
 	                                                           const QRectF& rect,
 	                                                           const uint32_t max_count,

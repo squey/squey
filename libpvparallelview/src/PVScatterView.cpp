@@ -25,118 +25,13 @@
 #include <pvparallelview/PVSelectionSquareScatterView.h>
 #include <pvparallelview/PVZoomableDrawingAreaInteractorHomothetic.h>
 #include <pvparallelview/PVZoomableDrawingAreaConstraintsHomothetic.h>
+#include <pvparallelview/PVSelectionRectangleInteractor.h>
 
 namespace PVParallelView
 {
 
 template <int STEPS>
 using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
-
-class PVSelectionSquareInteractor: public PVWidgets::PVGraphicsViewInteractor<PVWidgets::PVGraphicsView>
-{
-
-public:
-	PVSelectionSquareInteractor(PVWidgets::PVGraphicsView* parent, PVSelectionSquare* selection_square):
-		PVWidgets::PVGraphicsViewInteractor<PVWidgets::PVGraphicsView>(parent),
-		_selection_square(selection_square)
-	{
-		assert(selection_square->scene() == parent->get_scene());
-	}
-
-	bool keyPressEvent(PVWidgets::PVGraphicsView* view, QKeyEvent* event) override
-	{
-		if (event->key() == Qt::Key_Left) {
-			if (event->modifiers() & Qt::ShiftModifier) {
-				_selection_square->grow_horizontally();
-			}
-			else if (event->modifiers() & Qt::ControlModifier) {
-				_selection_square->move_left_by_width();
-			}
-			else {
-				_selection_square->move_left_by_step();
-			}
-			event->accept();
-		}
-		else if (event->key() == Qt::Key_Right) {
-			if (event->modifiers() & Qt::ShiftModifier) {
-				_selection_square->shrink_horizontally();
-			}
-			else if (event->modifiers() & Qt::ControlModifier) {
-				_selection_square->move_right_by_width();
-			}
-			else {
-				_selection_square->move_right_by_step();
-			}
-			event->accept();
-		}
-		else if (event->key() == Qt::Key_Up) {
-			if (event->modifiers() & Qt::ShiftModifier) {
-				_selection_square->grow_vertically();
-			}
-			else if (event->modifiers() & Qt::ControlModifier) {
-				_selection_square->move_up_by_height();
-			}
-			else {
-				_selection_square->move_up_by_step();
-			}
-			event->accept();
-		}
-		else if (event->key() == Qt::Key_Down) {
-			if (event->modifiers() & Qt::ShiftModifier) {
-				_selection_square->shrink_vertically();
-			}
-			else if (event->modifiers() & Qt::ControlModifier) {
-				_selection_square->move_down_by_height();
-			}
-			else {
-				_selection_square->move_down_by_step();
-			}
-			event->accept();
-		}
-
-#ifdef PICVIZ_DEVELOPER_MODE
-	else if ((event->key() == Qt::Key_B) && (event->modifiers() & Qt::ControlModifier)) {
-		PVScatterView::toggle_show_quadtrees();
-	}
-#endif
-
-		return false;
-	}
-
-	bool mousePressEvent(PVWidgets::PVGraphicsView* view, QMouseEvent* event) override
-	{
-		if (event->button() == Qt::LeftButton) {
-			QPointF p = view->map_to_scene(event->pos());
-			_selection_square->begin(p.x(), p.y());
-			event->accept();
-		}
-		return false;
-	}
-
-	bool mouseReleaseEvent(PVWidgets::PVGraphicsView* view, QMouseEvent* event) override
-	{
-		if (event->button() == Qt::LeftButton) {
-			QPointF p = view->map_to_scene(event->pos());
-			_selection_square->end(p.x(), p.y(), true, true);
-			event->accept();
-		}
-		return false;
-	}
-
-	bool mouseMoveEvent(PVWidgets::PVGraphicsView* view, QMouseEvent* event) override
-	{
-		if (event->buttons() == Qt::LeftButton)
-		{
-			QPointF p = view->map_to_scene(event->pos());
-			_selection_square->end(p.x(), p.y());
-			event->accept();
-		}
-		return false;
-	}
-
-private:
-	PVSelectionSquare* _selection_square;
-};
 
 }
 
@@ -154,16 +49,30 @@ PVParallelView::PVScatterView::PVScatterView(
 	_zzt(zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(axis_index)),
 	_view_deleted(false)
 {
-	//setCursor(Qt::CrossCursor);
+	setCursor(Qt::CrossCursor);
 	QRectF r(0, 0, (1UL << 32), (1UL << 32));
 	set_scene_rect(r);
 	get_scene()->setSceneRect(r);
 
-	_selection_square = new PVSelectionSquareScatterView(_zt, this);
+	const PVRow nrows = zm.get_number_rows();
+
+	const uint32_t* y1_plotted = Picviz::PVPlotted::get_plotted_col_addr(
+		zm.get_uint_plotted(),
+		nrows,
+		axis_index
+	);
+
+	const uint32_t* y2_plotted = Picviz::PVPlotted::get_plotted_col_addr(
+		zm.get_uint_plotted(),
+		nrows,
+		axis_index+1
+	);
+
+	_selection_square = new PVSelectionSquareScatterView(y1_plotted, y2_plotted, nrows, this);
 
 	// interactor
 	PVWidgets::PVGraphicsViewInteractorBase* zoom_inter = declare_interactor<PVZoomableDrawingAreaInteractorHomothetic>();
-	PVWidgets::PVGraphicsViewInteractorBase* selection_square_inter = declare_interactor<PVSelectionSquareInteractor>(_selection_square);
+	PVWidgets::PVGraphicsViewInteractorBase* selection_square_inter = declare_interactor<PVSelectionRectangleInteractor>(_selection_square);
 	register_back_all(selection_square_inter);
 	register_back_all(zoom_inter);
 	install_default_scene_interactor();
@@ -256,21 +165,18 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 /*****************************************************************************
  * PVParallelView::PVScatterView::draw_points
  *****************************************************************************/
-void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF& rect)
+void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF& margined_rect)
 {
 	Picviz::PVSelection const& sel = _view.get_real_output_selection();
 
 	PVZoomedZoneTree::context_t ctxt;
 
 	typedef PVParallelView::PVBCICode<PARALLELVIEW_ZZT_BBITS>bcicode_t;
-	static bcicode_t* bcicodes = new bcicode_t[NBUCKETS];
+	static bcicode_t* bcicodes = new bcicode_t[2048*2048*4];
 
 	int rel_zoom = get_y_axis_zoom().get_clamped_relative_value();
 
-	QRectF screen_rect = get_viewport()->rect();
-	screen_rect.translate(get_scene_left_margin(), get_scene_top_margin());
-	QRectF screen_rect_s = map_to_scene(screen_rect);
-	QRectF view_rect = get_scene_rect().intersected(screen_rect_s);
+	QRectF view_rect = get_scene_rect().intersected(map_to_scene(get_margined_viewport_rect()));
 
 	uint64_t y1_min = view_rect.x();
 	uint64_t y1_max = view_rect.x()+view_rect.width();
@@ -296,8 +202,9 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 	for (uint32_t i = 0; i < bci_count; ++i) {
 		bcicode_t code_bci = bcicodes[i];
 		painter->setPen(_view.get_color_in_output_layer(code_bci.s.idx).toQColor());
-		painter->drawPoint(code_bci.s.l + get_scene_left_margin(), code_bci.s.r+ get_scene_top_margin());
-		//painter->drawEllipse(code_bci.s.l + get_scene_left_margin(), code_bci.s.r + get_scene_top_margin(), 10, 10);
+		painter->setOpacity(sel.get_line_fast(code_bci.s.idx) ? 1.0 : 0.25);
+		painter->drawPoint(code_bci.s.l, code_bci.s.r);
+		//painter->drawEllipse(code_bci.s.l, code_bci.s.r, 10, 10);
 	}
 
 	if (_show_quadtrees) {
