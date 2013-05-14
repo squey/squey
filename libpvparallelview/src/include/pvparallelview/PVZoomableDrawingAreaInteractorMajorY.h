@@ -14,6 +14,7 @@ public:
 
 protected:
 	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event) override;
+	bool mouseReleaseEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event) override;
 
 	bool mouseMoveEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event) override;
 

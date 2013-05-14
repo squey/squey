@@ -41,10 +41,12 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 
 	constexpr static int zoom_steps = 5;
 	// the "digital" zoom level (to space consecutive values)
-	constexpr static int y_zoom_extra_level = 0;
+	constexpr static int y_zoom_extra_level = 10;
 	constexpr static int y_zoom_extra = y_zoom_extra_level * zoom_steps;
-	// -22 because we want a scale factor of 1 when the view fits in a 1024x1024 window
-	constexpr static int zoom_min = -22 * zoom_steps;
+	// to have a scale factor of 1 when the view fits in a 1024x1024 window (i.e. 2^22 value per pixel)
+	constexpr static int y_min_zoom_level = 22;
+
+	constexpr static int zoom_min = -y_min_zoom_level * zoom_steps;
 
 private:
 	typedef PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
@@ -95,8 +97,8 @@ private:
 	void reset_view();
 
 	void draw_lines(QPainter *painter,
-	                const int src_x, const int view_top,
-	                const int offset, const double &ratio,
+	                const int x_max,
+	                const int view_top, const int offset,
 	                const double rel_y_scale,
 	                const uint32_t *buffer);
 

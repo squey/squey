@@ -29,11 +29,12 @@ public:
 public:
 	struct ProcessParams
 	{
-		ProcessParams(uint32_t const* col_plotted_, PVRow const nrows_, uint32_t const y_min_, int const zoom_, const double &alpha_, int const block_start_, int const nblocks_):
+		ProcessParams(uint32_t const* col_plotted_, PVRow const nrows_, uint32_t const y_min_, int const zoom_, const int nbits_, const double &alpha_, int const block_start_, int const nblocks_):
 			col_plotted(col_plotted_),
 			nrows(nrows_),
 			y_min(y_min_),
 			zoom(zoom_),
+			nbits(nbits_),
 			alpha(alpha_),
 			block_start(block_start_),
 			nblocks(nblocks_)
@@ -43,6 +44,7 @@ public:
 		PVRow nrows;
 		uint32_t y_min;
 		int zoom;
+		int nbits;
 		double alpha;
 		int block_start;
 		int nblocks;
