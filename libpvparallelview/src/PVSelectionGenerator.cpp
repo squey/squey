@@ -317,10 +317,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 {
 	sel.ensure_allocated();
 
-	// The intervals described here are of the type [a,b[ (that is the maximum isn't taken into account)
+	// The interval described here is of the type [a,b] (that is the maximum is taken into account)
 	const uint32_t v_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
-	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()) + 1, 0.0, (double)UINT32_MAX);
+	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()), 0.0, (double)UINT32_MAX);
 
+	// The interval described here is of the type [a,b[ (that is the maximum isn't taken into account)
 	// "null" counted event can't be selected, so let's clamp c_min between [1,max_count]
 	const uint32_t c_min = PVCore::clamp(ceil(rect.left()),  1.0, (double)(max_count+1));
 	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 1.0, (double)(max_count+1));
@@ -334,7 +335,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 	BENCH_START(b);
 	for(PVRow i = 0; i < nrows; ++i) {
 		const uint32_t v = plotted[i];
-		if ((v >= v_min) && (v < v_max)) {
+		if ((v >= v_min) && (v <= v_max)) {
 			const uint32_t c = manager.get_count_for(v);
 			if ((c >= c_min) && (c < c_max)) {
 				sel.set_bit_fast(i);
@@ -357,10 +358,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 {
 	sel.ensure_allocated();
 
-	// The intervals described here are of the type [a,b[ (that is the maximum isn't taken into account)
+	// The interval described here is of the type [a,b] (that is the maximum is taken into account)
 	const uint32_t v_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
-	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()) + 1.0, 0.0, (double)UINT32_MAX);
+	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()), 0.0, (double)UINT32_MAX);
 
+	// The interval described here is of the type [a,b[ (that is the maximum isn't taken into account)
 	// "null" counted event can't be selected, so let's clamp c_min between [1,max_count]
 	const uint32_t c_min = PVCore::clamp(ceil(rect.left()),  1.0, (double)(max_count+1));
 	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 1.0, (double)(max_count+1));
@@ -385,7 +387,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 	BENCH_START(b);
 	for(PVRow i = 0; i < nrows; ++i) {
 		uint64_t v = plotted[i];
-		if ((v >= v_min) && (v < v_max)) {
+		if ((v >= v_min) && (v <= v_max)) {
 			const int32_t base = v >> zoom_shift;
 
 			int p = base - base_y;
@@ -416,10 +418,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 {
 	sel.ensure_allocated();
 
-	// The intervals described here are of the type [a,b[ (that is the maximum isn't taken into account)
+	// The interval described here is of the type [a,b] (that is the maximum is taken into account)
 	const uint32_t v_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
-	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()) + 1.0, 0.0, (double)UINT32_MAX);
+	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()), 0.0, (double)UINT32_MAX);
 
+	// The interval described here is of the type [a,b[ (that is the maximum isn't taken into account)
 	// "null" counted event can't be selected, so let's clamp c_min between [1,max_count]
 	const uint32_t c_min = PVCore::clamp(ceil(rect.left()),  1.0, (double)(max_count+1));
 	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 1.0, (double)(max_count+1));
@@ -445,7 +448,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 			// _mm_andnot_si128(a,b) = ~a & b
 			// _mm_cmplt_epi32(a,b) = a < b;
 			// thus andnot(cmplt(a,b),cmplt(a,c)) <=> (!(a < b)) && (a < c) <=> (a >=b) && (a < c)
-			const __m128i mask_y = picviz_mm_cmprange_epu32(y_sse, v_min_sse, v_max_sse);
+			const __m128i mask_y = picviz_mm_cmprange_in_epu32(y_sse, v_min_sse, v_max_sse);
 
 			if (!_mm_test_all_zeros(mask_y, _mm_set1_epi32(0xFFFFFFFFU))) {
 
@@ -488,10 +491,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 {
 	sel.ensure_allocated();
 
-	// The intervals described here are of the type [a,b[ (that is the maximum isn't taken into account)
+	// The interval described here is of the type [a,b] (that is the maximum is taken into account)
 	const uint32_t v_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
-	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()) + 1.0, 0.0, (double)UINT32_MAX);
+	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()), 0.0, (double)UINT32_MAX);
 
+	// The interval described here is of the type [a,b[ (that is the maximum isn't taken into account)
 	// "null" counted event can't be selected, so let's clamp c_min between [1,max_count]
 	const uint32_t c_min = PVCore::clamp(ceil(rect.left()),  1.0, (double)(max_count+1));
 	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 1.0, (double)(max_count+1));
@@ -533,7 +537,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 		int32_t chunk = 0;
 		for (int j = 0; j < 32; j += 4) {
 			const __m128i y_sse = _mm_load_si128((__m128i const*) &plotted[i+j]);
-			const __m128i mask_y = picviz_mm_cmprange_epu32(y_sse, v_min_sse, v_max_sse);
+			const __m128i mask_y = picviz_mm_cmprange_in_epu32(y_sse, v_min_sse, v_max_sse);
 
 			if (!_mm_test_all_zeros(mask_y, _mm_set1_epi32(0xFFFFFFFFU))) {
 
