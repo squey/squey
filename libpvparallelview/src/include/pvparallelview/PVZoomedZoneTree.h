@@ -56,10 +56,11 @@ class PVZoomedZoneTree
 {
 	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
 	constexpr static uint32_t mask_int_ycoord = (((uint32_t)1)<<bbits)-1;
+	constexpr static size_t quadtree_max_level = 17;
 
 	typedef PVTLRBuffer<bbits> pv_tlr_buffer_t;
 	typedef pv_tlr_buffer_t::index_t pv_tlr_index_t;
-	typedef PVQuadTree<10000, 1000, 0, bbits> pvquadtree;
+	typedef PVQuadTree<2048, 1000, 0, bbits> pvquadtree;
 	typedef pvquadtree::insert_entry_f insert_entry_f;
 
 	typedef std::function<void(const pvquadtree &tree,
@@ -151,7 +152,7 @@ public:
 	 * @param sel_elts the buffer where PVZoneTree store selected events
 	 * @param max_level the depth limit for quadtree
 	 */
-	PVZoomedZoneTree(const PVRow *sel_elts, const PVRow *bg_elts, uint32_t max_level = 8);
+	PVZoomedZoneTree(const PVRow *sel_elts, const PVRow *bg_elts, uint32_t max_level = quadtree_max_level);
 
 	/**
 	 * Destructor

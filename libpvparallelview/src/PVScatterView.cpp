@@ -25,6 +25,7 @@
 #include <pvparallelview/PVSelectionSquareScatterView.h>
 #include <pvparallelview/PVZoomableDrawingAreaInteractorHomothetic.h>
 #include <pvparallelview/PVZoomableDrawingAreaConstraintsHomothetic.h>
+#include <pvparallelview/PVZoomConverterPowerOfTwo.h>
 #include <pvparallelview/PVSelectionRectangleInteractor.h>
 
 namespace PVParallelView
@@ -93,6 +94,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	set_decoration_color(Qt::white);
 	set_ticks_per_level(8);
 
+	//_zoom_converter = new PVZoomConverterPowerOfTwo();
 	_zoom_converter = new PVScatterViewZoomConverter<zoom_steps>();
 	get_x_axis_zoom().set_zoom_converter(_zoom_converter);
 	get_x_axis_zoom().set_range(zoom_min, zoom_extra);
@@ -149,6 +151,19 @@ void PVParallelView::PVScatterView::update_all_async()
 }
 
 /*****************************************************************************
+ * PVParallelView::PVScatterView::keyPressEvent
+ *****************************************************************************/
+void PVParallelView::PVScatterView::keyPressEvent(QKeyEvent* event)
+	{
+#ifdef PICVIZ_DEVELOPER_MODE
+		if ((event->key() == Qt::Key_B) && (event->modifiers() & Qt::ControlModifier)) {
+			PVScatterView::toggle_show_quadtrees();
+		}
+#endif
+		PVZoomableDrawingAreaWithAxes::keyPressEvent(event);
+	}
+
+/*****************************************************************************
  * PVParallelView::PVScatterView::drawBackground
  *****************************************************************************/
 void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRectF& rect)
@@ -191,7 +206,7 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 		y1_max,
 		y2_min,
 		y2_max,
-		rel_zoom/zoom_steps,
+		(rel_zoom/zoom_steps) + 1,
 		alpha,
 		bcicodes
 	);
@@ -201,10 +216,10 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 
 	for (uint32_t i = 0; i < bci_count; ++i) {
 		bcicode_t code_bci = bcicodes[i];
-		painter->setPen(_view.get_color_in_output_layer(code_bci.s.idx).toQColor());
+		QColor c =_view.get_color_in_output_layer(code_bci.s.idx).toQColor();
+		painter->setPen(c);
 		painter->setOpacity(sel.get_line_fast(code_bci.s.idx) ? 1.0 : 0.25);
 		painter->drawPoint(code_bci.s.l, code_bci.s.r);
-		//painter->drawEllipse(code_bci.s.l, code_bci.s.r, 10, 10);
 	}
 
 	if (_show_quadtrees) {
@@ -220,19 +235,11 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 				const double x_rect_scene = ((uint32_t)((code_b.s.l+1) << (32-PARALLELVIEW_ZT_BBITS))) - 1;
 				const double y_rect_scene = ((uint32_t)((code_b.s.r+1) << (32-PARALLELVIEW_ZT_BBITS))) - 1;
 
-				QPointF view_point = map_from_scene(QPointF(x_scene, y_scene));
-				QPointF view_point_rect = map_from_scene(QPointF(x_rect_scene, y_rect_scene));
+				QPointF view_point = map_margined_from_scene(QPointF(x_scene, y_scene));
+				QPointF view_point_rect = map_margined_from_scene(QPointF(x_rect_scene, y_rect_scene));
 
 				painter->setPen(_view.get_color_in_output_layer(row).toQColor());
-
-				if (sel.get_line_fast(row)) {
-					// Draw selection
-					painter->setOpacity(1.0);
-				}
-				else {
-					// Draw background
-					painter->setOpacity(0.25);
-				}
+				painter->setOpacity(sel.get_line_fast(row) ? 1.0 : 0.25);
 				painter->drawRect(QRectF(view_point, view_point_rect));
 			}
 		}
