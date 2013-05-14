@@ -392,14 +392,14 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	PVParallelView::PVZoomableDrawingAreaWithAxes::drawBackground(painter, margined_rect);
 }
 
-void PVParallelView::PVHitCountView::drawForeground(QPainter *painter, const QRectF& /*rect*/)
+void PVParallelView::PVHitCountView::drawForeground(QPainter* /*painter*/, const QRectF& /*rect*/)
 {
-	painter->save();
+	/*painter->save();
 	painter->resetTransform();
 
 	QString txt(QString("Max all: %1 / Max sel: %2").arg(_max_count).arg(get_hit_graph_manager().get_max_count_sel()));
 	painter->drawText(QPointF(10, 10), txt);
-	painter->restore();
+	painter->restore();*/
 }
 
 /*****************************************************************************
