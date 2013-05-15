@@ -29,8 +29,10 @@ void PVParallelView::PVHitGraphDataInterface::shift_right(const uint32_t n, cons
 	buffer_sel().shift_zoomed_right(n, alpha);
 }
 
-void PVParallelView::PVHitGraphDataInterface::process_all(ProcessParams const& params, Picviz::PVSelection const& sel)
+void PVParallelView::PVHitGraphDataInterface::process_all(ProcessParams const& params,
+                                                          Picviz::PVSelection const& layer_sel,
+                                                          Picviz::PVSelection const& sel)
 {
-	process_bg(params);
+	process_bg(params, layer_sel);
 	process_sel(params, sel);
 }

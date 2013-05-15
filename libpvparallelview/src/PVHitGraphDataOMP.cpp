@@ -375,7 +375,8 @@ PVParallelView::PVHitGraphDataOMP::PVHitGraphDataOMP(uint32_t nbits, uint32_t nb
 	_omp_ctx(nblocks*size_block())
 {
 }
-void PVParallelView::PVHitGraphDataOMP::process_bg(ProcessParams const& p)
+
+void PVParallelView::PVHitGraphDataOMP::process_bg(ProcessParams const& p, Picviz::PVSelection const& layer_sel)
 {
 	int nblocks_ = std::min((uint32_t) p.nblocks, nblocks() - p.block_start);
 	if (nblocks_ <= 0) {

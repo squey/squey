@@ -9,6 +9,9 @@
 
 #include <pvkernel/core/PVSharedPointer.h>
 
+#include <picviz/PVView.h>
+#include <picviz/PVView_types.h>
+
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
@@ -20,10 +23,7 @@ class QWidget;
 
 namespace Picviz
 {
-
-class PVView;
-typedef PVCore::PVSharedPtr<PVView> PVView_sp;
-
+class PVSelection;
 }
 
 namespace PVParallelView
@@ -32,7 +32,7 @@ namespace PVParallelView
 class PVHitCountViewInteractor;
 class PVSelectionRectangleHitCountView;
 class PVSelectionRectangleInteractor;
-class PVHitCountViewParamsWidget; 
+class PVHitCountViewParamsWidget;
 
 class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 {
@@ -100,6 +100,9 @@ protected:
 	}
 
 	void set_params_widget_position();
+
+	inline Picviz::PVSelection& real_selection() { return _pvview.get_real_output_selection(); }
+	inline Picviz::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
 
 	inline bool auto_x_zoom_sel() const { return _auto_x_zoom_sel; }
 	inline bool show_bg() const { return _show_bg; }

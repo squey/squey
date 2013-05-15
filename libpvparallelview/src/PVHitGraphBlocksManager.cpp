@@ -1,5 +1,7 @@
 #include <pvkernel/core/picviz_intrin.h>
 
+#include <picviz/PVSelection.h>
+
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
 #include <pvparallelview/PVHitGraphSSEHelpers.h>
@@ -22,9 +24,10 @@ inline static uint32_t y_to_idx_in_red_buffer(const uint32_t y, const uint32_t z
 	return ((double)y_to_idx_in_buffer(y, zoom))*alpha;
 }
 
-PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Picviz::PVSelection const& sel):
+PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Picviz::PVSelection& layer_sel, Picviz::PVSelection const& sel):
 	_data_z0(PARALLELVIEW_ZT_BBITS, 1),
 	_data(PARALLELVIEW_ZZT_BBITS, nblocks),
+	_layer_sel(layer_sel),
 	_sel(sel),
 	_data_params(col_plotted, nrows, 0, -1, PARALLELVIEW_ZT_BBITS, 0.5, 0, nblocks)
 {
@@ -82,7 +85,7 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 			_data_params.nblocks = abs_blocks_shift;
 		}
 
-		_data.process_all(_data_params, _sel);
+		_data.process_all(_data_params, _layer_sel, _sel);
 
 		// Set last params to the full block range
 		// (in case a reprocessing will be necessary)
@@ -109,11 +112,11 @@ void PVParallelView::PVHitGraphBlocksManager::process_bg()
 {
 	if (full_view()) {
 		_data_z0.buffer_all().set_zero();
-		_data_z0.process_bg(_data_params);
+		_data_z0.process_bg(_data_params, _layer_sel);
 	}
 	else {
 		_data.buffer_all().set_zero();
-		_data.process_bg(_data_params);
+		_data.process_bg(_data_params, _layer_sel);
 	}
 }
 
@@ -133,12 +136,17 @@ void PVParallelView::PVHitGraphBlocksManager::process_all()
 {
 	if (full_view()) {
 		_data_z0.set_zero();
-		_data_z0.process_all(_data_params, _sel);
+		_data_z0.process_all(_data_params, _layer_sel, _sel);
 	}
 	else {
 		_data.set_zero();
-		_data.process_all(_data_params, _sel);
+		_data.process_all(_data_params, _layer_sel, _sel);
 	}
+}
+
+void PVParallelView::PVHitGraphBlocksManager::set_layer_sel(const Picviz::PVSelection &sel)
+{
+	_layer_sel = sel;
 }
 
 uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_bg() const

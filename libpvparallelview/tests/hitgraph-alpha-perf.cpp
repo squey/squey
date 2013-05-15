@@ -817,10 +817,10 @@ void count_y1_lib(const PVRow row_count, const uint32_t *col_y1,
                   double alpha,
                   uint32_t *buffer, const size_t buffer_size, omp_sse_v3_ctx_t &ctx,
                   PVParallelView::PVHitGraphData &lib_omp,
-                  PVParallelView::PVZoneTree&)
+                  Picviz::PVSelection const& layer_sel)
 {
 
-	lib_omp.process_bg(PVParallelView::PVHitGraphData::ProcessParams(col_y1, row_count, y_min, zoom, 10 /*value unused there*/, alpha, 0, V4_N));
+	lib_omp.process_bg(PVParallelView::PVHitGraphData::ProcessParams(col_y1, row_count, y_min, zoom, 10 /*value unused there*/, alpha, 0, V4_N), layer_sel);
 }
 
 #ifdef __GNUC__
@@ -1003,7 +1003,10 @@ void do_one_run(const std::string text,
 	PVParallelView::PVZoneTree *zt = new PVParallelView::PVZoneTree();
 	PVParallelView::PVHitGraphData lib_omp(NBITS, V4_N);
 
-	DEF_TEST_OMP(lib, data, lib_omp, *zt);
+	Picviz::PVSelection layer_sel;
+	layer_sel.select_all();
+
+	DEF_TEST_OMP(lib, data, lib_omp, layer_sel);
 	memcpy(buffer_lib, lib_omp.buffer_all().buffer(), lib_omp.buffer_all().size_bytes());
 	if (verbose) {
 		CMP_TEST(lib, sse_v4);

@@ -842,8 +842,11 @@ void test_no_sel(const size_t real_buffer_size,
 	/* Library code
 	 */
 	PVParallelView::PVHitGraphData lib_omp(NBITS, block_count);
+	Picviz::PVSelection layer_sel;
+	layer_sel.select_all();
+
 	BENCH_START(lib);
-	lib_omp.process_bg(PVParallelView::PVHitGraphData::ProcessParams(col_a, row_count, y_min, zoom, 10 /*value unused there*/, 1, 0, block_count));
+	lib_omp.process_bg(PVParallelView::PVHitGraphData::ProcessParams(col_a, row_count, y_min, zoom, 10 /*value unused there*/, 1, 0, block_count) ,layer_sel);
 	BENCH_END(lib, "library-code", row_count, sizeof(uint32_t), BUFFER_SIZE, sizeof(uint32_t));
 	std::cout << "compare to ref: ";
 	if (compare(res_seq, lib_omp.buffer_all().buffer(), block_count)) {

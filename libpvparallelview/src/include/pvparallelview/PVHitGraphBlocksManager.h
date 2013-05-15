@@ -18,13 +18,16 @@ protected:
 	typedef PVHitGraphData::ProcessParams DataProcessParams ;
 
 public:
-	PVHitGraphBlocksManager(const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Picviz::PVSelection const& sel);
+	PVHitGraphBlocksManager(const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Picviz::PVSelection& layer_sel, Picviz::PVSelection const& sel);
 
 public:
 	bool change_and_process_view(const uint32_t y_min, const int zoom, double alpha);
 	void process_bg();
 	void process_sel();
 	void process_all();
+
+public:
+	void set_layer_sel(const Picviz::PVSelection &sel);
 
 public:
 	uint32_t const* buffer_bg() const;
@@ -64,6 +67,7 @@ protected:
 	PVHitGraphData _data_z0; // Data for initial zoom (with 10-bit precision)
 	PVHitGraphData _data;
 
+	Picviz::PVSelection& _layer_sel;
 	Picviz::PVSelection const& _sel;
 
 	DataProcessParams _data_params;

@@ -38,6 +38,9 @@ int main(int argc, char **argv)
 
 	const PVCol axis = atoi(argv[pos]);
 
+	Picviz::PVSelection layout_sel;
+	layout_sel.select_all();
+
 	Picviz::PVSelection sel_ref, sel_sse, sel_inv, sel_sse_inv;
 	sel_ref.select_all();
 	sel_inv.select_all();
@@ -51,7 +54,7 @@ int main(int argc, char **argv)
 	PVParallelView::PVZoneTree& zt = *new PVParallelView::PVZoneTree();
 	PVParallelView::PVZonesManager& zm = lv->get_zones_manager();
 	const uint32_t *plotted = Picviz::PVPlotted::get_plotted_col_addr(zm.get_uint_plotted(), zm.get_number_rows(), axis);
-	PVParallelView::PVHitGraphBlocksManager manager(plotted, zm.get_number_rows(), NBLOCKS, sel_ref);
+	PVParallelView::PVHitGraphBlocksManager manager(plotted, zm.get_number_rows(), NBLOCKS, layout_sel, sel_ref);
 	manager.change_and_process_view(0, 2, 0.5f);
 
 	uint32_t max_count = 0;

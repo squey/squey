@@ -281,7 +281,9 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	PVParallelView::PVZoomableDrawingAreaWithAxes(parent),
 	_pvview(*pvview_sp),
 	_axis_index(axis_index),
-	_hit_graph_manager(col_plotted, nrows, 2, pvview_sp->get_real_output_selection()),
+	_hit_graph_manager(col_plotted, nrows, 2,
+	                   layer_stack_output_selection(),
+	                   real_selection()),
 	_view_deleted(false),
 	_show_bg(true),
 	_auto_x_zoom_sel(false),
@@ -473,7 +475,7 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	int zoom_level = get_y_axis_zoom().get_clamped_value();
 	double rel_y_scale = y_zoom_to_scale(zoom_level - _block_zoom_value);
 
-	painter->fillRect(margined_rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
+	painter->fillRect(margined_rect, common::color_view_bg());
 	painter->setPen(QPen(Qt::white));
 
 	int x_axis_right = std::min((int)map_margined_from_scene(QPointF(_max_count, 0.)).x(),
@@ -482,41 +484,32 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	if (_show_bg) {
 		// background
 		painter->setOpacity(0.25);
+		// BENCH_START(hcv_draw_bg);
 		draw_lines(painter,
 		           x_axis_right,
 		           block_view_offset,
 		           rel_y_scale,
 		           get_hit_graph_manager().buffer_bg());
+		// BENCH_STOP(hcv_draw_bg);
+		// BENCH_STAT_TIME(hcv_draw_bg);
 	}
 
 	// selection
 	painter->setOpacity(1.0);
+	// BENCH_START(hcv_draw_sel);
 	draw_lines(painter,
 	           x_axis_right,
 	           block_view_offset,
 	           rel_y_scale,
 	           get_hit_graph_manager().buffer_sel());
+	// BENCH_STOP(hcv_draw_sel);
+	// BENCH_STAT_TIME(hcv_draw_sel);
 
 	draw_decorations(painter, margined_rect);
 }
 
-void PVParallelView::PVHitCountView::drawForeground(QPainter* painter, const QRectF& /*rect*/)
+void PVParallelView::PVHitCountView::drawForeground(QPainter* /*painter*/, const QRectF& /*rect*/)
 {
-#if 0
-	painter->save();
-	painter->resetTransform();
-
-	QPointF widget_pos = QPointF(get_viewport()->width() - 20, 20);
-	QRect widget_geom = params_widget()->frameGeometry();
-	widget_pos -= QPointF(widget_geom.width(), 0);
-
-	params_widget()->render(painter, widget_pos.toPoint());
-
-	//QString txt(QString("Max all: %1 / Max sel: %2").arg(_max_count).arg(get_hit_graph_manager().get_max_count_sel()));
-	//painter->drawText(QPointF(10, 10), txt);
-	
-	painter->restore();
-#endif
 }
 
 /*****************************************************************************
@@ -590,6 +583,7 @@ void PVParallelView::PVHitCountView::do_update_all()
 	int zoom_value, zoom_level;
 	double alpha;
 
+	get_hit_graph_manager().set_layer_sel(layer_stack_output_selection());
 	zoom_value = get_y_axis_zoom().get_clamped_value();
 
 	if (zoom_value < 0) {
