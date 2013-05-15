@@ -408,6 +408,42 @@ void PVWidgets::PVGraphicsView::set_alignment(const Qt::Alignment align)
 	}
 }
 
+QRectF PVWidgets::PVGraphicsView::map_from_view(QRectF const& r) const
+{
+	return get_transform_from_view().mapRect(r);
+}
+
+QPointF PVWidgets::PVGraphicsView::map_from_view(QPointF const& p) const
+{
+	return get_transform_from_view().map(p);
+}
+
+QRectF PVWidgets::PVGraphicsView::map_to_view(QRectF const& r) const
+{
+	return get_transform_to_view().mapRect(r);
+}
+
+QPointF PVWidgets::PVGraphicsView::map_to_view(QPointF const& p) const
+{
+	return get_transform_to_view().map(p);
+}
+
+QTransform PVWidgets::PVGraphicsView::get_transform_to_view() const
+{
+	QTransform ret;
+	ret.translate(get_scroll_x(), get_scroll_y());
+	return ret;
+}
+
+QTransform PVWidgets::PVGraphicsView::get_transform_from_view() const
+{
+	QTransform ret;
+	ret.translate(-get_scroll_x(), -get_scroll_y());
+	return ret;
+}
+
+/////
+
 QRectF PVWidgets::PVGraphicsView::map_from_margined(QRectF const& r) const
 {
 	return get_transform_from_margined_viewport().mapRect(r);
@@ -458,21 +494,13 @@ bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 		return false;
 	}
 
-	/*
-	QRectF viewport_rect = event->rect().intersected(_viewport->rect());
-
-	QRect real_viewport_rect = QRect(_scene_margin_left,
-	                                 _scene_margin_top,
-	                                 get_view_width(),
-	                                 get_view_height());
-	QRectF real_viewport_area = map_to_scene(event->rect().intersected(real_viewport_rect));*/
-
 	const QRectF unmargined_render_rect = event->rect();
 	const QRectF margined_render_rect = map_to_margined(unmargined_render_rect);
 	const QRectF margined_scene_render_rect = map_to_margined(unmargined_render_rect.intersected(get_margined_viewport_rect()));
 
 	QPainter painter;
 	painter.begin(get_viewport());
+	painter.fillRect(unmargined_render_rect, Qt::black);
 	painter.setTransform(get_transform_from_margined_viewport(), false);
 
 	drawBackground(&painter, margined_render_rect);
@@ -481,7 +509,7 @@ bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 
 	painter.end();
 
-	return true;
+	return false;
 }
 
 /*****************************************************************************
@@ -790,6 +818,8 @@ void PVWidgets::PVGraphicsView::set_viewport(QWidget* w)
 
 	_viewport->installEventFilter(_viewport_event_filter);
 	_layout->addWidget(_viewport, 0, 0);
+
+	_viewport->lower();
 }
 
 bool PVWidgets::PVGraphicsView::set_gl_viewport(QGLFormat const& format)

@@ -297,14 +297,14 @@ public:
 	/**
 	 * Maps a rectange from margined viewport's space to viewport's space.
 	 *
-	 * @param r Rectangle in the margined view coordinate system to map
+	 * @param r Rectangle in the margined viewport coordinate system to map
 	 */
 	QRectF map_from_margined(QRectF const& r) const;
 
 	/**
 	 * Maps a point from margined viewport's space to viewport's space.
 	 *
-	 * @param p Point in the margined view coordinate system to map
+	 * @param p Point in the margined viewport coordinate system to map
 	 */
 	QPointF map_from_margined(QPointF const& p) const;
 
@@ -331,6 +331,45 @@ public:
 	 * Returns the transformation that maps the margined viewport to the unmargined viewport.
 	 */
 	QTransform get_transform_from_margined_viewport() const;
+
+public:
+	/**
+	 * Maps a rectange from view's space to margined viewport's space.
+	 *
+	 * @param r Rectangle in the view coordinate system to map
+	 */
+	QRectF map_from_view(QRectF const& r) const;
+
+	/**
+	 * Maps a point from view's space to margined viewport's space.
+	 *
+	 * @param p Point in the view coordinate system to map
+	 */
+	QPointF map_from_view(QPointF const& p) const;
+
+	/**
+	 * Maps a rectange to view's space from margined viewport's space.
+	 *
+	 * @param r Rectangle in the margined viewport coordinate system to map
+	 */
+	QRectF map_to_view(QRectF const& r) const;
+
+	/**
+	 * Maps a point to view's space from margined viewport's space.
+	 *
+	 * @param p Point in the margined viewport coordinate system to map
+	 */
+	QPointF map_to_view(QPointF const& p) const;
+
+	/**
+	 * Returns the transformation that maps the margined viewport space to the view space.
+	 */
+	QTransform get_transform_to_view() const;
+
+	/**
+	 * Returns the transformation that maps the view space to the margined viewport.
+	 */
+	QTransform get_transform_from_view() const;
 
 public:
 	/**
