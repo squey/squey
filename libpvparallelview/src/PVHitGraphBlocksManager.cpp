@@ -63,7 +63,7 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 			_data_params.y_min = y_min_block;
 			_data_params.block_start = 0;
 			_data_params.nblocks = full_view() ? 1 : nblocks();
-			process_all();
+			process_all_buffers();
 			return true;
 		}
 
@@ -85,7 +85,7 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 			_data_params.nblocks = abs_blocks_shift;
 		}
 
-		_data.process_all(_data_params, _layer_sel, _sel);
+		_data.process_all_buffers(_data_params, _layer_sel, _sel);
 
 		// Set last params to the full block range
 		// (in case a reprocessing will be necessary)
@@ -103,44 +103,44 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 	_data_params.nblocks = full_view() ? 1 : nblocks();
 	_data_params.nbits = nbits();
 
-	process_all();
+	process_all_buffers();
 
 	return true;
 }
 
-void PVParallelView::PVHitGraphBlocksManager::process_bg()
+void PVParallelView::PVHitGraphBlocksManager::process_buffer_all()
 {
 	if (full_view()) {
 		_data_z0.buffer_all().set_zero();
-		_data_z0.process_bg(_data_params, _layer_sel);
+		_data_z0.process_buffer_all(_data_params);
 	}
 	else {
 		_data.buffer_all().set_zero();
-		_data.process_bg(_data_params, _layer_sel);
+		_data.process_buffer_all(_data_params);
 	}
 }
 
-void PVParallelView::PVHitGraphBlocksManager::process_sel()
+void PVParallelView::PVHitGraphBlocksManager::process_buffer_selected()
 {
 	if (full_view()) {
-		_data_z0.buffer_sel().set_zero();
-		_data_z0.process_sel(_data_params, _sel);
+		_data_z0.buffer_selected().set_zero();
+		_data_z0.process_buffer_selected(_data_params, _sel);
 	}
 	else {
-		_data.buffer_sel().set_zero();
-		_data.process_sel(_data_params, _sel);
+		_data.buffer_selected().set_zero();
+		_data.process_buffer_selected(_data_params, _sel);
 	}
 }
 
-void PVParallelView::PVHitGraphBlocksManager::process_all()
+void PVParallelView::PVHitGraphBlocksManager::process_all_buffers()
 {
 	if (full_view()) {
 		_data_z0.set_zero();
-		_data_z0.process_all(_data_params, _layer_sel, _sel);
+		_data_z0.process_all_buffers(_data_params, _layer_sel, _sel);
 	}
 	else {
 		_data.set_zero();
-		_data.process_all(_data_params, _layer_sel, _sel);
+		_data.process_all_buffers(_data_params, _layer_sel, _sel);
 	}
 }
 
@@ -149,7 +149,7 @@ void PVParallelView::PVHitGraphBlocksManager::set_layer_sel(const Picviz::PVSele
 	_layer_sel = sel;
 }
 
-uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_bg() const
+uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_all() const
 {
 	if (full_view()) {
 		return _data_z0.buffer_all().buffer();
@@ -158,13 +158,13 @@ uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_bg() const
 	return _data.buffer_all().buffer();
 }
 
-uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_sel() const
+uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_selected() const
 {
 	if (full_view()) {
-		return _data_z0.buffer_sel().buffer();
+		return _data_z0.buffer_selected().buffer();
 	}
 
-	return _data.buffer_sel().buffer();
+	return _data.buffer_selected().buffer();
 }
 
 uint32_t PVParallelView::PVHitGraphBlocksManager::y_start() const
@@ -289,10 +289,10 @@ uint32_t PVParallelView::PVHitGraphBlocksManager::get_max_count_all() const
 	return _data.buffer_all().get_zoomed_max_count(last_alpha());
 }
 
-uint32_t PVParallelView::PVHitGraphBlocksManager::get_max_count_sel() const
+uint32_t PVParallelView::PVHitGraphBlocksManager::get_max_count_selected() const
 {
 	if (full_view()) {
-		return _data_z0.buffer_sel().get_max_count();
+		return _data_z0.buffer_selected().get_max_count();
 	}
-	return _data.buffer_sel().get_zoomed_max_count(last_alpha());
+	return _data.buffer_selected().get_zoomed_max_count(last_alpha());
 }

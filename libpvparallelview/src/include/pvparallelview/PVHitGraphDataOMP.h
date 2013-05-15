@@ -11,9 +11,9 @@ class PVHitGraphDataOMP: public PVHitGraphDataInterface
 public:
 	PVHitGraphDataOMP(uint32_t nbits, uint32_t nblocks);
 
-public:
-	void process_bg(ProcessParams const& params, Picviz::PVSelection const& layer_sel) override;
-	void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel) override;
+protected:
+	void process_all(ProcessParams const& params, PVHitGraphBuffer& buf) const override;
+	void process_sel(ProcessParams const& params, PVHitGraphBuffer& buf, Picviz::PVSelection const& sel) const override;
 
 public:
 	struct omp_ctx_t
@@ -40,7 +40,7 @@ public:
 	};
 
 private:
-	omp_ctx_t _omp_ctx;
+	mutable omp_ctx_t _omp_ctx;
 };
 
 }

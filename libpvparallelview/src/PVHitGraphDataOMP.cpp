@@ -376,7 +376,7 @@ PVParallelView::PVHitGraphDataOMP::PVHitGraphDataOMP(uint32_t nbits, uint32_t nb
 {
 }
 
-void PVParallelView::PVHitGraphDataOMP::process_bg(ProcessParams const& p, Picviz::PVSelection const& layer_sel)
+void PVParallelView::PVHitGraphDataOMP::process_all(ProcessParams const& p, PVHitGraphBuffer& buf) const
 {
 	int nblocks_ = std::min((uint32_t) p.nblocks, nblocks() - p.block_start);
 	if (nblocks_ <= 0) {
@@ -385,7 +385,7 @@ void PVParallelView::PVHitGraphDataOMP::process_bg(ProcessParams const& p, Picvi
 
 	_omp_ctx.clear();
 
-	uint32_t* const buf_block = buffer_all().zoomed_buffer_block(p.block_start, p.alpha);
+	uint32_t* const buf_block = buf.zoomed_buffer_block(p.block_start, p.alpha);
 	if (nblocks_ == 1) {
 		count_y1_omp_sse_v4(p.nrows, p.col_plotted, p.y_min, p.zoom, p.alpha, buf_block, _omp_ctx, nbits(), size_block());
 	}
@@ -394,7 +394,7 @@ void PVParallelView::PVHitGraphDataOMP::process_bg(ProcessParams const& p, Picvi
 	}
 }
 
-void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p, Picviz::PVSelection const& sel)
+void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p, PVHitGraphBuffer& buf, Picviz::PVSelection const& sel) const
 {
 	int nblocks_ = std::min((uint32_t) p.nblocks, nblocks() - p.block_start);
 	if (nblocks_ <= 0) {
@@ -403,6 +403,6 @@ void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p, Picv
 
 	_omp_ctx.clear();
 
-	uint32_t* const buf_block = buffer_sel().zoomed_buffer_block(p.block_start, p.alpha);
+	uint32_t* const buf_block = buf.zoomed_buffer_block(p.block_start, p.alpha);
 	count_y1_sel_omp_sse_v4(p.nrows, p.col_plotted, sel, p.y_min, p.zoom, p.alpha, buf_block, nblocks_, _omp_ctx, nbits(), size_block());
 }

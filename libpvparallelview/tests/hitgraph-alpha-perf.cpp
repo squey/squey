@@ -820,7 +820,7 @@ void count_y1_lib(const PVRow row_count, const uint32_t *col_y1,
                   Picviz::PVSelection const& layer_sel)
 {
 
-	lib_omp.process_bg(PVParallelView::PVHitGraphData::ProcessParams(col_y1, row_count, y_min, zoom, 10 /*value unused there*/, alpha, 0, V4_N), layer_sel);
+	lib_omp.process_all(PVParallelView::PVHitGraphData::ProcessParams(col_y1, row_count, y_min, zoom, 10 /*value unused there*/, alpha, 0, V4_N), layer_sel);
 }
 
 #ifdef __GNUC__

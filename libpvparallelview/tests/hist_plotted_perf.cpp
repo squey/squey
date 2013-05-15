@@ -846,7 +846,7 @@ void test_no_sel(const size_t real_buffer_size,
 	layer_sel.select_all();
 
 	BENCH_START(lib);
-	lib_omp.process_bg(PVParallelView::PVHitGraphData::ProcessParams(col_a, row_count, y_min, zoom, 10 /*value unused there*/, 1, 0, block_count) ,layer_sel);
+	lib_omp.process_all(PVParallelView::PVHitGraphData::ProcessParams(col_a, row_count, y_min, zoom, 10 /*value unused there*/, 1, 0, block_count) ,layer_sel);
 	BENCH_END(lib, "library-code", row_count, sizeof(uint32_t), BUFFER_SIZE, sizeof(uint32_t));
 	std::cout << "compare to ref: ";
 	if (compare(res_seq, lib_omp.buffer_all().buffer(), block_count)) {
@@ -955,7 +955,7 @@ void test_sel(const size_t real_buffer_size,
 	lib_omp.process_sel(PVParallelView::PVHitGraphData::ProcessParams(col_a, row_count, y_min, zoom, 10 /*value unused there*/, 1, 0, block_count), selection);
 	BENCH_END(lib, "library-code", row_count, sizeof(uint32_t), BUFFER_SIZE, sizeof(uint32_t));
 	std::cout << "compare to ref: ";
-	if (compare(hist_sel_seq_v4, lib_omp.buffer_sel().buffer(), block_count)) {
+	if (compare(hist_sel_seq_v4, lib_omp.buffer_selected().buffer(), block_count)) {
 		std::cout << "ok" << std::endl;
 	}
 }

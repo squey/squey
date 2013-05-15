@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 	manager.change_and_process_view(0, 2, 0.5f);
 
 	uint32_t max_count = 0;
-	const uint32_t* buffer_bg = manager.buffer_bg();
+	const uint32_t* buffer_bg = manager.buffer_all();
 	for (size_t i = 0; i < 2048 * NBLOCKS; i++) {
 		const uint32_t v = buffer_bg[i];
 		if (v > max_count) {

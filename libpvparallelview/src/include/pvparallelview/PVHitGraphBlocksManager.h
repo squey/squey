@@ -22,16 +22,16 @@ public:
 
 public:
 	bool change_and_process_view(const uint32_t y_min, const int zoom, double alpha);
-	void process_bg();
-	void process_sel();
-	void process_all();
+	void process_buffer_all();
+	void process_buffer_selected();
+	void process_all_buffers();
 
 public:
 	void set_layer_sel(const Picviz::PVSelection &sel);
 
 public:
-	uint32_t const* buffer_bg() const;
-	uint32_t const* buffer_sel() const;
+	uint32_t const* buffer_all() const;
+	uint32_t const* buffer_selected() const;
 
 	uint32_t y_start() const;
 	int nbits() const;
@@ -46,7 +46,7 @@ public:
 	__m128i  get_count_for(__m128i value) const;
 
 	uint32_t get_max_count_all() const;
-	uint32_t get_max_count_sel() const;
+	uint32_t get_max_count_selected() const;
 
 public:
 	inline int last_zoom() const { return _data_params.zoom; }

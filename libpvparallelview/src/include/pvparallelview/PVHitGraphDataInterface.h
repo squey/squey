@@ -50,10 +50,11 @@ public:
 		int nblocks;
 	};
 
+
 public:
-	virtual void process_bg(ProcessParams const& params, Picviz::PVSelection const& layer_sel) = 0;
-	virtual void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel) = 0;
-	virtual void process_all(ProcessParams const& params, Picviz::PVSelection const& layer_sel, Picviz::PVSelection const& sel);
+	inline void process_buffer_all(ProcessParams const& params) { process_all(params, _buf_all); }
+	inline void process_buffer_selected(ProcessParams const& params, Picviz::PVSelection const& sel) { process_sel(params, _buf_selected, sel); }
+	virtual void process_all_buffers(ProcessParams const& params, Picviz::PVSelection const& layer_sel, Picviz::PVSelection const& sel);
 
 public:
 	void shift_left(const uint32_t nblocks, const double alpha);
@@ -61,15 +62,15 @@ public:
 
 public:
 	PVHitGraphBuffer const& buffer_all() const { return _buf_all; }
-	PVHitGraphBuffer const& buffer_sel() const { return _buf_sel; }
+	PVHitGraphBuffer const& buffer_selected() const { return _buf_selected; }
 
 	PVHitGraphBuffer& buffer_all() { return _buf_all; }
-	PVHitGraphBuffer& buffer_sel() { return _buf_sel; }
+	PVHitGraphBuffer& buffer_selected() { return _buf_selected; }
 
 	void set_zero()
 	{
 		buffer_all().set_zero();
-		buffer_sel().set_zero();
+		buffer_selected().set_zero();
 	}
 
 public:
@@ -78,9 +79,14 @@ public:
 	inline uint32_t size_int() const { return buffer_all().size_int(); }
 	inline uint32_t nblocks() const { return buffer_all().nblocks(); }
 
+protected:
+	virtual void process_all(ProcessParams const& params, PVHitGraphBuffer& buf) const = 0;
+	virtual void process_sel(ProcessParams const& params, PVHitGraphBuffer& buf, Picviz::PVSelection const& sel) const = 0;
+
+
 private:
 	PVHitGraphBuffer _buf_all;
-	PVHitGraphBuffer _buf_sel;
+	PVHitGraphBuffer _buf_selected;
 };
 
 }

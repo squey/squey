@@ -454,7 +454,7 @@ void PVParallelView::PVHitCountView::reset_view()
 
 void PVParallelView::PVHitCountView::set_x_zoom_level_from_sel()
 {
-	const uint32_t max_count_sel = get_hit_graph_manager().get_max_count_sel();
+	const uint32_t max_count_sel = get_hit_graph_manager().get_max_count_selected();
 	if (max_count_sel > 0) {
 		set_zoom_value(PVZoomableDrawingAreaConstraints::X, x_zoom_converter().scale_to_zoom(get_margined_viewport_width()/(double)max_count_sel));
 	}
@@ -489,7 +489,7 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 		           x_axis_right,
 		           block_view_offset,
 		           rel_y_scale,
-		           get_hit_graph_manager().buffer_bg());
+		           get_hit_graph_manager().buffer_all());
 		// BENCH_STOP(hcv_draw_bg);
 		// BENCH_STAT_TIME(hcv_draw_bg);
 	}
@@ -501,7 +501,7 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	           x_axis_right,
 	           block_view_offset,
 	           rel_y_scale,
-	           get_hit_graph_manager().buffer_sel());
+	           get_hit_graph_manager().buffer_selected());
 	// BENCH_STOP(hcv_draw_sel);
 	// BENCH_STAT_TIME(hcv_draw_sel);
 
@@ -624,7 +624,7 @@ void PVParallelView::PVHitCountView::do_update_all()
 
 void PVParallelView::PVHitCountView::update_all()
 {
-	get_hit_graph_manager().process_all();
+	get_hit_graph_manager().process_all_buffers();
 	get_viewport()->update();
 }
 
@@ -634,7 +634,7 @@ void PVParallelView::PVHitCountView::update_all()
 
 void PVParallelView::PVHitCountView::update_sel()
 {
-	get_hit_graph_manager().process_sel();
+	get_hit_graph_manager().process_buffer_selected();
 	if (_auto_x_zoom_sel) {
 		set_x_zoom_level_from_sel();
 		set_transformation_anchor(PVGraphicsView::NoAnchor);
