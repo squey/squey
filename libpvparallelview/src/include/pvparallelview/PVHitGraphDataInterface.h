@@ -54,6 +54,7 @@ public:
 public:
 	inline void process_buffer_all(ProcessParams const& params) { process_all(params, _buf_all); }
 	inline void process_buffer_selected(ProcessParams const& params, Picviz::PVSelection const& sel) { process_sel(params, _buf_selected, sel); }
+	inline void process_buffer_selectable(ProcessParams const& params, Picviz::PVSelection const& sel) { process_sel(params, _buf_selectable, sel); }
 	virtual void process_all_buffers(ProcessParams const& params, Picviz::PVSelection const& layer_sel, Picviz::PVSelection const& sel);
 
 public:
@@ -63,14 +64,17 @@ public:
 public:
 	PVHitGraphBuffer const& buffer_all() const { return _buf_all; }
 	PVHitGraphBuffer const& buffer_selected() const { return _buf_selected; }
+	PVHitGraphBuffer const& buffer_selectable() const { return _buf_selectable; }
 
 	PVHitGraphBuffer& buffer_all() { return _buf_all; }
 	PVHitGraphBuffer& buffer_selected() { return _buf_selected; }
+	PVHitGraphBuffer& buffer_selectable() { return _buf_selectable; }
 
 	void set_zero()
 	{
 		buffer_all().set_zero();
 		buffer_selected().set_zero();
+		buffer_selectable().set_zero();
 	}
 
 public:
@@ -87,6 +91,7 @@ protected:
 private:
 	PVHitGraphBuffer _buf_all;
 	PVHitGraphBuffer _buf_selected;
+	PVHitGraphBuffer _buf_selectable;
 };
 
 }
