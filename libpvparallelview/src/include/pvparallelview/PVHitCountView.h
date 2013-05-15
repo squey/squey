@@ -32,12 +32,14 @@ namespace PVParallelView
 class PVHitCountViewInteractor;
 class PVSelectionRectangleHitCountView;
 class PVSelectionRectangleInteractor;
+class PVHitCountViewParamsWidget; 
 
 class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 {
 	Q_OBJECT
 
 	friend class PVHitCountViewInteractor;
+	friend class PVHitCountViewParamsWidget;
 
 	constexpr static int zoom_steps = 5;
 	// the "digital" zoom level (to space consecutive values)
@@ -92,6 +94,14 @@ protected:
 		return x_zoom_converter().scale_to_zoom((double)get_margined_viewport_width()/(double)_max_count);
 	}
 
+	void set_params_widget_position();
+
+	inline bool auto_x_zoom_sel() const { return _auto_x_zoom_sel; }
+	inline bool show_bg() const { return _show_bg; }
+
+protected slots:
+	void toggle_auto_x_zoom_sel();
+	void toggle_show_bg();
 
 private:
 	void reset_view();
@@ -115,6 +125,8 @@ private:
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>&       y_zoom_converter()       { return _y_zoom_converter; }
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> const& y_zoom_converter() const { return _y_zoom_converter; }
 
+	PVHitCountViewParamsWidget* params_widget() { return _params_widget; }
+
 private slots:
 	void do_zoom_change(int axes);
 	void do_pan_change();
@@ -135,7 +147,9 @@ private:
 	uint32_t                                     _block_base_pos;
 	int                                          _block_zoom_level;
 	bool                                         _show_bg;
-
+	bool                                         _auto_x_zoom_sel;
+	bool                                         _do_auto_scale;
+	
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>  _x_zoom_converter;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>  _y_zoom_converter;
 
@@ -144,6 +158,8 @@ private:
 
 	PVSelectionRectangleHitCountView            *_sel_rect;
 	PVSelectionRectangleInteractor              *_sel_rect_interactor;
+
+	PVHitCountViewParamsWidget                  *_params_widget;
 };
 
 }

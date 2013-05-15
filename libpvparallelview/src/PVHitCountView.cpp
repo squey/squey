@@ -13,10 +13,16 @@
 #include <pvparallelview/PVSelectionSquare.h>
 #include <pvparallelview/PVSelectionRectangleInteractor.h>
 
+#include <QCheckBox>
+#include <QGraphicsScene>
+#include <QLabel>
+#include <QLineEdit>
 #include <QPainter>
 #include <QResizeEvent>
-#include <QGraphicsScene>
 #include <QScrollBar64>
+#include <QVBoxLayout>
+
+#define RENDER_TIMEOUT 75 // in ms
 
 /**
  * @todo "optical" zoom does not work
@@ -89,10 +95,12 @@ public:
 			hcv->get_viewport()->update();
 		}
 
+		hcv->set_params_widget_position();
+
 		return false;
 	}
 
-	bool  keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent *event) override
+	bool keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent *event) override
 	{
 		PVHitCountView *hcv = get_hit_count_view(zda);
 		switch (event->key()) {
@@ -100,13 +108,10 @@ public:
 			if (event->modifiers() == Qt::ControlModifier) {
 				hcv->set_x_zoom_level_from_sel();
 
-				qreal xpos = hcv->map_margined_to_scene(QPoint(0, 0)).x();
-
 				hcv->reconfigure_view();
 
-				int screen_pos = hcv->map_margined_from_scene(QPointF(xpos, 0)).x();
 				QScrollBar64 *sb = hcv->get_horizontal_scrollbar();
-				sb->setValue(sb->value() + screen_pos);
+				sb->setValue(0);
 
 				zda->get_viewport()->update();
 				zoom_has_changed(zda, PVZoomableDrawingAreaConstraints::X);
@@ -115,6 +120,12 @@ public:
 				hcv->reset_view();
 				hcv->reconfigure_view();
 				hcv->_update_all_timer.start();
+			}
+			break;
+		}
+		case Qt::Key_S: {
+			if (event->modifiers() == Qt::AltModifier) {
+				hcv->toggle_auto_x_zoom_sel();
 			}
 			break;
 		}
@@ -137,20 +148,20 @@ public:
 			mask = PVZoomableDrawingAreaConstraints::X;
 		}
 
+		PVHitCountView *hcv = get_hit_count_view(zda);
+		int inc = (event->delta() > 0)?1:-1;
+
 		if (mask & PVZoomableDrawingAreaConstraints::X) {
-			PVHitCountView *hcv = get_hit_count_view(zda);
-			int inc = (event->delta() > 0)?1:-1;
 
 			event->setAccepted(true);
 
 			if (increment_zoom_value(hcv, mask, inc)) {
-				qreal xpos = hcv->map_margined_to_scene(QPoint(0, 0)).x();
+				QPointF scene_pos = hcv->map_margined_to_scene(QPointF(0, 0));
 
 				hcv->reconfigure_view();
 
-				int screen_pos = hcv->map_margined_from_scene(QPointF(xpos, 0)).x();
-				QScrollBar64 *sb = hcv->get_horizontal_scrollbar();
-				sb->setValue(sb->value() + screen_pos);
+				int scroll_x = hcv->map_to_view(hcv->map_margined_from_scene(scene_pos)).x();
+				hcv->get_horizontal_scrollbar()->setValue(scroll_x);
 
 				hcv->get_viewport()->update();
 				zoom_has_changed(hcv, mask);
@@ -162,6 +173,7 @@ public:
 			event->setAccepted(true);
 
 			if (increment_zoom_value(zda, mask, inc)) {
+				hcv->_do_auto_scale = hcv->_auto_x_zoom_sel;
 				zda->reconfigure_view();
 				zda->get_viewport()->update();
 				zoom_has_changed(zda, mask);
@@ -209,7 +221,53 @@ private:
 	PVHitCountView* _hcv;
 };
 
+class PVHitCountViewParamsWidget: public QWidget
+{
+public:
+	PVHitCountViewParamsWidget(PVHitCountView* parent):
+		QWidget(parent)
+	{
+		setFocusPolicy(Qt::ClickFocus);
+
+		_cb_autofit = new QCheckBox(tr("Auto-fit selection on the occurence axis"));
+		_cb_showbg = new QCheckBox(tr("Show background"));
+		QVBoxLayout* layout = new QVBoxLayout();
+		layout->addWidget(_cb_autofit);
+		layout->addWidget(_cb_showbg);
+
+		connect(_cb_autofit, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_auto_x_zoom_sel()));
+		connect(_cb_showbg,  SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_show_bg()));
+
+		setLayout(layout);
+	}
+
+public:
+	void update_widgets()
+	{
+		_cb_autofit->blockSignals(true);
+		_cb_showbg->blockSignals(true);
+
+		_cb_autofit->setChecked(parent_hcv()->auto_x_zoom_sel());
+		_cb_showbg->setChecked(parent_hcv()->show_bg());
+
+		_cb_autofit->blockSignals(false);
+		_cb_showbg->blockSignals(false);
+	}
+
+private:
+	PVHitCountView* parent_hcv()
+	{
+		assert(qobject_cast<PVHitCountView*>(parent()));
+		return static_cast<PVHitCountView*>(parent());
+	}
+
+private:
+	QCheckBox* _cb_autofit;
+	QCheckBox* _cb_showbg;
+};
+
 }
+
 
 /*****************************************************************************
  * PVParallelView::PVHitCountView::PVHitCountView
@@ -225,9 +283,11 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	_axis_index(axis_index),
 	_hit_graph_manager(col_plotted, nrows, 2, pvview_sp->get_real_output_selection()),
 	_view_deleted(false),
-	_show_bg(true)
+	_show_bg(true),
+	_auto_x_zoom_sel(false),
+	_do_auto_scale(false)
 {
-	// set_gl_viewport();
+	set_gl_viewport();
 
 	/* computing the highest scene width to setup it
 	 */
@@ -282,12 +342,18 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 #else
 	set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOn);
 #endif
-	set_x_legend("occurrence count");
+	set_x_legend("Occurrence count");
 	set_y_legend(pvview_sp->get_axis_name(axis_index));
 	set_decoration_color(Qt::white);
 	set_ticks_per_level(8);
 
-	_update_all_timer.setInterval(150);
+	_params_widget = new PVHitCountViewParamsWidget(this);
+	_params_widget->setAutoFillBackground(true);
+	_params_widget->adjustSize();
+	_params_widget->update_widgets();
+	set_params_widget_position();
+
+	_update_all_timer.setInterval(RENDER_TIMEOUT);
 	_update_all_timer.setSingleShot(true);
 	connect(&_update_all_timer, SIGNAL(timeout()),
 			this, SLOT(do_update_all()));
@@ -332,6 +398,14 @@ void PVParallelView::PVHitCountView::set_x_axis_zoom()
 	const int32_t x_zoom_min = get_x_zoom_min();
 	get_x_axis_zoom().set_range(x_zoom_min, x_zoom_converter().scale_to_zoom(get_margined_viewport_width()));
 	get_x_axis_zoom().set_default_value(x_zoom_min);
+}
+
+void PVParallelView::PVHitCountView::set_params_widget_position()
+{
+	QPoint pos = QPoint(get_viewport()->width() - 20, 20);
+	pos -= QPoint(_params_widget->width(), 0);
+	_params_widget->move(pos);
+	_params_widget->raise();
 }
 
 /*****************************************************************************
@@ -416,7 +490,7 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 
 	// selection
 	painter->setOpacity(1.0);
-	draw_lines(painter,
+	draw_clamped_lines(painter,
 	                   x_axis_right,
 	                   view_top, dy, rel_y_scale,
 	                   _hit_graph_manager.buffer_sel());
@@ -441,14 +515,23 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	draw_decorations(painter, margined_rect);
 }
 
-void PVParallelView::PVHitCountView::drawForeground(QPainter* /*painter*/, const QRectF& /*rect*/)
+void PVParallelView::PVHitCountView::drawForeground(QPainter* painter, const QRectF& /*rect*/)
 {
-	/*painter->save();
+#if 0
+	painter->save();
 	painter->resetTransform();
 
-	QString txt(QString("Max all: %1 / Max sel: %2").arg(_max_count).arg(get_hit_graph_manager().get_max_count_sel()));
-	painter->drawText(QPointF(10, 10), txt);
-	painter->restore();*/
+	QPointF widget_pos = QPointF(get_viewport()->width() - 20, 20);
+	QRect widget_geom = params_widget()->frameGeometry();
+	widget_pos -= QPointF(widget_geom.width(), 0);
+
+	params_widget()->render(painter, widget_pos.toPoint());
+
+	//QString txt(QString("Max all: %1 / Max sel: %2").arg(_max_count).arg(get_hit_graph_manager().get_max_count_sel()));
+	//painter->drawText(QPointF(10, 10), txt);
+	
+	painter->restore();
+#endif
 }
 
 /*****************************************************************************
@@ -561,6 +644,9 @@ void PVParallelView::PVHitCountView::do_zoom_change(int axes)
 	if (axes & PVZoomableDrawingAreaConstraints::Y) {
 		// Hide selection square as it means nothing now.
 		_sel_rect->hide();
+		if (_do_auto_scale) {
+			get_horizontal_scrollbar()->setValue(0);
+		}
 	}
 	_update_all_timer.start();
 }
@@ -599,9 +685,21 @@ void PVParallelView::PVHitCountView::do_update_all()
 	uint32_t block_y_min = (uint64_t)y_min & ~(block_size - 1);
 
 	// BENCH_START(hcv_data_compute);
+	PVLOG_INFO("zoom: %d / alpha: %0.4f\n", calc_zoom, alpha);
 	get_hit_graph_manager().change_and_process_view(block_y_min, calc_zoom, alpha);
 	// BENCH_STOP(hcv_data_compute);
 	// BENCH_STAT_TIME(hcv_data_compute);
+
+	if (_do_auto_scale) {
+		set_x_zoom_level_from_sel();
+
+		const ViewportAnchor old_anchor = get_transformation_anchor();
+		set_transformation_anchor(PVGraphicsView::NoAnchor);
+		reconfigure_view();
+		set_transformation_anchor(old_anchor);
+
+		_do_auto_scale = false;
+	}
 
 	_block_base_pos = block_y_min;
 	_block_zoom_level = get_y_axis_zoom().get_clamped_value();
@@ -626,5 +724,31 @@ void PVParallelView::PVHitCountView::update_all()
 void PVParallelView::PVHitCountView::update_sel()
 {
 	get_hit_graph_manager().process_sel();
+	if (_auto_x_zoom_sel) {
+		set_x_zoom_level_from_sel();
+		set_transformation_anchor(PVGraphicsView::NoAnchor);
+		reconfigure_view();
+		set_transformation_anchor(PVGraphicsView::AnchorUnderMouse);
+		get_horizontal_scrollbar()->setValue(0);
+	}
+
+	get_viewport()->update();
+}
+
+void PVParallelView::PVHitCountView::toggle_auto_x_zoom_sel()
+{
+	_auto_x_zoom_sel = !_auto_x_zoom_sel;
+	params_widget()->update_widgets();
+
+	if (_auto_x_zoom_sel) {
+		do_update_all();
+	}
+}
+
+void PVParallelView::PVHitCountView::toggle_show_bg()
+{
+	_show_bg = !_show_bg;
+	params_widget()->update_widgets();
+
 	get_viewport()->update();
 }
