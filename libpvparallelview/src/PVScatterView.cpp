@@ -187,7 +187,7 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 	PVZoomedZoneTree::context_t ctxt;
 
 	static PVCore::PVHSVColor* output_image = new PVCore::PVHSVColor[image_width*image_height];
-	memset(output_image, HSV_COLOR_BLACK, image_width*image_height);
+	memset(output_image, HSV_COLOR_BLACK, image_width*image_height*sizeof(PVCore::PVHSVColor));
 
 	int rel_zoom = get_y_axis_zoom().get_clamped_relative_value();
 
@@ -228,14 +228,7 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 	painter->setPen(Qt::white);
 	painter->setOpacity(1.0);
 
-	/*for (uint32_t i = 0; i < bci_count; ++i) {
-		bcicode_t code_bci = bcicodes[i];
-		QColor c =_view.get_color_in_output_layer(code_bci.s.idx).toQColor();
-		painter->setPen(c);
-		painter->setOpacity(sel.get_line_fast(code_bci.s.idx) ? 1.0 : 0.25);
-		painter->drawPoint(code_bci.s.l, code_bci.s.r);
-	}*/
-
+#ifdef PICVIZ_DEVELOPER_MODE
 	if (_show_quadtrees) {
 		PVParallelView::PVBCode code_b;
 		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
@@ -258,4 +251,5 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 			}
 		}
 	}
+#endif
 }

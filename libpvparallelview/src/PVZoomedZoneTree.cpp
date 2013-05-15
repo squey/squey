@@ -786,27 +786,38 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 			   {
 					uint32_t l = ((uint32_t)(((e.y1 - y1_min) * alpha))) >> shift;
 					uint32_t r = ((uint32_t)(((e.y2 - y2_min) * alpha))) >> shift;
-					image[r*2048+l] = colors[e.idx];
+					if (image[r*2048+l].h() == HSV_COLOR_BLACK) {
+						image[r*2048+l] = colors[e.idx];
+						return 1;
+					}
+					return 0;
 			   });
 
 	BENCH_START(extract);
-	for (uint32_t t2 = t2_min; t2 < t2_max; ++t2) {
-		for (uint32_t t1 = t1_min; t1 < t1_max; ++t1) {
-			PVRow tree_idx = (t2 * 1024) + t1;
+	tbb::parallel_for(tbb::blocked_range2d<uint32_t>(t1_min, t1_max, t2_min, t2_max),
+	                  [&] (const tbb::blocked_range2d<uint32_t> &r) {
+						pvquadtree* trees = _trees;
+						const insert_entry_y1_y2_f& insert_f_ = insert_f;
+						PVCore::PVHSVColor* const image_ = image;
 
-			if (sel_elts && (sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
-				/* when searching for entries using the selection, if there is no
-				 * drawn selected line for the corresponding ZoneTree, it is useless
-				 * to search for a selected line in the quadtree
-				 */
-				continue;
-			}
+						for (uint32_t t2 = r.cols().begin(); t2 < r.cols().end(); ++t2) {
+							for (uint32_t t1 = r.rows().begin(); t1 < r.rows().end(); ++t1) {
+								PVRow tree_idx = (t2 * 1024) + t1;
 
-			/* lines extraction
-			 */
-			extract_f(_trees[tree_idx], image, insert_f);
-		}
-	}
+								if (sel_elts && (sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
+									/* when searching for entries using the selection, if there is no
+									 * drawn selected line for the corresponding ZoneTree, it is useless
+									 * to search for a selected line in the quadtree
+									 */
+									continue;
+								}
+
+								/* lines extraction
+								 */
+								extract_f(trees[tree_idx], image_, insert_f_);
+							}
+						}
+					});
 	BENCH_STOP(extract);
 
 	if (sel_elts) {

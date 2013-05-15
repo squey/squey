@@ -392,7 +392,7 @@ public:
 				PVCore::PVHSVColor* image,
 			  const insert_entry_y1_y2_f &insert_f)
 			{
-				tree.get_first_from_y1_y2(y1_min, y1_max, y2_min, y2_max, zoom, image, insert_f);
+				tree.get_first_from_y1_y2(y1_min, y1_max, y2_min, y2_max, zoom, alpha, image, insert_f);
 			});
 	}
 
