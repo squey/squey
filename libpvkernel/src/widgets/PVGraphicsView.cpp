@@ -77,11 +77,19 @@ public:
 protected:
 	bool eventFilter(QObject* obj, QEvent* event)
 	{
-		if (obj == _view->get_viewport() &&
-		    event->type() == QEvent::Paint) {
-			return _view->viewportPaintEvent(static_cast<QPaintEvent*>(event));
+		if (obj != _view->get_viewport()) {
+			return QObject::eventFilter(obj, event);
 		}
 
+		switch(event->type()) {
+		case QEvent::Paint:
+			return _view->viewportPaintEvent(static_cast<QPaintEvent*>(event));
+		case QEvent::MouseMove:
+			static_cast<QWidget*>(obj)->update();
+			return false;
+		default:
+			break;
+		}
 		return QObject::eventFilter(obj, event);
 	}
 
@@ -519,30 +527,6 @@ void PVWidgets::PVGraphicsView::contextMenuEvent(QContextMenuEvent *event)
 	QApplication::sendEvent(_scene, &scene_event);
 
 	event->setAccepted(scene_event.isAccepted());
-}
-
-/*****************************************************************************
- * PVWidgets::PVGraphicsView::event
- *****************************************************************************/
-
-bool PVWidgets::PVGraphicsView::event(QEvent *event)
-{
-	bool ret = QWidget::event(event);
-
-	if (ret) {
-		switch(event->type()) {
-		case QEvent::Paint:
-		case QEvent::UpdateRequest:
-			break;
-		default:
-			if (get_viewport()) {
-				get_viewport()->update();
-			}
-			break;
-		}
-	}
-
-	return ret;
 }
 
 /*****************************************************************************

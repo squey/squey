@@ -701,8 +701,6 @@ protected:
 protected:
 	void contextMenuEvent(QContextMenuEvent *event) override;
 
-	bool event(QEvent *event) override;
-
 	void focusInEvent(QFocusEvent *event) override;
 	// does not need reimplementation
 	// bool focusNextPrevChild(bool next) override;
