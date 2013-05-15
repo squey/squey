@@ -62,6 +62,7 @@ class PVZoomedZoneTree
 	typedef pv_tlr_buffer_t::index_t pv_tlr_index_t;
 	typedef PVQuadTree<2048, 1000, 0, bbits> pvquadtree;
 	typedef pvquadtree::insert_entry_f insert_entry_f;
+	typedef pvquadtree::insert_entry_y1_y2_f insert_entry_y1_y2_f;
 
 	typedef std::function<void(const pvquadtree &tree,
 	                           const uint32_t count,
@@ -69,10 +70,11 @@ class PVZoomedZoneTree
 	                           pv_tlr_buffer_t &tlr,
 	                           const insert_entry_f &insert_f)> extract_entries_f;
 
-	typedef std::function<void(const pvquadtree &tree,
-	                           pv_quadtree_buffer_entry_t *buffer,
-	                           pv_tlr_buffer_t &tlr,
-	                           const insert_entry_f &insert_f)> extract_entries_y1_y2_f;
+	typedef std::function<void(
+		const pvquadtree &tree,
+		PVCore::PVHSVColor* colors,
+	    const insert_entry_y1_y2_f &insert_f)>
+	extract_entries_y1_y2_f;
 
 public:
 	typedef constants<bbits> zzt_constants;
@@ -376,21 +378,22 @@ public:
 		uint64_t y2_max,
 		int zoom,
 		double alpha,
-		pv_bci_code_t *codes,
+		const PVCore::PVHSVColor* colors,
+		PVCore::PVHSVColor* image,
 		const PVRow* sel_elts = nullptr
 	) const
 	{
 		// AG: TODO: this should be used ;)
 		PV_UNUSED(sel_elts);
-		return browse_trees_bci_by_y1_y2_seq(ctx, y1_min, y1_max, y2_min, y2_max, zoom, alpha,
+
+		return browse_trees_bci_by_y1_y2_seq(ctx, y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image,
+			// extract_entries_y1_y2_f:
 			[&](const pvquadtree &tree,
-			  pv_quadtree_buffer_entry_t *buffer,
-			  pv_tlr_buffer_t &tlr,
-			  const insert_entry_f &insert_f)
+				PVCore::PVHSVColor* image,
+			  const insert_entry_y1_y2_f &insert_f)
 			{
-				tree.get_first_from_y1_y2(y1_min, y1_max, y2_min, y2_max, zoom, buffer, insert_f, tlr);
-			},
-			codes);
+				tree.get_first_from_y1_y2(y1_min, y1_max, y2_min, y2_max, zoom, alpha, image, insert_f);
+			});
 	}
 
 
@@ -797,8 +800,9 @@ private:
 		uint64_t y2_max,
 		int zoom,
 		double alpha,
+		const PVCore::PVHSVColor* colors,
+		PVCore::PVHSVColor* image,
 		const extract_entries_y1_y2_f &extract_f,
-		pv_bci_code_t *codes,
 		const PVRow* sel_elts = nullptr
 	) const;
 

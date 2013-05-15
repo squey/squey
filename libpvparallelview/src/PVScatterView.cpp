@@ -186,8 +186,8 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 
 	PVZoomedZoneTree::context_t ctxt;
 
-	typedef PVParallelView::PVBCICode<PARALLELVIEW_ZZT_BBITS>bcicode_t;
-	static bcicode_t* bcicodes = new bcicode_t[2048*2048*4];
+	static PVCore::PVHSVColor* output_image = new PVCore::PVHSVColor[image_width*image_height];
+	memset(output_image, HSV_COLOR_BLACK, image_width*image_height*sizeof(PVCore::PVHSVColor));
 
 	int rel_zoom = get_y_axis_zoom().get_clamped_relative_value();
 
@@ -200,7 +200,9 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 
 	double alpha = 0.5 * _zoom_converter->zoom_to_scale_decimal(rel_zoom);
 
-	size_t bci_count = _zzt.browse_bci_by_y1_y2(
+	const PVCore::PVHSVColor* colors = _view.output_layer.get_lines_properties().get_buffer();
+
+	_zzt.browse_bci_by_y1_y2(
 		ctxt,
 		y1_min,
 		y1_max,
@@ -208,20 +210,25 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 		y2_max,
 		(rel_zoom/zoom_steps) + 1,
 		alpha,
-		bcicodes
+		colors,
+		output_image
 	);
+
+	BENCH_START(image_convertion);
+	static QImage* img = new QImage(image_width, image_height, QImage::Format_RGB32);
+	QRgb* image_rgb = (QRgb*) &img->scanLine(0)[0];
+#pragma omp parallel for schedule(static, 16)
+	for (uint32_t i = 0; i < image_width*image_height; i++) {
+		output_image[i].to_rgb((uint8_t*) &image_rgb[i]);
+	}
+	BENCH_END(image_convertion, "image_convertion", image_width*image_height, sizeof(PVCore::PVHSVColor), image_width*image_height, sizeof(QRgb));
+
+	painter->drawImage(QPointF(0,0), *img);
 
 	painter->setPen(Qt::white);
 	painter->setOpacity(1.0);
 
-	for (uint32_t i = 0; i < bci_count; ++i) {
-		bcicode_t code_bci = bcicodes[i];
-		QColor c =_view.get_color_in_output_layer(code_bci.s.idx).toQColor();
-		painter->setPen(c);
-		painter->setOpacity(sel.get_line_fast(code_bci.s.idx) ? 1.0 : 0.25);
-		painter->drawPoint(code_bci.s.l, code_bci.s.r);
-	}
-
+#ifdef PICVIZ_DEVELOPER_MODE
 	if (_show_quadtrees) {
 		PVParallelView::PVBCode code_b;
 		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
@@ -244,4 +251,5 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 			}
 		}
 	}
+#endif
 }

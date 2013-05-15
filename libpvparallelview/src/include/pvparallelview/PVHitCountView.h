@@ -50,6 +50,11 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 
 	constexpr static int zoom_min = -y_min_zoom_level * zoom_steps;
 
+	/* RH: nbits is 11, so that, the max level before needing a
+	 * digital zoom is 21 instead of 22
+	 */
+	constexpr static int digital_zoom_level = y_min_zoom_level - 1;
+
 private:
 	typedef PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
 
@@ -108,15 +113,9 @@ private:
 
 	void draw_lines(QPainter *painter,
 	                const int x_max,
-	                const int view_top, const int offset,
+	                const int block_view_offset,
 	                const double rel_y_scale,
 	                const uint32_t *buffer);
-
-	void draw_clamped_lines(QPainter *painter,
-	                        const int x_max,
-	                        const int view_top, const int offset,
-	                        const double rel_y_scale,
-	                        const uint32_t *buffer);
 
 private:
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>&       x_zoom_converter()       { return _x_zoom_converter; }
@@ -144,8 +143,7 @@ private:
 	PVHitGraphBlocksManager                      _hit_graph_manager;
 	bool                                         _view_deleted;
 	uint64_t                                     _max_count;
-	uint32_t                                     _block_base_pos;
-	int                                          _block_zoom_level;
+	int                                          _block_zoom_value;
 	bool                                         _show_bg;
 	bool                                         _auto_x_zoom_sel;
 	bool                                         _do_auto_scale;

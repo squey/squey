@@ -447,7 +447,7 @@ void PVParallelView::PVHitCountView::reset_view()
 {
 	set_zoom_value(PVZoomableDrawingAreaConstraints::X, get_x_zoom_min());
 	set_zoom_value(PVZoomableDrawingAreaConstraints::Y, zoom_min);
-	_block_zoom_level = get_y_axis_zoom().get_clamped_value();
+	_block_zoom_value = get_y_axis_zoom().get_clamped_value();
 }
 
 void PVParallelView::PVHitCountView::set_x_zoom_level_from_sel()
@@ -465,13 +465,13 @@ void PVParallelView::PVHitCountView::set_x_zoom_level_from_sel()
 void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
                                                     const QRectF &margined_rect)
 {
-	int view_top = 0;
-	int img_top = map_margined_from_scene(QPointF(0, _block_base_pos)).y();
+	//int img_top = map_margined_from_scene(QPointF(0, _block_base_pos)).y();
+	int img_top = map_margined_from_scene(QPointF(0, get_hit_graph_manager().last_y_min())).y();
 
-	int dy = view_top - img_top;
+	int block_view_offset = - img_top;
 
 	int zoom_level = get_y_axis_zoom().get_clamped_value();
-	double rel_y_scale = y_zoom_to_scale(zoom_level - _block_zoom_level);
+	double rel_y_scale = y_zoom_to_scale(zoom_level - _block_zoom_value);
 
 	painter->fillRect(margined_rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
 	painter->setPen(QPen(Qt::white));
@@ -479,38 +479,23 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	int x_axis_right = std::min((int)map_margined_from_scene(QPointF(_max_count, 0.)).x(),
 	                            get_x_axis_length());
 
-#if 1
-	// background
-	painter->setOpacity(0.25);
-	draw_clamped_lines(painter,
-					   x_axis_right,
-					   view_top, dy, rel_y_scale,
-					   get_hit_graph_manager().buffer_bg());
-	painter->setOpacity(1.0);
-
-	// selection
-	painter->setOpacity(1.0);
-	draw_clamped_lines(painter,
-	                   x_axis_right,
-	                   view_top, dy, rel_y_scale,
-	                   _hit_graph_manager.buffer_sel());
-#else
-	// background
-	painter->setOpacity(0.25);
-	draw_lines(painter,
-	           x_axis_left,
-	           x_axis_right,
-	           view_top, dy, rel_y_scale,
-	           _hit_graph_manager.buffer_bg());
+	if (_show_bg) {
+		// background
+		painter->setOpacity(0.25);
+		draw_lines(painter,
+		           x_axis_right,
+		           block_view_offset,
+		           rel_y_scale,
+		           get_hit_graph_manager().buffer_bg());
+	}
 
 	// selection
 	painter->setOpacity(1.0);
 	draw_lines(painter,
-	           x_axis_left,
 	           x_axis_right,
-	           view_top, dy, rel_y_scale,
-	           _hit_graph_manager.buffer_sel());
-#endif
+	           block_view_offset,
+	           rel_y_scale,
+	           get_hit_graph_manager().buffer_sel());
 
 	draw_decorations(painter, margined_rect);
 }
@@ -540,30 +525,12 @@ void PVParallelView::PVHitCountView::drawForeground(QPainter* painter, const QRe
 
 void PVParallelView::PVHitCountView::draw_lines(QPainter *painter,
                                                 const int x_max,
-                                                const int view_top,
-                                                const int offset,
+                                                const int block_view_offset,
                                                 const double rel_y_scale,
                                                 const uint32_t *buffer)
 {
 	const int y_axis_length = get_y_axis_length();
-	const size_t buffer_size = _hit_graph_manager.size_int();
-	const uint32_t base_y =  _hit_graph_manager.last_y_min();
-	const double alpha = _hit_graph_manager.last_alpha();
-	const int zoom = _hit_graph_manager.last_zoom();
-	const int nbits = _hit_graph_manager.last_nbits();
-
-	const double inv_alpha = 1.0 / alpha;
-
-	int idx_shift = 32 - (zoom + nbits);
-
-	if (idx_shift < 0) {
-		// make sure the shift factor is 0 when doing the "digital" zoom
-		idx_shift = 0;
-	}
-
-	// std::cout << std::fixed << "#############################################" << std::endl;
-	// int zoom_clamped_value = get_y_axis_zoom().get_clamped_value();
-	// print_s(zoom_clamped_value);
+	const size_t buffer_size = get_hit_graph_manager().size_int();
 
 	for (uint32_t idx = 0; idx < buffer_size; ++idx) {
 		const uint32_t count = buffer[idx];
@@ -571,59 +538,13 @@ void PVParallelView::PVHitCountView::draw_lines(QPainter *painter,
 			continue;
 		}
 
-		//double trans_idx = base_y + round((double)(idx << idx_shift) * inv_alpha);
-		double trans_idx = base_y + (((uint32_t)ceil(idx * inv_alpha)) << idx_shift);
-
-		QPointF p = map_margined_from_scene(QPointF(count, trans_idx));
-
-		int y_val = p.y();
+		int y_val = (rel_y_scale * idx) - block_view_offset;
 
 		if ((y_val < 0) || (y_val >= y_axis_length)) {
 			continue;
 		}
 
-		int vx = p.x();
-
-		if (vx < 0) {
-			continue;
-		}
-
-		// print_s(trans_idx);
-
-		vx = PVCore::min(x_max, vx);
-
-		painter->drawLine(0, y_val, vx, y_val);
-	}
-}
-
-/*****************************************************************************
- * PVParallelView::PVHitCountView::draw_clamped_lines
- *****************************************************************************/
-
-void PVParallelView::PVHitCountView::draw_clamped_lines(QPainter *painter,
-                                                        const int x_max,
-                                                        const int view_top,
-                                                        const int offset,
-                                                        const double rel_y_scale,
-                                                        const uint32_t *buffer)
-{
-	const int y_axis_length = get_y_axis_length();
-	const int count = get_hit_graph_manager().size_int();
-
-	for (int y = 0; y < count; ++y) {
-		const uint32_t v = buffer[y];
-		if (v == 0) {
-			continue;
-		}
-
-		int y_val = (rel_y_scale * y) - offset;
-		if ((y_val < 0) || (y_val >= y_axis_length)) {
-			continue;
-		}
-
-		y_val += view_top;
-
-		int vx = map_margined_from_scene(QPointF(v, 0.)).x();
+		int vx = map_margined_from_scene(QPointF(count, 0.)).x();
 
 		if (vx < 0) {
 			continue;
@@ -666,29 +587,26 @@ void PVParallelView::PVHitCountView::do_pan_change()
 
 void PVParallelView::PVHitCountView::do_update_all()
 {
-	// std::cout << std::fixed << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+	int zoom_value, zoom_level;
+	double alpha;
 
-	int rel_zoom = get_y_axis_zoom().get_clamped_relative_value();
-	int calc_zoom = rel_zoom / zoom_steps;
+	zoom_value = get_y_axis_zoom().get_clamped_value();
 
-	if (calc_zoom >= y_min_zoom_level) {
-		calc_zoom = y_min_zoom_level - 1;
+	if (zoom_value < 0) {
+		int rel_zoom = zoom_value - zoom_min;
+		zoom_level = rel_zoom / zoom_steps;
+		alpha = 0.5 * _y_zoom_converter.zoom_to_scale_decimal(rel_zoom);
+	} else {
+		zoom_value = 0;
+		zoom_level = digital_zoom_level;
+		alpha = 1.0;
 	}
 
-	// print_s(calc_zoom);
-
-	double alpha = 0.5 * _y_zoom_converter.zoom_to_scale_decimal(rel_zoom);
-	// print_s(alpha);
-
 	uint32_t y_min = map_margined_to_scene(0, 0).y();
-	uint64_t block_size = 1L << (32-calc_zoom);
+	uint64_t block_size = 1L << (32-zoom_level);
 	uint32_t block_y_min = (uint64_t)y_min & ~(block_size - 1);
 
-	// BENCH_START(hcv_data_compute);
-	PVLOG_INFO("zoom: %d / alpha: %0.4f\n", calc_zoom, alpha);
-	get_hit_graph_manager().change_and_process_view(block_y_min, calc_zoom, alpha);
-	// BENCH_STOP(hcv_data_compute);
-	// BENCH_STAT_TIME(hcv_data_compute);
+	get_hit_graph_manager().change_and_process_view(block_y_min, zoom_level, alpha);
 
 	if (_do_auto_scale) {
 		set_x_zoom_level_from_sel();
@@ -701,8 +619,7 @@ void PVParallelView::PVHitCountView::do_update_all()
 		_do_auto_scale = false;
 	}
 
-	_block_base_pos = block_y_min;
-	_block_zoom_level = get_y_axis_zoom().get_clamped_value();
+	_block_zoom_value = zoom_value;
 
 	get_viewport()->update();
 }

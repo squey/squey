@@ -237,6 +237,7 @@ class PVQuadTree
 public:
 	typedef PVTLRBuffer<Bbits> pv_tlr_buffer_t;
 	typedef std::function<void(const PVQuadTreeEntry &entry, pv_tlr_buffer_t &buffer)> insert_entry_f;
+	typedef std::function<bool(const PVQuadTreeEntry &entry, PVCore::PVHSVColor* image)> insert_entry_y1_y2_f;
 
 public:
 	/**
@@ -439,16 +440,17 @@ public:
 			uint64_t y1_min, uint64_t y1_max,
 			uint64_t y2_min, uint64_t y2_max,
 			uint32_t zoom,
-			pv_quadtree_buffer_entry_t *buffer,
-			const insert_entry_f &insert_f,
-			pv_tlr_buffer_t &tlr) const
+			const double alpha,
+			PVCore::PVHSVColor* image,
+			const insert_entry_y1_y2_f &insert_f
+			) const
 		{
-			return visit_y1_y2::get_n_m(*this, y1_min, y1_max, y2_min, y2_max, zoom,
+			return visit_y1_y2::get_n_m(*this, y1_min, y1_max, y2_min, y2_max, zoom, alpha,
 			[](const PVQuadTreeEntry &e, const uint64_t y1_min, const uint64_t y1_max, const uint64_t y2_min, const uint64_t y2_max) -> bool
 			{
 				return (e.y1 >= y1_min) && (e.y1 < y1_max) && (e.y2 >= y2_min) && (e.y2 < y2_max);
 			},
-			insert_f, buffer, tlr);
+			insert_f, image);
 		}
 
 	/**
@@ -1873,25 +1875,24 @@ private:
 		 * @param zoom the zoom level
 		 * @param test_f the function executed to test if an event is relevant or not
 		 * @param insert_f the function executed for each relevant found event
-		 * @param buffer a temporary buffer used for event extraction
-		 * @param tls a TLR buffer used to store the result of extraction
+		 * @param image the output PVHSVColor image
 		 */
 		template <typename Ftest>
 		static size_t get_n_m(
 			PVQuadTree const& obj,
 			const uint64_t y1_min, const uint64_t y1_max,
 			const uint64_t y2_min, const uint64_t y2_max,
-			const uint32_t zoom,
-			const Ftest &test_f, const insert_entry_f &insert_f,
-			pv_quadtree_buffer_entry_t *buffer,
-			pv_tlr_buffer_t &tlr)
+			const uint32_t current_zoom,
+			const double alpha,
+			const Ftest &test_f, const insert_entry_y1_y2_f &insert_f,
+			PVCore::PVHSVColor* image)
 		{
 			size_t ret = 0;
 			if (obj._nodes != 0) {
-				if (zoom == 0) {
+				if (current_zoom == 0) {
 					assert(obj._index_min != PVROW_INVALID_VALUE);
 					const PVQuadTreeEntry e(obj._y1_mid_value, obj._y2_mid_value, obj._index_min);
-					insert_f(e, tlr);
+					insert_f(e, image);
 					return 1;
 				}
 
@@ -1900,33 +1901,33 @@ private:
 				if (obj._y1_mid_value < y1_max) {
 					if (obj._y2_mid_value < y2_max) {
 						ret += get_n_m(obj._nodes[NE], y1_min, y1_max, y2_min, y2_max,
-						zoom - 1,
-						test_f, insert_f, buffer, tlr);
+						current_zoom - 1, alpha,
+						test_f, insert_f, image);
 					}
 					if (y2_min < obj._y2_mid_value) {
 						ret += get_n_m(obj._nodes[SE], y1_min, y1_max, y2_min, y2_max,
-						zoom - 1,
-						test_f, insert_f, buffer, tlr);
+						current_zoom - 1, alpha,
+						test_f, insert_f, image);
 					}
 				}
 				if (y1_min < obj._y1_mid_value) {
 					if (obj._y2_mid_value < y2_max) {
 						ret += get_n_m(obj._nodes[NW], y1_min, y1_max, y2_min, y2_max,
-						zoom - 1,
-						test_f, insert_f, buffer, tlr);
+						current_zoom - 1, alpha,
+						test_f, insert_f, image);
 					}
 					if (y2_min < obj._y2_mid_value) {
 						ret += get_n_m(obj._nodes[SW], y1_min, y1_max, y2_min, y2_max,
-						zoom - 1,
-						test_f, insert_f, buffer, tlr);
+						current_zoom - 1, alpha,
+						test_f, insert_f, image);
 					}
 				}
 			} else if (obj._datas.size() != 0) {
 				/* this is a unsplitted node with data and an array of nxm
 				 * entries is needed
 				 */
-				ret += extract_seq(obj, y1_min, y1_max, y2_min, y2_max, zoom,
-							test_f, insert_f, buffer, tlr);
+				ret += extract_seq(obj, y1_min, y1_max, y2_min, y2_max, current_zoom, alpha,
+							test_f, insert_f, image);
 			}
 			return ret;
 		}
@@ -1937,32 +1938,36 @@ private:
 		 * @param obj the quadtree to visit
 		 * @param y1_min the included minimal bound along the y1 coordinate
 		 * @param y1_max the excluded maximal bound along the y1 coordinate
-		 * @param y2_min the included minimal bound along the y1 coordinate
-		 * @param y2_max the excluded maximal bound along the y1 coordinate
+		 * @param y2_min the included minimal bound along the y2 coordinate
+		 * @param y2_max the excluded maximal bound along the y2 coordinate
 		 * @param zoom the zoom level
 		 * @param test_f the function executed to test if an event is relevant or not
 		 * @param insert_f the function executed for each relevant found event
-		 * @param buffer a temporary buffer used for event extraction
-		 * @param tls a TLR buffer used to store the result of extraction
+		 * @param image the output PVHSVColor image
 		 */
 		template <typename Ftest>
 		static size_t extract_seq(PVQuadTree const& obj,
 			const uint64_t y1_min, const uint64_t y1_max,
 			const uint64_t y2_min, const uint64_t y2_max,
-			const uint32_t /*zoom*/,
+			const uint32_t current_zoom,
+			const double alpha,
 			const Ftest &test_f,
-			const insert_entry_f &insert_f,
-			pv_quadtree_buffer_entry_t* /*buffer*/,
-			pv_tlr_buffer_t& tlr)
+			const insert_entry_y1_y2_f &insert_f,
+			PVCore::PVHSVColor* image)
 		{
 			size_t ret = 0;
+			uint32_t img_width = ceil(double(1U << (current_zoom+1)) * alpha);
+			uint32_t max_extraction_count = img_width*img_width;
+
 			for(size_t i = 0; i < obj._datas.size(); ++i) {
 				const PVQuadTreeEntry &e = obj._datas.at(i);
 				if (!test_f(e, y1_min, y1_max, y2_min, y2_max)) {
 					continue;
 				}
-				insert_f(e, tlr);
-				ret++;
+				ret += insert_f(e, image);
+				if (ret == max_extraction_count) {
+					break;
+				}
 			}
 			return ret;
 		}
