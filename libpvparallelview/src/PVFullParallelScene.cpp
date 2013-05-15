@@ -39,7 +39,7 @@
 #define CRAND() (127 + (random() & 0x7F))
 
 #define SCENE_MARGIN 16
-#define RENDER_TIMER_TIMEOUT 100 // in ms
+#define RENDER_TIMER_TIMEOUT 75 // in ms
 
 /******************************************************************************
  *
