@@ -97,21 +97,14 @@ protected:
 		return x_zoom_converter().scale_to_zoom((double)get_margined_viewport_width()/(double)_max_count);
 	}
 
-
 private:
 	void reset_view();
 
 	void draw_lines(QPainter *painter,
 	                const int x_max,
-	                const int view_top, const int offset,
+	                const int block_view_offset,
 	                const double rel_y_scale,
 	                const uint32_t *buffer);
-
-	void draw_clamped_lines(QPainter *painter,
-	                        const int x_max,
-	                        const int view_top, const int offset,
-	                        const double rel_y_scale,
-	                        const uint32_t *buffer);
 
 private:
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>&       x_zoom_converter()       { return _x_zoom_converter; }
@@ -137,7 +130,6 @@ private:
 	PVHitGraphBlocksManager                      _hit_graph_manager;
 	bool                                         _view_deleted;
 	uint64_t                                     _max_count;
-	uint32_t                                     _block_base_pos;
 	int                                          _block_zoom_value;
 	bool                                         _show_bg;
 
