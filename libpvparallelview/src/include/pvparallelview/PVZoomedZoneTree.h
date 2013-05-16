@@ -42,7 +42,7 @@ class PVBCICode;
  * @class PVZoomedZoneTree
  *
  * This class is the high-level data structure used to store events relatively to a zone.
- *
+*]
  * It is firstly designed to be used to zoom in parallel coordinates representations of data sets.
  * It reuse the same structuring than PVZoneTree: a fixed sized array of data structures which
  * contains the events. this array is a first partition of the events space. The lesser level
@@ -75,7 +75,7 @@ class PVZoomedZoneTree
 		PVCore::PVHSVColor* colors,
 	    const insert_entry_y1_y2_f &insert_f)>
 	extract_entries_y1_y2_f;
-
+	
 public:
 	typedef constants<bbits> zzt_constants;
 	typedef PVBCICode<bbits> pv_bci_code_t;
@@ -379,13 +379,9 @@ public:
 		int zoom,
 		double alpha,
 		const PVCore::PVHSVColor* colors,
-		PVCore::PVHSVColor* image,
-		const PVRow* sel_elts = nullptr
+		PVCore::PVHSVColor* image
 	) const
 	{
-		// AG: TODO: this should be used ;)
-		PV_UNUSED(sel_elts);
-
 		return browse_trees_bci_by_y1_y2_seq(ctx, y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image,
 			// extract_entries_y1_y2_f:
 			[&](const pvquadtree &tree,
@@ -393,6 +389,29 @@ public:
 			  const insert_entry_y1_y2_f &insert_f)
 			{
 				tree.get_first_from_y1_y2(y1_min, y1_max, y2_min, y2_max, zoom, alpha, image, insert_f);
+			});
+	}
+
+	inline size_t browse_bci_by_y1_y2_sel(
+		context_t &ctx,
+		uint64_t y1_min,
+		uint64_t y1_max,
+		uint64_t y2_min,
+		uint64_t y2_max,
+		int zoom,
+		double alpha,
+		const PVCore::PVHSVColor* colors,
+		PVCore::PVHSVColor* image,
+		Picviz::PVSelection const& sel
+	) const
+	{
+		return browse_trees_bci_by_y1_y2_seq(ctx, y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image,
+			// extract_entries_y1_y2_f:
+			[&](const pvquadtree &tree,
+				PVCore::PVHSVColor* image,
+			  const insert_entry_y1_y2_f &insert_f)
+			{
+				tree.get_first_from_y1_y2_sel(y1_min, y1_max, y2_min, y2_max, zoom, alpha, image, insert_f, sel);
 			});
 	}
 
@@ -730,6 +749,8 @@ public:
 		                                  colors, codes, beta);
 	}
 
+	void compute_min_indexes_sel(Picviz::PVSelection const& sel);
+
 private:
 	/**
 	 * Sequential implementation used by browse_bci_by_y2 and browse_bci_sel_by_y2.
@@ -802,8 +823,7 @@ private:
 		double alpha,
 		const PVCore::PVHSVColor* colors,
 		PVCore::PVHSVColor* image,
-		const extract_entries_y1_y2_f &extract_f,
-		const PVRow* sel_elts = nullptr
+		const extract_entries_y1_y2_f &extract_f
 	) const;
 
 	/**

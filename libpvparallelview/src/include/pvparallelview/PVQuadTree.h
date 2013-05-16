@@ -260,7 +260,7 @@ public:
 	/**
 	 * Create a quadtree without initializing it, this constructor has to be used with init.
 	 */
-	PVQuadTree() : _nodes(nullptr), _index_min(PVROW_INVALID_VALUE)
+	PVQuadTree() : _nodes(nullptr), _index_min_bg(PVROW_INVALID_VALUE)
 	{}
 
 	/**
@@ -290,7 +290,7 @@ public:
 		_y2_min_value = y2_min_value;
 		_y2_mid_value = y2_mid_value;
 		_max_level = max_level;
-		_index_min = PVROW_INVALID_VALUE;
+		_index_min_bg = PVROW_INVALID_VALUE;
 		if (PREALLOC_ELEMENT_COUNT != 0) {
 			_datas.reserve(PREALLOC_ELEMENT_COUNT);
 		} else {
@@ -453,6 +453,24 @@ public:
 			insert_f, image);
 		}
 
+	inline size_t get_first_from_y1_y2_sel(
+			uint64_t y1_min, uint64_t y1_max,
+			uint64_t y2_min, uint64_t y2_max,
+			uint32_t zoom,
+			const double alpha,
+			PVCore::PVHSVColor* image,
+			const insert_entry_y1_y2_f &insert_f,
+			Picviz::PVSelection const& sel
+			) const
+		{
+			return visit_y1_y2::get_n_m_sel(*this, y1_min, y1_max, y2_min, y2_max, zoom, alpha,
+			[](const PVQuadTreeEntry &e, const uint64_t y1_min, const uint64_t y1_max, const uint64_t y2_min, const uint64_t y2_max) -> bool
+			{
+				return (e.y1 >= y1_min) && (e.y1 < y1_max) && (e.y2 >= y2_min) && (e.y2 < y2_max);
+			},
+			insert_f, image, sel);
+		}
+
 	/**
 	 * Extract the first selected events according to constraints on y1 coordinate (y1_min, y1_max,
 	 * zoom) and on y2 coordinate (y2_count).
@@ -548,6 +566,70 @@ public:
 	{
 		return compute_selection_y2(*this, y2_min, y2_max, selection);
 	}
+
+	void set_min_idx_sel_invalid()
+	{
+		_index_min_sel = PVROW_INVALID_VALUE;
+		if (_nodes) {
+			for (int i = 0; i < 4; i++) {
+				_nodes[i].set_min_idx_sel_invalid();
+			}
+		}
+	}
+
+	PVRow compute_min_indexes_sel_notempty(Picviz::PVSelection const& sel)
+	{
+		PVRow idx_min;
+
+		if (!_nodes) {
+			idx_min = PVROW_INVALID_VALUE;
+			for (size_t i = 0; i < _datas.size(); i++) {
+				const PVRow idx = _datas.at(i).idx;
+				if (sel.get_line_fast(idx)) {
+					idx_min = idx;
+					break;
+				}
+			}
+		}
+		else {
+			__m128i mins = _mm_set_epi32(_nodes[0].compute_min_indexes_sel_notempty(sel),
+			                             _nodes[1].compute_min_indexes_sel_notempty(sel),
+			                             _nodes[2].compute_min_indexes_sel_notempty(sel),
+			                             _nodes[3].compute_min_indexes_sel_notempty(sel));
+			idx_min = picviz_mm_hmin_epu32(mins);
+		}
+
+		_index_min_sel = idx_min;
+		return idx_min;
+	}
+
+	/*
+	PVRow compute_min_indexes_bg(Picviz::PVSelection const& layers_sel)
+	{
+		PVRow idx_min;
+		if (!_nodes) {
+			idx_min = _datas.at(0);
+			if (!layers_sel.is_empty()) {
+				for (size_t i = 0; i < _datas.size(); i++) {
+					const PVRow idx = _datas.at(i).idx;
+					if (layers_sel.get_line_fast(idx)) {
+						idx_min = idx;
+						break;
+					}
+				}
+			}
+		}
+		else {
+			__m128i mins = _mm_insert_epi32(_mm_setzero_si128(), _nodes[0].compute_min_indexes_bg(layers_sel), 0);
+			mins = _mm_insert_epi32(mins, _nodes[1].compute_min_indexes_bg(layers_sel), 1);
+			mins = _mm_insert_epi32(mins, _nodes[2].compute_min_indexes_bg(layers_sel), 2);
+			mins = _mm_insert_epi32(mins, _nodes[3].compute_min_indexes_bg(layers_sel), 3);
+			idx_min = picviz_mm_hmin_epu32(mins);
+		}
+
+		_index_min_sel = idx_min;
+		return idx_min;
+	}*/
 
 	/**
 	 * Equality test.
@@ -923,8 +1005,6 @@ private:
 		                _y2_mid_value, _y2_mid_value + y2_step,
 		                _max_level - 1);
 
-		_index_min = _datas.at(0).idx;
-
 		for (unsigned i = 0; i < _datas.size(); ++i) {
 			const PVQuadTreeEntry &e = _datas.at(i);
 			_nodes[compute_index(e)]._datas.push_back(e);
@@ -934,14 +1014,15 @@ private:
 
 	uint32_t get_first_elt_index() const
 	{
-		if (_index_min != PVROW_INVALID_VALUE) {
-			return _index_min;
+		if (_index_min_bg != PVROW_INVALID_VALUE) {
+			return _index_min_bg;
 		}
 		if (_datas.size() > 0) {
 			return _datas.at(0).idx;
 		}
 		return PVROW_INVALID_VALUE;
 	}
+
 
 private:
 	/**
@@ -1890,8 +1971,8 @@ private:
 			size_t ret = 0;
 			if (obj._nodes != 0) {
 				if (current_zoom == 0) {
-					assert(obj._index_min != PVROW_INVALID_VALUE);
-					const PVQuadTreeEntry e(obj._y1_mid_value, obj._y2_mid_value, obj._index_min);
+					assert(obj._index_min_bg != PVROW_INVALID_VALUE);
+					const PVQuadTreeEntry e(obj._y1_mid_value, obj._y2_mid_value, obj._index_min_bg);
 					insert_f(e, image);
 					return 1;
 				}
@@ -1962,6 +2043,93 @@ private:
 			for(size_t i = 0; i < obj._datas.size(); ++i) {
 				const PVQuadTreeEntry &e = obj._datas.at(i);
 				if (!test_f(e, y1_min, y1_max, y2_min, y2_max)) {
+					continue;
+				}
+				ret += insert_f(e, image);
+				if (ret == max_extraction_count) {
+					break;
+				}
+			}
+			return ret;
+		}
+
+		template <typename Ftest>
+		static size_t get_n_m_sel(
+			PVQuadTree const& obj,
+			const uint64_t y1_min, const uint64_t y1_max,
+			const uint64_t y2_min, const uint64_t y2_max,
+			const uint32_t current_zoom,
+			const double alpha,
+			const Ftest &test_f, const insert_entry_y1_y2_f &insert_f,
+			PVCore::PVHSVColor* image,
+			Picviz::PVSelection const& sel)
+		{
+			size_t ret = 0;
+			if (obj._nodes != 0) {
+				if (current_zoom == 0) {
+					const PVRow idx = obj._index_min_sel;
+					if (idx == PVROW_INVALID_VALUE) {
+						return 0;
+					}
+					const PVQuadTreeEntry e(obj._y1_mid_value, obj._y2_mid_value, idx);
+					insert_f(e, image);
+					return 1;
+				}
+
+				/* recursive search can be processed
+				 */
+				if (obj._y1_mid_value < y1_max) {
+					if (obj._y2_mid_value < y2_max) {
+						ret += get_n_m(obj._nodes[NE], y1_min, y1_max, y2_min, y2_max,
+						current_zoom - 1, alpha,
+						test_f, insert_f, image);
+					}
+					if (y2_min < obj._y2_mid_value) {
+						ret += get_n_m(obj._nodes[SE], y1_min, y1_max, y2_min, y2_max,
+						current_zoom - 1, alpha,
+						test_f, insert_f, image);
+					}
+				}
+				if (y1_min < obj._y1_mid_value) {
+					if (obj._y2_mid_value < y2_max) {
+						ret += get_n_m(obj._nodes[NW], y1_min, y1_max, y2_min, y2_max,
+						current_zoom - 1, alpha,
+						test_f, insert_f, image);
+					}
+					if (y2_min < obj._y2_mid_value) {
+						ret += get_n_m(obj._nodes[SW], y1_min, y1_max, y2_min, y2_max,
+						current_zoom - 1, alpha,
+						test_f, insert_f, image);
+					}
+				}
+			} else if (obj._datas.size() != 0) {
+				/* this is a unsplitted node with data and an array of nxm
+				 * entries is needed
+				 */
+				ret += extract_seq_sel(obj, y1_min, y1_max, y2_min, y2_max, current_zoom, alpha,
+							test_f, insert_f, image, sel);
+			}
+			return ret;
+		}
+
+		template <typename Ftest>
+		static size_t extract_seq_sel(PVQuadTree const& obj,
+			const uint64_t y1_min, const uint64_t y1_max,
+			const uint64_t y2_min, const uint64_t y2_max,
+			const uint32_t current_zoom,
+			const double alpha,
+			const Ftest &test_f,
+			const insert_entry_y1_y2_f &insert_f,
+			PVCore::PVHSVColor* image,
+			Picviz::PVSelection const& sel)
+		{
+			size_t ret = 0;
+			uint32_t img_width = ceil(double(1U << (current_zoom+1)) * alpha);
+			uint32_t max_extraction_count = img_width*img_width;
+
+			for(size_t i = 0; i < obj._datas.size(); ++i) {
+				const PVQuadTreeEntry &e = obj._datas.at(i);
+				if ((!sel.get_line_fast(e.idx)) || (!test_f(e, y1_min, y1_max, y2_min, y2_max))) {
 					continue;
 				}
 				ret += insert_f(e, image);
@@ -2052,8 +2220,9 @@ private:
 	uint32_t              _y2_min_value;
 	uint32_t              _y2_mid_value;
 
-	int32_t              _max_level;
-	uint32_t			  _index_min;
+	int32_t               _max_level;
+	uint32_t			  _index_min_bg;
+	uint32_t			  _index_min_sel;
 };
 
 #undef SW

@@ -35,6 +35,9 @@ public:
 	inline void filter_by_sel(const Picviz::PVSelection& sel, const PVRow nrows)
 	{
 		_ztree->filter_by_sel(sel, nrows);
+		if (_zoomed_ztree->is_initialized()) {
+			_zoomed_ztree->compute_min_indexes_sel(sel);
+		}
 	}
 
 	inline void filter_by_sel_background(const Picviz::PVSelection& sel, const PVRow nrows)

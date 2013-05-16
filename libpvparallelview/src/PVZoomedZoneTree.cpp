@@ -270,7 +270,7 @@ PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(const PVRow *sel_elts,
 	_trees(nullptr),
 	_sel_elts(sel_elts),
 	_bg_elts(bg_elts),
-	_max_level(quadtree_max_level),
+	_max_level(max_level),
 	_initialized(false)
 {
 }
@@ -763,8 +763,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 	double alpha,
 	const PVCore::PVHSVColor* colors,
 	PVCore::PVHSVColor* image,
-	const extract_entries_y1_y2_f &extract_f,
-	const PVRow* sel_elts
+	const extract_entries_y1_y2_f &extract_f
 ) const
 {
 	uint32_t shift = (32 - PARALLELVIEW_ZT_BBITS) - zoom;
@@ -782,7 +781,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 
 	size_t nbci = 0;
 	const insert_entry_y1_y2_f insert_f =
-		insert_entry_y1_y2_f([&](const PVQuadTreeEntry &e, PVCore::PVHSVColor* image)
+		insert_entry_y1_y2_f([=](const PVQuadTreeEntry &e, PVCore::PVHSVColor* image)
 			   {
 					uint32_t l = ((uint32_t)(((e.y1 - y1_min) * alpha))) >> shift;
 					uint32_t r = ((uint32_t)(((e.y2 - y2_min) * alpha))) >> shift;
@@ -804,14 +803,6 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 							for (uint32_t t1 = r.rows().begin(); t1 < r.rows().end(); ++t1) {
 								PVRow tree_idx = (t2 * 1024) + t1;
 
-								if (sel_elts && (sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
-									/* when searching for entries using the selection, if there is no
-									 * drawn selected line for the corresponding ZoneTree, it is useless
-									 * to search for a selected line in the quadtree
-									 */
-									continue;
-								}
-
 								/* lines extraction
 								 */
 								extract_f(trees[tree_idx], image_, insert_f_);
@@ -820,17 +811,10 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 					});
 	BENCH_STOP(extract);
 
-	if (sel_elts) {
-		BENCH_SHOW(extract, "extraction  y1 y2 seq sel", 1, 1, 1, 1);
-	} else {
-		BENCH_SHOW(extract, "extraction  y1 y2 seq bg", 1, 1, 1, 1);
-	}
-
 	PVLOG_INFO("::browse_trees_bci_by_y1_y2_seq -> %lu\n", nbci);
 
 	return nbci;
 }
-
 
 /*****************************************************************************
  * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb
@@ -1108,6 +1092,28 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 	PVLOG_DEBUG("::browse_trees_bci_by_y2_tbb -> %lu\n", bci_idx);
 
 	return bci_idx;
+}
+
+
+void PVParallelView::PVZoomedZoneTree::compute_min_indexes_sel(Picviz::PVSelection const& sel)
+{
+	if (sel.is_empty()) {
+		for (size_t i = 0; i < NBUCKETS; i++) {
+			_trees[i].set_min_idx_sel_invalid();
+		}
+		return;
+	}
+
+	PVRow const* zt_sel_elts = _sel_elts;
+
+	for (size_t i = 0; i < NBUCKETS; i++) {
+		if (zt_sel_elts[i] == PVROW_INVALID_VALUE) {
+			_trees[i].set_min_idx_sel_invalid();
+		}
+		else {
+			_trees[i].compute_min_indexes_sel_notempty(sel);
+		}
+	}
 }
 
 #ifdef PICVIZ_DEVELOPER_MODE
