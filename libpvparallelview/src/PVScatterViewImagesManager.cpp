@@ -15,21 +15,12 @@ bool PVParallelView::PVScatterViewImagesManager::change_and_process_view(
 	const double alpha
 )
 {
-	if (y1_min == _data_params.y1_min &&
-		y1_max == _data_params.y1_max &&
-		y2_min == _data_params.y2_min &&
-		y2_max == _data_params.y2_max &&
-		zoom == _data_params.zoom &&
-		alpha == _data_params.alpha) {
+	if (!params_changed(y1_min, y1_max, y2_min, y2_max, zoom, alpha)) {
 		return false;
 	}
 
-	_data_params.y1_min = y1_min;
-	_data_params.y1_max = y1_max;
-	_data_params.y2_min = y2_min;
-	_data_params.y2_max = y2_max;
-	_data_params.zoom = zoom;
-	_data_params.alpha = alpha;
+	set_params(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
+
 
 	process_all();
 

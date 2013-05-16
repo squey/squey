@@ -406,6 +406,9 @@ public:
 	 */
 	void set_transform(const QTransform &t, bool combine = false);
 
+	QTransform const& get_transform() const { return _transform; }
+	QTransform const& get_inv_transform() const { return _inv_transform; }
+
 	/**
 	 * Makes the visible area fit in the view.
 	 *
