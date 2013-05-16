@@ -207,23 +207,8 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::drawBackground(QPainter *pai
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomableDrawingAreaWithAxes::resizeEvent
+ * PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v1
  *****************************************************************************/
-
-void PVParallelView::PVZoomableDrawingAreaWithAxes::resizeEvent(QResizeEvent *event)
-{
-	/**
-	 * as the first resize event happens only at the first call to
-	 * QWidget::show(), the viewport can not also be correctly set before
-	 * it happens. So that the ::center_on() must be at the first resize...
-	 */
-	PVParallelView::PVZoomableDrawingArea::resizeEvent(event);
-	if (_first_resize) {
-		center_on(0., 0.);
-		_first_resize = false;
-	}
-}
-
 
 void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v1(QPainter *painter,
                                                                  const QRectF &rect)
@@ -296,6 +281,10 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v1(QPainter *paint
 
 	painter->restore();
 }
+
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v2
+ *****************************************************************************/
 
 void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v2(QPainter *painter,
                                                                  const QRectF& /*rect*/)
@@ -453,6 +442,10 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v2(QPainter *paint
 	painter->restore();
 }
 
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3
+ *****************************************************************************/
+
 void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *painter,
                                                                  const QRectF& /*rect*/)
 {
@@ -499,7 +492,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 	qreal scene_subtick_width = pow(ticks_per_level, (int)x_level) / ticks_per_level;
 	qreal screen_subtick_width = scene_subtick_width * x_scale;
 
-	bool need_x_subticks = (screen_subtick_width > subtick_min_gap);
+	bool need_x_subticks = (screen_subtick_width > subtick_min_gap) && (scene_subtick_width >= 1.0);
 
 	qreal scene_left = map_to_scene(QPoint(left, 0)).x();
 	int64_t x_subtick_index = ceil(scene_left / scene_subtick_width);
@@ -540,7 +533,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 	qreal scene_subtick_height = pow(ticks_per_level, (int)y_level) / ticks_per_level;
 	qreal screen_subtick_height = scene_subtick_height * y_scale;
 
-	bool need_y_subticks = (screen_subtick_height > subtick_min_gap);
+	bool need_y_subticks = (screen_subtick_height > subtick_min_gap) && (scene_subtick_height >= 1.0);
 
 	qreal scene_top = map_to_scene(QPoint(0, top)).y();
 	int64_t y_subtick_index = ceil(scene_top / scene_subtick_height);
@@ -581,6 +574,10 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 
 	painter->restore();
 }
+
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v4
+ *****************************************************************************/
 
 void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v4(QPainter *painter,
                                                                  const QRectF& /*rect*/)
@@ -650,15 +647,6 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v4(QPainter *paint
 		scene_pos += scene_subtick_width;
 		++x_subtick_index;
 	}
-
-
-
-
-
-
-
-
-
 
 	painter->restore();
 }
