@@ -92,6 +92,8 @@ PVZoomableDrawingAreaInteractorHomothetic.cpp
 # views
 PVHitCountView.cpp
 PVScatterView.cpp
+PVScatterViewImage.cpp
+PVScatterViewImagesManager.cpp
 )
 
 set(CUDA_SRC_FILES
@@ -139,6 +141,11 @@ include/pvparallelview/PVZoomableDrawingAreaWithAxes.h
 # views
 include/pvparallelview/PVHitCountView.h
 include/pvparallelview/PVScatterView.h
+include/pvparallelview/PVScatterViewDataInterface.h
+include/pvparallelview/PVScatterViewData.h
+include/pvparallelview/PVScatterViewDataImpl.h
+include/pvparallelview/PVScatterViewImage.h
+include/pvparallelview/PVScatterViewImagesManager.h
 )
 
 SET(MOC_HEADERS

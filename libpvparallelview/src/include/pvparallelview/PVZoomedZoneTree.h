@@ -379,13 +379,9 @@ public:
 		int zoom,
 		double alpha,
 		const PVCore::PVHSVColor* colors,
-		PVCore::PVHSVColor* image,
-		const PVRow* sel_elts = nullptr
+		PVCore::PVHSVColor* image
 	) const
 	{
-		// AG: TODO: this should be used ;)
-		PV_UNUSED(sel_elts);
-
 		return browse_trees_bci_by_y1_y2_seq(ctx, y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image,
 			// extract_entries_y1_y2_f:
 			[&](const pvquadtree &tree,
@@ -393,7 +389,8 @@ public:
 			  const insert_entry_y1_y2_f &insert_f)
 			{
 				tree.get_first_from_y1_y2(y1_min, y1_max, y2_min, y2_max, zoom, alpha, image, insert_f);
-			});
+			}/*,
+			_sel_elts*/);
 	}
 
 

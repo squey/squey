@@ -2052,7 +2052,7 @@ private:
 	uint32_t              _y2_min_value;
 	uint32_t              _y2_mid_value;
 
-	int32_t              _max_level;
+	int32_t               _max_level;
 	uint32_t			  _index_min;
 };
 

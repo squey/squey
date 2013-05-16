@@ -21,6 +21,7 @@ protected:
 	virtual bool resizeEvent(PVParallelView::PVZoomableDrawingArea* zda, QResizeEvent* /*event*/) override
 	{
 		zda->reconfigure_view();
+		pan_has_changed(zda);
 		return true;
 	}
 
