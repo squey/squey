@@ -219,22 +219,22 @@ void nraw_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortin
 	L tmp_indexes;
 	tmp_indexes.reserve(idxes.size());
 	tmp_indexes.resize(idxes.size());
-	bool succes = false;
+	bool success = false;
 
 	tbb::tag_tls_construct_args tag_c;
 
 	if (order == Qt::AscendingOrder) {
 		PVMultisetSortAsc<string_index_t> sort(f);
 		multiset_string_index_asc_tls_t multiset_tls(tag_c, sort);
-		succes = stable_insert_sort_indexes_f(nraw, col, multiset_tls, sort, order, tmp_indexes, ctxt);
+		success = stable_insert_sort_indexes_f(nraw, col, multiset_tls, sort, order, tmp_indexes, ctxt);
 	}
 	else {
 		PVMultisetSortDesc<string_index_t> sort(f);
 		multiset_string_index_desc_tls_t multiset_tls(tag_c, sort);
-		succes = stable_insert_sort_indexes_f(nraw, col, multiset_tls, sort, order, tmp_indexes, ctxt);
+		success = stable_insert_sort_indexes_f(nraw, col, multiset_tls, sort, order, tmp_indexes, ctxt);
 	}
 
-	if (succes) {
+	if (success) {
 		idxes = std::move(tmp_indexes);
 	}
 }

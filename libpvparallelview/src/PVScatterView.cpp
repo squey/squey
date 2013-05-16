@@ -46,8 +46,8 @@ PVParallelView::PVScatterView::PVScatterView(
 	QWidget* parent /*= nullptr*/
 ) :
 	PVZoomableDrawingAreaWithAxes(parent),
-	_images_manager(zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(axis_index), pvview_sp->output_layer.get_lines_properties().get_buffer(), _view.get_real_output_selection()),
 	_view(*pvview_sp),
+	_images_manager(zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(axis_index), pvview_sp->output_layer.get_lines_properties().get_buffer(), pvview_sp->get_real_output_selection()),
 	_zt(zm.get_zone_tree<PVParallelView::PVZoneTree>(axis_index)),
 	_view_deleted(false)
 {
@@ -197,12 +197,12 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 	painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
 
 	// background
-	painter->setOpacity(1.0);
+	painter->setOpacity(0.25);
 	painter->drawImage(QPointF(0.0, 0.0), get_images_manager().get_image_all());
 
 	// selection
-	//painter->setOpacity(0.25);
-	//painter->drawImage(QPointF(0.0, 0.0), get_images_manager().get_image_sel());
+	painter->setOpacity(1);
+	painter->drawImage(QPointF(0.0, 0.0), get_images_manager().get_image_sel());
 
 #ifdef PICVIZ_DEVELOPER_MODE
 	if (_show_quadtrees) {

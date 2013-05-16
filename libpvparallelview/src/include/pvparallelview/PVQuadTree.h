@@ -260,8 +260,11 @@ public:
 	/**
 	 * Create a quadtree without initializing it, this constructor has to be used with init.
 	 */
-	PVQuadTree() : _nodes(nullptr), _index_min_bg(PVROW_INVALID_VALUE)
-	{}
+	PVQuadTree():
+		_nodes(nullptr),
+		_index_min_bg(PVROW_INVALID_VALUE),
+		_index_min_sel(PVROW_INVALID_VALUE)
+	{ }
 
 	/**
 	 * Destruct a quadtree and its sub-quadtrees.
@@ -291,6 +294,7 @@ public:
 		_y2_mid_value = y2_mid_value;
 		_max_level = max_level;
 		_index_min_bg = PVROW_INVALID_VALUE;
+		_index_min_sel = PVROW_INVALID_VALUE;
 		if (PREALLOC_ELEMENT_COUNT != 0) {
 			_datas.reserve(PREALLOC_ELEMENT_COUNT);
 		} else {
@@ -464,11 +468,11 @@ public:
 			) const
 		{
 			return visit_y1_y2::get_n_m_sel(*this, y1_min, y1_max, y2_min, y2_max, zoom, alpha,
-			[](const PVQuadTreeEntry &e, const uint64_t y1_min, const uint64_t y1_max, const uint64_t y2_min, const uint64_t y2_max) -> bool
+			[&sel](const PVQuadTreeEntry &e, const uint64_t y1_min, const uint64_t y1_max, const uint64_t y2_min, const uint64_t y2_max) -> bool
 			{
-				return (e.y1 >= y1_min) && (e.y1 < y1_max) && (e.y2 >= y2_min) && (e.y2 < y2_max);
+				return (e.y1 >= y1_min) && (e.y1 < y1_max) && (e.y2 >= y2_min) && (e.y2 < y2_max) && sel.get_line_fast(e.idx);
 			},
-			insert_f, image, sel);
+			insert_f, image);
 		}
 
 	/**
@@ -1004,6 +1008,8 @@ private:
 		_nodes[NW].init(_y1_min_value, _y1_min_value + y1_step,
 		                _y2_mid_value, _y2_mid_value + y2_step,
 		                _max_level - 1);
+
+		_index_min_bg = _datas.at(0).idx;
 
 		for (unsigned i = 0; i < _datas.size(); ++i) {
 			const PVQuadTreeEntry &e = _datas.at(i);
@@ -2058,11 +2064,10 @@ private:
 			PVQuadTree const& obj,
 			const uint64_t y1_min, const uint64_t y1_max,
 			const uint64_t y2_min, const uint64_t y2_max,
-			const uint32_t current_zoom,
+			const int32_t current_zoom,
 			const double alpha,
 			const Ftest &test_f, const insert_entry_y1_y2_f &insert_f,
-			PVCore::PVHSVColor* image,
-			Picviz::PVSelection const& sel)
+			PVCore::PVHSVColor* image)
 		{
 			size_t ret = 0;
 			if (obj._nodes != 0) {
@@ -2080,24 +2085,24 @@ private:
 				 */
 				if (obj._y1_mid_value < y1_max) {
 					if (obj._y2_mid_value < y2_max) {
-						ret += get_n_m(obj._nodes[NE], y1_min, y1_max, y2_min, y2_max,
+						ret += get_n_m_sel(obj._nodes[NE], y1_min, y1_max, y2_min, y2_max,
 						current_zoom - 1, alpha,
 						test_f, insert_f, image);
 					}
 					if (y2_min < obj._y2_mid_value) {
-						ret += get_n_m(obj._nodes[SE], y1_min, y1_max, y2_min, y2_max,
+						ret += get_n_m_sel(obj._nodes[SE], y1_min, y1_max, y2_min, y2_max,
 						current_zoom - 1, alpha,
 						test_f, insert_f, image);
 					}
 				}
 				if (y1_min < obj._y1_mid_value) {
 					if (obj._y2_mid_value < y2_max) {
-						ret += get_n_m(obj._nodes[NW], y1_min, y1_max, y2_min, y2_max,
+						ret += get_n_m_sel(obj._nodes[NW], y1_min, y1_max, y2_min, y2_max,
 						current_zoom - 1, alpha,
 						test_f, insert_f, image);
 					}
 					if (y2_min < obj._y2_mid_value) {
-						ret += get_n_m(obj._nodes[SW], y1_min, y1_max, y2_min, y2_max,
+						ret += get_n_m_sel(obj._nodes[SW], y1_min, y1_max, y2_min, y2_max,
 						current_zoom - 1, alpha,
 						test_f, insert_f, image);
 					}
@@ -2106,39 +2111,12 @@ private:
 				/* this is a unsplitted node with data and an array of nxm
 				 * entries is needed
 				 */
-				ret += extract_seq_sel(obj, y1_min, y1_max, y2_min, y2_max, current_zoom, alpha,
-							test_f, insert_f, image, sel);
+				ret += extract_seq(obj, y1_min, y1_max, y2_min, y2_max, current_zoom, alpha,
+				                   test_f, insert_f, image);
 			}
 			return ret;
 		}
 
-		template <typename Ftest>
-		static size_t extract_seq_sel(PVQuadTree const& obj,
-			const uint64_t y1_min, const uint64_t y1_max,
-			const uint64_t y2_min, const uint64_t y2_max,
-			const uint32_t current_zoom,
-			const double alpha,
-			const Ftest &test_f,
-			const insert_entry_y1_y2_f &insert_f,
-			PVCore::PVHSVColor* image,
-			Picviz::PVSelection const& sel)
-		{
-			size_t ret = 0;
-			uint32_t img_width = ceil(double(1U << (current_zoom+1)) * alpha);
-			uint32_t max_extraction_count = img_width*img_width;
-
-			for(size_t i = 0; i < obj._datas.size(); ++i) {
-				const PVQuadTreeEntry &e = obj._datas.at(i);
-				if ((!sel.get_line_fast(e.idx)) || (!test_f(e, y1_min, y1_max, y2_min, y2_max))) {
-					continue;
-				}
-				ret += insert_f(e, image);
-				if (ret == max_extraction_count) {
-					break;
-				}
-			}
-			return ret;
-		}
 	};
 
 	/**

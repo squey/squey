@@ -753,17 +753,17 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 	return bci_idx;
 }
 
-size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
-	context_t &ctx,
+void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 	uint64_t y1_min,
 	uint64_t y1_max,
 	uint64_t y2_min,
 	uint64_t y2_max,
 	int zoom,
 	double alpha,
-	const PVCore::PVHSVColor* colors,
-	PVCore::PVHSVColor* image,
-	const extract_entries_y1_y2_f &extract_f
+	PVCore::PVHSVColor const* const colors,
+	PVCore::PVHSVColor* const image,
+	const extract_entries_y1_y2_f &extract_f,
+	PVRow const* const sel_elts
 ) const
 {
 	uint32_t shift = (32 - PARALLELVIEW_ZT_BBITS) - zoom;
@@ -775,17 +775,14 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 	uint32_t t2_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y2_max >> (32 - NBITS_INDEX)),
 															0U, 1024U);
 
-	zzt_tls &tls = ctx.get_tls().local();
-	pv_quadtree_buffer_entry_t *quadtree_buffer = tls.get_quadtree_buffer();
-	pv_tlr_buffer_t &tlr_buffer = tls.get_tlr_buffer();
-
-	size_t nbci = 0;
 	const insert_entry_y1_y2_f insert_f =
 		insert_entry_y1_y2_f([=](const PVQuadTreeEntry &e, PVCore::PVHSVColor* image)
 			   {
 					uint32_t l = ((uint32_t)(((e.y1 - y1_min) * alpha))) >> shift;
 					uint32_t r = ((uint32_t)(((e.y2 - y2_min) * alpha))) >> shift;
-					if (image[r*2048+l].h() == HSV_COLOR_BLACK) {
+					assert(r < 2048);
+					assert(l < 2048);
+					if (image[r*2048+l].h() == HSV_COLOR_TRANSPARENT) {
 						image[r*2048+l] = colors[e.idx];
 						return 1;
 					}
@@ -798,10 +795,19 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 						pvquadtree* trees = _trees;
 						const insert_entry_y1_y2_f& insert_f_ = insert_f;
 						PVCore::PVHSVColor* const image_ = image;
+						PVRow const* const sel_elts_ = sel_elts;
 
 						for (uint32_t t2 = r.cols().begin(); t2 < r.cols().end(); ++t2) {
 							for (uint32_t t1 = r.rows().begin(); t1 < r.rows().end(); ++t1) {
 								PVRow tree_idx = (t2 * 1024) + t1;
+
+				                if (sel_elts_ && (sel_elts_[tree_idx] == PVROW_INVALID_VALUE)) {
+					                /* when searching for entries using the selection, if there is no
+					                 * drawn selected line for the corresponding ZoneTree, it is useless
+					                 * to search for a selected line in the quadtree
+					                 */
+					                continue;
+				                }
 
 								/* lines extraction
 								 */
@@ -809,11 +815,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_seq(
 							}
 						}
 					});
-	BENCH_STOP(extract);
-
-	PVLOG_INFO("::browse_trees_bci_by_y1_y2_seq -> %lu\n", nbci);
-
-	return nbci;
+	BENCH_END(extract, "browse_trees_bci_by_y1_y2_tbb", 1, 1, 1, 1);
 }
 
 /*****************************************************************************
@@ -1097,23 +1099,25 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 
 void PVParallelView::PVZoomedZoneTree::compute_min_indexes_sel(Picviz::PVSelection const& sel)
 {
+	BENCH_START(compute);
 	if (sel.is_empty()) {
 		for (size_t i = 0; i < NBUCKETS; i++) {
 			_trees[i].set_min_idx_sel_invalid();
 		}
-		return;
 	}
+	else {
+		PVRow const* zt_sel_elts = _sel_elts;
 
-	PVRow const* zt_sel_elts = _sel_elts;
-
-	for (size_t i = 0; i < NBUCKETS; i++) {
-		if (zt_sel_elts[i] == PVROW_INVALID_VALUE) {
-			_trees[i].set_min_idx_sel_invalid();
-		}
-		else {
-			_trees[i].compute_min_indexes_sel_notempty(sel);
+		for (size_t i = 0; i < NBUCKETS; i++) {
+			if (zt_sel_elts[i] == PVROW_INVALID_VALUE) {
+				_trees[i].set_min_idx_sel_invalid();
+			}
+			else {
+				_trees[i].compute_min_indexes_sel_notempty(sel);
+			}
 		}
 	}
+	BENCH_END(compute, "PVZoomedZoneTree::compute_min_indexes_sel", 1, 1, 1, 1);
 }
 
 #ifdef PICVIZ_DEVELOPER_MODE

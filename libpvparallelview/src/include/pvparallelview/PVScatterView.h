@@ -83,11 +83,10 @@ private slots:
 	void do_pan_change();
 
 private:
-	PVScatterViewImagesManager _images_manager;
-
 	QTimer _update_all_timer;
 
 	Picviz::PVView& _view;
+	PVScatterViewImagesManager _images_manager;
 	PVZoneTree const& _zt;
 	bool _view_deleted;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> *_zoom_converter;

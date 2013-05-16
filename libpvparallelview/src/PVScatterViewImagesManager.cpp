@@ -46,7 +46,7 @@ void PVParallelView::PVScatterViewImagesManager::process_bg()
 void PVParallelView::PVScatterViewImagesManager::process_sel()
 {
 	PVScatterViewData& data = full_view() ? _data_z0 : _data;
-	data.image_all().clear();
+	data.image_sel().clear();
 	data.process_sel(_data_params, _sel);
 }
 
@@ -54,6 +54,7 @@ void PVParallelView::PVScatterViewImagesManager::process_all()
 {
 	PVScatterViewData& data = full_view() ? _data_z0 : _data;
 	data.image_all().clear();
+	data.image_sel().clear();
 	data.process_all(_data_params, _sel);
 }
 

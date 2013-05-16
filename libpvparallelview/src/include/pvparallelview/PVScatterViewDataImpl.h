@@ -19,10 +19,7 @@ public:
 public:
 	void process_bg(ProcessParams const& params) override
 	{
-		PVZoomedZoneTree::context_t ctxt;
-
 		params.zzt.browse_bci_by_y1_y2(
-			ctxt,
 			params.y1_min,
 			params.y1_max,
 			params.y2_min,
@@ -36,12 +33,9 @@ public:
 		image_all().convert_image_from_hsv_to_rgb();
 	};
 
-	void process_sel(ProcessParams const& params, Picviz::PVSelection const& /*sel*/) override
+	void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel) override
 	{
-		PVZoomedZoneTree::context_t ctxt;
-
-		params.zzt.browse_bci_by_y1_y2(
-			ctxt,
+		params.zzt.browse_bci_by_y1_y2_sel(
 			params.y1_min,
 			params.y1_max,
 			params.y2_min,
@@ -49,7 +43,8 @@ public:
 			params.zoom,
 			params.alpha,
 			params.colors,
-			image_sel().get_hsv_image()
+			image_sel().get_hsv_image(),
+			sel
 		);
 
 		image_sel().convert_image_from_hsv_to_rgb();

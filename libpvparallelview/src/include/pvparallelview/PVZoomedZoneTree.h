@@ -60,7 +60,7 @@ class PVZoomedZoneTree
 
 	typedef PVTLRBuffer<bbits> pv_tlr_buffer_t;
 	typedef pv_tlr_buffer_t::index_t pv_tlr_index_t;
-	typedef PVQuadTree<2048, 1000, 0, bbits> pvquadtree;
+	typedef PVQuadTree<8192, 1000, 0, bbits> pvquadtree;
 	typedef pvquadtree::insert_entry_f insert_entry_f;
 	typedef pvquadtree::insert_entry_y1_y2_f insert_entry_y1_y2_f;
 
@@ -370,43 +370,40 @@ public:
 
 
 
-	inline size_t browse_bci_by_y1_y2(
-		context_t &ctx,
+	inline void browse_bci_by_y1_y2(
 		uint64_t y1_min,
 		uint64_t y1_max,
 		uint64_t y2_min,
 		uint64_t y2_max,
 		int zoom,
 		double alpha,
-		const PVCore::PVHSVColor* colors,
-		PVCore::PVHSVColor* image
+		PVCore::PVHSVColor const* const colors,
+		PVCore::PVHSVColor* const image
 	) const
 	{
-		return browse_trees_bci_by_y1_y2_seq(ctx, y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image,
+		browse_trees_bci_by_y1_y2_tbb(y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image,
 			// extract_entries_y1_y2_f:
 			[&](const pvquadtree &tree,
 				PVCore::PVHSVColor* image,
 			  const insert_entry_y1_y2_f &insert_f)
 			{
 				tree.get_first_from_y1_y2(y1_min, y1_max, y2_min, y2_max, zoom, alpha, image, insert_f);
-			}/*,
-			_sel_elts*/);
+			});
 	}
 
-	inline size_t browse_bci_by_y1_y2_sel(
-		context_t &ctx,
+	inline void browse_bci_by_y1_y2_sel(
 		uint64_t y1_min,
 		uint64_t y1_max,
 		uint64_t y2_min,
 		uint64_t y2_max,
 		int zoom,
 		double alpha,
-		const PVCore::PVHSVColor* colors,
-		PVCore::PVHSVColor* image,
+		PVCore::PVHSVColor const* const colors,
+		PVCore::PVHSVColor* const image,
 		Picviz::PVSelection const& sel
 	) const
 	{
-		return browse_trees_bci_by_y1_y2_seq(ctx, y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image,
+		browse_trees_bci_by_y1_y2_tbb(y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image,
 			// extract_entries_y1_y2_f:
 			[&](const pvquadtree &tree,
 				PVCore::PVHSVColor* image,
@@ -801,30 +798,17 @@ private:
 	                                  const float beta = 1.0f,
 	                                  const PVRow* sel_elts = nullptr) const;
 
-	size_t browse_trees_bci_by_y1_y2_tbb(
-		context_t &ctx,
-		uint64_t y1_min,
-		uint64_t y1_max,
-		uint64_t y2_min,
-		uint64_t y2_max,
-		int zoom,
-		const extract_entries_f &extract_f,
-		const PVCore::PVHSVColor *colors,
-		pv_bci_code_t *codes,
-		const PVRow* sel_elts = nullptr
-	) const;
-
-	size_t browse_trees_bci_by_y1_y2_seq(
-		context_t &ctx,
+	void browse_trees_bci_by_y1_y2_tbb(
 		uint64_t y1_min,
 		uint64_t y1_max,
 		uint64_t y2_min,
 		uint64_t y2_max,
 		int zoom,
 		double alpha,
-		const PVCore::PVHSVColor* colors,
-		PVCore::PVHSVColor* image,
-		const extract_entries_y1_y2_f &extract_f
+		PVCore::PVHSVColor const* const colors,
+		PVCore::PVHSVColor* const image,
+		const extract_entries_y1_y2_f &extract_f,
+		PVRow const* const sel_elts = nullptr
 	) const;
 
 	/**

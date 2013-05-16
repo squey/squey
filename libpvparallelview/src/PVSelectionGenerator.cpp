@@ -350,8 +350,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_vi
 	const uint32_t y2_min = PVCore::clamp(floor(rect.top()), 0.0, (double) UINT32_MAX);
 	const uint32_t y2_max = PVCore::clamp(ceil(rect.bottom()) + 1, 0.0, (double) UINT32_MAX);
 
-	uint32_t nb_selected = 0;
-
 	const __m128i y1_min_sse = _mm_set1_epi32(y1_min);
 	const __m128i y1_max_sse = _mm_set1_epi32(y1_max);
 
@@ -360,25 +358,28 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_vi
 
 	const uint32_t nrows_sse = nrows & ~31U;
 
+	const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFFU);
+
 	BENCH_START(scatter_view_plotted_selection_sse);
 
 	PVRow i = 0;
 #pragma omp parallel for num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())
 	for(i = 0; i < nrows_sse; i += 32) {
-		uint64_t chunk = 0;
+		uint32_t chunk = 0;
 		for (int j = 0; j < 32; j += 4) {
 			const __m128i y1_sse = _mm_load_si128((__m128i const*) &y1_plotted[i+j]);
+			const __m128i y2_sse = _mm_load_si128((__m128i const*) &y2_plotted[i+j]);
+
 			const __m128i mask_y1 = picviz_mm_cmprange_epu32(y1_sse, y1_min_sse, y1_max_sse);
 
-			if (!(_mm_test_all_zeros(mask_y1, _mm_set1_epi32(0xFFFFFFFFU)))) {
+			//if (!(_mm_test_all_zeros(mask_y1, sse_ff))) {
 
-				const __m128i y2_sse = _mm_load_si128((__m128i const*) &y2_plotted[i+j]);
 				const __m128i mask_y2 = picviz_mm_cmprange_epu32(y2_sse, y2_min_sse, y2_max_sse);
 				const __m128i mask_y1_y2 = _mm_and_si128(mask_y1, mask_y2);
 
-				const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask_y1_y2));
+				const uint32_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask_y1_y2));
 				chunk |= sel_bits << j;
-			}
+			//}
 		}
 		sel.set_chunk32_fast_stream(Picviz::PVSelection::line_index_to_chunk32(i), chunk);
 	}
@@ -388,7 +389,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_vi
 
 		if ((y1 >= y1_min) && (y1 < y1_max) && (y2 >= y2_min) && (y2 < y2_max)) {
 			sel.set_bit_fast(i);
-			++nb_selected;
 			continue;
 		}
 
@@ -397,7 +397,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_vi
 
 	BENCH_END(scatter_view_plotted_selection_sse, "scatter_view_plotted_selection_sse", 2*nrows, sizeof(uint32_t), 1, 1);
 
-	return nb_selected;
+	return 0;
 }
 
 /*****************************************************************************
