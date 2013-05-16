@@ -181,7 +181,7 @@ inline __m128i picviz_mm_cmprange_epi32(__m128i const v, __m128i const a, __m128
  *
  * res[i] = (v[i] >= a[i]) && (v[i] < b[i])
  */
-inline __m128i picviz_mm_cmprange_epu32(__m128i const v, __m128i const a, __m128i const b)
+inline static __m128i picviz_mm_cmprange_epu32(__m128i const v, __m128i const a, __m128i const b)
 {
 	return _mm_andnot_si128(picviz_mm_cmplt_epu32(v, a),
 	                        picviz_mm_cmplt_epu32(v, b));
@@ -191,11 +191,41 @@ inline __m128i picviz_mm_cmprange_epu32(__m128i const v, __m128i const a, __m128
  *
  * res[i] = (v[i] >= a[i]) && (v[i] <= b[i])
  */
-inline __m128i picviz_mm_cmprange_in_epu32(__m128i const v, __m128i const a, __m128i const b)
+inline static __m128i picviz_mm_cmprange_in_epu32(__m128i const v, __m128i const a, __m128i const b)
 {
 	return _mm_andnot_si128(picviz_mm_cmplt_epu32(v, a),
 	                        _mm_or_si128(picviz_mm_cmplt_epu32(v, b),
 	                                     _mm_cmpeq_epi32(v, b)));
+}
+
+/*! \brief Returns the minimum 32-bit signed integer in a packed 32-bit signed integer vector
+ *
+ * \return min({v[i], i=0..4})
+ */
+inline static uint32_t picviz_mm_hmin_epi32(__m128i const v)
+{
+	__m128i min_perm = reinterpret_cast<__m128i>(_mm_permute_ps(reinterpret_cast<__m128>(v), (2 | (3 << 2))));
+	__m128i min = _mm_min_epi32(v, min_perm);
+	
+	min_perm = reinterpret_cast<__m128i>(_mm_permute_ps(reinterpret_cast<__m128>(min), 1));
+	min = _mm_min_epi32(min, min_perm);
+
+	return _mm_extract_epi32(min, 0);
+}
+
+/*! \brief Returns the minimum 32-bit unsigned integer in a packed 32-bit unsigned integer vector
+ *
+ * \return min({v[i], i=0..4})
+ */
+inline static uint32_t picviz_mm_hmin_epu32(__m128i const v)
+{
+	__m128i min_perm = reinterpret_cast<__m128i>(_mm_permute_ps(reinterpret_cast<__m128>(v), (2 | (3 << 2))));
+	__m128i min = _mm_min_epu32(v, min_perm);
+	
+	min_perm = reinterpret_cast<__m128i>(_mm_permute_ps(reinterpret_cast<__m128>(min), 1));
+	min = _mm_min_epu32(min, min_perm);
+
+	return _mm_extract_epi32(min, 0);
 }
 
 #endif
