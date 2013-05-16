@@ -48,6 +48,27 @@ void PVCore::PVHSVColor::to_rgb(uint8_t& r, uint8_t& g, uint8_t& b) const
 	b = rgb[2];
 }
 
+void PVCore::PVHSVColor::to_rgba(uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& a) const
+{
+	uint8_t rgba[4];
+	to_rgba(rgba);
+	r = rgba[0];
+	g = rgba[1];
+	b = rgba[2];
+	a = rgba[3];
+}
+
+void PVCore::PVHSVColor::to_rgba(uint8_t* rgb) const
+{
+	if (_h == HSV_COLOR_TRANSPARENT) {
+		*((uint32_t*)rgb) = 0;
+	}
+	else {
+		to_rgb(rgb);
+		rgb[3] = 0xFF;
+	}
+}
+
 void PVCore::PVHSVColor::to_rgb(uint8_t* rgb) const
 {
 	/*uint8_t zone = _h>>HSV_COLOR_NBITS_ZONE;
@@ -93,8 +114,22 @@ QColor PVCore::PVHSVColor::toQColor() const
 	return std::move(ret);
 }
 
+void PVCore::PVHSVColor::toQColorA(QColor& qc) const
+{
+	QRgb rgb;
+	to_rgba((uint8_t*) &rgb);
+	qc.setRgba(rgb);
+}
+
+QColor PVCore::PVHSVColor::toQColorA() const
+{
+	QColor ret;
+	toQColorA(ret);
+	return std::move(ret);
+}
+
 bool PVCore::PVHSVColor::is_valid() const
 {
 	// Checks that the value stored is valid
-	return (_h < HSV_COLOR_COUNT) || (_h == HSV_COLOR_BLACK) || (_h == HSV_COLOR_WHITE);
+	return (_h < HSV_COLOR_COUNT) || (_h == HSV_COLOR_BLACK) || (_h == HSV_COLOR_WHITE) || (_h == HSV_COLOR_TRANSPARENT);
 }

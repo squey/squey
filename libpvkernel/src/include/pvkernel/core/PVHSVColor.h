@@ -25,6 +25,7 @@
 // Special colors
 #define HSV_COLOR_WHITE 255
 #define HSV_COLOR_BLACK 254
+#define HSV_COLOR_TRANSPARENT 253
 
 // Some colors that can be useful
 #define HSV_COLOR_BLUE  10
@@ -55,8 +56,14 @@ public:
 	void to_rgb(T& r, T& g, T& b) const;
 	void to_rgb(T* rgb) const;
 
+	void to_rgba(T& r, T& g, T& b, T& a) const;
+	void to_rgba(T* rgb) const;
+
 	void toQColor(QColor& qc) const;
 	QColor toQColor() const;
+
+	void toQColorA(QColor& qc) const;
+	QColor toQColorA() const;
 
 private:
 	T _h;
