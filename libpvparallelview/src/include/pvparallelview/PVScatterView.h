@@ -7,8 +7,9 @@
 #ifndef __PVSCATTERVIEW_H__
 #define __PVSCATTERVIEW_H__
 
-#include <pvkernel/core/PVSharedPointer.h>
+#include <QTimer>
 
+#include <pvparallelview/PVScatterViewImagesManager.h>
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
 
@@ -34,7 +35,7 @@ class PVZoomConverter;
 
 class PVScatterView : public PVZoomableDrawingAreaWithAxes
 {
-	Q_OBJECT
+	Q_OBJECT;
 
 	constexpr static int zoom_steps = 5;
 
@@ -44,8 +45,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 	// -22 because we want a scale factor of 1 when the view fits in a 1024x1024 window
 	constexpr static int zoom_min = -22 * zoom_steps;
 
-	constexpr static uint32_t image_width = 2048;
-	constexpr static uint32_t image_height = image_width;
+	constexpr static int render_timer_ms = 75;
 
 public:
 	PVScatterView(
@@ -71,12 +71,24 @@ protected:
 	void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
-	void draw_points(QPainter *painter, const QRectF& rect);
+	void do_update_all();
+	void update_all();
+	void update_sel();
 
 private:
+	PVScatterViewImagesManager& get_images_manager() { return _images_manager; }
+
+private slots:
+	void do_zoom_change(int axes);
+	void do_pan_change();
+
+private:
+	PVScatterViewImagesManager _images_manager;
+
+	QTimer _update_all_timer;
+
 	Picviz::PVView& _view;
 	PVZoneTree const& _zt;
-	PVZoomedZoneTree const& _zzt;
 	bool _view_deleted;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> *_zoom_converter;
 	PVSelectionSquareScatterView* _selection_square;

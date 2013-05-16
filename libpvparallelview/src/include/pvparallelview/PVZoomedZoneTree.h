@@ -389,7 +389,8 @@ public:
 			  const insert_entry_y1_y2_f &insert_f)
 			{
 				tree.get_first_from_y1_y2(y1_min, y1_max, y2_min, y2_max, zoom, alpha, image, insert_f);
-			});
+			}/*,
+			_sel_elts*/);
 	}
 
 	inline size_t browse_bci_by_y1_y2_sel(

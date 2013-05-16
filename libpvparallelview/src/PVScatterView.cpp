@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QGraphicsScene>
 #include <QPainter>
+#include <QScrollBar64>
 
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
 
@@ -45,9 +46,9 @@ PVParallelView::PVScatterView::PVScatterView(
 	QWidget* parent /*= nullptr*/
 ) :
 	PVZoomableDrawingAreaWithAxes(parent),
+	_images_manager(zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(axis_index), pvview_sp->output_layer.get_lines_properties().get_buffer(), _view.get_real_output_selection()),
 	_view(*pvview_sp),
 	_zt(zm.get_zone_tree<PVParallelView::PVZoneTree>(axis_index)),
-	_zzt(zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(axis_index)),
 	_view_deleted(false)
 {
 	setCursor(Qt::CrossCursor);
@@ -109,6 +110,14 @@ PVParallelView::PVScatterView::PVScatterView(
 
 	get_scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 
+	_update_all_timer.setInterval(render_timer_ms);
+	_update_all_timer.setSingleShot(true);
+	connect(&_update_all_timer, SIGNAL(timeout()), this, SLOT(do_update_all()));
+
+	connect(this, SIGNAL(zoom_has_changed(int)), this, SLOT(do_zoom_change(int)));
+	connect(this, SIGNAL(pan_has_changed()), this, SLOT(do_pan_change()));
+	connect(get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
+
 	// Request quadtrees creation
 	zm.request_zoomed_zone(axis_index);
 }
@@ -139,7 +148,7 @@ void PVParallelView::PVScatterView::about_to_be_deleted()
  *****************************************************************************/
 void PVParallelView::PVScatterView::update_new_selection_async()
 {
-	QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
+	QMetaObject::invokeMethod(this, "update_all", Qt::QueuedConnection);
 }
 
 /*****************************************************************************
@@ -147,21 +156,38 @@ void PVParallelView::PVScatterView::update_new_selection_async()
  *****************************************************************************/
 void PVParallelView::PVScatterView::update_all_async()
 {
-	QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
+	QMetaObject::invokeMethod(this, "update_sel", Qt::QueuedConnection);
 }
 
 /*****************************************************************************
  * PVParallelView::PVScatterView::keyPressEvent
  *****************************************************************************/
 void PVParallelView::PVScatterView::keyPressEvent(QKeyEvent* event)
-	{
+{
+		PVZoomableDrawingAreaWithAxes::keyPressEvent(event);
 #ifdef PICVIZ_DEVELOPER_MODE
 		if ((event->key() == Qt::Key_B) && (event->modifiers() & Qt::ControlModifier)) {
 			PVScatterView::toggle_show_quadtrees();
 		}
+		update();
 #endif
-		PVZoomableDrawingAreaWithAxes::keyPressEvent(event);
-	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterView::do_zoom_change
+ *****************************************************************************/
+void PVParallelView::PVScatterView::do_zoom_change(int /*axes*/)
+{
+	_update_all_timer.start();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterView::do_pan_change
+ *****************************************************************************/
+void PVParallelView::PVScatterView::do_pan_change()
+{
+	_update_all_timer.start();
+}
 
 /*****************************************************************************
  * PVParallelView::PVScatterView::drawBackground
@@ -170,66 +196,19 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 {
 	painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
 
-	draw_points(painter, rect);
-
+	// background
 	painter->setOpacity(1.0);
-	painter->setPen(QPen(Qt::white));
-	draw_decorations(painter, rect);
-}
+	painter->drawImage(QPointF(0.0, 0.0), get_images_manager().get_image_all());
 
-/*****************************************************************************
- * PVParallelView::PVScatterView::draw_points
- *****************************************************************************/
-void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF& /*margined_rect*/)
-{
-	Picviz::PVSelection const& sel = _view.get_real_output_selection();
-
-	PVZoomedZoneTree::context_t ctxt;
-
-	static PVCore::PVHSVColor* output_image = new PVCore::PVHSVColor[image_width*image_height];
-	memset(output_image, HSV_COLOR_BLACK, image_width*image_height*sizeof(PVCore::PVHSVColor));
-
-	int rel_zoom = get_y_axis_zoom().get_clamped_relative_value();
-
-	QRectF view_rect = get_scene_rect().intersected(map_to_scene(get_margined_viewport_rect()));
-
-	uint64_t y1_min = view_rect.x();
-	uint64_t y1_max = view_rect.x()+view_rect.width();
-	uint64_t y2_min = view_rect.y();
-	uint64_t y2_max = view_rect.y()+view_rect.height();
-
-	double alpha = 0.5 * _zoom_converter->zoom_to_scale_decimal(rel_zoom);
-
-	const PVCore::PVHSVColor* colors = _view.output_layer.get_lines_properties().get_buffer();
-
-	_zzt.browse_bci_by_y1_y2(
-		ctxt,
-		y1_min,
-		y1_max,
-		y2_min,
-		y2_max,
-		(rel_zoom/zoom_steps) + 1,
-		alpha,
-		colors,
-		output_image
-	);
-
-	BENCH_START(image_convertion);
-	static QImage* img = new QImage(image_width, image_height, QImage::Format_RGB32);
-	QRgb* image_rgb = (QRgb*) &img->scanLine(0)[0];
-#pragma omp parallel for schedule(static, 16)
-	for (uint32_t i = 0; i < image_width*image_height; i++) {
-		output_image[i].to_rgb((uint8_t*) &image_rgb[i]);
-	}
-	BENCH_END(image_convertion, "image_convertion", image_width*image_height, sizeof(PVCore::PVHSVColor), image_width*image_height, sizeof(QRgb));
-
-	painter->drawImage(QPointF(0,0), *img);
-
-	painter->setPen(Qt::white);
-	painter->setOpacity(1.0);
+	// selection
+	//painter->setOpacity(0.25);
+	//painter->drawImage(QPointF(0.0, 0.0), get_images_manager().get_image_sel());
 
 #ifdef PICVIZ_DEVELOPER_MODE
 	if (_show_quadtrees) {
+		painter->setPen(Qt::white);
+		painter->setOpacity(1.0);
+		const Picviz::PVSelection& sel = _view.get_real_output_selection();
 		PVParallelView::PVBCode code_b;
 		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
 		{
@@ -252,4 +231,47 @@ void PVParallelView::PVScatterView::draw_points(QPainter* painter, const QRectF&
 		}
 	}
 #endif
+
+	painter->setOpacity(1.0);
+	painter->setPen(QPen(Qt::white));
+	draw_decorations(painter, rect);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterView::update_all
+ *****************************************************************************/
+void PVParallelView::PVScatterView::update_all()
+{
+	get_images_manager().process_all();
+	get_viewport()->update();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterView::update_sel
+ *****************************************************************************/
+void PVParallelView::PVScatterView::update_sel()
+{
+	get_images_manager().process_sel();
+	get_viewport()->update();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterView::do_update_all
+ *****************************************************************************/
+void PVParallelView::PVScatterView::do_update_all()
+{
+	int rel_zoom = get_y_axis_zoom().get_clamped_relative_value();
+
+	QRectF view_rect = get_scene_rect().intersected(map_to_scene(get_margined_viewport_rect()));
+
+	uint64_t y1_min = view_rect.x();
+	uint64_t y1_max = view_rect.x()+view_rect.width();
+	uint64_t y2_min = view_rect.y();
+	uint64_t y2_max = view_rect.y()+view_rect.height();
+
+	double alpha = 0.5 * _zoom_converter->zoom_to_scale_decimal(rel_zoom);
+
+	get_images_manager().change_and_process_view(y1_min, y1_max, y2_min, y2_max, (rel_zoom/zoom_steps) + 1, alpha);
+
+	get_viewport()->update();
 }
