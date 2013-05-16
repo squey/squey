@@ -31,6 +31,7 @@ public:
 
 public:
 	uint32_t const* buffer_all() const;
+	uint32_t const* buffer_selectable() const;
 	uint32_t const* buffer_selected() const;
 
 	uint32_t y_start() const;
