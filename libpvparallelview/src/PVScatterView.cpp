@@ -190,19 +190,66 @@ void PVParallelView::PVScatterView::do_pan_change()
 }
 
 /*****************************************************************************
+ * PVParallelView::PVScatterView::update_all
+ *****************************************************************************/
+void PVParallelView::PVScatterView::update_all()
+{
+	get_images_manager().process_all();
+	get_viewport()->update();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterView::update_sel
+ *****************************************************************************/
+void PVParallelView::PVScatterView::update_sel()
+{
+	get_images_manager().process_sel();
+	get_viewport()->update();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterView::do_update_all
+ *****************************************************************************/
+void PVParallelView::PVScatterView::do_update_all()
+{
+	QRectF view_rect = get_scene_rect().intersected(map_to_scene(get_margined_viewport_rect()));
+
+	uint64_t y1_min = view_rect.x();
+	uint64_t y1_max = view_rect.x()+view_rect.width();
+	uint64_t y2_min = view_rect.y();
+	uint64_t y2_max = view_rect.y()+view_rect.height();
+	int64_t zoom = get_y_axis_zoom().get_clamped_relative_value();
+	double alpha = 0.5 * _zoom_converter->zoom_to_scale_decimal(zoom);
+	zoom = (zoom / zoom_steps) +1;
+
+	get_images_manager().change_and_process_view(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
+	_last_image_margined_viewport = QRectF(0.0, 0.0, get_margined_viewport_width(), get_margined_viewport_height());
+
+	get_viewport()->update();
+}
+
+/*****************************************************************************
  * PVParallelView::PVScatterView::drawBackground
  *****************************************************************************/
 void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRectF& rect)
 {
 	painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
 
-	// background
-	painter->setOpacity(0.25);
-	painter->drawImage(QPointF(0.0, 0.0), get_images_manager().get_image_all());
+	const QRectF img_scene(QPointF(get_images_manager().last_y1_min(), get_images_manager().last_y2_min()),
+			               QPointF(get_images_manager().last_y1_max(), get_images_manager().last_y2_max()));
+	const QRect margined_viewport = QRect(0, 0, get_margined_viewport_width(), get_margined_viewport_height());
+	const QRectF target = map_margined_from_scene(img_scene);
 
-	// selection
+	painter->save();
+	painter->setClipRegion(margined_viewport, Qt::IntersectClip);
+
+	painter->setOpacity(0.25);
+	painter->drawImage(target, get_images_manager().get_image_all(), _last_image_margined_viewport);
+
 	painter->setOpacity(1);
-	painter->drawImage(QPointF(0.0, 0.0), get_images_manager().get_image_sel());
+	painter->drawImage(target, get_images_manager().get_image_sel(), _last_image_margined_viewport);
+
+	painter->restore();
 
 #ifdef PICVIZ_DEVELOPER_MODE
 	if (_show_quadtrees) {
@@ -235,43 +282,4 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 	painter->setOpacity(1.0);
 	painter->setPen(QPen(Qt::white));
 	draw_decorations(painter, rect);
-}
-
-/*****************************************************************************
- * PVParallelView::PVScatterView::update_all
- *****************************************************************************/
-void PVParallelView::PVScatterView::update_all()
-{
-	get_images_manager().process_all();
-	get_viewport()->update();
-}
-
-/*****************************************************************************
- * PVParallelView::PVScatterView::update_sel
- *****************************************************************************/
-void PVParallelView::PVScatterView::update_sel()
-{
-	get_images_manager().process_sel();
-	get_viewport()->update();
-}
-
-/*****************************************************************************
- * PVParallelView::PVScatterView::do_update_all
- *****************************************************************************/
-void PVParallelView::PVScatterView::do_update_all()
-{
-	int rel_zoom = get_y_axis_zoom().get_clamped_relative_value();
-
-	QRectF view_rect = get_scene_rect().intersected(map_to_scene(get_margined_viewport_rect()));
-
-	uint64_t y1_min = view_rect.x();
-	uint64_t y1_max = view_rect.x()+view_rect.width();
-	uint64_t y2_min = view_rect.y();
-	uint64_t y2_max = view_rect.y()+view_rect.height();
-
-	double alpha = 0.5 * _zoom_converter->zoom_to_scale_decimal(rel_zoom);
-
-	get_images_manager().change_and_process_view(y1_min, y1_max, y2_min, y2_max, (rel_zoom/zoom_steps) + 1, alpha);
-
-	get_viewport()->update();
 }

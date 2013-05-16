@@ -92,6 +92,8 @@ private:
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> *_zoom_converter;
 	PVSelectionSquareScatterView* _selection_square;
 	static bool _show_quadtrees;
+
+	QRectF _last_image_margined_viewport;
 };
 
 }
