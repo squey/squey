@@ -47,10 +47,10 @@ public:
 	const QImage& get_image_all();
 
 public:
-	inline uint32_t last_y1_min() const { return _data_params.y1_min; }
-	inline uint32_t last_y1_max() const { return _data_params.y1_max; }
-	inline uint32_t last_y2_min() const { return _data_params.y2_min; }
-	inline uint32_t last_y2_max() const { return _data_params.y2_max; }
+	inline uint64_t last_y1_min() const { return _data_params.y1_min; }
+	inline uint64_t last_y1_max() const { return _data_params.y1_max; }
+	inline uint64_t last_y2_min() const { return _data_params.y2_min; }
+	inline uint64_t last_y2_max() const { return _data_params.y2_max; }
 	inline int last_zoom() const { return _data_params.zoom; }
 	inline double last_alpha() const { return _data_params.alpha; }
 	inline bool params_changed(
