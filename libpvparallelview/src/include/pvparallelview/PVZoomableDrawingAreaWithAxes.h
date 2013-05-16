@@ -7,7 +7,6 @@
 #include <QString>
 
 class QWidget;
-class QResizeEvent;
 
 namespace PVParallelView
 {
@@ -167,7 +166,6 @@ protected:
 
 protected:
 	virtual void drawBackground(QPainter *painter, const QRectF &rect);
-	virtual void resizeEvent(QResizeEvent *event);
 
 private:
 	void draw_deco_v1(QPainter *painter, const QRectF &rect);

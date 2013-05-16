@@ -158,6 +158,15 @@ uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_all() const
 	return _data.buffer_all().buffer();
 }
 
+uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_selectable() const
+{
+	if (full_view()) {
+		return _data_z0.buffer_selectable().buffer();
+	}
+
+	return _data.buffer_selectable().buffer();
+}
+
 uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_selected() const
 {
 	if (full_view()) {
