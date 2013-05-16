@@ -223,7 +223,7 @@ void PVParallelView::PVScatterView::do_update_all()
 	zoom = (zoom / zoom_steps) +1;
 
 	get_images_manager().change_and_process_view(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
-	_last_image_margined_viewport = QRectF(0.0, 0.0, get_margined_viewport_width(), get_margined_viewport_height());
+	_last_image_margined_viewport = QRectF(0.0, 0.0, get_x_axis_length(), get_y_axis_length());
 
 	get_viewport()->update();
 }
@@ -237,15 +237,18 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 
 	const QRectF img_scene(QPointF(get_images_manager().last_y1_min(), get_images_manager().last_y2_min()),
 			               QPointF(get_images_manager().last_y1_max(), get_images_manager().last_y2_max()));
-	const QRect margined_viewport = QRect(0, 0, get_margined_viewport_width(), get_margined_viewport_height());
+	const QRect margined_viewport = QRect(0, 0, get_x_axis_length(), get_y_axis_length());
+
 	const QRectF target = map_margined_from_scene(img_scene);
 
 	painter->save();
 	painter->setClipRegion(margined_viewport, Qt::IntersectClip);
 
+	// Background
 	painter->setOpacity(0.25);
 	painter->drawImage(target, get_images_manager().get_image_all(), _last_image_margined_viewport);
 
+	// Selection
 	painter->setOpacity(1);
 	painter->drawImage(target, get_images_manager().get_image_sel(), _last_image_margined_viewport);
 
