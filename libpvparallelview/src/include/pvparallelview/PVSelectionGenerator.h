@@ -48,21 +48,24 @@ struct PVSelectionGenerator
 		const uint32_t* y2_plotted,
 		const PVRow nrows,
 		const QRectF& rect,
-		Picviz::PVSelection& sel
+		Picviz::PVSelection& sel,
+		Picviz::PVSelection const& layers_sel
 	);
 	static uint32_t compute_selection_from_scatter_view_rect_plotted_seq(
 		const uint32_t* y1_plotted,
 		const uint32_t* y2_plotted,
 		const PVRow nrows,
 		const QRectF& rect,
-		Picviz::PVSelection& sel
+		Picviz::PVSelection& sel,
+		Picviz::PVSelection const& layers_sel
 	);
 	static uint32_t compute_selection_from_scatter_view_rect_plotted_sse(
 		const uint32_t* y1_plotted,
 		const uint32_t* y2_plotted,
 		const PVRow nrows,
 		const QRectF& rect,
-		Picviz::PVSelection& sel
+		Picviz::PVSelection& sel,
+		Picviz::PVSelection const& layers_sel
 	);
 
 	static uint32_t compute_selection_from_hit_count_view_rect(const PVHitGraphBlocksManager& manager,

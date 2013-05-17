@@ -373,6 +373,19 @@ public:
 		_table[pos] |= ((chunk_t)bits << shift);
 	}
 
+	/*! \brief Get a complete 32-bit chunk
+	 *  \param chunk_index The index of the chunk as if chunks were 32-bits wide !
+	 *
+	 * Get a complete 32-bit chunk.
+	 *
+	 * \warning The chunk_index given here must be computed as if chunks were
+	 * 32 bits wide ! The line_index_to_chunk32 function can help with that.
+	 */
+	inline uint32_t get_chunk32_fast(PVRow const chunk_index) const
+	{
+		return reinterpret_cast<uint32_t const*>(_table)[chunk_index];
+	}
+
 	/*! \brief Set a complete chunk
 	 *  \param chunk_index The index of the chunk (warning, not the line index !)
 	 *
@@ -393,7 +406,7 @@ public:
 	 */
 	inline void set_chunk32_fast_stream(PVRow const chunk_index, int32_t const chunk)
 	{
-		_mm_stream_si32(&((int32_t*)_table)[chunk_index], chunk);
+		_mm_stream_si32(&(reinterpret_cast<int32_t*>(_table)[chunk_index]), chunk);
 	}
 
 	// Returns the index of the chunk following the last chunk that contains a line
