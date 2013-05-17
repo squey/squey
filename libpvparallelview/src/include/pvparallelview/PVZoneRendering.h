@@ -85,12 +85,7 @@ public:
 
 	~PVZoneRenderingBase()
 	{
-#ifndef NDEBUG
-		if (_job_after_canceled.zp != nullptr) {
-			PVLOG_WARNING("Warning: PVZoneRendering destroy with pending job !\n");
-			assert(false);
-		}
-#endif
+		assert(_job_after_canceled.zp == nullptr);
 	}
 
 	//virtual ~PVZoneRenderingBaseB() { }
@@ -129,12 +124,7 @@ public:
 	{
 		_finished = false;
 		_cancel_state = cancel_state::value(false);
-#ifndef NDEBUG
-		if (_job_after_canceled.zp != nullptr) {
-			PVLOG_WARNING("Warning: PVZoneRendering reset with pending job !\n");
-			assert(false);
-		}
-#endif
+		assert(_job_after_canceled.zp == nullptr);
 	}
 
 	bool finished() const;
@@ -199,9 +189,9 @@ public:
 	inline float render_zoom_y() const { return _zoom_y; }
 	inline bool render_reversed() const { return _reversed; }
 
-	inline void set_dst_img(PVBCIBackendImage& dst_img) { assert(_finished); _dst_img = &dst_img; }
-	inline void set_img_width(uint32_t w) { assert(_finished); _width = w; }
-	inline void set_img_x_start(uint32_t x) { assert(_finished); _x_start = x; }
+	inline void set_dst_img(PVBCIBackendImage& dst_img) { assert(finished()); _dst_img = &dst_img; }
+	inline void set_img_width(uint32_t w) { assert(finished()); _width = w; }
+	inline void set_img_x_start(uint32_t x) { assert(finished()); _x_start = x; }
 
 	inline bool valid() const { return PVZoneRenderingBase::valid() && _width != 0 && _dst_img != nullptr; }
 
