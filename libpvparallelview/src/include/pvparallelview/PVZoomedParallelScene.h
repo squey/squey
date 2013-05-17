@@ -351,7 +351,7 @@ private:
 	 * @param zr the zone rendering to connect to
 	 * @param slots the slot
 	 */
-	void connect_zr(PVZoneRendering<bbits>* zr, const char* slots);
+	void connect_zr(PVZoneRenderingBCI<bbits>* zr, const char* slots);
 
 	inline size_t qimage_height() const { return 1<<PARALLELVIEW_ZZT_BBITS; }
 
@@ -459,7 +459,7 @@ private:
 		{
 			// AG: that copy is important if we are multi-threading and another thread
 			// cleans our object after the following "if"
-			PVZoneRenderingBase_p zr = last_zr_sel;
+			PVZoneRenderingBCIBase_p zr = last_zr_sel;
 			if (zr) {
 				zr->cancel();
 			}
@@ -467,7 +467,7 @@ private:
 
 		inline void cancel_last_bg()
 		{
-			PVZoneRenderingBase_p zr = last_zr_bg;
+			PVZoneRenderingBCIBase_p zr = last_zr_bg;
 			if (zr) {
 				zr->cancel();
 			}
@@ -481,7 +481,7 @@ private:
 
 		void cancel_and_wait_all()
 		{
-			PVZoneRenderingBase_p zr = last_zr_sel;
+			PVZoneRenderingBCIBase_p zr = last_zr_sel;
 			if (zr) {
 				zr->cancel();
 				zr->wait_end();
@@ -496,12 +496,12 @@ private:
 			}
 		}
 
-		backend_image_p_t        bg_image;   // the image for unselected/zomby lines
-		backend_image_p_t        sel_image;  // the image for selected lines
-		QGraphicsPixmapItem     *item;       // the scene's element
-		QPointF                  next_pos;   // the item position of the next rendering
-		PVZoneRendering_p<bbits> last_zr_sel;
-		PVZoneRendering_p<bbits> last_zr_bg;
+		backend_image_p_t           bg_image;   // the image for unselected/zomby lines
+		backend_image_p_t           sel_image;  // the image for selected lines
+		QGraphicsPixmapItem        *item;       // the scene's element
+		QPointF                     next_pos;   // the item position of the next rendering
+		PVZoneRenderingBCI_p<bbits> last_zr_sel;
+		PVZoneRenderingBCI_p<bbits> last_zr_bg;
 	};
 
 private:

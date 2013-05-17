@@ -41,8 +41,8 @@ private:
 		PVBCIBackendImage_p sel;
 		PVBCIBackendImage_p bg;
 
-		PVZoneRenderingBase_p last_zr_sel;
-		PVZoneRenderingBase_p last_zr_bg;
+		PVZoneRenderingBCIBase_p last_zr_sel;
+		PVZoneRenderingBCIBase_p last_zr_bg;
 
 		SingleZoneImages():
 			last_zr_sel(),
@@ -231,7 +231,7 @@ private:
 	void left_rotate_single_zone_images(PVZoneID s);
 	void right_rotate_single_zone_images(PVZoneID s);
 
-	void connect_zr(PVZoneRenderingBase* zr, const char* slot);
+	void connect_zr(PVZoneRenderingBCIBase* zr, const char* slot);
 	void call_refresh_slots(PVZoneID zone_id);
 
 	

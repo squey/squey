@@ -25,10 +25,10 @@ void show_qimage(QString const& title, QImage const& img)
 	dlg->show();
 }
 
-PVParallelView::PVZoneRendering<10>* new_zr(PVParallelView::PVBCIDrawingBackend& backend, size_t n, PVParallelView::PVBCIBackendImage_p& dst_img)
+PVParallelView::PVZoneRenderingBCI<10>* new_zr(PVParallelView::PVBCIDrawingBackend& backend, size_t n, PVParallelView::PVBCIBackendImage_p& dst_img)
 {
 	dst_img = backend.create_image(1024, 10);
-	PVParallelView::PVZoneRendering<10>* zr = new PVParallelView::PVZoneRendering<10>(
+	PVParallelView::PVZoneRenderingBCI<10>* zr = new PVParallelView::PVZoneRenderingBCI<10>(
 		0,
 		[n](PVZoneID, PVCore::PVHSVColor const* colors_, PVParallelView::PVBCICode<10>* codes)
 		{
@@ -68,13 +68,13 @@ int main(int argc, char** argv)
 	PVParallelView::PVZonesProcessor p = pipeline->declare_processor([](PVZoneID z) { std::cout << "Preprocess for zone " << z << std::endl; }, colors, 2);
 
 #define NJOBS 40
-	std::vector<PVParallelView::PVZoneRendering<10>*> zrs;
+	std::vector<PVParallelView::PVZoneRenderingBCI<10>*> zrs;
 	std::vector<PVParallelView::PVBCIBackendImage_p> dimgs;
 	zrs.reserve(NJOBS);
 	dimgs.reserve(NJOBS);
 	for (size_t i = 0; i < NJOBS; i++) {
 		PVParallelView::PVBCIBackendImage_p dst_img;
-		PVParallelView::PVZoneRendering<10>* zr = new_zr(backend, n, dst_img);
+		PVParallelView::PVZoneRenderingBCI<10>* zr = new_zr(backend, n, dst_img);
 		zrs.push_back(zr);
 		dimgs.push_back(dst_img);
 		p.add_job(*zr);

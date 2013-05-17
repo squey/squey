@@ -81,7 +81,7 @@ void PVParallelView::PVLinesView::cancel_and_wait_all_rendering()
  * PVParallelView::PVLinesView::connect_zr
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::connect_zr(PVZoneRenderingBase* zr, const char* slot)
+void PVParallelView::PVLinesView::connect_zr(PVZoneRenderingBCIBase* zr, const char* slot)
 {
 	if (_img_update_receiver) {
 		zr->set_render_finished_slot(_img_update_receiver, slot);
@@ -449,11 +449,11 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(PVZoneID zone_id, 
 	assert(QThread::currentThread() == _img_update_receiver->thread());
 
 	SingleZoneImages& single_zone_images = get_single_zone_images(zone_id);
-	single_zone_images.cancel_last_bg();
+	//single_zone_images.cancel_last_bg();
 	const uint32_t width = get_zone_width(zone_id);
 	single_zone_images.bg->set_width(width);
 
-	PVZoneRendering_p<PARALLELVIEW_ZT_BBITS> zr(new PVZoneRendering<PARALLELVIEW_ZT_BBITS>(zone_id,
+	PVZoneRenderingBCI_p<PARALLELVIEW_ZT_BBITS> zr(new PVZoneRenderingBCI<PARALLELVIEW_ZT_BBITS>(zone_id,
 		[&](PVZoneID zone_id, PVCore::PVHSVColor const* colors, PVBCICode<PARALLELVIEW_ZT_BBITS>* codes)
 		{
 			return this->get_zones_manager().get_zone_tree<PVZoneTree>(zone_id).browse_tree_bci(colors, codes);
@@ -466,14 +466,15 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(PVZoneID zone_id, 
 		));
 
 	connect_zr(zr.get(), "zr_bg_finished");
-	single_zone_images.last_zr_bg = zr;
 
-#ifdef NDEBUG
-	_processor_bg.add_job(zr);
-#else
-	bool ret = _processor_bg.add_job(zr);
-	assert(ret);
-#endif
+	PVZoneRenderingBCIBase_p last_zr = single_zone_images.last_zr_bg;
+	if (last_zr) {
+		last_zr->cancel_and_add_job(_processor_bg, zr);
+	}
+	else {
+		_processor_bg.add_job(zr);
+	}
+	single_zone_images.last_zr_bg = zr;
 }
 
 /******************************************************************************
@@ -487,11 +488,11 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(PVZoneID zone_id,
 	assert(QThread::currentThread() == _img_update_receiver->thread());
 
 	SingleZoneImages& single_zone_images = get_single_zone_images(zone_id);
-	single_zone_images.cancel_last_sel();
+	//single_zone_images.cancel_last_sel();
 	const uint32_t width = get_zone_width(zone_id);
 	single_zone_images.sel->set_width(width);
 
-	PVZoneRendering_p<PARALLELVIEW_ZT_BBITS> zr(new PVZoneRendering<PARALLELVIEW_ZT_BBITS>(zone_id,
+	PVZoneRenderingBCI_p<PARALLELVIEW_ZT_BBITS> zr(new PVZoneRenderingBCI<PARALLELVIEW_ZT_BBITS>(zone_id,
 		[&](PVZoneID zone_id, PVCore::PVHSVColor const* colors, PVBCICode<PARALLELVIEW_ZT_BBITS>* codes)
 		{
 			return this->get_zones_manager().get_zone_tree<PVZoneTree>(zone_id).browse_tree_bci_sel(colors, codes);
@@ -504,14 +505,15 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(PVZoneID zone_id,
 		));
 
 	connect_zr(zr.get(), "zr_sel_finished");
-	single_zone_images.last_zr_sel = zr;
 
-#ifdef NDEBUG
-	_processor_sel.add_job(zr);
-#else
-	bool ret = _processor_sel.add_job(zr);
-	assert(ret);
-#endif
+	PVZoneRenderingBCIBase_p last_zr = single_zone_images.last_zr_sel;
+	if (last_zr) {
+		last_zr->cancel_and_add_job(_processor_sel, zr);
+	}
+	else {
+		_processor_sel.add_job(zr);
+	}
+	single_zone_images.last_zr_sel = zr;
 }
 
 /******************************************************************************
@@ -713,7 +715,7 @@ void PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width,
 void PVParallelView::PVLinesView::SingleZoneImages::cancel_all_and_wait()
 {
 	// That copy is important if we are multi-threading!
-	PVZoneRenderingBase_p zr = last_zr_sel;
+	PVZoneRenderingBCIBase_p zr = last_zr_sel;
 	if (zr) {
 		zr->cancel();
 		zr->wait_end();
@@ -736,7 +738,7 @@ void PVParallelView::PVLinesView::SingleZoneImages::cancel_all_and_wait()
 void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_bg()
 {
 	// AG: that following copy is *important* !
-	PVZoneRenderingBase_p zr = last_zr_bg;
+	PVZoneRenderingBCIBase_p zr = last_zr_bg;
 	if (zr) {
 		zr->cancel();
 	}
@@ -750,7 +752,7 @@ void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_bg()
 void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_sel()
 {
 	// AG: that following copy is *important* !
-	PVZoneRenderingBase_p zr = last_zr_sel;
+	PVZoneRenderingBCIBase_p zr = last_zr_sel;
 	if (zr) {
 		zr->cancel();
 	}

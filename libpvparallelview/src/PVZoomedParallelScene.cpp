@@ -504,8 +504,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	if (_left_zone) {
 		if (_render_type == RENDER_ALL) {
 			_renderable_zone_number++;
-			PVZoneRendering_p<bbits>
-				zr(new PVZoneRendering<bbits>(left_zone_id(),
+			PVZoneRenderingBCI_p<bbits>
+				zr(new PVZoneRenderingBCI<bbits>(left_zone_id(),
 				                              [&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z,
 				                                                                    PVCore::PVHSVColor const* colors,
 				                                                                    PVBCICode<bbits>* codes)
@@ -529,8 +529,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 		}
 
 		_renderable_zone_number++;
-		PVZoneRendering_p<bbits>
-			zr(new PVZoneRendering<bbits>(left_zone_id(),
+		PVZoneRenderingBCI_p<bbits>
+			zr(new PVZoneRenderingBCI<bbits>(left_zone_id(),
 			                              [&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z,
 			                                                                    PVCore::PVHSVColor const* colors,
 			                                                                    PVBCICode<bbits>* codes)
@@ -556,8 +556,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	if (_right_zone) {
 		if (_render_type == RENDER_ALL) {
 			_renderable_zone_number++;
-			PVZoneRendering_p<bbits>
-				zr(new PVZoneRendering<bbits>(right_zone_id(),
+			PVZoneRenderingBCI_p<bbits>
+				zr(new PVZoneRenderingBCI<bbits>(right_zone_id(),
 				                              [&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z,
 				                                                                    PVCore::PVHSVColor const* colors,
 				                                                                    PVBCICode<bbits>* codes)
@@ -581,8 +581,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 		}
 
 		_renderable_zone_number++;
-		PVZoneRendering_p<bbits>
-			zr(new PVZoneRendering<bbits>(right_zone_id(),
+		PVZoneRenderingBCI_p<bbits>
+			zr(new PVZoneRenderingBCI<bbits>(right_zone_id(),
 			                              [&,y_min,y_max,y_lim,zoom_level,beta](PVZoneID const z,
 			                                                                    PVCore::PVHSVColor const* colors,
 			                                                                    PVBCICode<bbits>* codes)
@@ -606,7 +606,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	}
 }
 
-void PVParallelView::PVZoomedParallelScene::connect_zr(PVZoneRendering<bbits>* zr, const char* slot)
+void PVParallelView::PVZoomedParallelScene::connect_zr(PVZoneRenderingBCI<bbits>* zr, const char* slot)
 {
 	zr->set_render_finished_slot(this, slot);
 }

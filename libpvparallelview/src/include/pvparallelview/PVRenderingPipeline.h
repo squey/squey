@@ -37,11 +37,11 @@ class PVRenderingPipeline: boost::noncopyable
 		// Used by TBB internally
 		ZoneRenderingWithBCI() { }
 
-		ZoneRenderingWithBCI(PVZoneRenderingBase_p zr_, PVBCICodeBase* codes_, size_t ncodes_):
+		ZoneRenderingWithBCI(PVZoneRenderingBCIBase_p zr_, PVBCICodeBase* codes_, size_t ncodes_):
 			zr(zr_), codes(codes_), ncodes(ncodes_)
 		{ }
 
-		PVZoneRenderingBase_p zr;
+		PVZoneRenderingBCIBase_p zr;
 		PVBCICodeBase* codes;
 		size_t ncodes;
 	};
@@ -50,7 +50,7 @@ class PVRenderingPipeline: boost::noncopyable
 
 	// Ports type
 	typedef tbb::flow::receiver<ZoneRenderingWithColors> input_port_zrc_type;
-	typedef tbb::flow::receiver<PVZoneRenderingBase_p> input_port_cancel_type;
+	typedef tbb::flow::receiver<PVZoneRenderingBCIBase_p> input_port_cancel_type;
 
 	// Process nodes structures
 	struct Preprocessor: boost::noncopyable
@@ -60,21 +60,21 @@ class PVRenderingPipeline: boost::noncopyable
 		typedef PVRenderingPipelinePreprocessRouter::process_or_type process_or_type;
 		typedef PVRenderingPipelinePreprocessRouter::multinode_router multinode_router;
 
-		typedef tbb::flow::receiver<PVZoneRenderingBase_p> input_port_type;
+		typedef tbb::flow::receiver<PVZoneRenderingBCIBase_p> input_port_type;
 
 		Preprocessor(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones);
 
 		inline input_port_type& input_port() { return tbb::flow::input_port<PVRenderingPipelinePreprocessRouter::InputIdxDirect>(node_or); }
 
 		PVRenderingPipelinePreprocessRouter router;
-		tbb::flow::function_node<PVZoneRenderingBase_p, PVZoneRenderingBase_p> node_process;
+		tbb::flow::function_node<PVZoneRenderingBCIBase_p, PVZoneRenderingBCIBase_p> node_process;
 		process_or_type node_or;
 		multinode_router node_router;
 	};
 
 	struct DirectInput: boost::noncopyable
 	{
-		typedef tbb::flow::multifunction_node<PVZoneRenderingBase_p, std::tuple<ZoneRenderingWithColors, PVZoneRenderingBase_p>> direct_process_type;
+		typedef tbb::flow::multifunction_node<PVZoneRenderingBCIBase_p, std::tuple<ZoneRenderingWithColors, PVZoneRenderingBCIBase_p>> direct_process_type;
 		DirectInput(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, PVCore::PVHSVColor const* colors_);
 
 		direct_process_type node_process;
@@ -84,7 +84,7 @@ class PVRenderingPipeline: boost::noncopyable
 	constexpr static size_t cp_continue_port = 0;
 	constexpr static size_t cp_cancel_port = 1;
 
-	typedef tbb::flow::multifunction_node<ZoneRenderingWithColors, std::tuple<ZoneRenderingWithColors, PVZoneRenderingBase_p, tbb::flow::continue_msg> > cp_postlimiter_type;
+	typedef tbb::flow::multifunction_node<ZoneRenderingWithColors, std::tuple<ZoneRenderingWithColors, PVZoneRenderingBCIBase_p, tbb::flow::continue_msg> > cp_postlimiter_type;
 	typedef tbb::flow::multifunction_node<ZoneRenderingWithBCI, std::tuple<ZoneRenderingWithBCI, ZoneRenderingWithBCI> > cp_postcomputebci_type;
 
 	friend class Preprocess;
@@ -127,8 +127,8 @@ private:
 	tbb::flow::graph _g;
 	tbb::flow::function_node<ZoneRenderingWithColors, ZoneRenderingWithBCI>* _node_compute_bci;
 	tbb::flow::function_node<ZoneRenderingWithBCI, ZoneRenderingWithBCI>* _node_draw_bci;
-	tbb::flow::function_node<ZoneRenderingWithBCI, PVZoneRenderingBase_p>* _node_cleanup_bci;
-	tbb::flow::function_node<PVZoneRenderingBase_p>* _node_finish;
+	tbb::flow::function_node<ZoneRenderingWithBCI, PVZoneRenderingBCIBase_p>* _node_cleanup_bci;
+	tbb::flow::function_node<PVZoneRenderingBCIBase_p>* _node_finish;
 
 	// Cancellation points
 	cp_postlimiter_type* _cp_postlimiter;
