@@ -23,7 +23,7 @@ void PVParallelView::PVSelectionSquareScatterView::commit(bool use_selection_mod
 {
 	QRectF r = _selection_graphics_item->rect();
 	Picviz::PVView& view = lib_view();
-	PVSelectionGenerator::compute_selection_from_scatter_view_rect(_y1_plotted, _y2_plotted, _nrows, r, view.get_volatile_selection());
+	PVSelectionGenerator::compute_selection_from_scatter_view_rect(_y1_plotted, _y2_plotted, _nrows, r, view.get_volatile_selection(), view.get_output_layer().get_selection());
 	PVSelectionGenerator::process_selection(view.shared_from_this(), use_selection_modifiers);
 }
 
