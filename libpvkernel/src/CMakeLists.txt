@@ -54,6 +54,7 @@ core/PVRecentItemsManager.cpp
 core/string_tbb.cpp
 core/PVConfig.cpp
 core/PVFileHelper.cpp
+core/PVMemory2D.cpp
 )
 
 if(PYTHONLIBS_FOUND)
@@ -122,6 +123,7 @@ include/pvkernel/core/PVRecentItemsManager.h
 include/pvkernel/core/PVConfig.h
 include/pvkernel/core/PVVector.h
 include/pvkernel/core/PVFileHelper.h
+include/pvkernel/core/PVMemory2D.h
 )
 
 if(PYTHONLIBS_FOUND)

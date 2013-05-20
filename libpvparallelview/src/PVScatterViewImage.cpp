@@ -10,7 +10,6 @@
 #include <QPainter>
 
 #include <pvkernel/core/PVHSVColor.h>
-#include <pvkernel/core/picviz_bench.h>
 
 PVParallelView::PVScatterViewImage::PVScatterViewImage()
 {
@@ -31,11 +30,5 @@ void PVParallelView::PVScatterViewImage::clear()
 
 void PVParallelView::PVScatterViewImage::convert_image_from_hsv_to_rgb()
 {
-	BENCH_START(image_convertion);
-	QRgb* image_rgb = (QRgb*) &_rgb_image->scanLine(0)[0];
-#pragma omp parallel for schedule(static, 16)
-	for (uint32_t i = 0; i < image_width*image_height; i++) {
-		_hsv_image[i].to_rgba((uint8_t*) &image_rgb[i]);
-	}
-	BENCH_END(image_convertion, "image_convertion", image_width*image_height, sizeof(PVCore::PVHSVColor), image_width*image_height, sizeof(QRgb));
+	PVCore::PVHSVColor::to_rgba(_hsv_image, *_rgb_image);
 }

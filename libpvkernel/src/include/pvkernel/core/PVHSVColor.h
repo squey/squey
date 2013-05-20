@@ -14,6 +14,7 @@
 #include <pvkernel/cuda/constexpr.h>
 
 #include <QColor>
+#include <QImage>
 
 //#define HSV_COLOR_NBITS_ZONE 6
 //#define HSV_COLOR_MASK_ZONE 63
@@ -50,6 +51,7 @@ public:
 	inline T& h() { return _h; };
 	inline T  h() const { return _h; };
 	static PVHSVColor* init_colors(PVRow nb_colors);
+	static void to_rgba(const PVHSVColor* hsv_image, QImage& rbg_image);
 	bool is_valid() const;
 
 public:
