@@ -12,20 +12,27 @@
 #include <pvparallelview/PVScatterViewImage.h>
 #include <pvparallelview/PVScatterViewData.h>
 
+#include <pvparallelview/PVZoneRenderingScatter_types.h>
+
 namespace PVParallelView
 {
 
-class PVScatterViewImagesManager : boost::noncopyable
+class PVZonesProcessor;
+
+class PVScatterViewImagesManager: boost::noncopyable
 {
 protected:
 	typedef PVScatterViewData::ProcessParams DataProcessParams;
 
 public:
 	PVScatterViewImagesManager(
+		PVZoneID const zid,
+		PVZonesProcessor& zp_bg,
+		PVZonesProcessor& zp_sel,
 		PVZoomedZoneTree const& zzt,
 		const PVCore::PVHSVColor* colors,
 		Picviz::PVSelection const& sel
-	) : _sel(sel), _data_params(zzt, colors) {};
+	);
 
 public:
 	bool change_and_process_view(
@@ -69,6 +76,8 @@ public:
 				 alpha == last_alpha());
 	}
 
+	inline void set_img_update_receiver(QObject* obj) { _img_update_receiver = obj; }
+
 protected:
 	inline void set_params(
 		const uint64_t y1_min,
@@ -87,17 +96,30 @@ protected:
 		_data_params.alpha = alpha;
 	}
 
-
-protected:
 	inline bool full_view() const { return (_data_params.zoom == 0) && (_data_params.alpha == 1.0); }
 
+	void connect_zr(PVZoneRenderingScatter& zr, const char* slot);
+
 protected:
+	PVZoneID _zid;
+
 	PVScatterViewData _data_z0; // Data for initial zoom (with 10-bit precision)
 	PVScatterViewData _data;
 
 	Picviz::PVSelection const& _sel;
 
 	DataProcessParams _data_params;
+
+	PVZoneRenderingScatter_p _zr_bg;
+	PVZoneRenderingScatter_p _zr_sel;
+
+	PVZonesProcessor& _zp_bg;
+	PVZonesProcessor& _zp_sel;
+
+	PVScatterViewImage _last_image_all;
+	PVScatterViewImage _last_image_bg;
+
+	QObject* _img_update_receiver;
 };
 
 }

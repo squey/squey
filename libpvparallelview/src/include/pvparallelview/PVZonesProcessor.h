@@ -24,7 +24,7 @@ class PVZonesManager;
 class PVZonesProcessor
 {
 	friend class PVRenderingPipeline;
-	typedef tbb::flow::receiver<PVZoneRenderingBCIBase_p> receiver_type;
+	typedef tbb::flow::receiver<PVZoneRenderingBase_p> receiver_type;
 
 protected:
 	PVZonesProcessor(receiver_type& in_port, PVRenderingPipelinePreprocessRouter* preprocess = nullptr):
@@ -51,7 +51,7 @@ public:
 	}
 
 public:
-	inline bool add_job(PVZoneRenderingBCIBase_p const& zr)
+	inline bool add_job(PVZoneRenderingBase_p const& zr)
 	{
 		assert(_in_port);
 		return _in_port->try_put(zr);

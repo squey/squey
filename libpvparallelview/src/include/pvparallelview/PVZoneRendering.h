@@ -37,6 +37,7 @@ class PVZoneRenderingBase: boost::noncopyable
 
 public:
 	typedef PVZoneRenderingBase_p p_type;
+	typedef std::function<void(PVZoneRenderingBase&)> on_success_function_type;
 
 private:
 	struct cancel_state
@@ -83,12 +84,10 @@ public:
 		init();
 	}
 
-	~PVZoneRenderingBase()
+	virtual ~PVZoneRenderingBase()
 	{
 		assert(_job_after_canceled.zp == nullptr);
 	}
-
-	//virtual ~PVZoneRenderingBaseB() { }
 
 public:
 	inline PVZoneID get_zone_id() const { return _zone_id; }

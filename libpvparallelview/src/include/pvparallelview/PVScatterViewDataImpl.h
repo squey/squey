@@ -8,6 +8,7 @@
 #define PVSCATTERVIEWDATAIMPL_H_
 
 #include <pvparallelview/PVScatterViewDataInterface.h>
+#include <pvparallelview/PVZoomedZoneTree.h>
 
 namespace PVParallelView {
 

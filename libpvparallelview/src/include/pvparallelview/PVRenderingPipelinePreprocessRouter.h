@@ -37,7 +37,7 @@ class PVRenderingPipelinePreprocessRouter
 		}
 
 		tbb::atomic<ZoneState> state;
-		std::list<PVZoneRenderingBCIBase_p> waiters;
+		std::list<PVZoneRenderingBase_p> waiters;
 	};
 
 	enum {
@@ -51,7 +51,7 @@ class PVRenderingPipelinePreprocessRouter
 		OutIdxCancel = 2,
 	};
 
-	typedef tbb::flow::or_node< std::tuple<PVZoneRenderingBCIBase_p, PVZoneRenderingBCIBase_p> > process_or_type;
+	typedef tbb::flow::or_node< std::tuple<PVZoneRenderingBase_p, PVZoneRenderingBase_p> > process_or_type;
 
 	struct RouterData
 	{
@@ -65,15 +65,15 @@ protected:
 		// Used by TBB internally
 		ZoneRenderingWithColors() { }
 
-		ZoneRenderingWithColors(PVZoneRenderingBCIBase_p zr_, PVCore::PVHSVColor const* colors_):
+		ZoneRenderingWithColors(PVZoneRenderingBase_p zr_, PVCore::PVHSVColor const* colors_):
 			zr(zr_), colors(colors_)
 		{ }
 		
-		PVZoneRenderingBCIBase_p zr;
+		PVZoneRenderingBase_p zr;
 		PVCore::PVHSVColor const* colors;
 	};
 
-	typedef tbb::flow::multifunction_node<process_or_type::output_type, std::tuple<PVZoneRenderingBCIBase_p, ZoneRenderingWithColors, PVZoneRenderingBCIBase_p> > multinode_router;
+	typedef tbb::flow::multifunction_node<process_or_type::output_type, std::tuple<PVZoneRenderingBase_p, ZoneRenderingWithColors, PVZoneRenderingBase_p> > multinode_router;
 
 public:
 	PVRenderingPipelinePreprocessRouter(size_t nzones, PVCore::PVHSVColor const* colors):
@@ -87,7 +87,7 @@ public:
 	void operator()(process_or_type::output_type in, multinode_router::output_ports_type& op)
 	{
 		bool has_been_processed = (in.indx == InputIdxPostProcess);
-		PVZoneRenderingBCIBase_p zr_in;
+		PVZoneRenderingBase_p zr_in;
 		if (has_been_processed) {
 			zr_in = std::get<1>(in.result);
 		}
@@ -129,7 +129,7 @@ public:
 				else {
 					std::get<OutIdxCancel>(op).try_put(zr_in);
 				}
-				for (PVZoneRenderingBCIBase_p const& zr_wait: infos.waiters) {
+				for (PVZoneRenderingBase_p const& zr_wait: infos.waiters) {
 					if (!zr_wait->should_cancel()) {
 						std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(zr_wait, _d->_colors));
 					}

@@ -12,10 +12,15 @@
 
 #include <pvkernel/core/PVHSVColor.h>
 
-#include <pvparallelview/PVZoomedZoneTree.h>
+#include <pvparallelview/PVScatterViewImage.h>
 
+namespace Picviz {
+class PVSelection;
+}
 
 namespace PVParallelView {
+
+class PVZoomedZoneTree;
 
 class PVScatterViewDataInterface : boost::noncopyable
 {
@@ -38,7 +43,7 @@ public:
 			y2_max(0),
 			zoom(0),
 			alpha(1.0)
-		{}
+		{ }
 
 		PVZoomedZoneTree const& zzt;
 		const PVCore::PVHSVColor* colors;

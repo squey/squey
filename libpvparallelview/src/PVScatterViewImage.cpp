@@ -20,8 +20,12 @@ PVParallelView::PVScatterViewImage::PVScatterViewImage()
 
 PVParallelView::PVScatterViewImage::~PVScatterViewImage()
 {
-	delete [] _hsv_image;
-	delete _rgb_image;
+	if (_hsv_image) {
+		delete [] _hsv_image;
+	}
+	if (_rgb_image) {
+		delete _rgb_image;
+	}
 }
 
 void PVParallelView::PVScatterViewImage::clear()
@@ -31,11 +35,11 @@ void PVParallelView::PVScatterViewImage::clear()
 
 void PVParallelView::PVScatterViewImage::convert_image_from_hsv_to_rgb()
 {
-	BENCH_START(image_convertion);
+	//BENCH_START(image_convertion);
 	QRgb* image_rgb = (QRgb*) &_rgb_image->scanLine(0)[0];
 #pragma omp parallel for schedule(static, 16)
 	for (uint32_t i = 0; i < image_width*image_height; i++) {
 		_hsv_image[i].to_rgba((uint8_t*) &image_rgb[i]);
 	}
-	BENCH_END(image_convertion, "image_convertion", image_width*image_height, sizeof(PVCore::PVHSVColor), image_width*image_height, sizeof(QRgb));
+	//BENCH_END(image_convertion, "image_convertion", image_width*image_height, sizeof(PVCore::PVHSVColor), image_width*image_height, sizeof(QRgb));
 }

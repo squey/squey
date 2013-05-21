@@ -12,6 +12,7 @@
 #include <pvparallelview/PVScatterViewImagesManager.h>
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
+#include <pvparallelview/PVZoneRendering_types.h>
 
 class QPainter;
 
@@ -45,13 +46,15 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 	// -22 because we want a scale factor of 1 when the view fits in a 1024x1024 window
 	constexpr static int zoom_min = -22 * zoom_steps;
 
-	constexpr static int render_timer_ms = 75;
+	constexpr static int render_timer_ms = 1;
 
 public:
 	PVScatterView(
 		const Picviz::PVView_sp &pvview_sp,
 		PVZonesManager & zm,
 		PVCol const axis_index,
+		PVZonesProcessor& zp_bg,
+		PVZonesProcessor& zp_sel,
 		QWidget *parent = nullptr
 	);
 	~PVScatterView();
@@ -75,6 +78,9 @@ private slots:
 	void update_all();
 	void update_sel();
 
+	void update_img_bg(PVParallelView::PVZoneRenderingBase_p zr, int zid);
+	void update_img_sel(PVParallelView::PVZoneRenderingBase_p zr, int zid);
+
 private:
 	PVScatterViewImagesManager& get_images_manager() { return _images_manager; }
 
@@ -93,7 +99,14 @@ private:
 	PVSelectionSquareScatterView* _selection_square;
 	static bool _show_quadtrees;
 
+	QImage _last_image_sel;
+	QImage _last_image_bg;
+
 	QRectF _last_image_margined_viewport;
+	QRectF _last_image_sel_margined_viewport;
+	QRectF _last_image_bg_margined_viewport;
+	QRectF _last_image_sel_scene;
+	QRectF _last_image_scene;
 };
 
 }

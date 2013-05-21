@@ -83,7 +83,7 @@ void PVParallelView::PVZoneRenderingBase::next_job::launch()
 {
 	PVZonesProcessor* const zp_ = zp.fetch_and_store(nullptr);
 	if (zp_) {
-		zp_->add_job(boost::static_pointer_cast<PVZoneRenderingBCIBase>(zr));
+		zp_->add_job(zr);
 		zr.reset();
 	}
 }
