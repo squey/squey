@@ -386,6 +386,17 @@ public:
 		return reinterpret_cast<uint32_t const*>(_table)[chunk_index];
 	}
 
+	/*! \brief Get a complete bit chunk
+	 *  \param chunk_index The index of the chunk
+	 *
+	 * Get a complete chunk.
+	 */
+	inline uint64_t get_chunk_fast(PVRow const chunk_index) const
+	{
+		assert(chunk_index < PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		return _table[chunk_index];
+	}
+
 	/*! \brief Set a complete chunk
 	 *  \param chunk_index The index of the chunk (warning, not the line index !)
 	 *
