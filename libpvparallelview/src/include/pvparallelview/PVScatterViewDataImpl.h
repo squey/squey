@@ -28,10 +28,10 @@ public:
 			params.zoom,
 			params.alpha,
 			params.colors,
-			image_all().get_hsv_image()
+			image_bg().get_hsv_image()
 		);
 
-		image_all().convert_image_from_hsv_to_rgb();
+		image_bg().convert_image_from_hsv_to_rgb();
 	};
 
 	void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel) override

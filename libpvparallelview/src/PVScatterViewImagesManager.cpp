@@ -53,7 +53,7 @@ void PVParallelView::PVScatterViewImagesManager::process_bg()
 	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, _data_params,
 			[](PVScatterViewDataInterface& data_if, DataProcessParams const& params)
 			{
-				data_if.image_all().clear();
+				data_if.image_bg().clear();
 				data_if.process_bg(params);
 			}));
 
@@ -111,7 +111,7 @@ const QImage& PVParallelView::PVScatterViewImagesManager::get_image_sel()
 const QImage& PVParallelView::PVScatterViewImagesManager::get_image_all()
 {
 	PVScatterViewData& data = full_view() ? _data_z0 : _data;
-	return data.image_all().get_rgb_image();
+	return data.image_bg().get_rgb_image();
 }
 
 void PVParallelView::PVScatterViewImagesManager::connect_zr(PVZoneRenderingScatter& zr, const char* slot)

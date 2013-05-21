@@ -69,20 +69,20 @@ public:
 	//void shift_right(const uint32_t nblocks, const double alpha);
 
 public:
-	PVScatterViewImage const& image_all() const { return _image_all; }
+	PVScatterViewImage const& image_bg() const { return _image_bg; }
 	PVScatterViewImage const& image_sel() const { return _image_sel; }
 
-	PVScatterViewImage& image_all() { return _image_all; }
+	PVScatterViewImage& image_bg() { return _image_bg; }
 	PVScatterViewImage& image_sel() { return _image_sel; }
 
 	void clear()
 	{
-		image_all().clear();
+		image_bg().clear();
 		image_sel().clear();
 	}
 
 private:
-	PVScatterViewImage _image_all;
+	PVScatterViewImage _image_bg;
 	PVScatterViewImage _image_sel;
 };
 
