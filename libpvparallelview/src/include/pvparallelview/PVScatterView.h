@@ -48,6 +48,27 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 
 	constexpr static int render_timer_ms = 1;
 
+	/*! \brief This class represent an image that has been rendered, with its
+	 * associated scene and viewport rect.
+	 */
+	class RenderedImage: boost::noncopyable
+	{
+	public:
+		/*! \brief Swap the stored image with a new rendered one.
+		 */
+		void swap(QImage const& img, QRectF const& scene_rect, QRectF const& viewport_rect);
+
+		/*! \brief Draw the image thanks to \a painter.
+		 *
+		 * This function assumes that \a painter uses the margined viewport coordinate system.
+		 */
+		void draw(PVGraphicsView* view, QPainter* painter);
+	private:
+		QRectF _scene_rect;
+		QRectF _viewport_rect;
+		QImage _img;
+	};
+
 public:
 	PVScatterView(
 		const Picviz::PVView_sp &pvview_sp,
@@ -99,13 +120,10 @@ private:
 	PVSelectionSquareScatterView* _selection_square;
 	static bool _show_quadtrees;
 
-	QImage _last_image_sel;
-	QImage _last_image_bg;
+	RenderedImage _image_sel;
+	RenderedImage _image_bg;
 
 	QRectF _last_image_margined_viewport;
-	QRectF _last_image_sel_margined_viewport;
-	QRectF _last_image_bg_margined_viewport;
-	QRectF _last_image_sel_scene;
 	QRectF _last_image_scene;
 };
 

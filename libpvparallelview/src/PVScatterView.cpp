@@ -54,7 +54,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	_zt(zm.get_zone_tree<PVParallelView::PVZoneTree>(axis_index)),
 	_view_deleted(false)
 {
-	set_gl_viewport();
+	//set_gl_viewport();
 
 	setCursor(Qt::CrossCursor);
 	QRectF r(0, 0, (1UL << 32), (1UL << 32));
@@ -214,30 +214,25 @@ void PVParallelView::PVScatterView::update_sel()
 	//get_viewport()->update();
 }
 
-void PVParallelView::PVScatterView::update_img_bg(PVZoneRenderingBase_p zr, int zone)
+void PVParallelView::PVScatterView::update_img_bg(PVZoneRenderingBase_p zr, int /*zone*/)
 {
 	assert(QThread::currentThread() == thread());
 	if (zr->should_cancel()) {
 		return;
 	}
 
-	_last_image_bg = get_images_manager().get_image_all().copy();
-	_last_image_bg_margined_viewport = _last_image_margined_viewport;
-	//get_viewport()->update();
+	_image_bg.swap(get_images_manager().get_image_all(), _last_image_scene, _last_image_margined_viewport);
+	get_viewport()->update();
 }
 
-void PVParallelView::PVScatterView::update_img_sel(PVZoneRenderingBase_p zr, int zone)
+void PVParallelView::PVScatterView::update_img_sel(PVZoneRenderingBase_p zr, int /*zone*/)
 {
 	assert(QThread::currentThread() == thread());
 	if (zr->should_cancel()) {
-		PVLOG_INFO("********** update_img_sel canceled ***********\n");
 		return;
 	}
 
-	PVLOG_INFO("********** update_img_sel ok ***********\n");
-	_last_image_sel = get_images_manager().get_image_sel().copy();
-	_last_image_sel_margined_viewport = _last_image_margined_viewport;
-	_last_image_sel_scene = _last_image_scene;
+	_image_sel.swap(get_images_manager().get_image_sel(), _last_image_scene, _last_image_margined_viewport);
 	get_viewport()->update();
 }
 
@@ -258,6 +253,7 @@ void PVParallelView::PVScatterView::do_update_all()
 
 	_last_image_margined_viewport = QRectF(0.0, 0.0, get_x_axis_length(), get_y_axis_length());
 	_last_image_scene = QRectF(QPointF(y1_min, y2_min), QPointF(y1_max, y2_max));
+
 	get_images_manager().change_and_process_view(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
 	get_viewport()->update();
 }
@@ -276,14 +272,12 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 	painter->setClipRegion(margined_viewport, Qt::IntersectClip);
 
 	// Background
-	/*painter->setOpacity(0.25);
-	painter->drawImage(target, _last_image_bg, _last_image_bg_margined_viewport);*/
+	painter->setOpacity(0.25);
+	_image_bg.draw(this, painter);
 
 	// Selection
 	painter->setOpacity(1);
-	const QRectF target_sel = map_margined_from_scene(_last_image_sel_scene);
-	painter->drawImage(target_sel, _last_image_sel, _last_image_sel_margined_viewport);
-
+	_image_sel.draw(this, painter);
 
 #ifdef PICVIZ_DEVELOPER_MODE
 	if (_show_quadtrees) {
@@ -316,4 +310,21 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 	painter->restore();
 
 	draw_decorations(painter, rect);
+}
+
+////
+// PVParallelView::PVScatterView::RenderedImage implementation
+////
+
+void PVParallelView::PVScatterView::RenderedImage::swap(QImage const& img, QRectF const& scene_rect, QRectF const& viewport_rect)
+{
+	_scene_rect = scene_rect;
+	_viewport_rect = viewport_rect;
+	_img = img.copy();
+}
+
+void PVParallelView::PVScatterView::RenderedImage::draw(PVGraphicsView* view, QPainter* painter)
+{
+	const QRectF target_sel = view->map_margined_from_scene(_scene_rect);
+	painter->drawImage(target_sel, _img, _viewport_rect);
 }

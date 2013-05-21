@@ -48,7 +48,6 @@ bool PVParallelView::PVScatterViewImagesManager::change_and_process_view(
 
 void PVParallelView::PVScatterViewImagesManager::process_bg()
 {
-#if 0
 	PVScatterViewData& data = full_view() ? _data_z0 : _data;
 
 	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, _data_params,
@@ -60,14 +59,14 @@ void PVParallelView::PVScatterViewImagesManager::process_bg()
 
 	connect_zr(*zr, "update_img_bg");
 
-	if (_zr_bg) {
-		_zr_bg->cancel_and_add_job(_zp_bg, zr);
+	PVZoneRenderingScatter_p old_zr = _zr_bg;
+	_zr_bg = zr;
+	if (old_zr) {
+		old_zr->cancel_and_add_job(_zp_bg, zr);
 	}
 	else {
-		_zr_bg = zr;
 		_zp_bg.add_job(zr);
 	}
-#endif
 }
 
 void PVParallelView::PVScatterViewImagesManager::process_sel()
@@ -87,14 +86,10 @@ void PVParallelView::PVScatterViewImagesManager::process_sel()
 	_zr_sel = zr;
 	if (old_zr) {
 		old_zr->cancel_and_add_job(_zp_sel, zr);
-		//old_zr->cancel();
-		//old_zr->wait_end();
 	}
 	else {
 		_zp_sel.add_job(zr);
 	}
-	/*data.image_sel().clear();
-	data.process_sel(_data_params, _sel);*/
 }
 
 void PVParallelView::PVScatterViewImagesManager::process_all()
