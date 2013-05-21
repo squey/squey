@@ -51,5 +51,24 @@ int main()
 		sse_v = _mm_srli_si128(sse_v, 1);
 	}
 
+
+	sse_v = _mm_set_epi32(-1, 5, 6, 7);
+	PV_ASSERT_VALID(picviz_mm_hmin_epi32(sse_v) == -1);
+	sse_v = _mm_set_epi32(5, -1, 6, 7);
+	PV_ASSERT_VALID(picviz_mm_hmin_epi32(sse_v) == -1);
+	sse_v = _mm_set_epi32(5, 6, -1, 7);
+	PV_ASSERT_VALID(picviz_mm_hmin_epi32(sse_v) == -1);
+	sse_v = _mm_set_epi32(5, 6, 7, -1);
+	PV_ASSERT_VALID(picviz_mm_hmin_epi32(sse_v) == -1);
+
+	sse_v = _mm_set_epi32(0, 5, 6, 7);
+	PV_ASSERT_VALID(picviz_mm_hmin_epu32(sse_v) == 0);
+	sse_v = _mm_set_epi32(5, 0, 6, 7);
+	PV_ASSERT_VALID(picviz_mm_hmin_epu32(sse_v) == 0);
+	sse_v = _mm_set_epi32(5, 6, 0, 7);
+	PV_ASSERT_VALID(picviz_mm_hmin_epu32(sse_v) == 0);
+	sse_v = _mm_set_epi32(5, 6, 7, 0);
+	PV_ASSERT_VALID(picviz_mm_hmin_epu32(sse_v) == 0);
+
 	return 0;
 }
