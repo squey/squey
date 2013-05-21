@@ -39,7 +39,7 @@
 #define CRAND() (127 + (random() & 0x7F))
 
 #define SCENE_MARGIN 16
-#define RENDER_TIMER_TIMEOUT 15 // in ms
+#define RENDER_TIMER_TIMEOUT 75 // in ms
 
 /******************************************************************************
  *
@@ -1045,7 +1045,7 @@ void PVParallelView::PVFullParallelScene::update_axes_layer_min_max()
  * PVParallelView::PVFullParallelScene::zr_bg_finished
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRenderingBase_p zr, int zid)
+void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRendering_p zr, int zid)
 {
 	assert(QThread::currentThread() == this->thread());
 	if (_view_deleted) {
@@ -1079,7 +1079,7 @@ void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRenderingBase_p z
  * PVParallelView::PVFullParallelScene::zr_sel_finished
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::zr_sel_finished(PVZoneRenderingBase_p zr, int zid)
+void PVParallelView::PVFullParallelScene::zr_sel_finished(PVZoneRendering_p zr, int zid)
 {
 	assert(QThread::currentThread() == this->thread());
 	if (_view_deleted) {

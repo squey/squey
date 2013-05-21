@@ -214,7 +214,7 @@ void PVParallelView::PVScatterView::update_sel()
 	//get_viewport()->update();
 }
 
-void PVParallelView::PVScatterView::update_img_bg(PVZoneRenderingBase_p zr, int /*zone*/)
+void PVParallelView::PVScatterView::update_img_bg(PVZoneRendering_p zr, int /*zone*/)
 {
 	assert(QThread::currentThread() == thread());
 	if (zr->should_cancel()) {
@@ -225,7 +225,7 @@ void PVParallelView::PVScatterView::update_img_bg(PVZoneRenderingBase_p zr, int 
 	get_viewport()->update();
 }
 
-void PVParallelView::PVScatterView::update_img_sel(PVZoneRenderingBase_p zr, int /*zone*/)
+void PVParallelView::PVScatterView::update_img_sel(PVZoneRendering_p zr, int /*zone*/)
 {
 	assert(QThread::currentThread() == thread());
 	if (zr->should_cancel()) {

@@ -611,7 +611,7 @@ void PVParallelView::PVZoomedParallelScene::connect_zr(PVZoneRenderingBCI<bbits>
 	zr->set_render_finished_slot(this, slot);
 }
 
-void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRenderingBase_p zr, int zone_id)
+void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRendering_p zr, int zone_id)
 {
 	assert(is_zone_rendered(zone_id));
 	assert(QThread::currentThread() == this->thread());

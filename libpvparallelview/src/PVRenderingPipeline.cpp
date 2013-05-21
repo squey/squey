@@ -88,7 +88,7 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 		});
 
 	// Cleanup and finish nodes
-	_node_cleanup_bci = new tbb::flow::function_node<ZoneRenderingWithBCI, PVZoneRenderingBase_p>(
+	_node_cleanup_bci = new tbb::flow::function_node<ZoneRenderingWithBCI, PVZoneRendering_p>(
 			tbb_graph(),
 			tbb::flow::unlimited,
 			[&](ZoneRenderingWithBCI const& zrb)
@@ -98,16 +98,16 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 				return zrb.zr;
 			});
 
-	_node_finish = new tbb::flow::function_node<PVZoneRenderingBase_p>(
+	_node_finish = new tbb::flow::function_node<PVZoneRendering_p>(
 			tbb_graph(),
 			tbb::flow::unlimited,
-			[](PVZoneRenderingBase_p zr)
+			[](PVZoneRendering_p zr)
 			{
 				zr->finished(zr);
 			});
 
 	// Scatter workflow
-	_node_compute_scatter = new tbb::flow::function_node<ZoneRenderingWithColors, PVZoneRenderingBase_p>(tbb_graph(), tbb::flow::serial,
+	_node_compute_scatter = new tbb::flow::function_node<ZoneRenderingWithColors, PVZoneRendering_p>(tbb_graph(), tbb::flow::serial,
 			[](ZoneRenderingWithColors const& zrc)
 			{
 				PVZoneRenderingScatter* zrs = static_cast<PVZoneRenderingScatter*>(zrc.zr.get());
@@ -120,7 +120,7 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 	_workflow_router = new workflow_router_type(tbb_graph(), tbb::flow::unlimited,
 			[](ZoneRenderingWithColors const& zrc, workflow_router_type::output_ports_type& op)
 			{
-				PVZoneRenderingBase* zr = zrc.zr.get();
+				PVZoneRendering* zr = zrc.zr.get();
 				if (dynamic_cast<PVZoneRenderingBCIBase*>(zr)) {
 					std::get<wr_bci>(op).try_put(zrc);
 				}
@@ -198,7 +198,7 @@ PVParallelView::PVZonesProcessor PVParallelView::PVRenderingPipeline::declare_pr
 // Preprocess class
 PVParallelView::PVRenderingPipeline::Preprocessor::Preprocessor(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones):
 	router(nzones, colors),
-	node_process(g, 24, [=](PVZoneRenderingBase_p zr) { f(zr->get_zone_id()); return zr; }),
+	node_process(g, 24, [=](PVZoneRendering_p zr) { f(zr->get_zone_id()); return zr; }),
 	node_or(g),
 	node_router(g, tbb::flow::serial, router)
 {
@@ -212,7 +212,7 @@ PVParallelView::PVRenderingPipeline::Preprocessor::Preprocessor(tbb::flow::graph
 // DirectInput class
 PVParallelView::PVRenderingPipeline::DirectInput::DirectInput(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, PVCore::PVHSVColor const* colors_):
 	node_process(g, tbb::flow::unlimited,
-		[=](PVZoneRenderingBase_p zr, direct_process_type::output_ports_type& op)
+		[=](PVZoneRendering_p zr, direct_process_type::output_ports_type& op)
 		{
 			if (zr->should_cancel()) {
 				std::get<1>(op).try_put(zr);

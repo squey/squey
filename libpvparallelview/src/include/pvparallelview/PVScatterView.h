@@ -101,8 +101,8 @@ private slots:
 	void update_all();
 	void update_sel();
 
-	void update_img_bg(PVParallelView::PVZoneRenderingBase_p zr, int zid);
-	void update_img_sel(PVParallelView::PVZoneRenderingBase_p zr, int zid);
+	void update_img_bg(PVParallelView::PVZoneRendering_p zr, int zid);
+	void update_img_sel(PVParallelView::PVZoneRendering_p zr, int zid);
 
 private:
 	PVScatterViewImagesManager& get_images_manager() { return _images_manager; }

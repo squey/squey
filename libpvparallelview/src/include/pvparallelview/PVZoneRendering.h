@@ -31,13 +31,13 @@ class PVZonesProcessor;
 template <size_t Bbits>
 class PVBCICode;
 
-class PVZoneRenderingBase: boost::noncopyable
+class PVZoneRendering: boost::noncopyable
 {
 	friend class PVRenderingPipeline;
 
 public:
-	typedef PVZoneRenderingBase_p p_type;
-	typedef std::function<void(PVZoneRenderingBase&)> on_success_function_type;
+	typedef PVZoneRendering_p p_type;
+	typedef std::function<void(PVZoneRendering&)> on_success_function_type;
 
 private:
 	struct cancel_state
@@ -70,21 +70,21 @@ private:
 	};
 
 public:
-	PVZoneRenderingBase(PVZoneID zone_id):
+	PVZoneRendering(PVZoneID zone_id):
 		_zone_id(zone_id),
 		_finished(false)
 	{
 		init();
 	}
 
-	PVZoneRenderingBase():
+	PVZoneRendering():
 		_zone_id(PVZONEID_INVALID),
 		_finished(false)
 	{
 		init();
 	}
 
-	virtual ~PVZoneRenderingBase()
+	virtual ~PVZoneRendering()
 	{
 		assert(_job_after_canceled.zp == nullptr);
 	}
@@ -155,6 +155,6 @@ private:
 
 }
 
-Q_DECLARE_METATYPE(PVParallelView::PVZoneRenderingBase_p)
+Q_DECLARE_METATYPE(PVParallelView::PVZoneRendering_p)
 
 #endif

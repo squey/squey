@@ -7,21 +7,21 @@
 
 namespace PVParallelView {
 
-class PVZoneRenderingTBB: public PVZoneRenderingBase
+class PVZoneRenderingTBB: public PVZoneRendering
 {
 public:
 	PVZoneRenderingTBB(PVZoneID zone_id):
-		PVZoneRenderingBase(zone_id)
+		PVZoneRendering(zone_id)
 	{ }
 
 	PVZoneRenderingTBB():
-		PVZoneRenderingBase()
+		PVZoneRendering()
 	{ }
 
 public:
 	bool cancel() override
 	{
-		const bool ret = PVZoneRenderingBase::cancel();
+		const bool ret = PVZoneRendering::cancel();
 		if (!ret) {
 			_grp_ctxt.cancel_group_execution();
 		}
