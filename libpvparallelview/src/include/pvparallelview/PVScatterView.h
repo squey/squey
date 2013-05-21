@@ -9,6 +9,8 @@
 
 #include <QTimer>
 
+#include <pvkernel/core/PVSharedPointer.h>
+
 #include <pvparallelview/PVScatterViewImagesManager.h>
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>

@@ -8,10 +8,10 @@
 
 namespace PVParallelView {
 
-class PVZoneRenderingScatter: public PVZoneRenderingBase
+class PVZoneRenderingScatter: public PVZoneRenderingTBB
 {
 	typedef PVScatterViewDataInterface::ProcessParams DataProcessParams;
-	typedef std::function<void(PVScatterViewDataInterface&, DataProcessParams const&)> process_function_type;
+	typedef std::function<void(PVScatterViewDataInterface&, DataProcessParams const&, tbb::task_group_context&)> process_function_type;
 	//typedef std::function<void(PVScatterViewDataInterface*, PVZoneID, uint64_t, uint64_t, uint64_t, uint64_t, int, double, PVCore::PVHSVColor const*)> process_function_type;
 
 	friend class PVRenderingPipeline;
@@ -37,7 +37,7 @@ public:
 	}*/
 
 	PVZoneRenderingScatter(PVZoneID zid, PVScatterViewDataInterface& data_interface, DataProcessParams const& params, process_function_type const& f):
-		PVZoneRenderingBase(zid),
+		PVZoneRenderingTBB(zid),
 		_data_interface(&data_interface),
 		_params(params),
 		_process(f)
@@ -46,7 +46,7 @@ public:
 protected:
 	//void render(std::function<void()> const& render_done = std::function<void()>());
 	//inline void render(PVCore::PVHSVColor const* colors) { _process(_data_interface, get_zone_id(), _y1_min, _y1_max, _y2_min, _y2_max, _zoom, _alpha, colors); }
-	inline void render() { assert(_data_interface); _process(*_data_interface, _params); }
+	inline void render() { assert(_data_interface); _process(*_data_interface, _params, get_task_group_context()); }
 
 private:
 	/*

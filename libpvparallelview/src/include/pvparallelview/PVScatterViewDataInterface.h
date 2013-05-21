@@ -14,6 +14,10 @@
 
 #include <pvparallelview/PVScatterViewImage.h>
 
+namespace tbb {
+class task_group_context;
+}
+
 namespace Picviz {
 class PVSelection;
 }
@@ -56,12 +60,12 @@ public:
 	};
 
 public:
-	virtual void process_bg(ProcessParams const& params) = 0;
-	virtual void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel) = 0;
-	virtual void process_all(ProcessParams const& params, Picviz::PVSelection const& sel)
+	virtual void process_bg(ProcessParams const& params, tbb::task_group_context* ctxt = nullptr) = 0;
+	virtual void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr) = 0;
+	virtual void process_all(ProcessParams const& params, Picviz::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr)
 	{
-		process_bg(params);
-		process_sel(params, sel);
+		process_bg(params, ctxt);
+		process_sel(params, sel, ctxt);
 	}
 
 public:

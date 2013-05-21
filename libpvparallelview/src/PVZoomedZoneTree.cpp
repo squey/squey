@@ -763,9 +763,19 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 	PVCore::PVHSVColor const* const colors,
 	PVCore::PVHSVColor* const image,
 	const extract_entries_y1_y2_f &extract_f,
-	PVRow const* const sel_elts
+	PVRow const* const sel_elts,
+	tbb::task_group_context* tbb_ctxt
 ) const
 {
+	tbb::task_group_context my_ctxt;
+	if (tbb_ctxt == nullptr) {
+		tbb_ctxt = &my_ctxt;
+	}
+	else
+	if (tbb_ctxt->is_group_execution_cancelled()) {
+		return;
+	}
+
 	uint32_t shift = (32 - PARALLELVIEW_ZT_BBITS) - zoom;
 	uint32_t t1_min = y1_min >> (32 - NBITS_INDEX);
 	uint32_t t1_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y1_max >> (32 - NBITS_INDEX)),
@@ -789,7 +799,7 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 					return 0;
 			   });
 
-	//BENCH_START(extract);
+	BENCH_START(extract);
 	tbb::parallel_for(tbb::blocked_range2d<uint32_t>(t1_min, t1_max, t2_min, t2_max),
 	                  [&] (const tbb::blocked_range2d<uint32_t> &r) {
 						pvquadtree* trees = _trees;
@@ -814,8 +824,11 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 								extract_f(trees[tree_idx], image_, insert_f_);
 							}
 						}
-					});
-	//BENCH_END(extract, "browse_trees_bci_by_y1_y2_tbb", 1, 1, 1, 1);
+					}, tbb::auto_partitioner(), *tbb_ctxt);
+	BENCH_END(extract, "browse_trees_bci_by_y1_y2_tbb", 1, 1, 1, 1);
+	if (tbb_ctxt->is_group_execution_cancelled()) {
+		PVLOG_INFO("***** browse_trees_bci_by_y1_y2_tbb has been canceled !!\n");
+	}
 }
 
 /*****************************************************************************

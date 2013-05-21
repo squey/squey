@@ -16,6 +16,7 @@
 #include <boost/thread/condition_variable.hpp>
 
 #include <tbb/spin_rw_mutex.h>
+#include <tbb/task.h>
 
 #include <functional>
 
@@ -100,7 +101,7 @@ public:
 	}
 	inline bool valid() const { return _zone_id != (PVZoneID) PVZONEID_INVALID; }
 
-	inline bool cancel()
+	virtual bool cancel()
 	{
 		// Returns true if it was previously canceled
 		return _cancel_state.fetch_and_store(cancel_state::value(true)).should_cancel();
@@ -150,6 +151,33 @@ private:
 
 	// Next job when this one has been canceled
 	next_job _job_after_canceled;
+};
+
+class PVZoneRenderingTBB: public PVZoneRenderingBase
+{
+public:
+	PVZoneRenderingTBB(PVZoneID zone_id):
+		PVZoneRenderingBase(zone_id)
+	{ }
+
+	PVZoneRenderingTBB():
+		PVZoneRenderingBase()
+	{ }
+
+public:
+	bool cancel() override
+	{
+		const bool ret = PVZoneRenderingBase::cancel();
+		if (!ret) {
+			_grp_ctxt.cancel_group_execution();
+		}
+		return ret;
+	}
+
+	tbb::task_group_context& get_task_group_context() { return _grp_ctxt; }
+
+private:
+	tbb::task_group_context _grp_ctxt;
 };
 
 class PVZoneRenderingBCIBase: public PVZoneRenderingBase

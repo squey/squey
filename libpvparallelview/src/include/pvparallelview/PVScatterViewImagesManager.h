@@ -9,6 +9,8 @@
 
 #include <boost/utility.hpp>
 
+#include <pvparallelview/common.h>
+
 #include <pvparallelview/PVScatterViewImage.h>
 #include <pvparallelview/PVScatterViewData.h>
 
