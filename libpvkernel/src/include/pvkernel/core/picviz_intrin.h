@@ -202,12 +202,12 @@ inline static __m128i picviz_mm_cmprange_in_epu32(__m128i const v, __m128i const
  *
  * \return min({v[i], i=0..4})
  */
-inline static uint32_t picviz_mm_hmin_epi32(__m128i const v)
+inline static int32_t picviz_mm_hmin_epi32(__m128i const v)
 {
-	__m128i min_perm = reinterpret_cast<__m128i>(_mm_permute_ps(reinterpret_cast<__m128>(v), (2 | (3 << 2))));
+	__m128i min_perm = _mm_shuffle_epi32(v, (2 | (3 << 2)));
 	__m128i min = _mm_min_epi32(v, min_perm);
 	
-	min_perm = reinterpret_cast<__m128i>(_mm_permute_ps(reinterpret_cast<__m128>(min), 1));
+	min_perm = _mm_shuffle_epi32(min, 1);
 	min = _mm_min_epi32(min, min_perm);
 
 	return _mm_extract_epi32(min, 0);
@@ -219,10 +219,10 @@ inline static uint32_t picviz_mm_hmin_epi32(__m128i const v)
  */
 inline static uint32_t picviz_mm_hmin_epu32(__m128i const v)
 {
-	__m128i min_perm = reinterpret_cast<__m128i>(_mm_permute_ps(reinterpret_cast<__m128>(v), (2 | (3 << 2))));
+	__m128i min_perm = _mm_shuffle_epi32(v, (2 | (3 << 2)));
 	__m128i min = _mm_min_epu32(v, min_perm);
 	
-	min_perm = reinterpret_cast<__m128i>(_mm_permute_ps(reinterpret_cast<__m128>(min), 1));
+	min_perm = _mm_shuffle_epi32(min, 1);
 	min = _mm_min_epu32(min, min_perm);
 
 	return _mm_extract_epi32(min, 0);
