@@ -48,8 +48,6 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 	// -22 because we want a scale factor of 1 when the view fits in a 1024x1024 window
 	constexpr static int zoom_min = -22 * zoom_steps;
 
-	constexpr static int render_timer_ms = 1;
-
 	/*! \brief This class represent an image that has been rendered, with its
 	 * associated scene and viewport rect.
 	 */
@@ -112,8 +110,6 @@ private slots:
 	void do_pan_change();
 
 private:
-	QTimer _update_all_timer;
-
 	Picviz::PVView& _view;
 	PVScatterViewImagesManager _images_manager;
 	PVZoneTree const& _zt;

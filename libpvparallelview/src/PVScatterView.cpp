@@ -54,7 +54,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	_zt(zm.get_zone_tree<PVParallelView::PVZoneTree>(axis_index)),
 	_view_deleted(false)
 {
-	set_gl_viewport();
+	//set_gl_viewport();
 
 	setCursor(Qt::CrossCursor);
 	QRectF r(0, 0, (1UL << 32), (1UL << 32));
@@ -114,10 +114,6 @@ PVParallelView::PVScatterView::PVScatterView(
 	               zoom_min);
 
 	get_scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
-
-	_update_all_timer.setInterval(render_timer_ms);
-	_update_all_timer.setSingleShot(true);
-	connect(&_update_all_timer, SIGNAL(timeout()), this, SLOT(do_update_all()));
 
 	connect(this, SIGNAL(zoom_has_changed(int)), this, SLOT(do_zoom_change(int)));
 	connect(this, SIGNAL(pan_has_changed()), this, SLOT(do_pan_change()));
@@ -185,7 +181,7 @@ void PVParallelView::PVScatterView::keyPressEvent(QKeyEvent* event)
  *****************************************************************************/
 void PVParallelView::PVScatterView::do_zoom_change(int /*axes*/)
 {
-	_update_all_timer.start();
+	do_update_all();
 }
 
 /*****************************************************************************
@@ -193,7 +189,7 @@ void PVParallelView::PVScatterView::do_zoom_change(int /*axes*/)
  *****************************************************************************/
 void PVParallelView::PVScatterView::do_pan_change()
 {
-	_update_all_timer.start();
+	do_update_all();
 }
 
 /*****************************************************************************
@@ -202,7 +198,6 @@ void PVParallelView::PVScatterView::do_pan_change()
 void PVParallelView::PVScatterView::update_all()
 {
 	get_images_manager().process_all();
-	//get_viewport()->update();
 }
 
 /*****************************************************************************
@@ -211,7 +206,6 @@ void PVParallelView::PVScatterView::update_all()
 void PVParallelView::PVScatterView::update_sel()
 {
 	get_images_manager().process_sel();
-	//get_viewport()->update();
 }
 
 void PVParallelView::PVScatterView::update_img_bg(PVZoneRendering_p zr, int /*zone*/)
@@ -264,7 +258,6 @@ void PVParallelView::PVScatterView::do_update_all()
 void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRectF& rect)
 {
 	painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
-
 
 	painter->save();
 
