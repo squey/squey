@@ -10,7 +10,7 @@
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVRenderingPipeline.h>
-#include <pvparallelview/PVZoneRendering.h>
+#include <pvparallelview/PVZoneRenderingBCI.h>
 #include <pvparallelview/PVZoneTree.h>
 
 #include <QObject>

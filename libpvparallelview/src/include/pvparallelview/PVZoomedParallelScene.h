@@ -18,7 +18,7 @@
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVSlidersManager_types.h>
 #include <pvparallelview/PVSlidersGroup.h>
-#include <pvparallelview/PVZoneRendering.h>
+#include <pvparallelview/PVZoneRenderingBCI.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoomedParallelView.h>
 

@@ -21,7 +21,7 @@
 #include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVSlidersGroup.h>
 #include <pvparallelview/PVZonesManager.h>
-#include <pvparallelview/PVZoneRendering.h>
+#include <pvparallelview/PVZoneRenderingBCI.h>
 
 #include <tbb/task.h>
 

@@ -7,7 +7,7 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCIBuffers.h>
 // The order here is important
-#include <pvparallelview/PVZoneRendering.h>
+#include <pvparallelview/PVZoneRenderingBCI.h>
 #include <pvparallelview/PVRenderingPipelinePreprocessRouter.h>
 #include <pvparallelview/PVZonesProcessor.h>
 

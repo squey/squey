@@ -2,7 +2,7 @@
 #define PVPARALLELVIEW_PVZONERENDERINGSCATTER_H
 
 #include <pvparallelview/PVScatterViewDataInterface.h>
-#include <pvparallelview/PVZoneRendering.h>
+#include <pvparallelview/PVZoneRenderingTBB.h>
 
 #include <functional>
 

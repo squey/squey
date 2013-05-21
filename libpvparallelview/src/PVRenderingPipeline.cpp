@@ -1,6 +1,7 @@
 #include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
 #include <pvparallelview/PVZoneRendering.h>
+#include <pvparallelview/PVZoneRenderingBCI.h>
 #include <pvparallelview/PVZoneRenderingScatter.h>
 
 #include <iostream>

@@ -54,7 +54,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	_zt(zm.get_zone_tree<PVParallelView::PVZoneTree>(axis_index)),
 	_view_deleted(false)
 {
-	//set_gl_viewport();
+	set_gl_viewport();
 
 	setCursor(Qt::CrossCursor);
 	QRectF r(0, 0, (1UL << 32), (1UL << 32));
