@@ -17,7 +17,7 @@
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
 
 #include <QTimer>
-#include <QImage>
+#include <QSize>
 
 class QWidget;
 
@@ -43,7 +43,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 
 	constexpr static int zoom_steps = 5;
 	// the "digital" zoom level (to space consecutive values)
-	constexpr static int y_zoom_extra_level = 10;
+	constexpr static int y_zoom_extra_level = 5;
 	constexpr static int y_zoom_extra = y_zoom_extra_level * zoom_steps;
 	// to have a scale factor of 1 when the view fits in a 1024x1024 window (i.e. 2^22 value per pixel)
 	constexpr static int y_min_zoom_level = 22;
@@ -66,6 +66,11 @@ public:
 	               QWidget *parent = nullptr);
 
 	~PVHitCountView();
+
+	QSize sizeHint() const override
+	{
+		return QSize(800, 200);
+	}
 
 public:
 	void about_to_be_deleted();
@@ -105,11 +110,15 @@ protected:
 	inline Picviz::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
 
 	inline bool auto_x_zoom_sel() const { return _auto_x_zoom_sel; }
-	inline bool show_bg() const { return _show_bg; }
+	inline bool show_selectable() const { return _show_selectable; }
+	inline bool show_all() const { return _show_all; }
+	inline bool use_log_color() const { return _use_log_color; }
 
 protected slots:
 	void toggle_auto_x_zoom_sel();
-	void toggle_show_bg();
+	void toggle_show_selectable();
+	void toggle_show_all();
+	void toggle_log_color();
 
 private:
 	void reset_view();
@@ -118,7 +127,8 @@ private:
 	                const int x_max,
 	                const int block_view_offset,
 	                const double rel_y_scale,
-	                const uint32_t *buffer);
+	                const uint32_t *buffer,
+	                const int hsv_value);
 
 private:
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>&       x_zoom_converter()       { return _x_zoom_converter; }
@@ -147,10 +157,11 @@ private:
 	bool                                         _view_deleted;
 	uint64_t                                     _max_count;
 	int                                          _block_zoom_value;
-	bool                                         _show_bg;
+	bool                                         _show_selectable;
+	bool                                         _show_all;
 	bool                                         _auto_x_zoom_sel;
 	bool                                         _do_auto_scale;
-	
+	bool                                         _use_log_color;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>  _x_zoom_converter;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>  _y_zoom_converter;
 
