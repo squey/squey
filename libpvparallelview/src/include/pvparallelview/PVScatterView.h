@@ -11,6 +11,8 @@
 
 #include <pvkernel/core/PVSharedPointer.h>
 
+#include <picviz/PVAxesCombination.h>
+
 #include <pvparallelview/PVScatterViewImagesManager.h>
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
@@ -72,7 +74,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 public:
 	PVScatterView(
 		const Picviz::PVView_sp &pvview_sp,
-		PVZonesManager & zm,
+		PVZonesManager const& zm,
 		PVCol const axis_index,
 		PVZonesProcessor& zp_bg,
 		PVZonesProcessor& zp_sel,
@@ -86,6 +88,13 @@ public:
 	void update_all_async();
 
 	inline Picviz::PVView& lib_view() { return _view; }
+	inline Picviz::PVView const& lib_view() const { return _view; }
+
+	PVZoneID get_zone_index() const { return get_images_manager().get_zone_index(); }
+
+	bool update_zones();
+
+	void set_enabled(bool en);
 
 public:
 	static void toggle_show_quadtrees() { _show_quadtrees = !_show_quadtrees; }
@@ -103,7 +112,10 @@ private slots:
 	void update_img_sel(PVParallelView::PVZoneRendering_p zr, int zid);
 
 private:
-	PVScatterViewImagesManager& get_images_manager() { return _images_manager; }
+	inline PVZonesManager const& get_zones_manager() const { return get_images_manager().get_zones_manager(); }
+	inline PVScatterViewImagesManager& get_images_manager() { return _images_manager; }
+	inline PVScatterViewImagesManager const& get_images_manager() const { return _images_manager; }
+	PVZoneTree const& get_zone_tree() const;
 
 private slots:
 	void do_zoom_change(int axes);
@@ -112,7 +124,6 @@ private slots:
 private:
 	Picviz::PVView& _view;
 	PVScatterViewImagesManager _images_manager;
-	PVZoneTree const& _zt;
 	bool _view_deleted;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> *_zoom_converter;
 	PVSelectionSquareScatterView* _selection_square;
@@ -123,6 +134,8 @@ private:
 
 	QRectF _last_image_margined_viewport;
 	QRectF _last_image_scene;
+
+	Picviz::PVAxesCombination::axes_comb_id_t _axis_id;
 };
 
 }

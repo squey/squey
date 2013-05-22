@@ -6,23 +6,48 @@
 
 #include <pvparallelview/PVScatterViewImagesManager.h>
 #include <pvparallelview/PVZoneRenderingScatter.h>
+#include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZonesProcessor.h>
 
 PVParallelView::PVScatterViewImagesManager::PVScatterViewImagesManager(
 	PVZoneID const zid,
 	PVZonesProcessor& zp_bg,
 	PVZonesProcessor& zp_sel,
-	PVZoomedZoneTree const& zzt,
+	PVZonesManager const& zm,
 	const PVCore::PVHSVColor* colors,
 	Picviz::PVSelection const& sel
 ):
 	_zid(zid),
+	_zm(zm),
 	_sel(sel),
-	_data_params(zzt, colors),
+	_data_params(zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(zid), colors),
 	_zp_bg(zp_bg),
 	_zp_sel(zp_sel),
 	_img_update_receiver(nullptr)
 {
+}
+
+void PVParallelView::PVScatterViewImagesManager::cancel_all_and_wait()
+{
+	if (_zr_bg) {
+		_zr_bg->cancel();
+	}
+	if (_zr_sel) {
+		_zr_sel->cancel();
+	}
+	if (_zr_bg) {
+		_zr_bg->wait_end();
+	}
+	if (_zr_sel) {
+		_zr_sel->wait_end();
+	}
+}
+
+void PVParallelView::PVScatterViewImagesManager::set_zone(PVZoneID const zid)
+{
+	cancel_all_and_wait();
+	_data_params.zzt = &get_zones_manager().get_zone_tree<PVParallelView::PVZoomedZoneTree>(zid);
+	_zid = zid;
 }
 
 bool PVParallelView::PVScatterViewImagesManager::change_and_process_view(
@@ -39,7 +64,6 @@ bool PVParallelView::PVScatterViewImagesManager::change_and_process_view(
 	}
 
 	set_params(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
-
 
 	process_all();
 
@@ -102,15 +126,15 @@ void PVParallelView::PVScatterViewImagesManager::process_all()
 	process_bg();
 }
 
-const QImage& PVParallelView::PVScatterViewImagesManager::get_image_sel()
+const QImage& PVParallelView::PVScatterViewImagesManager::get_image_sel() const
 {
-	PVScatterViewData& data = full_view() ? _data_z0 : _data;
+	PVScatterViewData const& data = full_view() ? _data_z0 : _data;
 	return data.image_sel().get_rgb_image();
 }
 
-const QImage& PVParallelView::PVScatterViewImagesManager::get_image_all()
+const QImage& PVParallelView::PVScatterViewImagesManager::get_image_all() const
 {
-	PVScatterViewData& data = full_view() ? _data_z0 : _data;
+	PVScatterViewData const& data = full_view() ? _data_z0 : _data;
 	return data.image_bg().get_rgb_image();
 }
 

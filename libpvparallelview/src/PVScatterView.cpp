@@ -42,16 +42,15 @@ bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
 PVParallelView::PVScatterView::PVScatterView(
 	const Picviz::PVView_sp &pvview_sp,
-	PVZonesManager & zm,
-	PVCol const axis_index,
+	PVZonesManager const& zm,
+	PVCol const zone_index,
 	PVZonesProcessor& zp_bg,
 	PVZonesProcessor& zp_sel,
 	QWidget* parent /*= nullptr*/
 ) :
 	PVZoomableDrawingAreaWithAxes(parent),
 	_view(*pvview_sp),
-	_images_manager(axis_index, zp_bg, zp_sel, zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(axis_index), pvview_sp->output_layer.get_lines_properties().get_buffer(), pvview_sp->get_real_output_selection()),
-	_zt(zm.get_zone_tree<PVParallelView::PVZoneTree>(axis_index)),
+	_images_manager(zone_index, zp_bg, zp_sel, zm, pvview_sp->output_layer.get_lines_properties().get_buffer(), pvview_sp->get_real_output_selection()),
 	_view_deleted(false)
 {
 	//set_gl_viewport();
@@ -62,18 +61,10 @@ PVParallelView::PVScatterView::PVScatterView(
 	get_scene()->setSceneRect(r);
 
 	const PVRow nrows = zm.get_number_rows();
+	const uint32_t *y1_plotted, *y2_plotted;
+	get_zones_manager().get_zone_plotteds(zone_index, &y1_plotted, &y2_plotted);
 
-	const uint32_t* y1_plotted = Picviz::PVPlotted::get_plotted_col_addr(
-		zm.get_uint_plotted(),
-		nrows,
-		axis_index
-	);
-
-	const uint32_t* y2_plotted = Picviz::PVPlotted::get_plotted_col_addr(
-		zm.get_uint_plotted(),
-		nrows,
-		axis_index+1
-	);
+	_axis_id = lib_view().get_axes_combination().get_axes_comb_id(zone_index);
 
 	_selection_square = new PVSelectionSquareScatterView(y1_plotted, y2_plotted, nrows, this);
 
@@ -92,8 +83,8 @@ PVParallelView::PVScatterView::PVScatterView(
 	set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOn);
 
 	// TODO: register axis name change through the hive
-	set_x_legend(pvview_sp->get_axis_name(axis_index));
-	set_y_legend(pvview_sp->get_axis_name(axis_index+1));
+	set_x_legend(pvview_sp->get_axis_name(zone_index));
+	set_y_legend(pvview_sp->get_axis_name(zone_index+1));
 
 	set_transformation_anchor(AnchorUnderMouse);
 
@@ -119,10 +110,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	connect(this, SIGNAL(pan_has_changed()), this, SLOT(do_pan_change()));
 	connect(get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
 
-	_images_manager.set_img_update_receiver(this);
-
-	// Request quadtrees creation
-	zm.request_zoomed_zone(axis_index);
+	get_images_manager().set_img_update_receiver(this);
 }
 
 /*****************************************************************************
@@ -131,11 +119,18 @@ PVParallelView::PVScatterView::PVScatterView(
 
 PVParallelView::PVScatterView::~PVScatterView()
 {
+	get_images_manager().cancel_all_and_wait();
+
 	if (!_view_deleted) {
 		common::get_lib_view(_view)->remove_scatter_view(this);
 	}
 
 	delete _zoom_converter;
+}
+
+PVParallelView::PVZoneTree const& PVParallelView::PVScatterView::get_zone_tree() const
+{
+	return get_zones_manager().get_zone_tree<PVParallelView::PVZoneTree>(get_zone_index());
 }
 
 /*****************************************************************************
@@ -252,6 +247,24 @@ void PVParallelView::PVScatterView::do_update_all()
 	get_viewport()->update();
 }
 
+bool PVParallelView::PVScatterView::update_zones()
+{
+	PVCol new_zone = lib_view().get_axes_combination().get_index_by_id(_axis_id);
+	if (new_zone == PVCOL_INVALID_VALUE) {
+		if (get_zone_index() > get_zones_manager().get_number_of_managed_zones()) {
+			// Just delete this view as it can't be replaced by anything...
+			return false;
+		}
+
+		new_zone = get_zone_index();
+		_axis_id = lib_view().get_axes_combination().get_axes_comb_id(new_zone);
+	}
+
+	get_images_manager().set_zone(new_zone);
+
+	return true;
+}
+
 /*****************************************************************************
  * PVParallelView::PVScatterView::drawBackground
  *****************************************************************************/
@@ -278,10 +291,11 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 		painter->setOpacity(1.0);
 		const Picviz::PVSelection& sel = _view.get_real_output_selection();
 		PVParallelView::PVBCode code_b;
+		PVParallelView::PVZoneTree const& zt = get_zone_tree();
 		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
 		{
-			if (_zt.branch_valid(branch)) {
-				const PVRow row = _zt.get_first_elt_of_branch(branch);
+			if (zt.branch_valid(branch)) {
+				const PVRow row = zt.get_first_elt_of_branch(branch);
 				code_b.int_v = branch;
 				const double x_scene = ((uint32_t)code_b.s.l) << (32-PARALLELVIEW_ZT_BBITS);
 				const double y_scene = ((uint32_t)code_b.s.r) << (32-PARALLELVIEW_ZT_BBITS);
@@ -303,6 +317,14 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 	painter->restore();
 
 	draw_decorations(painter, rect);
+}
+
+void PVParallelView::PVScatterView::set_enabled(bool en)
+{
+	setEnabled(en);
+	if (!en) {
+		get_images_manager().cancel_all_and_wait();
+	}
 }
 
 ////

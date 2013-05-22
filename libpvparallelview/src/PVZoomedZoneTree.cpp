@@ -297,15 +297,9 @@ void PVParallelView::PVZoomedZoneTree::reset()
 	_initialized = false;
 }
 
-/*****************************************************************************
- * PVParallelView::PVZoomedZoneTree::process
- *****************************************************************************/
-
-void PVParallelView::PVZoomedZoneTree::process(const PVZoneProcessing &zp,
-                                               PVZoneTree &zt)
+void PVParallelView::PVZoomedZoneTree::init_structures()
 {
-	if (_initialized) {
-		PVLOG_WARN("calling ::process() on an already initialized ZoomedZoneTree\n");
+	if (_trees) {
 		return;
 	}
 
@@ -326,6 +320,21 @@ void PVParallelView::PVZoomedZoneTree::process(const PVZoneProcessing &zp,
 		}
 		y2_min += ZZT_MAX_VALUE;
 	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::process
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedZoneTree::process(const PVZoneProcessing &zp,
+                                               PVZoneTree &zt)
+{
+	if (_initialized) {
+		PVLOG_WARN("calling ::process() on an already initialized ZoomedZoneTree\n");
+		return;
+	}
+
+	init_structures();
 
 	tbb::tick_count start, end;
 	start = tbb::tick_count::now();
@@ -342,6 +351,8 @@ void PVParallelView::PVZoomedZoneTree::process(const PVZoneProcessing &zp,
 
 void PVParallelView::PVZoomedZoneTree::process_seq(const PVParallelView::PVZoneProcessing &zp)
 {
+	init_structures();
+
 	const uint32_t* pcol_a = zp.get_plotted_col_a();
 	const uint32_t* pcol_b = zp.get_plotted_col_b();
 
@@ -358,6 +369,8 @@ void PVParallelView::PVZoomedZoneTree::process_seq(const PVParallelView::PVZoneP
 void PVParallelView::PVZoomedZoneTree::process_seq_from_zt(const PVZoneProcessing &zp,
                                                            PVZoneTree &zt)
 {
+	init_structures();
+
 	register const uint32_t* pcol_a = zp.get_plotted_col_a();
 	register const uint32_t* pcol_b = zp.get_plotted_col_b();
 
@@ -377,6 +390,8 @@ void PVParallelView::PVZoomedZoneTree::process_seq_from_zt(const PVZoneProcessin
 
 void PVParallelView::PVZoomedZoneTree::process_omp(const PVParallelView::PVZoneProcessing &zp)
 {
+	init_structures();
+
 	const uint32_t* pcol_a = zp.get_plotted_col_a();
 	const uint32_t* pcol_b = zp.get_plotted_col_b();
 	const PVRow nrows = zp.nrows();
@@ -438,6 +453,8 @@ void PVParallelView::PVZoomedZoneTree::process_omp(const PVParallelView::PVZoneP
 void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessing &zp,
                                                            PVZoneTree &zt)
 {
+	init_structures();
+
 	const uint32_t* pcol_a = zp.get_plotted_col_a();
 	const uint32_t* pcol_b = zp.get_plotted_col_b();
 

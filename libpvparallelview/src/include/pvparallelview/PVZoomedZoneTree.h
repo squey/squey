@@ -836,6 +836,8 @@ private:
 		return compute_index(e.y1, e.y2);
 	}
 
+	void init_structures();
+
 private:
 	pvquadtree      *_trees;
 	const PVRow     *_sel_elts;

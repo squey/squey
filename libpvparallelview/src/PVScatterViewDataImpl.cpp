@@ -3,7 +3,7 @@
 
 void PVParallelView::PVScatterViewDataImpl::process_bg(ProcessParams const& params, tbb::task_group_context* ctxt)
 {
-	params.zzt.browse_bci_by_y1_y2(
+	params.zzt->browse_bci_by_y1_y2(
 			params.y1_min,
 			params.y1_max,
 			params.y2_min,
@@ -20,7 +20,7 @@ void PVParallelView::PVScatterViewDataImpl::process_bg(ProcessParams const& para
 
 void PVParallelView::PVScatterViewDataImpl::process_sel(ProcessParams const& params, Picviz::PVSelection const& sel, tbb::task_group_context* ctxt)
 {
-	params.zzt.browse_bci_by_y1_y2_sel(
+	params.zzt->browse_bci_by_y1_y2_sel(
 			params.y1_min,
 			params.y1_max,
 			params.y2_min,

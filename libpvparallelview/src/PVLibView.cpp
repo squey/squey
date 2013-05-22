@@ -68,7 +68,7 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 	);
 
 	_obs_axes_comb = PVHive::create_observer_callback_heap<Picviz::PVAxesCombination::columns_indexes_t>(
-	    [&](Picviz::PVAxesCombination::columns_indexes_t const*) { },
+	    [&](Picviz::PVAxesCombination::columns_indexes_t const*) { this->axes_comb_about_to_be_updated(); },
 		[&](Picviz::PVAxesCombination::columns_indexes_t const*) { this->axes_comb_updated(); },
 		[&](Picviz::PVAxesCombination::columns_indexes_t const*) { }
 	);
@@ -174,6 +174,7 @@ PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(
 )
 {
 	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
+	_zones_manager.request_zoomed_zone(axis);
 
 	PVScatterView* view = new PVScatterView(
 		view_sp,
@@ -333,19 +334,18 @@ void PVParallelView::PVLibView::plotting_updated()
 	}
 
 	for (PVScatterView* view: _scatter_views) {
-		//view->set_enabled(true);
+		view->set_enabled(true);
 		view->update_all_async();
 	}
 }
 
-void PVParallelView::PVLibView::axes_comb_updated()
+void PVParallelView::PVLibView::axes_comb_about_to_be_updated()
 {
 	/* while the zones update, views must *not* access to them;
 	 * views have also to be disabled (jobs must be cancelled
 	 * and the widgets must be disabled in the Qt's way).
 	 */
 
-	// set_enabled *must* cancel all current rendering.
 	for (PVFullParallelScene* view: _parallel_scenes) {
 		view->set_enabled(false);
 	}
@@ -354,6 +354,13 @@ void PVParallelView::PVLibView::axes_comb_updated()
 		view->set_enabled(false);
 	}
 
+	for (PVScatterView* view: _scatter_views) {
+		view->set_enabled(false);
+	}
+}
+
+void PVParallelView::PVLibView::axes_comb_updated()
+{
 	std::vector<PVZoneID> modified_zones(get_zones_manager().update_from_axes_comb(*lib_view()));
 
 	// Update preprocessors' number of zones
@@ -397,6 +404,22 @@ void PVParallelView::PVLibView::axes_comb_updated()
 
 	_zoomed_parallel_scenes = new_zps;
 
+	scatter_view_list_t new_svs;
+
+	for (size_t i = 0; i < _scatter_views.size(); ++i) {
+		PVScatterView* sv = _scatter_views[i];
+		_scatter_views[i] = nullptr;
+
+		if (sv->update_zones()) {
+			// the ZPS can still exist
+			new_svs.push_back(sv);
+		} else {
+			sv->parentWidget()->close();
+		}
+	}
+
+	_scatter_views = new_svs;
+
 	PVCore::PVProgressBox pbox("Updating zoomed parallel views");
 
 	PVCore::PVProgressBox::progress([&]() {
@@ -406,6 +429,16 @@ void PVParallelView::PVLibView::axes_comb_updated()
 				view->update_all_async();
 			}
 		}, &pbox);
+
+	PVCore::PVProgressBox pbox2("Updating scatter views");
+
+	PVCore::PVProgressBox::progress([&]() {
+			for (PVScatterView* view: _scatter_views) {
+				view->set_enabled(true);
+				request_zoomed_zone_trees(view->get_zone_index());
+				view->update_all_async();
+			}
+		}, &pbox2);
 }
 
 void PVParallelView::PVLibView::remove_view(PVFullParallelScene *scene)

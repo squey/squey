@@ -19,6 +19,7 @@
 namespace PVParallelView
 {
 
+class PVZonesManager;
 class PVZonesProcessor;
 
 class PVScatterViewImagesManager: boost::noncopyable
@@ -31,7 +32,7 @@ public:
 		PVZoneID const zid,
 		PVZonesProcessor& zp_bg,
 		PVZonesProcessor& zp_sel,
-		PVZoomedZoneTree const& zzt,
+		PVZonesManager const& zm,
 		const PVCore::PVHSVColor* colors,
 		Picviz::PVSelection const& sel
 	);
@@ -52,8 +53,15 @@ public:
 	void process_all();
 
 public:
-	const QImage& get_image_sel();
-	const QImage& get_image_all();
+	void set_zone(PVZoneID const zid);
+	void cancel_all_and_wait();
+
+public:
+	const QImage& get_image_sel() const;
+	const QImage& get_image_all() const;
+
+	PVZoneID get_zone_index() const { return _zid; }
+	PVZonesManager const& get_zones_manager() const { return _zm; }
 
 public:
 	inline uint64_t last_y1_min() const { return _data_params.y1_min; }
@@ -104,6 +112,7 @@ protected:
 
 protected:
 	PVZoneID _zid;
+	PVZonesManager const& _zm;
 
 	PVScatterViewData _data_z0; // Data for initial zoom (with 10-bit precision)
 	PVScatterViewData _data;

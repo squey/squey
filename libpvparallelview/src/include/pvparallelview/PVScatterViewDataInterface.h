@@ -39,7 +39,7 @@ public:
 			PVZoomedZoneTree const& zzt,
 			const PVCore::PVHSVColor* colors
 		) :
-			zzt(zzt),
+			zzt(&zzt),
 			colors(colors),
 			y1_min(0),
 			y1_max(0),
@@ -49,7 +49,7 @@ public:
 			alpha(1.0)
 		{ }
 
-		PVZoomedZoneTree const& zzt;
+		PVZoomedZoneTree const* zzt;
 		const PVCore::PVHSVColor* colors;
 		uint64_t y1_min;
 		uint64_t y1_max;
