@@ -25,11 +25,19 @@ void PVCore::PVHSVColor::to_rgba(const PVHSVColor* hsv_image, QImage& rbg_image)
 {
 	assert(!rbg_image.isNull());
 
-	size_t image_width = rbg_image.width();
-	size_t image_height = rbg_image.height();
+	size_t rect_x = 0;
+	size_t rect_y = 0;
+	size_t rect_width = rbg_image.width();
+	size_t rect_height = rbg_image.height();
+
+	assert(rect_width <= (size_t) rbg_image.width());
+	assert(rect_x <= (size_t) rbg_image.width());
+	assert(rect_height <= (size_t) rbg_image.height());
+	assert(rect_y <= (size_t) rbg_image.height());
+
 	QRgb* rgb = (QRgb*) &rbg_image.scanLine(0)[0];
 #pragma omp parallel for schedule(static, 16)
-	for (uint32_t i = 0; i < image_width*image_height; i++) {
+	for (uint32_t i = rect_y*rect_width+rect_x; i < rect_width*rect_height; i++) {
 		hsv_image[i].to_rgba((uint8_t*) &rgb[i]);
 	}
 }

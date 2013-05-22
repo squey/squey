@@ -762,6 +762,7 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 	double alpha,
 	PVCore::PVHSVColor const* const colors,
 	PVCore::PVHSVColor* const image,
+	uint32_t image_width,
 	const extract_entries_y1_y2_f &extract_f,
 	PVRow const* const sel_elts
 ) const
@@ -780,10 +781,10 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 			   {
 					uint32_t l = ((uint32_t)(((e.y1 - y1_min) * alpha))) >> shift;
 					uint32_t r = ((uint32_t)(((e.y2 - y2_min) * alpha))) >> shift;
-					assert(r < 2048);
-					assert(l < 2048);
-					if (image[r*2048+l].h() == HSV_COLOR_TRANSPARENT) {
-						image[r*2048+l] = colors[e.idx];
+					assert(r < image_width);
+					assert(l < image_width);
+					if (image[r*image_width+l].h() == HSV_COLOR_TRANSPARENT) {
+						image[r*image_width+l] = colors[e.idx];
 						return 1;
 					}
 					return 0;

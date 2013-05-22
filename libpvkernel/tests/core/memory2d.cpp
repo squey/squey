@@ -13,10 +13,10 @@
 #include <pvkernel/core/PVHSVColor.h>
 
 constexpr uint32_t image_width = 500;
-constexpr uint32_t image_height = 100;
+constexpr uint32_t image_height = 600;
 
 constexpr int x_offset = -100;
-constexpr int y_offset = 20;
+constexpr int y_offset = -150;
 
 int main(int argc, char *argv[])
 {

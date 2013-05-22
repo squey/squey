@@ -13,6 +13,7 @@
 #include <pvkernel/core/PVHSVColor.h>
 
 #include <pvparallelview/PVZoomedZoneTree.h>
+#include <pvparallelview/PVScatterViewImage.h>
 
 
 namespace PVParallelView {
@@ -26,6 +27,15 @@ public:
 public:
 	struct ProcessParams
 	{
+		struct dirty_rect
+		{
+			dirty_rect() : y1_min(0), y1_max(0), y2_min(0), y2_max(0) {}
+			uint64_t y1_min;
+			uint64_t y1_max;
+			uint64_t y2_min;
+			uint64_t y2_max;
+		};
+
 		ProcessParams(
 			PVZoomedZoneTree const& zzt,
 			const PVCore::PVHSVColor* colors
@@ -37,8 +47,15 @@ public:
 			y2_min(0),
 			y2_max(0),
 			zoom(0),
-			alpha(1.0)
+			alpha(1.0),
+			y1_offset(0),
+			y2_offset(0)
 		{}
+
+		dirty_rect rect_1() const;
+		dirty_rect rect_2() const;
+		int32_t map_to_view(int64_t scene_value) const;
+		QRect map_to_view(const dirty_rect& rect) const;
 
 		PVZoomedZoneTree const& zzt;
 		const PVCore::PVHSVColor* colors;
@@ -48,6 +65,8 @@ public:
 		uint64_t y2_max;
 		int zoom;
 		double alpha;
+		int64_t y1_offset;
+		int64_t y2_offset;
 	};
 
 public:
@@ -60,21 +79,11 @@ public:
 	}
 
 public:
-	//void shift_left(const uint32_t nblocks, const double alpha);
-	//void shift_right(const uint32_t nblocks, const double alpha);
-
-public:
 	PVScatterViewImage const& image_all() const { return _image_all; }
 	PVScatterViewImage const& image_sel() const { return _image_sel; }
 
 	PVScatterViewImage& image_all() { return _image_all; }
 	PVScatterViewImage& image_sel() { return _image_sel; }
-
-	void clear()
-	{
-		image_all().clear();
-		image_sel().clear();
-	}
 
 private:
 	PVScatterViewImage _image_all;

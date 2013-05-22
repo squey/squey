@@ -56,3 +56,36 @@ void PVCore::memmove2d(
 
 	BENCH_END(memmove2d, "memmove2d", dest_width*dest_height, sizeof(char), dest_width*dest_height, sizeof(char));
 }
+
+void PVCore::memset2d(
+	void* source,
+	char value,
+	size_t image_width,
+	size_t image_height,
+	size_t rect_x,
+	size_t rect_y,
+	size_t rect_width,
+	size_t rect_height
+)
+{
+	assert(rect_x + rect_width < image_width);
+	assert(rect_y + rect_height < image_height);
+
+	char* s = (char*) source;
+
+	uint32_t i = rect_y*image_width+rect_x;
+	for (uint32_t j = 0; j < rect_height; j ++) {
+		memset(&s[i], value, rect_width);
+		i += image_width;
+	}
+}
+
+void PVCore::memset2d(
+	void* source,
+	char value,
+	size_t image_width,
+	size_t image_height,
+	const QRect& r)
+{
+	memset2d(source, value, image_width, image_height, r.x(), r.y(), r.width(), r.height());
+}

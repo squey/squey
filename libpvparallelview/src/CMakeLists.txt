@@ -94,6 +94,8 @@ PVHitCountView.cpp
 PVScatterView.cpp
 PVScatterViewImage.cpp
 PVScatterViewImagesManager.cpp
+PVScatterViewDataInterface.cpp
+PVScatterViewDataImpl.cpp
 )
 
 set(CUDA_SRC_FILES
