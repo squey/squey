@@ -172,7 +172,7 @@ void test(
 		PVParallelView::PVZoneTree *zt = 0;
 		PVParallelView::PVZoomedZoneTree::context_t zzt_ctx;
 
-		if ((mode_value == MODE_SEQ_ZT) || (mode_value == MODE_OMP_ZT)) {
+		if ((mode_value == MODE_SEQ_ZT) || (mode_value == MODE_OMP_ZT) || (mode_value == MODE_FILE)) {
 			zt = new PVParallelView::PVZoneTree();
 			std::cout << "== ZT::process ==" << std::endl;
 			BENCH_START(process);
@@ -183,14 +183,23 @@ void test(
 		std::cout << "== ZZT::process ==" << std::endl;
 		{
 			BENCH_START(process);
-			if (mode_value == MODE_SEQ) {
+			switch (mode_value) {
+			case MODE_SEQ:
 				zzt->process_seq(zp);
-			} else if (mode_value == MODE_OMP) {
+				break;
+			case MODE_OMP:
 				zzt->process_omp(zp);
-			} else if (mode_value == MODE_SEQ_ZT) {
+				break;
+			case MODE_SEQ_ZT:
 				zzt->process_seq_from_zt(zp, *zt);
-			} else if (mode_value == MODE_OMP_ZT) {
+				break;
+			case MODE_OMP_ZT:
 				zzt->process_omp_from_zt(zp, *zt);
+				break;
+			case MODE_FILE:
+			default:
+				zzt->process(zp, *zt);
+				break;
 			}
 			BENCH_END_TRANSFORM(process, "ZZT::process", 1, 1);
 			memprintf("memory", zzt->memory());
