@@ -457,6 +457,9 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	if (container) {
 		// Add entries to the horizontal header context menu for new widgets creation.
 		PVDisplays::get().add_displays_view_axis_menu(*_hhead_ctxt_menu, container, SLOT(create_view_axis_widget()), (Picviz::PVView*) &lib_view(), comb_col);
+		if (!lib_view().is_last_axis(comb_col)) {
+			PVDisplays::get().add_displays_view_zone_menu(*_hhead_ctxt_menu, container, SLOT(create_view_zone_widget()), (Picviz::PVView*) &lib_view(), comb_col);
+		}
 		_hhead_ctxt_menu->addSeparator();
 	}
 	_hhead_ctxt_menu->addAction(_action_col_unique);

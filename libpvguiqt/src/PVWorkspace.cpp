@@ -21,6 +21,7 @@
 #include <picviz/widgets/PVArgumentListWidgetFactory.h>
 
 #include <pvkernel/core/PVAxisIndexType.h>
+#include <pvkernel/core/PVZoneIndexType.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 
 
@@ -280,6 +281,39 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(QAction* act)
 	add_view_display(view, w, [&,view,axis_comb](){ return display_if.widget_title(view, axis_comb); }, display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), true);
 }
 
+void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(QAction* act)
+{
+	// All this should be the same than create_view_widget w/ a PVCore::PVArgumentList passed to create_widget
+	if (!act) {
+		act = qobject_cast<QAction*>(sender());
+		if (!act) {
+			return;
+		}
+	}
+
+	Picviz::PVView* view = nullptr;
+	PVCol zone_idx = PVCOL_INVALID_VALUE;
+	PVDisplays::PVDisplayViewZoneIf& display_if = PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewZoneIf>(*act, view, zone_idx);
+
+	if (!view) {
+		return;
+	}
+
+	if (zone_idx == PVCOL_INVALID_VALUE) {
+		PVCore::PVArgumentList args;
+		args[PVCore::PVArgumentKey("zone", tr("New view on zone"))].setValue(PVCore::PVZoneIndexType(0));
+		if (!PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
+		     PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view),
+		     args, this)) {
+			return;
+		}
+		zone_idx = args["zone"].value<PVCore::PVZoneIndexType>().get_zone_index();
+	}
+
+	QWidget* w = PVDisplays::get().get_widget(display_if, view, zone_idx);
+	add_view_display(view, w, [&,view,zone_idx](){ return display_if.widget_title(view, zone_idx); }, display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), true);
+}
+
 
 /******************************************************************************
  *
@@ -368,6 +402,22 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Picviz::PVSource* source, QWidget*
 
 	_toolbar->addSeparator();
 
+	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewZoneIf>(
+		[&](PVDisplays::PVDisplayViewZoneIf& obj)
+		{
+			if (!obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters)) {
+				QToolButton* btn = new QToolButton(_toolbar);
+				btn->setPopupMode(QToolButton::InstantPopup);
+				btn->setIcon(obj.toolbar_icon());
+				btn->setToolTip(obj.tooltip_str());
+				_toolbar->addWidget(btn);
+
+				_view_zone_display_if_btns << std::make_pair(btn, &obj);
+			}
+		}, PVDisplays::PVDisplayIf::ShowInToolbar);
+
+	_toolbar->addSeparator();
+
 	refresh_views_menus();
 
 	for (Picviz::PVView_sp const& view: _source->get_children<Picviz::PVView>()) {
@@ -446,6 +496,15 @@ void PVGuiQt::PVSourceWorkspace::refresh_views_menus()
 			p.first->addAction(act);
 
 			connect(act, SIGNAL(triggered()), this, SLOT(create_view_axis_widget()));
+		}
+
+		// AG: this category could go into PVDisplayViewIf w/ a PVCore::PVArgumentList object with one axis !
+		for (std::pair<QToolButton*, PVDisplays::PVDisplayViewZoneIf*> const& p: _view_zone_display_if_btns) {
+			QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view.get(), PVCOL_INVALID_VALUE);
+			act->setText(action_name);
+			p.first->addAction(act);
+
+			connect(act, SIGNAL(triggered()), this, SLOT(create_view_zone_widget()));
 		}
 	}
 }

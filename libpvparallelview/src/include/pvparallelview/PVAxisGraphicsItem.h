@@ -110,6 +110,8 @@ public:
 		return get_sliders_group()->get_selection_ranges();
 	}
 
+	bool is_last_axis() const;
+
 public slots:
 	void emit_new_zoomed_parallel_view(int axis_id)
 	{

@@ -69,6 +69,19 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu, QObjec
 		}, PVDisplayIf::ShowInCtxtMenu);
 }
 
+void PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(QMenu& menu, QObject* receiver, const char* slot, Picviz::PVView* view, PVCol axis_comb) const
+{
+	visit_displays_by_if<PVDisplayViewZoneIf>(
+		[&](PVDisplayViewZoneIf& interface)
+		{
+			QAction* act = action_bound_to_params(interface, view, axis_comb);
+			act->setText(interface.axis_menu_name(view, axis_comb));
+			connect(act, SIGNAL(triggered()), receiver, slot);
+			menu.addAction(act);
+
+		}, PVDisplayIf::ShowInCtxtMenu);
+}
+
 PVDisplays::PVDisplaysContainer* PVDisplays::PVDisplaysImpl::get_parent_container(QWidget* self) const
 {
 	return PVCore::get_qobject_parent_of_type<PVDisplaysContainer*>(self);

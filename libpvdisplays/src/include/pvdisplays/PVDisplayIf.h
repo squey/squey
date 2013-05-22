@@ -170,10 +170,10 @@ public:
 	{ }
 };
 
-class PVDisplayViewAxisIf: public PVDisplayIf, public PVCore::PVRegistrableClass<PVDisplayViewAxisIf>
-{
-	friend class PVDisplaysImpl;
+namespace __impl {
 
+class PVDisplayViewAxisIf: public PVDisplayIf
+{
 public:
 	struct Params
 	{
@@ -192,10 +192,6 @@ public:
 
 private:
 	typedef std::map<Params, QWidget*> map_widgets_t;
-
-public:
-	typedef PVDisplayViewAxisIf RegAs;
-	typedef boost::shared_ptr<RegAs> p_type;
 
 public:
 	PVDisplayViewAxisIf(int flags = 0, QString const& tooltip_str = QString(), Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea):
@@ -232,6 +228,36 @@ private:
 
 private:
 	map_widgets_t _widgets;
+};
+
+}
+
+class PVDisplayViewAxisIf: public __impl::PVDisplayViewAxisIf, public PVCore::PVRegistrableClass<PVDisplayViewAxisIf>
+{
+	friend class PVDisplaysImpl;
+
+public:
+	PVDisplayViewAxisIf(int flags = 0, QString const& tooltip_str = QString(), Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea):
+		__impl::PVDisplayViewAxisIf(flags, tooltip_str, def_pos)
+	{ }
+
+public:
+	typedef PVDisplayViewAxisIf RegAs;
+	typedef boost::shared_ptr<RegAs> p_type;
+};
+
+class PVDisplayViewZoneIf: public __impl::PVDisplayViewAxisIf, public PVCore::PVRegistrableClass<PVDisplayViewZoneIf>
+{
+	friend class PVDisplaysImpl;
+
+public:
+	PVDisplayViewZoneIf(int flags = 0, QString const& tooltip_str = QString(), Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea):
+		__impl::PVDisplayViewAxisIf(flags, tooltip_str, def_pos)
+	{ }
+
+public:
+	typedef PVDisplayViewZoneIf RegAs;
+	typedef boost::shared_ptr<RegAs> p_type;
 };
 
 }
