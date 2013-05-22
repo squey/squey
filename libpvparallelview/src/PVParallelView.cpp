@@ -29,8 +29,8 @@ PVParallelView::PVParallelViewImpl::PVParallelViewImpl():
 
 	_color_view_bg.setRgbF(win_r, win_g, win_b, win_a);
 
-	qRegisterMetaType<PVParallelView::PVZoneRenderingBase_p>();
-	qRegisterMetaType<PVParallelView::PVZoneRenderingBase_p>("PVZoneRenderingBase_p");
+	qRegisterMetaType<PVParallelView::PVZoneRendering_p>();
+	qRegisterMetaType<PVParallelView::PVZoneRendering_p>("PVZoneRendering_p");
 }
 
 PVParallelView::PVParallelViewImpl::~PVParallelViewImpl()

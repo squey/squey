@@ -5,9 +5,10 @@
 
 namespace PVParallelView {
 
-class PVZoneRenderingBase;
-typedef boost::shared_ptr<PVZoneRenderingBase> PVZoneRenderingBase_p;
+class PVZoneRendering;
+typedef boost::shared_ptr<PVZoneRendering> PVZoneRendering_p;
 
 }
+
 
 #endif

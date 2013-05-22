@@ -315,6 +315,22 @@ QStringList Picviz::PVView::get_axes_names_list() const
 	return axes_combination.get_axes_names_list();
 }
 
+QStringList Picviz::PVView::get_zones_names_list() const
+{
+	const QStringList axes = get_axes_names_list();
+
+	QStringList ret;
+	ret.reserve(axes.size() - 1);
+
+	const QString del(" <-> ");
+
+	for (int i = 0; i < axes.size()-1; i++) {
+		ret << axes[i] + del + axes[i+1];
+	}
+
+	return ret;
+}
+
 Picviz::PVAxis const& Picviz::PVView::get_axis(PVCol index) const
 {
 	return axes_combination.get_axis(index);

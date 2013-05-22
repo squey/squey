@@ -346,11 +346,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_vi
 
 	sel.ensure_allocated();
 
-	const uint32_t y1_min = PVCore::clamp(floor(rect.left()),  0.0, (double) UINT32_MAX);
-	const uint32_t y1_max = PVCore::clamp(ceil(rect.right()) + 1, 0.0, (double) UINT32_MAX);
+	const uint32_t y1_min = PVCore::clamp(floor(rect.left()), 0.0, (double) UINT32_MAX);
+	const uint32_t y1_max = PVCore::clamp(ceil(rect.right()), 0.0, (double) UINT32_MAX);
 
-	const uint32_t y2_min = PVCore::clamp(floor(rect.top()), 0.0, (double) UINT32_MAX);
-	const uint32_t y2_max = PVCore::clamp(ceil(rect.bottom()) + 1, 0.0, (double) UINT32_MAX);
+	const uint32_t y2_min = PVCore::clamp(floor(rect.top()),   0.0, (double) UINT32_MAX);
+	const uint32_t y2_max = PVCore::clamp(ceil(rect.bottom()), 0.0, (double) UINT32_MAX);
 
 	const __m128i y1_min_sse = _mm_set1_epi32(y1_min);
 	const __m128i y1_max_sse = _mm_set1_epi32(y1_max);
@@ -358,47 +358,48 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scatter_vi
 	const __m128i y2_min_sse = _mm_set1_epi32(y2_min);
 	const __m128i y2_max_sse = _mm_set1_epi32(y2_max);
 
-	const uint32_t nrows_sse = nrows & ~31U;
+	const uint32_t nrows_sse = nrows & ~63U;
+
+	const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFFU);
 
 	BENCH_START(scatter_view_plotted_selection_sse);
 
-	PVRow i = 0;
-	PVRow chunk_idx = 0;
-#pragma omp parallel for num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())
-	for(i = 0; i < nrows_sse; i += 32) {
-		chunk_idx++;
-		uint64_t chunk = 0;
-		for (int j = 0; j < 32; j += 4) {
+#pragma omp parallel for num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number()) schedule(guided, 16)
+	for (PVRow i = 0; i < nrows_sse; i += 64) {
+		register uint64_t chunk = 0;
+		for (int j = 0; j < 64; j += 4) {
 			const __m128i y1_sse = _mm_load_si128((__m128i const*) &y1_plotted[i+j]);
-			const __m128i mask_y1 = picviz_mm_cmprange_epu32(y1_sse, y1_min_sse, y1_max_sse);
 
-			if (!(_mm_test_all_zeros(mask_y1, _mm_set1_epi32(0xFFFFFFFFU)))) {
+			const __m128i mask_y1 = picviz_mm_cmprange_in_epu32(y1_sse, y1_min_sse, y1_max_sse);
 
+			if (!(_mm_test_all_zeros(mask_y1, sse_ff))) {
 				const __m128i y2_sse = _mm_load_si128((__m128i const*) &y2_plotted[i+j]);
-				const __m128i mask_y2 = picviz_mm_cmprange_epu32(y2_sse, y2_min_sse, y2_max_sse);
+
+				const __m128i mask_y2 = picviz_mm_cmprange_in_epu32(y2_sse, y2_min_sse, y2_max_sse);
 				const __m128i mask_y1_y2 = _mm_and_si128(mask_y1, mask_y2);
 
 				const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask_y1_y2));
 				chunk |= sel_bits << j;
 			}
 		}
-		sel.set_chunk32_fast_stream(chunk_idx, chunk & layers_sel.get_chunk32_fast(chunk_idx));
+		const PVRow chunk_idx = Picviz::PVSelection::line_index_to_chunk(i);
+		sel.set_chunk_fast(chunk_idx, chunk & layers_sel.get_chunk_fast(chunk_idx));
 	}
-	for (; i < nrows; i++) {
+	for (PVRow i = nrows_sse; i < nrows; i++) {
 		const uint32_t y1 = y1_plotted[i];
 		const uint32_t y2 = y2_plotted[i];
 
-		if ((y1 >= y1_min) && (y1 < y1_max) && (y2 >= y2_min) && (y2 < y2_max)) {
+		if ((y1 >= y1_min) && (y1 <= y1_max) && (y2 >= y2_min) && (y2 <= y2_max)) {
 			if (layers_sel.get_line_fast(i)) {
 				sel.set_bit_fast(i);
+				continue;
 			}
-			continue;
 		}
 
 		sel.clear_bit_fast(i);
 	}
 
-	BENCH_END(scatter_view_plotted_selection_sse, "scatter_view_plotted_selection_sse", 2*nrows, sizeof(uint32_t), 1, 1);
+	BENCH_END(scatter_view_plotted_selection_sse, "scatter_view_plotted_selection_sse", 2*nrows, sizeof(uint32_t), Picviz::PVSelection::line_index_to_chunk(nrows), sizeof(uint64_t));
 
 	return 0;
 }

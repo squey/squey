@@ -12,10 +12,19 @@
 
 #include <pvkernel/core/PVHSVColor.h>
 
-#include <pvparallelview/PVZoomedZoneTree.h>
+#include <pvparallelview/PVScatterViewImage.h>
 
+namespace tbb {
+class task_group_context;
+}
+
+namespace Picviz {
+class PVSelection;
+}
 
 namespace PVParallelView {
+
+class PVZoomedZoneTree;
 
 class PVScatterViewDataInterface : boost::noncopyable
 {
@@ -30,7 +39,7 @@ public:
 			PVZoomedZoneTree const& zzt,
 			const PVCore::PVHSVColor* colors
 		) :
-			zzt(zzt),
+			zzt(&zzt),
 			colors(colors),
 			y1_min(0),
 			y1_max(0),
@@ -38,9 +47,9 @@ public:
 			y2_max(0),
 			zoom(0),
 			alpha(1.0)
-		{}
+		{ }
 
-		PVZoomedZoneTree const& zzt;
+		PVZoomedZoneTree const* zzt;
 		const PVCore::PVHSVColor* colors;
 		uint64_t y1_min;
 		uint64_t y1_max;
@@ -51,12 +60,12 @@ public:
 	};
 
 public:
-	virtual void process_bg(ProcessParams const& params) = 0;
-	virtual void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel) = 0;
-	virtual void process_all(ProcessParams const& params, Picviz::PVSelection const& sel)
+	virtual void process_bg(ProcessParams const& params, tbb::task_group_context* ctxt = nullptr) = 0;
+	virtual void process_sel(ProcessParams const& params, Picviz::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr) = 0;
+	virtual void process_all(ProcessParams const& params, Picviz::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr)
 	{
-		process_bg(params);
-		process_sel(params, sel);
+		process_bg(params, ctxt);
+		process_sel(params, sel, ctxt);
 	}
 
 public:
@@ -64,20 +73,20 @@ public:
 	//void shift_right(const uint32_t nblocks, const double alpha);
 
 public:
-	PVScatterViewImage const& image_all() const { return _image_all; }
+	PVScatterViewImage const& image_bg() const { return _image_bg; }
 	PVScatterViewImage const& image_sel() const { return _image_sel; }
 
-	PVScatterViewImage& image_all() { return _image_all; }
+	PVScatterViewImage& image_bg() { return _image_bg; }
 	PVScatterViewImage& image_sel() { return _image_sel; }
 
 	void clear()
 	{
-		image_all().clear();
+		image_bg().clear();
 		image_sel().clear();
 	}
 
 private:
-	PVScatterViewImage _image_all;
+	PVScatterViewImage _image_bg;
 	PVScatterViewImage _image_sel;
 };
 

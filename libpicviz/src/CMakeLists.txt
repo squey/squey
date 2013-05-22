@@ -141,16 +141,17 @@ include/picviz/widgets/PVAD2GListEdgesWidget.h
 include/picviz/widgets/PVAD2GRFFListModel.h
 include/picviz/widgets/PVCombinOpDelegate.h
 include/picviz/widgets/PVMappingModeWidget.h
-include/picviz/widgets/PVPlottingModeWidget.h
 include/picviz/widgets/PVMappingPlottingEditDialog.h
 include/picviz/widgets/PVNewLayerDialog.h
+include/picviz/widgets/PVPlottingModeWidget.h
 
-include/picviz/widgets/editors/PVAxisIndexEditor.h
-include/picviz/widgets/editors/PVAxisIndexCheckBoxEditor.h
 include/picviz/widgets/editors/PVAxesIndexEditor.h
+include/picviz/widgets/editors/PVAxisIndexCheckBoxEditor.h
+include/picviz/widgets/editors/PVAxisIndexEditor.h
 include/picviz/widgets/editors/PVLayerEnumEditor.h
 include/picviz/widgets/editors/PVOriginalAxisIndexEditor.h
 include/picviz/widgets/editors/PVViewRowsSpinBoxEditor.h
+include/picviz/widgets/editors/PVZoneIndexEditor.h
 )
 
 set(WIDGETS_SRC_FILES
@@ -158,20 +159,21 @@ widgets/PVAD2GEdgeEditor.cpp
 widgets/PVAD2GFunctionPropertiesWidget.cpp
 widgets/PVAD2GListEdgesWidget.cpp
 widgets/PVAD2GRFFListModel.cpp
-widgets/PVAxisTypeWidget.cpp
 widgets/PVArgumentListWidgetFactory.cpp
+widgets/PVAxisTypeWidget.cpp
 widgets/PVCombinOpDelegate.cpp
 widgets/PVMappingModeWidget.cpp
-widgets/PVPlottingModeWidget.cpp
 widgets/PVMappingPlottingEditDialog.cpp
 widgets/PVNewLayerDialog.cpp
+widgets/PVPlottingModeWidget.cpp
 
-widgets/editors/PVAxisIndexEditor.cpp
-widgets/editors/PVAxisIndexCheckBoxEditor.cpp
 widgets/editors/PVAxesIndexEditor.cpp
+widgets/editors/PVAxisIndexCheckBoxEditor.cpp
+widgets/editors/PVAxisIndexEditor.cpp
 widgets/editors/PVLayerEnumEditor.cpp
 widgets/editors/PVOriginalAxisIndexEditor.cpp
 widgets/editors/PVViewRowsSpinBoxEditor.cpp
+widgets/editors/PVZoneIndexEditor.cpp
 )
 
 set(MOC_HEADERS

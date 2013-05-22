@@ -2,7 +2,7 @@
 
 
 // PVDisplayViewAxisIf implementation
-QWidget* PVDisplays::PVDisplayViewAxisIf::get_unique_widget(Picviz::PVView* view, PVCol axis_comb, QWidget* parent)
+QWidget* PVDisplays::__impl::PVDisplayViewAxisIf::get_unique_widget(Picviz::PVView* view, PVCol axis_comb, QWidget* parent)
 {
 	QWidget* ret;
 	map_widgets_t::const_iterator it = _widgets.find(Params(view, axis_comb));
@@ -19,7 +19,7 @@ QWidget* PVDisplays::PVDisplayViewAxisIf::get_unique_widget(Picviz::PVView* view
 	return ret;
 }
 
-QAction* PVDisplays::PVDisplayViewAxisIf::action_bound_to_params(Picviz::PVView* view, PVCol axis_comb, QObject* parent) const
+QAction* PVDisplays::__impl::PVDisplayViewAxisIf::action_bound_to_params(Picviz::PVView* view, PVCol axis_comb, QObject* parent) const
 {
 	QAction* action = new QAction(parent);
 
@@ -31,13 +31,13 @@ QAction* PVDisplays::PVDisplayViewAxisIf::action_bound_to_params(Picviz::PVView*
 	return action;
 }
 
-QWidget* PVDisplays::PVDisplayViewAxisIf::get_unique_widget_from_action(QAction const& action, QWidget* parent)
+QWidget* PVDisplays::__impl::PVDisplayViewAxisIf::get_unique_widget_from_action(QAction const& action, QWidget* parent)
 {
 	Params p = get_params_from_action(action);
 	return get_unique_widget(p.view, p.axis_comb, parent);
 }
 
-QWidget* PVDisplays::PVDisplayViewAxisIf::create_widget_from_action(QAction const& action, QWidget* parent) const
+QWidget* PVDisplays::__impl::PVDisplayViewAxisIf::create_widget_from_action(QAction const& action, QWidget* parent) const
 {
 	Params p = get_params_from_action(action);
 	return create_widget(p.view, p.axis_comb, parent);

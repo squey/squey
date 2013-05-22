@@ -9,9 +9,14 @@
 
 #include <QTimer>
 
+#include <pvkernel/core/PVSharedPointer.h>
+
+#include <picviz/PVAxesCombination.h>
+
 #include <pvparallelview/PVScatterViewImagesManager.h>
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
+#include <pvparallelview/PVZoneRendering_types.h>
 
 class QPainter;
 
@@ -45,13 +50,34 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 	// -22 because we want a scale factor of 1 when the view fits in a 1024x1024 window
 	constexpr static int zoom_min = -22 * zoom_steps;
 
-	constexpr static int render_timer_ms = 75;
+	/*! \brief This class represent an image that has been rendered, with its
+	 * associated scene and viewport rect.
+	 */
+	class RenderedImage: boost::noncopyable
+	{
+	public:
+		/*! \brief Swap the stored image with a new rendered one.
+		 */
+		void swap(QImage const& img, QRectF const& scene_rect, QRectF const& viewport_rect);
+
+		/*! \brief Draw the image thanks to \a painter.
+		 *
+		 * This function assumes that \a painter uses the margined viewport coordinate system.
+		 */
+		void draw(PVGraphicsView* view, QPainter* painter);
+	private:
+		QRectF _scene_rect;
+		QRectF _viewport_rect;
+		QImage _img;
+	};
 
 public:
 	PVScatterView(
 		const Picviz::PVView_sp &pvview_sp,
-		PVZonesManager & zm,
+		PVZonesManager const& zm,
 		PVCol const axis_index,
+		PVZonesProcessor& zp_bg,
+		PVZonesProcessor& zp_sel,
 		QWidget *parent = nullptr
 	);
 	~PVScatterView();
@@ -62,6 +88,13 @@ public:
 	void update_all_async();
 
 	inline Picviz::PVView& lib_view() { return _view; }
+	inline Picviz::PVView const& lib_view() const { return _view; }
+
+	PVZoneID get_zone_index() const { return get_images_manager().get_zone_index(); }
+
+	bool update_zones();
+
+	void set_enabled(bool en);
 
 public:
 	static void toggle_show_quadtrees() { _show_quadtrees = !_show_quadtrees; }
@@ -75,26 +108,34 @@ private slots:
 	void update_all();
 	void update_sel();
 
+	void update_img_bg(PVParallelView::PVZoneRendering_p zr, int zid);
+	void update_img_sel(PVParallelView::PVZoneRendering_p zr, int zid);
+
 private:
-	PVScatterViewImagesManager& get_images_manager() { return _images_manager; }
+	inline PVZonesManager const& get_zones_manager() const { return get_images_manager().get_zones_manager(); }
+	inline PVScatterViewImagesManager& get_images_manager() { return _images_manager; }
+	inline PVScatterViewImagesManager const& get_images_manager() const { return _images_manager; }
+	PVZoneTree const& get_zone_tree() const;
 
 private slots:
 	void do_zoom_change(int axes);
 	void do_pan_change();
 
 private:
-	PVScatterViewImagesManager _images_manager;
-
-	QTimer _update_all_timer;
-
 	Picviz::PVView& _view;
-	PVZoneTree const& _zt;
+	PVScatterViewImagesManager _images_manager;
 	bool _view_deleted;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> *_zoom_converter;
 	PVSelectionSquareScatterView* _selection_square;
 	static bool _show_quadtrees;
 
+	RenderedImage _image_sel;
+	RenderedImage _image_bg;
+
 	QRectF _last_image_margined_viewport;
+	QRectF _last_image_scene;
+
+	Picviz::PVAxesCombination::axes_comb_id_t _axis_id;
 };
 
 }

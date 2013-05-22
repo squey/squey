@@ -126,6 +126,7 @@ public:
 	 *
 	 */
 	QStringList get_axes_names_list() const;
+	QStringList get_zones_names_list() const;
 	inline QStringList get_original_axes_names_list() const { return get_axes_combination().get_original_axes_names_list(); }
 	
 	/**
@@ -140,6 +141,8 @@ public:
 	QString get_axis_type(PVCol index) const;
 	PVAxis const& get_axis(PVCol const comb_index) const;
 	PVAxis const& get_axis_by_id(axes_comb_id_t const axes_comb_id) const;
+	bool is_last_axis(axes_comb_id_t const axes_comb_id) const { return get_axes_combination().is_last_axis(axes_comb_id); }
+	bool is_last_axis(PVCol const axis_comb) const { return axis_comb == get_column_count()-1; }
 
 	const PVCore::PVHSVColor get_color_in_output_layer(PVRow index) const;
 	PVCol get_column_count() const;

@@ -84,6 +84,7 @@ include/pvkernel/core/PVArchive.h
 include/pvkernel/core/PVArgument.h
 include/pvkernel/core/PVOriginalAxisIndexType.h
 include/pvkernel/core/PVAxisIndexType.h
+include/pvkernel/core/PVZoneIndexType.h
 include/pvkernel/core/PVAxesIndexType.h
 include/pvkernel/core/PVBitCount.h
 include/pvkernel/core/PVColor.h

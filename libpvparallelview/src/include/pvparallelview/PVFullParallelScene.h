@@ -168,8 +168,8 @@ private slots:
 
 private slots:
 	// Slots called from PVLinesView
-	void zr_sel_finished(PVParallelView::PVZoneRenderingBase_p zr, int zone_id);
-	void zr_bg_finished(PVParallelView::PVZoneRenderingBase_p  zr, int zone_id);
+	void zr_sel_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);
+	void zr_bg_finished(PVParallelView::PVZoneRendering_p  zr, int zone_id);
 
 	void render_all_zones_all_imgs();
 	void render_single_zone_all_imgs();

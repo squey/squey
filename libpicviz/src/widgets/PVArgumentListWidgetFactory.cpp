@@ -5,20 +5,23 @@
  */
 
 #include <pvkernel/widgets/PVArgumentListWidgetFactory.h>
+
 #include <picviz/widgets/PVArgumentListWidgetFactory.h>
 #include <picviz/widgets/PVViewArgumentEditorCreator.h>
 
-#include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVAxisIndexCheckBoxType.h>
+#include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVSpinBoxType.h>
+#include <pvkernel/core/PVZoneIndexType.h>
 
-#include <picviz/widgets/editors/PVOriginalAxisIndexEditor.h>
-#include <picviz/widgets/editors/PVAxisIndexEditor.h>
 #include <picviz/widgets/editors/PVAxesIndexEditor.h>
-#include <picviz/widgets/editors/PVLayerEnumEditor.h>
 #include <picviz/widgets/editors/PVAxisIndexCheckBoxEditor.h>
+#include <picviz/widgets/editors/PVAxisIndexEditor.h>
+#include <picviz/widgets/editors/PVLayerEnumEditor.h>
+#include <picviz/widgets/editors/PVOriginalAxisIndexEditor.h>
 #include <picviz/widgets/editors/PVViewRowsSpinBoxEditor.h>
+#include <picviz/widgets/editors/PVZoneIndexEditor.h>
 
 /******************************************************************************
  *
@@ -37,20 +40,22 @@ QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_
 	// Get core widgets and add ours
 	QItemEditorFactory* args_widget_factory = create_core_widgets_factory();
 
-	QItemEditorCreatorBase *pv_original_axis_index_creator = new PVViewArgumentEditorCreator<PVWidgets::PVOriginalAxisIndexEditor>(view);
-	QItemEditorCreatorBase *pv_axis_index_creator = new PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexEditor>(view);
-	QItemEditorCreatorBase *pv_axis_index_checkbox_creator = new PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexCheckBoxEditor>(view);
-	QItemEditorCreatorBase *pv_axes_index_creator = new PVViewArgumentEditorCreator<PVWidgets::PVAxesIndexEditor>(view);
+	QItemEditorCreatorBase *axes_index_creator = new PVViewArgumentEditorCreator<PVWidgets::PVAxesIndexEditor>(view);
+	QItemEditorCreatorBase *axis_index_checkbox_creator = new PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexCheckBoxEditor>(view);
+	QItemEditorCreatorBase *axis_index_creator = new PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexEditor>(view);
 	QItemEditorCreatorBase *layerenum_creator = new PVViewArgumentEditorCreator<PVWidgets::PVLayerEnumEditor>(view);
+	QItemEditorCreatorBase *original_axis_index_creator = new PVViewArgumentEditorCreator<PVWidgets::PVOriginalAxisIndexEditor>(view);
 	QItemEditorCreatorBase *rowsspinbox_creator = new PVViewArgumentEditorCreator<PVWidgets::PVViewRowsSpinBoxEditor>(view);
+	QItemEditorCreatorBase *zone_index_creator = new PVViewArgumentEditorCreator<PVWidgets::PVZoneIndexEditor>(view);
 
 	// And register them into the factory
-	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVOriginalAxisIndexType>(), pv_original_axis_index_creator);
-	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexType>(), pv_axis_index_creator);
-	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexCheckBoxType>(), pv_axis_index_checkbox_creator);
-	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxesIndexType>(), pv_axes_index_creator);
-	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<Picviz::PVLayer*>(), layerenum_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxesIndexType>(), axes_index_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexCheckBoxType>(), axis_index_checkbox_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexType>(), axis_index_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVOriginalAxisIndexType>(), original_axis_index_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVSpinBoxType>(), rowsspinbox_creator );
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVZoneIndexType>(), zone_index_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<Picviz::PVLayer*>(), layerenum_creator);
 
 	return args_widget_factory;
 }

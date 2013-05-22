@@ -15,7 +15,7 @@
  *****************************************************************************/
 
 PVDisplays::PVDisplayViewScatter::PVDisplayViewScatter():
-	PVDisplayViewAxisIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu)
+	PVDisplayViewZoneIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu)
 {
 }
 

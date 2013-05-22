@@ -158,7 +158,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVZonesProcessor bg_processor = PVParallelView::PVZonesProcessor::declare_processor_direct(*pipeline, colors);
 
 	PVParallelView::PVBCIBackendImage_p dst_img = backend.create_image(1024, 10);
-	PVParallelView::PVZoneRendering<10>* zr = new PVParallelView::PVZoneRendering<10>(
+	PVParallelView::PVZoneRenderingBCI<10>* zr = new PVParallelView::PVZoneRenderingBCI<10>(
 		0,
 		[&](PVZoneID z, PVCore::PVHSVColor const* colors_, PVParallelView::PVBCICode<10>* codes)
 		{
@@ -168,7 +168,7 @@ int main(int argc, char** argv)
 		0,
 		1024);
 
-	PVParallelView::PVZoneRendering<10>* zr_bg = new PVParallelView::PVZoneRendering<10>(
+	PVParallelView::PVZoneRenderingBCI<10>* zr_bg = new PVParallelView::PVZoneRenderingBCI<10>(
 		0,
 		[&](PVZoneID z, PVCore::PVHSVColor const* colors_, PVParallelView::PVBCICode<10>* codes)
 		{

@@ -9,23 +9,33 @@
 
 #include <boost/utility.hpp>
 
+#include <pvparallelview/common.h>
+
 #include <pvparallelview/PVScatterViewImage.h>
 #include <pvparallelview/PVScatterViewData.h>
+
+#include <pvparallelview/PVZoneRenderingScatter_types.h>
 
 namespace PVParallelView
 {
 
-class PVScatterViewImagesManager : boost::noncopyable
+class PVZonesManager;
+class PVZonesProcessor;
+
+class PVScatterViewImagesManager: boost::noncopyable
 {
 protected:
 	typedef PVScatterViewData::ProcessParams DataProcessParams;
 
 public:
 	PVScatterViewImagesManager(
-		PVZoomedZoneTree const& zzt,
+		PVZoneID const zid,
+		PVZonesProcessor& zp_bg,
+		PVZonesProcessor& zp_sel,
+		PVZonesManager const& zm,
 		const PVCore::PVHSVColor* colors,
 		Picviz::PVSelection const& sel
-	) : _sel(sel), _data_params(zzt, colors) {};
+	);
 
 public:
 	bool change_and_process_view(
@@ -43,14 +53,21 @@ public:
 	void process_all();
 
 public:
-	const QImage& get_image_sel();
-	const QImage& get_image_all();
+	void set_zone(PVZoneID const zid);
+	void cancel_all_and_wait();
 
 public:
-	inline uint32_t last_y1_min() const { return _data_params.y1_min; }
-	inline uint32_t last_y1_max() const { return _data_params.y1_max; }
-	inline uint32_t last_y2_min() const { return _data_params.y2_min; }
-	inline uint32_t last_y2_max() const { return _data_params.y2_max; }
+	const QImage& get_image_sel() const;
+	const QImage& get_image_all() const;
+
+	PVZoneID get_zone_index() const { return _zid; }
+	PVZonesManager const& get_zones_manager() const { return _zm; }
+
+public:
+	inline uint64_t last_y1_min() const { return _data_params.y1_min; }
+	inline uint64_t last_y1_max() const { return _data_params.y1_max; }
+	inline uint64_t last_y2_min() const { return _data_params.y2_min; }
+	inline uint64_t last_y2_max() const { return _data_params.y2_max; }
 	inline int last_zoom() const { return _data_params.zoom; }
 	inline double last_alpha() const { return _data_params.alpha; }
 	inline bool params_changed(
@@ -68,6 +85,8 @@ public:
 				 zoom == last_zoom() &&
 				 alpha == last_alpha());
 	}
+
+	inline void set_img_update_receiver(QObject* obj) { _img_update_receiver = obj; }
 
 protected:
 	inline void set_params(
@@ -87,17 +106,31 @@ protected:
 		_data_params.alpha = alpha;
 	}
 
-
-protected:
 	inline bool full_view() const { return (_data_params.zoom == 0) && (_data_params.alpha == 1.0); }
 
+	void connect_zr(PVZoneRenderingScatter& zr, const char* slot);
+
 protected:
+	PVZoneID _zid;
+	PVZonesManager const& _zm;
+
 	PVScatterViewData _data_z0; // Data for initial zoom (with 10-bit precision)
 	PVScatterViewData _data;
 
 	Picviz::PVSelection const& _sel;
 
 	DataProcessParams _data_params;
+
+	PVZoneRenderingScatter_p _zr_bg;
+	PVZoneRenderingScatter_p _zr_sel;
+
+	PVZonesProcessor& _zp_bg;
+	PVZonesProcessor& _zp_sel;
+
+	PVScatterViewImage _last_image_all;
+	PVScatterViewImage _last_image_bg;
+
+	QObject* _img_update_receiver;
 };
 
 }

@@ -10,6 +10,8 @@
 #include <cstddef>
 #include <cstdint>
 
+#include <boost/utility.hpp>
+
 class QImage;
 class QPainter;
 
@@ -21,7 +23,7 @@ namespace PVParallelView {
 
 class PVZoomedZoneTree;
 
-class PVScatterViewImage
+class PVScatterViewImage: boost::noncopyable
 {
 public:
 	constexpr static uint32_t image_width = 2048;
@@ -29,6 +31,11 @@ public:
 
 public:
 	PVScatterViewImage();
+	PVScatterViewImage(PVScatterViewImage&& o)
+	{
+		move(o);
+	}
+
 	~PVScatterViewImage();
 
 public:
@@ -41,6 +48,24 @@ public:
 
 	const PVCore::PVHSVColor* get_hsv_image() const { return _hsv_image; }
 	const QImage& get_rgb_image()  const { return *_rgb_image; };
+
+public:
+	PVScatterViewImage& operator=(PVScatterViewImage&& o)
+	{
+		if (&o != this) {
+			move(o);
+		}
+		return *this;
+	}
+
+private:
+	inline void move(PVScatterViewImage& o)
+	{
+		_hsv_image = o._hsv_image;
+		_rgb_image = o._rgb_image;
+		o._hsv_image = nullptr;
+		o._rgb_image = nullptr;
+	}
 
 private:
 	PVCore::PVHSVColor* _hsv_image;

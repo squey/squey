@@ -12,7 +12,7 @@
 
 namespace PVDisplays {
 
-class PVDisplayViewScatter: public PVDisplayViewAxisIf
+class PVDisplayViewScatter: public PVDisplayViewZoneIf
 {
 public:
 	PVDisplayViewScatter();
