@@ -13,7 +13,7 @@
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCIBackendImage.h>
-#include <pvparallelview/PVZoneRendering_types.h>
+#include <pvparallelview/PVZoneRenderingBCI_types.h>
 
 #include <picviz/PVSelection.h>
 

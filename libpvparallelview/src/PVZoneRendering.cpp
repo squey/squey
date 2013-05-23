@@ -15,7 +15,7 @@
  * PVParallelView::PVZoneRenderingBase::init
  *
  *****************************************************************************/
-void PVParallelView::PVZoneRenderingBase::init()
+void PVParallelView::PVZoneRendering::init()
 {
 	_qobject_finished_success = nullptr;
 	_cancel_state = cancel_state::value(false);
@@ -26,7 +26,7 @@ void PVParallelView::PVZoneRenderingBase::init()
  * PVParallelView::PVZoneRenderingBase::finished
  *
  *****************************************************************************/
-void PVParallelView::PVZoneRenderingBase::finished(p_type const& this_sp)
+void PVParallelView::PVZoneRendering::finished(p_type const& this_sp)
 {
 	// Having `this_sp' as parameter allows not to have an internal weak_ptr in PVZoneRenderingBase
 	assert(this_sp.get() == this);
@@ -44,7 +44,7 @@ void PVParallelView::PVZoneRenderingBase::finished(p_type const& this_sp)
 		assert(QThread::currentThread() != _qobject_finished_success->thread());
 		const int zone_id = zid();
 		QMetaObject::invokeMethod(_qobject_finished_success, _qobject_slot, Qt::QueuedConnection,
-				Q_ARG(PVParallelView::PVZoneRenderingBase_p, this_sp),
+				Q_ARG(PVParallelView::PVZoneRendering_p, this_sp),
 				Q_ARG(int, zone_id));
 	}
 
@@ -59,7 +59,7 @@ void PVParallelView::PVZoneRenderingBase::finished(p_type const& this_sp)
 	}
 }
 
-bool PVParallelView::PVZoneRenderingBase::finished() const
+bool PVParallelView::PVZoneRendering::finished() const
 {
 	bool ret;
 	{
@@ -69,7 +69,7 @@ bool PVParallelView::PVZoneRenderingBase::finished() const
 	return ret;
 }
 
-void PVParallelView::PVZoneRenderingBase::cancel_and_add_job(PVZonesProcessor& zp, p_type const& zr)
+void PVParallelView::PVZoneRendering::cancel_and_add_job(PVZonesProcessor& zp, p_type const& zr)
 {
 	_job_after_canceled.zr = zr;
 	_job_after_canceled.zp = &zp;
@@ -79,11 +79,11 @@ void PVParallelView::PVZoneRenderingBase::cancel_and_add_job(PVZonesProcessor& z
 	}
 }
 
-void PVParallelView::PVZoneRenderingBase::next_job::launch()
+void PVParallelView::PVZoneRendering::next_job::launch()
 {
 	PVZonesProcessor* const zp_ = zp.fetch_and_store(nullptr);
 	if (zp_) {
-		zp_->add_job(boost::static_pointer_cast<PVZoneRenderingBCIBase>(zr));
+		zp_->add_job(zr);
 		zr.reset();
 	}
 }

@@ -297,15 +297,9 @@ void PVParallelView::PVZoomedZoneTree::reset()
 	_initialized = false;
 }
 
-/*****************************************************************************
- * PVParallelView::PVZoomedZoneTree::process
- *****************************************************************************/
-
-void PVParallelView::PVZoomedZoneTree::process(const PVZoneProcessing &zp,
-                                               PVZoneTree &zt)
+void PVParallelView::PVZoomedZoneTree::init_structures()
 {
-	if (_initialized) {
-		PVLOG_WARN("calling ::process() on an already initialized ZoomedZoneTree\n");
+	if (_trees) {
 		return;
 	}
 
@@ -326,6 +320,21 @@ void PVParallelView::PVZoomedZoneTree::process(const PVZoneProcessing &zp,
 		}
 		y2_min += ZZT_MAX_VALUE;
 	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::process
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedZoneTree::process(const PVZoneProcessing &zp,
+                                               PVZoneTree &zt)
+{
+	if (_initialized) {
+		PVLOG_WARN("calling ::process() on an already initialized ZoomedZoneTree\n");
+		return;
+	}
+
+	init_structures();
 
 	tbb::tick_count start, end;
 	start = tbb::tick_count::now();
@@ -342,6 +351,8 @@ void PVParallelView::PVZoomedZoneTree::process(const PVZoneProcessing &zp,
 
 void PVParallelView::PVZoomedZoneTree::process_seq(const PVParallelView::PVZoneProcessing &zp)
 {
+	init_structures();
+
 	const uint32_t* pcol_a = zp.get_plotted_col_a();
 	const uint32_t* pcol_b = zp.get_plotted_col_b();
 
@@ -358,6 +369,8 @@ void PVParallelView::PVZoomedZoneTree::process_seq(const PVParallelView::PVZoneP
 void PVParallelView::PVZoomedZoneTree::process_seq_from_zt(const PVZoneProcessing &zp,
                                                            PVZoneTree &zt)
 {
+	init_structures();
+
 	register const uint32_t* pcol_a = zp.get_plotted_col_a();
 	register const uint32_t* pcol_b = zp.get_plotted_col_b();
 
@@ -377,6 +390,8 @@ void PVParallelView::PVZoomedZoneTree::process_seq_from_zt(const PVZoneProcessin
 
 void PVParallelView::PVZoomedZoneTree::process_omp(const PVParallelView::PVZoneProcessing &zp)
 {
+	init_structures();
+
 	const uint32_t* pcol_a = zp.get_plotted_col_a();
 	const uint32_t* pcol_b = zp.get_plotted_col_b();
 	const PVRow nrows = zp.nrows();
@@ -438,6 +453,8 @@ void PVParallelView::PVZoomedZoneTree::process_omp(const PVParallelView::PVZoneP
 void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessing &zp,
                                                            PVZoneTree &zt)
 {
+	init_structures();
+
 	const uint32_t* pcol_a = zp.get_plotted_col_a();
 	const uint32_t* pcol_b = zp.get_plotted_col_b();
 
@@ -764,9 +781,19 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 	PVCore::PVHSVColor* const image,
 	uint32_t image_width,
 	const extract_entries_y1_y2_f &extract_f,
-	PVRow const* const sel_elts
+	PVRow const* const sel_elts,
+	tbb::task_group_context* tbb_ctxt
 ) const
 {
+	tbb::task_group_context my_ctxt;
+	if (tbb_ctxt == nullptr) {
+		tbb_ctxt = &my_ctxt;
+	}
+	else
+	if (tbb_ctxt->is_group_execution_cancelled()) {
+		return;
+	}
+
 	uint32_t shift = (32 - PARALLELVIEW_ZT_BBITS) - zoom;
 	uint32_t t1_min = y1_min >> (32 - NBITS_INDEX);
 	uint32_t t1_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y1_max >> (32 - NBITS_INDEX)),
@@ -815,7 +842,7 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 								extract_f(trees[tree_idx], image_, insert_f_);
 							}
 						}
-					});
+					}, tbb::auto_partitioner(), *tbb_ctxt);
 	BENCH_END(extract, "browse_trees_bci_by_y1_y2_tbb", 1, 1, 1, 1);
 }
 

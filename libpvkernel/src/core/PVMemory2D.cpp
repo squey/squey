@@ -38,7 +38,7 @@ void PVCore::memmove2d(
 	char* d = &((char*) source)[dest_offset];
 
 	if (offset < 0) { // normal copy (front to back)
-		for (uint32_t j = 0; j < dest_height; j++) {
+		for (size_t j = 0; j < dest_height; j++) {
 			memmove(d, s, dest_width);
 			d += image_width;
 			s += image_width;
@@ -47,7 +47,7 @@ void PVCore::memmove2d(
 		size_t reverse_offset = (dest_height-1)*image_width;
 		d = (char*)d + (reverse_offset);
 		s = (char*)s + (reverse_offset);
-		for (uint32_t j = 0; j < dest_height; j++) {
+		for (size_t j = 0; j < dest_height; j++) {
 			memmove(d, s, dest_width);
 			d -= image_width;
 			s -= image_width;
@@ -55,6 +55,50 @@ void PVCore::memmove2d(
 	}
 
 	BENCH_END(memmove2d, "memmove2d", dest_width*dest_height, sizeof(char), dest_width*dest_height, sizeof(char));
+}
+
+void PVCore::memcpy2d(
+	void* dst,
+	const void* source,
+	size_t image_width,
+	size_t image_height,
+	ssize_t x_offset,
+	ssize_t y_offset
+)
+{
+	assert(x_offset < (ssize_t) image_width);
+	assert(y_offset < (ssize_t) image_height);
+
+	size_t dest_width = image_width - abs(x_offset);
+	size_t dest_height = image_height - abs(y_offset);
+
+	ssize_t offset = y_offset*image_width+x_offset;
+
+	BENCH_START(memmove2d);
+
+	size_t source_offset = -std::min((ssize_t)0, y_offset)*image_width-std::min((ssize_t)0, x_offset);
+	size_t dest_offset = std::max((ssize_t)0, y_offset)*image_width+std::max((ssize_t)0, x_offset);
+	const char* s = &((const char*) source)[source_offset];
+	char* d = &((char*) dst)[dest_offset];
+
+	if (offset < 0) { // normal copy (front to back)
+		for (size_t j = 0; j < dest_height; j++) {
+			memcpy(d, s, dest_width);
+			d += image_width;
+			s += image_width;
+		}
+	} else { // reversed copy (back to front)
+		size_t reverse_offset = (dest_height-1)*image_width;
+		d = (char*)d + (reverse_offset);
+		s = (char*)s + (reverse_offset);
+		for (size_t j = 0; j < dest_height; j++) {
+			memcpy(d, s, dest_width);
+			d -= image_width;
+			s -= image_width;
+		}
+	}
+
+	BENCH_END(memmove2d, "memcpy2d", dest_width*dest_height, sizeof(char), dest_width*dest_height, sizeof(char));
 }
 
 void PVCore::memset2d(

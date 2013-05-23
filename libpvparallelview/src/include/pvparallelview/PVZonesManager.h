@@ -89,8 +89,16 @@ public:
 
 	inline Picviz::PVPlotted::uint_plotted_table_t const& get_uint_plotted() const { assert(_uint_plotted); return *_uint_plotted; }
 
-protected:
-	inline void get_zone_cols(PVZoneID z, PVCol& a, PVCol& b)
+public:
+	inline void get_zone_plotteds(PVZoneID const z, uint32_t const* *plotted_a, uint32_t const* *plotted_b) const
+	{
+		PVCol a, b;
+		get_zone_cols(z, a, b);
+		*plotted_a = Picviz::PVPlotted::get_plotted_col_addr(get_uint_plotted(), get_number_rows(), a);
+		*plotted_b = Picviz::PVPlotted::get_plotted_col_addr(get_uint_plotted(), get_number_rows(), b);
+	}
+
+	inline void get_zone_cols(PVZoneID z, PVCol& a, PVCol& b) const
 	{
 		assert(z < get_number_of_managed_zones());
 		a = _axes_comb[z].get_axis();

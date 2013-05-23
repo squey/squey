@@ -18,7 +18,7 @@
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVSlidersManager_types.h>
 #include <pvparallelview/PVSlidersGroup.h>
-#include <pvparallelview/PVZoneRendering.h>
+#include <pvparallelview/PVZoneRenderingBCI.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoomedParallelView.h>
 
@@ -386,7 +386,7 @@ private slots:
 	 * @param zr the PVZoneRendering corresponding to the finished rendering
 	 * @param zone_id the zone id corresponding to the finished rendering
 	 */
-	void zr_finished(PVParallelView::PVZoneRenderingBase_p zr, int zone_id);
+	void zr_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);
 
 private:
 	/**

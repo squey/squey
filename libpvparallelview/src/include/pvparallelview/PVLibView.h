@@ -71,6 +71,7 @@ protected:
 	void output_layer_updated();
 	void layer_stack_output_layer_updated();
 	void view_about_to_be_deleted();
+	void axes_comb_about_to_be_updated();
 	void axes_comb_updated();
 	void plotting_updated();
 

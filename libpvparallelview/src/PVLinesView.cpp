@@ -10,7 +10,7 @@
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVRenderingPipeline.h>
-#include <pvparallelview/PVZoneRendering.h>
+#include <pvparallelview/PVZoneRenderingBCI.h>
 #include <pvparallelview/PVZoneTree.h>
 
 #include <QObject>
@@ -57,10 +57,10 @@ void PVParallelView::PVLinesView::call_refresh_slots(PVZoneID zone_id)
 	}
 
 	QMetaObject::invokeMethod(_img_update_receiver, "zr_sel_finished", Qt::QueuedConnection,
-			Q_ARG(PVParallelView::PVZoneRenderingBase_p, PVZoneRenderingBase_p()),
+			Q_ARG(PVParallelView::PVZoneRendering_p, PVZoneRendering_p()),
 			Q_ARG(int, (int) zone_id));
 	QMetaObject::invokeMethod(_img_update_receiver, "zr_bg_finished",  Qt::QueuedConnection,
-			Q_ARG(PVParallelView::PVZoneRenderingBase_p, PVZoneRenderingBase_p()),
+			Q_ARG(PVParallelView::PVZoneRendering_p, PVZoneRendering_p()),
 			Q_ARG(int, (int) zone_id));
 }
 

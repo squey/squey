@@ -322,7 +322,7 @@ public:
 		qt->_datas.push_back(e);
 
 		// does the current node must be splitted?
-		if ((qt->_datas.size() >= MAX_ELEMENTS_PER_NODE)/* && (qt->_max_level > 0)*/) {
+		if ((qt->_datas.size() >= MAX_ELEMENTS_PER_NODE) && (qt->_max_level > 0)) {
 			qt->create_next_level();
 		}
 	}

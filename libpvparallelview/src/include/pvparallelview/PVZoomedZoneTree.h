@@ -379,7 +379,8 @@ public:
 		double alpha,
 		PVCore::PVHSVColor const* const colors,
 		PVCore::PVHSVColor* const image,
-		uint32_t image_width
+		uint32_t image_width,
+		tbb::task_group_context* tbb_ctxt = nullptr
 	) const
 	{
 		browse_trees_bci_by_y1_y2_tbb(y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image, image_width,
@@ -389,7 +390,7 @@ public:
 			  const insert_entry_y1_y2_f &insert_f)
 			{
 				tree.get_first_from_y1_y2(y1_min, y1_max, y2_min, y2_max, zoom, alpha, image, insert_f);
-			});
+			}, nullptr, tbb_ctxt);
 	}
 
 	inline void browse_bci_by_y1_y2_sel(
@@ -401,8 +402,9 @@ public:
 		double alpha,
 		PVCore::PVHSVColor const* const colors,
 		PVCore::PVHSVColor* const image,
+		Picviz::PVSelection const& sel,
 		uint32_t image_width,
-		Picviz::PVSelection const& sel
+		tbb::task_group_context* tbb_ctxt = nullptr
 	) const
 	{
 		browse_trees_bci_by_y1_y2_tbb(y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image, image_width,
@@ -412,7 +414,7 @@ public:
 			  const insert_entry_y1_y2_f &insert_f)
 			{
 				tree.get_first_from_y1_y2_sel(y1_min, y1_max, y2_min, y2_max, zoom, alpha, image, insert_f, sel);
-			});
+			}, _sel_elts, tbb_ctxt);
 	}
 
 
@@ -811,7 +813,8 @@ private:
 		PVCore::PVHSVColor* const image,
 		uint32_t image_width,
 		const extract_entries_y1_y2_f &extract_f,
-		PVRow const* const sel_elts = nullptr
+		PVRow const* const sel_elts = nullptr,
+		tbb::task_group_context* tbb_ctxt = nullptr
 	) const;
 
 	/**
@@ -835,6 +838,8 @@ private:
 	{
 		return compute_index(e.y1, e.y2);
 	}
+
+	void init_structures();
 
 private:
 	pvquadtree      *_trees;
