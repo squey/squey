@@ -112,8 +112,7 @@ void PVParallelView::PVScatterViewImagesManager::process_bg()
 	PVZoneRenderingScatter_p old_zr = _zr_bg;
 	_zr_bg = zr;
 	if (old_zr) {
-		//old_zr->cancel_and_add_job(_zp_bg, zr);
-		old_zr->wait_end();
+		old_zr->cancel_and_add_job(_zp_bg, zr);
 	}
 	else {
 		_zp_bg.add_job(zr);
