@@ -28,7 +28,7 @@ set(TBB_MAJOR "2")
 
 set(LINUX_BOOST_PATH "/usr/lib")
 set(BOOST_PYTHON_VER "3.2mu")
-set(BOOST_VER "1.48.0")
+set(BOOST_VER "1.53.0")
 
 set(LINUX_MISCLIB_PATH "/usr/lib")
 set(LINUX_MISCLIB_PATH_64 "/usr/lib/x86_64-linux-gnu")

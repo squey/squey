@@ -103,7 +103,8 @@ void PVParallelView::PVScatterViewImagesManager::process_bg()
 	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, _data_params,
 			[&](PVScatterViewDataInterface& data_if, DataProcessParams const& params, tbb::task_group_context& ctxt)
 			{
-				PVParallelView::PVScatterViewImagesManager::clear_dirty_rects(params, data_if.image_bg());
+				//PVParallelView::PVScatterViewImagesManager::clear_dirty_rects(params, data_if.image_bg());
+				data_if.image_bg().clear();
 				data_if.process_bg(params, &ctxt);
 			}));
 
@@ -126,7 +127,8 @@ void PVParallelView::PVScatterViewImagesManager::process_sel()
 	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, _data_params,
 			[&](PVScatterViewDataInterface& data_if, DataProcessParams const& params, tbb::task_group_context& ctxt)
 			{
-				PVScatterViewImagesManager::clear_dirty_rects(params, data_if.image_sel());
+				//PVScatterViewImagesManager::clear_dirty_rects(params, data_if.image_sel());
+				data_if.image_sel().clear();
 				data_if.process_sel(params, this->_sel, &ctxt);
 			}));
 
