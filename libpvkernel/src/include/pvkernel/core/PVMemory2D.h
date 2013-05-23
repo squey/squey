@@ -21,6 +21,15 @@ namespace PVCore {
 		ssize_t y_offset
 	);
 
+	void memcpy2d(
+		void* dst,
+		const void* source,
+		size_t image_width,
+		size_t image_height,
+		ssize_t x_offset,
+		ssize_t y_offset
+	);
+
 	void memset2d (
 		void* source,
 		char value,
