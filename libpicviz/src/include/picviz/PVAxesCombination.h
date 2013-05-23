@@ -379,6 +379,7 @@ public:
 	 * @brief Get the index of e
 	 */
 	PVCol get_index_by_id(const axes_comb_id_t &e) const;
+	inline bool is_last_axis(const axes_comb_id_t &e) const { return get_index_by_id(e) == get_axes_count()-1; }
 
 	QString to_string() const;
 

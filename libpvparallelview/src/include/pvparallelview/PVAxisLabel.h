@@ -19,6 +19,8 @@ class PVView;
 namespace PVParallelView
 {
 
+class PVAxisGraphicsItem;
+
 class PVSlidersGroup;
 
 class PVAxisLabel : public QObject, public QGraphicsSimpleTextItem
@@ -56,12 +58,16 @@ public:
 protected:
 	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
-signals:
-	void new_zoomed_parallel_view(int _axis_index);
+private:
+	PVAxisGraphicsItem const* get_parent_axis() const;
+	bool is_last_axis() const;
 
 private slots:
 	void new_zoomed_parallel_view();
 	void new_selection_sliders();
+
+signals:
+	void new_zoomed_parallel_view(int _axis_index);
 
 private:
 	const Picviz::PVView &_lib_view;

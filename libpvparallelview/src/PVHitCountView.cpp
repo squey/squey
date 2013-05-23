@@ -25,8 +25,9 @@
 #define RENDER_TIMEOUT 75 // in ms
 
 /**
- * @todo "optical" zoom does not work
  * @todo how do we want to use that view
+ * @todo add sliders
+ * @todo make a nice configuration panel
  */
 
 #define print_m(R) __print_mat(#R, R)
@@ -230,13 +231,24 @@ public:
 		setFocusPolicy(Qt::ClickFocus);
 
 		_cb_autofit = new QCheckBox(tr("Auto-fit selection on the occurence axis"));
-		_cb_showbg = new QCheckBox(tr("Show background"));
-		QVBoxLayout* layout = new QVBoxLayout();
-		layout->addWidget(_cb_autofit);
-		layout->addWidget(_cb_showbg);
+		_cb_show_selectable = new QCheckBox(tr("Show background"));
+		_cb_show_all = new QCheckBox(tr("Show all data"));
+		_cb_use_log_color = new QCheckBox(tr("Use logarithmic colormap"));
 
-		connect(_cb_autofit, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_auto_x_zoom_sel()));
-		connect(_cb_showbg,  SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_show_bg()));
+		QVBoxLayout* layout = new QVBoxLayout();
+		layout->addWidget(_cb_show_all);
+		layout->addWidget(_cb_show_selectable);
+		layout->addWidget(_cb_autofit);
+		layout->addWidget(_cb_use_log_color);
+
+		connect(_cb_autofit, SIGNAL(toggled(bool)),
+		        parent_hcv(), SLOT(toggle_auto_x_zoom_sel()));
+		connect(_cb_show_selectable,  SIGNAL(toggled(bool)),
+		        parent_hcv(), SLOT(toggle_show_selectable()));
+		connect(_cb_show_all,  SIGNAL(toggled(bool)),
+		        parent_hcv(), SLOT(toggle_show_all()));
+		connect(_cb_use_log_color,  SIGNAL(toggled(bool)),
+		        parent_hcv(), SLOT(toggle_log_color()));
 
 		setLayout(layout);
 	}
@@ -245,13 +257,19 @@ public:
 	void update_widgets()
 	{
 		_cb_autofit->blockSignals(true);
-		_cb_showbg->blockSignals(true);
+		_cb_show_selectable->blockSignals(true);
+		_cb_show_all->blockSignals(true);
+		_cb_use_log_color->blockSignals(true);
 
 		_cb_autofit->setChecked(parent_hcv()->auto_x_zoom_sel());
-		_cb_showbg->setChecked(parent_hcv()->show_bg());
+		_cb_show_selectable->setChecked(parent_hcv()->show_selectable());
+		_cb_show_all->setChecked(parent_hcv()->show_all());
+		_cb_use_log_color->setChecked(parent_hcv()->use_log_color());
 
 		_cb_autofit->blockSignals(false);
-		_cb_showbg->blockSignals(false);
+		_cb_show_selectable->blockSignals(false);
+		_cb_show_all->blockSignals(false);
+		_cb_use_log_color->blockSignals(false);
 	}
 
 private:
@@ -263,11 +281,12 @@ private:
 
 private:
 	QCheckBox* _cb_autofit;
-	QCheckBox* _cb_showbg;
+	QCheckBox* _cb_show_selectable;
+	QCheckBox* _cb_show_all;
+	QCheckBox* _cb_use_log_color;
 };
 
 }
-
 
 /*****************************************************************************
  * PVParallelView::PVHitCountView::PVHitCountView
@@ -285,13 +304,14 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	                   layer_stack_output_selection(),
 	                   real_selection()),
 	_view_deleted(false),
-	_show_bg(true),
+	_show_selectable(true),
+	_show_all(true),
 	_auto_x_zoom_sel(false),
-	_do_auto_scale(false)
+	_do_auto_scale(false),
+	_use_log_color(false)
 {
-	set_gl_viewport();
-
-	/* computing the highest scene width to setup it
+	/* computing the highest scene width to setup it... and do the first
+	 * run to initialize the manager's buffers :-)
 	 */
 	get_hit_graph_manager().change_and_process_view(0, 0, .5);
 	_max_count = get_hit_graph_manager().get_max_count_all();
@@ -397,9 +417,16 @@ void PVParallelView::PVHitCountView::about_to_be_deleted()
 
 void PVParallelView::PVHitCountView::set_x_axis_zoom()
 {
-	const int32_t x_zoom_min = get_x_zoom_min();
-	get_x_axis_zoom().set_range(x_zoom_min, x_zoom_converter().scale_to_zoom(get_margined_viewport_width()));
-	get_x_axis_zoom().set_default_value(x_zoom_min);
+	const int viewport_width = get_margined_viewport_width();
+
+	/* the viewport may have a negative or null size, the X's zoom converter
+	 * may generate INF/NaN, so that we had to make sure it is > 0
+	 */
+	if (viewport_width > 0) {
+		const int32_t x_zoom_min = get_x_zoom_min();
+		get_x_axis_zoom().set_range(x_zoom_min, x_zoom_converter().scale_to_zoom(viewport_width));
+		get_x_axis_zoom().set_default_value(x_zoom_min);
+	}
 }
 
 void PVParallelView::PVHitCountView::set_params_widget_position()
@@ -481,29 +508,45 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	int x_axis_right = std::min((int)map_margined_from_scene(QPointF(_max_count, 0.)).x(),
 	                            get_x_axis_length());
 
-	if (_show_bg) {
-		// background
-		painter->setOpacity(0.25);
-		// BENCH_START(hcv_draw_bg);
+	// all events
+	if (show_all()) {
+		// painter->setOpacity(0.01);
+		// BENCH_START(hcv_draw_all);
 		draw_lines(painter,
 		           x_axis_right,
 		           block_view_offset,
 		           rel_y_scale,
-		           get_hit_graph_manager().buffer_all());
-		// BENCH_STOP(hcv_draw_bg);
-		// BENCH_STAT_TIME(hcv_draw_bg);
+		           get_hit_graph_manager().buffer_all(),
+		           0);
+		// BENCH_STOP(hcv_draw_all);
+		// BENCH_STAT_TIME(hcv_draw_all);
 	}
 
-	// selection
+	// selectable events
+	if (show_selectable()) {
+		// painter->setOpacity(0.25);
+		// BENCH_START(hcv_draw_selectable);
+		draw_lines(painter,
+		           x_axis_right,
+		           block_view_offset,
+		           rel_y_scale,
+		           get_hit_graph_manager().buffer_selectable(),
+		           63);
+		// BENCH_STOP(hcv_draw_selectable);
+		// BENCH_STAT_TIME(hcv_draw_selectable);
+	}
+
+	// selected events
 	painter->setOpacity(1.0);
-	// BENCH_START(hcv_draw_sel);
+	// BENCH_START(hcv_draw_selected);
 	draw_lines(painter,
 	           x_axis_right,
 	           block_view_offset,
 	           rel_y_scale,
-	           get_hit_graph_manager().buffer_selected());
-	// BENCH_STOP(hcv_draw_sel);
-	// BENCH_STAT_TIME(hcv_draw_sel);
+	           get_hit_graph_manager().buffer_selected(),
+	           255);
+	// BENCH_STOP(hcv_draw_selected);
+	// BENCH_STAT_TIME(hcv_draw_selected);
 
 	draw_decorations(painter, margined_rect);
 }
@@ -520,10 +563,27 @@ void PVParallelView::PVHitCountView::draw_lines(QPainter *painter,
                                                 const int x_max,
                                                 const int block_view_offset,
                                                 const double rel_y_scale,
-                                                const uint32_t *buffer)
+                                                const uint32_t *buffer,
+                                                const int hsv_value)
 {
 	const int y_axis_length = get_y_axis_length();
 	const size_t buffer_size = get_hit_graph_manager().size_int();
+
+	uint32_t min_value = UINT32_MAX;
+	uint32_t max_value = 0;
+
+	for (uint32_t idx = 0; idx < buffer_size; ++idx) {
+		const uint32_t count = buffer[idx];
+		if (count < min_value) {
+			min_value = count;
+		}
+		if (count > max_value) {
+			max_value = count;
+		}
+	}
+
+	const double range_value = max_value - min_value;
+	const double log_range_value = log(range_value);
 
 	for (uint32_t idx = 0; idx < buffer_size; ++idx) {
 		const uint32_t count = buffer[idx];
@@ -545,7 +605,17 @@ void PVParallelView::PVHitCountView::draw_lines(QPainter *painter,
 
 		vx = PVCore::min(x_max, vx);
 
-		painter->drawLine(0, y_val, vx, y_val);
+		double ratio = count - min_value;
+
+		if (use_log_color()) {
+			ratio = log(ratio) / log_range_value;
+		} else {
+			ratio /= range_value;
+		}
+
+		// using fillRect is faster than drawLine... 10 times faster
+		// for the color-ramp, it's: ratio * (RED - GREEN) + GREEN
+		painter->fillRect(0, y_val, vx, 1, QColor::fromHsv(ratio * (0 - 120) + 120, 255, hsv_value));
 	}
 }
 
@@ -629,7 +699,7 @@ void PVParallelView::PVHitCountView::update_all()
 }
 
 /*****************************************************************************
- * PVParselelView::PVHitCountView::update_sel
+ * PVParallelView::PVHitCountView::update_sel
  *****************************************************************************/
 
 void PVParallelView::PVHitCountView::update_sel()
@@ -646,6 +716,10 @@ void PVParallelView::PVHitCountView::update_sel()
 	get_viewport()->update();
 }
 
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::toggle_auto_x_zoom_sel
+ *****************************************************************************/
+
 void PVParallelView::PVHitCountView::toggle_auto_x_zoom_sel()
 {
 	_auto_x_zoom_sel = !_auto_x_zoom_sel;
@@ -656,9 +730,37 @@ void PVParallelView::PVHitCountView::toggle_auto_x_zoom_sel()
 	}
 }
 
-void PVParallelView::PVHitCountView::toggle_show_bg()
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::toggle_show_selectable
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::toggle_show_selectable()
 {
-	_show_bg = !_show_bg;
+	_show_selectable = !_show_selectable;
+	params_widget()->update_widgets();
+
+	get_viewport()->update();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::toggle_show_all
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::toggle_show_all()
+{
+	_show_all = !_show_all;
+	params_widget()->update_widgets();
+
+	get_viewport()->update();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::toggle_log_color
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::toggle_log_color()
+{
+	_use_log_color = !_use_log_color;
 	params_widget()->update_widgets();
 
 	get_viewport()->update();

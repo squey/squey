@@ -2,6 +2,7 @@
 #include <picviz/PVView.h>
 
 #include <pvparallelview/PVAxisLabel.h>
+#include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVSlidersGroup.h>
 
 #include <QDialog>
@@ -61,6 +62,9 @@ void PVParallelView::PVAxisLabel::contextMenuEvent(QGraphicsSceneContextMenuEven
 
 	if (container) {
 		PVDisplays::get().add_displays_view_axis_menu(menu, container, SLOT(create_view_axis_widget()), (Picviz::PVView*) &_lib_view, get_axis_index());
+		if (!is_last_axis()) {
+			PVDisplays::get().add_displays_view_zone_menu(menu, container, SLOT(create_view_zone_widget()), (Picviz::PVView*) &_lib_view, get_axis_index());
+		}
 		menu.addSeparator();
 	}
 	QAction *ars = menu.addAction("New selection cursors");
@@ -107,4 +111,18 @@ void PVParallelView::PVAxisLabel::new_selection_sliders()
 PVCol PVParallelView::PVAxisLabel::get_axis_index() const
 {
 	return _lib_view.get_axes_combination().get_index_by_id(_sliders_group->get_axis_id()); 
+}
+
+PVParallelView::PVAxisGraphicsItem const* PVParallelView::PVAxisLabel::get_parent_axis() const
+{
+	return dynamic_cast<PVAxisGraphicsItem const*>(parentItem());
+}
+
+bool PVParallelView::PVAxisLabel::is_last_axis() const
+{
+	PVAxisGraphicsItem const* parent_axis = get_parent_axis();
+	if (parent_axis) {
+		return parent_axis->is_last_axis();
+	}
+	return false;
 }

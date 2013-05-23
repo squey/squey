@@ -34,6 +34,7 @@ Q_DECLARE_METATYPE(Picviz::PVView*)
 namespace PVDisplays {
 class PVDisplayViewIf;
 class PVDisplayViewAxisIf;
+class PVDisplayViewZoneIf;
 }
 
 namespace PVGuiQt {
@@ -152,6 +153,12 @@ private slots:
 	 */
 	void create_view_axis_widget(QAction* act = nullptr) override;
 
+	/*! \brief Create the widget used by the view display with zone parameter.
+	 *
+	 *  \param[in] act The QAction triggering the creation of the widget.
+	 */
+	void create_view_zone_widget(QAction* act = nullptr) override;
+
 	/*! \brief Create or display the widget used by the view display.
 	 *
 	 *  \param[in] act The QAction triggering the creation/display of the widget.
@@ -184,6 +191,7 @@ protected:
 	QList<PVViewDisplay*> _displays;
 	QList<std::pair<QToolButton*, PVDisplays::PVDisplayViewIf*>> _view_display_if_btns;
 	QList<std::pair<QToolButton*, PVDisplays::PVDisplayViewAxisIf*>> _view_axis_display_if_btns;
+	QList<std::pair<QToolButton*, PVDisplays::PVDisplayViewZoneIf*>> _view_zone_display_if_btns;
 	int _z_order_index = 0;
 	static uint64_t _z_order_counter;
 	static bool _drag_started;

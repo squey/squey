@@ -18,6 +18,7 @@ public:
 public slots:
 	virtual void create_view_widget(QAction* act = nullptr) { PV_UNUSED(act); }
 	virtual void create_view_axis_widget(QAction* act = nullptr) { PV_UNUSED(act); }
+	virtual void create_view_zone_widget(QAction* act = nullptr) { PV_UNUSED(act); }
 	virtual void toggle_unique_source_widget(QAction* act = nullptr) { PV_UNUSED(act); }
 };
 

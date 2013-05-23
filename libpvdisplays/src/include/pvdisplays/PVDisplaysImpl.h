@@ -43,6 +43,7 @@ public:
 		visit_displays_by_if<PVDisplayViewIf>(f, flags);
 		visit_displays_by_if<PVDisplaySourceIf>(f, flags);
 		visit_displays_by_if<PVDisplayViewAxisIf>(f, flags);
+		visit_displays_by_if<PVDisplayViewZoneIf>(f, flags);
 	}
 
 	template <typename If, typename F>
@@ -126,6 +127,7 @@ public:
 	}
 
 	void add_displays_view_axis_menu(QMenu& menu, QObject* receiver, const char* slot, Picviz::PVView* view, PVCol axis_comb) const;
+	void add_displays_view_zone_menu(QMenu& menu, QObject* receiver, const char* slot, Picviz::PVView* view, PVCol axis_comb) const;
 
 	PVDisplaysContainer* get_parent_container(QWidget* self) const;
 
