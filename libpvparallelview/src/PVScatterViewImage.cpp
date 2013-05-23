@@ -42,3 +42,11 @@ void PVParallelView::PVScatterViewImage::convert_image_from_hsv_to_rgb()
 {
 	PVCore::PVHSVColor::to_rgba(_hsv_image, _rgb_image);
 }
+
+void PVParallelView::PVScatterViewImage::copy(PVScatterViewImage const& o)
+{
+	if (&o != this) {
+		memcpy(_hsv_image, o._hsv_image, image_width*image_height*sizeof(PVCore::PVHSVColor));
+		_rgb_image = o._rgb_image;
+	}
+}

@@ -146,7 +146,7 @@ void PVParallelView::PVScatterView::about_to_be_deleted()
  *****************************************************************************/
 void PVParallelView::PVScatterView::update_new_selection_async()
 {
-	QMetaObject::invokeMethod(this, "update_all", Qt::QueuedConnection);
+	QMetaObject::invokeMethod(this, "update_sel", Qt::QueuedConnection);
 }
 
 /*****************************************************************************
@@ -167,7 +167,7 @@ void PVParallelView::PVScatterView::keyPressEvent(QKeyEvent* event)
 		if ((event->key() == Qt::Key_B) && (event->modifiers() & Qt::ControlModifier)) {
 			PVScatterView::toggle_show_quadtrees();
 		}
-		update();
+		get_viewport()->update();
 #endif
 }
 

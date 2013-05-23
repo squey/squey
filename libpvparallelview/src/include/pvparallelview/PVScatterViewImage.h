@@ -35,7 +35,7 @@ public:
 	PVScatterViewImage();
 	PVScatterViewImage(PVScatterViewImage&& o)
 	{
-		move(o);
+		swap(o);
 	}
 
 	~PVScatterViewImage();
@@ -54,18 +54,23 @@ public:
 public:
 	PVScatterViewImage& operator=(PVScatterViewImage&& o)
 	{
-		if (&o != this) {
-			move(o);
-		}
+		swap(o);
 		return *this;
 	}
 
-private:
-	inline void move(PVScatterViewImage& o)
+	void swap(PVScatterViewImage& o)
 	{
-		_hsv_image = o._hsv_image;
-		_rgb_image = o._rgb_image;
-		o._hsv_image = nullptr;
+		if (&o != this) {
+			std::swap(_hsv_image, o._hsv_image);
+			_rgb_image.swap(o._rgb_image);
+		}
+	}
+
+	void copy(PVScatterViewImage const& o);
+	PVScatterViewImage& operator=(PVScatterViewImage const& o)
+	{
+		copy(o);
+		return *this;
 	}
 
 private:

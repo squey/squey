@@ -9,6 +9,8 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVScatterViewDataInterface.h>
 
+#include <tbb/task.h>
+
 typedef PVParallelView::PVScatterViewDataInterface::ProcessParams ProcessParamsImpl;
 
 ProcessParamsImpl::dirty_rect ProcessParamsImpl::rect_1() const
@@ -56,4 +58,9 @@ QRect ProcessParamsImpl::map_to_view(const dirty_rect& rect) const
 		QPoint(map_to_view(rect.y1_min - y1_min), map_to_view(rect.y2_min - y2_min)),
 		QPoint(map_to_view(rect.y1_max - y1_min), map_to_view(rect.y2_max - y2_min))
 	);
+}
+
+bool PVParallelView::PVScatterViewDataInterface::is_ctxt_cancelled(tbb::task_group_context* ctxt)
+{
+	return (ctxt && ctxt->is_group_execution_cancelled());
 }

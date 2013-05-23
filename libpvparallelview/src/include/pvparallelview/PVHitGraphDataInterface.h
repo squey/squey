@@ -87,7 +87,6 @@ protected:
 	virtual void process_all(ProcessParams const& params, PVHitGraphBuffer& buf) const = 0;
 	virtual void process_sel(ProcessParams const& params, PVHitGraphBuffer& buf, Picviz::PVSelection const& sel) const = 0;
 
-
 private:
 	PVHitGraphBuffer _buf_all;
 	PVHitGraphBuffer _buf_selected;

@@ -20,7 +20,8 @@ PVParallelView::PVScatterViewImagesManager::PVScatterViewImagesManager(
 	_zid(zid),
 	_zm(zm),
 	_sel(sel),
-	_data_params(zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(zid), colors),
+	//_data_params(zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(zid), colors),
+	_colors(colors),
 	_zp_bg(zp_bg),
 	_zp_sel(zp_sel),
 	_img_update_receiver(nullptr)
@@ -46,7 +47,6 @@ void PVParallelView::PVScatterViewImagesManager::cancel_all_and_wait()
 void PVParallelView::PVScatterViewImagesManager::set_zone(PVZoneID const zid)
 {
 	cancel_all_and_wait();
-	_data_params.zzt = &get_zones_manager().get_zone_tree<PVParallelView::PVZoomedZoneTree>(zid);
 	_zid = zid;
 }
 
@@ -59,53 +59,56 @@ bool PVParallelView::PVScatterViewImagesManager::change_and_process_view(
 	const double alpha
 )
 {
-	if (!params_changed(y1_min, y1_max, y2_min, y2_max, zoom, alpha)) {
-		return false;
+	DataProcessParams params;
+	bool ret = false;
+	PVScatterViewData& data = _data;
+
+	PVParallelView::PVZoomedZoneTree const& zzt = get_zones_manager().get_zone_tree<PVParallelView::PVZoomedZoneTree>(_zid);
+
+	params = data.image_bg_process_params();
+	params.zzt = &zzt;
+	params.colors = _colors;
+	if (params.params_changed(y1_min, y1_max, y2_min, y2_max, zoom, alpha)) {
+		params.set_params(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
+		process_bg(params);
+		ret = true;
 	}
 
-	set_params(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
-
-	process_all();
-
-	return true;
-}
-
-void PVParallelView::PVScatterViewImagesManager::set_params(
-	uint64_t y1_min,
-	uint64_t y1_max,
-	uint64_t y2_min,
-	uint64_t y2_max,
-	int zoom,
-	double alpha
-)
-{
-	// Translation
-	if (zoom == last_zoom() && alpha == last_alpha()) {
-		_data_params.y1_offset = _data_params.y1_min - y1_min;
-		_data_params.y2_offset = _data_params.y2_min - y2_min;
+	params = data.image_sel_process_params();
+	params.zzt = &zzt;
+	params.colors = _colors;
+	if (params.params_changed(y1_min, y1_max, y2_min, y2_max, zoom, alpha)) {
+		params.set_params(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
+		process_sel(params);
+		ret = true;
 	}
-	else {
-		_data_params.y1_offset = 0;
-		_data_params.y2_offset = 0;
-	}
-	_data_params.y1_min = y1_min;
-	_data_params.y1_max = y1_max;
-	_data_params.y2_min = y2_min;
-	_data_params.y2_max = y2_max;
-	_data_params.zoom = zoom;
-	_data_params.alpha = alpha;
+
+	return ret;
 }
 
 void PVParallelView::PVScatterViewImagesManager::process_bg()
 {
-	PVScatterViewData& data = full_view() ? _data_z0 : _data;
+	PVScatterViewData& data = _data;
+	process_bg(data.image_bg_process_params());
+}
 
-	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, _data_params,
+void PVParallelView::PVScatterViewImagesManager::process_sel()
+{
+	PVScatterViewData& data = _data;
+	process_sel(data.image_sel_process_params());
+}
+
+void PVParallelView::PVScatterViewImagesManager::process_bg(DataProcessParams const& process_params)
+{
+	PVScatterViewData& data = _data;
+
+	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, process_params,
 			[&](PVScatterViewDataInterface& data_if, DataProcessParams const& params, tbb::task_group_context& ctxt)
 			{
-				//PVParallelView::PVScatterViewImagesManager::clear_dirty_rects(params, data_if.image_bg());
-				data_if.image_bg().clear();
-				data_if.process_bg(params, &ctxt);
+				data_if.image_bg_processing() = data_if.image_bg();
+				PVParallelView::PVScatterViewImagesManager::clear_dirty_rects(params, data_if.image_bg_processing());
+				//data_if.image_bg_processing().clear();
+				data_if.process_image_bg(params, &ctxt);
 			}));
 
 	connect_zr(*zr, "update_img_bg");
@@ -120,16 +123,17 @@ void PVParallelView::PVScatterViewImagesManager::process_bg()
 	}
 }
 
-void PVParallelView::PVScatterViewImagesManager::process_sel()
+void PVParallelView::PVScatterViewImagesManager::process_sel(DataProcessParams const& process_params)
 {
-	PVScatterViewData& data = full_view() ? _data_z0 : _data;
+	PVScatterViewData& data = _data;
 
-	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, _data_params,
+	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, process_params,
 			[&](PVScatterViewDataInterface& data_if, DataProcessParams const& params, tbb::task_group_context& ctxt)
 			{
-				//PVScatterViewImagesManager::clear_dirty_rects(params, data_if.image_sel());
-				data_if.image_sel().clear();
-				data_if.process_sel(params, this->_sel, &ctxt);
+				data_if.image_sel_processing() = data_if.image_sel();
+				PVScatterViewImagesManager::clear_dirty_rects(params, data_if.image_sel_processing());
+				//data_if.image_sel_processing().clear();
+				data_if.process_image_sel(params, this->_sel, &ctxt);
 			}));
 
 	connect_zr(*zr, "update_img_sel");
@@ -161,13 +165,13 @@ void PVParallelView::PVScatterViewImagesManager::process_all()
 
 const QImage& PVParallelView::PVScatterViewImagesManager::get_image_sel() const
 {
-	PVScatterViewData const& data = full_view() ? _data_z0 : _data;
+	PVScatterViewData const& data = _data;
 	return data.image_sel().get_rgb_image();
 }
 
 const QImage& PVParallelView::PVScatterViewImagesManager::get_image_all() const
 {
-	PVScatterViewData const& data = full_view() ? _data_z0 : _data;
+	PVScatterViewData const& data = _data;
 	return data.image_bg().get_rgb_image();
 }
 
