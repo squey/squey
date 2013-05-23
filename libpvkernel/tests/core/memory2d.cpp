@@ -15,8 +15,8 @@
 constexpr uint32_t image_width = 500;
 constexpr uint32_t image_height = 600;
 
-constexpr int x_offset = -100;
-constexpr int y_offset = -150;
+constexpr int x_offset = -150;
+constexpr int y_offset = 177;
 
 int main(int argc, char *argv[])
 {
@@ -24,9 +24,14 @@ int main(int argc, char *argv[])
 
 	QImage image(image_width, image_height, QImage::Format_ARGB32);
 	PVCore::PVHSVColor* hsv_image = new PVCore::PVHSVColor[image_width*image_height*sizeof(PVCore::PVHSVColor)];
+
 #pragma omp parallel for
-	for (PVRow i=0; i<image_width*image_height; i++){
-		hsv_image[i].h() = (i/2048)% ((1<<HSV_COLOR_NBITS_ZONE)*6);
+	for (PVRow j=0; j<image_height; j++) {
+		PVCore::PVHSVColor color = HSV_COLOR_BLACK;
+		if ((j % 2) == 0) {
+			color = ((j*image_width)/2048) % ((1<<HSV_COLOR_NBITS_ZONE)*6);
+		}
+		memset(&hsv_image[j*image_width], color.h(), image_width);
 	}
 
 	PVCore::memmove2d(hsv_image, image_width, image_height, x_offset, y_offset);

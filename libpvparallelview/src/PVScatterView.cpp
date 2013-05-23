@@ -126,6 +126,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	connect(this, SIGNAL(zoom_has_changed(int)), this, SLOT(do_zoom_change(int)));
 	connect(this, SIGNAL(pan_has_changed()), this, SLOT(do_pan_change()));
 	connect(get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
+	connect(get_horizontal_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
 
 	get_images_manager().set_img_update_receiver(this);
 }
