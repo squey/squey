@@ -75,13 +75,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	set_scene_rect(r);
 	get_scene()->setSceneRect(r);
 
-	const PVRow nrows = zm.get_number_rows();
-	const uint32_t *y1_plotted, *y2_plotted;
-	get_zones_manager().get_zone_plotteds(zone_index, &y1_plotted, &y2_plotted);
-
-	_axis_id = lib_view().get_axes_combination().get_axes_comb_id(zone_index);
-
-	_selection_square = new PVSelectionSquareScatterView(y1_plotted, y2_plotted, nrows, this);
+	_selection_square = new PVSelectionSquareScatterView(this);
 
 	// interactor
 	PVWidgets::PVGraphicsViewInteractorBase* zoom_inter = declare_interactor<PVZoomableDrawingAreaInteractorHomothetic>();
@@ -98,10 +92,6 @@ PVParallelView::PVScatterView::PVScatterView(
 	// decorations
 	set_alignment(Qt::AlignLeft | Qt::AlignTop);
 	set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOn);
-
-	// TODO: register axis name change through the hive
-	set_x_legend(pvview_sp->get_axis_name(zone_index));
-	set_y_legend(pvview_sp->get_axis_name(zone_index+1));
 
 	set_transformation_anchor(AnchorUnderMouse);
 
@@ -120,6 +110,8 @@ PVParallelView::PVScatterView::PVScatterView(
 	set_zoom_value(PVZoomableDrawingAreaConstraints::X
 	               | PVZoomableDrawingAreaConstraints::Y,
 	               zoom_min);
+
+	set_scatter_view_zone(zone_index);
 
 	get_scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 
@@ -171,7 +163,7 @@ void PVParallelView::PVScatterView::update_new_selection_async()
  *****************************************************************************/
 void PVParallelView::PVScatterView::update_all_async()
 {
-	QMetaObject::invokeMethod(this, "update_sel", Qt::QueuedConnection);
+	QMetaObject::invokeMethod(this, "update_all", Qt::QueuedConnection);
 }
 
 /*****************************************************************************
@@ -274,12 +266,24 @@ bool PVParallelView::PVScatterView::update_zones()
 		}
 
 		new_zone = get_zone_index();
-		_axis_id = lib_view().get_axes_combination().get_axes_comb_id(new_zone);
 	}
 
-	get_images_manager().set_zone(new_zone);
+	set_scatter_view_zone(new_zone);
 
 	return true;
+}
+
+void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
+{
+	_axis_id = lib_view().get_axes_combination().get_axes_comb_id(zid);
+	const uint32_t *y1_plotted, *y2_plotted;
+	get_zones_manager().get_zone_plotteds(zid, &y1_plotted, &y2_plotted);
+	get_images_manager().set_zone(zid);
+	_selection_square->set_plotteds(y1_plotted, y2_plotted, get_zones_manager().get_number_rows());
+
+	// TODO: register axis name change through the hive
+	set_x_legend(lib_view().get_axis_name(zid));
+	set_y_legend(lib_view().get_axis_name(zid+1));
 }
 
 /*****************************************************************************

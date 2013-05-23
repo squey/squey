@@ -17,15 +17,14 @@ PVParallelView::PVScatterViewImagesManager::PVScatterViewImagesManager(
 	const PVCore::PVHSVColor* colors,
 	Picviz::PVSelection const& sel
 ):
-	_zid(zid),
 	_zm(zm),
 	_sel(sel),
-	//_data_params(zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(zid), colors),
 	_colors(colors),
 	_zp_bg(zp_bg),
 	_zp_sel(zp_sel),
 	_img_update_receiver(nullptr)
 {
+	set_zone(zid);
 }
 
 void PVParallelView::PVScatterViewImagesManager::cancel_all_and_wait()
@@ -48,6 +47,9 @@ void PVParallelView::PVScatterViewImagesManager::set_zone(PVZoneID const zid)
 {
 	cancel_all_and_wait();
 	_zid = zid;
+
+	PVParallelView::PVZoomedZoneTree const& zzt = get_zones_manager().get_zone_tree<PVParallelView::PVZoomedZoneTree>(_zid);
+	_data.set_zoomed_zone_tree(zzt);
 }
 
 bool PVParallelView::PVScatterViewImagesManager::change_and_process_view(
@@ -63,10 +65,7 @@ bool PVParallelView::PVScatterViewImagesManager::change_and_process_view(
 	bool ret = false;
 	PVScatterViewData& data = _data;
 
-	PVParallelView::PVZoomedZoneTree const& zzt = get_zones_manager().get_zone_tree<PVParallelView::PVZoomedZoneTree>(_zid);
-
 	params = data.image_bg_process_params();
-	params.zzt = &zzt;
 	params.colors = _colors;
 	if (params.params_changed(y1_min, y1_max, y2_min, y2_max, zoom, alpha)) {
 		params.set_params(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
@@ -75,7 +74,6 @@ bool PVParallelView::PVScatterViewImagesManager::change_and_process_view(
 	}
 
 	params = data.image_sel_process_params();
-	params.zzt = &zzt;
 	params.colors = _colors;
 	if (params.params_changed(y1_min, y1_max, y2_min, y2_max, zoom, alpha)) {
 		params.set_params(y1_min, y1_max, y2_min, y2_max, zoom, alpha);

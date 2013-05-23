@@ -123,6 +123,8 @@ public:
 			_processed_params.y2_offset = 0;
 		}
 
+		void set_zoomed_zone_tree(PVZoomedZoneTree const& zzt) { _processed_params.zzt = &zzt; }
+
 	private:
 		ProcessParams _processed_params;
 		PVScatterViewImage _image_processed;
@@ -168,6 +170,11 @@ public:
 	ProcessParams const& image_bg_process_params() { return _image_bg.processed_params(); }
 	ProcessParams const& image_sel_process_params() { return _image_sel.processed_params(); }
 
+	void set_zoomed_zone_tree(PVZoomedZoneTree const& zzt)
+	{
+		_image_bg.set_zoomed_zone_tree(zzt);
+		_image_sel.set_zoomed_zone_tree(zzt);
+	}
 
 	void clear_processing()
 	{

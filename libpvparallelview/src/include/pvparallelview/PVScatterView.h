@@ -117,6 +117,8 @@ private:
 	inline PVScatterViewImagesManager const& get_images_manager() const { return _images_manager; }
 	PVZoneTree const& get_zone_tree() const;
 
+	void set_scatter_view_zone(PVZoneID const zid);
+
 private slots:
 	void do_zoom_change(int axes);
 	void do_pan_change();

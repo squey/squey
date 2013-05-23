@@ -6,17 +6,21 @@
 #include <QGraphicsView>
 
 PVParallelView::PVSelectionSquareScatterView::PVSelectionSquareScatterView(
-	const uint32_t* y1_plotted,
-	const uint32_t* y2_plotted,
-	const PVRow nrows,
 	PVScatterView* sv
 ) :
 	PVSelectionSquare(sv->get_scene()),
-	_y1_plotted(y1_plotted),
-	_y2_plotted(y2_plotted),
-	_nrows(nrows),
+	_y1_plotted(nullptr),
+	_y2_plotted(nullptr),
+	_nrows(0),
 	_sv(sv)
 {
+}
+
+void PVParallelView::PVSelectionSquareScatterView::set_plotteds(const uint32_t* y1_plotted, const uint32_t* y2_plotted, const PVRow nrows)
+{
+	_y1_plotted = y1_plotted;
+	_y2_plotted = y2_plotted;
+	_nrows = nrows;
 }
 
 void PVParallelView::PVSelectionSquareScatterView::commit(bool use_selection_modifiers)
