@@ -36,6 +36,21 @@ namespace PVParallelView
 template <int STEPS>
 using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
 
+class PVScatterViewInteractor: public PVWidgets::PVGraphicsViewInteractor<PVScatterView>
+{
+public:
+	PVScatterViewInteractor(PVWidgets::PVGraphicsView* parent = nullptr) :
+		PVGraphicsViewInteractor<PVScatterView>(parent)
+	{ }
+
+public:
+	bool resizeEvent(PVScatterView* view, QResizeEvent*) override
+	{
+		view->update_all_async();
+		return false;
+	}
+};
+
 }
 
 bool PVParallelView::PVScatterView::_show_quadtrees = false;
@@ -71,8 +86,10 @@ PVParallelView::PVScatterView::PVScatterView(
 	// interactor
 	PVWidgets::PVGraphicsViewInteractorBase* zoom_inter = declare_interactor<PVZoomableDrawingAreaInteractorHomothetic>();
 	PVWidgets::PVGraphicsViewInteractorBase* selection_square_inter = declare_interactor<PVSelectionRectangleInteractor>(_selection_square);
+	PVWidgets::PVGraphicsViewInteractorBase* scatter_inter = declare_interactor<PVScatterViewInteractor>();
 	register_back_all(selection_square_inter);
 	register_back_all(zoom_inter);
+	register_back_all(scatter_inter);
 	install_default_scene_interactor();
 
 	// constraints
@@ -335,7 +352,7 @@ void PVParallelView::PVScatterView::RenderedImage::swap(QImage const& img, QRect
 {
 	_scene_rect = scene_rect;
 	_viewport_rect = viewport_rect;
-	_img = img.copy();
+	_img = img;
 }
 
 void PVParallelView::PVScatterView::RenderedImage::draw(PVGraphicsView* view, QPainter* painter)

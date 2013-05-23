@@ -49,7 +49,7 @@ ProcessParamsImpl::dirty_rect ProcessParamsImpl::rect_2() const
 
 int32_t ProcessParamsImpl::map_to_view(int64_t scene_value) const
 {
-	return (int64_t)((scene_value) * alpha) >> (32 - PARALLELVIEW_ZT_BBITS - zoom);
+	return ((int64_t)(ceil(scene_value * alpha))) >> (32 - PARALLELVIEW_ZT_BBITS - zoom);
 }
 
 QRect ProcessParamsImpl::map_to_view(const dirty_rect& rect) const
@@ -63,4 +63,47 @@ QRect ProcessParamsImpl::map_to_view(const dirty_rect& rect) const
 bool PVParallelView::PVScatterViewDataInterface::is_ctxt_cancelled(tbb::task_group_context* ctxt)
 {
 	return (ctxt && ctxt->is_group_execution_cancelled());
+}
+
+bool ProcessParamsImpl::params_changed(
+		uint64_t y1_min_,
+		uint64_t y1_max_,
+		uint64_t y2_min_,
+		uint64_t y2_max_,
+		int zoom_,
+		double alpha_) const
+{
+	return !(y1_min_ == y1_min &&
+			y1_max_ == y1_max &&
+			y2_min_ == y2_min &&
+			y2_max_ == y2_max &&
+			zoom_ == zoom &&
+			alpha_ == alpha);
+}
+
+void ProcessParamsImpl::set_params(
+		uint64_t y1_min_,
+		uint64_t y1_max_,
+		uint64_t y2_min_,
+		uint64_t y2_max_,
+		int zoom_,
+		double alpha_)
+{
+	// Translation
+	if (zoom_ == zoom && alpha_ == alpha &&
+		(y1_max-y1_min) == (y1_max_ - y1_min_) &&
+		(y2_max-y2_min) == (y2_max_ - y2_min_)) {
+		y1_offset = y1_min - y1_min_;
+		y2_offset = y2_min - y2_min_;
+	}
+	else {
+		y1_offset = 0;
+		y2_offset = 0;
+	}
+	y1_min = y1_min_;
+	y1_max = y1_max_;
+	y2_min = y2_min_;
+	y2_max = y2_max_;
+	zoom = zoom_;
+	alpha = alpha_;
 }

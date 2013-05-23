@@ -105,9 +105,7 @@ void PVParallelView::PVScatterViewImagesManager::process_bg(DataProcessParams co
 	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, process_params,
 			[&](PVScatterViewDataInterface& data_if, DataProcessParams const& params, tbb::task_group_context& ctxt)
 			{
-				data_if.image_bg_processing() = data_if.image_bg();
-				PVParallelView::PVScatterViewImagesManager::clear_dirty_rects(params, data_if.image_bg_processing());
-				//data_if.image_bg_processing().clear();
+				PVScatterViewImagesManager::copy_processed_in_processing(params, data_if.image_bg_processing(), data_if.image_bg());
 				data_if.process_image_bg(params, &ctxt);
 			}));
 
@@ -130,9 +128,7 @@ void PVParallelView::PVScatterViewImagesManager::process_sel(DataProcessParams c
 	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, process_params,
 			[&](PVScatterViewDataInterface& data_if, DataProcessParams const& params, tbb::task_group_context& ctxt)
 			{
-				data_if.image_sel_processing() = data_if.image_sel();
-				PVScatterViewImagesManager::clear_dirty_rects(params, data_if.image_sel_processing());
-				//data_if.image_sel_processing().clear();
+				PVScatterViewImagesManager::copy_processed_in_processing(params, data_if.image_sel_processing(), data_if.image_sel());
 				data_if.process_image_sel(params, this->_sel, &ctxt);
 			}));
 
@@ -182,26 +178,18 @@ void PVParallelView::PVScatterViewImagesManager::connect_zr(PVZoneRenderingScatt
 	}
 }
 
-void PVParallelView::PVScatterViewImagesManager::clear_dirty_rects(DataProcessParams const& params, PVScatterViewImage& image)
+void PVParallelView::PVScatterViewImagesManager::copy_processed_in_processing(DataProcessParams const& params, PVScatterViewImage& processing, PVScatterViewImage const& processed)
 {
-	if (!params.y1_offset && !params.y2_offset) {
-		image.clear();
-		return;
-	}
+	processing.clear();
 
-	PVCore::memmove2d(
-		image.get_hsv_image(),
-		PVScatterViewImage::image_width,
-		PVScatterViewImage::image_height,
-		params.map_to_view(params.y1_offset),
-		params.map_to_view(params.y2_offset)
-	);
-
-	if (params.y1_offset != 0) {
-		image.clear(params.map_to_view(params.rect_1()));
-	}
-
-	if (params.y2_offset != 0) {
-		image.clear(params.map_to_view(params.rect_2()));
+	if ((params.y1_offset != 0) || (params.y2_offset != 0)) {
+		PVCore::memcpy2d(
+			processing.get_hsv_image(),
+			processed.get_hsv_image(),
+			PVScatterViewImage::image_width,
+			PVScatterViewImage::image_height,
+			params.map_to_view(params.y1_offset),
+			params.map_to_view(params.y2_offset)
+		);
 	}
 }

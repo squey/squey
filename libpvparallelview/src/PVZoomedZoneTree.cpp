@@ -844,9 +844,6 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 						}
 					}, tbb::auto_partitioner(), *tbb_ctxt);
 	BENCH_END(extract, "browse_trees_bci_by_y1_y2_tbb", 1, 1, 1, 1);
-	if (tbb_ctxt->is_group_execution_cancelled()) {
-		PVLOG_INFO("***** browse_trees_bci_by_y1_y2_tbb has been canceled !!\n");
-	}
 }
 
 /*****************************************************************************

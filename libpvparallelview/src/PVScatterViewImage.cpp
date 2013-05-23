@@ -19,6 +19,7 @@ PVParallelView::PVScatterViewImage::PVScatterViewImage():
 	_rgb_image(image_width, image_height, QImage::Format_ARGB32)
 {
 	_hsv_image = new PVCore::PVHSVColor[image_width*image_height];
+	clear();
 }
 
 PVParallelView::PVScatterViewImage::~PVScatterViewImage()

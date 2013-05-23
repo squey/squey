@@ -64,19 +64,12 @@ public:
 	PVZonesManager const& get_zones_manager() const { return _zm; }
 
 public:
-	/*inline uint64_t last_y1_min() const { return _data_params.y1_min; }
-	inline uint64_t last_y1_max() const { return _data_params.y1_max; }
-	inline uint64_t last_y2_min() const { return _data_params.y2_min; }
-	inline uint64_t last_y2_max() const { return _data_params.y2_max; }
-	inline int last_zoom() const { return _data_params.zoom; }
-	inline double last_alpha() const { return _data_params.alpha; }*/
-
 	inline void set_img_update_receiver(QObject* obj) { _img_update_receiver = obj; }
 
 private:
 	void connect_zr(PVZoneRenderingScatter& zr, const char* slot);
 
-	static void clear_dirty_rects(DataProcessParams const& params, PVScatterViewImage& image);
+	static void copy_processed_in_processing(DataProcessParams const& params, PVScatterViewImage& processing, PVScatterViewImage const& processed);
 
 	void process_bg(DataProcessParams const& params);
 	void process_sel(DataProcessParams const& params);

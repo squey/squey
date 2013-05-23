@@ -79,21 +79,13 @@ public:
 		int32_t map_to_view(int64_t scene_value) const;
 		QRect map_to_view(const dirty_rect& rect) const;
 
-		inline bool params_changed(
+		bool params_changed(
 				uint64_t y1_min_,
 				uint64_t y1_max_,
 				uint64_t y2_min_,
 				uint64_t y2_max_,
 				int zoom_,
-				double alpha_) const
-		{
-			return !(y1_min_ == y1_min &&
-					y1_max_ == y1_max &&
-					y2_min_ == y2_min &&
-					y2_max_ == y2_max &&
-					zoom_ == zoom &&
-					alpha_ == alpha);
-		}
+				double alpha_) const;
 
 		void set_params(
 				uint64_t y1_min_,
@@ -101,25 +93,7 @@ public:
 				uint64_t y2_min_,
 				uint64_t y2_max_,
 				int zoom_,
-				double alpha_
-		)
-		{
-			// Translation
-			if (zoom_ == zoom && alpha_ == alpha) {
-				y1_offset = y1_min - y1_min_;
-				y2_offset = y2_min - y2_min_;
-			}
-			else {
-				y1_offset = 0;
-				y2_offset = 0;
-			}
-			y1_min = y1_min_;
-			y1_max = y1_max_;
-			y2_min = y2_min_;
-			y2_max = y2_max_;
-			zoom = zoom_;
-			alpha = alpha_;
-		}
+				double alpha_);
 
 		PVZoomedZoneTree const* zzt;
 		const PVCore::PVHSVColor* colors;
