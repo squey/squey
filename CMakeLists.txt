@@ -99,6 +99,7 @@ if(CUDA_FOUND)
   message(STATUS "CUDA toolkit root dir: " ${CUDA_TOOLKIT_ROOT_DIR})
   message(STATUS "CUDA SDK root dir: " ${CUDA_SDK_ROOT_DIR})
   message(STATUS "CUDA 64bit device: " ${CUDA_64_BIT_DEVICE_CODE})
+  message(STATUS "CUDA libraries: " ${CUDA_LIBRARIES})
 endif(CUDA_FOUND)
 
 # Set inspector.sh and make_protect for current build

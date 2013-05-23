@@ -6,6 +6,8 @@
 
 #include <pvkernel/core/PVHSVColor.h>
 
+#include <assert.h>
+
 #include <QColor>
 #include <QRgb>
 
@@ -17,6 +19,27 @@ PVCore::PVHSVColor* PVCore::PVHSVColor::init_colors(PVRow nb_colors)
 		colors[i].h() = (i/4096)%((1<<HSV_COLOR_NBITS_ZONE)*6);
 	}
 	return colors;
+}
+
+void PVCore::PVHSVColor::to_rgba(const PVHSVColor* hsv_image, QImage& rbg_image)
+{
+	assert(!rbg_image.isNull());
+
+	size_t rect_x = 0;
+	size_t rect_y = 0;
+	size_t rect_width = rbg_image.width();
+	size_t rect_height = rbg_image.height();
+
+	assert(rect_width <= (size_t) rbg_image.width());
+	assert(rect_x <= (size_t) rbg_image.width());
+	assert(rect_height <= (size_t) rbg_image.height());
+	assert(rect_y <= (size_t) rbg_image.height());
+
+	QRgb* rgb = (QRgb*) &rbg_image.scanLine(0)[0];
+#pragma omp parallel for schedule(static, 16)
+	for (uint32_t i = rect_y*rect_width+rect_x; i < rect_width*rect_height; i++) {
+		hsv_image[i].to_rgba((uint8_t*) &rgb[i]);
+	}
 }
 
 static unsigned char zone2pos(unsigned char zone)

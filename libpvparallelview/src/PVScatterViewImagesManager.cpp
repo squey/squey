@@ -70,14 +70,40 @@ bool PVParallelView::PVScatterViewImagesManager::change_and_process_view(
 	return true;
 }
 
+void PVParallelView::PVScatterViewImagesManager::set_params(
+	uint64_t y1_min,
+	uint64_t y1_max,
+	uint64_t y2_min,
+	uint64_t y2_max,
+	int zoom,
+	double alpha
+)
+{
+	// Translation
+	if (zoom == last_zoom() && alpha == last_alpha()) {
+		_data_params.y1_offset = _data_params.y1_min - y1_min;
+		_data_params.y2_offset = _data_params.y2_min - y2_min;
+	}
+	else {
+		_data_params.y1_offset = 0;
+		_data_params.y2_offset = 0;
+	}
+	_data_params.y1_min = y1_min;
+	_data_params.y1_max = y1_max;
+	_data_params.y2_min = y2_min;
+	_data_params.y2_max = y2_max;
+	_data_params.zoom = zoom;
+	_data_params.alpha = alpha;
+}
+
 void PVParallelView::PVScatterViewImagesManager::process_bg()
 {
 	PVScatterViewData& data = full_view() ? _data_z0 : _data;
 
 	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, _data_params,
-			[](PVScatterViewDataInterface& data_if, DataProcessParams const& params, tbb::task_group_context& ctxt)
+			[&](PVScatterViewDataInterface& data_if, DataProcessParams const& params, tbb::task_group_context& ctxt)
 			{
-				data_if.image_bg().clear();
+				PVParallelView::PVScatterViewImagesManager::clear_dirty_rects(params, data_if.image_bg());
 				data_if.process_bg(params, &ctxt);
 			}));
 
@@ -86,7 +112,8 @@ void PVParallelView::PVScatterViewImagesManager::process_bg()
 	PVZoneRenderingScatter_p old_zr = _zr_bg;
 	_zr_bg = zr;
 	if (old_zr) {
-		old_zr->cancel_and_add_job(_zp_bg, zr);
+		//old_zr->cancel_and_add_job(_zp_bg, zr);
+		old_zr->wait_end();
 	}
 	else {
 		_zp_bg.add_job(zr);
@@ -100,7 +127,7 @@ void PVParallelView::PVScatterViewImagesManager::process_sel()
 	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, _data_params,
 			[&](PVScatterViewDataInterface& data_if, DataProcessParams const& params, tbb::task_group_context& ctxt)
 			{
-				data_if.image_sel().clear();
+				PVScatterViewImagesManager::clear_dirty_rects(params, data_if.image_sel());
 				data_if.process_sel(params, this->_sel, &ctxt);
 			}));
 
@@ -118,9 +145,14 @@ void PVParallelView::PVScatterViewImagesManager::process_sel()
 
 void PVParallelView::PVScatterViewImagesManager::process_all()
 {
+	// AG: TODO: scheduling here isn't trivial, because we should be able to
+	// say: "launch the process_all job when both _zr_sel and _zr_bg have
+	// finished". Moreover, this implies for process_bg and process_sel to be
+	// able to cancel both "_zr_all" and _zr_sel, with the same issue !
+	// For now, just launch the selection and background job.
 	/*PVScatterViewData& data = full_view() ? _data_z0 : _data;
-	data.image_all().clear();
-	data.image_sel().clear();
+	clear_dirty_rects(data.image_all());
+	clear_dirty_rects(data.image_sel());
 	data.process_all(_data_params, _sel);*/
 	process_sel();
 	process_bg();
@@ -142,5 +174,29 @@ void PVParallelView::PVScatterViewImagesManager::connect_zr(PVZoneRenderingScatt
 {
 	if (_img_update_receiver) {
 		zr.set_render_finished_slot(_img_update_receiver, slot);
+	}
+}
+
+void PVParallelView::PVScatterViewImagesManager::clear_dirty_rects(DataProcessParams const& params, PVScatterViewImage& image)
+{
+	if (!params.y1_offset && !params.y2_offset) {
+		image.clear();
+		return;
+	}
+
+	PVCore::memmove2d(
+		image.get_hsv_image(),
+		PVScatterViewImage::image_width,
+		PVScatterViewImage::image_height,
+		params.map_to_view(params.y1_offset),
+		params.map_to_view(params.y2_offset)
+	);
+
+	if (params.y1_offset != 0) {
+		image.clear(params.map_to_view(params.rect_1()));
+	}
+
+	if (params.y2_offset != 0) {
+		image.clear(params.map_to_view(params.rect_2()));
 	}
 }

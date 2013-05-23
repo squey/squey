@@ -71,12 +71,12 @@ public:
 	inline int last_zoom() const { return _data_params.zoom; }
 	inline double last_alpha() const { return _data_params.alpha; }
 	inline bool params_changed(
-		const uint64_t y1_min,
-		const uint64_t y1_max,
-		const uint64_t y2_min,
-		const uint64_t y2_max,
-		const int zoom,
-		const double alpha) const
+		uint64_t y1_min,
+		uint64_t y1_max,
+		uint64_t y2_min,
+		uint64_t y2_max,
+		int zoom,
+		double alpha) const
 	{
 		return !(y1_min == last_y1_min() &&
 				 y1_max == last_y1_max() &&
@@ -89,27 +89,22 @@ public:
 	inline void set_img_update_receiver(QObject* obj) { _img_update_receiver = obj; }
 
 protected:
-	inline void set_params(
-		const uint64_t y1_min,
-		const uint64_t y1_max,
-		const uint64_t y2_min,
-		const uint64_t y2_max,
-		const int zoom,
-		const double alpha
-	)
-	{
-		_data_params.y1_min = y1_min;
-		_data_params.y1_max = y1_max;
-		_data_params.y2_min = y2_min;
-		_data_params.y2_max = y2_max;
-		_data_params.zoom = zoom;
-		_data_params.alpha = alpha;
-	}
+	void set_params(
+		uint64_t y1_min,
+		uint64_t y1_max,
+		uint64_t y2_min,
+		uint64_t y2_max,
+		int zoom,
+		double alpha
+	);
 
 	inline bool full_view() const { return (_data_params.zoom == 0) && (_data_params.alpha == 1.0); }
 
 	void connect_zr(PVZoneRenderingScatter& zr, const char* slot);
 
+protected:
+	void clear_dirty_rects(PVScatterViewImage& image) const { clear_dirty_rects(_data_params, image); }
+	static void clear_dirty_rects(DataProcessParams const& params, PVScatterViewImage& image);
 protected:
 	PVZoneID _zid;
 	PVZonesManager const& _zm;

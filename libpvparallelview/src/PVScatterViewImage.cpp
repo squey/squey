@@ -6,16 +6,19 @@
 
 #include <pvparallelview/PVScatterViewImage.h>
 
+#include <assert.h>
+
 #include <QImage>
 #include <QPainter>
 
 #include <pvkernel/core/PVHSVColor.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/PVMemory2D.h>
+#include <pvkernel/core/PVLogger.h>
 
-PVParallelView::PVScatterViewImage::PVScatterViewImage()
+PVParallelView::PVScatterViewImage::PVScatterViewImage():
+	_rgb_image(image_width, image_height, QImage::Format_ARGB32)
 {
 	_hsv_image = new PVCore::PVHSVColor[image_width*image_height];
-	_rgb_image = new QImage(image_width, image_height, QImage::Format_ARGB32);
 }
 
 PVParallelView::PVScatterViewImage::~PVScatterViewImage()
@@ -23,23 +26,19 @@ PVParallelView::PVScatterViewImage::~PVScatterViewImage()
 	if (_hsv_image) {
 		delete [] _hsv_image;
 	}
-	if (_rgb_image) {
-		delete _rgb_image;
-	}
 }
 
-void PVParallelView::PVScatterViewImage::clear()
+void PVParallelView::PVScatterViewImage::clear(const QRect& rect /* = QRect() */)
 {
-	memset(_hsv_image, HSV_COLOR_TRANSPARENT, image_width*image_height*sizeof(PVCore::PVHSVColor));
+	if (rect.isNull()) {
+		memset(_hsv_image, HSV_COLOR_TRANSPARENT, image_width*image_height*sizeof(PVCore::PVHSVColor));
+	}
+	else {
+		PVCore::memset2d(_hsv_image, HSV_COLOR_TRANSPARENT, image_width, image_height, rect);
+	}
 }
 
 void PVParallelView::PVScatterViewImage::convert_image_from_hsv_to_rgb()
 {
-	//BENCH_START(image_convertion);
-	QRgb* image_rgb = (QRgb*) &_rgb_image->scanLine(0)[0];
-#pragma omp parallel for schedule(static, 16)
-	for (uint32_t i = 0; i < image_width*image_height; i++) {
-		_hsv_image[i].to_rgba((uint8_t*) &image_rgb[i]);
-	}
-	//BENCH_END(image_convertion, "image_convertion", image_width*image_height, sizeof(PVCore::PVHSVColor), image_width*image_height, sizeof(QRgb));
+	PVCore::PVHSVColor::to_rgba(_hsv_image, _rgb_image);
 }

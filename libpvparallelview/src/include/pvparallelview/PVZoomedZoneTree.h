@@ -379,10 +379,11 @@ public:
 		double alpha,
 		PVCore::PVHSVColor const* const colors,
 		PVCore::PVHSVColor* const image,
+		uint32_t image_width,
 		tbb::task_group_context* tbb_ctxt = nullptr
 	) const
 	{
-		browse_trees_bci_by_y1_y2_tbb(y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image,
+		browse_trees_bci_by_y1_y2_tbb(y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image, image_width,
 			// extract_entries_y1_y2_f:
 			[&](const pvquadtree &tree,
 				PVCore::PVHSVColor* image,
@@ -402,10 +403,11 @@ public:
 		PVCore::PVHSVColor const* const colors,
 		PVCore::PVHSVColor* const image,
 		Picviz::PVSelection const& sel,
+		uint32_t image_width,
 		tbb::task_group_context* tbb_ctxt = nullptr
 	) const
 	{
-		browse_trees_bci_by_y1_y2_tbb(y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image,
+		browse_trees_bci_by_y1_y2_tbb(y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image, image_width,
 			// extract_entries_y1_y2_f:
 			[&](const pvquadtree &tree,
 				PVCore::PVHSVColor* image,
@@ -809,6 +811,7 @@ private:
 		double alpha,
 		PVCore::PVHSVColor const* const colors,
 		PVCore::PVHSVColor* const image,
+		uint32_t image_width,
 		const extract_entries_y1_y2_f &extract_f,
 		PVRow const* const sel_elts = nullptr,
 		tbb::task_group_context* tbb_ctxt = nullptr
