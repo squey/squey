@@ -69,6 +69,18 @@ int PVParallelView::PVZoomableDrawingArea::y_scale_to_zoom(const qreal value) co
 	return get_y_axis_zoom().get_zoom_converter()->scale_to_zoom(value);
 }
 
+void PVParallelView::PVZoomableDrawingArea::set_x_axis_inverted(bool inverted)
+{
+	get_x_axis_zoom().set_inverted(inverted);
+	reconfigure_view();
+}
+
+void PVParallelView::PVZoomableDrawingArea::set_y_axis_inverted(bool inverted)
+{
+	get_y_axis_zoom().set_inverted(inverted);
+	reconfigure_view();
+}
+
 /*****************************************************************************
  * PVParallelView::PVZoomableDrawingArea::reconfigure_view
  *****************************************************************************/
