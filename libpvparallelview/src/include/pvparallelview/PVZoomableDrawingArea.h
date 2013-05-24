@@ -148,6 +148,12 @@ public:
 	 */
 	void reconfigure_view();
 
+	void set_x_axis_inverted(bool inverted);
+	void set_y_axis_inverted(bool inverted);
+
+	bool x_axis_inverted() const { return get_x_axis_zoom().inverted(); }
+	bool y_axis_inverted() const { return get_y_axis_zoom().inverted(); }
+
 signals:
 	/**
 	 * This signal is emitted each time a zoom change has been done.

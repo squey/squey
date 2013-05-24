@@ -399,6 +399,9 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v2(QPainter *paint
 	y_real_tick_count *= ticks_per_level;
 	qreal screen_subtick_height = scene_height / (y_real_tick_count);
 	qreal scene_subtick_height = get_scene_rect().height() / (y_real_tick_count);
+	if (y_axis_inverted()) {
+		scene_subtick_height = -scene_subtick_height;
+	}
 
 	// next, some information about the first tick position
 	qreal scene_top = map_to_scene(QPoint(0, top)).y();
@@ -499,6 +502,10 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 	qreal scene_pos = x_subtick_index * scene_subtick_width;
 	qreal screen_pos = map_from_scene(QPointF(scene_pos, 0)).x();
 
+	if (x_axis_inverted()) {
+		scene_subtick_width = -scene_subtick_width;
+	}
+
 	// let's draw
 	while ((int)screen_pos <= right) {
 		if ((x_subtick_index % ticks_per_level) != 0) {
@@ -541,6 +548,9 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 	scene_pos = y_subtick_index * scene_subtick_height;
 	screen_pos = map_from_scene(QPointF(0, scene_pos)).y();
 
+	if (y_axis_inverted()) {
+		scene_subtick_height = -scene_subtick_height;
+	}
 
 	// let's draw
 	while ((int)screen_pos <= bottom) {

@@ -30,7 +30,7 @@ public:
 	 */
 	PVAxisZoom() :
 		_value(0), _value_min(INT_MIN), _value_max(INT_MAX), _value_default(0),
-		_zoom_converter(nullptr)
+		_inverted(false), _zoom_converter(nullptr)
 	{}
 
 	/**
@@ -121,6 +121,21 @@ public:
 	 */
 	const PVZoomConverter *get_zoom_converter() const { return _zoom_converter; }
 
+	/**
+	 * Set whether the axis orientation should be inverted.
+	 */
+	void set_inverted(bool inverted) { _inverted = inverted; }
+
+	/**
+	 * Returns whether the axis orientation will be inverted.
+	 */
+	bool inverted() const { return _inverted; }
+
+	/**
+	 * Returns true iif the zoom_converter object has been set
+	 */
+	bool valid() const { return _zoom_converter != nullptr; }
+
 protected:
 	/**
 	 * Change the stored value.
@@ -148,6 +163,7 @@ private:
 	int                    _value_min;
 	int                    _value_max;
 	int                    _value_default;
+	bool                   _inverted;
 	const PVZoomConverter *_zoom_converter;
 };
 

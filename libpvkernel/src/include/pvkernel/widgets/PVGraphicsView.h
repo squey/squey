@@ -293,6 +293,16 @@ public:
 		return map_from_scene(QRectF(x, y, w, h));
 	}
 
+	/**
+	 * Returns the transformation that maps the scene space to the unmargined viewport space.
+	 */
+	QTransform get_transform_from_scene() const;
+
+	/**
+	 * Returns the transformation that maps the scene space to the unmargined viewport space.
+	 */
+	QTransform get_transform_to_scene() const;
+
 public:
 	/**
 	 * Maps a rectange from margined viewport's space to viewport's space.

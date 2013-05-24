@@ -10,6 +10,7 @@
 #include <QEvent>
 #include <QGraphicsSceneWheelEvent>
 #include <QScrollBar64>
+#include <QDebug>
 
 #ifndef QT_NO_OPENGL
 #include <QGLWidget>
@@ -180,8 +181,9 @@ void PVWidgets::PVGraphicsView::set_scene(QGraphicsScene *scene)
 
 QPointF PVWidgets::PVGraphicsView::map_to_scene(const QPointF &p) const
 {
-	QPointF np = p + get_scroll();
-	return _inv_transform.map(np) + _scene_offset;
+	/*QPointF np = p + get_scroll();
+	return _inv_transform.map(np) + _scene_offset;*/
+	return get_transform_to_scene().map(p);
 }
 
 /*****************************************************************************
@@ -190,8 +192,9 @@ QPointF PVWidgets::PVGraphicsView::map_to_scene(const QPointF &p) const
 
 QRectF PVWidgets::PVGraphicsView::map_to_scene(const QRectF &r) const
 {
-	QRectF tr = r.translated(get_scroll());
-	return _inv_transform.mapRect(tr).translated(_scene_offset);
+	/*QRectF tr = r.translated(get_scroll());
+	return _inv_transform.mapRect(tr).translated(_scene_offset);*/
+	return get_transform_to_scene().mapRect(r);
 }
 
 /*****************************************************************************
@@ -200,9 +203,10 @@ QRectF PVWidgets::PVGraphicsView::map_to_scene(const QRectF &r) const
 
 QPointF PVWidgets::PVGraphicsView::map_from_scene(const QPointF &p) const
 {
-	QPointF np = _transform.map(p - _scene_offset);
+	/*QPointF np = _transform.map(p - _scene_offset);
 	np -= get_scroll();
-	return np;
+	return np;*/
+	return get_transform_from_scene().map(p);
 }
 
 /*****************************************************************************
@@ -211,9 +215,31 @@ QPointF PVWidgets::PVGraphicsView::map_from_scene(const QPointF &p) const
 
 QRectF PVWidgets::PVGraphicsView::map_from_scene(const QRectF &r) const
 {
-	QRectF nr = _transform.mapRect(r.translated(-_scene_offset));
+	/*QRectF nr = _transform.mapRect(r.translated(-_scene_offset));
 	nr.translate(-get_scroll());
-	return nr;
+	return nr;*/
+	return get_transform_from_scene().mapRect(r);
+}
+
+QTransform PVWidgets::PVGraphicsView::get_transform_to_scene() const
+{
+	QTransform trans_scroll;
+	trans_scroll.translate(get_scroll_x(), get_scroll_y());
+
+	QTransform trans_scene_offset;
+	trans_scene_offset.translate(_scene_offset.x(), _scene_offset.y());
+
+	return trans_scroll * _inv_transform * trans_scene_offset;
+}
+
+QTransform PVWidgets::PVGraphicsView::get_transform_from_scene() const
+{
+	QTransform trans_scroll;
+	trans_scroll.translate(-get_scroll_x(), -get_scroll_y());
+	QTransform trans_scene_offset;
+	trans_scene_offset.translate(-_scene_offset.x(), -_scene_offset.y());
+
+	return trans_scene_offset * _transform * trans_scroll;
 }
 
 /*****************************************************************************
@@ -472,7 +498,6 @@ QPointF PVWidgets::PVGraphicsView::map_to_margined(QPointF const& p) const
 	return get_transform_to_margined_viewport().map(p);
 }
 
-
 QTransform PVWidgets::PVGraphicsView::get_transform_to_margined_viewport() const
 {
 	QTransform ret;
@@ -506,13 +531,22 @@ bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 	const QRectF margined_render_rect = map_to_margined(unmargined_render_rect);
 	const QRectF margined_scene_render_rect = map_to_margined(unmargined_render_rect.intersected(get_margined_viewport_rect()));
 
+	// Benchmark of the following line gives about 0.005ms, which is negligeable against the other renderings..
+	const QTransform scene_transform = get_transform_from_scene();
+	const QTransform margined_transform = get_transform_from_margined_viewport();
+
 	QPainter painter;
 	painter.begin(get_viewport());
 	painter.fillRect(unmargined_render_rect, Qt::black);
-	painter.setTransform(get_transform_from_margined_viewport(), false);
 
+	painter.setTransform(margined_transform, false);
 	drawBackground(&painter, margined_render_rect);
-	_scene->render(&painter, margined_scene_render_rect, map_margined_to_scene(margined_scene_render_rect), Qt::IgnoreAspectRatio);
+
+	const QRectF scene_rect = map_margined_to_scene(margined_scene_render_rect);
+	painter.setTransform(scene_transform, false);
+	_scene->render(&painter, scene_rect, scene_rect, Qt::IgnoreAspectRatio);
+
+	painter.setTransform(margined_transform, false);
 	drawForeground(&painter, margined_render_rect);
 
 	painter.end();

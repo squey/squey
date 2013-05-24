@@ -69,10 +69,10 @@ int main(int argc, char **argv)
 	std::cout << max_count << std::endl;
 
 	QRectF rect(0, 0, max_count, 0x6FFFFFFFU);
-	PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_view_rect_serial(manager, rect, max_count, sel_ref);
-	PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_view_rect_serial_invariant(manager, rect, max_count, sel_inv);
-	PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_view_rect_sse(manager, rect, max_count, sel_sse);
-	PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_view_rect_sse_invariant_omp(manager, rect, max_count, sel_sse_inv);
+	PVParallelView::__impl::compute_selection_from_hit_count_view_rect_serial(manager, rect, max_count, sel_ref);
+	PVParallelView::__impl::compute_selection_from_hit_count_view_rect_serial_invariant(manager, rect, max_count, sel_inv);
+	PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse(manager, rect, max_count, sel_sse);
+	PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_invariant_omp(manager, rect, max_count, sel_sse_inv);
 
 	std::cout << "Number of selected lines (ref): " << sel_ref.get_number_of_selected_lines_in_range(0, zm.get_number_rows()) << std::endl;
 	std::cout << "Number of selected lines (invariant): " << sel_inv.get_number_of_selected_lines_in_range(0, zm.get_number_rows()) << std::endl;
