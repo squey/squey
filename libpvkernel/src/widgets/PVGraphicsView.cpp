@@ -532,8 +532,7 @@ bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 	const QRectF margined_scene_render_rect = map_to_margined(unmargined_render_rect.intersected(get_margined_viewport_rect()));
 
 	// Benchmark of the following line gives about 0.005ms, which is negligeable against the other renderings..
-	const QTransform scene_transform = get_transform_from_scene() * get_transform_to_margined_viewport();
-
+	const QTransform scene_transform = get_transform_from_scene();
 	const QTransform margined_transform = get_transform_from_margined_viewport();
 
 	QPainter painter;
