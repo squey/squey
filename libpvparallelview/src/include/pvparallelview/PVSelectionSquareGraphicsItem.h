@@ -9,6 +9,7 @@
 
 #include <limits>
 
+#include <QApplication>
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
 #include <QTimer>
@@ -29,6 +30,10 @@ class PVFullParallelScene;
 class PVSelectionSquareGraphicsItem : public QObject, public QGraphicsRectItem
 {
 	Q_OBJECT;
+
+public:
+	static constexpr unsigned int hsel_modifier = Qt::ControlModifier;
+	static constexpr unsigned int vsel_modifier = Qt::ShiftModifier;
 
 public:
 	PVSelectionSquareGraphicsItem(QGraphicsItem* parent = nullptr);
@@ -56,7 +61,7 @@ public:
 	void update_rect(const QRectF & rectangle, bool use_selection_modifiers = true, bool now = false)
 	{
 		_use_selection_modifiers = use_selection_modifiers;
-		setRect(rectangle);
+		update_rect_no_commit(rectangle);
 		if (now) {
 			volatile_selection_timeout_Slot();
 		}
@@ -67,7 +72,22 @@ public:
 
 	void update_rect_no_commit(const QRectF & rectangle)
 	{
-		setRect(rectangle);
+		QRectF r = rectangle;
+
+		if (_use_selection_modifiers) {
+			unsigned int modifiers = (unsigned int) QApplication::keyboardModifiers() & ~Qt::KeypadModifier;
+			if (vertical_selection_modifier() && modifiers == vertical_selection_modifier()) {
+				r.setX(rect().x());
+				r.setWidth(0);
+			}
+			else if (horizontal_selection_modifier() && modifiers == horizontal_selection_modifier())
+			{
+				r.setY(rect().y());
+				r.setHeight(0);
+			}
+		}
+
+		setRect(r);
 	}
 
 	void finished()
@@ -76,6 +96,32 @@ public:
 		cur_pen.setColor(COMMITED_COLOR);
 		setPen(cur_pen);
 		_volatile_selection_timer->stop();
+	}
+
+	void enable_horizontal_selection(bool enabled)
+	{
+		_horizontal_selection_enabled = enabled;
+	}
+
+	unsigned int horizontal_selection_modifier()
+	{
+		if (_horizontal_selection_enabled) {
+			return hsel_modifier;
+		}
+		return 0;
+	}
+
+	void enable_vertical_selection(bool enabled)
+	{
+		_vertical_selection_enabled = enabled;
+	}
+
+	unsigned int vertical_selection_modifier()
+	{
+		if (_vertical_selection_enabled) {
+			return vsel_modifier;
+		}
+		return 0;
 	}
 
 signals:
@@ -104,6 +150,8 @@ private:
 	QTimer* _volatile_selection_timer;
 	QPointF _selection_square_pos;
 	bool _use_selection_modifiers = true;
+	bool _horizontal_selection_enabled = false;
+	bool _vertical_selection_enabled = false;
 };
 
 }

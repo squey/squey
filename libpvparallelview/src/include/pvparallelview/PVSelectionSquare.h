@@ -55,8 +55,28 @@ public:
 
 	void grow_horizontally() { grow_by(GROW_STEP_RATIO, 1); }
 	void shrink_horizontally() { grow_by(1/GROW_STEP_RATIO, 1); }
-	void grow_vertically() { grow_by(1, 1/GROW_STEP_RATIO); };
-	void shrink_vertically() { grow_by(1, GROW_STEP_RATIO); };
+	void grow_vertically() { grow_by(1, 1/GROW_STEP_RATIO); }
+	void shrink_vertically() { grow_by(1, GROW_STEP_RATIO); }
+
+	void enable_horizontal_selection(bool enabled)
+	{
+		_selection_graphics_item->enable_horizontal_selection(enabled);
+	}
+
+	unsigned int horizontal_selection_modifier()
+	{
+		return _selection_graphics_item->horizontal_selection_modifier();
+	}
+
+	void enable_vertical_selection(bool enabled)
+	{
+		_selection_graphics_item->enable_vertical_selection(enabled);
+	}
+
+	unsigned int vertical_selection_modifier()
+	{
+		return _selection_graphics_item->vertical_selection_modifier();
+	}
 
 	QGraphicsScene* scene() const;
 

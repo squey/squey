@@ -24,7 +24,7 @@ void PVParallelView::PVSelectionSquareScatterView::set_plotteds(const uint32_t* 
 	_nrows = nrows;
 }
 
-void PVParallelView::PVSelectionSquareScatterView::commit(bool /*use_selection_modifiers*/)
+void PVParallelView::PVSelectionSquareScatterView::commit(bool use_selection_modifiers)
 {
 	QRectF r = _selection_graphics_item->rect();
 	Picviz::PVView& view = lib_view();
@@ -33,17 +33,19 @@ void PVParallelView::PVSelectionSquareScatterView::commit(bool /*use_selection_m
 	Picviz::PVSelection const& layers_sel = view.get_layer_stack_output_layer().get_selection();
 
 	unsigned int modifiers = (unsigned int) QApplication::keyboardModifiers() & ~Qt::KeypadModifier;
-	if (modifiers == (unsigned int) (Qt::ShiftModifier)) {
+	if (use_selection_modifiers && vertical_selection_modifier() && modifiers == vertical_selection_modifier()) {
 		PVSelectionGenerator::compute_selection_from_plotted_range(_y2_plotted, _nrows, r.y(), r.y()+r.height(), sel, layers_sel);
+		use_selection_modifiers = false;
 	}
-	else if (modifiers == (unsigned int) (Qt::ControlModifier)) {
+	else if (use_selection_modifiers && horizontal_selection_modifier() && modifiers == horizontal_selection_modifier()) {
 		PVSelectionGenerator::compute_selection_from_plotted_range(_y1_plotted, _nrows, r.x(), r.x()+r.width(), sel, layers_sel);
+		use_selection_modifiers = false;
 	}
-	else if (modifiers == (unsigned int) (Qt::NoModifier)) {
+	else {
 		PVSelectionGenerator::compute_selection_from_plotteds_ranges(_y1_plotted, _y2_plotted, _nrows, r, sel, layers_sel);
 	}
 
-	PVSelectionGenerator::process_selection(view.shared_from_this(), false);
+	PVSelectionGenerator::process_selection(view.shared_from_this(), use_selection_modifiers);
 }
 
 Picviz::PVView& PVParallelView::PVSelectionSquareScatterView::lib_view()

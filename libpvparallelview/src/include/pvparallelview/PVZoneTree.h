@@ -45,7 +45,6 @@ class TBBSelFilterMaxCount;
 }
 
 class PVZoneProcessing;
-class PVSelectionGenerator;
 
 class PVZoneTree: public PVZoneTreeBase
 {

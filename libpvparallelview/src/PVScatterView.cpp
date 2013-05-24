@@ -76,6 +76,8 @@ PVParallelView::PVScatterView::PVScatterView(
 	get_scene()->setSceneRect(r);
 
 	_selection_square = new PVSelectionSquareScatterView(this);
+	_selection_square->enable_horizontal_selection(true);
+	_selection_square->enable_vertical_selection(true);
 
 	// interactor
 	PVWidgets::PVGraphicsViewInteractorBase* zoom_inter = declare_interactor<PVZoomableDrawingAreaInteractorHomothetic>();
