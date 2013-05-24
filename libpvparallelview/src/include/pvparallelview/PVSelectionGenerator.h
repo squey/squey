@@ -75,7 +75,7 @@ struct PVSelectionGenerator
 
 namespace __impl
 {
-	static uint32_t compute_selection_from_plotted_range_seq(
+	uint32_t compute_selection_from_plotted_range_seq(
 		const uint32_t* plotted,
 		PVRow nrows,
 		uint64_t y_min,
@@ -84,7 +84,7 @@ namespace __impl
 		Picviz::PVSelection const& layers_sel
 	);
 
-	static uint32_t compute_selection_from_plotted_range_sse(
+	uint32_t compute_selection_from_plotted_range_sse(
 		const uint32_t* plotted,
 		PVRow nrows,
 		uint64_t y_min,
@@ -93,7 +93,7 @@ namespace __impl
 		Picviz::PVSelection const& layers_sel
 	);
 
-	static uint32_t compute_selection_from_plotted_ranges_seq(
+	uint32_t compute_selection_from_plotted_ranges_seq(
 		const uint32_t* y1_plotted,
 		const uint32_t* y2_plotted,
 		const PVRow nrows,
@@ -102,7 +102,7 @@ namespace __impl
 		Picviz::PVSelection const& layers_sel
 	);
 
-	static uint32_t compute_selection_from_plotteds_ranges_sse(
+	uint32_t compute_selection_from_plotteds_ranges_sse(
 		const uint32_t* y1_plotted,
 		const uint32_t* y2_plotted,
 		const PVRow nrows,
@@ -111,28 +111,28 @@ namespace __impl
 		Picviz::PVSelection const& layers_sel
 	);
 
-	static uint32_t compute_selection_from_hit_count_view_rect_serial(
+	uint32_t compute_selection_from_hit_count_view_rect_serial(
 		const PVHitGraphBlocksManager& manager,
 		const QRectF& rect,
 		const uint32_t max_count,
 		Picviz::PVSelection& sel
 	);
 
-	static uint32_t compute_selection_from_hit_count_view_rect_serial_invariant(
+	uint32_t compute_selection_from_hit_count_view_rect_serial_invariant(
 		const PVHitGraphBlocksManager& manager,
 		const QRectF& rect,
 		const uint32_t max_count,
 		Picviz::PVSelection& sel
 	);
 
-	static uint32_t compute_selection_from_hit_count_view_rect_sse(
+	uint32_t compute_selection_from_hit_count_view_rect_sse(
 		const PVHitGraphBlocksManager& manager,
 		const QRectF& rect,
 		const uint32_t max_count,
 		Picviz::PVSelection& sel
 	);
 
-	static uint32_t compute_selection_from_hit_count_view_rect_sse_invariant_omp(
+	uint32_t compute_selection_from_hit_count_view_rect_sse_invariant_omp(
 		const PVHitGraphBlocksManager& manager,
 		const QRectF& rect,
 		const uint32_t max_count,
