@@ -87,6 +87,10 @@ void PVParallelView::PVZoomableDrawingArea::set_y_axis_inverted(bool inverted)
 
 void PVParallelView::PVZoomableDrawingArea::reconfigure_view()
 {
+	if (!get_x_axis_zoom().valid() || !get_x_axis_zoom().valid()) {
+		return;
+	}
+
 	QTransform transfo;
 
 	transfo.scale(x_zoom_to_scale(get_x_axis_zoom().get_clamped_value()),

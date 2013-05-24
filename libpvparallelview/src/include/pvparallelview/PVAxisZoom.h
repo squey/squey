@@ -131,6 +131,11 @@ public:
 	 */
 	bool inverted() const { return _inverted; }
 
+	/**
+	 * Returns true iif the zoom_converter object has been set
+	 */
+	bool valid() const { return _zoom_converter != nullptr; }
+
 protected:
 	/**
 	 * Change the stored value.
