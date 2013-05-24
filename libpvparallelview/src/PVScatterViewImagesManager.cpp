@@ -180,7 +180,7 @@ void PVParallelView::PVScatterViewImagesManager::copy_processed_in_processing(Da
 {
 	processing.clear();
 
-	if ((params.y1_offset != 0) || (params.y2_offset != 0)) {
+	if (params.can_optimize_translation()) {
 		PVCore::memcpy2d(
 			processing.get_hsv_image(),
 			processed.get_hsv_image(),

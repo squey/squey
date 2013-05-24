@@ -81,6 +81,13 @@ bool ProcessParamsImpl::params_changed(
 			alpha_ == alpha);
 }
 
+bool PVParallelView::PVScatterViewDataInterface::ProcessParams::can_optimize_translation() const
+{
+	return (y1_offset != 0 || y2_offset != 0) &&
+		   ((uint64_t)abs(y1_offset) < (y1_max - y1_min)) &&
+		   ((uint64_t)abs(y2_offset) < (y2_max - y2_min));
+}
+
 void ProcessParamsImpl::set_params(
 		uint64_t y1_min_,
 		uint64_t y1_max_,

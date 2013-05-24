@@ -74,6 +74,7 @@ public:
 			y2_offset(0)
 		{ }
 
+		bool can_optimize_translation() const;
 		dirty_rect rect_1() const;
 		dirty_rect rect_2() const;
 		int32_t map_to_view(int64_t scene_value) const;

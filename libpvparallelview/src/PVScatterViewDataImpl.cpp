@@ -23,8 +23,8 @@ void PVParallelView::PVScatterViewDataImpl::process_image(
 	Picviz::PVSelection const* sel,
 	tbb::task_group_context* ctxt)
 {
-	if (params.y1_offset != 0 || params.y2_offset != 0) { // In case of translation, recompute only the dirty rectangles
-
+	if (params.can_optimize_translation()) { // In case of optimizable translation, recompute only the dirty rectangles
+		PVLOG_INFO("OPTIMIZATION\n");
 		// y2 translation
 		if (params.y2_offset != 0)
 		{
@@ -104,6 +104,7 @@ void PVParallelView::PVScatterViewDataImpl::process_image(
 		}
 	}
 	else { // In case of zoom, recompute the whole image
+		PVLOG_INFO("NO OPTIMIZATION\n");
 		if (sel) {
 			params.zzt->browse_bci_by_y1_y2_sel(
 				params.y1_min,
