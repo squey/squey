@@ -79,7 +79,21 @@ void PVParallelView::PVZoomableDrawingArea::reconfigure_view()
 
 	transfo.scale(x_zoom_to_scale(get_x_axis_zoom().get_clamped_value()),
 	              y_zoom_to_scale(get_y_axis_zoom().get_clamped_value()));
-	set_transform(transfo);
+
+	const QRectF scene_rect = get_scene()->sceneRect();
+
+	QTransform transfo_inv_x;
+	QTransform transfo_inv_y;
+	if (get_y_axis_zoom().inverted()) {
+		transfo_inv_y.translate(0.0, scene_rect.height());
+		transfo_inv_y.scale(1.0, -1.0);
+	}
+	if (get_x_axis_zoom().inverted()) {
+		transfo_inv_x.translate(scene_rect.width(), 0.0);
+		transfo_inv_x.scale(-1.0, 1.0);
+	}
+
+	set_transform(transfo_inv_x * transfo_inv_y * transfo);
 
 	get_constraints()->adjust_pan(get_horizontal_scrollbar(),
 	                              get_vertical_scrollbar());

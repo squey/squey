@@ -70,6 +70,8 @@ PVParallelView::PVScatterView::PVScatterView(
 {
 	//set_gl_viewport();
 
+	set_x_axis_inverted(true);
+
 	setCursor(Qt::CrossCursor);
 	QRectF r(0, 0, (1UL << 32), (1UL << 32));
 	set_scene_rect(r);
@@ -357,11 +359,11 @@ void PVParallelView::PVScatterView::RenderedImage::swap(QImage const& img, QRect
 {
 	_scene_rect = scene_rect;
 	_viewport_rect = viewport_rect;
-	_img = img;
+	_img = img.copy(_viewport_rect.toAlignedRect()).mirrored(true, false);
 }
 
 void PVParallelView::PVScatterView::RenderedImage::draw(PVGraphicsView* view, QPainter* painter)
 {
 	const QRectF target_sel = view->map_margined_from_scene(_scene_rect);
-	painter->drawImage(target_sel, _img, _viewport_rect);
+	painter->drawImage(target_sel, _img);
 }
