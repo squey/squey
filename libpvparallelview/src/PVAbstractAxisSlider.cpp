@@ -10,13 +10,16 @@
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QMenu>
+#include <QDebug>
 
 /*****************************************************************************
  * PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider
  *****************************************************************************/
 
 PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider(int64_t omin, int64_t omax, int64_t o,
-                                                           PVAxisSliderOrientation orientation) :
+                                                           PVAxisSliderOrientation orientation,
+														   QGraphicsItem* parent_item):
+	QGraphicsObject(parent_item),
 	_offset_min(omin), _offset_max(omax), _offset(o),
 	_orientation(orientation), _moving(false), _is_hover(false),
 	_removable(true)
@@ -156,6 +159,7 @@ void PVParallelView::PVAbstractAxisSlider::paint(QPainter *painter, const QStyle
 		painter->setPen(QColor(0xFF, 0, 0));
 		painter->setBrush(QColor(0xFF, 0, 0, 128));
 		const QRectF br = boundingRect();
+		qDebug() << "Abstract axis slider boundingRect = " << br;
 		painter->drawRect(br);
 		painter->restore();
 	}

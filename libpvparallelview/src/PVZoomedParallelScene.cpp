@@ -67,6 +67,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zp_bg(zp_bg),
 	_selection_sliders(nullptr)
 {
+	setItemIndexMethod(QGraphicsScene::NoIndex);
+
 	_view_deleted = false;
 
 	_zpview->set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOff);

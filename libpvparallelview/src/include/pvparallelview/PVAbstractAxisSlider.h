@@ -32,7 +32,7 @@ public:
 
 public:
 	PVAbstractAxisSlider(int64_t omin, int64_t omax, int64_t o,
-	                     PVAxisSliderOrientation orientation = Min);
+	                     PVAxisSliderOrientation orientation = Min, QGraphicsItem* parent_item = nullptr);
 
 	~PVAbstractAxisSlider();
 
