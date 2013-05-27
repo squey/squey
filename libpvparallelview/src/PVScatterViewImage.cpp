@@ -39,9 +39,9 @@ void PVParallelView::PVScatterViewImage::clear(const QRect& rect /* = QRect() */
 	}
 }
 
-void PVParallelView::PVScatterViewImage::convert_image_from_hsv_to_rgb()
+void PVParallelView::PVScatterViewImage::convert_image_from_hsv_to_rgb(QRect const& img_rect)
 {
-	PVCore::PVHSVColor::to_rgba(_hsv_image, _rgb_image);
+	PVCore::PVHSVColor::to_rgba(_hsv_image, _rgb_image, img_rect);
 }
 
 void PVParallelView::PVScatterViewImage::copy(PVScatterViewImage const& o)

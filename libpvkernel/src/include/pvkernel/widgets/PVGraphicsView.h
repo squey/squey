@@ -299,7 +299,7 @@ public:
 	QTransform get_transform_from_scene() const;
 
 	/**
-	 * Returns the transformation that maps the scene space to the unmargined viewport space.
+	 * Returns the transformation that maps the scene space from the unmargined viewport space.
 	 */
 	QTransform get_transform_to_scene() const;
 

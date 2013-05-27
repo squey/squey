@@ -18,6 +18,9 @@
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
 #include <pvparallelview/PVZoneRendering_types.h>
 
+// Uncomment to show FPS
+//#define SV_FPS
+
 class QPainter;
 
 namespace Picviz
@@ -59,7 +62,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 	public:
 		/*! \brief Swap the stored image with a new rendered one.
 		 */
-		void swap(QImage const& img, QRectF const& scene_rect, QRectF const& viewport_rect);
+		void swap(QImage const& img, QRectF const& viewport_rect, QTransform const& mv2s);
 
 		/*! \brief Draw the image thanks to \a painter.
 		 *
@@ -67,9 +70,8 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 		 */
 		void draw(PVGraphicsView* view, QPainter* painter);
 	private:
-		QRectF _scene_rect;
-		QRectF _viewport_rect;
 		QImage _img;
+		QTransform _mv2s; // margined viewport to scene image transformation
 	};
 
 public:
@@ -102,6 +104,7 @@ public:
 
 protected:
 	void drawBackground(QPainter *painter, const QRectF &rect) override;
+	void drawForeground(QPainter *painter, const QRectF &rect) override;
 	void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
@@ -123,6 +126,7 @@ private:
 private slots:
 	void do_zoom_change(int axes);
 	void do_pan_change();
+	void compute_fps();
 
 private:
 	Picviz::PVView& _view;
@@ -132,11 +136,16 @@ private:
 	PVSelectionSquareScatterView* _selection_square;
 	static bool _show_quadtrees;
 
+#ifdef SV_FPS
+	uint32_t _nframes;
+	QString _fps_str;
+#endif
+
 	RenderedImage _image_sel;
 	RenderedImage _image_bg;
 
 	QRectF _last_image_margined_viewport;
-	QRectF _last_image_scene;
+	QTransform _last_image_mv2s;
 
 	Picviz::PVAxesCombination::axes_comb_id_t _axis_id;
 };

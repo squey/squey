@@ -17,6 +17,8 @@
 #define DEFAULT_HMARGIN 50
 #define DEFAULT_VMARGIN 40
 
+#define AXIS_MARGIN 1 
+
 #define print_r(R) print_rect(R)
 #define print_rect(R) __print_rect(#R, R)
 
@@ -468,20 +470,20 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 	painter->setPen(_decoration_color);
 
 	// scales
-	painter->drawLine(left, top, left, bottom);
-	painter->drawLine(left, bottom, right, bottom);
+	painter->drawLine(left-AXIS_MARGIN, top-AXIS_MARGIN, left-AXIS_MARGIN, bottom+AXIS_MARGIN);
+	painter->drawLine(left-AXIS_MARGIN, bottom+AXIS_MARGIN, right, bottom+AXIS_MARGIN);
 
 	// legends
 	if (!_x_legend.isNull()) {
-		painter->drawText(left, bottom,
+		painter->drawText(left-AXIS_MARGIN, bottom+AXIS_MARGIN,
 		                  _x_axis_length, margin_bottom,
 		                  Qt::AlignRight | Qt::AlignBottom,
 		                  _x_legend);
 	}
 
 	if (!_y_legend.isNull()) {
-		painter->drawText(left, 0,
-		                  _x_axis_length, top,
+		painter->drawText(left-AXIS_MARGIN, 0,
+		                  _x_axis_length, top-AXIS_MARGIN,
 		                  Qt::AlignLeft | Qt::AlignTop,
 		                  _y_legend);
 	}
@@ -511,9 +513,9 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 		if ((x_subtick_index % ticks_per_level) != 0) {
 			if (need_x_subticks) {
 				painter->drawLine(round(screen_pos),
-				                  bottom,
+				                  bottom+AXIS_MARGIN,
 				                  round(screen_pos),
-				                  bottom + SMALL_TICK_LENGTH);
+				                  bottom + SMALL_TICK_LENGTH + AXIS_MARGIN);
 			}
 		} else {
 			// QString s = QString::number(scene_pos, 'f', 2);
@@ -524,9 +526,9 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 			                  bottom + SCALE_VALUE_OFFSET + fm_ascent,
 			                  s);
 			painter->drawLine(round(screen_pos),
-			                  bottom,
+			                  bottom+AXIS_MARGIN,
 			                  round(screen_pos),
-			                  bottom + TICK_LENGTH);
+			                  bottom + TICK_LENGTH + AXIS_MARGIN);
 		}
 
 		screen_pos += screen_subtick_width;
@@ -556,9 +558,9 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 	while ((int)screen_pos <= bottom) {
 		if ((y_subtick_index % ticks_per_level) != 0) {
 			if (need_y_subticks) {
-				painter->drawLine(left,
+				painter->drawLine(left-AXIS_MARGIN,
 				                  round(screen_pos),
-				                  left - SMALL_TICK_LENGTH,
+				                  left - SMALL_TICK_LENGTH - AXIS_MARGIN,
 				                  round(screen_pos));
 			}
 		} else {
@@ -566,13 +568,13 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 			QString s = get_y_value_at(scene_pos);
 			int s_len = fm.boundingRect(s).width();
 
-			painter->drawText(left - s_len - SCALE_VALUE_OFFSET,
+			painter->drawText(left - AXIS_MARGIN - s_len - SCALE_VALUE_OFFSET,
 			                  round(screen_pos),
 			                  s);
 
-			painter->drawLine(left,
+			painter->drawLine(left - AXIS_MARGIN,
 			                  round(screen_pos),
-			                  left - TICK_LENGTH,
+			                  left - TICK_LENGTH - AXIS_MARGIN,
 			                  round(screen_pos));
 
 		}

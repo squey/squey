@@ -124,6 +124,9 @@ public:
 		return 0;
 	}
 
+protected:
+	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
+
 signals:
 	void commit_volatile_selection(bool use_selection_modifiers);
 

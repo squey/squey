@@ -30,6 +30,8 @@
 #include <pvparallelview/PVZoneRenderingScatter.h>
 #include <pvparallelview/PVSelectionRectangleInteractor.h>
 
+#define TIMEOUT_FPS 500 // ms
+
 namespace PVParallelView
 {
 
@@ -68,6 +70,10 @@ PVParallelView::PVScatterView::PVScatterView(
 	_images_manager(zone_index, zp_bg, zp_sel, zm, pvview_sp->output_layer.get_lines_properties().get_buffer(), pvview_sp->get_real_output_selection()),
 	_view_deleted(false)
 {
+#ifdef SV_FPS
+	_nframes = 0;
+#endif
+
 	set_gl_viewport();
 
 	set_x_axis_inverted(true);
@@ -123,6 +129,14 @@ PVParallelView::PVScatterView::PVScatterView(
 	connect(this, SIGNAL(pan_has_changed()), this, SLOT(do_pan_change()));
 	connect(get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
 	connect(get_horizontal_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
+
+#ifdef SV_FPS
+	QTimer* fps_timer = new QTimer();
+	fps_timer->setInterval(TIMEOUT_FPS);
+	fps_timer->setSingleShot(false);
+	fps_timer->start();
+	connect(fps_timer, SIGNAL(timeout()), this, SLOT(compute_fps()));
+#endif
 
 	get_images_manager().set_img_update_receiver(this);
 }
@@ -224,7 +238,7 @@ void PVParallelView::PVScatterView::update_img_bg(PVZoneRendering_p zr, int /*zo
 		return;
 	}
 
-	_image_bg.swap(get_images_manager().get_image_all(), _last_image_scene, _last_image_margined_viewport);
+	_image_bg.swap(get_images_manager().get_image_all(), _last_image_margined_viewport, _last_image_mv2s);
 	get_viewport()->update();
 }
 
@@ -235,7 +249,7 @@ void PVParallelView::PVScatterView::update_img_sel(PVZoneRendering_p zr, int /*z
 		return;
 	}
 
-	_image_sel.swap(get_images_manager().get_image_sel(), _last_image_scene, _last_image_margined_viewport);
+	_image_sel.swap(get_images_manager().get_image_sel(), _last_image_margined_viewport, _last_image_mv2s);
 	get_viewport()->update();
 }
 
@@ -246,23 +260,35 @@ void PVParallelView::PVScatterView::do_update_all()
 {
 	QRectF view_rect = get_scene_rect().intersected(map_to_scene(get_margined_viewport_rect()));
 
-	PVLOG_INFO("%d\n", get_y_axis_zoom().get_clamped_value());
+	uint64_t y1_min,y1_max,y2_min,y2_max;
+	int64_t zoom;
+	double alpha;
+
 	if (get_y_axis_zoom().get_clamped_value() < zoom_min_compute) {
+		/*y1_min = 0;
+		y1_max = 0xFFFFFFFF;
+		y2_min = 0;
+		y2_max = 0xFFFFFFFF;
+		zoom = 1;
+		alpha = 0.5;
+		_last_image_margined_viewport = QRectF(0.0, 0.0, 1<<(PARALLELVIEW_ZZT_BBITS-1), 1<<(PARALLELVIEW_ZZT_BBITS-1));*/
 		get_viewport()->update();
 		return;
 	}
 
-	uint64_t y1_min = view_rect.x();
-	uint64_t y1_max = view_rect.x()+view_rect.width();
-	uint64_t y2_min = view_rect.y();
-	uint64_t y2_max = view_rect.y()+view_rect.height();
-	int64_t zoom = (get_y_axis_zoom().get_clamped_value()-zoom_min_compute);
-	double alpha = 0.5 * _zoom_converter->zoom_to_scale_decimal(zoom);
+	y1_min = view_rect.x();
+	y1_max = view_rect.x()+view_rect.width();
+	y2_min = view_rect.y();
+	y2_max = view_rect.y()+view_rect.height();
+	zoom = (get_y_axis_zoom().get_clamped_value()-zoom_min_compute);
+	alpha = 0.5 * _zoom_converter->zoom_to_scale_decimal(zoom);
 	zoom = (zoom / zoom_steps) +1;
 
 	_last_image_margined_viewport = QRectF(0.0, 0.0, get_x_axis_length(), get_y_axis_length());
-	_last_image_scene = QRectF(QPointF(y1_min, y2_min), QPointF(y1_max, y2_max));
 
+	_last_image_mv2s = get_transform_from_margined_viewport() * get_transform_to_scene();
+
+	//PVLOG_INFO("y1_min: %u / y2_min: %u\n", y1_min, y2_min);
 	get_images_manager().change_and_process_view(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
 	get_viewport()->update();
 }
@@ -306,7 +332,7 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 
 	painter->save();
 
-	const QRect margined_viewport = QRect(0, 0, get_x_axis_length(), get_y_axis_length());
+	const QRect margined_viewport = QRect(-1, -1, get_x_axis_length()+2, get_y_axis_length()+2);
 	painter->setClipRegion(margined_viewport, Qt::IntersectClip);
 
 	// Background
@@ -351,6 +377,20 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 	draw_decorations(painter, rect);
 }
 
+void PVParallelView::PVScatterView::drawForeground(QPainter* painter, const QRectF& rect)
+{
+#ifdef SV_FPS
+	painter->save();
+	painter->resetTransform();
+	painter->setPen(QColor(Qt::green));
+	painter->setBrush(QColor(Qt::white));
+	painter->drawText(QPointF(20.0, 20.0), _fps_str);
+	painter->restore();
+
+	_nframes++;
+#endif
+}
+
 void PVParallelView::PVScatterView::set_enabled(bool en)
 {
 	setEnabled(en);
@@ -359,22 +399,33 @@ void PVParallelView::PVScatterView::set_enabled(bool en)
 	}
 }
 
+void PVParallelView::PVScatterView::compute_fps()
+{
+#ifdef SV_FPS
+	const double fps = (double)_nframes/(TIMEOUT_FPS/1000.0);
+	_nframes = 0;
+	_fps_str = QString("FPS: %1").arg(fps, 0, 'f', 5);
+#endif
+}
+
 ////
 // PVParallelView::PVScatterView::RenderedImage implementation
 ////
 
-void PVParallelView::PVScatterView::RenderedImage::swap(QImage const& img, QRectF const& scene_rect, QRectF const& viewport_rect)
+void PVParallelView::PVScatterView::RenderedImage::swap(QImage const& img, QRectF const& viewport_rect, QTransform const& mv2s)
 {
-	_scene_rect = scene_rect;
-	_viewport_rect = viewport_rect;
-	_img = img.copy(_viewport_rect.toAlignedRect()).mirrored(true, false);
+	_mv2s = mv2s;
+	_img = img.copy(viewport_rect.toAlignedRect()).mirrored(true, false);
 }
 
 void PVParallelView::PVScatterView::RenderedImage::draw(PVGraphicsView* view, QPainter* painter)
 {
-	const QRectF target_sel = view->map_margined_from_scene(_scene_rect);
-	QPainter::RenderHints hints = painter->renderHints();
-	painter->setRenderHints(hints | QPainter::SmoothPixmapTransform);
-	painter->drawImage(target_sel, _img);
-	painter->setRenderHints(hints);
+	const QTransform img_trans = _mv2s * view->get_transform_from_scene() * view->get_transform_to_margined_viewport();
+	//const QPainter::RenderHints hints = painter->renderHints();
+
+	painter->save();
+	painter->setTransform(img_trans, true);
+	//painter->setRenderHints(hints | QPainter::SmoothPixmapTransform);
+	painter->drawImage(QPointF(0.0, 0.0), _img);
+	painter->restore();
 }
