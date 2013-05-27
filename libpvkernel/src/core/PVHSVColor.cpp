@@ -23,7 +23,7 @@ PVCore::PVHSVColor* PVCore::PVHSVColor::init_colors(PVRow nb_colors)
 
 void PVCore::PVHSVColor::to_rgba(const PVHSVColor* hsv_image, QImage& rgb_image, QRect const& img_rect_)
 {
-	assert(!rbg_image.isNull());
+	assert(!rgb_image.isNull());
 
 	QRect img_rect;
 	if (img_rect_.isNull()) {
