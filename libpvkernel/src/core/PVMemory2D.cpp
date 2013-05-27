@@ -102,6 +102,8 @@ void PVCore::memset2d(
 	assert(rect_x + rect_width < image_width);
 	assert(rect_y + rect_height < image_height);
 
+	PV_UNUSED(image_height);
+
 	char* s = (char*) source;
 
 	BENCH_START(memset2d);
