@@ -43,7 +43,7 @@ public:
 public:
 	void clear(const QRect& rect = QRect());
 
-	void convert_image_from_hsv_to_rgb();
+	void convert_image_from_hsv_to_rgb(QRect const& img_rect = QRect());
 
 	PVCore::PVHSVColor* get_hsv_image() { return _hsv_image; }
 	QImage& get_rgb_image() { return _rgb_image; };

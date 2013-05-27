@@ -74,7 +74,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	_nframes = 0;
 #endif
 
-	set_gl_viewport();
+	//set_gl_viewport();
 
 	set_x_axis_inverted(true);
 
@@ -332,7 +332,7 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 
 	painter->save();
 
-	const QRect margined_viewport = QRect(-1, -1, get_x_axis_length()+2, get_y_axis_length()+2);
+	const QRect margined_viewport = QRect(-1, -1, get_x_axis_length()+4, get_y_axis_length()+2);
 	painter->setClipRegion(margined_viewport, Qt::IntersectClip);
 
 	// Background

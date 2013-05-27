@@ -21,24 +21,40 @@ PVCore::PVHSVColor* PVCore::PVHSVColor::init_colors(PVRow nb_colors)
 	return colors;
 }
 
-void PVCore::PVHSVColor::to_rgba(const PVHSVColor* hsv_image, QImage& rbg_image)
+void PVCore::PVHSVColor::to_rgba(const PVHSVColor* hsv_image, QImage& rgb_image, QRect const& img_rect_)
 {
 	assert(!rbg_image.isNull());
 
-	size_t rect_x = 0;
-	size_t rect_y = 0;
-	size_t rect_width = rbg_image.width();
-	size_t rect_height = rbg_image.height();
+	QRect img_rect;
+	if (img_rect_.isNull()) {
+		img_rect = rgb_image.rect();
+	}
+	else {
+		img_rect = img_rect_;
+	}
 
-	assert(rect_width <= (size_t) rbg_image.width());
-	assert(rect_x <= (size_t) rbg_image.width());
-	assert(rect_height <= (size_t) rbg_image.height());
-	assert(rect_y <= (size_t) rbg_image.height());
+	const int rect_x = img_rect.x();
+	const int rect_y = img_rect.y();
+	const int rect_width = img_rect.width();
+	const int rect_height = img_rect.height();
 
-	QRgb* rgb = (QRgb*) &rbg_image.scanLine(0)[0];
-#pragma omp parallel for schedule(static, 16)
+	const int rgb_width = rgb_image.width();
+
+	assert(rect_width <= rgb_width);
+	assert(rect_x <= rgb_width);
+	assert(rect_height <= rgb_image.height());
+	assert(rect_y <= rgb_image.height());
+
+	QRgb* rgb = (QRgb*) &rgb_image.scanLine(0)[0];
+/*#pragma omp parallel for schedule(static, 16)
 	for (uint32_t i = rect_y*rect_width+rect_x; i < rect_width*rect_height; i++) {
 		hsv_image[i].to_rgba((uint8_t*) &rgb[i]);
+	}*/
+#pragma omp parallel for schedule(static, 16) collapse(2)
+	for (int j = rect_y; j < rect_height+rect_y; j++) {
+		for (int i = rect_x; i < rect_width+rect_x; i++) {
+			hsv_image[i+j*rect_width].to_rgba((uint8_t*) &rgb[j*rgb_width+i]);
+		}
 	}
 }
 

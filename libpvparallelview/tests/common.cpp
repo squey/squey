@@ -37,12 +37,32 @@ static void init_qt_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nr
 	const PVRow nrows_aligned = ((nrows+3)/4)*4;
 	p.resize(nrows_aligned*ncols);
 	for (PVCol j = 0; j < (ncols/2)*2; j += 2) {
-		for (PVRow i = 0; i < nrows; i++) {
-			p[j*nrows_aligned+i] = 1<<31;;
+		PVRow i;
+		for (i = 0; i < nrows/6; i++) {
+			p[j*nrows_aligned+i] = 0;
 			//p[j*nrows_aligned+i] = (1023-(i&1023))*(1<<22)+4;
 		}
-		for (PVRow i = 0; i < nrows; i++) {
-			p[(j+1)*nrows_aligned+i] = i;
+		for (; i < (2*nrows)/6; i++) {
+			p[j*nrows_aligned+i] = 0xFFFFFFFF - (1U<<2);
+			//p[j*nrows_aligned+i] = (1023-(i&1023))*(1<<22)+4;
+		}
+		for (; i < (3*nrows)/6; i++) {
+			p[j*nrows_aligned+i] = 1U<<22;
+			//p[j*nrows_aligned+i] = (1023-(i&1023))*(1<<22)+4;
+		}
+		for (; i < (4*nrows)/6; i++) {
+			p[j*nrows_aligned+i] = (1U<<21);
+			//p[j*nrows_aligned+i] = (1023-(i&1023))*(1<<22)+4;
+		}
+		for (; i < (5*nrows)/6; i++) {
+			p[j*nrows_aligned+i] = 0xFFFFFFFF - (1U<<10);
+			//p[j*nrows_aligned+i] = (1023-(i&1023))*(1<<22)+4;
+		}
+		for (; i < nrows; i++) {
+			p[j*nrows_aligned+i] = 0xFFFFFFFF;
+		}
+		for (i = 0; i < nrows; i++) {
+			p[(j+1)*nrows_aligned+i] = (i&1023)<<22;
 		}
 	}
 }
