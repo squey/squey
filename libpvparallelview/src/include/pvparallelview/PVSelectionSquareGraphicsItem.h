@@ -77,13 +77,13 @@ public:
 		if (_use_selection_modifiers) {
 			unsigned int modifiers = (unsigned int) QApplication::keyboardModifiers() & ~Qt::KeypadModifier;
 			if (vertical_selection_modifier() && modifiers == vertical_selection_modifier()) {
-				r.setX(rect().x());
-				r.setWidth(0);
+				r.setX(0);
+				r.setWidth(scene()->sceneRect().width());
 			}
 			else if (horizontal_selection_modifier() && modifiers == horizontal_selection_modifier())
 			{
-				r.setY(rect().y());
-				r.setHeight(0);
+				r.setY(0);
+				r.setHeight(scene()->sceneRect().height());
 			}
 		}
 

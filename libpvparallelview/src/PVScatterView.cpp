@@ -246,7 +246,6 @@ void PVParallelView::PVScatterView::do_update_all()
 {
 	QRectF view_rect = get_scene_rect().intersected(map_to_scene(get_margined_viewport_rect()));
 
-	PVLOG_INFO("%d\n", get_y_axis_zoom().get_clamped_value());
 	if (get_y_axis_zoom().get_clamped_value() < zoom_min_compute) {
 		get_viewport()->update();
 		return;
