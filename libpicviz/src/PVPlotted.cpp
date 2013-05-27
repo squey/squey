@@ -385,7 +385,7 @@ void Picviz::PVPlotted::to_csv()
 
 	for (PVRow r = 0; r < row_count; r++) {
 		for (PVCol c = 0; c < col_count; c++) {
-			printf("%x", get_value(r,c));
+			printf("%u", get_value(r,c));
 			if (c!=col_count-1) {
 				std::cout << "|";
 			}

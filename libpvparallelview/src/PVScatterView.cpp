@@ -68,7 +68,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	_images_manager(zone_index, zp_bg, zp_sel, zm, pvview_sp->output_layer.get_lines_properties().get_buffer(), pvview_sp->get_real_output_selection()),
 	_view_deleted(false)
 {
-	//set_gl_viewport();
+	set_gl_viewport();
 
 	set_x_axis_inverted(true);
 
@@ -106,14 +106,14 @@ PVParallelView::PVScatterView::PVScatterView(
 	_zoom_converter = new PVScatterViewZoomConverter<zoom_steps>();
 	get_x_axis_zoom().set_zoom_converter(_zoom_converter);
 	get_x_axis_zoom().set_range(zoom_min, zoom_extra);
-	get_x_axis_zoom().set_default_value(zoom_min);
+	get_x_axis_zoom().set_default_value(zoom_min_compute);
 	get_y_axis_zoom().set_zoom_converter(_zoom_converter);
 	get_y_axis_zoom().set_range(zoom_min, zoom_extra);
-	get_y_axis_zoom().set_default_value(zoom_min);
+	get_y_axis_zoom().set_default_value(zoom_min_compute);
 
 	set_zoom_value(PVZoomableDrawingAreaConstraints::X
 	               | PVZoomableDrawingAreaConstraints::Y,
-	               zoom_min);
+	               zoom_min_compute);
 
 	set_scatter_view_zone(zone_index);
 
@@ -246,11 +246,17 @@ void PVParallelView::PVScatterView::do_update_all()
 {
 	QRectF view_rect = get_scene_rect().intersected(map_to_scene(get_margined_viewport_rect()));
 
+	PVLOG_INFO("%d\n", get_y_axis_zoom().get_clamped_value());
+	if (get_y_axis_zoom().get_clamped_value() < zoom_min_compute) {
+		get_viewport()->update();
+		return;
+	}
+
 	uint64_t y1_min = view_rect.x();
 	uint64_t y1_max = view_rect.x()+view_rect.width();
 	uint64_t y2_min = view_rect.y();
 	uint64_t y2_max = view_rect.y()+view_rect.height();
-	int64_t zoom = get_y_axis_zoom().get_clamped_relative_value();
+	int64_t zoom = (get_y_axis_zoom().get_clamped_value()-zoom_min_compute);
 	double alpha = 0.5 * _zoom_converter->zoom_to_scale_decimal(zoom);
 	zoom = (zoom / zoom_steps) +1;
 
@@ -367,5 +373,8 @@ void PVParallelView::PVScatterView::RenderedImage::swap(QImage const& img, QRect
 void PVParallelView::PVScatterView::RenderedImage::draw(PVGraphicsView* view, QPainter* painter)
 {
 	const QRectF target_sel = view->map_margined_from_scene(_scene_rect);
+	QPainter::RenderHints hints = painter->renderHints();
+	painter->setRenderHints(hints | QPainter::SmoothPixmapTransform);
 	painter->drawImage(target_sel, _img);
+	painter->setRenderHints(hints);
 }

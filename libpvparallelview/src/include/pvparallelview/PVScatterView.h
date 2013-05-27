@@ -48,7 +48,8 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 	constexpr static int zoom_extra_level = 0;
 	constexpr static int zoom_extra = zoom_extra_level * zoom_steps;
 	// -22 because we want a scale factor of 1 when the view fits in a 1024x1024 window
-	constexpr static int zoom_min = -22 * zoom_steps;
+	constexpr static int zoom_min_compute = -22 * zoom_steps;
+	constexpr static int zoom_min = -25 * zoom_steps;
 
 	/*! \brief This class represent an image that has been rendered, with its
 	 * associated scene and viewport rect.
