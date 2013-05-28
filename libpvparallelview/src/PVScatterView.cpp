@@ -428,6 +428,9 @@ bool PVParallelView::PVScatterView::update_zones()
 
 		new_zone = get_zone_index();
 	}
+	else if (new_zone == lib_view().get_axes_count()-1) {
+		return false;
+	}
 
 	set_scatter_view_zone(new_zone);
 
