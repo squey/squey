@@ -48,13 +48,19 @@ public:
 public:
 	void move_left_by_step() { move_by(-MOVE_STEP_PX, 0); }
 	void move_right_by_step() { move_by(MOVE_STEP_PX, 0); }
+	void move_horizontally_by_step(bool left) { move_by((left ? -1 : 1 ) * MOVE_STEP_PX, 0); }
+
 	void move_up_by_step() { move_by(0, -MOVE_STEP_PX); }
 	void move_down_by_step() { move_by(0, MOVE_STEP_PX); }
+	void move_vertically_by_step(bool up) { move_by(0, (up ? -1 : 1) * MOVE_STEP_PX); }
 
 	void move_left_by_width() { move_by(-_selection_graphics_item->rect().width(), 0); }
 	void move_right_by_width() { move_by(_selection_graphics_item->rect().width(), 0); }
+	void move_horizontally_by_width(bool left) { move_by((left ? -1 : 1) * _selection_graphics_item->rect().width(), 0); }
+
 	void move_up_by_height() { move_by(0, -_selection_graphics_item->rect().height()); }
 	void move_down_by_height() { move_by(0, _selection_graphics_item->rect().height()); }
+	void move_vertically_by_height(bool up) { move_by(0, (up ? -1 : 1 ) * _selection_graphics_item->rect().height()); }
 
 	void grow_horizontally() { grow_by(GROW_STEP_RATIO, 1); }
 	void shrink_horizontally() { grow_by(1/GROW_STEP_RATIO, 1); }
