@@ -108,6 +108,7 @@
 	<file alias="vertical-scrollbar-down-arrow">resources/trafik/elements-interface/ascenceur-vertical-bouton-bas.png</file>
 	<file alias="vertical-scrollbar-up-arrow">resources/trafik/elements-interface/ascenceur-vertical-bouton-haut.png</file>
 	<file alias="vertical-scrollbar-page-area">resources/trafik/elements-interface/ascenceur-vertical-portion-milieu.png</file>
+	<file alias="selection-rectangle">resources/trafik/elements-interface/selection-rectangle.png</file>
 	
 	<!-- WORKSPACES ICONS -->
 	<file alias="view_display_listing">resources/view_display_listing.png</file>

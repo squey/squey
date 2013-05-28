@@ -24,9 +24,12 @@ class PVView;
 
 namespace PVParallelView {
 
-class PVSelectionSquare : protected QObject
+class PVSelectionSquare : public QObject
 {
 	Q_OBJECT;
+
+public:
+	using EMode = PVSelectionSquareGraphicsItem::EMode;
 
 public:
 	PVSelectionSquare(QGraphicsScene* scene);
@@ -58,27 +61,18 @@ public:
 	void grow_vertically() { grow_by(1, 1/GROW_STEP_RATIO); }
 	void shrink_vertically() { grow_by(1, GROW_STEP_RATIO); }
 
-	void enable_horizontal_selection(bool enabled)
+	EMode selection_mode() const
 	{
-		_selection_graphics_item->enable_horizontal_selection(enabled);
-	}
-
-	unsigned int horizontal_selection_modifier()
-	{
-		return _selection_graphics_item->horizontal_selection_modifier();
-	}
-
-	void enable_vertical_selection(bool enabled)
-	{
-		_selection_graphics_item->enable_vertical_selection(enabled);
-	}
-
-	unsigned int vertical_selection_modifier()
-	{
-		return _selection_graphics_item->vertical_selection_modifier();
+		return _selection_graphics_item->selection_mode();
 	}
 
 	QGraphicsScene* scene() const;
+
+public slots:
+	void set_selection_mode(int selection_mode)
+	{
+		_selection_graphics_item->set_selection_mode(selection_mode);
+	}
 
 protected slots:
 	virtual void commit(bool use_selection_modifiers) = 0;

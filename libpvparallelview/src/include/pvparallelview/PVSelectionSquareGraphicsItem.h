@@ -32,6 +32,14 @@ class PVSelectionSquareGraphicsItem : public QObject, public QGraphicsRectItem
 	Q_OBJECT;
 
 public:
+	enum EMode
+	{
+		RECTANGLE,
+		HORIZONTAL,
+		VERTICAL
+	};
+
+public:
 	static constexpr unsigned int hsel_modifier = Qt::ControlModifier;
 	static constexpr unsigned int vsel_modifier = Qt::ShiftModifier;
 
@@ -75,12 +83,11 @@ public:
 		QRectF r = rectangle;
 
 		if (_use_selection_modifiers) {
-			unsigned int modifiers = (unsigned int) QApplication::keyboardModifiers() & ~Qt::KeypadModifier;
-			if (vertical_selection_modifier() && modifiers == vertical_selection_modifier()) {
+			if (selection_mode() == EMode::HORIZONTAL) {
 				r.setX(0);
 				r.setWidth(scene()->sceneRect().width());
 			}
-			else if (horizontal_selection_modifier() && modifiers == horizontal_selection_modifier())
+			else if (selection_mode() == EMode::VERTICAL)
 			{
 				r.setY(0);
 				r.setHeight(scene()->sceneRect().height());
@@ -98,30 +105,14 @@ public:
 		_volatile_selection_timer->stop();
 	}
 
-	void enable_horizontal_selection(bool enabled)
+	void set_selection_mode(int selection_mode)
 	{
-		_horizontal_selection_enabled = enabled;
+		_selection_mode = (EMode) selection_mode;
 	}
 
-	unsigned int horizontal_selection_modifier()
+	EMode selection_mode() const
 	{
-		if (_horizontal_selection_enabled) {
-			return hsel_modifier;
-		}
-		return 0;
-	}
-
-	void enable_vertical_selection(bool enabled)
-	{
-		_vertical_selection_enabled = enabled;
-	}
-
-	unsigned int vertical_selection_modifier()
-	{
-		if (_vertical_selection_enabled) {
-			return vsel_modifier;
-		}
-		return 0;
+		return _selection_mode;
 	}
 
 protected:
@@ -153,8 +144,7 @@ private:
 	QTimer* _volatile_selection_timer;
 	QPointF _selection_square_pos;
 	bool _use_selection_modifiers = true;
-	bool _horizontal_selection_enabled = false;
-	bool _vertical_selection_enabled = false;
+	EMode _selection_mode = EMode::RECTANGLE;
 };
 
 }

@@ -10,6 +10,11 @@
 #include <QGraphicsScene>
 #include <QPainter>
 #include <QScrollBar64>
+#include <QToolBar>
+#include <QToolButton>
+#include <QButtonGroup>
+#include <QActionGroup>
+#include <QAction>
 
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
 
@@ -42,16 +47,120 @@ class PVScatterViewInteractor: public PVWidgets::PVGraphicsViewInteractor<PVScat
 {
 public:
 	PVScatterViewInteractor(PVWidgets::PVGraphicsView* parent = nullptr) :
-		PVGraphicsViewInteractor<PVScatterView>(parent)
+		PVGraphicsViewInteractor(parent)
 	{ }
 
 public:
+
 	bool resizeEvent(PVScatterView* view, QResizeEvent*) override
 	{
 		view->update_all_async();
+
+		view->reconfigure_view();
+		if (view->get_viewport()) {
+			view->get_viewport()->update();
+		}
+
+		view->set_params_widget_position();
+
 		return false;
 	}
 };
+
+class PVScatterViewParamsWidget: public QToolBar
+{
+
+#define COLLAPSED_ACTIONS 0
+
+public:
+	PVScatterViewParamsWidget(PVScatterView* parent):
+		QToolBar(parent)
+	{
+		setCursor(QCursor(Qt::PointingHandCursor));
+		setFocusPolicy(Qt::ClickFocus);
+
+		_selection_mode_signal_mapper = new QSignalMapper(this);
+		QObject::connect(_selection_mode_signal_mapper, SIGNAL(mapped(int)), parent_sv()->_selection_square, SLOT(set_selection_mode(int)));
+
+#if COLLAPSED_ACTIONS
+		QToolButton* selection_mode = new QToolButton(this);
+		selection_mode->setPopupMode(QToolButton::InstantPopup);
+		selection_mode->setIcon(QIcon(":/selection-rectangle"));
+		selection_mode->setToolTip(tr("Selection mode"));
+
+		// Rectangle selection
+		QAction* rect_sel = new QAction("Rectangle", this);
+		rect_sel->setIcon(QIcon(":/selection-rectangle"));
+		rect_sel->setShortcut(Qt::Key_R);
+		selection_mode->addAction(rect_sel);
+		_selection_mode_signal_mapper->setMapping(rect_sel, PVSelectionSquare::EMode::RECTANGLE);
+		QObject::connect(rect_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
+
+		// Horizontal selection
+		QAction* h_sel = new QAction("Horizontal", this);
+		h_sel->setIcon(QIcon(":/horizontal-scrollbar-handle"));
+		h_sel->setShortcut(Qt::Key_H);
+		selection_mode->addAction(h_sel);
+		_selection_mode_signal_mapper->setMapping(h_sel, PVSelectionSquare::EMode::HORIZONTAL);
+		QObject::connect(h_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
+
+		// Vertical selection
+		QAction* v_sel = new QAction("Vertical", this);
+		v_sel->setIcon(QIcon(":/vertical-scrollbar-handle"));
+		v_sel->setShortcut(Qt::Key_V);
+		selection_mode->addAction(v_sel);
+		_selection_mode_signal_mapper->setMapping(v_sel, PVSelectionSquare::EMode::VERTICAL);
+		QObject::connect(v_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
+
+		addWidget(selection_mode);
+#else
+		QActionGroup* actionGroup = new QActionGroup(this);
+		actionGroup->setExclusive(true);
+
+		// Rectangle selection
+		QAction* rect_sel = new QAction(actionGroup);
+		rect_sel->setToolTip("Rectangle");
+		rect_sel->setIcon(QIcon(":/selection-rectangle"));
+		rect_sel->setCheckable(true);
+		rect_sel->setShortcut(Qt::Key_R);
+		_selection_mode_signal_mapper->setMapping(rect_sel, PVSelectionSquare::EMode::RECTANGLE);
+		QObject::connect(rect_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
+		addAction(rect_sel);
+
+		// Horizontal selection
+		QAction* h_sel = new QAction(actionGroup);
+		h_sel->setToolTip("Horizontal");
+		h_sel->setIcon(QIcon(":/horizontal-scrollbar-handle"));
+		h_sel->setCheckable(true);
+		h_sel->setShortcut(Qt::Key_H);
+		_selection_mode_signal_mapper->setMapping(h_sel, PVSelectionSquare::EMode::HORIZONTAL);
+		QObject::connect(h_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
+		addAction(h_sel);
+
+		// Vertical selection
+		QAction* v_sel = new QAction(actionGroup);
+		v_sel->setToolTip("Vertical");
+		v_sel->setIcon(QIcon(":/vertical-scrollbar-handle"));
+		v_sel->setCheckable(true);
+		v_sel->setShortcut(Qt::Key_V);
+		_selection_mode_signal_mapper->setMapping(v_sel, PVSelectionSquare::EMode::VERTICAL);
+		QObject::connect(v_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
+		addAction(v_sel);
+#endif
+	}
+
+private:
+	PVScatterView* parent_sv()
+	{
+		assert(qobject_cast<PVScatterView*>(parent()));
+		return static_cast<PVScatterView*>(parent());
+	}
+
+private:
+	QSignalMapper* _selection_mode_signal_mapper;
+};
+
+#undef COLLAPSED_ACTIONS
 
 }
 
@@ -84,13 +193,12 @@ PVParallelView::PVScatterView::PVScatterView(
 	get_scene()->setSceneRect(r);
 
 	_selection_square = new PVSelectionSquareScatterView(this);
-	_selection_square->enable_horizontal_selection(true);
-	_selection_square->enable_vertical_selection(true);
 
 	// interactor
 	PVWidgets::PVGraphicsViewInteractorBase* zoom_inter = declare_interactor<PVZoomableDrawingAreaInteractorHomothetic>();
 	PVWidgets::PVGraphicsViewInteractorBase* selection_square_inter = declare_interactor<PVSelectionRectangleInteractor>(_selection_square);
 	PVWidgets::PVGraphicsViewInteractorBase* scatter_inter = declare_interactor<PVScatterViewInteractor>();
+	register_front_one(QEvent::Resize, scatter_inter);
 	register_back_all(selection_square_inter);
 	register_back_all(zoom_inter);
 	register_back_all(scatter_inter);
@@ -137,6 +245,10 @@ PVParallelView::PVScatterView::PVScatterView(
 	fps_timer->start();
 	connect(fps_timer, SIGNAL(timeout()), this, SLOT(compute_fps()));
 #endif
+	_params_widget = new PVScatterViewParamsWidget(this);
+	_params_widget->setAutoFillBackground(true);
+	_params_widget->adjustSize();
+	set_params_widget_position();
 
 	get_images_manager().set_img_update_receiver(this);
 }
@@ -167,6 +279,17 @@ PVParallelView::PVZoneTree const& PVParallelView::PVScatterView::get_zone_tree()
 void PVParallelView::PVScatterView::about_to_be_deleted()
 {
 	_view_deleted = true;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterView::set_params_widget_position
+ *****************************************************************************/
+void PVParallelView::PVScatterView::set_params_widget_position()
+{
+	QPoint pos = QPoint(get_viewport()->width() - 4, 4);
+	pos -= QPoint(_params_widget->width(), 0);
+	_params_widget->move(pos);
+	_params_widget->raise();
 }
 
 /*****************************************************************************
@@ -379,6 +502,8 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 
 void PVParallelView::PVScatterView::drawForeground(QPainter* painter, const QRectF& rect)
 {
+	PV_UNUSED(painter);
+	PV_UNUSED(rect);
 #ifdef SV_FPS
 	painter->save();
 	painter->resetTransform();
