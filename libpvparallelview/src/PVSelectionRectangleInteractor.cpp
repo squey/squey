@@ -1,6 +1,7 @@
 
 #include <pvparallelview/PVSelectionSquare.h>
 #include <pvparallelview/PVSelectionRectangleInteractor.h>
+#include <pvparallelview/PVZoomableDrawingArea.h>
 
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -21,18 +22,26 @@ PVParallelView::PVSelectionRectangleInteractor::PVSelectionRectangleInteractor(P
  * PVParallelView::PVSelectionRectangleInteractor::keyPressEvent
  *****************************************************************************/
 
-bool PVParallelView::PVSelectionRectangleInteractor::keyPressEvent(PVWidgets::PVGraphicsView* /*view*/,
+bool PVParallelView::PVSelectionRectangleInteractor::keyPressEvent(PVWidgets::PVGraphicsView* view,
                                                                    QKeyEvent* event)
 {
+	bool x_axis_inverted = false;
+	bool y_axis_inverted = false;
+
+	if (PVZoomableDrawingArea* zda = dynamic_cast<PVZoomableDrawingArea*>(view)) {
+		x_axis_inverted = zda->x_axis_inverted();
+		y_axis_inverted = zda->y_axis_inverted();
+	}
+
 	if (event->key() == Qt::Key_Left) {
 		if (event->modifiers() & Qt::ShiftModifier) {
 			_selection_rectangle->grow_horizontally();
 		}
 		else if (event->modifiers() & Qt::ControlModifier) {
-			_selection_rectangle->move_left_by_width();
+			_selection_rectangle->move_horizontally_by_width(!x_axis_inverted);
 		}
 		else {
-			_selection_rectangle->move_left_by_step();
+			_selection_rectangle->move_horizontally_by_step(!x_axis_inverted);
 		}
 		event->accept();
 	}
@@ -41,10 +50,10 @@ bool PVParallelView::PVSelectionRectangleInteractor::keyPressEvent(PVWidgets::PV
 			_selection_rectangle->shrink_horizontally();
 		}
 		else if (event->modifiers() & Qt::ControlModifier) {
-			_selection_rectangle->move_right_by_width();
+			_selection_rectangle->move_horizontally_by_width(x_axis_inverted);
 		}
 		else {
-			_selection_rectangle->move_right_by_step();
+			_selection_rectangle->move_horizontally_by_step(x_axis_inverted);
 		}
 		event->accept();
 	}
@@ -53,10 +62,10 @@ bool PVParallelView::PVSelectionRectangleInteractor::keyPressEvent(PVWidgets::PV
 			_selection_rectangle->grow_vertically();
 		}
 		else if (event->modifiers() & Qt::ControlModifier) {
-			_selection_rectangle->move_up_by_height();
+			_selection_rectangle->move_vertically_by_height(!y_axis_inverted);
 		}
 		else {
-			_selection_rectangle->move_up_by_step();
+			_selection_rectangle->move_vertically_by_step(!y_axis_inverted);
 		}
 		event->accept();
 	}
@@ -65,10 +74,10 @@ bool PVParallelView::PVSelectionRectangleInteractor::keyPressEvent(PVWidgets::PV
 			_selection_rectangle->shrink_vertically();
 		}
 		else if (event->modifiers() & Qt::ControlModifier) {
-			_selection_rectangle->move_down_by_height();
+			_selection_rectangle->move_vertically_by_height(y_axis_inverted);
 		}
 		else {
-			_selection_rectangle->move_down_by_step();
+			_selection_rectangle->move_vertically_by_step(y_axis_inverted);
 		}
 		event->accept();
 	}

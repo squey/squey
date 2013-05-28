@@ -40,10 +40,15 @@ class PVZoneTree;
 class PVZoomedZoneTree;
 class PVZonesManager;
 class PVZoomConverter;
+class PVScatterViewParamsWidget;
+class PVScatterViewInteractor;
 
 class PVScatterView : public PVZoomableDrawingAreaWithAxes
 {
 	Q_OBJECT;
+
+	friend PVScatterViewInteractor;
+	friend PVScatterViewParamsWidget;
 
 	constexpr static int zoom_steps = 5;
 
@@ -107,6 +112,9 @@ protected:
 	void drawForeground(QPainter *painter, const QRectF &rect) override;
 	void keyPressEvent(QKeyEvent* event) override;
 
+protected:
+	void set_params_widget_position();
+
 private slots:
 	void do_update_all();
 	void update_all();
@@ -120,7 +128,6 @@ private:
 	inline PVScatterViewImagesManager& get_images_manager() { return _images_manager; }
 	inline PVScatterViewImagesManager const& get_images_manager() const { return _images_manager; }
 	PVZoneTree const& get_zone_tree() const;
-
 	void set_scatter_view_zone(PVZoneID const zid);
 
 private slots:
@@ -148,6 +155,8 @@ private:
 	QTransform _last_image_mv2s;
 
 	Picviz::PVAxesCombination::axes_comb_id_t _axis_id;
+
+	PVScatterViewParamsWidget* _params_widget;
 };
 
 }

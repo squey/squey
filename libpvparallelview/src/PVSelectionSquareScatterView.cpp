@@ -3,7 +3,6 @@
 
 #include <cassert>
 
-#include <QApplication>
 #include <QGraphicsView>
 
 PVParallelView::PVSelectionSquareScatterView::PVSelectionSquareScatterView(
@@ -32,17 +31,17 @@ void PVParallelView::PVSelectionSquareScatterView::commit(bool use_selection_mod
 	Picviz::PVSelection& sel = view.get_volatile_selection();
 	Picviz::PVSelection const& layers_sel = view.get_layer_stack_output_layer().get_selection();
 
-	unsigned int modifiers = (unsigned int) QApplication::keyboardModifiers() & ~Qt::KeypadModifier;
-	if (use_selection_modifiers && vertical_selection_modifier() && modifiers == vertical_selection_modifier()) {
-		PVSelectionGenerator::compute_selection_from_plotted_range(_y2_plotted, _nrows, r.y(), r.y()+r.height(), sel, layers_sel);
-		use_selection_modifiers = false;
+	if (selection_mode() == EMode::VERTICAL) {
+		PVSelectionGenerator::compute_selection_from_plotted_range(_y1_plotted, _nrows, std::max(0.0, r.x()), std::max(0.0, r.x()+r.width()), sel, layers_sel);
 	}
-	else if (use_selection_modifiers && horizontal_selection_modifier() && modifiers == horizontal_selection_modifier()) {
-		PVSelectionGenerator::compute_selection_from_plotted_range(_y1_plotted, _nrows, r.x(), r.x()+r.width(), sel, layers_sel);
-		use_selection_modifiers = false;
+	else if (selection_mode() == EMode::HORIZONTAL) {
+		PVSelectionGenerator::compute_selection_from_plotted_range(_y2_plotted, _nrows, std::max(0.0, r.y()), std::max(0.0, r.y()+r.height()), sel, layers_sel);
+	}
+	else if (selection_mode() == EMode::RECTANGLE) {
+		PVSelectionGenerator::compute_selection_from_plotteds_ranges(_y1_plotted, _y2_plotted, _nrows, r, sel, layers_sel);
 	}
 	else {
-		PVSelectionGenerator::compute_selection_from_plotteds_ranges(_y1_plotted, _y2_plotted, _nrows, r, sel, layers_sel);
+		assert(false);
 	}
 
 	PVSelectionGenerator::process_selection(view.shared_from_this(), use_selection_modifiers);
