@@ -168,6 +168,8 @@ void PVWidgets::PVGraphicsView::set_scene(QGraphicsScene *scene)
 		return;
 	}
 
+	_scene->setDefaultViewTransform(get_transform());
+
 	recompute_viewport();
 
 	if (hasFocus()) {
@@ -281,6 +283,10 @@ void PVWidgets::PVGraphicsView::set_transform(const QTransform &t, bool combine)
 
 	recompute_margins();
 	recompute_viewport();
+
+	if (get_scene()) {
+		get_scene()->setDefaultViewTransform(get_transform());
+	}
 
 	/* if _transformation_anchor is equal to AnchorUnderMouse while the
 	 * mouse is not on the view, there is an translation effect due to the
