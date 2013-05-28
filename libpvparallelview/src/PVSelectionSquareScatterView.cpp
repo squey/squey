@@ -32,10 +32,10 @@ void PVParallelView::PVSelectionSquareScatterView::commit(bool use_selection_mod
 	Picviz::PVSelection const& layers_sel = view.get_layer_stack_output_layer().get_selection();
 
 	if (selection_mode() == EMode::VERTICAL) {
-		PVSelectionGenerator::compute_selection_from_plotted_range(_y1_plotted, _nrows, r.x(), r.x()+r.width(), sel, layers_sel);
+		PVSelectionGenerator::compute_selection_from_plotted_range(_y1_plotted, _nrows, std::max(0.0, r.x()), std::max(0.0, r.x()+r.width()), sel, layers_sel);
 	}
 	else if (selection_mode() == EMode::HORIZONTAL) {
-		PVSelectionGenerator::compute_selection_from_plotted_range(_y2_plotted, _nrows, r.y(), r.y()+r.height(), sel, layers_sel);
+		PVSelectionGenerator::compute_selection_from_plotted_range(_y2_plotted, _nrows, std::max(0.0, r.y()), std::max(0.0, r.y()+r.height()), sel, layers_sel);
 	}
 	else if (selection_mode() == EMode::RECTANGLE) {
 		PVSelectionGenerator::compute_selection_from_plotteds_ranges(_y1_plotted, _y2_plotted, _nrows, r, sel, layers_sel);
