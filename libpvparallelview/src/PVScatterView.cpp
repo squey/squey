@@ -122,6 +122,7 @@ public:
 		rect_sel->setToolTip("Rectangle");
 		rect_sel->setIcon(QIcon(":/selection-rectangle"));
 		rect_sel->setCheckable(true);
+		rect_sel->setChecked(true);
 		rect_sel->setShortcut(Qt::Key_R);
 		_selection_mode_signal_mapper->setMapping(rect_sel, PVSelectionSquare::EMode::RECTANGLE);
 		QObject::connect(rect_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
