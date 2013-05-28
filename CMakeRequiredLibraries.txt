@@ -7,7 +7,7 @@
 # QT is needed for both libpvgl and picviz-inspector
 #
 ADD_DEFINITIONS(-DQT_SHARED)
-set(Qt4_DIR /opt/qt-picviz)
+#set(Qt4_DIR /opt/qt-picviz)
 find_package(Qt4 REQUIRED)
 # QT XML support
 set(QT_USE_QTXML TRUE)
