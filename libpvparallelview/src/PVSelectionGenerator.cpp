@@ -5,7 +5,6 @@
  */
 
 #include <pvkernel/core/picviz_bench.h>
-#include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
 
@@ -650,9 +649,6 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
 	Picviz::PVSelection& sel,
 	const Picviz::PVSelection& layers_sel)
 {
-	y_min = PVCore::clamp(y_min, 0UL, std::numeric_limits<uint64_t>::max());
-	y_max = PVCore::clamp(y_max, 0UL, std::numeric_limits<uint64_t>::max());
-
 	if (y_min == y_max) {
 		return 0;
 	}
