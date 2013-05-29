@@ -1,0 +1,85 @@
+--- org/include/tbb/enumerable_thread_specific.h	2013-01-28 14:21:29.000000000 +0100
++++ cur/include/tbb/enumerable_thread_specific.h	2012-10-29 20:09:13.147755869 +0100
+@@ -47,6 +47,9 @@
+ //! enum for selecting between single key and key-per-instance versions
+ enum ets_key_usage_type { ets_key_per_instance, ets_no_key };
+ 
++// Constructor tag
++struct tag_tls_construct_args { };
++    
+ namespace interface6 {
+  
+     //! @cond
+@@ -605,6 +600,36 @@
+             construct_by_finit( const Finit& f_ ) : f(f_) {}
+         };
+ 
++        template<typename T, typename... P>
++        struct construct_by_args: tbb::internal::no_assign {
++		private:
++			template<int ...>
++			struct seq_n { };
++
++			template<int N, int ...S>
++			struct gen_seq_n: gen_seq_n<N-1, N-1, S...> { };
++
++			template<int ...S>
++			struct gen_seq_n<0, S...>
++			{
++				typedef seq_n<S...> type;
++			};
++
++		private:
++			std::tuple<P...> args;
++
++		public:
++            void construct(void* where) { do_construct(where, typename gen_seq_n<sizeof...(P)>::type()); }
++            construct_by_args( P && ... args_): args(std::forward<P>(args_)...) { }
++
++		private:
++			template <int... S>
++			inline void do_construct(void* where, seq_n<S...>)
++			{
++				new(where) T(std::get<S>(args)...);
++			}
++        };
++
+         // storage for initialization function pointer
+         template<typename T>
+         class callback_base {
+@@ -621,7 +646,7 @@
+ 
+         template <typename T, typename Constructor>
+         class callback_leaf: public callback_base<T>, Constructor {
+-            template<typename X> callback_leaf( const X& x ) : Constructor(x) {}
++            template<typename... P> callback_leaf( P && ... params ) : Constructor(std::forward<P>(params)...) {}
+ 
+             typedef typename tbb::tbb_allocator<callback_leaf> my_allocator_type;
+ 
+@@ -639,10 +664,10 @@
+                 Constructor::construct(where);
+             }  
+         public:
+-            template<typename X>
+-            static callback_base<T>* make( const X& x ) {
++            template<typename... P>
++            static callback_base<T>* make( P && ... params ) {
+                 void* where = my_allocator_type().allocate(1);
+-                return new(where) callback_leaf(x);
++                return new(where) callback_leaf(std::forward<P>(params)...);
+             }
+         };
+ 
+@@ -773,6 +798,12 @@
+         enumerable_thread_specific( Finit finit ) : 
+             my_construct_callback( internal::callback_leaf<T,internal::construct_by_finit<T,Finit> >::make( finit ) ) 
+         {}
++
++        //! Constructor with initializer arguments.  Each local instance of T is constructed by T(args...)
++        template <typename... P>
++        enumerable_thread_specific(tbb::tag_tls_construct_args, P && ... args) :
++            my_construct_callback( internal::callback_leaf<T,internal::construct_by_args<T,P...> >::make( std::forward<P>(args)... ) ) 
++        {}
+     
+         //! Constuctor with exemplar.  Each local instance of T is copied-constructed from the exemplar.
+         enumerable_thread_specific(const T& exemplar) : 
