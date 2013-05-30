@@ -1,4 +1,7 @@
 
+#include <pvkernel/widgets/PVConfigPopupWidget.h>
+#include <pvkernel/widgets/PVTextPopupWidget.h>
+
 #include <picviz/PVView.h>
 
 #include <pvparallelview/PVParallelView.h>
@@ -79,6 +82,69 @@ void __print_scalar(const char *text, const V &v)
 namespace PVParallelView
 {
 
+class PVHitCountViewParamsWidget: public PVWidgets::PVConfigPopupWidget
+{
+public:
+	PVHitCountViewParamsWidget(PVHitCountView* parent) :
+		PVWidgets::PVConfigPopupWidget(parent)
+	{
+		setWindowTitle(tr("Hit count view - options"));
+
+		_cb_autofit = new QCheckBox(tr("Auto-fit selection on the occurence axis"));
+		_cb_show_selectable = new QCheckBox(tr("Show background"));
+		_cb_show_all = new QCheckBox(tr("Show all data"));
+		_cb_use_log_color = new QCheckBox(tr("Use logarithmic colormap"));
+
+		QVBoxLayout* layout = new QVBoxLayout();
+		layout->addWidget(_cb_show_all);
+		layout->addWidget(_cb_show_selectable);
+		layout->addWidget(_cb_autofit);
+		layout->addWidget(_cb_use_log_color);
+		setContentLayout(layout);
+
+		connect(_cb_autofit, SIGNAL(toggled(bool)),
+		        parent_hcv(), SLOT(toggle_auto_x_zoom_sel()));
+		connect(_cb_show_selectable,  SIGNAL(toggled(bool)),
+		        parent_hcv(), SLOT(toggle_show_selectable()));
+		connect(_cb_show_all,  SIGNAL(toggled(bool)),
+		        parent_hcv(), SLOT(toggle_show_all()));
+		connect(_cb_use_log_color,  SIGNAL(toggled(bool)),
+		        parent_hcv(), SLOT(toggle_log_color()));
+	}
+
+public:
+	void update_widgets()
+	{
+		_cb_autofit->blockSignals(true);
+		_cb_show_selectable->blockSignals(true);
+		_cb_show_all->blockSignals(true);
+		_cb_use_log_color->blockSignals(true);
+
+		_cb_autofit->setChecked(parent_hcv()->auto_x_zoom_sel());
+		_cb_show_selectable->setChecked(parent_hcv()->show_selectable());
+		_cb_show_all->setChecked(parent_hcv()->show_all());
+		_cb_use_log_color->setChecked(parent_hcv()->use_log_color());
+
+		_cb_autofit->blockSignals(false);
+		_cb_show_selectable->blockSignals(false);
+		_cb_show_all->blockSignals(false);
+		_cb_use_log_color->blockSignals(false);
+	}
+
+private:
+	PVHitCountView* parent_hcv()
+	{
+		assert(qobject_cast<PVHitCountView*>(parentWidget()));
+		return static_cast<PVHitCountView*>(parentWidget());
+	}
+
+private:
+	QCheckBox* _cb_autofit;
+	QCheckBox* _cb_show_selectable;
+	QCheckBox* _cb_show_all;
+	QCheckBox* _cb_use_log_color;
+};
+
 class PVHitCountViewInteractor : public PVZoomableDrawingAreaInteractor
 {
 public:
@@ -96,8 +162,6 @@ public:
 			hcv->get_viewport()->update();
 		}
 
-		hcv->set_params_widget_position();
-
 		return false;
 	}
 
@@ -105,7 +169,19 @@ public:
 	{
 		PVHitCountView *hcv = get_hit_count_view(zda);
 		switch (event->key()) {
-		case Qt::Key_Home: {
+		case Qt::Key_Space:
+			if (event->modifiers() == Qt::NoModifier) {
+				if(hcv->params_widget()->isHidden()) {
+					hcv->params_widget()->setPersistence(false);
+					hcv->params_widget()->popup(QCursor::pos(), true);
+					return true;
+				}
+			} else if (event->modifiers() == Qt::ControlModifier) {
+				hcv->params_widget()->setPersistence(true);
+				hcv->params_widget()->popup(QCursor::pos(), true);
+				return true;
+			}
+		case Qt::Key_Home:
 			if (event->modifiers() == Qt::ControlModifier) {
 				hcv->set_x_zoom_level_from_sel();
 
@@ -122,14 +198,20 @@ public:
 				hcv->reconfigure_view();
 				hcv->_update_all_timer.start();
 			}
-			break;
-		}
-		case Qt::Key_S: {
+			return true;
+		case Qt::Key_S:
 			if (event->modifiers() == Qt::AltModifier) {
 				hcv->toggle_auto_x_zoom_sel();
+				return true;
 			}
 			break;
-		}
+		case Qt::Key_H:
+			if (hcv->help_widget()->isHidden()) {
+				hcv->help_widget()->popup(hcv->get_viewport(),
+				                          PVWidgets::PVPopupWidget::AlignCenter,
+				                          PVWidgets::PVPopupWidget::ExpandAll, 16);
+			}
+			break;
 		default:
 			break;
 		}
@@ -222,70 +304,6 @@ private:
 	PVHitCountView* _hcv;
 };
 
-class PVHitCountViewParamsWidget: public QWidget
-{
-public:
-	PVHitCountViewParamsWidget(PVHitCountView* parent):
-		QWidget(parent)
-	{
-		setFocusPolicy(Qt::ClickFocus);
-
-		_cb_autofit = new QCheckBox(tr("Auto-fit selection on the occurence axis"));
-		_cb_show_selectable = new QCheckBox(tr("Show background"));
-		_cb_show_all = new QCheckBox(tr("Show all data"));
-		_cb_use_log_color = new QCheckBox(tr("Use logarithmic colormap"));
-
-		QVBoxLayout* layout = new QVBoxLayout();
-		layout->addWidget(_cb_show_all);
-		layout->addWidget(_cb_show_selectable);
-		layout->addWidget(_cb_autofit);
-		layout->addWidget(_cb_use_log_color);
-
-		connect(_cb_autofit, SIGNAL(toggled(bool)),
-		        parent_hcv(), SLOT(toggle_auto_x_zoom_sel()));
-		connect(_cb_show_selectable,  SIGNAL(toggled(bool)),
-		        parent_hcv(), SLOT(toggle_show_selectable()));
-		connect(_cb_show_all,  SIGNAL(toggled(bool)),
-		        parent_hcv(), SLOT(toggle_show_all()));
-		connect(_cb_use_log_color,  SIGNAL(toggled(bool)),
-		        parent_hcv(), SLOT(toggle_log_color()));
-
-		setLayout(layout);
-	}
-
-public:
-	void update_widgets()
-	{
-		_cb_autofit->blockSignals(true);
-		_cb_show_selectable->blockSignals(true);
-		_cb_show_all->blockSignals(true);
-		_cb_use_log_color->blockSignals(true);
-
-		_cb_autofit->setChecked(parent_hcv()->auto_x_zoom_sel());
-		_cb_show_selectable->setChecked(parent_hcv()->show_selectable());
-		_cb_show_all->setChecked(parent_hcv()->show_all());
-		_cb_use_log_color->setChecked(parent_hcv()->use_log_color());
-
-		_cb_autofit->blockSignals(false);
-		_cb_show_selectable->blockSignals(false);
-		_cb_show_all->blockSignals(false);
-		_cb_use_log_color->blockSignals(false);
-	}
-
-private:
-	PVHitCountView* parent_hcv()
-	{
-		assert(qobject_cast<PVHitCountView*>(parent()));
-		return static_cast<PVHitCountView*>(parent());
-	}
-
-private:
-	QCheckBox* _cb_autofit;
-	QCheckBox* _cb_show_selectable;
-	QCheckBox* _cb_show_all;
-	QCheckBox* _cb_use_log_color;
-};
-
 }
 
 /*****************************************************************************
@@ -310,6 +328,8 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	_do_auto_scale(false),
 	_use_log_color(false)
 {
+	 set_gl_viewport();
+
 	/* computing the highest scene width to setup it... and do the first
 	 * run to initialize the manager's buffers :-)
 	 */
@@ -370,10 +390,7 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	set_ticks_per_level(8);
 
 	_params_widget = new PVHitCountViewParamsWidget(this);
-	_params_widget->setAutoFillBackground(true);
-	_params_widget->adjustSize();
 	_params_widget->update_widgets();
-	set_params_widget_position();
 
 	_update_all_timer.setInterval(RENDER_TIMEOUT);
 	_update_all_timer.setSingleShot(true);
@@ -387,6 +404,8 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 
 	connect(get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)),
 	        this, SLOT(do_pan_change()));
+
+	_help_widget = new PVWidgets::PVTextPopupWidget(this);
 }
 
 /*****************************************************************************
@@ -427,14 +446,6 @@ void PVParallelView::PVHitCountView::set_x_axis_zoom()
 		get_x_axis_zoom().set_range(x_zoom_min, x_zoom_converter().scale_to_zoom(viewport_width));
 		get_x_axis_zoom().set_default_value(x_zoom_min);
 	}
-}
-
-void PVParallelView::PVHitCountView::set_params_widget_position()
-{
-	QPoint pos = QPoint(get_viewport()->width() - 20, 20);
-	pos -= QPoint(_params_widget->width(), 0);
-	_params_widget->move(pos);
-	_params_widget->raise();
 }
 
 /*****************************************************************************

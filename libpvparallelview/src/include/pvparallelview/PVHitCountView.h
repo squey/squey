@@ -21,6 +21,11 @@
 
 class QWidget;
 
+namespace PVWidgets
+{
+class PVTextPopupWidget;
+}
+
 namespace Picviz
 {
 class PVSelection;
@@ -104,8 +109,6 @@ protected:
 		return x_zoom_converter().scale_to_zoom((double)get_margined_viewport_width()/(double)_max_count);
 	}
 
-	void set_params_widget_position();
-
 	inline Picviz::PVSelection& real_selection() { return _pvview.get_real_output_selection(); }
 	inline Picviz::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
 
@@ -138,6 +141,7 @@ private:
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> const& y_zoom_converter() const { return _y_zoom_converter; }
 
 	PVHitCountViewParamsWidget* params_widget() { return _params_widget; }
+	PVWidgets::PVTextPopupWidget* help_widget() { return _help_widget; }
 
 private slots:
 	void do_zoom_change(int axes);
@@ -172,6 +176,7 @@ private:
 	PVSelectionRectangleInteractor              *_sel_rect_interactor;
 
 	PVHitCountViewParamsWidget                  *_params_widget;
+	PVWidgets::PVTextPopupWidget                *_help_widget;
 };
 
 }
