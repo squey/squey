@@ -205,6 +205,7 @@ public:
 				return true;
 			}
 			break;
+#if NOT_YET
 		case Qt::Key_H:
 			if (hcv->help_widget()->isHidden()) {
 				hcv->help_widget()->popup(hcv->get_viewport(),
@@ -212,6 +213,7 @@ public:
 				                          PVWidgets::PVPopupWidget::ExpandAll, 16);
 			}
 			break;
+#endif
 		default:
 			break;
 		}
