@@ -54,7 +54,7 @@ public:
 
 	bool resizeEvent(PVScatterView* view, QResizeEvent*) override
 	{
-		view->update_all_async();
+		view->do_update_all();
 
 		view->reconfigure_view();
 		if (view->get_viewport()) {

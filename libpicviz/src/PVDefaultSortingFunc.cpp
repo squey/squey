@@ -22,17 +22,17 @@ DEFAULT_ARGS_FUNC(Picviz::PVDefaultSortingFunc)
 
 Picviz::PVSortingFunc_f Picviz::PVDefaultSortingFunc::f()
 {
-	return &comp_nocase_asc;
+	return &comp_case_asc;
 }
 
 Picviz::PVSortingFunc_fequals Picviz::PVDefaultSortingFunc::f_equals()
 {
-	return &equals_nocase_asc;
+	return &equals_case_asc;
 }
 
 Picviz::PVSortingFunc_fless Picviz::PVDefaultSortingFunc::f_less()
 {
-	return &less_nocase_asc;
+	return &less_case_asc;
 }
 
 bool Picviz::PVDefaultSortingFunc::less_case_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2)
