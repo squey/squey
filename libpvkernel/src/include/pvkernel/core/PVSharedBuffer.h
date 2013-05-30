@@ -48,7 +48,9 @@ public:
 
 	inline void reserve(size_t n)
 	{
-		_data = data_ptr_t(allocator_type().allocate(n));
+		if (_index < n) {
+			_data = data_ptr_t(allocator_type().allocate(n));
+		}
 		_index = 0;
 	}
 

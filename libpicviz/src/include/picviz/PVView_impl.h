@@ -19,35 +19,92 @@
 
 namespace Picviz { namespace __impl {
 
+class ReallocableBuffer
+{
+public:
+	ReallocableBuffer(size_t size)
+	{
+		_buf = scalable_malloc(size);
+		_size = size;
+	}
+
+	~ReallocableBuffer()
+	{
+		//scalable_free(_buf);
+	}
+
+public:
+	void* buffer() { return _buf; }
+	const void* buffer() const { return _buf; }
+	size_t size() const { return _size; }
+	void reallocate(size_t size)
+	{
+		if (_size < size) {
+			_buf = scalable_realloc(_buf, size);
+			_size = size;
+		}
+	}
+
+private:
+	void* _buf;
+	size_t _size;
+};
+
+class PVViewSortBuf
+{
+	typedef tbb::enumerable_thread_specific<ReallocableBuffer, tbb::cache_aligned_allocator<ReallocableBuffer>, tbb::ets_key_per_instance> ReallocableBufferTLS;
+
+public:
+	PVViewSortBuf():
+		_tmp_buf(tbb::tag_tls_construct_args(), 32)
+	{ }
+
+protected:
+	mutable ReallocableBufferTLS _tmp_buf;
+};
+
 template <class Tint>
-struct PVViewSortAsc
+struct PVViewSortAsc: public PVViewSortBuf
 {
 	PVViewSortAsc(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_fless f_): 
-		nraw(nraw_), column(col), f(f_)
+		PVViewSortBuf(), nraw(nraw_), column(col), f(f_)
 	{ }
 	bool operator()(Tint idx1, Tint idx2) const
 	{
-		PVCore::PVUnicodeString const& s1 = nraw->at_unistr(idx1, column);
-		PVCore::PVUnicodeString const& s2 = nraw->at_unistr(idx2, column);
-		return f(s1, s2);
+		ReallocableBuffer& tmp_buf = _tmp_buf.local();
+		PVCore::PVUnicodeString const s1 = nraw->at_unistr_no_cache(idx1, column);
+		const size_t size_buf = s1.size()+1;
+		tmp_buf.reallocate(size_buf);
+		memcpy(tmp_buf.buffer(), s1.buffer(), s1.size());
+
+		PVCore::PVUnicodeString const s2 = nraw->at_unistr_no_cache(idx2, column);
+
+		return f(PVCore::PVUnicodeString((char*) tmp_buf.buffer(), s1.size()), s2);
 	}
 private:
 	PVRush::PVNraw const* nraw;
 	PVCol column;
 	Picviz::PVSortingFunc_fless f;
+	mutable ReallocableBufferTLS _tmp_buf;
 };
 
 template <class Tint>
-struct PVViewSortDesc
+struct PVViewSortDesc: public PVViewSortBuf
 {
 	PVViewSortDesc(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_fless f_): 
-		nraw(nraw_), column(col), f(f_)
+		PVViewSortBuf(), nraw(nraw_), column(col), f(f_)
 	{ }
 	bool operator()(Tint idx1, Tint idx2) const
 	{
+		ReallocableBuffer& tmp_buf = _tmp_buf.local();
 		PVCore::PVUnicodeString const s1 = nraw->at_unistr(idx1, column);
+		const size_t size_buf = s1.size()+1;
+		tmp_buf.reallocate(size_buf);
+		memcpy(tmp_buf.buffer(), s1.buffer(), s1.size());
+
 		PVCore::PVUnicodeString const s2 = nraw->at_unistr(idx2, column);
-		return f(s2, s1);
+
+		return f(s2, PVCore::PVUnicodeString((char*) tmp_buf.buffer(), s1.size()));
 	}
 private:
 	PVRush::PVNraw const* nraw;
@@ -56,16 +113,28 @@ private:
 };
 
 template <class Tint>
-struct PVViewStableSortAsc
+struct PVViewStableSortAsc: public PVViewSortBuf
 {
 	PVViewStableSortAsc(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_f f_): 
-		nraw(nraw_), column(col), f(f_)
-	{ }
+		PVViewSortBuf(), nraw(nraw_), column(col), f(f_)
+	{
+	}
+
+	~PVViewStableSortAsc()
+	{
+	}
+
 	bool operator()(Tint idx1, Tint idx2) const
 	{
-		PVCore::PVUnicodeString const& s1 = nraw->at_unistr(idx1, column);
-		PVCore::PVUnicodeString const& s2 = nraw->at_unistr(idx2, column);
-		int ret = f(s1, s2);
+		ReallocableBuffer& tmp_buf = _tmp_buf.local();
+		PVCore::PVUnicodeString const s1 = nraw->at_unistr_no_cache(idx1, column);
+		const size_t size_buf = s1.size()+1;
+		tmp_buf.reallocate(size_buf);
+		memcpy(tmp_buf.buffer(), s1.buffer(), s1.size());
+
+		PVCore::PVUnicodeString const s2 = nraw->at_unistr_no_cache(idx2, column);
+
+		int ret = f(PVCore::PVUnicodeString((char*) tmp_buf.buffer(), s1.size()), s2);
 		if (ret == 0) {
 			return idx1 < idx2;
 		}
@@ -78,18 +147,24 @@ private:
 };
 
 template <class Tint>
-struct PVViewStableSortDesc
+struct PVViewStableSortDesc: public PVViewSortBuf
 {
 	PVViewStableSortDesc(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_f f_): 
-		nraw(nraw_), column(col), f(f_)
+		PVViewSortBuf(), nraw(nraw_), column(col), f(f_)
 	{ }
 	bool operator()(Tint idx1, Tint idx2) const
 	{
-		PVCore::PVUnicodeString const s1 = nraw->at_unistr(idx1, column);
-		PVCore::PVUnicodeString const s2 = nraw->at_unistr(idx2, column);
-		int ret = f(s1, s2);
+		ReallocableBuffer& tmp_buf = _tmp_buf.local();
+		PVCore::PVUnicodeString const s1 = nraw->at_unistr_no_cache(idx1, column);
+		const size_t size_buf = s1.size()+1;
+		tmp_buf.reallocate(size_buf);
+		memcpy(tmp_buf.buffer(), s1.buffer(), s1.size());
+
+		PVCore::PVUnicodeString const s2 = nraw->at_unistr_no_cache(idx2, column);
+
+		int ret = f(PVCore::PVUnicodeString((char*) tmp_buf.buffer(), s1.size()), s2);
 		if (ret == 0) {
-			return idx2 > idx1;
+			return idx1 > idx2;
 		}
 		return ret > 0;
 	}
@@ -100,16 +175,22 @@ private:
 };
 
 template <class Tint>
-struct PVViewCompEquals
+struct PVViewCompEquals: public PVViewSortBuf
 {
 	PVViewCompEquals(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_fequals f_equals): 
 		nraw(nraw_), column(col), f(f_equals)
 	{ }
 	bool operator()(Tint idx1, Tint idx2) const
 	{
-		PVCore::PVUnicodeString const s1 = nraw->at_unistr(idx1, column);
-		PVCore::PVUnicodeString const s2 = nraw->at_unistr(idx2, column);
-		return f(s1, s2);
+		ReallocableBuffer& tmp_buf = _tmp_buf.local();
+		PVCore::PVUnicodeString const s1 = nraw->at_unistr_no_cache(idx1, column);
+		const size_t size_buf = s1.size()+1;
+		tmp_buf.reallocate(size_buf);
+		memcpy(tmp_buf.buffer(), s1.buffer(), s1.size());
+
+		PVCore::PVUnicodeString const s2 = nraw->at_unistr_no_cache(idx2, column);
+
+		return f(PVCore::PVUnicodeString((char*) tmp_buf.buffer(), s1.size()), s2);
 	}
 private:
 	PVRush::PVNraw const* nraw;
@@ -151,20 +232,6 @@ struct PVMultisetSortDesc
 private:
 	Picviz::PVSortingFunc_f _f;
 };
-
-template <class L>
-void stable_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortingFunc_f f, Qt::SortOrder order, L& idxes)
-{
-	typedef typename L::value_type Tint;
-	if (order == Qt::AscendingOrder) {
-		PVViewStableSortAsc<Tint> s(nraw, col, f);
-		tbb::parallel_sort(idxes.begin(), idxes.end(), s);
-	}
-	else {
-		PVViewStableSortDesc<Tint> s(nraw, col, f);
-		tbb::parallel_sort(idxes.begin(), idxes.end(), s);
-	}
-}
 
 typedef std::pair<std::string_tbb, uint32_t> string_index_t;
 
@@ -283,9 +350,14 @@ bool stable_insert_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, TLS& mu
 }
 
 template <class L>
-void sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortingFunc_fless f, Qt::SortOrder order, L& idxes)
+void sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortingFunc_fless f, Qt::SortOrder order, L& idxes, tbb::task_group_context* ctxt = NULL)
 {
 	typedef typename L::value_type Tint;
+	tbb::task_group_context my_ctxt;
+	if (ctxt == NULL) {
+		ctxt = &my_ctxt;
+	}
+
 	if (order == Qt::AscendingOrder) {
 		PVViewSortAsc<Tint> s(nraw, col, f);
 		tbb::parallel_sort(idxes.begin(), idxes.end(), s);
@@ -293,6 +365,21 @@ void sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortingFunc
 	else {
 		PVViewSortDesc<Tint> s(nraw, col, f);
 		tbb::parallel_sort(idxes.begin(), idxes.end(), s);
+	}
+}
+
+template <class L>
+void stable_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortingFunc_f f, Qt::SortOrder order, L& idxes, tbb::task_group_context* ctxt = NULL)
+{
+	typedef typename L::value_type Tint;
+
+	if (order == Qt::AscendingOrder) {
+		PVViewStableSortAsc<Tint> s(nraw, col, f);
+		tbb::parallel_sort(idxes.begin(), idxes.end(), s, ctxt);
+	}
+	else {
+		PVViewStableSortDesc<Tint> s(nraw, col, f);
+		tbb::parallel_sort(idxes.begin(), idxes.end(), s, ctxt);
 	}
 }
 
