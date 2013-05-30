@@ -16,6 +16,7 @@
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVCustomQtRoles.h>
 
+#if 0
 template <typename T>
 class ParallelFilterIndexes
 {
@@ -73,6 +74,7 @@ private:
 	const Picviz::PVSelection *_sel;
 
 };
+#endif
 
 void PVGuiQt::__impl::PVListingVisibilityObserver::update(arguments_type const&) const
 {
