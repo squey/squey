@@ -294,7 +294,11 @@ void PVWidgets::PVGraphicsView::set_transform(const QTransform &t, bool combine)
 	 * So, when the mouse pointer is outside of the view, AnchorUnderMouse
 	 * *must not* be used.
 	 */
-	if (underMouse()) {
+
+	/* AG & RH: Another Joke: underMouse() uses the internal Qt state Qt::WA_UnderMouse,
+	 * which seems not to be updated after the popup has been closed.
+	 * Do this manually !*/
+	if (geometry().contains(mapFromGlobal(QCursor::pos()))) {
 		center_view(_transformation_anchor);
 	} else {
 		center_view(AnchorViewCenter);
