@@ -373,6 +373,8 @@ include/pvkernel/widgets/editors/PVEnumEditor.h
 include/pvkernel/widgets/editors/PVPlainTextEditor.h
 include/pvkernel/widgets/editors/PVRegexpEditor.h
 include/pvkernel/widgets/editors/PVTimeFormatEditor.h
+
+include/pvkernel/widgets/PVConfigPopupWidget.h
 )
 
 set(WIDGETS_HEADER_FILES
@@ -398,6 +400,10 @@ widgets/editors/PVPlainTextEditor.cpp
 widgets/editors/PVRegexpEditor.cpp
 widgets/editors/PVTimeFormatEditor.cpp
 widgets/PVUtils.cpp
+
+widgets/PVPopupWidget.cpp
+widgets/PVConfigPopupWidget.cpp
+widgets/PVTextPopupWidget.cpp
 )
 
 SET(UI_FILES
