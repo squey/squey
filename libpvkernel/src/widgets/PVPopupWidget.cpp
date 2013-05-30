@@ -146,3 +146,18 @@ void PVWidgets::PVPopupWidget::popup(QWidget* widget,
 	raise();
 	show();
 }
+
+/*****************************************************************************
+ * PVWidgets::PVPopupWidget::setVisible
+ *****************************************************************************/
+
+void PVWidgets::PVPopupWidget::setVisible(bool visible)
+{
+	QDialog::setVisible(visible);
+
+	if (visible) {
+		setFocus();
+	} else {
+		parentWidget()->setFocus();
+	}
+}

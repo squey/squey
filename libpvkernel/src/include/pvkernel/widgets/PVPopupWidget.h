@@ -63,6 +63,12 @@ public:
 	void popup(QWidget* widget, int align = AlignNone, int expand = ExpandNone,
 	           int border = 0, bool fit_in_screen = false);
 
+	/**
+	 * reimplement QDialog::setVisible(bool)
+	 *
+	 * to move focus from parent to poup and from popup to parent
+	 */
+	void setVisible(bool visible) override;
 };
 
 }
