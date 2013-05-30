@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <memory.h>
 
+#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/picviz_bench.h>
