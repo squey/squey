@@ -122,7 +122,9 @@
 	<file alias="icon_unlinked">resources/trafik/elements-interface/icone-lier-passif.png</file>
 	<file alias="fileslist_black">resources/trafik/elements-interface/icone-listefichiers-noir.png</file>
 	<file alias="refresh_small_grey">resources/refresh.png</file>
-	
 
+	<!-- CONFIG POPUP WIDGET -->
+	<file alias="pin-on">resources/pin-on.png</file>
+	<file alias="pin-off">resources/pin-off.png</file>
     </qresource>
 </RCC>

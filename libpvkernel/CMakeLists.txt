@@ -8,6 +8,7 @@ include(CTest)
 set(CTEST_PROJECT_NAME "PVKernel")
 
 set(QT_USE_QTXML TRUE)
+set(QT_USE_QTWEBKIT TRUE)
 include(${QT_USE_FILE})
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
