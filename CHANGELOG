@@ -4,7 +4,7 @@
 This major release add the following features:
 
  * new "hit count" view that displays a zoomable histogram of an axis' values
- * new "scatter" view that displays a zoomable two dimensional cartesian view of two axes
+ * new "scatter" view that displays a zoomable cartesian view of two axes
  * ability to sort values of an axis in the listing
  * use OpenGL rendering for some views, improving their overall latency
  * reduce GPU memory usage
