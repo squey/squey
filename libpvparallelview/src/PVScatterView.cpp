@@ -119,31 +119,31 @@ public:
 
 		// Rectangle selection
 		QAction* rect_sel = new QAction(actionGroup);
-		rect_sel->setToolTip("Rectangle");
 		rect_sel->setIcon(QIcon(":/selection-rectangle"));
 		rect_sel->setCheckable(true);
 		rect_sel->setChecked(true);
 		rect_sel->setShortcut(Qt::Key_R);
+		rect_sel->setToolTip("Rectangle selection (" + rect_sel->shortcut().toString() + ")");
 		_selection_mode_signal_mapper->setMapping(rect_sel, PVSelectionSquare::EMode::RECTANGLE);
 		QObject::connect(rect_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
 		addAction(rect_sel);
 
 		// Horizontal selection
 		QAction* h_sel = new QAction(actionGroup);
-		h_sel->setToolTip("Horizontal");
 		h_sel->setIcon(QIcon(":/horizontal-scrollbar-handle"));
 		h_sel->setCheckable(true);
 		h_sel->setShortcut(Qt::Key_H);
+		h_sel->setToolTip("Horizontal selection (" + h_sel->shortcut().toString() + ")");
 		_selection_mode_signal_mapper->setMapping(h_sel, PVSelectionSquare::EMode::HORIZONTAL);
 		QObject::connect(h_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
 		addAction(h_sel);
 
 		// Vertical selection
 		QAction* v_sel = new QAction(actionGroup);
-		v_sel->setToolTip("Vertical");
 		v_sel->setIcon(QIcon(":/vertical-scrollbar-handle"));
 		v_sel->setCheckable(true);
 		v_sel->setShortcut(Qt::Key_V);
+		v_sel->setToolTip("Vertical selection (" + v_sel->shortcut().toString() + ")");
 		_selection_mode_signal_mapper->setMapping(v_sel, PVSelectionSquare::EMode::VERTICAL);
 		QObject::connect(v_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
 		addAction(v_sel);
