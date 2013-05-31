@@ -1,3 +1,114 @@
+3.1.0 "Adrien" (31/05/2013)
+--------------------------
+
+This major release add the following features:
+
+ * new "hit count" view that displays a zoomable histogram of an axis' values
+ * new "scatter view" that displays a zoomable two dimensional cartesian view of two axes
+ * ability to sort values of an axis in the listing
+ * use OpenGL rendering for some views, improving their overall latency
+ * reduce GPU memory usage
+
+This major release fixes:
+
+ * when zooming in a parallel view that has selection cursors, they were always
+  selected when the mouse was over the view, making it impossible to make a new
+  selection
+ * fix potential crash due to a Qt issue in the full parallel view when a cursor is removed
+ * fix bottom lines that were sometimes cropped in the full parallel view
+
+3.0.8 (05/04/2013)
+-----------------
+
+This minor release add the following features:
+ * display min/max values in the full parallel view when using the 'y' key
+
+This minor release fixes:
+ * disabled the sorting feature that was enabled by mistake (will be included in version 3.1)
+
+3.0.7 (03/04/2013)
+------------------
+
+This minor release add the following features:
+
+ * new statistics panel located under the listing
+ * unique values listing is now sorted
+ * automatic hiding of existing layers when a new one is created (on user demand)
+ * improved color picker widget
+ * integer mapping is splitted into two different mappings for better clarity:
+   signed and unsigned integer. Default is still "signed".
+ * recent histories can be cleared
+ * dock widgets can be maximised
+ * improved normalisation dialog
+ * multiple search expressions can be appended to a file
+ * automatically remove unused temporary files
+ * splash screen
+
+This minor release fixes:
+
+ * fix regression: axis combination configuration in format builder works again
+ * fix regression: rectangular selection is movable with keyboard shortcuts in the full parallel view
+ * fix default time mapping
+ * list unique values widget hung when number of values was >75 000 000
+ * mapping and/or plotting arguments needed to be changed twice
+ * inconsistent results while searching and/or listing unique values
+ * crashed with some inconsistent formats
+ * url splitter: a host without a subdomain had an empty domain
+ * the number of selected lines displayed in the full parallel view didn't take
+   into account the selected layers
+ * disable useless keyboard interactions in the full parallel view
+
+
+3.0.6 (14/02/2013)
+-----------------
+
+This minor releases fixes:
+
+ * critical issue that gives wrong results in some cases when searching a
+ * column one interger overflow when number of rows * number of columns was
+ * above 32-bits fix regression: in the format builder, it is now possible to
+   set the axes' name according to a given line
+
+3.0.5 (29/01/2013)
+-----------------
+
+This minor releases add the following features:
+
+ * hexadecimal integer mapping
+ * improve automatic splitter detection in the format builder
+ * add "reset layer to default color" feature
+ * duplication of an existing layer is now possible
+
+This minor releases fixes:
+
+ * in some cases, incorrect progress values were reported during the normalisation process
+ * fix crash when loading incorrect Picviz project
+ * fix crash when no lines have matched the given format during normalisation
+ * fix signed integer mapping
+ * fix "set selection from current layer"
+ * fix layer stack up/down/new features
+ * minor improvements in the GUI
+
+3.0.4
+-----
+
+(internal release)
+
+3.0.3
+-----
+
+This minor release add the following features:
+
+ * add a "duplicate" splitter into the format builder, so that a field can be
+   duplicate, so that different processing can be applied
+
+This minor release fixes:
+
+ * invalid values for the frequency gradient in some rare cases some arguments
+ * weren't updated when using a filter selection ivnertion works after a filter
+ * has been applied invalid lines were displayed in some rare cases in the
+ * zoomed parallel views
+
 3.0.0 "Retribution" (12/11/2012)
 --------------------------------
 
