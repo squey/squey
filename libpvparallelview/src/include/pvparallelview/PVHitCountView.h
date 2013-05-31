@@ -117,6 +117,8 @@ protected:
 	inline bool show_all() const { return _show_all; }
 	inline bool use_log_color() const { return _use_log_color; }
 
+	QString get_y_value_at(const qint64 pos) const;
+
 protected slots:
 	void toggle_auto_x_zoom_sel();
 	void toggle_show_selectable();

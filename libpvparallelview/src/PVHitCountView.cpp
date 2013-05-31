@@ -778,3 +778,8 @@ void PVParallelView::PVHitCountView::toggle_log_color()
 
 	get_viewport()->update();
 }
+
+QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 /*pos*/) const
+{
+	return QString();
+}

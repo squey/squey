@@ -115,6 +115,9 @@ protected:
 protected:
 	void set_params_widget_position();
 
+	QString get_x_value_at(const qint64 pos) const;
+	QString get_y_value_at(const qint64 pos) const;
+
 private slots:
 	void do_update_all();
 	void update_all();

@@ -537,6 +537,16 @@ void PVParallelView::PVScatterView::compute_fps()
 #endif
 }
 
+QString PVParallelView::PVScatterView::get_x_value_at(const qint64 /*pos*/) const
+{
+	return QString();
+}
+
+QString PVParallelView::PVScatterView::get_y_value_at(const qint64 /*pos*/) const
+{
+	return QString();
+}
+
 ////
 // PVParallelView::PVScatterView::RenderedImage implementation
 ////
