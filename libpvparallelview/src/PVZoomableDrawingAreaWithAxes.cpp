@@ -17,7 +17,7 @@
 #define DEFAULT_HMARGIN 50
 #define DEFAULT_VMARGIN 40
 
-#define AXIS_MARGIN 1 
+#define AXIS_MARGIN 0
 
 #define print_r(R) print_rect(R)
 #define print_rect(R) __print_rect(#R, R)
