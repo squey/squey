@@ -184,7 +184,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	_nframes = 0;
 #endif
 
-	//set_gl_viewport();
+	set_gl_viewport();
 
 	set_x_axis_inverted(true);
 
