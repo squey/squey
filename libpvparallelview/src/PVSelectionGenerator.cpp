@@ -287,10 +287,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 	const PVHitGraphBlocksManager& manager,
 	const QRectF& rect,
 	const uint32_t max_count,
-	Picviz::PVSelection& sel
+	Picviz::PVSelection& sel,
+	bool use_selectable
 )
 {
-	return __impl::compute_selection_from_hit_count_view_rect_sse_invariant_omp(manager, rect, max_count, sel);
+	return __impl::compute_selection_from_hit_count_view_rect_sse_invariant_omp(manager, rect, max_count, sel, use_selectable);
 }
 
 /*****************************************************************************
@@ -483,7 +484,9 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 	const PVHitGraphBlocksManager& manager,
 	const QRectF& rect,
 	const uint32_t max_count,
-	Picviz::PVSelection& sel)
+	Picviz::PVSelection& sel,
+	bool use_selectable
+	)
 {
 	sel.ensure_allocated();
 
@@ -523,7 +526,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 	const uint32_t nrows = manager.get_nrows();
 	const uint32_t nrows_sse = nrows & ~31U;
 
-	const uint32_t* buffer = data.buffer_all().buffer();
+	const uint32_t* buffer = use_selectable ? data.buffer_selectable().buffer() : data.buffer_selected().buffer();
 
 	BENCH_START(b);
 	PVRow i;
@@ -847,13 +850,13 @@ void PVParallelView::PVSelectionGenerator::process_selection(Picviz::PVView_sp v
 
 	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier aren't really
 	 * constants */
-	if (use_modifiers && modifiers == (unsigned int) (Qt::ShiftModifier | Qt::ControlModifier)) {
+	if (use_modifiers && modifiers == AND_MODIFIER) {
 		view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	}
-	else if (use_modifiers && modifiers == Qt::ControlModifier) {
+	else if (use_modifiers && modifiers == NAND_MODIFIER) {
 		view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 	}
-	else if (use_modifiers && modifiers == Qt::ShiftModifier) {
+	else if (use_modifiers && modifiers == OR_MODIFIER) {
 		view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
 	}
 	else {
