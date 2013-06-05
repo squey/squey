@@ -31,6 +31,10 @@ class PVHitGraphBlocksManager;
 
 struct PVSelectionGenerator
 {
+	static constexpr unsigned int OR_MODIFIER = Qt::ShiftModifier;
+	static constexpr unsigned int NAND_MODIFIER = Qt::ControlModifier;
+	static constexpr unsigned int AND_MODIFIER = (Qt::ShiftModifier | Qt::ControlModifier);
+
 	static uint32_t compute_selection_from_parallel_view_rect(
 		PVLinesView& lines_view,
 		PVZoneID zone_id,
@@ -49,7 +53,8 @@ struct PVSelectionGenerator
 		const PVHitGraphBlocksManager& manager,
 	    const QRectF& rect,
 	    const uint32_t max_count,
-	    Picviz::PVSelection& sel
+	    Picviz::PVSelection& sel,
+	    bool use_selectable
 	);
 
 	static uint32_t compute_selection_from_plotted_range(
@@ -136,7 +141,8 @@ namespace __impl
 		const PVHitGraphBlocksManager& manager,
 		const QRectF& rect,
 		const uint32_t max_count,
-		Picviz::PVSelection& sel
+		Picviz::PVSelection& sel,
+		bool use_selectable
 	);
 }
 
