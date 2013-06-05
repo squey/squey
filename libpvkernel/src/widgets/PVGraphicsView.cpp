@@ -298,10 +298,13 @@ void PVWidgets::PVGraphicsView::set_transform(const QTransform &t, bool combine)
 	/* AG & RH: Another Joke: underMouse() uses the internal Qt state Qt::WA_UnderMouse,
 	 * which seems not to be updated after the popup has been closed.
 	 * Do this manually !*/
-	if (underMouse()) {
+	if (
+	    underMouse()
+	    //get_viewport()->geometry().contains(get_viewport()->mapFromGlobal(QCursor::pos()))
+	    ) {
 		center_view(_transformation_anchor);
 	} else {
-		center_view(AnchorViewCenter);
+		center_view(NoAnchor);
 	}
 }
 
