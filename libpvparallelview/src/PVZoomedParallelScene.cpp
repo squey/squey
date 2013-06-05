@@ -659,7 +659,7 @@ void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRendering_p zr, in
  * PVParallelView::PVZoomedParallelScene::update_zoom
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::update_zoom()
+void PVParallelView::PVZoomedParallelScene::update_zoom(bool need_recomputation)
 {
 	double scale_factor = get_scale_factor();
 
@@ -704,7 +704,9 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 		_right_zone->item->setPos(np.x(), p.y());
 	}
 
-	_updateall_timer.start();
+	if (need_recomputation) {
+		_updateall_timer.start();
+	}
 }
 
 /*****************************************************************************

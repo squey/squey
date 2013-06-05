@@ -112,7 +112,7 @@ void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent *event)
 			_first_resize = false;
 			fps->reset_zones_layout_to_default();
 		} else {
-			fps->update_scene(true);
+			fps->update_scene(false);
 		}
 		fps->scale_all_zones_images();
 		fps->update_all_with_timer();

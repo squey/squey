@@ -202,9 +202,9 @@ public:
 	/**
 	 * Function to call when the view is resized.
 	 */
-	void resize_display()
+	void resize_display(bool need_recomputation = true)
 	{
-		update_zoom();
+		update_zoom(need_recomputation);
 	}
 
 	/**
@@ -265,7 +265,7 @@ private slots:
 	/**
 	 * Update the graphical elements after a change of zoom parameter (mouse event or through the hive).
 	 */
-	void update_zoom();
+	void update_zoom(bool need_recomputation = true);
 
 	/**
 	 * Stops all pending rendering and wait for their ends.

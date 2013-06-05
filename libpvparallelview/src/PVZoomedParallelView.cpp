@@ -46,7 +46,11 @@ void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent *event)
 	PVWidgets::PVGraphicsView::resizeEvent(event);
 
 	PVParallelView::PVZoomedParallelScene *zps = (PVParallelView::PVZoomedParallelScene*)get_scene();
-	if(zps != nullptr && (event->oldSize().height() != event->size().height())) {
-		zps->resize_display();
+	if(zps == nullptr) {
+		return;
 	}
+
+	bool need_recomputation = event->oldSize().height() != event->size().height();
+
+	zps->resize_display(need_recomputation);
 }

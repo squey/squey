@@ -8,8 +8,6 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 
-#include <iostream>
-
 /*****************************************************************************
  * PVParallelView::PVZoomableDrawingArea::PVZoomableDrawingArea
  *****************************************************************************/

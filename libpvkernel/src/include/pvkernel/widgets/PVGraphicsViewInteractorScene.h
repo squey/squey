@@ -22,8 +22,6 @@ protected:
 
 	bool keyPressEvent(PVGraphicsView* obj, QKeyEvent* event) override;
 	bool keyReleaseEvent(PVGraphicsView* obj, QKeyEvent* event) override;
-
-	bool resizeEvent(PVGraphicsView* obj, QResizeEvent* event) override;
 };
 
 }

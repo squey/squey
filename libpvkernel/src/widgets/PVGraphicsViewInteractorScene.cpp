@@ -243,18 +243,3 @@ bool PVWidgets::PVGraphicsViewInteractorScene::keyReleaseEvent(PVGraphicsView* o
 
 	return false;
 }
-
-/*****************************************************************************
- * PVWidgets::PVGraphicsViewInteractorScene::resizeEvent
- *****************************************************************************/
-
-bool PVWidgets::PVGraphicsViewInteractorScene::resizeEvent(PVGraphicsView* obj,
-                                                           QResizeEvent* event)
-{
-	obj->recompute_viewport();
-	obj->center_view(obj->_resize_anchor);
-
-	event->setAccepted(true);
-
-	return true;
-}
