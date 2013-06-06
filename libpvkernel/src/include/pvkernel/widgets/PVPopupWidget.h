@@ -10,9 +10,18 @@ namespace PVWidgets
 /**
  * a generic popup widget to display any widget set over an QWidget
  *
- * @note  it may be useful to distinguish the parent widget which is used to
- * align the PVPopupWidget and the parent widget to give the focus to make
- * shortcuts work...
+ * @note RH: when in Qt::Popup mode, this widget had a problem when
+ * it was made hidden after a wheel event: the parent widget's attribute
+ * Qt::WA_UnderMouse was not correctly updated by Qt. QTBUG-27478 reports
+ * that problem (solved in Qt5 but not backported to Qt4). Patching Qt does
+ * not seem to solve entirely our problem (we maybe expect a behaviour that
+ * is not standard). So that overriding {enter,leave}Event to force the
+ * parent widget's Qt::WA_UnderMouse attribute to a correct value do what
+ * we want.
+ *
+ * @note RH: when the popup is visible, a wheel event outside the popup
+ * do a weird zoom. It can be solved by forwarding mouse move events from
+ * the popup widget to its parent.
  */
 
 class PVPopupWidget : public QDialog
@@ -56,7 +65,10 @@ public:
 public:
 	/**
 	 * make the popup visible at screen coord
-
+	 *
+	 * @param p the position on screen
+	 * @param centered set to true to have the popup centered on p; false if the upper left
+	 * corner must be set to p
 	 */
 	void popup(const QPoint& p, bool centered = false);
 
@@ -71,6 +83,25 @@ public:
 	void setVisible(bool visible) override;
 
 protected:
+	/**
+	 * reimplement QDialog::mouseMoveEvent(QMouseEvent)
+	 *
+	 * to force its parent's attribute Qt::WA_UnderMouse to be false
+	 */
+	void enterEvent(QEvent* event) override;
+
+	/**
+	 * reimplement QDialog::mouseMoveEvent(QMouseEvent)
+	 *
+	 * to force its parent's attribute Qt::WA_UnderMouse to be true
+	 */
+	void leaveEvent(QEvent* event) override;
+
+	/**
+	 * reimplement QDialog::mouseMoveEvent(QMouseEvent)
+	 *
+	 * to forward mouse move event to its parent.
+	 */
 	void mouseMoveEvent(QMouseEvent* event) override;
 };
 

@@ -165,38 +165,33 @@ void PVWidgets::PVPopupWidget::setVisible(bool visible)
 }
 
 /*****************************************************************************
+ * PVWidgets::PVPopupWidget::enterEvent
+ *****************************************************************************/
+
+void PVWidgets::PVPopupWidget::enterEvent(QEvent* event)
+{
+	// to make sure the parent is not marked "undermouse"
+	// parentWidget()->setAttribute(Qt::WA_UnderMouse, false);
+	QDialog::enterEvent(event);
+}
+
+/*****************************************************************************
+ * PVWidgets::PVPopupWidget::leaveEvent
+ *****************************************************************************/
+
+void PVWidgets::PVPopupWidget::leaveEvent(QEvent* event)
+{
+	// to make sure the parent is marked "undermouse"
+	// parentWidget()->setAttribute(Qt::WA_UnderMouse, true);
+	QDialog::leaveEvent(event);
+}
+
+/*****************************************************************************
  * PVWidgets::PVPopupWidget::mouseMoveEvent
  *****************************************************************************/
 
 void PVWidgets::PVPopupWidget::mouseMoveEvent(QMouseEvent* event)
 {
-	/* RH: the initial problem is that the PVPopupWidget in mode Qt::Popup
-	 * badly propagate wheel event to its parent when it is made hidden:
-	 * - QTBUG-27478 reports that the Qt::WA_UnderMouse QWidget's
-	 *   attribute is wrongly updated in case of popup widget closure;
-	 *   that problem leaves Qt in an internally bad state solved by an
-	 *   update of the Qt::WA_UnderMouse attribute (like clicking in an
-	 *   other widget)
-	 * - the last mouse position stored by the PV-I view is erroneous
-	 *   because the mouse pointer is "teleported" accross the popup
-	 *
-	 * using the fix for QTBUG-27478 does not solve anything as the mouse
-	 * pointer is still teleporting accross the popup. The lone solution
-	 * is to make sure that:
-	 * - the popup widget forwards, at least, all mouse movements to its
-	 *   parent, so that it can update its internal state
-	 * - the popup mode give the Qt::WA_UnderMouse to its parent when the
-	 *   mouse pointer is outside of its geometry
-	 *
-	 * The good point is that Qt does not have to be patch as the
-	 * Qt::WA_UnderMouse attribute is necessarly updated.
-	 */
-	if (geometry().contains(mapFromGlobal(QCursor::pos()))) {
-		parentWidget()->setAttribute(Qt::WA_UnderMouse, false);
-	} else {
-		parentWidget()->setAttribute(Qt::WA_UnderMouse, true);
-	}
-
 	QMouseEvent pevent(QEvent::MouseMove,
 	                   parentWidget()->mapFromGlobal(event->globalPos()),
 	                   event->globalPos(),
