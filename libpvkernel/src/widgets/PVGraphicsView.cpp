@@ -22,7 +22,6 @@
 
 #include <iostream>
 #include <cassert>
-
 #include <algorithm>
 
 static inline qint64 sb_round(const qreal &d)
@@ -45,6 +44,7 @@ void __print_rect(const char *text, const R &r)
 	          << std::endl;
 }
 
+#define print_p(P) print_point(P)
 #define print_point(P) __print_point(#P, P)
 
 template <typename P>
@@ -294,14 +294,7 @@ void PVWidgets::PVGraphicsView::set_transform(const QTransform &t, bool combine)
 	 * So, when the mouse pointer is outside of the view, AnchorUnderMouse
 	 * *must not* be used.
 	 */
-
-	/* AG & RH: Another Joke: underMouse() uses the internal Qt state Qt::WA_UnderMouse,
-	 * which seems not to be updated after the popup has been closed.
-	 * Do this manually !*/
-	if (
-	    underMouse()
-	    //get_viewport()->geometry().contains(get_viewport()->mapFromGlobal(QCursor::pos()))
-	    ) {
+	if (underMouse()) {
 		center_view(_transformation_anchor);
 	} else {
 		center_view(NoAnchor);
@@ -610,6 +603,10 @@ void PVWidgets::PVGraphicsView::contextMenuEvent(QContextMenuEvent *event)
 
 void PVWidgets::PVGraphicsView::focusInEvent(QFocusEvent *event)
 {
+	_mouse_pressed_screen_coord = QCursor::pos();
+	_mouse_pressed_view_coord = mapFromGlobal(_mouse_pressed_screen_coord);
+	_mouse_pressed_scene_coord = map_to_scene(_mouse_pressed_view_coord);
+
 	QWidget::focusInEvent(event);
 	if (_scene) {
 		QApplication::sendEvent(_scene, event);
@@ -986,7 +983,7 @@ qreal PVWidgets::PVGraphicsView::compute_screen_offset_y(const qint64 view_heigh
 void PVWidgets::PVGraphicsView::center_view(ViewportAnchor anchor)
 {
 	if (anchor == AnchorViewCenter) {
-		QPointF p = map_to_scene(_viewport->rect().center());
+		QPointF p = map_to_scene(get_margined_viewport_rect().center());
 		center_on(p);
 	} else if (anchor == AnchorUnderMouse) {
 		QPointF delta = map_to_scene(get_margined_viewport_rect().center());

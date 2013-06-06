@@ -69,6 +69,9 @@ public:
 	 * to move focus from parent to poup and from popup to parent
 	 */
 	void setVisible(bool visible) override;
+
+protected:
+	void mouseMoveEvent(QMouseEvent* event) override;
 };
 
 }
