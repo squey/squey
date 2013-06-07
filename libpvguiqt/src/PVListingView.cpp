@@ -174,6 +174,8 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	//
 	_hhead_ctxt_menu = new QMenu(this);
 	_action_col_unique = new QAction(tr("List unique values of this axis..."), this);
+	_action_col_unique->setIcon(QIcon(":/fileslist_black"));
+
 	_hhead_ctxt_menu->addAction(_action_col_unique);
 
 
