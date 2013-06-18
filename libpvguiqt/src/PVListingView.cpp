@@ -468,7 +468,8 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 
 	QAction* sel = _hhead_ctxt_menu->exec(QCursor::pos());
 	if (sel == _action_col_unique) {
-		PVQNraw::show_unique_values(lib_view().get_rushnraw_parent(), col, *lib_view().get_selection_visible_listing(), this);
+		Picviz::PVView_sp view = lib_view().shared_from_this();
+		PVQNraw::show_unique_values(view, lib_view().get_rushnraw_parent(), col, *lib_view().get_selection_visible_listing(), this);
 	}
 }
 

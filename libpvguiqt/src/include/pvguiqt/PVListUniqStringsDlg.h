@@ -43,8 +43,18 @@ class PVListUniqStringsDlg: public PVListDisplayDlg
 	Q_OBJECT
 
 public:
-	PVListUniqStringsDlg(PVRush::PVNraw::unique_values_t& values, QWidget* parent = NULL);
+	PVListUniqStringsDlg(Picviz::PVView_sp& view, PVCol c, PVRush::PVNraw::unique_values_t& values, QWidget* parent = NULL);
 	virtual ~PVListUniqStringsDlg();
+
+private:
+	Picviz::PVView& lib_view() { return *_obs.get_object(); }
+	void process_context_menu(QAction* act);
+	void multiple_search(QAction* act);
+
+private:
+	PVCol _col;
+	PVHive::PVObserverSignal<Picviz::PVView> _obs;
+	PVHive::PVActor<Picviz::PVView> _actor;
 };
 
 }

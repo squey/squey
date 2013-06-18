@@ -18,6 +18,7 @@ namespace Picviz {
  * \class PVLayerFilterMultipleSearch
  */
 class PVLayerFilterMultipleSearch : public PVLayerFilter {
+
 public:
 	PVLayerFilterMultipleSearch(PVCore::PVArgumentList const& l = PVLayerFilterMultipleSearch::default_args());
 public:

@@ -4,7 +4,7 @@
 #include <pvguiqt/PVListUniqStringsDlg.h>
 #include <pvguiqt/PVQNraw.h>
 
-bool PVGuiQt::PVQNraw::show_unique_values(PVRush::PVNraw const& nraw, PVCol c, Picviz::PVSelection const& sel, QWidget* parent)
+bool PVGuiQt::PVQNraw::show_unique_values(Picviz::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol c, Picviz::PVSelection const& sel, QWidget* parent)
 {
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
 	pbox->set_enable_cancel(false);
@@ -17,9 +17,9 @@ bool PVGuiQt::PVQNraw::show_unique_values(PVRush::PVNraw const& nraw, PVCol c, P
 	}
 
 	// PVListUniqStringsDlg takes ownership of strings inside `values'
-	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(values, parent);
+	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, c, values, parent);
 	dlg->setWindowTitle("Unique values of axis '" + nraw.get_axis_name(c) +"'");
-	dlg->exec();
+	dlg->show();
 
 	return true;
 }

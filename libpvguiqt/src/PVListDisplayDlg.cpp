@@ -14,6 +14,7 @@
 
 #include <QClipboard>
 #include <QMessageBox>
+#include <QMenu>
 
 #define AUTOMATIC_SORT_MAX_NUMBER 32768
 
@@ -45,16 +46,19 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	_values_view->setContextMenuPolicy(Qt::ActionsContextMenu);
 	_values_view->verticalHeader()->hide();
 
+	_copy_values_act = new QAction(tr("Copy value in the clipboard..."), this);
 
-	QAction* copy_values_act = new QAction(tr("Copy value in the clipboard..."), this);
-	connect(copy_values_act, SIGNAL(triggered()), this, SLOT(copy_value_clipboard()));
+	_ctxt_menu = new QMenu(this);
 
-	_values_view->addAction(copy_values_act);
+	_ctxt_menu->addAction(_copy_values_act);
 	_values_view->setSelectionMode(QAbstractItemView::SingleSelection);
 
 	_nb_values_edit->setText(QString().setNum(model->rowCount()));
 
 	set_description(QString());
+
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
+	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	connect(_btn_copy_clipboard, SIGNAL(clicked()), this, SLOT(copy_to_clipboard()));
 	connect(_btn_copy_file, SIGNAL(clicked()), this, SLOT(copy_to_file()));
@@ -63,6 +67,24 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 
 	if (model->rowCount() < AUTOMATIC_SORT_MAX_NUMBER) {
 		sort();
+	}
+}
+
+void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& /*pos*/)
+{
+	// Show the menu at the given pos
+	QAction* act_sel = _ctxt_menu->exec(QCursor::pos());
+
+	process_context_menu(act_sel);
+
+}
+
+void PVGuiQt::PVListDisplayDlg::process_context_menu(QAction* act)
+{
+	if (act) {
+		if (act == _copy_values_act) {
+			copy_value_clipboard();
+		}
 	}
 }
 
