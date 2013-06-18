@@ -10,6 +10,7 @@
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/widgets/PVColorDialog.h>
 
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVView.h>
@@ -492,16 +493,14 @@ void PVGuiQt::PVListingView::process_ctxt_menu_copy()
  *****************************************************************************/
 void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
 {
-#if 0
 	/* We let the user select a color */
-	PVColorDialog* pv_ColorDialog = new PVColorDialog(*_parent->get_lib_view(), this);
-	connect(pv_ColorDialog, SIGNAL(colorSelected(const QColor&)), this, SLOT(set_color_selected(const QColor&)));
+	PVWidgets::PVColorDialog* pv_ColorDialog = new PVWidgets::PVColorDialog(this);
+	if (pv_ColorDialog->exec() != QDialog::Accepted) {
+		return;
+	}
+	PVCore::PVHSVColor color = pv_ColorDialog->color();
 
-	pv_ColorDialog->show();
-	pv_ColorDialog->setFocus(Qt::PopupFocusReason);
-	pv_ColorDialog->raise();
-	pv_ColorDialog->activateWindow();
-#endif
+	set_color_selected(color);
 }
 
 /******************************************************************************
@@ -509,24 +508,21 @@ void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
  * PVGuiQt::PVListingView::set_color_selected
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::set_color_selected(const QColor& /*c*/)
+void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 {
-#if 0
-	if (!c.isValid()) {
-		return;
-	}
+	PVHive::PVActor<Picviz::PVView> actor;
+	Picviz::PVView_sp view_sp(lib_view().shared_from_this());
+	PVHive::get().register_actor(view_sp, actor);
 
 	QVector<PVRow> selected_rows_vector = get_selected_rows();
-	Picviz::PVLayer& layer = view->get_current_layer();
+	Picviz::PVLayer& layer = lib_view().get_current_layer();
 	Picviz::PVLinesProperties& lines_properties = layer.get_lines_properties();
 
 	foreach (PVRow line, selected_rows_vector) {
-		lines_properties.line_set_rgba(line, c.red(), c.green(), c.blue(), c.alpha());
+		lines_properties.line_set_color(line, color);
 	}
 
-	// Reprocess pipeline + refresh view
-	view->process_from_layer_stack();
-#endif
+	actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 }
 
 /******************************************************************************

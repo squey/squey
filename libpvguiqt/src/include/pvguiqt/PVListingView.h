@@ -70,7 +70,7 @@ private slots:
 	void slotDoubleClickOnVHead(int);
 	void show_ctxt_menu(const QPoint& pos);
 	void show_hhead_ctxt_menu(const QPoint& pos);
-	void set_color_selected(const QColor& color);
+	void set_color_selected(const PVCore::PVHSVColor& color);
 	void columnResized(int column, int oldWidth, int newWidth);
 
 private:
