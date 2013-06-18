@@ -7,8 +7,14 @@
 #ifndef PVGUIQT_PVLISTDISPLAYDLG_H
 #define PVGUIQT_PVLISTDISPLAYDLG_H
 
-#include <picviz/PVView_types.h>
 #include <pvguiqt/ui/PVListDisplayDlg.h>
+
+#include <pvhive/PVActor.h>
+#include <pvhive/PVObserverSignal.h>
+
+#include <picviz/PVView_types.h>
+
+#include <pvkernel/core/PVArgument.h>
 
 #include <QAbstractListModel>
 #include <QVector>
@@ -17,9 +23,11 @@
 
 namespace PVGuiQt {
 
+class PVLayerFilterProcessWidget;
+
 class PVStringSortProxyModel;
 
-class PVListDisplayDlg: public QDialog, Ui::PVListDisplayDlg
+class PVListDisplayDlg: public QDialog, public Ui::PVListDisplayDlg
 {
 	Q_OBJECT
 
@@ -33,20 +41,28 @@ protected:
 	QAbstractListModel* model();
 	PVStringSortProxyModel* proxy_model();
 
+protected:
+	virtual void process_context_menu(QAction* act);
+
 private slots:
 	void copy_to_clipboard();
 	void copy_value_clipboard();
 	void copy_to_file() { write_to_file_ui(false); }
 	void append_to_file() { write_to_file_ui(true); }
 	void sort();
+	void show_ctxt_menu(const QPoint& pos);
 
 private:
 	void write_to_file_ui(bool append);
 	void write_to_file(QFile& file);
 	bool write_values(QDataStream* stream);
 
-private:
+protected:
 	QFileDialog _file_dlg;
+	QAction* _copy_values_act;
+	QMenu* _ctxt_menu;
+	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process = nullptr;
+	PVCore::PVArgumentList _ctxt_args;
 };
 
 }

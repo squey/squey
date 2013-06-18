@@ -63,6 +63,7 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu, QObjec
 		{
 			QAction* act = action_bound_to_params(interface, view, axis_comb);
 			act->setText(interface.axis_menu_name(view, axis_comb));
+			act->setIcon(interface.toolbar_icon());
 			connect(act, SIGNAL(triggered()), receiver, slot);
 			menu.addAction(act);
 
@@ -76,6 +77,7 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(QMenu& menu, QObjec
 		{
 			QAction* act = action_bound_to_params(interface, view, axis_comb);
 			act->setText(interface.axis_menu_name(view, axis_comb));
+			act->setIcon(interface.toolbar_icon());
 			connect(act, SIGNAL(triggered()), receiver, slot);
 			menu.addAction(act);
 

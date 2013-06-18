@@ -473,5 +473,6 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
 {
 	int col = _view.get_real_axis_index(_table->column(_item));
-	PVQNraw::show_unique_values(_view.get_rushnraw_parent(), col, *_view.get_selection_visible_listing(), this);
+	Picviz::PVView_sp view = (const_cast<Picviz::PVView&>(_view)).shared_from_this();
+	PVQNraw::show_unique_values(view, _view.get_rushnraw_parent(), col, *_view.get_selection_visible_listing(), this);
 }
