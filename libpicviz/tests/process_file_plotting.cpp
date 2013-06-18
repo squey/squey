@@ -92,22 +92,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// Create the PVSource object
-	Picviz::PVRoot_p root;
-	Picviz::PVScene_p scene(root, "scene");
-	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	Picviz::PVMapped_p mapped(src);
-	PVRush::PVControllerJob_p job = src->extract();
-	src->wait_extract_end(job);
-	PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
-
-	// Map the nraw
-	mapped->process_from_parent_source();
-
-	// And plot the mapped values
-	Picviz::PVPlotted_p plotted(mapped);
-	plotted->process_from_parent_mapped();
-
 	bool raw_dump = false;
 	bool raw_dump_transp = false;
 	QString out_path("plotted.out");
@@ -121,15 +105,38 @@ int main(int argc, char** argv)
 		}
 	}
 
-	PVLOG_INFO("Writing output...\n");
+	// Create the PVSource object
+	Picviz::PVRoot_p root;
+	Picviz::PVScene_p scene(root, "scene");
+	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	Picviz::PVMapped_p mapped(src);
+	PVRush::PVControllerJob_p job;
+
 	if (raw_dump) {
+		job = src->extract();
+	} else {
+		job = src->extract_from_agg_nlines(0, 200000000);
+	}
+
+	src->wait_extract_end(job);
+	PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
+
+	// Map the nraw
+	mapped->process_from_parent_source();
+
+	// And plot the mapped values
+	Picviz::PVPlotted_p plotted(mapped);
+	plotted->process_from_parent_mapped();
+
+	if (raw_dump) {
+		PVLOG_INFO("Writing output...\n");
 		plotted->dump_buffer_to_file(out_path, raw_dump_transp);
+		PVLOG_INFO("Done !\n");
 	}
 	else {
 		// Dump the mapped table to stdout in a CSV format
-		plotted->to_csv();
+		//plotted->to_csv();
 	}
-	PVLOG_INFO("Done !\n");
 
 	return 0;
 }

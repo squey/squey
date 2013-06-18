@@ -27,7 +27,7 @@
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
-		std::cerr << "Usage: " << argv[0] << " file format" << std::endl;
+		std::cerr << "Usage: " << argv[0] << " file format [raw_dump]" << std::endl;
 		return 1;
 	}
 
@@ -56,17 +56,35 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	bool raw_dump = true;
+	if (argc >= 4) {
+		raw_dump = argv[3][0] == '1';
+	}
+
 	// Create the PVSource object
 	Picviz::PVRoot_p root;
 	Picviz::PVScene_p scene(root, "scene");
 	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	Picviz::PVMapped_p mapped(src);
 	//src->set_invalid_elts_mode(true);
-	PVRush::PVControllerJob_p job = src->extract();
+	PVRush::PVControllerJob_p job;
+
+	if (raw_dump) {
+		job = src->extract();
+	} else {
+		job = src->extract_from_agg_nlines(0, 200000000);
+	}
+
 	src->wait_extract_end(job);
 	PVLOG_INFO("Extraction job bytes: %lu, time: %0.4fs, mean bw: %0.4f MB/s\n", job->total_bytes_processed(), job->duration().seconds(), job->mean_bw());
 
-	mapped->to_csv();
+
+	if (raw_dump) {
+		mapped->to_csv();
+	} else {
+		PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
+	}
+
 	//
 	/*QStringList const& inv(job->get_invalid_elts());
 	foreach (QString const& sinv, inv) {
