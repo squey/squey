@@ -310,7 +310,7 @@ void PVGuiQt::PVListingView::extract_selection(Picviz::PVSelection &sel)
  * PVGuiQt::PVListingView::selectionChanged
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::selectionChanged(const QItemSelection& /*selected*/, const QItemSelection& /*deselected*/)
+void PVGuiQt::PVListingView::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
 #if 0
 	bool has_sel = selected.indexes().size() > 0;
@@ -321,8 +321,9 @@ void PVGuiQt::PVListingView::selectionChanged(const QItemSelection& /*selected*/
 	else {
 		sb->clearMessage();
 	}
-	QTableView::selectionChanged(selected, deselected);
+
 #endif
+	QTableView::selectionChanged(selected, deselected);
 }
 
 /******************************************************************************
