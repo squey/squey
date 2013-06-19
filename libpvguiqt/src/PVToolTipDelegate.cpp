@@ -18,9 +18,6 @@
 #include <pvguiqt/PVToolTipDelegate.h>
 #include <pvkernel/widgets/PVUtils.h>
 
-#include <pvkernel/core/PVLogger.h>
-
-
 bool PVGuiQt::PVToolTipDelegate::helpEvent(QHelpEvent* e, QAbstractItemView* view, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
     if (!e || !view) {
@@ -29,7 +26,6 @@ bool PVGuiQt::PVToolTipDelegate::helpEvent(QHelpEvent* e, QAbstractItemView* vie
 
     if (e->type() == QEvent::ToolTip) {
         QRect rect = view->visualRect(index);
-        QSize size = sizeHint(option, index);
 
         // Recompute word-wrap text elision
         const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, view) + 1;
@@ -56,13 +52,14 @@ bool PVGuiQt::PVToolTipDelegate::helpEvent(QHelpEvent* e, QAbstractItemView* vie
         if (last_line != elided_last_line) {
             QVariant tooltip = index.data(Qt::DisplayRole);
             if (tooltip.canConvert<QString>()) {
-            	QString tooltip_text = Qt::escape(tooltip.toString());
+            	QString tooltip_text = Qt::escape(tooltip.toString()).replace("-", "&#8209;");
 				const int32_t tooltip_max_width = PVWidgets::PVUtils::tooltip_max_width(view);
             	int tooltip_width = QFontMetrics(view->font()).width(tooltip.toString());
             	if (tooltip_width > tooltip_max_width) {
             		PVWidgets::PVUtils::html_word_wrap_text(tooltip_text, QToolTip::font(), tooltip_max_width);
             	}
-                QToolTip::showText(e->globalPos(), QString("<div>%1</div>").arg(tooltip_text), view);
+            	QString html_string = QString("<div style=\"white-space: nowrap\">%1</div>").arg(tooltip_text);
+                QToolTip::showText(e->globalPos(), html_string, view);
                 return true;
             }
         }
