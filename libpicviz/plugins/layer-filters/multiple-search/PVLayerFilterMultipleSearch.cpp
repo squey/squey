@@ -85,7 +85,7 @@ void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 		}
 		rxs.reserve(exps.size());
 		for (int i = 0; i < exps.size(); i++) {
-			QString pattern = exps.at(i).trimmed();
+			QString pattern = exps.at(i);
 			if (!pattern.isEmpty()) {
 				rxs.emplace_back(pattern.toUtf8().constData(), flags);
 			}
@@ -97,7 +97,7 @@ void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 		for (int i = 0; i < exps.size(); i++) {
 			QString const& str = exps[i];
 			if (!str.isEmpty()) {
-				exps_utf8[i] = str.trimmed().toUtf8();
+				exps_utf8[i] = str.toUtf8();
 			}
 		}
 	}
@@ -197,7 +197,16 @@ QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterMultipleSearch::get_args_keys_
 PVCore::PVArgumentList Picviz::PVLayerFilterMultipleSearch::search_value_menu(PVRow /*row*/, PVCol /*col*/, PVCol org_col, QString const& v)
 {
 	PVCore::PVArgumentList args = default_args();
-	args[ARG_NAME_EXPS].setValue(PVCore::PVPlainTextType(v));
+
+	if (v.isEmpty()) {
+		args[ARG_NAME_EXPS].setValue(PVCore::PVPlainTextType("^$"));
+		PVCore::PVEnumType e = args[ARG_NAME_INTERPRET].value<PVCore::PVEnumType>();
+		e.set_sel(1);
+		args[ARG_NAME_INTERPRET].setValue(e);
+	} else {
+		args[ARG_NAME_EXPS].setValue(PVCore::PVPlainTextType(v));
+	}
+
 	args[ARG_NAME_AXIS].setValue(PVCore::PVOriginalAxisIndexType(org_col));
 
 	PVCore::PVEnumType e = args[ARG_NAME_CASE].value<PVCore::PVEnumType>();
