@@ -7,6 +7,11 @@
 #include <pvkernel/core/PVRecentItemsManager.h>
 #include <pvkernel/rush/PVFormat.h>
 
+#define ITEM_SUBKEY_SOURCE_CREATOR_NAME "__sc_name"
+#define ITEM_SUBKEY_FORMAT_NAME         "__format_name"
+#define ITEM_SUBKEY_FORMAT_PATH         "__format_path"
+#define ITEM_SUBKEY_INPUTS              "inputs"
+
 typename PVCore::PVRecentItemsManager::PVRecentItemsManager_p PVCore::PVRecentItemsManager::_recent_items_manager_p = PVRecentItemsManager_p();
 
 void PVCore::PVRecentItemsManager::add(const QString& item_path, Category category)
@@ -31,10 +36,10 @@ void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_c
 
 	_recents_settings.beginGroup(QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()));
 
-	_recents_settings.setValue("__sc_name", source_creator_p->registered_name());
-	_recents_settings.setValue("__format_name", format.get_format_name());
-	_recents_settings.setValue("__format_path", format.get_full_path());
-		_recents_settings.beginWriteArray("inputs");
+	_recents_settings.setValue(ITEM_SUBKEY_SOURCE_CREATOR_NAME, source_creator_p->registered_name());
+	_recents_settings.setValue(ITEM_SUBKEY_FORMAT_NAME, format.get_format_name());
+	_recents_settings.setValue(ITEM_SUBKEY_FORMAT_PATH, format.get_full_path());
+		_recents_settings.beginWriteArray(ITEM_SUBKEY_INPUTS);
 		int inputs_index = 0;
 		for (auto input : inputs) {
 			_recents_settings.setArrayIndex(inputs_index++);
@@ -190,13 +195,13 @@ uint64_t PVCore::PVRecentItemsManager::get_source_timestamp_to_replace(const PVR
 PVRush::PVSourceDescription PVCore::PVRecentItemsManager::deserialize_source_description() const
 {
 	// source creator
-	QString source_creator_name = _recents_settings.value("__sc_name").toString();
+	QString source_creator_name = _recents_settings.value(ITEM_SUBKEY_SOURCE_CREATOR_NAME).toString();
 	PVRush::PVSourceCreator_p src_creator_p = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(source_creator_name);
 	PVRush::PVInputType_p input_type_p = src_creator_p->supported_type_lib();
 
 	// inputs
 	PVRush::PVInputType::list_inputs inputs;
-	uint64_t nb_inputs = _recents_settings.beginReadArray("inputs");
+	uint64_t nb_inputs = _recents_settings.beginReadArray(ITEM_SUBKEY_INPUTS);
 	for (uint64_t j = 0; j < nb_inputs; ++j) {
 		_recents_settings.setArrayIndex(j);
 		inputs << input_type_p->load_input_from_qsettings(_recents_settings);
@@ -204,8 +209,8 @@ PVRush::PVSourceDescription PVCore::PVRecentItemsManager::deserialize_source_des
 	_recents_settings.endArray();
 
 	// format
-	QString format_name = _recents_settings.value("__format_name").toString();
-	QString format_path = _recents_settings.value("__format_path").toString();
+	QString format_name = _recents_settings.value(ITEM_SUBKEY_FORMAT_NAME).toString();
+	QString format_path = _recents_settings.value(ITEM_SUBKEY_FORMAT_PATH).toString();
 
 	PVRush::PVFormat format(format_name, format_path);
 
