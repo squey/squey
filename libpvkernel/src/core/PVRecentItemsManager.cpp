@@ -50,24 +50,23 @@ void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_c
 void PVCore::PVRecentItemsManager::clear(Category category)
 {
 	if (category == Category::SOURCES) {
-		clear_source();
-	}
-	else {
-		QStringList string_list = _recents_settings.allKeys();
-		for (QString s: string_list) {
+		_recents_settings.beginGroup(_recents_items_keys[Category::SOURCES]);
+		for (QString s: _recents_settings.allKeys()) {
 			_recents_settings.remove(s);
 		}
+		_recents_settings.endGroup();
 	}
-}
-
-void PVCore::PVRecentItemsManager::clear_source()
-{
-	_recents_settings.beginGroup(_recents_items_keys[Category::SOURCES]);
-	QStringList string_list = _recents_settings.allKeys();
-	for (QString s: string_list) {
-		_recents_settings.remove(s);
+	else {
+		/* as groups help catching keys named 'ITEM_KEY/.*', removing a category other
+		 * than SOURCES implies testing all keys against wanted item key.
+		 */
+		QString item_key = _recents_items_keys[category];
+		for (QString s: _recents_settings.allKeys()) {
+			if (s.startsWith(item_key)) {
+				_recents_settings.remove(s);
+			}
+		}
 	}
-	_recents_settings.endGroup();
 }
 
 const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager::get_list(Category category)

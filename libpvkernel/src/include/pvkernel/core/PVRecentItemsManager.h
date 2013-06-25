@@ -86,7 +86,6 @@ public:
 	void clear(Category category);
 
 private:
-	void clear_source();
 	PVRush::PVSourceDescription deserialize_source_description() const;
 
 	/*! \brief Get the best source timestamp to replace (oldest, matching the same source description or 0).
