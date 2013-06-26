@@ -52,6 +52,7 @@ PVWidgets::PVPlainTextEditor::PVPlainTextEditor(QWidget *parent):
 	export_and_append_file->setFlat(true);
 
 	QHBoxLayout* layout = new QHBoxLayout();
+	layout->setContentsMargins(0, 0, 0, 0);
 	layout->addWidget(_text_edit);
 	QVBoxLayout* files_layer = new QVBoxLayout();
 	layout->addLayout(files_layer);
