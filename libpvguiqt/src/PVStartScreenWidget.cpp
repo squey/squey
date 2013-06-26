@@ -229,7 +229,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 		clear_edited_format_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 		clear_edited_format_history->setFocusPolicy(Qt::NoFocus);
 		clear_edited_format_history->setCursor(Qt::PointingHandCursor);
-		::connect(clear_edited_format_history, SIGNAL(clicked()), [&]{clear_category(PVCore::PVRecentItemsManager::Category::USED_FORMATS);});
+		::connect(clear_edited_format_history, SIGNAL(clicked()), [&]{clear_category(PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);});
 		edited_format_header_layout->addWidget(format_text_edited_label);
 		edited_format_header_layout->addStretch();
 		edited_format_header_layout->addWidget(clear_edited_format_history);
