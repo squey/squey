@@ -52,6 +52,7 @@ PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title, QWidget* paren
 
 	// Layout
 	QVBoxLayout* main_layout = new QVBoxLayout();
+	main_layout->setContentsMargins(0, 0, 0, 0);
 	QVBoxLayout* group_box_layout = new QVBoxLayout();
 	group_box_layout->addLayout(toolbar_layout);
 	group_box_layout->addWidget(_list);
