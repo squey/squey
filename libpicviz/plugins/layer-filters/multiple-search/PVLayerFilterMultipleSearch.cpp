@@ -40,6 +40,7 @@ Picviz::PVLayerFilterMultipleSearch::PVLayerFilterMultipleSearch(PVCore::PVArgum
 {
 	INIT_FILTER(PVLayerFilterMultipleSearch, l);
 	add_ctxt_menu_entry("Search for this value", &PVLayerFilterMultipleSearch::search_value_menu);
+	add_ctxt_menu_entry("Search for...", &PVLayerFilterMultipleSearch::search_menu);
 }
 
 /******************************************************************************
@@ -218,6 +219,23 @@ PVCore::PVArgumentList Picviz::PVLayerFilterMultipleSearch::search_value_menu(PV
 	args[ARG_NAME_ENTIRE].setValue(e);
 
 	args.set_edition_flag(false);
+
+	return args;
+}
+
+PVCore::PVArgumentList Picviz::PVLayerFilterMultipleSearch::search_menu(PVRow /*row*/, PVCol /*col*/, PVCol org_col, QString const& /*v*/)
+{
+	PVCore::PVArgumentList args = default_args();
+
+	args[ARG_NAME_AXIS].setValue(PVCore::PVOriginalAxisIndexType(org_col));
+
+	PVCore::PVEnumType e = args[ARG_NAME_CASE].value<PVCore::PVEnumType>();
+	e.set_sel(1);
+	args[ARG_NAME_CASE].setValue(e);
+
+	e = args[ARG_NAME_ENTIRE].value<PVCore::PVEnumType>();
+	e.set_sel(1);
+	args[ARG_NAME_ENTIRE].setValue(e);
 
 	return args;
 }
