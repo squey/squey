@@ -68,7 +68,22 @@ extern unsigned int LibKernelDecl qHash(PVCore::PVArgumentKey const& key);
 namespace PVCore {
 
 typedef QVariant                           PVArgument;
-typedef QHash<PVArgumentKey,PVArgument>    PVArgumentList;
+
+class PVArgumentList : public QHash<PVArgumentKey,PVArgument>
+{
+public:
+	PVArgumentList() : QHash<PVArgumentKey,PVArgument>(),
+	                   _edit_flag(true)
+	{}
+
+	bool get_edition_flag() const { return _edit_flag; }
+
+	void set_edition_flag(bool e) { _edit_flag = e; }
+
+private:
+	bool _edit_flag;
+};
+
 typedef QList<PVArgumentList::key_type>    PVArgumentKeyList;
 
 //class PVArgumentList : public QHash<PVArgumentKey, PVArgument>

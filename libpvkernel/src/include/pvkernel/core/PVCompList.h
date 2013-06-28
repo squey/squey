@@ -66,7 +66,6 @@ bool comp_hash(QHash<K, V> const& h1, QHash<K, V> const& h2)
 	return true;
 }
 
-template <>
 bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2);
 
 bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2, const PVCore::PVArgumentKeyList& keys);

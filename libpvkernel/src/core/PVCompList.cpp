@@ -41,7 +41,6 @@ for (; it1 != l1.end(); it1++) {
 	return true;
 }
 
-template <>
 bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2)
 {
 	if (h1.count() != h2.count()) {

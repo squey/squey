@@ -74,6 +74,7 @@ void PVGuiQt::PVListUniqStringsDlg::multiple_search(QAction* act)
 
 	// Set the arguments
 	_ctxt_args = lib_view().get_last_args_filter(filter_name);
+
 	QItemSelectionModel* selection_model = _values_view->selectionModel();
 	assert(selection_model);
 	QModelIndexList list = selection_model->selection().indexes();
@@ -81,11 +82,8 @@ void PVGuiQt::PVListUniqStringsDlg::multiple_search(QAction* act)
 	for (const auto& cell : list) {
 		cells.append(cell.data().toString());
 	}
-	_ctxt_args["exps"].setValue(PVCore::PVPlainTextType(cells.join("\n")));
-	_ctxt_args["axis"].setValue(PVCore::PVOriginalAxisIndexType(_col));
-	PVCore::PVEnumType e = _ctxt_args["entire"].value<PVCore::PVEnumType>();
-	e.set_sel(1);
-	_ctxt_args["entire"].setValue(e);
+	PVCore::PVArgumentList custom_args = args_f(0U, 0, _col, cells.join("\n"));
+	PVCore::PVArgumentList_set_common_args_from(_ctxt_args, custom_args);
 
 	// Show the layout filter widget
 	Picviz::PVLayerFilter_p fclone = lib_filter->clone<Picviz::PVLayerFilter>();
@@ -97,9 +95,13 @@ void PVGuiQt::PVListUniqStringsDlg::multiple_search(QAction* act)
 	// Creating the PVLayerFilterProcessWidget will save the current args for this filter.
 	// Then we can change them !
 	_ctxt_process = new PVGuiQt::PVLayerFilterProcessWidget(&lib_view(), _ctxt_args, fclone, _values_view);
-	_ctxt_process->show();
-
 	connect(_ctxt_process, SIGNAL(accepted()), this, SLOT(hide()));
+
+	if (custom_args.get_edition_flag()) {
+		_ctxt_process->show();
+	} else {
+		_ctxt_process->save_Slot();
+	}
 }
 
 // Private implementation of PVListColNrawModel

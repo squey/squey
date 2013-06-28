@@ -231,7 +231,9 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 
 	//_view->pre_filter_layer.get_selection() &= _view->layer_stack.get_selected_layer().get_selection();
 
-	PVCore::PVProgressBox *progressDialog = new PVCore::PVProgressBox(tr("Previewing filter..."), this, 0);
+	QWidget* parent_widget = isVisible()?this:parentWidget();
+
+	PVCore::PVProgressBox *progressDialog = new PVCore::PVProgressBox(tr("Previewing filter..."), parent_widget, 0);
 	QFuture<void> worker = QtConcurrent::run<>(process_layer_filter, filter_p.get(), &_view->pre_filter_layer, &_view->post_filter_layer);
 	QFutureWatcher<void> watcher;
 	watcher.setFuture(worker);

@@ -217,6 +217,8 @@ PVCore::PVArgumentList Picviz::PVLayerFilterMultipleSearch::search_value_menu(PV
 	e.set_sel(1);
 	args[ARG_NAME_ENTIRE].setValue(e);
 
+	args.set_edition_flag(false);
+
 	return args;
 }
 
