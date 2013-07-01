@@ -124,3 +124,21 @@ void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent *event)
 		verticalScrollBar()->setValue(verticalScrollBar()->minimum());
 	}
 }
+
+/*****************************************************************************
+ * PVParallelView::PVFullParallelView::enterEvent
+ *****************************************************************************/
+
+void PVParallelView::PVFullParallelView::enterEvent(QEvent*)
+{
+	setFocus(Qt::MouseFocusReason);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVFullParallelView::leaveEvent
+ *****************************************************************************/
+
+void PVParallelView::PVFullParallelView::leaveEvent(QEvent*)
+{
+	clearFocus();
+}

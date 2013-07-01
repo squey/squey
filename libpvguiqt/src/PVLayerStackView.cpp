@@ -110,6 +110,14 @@ PVGuiQt::PVLayerStackModel* PVGuiQt::PVLayerStackView::ls_model()
 #endif
 }
 
+/******************************************************************************
+ * PVGuiQt::PVLayerStackView::enterEvent
+ *****************************************************************************/
+
+void PVGuiQt::PVLayerStackView::enterEvent(QEvent*)
+{
+	setFocus(Qt::MouseFocusReason);
+}
 
 /******************************************************************************
  *
@@ -123,6 +131,7 @@ void PVGuiQt::PVLayerStackView::leaveEvent(QEvent * /*event*/)
 	//mouse_hover_layer_index = -1;
 	//last_mouse_hover_layer_index = -1;
 	viewport()->update();
+	clearFocus();
 }
 
 void PVGuiQt::PVLayerStackView::mouseDoubleClickEvent(QMouseEvent* event)

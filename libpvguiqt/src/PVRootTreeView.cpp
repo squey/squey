@@ -101,6 +101,24 @@ void PVGuiQt::PVRootTreeView::contextMenuEvent(QContextMenuEvent* event)
 	}
 }
 
+/*****************************************************************************
+ * PVGuiQt::PVRootTreeView::enterEvent
+ *****************************************************************************/
+
+void PVGuiQt::PVRootTreeView::enterEvent(QEvent*)
+{
+	setFocus(Qt::MouseFocusReason);
+}
+
+/*****************************************************************************
+ * PVGuiQt::PVRootTreeView::leaveEvent
+ *****************************************************************************/
+
+void PVGuiQt::PVRootTreeView::leaveEvent(QEvent*)
+{
+	clearFocus();
+}
+
 void PVGuiQt::PVRootTreeView::create_new_view()
 {
 	Picviz::PVPlotted* plotted = get_selected_obj_as<Picviz::PVPlotted>();

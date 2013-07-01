@@ -19,6 +19,7 @@ class QGraphicsScene;
 class QPainter;
 class QPaintEvent;
 class QResizeEvent;
+class QEvent;
 class QGLFormat;
 
 namespace PVWidgets {
@@ -102,7 +103,7 @@ public:
 	void set_viewport(QWidget* w);
 
 	/*! \brief Set the viewport's widget as a QGLWidget if possible.
-	 * 
+	 *
 	 * This function sets the viewport's widget as a QGLWidget if possible, and
 	 * fallback to the current viewport otherwise..
 	 *
@@ -114,7 +115,7 @@ public:
 	bool set_gl_viewport(QGLFormat const& format);
 
 	/*! \brief Set the viewport's widget as a QGLWidget if possible.
-	 * 
+	 *
 	 * This will use a default QGLFormat.
 	 *
 	 * \note This function is provided so that QGLFormat can be
@@ -745,6 +746,16 @@ protected:
 	 * @param event the corresponding resize event
 	 */
 	virtual void resizeEvent(QResizeEvent *event) override;
+
+	/**
+	 * reimplements QWidget::enterEvent
+	 */
+	void enterEvent(QEvent* event) override;
+
+	/**
+	 * reimplements QWidget::leaveEvent
+	 */
+	void leaveEvent(QEvent* event) override;
 
 protected:
 	// Called by PVViewportEventFilter

@@ -46,8 +46,9 @@ private slots:
 	void layer_double_clicked(QModelIndex const& idx);
 
 protected:
-	void leaveEvent(QEvent *event);
-	void mouseDoubleClickEvent(QMouseEvent* event);
+	void enterEvent(QEvent *event) override;
+	void leaveEvent(QEvent *event) override;
+	void mouseDoubleClickEvent(QMouseEvent* event) override;
 
 
 private:

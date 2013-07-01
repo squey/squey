@@ -262,6 +262,24 @@ void PVGuiQt::PVListingView::resizeEvent(QResizeEvent * event)
 	emit resized();
 }
 
+/*****************************************************************************
+ * PVGuiQt::PVListingView::enterEvent
+ *****************************************************************************/
+
+void PVGuiQt::PVListingView::enterEvent(QEvent*)
+{
+	setFocus(Qt::MouseFocusReason);
+}
+
+/*****************************************************************************
+ * PVGuiQt::PVListingView::leaveEvent
+ *****************************************************************************/
+
+void PVGuiQt::PVListingView::leaveEvent(QEvent*)
+{
+	clearFocus();
+}
+
 /******************************************************************************
  *
  * PVGuiQt::PVListingView::getSelectedRows

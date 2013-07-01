@@ -570,6 +570,24 @@ void PVWidgets::PVGraphicsView::resizeEvent(QResizeEvent *event)
 }
 
 /*****************************************************************************
+ * PVWidgets::PVGraphicsView::enterEvent
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::enterEvent(QEvent*)
+{
+	setFocus(Qt::MouseFocusReason);
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::leaveEvent
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::leaveEvent(QEvent*)
+{
+	clearFocus();
+}
+
+/*****************************************************************************
  * PVWidgets::PVGraphicsView::contextMenuEvent
  *****************************************************************************/
 
@@ -791,7 +809,7 @@ void PVWidgets::PVGraphicsView::init()
 	_transform.reset();
 	_inv_transform.reset();
 
-	setFocusPolicy(Qt::StrongFocus);
+	setFocusPolicy(Qt::WheelFocus);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 	_scene_margin_left = 0;
@@ -829,7 +847,7 @@ void PVWidgets::PVGraphicsView::set_viewport(QWidget* w)
 
 	_viewport = w;
 	// Redirect any focus and key/mouse event to this widget
-	_viewport->setFocusPolicy(Qt::StrongFocus);
+	_viewport->setFocusPolicy(Qt::WheelFocus);
 	_viewport->setFocusProxy(this);
 
 	// If mouse tracking was enabled, re-enable it !

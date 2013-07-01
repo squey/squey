@@ -19,6 +19,8 @@
 
 #include <picviz/PVView.h>
 
+class QEvent;
+
 namespace PVParallelView {
 
 class PVFullParallelScene;
@@ -41,6 +43,9 @@ public:
 protected:
 	void paintEvent(QPaintEvent *event) override;
 	void resizeEvent(QResizeEvent *event) override;
+	void enterEvent(QEvent *event) override;
+	void leaveEvent(QEvent *event) override;
+
 	void drawForeground(QPainter* painter, const QRectF& rect) override;
 
 signals:

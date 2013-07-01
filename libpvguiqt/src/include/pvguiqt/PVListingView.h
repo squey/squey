@@ -47,6 +47,8 @@ protected:
 	void wheelEvent(QWheelEvent* e);
 	void reset() override;
 	void resizeEvent(QResizeEvent * event) override;
+	void enterEvent(QEvent* event) override;
+	void leaveEvent(QEvent* event) override;
 
 signals:
 	void resized();
