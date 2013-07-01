@@ -58,17 +58,17 @@ void PVParallelView::PVSelectionSquareFullParallelView::store()
 	double& factor1 = _selection_barycenter.factor1;
 	double& factor2 = _selection_barycenter.factor2;
 
-	uint32_t abs_left = _selection_graphics_item->rect().topLeft().x();
-	uint32_t abs_right = _selection_graphics_item->rect().bottomRight().x();
+	double abs_left = _selection_graphics_item->rect().topLeft().x();
+	double abs_right = _selection_graphics_item->rect().bottomRight().x();
 
 	zone_id1 = get_lines_view().get_zone_from_scene_pos(abs_left);
-	uint32_t z1_width = get_lines_view().get_zone_width(zone_id1);
-	uint32_t alpha = scene_parent()->map_to_axis(zone_id1, QPointF(abs_left, 0)).x();
+	double z1_width = get_lines_view().get_zone_width(zone_id1);
+	double alpha = scene_parent()->map_to_axis(zone_id1, QPointF(abs_left, 0)).x();
 	factor1 = (double) alpha / z1_width;
 
 	zone_id2 = get_lines_view().get_zone_from_scene_pos(abs_right);
-	uint32_t z2_width = get_lines_view().get_zone_width(zone_id2);
-	uint32_t beta = scene_parent()->map_to_axis(zone_id2, QPointF(abs_right, 0)).x();
+	double z2_width = get_lines_view().get_zone_width(zone_id2);
+	double beta = scene_parent()->map_to_axis(zone_id2, QPointF(abs_right, 0)).x();
 	factor2 = (double) beta / z2_width;
 }
 
@@ -89,10 +89,10 @@ void PVParallelView::PVSelectionSquareFullParallelView::update_position()
 	double factor1 = _selection_barycenter.factor1;
 	double factor2 = _selection_barycenter.factor2;
 
-	uint32_t new_left = get_lines_view().get_left_border_position_of_zone_in_scene(zone_id1) + (double) get_lines_view().get_zone_width(zone_id1) * factor1;
-	uint32_t new_right = get_lines_view().get_left_border_position_of_zone_in_scene(zone_id2) + (double) get_lines_view().get_zone_width(zone_id2) * factor2;
-	uint32_t abs_top = _selection_graphics_item->rect().topLeft().y();
-	uint32_t abs_bottom = _selection_graphics_item->rect().bottomRight().y();
+	double new_left = get_lines_view().get_left_border_position_of_zone_in_scene(zone_id1) + (double) get_lines_view().get_zone_width(zone_id1) * factor1;
+	double new_right = get_lines_view().get_left_border_position_of_zone_in_scene(zone_id2) + (double) get_lines_view().get_zone_width(zone_id2) * factor2;
+	double abs_top = _selection_graphics_item->rect().topLeft().y();
+	double abs_bottom = _selection_graphics_item->rect().bottomRight().y();
 
 	_selection_graphics_item->setRect(QRectF(QPointF(new_left, abs_top), QPointF(new_right, abs_bottom)));
 }
