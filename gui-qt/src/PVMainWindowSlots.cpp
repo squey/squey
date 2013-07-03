@@ -818,6 +818,8 @@ void PVInspector::PVMainWindow::save_solution(QString const& file, PVCore::PVSer
 		box->exec();
 	}
 
+	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
+
 	set_window_title_with_filename();
 #endif
 }
