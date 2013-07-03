@@ -1227,14 +1227,14 @@ void Picviz::PVView::toggle_listing_zombie_visibility()
 	state_machine->toggle_listing_zombie_visibility();
 }
 
-void Picviz::PVView::toggle_parallelview_unselected_zombie_visibility()
+void Picviz::PVView::toggle_view_unselected_zombie_visibility()
 {
-	state_machine->toggle_parallelview_unselected_zombie_visibility();
+	state_machine->toggle_view_unselected_zombie_visibility();
 }
 
-bool& Picviz::PVView::are_parallelview_unselected_zombie_visible()
+bool& Picviz::PVView::are_view_unselected_zombie_visible()
 {
-	return state_machine->are_parallelview_unselected_zombie_visible();
+	return state_machine->are_view_unselected_zombie_visible();
 }
 
 Picviz::PVSortingFunc_p Picviz::PVView::get_sort_plugin_for_col(PVCol col) const

@@ -64,7 +64,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 
 	// Register view for unselected & zombie lines toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
-	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.are_parallelview_unselected_zombie_visible(); }, *obs);
+	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.are_view_unselected_zombie_visible(); }, *obs);
 	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
 
 	_obs_selected_layer = PVHive::create_observer_callback_heap<int>(
@@ -1144,7 +1144,7 @@ void PVParallelView::PVFullParallelScene::reset_zones_layout_to_default()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::toggle_unselected_zombie_visibility()
 {
-	bool visible = _lib_view.are_parallelview_unselected_zombie_visible();
+	bool visible = _lib_view.are_view_unselected_zombie_visible();
 
 	for (PVZoneID z = _lines_view.get_first_visible_zone_index(); z <= _lines_view.get_last_visible_zone_index(); z++) {
 		_zones[z].bg->setVisible(visible);

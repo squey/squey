@@ -237,6 +237,9 @@ public:
 		cancel_and_wait_all_rendering();
 	}
 
+protected:
+	bool show_bg() const { return _show_bg; }
+
 private slots:
 	/**
 	 * Start an update of the selection images.
@@ -355,6 +358,11 @@ private:
 
 	inline size_t qimage_height() const { return 1<<PARALLELVIEW_ZZT_BBITS; }
 
+	/**
+	 * recreate composed images
+	 */
+	void recreate_images();
+
 private slots:
 	/**
 	 * The slot called when the vertical scrollbar's value has changed.
@@ -374,6 +382,7 @@ private slots:
 	 * It recreates each zone composed image.
 	 */
 	void all_rendering_done();
+
 	/**
 	 * The slot called when the selection rectangle commit an update.
 	 */
@@ -387,6 +396,11 @@ private slots:
 	 * @param zone_id the zone id corresponding to the finished rendering
 	 */
 	void zr_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);
+
+	/**
+	 * The slot called when background visibility has to be toggled.
+	 */
+	void toggle_unselected_zombie_visibility();
 
 private:
 	/**
@@ -529,6 +543,7 @@ private:
 	qreal                           _current_beta;
 	uint32_t                        _last_y_min;
 	uint32_t                        _last_y_max;
+	bool                            _show_bg;
 
 	// about rendering
 	QTimer                          _updateall_timer;

@@ -177,10 +177,10 @@ IMPL_WAX(Picviz::PVView::toggle_layer_stack_layer_n_visible_state, view, args)
 	return std::move(ret);
 }
 
-IMPL_WAX(Picviz::PVView::toggle_parallelview_unselected_zombie_visibility, view, args)
+IMPL_WAX(Picviz::PVView::toggle_view_unselected_zombie_visibility, view, args)
 {
-	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::toggle_parallelview_unselected_zombie_visibility)>(view, args);
-	refresh_observers(&view->are_parallelview_unselected_zombie_visible());
+	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::toggle_view_unselected_zombie_visibility)>(view, args);
+	refresh_observers(&view->are_view_unselected_zombie_visible());
 }
 
 IMPL_WAX(Picviz::PVView::hide_layers, view, args)

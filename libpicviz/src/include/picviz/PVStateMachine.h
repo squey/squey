@@ -29,7 +29,7 @@ namespace Picviz {
             bool listing_zombie_visible;
             bool gl_unselected_visible;
             bool gl_zombie_visible;
-            bool parallelview_unselected_zombie_visible = true;
+            bool view_unselected_zombie_visible = true;
 
 	    bool caps_lock_activated;
         public:
@@ -124,8 +124,8 @@ namespace Picviz {
                 return gl_zombie_visible;
             }
 
-            bool& are_parallelview_unselected_zombie_visible() {
-            	return parallelview_unselected_zombie_visible;
+            bool& are_view_unselected_zombie_visible() {
+            	return view_unselected_zombie_visible;
             }
 
 	    QString get_string();
@@ -174,8 +174,8 @@ namespace Picviz {
 		    gl_zombie_visible = visible;
             }
 
-            void set_parallelview_unselected_zombie_visible(bool visible) {
-            	parallelview_unselected_zombie_visible = visible;
+            void set_view_unselected_zombie_visible(bool visible) {
+            	view_unselected_zombie_visible = visible;
             }
 
             void set_edit_mode_all(bool state) {
@@ -226,9 +226,9 @@ namespace Picviz {
                 edit_mode_all = !edit_mode_all;
             }
 
-            void toggle_parallelview_unselected_zombie_visibility() {
-            	parallelview_unselected_zombie_visible = !parallelview_unselected_zombie_visible;
-			}
+            void toggle_view_unselected_zombie_visibility() {
+            	view_unselected_zombie_visible = !view_unselected_zombie_visible;
+            }
 
             //void update_listing_mode();
         };

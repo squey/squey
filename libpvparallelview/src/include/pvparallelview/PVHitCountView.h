@@ -64,7 +64,7 @@ private:
 	typedef PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
 
 public:
-	PVHitCountView(const Picviz::PVView_sp &pvview_sp,
+	PVHitCountView(Picviz::PVView_sp &pvview_sp,
 	               const uint32_t *col_plotted,
 	               const PVRow nrows,
 	               const PVCol axis_index,
@@ -113,16 +113,14 @@ protected:
 	inline Picviz::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
 
 	inline bool auto_x_zoom_sel() const { return _auto_x_zoom_sel; }
-	inline bool show_selectable() const { return _show_selectable; }
-	inline bool show_all() const { return _show_all; }
 	inline bool use_log_color() const { return _use_log_color; }
 
 	QString get_y_value_at(const qint64 pos) const;
 
+	bool show_bg() const { return _show_bg; }
+
 protected slots:
 	void toggle_auto_x_zoom_sel();
-	void toggle_show_selectable();
-	void toggle_show_all();
 	void toggle_log_color();
 
 private:
@@ -150,6 +148,8 @@ private slots:
 	void do_pan_change();
 	void do_update_all();
 
+	void toggle_unselected_zombie_visibility();
+
 private slots:
 	void update_all();
 	void update_sel();
@@ -163,8 +163,7 @@ private:
 	bool                                         _view_deleted;
 	uint64_t                                     _max_count;
 	int                                          _block_zoom_value;
-	bool                                         _show_selectable;
-	bool                                         _show_all;
+	bool                                         _show_bg;
 	bool                                         _auto_x_zoom_sel;
 	bool                                         _do_auto_scale;
 	bool                                         _use_log_color;

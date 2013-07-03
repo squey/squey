@@ -80,14 +80,12 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 	};
 
 public:
-	PVScatterView(
-		const Picviz::PVView_sp &pvview_sp,
-		PVZonesManager const& zm,
-		PVCol const axis_index,
-		PVZonesProcessor& zp_bg,
-		PVZonesProcessor& zp_sel,
-		QWidget *parent = nullptr
-	);
+	PVScatterView(Picviz::PVView_sp &pvview_sp,
+	              PVZonesManager const& zm,
+	              PVCol const axis_index,
+	              PVZonesProcessor& zp_bg,
+	              PVZonesProcessor& zp_sel,
+	              QWidget *parent = nullptr);
 	~PVScatterView();
 
 public:
@@ -118,6 +116,8 @@ protected:
 	QString get_x_value_at(const qint64 pos) const;
 	QString get_y_value_at(const qint64 pos) const;
 
+	bool show_bg() const { return _show_bg; }
+
 private slots:
 	void do_update_all();
 	void update_all();
@@ -125,6 +125,8 @@ private slots:
 
 	void update_img_bg(PVParallelView::PVZoneRendering_p zr, int zid);
 	void update_img_sel(PVParallelView::PVZoneRendering_p zr, int zid);
+
+	void toggle_unselected_zombie_visibility();
 
 private:
 	inline PVZonesManager const& get_zones_manager() const { return get_images_manager().get_zones_manager(); }
@@ -160,6 +162,7 @@ private:
 	Picviz::PVAxesCombination::axes_comb_id_t _axis_id;
 
 	PVScatterViewParamsWidget* _params_widget;
+	bool _show_bg;
 };
 
 }

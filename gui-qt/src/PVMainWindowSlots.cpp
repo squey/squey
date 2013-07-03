@@ -322,7 +322,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_zombies_parallelview_Sl
 
 	/* We refresh the listing */
 	Picviz::PVView_sp view_sp = current_lib_view->shared_from_this();
-	PVHive::call<FUNC(Picviz::PVView::toggle_parallelview_unselected_zombie_visibility)>(view_sp);
+	PVHive::call<FUNC(Picviz::PVView::toggle_view_unselected_zombie_visibility)>(view_sp);
 }
 
 void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()

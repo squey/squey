@@ -18,6 +18,8 @@
 
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
 
+#include <pvhive/PVHive.h>
+
 #include <picviz/PVView.h>
 
 #include <pvhive/PVCallHelper.h>
@@ -168,7 +170,7 @@ private:
 bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
 PVParallelView::PVScatterView::PVScatterView(
-	const Picviz::PVView_sp &pvview_sp,
+	Picviz::PVView_sp &pvview_sp,
 	PVZonesManager const& zm,
 	PVCol const zone_index,
 	PVZonesProcessor& zp_bg,
@@ -178,7 +180,8 @@ PVParallelView::PVScatterView::PVScatterView(
 	PVZoomableDrawingAreaWithAxes(parent),
 	_view(*pvview_sp),
 	_images_manager(zone_index, zp_bg, zp_sel, zm, pvview_sp->output_layer.get_lines_properties().get_buffer(), pvview_sp->get_real_output_selection()),
-	_view_deleted(false)
+	_view_deleted(false),
+	_show_bg(true)
 {
 #ifdef SV_FPS
 	_nframes = 0;
@@ -252,6 +255,15 @@ PVParallelView::PVScatterView::PVScatterView(
 	set_params_widget_position();
 
 	get_images_manager().set_img_update_receiver(this);
+
+	// Register view for unselected & zombie lines toggle
+	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
+	PVHive::get().register_observer(pvview_sp,
+	                                [=](Picviz::PVView& view) {
+		                                return &view.are_view_unselected_zombie_visible();
+	                                },
+	                                *obs);
+	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
 }
 
 /*****************************************************************************
@@ -377,6 +389,17 @@ void PVParallelView::PVScatterView::update_img_sel(PVZoneRendering_p zr, int /*z
 	get_viewport()->update();
 }
 
+/******************************************************************************
+ * PVParallelView::PVScatterView::toggle_unselected_zombie_visibility
+ *****************************************************************************/
+
+void PVParallelView::PVScatterView::toggle_unselected_zombie_visibility()
+{
+	_show_bg = _view.are_view_unselected_zombie_visible();
+
+	get_viewport()->update();
+}
+
 /*****************************************************************************
  * PVParallelView::PVScatterView::do_update_all
  *****************************************************************************/
@@ -462,9 +485,11 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 	const QRect margined_viewport = QRect(-1, -1, get_x_axis_length()+4, get_y_axis_length()+2);
 	painter->setClipRegion(margined_viewport, Qt::IntersectClip);
 
-	// Background
-	painter->setOpacity(0.25);
-	_image_bg.draw(this, painter);
+	if (show_bg()) {
+		// Background
+		painter->setOpacity(0.25);
+		_image_bg.draw(this, painter);
+	}
 
 	// Selection
 	painter->setOpacity(1);

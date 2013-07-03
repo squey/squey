@@ -37,7 +37,7 @@ DECLARE_WAX(Picviz::PVView::set_layer_stack_selected_layer_index)
 DECLARE_WAX(Picviz::PVView::set_layer_stack_layer_n_name)
 DECLARE_WAX(Picviz::PVView::toggle_layer_stack_layer_n_locked_state)
 DECLARE_WAX(Picviz::PVView::toggle_layer_stack_layer_n_visible_state)
-DECLARE_WAX(Picviz::PVView::toggle_parallelview_unselected_zombie_visibility)
+DECLARE_WAX(Picviz::PVView::toggle_view_unselected_zombie_visibility)
 DECLARE_WAX(Picviz::PVView::hide_layers)
 DECLARE_WAX(Picviz::PVView::compute_layer_min_max)
 

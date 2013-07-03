@@ -63,6 +63,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_pending_deletion(false),
 	_left_zone(nullptr),
 	_right_zone(nullptr),
+	_show_bg(true),
 	_zp_sel(zp_sel),
 	_zp_bg(zp_bg),
 	_selection_sliders(nullptr)
@@ -103,6 +104,16 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	addItem(_sliders_group);
 
 	update_zones();
+
+	// Register view for unselected & zombie lines toggle
+	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
+	PVHive::get().register_observer(pvview_sp,
+	                                [=](Picviz::PVView& view) {
+		                                return &view.are_view_unselected_zombie_visible();
+	                                },
+	                                *obs);
+	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
+
 
 	PVHive::PVHive::get().register_func_observer(sliders_manager_p,
 			_zsu_obs);
@@ -655,6 +666,20 @@ void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRendering_p zr, in
 	}
 }
 
+
+/******************************************************************************
+ * PVParallelView::PVZoomedParallelScene::toggle_unselected_zombie_visibility
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::toggle_unselected_zombie_visibility()
+{
+	_show_bg = _pvview.are_view_unselected_zombie_visible();
+
+	recreate_images();
+
+	update();
+}
+
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::update_zoom
  *****************************************************************************/
@@ -738,40 +763,59 @@ void PVParallelView::PVZoomedParallelScene::update_new_selection_async()
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::all_rendering_done
+ * PVParallelView::PVZoomedParallelScene::recreate_images
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::all_rendering_done()
+void PVParallelView::PVZoomedParallelScene::recreate_images()
 {
 	QImage image(image_width, image_height, QImage::Format_ARGB32);
 	QPainter painter(&image);
 
-	_current_beta = _next_beta;
-
 	if (_left_zone) {
 		image.fill(Qt::transparent);
 
-		painter.setOpacity(0.25);
-		painter.drawImage(0, 0, _left_zone->bg_image->qimage(qimage_height()));
+		if (show_bg()) {
+			painter.setOpacity(0.25);
+			painter.drawImage(0, 0, _left_zone->bg_image->qimage(qimage_height()));
+		}
 		painter.setOpacity(1.0);
 		painter.drawImage(0, 0, _left_zone->sel_image->qimage(qimage_height()));
 
-		_left_zone->item->setPos(_left_zone->next_pos);
-		_left_zone->item->setScale(_current_beta);
 		_left_zone->item->setPixmap(QPixmap::fromImage(image));
 	}
 
 	if (_right_zone) {
 		image.fill(Qt::transparent);
 
-		painter.setOpacity(0.25);
-		painter.drawImage(0, 0, _right_zone->bg_image->qimage(qimage_height()));
+		if (show_bg()) {
+			painter.setOpacity(0.25);
+			painter.drawImage(0, 0, _right_zone->bg_image->qimage(qimage_height()));
+		}
 		painter.setOpacity(1.0);
 		painter.drawImage(0, 0, _right_zone->sel_image->qimage(qimage_height()));
 
+		_right_zone->item->setPixmap(QPixmap::fromImage(image));
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::all_rendering_done
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::all_rendering_done()
+{
+	_current_beta = _next_beta;
+
+	recreate_images();
+
+	if (_left_zone) {
+		_left_zone->item->setPos(_left_zone->next_pos);
+		_left_zone->item->setScale(_current_beta);
+	}
+
+	if (_right_zone) {
 		_right_zone->item->setPos(_right_zone->next_pos);
 		_right_zone->item->setScale(_current_beta);
-		_right_zone->item->setPixmap(QPixmap::fromImage(image));
 	}
 
 	update();

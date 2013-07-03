@@ -4,6 +4,8 @@
 
 #include <picviz/PVView.h>
 
+#include <pvhive/PVHive.h>
+
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVHitCountView.h>
@@ -91,23 +93,15 @@ public:
 		setWindowTitle(tr("Hit count view - options"));
 
 		_cb_autofit = new QCheckBox(tr("Auto-fit selection on the occurence axis"));
-		_cb_show_selectable = new QCheckBox(tr("Show background"));
-		_cb_show_all = new QCheckBox(tr("Show all data"));
 		_cb_use_log_color = new QCheckBox(tr("Use logarithmic colormap"));
 
 		QVBoxLayout* layout = new QVBoxLayout();
-		layout->addWidget(_cb_show_all);
-		layout->addWidget(_cb_show_selectable);
 		layout->addWidget(_cb_autofit);
 		layout->addWidget(_cb_use_log_color);
 		setContentLayout(layout);
 
 		connect(_cb_autofit, SIGNAL(toggled(bool)),
 		        parent_hcv(), SLOT(toggle_auto_x_zoom_sel()));
-		connect(_cb_show_selectable,  SIGNAL(toggled(bool)),
-		        parent_hcv(), SLOT(toggle_show_selectable()));
-		connect(_cb_show_all,  SIGNAL(toggled(bool)),
-		        parent_hcv(), SLOT(toggle_show_all()));
 		connect(_cb_use_log_color,  SIGNAL(toggled(bool)),
 		        parent_hcv(), SLOT(toggle_log_color()));
 	}
@@ -116,18 +110,12 @@ public:
 	void update_widgets()
 	{
 		_cb_autofit->blockSignals(true);
-		_cb_show_selectable->blockSignals(true);
-		_cb_show_all->blockSignals(true);
 		_cb_use_log_color->blockSignals(true);
 
 		_cb_autofit->setChecked(parent_hcv()->auto_x_zoom_sel());
-		_cb_show_selectable->setChecked(parent_hcv()->show_selectable());
-		_cb_show_all->setChecked(parent_hcv()->show_all());
 		_cb_use_log_color->setChecked(parent_hcv()->use_log_color());
 
 		_cb_autofit->blockSignals(false);
-		_cb_show_selectable->blockSignals(false);
-		_cb_show_all->blockSignals(false);
 		_cb_use_log_color->blockSignals(false);
 	}
 
@@ -140,8 +128,6 @@ private:
 
 private:
 	QCheckBox* _cb_autofit;
-	QCheckBox* _cb_show_selectable;
-	QCheckBox* _cb_show_all;
 	QCheckBox* _cb_use_log_color;
 };
 
@@ -324,7 +310,7 @@ private:
  * PVParallelView::PVHitCountView::PVHitCountView
  *****************************************************************************/
 
-PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_sp,
+PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
                                                const uint32_t *col_plotted,
                                                const PVRow nrows,
                                                const PVCol axis_index,
@@ -336,8 +322,7 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	                   layer_stack_output_selection(),
 	                   real_selection()),
 	_view_deleted(false),
-	_show_selectable(true),
-	_show_all(true),
+	_show_bg(true),
 	_auto_x_zoom_sel(false),
 	_do_auto_scale(false),
 	_use_log_color(false)
@@ -420,6 +405,15 @@ PVParallelView::PVHitCountView::PVHitCountView(const Picviz::PVView_sp &pvview_s
 	        this, SLOT(do_pan_change()));
 
 	_help_widget = new PVWidgets::PVTextPopupWidget(this);
+
+	// Register view for unselected & zombie lines toggle
+	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
+	PVHive::get().register_observer(pvview_sp,
+	                                [=](Picviz::PVView& view) {
+		                                return &view.are_view_unselected_zombie_visible();
+	                                },
+	                                *obs);
+	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
 }
 
 /*****************************************************************************
@@ -533,9 +527,7 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	int x_axis_right = std::min((int)map_margined_from_scene(QPointF(_max_count, 0.)).x(),
 	                            get_x_axis_length());
 
-	// all events
-	if (show_all()) {
-		// painter->setOpacity(0.01);
+	if (show_bg()) {
 		// BENCH_START(hcv_draw_all);
 		draw_lines(painter,
 		           x_axis_right,
@@ -543,12 +535,7 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 		           rel_y_scale,
 		           get_hit_graph_manager().buffer_all(),
 		           0);
-		// BENCH_STOP(hcv_draw_all);
-		// BENCH_STAT_TIME(hcv_draw_all);
-	}
 
-	// selectable events
-	if (show_selectable()) {
 		// painter->setOpacity(0.25);
 		// BENCH_START(hcv_draw_selectable);
 		draw_lines(painter,
@@ -713,6 +700,17 @@ void PVParallelView::PVHitCountView::do_update_all()
 	get_viewport()->update();
 }
 
+/******************************************************************************
+ * PVParallelView::PVHitCountView::toggle_unselected_zombie_visibility
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::toggle_unselected_zombie_visibility()
+{
+	_show_bg = _pvview.are_view_unselected_zombie_visible();
+
+	get_viewport()->update();
+}
+
 /*****************************************************************************
  * PVParallelView::PVHitCountView::update_all
  *****************************************************************************/
@@ -753,30 +751,6 @@ void PVParallelView::PVHitCountView::toggle_auto_x_zoom_sel()
 	if (_auto_x_zoom_sel) {
 		do_update_all();
 	}
-}
-
-/*****************************************************************************
- * PVParallelView::PVHitCountView::toggle_show_selectable
- *****************************************************************************/
-
-void PVParallelView::PVHitCountView::toggle_show_selectable()
-{
-	_show_selectable = !_show_selectable;
-	params_widget()->update_widgets();
-
-	get_viewport()->update();
-}
-
-/*****************************************************************************
- * PVParallelView::PVHitCountView::toggle_show_all
- *****************************************************************************/
-
-void PVParallelView::PVHitCountView::toggle_show_all()
-{
-	_show_all = !_show_all;
-	params_widget()->update_widgets();
-
-	get_viewport()->update();
 }
 
 /*****************************************************************************
