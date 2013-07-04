@@ -195,15 +195,16 @@ bool PVInspector::PVExtractorWidget::process_extraction_job(PVRush::PVController
 	return ret;
 }*/
 
-bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int nlines, QWidget* parent = NULL)
+bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int /*nlines*/, QWidget* parent = NULL)
 {
-	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Extracting %1...").arg(desc), parent, 0, QString("Number of elements processed: %L1/%L2"));
+	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Extracting %1...").arg(desc), parent, 0, QString("Number of elements processed: %L1"));
 	pbox->set_cancel2_btn_text(tr("Stop and process"));
 	pbox->set_cancel_btn_text(tr("Discard"));
 	pbox->set_confirmation(true);
 	QProgressBar *pbar = pbox->getProgressBar();
 	pbar->setValue(0);
-	pbar->setMaximum(nlines);
+	// set min and max to 0 to have an activity effect
+	pbar->setMaximum(0);
 	pbar->setMinimum(0);
 	connect(job.get(), SIGNAL(job_done_signal()), pbox, SLOT(accept()));
 	// launch a thread in order to update the status of the progress bar
