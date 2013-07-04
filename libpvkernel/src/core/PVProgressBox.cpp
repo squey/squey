@@ -109,7 +109,13 @@ void PVCore::PVProgressBox::update_status_Slot()
 {
 	progress_bar->setValue(_status);
 	if (!_format_detail.isEmpty()) {
-		_detail_label->setText(_format_detail.arg(_status).arg(progress_bar->maximum()));
+		int arg_count = _format_detail.count(QRegExp("%L?\\d{1,2}"));
+		if (arg_count == 1) {
+			_detail_label->setText(_format_detail.arg(_status));
+		} else {
+			// necessarily 2
+			_detail_label->setText(_format_detail.arg(_status).arg(progress_bar->maximum()));
+		}
 	}
 	_ext_str_mutex.lock();
 	if (!_extended_status.isEmpty()) {
