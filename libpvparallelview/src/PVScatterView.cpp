@@ -478,7 +478,7 @@ void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
  *****************************************************************************/
 void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRectF& rect)
 {
-	painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
+	painter->fillRect(rect, common::color_view_bg());
 
 	painter->save();
 
