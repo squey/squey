@@ -42,6 +42,15 @@ void PVRush::PVNrawOutput::clear_pvrow_index_map()
 	_pvrow_chunk_idx.clear();
 }
 
+PVRow PVRush::PVNrawOutput::get_rows_count()
+{
+	if (_nraw_dest != nullptr) {
+		return _nraw_dest->get_number_rows();
+	} else {
+		return 0;
+	}
+}
+
 void PVRush::PVNrawOutput::job_has_finished()
 {
 	// Tell the destination NRAW to resize its content

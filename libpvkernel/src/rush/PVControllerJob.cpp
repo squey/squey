@@ -226,7 +226,7 @@ tbb::tick_count::interval_t PVRush::PVControllerJob::duration() const
 
 chunk_index PVRush::PVControllerJob::status() const
 {
-	return _f_nelts.n_elts_done();
+	return _out_filter->get_rows_count();
 }
 
 chunk_index PVRush::PVControllerJob::rejected_elements() const

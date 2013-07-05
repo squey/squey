@@ -22,6 +22,10 @@ public:
 	// It takes a PVCore::PVChunk* as a parameter, and do whatever he wants with it
 	// It *must* call PVChunk->free() in the end !!
 	void operator()(PVCore::PVChunk* out);
+
+public:
+	virtual PVRow get_rows_count() = 0;
+
 protected:
 	// This function is called by PVControllerJob
 	// when its job has finished.

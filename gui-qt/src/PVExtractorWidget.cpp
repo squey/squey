@@ -197,7 +197,7 @@ bool PVInspector::PVExtractorWidget::process_extraction_job(PVRush::PVController
 
 bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int /*nlines*/, QWidget* parent = NULL)
 {
-	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Extracting %1...").arg(desc), parent, 0, QString("Number of elements processed: %L1"));
+	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Extracting %1...").arg(desc), parent, 0, QString("Number of elements extracted: %L1"));
 	pbox->set_cancel2_btn_text(tr("Stop and process"));
 	pbox->set_cancel_btn_text(tr("Discard"));
 	pbox->set_confirmation(true);

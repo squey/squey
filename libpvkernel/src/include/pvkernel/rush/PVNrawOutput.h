@@ -35,6 +35,9 @@ public:
 	void set_nraw_dest(PVNraw& nraw) { _nraw_dest = &nraw; }
 
 public:
+	PVRow get_rows_count() override;
+
+public:
 	PVNraw const& nraw_dest() const { assert(_nraw_dest); return *_nraw_dest; }	
 	PVNraw& nraw_dest() { assert(_nraw_dest); return *_nraw_dest; }	
 
