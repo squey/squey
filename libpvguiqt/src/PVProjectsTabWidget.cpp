@@ -256,7 +256,10 @@ void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 		workspace_tab_widget = add_project(scene->shared_from_this());
 	}
 
-	workspace_tab_widget->add_workspace(workspace, workspace->get_source()->get_window_name());
+	const Picviz::PVSource *src = workspace->get_source();
+	workspace_tab_widget->add_workspace(workspace, src->get_name());
+	workspace_tab_widget->setToolTip(src->get_tooltip());
+
 	_tab_widget->setCurrentIndex(_stacked_widget->indexOf(workspace_tab_widget));
 }
 

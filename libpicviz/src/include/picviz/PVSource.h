@@ -95,6 +95,7 @@ public:
 	QString get_name() const { return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs); }
 	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
 	QString get_window_name() const;
+	QString get_tooltip() const;
 
 	PVView* last_active_view() const { return _last_active_view; }
 
