@@ -195,8 +195,8 @@ public:
 		case Qt::Key_H:
 			if (hcv->help_widget()->isHidden()) {
 				hcv->help_widget()->popup(hcv->get_viewport(),
-				                          PVWidgets::PVPopupWidget::AlignCenter,
-				                          PVWidgets::PVPopupWidget::ExpandAll, 16);
+				                          PVWidgets::PVTextPopupWidget::AlignCenter,
+				                          PVWidgets::PVTextPopupWidget::ExpandAll, 16);
 			}
 			break;
 #endif
@@ -390,6 +390,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 
 	_params_widget = new PVHitCountViewParamsWidget(this);
 	_params_widget->update_widgets();
+	_params_widget->hide();
 
 	_update_all_timer.setInterval(RENDER_TIMEOUT);
 	_update_all_timer.setSingleShot(true);
