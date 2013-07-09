@@ -175,6 +175,7 @@ void Picviz::PVView::reset_layers()
 	layer_stack.delete_all_layers();
 	layer_stack.append_new_layer();
 	layer_stack.get_layer_n(0).reset_to_full_and_default_color();
+	layer_stack.get_layer_n(0).compute_selectable_count(row_count);
 	pre_filter_layer.reset_to_full_and_default_color();
 	post_filter_layer.reset_to_full_and_default_color();
 	layer_stack_output_layer.reset_to_full_and_default_color();
@@ -190,7 +191,8 @@ void Picviz::PVView::reset_layers()
  *****************************************************************************/
 void Picviz::PVView::add_new_layer(QString name)
 {
-	layer_stack.append_new_layer(name);
+	Picviz::PVLayer* layer = layer_stack.append_new_layer(name);
+	layer->compute_selectable_count(row_count);
 }
 
 void Picviz::PVView::add_new_layer_from_file(const QString& path)
@@ -201,6 +203,7 @@ void Picviz::PVView::add_new_layer_from_file(const QString& path)
 	// And load it
 	layer->load_from_file(path);
 	layer->compute_min_max(*get_parent<Picviz::PVPlotted>());
+	layer->compute_selectable_count(get_parent<Picviz::PVPlotted>()->get_row_count());
 }
 
 void Picviz::PVView::delete_selected_layer()
@@ -217,12 +220,14 @@ void Picviz::PVView::duplicate_selected_layer(const QString &name)
 {
 	PVLayer* new_layer = layer_stack.duplicate_selected_layer(name);
 	compute_layer_min_max(*new_layer);
+	new_layer->compute_selectable_count(row_count);
 }
 
 void Picviz::PVView::load_from_file(const QString& file)
 {
 	layer_stack.load_from_file(file);
 	layer_stack.compute_min_maxs(*get_parent<Picviz::PVPlotted>());
+	layer_stack.compute_selectable_count(get_parent<Picviz::PVPlotted>()->get_row_count());
 }
 
 /******************************************************************************
@@ -248,6 +253,7 @@ void Picviz::PVView::commit_to_new_layer()
 
 	PVLayer *layer = layer_stack.append_new_layer_from_selection_and_lines_properties(sel, lp);
 	layer->compute_min_max(*get_parent<Picviz::PVPlotted>());
+	layer->compute_selectable_count(row_count);
 }
 
 void Picviz::PVView::commit_volatile_in_floating_selection()
@@ -1251,6 +1257,11 @@ Picviz::PVSortingFunc_p Picviz::PVView::get_sort_plugin_for_col(PVCol col) const
 void Picviz::PVView::compute_layer_min_max(Picviz::PVLayer& layer)
 {
 	layer.compute_min_max(*get_parent<Picviz::PVPlotted>());
+}
+
+void Picviz::PVView::compute_selectable_count(Picviz::PVLayer& layer)
+{
+	layer.compute_selectable_count(get_parent<Picviz::PVPlotted>()->get_row_count());
 }
 
 void Picviz::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes, PVAxesCombination::list_axes_t const& axes)

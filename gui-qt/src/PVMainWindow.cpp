@@ -426,6 +426,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView* pi
 
 		/* We need to reprocess the layer stack */
 		actor.call<FUNC(Picviz::PVView::compute_layer_min_max)>(new_layer);
+		actor.call<FUNC(Picviz::PVView::compute_selectable_count)>(new_layer);
 
 		actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 	}
@@ -464,6 +465,10 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Picviz::PVView* picv
 
 		/* We need to reprocess the layer stack */
 		actor.call<FUNC(Picviz::PVView::compute_layer_min_max)>(new_layer);
+		actor.call<FUNC(Picviz::PVView::compute_selectable_count)>(new_layer);
+
+		// do not forget to update the current layer
+		actor.call<FUNC(Picviz::PVView::compute_selectable_count)>(current_layer);
 
 		actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 	}

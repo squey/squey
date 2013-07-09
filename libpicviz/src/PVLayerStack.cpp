@@ -380,6 +380,13 @@ void Picviz::PVLayerStack::compute_min_maxs(PVPlotted const& plotted)
 	}
 }
 
+void Picviz::PVLayerStack::compute_selectable_count(PVRow row_count)
+{
+	for (int i = 0; i < table.size(); i++) {
+		table[i].compute_selectable_count(row_count);
+	}
+}
+
 bool Picviz::PVLayerStack::contains_layer(PVLayer* layer) const
 {
 	foreach(PVLayer const& l, table) {

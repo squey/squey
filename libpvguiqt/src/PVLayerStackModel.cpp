@@ -43,7 +43,7 @@ PVGuiQt::PVLayerStackModel::PVLayerStackModel(Picviz::PVView_sp& lib_view, QObje
  *****************************************************************************/
 int PVGuiQt::PVLayerStackModel::columnCount(const QModelIndex& /*index*/) const
 {
-	return 2;
+	return 3;
 }
 
 /******************************************************************************
@@ -98,6 +98,8 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex &index, int role) co
 
 				case 1:
 					return lib_layer_stack().get_layer_n(lib_index).get_name();
+				case 2:
+					return lib_layer_stack().get_layer_n(lib_index).get_selectable_count();
 			}
 			break;
 
@@ -112,6 +114,9 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex &index, int role) co
 			switch (index.column()) {
 				case 0:
 					return (Qt::AlignCenter + Qt::AlignVCenter);
+
+				case 2:
+					return (Qt::AlignRight + Qt::AlignVCenter);
 
 				default:
 					return (Qt::AlignLeft + Qt::AlignVCenter);

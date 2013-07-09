@@ -43,9 +43,10 @@ private:
 	QString            name;
 	PVSelection        selection;
 	bool               visible;
+	PVRow              selectable_count;
 	list_row_indexes_t _row_mins;
 	list_row_indexes_t _row_maxs;
-	
+
 public:
 
 	/**
@@ -63,6 +64,9 @@ public:
 	const PVSelection & get_selection() const {return selection;}
 	PVSelection& get_selection() {return selection;}
 	bool get_visible() const {return visible;}
+
+	void compute_selectable_count(PVRow const& nrows);
+	PVRow get_selectable_count() const { return selectable_count; }
 
 	void compute_min_max(PVPlotted const& plotted);
 	bool get_min_for_col(PVCol col, PVRow& row) const;

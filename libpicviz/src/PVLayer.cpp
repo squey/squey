@@ -38,6 +38,7 @@ Picviz::PVLayer::PVLayer(const QString & name_, const PVSelection & sel_, const 
 	name.truncate(PICVIZ_LAYER_NAME_MAXLEN);
 	locked = false;
 	visible = true;
+	selectable_count = 0;
 }
 
 /******************************************************************************
@@ -49,6 +50,12 @@ void Picviz::PVLayer::A2B_copy_restricted_by_selection_and_nelts(PVLayer &b, PVS
 {
 	get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(b.get_lines_properties(), selection, nelts);
 	b.get_selection() &= get_selection();
+	b.compute_selectable_count(nelts);
+}
+
+void Picviz::PVLayer::compute_selectable_count(PVRow const& nrows)
+{
+	selectable_count = selection.get_number_of_selected_lines_in_range(0U, nrows);
 }
 
 /******************************************************************************
