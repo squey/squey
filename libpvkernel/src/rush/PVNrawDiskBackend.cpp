@@ -75,8 +75,12 @@ void PVRush::PVNrawDiskBackend::init(const char* nraw_folder, const uint64_t num
 		// Open file
 		column.filename = std::move(get_disk_column_file(col));
 		if(!this->Open(column.filename, &column.write_file, _direct_mode, _direct_mode)) {
-			PVLOG_ERROR("PVNrawDiskBackend: Error opening file %s (%s)\n", column.filename.c_str(), strerror(errno));
-			return;
+			PVLOG_DEBUG("PVNrawDiskBackend: Warning: file %s will not be opened in direct mode\n", column.filename.c_str());
+			set_direct_mode(false);
+			if(!this->Open(column.filename, &column.write_file, _direct_mode, _direct_mode)) {
+				PVLOG_ERROR("PVNrawDiskBackend: Error opening file %s (%s)\n", column.filename.c_str(), strerror(errno));
+				return;
+			}
 		}
 
 		// Create buffer
