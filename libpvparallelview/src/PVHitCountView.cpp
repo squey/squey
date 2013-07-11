@@ -406,6 +406,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 	        this, SLOT(do_pan_change()));
 
 	_help_widget = new PVWidgets::PVTextPopupWidget(this);
+	_help_widget->hide();
 
 	// Register view for unselected & zombie lines toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
