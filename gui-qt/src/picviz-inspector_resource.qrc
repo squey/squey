@@ -37,6 +37,7 @@
 	<file alias="go-down.png">resources/22x22/go-down.png</file>
 	<file alias="go-up.png">resources/22x22/go-up.png</file>
 	<file alias="red-cross">resources/22x22/red-cross.png</file>
+	<file alias="green-check">resources/22x22/green-check.png</file>
 	<file alias="filter">resources/22x22/filter.png</file>
 	<file alias="add-axis">resources/22x22/add-axis.png</file>
 	<file alias="add-regexp">resources/22x22/add-regexp.png</file>

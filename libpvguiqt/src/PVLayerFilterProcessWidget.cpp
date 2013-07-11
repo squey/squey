@@ -121,7 +121,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::rename_preset_Slot(const QString& old_
 
 void PVGuiQt::PVLayerFilterProcessWidget::create_btns()
 {
-	_apply_btn = new QPushButton(QIcon(":/save"),"Apply");
+	_apply_btn = new QPushButton(QIcon(":/green-check"),"Apply");
 	_preview_btn = new QPushButton(QIcon(":/filter"),"Preview");
 	_preview_btn->setDefault(true);
 	_cancel_btn = new QPushButton(QIcon(":/red-cross"),"Cancel");
