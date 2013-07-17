@@ -117,6 +117,11 @@ public:
 
 	bool is_current_plotted() const;
 
+	/**
+	 * do any process after a mapped load
+	 */
+	void finish_process_from_rush_pipeline();
+
 public:
 	PVRush::PVNraw& get_rushnraw_parent();
 	const PVRush::PVNraw& get_rushnraw_parent() const;

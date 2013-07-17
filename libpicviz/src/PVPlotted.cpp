@@ -627,6 +627,13 @@ bool Picviz::PVPlotted::is_current_plotted() const
 	return false;
 }
 
+void Picviz::PVPlotted::finish_process_from_rush_pipeline()
+{
+	for(auto view : get_children<PVView>()) {
+		view->finish_process_from_rush_pipeline();
+	}
+}
+
 
 QList<PVCol> Picviz::PVPlotted::get_columns_to_update() const
 {

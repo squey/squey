@@ -149,6 +149,11 @@ void Picviz::PVMapped::finish_process_from_rush_pipeline()
 
 	// Clear "group values" hash
 	_grp_values_rush.clear();
+
+	// force plotteds updates (in case of .pvi load)
+	for (auto plotted : get_children<PVPlotted>()) {
+		plotted->finish_process_from_rush_pipeline();
+	}
 }
 
 void Picviz::PVMapped::process_rush_pipeline_chunk(PVCore::PVChunk const* chunk, PVRow const cur_r)

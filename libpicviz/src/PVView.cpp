@@ -175,7 +175,13 @@ void Picviz::PVView::reset_layers()
 	layer_stack.delete_all_layers();
 	layer_stack.append_new_layer();
 	layer_stack.get_layer_n(0).reset_to_full_and_default_color();
-	layer_stack.get_layer_n(0).compute_selectable_count(row_count);
+	if (row_count != 0) {
+		/* when a .pvi is loaded, the mapped and the plotted are
+		 * uninitialized when the view is created (the rush pipeline
+		 * is runned later).
+		 */
+		layer_stack.get_layer_n(0).compute_selectable_count(row_count);
+	}
 	pre_filter_layer.reset_to_full_and_default_color();
 	post_filter_layer.reset_to_full_and_default_color();
 	layer_stack_output_layer.reset_to_full_and_default_color();
@@ -1262,6 +1268,12 @@ void Picviz::PVView::compute_layer_min_max(Picviz::PVLayer& layer)
 void Picviz::PVView::compute_selectable_count(Picviz::PVLayer& layer)
 {
 	layer.compute_selectable_count(get_parent<Picviz::PVPlotted>()->get_row_count());
+}
+
+
+void Picviz::PVView::finish_process_from_rush_pipeline()
+{
+	layer_stack.compute_selectable_count(get_parent<PVPlotted>()->get_row_count());
 }
 
 void Picviz::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes, PVAxesCombination::list_axes_t const& axes)

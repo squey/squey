@@ -257,6 +257,10 @@ public:
 	void compute_layer_min_max(Picviz::PVLayer& layer);
 	void compute_selectable_count(Picviz::PVLayer& layer);
 
+	/**
+	 * do any process after a mapped load
+	 */
+	void finish_process_from_rush_pipeline();
 
 /******************************************************************************
 ******************************************************************************
