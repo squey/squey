@@ -172,6 +172,7 @@ signals:
 	void load_format();
 	void edit_format(const QString & format);
 	void save_project();
+	void active_project(bool active);
 
 private:
 	bool maybe_save_project(int index);

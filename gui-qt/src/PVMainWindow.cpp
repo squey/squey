@@ -129,6 +129,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	connect(_projects_tab_widget, SIGNAL(load_format()), this, SLOT(open_format_Slot()));
 	connect(_projects_tab_widget, SIGNAL(edit_format(const QString &)), this, SLOT(edit_format_Slot(const QString &)));
 	connect(_projects_tab_widget, SIGNAL(is_empty()), this, SLOT(close_solution_Slot()) );
+	connect(_projects_tab_widget, SIGNAL(active_project(bool)), this, SLOT(menu_activate_is_file_opened(bool)));
 
 	// We display the PV Icon together with a button to import files
 	pv_centralMainWidget = new QWidget();
@@ -618,7 +619,6 @@ void PVInspector::PVMainWindow::close_solution_Slot()
 {
 	reset_root();
 	set_window_title_with_filename();
-	menu_activate_is_file_opened(false);
 }
 
 
@@ -849,7 +849,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		return;
 	}
 
-	menu_activate_is_file_opened(true);
 	_projects_tab_widget->setVisible(true);
 }
 
@@ -1717,7 +1716,6 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource* src)
 
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add_source)>(PVCore::PVRecentItemsManager::get(), src->get_source_creator(), src->get_inputs(), src->get_format());
 
-	menu_activate_is_file_opened(true);
 	return true;
 }
 

@@ -246,6 +246,7 @@ private slots:
 	bool load_solution(QString const& file);
 	void load_solution_and_create_mw(QString const& file);
 	void set_auto_detect_cancellation(bool cancel = true) { _auto_detect_cancellation = cancel; }
+	void menu_activate_is_file_opened(bool cond);
 
 private:
 	void connect_actions();
@@ -254,7 +255,6 @@ private:
 	void create_menus();
 	void create_filters_menu_and_actions();
 	void create_actions_import_types(QMenu* menu);
-	void menu_activate_is_file_opened(bool cond);
 
 	// AG: that needs to be redesigned. I outlined this code as an automatic outliner would do, so that
 	// a progress box can cancel this process.

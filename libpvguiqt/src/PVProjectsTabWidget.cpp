@@ -300,6 +300,15 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	_stacked_widget->setCurrentIndex(index); // Map QTabBar signal to QStackedWidget to keep the sync
 	_current_workspace_tab_widget_index = index;
 
+	// to report if the active tab is for a project or not (start page or empty worspaces page)
+	QWidget* active_widget = _stacked_widget->currentWidget();
+	if ((active_widget == _start_screen_widget)
+	    || (_stacked_widget->count() <= 2)) {
+		emit active_project(false);
+	} else {
+		emit active_project(true);
+	}
+
 	if (index == 0) {
 		return;
 	}

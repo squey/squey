@@ -141,7 +141,6 @@ void PVInspector::PVMainWindow::change_of_current_view_Slot()
 	}
 	if (!current_view()) {
 		// PVLOG_ERROR("PVInspector::PVMainWindow::%s We have a strange beast in the tab widget: %p!\n", __FUNCTION__, pv_WorkspacesTabWidget->currentWidget());
-		menu_activate_is_file_opened(false);
 	}
 	/* we emit a broadcast signal to spread the news ! */
 	emit change_of_current_view_Signal(); // FIXME! I think nobody care about this broadcast!
@@ -787,7 +786,6 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 	_root->set_path(file);
 
 	correlation_Menu->load_correlations();
-	menu_activate_is_file_opened(true);
 
 	set_window_title_with_filename();
 	if (solution_has_been_fixed) {
@@ -847,7 +845,6 @@ void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_
 	other->resize(size());
 	other->show();
 
-	other->menu_activate_is_file_opened(true);
 	//other->_workspaces_tab_widget->setVisible(true);
 
 	PVGuiQt::PVSourceWorkspace* workspace = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(widget_workspace);
@@ -957,7 +954,6 @@ bool PVInspector::PVMainWindow::load_project(QString const& /*file*/)
 
 	//_projects_tab_widget->add_project(scene_p);
 
-	menu_activate_is_file_opened(true);
 	show_start_page(false);
 	//_workspaces_tab_widget->setVisible(true);
 
