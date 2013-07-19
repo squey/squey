@@ -28,6 +28,7 @@ public:
 
 public:
 	static PVCore::PVArgumentList search_value_menu(PVRow row, PVCol col, PVCol org_col, QString const& v);
+	static PVCore::PVArgumentList search_using_value_menu(PVRow row, PVCol col, PVCol org_col, QString const& v);
 	static PVCore::PVArgumentList search_menu(PVRow row, PVCol col, PVCol org_col, QString const& v);
 
 	CLASS_FILTER(Picviz::PVLayerFilterMultipleSearch)
