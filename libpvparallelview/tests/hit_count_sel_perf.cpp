@@ -51,7 +51,6 @@ int main(int argc, char **argv)
 	sel_sse.select_none();
 	sel_sse_inv.select_none();
 
-	PVParallelView::PVZoneTree& zt = *new PVParallelView::PVZoneTree();
 	PVParallelView::PVZonesManager& zm = lv->get_zones_manager();
 	const uint32_t *plotted = Picviz::PVPlotted::get_plotted_col_addr(zm.get_uint_plotted(), zm.get_number_rows(), axis);
 	PVParallelView::PVHitGraphBlocksManager manager(plotted, zm.get_number_rows(), NBLOCKS, layout_sel, sel_ref);

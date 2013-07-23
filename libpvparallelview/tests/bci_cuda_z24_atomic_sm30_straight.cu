@@ -133,7 +133,6 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		code0.x &= MASK_ZBUFFER;
 		const float l0 = (float) (code0.y & PVParallelView::constants<Bbits>::mask_int_ycoord);
 		const int r0i = (code0.y >> Bbits) & PVParallelView::constants<Bbits>::mask_int_ycoord;
-		const int type = (code0.y >> ((2*Bbits) + 8)) & BCI_MASK_TYPE;
 		int pixel_y00;
 		int pixel_y01;
 		const float r0 = (float) r0i;
