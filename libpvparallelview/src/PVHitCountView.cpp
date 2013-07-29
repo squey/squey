@@ -191,7 +191,6 @@ public:
 				return true;
 			}
 			break;
-#if NOT_YET
 		case Qt::Key_H:
 			if (hcv->help_widget()->isHidden()) {
 				hcv->help_widget()->popup(hcv->get_viewport(),
@@ -199,7 +198,6 @@ public:
 				                          PVWidgets::PVTextPopupWidget::ExpandAll, 16);
 			}
 			break;
-#endif
 		default:
 			break;
 		}
@@ -407,6 +405,19 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 
 	_help_widget = new PVWidgets::PVTextPopupWidget(this);
 	_help_widget->hide();
+
+	_help_widget->initTextFromFile("hit count view's help",
+	                               ":help-style");
+	_help_widget->addTextFromFile(":help-selection");
+	_help_widget->addTextFromFile(":help-layers");
+	_help_widget->addTextFromFile(":help-lines");
+	_help_widget->newColumn();
+	_help_widget->addTextFromFile(":help-view");
+	_help_widget->newTable();
+	_help_widget->addTextFromFile(":help-shortcuts-hit-count-view");
+	_help_widget->newColumn();
+	_help_widget->addTextFromFile(":help-mouse-hit-count-view");
+	_help_widget->finalizeText();
 
 	// Register view for unselected & zombie lines toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
