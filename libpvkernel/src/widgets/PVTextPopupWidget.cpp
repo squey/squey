@@ -1,4 +1,5 @@
 
+#include <pvkernel/core/PVLogger.h>
 #include <pvkernel/widgets/PVTextPopupWidget.h>
 
 #include <QVBoxLayout>
@@ -7,6 +8,11 @@
 #include <QFile>
 #include <QResizeEvent>
 #include <QKeyEvent>
+
+/**
+ * RH: the code snipset from http://jsfiddle.net/r9yrM/1/ has been used as a template for the
+ * documentation which also uses div tags with CSS's display set to table or table-cell.
+ */
 
 #define AlignHoriMask (PVWidgets::PVTextPopupWidget::AlignLeft | PVWidgets::PVTextPopupWidget::AlignRight | PVWidgets::PVTextPopupWidget::AlignHCenter)
 #define AlignVertMask (PVWidgets::PVTextPopupWidget::AlignTop | PVWidgets::PVTextPopupWidget::AlignBottom | PVWidgets::PVTextPopupWidget::AlignVCenter)
@@ -71,6 +77,18 @@ static QRect reconfigure_geometry(const QRect current_geom, const QWidget* widge
 	return new_geom;
 }
 
+static void write_open_table(QString &text)
+{
+	text += "<div>\n";
+	text += "<div>\n";
+}
+
+static void write_close_table(QString &text)
+{
+	text += "</div>\n";
+	text += "</div>\n";
+}
+
 /*****************************************************************************
  * PVWidgets::PVTextPopupWidget::PVTextPopupWidget
  *****************************************************************************/
@@ -122,6 +140,98 @@ void PVWidgets::PVTextPopupWidget::setTextFromFile(const QString& filename)
 	}
 
 	setText(text);
+}
+
+/*****************************************************************************
+ * PVWidgets::PVTextPopupWidget::initTextFromFile
+ *****************************************************************************/
+
+void PVWidgets::PVTextPopupWidget::initTextFromFile(const QString& title,
+                                                    const QString& css_filename)
+{
+	_temp_text = QString();
+	_temp_text += "<html>\n<head>\n<title>" + title + "</title>\n"
+		+ "<style type=\"text/css\">\n";
+
+	QFile file(css_filename);
+	QString text;
+
+	if (file.open(QIODevice::ReadOnly)) {
+		QByteArray data;
+		data = file.read(file.size());
+		_temp_text += QString(data);
+	} else {
+		PVLOG_WARN("ignoring help content from '%s' because it can not be loaded\n",
+		           qPrintable(css_filename));
+	}
+
+	_temp_text += "</style>\n";
+	_temp_text += "</head>\n";
+	_temp_text += "<body>\n";
+	write_open_table(_temp_text);
+}
+
+/*****************************************************************************
+ * PVWidgets::PVTextPopupWidget::addTextFromFile
+ *****************************************************************************/
+
+void PVWidgets::PVTextPopupWidget::addTextFromFile(const QString& html_filename)
+{
+	QFile file(html_filename);
+	QString text;
+
+	if (file.open(QIODevice::ReadOnly)) {
+		QByteArray data;
+		data = file.read(file.size());
+		text += QString(data) + "\n";
+	} else {
+		PVLOG_WARN("ignoring help content from '%s' because it can not be loaded\n",
+		           qPrintable(html_filename));
+	}
+
+	_temp_text += text;
+}
+
+/*****************************************************************************
+ * PVWidgets::PVTextPopupWidget::newColumn
+ *****************************************************************************/
+
+void PVWidgets::PVTextPopupWidget::newColumn()
+{
+	_temp_text += "</div>\n<div>\n";
+}
+
+/*****************************************************************************
+ * PVWidgets::PVTextPopupWidget::newTable
+ *****************************************************************************/
+
+void PVWidgets::PVTextPopupWidget::newTable()
+{
+	write_close_table(_temp_text);
+	_temp_text += "<br>\n";
+	write_open_table(_temp_text);
+}
+
+/*****************************************************************************
+ * PVWidgets::PVTextPopupWidget::finalizeText
+ *****************************************************************************/
+
+void PVWidgets::PVTextPopupWidget::finalizeText()
+{
+	write_close_table(_temp_text);
+	_temp_text += "</body>\n</html>";
+	setText(_temp_text);
+
+#if 0
+	//RH: may be usefull to dump the constructed 
+	QFile file("aa.html");
+	if (file.open(QIODevice::WriteOnly)) {
+		file.write(_temp_text.toLocal8Bit ());
+	}
+	file.close();
+#endif
+
+	_temp_text = QString();
 }
 
 /*****************************************************************************

@@ -4,6 +4,8 @@
 
 #include <pvkernel/widgets/PVPopupWidget.h>
 
+#include <QString>
+
 class QWebView;
 class QPaintEvent;
 
@@ -11,13 +13,26 @@ namespace PVWidgets
 {
 
 /**
- * a class to text widget (as HTML content) over a QWidget
+ * a class to display a text widget (with HTML content) over a QWidget.
  *
- * @todo make this widget always on top of its parent to be
- * resized/moved with it
- * @todo make this widget transparent
- * @todo make text unselectable (work-around in html's css:
- * -webkit-user-select: none;
+ * The content uses a table based structure; with table, columns and text.
+ *
+ * A sample is worth a thousand words:
+ *
+ * \code
+ * help->initTextFromFile("view help", ":style.css");
+ * help->addTextFromFile(":help-table1-col1-ele1");
+ * help->addTextFromFile(":help-table1-col1-ele2");
+ * help->addTextFromFile(":help-table1-col1-ele3");
+ * help->newColumn();
+ * help->addTextFromFile(":help-table1-col2-ele1");
+ * help->newTable();
+ * help->addTextFromFile(":help-table2-col1-ele1");
+ * help->newColumn();
+ * help->addTextFromFile(":help-table2-col2-ele1");
+ * help->addTextFromFile(":help-table2-col2-ele2");
+ * help->finalizeText();
+ * \endcode
  */
 
 class PVTextPopupWidget : public PVPopupWidget
@@ -73,6 +88,44 @@ public:
 	void setTextFromFile(const QString& filename);
 
 	/**
+	 * initialize the text content
+	 *
+	 * the columns use div html tags
+	 *
+	 * the css_filename's content is what come after <style type="text/css">
+	 * and before </style>.
+	 *
+	 * @param title the page's title
+	 * @param css_filename the filename or resource id of the css content
+	 */
+	void initTextFromFile(const QString& title,
+	                      const QString& css_filename);
+
+	/**
+	 * add a new entry in the current column
+	 *
+	 * The html_filename's content must be an p block followed by a table.
+	 *
+	 * @param html_filename the filename or resource id of the html content
+	 */
+	void addTextFromFile(const QString& html_filename);
+
+	/**
+	 * close the current column and open the next one
+	 */
+	void newColumn();
+
+	/**
+	 * close the current table and open a new one
+	 */
+	void newTable();
+
+	/**
+	 * close the help text and set it.
+	 */
+	void finalizeText();
+
+	/**
 	 * make the popup visible over a widget
 	 *
 	 * it remains shown until it is explictly hidden. I.e. if its parent
@@ -107,6 +160,7 @@ protected:
 private:
 	QWebView* _webview;
 	QWidget*  _last_widget;
+	QString   _temp_text;
 	int       _last_align;
 	int       _last_expand;
 	int       _last_border;
