@@ -128,5 +128,14 @@
 	<!-- CONFIG POPUP WIDGET -->
 	<file alias="pin-on">resources/pin-on.png</file>
 	<file alias="pin-off">resources/pin-off.png</file>
+
+	<!-- HELP CONTENT -->
+	<file alias="help-style">resources/help/style.css</file>
+	<file alias="help-selection">resources/help/selection.html</file>
+	<file alias="help-layers">resources/help/layers.html</file>
+	<file alias="help-lines">resources/help/lines.html</file>
+	<file alias="help-view">resources/help/view.html</file>
+	<file alias="help-shortcuts-hit-count-view">resources/help/view-shortcuts-hit-count.html</file>
+	<file alias="help-mouse-hit-count-view">resources/help/view-mouse-hit-count.html</file>
     </qresource>
 </RCC>

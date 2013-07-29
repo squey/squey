@@ -1,0 +1,41 @@
+body {
+  background-color: black;
+  color: white;
+}
+b {
+  font: monospace;
+  font-weight:bold;
+  color: #951b81;
+}
+strong {
+  font-weight:bold;
+  color: #951b81;
+}
+p {
+  text-align: left;
+  font-weight:bold;
+  font-size: -2;
+  color: #951b81;
+  border-style: solid;
+  border-width: 0 0 1px 0;
+  border-color: #951b81;
+}
+table {
+  border: 0;
+  cellspacing: 0;
+  cellpadding: 0;
+}
+
+div {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  margin-bottom: 16px;
+}
+
+div > div {
+  display: table-cell;
+  border: 0;
+  padding: 4px 8px;
+  margin-bottom: 0;
+}
