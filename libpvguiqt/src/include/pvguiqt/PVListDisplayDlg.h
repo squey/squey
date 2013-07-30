@@ -44,6 +44,9 @@ protected:
 protected:
 	virtual void process_context_menu(QAction* act);
 
+protected slots:
+	virtual void sort_by_column(int col);
+
 private slots:
 	void copy_to_clipboard();
 	void copy_value_clipboard();
@@ -51,6 +54,7 @@ private slots:
 	void append_to_file() { write_to_file_ui(true); }
 	void sort();
 	void show_ctxt_menu(const QPoint& pos);
+
 
 private:
 	void write_to_file_ui(bool append);

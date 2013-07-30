@@ -12,11 +12,20 @@
 #include <pvguiqt/PVListUniqStringsDlg.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 
+#include <pvkernel/core/PVLogger.h>
+#include <pvguiqt/PVStringSortProxyModel.h>
+
 // PVlistColNrawDlg
 //
 
-PVGuiQt::PVListUniqStringsDlg::PVListUniqStringsDlg(Picviz::PVView_sp& view, PVCol c, PVRush::PVNraw::unique_values_t& values, QWidget* parent):
-	PVListDisplayDlg(new __impl::PVListUniqStringsModel(values), parent), _col(c)
+PVGuiQt::PVListUniqStringsDlg::PVListUniqStringsDlg(
+	Picviz::PVView_sp& view,
+	PVCol c,
+	PVRush::PVNraw::unique_values_t& values,
+	size_t selection_count,
+	QWidget* parent
+) :
+	PVListDisplayDlg(new __impl::PVListUniqStringsModel(values), parent), _col(c), _selection_count(selection_count)
 {
 	PVHive::get().register_observer(view, _obs);
 	PVHive::get().register_actor(view, _actor);
@@ -32,6 +41,11 @@ PVGuiQt::PVListUniqStringsDlg::PVListUniqStringsDlg(Picviz::PVView_sp& view, PVC
 		act->setData(QVariant(search_multiples)); // Save the name of the layer filter associated to this action
 		_ctxt_menu->addAction(act);
 	}
+
+	_values_view->horizontalHeader()->show();
+	_values_view->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
+	connect(_values_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(section_resized(int, int, int)));
+	_values_view->setItemDelegateForColumn(1, new __impl::PVListUniqStringsDelegate(this));
 }
 
 PVGuiQt::PVListUniqStringsDlg::~PVListUniqStringsDlg()
@@ -45,6 +59,45 @@ void PVGuiQt::PVListUniqStringsDlg::process_context_menu(QAction* act)
 	PVListDisplayDlg::process_context_menu(act);
 	if (act) {
 		multiple_search(act);
+	}
+}
+
+void PVGuiQt::PVListUniqStringsDlg::showEvent(QShowEvent * event)
+{
+	//PVLOG_INFO("### PVGuiQt::PVListUniqStringsDlg::showEvent\n");
+	PVListDisplayDlg::showEvent(event);
+	_resize = true;
+	resize_section();
+}
+
+void PVGuiQt::PVListUniqStringsDlg::resizeEvent(QResizeEvent* event)
+{
+	//PVLOG_INFO("### PVGuiQt::PVListUniqStringsDlg::resizeEvent isVisible()=%d\n", isVisible());
+	PVListDisplayDlg::resizeEvent(event);
+	resize_section();
+}
+
+void PVGuiQt::PVListUniqStringsDlg::resize_section()
+{
+	//PVLOG_INFO("### PVGuiQt::PVListUniqStringsDlg::resize_section _values_view->width() = %d _last_section_size = %d\n", _values_view->width(),_last_section_size);
+	_values_view->horizontalHeader()->resizeSection(0, _values_view->width() - _last_section_size);
+}
+
+void PVGuiQt::PVListUniqStringsDlg::section_resized(int logicalIndex, int oldSize, int newSize)
+{
+	//PVLOG_INFO("### PVGuiQt::PVListUniqStringsDlg::section_resized %d %d %d isVisible()=%d\n", logicalIndex, oldSize, newSize,isVisible());
+	if (logicalIndex == 1 && _resize) {
+		_last_section_size = newSize;
+	}
+}
+
+void PVGuiQt::PVListUniqStringsDlg::sort_by_column(int col)
+{
+	PVListDisplayDlg::sort_by_column(col);
+
+	if (col == 1) {
+		Qt::SortOrder order =  (Qt::SortOrder)!((bool)_values_view->horizontalHeader()->sortIndicatorOrder());
+		proxy_model()->sort(col, order);
 	}
 }
 
@@ -110,9 +163,8 @@ void PVGuiQt::PVListUniqStringsDlg::multiple_search(QAction* act)
 PVGuiQt::__impl::PVListUniqStringsModel::PVListUniqStringsModel(PVRush::PVNraw::unique_values_t& values, QWidget* parent):
 	QAbstractListModel(parent)
 {
-	_values.reserve(values.size());
-	for (std::string_tbb const& s: values) {
-		_values.push_back(std::move(s));
+	for (auto& v : values) {
+		_values.emplace_back(std::move(v.first), v.second);
 	}
 }
 
@@ -127,10 +179,25 @@ int PVGuiQt::__impl::PVListUniqStringsModel::rowCount(QModelIndex const& parent)
 
 QVariant PVGuiQt::__impl::PVListUniqStringsModel::data(QModelIndex const& index, int role) const
 {
+	assert((size_t) index.row() < _values.size());
+
 	if (role == Qt::DisplayRole) {
-		assert((size_t) index.row() < _values.size());
-		std::string_tbb const& str = _values[index.row()];
-		return QVariant(QString::fromUtf8(str.c_str(), str.size()));
+		switch (index.column()) {
+			case 0:
+			{
+				std::string_tbb const& str = _values[index.row()].first;
+				return QVariant(QString::fromUtf8(str.c_str(), str.size()));
+			}
+			break;
+		}
+	}
+	else if (role == Qt::UserRole) {
+		switch (index.column()) {
+			case 1:
+			{
+				return QVariant::fromValue(_values[index.row()].second);
+			}
+		}
 	}
 
 	return QVariant();
@@ -147,4 +214,43 @@ QVariant PVGuiQt::__impl::PVListUniqStringsModel::headerData(int section, Qt::Or
 	}
 
 	return QVariant();
+}
+
+int PVGuiQt::__impl::PVListUniqStringsModel::columnCount(const QModelIndex& /*index*/) const
+{
+	return 2;
+}
+
+
+void PVGuiQt::__impl::PVListUniqStringsDelegate::paint(
+	QPainter* painter,
+	const QStyleOptionViewItem& option,
+	const QModelIndex& index) const
+{
+	assert(index.isValid());
+
+	if (index.column() == 1) {
+		size_t occurence_count = index.data(Qt::UserRole).toUInt();
+
+		int progress = (float) occurence_count / get_dialog()->get_selection_count() * 100;
+
+		QStyleOptionProgressBar progressBarOption;
+		progressBarOption.rect = option.rect;
+		progressBarOption.minimum = 0;
+		progressBarOption.maximum = 100;
+		progressBarOption.progress = progress;
+		progressBarOption.text = QString::number(progress) + "%";
+		progressBarOption.textVisible = true;
+
+		QApplication::style()->drawControl(QStyle::CE_ProgressBar,
+										&progressBarOption, painter);
+	 } else {
+		 QStyledItemDelegate::paint(painter, option, index);
+	 }
+
+}
+
+PVGuiQt::PVListUniqStringsDlg* PVGuiQt::__impl::PVListUniqStringsDelegate::get_dialog() const
+{
+	 return static_cast<PVGuiQt::PVListUniqStringsDlg*>(parent());
 }

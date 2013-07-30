@@ -164,8 +164,6 @@ bool PVGuiQt::PVSortFilterProxyModel::do_sort(int column, Qt::SortOrder order)
 
 void PVGuiQt::PVSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 {
-	_view->horizontalHeader()->setSortIndicatorShown(false);
-
 	bool changed = false;
 	if (column == -1) {
 		init_default_sort();

@@ -14,6 +14,7 @@
 #include <queue>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 
 #include <tbb/atomic.h>
 #include <tbb/concurrent_queue.h>
@@ -30,8 +31,6 @@
 #include <pvkernel/core/string_tbb.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/PVUtils.h>
-
-#include <QSet>
 
 namespace PVRush {
 
@@ -235,7 +234,7 @@ public:
 	typedef typename file_policy_t::file_t file_t;
 	typedef PVCore::PVMatrix<offset_fields_t, PVRow, PVCol> index_table_t;
 	typedef PVNrawDiskBackend this_type;
-	typedef QSet<std::string_tbb> unique_values_t;
+	typedef std::unordered_map<std::string_tbb, size_t> unique_values_t;
 
 public:
 	PVNrawDiskBackend();

@@ -584,11 +584,11 @@ int64_t PVRush::PVNrawDiskBackend::PVCachePool::get_index(uint64_t col, uint64_t
 bool PVRush::PVNrawDiskBackend::get_unique_values_for_col(PVCol const c, unique_values_t& ret, tbb::task_group_context* ctxt)
 {
 	const size_t nreserve = std::sqrt(_nrows);
-	tbb::enumerable_thread_specific<unique_values_t> tbb_qset([nreserve]{ unique_values_t ret; ret.reserve(nreserve); return ret; }); 
+	tbb::enumerable_thread_specific<unique_values_t> tbb_qset([nreserve]{ unique_values_t ret; ret.reserve(nreserve); return ret; });
 	bool vret = visit_column_tbb(c, [&tbb_qset](size_t, const char* buf, size_t n)
 			{   
 				std::string_tbb new_s(buf, n); 
-				tbb_qset.local().insert(new_s);
+				tbb_qset.local()[new_s]++;
 			}, ctxt);
 	if (!vret) {
 		return false;
@@ -600,11 +600,11 @@ bool PVRush::PVNrawDiskBackend::get_unique_values_for_col(PVCol const c, unique_
 bool PVRush::PVNrawDiskBackend::get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt)
 {
 	const size_t nreserve = std::sqrt(_nrows);
-	tbb::enumerable_thread_specific<unique_values_t> tbb_qset([nreserve]{ unique_values_t ret; ret.reserve(nreserve); return ret; }); 
+	tbb::enumerable_thread_specific<unique_values_t> tbb_qset([nreserve]{ unique_values_t ret; ret.reserve(nreserve); return ret; });
 	bool vret = visit_column_tbb_sel(c, [&tbb_qset](size_t, const char* buf, size_t n)
 			{   
-				std::string_tbb new_s(buf, n); 
-				tbb_qset.local().insert(new_s);
+				std::string_tbb new_s(buf, n);
+				tbb_qset.local()[new_s]++;
 			}, sel, ctxt); 
 	if (!vret) {
 		return false;
@@ -624,7 +624,9 @@ bool PVRush::PVNrawDiskBackend::merge_tls(unique_values_t& ret, tbb::enumerable_
 				ret.clear();
 				return false; 	// return false if it has been cancelled
 			}
-			final.unite(*it_tls);
+			for (auto& v : *it_tls) {
+				final[v.first] += v.second;
+			}
 		}
 		ret = std::move(final);
 	}

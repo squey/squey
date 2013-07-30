@@ -16,6 +16,8 @@
 #include <QMessageBox>
 #include <QMenu>
 
+#include <pvkernel/core/PVLogger.h>
+
 #define AUTOMATIC_SORT_MAX_NUMBER 32768
 
 PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* parent):
@@ -38,6 +40,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	// The order of the calls here are important, especially the call to
 	// setDefaultSectionSize that must be called *before* setModel, or it could
 	// take a huge amount of time.
+	_values_view->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 	_values_view->horizontalHeader()->setStretchLastSection(true);
 	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
 	_values_view->setModel(proxy_model);
@@ -64,6 +67,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	connect(_btn_copy_file, SIGNAL(clicked()), this, SLOT(copy_to_file()));
 	connect(_btn_append_file, SIGNAL(clicked()), this, SLOT(append_to_file()));
 	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort()));
+	connect(_values_view->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(sort_by_column(int)));
 
 	if (model->rowCount() < AUTOMATIC_SORT_MAX_NUMBER) {
 		sort();
@@ -184,8 +188,6 @@ void PVGuiQt::PVListDisplayDlg::write_to_file(QFile& file)
 		QMessageBox::critical(this, tr("Copy to file..."), tr("Error while writing to '%1': %2.").arg(path).arg(file.errorString()));
 		return;
 	}
-
-	QMessageBox::information(this, tr("Copy to file..."), tr("Copy done."));
 }
 
 void PVGuiQt::PVListDisplayDlg::copy_value_clipboard()
@@ -218,8 +220,16 @@ QAbstractListModel* PVGuiQt::PVListDisplayDlg::model()
 	return static_cast<QAbstractListModel*>(proxy_model()->sourceModel());
 }
 
+void PVGuiQt::PVListDisplayDlg::sort_by_column(int col)
+{
+	if (col == 0) {
+		sort();
+	}
+}
+
 void PVGuiQt::PVListDisplayDlg::sort()
 {
-	proxy_model()->sort(0, Qt::AscendingOrder);
+	Qt::SortOrder order =  _values_view->horizontalHeader()->sortIndicatorOrder();
+	proxy_model()->sort(0, order);
 	_btn_sort->hide();
 }
