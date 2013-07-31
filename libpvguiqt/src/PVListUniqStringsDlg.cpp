@@ -205,12 +205,23 @@ QVariant PVGuiQt::__impl::PVListUniqStringsModel::data(QModelIndex const& index,
 
 QVariant PVGuiQt::__impl::PVListUniqStringsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+	QHash<size_t, QString> h;
+	h[0] = "Value";
+	h[1] = "Percentage";
+
 	if (role == Qt::DisplayRole) {
 		if (orientation == Qt::Horizontal) {
-			return QVariant();
+			return h[section];
 		}
-		
 		return QVariant(QString().setNum(section));
+	}
+	else if (role == Qt::TextAlignmentRole) {
+		if (orientation == Qt::Horizontal) {
+			return (Qt::AlignLeft + Qt::AlignVCenter);
+		}
+		else {
+			return (Qt::AlignRight + Qt::AlignVCenter);
+		}
 	}
 
 	return QVariant();
@@ -221,6 +232,7 @@ int PVGuiQt::__impl::PVListUniqStringsModel::columnCount(const QModelIndex& /*in
 	return 2;
 }
 
+#define ALTERNATING_BG_COLOR 1
 
 void PVGuiQt::__impl::PVListUniqStringsDelegate::paint(
 	QPainter* painter,
@@ -232,18 +244,51 @@ void PVGuiQt::__impl::PVListUniqStringsDelegate::paint(
 	if (index.column() == 1) {
 		size_t occurence_count = index.data(Qt::UserRole).toUInt();
 
-		int progress = (float) occurence_count / get_dialog()->get_selection_count() * 100;
+		double ratio = (double) occurence_count / get_dialog()->get_selection_count();
+		int percentage = ratio * 100;
 
-		QStyleOptionProgressBar progressBarOption;
+		// Draw bounding rectangle
+		size_t thickness = 1;
+		QRect r(option.rect.x(), option.rect.y()+thickness, option.rect.width(), option.rect.height()-thickness);
+		QColor color("#F2F2F2");
+#if ALTERNATING_BG_COLOR
+		QColor alt_color("#FBFBFB");
+		painter->fillRect(r, index.row() % 2 ? color : alt_color);
+#else
+		painter->setPen(color); painter->drawRect(r);
+#endif
+
+		// Fill rectangle with color
+		painter->fillRect(
+			option.rect.x()+thickness,
+			option.rect.y()+2*thickness,
+			option.rect.width()*ratio-thickness,
+			option.rect.height()-2*thickness,
+			QColor::fromHsv(ratio * (0 - 120) + 120, 255, 255)
+		);
+
+		// Draw percentage
+		QString percent = QString::number(ratio * 100, 'f', 2) + " %";
+		painter->setPen(Qt::black);
+		painter->drawText(
+			option.rect.x()+thickness,
+			option.rect.y()+2*thickness,
+			option.rect.width()-thickness,
+			option.rect.height()-thickness,
+			Qt::AlignCenter,
+			percent
+		);
+
+		/*QStyleOptionProgressBar progressBarOption;
 		progressBarOption.rect = option.rect;
 		progressBarOption.minimum = 0;
 		progressBarOption.maximum = 100;
-		progressBarOption.progress = progress;
-		progressBarOption.text = QString::number(progress) + "%";
+		progressBarOption.progress = percentage;
+		progressBarOption.text = QString::number(percentage) + "%";
 		progressBarOption.textVisible = true;
 
 		QApplication::style()->drawControl(QStyle::CE_ProgressBar,
-										&progressBarOption, painter);
+										&progressBarOption, painter);*/
 	 } else {
 		 QStyledItemDelegate::paint(painter, option, index);
 	 }

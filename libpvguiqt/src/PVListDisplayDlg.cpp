@@ -40,12 +40,12 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	// The order of the calls here are important, especially the call to
 	// setDefaultSectionSize that must be called *before* setModel, or it could
 	// take a huge amount of time.
+
 	_values_view->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 	_values_view->horizontalHeader()->setStretchLastSection(true);
 	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
 	_values_view->setModel(proxy_model);
 	_values_view->setGridStyle(Qt::NoPen);
-	_values_view->horizontalHeader()->hide();
 	_values_view->setContextMenuPolicy(Qt::ActionsContextMenu);
 	_values_view->verticalHeader()->hide();
 
