@@ -46,6 +46,17 @@ PVGuiQt::PVListUniqStringsDlg::PVListUniqStringsDlg(
 	_values_view->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
 	connect(_values_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(section_resized(int, int, int)));
 	_values_view->setItemDelegateForColumn(1, new __impl::PVListUniqStringsDelegate(this));
+
+	QActionGroup* act_group = new QActionGroup(this);
+	act_group->setExclusive(true);
+	_act_toggle_linear = new QAction("Linear scale", act_group);
+	_act_toggle_linear->setCheckable(true);
+	_act_toggle_linear->setChecked(!_use_logorithmic_scale);
+	_act_toggle_log = new QAction("Logarithmic scale", act_group);
+	_act_toggle_log->setCheckable(true);
+	_act_toggle_log->setChecked(_use_logorithmic_scale);
+	_hhead_ctxt_menu->addAction(_act_toggle_linear);
+	_hhead_ctxt_menu->addAction(_act_toggle_log);
 }
 
 PVGuiQt::PVListUniqStringsDlg::~PVListUniqStringsDlg()
@@ -59,6 +70,16 @@ void PVGuiQt::PVListUniqStringsDlg::process_context_menu(QAction* act)
 	PVListDisplayDlg::process_context_menu(act);
 	if (act) {
 		multiple_search(act);
+	}
+}
+
+void PVGuiQt::PVListUniqStringsDlg::process_hhead_context_menu(QAction* act)
+{
+	PVListDisplayDlg::process_hhead_context_menu(act);
+
+	if (act) {
+		_use_logorithmic_scale = (act == _act_toggle_log);
+		_values_view->update();
 	}
 }
 
@@ -207,7 +228,7 @@ QVariant PVGuiQt::__impl::PVListUniqStringsModel::headerData(int section, Qt::Or
 {
 	QHash<size_t, QString> h;
 	h[0] = "Value";
-	h[1] = "Percentage";
+	h[1] = "Frequency";
 
 	if (role == Qt::DisplayRole) {
 		if (orientation == Qt::Horizontal) {
@@ -245,7 +266,8 @@ void PVGuiQt::__impl::PVListUniqStringsDelegate::paint(
 		size_t occurence_count = index.data(Qt::UserRole).toUInt();
 
 		double ratio = (double) occurence_count / get_dialog()->get_selection_count();
-		int percentage = ratio * 100;
+		double log_ratio = (double) log(occurence_count) / log(get_dialog()->get_selection_count());
+		bool log_scale = get_dialog()->use_logorithmic_scale();
 
 		// Draw bounding rectangle
 		size_t thickness = 1;
@@ -262,9 +284,9 @@ void PVGuiQt::__impl::PVListUniqStringsDelegate::paint(
 		painter->fillRect(
 			option.rect.x()+thickness,
 			option.rect.y()+2*thickness,
-			option.rect.width()*ratio-thickness,
+			option.rect.width()*(log_scale ? log_ratio : ratio)-thickness,
 			option.rect.height()-2*thickness,
-			QColor::fromHsv(ratio * (0 - 120) + 120, 255, 255)
+			QColor::fromHsv((log_scale ? log_ratio : ratio) * (0 - 120) + 120, 255, 255)
 		);
 
 		// Draw percentage
@@ -286,9 +308,8 @@ void PVGuiQt::__impl::PVListUniqStringsDelegate::paint(
 		progressBarOption.progress = percentage;
 		progressBarOption.text = QString::number(percentage) + "%";
 		progressBarOption.textVisible = true;
+		QApplication::style()->drawControl(QStyle::CE_ProgressBar, &progressBarOption, painter);*/
 
-		QApplication::style()->drawControl(QStyle::CE_ProgressBar,
-										&progressBarOption, painter);*/
 	 } else {
 		 QStyledItemDelegate::paint(painter, option, index);
 	 }

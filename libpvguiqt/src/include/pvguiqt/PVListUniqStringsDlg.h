@@ -29,18 +29,20 @@ public:
 
 public:
 	inline size_t get_selection_count() { return _selection_count; }
+	inline bool use_logorithmic_scale() { return _use_logorithmic_scale; }
 
 protected:
 	void resizeEvent(QResizeEvent * event) override;
 	void showEvent(QShowEvent * event) override;
 	void sort_by_column(int col) override;
+	void process_context_menu(QAction* act) override;
+	void process_hhead_context_menu(QAction* act) override;
 
 private slots:
 	void section_resized(int logicalIndex, int oldSize, int newSize);
 
 private:
 	Picviz::PVView& lib_view() { return *_obs.get_object(); }
-	void process_context_menu(QAction* act);
 	void multiple_search(QAction* act);
 	void resize_section();
 
@@ -51,6 +53,10 @@ private:
 	bool _resize = false;
 	int _last_section_size = 125;
 	size_t _selection_count;
+
+	bool _use_logorithmic_scale = true;
+	QAction* _act_toggle_linear;
+	QAction* _act_toggle_log;
 };
 
 namespace __impl {
