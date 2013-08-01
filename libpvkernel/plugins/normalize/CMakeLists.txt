@@ -53,6 +53,10 @@ add_library(normalize_filter_splitter_pcap SHARED splitter_pcap/PVFieldSplitterP
 target_link_libraries(normalize_filter_splitter_pcap pvkernel ${QT_LIBRARIES} ${PCAP_LIBRARIES} ${WINSOCK_LIB})
 declare_library(normalize_filter_splitter_pcap)
 
+add_library(normalize_filter_splitter_ironport_mail SHARED splitter_ironport_mail/PVFieldSplitterIronPortMail.cpp splitter_ironport_mail/PVFieldSplitterIronPortMailParamWidget.cpp splitter_ironport_mail/register.cpp)
+target_link_libraries(normalize_filter_splitter_ironport_mail pvkernel ${QT_LIBRARIES})
+declare_library(normalize_filter_splitter_ironport_mail)
+
 # "grep"
 
 add_library(normalize_filter_grep_regexp SHARED grep_regexp/PVFieldFilterRegexpGrep.cpp grep_regexp/PVFieldFilterRegexpGrep.h grep_regexp/register.cpp)
