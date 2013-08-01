@@ -40,18 +40,19 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	// The order of the calls here are important, especially the call to
 	// setDefaultSectionSize that must be called *before* setModel, or it could
 	// take a huge amount of time.
+
 	_values_view->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 	_values_view->horizontalHeader()->setStretchLastSection(true);
 	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
 	_values_view->setModel(proxy_model);
 	_values_view->setGridStyle(Qt::NoPen);
-	_values_view->horizontalHeader()->hide();
 	_values_view->setContextMenuPolicy(Qt::ActionsContextMenu);
 	_values_view->verticalHeader()->hide();
 
 	_copy_values_act = new QAction(tr("Copy value in the clipboard..."), this);
 
 	_ctxt_menu = new QMenu(this);
+	_hhead_ctxt_menu = new QMenu(this);
 
 	_ctxt_menu->addAction(_copy_values_act);
 	_values_view->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -67,7 +68,10 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	connect(_btn_copy_file, SIGNAL(clicked()), this, SLOT(copy_to_file()));
 	connect(_btn_append_file, SIGNAL(clicked()), this, SLOT(append_to_file()));
 	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort()));
+
 	connect(_values_view->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(sort_by_column(int)));
+	connect(_values_view->horizontalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_hhead_ctxt_menu(const QPoint&)));
+	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	if (model->rowCount() < AUTOMATIC_SORT_MAX_NUMBER) {
 		sort();
@@ -83,6 +87,16 @@ void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& /*pos*/)
 
 }
 
+void PVGuiQt::PVListDisplayDlg::show_hhead_ctxt_menu(const QPoint& pos)
+{
+	// Show the menu at the given pos
+	if (_values_view->horizontalHeader()->logicalIndexAt(pos) > 0) {
+		QAction* act_sel = _hhead_ctxt_menu->exec(QCursor::pos());
+
+		process_hhead_context_menu(act_sel);
+	}
+}
+
 void PVGuiQt::PVListDisplayDlg::process_context_menu(QAction* act)
 {
 	if (act) {
@@ -90,6 +104,10 @@ void PVGuiQt::PVListDisplayDlg::process_context_menu(QAction* act)
 			copy_value_clipboard();
 		}
 	}
+}
+
+void PVGuiQt::PVListDisplayDlg::process_hhead_context_menu(QAction* act)
+{
 }
 
 bool PVGuiQt::PVListDisplayDlg::write_values(QDataStream* stream)

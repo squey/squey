@@ -46,6 +46,17 @@ PVGuiQt::PVListUniqStringsDlg::PVListUniqStringsDlg(
 	_values_view->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
 	connect(_values_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(section_resized(int, int, int)));
 	_values_view->setItemDelegateForColumn(1, new __impl::PVListUniqStringsDelegate(this));
+
+	QActionGroup* act_group = new QActionGroup(this);
+	act_group->setExclusive(true);
+	_act_toggle_linear = new QAction("Linear scale", act_group);
+	_act_toggle_linear->setCheckable(true);
+	_act_toggle_linear->setChecked(!_use_logorithmic_scale);
+	_act_toggle_log = new QAction("Logarithmic scale", act_group);
+	_act_toggle_log->setCheckable(true);
+	_act_toggle_log->setChecked(_use_logorithmic_scale);
+	_hhead_ctxt_menu->addAction(_act_toggle_linear);
+	_hhead_ctxt_menu->addAction(_act_toggle_log);
 }
 
 PVGuiQt::PVListUniqStringsDlg::~PVListUniqStringsDlg()
@@ -59,6 +70,16 @@ void PVGuiQt::PVListUniqStringsDlg::process_context_menu(QAction* act)
 	PVListDisplayDlg::process_context_menu(act);
 	if (act) {
 		multiple_search(act);
+	}
+}
+
+void PVGuiQt::PVListUniqStringsDlg::process_hhead_context_menu(QAction* act)
+{
+	PVListDisplayDlg::process_hhead_context_menu(act);
+
+	if (act) {
+		_use_logorithmic_scale = (act == _act_toggle_log);
+		_values_view->update();
 	}
 }
 
@@ -205,12 +226,23 @@ QVariant PVGuiQt::__impl::PVListUniqStringsModel::data(QModelIndex const& index,
 
 QVariant PVGuiQt::__impl::PVListUniqStringsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+	QHash<size_t, QString> h;
+	h[0] = "Value";
+	h[1] = "Frequency";
+
 	if (role == Qt::DisplayRole) {
 		if (orientation == Qt::Horizontal) {
-			return QVariant();
+			return h[section];
 		}
-		
 		return QVariant(QString().setNum(section));
+	}
+	else if (role == Qt::TextAlignmentRole) {
+		if (orientation == Qt::Horizontal) {
+			return (Qt::AlignLeft + Qt::AlignVCenter);
+		}
+		else {
+			return (Qt::AlignRight + Qt::AlignVCenter);
+		}
 	}
 
 	return QVariant();
@@ -221,6 +253,7 @@ int PVGuiQt::__impl::PVListUniqStringsModel::columnCount(const QModelIndex& /*in
 	return 2;
 }
 
+#define ALTERNATING_BG_COLOR 1
 
 void PVGuiQt::__impl::PVListUniqStringsDelegate::paint(
 	QPainter* painter,
@@ -232,18 +265,51 @@ void PVGuiQt::__impl::PVListUniqStringsDelegate::paint(
 	if (index.column() == 1) {
 		size_t occurence_count = index.data(Qt::UserRole).toUInt();
 
-		int progress = (float) occurence_count / get_dialog()->get_selection_count() * 100;
+		double ratio = (double) occurence_count / get_dialog()->get_selection_count();
+		double log_ratio = (double) log(occurence_count) / log(get_dialog()->get_selection_count());
+		bool log_scale = get_dialog()->use_logorithmic_scale();
 
-		QStyleOptionProgressBar progressBarOption;
+		// Draw bounding rectangle
+		size_t thickness = 1;
+		QRect r(option.rect.x(), option.rect.y()+thickness, option.rect.width(), option.rect.height()-thickness);
+		QColor color("#F2F2F2");
+#if ALTERNATING_BG_COLOR
+		QColor alt_color("#FBFBFB");
+		painter->fillRect(r, index.row() % 2 ? color : alt_color);
+#else
+		painter->setPen(color); painter->drawRect(r);
+#endif
+
+		// Fill rectangle with color
+		painter->fillRect(
+			option.rect.x()+thickness,
+			option.rect.y()+2*thickness,
+			option.rect.width()*(log_scale ? log_ratio : ratio)-thickness,
+			option.rect.height()-2*thickness,
+			QColor::fromHsv((log_scale ? log_ratio : ratio) * (0 - 120) + 120, 255, 255)
+		);
+
+		// Draw percentage
+		QString percent = QString::number(ratio * 100, 'f', 2) + " %";
+		painter->setPen(Qt::black);
+		painter->drawText(
+			option.rect.x()+thickness,
+			option.rect.y()+2*thickness,
+			option.rect.width()-thickness,
+			option.rect.height()-thickness,
+			Qt::AlignCenter,
+			percent
+		);
+
+		/*QStyleOptionProgressBar progressBarOption;
 		progressBarOption.rect = option.rect;
 		progressBarOption.minimum = 0;
 		progressBarOption.maximum = 100;
-		progressBarOption.progress = progress;
-		progressBarOption.text = QString::number(progress) + "%";
+		progressBarOption.progress = percentage;
+		progressBarOption.text = QString::number(percentage) + "%";
 		progressBarOption.textVisible = true;
+		QApplication::style()->drawControl(QStyle::CE_ProgressBar, &progressBarOption, painter);*/
 
-		QApplication::style()->drawControl(QStyle::CE_ProgressBar,
-										&progressBarOption, painter);
 	 } else {
 		 QStyledItemDelegate::paint(painter, option, index);
 	 }
