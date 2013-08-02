@@ -583,6 +583,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::setListTags()
 
 	listTags->setItems(list_tags.unite(list_splitter_tags).toList());
 
+	listTags->sortItems();
+
 	QString node_tag = node->attribute(PVFORMAT_AXIS_TAG_STR);
 	if (node_tag.isEmpty()) {
 		node_tag = PVFORMAT_AXIS_TAG_DEFAULT;

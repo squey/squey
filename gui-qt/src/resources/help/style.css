@@ -1,29 +1,37 @@
 body {
-  background-color: black;
   color: white;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
 }
+
 b {
-  font: monospace;
-  font-weight:bold;
+  font-weight: bold;
   color: #951b81;
 }
-strong {
-  font-weight:bold;
-  color: #951b81;
-}
+
 p {
   text-align: left;
-  font-weight:bold;
-  font-size: -2;
+  font-weight: bold;
   color: #951b81;
   border-style: solid;
   border-width: 0 0 1px 0;
   border-color: #951b81;
 }
+
 table {
+  font-size: 14px;
   border: 0;
-  cellspacing: 0;
-  cellpadding: 0;
+  padding: 0;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+td {
+  vertical-align: top;
+}
+
+td.shortcuts {
+  text-align: right;
 }
 
 div {
