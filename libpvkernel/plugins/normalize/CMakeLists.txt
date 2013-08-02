@@ -57,6 +57,14 @@ add_library(normalize_filter_splitter_ironport_mail SHARED splitter_ironport_mai
 target_link_libraries(normalize_filter_splitter_ironport_mail pvkernel ${QT_LIBRARIES})
 declare_library(normalize_filter_splitter_ironport_mail)
 
+SET(GUID_MOC_HEADERS
+splitter_ipv4-ipv6_from_GUID/PVFieldSplitterIPv4IPv6FromGUIDParamWidget.h
+)
+QT4_WRAP_CPP(GUID_MOC_SRCS ${GUID_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+add_library(normalize_filter_splitter_ipv4-ipv6_from_GUID SHARED splitter_ipv4-ipv6_from_GUID/PVFieldIPv4IPv6FromGUID.cpp splitter_ipv4-ipv6_from_GUID/PVFieldSplitterIPv4IPv6FromGUIDParamWidget.cpp ${GUID_MOC_SRCS} splitter_ipv4-ipv6_from_GUID/register.cpp)
+target_link_libraries(normalize_filter_splitter_ipv4-ipv6_from_GUID pvkernel ${QT_LIBRARIES})
+declare_library(normalize_filter_splitter_ipv4-ipv6_from_GUID)
+
 # "grep"
 
 add_library(normalize_filter_grep_regexp SHARED grep_regexp/PVFieldFilterRegexpGrep.cpp grep_regexp/PVFieldFilterRegexpGrep.h grep_regexp/register.cpp)

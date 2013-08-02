@@ -52,6 +52,9 @@ int main(int argc, char** argv)
 		std::cerr << "Usage: " << argv[0] << " file format" << std::endl;
 		return 1;
 	}
+
+	QApplication app(argc, argv);
+
 	PVCore::PVIntrinsics::init_cpuid();
 	init_env();
 
@@ -62,7 +65,7 @@ int main(int argc, char** argv)
 	init_random_colors(*src->current_view());
 
 	// Qt app
-	QApplication app(argc, argv);
+
 
 	Picviz::PVView_sp view = src->current_view()->shared_from_this();
 	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(view);
