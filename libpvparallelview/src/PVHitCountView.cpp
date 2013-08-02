@@ -191,7 +191,7 @@ public:
 				return true;
 			}
 			break;
-		case Qt::Key_H:
+		case PVWidgets::PVTextPopupWidget::HelpKey:
 			if (hcv->help_widget()->isHidden()) {
 				hcv->help_widget()->popup(hcv->get_viewport(),
 				                          PVWidgets::PVTextPopupWidget::AlignCenter,

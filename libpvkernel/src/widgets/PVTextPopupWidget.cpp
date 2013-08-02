@@ -223,7 +223,7 @@ void PVWidgets::PVTextPopupWidget::finalizeText()
 	setText(_temp_text);
 
 #if 0
-	//RH: may be usefull to dump the constructed 
+	//RH: may be usefull to dump the constructed
 	QFile file("aa.html");
 	if (file.open(QIODevice::WriteOnly)) {
 		file.write(_temp_text.toLocal8Bit ());
@@ -303,9 +303,10 @@ bool PVWidgets::PVTextPopupWidget::eventFilter(QObject *obj, QEvent *event)
 
 		 return false;
 	} else if (event->type() == QEvent::KeyPress) {
-		if (static_cast<QKeyEvent*>(event)->key() == Qt::Key_Escape) {
+		int key = static_cast<QKeyEvent*>(event)->key();
+		if ((key == Qt::Key_Escape) || (key == HelpKey)) {
 			hide();
-			return false;
+			return true;
 		}
 	}
 	// standard event processing
