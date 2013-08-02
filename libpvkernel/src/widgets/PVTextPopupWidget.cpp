@@ -1,5 +1,7 @@
 
 #include <pvkernel/core/PVLogger.h>
+#include <pvkernel/core/PVConfig.h>
+
 #include <pvkernel/widgets/PVTextPopupWidget.h>
 
 #include <QVBoxLayout>
@@ -165,9 +167,18 @@ void PVWidgets::PVTextPopupWidget::initTextFromFile(const QString& title,
 		           qPrintable(css_filename));
 	}
 
+	int r = 255 * pvconfig.value("pvgl/window_r", 0.2f).toFloat();
+	int g = 255 * pvconfig.value("pvgl/window_g", 0.2f).toFloat();
+	int b = 255 * pvconfig.value("pvgl/window_b", 0.2f).toFloat();
+
+	_temp_text += "\n";
+	_temp_text += "body {\n";
+	_temp_text += "  background-color: rgb(" + QString::number(r) + "," + QString::number(g) +","+  QString::number(b) +");\n";
+	_temp_text += "}\n";
 	_temp_text += "</style>\n";
 	_temp_text += "</head>\n";
 	_temp_text += "<body>\n";
+
 	write_open_table(_temp_text);
 }
 
