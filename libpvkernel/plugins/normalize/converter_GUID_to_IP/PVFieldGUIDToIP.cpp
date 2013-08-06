@@ -42,7 +42,6 @@ PVCore::PVField& PVFilter::PVFieldGUIDToIP::one_to_one(PVCore::PVField& field)
 	// IPv6=58be:fdf8:400c:0c00:0000:0000:0000:0071
 
 	constexpr int field_max_len = 38;
-	constexpr int field_utf16_max_len = field_max_len*2;
 	constexpr size_t ipv4_hexa_len = 8;
 	constexpr size_t ipv4_dec_max_len = 15;
 	constexpr size_t ipv6_hexa_len = 32+7;
