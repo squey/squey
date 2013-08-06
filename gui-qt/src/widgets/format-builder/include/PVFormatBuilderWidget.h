@@ -46,7 +46,7 @@ class PVAxesCombinationWidget;
 namespace PVInspector{
 
 typedef QList<PVFilter::PVFieldsSplitterParamWidget_p> list_splitters_t;
-typedef QList<PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one> > list_filters_t;
+typedef QList<PVFilter::PVFieldsConverterParamWidget_p > list_converters_t;
 
 
 class PVFormatBuilderWidget : public QMainWindow {
@@ -133,7 +133,7 @@ private:
      */
     void initSplitters();    
     list_splitters_t _list_splitters;///!<list of the plugins splitters
-    list_filters_t _list_filters;///!<list of the plugins filters
+    list_converters_t _list_converters;///!<list of the plugins converters
     
     void showParamBoard(PVRush::PVXmlTreeNodeDom *node);
 
@@ -174,6 +174,7 @@ public slots:
 	void slotAddFilterAfter();
 	void slotAddRegExAfter();
 	void slotAddSplitter();
+	void slotAddConverter();
 	void slotAddUrl();
 	void slotApplyModification();
 	void slotDelete();

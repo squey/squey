@@ -151,6 +151,24 @@ bool PVRush::PVXmlTreeNodeDom::createSplitterPlugin(const QDomElement &domElt)
 	return true;
 }
 
+/******************************************************************************
+ *
+ * PVRush::PVXmlTreeNodeDom::createConverterPlugin
+ *
+ *****************************************************************************/
+bool PVRush::PVXmlTreeNodeDom::createConverterPlugin(const QDomElement &domElt)
+{
+    QString plugName = domElt.attribute("type", "-");
+    PVFilter::PVFieldsConverterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_class_by_name(plugName);
+	if (!in_t) {
+		return false;
+	}
+    PVFilter::PVFieldsConverterParamWidget_p in_t_cpy = in_t->clone<PVFilter::PVFieldsConverterParamWidget > ();
+    QString registered_name = in_t_cpy->registered_name();
+    setConverterPlugin(in_t_cpy);
+	return true;
+}
+
 
 /******************************************************************************
  *
@@ -266,6 +284,7 @@ void PVRush::PVXmlTreeNodeDom::setTypeFromString(const QString &nom) {
     else if (nom == QString("axis"))type = axis;
     else if (nom == QString("url"))type = url;
     else if (nom == QString("splitter"))type = splitter;
+    else if (nom == QString("converter"))type = converter;
 
 
         //else if(nom==QString("root"))type = Root;
@@ -363,6 +382,7 @@ int PVRush::PVXmlTreeNodeDom::getNbr() {
             break;
         case splitter:return this->xmlDomElement.childNodes().count();
             break;
+        case converter:return this->xmlDomElement.childNodes().count();
         default:break;
     }
     return 0;
@@ -424,6 +444,12 @@ void PVRush::PVXmlTreeNodeDom::setNbr(int nbr) {
                 delField(this->getNbr() - nbr); //delete some fiels
             }
             break;
+        case converter:
+			PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::setNbr(%d)\n", nbr);
+			if (this->getNbr() == 0) {
+				addField(1);
+			}
+			break;
         default:break;
     }
 }
@@ -446,7 +472,7 @@ QDomElement PVRush::PVXmlTreeNodeDom::getDom() {
  *****************************************************************************/
 void PVRush::PVXmlTreeNodeDom::addField(int nbr) {
     PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::addField(%d)\n", nbr);
-    if ((this->type == RegEx || this->type == splitter) && nbr > 0) {
+    if ((this->type == RegEx || this->type == splitter || this->type == converter) && nbr > 0) {
         for (int i = 0; i < nbr; i++) {
             addOneField("");
         }
@@ -544,6 +570,7 @@ QString PVRush::PVXmlTreeNodeDom::typeToString() {
     if (type == Root)return "Root";
     if (type == url)return "url";
     if (type == splitter)return "splitter";
+    if (type == converter)return "converter";
     return "";
 }
 
@@ -713,7 +740,7 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 {
 	QString plugin_type = getDom().tagName();
 	// TODO: filters (like filter_regexp) should also be ok
-	if (plugin_type != "splitter") {
+	if (plugin_type != "splitter" && plugin_type != "converter") {
 		// This is not a splitter, so pass this through our children.
         for (int i = 0; i < getChildren().size(); i++) {
             getChild(i)->getChildrenFromField(field_);
@@ -749,10 +776,12 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	// Check if a number of children is forced
 	size_t force_nchild = 0;
 	// TODO: this should be all in plugins !
-	getSplitterPlugin();
 	if (splitterPlugin) {
 		force_nchild = splitterPlugin->force_number_children();
 		splitterPlugin->push_data(str_copy);
+	}
+	else if (converterPlugin) {
+		converterPlugin->push_data(str_copy);
 	}
 	else
 	if (plugin_name == "url") {
@@ -809,6 +838,9 @@ void PVRush::PVXmlTreeNodeDom::clearFiltersData()
 	if (splitterPlugin) {
 		splitterPlugin->clear_filter_data();
 	}
+	else if (converterPlugin) {
+		converterPlugin->clear_filter_data();
+	}
 
 
 	for (int ichild = 0; ichild < getChildren().size(); ichild++) {
@@ -820,6 +852,9 @@ void PVRush::PVXmlTreeNodeDom::updateFiltersDataDisplay()
 {
 	if (splitterPlugin) {
 		splitterPlugin->update_data_display();
+	}
+	else if (converterPlugin) {
+		converterPlugin->update_data_display();
 	}
 
 	for (int ichild = 0; ichild < getChildren().size(); ichild++) {
@@ -852,7 +887,7 @@ bool PVRush::PVXmlTreeNodeDom::hasSplitterAsChild()
 {
 	for (int ichild = 0; ichild < getChildren().size(); ichild++) {
 		QString type = getChild(ichild)->typeToString();
-		if (type == "splitter" || type == "url") {
+		if (type == "splitter" || type == "converter" || type == "url") {
 			return true;
 		}
 	}

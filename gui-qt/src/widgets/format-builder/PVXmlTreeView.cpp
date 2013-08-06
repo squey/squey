@@ -86,6 +86,17 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlTreeView::addSplitter(PVFilter::PVFi
         return getModel()->addSplitter(index,splitterPlugin);
 }
 
+/******************************************************************************
+ *
+ * PVInspector::PVXmlTreeView::addConverter
+ *
+ *****************************************************************************/
+PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlTreeView::addConverter(PVFilter::PVFieldsConverterParamWidget_p converterPlugin){
+	PVLOG_DEBUG("PVInspector::PVXmlTreeView::addConverter \n");
+	QModelIndex index = getSelectedIndex();
+	return getModel()->addConverter(index,converterPlugin);
+}
+
 
 /******************************************************************************
  *

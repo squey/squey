@@ -56,7 +56,7 @@ PVCore::list_fields& PVFieldsFilter<many_to_many>::operator()(PVCore::list_field
 template <> LibKernelDecl
 QString PVFieldsFilter<one_to_one>::type_name()
 {
-	return QString("filter");
+	return QString("converter");
 }
 
 template <> LibKernelDecl

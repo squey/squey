@@ -126,7 +126,7 @@ void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom *no
         PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForSplitter\n");
         assert(nodeSplitter);
         assert(nodeSplitter->getSplitterPlugin());
-        QWidget *w = nodeSplitter->getParamWidget();
+        QWidget *w = nodeSplitter->getSplitterParamWidget();
         if (w != nullptr) {
 	        PVLOG_DEBUG("PVInspector::PVXmlParamWidget->objectName() =%s\n",
 	                    qPrintable(w->objectName()));
@@ -136,6 +136,33 @@ void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom *no
 	        type = splitterParam;
 
 	        connect(nodeSplitter, SIGNAL(data_changed()), this, SLOT(slotEmitNeedApply()));
+	        //slotEmitNeedApply();
+	        //focus on regexp
+	        //w->getWidgetToFocus()->setFocus();
+        } else {
+	        PVLOG_DEBUG("PVInspector::PVXmlParamWidget: no widget\n");
+        }
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlParamWidget::drawForConverter
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlParamWidget::drawForConverter(PVRush::PVXmlTreeNodeDom *nodeConverter) {
+        PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForConverter\n");
+        assert(nodeConverter);
+        assert(nodeConverter->getConverterPlugin());
+        QWidget *w = nodeConverter->getConverterParamWidget();
+        if (w != nullptr) {
+	        PVLOG_DEBUG("PVInspector::PVXmlParamWidget->objectName() =%s\n",
+	                    qPrintable(w->objectName()));
+	        lesWidgetDuLayout.push_back(w);
+	        layout->addWidget(w);
+	        addListWidget();
+	        type = splitterParam;
+
+	        connect(nodeConverter, SIGNAL(data_changed()), this, SLOT(slotEmitNeedApply()));
 	        //slotEmitNeedApply();
 	        //focus on regexp
 	        //w->getWidgetToFocus()->setFocus();
@@ -342,8 +369,6 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
 		editingIndex = index;
 		PVRush::PVXmlTreeNodeDom *nodeOnClick = (PVRush::PVXmlTreeNodeDom *) index.internalPointer();
 
-		bool splitter = nodeOnClick->type == PVRush::PVXmlTreeNodeDom::splitter;
-
 		if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::filter) {
             PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> filter\n");
 			drawForFilter(nodeOnClick);
@@ -356,9 +381,13 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
 				drawForAxis(nodeOnClick);
 		} else if (nodeOnClick->attribute("type", "") == "url") {
 			return;
-		}else if (splitter){
+		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::splitter) {
             PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> splitter\n");
 			drawForSplitter(nodeOnClick);
+		}
+		else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::converter) {
+			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> converter\n");
+			drawForConverter(nodeOnClick);
 		}
 	}
 

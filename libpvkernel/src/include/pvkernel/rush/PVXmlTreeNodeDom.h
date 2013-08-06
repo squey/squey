@@ -37,7 +37,7 @@ class LibKernelDecl PVXmlTreeNodeDom:public QObject {
     Q_OBJECT
 public:
     enum Type {
-        Root, field, RegEx, filter, axis, url, splitter
+        Root, field, RegEx, filter, axis, url, splitter, converter
     };
     
     
@@ -114,7 +114,7 @@ public:
 	void toArgumentList(PVCore::PVArgumentList const& default_args, PVCore::PVArgumentList& args);
 
     bool isEditable() {
-        if (type == splitter || type == filter || type == url || type == axis || type == RegEx) {
+        if (type == splitter || type == converter || type == filter || type == url || type == axis || type == RegEx) {
             return true;
         } else {
             return false;
@@ -160,7 +160,21 @@ public:
         return splitterPlugin;
     }
     
+    void setConverterPlugin(PVFilter::PVFieldsConverterParamWidget_p plugin) {
+		converterPlugin = plugin;
+		assert(converterPlugin);
+		converterPlugin->connect_to_args_changed(this, SLOT(slot_update()));
+	}
+
+	PVFilter::PVFieldsConverterParamWidget_p getConverterPlugin() {
+		if(!converterPlugin){
+			createConverterPlugin(xmlDomElement);
+		}
+		return converterPlugin;
+	}
+
     bool createSplitterPlugin(const QDomElement &);
+    bool createConverterPlugin(const QDomElement &);
     
     QDomElement getDom();
     
@@ -179,7 +193,7 @@ public:
      */
     QString attribute(QString name, bool flagReadInXml=true);
     
-    QWidget* getParamWidget(){
+    QWidget* getSplitterParamWidget(){
         PVCore::PVArgumentList args,args_default;
         args_default = getSplitterPlugin()->get_default_argument();
         toArgumentList(args_default,args);
@@ -187,6 +201,14 @@ public:
         return getSplitterPlugin()->get_param_widget();
     }
     
+    QWidget* getConverterParamWidget(){
+		PVCore::PVArgumentList args,args_default;
+		args_default = getConverterPlugin()->get_default_argument();
+		toArgumentList(args_default,args);
+		getConverterPlugin()->get_filter()->set_args(args);
+		return getConverterPlugin()->get_param_widget();
+	}
+
 	void getChildrenFromField(PVCore::PVField const& field);
 	void clearFiltersData();
     
@@ -263,6 +285,7 @@ private:
     QHash<QString,QString> otherData;
     
     PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin;
+    PVFilter::PVFieldsConverterParamWidget_p converterPlugin;
     
     
     bool isAlreadyExplored;
@@ -308,15 +331,20 @@ private:
 public slots:
     void slot_update()
 	{
-        PVLOG_DEBUG("PVXmlTreeNodeDom slot slot_update()\n");
-        setFromArgumentList(getSplitterPlugin()->get_filter()->get_args());
+        PVLOG_INFO("PVXmlTreeNodeDom slot slot_update()\n");
+        if (splitterPlugin) {
+        	setFromArgumentList(getSplitterPlugin()->get_filter()->get_args());
+        }
+        else if (converterPlugin) {
+        	setFromArgumentList(getConverterPlugin()->get_filter()->get_args());
+        }
         emit data_changed();
     }
 
 	void slot_update_number_childs()
 	{
 		assert(splitterPlugin);
-        PVLOG_DEBUG("slot_update_number_childs with plugin %x\n", splitterPlugin.get());
+        PVLOG_INFO("slot_update_number_childs with plugin %x\n", splitterPlugin.get());
 		setNbr(splitterPlugin->get_child_count());
 		emit data_changed();
 	}

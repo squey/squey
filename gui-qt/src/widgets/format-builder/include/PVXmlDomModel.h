@@ -46,6 +46,7 @@ public:
     PVRush::PVXmlTreeNodeDom* addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode);
 
 	PVRush::PVXmlTreeNodeDom* addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
+	PVRush::PVXmlTreeNodeDom* addConverter(const QModelIndex &index, PVFilter::PVFieldsConverterParamWidget_p converterPlugin);
     void addRegExIn(const QModelIndex &index);
     void addUrlIn(const QModelIndex &index);
 

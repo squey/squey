@@ -71,6 +71,11 @@ public:
      */
     void drawForSplitter(PVRush::PVXmlTreeNodeDom  *nodeSplitter);
     /**
+     * Draw the converter parameter box.
+     * @param nodeConverter
+     */
+    void drawForConverter(PVRush::PVXmlTreeNodeDom  *nodeConverter);
+    /**
      * Dras the axis parameter box.
      * @param nodeOnClick
      */

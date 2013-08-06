@@ -54,6 +54,7 @@ public:
      * @param splitterPlugin : new instance of the plugin requesting the new splitter
      */
 	PVRush::PVXmlTreeNodeDom* addSplitter(PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
+	PVRush::PVXmlTreeNodeDom* addConverter(PVFilter::PVFieldsConverterParamWidget_p converterPlugin);
 	
 	PVRush::PVXmlTreeNodeDom* processChildrenWithField();
     

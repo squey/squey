@@ -62,6 +62,7 @@ typedef QHash<QString, PVRush::PVFormat> hash_formats;
 #define PVFORMAT_XML_TAG_AXIS_STR "axis"
 #define PVFORMAT_XML_TAG_SPLITTER_STR "splitter"
 #define PVFORMAT_XML_TAG_FILTER_STR "filter"
+#define PVFORMAT_XML_TAG_CONVERTER_STR "converter"
 #define PVFORMAT_XML_TAG_AXES_COMBINATION_STR "axes-combination"
 #define PVFORMAT_XML_TAG_MAPPING "mapping"
 #define PVFORMAT_XML_TAG_PLOTTING "plotting"

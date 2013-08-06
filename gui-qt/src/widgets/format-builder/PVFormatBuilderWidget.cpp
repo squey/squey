@@ -341,19 +341,28 @@ void PVInspector::PVFormatBuilderWidget::initToolBar(QVBoxLayout *vb){
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::initSplitters() {
         LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes splitters = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list();
-        LIB_CLASS(PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one>)::list_classes filters = LIB_CLASS(PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one>)::get().get_list();
+        LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::list_classes converters = LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list();
 
         // _list_* is a QHash. Its keys are a QString with the registered name of the class (in our case, "csv", "regexp", etc...).
         // Its values are a boost::shared_ptr<PVFieldsSplitterParamWidget> or boost::shared_ptr<PVFieldsFilterParamWidget<one_to_one> > object.
         // For instance :
         LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes::const_iterator it;
         for (it = splitters.begin(); it != splitters.end(); it++) {
-                PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it.value();
-                assert(pluginsSplitter);
-                _list_splitters.push_back(pluginsSplitter);
-				pluginsSplitter->get_action_menu()->setData(it.key());
-                connect(pluginsSplitter->get_action_menu(), SIGNAL(triggered()), this, SLOT(slotAddSplitter()));
+			PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it.value();
+			assert(pluginsSplitter);
+			_list_splitters.push_back(pluginsSplitter);
+			pluginsSplitter->get_action_menu()->setData(it.key());
+			connect(pluginsSplitter->get_action_menu(), SIGNAL(triggered()), this, SLOT(slotAddSplitter()));
         }
+
+        LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::list_classes::const_iterator itc;
+		for (itc = converters.begin(); itc != converters.end(); itc++) {
+			PVFilter::PVFieldsConverterParamWidget_p pluginsConverter = itc.value();
+			assert(pluginsConverter);
+			_list_converters.push_back(pluginsConverter);
+			pluginsConverter->get_action_menu()->setData(itc.key());
+			connect(pluginsConverter->get_action_menu(), SIGNAL(triggered()), this, SLOT(slotAddConverter()));
+		}
 }
 
 
@@ -390,13 +399,29 @@ void PVInspector::PVFormatBuilderWidget::slotAddRegExAfter() {
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotAddSplitter()
 {
-        QAction* action_src = (QAction*) sender();
-        QString const& itype = action_src->data().toString();
-        PVFilter::PVFieldsSplitterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(itype);
-        PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy = in_t->clone<PVFilter::PVFieldsSplitterParamWidget>();
-		QString registered_name = in_t_cpy->registered_name();
-        PVLOG_DEBUG("(PVInspector::PVFormatBuilderWidget::slotAddSplitter) type_name %s, %s\n", qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
-        myTreeView->addSplitter(in_t_cpy);
+	QAction* action_src = (QAction*) sender();
+	QString const& itype = action_src->data().toString();
+	PVFilter::PVFieldsSplitterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(itype);
+	PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy = in_t->clone<PVFilter::PVFieldsSplitterParamWidget>();
+	QString registered_name = in_t_cpy->registered_name();
+	PVLOG_DEBUG("(PVInspector::PVFormatBuilderWidget::slotAddSplitter) type_name %s, %s\n", qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
+	myTreeView->addSplitter(in_t_cpy);
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVFormatBuilderWidget::slotAddConverter
+ *
+ *****************************************************************************/
+void PVInspector::PVFormatBuilderWidget::slotAddConverter()
+{
+	QAction* action_src = (QAction*) sender();
+	QString const& itype = action_src->data().toString();
+	PVFilter::PVFieldsConverterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_class_by_name(itype);
+	PVFilter::PVFieldsConverterParamWidget_p in_t_cpy = in_t->clone<PVFilter::PVFieldsConverterParamWidget>();
+	QString registered_name = in_t_cpy->registered_name();
+	PVLOG_DEBUG("(PVInspector::PVFormatBuilderWidget::slotAddConverter) type_name %s, %s\n", qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
+	myTreeView->addConverter(in_t_cpy);
 }
 
 
@@ -678,6 +703,17 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar() {
                         splitter->addAction(action);
                 }
         }
+
+        //add all plugins converters
+        QMenu *converter = menuBar->addMenu(tr("&Converter"));
+		//add all plugins converters
+		for (int i = 0; i < _list_converters.size(); i++) {
+			QAction *action = _list_converters.at(i)->get_action_menu();
+			assert(action);
+			if (action) {
+				converter->addAction(action);
+			}
+		}
 
         file->addSeparator();
 	file->addAction(actionCloseWindow);

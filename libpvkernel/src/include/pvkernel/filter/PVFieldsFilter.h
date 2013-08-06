@@ -152,6 +152,9 @@ typedef PVFieldsFilterReg::p_type PVFieldsFilterReg_p;
 typedef PVFilter::PVFieldsFilter<PVFilter::one_to_many> PVFieldsSplitter;
 typedef PVFieldsSplitter::p_type PVFieldsSplitter_p;
 
+typedef PVFilter::PVFieldsFilter<PVFilter::one_to_one> PVFieldsConverter;
+typedef PVFieldsConverter::p_type PVFieldsConverter_p;
+
 // WARNING: all the different PVFilterLibrary's must be defined here, so that they will be exported by the DLL and imported by the others
 #ifdef WIN32
 LibKernelDeclExplicitTempl PVCore::PVClassLibrary<PVFilter::PVFieldsFilter<PVFilter::one_to_many>::FilterT>;

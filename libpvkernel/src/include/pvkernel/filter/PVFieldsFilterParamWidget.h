@@ -148,6 +148,9 @@ protected:
 typedef PVFieldsFilterParamWidget<PVFilter::one_to_many> PVFieldsSplitterParamWidget;
 typedef PVFieldsSplitterParamWidget::p_type PVFieldsSplitterParamWidget_p;
 
+typedef PVFieldsFilterParamWidget<PVFilter::one_to_one> PVFieldsConverterParamWidget;
+typedef PVFieldsConverterParamWidget::p_type PVFieldsConverterParamWidget_p;
+
 }
 
 #ifdef WIN32

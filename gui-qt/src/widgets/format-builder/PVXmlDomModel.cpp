@@ -160,6 +160,10 @@ QVariant PVInspector::PVXmlDomModel::data(const QModelIndex &index, int role)con
                     QString s = QString("splitter : %1").arg(node->attribute("type", ""));
                     return s;
                 }
+                else if (node->typeToString() == "converter") {
+					QString s = QString("converter : %1").arg(node->attribute("type", ""));
+					return s;
+				}
                 return node->typeToString();
                
             } else if(index.column() == 1){
@@ -506,6 +510,54 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitter(const QModelIn
 	return child;
 }
 
+
+
+/******************************************************************************
+ *
+ *  PVInspector::PVXmlDomModel::addConverter
+ *
+ *****************************************************************************/
+PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addConverter(const QModelIndex &index, PVFilter::PVFieldsConverterParamWidget_p converterPlugin)
+{
+	assert(converterPlugin);
+
+	PVRush::PVXmlTreeNodeDom* child;
+	PVLOG_DEBUG("PVInspector::PVXmlDomModel::addConverter\n");
+	PVRush::PVXmlTreeNodeDom *field;
+	if(index.isValid()){//add as child
+		field = nodeFromIndex(index);
+		if (field->typeToString() == "field") {//a converter can be add only in field...
+			PVLOG_DEBUG("     adding converter in a field\n");
+		} else {
+			//QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"), tr(QString(field->getDom().tagName())));
+			QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"), tr("You must select a field first."));
+			return NULL;
+		}
+	}else{//add on the root
+
+		field = rootNode;
+
+	}
+	PVLOG_DEBUG("     adding converter on root node\n");
+	//add node in dom
+	QDomElement newDom = xmlFile.createElement(converterPlugin->type_name());
+	PVLOG_INFO("converterPlugin->type_name()=%s\n", converterPlugin->type_name().toStdString().c_str());
+	QString registered_name = converterPlugin->registered_name();
+	PVLOG_DEBUG("          set tag %s, type %s\n", qPrintable(converterPlugin->type_name()), qPrintable(registered_name));
+	newDom.setAttribute("type", registered_name);
+	field->getDom().appendChild(newDom);
+	//
+	//add node in tree
+	child = new PVRush::PVXmlTreeNodeDom(newDom);
+	child->setParent(field);
+	field->addChild(child);
+
+	//save the converter plugin referance
+	child->setConverterPlugin(converterPlugin);
+
+	emit layoutChanged();
+	return child;
+}
 
 PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitterWithAxes(const QModelIndex& index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin, QStringList axesName)
 {

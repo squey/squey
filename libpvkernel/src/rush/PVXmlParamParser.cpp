@@ -166,7 +166,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 		QDomElement child = childs.at(i).toElement();
 		QString node_type = getNodeType(child);
 
-		if (node_type == PVFORMAT_XML_TAG_FILTER_STR) {
+		if (node_type == PVFORMAT_XML_TAG_FILTER_STR || node_type == PVFORMAT_XML_TAG_CONVERTER_STR) {
 			pushFilter(child, newId);
 		}
 	}
