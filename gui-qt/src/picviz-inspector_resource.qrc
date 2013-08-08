@@ -67,6 +67,10 @@
 
 	<!-- CSS -->
 	<file alias="gui.css">resources/gui.css</file>
+	
+	<!-- SPLITTER IP -->
+	<file alias="scissors_on">resources/scissors_on.png</file>
+	<file alias="scissors_off">resources/scissors_off.png</file>
 
 
 	<!-- FONTS -->

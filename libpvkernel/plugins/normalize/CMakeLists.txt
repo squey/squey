@@ -65,6 +65,14 @@ add_library(normalize_filter_converter_GUID_to_IP SHARED converter_GUID_to_IP/PV
 target_link_libraries(normalize_filter_converter_GUID_to_IP pvkernel ${QT_LIBRARIES})
 declare_library(normalize_filter_converter_GUID_to_IP)
 
+SET(SPLITTERIP_MOC_HEADERS
+splitter_ip/PVFieldSplitterIPParamWidget.h
+)
+QT4_WRAP_CPP(SPLITTERIP_MOC_SRCS ${SPLITTERIP_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+add_library(normalize_filter_splitter_ip SHARED splitter_ip/PVFieldSplitterIP.cpp splitter_ip/PVFieldSplitterIPParamWidget.cpp ${SPLITTERIP_MOC_SRCS} splitter_ip/register.cpp)
+target_link_libraries(normalize_filter_splitter_ip pvkernel ${QT_LIBRARIES})
+declare_library(normalize_filter_splitter_ip)
+
 # "grep"
 
 add_library(normalize_filter_grep_regexp SHARED grep_regexp/PVFieldFilterRegexpGrep.cpp grep_regexp/PVFieldFilterRegexpGrep.h grep_regexp/register.cpp)
