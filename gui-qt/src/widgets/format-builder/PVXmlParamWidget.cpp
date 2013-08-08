@@ -128,17 +128,17 @@ void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom *no
         assert(nodeSplitter->getSplitterPlugin());
         QWidget *w = nodeSplitter->getSplitterParamWidget();
         if (w != nullptr) {
-	        PVLOG_DEBUG("PVInspector::PVXmlParamWidget->objectName() =%s\n",
-	                    qPrintable(w->objectName()));
-	        lesWidgetDuLayout.push_back(w);
-	        layout->addWidget(w);
-	        addListWidget();
-	        type = splitterParam;
+			PVLOG_DEBUG("PVInspector::PVXmlParamWidget->objectName() =%s\n",
+						qPrintable(w->objectName()));
+			lesWidgetDuLayout.push_back(w);
+			layout->addWidget(w);
+			addListWidget();
+			type = splitterParam;
 
-	        connect(nodeSplitter, SIGNAL(data_changed()), this, SLOT(slotEmitNeedApply()));
-	        //slotEmitNeedApply();
-	        //focus on regexp
-	        //w->getWidgetToFocus()->setFocus();
+			connect(nodeSplitter, SIGNAL(data_changed()), this, SLOT(slotEmitNeedApply()));
+			//slotEmitNeedApply();
+			//focus on regexp
+			//w->getWidgetToFocus()->setFocus();
         } else {
 	        PVLOG_DEBUG("PVInspector::PVXmlParamWidget: no widget\n");
         }

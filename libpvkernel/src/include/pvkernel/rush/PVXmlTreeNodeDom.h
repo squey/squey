@@ -331,7 +331,7 @@ private:
 public slots:
     void slot_update()
 	{
-        PVLOG_INFO("PVXmlTreeNodeDom slot slot_update()\n");
+        PVLOG_DEBUG("PVXmlTreeNodeDom slot slot_update()\n");
         if (splitterPlugin) {
         	setFromArgumentList(getSplitterPlugin()->get_filter()->get_args());
         }
@@ -344,7 +344,7 @@ public slots:
 	void slot_update_number_childs()
 	{
 		assert(splitterPlugin);
-        PVLOG_INFO("slot_update_number_childs with plugin %x\n", splitterPlugin.get());
+		PVLOG_DEBUG("slot_update_number_childs with plugin %x\n", splitterPlugin.get());
 		setNbr(splitterPlugin->get_child_count());
 		emit data_changed();
 	}

@@ -637,7 +637,7 @@ void PVInspector::PVFormatBuilderWidget::slotUpdateToolDesabled(const QModelInde
         actionAddRegExAfter->setEnabled(false);
         actionAddUrl->setEnabled(false);
         actionDelete->setEnabled(true);
-    } else if (node->getDom().tagName() == "filter") {
+    } else if (node->getDom().tagName() == "filter" || node->getDom().tagName() == "converter") {
         actionAddFilterAfter->setEnabled(false);
         actionAddAxisIn->setEnabled(false);
         actionAddRegExAfter->setEnabled(false);
