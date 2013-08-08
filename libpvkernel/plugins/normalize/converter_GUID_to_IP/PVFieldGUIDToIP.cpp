@@ -52,15 +52,15 @@ PVCore::PVField& PVFilter::PVFieldGUIDToIP::one_to_one(PVCore::PVField& field)
 	field.get_qstr(field_str);
 	int start = 0;
 	if (field_str.size() == field_max_len) {
-		start += 2;
+		start++;
 	}
 
 	if (!_ipv6) { //ipv4
 		char dec_ipv4[ipv4_dec_max_len];
 
 		unsigned int a, b, c, d;
-		if (sscanf(field_str.mid(start, ipv4_hexa_len).toStdString().c_str(), "%2X%2X%2X%2X", &a, &b, &c, &d) == 4) {
-			snprintf(dec_ipv4, ipv4_dec_max_len, "%u.%u.%u.%u", a, b, c, d);
+		if (sscanf(field_str.mid(start, ipv4_hexa_len).toStdString().c_str(), "%2x%2x%2x%2x", &a, &b, &c, &d) == 4) {
+			snprintf(dec_ipv4, ipv4_dec_max_len+1, "%u.%u.%u.%u", a, b, c, d);
 
 			size_t ip_dec_utf16_len = strlen(dec_ipv4)*2;
 
@@ -70,8 +70,8 @@ PVCore::PVField& PVFilter::PVFieldGUIDToIP::one_to_one(PVCore::PVField& field)
 			field.set_end(field.begin() + ip_dec_utf16_len);
 		}
 		else {
-			field.allocate_new(0);
-			field.set_end(field.begin());
+			field.set_invalid();
+			field.elt_parent()->set_invalid();
 		}
 	}
 	else { //ipv6
@@ -87,8 +87,8 @@ PVCore::PVField& PVFilter::PVFieldGUIDToIP::one_to_one(PVCore::PVField& field)
 			field.set_end(field.begin() + ipv6_hexa_utf16_len);
 		}
 		else {
-			field.allocate_new(0);
-			field.set_end(field.begin());
+			field.set_invalid();
+			field.elt_parent()->set_invalid();
 		}
 	}
 

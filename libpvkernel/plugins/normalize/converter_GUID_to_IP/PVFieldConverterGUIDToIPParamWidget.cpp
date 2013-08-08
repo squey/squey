@@ -84,7 +84,6 @@ QWidget* PVFilter::PVFieldConverterGUIDToIPParamWidget::get_param_widget()
 	ips_layout->addWidget(_ipv6);
 	groupBox->setLayout(ips_layout);
 	layout->addWidget(groupBox);
-	connect(_ipv4, SIGNAL(toggled(bool)), this, SLOT(update_params()));
 	connect(_ipv6, SIGNAL(toggled(bool)), this, SLOT(update_params()));
 
 	return _param_widget;
