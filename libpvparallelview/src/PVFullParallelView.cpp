@@ -19,7 +19,7 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent):
 	QGraphicsView(parent),
 	_first_resize(true)
 {
-	setCursor(Qt::CrossCursor);
+	viewport()->setCursor(Qt::CrossCursor);
 	setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 	setMinimumHeight(300);
 }
