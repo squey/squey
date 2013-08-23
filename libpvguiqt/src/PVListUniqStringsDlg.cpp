@@ -42,6 +42,9 @@ PVGuiQt::PVListUniqStringsDlg::PVListUniqStringsDlg(
 		_ctxt_menu->addAction(act);
 	}
 
+	__impl::PVTableViewResizeEventFilter* table_view_resize_event_handler = new __impl::PVTableViewResizeEventFilter();
+	_values_view->installEventFilter(table_view_resize_event_handler);
+	connect(table_view_resize_event_handler, SIGNAL(resized()), this, SLOT(view_resized()));
 	_values_view->horizontalHeader()->show();
 	_values_view->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
 	connect(_values_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(section_resized(int, int, int)));
@@ -57,6 +60,9 @@ PVGuiQt::PVListUniqStringsDlg::PVListUniqStringsDlg(
 	_act_toggle_log->setChecked(_use_logorithmic_scale);
 	_hhead_ctxt_menu->addAction(_act_toggle_linear);
 	_hhead_ctxt_menu->addAction(_act_toggle_log);
+
+	//_values_view->setShowGrid(false);
+	//_values_view->setStyleSheet("QTableView::item { border-left: 1px solid grey; }");
 }
 
 PVGuiQt::PVListUniqStringsDlg::~PVListUniqStringsDlg()
@@ -85,30 +91,29 @@ void PVGuiQt::PVListUniqStringsDlg::process_hhead_context_menu(QAction* act)
 
 void PVGuiQt::PVListUniqStringsDlg::showEvent(QShowEvent * event)
 {
-	//PVLOG_INFO("### PVGuiQt::PVListUniqStringsDlg::showEvent\n");
 	PVListDisplayDlg::showEvent(event);
-	_resize = true;
 	resize_section();
 }
 
-void PVGuiQt::PVListUniqStringsDlg::resizeEvent(QResizeEvent* event)
+void PVGuiQt::PVListUniqStringsDlg::view_resized()
 {
-	//PVLOG_INFO("### PVGuiQt::PVListUniqStringsDlg::resizeEvent isVisible()=%d\n", isVisible());
-	PVListDisplayDlg::resizeEvent(event);
+	// We don't want the resize of the view to change the stored last section width
+	_store_last_section_width = false;
 	resize_section();
 }
 
 void PVGuiQt::PVListUniqStringsDlg::resize_section()
 {
-	//PVLOG_INFO("### PVGuiQt::PVListUniqStringsDlg::resize_section _values_view->width() = %d _last_section_size = %d\n", _values_view->width(),_last_section_size);
-	_values_view->horizontalHeader()->resizeSection(0, _values_view->width() - _last_section_size);
+	_values_view->horizontalHeader()->resizeSection(0, _values_view->width() - _last_section_width);
 }
 
-void PVGuiQt::PVListUniqStringsDlg::section_resized(int logicalIndex, int oldSize, int newSize)
+void PVGuiQt::PVListUniqStringsDlg::section_resized(int logicalIndex, int /*oldSize*/, int newSize)
 {
-	//PVLOG_INFO("### PVGuiQt::PVListUniqStringsDlg::section_resized %d %d %d isVisible()=%d\n", logicalIndex, oldSize, newSize,isVisible());
-	if (logicalIndex == 1 && _resize) {
-		_last_section_size = newSize;
+	if (logicalIndex == 1) {
+		if (_store_last_section_width) {
+			_last_section_width = newSize;
+		}
+		_store_last_section_width = true;
 	}
 }
 
@@ -262,6 +267,8 @@ void PVGuiQt::__impl::PVListUniqStringsDelegate::paint(
 {
 	assert(index.isValid());
 
+	QStyledItemDelegate::paint(painter, option, index);
+
 	if (index.column() == 1) {
 		size_t occurence_count = index.data(Qt::UserRole).toUInt();
 
@@ -271,7 +278,7 @@ void PVGuiQt::__impl::PVListUniqStringsDelegate::paint(
 
 		// Draw bounding rectangle
 		size_t thickness = 1;
-		QRect r(option.rect.x(), option.rect.y()+thickness, option.rect.width(), option.rect.height()-thickness);
+		QRect r(option.rect.x()/*+2*/, option.rect.y()+thickness, option.rect.width(), option.rect.height()-thickness);
 		QColor color("#F2F2F2");
 #if ALTERNATING_BG_COLOR
 		QColor alt_color("#FBFBFB");
@@ -282,7 +289,7 @@ void PVGuiQt::__impl::PVListUniqStringsDelegate::paint(
 
 		// Fill rectangle with color
 		painter->fillRect(
-			option.rect.x()+thickness,
+			option.rect.x()+thickness/*+2*/,
 			option.rect.y()+2*thickness,
 			option.rect.width()*(log_scale ? log_ratio : ratio)-thickness,
 			option.rect.height()-2*thickness,

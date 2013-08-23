@@ -17,6 +17,8 @@
 #include <QDialog>
 #include <QStyledItemDelegate>
 
+#include <QResizeEvent>
+
 namespace PVGuiQt {
 
 class PVListUniqStringsDlg: public PVListDisplayDlg
@@ -32,13 +34,13 @@ public:
 	inline bool use_logorithmic_scale() { return _use_logorithmic_scale; }
 
 protected:
-	void resizeEvent(QResizeEvent * event) override;
 	void showEvent(QShowEvent * event) override;
 	void sort_by_column(int col) override;
 	void process_context_menu(QAction* act) override;
 	void process_hhead_context_menu(QAction* act) override;
 
 private slots:
+	void view_resized();
 	void section_resized(int logicalIndex, int oldSize, int newSize);
 
 private:
@@ -50,8 +52,8 @@ private:
 	PVCol _col;
 	PVHive::PVObserverSignal<Picviz::PVView> _obs;
 	PVHive::PVActor<Picviz::PVView> _actor;
-	bool _resize = false;
-	int _last_section_size = 125;
+	bool _store_last_section_width = true;
+	int _last_section_width = 125;
 	size_t _selection_count;
 
 	bool _use_logorithmic_scale = true;
@@ -91,6 +93,35 @@ protected:
 
 private:
 	PVGuiQt::PVListUniqStringsDlg* get_dialog() const;
+};
+
+/**
+ * \class PVTableViewResizeEventFilter
+ *
+ * \note This class is intended to be notified of the resize of the table view
+ *       to resize its last section according to the user preference.
+ *       i.e: the last section can only be changed by user interaction
+ *       on the section, not on the dialog size.
+ *
+ *       Note: I couldn't subclass the QTableView to achieve this goal because
+ *             the UI was created using Qt Creator, but it would also have
+ *             been a bit overkill anyway...
+ */
+class PVTableViewResizeEventFilter : public QObject
+{
+	Q_OBJECT
+
+signals:
+	void resized();
+
+protected:
+	bool eventFilter(QObject *obj, QEvent *event) override
+	{
+		 if (event->type() == QEvent::Resize) {
+			 emit resized();
+		 }
+		 return QObject::eventFilter(obj, event);
+	}
 };
 
 }
