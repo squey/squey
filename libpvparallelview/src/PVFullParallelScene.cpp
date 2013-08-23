@@ -67,6 +67,15 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.are_view_unselected_zombie_visible(); }, *obs);
 	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
 
+	// Register source for sections hover events
+	Picviz::PVSource_sp src_sp = view_sp->get_parent<Picviz::PVSource>()->shared_from_this();
+	PVHive::get().register_observer(src_sp, [=](Picviz::PVSource& source) { return &source.section_hovered(); }, _section_hover_obs);
+	_section_hover_obs.connect_refresh(this, SLOT(highlight_axis(PVHive::PVObserverBase*)));
+
+	// Register source for sections click events
+	PVHive::get().register_observer(src_sp, [=](Picviz::PVSource& source) { return &source.section_clicked(); }, _section_click_obs);
+	_section_click_obs.connect_refresh(this, SLOT(sync_axis_with_section(PVHive::PVObserverBase*)));
+
 	_obs_selected_layer = PVHive::create_observer_callback_heap<int>(
 	    [&](int const*) { },
 		[&](int const*) { this->update_axes_layer_min_max(); },
@@ -148,6 +157,8 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
 	        this, SLOT(update_selection_from_sliders_Slot(axis_id_t)));
 	connect(axisw, SIGNAL(new_zoomed_parallel_view(int)),
 	        this, SLOT(emit_new_zoomed_parallel_view(int)));
+	connect(axisw, SIGNAL(mouse_hover_entered(PVCol, bool)), this, SLOT(axis_hover_entered(PVCol, bool)));
+	connect(axisw, SIGNAL(mouse_clicked(PVCol)), this, SLOT(axis_clicked(PVCol)));
 
 	addItem(axisw);
 
@@ -157,6 +168,19 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
 		_axes[index] = axisw;
 	}
 	//axisw->get_sliders_group()->add_selection_sliders(768, 1000);
+}
+
+void PVParallelView::PVFullParallelScene::axis_hover_entered(PVCol col, bool entered)
+{
+	Picviz::PVSource_sp src = _lib_view.get_parent<Picviz::PVSource>()->shared_from_this();
+	PVHive::call<FUNC(Picviz::PVSource::set_axis_hovered)>(src, col, entered);
+	highlight_axis(entered ? col : -1);
+}
+
+void PVParallelView::PVFullParallelScene::axis_clicked(PVCol col)
+{
+	Picviz::PVSource_sp src = _lib_view.get_parent<Picviz::PVSource>()->shared_from_this();
+	PVHive::call<FUNC(Picviz::PVSource::set_axis_clicked)>(src, col);
 }
 
 /******************************************************************************
@@ -326,8 +350,6 @@ void PVParallelView::PVFullParallelScene::mousePressEvent(QGraphicsSceneMouseEve
 		_translation_start_x = event->scenePos().x();
 		event->accept();
 	} else if (event->button() == Qt::LeftButton) {
-
-
 		/* setting the selection "square" to a "zero" square at mouse
 		 * position and make it visible
 		 */
@@ -347,6 +369,13 @@ void PVParallelView::PVFullParallelScene::mousePressEvent(QGraphicsSceneMouseEve
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
+	QGraphicsScene::mouseReleaseEvent(event);
+
+	if (event->isAccepted()) {
+		// a QGraphicsItem has already done something (usually a contextMenuEvent)
+		return;
+	}
+
 	if (event->button() == Qt::RightButton) {
 		// translate zones
 		translate_and_update_zones_position();
@@ -356,8 +385,6 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
 		_selection_square->end(event->scenePos().x(), event->scenePos().y(), true, true);
 		event->accept();
 	}
-
-	QGraphicsScene::mouseReleaseEvent(event);
 }
 
 /******************************************************************************
@@ -1157,4 +1184,45 @@ void PVParallelView::PVFullParallelScene::toggle_unselected_zombie_visibility()
 size_t PVParallelView::PVFullParallelScene::qimage_height() const
 {
 	return std::min((size_t)(ceil((double)(1<<PARALLELVIEW_ZT_BBITS) * _zoom_y) + 2.0), (size_t) (1UL<<PARALLELVIEW_ZT_BBITS));
+}
+
+/******************************************************************************
+ * PVParallelView::PVFullParallelScene::highlight_axis
+ *****************************************************************************/
+void PVParallelView::PVFullParallelScene::highlight_axis(PVHive::PVObserverBase* o)
+{
+	PVHive::PVObserverSignal<int>* real_o = dynamic_cast<PVHive::PVObserverSignal<int>*>(o);
+	assert(real_o);
+	int* obj = real_o->get_object();
+	int col = *obj;
+
+	highlight_axis(col);
+}
+
+void PVParallelView::PVFullParallelScene::highlight_axis(int col)
+{
+	if (col == -1 ) {
+		if (_hovered_axis_id != -1) {
+			_axes[_hovered_axis_id]->highlight(false);
+		}
+	}
+	else {
+		_axes[col]->highlight(true);
+	}
+	_hovered_axis_id  = col;
+}
+
+void PVParallelView::PVFullParallelScene::sync_axis_with_section(PVHive::PVObserverBase* o)
+{
+	PVHive::PVObserverSignal<section_pos_t>* real_o = dynamic_cast<PVHive::PVObserverSignal<section_pos_t>*>(o);
+	assert(real_o);
+	section_pos_t col_pos = *real_o->get_object();
+	size_t col = col_pos.first;
+	size_t pos = col_pos.second;
+
+	qreal axis_x = _full_parallel_view->mapFromScene(QPointF(_axes[col]->x(), 0)).x();
+	int offset = axis_x - pos;
+
+	QScrollBar* hBar = _full_parallel_view->horizontalScrollBar();
+	hBar->setValue(hBar->value() + offset);
 }

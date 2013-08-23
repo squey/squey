@@ -12,6 +12,7 @@
 #include <utility>
 
 #include <QGraphicsItem>
+class QPropertyAnimation;
 
 #include <pvkernel/core/PVAlgorithms.h>
 
@@ -33,6 +34,7 @@ namespace PVParallelView
 namespace __impl
 {
 class PVToolTipEventFilter;
+class PVAxisSelectedAnimation;
 }
 
 class PVAxisLabel;
@@ -43,6 +45,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	Q_OBJECT
 
 	friend class __impl::PVToolTipEventFilter;
+	friend class __impl::PVAxisSelectedAnimation;
 
 public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
@@ -112,6 +115,8 @@ public:
 
 	bool is_last_axis() const;
 
+	void highlight(bool start);
+
 public slots:
 	void emit_new_zoomed_parallel_view(int axis_id)
 	{
@@ -123,6 +128,8 @@ protected:
 
 signals:
 	void new_zoomed_parallel_view(int axis_id);
+	void mouse_hover_entered(PVCol axis, bool entered);
+	void mouse_clicked(PVCol axis);
 
 private:
 	Picviz::PVAxis const* lib_axis() const;
@@ -148,7 +155,62 @@ private:
 	QGraphicsTextItem              *_layer_max_value;
 	__impl::PVToolTipEventFilter   *_event_filter;
 	bool                            _minmax_visible;
+
+	__impl::PVAxisSelectedAnimation   *_axis_selected_animation;
 };
+
+namespace __impl
+{
+
+class PVAxisSelectedAnimation : QObject
+{
+	Q_OBJECT
+
+	Q_PROPERTY(qreal opacity READ get_opacity WRITE set_opacity);
+	Q_PROPERTY(qreal blur READ get_blur WRITE set_blur);
+
+private:
+	static constexpr size_t opacity_animation_duration_ms = 100;
+	static constexpr QEasingCurve::Type opacity_animation_easing = QEasingCurve::Linear;
+
+	static constexpr qreal blur_animation_min_amount = 0.0;
+	static constexpr qreal blur_animation_max_amount = 5.0;
+	static constexpr size_t blur_animation_duration_ms = 800;
+	static constexpr QEasingCurve::Type blur_animation_easing = QEasingCurve::InOutQuad;
+
+public:
+	PVAxisSelectedAnimation(PVAxisGraphicsItem* parent);
+	~PVAxisSelectedAnimation()
+	{
+		delete _opacity_animation;
+		delete _blur_animation;
+	}
+
+public:
+	void start(bool start);
+
+private: // properties
+	qreal get_opacity() const { return 0.0; } // avoid Qt warning
+	void set_opacity(qreal opacity);
+
+	qreal get_blur() const { return 0.0; } // avoid Qt warning
+	void set_blur(qreal blur);
+
+private slots: // animation
+	void blur_animation_current_loop_changed();
+
+private:
+	inline PVAxisGraphicsItem* axis() { return (PVAxisGraphicsItem*) parent(); }
+
+private:
+	QGraphicsPixmapItem* _selected_axis_hole;
+	QGraphicsPixmapItem* _selected_axis_dot;
+
+	QPropertyAnimation* _opacity_animation;
+	QPropertyAnimation* _blur_animation;
+};
+
+}
 
 }
 

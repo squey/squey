@@ -22,8 +22,11 @@ QWidget* PVDisplays::PVDisplayViewListing::create_widget(Picviz::PVView* view, Q
 	PVGuiQt::PVListingView* listing_view = new PVGuiQt::PVListingView(view_sp, parent);
 	PVGuiQt::PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view_sp, listing_view);
 	proxy_model->setSourceModel(model);
-
 	listing_view->setModel(proxy_model);
+
+	PVGuiQt::PVHorizontalHeaderView* hheaderview = new PVGuiQt::PVHorizontalHeaderView(Qt::Horizontal, listing_view);
+	listing_view->setHorizontalHeader(hheaderview);
+
 	PVGuiQt::PVStatsListingWidget* stats_listing = new PVGuiQt::PVStatsListingWidget(listing_view);
 
 	return stats_listing;

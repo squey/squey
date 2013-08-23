@@ -146,6 +146,7 @@ QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orient
 			if (section >= 0) {
 				return section;
 			}
+		break;
 		case (Qt::FontRole):
 			if (orientation == Qt::Vertical) {
 				if (section >= 0) {
@@ -159,10 +160,15 @@ QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orient
 			break;
 		case (Qt::TextAlignmentRole):
 			if (orientation == Qt::Horizontal) {
-				return (Qt::AlignLeft + Qt::AlignVCenter);
+				return (Qt::AlignLeft + Qt::AlignTop);
 			} else {
 				return (Qt::AlignRight + Qt::AlignVCenter);
 			}
+		/*case (Qt::SizeHintRole):
+		{
+			return QSize(1, 30);
+		}
+		break;*/
 	}
 
 	return QVariant();

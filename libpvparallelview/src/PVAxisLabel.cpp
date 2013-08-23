@@ -25,6 +25,7 @@ PVParallelView::PVAxisLabel::PVAxisLabel(const Picviz::PVView &view,
                                          QGraphicsItem *parent) :
 	QGraphicsSimpleTextItem(parent), _lib_view(view), _sliders_group(sg)
 {
+	setAcceptHoverEvents(true); // This is needed to enable hover events
 }
 
 /*****************************************************************************
@@ -97,6 +98,22 @@ void PVParallelView::PVAxisLabel::new_zoomed_parallel_view()
 	view_dlg->show();*/
 
 	emit new_zoomed_parallel_view(_axis_index);
+}
+
+void PVParallelView::PVAxisLabel::hoverEnterEvent(QGraphicsSceneHoverEvent* /*event*/)
+{
+	emit mouse_hover_entered(get_axis_index(), true);
+}
+
+void PVParallelView::PVAxisLabel::hoverLeaveEvent(QGraphicsSceneHoverEvent* /*event*/)
+{
+	emit mouse_hover_entered(get_axis_index(), false);
+}
+
+void PVParallelView::PVAxisLabel::mousePressEvent(QGraphicsSceneMouseEvent* event)
+{
+	event->accept(); // Prevent the scene from handling this event
+	emit mouse_clicked(get_axis_index());
 }
 
 /*****************************************************************************

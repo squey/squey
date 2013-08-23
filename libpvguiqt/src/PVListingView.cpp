@@ -39,6 +39,7 @@
 #include <QStatusBar>
 #include <QMenu>
 #include <QWheelEvent>
+#include <QLinearGradient>
 
 #define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
 #include <tbb/parallel_reduce.h>
@@ -118,6 +119,15 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 
 	_obs.connect_about_to_be_deleted(this, SLOT(deleteLater()));
 
+	// Register source for axes hovering events
+	Picviz::PVSource_sp src_sp = view->get_parent<Picviz::PVSource>()->shared_from_this();
+	PVHive::get().register_observer(src_sp, [=](Picviz::PVSource& source) { return &source.axis_hovered(); }, _axis_hover_obs);
+	_axis_hover_obs.connect_refresh(this, SLOT(highlight_column(PVHive::PVObserverBase*)));
+
+	// Register source for axes click events
+	PVHive::get().register_observer(src_sp, [=](Picviz::PVSource& source) { return &source.axis_clicked(); }, _axis_clicked_obs);
+	_axis_clicked_obs.connect_refresh(this, SLOT(set_section_visible(PVHive::PVObserverBase*)));
+
 	//_ctxt_process = NULL;
 	
 	// SIZE STUFF
@@ -129,7 +139,7 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	// OBJECTNAME STUFF
 	setObjectName("PVListingView");
 	// We need to name the headers if we want to style them by CSS (without interfering with other headers...
-	horizontalHeader()->setObjectName("horizontalHeader_of_PVListingView");
+	//horizontalHeader()->setObjectName("horizontalHeader_of_PVListingView");
 	verticalHeader()->setObjectName("verticalHeader_of_PVListingView");
 	horizontalScrollBar()->setObjectName("horizontalScrollBar_of_PVListingView");
 	verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
@@ -141,10 +151,8 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setSelectionBehavior(QAbstractItemView::SelectRows);
 
-	horizontalHeader()->setStretchLastSection(true);
-
 	// Sorting
-	setSortingEnabled(true);
+	setSortingEnabled(false);
 	
 	// Custom context menu.
 	// It is created based on what layer filter plugins tell us.
@@ -176,23 +184,19 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	_hhead_ctxt_menu = new QMenu(this);
 	_action_col_unique = new QAction(tr("List unique values of this axis..."), this);
 	_action_col_unique->setIcon(QIcon(":/fileslist_black"));
-
 	_hhead_ctxt_menu->addAction(_action_col_unique);
+	_action_col_sort = new QAction(tr("Sort this axis..."), this);
+	_action_col_sort->setIcon(QIcon(":/sort_desc"));
 
 
 	// Context menu for the listing
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
-	// Context menu of the horizontal header
-	connect(horizontalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_hhead_ctxt_menu(const QPoint&)));
-	horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
-
 	// A double click on the vertical header select the line in the lib view
 	connect(verticalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnVHead(int)));
 
-	// Save horizontal headers width to be persistent across axes combination changes
-	connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(columnResized(int, int, int)));
+	setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
 /******************************************************************************
@@ -293,8 +297,7 @@ QVector<PVRow> PVGuiQt::PVListingView::get_selected_rows()
 	selected_rows_vector.reserve(selected_rows_count);
 	PVListingSortFilterProxyModel* myModel = get_listing_model();
 
-	for (int i=0; i<selected_rows_count; ++i)
-	{
+	for (int i=0; i<selected_rows_count; ++i) {
 		int row_index = myModel->mapToSource(selected_rows_list.at(i)).row();
 		selected_rows_vector.append(row_index);
 	}
@@ -317,7 +320,7 @@ void PVGuiQt::PVListingView::extract_selection(Picviz::PVSelection &sel)
 	tvse_t tvse(this);
 	BENCH_START(sel_create);
 	tbb::parallel_deterministic_reduce(tvse_t::blocked_range(0, count,
-	                                                         count / thread_num),
+															 count / thread_num),
 	                                   tvse);
 	BENCH_END(sel_create, "extract_selection", 1, 1, 1, 1);
 	sel = tvse.get_selection();
@@ -375,7 +378,7 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 			_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 			lib_view().get_floating_selection().select_none();
 			lib_view().get_volatile_selection().select_all();
-
+			break;
 		default:
 			QTableView::keyPressEvent(event);
 	}
@@ -406,8 +409,9 @@ void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
  * PVGuiQt::PVListingView::columnResized
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::columnResized(int column, int /*oldWidth*/, int newWidth)
+void PVGuiQt::PVListingView::columnResized(int column, int oldWidth, int newWidth)
 {
+	QTableView::columnResized(column, oldWidth, newWidth);
 	_headers_width[lib_view().get_real_axis_index(column)] = newWidth;
 }
 
@@ -485,11 +489,16 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		_hhead_ctxt_menu->addSeparator();
 	}
 	_hhead_ctxt_menu->addAction(_action_col_unique);
+	_hhead_ctxt_menu->addAction(_action_col_sort);
 
 	QAction* sel = _hhead_ctxt_menu->exec(QCursor::pos());
 	if (sel == _action_col_unique) {
 		Picviz::PVView_sp view = lib_view().shared_from_this();
 		PVQNraw::show_unique_values(view, lib_view().get_rushnraw_parent(), col, *lib_view().get_selection_visible_listing(), this);
+	}
+	else if (sel == _action_col_sort) {
+		Qt::SortOrder order =  (Qt::SortOrder)!((bool)horizontalHeader()->sortIndicatorOrder());
+		sortByColumn(col, order);
 	}
 }
 
@@ -626,4 +635,113 @@ void PVGuiQt::PVListingView::corner_button_clicked()
 	// Reset to default ordering
 	get_listing_model()->reset_to_default_ordering_or_reverse();
 	sortByColumn(-1, Qt::AscendingOrder);
+}
+
+void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
+{
+	Picviz::PVSource_sp src = lib_view().get_parent<Picviz::PVSource>()->shared_from_this();
+	PVHive::call<FUNC(Picviz::PVSource::set_section_hovered)>(src, col, entered);
+}
+
+void PVGuiQt::PVListingView::section_clicked(int col)
+{
+	Picviz::PVSource_sp src = lib_view().get_parent<Picviz::PVSource>()->shared_from_this();
+	int x = horizontalHeader()->sectionViewportPosition(col);
+	int width = horizontalHeader()->sectionSize(col);
+	PVHive::call<FUNC(Picviz::PVSource::set_section_clicked)>(src, col, verticalHeader()->width() + x + width/2);
+}
+
+void PVGuiQt::PVListingView::highlight_column(PVHive::PVObserverBase* o)
+{
+	PVHive::PVObserverSignal<int>* real_o = dynamic_cast<PVHive::PVObserverSignal<int>*>(o);
+	assert(real_o);
+	int* obj = real_o->get_object();
+	int col = *obj;
+
+	_hovered_axis = col;
+
+	viewport()->update();
+}
+
+void PVGuiQt::PVListingView::set_section_visible(PVHive::PVObserverBase* o)
+{
+	PVHive::PVObserverSignal<PVCol>* real_o = dynamic_cast<PVHive::PVObserverSignal<PVCol>*>(o);
+	assert(real_o);
+	int* obj = real_o->get_object();
+	int col = *obj;
+
+	setSelectionBehavior(QAbstractItemView::SelectColumns);
+	selectColumn(col);
+	clearSelection();
+	setSelectionBehavior(QAbstractItemView::SelectRows);
+}
+
+void PVGuiQt::PVListingView::paintEvent(QPaintEvent* event)
+{
+	QTableView::paintEvent(event);
+
+	if (_hovered_axis != -1) {
+		int x = horizontalHeader()->sectionViewportPosition(_hovered_axis);
+		int width = horizontalHeader()->sectionSize(_hovered_axis);
+
+		QPainter painter(viewport());
+		QRectF r(x, 0, width, height());
+		painter.setOpacity(0.25);
+
+	    QLinearGradient gradient(r.topLeft(), r.topRight());
+	    gradient.setColorAt(0, Qt::lightGray);
+	    gradient.setColorAt(0.5, Qt::black);
+	    gradient.setColorAt(1, Qt::lightGray);
+	    painter.fillRect(r, gradient);
+	}
+}
+
+PVGuiQt::PVHorizontalHeaderView::PVHorizontalHeaderView(Qt::Orientation orientation, PVListingView* parent) : QHeaderView(orientation, parent)
+{
+	// These two calls are required since they are done on the headers in QTableView::QTableView
+	// instead of in QHeaderView::QHeaderView !
+	setClickable(true);
+	setHighlightSections(true);
+
+	// Context menu of the horizontal header
+	setStretchLastSection(true);
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), parent, SLOT(show_hhead_ctxt_menu(const QPoint&)));
+	setContextMenuPolicy(Qt::CustomContextMenu);
+
+	// Save horizontal headers width to be persistent across axes combination changes
+	connect(this, SIGNAL(sectionResized(int, int, int)), parent, SLOT(columnResized(int, int, int)));
+	
+	// section <-> axis synchronisation
+	connect(this, SIGNAL(mouse_hovered_section(int, bool)), parent, SLOT(section_hovered_enter(int, bool)));
+	connect(this, SIGNAL(sectionClicked(int)), parent, SLOT(section_clicked(int)));
+}
+
+bool PVGuiQt::PVHorizontalHeaderView::event(QEvent* ev)
+{
+	if (ev->type() == QEvent::HoverLeave || ev->type() == QEvent::Leave) {
+		emit mouse_hovered_section(_index, false);
+		_index = -1;
+	}
+	else if (ev->type() == QEvent::HoverMove) { // in eventFilter, this event would have been "QEvent::MouseMove"...
+		QHoverEvent* mouse_event = dynamic_cast<QHoverEvent*>(ev);
+		int index = logicalIndexAt(mouse_event->pos());
+		if(index != _index) {
+			if (_index != -1) {
+				emit mouse_hovered_section(_index, false);
+			}
+			emit mouse_hovered_section(index, true);
+		}
+		_index = index;
+	}
+	return QHeaderView::event(ev);
+}
+
+void PVGuiQt::PVHorizontalHeaderView::paintSection(
+	QPainter* painter,
+	const QRect& rect,
+	int logicalIndex) const
+{
+	painter->save();
+	QHeaderView::paintSection(painter, rect, logicalIndex);
+	painter->restore();
 }

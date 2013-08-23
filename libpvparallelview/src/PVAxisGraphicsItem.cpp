@@ -21,6 +21,8 @@
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QToolTip>
+#include <QGraphicsBlurEffect>
+#include <QPropertyAnimation>
 
 #define PROPERTY_TOOLTIP_VALUE "picviz_property_tooltip"
 
@@ -90,12 +92,13 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	_sliders_manager_p(sm_p),
 	_axis_id(axis_id),
 	_lib_view(view),
-	_axis_length(10)
+	_axis_length(10),
+	_axis_selected_animation(new __impl::PVAxisSelectedAnimation(this))
 {
-	_event_filter = new __impl::PVToolTipEventFilter(this);
+	setAcceptHoverEvents(true); // This is needed to enable hover events
+	setHandlesChildEvents(false); // This is needed to let the children of the group handle their events.
 
-	// This is needed to let the children of the group handle their events.
-	setHandlesChildEvents(false);
+	_event_filter = new __impl::PVToolTipEventFilter(this);
 
 	// the sliders must be over all other QGraphicsItems
 	setZValue(1.e42);
@@ -132,6 +135,8 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	addToGroup(_layer_max_value);
 
 	connect(_label, SIGNAL(new_zoomed_parallel_view(int)), this, SLOT(emit_new_zoomed_parallel_view(int)));
+	connect(_label, SIGNAL(mouse_hover_entered(PVCol, bool)), this, SIGNAL(mouse_hover_entered(PVCol, bool)));
+	connect(_label, SIGNAL(mouse_clicked(PVCol)), this, SIGNAL(mouse_clicked(PVCol)));
 
 	set_min_max_visible(false);
 
@@ -296,6 +301,14 @@ void PVParallelView::PVAxisGraphicsItem::update_layer_min_max_info()
 }
 
 /*****************************************************************************
+ * PVParallelView::PVAxisGraphicsItem::highlight
+ *****************************************************************************/
+void PVParallelView::PVAxisGraphicsItem::highlight(bool start)
+{
+	_axis_selected_animation->start(start);
+}
+
+/*****************************************************************************
  * PVParallelView::PVAxisGraphicsItem::update_layer_min_max_position
  *****************************************************************************/
 
@@ -382,4 +395,79 @@ void PVParallelView::PVAxisGraphicsItem::set_axis_length(int l)
 	update_axis_label_position();
 	update_axis_min_max_position();
 	update_layer_min_max_position();
+}
+
+PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisGraphicsItem* parent) :
+	QObject(parent)
+{
+	// Selected axis symbol
+	_selected_axis_hole = new QGraphicsPixmapItem(QPixmap(":/location_hole").scaled(QSize(50, 50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+	axis()->addToGroup(_selected_axis_hole);
+	_selected_axis_hole->setPos(- axis()->_axis_length - (1.73 * 8), - 64);
+	_selected_axis_hole->setVisible(false);
+	_selected_axis_dot = new QGraphicsPixmapItem(QPixmap(":/location_dot").scaled(QSize(50, 50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+	axis()->addToGroup(_selected_axis_dot);
+	_selected_axis_dot->setPos(- axis()->_axis_length - (1.73 * 8), - 64);
+	_selected_axis_dot->setVisible(false);
+
+	// Setup opacity animation
+	_opacity_animation = new QPropertyAnimation(this, "opacity");
+	_opacity_animation->setStartValue(0.0);
+	_opacity_animation->setEndValue(1.0);
+	_opacity_animation->setDuration(opacity_animation_duration_ms);
+	_opacity_animation->setEasingCurve(QEasingCurve::InOutQuad);
+	QGraphicsOpacityEffect* opacity_effect = new QGraphicsOpacityEffect();
+	_selected_axis_hole->setGraphicsEffect(opacity_effect);
+
+	// Setup blur animation
+	_blur_animation = new QPropertyAnimation(this, "blur");
+	_blur_animation->setStartValue(blur_animation_min_amount);
+	_blur_animation->setEndValue(blur_animation_max_amount);
+	_blur_animation->setDuration(blur_animation_duration_ms);
+	_blur_animation->setEasingCurve(blur_animation_easing);
+	connect(
+		_blur_animation,
+		SIGNAL(currentLoopChanged(int)),
+		this,
+		SLOT(blur_animation_current_loop_changed())
+	);
+	QGraphicsBlurEffect* blur_effect = new QGraphicsBlurEffect();
+	_selected_axis_dot->setGraphicsEffect(blur_effect);
+}
+
+void PVParallelView::__impl::PVAxisSelectedAnimation::start(bool start)
+{
+	if (start) {
+		_selected_axis_hole->setVisible(true);
+		_opacity_animation->setDirection(QAbstractAnimation::Forward);
+		_opacity_animation->start();
+
+		_selected_axis_dot->setVisible(true);
+		_blur_animation->setLoopCount(-1); // Forever and ever...
+		_blur_animation->setDirection(QAbstractAnimation::Forward);
+		_blur_animation->start();
+	}
+	else {
+		_opacity_animation->setDirection(QAbstractAnimation::Backward);
+		_opacity_animation->start();
+
+		_blur_animation->stop();
+		_selected_axis_dot->setVisible(false);
+	}
+}
+
+void PVParallelView::__impl::PVAxisSelectedAnimation::blur_animation_current_loop_changed()
+{
+}
+
+void PVParallelView::__impl::PVAxisSelectedAnimation::set_opacity(qreal opacity)
+{
+	QGraphicsOpacityEffect* opacity_effect = (QGraphicsOpacityEffect*) _selected_axis_hole->graphicsEffect();
+	opacity_effect->setOpacity(opacity);
+}
+
+void PVParallelView::__impl::PVAxisSelectedAnimation::set_blur(qreal blur)
+{
+	QGraphicsBlurEffect* blur_effect = (QGraphicsBlurEffect*) _selected_axis_dot->graphicsEffect();
+	blur_effect->setBlurRadius(blur);
 }

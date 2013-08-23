@@ -109,6 +109,8 @@ private slots:
 	void update_all();
 	void update_number_of_zones();
 	void toggle_unselected_zombie_visibility();
+	void axis_hover_entered(PVCol col, bool entered);
+	void axis_clicked(PVCol col);
 
 private:
 	void update_zones_position(bool update_all = true, bool scale = true);
@@ -160,6 +162,10 @@ private slots:
 	void update_selection_from_sliders_Slot(axis_id_t axis_id);
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
+
+	void highlight_axis(PVHive::PVObserverBase*);
+	void highlight_axis(int col);
+	void sync_axis_with_section(PVHive::PVObserverBase* o);
 
 	void emit_new_zoomed_parallel_view(int axis_index)
 	{
@@ -230,6 +236,9 @@ private:
 	axes_list_t             _axes;
 
 	PVHive::PVObserver_p<int>       _obs_selected_layer;
+	PVHive::PVObserverSignal<int> _section_hover_obs;
+	typedef std::pair<size_t, size_t> section_pos_t;
+	PVHive::PVObserverSignal<section_pos_t> _section_click_obs;
 
 	Picviz::PVView& _lib_view;
 
@@ -251,6 +260,8 @@ private:
 	tbb::atomic<bool> _view_deleted;
 
 	bool              _show_min_max_values;
+
+	int _hovered_axis_id = -1;
 };
 
 }

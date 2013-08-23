@@ -17,10 +17,17 @@
 
 #include <picviz/PVView_types.h>
 
+#include <QHeaderView>
+
 namespace PVGuiQt {
 
 class PVLayerFilterProcessWidget;
 class PVListingSortFilterProxyModel;
+
+namespace __impl
+{
+class PVHorizontalHeaderView;
+}
 
 /**
  * \class PVListingView
@@ -29,6 +36,7 @@ class PVListingView : public QTableView
 {
 	Q_OBJECT
 	friend class PVStatsListingWidget;
+	friend class PVHorizontalHeaderView;
 
 public:
 	PVListingView(Picviz::PVView_sp& view, QWidget* parent = NULL);
@@ -40,6 +48,7 @@ public:
 public slots:
 	void selectAll();
 	void corner_button_clicked();
+	void section_clicked(int col);
 
 protected:
 	void mouseDoubleClickEvent(QMouseEvent* event);
@@ -49,6 +58,7 @@ protected:
 	void resizeEvent(QResizeEvent * event) override;
 	void enterEvent(QEvent* event) override;
 	void leaveEvent(QEvent* event) override;
+	void paintEvent(QPaintEvent * event) override;
 
 signals:
 	void resized();
@@ -75,6 +85,11 @@ private slots:
 	void set_color_selected(const PVCore::PVHSVColor& color);
 	void columnResized(int column, int oldWidth, int newWidth);
 
+public slots:
+	void highlight_column(PVHive::PVObserverBase* o);
+	void set_section_visible(PVHive::PVObserverBase* o);
+	void section_hovered_enter(int col, bool enter);
+
 private:
 	QMenu* _ctxt_menu;
 	QMenu* _hhead_ctxt_menu;
@@ -90,13 +105,37 @@ private:
 	QAction* _act_set_color;
 
 	std::unordered_map<uint32_t, uint32_t> _headers_width;
+	int _hovered_axis = -1;
 
 private:
 	// Observers
 	PVHive::PVObserverSignal<Picviz::PVView> _obs;
+	PVHive::PVObserverSignal<int> _axis_hover_obs;
+	PVHive::PVObserverSignal<PVCol> _axis_clicked_obs;
 
 	// Actor
 	PVHive::PVActor<Picviz::PVView> _actor;
+};
+
+class PVHorizontalHeaderView : public QHeaderView
+{
+	Q_OBJECT
+
+public:
+	PVHorizontalHeaderView(Qt::Orientation orientation, PVListingView* parent);
+
+signals:
+   	void mouse_hovered_section(int index, bool entered);
+
+protected:
+	bool event(QEvent *ev) override;
+	void paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const override;
+
+private:
+	PVGuiQt::PVListingView* listing_view() const { return (PVGuiQt::PVListingView*) parent(); }
+
+private:
+	int _index = -1;
 };
 
 }

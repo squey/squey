@@ -140,6 +140,16 @@ public:
 	size_t get_extraction_last_nlines() const { return _extractor.get_last_nlines(); }
 	size_t get_extraction_last_start() const { return _extractor.get_last_start(); }
 
+	// axis <-> section synchronisation
+	void set_axis_hovered(PVCol col, bool entered) { _axis_hovered_id = entered ? col : -1; }
+	int& axis_hovered() { return _axis_hovered_id; }
+	void set_axis_clicked(PVCol col) { _axis_clicked_id = col; }
+	const PVCol& axis_clicked() const { return _axis_clicked_id; }
+	void set_section_hovered(PVCol col, bool entered) { _section_hovered_id = entered ? col : -1; }
+	const int& section_hovered() const { return _section_hovered_id; }
+	void set_section_clicked(PVCol col, size_t pos) { _section_clicked.first = col; _section_clicked.second = pos; }
+	const std::pair<size_t, size_t>& section_clicked() const { return _section_clicked; }
+
 private:
 	void add_column(Picviz::PVAxis const& axis);
 	void set_views_consistent(bool cons);
@@ -179,6 +189,11 @@ private:
 	QStringList _inv_elts;
 
 	PVAxesCombination _axes_combination;
+
+	int _axis_hovered_id = -1;
+	PVCol _axis_clicked_id;
+	int _section_hovered_id = -1;
+	std::pair<size_t, size_t> _section_clicked;
 };
 
 }

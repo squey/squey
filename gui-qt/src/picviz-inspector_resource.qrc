@@ -61,9 +61,16 @@
 	<file alias="user-trash.png">resources/22x22/user-trash.png</file>
 
 	<file alias="gmaps.html">resources/gmaps.html</file>
-        <file alias="log-icon">resources/log-icon.png</file>
+    <file alias="log-icon">resources/log-icon.png</file>
 
-
+	<!-- AXIS SELECTED ICONS -->
+	<file alias="location">resources/location.png</file>
+	<file alias="location_hole">resources/location_hole.png</file>
+	<file alias="location_dot">resources/location_dot.png</file>
+	
+	<!-- SORT -->
+	<file alias="sort_asc">resources/sort_asc.png</file>
+	<file alias="sort_desc">resources/sort_desc.png</file>
 
 	<!-- CSS -->
 	<file alias="gui.css">resources/gui.css</file>
