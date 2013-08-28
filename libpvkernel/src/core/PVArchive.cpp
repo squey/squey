@@ -23,12 +23,12 @@ static void picviz_archive_read_support(struct archive* a)
 
 	// Support all compression schemes but UUE
 	// (cf. issue #163 and http://groups.google.com/group/libarchive-discuss/browse_thread/thread/641feadda4ff94b1)
-	archive_read_support_compression_bzip2(a);
-	archive_read_support_compression_compress(a);
-	archive_read_support_compression_gzip(a);
-	archive_read_support_compression_lzma(a);
-	archive_read_support_compression_xz(a);
-	archive_read_support_compression_rpm(a);
+	archive_read_support_filter_bzip2(a);
+	archive_read_support_filter_compress(a);
+	archive_read_support_filter_gzip(a);
+	archive_read_support_filter_lzma(a);
+	archive_read_support_filter_xz(a);
+	archive_read_support_filter_rpm(a);
 	archive_clear_error(a);
 }
 
@@ -37,8 +37,8 @@ static void picviz_archive_read_support_noformat(struct archive* a)
 	// Support all formats
 	archive_read_support_format_raw(a);
 
-	archive_read_support_compression_bzip2(a);
-	archive_read_support_compression_gzip(a);
+	archive_read_support_filter_bzip2(a);
+	archive_read_support_filter_gzip(a);
 	archive_clear_error(a);
 }
 
@@ -76,7 +76,7 @@ bool PVCore::PVArchive::is_archive(QString const& path)
 
 	a = archive_read_new();
 	picviz_archive_read_support(a);
-	ret = archive_read_open_file(a, filename, 1000) == ARCHIVE_OK;
+	ret = archive_read_open_filename(a, filename, 1000) == ARCHIVE_OK;
 	if (!ret) {
 		archive_read_close(a);
 		return false;
@@ -87,12 +87,12 @@ bool PVCore::PVArchive::is_archive(QString const& path)
 	if (!ret) {
 		a = archive_read_new();
 		picviz_archive_read_support_noformat(a);
-		ret = archive_read_open_file(a, filename, 1000) == ARCHIVE_OK;
+		ret = archive_read_open_filename(a, filename, 1000) == ARCHIVE_OK;
 		if (ret) {
 			ret = archive_read_next_header(a, &entry) == ARCHIVE_OK;
 		}
 		archive_read_close(a);
-		int ac = archive_compression(a);
+		int ac = archive_filter_code(a, 0);
 		if (ret && ac == 0) {
 			ret = false;
 		}
@@ -136,7 +136,7 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 	ext = archive_write_disk_new();
 	archive_write_disk_set_options(ext, flags);
 	archive_write_disk_set_standard_lookup(ext);
-	if ((r = archive_read_open_file(a, filename, 10240))) {
+	if ((r = archive_read_open_filename(a, filename, 10240))) {
 		return false;
 	}
 	r = archive_read_next_header(a, &entry);
@@ -145,7 +145,7 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 		archive_read_close(a);
 		a = archive_read_new();
 		picviz_archive_read_support_noformat(a);
-		archive_read_open_file(a, filename, 10240);
+		archive_read_open_filename(a, filename, 10240);
 		r = archive_read_next_header(a, &entry);
 		read_raw = true;
 	}
@@ -211,8 +211,8 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 		PVCore::PVDirectory::remove_rec(dir_dest); // cleanup
 		throw e;
 	}
-	archive_read_finish(a);
-	archive_write_finish(ext);
+	archive_read_free(a);
+	archive_write_free(ext);
 	
 	return true;
 
@@ -231,7 +231,7 @@ bool PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir
 
 	a = archive_write_new();
 	archive_write_set_format_ustar(a);
-	if (archive_write_set_compression_gzip(a) != ARCHIVE_OK) {
+	if (archive_write_add_filter_gzip(a) != ARCHIVE_OK) {
 		PVLOG_ERROR("Unable to use GZIP compression\n");
 		return false;
 	}
@@ -283,7 +283,7 @@ bool PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir
 		throw e;
 	}
 	archive_write_close(a);
-	archive_write_finish(a);
+	archive_write_free(a);
 
 	return true;
 }
