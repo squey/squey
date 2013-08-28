@@ -38,7 +38,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterIP)
 {
 	PVCore::PVArgumentList args;
 	args["ipv6"] = false;
-	args["params"] = "";
+	args["params"] = "0,1,2";
 	return args;
 }
 
@@ -82,6 +82,8 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterIP::one_to_many(PVCore::
 		QString field_str;
 		field.get_qstr(field_str);
 
+
+#if 0
 		QRegExp ipv4_regex;
 		ipv4_regex.setPattern("^\\d+\\.\\d+\\.\\d+\\.\\d+$");
 		if (!ipv4_regex.exactMatch(field_str))
@@ -93,6 +95,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterIP::one_to_many(PVCore::
 			}
 			return _fields_expected;
 		}
+#endif
 
 		int last_index = -1;
 		size_t start = 0;
