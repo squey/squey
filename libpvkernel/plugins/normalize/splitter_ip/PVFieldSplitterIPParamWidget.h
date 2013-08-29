@@ -35,11 +35,11 @@ public:
 	QWidget* get_param_widget();
 
 private slots:
-	void set_ip_type();
+	void set_ip_type(bool reset_groups_check_state = true);
 	void update_child_count();
 
 private:
-	void set_groups_check_state();
+	void set_groups_check_state(bool check_all = false);
 
 private:
 	QAction* _action_menu;
