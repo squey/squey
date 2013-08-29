@@ -1,8 +1,8 @@
 # - Try to find libfgp
 # Once done this will define
-#  FGP_FOUND - System has HWLoc
-#  FGP_INCLUDE_DIRS - The HWLoc include directories
-#  FGP_LIBRARIES - The libraries needed to use HWLoc
+#  FGP_FOUND - System has FGP
+#  FGP_INCLUDE_DIRS - The FGP include directories
+#  FGP_LIBRARIES - The libraries needed to use FGP
 
 find_package(PkgConfig)
 
@@ -15,10 +15,10 @@ set(FGP_LIBRARIES ${FGP_LIBRARY} )
 set(FGP_INCLUDE_DIRS ${FGP_INCLUDE_DIR})
 
 include(FindPackageHandleStandardArgs)
-# handle the QUIETLY and REQUIRED arguments and set HWLOC_FOUND to TRUE
+# handle the QUIETLY and REQUIRED arguments and set FGP_FOUND to TRUE
 # if all listed variables are TRUE
-find_package_handle_standard_args(HWloc  DEFAULT_MSG
-                                  HWLOC_LIBRARY HWLOC_INCLUDE_DIR)
+find_package_handle_standard_args(FGP  DEFAULT_MSG
+                                  FGP_LIBRARY FGP_INCLUDE_DIR)
 
 message(STATUS "FGP include dirs: ${FGP_INCLUDE_DIRS}")
 message(STATUS "FGP libraries: ${FGP_LIBRARIES}")
