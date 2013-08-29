@@ -14,9 +14,8 @@
 #include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
 #include <pvparallelview/PVZoomableDrawingAreaInteractorMajorY.h>
 #include <pvparallelview/PVZoomableDrawingAreaConstraintsMajorY.h>
-#include <pvparallelview/PVSelectionRectangleInteractor.h>
+#include <pvparallelview/PVSelectionSquareInteractor.h>
 #include <pvparallelview/PVSelectionSquare.h>
-#include <pvparallelview/PVSelectionRectangleInteractor.h>
 
 #include <QCheckBox>
 #include <QGraphicsScene>
@@ -262,10 +261,10 @@ protected:
 };
 
 
-class PVSelectionRectangleHitCountView : public PVSelectionSquare
+class PVSelectionSquareHitCountView : public PVSelectionSquare
 {
 public:
-	PVSelectionRectangleHitCountView(PVHitCountView* hcv) :
+	PVSelectionSquareHitCountView(PVHitCountView* hcv) :
 	PVSelectionSquare(hcv->get_scene()),
 	_hcv(hcv)
 	{}
@@ -342,11 +341,11 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 	get_x_axis_zoom().set_zoom_converter(&x_zoom_converter());
 	get_y_axis_zoom().set_zoom_converter(&y_zoom_converter());
 
-	_sel_rect = new PVSelectionRectangleHitCountView(this);
+	_sel_rect = new PVSelectionSquareHitCountView(this);
 
 	/* interactor/constraints
 	 */
-	_sel_rect_interactor = declare_interactor<PVSelectionRectangleInteractor>(_sel_rect);
+	_sel_rect_interactor = declare_interactor<PVSelectionSquareInteractor>(_sel_rect);
 	register_front_all(_sel_rect_interactor);
 
 	_my_interactor = declare_interactor<PVZoomableDrawingAreaInteractorMajorY>();

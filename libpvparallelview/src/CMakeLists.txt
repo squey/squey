@@ -80,7 +80,7 @@ PVDisplayViewScatter.cpp
 PVZoomableDrawingArea.cpp
 PVZoomableDrawingAreaWithAxes.cpp
 
-PVSelectionRectangleInteractor.cpp
+PVSelectionSquareInteractor.cpp
 
 PVZoomableDrawingAreaInteractor.cpp
 PVZoomableDrawingAreaInteractorMajorY.cpp

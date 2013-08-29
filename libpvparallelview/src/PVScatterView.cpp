@@ -35,7 +35,7 @@
 #include <pvparallelview/PVZoomableDrawingAreaConstraintsHomothetic.h>
 #include <pvparallelview/PVZoomConverterPowerOfTwo.h>
 #include <pvparallelview/PVZoneRenderingScatter.h>
-#include <pvparallelview/PVSelectionRectangleInteractor.h>
+#include <pvparallelview/PVSelectionSquareInteractor.h>
 
 #define TIMEOUT_FPS 500 // ms
 
@@ -200,7 +200,7 @@ PVParallelView::PVScatterView::PVScatterView(
 
 	// interactor
 	PVWidgets::PVGraphicsViewInteractorBase* zoom_inter = declare_interactor<PVZoomableDrawingAreaInteractorHomothetic>();
-	PVWidgets::PVGraphicsViewInteractorBase* selection_square_inter = declare_interactor<PVSelectionRectangleInteractor>(_selection_square);
+	PVWidgets::PVGraphicsViewInteractorBase* selection_square_inter = declare_interactor<PVSelectionSquareInteractor>(_selection_square);
 	PVWidgets::PVGraphicsViewInteractorBase* scatter_inter = declare_interactor<PVScatterViewInteractor>();
 	register_front_one(QEvent::Resize, scatter_inter);
 	register_back_all(selection_square_inter);

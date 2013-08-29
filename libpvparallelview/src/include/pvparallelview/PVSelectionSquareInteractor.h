@@ -1,6 +1,6 @@
 
-#ifndef PVPARALLELVIEW_PVSELECTIONRECTANGLEINTERACTOR_H
-#define PVPARALLELVIEW_PVSELECTIONRECTANGLEINTERACTOR_H
+#ifndef PVPARALLELVIEW_PVSELECTIONSQUAREINTERACTOR_H
+#define PVPARALLELVIEW_PVSELECTIONSQUAREINTERACTOR_H
 
 #include <pvkernel/widgets/PVGraphicsView.h>
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
@@ -13,10 +13,10 @@ namespace PVParallelView
 
 class PVSelectionSquare;
 
-class PVSelectionRectangleInteractor: public PVWidgets::PVGraphicsViewInteractor<PVWidgets::PVGraphicsView>
+class PVSelectionSquareInteractor: public PVWidgets::PVGraphicsViewInteractor<PVWidgets::PVGraphicsView>
 {
 public:
-	PVSelectionRectangleInteractor(PVWidgets::PVGraphicsView* parent, PVSelectionSquare* selection_rectangle);
+	PVSelectionSquareInteractor(PVWidgets::PVGraphicsView* parent, PVSelectionSquare* selection_square);
 
 	bool keyPressEvent(PVWidgets::PVGraphicsView* view, QKeyEvent* event) override;
 	bool mousePressEvent(PVWidgets::PVGraphicsView* view, QMouseEvent* event) override;
@@ -24,9 +24,9 @@ public:
 	bool mouseMoveEvent(PVWidgets::PVGraphicsView* view, QMouseEvent* event) override;
 
 private:
-	PVSelectionSquare *_selection_rectangle;
+	PVSelectionSquare *_selection_square;
 };
 
 }
 
-#endif // PVPARALLELVIEW_PVSELECTIONRECTANGLEINTERACTOR_H
+#endif // PVPARALLELVIEW_PVSELECTIONSQUAREINTERACTOR_H
