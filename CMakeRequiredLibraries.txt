@@ -57,6 +57,7 @@ endif(CUDA_FOUND)
 #
 # Check for Boost library
 #
+
 #set(Boost_DEBUG TRUE)
 if(WIN32)
 	set(BOOST_ROOT "C:\\dev\\boost\\install-root")
@@ -74,12 +75,17 @@ else(WIN32)
 	set(Boost_USE_STATIC_RUNTIME    OFF)
 endif(WIN32)
 add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
-find_package(Boost COMPONENTS date_time system thread program_options)
+
+# as we want to separate Boost's Python library path to others Boost libraries,
+# we do the detection in 2 steps : one for all needed modules except python, one other for python
+find_package(Boost 1.49 COMPONENTS date_time system thread program_options)
+# a little backup of $Boost_LIBRARIES because the second detection will overwrite it
 set(Boost_LIBRARIES_SAVE ${Boost_LIBRARIES})
 
-find_package(Boost COMPONENTS python-py32)
-
+find_package(Boost 1.49 COMPONENTS python-py32)
 set(Boost_LIBRARIES_PYTHON ${Boost_LIBRARIES})
+
+# and a little restoration
 set(Boost_LIBRARIES ${Boost_LIBRARIES_SAVE})
 
 #
