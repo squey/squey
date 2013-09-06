@@ -11,7 +11,15 @@ else
 fi
 BINDIR=@CMAKE_CURRENT_BINARY_DIR@
 SRCDIR=@CMAKE_CURRENT_SOURCE_DIR@
-echo "" >"$BINDIR/gui-qt/src/gen_table.c"
+cat << EOF >"$BINDIR/gui-qt/src/gen_table.c"
+#include <stdint.h>
+#include <stdlib.h>
+#include <fwd_table.h>
+
+f_entry_t __func_table[] = {};
+
+size_t __func_table_size = 0;
+EOF
 #CC=icecc && CXX=icecc cmake -DPROTECT_PASS=1 . ||exit $?
 #cmake -DPROTECT_PASS=1 . ||exit $?
 make -j$1
