@@ -4,6 +4,8 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+BINDIR=`pwd`
+
 if [ $# -eq 2 ]; then
 	echo "Protectiong for machine UUID $2..."
 else
@@ -11,6 +13,9 @@ else
 fi
 BINDIR=@CMAKE_CURRENT_BINARY_DIR@
 SRCDIR=@CMAKE_CURRENT_SOURCE_DIR@
+
+# first we need an "empty" gen_table.c
+#
 cat << EOF >"$BINDIR/gui-qt/src/gen_table.c"
 #include <stdint.h>
 #include <stdlib.h>
@@ -20,6 +25,9 @@ f_entry_t __func_table[] = {};
 
 size_t __func_table_size = 0;
 EOF
+
+# compilation with mao (and make sure there is no error)
+#
 #CC=icecc && CXX=icecc cmake -DPROTECT_PASS=1 . ||exit $?
 #cmake -DPROTECT_PASS=1 . ||exit $?
 make -j$1
@@ -31,9 +39,38 @@ make -j$1
 
 make ||exit $?
 
+# finalizing protection
 cd "$BINDIR/gui-qt/src"
-$GALVEZ_ROOT/tools/gen_table picviz-inspector $2 >gen_table.c ||exit $?
+TFILE="./dump"
+objdump -d picviz-inspector | grep '>:$' > "$TFILE"
+$GALVEZ_ROOT/tools/gen_table picviz-inspector $2 > gen_table.c ||exit $?
+
+cp gen_table.c gen_table.old.c
+while read LINE
+do
+	if expr match "$LINE" "^{{.*" 2>&1 > /dev/null
+	then
+	        ADDR=`echo "$LINE" | sed -e 's+{{[^}]*}, [^0]*0x\([^,]*\).*+\1+'`
+	        FUNC=`grep "$ADDR" "$TFILE" | sed -e 's+[^<]*<\([^>]*\)>:$+\1+'`
+	        LINE=`echo "$LINE" | sed -e 's+^\(.*\)\*/$+\1+'`
+	        LINE="$LINE FUNC=$FUNC */"
+	fi
+	echo "$LINE"
+done < gen_table.old.c > gen_table.new.c
+
+cp gen_table.new.c gen_table.c
+
+cp gen_table.new.c "$BINDIR/gen_table.c"
+
+# final compilation
+#
 make ||exit $?
 sh $GALVEZ_ROOT/bin/gen_patcher.sh gen_table.c ||exit $?
 ./patcher ./picviz-inspector
-strip ./picviz-inspector
+
+# getting debug info
+objcopy --only-keep-debug ./picviz-inspector "$BINDIR/picviz-inspector.debug"
+cp ./picviz-inspector "$BINDIR/picviz-inspector-with-debug"
+
+# cleaning things
+strip --strip-all ./picviz-inspector
