@@ -32,6 +32,8 @@ EOF
 #cmake -DPROTECT_PASS=1 . ||exit $?
 make -j$1
 
+cp picviz-inspector picviz-inspector.with-empty-table
+
 export CCACHE_DISABLE=1
 touch "$SRCDIR/gui-qt/src/main.cpp"
 make -j$1
@@ -65,16 +67,25 @@ cp gen_table.new.c "$BINDIR/gen_table.c"
 # final compilation
 #
 make ||exit $?
+
+cp picviz-inspector picviz-inspector.unpatched-with-table
+
 sh $GALVEZ_ROOT/bin/gen_patcher.sh gen_table.c ||exit $?
 ./patcher ./picviz-inspector
 
+cp ./picviz-inspector picviz-inspector.with-debug
+
 # getting debug info
-objcopy --only-keep-debug ./picviz-inspector "$BINDIR/picviz-inspector.debug"
+objcopy --only-keep-debug ./picviz-inspector "$BINDIR/picviz-inspector.symbols"
 cp ./picviz-inspector "$BINDIR/picviz-inspector-with-debug"
+
+cp ./picviz-inspector picviz-inspector.after-objcopy
 
 # stripping all
 echo "stripping '$BINDIR/gui-qt/src/picviz-inspector'"
 strip --strip-all "$BINDIR/gui-qt/src/picviz-inspector"
+
+cp picviz-inspector picviz-inspector.stripped
 
 find "$BINDIR" -name "*.so" -o -name "*.so.*" | while read FILE
 do
