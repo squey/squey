@@ -74,3 +74,10 @@ cp ./picviz-inspector "$BINDIR/picviz-inspector-with-debug"
 
 # cleaning things
 strip --strip-all ./picviz-inspector
+
+cd "$BINDIR/"
+find . -type f -a -name "*.so" | while read FILE
+do
+	strip --strip-all "$FILE"
+done
+
