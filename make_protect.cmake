@@ -76,7 +76,7 @@ cp ./picviz-inspector "$BINDIR/picviz-inspector-with-debug"
 echo "stripping '$BINDIR/gui-qt/src/picviz-inspector'"
 strip --strip-all "$BINDIR/gui-qt/src/picviz-inspector"
 
-find "$BINDIR" -type f -a -name "*.so" -o -name "*.so.*" | while read FILE
+find "$BINDIR" -name "*.so" -o -name "*.so.*" | while read FILE
 do
 	echo "stripping '$FILE'"
 	strip --strip-all "$FILE"
