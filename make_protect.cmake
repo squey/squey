@@ -72,12 +72,13 @@ sh $GALVEZ_ROOT/bin/gen_patcher.sh gen_table.c ||exit $?
 objcopy --only-keep-debug ./picviz-inspector "$BINDIR/picviz-inspector.debug"
 cp ./picviz-inspector "$BINDIR/picviz-inspector-with-debug"
 
-# cleaning things
-strip --strip-all ./picviz-inspector
+# stripping all
+echo "stripping '$BINDIR/gui-qt/src/picviz-inspector'"
+strip --strip-all "$BINDIR/gui-qt/src/picviz-inspector"
 
-cd "$BINDIR/"
-find . -type f -a -name "*.so" | while read FILE
+find "$BINDIR" -type f -a -name "*.so" -o -name "*.so.*" | while read FILE
 do
+	echo "stripping '$FILE'"
 	strip --strip-all "$FILE"
 done
 
