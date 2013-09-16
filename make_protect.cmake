@@ -81,15 +81,6 @@ cp ./picviz-inspector "$BINDIR/picviz-inspector-with-debug"
 
 cp ./picviz-inspector picviz-inspector.after-objcopy
 
-# stripping all
-echo "stripping '$BINDIR/gui-qt/src/picviz-inspector'"
-strip --strip-all "$BINDIR/gui-qt/src/picviz-inspector"
-
-cp picviz-inspector picviz-inspector.stripped
-
-find "$BINDIR" -name "*.so" -o -name "*.so.*" | while read FILE
-do
-	echo "stripping '$FILE'"
-	strip --strip-all "$FILE"
-done
+# saving a stripped version of PV-I
+strip --strip-all "$BINDIR/gui-qt/src/picviz-inspector" -o "$BINDIR/gui-qt/src/picviz-inspector.stripped"
 
