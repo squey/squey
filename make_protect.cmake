@@ -52,10 +52,18 @@ while read LINE
 do
 	if expr match "$LINE" "^{{.*" 2>&1 > /dev/null
 	then
+		# reading address field
 	        ADDR=`echo "$LINE" | sed -e 's+{{[^}]*}, [^0]*0x\([^,]*\).*+\1+'`
-	        FUNC=`grep "$ADDR" "$TFILE" | sed -e 's+[^<]*<\([^>]*\)>:$+\1+'`
-	        LINE=`echo "$LINE" | sed -e 's+^\(.*\)\*/$+\1+'`
-	        LINE="$LINE FUNC=$FUNC */"
+		# a symbol has to be search for only if its address is not NULL
+		if test $ADDR -ne 0
+		then
+			# searching for the symbol corresponding to this address
+		        FUNC=`grep "$ADDR" "$TFILE" | sed -e 's+[^<]*<\([^>]*\)>:$+\1+'`
+			# removing the '*/' from the line
+		        LINE=`echo "$LINE" | sed -e 's+^\(.*\)\*/$+\1+'`
+			# adding the symbol name to the comment (and closing it:)
+			LINE="$LINE FUNC=$FUNC */"
+		fi
 	fi
 	echo "$LINE"
 done < gen_table.old.c > gen_table.new.c
