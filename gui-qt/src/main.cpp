@@ -98,12 +98,16 @@ static __attribute__((noinline)) void __check__t()
 
 namespace bpo = boost::program_options;
 
+// #define NO_MAIN_WINDOW
+
 int main(int argc, char *argv[])
 {
 	init_segfault_handler();
 	PVCore::PVConfig::get().init_dirs();
-	QApplication app(argc, argv);
 
+#ifndef NO_MAIN_WINDOW
+	QApplication app(argc, argv);
+#endif
 	// Program options
 	bpo::options_description desc_opts("Options");
 	desc_opts.add_options()
@@ -151,29 +155,43 @@ int main(int argc, char *argv[])
 
 	__check__t();
 
+#ifndef NO_MAIN_WINDOW
 	QSplashScreen splash(QPixmap(":/splash-screen"));
 	splash.show();
 	app.processEvents();
+#endif
 
 #ifdef CUDA
+#ifndef NO_MAIN_WINDOW
 	splash.showMessage(QObject::tr("Initialising CUDA..."));
 	app.processEvents();
 	PVParallelView::common::init_cuda();
 #endif
+#endif
+#ifndef NO_MAIN_WINDOW
 	splash.showMessage(QObject::tr("Loading plugins..."));
 	app.processEvents();
+#endif
 	Picviz::common::load_filters();
+#ifndef NO_MAIN_WINDOW
 	PVGuiQt::common::register_displays();
+#endif
 
+#ifndef NO_MAIN_WINDOW
 	splash.showMessage(QObject::tr("Cleaning temporary files..."));
 	app.processEvents();
+#endif
 	PVRush::PVNraw::remove_unused_nraw_directories();
 
+#ifndef NO_MAIN_WINDOW
 	splash.showMessage(QObject::tr("Finishing initialisation..."));
 	app.processEvents();
+#endif
 
 	//app.setStyle(new PVInspector::PVCustomStyle());
+#ifndef NO_MAIN_WINDOW
 	PVInspector::PVMainWindow* pv_mw = new PVInspector::PVMainWindow();
+#endif
 	QString wintitle;
 	
 	// Here, we assume that everyone is coding with an editor using UTF-8
@@ -213,12 +231,15 @@ int main(int argc, char *argv[])
 	}
 #endif
 
+#ifndef NO_MAIN_WINDOW
 	app.setOrganizationName("PICVIZ Labs");
 	app.setApplicationName("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR);
 	app.setWindowIcon(QIcon(":/picviz"));
 	app.installEventFilter(new DragNDropTransparencyHack());
 	app.installEventFilter(new DisplaysFocusInEventFilter());
+#endif
 
+#ifndef NO_MAIN_WINDOW
 	pv_mw->show();
 	splash.finish(pv_mw);
 
@@ -236,9 +257,14 @@ int main(int argc, char *argv[])
 	}
 
 	int ret = app.exec();
+#else
+	int ret = 0;
+#endif
 
+#ifndef NO_MAIN_WINDOW
 	PVParallelView::common::release();
 	PVDisplays::release();
+#endif
 
 	return ret;
 }
