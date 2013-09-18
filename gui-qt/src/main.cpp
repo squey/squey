@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 
 #ifdef CUDA
 #ifndef NO_MAIN_WINDOW
-	splash.showMessage(QObject::tr("Initialising CUDA..."));
+	splash.showMessage(QObject::tr("Initializing CUDA..."));
 	app.processEvents();
 	PVParallelView::common::init_cuda();
 #endif
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
 	PVRush::PVNraw::remove_unused_nraw_directories();
 
 #ifndef NO_MAIN_WINDOW
-	splash.showMessage(QObject::tr("Finishing initialisation..."));
+	splash.showMessage(QObject::tr("Finishing initialization..."));
 	app.processEvents();
 #endif
 
