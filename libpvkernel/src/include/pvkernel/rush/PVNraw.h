@@ -41,6 +41,8 @@ class LibKernelDecl PVNraw
 
 public:
 	typedef PVNrawDiskBackend::unique_values_t unique_values_t;
+	typedef PVNrawDiskBackend::unique_values_value_t unique_values_value_t;
+	typedef PVNrawDiskBackend::unique_values_container_t unique_values_container_t;
 
 public:
 	PVNraw();
