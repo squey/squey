@@ -8,6 +8,7 @@
 #include <QGraphicsSimpleTextItem>
 #include <QGraphicsSceneContextMenuEvent>
 #include <QBrush>
+#include <QPainterPath>
 
 namespace Picviz
 {
@@ -53,31 +54,21 @@ public:
 		return mapRectToScene(boundingRect());
 	}
 
-	PVCol get_axis_index() const;
+	void set_bounding_box_width(int width);
+	bool contains(const QPointF & point) const override;
+	QPainterPath shape() const override;
+	QRectF boundingRect() const;
 
-protected:
-	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-	void hoverEnterEvent(QGraphicsSceneHoverEvent * event) override;
-	void hoverLeaveEvent(QGraphicsSceneHoverEvent * event) override;
-	void mousePressEvent(QGraphicsSceneMouseEvent * event) override;
+	PVCol get_axis_index() const;
 
 private:
 	PVAxisGraphicsItem const* get_parent_axis() const;
-	bool is_last_axis() const;
-
-private slots:
-	void new_zoomed_parallel_view();
-	void new_selection_sliders();
-
-signals:
-	void new_zoomed_parallel_view(int _axis_index);
-	void mouse_hover_entered(PVCol col, bool entered);
-	void mouse_clicked(PVCol col);
 
 private:
 	const Picviz::PVView &_lib_view;
 	PVSlidersGroup       *_sliders_group;
 	PVCol                 _axis_index;
+	int 				  _bounding_box_width = 0;
 };
 
 }

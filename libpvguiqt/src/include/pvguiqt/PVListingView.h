@@ -87,6 +87,7 @@ private slots:
 
 public slots:
 	void highlight_column(PVHive::PVObserverBase* o);
+	void highlight_column(int col);
 	void set_section_visible(PVHive::PVObserverBase* o);
 	void section_hovered_enter(int col, bool enter);
 
