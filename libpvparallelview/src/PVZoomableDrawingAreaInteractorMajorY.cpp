@@ -31,7 +31,7 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mousePressEvent(PVPa
 
 bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mouseReleaseEvent(PVParallelView::PVZoomableDrawingArea*, QMouseEvent*)
 {
-	return true;
+	return false;
 }
 
 /*****************************************************************************
