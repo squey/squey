@@ -21,7 +21,7 @@ PVInspector::PVXmlParamWidgetBoardFilter::PVXmlParamWidgetBoardFilter(PVRush::PV
     draw();
     initValue();
     initConnexion();
-    validWidget->setRegEx(exp->text());
+    validWidget->setRegEx(exp->toPlainText());
 }
 
 /******************************************************************************
@@ -41,7 +41,7 @@ PVInspector::PVXmlParamWidgetBoardFilter::~PVXmlParamWidgetBoardFilter() {
 void PVInspector::PVXmlParamWidgetBoardFilter::allocBoardFields() {
   //allocate each field and init them with the saved value
     name = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
-    exp = new PVXmlParamWidgetEditorBox(QString("regexp"), new QVariant(node->getDom().attribute("regexp",".*")));
+    exp = new PVXmlParamTextEdit(QString("regexp"), QVariant(node->getDom().attribute("regexp",".*")));
     validWidget = new PVXmlParamTextEdit(QString("validator"), QVariant(node->attribute("validator")));
     typeOfFilter = new PVXmlParamComboBox("reverse");
     typeOfFilter->addItem("include");
@@ -89,6 +89,9 @@ void PVInspector::PVXmlParamWidgetBoardFilter::draw() {
     qv->addWidget(validWidget);
     qv->addWidget(buttonNext);
     
+    qv->setStretchFactor(exp, 4);
+    qv->setStretchFactor(validWidget, 2);
+
     setLayout(qv);
     
     //name->textCursor().movePosition(QTextCursor::Start);
@@ -112,8 +115,8 @@ QWidget *PVInspector::PVXmlParamWidgetBoardFilter::getWidgetToFocus(){
 void PVInspector::PVXmlParamWidgetBoardFilter::initConnexion() {
     connect(name, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(name, SIGNAL(textChanged(const QString&)), this, SLOT(slotVerifRegExpInName()));
-    connect(exp, SIGNAL(textChanged(const QString&)), validWidget, SLOT(setRegEx(const QString &)));
-    connect(exp, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
+    connect(exp, SIGNAL(textChanged()), validWidget, SLOT(setRegEx()));
+    connect(exp, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
     connect(validWidget, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
     connect(typeOfFilter, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(buttonNext, SIGNAL(clicked()), this, SLOT(slotEmitNext()));
@@ -147,7 +150,7 @@ void PVInspector::PVXmlParamWidgetBoardFilter::slotEmitNext(){
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardFilter::slotSetValues(){//called when we modifi something.
     node->setAttribute(QString("name"),name->text());
-    node->setAttribute(QString("regexp"),exp->text());
+    node->setAttribute(QString("regexp"),exp->toPlainText());
     node->setAttribute(QString("validator"),validWidget->getVal().toString());
     node->setAttribute(QString("reverse"),(typeOfFilter->val().toString() == "exclude") ? "true" : "false");
 

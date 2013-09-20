@@ -106,7 +106,7 @@ void PVGuiQt::PVListDisplayDlg::process_context_menu(QAction* act)
 	}
 }
 
-void PVGuiQt::PVListDisplayDlg::process_hhead_context_menu(QAction* act)
+void PVGuiQt::PVListDisplayDlg::process_hhead_context_menu(QAction* /*act*/)
 {
 }
 

@@ -73,7 +73,7 @@ private:
     //field
     QTabWidget *tabParam;
     PVXmlParamWidgetEditorBox *name;
-    PVXmlParamWidgetEditorBox *exp;
+    PVXmlParamTextEdit *exp;
     PVXmlParamTextEdit *validWidget;
     QCheckBox *checkSaveValidLog;
     QCheckBox *checkUseTable;

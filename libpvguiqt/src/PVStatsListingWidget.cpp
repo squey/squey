@@ -54,7 +54,7 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	_stats_panel = new QTableWidget(this);
 	_stats_panel->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	_stats_panel->viewport()->setFocusPolicy(Qt::NoFocus);
-	_stats_panel->hide();
+	//_stats_panel->hide();
 	QStringList horizontal_header_labels;
 	for (PVCol col=0; col < _listing_view->horizontalHeader()->count(); col++) {
 		horizontal_header_labels << _listing_view->model()->headerData(col, Qt::Horizontal).toString();

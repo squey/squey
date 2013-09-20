@@ -234,7 +234,10 @@ public:
 	typedef typename file_policy_t::file_t file_t;
 	typedef PVCore::PVMatrix<offset_fields_t, PVRow, PVCol> index_table_t;
 	typedef PVNrawDiskBackend this_type;
-	typedef std::unordered_map<std::string_tbb, size_t> unique_values_t;
+	typedef std::string_tbb unique_values_key_t;
+	typedef size_t unique_values_value_t;
+	typedef std::pair<unique_values_key_t, unique_values_value_t> unique_values_container_t;
+	typedef std::unordered_map<unique_values_key_t, unique_values_value_t> unique_values_t;
 
 public:
 	PVNrawDiskBackend();

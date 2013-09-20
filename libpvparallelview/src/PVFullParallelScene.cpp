@@ -340,11 +340,6 @@ void PVParallelView::PVFullParallelScene::mousePressEvent(QGraphicsSceneMouseEve
 {
 	QGraphicsScene::mousePressEvent(event);
 
-	if (event->isAccepted()) {
-		// a QGraphicsItem has already done something (usually a contextMenuEvent)
-		return;
-	}
-
 	if (event->button() == Qt::RightButton) {
 		// Store view position to compute translation
 		_translation_start_x = event->scenePos().x();
@@ -358,7 +353,7 @@ void PVParallelView::PVFullParallelScene::mousePressEvent(QGraphicsSceneMouseEve
 		                                      _selection_square_pos));
 		_selection_square->show();*/
 		_selection_square->begin(event->scenePos().x(), event->scenePos().y());
-		event->accept();
+		//event->accept();
 	}
 }
 
@@ -372,7 +367,7 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
 	QGraphicsScene::mouseReleaseEvent(event);
 
 	if (event->isAccepted()) {
-		// a QGraphicsItem has already done something (usually a contextMenuEvent)
+		// the PVAxisHeader has already handled this event
 		return;
 	}
 

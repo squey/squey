@@ -44,7 +44,7 @@ private:
     
     //field
     PVXmlParamWidgetEditorBox *name;
-    PVXmlParamWidgetEditorBox *exp;
+    PVXmlParamTextEdit *exp;
     PVXmlParamTextEdit *validWidget;
     PVXmlParamComboBox *typeOfFilter;
     QPushButton *buttonNext;

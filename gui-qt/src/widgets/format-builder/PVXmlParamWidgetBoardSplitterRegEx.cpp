@@ -24,7 +24,7 @@ PVInspector::PVXmlParamWidgetBoardSplitterRegEx::PVXmlParamWidgetBoardSplitterRe
     flagSaveRegExpValidator = false;
     initValue();
     initConnexion();
-    validWidget->setRegEx(exp->text());
+    validWidget->setRegEx(exp->toPlainText());
     flagNeedConfirmAndSave = false;
     flagAskConfirmActivated = true;
     setObjectName("PVXmlParamWidgetBoardSplitterRegEx");
@@ -52,7 +52,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::allocBoardFields() {
     name = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
     
     //tab regexp
-    exp = new PVXmlParamWidgetEditorBox(QString("regexp"), new QVariant(node->getDom().attribute("regexp", ".*")));
+    exp = new PVXmlParamTextEdit(QString("regexp"), QVariant(node->getDom().attribute("regexp", ".*")));
     labelNbr = new QLabel("");
 
     checkSaveValidLog = new QCheckBox("Save log sample in format file",this);
@@ -236,7 +236,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::initConnexion() {
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::initValue() {
     //init the number of field detected with the regexp
-    regExCount(exp->val().toString());
+    regExCount(exp->toPlainText());
     //check or not the check box
     if (node->attribute("saveValidator", "").compare(QString("true")) == 0) {
         flagSaveRegExpValidator = true;
@@ -334,10 +334,10 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSaveValidator(bool sta
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSetConfirmedValues() {
     slotSetValues();//save various value
-    node->setAttribute(QString("regexp"), exp->text());//save expression
+    node->setAttribute(QString("regexp"), exp->toPlainText());//save expression
     node->setAttribute(QString("validator"), validWidget->getVal().toString(),flagSaveRegExpValidator);//save the text in validator
 
-    regExCount(exp->text());
+    regExCount(exp->toPlainText());
     node->setNbr(nbr);//set the fileds with expression rexexp selection count.
     flagNeedConfirmAndSave = false;
     emit signalRefreshView();
@@ -409,7 +409,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName() {
  *
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotUpdateTable() {
-    QRegExp reg = QRegExp(exp->text());
+    QRegExp reg = QRegExp(exp->toPlainText());
 
     //update the number of column
     reg.indexIn(validWidget->getVal().toString(), 0);

@@ -23,9 +23,11 @@ PVGuiQt::PVListUniqStringsDlg::PVListUniqStringsDlg(
 	PVCol c,
 	PVRush::PVNraw::unique_values_t& values,
 	size_t selection_count,
+	size_t max_e,
 	QWidget* parent
 ) :
-	PVListDisplayDlg(new __impl::PVListUniqStringsModel(values), parent), _col(c), _selection_count(selection_count)
+	PVListDisplayDlg(new __impl::PVListUniqStringsModel(values), parent), _col(c), _selection_count(selection_count),
+	_max_e(max_e)
 {
 	PVHive::get().register_observer(view, _obs);
 	PVHive::get().register_actor(view, _actor);
@@ -52,14 +54,28 @@ PVGuiQt::PVListUniqStringsDlg::PVListUniqStringsDlg(
 
 	QActionGroup* act_group = new QActionGroup(this);
 	act_group->setExclusive(true);
+	connect(act_group, SIGNAL(triggered(QAction*)), this, SLOT(scale_changed(QAction*)));
 	_act_toggle_linear = new QAction("Linear scale", act_group);
 	_act_toggle_linear->setCheckable(true);
-	_act_toggle_linear->setChecked(!_use_logorithmic_scale);
+	_act_toggle_linear->setChecked(!_use_logarithmic_scale);
 	_act_toggle_log = new QAction("Logarithmic scale", act_group);
 	_act_toggle_log->setCheckable(true);
-	_act_toggle_log->setChecked(_use_logorithmic_scale);
+	_act_toggle_log->setChecked(_use_logarithmic_scale);
 	_hhead_ctxt_menu->addAction(_act_toggle_linear);
 	_hhead_ctxt_menu->addAction(_act_toggle_log);
+	_hhead_ctxt_menu->addSeparator();
+
+	_act_show_count = new QAction("Count", _hhead_ctxt_menu);
+	_act_show_count->setCheckable(true);
+	_act_show_scientific_notation = new QAction("Scientific notation", _hhead_ctxt_menu);
+	_act_show_scientific_notation->setCheckable(true);
+	_act_show_percentage = new QAction("Percentage", _hhead_ctxt_menu);
+	_act_show_percentage->setCheckable(true);
+	_act_show_percentage->setChecked(true);
+
+	_hhead_ctxt_menu->addAction(_act_show_count);
+	_hhead_ctxt_menu->addAction(_act_show_scientific_notation);
+	_hhead_ctxt_menu->addAction(_act_show_percentage);
 
 	//_values_view->setShowGrid(false);
 	//_values_view->setStyleSheet("QTableView::item { border-left: 1px solid grey; }");
@@ -82,9 +98,12 @@ void PVGuiQt::PVListUniqStringsDlg::process_context_menu(QAction* act)
 void PVGuiQt::PVListUniqStringsDlg::process_hhead_context_menu(QAction* act)
 {
 	PVListDisplayDlg::process_hhead_context_menu(act);
+}
 
+void PVGuiQt::PVListUniqStringsDlg::scale_changed(QAction* act)
+{
 	if (act) {
-		_use_logorithmic_scale = (act == _act_toggle_log);
+		_use_logarithmic_scale = (act == _act_toggle_log);
 		_values_view->update();
 	}
 }
@@ -272,9 +291,9 @@ void PVGuiQt::__impl::PVListUniqStringsDelegate::paint(
 	if (index.column() == 1) {
 		size_t occurence_count = index.data(Qt::UserRole).toUInt();
 
-		double ratio = (double) occurence_count / get_dialog()->get_selection_count();
-		double log_ratio = (double) log(occurence_count) / log(get_dialog()->get_selection_count());
-		bool log_scale = get_dialog()->use_logorithmic_scale();
+		double ratio = (double) occurence_count / d()->get_selection_count();
+		double log_ratio = (double) log(occurence_count) / log(d()->get_selection_count());
+		bool log_scale = d()->use_logorithmic_scale();
 
 		// Draw bounding rectangle
 		size_t thickness = 1;
@@ -295,35 +314,84 @@ void PVGuiQt::__impl::PVListUniqStringsDelegate::paint(
 			option.rect.height()-2*thickness,
 			QColor::fromHsv((log_scale ? log_ratio : ratio) * (0 - 120) + 120, 255, 255)
 		);
-
-		// Draw percentage
-		QString percent = QString::number(ratio * 100, 'f', 2) + " %";
 		painter->setPen(Qt::black);
-		painter->drawText(
-			option.rect.x()+thickness,
-			option.rect.y()+2*thickness,
-			option.rect.width()-thickness,
-			option.rect.height()-thickness,
-			Qt::AlignCenter,
-			percent
-		);
 
-		/*QStyleOptionProgressBar progressBarOption;
-		progressBarOption.rect = option.rect;
-		progressBarOption.minimum = 0;
-		progressBarOption.maximum = 100;
-		progressBarOption.progress = percentage;
-		progressBarOption.text = QString::number(percentage) + "%";
-		progressBarOption.textVisible = true;
-		QApplication::style()->drawControl(QStyle::CE_ProgressBar, &progressBarOption, painter);*/
+		// Draw occurence count and/or scientific notation and/or percentage
+		size_t occurence_max_width = 0;
+		size_t scientific_notation_max_width = 0;
+		size_t percentage_max_width = 0;
 
-	 } else {
+		size_t margin = option.rect.width();
+
+		QString occurence;
+		QString scientific_notation;
+		QString percentage;
+
+		size_t representation_count = 0;
+		if (d()->_act_show_count->isChecked()) {
+			occurence = format_occurence(occurence_count);
+			occurence_max_width = QFontMetrics(painter->font()).width(format_occurence(d()->_max_e));
+			margin -= occurence_max_width;
+			representation_count++;
+		}
+		if (d()->_act_show_scientific_notation->isChecked()) {
+			scientific_notation = format_scientific_notation(ratio);
+			scientific_notation_max_width = QFontMetrics(painter->font()).width(format_scientific_notation(0.27));
+			margin -= scientific_notation_max_width;
+			representation_count++;
+		}
+		if (d()->_act_show_percentage->isChecked()) {
+			percentage = format_percentage(ratio);
+			percentage_max_width = QFontMetrics(painter->font()).width(format_percentage((double)d()->_max_e / d()->get_selection_count()));
+			margin -= percentage_max_width;
+			representation_count++;
+		}
+
+		margin /= representation_count+1;
+
+		int x =  option.rect.x()+thickness;
+		if (d()->_act_show_count->isChecked()) {
+			x += margin;
+			painter->drawText(
+				x,
+				option.rect.y()+2*thickness,
+				occurence_max_width,
+				option.rect.height()-thickness,
+				Qt::AlignRight,
+				occurence
+			);
+			x += occurence_max_width;
+		}
+		if (d()->_act_show_scientific_notation->isChecked()) {
+			x += margin;
+			painter->drawText(
+				x,
+				option.rect.y()+2*thickness,
+				scientific_notation_max_width,
+				option.rect.height()-thickness,
+				Qt::AlignLeft,
+				scientific_notation
+			);
+			x += scientific_notation_max_width;
+		}
+		if (d()->_act_show_percentage->isChecked()) {
+			x += margin;
+			painter->drawText(
+				x,
+				option.rect.y()+2*thickness,
+				percentage_max_width,
+				option.rect.height()-thickness,
+				Qt::AlignRight,
+				percentage
+			);
+		}
+	}
+	else {
 		 QStyledItemDelegate::paint(painter, option, index);
-	 }
-
+	}
 }
 
-PVGuiQt::PVListUniqStringsDlg* PVGuiQt::__impl::PVListUniqStringsDelegate::get_dialog() const
+PVGuiQt::PVListUniqStringsDlg* PVGuiQt::__impl::PVListUniqStringsDelegate::d() const
 {
 	 return static_cast<PVGuiQt::PVListUniqStringsDlg*>(parent());
 }

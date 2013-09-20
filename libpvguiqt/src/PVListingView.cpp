@@ -107,9 +107,10 @@ private:
 
 /******************************************************************************
  *
- * PVGuiQt::PVListingView::PVListingView
+ * PVGuiQt::PVListingView
  *
  *****************************************************************************/
+
 PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	QTableView(parent),
 	_ctxt_process(nullptr)
@@ -199,11 +200,6 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::update_view_selection_from_listing_selection
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 {
 	/* VARIABLES */
@@ -243,11 +239,6 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::mouseDoubleClickEvent
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
 {
 	// Here is the reference:
@@ -266,29 +257,16 @@ void PVGuiQt::PVListingView::resizeEvent(QResizeEvent * event)
 	emit resized();
 }
 
-/*****************************************************************************
- * PVGuiQt::PVListingView::enterEvent
- *****************************************************************************/
-
 void PVGuiQt::PVListingView::enterEvent(QEvent*)
 {
 	setFocus(Qt::MouseFocusReason);
 }
-
-/*****************************************************************************
- * PVGuiQt::PVListingView::leaveEvent
- *****************************************************************************/
 
 void PVGuiQt::PVListingView::leaveEvent(QEvent*)
 {
 	clearFocus();
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::getSelectedRows
- *
- *****************************************************************************/
 QVector<PVRow> PVGuiQt::PVListingView::get_selected_rows()
 {
 	QModelIndexList selected_rows_list = selectionModel()->selectedRows(0);
@@ -305,11 +283,6 @@ QVector<PVRow> PVGuiQt::PVListingView::get_selected_rows()
 	return selected_rows_vector;
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::extract_selection
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::extract_selection(Picviz::PVSelection &sel)
 {
 	typedef __impl::PVListingViewSelectionExtractor tvse_t;
@@ -326,11 +299,6 @@ void PVGuiQt::PVListingView::extract_selection(Picviz::PVSelection &sel)
 	sel = tvse.get_selection();
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::selectionChanged
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
 #if 0
@@ -347,11 +315,6 @@ void PVGuiQt::PVListingView::selectionChanged(const QItemSelection& selected, co
 	QTableView::selectionChanged(selected, deselected);
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::slotDoubleClickOnVHead
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
 {
 	// The double click automatically select the line, so just call our global
@@ -359,11 +322,6 @@ void PVGuiQt::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
 	update_view_selection_from_listing_selection();
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::keyEnterPressed
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 {
 	switch (event->key()) {
@@ -384,11 +342,6 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 	}
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::wheelEvent
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 {
 	if (e->modifiers() == Qt::ControlModifier)
@@ -404,22 +357,12 @@ void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 	}
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::columnResized
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::columnResized(int column, int oldWidth, int newWidth)
 {
 	QTableView::columnResized(column, oldWidth, newWidth);
 	_headers_width[lib_view().get_real_axis_index(column)] = newWidth;
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::reset
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::reset()
 {
 	uint32_t default_width = horizontalHeader()->defaultSectionSize();
@@ -429,11 +372,6 @@ void PVGuiQt::PVListingView::reset()
 	}
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::show_ctxt_menu
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 {
 	if (!_show_ctxt_menu) {
@@ -478,6 +416,8 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	PVCol comb_col = horizontalHeader()->logicalIndexAt(pos);
 	PVCol col = lib_view().get_original_axis_index(comb_col);
 
+	section_hovered_enter(col, false);
+
 	_hhead_ctxt_menu->clear();
 	PVDisplays::PVDisplaysContainer* container = PVDisplays::get().get_parent_container(this);
 	if (container) {
@@ -502,11 +442,6 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	}
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::process_ctxt_menu_copy
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::process_ctxt_menu_copy()
 {
 	// The value to copy is in _ctxt_v
@@ -514,11 +449,6 @@ void PVGuiQt::PVListingView::process_ctxt_menu_copy()
 	cb->setText(_ctxt_v);
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::process_ctxt_menu_set_color
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
 {
 	/* We let the user select a color */
@@ -531,11 +461,6 @@ void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
 	set_color_selected(color);
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::set_color_selected
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 {
 	PVHive::PVActor<Picviz::PVView> actor;
@@ -553,11 +478,6 @@ void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 	actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::process_ctxt_menu_action
- *
- *****************************************************************************/
 void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
 {
 	assert(act);
@@ -641,6 +561,7 @@ void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
 {
 	Picviz::PVSource_sp src = lib_view().get_parent<Picviz::PVSource>()->shared_from_this();
 	PVHive::call<FUNC(Picviz::PVSource::set_section_hovered)>(src, col, entered);
+	highlight_column(entered ? col : -1);
 }
 
 void PVGuiQt::PVListingView::section_clicked(int col)
@@ -658,8 +579,12 @@ void PVGuiQt::PVListingView::highlight_column(PVHive::PVObserverBase* o)
 	int* obj = real_o->get_object();
 	int col = *obj;
 
-	_hovered_axis = col;
+	highlight_column(col);
+}
 
+void PVGuiQt::PVListingView::highlight_column(int col)
+{
+	_hovered_axis = col;
 	viewport()->update();
 }
 
@@ -671,8 +596,10 @@ void PVGuiQt::PVListingView::set_section_visible(PVHive::PVObserverBase* o)
 	int col = *obj;
 
 	setSelectionBehavior(QAbstractItemView::SelectColumns);
+
 	selectColumn(col);
 	clearSelection();
+
 	setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
@@ -681,20 +608,96 @@ void PVGuiQt::PVListingView::paintEvent(QPaintEvent* event)
 	QTableView::paintEvent(event);
 
 	if (_hovered_axis != -1) {
+
+		//         Grey curve:
+		//	 g4	|   |___|   |   |
+		//		|  /|   |   |   |
+		//		| / |   |   |   |
+		//	 g3	|/  |   |   |   |
+		//		|   |   |   |   |
+		//		|   |   |   |   |
+		//	 g2	|   |   |   |  /|
+		//		|   |   |   | / |
+		//	 g1	|   |   |___|/  |
+		//		|   |   |   |   |
+		//		0  t1  t2  t3   1
+
+		qreal threshold1 = 0.3;
+		qreal threshold2 = 0.5;
+		qreal threshold3 = 0.7;
+		qreal grey1 = 0.3;
+		qreal grey2 = 0.5;
+		qreal grey3 = 0.6;
+		qreal grey4 = 0.8;
+
+		int border_width = 6;
+
+
 		int x = horizontalHeader()->sectionViewportPosition(_hovered_axis);
-		int width = horizontalHeader()->sectionSize(_hovered_axis);
+		int w = horizontalHeader()->sectionSize(_hovered_axis);
 
 		QPainter painter(viewport());
-		QRectF r(x, 0, width, height());
-		painter.setOpacity(0.25);
+		QRectF r(x, 0, w, height());
 
-	    QLinearGradient gradient(r.topLeft(), r.topRight());
-	    gradient.setColorAt(0, Qt::lightGray);
-	    gradient.setColorAt(0.5, Qt::black);
-	    gradient.setColorAt(1, Qt::lightGray);
-	    painter.fillRect(r, gradient);
+		QRectF rect1(r.x() - border_width/2 -1, 0, border_width, height());
+		QRectF rect2(r.x() + r.width() - border_width/2 -1, 0, border_width, height());
+
+		border_width *= 2;
+		QColor color = lib_view().get_axis(_hovered_axis).get_titlecolor().toQColor();
+
+		qreal weighted_value = (((color.redF() * 0.299) + (color.greenF() * 0.587) + (color.blueF() * 0.114)));
+
+		int grey_level;
+		if (weighted_value < threshold1) {
+			grey_level = 255 * (grey3 + (weighted_value * (grey4 - grey3) / threshold1));
+		}
+		else {
+			if (weighted_value <  threshold2) {
+				grey_level = 255 * grey4;
+			}
+			else {
+				if (weighted_value < threshold3) {
+					grey_level = 255 * grey1;
+				}
+				else {
+					grey_level = 255 * (grey1 + ((weighted_value - threshold3) * (grey2 - grey1) / (1 - threshold3)));
+				}
+			}
+		}
+
+		QColor bg_color(grey_level, grey_level, grey_level);
+		QPixmap texture(border_width, border_width);
+		QPainter texture_painter(&texture);
+		QBrush b(bg_color);
+		texture_painter.setBrush(b);
+		texture_painter.setPen(bg_color);
+
+		texture_painter.fillRect(0, 0, border_width, border_width, color);
+		QPolygon poly1;
+		poly1 << QPoint(0, 0);
+		poly1 << QPoint(border_width/2-1, 0);
+		poly1 << QPoint(0, border_width/2-1);
+		QPolygon poly2;
+		poly2 << QPoint(border_width, 0);
+		poly2 << QPoint(0, border_width);
+		poly2 << QPoint(border_width/2-1, border_width);
+		poly2 << QPoint(border_width, border_width/2-1);
+		texture_painter.drawPolygon(poly1);
+		texture_painter.drawPolygon(poly2);
+		texture_painter.end();
+
+		QBrush brush(bg_color, texture);
+		painter.setPen(Qt::NoPen);
+		painter.fillRect(rect1, brush);
+		painter.fillRect(rect2, brush);
 	}
 }
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVHorizontalHeaderView
+ *
+ *****************************************************************************/
 
 PVGuiQt::PVHorizontalHeaderView::PVHorizontalHeaderView(Qt::Orientation orientation, PVListingView* parent) : QHeaderView(orientation, parent)
 {

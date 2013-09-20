@@ -31,6 +31,7 @@ PVAbstractAxisSliders.cpp
 PVAbstractRangeAxisSliders.cpp
 PVAxisGraphicsItem.cpp
 PVAxisLabel.cpp
+PVAxisHeader.cpp
 PVBCIBuffers.cpp
 PVFullParallelScene.cpp
 PVFullParallelView.cpp
@@ -126,6 +127,7 @@ include/pvparallelview/PVZoomedParallelView.h
 include/pvparallelview/PVSlidersManager.h
 include/pvparallelview/PVAxisLabel.h
 include/pvparallelview/PVFullParallelView.h
+include/pvparallelview/PVAxisHeader.h
 include/pvparallelview/PVFullParallelScene.h
 include/pvparallelview/PVSlidersGroup.h
 include/pvparallelview/PVAbstractAxisSlider.h
@@ -164,6 +166,7 @@ include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVSlidersGroup.h
 include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVAxisLabel.h
+include/pvparallelview/PVAxisHeader.h
 include/pvparallelview/PVAbstractAxisSlider.h
 include/pvparallelview/PVAbstractAxisSliders.h
 include/pvparallelview/PVSelectionAxisSliders.h

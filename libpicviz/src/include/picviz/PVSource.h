@@ -143,6 +143,7 @@ public:
 	// axis <-> section synchronisation
 	void set_axis_hovered(PVCol col, bool entered) { _axis_hovered_id = entered ? col : -1; }
 	int& axis_hovered() { return _axis_hovered_id; }
+	const int& axis_hovered() const { return _axis_hovered_id; }
 	void set_axis_clicked(PVCol col) { _axis_clicked_id = col; }
 	const PVCol& axis_clicked() const { return _axis_clicked_id; }
 	void set_section_hovered(PVCol col, bool entered) { _section_hovered_id = entered ? col : -1; }
