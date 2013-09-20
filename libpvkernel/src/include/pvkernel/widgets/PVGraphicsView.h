@@ -124,6 +124,10 @@ public:
 	 */
 	bool set_gl_viewport();
 
+	/**
+	 */
+	void set_viewport_cursor(const QCursor& cursor);
+
 public:
 	/**
 	 * Sets displayed scene.
@@ -448,6 +452,9 @@ public:
 	{
 		center_on(QPointF(x, y));
 	}
+
+public:
+	void fake_mouse_move();
 
 public:
 	QScrollBar64 *get_horizontal_scrollbar() const
@@ -828,6 +835,11 @@ protected:
 	void set_view(const QRectF &area,
 	              Qt::AspectRatioMode mode = Qt::KeepAspectRatio);
 
+	/**
+	 * force the viewport cursor
+	 */
+	void update_viewport_cursor();
+
 private:
 	/**
 	 * Initializes internal stuff.
@@ -937,6 +949,8 @@ private:
 
 	interactor_enum_t            _interactor_enum;
 	interactor_affectation_map_t _interactor_map;
+
+	QCursor                      _viewport_cursor;
 
 private:
 	static QEvent::Type  _usable_events[];

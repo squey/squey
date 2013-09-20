@@ -4,6 +4,7 @@
 
 #include <QGridLayout>
 #include <QGraphicsScene>
+#include <QGraphicsItem>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QApplication>
@@ -317,6 +318,7 @@ void PVWidgets::PVGraphicsView::fit_in_view(Qt::AspectRatioMode mode)
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::center_on
  *****************************************************************************/
+
 void PVWidgets::PVGraphicsView::center_on(const QPointF &pos)
 {
 	QPointF pos_view = _transform.map(pos - _scene_offset);
@@ -324,6 +326,20 @@ void PVWidgets::PVGraphicsView::center_on(const QPointF &pos)
 
 	_hbar->setValue(pos_view.x());
 	_vbar->setValue(pos_view.y());
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::fake_mouse_move
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::fake_mouse_move()
+{
+	QMouseEvent e((QEvent::MouseMove),
+	              mapFromGlobal(QCursor::pos()),
+	              Qt::NoButton,
+	              Qt::NoButton,
+	              Qt::NoModifier);
+	QApplication::sendEvent(this , &e);
 }
 
 /*****************************************************************************
@@ -685,6 +701,8 @@ void PVWidgets::PVGraphicsView::mouseMoveEvent(QMouseEvent *event)
 	if (!call_interactor(event)) {
 		QWidget::mouseMoveEvent(event);
 	}
+
+	update_viewport_cursor();
 }
 
 /*****************************************************************************
@@ -696,6 +714,8 @@ void PVWidgets::PVGraphicsView::mousePressEvent(QMouseEvent *event)
 	if (!call_interactor(event)) {
 		QWidget::mousePressEvent(event);
 	}
+
+	update_viewport_cursor();
 }
 
 /*****************************************************************************
@@ -707,6 +727,8 @@ void PVWidgets::PVGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 	if (!call_interactor(event)) {
 		QWidget::mouseReleaseEvent(event);
 	}
+
+	update_viewport_cursor();
 }
 
 /*****************************************************************************
@@ -796,6 +818,22 @@ void PVWidgets::PVGraphicsView::set_view(const QRectF &area, Qt::AspectRatioMode
 }
 
 /*****************************************************************************
+ * PVWidgets::PVGraphicsView::update_viewport_cursor
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::update_viewport_cursor()
+{
+	QPointF p = map_to_scene(mapFromGlobal(QCursor::pos()));
+	QGraphicsItem* item = _scene->itemAt(p, get_transform());
+
+	if (item && item->hasCursor()) {
+		_viewport->setCursor(item->cursor());
+	} else {
+		_viewport->setCursor(_viewport_cursor);
+	}
+}
+
+/*****************************************************************************
  * PVWidgets::PVGraphicsView::init
  *****************************************************************************/
 
@@ -836,6 +874,10 @@ void PVWidgets::PVGraphicsView::init()
 	_layout->addWidget(_vbar, 0, 1);
 }
 
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::set_viewport
+ *****************************************************************************/
+
 void PVWidgets::PVGraphicsView::set_viewport(QWidget* w)
 {
 	bool mouse_tracking = w->hasMouseTracking();
@@ -865,6 +907,10 @@ void PVWidgets::PVGraphicsView::set_viewport(QWidget* w)
 	_viewport->lower();
 }
 
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::set_gl_viewport
+ *****************************************************************************/
+
 bool PVWidgets::PVGraphicsView::set_gl_viewport(QGLFormat const& format)
 {
 #ifdef QT_NO_OPENGL
@@ -880,6 +926,10 @@ bool PVWidgets::PVGraphicsView::set_gl_viewport(QGLFormat const& format)
 #endif
 }
 
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::set_gl_viewport
+ *****************************************************************************/
+
 bool PVWidgets::PVGraphicsView::set_gl_viewport()
 {
 #ifdef QT_NO_OPENGL
@@ -887,6 +937,16 @@ bool PVWidgets::PVGraphicsView::set_gl_viewport()
 #else
 	return set_gl_viewport(QGLFormat());
 #endif
+}
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::set_viewport_cursor
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::set_viewport_cursor(const QCursor& cursor)
+{
+	get_viewport()->setCursor(cursor);
+	_viewport_cursor = cursor;
 }
 
 /*****************************************************************************
@@ -1159,14 +1219,21 @@ bool PVWidgets::PVGraphicsView::is_event_supported(QEvent::Type type)
 
 bool PVWidgets::PVGraphicsView::call_interactor(QEvent *event)
 {
+	bool ret = false;
 	assert(is_event_supported(event->type()));
 
 	for (PVGraphicsViewInteractorBase* i : _interactor_map[event->type()]) {
 		if (i->call(this, event)) {
-			return true;
+			ret = true;
+			break;
 		}
 	}
-	return false;
+
+	if (event->isAccepted()) {
+		get_viewport()->update();
+	}
+
+	return ret;
 }
 
 /*****************************************************************************
