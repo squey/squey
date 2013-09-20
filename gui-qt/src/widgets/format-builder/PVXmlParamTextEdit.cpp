@@ -26,10 +26,9 @@ PVInspector::PVXmlParamTextEdit::PVXmlParamTextEdit(QString pName,QVariant var):
     typeOfTextEdit = text;
     editing = true;
 
-	QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Maximum);
+	QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
 	sp.setHeightForWidth(sizePolicy().hasHeightForWidth());
 	setSizePolicy(sp);
-	setMaximumHeight(70);
 
     connect(this,SIGNAL(textChanged()),this,SLOT(slotHighLight()));
 }
@@ -52,17 +51,19 @@ PVInspector::PVXmlParamTextEdit::~PVXmlParamTextEdit() {
  * PVInspector::PVXmlParamTextEdit::setRegEx
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamTextEdit::setRegEx(const QString &regStr){
+void PVInspector::PVXmlParamTextEdit::setRegEx(){
+    setRegEx(((PVXmlParamTextEdit*) sender())->toPlainText());
+}
+
+void PVInspector::PVXmlParamTextEdit::setRegEx(const QString & regExp){
     if(editing){
         highlight =new PVXmlRegValidatorHighLight((PVXmlParamTextEdit*)this);//we are in regexp validator case
 	editing=false;
     }
     typeOfTextEdit = regexpValid;//define type as a regexp validator
-    highlight->setRegExp(regStr);
+    highlight->setRegExp(regExp);
     highlight->rehighlight();
 }
-    
-
 
 
 /******************************************************************************

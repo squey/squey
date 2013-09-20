@@ -68,7 +68,8 @@ public slots:
      * Event when something modify the regular expression.
      * @param regStr
      */
-    void setRegEx(const QString &regStr);
+    void setRegEx();
+    void setRegEx(const QString & regEx);
     void slotHighLight();
     
 };

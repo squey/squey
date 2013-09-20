@@ -94,8 +94,9 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
      */    
     QVBoxLayout *vb=new QVBoxLayout();
     vb->setMargin(0);
-    QHBoxLayout *hb=new QHBoxLayout();
+    QSplitter* vertical_splitter = new QSplitter(Qt::Horizontal);
     vbParam=new QVBoxLayout();
+    vbParam->setSizeConstraint(QLayout::SetMinimumSize);
     
     
     //initialisation of the toolbar.
@@ -108,19 +109,26 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
     initMenuBar();
     //layout()->setMenuBar(menuBar);
     
-    vb->addItem(hb);
+    vb->addWidget(vertical_splitter);
     
     //the view
     myTreeView = new PVXmlTreeView(this);
-    hb->addWidget(myTreeView);
+    vertical_splitter->addWidget(myTreeView);
+
+
 
     
     //the model
     myTreeModel = new PVXmlDomModel(this);
     myTreeView->setModel(myTreeModel);
 
-    
-    hb->addItem(vbParam);
+    QWidget* vbParamWidget = new QWidget();
+    vbParamWidget->setLayout(vbParam);
+    vertical_splitter->addWidget(vbParamWidget);
+    QSizePolicy sp(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    vertical_splitter->setSizePolicy(sp);
+    vertical_splitter->setStretchFactor(vertical_splitter->indexOf(myTreeView), 1);
+    vertical_splitter->setStretchFactor(vertical_splitter->indexOf(vbParamWidget), 40);
     //parameter board
     myParamBord_old_model = new PVXmlParamWidget(this);
     vbParam->addWidget(myParamBord_old_model);  
