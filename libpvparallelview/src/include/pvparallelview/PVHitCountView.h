@@ -35,8 +35,9 @@ namespace PVParallelView
 {
 
 class PVHitCountViewInteractor;
-class PVSelectionSquareHitCountView;
-class PVSelectionSquareInteractor;
+class PVHitCountViewSelectionRectangle;
+class PVSelectionRectangleInteractor;
+
 class PVHitCountViewParamsWidget;
 
 class PVHitCountView : public PVZoomableDrawingAreaWithAxes
@@ -173,8 +174,8 @@ private:
 	PVZoomableDrawingAreaInteractor             *_my_interactor;
 	PVZoomableDrawingAreaInteractor             *_hcv_interactor;
 
-	PVSelectionSquareHitCountView               *_sel_rect;
-	PVSelectionSquareInteractor                 *_sel_rect_interactor;
+	PVHitCountViewSelectionRectangle            *_sel_rect;
+	PVSelectionRectangleInteractor              *_sel_rect_interactor;
 
 	PVHitCountViewParamsWidget                  *_params_widget;
 	PVWidgets::PVTextPopupWidget                *_help_widget;
