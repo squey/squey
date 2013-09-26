@@ -81,7 +81,12 @@ PVDisplayViewScatter.cpp
 PVZoomableDrawingArea.cpp
 PVZoomableDrawingAreaWithAxes.cpp
 
+PVSelectionRectangle.cpp
+PVSelectionRectangleItem.cpp
+PVSelectionHandleItem.cpp
+
 PVSelectionSquareInteractor.cpp
+PVSelectionRectangleInteractor.cpp
 
 PVZoomableDrawingAreaInteractor.cpp
 PVZoomableDrawingAreaInteractorMajorY.cpp
@@ -92,6 +97,10 @@ PVZoomableDrawingAreaInteractorHomothetic.cpp
 
 # views
 PVHitCountView.cpp
+PVHitCountViewInteractor.cpp
+PVHitCountViewParamsWidget.cpp
+PVHitCountViewSelectionRectangle.cpp
+
 PVScatterView.cpp
 PVScatterViewDataImpl.cpp
 PVScatterViewImage.cpp
@@ -159,6 +168,8 @@ include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
 include/pvparallelview/PVSelectionSquareGraphicsItem.h
 include/pvparallelview/PVSelectionSquare.h
+include/pvparallelview/PVSelectionRectangleItem.h
+include/pvparallelview/PVSelectionRectangle.h
 include/pvparallelview/PVSelectionSquareFullParallelView.h
 include/pvparallelview/PVSelectionSquareScatterView.h
 include/pvparallelview/PVZonesManager.h

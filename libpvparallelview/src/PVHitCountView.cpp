@@ -17,6 +17,11 @@
 #include <pvparallelview/PVSelectionSquareInteractor.h>
 #include <pvparallelview/PVSelectionSquare.h>
 
+#include <pvparallelview/PVHitCountViewSelectionRectangle.h>
+#include <pvparallelview/PVHitCountViewParamsWidget.h>
+#include <pvparallelview/PVHitCountViewInteractor.h>
+#include <pvparallelview/PVSelectionRectangleInteractor.h>
+
 #include <QCheckBox>
 #include <QGraphicsScene>
 #include <QLabel>
@@ -80,229 +85,6 @@ void __print_scalar(const char *text, const V &v)
 	          << std::endl;
 }
 
-namespace PVParallelView
-{
-
-class PVHitCountViewParamsWidget: public PVWidgets::PVConfigPopupWidget
-{
-public:
-	PVHitCountViewParamsWidget(PVHitCountView* parent) :
-		PVWidgets::PVConfigPopupWidget(parent)
-	{
-		setWindowTitle(tr("Hit count view - options"));
-
-		_cb_autofit = new QCheckBox(tr("Auto-fit selection on the occurence axis"));
-		_cb_use_log_color = new QCheckBox(tr("Use logarithmic colormap"));
-
-		QVBoxLayout* layout = new QVBoxLayout();
-		layout->addWidget(_cb_autofit);
-		layout->addWidget(_cb_use_log_color);
-		setContentLayout(layout);
-
-		connect(_cb_autofit, SIGNAL(toggled(bool)),
-		        parent_hcv(), SLOT(toggle_auto_x_zoom_sel()));
-		connect(_cb_use_log_color,  SIGNAL(toggled(bool)),
-		        parent_hcv(), SLOT(toggle_log_color()));
-	}
-
-public:
-	void update_widgets()
-	{
-		_cb_autofit->blockSignals(true);
-		_cb_use_log_color->blockSignals(true);
-
-		_cb_autofit->setChecked(parent_hcv()->auto_x_zoom_sel());
-		_cb_use_log_color->setChecked(parent_hcv()->use_log_color());
-
-		_cb_autofit->blockSignals(false);
-		_cb_use_log_color->blockSignals(false);
-	}
-
-private:
-	PVHitCountView* parent_hcv()
-	{
-		assert(qobject_cast<PVHitCountView*>(parentWidget()));
-		return static_cast<PVHitCountView*>(parentWidget());
-	}
-
-private:
-	QCheckBox* _cb_autofit;
-	QCheckBox* _cb_use_log_color;
-};
-
-class PVHitCountViewInteractor : public PVZoomableDrawingAreaInteractor
-{
-public:
-	PVHitCountViewInteractor(PVWidgets::PVGraphicsView* parent = nullptr) :
-		PVZoomableDrawingAreaInteractor(parent)
-	{}
-
-	bool resizeEvent(PVZoomableDrawingArea* zda, QResizeEvent*) override
-	{
-		PVHitCountView *hcv = get_hit_count_view(zda);
-		hcv->set_x_axis_zoom();
-
-		hcv->reconfigure_view();
-		if (hcv->get_viewport()) {
-			hcv->get_viewport()->update();
-		}
-
-		return false;
-	}
-
-	bool keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent *event) override
-	{
-		PVHitCountView *hcv = get_hit_count_view(zda);
-		switch (event->key()) {
-		case Qt::Key_Space:
-			if (event->modifiers() == Qt::NoModifier) {
-				if(hcv->params_widget()->isHidden()) {
-					hcv->params_widget()->setPersistence(false);
-					hcv->params_widget()->popup(QCursor::pos(), true);
-					return true;
-				}
-			} else if (event->modifiers() == Qt::ControlModifier) {
-				hcv->params_widget()->setPersistence(true);
-				hcv->params_widget()->popup(QCursor::pos(), true);
-				return true;
-			}
-		case Qt::Key_Home:
-			if (event->modifiers() == Qt::ControlModifier) {
-				hcv->set_x_zoom_level_from_sel();
-
-				hcv->reconfigure_view();
-
-				QScrollBar64 *sb = hcv->get_horizontal_scrollbar();
-				sb->setValue(0);
-
-				zda->get_viewport()->update();
-				zoom_has_changed(zda, PVZoomableDrawingAreaConstraints::X);
-			}
-			else {
-				hcv->reset_view();
-				hcv->reconfigure_view();
-				hcv->_update_all_timer.start();
-			}
-			return true;
-		case Qt::Key_S:
-			if (event->modifiers() == Qt::AltModifier) {
-				hcv->toggle_auto_x_zoom_sel();
-				return true;
-			}
-			break;
-		case PVWidgets::PVTextPopupWidget::HelpKey:
-			if (hcv->help_widget()->isHidden()) {
-				hcv->help_widget()->popup(hcv->get_viewport(),
-				                          PVWidgets::PVTextPopupWidget::AlignCenter,
-				                          PVWidgets::PVTextPopupWidget::ExpandAll, 16);
-			}
-			break;
-		default:
-			break;
-		}
-
-		return false;
-	}
-
-	bool wheelEvent(PVZoomableDrawingArea* zda, QWheelEvent* event)
-	{
-		int mask = 0;
-
-		if (event->modifiers() == Qt::NoModifier) {
-			mask = PVZoomableDrawingAreaConstraints::Y;
-		} else if (event->modifiers() == Qt::ControlModifier) {
-			mask = PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y;
-		} else if (event->modifiers() == Qt::ShiftModifier) {
-			mask = PVZoomableDrawingAreaConstraints::X;
-		}
-
-		PVHitCountView *hcv = get_hit_count_view(zda);
-		int inc = (event->delta() > 0)?1:-1;
-
-		if (mask & PVZoomableDrawingAreaConstraints::X) {
-
-			event->setAccepted(true);
-
-			if (increment_zoom_value(hcv, mask, inc)) {
-				QPointF scene_pos = hcv->map_margined_to_scene(QPointF(0, 0));
-
-				hcv->reconfigure_view();
-
-				int scroll_x = hcv->map_to_view(hcv->map_margined_from_scene(scene_pos)).x();
-				hcv->get_horizontal_scrollbar()->setValue(scroll_x);
-
-				hcv->get_viewport()->update();
-				zoom_has_changed(hcv, mask);
-				return true;
-			}
-		} else 	if (mask != 0) {
-			int inc = (event->delta() > 0)?1:-1;
-
-			event->setAccepted(true);
-
-			if (increment_zoom_value(zda, mask, inc)) {
-				hcv->_do_auto_scale = hcv->_auto_x_zoom_sel;
-				zda->reconfigure_view();
-				zda->get_viewport()->update();
-				zoom_has_changed(zda, mask);
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-protected:
-	static inline PVHitCountView *get_hit_count_view(PVZoomableDrawingArea *zda)
-	{
-		assert(qobject_cast<PVHitCountView*>(zda));
-		return static_cast<PVHitCountView*>(zda);
-	}
-};
-
-
-class PVSelectionSquareHitCountView : public PVSelectionSquare
-{
-public:
-	PVSelectionSquareHitCountView(PVHitCountView* hcv) :
-	PVSelectionSquare(hcv->get_scene()),
-	_hcv(hcv)
-	{}
-
-protected:
-	void commit(bool use_selection_modifiers) override
-	{
-		QRectF r = _selection_graphics_item->rect();
-		Picviz::PVView& view = lib_view();
-
-		unsigned int modifiers = (unsigned int) QApplication::keyboardModifiers();
-		modifiers &= ~Qt::KeypadModifier;
-
-		bool use_selectable = true;
-		if (use_selection_modifiers && (modifiers == PVSelectionGenerator::AND_MODIFIER || modifiers == PVSelectionGenerator::NAND_MODIFIER)) {
-			use_selectable = false;
-		}
-
-		PVSelectionGenerator::compute_selection_from_hit_count_view_rect(
-			_hcv->get_hit_graph_manager(),
-			r, _hcv->get_max_count(),
-			view.get_volatile_selection(),
-			use_selectable
-		);
-		PVSelectionGenerator::process_selection(view.shared_from_this(), use_selection_modifiers);
-	}
-
-	Picviz::PVView& lib_view() override
-	{
-		return _hcv->lib_view();
-	}
-
-private:
-	PVHitCountView* _hcv;
-};
-
-}
-
 /*****************************************************************************
  * PVParallelView::PVHitCountView::PVHitCountView
  *****************************************************************************/
@@ -341,11 +123,11 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 	get_x_axis_zoom().set_zoom_converter(&x_zoom_converter());
 	get_y_axis_zoom().set_zoom_converter(&y_zoom_converter());
 
-	_sel_rect = new PVSelectionSquareHitCountView(this);
+	_sel_rect = new PVHitCountViewSelectionRectangle(this);
 
 	/* interactor/constraints
 	 */
-	_sel_rect_interactor = declare_interactor<PVSelectionSquareInteractor>(_sel_rect);
+	_sel_rect_interactor = declare_interactor<PVSelectionRectangleInteractor>(_sel_rect);
 	register_front_all(_sel_rect_interactor);
 
 	_my_interactor = declare_interactor<PVZoomableDrawingAreaInteractorMajorY>();
@@ -356,7 +138,13 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 	register_front_one(QEvent::Resize, _hcv_interactor);
 	register_front_one(QEvent::KeyPress, _hcv_interactor);
 	register_front_one(QEvent::Wheel, _hcv_interactor);
+
 	install_default_scene_interactor();
+
+	// need to move them to front to allow view pan before sel rect move
+	register_front_one(QEvent::MouseButtonPress, _my_interactor);
+	register_front_one(QEvent::MouseButtonRelease, _my_interactor);
+	register_front_one(QEvent::MouseMove, _my_interactor);
 
 	/* constraints
 	 */
@@ -425,7 +213,11 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 		                                return &view.are_view_unselected_zombie_visible();
 	                                },
 	                                *obs);
+
 	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
+
+	_sel_rect->set_default_cursor(Qt::CrossCursor);
+	set_viewport_cursor(Qt::CrossCursor);
 }
 
 /*****************************************************************************
@@ -650,12 +442,13 @@ void PVParallelView::PVHitCountView::draw_lines(QPainter *painter,
 void PVParallelView::PVHitCountView::do_zoom_change(int axes)
 {
 	if (axes & PVZoomableDrawingAreaConstraints::Y) {
-		// Hide selection square as it means nothing now.
-		_sel_rect->hide();
 		if (_do_auto_scale) {
 			get_horizontal_scrollbar()->setValue(0);
 		}
 	}
+	_sel_rect->set_handles_scale(1. / get_transform().m11(),
+	                             1. / get_transform().m22());
+
 	_update_all_timer.start();
 }
 

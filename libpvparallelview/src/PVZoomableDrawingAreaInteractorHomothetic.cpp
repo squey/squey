@@ -22,7 +22,7 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::mousePressEvent(
 		event->setAccepted(true);
 	}
 
-	return event->isAccepted();
+	return false;
 }
 
 /*****************************************************************************
@@ -32,7 +32,6 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::mousePressEvent(
 bool PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::mouseMoveEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
 {
 	if (event->buttons() == Qt::RightButton) {
-
 		QPoint delta = _pan_reference - event->pos();
 		_pan_reference = event->pos();
 
@@ -45,9 +44,10 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::mouseMoveEvent(P
 		sb->setValue(sb->value() + delta.y());
 		pan_has_changed(zda);
 		event->setAccepted(true);
+		return true;
 	}
 
-	return event->isAccepted();
+	return false;
 }
 
 /*****************************************************************************
@@ -59,14 +59,18 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::wheelEvent(PVPar
 	if (event->modifiers() == Qt::NoModifier) {
 		int inc = (event->delta() > 0)?1:-1;
 		bool ret = increment_zoom_value(zda,
-		                                PVZoomableDrawingAreaConstraints::X |
+		                                PVZoomableDrawingAreaConstraints::X
+		                                |
 		                                PVZoomableDrawingAreaConstraints::Y,
 		                                inc);
 		event->setAccepted(true);
 
 		if (ret) {
 			zda->reconfigure_view();
-			zoom_has_changed(zda, PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y);
+			zoom_has_changed(zda,
+			                 PVZoomableDrawingAreaConstraints::X
+			                 |
+			                 PVZoomableDrawingAreaConstraints::Y);
 			zda->get_viewport()->update();
 		}
 	}
