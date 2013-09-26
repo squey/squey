@@ -177,11 +177,13 @@ int main(int argc, char *argv[])
 	PVGuiQt::common::register_displays();
 #endif
 
+#if 0 // RH: inhibited to allow nraw reuse on project load
 #ifndef NO_MAIN_WINDOW
 	splash.showMessage(QObject::tr("Cleaning temporary files..."));
 	app.processEvents();
 #endif
 	PVRush::PVNraw::remove_unused_nraw_directories();
+#endif
 
 #ifndef NO_MAIN_WINDOW
 	splash.showMessage(QObject::tr("Finishing initialization..."));

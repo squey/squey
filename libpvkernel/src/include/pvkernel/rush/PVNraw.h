@@ -196,6 +196,14 @@ public:
 	 */
 	static void remove_unused_nraw_directories();
 
+	/**
+	 * returns the folder path used for Nraw files
+	 */
+	const std::string& get_nraw_folder() const { return _backend.get_nraw_folder(); }
+
+public:
+	bool load_from_disk(const std::string& nraw_folder, PVCol ncols);
+
 private:
 	void clear_table();
 	void reserve_tmp_buf(size_t n);

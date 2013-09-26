@@ -63,6 +63,8 @@ public:
 	/* Functions */
 	PVCol get_column_count() const;
 
+	bool has_nraw_folder() const { return _nraw_folder.isNull() == false; }
+
 	PVSource_sp clone_with_no_process();
 
 	PVRush::PVNraw& get_rushnraw();
@@ -77,6 +79,8 @@ public:
 	PVRush::PVControllerJob_p extract();
 	PVRush::PVControllerJob_p extract_from_agg_nlines(chunk_index start, chunk_index nlines);
 	void wait_extract_end(PVRush::PVControllerJob_p job);
+
+	bool load_from_disk();
 
 	PVRush::PVInputType_p get_input_type() const;
 
@@ -195,6 +199,8 @@ private:
 	PVCol _axis_clicked_id;
 	int _section_hovered_id = -1;
 	std::pair<size_t, size_t> _section_clicked;
+
+	QString _nraw_folder;
 };
 
 }

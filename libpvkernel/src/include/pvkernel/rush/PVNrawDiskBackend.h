@@ -55,7 +55,11 @@ struct RawFilePolicy
 			flags |= O_TRUNC;
 		}
 		*file = open(filename.c_str(), flags, 0640);
-		return *file != -1;
+		if (*file == -1) {
+			*file = 0;
+			return false;
+		}
+		return true;
 	}
 
 	static inline int64_t Write(const void* content, uint64_t buf_size, file_t file)
@@ -77,6 +81,10 @@ struct RawFilePolicy
 
 	static inline int64_t Seek(file_t file, int64_t offset)
 	{
+		if (file <= 0) { // ugly test because 0 may be used as  uninitialized value...
+			PVLOG_ERROR("Trying to seek into a non-opened file\n");
+			return 0;
+		}
 		off_t ret;
 		if ((ret = lseek(file, offset, SEEK_SET)) == (off_t)-1) {
 			PVLOG_ERROR("Unable to seek into file\n");
@@ -256,8 +264,10 @@ public:
 	 *
 	 *  \param[in] nraw_folder Path to the existing nraw folder on disk.
 	 *  \param[in] num_cols The number of columns of the Nraw.
+	 *  \param[in] open_write_files tell if write files has to be opened or not (must be false only when
+	 *  nraw is read from disk
 	 */
-	void init(const char* nraw_folder, const uint64_t num_cols);
+	void init(const char* nraw_folder, const uint64_t num_cols, bool open_write_files = true);
 
 	/*! \brief Enable or disable direct mode that bypass system cache in order to enhance performances.
 	 *
@@ -276,7 +286,14 @@ public:
 
 	/*! \brief Load the columns indexation files from disk.
      */
-	void load_index_from_disk();
+	bool load_index_from_disk();
+
+	/**
+	 * returns the folder path used for Nraw files
+	 */
+	const std::string& get_nraw_folder() const { return _nraw_folder; }
+
+	size_t get_number_rows() const { return _nrows; }
 
 public:
 	/*! \brief Add a field to the end of a given column.

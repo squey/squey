@@ -235,3 +235,18 @@ void PVRush::PVNraw::remove_unused_nraw_directories()
 	remove_unused_nraw_directories(base_dir, regexp);
 
 }
+
+bool PVRush::PVNraw::load_from_disk(const std::string& nraw_folder, PVCol ncols)
+{
+	_backend.init(nraw_folder.c_str(), ncols, false);
+
+	if (_backend.load_index_from_disk() == false) {
+		return false;
+	}
+
+	_real_nrows = _backend.get_number_rows();
+
+	// _backend.print_indexes();
+
+	return true;
+}

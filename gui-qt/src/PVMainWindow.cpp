@@ -28,6 +28,8 @@
 
 #include <pvkernel/core/PVRecentItemsManager.h>
 
+#include <pvkernel/core/picviz_bench.h>
+
 #ifdef CUSTOMER_RELEASE
   #ifdef WIN32
     #include <winlicensesdk.h>
@@ -1639,45 +1641,69 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource* src)
 		Picviz::PVMapped_p default_mapped(src->shared_from_this());
 	}
 
-	// Extract the source
-	PVRush::PVControllerJob_p job_import;
-	try {
-		job_import = src->extract();
-	}
-	catch (PVRush::PVInputException const& e) {
-		PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
-		return false;
-	}
-	catch (PVRush::PVNrawException const& e) {
-		PVLOG_ERROR("Error while creating source: %s\n", e.what());
-		return false;
+	bool loaded_from_disk = false;
+
+	if (src->has_nraw_folder()) {
+		BENCH_START(lfd);
+		loaded_from_disk = src->load_from_disk();
+		BENCH_STOP(lfd);
+#ifdef PICVIZ_DEVELOPER_MODE
+		if (loaded_from_disk) {
+			PVLOG_INFO("nraw read from disk in %g sec\n",
+			           BENCH_END_TIME(lfd));
+		}
+#endif
 	}
 
-	if (!PVExtractorWidget::show_job_progress_bar(job_import, src->get_format_name(), job_import->nb_elts_max(), this)) {
-		//message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-		//pvsdk_messenger->post_message_to_gl(message);
-		return false;
-	}
-	src->wait_extract_end(job_import);
-	PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
-	if (src->get_rushnraw().get_number_rows() == 0) {
-		QString msg = QString("<p>The files <strong>%1</strong> using format <strong>%2</strong> cannot be opened. ").arg(src->get_name()).arg(src->get_format_name());
-		PVRow nelts = job_import->rejected_elements();
-		if (nelts > 0) {
-			msg += QString("Indeed, <strong>%1 elements</strong> have been extracted but were <strong>all invalid</strong>.</p>").arg(nelts);
-			msg += QString("<p>This is because one or more splitters and/or filters defined in format <strong>%1</strong> reported invalid elements during the extraction.<br />").arg(src->get_format_name());
-			msg += QString("You may have invalid regular expressions set in this format, or simply all the lines have been invalidated by one or more filters thus no lines matches your criterias.</p>");
-			msg += QString("<p>You might try to <strong>fix your format</strong> or try to load <strong>another set of data</strong>.</p>");
+	if (loaded_from_disk == false) {
+		// Extract the source
+		BENCH_START(lff);
+
+		PVRush::PVControllerJob_p job_import;
+		try {
+			job_import = src->extract();
 		}
-		else {
-			msg += QString("Indeed, the sources <strong>were empty</strong> (empty files, bad database query, etc...) because no elements have been extracted.</p><p>You should try to load another set of data.</p>");
+		catch (PVRush::PVInputException const& e) {
+			PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
+			return false;
 		}
-		//message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-		//pvsdk_messenger->post_message_to_gl(message);
-		QMessageBox::warning(this, "Cannot load sources", msg);
-		return false;
+		catch (PVRush::PVNrawException const& e) {
+			PVLOG_ERROR("Error while creating source: %s\n", e.what());
+			return false;
+		}
+
+		if (!PVExtractorWidget::show_job_progress_bar(job_import, src->get_format_name(), job_import->nb_elts_max(), this)) {
+			//message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
+			//pvsdk_messenger->post_message_to_gl(message);
+			return false;
+		}
+		src->wait_extract_end(job_import);
+		PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
+		if (src->get_rushnraw().get_number_rows() == 0) {
+			QString msg = QString("<p>The files <strong>%1</strong> using format <strong>%2</strong> cannot be opened. ").arg(src->get_name()).arg(src->get_format_name());
+			PVRow nelts = job_import->rejected_elements();
+			if (nelts > 0) {
+				msg += QString("Indeed, <strong>%1 elements</strong> have been extracted but were <strong>all invalid</strong>.</p>").arg(nelts);
+				msg += QString("<p>This is because one or more splitters and/or filters defined in format <strong>%1</strong> reported invalid elements during the extraction.<br />").arg(src->get_format_name());
+				msg += QString("You may have invalid regular expressions set in this format, or simply all the lines have been invalidated by one or more filters thus no lines matches your criterias.</p>");
+				msg += QString("<p>You might try to <strong>fix your format</strong> or try to load <strong>another set of data</strong>.</p>");
+			}
+			else {
+				msg += QString("Indeed, the sources <strong>were empty</strong> (empty files, bad database query, etc...) because no elements have been extracted.</p><p>You should try to load another set of data.</p>");
+			}
+			//message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
+			//pvsdk_messenger->post_message_to_gl(message);
+			QMessageBox::warning(this, "Cannot load sources", msg);
+			return false;
+		}
+		src->get_extractor().dump_nraw();
+
+		BENCH_STOP(lff);
+#ifdef PICVIZ_DEVELOPER_MODE
+		PVLOG_INFO("nraw created from data in %g sec\n",
+		           BENCH_END_TIME(lff));
+#endif
 	}
-	src->get_extractor().dump_nraw();
 
 	// If no view is present, create a default one. Otherwise, process them by
 	// keeping the existing layers !

@@ -185,6 +185,16 @@ void Picviz::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 	extract_finished();
 }
 
+bool Picviz::PVSource::load_from_disk()
+{
+	if (nraw == nullptr) {
+		return false;
+	}
+
+	return nraw->load_from_disk(_nraw_folder.toStdString(),
+	                            _extractor.get_number_axes());
+}
+
 void Picviz::PVSource::extract_finished()
 {
 	// Finish mapping process. That will set all mapping as valid!
@@ -370,6 +380,9 @@ void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("index_start", start);
 	so.attribute("nlines", nlines);
 
+	QString nraw_path = QString::fromStdString(get_rushnraw().get_nraw_folder());
+	so.attribute("nraw_path", nraw_path, QString());
+
 	// Save the format
 	so.object("format", _extractor.get_format(), QObject::tr("Format"));
 }
@@ -403,6 +416,16 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	so.attribute("nlines", nlines);
 	_extractor.set_last_start(start);
 	_extractor.set_last_nlines(nlines);
+
+	so.attribute("nraw_path", _nraw_folder, QString());
+	if (_nraw_folder.isEmpty() == false) {
+		QFileInfo fi(_nraw_folder);
+		if (!fi.exists()) {
+			_nraw_folder = QString();
+		} else if (fi.isDir() == false) {
+			_nraw_folder = QString();
+		}
+	}
 
 	// Get the format
 	PVRush::PVFormat format;

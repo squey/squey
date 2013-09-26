@@ -54,8 +54,10 @@ void PVRush::PVNrawDiskBackend::close_files()
 	for (uint64_t col_idx = 0 ; col_idx < get_number_cols(); col_idx++) {
 		PVColumn& column = get_col(col_idx);
 
-		// Close write file descriptor
-		this->Close(column.write_file);
+		if (column.write_file != 0) {
+			// Close write file descriptor
+			this->Close(column.write_file);
+		}
 
 		// Close read files descriptors
 		for (file_t& read_file : column.read_file_tls) {
@@ -64,7 +66,7 @@ void PVRush::PVNrawDiskBackend::close_files()
 	}
 }
 
-void PVRush::PVNrawDiskBackend::init(const char* nraw_folder, const uint64_t num_cols)
+void PVRush::PVNrawDiskBackend::init(const char* nraw_folder, const uint64_t num_cols, bool open_write_files)
 {
 	_nraw_folder = nraw_folder;
 	_columns.reserve(num_cols);
@@ -72,26 +74,30 @@ void PVRush::PVNrawDiskBackend::init(const char* nraw_folder, const uint64_t num
 		_columns.emplace_back();
 		PVColumn& column = _columns.back();
 
-		// Open file
 		column.filename = std::move(get_disk_column_file(col));
-		if(!this->Open(column.filename, &column.write_file, _direct_mode, _direct_mode)) {
-			PVLOG_DEBUG("PVNrawDiskBackend: Warning: file %s will not be opened in direct mode\n", column.filename.c_str());
-			set_direct_mode(false);
-			if(!this->Open(column.filename, &column.write_file, _direct_mode, _direct_mode)) {
-				PVLOG_ERROR("PVNrawDiskBackend: Error opening file %s (%s)\n", column.filename.c_str(), strerror(errno));
-				return;
-			}
-		}
 
-		// Create buffer
-		uint64_t buffer_size = _write_buffers_size_pattern[0];
-		column.buffer_write = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(buffer_size);
-		memset(column.buffer_write, 0, buffer_size);
-		column.buffer_write_ptr = column.buffer_write;
-		column.buffer_write_end_ptr = column.buffer_write + buffer_size;
-		column.field_length = 0; // Or any value grater than 0 to specify a fixed field length;
+		if (open_write_files) {
+			// Open file
+			if(!this->Open(column.filename, &column.write_file, _direct_mode, _direct_mode)) {
+				PVLOG_DEBUG("PVNrawDiskBackend: Warning: file %s will not be opened in direct mode\n", column.filename.c_str());
+				set_direct_mode(false);
+				if(!this->Open(column.filename, &column.write_file, _direct_mode, _direct_mode)) {
+					PVLOG_ERROR("PVNrawDiskBackend: Error opening file %s (%s)\n", column.filename.c_str(), strerror(errno));
+					return;
+				}
+			}
+
+			// Create buffer
+			uint64_t buffer_size = _write_buffers_size_pattern[0];
+			column.buffer_write = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(buffer_size);
+			memset(column.buffer_write, 0, buffer_size);
+			column.buffer_write_ptr = column.buffer_write;
+			column.buffer_write_end_ptr = column.buffer_write + buffer_size;
+			column.field_length = 0; // Or any value grater than 0 to specify a fixed field length;
+		}
 	}
-	_indexes.resize(_next_indexes_nrows, num_cols);
+	const offset_fields_t null_offset_fields;
+	_indexes.resize(_next_indexes_nrows, num_cols, null_offset_fields);
 	_next_indexes_nrows += _index_fields_size_pattern[++_fields_size_idx];
 
 	_serial_read_buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(SERIAL_READ_BUFFER_SIZE);
@@ -101,13 +107,17 @@ void PVRush::PVNrawDiskBackend::clear_and_remove()
 {
 	clear();
 	close_files();
+
+#if 0 // RH: inhibited to allow nraw reuse on project load
 	PVCore::PVDirectory::remove_rec(QString::fromLocal8Bit(_nraw_folder.c_str()));
+#endif
 }
 
 uint64_t PVRush::PVNrawDiskBackend::add(PVCol col_idx, const char* field, const uint64_t field_size)
 {
 	PVColumn& column = get_col(col_idx);
 	const uint64_t written_field_size = field_size + column.end_char();
+	const offset_fields_t null_offset_fields;
 	uint64_t field_part2_size = 0;
 	char* field_part2 = nullptr;
 	uint64_t write_size = 0;
@@ -120,7 +130,7 @@ uint64_t PVRush::PVNrawDiskBackend::add(PVCol col_idx, const char* field, const 
 		// Resize indexes matrix if needed
 		if (column.fields_indexed == _indexes.get_nrows()) {
 			tbb::tick_count t1 = tbb::tick_count::now();
-			_indexes.resize_nrows(_next_indexes_nrows);
+			_indexes.resize_nrows(_next_indexes_nrows, null_offset_fields);
 			tbb::tick_count t2 = tbb::tick_count::now();
 			_matrix_resize_interval += (t2-t1);
 			uint64_t index = std::min(++_fields_size_idx, _max_fields_size_idx);
@@ -279,10 +289,12 @@ void PVRush::PVNrawDiskBackend::set_direct_mode(bool direct)
 
 	for (size_t col = 0 ; col < get_number_cols() ; col++) {
 		PVColumn& column = get_col(col);
-		uint64_t pos = this->Tell(column.write_file);
-		this->Close(column.write_file);
-		this->Open(column.filename, &column.write_file, direct);
-		this->Seek(column.write_file, pos);
+		if (column.write_file != 0) {
+			uint64_t pos = this->Tell(column.write_file);
+			this->Close(column.write_file);
+			this->Open(column.filename, &column.write_file, direct);
+			this->Seek(column.write_file, pos);
+		}
 	}
 	_direct_mode = direct;
 }
@@ -294,6 +306,7 @@ void PVRush::PVNrawDiskBackend::store_index_to_disk()
 	this->Open(get_disk_index_file(), &file, false);
 	this->Write(&_nrows, sizeof(size_t), file);
 	uint64_t size = get_number_cols() * _indexes_nrows * sizeof(offset_fields_t);
+
 	if (size > 0) {
 		int64_t write_size = this->Write(data, size, file);
 		if(write_size <= 0) {
@@ -304,33 +317,52 @@ void PVRush::PVNrawDiskBackend::store_index_to_disk()
 	this->Close(file);
 }
 
-void PVRush::PVNrawDiskBackend::load_index_from_disk()
+bool PVRush::PVNrawDiskBackend::load_index_from_disk()
 {
+	const offset_fields_t null_offset_fields;
 	// TODO: wrong size computation!
 	set_direct_mode(false);
 	file_t file;
 	this->Open(get_disk_index_file(), &file, false);
+	size_t size = this->Size(file) - sizeof(_nrows);
 	if (this->Read(file, (size_t*) &_nrows, sizeof(size_t)) != sizeof(size_t)) {
 		PVLOG_ERROR("PVNrawDiskBackend: Error reading index from disk (%s)\n", strerror(errno));
-		return;
+		return false;
 	}
-	uint64_t size = this->Size(file);
 	_indexes_nrows = size / get_number_cols() / sizeof(offset_fields_t);
-	std::cout << "size=" << size << std::endl;
-	_indexes.resize(_indexes_nrows, get_number_cols());
+	_indexes.resize(_indexes_nrows, get_number_cols(), null_offset_fields);
 	char* data = (char*) _indexes.get_data();
 	int64_t read_size = this->Read(file, data, size);
-	std::cout << "read_size=" << read_size << std::endl;
+
 	if(read_size <= 0) {
 		PVLOG_ERROR("PVNrawDiskBackend: Error reading index from disk (%s)\n", strerror(errno));
-		return;
+		return false;
 	}
 	this->Close(file);
+
+	/**
+	 * the number of effectivly used entries in _indexes has to be computed (required by
+	 * PVCachePool::get_index)
+	 */
+#pragma omp parallel for
+	for (uint64_t i = 0; i < get_number_cols(); ++i) {
+		typename index_table_t::column index_col = _indexes.get_col(i);
+
+		uint64_t p = 0;
+		while((p != _indexes_nrows) && (index_col.at(p).field != 0)) {
+			++p;
+		}
+		get_col(i).fields_indexed = p;
+	}
+
+	return true;
 }
 
 void PVRush::PVNrawDiskBackend::clear()
 {
+#if 0 // RH: inhibited to allow nraw reuse on project load
 	unlink(get_disk_index_file().c_str());
+
 	for (uint64_t c = 0 ; c < get_number_cols() ; c++) {
 		PVColumn& nraw_c = _columns[c];
 		this->Truncate(nraw_c.write_file, 0);
@@ -338,6 +370,7 @@ void PVRush::PVNrawDiskBackend::clear()
 		nraw_c.buffer_write_ptr = nraw_c.buffer_write;
 		nraw_c.field_length = 0; // Or any value grater than 0 to specify a fixed field length;
 	}
+#endif
 
 	_fields_size_idx = 0;
 	_next_indexes_nrows += _index_fields_size_pattern[++_fields_size_idx];
@@ -353,7 +386,7 @@ void PVRush::PVNrawDiskBackend::print_indexes()
 {
 	for (uint64_t r=0; r < _indexes_nrows; r++) {
 		for (uint64_t c=0; c < get_number_cols(); c++) {
-			PVLOG_INFO("index[%ul][%ul] = %ul (offset), %ul (field)\n", r, c, _indexes.at(r, c).offset, _indexes.at(r, c).field);
+			PVLOG_INFO("index[%llu][%llu] = %llu (offset), %llu (field)\n", r, c, _indexes.at(r, c).offset, _indexes.at(r, c).field);
 		}
 	}
 }
