@@ -17,6 +17,7 @@ PVLayerStackView.cpp
 PVLayerStackWidget.cpp
 PVListDisplayDlg.cpp
 PVListUniqStringsDlg.cpp
+PVAbstractListStatsDlg.cpp
 PVListingModel.cpp
 PVListingSortFilterProxyModel.cpp
 PVListingView.cpp
@@ -63,6 +64,7 @@ include/pvguiqt/PVLayerStackView.h
 include/pvguiqt/PVLayerStackWidget.h
 include/pvguiqt/PVListDisplayDlg.h
 include/pvguiqt/PVListUniqStringsDlg.h
+include/pvguiqt/PVAbstractListStatsDlg.h
 include/pvguiqt/PVListingModel.h
 include/pvguiqt/PVListingSortFilterProxyModel.h
 include/pvguiqt/PVListingView.h

@@ -40,9 +40,13 @@ class LibKernelDecl PVNraw
 	PVNraw(const PVNraw&) = delete;
 
 public:
+	// Unique values
 	typedef PVNrawDiskBackend::unique_values_t unique_values_t;
 	typedef PVNrawDiskBackend::unique_values_value_t unique_values_value_t;
 	typedef PVNrawDiskBackend::unique_values_container_t unique_values_container_t;
+
+	// Count by
+	typedef PVNrawDiskBackend::count_by_t count_by_t;
 
 public:
 	PVNraw();
@@ -139,6 +143,11 @@ public:
 	inline bool get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL) const
 	{
 		return _backend.get_unique_values_for_col_with_sel(c, ret, sel, ctxt);
+	}
+
+	inline bool count_by_with_sel(PVCol const col1, PVCol const col2, count_by_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
+	{
+		return _backend.count_by_with_sel(col1, col2, ret, sel, ctxt);
 	}
 
 	QString nraw_line_to_csv(PVRow idx) const;

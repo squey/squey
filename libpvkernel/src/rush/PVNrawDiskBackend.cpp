@@ -602,10 +602,10 @@ bool PVRush::PVNrawDiskBackend::get_unique_values_for_col_with_sel(PVCol const c
 	const size_t nreserve = std::sqrt(_nrows);
 	tbb::enumerable_thread_specific<unique_values_t> tbb_qset([nreserve]{ unique_values_t ret; ret.reserve(nreserve); return ret; });
 	bool vret = visit_column_tbb_sel(c, [&tbb_qset](size_t, const char* buf, size_t n)
-			{   
-				std::string_tbb new_s(buf, n);
-				tbb_qset.local()[new_s]++;
-			}, sel, ctxt); 
+	{
+		std::string_tbb new_s(buf, n);
+		tbb_qset.local()[new_s]++;
+	}, sel, ctxt);
 	if (!vret) {
 		return false;
 	}
@@ -626,6 +626,61 @@ bool PVRush::PVNrawDiskBackend::merge_tls(unique_values_t& ret, tbb::enumerable_
 			}
 			for (auto& v : *it_tls) {
 				final[v.first] += v.second;
+			}
+		}
+		ret = std::move(final);
+	}
+	else {
+		ret.clear();
+		return false;
+	}
+
+	return true;
+}
+
+bool PVRush::PVNrawDiskBackend::count_by_with_sel(PVCol const col1, PVCol const col2, count_by_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt /* = nullptr */)
+{
+	BENCH_START(count_by_with_sel);
+	const size_t nreserve = std::sqrt(_nrows);
+	tbb::enumerable_thread_specific<count_by_t> count_by_tls([nreserve]{ count_by_t ret; ret.reserve(nreserve); return ret; });
+	bool vret = visit_column_tbb_sel(col1, [this, &count_by_tls, col2](size_t row, const char* buf1, size_t n1)
+	{
+		std::string_tbb col1_str(buf1, n1);
+		size_t n2;
+		const char* buf2 = at_no_cache(row, col2, n2);
+		std::string_tbb col2_str(buf2, n2);
+		count_by_tls.local()[col1_str][col2_str]++;
+	}, sel, ctxt);
+	if (!vret) {
+		return false;
+	}
+
+	BENCH_START(merge_count_by_tls);
+	bool res = merge_count_by_tls(ret, count_by_tls);
+	BENCH_END(merge_count_by_tls, "merge_count_by_tls", 1, 1, 1, 1);
+
+	BENCH_END(count_by_with_sel, "count_by_with_sel", 1, 1, 1, 1);
+
+	return res;
+}
+
+bool PVRush::PVNrawDiskBackend::merge_count_by_tls(count_by_t& ret, tbb::enumerable_thread_specific<count_by_t>& count_by_tls, tbb::task_group_context* ctxt /* = nullptr */)
+{
+	tbb::enumerable_thread_specific<count_by_t>::iterator it_tls = count_by_tls.begin();
+	if (it_tls != count_by_tls.end()) {
+		count_by_t& final = *it_tls;
+		it_tls++;
+		for (; it_tls != count_by_tls.end(); it_tls++) {
+			if (ctxt && ctxt->is_group_execution_cancelled()) {
+				ret.clear();
+				return false; 	// return false if it has been cancelled
+			}
+			for (auto& v1 : *it_tls) {
+				count_by_unique_values_t& final_unique_values = final[v1.first];
+				count_by_unique_values_t& tls_unique_values = (*it_tls)[v1.first];
+				for (auto& v2 : tls_unique_values) {
+					final_unique_values[v2.first] += v2.second;
+				}
 			}
 		}
 		ret = std::move(final);

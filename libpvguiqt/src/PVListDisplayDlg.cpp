@@ -55,7 +55,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	_hhead_ctxt_menu = new QMenu(this);
 
 	_ctxt_menu->addAction(_copy_values_act);
-	_values_view->setSelectionMode(QAbstractItemView::SingleSelection);
+	_values_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
 	_nb_values_edit->setText(QString().setNum(model->rowCount()));
 
@@ -69,7 +69,9 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	connect(_btn_append_file, SIGNAL(clicked()), this, SLOT(append_to_file()));
 	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort()));
 
-	connect(_values_view->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(sort_by_column(int)));
+
+	connect(_values_view->horizontalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(section_pressed(int)));
+	connect(_values_view->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(section_clicked(int)));
 	connect(_values_view->horizontalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_hhead_ctxt_menu(const QPoint&)));
 	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -210,11 +212,14 @@ void PVGuiQt::PVListDisplayDlg::write_to_file(QFile& file)
 
 void PVGuiQt::PVListDisplayDlg::copy_value_clipboard()
 {
-	QModelIndex idx = _values_view->currentIndex();
-	if (idx.isValid()) {
-		QString txt = proxy_model()->data(idx).toString();
-		QApplication::clipboard()->setText(txt);
+	QModelIndexList indexes = _values_view->selectionModel()->selectedIndexes();
+	QStringList list;
+	for (QModelIndex& idx : indexes) {
+		if (idx.isValid()) {
+			list << proxy_model()->data(idx).toString();
+		}
 	}
+	QApplication::clipboard()->setText(list.join("\n"));
 }
 
 void PVGuiQt::PVListDisplayDlg::set_description(QString const& desc)
@@ -237,6 +242,26 @@ QAbstractListModel* PVGuiQt::PVListDisplayDlg::model()
 {
 	return static_cast<QAbstractListModel*>(proxy_model()->sourceModel());
 }
+
+void PVGuiQt::PVListDisplayDlg::section_pressed(int col)
+{
+	// Clear selection
+	_values_view->clearSelection();
+	_values_view->setSelectionMode(QAbstractItemView::NoSelection);
+}
+
+
+void PVGuiQt::PVListDisplayDlg::section_clicked(int col)
+{
+	sort_by_column(col);
+
+	// Restore selection
+	_values_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	/*for (const QModelIndex& idx : _item_selection) {
+		_values_view->selectionModel()->select(idx, QItemSelectionModel::Select);
+	}*/
+}
+
 
 void PVGuiQt::PVListDisplayDlg::sort_by_column(int col)
 {

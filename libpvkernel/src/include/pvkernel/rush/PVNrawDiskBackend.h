@@ -234,10 +234,18 @@ public:
 	typedef typename file_policy_t::file_t file_t;
 	typedef PVCore::PVMatrix<offset_fields_t, PVRow, PVCol> index_table_t;
 	typedef PVNrawDiskBackend this_type;
+
+	// unique values
 	typedef std::string_tbb unique_values_key_t;
 	typedef size_t unique_values_value_t;
 	typedef std::pair<unique_values_key_t, unique_values_value_t> unique_values_container_t;
 	typedef std::unordered_map<unique_values_key_t, unique_values_value_t> unique_values_t;
+
+	// count by
+	typedef std::string_tbb count_by_key_t;
+	typedef size_t count_by_value_t;
+	typedef std::unordered_map<count_by_key_t, count_by_value_t> count_by_unique_values_t;
+	typedef std::unordered_map<count_by_key_t, count_by_unique_values_t> count_by_t;
 
 public:
 	PVNrawDiskBackend();
@@ -668,6 +676,8 @@ public:
 	bool get_unique_values_for_col(PVCol const c, unique_values_t& ret, tbb::task_group_context* ctxt = NULL);
 	bool get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL);
 
+	bool count_by_with_sel(PVCol const col1, PVCol const col2, count_by_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
+
 	void clear_stats()
 	{
 		_stats_getindex = 0.0;
@@ -943,6 +953,8 @@ private:
 	inline const PVColumn& get_col(uint64_t col) const { assert(col < _columns.size()); return _columns[col]; }
 
 	static bool merge_tls(unique_values_t& ret, tbb::enumerable_thread_specific<unique_values_t>& tbb_qset, tbb::task_group_context* ctxt = nullptr);
+
+	bool merge_count_by_tls(count_by_t& ret, tbb::enumerable_thread_specific<count_by_t>& count_by_tls, tbb::task_group_context* ctxt = nullptr);
 
 private:
 	std::string _nraw_folder;

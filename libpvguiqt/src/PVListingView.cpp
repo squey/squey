@@ -186,6 +186,11 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	_action_col_unique = new QAction(tr("List unique values of this axis..."), this);
 	_action_col_unique->setIcon(QIcon(":/fileslist_black"));
 	_hhead_ctxt_menu->addAction(_action_col_unique);
+
+	_action_col_count_by = new QAction(tr("Count by values of this axis..."), this);
+	_action_col_count_by->setIcon(QIcon(":/fileslist_black"));
+	_hhead_ctxt_menu->addAction(_action_col_count_by);
+
 	_action_col_sort = new QAction(tr("Sort this axis..."), this);
 	_action_col_sort->setIcon(QIcon(":/sort_desc"));
 
@@ -429,12 +434,20 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		_hhead_ctxt_menu->addSeparator();
 	}
 	_hhead_ctxt_menu->addAction(_action_col_unique);
+	if (!lib_view().is_last_axis(comb_col)) {
+		_hhead_ctxt_menu->addAction(_action_col_count_by);
+	}
 	_hhead_ctxt_menu->addAction(_action_col_sort);
 
 	QAction* sel = _hhead_ctxt_menu->exec(QCursor::pos());
 	if (sel == _action_col_unique) {
 		Picviz::PVView_sp view = lib_view().shared_from_this();
 		PVQNraw::show_unique_values(view, lib_view().get_rushnraw_parent(), col, *lib_view().get_selection_visible_listing(), this);
+	}
+	if (sel == _action_col_count_by) {
+		Picviz::PVView_sp view = lib_view().shared_from_this();
+		PVCol col2 = lib_view().get_original_axis_index(col+1);
+		PVQNraw::show_count_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
 	}
 	else if (sel == _action_col_sort) {
 		Qt::SortOrder order =  (Qt::SortOrder)!((bool)horizontalHeader()->sortIndicatorOrder());

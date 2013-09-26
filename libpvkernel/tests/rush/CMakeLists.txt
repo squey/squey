@@ -225,6 +225,10 @@ declare_pv_test(Trush_nraw_unused_directories nraw_unused_directories.cpp)
 target_link_libraries(Trush_nraw_unused_directories  ${LINK_LIBRARIES})
 add_test(TestNrawUnusedDirectories Trush_nraw_unused_directories ${PVKERNEL_RUSH_TEST_NRAW_TMP})
 
+# NRAW Count by test
+declare_pv_test(Trush_nraw_count_by nraw_count_by.cpp)
+target_link_libraries(Trush_nraw_count_by  ${LINK_LIBRARIES})
+
 if(PYTHONLIBS_FOUND)
 	# Python NRAW
 	#	add_executable(Trush_python_nraw python_nraw.cpp)

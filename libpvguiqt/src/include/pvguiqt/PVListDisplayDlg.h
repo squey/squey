@@ -46,6 +46,10 @@ protected:
 	virtual void process_hhead_context_menu(QAction* act);
 
 protected slots:
+	void section_pressed(int col);
+	void section_clicked(int col);
+
+protected:
 	virtual void sort_by_column(int col);
 
 private slots:
@@ -69,6 +73,7 @@ protected:
 	QMenu* _hhead_ctxt_menu;
 	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process = nullptr;
 	PVCore::PVArgumentList _ctxt_args;
+	//QItemSelection _item_selection;
 };
 
 }
