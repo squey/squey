@@ -251,6 +251,46 @@ public:
 	}
 
 public:
+	/**
+	 * set the horizontal range for the rectangle
+	 *
+	 * @param min_value the lower bound value
+	 * @param max_value the upper bound value
+	 */
+	void set_x_range(qreal min_value, qreal max_value)
+	{
+		_rect->set_x_range(min_value, max_value);
+	}
+
+	/**
+	 * set the vertical range for the rectangle
+	 *
+	 * @param min_value the lower bound value
+	 * @param max_value the upper bound value
+	 */
+	void set_y_range(qreal min_value, qreal max_value)
+	{
+		_rect->set_y_range(min_value, max_value);
+	}
+
+
+	/**
+	 * clear the horizontal range for the rectangle
+	 */
+	void clear_x_range()
+	{
+		_rect->clear_x_range();
+	}
+
+	/**
+	 * clear the vertical range for the rectangle
+	 */
+	void clear_y_range()
+	{
+		_rect->clear_y_range();
+	}
+
+public:
 	SelectionMode selection_mode() const
 	{
 		return _sel_mode;

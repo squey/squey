@@ -125,7 +125,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 
 	_sel_rect = new PVHitCountViewSelectionRectangle(this);
 
-	/* interactor/constraints
+	/* interactor
 	 */
 	_sel_rect_interactor = declare_interactor<PVSelectionRectangleInteractor>(_sel_rect);
 	register_front_all(_sel_rect_interactor);
@@ -218,6 +218,9 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 
 	_sel_rect->set_default_cursor(Qt::CrossCursor);
 	set_viewport_cursor(Qt::CrossCursor);
+
+	_sel_rect->set_x_range(0, UINT32_MAX);
+	_sel_rect->set_y_range(0, UINT32_MAX);
 }
 
 /*****************************************************************************

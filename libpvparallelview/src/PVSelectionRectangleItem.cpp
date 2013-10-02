@@ -7,9 +7,10 @@
 #include <pvparallelview/PVSelectionRectangleItem.h>
 #include <pvparallelview/PVSelectionHandleItem.h>
 
+#include <pvkernel/core/PVAlgorithms.h>
+
 #include <QGraphicsScene>
 #include <QGraphicsSceneHoverEvent>
-
 #include <QPainter>
 
 #include <iostream>
@@ -21,7 +22,11 @@
 PVParallelView::PVSelectionRectangleItem::PVSelectionRectangleItem(const QRectF& rect,
                                                                    QGraphicsItem* parent) :
 	QGraphicsObject(parent),
-	_rect(rect)
+	_rect(rect),
+	_x_min_value(0.),
+	_x_max_value(0.),
+	_y_min_value(0.),
+	_y_max_value(0.)
 {
 	setAcceptHoverEvents(true);
 	setHandlesChildEvents(false);
@@ -205,6 +210,16 @@ void PVParallelView::PVSelectionRectangleItem::set_rect(const QRectF& rect)
 	qreal rt = rect.top();
 	qreal rb = rect.bottom();
 
+	if (_x_min_value != _x_max_value) {
+		rl = PVCore::clamp(rl, _x_min_value, _x_max_value);
+		rr = PVCore::clamp(rr, _x_min_value, _x_max_value);
+	}
+
+	if (_y_min_value != _y_max_value) {
+		rt = PVCore::clamp(rt, _y_min_value, _y_max_value);
+		rb = PVCore::clamp(rb, _y_min_value, _y_max_value);
+	}
+
 	bool need_hor_swap = (rl > rr);
 	bool need_ver_swap = (rt > rb);
 
@@ -249,6 +264,46 @@ QRectF PVParallelView::PVSelectionRectangleItem::get_rect()
 const QRectF PVParallelView::PVSelectionRectangleItem::get_rect() const
 {
 	return _rect;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangleItem::set_x_range
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionRectangleItem::set_x_range(qreal min_value,
+                                                           qreal max_value)
+{
+	_x_min_value = min_value;
+	_x_max_value = max_value;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangleItem::set_y_range
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionRectangleItem::set_y_range(qreal min_value,
+                                                           qreal max_value)
+{
+	_y_min_value = min_value;
+	_y_max_value = max_value;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangleItem::clear_x_range
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionRectangleItem::clear_x_range()
+{
+	_x_min_value = _x_max_value = 0.;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangleItem::clear_y_range
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionRectangleItem::clear_y_range()
+{
+	_y_min_value = _y_max_value = 0.;
 }
 
 /*****************************************************************************
