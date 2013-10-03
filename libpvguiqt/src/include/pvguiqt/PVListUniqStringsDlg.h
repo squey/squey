@@ -28,7 +28,7 @@ class PVListUniqStringsDlg : public PVAbstractListStatsDlg
 public:
 	template <typename T>
 	PVListUniqStringsDlg(Picviz::PVView_sp& view, PVCol c, T& values, size_t selection_count, QWidget* parent = nullptr) :
-		PVAbstractListStatsDlg(view, c, (QAbstractListModel*) new __impl::PVListUniqStringsModel<T>(values, parent), selection_count)
+		PVAbstractListStatsDlg(view, c, new __impl::PVListUniqStringsModel<T>(values), selection_count, parent)
 	{
 		typedef PVRush::PVNraw::unique_values_container_t elem_t;
 		_max_e = (*std::max_element(values.begin(), values.end(), [](const elem_t &lhs, const elem_t &rhs) { return lhs.second < rhs.second; } )).second;
@@ -40,7 +40,6 @@ namespace __impl {
 template <typename T>
 class PVListUniqStringsModel: public PVGuiQt::__impl::PVAbstractListStatsModel
 {
-
 public:
 	PVListUniqStringsModel(T& values, QWidget* parent = nullptr) : PVGuiQt::__impl::PVAbstractListStatsModel(parent)
 	{
