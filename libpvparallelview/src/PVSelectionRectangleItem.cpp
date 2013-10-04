@@ -77,8 +77,21 @@ void PVParallelView::PVSelectionRectangleItem::clear()
 
 void PVParallelView::PVSelectionRectangleItem::begin(const QPointF& p)
 {
-	_rect = QRectF(p, p);
-	_ref = p;
+	qreal px = p.x();
+	qreal py = p.y();
+
+	if (_x_min_value != _x_max_value) {
+		px = PVCore::clamp(px, _x_min_value, _x_max_value);
+	}
+
+	if (_y_min_value != _y_max_value) {
+		py = PVCore::clamp(py, _y_min_value, _y_max_value);
+	}
+
+	QPointF np(px, py);
+
+	_rect = QRectF(np, np);
+	_ref = np;
 	prepareGeometryChange();
 	update_handles();
 	show();
@@ -94,10 +107,21 @@ void PVParallelView::PVSelectionRectangleItem::begin(const QPointF& p)
 
 void PVParallelView::PVSelectionRectangleItem::step(const QPointF& p)
 {
-	qreal nrl = std::min<qreal>(_ref.x(), p.x());
-	qreal nrr = std::max<qreal>(_ref.x(), p.x());
-	qreal nrt = std::min<qreal>(_ref.y(), p.y());
-	qreal nrb = std::max<qreal>(_ref.y(), p.y());
+	qreal px = p.x();
+	qreal py = p.y();
+
+	if (_x_min_value != _x_max_value) {
+		px = PVCore::clamp(px, _x_min_value, _x_max_value);
+	}
+
+	if (_y_min_value != _y_max_value) {
+		py = PVCore::clamp(py, _y_min_value, _y_max_value);
+	}
+
+	qreal nrl = std::min<qreal>(_ref.x(), px);
+	qreal nrr = std::max<qreal>(_ref.x(), px);
+	qreal nrt = std::min<qreal>(_ref.y(), py);
+	qreal nrb = std::max<qreal>(_ref.y(), py);
 
 	_rect = QRectF(QPointF(nrl, nrt), QPointF(nrr, nrb));
 	prepareGeometryChange();
