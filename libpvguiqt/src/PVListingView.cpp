@@ -446,7 +446,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	}
 	if (sel == _action_col_count_by) {
 		Picviz::PVView_sp view = lib_view().shared_from_this();
-		PVCol col2 = lib_view().get_original_axis_index(col+1);
+		PVCol col2 = lib_view().get_original_axis_index(comb_col+1);
 		PVQNraw::show_count_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
 	}
 	else if (sel == _action_col_sort) {

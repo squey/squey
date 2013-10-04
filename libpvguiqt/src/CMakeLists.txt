@@ -18,6 +18,7 @@ PVLayerStackWidget.cpp
 PVListDisplayDlg.cpp
 PVListUniqStringsDlg.cpp
 PVAbstractListStatsDlg.cpp
+PVCountByStringsDlg.cpp
 PVListingModel.cpp
 PVListingSortFilterProxyModel.cpp
 PVListingView.cpp

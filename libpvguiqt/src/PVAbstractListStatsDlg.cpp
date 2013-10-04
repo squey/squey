@@ -218,8 +218,8 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 	if (index.column() == 1) {
 		size_t occurence_count = index.data(Qt::UserRole).toUInt();
 
-		double ratio = (double) occurence_count / d()->get_selection_count();
-		double log_ratio = (double) log(occurence_count) / log(d()->get_selection_count());
+		double ratio = (double) occurence_count / d()->get_total_count();
+		double log_ratio = d()->get_total_count() == 1 ? 1.0 : (double) log(occurence_count) / log(d()->get_total_count());
 		bool log_scale = d()->use_logorithmic_scale();
 
 		// Draw bounding rectangle
@@ -269,7 +269,7 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 		}
 		if (d()->_act_show_percentage->isChecked()) {
 			percentage = format_percentage(ratio);
-			percentage_max_width = QFontMetrics(painter->font()).width(format_percentage((double)d()->_max_e / d()->get_selection_count()));
+			percentage_max_width = QFontMetrics(painter->font()).width(format_percentage((double)d()->_max_e / d()->get_total_count()));
 			margin -= percentage_max_width;
 			representation_count++;
 		}
