@@ -35,13 +35,14 @@ bool PVGuiQt::PVQNraw::show_count_by(Picviz::PVView_sp& view, PVRush::PVNraw con
 	PVRush::PVNraw::count_by_t values;
 	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
 	ctxt.reset();
-	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2] { nraw.count_by_with_sel(col1, col2, values, *((PVCore::PVSelBitField const*) &sel), &ctxt); }, ctxt, pbox);
+	size_t v2_unique_values_count;
+	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2] { nraw.count_by_with_sel(col1, col2, values, *((PVCore::PVSelBitField const*) &sel), v2_unique_values_count, &ctxt); }, ctxt, pbox);
 	if (!ret_pbox || values.size() == 0) {
 		return false;
 	}
 
 	// PVListUniqStringsDlg takes ownership of strings inside `values'
-	PVCountByStringsDlg* dlg = new PVCountByStringsDlg(view, col1, col2, values, sel.get_number_of_selected_lines_in_range(0, nraw.get_number_rows()), parent);
+	PVCountByStringsDlg* dlg = new PVCountByStringsDlg(view, col1, col2, values, v2_unique_values_count, parent);
 	dlg->setWindowTitle("Count by of axes '" + nraw.get_axis_name(col1) + "' and '" + nraw.get_axis_name(col2)+ "'");
 	dlg->show();
 

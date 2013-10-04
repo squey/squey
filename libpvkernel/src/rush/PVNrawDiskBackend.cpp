@@ -671,7 +671,7 @@ bool PVRush::PVNrawDiskBackend::merge_tls(unique_values_t& ret, tbb::enumerable_
 	return true;
 }
 
-bool PVRush::PVNrawDiskBackend::count_by_with_sel(PVCol const col1, PVCol const col2, count_by_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt /* = nullptr */)
+bool PVRush::PVNrawDiskBackend::count_by_with_sel(PVCol const col1, PVCol const col2, count_by_t& ret, PVCore::PVSelBitField const& sel, size_t& v2_unique_values_count, tbb::task_group_context* ctxt /* = nullptr */)
 {
 	BENCH_START(count_by_with_sel);
 	const size_t nreserve = std::sqrt(_nrows);
@@ -691,6 +691,10 @@ bool PVRush::PVNrawDiskBackend::count_by_with_sel(PVCol const col1, PVCol const 
 	BENCH_START(merge_count_by_tls);
 	bool res = merge_count_by_tls(ret, count_by_tls);
 	BENCH_END(merge_count_by_tls, "merge_count_by_tls", 1, 1, 1, 1);
+
+	unique_values_t unique_values_col2;
+	get_unique_values_for_col_with_sel(col2, unique_values_col2, sel);
+	v2_unique_values_count = unique_values_col2.size();
 
 	BENCH_END(count_by_with_sel, "count_by_with_sel", 1, 1, 1, 1);
 
