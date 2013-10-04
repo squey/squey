@@ -344,6 +344,16 @@ void PVWidgets::PVGraphicsView::fake_mouse_move()
 	QApplication::sendEvent(this , &e);
 }
 
+
+/*****************************************************************************
+ * PVWidgets::PVGraphicsView::set_background_color
+ *****************************************************************************/
+
+void PVWidgets::PVGraphicsView::set_background_color(const QColor& color)
+{
+	_background_color = color;
+}
+
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::set_horizontal_scrollbar_policy
  *****************************************************************************/
@@ -559,7 +569,7 @@ bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 
 	QPainter painter;
 	painter.begin(get_viewport());
-	painter.fillRect(unmargined_render_rect, Qt::black);
+	painter.fillRect(unmargined_render_rect, _background_color);
 
 	painter.setTransform(margined_transform, false);
 	drawBackground(&painter, margined_render_rect);
@@ -849,6 +859,8 @@ void PVWidgets::PVGraphicsView::update_viewport_cursor()
 
 void PVWidgets::PVGraphicsView::init()
 {
+	_background_color = Qt::black;
+
 	_hbar_policy = Qt::ScrollBarAsNeeded;
 	_vbar_policy = Qt::ScrollBarAsNeeded;
 	_resize_anchor = NoAnchor;
