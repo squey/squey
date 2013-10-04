@@ -434,17 +434,15 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		_hhead_ctxt_menu->addSeparator();
 	}
 	_hhead_ctxt_menu->addAction(_action_col_unique);
-	if (!lib_view().is_last_axis(comb_col)) {
-		_menu_col_count_by->clear();
-		_hhead_ctxt_menu->addMenu(_menu_col_count_by);
+	_menu_col_count_by->clear();
+	_hhead_ctxt_menu->addMenu(_menu_col_count_by);
 
-		const QStringList axes = lib_view().get_axes_names_list();
-		for (int i = 0; i < axes.size(); i++) {
-			if (i != comb_col) {
-				QAction* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
-				action_col_count_by->setData(QVariant(i));
-				_menu_col_count_by->addAction(action_col_count_by);
-			}
+	const QStringList axes = lib_view().get_axes_names_list();
+	for (int i = 0; i < axes.size(); i++) {
+		if (i != comb_col) {
+			QAction* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
+			action_col_count_by->setData(QVariant(i));
+			_menu_col_count_by->addAction(action_col_count_by);
 		}
 	}
 	_hhead_ctxt_menu->addAction(_action_col_sort);

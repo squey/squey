@@ -51,8 +51,8 @@ QString PVDisplays::PVDisplayViewHitCount::widget_title(Picviz::PVView* view,
  * PVDisplays::PVDisplayViewHitCount::axis_menu_name
  *****************************************************************************/
 
-QString PVDisplays::PVDisplayViewHitCount::axis_menu_name(Picviz::PVView const* view,
-                                                          PVCol axis_comb) const
+QString PVDisplays::PVDisplayViewHitCount::axis_menu_name(Picviz::PVView const* /*view*/,
+                                                          PVCol /*axis_comb*/) const
 {
 	return QString("New hit count view");
 }
