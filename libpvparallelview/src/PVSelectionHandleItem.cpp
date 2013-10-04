@@ -7,13 +7,11 @@
 #include <pvparallelview/PVSelectionHandleItem.h>
 #include <pvparallelview/PVSelectionRectangleItem.h>
 
+#include <pvkernel/core/PVAlgorithms.h>
+
 #include <QPainter>
 #include <QPaintEngine>
 #include <QGraphicsSceneMouseEvent>
-
-/**
- * @todo: voir pourquoi les curseurs ne marchent plus
- */
 
 /**
  * to invert handle's type when the selection rectangle is "reverted" while
@@ -224,33 +222,53 @@ void PVParallelView::PVSelectionHandleItem::update_selection_rectangle_geometry(
 	PVSelectionRectangleItem* parent = get_selection_rectangle();
 	QRectF rect = parent->get_rect();
 
+	qreal px = pos().x();
+	qreal x_min = parent->get_x_min();
+	qreal x_max = parent->get_x_max();
+
+	qreal py = pos().y();
+	qreal y_min = parent->get_y_min();
+	qreal y_max = parent->get_y_max();
+
+	if ((x_min != x_max) || (y_min != y_max)) {
+		if (_type == CENTER) {
+			x_max = std::max(0., x_max - rect.width());
+			y_max = std::max(0., y_max - rect.height());
+		}
+
+		px = PVCore::clamp(px, x_min, x_max);
+		py = PVCore::clamp(py, y_min, y_max);
+	}
+
+	QPointF np(px, py);
+
 	switch(_type) {
 	case N:
-		rect.setTopLeft(pos());
+		rect.setTopLeft(np);
 		break;
 	case NE:
-		rect.setTopRight(pos());
+		rect.setTopRight(np);
 		break;
 	case E:
-		rect.setTopRight(pos());
+		rect.setTopRight(np);
 		break;
 	case SE:
-		rect.setBottomRight(pos());
+		rect.setBottomRight(np);
 		break;
 	case S:
-		rect.setBottomLeft(pos());
+		rect.setBottomLeft(np);
 		break;
 	case SW:
-		rect.setBottomLeft(pos());
+		rect.setBottomLeft(np);
 		break;
 	case W:
-		rect.setTopLeft(pos());
+		rect.setTopLeft(np);
 		break;
 	case NW:
-		rect.setTopLeft(pos());
+		rect.setTopLeft(np);
 		break;
 	case CENTER:
-		rect.moveTopLeft(pos());
+		rect.moveTopLeft(np);
 		break;
 	}
 

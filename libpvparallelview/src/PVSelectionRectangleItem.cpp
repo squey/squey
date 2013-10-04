@@ -210,16 +210,6 @@ void PVParallelView::PVSelectionRectangleItem::set_rect(const QRectF& rect)
 	qreal rt = rect.top();
 	qreal rb = rect.bottom();
 
-	if (_x_min_value != _x_max_value) {
-		rl = PVCore::clamp(rl, _x_min_value, _x_max_value);
-		rr = PVCore::clamp(rr, _x_min_value, _x_max_value);
-	}
-
-	if (_y_min_value != _y_max_value) {
-		rt = PVCore::clamp(rt, _y_min_value, _y_max_value);
-		rb = PVCore::clamp(rb, _y_min_value, _y_max_value);
-	}
-
 	bool need_hor_swap = (rl > rr);
 	bool need_ver_swap = (rt > rb);
 
