@@ -457,11 +457,28 @@ public:
 	void fake_mouse_move();
 
 public:
+	/**
+	 * set the color to fill the view's background
+	 *
+	 * @param color the background color
+	 */
+	void set_background_color(const QColor& color);
+
+	/**
+	 * get the horizontal scrollbar
+	 *
+	 * @return the horizontal scrollbar
+	 */
 	QScrollBar64 *get_horizontal_scrollbar() const
 	{
 		return _hbar;
 	}
 
+	/**
+	 * get the vertical scrollbar
+	 *
+	 * @return the vertical scrollbar
+	 */
 	QScrollBar64 *get_vertical_scrollbar() const
 	{
 		return _vbar;
@@ -916,6 +933,7 @@ private:
 
 	QGraphicsScene     *_scene;
 	QRectF              _scene_rect;
+	QColor              _background_color;
 
 	Qt::ScrollBarPolicy _hbar_policy;
 	Qt::ScrollBarPolicy _vbar_policy;

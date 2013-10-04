@@ -12,6 +12,8 @@
 #include <pvkernel/core/PVFunctions.h>
 #include <pvkernel/core/picviz_intrin.h>
 
+#include <QtCore/qglobal.h>
+
 namespace PVCore {
 
 namespace __impl {
@@ -179,6 +181,35 @@ inline bool is_power_of_two(uint32_t v)
 	return (v && !(v & (v - 1)));
 #endif
 }
+
+/**
+ * revert effect from commit 7be751d2d63ae3c52ca16041ee3e46146cd18d62 "Inverse
+ * plotting values (because we all fail during demonstrations...)".
+ *
+ * @param value the value to revert
+ *
+ * @return the inverted vale
+ */
+inline uint32_t invert_plotting_value(uint32_t value)
+{
+	return ~(value);
+}
+
+/**
+ * revert effect from commit 7be751d2d63ae3c52ca16041ee3e46146cd18d62 "Inverse
+ * plotting values (because we all fail during demonstrations...)".
+ *
+ * qreal version.
+ *
+ * @param value the value to revert
+ *
+ * @return the inverted vale
+ */
+inline uint32_t invert_plotting_value(qreal value)
+{
+	return ~((uint32_t)clamp(value, 0., (qreal)UINT32_MAX));
+}
+
 
 }
 

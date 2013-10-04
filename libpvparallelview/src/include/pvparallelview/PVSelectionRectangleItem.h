@@ -148,6 +148,32 @@ public:
 	 */
 	const QRectF get_rect() const;
 
+	/**
+	 * set the horizontal range for the rectangle
+	 *
+	 * @param min_value the lower bound value
+	 * @param max_value the upper bound value
+	 */
+	void set_x_range(qreal min_value, qreal max_value);
+
+	/**
+	 * set the vertical range for the rectangle
+	 *
+	 * @param min_value the lower bound value
+	 * @param max_value the upper bound value
+	 */
+	void set_y_range(qreal min_value, qreal max_value);
+
+	/**
+	 * clear the horizontal range for the rectangle
+	 */
+	void clear_x_range();
+
+	/**
+	 * clear the vertical range for the rectangle
+	 */
+	void clear_y_range();
+
 public:
 	/**
 	 * get the selection rectangle's bounding box
@@ -231,6 +257,10 @@ private:
 	QPen                                _pen;
 	QRectF                              _rect;
 	QPointF                             _ref;
+	qreal                               _x_min_value;
+	qreal                               _x_max_value;
+	qreal                               _y_min_value;
+	qreal                               _y_max_value;
 };
 
 }

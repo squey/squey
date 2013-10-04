@@ -125,7 +125,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 
 	_sel_rect = new PVHitCountViewSelectionRectangle(this);
 
-	/* interactor/constraints
+	/* interactor
 	 */
 	_sel_rect_interactor = declare_interactor<PVSelectionRectangleInteractor>(_sel_rect);
 	register_front_all(_sel_rect_interactor);
@@ -218,6 +218,10 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 
 	_sel_rect->set_default_cursor(Qt::CrossCursor);
 	set_viewport_cursor(Qt::CrossCursor);
+	set_background_color(common::color_view_bg());
+
+	_sel_rect->set_x_range(0, _max_count);
+	_sel_rect->set_y_range(0, UINT32_MAX);
 }
 
 /*****************************************************************************
@@ -325,7 +329,6 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	int zoom_level = get_y_axis_zoom().get_clamped_value();
 	double rel_y_scale = y_zoom_to_scale(zoom_level - _block_zoom_value);
 
-	painter->fillRect(margined_rect, common::color_view_bg());
 	painter->setPen(QPen(Qt::white));
 
 	int x_axis_right = std::min((int)map_margined_from_scene(QPointF(_max_count, 0.)).x(),

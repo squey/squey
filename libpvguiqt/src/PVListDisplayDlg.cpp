@@ -243,7 +243,7 @@ QAbstractListModel* PVGuiQt::PVListDisplayDlg::model()
 	return static_cast<QAbstractListModel*>(proxy_model()->sourceModel());
 }
 
-void PVGuiQt::PVListDisplayDlg::section_pressed(int col)
+void PVGuiQt::PVListDisplayDlg::section_pressed(int /*col*/)
 {
 	// Clear selection
 	_values_view->clearSelection();
