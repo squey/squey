@@ -7,6 +7,14 @@
 #include <QApplication>
 #include <QGraphicsScene>
 
+template <typename E>
+static inline void propagate_event_to_scene(PVWidgets::PVGraphicsView* obj, E* event)
+{
+	if (obj->get_scene()) {
+		QApplication::sendEvent(obj->get_scene(), event);
+	}
+}
+
 /*****************************************************************************
  * PVWidgets::PVGraphicsViewInteractorScene::PVGraphicsViewInteractorScene
  *****************************************************************************/
@@ -49,9 +57,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::mouseDoubleClickEvent(PVGraphicsV
 	scene_event.setWidget(obj->_viewport);
 	scene_event.setAccepted(false);
 
-	if (obj->_scene) {
-		QApplication::sendEvent(obj->_scene, &scene_event);
-	}
+	propagate_event_to_scene(obj, &scene_event);
 
 	if (scene_event.isAccepted()) {
 		event->setAccepted(true);
@@ -95,9 +101,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::mousePressEvent(PVGraphicsView* o
 	scene_event.setWidget(obj->_viewport);
 	scene_event.setAccepted(false);
 
-	if (obj->_scene) {
-		QApplication::sendEvent(obj->_scene, &scene_event);
-	}
+	propagate_event_to_scene(obj, &scene_event);
 
 	if (scene_event.isAccepted()) {
 		event->setAccepted(true);
@@ -130,9 +134,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::mouseReleaseEvent(PVGraphicsView*
 
 	scene_event.setAccepted(false);
 
-	if (obj->_scene) {
-		QApplication::sendEvent(obj->_scene, &scene_event);
-	}
+	propagate_event_to_scene(obj, &scene_event);
 
 	if (scene_event.isAccepted()) {
 		event->setAccepted(true);
@@ -169,9 +171,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::mouseMoveEvent(PVGraphicsView* ob
 	scene_event.setWidget(obj->_viewport);
 	scene_event.setAccepted(false);
 
-	if (obj->_scene) {
-		QApplication::sendEvent(obj->_scene, &scene_event);
-	}
+	propagate_event_to_scene(obj, &scene_event);
 
 	if (scene_event.isAccepted()) {
 		event->setAccepted(true);
@@ -199,9 +199,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::wheelEvent(PVGraphicsView* obj,
 	scene_event.setOrientation(event->orientation());
 	scene_event.setAccepted(false);
 
-	if (obj->_scene) {
-		QApplication::sendEvent(obj->_scene, &scene_event);
-	}
+	propagate_event_to_scene(obj, event);
 
 	if (scene_event.isAccepted()) {
 		event->setAccepted(true);
@@ -217,9 +215,8 @@ bool PVWidgets::PVGraphicsViewInteractorScene::wheelEvent(PVGraphicsView* obj,
 bool PVWidgets::PVGraphicsViewInteractorScene::keyPressEvent(PVGraphicsView* obj,
                                                              QKeyEvent* event)
 {
-	if (obj->_scene) {
-		QApplication::sendEvent(obj->_scene, event);
-	}
+	propagate_event_to_scene(obj, event);
+
 	if (event->isAccepted()) {
 		return true;
 	}
@@ -234,9 +231,8 @@ bool PVWidgets::PVGraphicsViewInteractorScene::keyPressEvent(PVGraphicsView* obj
 bool PVWidgets::PVGraphicsViewInteractorScene::keyReleaseEvent(PVGraphicsView* obj,
                                                                QKeyEvent* event)
 {
-	if (obj->_scene) {
-		QApplication::sendEvent(obj->_scene, event);
-	}
+	propagate_event_to_scene(obj, event);
+
 	if (event->isAccepted()) {
 		return true;
 	}

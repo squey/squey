@@ -34,6 +34,7 @@ static inline qint64 sb_round(const qreal &d)
 	return (d > (qreal)0.0) ? floor(d + (qreal)0.5) : ceil(d - (qreal)0.5);
 }
 
+#define print_r(R) print_rect(R)
 #define print_rect(R) __print_rect(#R, R)
 
 template <typename R>
@@ -56,6 +57,7 @@ void __print_point(const char *text, const P &p)
 	          << std::endl;
 }
 
+#define print_t(T) print_transform(T)
 #define print_transform(T) __print_transform(#T, T)
 
 template <typename T>
@@ -551,10 +553,8 @@ bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 
 	const QRectF unmargined_render_rect = event->rect();
 	const QRectF margined_render_rect = map_to_margined(unmargined_render_rect);
-	const QRectF margined_scene_render_rect = map_to_margined(unmargined_render_rect.intersected(get_margined_viewport_rect()));
 
 	// Benchmark of the following line gives about 0.005ms, which is negligeable against the other renderings..
-	const QTransform scene_transform = get_transform_from_scene();
 	const QTransform margined_transform = get_transform_from_margined_viewport();
 
 	QPainter painter;
@@ -564,9 +564,15 @@ bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 	painter.setTransform(margined_transform, false);
 	drawBackground(&painter, margined_render_rect);
 
-	const QRectF scene_rect = map_margined_to_scene(margined_scene_render_rect);
-	painter.setTransform(scene_transform, false);
-	_scene->render(&painter, scene_rect, scene_rect, Qt::IgnoreAspectRatio);
+	if (_scene) {
+		const QRectF unmargined_scene_rect = map_to_scene(unmargined_render_rect);
+
+		painter.setTransform(QTransform(), false);
+		_scene->render(&painter,
+		               unmargined_render_rect,
+		               unmargined_scene_rect,
+		               Qt::IgnoreAspectRatio);
+	}
 
 	painter.setTransform(margined_transform, false);
 	drawForeground(&painter, margined_render_rect);
@@ -626,7 +632,9 @@ void PVWidgets::PVGraphicsView::contextMenuEvent(QContextMenuEvent *event)
 	scene_event.setWidget(_viewport);
 	scene_event.setAccepted(false);
 
-	QApplication::sendEvent(_scene, &scene_event);
+	if (get_scene()) {
+		QApplication::sendEvent(get_scene(), &scene_event);
+	}
 
 	event->setAccepted(scene_event.isAccepted());
 }
@@ -642,8 +650,9 @@ void PVWidgets::PVGraphicsView::focusInEvent(QFocusEvent *event)
 	_mouse_pressed_scene_coord = map_to_scene(_mouse_pressed_view_coord);
 
 	QWidget::focusInEvent(event);
-	if (_scene) {
-		QApplication::sendEvent(_scene, event);
+
+	if (get_scene()) {
+		QApplication::sendEvent(get_scene(), event);
 	}
 }
 
@@ -654,8 +663,9 @@ void PVWidgets::PVGraphicsView::focusInEvent(QFocusEvent *event)
 void PVWidgets::PVGraphicsView::focusOutEvent(QFocusEvent *event)
 {
 	QWidget::focusOutEvent(event);
-	if (_scene) {
-		QApplication::sendEvent(_scene, event);
+
+	if (get_scene()) {
+		QApplication::sendEvent(get_scene(), event);
 	}
 }
 
