@@ -96,7 +96,7 @@ private:
 	QMenu* _hhead_ctxt_menu;
 	QAction* _action_col_sort;
 	QAction* _action_col_unique;
-	QAction* _action_col_count_by;
+	QMenu* _menu_col_count_by;
 	bool _show_ctxt_menu;
 	PVRow _ctxt_row;
 	PVCol _ctxt_col;
