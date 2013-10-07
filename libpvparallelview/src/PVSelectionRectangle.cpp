@@ -13,12 +13,11 @@ const QColor PVParallelView::PVSelectionRectangle::handle_color(255, 127, 36);
 
 PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene) :
 	QObject(static_cast<QObject*>(scene)),
-	_use_selection_modifiers(true),
-	_sel_mode(RECTANGLE)
+	_use_selection_modifiers(true)
 {
 	_rect = new PVParallelView::PVSelectionRectangleItem();
 	scene->addItem(_rect);
-	_rect->hide();
+	_rect->clear();
 	_rect->set_pen_color(rect_color);
 
 	connect(_rect, SIGNAL(geometry_has_changed(const QRectF&, const QRectF&)),

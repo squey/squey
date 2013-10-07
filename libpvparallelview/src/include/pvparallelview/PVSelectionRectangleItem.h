@@ -37,6 +37,14 @@ class PVSelectionRectangleItem : public QGraphicsObject
 	friend PVSelectionHandleItem;
 
 public:
+	enum SelectionMode
+	{
+		RECTANGLE,
+		HORIZONTAL,
+		VERTICAL
+	};
+
+public:
 	static constexpr qreal MOVE_STEP_PX = 1;
 	static constexpr qreal GROW_STEP_RATIO = 1.2;
 
@@ -64,6 +72,24 @@ public:
 	 * terminate a mouse interaction
 	 */
 	void end(const QPointF& p);
+
+public:
+	/**
+	 * set the selection mode
+	 *
+	 * @param sel_mode the selection mode
+	 */
+	void set_selection_mode(int sel_mode);
+
+	/**
+	 * get the selection mode
+	 *
+	 * @return the selection mode
+	 */
+	SelectionMode selection_mode() const
+	{
+		return _sel_mode;
+	}
 
 public:
 	/**
@@ -174,6 +200,46 @@ public:
 	 */
 	void clear_y_range();
 
+	/**
+	 * get the horizontal lower bound
+	 *
+	 * @return the horizontal lower bound
+	 */
+	qreal get_x_min() const
+	{
+		return _x_min_value;
+	}
+
+	/**
+	 * get the horizontal upper bound
+	 *
+	 * @return the horizontal upper bound
+	 */
+	qreal get_x_max() const
+	{
+		return _x_max_value;
+	}
+
+	/**
+	 * get the vertical lower bound
+	 *
+	 * @return the vertical lower bound
+	 */
+	qreal get_y_min() const
+	{
+		return _y_min_value;
+	}
+
+	/**
+	 * get the vertical upper bound
+	 *
+	 * @return the vertical upper bound
+	 */
+	qreal get_y_max() const
+	{
+		return _y_max_value;
+	}
+
 public:
 	/**
 	 * get the selection rectangle's bounding box
@@ -261,6 +327,7 @@ private:
 	qreal                               _x_max_value;
 	qreal                               _y_min_value;
 	qreal                               _y_max_value;
+	SelectionMode                       _sel_mode;
 };
 
 }

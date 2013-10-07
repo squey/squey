@@ -22,6 +22,12 @@ class PVSelectionRectangleItem;
  * @class PVSelectionHandleItem
  *
  * represent a selection rectangle's handle.
+ *
+ * @note  As QGraphicsItem::setVisible() can not be overridden as in QWidget, all the
+ * logic to visually hide/show the handle has been added.
+ *
+ * @note As we rewrite hide/show logic, forcing always hidden" mode is trickier: hover
+ * events, used mouse cursor and more complex visibility setting.
  */
 class PVSelectionHandleItem : public QGraphicsItem
 {
@@ -229,6 +235,24 @@ protected:
 	 */
 	void activate_cursor(bool use_own = true);
 
+	/**
+	 * set if the handle must be forced as hidden or not
+	 *
+	 * @param hidden true if must always be hidden, false otherwise
+	 */
+	void force_hidden(bool hidden);
+
+	/**
+	 * tell if the handle's type matches a mask or not
+	 *
+	 * A handle typed CENTER does not match any mask.
+	 *
+	 * @param mask the mask to test the handle's type.
+	 *
+	 * @return true if the handle's types matches mask or not
+	 */
+	bool is_type(int mask);
+
 private:
 	PVSelectionRectangleItem* _sel_rect;
 	QPen                      _pen;
@@ -240,6 +264,7 @@ private:
 	qreal                     _yscale;
 	int                       _type;
 	bool                      _is_visible;
+	bool                      _always_hidden;
 };
 
 }

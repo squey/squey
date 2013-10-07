@@ -42,7 +42,8 @@ PVParallelView::PVSelectionHandleItem::PVSelectionHandleItem(handle_type type,
 	_xscale(1.0),
 	_yscale(1.0),
 	_type(type),
-	_is_visible(true)
+	_is_visible(true),
+	_always_hidden(false)
 {
 	setAcceptHoverEvents(true);
 
@@ -118,6 +119,10 @@ void PVParallelView::PVSelectionHandleItem::paint(QPainter* painter,
 
 void PVParallelView::PVSelectionHandleItem::hoverEnterEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
+	if (_always_hidden) {
+		return;
+	}
+
 	_brush.setStyle(Qt::SolidPattern);
 	_brush.setColor(_brush_color);
 	get_selection_rectangle()->show_all_handles();
@@ -130,6 +135,10 @@ void PVParallelView::PVSelectionHandleItem::hoverEnterEvent(QGraphicsSceneHoverE
 
 void PVParallelView::PVSelectionHandleItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
+	if (_always_hidden) {
+		return;
+	}
+
 	_brush.setStyle(Qt::NoBrush);
 	get_selection_rectangle()->hide_all_handles();
 	update();
@@ -141,6 +150,11 @@ void PVParallelView::PVSelectionHandleItem::hoverLeaveEvent(QGraphicsSceneHoverE
 
 void PVParallelView::PVSelectionHandleItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
+	if (!_is_visible) {
+		event->ignore();
+		return;
+	}
+
 	if (event->button() == Qt::LeftButton) {
 		_ref = event->pos();
 		get_selection_rectangle()->hide_all_handles_but(this);
@@ -155,6 +169,11 @@ void PVParallelView::PVSelectionHandleItem::mousePressEvent(QGraphicsSceneMouseE
 
 void PVParallelView::PVSelectionHandleItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
+	if (!_is_visible) {
+		event->ignore();
+		return;
+	}
+
 	if (event->button() == Qt::LeftButton) {
 		update_selection_rectangle_geometry(event->pos());
 		get_selection_rectangle()->show_all_handles();
@@ -170,6 +189,11 @@ void PVParallelView::PVSelectionHandleItem::mouseReleaseEvent(QGraphicsSceneMous
 
 void PVParallelView::PVSelectionHandleItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
+	if (!_is_visible) {
+		QGraphicsItem::mouseMoveEvent(event);
+		return;
+	}
+
 	if (event->buttons() == Qt::LeftButton) {
 		update_selection_rectangle_geometry(event->pos());
 		event->accept();
@@ -364,8 +388,15 @@ void PVParallelView::PVSelectionHandleItem::swap_vertically()
 
 void PVParallelView::PVSelectionHandleItem::set_visible(bool visible)
 {
-	_is_visible = visible;
-	update();
+	if (visible) {
+		if (_always_hidden == false) {
+			_is_visible = visible;
+			update();
+		}
+	} else {
+		_is_visible = visible;
+		update();
+	}
 }
 
 /*****************************************************************************
@@ -385,7 +416,7 @@ void PVParallelView::PVSelectionHandleItem::activate_cursor(bool use_own)
 {
 	QCursor cursor;
 
-	if (use_own) {
+	if (use_own && !_always_hidden) {
 		switch(_type) {
 		case N:
 			cursor = Qt::SizeVerCursor;
@@ -422,3 +453,32 @@ void PVParallelView::PVSelectionHandleItem::activate_cursor(bool use_own)
 	setCursor(cursor);
 }
 
+/*****************************************************************************
+ * PVParallelView::PVSelectionHandleItem::force_hidden
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionHandleItem::force_hidden(bool hidden)
+{
+	_always_hidden = hidden;
+
+	activate_cursor(!_always_hidden);
+
+	if (hidden) {
+		if(is_visible()) {
+			set_visible(false);
+		}
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionHandleItem::is_type
+ *****************************************************************************/
+
+bool PVParallelView::PVSelectionHandleItem::is_type(int mask)
+{
+	if (_type == CENTER) {
+		return false;
+	} else {
+		return _type & mask;
+	}
+}

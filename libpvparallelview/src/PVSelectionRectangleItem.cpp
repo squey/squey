@@ -26,7 +26,8 @@ PVParallelView::PVSelectionRectangleItem::PVSelectionRectangleItem(const QRectF&
 	_x_min_value(0.),
 	_x_max_value(0.),
 	_y_min_value(0.),
-	_y_max_value(0.)
+	_y_max_value(0.),
+	_sel_mode(RECTANGLE)
 {
 	setAcceptHoverEvents(true);
 	setHandlesChildEvents(false);
@@ -88,9 +89,20 @@ void PVParallelView::PVSelectionRectangleItem::begin(const QPointF& p)
 		py = PVCore::clamp(py, _y_min_value, _y_max_value);
 	}
 
+	qreal px2 = px;
+	qreal py2 = py;
+
+	if (_sel_mode == HORIZONTAL) {
+		px = _x_min_value;
+		px2 = _x_max_value;
+	} else if (_sel_mode == VERTICAL) {
+		py = _y_min_value;
+		py2 = _y_max_value;
+	}
+
 	QPointF np(px, py);
 
-	_rect = QRectF(np, np);
+	_rect = QRectF(np, QPointF(px2, py2));
 	_ref = np;
 	prepareGeometryChange();
 	update_handles();
@@ -123,6 +135,14 @@ void PVParallelView::PVSelectionRectangleItem::step(const QPointF& p)
 	qreal nrt = std::min<qreal>(_ref.y(), py);
 	qreal nrb = std::max<qreal>(_ref.y(), py);
 
+	if (_sel_mode == HORIZONTAL) {
+		nrl = _x_min_value;
+		nrr = _x_max_value;
+	} else if (_sel_mode == VERTICAL) {
+		nrt = _y_min_value;
+		nrb = _y_max_value;
+	}
+
 	_rect = QRectF(QPointF(nrl, nrt), QPointF(nrr, nrb));
 	prepareGeometryChange();
 	update_handles();
@@ -137,6 +157,53 @@ void PVParallelView::PVSelectionRectangleItem::end(const QPointF& p)
 {
 	reset_handles_cursor();
 	step(p);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangleItem::set_selection_mode
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionRectangleItem::set_selection_mode(int sel_mode)
+{
+	SelectionMode smode = (SelectionMode)sel_mode;
+
+	if (smode == _sel_mode) {
+		return;
+	}
+
+	_sel_mode = (SelectionMode)sel_mode;
+
+	/* it has been decided that changing the mode implies clearing the
+	 * current rectanhle
+	 */
+	clear();
+
+	std::cout << "PVSelectionRectangleItem::set_selection_mode(" << sel_mode << ")" <<std::endl;
+	switch(sel_mode) {
+	case RECTANGLE:
+		for(auto it : _handles) {
+			it->force_hidden(false);
+		}
+		break;
+	case HORIZONTAL:
+		for(auto it : _handles) {
+			if (it->is_type(PVSelectionHandleItem::W | PVSelectionHandleItem::E)) {
+				it->force_hidden(true);
+			} else {
+				it->force_hidden(false);
+			}
+		}
+		break;
+	case VERTICAL:
+		for(auto it : _handles) {
+			if (it->is_type(PVSelectionHandleItem::N | PVSelectionHandleItem::S)) {
+				it->force_hidden(true);
+			} else {
+				it->force_hidden(false);
+			}
+		}
+		break;
+	}
 }
 
 /*****************************************************************************
@@ -199,7 +266,6 @@ void PVParallelView::PVSelectionRectangleItem::set_handles_scale(const qreal xsc
 		it->set_scale(xscale, yscale);
 	}
 }
-
 
 /*****************************************************************************
  * PVParallelView::PVSelectionRectangleItem::get_handles_x_scale

@@ -26,11 +26,6 @@ class PVView;
 
 }
 
-/**
- * @todo: les move_by de 1 pixel doivent tenir compte des transformations (bogue
- * déjà présent dans le carré de sélection)
- */
-
 namespace PVParallelView
 {
 
@@ -44,12 +39,7 @@ class PVSelectionRectangle : public QObject
 	Q_OBJECT;
 
 public:
-	enum SelectionMode
-	{
-		RECTANGLE,
-		HORIZONTAL,
-		VERTICAL
-	};
+	using SelectionMode = PVSelectionRectangleItem::SelectionMode;
 
 public:
 	static constexpr qreal GROW_STEP_RATIO = 1.2;
@@ -291,32 +281,62 @@ public:
 	}
 
 public:
+	/**
+	 * get the current selection mode.
+	 *
+	 * @retun the current selection mode.
+	 */
 	SelectionMode selection_mode() const
 	{
-		return _sel_mode;
+		return _rect->selection_mode();
 	}
 
 public slots:
+	/**
+	 * set the selection mode to use.
+	 *
+	 * @param sel_mode the new selection mode.
+	 */
 	void set_selection_mode(int sel_mode)
 	{
-		_sel_mode = (SelectionMode)sel_mode;
+		_rect->set_selection_mode(sel_mode);
 	}
 
 public:
+	/**
+	 * get the scene owning the selection rectangle
+	 *
+	 * @ return the scene owning the selection rectangle
+	 */
 	QGraphicsScene* scene() const;
 
 signals:
+	/**
+	 * the signal which is fired when the volatile selection must
+	 * be committed to the final selection
+	 */
 	void commit_volatile_selection(bool use_selection_modifiers);
 
 protected slots:
+	/**
+	 * start the timer used to commit for selection.
+	 */
 	void start_timer();
-
-protected slots:
-	virtual void commit(bool use_selection_modifiers) = 0;
-	virtual Picviz::PVView& lib_view() = 0;
-
-protected slots:
+	/**
+	 * action done when the timer's timeout occurs.
+	 */
 	void timeout();
+
+protected slots:
+	/**
+	 * method to override to implement selection commits
+	 */
+	virtual void commit(bool use_selection_modifiers) = 0;
+
+	/**
+	 * method to override to implement PVView retrieval
+	 */
+	virtual Picviz::PVView& lib_view() = 0;
 
 private:
 	void move_by(qreal hstep, qreal vstep);
@@ -326,7 +346,6 @@ private:
 	PVSelectionRectangleItem* _rect;
 	QTimer*                   _timer;
 	bool                      _use_selection_modifiers;
-	SelectionMode             _sel_mode;
 };
 
 }
