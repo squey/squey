@@ -42,6 +42,8 @@ class PVZonesManager;
 class PVZoomConverter;
 class PVScatterViewParamsWidget;
 class PVScatterViewInteractor;
+class PVScatterViewSelectionRectangle;
+class PVSelectionRectangleInteractor;
 
 class PVScatterView : public PVZoomableDrawingAreaWithAxes
 {
@@ -145,7 +147,14 @@ private:
 	PVScatterViewImagesManager _images_manager;
 	bool _view_deleted;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> *_zoom_converter;
-	PVSelectionSquareScatterView* _selection_square;
+	//PVSelectionSquareScatterView* _selection_square;
+
+	PVZoomableDrawingAreaInteractor *_h_interactor;
+	PVZoomableDrawingAreaInteractor *_sv_interactor;
+
+	PVScatterViewSelectionRectangle *_sel_rect;
+	PVSelectionRectangleInteractor  *_sel_rect_interactor;
+
 	static bool _show_quadtrees;
 
 #ifdef SV_FPS

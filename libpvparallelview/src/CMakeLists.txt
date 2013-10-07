@@ -107,6 +107,7 @@ PVScatterViewImage.cpp
 PVScatterViewImagesManager.cpp
 PVScatterViewDataInterface.cpp
 PVScatterViewDataImpl.cpp
+PVScatterViewSelectionRectangle.cpp
 )
 
 set(CUDA_SRC_FILES

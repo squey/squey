@@ -30,12 +30,13 @@
 #include <pvparallelview/PVBCode.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
-#include <pvparallelview/PVSelectionSquareScatterView.h>
+#include <pvparallelview/PVScatterViewSelectionRectangle.h>
 #include <pvparallelview/PVZoomableDrawingAreaInteractorHomothetic.h>
 #include <pvparallelview/PVZoomableDrawingAreaConstraintsHomothetic.h>
 #include <pvparallelview/PVZoomConverterPowerOfTwo.h>
 #include <pvparallelview/PVZoneRenderingScatter.h>
-#include <pvparallelview/PVSelectionSquareInteractor.h>
+#include <pvparallelview/PVSelectionRectangleInteractor.h>
+#include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
 
 #define TIMEOUT_FPS 500 // ms
 
@@ -45,27 +46,52 @@ namespace PVParallelView
 template <int STEPS>
 using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
 
-class PVScatterViewInteractor: public PVWidgets::PVGraphicsViewInteractor<PVScatterView>
+class PVScatterViewInteractor: public PVZoomableDrawingAreaInteractor
 {
 public:
 	PVScatterViewInteractor(PVWidgets::PVGraphicsView* parent = nullptr) :
-		PVGraphicsViewInteractor(parent)
-	{ }
+		PVZoomableDrawingAreaInteractor(parent)
+	{}
 
 public:
-
-	bool resizeEvent(PVScatterView* view, QResizeEvent*) override
+	bool keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent *event)
 	{
-		view->do_update_all();
-
-		view->reconfigure_view();
-		if (view->get_viewport()) {
-			view->get_viewport()->update();
+		PVScatterView *sv = get_scatter_view(zda);
+		switch (event->key()) {
+		case Qt::Key_Escape:
+			sv->_sel_rect->clear();
+			sv->get_viewport()->update();
+			break;
 		}
 
-		view->set_params_widget_position();
+		return false;
+	}
+
+	bool resizeEvent(PVZoomableDrawingArea* zda, QResizeEvent*) override
+	{
+		PVScatterView *sv = get_scatter_view(zda);
+
+		sv->do_update_all();
+
+		sv->reconfigure_view();
+
+		sv->_sel_rect->set_handles_scale(1. / sv->get_transform().m11(),
+		                                 1. / sv->get_transform().m22());
+
+		if (sv->get_viewport()) {
+			sv->get_viewport()->update();
+		}
+
+		sv->set_params_widget_position();
 
 		return false;
+	}
+
+protected:
+	static PVScatterView *get_scatter_view(PVZoomableDrawingArea *zda)
+	{
+		assert(qobject_cast<PVScatterView*>(zda));
+		return static_cast<PVScatterView*>(zda);
 	}
 };
 
@@ -82,7 +108,8 @@ public:
 		setFocusPolicy(Qt::ClickFocus);
 
 		_selection_mode_signal_mapper = new QSignalMapper(this);
-		QObject::connect(_selection_mode_signal_mapper, SIGNAL(mapped(int)), parent_sv()->_selection_square, SLOT(set_selection_mode(int)));
+		QObject::connect(_selection_mode_signal_mapper, SIGNAL(mapped(int)),
+		                 parent_sv()->_sel_rect, SLOT(set_selection_mode(int)));
 
 #if COLLAPSED_ACTIONS
 		QToolButton* selection_mode = new QToolButton(this);
@@ -95,7 +122,7 @@ public:
 		rect_sel->setIcon(QIcon(":/selection-rectangle"));
 		rect_sel->setShortcut(Qt::Key_R);
 		selection_mode->addAction(rect_sel);
-		_selection_mode_signal_mapper->setMapping(rect_sel, PVSelectionSquare::EMode::RECTANGLE);
+		_selection_mode_signal_mapper->setMapping(rect_sel, PVSelectionRectangle::SelectionMode::RECTANGLE);
 		QObject::connect(rect_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
 
 		// Horizontal selection
@@ -103,7 +130,7 @@ public:
 		h_sel->setIcon(QIcon(":/horizontal-scrollbar-handle"));
 		h_sel->setShortcut(Qt::Key_H);
 		selection_mode->addAction(h_sel);
-		_selection_mode_signal_mapper->setMapping(h_sel, PVSelectionSquare::EMode::HORIZONTAL);
+		_selection_mode_signal_mapper->setMapping(h_sel, PVSelectionRectangle::SelectionMode::HORIZONTAL);
 		QObject::connect(h_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
 
 		// Vertical selection
@@ -111,7 +138,7 @@ public:
 		v_sel->setIcon(QIcon(":/vertical-scrollbar-handle"));
 		v_sel->setShortcut(Qt::Key_V);
 		selection_mode->addAction(v_sel);
-		_selection_mode_signal_mapper->setMapping(v_sel, PVSelectionSquare::EMode::VERTICAL);
+		_selection_mode_signal_mapper->setMapping(v_sel, PVSelectionRectangle::SelectionMode::VERTICAL);
 		QObject::connect(v_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
 
 		addWidget(selection_mode);
@@ -126,7 +153,7 @@ public:
 		rect_sel->setChecked(true);
 		rect_sel->setShortcut(Qt::Key_R);
 		rect_sel->setToolTip("Rectangle selection (" + rect_sel->shortcut().toString() + ")");
-		_selection_mode_signal_mapper->setMapping(rect_sel, PVSelectionSquare::EMode::RECTANGLE);
+		_selection_mode_signal_mapper->setMapping(rect_sel, PVSelectionRectangle::SelectionMode::RECTANGLE);
 		QObject::connect(rect_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
 		addAction(rect_sel);
 
@@ -136,7 +163,7 @@ public:
 		h_sel->setCheckable(true);
 		h_sel->setShortcut(Qt::Key_H);
 		h_sel->setToolTip("Horizontal selection (" + h_sel->shortcut().toString() + ")");
-		_selection_mode_signal_mapper->setMapping(h_sel, PVSelectionSquare::EMode::HORIZONTAL);
+		_selection_mode_signal_mapper->setMapping(h_sel, PVSelectionRectangle::SelectionMode::HORIZONTAL);
 		QObject::connect(h_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
 		addAction(h_sel);
 
@@ -146,7 +173,7 @@ public:
 		v_sel->setCheckable(true);
 		v_sel->setShortcut(Qt::Key_V);
 		v_sel->setToolTip("Vertical selection (" + v_sel->shortcut().toString() + ")");
-		_selection_mode_signal_mapper->setMapping(v_sel, PVSelectionSquare::EMode::VERTICAL);
+		_selection_mode_signal_mapper->setMapping(v_sel, PVSelectionRectangle::SelectionMode::VERTICAL);
 		QObject::connect(v_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
 		addAction(v_sel);
 #endif
@@ -189,27 +216,50 @@ PVParallelView::PVScatterView::PVScatterView(
 
 	set_gl_viewport();
 
-	set_x_axis_inverted(true);
-
-	setCursor(Qt::CrossCursor);
 	QRectF r(0, 0, (1UL << 32), (1UL << 32));
 	set_scene_rect(r);
 	get_scene()->setSceneRect(r);
 
-	_selection_square = new PVSelectionSquareScatterView(this);
+	/* zoom converter
+	 */
+	_zoom_converter = new PVScatterViewZoomConverter<zoom_steps>();
+	get_x_axis_zoom().set_zoom_converter(_zoom_converter);
+	get_y_axis_zoom().set_zoom_converter(_zoom_converter);
 
-	// interactor
-	PVWidgets::PVGraphicsViewInteractorBase* zoom_inter = declare_interactor<PVZoomableDrawingAreaInteractorHomothetic>();
-	PVWidgets::PVGraphicsViewInteractorBase* selection_square_inter = declare_interactor<PVSelectionSquareInteractor>(_selection_square);
-	PVWidgets::PVGraphicsViewInteractorBase* scatter_inter = declare_interactor<PVScatterViewInteractor>();
-	register_front_one(QEvent::Resize, scatter_inter);
-	register_back_all(selection_square_inter);
-	register_back_all(zoom_inter);
-	register_back_all(scatter_inter);
+	_sel_rect = new PVScatterViewSelectionRectangle(this);
+
+	/* interactor
+	 */
+	_sel_rect_interactor = declare_interactor<PVSelectionRectangleInteractor>(_sel_rect);
+	register_front_all(_sel_rect_interactor);
+
+	_h_interactor = declare_interactor<PVZoomableDrawingAreaInteractorHomothetic>();
+	register_front_all(_h_interactor);
+
+	_sv_interactor = declare_interactor<PVScatterViewInteractor>();
+	register_front_all(_sv_interactor);
+
 	install_default_scene_interactor();
 
-	// constraints
+	// need to move them to front to allow view pan before sel rect move
+	register_front_one(QEvent::MouseButtonPress, _h_interactor);
+	register_front_one(QEvent::MouseButtonRelease, _h_interactor);
+	register_front_one(QEvent::MouseMove, _h_interactor);
+
+	/* constraints
+	 */
 	set_constraints(new PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic());
+
+	/* axis zoom
+	 */
+	get_x_axis_zoom().set_range(zoom_min, zoom_extra);
+	get_x_axis_zoom().set_default_value(zoom_min_compute);
+	get_y_axis_zoom().set_range(zoom_min, zoom_extra);
+	get_y_axis_zoom().set_default_value(zoom_min_compute);
+
+	set_zoom_value(PVZoomableDrawingAreaConstraints::X
+	               | PVZoomableDrawingAreaConstraints::Y,
+	               zoom_min_compute);
 
 	// decorations
 	set_alignment(Qt::AlignLeft | Qt::AlignTop);
@@ -219,19 +269,6 @@ PVParallelView::PVScatterView::PVScatterView(
 
 	set_decoration_color(Qt::white);
 	set_ticks_per_level(8);
-
-	//_zoom_converter = new PVZoomConverterPowerOfTwo();
-	_zoom_converter = new PVScatterViewZoomConverter<zoom_steps>();
-	get_x_axis_zoom().set_zoom_converter(_zoom_converter);
-	get_x_axis_zoom().set_range(zoom_min, zoom_extra);
-	get_x_axis_zoom().set_default_value(zoom_min_compute);
-	get_y_axis_zoom().set_zoom_converter(_zoom_converter);
-	get_y_axis_zoom().set_range(zoom_min, zoom_extra);
-	get_y_axis_zoom().set_default_value(zoom_min_compute);
-
-	set_zoom_value(PVZoomableDrawingAreaConstraints::X
-	               | PVZoomableDrawingAreaConstraints::Y,
-	               zoom_min_compute);
 
 	set_scatter_view_zone(zone_index);
 
@@ -264,6 +301,13 @@ PVParallelView::PVScatterView::PVScatterView(
 	                                },
 	                                *obs);
 	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
+
+	_sel_rect->set_default_cursor(Qt::CrossCursor);
+	set_viewport_cursor(Qt::CrossCursor);
+	set_background_color(common::color_view_bg());
+
+	_sel_rect->set_x_range(0, UINT32_MAX);
+	_sel_rect->set_y_range(0, UINT32_MAX);
 }
 
 /*****************************************************************************
@@ -279,6 +323,11 @@ PVParallelView::PVScatterView::~PVScatterView()
 	}
 
 	delete _zoom_converter;
+	delete get_constraints();
+	delete _h_interactor;
+	delete _sv_interactor;
+	delete _sel_rect_interactor;
+	delete _sel_rect;
 }
 
 PVParallelView::PVZoneTree const& PVParallelView::PVScatterView::get_zone_tree() const
@@ -411,6 +460,9 @@ void PVParallelView::PVScatterView::do_update_all()
 	int64_t zoom;
 	double alpha;
 
+	_sel_rect->set_handles_scale(1. / get_transform().m11(),
+	                             1. / get_transform().m22());
+
 	if (get_y_axis_zoom().get_clamped_value() < zoom_min_compute) {
 		/*y1_min = 0;
 		y1_max = 0xFFFFFFFF;
@@ -423,10 +475,12 @@ void PVParallelView::PVScatterView::do_update_all()
 		return;
 	}
 
-	y1_min = view_rect.x();
-	y1_max = view_rect.x()+view_rect.width();
+	// Hack to revert plotting inversion
+	y1_min = PVCore::invert_plotting_value(view_rect.x()+view_rect.width());
+	y1_max = PVCore::invert_plotting_value(view_rect.x());
 	y2_min = view_rect.y();
 	y2_max = view_rect.y()+view_rect.height();
+
 	zoom = (get_y_axis_zoom().get_clamped_value()-zoom_min_compute);
 	alpha = 0.5 * _zoom_converter->zoom_to_scale_decimal(zoom);
 	zoom = (zoom / zoom_steps) +1;
@@ -437,6 +491,7 @@ void PVParallelView::PVScatterView::do_update_all()
 
 	//PVLOG_INFO("y1_min: %u / y2_min: %u\n", y1_min, y2_min);
 	get_images_manager().change_and_process_view(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
+
 	get_viewport()->update();
 }
 
@@ -466,7 +521,7 @@ void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 	const uint32_t *y1_plotted, *y2_plotted;
 	get_zones_manager().get_zone_plotteds(zid, &y1_plotted, &y2_plotted);
 	get_images_manager().set_zone(zid);
-	_selection_square->set_plotteds(y1_plotted, y2_plotted, get_zones_manager().get_number_rows());
+	_sel_rect->set_plotteds(y1_plotted, y2_plotted, get_zones_manager().get_number_rows());
 
 	// TODO: register axis name change through the hive
 	set_x_legend(lib_view().get_axis_name(zid));
@@ -478,8 +533,6 @@ void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
  *****************************************************************************/
 void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRectF& rect)
 {
-	painter->fillRect(rect, common::color_view_bg());
-
 	painter->save();
 
 	const QRect margined_viewport = QRect(-1, -1, get_x_axis_length()+4, get_y_axis_length()+2);
