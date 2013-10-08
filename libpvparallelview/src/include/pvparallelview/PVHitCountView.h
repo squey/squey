@@ -23,7 +23,9 @@ class QWidget;
 
 namespace PVWidgets
 {
-class PVTextPopupWidget;
+
+class PVHelpWidget;
+
 }
 
 namespace Picviz
@@ -142,7 +144,7 @@ private:
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> const& y_zoom_converter() const { return _y_zoom_converter; }
 
 	PVHitCountViewParamsWidget* params_widget() { return _params_widget; }
-	PVWidgets::PVTextPopupWidget* help_widget() { return _help_widget; }
+	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 
 private slots:
 	void do_zoom_change(int axes);
@@ -178,7 +180,7 @@ private:
 	PVSelectionRectangleInteractor              *_sel_rect_interactor;
 
 	PVHitCountViewParamsWidget                  *_params_widget;
-	PVWidgets::PVTextPopupWidget                *_help_widget;
+	PVWidgets::PVHelpWidget                     *_help_widget;
 };
 
 }

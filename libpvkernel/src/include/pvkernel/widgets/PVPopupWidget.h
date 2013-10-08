@@ -53,6 +53,18 @@ public:
 	 */
 	void setVisible(bool visible) override;
 
+public:
+	/**
+	 * test if key is one of those to close the widget
+	 *
+	 * This method has to be overridden to accept more key
+	 *
+	 * @param key the key to test
+	 *
+	 * @return true is key can be used to close the widget; false otherwise.
+	 */
+	virtual bool is_close_key(int key);
+
 protected:
 	/**
 	 * reimplement QDialog::mouseMoveEvent(QMouseEvent)

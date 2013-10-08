@@ -82,6 +82,15 @@ void PVWidgets::PVPopupWidget::setVisible(bool visible)
 }
 
 /*****************************************************************************
+ * PVWidgets::PVPopupWidget::is_close_key
+ *****************************************************************************/
+
+bool PVWidgets::PVPopupWidget::is_close_key(int key)
+{
+	return (key == Qt::Key_Escape);
+}
+
+/*****************************************************************************
  * PVWidgets::PVPopupWidget::mouseMoveEvent
  *****************************************************************************/
 

@@ -1,6 +1,6 @@
 
 #include <pvkernel/widgets/PVConfigPopupWidget.h>
-#include <pvkernel/widgets/PVTextPopupWidget.h>
+#include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <picviz/PVView.h>
 
@@ -190,7 +190,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 	connect(get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)),
 	        this, SLOT(do_pan_change()));
 
-	_help_widget = new PVWidgets::PVTextPopupWidget(this);
+	_help_widget = new PVWidgets::PVHelpWidget(this);
 	_help_widget->hide();
 
 	_help_widget->initTextFromFile("hit count view's help",

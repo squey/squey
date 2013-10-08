@@ -4,7 +4,7 @@
 #include <pvparallelview/PVHitCountViewSelectionRectangle.h>
 #include <pvparallelview/PVHitCountViewParamsWidget.h>
 
-#include <pvkernel/widgets/PVTextPopupWidget.h>
+#include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <QScrollBar64>
 
@@ -44,6 +44,16 @@ bool PVParallelView::PVHitCountViewInteractor::resizeEvent(PVZoomableDrawingArea
 bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent *event)
 {
 	PVHitCountView *hcv = get_hit_count_view(zda);
+
+	if(PVWidgets::PVHelpWidget::is_help_key(event->key())) {
+		if (hcv->help_widget()->isHidden()) {
+			hcv->help_widget()->popup(hcv->get_viewport(),
+			                          PVWidgets::PVTextPopupWidget::AlignCenter,
+			                          PVWidgets::PVTextPopupWidget::ExpandAll, 16);
+		}
+		return false;
+	}
+
 	switch (event->key()) {
 	case Qt::Key_Escape:
 		hcv->_sel_rect->clear();
@@ -86,13 +96,6 @@ bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingAr
 		if (event->modifiers() == Qt::AltModifier) {
 			hcv->toggle_auto_x_zoom_sel();
 			return true;
-		}
-		break;
-	case PVWidgets::PVTextPopupWidget::HelpKey:
-		if (hcv->help_widget()->isHidden()) {
-			hcv->help_widget()->popup(hcv->get_viewport(),
-			                          PVWidgets::PVTextPopupWidget::AlignCenter,
-			                          PVWidgets::PVTextPopupWidget::ExpandAll, 16);
 		}
 		break;
 	default:

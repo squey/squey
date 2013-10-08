@@ -404,6 +404,8 @@ widgets/PVUtils.cpp
 widgets/PVPopupWidget.cpp
 widgets/PVConfigPopupWidget.cpp
 widgets/PVTextPopupWidget.cpp
+
+widgets/PVHelpWidget.cpp
 )
 
 SET(UI_FILES

@@ -2,7 +2,7 @@
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVConfig.h>
 
-#include <pvkernel/widgets/PVTextPopupWidget.h>
+#include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <QVBoxLayout>
 #include <QWebView>
@@ -315,7 +315,7 @@ bool PVWidgets::PVTextPopupWidget::eventFilter(QObject *obj, QEvent *event)
 		 return false;
 	} else if (event->type() == QEvent::KeyPress) {
 		int key = static_cast<QKeyEvent*>(event)->key();
-		if ((key == Qt::Key_Escape) || (key == HelpKey)) {
+		if (is_close_key(key)) {
 			hide();
 			return true;
 		}

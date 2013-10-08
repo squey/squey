@@ -64,10 +64,6 @@ public:
 	} ExpandEnum;
 
 public:
-	// the key to hide and show the text popup widget
-	static constexpr int HelpKey = Qt::Key_Question;
-
-public:
 	/**
 	 * a constructor
 	 *
