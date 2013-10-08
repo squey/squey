@@ -61,9 +61,9 @@ QString PVDisplays::PVDisplayViewScatter::widget_title(
  *****************************************************************************/
 
 QString PVDisplays::PVDisplayViewScatter::axis_menu_name(
-	Picviz::PVView const* view,
-    PVCol 				  axis_comb
+	Picviz::PVView const* /*view*/,
+    PVCol 				  /*axis_comb*/
 ) const
 {
-	return QString("New scatter view on axis '" + view->get_axis_name(axis_comb) + "' and ...");
+	return QString("New scatter view with axis...");
 }

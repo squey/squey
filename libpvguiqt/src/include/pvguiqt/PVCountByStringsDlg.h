@@ -26,16 +26,11 @@ class PVCountByStringsDlg : public PVAbstractListStatsDlg
 {
 public:
 	template <typename T>
-	PVCountByStringsDlg(Picviz::PVView_sp& view, PVCol col1, PVCol col2, T& values, size_t selection_count, QWidget* parent = nullptr) :
-		PVAbstractListStatsDlg(view, col1, new __impl::PVCountByStringsModel(values), selection_count, parent),
+	PVCountByStringsDlg(Picviz::PVView_sp& view, PVCol col1, PVCol col2, T& values, size_t v2_unique_values_count, QWidget* parent = nullptr) :
+		PVAbstractListStatsDlg(view, col1, new __impl::PVCountByStringsModel(values), v2_unique_values_count, parent),
 		_view(*view), _col2(col2)
 	{
 		init_max_element();
-
-		// FIXME: this is ugly
-		PVRush::PVNraw::unique_values_t unique_values_col2;
-		view->get_rushnraw_parent().get_unique_values_for_col_with_sel(col2, unique_values_col2, *view->get_selection_visible_listing());
-		_total_count = unique_values_col2.size();
 
 		_ctxt_menu->addSeparator();
 		_act_list_v2 = new QAction("Show details", _ctxt_menu);
