@@ -145,7 +145,7 @@ void PVWidgets::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
   QString html=QString("<body>\
   <big><b>Help for the time format</b></big><br/>\
   sample :<br/>\
-  MMM/d/yyyy H:m:s<br/>date\
+  MMM/d/yyyy H:m:ss<br/>date\
   <table>\
   <tr><td>d</td><td>the day in month as a number (1 to 31)</td></tr>\
   <tr><td>e</td><td>the day of week as a number (1 to 31)</td></tr>\
@@ -164,8 +164,8 @@ void PVWidgets::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
   <table>\
   <tr> 		<td>h</td>		<td>hour in am/pm (00 to 12)</td>	</tr>\
   <tr> 		<td>H</td>		<td>hour in day (00 to 23)</td>	</tr>\
-  <tr> 		<td>m</td>		<td>minute in hour (00 to 59)</td>	</tr>\
-  <tr> 		<td>ss</td>		<td>second in minute  (00 to 59)</td>	</tr>\
+  <tr> 		<td>m</td>		<td>minute in an hour (00 to 59)</td>	</tr>\
+  <tr> 		<td>ss</td>		<td>second in a minute  (00 to 59)</td>	</tr>\
   <tr> 		<td>S</td>		<td>fractional second (0 to 999)</td>	</tr>\
   <tr> 		<td>a</td>		<td>AM/PM marker</td>	</tr>\
   </table>\
