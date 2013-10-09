@@ -11,6 +11,7 @@
 
 #include <pvguiqt/PVListDisplayDlg.h>
 #include <pvguiqt/PVStringSortProxyModel.h>
+#include <pvguiqt/PVToolTipDelegate.h>
 
 #include <QClipboard>
 #include <QMessageBox>
@@ -53,6 +54,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	_values_view->setGridStyle(Qt::NoPen);
 	_values_view->setContextMenuPolicy(Qt::ActionsContextMenu);
 	_values_view->verticalHeader()->hide();
+	_values_view->setItemDelegate(new PVToolTipDelegate(this));
 
 	_copy_values_act = new QAction(tr("Copy value in the clipboard..."), this);
 
