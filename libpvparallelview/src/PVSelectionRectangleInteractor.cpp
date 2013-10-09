@@ -115,6 +115,9 @@ bool PVParallelView::PVSelectionRectangleInteractor::mouseReleaseEvent(PVWidgets
 	if (event->button() == Qt::LeftButton) {
 		QPointF p = view->map_to_scene(event->pos());
 		_selection_rectangle->end(p);
+		if (_selection_rectangle->get_rect().isNull()) {
+			_selection_rectangle->clear();
+		}
 		view->fake_mouse_move();
 		event->accept();
 	}
