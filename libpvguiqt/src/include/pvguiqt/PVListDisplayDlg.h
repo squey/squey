@@ -42,7 +42,7 @@ protected:
 	PVStringSortProxyModel* proxy_model();
 
 protected:
-	virtual void process_context_menu(QAction* act);
+	virtual bool process_context_menu(QAction* act);
 	virtual void process_hhead_context_menu(QAction* act);
 
 protected slots:
@@ -64,7 +64,7 @@ private slots:
 private:
 	void write_to_file_ui(bool append);
 	void write_to_file(QFile& file);
-	bool write_values(QDataStream* stream);
+	bool write_values(int count, std::function<void (int, QModelIndex&)> f, QString& content);
 
 protected:
 	QFileDialog _file_dlg;

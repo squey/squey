@@ -52,7 +52,7 @@ public:
 protected:
 	void showEvent(QShowEvent * event) override;
 	void sort_by_column(int col) override;
-	void process_context_menu(QAction* act) override;
+	bool process_context_menu(QAction* act) override;
 	void process_hhead_context_menu(QAction* act) override;
 
 protected slots:

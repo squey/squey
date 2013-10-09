@@ -210,6 +210,20 @@ inline uint32_t invert_plotting_value(qreal value)
 	return ~((uint32_t)clamp(value, 0., (qreal)UINT32_MAX));
 }
 
+template <typename T, typename Iterator>
+T join(
+    const T sep,
+    Iterator b,
+    Iterator e)
+{
+    T t;
+
+    while (b != e) {
+        t = t + *b++ + sep;
+    }
+
+    return t;
+}
 
 }
 

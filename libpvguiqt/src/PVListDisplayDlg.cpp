@@ -17,6 +17,11 @@
 #include <QMenu>
 
 #include <pvkernel/core/PVLogger.h>
+#include <pvkernel/core/PVAlgorithms.h>
+#include <pvkernel/core/picviz_bench.h>
+
+#include <tbb/blocked_range.h>
+#include <tbb/task_scheduler_init.h>
 
 #define AUTOMATIC_SORT_MAX_NUMBER 32768
 
@@ -99,68 +104,116 @@ void PVGuiQt::PVListDisplayDlg::show_hhead_ctxt_menu(const QPoint& pos)
 	}
 }
 
-void PVGuiQt::PVListDisplayDlg::process_context_menu(QAction* act)
+bool PVGuiQt::PVListDisplayDlg::process_context_menu(QAction* act)
 {
 	if (act) {
 		if (act == _copy_values_act) {
 			copy_value_clipboard();
+			return true;
 		}
 	}
+	return false;
 }
 
 void PVGuiQt::PVListDisplayDlg::process_hhead_context_menu(QAction* /*act*/)
 {
 }
 
-bool PVGuiQt::PVListDisplayDlg::write_values(QDataStream* stream)
+void PVGuiQt::PVListDisplayDlg::copy_to_clipboard()
 {
+	QString content;
+	write_values(model()->rowCount(), [&](int i, QModelIndex& idx) {
+		idx = proxy_model()->index(i, 0, QModelIndex());
+	}, content);
+
+	QApplication::clipboard()->setText(content);
+}
+
+void PVGuiQt::PVListDisplayDlg::copy_value_clipboard()
+{
+	QModelIndexList indexes = _values_view->selectionModel()->selectedIndexes();
+
+	QString content;
+	write_values(indexes.size(), [&indexes](int i, QModelIndex& idx) {
+		idx = indexes.at(i);
+	}, content);
+
+	QApplication::clipboard()->setText(content);
+}
+
+void PVGuiQt::PVListDisplayDlg::write_to_file(QFile& file)
+{
+	QString path(file.fileName());
+	QTextStream outstream(&file);
+
+	QString content;
+	bool write_success = write_values(model()->rowCount(), [&](int i, QModelIndex& idx) {
+		idx = proxy_model()->index(i, 0, QModelIndex());
+	}, content);
+
+	outstream << content;
+
+	if (!write_success) {
+		if (QMessageBox::question(this, tr("File writing cancelled"), tr("Do you want to remove the file '%1'?").arg(path), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+			if (!file.remove()) {
+				QMessageBox::warning(this, tr("File writing cancelled"), tr("Error while removing '%1': %2").arg(path).arg(file.errorString()));
+			}
+		}
+		return;
+	}
+}
+
+bool PVGuiQt::PVListDisplayDlg::write_values(int count, std::function<void (int, QModelIndex&)> f, QString& content)
+{
+	const QCursor& old_cursor = cursor();
+	QApplication::setOverrideCursor(Qt::BusyCursor);
+
 	QString sep(QChar::fromAscii(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_field_separator_btn->keySequence())));
 	if (sep.isEmpty()) {
 		sep = "\n";
 	}
-	QByteArray sep_bp = sep.toLocal8Bit();
-	QByteArray tmp;
-	// Write the values into that data stream.
-	// Values are converted into the system locale.
-	for (int i = 0; i < model()->rowCount(); i++) {
-		if (i % 64 == 0) {
-			boost::this_thread::interruption_point();
-		}
-		tmp = proxy_model()->data(proxy_model()->index(i, 0, QModelIndex())).toString().toLocal8Bit();
-		int len = stream->writeRawData(tmp.constData(), tmp.size());
-		if (len != tmp.size()) {
-			return false;
-		}
-		len = stream->writeRawData(sep_bp.constData(), sep_bp.size());
-		if (len != sep_bp.size()) {
-			return false;
-		}
-	}
 
-	return true;
-}
+	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Copying values..."), parentWidget());
 
-void PVGuiQt::PVListDisplayDlg::copy_to_clipboard()
-{
-	// Write the values into a byte array, and copy it into the clipboard
-	QByteArray ba;
-	QDataStream ds(&ba, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
-	bool write_success = false;
-	bool process_done = PVCore::PVProgressBox::progress(boost::bind(&PVListDisplayDlg::write_values, this, &ds), tr("Copying values..."), write_success, this);
-	if (!process_done) {
-		return;
-	}
-	if (!write_success) {
-		QMessageBox::critical(this, tr("Copy to clipboard..."), tr("Error while copying to clipboard: no more memory available."));
-		return;
-	}
+	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	tbb::task_scheduler_init init(nthreads);
+	tbb::task_group_context ctxt;
 
-	QClipboard *clipboard = QApplication::clipboard();
-	QMimeData* mdata = new QMimeData();
-	mdata->setData("text/plain", ba);
-	clipboard->setMimeData(mdata);
+	bool write_success = PVCore::PVProgressBox::progress([&,count]() {
 
-	QMessageBox::information(this, tr("Copy to clipboard..."), tr("Copy done."));
+		BENCH_START(write_values);
+		content = tbb::parallel_reduce(
+			tbb::blocked_range<int>(0, count, std::max(nthreads, count / nthreads)),
+			content,
+			[&](const tbb::blocked_range<int>& range, QString l) -> QString {
+				PVGuiQt::PVStringSortProxyModel* m = proxy_model();
+				for (int i = range.begin(); i < range.end(); i++) {
+					if unlikely(ctxt.is_group_execution_cancelled()) {
+						return QString();
+					}
+					QModelIndex idx;
+					f(i, idx); // using return instead of ref parameter fails
+					if (likely(idx.isValid())) {
+						l.append(m->data(idx).toString().append(sep));
+					}
+				}
+				return l;
+			},
+			[](const QString& left, const QString& right) -> QString {
+				const_cast<QString&>(left).append(right); // const_cast needed to use optimized append method
+				return left;
+			}
+		, tbb::simple_partitioner());
+		BENCH_END(write_values, "write_values", 0, 0, 1, content.size());
+
+		return !ctxt.is_group_execution_cancelled();
+	}, ctxt, pbox);
+
+	//content.truncate(content.size()-sep.size()); // Remove last carriage return
+
+	QApplication::setOverrideCursor(old_cursor);
+
+	return write_success;
 }
 
 void PVGuiQt::PVListDisplayDlg::write_to_file_ui(bool append)
@@ -187,39 +240,6 @@ void PVGuiQt::PVListDisplayDlg::write_to_file_ui(bool append)
 		return;
 	}
 	write_to_file(file);
-}
-
-void PVGuiQt::PVListDisplayDlg::write_to_file(QFile& file)
-{
-	QString path(file.fileName());
-	QDataStream ds(&file);
-
-	bool write_success = false;
-	bool process_done = PVCore::PVProgressBox::progress(boost::bind(&PVListDisplayDlg::write_values, this, &ds), tr("Copying values..."), write_success, this);
-	if (!process_done) {
-		if (QMessageBox::question(this, tr("File writing cancelled"), tr("Do you want to remove the file '%1'?").arg(path), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
-			if (!file.remove()) {
-				QMessageBox::warning(this, tr("File writing cancelled"), tr("Error while removing '%1': %2").arg(path).arg(file.errorString()));
-			}
-		}
-		return;
-	}
-	if (!write_success) {
-		QMessageBox::critical(this, tr("Copy to file..."), tr("Error while writing to '%1': %2.").arg(path).arg(file.errorString()));
-		return;
-	}
-}
-
-void PVGuiQt::PVListDisplayDlg::copy_value_clipboard()
-{
-	QModelIndexList indexes = _values_view->selectionModel()->selectedIndexes();
-	QStringList list;
-	for (QModelIndex& idx : indexes) {
-		if (idx.isValid()) {
-			list << proxy_model()->data(idx).toString();
-		}
-	}
-	QApplication::clipboard()->setText(list.join("\n"));
 }
 
 void PVGuiQt::PVListDisplayDlg::set_description(QString const& desc)

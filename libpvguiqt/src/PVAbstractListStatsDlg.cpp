@@ -80,12 +80,14 @@ PVGuiQt::PVAbstractListStatsDlg::~PVAbstractListStatsDlg()
 	model()->deleteLater();
 }
 
-void PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
+bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 {
-	PVListDisplayDlg::process_context_menu(act);
-	if (act) {
+	bool accepted = PVListDisplayDlg::process_context_menu(act);
+	if (!accepted && act) {
 		multiple_search(act);
+		return true;
 	}
+	return false;
 }
 
 void PVGuiQt::PVAbstractListStatsDlg::process_hhead_context_menu(QAction* act)

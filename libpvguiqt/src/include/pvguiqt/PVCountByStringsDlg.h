@@ -37,7 +37,7 @@ public:
 		_ctxt_menu->addAction(_act_list_v2);
 	}
 
-	void process_context_menu(QAction* act);
+	bool process_context_menu(QAction* act);
 
 private:
 	__impl::PVCountByStringsModel* get_model();

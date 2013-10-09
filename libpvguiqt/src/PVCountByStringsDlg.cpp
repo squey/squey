@@ -14,10 +14,10 @@
  * PVGuiQt::PVCountByStringsDlg
  *
  *****************************************************************************/
-void PVGuiQt::PVCountByStringsDlg::process_context_menu(QAction* act)
+bool PVGuiQt::PVCountByStringsDlg::process_context_menu(QAction* act)
 {
-	PVAbstractListStatsDlg::process_context_menu(act);
-	if (act && act == _act_list_v2) {
+	bool accepted = PVAbstractListStatsDlg::process_context_menu(act);
+	if (!accepted && act && act == _act_list_v2) {
 		QModelIndexList indexes = _values_view->selectionModel()->selectedIndexes();
 		if (indexes.size() > 0 && indexes[0].isValid()) {
 			size_t row = proxy_model()->mapToSource(indexes[0]).row();
@@ -39,7 +39,9 @@ void PVGuiQt::PVCountByStringsDlg::process_context_menu(QAction* act)
 			dlg->move(x()+width()+10, y());
 			dlg->show();
 		}
+		return true;
 	}
+	return false;
 }
 
 PVGuiQt::__impl::PVCountByStringsModel* PVGuiQt::PVCountByStringsDlg::get_model()
