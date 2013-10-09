@@ -91,7 +91,6 @@ void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& /*pos*/)
 	QAction* act_sel = _ctxt_menu->exec(QCursor::pos());
 
 	process_context_menu(act_sel);
-
 }
 
 void PVGuiQt::PVListDisplayDlg::show_hhead_ctxt_menu(const QPoint& pos)
