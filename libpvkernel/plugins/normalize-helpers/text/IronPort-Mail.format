@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
 <param version="5">
- <splitter full-line="true" type="regexp" regexp="^([^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+) ([^:]+): (.*)$">
+ <splitter full-line="true" type="regexp" regexp="([^ ]+ [^ ]+ +[^ ]+ [^ ]+ [^ ]+) ([^:]+): (.*)">
   <field>
    <axis titlecolor="#ff921d" tag="" group="" type="time" name="Time" color="#ffffff">
     <mapping mode="default" time-format="EEE MMM d H:m:ss yyyy"/>
