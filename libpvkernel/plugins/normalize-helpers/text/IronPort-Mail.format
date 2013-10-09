@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param version="5">
+ <splitter full-line="true" type="regexp" regexp="^([^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+) ([^:]+): (.*)$">
+  <field>
+   <axis titlecolor="#ff921d" tag="" group="" type="time" name="Time" color="#ffffff">
+    <mapping mode="default" time-format="EEE MMM d H:m:ss yyyy"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" group="" type="enum" name="Log level" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <splitter n="2" type="duplicate">
+    <field>
+     <axis titlecolor="#ff921d" tag="" group="" type="enum" name="Message" color="#ffffff">
+      <mapping mode="default"/>
+      <plotting mode="default"/>
+     </axis>
+    </field>
+    <field>
+     <splitter type="ironport_mail">
+      <field>
+       <axis titlecolor="#ff921d" tag="ironport-mail-log-type" group="" type="enum" name="Message type" color="#ffffff">
+        <mapping mode="default"/>
+        <plotting mode="default"/>
+       </axis>
+      </field>
+      <field>
+       <axis titlecolor="#ff921d" tag="ironport-mail-msgid" group="" type="enum" name="Message ID" color="#ffffff">
+        <mapping mode="default"/>
+        <plotting mode="default"/>
+       </axis>
+      </field>
+      <field>
+       <axis titlecolor="#ff921d" tag="ironport-mail-msg-from" group="" type="enum" name="From" color="#ffffff">
+        <mapping mode="default"/>
+        <plotting mode="default"/>
+       </axis>
+      </field>
+      <field>
+       <axis titlecolor="#ff921d" tag="ironport-mail-msg-to" group="" type="enum" name="To" color="#ffffff">
+        <mapping mode="default"/>
+        <plotting mode="default"/>
+       </axis>
+      </field>
+      <field>
+       <axis titlecolor="#ff921d" tag="ironport-mail-msg-subject" group="" type="enum" name="Subject" color="#ffffff">
+        <mapping mode="default"/>
+        <plotting mode="default"/>
+       </axis>
+      </field>
+      <field>
+       <axis titlecolor="#ff921d" tag="ironport-mail-msg-size" group="" type="enum" name="Size" color="#ffffff">
+        <mapping mode="default"/>
+        <plotting mode="default"/>
+       </axis>
+      </field>
+      <field>
+       <axis titlecolor="#ff921d" tag="ironport-mail-msg-domain-keys" group="" type="enum" name="Domain keys" color="#ffffff">
+        <mapping mode="default"/>
+        <plotting mode="default"/>
+       </axis>
+      </field>
+      <field>
+       <axis titlecolor="#ff921d" tag="ironport-mail-msg-dkim" group="" type="enum" name="DKIM" color="#ffffff">
+        <mapping mode="default"/>
+        <plotting mode="default"/>
+       </axis>
+      </field>
+      <field>
+       <axis titlecolor="#ff921d" tag="ironport-mail-id-mid" group="" type="enum" name="MID" color="#ffffff">
+        <mapping mode="default"/>
+        <plotting mode="default"/>
+       </axis>
+      </field>
+      <field>
+       <axis titlecolor="#ff921d" tag="ironport-mail-id-icid" group="" type="enum" name="ICID" color="#ffffff">
+        <mapping mode="default"/>
+        <plotting mode="default"/>
+       </axis>
+      </field>
+      <field>
+       <axis titlecolor="#ff921d" tag="ironport-mail-id-rid" group="" type="enum" name="RID" color="#ffffff">
+        <mapping mode="default"/>
+        <plotting mode="default"/>
+       </axis>
+      </field>
+      <field>
+       <axis titlecolor="#ff921d" tag="ironport-mail-id-dcid" group="" type="enum" name="DCID" color="#ffffff">
+        <mapping mode="default"/>
+        <plotting mode="default"/>
+       </axis>
+      </field>
+      <field>
+       <axis titlecolor="#ff921d" tag="ironport-mail-log-text-short" group="" type="enum" name="Short message" color="#ffffff">
+        <mapping mode="default"/>
+        <plotting mode="default"/>
+       </axis>
+      </field>
+     </splitter>
+    </field>
+   </splitter>
+  </field>
+ </splitter>
+</param>
