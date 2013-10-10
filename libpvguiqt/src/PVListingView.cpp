@@ -203,6 +203,7 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	connect(verticalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnVHead(int)));
 
 	setSelectionBehavior(QAbstractItemView::SelectRows);
+	setWordWrap(false);
 }
 
 void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()

@@ -33,7 +33,7 @@ bool PVGuiQt::PVToolTipDelegate::helpEvent(QHelpEvent* e, QAbstractItemView* vie
 
         bool show_tooltip = false;
         if (QTableView* table_view = dynamic_cast<QTableView*>(view)) {
-        	if (table_view->verticalHeader()->defaultSectionSize() == table_view->verticalHeader()->minimumSectionSize()) {
+        	if (!table_view->wordWrap() || table_view->verticalHeader()->defaultSectionSize() == table_view->verticalHeader()->minimumSectionSize()) {
         		int text_width = QFontMetrics(option.font).width(text);
         		show_tooltip = rect.width() < text_width;
         	}
