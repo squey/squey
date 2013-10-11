@@ -107,6 +107,12 @@ public:
 public:
 	static void toggle_show_quadtrees() { _show_quadtrees = !_show_quadtrees; }
 
+public:
+	PVScatterViewSelectionRectangle* get_selection_rect() const
+	{
+		return _sel_rect;
+	}
+
 protected:
 	void drawBackground(QPainter *painter, const QRectF &rect) override;
 	void drawForeground(QPainter *painter, const QRectF &rect) override;

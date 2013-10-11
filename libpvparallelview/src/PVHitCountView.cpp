@@ -174,8 +174,14 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 	set_ticks_per_level(8);
 
 	_params_widget = new PVHitCountViewParamsWidget(this);
+#if RH_USE_PVConfigPopupWidget
 	_params_widget->update_widgets();
 	_params_widget->hide();
+#else
+	_params_widget->setAutoFillBackground(true);
+	_params_widget->adjustSize();
+	set_params_widget_position();
+#endif
 
 	_update_all_timer.setInterval(RENDER_TIMEOUT);
 	_update_all_timer.setSingleShot(true);
@@ -306,12 +312,25 @@ void PVParallelView::PVHitCountView::reset_view()
 	_block_zoom_value = get_y_axis_zoom().get_clamped_value();
 }
 
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::set_x_zoom_level_from_sel
+ *****************************************************************************/
+
 void PVParallelView::PVHitCountView::set_x_zoom_level_from_sel()
 {
 	const uint32_t max_count_sel = get_hit_graph_manager().get_max_count_selected();
 	if (max_count_sel > 0) {
 		set_zoom_value(PVZoomableDrawingAreaConstraints::X, x_zoom_converter().scale_to_zoom(get_margined_viewport_width()/(double)max_count_sel));
 	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::request_auto_scale
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::request_auto_scale()
+{
+	_do_auto_scale = _auto_x_zoom_sel;
 }
 
 /*****************************************************************************
@@ -498,6 +517,10 @@ void PVParallelView::PVHitCountView::do_update_all()
 		const ViewportAnchor old_anchor = get_transformation_anchor();
 		set_transformation_anchor(PVGraphicsView::NoAnchor);
 		reconfigure_view();
+
+		_sel_rect->set_handles_scale(1. / get_transform().m11(),
+		                             1. / get_transform().m22());
+
 		set_transformation_anchor(old_anchor);
 
 		_do_auto_scale = false;
@@ -540,6 +563,10 @@ void PVParallelView::PVHitCountView::update_sel()
 		set_x_zoom_level_from_sel();
 		set_transformation_anchor(PVGraphicsView::NoAnchor);
 		reconfigure_view();
+
+		_sel_rect->set_handles_scale(1. / get_transform().m11(),
+		                             1. / get_transform().m22());
+
 		set_transformation_anchor(PVGraphicsView::AnchorUnderMouse);
 		get_horizontal_scrollbar()->setValue(0);
 	}
@@ -555,6 +582,8 @@ void PVParallelView::PVHitCountView::toggle_auto_x_zoom_sel()
 {
 	_auto_x_zoom_sel = !_auto_x_zoom_sel;
 	params_widget()->update_widgets();
+
+	request_auto_scale();
 
 	if (_auto_x_zoom_sel) {
 		do_update_all();
@@ -576,4 +605,17 @@ void PVParallelView::PVHitCountView::toggle_log_color()
 QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 /*pos*/) const
 {
 	return QString();
+}
+
+
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::set_params_widget_position
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::set_params_widget_position()
+{
+	QPoint pos = QPoint(get_viewport()->width() - 4, 4);
+	pos -= QPoint(_params_widget->width(), 0);
+	_params_widget->move(pos);
+	_params_widget->raise();
 }

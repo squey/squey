@@ -27,12 +27,16 @@ bool PVParallelView::PVHitCountViewInteractor::resizeEvent(PVZoomableDrawingArea
 
 	hcv->reconfigure_view();
 
+	hcv->request_auto_scale();
+
 	hcv->_sel_rect->set_handles_scale(1. / hcv->get_transform().m11(),
 	                                  1. / hcv->get_transform().m22());
 
 	if (hcv->get_viewport()) {
 		hcv->get_viewport()->update();
 	}
+
+	hcv->set_params_widget_position();
 
 	return false;
 }
@@ -59,6 +63,7 @@ bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingAr
 		hcv->_sel_rect->clear();
 		zda->get_viewport()->update();
 		break;
+#if RH_USE_PVConfigPopupWidget
 	case Qt::Key_Space:
 		if (event->modifiers() == Qt::NoModifier) {
 			if(hcv->params_widget()->isHidden()) {
@@ -72,6 +77,7 @@ bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingAr
 			return true;
 		}
 		break;
+#endif
 	case Qt::Key_Home:
 		if (event->modifiers() == Qt::ControlModifier) {
 			hcv->set_x_zoom_level_from_sel();
@@ -146,7 +152,7 @@ bool PVParallelView::PVHitCountViewInteractor::wheelEvent(PVZoomableDrawingArea*
 		event->setAccepted(true);
 
 		if (increment_zoom_value(zda, mask, inc)) {
-			hcv->_do_auto_scale = hcv->_auto_x_zoom_sel;
+			hcv->request_auto_scale();
 			zda->reconfigure_view();
 			zda->get_viewport()->update();
 			zoom_has_changed(zda, mask);

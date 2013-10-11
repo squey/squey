@@ -108,6 +108,7 @@ PVScatterViewImagesManager.cpp
 PVScatterViewDataInterface.cpp
 PVScatterViewDataImpl.cpp
 PVScatterViewSelectionRectangle.cpp
+PVScatterViewParamsWidget.cpp
 )
 
 set(CUDA_SRC_FILES
@@ -186,7 +187,9 @@ include/pvparallelview/PVZoomAxisSliders.h
 include/pvparallelview/PVZoomedSelectionAxisSliders.h
 include/pvparallelview/PVZoomableDrawingArea.h
 include/pvparallelview/PVHitCountView.h
+include/pvparallelview/PVHitCountViewParamsWidget.h
 include/pvparallelview/PVScatterView.h
+include/pvparallelview/PVScatterViewParamsWidget.h
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})

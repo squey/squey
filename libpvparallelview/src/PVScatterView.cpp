@@ -31,6 +31,7 @@
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVScatterViewSelectionRectangle.h>
+#include <pvparallelview/PVScatterViewParamsWidget.h>
 #include <pvparallelview/PVZoomableDrawingAreaInteractorHomothetic.h>
 #include <pvparallelview/PVZoomableDrawingAreaConstraintsHomothetic.h>
 #include <pvparallelview/PVZoomConverterPowerOfTwo.h>
@@ -94,103 +95,6 @@ protected:
 		return static_cast<PVScatterView*>(zda);
 	}
 };
-
-class PVScatterViewParamsWidget: public QToolBar
-{
-
-#define COLLAPSED_ACTIONS 0
-
-public:
-	PVScatterViewParamsWidget(PVScatterView* parent):
-		QToolBar(parent)
-	{
-		setCursor(QCursor(Qt::PointingHandCursor));
-		setFocusPolicy(Qt::ClickFocus);
-
-		_selection_mode_signal_mapper = new QSignalMapper(this);
-		QObject::connect(_selection_mode_signal_mapper, SIGNAL(mapped(int)),
-		                 parent_sv()->_sel_rect, SLOT(set_selection_mode(int)));
-
-#if COLLAPSED_ACTIONS
-		QToolButton* selection_mode = new QToolButton(this);
-		selection_mode->setPopupMode(QToolButton::InstantPopup);
-		selection_mode->setIcon(QIcon(":/selection-rectangle"));
-		selection_mode->setToolTip(tr("Selection mode"));
-
-		// Rectangle selection
-		QAction* rect_sel = new QAction("Rectangle", this);
-		rect_sel->setIcon(QIcon(":/selection-rectangle"));
-		rect_sel->setShortcut(Qt::Key_R);
-		selection_mode->addAction(rect_sel);
-		_selection_mode_signal_mapper->setMapping(rect_sel, PVSelectionRectangle::SelectionMode::RECTANGLE);
-		QObject::connect(rect_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
-
-		// Horizontal selection
-		QAction* h_sel = new QAction("Horizontal", this);
-		h_sel->setIcon(QIcon(":/horizontal-scrollbar-handle"));
-		h_sel->setShortcut(Qt::Key_H);
-		selection_mode->addAction(h_sel);
-		_selection_mode_signal_mapper->setMapping(h_sel, PVSelectionRectangle::SelectionMode::HORIZONTAL);
-		QObject::connect(h_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
-
-		// Vertical selection
-		QAction* v_sel = new QAction("Vertical", this);
-		v_sel->setIcon(QIcon(":/vertical-scrollbar-handle"));
-		v_sel->setShortcut(Qt::Key_V);
-		selection_mode->addAction(v_sel);
-		_selection_mode_signal_mapper->setMapping(v_sel, PVSelectionRectangle::SelectionMode::VERTICAL);
-		QObject::connect(v_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
-
-		addWidget(selection_mode);
-#else
-		QActionGroup* actionGroup = new QActionGroup(this);
-		actionGroup->setExclusive(true);
-
-		// Rectangle selection
-		QAction* rect_sel = new QAction(actionGroup);
-		rect_sel->setIcon(QIcon(":/selection-rectangle"));
-		rect_sel->setCheckable(true);
-		rect_sel->setChecked(true);
-		rect_sel->setShortcut(Qt::Key_R);
-		rect_sel->setToolTip("Rectangle selection (" + rect_sel->shortcut().toString() + ")");
-		_selection_mode_signal_mapper->setMapping(rect_sel, PVSelectionRectangle::SelectionMode::RECTANGLE);
-		QObject::connect(rect_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
-		addAction(rect_sel);
-
-		// Horizontal selection
-		QAction* h_sel = new QAction(actionGroup);
-		h_sel->setIcon(QIcon(":/horizontal-scrollbar-handle"));
-		h_sel->setCheckable(true);
-		h_sel->setShortcut(Qt::Key_H);
-		h_sel->setToolTip("Horizontal selection (" + h_sel->shortcut().toString() + ")");
-		_selection_mode_signal_mapper->setMapping(h_sel, PVSelectionRectangle::SelectionMode::HORIZONTAL);
-		QObject::connect(h_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
-		addAction(h_sel);
-
-		// Vertical selection
-		QAction* v_sel = new QAction(actionGroup);
-		v_sel->setIcon(QIcon(":/vertical-scrollbar-handle"));
-		v_sel->setCheckable(true);
-		v_sel->setShortcut(Qt::Key_V);
-		v_sel->setToolTip("Vertical selection (" + v_sel->shortcut().toString() + ")");
-		_selection_mode_signal_mapper->setMapping(v_sel, PVSelectionRectangle::SelectionMode::VERTICAL);
-		QObject::connect(v_sel, SIGNAL(triggered(bool)), _selection_mode_signal_mapper, SLOT(map()));
-		addAction(v_sel);
-#endif
-	}
-
-private:
-	PVScatterView* parent_sv()
-	{
-		assert(qobject_cast<PVScatterView*>(parent()));
-		return static_cast<PVScatterView*>(parent());
-	}
-
-private:
-	QSignalMapper* _selection_mode_signal_mapper;
-};
-
-#undef COLLAPSED_ACTIONS
 
 }
 

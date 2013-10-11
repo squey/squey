@@ -18,6 +18,10 @@
 #include <pvparallelview/PVSelectionRectangleItem.h>
 
 class QGraphicsScene;
+class QActionGroup;
+class QToolBar;
+class QSignalMapper;
+class QToolButton;
 
 namespace Picviz
 {
@@ -310,6 +314,28 @@ public:
 	 */
 	QGraphicsScene* scene() const;
 
+public:
+	/**
+	 * create and add a selection mode selector
+	 *
+	 * @param view the parent view
+	 * @param toolbar the toolbar containing the selector
+	 * @param the signal mapper to use
+	 *
+	 * @return the added tool button
+	 */
+	static QToolButton* add_selection_mode_selector(QWidget *view,
+	                                                QToolBar *toolbar,
+	                                                QSignalMapper *signal_mapper);
+
+	/**
+	 * update a selection mode selector according to a given mode
+	 *
+	 * @param button the selector to update
+	 * @param mode the new selection mode
+	 */
+	static void update_selection_mode_selector(QToolButton* button,
+	                                           int mode);
 signals:
 	/**
 	 * the signal which is fired when the volatile selection must

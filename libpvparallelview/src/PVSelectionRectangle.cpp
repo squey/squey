@@ -3,6 +3,11 @@
 #include <pvparallelview/PVSelectionRectangleItem.h>
 
 #include <QGraphicsScene>
+#include <QActionGroup>
+#include <QSignalMapper>
+#include <QToolButton>
+#include <QToolBar>
+#include <QAction>
 
 const QColor PVParallelView::PVSelectionRectangle::rect_color(Qt::red);
 const QColor PVParallelView::PVSelectionRectangle::handle_color(255, 127, 36);
@@ -86,6 +91,74 @@ QGraphicsScene* PVParallelView::PVSelectionRectangle::scene() const
 {
 	return _rect->scene();
 }
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangle::add_selection_mode_selector
+ *****************************************************************************/
+
+QToolButton* PVParallelView::PVSelectionRectangle::add_selection_mode_selector(QWidget *view,
+                                                                              QToolBar *toolbar,
+                                                                              QSignalMapper* signal_mapper)
+{
+	toolbar->setIconSize(QSize(17, 17));
+
+	QToolButton* selection_mode = new QToolButton(toolbar);
+	selection_mode->setPopupMode(QToolButton::InstantPopup);
+	selection_mode->setIcon(QIcon(":/selection-rectangle"));
+	selection_mode->setToolTip(tr("Selection mode"));
+
+	// Rectangle selection
+	QAction* r_sel = new QAction("Rectangle", toolbar);
+	r_sel->setIcon(QIcon(":/selection-rectangle"));
+	r_sel->setShortcut(Qt::Key_R);
+	selection_mode->addAction(r_sel);
+	view->addAction(r_sel);
+	signal_mapper->setMapping(r_sel, SelectionMode::RECTANGLE);
+	QObject::connect(r_sel, SIGNAL(triggered(bool)), signal_mapper, SLOT(map()));
+
+	// Horizontal selection
+	QAction* h_sel = new QAction("Horizontal", toolbar);
+	h_sel->setIcon(QIcon(":/selection-horizontal"));
+	h_sel->setShortcut(Qt::Key_H);
+	selection_mode->addAction(h_sel);
+	view->addAction(h_sel);
+	signal_mapper->setMapping(h_sel, SelectionMode::HORIZONTAL);
+	QObject::connect(h_sel, SIGNAL(triggered(bool)), signal_mapper, SLOT(map()));
+
+	// Vertical selection
+	QAction* v_sel = new QAction("Vertical", toolbar);
+	v_sel->setIcon(QIcon(":/selection-vertical"));
+	v_sel->setShortcut(Qt::Key_V);
+	selection_mode->addAction(v_sel);
+	view->addAction(v_sel);
+	signal_mapper->setMapping(v_sel, SelectionMode::VERTICAL);
+	QObject::connect(v_sel, SIGNAL(triggered(bool)), signal_mapper, SLOT(map()));
+
+	toolbar->addWidget(selection_mode);
+
+	return selection_mode;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangle::update_selection_mode_selector
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionRectangle::update_selection_mode_selector(QToolButton* button,
+                                                                          int mode)
+{
+	QAction *action = nullptr;
+
+	try {
+		// QList::at has assert in DEBUG mode...
+		action = button->actions().at(mode);
+	} catch(...) {
+	}
+
+	if (action != nullptr) {
+		button->setIcon(action->icon());
+	}
+}
+
 /*****************************************************************************
  * PVParallelView::PVSelectionRectangle::start_timer
  *****************************************************************************/

@@ -100,12 +100,23 @@ public:
 		return _hit_graph_manager;
 	}
 
+public:
+	PVHitCountViewSelectionRectangle* get_selection_rect() const
+	{
+		return _sel_rect;
+	}
+
 protected:
 	void drawBackground(QPainter *painter, const QRectF &rect) override;
 	void drawForeground(QPainter *painter, const QRectF &rect) override;
 
 	void set_x_axis_zoom();
 	void set_x_zoom_level_from_sel();
+
+	/**
+	 * force an auto-scale update if auto-scale mode is activated)
+	 */
+	void request_auto_scale();
 
 	inline int32_t get_x_zoom_min() const
 	{
@@ -121,6 +132,8 @@ protected:
 	QString get_y_value_at(const qint64 pos) const;
 
 	bool show_bg() const { return _show_bg; }
+
+	void set_params_widget_position();
 
 protected slots:
 	void toggle_auto_x_zoom_sel();

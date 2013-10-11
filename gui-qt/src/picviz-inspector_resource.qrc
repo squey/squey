@@ -120,7 +120,6 @@
 	<file alias="vertical-scrollbar-down-arrow">resources/trafik/elements-interface/ascenceur-vertical-bouton-bas.png</file>
 	<file alias="vertical-scrollbar-up-arrow">resources/trafik/elements-interface/ascenceur-vertical-bouton-haut.png</file>
 	<file alias="vertical-scrollbar-page-area">resources/trafik/elements-interface/ascenceur-vertical-portion-milieu.png</file>
-	<file alias="selection-rectangle">resources/trafik/elements-interface/selection-rectangle.png</file>
 	
 	<!-- WORKSPACES ICONS -->
 	<file alias="view_display_listing">resources/view_display_listing.png</file>
@@ -148,5 +147,16 @@
 	<file alias="help-view">resources/help/view.html</file>
 	<file alias="help-shortcuts-hit-count-view">resources/help/view-shortcuts-hit-count.html</file>
 	<file alias="help-mouse-hit-count-view">resources/help/view-mouse-hit-count.html</file>
+
+        <!-- VIEW ICONS -->
+        <file alias="selection-rectangle">resources/selection-rectangle.png</file>
+        <file alias="selection-horizontal">resources/selection-horizontal.png</file>
+        <file alias="selection-vertical">resources/selection-vertical.png</file>
+
+        <file alias="colormap-log">resources/colormap-log.png</file>
+
+        <file alias="zoom-autofit-both">resources/zoom-autofit-both.png</file>
+        <file alias="zoom-autofit-horizontal">resources/zoom-autofit-horizontal.png</file>
+        <file alias="zoom-autofit-vertical">resources/zoom-autofit-vertical.png</file>
     </qresource>
 </RCC>
