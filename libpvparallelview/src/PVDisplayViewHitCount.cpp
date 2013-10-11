@@ -10,7 +10,7 @@
  *****************************************************************************/
 
 PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount():
-	PVDisplayViewAxisIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu)
+	PVDisplayViewAxisIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu, "Hit count view")
 {
 }
 
@@ -34,7 +34,7 @@ QWidget* PVDisplays::PVDisplayViewHitCount::create_widget(Picviz::PVView* view,
 
 QIcon PVDisplays::PVDisplayViewHitCount::toolbar_icon() const
 {
-	return QIcon(":/view_display_hitcount");
+	return QIcon(":/view-hit-count");
 }
 
 /*****************************************************************************

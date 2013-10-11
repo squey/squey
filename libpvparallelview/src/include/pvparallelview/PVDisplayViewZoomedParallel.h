@@ -1,15 +1,15 @@
-#ifndef PVDISPLAYS_PVDISPLAYVIEWAXISZOOMED_H
-#define PVDISPLAYS_PVDISPLAYVIEWAXISZOOMED_H
+#ifndef PVDISPLAYS_PVDISPLAYVIEWZOOMEDPARALLEL_H
+#define PVDISPLAYS_PVDISPLAYVIEWZOOMEDPARALLEL_H
 
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvdisplays/PVDisplayIf.h>
 
 namespace PVDisplays {
 
-class PVDisplayViewAxisZoomed: public PVDisplayViewAxisIf
+class PVDisplayViewZoomedParallel: public PVDisplayViewAxisIf
 {
 public:
-	PVDisplayViewAxisZoomed();
+	PVDisplayViewZoomedParallel();
 
 public:
 	QWidget* create_widget(Picviz::PVView* view, PVCol axis_comb, QWidget* parent) const override;
@@ -17,9 +17,9 @@ public:
 	QString widget_title(Picviz::PVView* view, PVCol axis_comb) const override;
 	QString axis_menu_name(Picviz::PVView const* view, PVCol axis_comb) const override;
 
-	CLASS_REGISTRABLE(PVDisplayViewAxisZoomed)
+	CLASS_REGISTRABLE(PVDisplayViewZoomedParallel)
 };
 
 }
 
-#endif // PVDISPLAYS_PVDISPLAYVIEWAXISZOOMED_H
+#endif // PVDISPLAYS_PVDISPLAYVIEWZOOMEDPARALLEL_H

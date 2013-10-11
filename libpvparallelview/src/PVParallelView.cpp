@@ -9,8 +9,8 @@
 #include <pvparallelview/PVZoneRendering.h>
 
 // Displays plugins
-#include <pvparallelview/PVDisplayViewAxisZoomed.h>
 #include <pvparallelview/PVDisplayViewFullParallel.h>
+#include <pvparallelview/PVDisplayViewZoomedParallel.h>
 #include <pvparallelview/PVDisplayViewHitCount.h>
 #include <pvparallelview/PVDisplayViewScatter.h>
 
@@ -58,8 +58,8 @@ void PVParallelView::PVParallelViewImpl::init_pipeline()
 void PVParallelView::PVParallelViewImpl::register_displays()
 {
 	REGISTER_CLASS("parallelview_fullparallelview", PVDisplays::PVDisplayViewFullParallel);
-	REGISTER_CLASS("parallelview_zoomedparallelview", PVDisplays::PVDisplayViewAxisZoomed);
-	REGISTER_CLASS("parallelview_hitgraphview", PVDisplays::PVDisplayViewHitCount);
+	REGISTER_CLASS("parallelview_zoomedparallelview", PVDisplays::PVDisplayViewZoomedParallel);
+	REGISTER_CLASS("parallelview_hitcountview", PVDisplays::PVDisplayViewHitCount);
 	REGISTER_CLASS("parallelview_scatterview", PVDisplays::PVDisplayViewScatter);
 }
 

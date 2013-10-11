@@ -72,8 +72,8 @@ simple_lines_float_view.cpp
 simple_lines_int_view.cpp
 
 # Display plugins
-PVDisplayViewAxisZoomed.cpp
 PVDisplayViewFullParallel.cpp
+PVDisplayViewZoomedParallel.cpp
 PVDisplayViewHitCount.cpp
 PVDisplayViewScatter.cpp
 

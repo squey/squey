@@ -353,7 +353,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Picviz::PVSource* source, QWidget*
 	_toolbar->toggleViewAction()->setVisible(false);
 	_toolbar->setFloatable(false);
 	_toolbar->setMovable(false);
-	_toolbar->setIconSize(QSize(32, 32));
+	_toolbar->setIconSize(QSize(24, 24));
 	addToolBar(_toolbar);
 
 	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(

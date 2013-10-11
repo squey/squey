@@ -90,6 +90,8 @@ PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Picviz::PVRoot* root, QW
 
 	// View creation tab bar
 	QToolBar* toolbar = new QToolBar();
+	toolbar->setIconSize(QSize(24, 24));
+
 	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
 		[&](PVDisplays::PVDisplayViewIf& obj)
 		{

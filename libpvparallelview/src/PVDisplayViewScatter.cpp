@@ -15,7 +15,7 @@
  *****************************************************************************/
 
 PVDisplays::PVDisplayViewScatter::PVDisplayViewScatter():
-	PVDisplayViewZoneIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu)
+	PVDisplayViewZoneIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu, "Scatter view")
 {
 }
 
@@ -41,7 +41,7 @@ QWidget* PVDisplays::PVDisplayViewScatter::create_widget(
 
 QIcon PVDisplays::PVDisplayViewScatter::toolbar_icon() const
 {
-	return QIcon(":/view_display_scatter");
+	return QIcon(":/view-scatter");
 }
 
 /*****************************************************************************

@@ -34,10 +34,10 @@ QWidget* PVDisplays::PVDisplayViewListing::create_widget(Picviz::PVView* view, Q
 
 QIcon PVDisplays::PVDisplayViewListing::toolbar_icon() const
 {
-	return QIcon(":/view_display_listing");
+	return QIcon(":/view-listing");
 }
 
 QString PVDisplays::PVDisplayViewListing::widget_title(Picviz::PVView* view) const
 {
-	return QString("Listing [" + view->get_name() + "]"); 
+	return QString("Listing [" + view->get_name() + "]");
 }

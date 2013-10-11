@@ -21,7 +21,7 @@ QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Picviz::PVView* vi
 
 QIcon PVDisplays::PVDisplayViewFullParallel::toolbar_icon() const
 {
-	return QIcon(":/view_display_parallel");
+	return QIcon(":/view-parallel-full");
 }
 
 QString PVDisplays::PVDisplayViewFullParallel::widget_title(Picviz::PVView* view) const

@@ -17,10 +17,10 @@ QWidget* PVDisplays::PVDisplayViewLayerStack::create_widget(Picviz::PVView* view
 
 QIcon PVDisplays::PVDisplayViewLayerStack::toolbar_icon() const
 {
-	return QIcon(":/layer-active.png");
+	return QIcon(":/view-layerstack");
 }
 
-QString PVDisplays::PVDisplayViewLayerStack::widget_title(Picviz::PVView* view) const 
+QString PVDisplays::PVDisplayViewLayerStack::widget_title(Picviz::PVView* view) const
 {
 	return QString("Layer stack [" + view->get_name() + "]");
 }

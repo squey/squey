@@ -6,7 +6,7 @@
 #include <pvguiqt/PVDisplaySourceDataTree.h>
 
 PVDisplays::PVDisplaySourceDataTree::PVDisplaySourceDataTree():
-	PVDisplaySourceIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::UniquePerParameters)
+	PVDisplaySourceIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::UniquePerParameters, "Data tree")
 {
 }
 
@@ -20,5 +20,5 @@ QWidget* PVDisplays::PVDisplaySourceDataTree::create_widget(Picviz::PVSource* sr
 
 QIcon PVDisplays::PVDisplaySourceDataTree::toolbar_icon() const
 {
-	return QIcon(":/view_display_datatree");
+	return QIcon(":/view-datatree");
 }

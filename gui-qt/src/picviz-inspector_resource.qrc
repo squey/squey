@@ -120,15 +120,16 @@
 	<file alias="vertical-scrollbar-down-arrow">resources/trafik/elements-interface/ascenceur-vertical-bouton-bas.png</file>
 	<file alias="vertical-scrollbar-up-arrow">resources/trafik/elements-interface/ascenceur-vertical-bouton-haut.png</file>
 	<file alias="vertical-scrollbar-page-area">resources/trafik/elements-interface/ascenceur-vertical-portion-milieu.png</file>
-	
+
 	<!-- WORKSPACES ICONS -->
-	<file alias="view_display_listing">resources/view_display_listing.png</file>
-	<file alias="view_display_parallel">resources/view_display_parallel.png</file>
-	<file alias="view_display_zoom">resources/view_display_zoom.png</file>
-	<file alias="view_display_scatter">resources/view_display_scatter.png</file>
-	<file alias="view_display_hitcount">resources/view_display_hitcount.png</file>
-	<file alias="view_display_datatree">resources/view_display_datatree.png</file>
-	
+	<file alias="view-listing">resources/view_display_listing.png</file>
+	<file alias="view-datatree">resources/view_display_datatree.png</file>
+	<file alias="view-layerstack">resources/view_display_layerstack.png</file>
+	<file alias="view-parallel-full">resources/view_display_parallel_full.png</file>
+	<file alias="view-parallel-zoomed">resources/view_display_parallel_zoomed.png</file>
+	<file alias="view-scatter">resources/view_display_scatter.png</file>
+	<file alias="view-hit-count">resources/view_display_hitcount.png</file>
+
 	<!-- LISTING STATS PANEL -->
 	<file alias="icon_linked">resources/trafik/elements-interface/icone-lier-actif.png</file>
 	<file alias="icon_unlinked">resources/trafik/elements-interface/icone-lier-passif.png</file>
