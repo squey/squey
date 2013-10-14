@@ -7,6 +7,7 @@
 #ifndef PVCORE_PVALGORITHMS_H
 #define PVCORE_PVALGORITHMS_H
 
+#include <limits>
 #include <algorithm>
 #include <iterator>
 #include <pvkernel/core/PVFunctions.h>
@@ -207,7 +208,7 @@ inline uint32_t invert_plotting_value(uint32_t value)
  */
 inline uint32_t invert_plotting_value(qreal value)
 {
-	return ~((uint32_t)clamp(value, 0., (qreal)UINT32_MAX));
+	return ~((uint32_t)clamp(value, 0., (qreal)std::numeric_limits<uint32_t>::max()));
 }
 
 template <typename T, typename Iterator>
