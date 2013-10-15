@@ -130,6 +130,7 @@ private:
 	PVHive::PVObserverSignal<Picviz::PVPlotting>*  _obs_plotting = nullptr;
 	PVHive::PVObserver_p<Picviz::PVView> _obs_view;
 	bool _about_to_be_deleted = false;
+	bool _can_be_central_widget;
 
 	int _width;
 	int _height;
