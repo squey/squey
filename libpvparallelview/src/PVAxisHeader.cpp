@@ -59,11 +59,7 @@ void PVParallelView::PVAxisHeader::paint(
 
 void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
-	// Get parent PVDisplaysContainer if available
-	QList<QGraphicsView*> parent_views = scene()->views();
-	assert(parent_views.size() == 1);
-
-	QWidget* parent_view = parent_views.at(0);
+	QWidget* parent_view = event->widget();
 	PVDisplays::PVDisplaysContainer* container = PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(parent_view);
 
 	QMenu menu;
