@@ -34,8 +34,6 @@ typedef PVCore::PVSharedPtr<PVView> PVView_sp;
 namespace PVParallelView
 {
 
-class PVSelectionSquare;
-class PVSelectionSquareScatterView;
 class PVZoneTree;
 class PVZoomedZoneTree;
 class PVZonesManager;
@@ -153,7 +151,6 @@ private:
 	PVScatterViewImagesManager _images_manager;
 	bool _view_deleted;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> *_zoom_converter;
-	//PVSelectionSquareScatterView* _selection_square;
 
 	PVZoomableDrawingAreaInteractor *_h_interactor;
 	PVZoomableDrawingAreaInteractor *_sv_interactor;

@@ -51,7 +51,6 @@ PVSelectionGenerator.cpp
 PVSelectionSquare.cpp
 PVSelectionSquareFullParallelView.cpp
 PVSelectionSquareGraphicsItem.cpp
-PVSelectionSquareScatterView.cpp
 PVSlidersGroup.cpp
 PVSlidersManager.cpp
 PVTools.cpp
@@ -173,7 +172,6 @@ include/pvparallelview/PVSelectionSquare.h
 include/pvparallelview/PVSelectionRectangleItem.h
 include/pvparallelview/PVSelectionRectangle.h
 include/pvparallelview/PVSelectionSquareFullParallelView.h
-include/pvparallelview/PVSelectionSquareScatterView.h
 include/pvparallelview/PVZonesManager.h
 include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVSlidersGroup.h

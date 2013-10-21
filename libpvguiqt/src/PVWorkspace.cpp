@@ -224,7 +224,17 @@ void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(QAction* act)
 		view_d->setVisible(!view_d->isVisible());
 	}
 	else {
-		add_view_display(nullptr, w, [&,src](){ return display_if.widget_title(src); }, display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), false);
+		view_d = add_view_display(nullptr, w,
+		                          [&, src]() {
+			                          return display_if.widget_title(src);
+		                          },
+		                          display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
+		                          false);
+		/* when the dock widget's "close" button is pressed, the
+		 * associated QAction has to be unchecked
+		 */
+		connect(view_d, SIGNAL(visibilityChanged(bool)),
+		        act, SLOT(setChecked(bool)));
 	}
 }
 

@@ -14,8 +14,6 @@
 #include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
 #include <pvparallelview/PVZoomableDrawingAreaInteractorMajorY.h>
 #include <pvparallelview/PVZoomableDrawingAreaConstraintsMajorY.h>
-#include <pvparallelview/PVSelectionSquareInteractor.h>
-#include <pvparallelview/PVSelectionSquare.h>
 
 #include <pvparallelview/PVHitCountViewSelectionRectangle.h>
 #include <pvparallelview/PVHitCountViewParamsWidget.h>

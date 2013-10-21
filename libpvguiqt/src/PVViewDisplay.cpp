@@ -28,14 +28,15 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(
 	Picviz::PVView* view,
 	QWidget* view_widget,
 	std::function<QString()> name,
-	bool /*can_be_central_widget*/,
+	bool can_be_central_widget,
 	bool delete_on_close,
 	PVWorkspaceBase* workspace
 ) :
 	QDockWidget((QWidget*)workspace),
 	_view(view),
 	_name(name),
-	_workspace(workspace)
+	_workspace(workspace),
+	_can_be_central_widget(can_be_central_widget)
 {
 	setWidget(view_widget);
 	setWindowTitle(_name());
@@ -223,10 +224,13 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 	if (add_menu) {
 		QMenu* ctxt_menu = new QMenu(this);
 
-		// Set as central display
-		QAction* switch_action = new QAction(tr("Set as central display"), this);
-		connect(switch_action, SIGNAL(triggered(bool)), (QWidget*)_workspace, SLOT(switch_with_central_widget()));
-		ctxt_menu->addAction(switch_action);
+		if (_can_be_central_widget) {
+			// Set as central display
+			QAction* switch_action = new QAction(tr("Set as central display"), this);
+			connect(switch_action, SIGNAL(triggered(bool)),
+			        (QWidget*)_workspace, SLOT(switch_with_central_widget()));
+			ctxt_menu->addAction(switch_action);
+		}
 
 		int screen_number = QApplication::desktop()->screenNumber(this);
 
