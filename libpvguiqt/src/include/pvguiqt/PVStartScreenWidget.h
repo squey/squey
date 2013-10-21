@@ -9,8 +9,12 @@
 
 #include <tuple>
 
+#include <QDialog>
 #include <QStringList>
 #include <QListWidget>
+#include <QCheckBox>
+#include <QTimer>
+class QLabel;
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVObserverSignal.h>
@@ -19,6 +23,11 @@
 #include <pvkernel/core/PVRecentItemsManager.h>
 
 namespace PVGuiQt {
+
+namespace __impl {
+class PVListWidgetItem;
+class PVDeleteInvestigationDialog;
+}
 
 class PVStartScreenWidget;
 
@@ -51,6 +60,9 @@ private:
 class PVStartScreenWidget : public QWidget
 {
 	Q_OBJECT
+
+	friend class __impl::PVListWidgetItem;
+
 public:
 	// Store the description strings under a 3-tuple of: short_string, long_string, filenames
 	typedef std::tuple<QString, QString, QStringList> descr_strings_t;
@@ -71,6 +83,8 @@ public:
 	/*! \brief Refresh the recent items of a given category.
 	*/
 	void refresh_recent_items(int category);
+
+	QString format_selected_item_string(PVCore::PVRecentItemsManager::Category cat);
 
 signals:
 	// These signals are used by to the PVMainWindow.
@@ -99,19 +113,25 @@ private:
 	 *  \param[in] category The given category.
 	 *  \param[in] var      The QVariant to convert to descr_strings_t.
 	 */
-	descr_strings_t get_strings_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var);
+	static descr_strings_t get_strings_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var);
 
 	/*! \brief Extract a descr_strings_t from a Picviz::PVFormat QVariant.
 	 *  \param[in] var The Picviz::PVFormat QVariant to convert to descr_strings_t.
 	 */
-	descr_strings_t get_strings_from_format(const QVariant& var);
+	static descr_strings_t get_strings_from_format(const QVariant& var);
 
 	/*! \brief Extract a descr_strings_t from a PVRush::PVSourceDescription QVariant.
 	 *  \param[in] var The PVRush::PVSourceDescription QVariant to convert to descr_strings_t.
 	 */
-	descr_strings_t get_strings_from_source_description(const QVariant& var);
+	static descr_strings_t get_strings_from_source_description(const QVariant& var);
 
-	void clear_category(PVCore::PVRecentItemsManager::Category cat);
+	void clear_history(PVCore::PVRecentItemsManager::Category cat);
+
+	void clear_history_dlg(PVCore::PVRecentItemsManager::Category cat);
+	void delete_investigation_dlg();
+
+	size_t selected_count(PVCore::PVRecentItemsManager::Category cat);
+	size_t total_count(PVCore::PVRecentItemsManager::Category cat);
 
 
 private:
@@ -120,13 +140,78 @@ private:
 	QWidget* project_widget;
 
 	custom_listwidget_t* _recent_list_widgets[PVCore::PVRecentItemsManager::Category::LAST];
+	QPushButton* _recent_push_buttons[PVCore::PVRecentItemsManager::Category::LAST];
 
 	PVAddRecentItemFuncObserver _recent_items_add_obs;
 	PVAddSourceRecentItemFuncObserver _recent_items_add_source_obs;
 
-	QFont _item_font;
-	uint64_t _item_width = 475;
+	static QFont _item_font;
+	static const uint64_t _item_width = 475;
 };
+
+namespace __impl
+{
+
+class PVListWidgetItem : public QObject, public QListWidgetItem
+{
+	Q_OBJECT
+
+public:
+	PVListWidgetItem(
+		PVCore::PVRecentItemsManager::Category cat,
+		QVariant var,
+		int index,
+		PVGuiQt::PVStartScreenWidget::custom_listwidget_t* parent,
+		PVGuiQt::PVStartScreenWidget* start_screen_widget
+	);
+
+protected:
+	bool eventFilter(QObject* obj, QEvent* event) override;
+
+public:
+	QWidget* widget() { return _widget; }
+	bool is_checked() { return _checkbox->isChecked(); }
+	void set_icon_visible(bool visible);
+
+private slots:
+	void timeout();
+
+private:
+	QCheckBox* _checkbox;
+	QLabel* _icon_label;
+	QWidget* _widget;
+	PVCore::PVRecentItemsManager::Category _cat;
+	QTimer _timer;
+};
+
+class PVDeleteInvestigationDialog : public QDialog
+{
+	Q_OBJECT
+
+public:
+	PVDeleteInvestigationDialog(PVStartScreenWidget* parent);
+
+public:
+	bool clear_history() { return _clear_history_cb->isChecked(); }
+	bool remove_cache() { return _remove_cache_cb->isChecked(); }
+	bool delete_investigation() { return _delete_investigation_cb->isChecked(); }
+
+private:
+	PVStartScreenWidget* start_screen_widget() { return static_cast<PVStartScreenWidget*>(parent()); }
+
+private slots:
+ 	void delete_investigation_checked(int state);
+
+private:
+	QCheckBox* _clear_history_cb;
+	QCheckBox* _remove_cache_cb;
+	QCheckBox* _delete_investigation_cb;
+	bool _old_clear_history_state;
+	bool _old_remove_cache_state;
+};
+
+}
+
 }
 
 #endif // PVSTARTSCREENWIDGET_H

@@ -46,6 +46,7 @@ public:
 	void set_inputs(const PVRush::PVInputType::list_inputs inputs) { _inputs = inputs; }
 	void set_source_creator(PVRush::PVSourceCreator_p source_creator_p) { _source_creator_p = source_creator_p; }
 	void set_format(PVRush::PVFormat format) { _format = format; }
+	bool is_valid();
 
 	const PVRush::PVInputType::list_inputs& get_inputs() const { return _inputs; }
 	PVRush::PVSourceCreator_p get_source_creator() const { return _source_creator_p; }

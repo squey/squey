@@ -7,6 +7,7 @@
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVVersion.h>
@@ -794,6 +795,8 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 
+	flag_investigation_as_cached(file);
+
 	return true;
 #endif
 
@@ -818,8 +821,19 @@ void PVInspector::PVMainWindow::save_solution(QString const& file, PVCore::PVSer
 
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 
+	flag_investigation_as_cached(file);
+
 	set_window_title_with_filename();
 #endif
+}
+
+void PVInspector::PVMainWindow::flag_investigation_as_cached(const QString& investigation)
+{
+	QStringList nraws;
+	for (Picviz::PVSource_p& source : get_root().get_children<Picviz::PVSource>()) {
+		nraws << QString(source->get_rushnraw().get_nraw_folder().c_str());
+	}
+	PVRush::PVNrawCacheManager::get()->add_investigation(investigation, nraws);
 }
 
 void PVInspector::PVMainWindow::set_window_title_with_filename()

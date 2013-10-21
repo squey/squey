@@ -320,7 +320,7 @@ public:
 	 *        Therefore the returned string is only valid as long as the cache is still valid.
 	 *        The last returned row index is kept in memory in order to optimize sequencial access.
 	 *
-	 *  \remark This method is *not* thread-sage
+	 *  \remark This method is *not* thread-safe
 	 *
 	 *  \return A pointer to the buffer.
 	 */

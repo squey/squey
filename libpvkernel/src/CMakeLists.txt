@@ -236,6 +236,7 @@ rush/PVUtils.cpp
 rush/PVXmlTreeNodeDom.cpp
 rush/PVRawSourceBase.cpp
 rush/PVSourceDescription.cpp
+rush/PVNrawCacheManager.cpp
 
 #uchardetect, from Mozilla's nsUniversalDetector
 rush/uchardetect/CharDistribution.cpp
@@ -316,6 +317,7 @@ include/pvkernel/rush/PVUtils.h
 include/pvkernel/rush/PVXmlParamParser.h
 include/pvkernel/rush/PVXmlParamParserData.h
 include/pvkernel/rush/PVSourceDescription.h
+include/pvkernel/rush/PVNrawCacheManager.h
 
 #uchardetect, from Mozilla's nsUniversalDetector
 include/pvkernel/rush/uchardetect/CharDistribution.h

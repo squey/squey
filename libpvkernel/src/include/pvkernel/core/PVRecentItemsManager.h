@@ -83,7 +83,7 @@ public:
 	 */
 	const variant_list_t get_list(Category category);
 
-	void clear(Category category);
+	void clear(Category category, QList<int> indexes = QList<int>());
 
 private:
 	PVRush::PVSourceDescription deserialize_source_description() const;
@@ -115,7 +115,7 @@ private:
 	static PVRecentItemsManager_p _recent_items_manager_p;
 
 	mutable QSettings _recents_settings;
-	const int64_t _max_recent_items = 5;
+	const int64_t _max_recent_items = 30;
 	const QStringList _recents_items_keys = { "recent_projects", "recent_sources", "recent_used_formats", "recent_edited_formats", "supported_formats" };
 };
 

@@ -31,6 +31,7 @@
 #include <pvkernel/core/segfault_handler.h>
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/qobject_helpers.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 
 #include <picviz/common.h>
 #include <picviz/PVRoot.h>
@@ -177,13 +178,11 @@ int main(int argc, char *argv[])
 	PVGuiQt::common::register_displays();
 #endif
 
-#if 0 // RH: inhibited to allow nraw reuse on project load
 #ifndef NO_MAIN_WINDOW
 	splash.showMessage(QObject::tr("Cleaning temporary files..."));
 	app.processEvents();
 #endif
-	PVRush::PVNraw::remove_unused_nraw_directories();
-#endif
+	PVRush::PVNrawCacheManager::get()->delete_unused_cache();
 
 #ifndef NO_MAIN_WINDOW
 	splash.showMessage(QObject::tr("Finishing initialization..."));

@@ -17,11 +17,12 @@ typename PVCore::PVRecentItemsManager::PVRecentItemsManager_p PVCore::PVRecentIt
 void PVCore::PVRecentItemsManager::add(const QString& item_path, Category category)
 {
 	QString recent_items_key = _recents_items_keys[category];
-
 	QStringList files = _recents_settings.value(recent_items_key).toStringList();
 	files.removeAll(item_path);
 	files.prepend(item_path);
-	for (; files.size() > _max_recent_items; files.removeLast()) {}
+	if (category != Category::PROJECTS) {
+		for (; files.size() > _max_recent_items; files.removeLast()) {}
+	}
 	_recents_settings.setValue(recent_items_key, files);
 }
 
@@ -52,25 +53,31 @@ void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_c
 	_recents_settings.endGroup();
 }
 
-void PVCore::PVRecentItemsManager::clear(Category category)
+void PVCore::PVRecentItemsManager::clear(Category category, QList<int> indexes)
 {
 	if (category == Category::SOURCES) {
 		_recents_settings.beginGroup(_recents_items_keys[Category::SOURCES]);
-		for (QString s: _recents_settings.allKeys()) {
-			_recents_settings.remove(s);
+		int index = 0;
+		for (const QString& s: _recents_settings.childGroups()) {
+			if(indexes.isEmpty() || indexes.contains(index)) {
+				_recents_settings.remove(s);
+			}
+			index++;
 		}
 		_recents_settings.endGroup();
 	}
 	else {
-		/* as groups help catching keys named 'ITEM_KEY/.*', removing a category other
-		 * than SOURCES implies testing all keys against wanted item key.
-		 */
-		QString item_key = _recents_items_keys[category];
-		for (QString s: _recents_settings.allKeys()) {
-			if (s.startsWith(item_key)) {
-				_recents_settings.remove(s);
+		QString item_key = _recents_items_keys.value(category);
+		QStringList in_list = _recents_settings.value(item_key).toStringList();
+		QStringList out_list;
+		int index = 0;
+		for (const QString& s: in_list) {
+			if (!indexes.contains(index)) {
+				out_list << s;
 			}
+			index++;
 		}
+		_recents_settings.setValue(item_key, indexes.isEmpty() ? QStringList() : out_list);
 	}
 }
 
@@ -103,6 +110,7 @@ const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager:
 			break;
 		}
 	}
+
 	return result;
 }
 
@@ -112,7 +120,9 @@ const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager:
 
 	QStringList string_list = _recents_settings.value(_recents_items_keys[category]).toStringList();
 	for (QString s: string_list) {
-		variant_list << QVariant(s);
+		if (QFile::exists(s)) {
+			variant_list << QVariant(s);
+		}
 	}
 
 	return variant_list;
@@ -129,11 +139,16 @@ const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager:
 		_recents_settings.beginGroup(sources.at(i));
 
 		PVRush::PVSourceDescription src_desc = deserialize_source_description();
-		QVariant var;
-		var.setValue(src_desc);
-		variant_list << var;
-
-		_recents_settings.endGroup();
+		if(src_desc.is_valid()) {
+			QVariant var;
+			var.setValue(src_desc);
+			variant_list << var;
+			_recents_settings.endGroup();
+		}
+		else {
+			_recents_settings.endGroup();
+			_recents_settings.remove(sources.at(i));
+		}
 	}
 
 	_recents_settings.endGroup();
