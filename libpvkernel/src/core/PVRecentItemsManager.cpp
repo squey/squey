@@ -57,12 +57,16 @@ void PVCore::PVRecentItemsManager::clear(Category category, QList<int> indexes)
 {
 	if (category == Category::SOURCES) {
 		_recents_settings.beginGroup(_recents_items_keys[Category::SOURCES]);
-		int index = 0;
-		for (const QString& s: _recents_settings.childGroups()) {
-			if(indexes.isEmpty() || indexes.contains(index)) {
-				_recents_settings.remove(s);
+		QStringList sources = _recents_settings.childGroups();
+		for (int i = sources.length(); i --> 0; ) {
+			_recents_settings.beginGroup(sources.at(i));
+			if(indexes.isEmpty() || indexes.contains(sources.length()-i-1)) {
+				_recents_settings.endGroup();
+				_recents_settings.remove(sources.at(i));
 			}
-			index++;
+			else {
+				_recents_settings.endGroup();
+			}
 		}
 		_recents_settings.endGroup();
 	}
