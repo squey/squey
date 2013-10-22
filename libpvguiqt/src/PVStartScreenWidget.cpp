@@ -525,6 +525,9 @@ void PVGuiQt::PVStartScreenWidget::clear_history_dlg(PVCore::PVRecentItemsManage
 	if (confirm.exec() == QMessageBox::Yes) {
 		clear_history(category);
 	}
+	else {
+
+	}
 }
 
 size_t PVGuiQt::PVStartScreenWidget::selected_count(PVCore::PVRecentItemsManager::Category cat)
@@ -725,7 +728,7 @@ PVGuiQt::__impl::PVDeleteInvestigationDialog::PVDeleteInvestigationDialog(PVStar
 
     QString c = start_screen_widget()->format_selected_item_string(PVCore::PVRecentItemsManager::Category::PROJECTS);
 
-    vbox->addWidget(new QLabel("Choose the action to perform on the "+c+" :\n"));
+    vbox->addWidget(new QLabel("Choose the action to perform on the "+c+":\n"));
 	vbox->addWidget(_clear_history_cb);
 	vbox->addWidget(_remove_cache_cb);
 	vbox->addWidget(_delete_investigation_cb);
