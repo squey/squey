@@ -199,7 +199,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::wheelEvent(PVGraphicsView* obj,
 	scene_event.setOrientation(event->orientation());
 	scene_event.setAccepted(false);
 
-	propagate_event_to_scene(obj, event);
+	propagate_event_to_scene(obj, &scene_event);
 
 	if (scene_event.isAccepted()) {
 		event->setAccepted(true);
