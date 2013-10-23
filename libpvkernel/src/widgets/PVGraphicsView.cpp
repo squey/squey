@@ -263,8 +263,8 @@ void PVWidgets::PVGraphicsView::set_scene_rect(const QRectF &r)
 
 QRectF PVWidgets::PVGraphicsView::get_scene_rect() const
 {
-	if (_scene_rect.isNull() && (_scene != nullptr)) {
-		return _scene->sceneRect();
+	if (_scene_rect.isNull() && (get_scene() != nullptr)) {
+		return get_scene()->sceneRect();
 	} else {
 		return _scene_rect;
 	}
@@ -310,7 +310,7 @@ void PVWidgets::PVGraphicsView::set_transform(const QTransform &t, bool combine)
 
 void PVWidgets::PVGraphicsView::fit_in_view(Qt::AspectRatioMode mode)
 {
-	if (_scene == nullptr) {
+	if (get_scene() == nullptr) {
 		return;
 	}
 
@@ -557,7 +557,7 @@ QRectF PVWidgets::PVGraphicsView::get_visible_scene_rect() const
 
 bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 {
-	if(_scene == nullptr) {
+	if(get_scene() == nullptr) {
 		return false;
 	}
 
@@ -574,14 +574,14 @@ bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 	painter.setTransform(margined_transform, false);
 	drawBackground(&painter, margined_render_rect);
 
-	if (_scene) {
+	if (get_scene()) {
 		const QRectF unmargined_scene_rect = map_to_scene(unmargined_render_rect);
 
 		painter.setTransform(QTransform(), false);
-		_scene->render(&painter,
-		               unmargined_render_rect,
-		               unmargined_scene_rect,
-		               Qt::IgnoreAspectRatio);
+		get_scene()->render(&painter,
+		                    unmargined_render_rect,
+		                    unmargined_scene_rect,
+		                    Qt::IgnoreAspectRatio);
 	}
 
 	painter.setTransform(margined_transform, false);
@@ -783,7 +783,7 @@ void PVWidgets::PVGraphicsView::drawForeground(QPainter *, const QRectF &)
 
 QSize PVWidgets::PVGraphicsView::sizeHint() const
 {
-	if (_scene) {
+	if (get_scene()) {
 		QSizeF s = _transform.mapRect(get_scene_rect()).size();
 		return s.boundedTo((3 * QApplication::desktop()->size()) / 4).toSize();
 	}
@@ -844,7 +844,7 @@ void PVWidgets::PVGraphicsView::set_view(const QRectF &area, Qt::AspectRatioMode
 void PVWidgets::PVGraphicsView::update_viewport_cursor()
 {
 	QPointF p = map_to_scene(mapFromGlobal(QCursor::pos()));
-	QGraphicsItem* item = _scene->itemAt(p, get_transform());
+	QGraphicsItem* item = get_scene()->itemAt(p, get_transform());
 
 	if (item && item->hasCursor()) {
 		_viewport->setCursor(item->cursor());
