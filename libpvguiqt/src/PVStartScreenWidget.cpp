@@ -50,7 +50,7 @@ void PVGuiQt::PVAddSourceRecentItemFuncObserver::update(const arguments_deep_cop
  * PVGuiQt::PVStartScreenWidget::PVStartScreenWidget
  *
  *****************************************************************************/
-QFont PVGuiQt::PVStartScreenWidget::_item_font = QFont();
+const QFont* PVGuiQt::PVStartScreenWidget::_item_font = nullptr;
 
 PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	QWidget(parent),
@@ -318,7 +318,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	_recent_list_widgets[PVCore::PVRecentItemsManager::Category::SOURCES] = import_list;
 	_recent_push_buttons[PVCore::PVRecentItemsManager::Category::SOURCES] = clear_source_history;
 
-	_item_font = import_list->font();
+	_item_font = &import_list->font();
 
 	// Final Stretch as Spacer ...
 	format_widget_layout->addStretch(1);
@@ -389,7 +389,7 @@ PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_
 		case PVCore::PVRecentItemsManager::Category::EDITED_FORMATS:
 		{
 			QString long_string = var.toString();
-			QString short_string = PVWidgets::PVUtils::shorten_path(long_string, _item_font, _item_width);
+			QString short_string = PVWidgets::PVUtils::shorten_path(long_string, *_item_font, _item_width);
 			QStringList filenames;
 			filenames << long_string;
 			return std::make_tuple(short_string, long_string, filenames);
@@ -415,7 +415,7 @@ PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_
 	PVRush::PVFormat format = var.value<PVRush::PVFormat>();
 
 	QString long_string = QString("%1 (%2)").arg(format.get_format_name()).arg(format.get_full_path());
-	QString short_string = PVWidgets::PVUtils::shorten_path(long_string, _item_font, _item_width);
+	QString short_string = PVWidgets::PVUtils::shorten_path(long_string, *_item_font, _item_width);
 	QStringList filenames;
 	filenames << format.get_full_path();
 
@@ -433,7 +433,7 @@ PVGuiQt::PVStartScreenWidget::descr_strings_t PVGuiQt::PVStartScreenWidget::get_
 	QStringList short_strings;
 	if (src_desc.get_inputs().size() == 1) {
 		QString source_path = src_desc.get_inputs()[0]->human_name();
-		short_string = PVWidgets::PVUtils::shorten_path(source_path, _item_font, _item_width) + " [" + src_desc.get_format().get_format_name() +"]";
+		short_string = PVWidgets::PVUtils::shorten_path(source_path, *_item_font, _item_width) + " [" + src_desc.get_format().get_format_name() +"]";
 		long_string = source_path + " [" + src_desc.get_format().get_format_name() +"]";
 		filenames << source_path;
 	}
