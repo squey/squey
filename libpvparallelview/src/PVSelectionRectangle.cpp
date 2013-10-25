@@ -77,10 +77,17 @@ void PVParallelView::PVSelectionRectangle::step(const QPointF& p)
  * PVParallelView::PVSelectionRectangle::end
  *****************************************************************************/
 
-void PVParallelView::PVSelectionRectangle::end(const QPointF& p)
+void PVParallelView::PVSelectionRectangle::end(const QPointF& p,
+                                               bool use_sel_modifiers,
+                                               bool now)
 {
+	_use_selection_modifiers = use_sel_modifiers;
 	_rect->end(p);
-	start_timer();
+	if (now) {
+		timeout();
+	} else {
+		start_timer();
+	}
 }
 
 /*****************************************************************************
@@ -215,6 +222,7 @@ void PVParallelView::PVSelectionRectangle::grow_by(qreal hratio, qreal vratio)
 	                       y - .5 * nheight,
 	                       nwidth,
 	                       nheight));
+
 	start_timer();
 }
 

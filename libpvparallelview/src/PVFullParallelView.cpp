@@ -9,6 +9,7 @@
 #include <pvparallelview/PVParallelView.h>
 
 #include <QPaintEvent>
+#include <QApplication>
 
 /******************************************************************************
  *
@@ -141,4 +142,18 @@ void PVParallelView::PVFullParallelView::enterEvent(QEvent*)
 void PVParallelView::PVFullParallelView::leaveEvent(QEvent*)
 {
 	clearFocus();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVFullParallelView::fake_mouse_move
+ *****************************************************************************/
+
+void PVParallelView::PVFullParallelView::fake_mouse_move()
+{
+	QMouseEvent e((QEvent::MouseMove),
+	              mapFromGlobal(QCursor::pos()),
+	              Qt::NoButton,
+	              Qt::NoButton,
+	              Qt::NoModifier);
+	QApplication::sendEvent(viewport(), &e);
 }

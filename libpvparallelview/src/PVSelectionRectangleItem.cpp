@@ -15,6 +15,19 @@
 
 #include <iostream>
 
+
+#define print_r(R) __print_rect(#R, R)
+#define print_rect(R) __print_rect(#R, R)
+
+template <typename R>
+void __print_rect(const char *text, const R &r)
+{
+	std::cout << text << ": "
+	          << r.x() << " " << r.y() << ", "
+	          << r.width() << " " << r.height()
+	          << std::endl;
+}
+
 /*****************************************************************************
  * PVParallelView::PVSelectionRectangleItem::PVSelectionRectangleItem
  *****************************************************************************/
@@ -291,7 +304,8 @@ qreal PVParallelView::PVSelectionRectangleItem::get_handles_y_scale() const
  * PVParallelView::PVSelectionRectangleItem::set_rect
  *****************************************************************************/
 
-void PVParallelView::PVSelectionRectangleItem::set_rect(const QRectF& rect)
+void PVParallelView::PVSelectionRectangleItem::set_rect(const QRectF& rect,
+                                                        bool commit)
 {
 	prepareGeometryChange();
 
@@ -322,9 +336,10 @@ void PVParallelView::PVSelectionRectangleItem::set_rect(const QRectF& rect)
 		it->update_geometry(_rect);
 	}
 
-	emit geometry_has_changed(old_rect, _rect);
+	if (commit) {
+		emit geometry_has_changed(old_rect, _rect);
+	}
 
-	scene()->update(scene()->sceneRect());
 	update();
 }
 

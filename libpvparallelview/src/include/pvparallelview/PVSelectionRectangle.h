@@ -59,7 +59,7 @@ public:
 	/**
 	 * clear and hide the selection rectangle
 	 */
-	void clear();
+	virtual void clear();
 
 	/**
 	 * show and start a mouse interaction
@@ -72,9 +72,9 @@ public:
 	void step(const QPointF& p);
 
 	/**
-	 * terminate a mouse interaction
+	 * terminate a mouse interaction (with extra parameter:)
 	 */
-	void end(const QPointF& p);
+	void end(const QPointF& p, bool use_sel_modifiers = true, bool now = false);
 
 public:
 	/**
@@ -214,14 +214,33 @@ public:
 		_rect->set_handles_scale(xscale, yscale);
 	}
 
+public:
+	/**
+	 * set the Z value of the underlying QGraphicsItem
+	 *
+	 * @param zvalue the wanted Z value
+	 */
+	void set_z_value(qreal zvalue)
+	{
+		_rect->setZValue(zvalue);
+	}
+
+	/**
+	 * do an update of the underlying QGraphicsItem
+	 */
+	void update()
+	{
+		_rect->update();
+	}
+
 	/**
 	 * set the rectangle's geometry
 	 *
 	 * @param rect the rectangle
 	 */
-	void set_rect(const QRectF& rect)
+	void set_rect(const QRectF& rect, bool commit = true)
 	{
-		return _rect->set_rect(rect);
+		return _rect->set_rect(rect, commit);
 	}
 
 	/**

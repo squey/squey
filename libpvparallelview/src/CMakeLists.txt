@@ -35,6 +35,7 @@ PVAxisHeader.cpp
 PVBCIBuffers.cpp
 PVFullParallelScene.cpp
 PVFullParallelView.cpp
+PVFullParallelViewSelectionRectangle.cpp
 PVHitGraphBlocksManager.cpp
 PVHitGraphBuffer.cpp
 PVHitGraphDataInterface.cpp
@@ -137,6 +138,7 @@ include/pvparallelview/PVZoomedParallelView.h
 include/pvparallelview/PVSlidersManager.h
 include/pvparallelview/PVAxisLabel.h
 include/pvparallelview/PVFullParallelView.h
+include/pvparallelview/PVFullParallelViewSelectionRectangle.h
 include/pvparallelview/PVAxisHeader.h
 include/pvparallelview/PVFullParallelScene.h
 include/pvparallelview/PVSlidersGroup.h

@@ -158,7 +158,7 @@ public:
 	 *
 	 * @param rect the rectangle
 	 */
-	void set_rect(const QRectF& rect);
+	void set_rect(const QRectF& rect, bool commit = true);
 
 	/**
 	 * get the selection rectangle's geometry

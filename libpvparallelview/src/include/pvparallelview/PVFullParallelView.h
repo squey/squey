@@ -48,6 +48,11 @@ protected:
 
 	void drawForeground(QPainter* painter, const QRectF& rect) override;
 
+	/**
+	 * simulate a mouse move event
+	 */
+	void fake_mouse_move();
+
 signals:
 	void new_zoomed_parallel_view(Picviz::PVView* view, int axis_index);
 

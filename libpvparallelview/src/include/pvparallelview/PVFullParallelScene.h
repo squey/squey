@@ -16,7 +16,7 @@
 #include <picviz/PVView_types.h>
 
 #include <pvparallelview/PVBCIBackendImage_types.h>
-#include <pvparallelview/PVSelectionSquareFullParallelView.h>
+#include <pvparallelview/PVFullParallelViewSelectionRectangle.h>
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVLinesView.h>
@@ -41,7 +41,9 @@ class PVFullParallelScene : public QGraphicsScene
 {
 	Q_OBJECT
 
+	// must be left to permit compilation of PVSelectionSquareFullParallelView
 	friend class PVSelectionSquareFullParallelView;
+	friend class PVFullParallelViewSelectionRectangle;
 	friend class draw_zone_Observer;
 	friend class draw_zone_sel_Observer;
 	friend class process_selection_Observer;
@@ -244,7 +246,8 @@ private:
 
 	PVFullParallelView* _full_parallel_view;
 
-	PVSelectionSquareFullParallelView* _selection_square;
+	PVFullParallelViewSelectionRectangle *_sel_rect;
+
 	qreal _translation_start_x = 0.0;
 
 	float           _zoom_y;

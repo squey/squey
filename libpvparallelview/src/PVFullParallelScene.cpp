@@ -22,6 +22,7 @@
 #include <pvparallelview/PVSlidersGroup.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoneRenderingBCI.h>
+#include <pvparallelview/PVSelectionGenerator.h>
 
 #include <tbb/task.h>
 
@@ -58,7 +59,13 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 {
 	_view_deleted = false;
 
-	_selection_square = new PVSelectionSquareFullParallelView(this);
+	graphics_view()->setMouseTracking(true);
+	graphics_view()->viewport()->setMouseTracking(true);
+
+	_sel_rect = new PVFullParallelViewSelectionRectangle(this);
+	// selection rectangle must be over axes labels
+	_sel_rect->set_z_value(1e43);
+	_sel_rect->set_default_cursor(Qt::CrossCursor);
 
 	setItemIndexMethod(QGraphicsScene::NoIndex);
 
@@ -231,7 +238,10 @@ void PVParallelView::PVFullParallelScene::first_render()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 {
-	if (event->key() == Qt::Key_Space) {
+	if (event->key() == Qt::Key_Escape) {
+		_sel_rect->clear();
+		event->accept();
+	} else if (event->key() == Qt::Key_Space) {
 		for (PVZoneID zone_id = _lines_view.get_first_visible_zone_index(); zone_id <= _lines_view.get_last_visible_zone_index(); zone_id++) {
 			update_zone_pixmap_bgsel(zone_id);
 		}
@@ -243,49 +253,49 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 	}
 	else if (event->key() == Qt::Key_Left) {
 		if (event->modifiers() & Qt::ShiftModifier) {
-			_selection_square->grow_horizontally();
+			_sel_rect->grow_horizontally();
 		}
 		else if (event->modifiers() & Qt::ControlModifier) {
-			_selection_square->move_left_by_width();
+			_sel_rect->move_left_by_width();
 		}
 		else {
-			_selection_square->move_left_by_step();
+			_sel_rect->move_left_by_step();
 		}
 		event->accept();
 	}
 	else if (event->key() == Qt::Key_Right) {
 		if (event->modifiers() & Qt::ShiftModifier) {
-			_selection_square->shrink_horizontally();
+			_sel_rect->shrink_horizontally();
 		}
 		else if (event->modifiers() & Qt::ControlModifier) {
-			_selection_square->move_right_by_width();
+			_sel_rect->move_right_by_width();
 		}
 		else {
-			_selection_square->move_right_by_step();
+			_sel_rect->move_right_by_step();
 		}
 		event->accept();
 	}
 	else if (event->key() == Qt::Key_Up) {
 		if (event->modifiers() & Qt::ShiftModifier) {
-			_selection_square->grow_vertically();
+			_sel_rect->grow_vertically();
 		}
 		else if (event->modifiers() & Qt::ControlModifier) {
-			_selection_square->move_up_by_height();
+			_sel_rect->move_up_by_height();
 		}
 		else {
-			_selection_square->move_up_by_step();
+			_sel_rect->move_up_by_step();
 		}
 		event->accept();
 	}
 	else if (event->key() == Qt::Key_Down) {
 		if (event->modifiers() & Qt::ShiftModifier) {
-			_selection_square->shrink_vertically();
+			_sel_rect->shrink_vertically();
 		}
 		else if (event->modifiers() & Qt::ControlModifier) {
-			_selection_square->move_down_by_height();
+			_sel_rect->move_down_by_height();
 		}
 		else {
-			_selection_square->move_down_by_step();
+			_sel_rect->move_down_by_step();
 		}
 		event->accept();
 	}
@@ -298,6 +308,11 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		update_scene(true);
 		update_all();
 		event->accept();
+	}
+
+	if(event->isAccepted()) {
+		graphics_view()->fake_mouse_move();
+		graphics_view()->viewport()->update();
 	}
 #ifdef PICVIZ_DEVELOPER_MODE
 	else if ((event->key() == Qt::Key_B) && (event->modifiers() & Qt::ControlModifier)) {
@@ -314,21 +329,26 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
+	// panning must be tested before any other handling
 	if (event->buttons() == Qt::RightButton) {
 		// Translate viewport
 		QScrollBar *hBar = _full_parallel_view->horizontalScrollBar();
 		hBar->setValue(hBar->value() + int(_translation_start_x - event->scenePos().x()));
-		event->accept();
-	}
-	else if (!sliders_moving() && event->buttons() == Qt::LeftButton)
-	{
-		// trace square area
-		_selection_square->end(event->scenePos().x(), event->scenePos().y());
-
-		event->accept();
 	}
 
 	QGraphicsScene::mouseMoveEvent(event);
+
+	if (event->isAccepted()) {
+		graphics_view()->viewport()->update();
+		return;
+	}
+
+	if (!sliders_moving() && event->buttons() == Qt::LeftButton) {
+		// trace selection rectangle
+		_sel_rect->step(event->scenePos());
+		graphics_view()->viewport()->update();
+		event->accept();
+	}
 }
 
 /******************************************************************************
@@ -338,22 +358,20 @@ void PVParallelView::PVFullParallelScene::mouseMoveEvent(QGraphicsSceneMouseEven
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+
 	QGraphicsScene::mousePressEvent(event);
+
+	if (event->isAccepted()) {
+		return;
+	}
 
 	if (event->button() == Qt::RightButton) {
 		// Store view position to compute translation
 		_translation_start_x = event->scenePos().x();
 		event->accept();
 	} else if (event->button() == Qt::LeftButton) {
-		/* setting the selection "square" to a "zero" square at mouse
-		 * position and make it visible
-		 */
-		/*_selection_square_pos = event->scenePos();
-		_selection_square->update_rect(QRectF(_selection_square_pos,
-		                                      _selection_square_pos));
-		_selection_square->show();*/
-		_selection_square->begin(event->scenePos().x(), event->scenePos().y());
-		//event->accept();
+		_sel_rect->begin(event->scenePos());
+		event->accept();
 	}
 }
 
@@ -364,20 +382,27 @@ void PVParallelView::PVFullParallelScene::mousePressEvent(QGraphicsSceneMouseEve
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-	QGraphicsScene::mouseReleaseEvent(event);
-
-	if (event->isAccepted()) {
-		// the PVAxisHeader has already handled this event
-		return;
-	}
-
+	// panning must be tested before any other handling
 	if (event->button() == Qt::RightButton) {
 		// translate zones
 		translate_and_update_zones_position();
 		event->accept();
+		return;
 	}
-	else if (!sliders_moving()) {
-		_selection_square->end(event->scenePos().x(), event->scenePos().y(), true, true);
+
+	QGraphicsScene::mouseReleaseEvent(event);
+
+	if (event->isAccepted()) {
+		return;
+	}
+
+	if (!sliders_moving()) {
+		if (_sel_rect->get_rect().isNull()) {
+			_sel_rect->clear();
+		} else {
+			_sel_rect->end(event->scenePos(), true, true);
+		}
+		graphics_view()->fake_mouse_move();
 		event->accept();
 	}
 }
@@ -701,9 +726,10 @@ void PVParallelView::PVFullParallelScene::update_scene(bool recenter_view)
 	// set scene's bounding box because Qt never shrinks the sceneRect (see Qt Doc)
 	// Compute view's size into the scene
 	QRectF view_in_scene = _full_parallel_view->mapToScene(QRect(QPoint(0,0), _full_parallel_view->size())).boundingRect();
+
 	const double view_width = view_in_scene.width();
 	//const double view_width = _full_parallel_view->width();
-    QRectF new_scene_rect(items_bbox.left()  - 0.9*view_width, items_bbox.top(),
+	QRectF new_scene_rect(items_bbox.left()  - 0.9*view_width, items_bbox.top(),
 	                      items_bbox.right() + 1.8*view_width, items_bbox.height());
 	setSceneRect(new_scene_rect);
 
@@ -723,7 +749,7 @@ void PVParallelView::PVFullParallelScene::update_scene(bool recenter_view)
 void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axis_id_t axis_id)
 {
 	PVZoneID zone_id = _lib_view.get_axes_combination().get_index_by_id(axis_id);
-	_selection_square->clear();
+	_sel_rect->clear();
 	PVSelectionGenerator::compute_selection_from_parallel_view_sliders(
 		_lines_view,
 		zone_id,
@@ -765,7 +791,10 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 		axis->set_axis_length(_axis_length);
 	}
 
-	QRectF r = _selection_square->get_rect();
+	// update vertical selection rectangle's bounding range
+	_sel_rect->set_y_range(0., _axis_length);
+
+	QRectF r = _sel_rect->get_rect();
 
 	if (r.isNull() == false) {
 		/* if the selection rectangle exists, it must be unscaled (using
@@ -777,6 +806,8 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 
 	_zoom_y = _axis_length / 1024.;
 
+	_sel_rect->set_handles_scale(graphics_view()->transform().m11(),
+	                             graphics_view()->transform().m22());
 	// propagate this value to all PVSlidersGroup
 	for(PVAxisGraphicsItem *axis : _axes) {
 		axis->get_sliders_group()->set_axis_scale(_zoom_y);
@@ -787,7 +818,7 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 		r.setTop(r.top() * _zoom_y);
 		r.setBottom(r.bottom() * _zoom_y);
 		// AG: don't do an update_rect here since it will change the current selection!
-		_selection_square->update_rect_no_commit(r);
+		_sel_rect->set_rect(r, false);
 	}
 }
 
@@ -889,6 +920,9 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 		_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 	}
 
+	// updating horizontal selection rectangle's bounding range
+	_sel_rect->set_x_range(0., pos);
+
 	// We now update all zones positions
 	for (PVZoneID z = _lines_view.get_first_visible_zone_index(); z <= _lines_view.get_last_visible_zone_index(); z++) {
 		_zones[_lines_view.get_zone_index_offset(z)].setPos(QPointF(_lines_view.get_left_border_position_of_zone_in_scene(z), 0));
@@ -911,8 +945,8 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 		_axes[i]->update_layer_min_max_info();
 	}
 
-	// It's time to refresh the current selection_square
-	_selection_square->update_position();
+	// It's time to refresh the current selection rectangle
+	_sel_rect->update_position();
 }
 
 /******************************************************************************
