@@ -68,6 +68,13 @@ PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Picviz::PVView_sp& lib_view, QWi
 	PVHive::PVObserverSignal<Picviz::PVView*>* obs = new PVHive::PVObserverSignal<Picviz::PVView*>(this);
 	PVHive::get().register_observer(lib_view, *obs);
 	obs->connect_about_to_be_deleted(this, SLOT(deleteLater()));
+
+	/* as layers selectable event count are only needed in the
+	 * PVLayerStackWidget, it is a good place to be sure that
+	 * existing layers can be processed to compute their
+	 * selectable events count.
+	 */
+	lib_view->recompute_all_selectable_count();
 }
 
 /******************************************************************************

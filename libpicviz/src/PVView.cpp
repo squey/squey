@@ -1270,6 +1270,10 @@ void Picviz::PVView::compute_selectable_count(Picviz::PVLayer& layer)
 	layer.compute_selectable_count(get_parent<Picviz::PVPlotted>()->get_row_count());
 }
 
+void Picviz::PVView::recompute_all_selectable_count()
+{
+	layer_stack.compute_selectable_count(get_row_count());
+}
 
 void Picviz::PVView::finish_process_from_rush_pipeline()
 {

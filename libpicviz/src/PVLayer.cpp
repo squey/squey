@@ -38,7 +38,6 @@ Picviz::PVLayer::PVLayer(const QString & name_, const PVSelection & sel_, const 
 	name.truncate(PICVIZ_LAYER_NAME_MAXLEN);
 	locked = false;
 	visible = true;
-	selectable_count = 0;
 }
 
 /******************************************************************************

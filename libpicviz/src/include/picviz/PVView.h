@@ -257,6 +257,8 @@ public:
 	void compute_layer_min_max(Picviz::PVLayer& layer);
 	void compute_selectable_count(Picviz::PVLayer& layer);
 
+	void recompute_all_selectable_count();
+
 	/**
 	 * do any process after a mapped load
 	 */
