@@ -17,7 +17,7 @@ namespace PVParallelView
 class PVHitCountView;
 
 /**
- * @class PVSelectionSquareHitCountView
+ * @class PVHitCountViewSelectionRectangle
  *
  * a selection rectangle usable with a hit-count view.
  */
