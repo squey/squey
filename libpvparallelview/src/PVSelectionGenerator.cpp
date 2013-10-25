@@ -325,7 +325,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_seri
 		const uint32_t v = plotted[i];
 		if ((v >= v_min) && (v <= v_max)) {
 			const uint32_t c = manager.get_count_for(v);
-			if ((c >= c_min) && (c < c_max)) {
+			if ((c >= c_min) && (c <= c_max)) {
 				sel.set_bit_fast(i);
 				++nb_selected;
 				continue;
@@ -387,7 +387,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_seri
 				const uint32_t idx = ((uint32_t)(v & zoom_mask)) >> idx_shift;
 				const uint32_t c = data.buffer_all().buffer()[idx];
 
-				if ((c >= c_min) && (c < c_max)) {
+				if ((c >= c_min) && (c <= c_max)) {
 					sel.set_bit_fast(i);
 					++nb_selected;
 					continue;
@@ -448,7 +448,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse(
 
 				const __m128i count_sse = manager.get_count_for(y_sse);
 
-				const __m128i mask_count = picviz_mm_cmprange_epi32(count_sse, c_min_sse, c_max_sse);
+				const __m128i mask_count = picviz_mm_cmprange_in_epi32(count_sse, c_min_sse, c_max_sse);
 
 				const __m128i mask = _mm_and_si128(mask_y, mask_count);
 
@@ -463,7 +463,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse(
 		const uint32_t v = plotted[i];
 		if ((v >= v_min) && (v < v_max)) {
 			const uint32_t c = manager.get_count_for(v);
-			if ((c >= c_min) && (c < c_max)) {
+			if ((c >= c_min) && (c <= c_max)) {
 				sel.set_bit_fast(i);
 				++nb_selected;
 				continue;
@@ -563,7 +563,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 						count_sse = _mm_insert_epi32(count_sse, buffer[_mm_extract_epi32(idx_sse, 3)], 3);
 					}
 
-					const __m128i mask_count = picviz_mm_cmprange_epi32(count_sse, c_min_sse, c_max_sse);
+					const __m128i mask_count = picviz_mm_cmprange_in_epi32(count_sse, c_min_sse, c_max_sse);
 
 					const __m128i mask = _mm_and_si128(mask_y, mask_count);
 
@@ -579,7 +579,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 		const uint32_t v = plotted[i];
 		if ((v >= v_min) && (v < v_max)) {
 			const uint32_t c = manager.get_count_for(v);
-			if ((c >= c_min) && (c < c_max)) {
+			if ((c >= c_min) && (c <= c_max)) {
 				sel.set_bit_fast(i);
 				++nb_selected;
 				continue;

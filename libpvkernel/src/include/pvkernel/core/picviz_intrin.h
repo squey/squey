@@ -177,6 +177,18 @@ inline __m128i picviz_mm_cmprange_epi32(__m128i const v, __m128i const a, __m128
 	                        _mm_cmplt_epi32(v, b));
 }
 
+/*! \brief This intrinsics emulation compare packed signed 32-bit integers for inclusive within a range [a, b]
+ *
+ * res[i] = (v[i] >= a[i]) && (v[i] < b[i])
+ */
+inline __m128i picviz_mm_cmprange_in_epi32(__m128i const v, __m128i const a, __m128i const b)
+{
+	// same logic as previous function
+	return _mm_andnot_si128(_mm_cmplt_epi32(v, a),
+	                        _mm_or_si128(_mm_cmplt_epi32(v, b),
+	                                     _mm_cmpeq_epi32(v, b)));
+}
+
 /*! \brief This intrinsics emulation compare packed unsigned 32-bit integers for inclusive within a range [a, b[
  *
  * res[i] = (v[i] >= a[i]) && (v[i] < b[i])
