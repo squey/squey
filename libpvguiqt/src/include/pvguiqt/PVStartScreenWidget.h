@@ -145,7 +145,7 @@ private:
 	PVAddRecentItemFuncObserver _recent_items_add_obs;
 	PVAddSourceRecentItemFuncObserver _recent_items_add_source_obs;
 
-	static QFont _item_font;
+	static const QFont* _item_font;
 	static const uint64_t _item_width = 475;
 };
 
