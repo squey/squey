@@ -18,7 +18,7 @@ public:
 
 	bool keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent *event) override;
 
-	bool wheelEvent(PVZoomableDrawingArea* zda, QWheelEvent* event);
+	bool wheelEvent(PVZoomableDrawingArea* zda, QWheelEvent* event) override;
 
 protected:
 	static PVHitCountView *get_hit_count_view(PVZoomableDrawingArea *zda);
