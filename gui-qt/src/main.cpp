@@ -158,19 +158,34 @@ int main(int argc, char *argv[])
 
 #ifndef NO_MAIN_WINDOW
 	QSplashScreen splash(QPixmap(":/splash-screen"));
+
+	QVBoxLayout *vl = new QVBoxLayout(&splash);
+
+	QLabel *task_label = new QLabel();
+	task_label->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
+	QLabel *version_label = new QLabel(QString("Picviz Inspector ") + PICVIZ_CURRENT_VERSION_STR);
+	version_label->setAlignment(Qt::AlignRight | Qt::AlignBottom);
+
+	vl->addWidget(task_label);
+	vl->addSpacing(0);
+	vl->addWidget(version_label);
+
 	splash.show();
 	app.processEvents();
 #endif
 
 #ifdef CUDA
 #ifndef NO_MAIN_WINDOW
-	splash.showMessage(QObject::tr("Initializing CUDA..."));
+	task_label->setText(QObject::tr("Initializing CUDA..."));
+	splash.repaint();
 	app.processEvents();
 	PVParallelView::common::init_cuda();
 #endif
 #endif
 #ifndef NO_MAIN_WINDOW
-	splash.showMessage(QObject::tr("Loading plugins..."));
+	task_label->setText(QObject::tr("Loading plugins..."));
+	splash.repaint();
 	app.processEvents();
 #endif
 	Picviz::common::load_filters();
@@ -179,13 +194,15 @@ int main(int argc, char *argv[])
 #endif
 
 #ifndef NO_MAIN_WINDOW
-	splash.showMessage(QObject::tr("Cleaning temporary files..."));
+	task_label->setText(QObject::tr("Cleaning temporary files..."));
+	splash.repaint();
 	app.processEvents();
 #endif
 	PVRush::PVNrawCacheManager::get()->delete_unused_cache();
 
 #ifndef NO_MAIN_WINDOW
-	splash.showMessage(QObject::tr("Finishing initialization..."));
+	task_label->setText(QObject::tr("Finishing initialization..."));
+	splash.repaint();
 	app.processEvents();
 #endif
 
@@ -194,7 +211,7 @@ int main(int argc, char *argv[])
 	PVInspector::PVMainWindow* pv_mw = new PVInspector::PVMainWindow();
 #endif
 	QString wintitle;
-	
+
 	// Here, we assume that everyone is coding with an editor using UTF-8
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 
