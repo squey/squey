@@ -341,7 +341,7 @@ void PVWidgets::PVGraphicsView::fake_mouse_move()
 	              Qt::NoButton,
 	              Qt::NoButton,
 	              Qt::NoModifier);
-	QApplication::sendEvent(this , &e);
+	QApplication::sendEvent(get_viewport() , &e);
 }
 
 
