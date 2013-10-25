@@ -36,6 +36,7 @@
 #include <pvparallelview/PVZoomableDrawingAreaConstraintsHomothetic.h>
 #include <pvparallelview/PVZoomConverterPowerOfTwo.h>
 #include <pvparallelview/PVZoneRenderingScatter.h>
+#include <pvparallelview/PVScatterViewInteractor.h>
 #include <pvparallelview/PVSelectionRectangleInteractor.h>
 #include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
 
@@ -46,55 +47,6 @@ namespace PVParallelView
 
 template <int STEPS>
 using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
-
-class PVScatterViewInteractor: public PVZoomableDrawingAreaInteractor
-{
-public:
-	PVScatterViewInteractor(PVWidgets::PVGraphicsView* parent = nullptr) :
-		PVZoomableDrawingAreaInteractor(parent)
-	{}
-
-public:
-	bool keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent *event)
-	{
-		PVScatterView *sv = get_scatter_view(zda);
-		switch (event->key()) {
-		case Qt::Key_Escape:
-			sv->_sel_rect->clear();
-			sv->get_viewport()->update();
-			break;
-		}
-
-		return false;
-	}
-
-	bool resizeEvent(PVZoomableDrawingArea* zda, QResizeEvent*) override
-	{
-		PVScatterView *sv = get_scatter_view(zda);
-
-		sv->do_update_all();
-
-		sv->reconfigure_view();
-
-		sv->_sel_rect->set_handles_scale(1. / sv->get_transform().m11(),
-		                                 1. / sv->get_transform().m22());
-
-		if (sv->get_viewport()) {
-			sv->get_viewport()->update();
-		}
-
-		sv->set_params_widget_position();
-
-		return false;
-	}
-
-protected:
-	static PVScatterView *get_scatter_view(PVZoomableDrawingArea *zda)
-	{
-		assert(qobject_cast<PVScatterView*>(zda));
-		return static_cast<PVScatterView*>(zda);
-	}
-};
 
 }
 
