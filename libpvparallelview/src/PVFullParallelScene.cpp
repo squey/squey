@@ -247,9 +247,11 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		}
 		event->accept();
 	} else if (event->key() == Qt::Key_Home) {
-		reset_zones_layout_to_default();
-		update_all_with_timer();
-		event->accept();
+		if (event->modifiers() == Qt::NoModifier) {
+			reset_zones_layout_to_default();
+			update_all_with_timer();
+			event->accept();
+		}
 	}
 	else if (event->key() == Qt::Key_Left) {
 		if (event->modifiers() & Qt::ShiftModifier) {
