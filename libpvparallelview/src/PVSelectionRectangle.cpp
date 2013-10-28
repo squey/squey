@@ -34,6 +34,8 @@ PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene
 	_rect->set_handles_brush_color(hc);
 
 	_timer = new QTimer(this);
+	_timer->setSingleShot(true);
+
 	connect(_timer, SIGNAL(timeout()),
 	        this, SLOT(timeout()));
 
