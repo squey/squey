@@ -98,12 +98,6 @@ bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingAr
 			                                  1. / hcv->get_transform().m22());
 		}
 		return true;
-	case Qt::Key_S:
-		if (event->modifiers() == Qt::AltModifier) {
-			hcv->toggle_auto_x_zoom_sel();
-			return true;
-		}
-		break;
 	default:
 		break;
 	}
