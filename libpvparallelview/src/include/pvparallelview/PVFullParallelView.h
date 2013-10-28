@@ -21,6 +21,13 @@
 
 class QEvent;
 
+namespace PVWidgets
+{
+
+class PVHelpWidget;
+
+}
+
 namespace PVParallelView {
 
 class PVFullParallelScene;
@@ -53,10 +60,14 @@ protected:
 	 */
 	void fake_mouse_move();
 
+	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
+
 signals:
 	void new_zoomed_parallel_view(Picviz::PVView* view, int axis_index);
 
 private:
+	PVWidgets::PVHelpWidget *_help_widget;
+
 	uint32_t _total_lines = 0;
 	uint32_t _selected_lines = 0;
 	bool     _first_resize;

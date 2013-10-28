@@ -9,6 +9,13 @@
 
 #include <pvkernel/widgets/PVGraphicsView.h>
 
+namespace PVWidgets
+{
+
+class PVHelpWidget;
+
+}
+
 namespace PVParallelView
 {
 
@@ -23,6 +30,8 @@ class PVZoomedParallelScene;
  */
 class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 {
+	friend class PVZoomedParallelScene;
+
 public:
 	/**
 	 * Constructor
@@ -42,6 +51,12 @@ public:
 	 * @param event then resize event
 	 */
 	void resizeEvent(QResizeEvent *event);
+
+protected:
+	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
+
+private:
+	PVWidgets::PVHelpWidget *_help_widget;
 };
 
 }

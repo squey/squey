@@ -11,6 +11,7 @@
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/widgets/PVColorDialog.h>
+#include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVView.h>
@@ -204,6 +205,22 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 
 	setSelectionBehavior(QAbstractItemView::SelectRows);
 	setWordWrap(false);
+
+	_help_widget = new PVWidgets::PVHelpWidget(this);
+	_help_widget->hide();
+
+	_help_widget->initTextFromFile("listing view's help",
+	                               ":help-style");
+	_help_widget->addTextFromFile(":help-selection");
+	_help_widget->addTextFromFile(":help-layers");
+	_help_widget->newColumn();
+	_help_widget->addTextFromFile(":help-lines");
+
+	_help_widget->newTable();
+	_help_widget->addTextFromFile(":help-mouse-listing-view");
+	_help_widget->newColumn();
+	_help_widget->addTextFromFile(":help-shortcuts-listing-view");
+	_help_widget->finalizeText();
 }
 
 void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
@@ -330,6 +347,15 @@ void PVGuiQt::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
 
 void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 {
+	if(PVWidgets::PVHelpWidget::is_help_key(event->key())) {
+		if (help_widget()->isHidden()) {
+			help_widget()->popup(viewport(),
+			                     PVWidgets::PVTextPopupWidget::AlignCenter,
+			                     PVWidgets::PVTextPopupWidget::ExpandAll, 16);
+		}
+		return;
+	}
+
 	switch (event->key()) {
 		case Qt::Key_Return:
 		case Qt::Key_Enter:

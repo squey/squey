@@ -6,6 +6,8 @@
 
 #include <pvkernel/core/PVAlgorithms.h>
 
+#include <pvkernel/widgets/PVHelpWidget.h>
+
 #include <picviz/PVSelection.h>
 
 #include <pvparallelview/PVAbstractAxisSlider.h>
@@ -303,10 +305,21 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 
 void PVParallelView::PVZoomedParallelScene::keyPressEvent(QKeyEvent *event)
 {
+	if(PVWidgets::PVHelpWidget::is_help_key(event->key())) {
+		if (_zpview->help_widget()->isHidden()) {
+			_zpview->help_widget()->popup(_zpview->get_viewport(),
+			                              PVWidgets::PVTextPopupWidget::AlignCenter,
+			                              PVWidgets::PVTextPopupWidget::ExpandAll, 16);
+		}
+		return;
+	}
+
+#ifdef PICVIZ_DEVELOPER_MODE
 	if (event->key() == Qt::Key_Space) {
 		PVLOG_INFO("PVZoomedParallelScene: forcing full redraw\n");
 		update_all();
 	}
+#endif
 }
 
 void PVParallelView::PVZoomedParallelScene::update(const QRectF &rect)

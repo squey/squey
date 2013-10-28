@@ -6,6 +6,8 @@
 
 #include <math.h>
 
+#include <pvkernel/widgets/PVHelpWidget.h>
+
 #include <picviz/PVStateMachine.h>
 #include <picviz/PVView.h>
 
@@ -238,6 +240,15 @@ void PVParallelView::PVFullParallelScene::first_render()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 {
+	if(PVWidgets::PVHelpWidget::is_help_key(event->key())) {
+		if (_full_parallel_view->help_widget()->isHidden()) {
+			_full_parallel_view->help_widget()->popup(_full_parallel_view->viewport(),
+			                                          PVWidgets::PVTextPopupWidget::AlignCenter,
+			                                          PVWidgets::PVTextPopupWidget::ExpandAll, 16);
+		}
+		return;
+	}
+
 	if (event->key() == Qt::Key_Escape) {
 		_sel_rect->clear();
 		event->accept();
@@ -316,6 +327,7 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		graphics_view()->fake_mouse_move();
 		graphics_view()->viewport()->update();
 	}
+
 #ifdef PICVIZ_DEVELOPER_MODE
 	else if ((event->key() == Qt::Key_B) && (event->modifiers() & Qt::ControlModifier)) {
 		common::toggle_show_bboxes();

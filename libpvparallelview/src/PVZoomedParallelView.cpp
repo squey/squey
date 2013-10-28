@@ -4,6 +4,8 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <pvkernel/widgets/PVHelpWidget.h>
+
 #include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 
@@ -19,10 +21,21 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget *parent) :
 	setCursor(Qt::CrossCursor);
 	setMinimumHeight(300);
 
-	get_vertical_scrollbar()->setObjectName("verticalScrollBar_of_PVListingView");
-	get_horizontal_scrollbar()->setObjectName("horizontalScrollBar_of_PVListingView");
-
 	install_default_scene_interactor();
+
+	_help_widget = new PVWidgets::PVHelpWidget(this);
+	_help_widget->hide();
+
+	_help_widget->initTextFromFile("zoomed parallel view's help",
+	                               ":help-style");
+	_help_widget->addTextFromFile(":help-selection");
+	_help_widget->addTextFromFile(":help-layers");
+	_help_widget->newColumn();
+	_help_widget->addTextFromFile(":help-lines");
+
+	_help_widget->newTable();
+	_help_widget->addTextFromFile(":help-view");
+	_help_widget->finalizeText();
 }
 
 

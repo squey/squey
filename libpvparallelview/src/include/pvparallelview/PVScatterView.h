@@ -23,6 +23,13 @@
 
 class QPainter;
 
+namespace PVWidgets
+{
+
+class PVHelpWidget;
+
+}
+
 namespace Picviz
 {
 
@@ -122,6 +129,8 @@ protected:
 	QString get_x_value_at(const qint64 pos) const;
 	QString get_y_value_at(const qint64 pos) const;
 
+	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
+
 	bool show_bg() const { return _show_bg; }
 
 private slots:
@@ -174,6 +183,8 @@ private:
 	Picviz::PVAxesCombination::axes_comb_id_t _axis_id;
 
 	PVScatterViewParamsWidget* _params_widget;
+	PVWidgets::PVHelpWidget   *_help_widget;
+
 	bool _show_bg;
 };
 

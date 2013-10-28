@@ -4,6 +4,8 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <pvkernel/widgets/PVHelpWidget.h>
+
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVParallelView.h>
@@ -23,6 +25,27 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent):
 	viewport()->setCursor(Qt::CrossCursor);
 	setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 	setMinimumHeight(300);
+
+	_help_widget = new PVWidgets::PVHelpWidget(this);
+	_help_widget->hide();
+
+	_help_widget->initTextFromFile("full parallel view's help",
+	                               ":help-style");
+	_help_widget->addTextFromFile(":help-selection");
+	_help_widget->addTextFromFile(":help-layers");
+	_help_widget->newColumn();
+	_help_widget->addTextFromFile(":help-lines");
+
+	_help_widget->newTable();
+	_help_widget->addTextFromFile(":help-view");
+	_help_widget->newColumn();
+	_help_widget->addTextFromFile(":help-sel-rect-simple");
+
+	_help_widget->newTable();
+	_help_widget->addTextFromFile(":help-mouse-full-parallel-view");
+	_help_widget->newColumn();
+	_help_widget->addTextFromFile(":help-shortcuts-full-parallel-view");
+	_help_widget->finalizeText();
 }
 
 /******************************************************************************

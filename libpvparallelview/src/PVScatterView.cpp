@@ -16,6 +16,7 @@
 #include <QActionGroup>
 #include <QAction>
 
+#include <pvkernel/widgets/PVHelpWidget.h>
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
 
 #include <pvhive/PVHive.h>
@@ -148,6 +149,25 @@ PVParallelView::PVScatterView::PVScatterView(
 	set_params_widget_position();
 
 	get_images_manager().set_img_update_receiver(this);
+
+	_help_widget = new PVWidgets::PVHelpWidget(this);
+	_help_widget->hide();
+
+	_help_widget->initTextFromFile("scatter view's help",
+	                               ":help-style");
+	_help_widget->addTextFromFile(":help-selection");
+	_help_widget->addTextFromFile(":help-layers");
+	_help_widget->newColumn();
+	_help_widget->addTextFromFile(":help-lines");
+
+	_help_widget->newTable();
+	_help_widget->addTextFromFile(":help-view");
+	_help_widget->newColumn();
+	_help_widget->addTextFromFile(":help-sel-rect-full");
+
+	_help_widget->newTable();
+	_help_widget->addTextFromFile(":help-mouse-scatter-view");
+	_help_widget->finalizeText();
 
 	// Register view for unselected & zombie lines toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);

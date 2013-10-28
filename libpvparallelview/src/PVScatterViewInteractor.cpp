@@ -4,6 +4,8 @@
 #include <pvparallelview/PVScatterViewSelectionRectangle.h>
 #include <pvparallelview/PVScatterViewParamsWidget.h>
 
+#include <pvkernel/widgets/PVHelpWidget.h>
+
 /*****************************************************************************
  * PVParallelView::PVScatterViewInteractor::PVScatterViewInteractor
  *****************************************************************************/
@@ -20,6 +22,16 @@ PVZoomableDrawingAreaInteractor(parent)
 bool PVParallelView::PVScatterViewInteractor::keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent *event)
 {
 	PVScatterView *sv = get_scatter_view(zda);
+
+	if(PVWidgets::PVHelpWidget::is_help_key(event->key())) {
+		if (sv->help_widget()->isHidden()) {
+			sv->help_widget()->popup(sv->get_viewport(),
+			                         PVWidgets::PVTextPopupWidget::AlignCenter,
+			                         PVWidgets::PVTextPopupWidget::ExpandAll, 16);
+		}
+		return false;
+	}
+
 	switch (event->key()) {
 	case Qt::Key_Escape:
 		sv->_sel_rect->clear();

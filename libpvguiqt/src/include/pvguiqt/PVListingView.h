@@ -19,6 +19,13 @@
 
 #include <QHeaderView>
 
+namespace PVWidgets
+{
+
+class PVHelpWidget;
+
+}
+
 namespace PVGuiQt {
 
 class PVLayerFilterProcessWidget;
@@ -77,6 +84,7 @@ private:
 	void update_view_selection_from_listing_selection();
 	Picviz::PVView const& lib_view() const { return *_obs.get_object(); }
 	Picviz::PVView& lib_view() { return *_obs.get_object(); }
+	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 
 private slots:
 	void slotDoubleClickOnVHead(int);
@@ -108,6 +116,8 @@ private:
 
 	std::unordered_map<uint32_t, uint32_t> _headers_width;
 	int _hovered_axis = -1;
+
+	PVWidgets::PVHelpWidget *_help_widget;
 
 private:
 	// Observers

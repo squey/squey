@@ -201,13 +201,18 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 	                               ":help-style");
 	_help_widget->addTextFromFile(":help-selection");
 	_help_widget->addTextFromFile(":help-layers");
+	_help_widget->newColumn();
 	_help_widget->addTextFromFile(":help-lines");
-	_help_widget->newColumn();
-	_help_widget->addTextFromFile(":help-view");
+
 	_help_widget->newTable();
-	_help_widget->addTextFromFile(":help-shortcuts-hit-count-view");
+	_help_widget->addTextFromFile(":help-view");
 	_help_widget->newColumn();
+	_help_widget->addTextFromFile(":help-sel-rect-full");
+
+	_help_widget->newTable();
 	_help_widget->addTextFromFile(":help-mouse-hit-count-view");
+	_help_widget->newColumn();
+	_help_widget->addTextFromFile(":help-shortcuts-hit-count-view");
 	_help_widget->finalizeText();
 
 	// Register view for unselected & zombie lines toggle
