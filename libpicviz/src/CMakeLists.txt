@@ -50,7 +50,6 @@ include/picviz/PVRoot.h
 include/picviz/PVScene.h
 include/picviz/PVSelection.h
 include/picviz/PVSelectionFilter.h
-include/picviz/PVSelectionFilterScatterPlotSelectionSquare.h
 include/picviz/PVDefaultSortingFunc.h
 include/picviz/PVSortingFunc.h
 include/picviz/PVSource.h
@@ -112,7 +111,6 @@ PVRoot.cpp
 PVScene.cpp
 PVSelection.cpp
 PVSelectionFilter.cpp
-PVSelectionFilterScatterPlotSelectionSquare.cpp
 PVSelRowFilteringFunction.cpp
 PVSparseSelection.cpp
 PVSquareArea.cpp
