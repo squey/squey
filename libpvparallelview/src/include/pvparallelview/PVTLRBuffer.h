@@ -66,6 +66,8 @@ public:
 		return _data[i];
 	}
 
+	uint32_t *get_data() { return _data; }
+
 private:
 	uint32_t _data[length];
 };

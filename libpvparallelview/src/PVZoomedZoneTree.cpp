@@ -20,6 +20,87 @@
 
 #define SEC_COORD_COUNT 2048
 
+void merge_tlr(PVParallelView::PVZoomedZoneTree::context_t::tls_set_t &tls)
+{
+#if defined __SSE2__
+
+	PVParallelView::PVZoomedZoneTree::context_t::tls_set_t::iterator it = tls.begin();
+	uint32_t *res_data = it->get_tlr_buffer().get_data();
+	++it;
+	PVParallelView::PVZoomedZoneTree::context_t::tls_set_t::iterator it2 = it;
+
+	size_t size = PVParallelView::PVZoomedZoneTree::pv_tlr_buffer_t::length;
+	size_t packed_size = size & ~3;
+	size_t i;
+
+	/* it the present case, iterating over each tlr buffer is faster than iterating
+	 * accross tlr (on sandy: 10 times faster)
+	 */
+#if 1
+	for(; it2 != tls.end(); ++it2) {
+		uint32_t *val_data = it2->get_tlr_buffer().get_data();
+
+		for(i = 0; i < packed_size; i += 4) {
+			__m128i res_sse = _mm_loadu_si128((const __m128i*) &res_data[i]);
+			__m128i val_sse = _mm_loadu_si128((const __m128i*) &(val_data[i]));
+			res_sse = _mm_min_epu32(res_sse, val_sse);
+			_mm_storeu_si128((__m128i*) &res_data[i], res_sse);
+		}
+
+		for(; i < size; ++i) {
+			if (val_data[i] < res_data[i]) {
+				res_data[i] = val_data[i];
+			}
+		}
+	}
+#else
+	for(i = 0; i < packed_size; i += 4) {
+		__m128i res_sse = _mm_loadu_si128((const __m128i*) &res_data[i]);
+
+		for(it2 = it; it2 != tls.end(); ++it2) {
+			uint32_t *val_data = it2->get_tlr_buffer().get_data();
+			__m128i val_sse = _mm_loadu_si128((const __m128i*) &(val_data[i]));
+			res_sse = _mm_min_epu32(res_sse, val_sse);
+		}
+
+		_mm_storeu_si128((__m128i*) &res_data[i], res_sse);
+	}
+
+	for(i = 0; i < packed_size; i += 4) {
+		uint32_t res  = res_data[i];
+
+		for(it2 = it; it2 != tls.end(); ++it2) {
+			uint32_t *val_data = it2->get_tlr_buffer().get_data();
+			uint32_t val = val_data[i];
+			if (val < res) {
+				res = val;
+			}
+		}
+		res_data[i] = res;
+	}
+#endif
+
+#else
+	PVParallelView::PVZoomedZoneTree::context_t::tls_set_t::iterator it = tls.begin();
+	PVParallelView::PVZoomedZoneTree::pv_tlr_buffer_t &result = it->get_tlr_buffer();
+	++it;
+
+	for(;it != tls.end(); ++it) {
+		PVParallelView::PVZoomedZoneTree::pv_tlr_buffer_t &tlr_buffer = it->get_tlr_buffer();
+
+		for(size_t i = 0; i < PVParallelView::PVZoomedZoneTree::pv_tlr_buffer_t::length; ++i) {
+			if(tlr_buffer[i] < result[i]) {
+				result[i] = tlr_buffer[i];
+			}
+		}
+
+		tlr_buffer.clear();
+	}
+#endif
+}
+
+
+
 /*****************************************************************************
  * compute_bci_projection_y1
  *****************************************************************************/
@@ -927,22 +1008,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 	/* merging all TLR buffers
 	 */
 	BENCH_START(merge);
-	context_t::tls_set_t::iterator it = ctx.get_tls().begin();
-	pv_tlr_buffer_t &tlr_buffer = it->get_tlr_buffer();
-
-	++it;
-	for(;it != ctx.get_tls().end(); ++it) {
-		pv_tlr_buffer_t &tlr_buffer2 = it->get_tlr_buffer();
-
-		for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
-			if(tlr_buffer2[i] < tlr_buffer[i]) {
-				tlr_buffer[i] = tlr_buffer2[i];
-			}
-		}
-
-		tlr_buffer2.clear();
-	}
+	merge_tlr(ctx.get_tls());
 	BENCH_STOP(merge);
+	pv_tlr_buffer_t &tlr_buffer = ctx.get_tls().begin()->get_tlr_buffer();
 
 	/* extracting BCI codes from TLR buffer
 	 */
@@ -1066,22 +1134,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 	/* merging all TLR buffers
 	 */
 	BENCH_START(merge);
-	context_t::tls_set_t::iterator it = ctx.get_tls().begin();
-	pv_tlr_buffer_t &tlr_buffer = it->get_tlr_buffer();
-
-	++it;
-	for(;it != ctx.get_tls().end(); ++it) {
-		pv_tlr_buffer_t &tlr_buffer2 = it->get_tlr_buffer();
-
-		for(size_t i = 0; i < pv_tlr_buffer_t::length; ++i) {
-			if(tlr_buffer2[i] < tlr_buffer[i]) {
-				tlr_buffer[i] = tlr_buffer2[i];
-			}
-		}
-
-		tlr_buffer2.clear();
-	}
+	merge_tlr(ctx.get_tls());
 	BENCH_STOP(merge);
+	pv_tlr_buffer_t &tlr_buffer = ctx.get_tls().begin()->get_tlr_buffer();
 
 	/* extracting BCI codes from TLR buffer
 	 */

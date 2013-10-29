@@ -58,7 +58,10 @@ class PVZoomedZoneTree
 	constexpr static uint32_t mask_int_ycoord = (((uint32_t)1)<<bbits)-1;
 	constexpr static size_t quadtree_max_level = 17;
 
+public:
 	typedef PVTLRBuffer<bbits> pv_tlr_buffer_t;
+
+private:
 	typedef pv_tlr_buffer_t::index_t pv_tlr_index_t;
 	typedef PVQuadTree<8192, 1000, 0, bbits> pvquadtree;
 	typedef pvquadtree::insert_entry_f insert_entry_f;
@@ -70,12 +73,9 @@ class PVZoomedZoneTree
 	                           pv_tlr_buffer_t &tlr,
 	                           const insert_entry_f &insert_f)> extract_entries_f;
 
-	typedef std::function<void(
-		const pvquadtree &tree,
-		PVCore::PVHSVColor* colors,
-	    const insert_entry_y1_y2_f &insert_f)>
-	extract_entries_y1_y2_f;
-	
+	typedef std::function<void(const pvquadtree &tree, PVCore::PVHSVColor* colors,
+	                           const insert_entry_y1_y2_f &insert_f)> extract_entries_y1_y2_f;
+
 public:
 	typedef constants<bbits> zzt_constants;
 	typedef PVBCICode<bbits> pv_bci_code_t;
