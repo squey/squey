@@ -49,9 +49,6 @@ PVRenderingPipeline.cpp
 PVSelectionAxisSlider.cpp
 PVSelectionAxisSliders.cpp
 PVSelectionGenerator.cpp
-PVSelectionSquare.cpp
-PVSelectionSquareFullParallelView.cpp
-PVSelectionSquareGraphicsItem.cpp
 PVSlidersGroup.cpp
 PVSlidersManager.cpp
 PVTools.cpp
@@ -86,7 +83,6 @@ PVSelectionRectangle.cpp
 PVSelectionRectangleItem.cpp
 PVSelectionHandleItem.cpp
 
-PVSelectionSquareInteractor.cpp
 PVSelectionRectangleInteractor.cpp
 
 PVZoomableDrawingAreaInteractor.cpp
@@ -171,11 +167,8 @@ SET(MOC_HEADERS
 include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
-include/pvparallelview/PVSelectionSquareGraphicsItem.h
-include/pvparallelview/PVSelectionSquare.h
 include/pvparallelview/PVSelectionRectangleItem.h
 include/pvparallelview/PVSelectionRectangle.h
-include/pvparallelview/PVSelectionSquareFullParallelView.h
 include/pvparallelview/PVZoomedParallelViewSelectionLine.h
 include/pvparallelview/PVZonesManager.h
 include/pvparallelview/PVZoomedParallelScene.h

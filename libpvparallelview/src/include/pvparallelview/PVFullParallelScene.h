@@ -41,8 +41,6 @@ class PVFullParallelScene : public QGraphicsScene
 {
 	Q_OBJECT
 
-	// must be left to permit compilation of PVSelectionSquareFullParallelView
-	friend class PVSelectionSquareFullParallelView;
 	friend class PVFullParallelViewSelectionRectangle;
 	friend class draw_zone_Observer;
 	friend class draw_zone_sel_Observer;
