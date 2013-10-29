@@ -1,6 +1,7 @@
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZoomedSelectionAxisSlider.h>
+#include <pvparallelview/PVSelectionRectangle.h>
 
 #include <QPainter>
 
@@ -42,7 +43,12 @@ void PVParallelView::PVZoomedSelectionAxisSlider::paint(QPainter *painter,
 	QBrush b;
 
 	if (mouse_is_hover()) {
-		b = QBrush(QColor(205, 56, 83, 192), Qt::SolidPattern);
+		static const QColor c(PVSelectionRectangle::handle_color.red(),
+		                      PVSelectionRectangle::handle_color.green(),
+		                      PVSelectionRectangle::handle_color.blue(),
+		                      PVSelectionRectangle::handle_transparency);
+
+		b = QBrush(c, Qt::SolidPattern);
 	} else {
 		b = QBrush(Qt::black, Qt::SolidPattern);
 	}
@@ -53,7 +59,7 @@ void PVParallelView::PVZoomedSelectionAxisSlider::paint(QPainter *painter,
 		painter->fillRect(max_rect, b);
 	}
 
-	painter->setPen(QColor(202, 42, 209));
+	painter->setPen(PVSelectionRectangle::rectangle_color);
 
 	if (_orientation == Min) {
 		painter->drawRect(min_rect);

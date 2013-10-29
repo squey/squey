@@ -9,8 +9,10 @@
 #include <QToolBar>
 #include <QAction>
 
-const QColor PVParallelView::PVSelectionRectangle::rect_color(Qt::red);
-const QColor PVParallelView::PVSelectionRectangle::handle_color(255, 127, 36);
+const QColor PVParallelView::PVSelectionRectangle::rectangle_color     = Qt::red;
+const QColor PVParallelView::PVSelectionRectangle::handle_color        = QColor(255, 127, 36);
+const int    PVParallelView::PVSelectionRectangle::handle_transparency = 50;
+const int    PVParallelView::PVSelectionRectangle::delay_msec          = 300;
 
 /*****************************************************************************
  * PVParallelView::PVSelectionRectangle::PVSelectionRectangle
@@ -23,14 +25,14 @@ PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene
 	_rect = new PVParallelView::PVSelectionRectangleItem();
 	scene->addItem(_rect);
 	_rect->clear();
-	_rect->set_pen_color(rect_color);
+	_rect->set_pen_color(PVSelectionRectangle::rectangle_color);
 
 	connect(_rect, SIGNAL(geometry_has_changed(const QRectF&, const QRectF&)),
 	        this, SLOT(start_timer()));
 
-	QColor hc = handle_color;
+	QColor hc = PVSelectionRectangle::handle_color;
 	_rect->set_handles_pen_color(hc);
-	hc.setAlpha(50);
+	hc.setAlpha(PVSelectionRectangle::handle_transparency);
 	_rect->set_handles_brush_color(hc);
 
 	_timer = new QTimer(this);
@@ -175,7 +177,7 @@ void PVParallelView::PVSelectionRectangle::update_selection_mode_selector(QToolB
 void PVParallelView::PVSelectionRectangle::start_timer()
 {
 	_rect->set_pen_color(handle_color);
-	_timer->start(300);
+	_timer->start(PVSelectionRectangle::delay_msec);
 }
 
 /*****************************************************************************
@@ -184,7 +186,7 @@ void PVParallelView::PVSelectionRectangle::start_timer()
 
 void PVParallelView::PVSelectionRectangle::timeout()
 {
-	_rect->set_pen_color(rect_color);
+	_rect->set_pen_color(PVSelectionRectangle::rectangle_color);
 	_timer->stop();
 	emit commit_volatile_selection(_use_selection_modifiers);
 }

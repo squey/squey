@@ -48,8 +48,10 @@ public:
 public:
 	static constexpr qreal GROW_STEP_RATIO = 1.2;
 
-	static const QColor rect_color;
+	static const QColor rectangle_color;
 	static const QColor handle_color;
+	static const int handle_transparency;
+	static const int delay_msec;
 
 public:
 	PVSelectionRectangle(QGraphicsScene* scene);

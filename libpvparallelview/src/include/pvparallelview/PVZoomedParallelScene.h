@@ -40,7 +40,7 @@ namespace PVParallelView
 // forward declaration
 class PVZoomedSelectionAxisSliders;
 class PVZonesProcessor;
-class PVSelectionSquareGraphicsItem;
+class PVZoomedParallelViewSelectionLine;
 
 /**
  * @class PVZoomedParallelScene
@@ -551,8 +551,7 @@ private:
 	PVZonesProcessor&		_zp_bg;
 
 	// about selection in the zoom view
-	QPointF                         _selection_rect_pos;
-	PVSelectionSquareGraphicsItem  *_selection_rect;
+	PVZoomedParallelViewSelectionLine *_sel_line;
 	PVZoomedSelectionAxisSliders   *_selection_sliders;
 	PVHive::PVActor<Picviz::PVView> _view_actor;
 
