@@ -64,6 +64,10 @@ QString PVRush::PVInputTypeRemoteFilename::human_name_serialize() const
 	return tr("Remote files");
 }
 
+QString PVRush::PVInputTypeRemoteFilename::internal_name() const
+{
+	return QString("01-remote_file");
+}
 QString PVRush::PVInputTypeRemoteFilename::human_name_of_input(PVInputDescription_p in) const
 {
 	PVFileDescription* f = dynamic_cast<PVFileDescription*>(in.get());

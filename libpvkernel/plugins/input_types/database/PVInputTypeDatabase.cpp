@@ -63,6 +63,11 @@ QString PVRush::PVInputTypeDatabase::human_name_serialize() const
 	return QString("Databases");
 }
 
+QString PVRush::PVInputTypeDatabase::internal_name() const
+{
+	return QString("02-database");
+}
+
 QString PVRush::PVInputTypeDatabase::menu_input_name() const
 {
 	return QString("Database...");

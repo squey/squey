@@ -36,6 +36,7 @@ public:
 	virtual QString name() const = 0;
 	virtual QString human_name() const = 0;
 	virtual QString human_name_serialize() const = 0;
+	virtual QString internal_name() const = 0;
 	// Warning: the "human name" of an input must be *unique* accross all the possible inputs
 	virtual QString human_name_of_input(PVInputDescription_p in) const { return in->human_name(); };
 	virtual QString menu_input_name() const = 0;

@@ -10,45 +10,57 @@
 
 #include <QPushButton>
 
-void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(QMenu* menu, QObject* parent, const char* slot)
+/**
+ * a map function to iterate over input plugins according to their sorted ::internal_name().
+ */
+template<typename F>
+static void map_input_by_sorted_internal_name(const F &f)
 {
 	LIB_CLASS(PVRush::PVInputType) &input_types = LIB_CLASS(PVRush::PVInputType)::get();
 	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
-	
-	LIB_CLASS(PVRush::PVInputType)::list_classes::const_iterator it;
 
-	for (it = lf.begin(); it != lf.end(); it++) {
-		PVRush::PVInputType_p in = it.value();
-		QAction* action = new QAction(in->menu_input_name(), parent);
-		action->setData(QVariant(it.key()));
-		action->setShortcut(in->menu_shortcut());
-		QObject::connect(action, SIGNAL(triggered()), parent, slot);
-		menu->addAction(action);
+	typedef std::pair<QString, QString> ele_t;
+	std::list<ele_t> pairs;
+
+	for(const auto &it: lf) {
+		pairs.push_back(std::make_pair(it->internal_name(),it->registered_name()));
 	}
+
+	pairs.sort([](const ele_t& a, const ele_t& b) { return a.first.compare(b.first) < 0; });
+
+	for(const auto &it: pairs) {
+		f(it.second, lf[it.second]);
+	}
+}
+
+
+void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(QMenu* menu, QObject* parent, const char* slot)
+{
+	map_input_by_sorted_internal_name([&](const QString &key, const PVRush::PVInputType_p& in) {
+			QAction* action = new QAction(in->menu_input_name(), parent);
+			action->setData(QVariant(key));
+			action->setShortcut(in->menu_shortcut());
+			QObject::connect(action, SIGNAL(triggered()), parent, slot);
+			menu->addAction(action);
+		});
 }
 
 void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(QBoxLayout* layout, QObject* parent, const char* slot)
 {
-	LIB_CLASS(PVRush::PVInputType) &input_types = LIB_CLASS(PVRush::PVInputType)::get();
-	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
+	map_input_by_sorted_internal_name([&](const QString &key, const PVRush::PVInputType_p& in) {
+			QAction* action = new QAction(in->menu_input_name(), parent);
+			action->setData(QVariant(key));
+			action->setShortcut(in->menu_shortcut());
+			QObject::connect(action, SIGNAL(triggered()), parent, slot);
 
-	LIB_CLASS(PVRush::PVInputType)::list_classes::const_iterator it;
+			QPushButton* button = new QPushButton(in->menu_input_name());
+			button->setIcon(in->icon());
+			button->setCursor(in->cursor());
 
-	for (it = lf.begin(); it != lf.end(); it++) {
-		PVRush::PVInputType_p in = it.value();
-		QAction* action = new QAction(in->menu_input_name(), parent);
-		action->setData(QVariant(it.key()));
-		action->setShortcut(in->menu_shortcut());
-		QObject::connect(action, SIGNAL(triggered()), parent, slot);
+			QObject::connect(button, SIGNAL(clicked()), action, SLOT(trigger()));
 
-		QPushButton* button = new QPushButton(in->menu_input_name());
-		button->setIcon(in->icon());
-		button->setCursor(in->cursor());
-
-		QObject::connect(button, SIGNAL(clicked()), action, SLOT(trigger()));
-
-		layout->addWidget(button);
-	}
+			layout->addWidget(button);
+		});
 }
 
 PVRush::PVInputType_p PVGuiQt::PVInputTypeMenuEntries::input_type_from_action(QAction* action)

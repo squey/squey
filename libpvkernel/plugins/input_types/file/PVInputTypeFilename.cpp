@@ -155,6 +155,11 @@ QString PVRush::PVInputTypeFilename::human_name_serialize() const
 	return QString(tr("Local files"));
 }
 
+QString PVRush::PVInputTypeFilename::internal_name() const
+{
+	return QString("00-file");
+}
+
 QString PVRush::PVInputTypeFilename::menu_input_name() const
 {
 	return QString("Local files...");

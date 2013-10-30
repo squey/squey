@@ -56,6 +56,11 @@ QString PVRush::PVInputTypeArcsight::human_name_serialize() const
 	return QString("Arcsight");
 }
 
+QString PVRush::PVInputTypeArcsight::internal_name() const
+{
+	return QString("03-arsight");
+}
+
 QString PVRush::PVInputTypeArcsight::menu_input_name() const
 {
 	return QString("Arcsight...");
