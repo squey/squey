@@ -29,7 +29,8 @@ Picviz::PVSelection & Picviz::PVSelection::operator|=(const PVSparseSelection &r
 	return *this;
 }
 
-void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw, PVRow write_max)
+void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw,
+                                                    PVRow start, PVRow count)
 {
 	if (!_table) {
 		return;
@@ -43,15 +44,17 @@ void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush:
 
 	PVRow nrows_counter = 0;
 
-	for (PVRow line_index = 0; line_index < nrows; line_index++) {
-		if (!get_line(line_index)) {
+	for (PVRow line_index = start; line_index < nrows; line_index++) {
+		if (!get_line_fast(line_index)) {
 			continue;
 		}
 
-		nrows_counter++;
-		if ((nrows_counter < write_max) || (!write_max)) {
-			QString line = nraw.nraw_line_to_csv(line_index);
-			stream << line << QString("\n");
+		if (nrows_counter == count) {
+			return;
 		}
+
+		QString line = nraw.nraw_line_to_csv(line_index);
+		stream << line << QString("\n");
+		nrows_counter++;
 	}
 }

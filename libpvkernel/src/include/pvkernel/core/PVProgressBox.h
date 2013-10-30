@@ -42,7 +42,7 @@ class LibKernelDecl PVProgressBox: public QDialog
 	Q_OBJECT
 
 public:
-	enum CancelState { CANCEL, CANCEL2 };
+	enum CancelState { CONTINUE, CANCEL, CANCEL2 };
 
 public:
 	PVProgressBox (QString msg, QWidget * parent = 0, Qt::WindowFlags f = 0, QString const& format_detail = QString());
@@ -170,7 +170,7 @@ private:
 	QLabel* _detail_label;
 	QLabel* _extended_detail_label;
 	QMutex _ext_str_mutex;
-	CancelState _cancel_state = CANCEL;
+	volatile CancelState _cancel_state = CONTINUE;
 	bool _need_confirmation = false;
 };
 

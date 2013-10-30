@@ -377,15 +377,13 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 
 		file.setFileName(filename);
 		if (!file.open(QIODevice::WriteOnly)) {
-			QMessageBox err(QMessageBox::Critical, tr("Error while writing the selection"), tr("Unable to write the selection to %1").arg(filename));
-			err.exec();
-		}
-		else {
+			QMessageBox::critical(this,
+			                      tr("Error while exporting the selection"),
+			                      tr("Can not create the file \"%1\"").arg(filename));
+		} else {
 			break;
 		}
 	}
-
-	setCursor(Qt::WaitCursor);
 
 	// TODO: put an option in the widget for the file locale
 	// Open a text stream with the current locale (by default in QTextStream)
@@ -394,12 +392,25 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 	// For now, save the NRAW !
 	Picviz::PVView* view = current_view();
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
-	view->get_real_output_selection().write_selected_lines_nraw(stream, nraw, 0);
 
-	setCursor(Qt::ArrowCursor);
+	PVCore::PVProgressBox pbox("Selection export");
 
-	QMessageBox end(QMessageBox::Information, tr("Export selection"), tr("The selection has been successfully written."));
-	end.exec();
+	PVRow start = 0;
+	PVRow step_count = 20000;
+
+	bool ret = PVCore::PVProgressBox::progress([&]() {
+			view->get_real_output_selection().write_selected_lines_nraw(stream, nraw,
+			                                                            start, step_count);
+			start += step_count;
+			if (pbox.get_cancel_state() != PVCore::PVProgressBox::CONTINUE) {
+				return;
+			}
+		}, &pbox);
+
+	if (ret == false) {
+		file.close();
+		file.remove();
+	}
 }
 
 
