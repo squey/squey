@@ -14,12 +14,14 @@ PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 IMPL_WAX(Picviz::PVPlotted::process_parent_mapped, plotted, args)
 {
+	about_to_refresh_observers(&plotted->get_plotting());
 	call_object_default<Picviz::PVPlotted, FUNC(Picviz::PVPlotted::process_parent_mapped)>(plotted, args);
 	refresh_observers(&plotted->get_plotting());
 }
 
 IMPL_WAX(Picviz::PVPlotted::process_from_parent_mapped, plotted, args)
 {
+	about_to_refresh_observers(&plotted->get_plotting());
 	call_object_default<Picviz::PVPlotted, FUNC(Picviz::PVPlotted::process_from_parent_mapped)>(plotted, args);
 	refresh_observers(&plotted->get_plotting());
 }
