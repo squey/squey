@@ -311,6 +311,17 @@ void PVParallelView::PVLibView::plotting_updated()
 		view->set_enabled(false);
 	}
 
+	QList<PVScatterView*> concerned_scatter;
+	for (PVScatterView* view: _scatter_views) {
+		for (PVZoneID z: zones_to_update) {
+			if (view->get_zone_index() == z) {
+				view->set_enabled(false);
+				concerned_scatter.push_back(view);
+				break;
+			}
+		}
+	}
+
 	for (PVZoneID z: zones_to_update) {
 		get_zones_manager().update_zone(z);
 		_processor_bg.invalidate_zone_preprocessing(z);
@@ -325,6 +336,7 @@ void PVParallelView::PVLibView::plotting_updated()
 	for (PVZoomedParallelScene* view: concerned_zoom) {
 		view->set_enabled(true);
 		request_zoomed_zone_trees(view->get_axis_index());
+		view->update_zones();
 		view->update_all_async();
 	}
 
@@ -333,8 +345,10 @@ void PVParallelView::PVLibView::plotting_updated()
 		view->update_all_async();
 	}
 
-	for (PVScatterView* view: _scatter_views) {
+	for (PVScatterView* view: concerned_scatter) {
 		view->set_enabled(true);
+		request_zoomed_zone_trees(view->get_zone_index());
+		view->update_zones();
 		view->update_all_async();
 	}
 }
