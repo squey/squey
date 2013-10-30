@@ -191,7 +191,9 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	format_widget_layout->addWidget(edit_format_button);
 
 	// Import buttons
-	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(import_widget_layout, this, SLOT(import_type()));
+	QHBoxLayout *hl = new QHBoxLayout();
+	import_widget_layout->addLayout(hl);
+	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(hl, this, SLOT(import_type()));
 
 	project_widget_layout->addWidget(create_new_project_button);
 	project_widget_layout->addWidget(open_project_button);
