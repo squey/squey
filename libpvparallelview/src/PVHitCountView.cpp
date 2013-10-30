@@ -106,6 +106,8 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 {
 	 set_gl_viewport();
 
+	_axis_id = _pvview.get_axes_combination().get_axes_comb_id(axis_index);
+
 	/* computing the highest scene width to setup it... and do the first
 	 * run to initialize the manager's buffers :-)
 	 */
@@ -289,6 +291,18 @@ void PVParallelView::PVHitCountView::update_new_selection_async()
 void PVParallelView::PVHitCountView::update_all_async()
 {
 	QMetaObject::invokeMethod(this, "update_all", Qt::QueuedConnection);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::update_zones
+ *****************************************************************************/
+
+bool PVParallelView::PVHitCountView::update_zones()
+{
+	/* RH: no need to follows the axis_id yet. We need informations to
+	 * retrieve the plotted pointer...
+	 */
+	return false;
 }
 
 /*****************************************************************************

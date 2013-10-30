@@ -354,6 +354,10 @@ void PVParallelView::PVLibView::axes_comb_about_to_be_updated()
 		view->set_enabled(false);
 	}
 
+	for (PVHitCountView* view: _hit_count_views) {
+		view->set_enabled(false);
+	}
+
 	for (PVScatterView* view: _scatter_views) {
 		view->set_enabled(false);
 	}
@@ -420,6 +424,22 @@ void PVParallelView::PVLibView::axes_comb_updated()
 
 	_scatter_views = new_svs;
 
+	hit_count_view_list_t new_hcvs;
+
+	for (size_t i = 0; i < _hit_count_views.size(); ++i) {
+		PVHitCountView* hcv = _hit_count_views[i];
+		_hit_count_views[i] = nullptr;
+
+		if (hcv->update_zones()) {
+			// the ZPS can still exist
+			new_hcvs.push_back(hcv);
+		} else {
+			hcv->parentWidget()->close();
+		}
+	}
+
+	_hit_count_views = new_hcvs;
+
 	PVCore::PVProgressBox pbox("Updating zoomed parallel views");
 
 	PVCore::PVProgressBox::progress([&]() {
@@ -439,6 +459,15 @@ void PVParallelView::PVLibView::axes_comb_updated()
 				view->update_all_async();
 			}
 		}, &pbox2);
+
+	PVCore::PVProgressBox pbox3("Updating hit-count views");
+
+	PVCore::PVProgressBox::progress([&]() {
+			for (PVHitCountView* view: _hit_count_views) {
+				view->set_enabled(true);
+				view->update_all_async();
+			}
+		}, &pbox3);
 }
 
 void PVParallelView::PVLibView::remove_view(PVFullParallelScene *scene)

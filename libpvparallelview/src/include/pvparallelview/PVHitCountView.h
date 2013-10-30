@@ -11,6 +11,7 @@
 
 #include <picviz/PVView.h>
 #include <picviz/PVView_types.h>
+#include <picviz/PVAxesCombination.h>
 
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
@@ -84,6 +85,7 @@ public:
 	void about_to_be_deleted();
 	void update_new_selection_async();
 	void update_all_async();
+	bool update_zones();
 	void set_enabled(const bool value);
 
 	inline uint32_t get_max_count() const { return _max_count; }
@@ -173,6 +175,7 @@ private slots:
 private:
 	Picviz::PVView&                              _pvview;
 	PVCol                                        _axis_index;
+	Picviz::PVAxesCombination::axes_comb_id_t    _axis_id;
 	QTimer                                       _update_all_timer;
 
 	PVHitGraphBlocksManager                      _hit_graph_manager;
