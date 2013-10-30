@@ -83,6 +83,13 @@ QString const& PVRush::PVFormat::get_full_path() const
 	return full_path;
 }
 
+bool PVRush::PVFormat::exists() const
+{
+	QFileInfo fi(full_path);
+
+	return (fi.exists() && fi.isReadable());
+}
+
 char *fill_spaces(QString str, int max_spaces)
 {
 	// Use for debug so we display the different elements

@@ -120,6 +120,8 @@ public:
 	QString const& get_format_name() const;
 	QString const& get_full_path() const;
 
+	bool exists() const;
+
 	void dump_elts(bool dump) { _dump_elts = dump; }
 	void restore_invalid_elts(bool restore) { _restore_inv_elts = restore; }
 
