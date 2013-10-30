@@ -102,7 +102,7 @@ QString PVRush::PVInputTypeRemoteFilename::tab_name_of_inputs(list_inputs const&
 
 QString PVRush::PVInputTypeRemoteFilename::menu_input_name() const
 {
-	return QString("Import remote files...");
+	return QString("Remote files...");
 }
 
 bool PVRush::PVInputTypeRemoteFilename::get_custom_formats(PVInputDescription_p /*in*/, hash_formats& /*formats*/) const

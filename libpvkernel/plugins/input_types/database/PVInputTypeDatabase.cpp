@@ -65,7 +65,7 @@ QString PVRush::PVInputTypeDatabase::human_name_serialize() const
 
 QString PVRush::PVInputTypeDatabase::menu_input_name() const
 {
-	return QString("Import from a database...");
+	return QString("Database...");
 }
 
 QString PVRush::PVInputTypeDatabase::tab_name_of_inputs(list_inputs const& in) const

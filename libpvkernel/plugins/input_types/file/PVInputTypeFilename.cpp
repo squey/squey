@@ -152,12 +152,12 @@ QString PVRush::PVInputTypeFilename::human_name() const
 
 QString PVRush::PVInputTypeFilename::human_name_serialize() const
 {
-	return QString(tr("Files"));
+	return QString(tr("Local files"));
 }
 
 QString PVRush::PVInputTypeFilename::menu_input_name() const
 {
-	return QString("Import files...");
+	return QString("Local files...");
 }
 
 QString PVRush::PVInputTypeFilename::tab_name_of_inputs(list_inputs const& in) const

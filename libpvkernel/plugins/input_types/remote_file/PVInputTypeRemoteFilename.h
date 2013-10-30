@@ -39,7 +39,7 @@ public:
 
 protected:
 	mutable QHash<QString, QUrl> _hash_real_filenames;
-	
+
 	CLASS_REGISTRABLE_NOCOPY(PVInputTypeRemoteFilename)
 };
 

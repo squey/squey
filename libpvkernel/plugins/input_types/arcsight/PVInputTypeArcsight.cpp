@@ -58,7 +58,7 @@ QString PVRush::PVInputTypeArcsight::human_name_serialize() const
 
 QString PVRush::PVInputTypeArcsight::menu_input_name() const
 {
-	return QString("Import from Arcsight...");
+	return QString("Arcsight...");
 }
 
 QString PVRush::PVInputTypeArcsight::tab_name_of_inputs(list_inputs const& in) const
