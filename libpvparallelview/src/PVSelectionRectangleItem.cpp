@@ -53,7 +53,8 @@ PVParallelView::PVSelectionRectangleItem::PVSelectionRectangleItem(const QRectF&
 	_handles.push_back(new PVSelectionHandleItem(PVSelectionHandleItem::SW, this));
 	_handles.push_back(new PVSelectionHandleItem(PVSelectionHandleItem::W, this));
 	_handles.push_back(new PVSelectionHandleItem(PVSelectionHandleItem::NW, this));
-	_handles.push_back(new PVSelectionHandleItem(PVSelectionHandleItem::CENTER, this));
+	_central_handle = new PVSelectionHandleItem(PVSelectionHandleItem::CENTER, this);
+	_handles.push_back(_central_handle);
 
 	set_pen_color(Qt::black);
 	_pen.setCosmetic(true);
@@ -438,8 +439,9 @@ QVariant PVParallelView::PVSelectionRectangleItem::itemChange(GraphicsItemChange
 	} else if (change == QGraphicsItem::ItemZValueHasChanged) {
 		qreal zvalue = zValue();
 		for(const auto h : _handles) {
-			h->setZValue(10. * zvalue);
+			h->setZValue(2. * zvalue);
 		}
+		_central_handle->setZValue(3. * zvalue);
 	}
 
 	return QGraphicsItem::itemChange(change, value);

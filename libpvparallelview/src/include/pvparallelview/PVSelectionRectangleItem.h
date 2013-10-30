@@ -263,6 +263,17 @@ public:
 	           const QStyleOptionGraphicsItem* option,
 	           QWidget* widget) override;
 
+public:
+	/**
+	 * get the central handle
+	 *
+	 * @return the central handle
+	 */
+	PVSelectionHandleItem *get_central_handle() const
+	{
+		return _central_handle;
+	}
+
 signals:
 	void geometry_has_changed(const QRectF& old_rect, const QRectF& new_rect);
 
@@ -319,6 +330,7 @@ protected:
 
 private:
 	std::vector<PVSelectionHandleItem*> _handles;
+	PVSelectionHandleItem*              _central_handle;
 	QCursor                             _default_cursor;
 	QPen                                _pen;
 	QRectF                              _rect;

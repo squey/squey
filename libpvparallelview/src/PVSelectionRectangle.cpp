@@ -1,6 +1,7 @@
 
 #include <pvparallelview/PVSelectionRectangle.h>
 #include <pvparallelview/PVSelectionRectangleItem.h>
+#include <pvparallelview/PVSelectionHandleItem.h>
 
 #include <QGraphicsScene>
 #include <QActionGroup>
@@ -176,7 +177,9 @@ void PVParallelView::PVSelectionRectangle::update_selection_mode_selector(QToolB
 
 void PVParallelView::PVSelectionRectangle::start_timer()
 {
-	_rect->set_pen_color(handle_color);
+	_rect->set_pen_color(PVSelectionRectangle::handle_color);
+	_rect->get_central_handle()->set_pen_color(PVSelectionRectangle::handle_color);
+
 	_timer->start(PVSelectionRectangle::delay_msec);
 }
 
@@ -187,7 +190,10 @@ void PVParallelView::PVSelectionRectangle::start_timer()
 void PVParallelView::PVSelectionRectangle::timeout()
 {
 	_rect->set_pen_color(PVSelectionRectangle::rectangle_color);
+	_rect->get_central_handle()->set_pen_color(PVSelectionRectangle::rectangle_color);
+
 	_timer->stop();
+
 	emit commit_volatile_selection(_use_selection_modifiers);
 }
 
