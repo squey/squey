@@ -9,6 +9,7 @@
 #include <QHeaderView>
 #include <QMouseEvent>
 #include <QMenu>
+#include <QInputDialog>
 
 #include <pvguiqt/PVCustomQtRoles.h>
 #include <pvguiqt/PVLayerStackModel.h>
@@ -143,6 +144,34 @@ void PVGuiQt::PVLayerStackView::mouseDoubleClickEvent(QMouseEvent* event)
 
 	if (idx.column() == 1) {
 		edit(idx);
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVLayerStackView::keyPressEvent
+ *
+ *****************************************************************************/
+void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
+{
+	switch (event->key()) {
+	case Qt::Key_F2:
+		int model_index = ls_model()->lib_layer_stack().get_selected_layer_index();
+		Picviz::PVLayer &layer = get_layer_from_idx(model_index);
+		QString current_name = layer.get_name();
+		QString name = QInputDialog::getText(this,
+		                                     "Rename current layer",
+		                                     "New layer name:",
+		                                     QLineEdit::Normal, current_name);
+		if (!name.isEmpty()) {
+			layer.set_name(name);
+		}
+
+		event->accept();
+	}
+
+	if (event->isAccepted() == false) {
+		QTableView::keyPressEvent(event);
 	}
 }
 
