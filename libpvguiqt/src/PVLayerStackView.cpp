@@ -185,8 +185,7 @@ void PVGuiQt::PVLayerStackView::load_layer_stack()
 #ifdef CUSTOMER_CAPABILITY_SAVE
 	QString file = _layerstack_dialog.getOpenFileName(this, tr("Import a layer stack..."), _layerstack_dialog.directory().absolutePath(), PICVIZ_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
 	if(!file.isEmpty()) {
-		PVLayerStackModel* model_ = (PVLayerStackModel*) model();
-		model_->load_from_file(file);
+		ls_model()->load_from_file(file);
 	}
 #endif
 }
