@@ -21,7 +21,13 @@ PVRush::PVSourceCreatorPerlfile::source_p PVRush::PVSourceCreatorPerlfile::creat
 	QFileInfo perl_file_info(format.get_full_path());
 	QString perl_file(perl_file_info.dir().absoluteFilePath(perl_file_info.completeBaseName() + ".pl"));
 
-	source_p src(new PVRush::PVPerlSource(input, DEFAULT_PERL_CHUNK_SIZE, chk_flt->f(), perl_file));
+	QFileInfo fi(perl_file);
+	source_p src;
+
+	if (fi.exists()) {
+		src = source_p(new PVRush::PVPerlSource(input, DEFAULT_PERL_CHUNK_SIZE,
+		                                        chk_flt->f(), perl_file));
+	}
 
 	return src;
 }

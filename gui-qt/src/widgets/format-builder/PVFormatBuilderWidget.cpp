@@ -770,6 +770,10 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 					_log_sc.reset();
 					continue;
 				}
+				if (_log_source.get() == nullptr) {
+					_log_sc.reset();
+					continue;
+				}
 				break;
 			}
 		}

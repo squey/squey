@@ -22,7 +22,13 @@ PVRush::PVSourceCreatorPythonfile::source_p PVRush::PVSourceCreatorPythonfile::c
 	QFileInfo python_file_info(format.get_full_path());
 	QString python_file(python_file_info.dir().absoluteFilePath(python_file_info.completeBaseName() + ".py"));
 
-	source_p src(new PVRush::PVPythonSource(input, DEFAULT_PYTHON_CHUNK_SIZE, chk_flt->f(), python_file));
+	QFileInfo fi(python_file);
+	source_p src;
+
+	if (fi.exists()) {
+		src = source_p(new PVRush::PVPythonSource(input, DEFAULT_PYTHON_CHUNK_SIZE,
+		                                          chk_flt->f(), python_file));
+	}
 
 	return src;
 }
