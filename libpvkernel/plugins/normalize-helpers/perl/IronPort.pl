@@ -13,12 +13,10 @@ my ($LOGFILE) = 0;
 sub picviz_open_file {
     $filename = $_[0];
     open $main::LOGFILE, '<', $filename or die $!;
-	print "From PERL: open_file\n";
 }
 
 # Seek the file to the beggining
 sub picviz_seek_begin {
-	print "From PERL: seek_begin\n";
 	seek($main::LOGFILE,0,0);
 }
 
