@@ -504,8 +504,6 @@ void PVGuiQt::PVStartScreenWidget::clear_history(PVCore::PVRecentItemsManager::C
 		assert(item);
 		if (item->is_checked()) {
 			indexes << i;
-			list->takeItem(i);
-			delete item;
 		}
 	}
 
