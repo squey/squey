@@ -60,6 +60,7 @@ public:
 	{
 		if (_recent_items_manager_p.get() == nullptr) {
 			_recent_items_manager_p = PVRecentItemsManager_p(new PVRecentItemsManager());
+			_recent_items_manager_p->clear_missing_files();
 		}
 		return _recent_items_manager_p;
 	}
@@ -93,10 +94,12 @@ private:
 	 */
 	uint64_t get_source_timestamp_to_replace(const PVRush::PVSourceDescription& source_description);
 
+	void clear_missing_files();
+
 private:
 	/*! \brief Return a list of recent items of a given category as a list of QString QVariant.
 	 */
-	const variant_list_t items_list(Category category) const;
+	const variant_list_t items_list(Category category, bool update_removed_files = false) const;
 
 	/*! \brief Return the recent sources description as a list of QVariant.
 	 */

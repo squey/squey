@@ -24,6 +24,7 @@ void PVCore::PVRecentItemsManager::add(const QString& item_path, Category catego
 		for (; files.size() > _max_recent_items; files.removeLast()) {}
 	}
 	_recents_settings.setValue(recent_items_key, files);
+	_recents_settings.sync();
 }
 
 void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_creator_p, const PVRush::PVInputType::list_inputs& inputs, const PVRush::PVFormat& format)
@@ -51,6 +52,7 @@ void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_c
 	_recents_settings.endGroup();
 
 	_recents_settings.endGroup();
+	_recents_settings.sync();
 }
 
 void PVCore::PVRecentItemsManager::clear(Category category, QList<int> indexes)
@@ -83,6 +85,7 @@ void PVCore::PVRecentItemsManager::clear(Category category, QList<int> indexes)
 		}
 		_recents_settings.setValue(item_key, indexes.isEmpty() ? QStringList() : out_list);
 	}
+	_recents_settings.sync();
 }
 
 const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager::get_list(Category category)
@@ -118,15 +121,21 @@ const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager:
 	return result;
 }
 
-const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager::items_list(Category category) const
+const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager::items_list(Category category, bool update_removed_files /* = false */) const
 {
 	variant_list_t variant_list;
 
 	QStringList string_list = _recents_settings.value(_recents_items_keys[category]).toStringList();
+	QStringList out_string_list;
 	for (QString s: string_list) {
+		variant_list << QVariant(s);
 		if (QFile::exists(s)) {
-			variant_list << QVariant(s);
+			out_string_list << s;
 		}
+	}
+	if (update_removed_files) {
+		_recents_settings.setValue(_recents_items_keys[category], out_string_list);
+		_recents_settings.sync();
 	}
 
 	return variant_list;
@@ -156,8 +165,17 @@ const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager:
 	}
 
 	_recents_settings.endGroup();
+	_recents_settings.sync();
 
 	return variant_list;
+}
+
+void PVCore::PVRecentItemsManager::clear_missing_files()
+{
+	sources_description_list();
+	items_list(Category::PROJECTS, true);
+	items_list(Category::USED_FORMATS, true);
+	items_list(Category::EDITED_FORMATS, true);
 }
 
 const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager::supported_format_list() const
