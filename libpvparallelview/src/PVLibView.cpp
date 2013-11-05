@@ -176,7 +176,13 @@ PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(
 )
 {
 	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
-	_zones_manager.request_zoomed_zone(axis);
+	PVCore::PVProgressBox pbox("Initializing scatter view");
+
+	pbox.set_enable_cancel(false);
+
+	PVCore::PVProgressBox::progress([&]() {
+			_zones_manager.request_zoomed_zone(axis);
+		}, &pbox);
 
 	PVScatterView* view = new PVScatterView(
 		view_sp,
