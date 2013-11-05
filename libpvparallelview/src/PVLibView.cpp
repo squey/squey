@@ -133,6 +133,8 @@ PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_v
 {
 	PVCore::PVProgressBox pbox("Initializing zoomed parallel view");
 
+	pbox.set_enable_cancel(false);
+
 	PVCore::PVProgressBox::progress([&]() {
 			request_zoomed_zone_trees(axis);
 		}, &pbox);
