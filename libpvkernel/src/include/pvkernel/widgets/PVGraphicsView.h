@@ -679,7 +679,7 @@ protected:
 	 *
 	 * the interactor is implictly unregistered.
 	 *
-	 * @param interactor [in] The pointer to the interactor to remove (previously returned by install_interactor).
+	 * @param interactor [in] The pointer to the interactor to remove (previously returned by declate_interactor).
 	 *
 	 * @note the interactor is not freed.
 	 *

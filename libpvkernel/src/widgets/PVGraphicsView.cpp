@@ -108,6 +108,7 @@ private:
  *****************************************************************************/
 
 QEvent::Type PVWidgets::PVGraphicsView::_usable_events[] = {
+	QEvent::ContextMenu,
 	QEvent::MouseButtonDblClick,
 	QEvent::MouseButtonPress, QEvent::MouseButtonRelease,
 	QEvent::MouseMove,
