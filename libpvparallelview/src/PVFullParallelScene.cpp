@@ -249,70 +249,26 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		return;
 	}
 
-	if (event->key() == Qt::Key_Escape) {
+	switch(event->key()) {
+	case Qt::Key_Escape:
 		_sel_rect->clear();
 		event->accept();
-	} else if (event->key() == Qt::Key_Space) {
+		break;
+	case Qt::Key_Space:
 		for (PVZoneID zone_id = _lines_view.get_first_visible_zone_index(); zone_id <= _lines_view.get_last_visible_zone_index(); zone_id++) {
 			update_zone_pixmap_bgsel(zone_id);
 		}
 		event->accept();
-	} else if (event->key() == Qt::Key_Home) {
+		break;
+	case Qt::Key_Home:
 		if (event->modifiers() == Qt::NoModifier) {
 			reset_zones_layout_to_default();
 			update_all_with_timer();
 			event->accept();
 		}
-	}
-	else if (event->key() == Qt::Key_Left) {
-		if (event->modifiers() & Qt::ShiftModifier) {
-			_sel_rect->grow_horizontally();
-		}
-		else if (event->modifiers() & Qt::ControlModifier) {
-			_sel_rect->move_left_by_width();
-		}
-		else {
-			_sel_rect->move_left_by_step();
-		}
-		event->accept();
-	}
-	else if (event->key() == Qt::Key_Right) {
-		if (event->modifiers() & Qt::ShiftModifier) {
-			_sel_rect->shrink_horizontally();
-		}
-		else if (event->modifiers() & Qt::ControlModifier) {
-			_sel_rect->move_right_by_width();
-		}
-		else {
-			_sel_rect->move_right_by_step();
-		}
-		event->accept();
-	}
-	else if (event->key() == Qt::Key_Up) {
-		if (event->modifiers() & Qt::ShiftModifier) {
-			_sel_rect->grow_vertically();
-		}
-		else if (event->modifiers() & Qt::ControlModifier) {
-			_sel_rect->move_up_by_height();
-		}
-		else {
-			_sel_rect->move_up_by_step();
-		}
-		event->accept();
-	}
-	else if (event->key() == Qt::Key_Down) {
-		if (event->modifiers() & Qt::ShiftModifier) {
-			_sel_rect->shrink_vertically();
-		}
-		else if (event->modifiers() & Qt::ControlModifier) {
-			_sel_rect->move_down_by_height();
-		}
-		else {
-			_sel_rect->move_down_by_step();
-		}
-		event->accept();
-	}
-	else if (event->key() == Qt::Key_Y) {
+		break;
+
+	case Qt::Key_Y:
 		_show_min_max_values ^= true;
 		for(PVAxisGraphicsItem* axis : _axes) {
 			axis->set_min_max_visible(_show_min_max_values);
@@ -321,6 +277,69 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		update_scene(true);
 		update_all();
 		event->accept();
+		break;
+#ifdef PICVIZ_DEVELOPER_MODE
+	case Qt::Key_B:
+		if (event->modifiers() == Qt::ControlModifier) {
+			common::toggle_show_bboxes();
+			event->accept();
+		}
+		break;
+#endif
+
+	/**
+	 * the following cases are a replication from PVSelectionRectangleInteractor
+	 * because the PVFullParallelView can be not used with the mechanism of
+	 * PVGraphicsView's interactor.
+	 */
+	case Qt::Key_Left:
+		if (event->modifiers() == Qt::ShiftModifier) {
+			_sel_rect->grow_horizontally();
+			event->accept();
+		} else if (event->modifiers() == Qt::ControlModifier) {
+			_sel_rect->move_left_by_width();
+			event->accept();
+		} else if (event->modifiers() == Qt::NoModifier) {
+			_sel_rect->move_left_by_step();
+			event->accept();
+		}
+		break;
+	case Qt::Key_Right:
+		if (event->modifiers() == Qt::ShiftModifier) {
+			_sel_rect->shrink_horizontally();
+			event->accept();
+		} else if (event->modifiers() == Qt::ControlModifier) {
+			_sel_rect->move_right_by_width();
+			event->accept();
+		} else if (event->modifiers() == Qt::NoModifier) {
+			_sel_rect->move_right_by_step();
+			event->accept();
+		}
+		break;
+	case Qt::Key_Up:
+		if (event->modifiers() == Qt::ShiftModifier) {
+			_sel_rect->grow_vertically();
+			event->accept();
+		} else if (event->modifiers() == Qt::ControlModifier) {
+			_sel_rect->move_up_by_height();
+			event->accept();
+		} else if (event->modifiers() == Qt::NoModifier) {
+			_sel_rect->move_up_by_step();
+			event->accept();
+		}
+		break;
+	case Qt::Key_Down :
+		if (event->modifiers() == Qt::ShiftModifier) {
+			_sel_rect->shrink_vertically();
+			event->accept();
+		} else if (event->modifiers() == Qt::ControlModifier) {
+			_sel_rect->move_down_by_height();
+			event->accept();
+		} else if (event->modifiers() == Qt::NoModifier) {
+			_sel_rect->move_down_by_step();
+			event->accept();
+		}
+		break;
 	}
 
 	if(event->isAccepted()) {
@@ -328,12 +347,6 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		graphics_view()->viewport()->update();
 	}
 
-#ifdef PICVIZ_DEVELOPER_MODE
-	else if ((event->key() == Qt::Key_B) && (event->modifiers() & Qt::ControlModifier)) {
-		common::toggle_show_bboxes();
-		update();
-	}
-#endif
 }
 
 /******************************************************************************
@@ -1049,7 +1062,7 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 		else {
 			_lines_view.increase_base_zoom_level_of_zone(zmouse);
 		}
-		
+
 		update_viewport();
 		update_zones_position(true, true);
 
