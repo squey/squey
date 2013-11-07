@@ -314,10 +314,12 @@ bool PVWidgets::PVTextPopupWidget::eventFilter(QObject *obj, QEvent *event)
 
 		 return false;
 	} else if (event->type() == QEvent::KeyPress) {
-		int key = static_cast<QKeyEvent*>(event)->key();
-		if (is_close_key(key)) {
-			hide();
-			return true;
+		if (isVisible()) {
+			int key = static_cast<QKeyEvent*>(event)->key();
+			if (is_close_key(key) && ) {
+				hide();
+				return true;
+			}
 		}
 	}
 	// standard event processing
