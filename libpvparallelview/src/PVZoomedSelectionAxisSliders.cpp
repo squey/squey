@@ -68,9 +68,9 @@ void PVParallelView::PVZoomedSelectionAxisSliders::set_value(int64_t y_min, int6
 
 void PVParallelView::PVZoomedSelectionAxisSliders::remove_from_axis()
 {
-	PVHive::call<FUNC(PVSlidersManager::del_selection_sliders)>(_sliders_manager_p,
-	                                                            _group->get_axis_id(),
-	                                                            _id);
+	PVHive::call<FUNC(PVSlidersManager::del_zoomed_selection_sliders)>(_sliders_manager_p,
+	                                                                   _group->get_axis_id(),
+	                                                                   _id);
 }
 
 /*****************************************************************************
