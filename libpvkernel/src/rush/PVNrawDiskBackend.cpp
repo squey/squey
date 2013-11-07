@@ -129,10 +129,7 @@ uint64_t PVRush::PVNrawDiskBackend::add(PVCol col_idx, const char* field, const 
 
 		// Resize indexes matrix if needed
 		if (column.fields_indexed == _indexes.get_nrows()) {
-			tbb::tick_count t1 = tbb::tick_count::now();
 			_indexes.resize_nrows(_next_indexes_nrows, null_offset_fields);
-			tbb::tick_count t2 = tbb::tick_count::now();
-			_matrix_resize_interval += (t2-t1);
 			uint64_t index = std::min(++_fields_size_idx, _max_fields_size_idx);
 			_next_indexes_nrows += _index_fields_size_pattern[index];
 		}
@@ -212,6 +209,7 @@ void PVRush::PVNrawDiskBackend::flush()
 		if (partial_buffer_size > 0) {
 			if(!this->Write(column.buffer_write, partial_buffer_size, column.write_file)) {
 				PVLOG_ERROR("PVNrawDiskBackend: Error writing column %d to disk (%s)\n", col_idx, strerror(errno));
+				this->Close(column.write_file);
 				return;
 			}
 		}
@@ -220,6 +218,7 @@ void PVRush::PVNrawDiskBackend::flush()
 		column.buffer_write_ptr = nullptr;
 		column.buffer_write_end_ptr = nullptr;
 		//column.reset();
+		this->Close(column.write_file);
 	}
 
 	store_index_to_disk();
