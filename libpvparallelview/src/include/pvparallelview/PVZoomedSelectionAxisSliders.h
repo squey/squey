@@ -38,7 +38,7 @@ public:
 	void set_value(int64_t y_min, int64_t y_max);
 
 public slots:
-	virtual void remove_from_axis();
+	void remove_from_axis() override;
 
 private slots:
 	void do_sliders_moved();

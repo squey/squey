@@ -36,7 +36,7 @@ public:
 	}
 
 public slots:
-	virtual void remove_from_axis();
+	void remove_from_axis() override;
 
 private slots:
 	void do_sliders_moved();
