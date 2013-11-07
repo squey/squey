@@ -316,7 +316,7 @@ void PVParallelView::PVZoomedParallelScene::keyPressEvent(QKeyEvent *event)
 		if (_zpview->help_widget()->isHidden()) {
 			_zpview->help_widget()->popup(_zpview->get_viewport(),
 			                              PVWidgets::PVTextPopupWidget::AlignCenter,
-			                              PVWidgets::PVTextPopupWidget::ExpandAll, 16);
+			                              PVWidgets::PVTextPopupWidget::ExpandAll);
 			event->accept();
 		}
 		return;

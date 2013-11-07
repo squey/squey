@@ -27,7 +27,7 @@ bool PVParallelView::PVScatterViewInteractor::keyPressEvent(PVZoomableDrawingAre
 		if (sv->help_widget()->isHidden()) {
 			sv->help_widget()->popup(sv->get_viewport(),
 			                         PVWidgets::PVTextPopupWidget::AlignCenter,
-			                         PVWidgets::PVTextPopupWidget::ExpandAll, 16);
+			                         PVWidgets::PVTextPopupWidget::ExpandAll);
 		}
 		return false;
 	}

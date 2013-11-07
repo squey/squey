@@ -244,7 +244,7 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		if (_full_parallel_view->help_widget()->isHidden()) {
 			_full_parallel_view->help_widget()->popup(_full_parallel_view->viewport(),
 			                                          PVWidgets::PVTextPopupWidget::AlignCenter,
-			                                          PVWidgets::PVTextPopupWidget::ExpandAll, 16);
+			                                          PVWidgets::PVTextPopupWidget::ExpandAll);
 		}
 		return;
 	}

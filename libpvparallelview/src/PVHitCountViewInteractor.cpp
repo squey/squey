@@ -53,7 +53,7 @@ bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingAr
 		if (hcv->help_widget()->isHidden()) {
 			hcv->help_widget()->popup(hcv->get_viewport(),
 			                          PVWidgets::PVTextPopupWidget::AlignCenter,
-			                          PVWidgets::PVTextPopupWidget::ExpandAll, 16);
+			                          PVWidgets::PVTextPopupWidget::ExpandAll);
 		}
 		return false;
 	}
