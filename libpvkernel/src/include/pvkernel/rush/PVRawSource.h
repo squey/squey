@@ -49,6 +49,13 @@ public:
 		if (_nextc && _nextc != _curc)
 			_nextc->free();
 	}
+
+public:
+	void release_input() override
+	{
+		_input->release();
+	}
+
 public:
 	PVCore::PVChunk* operator()()
 	{

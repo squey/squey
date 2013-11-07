@@ -64,6 +64,9 @@ public:
 	void add_input(PVRush::PVRawSourceBase_p in);
 
 public:
+	void release_inputs();
+
+public:
 	/*! \brief Read a chunk from the aggregator.
 	 *  \note The PVChunk object returned is allocated by one of the aggregator's sources. It is the responsability
 	 *        of the caller to free it using PVChunk::free.

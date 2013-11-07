@@ -27,10 +27,18 @@ PVRush::PVInputFile::PVInputFile(const char* path) :
 
 PVRush::PVInputFile::~PVInputFile()
 {
+	release();
+}
+
+void PVRush::PVInputFile::release()
+{
 #ifdef WIN32
 	CloseHandle(_hfile);
 #else
-	_file.close();
+	if (_file.is_open()) {
+		std::cout << "Closing " << _path << std::endl;
+		_file.close();
+	}
 #endif
 }
 

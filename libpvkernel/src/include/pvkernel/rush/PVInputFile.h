@@ -22,6 +22,10 @@ class LibKernelDecl PVInputFile : public PVInput {
 public:
 	PVInputFile(const char* path);
 	~PVInputFile();
+
+public:
+	void release() override;
+
 private:
 	PVInputFile(const PVInputFile& /*org*/) { assert(false); }
 public:

@@ -202,6 +202,8 @@ void Picviz::PVSource::extract_finished()
 		mapped_p->finish_process_from_rush_pipeline();
 	}
 
+	_extractor.get_agg().release_inputs();
+
 	// Reset all views and process the current one
 	/*for (auto view_p : get_children<PVView>()) {
 		view_p->reset_layers();
