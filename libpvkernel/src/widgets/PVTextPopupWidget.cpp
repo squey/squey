@@ -316,7 +316,7 @@ bool PVWidgets::PVTextPopupWidget::eventFilter(QObject *obj, QEvent *event)
 	} else if (event->type() == QEvent::KeyPress) {
 		if (isVisible()) {
 			int key = static_cast<QKeyEvent*>(event)->key();
-			if (is_close_key(key) && ) {
+			if (is_close_key(key)) {
 				hide();
 				return true;
 			}
