@@ -13,7 +13,8 @@
  *****************************************************************************/
 
 PVParallelView::PVZoomedParallelViewSelectionLine::PVZoomedParallelViewSelectionLine(PVZoomedParallelView* zpv)
-	: _zpv(zpv),
+	: QGraphicsObject(nullptr),
+	  _zpv(zpv),
 	  _x_scale(1.0),
 	  _y_scale(1.0)
 {
@@ -98,10 +99,12 @@ void PVParallelView::PVZoomedParallelViewSelectionLine::paint(QPainter* painter,
 
 void PVParallelView::PVZoomedParallelViewSelectionLine::clear()
 {
+	_timer->stop();
+	prepareGeometryChange();
 	_tl_pos = QPointF();
 	_br_pos = QPointF();
-	_timer->stop();
 	hide();
+	update();
 }
 
 /*****************************************************************************
