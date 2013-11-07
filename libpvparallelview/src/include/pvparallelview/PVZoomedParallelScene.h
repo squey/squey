@@ -55,6 +55,7 @@ Q_OBJECT
 private:
 	friend class zoom_sliders_update_obs;
 	friend class zoom_sliders_del_obs;
+	friend class zoomed_sel_sliders_del_obs;
 
 private:
 	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
@@ -441,6 +442,25 @@ private:
 		PVZoomedParallelScene *_parent;
 	};
 
+	/**
+	 * @class zoomed_sel_sliders_del_obs
+	 *
+	 * PVHive observer when its zoomed selection sliders is deleted
+	 */
+	class zoomed_sel_sliders_del_obs :
+		public PVHive::PVFuncObserver<PVSlidersManager,
+		                              FUNC(PVSlidersManager::del_zoomed_selection_sliders)>
+	{
+	public:
+		zoomed_sel_sliders_del_obs(PVZoomedParallelScene *parent = nullptr) : _parent(parent)
+		{}
+
+		void update(arguments_deep_copy_type const& args) const;
+
+	private:
+		PVZoomedParallelScene *_parent;
+	};
+
 private:
 	typedef PVParallelView::PVSlidersManager::axis_id_t axis_id_t;
 
@@ -525,6 +545,7 @@ private:
 	PVSlidersGroup                 *_sliders_group;
 	zoom_sliders_update_obs         _zsu_obs;
 	zoom_sliders_del_obs            _zsd_obs;
+	zoomed_sel_sliders_del_obs      _zssd_obs;
 	PVCol                           _axis_index;
 	axis_id_t                       _axis_id;
 	PVZonesManager const&           _zm;

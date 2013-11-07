@@ -13,7 +13,9 @@ public:
 	PVGraphicsViewInteractorScene(PVGraphicsView* parent);
 
 protected:
-	bool mouseDoubleClickEvent(PVGraphicsView* obj, QMouseEvent *event) override;
+	bool contextMenuEvent(PVGraphicsView* obj, QContextMenuEvent* event) override;
+
+	bool mouseDoubleClickEvent(PVGraphicsView* obj, QMouseEvent* event) override;
 	bool mousePressEvent(PVGraphicsView* obj, QMouseEvent* event) override;
 	bool mouseReleaseEvent(PVGraphicsView* obj, QMouseEvent* event) override;
 	bool mouseMoveEvent(PVGraphicsView* obj, QMouseEvent* event) override;

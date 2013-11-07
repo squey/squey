@@ -13,9 +13,7 @@ public:
 	PVZoomedSelectionAxisSlider(int64_t omin, int64_t omax, int64_t o,
 	                            PVAxisSliderOrientation orientation = Min) :
 		PVAbstractAxisSlider(omin, omax, o, orientation)
-	{
-		_removable = false;
-	}
+	{}
 
 	virtual QRectF boundingRect () const;
 

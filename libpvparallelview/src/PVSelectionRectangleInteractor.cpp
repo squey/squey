@@ -33,53 +33,60 @@ bool PVParallelView::PVSelectionRectangleInteractor::keyPressEvent(PVWidgets::PV
 		y_axis_inverted = zda->y_axis_inverted();
 	}
 
-	if (event->key() == Qt::Key_Left) {
-		if (event->modifiers() & Qt::ShiftModifier) {
+	switch(event->key()) {
+	/**
+	 * RH: as the PVFullParallelView can be not used with the PVGraphicsView's
+	 * interactor mechanism, this code is voluntary replicated in the method
+	 * PVFulParallelScene::keyPressEvent(...)
+	 */
+	case Qt::Key_Left:
+		if (event->modifiers() == Qt::ShiftModifier) {
 			_selection_rectangle->grow_horizontally();
-		}
-		else if (event->modifiers() & Qt::ControlModifier) {
+			event->accept();
+		} else if (event->modifiers() == Qt::ControlModifier) {
 			_selection_rectangle->move_horizontally_by_width(!x_axis_inverted);
-		}
-		else {
+			event->accept();
+		} else if (event->modifiers() == Qt::NoModifier) {
 			_selection_rectangle->move_horizontally_by_step(!x_axis_inverted);
+			event->accept();
 		}
-		event->accept();
-	}
-	else if (event->key() == Qt::Key_Right) {
-		if (event->modifiers() & Qt::ShiftModifier) {
+		break;
+	case Qt::Key_Right:
+		if (event->modifiers() == Qt::ShiftModifier) {
 			_selection_rectangle->shrink_horizontally();
-		}
-		else if (event->modifiers() & Qt::ControlModifier) {
+			event->accept();
+		} else if (event->modifiers() == Qt::ControlModifier) {
 			_selection_rectangle->move_horizontally_by_width(x_axis_inverted);
-		}
-		else {
+			event->accept();
+		} else if (event->modifiers() == Qt::NoModifier) {
 			_selection_rectangle->move_horizontally_by_step(x_axis_inverted);
+			event->accept();
 		}
-		event->accept();
-	}
-	else if (event->key() == Qt::Key_Up) {
-		if (event->modifiers() & Qt::ShiftModifier) {
+		break;
+	case Qt::Key_Up:
+		if (event->modifiers() == Qt::ShiftModifier) {
 			_selection_rectangle->grow_vertically();
-		}
-		else if (event->modifiers() & Qt::ControlModifier) {
+			event->accept();
+		} else if (event->modifiers() == Qt::ControlModifier) {
 			_selection_rectangle->move_vertically_by_height(!y_axis_inverted);
-		}
-		else {
+			event->accept();
+		} else if (event->modifiers() == Qt::NoModifier) {
 			_selection_rectangle->move_vertically_by_step(!y_axis_inverted);
+			event->accept();
 		}
-		event->accept();
-	}
-	else if (event->key() == Qt::Key_Down) {
-		if (event->modifiers() & Qt::ShiftModifier) {
+		break;
+	case Qt::Key_Down :
+		if (event->modifiers() == Qt::ShiftModifier) {
 			_selection_rectangle->shrink_vertically();
-		}
-		else if (event->modifiers() & Qt::ControlModifier) {
+			event->accept();
+		} else if (event->modifiers() == Qt::ControlModifier) {
 			_selection_rectangle->move_vertically_by_height(y_axis_inverted);
-		}
-		else {
+			event->accept();
+		} else if (event->modifiers() == Qt::NoModifier) {
 			_selection_rectangle->move_vertically_by_step(y_axis_inverted);
+			event->accept();
 		}
-		event->accept();
+		break;
 	}
 
 	if (event->isAccepted()) {

@@ -204,12 +204,14 @@ void PVParallelView::PVSelectionRectangle::timeout()
 void PVParallelView::PVSelectionRectangle::move_by(qreal hstep, qreal vstep)
 {
 	const QRectF old_rect = get_rect();
-	_rect->set_rect(QRectF(old_rect.x() + hstep,
-	                       old_rect.y() + vstep,
-	                       old_rect.width(),
-	                       old_rect.height()));
 
-	start_timer();
+	const qreal x = old_rect.x() + hstep;
+	const qreal y = old_rect.y() + vstep;
+	const qreal width = old_rect.width();
+	const qreal height = old_rect.height();
+
+	begin(QPointF(x, y));
+	end(QPointF(x + width, y + height), false);
 }
 
 /*****************************************************************************
@@ -219,20 +221,16 @@ void PVParallelView::PVSelectionRectangle::move_by(qreal hstep, qreal vstep)
 void PVParallelView::PVSelectionRectangle::grow_by(qreal hratio, qreal vratio)
 {
 	QRectF old_rect = get_rect();
-	const qreal width = std::max((qreal)1, old_rect.width());
-	const qreal height = std::max((qreal)1, old_rect.height());
 
-	const qreal x = old_rect.x() + width * .5;
-	const qreal y = old_rect.y() + height * .5;
+	qreal width = std::max((qreal)1, old_rect.width());
+	qreal height = std::max((qreal)1, old_rect.height());
+	qreal x = old_rect.x();
+	qreal y = old_rect.y();
 
-	const qreal nwidth  = width / hratio;
-	const qreal nheight = height / vratio;
+	qreal hoffset = (width - width * hratio);
+	qreal voffset = (height - height * vratio);
 
-	_rect->set_rect(QRectF(x - .5 * nwidth,
-	                       y - .5 * nheight,
-	                       nwidth,
-	                       nheight));
-
-	start_timer();
+	begin(QPointF(x - hoffset, y - voffset));
+	end(QPointF(x + hoffset + width, y + voffset + height), false);
 }
 

@@ -60,6 +60,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_sliders_manager_p(sliders_manager_p),
 	_zsu_obs(this),
 	_zsd_obs(this),
+	_zssd_obs(this),
 	_axis_index(axis_index),
 	_zm(zm),
 	_pending_deletion(false),
@@ -117,11 +118,13 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
 
 	PVHive::PVHive::get().register_func_observer(sliders_manager_p,
-			_zsu_obs);
+	                                             _zsu_obs);
 
 	PVHive::PVHive::get().register_func_observer(sliders_manager_p,
-			_zsd_obs);
+	                                             _zsd_obs);
 
+	PVHive::PVHive::get().register_func_observer(sliders_manager_p,
+	                                             _zssd_obs);
 	_updateall_timer.setInterval(150);
 	_updateall_timer.setSingleShot(true);
 	connect(&_updateall_timer, SIGNAL(timeout()),
@@ -145,10 +148,9 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 		common::get_lib_view(_pvview)->remove_zoomed_view(this);
 	}
 
-	if (_sliders_group) {
-		_sliders_group->delete_own_zoom_slider();
-		delete _sliders_group;
-		_sliders_group = nullptr;
+	if (_selection_sliders) {
+		_selection_sliders->remove_from_axis();
+		_selection_sliders = nullptr;
 	}
 
 	if (_pending_deletion == false) {
@@ -157,11 +159,10 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 				_axis_id, _sliders_group);
 	}
 
-	if (_selection_sliders) {
-		PVHive::call<FUNC(PVSlidersManager::del_zoomed_selection_sliders)>(_sliders_manager_p,
-				_axis_id,
-				_selection_sliders);
-		_selection_sliders = nullptr;
+	if (_sliders_group) {
+		_sliders_group->delete_own_zoom_slider();
+		delete _sliders_group;
+		_sliders_group = nullptr;
 	}
 
 	if (_left_zone) {
@@ -211,11 +212,8 @@ void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMous
 		if (_sel_line->is_null()) {
 			_sel_line->clear();
 			if (_selection_sliders) {
-				PVHive::call<FUNC(PVSlidersManager::del_zoomed_selection_sliders)>(_sliders_manager_p,
-						_axis_id,
-						_selection_sliders);
+				_selection_sliders->remove_from_axis();
 				_selection_sliders = nullptr;
-				commit_volatile_selection_Slot();
 			}
 		} else {
 			_sel_line->end(event->scenePos());
@@ -226,8 +224,10 @@ void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMous
 				_selection_sliders = _sliders_group->add_zoomed_selection_sliders(y_min,
 				                                                                  y_max);
 			}
+			/* ::set_value implictly emits the signal slider_moved;
+			 * what will lead to a selection update in PVFullParallelView
+			 */
 			_selection_sliders->set_value(y_min, y_max);
-			commit_volatile_selection_Slot();
 			_selection_sliders->show();
 		}
 
@@ -317,14 +317,24 @@ void PVParallelView::PVZoomedParallelScene::keyPressEvent(QKeyEvent *event)
 			_zpview->help_widget()->popup(_zpview->get_viewport(),
 			                              PVWidgets::PVTextPopupWidget::AlignCenter,
 			                              PVWidgets::PVTextPopupWidget::ExpandAll, 16);
+			event->accept();
 		}
 		return;
 	}
 
+	if (event->key() == Qt::Key_Escape) {
+		_sel_line->clear();
+		if (_selection_sliders) {
+			_selection_sliders->remove_from_axis();
+			_selection_sliders = nullptr;
+		}
+		event->accept();
+	}
 #ifdef PICVIZ_DEVELOPER_MODE
-	if (event->key() == Qt::Key_Space) {
+	else if (event->key() == Qt::Key_Space) {
 		PVLOG_INFO("PVZoomedParallelScene: forcing full redraw\n");
 		update_all();
+		event->accept();
 	}
 #endif
 }
@@ -951,6 +961,22 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_del_obs::update(argumen
 			if (_parent->_zpview != nullptr) {
 				_parent->_zpview->parentWidget()->close();
 			}
+		}
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::zoom_sliders_del_obs::update
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::zoomed_sel_sliders_del_obs::update(arguments_deep_copy_type const& args) const
+{
+	const axis_id_t &axis_id = std::get<0>(args);
+
+	if (axis_id == _parent->_axis_id) {
+		_parent->_selection_sliders = nullptr;
+		if (_parent->_zpview != nullptr) {
+			_parent->_zpview->get_viewport()->update();
 		}
 	}
 }
