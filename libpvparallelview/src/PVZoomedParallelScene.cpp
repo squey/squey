@@ -86,6 +86,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_axis_id = _pvview.get_axes_combination().get_axes_comb_id(axis_index);
 
 	_sel_line = new PVZoomedParallelViewSelectionLine(zpview);
+	_sel_line->setZValue(1.e43);
 	addItem(_sel_line);
 	connect(_sel_line, SIGNAL(commit_volatile_selection()),
 	        this, SLOT(commit_volatile_selection_Slot()));
