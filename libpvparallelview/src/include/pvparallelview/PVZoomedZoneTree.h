@@ -56,14 +56,14 @@ class PVZoomedZoneTree
 {
 	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
 	constexpr static uint32_t mask_int_ycoord = (((uint32_t)1)<<bbits)-1;
-	constexpr static size_t quadtree_max_level = 17;
+	constexpr static size_t quadtree_max_level = 8;
 
 public:
 	typedef PVTLRBuffer<bbits> pv_tlr_buffer_t;
 
 private:
 	typedef pv_tlr_buffer_t::index_t pv_tlr_index_t;
-	typedef PVQuadTree<8192, 1000, 0, bbits> pvquadtree;
+	typedef PVQuadTree<16384, 1000, 0, bbits> pvquadtree;
 	typedef pvquadtree::insert_entry_f insert_entry_f;
 	typedef pvquadtree::insert_entry_y1_y2_f insert_entry_y1_y2_f;
 
