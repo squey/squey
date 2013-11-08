@@ -89,7 +89,6 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 
 	_sel_line = new PVZoomedParallelViewSelectionLine(zpview);
 	_sel_line->setZValue(1.e43);
-	_sel_line->set_default_cursor(Qt::CrossCursor);
 
 	addItem(_sel_line);
 	connect(_sel_line, SIGNAL(commit_volatile_selection()),
