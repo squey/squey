@@ -10,6 +10,7 @@
 
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/PVAlgorithms.h>
+#include <pvkernel/core/PVUtils.h>
 
 #include <pvparallelview/PVZoomedZoneTree.h>
 
@@ -417,12 +418,17 @@ void PVParallelView::PVZoomedZoneTree::process(const PVZoneProcessing &zp,
 
 	init_structures();
 
+#ifdef PICVIZ_DEVELOPER_MODE
 	tbb::tick_count start, end;
 	start = tbb::tick_count::now();
+#endif
 	process_omp_from_zt(zp, zt);
+
+#ifdef PICVIZ_DEVELOPER_MODE
 	end = tbb::tick_count::now();
 	PVLOG_INFO("PVZoomedZoneTree::process in %0.4f ms.\n", (end-start).seconds()*1000.0);
 	PVLOG_INFO("PVZoomedZoneTree::memory: %lu octets.\n", memory());
+#endif
 	_initialized = true;
 }
 
@@ -887,10 +893,29 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 	const insert_entry_y1_y2_f insert_f =
 		insert_entry_y1_y2_f([=](const PVQuadTreeEntry &e, PVCore::PVHSVColor* image)
 			   {
+					/**
+					 * RH: the 2 following tests must never occur but they
+					 * do... As the bug occurs in a 2 levels tbb::task mess, it
+					 * is really really really really hard to debug properly (I
+					 * don't arrive to know if the problem comes from tbb or
+					 * from the quadtree (in the fill or in extraction)).
+					 *
+					 * The "fast" way is to reject "bad" events...
+					 */
+					if (unlikely(y1_min > e.y1)) {
+						return 0;
+					}
+
+					if (unlikely(y2_min > e.y2)) {
+						return 0;
+					}
+
 					uint32_t l = ((uint32_t)(((e.y1 - y1_min) * alpha))) >> shift;
 					uint32_t r = ((uint32_t)(((e.y2 - y2_min) * alpha))) >> shift;
+
 					assert(r < image_width);
 					assert(l < image_width);
+
 					if (image[r*image_width+l].h() == HSV_COLOR_TRANSPARENT) {
 						image[r*image_width+l] = colors[e.idx];
 						return 1;
