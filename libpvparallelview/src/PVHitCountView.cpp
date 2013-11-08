@@ -207,7 +207,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 	_help_widget->addTextFromFile(":help-lines");
 
 	_help_widget->newTable();
-	_help_widget->addTextFromFile(":help-view");
+	_help_widget->addTextFromFile(":help-mouse-view");
 	_help_widget->newColumn();
 	_help_widget->addTextFromFile(":help-sel-rect-full");
 

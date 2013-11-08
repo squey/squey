@@ -145,13 +145,14 @@
 	<file alias="help-selection">resources/help/selection.html</file>
 	<file alias="help-layers">resources/help/layers.html</file>
 	<file alias="help-lines">resources/help/lines.html</file>
-	<file alias="help-view">resources/help/view.html</file>
+	<file alias="help-mouse-view">resources/help/view-mouse.html</file>
 	<file alias="help-sel-rect-simple">resources/help/view-sel-rect-simple.html</file>
 	<file alias="help-sel-rect-full">resources/help/view-sel-rect-full.html</file>
 	<file alias="help-mouse-listing-view">resources/help/view-mouse-listing.html</file>
 	<file alias="help-shortcuts-listing-view">resources/help/view-shortcuts-listing.html</file>
 	<file alias="help-mouse-full-parallel-view">resources/help/view-mouse-full-parallel.html</file>
 	<file alias="help-shortcuts-full-parallel-view">resources/help/view-shortcuts-full-parallel.html</file>
+	<file alias="help-mouse-zoomed-paralllel-view">resources/help/view-mouse-zoomed-parallel.html</file>
 	<file alias="help-mouse-hit-count-view">resources/help/view-mouse-hit-count.html</file>
 	<file alias="help-shortcuts-hit-count-view">resources/help/view-shortcuts-hit-count.html</file>
 	<file alias="help-mouse-scatter-view">resources/help/view-mouse-scatter.html</file>

@@ -34,7 +34,7 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget *parent) :
 	_help_widget->addTextFromFile(":help-lines");
 
 	_help_widget->newTable();
-	_help_widget->addTextFromFile(":help-view");
+	_help_widget->addTextFromFile(":help-mouse-zoomed-paralllel-view");
 	_help_widget->finalizeText();
 }
 

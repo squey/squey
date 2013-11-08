@@ -37,7 +37,7 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent):
 	_help_widget->addTextFromFile(":help-lines");
 
 	_help_widget->newTable();
-	_help_widget->addTextFromFile(":help-view");
+	_help_widget->addTextFromFile(":help-mouse-view");
 	_help_widget->newColumn();
 	_help_widget->addTextFromFile(":help-sel-rect-simple");
 
