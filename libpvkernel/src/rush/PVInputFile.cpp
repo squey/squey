@@ -36,7 +36,6 @@ void PVRush::PVInputFile::release()
 	CloseHandle(_hfile);
 #else
 	if (_file.is_open()) {
-		std::cout << "Closing " << _path << std::endl;
 		_file.close();
 	}
 #endif
