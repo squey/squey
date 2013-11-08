@@ -105,7 +105,7 @@ void PVParallelView::PVAxisHeader::mousePressEvent(QGraphicsSceneMouseEvent* eve
 {
 	// store mouse coordinates
 	_clicking_pos = event->pos();
-	event->accept();
+	event->ignore();
 }
 
 void PVParallelView::PVAxisHeader::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
