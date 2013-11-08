@@ -110,13 +110,13 @@ PVParallelView::PVScatterView::PVScatterView(
 	/* axis zoom
 	 */
 	get_x_axis_zoom().set_range(zoom_min, zoom_extra);
-	get_x_axis_zoom().set_default_value(zoom_min_compute);
+	get_x_axis_zoom().set_default_value(zoom_min);
 	get_y_axis_zoom().set_range(zoom_min, zoom_extra);
-	get_y_axis_zoom().set_default_value(zoom_min_compute);
+	get_y_axis_zoom().set_default_value(zoom_min);
 
 	set_zoom_value(PVZoomableDrawingAreaConstraints::X
 	               | PVZoomableDrawingAreaConstraints::Y,
-	               zoom_min_compute);
+	               zoom_min);
 
 	// decorations
 	set_alignment(Qt::AlignLeft | Qt::AlignTop);
@@ -339,7 +339,7 @@ void PVParallelView::PVScatterView::do_update_all()
 	_sel_rect->set_handles_scale(1. / get_transform().m11(),
 	                             1. / get_transform().m22());
 
-	if (get_y_axis_zoom().get_clamped_value() < zoom_min_compute) {
+	if (get_y_axis_zoom().get_clamped_value() < zoom_min) {
 		/*y1_min = 0;
 		y1_max = 0xFFFFFFFF;
 		y2_min = 0;
@@ -357,7 +357,7 @@ void PVParallelView::PVScatterView::do_update_all()
 	y2_min = view_rect.y();
 	y2_max = view_rect.y()+view_rect.height();
 
-	zoom = (get_y_axis_zoom().get_clamped_value()-zoom_min_compute);
+	zoom = (get_y_axis_zoom().get_clamped_value()-zoom_min);
 	alpha = 0.5 * _zoom_converter->zoom_to_scale_decimal(zoom);
 	zoom = (zoom / zoom_steps) +1;
 
