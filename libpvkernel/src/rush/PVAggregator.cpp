@@ -20,6 +20,13 @@ PVRush::PVAggregator::PVAggregator()
 	init();
 }
 
+void PVRush::PVAggregator::release_inputs()
+{
+	for (PVRush::PVRawSourceBase_p raw_source : _inputs) {
+		raw_source->release_input();
+	}
+}
+
 void PVRush::PVAggregator::init()
 {
 	_eoi = false;

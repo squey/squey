@@ -110,9 +110,9 @@ struct RawFilePolicy
 	{
 	}
 
-	static void Close(file_t file)
+	static int Close(file_t file)
 	{
-		close(file);
+		return close(file);
 	}
 
 	static void Truncate(file_t& file, off_t l)
@@ -163,9 +163,9 @@ struct BufferedFilePolicy
 		fflush(file);
 	}
 
-	static void Close(file_t file)
+	static int Close(file_t file)
 	{
-		fclose(file);
+		return fclose(file);
 	}
 };
 
@@ -995,10 +995,10 @@ private:
 	uint64_t _max_write_size_idx = sizeof(_write_buffers_size_pattern)/sizeof(uint64_t)-1;
 
 	const uint64_t _index_fields_size_pattern[4] = { // too bad we need to specify the size of the array...
-		16,
-		32,
-		64,
-		256
+		512,
+		2048,
+		8192,
+		32768
 	};
 	const uint64_t _max_fields_size_idx = sizeof(_index_fields_size_pattern)/sizeof(uint64_t)-1;
 	uint64_t _fields_size_idx = 0;

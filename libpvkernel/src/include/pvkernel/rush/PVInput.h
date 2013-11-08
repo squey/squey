@@ -24,6 +24,10 @@ public:
 public:
 	PVInput();
 	virtual ~PVInput();
+
+public:
+	virtual void release() {};
+
 public:
 	// This method must read at most n bytes and put the result in buffer and returns the number of bytes actually read.
 	// It returns 0 if no more data is available

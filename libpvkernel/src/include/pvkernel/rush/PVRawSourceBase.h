@@ -33,6 +33,9 @@ private:
 	}
 
 public:
+	virtual void release_input() {}
+
+public:
 	PVFilter::PVChunkFilter_f source_filter();
 	chunk_index last_elt_index() { return _last_elt_index; }
 	void set_number_cols_to_reserve(PVCol col)
