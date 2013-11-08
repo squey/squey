@@ -30,6 +30,7 @@ bool PVWidgets::PVHelpWidget::is_close_key(int key)
 
 bool PVWidgets::PVHelpWidget::is_help_key(int key)
 {
-	return (key == Qt::Key_Question)
-		|| (key == Qt::Key_Help);
+	return ((key == Qt::Key_Question)
+	        || (key == Qt::Key_Help)
+	        || (key == Qt::Key_F1));
 }
