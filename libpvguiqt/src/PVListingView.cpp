@@ -351,7 +351,7 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 		if (help_widget()->isHidden()) {
 			help_widget()->popup(viewport(),
 			                     PVWidgets::PVTextPopupWidget::AlignCenter,
-			                     PVWidgets::PVTextPopupWidget::ExpandAll, 16);
+			                     PVWidgets::PVTextPopupWidget::ExpandAll);
 		}
 		return;
 	}
