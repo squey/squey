@@ -18,7 +18,6 @@
 PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget *parent) :
 	PVWidgets::PVGraphicsView(parent)
 {
-	setCursor(Qt::CrossCursor);
 	setMinimumHeight(300);
 
 	install_default_scene_interactor();
@@ -37,7 +36,6 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget *parent) :
 	_help_widget->addTextFromFile(":help-mouse-zoomed-paralllel-view");
 	_help_widget->finalizeText();
 }
-
 
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelView::~PVZoomedParallelView

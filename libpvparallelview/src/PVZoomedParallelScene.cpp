@@ -71,6 +71,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zp_bg(zp_bg),
 	_selection_sliders(nullptr)
 {
+	_zpview->set_viewport_cursor(Qt::CrossCursor);
+
 	setItemIndexMethod(QGraphicsScene::NoIndex);
 
 	_view_deleted = false;
@@ -86,6 +88,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_axis_id = _pvview.get_axes_combination().get_axes_comb_id(axis_index);
 
 	_sel_line = new PVZoomedParallelViewSelectionLine(zpview);
+	_sel_line->setZValue(1.e43);
+
 	addItem(_sel_line);
 	connect(_sel_line, SIGNAL(commit_volatile_selection()),
 	        this, SLOT(commit_volatile_selection_Slot()));
@@ -471,6 +475,8 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 
 void PVParallelView::PVZoomedParallelScene::update_display()
 {
+	_zpview->set_viewport_cursor(Qt::BusyCursor);
+
 	double alpha = bbits_alpha_scale * pow(root_step, get_zoom_step());
 	double beta = 1. / get_scale_factor();
 
@@ -851,6 +857,7 @@ void PVParallelView::PVZoomedParallelScene::all_rendering_done()
 	}
 
 	update();
+	_zpview->set_viewport_cursor(Qt::CrossCursor);
 }
 
 /*****************************************************************************
