@@ -1,4 +1,40 @@
-3.1.0 "Adrien" (31/05/2013)
+3.2.0 "Bifrost" (2013-11-12)
+--------------------------
+
+This major release adds the following features:
+
+ * unique values dialog displays colorful histograms and provides search functionnality
+ * new "count by" feature: count the number of different values on the secondary axis for each individual value on the selected axis
+ * new selection rectangle with handles that can easily be resized/moved
+ * column and axis visual synchronisation
+ * layer stack: displays the number of events per layer and layers can be renamed with F2
+ * new view toolbars containing view specific options
+ * import cache is kept when saving an investigation in order to reduce next loading time
+ * partial recent items history clear for selected items
+ * new IPv4/IPv6 splitter
+ * new GUID to IPv4/IPv6 converter
+ * new mapping filter for octal integers
+ * new help pages on the views that can be toggled with "F1" or "?"
+ * new icons
+
+This major release fixes or improves:
+
+ * fix crash in scatter view when changing mapping/plotting
+ * fix crash in hit count view when changing axes combination
+ * fix crash when format cannot be read
+ * fix crash with dock central widget
+ * reduce the number of used file descriptors to avoid "Too many open files" errors
+ * fix performance regression in zoomed parallel views
+ * fix cell refresh in listing
+ * fix set color on selected lines in the listing
+ * improve zoomed view selection
+ * export selection is now cancelable
+ * format builder : vertical splitter and more space for filters regex
+ * improve unique values copy performance
+ * fix offset when changing parallel view size
+ * various minors gui improvements
+
+3.1.0 "Adrien" (2013-05-31)
 --------------------------
 
 This major release add the following features:
@@ -17,7 +53,7 @@ This major release fixes:
  * fix potential crash due to a Qt issue in the full parallel view when a cursor is removed
  * fix bottom lines that were sometimes cropped in the full parallel view
 
-3.0.8 (05/04/2013)
+3.0.8 (2013-04-05)
 -----------------
 
 This minor release add the following features:
@@ -26,7 +62,7 @@ This minor release add the following features:
 This minor release fixes:
  * disabled the sorting feature that was enabled by mistake (will be included in version 3.1)
 
-3.0.7 (03/04/2013)
+3.0.7 (2013-04-03)
 ------------------
 
 This minor release add the following features:
@@ -59,7 +95,7 @@ This minor release fixes:
  * disable useless keyboard interactions in the full parallel view
 
 
-3.0.6 (14/02/2013)
+3.0.6 (2013-02-14)
 -----------------
 
 This minor releases fixes:
@@ -69,7 +105,7 @@ This minor releases fixes:
  * above 32-bits fix regression: in the format builder, it is now possible to
    set the axes' name according to a given line
 
-3.0.5 (29/01/2013)
+3.0.5 (2013-01-29)
 -----------------
 
 This minor releases add the following features:
@@ -109,7 +145,7 @@ This minor release fixes:
  * has been applied invalid lines were displayed in some rare cases in the
  * zoomed parallel views
 
-3.0.0 "Retribution" (12/11/2012)
+3.0.0 "Retribution" (2012-11-12)
 --------------------------------
 
 This major release add the following features:
@@ -132,7 +168,7 @@ This major release add the following features:
 
  * Export display compliance
 
-2.6.1 (31/07/2012)
+2.6.1 (2012-07-31)
 ------------------
 
 This minor release fixes:
@@ -140,7 +176,7 @@ This minor release fixes:
  * various bug in the format builder (espacially within the regular expression helper)
 
 
-2.6.0 "Carlsberg" (24/07/2012)
+2.6.0 "Carlsberg" (2012-07-24)
 ------------------------------
 
 New features:
@@ -156,7 +192,7 @@ Bug fixes:
  * URL splitter giving strange values for the 'port' and 'variable' fields
  * Format builder creating invalid parameter for the "filter" plugin
 
-2.5.0 "Dean" (11/04/2012)
+2.5.0 "Dean" (2012-04-11)
 ------------------------
 
 New features:
@@ -178,7 +214,7 @@ wrong results.
  * closing Picviz Inspector when some views are opened do not longer cause the
 application to freeze
 
-2.4.1 (14/02/2012) - Valentine's day release :)
+2.4.1 (2012-02-14) - Valentine's day release :)
 ------------------
 
 This minor release fixes:
@@ -188,7 +224,7 @@ This minor release fixes:
 This minor release adds the features:
  * show the number of invalid elements during an extraction
 
-2.4.0 (23/01/2012)
+2.4.0 (2012-01-23)
 ------------------
 
 New features:
