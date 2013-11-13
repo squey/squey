@@ -28,6 +28,8 @@ template <typename T>
 class PVListUniqStringsModel;
 }
 
+class PVStringSortProxyModel;
+
 class PVAbstractListStatsDlg: public PVListDisplayDlg
 {
 	// TODO: Better members visibility
@@ -70,7 +72,7 @@ protected:
 	PVHive::PVObserverSignal<Picviz::PVView> _obs;
 	PVHive::PVActor<Picviz::PVView> _actor;
 	bool _store_last_section_width = true;
-	int _last_section_width = 175;
+	int _last_section_width = 200;
 
 	size_t _total_count;
 
@@ -100,19 +102,26 @@ public:
 		h[0] = "Value";
 		h[1] = "Frequency";
 
-		if (role == Qt::DisplayRole) {
-			if (orientation == Qt::Horizontal) {
-				return h[section];
+		switch (role) {
+			case(Qt::DisplayRole) :
+			{
+				if (orientation == Qt::Horizontal) {
+					return h[section];
+				}
+				return QVariant(QString().setNum(section));
 			}
-			return QVariant(QString().setNum(section));
-		}
-		else if (role == Qt::TextAlignmentRole) {
-			if (orientation == Qt::Horizontal) {
-				return (Qt::AlignLeft + Qt::AlignVCenter);
-			}
-			else {
-				return (Qt::AlignRight + Qt::AlignVCenter);
-			}
+			break;
+			case (Qt::TextAlignmentRole) :
+				if (orientation == Qt::Horizontal) {
+					return (Qt::AlignLeft + Qt::AlignVCenter);
+				}
+				else {
+					return (Qt::AlignRight + Qt::AlignVCenter);
+				}
+			break;
+			default:
+				return QVariant();
+			break;
 		}
 
 		return QVariant();

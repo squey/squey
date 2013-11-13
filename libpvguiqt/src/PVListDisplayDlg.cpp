@@ -26,6 +26,41 @@
 
 #define AUTOMATIC_SORT_MAX_NUMBER 32768
 
+class PVVerticalHeaderItemModel : public QAbstractItemModel
+{
+public:
+	PVVerticalHeaderItemModel(int row_count, QWidget* parent = nullptr) : QAbstractItemModel(parent), _row_count(row_count) {}
+
+protected:
+	int columnCount(const QModelIndex& /*index*/) const override
+	{
+		return 1;
+	}
+
+	int rowCount(const QModelIndex& /*index*/) const override
+	{
+		return _row_count;
+	}
+
+	QModelIndex index(int row, int column, const QModelIndex& /*parent*/) const override
+	{
+		return createIndex(row, column, nullptr);
+	}
+
+	QVariant data(const QModelIndex & /*index*/, int /*role*/ = Qt::DisplayRole) const override
+	{
+		return QVariant();
+	}
+
+	QModelIndex parent(const QModelIndex & /*index*/) const override
+	{
+		return QModelIndex();
+	}
+
+private:
+	int _row_count;
+};
+
 PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* parent):
 	QDialog(parent)
 {
@@ -47,14 +82,18 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	// setDefaultSectionSize that must be called *before* setModel, or it could
 	// take a huge amount of time.
 
-	_values_view->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
-	_values_view->horizontalHeader()->setStretchLastSection(true);
-	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
 	_values_view->setModel(proxy_model);
 	_values_view->setGridStyle(Qt::NoPen);
 	_values_view->setContextMenuPolicy(Qt::ActionsContextMenu);
 	_values_view->verticalHeader()->hide();
 	_values_view->setItemDelegate(new PVToolTipDelegate(this));
+	_values_view->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
+	_values_view->horizontalHeader()->setStretchLastSection(true);
+	QHeaderView* vertical_header = new QHeaderView(Qt::Vertical);
+	vertical_header->setModel(new PVVerticalHeaderItemModel(_values_view->model()->rowCount()));
+	_values_view->setVerticalHeader(vertical_header);
+	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
+	_values_view->verticalHeader()->setResizeMode(QHeaderView::Fixed);
 
 	_copy_values_act = new QAction(tr("Copy value in the clipboard..."), this);
 
