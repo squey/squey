@@ -41,6 +41,7 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 	_values_view->installEventFilter(table_view_resize_event_handler);
 	connect(table_view_resize_event_handler, SIGNAL(resized()), this, SLOT(view_resized()));
 	_values_view->horizontalHeader()->show();
+	_values_view->verticalHeader()->show();
 	_values_view->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
 	connect(_values_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(section_resized(int, int, int)));
 	_values_view->setItemDelegateForColumn(1, new __impl::PVListStringsDelegate(this));
