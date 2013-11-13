@@ -148,7 +148,7 @@ void PVWidgets::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
   MMM/d/yyyy H:m:ss<br/>date\
   <table>\
   <tr><td>d</td><td>the day in month as a number (1 to 31)</td></tr>\
-  <tr><td>e</td><td>the day of week as a number (1 to 31)</td></tr>\
+  <tr><td>e</td><td>the day of week as a number (1 to 7)</td></tr>\
   <tr><td>eee</td><td>the day of week as an abbreviated or long localized name (e.g. 'Mon' to 'Sun') or as a number (1 to 7)</td></tr>\
   <tr><td>eeee</td><td>the day of week as a long localized name (e.g. 'Monday' to 'Sunday') or as a number (1 to 7)</td></tr>\
   <tr><td>EEE</td><td>the day of week as an abbreviated or long localized name (e.g. 'Mon' to 'Sun')</td></tr>\
