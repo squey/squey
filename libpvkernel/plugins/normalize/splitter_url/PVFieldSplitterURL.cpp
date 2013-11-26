@@ -129,10 +129,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	ret += set_field(_col_variable, pf, str_url, fh->furl.features.query_string); 
 	ret += set_field(_col_fragment, pf, str_url, fh->furl.features.fragment); 
 	ret += set_field(_col_credentials, pf, str_url, fh->furl.features.credential); 
-	if (furl_features_exist(fh->furl.features.port)) {
-		ret += set_field(_col_port, pf, str_url, fh->furl.features.port);
-	}
-	else
+	ret += set_field(_col_port, pf, str_url, fh->furl.features.port);
 	if (_col_port >= 0) {
 		// Guess default port from protocol
 		PVCore::PVUnicodeString16 proto(str_url + fh->furl.features.scheme.pos, fh->furl.features.scheme.size);
