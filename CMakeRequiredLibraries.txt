@@ -82,7 +82,7 @@ find_package(Boost 1.49 COMPONENTS date_time system thread program_options)
 # a little backup of $Boost_LIBRARIES because the second detection will overwrite it
 set(Boost_LIBRARIES_SAVE ${Boost_LIBRARIES})
 
-find_package(Boost 1.49 COMPONENTS python-py32)
+find_package(Boost 1.49 COMPONENTS python-py27)
 set(Boost_LIBRARIES_PYTHON ${Boost_LIBRARIES})
 
 # and a little restoration
@@ -278,7 +278,7 @@ endif(WIN32)
 #  * libpython3.2
 #  * libboost-python1.48.0
 #  * libboost-python1.48-dev
-set(Python_ADDITIONAL_VERSIONS 3.2)
+set(Python_ADDITIONAL_VERSIONS 2.7)
 find_package(PythonLibs)
 if(DEBUG_MODE)
 	set(PYTHON_LIBRARIES ${PYTHON_DEBUG_LIBRARIES})

@@ -178,8 +178,8 @@ else(WIN32)
 		${LINUX_BOOST_PATH}/libpython${BOOST_PYTHON_VER}.so 
 		${LINUX_BOOST_PATH}/libpython${BOOST_PYTHON_VER}.so.1 
 		${LINUX_BOOST_PATH}/libpython${BOOST_PYTHON_VER}.so.1.0 
-		${LINUX_BOOST_PATH}/libboost_python-py32.so 
-		${LINUX_BOOST_PATH}/libboost_python-py32.so.${BOOST_VER} 
+		${LINUX_BOOST_PATH}/libboost_python-py27.so 
+		${LINUX_BOOST_PATH}/libboost_python-py27.so.${BOOST_VER} 
 
 		DESTINATION .)
 
