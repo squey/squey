@@ -316,7 +316,7 @@ void PVGuiQt::PVListingView::extract_selection(Picviz::PVSelection &sel)
 	tvse_t tvse(this);
 	BENCH_START(sel_create);
 	tbb::parallel_deterministic_reduce(tvse_t::blocked_range(0, count,
-															 count / thread_num),
+															 std::max(1, count / thread_num)),
 	                                   tvse);
 	BENCH_END(sel_create, "extract_selection", 1, 1, 1, 1);
 	sel = tvse.get_selection();
