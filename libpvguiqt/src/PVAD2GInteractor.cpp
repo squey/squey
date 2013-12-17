@@ -167,12 +167,12 @@ bool PVGuiQt::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 			QAction* my_action;
 
 			if (hoveringOverNode) {
-				my_action = new QAction(tr("Remove view"), menu);
+				my_action = new QAction(tr("Remove view..."), menu);
 				connect(my_action, SIGNAL(triggered()), _deleteNodeSignalMapper, SLOT(map()));
 				_deleteNodeSignalMapper->setMapping(my_action, (int)_tmpNode);
 			}
 			else if (hoveringOverEdge) {
-				my_action = new QAction(tr("Remove combining function"), menu);
+				my_action = new QAction(tr("Remove combining function..."), menu);
 				connect(my_action, SIGNAL(triggered()), _deleteEdgeSignalMapper, SLOT(map()));
 				_deleteEdgeSignalMapper->setMapping(my_action, (int)_tmpEdge);
 			}

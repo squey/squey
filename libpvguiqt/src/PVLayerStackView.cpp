@@ -76,9 +76,9 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent):
 	_ctxt_menu->addAction(_ctxt_menu_load_ls_act);
 	_ctxt_menu->addSeparator();
 #endif
-	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer's content..."), NULL);
+	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer's content"), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_set_sel_layer);
-	_ctxt_menu_reset_colors = new QAction(tr("Reset layer colors to default..."), NULL);
+	_ctxt_menu_reset_colors = new QAction(tr("Reset layer colors to default"), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_reset_colors);
 }
 

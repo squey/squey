@@ -188,7 +188,7 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	_action_col_unique->setIcon(QIcon(":/fileslist_black"));
 	_hhead_ctxt_menu->addAction(_action_col_unique);
 
-	_menu_col_count_by = new QMenu(tr("Count by values with axis..."), this);
+	_menu_col_count_by = new QMenu(tr("Count by values with axis"), this);
 	_menu_col_count_by->setIcon(QIcon(":/fileslist_black"));
 	_hhead_ctxt_menu->addMenu(_menu_col_count_by);
 

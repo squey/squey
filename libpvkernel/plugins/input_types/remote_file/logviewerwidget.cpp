@@ -97,23 +97,23 @@ void LogViewerWidget::LogViewerWidgetPrivate::initWidget()
     QHBoxLayout *actionLayout = new QHBoxLayout;
     fileLayout->addLayout( actionLayout );
 
-    addFileToDownload = new QPushButton( tr( "Add File..." ) );
+    addFileToDownload = new QPushButton( tr( "Add file..." ) );
     connect( addFileToDownload, SIGNAL( clicked() ), qq, SLOT( slotAddFile() ) );
     actionLayout->addWidget( addFileToDownload );
 
-    removeFileToDownload = new QPushButton( tr( "Remove File" ) );
+    removeFileToDownload = new QPushButton( tr( "Remove file" ) );
     connect( removeFileToDownload, SIGNAL( clicked() ), qq, SLOT( slotRemoveFile() ) );
     actionLayout->addWidget( removeFileToDownload );
 
 
-    configureFileToDownload = new QPushButton( tr( "Configure File" ) );
+    configureFileToDownload = new QPushButton( tr( "Configure file" ) );
     connect( configureFileToDownload, SIGNAL( clicked() ), qq, SLOT( slotConfigureFile() ) );
     actionLayout->addWidget( configureFileToDownload );
 
-    addMachineAction = new QAction( tr( "Add New Machine..." ), qq );
+    addMachineAction = new QAction( tr( "Add new machine..." ), qq );
     connect( addMachineAction, SIGNAL( triggered(bool) ), qq, SLOT( slotAddMachine() ) );
 
-    removeMachineAction = new QAction( tr( "Remove Machine" ), qq );
+    removeMachineAction = new QAction( tr( "Remove machine..." ), qq );
     connect( removeMachineAction, SIGNAL( triggered(bool) ), qq, SLOT( slotRemoveMachine() ) );
 
 
@@ -301,7 +301,7 @@ void LogViewerWidget::slotRemoveFile()
 {
     if ( !d->machineListWidget->currentItem() ) //be safe
         return;
-    if ( QMessageBox::warning( this, tr( "Remove File?" ), tr( "Do you want to remove this file ?" ), QMessageBox::Ok|QMessageBox::Cancel ) == QMessageBox::Cancel )
+    if ( QMessageBox::warning( this, tr( "Remove file?" ), tr( "Do you want to remove this file ?" ), QMessageBox::Ok|QMessageBox::Cancel ) == QMessageBox::Cancel )
         return;
 
     MachineConfig machineConfig = d->machineConfigFromItem( d->machineListWidget->currentItem() );
@@ -408,7 +408,7 @@ void LogViewerWidget::slotAddMachine()
 
         if ( d->listOfMachine.contains( machineConfig ) )
         {
-            QMessageBox::critical( this, tr( "Add Machine" ), tr( "This name is already used. We can not add it." ) );
+            QMessageBox::critical( this, tr( "Add machine" ), tr( "This name is already used. We can not add it." ) );
         }
         else
         {
@@ -423,7 +423,7 @@ void LogViewerWidget::slotRemoveMachine()
 {
     if ( !d->machineListWidget->currentItem() )
         return;
-    if ( QMessageBox::warning( this, tr( "Remove Machine?" ), tr( "Do you want to remove this Machine ?" ), QMessageBox::Ok|QMessageBox::Cancel ) == QMessageBox::Cancel )
+    if ( QMessageBox::warning( this, tr( "Remove machine?" ), tr( "Do you want to remove this machine ?" ), QMessageBox::Ok|QMessageBox::Cancel ) == QMessageBox::Cancel )
         return;
 
     MachineConfig machineConfig = d->machineConfigFromItem( d->machineListWidget->currentItem() );
@@ -444,7 +444,7 @@ void LogViewerWidget::removeLocalFile( const QString& localFile)
         const bool res = file.remove();
         if ( !res )
         {
-            QMessageBox::critical( this, tr( "Remove Local File" ), tr( "Can not remove \"%1\"" ).arg( localFile ) );
+            QMessageBox::critical( this, tr( "Remove local file" ), tr( "Can not remove \"%1\"" ).arg( localFile ) );
         }
 
     }

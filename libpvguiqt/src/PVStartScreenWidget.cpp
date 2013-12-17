@@ -170,7 +170,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	project_widget_layout->addWidget(project_label);
 	
 	// Buttons
-	QPushButton *create_new_format_button = new QPushButton("Create a new format");
+	QPushButton *create_new_format_button = new QPushButton("Create a new format...");
 	create_new_format_button->setIcon(QIcon(":/new-icon-white"));
 	create_new_format_button->setCursor(Qt::PointingHandCursor);
 

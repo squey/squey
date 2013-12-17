@@ -65,7 +65,7 @@ void PVGuiQt::PVCorrelationMenu::add_correlation(Picviz::PVAD2GView* correlation
 	QMenu* correlation_sub_menu = new QMenu(correlation->get_name());
 	insertMenu(_separator_create_correlation, correlation_sub_menu);
 
-	QAction* show_action = correlation_sub_menu->addAction(tr("Show"));
+	QAction* show_action = correlation_sub_menu->addAction(tr("Show..."));
 	connect(show_action, SIGNAL(triggered(bool)), this, SLOT(show_correlation()));
 
 	QAction* delete_action = correlation_sub_menu->addAction(tr("Delete"));

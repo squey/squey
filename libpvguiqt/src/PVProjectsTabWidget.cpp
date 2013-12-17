@@ -38,7 +38,7 @@ void PVGuiQt::__impl::PVTabBar::mousePressEvent(QMouseEvent* event)
 		int index = tabAt(event->pos());
 		if (index >= 2) {
 			QMenu* menu = new QMenu(this);
-			QAction* rename_action = menu->addAction("&Rename");
+			QAction* rename_action = menu->addAction("&Rename...");
 			rename_action->setData(qVariantFromValue(index));
 			connect(rename_action, SIGNAL(triggered(bool)), this, SLOT(rename_tab()));
 			menu->popup(event->globalPos());

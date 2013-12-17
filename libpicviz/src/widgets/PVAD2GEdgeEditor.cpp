@@ -65,7 +65,7 @@ void PVWidgets::PVAD2GEdgeEditor::init()
 	QPushButton* btn_add = new QPushButton(tr("Add"));
 	_btn_up = new QPushButton(tr("Up"));
 	_btn_down = new QPushButton(tr("Down"));
-	_btn_remove = new QPushButton(tr("Remove"));
+	_btn_remove = new QPushButton(tr("Remove..."));
 
 	// Connections
 	connect(btn_add, SIGNAL(clicked()), this, SLOT(add_function_Slot()));

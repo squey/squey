@@ -38,7 +38,7 @@ PVGuiQt::PVRootTreeView::PVRootTreeView(QAbstractItemModel* model, QWidget* pare
 	setContextMenuPolicy(Qt::DefaultContextMenu);
 
 	// Actions
-	_act_new_view = new QAction(tr("Create new view..."), this);
+	_act_new_view = new QAction(tr("Create new view"), this);
 	_act_new_plotted = new QAction(tr("Create new plotted..."), this);
 	_act_new_mapped = new QAction(tr("Create new mapped..."), this);
 	_act_edit_mapping = new QAction(tr("Edit mapping..."), this);

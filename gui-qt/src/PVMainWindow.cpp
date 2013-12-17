@@ -588,7 +588,7 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 					if (is_last) {
 						QMenu *previous_menu = create_filters_menu_exists(actions_list, actions_name[i - 1], i - 1);
 						
-						QAction* action = new QAction(actions_name[i], previous_menu);
+						QAction* action = new QAction(actions_name[i] + "...", previous_menu);
 						action->setObjectName(filter_name);
 						action->setStatusTip(status_tip);
 						connect(action, SIGNAL(triggered()), this, SLOT(filter_Slot()));
@@ -602,7 +602,7 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 				}
 			}
 		} else {	// Nothing to split, so there is only a direct action
-			QAction* action = new QAction(action_name, menu);
+			QAction* action = new QAction(action_name + "...", menu);
 			action->setObjectName(filter_name);
 			action->setStatusTip(status_tip);
 			connect(action, SIGNAL(triggered()), this, SLOT(filter_Slot()));

@@ -103,7 +103,7 @@ PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& grap
 	_edges_table->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
 	_edges_table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-	_removeAct = new QAction(QIcon(), tr("Remove"), this);
+	_removeAct = new QAction(QIcon(), tr("Remove..."), this);
 	//_edges_table->addAction(_removeAct);
 	_edges_table->setContextMenuPolicy(Qt::ActionsContextMenu);
 	connect(_removeAct, SIGNAL(triggered()), this, SLOT(remove_Slot()));
