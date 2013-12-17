@@ -1623,7 +1623,7 @@ void PVInspector::PVMainWindow::display_inv_elts()
 			}
 		}
 		else {
-			QMessageBox::information(this, tr("Invalid elements"), tr("No invalid element have been saved or created during the extraction of this source."));
+			QMessageBox::information(this, tr("Invalid events"), tr("No invalid events have been saved or created during the extraction of this source."));
 		}
 	}
 }
@@ -1684,7 +1684,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource* src)
 			PVRow nelts = job_import->rejected_elements();
 			if (nelts > 0) {
 				msg += QString("Indeed, <strong>%1 elements</strong> have been extracted but were <strong>all invalid</strong>.</p>").arg(nelts);
-				msg += QString("<p>This is because one or more splitters and/or filters defined in format <strong>%1</strong> reported invalid elements during the extraction.<br />").arg(src->get_format_name());
+				msg += QString("<p>This is because one or more splitters and/or filters defined in format <strong>%1</strong> reported invalid events during the extraction.<br />").arg(src->get_format_name());
 				msg += QString("You may have invalid regular expressions set in this format, or simply all the lines have been invalidated by one or more filters thus no lines matches your criterias.</p>");
 				msg += QString("<p>You might try to <strong>fix your format</strong> or try to load <strong>another set of data</strong>.</p>");
 			}

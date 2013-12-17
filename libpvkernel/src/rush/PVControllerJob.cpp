@@ -120,7 +120,7 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 		}
 
 		if (_dump_inv_elts) {
-			// The next dump filter, that dumps all the invalid elements
+			// The next dump filter, that dumps all the invalid events
 			tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> dump_inv_elts_filter(tbb::filter::serial_in_order, _elt_invalid_filter.f());
 			middle_chunk_filter = middle_chunk_filter & dump_inv_elts_filter;
 		}
