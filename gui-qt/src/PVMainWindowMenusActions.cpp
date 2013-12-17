@@ -84,10 +84,10 @@ void PVInspector::PVMainWindow::create_actions()
 	/************************
 	 * For the "Selection" menu entry
 	 ************************/
-	selection_all_Action = new QAction(tr("&All"), this);
+	selection_all_Action = new QAction(tr("Select &all events"), this);
 	selection_all_Action->setShortcut(QKeySequence(Qt::Key_A));
-	selection_none_Action = new QAction(tr("&None"), this);
-	selection_inverse_Action = new QAction(tr("&Inverse"), this);
+	selection_none_Action = new QAction(tr("&Empty selection"), this);
+	selection_inverse_Action = new QAction(tr("&Invert selection"), this);
 	selection_inverse_Action->setShortcut(QKeySequence(Qt::Key_I));
 	set_color_Action = new QAction(tr("Set color"), this);
 	set_color_Action->setShortcut(QKeySequence(Qt::Key_C));
