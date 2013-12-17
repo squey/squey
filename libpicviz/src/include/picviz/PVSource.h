@@ -89,7 +89,7 @@ public:
 
 	void create_default_view();
 
-	QStringList const& get_invalid_elts() const { return _inv_elts; }
+	QStringList const& get_invalid_evts() const { return _inv_elts; }
 
 	PVRush::PVInputType::list_inputs const& get_inputs() const { return _inputs; }
 
@@ -110,7 +110,7 @@ public:
 	PVRush::PVFormat const& get_format() const { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
 
-	void set_invalid_elts_mode(bool restore_inv_elts);
+	void set_invalid_evts_mode(bool restore_inv_elts);
 
 	void add_column(PVAxisComputation_f f_axis, Picviz::PVAxis const& axis);
 

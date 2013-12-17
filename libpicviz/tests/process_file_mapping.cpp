@@ -66,7 +66,7 @@ int main(int argc, char** argv)
 	Picviz::PVScene_p scene(root, "scene");
 	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	Picviz::PVMapped_p mapped(src);
-	//src->set_invalid_elts_mode(true);
+	//src->set_invalid_evts_mode(true);
 	PVRush::PVControllerJob_p job;
 
 	if (raw_dump) {
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
 	}
 
 	//
-	/*QStringList const& inv(job->get_invalid_elts());
+	/*QStringList const& inv(job->get_invalid_evts());
 	foreach (QString const& sinv, inv) {
 		PVLOG_INFO("invalid: %s\n", qPrintable(sinv));
 	}*/

@@ -181,7 +181,7 @@ void Picviz::PVSource::set_mapping_function_in_extractor()
 void Picviz::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 {
 	job->wait_end();
-	_inv_elts = job->get_invalid_elts();
+	_inv_elts = job->get_invalid_evts();
 	extract_finished();
 }
 
@@ -214,11 +214,11 @@ void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
 {
 	_extractor.set_format(format);
 	if (_restore_inv_elts) {
-		_extractor.get_format().restore_invalid_elts(true);
+		_extractor.get_format().restore_invalid_evts(true);
 		_extractor.dump_inv_elts(true);
 	}
 	else {
-		_extractor.get_format().restore_invalid_elts(false);
+		_extractor.get_format().restore_invalid_evts(false);
 		_extractor.dump_inv_elts(false);
 	}
 	_axes_combination.set_from_format(_extractor.get_format());
@@ -332,7 +332,7 @@ void Picviz::PVSource::add_column(PVAxisComputation_f f_axis, PVAxis const& axis
 	set_views_consistent(true);
 }
 
-void Picviz::PVSource::set_invalid_elts_mode(bool restore_inv_elts)
+void Picviz::PVSource::set_invalid_evts_mode(bool restore_inv_elts)
 {
 	_restore_inv_elts = restore_inv_elts;
 	PVRush::PVFormat format = _extractor.get_format();

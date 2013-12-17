@@ -957,7 +957,7 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 
 	// Set the invalid lines widget
 	_inv_lines_widget->clear();
-	QStringList const& elts_invalid = job->get_invalid_elts();
+	QStringList const& elts_invalid = job->get_invalid_evts();
 	QStringList::const_iterator it_ie;
 	for (it_ie = elts_invalid.begin(); it_ie != elts_invalid.end(); it_ie++) {
 		QString const& line = *it_ie;

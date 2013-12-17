@@ -339,7 +339,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Picviz::PVSource* source, QWidget*
 	_views_count = _source->get_children<Picviz::PVView>().size();
 
 	// Invalid events widget
-	PVSimpleStringListModel<QStringList>* inv_elts_model = new PVSimpleStringListModel<QStringList>(source->get_invalid_elts());
+	PVSimpleStringListModel<QStringList>* inv_elts_model = new PVSimpleStringListModel<QStringList>(source->get_invalid_evts());
 	PVGuiQt::PVListDisplayDlg* inv_dlg = new PVGuiQt::PVListDisplayDlg(inv_elts_model, this);
 	inv_dlg->setWindowTitle(tr("Invalid events"));
 	inv_dlg->set_description(tr("There were invalid events during the extraction:"));
