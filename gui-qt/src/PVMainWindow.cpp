@@ -830,7 +830,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 			PVRush::PVSourceDescription src_desc(inputs, fc.second, cur_format);
 			Picviz::PVScene_p scene_p = current_scene()->shared_from_this();
 			import_source = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc).get();
-			import_source->set_invalid_elts_mode(save_inv_elts);
+			import_source->set_invalid_evts_mode(save_inv_elts);
 		}
 		catch (PVRush::PVFormatException const& e) {
 			PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
@@ -1616,10 +1616,10 @@ bool PVInspector::PVMainWindow::load_root()
 void PVInspector::PVMainWindow::display_inv_elts()
 {
 	if (current_view()) {
-		if (current_view()->get_parent<Picviz::PVSource>()->get_invalid_elts().size() > 0) {
+		if (current_view()->get_parent<Picviz::PVSource>()->get_invalid_evts().size() > 0) {
 			PVGuiQt::PVWorkspaceBase* workspace = _projects_tab_widget->current_workspace();
 			if (PVGuiQt::PVSourceWorkspace* source_workspace = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)) {
-				source_workspace->get_source_invalid_elts_dlg()->show();
+				source_workspace->get_source_invalid_evts_dlg()->show();
 			}
 		}
 		else {
@@ -1734,7 +1734,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource* src)
 
 	//_projects_tab_widget->setCurrentIndex(new_tab_index);
 
-	if (src->get_invalid_elts().size() > 0) {
+	if (src->get_invalid_evts().size() > 0) {
 		display_inv_elts();
 	}
 

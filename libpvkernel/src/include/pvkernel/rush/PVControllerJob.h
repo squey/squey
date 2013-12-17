@@ -98,10 +98,10 @@ public:
 
 public:
 	QStringList& get_all_elts() { return _all_elts; }
-	QStringList& get_invalid_elts() { return _inv_elts; }
+	QStringList& get_invalid_evts() { return _inv_elts; }
 
 	QStringList const& get_all_elts() const { return _all_elts; }
-	QStringList const& get_invalid_elts() const { return _inv_elts; }
+	QStringList const& get_invalid_evts() const { return _inv_elts; }
 	
 protected:
 	tbb::filter_t<void,void> create_tbb_filter();

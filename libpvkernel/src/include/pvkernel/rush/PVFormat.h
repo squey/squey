@@ -123,7 +123,7 @@ public:
 	bool exists() const;
 
 	void dump_elts(bool dump) { _dump_elts = dump; }
-	void restore_invalid_elts(bool restore) { _restore_inv_elts = restore; }
+	void restore_invalid_evts(bool restore) { _restore_inv_elts = restore; }
 
 
 	list_axes_t const& get_axes() const { return _axes; }

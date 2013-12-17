@@ -71,7 +71,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(Picviz::PVSource& lib_src, QWidget *pa
 	addWidget(pv_listing_view);
 
 	// Invalid events widget
-	PVSimpleStringListModel<QStringList>* inv_elts_model = new PVSimpleStringListModel<QStringList>(get_lib_src()->get_invalid_elts());
+	PVSimpleStringListModel<QStringList>* inv_elts_model = new PVSimpleStringListModel<QStringList>(get_lib_src()->get_invalid_evts());
 	PVGuiQt::PVListDisplayDlg* inv_dlg = new PVGuiQt::PVListDisplayDlg(inv_elts_model, this);
 	inv_dlg->setWindowTitle(tr("Invalid events"));
 	inv_dlg->set_description(tr("There were invalid events during the extraction:"));

@@ -212,7 +212,7 @@ public:
 
 public:
 	inline Picviz::PVSource* get_source() const { return _source; }
-	inline PVGuiQt::PVListDisplayDlg* get_source_invalid_elts_dlg() const { return _inv_evts_dlg; }
+	inline PVGuiQt::PVListDisplayDlg* get_source_invalid_evts_dlg() const { return _inv_evts_dlg; }
 
 private slots:
 	/*! \brief Check if the view count has changed in order to refresh toolbar menus.
