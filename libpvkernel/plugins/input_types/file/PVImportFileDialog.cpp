@@ -39,7 +39,7 @@ PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget 
 
 	treat_as_combobox->addItems(pluginslist);
 
-	_check_save_inv_elts = new QCheckBox(tr("Keep invalid elements during extraction.\nWarning: this can slow down the whole process and will consume more memory!"));
+	_check_save_inv_elts = new QCheckBox(tr("Keep invalid events during extraction.\nWarning: this can slow down the whole process and will consume more memory!"));
 	options_layout->addWidget(treat_as_label, 0, 0);
 	options_layout->addWidget(treat_as_combobox, 0, 2);
 	options_layout->addWidget(_check_save_inv_elts, 2, 0, 2, -1);

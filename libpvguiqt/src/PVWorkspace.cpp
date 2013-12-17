@@ -338,12 +338,12 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Picviz::PVSource* source, QWidget*
 
 	_views_count = _source->get_children<Picviz::PVView>().size();
 
-	// Invalid elements widget
+	// Invalid events widget
 	PVSimpleStringListModel<QStringList>* inv_elts_model = new PVSimpleStringListModel<QStringList>(source->get_invalid_elts());
 	PVGuiQt::PVListDisplayDlg* inv_dlg = new PVGuiQt::PVListDisplayDlg(inv_elts_model, this);
-	inv_dlg->setWindowTitle(tr("Invalid elements"));
-	inv_dlg->set_description(tr("There were invalid elements during the extraction:"));
-	_inv_elts_dlg = inv_dlg;
+	inv_dlg->setWindowTitle(tr("Invalid events"));
+	inv_dlg->set_description(tr("There were invalid events during the extraction:"));
+	_inv_evts_dlg = inv_dlg;
 
 	// Register observers on the mapped and plotted
 	source->depth_first_list(

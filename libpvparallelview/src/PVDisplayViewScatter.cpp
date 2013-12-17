@@ -65,5 +65,5 @@ QString PVDisplays::PVDisplayViewScatter::axis_menu_name(
     PVCol 				  /*axis_comb*/
 ) const
 {
-	return QString("New scatter view with axis...");
+	return QString("New scatter view with next axis");
 }

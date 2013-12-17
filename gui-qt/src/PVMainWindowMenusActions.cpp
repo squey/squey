@@ -118,7 +118,7 @@ void PVInspector::PVMainWindow::create_actions()
 	 * For the "View" menu entry
 	 ************************/
 	view_new_scatter_Action = new QAction(tr("New scatter &view"), this);
-	view_display_inv_elts_Action = new QAction(tr("&Display invalid elements..."), this);
+	view_display_inv_elts_Action = new QAction(tr("&Display invalid events..."), this);
 /*#ifndef NDEBUG
 	view_screenshot_qt = new QAction(tr("Display view in Qt"), this);
 	view_screenshot_qt->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));

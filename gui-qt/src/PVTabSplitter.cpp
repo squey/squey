@@ -70,11 +70,11 @@ PVInspector::PVTabSplitter::PVTabSplitter(Picviz::PVSource& lib_src, QWidget *pa
 	pv_listing_view->setSortingEnabled(true);
 	addWidget(pv_listing_view);
 
-	// Invalid elements widget
+	// Invalid events widget
 	PVSimpleStringListModel<QStringList>* inv_elts_model = new PVSimpleStringListModel<QStringList>(get_lib_src()->get_invalid_elts());
 	PVGuiQt::PVListDisplayDlg* inv_dlg = new PVGuiQt::PVListDisplayDlg(inv_elts_model, this);
-	inv_dlg->setWindowTitle(tr("Invalid elements"));
-	inv_dlg->set_description(tr("There were invalid elements during the extraction:"));
+	inv_dlg->setWindowTitle(tr("Invalid events"));
+	inv_dlg->set_description(tr("There were invalid events during the extraction:"));
 	_inv_elts_dlg = inv_dlg;
 	
 	// Layout of the RIGHT_WIDGET

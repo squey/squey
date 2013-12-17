@@ -147,7 +147,7 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	_main_tab = new QTabWidget();
 	QWidget* vb_widget = new QWidget();
 	vb_widget->setLayout(vb);
-	_main_tab->addTab(vb_widget, tr("Filters"));
+	_main_tab->addTab(vb_widget, tr("Format"));
 
 	_axes_comb_widget = new PVGuiQt::PVAxesCombinationWidget(myTreeModel->get_axes_combination());
 	_main_tab->addTab(_axes_comb_widget, tr("Axes combination"));
@@ -156,11 +156,11 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 
 	// Tab widget for the NRAW
 	QTabWidget* nraw_tab = new QTabWidget();
-	nraw_tab->addTab(_nraw_widget, tr("Normalization preview"));
+	nraw_tab->addTab(_nraw_widget, tr("Format preview"));
 	main_splitter->addWidget(nraw_tab);
 
 	_inv_lines_widget = new QListWidget();
-	nraw_tab->addTab(_inv_lines_widget, tr("Unmatched lines"));
+	nraw_tab->addTab(_inv_lines_widget, tr("Unmatched events"));
 
 	QVBoxLayout* main_layout = new QVBoxLayout();
 	initToolBar(main_layout);
@@ -916,7 +916,7 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 	// The first one use the aggregator of the extract to get the data through
 	// the filters of the widget (so that they can populate themselves).
 	// Then, the format is created according to the DOM, the real extraction is
-	// made and we get back the invalid elements.
+	// made and we get back the invalid events.
 	// AG: this is clearly subefficient but this is what I can do w/ the time I have.
 	
 	// First extraction
