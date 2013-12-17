@@ -26,7 +26,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 
 	QLabel *logo = new QLabel;
 
-	QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2012 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n";
+	QString content = "Picviz Inspector version " + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2013 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n";
 
 #ifdef CUDA
 	content += "\nWith CUDA support\n";
