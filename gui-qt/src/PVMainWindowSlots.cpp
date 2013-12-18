@@ -392,6 +392,8 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 	// For now, save the NRAW !
 	Picviz::PVView* view = current_view();
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
+	PVRow nrows = nraw.get_number_rows();
+	Picviz::PVSelection& sel = view->get_real_output_selection();
 
 	PVCore::PVProgressBox pbox("Selection export");
 
@@ -399,17 +401,18 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 	PVRow step_count = 20000;
 
 	bool ret = PVCore::PVProgressBox::progress([&]() {
-			view->get_real_output_selection().write_selected_lines_nraw(stream, nraw,
-			                                                            start, step_count);
+		for (; start < nrows ;) {
+			sel.write_selected_lines_nraw(stream, nraw, start, step_count);
 			start += step_count;
 			if (pbox.get_cancel_state() != PVCore::PVProgressBox::CONTINUE) {
 				return;
 			}
-		}, &pbox);
+		}
+	}, &pbox);
 
 	if (ret == false) {
 		file.close();
-		file.remove();
+		//file.remove();
 	}
 }
 
