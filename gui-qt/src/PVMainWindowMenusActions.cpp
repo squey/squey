@@ -272,7 +272,7 @@ void PVInspector::PVMainWindow::create_menus()
 	events_Menu->addSeparator();
 	events_Menu->addAction(events_display_unselected_zombies_parallelview_Action);
 
-	tools_Menu = menubar->addMenu(tr("T&ools"));
+	tools_Menu = menubar->addMenu(tr("F&ormat"));
 	tools_Menu->addAction(tools_new_format_Action);
 	tools_Menu->addAction(tools_cur_format_Action);
 
