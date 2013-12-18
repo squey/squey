@@ -48,8 +48,8 @@ void PVInspector::PVMainWindow::create_actions()
 	export_selection_Action->setToolTip(tr("Export our current selection"));
 
 	// The extractorFile Action
-	extractor_file_Action = new QAction(tr("&Extractor..."), this);
-	extractor_file_Action->setToolTip(tr("Launch the Picviz Extractor"));
+	extractor_file_Action = new QAction(tr("&Create new source from input..."), this);
+	extractor_file_Action->setToolTip(tr("Launch the Picviz Extractor to create a new source from the current input"));
 	extractor_file_Action->setEnabled(false);
 
 	export_file_Action = new QAction(tr("&Export"), this);
