@@ -565,7 +565,7 @@ void PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Picviz::PVSelection con
 
 void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts)
 {
-	// returns a zone tree with only the selected lines
+	// returns a zone tree with only the selected events
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	tbb::atomic<ssize_t> nelts_sel;
 	BENCH_START(subtree2);
@@ -587,7 +587,7 @@ void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection con
 
 void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Picviz::PVSelection const& sel, const PVRow /*nrows*/, PVRow* buf_elts)
 {
-	// returns a zone tree with only the selected lines
+	// returns a zone tree with only the selected events
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	if (sel_buf == nullptr) {
 		// Empty selection
@@ -616,7 +616,7 @@ void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Picviz::PVSe
 							}
 						}
 					}
-					// If nothing from the nu_selection, take the first elts (a zombie line)
+					// If nothing from the nu_selection, take the first event (a zombie one)
 					if (res == PVROW_INVALID_VALUE) {
 						res = r;
 					}

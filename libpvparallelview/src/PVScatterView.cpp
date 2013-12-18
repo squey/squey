@@ -169,7 +169,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	_help_widget->addTextFromFile(":help-mouse-scatter-view");
 	_help_widget->finalizeText();
 
-	// Register view for unselected & zombie lines toggle
+	// Register view for unselected & zombie events toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
 	PVHive::get().register_observer(pvview_sp,
 	                                [=](Picviz::PVView& view) {

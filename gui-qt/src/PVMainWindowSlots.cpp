@@ -194,10 +194,10 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
+ * PVInspector::PVMainWindow::events_display_unselected_listing_Slot()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
+void PVInspector::PVMainWindow::events_display_unselected_listing_Slot()
 {
 	Picviz::PVView* current_lib_view;
 
@@ -213,10 +213,10 @@ void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
+ * PVInspector::PVMainWindow::events_display_unselected_GLview_Slot()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
+void PVInspector::PVMainWindow::events_display_unselected_GLview_Slot()
 {
 	Picviz::PVView* current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
@@ -239,10 +239,10 @@ void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::lines_display_zombies_Slot()
+ * PVInspector::PVMainWindow::events_display_zombies_Slot()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::lines_display_zombies_Slot()
+void PVInspector::PVMainWindow::events_display_zombies_Slot()
 {
 	Picviz::PVView* current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
@@ -268,10 +268,10 @@ void PVInspector::PVMainWindow::lines_display_zombies_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::lines_display_zombies_listing_Sloupdate_recent_projectst()
+ * PVInspector::PVMainWindow::events_display_zombies_listing_Sloupdate_recent_projectst()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
+void PVInspector::PVMainWindow::events_display_zombies_listing_Slot()
 {
 	Picviz::PVView* current_lib_view;
 
@@ -286,10 +286,10 @@ void PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
+ * PVInspector::PVMainWindow::events_display_zombies_GLview_Slot()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
+void PVInspector::PVMainWindow::events_display_zombies_GLview_Slot()
 {
 	Picviz::PVView* current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
@@ -308,10 +308,10 @@ void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::lines_display_unselected_zombies_parallelview_Slot()
+ * PVInspector::PVMainWindow::events_display_unselected_zombies_parallelview_Slot()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::lines_display_unselected_zombies_parallelview_Slot()
+void PVInspector::PVMainWindow::events_display_unselected_zombies_parallelview_Slot()
 {
 	Picviz::PVView* current_lib_view;
 

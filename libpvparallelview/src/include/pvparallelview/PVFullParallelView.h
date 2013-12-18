@@ -44,8 +44,8 @@ public:
 	~PVFullParallelView();
 
 public:
-	void set_total_line_number(uint32_t total_lines) { _total_lines = total_lines; }
-	void set_selected_line_number(uint32_t selected_lines) { _selected_lines = selected_lines; }
+	void set_total_events_number(uint32_t total_events_number) { _total_events_number = total_events_number; }
+	void set_selected_events_number(uint32_t selected_events_number) { _selected_events_number = selected_events_number; }
 
 protected:
 	void paintEvent(QPaintEvent *event) override;
@@ -68,8 +68,8 @@ signals:
 private:
 	PVWidgets::PVHelpWidget *_help_widget;
 
-	uint32_t _total_lines = 0;
-	uint32_t _selected_lines = 0;
+	uint32_t _total_events_number = 0;
+	uint32_t _selected_events_number = 0;
 	bool     _first_resize;
 };
 

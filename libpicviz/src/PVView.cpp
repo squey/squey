@@ -169,7 +169,7 @@ void Picviz::PVView::init_defaults()
  *****************************************************************************/
 void Picviz::PVView::reset_layers()
 {
-	// This function remove all the layers and add the default one with all lines selected
+	// This function remove all the layers and add the default one with all events selected
 	bool old_consistent = _is_consistent;
 	_is_consistent = false;
 	layer_stack.delete_all_layers();
@@ -718,19 +718,19 @@ void Picviz::PVView::process_eventline()
 	PVLinesProperties const& post_lps = post_filter_layer.get_lines_properties();
 	/* We are now able to process the lines_properties */
 	for (PVRow i = 0; i < row_count; i++) {
-		/* We check if the line is selected at the end of the process */
+		/* We check if the event is selected at the end of the process */
 		PVCore::PVHSVColor& out_lp = out_lps.get_line_properties(i);
 		PVCore::PVHSVColor const& post_lp = post_lps.get_line_properties(i);
 		if (real_output_selection.get_line(i)) {
-			/* It is selected, so we copy it's line properties */
+			/* It is selected, so we copy its line properties */
 			out_lp = post_lp;
 		} else {
 			/* It is not selected in the end, so we check if it was available in the beginning */
 			if (layer_stack_output_layer.get_selection().get_line(i)) {
-				/* The line was available, but is unselected */
+				/* The event was available, but is unselected */
 				out_lp = post_lp;
 			} else {
-				/* The line is a zombie line */
+				/* The event is a zombie one */
 				out_lp = default_zombie_line_properties;
 			}
 		}

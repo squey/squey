@@ -136,20 +136,20 @@ void PVInspector::PVMainWindow::create_actions()
 	axes_new_Action = new QAction(tr("Create new axis..."), this);
 
 	/***************************
-	 * For the "Lines" menu entry
+	 * For the "Events" menu entry
 	 ***************************/
-	//lines_display_unselected_GLview_Action = new QAction(tr("Toggle unselected lines"), this);
-	//lines_display_unselected_GLview_Action->setShortcut(QKeySequence(Qt::Key_U));
-	lines_display_unselected_listing_Action = new QAction(tr("Toggle unselected lines in listing"), this);
-	lines_display_unselected_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_U));
+	//events_display_unselected_GLview_Action = new QAction(tr("Toggle unselected events"), this);
+	//events_display_unselected_GLview_Action->setShortcut(QKeySequence(Qt::Key_U));
+	events_display_unselected_listing_Action = new QAction(tr("Toggle unselected events in listing"), this);
+	events_display_unselected_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_U));
 
-	//lines_display_zombies_GLview_Action = new QAction(tr("Toggle zombies lines"), this);
-	//lines_display_zombies_GLview_Action->setShortcut(QKeySequence(Qt::Key_Z));
-	lines_display_zombies_listing_Action = new QAction(tr("Toggle zombies lines in listing"), this);
-	lines_display_zombies_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Z));
+	//events_display_zombies_GLview_Action = new QAction(tr("Toggle zombies events"), this);
+	//events_display_zombies_GLview_Action->setShortcut(QKeySequence(Qt::Key_Z));
+	events_display_zombies_listing_Action = new QAction(tr("Toggle zombies events in listing"), this);
+	events_display_zombies_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Z));
 
-	lines_display_unselected_zombies_parallelview_Action = new QAction(tr("Toggle unselected and zombies lines"), this);
-	lines_display_unselected_zombies_parallelview_Action->setShortcut(QKeySequence(Qt::Key_U));
+	events_display_unselected_zombies_parallelview_Action = new QAction(tr("Toggle unselected and zombies events"), this);
+	events_display_unselected_zombies_parallelview_Action->setShortcut(QKeySequence(Qt::Key_U));
 
 	/**************************
 	 * For the "Help" menu entry
@@ -263,14 +263,14 @@ void PVInspector::PVMainWindow::create_menus()
 	axes_Menu->addSeparator();*/
 
 
-	lines_Menu = menubar->addMenu(tr("&Lines"));
-	lines_Menu->addAction(lines_display_unselected_listing_Action);
-	//lines_Menu->addAction(lines_display_unselected_GLview_Action);
-	//lines_Menu->addSeparator();
-	lines_Menu->addAction(lines_display_zombies_listing_Action);
-	//lines_Menu->addAction(lines_display_zombies_GLview_Action);
-	lines_Menu->addSeparator();
-	lines_Menu->addAction(lines_display_unselected_zombies_parallelview_Action);
+	events_Menu = menubar->addMenu(tr("&Events"));
+	events_Menu->addAction(events_display_unselected_listing_Action);
+	//events_Menu->addAction(events_display_unselected_GLview_Action);
+	//events_Menu->addSeparator();
+	events_Menu->addAction(events_display_zombies_listing_Action);
+	//events_Menu->addAction(events_display_zombies_GLview_Action);
+	events_Menu->addSeparator();
+	events_Menu->addAction(events_display_unselected_zombies_parallelview_Action);
 
 	tools_Menu = menubar->addMenu(tr("T&ools"));
 	tools_Menu->addAction(tools_new_format_Action);
@@ -305,7 +305,7 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 
 	//axes_Menu->setEnabled(cond);
 	filter_Menu->setEnabled(cond);
-	lines_Menu->setEnabled(cond);
+	events_Menu->setEnabled(cond);
 	correlation_Menu->setEnabled(cond);
 	selection_Menu->setEnabled(cond);
 	tools_cur_format_Action->setEnabled(cond);
@@ -367,11 +367,11 @@ void PVInspector::PVMainWindow::connect_actions()
 
 	connect(filter_reprocess_last_filter, SIGNAL(triggered()), this, SLOT(filter_reprocess_last_Slot()));
 
-	connect(lines_display_unselected_listing_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_listing_Slot()));
-	//connect(lines_display_unselected_GLview_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_GLview_Slot()));
-	connect(lines_display_zombies_listing_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_listing_Slot()));
-	//connect(lines_display_zombies_GLview_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_GLview_Slot()));
-	connect(lines_display_unselected_zombies_parallelview_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_zombies_parallelview_Slot()));
+	connect(events_display_unselected_listing_Action, SIGNAL(triggered()), this, SLOT(events_display_unselected_listing_Slot()));
+	//connect(events_display_unselected_GLview_Action, SIGNAL(triggered()), this, SLOT(events_display_unselected_GLview_Slot()));
+	connect(events_display_zombies_listing_Action, SIGNAL(triggered()), this, SLOT(events_display_zombies_listing_Slot()));
+	//connect(events_display_zombies_GLview_Action, SIGNAL(triggered()), this, SLOT(events_display_zombies_GLview_Slot()));
+	connect(events_display_unselected_zombies_parallelview_Action, SIGNAL(triggered()), this, SLOT(events_display_unselected_zombies_parallelview_Slot()));
 
         
 	connect(tools_new_format_Action, SIGNAL(triggered()), this, SLOT(new_format_Slot()));

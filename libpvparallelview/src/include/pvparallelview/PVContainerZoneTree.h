@@ -393,7 +393,7 @@ void PVContainerZoneTree<Container>::process_tbb_concurrent_vector(PVZoneProcess
 template <class Container>
 void PVContainerZoneTree<Container>::filter_by_sel_omp_tree(Picviz::PVSelection const& sel)
 {
-	// returns a zone tree with only the selected lines
+	// returns a zone tree with only the selected events
 	BENCH_START(subtree);
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	const size_t nthreads = atol(getenv("NUM_THREADS"));
@@ -479,7 +479,7 @@ public:
 template <class Container>
 void PVContainerZoneTree<Container>::filter_by_sel_tbb_tree(Picviz::PVSelection const& sel)
 {
-	// returns a zone tree with only the selected lines
+	// returns a zone tree with only the selected events
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	TLS tls;
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));

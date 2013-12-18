@@ -71,7 +71,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 
 	setItemIndexMethod(QGraphicsScene::NoIndex);
 
-	// Register view for unselected & zombie lines toggle
+	// Register view for unselected & zombie events toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.are_view_unselected_zombie_visible(); }, *obs);
 	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
@@ -109,7 +109,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 		add_axis(z);
 	}
 
-	_full_parallel_view->set_total_line_number(_lines_view.get_zones_manager().get_number_rows());
+	_full_parallel_view->set_total_events_number(_lines_view.get_zones_manager().get_number_rows());
 
 	_timer_render = new QTimer(this);
 	_timer_render->setSingleShot(true);
@@ -228,7 +228,7 @@ void PVParallelView::PVFullParallelScene::first_render()
 	update_zones_position(true, false);
 
 	// Change view's internal counter
-	update_selected_line_number();
+	update_selected_event_number();
 
 	update_all();
 }
@@ -569,7 +569,7 @@ void PVParallelView::PVFullParallelScene::update_all()
 			axis->update_layer_min_max_info();
 		}
 	}
-	update_selected_line_number();
+	update_selected_event_number();
 }
 
 /******************************************************************************
@@ -594,13 +594,13 @@ void PVParallelView::PVFullParallelScene::update_all_with_timer()
 
 /******************************************************************************
  *
- * PVParallelView::PVFullParallelScene::update_selected_line_number
+ * PVParallelView::PVFullParallelScene::update_selected_event_number
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::update_selected_line_number()
+void PVParallelView::PVFullParallelScene::update_selected_event_number()
 {
 	const PVRow nlines = lib_view().get_real_output_selection().get_number_of_selected_lines_in_range(0, _lines_view.get_zones_manager().get_number_rows());
-	graphics_view()->set_selected_line_number(nlines);
+	graphics_view()->set_selected_events_number(nlines);
 }
 
 /******************************************************************************
@@ -612,7 +612,7 @@ void PVParallelView::PVFullParallelScene::update_new_selection()
 {
 	assert(QThread::currentThread() == this->thread());
 	// Change view's internal counter
-	update_selected_line_number();
+	update_selected_event_number();
 
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();

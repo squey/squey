@@ -1143,7 +1143,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 						break;
 
 				case (Qt::ShiftModifier):
-						/* We Kommit to active layer and add lines if not yet present */
+						/* We Kommit to active layer and add events if not yet present */
 
 						break;
 
@@ -1190,7 +1190,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			break;
 
 
-		/* Suppress the selected lines ... */
+		/* Suppress the selected events ... */
 		case Qt::Key_Minus:
 			/* If there is no view at all, don't do anything */
 			if (_workspaces_tab_widget->currentIndex() == -1) {
@@ -1211,7 +1211,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 
 					break;
 
-				/* We supress the actuel selected lines in the selected layer */
+				/* We supress the actuel selected events in the selected layer */
 				default:
 					/* We get the current selected layer */
 					current_selected_layer = &(current_lib_view->layer_stack.get_selected_layer());
@@ -1264,7 +1264,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 				break;
 
 
-				/* Add the selected lines ... */
+				/* Add the selected events ... */
 		case Qt::Key_Plus:
 				/* If there is no view at all, don't do anything */
 				if (_workspaces_tab_widget->currentIndex() == -1) {
@@ -1281,20 +1281,20 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 
 					case (Qt::ShiftModifier):
 
-							/* We add the actuel selected lines in the selected layer */
+							/* We add the actuel selected events in the selected layer */
 					case (Qt::NoModifier):
 							Picviz::PVSelection temp_selection;
 							PVCore::PVColor line_properties;
 							// line_properties = picviz_line_properties_new();
 							/* We get the current selected layer */
 							current_selected_layer = &(current_lib_view->layer_stack.get_selected_layer());
-							/* We compute the selection of lines really new to that layer */
+							/* We compute the selection of events really new to that layer */
 							temp_selection = current_lib_view->real_output_selection - current_selected_layer->get_selection();
 //							current_lib_view->real_output_selection.AB2C_substraction(current_selected_layer.get_selection(), temp_selection);
 							/* We add the real_output_selection to the current selected layer */
 							current_selected_layer->get_selection() -= current_lib_view->real_output_selection;
 							//current_selected_layer.get_selection().AB2A_or(current_lib_view->real_output_selection);
-							/* We set the line_properties of the newly added lines to default */
+							/* We set the line_properties of the newly added events to default */
 							current_selected_layer->get_lines_properties().A2A_set_to_line_properties_restricted_by_selection_and_nelts(line_properties, temp_selection, current_lib_view->row_count);
 							// picviz_lines_properties_A2A_set_to_line_properties_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), line_properties, temp_selection, current_lib_view->row_count);
 							/* We need to process the view from the layer_stack */
@@ -1414,7 +1414,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 				menuBar()->setVisible(! menuBar()->isVisible());
 				break;
 
-				/* toggle the visibility of the UNSELECTED lines */
+				/* toggle the visibility of the UNSELECTED events */
 		case Qt::Key_U:	// FIXME: U is useless and it taken by the menu
 				// /* If there is no view at all, don't do anything */
 				// if (pv_WorkspacesTabWidget->currentIndex() == -1) {
@@ -1510,10 +1510,10 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::lines_display_unselected_Slot
+ * PVInspector::PVMainWindow::events_display_unselected_Slot
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::lines_display_unselected_Slot()
+void PVInspector::PVMainWindow::events_display_unselected_Slot()
 {
 
 	Picviz::PVStateMachine *state_machine = NULL;
@@ -1685,7 +1685,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource* src)
 			if (nelts > 0) {
 				msg += QString("Indeed, <strong>%1 elements</strong> have been extracted but were <strong>all invalid</strong>.</p>").arg(nelts);
 				msg += QString("<p>This is because one or more splitters and/or filters defined in format <strong>%1</strong> reported invalid events during the extraction.<br />").arg(src->get_format_name());
-				msg += QString("You may have invalid regular expressions set in this format, or simply all the lines have been invalidated by one or more filters thus no lines matches your criterias.</p>");
+				msg += QString("You may have invalid regular expressions set in this format, or simply all the events have been invalidated by one or more filters thus no events matches your criterias.</p>");
 				msg += QString("<p>You might try to <strong>fix your format</strong> or try to load <strong>another set of data</strong>.</p>");
 			}
 			else {
@@ -1827,7 +1827,7 @@ void PVInspector::PVMainWindow::set_color_selected(QColor const&)
 	if (r == 0 && b == 0 && g == 0) {
 		r = 2;
 	}
-	/* We paint the lines in the post_filter_layer */
+	/* We paint the events in the post_filter_layer */
 	//FIXME: HSV window is needed !
 	//picviz_view.set_color_on_post_filter_layer(r, g, b, a);
 	//picviz_view->set_color_on_active_layer(r, g, b, a);

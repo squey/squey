@@ -530,8 +530,8 @@ private:
 			}
 		}
 
-		backend_image_p_t           bg_image;   // the image for unselected/zomby lines
-		backend_image_p_t           sel_image;  // the image for selected lines
+		backend_image_p_t           bg_image;   // the image for unselected/zombie events
+		backend_image_p_t           sel_image;  // the image for selected events
 		QGraphicsPixmapItem        *item;       // the scene's element
 		QPointF                     next_pos;   // the item position of the next rendering
 		PVZoneRenderingBCI_p<bbits> last_zr_sel;

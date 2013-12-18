@@ -217,7 +217,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 	_help_widget->addTextFromFile(":help-shortcuts-hit-count-view");
 	_help_widget->finalizeText();
 
-	// Register view for unselected & zombie lines toggle
+	// Register view for unselected & zombie events toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
 	PVHive::get().register_observer(pvview_sp,
 	                                [=](Picviz::PVView& view) {

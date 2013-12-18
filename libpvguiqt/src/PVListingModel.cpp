@@ -85,11 +85,11 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 				return QBrush(color.toQColor());
 			} else {
 				if (lib_view().get_line_state_in_layer_stack_output_layer(index.row())) {
-					/* The line is unselected */
+					/* The event is unselected */
 					const PVCore::PVHSVColor color = lib_view().get_color_in_output_layer(r);
 					return QBrush(color.toQColor().darker(200));
 				} else {
-					/* The line is a ZOMBIE */
+					/* The event is a ZOMBIE */
 					return zombie_font_brush;
 				}
 			}
@@ -97,7 +97,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 		case (Qt::ForegroundRole):
 		{
 			const PVRow r = index.row();
-			// Show text in white iif this is a zombie line
+			// Show text in white iif this is a zombie event
 			if (!lib_view().get_real_output_selection().get_line(r) &&
 				!lib_view().get_line_state_in_layer_stack_output_layer(r)) {
 				return QBrush(Qt::white);

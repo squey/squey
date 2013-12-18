@@ -82,7 +82,7 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 	QPen pen(QColor(0x16, 0xe8, 0x2a));
 	painter->setPen(pen);
 	
-	QString count = QString("%L1 (%2 %) / %L3").arg(_selected_lines).arg((uint32_t) (100.0*(double)_selected_lines/(double)_total_lines)).arg(_total_lines);
+	QString count = QString("%L1 (%2 %) / %L3").arg(_selected_events_number).arg((uint32_t) (100.0*(double)_selected_events_number/(double)_total_events_number)).arg(_total_events_number);
 
 	// The "count" string is drawn only if necessary
 	QFontMetrics fm(painter->font());

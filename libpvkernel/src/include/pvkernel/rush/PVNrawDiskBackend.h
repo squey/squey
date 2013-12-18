@@ -638,7 +638,7 @@ public:
 						cur_field = end_field;
 					}
 					if (sel_lines_in_chunk == 0) {
-						// No more chunk with lines selected, that's the end.
+						// No more chunk with selected events, that's the end.
 						fc.stop();
 						return nullptr;
 					}

@@ -298,7 +298,7 @@ void PVParallelView::PVZoneTreeNoAlloc::get_float_pts(pts_t& pts, Picviz::PVPlot
 
 void PVParallelView::PVZoneTreeNoAlloc::filter_by_sel_tbb(Picviz::PVSelection const& sel)
 {
-	// returns a zone tree with only the selected lines
+	// returns a zone tree with only the selected events
 	BENCH_START(subtree);
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	TLS tls;

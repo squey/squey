@@ -687,8 +687,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &c
 
 			if (sel_elts && (sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
 				/* when searching for entries using the selection, if there is no
-				 * drawn selected line for the corresponding ZoneTree, it is useless
-				 * to search for a selected line in the quadtree
+				 * drawn selected event for the corresponding ZoneTree, it is useless
+				 * to search for a selected event in the quadtree
 				 */
 				continue;
 			}
@@ -796,8 +796,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &c
 
 			if (sel_elts && (sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
 				/* when searching for entries using the selection, if there is no
-				 * drawn selected line for the corresponding ZoneTree, it is useless
-				 * to search for a selected line in the quadtree
+				 * drawn selected event for the corresponding ZoneTree, it is useless
+				 * to search for a selected event in the quadtree
 				 */
 				continue;
 			}
@@ -937,8 +937,8 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 
 				                if (sel_elts_ && (sel_elts_[tree_idx] == PVROW_INVALID_VALUE)) {
 					                /* when searching for entries using the selection, if there is no
-					                 * drawn selected line for the corresponding ZoneTree, it is useless
-					                 * to search for a selected line in the quadtree
+					                 * drawn selected event for the corresponding ZoneTree, it is useless
+					                 * to search for a selected event in the quadtree
 					                 */
 					                continue;
 				                }
@@ -1007,8 +1007,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &c
 
 				                  if (sel_elts_ && (sel_elts_[tree_idx] == PVROW_INVALID_VALUE)) {
 					                  /* when searching for entries using the selection, if there is no
-					                   * drawn selected line for the corresponding ZoneTree, it is useless
-					                   * to search for a selected line in the quadtree
+					                   * drawn selected event for the corresponding ZoneTree, it is useless
+					                   * to search for a selected event in the quadtree
 					                   */
 					                  continue;
 				                  }
@@ -1133,8 +1133,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 
 				                  if (sel_elts_ && (sel_elts_[tree_idx] == PVROW_INVALID_VALUE)) {
 					                  /* when searching for entries using the selection, if there is no
-					                   * drawn selected line for the corresponding ZoneTree, it is useless
-					                   * to search for a selected line in the quadtree
+					                   * drawn selected event for the corresponding ZoneTree, it is useless
+					                   * to search for a selected event in the quadtree
 					                   */
 					                  continue;
 				                  }

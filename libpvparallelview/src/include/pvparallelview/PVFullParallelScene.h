@@ -100,9 +100,9 @@ public:
 
 protected:
 	/**
-	 * recompute the selected line number and update the displayed statistics
+	 * recompute the selected event number and update the displayed statistics
 	 */
-	void update_selected_line_number();
+	void update_selected_event_number();
 
 private slots:
 	void update_new_selection();
