@@ -4,13 +4,13 @@
 #include <pvkernel/core/PVHSVColor.h>
 
 #include <QPoint>
-#include <QFrame>
+#include <QWidget>
 
 #include <cassert>
 
 namespace PVWidgets {
 
-class PVColorPicker: public QFrame
+class PVColorPicker: public QWidget
 {
 	Q_OBJECT
 
@@ -62,10 +62,9 @@ protected:
 
 private:
 	void init();
-	uint8_t screen_x_to_h(const int x) const;
-	int h_to_x_screen(const uint8_t h) const;
+	uint8_t screen_x_to_h(int x) const;
+	int h_to_x_screen(uint8_t h) const;
 	void process_mouse_event(QMouseEvent* event);
-	void set_cross_pos(QPoint const& p);
 	void update_h_left(uint8_t h);
 	void update_h_right(uint8_t h);
 

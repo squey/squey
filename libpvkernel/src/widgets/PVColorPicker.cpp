@@ -8,18 +8,19 @@
 #define CROSS_HEIGHT 20
 #define CROSS_WIDTH 20
 #define CROSS_THICK 3
-#define HEIGHT_TRIANGLE 8
-#define WIDTH_TRIANGLE 15
-#define VERT_MARGIN 4
+#define HEIGHT_TRIANGLE 6
+#define WIDTH_TRIANGLE 13
+#define VERT_MARGIN 5
+#define HORI_MARGIN VERT_MARGIN
 
 PVWidgets::PVColorPicker::PVColorPicker(QWidget* parent):
-	QFrame(parent)
+	QWidget(parent)
 {
 	init();
 }
 
 PVWidgets::PVColorPicker::PVColorPicker(PVCore::PVHSVColor const& c, QWidget* parent):
-	QFrame(parent)
+	QWidget(parent)
 {
 	init();
 	set_color(c);
@@ -30,14 +31,13 @@ void PVWidgets::PVColorPicker::init()
 	setFocusPolicy(Qt::StrongFocus);
 
 	_x0 = 0;
-	_x1 = PVCore::PVHSVColor::color_max;
+	_x1 = PVCore::PVHSVColor::color_max - 1;
 	_c.h()  = _x0;
 	_c1.h() = _x1;
 	_mode = SelectionSingle;
 	setFocusPolicy(Qt::StrongFocus);
-	setFrameShape(QFrame::Box);
-	setFrameShadow(QFrame::Sunken);
-	setLineWidth(1);
+
+	setContentsMargins(HORI_MARGIN, VERT_MARGIN, HORI_MARGIN, VERT_MARGIN);
 }
 
 void PVWidgets::PVColorPicker::set_color(PVCore::PVHSVColor const& c)
@@ -66,20 +66,21 @@ void PVWidgets::PVColorPicker::set_interval(PVCore::PVHSVColor const& c0, PVCore
 	}
 }
 
-uint8_t PVWidgets::PVColorPicker::screen_x_to_h(const int x) const
+uint8_t PVWidgets::PVColorPicker::screen_x_to_h(int x) const
 {
-	const int width  = size().width();
-	uint8_t h = (uint8_t) (((x*x_interval())/width) + x0());
+	x = PVCore::clamp(x, 0, size().width());
+	const int width  = contentsRect().width() - 1;
+	uint8_t h = (uint8_t) ((((x-contentsRect().left())*x_interval())/width) + x0());
 	return h;
 }
 
 int PVWidgets::PVColorPicker::h_to_x_screen(uint8_t h) const
 {
 	h = PVCore::clamp(h, x0(), x1());
-	const int width  = size().width();
+	const int width  = contentsRect().width() - 1;
 	const int view_h = h;
 	int ret = ((view_h-x0())*width)/(x_interval());
-	return ret;
+	return ret + contentsRect().left();
 }
 
 QSize PVWidgets::PVColorPicker::sizeHint() const
@@ -104,7 +105,7 @@ void PVWidgets::PVColorPicker::resizeEvent(QResizeEvent* /*event*/)
 void PVWidgets::PVColorPicker::process_mouse_event(QMouseEvent* event)
 {
 	uint8_t h = screen_x_to_h(event->x());
-	if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton) {
+	if (event->buttons() == Qt::LeftButton) {
 		if (h > _c1.h()) {
 			return;
 		}
@@ -112,8 +113,7 @@ void PVWidgets::PVColorPicker::process_mouse_event(QMouseEvent* event)
 		update();
 	}
 
-	if (is_interval_mode() && 
-	    ((event->buttons() & Qt::RightButton) == Qt::RightButton)) {
+	if (is_interval_mode() && (event->buttons() == Qt::RightButton)) {
 		if (h < _c.h()) {
 			return;
 		}
@@ -122,25 +122,22 @@ void PVWidgets::PVColorPicker::process_mouse_event(QMouseEvent* event)
 	}
 }
 
-void PVWidgets::PVColorPicker::paintEvent(QPaintEvent* event)
+void PVWidgets::PVColorPicker::paintEvent(QPaintEvent* /*event*/)
 {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-	QRect const& rect = event->rect();
-	const int height = size().height();
-
-	QRect draw_rect = rect.intersect(contentsRect());
-
 	const int c0_x = h_to_x_screen(_c.h());
 	const int c1_x = h_to_x_screen(_c1.h());
 
+	const int height = size().height();
+	QRect const &draw_rect = contentsRect();
+
 	QColor color;
-	for (int x = draw_rect.left(); x < draw_rect.right(); x++) {
-		int real_x = x-contentsRect().x();
-		const uint8_t h = screen_x_to_h(real_x);
+	for (int x = draw_rect.left(); x <= draw_rect.right(); ++x) {
+		const uint8_t h = screen_x_to_h(x);
 		PVCore::PVHSVColor(h).toQColor(color);
 		if (is_interval_mode()) {
-			if (h < _c.h() || h >= _c1.h()) {
+			if ((x < c0_x) || (x > c1_x)) {
 				color = color.darker(200);
 			}
 		}
@@ -156,26 +153,20 @@ void PVWidgets::PVColorPicker::paintEvent(QPaintEvent* event)
 			draw_down_triangle(c1_x, painter);
 		}
 	}
-
-	// Draw the cross
-	//painter.fillRect(QRect(_cross.x() - CROSS_WIDTH/2, _cross.y() - CROSS_THICK/2, CROSS_WIDTH, CROSS_THICK), Qt::black);
-	//painter.fillRect(QRect(_cross.x() - CROSS_THICK/2, _cross.y() - CROSS_WIDTH/2, CROSS_THICK, CROSS_WIDTH), Qt::black);
-
-	QFrame::paintEvent(event);
 }
 
 void PVWidgets::PVColorPicker::draw_up_triangle(int x, QPainter& painter)
 {
 	QPolygon triangle;
-	triangle << QPoint(x - (WIDTH_TRIANGLE-1)/2, 0) << QPoint(x + (WIDTH_TRIANGLE-1)/2, 0)
-	         << QPoint(x, HEIGHT_TRIANGLE);
+	triangle << QPoint(x - (WIDTH_TRIANGLE-1)/2, 1) << QPoint(x + (WIDTH_TRIANGLE-1)/2, 1)
+	         << QPoint(x, HEIGHT_TRIANGLE + 1);
 	painter.setBrush(Qt::SolidPattern);
 	painter.drawConvexPolygon(triangle);
 }
 
 void PVWidgets::PVColorPicker::draw_down_triangle(int x, QPainter& painter)
 {
-	const int height = size().height();
+	const int height = size().height() - 2;
 	QPolygon triangle;
 	triangle << QPoint(x - (WIDTH_TRIANGLE-1)/2, height) << QPoint(x + (WIDTH_TRIANGLE-1)/2, height)
 	         << QPoint(x, height-HEIGHT_TRIANGLE);
