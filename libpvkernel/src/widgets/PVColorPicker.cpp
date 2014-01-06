@@ -13,11 +13,19 @@
 #define VERT_MARGIN 5
 #define HORI_MARGIN VERT_MARGIN
 
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::PVColorPicker
+ *****************************************************************************/
+
 PVWidgets::PVColorPicker::PVColorPicker(QWidget* parent):
 	QWidget(parent)
 {
 	init();
 }
+
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::PVColorPicker
+ *****************************************************************************/
 
 PVWidgets::PVColorPicker::PVColorPicker(PVCore::PVHSVColor const& c, QWidget* parent):
 	QWidget(parent)
@@ -25,6 +33,10 @@ PVWidgets::PVColorPicker::PVColorPicker(PVCore::PVHSVColor const& c, QWidget* pa
 	init();
 	set_color(c);
 }
+
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::init
+ *****************************************************************************/
 
 void PVWidgets::PVColorPicker::init()
 {
@@ -40,6 +52,10 @@ void PVWidgets::PVColorPicker::init()
 	setContentsMargins(HORI_MARGIN, VERT_MARGIN, HORI_MARGIN, VERT_MARGIN);
 }
 
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::set_color
+ *****************************************************************************/
+
 void PVWidgets::PVColorPicker::set_color(PVCore::PVHSVColor const& c)
 {
 	if (!is_interval_mode()) {
@@ -54,6 +70,10 @@ void PVWidgets::PVColorPicker::set_color(PVCore::PVHSVColor const& c)
 	}
 }
 
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::set_interval
+ *****************************************************************************/
+
 void PVWidgets::PVColorPicker::set_interval(PVCore::PVHSVColor const& c0, PVCore::PVHSVColor const& c1)
 {
 	if (is_interval_mode()) {
@@ -66,6 +86,10 @@ void PVWidgets::PVColorPicker::set_interval(PVCore::PVHSVColor const& c0, PVCore
 	}
 }
 
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::screen_x_to_h
+ *****************************************************************************/
+
 uint8_t PVWidgets::PVColorPicker::screen_x_to_h(int x) const
 {
 	x = PVCore::clamp(x, 0, size().width());
@@ -74,7 +98,11 @@ uint8_t PVWidgets::PVColorPicker::screen_x_to_h(int x) const
 	return h;
 }
 
-int PVWidgets::PVColorPicker::h_to_x_screen(uint8_t h) const
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::h_to_screen_x
+ *****************************************************************************/
+
+int PVWidgets::PVColorPicker::h_to_screen_x(uint8_t h) const
 {
 	h = PVCore::clamp(h, x0(), x1());
 	const int width  = contentsRect().width() - 1;
@@ -83,24 +111,44 @@ int PVWidgets::PVColorPicker::h_to_x_screen(uint8_t h) const
 	return ret + contentsRect().left();
 }
 
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::sizeHint
+ *****************************************************************************/
+
 QSize PVWidgets::PVColorPicker::sizeHint() const
 {
 	return QSize(HSV_COLOR_COUNT, 10);
 }
+
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::mousePressEvent
+ *****************************************************************************/
 
 void PVWidgets::PVColorPicker::mousePressEvent(QMouseEvent* event)
 {
 	process_mouse_event(event);
 }
 
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::mouseMoveEvent
+ *****************************************************************************/
+
 void PVWidgets::PVColorPicker::mouseMoveEvent(QMouseEvent* event)
 {
 	process_mouse_event(event);
 }
 
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::resizeEvent
+ *****************************************************************************/
+
 void PVWidgets::PVColorPicker::resizeEvent(QResizeEvent* /*event*/)
 {
 }
+
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::process_mouse_event
+ *****************************************************************************/
 
 void PVWidgets::PVColorPicker::process_mouse_event(QMouseEvent* event)
 {
@@ -122,12 +170,16 @@ void PVWidgets::PVColorPicker::process_mouse_event(QMouseEvent* event)
 	}
 }
 
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::paintEvent
+ *****************************************************************************/
+
 void PVWidgets::PVColorPicker::paintEvent(QPaintEvent* /*event*/)
 {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-	const int c0_x = h_to_x_screen(_c.h());
-	const int c1_x = h_to_x_screen(_c1.h());
+	const int c0_x = h_to_screen_x(_c.h());
+	const int c1_x = h_to_screen_x(_c1.h());
 
 	const int height = size().height();
 	QRect const &draw_rect = contentsRect();
@@ -155,6 +207,10 @@ void PVWidgets::PVColorPicker::paintEvent(QPaintEvent* /*event*/)
 	}
 }
 
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::draw_up_triangle
+ *****************************************************************************/
+
 void PVWidgets::PVColorPicker::draw_up_triangle(int x, QPainter& painter)
 {
 	QPolygon triangle;
@@ -163,6 +219,10 @@ void PVWidgets::PVColorPicker::draw_up_triangle(int x, QPainter& painter)
 	painter.setBrush(Qt::SolidPattern);
 	painter.drawConvexPolygon(triangle);
 }
+
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::draw_down_triangle
+ *****************************************************************************/
 
 void PVWidgets::PVColorPicker::draw_down_triangle(int x, QPainter& painter)
 {
@@ -174,6 +234,10 @@ void PVWidgets::PVColorPicker::draw_down_triangle(int x, QPainter& painter)
 	painter.drawConvexPolygon(triangle);
 }
 
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::update_h_left
+ *****************************************************************************/
+
 void PVWidgets::PVColorPicker::update_h_left(uint8_t h)
 {
 	uint8_t h_max = _c1.h();
@@ -183,6 +247,10 @@ void PVWidgets::PVColorPicker::update_h_left(uint8_t h)
 	_c = PVCore::clamp(h, x0(), h_max);
 	emit color_changed_left(_c.h());
 }
+
+/*****************************************************************************
+ * PVWidgets::PVColorPicker::update_h_right
+ *****************************************************************************/
 
 void PVWidgets::PVColorPicker::update_h_right(uint8_t h)
 {

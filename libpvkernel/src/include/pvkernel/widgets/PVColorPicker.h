@@ -63,7 +63,7 @@ protected:
 private:
 	void init();
 	uint8_t screen_x_to_h(int x) const;
-	int h_to_x_screen(uint8_t h) const;
+	int h_to_screen_x(uint8_t h) const;
 	void process_mouse_event(QMouseEvent* event);
 	void update_h_left(uint8_t h);
 	void update_h_right(uint8_t h);
