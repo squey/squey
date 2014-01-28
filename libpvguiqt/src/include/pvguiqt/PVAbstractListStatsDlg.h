@@ -38,8 +38,8 @@ class PVAbstractListStatsDlg: public PVListDisplayDlg
 	friend class __impl::PVListStringsDelegate;
 
 public:
-	PVAbstractListStatsDlg(Picviz::PVView_sp& view, PVCol c, QAbstractListModel* model, size_t total_count, QWidget* parent = nullptr) :
-		PVListDisplayDlg(model, parent), _col(c), _total_count(total_count)
+	PVAbstractListStatsDlg(Picviz::PVView_sp& view, PVCol c, QAbstractListModel* model, size_t selected_events_count, QWidget* parent = nullptr) :
+		PVListDisplayDlg(model, parent), _col(c), _selected_events_count(selected_events_count)
 	{
 		init(view);
 	}
@@ -48,8 +48,8 @@ public:
 	virtual ~PVAbstractListStatsDlg();
 
 public:
-	inline size_t get_total_count() { return _total_count; }
-	inline bool use_logorithmic_scale() { return _use_logarithmic_scale; }
+	inline size_t get_selected_events_count() { return _selected_events_count; }
+	inline bool use_logarithmic_scale() { return _use_logarithmic_scale; }
 
 protected:
 	void showEvent(QShowEvent * event) override;
@@ -74,7 +74,7 @@ protected:
 	bool _store_last_section_width = true;
 	int _last_section_width = 200;
 
-	size_t _total_count;
+	size_t _selected_events_count;
 
 	bool _use_logarithmic_scale = true;
 	QAction* _act_toggle_linear;
