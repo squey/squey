@@ -125,6 +125,8 @@ include/pvkernel/core/PVConfig.h
 include/pvkernel/core/PVVector.h
 include/pvkernel/core/PVFileHelper.h
 include/pvkernel/core/PVMemory2D.h
+
+include/pvkernel/core/PVPercentRangeType.h
 )
 
 if(PYTHONLIBS_FOUND)
@@ -370,15 +372,17 @@ include/pvkernel/widgets/PVPresetsWidget.h
 include/pvkernel/widgets/PVGraphicsView.h
 include/pvkernel/widgets/PVGraphicsViewInteractor.h
 
+include/pvkernel/widgets/PVConfigPopupWidget.h
+
+include/pvkernel/widgets/PVAbstractRangePicker.h
+
 include/pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h
 include/pvkernel/widgets/editors/PVEnumEditor.h
 include/pvkernel/widgets/editors/PVPlainTextEditor.h
 include/pvkernel/widgets/editors/PVRegexpEditor.h
 include/pvkernel/widgets/editors/PVTimeFormatEditor.h
 
-include/pvkernel/widgets/PVConfigPopupWidget.h
-
-include/pvkernel/widgets/PVAbstractRangePicker.h
+include/pvkernel/widgets/editors/PVPercentRangeEditor.h
 )
 
 set(WIDGETS_HEADER_FILES
@@ -403,6 +407,7 @@ widgets/editors/PVEnumEditor.cpp
 widgets/editors/PVPlainTextEditor.cpp
 widgets/editors/PVRegexpEditor.cpp
 widgets/editors/PVTimeFormatEditor.cpp
+widgets/editors/PVPercentRangeEditor.cpp
 widgets/PVUtils.cpp
 
 widgets/PVPopupWidget.cpp

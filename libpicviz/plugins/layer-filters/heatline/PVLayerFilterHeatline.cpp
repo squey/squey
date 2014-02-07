@@ -11,7 +11,7 @@
 #include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVAxisIndexType.h>
-#include <pvkernel/core/PVColorGradientDualSliderType.h>
+#include <pvkernel/core/PVPercentRangeType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/rush/PVUtils.h>
 
@@ -26,11 +26,11 @@
 #include <omp.h>
 
 #define ARG_NAME_AXES "axes"
-#define ARG_DESC_AXES "Axes"
+#define ARG_DESC_AXES "Axis"
 #define ARG_NAME_SCALE "scale"
-#define ARG_DESC_SCALE "Scale"
+#define ARG_DESC_SCALE "Scale factor"
 #define ARG_NAME_COLORS "colors"
-#define ARG_DESC_COLORS "Colors"
+#define ARG_DESC_COLORS "Frequency range"
 
 /******************************************************************************
  *
@@ -78,11 +78,11 @@ PVCore::PVArgumentList Picviz::PVLayerFilterHeatlineBase::get_default_args_for_v
  *
  *****************************************************************************/
 void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
-{	
+{
 	BENCH_START(heatline);
 
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
-	
+
 	PVCore::PVAxisIndexType axis = _args.value(ARG_NAME_AXES).value<PVCore::PVAxisIndexType>();
 	const PVCol axis_id = axis.get_original_index();
 	/*if (axes.size() == 0) {
@@ -96,6 +96,13 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 			return;
 		}
 	}*/
+
+	PVCore::PVPercentRangeType ratios = _args.value(ARG_NAME_COLORS).value<PVCore::PVPercentRangeType>();
+
+	const double *freq_values = ratios.get_values();
+
+	const double freq_min = freq_values[0];
+	const double freq_max = freq_values[1];
 
 	bool bLog = _args.value(ARG_NAME_SCALE).value<PVCore::PVEnumType>().get_sel().compare("Log") == 0;
 
@@ -145,7 +152,8 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 		in.get_selection().visit_selected_lines(
 			[&](const PVRow r)
 			{
-				this->post(in, out, 1.0/(double)freqs.size(), r);
+				this->post(in, out, 1.0 / (double)freqs.size(),
+				           freq_min, freq_max, r);
 			}, nrows);
 	}
 	else {
@@ -175,7 +183,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 					ratio = (double)(freq-min_n)/diff;
 				}
 				//std::cout << "line " << r << ", n=" << freq << ", ratio=" << std::setprecision(7) << ratio << std::endl;
-				this->post(in, out, ratio, r);
+				this->post(in, out, ratio, freq_min, freq_max, r);
 			}, nrows);
 	}
 
@@ -189,7 +197,10 @@ QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterHeatlineBase::get_args_keys_fo
 	return keys;
 }
 
-void Picviz::PVLayerFilterHeatlineBase::post(PVLayer& /*in*/, PVLayer& /*out*/, double /*ratio*/, PVRow /*line_id*/)
+void Picviz::PVLayerFilterHeatlineBase::post(const PVLayer& /*in*/, PVLayer& /*out*/,
+                                             const double /*ratio*/,
+                                             const double /*fmin*/, const double /*fmax*/,
+                                             const PVRow /*line_id*/)
 {
 	// The base filter does nothing
 }
@@ -210,7 +221,10 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineColor)
 	return Picviz::PVLayerFilterHeatlineBase::default_args();
 }
 
-void Picviz::PVLayerFilterHeatlineColor::post(PVLayer& /*in*/, PVLayer& out, double ratio, PVRow line_id)
+void Picviz::PVLayerFilterHeatlineColor::post(const PVLayer& /*in*/, PVLayer& out,
+                                              const double ratio,
+                                              const double /*fmin*/, const double /*fmax*/,
+                                              const PVRow line_id)
 {
 	const PVCore::PVHSVColor color((uint8_t)((double)(HSV_COLOR_RED-HSV_COLOR_GREEN)*ratio + (double)HSV_COLOR_GREEN));
 	out.get_lines_properties().line_set_color(line_id, color);
@@ -230,19 +244,15 @@ Picviz::PVLayerFilterHeatlineSel::PVLayerFilterHeatlineSel(PVCore::PVArgumentLis
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineSel)
 {
 	PVCore::PVArgumentList args = Picviz::PVLayerFilterHeatlineBase::default_args();
-	args[PVCore::PVArgumentKey(ARG_NAME_COLORS, ARG_DESC_COLORS)].setValue(PVCore::PVColorGradientDualSliderType());
+	args[PVCore::PVArgumentKey(ARG_NAME_COLORS, ARG_DESC_COLORS)].setValue(PVCore::PVPercentRangeType());
 	return args;
 }
 
-void Picviz::PVLayerFilterHeatlineSel::post(PVLayer& /*in*/, PVLayer& out, double ratio, PVRow line_id)
+void Picviz::PVLayerFilterHeatlineSel::post(const PVLayer& /*in*/, PVLayer& out,
+                                            const double ratio,
+                                            const double fmin, const double fmax,
+                                            const PVRow line_id)
 {
-	PVCore::PVColorGradientDualSliderType ratios = _args[ARG_NAME_COLORS].value<PVCore::PVColorGradientDualSliderType>();
-
-	const double *v = ratios.get_positions();
-
-	double fmin = v[0];
-	double fmax = v[1];
-
 	if ((ratio >= fmin) && (ratio <= fmax)) {
 		out.get_selection().set_line(line_id, 0);
 	}
@@ -260,24 +270,20 @@ Picviz::PVLayerFilterHeatlineSelAndCol::PVLayerFilterHeatlineSelAndCol(PVCore::P
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineSelAndCol)
 {
 	PVCore::PVArgumentList args = Picviz::PVLayerFilterHeatlineBase::default_args();
-	args[PVCore::PVArgumentKey(ARG_NAME_COLORS, ARG_DESC_COLORS)].setValue(PVCore::PVColorGradientDualSliderType());
+	args[PVCore::PVArgumentKey(ARG_NAME_COLORS, ARG_DESC_COLORS)].setValue(PVCore::PVPercentRangeType());
 	return args;
 }
 
-void Picviz::PVLayerFilterHeatlineSelAndCol::post(PVLayer& /*in*/, PVLayer& out, double ratio, PVRow line_id)
+void Picviz::PVLayerFilterHeatlineSelAndCol::post(const PVLayer& /*in*/, PVLayer& out,
+                                                  const double ratio,
+                                                  const double fmin, const double fmax,
+                                                  const PVRow line_id)
 {
 	// Colorize
 	const PVCore::PVHSVColor color((uint8_t)((double)(HSV_COLOR_RED-HSV_COLOR_GREEN)*ratio + (double)HSV_COLOR_GREEN));
 	out.get_lines_properties().line_set_color(line_id, color);
 
 	// Select
-	PVCore::PVColorGradientDualSliderType ratios = _args.value(ARG_NAME_COLORS).value<PVCore::PVColorGradientDualSliderType>();
-
-	const double *v = ratios.get_positions();
-
-	double fmin = v[0];
-	double fmax = v[1];
-
 	if ((ratio < fmin) || (ratio > fmax)) {
 		out.get_selection().set_line(line_id, 0);
 	}
