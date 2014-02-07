@@ -453,6 +453,7 @@ const char* PVRush::PVNrawDiskBackend::at_no_cache(PVRow field, PVCol col, size_
 	else {
 		//BENCH_START(search);
 		buffer_ptr = (char*) PVCore::PVByteVisitor::get_nth_slice((const uint8_t*) buffer, read_size, nb_fields, size_ret);
+		buffer_ptr = buffer_ptr ? buffer_ptr : (char*) "";
 		//BENCH_STOP(search);
 		//_stats_search += (uint64_t) (BENCH_END_TIME(search)*1000000.0);
 	}
