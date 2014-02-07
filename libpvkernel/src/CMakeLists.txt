@@ -377,6 +377,8 @@ include/pvkernel/widgets/editors/PVRegexpEditor.h
 include/pvkernel/widgets/editors/PVTimeFormatEditor.h
 
 include/pvkernel/widgets/PVConfigPopupWidget.h
+
+include/pvkernel/widgets/PVAbstractRangePicker.h
 )
 
 set(WIDGETS_HEADER_FILES
@@ -408,6 +410,8 @@ widgets/PVConfigPopupWidget.cpp
 widgets/PVTextPopupWidget.cpp
 
 widgets/PVHelpWidget.cpp
+
+widgets/PVAbstractRangePicker.cpp
 )
 
 SET(UI_FILES
