@@ -434,8 +434,8 @@ void PVWidgets::__impl::PVAbstractRangeRamp::max_cursor_moved(int value)
  * PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker
  *****************************************************************************/
 
-PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker(double min_limit,
-                                                        double max_limit,
+PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker(const double& min_limit,
+                                                        const double& max_limit,
                                                         QWidget* parent) :
 	QWidget(parent),
 	_epsilon(0.)
@@ -463,8 +463,6 @@ PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker(double min_limit,
 	vl->setAlignment(hl, Qt::AlignTop);
 
 	_min_spinbox = new __impl::PVMimeticDoubleSpinBox;
-	_min_spinbox->setMinimum(min_limit);
-	_min_spinbox->setMaximum(max_limit);
 	_min_spinbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	_min_spinbox->setAlignment(Qt::AlignRight);
 
@@ -474,8 +472,6 @@ PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker(double min_limit,
 	        this, SLOT(min_spinbox_changed(double)));
 
 	_max_spinbox = new __impl::PVMimeticDoubleSpinBox;
-	_max_spinbox->setMinimum(min_limit);
-	_max_spinbox->setMaximum(max_limit);
 	_max_spinbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	_max_spinbox->setAlignment(Qt::AlignRight);
 
@@ -487,52 +483,67 @@ PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker(double min_limit,
 	static_cast<__impl::PVMimeticDoubleSpinBox*>(_min_spinbox)->set_other(_max_spinbox);
 	static_cast<__impl::PVMimeticDoubleSpinBox*>(_max_spinbox)->set_other(_min_spinbox);
 
-	_limit_min = min_limit;
-	_limit_max = max_limit;
-	_limit_range = (max_limit - min_limit);
-
 	/**
-	 * the spinboxs values are set at the end to update the cursors (as all
-	 * signals/slots are connected)
+	 * the spinboxes are initialized/connected/whatever, now its time to update
+	 * our little world :-)
 	 */
-	_min_spinbox->setValue(min_limit);
-	_max_spinbox->setValue(max_limit);
+	set_limits(min_limit, max_limit);
 }
 
 /*****************************************************************************
- * PVWidgets::PVAbstractRangePicker::set_min
+ * PVWidgets::PVAbstractRangePicker::set_range_min
  *****************************************************************************/
 
-void PVWidgets::PVAbstractRangePicker::set_min(const double& value)
+void PVWidgets::PVAbstractRangePicker::set_range_min(const double& value)
 {
 	_min_spinbox->setValue(value);
 }
 
 /*****************************************************************************
- * PVWidgets::PVAbstractRangePicker::get_min
+ * PVWidgets::PVAbstractRangePicker::get_range_min
  *****************************************************************************/
 
-double PVWidgets::PVAbstractRangePicker::get_min() const
+double PVWidgets::PVAbstractRangePicker::get_range_min() const
 {
 	return _min_spinbox->value();
 }
 
 /*****************************************************************************
- * PVWidgets::PVAbstractRangePicker::set_max
+ * PVWidgets::PVAbstractRangePicker::set_range_max
  *****************************************************************************/
 
-void PVWidgets::PVAbstractRangePicker::set_max(const double& value)
+void PVWidgets::PVAbstractRangePicker::set_range_max(const double& value)
 {
 	_max_spinbox->setValue(value);
 }
 
 /*****************************************************************************
- * PVWidgets::PVAbstractRangePicker::get_max
+ * PVWidgets::PVAbstractRangePicker::get_range_max
  *****************************************************************************/
 
-double PVWidgets::PVAbstractRangePicker::get_max() const
+double PVWidgets::PVAbstractRangePicker::get_range_max() const
 {
 	return _max_spinbox->value();
+}
+
+/*****************************************************************************
+ * PVWidgets::PVAbstractRangePicker::set_limits
+ *****************************************************************************/
+
+void PVWidgets::PVAbstractRangePicker::set_limits(const double& min_limit,
+                                                  const double& max_limit)
+{
+	_limit_min = min_limit;
+	_limit_max = max_limit;
+	_limit_range = max_limit - min_limit;
+
+	_min_spinbox->setMinimum(min_limit);
+	_min_spinbox->setMaximum(max_limit);
+	_min_spinbox->setValue(min_limit);
+
+	_max_spinbox->setMinimum(min_limit);
+	_max_spinbox->setMaximum(max_limit);
+	_max_spinbox->setValue(max_limit);
 }
 
 /*****************************************************************************
@@ -570,13 +581,31 @@ void PVWidgets::PVAbstractRangePicker::set_epsilon(const double& epsilon)
 }
 
 /*****************************************************************************
+ * PVWidgets::PVAbstractRangePicker::map_from_spinbox
+ *****************************************************************************/
+
+double PVWidgets::PVAbstractRangePicker::map_from_spinbox(const double& value) const
+{
+	return (value - _limit_min) / _limit_range;
+}
+
+/*****************************************************************************
+ * PVWidgets::PVAbstractRangePicker::map_to_spinbox
+ *****************************************************************************/
+
+double PVWidgets::PVAbstractRangePicker::map_to_spinbox(const double& value) const
+{
+	return (value * _limit_range) + _limit_min;
+}
+
+/*****************************************************************************
  * PVWidgets::PVAbstractRangePicker::min_spinbox_changed
  *****************************************************************************/
 
 void PVWidgets::PVAbstractRangePicker::min_spinbox_changed(double value)
 {
 	// spinbox's value normalization to pass it to the range ramp
-	_range_ramp->set_min_cursor((value - _limit_min) / _limit_range);
+	_range_ramp->set_min_cursor(map_from_spinbox(value));
 
 	_max_spinbox->setMinimum(value + _epsilon);
 	update();
@@ -589,7 +618,7 @@ void PVWidgets::PVAbstractRangePicker::min_spinbox_changed(double value)
 void PVWidgets::PVAbstractRangePicker::max_spinbox_changed(double value)
 {
 	// spinbox's value normalization to pass it to the range ramp
-	_range_ramp->set_max_cursor((value - _limit_min) / _limit_range);
+	_range_ramp->set_max_cursor(map_from_spinbox(value));
 
 	_min_spinbox->setMaximum(value - _epsilon);
 	update();
@@ -602,7 +631,7 @@ void PVWidgets::PVAbstractRangePicker::max_spinbox_changed(double value)
 void PVWidgets::PVAbstractRangePicker::min_ramp_changed(double value)
 {
 	// range ramp's value denormalization to pass it to the spinbox
-	_min_spinbox->setValue((value * _limit_range) + _limit_min);
+	_min_spinbox->setValue(map_to_spinbox(value));
 }
 
 /*****************************************************************************
@@ -612,5 +641,5 @@ void PVWidgets::PVAbstractRangePicker::min_ramp_changed(double value)
 void PVWidgets::PVAbstractRangePicker::max_ramp_changed(double value)
 {
 	// range ramp's value denormalization to pass it to the spinbox
-	_max_spinbox->setValue((value * _limit_range) + _limit_min);
+	_max_spinbox->setValue(map_to_spinbox(value));
 }

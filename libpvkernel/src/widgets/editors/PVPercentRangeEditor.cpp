@@ -46,8 +46,8 @@ PVCore::PVPercentRangeType PVWidgets::PVPercentRangeEditor::get_values() const
 	PVCore::PVPercentRangeType ret;
 
 	double pos[2];
-	pos[0] = get_min() * 0.01;
-	pos[1] = get_max() * 0.01;
+	pos[0] = get_range_min() * 0.01;
+	pos[1] = get_range_max() * 0.01;
 	ret.set_values(pos);
 
 	return ret;
@@ -61,6 +61,6 @@ void PVWidgets::PVPercentRangeEditor::set_values(const PVCore::PVPercentRangeTyp
 {
 	const double* pos = r.get_values();
 
-	set_min(pos[0] * 100.);
-	set_max(pos[1] * 100.);
+	set_range_min(pos[0] * 100.);
+	set_range_max(pos[1] * 100.);
 }

@@ -223,35 +223,68 @@ public:
 	 * @param max_limit the range upper value
 	 * @param widget the parent widget
 	 */
-	PVAbstractRangePicker(double min_limit, double max_limit, QWidget* parent = nullptr);
+	PVAbstractRangePicker(const double& min_limit,
+	                      const double& max_limit,
+	                      QWidget* parent = nullptr);
 
 	/**
-	 * set the minimum value
+	 * Set the range's minimum value
 	 *
 	 * @param value the new minimum value
 	 */
-	void set_min(const double& value);
+	void set_range_min(const double& value);
 
 	/**
-	 * get the minimum value
+	 * Get the range's minimum value
 	 *
 	 * @return the minimum value
 	 */
-	double get_min() const;
+	double get_range_min() const;
 
 	/**
-	 * set the maximum value
+	 * Set the range's maximum value
 	 *
 	 * @param value the new maximum value
 	 */
-	void set_max(const double& value);
+	void set_range_max(const double& value);
 
 	/**
-	 * get the maximum value
+	 * Get the range's maximum value
 	 *
 	 * @return the maximum value
 	 */
-	double get_max() const;
+	double get_range_max() const;
+
+public:
+	/**
+	 * Set the lower and upper bound limits
+	 *
+	 * @param min_limit the lower bound
+	 * @param max_limit the upper bound
+	 */
+	void set_limits(const double& min_limit,
+	                const double& max_limit);
+
+	/**
+	 * get the lower bound limit
+	 *
+	 * @return the widget's lower bound limit
+	 */
+	double get_limit_min() const { return _limit_min; }
+
+	/**
+	 * get the uper bound limit
+	 *
+	 * @return the widget's uper bound limit
+	 */
+	double get_limit_max() const { return _limit_max; }
+
+	/**
+	 * get the limit's range
+	 *
+	 * @return the widget's limit's range
+	 */
+	double get_limit_range() const { return _limit_range; }
 
 protected:
 	/**
@@ -294,12 +327,36 @@ protected:
 	 */
 	QDoubleSpinBox* get_max_spinbox() { return _max_spinbox; }
 
+protected:
+	/**
+	 * Converts a value from spinbox's value space to color ramp's value space
+	 *
+	 * This method is helful to have non linear color ramp.
+	 *
+	 * @param value a value in the range accepted by spinboxes
+	 *
+	 * @return a value in the range [0;1]
+	 */
+	virtual double map_to_spinbox(const double& value) const;
+
+	/**
+	 * Converts a value from color ramp's value space to spinbox's value space
+	 *
+	 * This method is helful to have non linear color ramp.
+	 *
+	 * @param value a value in the range [0,1]
+	 *
+	 * @return a value in the range accepted by spinboxes
+	 */
+	virtual double map_from_spinbox(const double& value) const;
+
 private slots:
 	/**
 	 * This slot is called each time the minimum spinbox's value has changed
 	 *
 	 * @param value the new minimum spinbox value
 	 */
+
 	void min_spinbox_changed(double value);
 	/**
 	 * This slot is called each time the maximum spinbox's value has changed
