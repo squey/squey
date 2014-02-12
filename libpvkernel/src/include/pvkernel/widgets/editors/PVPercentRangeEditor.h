@@ -25,7 +25,7 @@ class PVPercentRangeEditor : public PVAbstractRangePicker
 {
 	Q_OBJECT
 
-	Q_PROPERTY(PVCore::PVPercentRangeType _color_slider READ get_values WRITE set_values USER true)
+	Q_PROPERTY(PVCore::PVPercentRangeType _percent_range_type READ get_values WRITE set_values USER true)
 
 public:
 	/**
