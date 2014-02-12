@@ -43,6 +43,7 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 	_values_view->horizontalHeader()->show();
 	_values_view->verticalHeader()->show();
 	_values_view->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
+	_values_view->setAlternatingRowColors (true);
 	connect(_values_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(section_resized(int, int, int)));
 	_values_view->setItemDelegateForColumn(1, new __impl::PVListStringsDelegate(this));
 
@@ -217,17 +218,7 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 		double ratio = (double) occurence_count / d()->get_selected_events_count();
 		double log_ratio = (double) log(log(2)+occurence_count) / log(log(2)+d()->get_selected_events_count());
 		bool log_scale = d()->use_logarithmic_scale();
-
-		// Draw bounding rectangle
 		size_t thickness = 1;
-		QRect r(option.rect.x()/*+2*/, option.rect.y()+thickness, option.rect.width(), option.rect.height()-thickness);
-		QColor color("#F2F2F2");
-#if ALTERNATING_BG_COLOR
-		QColor alt_color("#FBFBFB");
-		painter->fillRect(r, index.row() % 2 ? color : alt_color);
-#else
-		painter->setPen(color); painter->drawRect(r);
-#endif
 
 		// Fill rectangle with color
 		painter->fillRect(
@@ -308,9 +299,6 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 				percentage
 			);
 		}
-	}
-	else {
-		 QStyledItemDelegate::paint(painter, option, index);
 	}
 }
 
