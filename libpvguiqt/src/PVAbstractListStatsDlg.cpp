@@ -62,6 +62,7 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 
 	_act_show_count = new QAction("Count", _hhead_ctxt_menu);
 	_act_show_count->setCheckable(true);
+	_act_show_count->setChecked(true);
 	_act_show_scientific_notation = new QAction("Scientific notation", _hhead_ctxt_menu);
 	_act_show_scientific_notation->setCheckable(true);
 	_act_show_percentage = new QAction("Percentage", _hhead_ctxt_menu);
