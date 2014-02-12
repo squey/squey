@@ -98,9 +98,7 @@ public:
 public:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const
 	{
-		QHash<size_t, QString> h;
-		h[0] = "Value";
-		h[1] = "Frequency";
+		static QString h[] = { "Value", "Count" };
 
 		switch (role) {
 			case(Qt::DisplayRole) :
