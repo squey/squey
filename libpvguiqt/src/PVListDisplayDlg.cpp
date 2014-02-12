@@ -107,8 +107,8 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 
 	set_description(QString());
 
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
-	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(_values_view, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
+	_values_view->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	connect(_btn_copy_clipboard, SIGNAL(clicked()), this, SLOT(copy_to_clipboard()));
 	connect(_btn_copy_file, SIGNAL(clicked()), this, SLOT(copy_to_file()));
@@ -128,6 +128,13 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 
 void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& /*pos*/)
 {
+	QModelIndex index = _values_view->currentIndex();
+
+	if (index.column() != 0) {
+		// context menu only for the "value" column
+		return;
+	}
+
 	// Show the menu at the given pos
 	QAction* act_sel = _ctxt_menu->exec(QCursor::pos());
 
