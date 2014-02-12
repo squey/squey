@@ -64,7 +64,6 @@ include/pvguiqt/PVLayerStackModel.h
 include/pvguiqt/PVLayerStackView.h
 include/pvguiqt/PVLayerStackWidget.h
 include/pvguiqt/PVListDisplayDlg.h
-include/pvguiqt/PVListUniqStringsDlg.h
 include/pvguiqt/PVAbstractListStatsDlg.h
 include/pvguiqt/PVListingModel.h
 include/pvguiqt/PVListingSortFilterProxyModel.h
