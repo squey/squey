@@ -74,7 +74,7 @@ protected:
 	bool _store_last_section_width = true;
 	int _last_section_width = 200;
 
-	size_t _selected_events_count;
+	uint64_t _selected_events_count;
 
 	bool _use_logarithmic_scale = true;
 	QAction* _act_toggle_linear;
@@ -84,7 +84,7 @@ protected:
 	QAction* _act_show_count;
 	QAction* _act_show_scientific_notation;
 
-	size_t _max_e;
+	uint64_t _max_e;
 };
 
 namespace __impl {

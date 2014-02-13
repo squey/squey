@@ -744,7 +744,7 @@ bool PVRush::PVNrawDiskBackend::get_sum_for_col_with_sel(
 	bool vret = visit_column_tbb_sel(col, [&sum_valid_tls](size_t, const char* buf, size_t n)
 	{
 		char* end_char;
-		uint64_t value = strtoll(std::string(buf, n).c_str(), &end_char, 10);
+		uint64_t value = strtoll(std::string_tbb(buf, n).c_str(), &end_char, 10);
 		if (*end_char == '\0') {
 			sum_valid_t& sum_valid = sum_valid_tls.local();
 			sum_valid.first += value;
@@ -764,4 +764,62 @@ bool PVRush::PVNrawDiskBackend::get_sum_for_col_with_sel(
 	}
 
 	return valid;
+}
+
+bool PVRush::PVNrawDiskBackend::sum_by_with_sel(PVCol const col1, PVCol const col2, sum_by_t& ret, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt /* = nullptr */)
+{
+	BENCH_START(sum_by_with_sel);
+
+	const size_t nreserve = std::sqrt(_nrows);
+	tbb::enumerable_thread_specific<sum_by_t> sum_by_tls([nreserve]{ sum_by_t ret; ret.reserve(nreserve); return ret; });
+	bool vret = visit_column_tbb_sel(col1, [this, &sum_by_tls, col2](size_t row, const char* buf1, size_t n1)
+	{
+		std::string_tbb col1_str(buf1, n1);
+		size_t n2;
+		const char* buf2 = at_no_cache(row, col2, n2);
+		std::string_tbb col2_str(buf2, n2);
+		char* end_char;
+		uint64_t value = strtoll(col2_str.c_str(), &end_char, 10);
+		if (*end_char == '\0') {
+			sum_by_tls.local()[col1_str] += value;
+		}
+	}, sel, ctxt);
+	if (!vret) {
+		return false;
+	}
+
+	BENCH_START(merge_sum_by_tls);
+	bool res = merge_sum_by_tls(ret, sum_by_tls);
+	BENCH_END(merge_sum_by_tls, "merge_sum_by_tls", 1, 1, 1, 1);
+
+	get_sum_for_col_with_sel(col2, sum, sel);
+
+	BENCH_END(sum_by_with_sel, "sum_by_with_sel", 1, 1, 1, 1);
+
+	return res;
+}
+
+bool PVRush::PVNrawDiskBackend::merge_sum_by_tls(sum_by_t& ret, tbb::enumerable_thread_specific<sum_by_t>& sum_by_tls, tbb::task_group_context* ctxt /* = nullptr */)
+{
+	tbb::enumerable_thread_specific<unique_values_t>::iterator it_tls = sum_by_tls.begin();
+	if (it_tls != sum_by_tls.end()) {
+		sum_by_t& final = *it_tls;
+		it_tls++;
+		for (; it_tls != sum_by_tls.end(); it_tls++) {
+			if (ctxt && ctxt->is_group_execution_cancelled()) {
+				ret.clear();
+				return false; 	// return false if it has been cancelled
+			}
+			for (auto& v : *it_tls) {
+				final[v.first] += v.second;
+			}
+		}
+		ret = std::move(final);
+	}
+	else {
+		ret.clear();
+		return false;
+	}
+
+	return true;
 }

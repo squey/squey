@@ -48,3 +48,24 @@ bool PVGuiQt::PVQNraw::show_count_by(Picviz::PVView_sp& view, PVRush::PVNraw con
 
 	return true;
 }
+
+bool PVGuiQt::PVQNraw::show_sum_by(Picviz::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Picviz::PVSelection const& sel, QWidget* parent)
+{
+	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
+	pbox->set_enable_cancel(false);
+	PVRush::PVNraw::sum_by_t values;
+	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
+	ctxt.reset();
+	uint64_t sum;
+	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2] { nraw.sum_by_with_sel(col1, col2, values, *((PVCore::PVSelBitField const*) &sel), sum, &ctxt); }, ctxt, pbox);
+	if (!ret_pbox || values.size() == 0) {
+		return false;
+	}
+
+	// PVSumByStringsDlg takes ownership of strings inside `values'
+	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, col1, values, sum, parent);
+	dlg->setWindowTitle("Sum by of axes '" + nraw.get_axis_name(col1) + "' and '" + nraw.get_axis_name(col2)+ "'");
+	dlg->show();
+
+	return true;
+}
