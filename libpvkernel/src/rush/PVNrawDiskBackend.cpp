@@ -9,6 +9,7 @@
 #include <pvkernel/core/picviz_assert.h>
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/rush/PVNrawDiskBackend.h>
+#include <cstdlib>
 
 static const std::string INDEX_FILENAME = std::string("nraw.idx");
 //const uint64_t PVRush::PVNrawDiskBackend::READ_BUFFER_SIZE = std::max<size_t>(PVCore::PVHardwareConcurrency::get_level_n_cache_size(1), 256*1024);
@@ -728,4 +729,39 @@ bool PVRush::PVNrawDiskBackend::merge_count_by_tls(count_by_t& ret, tbb::enumera
 	}
 
 	return true;
+}
+
+bool PVRush::PVNrawDiskBackend::get_sum_for_col_with_sel(
+	const PVCol col,
+	uint64_t& sum,
+	const PVCore::PVSelBitField& sel,
+	tbb::task_group_context* ctxt
+)
+{
+	typedef std::pair<uint64_t, bool> sum_valid_t;
+	tbb::enumerable_thread_specific<sum_valid_t> sum_valid_tls([](){ return sum_valid_t(0, false); });
+
+	bool vret = visit_column_tbb_sel(col, [&sum_valid_tls](size_t, const char* buf, size_t n)
+	{
+		char* end_char;
+		uint64_t value = strtoll(std::string(buf, n).c_str(), &end_char, 10);
+		if (*end_char == '\0') {
+			sum_valid_t& sum_valid = sum_valid_tls.local();
+			sum_valid.first += value;
+			sum_valid.second = true;
+		}
+	}, sel, ctxt);
+
+	if (!vret) {
+		return false;
+	}
+
+	sum = 0;
+	bool valid = false;
+	for (sum_valid_t& partial_sum : sum_valid_tls) {
+		sum += partial_sum.first;
+		valid |= partial_sum.second;
+	}
+
+	return valid;
 }

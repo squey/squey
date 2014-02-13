@@ -157,6 +157,11 @@ public:
 		return _backend.count_by_with_sel(col1, col2, ret, sel, v2_unique_values_count, ctxt);
 	}
 
+	inline bool get_sum_for_col_with_sel(PVCol const col, uint64_t& sum, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
+	{
+		return _backend.get_sum_for_col_with_sel(col, sum, sel, ctxt);
+	}
+
 	QString nraw_line_to_csv(PVRow idx) const;
 	QStringList nraw_line_to_qstringlist(PVRow idx) const;
 

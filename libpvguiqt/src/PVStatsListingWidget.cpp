@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include <QScrollBar>
 #include <QLabel>
+#include <QMenu>
 #include <QCursor>
 #include <QPushButton>
 
@@ -53,6 +54,7 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 
 	_stats_panel = new QTableWidget(this);
 	_stats_panel->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	_stats_panel->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	_stats_panel->viewport()->setFocusPolicy(Qt::NoFocus);
 	//_stats_panel->hide();
 	QStringList horizontal_header_labels;
@@ -80,6 +82,8 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	setLayout(main_layout);
 
 	connect(_listing_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(update_header_width(int, int, int)));
+	_stats_panel->setVerticalHeader(new __impl::PVVerticalHeaderView(this));
+	_stats_panel->verticalHeader()->viewport()->installEventFilter(this);
 	connect(_listing_view, SIGNAL(resized()), this, SLOT(resize_panel()));
 	connect(_listing_view->horizontalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(update_scrollbar_position()));
 
@@ -95,16 +99,65 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	obs_axes_comb->connect_refresh(this, SLOT(axes_comb_changed()));
 
 	init_plugins();
-
-	_stats_panel->verticalHeader()->viewport()->installEventFilter(this);
-	_stats_panel->verticalHeader()->setMinimumSectionSize(10);
+	create_vhead_ctxt_menu();
 
 	resize_panel();
 	refresh();
 }
+
+void PVGuiQt::PVStatsListingWidget::create_vhead_ctxt_menu()
+{
+	_vhead_ctxt_menu = new QMenu(this);
+
+	for (int row = 0; row < _stats_panel->rowCount(); row++) {
+		const QString& section_text = _stats_panel->verticalHeaderItem(row)->text();
+		QAction* act = new QAction(section_text, this);
+		act->setCheckable(true);
+		act->setEnabled(_stats_panel->isRowHidden(row));
+		act->setChecked(!_stats_panel->isRowHidden(row));
+		act->setData(row);
+		connect(act, SIGNAL(triggered(bool)), this, SLOT(plugin_visibility_toggled(bool)));
+		_vhead_ctxt_menu->addAction(act);
+	}
+}
+
+void PVGuiQt::PVStatsListingWidget::plugin_visibility_toggled(bool checked)
+{
+	QAction* act = (QAction*) sender();
+	assert(act);
+	int row = act->data().toInt();
+	assert(row < _stats_panel->rowCount());
+	if (checked) {
+		_stats_panel->showRow(row);
+	}
+	else {
+		_stats_panel->hideRow(row);
+	}
+};
+
+void PVGuiQt::PVStatsListingWidget::resize_listing_column_if_needed(int col)
+{
+	int cell_max_size = 0;
+	for (int row=0; row < _stats_panel->rowCount(); row++) {
+		__impl::PVCellWidgetBase* cell_widget = ((__impl::PVCellWidgetBase*)_stats_panel->cellWidget(row, col));
+		assert(cell_widget);
+		cell_max_size = std::max(cell_max_size, cell_widget->minimum_size());
+	}
+
+	int listing_col_width = _listing_view->columnWidth(col);
+	if (listing_col_width < cell_max_size) {
+		_listing_view->setColumnWidth(col, cell_max_size);
+	}
+}
+
 void PVGuiQt::PVStatsListingWidget::init_plugins()
 {
-	init_plugin<__impl::PVUniqueValuesCellWidget>("unique\nvalues");
+	for (PVCol col=0; col < _listing_view->horizontalHeader()->count(); col++) {
+		_stats_panel->insertColumn(col);
+	}
+
+	init_plugin<__impl::PVUniqueValuesCellWidget>("unique\nvalues", true);
+	init_plugin<__impl::PVSumCellWidget>("sum", false);
 
 	for (PVCol col=0; col < _listing_view->horizontalHeader()->count(); col++) {
 		_stats_panel->setColumnWidth(col, _listing_view->horizontalHeader()->sectionSize(col));
@@ -227,6 +280,32 @@ void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
 	}
 }
 
+void PVGuiQt::PVStatsListingWidget::vertical_header_section_clicked(const QPoint&)
+{
+	if (!_vhead_ctxt_menu) {
+		return;
+	}
+
+	_vhead_ctxt_menu->exec(QCursor::pos());
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::__impl::PVVerticalHeaderView
+ *
+ *****************************************************************************/
+PVGuiQt::__impl::PVVerticalHeaderView::PVVerticalHeaderView(PVStatsListingWidget* parent) : QHeaderView(Qt::Vertical, parent)
+{
+	// These two calls are required since they are done on the headers in QTableView::QTableView
+	// instead of in QHeaderView::QHeaderView !
+	setClickable(true);
+	setHighlightSections(true);
+
+	// Context menu of the horizontal header
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), parent, SLOT(vertical_header_section_clicked(const QPoint&)));
+	setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
 /******************************************************************************
  *
  * PVGuiQt::__impl::PVCellWidgetBase
@@ -260,8 +339,10 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table, Picviz:
 
 	_loading_label = new QLabel(this);
 	_loading_label->setMovie(get_movie());
-	_loading_label->setStyleSheet("QLabel { padding-right: 4px}");
+	_loading_label->setStyleSheet("QLabel { padding-right: 4px }");
 	_loading_label->setVisible(false);
+	_loading_label->setCursor(QCursor(Qt::PointingHandCursor));
+	_loading_label->setToolTip("Click to abort");
 
 	_autorefresh_icon = new QPushButton();
 	_autorefresh_icon->setCursor(QCursor(Qt::PointingHandCursor));
@@ -273,16 +354,22 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table, Picviz:
 	_autorefresh_icon->setVisible(false); // Disabled before having a better job handling pipeline
 	connect(_autorefresh_icon, SIGNAL(clicked(bool)), this, SLOT(toggle_auto_refresh()));
 
-	connect(this, SIGNAL(refresh_impl_finished(int, bool)), this, SLOT(refreshed(int, bool)));
+	connect(this, SIGNAL(refresh_impl_finished(QString, bool)), this, SLOT(refreshed(QString, bool)));
 
 	_main_layout = new QHBoxLayout();
+	_main_layout->setSizeConstraint(QLayout::SetMinimumSize);
+	QSizePolicy size_policy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+	setSizePolicy(size_policy);
 	_main_layout->setSpacing(2);
 	_main_layout->setContentsMargins(2, 0, 2, 0);
 	_main_layout->addWidget(_text);
 	_main_layout->addStretch(1);
+	_customizable_layout = new QHBoxLayout();
+	_customizable_layout->setSizeConstraint(QLayout::SetMinimumSize);
+	_main_layout->addLayout(_customizable_layout);
 	_main_layout->addWidget(_refresh_icon);
 	_main_layout->addWidget(_loading_label);
-	_main_layout->addWidget(_autorefresh_icon);
+	//_main_layout->addWidget(_autorefresh_icon);
 
 	setLayout(_main_layout);
 }
@@ -292,11 +379,14 @@ PVGuiQt::PVStatsListingWidget* PVGuiQt::__impl::PVCellWidgetBase::get_panel()
 	return (PVGuiQt::PVStatsListingWidget*) PVCore::get_qobject_parent_of_type<PVGuiQt::PVStatsListingWidget*>(this);
 }
 
-typename PVGuiQt::PVStatsListingWidget::param_t& PVGuiQt::__impl::PVCellWidgetBase::get_params()
+typename PVGuiQt::PVStatsListingWidget::PVParams& PVGuiQt::__impl::PVCellWidgetBase::get_params()
 {
 	PVGuiQt::PVStatsListingWidget* stats_panel = get_panel();
+
 	assert(stats_panel);
-	return stats_panel->get_params();
+
+
+	return stats_panel->get_params()[get_row()][get_col()];
 }
 
 QMovie* PVGuiQt::__impl::PVCellWidgetBase::get_movie()
@@ -333,13 +423,12 @@ void PVGuiQt::__impl::PVCellWidgetBase::cancel_thread()
 
 void PVGuiQt::__impl::PVCellWidgetBase::refresh(bool from_cache /* = false */)
 {
-	int col = _view.get_real_axis_index(_table->column(_item));
 
-	uint32_t cached_value = get_params()[col].cached_value;
-	bool auto_refresh = get_params()[col].auto_refresh;
+	QString cached_value = get_params().cached_value;
+	bool auto_refresh = get_params().auto_refresh;
 
 	if (!from_cache) {
-		if (!cached_value) {
+		if (cached_value.isEmpty()) {
 			if (!_thread_running) {
 				set_loading(true);
 				if (_thread.joinable()) {
@@ -354,21 +443,19 @@ void PVGuiQt::__impl::PVCellWidgetBase::refresh(bool from_cache /* = false */)
 			set_valid(cached_value, auto_refresh);
 		}
 	}
-	else if (from_cache && cached_value) {
+	else if (from_cache && !cached_value.isEmpty()) {
 		set_valid(cached_value, auto_refresh);
 	}
 	else {
 		set_invalid();
-		get_params()[col].cached_value = 0;
+		get_params().cached_value = QString();
 	}
 }
 
 void PVGuiQt::__impl::PVCellWidgetBase::auto_refresh()
 {
-	int col = _view.get_real_axis_index(_table->column(_item));
-
-	get_params()[col].cached_value = 0;
-	bool auto_refresh = get_params()[col].auto_refresh;
+	get_params().cached_value = QString();
+	bool auto_refresh = get_params().auto_refresh;
 	if (auto_refresh) {
 		refresh();
 	}
@@ -377,13 +464,12 @@ void PVGuiQt::__impl::PVCellWidgetBase::auto_refresh()
 	}
 }
 
-void PVGuiQt::__impl::PVCellWidgetBase::refreshed(int value, bool valid)
+void PVGuiQt::__impl::PVCellWidgetBase::refreshed(QString value, bool valid)
 {
 	if (valid) {
-		int col = _view.get_real_axis_index(_table->column(_item));
-		uint32_t cached_value = value;
-		get_params()[col].cached_value = cached_value;
-		bool auto_refresh = get_params()[col].auto_refresh;
+		QString cached_value = value;
+		get_params().cached_value = cached_value;
+		bool auto_refresh = get_params().auto_refresh;
 		set_valid(cached_value, auto_refresh);
 	}
 	else {
@@ -410,14 +496,15 @@ void PVGuiQt::__impl::PVCellWidgetBase::set_invalid()
 	_valid = false;
 }
 
-void PVGuiQt::__impl::PVCellWidgetBase::set_valid(uint32_t value, bool auto_refresh)
+void PVGuiQt::__impl::PVCellWidgetBase::set_valid(const QString& value, bool auto_refresh)
 {
-	_text->setText(QString("%L1").arg(value));
+	_text->setText(value);
 	_refresh_icon->setEnabled(false);
 	_autorefresh_icon->setIcon(auto_refresh ? _autorefresh_on_pixmap : _autorefresh_off_pixmap);
 	_refresh_icon->setVisible(!auto_refresh);
 	_item->setBackground(QBrush(Qt::NoBrush));
 	_valid = true;
+	emit cell_refreshed(get_col());
 }
 
 void PVGuiQt::__impl::PVCellWidgetBase::vertical_header_clicked(int)
@@ -427,8 +514,7 @@ void PVGuiQt::__impl::PVCellWidgetBase::vertical_header_clicked(int)
 
 void PVGuiQt::__impl::PVCellWidgetBase::toggle_auto_refresh()
 {
-	int col = _view.get_real_axis_index(_table->column(_item));
-	bool& auto_refresh = get_params()[col].auto_refresh;
+	bool& auto_refresh = get_params().auto_refresh;
 	auto_refresh = !auto_refresh;
 
 	_autorefresh_icon->setIcon(auto_refresh ? _autorefresh_on_pixmap : _autorefresh_off_pixmap);
@@ -452,27 +538,37 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
 	_unique_values_dlg_icon->setFocusPolicy(Qt::NoFocus);
 	_unique_values_dlg_icon->setToolTip("List unique values");
 	connect(_unique_values_dlg_icon, SIGNAL(clicked(bool)), this, SLOT(show_unique_values_dlg()));
-
-	_main_layout->addWidget(_unique_values_dlg_icon);
+	_customizable_layout->addWidget(_unique_values_dlg_icon);
 }
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 {
 	PVRush::PVNraw::unique_values_t values;
-	int col = _view.get_real_axis_index(_table->column(_item));
-	bool valid = _view.get_rushnraw_parent().get_unique_values_for_col_with_sel(col, values, *_view.get_selection_visible_listing(), _ctxt);
+	bool valid = _view.get_rushnraw_parent().get_unique_values_for_col_with_sel(get_col(), values, *_view.get_selection_visible_listing(), _ctxt);
 #if SIMULATE_LONG_COMPUTATION
 	for (uint32_t i = 0; i < 10 && !_ctxt->is_group_execution_cancelled(); i++) {
-		usleep(300000);
+		usleep(500000);
 	}
 	valid = !_ctxt->is_group_execution_cancelled();
 #endif
-	emit refresh_impl_finished(values.size(), valid); // We must go back on the Qt thread to update the GUI
+	emit refresh_impl_finished(QString("%L1").arg(values.size()), valid); // We must go back on the Qt thread to update the GUI
 }
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
 {
-	int col = _view.get_real_axis_index(_table->column(_item));
 	Picviz::PVView_sp view = (const_cast<Picviz::PVView&>(_view)).shared_from_this();
-	PVQNraw::show_unique_values(view, _view.get_rushnraw_parent(), col, *_view.get_selection_visible_listing(), this);
+	PVQNraw::show_unique_values(view, _view.get_rushnraw_parent(), get_col(), *_view.get_selection_visible_listing(), this);
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::__impl::PVSumCellWidget
+ *
+ *****************************************************************************/
+void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
+{
+	uint64_t sum = 0;
+	bool valid = _view.get_rushnraw_parent().get_sum_for_col_with_sel(get_col(), sum, *_view.get_selection_visible_listing(), _ctxt);
+
+	emit refresh_impl_finished(QString("%L1").arg(sum), valid); // We must go back on the Qt thread to update the GUI
 }
