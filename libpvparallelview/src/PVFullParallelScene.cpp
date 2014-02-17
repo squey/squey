@@ -1281,4 +1281,5 @@ void PVParallelView::PVFullParallelScene::sync_axis_with_section(PVHive::PVObser
 
 	QScrollBar* hBar = _full_parallel_view->horizontalScrollBar();
 	hBar->setValue(hBar->value() + offset);
+	translate_and_update_zones_position();
 }
