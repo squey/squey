@@ -85,7 +85,7 @@ public:
 	}
 
 private:
-	typedef std::pair<std::string_tbb, size_t> pair_t;
+	typedef std::pair<std::string_tbb, uint64_t> pair_t;
 	std::vector<pair_t> _values;
 };
 

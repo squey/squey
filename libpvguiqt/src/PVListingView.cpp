@@ -192,6 +192,10 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	_menu_col_count_by->setIcon(QIcon(":/fileslist_black"));
 	_hhead_ctxt_menu->addMenu(_menu_col_count_by);
 
+	_menu_col_sum_by = new QMenu(tr("Sum by values with axis..."), this);
+	_menu_col_sum_by->setIcon(QIcon(":/fileslist_black"));
+	_hhead_ctxt_menu->addMenu(_menu_col_sum_by);
+
 	_action_col_sort = new QAction(tr("Sort this axis"), this);
 	_action_col_sort->setIcon(QIcon(":/sort_desc"));
 
@@ -463,6 +467,8 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	_hhead_ctxt_menu->addAction(_action_col_unique);
 	_menu_col_count_by->clear();
 	_hhead_ctxt_menu->addMenu(_menu_col_count_by);
+	_menu_col_sum_by->clear();
+	_hhead_ctxt_menu->addMenu(_menu_col_sum_by);
 
 	const QStringList axes = lib_view().get_axes_names_list();
 	for (int i = 0; i < axes.size(); i++) {
@@ -470,6 +476,10 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 			QAction* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
 			action_col_count_by->setData(QVariant(i));
 			_menu_col_count_by->addAction(action_col_count_by);
+
+			QAction* action_col_sum_by = new QAction(axes[i], _menu_col_sum_by);
+			action_col_sum_by->setData(QVariant(i));
+			_menu_col_sum_by->addAction(action_col_sum_by);
 		}
 	}
 	_hhead_ctxt_menu->addAction(_action_col_sort);
@@ -483,6 +493,11 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		Picviz::PVView_sp view = lib_view().shared_from_this();
 		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());
 		PVQNraw::show_count_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
+	}
+	if (sel && sel->parent() == _menu_col_sum_by) {
+		Picviz::PVView_sp view = lib_view().shared_from_this();
+		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());
+		PVQNraw::show_sum_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
 	}
 	else if (sel == _action_col_sort) {
 		Qt::SortOrder order =  (Qt::SortOrder)!((bool)horizontalHeader()->sortIndicatorOrder());

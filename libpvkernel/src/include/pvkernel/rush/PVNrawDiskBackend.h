@@ -255,6 +255,11 @@ public:
 	typedef std::unordered_map<count_by_key_t, count_by_value_t> count_by_unique_values_t;
 	typedef std::unordered_map<count_by_key_t, count_by_unique_values_t> count_by_t;
 
+	// sum by
+	typedef std::string_tbb sum_by_key_t;
+	typedef uint64_t sum_by_value_t;
+	typedef std::unordered_map<count_by_key_t, sum_by_value_t> sum_by_t;
+
 public:
 	PVNrawDiskBackend();
 	~PVNrawDiskBackend();
@@ -695,6 +700,10 @@ public:
 
 	bool count_by_with_sel(PVCol const col1, PVCol const col2, count_by_t& ret, PVCore::PVSelBitField const& sel, size_t& v2_unique_values_count, tbb::task_group_context* ctxt = nullptr);
 
+	bool get_sum_for_col_with_sel(PVCol const col, uint64_t& sum, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
+
+	bool sum_by_with_sel(PVCol const col1, PVCol const col2, sum_by_t& ret, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr);
+
 	void clear_stats()
 	{
 		_stats_getindex = 0.0;
@@ -972,6 +981,8 @@ private:
 	static bool merge_tls(unique_values_t& ret, tbb::enumerable_thread_specific<unique_values_t>& tbb_qset, tbb::task_group_context* ctxt = nullptr);
 
 	bool merge_count_by_tls(count_by_t& ret, tbb::enumerable_thread_specific<count_by_t>& count_by_tls, tbb::task_group_context* ctxt = nullptr);
+
+	bool merge_sum_by_tls(sum_by_t& ret, tbb::enumerable_thread_specific<sum_by_t>& sum_by_tls, tbb::task_group_context* ctxt = nullptr);
 
 private:
 	std::string _nraw_folder;

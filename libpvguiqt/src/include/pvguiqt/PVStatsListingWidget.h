@@ -9,6 +9,7 @@
 
 #include <thread>
 
+#include <QApplication>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QMovie>
@@ -16,6 +17,7 @@
 #include <QWidget>
 class QEvent;
 class QLabel;
+class QMenu;
 class QPixmap;
 class QPushButton;
 class QTableWidgetItem;
@@ -27,36 +29,47 @@ namespace PVGuiQt
 
 namespace __impl
 {
+class PVCellWidgetBase;
 class PVUniqueValuesCellWidget;
+class PVSumCellWidget;
 }
-
-struct PVParams {
-	uint32_t cached_value;
-	bool auto_refresh;
-};
 
 class PVStatsListingWidget : public QWidget
 {
 	Q_OBJECT
+	friend class __impl::PVCellWidgetBase;
 
 public:
-	typedef std::unordered_map<uint32_t, PVParams> param_t;
+	struct PVParams {
+		QString cached_value;
+		bool auto_refresh;
+	};
+
+public:
+	typedef std::unordered_map<uint32_t, std::unordered_map<uint32_t, PVParams>> param_t;
 
 public:
 	PVStatsListingWidget(PVListingView* listing_view);
 
-public:
-	param_t& get_params() { return _params; }
+private:
+	param_t& get_params()
+	{
+		return _params;
+	}
 	void set_refresh_buttons_enabled(bool loading);
 
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 
+private slots:
+	void plugin_visibility_toggled(bool checked);
+	void resize_listing_column_if_needed(int col);
+
 private:
 	void init_plugins();
 
 	template <typename T>
-	void init_plugin(QString header_text)
+	void init_plugin(QString header_text, bool visible = false)
 	{
 		int row = _stats_panel->rowCount();
 		_stats_panel->insertRow(row);
@@ -66,17 +79,24 @@ private:
 
 		QStringList vertical_headers;
 		_stats_panel->setVerticalHeaderItem(row, new QTableWidgetItem(header_text));
+		if (!visible) {
+			_stats_panel->hideRow(row);
+		}
+
 		//_stats_panel->verticalHeaderItem(row)->setToolTip("Refresh all");
 	}
 
 	template <typename T>
 	void create_item(int row, int col)
 	{
-		_stats_panel->insertColumn(col);
 		QTableWidgetItem* item = new QTableWidgetItem();
 		_stats_panel->setItem(row, col, item);
-		_stats_panel->setCellWidget(row, col, new T(_stats_panel, _listing_view->lib_view(), item));
+		T* widget = new T(_stats_panel, _listing_view->lib_view(), item);
+		connect(widget, SIGNAL(cell_refreshed(int)), this, SLOT(resize_listing_column_if_needed(int)));
+		_stats_panel->setCellWidget(row, col, widget);
 	}
+
+	void create_vhead_ctxt_menu();
 
 private slots:
 	void toggle_stats_panel_visibility();
@@ -86,6 +106,7 @@ private slots:
 	void resize_panel();
 	void selection_changed();
 	void axes_comb_changed();
+	void vertical_header_section_clicked(const QPoint&);
 
 public:
 	static const QColor INVALID_COLOR;
@@ -98,10 +119,19 @@ private:
 
 	int _old_maximum_width;
 	bool _maxed = false;
+	QMenu* _vhead_ctxt_menu;
 };
 
 namespace __impl
 {
+
+class PVVerticalHeaderView : public QHeaderView
+{
+	Q_OBJECT
+
+	public:
+		PVVerticalHeaderView(PVStatsListingWidget* parent);
+};
 
 class PVCellWidgetBase : public QWidget
 {
@@ -112,30 +142,35 @@ public:
 	virtual ~PVCellWidgetBase() {}
 
 public:
+	inline int get_row() { return _view.get_real_axis_index(_table->row(_item)); }
+	inline int get_col() { return _view.get_real_axis_index(_table->column(_item)); }
+
 	static QMovie* get_movie(); // Singleton to share the animation among all the widgets in order to keep them synchronized
 	virtual void set_loading(bool loading);
 	void set_refresh_button_enabled(bool loading);
 	static void cancel_thread();
+	inline int minimum_size() { return _main_layout->minimumSize().width() - QApplication::style()->pixelMetric(QStyle::PM_ScrollBarExtent); }
 
 public slots:
 	void refresh(bool use_cache = false);
 	void auto_refresh();
 
 protected slots:
-	void refreshed(int value, bool valid);
+	void refreshed(QString value, bool valid);
 
 private slots:
 	virtual void vertical_header_clicked(int index);
 	void toggle_auto_refresh();
 
 signals:
-	void refresh_impl_finished(int value, bool valid);
+	void refresh_impl_finished(QString value, bool valid);
+	void cell_refreshed(int col);
 
 protected:
 	virtual void refresh_impl() = 0;
-	typename PVStatsListingWidget::param_t& get_params();
+	typename PVStatsListingWidget::PVParams& get_params();
 	PVGuiQt::PVStatsListingWidget* get_panel();
-	void set_valid(uint32_t value, bool autorefresh);
+	void set_valid(const QString& value, bool autorefresh);
 	void set_invalid();
 
 protected:
@@ -146,6 +181,7 @@ protected:
 	bool _valid = false;
 
 	QHBoxLayout* _main_layout;
+	QHBoxLayout* _customizable_layout;
 	QPushButton* _refresh_icon;
 	QPushButton* _autorefresh_icon;
 	QLabel* _loading_label;
@@ -177,7 +213,18 @@ private slots:
 private:
 	uint32_t _unique_values_number;
 	QPushButton* _unique_values_dlg_icon;
-	const QPixmap _unique_values_pixmap;
+	QPixmap _unique_values_pixmap;
+};
+
+class PVSumCellWidget : public PVCellWidgetBase
+{
+	Q_OBJECT
+
+public:
+	PVSumCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
+
+public slots:
+	virtual void refresh_impl() override;
 };
 
 }

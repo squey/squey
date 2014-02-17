@@ -42,8 +42,8 @@ void PVGuiQt::PVStringSortProxyModel::sort_indexes(int column, Qt::SortOrder ord
 					{
 						const int column_ = column;
 						QAbstractItemModel* const src_model = this->sourceModel();
-						const size_t s1 = src_model->data(src_model->index(i1, column_), Qt::UserRole).toUInt();
-						const size_t s2 = src_model->data(src_model->index(i2, column_), Qt::UserRole).toUInt();
+						const uint64_t s1 = src_model->data(src_model->index(i1, column_), Qt::UserRole).toULongLong();
+						const uint64_t s2 = src_model->data(src_model->index(i2, column_), Qt::UserRole).toULongLong();
 						return s1 < s2;
 					});
 
@@ -54,8 +54,8 @@ void PVGuiQt::PVStringSortProxyModel::sort_indexes(int column, Qt::SortOrder ord
 					{
 						const int column_ = column;
 						QAbstractItemModel* const src_model = this->sourceModel();
-						const size_t s1 = src_model->data(src_model->index(i1, column_), Qt::UserRole).toUInt();
-						const size_t s2 = src_model->data(src_model->index(i2, column_), Qt::UserRole).toUInt();
+						const size_t s1 = src_model->data(src_model->index(i1, column_), Qt::UserRole).toULongLong();
+						const size_t s2 = src_model->data(src_model->index(i2, column_), Qt::UserRole).toULongLong();
 						return s1 > s2;
 					});
 			}
