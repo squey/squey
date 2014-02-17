@@ -9,7 +9,6 @@
 #include <QtCore>
 #include <QtGui>
 
-
 #include <pvkernel/core/general.h>
 #include <pvkernel/widgets/editors/PVPercentRangeEditor.h>
 

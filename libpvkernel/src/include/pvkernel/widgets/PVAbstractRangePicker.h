@@ -232,7 +232,7 @@ public:
 	 *
 	 * @param value the new minimum value
 	 */
-	void set_range_min(const double& value);
+	void set_range_min(const double& value, bool force = false);
 
 	/**
 	 * Get the range's minimum value
@@ -246,7 +246,7 @@ public:
 	 *
 	 * @param value the new maximum value
 	 */
-	void set_range_max(const double& value);
+	void set_range_max(const double& value, bool force = false);
 
 	/**
 	 * Get the range's maximum value

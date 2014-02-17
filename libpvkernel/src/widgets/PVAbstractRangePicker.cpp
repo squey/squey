@@ -494,8 +494,12 @@ PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker(const double& min_limit,
  * PVWidgets::PVAbstractRangePicker::set_range_min
  *****************************************************************************/
 
-void PVWidgets::PVAbstractRangePicker::set_range_min(const double& value)
+void PVWidgets::PVAbstractRangePicker::set_range_min(const double& value,
+                                                     bool force)
 {
+	if (force) {
+		_min_spinbox->setValue(_limit_min);
+	}
 	_min_spinbox->setValue(value);
 }
 
@@ -512,8 +516,12 @@ double PVWidgets::PVAbstractRangePicker::get_range_min() const
  * PVWidgets::PVAbstractRangePicker::set_range_max
  *****************************************************************************/
 
-void PVWidgets::PVAbstractRangePicker::set_range_max(const double& value)
+void PVWidgets::PVAbstractRangePicker::set_range_max(const double& value,
+                                                     bool force)
 {
+	if (force) {
+		_max_spinbox->setValue(_limit_max);
+	}
 	_max_spinbox->setValue(value);
 }
 
