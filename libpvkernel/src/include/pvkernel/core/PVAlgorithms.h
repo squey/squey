@@ -166,6 +166,62 @@ inline uint64_t upper_power_of_2(uint64_t v)
 }
 
 /**
+ * Map a value to a natural logarithm scale (double version)
+ *
+ * @param value the value in [a;b]
+ * @param a the lower bound value
+ * @param b the upper bound value
+ *
+ * @return the scale in [0;1]
+ */
+inline double log_scale(const double value, const double a, const double b)
+{
+	return log((value - a) + 1.) / log((b - a) + 1.);
+}
+
+/**
+ * Map a value to a natural logarithm scale (float version)
+ *
+ * @param value the value in [a;b]
+ * @param a the lower bound value
+ * @param b the upper bound value
+ *
+ * @return the scale in [0;1]
+ */
+inline float log_scale(const float value, const float a, const float b)
+{
+	return logf((value - a) + 1.) / logf((b - a) + 1.);
+}
+
+/**
+ * Map a value from a natural logarithm scale (double version)
+ *
+ * @param value the value in [a;b]
+ * @param a the lower bound value
+ * @param b the upper bound value
+ *
+ * @return the scale in [0;1]
+ */
+inline double inv_log_scale(const double value, const double a, const double b)
+{
+	return (exp(log((b - a) + 1.) * value) + a) - 1.;
+}
+
+/**
+ * Map a value from a natural logarithm scale (float version)
+ *
+ * @param value the value in [a;b]
+ * @param a the lower bound value
+ * @param b the upper bound value
+ *
+ * @return the scale in [0;1]
+ */
+inline float inv_log_scale(const float value, const float a, const float b)
+{
+	return (expf(logf((b - a) + 1.) * value) + a) - 1.;
+}
+
+/**
  * Test if a positive integer is a power of two
  *
  * SSE 4.2 powered or fallback to http://graphics.stanford.edu/~seander/bithacks.html#DetermineIfPowerOf2
