@@ -31,7 +31,7 @@ public:
 		PVAbstractListStatsDlg(view, c, new __impl::PVListUniqStringsModel<T>(values), selection_count, parent)
 	{
 		typedef PVRush::PVNraw::unique_values_container_t elem_t;
-		_max_e = (*std::max_element(values.begin(), values.end(), [](const elem_t &lhs, const elem_t &rhs) { return lhs.second < rhs.second; } )).second;
+		set_max_element((*std::max_element(values.begin(), values.end(), [](const elem_t &lhs, const elem_t &rhs) { return lhs.second < rhs.second; } )).second);
 	}
 };
 

@@ -4,16 +4,148 @@
  * Copyright (C) Picviz Labs 2013
  */
 
+#include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVPlainTextType.h>
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/rush/PVNraw.h>
+
+#include <pvkernel/widgets/PVAbstractRangePicker.h>
 
 #include <pvguiqt/PVAbstractListStatsDlg.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 
 #include <pvkernel/core/PVLogger.h>
 #include <pvguiqt/PVStringSortProxyModel.h>
+
+#include <QComboBox>
+#include <QGroupBox>
+#include <QRadioButton>
+#include <QPushButton>
+
+static inline size_t freq_to_count_min(double value, double count)
+{
+	// see PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool) for the formula
+	return ceil((((int)(value * 10.) * 0.001) - 0.0005) * count);
+}
+
+static inline size_t freq_to_count_max(double value, double count)
+{
+	// see PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool) for the formula
+	return floor((((int)(value * 10.) * 0.001) + 0.0005) * count);
+}
+
+static inline double count_to_freq_min(size_t value, double count)
+{
+	return trunc((((double)value / count) * 1000.) + 0.5) / 10.;
+}
+
+static inline double count_to_freq_max(size_t value, double count)
+{
+	return trunc((((double)value / count) * 1000.) + 0.5) / 10.;
+}
+
+/******************************************************************************
+ * PVGuiQt::__impl::PVAbstractListStatsRangePicker
+ *****************************************************************************/
+
+namespace PVGuiQt
+{
+
+namespace __impl
+{
+
+class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
+{
+public:
+	PVAbstractListStatsRangePicker(QWidget *parent = nullptr) :
+		PVWidgets::PVAbstractRangePicker(0, 1, parent)
+	{
+		QLinearGradient lg;
+
+		lg.setColorAt(0.0, Qt::green);
+		lg.setColorAt(0.5, Qt::yellow);
+		lg.setColorAt(1.0, Qt::red);
+
+		set_gradient(lg);
+	}
+
+	void set_mode_count(size_t max_element, size_t num_selected)
+	{
+		double vmin = freq_to_count_min(get_range_min(), num_selected);
+		double vmax = freq_to_count_max(get_range_max(), num_selected);
+
+		get_min_spinbox()->setDecimals(0);
+		get_max_spinbox()->setDecimals(0);
+
+		get_min_spinbox()->setSingleStep(1);
+		get_max_spinbox()->setSingleStep(1);
+
+		get_min_spinbox()->setSuffix("");
+		get_max_spinbox()->setSuffix("");
+
+		set_limits(0, max_element);
+		set_range_min(vmin);
+		set_range_max(vmax);
+	}
+
+	void set_mode_percent(size_t num_selected)
+	{
+		double vmin = count_to_freq_min(get_range_min(), num_selected);
+		double vmax = count_to_freq_max(get_range_max(), num_selected);
+
+		get_min_spinbox()->setDecimals(1);
+		get_max_spinbox()->setDecimals(1);
+
+		get_min_spinbox()->setSingleStep(0.1);
+		get_max_spinbox()->setSingleStep(0.1);
+
+		get_min_spinbox()->setSuffix(" %");
+		get_max_spinbox()->setSuffix(" %");
+
+		set_limits(0, 100);
+		set_range_min(vmin);
+		set_range_max(vmax);
+	}
+
+	void set_mode_log(bool mode)
+	{
+		double rmin = get_range_min();
+		double rmax = get_range_max();
+
+		_mode_log = mode;
+
+		set_range_max(rmax, true);
+		set_range_min(rmin, true);
+		update();
+	}
+
+protected:
+	double map_from_spinbox(const double& value) const override
+	{
+		if (_mode_log) {
+			return PVCore::log_scale(value, get_limit_min(), get_limit_max());
+		} else {
+			return PVWidgets::PVAbstractRangePicker::map_from_spinbox(value);
+		}
+	}
+
+	double map_to_spinbox(const double& value) const override
+	{
+		if (_mode_log) {
+			return PVCore::inv_log_scale(value, get_limit_min(), get_limit_max());
+		} else {
+			return PVWidgets::PVAbstractRangePicker::map_to_spinbox(value);
+		}
+	}
+
+private:
+	bool _mode_log;
+};
+
+}
+
+}
 
 /******************************************************************************
  *
@@ -52,10 +184,8 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 	connect(act_group, SIGNAL(triggered(QAction*)), this, SLOT(scale_changed(QAction*)));
 	_act_toggle_linear = new QAction("Linear scale", act_group);
 	_act_toggle_linear->setCheckable(true);
-	_act_toggle_linear->setChecked(!_use_logarithmic_scale);
 	_act_toggle_log = new QAction("Logarithmic scale", act_group);
 	_act_toggle_log->setCheckable(true);
-	_act_toggle_log->setChecked(_use_logarithmic_scale);
 	_hhead_ctxt_menu->addAction(_act_toggle_linear);
 	_hhead_ctxt_menu->addAction(_act_toggle_log);
 	_hhead_ctxt_menu->addSeparator();
@@ -75,6 +205,37 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 
 	//_values_view->setShowGrid(false);
 	//_values_view->setStyleSheet("QTableView::item { border-left: 1px solid grey; }");
+
+	QHBoxLayout *hbox = new QHBoxLayout();
+
+	_select_groupbox->setLayout(hbox);
+
+	QVBoxLayout* vl = new QVBoxLayout();
+
+	hbox->addLayout(vl, 1);
+
+	QRadioButton* r1 = new QRadioButton("by count");
+	QRadioButton* r2 = new QRadioButton("by frequency");
+
+	vl->addWidget(r1);
+	vl->addWidget(r2);
+
+	connect(r1, SIGNAL(toggled(bool)), this, SLOT(select_set_mode_count(bool)));
+	connect(r2, SIGNAL(toggled(bool)), this, SLOT(select_set_mode_frequency(bool)));
+
+	QPushButton *b = new QPushButton("Select");
+	connect(b, SIGNAL(clicked(bool)), this, SLOT(select_refresh(bool)));
+
+	vl->addWidget(b);
+
+	_select_picker = new __impl::PVAbstractListStatsRangePicker();
+	hbox->addWidget(_select_picker, 2);
+
+	// set default mode to "count"
+	r1->click();
+
+	// propagate the scale mode
+	_act_toggle_log->setChecked(_use_logarithmic_scale);
 }
 
 PVGuiQt::PVAbstractListStatsDlg::~PVAbstractListStatsDlg()
@@ -102,7 +263,70 @@ void PVGuiQt::PVAbstractListStatsDlg::scale_changed(QAction* act)
 {
 	if (act) {
 		_use_logarithmic_scale = (act == _act_toggle_log);
+		_select_picker->set_mode_log(_use_logarithmic_scale);
 		_values_view->update();
+	}
+}
+
+void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_count(bool checked)
+{
+	if (checked) {
+		_select_picker->set_mode_count(_max_e, get_selected_events_count());
+		_select_is_count = true;
+	}
+}
+
+void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_frequency(bool checked)
+{
+	if (checked) {
+		_select_picker->set_mode_percent(get_selected_events_count());
+		_select_is_count = false;
+	}
+}
+
+void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
+{
+	size_t vmin;
+	size_t vmax;
+
+	QAbstractItemModel* data_model = _values_view->model();
+	QItemSelectionModel* sel_model = _values_view->selectionModel();
+
+	/**
+	 * As percentage are rounded to be displayed using "%.1f", the entries
+	 * can also not be selected using their exact values but using their
+	 * rounded ones.
+	 *
+	 * And it make less code if the iteration is done in count space
+	 * (instead of the the count space and the frequency space).
+	 *
+	 * So that, the nice formula to get the count values corresponding to
+	 * the displayed percentage are (in LaTeX):
+	 * - v_{min} = \lceil N × ( \frac{ \lfloor 10 × p_{min} \rfloor}{1000} - \frac{5}{10000} ) \rceil
+	 * - v_{max} = \lfloor N × ( \frac{ \lfloor 10 × p_{max} \rfloor}{1000} + \frac{5}{10000} ) \rfloor
+	 * where:
+	 * - p_{min} is the lower bound percentage
+	 * - p_{max} is the upper bound percentage
+	 * - N is the events count
+	 */
+	sel_model->clear();
+
+	if (_select_is_count) {
+		vmin = _select_picker->get_range_min();
+		vmax = _select_picker->get_range_max();
+	} else {
+		const double count = get_selected_events_count();
+		vmin = freq_to_count_min(_select_picker->get_range_min(), count);
+		vmax = freq_to_count_max(_select_picker->get_range_max(), count);
+	}
+
+	for (int row = 0; row < data_model->rowCount(); ++row) {
+		const size_t v = data_model->index(row, 1).data(Qt::UserRole).toUInt();
+
+		if ((v >= vmin) && (v <= vmax)) {
+			sel_model->select(data_model->index(row, 0),
+			                  QItemSelectionModel::Select);
+		}
 	}
 }
 
@@ -122,6 +346,14 @@ void PVGuiQt::PVAbstractListStatsDlg::view_resized()
 void PVGuiQt::PVAbstractListStatsDlg::resize_section()
 {
 	_values_view->horizontalHeader()->resizeSection(0, _values_view->width() - _last_section_width);
+}
+
+void PVGuiQt::PVAbstractListStatsDlg::set_max_element(size_t value)
+{
+	_max_e = value;
+	if (_select_is_count) {
+		_select_picker->set_limits(0, value);
+	}
 }
 
 void PVGuiQt::PVAbstractListStatsDlg::section_resized(int logicalIndex, int /*oldSize*/, int newSize)
@@ -214,10 +446,10 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 	QStyledItemDelegate::paint(painter, option, index);
 
 	if (index.column() == 1) {
-		uint64_t occurence_count = index.data(Qt::UserRole).toULongLong();
+		size_t occurence_count = index.data(Qt::UserRole).toUInt();
 
 		double ratio = (double) occurence_count / d()->get_selected_events_count();
-		double log_ratio = (double) log(log(2)+occurence_count) / log(log(2)+d()->get_selected_events_count());
+		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->get_selected_events_count());
 		bool log_scale = d()->use_logarithmic_scale();
 		size_t thickness = 1;
 

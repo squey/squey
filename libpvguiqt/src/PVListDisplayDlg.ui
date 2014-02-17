@@ -98,6 +98,19 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="_select_groupbox">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>45</height>
+      </size>
+     </property>
+     <property name="title">
+      <string>Selection</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>Copy these values...</string>

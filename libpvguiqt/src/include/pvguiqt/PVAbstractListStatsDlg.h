@@ -14,10 +14,11 @@
 #include <pvguiqt/PVListDisplayDlg.h>
 
 #include <QAbstractListModel>
-#include <QDialog>
 #include <QStyledItemDelegate>
 
 #include <QResizeEvent>
+
+class QComboBox;
 
 namespace PVGuiQt {
 
@@ -26,6 +27,8 @@ class PVListStringsDelegate;
 
 template <typename T>
 class PVListUniqStringsModel;
+
+class PVAbstractListStatsRangePicker;
 }
 
 class PVStringSortProxyModel;
@@ -62,10 +65,19 @@ protected slots:
 	void section_resized(int logicalIndex, int oldSize, int newSize);
 	void scale_changed(QAction* act);
 
+protected slots:
+	void select_set_mode_count(bool checked);
+	void select_set_mode_frequency(bool checked);
+	void select_refresh(bool checked);
+
 protected:
 	Picviz::PVView& lib_view() { return *_obs.get_object(); }
 	void multiple_search(QAction* act);
 	void resize_section();
+
+protected:
+	void set_max_element(size_t value);
+	size_t get_max_element() const { return _max_e; }
 
 protected:
 	PVCol _col;
@@ -85,6 +97,9 @@ protected:
 	QAction* _act_show_scientific_notation;
 
 	uint64_t _max_e;
+
+	__impl::PVAbstractListStatsRangePicker* _select_picker;
+	bool                                    _select_is_count;
 };
 
 namespace __impl {

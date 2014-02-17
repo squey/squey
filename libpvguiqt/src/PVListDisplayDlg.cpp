@@ -102,6 +102,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 
 	_ctxt_menu->addAction(_copy_values_act);
 	_values_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	_values_view->setSelectionBehavior(QAbstractItemView::SelectRows);
 
 	_nb_values_edit->setText(QString().setNum(model->rowCount()));
 

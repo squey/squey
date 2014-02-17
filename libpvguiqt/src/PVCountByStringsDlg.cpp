@@ -52,7 +52,7 @@ PVGuiQt::__impl::PVCountByStringsModel* PVGuiQt::PVCountByStringsDlg::get_model(
 
 void PVGuiQt::PVCountByStringsDlg::init_max_element()
 {
-	_max_e = get_model()->get_max_element();
+	set_max_element(get_model()->get_max_element());
 }
 
 /******************************************************************************
