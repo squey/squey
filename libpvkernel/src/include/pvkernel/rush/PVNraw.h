@@ -150,7 +150,7 @@ public:
 		return _backend.get_unique_values_for_col(c, ret, ctxt);
 	}
 
-	inline bool get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL) const
+	inline bool get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
 	{
 		return _backend.get_unique_values_for_col_with_sel(c, ret, sel, ctxt);
 	}
