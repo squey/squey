@@ -451,14 +451,19 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 		double ratio = (double) occurence_count / d()->get_selected_events_count();
 		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->get_selected_events_count());
 		bool log_scale = d()->use_logarithmic_scale();
-		size_t thickness = 1;
+
+		// Draw bounding rectangle
+		QRect r(option.rect.x()/*+2*/, option.rect.y(), option.rect.width(), option.rect.height());
+		QColor color("#F2F2F2");
+		QColor alt_color("#FBFBFB");
+		painter->fillRect(r, index.row() % 2 ? color : alt_color);
 
 		// Fill rectangle with color
 		painter->fillRect(
-			option.rect.x()+thickness/*+2*/,
-			option.rect.y()+2*thickness,
-			option.rect.width()*(log_scale ? log_ratio : ratio)-thickness,
-			option.rect.height()-2*thickness,
+			option.rect.x(),
+			option.rect.y(),
+			option.rect.width()*(log_scale ? log_ratio : ratio),
+			option.rect.height(),
 			QColor::fromHsv((log_scale ? log_ratio : ratio) * (0 - 120) + 120, 255, 255)
 		);
 		painter->setPen(Qt::black);
@@ -496,14 +501,14 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 
 		margin /= representation_count+1;
 
-		int x =  option.rect.x()+thickness;
+		int x =  option.rect.x();
 		if (d()->_act_show_count->isChecked()) {
 			x += margin;
 			painter->drawText(
 				x,
-				option.rect.y()+2*thickness,
+				option.rect.y(),
 				occurence_max_width,
-				option.rect.height()-thickness,
+				option.rect.height(),
 				Qt::AlignRight,
 				occurence
 			);
@@ -513,9 +518,9 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 			x += margin;
 			painter->drawText(
 				x,
-				option.rect.y()+2*thickness,
+				option.rect.y(),
 				scientific_notation_max_width,
-				option.rect.height()-thickness,
+				option.rect.height(),
 				Qt::AlignLeft,
 				scientific_notation
 			);
@@ -525,9 +530,9 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 			x += margin;
 			painter->drawText(
 				x,
-				option.rect.y()+2*thickness,
+				option.rect.y(),
 				percentage_max_width,
-				option.rect.height()-thickness,
+				option.rect.height(),
 				Qt::AlignRight,
 				percentage
 			);
