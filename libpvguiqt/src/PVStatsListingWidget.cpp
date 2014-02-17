@@ -9,7 +9,6 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QScrollBar>
-#include <QLabel>
 #include <QMenu>
 #include <QCursor>
 #include <QPushButton>
@@ -29,12 +28,16 @@ constexpr int QTABLEWIDGET_OFFSET = 4;
 static QSize compute_qtablewidget_size(QTableWidget* stats, QTableView* listing)
 {
    int w = listing->verticalHeader()->width() + /*listing->verticalScrollBar()->width()*/ + QTABLEWIDGET_OFFSET;
-   for (int i = 0; i < listing->horizontalHeader()->count(); i++)
-      w += listing->columnWidth(i);
+   for (int i = 0; i < listing->horizontalHeader()->count(); i++) {
+	   w += listing->columnWidth(i);
+   }
 
    int h = stats->horizontalHeader()->height() + QTABLEWIDGET_OFFSET;
-   for (int i = 0; i < stats->verticalHeader()->count(); i++)
-      h += stats->rowHeight(i);
+   for (int i = 0; i < stats->verticalHeader()->count(); i++) {
+	   if(!stats->isRowHidden(i)) {
+		   h += stats->rowHeight(i);
+	   }
+   }
 
    return QSize(w, h);
 }
@@ -133,6 +136,7 @@ void PVGuiQt::PVStatsListingWidget::plugin_visibility_toggled(bool checked)
 	else {
 		_stats_panel->hideRow(row);
 	}
+	_stats_panel->setMaximumSize(compute_qtablewidget_size(_stats_panel, _listing_view));
 };
 
 void PVGuiQt::PVStatsListingWidget::resize_listing_column_if_needed(int col)
@@ -337,12 +341,13 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table, Picviz:
 	_refresh_icon->setToolTip("Refresh");
 	connect(_refresh_icon, SIGNAL(clicked(bool)), this, SLOT(refresh()));
 
-	_loading_label = new QLabel(this);
+	_loading_label = new PVLoadingLabel(this);
 	_loading_label->setMovie(get_movie());
 	_loading_label->setStyleSheet("QLabel { padding-right: 4px }");
 	_loading_label->setVisible(false);
 	_loading_label->setCursor(QCursor(Qt::PointingHandCursor));
 	_loading_label->setToolTip("Click to abort");
+	connect(_loading_label, SIGNAL(clicked()), this, SLOT(cancel_thread()));
 
 	_autorefresh_icon = new QPushButton();
 	_autorefresh_icon->setCursor(QCursor(Qt::PointingHandCursor));
@@ -382,9 +387,7 @@ PVGuiQt::PVStatsListingWidget* PVGuiQt::__impl::PVCellWidgetBase::get_panel()
 typename PVGuiQt::PVStatsListingWidget::PVParams& PVGuiQt::__impl::PVCellWidgetBase::get_params()
 {
 	PVGuiQt::PVStatsListingWidget* stats_panel = get_panel();
-
 	assert(stats_panel);
-
 
 	return stats_panel->get_params()[get_row()][get_col()];
 }
@@ -413,17 +416,18 @@ void PVGuiQt::__impl::PVCellWidgetBase::set_loading(bool loading)
 
 void PVGuiQt::__impl::PVCellWidgetBase::cancel_thread()
 {
-	_ctxt->cancel_group_execution();
-	if (_thread.joinable()) {
-		_thread.join();
+	if (_thread_running) {
+		_ctxt->cancel_group_execution();
+		if (_thread.joinable()) {
+			_thread.join();
+		}
+		_ctxt->reset();
+		_thread_running = false;
 	}
-	_ctxt->reset();
-	_thread_running = false;
 }
 
 void PVGuiQt::__impl::PVCellWidgetBase::refresh(bool from_cache /* = false */)
 {
-
 	QString cached_value = get_params().cached_value;
 	bool auto_refresh = get_params().auto_refresh;
 

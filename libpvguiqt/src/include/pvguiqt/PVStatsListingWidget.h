@@ -15,8 +15,9 @@
 #include <QMovie>
 #include <QTableWidget>
 #include <QWidget>
+#include <QLabel>
+#include <QMouseEvent>
 class QEvent;
-class QLabel;
 class QMenu;
 class QPixmap;
 class QPushButton;
@@ -129,8 +130,22 @@ class PVVerticalHeaderView : public QHeaderView
 {
 	Q_OBJECT
 
-	public:
-		PVVerticalHeaderView(PVStatsListingWidget* parent);
+public:
+	PVVerticalHeaderView(PVStatsListingWidget* parent);
+};
+
+class PVLoadingLabel : public QLabel
+{
+	Q_OBJECT
+
+public:
+	PVLoadingLabel(QWidget* parent) : QLabel(parent) {}
+
+protected:
+	virtual void mousePressEvent(QMouseEvent * ev) override { if (ev->button()==Qt::LeftButton) { emit clicked(); } }
+
+signals:
+	void clicked();
 };
 
 class PVCellWidgetBase : public QWidget
@@ -148,12 +163,12 @@ public:
 	static QMovie* get_movie(); // Singleton to share the animation among all the widgets in order to keep them synchronized
 	virtual void set_loading(bool loading);
 	void set_refresh_button_enabled(bool loading);
-	static void cancel_thread();
 	inline int minimum_size() { return _main_layout->minimumSize().width() - QApplication::style()->pixelMetric(QStyle::PM_ScrollBarExtent); }
 
 public slots:
 	void refresh(bool use_cache = false);
 	void auto_refresh();
+	static void cancel_thread();
 
 protected slots:
 	void refreshed(QString value, bool valid);
@@ -184,7 +199,7 @@ protected:
 	QHBoxLayout* _customizable_layout;
 	QPushButton* _refresh_icon;
 	QPushButton* _autorefresh_icon;
-	QLabel* _loading_label;
+	PVLoadingLabel* _loading_label;
 	static QMovie* _loading_movie;
 	const QPixmap _refresh_pixmap;
 	const QPixmap _autorefresh_on_pixmap;
