@@ -745,8 +745,9 @@ bool PVRush::PVNrawDiskBackend::get_sum_for_col_with_sel(
 	bool res = visit_column_tbb_sel(col, [&sum_valid_tls, &ctxt](size_t /*row*/, const char* buf, size_t n)
 	{
 		char* end_char;
-		uint64_t value = strtoll(std::string_tbb(buf, n).c_str(), &end_char, 10);
-		if (*end_char == '\0') {
+		const char* c_str = std::string_tbb(buf, n).c_str();
+		uint64_t value = strtoll(c_str, &end_char, 10);
+		if (c_str != end_char && *end_char == '\0') {
 			sum_valid_t& sum_valid = sum_valid_tls.local();
 			sum_valid.first += value;
 			sum_valid.second = true;
@@ -780,8 +781,9 @@ bool PVRush::PVNrawDiskBackend::sum_by_with_sel(PVCol const col1, PVCol const co
 		const char* buf2 = at_no_cache(row, col2, n2);
 		std::string_tbb col2_str(buf2, n2);
 		char* end_char;
-		uint64_t value = strtoll(col2_str.c_str(), &end_char, 10);
-		if (*end_char == '\0') {
+		const char* c_str = col2_str.c_str();
+		uint64_t value = strtoll(c_str, &end_char, 10);
+		if (c_str != end_char && *end_char == '\0') {
 			sum_by_tls.local()[col1_str] += value;
 		}
 	}, sel, ctxt);
