@@ -8,6 +8,8 @@
 #include <pvkernel/core/PVPlainTextType.h>
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 #include <pvkernel/core/PVEnumType.h>
+#include <pvkernel/core/PVProgressBox.h>
+
 #include <pvkernel/rush/PVNraw.h>
 
 #include <pvkernel/widgets/PVAbstractRangePicker.h>
@@ -16,7 +18,11 @@
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 
 #include <pvkernel/core/PVLogger.h>
+#include <pvkernel/core/picviz_bench.h>
 #include <pvguiqt/PVStringSortProxyModel.h>
+
+#include <tbb/blocked_range.h>
+#include <tbb/task_scheduler_init.h>
 
 #include <QComboBox>
 #include <QGroupBox>
@@ -286,8 +292,8 @@ void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_frequency(bool checked)
 
 void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 {
-	size_t vmin;
-	size_t vmax;
+	uint64_t vmin;
+	uint64_t vmax;
 
 	QAbstractItemModel* data_model = _values_view->model();
 	QItemSelectionModel* sel_model = _values_view->selectionModel();
@@ -320,13 +326,174 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 		vmax = freq_to_count_max(_select_picker->get_range_max(), count);
 	}
 
-	for (int row = 0; row < data_model->rowCount(); ++row) {
-		const size_t v = data_model->index(row, 1).data(Qt::UserRole).toUInt();
+	int row_count = data_model->rowCount();
 
-		if ((v >= vmin) && (v <= vmax)) {
-			sel_model->select(data_model->index(row, 0),
-			                  QItemSelectionModel::Select);
+	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing selection..."), this);
+	pbox->set_enable_cancel(true);
+	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
+
+	QItemSelection sel;
+
+	bool res = PVCore::PVProgressBox::progress([&sel, &data_model, &sel_model, vmin, vmax, row_count, &ctxt]
+	{
+		BENCH_START(select_values);
+
+#if 1 // SERIAL
+
+		int first_row = -1;
+		int last_row = -1;
+
+		for (int row = 0; row < row_count; ++row) {
+
+			if ((row & 4095) && ctxt.is_group_execution_cancelled()) {
+				return false;
+			}
+
+			const uint64_t v = data_model->index(row, 1).data(Qt::UserRole).toULongLong();
+
+			if ((v >= vmin) && (v <= vmax)) {
+				if (first_row == -1) {
+					first_row = row;
+				}
+				last_row = row;
+			}
+			else {
+				if (first_row != -1) {
+					sel.select(data_model->index(first_row, 0), data_model->index(last_row, 0));
+				}
+				first_row = -1;
+				last_row = -1;
+			}
 		}
+
+		// last range
+		if (first_row != -1) {
+			sel.select(data_model->index(first_row, 0), data_model->index(last_row, 0));
+		}
+
+#else // PARALLEL: Crash because QItemSelection internals (QHashData) are shared between threads
+
+#if 1 // TBB functional
+		QItemSelection empty_sel;
+		sel = tbb::parallel_reduce(
+			tbb::blocked_range<int>(0, row_count, std::max(nthreads, row_count / nthreads)),
+			empty_sel,
+			[&](const tbb::blocked_range<int>& range, QItemSelection s) -> QItemSelection {
+
+				QItemSelection sel;
+				sel.merge(s, QItemSelectionModel::Select);
+
+				int first_row = -1;
+				int last_row = -1;
+
+				for (int row = range.begin(); row < range.end(); row++) {
+
+					const uint64_t v = data_model->index(row, 1).data(Qt::UserRole).toULongLong();
+
+					if ((v >= vmin) && (v <= vmax)) {
+						if (first_row == -1) {
+							first_row = row;
+						}
+						last_row = row;
+					}
+					else {
+						if (first_row != -1) {
+							sel.select(data_model->index(first_row, 0), data_model->index(last_row, 0));
+						}
+						first_row = -1;
+						last_row = -1;
+					}
+				}
+
+				// last range
+				if (first_row != -1) {
+					sel.select(data_model->index(first_row, 0), data_model->index(last_row, 0));
+				}
+
+				return sel;
+			},
+			[](QItemSelection sel1, QItemSelection sel2) -> QItemSelection {
+				sel1.merge(sel2, QItemSelectionModel::Select);
+				return sel1;
+			});
+#else // TBB imperative
+		class PVComputeSelectionTBB
+		{
+		public:
+			PVComputeSelectionTBB (QAbstractItemModel* data_model, uint64_t vmin, uint64_t vmax) :
+				_data_model(data_model),
+				_vmin(vmin),
+				_vmax(vmax)
+			{}
+
+			PVComputeSelectionTBB(PVComputeSelectionTBB& x, tbb::split) :
+				_data_model(x._data_model),
+				_vmin(x._vmin),
+				_vmax(x._vmax)
+			{}
+
+		public:
+			void operator() (const tbb::blocked_range<int>& range)
+			{
+				int first_row = -1;
+				int last_row = -1;
+
+				for (int row = range.begin(); row < range.end(); row++) {
+
+					const uint64_t v = _data_model->index(row, 1).data(Qt::UserRole).toULongLong();
+
+					if ((v >= _vmin) && (v <= _vmax)) {
+						if (first_row == -1) {
+							first_row = row;
+						}
+						last_row = row;
+					}
+					else {
+						if (first_row != -1) {
+							_sel.select(_data_model->index(first_row, 0), _data_model->index(last_row, 0));
+						}
+						first_row = -1;
+						last_row = -1;
+					}
+				}
+
+				// last range
+				if (first_row != -1) {
+					_sel.select(_data_model->index(first_row, 0), _data_model->index(last_row, 0));
+				}
+			}
+
+			void join(PVComputeSelectionTBB& rhs)
+			{
+				_sel.merge(rhs._sel, QItemSelectionModel::Select);
+			}
+
+		public:
+			QItemSelection& get_selection() { return _sel; }
+
+		private:
+			QItemSelection _sel;
+			QAbstractItemModel* _data_model;
+			uint64_t _vmin;
+			uint64_t _vmax;
+		};
+
+		const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+		tbb::task_scheduler_init init(nthreads);
+		tbb::task_group_context ctxt;
+		PVComputeSelectionTBB compute_selection_body(data_model, vmin, vmax);
+		tbb::parallel_reduce(tbb::blocked_range<int>(0, row_count, std::max(nthreads, row_count / nthreads)), compute_selection_body);
+
+#endif
+#endif
+
+		BENCH_END(select_values, "select_values", 0, 0, 1, row_count);
+
+		return true;
+	}, ctxt, pbox);
+
+	if (res) {
+		sel_model->select(sel, QItemSelectionModel::Select);
 	}
 }
 
