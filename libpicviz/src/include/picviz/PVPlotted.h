@@ -169,8 +169,8 @@ public:
 	}
 
 	PVSource* get_source_parent();
-	inline uint32_t const* get_column_pointer(PVCol const j) const { return &_uint_table[(size_t)j*(size_t)get_aligned_row_count()]; }
-	inline uint32_t* get_column_pointer(PVCol const j) { return &_uint_table[(size_t)j*(size_t)get_aligned_row_count()]; }
+	inline uint32_t const* get_column_pointer(PVCol const j) const { return &_uint_table[get_plotted_col_offset(get_row_count(), j)]; }
+	inline uint32_t* get_column_pointer(PVCol const j) { return &_uint_table[get_plotted_col_offset(get_row_count(), j)]; }
 	inline uint32_t get_value(PVRow const i, PVCol const j) const { return get_column_pointer(j)[i]; }
 
 	/**
@@ -184,7 +184,7 @@ public:
 	 */
 	static const uint32_t *get_plotted_col_addr(const uint32_t *plotted, const PVRow nrows, const PVCol col)
 	{
-		return plotted + (get_aligned_row_count(nrows) * col);
+		return plotted + get_plotted_col_offset(nrows, col);
 	}
 
 	/**
@@ -230,6 +230,19 @@ protected:
 	virtual void child_added(PVView& child) override;
 
 	int create_table();
+
+	/**
+	 * Computes the offset between the plotting's base address and a column's base address
+	 *
+	 * @param nrows the rows number
+	 * @param colo the wanted column index
+	 *
+	 * @return the offset of the @a col in the plotted's buffer
+	 */
+	static inline size_t get_plotted_col_offset(PVRow nrows, PVCol col)
+	{
+		return (size_t)get_aligned_row_count(nrows) * (size_t)col;
+	}
 
 private:
 	PVPlotting_p _plotting;
