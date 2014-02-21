@@ -64,11 +64,11 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	
 	QHBoxLayout *main_layout = new QHBoxLayout();
 
-	QPixmap* pv_welcomeIcon = new QPixmap(":/start-logo");
+	QPixmap pv_welcomeIcon(":/start-logo");
 
 	QLabel* pv_labelWelcomeIcon = new QLabel();
-	pv_labelWelcomeIcon->setPixmap(*pv_welcomeIcon);
-	pv_labelWelcomeIcon->resize(pv_welcomeIcon->width(), pv_welcomeIcon->height());
+	pv_labelWelcomeIcon->setPixmap(pv_welcomeIcon);
+	pv_labelWelcomeIcon->resize(pv_welcomeIcon.width(), pv_welcomeIcon.height());
 
 	QVBoxLayout* pv_startLayout = new QVBoxLayout(this);
 	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
