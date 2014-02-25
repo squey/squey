@@ -117,6 +117,12 @@ public:
 		             qMax(lsize.height(), fsize.height()));
 	}
 
+protected:
+	virtual QString textFromValue(double value) const override
+	{
+	   return locale().toString(value);
+	}
+
 private:
 	QDoubleSpinBox *_other;
 };
