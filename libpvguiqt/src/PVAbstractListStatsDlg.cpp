@@ -613,7 +613,7 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 	QStyledItemDelegate::paint(painter, option, index);
 
 	if (index.column() == 1) {
-		size_t occurence_count = index.data(Qt::UserRole).toUInt();
+		uint64_t occurence_count = index.data(Qt::UserRole).toULongLong();
 
 		double ratio = (double) occurence_count / d()->get_selected_events_count();
 		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->get_selected_events_count());

@@ -24,16 +24,26 @@ bool PVGuiQt::PVCountByStringsDlg::process_context_menu(QAction* act)
 			assert(row < get_model()->_values.size());
 			__impl::PVCountByStringsModel::v1_v2_pair_t& v1_v2_pair  = get_model()->_values[row];
 
-			typedef PVRush::PVNraw::unique_values_container_t elem_t;
+			typedef PVRush::PVNraw::unique_values_value_t value_type;
 			size_t total_count = std::accumulate(v1_v2_pair.second.begin(), v1_v2_pair.second.end(), 0,
-				[](const size_t& rhs, const elem_t& lhs)
+				[](const size_t& rhs, const value_type& lhs)
 				{
 					return rhs + lhs.second;
 				}
 			);
 
+			PVRush::PVNraw::unique_values_unordered_map_t& unique_values_unordered_map = v1_v2_pair.second;
+
+			PVRush::PVNraw::unique_values_t unique_values_vector;
+			unique_values_vector.reserve(unique_values_unordered_map.size());
+
+
+			for (auto& v : unique_values_unordered_map) {
+				unique_values_vector.emplace_back(std::move(v.first), v.second);
+			}
+
 			Picviz::PVView_sp view_sp = _view.shared_from_this();
-			PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view_sp, _col2, v1_v2_pair.second, total_count, parentWidget());
+			PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view_sp, _col2, unique_values_vector, total_count, parentWidget());
 			dlg->setWindowTitle("Details of value '" + QString(v1_v2_pair.first.first.c_str())+ "'");
 			dlg->move(x()+width()+10, y());
 			dlg->show();

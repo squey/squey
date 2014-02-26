@@ -9,6 +9,10 @@
 #include <pvkernel/core/picviz_assert.h>
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/rush/PVNrawDiskBackend.h>
+
+#include <tbb/task_scheduler_init.h>
+#include <tbb/parallel_reduce.h>
+
 #include <cstdlib>
 
 static const std::string INDEX_FILENAME = std::string("nraw.idx");
@@ -615,66 +619,68 @@ int64_t PVRush::PVNrawDiskBackend::PVCachePool::get_index(uint64_t col, uint64_t
 	return -1;
 }
 
-bool PVRush::PVNrawDiskBackend::get_unique_values_for_col(PVCol const c, unique_values_t& ret, tbb::task_group_context* ctxt)
+bool PVRush::PVNrawDiskBackend::get_unique_values(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt)
 {
-	const size_t nreserve = std::sqrt(_nrows);
-	tbb::enumerable_thread_specific<unique_values_t> unique_values_tls([nreserve]{ unique_values_t ret; ret.reserve(nreserve); return ret; });
-	bool vret = visit_column_tbb(c, [&unique_values_tls](size_t, const char* buf, size_t n)
-			{   
-				std::string_tbb new_s(buf, n); 
-				unique_values_tls.local()[new_s]++;
-			}, ctxt);
-	if (!vret) {
-		return false;
+	BENCH_START(get_unique_values);
+
+	if (true) { // Use a thread local storage and merge partial results
+		return get_unique_values_impl_tls(c, ret, [&](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
+			{
+				unique_values_insertion(values, row, buf, n);
+			}, sel, ctxt);
+	}
+	else { // Use a concurrent structure
+		return get_unique_values_impl_concurrent(c, ret, [&](unique_values_concurrent_unordered_map_t& values, size_t row, const char* buf, size_t n)
+			{
+				unique_values_insertion(values, row, buf, n);
+			}, sel, ctxt);
 	}
 
-	return merge_tls(ret, unique_values_tls);
-}
-
-bool PVRush::PVNrawDiskBackend::get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt)
-{
-	const size_t nreserve = std::sqrt(_nrows);
-	tbb::enumerable_thread_specific<unique_values_t> unique_values_tls([nreserve]{ unique_values_t ret; ret.reserve(nreserve); return ret; });
-	bool vret = visit_column_tbb_sel(c, [&unique_values_tls](size_t, const char* buf, size_t n)
-	{
-		std::string_tbb new_s(buf, n);
-		unique_values_tls.local()[new_s]++;
-	}, sel, ctxt);
-	if (!vret) {
-		return false;
-	}
-
-	return merge_tls(ret, unique_values_tls);
-}
-
-bool PVRush::PVNrawDiskBackend::merge_tls(unique_values_t& ret, tbb::enumerable_thread_specific<unique_values_t>& unique_values_tls, tbb::task_group_context* ctxt /* = nullptr */)
-{
-	tbb::enumerable_thread_specific<unique_values_t>::iterator it_tls = unique_values_tls.begin();
-	if (it_tls != unique_values_tls.end()) {
-		unique_values_t& final = *it_tls;
-		it_tls++;
-		for (; it_tls != unique_values_tls.end(); it_tls++) {
-			if (ctxt && ctxt->is_group_execution_cancelled()) {
-				ret.clear();
-				return false; 	// return false if it has been cancelled
-			}
-			for (auto& v : *it_tls) {
-				final[v.first] += v.second;
-			}
-		}
-		ret = std::move(final);
-	}
-	else {
-		ret.clear();
-		return false;
-	}
+	BENCH_END(get_unique_values, "get_unique_values", 1, 1, 1, 1);
 
 	return true;
 }
 
-bool PVRush::PVNrawDiskBackend::count_by_with_sel(PVCol const col1, PVCol const col2, count_by_t& ret, PVCore::PVSelBitField const& sel, size_t& v2_unique_values_count, tbb::task_group_context* ctxt /* = nullptr */)
+bool PVRush::PVNrawDiskBackend::sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt /* = nullptr */)
+{
+	BENCH_START(sum_by);
+
+	bool res = false;
+	if (true) { // Use a thread local storage and merge partial results
+		res = get_unique_values_impl_tls(col1, ret,[&, col2](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
+			{
+				sum_by_insertion(values, row, col2, buf, n);
+			}, sel, ctxt);
+	}
+	else { // Use a concurrent structure
+		res = get_unique_values_impl_concurrent(col1, ret, [&, col2](unique_values_concurrent_unordered_map_t& values, size_t row, const char* buf, size_t n)
+			{
+				sum_by_insertion(values, row, col2, buf, n);
+			}, sel, ctxt);
+	}
+
+	if (!res) {
+		return false;
+	}
+
+	res = get_sum(col2, sum, sel, ctxt);
+
+	BENCH_END(sum_by, "sum_by", 1, 1, 1, 1);
+
+	return res;
+}
+
+bool PVRush::PVNrawDiskBackend::count_by(
+	PVCol const col1,
+	PVCol const col2,
+	count_by_t& ret,
+	PVCore::PVSelBitField const& sel,
+	size_t& v2_unique_values_count,
+	tbb::task_group_context* ctxt /* = nullptr */
+)
 {
 	BENCH_START(count_by_with_sel);
+
 	const size_t nreserve = std::sqrt(_nrows);
 	tbb::enumerable_thread_specific<count_by_t> count_by_tls([nreserve]{ count_by_t ret; ret.reserve(nreserve); return ret; });
 	bool res = visit_column_tbb_sel(col1, [this, &count_by_tls, col2](size_t row, const char* buf1, size_t n1)
@@ -690,21 +696,6 @@ bool PVRush::PVNrawDiskBackend::count_by_with_sel(PVCol const col1, PVCol const 
 		return false;
 	}
 
-	BENCH_START(merge_count_by_tls);
-	res = merge_count_by_tls(ret, count_by_tls);
-	BENCH_END(merge_count_by_tls, "merge_count_by_tls", 1, 1, 1, 1);
-
-	unique_values_t unique_values_col2;
-	res = get_unique_values_for_col_with_sel(col2, unique_values_col2, sel, ctxt);
-	v2_unique_values_count = unique_values_col2.size();
-
-	BENCH_END(count_by_with_sel, "count_by_with_sel", 1, 1, 1, 1);
-
-	return res;
-}
-
-bool PVRush::PVNrawDiskBackend::merge_count_by_tls(count_by_t& ret, tbb::enumerable_thread_specific<count_by_t>& count_by_tls, tbb::task_group_context* ctxt /* = nullptr */)
-{
 	tbb::enumerable_thread_specific<count_by_t>::iterator it_tls = count_by_tls.begin();
 	if (it_tls != count_by_tls.end()) {
 		count_by_t& final = *it_tls;
@@ -729,10 +720,16 @@ bool PVRush::PVNrawDiskBackend::merge_count_by_tls(count_by_t& ret, tbb::enumera
 		return false;
 	}
 
-	return true;
+	unique_values_t unique_values_col2;
+	res = get_unique_values(col2, unique_values_col2, sel, ctxt);
+	v2_unique_values_count = unique_values_col2.size();
+
+	BENCH_END(count_by_with_sel, "count_by_with_sel", 1, 1, 1, 1);
+
+	return res;
 }
 
-bool PVRush::PVNrawDiskBackend::get_sum_for_col_with_sel(
+bool PVRush::PVNrawDiskBackend::get_sum(
 	const PVCol col,
 	uint64_t& sum,
 	const PVCore::PVSelBitField& sel,
@@ -766,64 +763,4 @@ bool PVRush::PVNrawDiskBackend::get_sum_for_col_with_sel(
 	}
 
 	return valid;
-}
-
-bool PVRush::PVNrawDiskBackend::sum_by_with_sel(PVCol const col1, PVCol const col2, sum_by_t& ret, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt /* = nullptr */)
-{
-	BENCH_START(sum_by_with_sel);
-
-	const size_t nreserve = std::sqrt(_nrows);
-	tbb::enumerable_thread_specific<sum_by_t> sum_by_tls([nreserve]{ sum_by_t ret; ret.reserve(nreserve); return ret; });
-	bool res = visit_column_tbb_sel(col1, [this, &sum_by_tls, &ret, &ctxt, col2](size_t row, const char* buf1, size_t n1)
-	{
-		std::string_tbb col1_str(buf1, n1);
-		size_t n2;
-		const char* buf2 = at_no_cache(row, col2, n2);
-		std::string_tbb col2_str(buf2, n2);
-		char* end_char;
-		const char* c_str = col2_str.c_str();
-		uint64_t value = strtoll(c_str, &end_char, 10);
-		if (c_str != end_char && *end_char == '\0') {
-			sum_by_tls.local()[col1_str] += value;
-		}
-	}, sel, ctxt);
-
-	if (!res) {
-		return false;
-	}
-
-	BENCH_START(merge_sum_by_tls);
-	res = merge_sum_by_tls(ret, sum_by_tls);
-	BENCH_END(merge_sum_by_tls, "merge_sum_by_tls", 1, 1, 1, 1);
-
-	res = get_sum_for_col_with_sel(col2, sum, sel, ctxt);
-
-	BENCH_END(sum_by_with_sel, "sum_by_with_sel", 1, 1, 1, 1);
-
-	return res;
-}
-
-bool PVRush::PVNrawDiskBackend::merge_sum_by_tls(sum_by_t& ret, tbb::enumerable_thread_specific<sum_by_t>& sum_by_tls, tbb::task_group_context* ctxt /* = nullptr */)
-{
-	tbb::enumerable_thread_specific<unique_values_t>::iterator it_tls = sum_by_tls.begin();
-	if (it_tls != sum_by_tls.end()) {
-		sum_by_t& final = *it_tls;
-		it_tls++;
-		for (; it_tls != sum_by_tls.end(); it_tls++) {
-			if (ctxt && ctxt->is_group_execution_cancelled()) {
-				ret.clear();
-				return false; 	// return false if it has been cancelled
-			}
-			for (auto& v : *it_tls) {
-				final[v.first] += v.second;
-			}
-		}
-		ret = std::move(final);
-	}
-	else {
-		ret.clear();
-		return false;
-	}
-
-	return true;
 }

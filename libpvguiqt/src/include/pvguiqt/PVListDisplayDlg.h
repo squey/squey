@@ -46,7 +46,6 @@ protected:
 	virtual void process_hhead_context_menu(QAction* act);
 
 protected slots:
-	void section_pressed(int col);
 	void section_clicked(int col);
 
 protected:

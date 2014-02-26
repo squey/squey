@@ -13,6 +13,8 @@
 
 #include <QAbstractListModel>
 
+#include <tbb/parallel_reduce.h>
+
 namespace PVGuiQt
 {
 
@@ -30,8 +32,9 @@ public:
 	PVListUniqStringsDlg(Picviz::PVView_sp& view, PVCol c, T& values, size_t selection_count, QWidget* parent = nullptr) :
 		PVAbstractListStatsDlg(view, c, new __impl::PVListUniqStringsModel<T>(values), selection_count, parent)
 	{
-		typedef PVRush::PVNraw::unique_values_container_t elem_t;
-		set_max_element((*std::max_element(values.begin(), values.end(), [](const elem_t &lhs, const elem_t &rhs) { return lhs.second < rhs.second; } )).second);
+		__impl::PVListUniqStringsModel<T>* m = static_cast<__impl::PVListUniqStringsModel<T>*>(model());
+		assert(m);
+		set_max_element(m->max_element());
 	}
 };
 
@@ -41,11 +44,8 @@ template <typename T>
 class PVListUniqStringsModel: public PVGuiQt::__impl::PVAbstractListStatsModel
 {
 public:
-	PVListUniqStringsModel(T& values, QWidget* parent = nullptr) : PVGuiQt::__impl::PVAbstractListStatsModel(parent)
+	PVListUniqStringsModel(T& values, QWidget* parent = nullptr) : PVGuiQt::__impl::PVAbstractListStatsModel(parent), _values(std::move(values))
 	{
-		for (auto& v : values) {
-			_values.emplace_back(std::move(v.first), v.second);
-		}
 	}
 
 public:
@@ -84,9 +84,14 @@ public:
 		return QVariant();
 	}
 
+	inline size_t max_element()
+	{
+		typedef PVRush::PVNraw::unique_values_value_t value_type;
+		return std::max_element(_values.begin(), _values.end(), [](const value_type &lhs, const value_type &rhs) { return lhs.second < rhs.second; } )->second;
+	}
+
 private:
-	typedef std::pair<std::string_tbb, uint64_t> pair_t;
-	std::vector<pair_t> _values;
+	T _values;
 };
 
 }

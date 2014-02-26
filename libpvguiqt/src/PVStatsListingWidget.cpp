@@ -548,7 +548,7 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 {
 	PVRush::PVNraw::unique_values_t values;
-	bool valid = _view.get_rushnraw_parent().get_unique_values_for_col_with_sel(get_col(), values, *_view.get_selection_visible_listing(), _ctxt);
+	bool valid = _view.get_rushnraw_parent().get_unique_values(get_col(), values, *_view.get_selection_visible_listing(), _ctxt);
 #if SIMULATE_LONG_COMPUTATION
 	for (uint32_t i = 0; i < 10 && !_ctxt->is_group_execution_cancelled(); i++) {
 		usleep(500000);
@@ -572,7 +572,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
 void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
 {
 	uint64_t sum = 0;
-	bool valid = _view.get_rushnraw_parent().get_sum_for_col_with_sel(get_col(), sum, *_view.get_selection_visible_listing(), _ctxt);
+	bool valid = _view.get_rushnraw_parent().get_sum(get_col(), sum, *_view.get_selection_visible_listing(), _ctxt);
 
 	emit refresh_impl_finished(QString("%L1").arg(sum), valid); // We must go back on the Qt thread to update the GUI
 }

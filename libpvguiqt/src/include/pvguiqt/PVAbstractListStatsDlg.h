@@ -84,7 +84,7 @@ protected:
 	PVHive::PVObserverSignal<Picviz::PVView> _obs;
 	PVHive::PVActor<Picviz::PVView> _actor;
 	bool _store_last_section_width = true;
-	int _last_section_width = 200;
+	int _last_section_width = 250;
 
 	uint64_t _selected_events_count;
 
@@ -157,7 +157,7 @@ protected:
 	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 private:
-	inline QString format_occurence(size_t occurence_count) const { return QString("%L1").arg(occurence_count); };
+	inline QString format_occurence(uint64_t occurence_count) const { return QString("%L1").arg(occurence_count); };
 	inline QString format_percentage(double ratio) const { return QString::number(ratio * 100, 'f', 1) + "%"; };
 	inline QString format_scientific_notation(double ratio) const  { return QString::number(ratio, 'e', 1); };
 

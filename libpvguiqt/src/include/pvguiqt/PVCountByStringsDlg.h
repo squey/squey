@@ -80,7 +80,7 @@ private:
 private:
 	typedef std::pair<std::string_tbb, size_t> string_count_t;
 	typedef std::vector<string_count_t> vector_v2_count_t;
-	typedef std::pair<string_count_t, PVRush::PVNraw::unique_values_t > v1_v2_pair_t;
+	typedef std::pair<string_count_t, PVRush::PVNraw::unique_values_unordered_map_t > v1_v2_pair_t;
 	typedef std::vector<v1_v2_pair_t> count_by_t;
 
 	count_by_t _values;

@@ -131,6 +131,8 @@ private:
 	void allocate_table(PVRow const nrows, PVCol const ncols);
 	void reallocate_table(PVRow const nrows);
 
+	void compute_unique_values();
+
 protected:
 	mapped_table_t _trans_table;
 	PVMapping_p _mapping;
@@ -138,6 +140,7 @@ protected:
 	// This is a hash whose key is "group_type", that contains the PVArgument
 	// passed through all mapping filters that have the same group and type
 	QHash<QString, PVCore::PVArgument> _grp_values_rush;
+	std::vector<size_t> _unique_values_count;
 };
 
 typedef PVMapped::p_type  PVMapped_p;

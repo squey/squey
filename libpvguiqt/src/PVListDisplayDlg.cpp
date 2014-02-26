@@ -116,8 +116,6 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	connect(_btn_append_file, SIGNAL(clicked()), this, SLOT(append_to_file()));
 	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort()));
 
-
-	connect(_values_view->horizontalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(section_pressed(int)));
 	connect(_values_view->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(section_clicked(int)));
 	connect(_values_view->horizontalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_hhead_ctxt_menu(const QPoint&)));
 	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -311,25 +309,21 @@ QAbstractListModel* PVGuiQt::PVListDisplayDlg::model()
 	return static_cast<QAbstractListModel*>(proxy_model()->sourceModel());
 }
 
-void PVGuiQt::PVListDisplayDlg::section_pressed(int /*col*/)
-{
-	// Clear selection
-	_values_view->clearSelection();
-	_values_view->setSelectionMode(QAbstractItemView::NoSelection);
-}
-
-
 void PVGuiQt::PVListDisplayDlg::section_clicked(int col)
 {
+	// Save selection
+	QItemSelection sel = _values_view->selectionModel()->selection();
+	sel = proxy_model()->mapSelectionToSource(sel);
+
+	// Sort
 	sort_by_column(col);
 
 	// Restore selection
-	_values_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	/*for (const QModelIndex& idx : _item_selection) {
-		_values_view->selectionModel()->select(idx, QItemSelectionModel::Select);
-	}*/
+	_values_view->selectionModel()->setCurrentIndex(QModelIndex(), QItemSelectionModel::Clear); // Get rid of the annoying misplaced focus...
+	_values_view->selectionModel()->clearSelection();
+	sel = proxy_model()->mapSelectionFromSource(sel);
+	_values_view->selectionModel()->select(sel, QItemSelectionModel::Select);
 }
-
 
 void PVGuiQt::PVListDisplayDlg::sort_by_column(int col)
 {

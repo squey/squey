@@ -24,8 +24,11 @@
 
 #include <iostream>
 
+#include <unordered_set>
 #include <float.h>
 #include <omp.h>
+
+#include <tbb/parallel_for.h>
 
 #define DEFAULT_MAPPING_NROWS (16*1024*1024)
 
@@ -154,6 +157,39 @@ void Picviz::PVMapped::finish_process_from_rush_pipeline()
 	for (auto plotted : get_children<PVPlotted>()) {
 		plotted->finish_process_from_rush_pipeline();
 	}
+
+	compute_unique_values();
+}
+
+void Picviz::PVMapped::compute_unique_values()
+{
+	tbb::tick_count t_start = tbb::tick_count::now();
+
+	const PVRow nrows = get_parent()->get_row_count();
+	const PVCol ncols = _mapping->get_number_cols();
+	_unique_values_count.resize(ncols);
+
+	std::vector<std::unordered_set<uint32_t>> unique_values;
+	unique_values.resize(ncols);
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, ncols, 1),
+		[&](tbb::blocked_range<size_t> const& range) {
+			PVCol col = range.begin();
+			auto& column_unique_values = unique_values[col];
+			decimal_storage_type* buffer = get_column_pointer(col);
+			for (size_t row = 0; row < nrows; row++) {
+				column_unique_values.emplace(buffer[row].storage_as_uint());
+			}
+		}, tbb::simple_partitioner());
+
+	for (PVCol col = 0; col < ncols; col++) {
+		_unique_values_count[col] = unique_values[col].size();
+		PVLOG_DEBUG("Column %d unique values: \n", col,  _unique_values_count[col]);
+	}
+
+	tbb::tick_count t_end = tbb::tick_count::now();
+
+	PVLOG_INFO("(PVMapped::compute_unique_values) Computing mapped columns entropy took %0.4f seconds.\n", (t_end-t_start).seconds());
 }
 
 void Picviz::PVMapped::process_rush_pipeline_chunk(PVCore::PVChunk const* chunk, PVRow const cur_r)
