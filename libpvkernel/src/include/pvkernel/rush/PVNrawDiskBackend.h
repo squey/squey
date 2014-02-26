@@ -22,6 +22,7 @@
 #include <tbb/task.h>
 #include <tbb/tick_count.h>
 #include <tbb/enumerable_thread_specific.h>
+#include <tbb/concurrent_unordered_map.h>
 
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/PVAllocators.h>
@@ -244,21 +245,22 @@ public:
 	typedef PVNrawDiskBackend this_type;
 
 	// unique values
-	typedef std::string_tbb unique_values_key_t;
-	typedef size_t unique_values_value_t;
-	typedef std::pair<unique_values_key_t, unique_values_value_t> unique_values_container_t;
-	typedef std::unordered_map<unique_values_key_t, unique_values_value_t> unique_values_t;
+	typedef std::pair<std::string_tbb, uint64_t> unique_values_value_t;
+	typedef std::vector<unique_values_value_t, tbb::scalable_allocator<unique_values_value_t>> unique_values_t;
+	typedef std::unordered_map<std::string_tbb, uint64_t> unique_values_unordered_map_t;
+	typedef tbb::concurrent_unordered_map<std::string_tbb, uint64_t> unique_values_concurrent_unordered_map_t;
 
 	// count by
 	typedef std::string_tbb count_by_key_t;
-	typedef size_t count_by_value_t;
+	typedef uint64_t count_by_value_t;
 	typedef std::unordered_map<count_by_key_t, count_by_value_t> count_by_unique_values_t;
 	typedef std::unordered_map<count_by_key_t, count_by_unique_values_t> count_by_t;
 
 	// sum by
 	typedef std::string_tbb sum_by_key_t;
 	typedef uint64_t sum_by_value_t;
-	typedef std::unordered_map<count_by_key_t, sum_by_value_t> sum_by_t;
+	typedef unique_values_t sum_by_t;
+	typedef std::unordered_map<count_by_key_t, sum_by_value_t> sum_by_unordered_map_t;
 
 public:
 	PVNrawDiskBackend();
@@ -695,14 +697,13 @@ public:
 		return true;
 	}
 
-	bool get_unique_values_for_col(PVCol const c, unique_values_t& ret, tbb::task_group_context* ctxt = NULL);
-	bool get_unique_values_for_col_with_sel(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL);
+	bool get_unique_values(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
 
-	bool count_by_with_sel(PVCol const col1, PVCol const col2, count_by_t& ret, PVCore::PVSelBitField const& sel, size_t& v2_unique_values_count, tbb::task_group_context* ctxt = nullptr);
+	bool count_by(PVCol const col1, PVCol const col2, count_by_t& ret, PVCore::PVSelBitField const& sel, size_t& v2_unique_values_count, tbb::task_group_context* ctxt = nullptr);
 
-	bool get_sum_for_col_with_sel(PVCol const col, uint64_t& sum, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
+	bool get_sum(PVCol const col, uint64_t& sum, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
 
-	bool sum_by_with_sel(PVCol const col1, PVCol const col2, sum_by_t& ret, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr);
+	bool sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr);
 
 	void clear_stats()
 	{
@@ -978,11 +979,106 @@ private:
 	inline PVColumn& get_col(uint64_t col) { assert(col < _columns.size()); return _columns[col]; }
 	inline const PVColumn& get_col(uint64_t col) const { assert(col < _columns.size()); return _columns[col]; }
 
-	static bool merge_tls(unique_values_t& ret, tbb::enumerable_thread_specific<unique_values_t>& tbb_qset, tbb::task_group_context* ctxt = nullptr);
+	template <typename F>
+	bool get_unique_values_impl_concurrent(
+		PVCol const c,
+		unique_values_t& ret,
+		F const& f,
+		PVCore::PVSelBitField const& sel,
+		tbb::task_group_context* ctxt
+	)
+	{
+		tbb::concurrent_unordered_map<std::string_tbb, size_t> values;
 
-	bool merge_count_by_tls(count_by_t& ret, tbb::enumerable_thread_specific<count_by_t>& count_by_tls, tbb::task_group_context* ctxt = nullptr);
+		bool vret = visit_column_tbb_sel(c, [&f, &values](size_t row, const char* buf, size_t n)
+		{
+			f(values, row, buf, n);
+		}, sel, ctxt);
 
-	bool merge_sum_by_tls(sum_by_t& ret, tbb::enumerable_thread_specific<sum_by_t>& sum_by_tls, tbb::task_group_context* ctxt = nullptr);
+		if (!vret) {
+			return false;
+		}
+
+		ret.reserve(values.size());
+		for (auto& v : values) {
+			ret.emplace_back(std::move(v.first), v.second);
+		}
+	}
+
+	template <typename F>
+	bool get_unique_values_impl_tls(
+		PVCol const c,
+		unique_values_t& ret,
+		F const& f,
+		PVCore::PVSelBitField const& sel,
+		tbb::task_group_context* ctxt
+	)
+	{
+		typedef std::unordered_map<std::string_tbb, size_t> unique_values_unordered_map_t;
+
+		// Parallelized computation
+		const size_t nreserve = std::sqrt(_nrows);
+		tbb::enumerable_thread_specific<unique_values_unordered_map_t> unique_values_tls([nreserve]{ unique_values_unordered_map_t ret; ret.reserve(nreserve); return ret; });
+		bool vret = visit_column_tbb_sel(c, [&f, &unique_values_tls](size_t row, const char* buf, size_t n)
+		{
+			f(unique_values_tls.local(), row, buf, n);
+		}, sel, ctxt);
+
+		if (!vret) {
+			return false;
+		}
+
+		// Merge values
+		tbb::enumerable_thread_specific<unique_values_unordered_map_t>::iterator it_tls = unique_values_tls.begin();
+		if (it_tls != unique_values_tls.end()) {
+			unique_values_unordered_map_t& values = *it_tls;
+			it_tls++;
+			for (; it_tls != unique_values_tls.end(); it_tls++) {
+				if (ctxt && ctxt->is_group_execution_cancelled()) {
+					ret.clear();
+					return false; 	// return false if it has been cancelled
+				}
+				for (auto& v : *it_tls) {
+					values[v.first] += v.second;
+				}
+			}
+
+			// Compute return structure
+			ret.reserve(values.size());
+			for (auto& v : values) {
+				ret.emplace_back(std::move(v.first), v.second);
+			}
+		}
+		else {
+			ret.clear();
+			return false;
+		}
+
+		return true;
+	}
+
+	template <typename T>
+	void unique_values_insertion(T& values, size_t, const char* buf, size_t n)
+	{
+		std::string_tbb new_s(buf, n);
+		values[new_s]++;
+	}
+
+	template <typename T>
+	void sum_by_insertion(T& values, size_t row, PVCol col2, const char* buf, size_t n)
+	{
+		std::string_tbb col1_str(buf, n);
+		size_t n2;
+		const char* buf2 = at_no_cache(row, col2, n2);
+		std::string_tbb col2_str(buf2, n2);
+		char* end_char;
+		const char* c_str = col2_str.c_str();
+		uint64_t value = strtoll(c_str, &end_char, 10);
+		if (c_str != end_char && *end_char == '\0') {
+			values[col1_str] += value;
+		}
+	}
+
 
 private:
 	std::string _nraw_folder;
@@ -1027,6 +1123,7 @@ private:
 	mutable tbb::atomic<uint64_t> _stats_read;
 	mutable tbb::atomic<uint64_t> _stats_search;
 };
+
 
 }
 
