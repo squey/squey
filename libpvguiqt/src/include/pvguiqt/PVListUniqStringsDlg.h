@@ -18,33 +18,14 @@
 namespace PVGuiQt
 {
 
-namespace __impl
-{
-template <typename T>
-class PVListUniqStringsModel;
-}
-
-
-class PVListUniqStringsDlg : public PVAbstractListStatsDlg
-{
-public:
-	template <typename T>
-	PVListUniqStringsDlg(Picviz::PVView_sp& view, PVCol c, T& values, size_t selection_count, QWidget* parent = nullptr) :
-		PVAbstractListStatsDlg(view, c, new __impl::PVListUniqStringsModel<T>(values), selection_count, parent)
-	{
-		__impl::PVListUniqStringsModel<T>* m = static_cast<__impl::PVListUniqStringsModel<T>*>(model());
-		assert(m);
-		set_max_element(m->max_element());
-	}
-};
-
 namespace __impl {
 
-template <typename T>
 class PVListUniqStringsModel: public PVGuiQt::__impl::PVAbstractListStatsModel
 {
+	typedef typename PVRush::PVNraw::unique_values_t unique_values_t;
+
 public:
-	PVListUniqStringsModel(T& values, QWidget* parent = nullptr) : PVGuiQt::__impl::PVAbstractListStatsModel(parent), _values(std::move(values))
+	PVListUniqStringsModel(unique_values_t& values, QWidget* parent = nullptr) : PVGuiQt::__impl::PVAbstractListStatsModel(parent), _values(std::move(values))
 	{
 	}
 
@@ -84,17 +65,22 @@ public:
 		return QVariant();
 	}
 
-	inline size_t max_element()
-	{
-		typedef PVRush::PVNraw::unique_values_value_t value_type;
-		return std::max_element(_values.begin(), _values.end(), [](const value_type &lhs, const value_type &rhs) { return lhs.second < rhs.second; } )->second;
-	}
-
 private:
-	T _values;
+	unique_values_t _values;
 };
 
 }
+
+class PVListUniqStringsDlg : public PVAbstractListStatsDlg
+{
+	typedef typename PVRush::PVNraw::unique_values_t unique_values_t;
+
+public:
+	PVListUniqStringsDlg(Picviz::PVView_sp& view, PVCol c, unique_values_t& values, size_t abs_max, size_t rel_max, QWidget* parent = nullptr) :
+		PVAbstractListStatsDlg(view, c, new __impl::PVListUniqStringsModel(values), abs_max, rel_max, parent)
+	{
+	}
+};
 
 }
 

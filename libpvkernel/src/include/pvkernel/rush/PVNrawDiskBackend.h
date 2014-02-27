@@ -254,7 +254,12 @@ public:
 	typedef std::string_tbb count_by_key_t;
 	typedef uint64_t count_by_value_t;
 	typedef std::unordered_map<count_by_key_t, count_by_value_t> count_by_unique_values_t;
-	typedef std::unordered_map<count_by_key_t, count_by_unique_values_t> count_by_t;
+	typedef std::unordered_map<count_by_key_t, count_by_unique_values_t> count_by_unordered_map_t;
+
+	typedef std::pair<std::string_tbb, size_t> count_by_string_count_t;
+	typedef std::vector<count_by_string_count_t> count_by_vector_v2_count_t;
+	typedef std::pair<count_by_string_count_t, unique_values_unordered_map_t > count_by_v1_v2_pair_t;
+	typedef std::vector<count_by_v1_v2_pair_t> count_by_t;
 
 	// sum by
 	typedef std::string_tbb sum_by_key_t;
@@ -697,13 +702,13 @@ public:
 		return true;
 	}
 
-	bool get_unique_values(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
+	bool get_unique_values(PVCol const c, unique_values_t& ret, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
 
-	bool count_by(PVCol const col1, PVCol const col2, count_by_t& ret, PVCore::PVSelBitField const& sel, size_t& v2_unique_values_count, tbb::task_group_context* ctxt = nullptr);
+	bool count_by(PVCol const col1, PVCol const col2, count_by_t& ret, uint64_t& max, PVCore::PVSelBitField const& sel, size_t& v2_unique_values_count, tbb::task_group_context* ctxt = nullptr);
 
 	bool get_sum(PVCol const col, uint64_t& sum, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
 
-	bool sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr);
+	bool sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& max, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr);
 
 	void clear_stats()
 	{
@@ -983,6 +988,7 @@ private:
 	bool get_unique_values_impl_concurrent(
 		PVCol const c,
 		unique_values_t& ret,
+		uint64_t& max,
 		F const& f,
 		PVCore::PVSelBitField const& sel,
 		tbb::task_group_context* ctxt
@@ -999,9 +1005,11 @@ private:
 			return false;
 		}
 
+		max = 0;
 		ret.reserve(values.size());
 		for (auto& v : values) {
 			ret.emplace_back(std::move(v.first), v.second);
+			max = std::max(max, v.second);
 		}
 	}
 
@@ -1009,6 +1017,7 @@ private:
 	bool get_unique_values_impl_tls(
 		PVCol const c,
 		unique_values_t& ret,
+		uint64_t& max,
 		F const& f,
 		PVCore::PVSelBitField const& sel,
 		tbb::task_group_context* ctxt
@@ -1028,6 +1037,8 @@ private:
 			return false;
 		}
 
+		// TODO : Merge MAX
+
 		// Merge values
 		tbb::enumerable_thread_specific<unique_values_unordered_map_t>::iterator it_tls = unique_values_tls.begin();
 		if (it_tls != unique_values_tls.end()) {
@@ -1044,9 +1055,11 @@ private:
 			}
 
 			// Compute return structure
+			max = 0;
 			ret.reserve(values.size());
 			for (auto& v : values) {
 				ret.emplace_back(std::move(v.first), v.second);
+				max = std::max(max, v.second);
 			}
 		}
 		else {
@@ -1061,7 +1074,7 @@ private:
 	void unique_values_insertion(T& values, size_t, const char* buf, size_t n)
 	{
 		std::string_tbb new_s(buf, n);
-		values[new_s]++;
+		uint64_t m = values[new_s]++;
 	}
 
 	template <typename T>
@@ -1075,10 +1088,10 @@ private:
 		const char* c_str = col2_str.c_str();
 		uint64_t value = strtoll(c_str, &end_char, 10);
 		if (c_str != end_char && *end_char == '\0') {
-			values[col1_str] += value;
+			uint64_t& m = values[col1_str];
+			m += value;
 		}
 	}
-
 
 private:
 	std::string _nraw_folder;

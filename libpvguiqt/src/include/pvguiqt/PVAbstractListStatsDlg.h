@@ -25,9 +25,6 @@ namespace PVGuiQt {
 namespace __impl {
 class PVListStringsDelegate;
 
-template <typename T>
-class PVListUniqStringsModel;
-
 class PVAbstractListStatsRangePicker;
 }
 
@@ -41,8 +38,14 @@ class PVAbstractListStatsDlg: public PVListDisplayDlg
 	friend class __impl::PVListStringsDelegate;
 
 public:
-	PVAbstractListStatsDlg(Picviz::PVView_sp& view, PVCol c, QAbstractListModel* model, size_t selected_events_count, QWidget* parent = nullptr) :
-		PVListDisplayDlg(model, parent), _col(c), _selected_events_count(selected_events_count)
+	PVAbstractListStatsDlg(
+		Picviz::PVView_sp& view,
+		PVCol c,
+		QAbstractListModel* model,
+		size_t absolute_max_count,
+		size_t relative_max_count,
+		QWidget* parent = nullptr) :
+		PVListDisplayDlg(model, parent), _col(c), _absolute_max_count(absolute_max_count), _relative_max_count(relative_max_count)
 	{
 		init(view);
 	}
@@ -51,7 +54,10 @@ public:
 	virtual ~PVAbstractListStatsDlg();
 
 public:
-	inline size_t get_selected_events_count() { return _selected_events_count; }
+	inline size_t get_absolute_max_count() { return _absolute_max_count; }
+	inline size_t get_relative_max_count() { return _relative_max_count; }
+	inline size_t get_max_count() { return _use_absolute_max_count ? _absolute_max_count : _relative_max_count; }
+
 	inline bool use_logarithmic_scale() { return _use_logarithmic_scale; }
 
 protected:
@@ -64,6 +70,7 @@ protected slots:
 	void view_resized();
 	void section_resized(int logicalIndex, int oldSize, int newSize);
 	void scale_changed(QAction* act);
+	void max_changed(QAction* act);
 
 protected slots:
 	void select_set_mode_count(bool checked);
@@ -76,27 +83,25 @@ protected:
 	void resize_section();
 
 protected:
-	void set_max_element(size_t value);
-	size_t get_max_element() const { return _max_e; }
-
-protected:
 	PVCol _col;
 	PVHive::PVObserverSignal<Picviz::PVView> _obs;
 	PVHive::PVActor<Picviz::PVView> _actor;
 	bool _store_last_section_width = true;
 	int _last_section_width = 250;
 
-	uint64_t _selected_events_count;
+	size_t _absolute_max_count;
+	size_t _relative_max_count;
+	bool _use_absolute_max_count = true;
 
 	bool _use_logarithmic_scale = true;
 	QAction* _act_toggle_linear;
 	QAction* _act_toggle_log;
+	QAction* _act_toggle_absolute;
+	QAction* _act_toggle_relative;
 
 	QAction* _act_show_percentage;
 	QAction* _act_show_count;
 	QAction* _act_show_scientific_notation;
-
-	uint64_t _max_e;
 
 	__impl::PVAbstractListStatsRangePicker* _select_picker;
 	bool                                    _select_is_count;

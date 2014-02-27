@@ -619,18 +619,20 @@ int64_t PVRush::PVNrawDiskBackend::PVCachePool::get_index(uint64_t col, uint64_t
 	return -1;
 }
 
-bool PVRush::PVNrawDiskBackend::get_unique_values(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt)
+bool PVRush::PVNrawDiskBackend::get_unique_values(PVCol const c, unique_values_t& ret, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt)
 {
 	BENCH_START(get_unique_values);
 
+	max = 0;
+
 	if (true) { // Use a thread local storage and merge partial results
-		return get_unique_values_impl_tls(c, ret, [&](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
+		return get_unique_values_impl_tls(c, ret, max, [&](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
 			{
 				unique_values_insertion(values, row, buf, n);
 			}, sel, ctxt);
 	}
 	else { // Use a concurrent structure
-		return get_unique_values_impl_concurrent(c, ret, [&](unique_values_concurrent_unordered_map_t& values, size_t row, const char* buf, size_t n)
+		return get_unique_values_impl_concurrent(c, ret, max, [&](unique_values_concurrent_unordered_map_t& values, size_t row, const char* buf, size_t n)
 			{
 				unique_values_insertion(values, row, buf, n);
 			}, sel, ctxt);
@@ -641,19 +643,21 @@ bool PVRush::PVNrawDiskBackend::get_unique_values(PVCol const c, unique_values_t
 	return true;
 }
 
-bool PVRush::PVNrawDiskBackend::sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt /* = nullptr */)
+bool PVRush::PVNrawDiskBackend::sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& max, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt /* = nullptr */)
 {
 	BENCH_START(sum_by);
 
+	max = 0;
+
 	bool res = false;
 	if (true) { // Use a thread local storage and merge partial results
-		res = get_unique_values_impl_tls(col1, ret,[&, col2](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
+		res = get_unique_values_impl_tls(col1, ret, max, [&, col2](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
 			{
 				sum_by_insertion(values, row, col2, buf, n);
 			}, sel, ctxt);
 	}
 	else { // Use a concurrent structure
-		res = get_unique_values_impl_concurrent(col1, ret, [&, col2](unique_values_concurrent_unordered_map_t& values, size_t row, const char* buf, size_t n)
+		res = get_unique_values_impl_concurrent(col1, ret, max, [&, col2](unique_values_concurrent_unordered_map_t& values, size_t row, const char* buf, size_t n)
 			{
 				sum_by_insertion(values, row, col2, buf, n);
 			}, sel, ctxt);
@@ -674,6 +678,7 @@ bool PVRush::PVNrawDiskBackend::count_by(
 	PVCol const col1,
 	PVCol const col2,
 	count_by_t& ret,
+	uint64_t& max,
 	PVCore::PVSelBitField const& sel,
 	size_t& v2_unique_values_count,
 	tbb::task_group_context* ctxt /* = nullptr */
@@ -681,8 +686,10 @@ bool PVRush::PVNrawDiskBackend::count_by(
 {
 	BENCH_START(count_by_with_sel);
 
+	max = 0;
+
 	const size_t nreserve = std::sqrt(_nrows);
-	tbb::enumerable_thread_specific<count_by_t> count_by_tls([nreserve]{ count_by_t ret; ret.reserve(nreserve); return ret; });
+	tbb::enumerable_thread_specific<count_by_unordered_map_t> count_by_tls([nreserve]{ count_by_unordered_map_t ret; ret.reserve(nreserve); return ret; });
 	bool res = visit_column_tbb_sel(col1, [this, &count_by_tls, col2](size_t row, const char* buf1, size_t n1)
 	{
 		std::string_tbb col1_str(buf1, n1);
@@ -696,9 +703,9 @@ bool PVRush::PVNrawDiskBackend::count_by(
 		return false;
 	}
 
-	tbb::enumerable_thread_specific<count_by_t>::iterator it_tls = count_by_tls.begin();
+	tbb::enumerable_thread_specific<count_by_unordered_map_t>::iterator it_tls = count_by_tls.begin();
 	if (it_tls != count_by_tls.end()) {
-		count_by_t& final = *it_tls;
+		count_by_unordered_map_t& final = *it_tls;
 		it_tls++;
 		for (; it_tls != count_by_tls.end(); it_tls++) {
 			if (ctxt && ctxt->is_group_execution_cancelled()) {
@@ -712,8 +719,23 @@ bool PVRush::PVNrawDiskBackend::count_by(
 					final_unique_values[v2.first] += v2.second;
 				}
 			}
+
 		}
-		ret = std::move(final);
+
+		size_t v1_count = final.size();
+		count_by_t values;
+		values.reserve(v1_count);
+		for (auto& v1 : final) {
+			auto& v2_values = v1.second;
+
+			// v1 count
+			count_by_string_count_t v1_count_pair(std::move(v1.first) , v2_values.size());
+
+			max = std::max(max, v2_values.size());
+			values.emplace_back(std::move(v1_count_pair), std::move(v2_values));
+		}
+
+		ret = std::move(values);
 	}
 	else {
 		ret.clear();
@@ -721,7 +743,8 @@ bool PVRush::PVNrawDiskBackend::count_by(
 	}
 
 	unique_values_t unique_values_col2;
-	res = get_unique_values(col2, unique_values_col2, sel, ctxt);
+	uint64_t m;
+	res = get_unique_values(col2, unique_values_col2, m, sel, ctxt);
 	v2_unique_values_count = unique_values_col2.size();
 
 	BENCH_END(count_by_with_sel, "count_by_with_sel", 1, 1, 1, 1);

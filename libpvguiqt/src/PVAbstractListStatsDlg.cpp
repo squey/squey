@@ -185,15 +185,27 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 	connect(_values_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(section_resized(int, int, int)));
 	_values_view->setItemDelegateForColumn(1, new __impl::PVListStringsDelegate(this));
 
-	QActionGroup* act_group = new QActionGroup(this);
-	act_group->setExclusive(true);
-	connect(act_group, SIGNAL(triggered(QAction*)), this, SLOT(scale_changed(QAction*)));
-	_act_toggle_linear = new QAction("Linear scale", act_group);
+	QActionGroup* act_group_scale = new QActionGroup(this);
+	act_group_scale->setExclusive(true);
+	connect(act_group_scale, SIGNAL(triggered(QAction*)), this, SLOT(scale_changed(QAction*)));
+	_act_toggle_linear = new QAction("Linear scale", act_group_scale);
 	_act_toggle_linear->setCheckable(true);
-	_act_toggle_log = new QAction("Logarithmic scale", act_group);
+	_act_toggle_log = new QAction("Logarithmic scale", act_group_scale);
 	_act_toggle_log->setCheckable(true);
 	_hhead_ctxt_menu->addAction(_act_toggle_linear);
 	_hhead_ctxt_menu->addAction(_act_toggle_log);
+	_hhead_ctxt_menu->addSeparator();
+
+	QActionGroup* act_group_max = new QActionGroup(this);
+	act_group_max->setExclusive(true);
+	connect(act_group_max, SIGNAL(triggered(QAction*)), this, SLOT(max_changed(QAction*)));
+	_act_toggle_absolute = new QAction("Absolute", act_group_max);
+	_act_toggle_absolute->setCheckable(true);
+	_act_toggle_absolute->setChecked(true);
+	_act_toggle_relative = new QAction("Relative", act_group_max);
+	_act_toggle_relative->setCheckable(true);
+	_hhead_ctxt_menu->addAction(_act_toggle_absolute);
+	_hhead_ctxt_menu->addAction(_act_toggle_relative);
 	_hhead_ctxt_menu->addSeparator();
 
 	_act_show_count = new QAction("Count", _hhead_ctxt_menu);
@@ -274,10 +286,18 @@ void PVGuiQt::PVAbstractListStatsDlg::scale_changed(QAction* act)
 	}
 }
 
+void PVGuiQt::PVAbstractListStatsDlg::max_changed(QAction* act)
+{
+	if (act) {
+		_use_absolute_max_count = (act == _act_toggle_absolute);
+		_values_view->update();
+	}
+}
+
 void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_count(bool checked)
 {
 	if (checked) {
-		_select_picker->set_mode_count(_max_e, get_selected_events_count());
+		_select_picker->set_mode_count(get_relative_max_count(), get_max_count());
 		_select_is_count = true;
 	}
 }
@@ -285,7 +305,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_count(bool checked)
 void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_frequency(bool checked)
 {
 	if (checked) {
-		_select_picker->set_mode_percent(get_selected_events_count());
+		_select_picker->set_mode_percent(get_max_count());
 		_select_is_count = false;
 	}
 }
@@ -321,7 +341,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 		vmin = _select_picker->get_range_min();
 		vmax = _select_picker->get_range_max();
 	} else {
-		const double count = get_selected_events_count();
+		const double count = get_max_count();
 		vmin = freq_to_count_min(_select_picker->get_range_min(), count);
 		vmax = freq_to_count_max(_select_picker->get_range_max(), count);
 	}
@@ -515,13 +535,13 @@ void PVGuiQt::PVAbstractListStatsDlg::resize_section()
 	_values_view->horizontalHeader()->resizeSection(0, _values_view->width() - _last_section_width);
 }
 
-void PVGuiQt::PVAbstractListStatsDlg::set_max_element(size_t value)
+/*void PVGuiQt::PVAbstractListStatsDlg::set_max_element(size_t value)
 {
 	_max_e = value;
 	if (_select_is_count) {
 		_select_picker->set_limits(0, value);
 	}
-}
+}*/
 
 void PVGuiQt::PVAbstractListStatsDlg::section_resized(int logicalIndex, int /*oldSize*/, int newSize)
 {
@@ -615,8 +635,8 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 	if (index.column() == 1) {
 		uint64_t occurence_count = index.data(Qt::UserRole).toULongLong();
 
-		double ratio = (double) occurence_count / d()->get_selected_events_count();
-		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->get_selected_events_count());
+		double ratio = (double) occurence_count / d()->get_max_count();
+		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->get_max_count());
 		bool log_scale = d()->use_logarithmic_scale();
 
 		// Draw bounding rectangle
@@ -649,7 +669,7 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 		size_t representation_count = 0;
 		if (d()->_act_show_count->isChecked()) {
 			occurence = format_occurence(occurence_count);
-			occurence_max_width = QFontMetrics(painter->font()).width(format_occurence(d()->_max_e));
+			occurence_max_width = QFontMetrics(painter->font()).width(format_occurence(d()->get_relative_max_count()));
 			margin -= occurence_max_width;
 			representation_count++;
 		}
@@ -661,7 +681,7 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 		}
 		if (d()->_act_show_percentage->isChecked()) {
 			percentage = format_percentage(ratio);
-			percentage_max_width = QFontMetrics(painter->font()).width(format_percentage((double)d()->_max_e / d()->get_selected_events_count()));
+			percentage_max_width = QFontMetrics(painter->font()).width(format_percentage((double)d()->get_relative_max_count() / d()->get_max_count()));
 			margin -= percentage_max_width;
 			representation_count++;
 		}

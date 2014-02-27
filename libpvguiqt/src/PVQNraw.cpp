@@ -13,18 +13,19 @@ bool PVGuiQt::PVQNraw::show_unique_values(Picviz::PVView_sp& view, PVRush::PVNra
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
 	pbox->set_enable_cancel(true);
 	PVRush::PVNraw::unique_values_t values;
+	uint64_t max;
 	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
 	ctxt.reset();
 
 	bool ret_pbox = PVCore::PVProgressBox::progress([&,c] {
-		nraw.get_unique_values(c, values, *((PVCore::PVSelBitField const*) &sel), &ctxt);
+		nraw.get_unique_values(c, values, max, *((PVCore::PVSelBitField const*) &sel), &ctxt);
 	}, ctxt, pbox);
 
 	if (!ret_pbox || values.size() == 0) {
 		return false;
 	}
 
-	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, c, values, sel.get_number_of_selected_lines_in_range(0, nraw.get_number_rows()), parent);
+	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, c, values, sel.get_number_of_selected_lines_in_range(0, nraw.get_number_rows()), max, parent);
 	dlg->setWindowTitle("Unique values of axis '" + nraw.get_axis_name(c) +"'");
 	dlg->show();
 
@@ -39,13 +40,14 @@ bool PVGuiQt::PVQNraw::show_count_by(Picviz::PVView_sp& view, PVRush::PVNraw con
 	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
 	ctxt.reset();
 	size_t v2_unique_values_count;
-	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2] { nraw.count_by(col1, col2, values, *((PVCore::PVSelBitField const*) &sel), v2_unique_values_count, &ctxt); }, ctxt, pbox);
+	size_t max;
+	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2] { nraw.count_by(col1, col2, values, max, *((PVCore::PVSelBitField const*) &sel), v2_unique_values_count, &ctxt); }, ctxt, pbox);
 	if (!ret_pbox || values.size() == 0) {
 		return false;
 	}
 
 	// PVListUniqStringsDlg takes ownership of strings inside `values'
-	PVCountByStringsDlg* dlg = new PVCountByStringsDlg(view, col1, col2, values, v2_unique_values_count, parent);
+	PVCountByStringsDlg* dlg = new PVCountByStringsDlg(view, col1, col2, values, v2_unique_values_count, max, parent);
 	dlg->setWindowTitle("Count by of axes '" + nraw.get_axis_name(col1) + "' and '" + nraw.get_axis_name(col2)+ "'");
 	dlg->show();
 
@@ -57,16 +59,17 @@ bool PVGuiQt::PVQNraw::show_sum_by(Picviz::PVView_sp& view, PVRush::PVNraw const
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
 	pbox->set_enable_cancel(true);
 	PVRush::PVNraw::sum_by_t values;
+	uint64_t max;
 	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
 	ctxt.reset();
 	uint64_t sum;
-	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2] { nraw.sum_by(col1, col2, values, *((PVCore::PVSelBitField const*) &sel), sum, &ctxt); }, ctxt, pbox);
+	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2] { nraw.sum_by(col1, col2, values, max, *((PVCore::PVSelBitField const*) &sel), sum, &ctxt); }, ctxt, pbox);
 	if (!ret_pbox || values.size() == 0) {
 		return false;
 	}
 
 	// PVSumByStringsDlg takes ownership of strings inside `values'
-	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, col1, values, sum, parent);
+	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, col1, values, sum, max, parent);
 	dlg->setWindowTitle("Sum by of axes '" + nraw.get_axis_name(col1) + "' and '" + nraw.get_axis_name(col2)+ "'");
 	dlg->show();
 

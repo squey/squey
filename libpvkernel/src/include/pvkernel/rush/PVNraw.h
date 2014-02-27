@@ -54,6 +54,7 @@ public:
 
 	// Count by
 	typedef PVNrawDiskBackend::count_by_t count_by_t;
+	typedef PVNrawDiskBackend::count_by_v1_v2_pair_t count_by_v1_v2_pair_t;
 
 	// Sum by
 	typedef PVNrawDiskBackend::sum_by_t sum_by_t;
@@ -145,14 +146,14 @@ public:
 		return _backend.visit_column_tbb_sel(c, f, sel, ctxt);
 	}
 
-	inline bool get_unique_values(PVCol const c, unique_values_t& ret, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
+	inline bool get_unique_values(PVCol const c, unique_values_t& ret, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
 	{
-		return _backend.get_unique_values(c, ret, sel, ctxt);
+		return _backend.get_unique_values(c, ret, max, sel, ctxt);
 	}
 
-	inline bool count_by(PVCol const col1, PVCol const col2, count_by_t& ret, PVCore::PVSelBitField const& sel, size_t& v2_unique_values_count, tbb::task_group_context* ctxt = nullptr) const
+	inline bool count_by(PVCol const col1, PVCol const col2, count_by_t& ret, uint64_t& max, PVCore::PVSelBitField const& sel, size_t& v2_unique_values_count, tbb::task_group_context* ctxt = nullptr) const
 	{
-		return _backend.count_by(col1, col2, ret, sel, v2_unique_values_count, ctxt);
+		return _backend.count_by(col1, col2, ret, max, sel, v2_unique_values_count, ctxt);
 	}
 
 	inline bool get_sum(PVCol const col, uint64_t& sum, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
@@ -160,9 +161,9 @@ public:
 		return _backend.get_sum(col, sum, sel, ctxt);
 	}
 
-	inline bool sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr) const
+	inline bool sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& max, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr) const
 	{
-		return _backend.sum_by(col1, col2, ret, sel, sum, ctxt);
+		return _backend.sum_by(col1, col2, ret, max, sel, sum, ctxt);
 	}
 
 	QString nraw_line_to_csv(PVRow idx) const;
