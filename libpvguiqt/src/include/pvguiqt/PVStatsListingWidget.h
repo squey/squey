@@ -10,6 +10,7 @@
 #include <thread>
 
 #include <QApplication>
+#include <QClipboard>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QMovie>
@@ -172,10 +173,12 @@ public slots:
 
 protected slots:
 	void refreshed(QString value, bool valid);
+	void context_menu_requested(const QPoint&);
 
 private slots:
 	virtual void vertical_header_clicked(int index);
 	void toggle_auto_refresh();
+	void copy_to_clipboard();
 
 signals:
 	void refresh_impl_finished(QString value, bool valid);
@@ -206,6 +209,7 @@ protected:
 	const QPixmap _autorefresh_off_pixmap;
 
 	QLabel* _text;
+	QMenu* _ctxt_menu;
 
 	static std::thread _thread;
 	static tbb::task_group_context* _ctxt;

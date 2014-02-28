@@ -376,7 +376,33 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table, Picviz:
 	_main_layout->addWidget(_loading_label);
 	//_main_layout->addWidget(_autorefresh_icon);
 
+	// Context menu
+	_ctxt_menu = new QMenu(this);
+	QAction* copy_to_clipboard = new QAction(tr("Copy"), _ctxt_menu);
+	connect(copy_to_clipboard, SIGNAL(triggered()), this, SLOT(copy_to_clipboard()));
+	_ctxt_menu->addAction(copy_to_clipboard);
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(context_menu_requested(const QPoint&)));
+	setContextMenuPolicy(Qt::CustomContextMenu);
+
 	setLayout(_main_layout);
+}
+
+void PVGuiQt::__impl::PVCellWidgetBase::context_menu_requested(const QPoint&)
+{
+	if (_valid) {
+		_ctxt_menu->exec(QCursor::pos());
+	}
+}
+
+void PVGuiQt::__impl::PVCellWidgetBase::copy_to_clipboard()
+{
+	QByteArray ba;
+	ba = _text->text().toLocal8Bit();
+
+	QClipboard *clipboard = QApplication::clipboard();
+	QMimeData* mdata = new QMimeData();
+	mdata->setData("text/plain", ba);
+	clipboard->setMimeData(mdata);
 }
 
 PVGuiQt::PVStatsListingWidget* PVGuiQt::__impl::PVCellWidgetBase::get_panel()
