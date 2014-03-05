@@ -20,7 +20,10 @@ PICVIZ_PATH=$ISRD/libpicviz
 
 #export PICVIZ_LOG_FILE="log.txt"
 export PVGL_SHARE_DIR=./libpvgl/data/
-export PICVIZ_DEBUG_LEVEL="INFO"
+if test -z "$PICVIZ_DEBUG_LEVEL"
+then
+	export PICVIZ_DEBUG_LEVEL="INFO"
+fi
 export PICVIZ_LAYER_FILTERS_DIR=$PICVIZ_PATH/plugins/layer-filters/
 export PICVIZ_MAPPING_FILTERS_DIR=$PICVIZ_PATH/plugins/mapping-filters/
 export PICVIZ_PLOTTING_FILTERS_DIR=$PICVIZ_PATH/plugins/plotting-filters/
@@ -108,7 +111,6 @@ export PICVIZ_DEBUG_LEVEL="NOTICE"
 	valgrind --tool=callgrind $ISRD/gui-qt/src/picviz-inspector
 	exit 0
 fi
-
 
 if [ "$1" == "gldebug" ]
 then
