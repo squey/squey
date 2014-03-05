@@ -161,6 +161,9 @@ PVParallelView::PVRenderingPipeline::~PVRenderingPipeline()
 		delete di;
 	}
 
+	delete _cp_postlimiter;
+	delete _cp_postcomputebci;
+
 	delete _node_compute_bci;
 	delete _node_draw_bci;
 	delete _node_cleanup_bci;
