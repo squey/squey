@@ -283,7 +283,7 @@ int PVGuiQt::PVWorkspacesTabWidgetBase::add_workspace(PVWorkspaceBase* workspace
 		animation->setStartValue(25);
 		_tab_animated_width = _tab_bar->tabSizeHint(index).width();
 		animation->setEndValue(_tab_animated_width);
-		animation->start();
+		animation->start(QAbstractAnimation::DeleteWhenStopped);
 	}
 
 	return index;
@@ -308,7 +308,7 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::remove_workspace(int index, bool animat
 		animation->setEndValue(25);
 		_tab_animated_width = _tab_bar->tabSizeHint(index).width();
 		animation->setStartValue(_tab_animated_width);
-		animation->start();
+		animation->start(QAbstractAnimation::DeleteWhenStopped);
 
 		/*QEventLoop loop;
 		loop.connect(this, SIGNAL(animation_finished()), SLOT(quit()));
