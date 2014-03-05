@@ -42,6 +42,9 @@ public:
 	PVLinesProperties(const PVLinesProperties & rhs);
 	PVLinesProperties(PVLinesProperties&& rhs)
 	{
+		if(_table) {
+			free_table();
+		}
 		_table = rhs._table;
 		rhs._table = NULL;
 	}
@@ -84,6 +87,13 @@ private:
 	{
 		assert(!_table);
 		_table = _color_allocator.allocate(PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS);
+	}
+
+	inline void free_table()
+	{
+		if (_table) {
+			_color_allocator.deallocate(_table, PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS);
+		}
 	}
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
