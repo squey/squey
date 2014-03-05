@@ -90,7 +90,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	_values_view->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 	_values_view->horizontalHeader()->setStretchLastSection(true);
 	QHeaderView* vertical_header = new QHeaderView(Qt::Vertical);
-	vertical_header->setModel(new PVVerticalHeaderItemModel(_values_view->model()->rowCount()));
+	vertical_header->setModel(new PVVerticalHeaderItemModel(_values_view->model()->rowCount(), vertical_header));
 	_values_view->setVerticalHeader(vertical_header);
 	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
 	_values_view->verticalHeader()->setResizeMode(QHeaderView::Fixed);
