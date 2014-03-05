@@ -666,6 +666,9 @@ protected:
 			copy_from(o);
 		}
 		else {
+			if (_table) {
+				free_table();
+			}
 			_table = NULL;
 		}
 	}
