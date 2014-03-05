@@ -112,6 +112,12 @@ export PICVIZ_DEBUG_LEVEL="NOTICE"
 	exit 0
 fi
 
+if [ "$1" == "calltrace" ]
+then
+	LD_PRELOAD=`pwd`/calltrace.so $ISRD/gui-qt/src/picviz-inspector
+	exit 0
+fi
+
 if [ "$1" == "gldebug" ]
 then
 	/usr/local/bin/gldb-gui gui-qt/src/picviz-inspector
