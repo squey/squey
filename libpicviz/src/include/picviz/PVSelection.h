@@ -104,6 +104,9 @@ private:
 	static void move_from_base(PVSelection& ret, PVCore::PVSelBitField&& b)
 	{
 		assert(&ret != &b);
+		if (ret._table) {
+			ret.free_table();
+		}
 		ret._table = b._table;
 		b._table = nullptr;
 	}
