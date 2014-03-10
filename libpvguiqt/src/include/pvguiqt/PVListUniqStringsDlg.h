@@ -76,8 +76,8 @@ class PVListUniqStringsDlg : public PVAbstractListStatsDlg
 	typedef typename PVRush::PVNraw::unique_values_t unique_values_t;
 
 public:
-	PVListUniqStringsDlg(Picviz::PVView_sp& view, PVCol c, unique_values_t& values, size_t abs_max, size_t rel_max, QWidget* parent = nullptr) :
-		PVAbstractListStatsDlg(view, c, new __impl::PVListUniqStringsModel(values), abs_max, rel_max, parent)
+	PVListUniqStringsDlg(Picviz::PVView_sp& view, PVCol c, unique_values_t& values, size_t abs_max, size_t rel_min, size_t rel_max, QWidget* parent = nullptr) :
+		PVAbstractListStatsDlg(view, c, new __impl::PVListUniqStringsModel(values), abs_max, rel_min, rel_max, parent)
 	{
 	}
 };

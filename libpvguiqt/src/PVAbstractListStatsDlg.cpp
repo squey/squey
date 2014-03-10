@@ -9,6 +9,7 @@
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/PVColor.h>
 
 #include <pvkernel/rush/PVNraw.h>
 
@@ -29,28 +30,6 @@
 #include <QRadioButton>
 #include <QPushButton>
 
-static inline size_t freq_to_count_min(double value, double count)
-{
-	// see PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool) for the formula
-	return ceil((((int)(value * 10.) * 0.001) - 0.0005) * count);
-}
-
-static inline size_t freq_to_count_max(double value, double count)
-{
-	// see PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool) for the formula
-	return floor((((int)(value * 10.) * 0.001) + 0.0005) * count);
-}
-
-static inline double count_to_freq_min(size_t value, double count)
-{
-	return trunc((((double)value / count) * 1000.) + 0.5) / 10.;
-}
-
-static inline double count_to_freq_max(size_t value, double count)
-{
-	return trunc((((double)value / count) * 1000.) + 0.5) / 10.;
-}
-
 /******************************************************************************
  * PVGuiQt::__impl::PVAbstractListStatsRangePicker
  *****************************************************************************/
@@ -64,22 +43,40 @@ namespace __impl
 class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 {
 public:
-	PVAbstractListStatsRangePicker(QWidget *parent = nullptr) :
-		PVWidgets::PVAbstractRangePicker(0, 1, parent)
+	PVAbstractListStatsRangePicker(size_t relative_min_count, size_t relative_max_count, size_t absolute_max_count, QWidget *parent = nullptr) :
+		PVWidgets::PVAbstractRangePicker(relative_min_count, relative_max_count, parent),
+		_relative_min_count(relative_min_count),
+		_relative_max_count(relative_max_count),
+		_absolute_max_count(absolute_max_count)
 	{
-		QLinearGradient lg;
-
-		lg.setColorAt(0.0, Qt::green);
-		lg.setColorAt(0.5, Qt::yellow);
-		lg.setColorAt(1.0, Qt::red);
-
-		set_gradient(lg);
+		update_gradient();
 	}
 
-	void set_mode_count(size_t max_element, size_t num_selected)
+	double convert_to(const double& value) const
 	{
-		double vmin = freq_to_count_min(get_range_min(), num_selected);
-		double vmax = freq_to_count_max(get_range_max(), num_selected);
+		if (_use_percent_mode) {
+			return value / max_count() * 100;
+		}
+		else {
+			return value;
+		}
+	}
+
+	double convert_from(const double& value) const
+	{
+		if (_use_percent_mode) {
+			return value * max_count() / 100;
+		}
+		else {
+			return value;
+		}
+	}
+
+	void set_mode_count()
+	{
+		_use_percent_mode = false;
+
+		disconnect_spinboxes_from_ranges();
 
 		get_min_spinbox()->setDecimals(0);
 		get_max_spinbox()->setDecimals(0);
@@ -90,15 +87,18 @@ public:
 		get_min_spinbox()->setSuffix("");
 		get_max_spinbox()->setSuffix("");
 
-		set_limits(0, max_element);
-		set_range_min(vmin);
-		set_range_max(vmax);
+		set_limits(_relative_min_count, _relative_max_count);
+		set_range_min(convert_from(get_range_min()));
+		set_range_max(convert_from(get_range_max()));
+
+		connect_spinboxes_to_ranges();
 	}
 
-	void set_mode_percent(size_t num_selected)
+	void set_mode_percent()
 	{
-		double vmin = count_to_freq_min(get_range_min(), num_selected);
-		double vmax = count_to_freq_max(get_range_max(), num_selected);
+		_use_percent_mode = true;
+
+		disconnect_spinboxes_from_ranges();
 
 		get_min_spinbox()->setDecimals(1);
 		get_max_spinbox()->setDecimals(1);
@@ -109,44 +109,112 @@ public:
 		get_min_spinbox()->setSuffix(" %");
 		get_max_spinbox()->setSuffix(" %");
 
-		set_limits(0, 100);
-		set_range_min(vmin);
-		set_range_max(vmax);
+		set_limits((double)_relative_min_count/_absolute_max_count*100, (double)_relative_max_count/_absolute_max_count*100);
+		set_range_min(convert_to(get_range_min()));
+		set_range_max(convert_to(get_range_max()));
+
+		connect_spinboxes_to_ranges();
 	}
 
-	void set_mode_log(bool mode)
+	/**
+	 * toggle between linear and logarithmic scales
+	 */
+	void use_logarithmic_scale(bool use_log)
 	{
-		double rmin = get_range_min();
-		double rmax = get_range_max();
+		double rmin = convert_to(get_range_min());
+		double rmax = convert_to(get_range_max());
 
-		_mode_log = mode;
+		_use_logarithmic_scale = use_log;
+		update_gradient();
 
 		set_range_max(rmax, true);
 		set_range_min(rmin, true);
 		update();
 	}
 
+	/**
+	 * toggle between relative and absolute max count
+	 */
+	void use_absolute_max_count(bool use_count)
+	{
+		_use_absolute_max_count = use_count;
+		update_gradient();
+
+		double rmin = get_range_min();
+		double rmax = get_range_max();
+
+		set_limits(convert_to(_relative_min_count), convert_to(_relative_max_count));
+
+		set_range_max(convert_to(rmax), true);
+		set_range_min(convert_to(rmin), true);
+		update();
+	}
+
+	void update_gradient()
+	{
+		QLinearGradient gradient;
+
+		QLinearGradient linear_gradient;
+		double ratio1, ratio2, ratio3;
+		QColor color;
+
+		if (_use_logarithmic_scale && _relative_min_count != _relative_max_count) { // If only one value use linear scale to avoir divisions by 0.
+			ratio1 = PVCore::log_scale((double)_relative_min_count, _relative_min_count, max_count());
+			ratio3 = PVCore::log_scale((double) _relative_max_count, _relative_min_count, max_count());
+			ratio2 = ratio1 + (ratio3 - ratio1) / 2;
+		}
+		else {
+			ratio1 = (double) _relative_min_count / max_count();
+			ratio2 = (_relative_min_count + (double) (_relative_max_count - _relative_min_count) / 2) / max_count();
+			ratio3 = (double) _relative_max_count / max_count();
+		}
+
+		color = QColor::fromHsv((ratio1) * (0 - 120) + 120, 255, 255);
+		gradient.setColorAt(0, color);
+
+		color = QColor::fromHsv((ratio2) * (0 - 120) + 120, 255, 255);
+		gradient.setColorAt(0.5, color);
+
+		color = QColor::fromHsv((ratio3) * (0 - 120) + 120, 255, 255);
+		gradient.setColorAt(1, color);
+
+		_range_ramp->set_gradient(gradient);
+	}
+
 protected:
 	double map_from_spinbox(const double& value) const override
 	{
-		if (_mode_log) {
-			return PVCore::log_scale(value, get_limit_min(), get_limit_max());
+		if (_use_logarithmic_scale) {
+			double v = convert_from(value);
+			if (_use_percent_mode) {
+				v = std::max(convert_from(value-convert_to(_relative_min_count)), 1.0);
+			}
+			return PVCore::log_scale(v, _relative_min_count, _relative_max_count);
 		} else {
-			return PVWidgets::PVAbstractRangePicker::map_from_spinbox(value);
+			return PVWidgets::PVAbstractRangePicker::map_from_spinbox(convert_from(value));
 		}
 	}
 
 	double map_to_spinbox(const double& value) const override
 	{
-		if (_mode_log) {
-			return PVCore::inv_log_scale(value, get_limit_min(), get_limit_max());
+
+		if (_use_logarithmic_scale) {
+			return convert_to(PVCore::inv_log_scale(value, _relative_min_count, _relative_max_count));
 		} else {
-			return PVWidgets::PVAbstractRangePicker::map_to_spinbox(value);
+			return convert_to(PVWidgets::PVAbstractRangePicker::map_to_spinbox(value));
 		}
 	}
 
 private:
-	bool _mode_log;
+	inline size_t max_count() const { return _use_absolute_max_count ? _absolute_max_count : _relative_max_count; }
+
+protected:
+	size_t _relative_min_count;
+	size_t _relative_max_count;
+	size_t _absolute_max_count;
+	bool   _use_logarithmic_scale = true;
+	bool   _use_absolute_max_count = true;
+	bool   _use_percent_mode = false;
 };
 
 }
@@ -199,10 +267,10 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 	QActionGroup* act_group_max = new QActionGroup(this);
 	act_group_max->setExclusive(true);
 	connect(act_group_max, SIGNAL(triggered(QAction*)), this, SLOT(max_changed(QAction*)));
-	_act_toggle_absolute = new QAction("Absolute", act_group_max);
+	_act_toggle_absolute = new QAction("Absolute max", act_group_max);
 	_act_toggle_absolute->setCheckable(true);
 	_act_toggle_absolute->setChecked(true);
-	_act_toggle_relative = new QAction("Relative", act_group_max);
+	_act_toggle_relative = new QAction("Relative max", act_group_max);
 	_act_toggle_relative->setCheckable(true);
 	_hhead_ctxt_menu->addAction(_act_toggle_absolute);
 	_hhead_ctxt_menu->addAction(_act_toggle_relative);
@@ -246,7 +314,8 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 
 	vl->addWidget(b);
 
-	_select_picker = new __impl::PVAbstractListStatsRangePicker();
+	_select_picker = new __impl::PVAbstractListStatsRangePicker(relative_min_count(), relative_max_count(), absolute_max_count());
+	_select_picker->use_logarithmic_scale(_use_logarithmic_scale);
 	hbox->addWidget(_select_picker, 2);
 
 	// set default mode to "count"
@@ -265,10 +334,12 @@ PVGuiQt::PVAbstractListStatsDlg::~PVAbstractListStatsDlg()
 bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 {
 	bool accepted = PVListDisplayDlg::process_context_menu(act);
+
 	if (!accepted && act) {
 		multiple_search(act);
 		return true;
 	}
+
 	return false;
 }
 
@@ -281,7 +352,7 @@ void PVGuiQt::PVAbstractListStatsDlg::scale_changed(QAction* act)
 {
 	if (act) {
 		_use_logarithmic_scale = (act == _act_toggle_log);
-		_select_picker->set_mode_log(_use_logarithmic_scale);
+		_select_picker->use_logarithmic_scale(_use_logarithmic_scale);
 		_values_view->update();
 	}
 }
@@ -290,6 +361,11 @@ void PVGuiQt::PVAbstractListStatsDlg::max_changed(QAction* act)
 {
 	if (act) {
 		_use_absolute_max_count = (act == _act_toggle_absolute);
+		_use_logarithmic_scale = (act == _act_toggle_absolute);
+		_act_toggle_linear->setChecked(act == _act_toggle_relative);
+		_act_toggle_log->setChecked(act == _act_toggle_absolute);
+		_select_picker->use_logarithmic_scale(act == _act_toggle_absolute);
+		_select_picker->use_absolute_max_count(act == _act_toggle_absolute);
 		_values_view->update();
 	}
 }
@@ -297,7 +373,7 @@ void PVGuiQt::PVAbstractListStatsDlg::max_changed(QAction* act)
 void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_count(bool checked)
 {
 	if (checked) {
-		_select_picker->set_mode_count(get_relative_max_count(), get_max_count());
+		_select_picker->set_mode_count();
 		_select_is_count = true;
 	}
 }
@@ -305,7 +381,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_count(bool checked)
 void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_frequency(bool checked)
 {
 	if (checked) {
-		_select_picker->set_mode_percent(get_max_count());
+		_select_picker->set_mode_percent();
 		_select_is_count = false;
 	}
 }
@@ -337,14 +413,8 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	 */
 	sel_model->clear();
 
-	if (_select_is_count) {
-		vmin = _select_picker->get_range_min();
-		vmax = _select_picker->get_range_max();
-	} else {
-		const double count = get_max_count();
-		vmin = freq_to_count_min(_select_picker->get_range_min(), count);
-		vmax = freq_to_count_max(_select_picker->get_range_max(), count);
-	}
+	vmin = _select_picker->get_range_min();
+	vmax = _select_picker->get_range_max();
 
 	int row_count = data_model->rowCount();
 
@@ -535,14 +605,6 @@ void PVGuiQt::PVAbstractListStatsDlg::resize_section()
 	_values_view->horizontalHeader()->resizeSection(0, _values_view->width() - _last_section_width);
 }
 
-/*void PVGuiQt::PVAbstractListStatsDlg::set_max_element(size_t value)
-{
-	_max_e = value;
-	if (_select_is_count) {
-		_select_picker->set_limits(0, value);
-	}
-}*/
-
 void PVGuiQt::PVAbstractListStatsDlg::section_resized(int logicalIndex, int /*oldSize*/, int newSize)
 {
 	if (logicalIndex == 1) {
@@ -635,15 +697,15 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 	if (index.column() == 1) {
 		uint64_t occurence_count = index.data(Qt::UserRole).toULongLong();
 
-		double ratio = (double) occurence_count / d()->get_max_count();
-		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->get_max_count());
+		double ratio = (double) occurence_count / d()->max_count();
+		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->max_count());
 		bool log_scale = d()->use_logarithmic_scale();
 
 		// Draw bounding rectangle
-		QRect r(option.rect.x()/*+2*/, option.rect.y(), option.rect.width(), option.rect.height());
-		QColor color("#F2F2F2");
-		QColor alt_color("#FBFBFB");
-		painter->fillRect(r, index.row() % 2 ? color : alt_color);
+		QRect r(option.rect.x(), option.rect.y(), option.rect.width(), option.rect.height());
+		QColor base_color = QPalette().color(QPalette::Base);
+		QColor alt_color = QPalette().color(QPalette::AlternateBase);
+		painter->fillRect(r, index.row() % 2 ? alt_color : base_color);
 
 		// Fill rectangle with color
 		painter->fillRect(
@@ -669,19 +731,19 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 		size_t representation_count = 0;
 		if (d()->_act_show_count->isChecked()) {
 			occurence = format_occurence(occurence_count);
-			occurence_max_width = QFontMetrics(painter->font()).width(format_occurence(d()->get_relative_max_count()));
+			occurence_max_width = QFontMetrics(painter->font()).width(format_occurence(d()->relative_max_count()));
 			margin -= occurence_max_width;
 			representation_count++;
 		}
 		if (d()->_act_show_scientific_notation->isChecked()) {
 			scientific_notation = format_scientific_notation(ratio);
-			scientific_notation_max_width = QFontMetrics(painter->font()).width(format_scientific_notation(0.27));
+			scientific_notation_max_width = QFontMetrics(painter->font()).width(format_scientific_notation(1));
 			margin -= scientific_notation_max_width;
 			representation_count++;
 		}
 		if (d()->_act_show_percentage->isChecked()) {
 			percentage = format_percentage(ratio);
-			percentage_max_width = QFontMetrics(painter->font()).width(format_percentage((double)d()->get_relative_max_count() / d()->get_max_count()));
+			percentage_max_width = QFontMetrics(painter->font()).width(format_percentage((double)d()->relative_max_count() / d()->max_count()));
 			margin -= percentage_max_width;
 			representation_count++;
 		}

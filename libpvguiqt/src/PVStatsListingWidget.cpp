@@ -574,8 +574,9 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 {
 	PVRush::PVNraw::unique_values_t values;
+	uint64_t min;
 	uint64_t max;
-	bool valid = _view.get_rushnraw_parent().get_unique_values(get_col(), values, max, *_view.get_selection_visible_listing(), _ctxt);
+	bool valid = _view.get_rushnraw_parent().get_unique_values(get_col(), values, min, max, *_view.get_selection_visible_listing(), _ctxt);
 #if SIMULATE_LONG_COMPUTATION
 	for (uint32_t i = 0; i < 10 && !_ctxt->is_group_execution_cancelled(); i++) {
 		usleep(500000);

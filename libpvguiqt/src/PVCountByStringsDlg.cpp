@@ -79,15 +79,17 @@ bool PVGuiQt::PVCountByStringsDlg::process_context_menu(QAction* act)
 			PVRush::PVNraw::unique_values_t unique_values_vector;
 			unique_values_vector.reserve(unique_values_unordered_map.size());
 
+			size_t min_rel = 0;
 			size_t max_rel = 0;
 			for (auto& v : unique_values_unordered_map) {
 				unique_values_vector.emplace_back(std::move(v.first), v.second);
+				min_rel = std::max(min_rel, v.second);
 				max_rel = std::max(max_rel, v.second);
 			}
 
 			Picviz::PVView_sp view_sp = _view.shared_from_this();
 
-			PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view_sp, _col2, unique_values_vector, total_count, max_rel, parentWidget());
+			PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view_sp, _col2, unique_values_vector, total_count, min_rel, max_rel, parentWidget());
 			dlg->setWindowTitle("Details of value '" + QString(v1_v2_pair.first.first.c_str())+ "'");
 			dlg->move(x()+width()+10, y());
 			dlg->show();

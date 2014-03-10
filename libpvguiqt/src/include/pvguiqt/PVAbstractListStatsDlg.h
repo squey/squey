@@ -43,9 +43,10 @@ public:
 		PVCol c,
 		QAbstractListModel* model,
 		size_t absolute_max_count,
+		size_t relative_min_count,
 		size_t relative_max_count,
 		QWidget* parent = nullptr) :
-		PVListDisplayDlg(model, parent), _col(c), _absolute_max_count(absolute_max_count), _relative_max_count(relative_max_count)
+		PVListDisplayDlg(model, parent), _col(c), _absolute_max_count(absolute_max_count), _relative_min_count(relative_min_count), _relative_max_count(relative_max_count)
 	{
 		init(view);
 	}
@@ -54,9 +55,10 @@ public:
 	virtual ~PVAbstractListStatsDlg();
 
 public:
-	inline size_t get_absolute_max_count() { return _absolute_max_count; }
-	inline size_t get_relative_max_count() { return _relative_max_count; }
-	inline size_t get_max_count() { return _use_absolute_max_count ? _absolute_max_count : _relative_max_count; }
+	inline size_t absolute_max_count() const { return _absolute_max_count; }
+	inline size_t relative_min_count() const { return _relative_min_count; }
+	inline size_t relative_max_count() const { return _relative_max_count; }
+	inline size_t max_count() const { return _use_absolute_max_count ? _absolute_max_count : _relative_max_count; }
 
 	inline bool use_logarithmic_scale() { return _use_logarithmic_scale; }
 
@@ -90,6 +92,7 @@ protected:
 	int _last_section_width = 250;
 
 	size_t _absolute_max_count;
+	size_t _relative_min_count;
 	size_t _relative_max_count;
 	bool _use_absolute_max_count = true;
 

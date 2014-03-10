@@ -48,8 +48,8 @@ class PVCountByStringsDlg : public PVAbstractListStatsDlg
 	typedef typename PVRush::PVNraw::count_by_t count_by_t;
 
 public:
-	PVCountByStringsDlg(Picviz::PVView_sp& view, PVCol col1, PVCol col2, count_by_t& values, size_t abs_max, size_t rel_max, QWidget* parent = nullptr) :
-		PVAbstractListStatsDlg(view, col1, new __impl::PVCountByStringsModel(values), abs_max, rel_max, parent),
+	PVCountByStringsDlg(Picviz::PVView_sp& view, PVCol col1, PVCol col2, count_by_t& values, size_t abs_max, size_t rel_min, size_t rel_max, QWidget* parent = nullptr) :
+		PVAbstractListStatsDlg(view, col1, new __impl::PVCountByStringsModel(values), abs_max, rel_min, rel_max, parent),
 		_view(*view), _col2(col2)
 	{
 		_ctxt_menu->addSeparator();

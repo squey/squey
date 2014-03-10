@@ -113,7 +113,7 @@ public:
 	 */
 	void set_gradient(const QLinearGradient& gradient);
 
-	/**
+	/**MAX
 	 * Set the minimum value
 	 *
 	 * @param value thr gradient the used color gradient
@@ -166,6 +166,12 @@ private:
 	 * @return the color ramp width
 	 */
 	int get_real_width() const;
+
+	/**
+	 * Update the gradient according to the scale and max count.
+	 *
+	 */
+	void update_gradient();
 
 private slots:
 	/**
@@ -223,9 +229,11 @@ public:
 	 * @param max_limit the range upper value
 	 * @param widget the parent widget
 	 */
-	PVAbstractRangePicker(const double& min_limit,
-	                      const double& max_limit,
-	                      QWidget* parent = nullptr);
+	PVAbstractRangePicker(
+		const double& min_limit,
+	    const double& max_limit,
+	    QWidget* parent = nullptr
+	);
 
 	/**
 	 * Set the range's minimum value
@@ -254,6 +262,29 @@ public:
 	 * @return the maximum value
 	 */
 	double get_range_max() const;
+
+	/**
+	 * Convert a value to another representation.
+	 * Base implementation does nothing, derived implementations can work with percentage for example.
+	 *
+	 * @return the converted value
+	 */
+	virtual double convert_to(const double& value) const { return value; }
+
+	/**
+	 * Convert a value from another representation.
+	 * Base implementation does nothing, derived implementations can work with percentage for example.
+	 *
+	 * @return the converted value
+	 */
+	virtual double convert_from(const double& value) const { return value; }
+
+public:
+	void connect_ranges_to_spinboxes();
+	void disconnect_ranges_from_spinboxes();
+
+	void connect_spinboxes_to_ranges();
+	void disconnect_spinboxes_from_ranges();
 
 public:
 	/**
@@ -298,7 +329,8 @@ protected:
 	/**
 	 * Set the gradient used for the color ramp
 	 *
-	 * @param gradient the color gradient to use
+	 * @param linear the linear color gradient to use
+	 * @param log the logarithmic color gradient to use
 	 *
 	 * @note Use it to customize this spinbox in your derivated classe
 	 */
@@ -379,11 +411,13 @@ private slots:
 	 */
 	void max_ramp_changed(double value);
 
-private:
+protected:
 	__impl::PVAbstractRangeRamp* _range_ramp;
 	QDoubleSpinBox*              _min_spinbox;
 	QDoubleSpinBox*              _max_spinbox;
 	double                       _limit_min;
+	double						 _min;
+	double						 _max;
 	double                       _limit_max;
 	double                       _limit_range;
 	double                       _epsilon;

@@ -702,13 +702,13 @@ public:
 		return true;
 	}
 
-	bool get_unique_values(PVCol const c, unique_values_t& ret, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
+	bool get_unique_values(PVCol const c, unique_values_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
 
-	bool count_by(PVCol const col1, PVCol const col2, count_by_t& ret, uint64_t& max, PVCore::PVSelBitField const& sel, size_t& v2_unique_values_count, tbb::task_group_context* ctxt = nullptr);
+	bool count_by(PVCol const col1, PVCol const col2, count_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, size_t& v2_unique_values_count, tbb::task_group_context* ctxt = nullptr);
 
 	bool get_sum(PVCol const col, uint64_t& sum, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
 
-	bool sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& max, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr);
+	bool sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr);
 
 	void clear_stats()
 	{
@@ -988,6 +988,7 @@ private:
 	bool get_unique_values_impl_concurrent(
 		PVCol const c,
 		unique_values_t& ret,
+		uint64_t& min,
 		uint64_t& max,
 		F const& f,
 		PVCore::PVSelBitField const& sel,
@@ -1005,10 +1006,12 @@ private:
 			return false;
 		}
 
+		min = std::numeric_limits<size_t>::max();
 		max = 0;
 		ret.reserve(values.size());
 		for (auto& v : values) {
 			ret.emplace_back(std::move(v.first), v.second);
+			min = std::min(min, v.second);
 			max = std::max(max, v.second);
 		}
 	}
@@ -1017,6 +1020,7 @@ private:
 	bool get_unique_values_impl_tls(
 		PVCol const c,
 		unique_values_t& ret,
+		uint64_t& min,
 		uint64_t& max,
 		F const& f,
 		PVCore::PVSelBitField const& sel,
@@ -1037,8 +1041,6 @@ private:
 			return false;
 		}
 
-		// TODO : Merge MAX
-
 		// Merge values
 		tbb::enumerable_thread_specific<unique_values_unordered_map_t>::iterator it_tls = unique_values_tls.begin();
 		if (it_tls != unique_values_tls.end()) {
@@ -1055,10 +1057,12 @@ private:
 			}
 
 			// Compute return structure
+			min = std::numeric_limits<size_t>::max();
 			max = 0;
 			ret.reserve(values.size());
 			for (auto& v : values) {
 				ret.emplace_back(std::move(v.first), v.second);
+				min = std::min(min, v.second);
 				max = std::max(max, v.second);
 			}
 		}
@@ -1074,7 +1078,7 @@ private:
 	void unique_values_insertion(T& values, size_t, const char* buf, size_t n)
 	{
 		std::string_tbb new_s(buf, n);
-		uint64_t m = values[new_s]++;
+		values[new_s]++;
 	}
 
 	template <typename T>

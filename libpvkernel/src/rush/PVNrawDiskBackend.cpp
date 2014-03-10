@@ -619,20 +619,18 @@ int64_t PVRush::PVNrawDiskBackend::PVCachePool::get_index(uint64_t col, uint64_t
 	return -1;
 }
 
-bool PVRush::PVNrawDiskBackend::get_unique_values(PVCol const c, unique_values_t& ret, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt)
+bool PVRush::PVNrawDiskBackend::get_unique_values(PVCol const c, unique_values_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt)
 {
 	BENCH_START(get_unique_values);
 
-	max = 0;
-
 	if (true) { // Use a thread local storage and merge partial results
-		return get_unique_values_impl_tls(c, ret, max, [&](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
+		return get_unique_values_impl_tls(c, ret, min, max, [&](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
 			{
 				unique_values_insertion(values, row, buf, n);
 			}, sel, ctxt);
 	}
 	else { // Use a concurrent structure
-		return get_unique_values_impl_concurrent(c, ret, max, [&](unique_values_concurrent_unordered_map_t& values, size_t row, const char* buf, size_t n)
+		return get_unique_values_impl_concurrent(c, ret, min, max, [&](unique_values_concurrent_unordered_map_t& values, size_t row, const char* buf, size_t n)
 			{
 				unique_values_insertion(values, row, buf, n);
 			}, sel, ctxt);
@@ -643,7 +641,7 @@ bool PVRush::PVNrawDiskBackend::get_unique_values(PVCol const c, unique_values_t
 	return true;
 }
 
-bool PVRush::PVNrawDiskBackend::sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& max, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt /* = nullptr */)
+bool PVRush::PVNrawDiskBackend::sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt /* = nullptr */)
 {
 	BENCH_START(sum_by);
 
@@ -651,13 +649,13 @@ bool PVRush::PVNrawDiskBackend::sum_by(PVCol const col1, PVCol const col2, sum_b
 
 	bool res = false;
 	if (true) { // Use a thread local storage and merge partial results
-		res = get_unique_values_impl_tls(col1, ret, max, [&, col2](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
+		res = get_unique_values_impl_tls(col1, ret, min, max, [&, col2](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
 			{
 				sum_by_insertion(values, row, col2, buf, n);
 			}, sel, ctxt);
 	}
 	else { // Use a concurrent structure
-		res = get_unique_values_impl_concurrent(col1, ret, max, [&, col2](unique_values_concurrent_unordered_map_t& values, size_t row, const char* buf, size_t n)
+		res = get_unique_values_impl_concurrent(col1, ret, min, max, [&, col2](unique_values_concurrent_unordered_map_t& values, size_t row, const char* buf, size_t n)
 			{
 				sum_by_insertion(values, row, col2, buf, n);
 			}, sel, ctxt);
@@ -678,6 +676,7 @@ bool PVRush::PVNrawDiskBackend::count_by(
 	PVCol const col1,
 	PVCol const col2,
 	count_by_t& ret,
+	uint64_t& min,
 	uint64_t& max,
 	PVCore::PVSelBitField const& sel,
 	size_t& v2_unique_values_count,
@@ -686,6 +685,7 @@ bool PVRush::PVNrawDiskBackend::count_by(
 {
 	BENCH_START(count_by_with_sel);
 
+	min = std::numeric_limits<size_t>::max();
 	max = 0;
 
 	const size_t nreserve = std::sqrt(_nrows);
@@ -731,7 +731,9 @@ bool PVRush::PVNrawDiskBackend::count_by(
 			// v1 count
 			count_by_string_count_t v1_count_pair(std::move(v1.first) , v2_values.size());
 
-			max = std::max(max, v2_values.size());
+			size_t size =  v2_values.size();
+			min = std::min(min, size);
+			max = std::max(max, size);
 			values.emplace_back(std::move(v1_count_pair), std::move(v2_values));
 		}
 
@@ -743,8 +745,9 @@ bool PVRush::PVNrawDiskBackend::count_by(
 	}
 
 	unique_values_t unique_values_col2;
-	uint64_t m;
-	res = get_unique_values(col2, unique_values_col2, m, sel, ctxt);
+	uint64_t mi;
+	uint64_t ma;
+	res = get_unique_values(col2, unique_values_col2, mi, ma, sel, ctxt);
 	v2_unique_values_count = unique_values_col2.size();
 
 	BENCH_END(count_by_with_sel, "count_by_with_sel", 1, 1, 1, 1);
