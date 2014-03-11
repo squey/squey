@@ -20,76 +20,88 @@ namespace PVCore {
 
 class PVStringUtils {
 public:
-	static inline uint64_t compute_str_factor16(uint16_t const* str, size_t size, bool case_sensitive = true)
+
+	static inline uint32_t compute_str_factor16(uint16_t const* str, size_t size, bool case_sensitive = true)
 	{
-		// Using QString::toUtf8 and not QString::toLocal8Bit(), so that the "factor" variable
-		// isn't system-locale dependant.
-		/*QByteArray value_as_qba;
-		if (case_sensitive) {
-			value_as_qba = str.toUtf8();
-		}
-		else {
-			value_as_qba = str.toLower().toUtf8();
-		}
+		return _compute_str_factor<uint16_t, 9>(str, size, case_sensitive);
+	}
 
-		const char* value_as_char_p = value_as_qba.data();*/
-		const uint16_t* u16_buf = str;
-
-		// AG: this is now historical, but still interesting !
-		// This is a reduction. Do this with a for loop, so that we have more chance that the compiler
-		// optimize this with vectorized operations.
-		// Hmm.. spoken too fast... even with -ffast-math:
-		// $ g++ -ffast-math -ftree-vectorizer-verbose=8 -march=native -O3 -I/home/aguinet/pv/libpicviz/src/include -I/home/aguinet/pv/libpvkernel/core/src/include -I/usr/include/qt4/QtCore -I/usr/include/qt4/ -I/home/aguinet/pv/libpvkernel/rush/src/include -I/usr/include/qt4/QtXml string_default.cpp 
-		//
-		// string_default.cpp:31: note: === vect_analyze_slp ===
-		// string_default.cpp:31: note: === vect_make_slp_decision ===
-		// string_default.cpp:31: note: === vect_detect_hybrid_slp ===
-		// string_default.cpp:31: note: Vectorizing an unaligned access.
-		// string_default.cpp:31: note: vect_model_load_cost: unaligned supported by hardware.
-		// string_default.cpp:31: note: vect_model_load_cost: inside_cost = 2, outside_cost = 0 .
-		// string_default.cpp:31: note: not vectorized: relevant stmt not supported: D.56753_14 = (float) D.56752_13;
-		//
-		// string_default.cpp:8: note: vectorized 0 loops in function.
-		//
-		// It looks like gcc can't handle the conversion from 8-bit char to 32-bit float when loading vector registers, because with 'factor' defined as an uint64_t :
-		// $ g++ -fassociative-math -ffast-math -ftree-vectorizer-verbose=2 -O3 -I/home/aguinet/pv/libpicviz/src/include -I/home/aguinet/pv/libpvkernel/core/src/include -I/usr/include/qt4/QtCore -I/usr/include/qt4/ -I/home/aguinet/pv/libpvkernel/rush/src/include -I/usr/include/qt4/QtXml string_default.cpp 
-		//
-		// string_default.cpp:46: note: LOOP VECTORIZED.
-		// string_default.cpp:8: note: vectorized 1 loops in function.
-		//
-		// So we define factor as an uint64_t, and convert it back to float after the reduction
-
-		// With 128 the maximum ascii character value, the string must be greater than
-		// (2**64-1)/128 characters (which is about 130 "tera-characters") before factor overflows...
-		// I think we're pretty safe here !
-		uint64_t factor_int = 0;
-		if (case_sensitive) {
-			for (size_t i = 0; i < size; i++) {
-				factor_int += u16_buf[i];
-			}
-		}
-		else {
-			// TODO: hand-made vectorisation!
-			for (size_t i = 0; i < size; i++) {
-				factor_int += QChar::toLower(u16_buf[i]);
-			}
-		}
-
-		return factor_int;
-	};
-
-	static inline uint64_t compute_str_factor(PVCore::PVUnicodeString const& str, bool /*case_sensitive*/)
+	static inline uint32_t compute_str_factor(PVCore::PVUnicodeString const& str, bool /*case_sensitive*/)
 	{
 		const uint8_t* u8_buf = (const uint8_t*) str.buffer();
 		size_t size = str.size();
 
-		uint64_t factor_int = 0;
-		for (size_t i = 0; i < size; i++) {
-			factor_int += u8_buf[i];
+		return _compute_str_factor<uint8_t, 8>(u8_buf, size, false);
+	};
+
+private:
+	template <typename T, size_t char_bits>
+	static inline uint32_t _compute_str_factor(T const* buf, size_t size, bool case_sensitive = true)
+	{
+		if (size < 1) {
+			return 0;
 		}
 
-		return factor_int;
-	};
+		// -------------------------------------------------------------------
+		// |  a (4)  |  b (0..12)  |      c (9)        |      d (7..19)      | 32 bits
+		// -------------------------------------------------------------------
+		// a : log2(length)
+		// b : linear splitting between 'a' according to the length
+		// c : sum of the first 2 bytes
+		// d : weak bits of the sum of the remaining bytes
+
+		size_t max_size = std::min(size, 4096UL);
+
+		size_t a = log2(max_size);
+		size_t a_prime = std::min(a, 9UL);
+		uint32_t factor = (a+1) << (32-4); // +1 to separate 1 length strings from 0 length strings
+
+		size_t b = (max_size - (1 << a));
+		factor = factor | (b << (32-4-a));
+
+		const T& c = buf[0];
+		size_t d_bits = 32-4-a-char_bits;
+		factor = factor | (char_value(c) << d_bits);
+
+		size_t d = 0;
+		size_t max_remaining_size = std::min(size, (size_t) 1 << (32-4-a_prime-char_bits-char_bits)) -1;
+		if (case_sensitive) {
+			for (size_t i = 0; i < max_remaining_size; i++) {
+				const T& c = buf[i+1];
+				d += char_value(c);
+			}
+		}
+		else {
+			for (size_t i = 0; i < max_remaining_size; i++) {
+				T c = to_lower(buf[i+1]);
+				d += char_value(c);
+			}
+		}
+		size_t shift = std::max(0UL, (d_bits) - (size_t) ceil(log2(max_remaining_size * (1 << char_bits))));
+		factor = factor | ((d & ((1 << d_bits)-1)) << shift);
+
+		return factor;
+	}
+
+	static inline uint32_t char_value(uint16_t c)
+	{
+		return (c >> 8) + (c & 0x00FF);
+	}
+
+	static inline uint32_t char_value(uint8_t c)
+	{
+		return c;
+	}
+
+	static inline uint16_t to_lower(uint16_t c)
+	{
+		return QChar::toLower(c);
+	}
+
+	static inline uint16_t to_lower(uint8_t c)
+	{
+		return c;
+	}
 };
 
 }
