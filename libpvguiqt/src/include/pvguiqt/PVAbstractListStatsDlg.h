@@ -24,6 +24,7 @@ namespace PVGuiQt {
 
 namespace __impl {
 class PVListStringsDelegate;
+class PVAbstractListStatsModel;
 
 class PVAbstractListStatsRangePicker;
 }
@@ -41,12 +42,16 @@ public:
 	PVAbstractListStatsDlg(
 		Picviz::PVView_sp& view,
 		PVCol c,
-		QAbstractListModel* model,
+		__impl::PVAbstractListStatsModel* model,
 		size_t absolute_max_count,
 		size_t relative_min_count,
 		size_t relative_max_count,
 		QWidget* parent = nullptr) :
-		PVListDisplayDlg(model, parent), _col(c), _absolute_max_count(absolute_max_count), _relative_min_count(relative_min_count), _relative_max_count(relative_max_count)
+		PVListDisplayDlg((QAbstractListModel*) model, parent),
+		_col(c),
+		_absolute_max_count(absolute_max_count),
+		_relative_min_count(relative_min_count),
+		_relative_max_count(relative_max_count)
 	{
 		init(view);
 	}
@@ -121,12 +126,15 @@ public:
 public:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const
 	{
-		static QString h[] = { "Value", "Count" };
+		static QString h[] = { "Value", "Count " };
 
 		switch (role) {
 			case(Qt::DisplayRole) :
 			{
 				if (orientation == Qt::Horizontal) {
+					if (section == 1) {
+						return count_header();
+					}
 					return h[section];
 				}
 				return QVariant(QString().setNum(section));
@@ -152,6 +160,28 @@ public:
 	{
 		return 2;
 	}
+
+public:
+	void use_logarithmic_scale(bool log_scale)
+	{
+		_use_logarithmic_scale = log_scale;
+	}
+
+	void use_absolute_max_count(bool abs_max)
+	{
+		_use_absolute_max_count = abs_max;
+	}
+
+private:
+	QString count_header() const
+	{
+		return QString("Count ") + " (" + ( _use_logarithmic_scale ? "Log" : "Lin") + "/" + (_use_absolute_max_count ? "Abs" : "Rel") + ")";
+	}
+
+private:
+	bool _use_logarithmic_scale;
+	bool _use_absolute_max_count;
+
 };
 
 class PVListStringsDelegate: public QStyledItemDelegate

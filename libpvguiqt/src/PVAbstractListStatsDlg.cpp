@@ -158,9 +158,9 @@ public:
 		double ratio1, ratio2, ratio3;
 		QColor color;
 
-		if (_use_logarithmic_scale && _relative_min_count != _relative_max_count) { // If only one value use linear scale to avoir divisions by 0.
-			ratio1 = PVCore::log_scale((double)_relative_min_count, _relative_min_count, max_count());
-			ratio3 = PVCore::log_scale((double) _relative_max_count, _relative_min_count, max_count());
+		if (_use_logarithmic_scale && _relative_min_count != _relative_max_count) { // If only one value, use linear scale to avoid divisions by 0.
+			ratio1 = PVCore::log_scale((double) _relative_min_count, 0., max_count());
+			ratio3 = PVCore::log_scale((double) _relative_max_count, 0., max_count());
 			ratio2 = ratio1 + (ratio3 - ratio1) / 2;
 		}
 		else {
@@ -353,7 +353,9 @@ void PVGuiQt::PVAbstractListStatsDlg::scale_changed(QAction* act)
 	if (act) {
 		_use_logarithmic_scale = (act == _act_toggle_log);
 		_select_picker->use_logarithmic_scale(_use_logarithmic_scale);
+		((__impl::PVAbstractListStatsModel*) model())->use_logarithmic_scale(_use_logarithmic_scale);
 		_values_view->update();
+		_values_view->horizontalHeader()->viewport()->update();
 	}
 }
 
@@ -365,8 +367,11 @@ void PVGuiQt::PVAbstractListStatsDlg::max_changed(QAction* act)
 		_act_toggle_linear->setChecked(act == _act_toggle_relative);
 		_act_toggle_log->setChecked(act == _act_toggle_absolute);
 		_select_picker->use_logarithmic_scale(act == _act_toggle_absolute);
+		((__impl::PVAbstractListStatsModel*) model())->use_logarithmic_scale(act == _act_toggle_absolute);
 		_select_picker->use_absolute_max_count(act == _act_toggle_absolute);
+		((__impl::PVAbstractListStatsModel*) model())->use_absolute_max_count(act == _act_toggle_absolute);
 		_values_view->update();
+		_values_view->horizontalHeader()->viewport()->update();
 	}
 }
 
