@@ -393,90 +393,44 @@ void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_frequency(bool checked)
 
 void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 {
+	// See https://bugreports.qt-project.org/browse/QTBUG-25904
+
 	uint64_t vmin;
 	uint64_t vmax;
 
 	QAbstractItemModel* data_model = _values_view->model();
 	QItemSelectionModel* sel_model = _values_view->selectionModel();
 
-	/**
-	 * As percentage are rounded to be displayed using "%.1f", the entries
-	 * can also not be selected using their exact values but using their
-	 * rounded ones.
-	 *
-	 * And it make less code if the iteration is done in count space
-	 * (instead of the the count space and the frequency space).
-	 *
-	 * So that, the nice formula to get the count values corresponding to
-	 * the displayed percentage are (in LaTeX):
-	 * - v_{min} = \lceil N × ( \frac{ \lfloor 10 × p_{min} \rfloor}{1000} - \frac{5}{10000} ) \rceil
-	 * - v_{max} = \lfloor N × ( \frac{ \lfloor 10 × p_{max} \rfloor}{1000} + \frac{5}{10000} ) \rfloor
-	 * where:
-	 * - p_{min} is the lower bound percentage
-	 * - p_{max} is the upper bound percentage
-	 * - N is the events count
-	 */
-	sel_model->clear();
-
 	vmin = _select_picker->get_range_min();
 	vmax = _select_picker->get_range_max();
 
 	int row_count = data_model->rowCount();
 
+	sel_model->clear();
+
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing selection..."), this);
 	pbox->set_enable_cancel(true);
 	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
 
-	QItemSelection sel;
+	// Use our own selection because QItemSelection::select(...) crashes due to the persistent indexes' update stored in the shared model
+	typedef std::vector<std::pair<QModelIndex, QModelIndex>> selection_t;
 
-	bool res = PVCore::PVProgressBox::progress([&sel, &data_model, &sel_model, vmin, vmax, row_count, &ctxt]
+	selection_t sel;
+
+	BENCH_START(select_values);
+
+	bool res = PVCore::PVProgressBox::progress([&sel, &data_model, vmin, vmax, row_count, &ctxt]
 	{
-		BENCH_START(select_values);
+		const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 
-#if 1 // SERIAL
-
-		int first_row = -1;
-		int last_row = -1;
-
-		for (int row = 0; row < row_count; ++row) {
-
-			if ((row & 4095) && ctxt.is_group_execution_cancelled()) {
-				return false;
-			}
-
-			const uint64_t v = data_model->index(row, 1).data(Qt::UserRole).toULongLong();
-
-			if ((v >= vmin) && (v <= vmax)) {
-				if (first_row == -1) {
-					first_row = row;
-				}
-				last_row = row;
-			}
-			else {
-				if (first_row != -1) {
-					sel.select(data_model->index(first_row, 0), data_model->index(last_row, 0));
-				}
-				first_row = -1;
-				last_row = -1;
-			}
-		}
-
-		// last range
-		if (first_row != -1) {
-			sel.select(data_model->index(first_row, 0), data_model->index(last_row, 0));
-		}
-
-#else // PARALLEL: Crash because QItemSelection internals (QHashData) are shared between threads
-
-#if 1 // TBB functional
-		QItemSelection empty_sel;
 		sel = tbb::parallel_reduce(
 			tbb::blocked_range<int>(0, row_count, std::max(nthreads, row_count / nthreads)),
-			empty_sel,
-			[&](const tbb::blocked_range<int>& range, QItemSelection s) -> QItemSelection {
+			selection_t(),
+			[&](const tbb::blocked_range<int>& range, selection_t sel) -> selection_t const {
 
-				QItemSelection sel;
-				sel.merge(s, QItemSelectionModel::Select);
+				sel.reserve(sel.size() + (range.end() - range.begin()));
+
+				// Compute our own ranges to minimise the QItemSelectionRange to be created
 
 				int first_row = -1;
 				int last_row = -1;
@@ -493,7 +447,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 					}
 					else {
 						if (first_row != -1) {
-							sel.select(data_model->index(first_row, 0), data_model->index(last_row, 0));
+							sel.emplace_back(data_model->index(first_row, 0), data_model->index(last_row, 0));
 						}
 						first_row = -1;
 						last_row = -1;
@@ -502,94 +456,35 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 
 				// last range
 				if (first_row != -1) {
-					sel.select(data_model->index(first_row, 0), data_model->index(last_row, 0));
+					sel.emplace_back(data_model->index(first_row, 0), data_model->index(last_row, 0));
 				}
 
 				return sel;
 			},
-			[](QItemSelection sel1, QItemSelection sel2) -> QItemSelection {
-				sel1.merge(sel2, QItemSelectionModel::Select);
+			[](selection_t sel1, selection_t sel2) -> selection_t {
+				sel1.insert(sel1.end(), sel2.begin(), sel2.end());
 				return sel1;
 			});
-#else // TBB imperative
-		class PVComputeSelectionTBB
-		{
-		public:
-			PVComputeSelectionTBB (QAbstractItemModel* data_model, uint64_t vmin, uint64_t vmax) :
-				_data_model(data_model),
-				_vmin(vmin),
-				_vmax(vmax)
-			{}
-
-			PVComputeSelectionTBB(PVComputeSelectionTBB& x, tbb::split) :
-				_data_model(x._data_model),
-				_vmin(x._vmin),
-				_vmax(x._vmax)
-			{}
-
-		public:
-			void operator() (const tbb::blocked_range<int>& range)
-			{
-				int first_row = -1;
-				int last_row = -1;
-
-				for (int row = range.begin(); row < range.end(); row++) {
-
-					const uint64_t v = _data_model->index(row, 1).data(Qt::UserRole).toULongLong();
-
-					if ((v >= _vmin) && (v <= _vmax)) {
-						if (first_row == -1) {
-							first_row = row;
-						}
-						last_row = row;
-					}
-					else {
-						if (first_row != -1) {
-							_sel.select(_data_model->index(first_row, 0), _data_model->index(last_row, 0));
-						}
-						first_row = -1;
-						last_row = -1;
-					}
-				}
-
-				// last range
-				if (first_row != -1) {
-					_sel.select(_data_model->index(first_row, 0), _data_model->index(last_row, 0));
-				}
-			}
-
-			void join(PVComputeSelectionTBB& rhs)
-			{
-				_sel.merge(rhs._sel, QItemSelectionModel::Select);
-			}
-
-		public:
-			QItemSelection& get_selection() { return _sel; }
-
-		private:
-			QItemSelection _sel;
-			QAbstractItemModel* _data_model;
-			uint64_t _vmin;
-			uint64_t _vmax;
-		};
-
-		const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
-		tbb::task_scheduler_init init(nthreads);
-		tbb::task_group_context ctxt;
-		PVComputeSelectionTBB compute_selection_body(data_model, vmin, vmax);
-		tbb::parallel_reduce(tbb::blocked_range<int>(0, row_count, std::max(nthreads, row_count / nthreads)), compute_selection_body);
-
-#endif
-#endif
-
-		BENCH_END(select_values, "select_values", 0, 0, 1, row_count);
 
 		return true;
 	}, ctxt, pbox);
 
+	BENCH_END(select_values, "select_values", 0, 0, 1, row_count);
+
+
+	BENCH_START(compute_item_selection);
+
 	if (res) {
-		sel_model->select(sel, QItemSelectionModel::Select);
+		QItemSelection item_selection;
+
+		for (auto& range : sel) {
+			item_selection.select(std::move(range.first), std::move(range.second));
+		}
+
+		sel_model->select(item_selection, QItemSelectionModel::Select);
 	}
+
+	BENCH_END(compute_item_selection, "compute_item_selection", 0, 0, 1, row_count);
 }
 
 void PVGuiQt::PVAbstractListStatsDlg::showEvent(QShowEvent * event)
