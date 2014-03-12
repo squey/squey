@@ -33,8 +33,6 @@ class PVProjectsTabWidget;
 
 namespace PVInspector {
 
-class PVTabSplitter;
-
 /**
  * \class PVExtractorWidget
  */

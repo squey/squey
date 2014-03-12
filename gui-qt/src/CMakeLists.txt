@@ -21,7 +21,6 @@ set(INSPECTOR_ICON "resources////inspector.ico")
 #include_directories(AFTER ${GLUT_INCLUDE_DIR})
 SET(MOC_HEADERS
 include/PVAxisComputationDlg.h
-include/PVAxisPropertiesWidget.h
 #include/PVAxesCombinationWidget.h
 #include/PVAxesCombinationDialog.h
 include/PVExtractorWidget.h
@@ -39,7 +38,6 @@ include/PVMainWindow.h
 include/PVSaveDataTreeDialog.h
 include/PVSerializeOptionsWidget.h
 include/PVStringListChooserWidget.h
-#include/PVViewsListingView.h
 #include/PVViewsiListingWidget.h
 
 widgets/PVCheckableComboBox.h
@@ -75,7 +73,6 @@ SET(SRC_FILES
 #GKMapView.cpp
 main.cpp
 PVAxisComputationDlg.cpp
-PVAxisPropertiesWidget.cpp
 #PVAxesCombinationWidget.cpp
 #PVAxesCombinationDialog.cpp
 PVCustomStyle.cpp
@@ -98,8 +95,6 @@ PVSaveDataTreeDialog.cpp
 PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
 PVStringListChooserWidget.cpp
-#PVViewsListingView.cpp
-#PVViewsListingWidget.cpp
 PVViewsModel.cpp
 
 widgets/PVCheckableComboBox.cpp

@@ -59,12 +59,6 @@ void PVInspector::PVMainWindow::axes_editor_Slot()
 	if (!current_view()) {
 		return;
 	}
-	/*
-	PVAxisPropertiesWidget* dlg = current_tab->get_axes_properties_widget(current_tab);
-	if (dlg->isVisible()) {
-		return;
-	}
-	dlg->show();*/
 }
 
 void PVInspector::PVMainWindow::axes_combination_editor_Slot()
@@ -123,29 +117,6 @@ void PVInspector::PVMainWindow::axes_display_edges_Slot()
 
 	message.function = PVSDK_MESSENGER_FUNCTION_TOGGLE_DISPLAY_EDGES;
 	pvsdk_messenger->post_message_to_gl(message);*/
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::change_of_current_view_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::change_of_current_view_Slot()
-{
-#if 0
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	/* we set current_tab to it's new value */
-	current_tab = dynamic_cast<PVTabSplitter*>(_workspaces_tab_widget->currentWidget());
-	if(current_tab!=0){
-		connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
-		current_tab->updateFilterMenuEnabling();
-	}
-	if (!current_view()) {
-		// PVLOG_ERROR("PVInspector::PVMainWindow::%s We have a strange beast in the tab widget: %p!\n", __FUNCTION__, pv_WorkspacesTabWidget->currentWidget());
-	}
-	/* we emit a broadcast signal to spread the news ! */
-	emit change_of_current_view_Signal(); // FIXME! I think nobody care about this broadcast!
-#endif
 }
 
 /******************************************************************************
@@ -1335,8 +1306,6 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 	}
 
     PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(_projects_tab_widget->current_workspace());
-	connect(editorWidget, SIGNAL(accepted()), this, SLOT(cur_format_changed_Slot()));
-	connect(editorWidget, SIGNAL(rejected()), this, SLOT(cur_format_changed_Slot()));
 	editorWidget->openFormat(format.get_full_path());
     editorWidget->show();
 }
@@ -1357,57 +1326,6 @@ void PVInspector::PVMainWindow::open_format_Slot()
         editorWidget->show();
         PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), url, PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
     }
-}
-
-void PVInspector::PVMainWindow::cur_format_changed_Slot()
-{
-#if 0
-	PVFormatBuilderWidget* editor = dynamic_cast<PVFormatBuilderWidget*>(sender());
-	assert(editor);
-	PVTabSplitter* src_tab = dynamic_cast<PVTabSplitter*>(editor->parent());
-	assert(src_tab);
-	Picviz::PVSource const* cur_src = src_tab->get_lib_src();
-
-	PVRush::PVFormat old_format = cur_src->get_format();
-	PVRush::PVFormat new_format(old_format.get_format_name(), old_format.get_full_path());
-	new_format.populate();
-
-	PVRush::PVFormat::Comparaison comp = new_format.comp(old_format);
-	if (comp.same()) {
-		return;
-	}
-
-	// Too unstable, because it does not take into account the fact that the axes could have completely changed.
-	// We should recreate a new PVSource !
-	if (comp.need_extract()) {
-		QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Format modified"), tr("The splitters and/or filters of this format have been changed. Do you want to reextract your data ?"), QMessageBox::Yes | QMessageBox::No, this);
-		if (box->exec() == QMessageBox::Yes) {
-			PVRush::PVExtractor& extractor = cur_src->get_extractor();
-			extractor.save_nraw();
-			PVRush::PVControllerJob_p job = cur_src->extract();
-			src_tab->process_extraction_job(job);
-			return;
-		}
-	}
-
-	if (!comp.need_extract() && (comp.different_mapping() || comp.different_plotting())) {
-		QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Format modified"), tr("The mapping and/or plotting properties of this format have been changed. Do you want to update the current view ?"), QMessageBox::Yes | QMessageBox::No, this);
-		if (box->exec() == QMessageBox::Yes) {
-			Picviz::PVView* cur_view = cur_src->current_view();
-			Picviz::PVMapped* mapped = cur_view->get_parent<Picviz::PVMapped>();
-			Picviz::PVPlotted* plotted = cur_view->get_parent<Picviz::PVPlotted>();
-			mapped->get_mapping()->reset_from_format(new_format);
-			plotted->get_plotting().reset_from_format(new_format);
-			if (comp.different_mapping()) {
-				src_tab->process_mapped_if_current(mapped);
-			}
-			else {
-				src_tab->process_plotted_if_current(plotted);
-			}
-			cur_src->set_format(new_format);
-		}
-	}
-#endif
 }
 
 /******************************************************************************

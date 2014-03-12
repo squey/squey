@@ -1,11 +1,11 @@
 /**
- * \file PVViewsListingView.h
+ * \file PVRootTreeView.h
  *
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef PVVIEWSLISTINGVIEW_H
-#define PVVIEWSLISTINGVIEW_H
+#ifndef PVROOTTREEVIEW_H
+#define PVROOTTREEVIEW_H
 
 #include <pvkernel/core/general.h>
 #include <QTreeView>
@@ -23,7 +23,6 @@ class PVView;
 namespace PVGuiQt {
 
 class PVRootTreeModel;
-class PVTabSplitter;
 
 class PVRootTreeView: public QTreeView
 {
@@ -82,4 +81,4 @@ private:
 
 }
 
-#endif
+#endif // PVROOTTREEVIEW_H

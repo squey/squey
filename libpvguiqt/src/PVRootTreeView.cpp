@@ -1,5 +1,5 @@
 /**
- * \file PVViewsListingView.cpp
+ * \file PVRootTreeView.cpp
  *
  * Copyright (C) Picviz Labs 2009-2012
  */

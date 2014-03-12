@@ -35,7 +35,6 @@
 #include <pvguiqt/PVCorrelationMenu.h>
 #include <pvguiqt/PVProjectsTabWidget.h>
 
-#include <PVAxisPropertiesWidget.h>
 #include <PVExportSelectionDialog.h>
 #include <PVFilesTypesSelWidget.h>
 
@@ -117,8 +116,6 @@ private:
 public:
 	PVMainWindow(QWidget *parent = 0);
 
-	PVAxisPropertiesWidget *pv_AxisProperties;
-
 	PVExportSelectionDialog *pv_ExportSelectionDialog;
 
 	PVGuiQt::PVProjectsTabWidget* _projects_tab_widget;
@@ -167,7 +164,6 @@ public slots:
 	void axes_mode_Slot();
 	void axes_display_edges_Slot();
 	void axes_new_Slot();
-	void change_of_current_view_Slot();
 	void commit_selection_in_current_layer_Slot();
 	void commit_selection_to_new_layer_Slot();
 	void move_selection_to_new_layer_Slot();
@@ -219,7 +215,6 @@ public slots:
 	// Not an elegant solution, must find better.
 	void edit_format_Slot(QString const& path, QWidget* parent);
 	void edit_format_Slot(QDomDocument& doc, QWidget* parent);
-	void set_color_selected(QColor const& color);
 	void axes_combination_editor_Slot();
 
 	void solution_new_Slot();
@@ -241,7 +236,6 @@ private:
 	void display_inv_elts();
 
 private slots:
-	void cur_format_changed_Slot();
 	void root_modified();
 	bool load_solution(QString const& file);
 	void load_solution_and_create_mw(QString const& file);

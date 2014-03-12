@@ -378,9 +378,9 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table, Picviz:
 
 	// Context menu
 	_ctxt_menu = new QMenu(this);
-	QAction* copy_to_clipboard = new QAction(tr("Copy"), _ctxt_menu);
-	connect(copy_to_clipboard, SIGNAL(triggered()), this, SLOT(copy_to_clipboard()));
-	_ctxt_menu->addAction(copy_to_clipboard);
+	QAction* copy = new QAction(tr("Copy"), _ctxt_menu);
+	connect(copy, SIGNAL(triggered()), this, SLOT(copy_to_clipboard()));
+	_ctxt_menu->addAction(copy);
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(context_menu_requested(const QPoint&)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
 

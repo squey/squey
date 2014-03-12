@@ -486,7 +486,6 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Picviz::PVView* picv
 void PVInspector::PVMainWindow::connect_widgets()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	//connect(_projects_tab_widget, SIGNAL(currentChanged(int)), this, SLOT(change_of_current_view_Slot()));
 
 	/* for the this::color_changed_Signal() */
 	connect(this, SIGNAL(color_changed_Signal()), this, SLOT(refresh_current_view_Slot()));
@@ -1791,56 +1790,6 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView* picviz_view)
 	actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 	//commit_selection_in_current_layer(picviz_view);
 }
-
-
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::set_color_selected
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::set_color_selected(QColor const&)
-{
-#if 0
-	Picviz::PVView& picviz_view = dlg->current_view();
-
-	// Get the tab associated w/ this view
-	PVTabSplitter* tab = get_tab_from_view(picviz_view);
-	if (!tab) {
-		return;
-	}
-
-
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
-	unsigned char a;
-
-	/* The user DID select a color... */
-	/* We get the color value */
-	r = (unsigned char)color.red();
-	g = (unsigned char)color.green();
-	b = (unsigned char)color.blue();
-	a = (unsigned char)color.alpha();
-
-	// We don't allow a completly black color (it is reserved for zombie)
-	if (r == 0 && b == 0 && g == 0) {
-		r = 2;
-	}
-	/* We paint the events in the post_filter_layer */
-	//FIXME: HSV window is needed !
-	//picviz_view.set_color_on_post_filter_layer(r, g, b, a);
-	//picviz_view->set_color_on_active_layer(r, g, b, a);
-	/* We process the view from the EventLine */
-	picviz_view.process_from_eventline();
-
-	// And we commit to the current layer (cf. ticket #38)
-	commit_selection_in_current_layer(current_tab->current_view());
-
-	// And tell that the project has been modified
-#endif
-}
-
 
 
 /******************************************************************************
