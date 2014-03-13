@@ -18,19 +18,11 @@ PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget 
 	setWindowTitle("Import file");
 	setFileMode(QFileDialog::ExistingFile);
 	treat_as_combobox = new QComboBox();
-	QLabel *treat_as_label = new QLabel("Treat file as: ");
-
-	QPushButton *options = new QPushButton("Options");
-	options->setMaximumWidth(70);
-
-	options->setCheckable(true);
-	options->setAutoDefault(false);
+	QLabel *treat_as_label = new QLabel("Format: ");
 
 	QGridLayout *this_layout = (QGridLayout *)layout();
-	this_layout->addWidget(options, 5, 1);
 
 	QGroupBox *option_group = new QGroupBox();
-	option_group->setVisible(0);
 	this_layout->addWidget(option_group, 6, 1);
 
 	QGridLayout *options_layout = new QGridLayout();
@@ -63,8 +55,6 @@ PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget 
 //	options_layout->addWidget(to_line_edit, 2, 3);
 
 	setFileMode(QFileDialog::ExistingFiles);
-
-	this->connect(options, SIGNAL(toggled(bool)), option_group, SLOT(setVisible(bool)));
 }
 
 /******************************************************************************
