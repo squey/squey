@@ -100,7 +100,7 @@ void Picviz::PVView::process_parent_plotted()
 	eventline.set_last_index(row_count);
 
 	// First process
-	select_all_nonzb_lines();
+	//select_all_nonzb_lines(); Fixes bug #279
 	nu_selection.select_none();
 
 	process_from_layer_stack();
