@@ -37,9 +37,9 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash
 	QStringList formats_name = formats.keys();
 	formats_name.sort();
 
-	formats_name.prepend(QString(PICVIZ_AUTOMATIC_FORMAT_STR));
 	formats_name.prepend(QString(PICVIZ_BROWSE_FORMAT_STR));
 	formats_name.prepend(QString(PICVIZ_LOCAL_FORMAT_STR));
+	formats_name.prepend(QString(PICVIZ_AUTOMATIC_FORMAT_STR));
 	_file_dlg = new PVImportFileDialog(formats_name, parent);
 	_file_dlg->setDefaults();
 	QStringList filenames = _file_dlg->getFileNames(format);

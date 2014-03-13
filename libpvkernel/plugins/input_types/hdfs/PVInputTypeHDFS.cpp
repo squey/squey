@@ -23,8 +23,8 @@ bool PVRush::PVInputTypeHDFS::createWidget(hash_formats const& formats, hash_for
 	// TODO: ask for a namenode, list the files of that namenode and chose one or more files !
 	QStringList formats_name = formats.keys();
 
-	formats_name.prepend(QString(PICVIZ_AUTOMATIC_FORMAT_STR));
 	formats_name.prepend(QString(PICVIZ_BROWSE_FORMAT_STR));
+	formats_name.prepend(QString(PICVIZ_AUTOMATIC_FORMAT_STR));
 
 	PVImportHDFSDlg* dlg = new PVImportHDFSDlg(formats_name, parent);
 	if (dlg->exec() != QDialog::Accepted) {

@@ -1656,7 +1656,7 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 		format = "custom:arg";
 	}
 	else {
-		format = PICVIZ_BROWSE_FORMAT_STR;
+		format = PICVIZ_AUTOMATIC_FORMAT_STR;
 	}
 
 	import_type(in_file, files_in, formats, format_creator, format, PVRush::PVExtractor::default_args_extractor());
