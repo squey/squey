@@ -73,7 +73,7 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::update_position()
 	double abs_bottom = get_rect().bottom();
 
 	set_rect(QRectF(QPointF(new_left, abs_top),
-	                QPointF(new_right, abs_bottom)));
+	                QPointF(new_right, abs_bottom)), false);
 }
 
 /*****************************************************************************
