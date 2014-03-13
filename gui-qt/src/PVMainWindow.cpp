@@ -730,6 +730,75 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		}
 		file_type_found = (discovered.size() > 0) | (files_multi_formats.size() > 0);
 	}
+	else if (choosenFormat.compare(PICVIZ_LOCAL_FORMAT_STR) == 0) {
+		PVRush::hash_formats custom_formats;
+		PVRush::list_creators pre_discovered_creators;
+
+		for (auto input_it = inputs.begin(); input_it != inputs.end(); ++input_it) {
+			QString in_str = (*input_it)->human_name();
+			hash_input_name[in_str] = *input_it;
+
+			for (auto cr_it = lcr.begin(); cr_it != lcr.end(); ++cr_it) {
+				PVRush::PVSourceCreator_p sc = *cr_it;
+				if (sc->pre_discovery(*input_it)) {
+					pre_discovered_creators.push_back(sc);
+					in_t->get_custom_formats(*input_it, custom_formats);
+				}
+			}
+
+			for(auto hf_it = custom_formats.begin(); hf_it != custom_formats.end(); ++hf_it) {
+				formats.insert(hf_it.key(), hf_it.value());
+
+				for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
+					PVRush::hash_format_creator::mapped_type v(hf_it.value(), *src_cr_it);
+					format_creator[hf_it.key()] = v;
+				}
+			}
+		}
+
+		if (custom_formats.size() == 1) {
+			file_type_found = true;
+			discovered[custom_formats.keys()[0]] = inputs;
+		}
+	}
+	else if (choosenFormat.compare(PICVIZ_BROWSE_FORMAT_STR) == 0) {
+		/* A QFileDialog is explicitly used over QFileDialog::getOpenFileName
+		 * because this latter does not used QFileDialog's global environment
+		 * like last used current directory.
+		 */
+		QFileDialog *fdialog = new QFileDialog(this);
+
+		fdialog->setOption(QFileDialog::DontUseNativeDialog, true);
+		fdialog->setNameFilter("Formats (*.format)");
+		fdialog->setWindowTitle("Load format from...");
+
+		int ret = fdialog->exec();
+
+		if (ret == QDialog::Accepted) {
+			QString format_path = fdialog->selectedFiles().at(0);
+			QFileInfo fi(format_path);
+			QString format_name = "custom:" + fi.dir().path();
+
+			PVRush::PVFormat format(format_name, format_path);
+			formats[format_name] = format;
+
+			for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
+				PVRush::hash_format_creator::mapped_type v(format, *src_cr_it);
+				format_creator[format_name] = v;
+			}
+
+			if (fi.isReadable()) {
+				file_type_found = true;
+				discovered[format_name] = inputs;
+			}
+		}
+
+		delete fdialog;
+
+		if (ret == QDialog::Rejected) {
+			return;
+		}
+	}
 	else
 	{
 		file_type_found = true;
@@ -739,9 +808,22 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	treat_invalid_formats(formats_error);
 	
 	if (!file_type_found) {
-		QString msg = "<p>The sources cannot be opened: automatic format detection reported <strong>no valid format</strong>.</p>";
-		msg += "<p>Please note that automatic format detection is only applied on a small subset of the provided sources.</p>";
-		msg += "<p><strong>Trick:</strong> if you know the format of these sources, and if it contains one or more filters that invalidate a lot of elements, you should avoid automatic format detection and select this format by hand in the import sources dialog.</p>";
+		QString msg;
+		if (choosenFormat.compare(PICVIZ_AUTOMATIC_FORMAT_STR) == 0) {
+			msg = "<p>Automatic format detection reported <strong>no valid format</strong>.</p>";
+			msg += "<p>Please note that automatic format detection is only applied on a small subset of the provided sources.</p>";
+			msg += "<p><strong>Trick:</strong> if you know the format of these sources, and if it contains one or more filters that invalidate a lot of elements, you should avoid automatic format detection and select this format by hand in the import sources dialog.</p>";
+		} else if (choosenFormat.compare(PICVIZ_BROWSE_FORMAT_STR) == 0) {
+			msg = "<p>No valid format file found.</p>";
+			msg = "<p>Check for file permission on the chosen format file.</p>";
+		} else if (choosenFormat.compare(PICVIZ_LOCAL_FORMAT_STR) == 0) {
+			// must never happens
+			msg = "<p>No valid local format file found.</p>";
+			msg += "<ul>";
+			msg += "<li>the source's directory contains a readable format file named <em>picviz.format</em></li>";
+			msg += "<li>the source file has a format file whose name is <em>file.ext<strong>.format</strong></em></li>";
+			msg +="</ul>";
+		}
 		QMessageBox::warning(this, "Cannot import sources", msg);
 		return;
 	}
@@ -1574,7 +1656,7 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 		format = "custom:arg";
 	}
 	else {
-		format = PICVIZ_AUTOMATIC_FORMAT_STR;
+		format = PICVIZ_BROWSE_FORMAT_STR;
 	}
 
 	import_type(in_file, files_in, formats, format_creator, format, PVRush::PVExtractor::default_args_extractor());

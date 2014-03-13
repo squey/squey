@@ -44,7 +44,9 @@ static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 #define FORMATBUILDER_EXTRACT_START_DEFAULT 0
 #define FORMATBUILDER_EXTRACT_END_DEFAULT 100
 
-#define PICVIZ_AUTOMATIC_FORMAT_STR "automatic"
+#define PICVIZ_AUTOMATIC_FORMAT_STR "auto detection..."
+#define PICVIZ_LOCAL_FORMAT_STR "default local format"
+#define PICVIZ_BROWSE_FORMAT_STR "choose my format..."
 
 #define PVCORE_DIRECTORY_SEP ';'
 

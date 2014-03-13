@@ -523,7 +523,7 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 	Picviz::PVScene_sp scene_p;
 
 	PVRush::PVFormat format = src_desc.get_format();
-	if (format.exists() == false) {
+	if ((format.exists() == false) || (QFileInfo(format.get_full_path()).isReadable() == false)) {
 		QMessageBox::warning(this,
 		                     tr("Format \"%1\" can not be read").arg(format.get_format_name()),
 		                     tr("Check that the file \"%1\" exists and is readable").arg(format.get_full_path()));

@@ -38,6 +38,8 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash
 	formats_name.sort();
 
 	formats_name.prepend(QString(PICVIZ_AUTOMATIC_FORMAT_STR));
+	formats_name.prepend(QString(PICVIZ_BROWSE_FORMAT_STR));
+	formats_name.prepend(QString(PICVIZ_LOCAL_FORMAT_STR));
 	_file_dlg = new PVImportFileDialog(formats_name, parent);
 	_file_dlg->setDefaults();
 	QStringList filenames = _file_dlg->getFileNames(format);
@@ -191,15 +193,17 @@ bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in, ha
 	QFileInfo fi(path_custom_format);
 	QString format_custom_name = "custom:" + fi.fileName();
 
-	if (QFile(path_custom_format).exists()) {
+	if (fi.exists() && fi.isReadable()) {
 		formats[format_custom_name] = PVRush::PVFormat(format_custom_name, path_custom_format);
 		res = true;
 	}
 
 	QDir d = fi.dir();
 	QString path_custom_dir_format = d.absoluteFilePath("picviz.format");
-	if (!QFile(path_custom_dir_format).exists())
+	fi = QFileInfo(path_custom_dir_format);
+	if ((!fi.exists()) || (!fi.isReadable())) {
 		return res;
+	}
 
 	format_custom_name = "custom_directory:" + d.path();
 	if (!formats.contains(format_custom_name)) {
