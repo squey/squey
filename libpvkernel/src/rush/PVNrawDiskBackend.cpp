@@ -395,7 +395,7 @@ void PVRush::PVNrawDiskBackend::print_indexes()
 	}
 }
 
-char* PVRush::PVNrawDiskBackend::next(uint64_t col, uint64_t nb_fields, char* buffer, size_t& size_ret)
+char* PVRush::PVNrawDiskBackend::next(uint64_t col, uint64_t nb_fields, char* buffer, size_t& size_ret, bool* complete /*= nullptr*/)
 {
 	PVColumn& column = get_col(col);
 
@@ -409,7 +409,7 @@ char* PVRush::PVNrawDiskBackend::next(uint64_t col, uint64_t nb_fields, char* bu
 	}
 	else {
 		uint64_t size_to_read = READ_BUFFER_SIZE - (buffer - column.buffer_read_ptr);
-		buffer_ptr = (char*) PVCore::PVByteVisitor::get_nth_slice((const uint8_t*) buffer, size_to_read, nb_fields, size_ret);
+		buffer_ptr = (char*) PVCore::PVByteVisitor::get_nth_slice((const uint8_t*) buffer, size_to_read, nb_fields, size_ret, complete);
 	}
 
 	column.buffer_read_ptr = buffer_ptr;
@@ -417,7 +417,7 @@ char* PVRush::PVNrawDiskBackend::next(uint64_t col, uint64_t nb_fields, char* bu
 	return buffer_ptr;
 }
 
-const char* PVRush::PVNrawDiskBackend::at_no_cache(PVRow field, PVCol col, size_t& size_ret, char* read_buffer) const
+const char* PVRush::PVNrawDiskBackend::at_no_cache(PVRow field, PVCol col, size_t& size_ret, char* read_buffer, bool* complete /*= nullptr*/) const
 {
 	// Read buffer must have a length >= READ_BUFFER_SIZE+BUF_ALIGN
 	// Fetch content from disk
@@ -457,7 +457,7 @@ const char* PVRush::PVNrawDiskBackend::at_no_cache(PVRow field, PVCol col, size_
 	}
 	else {
 		//BENCH_START(search);
-		buffer_ptr = (char*) PVCore::PVByteVisitor::get_nth_slice((const uint8_t*) buffer, read_size, nb_fields, size_ret);
+		buffer_ptr = (char*) PVCore::PVByteVisitor::get_nth_slice((const uint8_t*) buffer, read_size, nb_fields, size_ret, complete);
 		buffer_ptr = buffer_ptr ? buffer_ptr : (char*) "";
 		//BENCH_STOP(search);
 		//_stats_search += (uint64_t) (BENCH_END_TIME(search)*1000000.0);

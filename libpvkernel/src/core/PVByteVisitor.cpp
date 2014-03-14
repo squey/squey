@@ -2,6 +2,7 @@
 #include <pvkernel/core/picviz_intrin.h>
 
 #include <assert.h>
+#include <iostream>
 
 uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_serial(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret)
 {
@@ -23,8 +24,12 @@ uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_serial(uint8_t const
 	return nullptr;
 }
 
-uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_sse(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret)
+uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_sse(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret, bool* complete)
 {
+	if (complete) {
+		*complete = true;
+	}
+
 	n++;
 	// `n' now is the number of '\0' that we have to look for
 	size_t nfound = 0;
@@ -213,6 +218,15 @@ uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_sse(uint8_t const* b
 			}
 			off_start = i+1;
 		}
+	}
+
+	if (nfound == (n-1)) {
+		// When the last '\0' is not found, return the buffer with the partial size instead of nullptr
+		size_ret = i-off_start;
+		if (complete) {
+			*complete = false;
+		}
+		return &buffer[off_start];
 	}
 
 	return nullptr;

@@ -247,9 +247,9 @@ PVCol Picviz::PVSource::get_column_count() const
 	return get_format().get_axes().size();
 }
 
-QString Picviz::PVSource::get_value(PVRow row, PVCol col) const
+QString Picviz::PVSource::get_value(PVRow row, PVCol col, bool* complete /*= nullptr*/) const
 {
-	return nraw->at(row,col);
+	return nraw->at(row, col, complete);
 }
 
 PVRush::PVExtractor& Picviz::PVSource::get_extractor()

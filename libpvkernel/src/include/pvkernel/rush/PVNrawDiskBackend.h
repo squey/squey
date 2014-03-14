@@ -336,20 +336,20 @@ public:
 	 *
 	 *  \return A pointer to the buffer.
 	 */
-	inline const char* at(PVRow field, PVCol col, size_t& size_ret)
+	inline const char* at(PVRow field, PVCol col, size_t& size_ret, bool* complete = nullptr)
 	{
 		PVColumn& column = get_col(col);
 		uint64_t nb_fields_left = _cache_pool.get_cache(field, col);
-		return next(col, nb_fields_left, column.buffer_read_ptr, size_ret);
+		return next(col, nb_fields_left, column.buffer_read_ptr, size_ret, complete);
 	}
 
-	inline const char* at_no_cache(PVRow field, PVCol col, size_t& size_ret) const
+	inline const char* at_no_cache(PVRow field, PVCol col, size_t& size_ret, bool* complete = nullptr) const
 	{
 		PVColumn const& column = get_col(col);
-		return at_no_cache(field, col, size_ret, &column.read_buffer_tls.local()[0]);
+		return at_no_cache(field, col, size_ret, &column.read_buffer_tls.local()[0], complete);
 	}
 
-	const char* at_no_cache(PVRow field, PVCol col, size_t& size_ret, char* read_buffer) const;
+	const char* at_no_cache(PVRow field, PVCol col, size_t& size_ret, char* read_buffer, bool* complete = nullptr) const;
 
 	/*! \brief Returns the number of columns.
 	 */
@@ -734,7 +734,7 @@ private:
 	 *
 	 *  \return A pointer to the buffer.
 	 */
-	char* next(uint64_t col, uint64_t nb_fields, char* buffer, size_t& size_ret);
+	char* next(uint64_t col, uint64_t nb_fields, char* buffer, size_t& size_ret, bool* complete = nullptr);
 
 	/*! \brief Close all the column files of the Nraw.
 	 */

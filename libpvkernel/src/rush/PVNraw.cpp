@@ -139,12 +139,12 @@ void PVRush::PVNraw::fit_to_content()
 	}
 }
 
-QString PVRush::PVNraw::get_value(PVRow row, PVCol col) const
+QString PVRush::PVNraw::get_value(PVRow row, PVCol col, bool* complete /*= nullptr*/) const
 {
 	assert(row < get_number_rows());
 	assert(col < get_number_cols());
 	size_t size = 0;
-	const char* buf = _backend.at(row, col, size);
+	const char* buf = _backend.at(row, col, size, complete);
 	return QString::fromUtf8(buf, size);
 }
 

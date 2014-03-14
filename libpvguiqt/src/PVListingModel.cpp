@@ -72,7 +72,14 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 	const PVCol org_col = lib_view().get_original_axis_index(index.column());
 	switch (role) {
 		case (Qt::DisplayRole):
-			return lib_view().get_parent<Picviz::PVSource>()->get_value(index.row(), org_col);
+		{
+			bool complete;
+			QVariant val = lib_view().get_parent<Picviz::PVSource>()->get_value(index.row(), org_col, &complete);
+			if (!complete) {
+				_incomplete_fields.push_front(row_col_t(index.row(), index.column()));
+			}
+			return val;
+		}
 
 		case (Qt::TextAlignmentRole):
 			return (Qt::AlignLeft + Qt::AlignVCenter);
@@ -97,7 +104,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 		case (Qt::ForegroundRole):
 		{
 			const PVRow r = index.row();
-			// Show text in white iif this is a zombie event
+			// Show text in white if this is a zombie event
 			if (!lib_view().get_real_output_selection().get_line(r) &&
 				!lib_view().get_line_state_in_layer_stack_output_layer(r)) {
 				return QBrush(Qt::white);
@@ -108,6 +115,29 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 		{
 			QVariant ret(QVariant::fromValue<std::string>(std::move(lib_view().get_parent<Picviz::PVSource>()->get_rushnraw().at_string(index.row(), index.column()))));
 			return ret;
+		}
+		case (Qt::FontRole):
+		{
+			// Set incomplete fields in italic
+
+			QFont f;
+			row_col_t idx;
+			bool remove = false;
+			for (const row_col_t& idx1 : _incomplete_fields) {
+				row_col_t idx2 = row_col_t(index.row(), index.column());
+				if (idx1 == idx2) {
+					idx = idx1;
+					remove = true;
+					f.setItalic(true);
+					break;
+				}
+			}
+
+			if (remove) {
+				_incomplete_fields.remove(idx);
+			}
+
+			return f;
 		}
 	}
 	return QVariant();

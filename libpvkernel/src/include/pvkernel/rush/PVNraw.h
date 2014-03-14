@@ -70,7 +70,7 @@ public:
 	inline PVRow get_number_rows() const { return _real_nrows; }
 	inline PVCol get_number_cols() const { return _backend.get_number_cols(); }
 
-	QString get_value(PVRow row, PVCol col) const;
+	QString get_value(PVRow row, PVCol col, bool* complete = nullptr) const;
 	inline PVCore::PVUnicodeString at_unistr(PVRow row, PVCol col) const
 	{
 		assert(row < get_number_rows());
@@ -89,7 +89,7 @@ public:
 		return PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size);
 	}
 
-	inline QString at(PVRow row, PVCol col) const { return get_value(row, col); }
+	inline QString at(PVRow row, PVCol col, bool* complete = nullptr) const { return get_value(row, col, complete); }
 	inline std::string at_string(PVRow row, PVCol col) const
 	{
 		assert(row < get_number_rows());
