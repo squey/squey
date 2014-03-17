@@ -415,7 +415,7 @@ typename PVGuiQt::PVStatsListingWidget::PVParams& PVGuiQt::__impl::PVCellWidgetB
 	PVGuiQt::PVStatsListingWidget* stats_panel = get_panel();
 	assert(stats_panel);
 
-	return stats_panel->get_params()[get_row()][get_col()];
+	return stats_panel->get_params()[get_real_axis_row()][get_real_axis_col()];
 }
 
 QMovie* PVGuiQt::__impl::PVCellWidgetBase::get_movie()
@@ -534,7 +534,7 @@ void PVGuiQt::__impl::PVCellWidgetBase::set_valid(const QString& value, bool aut
 	_refresh_icon->setVisible(!auto_refresh);
 	_item->setBackground(QBrush(Qt::NoBrush));
 	_valid = true;
-	emit cell_refreshed(get_col());
+	emit cell_refreshed(get_widget_cell_col());
 }
 
 void PVGuiQt::__impl::PVCellWidgetBase::vertical_header_clicked(int)
@@ -576,7 +576,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 	PVRush::PVNraw::unique_values_t values;
 	uint64_t min;
 	uint64_t max;
-	bool valid = _view.get_rushnraw_parent().get_unique_values(get_col(), values, min, max, *_view.get_selection_visible_listing(), _ctxt);
+	bool valid = _view.get_rushnraw_parent().get_unique_values(get_real_axis_col(), values, min, max, *_view.get_selection_visible_listing(), _ctxt);
 #if SIMULATE_LONG_COMPUTATION
 	for (uint32_t i = 0; i < 10 && !_ctxt->is_group_execution_cancelled(); i++) {
 		usleep(500000);
@@ -589,7 +589,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
 {
 	Picviz::PVView_sp view = (const_cast<Picviz::PVView&>(_view)).shared_from_this();
-	PVQNraw::show_unique_values(view, _view.get_rushnraw_parent(), get_col(), *_view.get_selection_visible_listing(), this);
+	PVQNraw::show_unique_values(view, _view.get_rushnraw_parent(), get_real_axis_col(), *_view.get_selection_visible_listing(), this);
 }
 
 /******************************************************************************
@@ -600,7 +600,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
 void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
 {
 	uint64_t sum = 0;
-	bool valid = _view.get_rushnraw_parent().get_sum(get_col(), sum, *_view.get_selection_visible_listing(), _ctxt);
+	bool valid = _view.get_rushnraw_parent().get_sum(get_real_axis_col(), sum, *_view.get_selection_visible_listing(), _ctxt);
 
 	emit refresh_impl_finished(QString("%L1").arg(sum), valid); // We must go back on the Qt thread to update the GUI
 }
