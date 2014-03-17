@@ -114,6 +114,8 @@ private:
 	PVHive::PVObserverSignal<Picviz::PVView> _obs;
 	PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
 	bool _view_valid;
+	typedef std::pair<size_t, size_t> row_col_t;
+	mutable std::list<row_col_t> _incomplete_fields;
 };
 
 }

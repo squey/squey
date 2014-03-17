@@ -123,7 +123,7 @@ public:
 
 
 uint8_t const* get_nth_slice_serial(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret);
-uint8_t const* get_nth_slice_sse(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret);
+uint8_t const* get_nth_slice_sse(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret, bool* complete = nullptr);
 
 } // __impl
 
@@ -134,7 +134,7 @@ inline void visit_bytes(const T chunk, F const& f, const size_t offset = 0)
 	__impl::visit_bytes<T, F>::f(chunk, f, offset);
 }
 
-inline uint8_t const* get_nth_slice(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret) { return __impl::get_nth_slice_sse(buffer, sbuf, n, size_ret); }
+inline uint8_t const* get_nth_slice(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret, bool* complete = nullptr) { return __impl::get_nth_slice_sse(buffer, sbuf, n, size_ret, complete); }
 
 // Get back the n-th slice, that is, if a buffer is like this:
 // [data 0] \0 [data 1] \0,

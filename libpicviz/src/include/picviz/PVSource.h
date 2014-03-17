@@ -70,7 +70,7 @@ public:
 	PVRush::PVNraw& get_rushnraw();
 	const PVRush::PVNraw& get_rushnraw() const;
 
-	QString get_value(PVRow row, PVCol col) const;
+	QString get_value(PVRow row, PVCol col, bool* complete = nullptr) const;
 	inline PVCore::PVUnicodeString get_data_unistr_raw(PVRow row, PVCol column) const { return nraw->at_unistr(row, column); }
 
 	PVRow get_row_count() const;

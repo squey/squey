@@ -20,7 +20,6 @@
 #include <pvhive/PVCallHelper.h>
 
 #include <pvguiqt/PVListingView.h>
-#include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVQNraw.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>

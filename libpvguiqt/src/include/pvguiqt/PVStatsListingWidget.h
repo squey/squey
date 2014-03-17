@@ -158,8 +158,11 @@ public:
 	virtual ~PVCellWidgetBase() {}
 
 public:
-	inline int get_row() { return _view.get_real_axis_index(_table->row(_item)); }
-	inline int get_col() { return _view.get_real_axis_index(_table->column(_item)); }
+	inline int get_widget_cell_row() { return _table->row(_item); }
+	inline int get_widget_cell_col() { return _table->column(_item); }
+
+	inline int get_real_axis_row() { return _view.get_real_axis_index(_table->row(_item)); }
+	inline int get_real_axis_col() { return _view.get_real_axis_index(_table->column(_item)); }
 
 	static QMovie* get_movie(); // Singleton to share the animation among all the widgets in order to keep them synchronized
 	virtual void set_loading(bool loading);
