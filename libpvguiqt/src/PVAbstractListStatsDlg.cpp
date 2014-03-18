@@ -75,6 +75,8 @@ public:
 	void set_mode_count()
 	{
 		_use_percent_mode = false;
+		_min_spinbox->use_floating_point(false);
+		_max_spinbox->use_floating_point(false);
 
 		disconnect_spinboxes_from_ranges();
 
@@ -97,6 +99,8 @@ public:
 	void set_mode_percent()
 	{
 		_use_percent_mode = true;
+		_min_spinbox->use_floating_point(true);
+		_max_spinbox->use_floating_point(true);
 
 		disconnect_spinboxes_from_ranges();
 

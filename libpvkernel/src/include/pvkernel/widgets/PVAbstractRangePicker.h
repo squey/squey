@@ -209,6 +209,81 @@ private:
 	PVAbstractRangeRampCursor* _max_cursor;
 };
 
+/**
+ * Short: This class is required to make sure the 2 spinboxes always have the
+ * same geometry.
+ *
+ * Long: the Qt's spinbox geometry depends on its maximum and minimum values.
+ *.But as the right spinbox's value is the left spinbox's maximum, the latter's
+ * size may varying (when the value's order changes). Size policy and QLayout's
+ * fonctionnalities do not permit to synchronize (or do as) spinboxes geometry.
+ * This class allows a spinbox to synchronize its size with an other spinbox's
+ * size (by having the biggest of the two).
+ */
+class PVMimeticDoubleSpinBox : public QDoubleSpinBox
+{
+public:
+	PVMimeticDoubleSpinBox(QDoubleSpinBox* other = nullptr) :
+	_other(other)
+	{}
+
+	void set_other(QDoubleSpinBox* other)
+	{
+		_other = other;
+	}
+
+	QSize sizeHint() const
+	{
+		QSize lsize = QDoubleSpinBox::sizeHint();
+
+		if (_other == nullptr) {
+			return lsize;
+		}
+
+		QSize fsize = _other->QDoubleSpinBox::sizeHint();
+
+		return QSize(qMax(lsize.width(), fsize.width()),
+		             qMax(lsize.height(), fsize.height()));
+	}
+
+	QSize minimumSizeHint() const
+	{
+		QSize lsize = QDoubleSpinBox::minimumSizeHint();
+
+		if (_other == nullptr) {
+			return lsize;
+		}
+
+		QSize fsize = _other->QDoubleSpinBox::minimumSizeHint();
+		return QSize(qMax(lsize.width(), fsize.width()),
+		             qMax(lsize.height(), fsize.height()));
+	}
+
+public:
+	void use_floating_point(bool floating_point)
+	{
+		_use_floating_point = floating_point;
+	}
+
+protected:
+	virtual QString textFromValue(double value) const override
+	{
+		// Using QLocale::toString(double) with high values returns QString as scientific notation,
+		// (hence the cast to qulonglong).
+
+		if (_use_floating_point) {
+			return locale().toString(value);
+		}
+		else {
+			return locale().toString((qulonglong)value);
+		}
+	}
+
+private:
+	QDoubleSpinBox *_other;
+	bool _use_floating_point;
+};
+
 }
 
 /**
@@ -412,15 +487,15 @@ private slots:
 	void max_ramp_changed(double value);
 
 protected:
-	__impl::PVAbstractRangeRamp* _range_ramp;
-	QDoubleSpinBox*              _min_spinbox;
-	QDoubleSpinBox*              _max_spinbox;
-	double                       _limit_min;
-	double						 _min;
-	double						 _max;
-	double                       _limit_max;
-	double                       _limit_range;
-	double                       _epsilon;
+	__impl::PVAbstractRangeRamp*    _range_ramp;
+	__impl::PVMimeticDoubleSpinBox* _min_spinbox;
+	__impl::PVMimeticDoubleSpinBox* _max_spinbox;
+	double                          _limit_min;
+	double						    _min;
+	double						    _max;
+	double                          _limit_max;
+	double                          _limit_range;
+	double                          _epsilon;
 };
 
 }
