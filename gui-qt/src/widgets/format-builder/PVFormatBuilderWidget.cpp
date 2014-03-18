@@ -728,30 +728,32 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar() {
 
 }
 
-
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotOpenLog
+ * PVInspector::PVFormatBuilderWidget::load_log
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotOpenLog()
+
+void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 {
-	PVRush::PVInputType_p in_t = PVGuiQt::PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
-	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
+	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(_in_t);
 
 	QString choosenFormat;
-	PVRush::PVInputType::list_inputs inputs;
 	PVRush::hash_formats formats, new_formats;
 
-	PVCore::PVArgumentList args;
-	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, args, this))
-		return; // This means that the user pressed the "cancel" button
+	if (_inputs.isEmpty()) {
+		// This case is only encountered when a source is loaded from the menu
+		PVCore::PVArgumentList args;
+		if (!_in_t->createWidget(formats, new_formats, _inputs, choosenFormat, args, this)) {
+			return; // This means that the user pressed the "cancel" button
+		}
+	}
 
 	_nraw_model->set_consistent(false);
 	try {
 		// Get the first input selected
-		_log_input = inputs.front();
-		PVLOG_DEBUG("Input: %s\n", qPrintable(in_t->human_name_of_input(_log_input)));
+		_log_input = _inputs.front();
+		PVLOG_DEBUG("Input: %s\n", qPrintable(_in_t->human_name_of_input(_log_input)));
 
 		// Pre discover the input w/ the source creators
 		PVRush::list_creators::const_iterator itcr;
@@ -780,20 +782,20 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 
 		if (!_log_sc) {
 			_log_input = PVRush::PVInputDescription_p();
-			QMessageBox box(QMessageBox::Critical, tr("Error"), tr("No input plugins can manage the source file '%1'. Aborting...").arg(in_t->human_name_of_input(_log_input)));
+			QMessageBox box(QMessageBox::Critical, tr("Error"), tr("No input plugins can manage the source file '%1'. Aborting...").arg(_in_t->human_name_of_input(_log_input)));
 			box.show();
 			return;
 		}
 		_log_extract->add_source(_log_source);
 
-		_log_input_type = in_t;
+		_log_input_type = _in_t;
 
 		// First extraction
 		if (is_dom_empty()) {
 			guess_first_splitter();
 		}
 
-		update_table(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
+		update_table(rstart, rend);
 
 	}
 	catch (PVRush::PVInputException &e) {
@@ -810,6 +812,20 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 	// Tell the NRAW widget that the input has changed
 	_nraw_widget->set_last_input(_log_input_type, _log_input);
 	_nraw_widget->resize_columns_content();
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVFormatBuilderWidget::slotOpenLog
+ *
+ *****************************************************************************/
+void PVInspector::PVFormatBuilderWidget::slotOpenLog()
+{
+	_in_t = PVGuiQt::PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
+
+	_inputs.clear();
+
+	load_log(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
 }
 
 void PVInspector::PVFormatBuilderWidget::create_extractor()
@@ -969,7 +985,7 @@ void PVInspector::PVFormatBuilderWidget::slotExtractorPreview()
 {
 	PVRow start,end;
 	_nraw_widget->get_ext_args(start,end);
-	update_table(start,end);
+	load_log(start, end);
 }
 
 bool PVInspector::PVFormatBuilderWidget::is_dom_empty()
