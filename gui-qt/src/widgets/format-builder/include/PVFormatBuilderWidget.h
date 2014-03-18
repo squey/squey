@@ -153,7 +153,7 @@ protected:
 	PVRush::PVInputType_p _log_input_type;
 	PVRush::PVSourceCreator_p _log_sc;
 	PVRush::PVRawSourceBase_p _log_source;
-	boost::shared_ptr<PVRush::PVExtractor> _log_extract; 
+	boost::shared_ptr<PVRush::PVExtractor> _log_extract;
 	PVGuiQt::PVAxesCombinationWidget* _axes_comb_widget;
 
 	// Model and widget for the NRAW
@@ -167,6 +167,9 @@ protected:
 
 protected:
 	QString _cur_file;
+
+private:
+	void load_log(PVRow rstart, PVRow rend);
 
 public slots:
 	// Tree slots
@@ -194,6 +197,10 @@ public slots:
 	// Slot for the NRAW listing
 	void set_axes_name_selected_row_Slot(int row);
 	void set_axes_type_selected_row_Slot(int row);
+
+private:
+	PVRush::PVInputType_p            _in_t;
+	PVRush::PVInputType::list_inputs _inputs;
 };
 
 }

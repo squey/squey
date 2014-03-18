@@ -138,22 +138,27 @@ void PVWidgets::PVMappingPlottingEditDialog::init_layout()
 
 	QWidget* grid_widget = new QWidget();
 	_main_grid = new QGridLayout(grid_widget);
-	_main_grid->setHorizontalSpacing(20);
+	_main_grid->setContentsMargins(0, 0, 0, 0);
+	_main_grid->setHorizontalSpacing(10);
 	_main_grid->setVerticalSpacing(10);
 	int row = 0;
 	int col = 0;
 
 	// Init titles
 	_main_grid->addWidget(create_label(tr("Axis"), Qt::AlignLeft), row, col);
+	_main_grid->setColumnStretch(col, 1);
 	col++;
 	if (has_mapping()) {
 		_main_grid->addWidget(create_label(tr("Type")), row, col);
+		_main_grid->setColumnStretch(col, 1);
 		col++;
 		_main_grid->addWidget(create_label(tr("Mapping")), row, col);
+		_main_grid->setColumnStretch(col, 2);
 		col++;
 	}
 	if (has_plotting()) {
 		_main_grid->addWidget(create_label(tr("Plotting")), row, col);
+		_main_grid->setColumnStretch(col, 2);
 		col++;
 	}
 	_main_scroll_area = new QScrollArea();
