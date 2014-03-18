@@ -41,6 +41,8 @@ void PVWidgets::PVMappingModeWidget::init(bool params_btn)
 	_props = NULL;
 	
 	QHBoxLayout* layout = new QHBoxLayout();
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->setSpacing(10);
 	layout->addWidget(_combo);
 	if (params_btn) {
 		_params_btn = new QPushButton(tr("Parameters..."));
