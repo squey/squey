@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <sys/sysinfo.h>
 
 #include <stdio.h>
 //#include <dlfcn.h>
@@ -97,6 +98,16 @@ static __attribute__((noinline)) void __check__t()
 	}
 }
 
+static __attribute__((noinline)) void __check__m()
+{
+	struct sysinfo info;
+	sysinfo(&info);
+
+	if (info.totalram > (size_t) (CUSTOMER_CAPABILITY_MEMORY^4294967295) * 1 << (30)) {
+		exit(0);
+	}
+}
+
 namespace bpo = boost::program_options;
 
 // #define NO_MAIN_WINDOW
@@ -155,6 +166,7 @@ int main(int argc, char *argv[])
 	}
 
 	__check__t();
+	__check__m();
 
 #ifndef NO_MAIN_WINDOW
 	QSplashScreen splash(QPixmap(":/splash-screen"));
