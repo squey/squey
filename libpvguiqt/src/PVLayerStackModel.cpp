@@ -123,6 +123,14 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex &index, int role) co
 			}
 			break;
 
+		case (Qt::ToolTipRole):
+			switch(index.column()) {
+			case 1:
+				return lib_layer_stack().get_layer_n(lib_index).get_name();
+				break;
+			}
+			break;
+
 		case (PVCustomQtRoles::UnderlyingObject): {
 			QVariant ret;
 			ret.setValue<void*>((void*) &lib_layer_stack().get_layer_n(lib_index));
@@ -162,7 +170,7 @@ QVariant PVGuiQt::PVLayerStackModel::headerData(int /*section*/, Qt::Orientation
 			return QSize(37,37);
 			break;
 	}
-	
+
 	return QVariant();
 }
 
