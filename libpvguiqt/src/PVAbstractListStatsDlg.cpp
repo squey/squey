@@ -37,12 +37,18 @@
 static inline size_t freq_to_count_min(double value, double count)
 {
 	// see PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool) for the formula
+	if (value == 0.) {
+		return 0;
+	}
 	return ceil((((int)(value * 10.) * 0.001) - 0.0005) * count);
 }
 
 static inline size_t freq_to_count_max(double value, double count)
 {
 	// see PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool) for the formula
+	if (value == 0.) {
+		return 0;
+	}
 	return floor((((int)(value * 10.) * 0.001) + 0.0005) * count);
 }
 
@@ -135,9 +141,7 @@ public:
 		get_min_spinbox()->setSuffix(" %");
 		get_max_spinbox()->setSuffix(" %");
 
-		set_limits((double)_relative_min_count/_absolute_max_count*100, (double)_relative_max_count/_absolute_max_count*100);
-		set_range_min(convert_to(get_range_min()));
-		set_range_max(convert_to(get_range_max()));
+		use_absolute_max_count(_use_absolute_max_count);
 
 		connect_spinboxes_to_ranges();
 	}
@@ -433,8 +437,16 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	 * - p_{max} is the upper bound percentage
 	 * - N is the events count
 	 */
-	uint64_t vmin = freq_to_count_min(count_to_freq_min(_select_picker->get_range_min(), max_count()), max_count());
-	uint64_t vmax = freq_to_count_max(count_to_freq_max(_select_picker->get_range_max(), max_count()), max_count());
+	uint64_t vmin;
+	uint64_t vmax;
+	if (_select_is_count) {
+		vmin = _select_picker->get_range_min();
+		vmax = _select_picker->get_range_max();
+	}
+	else {
+		vmin = freq_to_count_min(count_to_freq_min(_select_picker->get_range_min(), max_count()), max_count());
+		vmax = freq_to_count_max(count_to_freq_max(_select_picker->get_range_max(), max_count()), max_count());
+	}
 
 	QAbstractItemModel* data_model = _values_view->model();
 	QItemSelectionModel* sel_model = _values_view->selectionModel();
