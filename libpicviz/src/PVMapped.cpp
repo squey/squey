@@ -184,7 +184,7 @@ void Picviz::PVMapped::compute_unique_values()
 
 	for (PVCol col = 0; col < ncols; col++) {
 		_unique_values_count[col] = unique_values[col].size();
-		PVLOG_DEBUG("Column %d unique values: \n", col,  _unique_values_count[col]);
+		PVLOG_DEBUG("Column %d unique values: %u\n", col,  _unique_values_count[col]);
 	}
 
 	tbb::tick_count t_end = tbb::tick_count::now();
