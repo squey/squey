@@ -68,7 +68,15 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent):
 	_ctxt_menu_load_act = new QAction(tr("Import a layer..."), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_save_act);
 	_ctxt_menu->addAction(_ctxt_menu_load_act);
+	_ctxt_menu->addSeparator();
+#endif
 
+	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer's content"), NULL);
+	_ctxt_menu->addAction(_ctxt_menu_set_sel_layer);
+	_ctxt_menu_reset_colors = new QAction(tr("Reset this layer's colors to white"), NULL);
+	_ctxt_menu->addAction(_ctxt_menu_reset_colors);
+
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	_ctxt_menu->addSeparator();
 	_ctxt_menu_save_ls_act = new QAction(tr("Save the layer stack..."), NULL);
 	_ctxt_menu_load_ls_act = new QAction(tr("Load a layer stack..."), NULL);
@@ -76,10 +84,9 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent):
 	_ctxt_menu->addAction(_ctxt_menu_load_ls_act);
 	_ctxt_menu->addSeparator();
 #endif
-	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer's content"), NULL);
-	_ctxt_menu->addAction(_ctxt_menu_set_sel_layer);
-	_ctxt_menu_reset_colors = new QAction(tr("Reset layer colors to default"), NULL);
-	_ctxt_menu->addAction(_ctxt_menu_reset_colors);
+
+	_ctxt_menu_copy_to_clipboard_act = new QAction(tr("Copy the layer stack's details to clipboard"), nullptr);
+	_ctxt_menu->addAction(_ctxt_menu_copy_to_clipboard_act);
 }
 
 
@@ -227,7 +234,15 @@ void PVGuiQt::PVLayerStackView::save_layer_stack()
 #endif
 }
 
-
+/******************************************************************************
+ *
+ * PVGuiQt::PVLayerStackView::copy_to_clipboard
+ *
+ *****************************************************************************/
+void PVGuiQt::PVLayerStackView::copy_to_clipboard()
+{
+	ls_model()->lib_layer_stack().copy_details_to_clipboard();
+}
 
 /******************************************************************************
  *
@@ -264,6 +279,9 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 		load_layer_stack();
 	}
 #endif
+	if(act == _ctxt_menu_copy_to_clipboard_act) {
+		copy_to_clipboard();
+	}
 }
 
 void PVGuiQt::PVLayerStackView::set_current_selection_from_layer(int model_idx)

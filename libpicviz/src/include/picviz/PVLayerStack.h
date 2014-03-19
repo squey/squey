@@ -88,6 +88,8 @@ public:
 	void load_from_file(QString const& path);
 	void save_to_file(QString const& path);
 
+	void copy_details_to_clipboard();
+
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 

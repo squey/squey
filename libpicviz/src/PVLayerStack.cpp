@@ -9,6 +9,8 @@
 #include <picviz/PVLayerStack.h>
 #include <picviz/PVSelection.h>
 
+#include <QApplication>
+#include <QClipboard>
 
 /******************************************************************************
  *
@@ -428,4 +430,20 @@ void Picviz::PVLayerStack::save_to_file(QString const& path)
 	ar->get_root()->object("layer-stack", *this);
 	ar->finish();
 #endif
+}
+
+void Picviz::PVLayerStack::copy_details_to_clipboard()
+{
+	QString s;
+
+	for(int i = table.size() - 1; i >= 0; --i) {
+		const auto& l = get_layer_n(i);
+		s += l.get_name();
+		s += "\t";
+		s += QString::number(l.get_selectable_count());
+		s += "\n";
+
+	}
+
+	QApplication::clipboard()->setText(s);
 }
