@@ -227,6 +227,13 @@ public slots:
 
 	void create_new_window_for_workspace(QWidget* workspace);
 
+	void layer_export_Slot();
+	void layer_import_Slot();
+	void layer_save_ls_Slot();
+	void layer_load_ls_Slot();
+	void layer_copy_ls_details_to_clipboard_Slot();
+	void layer_reset_color_Slot();
+
 protected:
 	void closeEvent(QCloseEvent* event);
 
@@ -333,6 +340,13 @@ private:
 	QAction *view_display_inv_elts_Action;
 	QAction *view_screenshot_qt;
 	QAction *whats_this_Action;
+
+	QAction *layer_export_Action;
+	QAction *layer_import_Action;
+	QAction *layer_save_ls_Action;
+	QAction *layer_load_ls_Action;
+	QAction *layer_copy_ls_details_to_clipboard_Action;
+	QAction *layer_reset_color_Action;
 
 	QSpacerItem* pv_mainSpacerTop;
 	QSpacerItem* pv_mainSpacerBottom;

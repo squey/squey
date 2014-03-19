@@ -136,6 +136,16 @@ void PVInspector::PVMainWindow::create_actions()
 	axes_new_Action = new QAction(tr("Create new axis..."), this);
 
 	/***************************
+	 * For the "Layers" menu entries
+	 ***************************/
+	layer_reset_color_Action = new QAction(tr("Reset current layer's colors to white"), this);
+	layer_export_Action = new QAction(tr("Export the current layer..."), this);
+	layer_import_Action = new QAction(tr("Import a layer..."), this);
+	layer_save_ls_Action = new QAction(tr("Save the layer stack..."), this);
+	layer_load_ls_Action = new QAction(tr("Load a layer stack..."), this);
+	layer_copy_ls_details_to_clipboard_Action = new QAction(tr("Copy the layer stack's details to clipboard"), this);
+
+	/***************************
 	 * For the "Events" menu entry
 	 ***************************/
 	//events_display_unselected_GLview_Action = new QAction(tr("Toggle unselected events"), this);
@@ -231,10 +241,6 @@ void PVInspector::PVMainWindow::create_menus()
 	filter_Menu->addSeparator();
 	create_filters_menu_and_actions();
 
-	// layer_Menu = menubar->addMenu(tr("&Layers"));
-	// layer_Menu->addAction(commit_selection_in_current_layer_Action);
-	// layer_Menu->addAction(commit_selection_to_new_layer_Action);
-	
 	correlation_Menu = new PVGuiQt::PVCorrelationMenu(&get_root());
 	menubar->addMenu(correlation_Menu);
 
@@ -262,6 +268,21 @@ void PVInspector::PVMainWindow::create_menus()
 	axes_Menu->addAction(axes_new_Action);
 	axes_Menu->addSeparator();*/
 
+	layer_Menu = menubar->addMenu(tr("&Layers"));
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	layer_Menu->addAction(layer_export_Action);
+	layer_Menu->addAction(layer_import_Action);
+	layer_Menu->addSeparator();
+#endif
+
+	layer_Menu->addAction(layer_reset_color_Action);
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	layer_Menu->addSeparator();
+	layer_Menu->addAction(layer_save_ls_Action);
+	layer_Menu->addAction(layer_load_ls_Action);
+#endif
+	layer_Menu->addSeparator();
+	layer_Menu->addAction(layer_copy_ls_details_to_clipboard_Action);
 
 	events_Menu = menubar->addMenu(tr("&Events"));
 	events_Menu->addAction(events_display_unselected_listing_Action);
@@ -311,6 +332,7 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	tools_cur_format_Action->setEnabled(cond);
 	source_Menu->setEnabled(cond);
 	view_Menu->setEnabled(cond);
+	layer_Menu->setEnabled(cond);
 	//windows_Menu->setEnabled(cond);
 	solution_save_Action->setEnabled(cond);
 	solution_saveas_Action->setEnabled(cond);
@@ -373,7 +395,20 @@ void PVInspector::PVMainWindow::connect_actions()
 	//connect(events_display_zombies_GLview_Action, SIGNAL(triggered()), this, SLOT(events_display_zombies_GLview_Slot()));
 	connect(events_display_unselected_zombies_parallelview_Action, SIGNAL(triggered()), this, SLOT(events_display_unselected_zombies_parallelview_Slot()));
 
-        
+	connect(layer_export_Action, SIGNAL(triggered()),
+	        this, SLOT(layer_export_Slot()));
+	connect(layer_import_Action, SIGNAL(triggered()),
+	        this, SLOT(layer_import_Slot()));
+
+	connect(layer_save_ls_Action, SIGNAL(triggered()),
+	        this, SLOT(layer_save_ls_Slot()));
+	connect(layer_load_ls_Action, SIGNAL(triggered()),
+	        this, SLOT(layer_load_ls_Slot()));
+	connect(layer_copy_ls_details_to_clipboard_Action, SIGNAL(triggered()),
+	        this, SLOT(layer_copy_ls_details_to_clipboard_Slot()));
+	connect(layer_reset_color_Action, SIGNAL(triggered()),
+	        this, SLOT(layer_reset_color_Slot()));
+
 	connect(tools_new_format_Action, SIGNAL(triggered()), this, SLOT(new_format_Slot()));
 	connect(tools_cur_format_Action, SIGNAL(triggered()), this, SLOT(cur_format_Slot()));
 

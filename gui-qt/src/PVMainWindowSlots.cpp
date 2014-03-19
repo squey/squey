@@ -19,6 +19,7 @@
 #include <picviz/widgets/editors/PVAxisIndexEditor.h>
 
 #include <pvhive/PVHive.h>
+#include <pvhive/PVCallHelper.h>
 
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
@@ -1458,6 +1459,103 @@ void PVInspector::PVMainWindow::show_correlation_Slot()
 		ad2g_w->update_list_edges();
 	}
 	_ad2g_mw->exec();*/
+}
+
+void PVInspector::PVMainWindow::layer_export_Slot()
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	if (current_view() == nullptr) {
+		return;
+	}
+
+	QFileDialog fd;
+	QString file = fd.getSaveFileName(this, "Export current layer...",
+	                                  fd.directory().absolutePath(),
+	                                  PICVIZ_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	if(!file.isEmpty()) {
+		current_view()->get_current_layer().save_to_file(file);
+	}
+#endif
+}
+
+void PVInspector::PVMainWindow::layer_import_Slot()
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	if (current_view() == nullptr) {
+		return;
+	}
+
+	QFileDialog fd;
+	QString file = fd.getOpenFileName(this, "Import a layer...",
+	                                  fd.directory().absolutePath(),
+	                                  PICVIZ_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	if(file.isEmpty()) {
+		return;
+	}
+
+	Picviz::PVView_sp lib_view(current_view()->shared_from_this());
+	if (lib_view) {
+		lib_view->get_current_layer().reset_to_default_color();
+		PVHive::PVCallHelper::call<FUNC(Picviz::PVView::add_new_layer_from_file)>(lib_view, file);
+		PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_from_layer_stack)>(lib_view);
+	}
+#endif
+}
+
+void PVInspector::PVMainWindow::layer_save_ls_Slot()
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	if (current_view() == nullptr) {
+		return;
+	}
+
+	QFileDialog fd;
+	QString file = fd.getSaveFileName(this, "Save layer stack...",
+	                                  fd.directory().absolutePath(),
+	                                  PICVIZ_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	if(!file.isEmpty()) {
+		current_view()->get_layer_stack().save_to_file(file);
+	}
+#endif
+}
+
+void PVInspector::PVMainWindow::layer_load_ls_Slot()
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	if (current_view() == nullptr) {
+		return;
+	}
+
+	QFileDialog fd;
+	QString file = fd.getOpenFileName(this, "Import a layer stack...",
+	                                  fd.directory().absolutePath(),
+	                                  PICVIZ_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	if(!file.isEmpty()) {
+		current_view()->get_layer_stack().load_from_file(file);
+	}
+#endif
+}
+
+void PVInspector::PVMainWindow::layer_copy_ls_details_to_clipboard_Slot()
+{
+	if (current_view() == nullptr) {
+		return;
+	}
+
+	current_view()->get_layer_stack().copy_details_to_clipboard();
+}
+
+void PVInspector::PVMainWindow::layer_reset_color_Slot()
+{
+	if (current_view() == nullptr) {
+		return;
+	}
+
+	Picviz::PVView_sp lib_view(current_view()->shared_from_this());
+	if (lib_view) {
+		lib_view->get_current_layer().reset_to_default_color();
+		PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_from_layer_stack)>(lib_view);
+	}
 }
 
 void PVInspector::PVMainWindow::root_modified()
