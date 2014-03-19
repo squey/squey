@@ -34,6 +34,34 @@
  * PVGuiQt::__impl::PVAbstractListStatsRangePicker
  *****************************************************************************/
 
+static inline size_t freq_to_count_min(double value, double count)
+{
+	// see PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool) for the formula
+	if (value == 0.) {
+		return 0;
+	}
+	return ceil((((int)(value * 10.) * 0.001) - 0.0005) * count);
+}
+
+static inline size_t freq_to_count_max(double value, double count)
+{
+	// see PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool) for the formula
+	if (value == 0.) {
+		return 0;
+	}
+	return floor((((int)(value * 10.) * 0.001) + 0.0005) * count);
+}
+
+static inline double count_to_freq_min(size_t value, double count)
+{
+	return trunc((((double)value / count) * 1000.) + 0.5) / 10.;
+}
+
+static inline double count_to_freq_max(size_t value, double count)
+{
+	return trunc((((double)value / count) * 1000.) + 0.5) / 10.;
+}
+
 namespace PVGuiQt
 {
 
@@ -113,9 +141,7 @@ public:
 		get_min_spinbox()->setSuffix(" %");
 		get_max_spinbox()->setSuffix(" %");
 
-		set_limits((double)_relative_min_count/_absolute_max_count*100, (double)_relative_max_count/_absolute_max_count*100);
-		set_range_min(convert_to(get_range_min()));
-		set_range_max(convert_to(get_range_max()));
+		use_absolute_max_count(_use_absolute_max_count);
 
 		connect_spinboxes_to_ranges();
 	}
@@ -397,16 +423,33 @@ void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_frequency(bool checked)
 
 void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 {
-	// See https://bugreports.qt-project.org/browse/QTBUG-25904
-
+	/**
+	 * As percentage are rounded to be displayed using "%.1f", the entries
+	 * can also not be selected using their exact values but using their
+	 * rounded ones.
+	 *
+	 * So that, the nice formula to get the count values corresponding to
+	 * the displayed percentage are (in LaTeX):
+	 * - v_{min} = \lceil N × ( \frac{ \lfloor 10 × p_{min} \rfloor}{1000} - \frac{5}{10000} ) \rceil
+	 * - v_{max} = \lfloor N × ( \frac{ \lfloor 10 × p_{max} \rfloor}{1000} + \frac{5}{10000} ) \rfloor
+	 * where:
+	 * - p_{min} is the lower bound percentage
+	 * - p_{max} is the upper bound percentage
+	 * - N is the events count
+	 */
 	uint64_t vmin;
 	uint64_t vmax;
+	if (_select_is_count) {
+		vmin = _select_picker->get_range_min();
+		vmax = _select_picker->get_range_max();
+	}
+	else {
+		vmin = freq_to_count_min(count_to_freq_min(_select_picker->get_range_min(), max_count()), max_count());
+		vmax = freq_to_count_max(count_to_freq_max(_select_picker->get_range_max(), max_count()), max_count());
+	}
 
 	QAbstractItemModel* data_model = _values_view->model();
 	QItemSelectionModel* sel_model = _values_view->selectionModel();
-
-	vmin = _select_picker->get_range_min();
-	vmax = _select_picker->get_range_max();
 
 	int row_count = data_model->rowCount();
 
@@ -422,6 +465,8 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	selection_t sel;
 
 	BENCH_START(select_values);
+
+	// See https://bugreports.qt-project.org/browse/QTBUG-25904
 
 	bool res = PVCore::PVProgressBox::progress([&sel, &data_model, vmin, vmax, row_count, &ctxt]
 	{
