@@ -40,7 +40,10 @@ QWidget* PVFilter::PVFieldSplitterMacAddressParamWidget::get_param_widget()
 	//get args
 	PVCore::PVArgumentList al =  get_filter()->get_args();
 
-	bool uppercased = al[PVFieldMacAddress::uppercased_str].toBool();
+	bool uppercased = al[PVFieldMacAddress::UPPERCASE].toBool();
+
+	set_child_count(2);
+	emit nchilds_changed_Signal();
 
 	_param_widget = new QWidget();
 
@@ -78,7 +81,7 @@ void PVFilter::PVFieldSplitterMacAddressParamWidget::update_case(bool uppercased
 	}
 
 	PVCore::PVArgumentList args = get_filter()->get_args();
-	args[PVFieldMacAddress::uppercased_str] = uppercased;
+	args[PVFieldMacAddress::UPPERCASE] = uppercased;
 	get_filter()->set_args(args);
 	emit args_changed_Signal();
 }

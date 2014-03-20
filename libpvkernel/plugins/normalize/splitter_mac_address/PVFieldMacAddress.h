@@ -16,7 +16,7 @@ namespace PVFilter {
 class PVFieldMacAddress : public PVFieldsFilter<one_to_many>
 {
 public:
-	static const char* uppercased_str;
+	static const char* UPPERCASE;
 
 public:
 	PVFieldMacAddress(PVCore::PVArgumentList const& args = PVFieldMacAddress::default_args());

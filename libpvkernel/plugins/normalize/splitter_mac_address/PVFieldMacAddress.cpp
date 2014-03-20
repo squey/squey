@@ -10,7 +10,7 @@
  * RH: the created fields must *not* be terminated by a '\0', otherwise, it
  * moves the fields in an other PVElement... 2 days to understand that...
  */
-const char* PVFilter::PVFieldMacAddress::uppercased_str = "uppercase";
+const char* PVFilter::PVFieldMacAddress::UPPERCASE = "uppercase";
 
 static char char_low[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 static char char_upper[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
@@ -247,7 +247,7 @@ PVFilter::PVFieldMacAddress::PVFieldMacAddress(PVCore::PVArgumentList const& arg
 void PVFilter::PVFieldMacAddress::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	_uppercased = args[uppercased_str].toBool();
+	_uppercased = args[UPPERCASE].toBool();
 }
 
 /******************************************************************************
@@ -257,7 +257,7 @@ void PVFilter::PVFieldMacAddress::set_args(PVCore::PVArgumentList const& args)
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldMacAddress)
 {
 	PVCore::PVArgumentList args;
-	args[uppercased_str] = false;
+	args[UPPERCASE] = false;
 	return args;
 }
 
