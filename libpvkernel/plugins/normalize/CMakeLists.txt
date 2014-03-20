@@ -92,7 +92,7 @@ splitter_mac_address/PVFieldSplitterMacAddressParamWidget.h
 )
 
 QT4_WRAP_CPP(MACADDRESS_MOC_SRCS ${MACADDRESS_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
-add_library(normalize_filter_splitter_mac_address SHARED splitter_mac_address/PVFieldMacAddress.cpp splitter_mac_address/PVFieldMacAddress.h splitter_mac_address/PVFieldSplitterMacAddressParamWidget.cpp ${MACADDRESS_MOC_SRCS} splitter_mac_address/register.cpp)
+add_library(normalize_filter_splitter_mac_address SHARED splitter_mac_address/PVFieldSplitterMacAddress.cpp splitter_mac_address/PVFieldSplitterMacAddress.h splitter_mac_address/PVFieldSplitterMacAddressParamWidget.cpp ${MACADDRESS_MOC_SRCS} splitter_mac_address/register.cpp)
 target_link_libraries(normalize_filter_splitter_mac_address pvkernel ${QT_LIBRARIES})
 declare_library(normalize_filter_splitter_mac_address)
 
