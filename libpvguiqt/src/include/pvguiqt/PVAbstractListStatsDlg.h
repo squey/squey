@@ -72,6 +72,12 @@ protected:
 	void sort_by_column(int col) override;
 	bool process_context_menu(QAction* act) override;
 	void process_hhead_context_menu(QAction* act) override;
+	void ask_for_copying_count() override;
+	QString export_line(
+		PVGuiQt::PVStringSortProxyModel* model,
+		std::function<void (PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f,
+		int i
+	) override;
 
 protected slots:
 	void view_resized();
@@ -113,6 +119,12 @@ protected:
 
 	__impl::PVAbstractListStatsRangePicker* _select_picker;
 	bool                                    _select_is_count;
+
+	QMenu* _copy_values_menu;
+	QAction* _copy_values_without_count_act;
+	QAction* _copy_values_with_count_act;
+
+	bool _copy_count;
 };
 
 namespace __impl {
@@ -172,6 +184,10 @@ public:
 		_use_absolute_max_count = abs_max;
 	}
 
+	static inline QString format_occurence(uint64_t occurence_count) { return QString("%L1").arg(occurence_count); };
+	static inline QString format_percentage(double ratio) { return QString::number(ratio * 100, 'f', 1) + "%"; };
+	static inline QString format_scientific_notation(double ratio) { return QString::number(ratio, 'e', 1); };
+
 private:
 	QString count_header() const
 	{
@@ -193,11 +209,6 @@ public:
 
 protected:
 	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-
-private:
-	inline QString format_occurence(uint64_t occurence_count) const { return QString("%L1").arg(occurence_count); };
-	inline QString format_percentage(double ratio) const { return QString::number(ratio * 100, 'f', 1) + "%"; };
-	inline QString format_scientific_notation(double ratio) const  { return QString::number(ratio, 'e', 1); };
 
 	PVGuiQt::PVAbstractListStatsDlg* d() const;
 };

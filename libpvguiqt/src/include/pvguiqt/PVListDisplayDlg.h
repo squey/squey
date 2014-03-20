@@ -42,28 +42,30 @@ protected:
 	PVStringSortProxyModel* proxy_model();
 
 protected:
+	virtual void ask_for_copying_count() {}
+	virtual void sort_by_column(int col);
 	virtual bool process_context_menu(QAction* act);
 	virtual void process_hhead_context_menu(QAction* act);
+	virtual QString export_line(
+		PVGuiQt::PVStringSortProxyModel* model,
+		std::function<void (PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f,
+		int i
+	);
 
 protected slots:
 	void section_clicked(int col);
-
-protected:
-	virtual void sort_by_column(int col);
-
-private slots:
-	void copy_to_clipboard();
-	void copy_value_clipboard();
-	void copy_to_file() { write_to_file_ui(false); }
-	void append_to_file() { write_to_file_ui(true); }
+	void copy_all_to_clipboard();
+	void copy_selected_to_clipboard();
+	void copy_to_file() { export_to_file_ui(false); }
+	void append_to_file() { export_to_file_ui(true); }
 	void sort();
 	void show_ctxt_menu(const QPoint& pos);
 	void show_hhead_ctxt_menu(const QPoint& pos);
 
 private:
-	void write_to_file_ui(bool append);
-	void write_to_file(QFile& file);
-	bool write_values(int count, std::function<void (int, QModelIndex&)> f, QString& content);
+	void export_to_file_ui(bool append);
+	void export_to_file(QFile& file);
+	bool export_values(int count, std::function<void (PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f, QString& content);
 
 protected:
 	QFileDialog _file_dlg;

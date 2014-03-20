@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>586</width>
-    <height>678</height>
+    <width>580</width>
+    <height>684</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -121,12 +121,12 @@
         <item>
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>Field separator:</string>
+           <string>Line separator:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="PVWidgets::QKeySequenceWidget" name="_field_separator_btn" native="true">
+         <widget class="PVWidgets::QKeySequenceWidget" name="_line_separator_button" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
             <horstretch>0</horstretch>

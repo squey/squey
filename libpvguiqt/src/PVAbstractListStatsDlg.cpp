@@ -353,6 +353,14 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 
 	// propagate the scale mode
 	_act_toggle_log->setChecked(_use_logarithmic_scale);
+
+	// Copy values menu
+	_copy_values_menu = new QMenu();
+	_copy_values_act->setMenu(_copy_values_menu);
+	_copy_values_with_count_act = new QAction("with count", this);
+	_copy_values_menu->addAction(_copy_values_with_count_act);
+	_copy_values_without_count_act = new QAction("without count", this);
+	_copy_values_menu->addAction(_copy_values_without_count_act);
 }
 
 PVGuiQt::PVAbstractListStatsDlg::~PVAbstractListStatsDlg()
@@ -364,6 +372,18 @@ PVGuiQt::PVAbstractListStatsDlg::~PVAbstractListStatsDlg()
 bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 {
 	bool accepted = PVListDisplayDlg::process_context_menu(act);
+
+	if (!accepted && act == _copy_values_with_count_act) {
+		_copy_count = true;
+		copy_selected_to_clipboard();
+		return true;
+	}
+
+	if (!accepted && act == _copy_values_without_count_act) {
+		_copy_count = false;
+		copy_selected_to_clipboard();
+		return true;
+	}
 
 	if (!accepted && act) {
 		multiple_search(act);
@@ -625,6 +645,68 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act)
 	}
 }
 
+void PVGuiQt::PVAbstractListStatsDlg::ask_for_copying_count()
+{
+	if (QMessageBox::question(this, tr("Copy count values"), tr("Do you want to copy count values as well?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+		_copy_count = true;
+	}
+	else {
+		_copy_count = false;
+	}
+}
+
+QString PVGuiQt::PVAbstractListStatsDlg::export_line(
+	PVGuiQt::PVStringSortProxyModel* model,
+	std::function<void(PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f,
+	int i
+)
+{
+	static QString sep(",");
+	static QString escaped_quote("\"\"");
+	static QString quote("\"");
+	QModelIndex idx1;
+	QString s;
+
+	f(model, i, idx1); // using return instead of ref parameter fails
+
+	if(idx1.column() == 0) {
+
+		if (likely(idx1.isValid())) {
+
+			QString value = idx1.data(Qt::DisplayRole).toString();
+
+			if (!_copy_count) {
+				s.append(value);
+			}
+			else {
+				// Escape quotes
+				value.replace(quote, escaped_quote);
+				s.append(quote + value + quote + sep);
+
+				QModelIndex idx2 = model->index(i, idx1.column()+1, QModelIndex());
+				uint64_t occurence_count = idx2.data(Qt::UserRole).toULongLong();
+
+				double ratio = (double) occurence_count / max_count();
+
+				if (_act_show_count->isChecked()) {
+					s.append(quote + __impl::PVAbstractListStatsModel::format_occurence(occurence_count) + quote + sep);
+				}
+				if (_act_show_scientific_notation->isChecked()) {
+					s.append(quote + __impl::PVAbstractListStatsModel::format_scientific_notation(ratio) + quote + sep);
+				}
+				if (_act_show_percentage->isChecked()) {
+					s.append(quote + __impl::PVAbstractListStatsModel::format_percentage(ratio) + quote + sep);
+				}
+
+				if (s.endsWith(sep)) {
+					return s.left(s.size()-1);
+				}
+			}
+		}
+	}
+
+	return s;
+}
 
 /******************************************************************************
  *
@@ -679,20 +761,20 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 
 		size_t representation_count = 0;
 		if (d()->_act_show_count->isChecked()) {
-			occurence = format_occurence(occurence_count);
-			occurence_max_width = QFontMetrics(painter->font()).width(format_occurence(d()->relative_max_count()));
+			occurence = PVAbstractListStatsModel::format_occurence(occurence_count);
+			occurence_max_width = QFontMetrics(painter->font()).width(PVAbstractListStatsModel::format_occurence(d()->relative_max_count()));
 			margin -= occurence_max_width;
 			representation_count++;
 		}
 		if (d()->_act_show_scientific_notation->isChecked()) {
-			scientific_notation = format_scientific_notation(ratio);
-			scientific_notation_max_width = QFontMetrics(painter->font()).width(format_scientific_notation(1));
+			scientific_notation = PVAbstractListStatsModel::format_scientific_notation(ratio);
+			scientific_notation_max_width = QFontMetrics(painter->font()).width(PVAbstractListStatsModel::format_scientific_notation(1));
 			margin -= scientific_notation_max_width;
 			representation_count++;
 		}
 		if (d()->_act_show_percentage->isChecked()) {
-			percentage = format_percentage(ratio);
-			percentage_max_width = QFontMetrics(painter->font()).width(format_percentage((double)d()->relative_max_count() / d()->max_count()));
+			percentage = PVAbstractListStatsModel::format_percentage(ratio);
+			percentage_max_width = QFontMetrics(painter->font()).width(PVAbstractListStatsModel::format_percentage((double)d()->relative_max_count() / d()->max_count()));
 			margin -= percentage_max_width;
 			representation_count++;
 		}

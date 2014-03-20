@@ -65,9 +65,9 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	QDialog(parent)
 {
 	setupUi(this);
-	_field_separator_btn->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
-	_field_separator_btn->setKeySequence(QKeySequence(Qt::Key_Return));
-	_field_separator_btn->setMaxNumKey(1);
+	_line_separator_button->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
+	_line_separator_button->setKeySequence(QKeySequence(Qt::Key_Return));
+	_line_separator_button->setMaxNumKey(1);
 
 	// Sort proxy model
 	PVStringSortProxyModel* proxy_model = new PVStringSortProxyModel(_values_view);
@@ -94,15 +94,15 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	_values_view->setVerticalHeader(vertical_header);
 	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
 	_values_view->verticalHeader()->setResizeMode(QHeaderView::Fixed);
+	_values_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	_values_view->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-	_copy_values_act = new QAction(tr("Copy value in the clipboard..."), this);
+	_copy_values_act = new QAction(tr("Copy values"), this);
 
 	_ctxt_menu = new QMenu(this);
 	_hhead_ctxt_menu = new QMenu(this);
 
 	_ctxt_menu->addAction(_copy_values_act);
-	_values_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	_values_view->setSelectionBehavior(QAbstractItemView::SelectRows);
 
 	_nb_values_edit->setText(QString().setNum(model->rowCount()));
 
@@ -111,7 +111,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	connect(_values_view, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
 	_values_view->setContextMenuPolicy(Qt::CustomContextMenu);
 
-	connect(_btn_copy_clipboard, SIGNAL(clicked()), this, SLOT(copy_to_clipboard()));
+	connect(_btn_copy_clipboard, SIGNAL(clicked()), this, SLOT(copy_all_to_clipboard()));
 	connect(_btn_copy_file, SIGNAL(clicked()), this, SLOT(copy_to_file()));
 	connect(_btn_append_file, SIGNAL(clicked()), this, SLOT(append_to_file()));
 	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort()));
@@ -154,7 +154,7 @@ bool PVGuiQt::PVListDisplayDlg::process_context_menu(QAction* act)
 {
 	if (act) {
 		if (act == _copy_values_act) {
-			copy_value_clipboard();
+			copy_selected_to_clipboard();
 			return true;
 		}
 	}
@@ -165,41 +165,43 @@ void PVGuiQt::PVListDisplayDlg::process_hhead_context_menu(QAction* /*act*/)
 {
 }
 
-void PVGuiQt::PVListDisplayDlg::copy_to_clipboard()
+void PVGuiQt::PVListDisplayDlg::copy_all_to_clipboard()
 {
+	ask_for_copying_count();
+
 	QString content;
-	write_values(model()->rowCount(), [&](int i, QModelIndex& idx) {
-		idx = proxy_model()->index(i, 0, QModelIndex());
+	export_values(model()->rowCount(), [&](PVGuiQt::PVStringSortProxyModel* model, int i, QModelIndex& idx) {
+		idx = model->index(i, 0, QModelIndex());
 	}, content);
 
 	QApplication::clipboard()->setText(content);
 }
 
-void PVGuiQt::PVListDisplayDlg::copy_value_clipboard()
+void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 {
 	QModelIndexList indexes = _values_view->selectionModel()->selectedIndexes();
 
 	QString content;
-	write_values(indexes.size(), [&indexes](int i, QModelIndex& idx) {
+	export_values(indexes.size(), [&indexes](PVGuiQt::PVStringSortProxyModel*, int i, QModelIndex& idx) {
 		idx = indexes.at(i);
 	}, content);
 
 	QApplication::clipboard()->setText(content);
 }
 
-void PVGuiQt::PVListDisplayDlg::write_to_file(QFile& file)
+void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 {
 	QString path(file.fileName());
 	QTextStream outstream(&file);
 
 	QString content;
-	bool write_success = write_values(model()->rowCount(), [&](int i, QModelIndex& idx) {
-		idx = proxy_model()->index(i, 0, QModelIndex());
+	bool success = export_values(model()->rowCount(), [&](PVGuiQt::PVStringSortProxyModel* model, int i, QModelIndex& idx) {
+		idx = model->index(i, 0, QModelIndex());
 	}, content);
 
 	outstream << content;
 
-	if (!write_success) {
+	if (!success) {
 		if (QMessageBox::question(this, tr("File writing cancelled"), tr("Do you want to remove the file '%1'?").arg(path), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
 			if (!file.remove()) {
 				QMessageBox::warning(this, tr("File writing cancelled"), tr("Error while removing '%1': %2").arg(path).arg(file.errorString()));
@@ -209,12 +211,28 @@ void PVGuiQt::PVListDisplayDlg::write_to_file(QFile& file)
 	}
 }
 
-bool PVGuiQt::PVListDisplayDlg::write_values(int count, std::function<void (int, QModelIndex&)> f, QString& content)
+QString PVGuiQt::PVListDisplayDlg::export_line(
+	PVGuiQt::PVStringSortProxyModel* model,
+	std::function<void(PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f,
+	int i
+)
+{
+	QModelIndex idx;
+
+	f(model, i, idx); // using return instead of ref parameter fails
+	if (likely(idx.isValid())) {
+		return model->data(idx).toString();
+	}
+
+	return QString();
+}
+
+bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<void (PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f, QString& content)
 {
 	const QCursor& old_cursor = cursor();
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
-	QString sep(QChar::fromAscii(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_field_separator_btn->keySequence())));
+	QString sep(QChar::fromAscii(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_line_separator_button->keySequence())));
 	if (sep.isEmpty()) {
 		sep = "\n";
 	}
@@ -225,9 +243,9 @@ bool PVGuiQt::PVListDisplayDlg::write_values(int count, std::function<void (int,
 	tbb::task_scheduler_init init(nthreads);
 	tbb::task_group_context ctxt;
 
-	bool write_success = PVCore::PVProgressBox::progress([&,count]() {
+	bool success = PVCore::PVProgressBox::progress([&,count]() {
 
-		BENCH_START(write_values);
+		BENCH_START(export_values);
 		content = tbb::parallel_reduce(
 			tbb::blocked_range<int>(0, count, std::max(nthreads, count / nthreads)),
 			content,
@@ -237,10 +255,9 @@ bool PVGuiQt::PVListDisplayDlg::write_values(int count, std::function<void (int,
 					if unlikely(ctxt.is_group_execution_cancelled()) {
 						return QString();
 					}
-					QModelIndex idx;
-					f(i, idx); // using return instead of ref parameter fails
-					if (likely(idx.isValid())) {
-						l.append(m->data(idx).toString().append(sep));
+					QString s = std::move(export_line(m, f, i));
+					if (!s.isNull()) {
+						l.append(s.append(sep));
 					}
 				}
 				return l;
@@ -250,7 +267,7 @@ bool PVGuiQt::PVListDisplayDlg::write_values(int count, std::function<void (int,
 				return left;
 			}
 		, tbb::simple_partitioner());
-		BENCH_END(write_values, "write_values", 0, 0, 1, content.size());
+		BENCH_END(export_values, "export_values", 0, 0, 1, content.size());
 
 		return !ctxt.is_group_execution_cancelled();
 	}, ctxt, pbox);
@@ -259,11 +276,13 @@ bool PVGuiQt::PVListDisplayDlg::write_values(int count, std::function<void (int,
 
 	QApplication::setOverrideCursor(old_cursor);
 
-	return write_success;
+	return success;
 }
 
-void PVGuiQt::PVListDisplayDlg::write_to_file_ui(bool append)
+void PVGuiQt::PVListDisplayDlg::export_to_file_ui(bool append)
 {
+	ask_for_copying_count();
+
 	QFileDialog::Options options = 0;
 	if (append) {
 		options = QFileDialog::DontConfirmOverwrite;
@@ -285,7 +304,7 @@ void PVGuiQt::PVListDisplayDlg::write_to_file_ui(bool append)
 		QMessageBox::critical(this, tr("Copy to file..."), tr("Unable to open '%1' for writing: %2.").arg(path).arg(file.errorString()));
 		return;
 	}
-	write_to_file(file);
+	export_to_file(file);
 }
 
 void PVGuiQt::PVListDisplayDlg::set_description(QString const& desc)
