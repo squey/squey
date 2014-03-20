@@ -1,5 +1,5 @@
 /**
- * \file PVFieldMacAddress.h
+ * \file PVFieldSplitterMacAddress.h
  *
  * Copyright (C) Picviz Labs 2014
  */
@@ -13,13 +13,13 @@
 
 namespace PVFilter {
 
-class PVFieldMacAddress : public PVFieldsFilter<one_to_many>
+class PVFieldSplitterMacAddress : public PVFieldsFilter<one_to_many>
 {
 public:
 	static const char* UPPERCASE;
 
 public:
-	PVFieldMacAddress(PVCore::PVArgumentList const& args = PVFieldMacAddress::default_args());
+	PVFieldSplitterMacAddress(PVCore::PVArgumentList const& args = PVFieldSplitterMacAddress::default_args());
 
 public:
 	void set_args(PVCore::PVArgumentList const& args);
@@ -31,7 +31,7 @@ public:
 private:
 	bool _uppercased;
 
-	CLASS_FILTER(PVFilter::PVFieldMacAddress)
+	CLASS_FILTER(PVFilter::PVFieldSplitterMacAddress)
 };
 
 }

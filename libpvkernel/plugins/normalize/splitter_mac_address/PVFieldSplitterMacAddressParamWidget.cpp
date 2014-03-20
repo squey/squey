@@ -5,7 +5,7 @@
  */
 
 #include "PVFieldSplitterMacAddressParamWidget.h"
-#include "PVFieldMacAddress.h"
+#include "PVFieldSplitterMacAddress.h"
 
 #include <QAction>
 #include <QLabel>
@@ -16,7 +16,7 @@
  *****************************************************************************/
 
 PVFilter::PVFieldSplitterMacAddressParamWidget::PVFieldSplitterMacAddressParamWidget() :
-	PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldMacAddress()))
+	PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterMacAddress()))
 {
 	_action_menu = new QAction(QString("add Mac Address Splitter"), NULL);
 }
@@ -40,7 +40,7 @@ QWidget* PVFilter::PVFieldSplitterMacAddressParamWidget::get_param_widget()
 	//get args
 	PVCore::PVArgumentList al =  get_filter()->get_args();
 
-	bool uppercased = al[PVFieldMacAddress::UPPERCASE].toBool();
+	bool uppercased = al[PVFieldSplitterMacAddress::UPPERCASE].toBool();
 
 	set_child_count(2);
 	emit nchilds_changed_Signal();
@@ -81,7 +81,7 @@ void PVFilter::PVFieldSplitterMacAddressParamWidget::update_case(bool uppercased
 	}
 
 	PVCore::PVArgumentList args = get_filter()->get_args();
-	args[PVFieldMacAddress::UPPERCASE] = uppercased;
+	args[PVFieldSplitterMacAddress::UPPERCASE] = uppercased;
 	get_filter()->set_args(args);
 	emit args_changed_Signal();
 }

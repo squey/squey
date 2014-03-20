@@ -1,16 +1,16 @@
 /**
- * \file PVFieldMacAddress.cpp
+ * \file PVFieldSplitterMacAddress.cpp
  *
  * Copyright (C) Picviz Labs 2014
  */
 
-#include "PVFieldMacAddress.h"
+#include "PVFieldSplitterMacAddress.h"
 
 /**
  * RH: the created fields must *not* be terminated by a '\0', otherwise, it
  * moves the fields in an other PVElement... 2 days to understand that...
  */
-const char* PVFilter::PVFieldMacAddress::UPPERCASE = "uppercase";
+const char* PVFilter::PVFieldSplitterMacAddress::UPPERCASE = "uppercase";
 
 static char char_low[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 static char char_upper[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
@@ -231,20 +231,20 @@ static int hmac_extract(PVCore::PVField &field,
 }
 
 /******************************************************************************
- * PVFilter::PVFieldMacAddress::PVFieldMacAddress
+ * PVFilter::PVFieldSplitterMacAddress::PVFieldSplitterMacAddress
  *****************************************************************************/
 
-PVFilter::PVFieldMacAddress::PVFieldMacAddress(PVCore::PVArgumentList const& args) :
+PVFilter::PVFieldSplitterMacAddress::PVFieldSplitterMacAddress(PVCore::PVArgumentList const& args) :
 	PVFieldsFilter<PVFilter::one_to_many>()
 {
-	INIT_FILTER(PVFilter::PVFieldMacAddress, args);
+	INIT_FILTER(PVFilter::PVFieldSplitterMacAddress, args);
 }
 
 /******************************************************************************
- * PVFilter::PVFieldMacAddress::set_args
+ * PVFilter::PVFieldSplitterMacAddress::set_args
  *****************************************************************************/
 
-void PVFilter::PVFieldMacAddress::set_args(PVCore::PVArgumentList const& args)
+void PVFilter::PVFieldSplitterMacAddress::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
 	_uppercased = args[UPPERCASE].toBool();
@@ -254,7 +254,7 @@ void PVFilter::PVFieldMacAddress::set_args(PVCore::PVArgumentList const& args)
  * DEFAULT_ARGS_FILTER
  *****************************************************************************/
 
-DEFAULT_ARGS_FILTER(PVFilter::PVFieldMacAddress)
+DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterMacAddress)
 {
 	PVCore::PVArgumentList args;
 	args[UPPERCASE] = false;
@@ -262,13 +262,13 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldMacAddress)
 }
 
 /******************************************************************************
- * PVFilter::PVFieldMacAddress::one_to_many
+ * PVFilter::PVFieldSplitterMacAddress::one_to_many
  *****************************************************************************/
 
 PVCore::list_fields::size_type
-PVFilter::PVFieldMacAddress::one_to_many(PVCore::list_fields &l,
-                                         PVCore::list_fields::iterator it_ins,
-                                         PVCore::PVField &field)
+PVFilter::PVFieldSplitterMacAddress::one_to_many(PVCore::list_fields &l,
+                                                 PVCore::list_fields::iterator it_ins,
+                                                 PVCore::PVField &field)
 {
 	int ven_0;
 	int ven_1;
@@ -317,4 +317,4 @@ PVFilter::PVFieldMacAddress::one_to_many(PVCore::list_fields &l,
  * IMPL_FILTER
  *****************************************************************************/
 
-IMPL_FILTER(PVFilter::PVFieldMacAddress)
+IMPL_FILTER(PVFilter::PVFieldSplitterMacAddress)
