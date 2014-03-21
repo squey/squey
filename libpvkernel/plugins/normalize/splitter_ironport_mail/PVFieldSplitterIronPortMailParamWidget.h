@@ -23,7 +23,7 @@ public:
 
 	QAction* get_action_menu() override;
 
-	// RH: yes, there is no param widget :-)
+	QWidget* get_param_widget() override;
 
 public:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterIronPortMailParamWidget)

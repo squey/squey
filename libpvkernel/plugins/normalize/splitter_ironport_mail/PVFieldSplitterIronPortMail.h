@@ -17,9 +17,33 @@
 
 namespace PVFilter {
 
-class PVFieldSplitterIronPortMail : public PVFieldsFilter<one_to_many> {
+class PVFieldSplitterIronPortMail : public PVFieldsFilter<one_to_many>
+{
+public:
+	enum col_type {
+		COL_LOG_TYPE = 0,
+		COL_LOG_TEXT_SHORT,
+
+		COL_MSGID,
+
+		COL_MSG_FROM,
+		COL_MSG_TO,
+		COL_MSG_SUBJECT,
+		COL_MSG_SIZE,
+		COL_MSG_DOMAIN_KEYS,
+		COL_MSG_DKIM,
+
+		COL_MID,
+		COL_ICID,
+		COL_RID,
+		COL_DCID,
+
+		COL_FIELDS_NUMBER
+} ;
+
 public:
 	PVFieldSplitterIronPortMail();
+
 protected:
 	PVCore::list_fields::size_type one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field);
 protected:

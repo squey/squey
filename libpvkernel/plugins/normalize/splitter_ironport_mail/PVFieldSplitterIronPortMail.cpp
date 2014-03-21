@@ -33,27 +33,6 @@ static const QString str_dlvy_start("dlvy-start");
 static const QString str_dlvy_done("dlvy-done");
 static const QString str_dlvy_reply("dlvy-reply");
 
-typedef enum {
-	COL_LOG_TYPE = 0,
-	COL_LOG_TEXT_SHORT,
-
-	COL_MSGID,
-
-	COL_MSG_FROM,
-	COL_MSG_TO,
-	COL_MSG_SUBJECT,
-	COL_MSG_SIZE,
-	COL_MSG_DOMAIN_KEYS,
-	COL_MSG_DKIM,
-
-	COL_MID,
-	COL_ICID,
-	COL_RID,
-	COL_DCID,
-
-	COL_FIELDS_NUMBER
-} col_type;
-
 /******************************************************************************
  * PVFilter::PVCore::PVFieldSplitterIronPortMail::regexps_t
  *****************************************************************************/
