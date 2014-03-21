@@ -34,7 +34,7 @@ class PVSelectionHandleItem : public QGraphicsItem
 	friend PVSelectionRectangleItem;
 
 public:
-	static constexpr int handle_size = 21;
+	static constexpr int handle_size = 11;
 
 	typedef enum {
 		N = 1,
