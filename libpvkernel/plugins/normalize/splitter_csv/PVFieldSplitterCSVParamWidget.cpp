@@ -71,37 +71,39 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 
 	//field separator
 	QLabel* separator_label = new QLabel(tr("Field separator:"));
-	separator_label->setAlignment(Qt::AlignLeft);
-	gridLayout->addWidget(separator_label, 0, 0);
+	gridLayout->addWidget(separator_label, 0, 0, Qt::AlignLeft);
+
 	separator_text = new PVWidgets::QKeySequenceWidget();
 	separator_text->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	separator_text->setKeySequence(QKeySequence((int) l["sep"].toChar().toAscii()));
 	separator_text->setMaxNumKey(1);
+	gridLayout->addWidget(separator_text, 0, 1);
 
 	// Quote text
+	QLabel* quote_label = new QLabel("Quote character:");
+	gridLayout->addWidget(quote_label, 1, 0, Qt::AlignLeft);
+
 	quote_text = new PVWidgets::QKeySequenceWidget();
 	quote_text->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	quote_text->setKeySequence(QKeySequence((int) l["quote"].toChar().toAscii()));
 	quote_text->setMaxNumKey(1);
-
-	gridLayout->addWidget(separator_text, 0, 2);
-	gridLayout->addWidget(new QLabel("Quote character:"), 2, 0);
-	gridLayout->addWidget(quote_text, 2, 2);
+	gridLayout->addWidget(quote_text, 1, 1);
 
 	//field number of col
 	QLabel* col_label = new QLabel(tr("Number of columns:"));
-	col_label->setAlignment(Qt::AlignLeft);
-	gridLayout->addWidget(col_label, 4, 0);
+	gridLayout->addWidget(col_label, 2, 0, Qt::AlignLeft);
+
 	child_number_edit = new QLineEdit(QString::number(get_child_count()));
 	child_number_org_palette = child_number_edit->palette();
-	gridLayout->addWidget(child_number_edit, 4, 2);
+	gridLayout->addWidget(child_number_edit, 2, 1);
+
+	// "set number of children" button
+	QPushButton* set_nchilds_btn = new QPushButton(tr("Update format"));
+	gridLayout->addWidget(set_nchilds_btn, 2, 2);
+
 	layout->addLayout(gridLayout);
 	_recommands_label = new QLabel();
 	layout->addWidget(_recommands_label);
-
-	// "set number of children" button
-	QPushButton* set_nchilds_btn = new QPushButton(tr("Set number of columns"));
-	layout->addWidget(set_nchilds_btn);
 
 	layout->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
 
