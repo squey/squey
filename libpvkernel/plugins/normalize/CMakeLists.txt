@@ -96,6 +96,15 @@ add_library(normalize_filter_splitter_mac_address SHARED splitter_mac_address/PV
 target_link_libraries(normalize_filter_splitter_mac_address pvkernel ${QT_LIBRARIES})
 declare_library(normalize_filter_splitter_mac_address)
 
+SET(DNSFQDN_MOC_HEADERS
+splitter_dns_fqdn/PVFieldSplitterDnsFqdnParamWidget.h
+)
+
+QT4_WRAP_CPP(DNSFQDN_MOC_SRCS ${DNSFQDN_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+add_library(normalize_filter_splitter_dns_fqdn SHARED splitter_dns_fqdn/PVFieldSplitterDnsFqdn.cpp splitter_dns_fqdn/PVFieldSplitterDnsFqdn.h splitter_dns_fqdn/PVFieldSplitterDnsFqdnParamWidget.cpp ${DNSFQDN_MOC_SRCS} splitter_dns_fqdn/register.cpp)
+target_link_libraries(normalize_filter_splitter_dns_fqdn pvkernel ${QT_LIBRARIES})
+declare_library(normalize_filter_splitter_dns_fqdn)
+
 INSTALL(TARGETS ${NORMALIZE_FILTERS_DIST_LIST} LIBRARY DESTINATION normalize-filters
                                                RUNTIME DESTINATION normalize-filters)
 INSTALL(FILES ${NORMALIZE_FILTERS_DIST_FILES} DESTINATION normalize-filters)
