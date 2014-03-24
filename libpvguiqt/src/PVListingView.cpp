@@ -779,6 +779,9 @@ PVGuiQt::PVHorizontalHeaderView::PVHorizontalHeaderView(Qt::Orientation orientat
 	// section <-> axis synchronisation
 	connect(this, SIGNAL(mouse_hovered_section(int, bool)), parent, SLOT(section_hovered_enter(int, bool)));
 	connect(this, SIGNAL(sectionClicked(int)), parent, SLOT(section_clicked(int)));
+
+	// Force hover events on every theme so that "column -> axis" visual synchronisation always works !
+	setAttribute(Qt::WA_Hover);
 }
 
 bool PVGuiQt::PVHorizontalHeaderView::event(QEvent* ev)
