@@ -20,5 +20,6 @@ LibCPPExport void register_class()
 	REGISTER_CLASS("string_default", Picviz::PVPlottingFilterMinmax);
 	REGISTER_CLASS("time_minmax", Picviz::PVPlottingFilterMinmax);
 	REGISTER_CLASS("ipv4_minmax", Picviz::PVPlottingFilterMinmax);
+	REGISTER_CLASS("date_default", Picviz::PVPlottingFilterMinmax);
 }
 
