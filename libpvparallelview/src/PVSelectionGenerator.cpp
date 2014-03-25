@@ -59,6 +59,12 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 	//tbb::enumerable_thread_specific<Picviz::PVSelection> sel_tls;
 	for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
 	{
+		uint32_t branch_count = ztree.get_branch_count(branch);
+
+		if (branch_count == 0) {
+			continue;
+		}
+
 		//PVRow r =  ztree.get_first_elt_of_branch(branch);
 		//Picviz::PVSelection& sel_th = sel_tls.local();
 		code_b.int_v = branch;
@@ -75,18 +81,18 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 
 		bool is_line_selected = (a | b | c | d) & (!(a & b & c & d));
 
-		if (is_line_selected)
-		{
-			uint32_t branch_count = ztree.get_branch_count(branch);
-			for (size_t i = 0; i < branch_count; i++) {
-				const PVRow cur_r = ztree.get_branch_element(branch, i);
-				//sel_th.set_bit_fast(cur_r);
-				sel.set_bit_fast(cur_r);
-//#pragma omp atomic
-				//sel.get_buffer()[Picviz::PVSelection::line_index_to_chunk(cur_r)] |= 1UL<<Picviz::PVSelection::line_index_to_chunk_bit(cur_r);
-			}
-			nb_selected += branch_count;
+		if (is_line_selected == false) {
+			continue;
 		}
+
+		for (size_t i = 0; i < branch_count; i++) {
+			const PVRow cur_r = ztree.get_branch_element(branch, i);
+			//sel_th.set_bit_fast(cur_r);
+			sel.set_bit_fast(cur_r);
+//#pragma omp atomic
+			//sel.get_buffer()[Picviz::PVSelection::line_index_to_chunk(cur_r)] |= 1UL<<Picviz::PVSelection::line_index_to_chunk_bit(cur_r);
+		}
+		nb_selected += branch_count;
 	}
 	BENCH_END(compute_selection_from_parallel_view_rect, "compute_selection", sizeof(PVRow), NBUCKETS, 1, 1);
 
