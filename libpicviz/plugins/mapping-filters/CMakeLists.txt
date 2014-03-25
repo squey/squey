@@ -80,6 +80,12 @@ target_link_libraries(mapping_filter_time_default ${LINK_LIBRARIES} ${ICU_LIBRAR
 add_library(mapping_filter_mandatory_minmax SHARED mandatory_minmax/PVMandatoryMappingFilterMinmax.cpp mandatory_minmax/register.cpp)
 target_link_libraries(mapping_filter_mandatory_minmax ${LINK_LIBRARIES})
 
+add_library(mapping_filter_date_month SHARED date/month/PVMappingFilterDateMonth.cpp date/month/register.cpp date/PVMappingFilterDateBase.cpp)
+target_link_libraries(mapping_filter_date_month ${LINK_LIBRARIES} ${ICU_LIBRARY})
+
+add_library(mapping_filter_date_day SHARED date/day/PVMappingFilterDateDay.cpp date/day/register.cpp date/PVMappingFilterDateBase.cpp)
+target_link_libraries(mapping_filter_date_day ${LINK_LIBRARIES} ${ICU_LIBRARY})
+
 
 INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION mapping-filters
                                      RUNTIME DESTINATION mapping-filters)
