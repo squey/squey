@@ -818,9 +818,6 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 		axis->set_axis_length(_axis_length);
 	}
 
-	// update vertical selection rectangle's bounding range
-	_sel_rect->set_y_range(0., _axis_length);
-
 	QRectF r = _sel_rect->get_rect();
 
 	if (r.isNull() == false) {
@@ -946,9 +943,6 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 
 		_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 	}
-
-	// updating horizontal selection rectangle's bounding range
-	_sel_rect->set_x_range(0., pos);
 
 	// We now update all zones positions
 	for (PVZoneID z = _lines_view.get_first_visible_zone_index(); z <= _lines_view.get_last_visible_zone_index(); z++) {
