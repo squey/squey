@@ -385,7 +385,6 @@ void PVParallelView::PVFullParallelScene::mouseMoveEvent(QGraphicsSceneMouseEven
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-
 	QGraphicsScene::mousePressEvent(event);
 
 	if (event->isAccepted()) {
@@ -423,7 +422,7 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
 		return;
 	}
 
-	if (!sliders_moving()) {
+	if (!sliders_moving() && (event->button() == Qt::LeftButton)) {
 		if (_sel_rect->get_rect().isNull()) {
 			_sel_rect->clear();
 		} else {

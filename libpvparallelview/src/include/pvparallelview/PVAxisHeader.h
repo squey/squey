@@ -10,6 +10,8 @@
 
 #include <QGraphicsRectItem>
 #include <QEasingCurve>
+#include <QGraphicsSceneMouseEvent>
+
 class QPropertyAnimation;
 class QPainter;
 class QGraphicsSceneMouseEvent;
@@ -55,6 +57,7 @@ protected:
 	void hoverLeaveEvent(QGraphicsSceneHoverEvent * event) override;
 	void mousePressEvent(QGraphicsSceneMouseEvent * event) override;
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent * event) override;
+	void mouseMoveEvent(QGraphicsSceneMouseEvent * event) override;
 	void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
 	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget * widget = nullptr);
 
@@ -71,13 +74,15 @@ private:
 	PVCol get_axis_index() const;
 
 private:
-	const Picviz::PVView& 				_view;
-	PVSlidersGroup*		 				_sliders_group;
-	int 								_width;
+	const Picviz::PVView&            _view;
+	PVSlidersGroup*                  _sliders_group;
+	int                              _width;
 
-	__impl::PVAxisSelectedAnimation*	_axis_selected_animation;
-	bool								_started = false;
-	QPointF								_clicking_pos;
+	__impl::PVAxisSelectedAnimation* _axis_selected_animation;
+	bool                             _started = false;
+	QPointF                          _clicking_pos;
+	bool                             _clicked;
+	QGraphicsSceneMouseEvent         _click_event;
 };
 
 namespace __impl

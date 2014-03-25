@@ -17,6 +17,7 @@
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVAlgorithms.h>
 
+#include <QApplication>
 #include <QMenu>
 #include <QGraphicsView>
 #include <QPainter>
@@ -40,7 +41,9 @@ PVParallelView::PVAxisHeader::PVAxisHeader(
 	QGraphicsRectItem(parent),
 	_view(view),
 	_sliders_group(sg),
-	_axis_selected_animation(new __impl::PVAxisSelectedAnimation(this))
+	_axis_selected_animation(new __impl::PVAxisSelectedAnimation(this)),
+	_clicked(false),
+	_click_event(QEvent::GraphicsSceneMousePress)
 {
 	setAcceptHoverEvents(true); // This is needed to enable hover events
 	setCursor(Qt::ArrowCursor);
@@ -103,17 +106,50 @@ void PVParallelView::PVAxisHeader::hoverLeaveEvent(QGraphicsSceneHoverEvent* /*e
 
 void PVParallelView::PVAxisHeader::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
-	// store mouse coordinates
-	_clicking_pos = event->pos();
-	//event->ignore();
+	if (event->button() == Qt::LeftButton) {
+		// mark the beginning of the possible click
+		_clicked = true;
+		// and save the event to send it later
+		_click_event.setWidget(event->widget());
+		_click_event.setButtonDownScenePos(event->button(),
+		                                   event->buttonDownScenePos(event->button()));
+		_click_event.setButtonDownScreenPos(event->button(),
+		                                    event->buttonDownScreenPos(event->button()));
+
+		_click_event.setPos(event->pos());
+		_click_event.setScenePos(event->scenePos());
+		_click_event.setScreenPos(event->screenPos());
+		_click_event.setLastScenePos(event->lastScenePos());
+		_click_event.setLastScreenPos(event->lastScreenPos());
+
+		_click_event.setButtons(event->buttons());
+		_click_event.setButton(event->button());
+		_click_event.setModifiers(event->modifiers());
+		_click_event.setAccepted(false);
+	}
 }
 
 void PVParallelView::PVAxisHeader::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-	if (event->pos() == _clicking_pos) { // Should use manhattan distance...
+	if ((event->button() == Qt::LeftButton) && _clicked) {
 		event->accept(); // Prevent the scene from handling this event
 		emit mouse_clicked(get_axis_index());
+		_clicked = false;
+	} else {
+		event->ignore();
 	}
+}
+
+void PVParallelView::PVAxisHeader::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
+{
+	if (_clicked) {
+		_clicked = false;
+		Qt::MouseButtons b = acceptedMouseButtons();
+		setAcceptedMouseButtons(Qt::NoButton);
+		QApplication::sendEvent(scene(), &_click_event);
+		setAcceptedMouseButtons(b);
+	}
+	QGraphicsRectItem::mouseMoveEvent(event);
 }
 
 PVCol PVParallelView::PVAxisHeader::get_axis_index() const
