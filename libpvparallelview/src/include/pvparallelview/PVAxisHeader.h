@@ -25,13 +25,22 @@ namespace PVParallelView
 {
 
 class PVAxisGraphicsItem;
+class PVSlidersGroup;
 
 namespace __impl
 {
 class PVAxisSelectedAnimation;
 }
 
-class PVSlidersGroup;
+/**
+ * Axis label highlight decoration
+ *
+ * @note as this class reimplements a single click using mouse press/release,
+ * it can interfere with other graphics items. To avoid that problem, each
+ * time the "click" mouse button is pressed, the current event is backed-up
+ * and resend only when the next event can not lead to a "click" event: press-
+ * release is a click but press-move-release is not.
+ */
 
 class PVAxisHeader : public QObject, public QGraphicsRectItem
 {
@@ -59,7 +68,6 @@ protected:
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent * event) override;
 	void mouseMoveEvent(QGraphicsSceneMouseEvent * event) override;
 	void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
-	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget * widget = nullptr);
 
 signals:
 	void mouse_hover_entered(PVCol col, bool entered);
@@ -80,7 +88,6 @@ private:
 
 	__impl::PVAxisSelectedAnimation* _axis_selected_animation;
 	bool                             _started = false;
-	QPointF                          _clicking_pos;
 	bool                             _clicked;
 	QGraphicsSceneMouseEvent         _click_event;
 };

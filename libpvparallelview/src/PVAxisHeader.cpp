@@ -51,15 +51,6 @@ PVParallelView::PVAxisHeader::PVAxisHeader(
 	setBrush(QBrush(Qt::NoBrush));
 }
 
-void PVParallelView::PVAxisHeader::paint(
-	QPainter* painter,
-	const QStyleOptionGraphicsItem* option,
-	QWidget* widget
-)
-{
-	QGraphicsRectItem::paint(painter, option, widget);
-}
-
 void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
 	QWidget* parent_view = event->widget();
@@ -178,21 +169,6 @@ bool PVParallelView::PVAxisHeader::is_last_axis() const
 
 void PVParallelView::PVAxisHeader::new_zoomed_parallel_view()
 {
-	/*QDialog *view_dlg = new QDialog();
-
-	view_dlg->setMaximumWidth(1024);
-	view_dlg->setMaximumHeight(1024);
-	view_dlg->setAttribute(Qt::WA_DeleteOnClose, true);
-
-	QLayout *view_layout = new QVBoxLayout(view_dlg);
-	view_layout->setContentsMargins(0, 0, 0, 0);
-	view_dlg->setLayout(view_layout);
-
-	QWidget *view = common::get_lib_view(const_cast<Picviz::PVView&>(_lib_view))->create_zoomed_view(_axis_index);
-
-	view_layout->addWidget(view);
-	view_dlg->show();*/
-
 	emit new_zoomed_parallel_view(get_axis_index());
 }
 
