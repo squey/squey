@@ -211,4 +211,14 @@ else(WIN32)
 	#
 	install(FILES /opt/cuda/lib64/libcudart.so /opt/cuda/lib64/libcudart.so.5.0 /opt/cuda/lib64/libcudart.so.5.0.35 /opt/cuda/lib64/libnpp.so /opt/cuda/lib64/libnpp.so.5.0 /opt/cuda/lib64/libnpp.so.5.0.35 DESTINATION .)
 
+	# doc
+	if(DOC_REFMAN_HTML_DIR)
+		message(STATUS "Reference Manual: single HTML source directory: " ${DOC_REFMAN_HTML_DIR})
+		install(DIRECTORY ${DOC_REFMAN_HTML_DIR} DESTINATION "manual/Reference Manual")
+	endif(DOC_REFMAN_HTML_DIR)
+
+	if(DOC_REFMAN_PDF_FILE)
+		message(STATUS "Reference Manual: watermarked PDF file: " ${DOC_REFMAN_PDF_FILE})
+		install(FILES ${DOC_REFMAN_PDF_FILE} DESTINATION manual RENAME "Reference Manual.pdf")
+	endif(DOC_REFMAN_PDF_FILE)
 endif(WIN32)
