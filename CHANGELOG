@@ -1,3 +1,22 @@
+3.3.0 "" (2014-04-)
+----------------
+
+This major release adds the following features:
+
+* clarification and uniformization of displayed texts in the dialogs and menus
+* new mapping filter for date related informations: month names and days of the week
+* new splitter for FQDN DNS hostname
+* new splitter for MAC addresses
+
+This major release fixes or improves:
+
+* fix rendering bug in the full parallel view when working on huge sources (more than 150 M events and 100 axes).
+* fix zone refresh in the full parallel view when using listing/parallel view synchronization on sources with a lots of axes
+* fix crash when updating the preview in the format builder
+* fix potential memory leaks
+* the selection rectangle is less constraining in the full parallel view
+* more precise range picker in the frequency gradient's editor
+
 3.2.0 "Bifrost" (2013-11-12)
 --------------------------
 
