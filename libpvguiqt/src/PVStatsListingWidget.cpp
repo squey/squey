@@ -160,7 +160,7 @@ void PVGuiQt::PVStatsListingWidget::init_plugins()
 		_stats_panel->insertColumn(col);
 	}
 
-	init_plugin<__impl::PVUniqueValuesCellWidget>("unique\nvalues", true);
+	init_plugin<__impl::PVUniqueValuesCellWidget>("distinct\nvalues", true);
 	init_plugin<__impl::PVSumCellWidget>("sum", false);
 
 	for (PVCol col=0; col < _listing_view->horizontalHeader()->count(); col++) {
@@ -566,7 +566,7 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
 	_unique_values_dlg_icon->setStyleSheet("QPushButton { border: none; } QPushButton:pressed { padding-left : 0px; }");
 	_unique_values_dlg_icon->setIcon(_unique_values_pixmap);
 	_unique_values_dlg_icon->setFocusPolicy(Qt::NoFocus);
-	_unique_values_dlg_icon->setToolTip("List unique values");
+	_unique_values_dlg_icon->setToolTip("Show distinct values");
 	connect(_unique_values_dlg_icon, SIGNAL(clicked(bool)), this, SLOT(show_unique_values_dlg()));
 	_customizable_layout->addWidget(_unique_values_dlg_icon);
 }

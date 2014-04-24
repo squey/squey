@@ -1,21 +1,40 @@
-3.3.0 "" (2014-04-)
+3.3.0 "Revelation" (2014-04-)
 ----------------
 
 This major release adds the following features:
 
-* clarification and uniformization of displayed texts in the dialogs and menus
-* new mapping filter for date related informations: month names and days of the week
+* online and offline documentation in HTML and PDF
+* improved statistics dialogs:
+  - more precise selection using count/percentage range
+  - frequency can be toggled to be relative to the greatest value
+  - line numbers are displayed
+  - occurence counts are displayed by default
+  - current scale and frequency types are shown in column header
+  - values can be exported as CSV with selected frequency informations
+  - persistant selection across sort operations
+* new sum-by feature: sum the values on the secondary axis for each individual value on the selected axis
+  (equivalent to SQL query "SELECT column1, SUM(column2) FROM listing GROUP BY column1")
+* new sum tool available in statistics panel
 * new splitter for FQDN DNS hostname
 * new splitter for MAC addresses
+* new mapping filter for date related informations: month names and days of the week
+* better algorithm for strings mapping
 
 This major release fixes or improves:
 
-* fix rendering bug in the full parallel view when working on huge sources (more than 150 M events and 100 axes).
+* statistics panel values can be copied to clipboard
+* fix selection being reset to all when changing mappings
+* fix fields content greater than 4KB not being displayed (now truncated and in italic)
+* fix port value when URL splitter don't have a valid scheme/protocol
+* fix freeze when the number of lines to be selected in the listing is smaller than the number of cpu cores
+* fix crash in count-by when some empty values are present
+* fix rendering bug in the full parallel view when working on huge sources (more than 150 M events and 100 axes)
 * fix zone refresh in the full parallel view when using listing/parallel view synchronization on sources with a lots of axes
 * fix crash when updating the preview in the format builder
-* fix potential memory leaks
-* the selection rectangle is less constraining in the full parallel view
-* more precise range picker in the frequency gradient's editor
+* fix memory leaks
+* increased number of available system file descriptors to avoid "Too many open files" errors
+* less constraining selection rectangle in the full parallel view
+* clarification and uniformization of dialogs and menus texts
 
 3.2.0 "Bifrost" (2013-11-12)
 --------------------------

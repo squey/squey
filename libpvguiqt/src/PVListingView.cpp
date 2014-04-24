@@ -139,9 +139,6 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 
 	// OBJECTNAME STUFF
 	setObjectName("PVListingView");
-	// We need to name the headers if we want to style them by CSS (without interfering with other headers...
-	//horizontalHeader()->setObjectName("horizontalHeader_of_PVListingView");
-	verticalHeader()->setObjectName("verticalHeader_of_PVListingView");
 	horizontalScrollBar()->setObjectName("horizontalScrollBar_of_PVListingView");
 	verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
 
@@ -183,7 +180,7 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	// Horizontal header context menu
 	//
 	_hhead_ctxt_menu = new QMenu(this);
-	_action_col_unique = new QAction(tr("List unique values"), this);
+	_action_col_unique = new QAction(tr("Distinct values"), this);
 	_action_col_unique->setIcon(QIcon(":/fileslist_black"));
 	_hhead_ctxt_menu->addAction(_action_col_unique);
 
