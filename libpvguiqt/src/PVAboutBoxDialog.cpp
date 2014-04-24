@@ -24,9 +24,9 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	QGridLayout *main_layout = new QGridLayout;
 	main_layout->setHorizontalSpacing(0);
 
-	QLabel *logo = new QLabel;
 
-	QString content = "Picviz Inspector version " + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2013 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n";
+
+	QString content = "Picviz Inspector version " + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2014 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n";
 
 #ifdef CUDA
 	content += "\nWith CUDA support\n";
@@ -42,17 +42,29 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	_view3D->setScene(new PVGuiQt::PVLogoScene());
 	_view3D->setCursor(Qt::OpenHandCursor);
 	_view3D_layout->addWidget(_view3D);
+	QLabel *logo = new QLabel;
+	logo->setPixmap(QPixmap(":/logo_text.png"));
+	_view3D_layout->addWidget(logo);
 
 	QLabel *text = new QLabel(content);
 	text->setAlignment(Qt::AlignCenter);
 	QPushButton *ok = new QPushButton("OK");
 
-	logo->setPixmap(QPixmap(":/logo_text.png"));
+	QLabel* doc = new QLabel();
+	doc->setText("<br/>Reference Manual: <a href=\"file:///opt/picviz-inspector/docs/reference_manual/index.html\">HTML</a> | " \
+			"<a href=\"file:///opt/picviz-inspector/docs/picviz_inspector_reference_manual.pdf\">PDF</a> | " \
+			"<a href=\"https://docs.picviz.com\">docs.picviz.com</a><br/><br/>" \
+	);
+	doc->setTextFormat(Qt::RichText);
+	doc->setTextInteractionFlags(Qt::TextBrowserInteraction);
+	doc->setOpenExternalLinks(true);
+
+
 
 	main_layout->addLayout(_view3D_layout, 0, 0);
-	main_layout->addWidget(logo, 0, 1);
 	main_layout->addWidget(text, 1, 0);
-	main_layout->addWidget(ok, 2, 1);
+	main_layout->addWidget(doc, 2, 0);
+	main_layout->addWidget(ok, 3, 0);
 
 	setLayout(main_layout);
 
