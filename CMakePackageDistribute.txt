@@ -214,11 +214,11 @@ else(WIN32)
 	# doc
 	if(DOC_REFMAN_HTML_DIR)
 		message(STATUS "Reference Manual: single HTML source directory: " ${DOC_REFMAN_HTML_DIR})
-		install(DIRECTORY ${DOC_REFMAN_HTML_DIR}/ DESTINATION "manual/Reference Manual")
+		install(DIRECTORY ${DOC_REFMAN_HTML_DIR}/ DESTINATION "docs/reference_manual")
 	endif(DOC_REFMAN_HTML_DIR)
 
 	if(DOC_REFMAN_PDF_FILE)
 		message(STATUS "Reference Manual: watermarked PDF file: " ${DOC_REFMAN_PDF_FILE})
-		install(FILES ${DOC_REFMAN_PDF_FILE} DESTINATION manual RENAME "Reference Manual.pdf")
+		install(FILES ${DOC_REFMAN_PDF_FILE} DESTINATION manual RENAME "picviz_inspector_reference_manual.pdf")
 	endif(DOC_REFMAN_PDF_FILE)
 endif(WIN32)
