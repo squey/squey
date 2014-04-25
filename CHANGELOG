@@ -1,9 +1,11 @@
-3.3.0 "Revelation" (2014-04-)
+3.3.0 "Titan" (2014-04-25)
 ----------------
 
 This major release adds the following features:
 
-* online and offline documentation in HTML and PDF
+* online and offline documentation in HTML and PDF (docs.picviz.com)
+  get your online credentials with the following command:
+  # picviz-update --geturl
 * improved statistics dialogs:
   - more precise selection using count/percentage range
   - frequency can be toggled to be relative to the greatest value
@@ -23,18 +25,18 @@ This major release adds the following features:
 This major release fixes or improves:
 
 * statistics panel values can be copied to clipboard
-* fix selection being reset to all when changing mappings
-* fix fields content greater than 4KB not being displayed (now truncated and in italic)
 * fix port value when URL splitter don't have a valid scheme/protocol
-* fix freeze when the number of lines to be selected in the listing is smaller than the number of cpu cores
 * fix crash in count-by when some empty values are present
+* fix freeze when the number of lines to be selected in the listing is smaller than the number of cpu cores
+* fix fields content greater than 4KB not being displayed (now truncated and in italic)
 * fix rendering bug in the full parallel view when working on huge sources (more than 150 M events and 100 axes)
 * fix zone refresh in the full parallel view when using listing/parallel view synchronization on sources with a lots of axes
 * fix crash when updating the preview in the format builder
+* fix selection being reset to all when changing mappings
 * fix memory leaks
 * increased number of available system file descriptors to avoid "Too many open files" errors
 * less constraining selection rectangle in the full parallel view
-* clarification and uniformization of dialogs and menus texts
+* clarification and uniformization of dialogs and menus
 
 3.2.0 "Bifrost" (2013-11-12)
 --------------------------
