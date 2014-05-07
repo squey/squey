@@ -30,7 +30,12 @@ typedef unsigned int version_t;
 #define PICVIZ_PATCH_VERSION(v) ((v & 0x0000FF))
 #define PICVIZ_VERSION(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
 #define PICVIZ_VERSION_STR(major, minor, patch) _PICVIZ_VERSION_STR(major, minor, patch)
+
+#ifdef PICVIZ_DEVELOPER_MODE
+#define _PICVIZ_VERSION_STR(major, minor, patch) #major "." #minor "." #patch " (dev mode)"
+#else
 #define _PICVIZ_VERSION_STR(major, minor, patch) #major "." #minor "." #patch
+#endif
 
 #define PICVIZ_CURRENT_VERSION PICVIZ_VERSION(PICVIZ_CURRENT_VERSION_MAJOR, PICVIZ_CURRENT_VERSION_MINOR, PICVIZ_CURRENT_VERSION_PATCH)
 #define PICVIZ_CURRENT_VERSION_STR PICVIZ_VERSION_STR(PICVIZ_CURRENT_VERSION_MAJOR, PICVIZ_CURRENT_VERSION_MINOR, PICVIZ_CURRENT_VERSION_PATCH)
