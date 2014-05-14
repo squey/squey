@@ -1,0 +1,75 @@
+diff -r -u qt4-x11-4.8.4+dfsg/src/gui/graphicsview/qgraphicsscene.cpp qt4-x11-4.8.4+dfsg-picviz/src/gui/graphicsview/qgraphicsscene.cpp
+--- qt4-x11-4.8.4+dfsg/src/gui/graphicsview/qgraphicsscene.cpp	2012-11-23 11:09:53.000000000 +0100
++++ qt4-x11-4.8.4+dfsg-picviz/src/gui/graphicsview/qgraphicsscene.cpp	2013-05-28 16:20:54.840684038 +0200
+@@ -1091,7 +1091,7 @@
+     Q_Q(const QGraphicsScene);
+     QGraphicsView *view = widget ? qobject_cast<QGraphicsView *>(widget->parentWidget()) : 0;
+     if (!view)
+-        return q->items(scenePos, Qt::IntersectsItemShape, Qt::DescendingOrder, QTransform());
++        return q->items(scenePos, Qt::IntersectsItemShape, Qt::DescendingOrder, defaultViewTransform);
+ 
+     const QRectF pointRect(QPointF(widget->mapFromGlobal(screenPos)), QSizeF(1, 1));
+     if (!view->isTransformed())
+@@ -5637,6 +5637,29 @@
+     d->setPalette_helper(resolvedPalette);
+ }
+ 
++/*! \since 4.8.4 (Picviz)
++ *
++ * Set the default scene-to-view transformation used if none can be found.
++ * By default, an identity matrix is used.
++ */
++void QGraphicsScene::setDefaultViewTransform(QTransform const& viewTransform)
++{
++	Q_D(QGraphicsScene);
++	d->defaultViewTransform = viewTransform;
++}
++
++/*! \since 4.8.4 (Picviz)
++ *
++ * Get the default scene-to-view transformation used if none can be found.
++ *
++ * \sa setDefaultTransform
++ */
++QTransform const& QGraphicsScene::defaultViewTransform() const
++{
++	Q_D(const QGraphicsScene);
++	return d->defaultViewTransform;
++}
++
+ /*!
+     \since 4.6
+ 
+diff -r -u qt4-x11-4.8.4+dfsg/src/gui/graphicsview/qgraphicsscene.h qt4-x11-4.8.4+dfsg-picviz/src/gui/graphicsview/qgraphicsscene.h
+--- qt4-x11-4.8.4+dfsg/src/gui/graphicsview/qgraphicsscene.h	2012-11-23 11:09:53.000000000 +0100
++++ qt4-x11-4.8.4+dfsg-picviz/src/gui/graphicsview/qgraphicsscene.h	2013-05-28 16:19:50.504507594 +0200
+@@ -251,6 +251,9 @@
+ 
+     bool sendEvent(QGraphicsItem *item, QEvent *event);
+ 
++	void setDefaultViewTransform(QTransform const& viewTransform);
++	QTransform const& defaultViewTransform() const;
++
+ public Q_SLOTS:
+     void update(const QRectF &rect = QRectF());
+     void invalidate(const QRectF &rect = QRectF(), SceneLayers layers = AllLayers);
+diff -r -u qt4-x11-4.8.4+dfsg/src/gui/graphicsview/qgraphicsscene_p.h qt4-x11-4.8.4+dfsg-picviz/src/gui/graphicsview/qgraphicsscene_p.h
+--- qt4-x11-4.8.4+dfsg/src/gui/graphicsview/qgraphicsscene_p.h	2012-11-23 11:09:53.000000000 +0100
++++ qt4-x11-4.8.4+dfsg-picviz/src/gui/graphicsview/qgraphicsscene_p.h	2013-05-28 16:19:50.504507594 +0200
+@@ -71,6 +71,7 @@
+ #include <QtGui/qpalette.h>
+ #include <QtGui/qstyle.h>
+ #include <QtGui/qstyleoption.h>
++#include <QtGui/qtransform.h>
+ 
+ QT_BEGIN_NAMESPACE
+ 
+@@ -180,6 +181,8 @@
+     QList<QGraphicsItem *> cachedItemsUnderMouse;
+     QList<QGraphicsItem *> hoverItems;
+     QPointF lastSceneMousePos;
++
++	QTransform defaultViewTransform;
+     void enableMouseTrackingOnViews();
+     QMap<Qt::MouseButton, QPointF> mouseGrabberButtonDownPos;
+     QMap<Qt::MouseButton, QPointF> mouseGrabberButtonDownScenePos;
