@@ -184,9 +184,9 @@ public:
 		_use_absolute_max_count = abs_max;
 	}
 
-	static inline QString format_occurence(uint64_t occurence_count) { return QString("%L1").arg(occurence_count); };
-	static inline QString format_percentage(double ratio) { return QString::number(ratio * 100, 'f', 1) + "%"; };
-	static inline QString format_scientific_notation(double ratio) { return QString::number(ratio, 'e', 1); };
+	static inline QString format_occurence(uint64_t occurence_count) { return QLocale().toString((qulonglong)occurence_count); };
+	static inline QString format_percentage(double ratio) { return QLocale().toString(ratio * 100, 'f', 1) + "%"; };
+	static inline QString format_scientific_notation(double ratio) { return QLocale().toString(ratio, 'e', 1); };
 
 private:
 	QString count_header() const
