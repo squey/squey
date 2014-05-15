@@ -19,6 +19,9 @@
 PVWidgets::PVPercentRangeEditor::PVPercentRangeEditor(QWidget *parent) :
 	PVAbstractRangePicker(0., 100., parent)
 {
+	_min_spinbox->use_floating_point(true);
+	_max_spinbox->use_floating_point(true);
+
 	get_min_spinbox()->setDecimals(1);
 	get_max_spinbox()->setDecimals(1);
 
