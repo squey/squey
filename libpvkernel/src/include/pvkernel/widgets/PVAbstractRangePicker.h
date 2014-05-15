@@ -272,7 +272,7 @@ protected:
 		// (hence the cast to qulonglong).
 
 		if (_use_floating_point) {
-			return locale().toString(value);
+			return locale().toString(value, 'f', decimals());
 		}
 		else {
 			return locale().toString((qulonglong)value);
