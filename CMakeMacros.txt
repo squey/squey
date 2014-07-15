@@ -50,7 +50,7 @@ endmacro()
 
 # Based on original QT4_WRAP_UI
 MACRO (PV_QT4_WRAP_UI outfiles )
-  QT4_EXTRACT_OPTIONS(ui_files ui_options ${ARGN})
+  QT4_EXTRACT_OPTIONS(ui_files ui_options moc_target ${ARGN})
 
   FOREACH (it ${ui_files})
     GET_FILENAME_COMPONENT(outfile ${it} NAME_WE)
