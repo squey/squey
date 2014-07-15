@@ -50,7 +50,12 @@ endmacro()
 
 # Based on original QT4_WRAP_UI
 MACRO (PV_QT4_WRAP_UI outfiles )
-  QT4_EXTRACT_OPTIONS(ui_files ui_options moc_target ${ARGN})
+  set(CMAKE_WORKAROUND ((NOT CMAKE_MAJOR_VERSION GREATER 2) AND (NOT CMAKE_MINOR_VERSION GREATER 8) AND (NOT CMAKE_PATCH_VERSION GREATER 9)))
+  if ( ${CMAKE_WORKAROUND} )
+   QT4_EXTRACT_OPTIONS(ui_files ui_options ${ARGN})
+  else ( ${CMAKE_WORKAROUND} )
+    QT4_EXTRACT_OPTIONS(ui_files ui_options moc_target ${ARGN})
+  endif ( ${CMAKE_WORKAROUND} )
 
   FOREACH (it ${ui_files})
     GET_FILENAME_COMPONENT(outfile ${it} NAME_WE)
