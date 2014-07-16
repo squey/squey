@@ -33,7 +33,7 @@
  * some constants to parametrize the range picker
  */
 
-// to define the margin betwrrn the ramp and the spinboxes
+// to define the margin between the ramp and the spinboxes
 #define SPINBOX_TOP_MARGIN 4
 
 // the color ramp's height
