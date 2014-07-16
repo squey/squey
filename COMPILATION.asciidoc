@@ -1,0 +1,38 @@
+
+What you should know or thing to when your compilation fails
+============================================================
+
+GCC Changes
+-----------
+
+New architecture names have been added in GCC 4.9; they superseed older values
+(like _sandybridge_ which replaces _corei7-avx_). Building in developer mode does
+not cause any problem but in customer mode, it can lead to an unoptimized
+program (or a compilation failure).
+
+[NOTE]
+.2014-07-16
+====
+_corei7-avx_ is still supported by GCC 4.9.0, an unsupported value
+should produce the following error message:
+
+----
+file.c:1:0: error: bad value (corei7-avx) for -march= switch
+----
+====
+
+FAQ
+---
+
+Q: My compilation is crappy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is often due to a wrong CMake invocation (which can be automatically runned
+after a _CMakeLists.txt_ file update). Remove the _CMakeCache.txt_ in your build
+root directory and rerun CMake as it was the first time.
+
+Q: All intrinsics macros are not defined
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Run _make VERBOSE=1_ to see if _-march_ is present. If not, consider your
+compilation is crappy.
