@@ -20,7 +20,7 @@ string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
 # Arch flag
 if (NOT DEFINED CMAKE_CXX_ARCH_FLAGS)
 	# Guess flag from GCC. This is done so that icecc doesn't silently set all jobs as local-job !
-	execute_process(COMMAND bash -c "$CC -march=native -Q --help=target | grep march |  tr -d '[[:space:]]'" OUTPUT_VARIABLE CMAKE_CXX_ARCH_FLAGS)
+	execute_process(COMMAND bash -c "${CMAKE_C_COMPILER} -march=native -Q --help=target | grep march |  tr -d '[[:space:]]'" OUTPUT_VARIABLE CMAKE_CXX_ARCH_FLAGS)
 	#set(CMAKE_CXX_ARCH_FLAGS "-march=native")
 	message(STATUS "CMAKE_CXX_ARCH_FLAGS isn't set. Flag has been guessed to ${CMAKE_CXX_ARCH_FLAGS}")
 endif()
