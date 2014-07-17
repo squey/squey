@@ -7,6 +7,7 @@
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVNrawException.h>
 
+#include <tbb/parallel_reduce.h>
 #include <tbb/tick_count.h>
 
 #include <iostream>
@@ -144,36 +145,52 @@ QString PVRush::PVNraw::get_value(PVRow row, PVCol col, bool* complete /*= nullp
 	assert(row < get_number_rows());
 	assert(col < get_number_cols());
 	size_t size = 0;
-	const char* buf = _backend.at(row, col, size, complete);
+	const char* buf = _backend.at_no_cache(row, col, size, complete);
 	return QString::fromUtf8(buf, size);
 }
 
 QString PVRush::PVNraw::nraw_line_to_csv(PVRow idx) const
 {
-	assert(idx < get_number_rows());
-	QString ret;
-	static QLatin1String quote("\"");
-	static QLatin1String escaped_quote("\\\"");
-	static QLatin1String sep(",");
-	PVCol c;
-	for (c = 0; c < get_number_cols()-1; c++) {
-		QString v(at(idx,c));
-		bool do_quote = false;
-		if (v.contains(QChar(','))) {
-			do_quote = true;
-		}
-		if (v.contains(QChar('"'))) {
-			do_quote = true;
-			v.replace(quote, escaped_quote);
-		}
-		if (do_quote) {
-			v.append(quote);
-			v.prepend(quote);
-		}
-		ret += at(idx, c) + sep;
-	}
-	ret += at(idx, c);
-	return ret;
+	static const QLatin1String quote("\"");
+	static const QLatin1String escaped_quote("\\\"");
+	static const QLatin1String sep(",");
+
+	QString empty;
+	QString line = tbb::parallel_deterministic_reduce(
+			tbb::blocked_range<size_t>(tbb::blocked_range<size_t>(0, get_number_cols(), 1)),
+			empty,
+			[&](const tbb::blocked_range<size_t>& column, QString) -> QString {
+
+				size_t col = column.begin();
+
+				assert(idx < get_number_rows());
+				QString v(at(idx,col));
+
+				bool do_quote = false;
+				if (v.contains(QChar(','))) {
+					do_quote = true;
+				}
+				if (v.contains(QChar('"'))) {
+					do_quote = true;
+					v.replace(quote, escaped_quote);
+				}
+				if (do_quote) {
+					v.append(quote);
+					v.prepend(quote);
+				}
+
+				return v;
+			},
+			[](const QString& left, const QString& right) -> QString {
+				QString& l = const_cast<QString&>(left);
+				l.append(sep);
+				l.append(right);
+
+				return l;
+			}
+		);
+
+	return line;
 }
 
 bool PVRush::PVNraw::load_from_disk(const std::string& nraw_folder, PVCol ncols)

@@ -4,6 +4,8 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <QCryptographicHash>
+#include <QFile>
 #include <QString>
 
 #include <pvkernel/core/PVAxesIndexType.h>
@@ -22,3 +24,21 @@ QString PVRush::PVUtils::generate_key_from_axes_values(PVCore::PVAxesIndexType c
 	return ret;
 }
 */
+
+const QByteArray PVRush::PVUtils::get_file_checksum(const QString& path)
+{
+	QFile file;
+	file.setFileName(path);
+	if (!file.open(QIODevice::ReadOnly)) {
+		return QByteArray();
+	}
+	QByteArray data = file.readAll();
+	file.close();
+
+	return QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex();
+}
+
+bool PVRush::PVUtils::files_have_same_content(const QString& path1, const QString& path2)
+{
+	return get_file_checksum(path1) == get_file_checksum(path2);
+}
