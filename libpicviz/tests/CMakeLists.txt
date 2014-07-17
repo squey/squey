@@ -76,4 +76,9 @@ target_link_libraries(Tpicviz_process ${LINK_LIBRARIES})
 declare_pv_test(Tqt_new_layer_dialog new_layer_dialog.cpp)
 target_link_libraries(Tqt_new_layer_dialog ${LINK_LIBRARIES})
 
+# Export selection
+declare_pv_test(Tpicviz_export_selection export_selection.cpp)
+target_link_libraries(Tpicviz_export_selection  ${LINK_LIBRARIES})
+add_test(TestExportSelection Tpicviz_export_selection ${TESTS_FILES_DIR}/sources/proxy.log ${TESTS_FILES_DIR}/formats/proxy.log.format)
+
 declare_lib_tests_target()
