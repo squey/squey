@@ -111,7 +111,7 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 		_all_elts.clear();
 		_inv_elts.clear();
 
-		tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> middle_chunk_filter(source_transform_filter & transform_filter & mapped_filter);
+		tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> middle_chunk_filter(source_transform_filter & transform_filter & mapped_filter & seq_chunk_filter);
 
 		if (_dump_all_elts) {
 			// The first dump filter, that dumps all the elements
