@@ -12,6 +12,7 @@
 #include <pvkernel/core/PVHardwareConcurrency.h>
 
 #include <picviz/PVView.h>
+#include <picviz/PVSortingFunc.h>
 
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVCustomQtRoles.h>
@@ -152,9 +153,9 @@ void PVGuiQt::PVListingSortFilterProxyModel::sort_indexes(int column, Qt::SortOr
 
 void PVGuiQt::PVListingSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 {
-	// TODO: get this from format, view, etc...
-	_sort_f = _def_sort.f_less();
-	_equals_f = _def_sort.f_equals();
+	Picviz::PVSortingFunc_p sf = _lib_view.get_sort_plugin_for_col(column);
+	_sort_f = sf->f_less();
+	_equals_f = sf->f_equals();
 	PVSortFilterProxyModel::sort(column, order);
 }
 

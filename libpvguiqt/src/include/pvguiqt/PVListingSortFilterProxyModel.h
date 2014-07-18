@@ -79,9 +79,6 @@ private:
 	PVHive::PVObserverSignal<Picviz::PVSelection> _obs_sel;
 	__impl::PVListingVisibilityObserver _obs_vis;
 	__impl::PVListingVisibilityZombieObserver _obs_zomb;
-
-	// Temporary
-	Picviz::PVDefaultSortingFunc _def_sort;
 };
 
 }

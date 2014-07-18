@@ -1252,10 +1252,15 @@ bool& Picviz::PVView::are_view_unselected_zombie_visible()
 Picviz::PVSortingFunc_p Picviz::PVView::get_sort_plugin_for_col(PVCol col) const
 {
 	// Temporary, waiting for all of this to be configurable
-	QString type = get_original_axis_type(col);
-	PVSortingFunc_p f_lib = LIB_CLASS(Picviz::PVSortingFunc)::get().get_class_by_name(type + "_default");
+	PVAxis const& axis = axes_combination.get_original_axis(col);
+	QString type = axis.get_type();
+	QString mapping = axis.get_mapping();
+	PVSortingFunc_p f_lib = LIB_CLASS(Picviz::PVSortingFunc)::get().get_class_by_name(type + "_" + mapping);
 	if (!f_lib) {
-		f_lib = PVSortingFunc_p(new PVDefaultSortingFunc());
+		f_lib = LIB_CLASS(Picviz::PVSortingFunc)::get().get_class_by_name(type + "_default");
+		if (!f_lib) {
+			f_lib = PVSortingFunc_p(new PVDefaultSortingFunc());
+		}
 	}
 	return f_lib;
 }
