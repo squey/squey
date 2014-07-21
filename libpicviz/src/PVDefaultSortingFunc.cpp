@@ -30,17 +30,32 @@ Picviz::PVSortingFunc_fequals Picviz::PVDefaultSortingFunc::f_equals()
 	return &equals_case_asc;
 }
 
-Picviz::PVSortingFunc_fless Picviz::PVDefaultSortingFunc::f_less()
+Picviz::PVSortingFunc_flesser Picviz::PVDefaultSortingFunc::f_lesser()
 {
-	return &less_case_asc;
+	return &lesser_case_asc;
 }
 
-bool Picviz::PVDefaultSortingFunc::less_case_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2)
+Picviz::PVQtSortingFunc_f Picviz::PVDefaultSortingFunc::qt_f()
+{
+	return &qt_comp_case_asc;
+}
+
+Picviz::PVQtSortingFunc_fequals Picviz::PVDefaultSortingFunc::qt_f_equals()
+{
+	return &qt_equals_case_asc;
+}
+
+Picviz::PVQtSortingFunc_flesser Picviz::PVDefaultSortingFunc::qt_f_lesser()
+{
+	return &qt_lesser_case_asc;
+}
+
+bool Picviz::PVDefaultSortingFunc::lesser_case_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2)
 {
 	return s1.compare(s2) < 0;
 }
 
-bool Picviz::PVDefaultSortingFunc::less_nocase_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2)
+bool Picviz::PVDefaultSortingFunc::lesser_nocase_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2)
 {
 	return s1.compareNoCase(s2) < 0;
 }
@@ -63,4 +78,19 @@ int Picviz::PVDefaultSortingFunc::comp_case_asc(PVCore::PVUnicodeString const& s
 int Picviz::PVDefaultSortingFunc::comp_nocase_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2)
 {
 	return s1.compareNoCase(s2);
+}
+
+bool Picviz::PVDefaultSortingFunc::qt_lesser_case_asc(QString const& s1, QString const& s2)
+{
+	return s1.compare(s2, Qt::CaseSensitive) < 0;
+}
+
+bool Picviz::PVDefaultSortingFunc::qt_equals_case_asc(QString const& s1, QString const& s2)
+{
+	return s1.compare(s2, Qt::CaseSensitive) == 0;
+}
+
+int Picviz::PVDefaultSortingFunc::qt_comp_case_asc(QString const& s1, QString const& s2)
+{
+	return s1.compare(s2, Qt::CaseSensitive);
 }

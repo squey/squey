@@ -1,6 +1,29 @@
-#include <pvguiqt/PVStringSortProxyModel.h>
-#include <tbb/parallel_sort.h>
+
 #include <pvkernel/core/PVLogger.h>
+
+#include <picviz/PVDefaultSortingFunc.h>
+
+#include <pvguiqt/PVStringSortProxyModel.h>
+
+#include <tbb/parallel_sort.h>
+
+PVGuiQt::PVStringSortProxyModel::PVStringSortProxyModel(QTableView* view, QObject* parent) :
+	PVSortFilterProxyModel(view, parent)
+{
+	set_default_qt_order_func();
+}
+
+
+void PVGuiQt::PVStringSortProxyModel::set_qt_order_func(const Picviz::PVQtSortingFunc_flesser& lt_t)
+{
+	_qt_lesser_f = lt_t;
+}
+
+void PVGuiQt::PVStringSortProxyModel::set_default_qt_order_func()
+{
+	Picviz::PVDefaultSortingFunc sf;
+	set_qt_order_func(sf.qt_f_lesser());
+}
 
 bool PVGuiQt::PVStringSortProxyModel::is_equal(const QModelIndex& left, const QModelIndex& right) const
 {
@@ -17,9 +40,8 @@ void PVGuiQt::PVStringSortProxyModel::sort_indexes(int column, Qt::SortOrder ord
 					{
 						const int column_ = column;
 						QAbstractItemModel* const src_model = this->sourceModel();
-						const QString s1 = src_model->data(src_model->index(i1, column_)).toString();
-						const QString s2 = src_model->data(src_model->index(i2, column_)).toString();
-						return s1 < s2;
+						return _qt_lesser_f(src_model->data(src_model->index(i1, column_)).toString(),
+						                    src_model->data(src_model->index(i2, column_)).toString());
 					});
 			}
 			else {
@@ -28,9 +50,9 @@ void PVGuiQt::PVStringSortProxyModel::sort_indexes(int column, Qt::SortOrder ord
 					{
 						const int column_ = column;
 						QAbstractItemModel* const src_model = this->sourceModel();
-						const QString s1 = src_model->data(src_model->index(i1, column_)).toString();
-						const QString s2 = src_model->data(src_model->index(i2, column_)).toString();
-						return s1 > s2;
+						// s1 > s2 <=> s2 < s1 :-p
+						return _qt_lesser_f(src_model->data(src_model->index(i2, column_)).toString(),
+						                    src_model->data(src_model->index(i1, column_)).toString());
 					});
 			};
 			break;

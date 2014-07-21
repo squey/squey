@@ -154,7 +154,7 @@ void PVGuiQt::PVListingSortFilterProxyModel::sort_indexes(int column, Qt::SortOr
 void PVGuiQt::PVListingSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 {
 	Picviz::PVSortingFunc_p sf = _lib_view.get_sort_plugin_for_col(column);
-	_sort_f = sf->f_less();
+	_sort_f = sf->f_lesser();
 	_equals_f = sf->f_equals();
 	PVSortFilterProxyModel::sort(column, order);
 }
