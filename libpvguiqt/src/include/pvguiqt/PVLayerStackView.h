@@ -37,6 +37,7 @@ private:
 	void load_layer_stack();
 	void copy_to_clipboard();
 	void set_current_selection_from_layer(int model_idx);
+	void export_layer_selection(int model_idx);
 	void reset_layer_colors(int layer_idx);
 
 	Picviz::PVLayer& get_layer_from_idx(int model_idx);
@@ -62,6 +63,7 @@ private:
 	QAction* _ctxt_menu_copy_to_clipboard_act;
 	QAction* _ctxt_menu_load_ls_act;
 	QAction* _ctxt_menu_set_sel_layer;
+	QAction* _ctxt_menu_export_layer_sel;
 	QAction* _ctxt_menu_reset_colors;
 
 	QFileDialog _layer_dialog;

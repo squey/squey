@@ -22,6 +22,7 @@ namespace Picviz
 {
 	class PVAxesCombination;
 	class PVView;
+	class PVSelection;
 }
 
 namespace PVGuiQt
@@ -34,8 +35,11 @@ class PVExportSelectionDlg : public QFileDialog
 	Q_OBJECT;
 
 public:
-	PVExportSelectionDlg(Picviz::PVAxesCombination& custom_axes_combination, Picviz::PVView* view, QWidget* parent = 0);
+	PVExportSelectionDlg(Picviz::PVAxesCombination& custom_axes_combination, Picviz::PVView& view, QWidget* parent = 0);
 
+	static void export_selection(Picviz::PVView& view, const Picviz::PVSelection& sel);
+
+private:
 	inline bool export_columns_header() const { return _columns_header->checkState() == Qt::Checked; }
 	inline bool use_custom_axes_combination() const { return !_use_current_axes_combination->isChecked(); }
 	inline QString separator_char() const { return _separator_char->keySequence().toString(); }

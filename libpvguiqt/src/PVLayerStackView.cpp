@@ -14,6 +14,7 @@
 #include <pvguiqt/PVCustomQtRoles.h>
 #include <pvguiqt/PVLayerStackModel.h>
 #include <pvguiqt/PVLayerStackView.h>
+#include <pvguiqt/PVExportSelectionDlg.h>
 
 /******************************************************************************
  *
@@ -73,6 +74,8 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent):
 
 	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer's content"), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_set_sel_layer);
+	_ctxt_menu_export_layer_sel = new QAction(tr("Export this layer's selection"), NULL);
+	_ctxt_menu->addAction(_ctxt_menu_export_layer_sel);
 	_ctxt_menu_reset_colors = new QAction(tr("Reset this layer's colors to white"), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_reset_colors);
 
@@ -258,6 +261,10 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 		set_current_selection_from_layer(idx_click.row());
 		return;
 	}
+	if(act == _ctxt_menu_export_layer_sel) {
+		export_layer_selection(idx_click.row());
+		return;
+	}
 	if (act == _ctxt_menu_reset_colors) {
 		reset_layer_colors(idx_click.row());
 	}
@@ -289,6 +296,16 @@ void PVGuiQt::PVLayerStackView::set_current_selection_from_layer(int model_idx)
 	Picviz::PVLayer const& layer = get_layer_from_idx(model_idx);
 	ls_model()->view_actor().call<FUNC(Picviz::PVView::set_selection_from_layer)>(layer);
 	ls_model()->view_actor().call<FUNC(Picviz::PVView::process_real_output_selection)>();
+}
+
+void PVGuiQt::PVLayerStackView::export_layer_selection(int model_idx)
+{
+	Picviz::PVLayer const& layer = get_layer_from_idx(model_idx);
+
+	const Picviz::PVSelection& sel = layer.get_selection();
+	Picviz::PVView& view = ls_model()->lib_view();
+
+	PVGuiQt::PVExportSelectionDlg::export_selection(view, sel);
 }
 
 void PVGuiQt::PVLayerStackView::reset_layer_colors(int layer_idx)
