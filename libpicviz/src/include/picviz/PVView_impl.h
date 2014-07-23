@@ -66,7 +66,7 @@ protected:
 template <class Tint>
 struct PVViewSortAsc: public PVViewSortBuf
 {
-	PVViewSortAsc(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_fless f_): 
+	PVViewSortAsc(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_flesser f_): 
 		PVViewSortBuf(), nraw(nraw_), column(col), f(f_)
 	{ }
 	bool operator()(Tint idx1, Tint idx2) const
@@ -84,14 +84,14 @@ struct PVViewSortAsc: public PVViewSortBuf
 private:
 	PVRush::PVNraw const* nraw;
 	PVCol column;
-	Picviz::PVSortingFunc_fless f;
+	Picviz::PVSortingFunc_flesser f;
 	mutable ReallocableBufferTLS _tmp_buf;
 };
 
 template <class Tint>
 struct PVViewSortDesc: public PVViewSortBuf
 {
-	PVViewSortDesc(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_fless f_): 
+	PVViewSortDesc(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_flesser f_): 
 		PVViewSortBuf(), nraw(nraw_), column(col), f(f_)
 	{ }
 	bool operator()(Tint idx1, Tint idx2) const
@@ -109,7 +109,7 @@ struct PVViewSortDesc: public PVViewSortBuf
 private:
 	PVRush::PVNraw const* nraw;
 	PVCol column;
-	Picviz::PVSortingFunc_fless f;
+	Picviz::PVSortingFunc_flesser f;
 };
 
 template <class Tint>
@@ -350,7 +350,7 @@ bool stable_insert_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, TLS& mu
 }
 
 template <class L>
-void sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortingFunc_fless f, Qt::SortOrder order, L& idxes, tbb::task_group_context* ctxt = NULL)
+void sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortingFunc_flesser f, Qt::SortOrder order, L& idxes, tbb::task_group_context* ctxt = NULL)
 {
 	typedef typename L::value_type Tint;
 	tbb::task_group_context my_ctxt;

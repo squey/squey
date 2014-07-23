@@ -69,7 +69,7 @@ protected:
 	void filter_source_indexes(vec_indexes_t const& src_idxes_in, vec_indexes_t& src_idxes_out);
 
 private:
-	mutable Picviz::PVSortingFunc_fless _sort_f;
+	mutable Picviz::PVSortingFunc_flesser _sort_f;
 	mutable Picviz::PVSortingFunc_fequals _equals_f;
 	Picviz::PVView const& _lib_view;
 
@@ -79,9 +79,6 @@ private:
 	PVHive::PVObserverSignal<Picviz::PVSelection> _obs_sel;
 	__impl::PVListingVisibilityObserver _obs_vis;
 	__impl::PVListingVisibilityZombieObserver _obs_zomb;
-
-	// Temporary
-	Picviz::PVDefaultSortingFunc _def_sort;
 };
 
 }

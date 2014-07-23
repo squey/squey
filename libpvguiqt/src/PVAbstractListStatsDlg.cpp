@@ -274,6 +274,11 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 	}
 
 	__impl::PVTableViewResizeEventFilter* table_view_resize_event_handler = new __impl::PVTableViewResizeEventFilter();
+
+	Picviz::PVSortingFunc_p sf = view->get_sort_plugin_for_col(_col);
+	PVStringSortProxyModel* proxy_model = static_cast<PVStringSortProxyModel*>(_values_view->model());
+	proxy_model->set_qt_order_func(sf->qt_f_lesser());
+
 	_values_view->installEventFilter(table_view_resize_event_handler);
 	connect(table_view_resize_event_handler, SIGNAL(resized()), this, SLOT(view_resized()));
 	_values_view->horizontalHeader()->show();

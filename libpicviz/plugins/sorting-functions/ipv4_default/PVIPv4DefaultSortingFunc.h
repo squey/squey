@@ -1,21 +1,21 @@
 /**
- * \file PVIntegerDefaultSortingFunc.h
+ * \file PVIPv4DefaultSortingFunc.h
  *
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef PICVIZ_PVINTEGERDEFAULTSORTINGFUNC_H
-#define PICVIZ_PVINTEGERDEFAULTSORTINGFUNC_H
+#ifndef PICVIZ_PVIPV4DEFAULTSORTINGFUNC_H
+#define PICVIZ_PVIPV4DEFAULTSORTINGFUNC_H
 
 #include <pvkernel/core/general.h>
 #include <picviz/PVSortingFunc.h>
 
 namespace Picviz {
 
-class LibPicvizDecl PVIntegerDefaultSortingFunc : public PVSortingFunc
+class LibPicvizDecl PVIPv4DefaultSortingFunc : public PVSortingFunc
 {
 public:
-	PVIntegerDefaultSortingFunc(PVCore::PVArgumentList const& l = PVIntegerDefaultSortingFunc::default_args());
+	PVIPv4DefaultSortingFunc(PVCore::PVArgumentList const& l = PVIPv4DefaultSortingFunc::default_args());
 public:
 	virtual f_type f();
 	virtual fequals_type f_equals();
@@ -34,10 +34,10 @@ private:
 	static bool qt_equals_asc(QString const& s1, QString const& s2);
 	static int qt_comp_asc(QString const& s1, QString const& s2);
 
-	CLASS_REGISTRABLE(PVIntegerDefaultSortingFunc)
-	CLASS_FUNC_ARGS_PARAM(PVIntegerDefaultSortingFunc)
+	CLASS_REGISTRABLE(PVIPv4DefaultSortingFunc)
+	CLASS_FUNC_ARGS_PARAM(PVIPv4DefaultSortingFunc)
 };
 
 }
 
-#endif
+#endif // PICVIZ_PVIPV4DEFAULTSORTINGFUNC_H
