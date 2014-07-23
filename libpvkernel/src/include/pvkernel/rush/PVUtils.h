@@ -8,6 +8,7 @@
 #define PVRUSH_PVUTILS_H
 
 class QString;
+class QStringList;
 #include <QByteArray>
 
 #include <pvkernel/core/general.h>
@@ -22,6 +23,9 @@ namespace PVUtils {
 
 	const QByteArray get_file_checksum(const QString& path);
 	bool files_have_same_content(const QString& path1, const QString& path2);
+
+	bool safe_export(QString& str, const QString& sep_char, const QString& quote_char);
+	void safe_export(QStringList& str_list, const QString& sep_char, const QString& quote_char);
 
 }
 }

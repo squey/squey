@@ -19,18 +19,23 @@
 #include <pvkernel/core/PVMatrix.h>
 #include <pvkernel/core/PVMeanValue.h>
 #include <pvkernel/core/PVUnicodeString.h>
+#include <pvkernel/core/PVColumnIndexes.h>
 
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNrawDiskBackend.h>
 
 #include <tbb/tbb_allocator.h>
 #include <tbb/tick_count.h>
+#include <tbb/parallel_reduce.h>
 
 extern "C" {
 #include <unicode/ucsdet.h>
 #include <unicode/ucnv.h>
 }
 
+namespace Picviz {
+	class PVAxesCombination;
+}
 
 namespace PVRush {
 
@@ -41,6 +46,8 @@ public:
 	static const QString default_tmp_path;
 	static const QString nraw_tmp_pattern;
 	static const QString nraw_tmp_name_regexp;
+	static const QString default_sep_char;
+	static const QString default_quote_char;
 
 private:
 	PVNraw& operator=(const PVNraw&) = delete;
@@ -166,10 +173,27 @@ public:
 		return _backend.sum_by(col1, col2, ret, min, max, sel, sum, ctxt);
 	}
 
-	QString nraw_line_to_csv(PVRow idx) const;
 	QStringList nraw_line_to_qstringlist(PVRow idx) const;
 
 	void fit_to_content();
+
+
+	QString export_line(
+		PVRow idx,
+		PVCore::PVColumnIndexes col_indexes = PVCore::PVColumnIndexes(),
+		const QString sep_char = default_sep_char,
+		const QString quote_char = default_quote_char
+	) const;
+
+	void export_lines(
+		QTextStream& stream,
+		const PVCore::PVSelBitField& sel,
+		const PVCore::PVColumnIndexes& col_indexes,
+		size_t start_index,
+		size_t step_count,
+		const QString sep_char = default_sep_char,
+		const QString quote_char = default_quote_char
+	) const;
 
 	void dump_csv();
 	void dump_csv(const QString& file_path);
@@ -188,6 +212,7 @@ public:
 private:
 	void clear_table();
 	void reserve_tmp_buf(size_t n);
+	const PVCore::PVColumnIndexes get_column_indexes() const;
 
 private:
 	PVFormat_p format;

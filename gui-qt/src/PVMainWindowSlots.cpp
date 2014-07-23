@@ -11,6 +11,7 @@
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVVersion.h>
+#include <pvkernel/rush/PVUtils.h>
 
 #include <picviz/PVAxisComputation.h>
 #include <picviz/PVPlotting.h>
@@ -28,6 +29,7 @@
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 #include <pvguiqt/PVImportSourceToProjectDlg.h>
 #include <pvguiqt/PVWorkspace.h>
+#include <pvguiqt/PVExportSelectionDlg.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -339,11 +341,27 @@ void PVInspector::PVMainWindow::export_file_Slot()
 void PVInspector::PVMainWindow::export_selection_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	
+
+	Picviz::PVView* view = current_view();
+	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
+	PVRow nrows = nraw.get_number_rows();
+	Picviz::PVSelection& sel = view->get_real_output_selection();
+
+	PVCore::PVProgressBox pbox("Selection export");
+
+	PVRow start = 0;
+	PVRow step_count = 20000;
+
+	Picviz::PVAxesCombination axes_combination = view->get_axes_combination();
+
+	Picviz::PVAxesCombination custom_axes_combination = axes_combination;
+	PVGuiQt::PVExportSelectionDlg* export_selection_dlg = new PVGuiQt::PVExportSelectionDlg(custom_axes_combination, view);
+
 	QFile file;
 	while (true) {
-		QString filename = pv_ExportSelectionDialog->getSaveFileName();
-		if (filename.isEmpty()) {
+		int res = export_selection_dlg->exec();
+		QString filename = export_selection_dlg->selectedFiles()[0];
+		if (filename.isEmpty() || res == QDialog::Rejected) {
 			return;
 		}
 
@@ -361,20 +379,28 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 	// Open a text stream with the current locale (by default in QTextStream)
 	QTextStream stream(&file);
 
-	// For now, save the NRAW !
-	Picviz::PVView* view = current_view();
-	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
-	PVRow nrows = nraw.get_number_rows();
-	Picviz::PVSelection& sel = view->get_real_output_selection();
+	// Use proper axes combination
+	PVCore::PVColumnIndexes column_indexes;
+	if (export_selection_dlg->use_custom_axes_combination()) {
+		axes_combination = export_selection_dlg->get_custom_axes_combination();
+		column_indexes = axes_combination.get_original_axes_indexes();
+	}
 
-	PVCore::PVProgressBox pbox("Selection export");
+	// Get export characters parameters
+	const QString sep_char = export_selection_dlg->separator_char();
+	const QString quote_char = export_selection_dlg->quote_char();
 
-	PVRow start = 0;
-	PVRow step_count = 20000;
+	// Export header
+	if (export_selection_dlg->export_columns_header()) {
+		QStringList str_list = axes_combination.get_axes_names_list();
+		PVRush::PVUtils::safe_export(str_list, sep_char, quote_char);
+		stream << "#" + str_list.join(sep_char) + "\n";
+	}
 
+	// Export selected lines
 	bool ret = PVCore::PVProgressBox::progress([&]() {
 		for (; start < nrows ;) {
-			sel.write_selected_lines_nraw(stream, nraw, start, step_count);
+			nraw.export_lines(stream, sel, column_indexes, start, step_count, sep_char, quote_char);
 			start += step_count;
 			if (pbox.get_cancel_state() != PVCore::PVProgressBox::CONTINUE) {
 				return;

@@ -125,6 +125,7 @@ include/pvkernel/core/PVConfig.h
 include/pvkernel/core/PVVector.h
 include/pvkernel/core/PVFileHelper.h
 include/pvkernel/core/PVMemory2D.h
+include/pvkernel/core/PVColumnIndexes.h
 
 include/pvkernel/core/PVPercentRangeType.h
 )

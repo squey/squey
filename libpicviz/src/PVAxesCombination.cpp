@@ -11,6 +11,7 @@
 #include <picviz/PVAxesCombination.h>
 #include <picviz/PVAxis.h>
 #include <pvkernel/core/PVColor.h>
+#include <pvkernel/rush/PVNraw.h>
 
 /******************************************************************************
  *
@@ -583,6 +584,18 @@ void Picviz::PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so, PV
 	for (axes_comb_id_t id: columns_indexes_list) {
 		axes_list.append(original_axes_list.at(id.get_axis()));
 	}
+}
+
+PVCore::PVColumnIndexes Picviz::PVAxesCombination::get_original_axes_indexes() const
+{
+	PVCore::PVColumnIndexes col_array;
+
+	const columns_indexes_t & axes_index_list =  get_axes_index_list();
+	for (axes_comb_id_t i: axes_index_list) {
+		col_array.push_back(i.get_axis());
+	}
+
+	return col_array;
 }
 
 void Picviz::PVAxesCombination::serialize_write(PVCore::PVSerializeObject& so)

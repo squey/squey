@@ -29,6 +29,7 @@ class PVNraw;
 
 namespace Picviz {
 
+class PVAxesCombination;
 class PVSparseSelection;
 
 /**
@@ -95,10 +96,6 @@ public:
 		ret |= rhs;
 		return std::move(ret);
 	}
-
-	void write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw,
-	                               PVRow start,
-	                               PVRow count);
 
 private:
 	static void move_from_base(PVSelection& ret, PVCore::PVSelBitField&& b)

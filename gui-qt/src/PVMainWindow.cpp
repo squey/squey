@@ -60,6 +60,7 @@
 #include <pvhive/PVCallHelper.h>
 
 #include <pvguiqt/PVListDisplayDlg.h>
+#include <pvguiqt/PVExportSelectionDlg.h>
 
 #include <PVFormatBuilderWidget.h>
 
@@ -115,8 +116,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	report_filename = NULL;
 
 	//We activate all available Windows
-	pv_ExportSelectionDialog = new PVExportSelectionDialog(this);
-	pv_ExportSelectionDialog->hide();
 
 	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(&get_root());
 	_projects_tab_widget->show();
