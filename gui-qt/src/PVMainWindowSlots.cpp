@@ -28,6 +28,7 @@
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 #include <pvguiqt/PVImportSourceToProjectDlg.h>
 #include <pvguiqt/PVWorkspace.h>
+#include <pvguiqt/PVExportSelectionDlg.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -339,53 +340,11 @@ void PVInspector::PVMainWindow::export_file_Slot()
 void PVInspector::PVMainWindow::export_selection_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	
-	QFile file;
-	while (true) {
-		QString filename = pv_ExportSelectionDialog->getSaveFileName();
-		if (filename.isEmpty()) {
-			return;
-		}
 
-		file.setFileName(filename);
-		if (!file.open(QIODevice::WriteOnly)) {
-			QMessageBox::critical(this,
-			                      tr("Error while exporting the selection"),
-			                      tr("Can not create the file \"%1\"").arg(filename));
-		} else {
-			break;
-		}
-	}
-
-	// TODO: put an option in the widget for the file locale
-	// Open a text stream with the current locale (by default in QTextStream)
-	QTextStream stream(&file);
-
-	// For now, save the NRAW !
 	Picviz::PVView* view = current_view();
-	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
-	PVRow nrows = nraw.get_number_rows();
 	Picviz::PVSelection& sel = view->get_real_output_selection();
 
-	PVCore::PVProgressBox pbox("Selection export");
-
-	PVRow start = 0;
-	PVRow step_count = 20000;
-
-	bool ret = PVCore::PVProgressBox::progress([&]() {
-		for (; start < nrows ;) {
-			sel.write_selected_lines_nraw(stream, nraw, start, step_count);
-			start += step_count;
-			if (pbox.get_cancel_state() != PVCore::PVProgressBox::CONTINUE) {
-				return;
-			}
-		}
-	}, &pbox);
-
-	if (ret == false) {
-		file.close();
-		//file.remove();
-	}
+	PVGuiQt::PVExportSelectionDlg::export_selection(*view, sel);
 }
 
 

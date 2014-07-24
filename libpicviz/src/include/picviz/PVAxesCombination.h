@@ -15,10 +15,16 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
+#include <pvkernel/core/PVColumnIndexes.h>
 #include <pvkernel/rush/PVFormat.h>
 
 #include <picviz/PVAxis.h>
 #include <picviz/PVAxesCombination_types.h>
+
+namespace PVRush
+{
+	class PVNraw;
+}
 
 namespace Picviz {
 
@@ -245,6 +251,8 @@ public:
 	PVCol get_original_axes_count() const;
 	/** @} */
 
+	PVCore::PVColumnIndexes get_original_axes_indexes() const;
+
 	template <class T>
 	QList<PVCol> get_original_axes_index_with_tag(T const& tag) const
 	{
@@ -397,6 +405,7 @@ public:
 protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
+
 
 	PVSERIALIZEOBJECT_SPLIT
 };

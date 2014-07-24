@@ -42,3 +42,31 @@ bool PVRush::PVUtils::files_have_same_content(const QString& path1, const QStrin
 {
 	return get_file_checksum(path1) == get_file_checksum(path2);
 }
+
+bool PVRush::PVUtils::safe_export(QString& str, const QString& sep_char, const QString& quote_char)
+{
+	static QString escaped_quote("\\" + quote_char);
+
+	bool do_quote = false;
+
+	if (str.contains(sep_char)) {
+		do_quote = true;
+	}
+	if (str.contains(quote_char)) {
+		do_quote = true;
+		str.replace(quote_char, escaped_quote);
+	}
+	if (do_quote) {
+		str.append(quote_char);
+		str.prepend(quote_char);
+	}
+
+	return do_quote;
+}
+
+void PVRush::PVUtils::safe_export(QStringList& str_list, const QString& sep_char, const QString& quote_char)
+{
+	for (QString& str : str_list) {
+		safe_export(str, sep_char, quote_char);
+	}
+}

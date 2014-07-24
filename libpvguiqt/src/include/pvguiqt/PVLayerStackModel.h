@@ -18,6 +18,11 @@
 #include <QBrush>
 #include <QFont>
 
+namespace Picviz
+{
+	class PVView;
+}
+
 namespace PVGuiQt {
 
 /**
@@ -53,6 +58,8 @@ public:
 	Picviz::PVLayerStack const& lib_layer_stack() const { return *_obs.get_object(); }
 	Picviz::PVLayerStack& lib_layer_stack() { return *_obs.get_object(); }
 	PVHive::PVActor<Picviz::PVView>& view_actor() { return _actor; }
+	Picviz::PVView const& lib_view() const { return _lib_view; }
+	Picviz::PVView& lib_view() { return _lib_view; }
 
 private:
 	inline int lib_index_from_model_index(int model_index) const { assert(model_index < rowCount()); return rowCount() - model_index - 1; }
@@ -63,6 +70,7 @@ private slots:
 	void layer_stack_refreshed(PVHive::PVObserverBase* o);
 
 private:
+	Picviz::PVView& _lib_view;
 	QBrush select_brush;       //!<
 	QFont select_font;         //!<
 	QBrush unselect_brush;     //!<

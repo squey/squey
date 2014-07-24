@@ -35,7 +35,6 @@
 #include <pvguiqt/PVCorrelationMenu.h>
 #include <pvguiqt/PVProjectsTabWidget.h>
 
-#include <PVExportSelectionDialog.h>
 #include <PVFilesTypesSelWidget.h>
 
 //#include <>
@@ -59,6 +58,7 @@ namespace PVGuiQt
 {
 class PVSourceWorkspace;
 class PVAboutBoxDialog;
+class PVExportSelectionDlg;
 }
 
 namespace PVInspector {
@@ -115,8 +115,6 @@ private:
 
 public:
 	PVMainWindow(QWidget *parent = 0);
-
-	PVExportSelectionDialog *pv_ExportSelectionDialog;
 
 	PVGuiQt::PVProjectsTabWidget* _projects_tab_widget;
 

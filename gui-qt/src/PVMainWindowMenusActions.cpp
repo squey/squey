@@ -44,8 +44,8 @@ void PVInspector::PVMainWindow::create_actions()
 	new_file_Action->setWhatsThis(tr("Use this to create a new file."));
 
 	// Export our selection Action
-	export_selection_Action = new QAction(tr("Export &selection..."), this);
-	export_selection_Action->setToolTip(tr("Export our current selection"));
+	export_selection_Action = new QAction(tr("&Selection..."), this);
+	export_selection_Action->setToolTip(tr("Export the current selection"));
 
 	// The extractorFile Action
 	extractor_file_Action = new QAction(tr("&Create new source from input..."), this);

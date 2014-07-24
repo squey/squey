@@ -19,6 +19,7 @@
  *****************************************************************************/
 PVGuiQt::PVLayerStackModel::PVLayerStackModel(Picviz::PVView_sp& lib_view, QObject* parent):
 	QAbstractTableModel(parent),
+	_lib_view(*lib_view),
 	select_brush(QColor(255,240,200)),
 	unselect_brush(QColor(180,180,180)),
 	_obs(this),

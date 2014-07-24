@@ -93,7 +93,8 @@ int main(int argc, char** argv)
 		return 4;
 	}
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();
-	sel.write_selected_lines_nraw(stream, nraw, 0, src->get_row_count());
+	const PVCore::PVColumnIndexes& col_indexes = view->get_axes_combination().get_original_axes_indexes();
+	nraw.export_lines(stream, sel, col_indexes, 0, src->get_row_count());
 	stream.flush();
 
 	// Compare files content
