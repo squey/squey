@@ -66,6 +66,12 @@ public:
 	// Sum by
 	typedef PVNrawDiskBackend::sum_by_t sum_by_t;
 
+	// Min by
+	typedef PVNrawDiskBackend::min_by_t min_by_t;
+
+	// Max by
+	typedef PVNrawDiskBackend::max_by_t max_by_t;
+
 public:
 	PVNraw();
 	~PVNraw();
@@ -168,9 +174,29 @@ public:
 		return _backend.get_sum(col, sum, sel, ctxt);
 	}
 
+	inline bool get_min(PVCol const col, uint64_t& min, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
+	{
+		return _backend.get_min(col, min, sel, ctxt);
+	}
+
+	inline bool get_max(PVCol const col, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
+	{
+		return _backend.get_max(col, max, sel, ctxt);
+	}
+
 	inline bool sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr) const
 	{
 		return _backend.sum_by(col1, col2, ret, min, max, sel, sum, ctxt);
+	}
+
+	inline bool max_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
+	{
+		return _backend.max_by(col1, col2, ret, min, max, sel, ctxt);
+	}
+
+	inline bool min_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
+	{
+		return _backend.min_by(col1, col2, ret, min, max, sel, ctxt);
 	}
 
 	QStringList nraw_line_to_qstringlist(PVRow idx) const;

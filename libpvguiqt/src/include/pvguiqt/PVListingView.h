@@ -106,6 +106,8 @@ private:
 	QAction* _action_col_unique;
 	QMenu* _menu_col_count_by;
 	QMenu* _menu_col_sum_by;
+	QMenu* _menu_col_min_by;
+	QMenu* _menu_col_max_by;
 	bool _show_ctxt_menu;
 	PVRow _ctxt_row;
 	PVCol _ctxt_col;
