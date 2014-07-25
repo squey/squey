@@ -99,6 +99,11 @@ void PVRush::PVNraw::reserve_tmp_buf(size_t n)
 
 bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 {
+	if (_real_nrows == PICVIZ_LINES_MAX) {
+		// the whole chunk can be skipped
+		return false;
+	}
+
 	// Write all elements of the chunk in the final nraw
 	PVCore::list_elts const& elts = chunk.c_elements();	
 	PVCore::list_elts::const_iterator it_elt;
@@ -111,6 +116,14 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 		PVCore::list_fields const& fields = e.c_fields();
 		if (fields.size() == 0)
 			continue;
+
+		if (_real_nrows == PICVIZ_LINES_MAX) {
+			/* we have enough events, skips the others. As the
+			 * chunk has been partially saved, the current chunked
+			 * index has to be saved by the caller (PVNrawOutput).
+			 */
+			return true;
+		}
 
 		_real_nrows++;
 		PVCol col = 0;

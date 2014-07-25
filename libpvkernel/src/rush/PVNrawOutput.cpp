@@ -25,6 +25,9 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 		_pvrow_chunk_idx[_nraw_cur_index] = out->agg_index();
 
 		_nraw_cur_index++;
+	} else {
+		// tell the pipeline it can stop
+		*_stop_cond = true;
 	}
 
 	// Clear this chunk !

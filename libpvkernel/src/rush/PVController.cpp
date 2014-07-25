@@ -47,6 +47,7 @@ void PVRush::PVController::operator()()
 				assert(_cur_job->_agg);
 				_cur_job->_agg->process_indexes(_cur_job->idx_begin(), _cur_job->idx_end(), _cur_job->expected_nelts());
 				_cur_job->_agg->set_stop_condition(&(_cur_job->_job_done));
+				_cur_job->_out_filter->set_stop_condition(&(_cur_job->_job_done));
 
 				// Debug
 				_cur_job->_agg->debug();
