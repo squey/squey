@@ -268,17 +268,25 @@ public:
 	typedef unique_values_t sum_by_t;
 	typedef std::unordered_map<sum_by_key_t, sum_by_value_t> sum_by_unordered_map_t;
 
+	// min by
+	typedef std::string_tbb min_by_key_t;
+	typedef uint64_t min_by_value_t;
+	typedef unique_values_t min_by_t;
+	typedef std::unordered_map<min_by_key_t, min_by_value_t> min_by_unordered_map_t;
+
 	// max by
 	typedef std::string_tbb max_by_key_t;
 	typedef uint64_t max_by_value_t;
 	typedef unique_values_t max_by_t;
 	typedef std::unordered_map<max_by_key_t, max_by_value_t> max_by_unordered_map_t;
 
-	// min by
-	typedef std::string_tbb min_by_key_t;
-	typedef init_max<uint64_t> min_by_value_t;
-	typedef unique_values_t min_by_t;
-	typedef std::unordered_map<min_by_key_t, min_by_value_t> min_by_unordered_map_t;
+	// average by
+	typedef std::string_tbb average_by_key_t;
+	typedef std::pair<uint64_t, uint32_t> average_by_value_t;
+	//typedef uint64_t average_by_value_t;
+	typedef unique_values_t avg_by_t;
+	typedef std::unordered_map<average_by_key_t, average_by_value_t> average_by_unordered_map_t;
+	typedef average_by_unordered_map_t::value_type average_by_value_type_t;
 
 public:
 	PVNrawDiskBackend();
@@ -722,10 +730,12 @@ public:
 	bool get_sum(PVCol const col, uint64_t& sum, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
 	bool get_min(PVCol const col, uint64_t& min, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
 	bool get_max(PVCol const col, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
+	bool get_avg(PVCol const col, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
 
 	bool sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr);
 	bool min_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
 	bool max_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
+	bool avg_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr);
 
 	void clear_stats()
 	{
@@ -1035,7 +1045,7 @@ private:
 	}
 #endif
 
-	template <typename T, typename F_insertion, typename F_merge>
+	template <typename T, typename F_insertion, typename F_merge, typename F_post>
 	bool operation_on_distinct_values(
 		PVCol const c,
 		unique_values_t& ret,
@@ -1043,6 +1053,7 @@ private:
 		uint64_t& max,
 		F_insertion const& f_ins,
 		F_merge const& f_merge_op,
+		F_post const& f_post,
 		PVCore::PVSelBitField const& sel,
 		tbb::task_group_context* ctxt
 	)
@@ -1079,9 +1090,9 @@ private:
 			max = 0;
 			ret.reserve(values.size());
 			for (auto& v : values) {
-				ret.emplace_back(std::move(v.first), v.second);
-				min = std::min(min, (uint64_t) v.second);
-				max = std::max(max, (uint64_t) v.second);
+				uint64_t val;
+				f_post(min, max, val, v);
+				ret.emplace_back(std::move(v.first), val);
 			}
 		}
 		else {
@@ -1110,8 +1121,7 @@ private:
 		const char* c_str = col2_str.c_str();
 		uint64_t value = strtoll(c_str, &end_char, 10);
 		if (c_str != end_char && *end_char == '\0') {
-			auto& m = values[col1_str];
-			f((uint64_t&) m, value);
+			f(values, col1_str, value);
 		}
 	}
 

@@ -164,6 +164,7 @@ void PVGuiQt::PVStatsListingWidget::init_plugins()
 	init_plugin<__impl::PVSumCellWidget>("sum", /* visible = */ false);
 	init_plugin<__impl::PVMinCellWidget>("min", /* visible = */ false);
 	init_plugin<__impl::PVMaxCellWidget>("max", /* visible = */ false);
+	init_plugin<__impl::PVAverageCellWidget>("avg", /* visible = */ false);
 
 	for (PVCol col=0; col < _listing_view->horizontalHeader()->count(); col++) {
 		_stats_panel->setColumnWidth(col, _listing_view->horizontalHeader()->sectionSize(col));
@@ -631,4 +632,17 @@ void PVGuiQt::__impl::PVMaxCellWidget::refresh_impl()
 	bool valid = _view.get_rushnraw_parent().get_max(get_real_axis_col(), max, *_view.get_selection_visible_listing(), _ctxt);
 
 	emit refresh_impl_finished(QString("%L1").arg(max), valid); // We must go back on the Qt thread to update the GUI
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::__impl::PVAverageCellWidget
+ *
+ *****************************************************************************/
+void PVGuiQt::__impl::PVAverageCellWidget::refresh_impl()
+{
+	uint64_t avg = 0;
+	bool valid = _view.get_rushnraw_parent().get_avg(get_real_axis_col(), avg, *_view.get_selection_visible_listing(), _ctxt);
+
+	emit refresh_impl_finished(QString("%L1").arg(avg), valid); // We must go back on the Qt thread to update the GUI
 }

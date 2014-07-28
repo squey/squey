@@ -122,3 +122,25 @@ bool PVGuiQt::PVQNraw::show_min_by(Picviz::PVView_sp& view, PVRush::PVNraw const
 
 	return true;
 }
+
+bool PVGuiQt::PVQNraw::show_avg_by(Picviz::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Picviz::PVSelection const& sel, QWidget* parent)
+{
+	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
+	pbox->set_enable_cancel(true);
+	PVRush::PVNraw::avg_by_t values;
+	uint64_t min;
+	uint64_t max;
+	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
+	ctxt.reset();
+	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2] { nraw.avg_by(col1, col2, values, min, max, *((PVCore::PVSelBitField const*) &sel), &ctxt); }, ctxt, pbox);
+	if (!ret_pbox || values.size() == 0) {
+		return false;
+	}
+
+	// PVSumByStringsDlg takes ownership of strings inside `values'
+	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, col1, values, max, min, max, parent);
+	dlg->setWindowTitle("Average by of axes '" + nraw.get_axis_name(col1) + "' and '" + nraw.get_axis_name(col2)+ "'");
+	dlg->show();
+
+	return true;
+}
