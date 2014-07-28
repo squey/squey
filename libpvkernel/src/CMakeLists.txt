@@ -8,6 +8,7 @@ core/debug.cpp
 core/environ.cpp
 core/network.cpp
 core/picviz_intrin.cpp
+core/picviz_trace.cpp
 core/sse4detector.cpp
 core/segfault_handler.cpp
 
