@@ -160,8 +160,10 @@ void PVGuiQt::PVStatsListingWidget::init_plugins()
 		_stats_panel->insertColumn(col);
 	}
 
-	init_plugin<__impl::PVUniqueValuesCellWidget>("distinct\nvalues", true);
-	init_plugin<__impl::PVSumCellWidget>("sum", false);
+	init_plugin<__impl::PVUniqueValuesCellWidget>("distinct\nvalues", /* visible = */ true );
+	init_plugin<__impl::PVSumCellWidget>("sum", /* visible = */ false);
+	init_plugin<__impl::PVMinCellWidget>("min", /* visible = */ false);
+	init_plugin<__impl::PVMaxCellWidget>("max", /* visible = */ false);
 
 	for (PVCol col=0; col < _listing_view->horizontalHeader()->count(); col++) {
 		_stats_panel->setColumnWidth(col, _listing_view->horizontalHeader()->sectionSize(col));
@@ -603,4 +605,30 @@ void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
 	bool valid = _view.get_rushnraw_parent().get_sum(get_real_axis_col(), sum, *_view.get_selection_visible_listing(), _ctxt);
 
 	emit refresh_impl_finished(QString("%L1").arg(sum), valid); // We must go back on the Qt thread to update the GUI
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::__impl::PVMinCellWidget
+ *
+ *****************************************************************************/
+void PVGuiQt::__impl::PVMinCellWidget::refresh_impl()
+{
+	uint64_t min = 0;
+	bool valid = _view.get_rushnraw_parent().get_min(get_real_axis_col(), min, *_view.get_selection_visible_listing(), _ctxt);
+
+	emit refresh_impl_finished(QString("%L1").arg(min), valid); // We must go back on the Qt thread to update the GUI
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::__impl::PVMaxCellWidget
+ *
+ *****************************************************************************/
+void PVGuiQt::__impl::PVMaxCellWidget::refresh_impl()
+{
+	uint64_t max = 0;
+	bool valid = _view.get_rushnraw_parent().get_max(get_real_axis_col(), max, *_view.get_selection_visible_listing(), _ctxt);
+
+	emit refresh_impl_finished(QString("%L1").arg(max), valid); // We must go back on the Qt thread to update the GUI
 }

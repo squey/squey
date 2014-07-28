@@ -249,6 +249,28 @@ public slots:
 	virtual void refresh_impl() override;
 };
 
+class PVMinCellWidget : public PVCellWidgetBase
+{
+	Q_OBJECT
+
+public:
+	PVMinCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
+
+public slots:
+	virtual void refresh_impl() override;
+};
+
+class PVMaxCellWidget : public PVCellWidgetBase
+{
+	Q_OBJECT
+
+public:
+	PVMaxCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
+
+public slots:
+	virtual void refresh_impl() override;
+};
+
 }
 
 }

@@ -623,18 +623,22 @@ bool PVRush::PVNrawDiskBackend::get_unique_values(PVCol const c, unique_values_t
 {
 	BENCH_START(get_unique_values);
 
-	if (true) { // Use a thread local storage and merge partial results
-		return get_unique_values_impl_tls(c, ret, min, max, [&](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
-			{
-				unique_values_insertion(values, row, buf, n);
-			}, sel, ctxt);
-	}
-	else { // Use a concurrent structure
-		return get_unique_values_impl_concurrent(c, ret, min, max, [&](unique_values_concurrent_unordered_map_t& values, size_t row, const char* buf, size_t n)
-			{
-				unique_values_insertion(values, row, buf, n);
-			}, sel, ctxt);
-	}
+	return operation_on_distinct_values<unique_values_unordered_map_t>(
+		c,
+		ret,
+		min,
+		max,
+		[&](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
+		{
+			distinct_values_insertion(values, row, buf, n);
+		},
+		[&](unique_values_unordered_map_t& values, const std::string_tbb& v1, const uint64_t& v2)
+		{
+			values[v1] += v2;
+		},
+		sel,
+		ctxt
+	);
 
 	BENCH_END(get_unique_values, "get_unique_values", 1, 1, 1, 1);
 
@@ -648,18 +652,24 @@ bool PVRush::PVNrawDiskBackend::sum_by(PVCol const col1, PVCol const col2, sum_b
 	max = 0;
 
 	bool res = false;
-	if (true) { // Use a thread local storage and merge partial results
-		res = get_unique_values_impl_tls(col1, ret, min, max, [&, col2](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
-			{
-				sum_by_insertion(values, row, col2, buf, n);
-			}, sel, ctxt);
-	}
-	else { // Use a concurrent structure
-		res = get_unique_values_impl_concurrent(col1, ret, min, max, [&, col2](unique_values_concurrent_unordered_map_t& values, size_t row, const char* buf, size_t n)
-			{
-				sum_by_insertion(values, row, col2, buf, n);
-			}, sel, ctxt);
-	}
+
+	res = operation_on_distinct_values<unique_values_unordered_map_t>(
+		col1,
+		ret,
+		min,
+		max,
+		[&, col2](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
+		{
+			op_by_insertion(values, row, col2, buf, n, [&](uint64_t& v1, const uint64_t& v2){ v1 += v2; });
+		},
+		[&](unique_values_unordered_map_t& values, const std::string_tbb& v1, const uint64_t& v2)
+		{
+			auto& m = values[v1];
+			m += v2;
+		},
+		sel,
+		ctxt
+	);
 
 	if (!res) {
 		return false;
@@ -668,6 +678,74 @@ bool PVRush::PVNrawDiskBackend::sum_by(PVCol const col1, PVCol const col2, sum_b
 	res = get_sum(col2, sum, sel, ctxt);
 
 	BENCH_END(sum_by, "sum_by", 1, 1, 1, 1);
+
+	return res;
+}
+
+bool PVRush::PVNrawDiskBackend::max_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt /* = nullptr */)
+{
+	BENCH_START(max_by);
+
+	max = 0;
+
+	bool res = false;
+	res = operation_on_distinct_values<unique_values_unordered_map_t>(
+		col1,
+		ret,
+		min,
+		max,
+		[&, col2](unique_values_unordered_map_t& values, size_t row, const char* buf, size_t n)
+		{
+			op_by_insertion(values, row, col2, buf, n, [&](uint64_t& v1, const uint64_t& v2){ v1 = std::max(v1, v2); });
+		},
+		[&](unique_values_unordered_map_t& values, const std::string_tbb& v1, const uint64_t& v2)
+		{
+			auto& m = values[v1];
+			m = std::max((uint64_t&)m, v2);
+		},
+		sel,
+		ctxt
+	);
+
+	if (!res) {
+		return false;
+	}
+
+	BENCH_END(max_by, "max_by", 1, 1, 1, 1);
+
+	return res;
+}
+
+bool PVRush::PVNrawDiskBackend::min_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt /* = nullptr */)
+{
+	BENCH_START(min_by);
+
+	max = 0;
+
+	bool res = false;
+	res = operation_on_distinct_values<min_by_unordered_map_t>(
+		col1,
+		ret,
+		min,
+		max,
+		[&, col2](min_by_unordered_map_t& values, size_t row, const char* buf, size_t n)
+		{
+			op_by_insertion(values, row, col2, buf, n, [&](uint64_t& v1, const uint64_t& v2){ v1 = std::min(v1, v2); });
+		},
+		[&](min_by_unordered_map_t& values, const std::string_tbb& v1, const uint64_t& v2)
+		{
+			auto& m = values[v1];
+			m = std::min((uint64_t&)m, v2);
+		},
+		sel,
+		ctxt
+	);
+
+	if (!res) {
+		return false;
+	}
+
+	BENCH_END(min_by, "min_by", 1, 1, 1, 1);
 
 	return res;
 }
@@ -755,38 +833,20 @@ bool PVRush::PVNrawDiskBackend::count_by(
 	return res;
 }
 
-bool PVRush::PVNrawDiskBackend::get_sum(
-	const PVCol col,
-	uint64_t& sum,
-	const PVCore::PVSelBitField& sel,
-	tbb::task_group_context* ctxt
-)
+bool PVRush::PVNrawDiskBackend::get_sum(const PVCol col, uint64_t& sum, const PVCore::PVSelBitField& sel, tbb::task_group_context* ctxt)
 {
-	typedef std::pair<uint64_t, bool> sum_valid_t;
-	tbb::enumerable_thread_specific<sum_valid_t> sum_valid_tls([](){ return sum_valid_t(0, false); });
-
-	bool res = visit_column_tbb_sel(col, [&sum_valid_tls, &ctxt](size_t /*row*/, const char* buf, size_t n)
-	{
-		char* end_char;
-		const char* c_str = std::string_tbb(buf, n).c_str();
-		uint64_t value = strtoll(c_str, &end_char, 10);
-		if (c_str != end_char && *end_char == '\0') {
-			sum_valid_t& sum_valid = sum_valid_tls.local();
-			sum_valid.first += value;
-			sum_valid.second = true;
-		}
-	}, sel, ctxt);
-
-	if (!res) {
-		return false;
-	}
-
 	sum = 0;
-	bool valid = false;
-	for (sum_valid_t& partial_sum : sum_valid_tls) {
-		sum += partial_sum.first;
-		valid |= partial_sum.second;
-	}
+	return column_reduction(col, sum, sel, [&](uint64_t& v1, const uint64_t& v2){ v1 += v2; }, ctxt);
+}
 
-	return valid;
+bool PVRush::PVNrawDiskBackend::get_min(const PVCol col, uint64_t& min, const PVCore::PVSelBitField& sel, tbb::task_group_context* ctxt)
+{
+	min = std::numeric_limits<uint64_t>::max();
+	return column_reduction(col, min, sel, [&](uint64_t& v1, const uint64_t& v2){ v1 = std::min(v1, v2); }, ctxt);
+}
+
+bool PVRush::PVNrawDiskBackend::get_max(const PVCol col, uint64_t& max, const PVCore::PVSelBitField& sel, tbb::task_group_context* ctxt)
+{
+	max = 0;
+	return column_reduction(col, max, sel, [&](uint64_t& v1, const uint64_t& v2){ v1 = std::max(v1, v2); }, ctxt);
 }
