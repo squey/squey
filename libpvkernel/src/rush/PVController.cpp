@@ -61,9 +61,18 @@ void PVRush::PVController::operator()()
 				// Launch the pipeline
 				_cur_job->job_goingto_start(*this);
 				tbb::task::spawn_root_and_wait(*_pipeline);
+
+				/**
+				 * according to the TBB's documentation, the pipeline is implictly
+				 * freed by tbb::task::spawn_root_and_wait(...).
+				 */
 				_pipeline = NULL;
 
 				_cur_job->job_has_run();
+
+				// the current is now useless
+				_cur_job.reset();
+
 				break;
 			}
 
@@ -78,7 +87,7 @@ void PVRush::PVController::operator()()
 			default:
 				assert(false);
 		}
-		
+
 		PVLOG_DEBUG("(PVController) Job finished\n");
 
 	}
