@@ -73,9 +73,9 @@ int main(int argc, char** argv)
 		ext.set_format(format);
 		ext.set_chunk_filter(format.create_tbb_filters());
 
-		PVLOG_INFO("Asking 20 million lines...\n");
-		// Ask for 1 million lines
-		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, 1000000);
+		long nlines = 1000000;
+		PVLOG_INFO("Asking %ld lines...\n", nlines);
+		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, nlines);
 		job->wait_end();
 
 		dump_nraw_csv(ext.get_nraw());
