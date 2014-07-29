@@ -142,6 +142,7 @@
 
 	<!-- HELP CONTENT -->
 	<file alias="help-style">resources/help/style.css</file>
+	<file alias="help-application">resources/help/application.html</file>
 	<file alias="help-selection">resources/help/selection.html</file>
 	<file alias="help-layers">resources/help/layers.html</file>
 	<file alias="help-lines">resources/help/lines.html</file>

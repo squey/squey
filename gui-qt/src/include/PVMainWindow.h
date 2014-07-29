@@ -205,7 +205,8 @@ public slots:
 	void textedit_text_changed_Slot();
 	void view_new_scatter_Slot();
 	void view_display_inv_elts_Slot();
-	void view_screenshot_qt_Slot();
+	void get_screenshot_widget();
+	void get_screenshot_desktop();
 	void show_correlation_Slot();
 	void update_reply_finished_Slot(QNetworkReply *reply);
 	void whats_this_Slot();
@@ -336,7 +337,6 @@ private:
 	QAction *view_Action;
 	QAction *view_new_scatter_Action;
 	QAction *view_display_inv_elts_Action;
-	QAction *view_screenshot_qt;
 	QAction *whats_this_Action;
 
 	QAction *layer_export_Action;

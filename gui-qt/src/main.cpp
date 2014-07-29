@@ -15,6 +15,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QSplashScreen>
+#include <QShortcut>
 
 #include <PVMainWindow.h>
 #include <PVCustomStyle.h>
@@ -285,6 +286,19 @@ int main(int argc, char *argv[])
 		// Set default title
 		pv_mw->set_window_title_with_filename();
 	}
+
+	/* set the screenshot shortcuts as global shortcuts
+	 */
+	QShortcut* sc;
+	sc = new QShortcut(QKeySequence(Qt::Key_Print), pv_mw);
+	sc->setContext(Qt::ApplicationShortcut);
+	QObject::connect(sc, SIGNAL(activated()),
+	                 pv_mw, SLOT(get_screenshot_widget()));
+
+	sc = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Print), pv_mw);
+	sc->setContext(Qt::ApplicationShortcut);
+	QObject::connect(sc, SIGNAL(activated()),
+	                 pv_mw, SLOT(get_screenshot_desktop()));
 
 	int ret = app.exec();
 #else

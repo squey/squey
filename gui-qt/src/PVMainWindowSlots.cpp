@@ -4,6 +4,8 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
+#include <pvkernel/core/qobject_helpers.h>
+
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
@@ -28,7 +30,9 @@
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 #include <pvguiqt/PVImportSourceToProjectDlg.h>
 #include <pvguiqt/PVWorkspace.h>
+#include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
+#include <pvguiqt/PVAboutBoxDialog.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -39,7 +43,8 @@
 #include <PVAxisComputationDlg.h>
 #include <PVSaveDataTreeDialog.h>
 
-#include <pvguiqt/PVAboutBoxDialog.h>
+#include <QPainter>
+#include <QDockWidget>
 
 /******************************************************************************
  *
@@ -1219,9 +1224,81 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 }
 
-void PVInspector::PVMainWindow::view_screenshot_qt_Slot()
-{
+/******************************************************************************
+ * PVInspector::PVMainWindow::get_screenshot_widget
+ *****************************************************************************/
 
+void PVInspector::PVMainWindow::get_screenshot_widget()
+{
+	/**
+	 * to do the screenshot of widgets, we search for the more relevant
+	 * widget in the widget hierarchy that is under the mouse cursor.
+	 *
+	 * the screenshot may be on:
+	 * - a dialog (the statistical views)
+	 * - any QDockWidget (graphical views, listing, layerstack
+	 * - the current workspace
+	 * - the whole main window
+	 *
+	 * Note: As the family tree is fully traversed for each wanted class,
+	 * the tests order is really important.
+	 *
+	 * If the class list to check for needs to be more complicated, there
+	 * may be required to rewrite the whole algorithm to pass the whole
+	 * class list as template parameter to do the check in one call.
+	 */
+	int x = QCursor::pos().x();
+	int y = QCursor::pos().y();
+	QWidget* w = QApplication::widgetAt(x, y);
+	QWidget* p;
+
+	p = PVCore::get_qobject_hierarchy_of_type<QDialog>(w);
+	if (p == nullptr) {
+		p = PVCore::get_qobject_hierarchy_of_type<QDockWidget>(w);
+		if (p == nullptr) {
+			p = PVCore::get_qobject_hierarchy_of_type<PVGuiQt::PVWorkspacesTabWidgetBase>(w);
+			if (p == nullptr) {
+				p = PVCore::get_qobject_hierarchy_of_type<PVMainWindow>(w);
+			}
+		}
+	}
+
+	if (p == nullptr) {
+		return;
+	}
+
+	QPixmap pmap = QPixmap::grabWidget(p);
+
+	QString img_name = QFileDialog::getSaveFileName(this,
+	                                                QString("Save view screenshot"),
+	                                                "screenshot.png",
+	                                                QString("Image (*.png)"));
+
+	if (img_name.isEmpty() == false) {
+		if (!img_name.endsWith(".png"))
+			img_name += ".png";
+		pmap.save(img_name);
+	}
+}
+
+/******************************************************************************
+ * PVInspector::PVMainWindow::get_screenshot_widget
+ *****************************************************************************/
+
+void PVInspector::PVMainWindow::get_screenshot_desktop()
+{
+	QPixmap pmap = QPixmap::grabWindow(QApplication::desktop()->winId());
+
+	QString img_name = QFileDialog::getSaveFileName(this,
+	                                                QString("Save desktop screenshot"),
+	                                                "screenshot.png",
+	                                                QString("Image (*.png)"));
+
+	if (img_name.isEmpty() == false) {
+		if (!img_name.endsWith(".png"))
+			img_name += ".png";
+		pmap.save(img_name);
+	}
 }
 
 /******************************************************************************
