@@ -271,6 +271,17 @@ public slots:
 	virtual void refresh_impl() override;
 };
 
+class PVAverageCellWidget : public PVCellWidgetBase
+{
+	Q_OBJECT
+
+public:
+	PVAverageCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
+
+public slots:
+	virtual void refresh_impl() override;
+};
+
 }
 
 }

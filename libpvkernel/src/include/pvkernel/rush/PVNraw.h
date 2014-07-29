@@ -72,6 +72,9 @@ public:
 	// Max by
 	typedef PVNrawDiskBackend::max_by_t max_by_t;
 
+	// Avg by
+	typedef PVNrawDiskBackend::avg_by_t avg_by_t;
+
 public:
 	PVNraw();
 	~PVNraw();
@@ -184,6 +187,11 @@ public:
 		return _backend.get_max(col, max, sel, ctxt);
 	}
 
+	inline bool get_avg(PVCol const col, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
+	{
+		return _backend.get_avg(col, max, sel, ctxt);
+	}
+
 	inline bool sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr) const
 	{
 		return _backend.sum_by(col1, col2, ret, min, max, sel, sum, ctxt);
@@ -197,6 +205,11 @@ public:
 	inline bool min_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
 	{
 		return _backend.min_by(col1, col2, ret, min, max, sel, ctxt);
+	}
+
+	inline bool avg_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
+	{
+		return _backend.avg_by(col1, col2, ret, min, max, sel, ctxt);
 	}
 
 	QStringList nraw_line_to_qstringlist(PVRow idx) const;

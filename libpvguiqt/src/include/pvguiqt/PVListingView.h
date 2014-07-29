@@ -108,6 +108,7 @@ private:
 	QMenu* _menu_col_sum_by;
 	QMenu* _menu_col_min_by;
 	QMenu* _menu_col_max_by;
+	QMenu* _menu_col_avg_by;
 	bool _show_ctxt_menu;
 	PVRow _ctxt_row;
 	PVCol _ctxt_col;
