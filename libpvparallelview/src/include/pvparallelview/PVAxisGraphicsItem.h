@@ -120,6 +120,8 @@ public:
 
 	void highlight(bool start);
 
+	PVAxisLabel* label() const { return _label; }
+
 public slots:
 	void emit_new_zoomed_parallel_view(int axis_id)
 	{

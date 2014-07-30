@@ -200,12 +200,12 @@ PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisH
 	_title_highlight = new PVGraphicsPolygonItem();
 	_title_highlight->setFlags(QGraphicsItem::ItemIgnoresTransformations);
 
-	QRectF local_bounding_rect = header()->axis()->_label->boundingRect();
+	QRectF local_bounding_rect = header()->axis()->label()->boundingRect();
 	qreal min_width = 5;
 	qreal min_height = 15;
 	local_bounding_rect.setWidth(std::max(local_bounding_rect.width(), min_width));
 	local_bounding_rect.setHeight(std::max(local_bounding_rect.height(), min_height));
-	QRectF transformed_bounding_rect = header()->axis()->_label->mapToParent(local_bounding_rect).boundingRect();
+	QRectF transformed_bounding_rect = header()->axis()->label()->mapToParent(local_bounding_rect).boundingRect();
 
 	qreal a = 8;   // margin under and over text
 	qreal b = a;   // thickness
@@ -260,7 +260,7 @@ PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisH
 	QGraphicsOpacityEffect* opacity_effect2 = new QGraphicsOpacityEffect();
 	opacity_effect2->setOpacity(0.5);
 	_title_highlight->setGraphicsEffect(opacity_effect2);
-	_title_highlight->setParentItem(header()->axis()->_label);
+	_title_highlight->setParentItem(header()->axis()->label());
 }
 
 
