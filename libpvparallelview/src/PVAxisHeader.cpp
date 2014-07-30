@@ -198,6 +198,7 @@ PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisH
 	header()->setGraphicsEffect(opacity_effect);
 
 	_title_highlight = new PVGraphicsPolygonItem();
+	_title_highlight->setFlags(QGraphicsItem::ItemIgnoresTransformations);
 
 	QRectF local_bounding_rect = header()->axis()->_label->boundingRect();
 	qreal min_width = 5;
@@ -211,7 +212,7 @@ PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisH
 	qreal c = 5;   // margin after text
 	qreal e = 5;   // bevel
 	qreal d = c;   // width of the shape after the end of the text
-	qreal y_trans = 12;
+	qreal y_trans = PVAxisGraphicsItem::axis_extend - 4;
 
 	qreal label_width = transformed_bounding_rect.width();
 	qreal label_height = transformed_bounding_rect.height();
@@ -250,7 +251,7 @@ PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisH
 	polygon << QPointF(x5, y5);
 	polygon << QPointF(x6, y6);
 	polygon << QPointF(x7, y7);
-	polygon.translate(0, -y_trans);
+	polygon.translate(0, y_trans);
 
 	_title_highlight->setPolygon(polygon);
 	_title_highlight->setBrush(header()->axis()->lib_axis()->get_titlecolor().toQColor());
@@ -259,7 +260,7 @@ PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisH
 	QGraphicsOpacityEffect* opacity_effect2 = new QGraphicsOpacityEffect();
 	opacity_effect2->setOpacity(0.5);
 	_title_highlight->setGraphicsEffect(opacity_effect2);
-	header()->axis()->addToGroup(_title_highlight);
+	_title_highlight->setParentItem(header()->axis()->_label);
 }
 
 
