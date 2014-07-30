@@ -93,7 +93,7 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	_use_log_color->setIcon(QIcon(":/colormap-log"));
 	_use_log_color->setCheckable(true);
 	_use_log_color->setChecked(false);
-	_use_log_color->setShortcut(Qt::Key_L);
+	_use_log_color->setShortcut(Qt::Key_S);
 	_use_log_color->setText("Logarithmic colormap");
 	_use_log_color->setToolTip("Activate/deactivate use of a logarithmic colormap for visible events ("
 	                           + _use_log_color->shortcut().toString() + ")");
