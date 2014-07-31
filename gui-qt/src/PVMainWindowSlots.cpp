@@ -1267,38 +1267,34 @@ void PVInspector::PVMainWindow::get_screenshot_widget()
 		return;
 	}
 
-	QPixmap pmap = QPixmap::grabWidget(p);
+	QPixmap pixmap = QPixmap::grabWidget(p);
 
-	QString img_name = QFileDialog::getSaveFileName(this,
-	                                                QString("Save view screenshot"),
-	                                                "screenshot.png",
-	                                                QString("Image (*.png)"));
-
-	if (img_name.isEmpty() == false) {
-		if (!img_name.endsWith(".png"))
-			img_name += ".png";
-		pmap.save(img_name);
-	}
+	save_screenshot(pixmap,
+	                "Save view capture");
 }
 
 /******************************************************************************
- * PVInspector::PVMainWindow::get_screenshot_widget
+ * PVInspector::PVMainWindow::get_screenshot_window
+ *****************************************************************************/
+
+void PVInspector::PVMainWindow::get_screenshot_window()
+{
+	QPixmap pixmap = QPixmap::grabWindow(winId());
+
+	save_screenshot(pixmap,
+	                "Save window capture");
+}
+
+/******************************************************************************
+ * PVInspector::PVMainWindow::get_screenshot_desktop
  *****************************************************************************/
 
 void PVInspector::PVMainWindow::get_screenshot_desktop()
 {
-	QPixmap pmap = QPixmap::grabWindow(QApplication::desktop()->winId());
+	QPixmap pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
 
-	QString img_name = QFileDialog::getSaveFileName(this,
-	                                                QString("Save desktop screenshot"),
-	                                                "screenshot.png",
-	                                                QString("Image (*.png)"));
-
-	if (img_name.isEmpty() == false) {
-		if (!img_name.endsWith(".png"))
-			img_name += ".png";
-		pmap.save(img_name);
-	}
+	save_screenshot(pixmap,
+	                "Save desktop capture");
 }
 
 /******************************************************************************

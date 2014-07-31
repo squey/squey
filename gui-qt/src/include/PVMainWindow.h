@@ -206,6 +206,7 @@ public slots:
 	void view_new_scatter_Slot();
 	void view_display_inv_elts_Slot();
 	void get_screenshot_widget();
+	void get_screenshot_window();
 	void get_screenshot_desktop();
 	void show_correlation_Slot();
 	void update_reply_finished_Slot(QNetworkReply *reply);
@@ -240,6 +241,9 @@ private:
 	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
 	void set_selection_from_layer(Picviz::PVView_sp view, Picviz::PVLayer const& layer);
 	void display_inv_elts();
+
+	void save_screenshot(const QPixmap& pixmap,
+	                     const QString& title);
 
 private slots:
 	void root_modified();
@@ -398,8 +402,9 @@ private:
 private:
 	version_t _last_known_cur_release;
 	version_t _last_known_maj_release;
-
+	QString   _screenshot_root_dir;
 };
+
 }
 
 #endif // PVMAINWINDOW_H

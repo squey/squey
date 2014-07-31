@@ -1709,6 +1709,67 @@ void PVInspector::PVMainWindow::display_inv_elts()
 }
 
 /******************************************************************************
+ * PVInspector::PVMainWindow::save_screenshot
+ *****************************************************************************/
+
+void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
+                                                const QString& title)
+{
+	int current_tab_index = _projects_tab_widget->current_workspace_tab_widget()->currentIndex();
+	QFileInfo sfi(_projects_tab_widget->current_workspace_tab_widget()->tabText(current_tab_index));
+	QString filename = "screenshot_" + sfi.baseName();
+
+	static const QString default_prefix("_0001.png");
+
+	if(_screenshot_root_dir.isEmpty()) {
+		_screenshot_root_dir = QDir::currentPath();
+	}
+
+	/**
+	 * we get the last filename matching the "prefix" and we
+	 * try to extract its counter.
+	 */
+	QDir dir(_screenshot_root_dir, filename + "_*.png");
+	QStringList fnl = dir.entryList(QDir::Files | QDir::NoDotAndDotDot,
+	                                QDir::Name | QDir::Reversed);
+
+	if (fnl.isEmpty() == false) {
+		QRegExp re(filename + "_(\\d+).*");
+		int pos = re.indexIn(fnl[0], 0);
+		if (pos != -1) {
+			int count = re.cap(1).toInt() + 1;
+			filename += QString("_%1.png").arg(count, 4, 10,
+			                                   QChar('0'));
+		} else {
+			filename.append(default_prefix);
+		}
+	} else {
+		filename.append(default_prefix);
+	}
+
+	QString img_name = QFileDialog::getSaveFileName(this,
+	                                                title,
+	                                                filename,
+	                                                QString("PNG Image (*.png)"));
+
+	if (img_name.isEmpty()) {
+		return;
+	}
+
+	if (img_name.endsWith(".png") == false) {
+		img_name += ".png";
+	}
+
+	_screenshot_root_dir = QFileInfo(img_name).dir().path();
+
+	if (pixmap.save(img_name) == false) {
+		QMessageBox::critical(this, "Error saving the screenshot",
+		                     "Check for permissions in '" + _screenshot_root_dir + "' or for free disk space",
+		                     QMessageBox::Ok);
+	}
+}
+
+/******************************************************************************
  *
  * PVInspector::PVMainWindow::load_source
  *
