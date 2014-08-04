@@ -770,6 +770,47 @@ ssize_t PVCore::PVSelBitField::get_max_last_nonzero_chunk_index(PVSelBitField co
 	return get_last_nonzero_chunk_index(last_chunk, PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1);
 }
 
+
+PVRow PVCore::PVSelBitField::find_next_set_bit(const PVRow index, const PVRow size) const
+{
+	/**
+	 * This function can be optimized by testing chunk per chunk and using __builtin_ctzl
+	 * but it takes really few ms to compute on 200 Me
+	 */
+	if (index > size) {
+		return PVROW_INVALID_VALUE;
+	}
+
+	for(PVRow i = index; i < size; ++i) {
+		if (get_line_fast(i))
+			return i;
+	}
+
+	return PVROW_INVALID_VALUE;
+}
+
+PVRow PVCore::PVSelBitField::find_previous_set_bit(const PVRow index, const PVRow size) const
+{
+	/**
+	 * This function can be optimized by testing chunk per chunk and using __builtin_clzl
+	 * but it takes really few ms to compute on 200 Me
+	 */
+	if (index > size) {
+		return PVROW_INVALID_VALUE;
+	}
+
+	for(PVRow i = index; i > 0; --i) {
+		if (get_line_fast(i))
+			return i;
+	}
+
+	// as unsigned can not be negative, the case 0 is tested outside of the loop
+	if (get_line_fast(0))
+		return 0;
+
+	return PVROW_INVALID_VALUE;
+}
+
 void PVCore::PVSelBitField::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	if (so.is_writing()) {

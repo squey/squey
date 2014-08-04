@@ -40,6 +40,7 @@
 #include <QMenu>
 #include <QWheelEvent>
 #include <QLinearGradient>
+#include <QInputDialog>
 
 #define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
 #include <tbb/parallel_reduce.h>
@@ -375,6 +376,9 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 			if (selectionModel()->hasSelection()) {
 				update_view_selection_from_listing_selection();
 			}
+			break;
+		case Qt::Key_G:
+			goto_line();
 			break;
 		default:
 			QTableView::keyPressEvent(event);
@@ -790,6 +794,57 @@ void PVGuiQt::PVListingView::paintEvent(QPaintEvent* event)
 		painter.fillRect(rect1, brush);
 		painter.fillRect(rect2, brush);
 	}
+}
+
+/******************************************************************************
+ * PVGuiQt::PVListingView::goto_line
+ *****************************************************************************/
+
+void PVGuiQt::PVListingView::goto_line()
+{
+	PVRow nrows = lib_view().get_rushnraw_parent().get_number_rows();
+	const Picviz::PVSelection& sel = lib_view().get_real_output_selection();
+
+	bool ok;
+	PVRow row = QInputDialog::getInt(this,
+	                                 "Go to row", "Select row index",
+	                                 0, 0, nrows - 1, 1, &ok);
+
+	if (ok == false) {
+		return;
+	}
+
+	/* If the event corresponding to the wanted row is not selected, we
+	 * first search for the first previous set one, if there is no such
+	 * row, we search for the first next set one. If there is no such row,
+	 * there is nothing to do.
+	 */
+	if (sel.get_line_fast(row) == false) {
+		PVRow row2 = (row == 0)?PVROW_INVALID_VALUE:sel.find_previous_set_bit(row - 1, nrows);
+		if (row2 != PVROW_INVALID_VALUE) {
+			row = row2;
+		} else {
+			row = sel.find_next_set_bit(row + 1, nrows);
+		}
+	}
+
+	if (row != PVROW_INVALID_VALUE) {
+		/* as the row is in model's space, we have to convert it into
+		 * view's space
+		 */
+		PVListingSortFilterProxyModel* proxy_model = get_listing_model();
+		QModelIndex index = proxy_model->index(row, 0, QModelIndex());
+		index = proxy_model->mapFromSource(index);
+
+		/* move the wanted item at the top of the view
+		 */
+		scrollTo(index, QAbstractItemView::PositionAtTop);
+
+		/* not to kill the keyboard navigation, we have to update the
+		 * currentIndex too (whithout killing the current selection)
+		 */
+		selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+	} // nothing to do otherwise
 }
 
 /******************************************************************************

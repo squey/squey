@@ -80,6 +80,8 @@ private:
 	void process_ctxt_menu_copy();
 	void process_ctxt_menu_set_color();
 
+	void goto_line();
+
 private:
 	void update_view_selection_from_listing_selection();
 	Picviz::PVView const& lib_view() const { return *_obs.get_object(); }

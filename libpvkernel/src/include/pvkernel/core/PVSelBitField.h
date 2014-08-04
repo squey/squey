@@ -424,6 +424,30 @@ public:
 	// Thus, returns 0 if no chunk is empty
 	ssize_t get_last_nonzero_chunk_index(ssize_t starting_chunk = 0, ssize_t ending_chunk = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1) const;
 
+	/**
+	 * search forward for the first bit set to 1 from the position \a index.
+	 *
+	 * the seach is also done in [index;size[
+	 *
+	 * @param index the search's start position
+	 * @param size the selection's size
+	 *
+	 * @return the index of the first next bit set to 1; PVROW_INVALID_VALUE otherwise.
+	 */
+	PVRow find_next_set_bit(const PVRow index, const PVRow size) const;
+
+	/**
+	 * search backward for the first bit set to 1 from the position \a index.
+	 *
+	 * the seach is also done in [0;index] in the reverse order
+	 *
+	 * @param index the search's start position
+	 * @param size the selection's size
+	 *
+	 * @return the index of the first previous bit set to 1; PVROW_INVALID_VALUE otherwise.
+	 */
+	PVRow find_previous_set_bit(const PVRow index, const PVRow size) const;
+
 	template <class F>
 	void visit_selected_lines(F const& f, PVRow b = PICVIZ_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
 	{
