@@ -92,6 +92,7 @@ private slots:
 	void slotDoubleClickOnVHead(int);
 	void show_ctxt_menu(const QPoint& pos);
 	void show_hhead_ctxt_menu(const QPoint& pos);
+	void show_vhead_ctxt_menu(const QPoint& pos);
 	void set_color_selected(const PVCore::PVHSVColor& color);
 	void columnResized(int column, int oldWidth, int newWidth);
 
@@ -104,8 +105,10 @@ public slots:
 private:
 	QMenu* _ctxt_menu;
 	QMenu* _hhead_ctxt_menu;
+	QMenu* _vhead_ctxt_menu;
 	QAction* _action_col_sort;
 	QAction* _action_col_unique;
+	QAction* _action_copy_row_value;
 	QMenu* _menu_col_count_by;
 	QMenu* _menu_col_sum_by;
 	QMenu* _menu_col_min_by;

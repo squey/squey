@@ -216,6 +216,18 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	// A double click on the vertical header select the line in the lib view
 	connect(verticalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnVHead(int)));
 
+	// the vertical header context menu
+	_action_copy_row_value = new QAction(tr("Copy row index to clipbard"), this);
+
+	_vhead_ctxt_menu = new QMenu(this);
+	_vhead_ctxt_menu->addAction(_action_copy_row_value);
+
+	verticalHeader()->setClickable(true);
+	verticalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(verticalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)),
+	        this, SLOT(show_vhead_ctxt_menu(const QPoint&)));
+
+
 	setSelectionBehavior(QAbstractItemView::SelectRows);
 	setWordWrap(false);
 
@@ -542,6 +554,20 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	else if (sel == _action_col_sort) {
 		Qt::SortOrder order =  (Qt::SortOrder)!((bool)horizontalHeader()->sortIndicatorOrder());
 		sortByColumn(col, order);
+	}
+}
+
+void PVGuiQt::PVListingView::show_vhead_ctxt_menu(const QPoint& pos)
+{
+	QAction* sel = _vhead_ctxt_menu->exec(QCursor::pos());
+
+	if (sel == _action_copy_row_value) {
+		int idx = verticalHeader()->logicalIndexAt(pos);
+		PVListingSortFilterProxyModel* proxy_model = get_listing_model();
+		QModelIndex index = proxy_model->index(idx, 0, QModelIndex());
+		index = proxy_model->mapToSource(index);
+
+		QApplication::clipboard()->setText(QString::number(index.row()));
 	}
 }
 
