@@ -117,11 +117,11 @@ void PVGuiQt::PVLogoScene::loadModel(const QString &filePath)
     QApplication::setOverrideCursor(Qt::BusyCursor);
     setModel(new PVGuiQt::PVLogoModel(filePath)); //  setModel(::loadModel(filePath));
     modelLoaded();
+    QApplication::restoreOverrideCursor();
 }
 
 void PVGuiQt::PVLogoScene::modelLoaded()
 {
-    QApplication::restoreOverrideCursor();
 }
 
 void PVGuiQt::PVLogoScene::setModel(PVLogoModel *model)

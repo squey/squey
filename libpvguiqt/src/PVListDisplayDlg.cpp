@@ -229,7 +229,6 @@ QString PVGuiQt::PVListDisplayDlg::export_line(
 
 bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<void (PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f, QString& content)
 {
-	const QCursor& old_cursor = cursor();
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
 	QString sep(QChar::fromAscii(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_line_separator_button->keySequence())));
@@ -274,7 +273,7 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<void (PVG
 
 	//content.truncate(content.size()-sep.size()); // Remove last carriage return
 
-	QApplication::setOverrideCursor(old_cursor);
+	QApplication::restoreOverrideCursor();
 
 	return success;
 }
