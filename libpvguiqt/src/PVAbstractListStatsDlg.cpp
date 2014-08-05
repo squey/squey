@@ -623,7 +623,7 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act)
 
 	QItemSelectionModel* selection_model = _values_view->selectionModel();
 	assert(selection_model);
-	QModelIndexList list = selection_model->selection().indexes();
+	QModelIndexList list = selection_model->selectedRows(0);
 	QStringList cells;
 	for (const auto& cell : list) {
 		cells.append(cell.data().toString());
