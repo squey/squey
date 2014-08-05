@@ -391,7 +391,12 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 	}
 
 	if (!accepted && act) {
-		multiple_search(act);
+		QStringList values;
+		for (const auto& item : _values_view->selectionModel()->selectedRows(0)) {
+			values.append(item.data().toString());
+		}
+
+		multiple_search(act, values);
 		return true;
 	}
 
@@ -599,7 +604,7 @@ void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(int col)
 	}
 }
 
-void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act)
+void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStringList &sl)
 {
 
 	// Get the filter associated with that menu entry
@@ -621,14 +626,7 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act)
 	// Set the arguments
 	_ctxt_args = lib_view().get_last_args_filter(filter_name);
 
-	QItemSelectionModel* selection_model = _values_view->selectionModel();
-	assert(selection_model);
-	QModelIndexList list = selection_model->selectedRows(0);
-	QStringList cells;
-	for (const auto& cell : list) {
-		cells.append(cell.data().toString());
-	}
-	PVCore::PVArgumentList custom_args = args_f(0U, 0, _col, cells.join("\n"));
+	PVCore::PVArgumentList custom_args = args_f(0U, 0, _col, sl.join("\n"));
 	PVCore::PVArgumentList_set_common_args_from(_ctxt_args, custom_args);
 
 	// Show the layout filter widget

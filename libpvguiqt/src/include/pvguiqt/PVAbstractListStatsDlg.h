@@ -92,7 +92,7 @@ protected slots:
 
 protected:
 	Picviz::PVView& lib_view() { return *_obs.get_object(); }
-	void multiple_search(QAction* act);
+	void multiple_search(QAction* act, const QStringList &sl);
 	void resize_section();
 
 protected:
