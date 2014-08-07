@@ -19,14 +19,6 @@ class PVLayerStackModel;
 class PVLayerStackView;
 
 /**
- *  \class PVNewLayerDialog
- */
-class PVNewLayerDialog : public QDialog
-{
-	Q_OBJECT
-};
-
-/**
  *  \class PVLayerStackWidget
  */
 class PVLayerStackWidget : public QWidget
