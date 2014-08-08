@@ -419,6 +419,8 @@ widgets/PVTextPopupWidget.cpp
 widgets/PVHelpWidget.cpp
 
 widgets/PVAbstractRangePicker.cpp
+
+widgets/PVLayerNamingPatternDialog.cpp
 )
 
 SET(UI_FILES

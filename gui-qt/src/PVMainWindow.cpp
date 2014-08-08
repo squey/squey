@@ -405,34 +405,27 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView
  *****************************************************************************/
 void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView* picviz_view)
 {
-	// Register an actor to the hive
 	Picviz::PVView_sp view_sp = picviz_view->shared_from_this();
+
+	bool& should_hide_layers = picviz_view->get_layer_stack().should_hide_layers();
+	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(view_sp->get_layer_stack().get_new_layer_name(), should_hide_layers);
+
+	if (name.isEmpty()) {
+		return;
+	}
+
 	PVHive::PVActor<Picviz::PVView> actor;
 	PVHive::get().register_actor(view_sp, actor);
 
-	bool& should_hide_layers = view_sp->get_layer_stack().should_hide_layers();
-	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(view_sp->get_layer_stack().get_new_layer_name(), should_hide_layers);
-
-	if (!name.isEmpty()) {
-
-		if (should_hide_layers) {
-			actor.call<FUNC(Picviz::PVView::hide_layers)>();
-		}
-
-		actor.call<FUNC(Picviz::PVView::add_new_layer)>(name);
-		Picviz::PVLayer &new_layer = picviz_view->layer_stack.get_selected_layer();
-
-		/* We set it's selection to the final selection */
-		picviz_view->set_selection_with_final_selection(new_layer.get_selection());
-		picviz_view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(new_layer.get_lines_properties(), new_layer.get_selection(), picviz_view->row_count);
-
-		/* We need to reprocess the layer stack */
-		actor.call<FUNC(Picviz::PVView::compute_layer_min_max)>(new_layer);
-		actor.call<FUNC(Picviz::PVView::compute_selectable_count)>(new_layer);
-
-		actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	if (should_hide_layers) {
+		actor.call<FUNC(Picviz::PVView::hide_layers)>();
 	}
+
+	actor.call<FUNC(Picviz::PVView::add_new_layer)>(name);
+	Picviz::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
+	actor.call<FUNC(Picviz::PVView::commit_selection_to_layer)>(layer);
 }
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::move_selection_to_new_layer

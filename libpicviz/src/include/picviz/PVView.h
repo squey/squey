@@ -242,6 +242,7 @@ public:
 
 	int toggle_layer_stack_layer_n_locked_state(int n);
 	int toggle_layer_stack_layer_n_visible_state(int n);
+	void move_selected_layer_to(int new_index);
 
 	void select_all_nonzb_lines();
 	void select_no_line();
@@ -279,6 +280,7 @@ public:
 	void duplicate_selected_layer(const QString &name);
 	void load_from_file(const QString& file);
 	void commit_to_new_layer();
+	void commit_selection_to_layer(PVLayer& layer);
 
 	void load_post_to_pre();
 

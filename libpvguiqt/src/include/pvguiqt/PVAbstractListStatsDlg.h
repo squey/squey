@@ -79,6 +79,16 @@ protected:
 		int i
 	) override;
 
+	/**
+	 * create a new layer using the selected values.
+	 */
+	void create_layer_with_selected_values();
+
+	/**
+	 * create a set of new layers, one layer for each selected value.
+	 */
+	void create_layers_for_selected_values();
+
 protected slots:
 	void view_resized();
 	void section_resized(int logicalIndex, int oldSize, int newSize);
@@ -91,7 +101,7 @@ protected slots:
 	void select_refresh(bool checked);
 
 protected:
-	Picviz::PVView& lib_view() { return *_obs.get_object(); }
+	Picviz::PVView* lib_view() { return _obs.get_object(); }
 	void multiple_search(QAction* act, const QStringList &sl);
 	void resize_section();
 
@@ -124,7 +134,20 @@ protected:
 	QAction* _copy_values_without_count_act;
 	QAction* _copy_values_with_count_act;
 
+	QAction* _create_layer_with_values_act;
+	QAction* _create_layers_for_values_act;
+
 	bool _copy_count;
+
+private:
+	/*RH this QAction list is a big workaround^Whack to:
+	 * - use a PVLayerFilter but not the right way
+	 * - keep track of "multiple search"'s dynamically created QAction as all _act_* do
+	 * - to use ::multiple_search() to change the current selection to affect it to
+	 *   newly created layer
+	 * theorically, the wanted action is numbered 1
+	 */
+	QList<QAction*> _msearch_actions;
 };
 
 namespace __impl {

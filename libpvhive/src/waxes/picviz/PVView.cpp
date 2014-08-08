@@ -129,6 +129,13 @@ IMPL_WAX(Picviz::PVView::delete_selected_layer, view, args)
 	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
+IMPL_WAX(Picviz::PVView::move_selected_layer_to, view, args)
+{
+	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::move_selected_layer_to)>(view, args);
+	refresh_observers(&view->get_layer_stack());
+	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
+}
+
 IMPL_WAX(Picviz::PVView::duplicate_selected_layer, view, args)
 {
 	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::duplicate_selected_layer)>(view, args);

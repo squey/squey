@@ -75,6 +75,7 @@ public:
 
 	void move_layer_down(int index);
 	void move_layer_up(int index);
+	void move_selected_layer_to(int new_index);
 	void move_selected_layer_down();
 	void move_selected_layer_up();
 	void hide_layers();

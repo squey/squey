@@ -252,7 +252,7 @@ void Picviz::PVView::apply_filter_named_select_all()
  * Picviz::PVView::commit_to_new_layer
  *
  *****************************************************************************/
-void Picviz::PVView::commit_to_new_layer()
+void Picviz::PVView::commit_to_new_layer() // TODO: seems to be unused
 {
 	const PVSelection& sel = post_filter_layer.get_selection();
 	const PVLinesProperties &lp = output_layer.get_lines_properties();
@@ -260,6 +260,22 @@ void Picviz::PVView::commit_to_new_layer()
 	PVLayer *layer = layer_stack.append_new_layer_from_selection_and_lines_properties(sel, lp);
 	layer->compute_min_max(*get_parent<Picviz::PVPlotted>());
 	layer->compute_selectable_count(row_count);
+}
+
+/******************************************************************************
+ * Picviz::PVView::commit_selection_to_layer
+ *****************************************************************************/
+
+void Picviz::PVView::commit_selection_to_layer(PVLayer& new_layer)
+{
+	/* We set it's selection to the final selection */
+	set_selection_with_final_selection(new_layer.get_selection());
+	output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(new_layer.get_lines_properties(), new_layer.get_selection(), row_count);
+
+	/* We need to reprocess the layer stack */
+	compute_layer_min_max(new_layer);
+	compute_selectable_count(new_layer);
+	process_from_layer_stack();
 }
 
 void Picviz::PVView::commit_volatile_in_floating_selection()
@@ -1109,6 +1125,15 @@ int Picviz::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 	
 	layer_stack.update_layer_index_array_completely();
 	return 0;
+}
+
+/******************************************************************************
+ * Picviz::PVView::move_selected_layer_to
+ *****************************************************************************/
+
+void Picviz::PVView::move_selected_layer_to(int new_index)
+{
+	get_layer_stack().move_selected_layer_to(new_index);
 }
 
 PVRush::PVExtractor& Picviz::PVView::get_extractor()

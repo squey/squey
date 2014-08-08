@@ -186,7 +186,7 @@ void Picviz::PVLayerStack::move_layer_down(int index)
 {
 	if (( 0 < index ) && (index < layer_count)) {
 		table.move(index, index - 1);
-		
+
 		/* FIXME! This is before we do something more clever... */
 		update_layer_index_array_completely();
 	}
@@ -207,6 +207,20 @@ void Picviz::PVLayerStack::move_layer_up(int index)
 	}
 }
 
+/**********************************************************************
+* Picviz::PVLayerStack::move_selected_layer_to
+**********************************************************************/
+
+void Picviz::PVLayerStack::move_selected_layer_to(int new_index)
+{
+	if ((new_index < 0) || (new_index >= layer_count)) {
+		return;
+	}
+
+	table.move(selected_layer_index, new_index);
+	selected_layer_index = new_index;
+	update_layer_index_array_completely();
+}
 
 /**********************************************************************
 *

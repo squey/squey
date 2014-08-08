@@ -22,6 +22,10 @@
 #include <pvkernel/core/picviz_bench.h>
 #include <pvguiqt/PVStringSortProxyModel.h>
 
+#include <pvkernel/widgets/PVLayerNamingPatternDialog.h>
+
+#include <pvhive/PVCallHelper.h>
+
 #include <tbb/blocked_range.h>
 #include <tbb/task_scheduler_init.h>
 
@@ -29,6 +33,7 @@
 #include <QGroupBox>
 #include <QRadioButton>
 #include <QPushButton>
+#include <QInputDialog>
 
 /******************************************************************************
  * PVGuiQt::__impl::PVAbstractListStatsRangePicker
@@ -271,6 +276,8 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 		QAction* act = new QAction(it_ent.key(), _values_view);
 		act->setData(QVariant(search_multiples)); // Save the name of the layer filter associated to this action
 		_ctxt_menu->addAction(act);
+		// RH: my big hack see comment of _msearch_actions in .h
+		_msearch_actions.append(act);
 	}
 
 	__impl::PVTableViewResizeEventFilter* table_view_resize_event_handler = new __impl::PVTableViewResizeEventFilter();
@@ -366,6 +373,12 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 	_copy_values_menu->addAction(_copy_values_with_count_act);
 	_copy_values_without_count_act = new QAction("without count", this);
 	_copy_values_menu->addAction(_copy_values_without_count_act);
+
+	// layer creation actions
+	_create_layer_with_values_act = new QAction("create one layer with those values", _values_view);
+	_ctxt_menu->addAction(_create_layer_with_values_act);
+	_create_layers_for_values_act = new QAction("create layers from those values", _values_view);
+	_ctxt_menu->addAction(_create_layers_for_values_act);
 }
 
 PVGuiQt::PVAbstractListStatsDlg::~PVAbstractListStatsDlg()
@@ -388,6 +401,16 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 		_copy_count = false;
 		copy_selected_to_clipboard();
 		return true;
+	}
+
+	if (!accepted && act == _create_layer_with_values_act) {
+		create_layer_with_selected_values();
+		return false;
+	}
+
+	if (!accepted && act == _create_layers_for_values_act) {
+		create_layers_for_selected_values();
+		return false;
 	}
 
 	if (!accepted && act) {
@@ -624,7 +647,7 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStrin
 	Picviz::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
 
 	// Set the arguments
-	_ctxt_args = lib_view().get_last_args_filter(filter_name);
+	_ctxt_args = lib_view()->get_last_args_filter(filter_name);
 
 	PVCore::PVArgumentList custom_args = args_f(0U, 0, _col, sl.join("\n"));
 	PVCore::PVArgumentList_set_common_args_from(_ctxt_args, custom_args);
@@ -638,7 +661,7 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStrin
 
 	// Creating the PVLayerFilterProcessWidget will save the current args for this filter.
 	// Then we can change them !
-	_ctxt_process = new PVGuiQt::PVLayerFilterProcessWidget(&lib_view(), _ctxt_args, fclone, _values_view);
+	_ctxt_process = new PVGuiQt::PVLayerFilterProcessWidget(lib_view(), _ctxt_args, fclone, _values_view);
 	connect(_ctxt_process, SIGNAL(accepted()), this, SLOT(hide()));
 
 	if (custom_args.get_edition_flag()) {
@@ -709,6 +732,199 @@ QString PVGuiQt::PVAbstractListStatsDlg::export_line(
 	}
 
 	return s;
+}
+
+/******************************************************************************
+ * PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values
+ *****************************************************************************/
+
+void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
+{
+	PVWidgets::PVLayerNamingPatternDialog dlg("create one new layer with all selected values",
+	                                          "string format for new layer's name",
+	                                          "%v", PVWidgets::PVLayerNamingPatternDialog::ON_TOP,
+	                                          this);
+
+	if (dlg.exec() == QDialog::Rejected) {
+		return;
+	}
+
+	QString text = dlg.get_name_pattern();
+	PVWidgets::PVLayerNamingPatternDialog::insert_mode mode = dlg.get_insertion_mode();
+
+	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
+	PVHive::PVActor<Picviz::PVView> actor;
+	PVHive::get().register_actor(view_sp, actor);
+	Picviz::PVLayerStack &ls = view_sp->get_layer_stack();
+
+	text.replace("%l", ls.get_selected_layer().get_name());
+	text.replace("%a", view_sp->get_axes_combination().get_axis(_col).get_name());
+
+	QStringList sl;
+
+	/* as a selection is never sorted, we have to do it ourselves to have
+	 * the values in the same order than the view's one
+	 */
+	QModelIndexList indexes = _values_view->selectionModel()->selectedRows(0);
+	qSort(indexes.begin(), indexes.end(), [](const QModelIndex& a, const QModelIndex& b) -> bool { return a.row() < b.row(); });
+
+	for(QModelIndex const & index : indexes) {
+		sl += index.data().toString();
+	}
+	text.replace("%v", sl.join(","));
+
+	/*
+	 * The process is little bit heavy:
+	 * - backup the current layer's index
+	 * - backup the current selection (the pre_filter_layer's one...
+	 *   not volatile/floating/whatever)
+	 * - run the multiple-search
+	 * - create a new layer (do not for forget to notify the layerstackview
+	 *   through the hive)
+	 * - need to hide the newly created layer (it's better:)
+	 * - need to move the newly created layer to the right place
+	 * - do a commit from the selection to the newly created layer (like a
+	 *   Alt-k and through the hive)
+	 * - restore the (old) current layer's index (through the hive)
+	 * - set the volatile selection to the backed-up one and force
+	 *   reprocessing...
+	 */
+	int old_selected_layer_index = ls.get_selected_layer_index();
+	Picviz::PVSelection old_sel(view_sp->get_pre_filter_layer().get_selection());
+
+	multiple_search(_msearch_actions[1], sl);
+
+	actor.call<FUNC(Picviz::PVView::add_new_layer)>(text);
+	Picviz::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
+	int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
+	actor.call<FUNC(Picviz::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
+	actor.call<FUNC(Picviz::PVView::commit_selection_to_layer)>(layer);
+
+	if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
+		int insert_pos;
+
+		if( mode == PVWidgets::PVLayerNamingPatternDialog::ABOVE_CURRENT) {
+			insert_pos = old_selected_layer_index + 1;
+		} else {
+			insert_pos = old_selected_layer_index;
+			++old_selected_layer_index;
+		}
+		actor.call<FUNC(Picviz::PVView::move_selected_layer_to)>(insert_pos);
+	}
+
+	ls.set_selected_layer_index(old_selected_layer_index);
+
+	view_sp->get_volatile_selection() = old_sel;
+	actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
+        actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
+}
+
+/******************************************************************************
+ * PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values
+ *****************************************************************************/
+
+void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
+{
+	/* first, we have to check if there is enough free space for new layers
+	 */
+	QModelIndexList indexes = _values_view->selectionModel()->selectedRows(0);
+
+	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
+	Picviz::PVLayerStack& ls = view_sp->get_layer_stack();
+
+	int layer_num = indexes.size();
+	int layer_max = PICVIZ_LAYER_STACK_MAX_DEPTH - ls.get_layer_count();
+	if (layer_num >= layer_max) {
+		QMessageBox::critical(this, "multiple layer creation",
+		                      QString("You try to create %1 layer(s) but no more than %2 layer(s) can be created").arg(layer_num).arg(layer_max));
+		return;
+	}
+
+	/* now, we can ask for the layers' names format
+	 */
+	PVWidgets::PVLayerNamingPatternDialog dlg("create one new layer with all selected values",
+	                                          "string format for new layer's name",
+	                                          "%v", PVWidgets::PVLayerNamingPatternDialog::ON_TOP,
+	                                          this);
+
+	if (dlg.exec() == QDialog::Rejected) {
+		return;
+	}
+
+	QString text = dlg.get_name_pattern();
+	PVWidgets::PVLayerNamingPatternDialog::insert_mode  mode = dlg.get_insertion_mode();
+
+	/* some "static" formatting
+	 */
+	text.replace("%l", ls.get_selected_layer().get_name());
+	text.replace("%a", lib_view()->get_axes_combination().get_axis(_col).get_name());
+
+	PVHive::PVActor<Picviz::PVView> actor;
+	PVHive::get().register_actor(view_sp, actor);
+
+	/*
+	 * The process is little bit heavy:
+	 * - backup the current layer's index
+	 * - backup the current selection (the pre_filter_layer's one...
+	 *   not volatile/floating/whatever)
+	 * and for each layer to create:
+	 * - run the multiple-search
+	 * - create a new layer (do not for forget to notify the layerstackview
+	 *   through the hive)
+	 * - need to hide the newly created layer (it's better:)
+	 * - need to move the newly created layer to the right place
+	 * - do a commit from the selection to the newly created layer (like a
+	 *   Alt-k and through the hive)
+	 * - restore the (old) current layer's index (through the hive)
+	 * - set the volatile selection to the backed-up one and force
+	 *   reprocessing...
+	 */
+
+	Picviz::PVSelection old_sel(view_sp->get_pre_filter_layer().get_selection());
+	int old_selected_layer_index = ls.get_selected_layer_index();
+
+	/* layers creation
+	 */
+
+	/* as a selection is never sorted, we have to do it ourselves to have
+	 * the values in the same order than the view's one
+	 */
+	qSort(indexes.begin(), indexes.end(), [](const QModelIndex& a, const QModelIndex& b) -> bool { return a.row() < b.row(); });
+
+	int offset = 1;
+	for(QModelIndex const & index : indexes) {
+		QString layer_name(text);
+		layer_name.replace("%v", index.data().toString());
+
+		QStringList sl;
+		sl.append(index.data().toString());
+		multiple_search(_msearch_actions[1], sl);
+
+		actor.call<FUNC(Picviz::PVView::add_new_layer)>(layer_name);
+		Picviz::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
+		int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
+		actor.call<FUNC(Picviz::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
+		actor.call<FUNC(Picviz::PVView::commit_selection_to_layer)>(layer);
+
+
+		if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
+			int insert_pos;
+
+			if( mode == PVWidgets::PVLayerNamingPatternDialog::ABOVE_CURRENT) {
+				insert_pos = old_selected_layer_index + offset;
+			} else {
+				insert_pos = old_selected_layer_index;
+				++old_selected_layer_index;
+			}
+			actor.call<FUNC(Picviz::PVView::move_selected_layer_to)>(insert_pos);
+		}
+
+		ls.set_selected_layer_index(old_selected_layer_index);
+		view_sp->get_volatile_selection() = old_sel;
+		actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
+		actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
+		++offset;
+	}
 }
 
 /******************************************************************************
