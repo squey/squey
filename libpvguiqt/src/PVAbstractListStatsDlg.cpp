@@ -389,31 +389,33 @@ PVGuiQt::PVAbstractListStatsDlg::~PVAbstractListStatsDlg()
 
 bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 {
-	bool accepted = PVListDisplayDlg::process_context_menu(act);
+	if (PVListDisplayDlg::process_context_menu(act)) {
+		return true;
+	}
 
-	if (!accepted && act == _copy_values_with_count_act) {
+	if (act == _copy_values_with_count_act) {
 		_copy_count = true;
 		copy_selected_to_clipboard();
 		return true;
 	}
 
-	if (!accepted && act == _copy_values_without_count_act) {
+	if (act == _copy_values_without_count_act) {
 		_copy_count = false;
 		copy_selected_to_clipboard();
 		return true;
 	}
 
-	if (!accepted && act == _create_layer_with_values_act) {
+	if (act == _create_layer_with_values_act) {
 		create_layer_with_selected_values();
-		return false;
+		return true;
 	}
 
-	if (!accepted && act == _create_layers_for_values_act) {
+	if (act == _create_layers_for_values_act) {
 		create_layers_for_selected_values();
-		return false;
+		return true;
 	}
 
-	if (!accepted && act) {
+	if (act) {
 		QStringList values;
 		for (const auto& item : _values_view->selectionModel()->selectedRows(0)) {
 			values.append(item.data().toString());
