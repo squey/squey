@@ -180,7 +180,7 @@ void PVWidgets::PVArgumentListWidget::init_widgets()
 
 	setLayout(main_layout);
 
-	connect(_args_model, SIGNAL(dataChanged(QModelIndex const&, QModelIndex const&)), this, SLOT(args_changed_Slot()));
+	connect(_args_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(args_changed_Slot(const QModelIndex&, const QModelIndex&)));
 }
 
 
