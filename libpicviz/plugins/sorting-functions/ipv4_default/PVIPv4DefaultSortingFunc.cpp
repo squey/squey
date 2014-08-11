@@ -13,11 +13,6 @@
 
 #include <QtNetwork/QHostAddress>
 
-static inline in_addr_t ipv4_str2ul(const PVCore::PVUnicodeString::utf_char* text)
-{
-	return ntohl(inet_addr((char*)text));
-}
-
 Picviz::PVIPv4DefaultSortingFunc::PVIPv4DefaultSortingFunc(PVCore::PVArgumentList const& l):
 	PVSortingFunc(l)
 {
@@ -61,8 +56,9 @@ Picviz::PVQtSortingFunc_flesser Picviz::PVIPv4DefaultSortingFunc::qt_f_lesser()
 
 bool Picviz::PVIPv4DefaultSortingFunc::lesser_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2)
 {
-	in_addr_t f1 = ipv4_str2ul(s1.buffer());
-	in_addr_t f2 = ipv4_str2ul(s2.buffer());
+	QString s;
+	quint32 f1 = QHostAddress(s1.get_qstr(s)).toIPv4Address();
+	quint32 f2 = QHostAddress(s2.get_qstr(s)).toIPv4Address();
 	return f1 < f2;
 }
 
@@ -73,8 +69,9 @@ bool Picviz::PVIPv4DefaultSortingFunc::equals_asc(PVCore::PVUnicodeString const&
 
 int Picviz::PVIPv4DefaultSortingFunc::comp_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2)
 {
-	in_addr_t f1 = ipv4_str2ul(s1.buffer());
-	in_addr_t f2 = ipv4_str2ul(s2.buffer());
+	QString s;
+	quint32 f1 = QHostAddress(s1.get_qstr(s)).toIPv4Address();
+	quint32 f2 = QHostAddress(s2.get_qstr(s)).toIPv4Address();
 	if (f1 != f2) {
 		return (f1 < f2) ? -1 : 1;
 	}

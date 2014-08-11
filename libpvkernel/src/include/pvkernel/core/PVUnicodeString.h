@@ -10,8 +10,6 @@
 #include <pvbase/export.h>
 #include <pvkernel/core/PVPythonClassDecl.h>
 
-#include <stdlib.h>
-
 namespace PVCore {
 
 class PVBufferSlice;
@@ -128,16 +126,6 @@ public:
 		return *this;
 	}
 	*/
-
-	inline long to_long(int base) const
-	{
-		return strtol((const char*) _buf, nullptr, base);
-	}
-
-	inline unsigned long to_ulong(int base) const
-	{
-		return strtoul((const char*) _buf, nullptr, base);
-	}
 
 private:
 	const utf_char* _buf;
