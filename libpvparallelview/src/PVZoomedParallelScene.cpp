@@ -5,6 +5,7 @@
  */
 
 #include <pvkernel/core/PVAlgorithms.h>
+#include <pvkernel/core/PVProgressBox.h>
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 
@@ -16,6 +17,7 @@
 #include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVZoomedSelectionAxisSliders.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
+#include <pvparallelview/PVZoomedParallelViewParamsWidget.h>
 #include <pvparallelview/PVZoomedParallelViewSelectionLine.h>
 
 #include <QMetaObject>
@@ -69,13 +71,12 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_show_bg(true),
 	_zp_sel(zp_sel),
 	_zp_bg(zp_bg),
-	_selection_sliders(nullptr)
+	_selection_sliders(nullptr),
+	_view_deleted(false)
 {
 	_zpview->set_viewport_cursor(Qt::CrossCursor);
 
 	setItemIndexMethod(QGraphicsScene::NoIndex);
-
-	_view_deleted = false;
 
 	_zpview->set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOff);
 	_zpview->set_vertical_scrollbar_policy(Qt::ScrollBarAlwaysOn);
@@ -84,8 +85,6 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 
 	_zpview->setMaximumWidth(1024);
 	_zpview->setMaximumHeight(1024);
-
-	_axis_id = _pvview.get_axes_combination().get_axes_comb_id(axis_index);
 
 	_sel_line = new PVZoomedParallelViewSelectionLine(zpview);
 	_sel_line->setZValue(1.e43);
@@ -101,7 +100,12 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	connect(_zpview->get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)),
 			this, SLOT(scrollbar_changed_Slot(qint64)));
 
-	_sliders_group = new PVParallelView::PVSlidersGroup(sliders_manager_p, _axis_id);
+	connect(_zpview->params_widget(), SIGNAL(change_to_col(int)),
+	        this, SLOT(change_to_col(int)));
+
+	_axis_id = _pvview.get_axes_combination().get_axes_comb_id(axis_index);
+
+	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _axis_id);
 	_sliders_group->setPos(0., 0.);
 	_sliders_group->add_zoom_sliders(0, 1024);
 
@@ -110,7 +114,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 
 	addItem(_sliders_group);
 
-	update_zones();
+	configure_axis();
 
 	// Register view for unselected & zombie events toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
@@ -373,18 +377,100 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
 		_axis_id = _pvview.get_axes_combination().get_axes_comb_id(_axis_index);
 
 		// it's more simple to delete and recreate the sliders group
+		removeItem(_sliders_group);
 		_sliders_group->delete_own_zoom_slider();
 		delete _sliders_group;
 
 		_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _axis_id);
 		_sliders_group->setPos(0., 0.);
 		_sliders_group->add_zoom_sliders(0, 1024);
+
+		// the sliders must be over all other QGraphicsItems
+		_sliders_group->setZValue(1.e42);
+
+		addItem(_sliders_group);
 	} else {
 		/* the axes has only been moved, nothing special to do.
 		*/
 		_axis_index = axis;
 	}
 
+	configure_axis();
+
+	return true;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::change_to_col
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::change_to_col(int index)
+{
+	_axis_index = index;
+	_axis_id = _pvview.get_axes_combination().get_axes_comb_id(index);
+
+	removeItem(_sliders_group);
+	_sliders_group->delete_own_zoom_slider();
+	delete _sliders_group;
+
+
+	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _axis_id);
+	_sliders_group->setPos(0., 0.);
+	_sliders_group->add_zoom_sliders(0, 1024);
+
+	// the sliders must be over all other QGraphicsItems
+	_sliders_group->setZValue(1.e42);
+
+	addItem(_sliders_group);
+
+	configure_axis();
+
+	update_all();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::configure_axis
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::configure_axis()
+{
+#if 0
+	/* first about the slider group
+	 */
+	if (_sliders_group) {
+		// it's more simple to delete and recreate the sliders group
+		removeItem(_sliders_group);
+		_sliders_group->delete_own_zoom_slider();
+		delete _sliders_group;
+	}
+
+	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _axis_id);
+	_sliders_group->setPos(0., 0.);
+	_sliders_group->add_zoom_sliders(0, 1024);
+
+	// the sliders must be over all other QGraphicsItems
+	_sliders_group->setZValue(1.e42);
+
+	addItem(_sliders_group);
+#endif
+
+	/* get the needed zones
+	 */
+	PVCore::PVProgressBox pbox("Initializing zoomed parallel view");
+
+	pbox.set_enable_cancel(false);
+
+	PVCore::PVProgressBox::progress([&]() {
+			common::get_lib_view(_pvview)->request_zoomed_zone_trees(_axis_index);
+		}, &pbox);
+
+	/* have a coherent param widget
+	 */
+	_zpview->params_widget()->build_axis_menu(_axis_index,
+	                                          _pvview.get_axes_combination().get_axes_names_list());
+
+	/* the zones
+	 */
 	// needed pixmap to create QGraphicsPixmapItem
 	QPixmap dummy_pixmap;
 
@@ -421,12 +507,6 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
 
 		++_renderable_zone_number;
 	}
-
-	if (_zpview->isVisible()) {
-		update_all();
-	}
-
-	return true;
 }
 
 /*****************************************************************************
@@ -888,6 +968,10 @@ void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
 		_selection_sliders->set_value(y_min, y_max);
 	}
 }
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::cancel_and_wait_all_rendering
+ *****************************************************************************/
 
 void PVParallelView::PVZoomedParallelScene::cancel_and_wait_all_rendering()
 {

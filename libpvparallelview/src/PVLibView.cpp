@@ -418,13 +418,7 @@ void PVParallelView::PVLibView::axes_comb_updated()
 			/* the ZPS can be closed because there is no
 			 * axis to rattach it to.
 			 */
-			for(QGraphicsView *view: scene->views()) {
-				if (view->parentWidget() == nullptr) {
-					PVLOG_WARN("a ZoomedParallelScene exists but is not in a dock!\n");
-					continue;
-				}
-				view->parentWidget()->close();
-			}
+			scene->get_view()->parentWidget()->close();
 		}
 	}
 

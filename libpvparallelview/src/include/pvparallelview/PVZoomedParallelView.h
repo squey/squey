@@ -21,6 +21,7 @@ namespace PVParallelView
 
 // forward declaration
 class PVZoomedParallelScene;
+class PVZoomedParallelViewParamsWidget;
 
 /**
  * @class PVZoomedParallelView
@@ -54,9 +55,11 @@ public:
 
 protected:
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
+	PVZoomedParallelViewParamsWidget* params_widget() { return _params_widget; }
 
 private:
-	PVWidgets::PVHelpWidget *_help_widget;
+	PVWidgets::PVHelpWidget          *_help_widget;
+	PVZoomedParallelViewParamsWidget *_params_widget;
 };
 
 }

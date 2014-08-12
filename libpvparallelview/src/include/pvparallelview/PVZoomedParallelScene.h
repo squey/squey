@@ -32,7 +32,7 @@
 #include <QPaintEvent>
 #include <QTimer>
 
-#include <tbb/atomic.h>
+#include <atomic>
 
 namespace PVParallelView
 {
@@ -105,6 +105,8 @@ public:
 	 * Destructor
 	 */
 	~PVZoomedParallelScene();
+
+	PVZoomedParallelView* get_view() { return _zpview; }
 
 	/**
 	 * Overloaded methods when a mouse button is pressed.
@@ -241,6 +243,11 @@ public:
 protected:
 	bool show_bg() const { return _show_bg; }
 
+	/**
+	 * configure the axis related internals.
+	 */
+	void configure_axis();
+
 private slots:
 	/**
 	 * Start an update of the selection images.
@@ -275,6 +282,11 @@ private slots:
 	 * Stops all pending rendering and wait for their ends.
 	 */
 	void cancel_and_wait_all_rendering();
+
+	/**
+	 * update the scene to display the column \a index
+	 */
+	void change_to_col(int index);
 
 private:
 	/**
@@ -580,7 +592,7 @@ private:
 	render_t                        _render_type;
 	int                             _renderable_zone_number;
 
-	tbb::atomic<bool>               _view_deleted;
+	std::atomic_bool                _view_deleted;
 };
 
 }

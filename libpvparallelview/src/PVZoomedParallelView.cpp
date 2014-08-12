@@ -8,6 +8,7 @@
 
 #include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
+#include <pvparallelview/PVZoomedParallelViewParamsWidget.h>
 
 #include <QScrollBar64>
 
@@ -36,6 +37,10 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget *parent) :
 	_help_widget->newTable();
 	_help_widget->addTextFromFile(":help-mouse-zoomed-paralllel-view");
 	_help_widget->finalizeText();
+
+	_params_widget = new PVZoomedParallelViewParamsWidget(this);
+	_params_widget->setAutoFillBackground(true);
+	_params_widget->adjustSize();
 }
 
 /*****************************************************************************
@@ -63,6 +68,11 @@ void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent *event)
 	}
 
 	bool need_recomputation = event->oldSize().height() != event->size().height();
+
+	QPoint pos = QPoint(get_viewport()->size().width() - 4, 4);
+	pos -= QPoint(_params_widget->width(), 0);
+	_params_widget->move(pos);
+	_params_widget->raise();
 
 	zps->resize_display(need_recomputation);
 }

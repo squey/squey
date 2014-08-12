@@ -63,6 +63,7 @@ PVZoomAxisSliders.cpp
 PVZoomedParallelScene.cpp
 PVZoomedParallelView.cpp
 PVZoomedParallelViewSelectionLine.cpp
+PVZoomedParallelViewParamsWidget.cpp
 PVZoomedSelectionAxisSlider.cpp
 PVZoomedSelectionAxisSliders.cpp
 PVZoomedZoneTree.cpp
@@ -181,6 +182,7 @@ include/pvparallelview/PVAbstractAxisSliders.h
 include/pvparallelview/PVSelectionAxisSliders.h
 include/pvparallelview/PVZoomAxisSliders.h
 include/pvparallelview/PVZoomedSelectionAxisSliders.h
+include/pvparallelview/PVZoomedParallelViewParamsWidget.h
 include/pvparallelview/PVZoomableDrawingArea.h
 include/pvparallelview/PVHitCountView.h
 include/pvparallelview/PVHitCountViewParamsWidget.h
