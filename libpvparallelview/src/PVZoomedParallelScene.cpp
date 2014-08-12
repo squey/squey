@@ -434,26 +434,6 @@ void PVParallelView::PVZoomedParallelScene::change_to_col(int index)
 
 void PVParallelView::PVZoomedParallelScene::configure_axis()
 {
-#if 0
-	/* first about the slider group
-	 */
-	if (_sliders_group) {
-		// it's more simple to delete and recreate the sliders group
-		removeItem(_sliders_group);
-		_sliders_group->delete_own_zoom_slider();
-		delete _sliders_group;
-	}
-
-	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _axis_id);
-	_sliders_group->setPos(0., 0.);
-	_sliders_group->add_zoom_sliders(0, 1024);
-
-	// the sliders must be over all other QGraphicsItems
-	_sliders_group->setZValue(1.e42);
-
-	addItem(_sliders_group);
-#endif
-
 	/* get the needed zones
 	 */
 	PVCore::PVProgressBox pbox("Initializing zoomed parallel view");
