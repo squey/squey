@@ -50,6 +50,11 @@ PVGuiQt::PVAxesCombinationDialog::~PVAxesCombinationDialog()
 	_update_box->deleteLater();
 }
 
+void PVGuiQt::PVAxesCombinationDialog::reset_used_axes()
+{
+	_axes_widget->reset_used_axes();
+}
+
 void PVGuiQt::PVAxesCombinationDialog::commit_axes_comb_to_view()
 {
 	if (_valid) {

@@ -79,6 +79,7 @@ void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 		return;
 	}
 
+	dlg->reset_used_axes();
 	dlg->show();
 }
 

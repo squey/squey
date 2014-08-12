@@ -206,6 +206,12 @@ void PVGuiQt::PVAxesCombinationWidget::update_all()
 	update_used_axes();
 }
 
+void PVGuiQt::PVAxesCombinationWidget::reset_used_axes()
+{
+	_axes_combination = _view->get_axes_combination();
+	update_used_axes();
+}
+
 void PVGuiQt::PVAxesCombinationWidget::sort_Slot()
 {
 	_axes_combination.sort_by_name(true);

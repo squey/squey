@@ -45,6 +45,9 @@ public:
 public:
 	void save_current_combination();
 	void restore_saved_combination();
+
+	void reset_used_axes();
+
 public slots:
 	void update_orig_axes();
 	void update_used_axes();

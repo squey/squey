@@ -35,6 +35,8 @@ public:
 	void save_current_combination();
 	void update_used_axes();
 
+	void reset_used_axes();
+
 private:
 	Picviz::PVView const& lib_view() const { return _lib_view; }
 
