@@ -73,7 +73,6 @@ PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Picviz::PVView* 
 	else
 	{
 		main_layout->addWidget(args_widget_box);
-		main_layout->addWidget(_presets_widget);
 	}
 
 	main_layout->addLayout(_btn_layout);
