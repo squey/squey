@@ -112,7 +112,7 @@ PVWidgets::PVArgumentListWidget::~PVArgumentListWidget()
  * PVWidgets::PVArgumentListWidget::args_changed_Slot
  *
  *****************************************************************************/
-void PVWidgets::PVArgumentListWidget::args_changed_Slot()
+void PVWidgets::PVArgumentListWidget::args_changed_Slot(const QModelIndex&, const QModelIndex&)
 {
 	_args_has_changed = true;
 	emit args_changed_Signal();

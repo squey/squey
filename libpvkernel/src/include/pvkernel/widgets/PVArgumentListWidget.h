@@ -51,7 +51,7 @@ private:
 	void init_widgets();
 
 private slots:
-	void args_changed_Slot();
+	void args_changed_Slot(const QModelIndex& a = QModelIndex(), const QModelIndex& b = QModelIndex());
 
 signals:
 	void args_changed_Signal();
