@@ -24,7 +24,6 @@ static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 #define PICVIZ_ORGANISATION "Picviz Labs"
 #define PICVIZ_APPLICATIONNAME "Picviz Inspector"
 
-
 #define PVCORE_QVARIANT_METATYPE_HEIGHT 30
 #define PVCORE_QVARIANT_METATYPE_WIDTH 350
 
@@ -84,13 +83,16 @@ static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 #define ESCAPE_PERCENT "\%"
 #endif
 
+#define PICVIZ_CONFDIR ".picviz"
+#define PICVIZ_INSPECTOR_CONFDIR PICVIZ_CONFDIR PICVIZ_PATH_SEPARATOR "inspector"
+
 #define picviz_verify(e) __picviz_verify(e, __FILE__, __LINE__)
 #define __picviz_verify(e, F, L)\
 	if (!(e)) {\
 		fprintf(stderr, "valid assertion failed at %s:%d: %s.\n", F, L, #e);\
 		abort();\
 	}
-		
+
 #define NEXT_MULTIPLE(n, align) ((((n)*(align)-1)/(align))*(align))
 #define PREV_MULTIPLE(n, align) (((n)/(align))*(align))
 

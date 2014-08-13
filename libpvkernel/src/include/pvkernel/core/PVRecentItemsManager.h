@@ -110,14 +110,20 @@ private:
 	const variant_list_t supported_format_list() const;
 
 private:
-	PVRecentItemsManager() : _recents_settings("recents.ini", QSettings::IniFormat) {}
+	PVRecentItemsManager();
 	PVRecentItemsManager(const PVRecentItemsManager&);
 	PVRecentItemsManager &operator=(const PVRecentItemsManager&);
+
+public:
+	/* this singleton requires a public destructor (which is bad) because
+	 * it uses a PVSharedPtr to permit the hive to work on it...
+	 */
+	~PVRecentItemsManager();
 
 private:
 	static PVRecentItemsManager_p _recent_items_manager_p;
 
-	mutable QSettings _recents_settings;
+	mutable QSettings *_recents_settings;
 	const int64_t _max_recent_items = 30;
 	const QStringList _recents_items_keys = { "recent_projects", "recent_sources", "recent_used_formats", "recent_edited_formats", "supported_formats" };
 };
