@@ -12,6 +12,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <QVariant>
+
 namespace PVCore {
 
 class PVSerializeObject;

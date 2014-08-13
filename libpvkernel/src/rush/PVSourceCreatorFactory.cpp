@@ -7,6 +7,7 @@
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
+#include <pvkernel/core/PVConfig.h>
 
 #include <tbb/tick_count.h>
 
@@ -94,6 +95,8 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 
 	size_t nelts = 0;
 	size_t nelts_valid = 0;
+
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
 
 	static size_t nelts_max = pvconfig.value("pvkernel/auto_discovery_number_elts", 500).toInt();
 

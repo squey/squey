@@ -8,6 +8,7 @@
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/core/PVFileHelper.h>
 #include <pvkernel/core/PVDirectory.h>
+#include <pvkernel/core/PVConfig.h>
 
 #include <QString>
 #include <QStringList>
@@ -17,7 +18,7 @@
 typename PVRush::PVNrawCacheManager::PVNrawCacheManager_p PVRush::PVNrawCacheManager::_cache_manager_p = PVNrawCacheManager_p();
 
 PVRush::PVNrawCacheManager::PVNrawCacheManager() :
-	_cache_file(QString(pvconfig.value(PVRush::PVNraw::config_nraw_tmp, PVRush::PVNraw::default_tmp_path).toString()) \
+	_cache_file(QString(PVCore::PVConfig::get().config().value(PVRush::PVNraw::config_nraw_tmp, PVRush::PVNraw::default_tmp_path).toString()) \
 			    + PICVIZ_PATH_SEPARATOR_CHAR + ".cache", QSettings::IniFormat)
 {
 	_cache_file.beginGroup("cache");
@@ -53,7 +54,10 @@ void PVRush::PVNrawCacheManager::remove_nraws_from_investigation(const QString& 
 
 void PVRush::PVNrawCacheManager::delete_unused_cache()
 {
-	QString base_dir(pvconfig.value(PVRush::PVNraw::config_nraw_tmp, PVRush::PVNraw::default_tmp_path).toString());
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
+
+	QString base_dir(pvconfig.value(PVRush::PVNraw::config_nraw_tmp,
+	                                PVRush::PVNraw::default_tmp_path).toString());
 	QString regexp(PVRush::PVNraw::nraw_tmp_name_regexp);
 
 	QStringList nraw_without_opened_files = visit_nraw_folders(base_dir, regexp, [](QDirIterator& it) {

@@ -1,6 +1,8 @@
 
 #include <pvbase/general.h>
 
+#include <pvkernel/core/PVConfig.h>
+
 #include <pvkernel/core/PVLogger.h>
 
 #include <pvkernel/widgets/PVHelpWidget.h>
@@ -167,6 +169,8 @@ void PVWidgets::PVTextPopupWidget::initTextFromFile(const QString& title,
 		PVLOG_WARN("ignoring help content from '%s' because it can not be loaded\n",
 		           qPrintable(css_filename));
 	}
+
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
 
 	int r = 255 * pvconfig.value("pvgl/window_r", 0.2f).toFloat();
 	int g = 255 * pvconfig.value("pvgl/window_g", 0.2f).toFloat();

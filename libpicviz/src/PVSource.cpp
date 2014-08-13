@@ -4,6 +4,7 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
+#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/debug.h>
 
 #include <pvkernel/filter/PVChunkFilterByElt.h>
@@ -70,6 +71,8 @@ Picviz::PVSource::~PVSource()
 
 void Picviz::PVSource::init()
 {
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
+
 	nraw = &(_extractor.get_nraw());
 	// Set extractor default values
 	_extractor.set_last_start(0);

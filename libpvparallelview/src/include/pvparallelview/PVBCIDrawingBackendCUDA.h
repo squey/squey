@@ -16,6 +16,8 @@
 
 #include <QImage>
 
+#include <map>
+
 #include <cassert>
 
 namespace PVParallelView {

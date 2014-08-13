@@ -4,6 +4,8 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <pvkernel/core/PVConfig.h>
+
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVNrawException.h>
 #include <pvkernel/rush/PVUtils.h>
@@ -46,6 +48,8 @@ PVRush::PVNraw::~PVNraw()
 
 void PVRush::PVNraw::reserve(PVRow const /*nrows*/, PVCol const ncols)
 {
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
+
 	// Generate random path
 	QString nraw_dir_base = pvconfig.value(config_nraw_tmp, default_tmp_path).toString() + QDir::separator() + nraw_tmp_pattern;
 	QByteArray nstr = nraw_dir_base.toLocal8Bit();

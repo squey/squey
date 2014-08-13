@@ -22,6 +22,8 @@
 
 #include <QString>
 
+#include <list>
+
 namespace PVCore {
 
 class PVPythonClassDecl;

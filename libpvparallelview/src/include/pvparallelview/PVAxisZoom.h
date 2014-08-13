@@ -5,6 +5,8 @@
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvparallelview/PVZoomConverter.h>
 
+#include <climits>
+
 namespace PVParallelView
 {
 

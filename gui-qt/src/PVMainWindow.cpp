@@ -27,7 +27,7 @@
 #include <picviz/widgets/PVNewLayerDialog.h>
 
 #include <pvkernel/core/PVRecentItemsManager.h>
-
+#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/picviz_bench.h>
 
 #ifdef CUSTOMER_RELEASE
@@ -175,6 +175,8 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	setGeometry(r);
 
 	// Load version informations
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
+
 	_last_known_cur_release = pvconfig.value(PVCONFIG_LAST_KNOWN_CUR_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
 	_last_known_maj_release = pvconfig.value(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
 
@@ -1903,6 +1905,8 @@ void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<Q
 	if (errors.size() == 0) {
 		return;
 	}
+
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
 
 	if (!pvconfig.value(PVCONFIG_FORMATS_SHOW_INVALID, PVCONFIG_FORMATS_SHOW_INVALID_DEFAULT).toBool()) {
 	   return;

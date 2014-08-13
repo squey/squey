@@ -1,3 +1,6 @@
+
+#include <pvkernel/core/PVConfig.h>
+
 #include <picviz/PVView.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
 #ifdef CUDA
@@ -22,6 +25,8 @@ PVParallelView::PVParallelViewImpl::PVParallelViewImpl():
 	_pipeline(nullptr),
 	_show_bboxes(false)
 {
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
+
 	const float win_r = pvconfig.value("pvgl/window_r", 0.2f).toFloat();
 	const float win_g = pvconfig.value("pvgl/window_g", 0.2f).toFloat();
 	const float win_b = pvconfig.value("pvgl/window_b", 0.2f).toFloat();

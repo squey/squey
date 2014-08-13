@@ -8,6 +8,8 @@
 
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
+#include <pvkernel/core/PVConfig.h>
+
 #include <picviz/PVPlotted.h>
 #include <picviz/PVRoot.h>
 #include <picviz/PVSource.h>
@@ -151,6 +153,8 @@ Picviz::PVView::~PVView()
  *****************************************************************************/
 void Picviz::PVView::init_defaults()
 {
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
+
 	_is_consistent = false;
 	_active_axis = 0;
 	_rushnraw_parent = NULL;

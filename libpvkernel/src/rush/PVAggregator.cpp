@@ -4,9 +4,10 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <pvkernel/core/PVConfig.h>
+
 #include <pvkernel/rush/PVAggregator.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
-
 
 PVRush::PVAggregator::PVAggregator(list_inputs const& inputs)
 {
@@ -29,6 +30,8 @@ void PVRush::PVAggregator::release_inputs()
 
 void PVRush::PVAggregator::init()
 {
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
+
 	_eoi = false;
 	_nstart = 0;
 	_nlast = 0;

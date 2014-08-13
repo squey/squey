@@ -13,6 +13,7 @@
 #include <boost/static_assert.hpp>
 #include <boost/type_traits.hpp>
 
+#include <list>
 #include <iterator>
 
 #include <cmath>

@@ -5,11 +5,11 @@
  */
 
 #include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVConfig.h>
 
 #include <QLibrary>
 #include <QDir>
 #include <QStringList>
-
 
 // Helper class to load external plugins
 
@@ -51,6 +51,8 @@ int PVCore::PVClassLibraryLibLoader::load_class_from_dir(QString const& pluginsd
 	QStringList files = dir.entryList();
 	QStringListIterator filesIterator(files);
 	int count = 0;
+
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
 	while (filesIterator.hasNext()) {
 		QString curfile = filesIterator.next();
 		QString activated_token = curfile + QString("/activated");

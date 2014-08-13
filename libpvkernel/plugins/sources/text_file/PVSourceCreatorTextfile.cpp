@@ -6,6 +6,7 @@
 
 #include "PVSourceCreatorTextfile.h"
 
+#include <pvkernel/core/PVConfig.h>
 
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVInputFile.h>
@@ -20,6 +21,8 @@
 
 PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::create_discovery_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
 {
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
+
 	PVLOG_DEBUG("(text_file plugin) create source for %s\n", qPrintable(input->human_name()));
 	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
 	assert(file);

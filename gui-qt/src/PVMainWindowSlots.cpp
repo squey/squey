@@ -13,6 +13,7 @@
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVVersion.h>
+#include <pvkernel/core/PVConfig.h>
 
 #include <picviz/PVAxisComputation.h>
 #include <picviz/PVPlotting.h>
@@ -1190,6 +1191,8 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 	set_version_informations();
 
 	// Update PVCONFIG settings
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
+
 	pvconfig.setValue(PVCONFIG_LAST_KNOWN_CUR_RELEASE, current_v);
 	pvconfig.setValue(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, last_v);
 

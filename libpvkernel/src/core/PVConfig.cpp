@@ -9,8 +9,12 @@
 #include <pvkernel/core/PVConfig.h>
 
 #include <QDir>
+#include <QSettings>
 
-PVCore::PVConfig* PVCore::PVConfig::_pvconfig = nullptr;
+#define GLOBAL_CONFIG_FILENAME "pvconfig.ini"
+#define CONFIG_FILENAME "config.ini"
+
+PVCore::PVConfig::PVConfig_p PVCore::PVConfig::_pvconfig;
 
 static const QString _config_dir = QDir::homePath() + QDir::separator() + PICVIZ_CONFDIR;
 static const QString _lists_folder = "lists";
@@ -30,6 +34,32 @@ PVCore::PVConfig::PVConfig()
 	dir.mkdir("blacklist");
 	dir.mkdir("whitelist");
 	dir.mkdir("greylist");
+
+	QFileInfo fi(QDir::homePath() + QDir::separator() + PICVIZ_INSPECTOR_CONFDIR + QDir::separator() + CONFIG_FILENAME);
+
+	if (fi.exists() == false) {
+		fi.dir().mkpath(fi.path());
+
+		QFileInfo sys_fi(GLOBAL_CONFIG_FILENAME);
+
+		if (sys_fi.exists()) {
+			QFile::copy(sys_fi.filePath(), fi.filePath());
+		}
+	}
+
+	_config = new QSettings(fi.filePath(), QSettings::IniFormat);
+}
+
+/*****************************************************************************
+ * PVCore::PVConfig::~PVConfig
+ *****************************************************************************/
+
+PVCore::PVConfig::~PVConfig()
+{
+	if (_config) {
+		delete _config;
+		_config = nullptr;
+	}
 }
 
 /*****************************************************************************
@@ -39,7 +69,7 @@ PVCore::PVConfig::PVConfig()
 PVCore::PVConfig& PVCore::PVConfig::get()
 {
 	if (_pvconfig == nullptr) {
-		_pvconfig = new PVConfig();
+		_pvconfig = PVConfig_p(new PVConfig());
 	}
 	return *_pvconfig;
 }
@@ -51,4 +81,13 @@ PVCore::PVConfig& PVCore::PVConfig::get()
 QString PVCore::PVConfig::get_lists_dir() const
 {
 	return _config_dir + QDir::separator() + _lists_folder;
+}
+
+/*****************************************************************************
+ * PVCore::PVConfig::config
+ *****************************************************************************/
+
+QSettings& PVCore::PVConfig::config() const
+{
+	return *_config;
 }

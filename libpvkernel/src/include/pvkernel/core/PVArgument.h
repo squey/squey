@@ -12,6 +12,7 @@
 #include <QString>
 #include <QDomElement>
 #include <QVariant>
+#include <QSettings>
 
 /*!
  */

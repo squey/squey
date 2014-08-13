@@ -8,8 +8,6 @@
 #define PVBASE_GENERAL_H
 
 #include <QtGlobal>
-#include <QSettings>
-
 
 // "PICVIZ_CFG_FILE_PATH", "PICVIZ_VERSION_FILE_PATH" and "PICVIZ_BUILD_FILE_PATH" are set by cmake (CMakeOptions.txt/CMakeVersionHandler.txt respectively)
 #include PICVIZ_CFG_FILE_PATH
@@ -18,8 +16,6 @@
 
 #include "types.h"
 #include "export.h"
-
-static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 
 #define PICVIZ_ORGANISATION "Picviz Labs"
 #define PICVIZ_APPLICATIONNAME "Picviz Inspector"
