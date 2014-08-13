@@ -115,8 +115,8 @@ private:
 	PVRecentItemsManager &operator=(const PVRecentItemsManager&);
 
 public:
-	/* this singleton requires a public destructor (which is bad) because
-	 * it uses a PVSharedPtr to permit the hive to work on it...
+	/* this singleton requires a public destructor because it uses a PVSharedPtr
+	 * in the data segment to delete it (and to permit the hive to work on it).
 	 */
 	~PVRecentItemsManager();
 

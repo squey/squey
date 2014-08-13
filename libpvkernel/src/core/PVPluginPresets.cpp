@@ -29,9 +29,6 @@ PVCore::__impl::PVPluginPresets::PVPluginPresets(PVCore::PVFunctionArgsBase* far
  , _abs_reg_name(path + "/" + registered_name)
 {
 	if (g_presets_settings.get() == nullptr) {
-		// ("presets.ini", QSettings::IniFormat);
-		// merde !
-
 		QFileInfo fi(QDir::homePath() + QDir::separator() + PICVIZ_INSPECTOR_CONFDIR + QDir::separator() + PRESETS_FILENAME);
 
 		if (fi.exists() == false) {
