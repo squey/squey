@@ -1,6 +1,7 @@
 
+#include <pvbase/general.h>
+
 #include <pvkernel/core/PVLogger.h>
-#include <pvkernel/core/PVConfig.h>
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 

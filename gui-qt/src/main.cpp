@@ -31,7 +31,6 @@
 #include <time.h>
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/segfault_handler.h>
-#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 
@@ -116,7 +115,6 @@ namespace bpo = boost::program_options;
 int main(int argc, char *argv[])
 {
 	init_segfault_handler();
-	PVCore::PVConfig::get().init_dirs();
 
 #ifndef NO_MAIN_WINDOW
 	QApplication app(argc, argv);

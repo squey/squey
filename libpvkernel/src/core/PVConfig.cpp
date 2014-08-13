@@ -1,17 +1,27 @@
 /**
  * \file PVConfig.cpp
  *
- * Copyright (C) Picviz Labs 2012
+ * Copyright (C) Picviz Labs 2012-1024
  */
+
+#include <pvbase/general.h>
 
 #include <pvkernel/core/PVConfig.h>
 
-PVCore::PVConfig* PVCore::PVConfig::_pvconfig = nullptr;
-const QString PVCore::PVConfig::_config_dir = QDir::home().absolutePath() + PICVIZ_PATH_SEPARATOR_CHAR + ".picviz";
-const QString PVCore::PVConfig::_lists_folder = "lists";
+#include <QDir>
 
-void PVCore::PVConfig::init_dirs()
+PVCore::PVConfig* PVCore::PVConfig::_pvconfig = nullptr;
+
+static const QString _config_dir = QDir::homePath() + QDir::separator() + PICVIZ_CONFDIR;
+static const QString _lists_folder = "lists";
+
+/*****************************************************************************
+ * PVCore::PVConfig::PVConfig
+ *****************************************************************************/
+
+PVCore::PVConfig::PVConfig()
 {
+	// initialization of white/grey/black lists' directories
 	QDir dir;
 	dir.mkdir(_config_dir);
 	dir.cd(_config_dir);
@@ -20,4 +30,25 @@ void PVCore::PVConfig::init_dirs()
 	dir.mkdir("blacklist");
 	dir.mkdir("whitelist");
 	dir.mkdir("greylist");
+}
+
+/*****************************************************************************
+ * PVCore::PVConfig::get
+ *****************************************************************************/
+
+PVCore::PVConfig& PVCore::PVConfig::get()
+{
+	if (_pvconfig == nullptr) {
+		_pvconfig = new PVConfig();
+	}
+	return *_pvconfig;
+}
+
+/*****************************************************************************
+ * PVCore::PVConfig::get_lists_dir
+ *****************************************************************************/
+
+QString PVCore::PVConfig::get_lists_dir() const
+{
+	return _config_dir + QDir::separator() + _lists_folder;
 }
