@@ -43,6 +43,8 @@ public:
 	{
 	}
 
+	virtual void init() {}
+
 	virtual void set_children_axes_tag(filter_child_axes_tag_t const& axes)
 	{
 		filter_child_axes_tag_t::const_iterator it;

@@ -1,5 +1,5 @@
 /**
- * \file PVFieldValueMapperParamWidget.h
+ * \file PVFieldConverterValueMapperParamWidget.h
  *
  * Copyright (C) Picviz Labs 2014
  */
@@ -12,9 +12,15 @@
 #include <boost/shared_ptr.hpp>
 
 class QAction;
+class QCheckBox;
+class QLineEdit;
 class QWidget;
 
 #include <pvkernel/widgets/qkeysequencewidget.h>
+
+namespace PVWidgets {
+	class QKeySequenceWidget;
+}
 
 namespace PVFilter {
 
@@ -31,10 +37,17 @@ public:
 
 private slots:
 	void update_params();
+	void browse_conversion_file();
+	void use_default_value_checkbox_changed(int state);
 
 private:
 	QAction* _action_menu;
 	QWidget* _param_widget;
+	QLineEdit* _file_path_line_edit;
+	QLineEdit* _default_value_line_edit;
+	QCheckBox* _use_default_value_checkbox;
+	PVWidgets::QKeySequenceWidget* _separator_char;
+	PVWidgets::QKeySequenceWidget* _quote_char;
 
 private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldConverterValueMapperParamWidget)

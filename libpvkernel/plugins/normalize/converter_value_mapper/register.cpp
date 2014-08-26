@@ -11,7 +11,7 @@
 #include "PVFieldConverterValueMapper.h"
 #include "PVFieldConverterValueMapperParamWidget.h"
 
-//#include <pvkernel/rush/PVAxisTagsDec.h>
+#include <pvkernel/rush/PVAxisTagsDec.h>
 
 // This method will be called by libpicviz
 LibCPPExport void register_class()

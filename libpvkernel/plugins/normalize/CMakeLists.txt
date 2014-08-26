@@ -67,8 +67,8 @@ declare_library(normalize_filter_converter_GUID_to_IP)
 SET(VALUEMAPPER_MOC_HEADERS
 converter_value_mapper/PVFieldConverterValueMapperParamWidget.h
 )
-QT4_WRAP_CPP(VALUEMAPPER_MOC_HEADERS ${VALUEMAPPER_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
-add_library(normalize_filter_converter_value_mapper SHARED converter_value_mapper/PVFieldConverterValueMapper.cpp converter_value_mapper/PVFieldConverterValueMapperParamWidget.cpp ${VALUEMAPPER_MOC_SRCS} converter_value_mapper/register.cpp)
+QT4_WRAP_CPP(VALUEMAPPER_MOC_SRCS ${VALUEMAPPER_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+add_library(normalize_filter_converter_value_mapper SHARED converter_value_mapper/PVFieldConverterValueMapper.cpp converter_value_mapper/PVFieldConverterValueMapperParamWidget.cpp converter_value_mapper/libcsv.cpp ${VALUEMAPPER_MOC_SRCS} converter_value_mapper/register.cpp)
 target_link_libraries(normalize_filter_converter_value_mapper pvkernel ${QT_LIBRARIES})
 declare_library(normalize_filter_converter_value_mapper)
 
