@@ -126,15 +126,16 @@ PVCore::PVField& PVFilter::PVFieldConverterValueMapper::one_to_one(PVCore::PVFie
 		QString str_tmp;
 		std::string f = field.get_qstr(str_tmp).toStdString();
 
-		try {
-			__impl::csv_infos::utf16_string_t mapped_field = _csv_infos.map.at(f);
+		__impl::csv_infos::utf16_map_t::const_iterator iter = _csv_infos.map.find(f); // not using at() because throwing exceptions really really kills the perfs
 
+		if(iter != _csv_infos.map.end()) { // found
+			const __impl::csv_infos::utf16_string_t& mapped_field = iter->second;
 			size_t mapped_field_len_utf16 = mapped_field.second;
 			field.allocate_new(mapped_field_len_utf16);
 			memcpy(field.begin(), mapped_field.first, mapped_field_len_utf16);
 			field.set_end(field.begin() + mapped_field_len_utf16);
 		}
-		catch (const std::out_of_range& e) {
+		else { // not found
 			if (_use_default_value) {
 				field.allocate_new(_csv_infos.default_value_len_utf16);
 				memcpy(field.begin(), _csv_infos.default_value_utf16, _csv_infos.default_value_len_utf16);

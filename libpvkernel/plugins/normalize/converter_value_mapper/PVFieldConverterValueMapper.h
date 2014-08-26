@@ -32,7 +32,8 @@ struct csv_infos {
 	UChar* default_value_utf16;
 	size_t default_value_len_utf16;
 	typedef std::pair<UChar*, size_t> utf16_string_t;
-	std::unordered_map<std::string, utf16_string_t> map;
+	typedef std::unordered_map<std::string, utf16_string_t> utf16_map_t;
+	utf16_map_t map;
 	std::string charset = "UTF-8";
 	UConverter* ucnv = nullptr;
 
