@@ -72,6 +72,14 @@ add_library(normalize_filter_converter_value_mapper SHARED converter_value_mappe
 target_link_libraries(normalize_filter_converter_value_mapper pvkernel ${QT_LIBRARIES})
 declare_library(normalize_filter_converter_value_mapper)
 
+SET(KEYVALUE_MOC_HEADERS
+splitter_key_value/PVFieldSplitterKeyValueParamWidget.h
+)
+QT4_WRAP_CPP(KEYVALUE_MOC_SRCS ${KEYVALUE_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+add_library(normalize_filter_splitter_key_value SHARED splitter_key_value/PVFieldSplitterKeyValue.cpp splitter_key_value/PVFieldSplitterKeyValueParamWidget.cpp ${KEYVALUE_MOC_SRCS} splitter_key_value/register.cpp)
+target_link_libraries(normalize_filter_splitter_key_value pvkernel ${QT_LIBRARIES})
+declare_library(normalize_filter_splitter_key_value)
+
 SET(SPLITTERIP_MOC_HEADERS
 splitter_ip/PVFieldSplitterIPParamWidget.h
 )
