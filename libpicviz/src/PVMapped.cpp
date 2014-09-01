@@ -141,7 +141,7 @@ void Picviz::PVMapped::finish_process_from_rush_pipeline()
 		}
 		tbb::tick_count tmap_end = tbb::tick_count::now();
 
-		PVLOG_INFO("(PVMapped::create_table) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
+		PVLOG_INFO("(PVMapped::finish_process_from_rush_pipeline) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
 	}
 
 	// Validate all mapping!
