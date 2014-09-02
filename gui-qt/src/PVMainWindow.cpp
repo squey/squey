@@ -1972,6 +1972,8 @@ int PVInspector::PVMainWindow::update_check()
 #ifndef CUSTOMER_NAME
 #error CUSTOMER_RELEASE is defined. You must set CUSTOMER_NAME.
 #endif
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
+
 	// If the user does not want us to check for new versions, just don't do it.
 	if (!pvconfig.value("check_new_versions", true).toBool()) {
 		return 1;
