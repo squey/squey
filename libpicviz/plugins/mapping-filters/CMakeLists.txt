@@ -15,6 +15,7 @@ mapping_filter_integer_default
 mapping_filter_integer_hex
 mapping_filter_integer_oct
 mapping_filter_ipv4_default
+mapping_filter_ipv4_uniform
 mapping_filter_enum_default
 mapping_filter_host_default
 mapping_filter_string_default
@@ -49,6 +50,9 @@ target_link_libraries(mapping_filter_integer_oct ${LINK_LIBRARIES})
 
 add_library(mapping_filter_ipv4_default SHARED ipv4_default/PVMappingFilterIPv4Default.cpp ipv4_default/register.cpp)
 target_link_libraries(mapping_filter_ipv4_default ${LINK_LIBRARIES})
+
+add_library(mapping_filter_ipv4_uniform SHARED ipv4_uniform/PVMappingFilterIPv4Uniform.cpp ipv4_uniform/register.cpp)
+target_link_libraries(mapping_filter_ipv4_uniform ${LINK_LIBRARIES})
 
 add_library(mapping_filter_enum_default SHARED enum_default/PVMappingFilterEnumDefault.cpp enum_default/register.cpp)
 target_link_libraries(mapping_filter_enum_default ${LINK_LIBRARIES})
