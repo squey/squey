@@ -118,6 +118,22 @@ void Picviz::PVMapped::finish_process_from_rush_pipeline()
 	// Give back unused memory (over-allocated)
 	reallocate_table(nrows);
 
+	// finalize import's mapping filters
+	PVRush::PVNraw const& nraw = get_parent()->get_rushnraw();
+
+	for (PVCol col = 0; col < get_column_count(); ++col) {
+		PVMappingFilter::p_type mapping_filter = _mapping_filters_rush[col];
+		mapping_filter->set_dest_array(nrows, get_column_pointer(col));
+
+		tbb::tick_count start = tbb::tick_count::now();
+		mapping_filter->finalize(col, nraw);
+		tbb::tick_count end = tbb::tick_count::now();
+		PVLOG_INFO("(PVMapped::finish_process_from_rush_pipeline) finalizing mapping for axis %d took %0.4f seconds.\n", col, (end-start).seconds());
+	}
+
+
+
+
 	// Process mandatory mapping filters
 	std::vector<PVMandatoryMappingFilter::p_type> mand_mapping_filters;
 	LIB_CLASS(Picviz::PVMandatoryMappingFilter)::list_classes const& lfmf = LIB_CLASS(Picviz::PVMandatoryMappingFilter)::get().get_list();
@@ -141,7 +157,7 @@ void Picviz::PVMapped::finish_process_from_rush_pipeline()
 		}
 		tbb::tick_count tmap_end = tbb::tick_count::now();
 
-		PVLOG_INFO("(PVMapped::create_table) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
+		PVLOG_INFO("(PVMapped::finish_process_from_rush_pipeline) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
 	}
 
 	// Validate all mapping!

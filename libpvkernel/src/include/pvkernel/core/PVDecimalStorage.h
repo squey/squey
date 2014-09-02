@@ -136,7 +136,7 @@ public:
 	template <typename T, typename std::enable_if<std::is_same<T, float>::value == true,  int>::type = 0>
 	void set_max()
 	{
-		_v = std::numeric_limits<float>::max();
+		storage_as_float() = std::numeric_limits<float>::max();
 	}
 
 	template <typename T, typename std::enable_if<std::is_same<T, float>::value == false, int>::type = 0>
@@ -148,7 +148,7 @@ public:
 	template <typename T, typename std::enable_if<std::is_same<T, float>::value == true,  int>::type = 0>
 	void set_min()
 	{
-		_v = std::numeric_limits<float>::min();
+		storage_as_float() = std::numeric_limits<float>::min();
 	}
 
 	template <typename T, typename std::enable_if<std::is_same<T, float>::value == false, int>::type = 0>
