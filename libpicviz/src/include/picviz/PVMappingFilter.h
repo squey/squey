@@ -52,6 +52,28 @@ public:
 	virtual decimal_storage_type operator()(PVCore::PVField const& field) = 0;
 	virtual decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) = 0;
 
+	/**
+	 * provide a post processing step for mapping computation
+	 *
+	 * in some cases, the mapping may not be directly computed and need
+	 * extra information about data. In those cases,
+	 * ::operator()(PVCore::PVField const&) is used to prepare those extra
+	 * informations and this method compute for real the resulting mapping.
+	 *
+	 * Thid is the default implementation which does nothing special.
+
+	 * @param col the column number
+	 * @param nraw a reference on the nraw
+	 *
+	 * @return a pointer on the filled decimal storage array
+	 */
+	virtual decimal_storage_type* finalize(PVCol const col, PVRush::PVNraw const& nraw)
+	{
+		(void)col;
+		(void)nraw;
+		return _dest;
+	}
+
 	/*
 	// Here we provide a default implementation which call operator()(QString const&) over an OpenMP-parallelised
 	// for loop over values

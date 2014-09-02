@@ -35,6 +35,14 @@ public:
 		return this->_dest;
 	}
 
+	/**
+	 * redefinition of PVMappingFilter::finalize(...)
+	 *
+	 * As a pure mapping filter does not need pre/post processing,
+	 * ::finalize must not do anything and must not be overridden.
+	 */
+	decimal_storage_type* finalize(PVCol const, PVRush::PVNraw const&) override final { return nullptr; }
+
 	virtual bool is_pure() const override { return true; }
 };
 
