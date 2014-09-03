@@ -629,7 +629,8 @@ void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(int col)
 	}
 }
 
-void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStringList &sl)
+void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStringList &sl,
+                                                      bool hide_dialog)
 {
 
 	// Get the filter associated with that menu entry
@@ -664,7 +665,10 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStrin
 	// Creating the PVLayerFilterProcessWidget will save the current args for this filter.
 	// Then we can change them !
 	_ctxt_process = new PVGuiQt::PVLayerFilterProcessWidget(lib_view(), _ctxt_args, fclone, _values_view);
-	connect(_ctxt_process, SIGNAL(accepted()), this, SLOT(hide()));
+
+	if (hide_dialog) {
+		connect(_ctxt_process, SIGNAL(accepted()), this, SLOT(hide()));
+	}
 
 	if (custom_args.get_edition_flag()) {
 		_ctxt_process->show();
@@ -794,7 +798,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	int old_selected_layer_index = ls.get_selected_layer_index();
 	Picviz::PVSelection old_sel(view_sp->get_pre_filter_layer().get_selection());
 
-	multiple_search(_msearch_actions[1], sl);
+	multiple_search(_msearch_actions[1], sl, false);
 
 	actor.call<FUNC(Picviz::PVView::add_new_layer)>(text);
 	Picviz::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
@@ -900,7 +904,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 
 		QStringList sl;
 		sl.append(index.data().toString());
-		multiple_search(_msearch_actions[1], sl);
+		multiple_search(_msearch_actions[1], sl, false);
 
 		actor.call<FUNC(Picviz::PVView::add_new_layer)>(layer_name);
 		Picviz::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
