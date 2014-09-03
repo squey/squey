@@ -664,6 +664,7 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStrin
 	// Creating the PVLayerFilterProcessWidget will save the current args for this filter.
 	// Then we can change them !
 	_ctxt_process = new PVGuiQt::PVLayerFilterProcessWidget(lib_view(), _ctxt_args, fclone, _values_view);
+	connect(_ctxt_process, SIGNAL(accepted()), this, SLOT(hide()));
 
 	if (custom_args.get_edition_flag()) {
 		_ctxt_process->show();
