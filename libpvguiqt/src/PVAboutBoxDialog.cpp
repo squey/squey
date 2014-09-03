@@ -4,6 +4,8 @@
  * Copyright (C) Picviz Labs 2012
  */
 
+#include <pvbase/general.h>
+
 #include <pvguiqt/PVAboutBoxDialog.h>
 
 #include <pvkernel/core/PVVersion.h>
@@ -29,6 +31,9 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	content += "<br/>contact - <a href=\"mailto:contact@picviz.com\">contact@picviz.com</a><br/>";
 	content += "support - <a href=\"mailto:support@picviz.com\">support@picviz.com</a><br/>";
 	content += "website - <a href=\"http://www.picviz.com\">www.picviz.com</a><br/>";
+
+	content += QString("<br/>Maximum events per source: %L1<br/>").arg(CUSTOMER_LINESNUMBER);
+	content += QString("Licence expiration day: %1<br/>").arg(CUSTOMER_EXPIRATIONDAY);
 
 #ifdef CUDA
 	content += "<br/>With CUDA support<br/>";
