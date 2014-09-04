@@ -10,6 +10,7 @@
 #include <PVFormatBuilderWidget.h>
 #include <PVXmlTreeItemDelegate.h>
 #include <PVXmlParamWidget.h>
+#include <PVOptionsWidget.h>
 #include <pvguiqt/PVInputTypeMenuEntries.h>
 
 #include <pvkernel/rush/PVNormalizer.h>
@@ -148,6 +149,10 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	QWidget* vb_widget = new QWidget();
 	vb_widget->setLayout(vb);
 	_main_tab->addTab(vb_widget, tr("Format"));
+
+	// Option tab
+	_options_widget = new PVOptionsWidget();
+	_main_tab->addTab(_options_widget, tr("Options"));
 
 	_axes_comb_widget = new PVGuiQt::PVAxesCombinationWidget(myTreeModel->get_axes_combination());
 	_main_tab->addTab(_axes_comb_widget, tr("Axes combination"));
@@ -554,7 +559,10 @@ bool PVInspector::PVFormatBuilderWidget::save() {
 
 	if (_cur_file.isEmpty()) {
 		return saveAs();
-	}	
+	}
+
+	myTreeModel->set_first_line(_options_widget->first_line());
+	myTreeModel->set_last_line(_options_widget->last_line());
 
 	bool save_xml = myTreeModel->saveXml(_cur_file);
 	if (save_xml) {
@@ -1048,16 +1056,17 @@ void PVInspector::PVFormatBuilderWidget::set_axes_type_selected_row_Slot(int /*r
 
 bool PVInspector::PVFormatBuilderWidget::openFormat(QString const& path)
 {
-    QFile f(path);
-    if (f.exists()) {//if the file exists...
-        if (myTreeModel->openXml(path)) {
+	QFile f(path);
+	if (f.exists()) {//if the file exists...
+		if (myTreeModel->openXml(path)) {
+			_options_widget->set_lines_range(myTreeModel->get_first_line(), myTreeModel->get_last_line());
 			_cur_file = path;
 			setWindowTitleForFile(path);
 			return true;
 		}
-    }
+	}
 
-    return false;
+	return false;
 }
 
 void PVInspector::PVFormatBuilderWidget::openFormat(QDomDocument& doc)

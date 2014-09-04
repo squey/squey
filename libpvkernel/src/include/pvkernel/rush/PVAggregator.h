@@ -158,6 +158,8 @@ public:
 	 */
 	void set_strict_mode(bool sm) { _strict_mode = sm; }
 
+	void set_skip_lines_count(size_t skip_lines_count) { _skip_lines_count = skip_lines_count; }
+
 	void set_sources_number_fields(PVCol nfields);
 
 	void debug();
@@ -183,6 +185,9 @@ protected:
 	 */
 	mutable bool _eoi;
 	mutable chunk_index _nstart;
+
+	mutable bool _begin_of_input;
+	mutable bool _skip_lines_count;
 
 	/*! \brief Stores the global index of the last element of the last read chunk
 	 */

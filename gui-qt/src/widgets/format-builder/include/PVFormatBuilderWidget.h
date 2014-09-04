@@ -45,6 +45,8 @@ class PVAxesCombinationWidget;
 
 namespace PVInspector{
 
+class PVOptionsWidget;
+
 typedef QList<PVFilter::PVFieldsSplitterParamWidget_p> list_splitters_t;
 typedef QList<PVFilter::PVFieldsConverterParamWidget_p > list_converters_t;
 
@@ -154,6 +156,7 @@ protected:
 	PVRush::PVSourceCreator_p _log_sc;
 	PVRush::PVRawSourceBase_p _log_source;
 	boost::shared_ptr<PVRush::PVExtractor> _log_extract;
+	PVOptionsWidget* _options_widget;
 	PVGuiQt::PVAxesCombinationWidget* _axes_comb_widget;
 
 	// Model and widget for the NRAW

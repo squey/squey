@@ -64,7 +64,9 @@ public:
 	list_axes_t const& getAxes()const;
 	QList<PVXmlParamParserData> const& getFields()const;
 	QHash<int, QStringList> const& getTimeFormat()const;
-    unsigned int getVersion() { return format_version; }
+	unsigned int getVersion() { return format_version; }
+	int get_first_line() const { return _first_line; }
+	int get_last_line() const { return _last_line; }
 	void dump_filters();
 	void clearFiltersData();
 	axes_comb_t const& getAxesCombination() const { return _axes_combination; }
@@ -75,14 +77,17 @@ private:
 	void parseFromRootNode(QDomElement const& node);
 	void setAxesCombinationFromRootNode(QDomElement const& node);
 	void setAxesCombinationFromString(QString const& str);
+	void setLinesRangeFromRootNode(QDomElement const& rootNode);
 	static PVAxisFormat::node_args_t getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode);
-    
+
 private:
 	QList<PVXmlParamParserData> fields;
 	list_axes_t _axes;
 	QHash<int, QStringList> time_format;
-    unsigned int format_version;
+	unsigned int format_version;
 	axes_comb_t _axes_combination;
+	int _first_line;
+	int _last_line;
 
 	int countChild(QDomElement);
 	QString getNodeName(QDomElement);

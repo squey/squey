@@ -42,6 +42,8 @@ void PVRush::PVAggregator::init()
 	_cur_input = _inputs.begin();
 	_cur_src_index = 0;
 	_strict_mode = false;
+	_begin_of_input = true;
+	_skip_lines_count = 0;
 }
 
 
@@ -116,6 +118,7 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend,
 		_nlast = 0;
 		_cur_src_index = 0;
 		_cur_input = _inputs.begin();
+		_begin_of_input = true;
 
 		list_inputs::iterator it;
 		for (it = _inputs.begin(); it != _inputs.end(); it++) {
@@ -137,11 +140,13 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend,
 	_cur_input = it_src;
 	if ((*_cur_input)->seek(src_offset)) {
 		_cur_src_index = src_global_index;
+		_begin_of_input = false;
 		_nlast = src_global_index + src_found_index;
 	}
 	else {
 		(*_cur_input)->seek_begin();
 		_cur_src_index = 0;
+		_begin_of_input = true;
 		_nlast = src_global_index;
 	}
 
@@ -199,10 +204,22 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk() const
 		_src_offsets[_cur_src_index] = _cur_input;
 		(*_cur_input)->prepare_for_nelts(_nend-_nlast);
 		ret = (*_cur_input)->operator()();
+		_begin_of_input = true;
 	}
 
 	if (ret != NULL) {
 		ret->_agg_index = _cur_src_index + ret->_index;
+		if (_begin_of_input) {
+			PVCore::list_elts &elts = ret->elements();
+			for(size_t i = 0; i < _skip_lines_count; ++i) {
+				PVCore::list_elts::iterator it = elts.begin();
+				if (it != elts.end()) {
+					PVCore::PVElement::free(*it);
+					elts.erase(it);
+				}
+			}
+			_begin_of_input = false;
+		}
 		_nlast += ret->c_elements().size();
 		_last_elt_agg_index = _nlast + ret->_index-1;
 	}
