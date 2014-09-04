@@ -93,6 +93,20 @@ declare_customer_cap(CUSTOMER_CAN_UPDATE_MAJOR 1 0)
 declare_customer_cap(CUSTOMER_CAN_UPDATE_MINOR 1 0)
 declare_customer_cap(CUSTOMER_CAN_UPDATE_MICRO 1 1)
 
+if (DEFINED CUSTOMER_RELEASE_EXPIRATION_DATE)
+	execute_process(COMMAND date +%Y-%m-%d --date "@${CUSTOMER_RELEASE_EXPIRATION_DATE}" OUTPUT_VARIABLE LICENSE_EXP_DAY OUTPUT_STRIP_TRAILING_WHITESPACE)
+	execute_process(COMMAND date +%Y-%m-%d --date "${LICENSE_EXP_DAY} - 1 day" OUTPUT_VARIABLE LICENSE_LAST_DAY OUTPUT_STRIP_TRAILING_WHITESPACE)
+	message(STATUS "License's expiration day is ${LICENSE_EXP_DAY}")
+	message(STATUS "License's last validity day is ${LICENSE_LAST_DAY}")
+else()
+	if (NOT DEFINED PICVIZ_DEVELOPER_MODE)
+		message(FATAL_ERROR "CUSTOMER_RELEASE_EXPIRATION_DATE is not defined!")
+	endif()
+	set(CUSTOMER_LAST_DAY "Unlimited")
+endif()
+
+declare_customer_cap(CUSTOMER_EXPIRATIONDAY "\"Unlimited\"" "\"${LICENSE_LAST_DAY}\"")
+
 # Generate customer.h
 set(CFG_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/include/pvbase/customer.h")
 configure_file(include/pvbase/customer.h.cmake ${CFG_FILE_PATH})

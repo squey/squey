@@ -129,6 +129,9 @@ public:
 	list_axes_t const& get_axes() const { return _axes; }
 	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
 
+	int get_first_line() const { return _first_line; }
+	int get_last_line() const { return _last_line; }
+
 	// Remove any fields from the IR of the format and only
 	// keeps fields.
 	void only_keep_axes();
@@ -156,6 +159,8 @@ protected:
 protected:
 	list_axes_t _axes;
 	std::vector<PVCol> _axes_comb;
+	int _first_line;
+	int _last_line;
 
 protected:
 	// "Widget" arguments of the format, like:

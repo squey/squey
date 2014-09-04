@@ -57,6 +57,7 @@ widgets/format-builder/include/PVXmlParamWidgetBoardFilter.h
 widgets/format-builder/include/PVXmlParamWidgetBoardSplitterRegEx.h
 widgets/format-builder/include/PVXmlRegValidatorHighLight.h
 widgets/format-builder/include/PVXmlTimeValidatorHighLight.h
+widgets/format-builder/include/PVOptionsWidget.h
 
 # include/logviewer/addmachinedialog.h
 # include/logviewer/fileconnectiondialog.h
@@ -115,6 +116,7 @@ widgets/format-builder/PVXmlRegValidatorHighLight.cpp
 widgets/format-builder/PVXmlTreeItemDelegate.cpp
 widgets/format-builder/PVXmlTreeView.cpp
 widgets/format-builder/PVXmlTimeValidatorHighLight.cpp
+widgets/format-builder/PVOptionsWidget.cpp
 
 # logviewer/addmachinedialog.cpp
 # logviewer/fileconnectiondialog.cpp

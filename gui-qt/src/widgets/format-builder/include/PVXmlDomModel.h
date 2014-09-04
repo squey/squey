@@ -94,6 +94,12 @@ public:
     QString getVersion(){return xmlRootDom.attribute("version","0");}
     void setVersion(QString v){ xmlRootDom.setAttribute("version",v);}
     
+    int get_first_line() const { return xmlRootDom.attribute("first_line", "0").toInt(); }
+    void set_first_line(int value) { xmlRootDom.setAttribute("first_line", value); }
+
+    int get_last_line() const { return xmlRootDom.attribute("last_line", "0").toInt(); }
+    void set_last_line(int value) { if(value) xmlRootDom.setAttribute("last_line", value); else xmlRootDom.removeAttribute("last_line"); }
+
     /**
      * 
      * @param section : raw or col index

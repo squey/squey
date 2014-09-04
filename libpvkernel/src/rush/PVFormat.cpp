@@ -182,6 +182,8 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 	_axes = xml_parser.getAxes();
 	_axes_comb = xml_parser.getAxesCombination();
 	time_format = xml_parser.getTimeFormat();
+	_first_line = xml_parser.get_first_line();
+	_last_line = xml_parser.get_last_line();
 
 	if (_axes.size() == 0 && forceOneAxis) {
 		// Only have one axis, a fake one

@@ -72,7 +72,14 @@ void PVRush::PVXmlParamParser::parseFromRootNode(QDomElement const& rootNode)
 {
 	setDom(rootNode);
 	setAxesCombinationFromRootNode(rootNode);
+	setLinesRangeFromRootNode(rootNode);
 	dump_filters();
+}
+
+void PVRush::PVXmlParamParser::setLinesRangeFromRootNode(QDomElement const& rootNode)
+{
+	_first_line = rootNode.attribute("first_line", "0").toInt();
+	_last_line = rootNode.attribute("last_line", "0").toInt();
 }
 
 void PVRush::PVXmlParamParser::setVersionFromRootNode(QDomElement const& /*node*/)

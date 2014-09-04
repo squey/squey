@@ -4,6 +4,8 @@
  * Copyright (C) Picviz Labs 2012
  */
 
+#include <pvbase/general.h>
+
 #include <pvguiqt/PVAboutBoxDialog.h>
 
 #include <pvkernel/core/PVVersion.h>
@@ -24,14 +26,19 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	QGridLayout *main_layout = new QGridLayout;
 	main_layout->setHorizontalSpacing(0);
 
+	QString content = "Picviz Inspector version " + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"<br/>(c) 2010-2014 Picviz Labs SAS<br/>";
 
+	content += "<br/>contact - <a href=\"mailto:contact@picviz.com\">contact@picviz.com</a><br/>";
+	content += "support - <a href=\"mailto:support@picviz.com\">support@picviz.com</a><br/>";
+	content += "website - <a href=\"http://www.picviz.com\">www.picviz.com</a><br/>";
 
-	QString content = "Picviz Inspector version " + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2014 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n";
+	content += QString("<br/>Maximum events per source: %L1<br/>").arg(CUSTOMER_LINESNUMBER);
+	content += QString("Licence expiration day: %1<br/>").arg(CUSTOMER_EXPIRATIONDAY);
 
 #ifdef CUDA
-	content += "\nWith CUDA support\n";
+	content += "<br/>With CUDA support<br/>";
 #endif
-	content += "\nQT version " + QString(QT_VERSION_STR);
+	content += "<br/>QT version " + QString(QT_VERSION_STR);
 
 	_view3D_layout = new QHBoxLayout();
 	_view3D_layout->setSpacing(0);
@@ -48,6 +55,10 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 
 	QLabel *text = new QLabel(content);
 	text->setAlignment(Qt::AlignCenter);
+	text->setTextFormat(Qt::RichText);
+	text->setTextInteractionFlags(Qt::TextBrowserInteraction);
+	text->setOpenExternalLinks(true);
+
 	QPushButton *ok = new QPushButton("OK");
 
 	QLabel* doc = new QLabel();
@@ -58,8 +69,6 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	doc->setTextFormat(Qt::RichText);
 	doc->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	doc->setOpenExternalLinks(true);
-
-
 
 	main_layout->addLayout(_view3D_layout, 0, 0);
 	main_layout->addWidget(text, 1, 0);
