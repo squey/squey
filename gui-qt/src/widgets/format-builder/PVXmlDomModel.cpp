@@ -319,6 +319,7 @@ bool PVInspector::PVXmlDomModel::saveXml(QString xml_file){
 		xmlRootDom.appendChild(axis_comb_elt);
 	}
 	QByteArray data(xmlFile.toString().toUtf8());
+
 	int size_written = file.write(data);
 	int data_size = data.size();
     if (size_written != data_size || !file.flush()) {
