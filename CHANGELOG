@@ -1,3 +1,27 @@
+3.4.0 "" (2014-09-08)
+----------------
+
+This major release adds the following features:
+
+* min, max and average operations on columns
+* new key:value splitter
+* new value mapper converter
+* new ipv4 uniform mapping
+* split distinct values into layers
+* skip n lines of each source input (useful for ignoring headers)
+* goto line n
+* screenshot feature
+
+This major release fixes or improves:
+
+* alphabetical sorting compatible with integers
+* improved CSV export feature (can specify separator, quote, and columns)
+* mapping is computed properly when "Keep invalid elements" is checked during import
+* fix crash at 200 000 000 lines
+* configuration files are stored in ~/.picviz
+* axis selection polygone offset when displaying min/max values on axes
+
+
 3.3.0 "Titan" (2014-04-25)
 ----------------
 
