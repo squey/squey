@@ -1732,7 +1732,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource* src)
 
 		PVRush::PVControllerJob_p job_import;
 		try {
-			job_import = src->extract(src->get_format().get_first_line(), src->get_format().get_line_count());
+			job_import = src->extract(src->get_format().get_first_line(), src->get_format().get_line_counevit());
 		}
 		catch (PVRush::PVInputException const& e) {
 			PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
