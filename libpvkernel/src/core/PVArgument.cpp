@@ -73,6 +73,9 @@ QString PVCore::PVArgument_to_QString(const PVCore::PVArgument &v)
 		if (v.canConvert<QString>()) {
 			str = v.toString();
 		}
+		else if (v.canConvert<QStringList>()) {
+			str = v.toStringList().join(",");
+		}
 	}
 
 	return str;
@@ -115,6 +118,9 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVarian
 			break;
 		case QMetaType::QString:
 			var = s;
+			break;
+		case QMetaType::QStringList:
+			var = s.split(",");
 			break;
 		default:
 			ok = false;
