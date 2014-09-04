@@ -23,18 +23,18 @@ public:
 
 public:
 	int first_line() { return _ignore_first_lines_spinbox->value(); }
-	int last_line() {  return _last_line_checkbox->checkState() == Qt::Checked ? _last_line_spinbox->value() : 0; }
+	int line_count() {  return _line_count_checkbox->checkState() == Qt::Checked ? _line_count_spinbox->value() : 0; }
 
-	void set_lines_range(int first_line, int last_line);
+	void set_lines_range(int first_line, int line_count);
 
 private slots:
-	void disable_specify_last_line(int checkstate);
+	void disable_specify_line_count(int checkstate);
 
 private:
-	QSpinBox* _ignore_first_lines_spinbox;
-	QLabel* _last_line_label;
-	QCheckBox* _last_line_checkbox;
-	QSpinBox* _last_line_spinbox;
+	QSpinBox*  _ignore_first_lines_spinbox;
+	QLabel*    _line_count_label;
+	QCheckBox* _line_count_checkbox;
+	QSpinBox*  _line_count_spinbox;
 };
 
 }

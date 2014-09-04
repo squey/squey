@@ -65,8 +65,8 @@ public:
 	QList<PVXmlParamParserData> const& getFields()const;
 	QHash<int, QStringList> const& getTimeFormat()const;
 	unsigned int getVersion() { return format_version; }
-	int get_first_line() const { return _first_line; }
-	int get_last_line() const { return _last_line; }
+	size_t get_first_line() const { return _first_line; }
+	size_t get_line_count() const { return _line_count; }
 	void dump_filters();
 	void clearFiltersData();
 	axes_comb_t const& getAxesCombination() const { return _axes_combination; }
@@ -86,8 +86,8 @@ private:
 	QHash<int, QStringList> time_format;
 	unsigned int format_version;
 	axes_comb_t _axes_combination;
-	int _first_line;
-	int _last_line;
+	size_t _first_line;
+	size_t _line_count;
 
 	int countChild(QDomElement);
 	QString getNodeName(QDomElement);

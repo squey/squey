@@ -129,8 +129,8 @@ public:
 	list_axes_t const& get_axes() const { return _axes; }
 	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
 
-	int get_first_line() const { return _first_line; }
-	int get_last_line() const { return _last_line; }
+	size_t get_first_line() const { return _first_line; }
+	size_t get_line_count() const { return _line_count; }
 
 	// Remove any fields from the IR of the format and only
 	// keeps fields.
@@ -146,7 +146,7 @@ public:
 	PVRush::PVXmlParamParser::list_params filters_params;
 
 	unsigned int axes_count;	//!< It is equivalent to the number of axes except we add the decoded axes. This property must be used to know the number of axes, never count using axes.count()
-	
+
 	int time_format_axis_id;
 
 protected:
@@ -159,8 +159,8 @@ protected:
 protected:
 	list_axes_t _axes;
 	std::vector<PVCol> _axes_comb;
-	int _first_line;
-	int _last_line;
+	size_t _first_line;
+	size_t _line_count;
 
 protected:
 	// "Widget" arguments of the format, like:
@@ -173,7 +173,7 @@ private:
 	bool _dump_elts;
 	bool _already_pop;
 	bool _original_was_serialized;
-	bool _restore_inv_elts; 
+	bool _restore_inv_elts;
 };
 
 };

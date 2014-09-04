@@ -132,7 +132,7 @@ void Picviz::PVSource::files_append_noextract()
 	}
 }
 
-PVRush::PVControllerJob_p Picviz::PVSource::extract(size_t skip_lines_count /*= 0*/, size_t last_line /*= 0*/)
+PVRush::PVControllerJob_p Picviz::PVSource::extract(size_t skip_lines_count /*= 0*/, size_t line_count /*= 0*/)
 {
 	// Set all views as non-consistent
 	for (auto view_p : get_children<PVView>()) {
@@ -141,7 +141,7 @@ PVRush::PVControllerJob_p Picviz::PVSource::extract(size_t skip_lines_count /*= 
 
 	set_mapping_function_in_extractor();
 
-	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines_last_param(skip_lines_count, last_line);
+	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines_last_param(skip_lines_count, line_count);
 
 	return job;
 }

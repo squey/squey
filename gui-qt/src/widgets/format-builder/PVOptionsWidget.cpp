@@ -26,46 +26,46 @@ PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) :
 
 	QLabel* ignore_label = new QLabel("Ignore");
 	_ignore_first_lines_spinbox = new QSpinBox();
-	QLabel* first_lines_label = new QLabel("first line(s)");
+	QLabel* first_lines_label = new QLabel("first line(s) for each input file");
 
 	ignore_first_lines_layout->addWidget(ignore_label);
 	ignore_first_lines_layout->addWidget(_ignore_first_lines_spinbox);
 	ignore_first_lines_layout->addWidget(first_lines_label);
 	ignore_first_lines_layout->addItem(new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
 
-	QHBoxLayout* last_line_layout = new QHBoxLayout();
-	_last_line_checkbox = new QCheckBox();
-	_last_line_label = new QLabel("Stop at line");
-	_last_line_spinbox = new QSpinBox();
-	_last_line_spinbox->setMaximum(CUSTOMER_LINESNUMBER);
+	QHBoxLayout* line_count_layout = new QHBoxLayout();
+	_line_count_checkbox = new QCheckBox();
+	_line_count_label = new QLabel("Stop at line count");
+	_line_count_spinbox = new QSpinBox();
+	_line_count_spinbox->setMaximum(CUSTOMER_LINESNUMBER);
 
-	last_line_layout->addWidget(_last_line_checkbox);
-	last_line_layout->addWidget(_last_line_label);
-	last_line_layout->addWidget(_last_line_spinbox);
-	last_line_layout->addItem(new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
+	line_count_layout->addWidget(_line_count_checkbox);
+	line_count_layout->addWidget(_line_count_label);
+	line_count_layout->addWidget(_line_count_spinbox);
+	line_count_layout->addItem(new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
 
 	group_box_layout->addLayout(ignore_first_lines_layout);
-	group_box_layout->addLayout(last_line_layout);
+	group_box_layout->addLayout(line_count_layout);
 	group_box_layout->addItem(new QSpacerItem(100, 100, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding));
 
 	main_layout->addWidget(group_box);
 
 	setLayout(main_layout);
 
-	connect(_last_line_checkbox, SIGNAL(stateChanged(int)), this, SLOT(disable_specify_last_line(int)));
+	connect(_line_count_checkbox, SIGNAL(stateChanged(int)), this, SLOT(disable_specify_line_count(int)));
 }
 
-void PVInspector::PVOptionsWidget::set_lines_range(int first_line, int last_line)
+void PVInspector::PVOptionsWidget::set_lines_range(int first_line, int line_count)
 {
-	_last_line_spinbox->setValue(last_line);
+	_line_count_spinbox->setValue(line_count);
 	_ignore_first_lines_spinbox->setValue(first_line);
 
-	disable_specify_last_line(last_line == 0 ? Qt::Unchecked : Qt::Checked);
+	disable_specify_line_count(line_count == 0 ? Qt::Unchecked : Qt::Checked);
 }
 
-void PVInspector::PVOptionsWidget::disable_specify_last_line(int checkstate)
+void PVInspector::PVOptionsWidget::disable_specify_line_count(int checkstate)
 {
-	_last_line_label->setEnabled(checkstate == Qt::Checked);
-	_last_line_spinbox->setEnabled(checkstate == Qt::Checked);
-	_last_line_checkbox->setCheckState((Qt::CheckState)checkstate);
+	_line_count_label->setEnabled(checkstate == Qt::Checked);
+	_line_count_spinbox->setEnabled(checkstate == Qt::Checked);
+	_line_count_checkbox->setCheckState((Qt::CheckState)checkstate);
 }

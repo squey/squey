@@ -94,11 +94,11 @@ public:
     QString getVersion(){return xmlRootDom.attribute("version","0");}
     void setVersion(QString v){ xmlRootDom.setAttribute("version",v);}
     
-    int get_first_line() const { return xmlRootDom.attribute("first_line", "0").toInt(); }
-    void set_first_line(int value) { xmlRootDom.setAttribute("first_line", value); }
+    size_t get_first_line() const { return xmlRootDom.attribute("first_line", "0").toULongLong(); }
+	void set_first_line(size_t value) { xmlRootDom.setAttribute("first_line", (qulonglong)value); }
 
-    int get_last_line() const { return xmlRootDom.attribute("last_line", "0").toInt(); }
-    void set_last_line(int value) { if(value) xmlRootDom.setAttribute("last_line", value); else xmlRootDom.removeAttribute("last_line"); }
+    size_t get_line_count() const { return xmlRootDom.attribute("line_count", "0").toULongLong(); }
+    void set_line_count(size_t value) { if(value) xmlRootDom.setAttribute("line_count", (qulonglong)value); else xmlRootDom.removeAttribute("line_count"); }
 
     /**
      * 

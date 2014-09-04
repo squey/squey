@@ -76,7 +76,7 @@ public:
 	PVRow get_row_count() const;
 
 	PVRush::PVExtractor& get_extractor();
-	PVRush::PVControllerJob_p extract(size_t skip_lines_count = 0, size_t last_line = 0);
+	PVRush::PVControllerJob_p extract(size_t skip_lines_count = 0, size_t line_count = 0);
 	PVRush::PVControllerJob_p extract_from_agg_nlines(chunk_index start, chunk_index nlines);
 	void wait_extract_end(PVRush::PVControllerJob_p job);
 

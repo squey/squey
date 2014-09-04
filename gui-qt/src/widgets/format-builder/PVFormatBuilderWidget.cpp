@@ -562,7 +562,7 @@ bool PVInspector::PVFormatBuilderWidget::save() {
 	}
 
 	myTreeModel->set_first_line(_options_widget->first_line());
-	myTreeModel->set_last_line(_options_widget->last_line());
+	myTreeModel->set_line_count(_options_widget->line_count());
 
 	bool save_xml = myTreeModel->saveXml(_cur_file);
 	if (save_xml) {
@@ -1059,7 +1059,7 @@ bool PVInspector::PVFormatBuilderWidget::openFormat(QString const& path)
 	QFile f(path);
 	if (f.exists()) {//if the file exists...
 		if (myTreeModel->openXml(path)) {
-			_options_widget->set_lines_range(myTreeModel->get_first_line(), myTreeModel->get_last_line());
+			_options_widget->set_lines_range(myTreeModel->get_first_line(), myTreeModel->get_line_count());
 			_cur_file = path;
 			setWindowTitleForFile(path);
 			return true;

@@ -177,11 +177,11 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	return job;
 }
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines_last_param(size_t skip_lines_count /*= 0*/, size_t last_line /*= 0*/)
+PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines_last_param(size_t skip_lines_count /*= 0*/, size_t line_count /*= 0*/)
 {
 	_agg.set_skip_lines_count(skip_lines_count);
-	_agg.set_strict_mode(skip_lines_count > 0); // FIXME: does "last_line > 0" requires strict mode too ?
-	return process_from_agg_nlines(_last_start + skip_lines_count, last_line ? last_line : _last_nlines);
+	_agg.set_strict_mode(skip_lines_count > 0);
+	return process_from_agg_nlines(_last_start + skip_lines_count, line_count ? line_count : _last_nlines);
 }
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start, chunk_index end, int priority)
