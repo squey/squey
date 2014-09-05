@@ -37,7 +37,7 @@ PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) :
 	_line_count_checkbox = new QCheckBox();
 	_line_count_label = new QLabel("Stop at line count");
 	_line_count_spinbox = new QSpinBox();
-	_line_count_spinbox->setMaximum(CUSTOMER_LINESNUMBER);
+	_line_count_spinbox->setMaximum(PICVIZ_LINES_MAX);
 
 	line_count_layout->addWidget(_line_count_checkbox);
 	line_count_layout->addWidget(_line_count_label);

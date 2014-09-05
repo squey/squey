@@ -331,7 +331,7 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 
 	PVRow nrows = zp.nrows();
 
-	assert(nrows <= CUSTOMER_LINESNUMBER);
+	assert(nrows <= PICVIZ_LINES_MAX);
 
 	for (uint32_t task = 0 ; task < pdata.ntasks ; task++) {
 		memset(pdata.first_elts[task].elems, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
@@ -378,7 +378,7 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 
 void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& zp)
 {
-	assert(zp.nrows() <= CUSTOMER_LINESNUMBER);
+	assert(zp.nrows() <= PICVIZ_LINES_MAX);
 
 	const uint32_t* pcol_a = zp.get_plotted_col_a();
 	const uint32_t* pcol_b = zp.get_plotted_col_b();
