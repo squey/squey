@@ -161,6 +161,9 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	set_sources_number_fields();
 	get_nraw().reserve(nlines, get_number_axes());
 
+	_agg.set_skip_lines_count(start);
+	_agg.set_strict_mode(start > 0);
+
 	_out_nraw.clear_pvrow_index_map();
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
@@ -175,13 +178,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	_last_nlines = nlines;
 
 	return job;
-}
-
-PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines_last_param(size_t skip_lines_count /*= 0*/, size_t line_count /*= 0*/)
-{
-	_agg.set_skip_lines_count(skip_lines_count);
-	_agg.set_strict_mode(skip_lines_count > 0);
-	return process_from_agg_nlines(_last_start + skip_lines_count, line_count ? line_count : _last_nlines);
 }
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start, chunk_index end, int priority)

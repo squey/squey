@@ -78,8 +78,6 @@ public:
 	 */
 	PVControllerJob_p process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority = 0);
 
-	PVControllerJob_p process_from_agg_nlines_last_param(size_t skip_lines_count = 0, size_t line_count = 0);
-
 	/*! \brief Process param[in]s between indexes "start" and "end"
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
 	 *  \param[in] end Index to end the extraction at

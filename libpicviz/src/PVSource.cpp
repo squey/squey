@@ -141,7 +141,8 @@ PVRush::PVControllerJob_p Picviz::PVSource::extract(size_t skip_lines_count /*= 
 
 	set_mapping_function_in_extractor();
 
-	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines_last_param(skip_lines_count, line_count);
+	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(skip_lines_count,
+	                                                                   line_count ? line_count : PICVIZ_LINES_MAX);
 
 	return job;
 }

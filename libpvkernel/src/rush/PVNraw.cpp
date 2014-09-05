@@ -46,7 +46,7 @@ PVRush::PVNraw::~PVNraw()
 	clear();
 }
 
-void PVRush::PVNraw::reserve(PVRow const /*nrows*/, PVCol const ncols)
+void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
 {
 	QSettings &pvconfig = PVCore::PVConfig::get().config();
 
@@ -56,7 +56,14 @@ void PVRush::PVNraw::reserve(PVRow const /*nrows*/, PVCol const ncols)
 	if (mkdtemp(nstr.data()) == nullptr) {
 		throw PVNrawException(QObject::tr("unable to create temporary directory ") + nraw_dir_base);
 	}
+
 	_backend.init(nstr.constData(), ncols);
+
+	if(nrows == 0) {
+		_max_nrows = PICVIZ_LINES_MAX;
+	} else {
+		_max_nrows = nrows;
+	}
 }
 
 void PVRush::PVNraw::clear()
@@ -103,13 +110,13 @@ void PVRush::PVNraw::reserve_tmp_buf(size_t n)
 
 bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 {
-	if (_real_nrows == PICVIZ_LINES_MAX) {
+	if (_real_nrows == _max_nrows) {
 		// the whole chunk can be skipped
 		return false;
 	}
 
 	// Write all elements of the chunk in the final nraw
-	PVCore::list_elts const& elts = chunk.c_elements();	
+	PVCore::list_elts const& elts = chunk.c_elements();
 	PVCore::list_elts::const_iterator it_elt;
 
 	UErrorCode err = U_ZERO_ERROR;
@@ -121,7 +128,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 		if (fields.size() == 0)
 			continue;
 
-		if (_real_nrows == PICVIZ_LINES_MAX) {
+		if (_real_nrows == _max_nrows) {
 			/* we have enough events, skips the others. As the
 			 * chunk has been partially saved, the current chunked
 			 * index has to be saved by the caller (PVNrawOutput).

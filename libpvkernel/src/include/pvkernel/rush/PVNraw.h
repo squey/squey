@@ -256,6 +256,7 @@ private:
 private:
 	PVFormat_p format;
 	PVRow _real_nrows;
+	PVRow _max_nrows;
 
 	mutable PVNrawDiskBackend _backend;
 	UConverter* _ucnv;
