@@ -7,7 +7,8 @@ This major release adds the following features:
 * new key:value splitter
 * new value mapper converter
 * new ipv4 uniform mapping
-* split distinct values into layers
+* split distinct values into layers from statistical views
+* create a new layer from the selected values in statistical views
 * skip n lines of each source input (useful for ignoring headers)
 * goto line n
 * screenshot feature
@@ -15,12 +16,17 @@ This major release adds the following features:
 This major release fixes or improves:
 
 * alphabetical sorting compatible with integers
+* IPv4 can now be sorted in listing and statistical views
+* the axis can be changed in the zoomed parallel coordinates view without closing it
 * improved CSV export feature (can specify separator, quote, and columns)
 * mapping is computed properly when "Keep invalid elements" is checked during import
 * fix crash at 200 000 000 lines
-* configuration files are stored in ~/.picviz
+* configuration files are now centralized in ~/.picviz (and copied from old location when needed)
 * axis selection polygone offset when displaying min/max values on axes
-
+* limiting the number of imported events works anew
+* remove spinboxes flickering in statistical views
+* the axes combination editor was not consistent when clicking on "Cancel"
+* the license's last validity day is displayed in the "About" dialog
 
 3.3.0 "Titan" (2014-04-25)
 ----------------

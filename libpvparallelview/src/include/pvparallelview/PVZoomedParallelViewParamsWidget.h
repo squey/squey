@@ -7,7 +7,8 @@
 #include <pvbase/types.h>
 
 class QStringList;
-class QComboBox;
+class QMenu;
+class QToolButton;
 
 namespace PVParallelView
 {
@@ -21,17 +22,19 @@ public:
 	PVZoomedParallelViewParamsWidget(PVZoomedParallelView* parent);
 
 public:
-	void build_axis_menu(int active_col, const QStringList& sl);
+	void build_axis_menu(int active_axis, const QStringList& sl);
 
 signals:
 	void change_to_col(int new_axis);
 
 private slots:
-	void combo_activated(int index);
+	void set_active_axis_action(QAction *act);
 
 private:
-	QComboBox *_combo_box;
-	PVCol      _active_col;
+	QToolButton *_menu_toolbutton;
+	QMenu       *_axes;
+	QAction     *_active_axis_action;
+	PVCol        _active_axis;
 };
 
 }
