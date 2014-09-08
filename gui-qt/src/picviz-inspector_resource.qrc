@@ -163,6 +163,8 @@
         <file alias="selection-horizontal">resources/selection-horizontal.png</file>
         <file alias="selection-vertical">resources/selection-vertical.png</file>
 
+        <file alias="select-axis">resources/select-axis.png</file>
+
         <file alias="colormap-log">resources/colormap-log.png</file>
 
         <file alias="zoom-autofit-both">resources/zoom-autofit-both.png</file>
