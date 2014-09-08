@@ -245,8 +245,10 @@ protected:
 
 	/**
 	 * configure the axis related internals.
+	 *
+	 * @param reset_view_param to tell if the view parameter (zoom and pan) has to be reset or not
 	 */
-	void configure_axis();
+	void configure_axis(bool reset_view_param = false);
 
 private slots:
 	/**

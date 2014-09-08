@@ -93,8 +93,6 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	connect(_sel_line, SIGNAL(commit_volatile_selection()),
 	        this, SLOT(commit_volatile_selection_Slot()));
 
-	_wheel_value = 0;
-
 	setSceneRect(-512, 0, 1024, 1024);
 
 	connect(_zpview->get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)),
@@ -114,7 +112,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 
 	addItem(_sliders_group);
 
-	configure_axis();
+	configure_axis(true);
 
 	// Register view for unselected & zombie events toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
@@ -423,7 +421,7 @@ void PVParallelView::PVZoomedParallelScene::change_to_col(int index)
 
 	addItem(_sliders_group);
 
-	configure_axis();
+	configure_axis(true);
 
 	update_all();
 }
@@ -432,8 +430,19 @@ void PVParallelView::PVZoomedParallelScene::change_to_col(int index)
  * PVParallelView::PVZoomedParallelScene::configure_axis
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::configure_axis()
+void PVParallelView::PVZoomedParallelScene::configure_axis(bool reset_view_param)
 {
+	if (reset_view_param) {
+		/* reset zoom
+		 */
+		_wheel_value = 0;
+		update_zoom();
+		/* and pan. The scrollbar must be reset after after the zoom
+		 * update,otherwise, zooming do a pan (really strange...)
+		 */
+		_zpview->get_vertical_scrollbar()->setValue(0);
+	}
+
 	/* get the needed zones
 	 */
 	PVCore::PVProgressBox pbox("Initializing zoomed parallel view");
