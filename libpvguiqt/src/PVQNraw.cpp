@@ -1,3 +1,5 @@
+#include <QDialog>
+
 #include <algorithm> // std::max_element
 
 #include <pvkernel/core/PVProgressBox.h>
@@ -7,8 +9,7 @@
 #include <pvguiqt/PVCountByStringsDlg.h>
 #include <pvguiqt/PVQNraw.h>
 
-
-bool PVGuiQt::PVQNraw::show_unique_values(Picviz::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol c, Picviz::PVSelection const& sel, QWidget* parent)
+bool PVGuiQt::PVQNraw::show_unique_values(Picviz::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol c, Picviz::PVSelection const& sel, QWidget* parent, QDialog** dialog /*= nullptr*/)
 {
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
 	pbox->set_enable_cancel(true);
@@ -29,6 +30,10 @@ bool PVGuiQt::PVQNraw::show_unique_values(Picviz::PVView_sp& view, PVRush::PVNra
 	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, c, values, sel.get_number_of_selected_lines_in_range(0, nraw.get_number_rows()), min, max, parent);
 	dlg->setWindowTitle("Distinct values of axis '" + nraw.get_axis_name(c) +"'");
 	dlg->show();
+
+	if (dialog) { // Keep dialog pointer to allow display toggle.
+		*dialog = (QDialog*) dlg;
+	}
 
 	return true;
 }

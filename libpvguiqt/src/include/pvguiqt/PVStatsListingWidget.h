@@ -23,6 +23,7 @@ class QMenu;
 class QPixmap;
 class QPushButton;
 class QTableWidgetItem;
+class QDialog;
 
 #include <pvguiqt/PVListingView.h>
 
@@ -236,6 +237,7 @@ private:
 	uint32_t _unique_values_number;
 	QPushButton* _unique_values_dlg_icon;
 	QPixmap _unique_values_pixmap;
+	QDialog* _dialog = nullptr;
 };
 
 class PVSumCellWidget : public PVCellWidgetBase

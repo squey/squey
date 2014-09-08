@@ -12,6 +12,7 @@
 #include <QMenu>
 #include <QCursor>
 #include <QPushButton>
+#include <QDialog>
 
 #include <pvkernel/core/qobject_helpers.h>
 
@@ -591,8 +592,14 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
 {
-	Picviz::PVView_sp view = (const_cast<Picviz::PVView&>(_view)).shared_from_this();
-	PVQNraw::show_unique_values(view, _view.get_rushnraw_parent(), get_real_axis_col(), *_view.get_selection_visible_listing(), this);
+	if (!_dialog) {
+		Picviz::PVView_sp view = (const_cast<Picviz::PVView&>(_view)).shared_from_this();
+		PVQNraw::show_unique_values(view, _view.get_rushnraw_parent(), get_real_axis_col(), *_view.get_selection_visible_listing(), this, &_dialog);
+	}
+	else {
+		_dialog->close();
+		_dialog = nullptr;
+	}
 }
 
 /******************************************************************************
