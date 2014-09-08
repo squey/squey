@@ -62,13 +62,15 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	QPushButton *ok = new QPushButton("OK");
 
 	QLabel* doc = new QLabel();
-	doc->setText("<br/>Reference Manual: <a href=\"file:///opt/picviz-inspector/docs/reference_manual/index.html\">HTML</a> | " \
-			"<a href=\"file:///opt/picviz-inspector/docs/picviz_inspector_reference_manual.pdf\">PDF</a> | " \
-			"<a href=\"https://docs.picviz.com\">docs.picviz.com</a><br/><br/>" \
+	doc->setText("<br/>Reference Manual: <a href=\"file:///opt/picviz-inspector/docs/picviz_inspector_reference_manual/index.html\">HTML</a> | " \
+	             "<a href=\"file:///opt/picviz-inspector/docs/picviz_inspector_reference_manual.pdf\">PDF</a><br/><br/>" \
+	             "All documentations: <a href=\"file:///opt/picviz-inspector/docs/\">local files</a> | " \
+	             "<a href=\"https://docs.picviz.com\">docs.picviz.com</a><br/><br/>" \
 	);
 	doc->setTextFormat(Qt::RichText);
 	doc->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	doc->setOpenExternalLinks(true);
+	doc->setAlignment(Qt::AlignCenter);
 
 	main_layout->addLayout(_view3D_layout, 0, 0);
 	main_layout->addWidget(text, 1, 0);
