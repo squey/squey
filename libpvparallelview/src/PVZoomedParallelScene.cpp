@@ -411,7 +411,6 @@ void PVParallelView::PVZoomedParallelScene::change_to_col(int index)
 	_sliders_group->delete_own_zoom_slider();
 	delete _sliders_group;
 
-
 	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _axis_id);
 	_sliders_group->setPos(0., 0.);
 	_sliders_group->add_zoom_sliders(0, 1024);
@@ -442,6 +441,8 @@ void PVParallelView::PVZoomedParallelScene::configure_axis(bool reset_view_param
 		 */
 		_zpview->get_vertical_scrollbar()->setValue(0);
 	}
+
+	_zpview->set_displayed_axis_name(_pvview.get_axes_combination().get_axis(_axis_index).get_name());
 
 	/* get the needed zones
 	 */

@@ -25,7 +25,7 @@ QIcon PVDisplays::PVDisplayViewZoomedParallel::toolbar_icon() const
 
 QString PVDisplays::PVDisplayViewZoomedParallel::widget_title(Picviz::PVView* view, PVCol axis_comb) const
 {
-	return QString("Zoomed view [" + view->get_name() + " on axis " + view->get_axis_name(axis_comb) + "]");
+	return QString("Zoomed view [" + view->get_name() + "]");
 }
 
 QString PVDisplays::PVDisplayViewZoomedParallel::axis_menu_name(Picviz::PVView const* /*view*/, PVCol /*axis_comb*/) const

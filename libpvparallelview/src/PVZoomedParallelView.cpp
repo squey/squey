@@ -11,6 +11,7 @@
 #include <pvparallelview/PVZoomedParallelViewParamsWidget.h>
 
 #include <QScrollBar64>
+#include <QPainter>
 
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelView::PVZoomedParallelView
@@ -75,4 +76,19 @@ void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent *event)
 	_params_widget->raise();
 
 	zps->resize_display(need_recomputation);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelView::drawForeground
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelView::drawForeground(QPainter* painter,
+                                                          const QRectF& rect)
+{
+	PVGraphicsView::drawForeground(painter, rect);
+
+	QPen pen(QColor(0x16, 0xe8, 0x2a));
+	painter->setPen(pen);
+
+	painter->drawText(8, 16, _display_axis_name);
 }
