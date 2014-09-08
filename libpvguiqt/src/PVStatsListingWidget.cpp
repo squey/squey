@@ -595,11 +595,17 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
 	if (!_dialog) {
 		Picviz::PVView_sp view = (const_cast<Picviz::PVView&>(_view)).shared_from_this();
 		PVQNraw::show_unique_values(view, _view.get_rushnraw_parent(), get_real_axis_col(), *_view.get_selection_visible_listing(), this, &_dialog);
+		connect(_dialog, SIGNAL(finished(int)), this, SLOT(unique_values_dlg_closed()));
 	}
 	else {
 		_dialog->close();
-		_dialog = nullptr;
 	}
+}
+
+void PVGuiQt::__impl::PVUniqueValuesCellWidget::unique_values_dlg_closed()
+{
+	disconnect(_dialog, SIGNAL(finished(int)));
+	_dialog = nullptr;
 }
 
 /******************************************************************************

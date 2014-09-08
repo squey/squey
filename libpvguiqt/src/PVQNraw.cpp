@@ -28,6 +28,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(Picviz::PVView_sp& view, PVRush::PVNra
 	}
 
 	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, c, values, sel.get_number_of_selected_lines_in_range(0, nraw.get_number_rows()), min, max, parent);
+	dlg->setAttribute(Qt::WA_DeleteOnClose);
 	dlg->setWindowTitle("Distinct values of axis '" + nraw.get_axis_name(c) +"'");
 	dlg->show();
 

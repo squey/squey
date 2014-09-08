@@ -232,6 +232,7 @@ public slots:
 
 private slots:
 	void show_unique_values_dlg();
+	void unique_values_dlg_closed();
 
 private:
 	uint32_t _unique_values_number;
