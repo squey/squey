@@ -32,11 +32,15 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	content += "support - <a href=\"mailto:support@picviz.com\">support@picviz.com</a><br/>";
 	content += "website - <a href=\"http://www.picviz.com\">www.picviz.com</a><br/>";
 
-	content += QString("<br/>Maximum events per source: %L1<br/>").arg(PICVIZ_LINES_MAX);
+	content += QString("<br/>Licensed to: ");
+	content += QString("<a href=\"mailto:%1\">%2</a>, %3<br/>").arg(CUSTOMER_EMAIL).arg(CUSTOMER_NAME).arg(CUSTOMER_COMPANY);
+
 	content += QString("Licence expiration day: %1<br/>").arg(CUSTOMER_EXPIRATIONDAY);
+	content += QString("Maximum events per source: %L1<br/>").arg(PICVIZ_LINES_MAX);
+
 
 #ifdef CUDA
-	content += "<br/>With CUDA support<br/>";
+	content += "<br/>With CUDA support";
 #endif
 	content += "<br/>QT version " + QString(QT_VERSION_STR);
 
