@@ -7,7 +7,8 @@
 #ifndef PVBASE_CUSTOMER_H
 #define PVBASE_CUSTOMER_H
 
-#define CUSTOMER_NAME "contact@picviz.com"
+#define CUSTOMER_NAME "contact"
+#define CUSTOMER_EMAIL "contact@picviz.com"
 #define CUSTOMER_COMPANY "Picviz Labs"
 
 #define CUSTOMER_LINESNUMBER 2048

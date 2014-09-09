@@ -82,6 +82,7 @@ declare_customer_cap(CUSTOMER_CAPABILITY_IMPORT_DB 1 0)
 declare_customer_cap(CUSTOMER_CAPABILITY_IMPORT_HADOOP 1 0)
 
 declare_customer_cap(CUSTOMER_NAME "Picviz" "user")
+declare_customer_cap(CUSTOMER_EMAIL "@picviz.com" "email")
 declare_customer_cap(CUSTOMER_COMPANY "Picviz Labs" "company")
 declare_customer_cap(CUSTOMER_HARDWARE_MODEL "Proto01" "model")
 declare_customer_cap(CUSTOMER_MACHINE_OS "Linux" "Linux")

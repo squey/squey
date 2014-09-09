@@ -1972,6 +1972,9 @@ int PVInspector::PVMainWindow::update_check()
 #ifndef CUSTOMER_NAME
 #error CUSTOMER_RELEASE is defined. You must set CUSTOMER_NAME.
 #endif
+#ifndef CUSTOMER_EMAIL
+#error CUSTOMER_RELEASE is defined. You must set CUSTOMER_EMAIL.
+#endif
 	QSettings &pvconfig = PVCore::PVConfig::get().config();
 
 	// If the user does not want us to check for new versions, just don't do it.
@@ -1987,7 +1990,7 @@ int PVInspector::PVMainWindow::update_check()
 
 	//request.setUrl(QUrl("http://www.picviz.com/update.html"));
 	request.setUrl(QUrl(PVCore::PVVersion::update_url()));
-	request.setRawHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:5.0) Gecko/20100101 Firefox/5.0 " CUSTOMER_NAME " PV/" PICVIZ_CURRENT_VERSION_STR);
+	request.setRawHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:5.0) Gecko/20100101 Firefox/5.0 " CUSTOMER_EMAIL " PV/" PICVIZ_CURRENT_VERSION_STR);
 
 	manager->get(request);
 

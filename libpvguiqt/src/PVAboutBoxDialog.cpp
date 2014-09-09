@@ -32,11 +32,15 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	content += "support - <a href=\"mailto:support@picviz.com\">support@picviz.com</a><br/>";
 	content += "website - <a href=\"http://www.picviz.com\">www.picviz.com</a><br/>";
 
-	content += QString("<br/>Maximum events per source: %L1<br/>").arg(PICVIZ_LINES_MAX);
+	content += QString("<br/>Licensed to: ");
+	content += QString("<a href=\"mailto:%1\">%2</a>, %3<br/>").arg(CUSTOMER_EMAIL).arg(CUSTOMER_NAME).arg(CUSTOMER_COMPANY);
+
 	content += QString("Licence expiration day: %1<br/>").arg(CUSTOMER_EXPIRATIONDAY);
+	content += QString("Maximum events per source: %L1<br/>").arg(PICVIZ_LINES_MAX);
+
 
 #ifdef CUDA
-	content += "<br/>With CUDA support<br/>";
+	content += "<br/>With CUDA support";
 #endif
 	content += "<br/>QT version " + QString(QT_VERSION_STR);
 
@@ -62,13 +66,15 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	QPushButton *ok = new QPushButton("OK");
 
 	QLabel* doc = new QLabel();
-	doc->setText("<br/>Reference Manual: <a href=\"file:///opt/picviz-inspector/docs/reference_manual/index.html\">HTML</a> | " \
-			"<a href=\"file:///opt/picviz-inspector/docs/picviz_inspector_reference_manual.pdf\">PDF</a> | " \
-			"<a href=\"https://docs.picviz.com\">docs.picviz.com</a><br/><br/>" \
+	doc->setText("<br/>Reference Manual: <a href=\"file:///opt/picviz-inspector/docs/picviz_inspector_reference_manual/index.html\">HTML</a> | " \
+	             "<a href=\"file:///opt/picviz-inspector/docs/picviz_inspector_reference_manual.pdf\">PDF</a><br/><br/>" \
+	             "All documentations: <a href=\"file:///opt/picviz-inspector/docs/\">local files</a> | " \
+	             "<a href=\"https://docs.picviz.com\">docs.picviz.com</a><br/><br/>" \
 	);
 	doc->setTextFormat(Qt::RichText);
 	doc->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	doc->setOpenExternalLinks(true);
+	doc->setAlignment(Qt::AlignCenter);
 
 	main_layout->addLayout(_view3D_layout, 0, 0);
 	main_layout->addWidget(text, 1, 0);
