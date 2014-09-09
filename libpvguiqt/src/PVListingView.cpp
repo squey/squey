@@ -185,23 +185,23 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	_action_col_unique->setIcon(QIcon(":/fileslist_black"));
 	_hhead_ctxt_menu->addAction(_action_col_unique);
 
-	_menu_col_count_by = new QMenu(tr("Count by values with axis..."), this);
+	_menu_col_count_by = new QMenu(tr("Count by"), this);
 	_menu_col_count_by->setIcon(QIcon(":/count_by"));
 	_hhead_ctxt_menu->addMenu(_menu_col_count_by);
 
-	_menu_col_sum_by = new QMenu(tr("Sum by values with axis..."), this);
+	_menu_col_sum_by = new QMenu(tr("Sum by"), this);
 	_menu_col_sum_by->setIcon(QIcon(":/sum_by"));
 	_hhead_ctxt_menu->addMenu(_menu_col_sum_by);
 
-	_menu_col_min_by = new QMenu(tr("Min by values with axis..."), this);
+	_menu_col_min_by = new QMenu(tr("Min by"), this);
 	_menu_col_min_by->setIcon(QIcon(":/min_by"));
 	_hhead_ctxt_menu->addMenu(_menu_col_min_by);
 
-	_menu_col_max_by = new QMenu(tr("Max by values with axis..."), this);
+	_menu_col_max_by = new QMenu(tr("Max by"), this);
 	_menu_col_max_by->setIcon(QIcon(":/max_by"));
 	_hhead_ctxt_menu->addMenu(_menu_col_max_by);
 
-	_menu_col_avg_by = new QMenu(tr("Average by values with axis..."), this);
+	_menu_col_avg_by = new QMenu(tr("Average by"), this);
 	_menu_col_avg_by->setIcon(QIcon(":/avg_by"));
 	_hhead_ctxt_menu->addMenu(_menu_col_avg_by);
 
