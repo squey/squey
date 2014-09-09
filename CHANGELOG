@@ -1,5 +1,5 @@
-3.4.0 "" (2014-09-08)
-----------------
+3.4.0 "Atlas" (2014-09-11)
+--------------------------
 
 This major release adds the following features:
 
@@ -11,6 +11,7 @@ This major release adds the following features:
 * create a new layer from the selected values in statistical views
 * skip n lines of each source input (useful for ignoring headers)
 * goto line n
+* a right click on the listing view's left border permit to copy the index of the row under the mouse to the clipboard
 * screenshot feature
 
 This major release fixes or improves:
@@ -22,11 +23,11 @@ This major release fixes or improves:
 * mapping is computed properly when "Keep invalid elements" is checked during import
 * fix crash at 200 000 000 lines
 * configuration files are now centralized in ~/.picviz (and copied from old location when needed)
-* axis selection polygone offset when displaying min/max values on axes
+* axis selection polygon offset when displaying min/max values on axes
 * limiting the number of imported events works anew
 * remove spinboxes flickering in statistical views
 * the axes combination editor was not consistent when clicking on "Cancel"
-* the license's last validity day is displayed in the "About" dialog
+* additional information in the "About" dialog: contact name, contact e-mail, company name, last validity day, and maximum events per source
 
 3.3.0 "Titan" (2014-04-25)
 ----------------
