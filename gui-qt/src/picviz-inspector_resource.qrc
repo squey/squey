@@ -134,6 +134,11 @@
 	<file alias="icon_linked">resources/trafik/elements-interface/icone-lier-actif.png</file>
 	<file alias="icon_unlinked">resources/trafik/elements-interface/icone-lier-passif.png</file>
 	<file alias="fileslist_black">resources/trafik/elements-interface/icone-listefichiers-noir.png</file>
+	<file alias="count_by">resources/22x22/count_by.png</file>
+	<file alias="sum_by">resources/22x22/sum_by.png</file>
+	<file alias="min_by">resources/22x22/min_by.png</file>
+	<file alias="max_by">resources/22x22/max_by.png</file>
+	<file alias="avg_by">resources/22x22/avg_by.png</file>
 	<file alias="refresh_small_grey">resources/refresh.png</file>
 
 	<!-- CONFIG POPUP WIDGET -->
