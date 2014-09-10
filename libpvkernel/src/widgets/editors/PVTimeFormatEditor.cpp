@@ -145,7 +145,10 @@ void PVWidgets::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
   QString html=QString("<body>\
   <big><b>Help for the time format</b></big><br/>\
   sample :<br/>\
-  MMM/d/yyyy H:m:ss<br/>date\
+  MMM/d/yyyy H:m:ss<br/><br/>\
+  Epoch:\
+  <table><tr><td>epoch</td><td>POSIX timestamp. Precision is supported up to three decimal points (milliseconds)</td></tr></table><br/><br/>\
+  Date:\
   <table>\
   <tr><td>d</td><td>the day in month as a number (1 to 31)</td></tr>\
   <tr><td>e</td><td>the day of week as a number (1 to 7)</td></tr>\
@@ -160,7 +163,7 @@ void PVWidgets::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
   <tr><td>yyyy</td><td>the year as four digit number</td></tr>\
   </table>\
   <br /><strong>Note:</strong>&nbsp;the locale used for days and months in the log files is automatically found\
-  <br/>Hour:\
+  <br/><br/>Hour:\
   <table>\
   <tr> 		<td>h</td>		<td>hour in am/pm (00 to 12)</td>	</tr>\
   <tr> 		<td>H</td>		<td>hour in day (00 to 23)</td>	</tr>\
@@ -169,7 +172,7 @@ void PVWidgets::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
   <tr> 		<td>S</td>		<td>fractional second (0 to 999)</td>	</tr>\
   <tr> 		<td>a</td>		<td>AM/PM marker</td>	</tr>\
   </table>\
-  <br />Time zone:\
+  <br /><br/>Time zone:\
   <table>\
   <tr>		<td>Z</td>		<td>Time zone (RFC 822) (e.g. -0800)</td>	</tr>\
   <tr>		<td>v</td>		<td>Time zone (generic) (e.g. Pacific Time)</td>	</tr>\
