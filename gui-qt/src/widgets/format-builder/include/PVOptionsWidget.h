@@ -7,6 +7,8 @@
 #ifndef PVOPTIONSWIDGET_H_
 #define PVOPTIONSWIDGET_H_
 
+#include <pvguiqt/PVLocalizedSpinBox.h>
+
 #include <QWidget>
 #include <QSpinBox>
 #include <QCheckBox>
@@ -31,10 +33,10 @@ private slots:
 	void disable_specify_line_count(int checkstate);
 
 private:
-	QSpinBox*  _ignore_first_lines_spinbox;
-	QLabel*    _line_count_label;
-	QCheckBox* _line_count_checkbox;
-	QSpinBox*  _line_count_spinbox;
+	PVGuiQt::PVLocalizedSpinBox* _ignore_first_lines_spinbox;
+	QLabel*                      _line_count_label;
+	QCheckBox*                   _line_count_checkbox;
+	PVGuiQt::PVLocalizedSpinBox* _line_count_spinbox;
 };
 
 }
