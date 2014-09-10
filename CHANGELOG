@@ -4,30 +4,29 @@
 This major release adds the following features:
 
 * min, max and average operations on columns
-* new key:value splitter
-* new value mapper converter
+* new "key:value" splitter
+* new "value mapper" converter
 * new ipv4 uniform mapping
-* split distinct values into layers from statistical views
-* create a new layer from the selected values in statistical views
-* skip n lines of each source input (useful for ignoring headers)
-* goto line n
-* a right click on the listing view's left border permit to copy the index of the row under the mouse to the clipboard
+* create layers from the selected values in statistics views
+* skip n lines of each source's input (useful for ignoring headers) and/or extract exactly m lines
+* go to row: quickly reach the line you want to display in the listing
 * screenshot feature
 
 This major release fixes or improves:
 
 * alphabetical sorting compatible with integers
-* IPv4 can now be sorted in listing and statistical views
+* values sorting compatible with integers and IPv4
 * the axis can be changed in the zoomed parallel coordinates view without closing it
+* line indexes can be copied to clipboard by right clicking on the listing left margin
+* licensing details are displayed in the "About" dialog
 * improved CSV export feature (can specify separator, quote, and columns)
 * mapping is computed properly when "Keep invalid elements" is checked during import
 * fix crash at 200 000 000 lines
-* configuration files are now centralized in ~/.picviz (and copied from old location when needed)
+* configuration files are now centralized in ~/.picviz
 * axis selection polygon offset when displaying min/max values on axes
-* limiting the number of imported events works anew
+* limiting the number of imported events works again
 * remove spinboxes flickering in statistical views
 * the axes combination editor was not consistent when clicking on "Cancel"
-* additional information in the "About" dialog: contact name, contact e-mail, company name, last validity day, and maximum events per source
 
 3.3.0 "Titan" (2014-04-25)
 ----------------
