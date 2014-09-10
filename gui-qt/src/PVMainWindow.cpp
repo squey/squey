@@ -1645,8 +1645,20 @@ void PVInspector::PVMainWindow::display_inv_elts()
 void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
                                                 const QString& title)
 {
-	int current_tab_index = _projects_tab_widget->current_workspace_tab_widget()->currentIndex();
-	QFileInfo sfi(_projects_tab_widget->current_workspace_tab_widget()->tabText(current_tab_index));
+	QFileInfo sfi;
+
+	if (_projects_tab_widget->current_workspace_tab_widget() != nullptr) {
+		/* if there is a workspace_tab_widget, we are on the workspaces
+		 * page or on a data collection page
+		 */
+		int current_tab_index = _projects_tab_widget->current_workspace_tab_widget()->currentIndex();
+		sfi = QFileInfo(_projects_tab_widget->current_workspace_tab_widget()->tabText(current_tab_index));
+	} else {
+		/* if there is no workspace_tab_widget, it means we are on the
+		 * start screen
+		 */
+		sfi = QFileInfo("startscreen");
+	}
 	QString filename = "screenshot_" + sfi.baseName();
 
 	static const QString default_prefix("_0001.png");

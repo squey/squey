@@ -286,6 +286,8 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 	PVStringSortProxyModel* proxy_model = static_cast<PVStringSortProxyModel*>(_values_view->model());
 	proxy_model->set_qt_order_func(sf->qt_f_lesser());
 
+	sort_by_column(0);
+
 	_values_view->installEventFilter(table_view_resize_event_handler);
 	connect(table_view_resize_event_handler, SIGNAL(resized()), this, SLOT(view_resized()));
 	_values_view->horizontalHeader()->show();
