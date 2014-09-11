@@ -1255,26 +1255,47 @@ void PVInspector::PVMainWindow::get_screenshot_widget()
 	int y = QCursor::pos().y();
 	QWidget* w = QApplication::widgetAt(x, y);
 	QWidget* p;
+	QString name;
 
-	p = PVCore::get_qobject_hierarchy_of_type<QDialog>(w);
+	p = PVCore::get_qobject_hierarchy_of_type<PVFormatBuilderWidget>(w);
 	if (p == nullptr) {
-		p = PVCore::get_qobject_hierarchy_of_type<QDockWidget>(w);
+		p = PVCore::get_qobject_hierarchy_of_type<QDialog>(w);
 		if (p == nullptr) {
-			p = PVCore::get_qobject_hierarchy_of_type<PVGuiQt::PVWorkspacesTabWidgetBase>(w);
+			p = PVCore::get_qobject_hierarchy_of_type<QDockWidget>(w);
 			if (p == nullptr) {
-				p = PVCore::get_qobject_hierarchy_of_type<PVMainWindow>(w);
+				p = PVCore::get_qobject_hierarchy_of_type<PVGuiQt::PVWorkspacesTabWidgetBase>(w);
+				if (p == nullptr) {
+					p = PVCore::get_qobject_hierarchy_of_type<PVMainWindow>(w);
+				}
 			}
 		}
+	} else {
+		name = "format-builder";
 	}
 
 	if (p == nullptr) {
 		return;
 	}
 
+	if (name.isEmpty()) {
+		if (_projects_tab_widget->current_workspace_tab_widget() != nullptr) {
+			/* if there is a workspace_tab_widget, we are on the workspaces
+			 * page or on a data collection page
+			 */
+			int current_tab_index = _projects_tab_widget->current_workspace_tab_widget()->currentIndex();
+			name = QFileInfo(_projects_tab_widget->current_workspace_tab_widget()->tabText(current_tab_index)).baseName();
+		} else {
+			/* if there is no workspace_tab_widget, it means we are on the
+			 * start screen
+			 */
+			name = "startscreen";
+		}
+	}
+
+
 	QPixmap pixmap = QPixmap::grabWidget(p);
 
-	save_screenshot(pixmap,
-	                "Save view capture");
+	save_screenshot(pixmap, "Save view capture", name);
 }
 
 /******************************************************************************
@@ -1286,7 +1307,7 @@ void PVInspector::PVMainWindow::get_screenshot_window()
 	QPixmap pixmap = QPixmap::grabWindow(winId());
 
 	save_screenshot(pixmap,
-	                "Save window capture");
+	                "Save window capture", "application");
 }
 
 /******************************************************************************
@@ -1298,7 +1319,7 @@ void PVInspector::PVMainWindow::get_screenshot_desktop()
 	QPixmap pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
 
 	save_screenshot(pixmap,
-	                "Save desktop capture");
+	                "Save desktop capture", "desktop");
 }
 
 /******************************************************************************

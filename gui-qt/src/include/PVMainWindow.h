@@ -243,7 +243,8 @@ private:
 	void display_inv_elts();
 
 	void save_screenshot(const QPixmap& pixmap,
-	                     const QString& title);
+	                     const QString& title,
+	                     const QString& name);
 
 private slots:
 	void root_modified();
