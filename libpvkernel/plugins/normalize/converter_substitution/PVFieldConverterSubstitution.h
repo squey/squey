@@ -1,11 +1,11 @@
 /**
- * \file PVFieldConverterValueMapper.h
+ * \file PVFieldConverterSubstitution.h
  *
  * Copyright (C) Picviz Labs 2014
  */
 
-#ifndef PVFILTER_PVFIELDCONVERTERVALUEMAPPER_H
-#define PVFILTER_PVFIELDCONVERTERVALUEMAPPER_H
+#ifndef PVFILTER_PVFIELDCONVERTERSUBSTITUTION_H
+#define PVFILTER_PVFIELDCONVERTERSUBSTITUTION_H
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVField.h>
@@ -45,10 +45,10 @@ struct csv_infos {
 
 }
 
-class PVFieldConverterValueMapper : public PVFieldsConverter {
+class PVFieldConverterSubstitution : public PVFieldsConverter {
 
 public:
-	PVFieldConverterValueMapper(PVCore::PVArgumentList const& args = PVFieldConverterValueMapper::default_args());
+	PVFieldConverterSubstitution(PVCore::PVArgumentList const& args = PVFieldConverterSubstitution::default_args());
 
 public:
 	void init() override;
@@ -69,9 +69,9 @@ private:
 	__impl::csv_infos _csv_infos;
 	bool _passthru = false;
 
-	CLASS_FILTER(PVFilter::PVFieldConverterValueMapper)
+	CLASS_FILTER(PVFilter::PVFieldConverterSubstitution)
 };
 
 }
 
-#endif // PVFILTER_PVFIELDCONVERTERVALUEMAPPER_H
+#endif // PVFILTER_PVFIELDCONVERTERSUBSTITUTION_H

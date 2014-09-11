@@ -1,11 +1,11 @@
 /**
- * \file PVFieldConverterValueMapperParamWidget.h
+ * \file PVFieldConverterSubstitutionParamWidget.h
  *
  * Copyright (C) Picviz Labs 2014
  */
 
-#ifndef PVFIELDVALUEMAPPERPARAMWIDGET_H
-#define PVFIELDVALUEMAPPERPARAMWIDGET_H
+#ifndef PVFIELDSUBSTITUTIONPARAMWIDGET_H
+#define PVFIELDSUBSTITUTIONPARAMWIDGET_H
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
@@ -24,12 +24,12 @@ namespace PVWidgets {
 
 namespace PVFilter {
 
-class PVFieldConverterValueMapperParamWidget: public PVFieldsConverterParamWidget
+class PVFieldConverterSubstitutionParamWidget: public PVFieldsConverterParamWidget
 {
 	Q_OBJECT
 
 public:
-	PVFieldConverterValueMapperParamWidget();
+	PVFieldConverterSubstitutionParamWidget();
 
 public:
 	QAction* get_action_menu();
@@ -50,9 +50,9 @@ private:
 	PVWidgets::QKeySequenceWidget* _quote_char;
 
 private:
-	CLASS_REGISTRABLE_NOCOPY(PVFieldConverterValueMapperParamWidget)
+	CLASS_REGISTRABLE_NOCOPY(PVFieldConverterSubstitutionParamWidget)
 };
 
 }
 
-#endif // PVFIELDVALUEMAPPERPARAMWIDGET_H
+#endif // PVFIELDSUBSTITUTIONPARAMWIDGET_H

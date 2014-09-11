@@ -1,11 +1,11 @@
 /**
- * \file PVFieldValueMapperParamWidget.cpp
+ * \file PVFieldSubstitutionParamWidget.cpp
  *
  * Copyright (C) Picviz Labs 2014
  */
 
-#include "PVFieldConverterValueMapperParamWidget.h"
-#include "PVFieldConverterValueMapper.h"
+#include "PVFieldConverterSubstitutionParamWidget.h"
+#include "PVFieldConverterSubstitution.h"
 
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
@@ -20,35 +20,35 @@
 
 /******************************************************************************
  *
- * PVFilter::PVFieldConverterValueMapperParamWidget::PVFieldConverterValueMapperParamWidget
+ * PVFilter::PVFieldConverterSubstitutionParamWidget::PVFieldConverterSubstitutionParamWidget
  *
  *****************************************************************************/
-PVFilter::PVFieldConverterValueMapperParamWidget::PVFieldConverterValueMapperParamWidget() :
-	PVFieldsConverterParamWidget(PVFilter::PVFieldsConverter_p(new PVFieldConverterValueMapper()))
+PVFilter::PVFieldConverterSubstitutionParamWidget::PVFieldConverterSubstitutionParamWidget() :
+	PVFieldsConverterParamWidget(PVFilter::PVFieldsConverter_p(new PVFieldConverterSubstitution()))
 {
-	_action_menu = new QAction(QString("add Value Mapper"), NULL);
+	_action_menu = new QAction(QString("add Substitution"), NULL);
 }
 
 /******************************************************************************
  *
- * PVFilter::PVFieldConverterValueMapperParamWidget::get_action_menu
+ * PVFilter::PVFieldConverterSubstitutionParamWidget::get_action_menu
  *
  *****************************************************************************/
-QAction* PVFilter::PVFieldConverterValueMapperParamWidget::get_action_menu()
+QAction* PVFilter::PVFieldConverterSubstitutionParamWidget::get_action_menu()
 {
-    PVLOG_DEBUG("get action PVFieldValueMapperParamWidget\n");
+    PVLOG_DEBUG("get action PVFieldSubstitutionParamWidget\n");
     assert(_action_menu);
     return _action_menu;
 }
 
 /******************************************************************************
  *
- * PVFilter::PVFieldConverterValueMapperParamWidget::get_param_widget
+ * PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget
  *
  *****************************************************************************/
-QWidget* PVFilter::PVFieldConverterValueMapperParamWidget::get_param_widget()
+QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 {
-	PVLOG_DEBUG("PVFilter::PVFieldValueMapperParamWidget::get_param_widget()     start\n");
+	PVLOG_DEBUG("PVFilter::PVFieldSubstitutionParamWidget::get_param_widget()     start\n");
 
 	PVCore::PVArgumentList args = get_filter()->get_args();
 
@@ -122,10 +122,10 @@ QWidget* PVFilter::PVFieldConverterValueMapperParamWidget::get_param_widget()
 
 /******************************************************************************
  *
- * PVFilter::PVFieldConverterValueMapperParamWidget::update_params
+ * PVFilter::PVFieldConverterSubstitutionParamWidget::update_params
  *
  *****************************************************************************/
-void PVFilter::PVFieldConverterValueMapperParamWidget::update_params()
+void PVFilter::PVFieldConverterSubstitutionParamWidget::update_params()
 {
 	PVCore::PVArgumentList args = get_filter()->get_args();
 
@@ -139,7 +139,7 @@ void PVFilter::PVFieldConverterValueMapperParamWidget::update_params()
     emit args_changed_Signal();
 }
 
-void PVFilter::PVFieldConverterValueMapperParamWidget::browse_conversion_file()
+void PVFilter::PVFieldConverterSubstitutionParamWidget::browse_conversion_file()
 {
 	QFileDialog fd;
 
@@ -151,7 +151,7 @@ void PVFilter::PVFieldConverterValueMapperParamWidget::browse_conversion_file()
 	update_params();
 }
 
-void PVFilter::PVFieldConverterValueMapperParamWidget::use_default_value_checkbox_changed(int state)
+void PVFilter::PVFieldConverterSubstitutionParamWidget::use_default_value_checkbox_changed(int state)
 {
 	_default_value_line_edit->setEnabled(state == Qt::Checked);
 

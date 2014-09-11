@@ -1,10 +1,10 @@
 /**
- * \file PVFieldConverterValueMapper.h
+ * \file PVFieldConverterSubstitution.h
  *
  * Copyright (C) Picviz Labs 2014
  */
 
-#include "PVFieldConverterValueMapper.h"
+#include "PVFieldConverterSubstitution.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -23,18 +23,18 @@ extern "C" {
  * PVFilter::PVFieldGUIDToIP::PVFieldGUIDToIP
  *
  *****************************************************************************/
-PVFilter::PVFieldConverterValueMapper::PVFieldConverterValueMapper(PVCore::PVArgumentList const& args) :
+PVFilter::PVFieldConverterSubstitution::PVFieldConverterSubstitution(PVCore::PVArgumentList const& args) :
 	PVFieldsConverter()
 {
-	INIT_FILTER(PVFilter::PVFieldConverterValueMapper, args);
+	INIT_FILTER(PVFilter::PVFieldConverterSubstitution, args);
 }
 
 /******************************************************************************
  *
- * PVFilter::PVFieldConverterValueMapper::set_args
+ * PVFilter::PVFieldConverterSubstitution::set_args
  *
  *****************************************************************************/
-void PVFilter::PVFieldConverterValueMapper::set_args(PVCore::PVArgumentList const& args)
+void PVFilter::PVFieldConverterSubstitution::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
 
@@ -47,10 +47,10 @@ void PVFilter::PVFieldConverterValueMapper::set_args(PVCore::PVArgumentList cons
 
 /******************************************************************************
  *
- * PVFilter::PVFieldConverterValueMapper::init
+ * PVFilter::PVFieldConverterSubstitution::init
  *
  *****************************************************************************/
-void PVFilter::PVFieldConverterValueMapper::init()
+void PVFilter::PVFieldConverterSubstitution::init()
 {
 	// Initialize ICU
 	UErrorCode status = U_ZERO_ERROR;
@@ -78,8 +78,8 @@ void PVFilter::PVFieldConverterValueMapper::init()
 			_csv_infos.charset = cd.GetCharset();
 		}
 	}
-	csv_parse(&p, content.toLocal8Bit().data(), content.size(), &PVFilter::PVFieldConverterValueMapper::csv_new_field, &PVFilter::PVFieldConverterValueMapper::csv_new_row, (void*)&_csv_infos);
-	csv_fini(&p, &PVFilter::PVFieldConverterValueMapper::csv_new_field, &PVFilter::PVFieldConverterValueMapper::csv_new_row, (void*)&_csv_infos);
+	csv_parse(&p, content.toLocal8Bit().data(), content.size(), &PVFilter::PVFieldConverterSubstitution::csv_new_field, &PVFilter::PVFieldConverterSubstitution::csv_new_row, (void*)&_csv_infos);
+	csv_fini(&p, &PVFilter::PVFieldConverterSubstitution::csv_new_field, &PVFilter::PVFieldConverterSubstitution::csv_new_row, (void*)&_csv_infos);
 	csv_free(&p);
 	if (!_csv_infos.map.size()) {
 		PVLOG_WARN("Filter '%s' of type '%s' was unable to detect any value mapping !\n", qPrintable(type_name()), qPrintable(registered_name()));
@@ -102,7 +102,7 @@ void PVFilter::PVFieldConverterValueMapper::init()
 	}
 }
 
-DEFAULT_ARGS_FILTER(PVFilter::PVFieldConverterValueMapper)
+DEFAULT_ARGS_FILTER(PVFilter::PVFieldConverterSubstitution)
 {
 	PVCore::PVArgumentList args;
 
@@ -117,10 +117,10 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldConverterValueMapper)
 
 /******************************************************************************
  *
- * PVFilter::PVFieldConverterValueMapper::one_to_one
+ * PVFilter::PVFieldConverterSubstitution::one_to_one
  *
  *****************************************************************************/
-PVCore::PVField& PVFilter::PVFieldConverterValueMapper::one_to_one(PVCore::PVField& field)
+PVCore::PVField& PVFilter::PVFieldConverterSubstitution::one_to_one(PVCore::PVField& field)
 {
 	if (!unlikely(_passthru)) {
 		QString str_tmp;
@@ -149,10 +149,10 @@ PVCore::PVField& PVFilter::PVFieldConverterValueMapper::one_to_one(PVCore::PVFie
 
 /******************************************************************************
  *
- * PVFilter::PVFieldConverterValueMapper::csv_new_field
+ * PVFilter::PVFieldConverterSubstitution::csv_new_field
  *
  *****************************************************************************/
-void PVFilter::PVFieldConverterValueMapper::csv_new_field(void* s, size_t len, void* p)
+void PVFilter::PVFieldConverterSubstitution::csv_new_field(void* s, size_t len, void* p)
 {
 	__impl::csv_infos* infos = (__impl::csv_infos*) p;
 
@@ -183,10 +183,10 @@ void PVFilter::PVFieldConverterValueMapper::csv_new_field(void* s, size_t len, v
 
 /******************************************************************************
  *
- * PVFilter::PVFieldConverterValueMapper::csv_new_row
+ * PVFilter::PVFieldConverterSubstitution::csv_new_row
  *
  *****************************************************************************/
-void PVFilter::PVFieldConverterValueMapper::csv_new_row(int /*c*/, void* p)
+void PVFilter::PVFieldConverterSubstitution::csv_new_row(int /*c*/, void* p)
 {
 	__impl::csv_infos* infos = (__impl::csv_infos*) p;
 
@@ -194,4 +194,4 @@ void PVFilter::PVFieldConverterValueMapper::csv_new_row(int /*c*/, void* p)
 }
 
 
-IMPL_FILTER(PVFilter::PVFieldConverterValueMapper)
+IMPL_FILTER(PVFilter::PVFieldConverterSubstitution)
