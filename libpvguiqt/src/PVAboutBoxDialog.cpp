@@ -26,7 +26,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	QGridLayout *main_layout = new QGridLayout;
 	main_layout->setHorizontalSpacing(0);
 
-	QString content = "Picviz Inspector version " + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"<br/>(c) 2010-2014 Picviz Labs SAS<br/>";
+	QString content = "Picviz Inspector version " + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"<br/>(c) 2014 Picviz Labs SAS<br/>";
 
 	content += "<br/>contact - <a href=\"mailto:contact@picviz.com\">contact@picviz.com</a><br/>";
 	content += "support - <a href=\"mailto:support@picviz.com\">support@picviz.com</a><br/>";
