@@ -162,9 +162,9 @@ QHeaderView#verticalHeader_of_PVListingView::section {
 	border-right-width: 1px;
 	border-top-style: none;
 	
-	/*font-family: "Convergence-Regular";
-	font-size: 12px;
-	font-weight: bold;*/
+	font-family: "PT_Sans-Narrow-Web";
+	font-size: 10px;
+	/*font-weight: bold;*/
 	
 	padding-right: 7px;
 }

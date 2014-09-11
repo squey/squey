@@ -188,8 +188,19 @@ bool PVGuiQt::PVStatsListingWidget::eventFilter(QObject* obj, QEvent* event)
 
 void PVGuiQt::PVStatsListingWidget::refresh()
 {
+	sync_vertical_headers();
+
+	for (PVCol col=0; col < _stats_panel->columnCount(); col++) {
+		for (int row=0; row < _stats_panel->rowCount(); row++) {
+			((__impl::PVCellWidgetBase*)_stats_panel->cellWidget(row, col))->auto_refresh();
+		}
+	}
+}
+
+void PVGuiQt::PVStatsListingWidget::sync_vertical_headers()
+{
 	// Sync tables vertical header width
-	int stats_header_width = _stats_panel->verticalHeader()->sizeHint().width();
+	int stats_header_width = _stats_panel->verticalHeader()->width();
 	int listing_header_width = _listing_view->verticalHeader()->width();
 
 	if (stats_header_width > listing_header_width) {
@@ -199,12 +210,6 @@ void PVGuiQt::PVStatsListingWidget::refresh()
 	else {
 		_stats_panel->verticalHeader()->setFixedWidth(listing_header_width);
 		QMetaObject::invokeMethod(_stats_panel, "updateGeometries");
-	}
-
-	for (PVCol col=0; col < _stats_panel->columnCount(); col++) {
-		for (int row=0; row < _stats_panel->rowCount(); row++) {
-			((__impl::PVCellWidgetBase*)_stats_panel->cellWidget(row, col))->auto_refresh();
-		}
 	}
 }
 

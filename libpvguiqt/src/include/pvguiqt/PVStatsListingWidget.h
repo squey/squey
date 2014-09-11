@@ -101,6 +101,9 @@ private:
 
 	void create_vhead_ctxt_menu();
 
+public:
+	void sync_vertical_headers();
+
 private slots:
 	void toggle_stats_panel_visibility();
 	void update_header_width(int column, int old_width, int new_width);
@@ -110,7 +113,6 @@ private slots:
 	void selection_changed();
 	void axes_comb_changed();
 	void vertical_header_section_clicked(const QPoint&);
-
 public:
 	static const QColor INVALID_COLOR;
 

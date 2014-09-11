@@ -31,11 +31,6 @@ namespace PVGuiQt {
 class PVLayerFilterProcessWidget;
 class PVListingSortFilterProxyModel;
 
-namespace __impl
-{
-class PVHorizontalHeaderView;
-}
-
 /**
  * \class PVListingView
  */
@@ -127,6 +122,7 @@ private:
 	int _hovered_axis = -1;
 
 	PVWidgets::PVHelpWidget *_help_widget;
+	int _vhead_max_width;
 
 private:
 	// Observers

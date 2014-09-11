@@ -85,7 +85,9 @@
 	<file alias="Convergence-Regular.ttf">resources/fonts/Convergence-Regular.ttf</file>
 	<file alias="OSP-DIN.ttf">resources/fonts/OSP-foundry_DIN/OSP-DIN.ttf</file>
 	<file alias="Jura-DemiBold.ttf">resources/fonts/Jura/Jura-DemiBold.ttf</file>
-
+	<file alias="PT_Sans-Narrow-Web-Regular.ttf">resources/fonts/PT_Sans-Narrow-Web/PT_Sans-Narrow-Web-Regular.ttf</file>
+	<file alias="PT_Sans-Narrow-Web-Bold.ttf">resources/fonts/PT_Sans-Narrow-Web/PT_Sans-Narrow-Web-Bold.ttf</file>
+	
 	<!-- HANDLES -->
 	<file alias="vertical_handle">resources/gui-elements/pv_vertical_handle_01.png</file>
 	<file alias="horizontal_handle">resources/gui-elements/pv_horizontal_handle_01.png</file>

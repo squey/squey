@@ -224,9 +224,9 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 
 	verticalHeader()->setClickable(true);
 	verticalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
+	verticalHeader()->setObjectName("verticalHeader_of_PVListingView");
 	connect(verticalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)),
 	        this, SLOT(show_vhead_ctxt_menu(const QPoint&)));
-
 
 	setSelectionBehavior(QAbstractItemView::SelectRows);
 	setWordWrap(false);
@@ -247,6 +247,10 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	_help_widget->newColumn();
 	_help_widget->addTextFromFile(":help-shortcuts-listing-view");
 	_help_widget->finalizeText();
+
+	QFont font = verticalHeader()->font();
+	font.setBold(true);
+	_vhead_max_width = QFontMetrics(font).width(QString().leftJustified(QString::number(PICVIZ_LINES_MAX).size(), '9'));
 }
 
 void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
@@ -425,6 +429,8 @@ void PVGuiQt::PVListingView::reset()
 		uint32_t axis_index = lib_view().get_real_axis_index(i);
 		setColumnWidth(i, _headers_width[axis_index] ? _headers_width[axis_index] : default_width);
 	}
+
+	verticalHeader()->setFixedWidth(_vhead_max_width);
 }
 
 void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
