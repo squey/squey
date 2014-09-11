@@ -217,7 +217,7 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	connect(verticalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnVHead(int)));
 
 	// the vertical header context menu
-	_action_copy_row_value = new QAction(tr("Copy row index to clipbard"), this);
+	_action_copy_row_value = new QAction(tr("Copy line index to clipbard"), this);
 
 	_vhead_ctxt_menu = new QMenu(this);
 	_vhead_ctxt_menu->addAction(_action_copy_row_value);
