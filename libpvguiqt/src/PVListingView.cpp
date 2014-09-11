@@ -839,7 +839,7 @@ void PVGuiQt::PVListingView::goto_line()
 
 	bool ok;
 	PVRow row = QInputDialog::getInt(this,
-	                                 "Go to row", "Select row index",
+	                                 "Go to line", "Select line index",
 	                                 0, 0, nrows - 1, 1, &ok);
 
 	if (ok == false) {
