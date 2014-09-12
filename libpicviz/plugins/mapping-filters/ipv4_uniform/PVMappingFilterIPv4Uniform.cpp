@@ -12,6 +12,8 @@
 
 #include <climits>
 
+typedef std::map<uint32_t, uint32_t> values_t;
+
 /*****************************************************************************
  * Picviz::PVMappingFilterIPv4Uniform::PVMappingFilterIPv4Uniform
  *****************************************************************************/
@@ -39,7 +41,6 @@ DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterIPv4Uniform)
 
 void Picviz::PVMappingFilterIPv4Uniform::init()
 {
-	_values.clear();
 }
 
 /*****************************************************************************
@@ -68,17 +69,13 @@ Picviz::PVMappingFilter::decimal_storage_type*
 Picviz::PVMappingFilterIPv4Uniform::operator()(PVCol const c,
                                                PVRush::PVNraw const& nraw)
 {
-	/* first travers once to have distinct values
+	/* first travers the nraw to save into _dest the IPv4 as uint32
 	 */
-	nraw.visit_column(c, [&](PVRow, const char* buf, size_t size)
+	nraw.visit_column(c, [&](PVRow r, const char* buf, size_t size)
 	                  {
 		                  uint32_t ipv4;
 		                  PVCore::Network::ipv4_aton(buf, size, ipv4);
-
-		                  typename values_t::iterator it = _values.find(ipv4);
-		                  if (it == _values.end()) {
-			                  _values[ipv4] = 0;
-		                  }
+		                  _dest[r].storage_as_uint() = ipv4;
 	                  });
 
 	/* then ::finalize() do the rest
@@ -93,16 +90,13 @@ Picviz::PVMappingFilterIPv4Uniform::operator()(PVCol const c,
 Picviz::PVMappingFilter::decimal_storage_type
 Picviz::PVMappingFilterIPv4Uniform::operator()(PVCore::PVField const& field)
 {
+	/* simply save IPv4 as uint32 in result's op
+	 */
 	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
 	uint32_t ipv4;
+
 	PVCore::Network::ipv4_a16ton((uint16_t*)field.begin(), field.size()/sizeof(uint16_t), ipv4);
-
-	typename values_t::iterator it = _values.find(ipv4);
-	if (it == _values.end()) {
-		_values[ipv4] = 0;
-	}
-
-	ret_ds.storage_as_uint() = 0;
+	ret_ds.storage_as_uint() = ipv4;
 
 	return ret_ds;
 }
@@ -112,33 +106,36 @@ Picviz::PVMappingFilterIPv4Uniform::operator()(PVCore::PVField const& field)
  *****************************************************************************/
 
 Picviz::PVMappingFilter::decimal_storage_type*
-Picviz::PVMappingFilterIPv4Uniform::finalize(PVCol const c,
-                                             PVRush::PVNraw const& nraw)
+Picviz::PVMappingFilterIPv4Uniform::finalize(PVCol const,
+                                             PVRush::PVNraw const&)
 {
-	/* _values contains all the distinct values
-	 */
+	values_t values;
 
-	/* first we sort the keys and set the mapped values
+	/* populate values with _dest (which contains IPv4 as uint32
 	 */
-	auto key_list = _values.keys();
-	qSort(key_list.begin(), key_list.end());
+	for(size_t i = 0; i < _dest_size; ++i) {
+		values[_dest[i].storage_as_uint()] = 0;
+	}
 
-	uint32_t value_count = key_list.size();
+	/* as std::map is ordered by its keys, we just have to iterate to
+	 * compute the mapping values
+	 */
+	uint32_t value_count = values.size();
 
 	uint32_t i = 0;
-	for (const auto& key : key_list) {
-		_values[key] = (std::numeric_limits<uint32_t>::max() * (double)i) / value_count;
+	for (auto& kv : values) {
+		kv.second = (std::numeric_limits<uint32_t>::max() * (double)i) / value_count;
 		++i;
 	}
 
-	/* then the mapping array is filled
+	/* then the mapping array is iterated to replace the numeric IPv4
+	 * with its mapping value
 	 */
-	nraw.visit_column(c, [&](PVRow i, const char* buf, size_t size)
-	                  {
-		                  uint32_t ipv4;
-		                  PVCore::Network::ipv4_aton(buf, size, ipv4);
-		                  _dest[i].storage_as_uint() = _values.find(ipv4).value();
-	                  });
+#pragma omp parallel for
+	for(size_t i = 0; i < _dest_size; ++i) {
+		uint32_t ipv4 = _dest[i].storage_as_uint();
+		_dest[i].storage_as_uint() = values.find(ipv4)->second;
+	}
 
 	return _dest;
 }

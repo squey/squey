@@ -17,7 +17,6 @@ namespace Picviz {
 class PVMappingFilterIPv4Uniform: public PVMappingFilter
 {
 public:
-	typedef QHash<uint32_t, uint32_t> values_t;
 
 public:
 	PVMappingFilterIPv4Uniform(PVCore::PVArgumentList const& args = PVMappingFilterIPv4Uniform::default_args());
@@ -34,13 +33,9 @@ public:
 	decimal_storage_type* finalize(PVCol const c,PVRush::PVNraw const& nraw) override;
 
 protected:
-	values_t _values;
-
 	CLASS_FILTER(PVMappingFilterIPv4Uniform)
 };
 
 }
-
-Q_DECLARE_METATYPE(Picviz::PVMappingFilterIPv4Uniform::values_t)
 
 #endif // PVFILTER_PVMAPPINGFILTERIPV4UNIFORM_H
