@@ -19,7 +19,7 @@ PVKERNEL_PATH=$ISRD/libpvkernel
 PICVIZ_PATH=$ISRD/libpicviz
 
 #export PICVIZ_LOG_FILE="log.txt"
-export PVGL_SHARE_DIR=./libpvgl/data/
+
 if test -z "$PICVIZ_DEBUG_LEVEL"
 then
 	export PICVIZ_DEBUG_LEVEL="INFO"
@@ -78,8 +78,7 @@ then
 export PICVIZ_DEBUG_LEVEL="DEBUG"
 #export PICVIZ_DEBUG_FILE="debug.txt"
 	unset ARGS[0]
-	gdb --args $ISRD/gui-qt/src/picviz-inspector ${ARGS[@]} |egrep -v "PVGL"
-#-e ".*PVGL.*" --invert-match
+	gdb --args $ISRD/gui-qt/src/picviz-inspector ${ARGS[@]}
 	exit 0
 fi
 

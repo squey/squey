@@ -4,7 +4,7 @@
 # Copyright (C) Picviz Labs 2010-2012
 
 #
-# QT is needed for both libpvgl and picviz-inspector
+# QT is needed for picviz-inspector
 #
 ADD_DEFINITIONS(-DQT_SHARED)
 #set(Qt4_DIR /opt/qt-picviz)
@@ -188,9 +188,6 @@ if(WIN32)
 	set(WINSOCK_LIB ws2_32)
 endif(WIN32)
 
-######################
-# Needed for libpvgl #
-######################
 #
 # OpenGL
 #
@@ -206,10 +203,6 @@ else(WIN32)
 	find_package(ICU REQUIRED) 
 endif(WIN32)
 #add_definitions(-DU_DISABLE_RENAMING)
-
-###############################
-# Needed for picviz-inspector #
-###############################
 
 #if (USE_OWN_LIBCURL)
 if(WIN32)

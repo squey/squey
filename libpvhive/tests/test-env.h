@@ -24,5 +24,4 @@ void init_env()
 	pv_setenv("PICVIZ_MAPPING_FILTERS_DIR","../../libpicviz/plugins/mapping-filters",0);
 	pv_setenv("PICVIZ_PLOTTING_FILTERS_DIR","../../libpicviz/plugins/plotting-filters",0);
 	pv_setenv("PICVIZ_ROW_FILTERS_DIR","../../libpicviz/plugins/row-filters",0);
-	pv_setenv("PVGL_SHARE_DIR","../../libpvgl/data/",0);
 }

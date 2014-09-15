@@ -1045,8 +1045,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 			/* We process the view from the selection */
 			current_lib_view->process_from_selection();
-			/* We refresh the view */
-			//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 			/* We refresh the listing */
 			current_tab->refresh_listing_with_horizontal_header_Slot();
 			current_tab->update_pv_listing_model_Slot();
@@ -1106,7 +1104,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 					break;
 			}
 
-			//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_POSITIONS|PVSDK_MESSENGER_REFRESH_AXES);
 			current_tab->refresh_listing_with_horizontal_header_Slot();
 			current_tab->update_pv_listing_model_Slot();
 			current_tab->refresh_listing_Slot();
@@ -1165,7 +1162,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 						break;
 			}
 
-			//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
 			current_tab->refresh_listing_with_horizontal_header_Slot();
 			break;
 
@@ -1179,9 +1175,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 			/* We need to process the view from the selection */
 			current_lib_view->process_from_selection();
-			/* THEN we can refresh the view */
-			//update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
-			//refresh_current_view_Slot();
 			current_tab->refresh_listing_Slot();
 			break;
 
@@ -1205,8 +1198,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 						//current_lib_view->real_output_selection.A2B_copy(current_selected_layer.get_selection());
 						/* We need to process the view from the layer_stack */
 						current_lib_view->process_from_layer_stack();
-						/* THEN we can refresh the view */
-						//update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
 						current_tab->refresh_listing_Slot();
 						PVLOG_INFO("%s: MetaModifier!\n", __FUNCTION__);
 						break;
@@ -1260,7 +1251,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 						break;
 			}
 
-			//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
 			current_tab->refresh_listing_with_horizontal_header_Slot();
 			break;
 
@@ -1295,9 +1285,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 					//current_selected_layer->get_selection().AB2A_substraction(current_lib_view->real_output_selection);
 					/* We need to process the view from the layer_stack */
 					current_lib_view->process_from_layer_stack();
-					/* THEN we can emit the signal */
-					//refresh_current_view_Slot();
-					//update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_ZOMBIES|PVSDK_MESSENGER_REFRESH_SELECTION);
 					current_tab->refresh_listing_Slot();
 					break;
 			}
@@ -1320,8 +1307,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 				}
 				/* We toggle the ANTIALIASING mode */
 				state_machine->toggle_antialiased();
-				/* We refresh the view */
-				//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_ZOMBIES);
 				break;
 
 		// This is only for testing purposes !
@@ -1374,9 +1359,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							// picviz_lines_properties_A2A_set_to_line_properties_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), line_properties, temp_selection, current_lib_view->row_count);
 							/* We need to process the view from the layer_stack */
 							current_lib_view->process_from_layer_stack();
-							/* THEN we can emit the signal */
 
-							//update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
 							current_tab->refresh_listing_Slot();
 
 							break;
@@ -1415,7 +1398,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							break;
 				}
 
-				//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 				current_tab->refresh_listing_with_horizontal_header_Slot();
 				break;
 
@@ -1423,46 +1405,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 		case Qt::Key_Space:
 				menuBar()->setVisible(! menuBar()->isVisible());
 				break;
-
-				/* toggle the visibility of the UNSELECTED events */
-		case Qt::Key_U:	// FIXME: U is useless and it taken by the menu
-				// /* If there is no view at all, don't do anything */
-				// if (pv_WorkspacesTabWidget->currentIndex() == -1) {
-				// 	break;
-				// }
-				// switch (event->modifiers()) {
-				// 	/* We only toggle the Listing */
-				// 	case (Qt::AltModifier):
-				// 			/* We toggle*/
-				// 			state_machine->toggle_listing_unselected_visibility();
-				// 			/* We refresh the listing */
-				// 			current_tab->update_pv_listing_model_Slot();
-				// 			break;
-
-				// 			/* We only toggle the View */
-				// 	case (Qt::ShiftModifier):
-				// 			/* We toggle*/
-				// 			state_machine->toggle_gl_unselected_visibility();
-				// 			/* We refresh the view */
-				// 			current_lib_view->process_visibility();
-				// 			//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-				// 			break;
-
-				// 			/* We toggle both the Listing and the View */
-				// 	default:
-				// 			/* We toggle the view first */
-				// 			state_machine->toggle_gl_unselected_visibility();
-				// 			/* We set the listing to be the same */
-				// 			state_machine->set_listing_unselected_visible(state_machine->are_gl_unselected_visible());
-				// 			/* We refresh the view */
-				// 			current_lib_view->process_visibility();
-				// 			//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-				// 			/* We refresh the listing */
-				// 			current_tab->update_pv_listing_model_Slot();
-				// 			break;
-				// }
-				break;
-
 
 				/* Increase active axis column index */
 		case Qt::Key_Up:
@@ -1492,7 +1434,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 						break;
 				}
 
-				//update_pvglviecurrent_tabw(current_lib_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
 				current_tab->refresh_listing_with_horizontal_header_Slot();
 				break;
 
@@ -1511,7 +1452,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 					state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 				}
 
-				//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 				current_tab->refresh_listing_Slot();
 				break;
 	}

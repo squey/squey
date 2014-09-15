@@ -120,12 +120,6 @@ void PVInspector::PVMainWindow::axes_mode_Slot()
 void PVInspector::PVMainWindow::axes_display_edges_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	// FIXME!!! Why is this broadcasted to every PVGL::PVView for every Picviz::PVView? Shouldn't it be reserved to the _current_ Picviz::PVView ?
-	/*PVSDK::PVMessage message;
-
-	message.function = PVSDK_MESSENGER_FUNCTION_TOGGLE_DISPLAY_EDGES;
-	pvsdk_messenger->post_message_to_gl(message);*/
 }
 
 /******************************************************************************
@@ -214,7 +208,6 @@ void PVInspector::PVMainWindow::events_display_unselected_GLview_Slot()
 	state_machine->toggle_gl_unselected_visibility();
 	/* We refresh the view */
 	current_lib_view->process_visibility();
-	//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 }
 
 /******************************************************************************
@@ -239,7 +232,6 @@ void PVInspector::PVMainWindow::events_display_zombies_Slot()
 	// state_machine->set_listing_zombie_visibility(state_machine->are_zombie_visible());
 	/* We refresh the view */
 	current_lib_view->process_visibility();
-	//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 	/* We refresh the listing */
 	// TODO: hive!
 	//current_tab->update_pv_listing_model_Slot();
@@ -283,7 +275,6 @@ void PVInspector::PVMainWindow::events_display_zombies_GLview_Slot()
 	state_machine->toggle_gl_zombie_visibility();
 	/* We refresh the view */
 	current_lib_view->process_visibility();
-	//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 }
 
 /******************************************************************************
@@ -322,10 +313,6 @@ void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
 	QString mode = dlg->get_mode();
 	for (it = axes.begin(); it != axes.end(); it++) {
 		view.expand_selection_on_axis(*it, mode);
-	}
-
-	if (axes.size() > 0) {
-		//update_pvglview(cur_view_p, PVSDK_MESSENGER_REFRESH_POSITIONS);
 	}
 }
 

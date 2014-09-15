@@ -18,14 +18,13 @@ SET PICVIZ_LAYER_FILTERS_DIR=libpicviz\plugins\layer-filters\%BUILD_MODE%\
 SET PICVIZ_PLOTTING_FILTERS_DIR=libpicviz\plugins\plotting-filters\%BUILD_MODE%\
 SET PICVIZ_MAPPING_FILTERS_DIR=libpicviz\plugins\mapping-filters\%BUILD_MODE%\
 SET PICVIZ_FILTERS_DIR=libpicviz\plugins\filters\%BUILD_MODE%\
-SET PVGL_SHARE_DIR=libpvgl\data\
 SET PVRUSH_NORMALIZE_DIR=libpvkernel\plugins\normalize\%BUILD_MODE%\
 SET PVRUSH_INPUTTYPE_DIR=libpvkernel\plugins\input_types\%BUILD_MODE%\
 SET PVRUSH_SOURCE_DIR=libpvkernel\plugins\sources\%BUILD_MODE%\
 SET PVRUSH_NORMALIZE_HELPERS_DIR=libpvkernel\plugins\normalize-helpers\
 SET PVFILTER_NORMALIZE_DIR=libpvkernel\plugins\normalize\%BUILD_MODE%\
 
-PATH=%PATH%;%CACTUSLABS_TRUNK_DIR%\libpvkernel\src\%BUILD_MODE%;%CACTUSLABS_TRUNK_DIR%\libpicviz\src\%BUILD_MODE%;%cactuslabs_trunk_dir%\libpvsdk\src\%build_mode%;%cactuslabs_trunk_dir%\libpvgl\src\%build_mode%
+PATH=%PATH%;%CACTUSLABS_TRUNK_DIR%\libpvkernel\src\%BUILD_MODE%;%CACTUSLABS_TRUNK_DIR%\libpicviz\src\%BUILD_MODE%;%cactuslabs_trunk_dir%\libpvsdk\src\%build_mode%
 
 
 echo Trunk directory is: %CACTUSLABS_TRUNK_DIR%
@@ -35,7 +34,6 @@ echo PICVIZ_PLOTTING_FILTERS_DIR=%PICVIZ_PLOTTING_FILTERS_DIR%
 echo PICVIZ_MAPPING_FILTERS_DIR=%PICVIZ_MAPPING_FILTERS_DIR%
 echo PICVIZ_FUNCTIONS_DIR=%PICVIZ_FUNCTIONS_DIR%
 echo PICVIZ_FILTERS_DIR=%PICVIZ_FILTERS_DIR%
-echo PVGL_SHARE_DIR=%PVGL_SHARE_DIR%
 echo PVRUSH_NORMALIZE_DIR=%PVRUSH_NORMALIZE_DIR%
 echo PVRUSH_INPUTTYPE_DIR=%PVRUSH_INPUTTYPE_DIR%
 echo PVRUSH_SOURCE_DIR=%PVRUSH_SOURCE_DIR%

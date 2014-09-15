@@ -90,31 +90,3 @@ void PVGuiQt::PVAxesCombinationDialog::update_box_answered(QAbstractButton* btn)
 		_axes_widget->update_used_axes();
 	}
 }
-
-#if 0
-void PVGuiQt::PVAxesCombinationDialog::refresh_axes_slot()
-{
-	// AG: this is a hack because adding a new column into the axes combination
-	// actually breaks the selection model of the listing (thus it isn't possible to
-	// get the actual selected rows).
-	// TOFIX: use the axis combination in the proxy model and not in the original model !
-	QItemSelectionModel* sel_model = tab->get_listing_view()->selectionModel();
-	QModelIndexList sel_idxes = sel_model->selectedIndexes();
-	QSet<PVRow> sel_lines;
-	sel_lines.reserve(sel_idxes.size()/_view->axes_combination.get_original_axes_count());
-	foreach(QModelIndex const& idx, sel_idxes) {
-		sel_lines << idx.row();
-	}
-
-	tab->refresh_listing_with_horizontal_header_Slot();
-	tab->update_pv_listing_model_Slot();
-	tab->refresh_listing_Slot();
-	main_window->update_pvglview(_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
-
-	// Clear the selection and set it
-	sel_model->clearSelection();
-	foreach(PVRow r, sel_lines) {
-		sel_model->select(sel_model->model()->index(r,0), QItemSelectionModel::Rows | QItemSelectionModel::Select);
-	}
-}
-#endif
