@@ -27,7 +27,7 @@ This major release fixes or improves:
 * limiting the number of imported events works again
 * remove spinboxes flickering in statistical views
 * the axes combination editor was not consistent when clicking on "Cancel"
-* the URL splitter port was wrong when the HTTP URL contained non-standard port
+* bugfix in URL splitter
 
 3.3.0 "Titan" (2014-04-25)
 ----------------
