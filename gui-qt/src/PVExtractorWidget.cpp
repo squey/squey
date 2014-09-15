@@ -30,7 +30,7 @@
 
 /******************************************************************************
  *
- * PVInspector::PVFilterWidget::PVFilterWidget
+ * PVInspector::PVExtractorWidget::PVExtractorWidget
  *
  *****************************************************************************/
 PVInspector::PVExtractorWidget::PVExtractorWidget(Picviz::PVSource& lib_src, PVGuiQt::PVProjectsTabWidget* projects_tab, QWidget* parent):
