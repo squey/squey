@@ -27,7 +27,6 @@ include/PVColorDialog.h
 include/PVDualSlider.h
 include/PVExpandSelDlg.h
 include/PVFilesTypesSelWidget.h
-include/PVInvestigationWizard.h
 #include/PVListColNrawDlg.h
 #include/PVListingModel.h
 #include/PVListingSortFilterProxyModel.h
@@ -81,7 +80,6 @@ PVExtractorWidget.cpp
 PVExpandSelDlg.cpp
 PVColorDialog.cpp
 PVDualSlider.cpp
-PVInvestigationWizard.cpp
 #PVListColNrawDlg.cpp
 #PVListingModel.cpp
 #PVListingSortFilterProxyModel.cpp
