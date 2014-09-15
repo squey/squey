@@ -5,13 +5,12 @@
 
 include_directories(AFTER ${OPENGL_INCLUDE_DIR})
 
-include_directories(AFTER ${GLUT_INCLUDE_DIR})
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 endif(CUDA_FOUND)
 
 
-set(LINK_LIBRARIES pvdisplays picviz pvhive pvkernel ${QT_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
+set(LINK_LIBRARIES pvdisplays picviz pvhive pvkernel ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
 
 # CUDA
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")

@@ -18,7 +18,6 @@ endif(WIN32)
 
 set(INSPECTOR_ICON "resources////inspector.ico")
 
-#include_directories(AFTER ${GLUT_INCLUDE_DIR})
 SET(MOC_HEADERS
 include/PVAxisComputationDlg.h
 #include/PVAxesCombinationWidget.h

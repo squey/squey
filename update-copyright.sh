@@ -252,7 +252,7 @@ do
     FILENAME=`basename "$FILE"`
 
     case "$FILE" in
-	cmake/FindAPR.cmake | cmake/FindBoost.cmake | cmake/FindDUMBNET.cmake | cmake/FindGLEW.cmake | cmake/FindHDFS.cmake | cmake/FindHWLoc.cmake | cmake/FindICU.cmake | cmake/FindPCAP.cmake | cmake/FindPCRE.cmake | cmake/FindPkgMacros.cmake | cmake/FindTBB.cmake | cmake/FindTULIP3.cmake | cmake/UseJavaClassFilelist.cmake | cmake/UseJava.cmake | cmake/UseJavaSymlinks.cmake | cmake/FindGLEW.cmake | libpvgl/cmake/FindGLEW.cmake | libpicviz/src/include/picviz/PVBitset_gnu.h )
+	cmake/FindAPR.cmake | cmake/FindBoost.cmake | cmake/FindDUMBNET.cmake | cmake/FindHDFS.cmake | cmake/FindHWLoc.cmake | cmake/FindICU.cmake | cmake/FindPCAP.cmake | cmake/FindPCRE.cmake | cmake/FindPkgMacros.cmake | cmake/FindTBB.cmake | cmake/FindTULIP3.cmake | cmake/UseJavaClassFilelist.cmake | cmake/UseJava.cmake | cmake/UseJavaSymlinks.cmake | libpicviz/src/include/picviz/PVBitset_gnu.h )
 	    # files not owned by Picviz Labs
 	    ;;
 
