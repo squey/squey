@@ -117,7 +117,7 @@ bool PVHive::PVHive::unregister_func_observer(PVFuncObserverBase& observer, void
 		if (_observables.find(acc, observer._registered_object)) {
 			func_observers_t& fobs(acc->second.func_observers);
 			func_observers_t::const_iterator it_fo, it_fo_e;
-			boost::tie(it_fo, it_fo_e) = fobs.equal_range(f);
+			std::tie(it_fo, it_fo_e) = fobs.equal_range(f);
 			func_observers_t::const_iterator it_to_del = std::find_if(it_fo, it_fo_e, [=,&observer](func_observers_t::value_type const& it) { return it.second == &observer; });
 			if (it_to_del != fobs.end()) {
 				fobs.erase(it_to_del);

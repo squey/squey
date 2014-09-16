@@ -11,13 +11,13 @@
 #include <set>
 #include <list>
 #include <algorithm>
+#include <tuple>
 #include <iterator>
 #include <exception>
 #include <unordered_map>
 
 #include <tbb/concurrent_hash_map.h>
-
-#include <boost/tuple/tuple.hpp>
+#include <tbb/recursive_mutex.h>
 
 #include <pvkernel/core/PVSharedPointer.h>
 #include <pvkernel/core/PVFunctionTraits.h>
@@ -25,8 +25,6 @@
 #include <pvhive/PVObserver.h>
 #include <pvhive/PVFuncObserver.h>
 #include <pvhive/PVActorBase.h>
-
-#include <tbb/recursive_mutex.h>
 
 namespace PVCore {
 class PVDataTreeObjectBase;
@@ -588,7 +586,7 @@ private:
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
 #endif
-		boost::tie(it_fo, it_fo_e) = fobs.equal_range((void*) f);
+		std::tie(it_fo, it_fo_e) = fobs.equal_range((void*) f);
 #ifdef __GNUG__
 #pragma GCC diagnostic pop
 #endif
