@@ -11,7 +11,6 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 
-#include <boost/shared_ptr.hpp>
 #include <QString>
 
 #include <pvkernel/rush/PVInput_types.h>

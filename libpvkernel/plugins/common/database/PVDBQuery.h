@@ -17,7 +17,6 @@
 #include <QSqlQuery>
 #include <QMetaType>
 
-#include <boost/shared_ptr.hpp>
 
 namespace PVRush {
 

@@ -29,8 +29,6 @@
 #include <picviz/cuda/PVMapped_create_table_cuda.h>
 #endif
 
-#include <boost/shared_ptr.hpp>
-
 namespace Picviz {
 
 class PVPlotted;

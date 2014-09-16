@@ -6,6 +6,7 @@
 
 #include "PVInputHDFSServer.h"
 
+#include <memory>
 
 PVRush::PVInputHDFSServer::PVInputHDFSServer(QString const& host, uint16_t port, QString const& user)
 {

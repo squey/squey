@@ -157,7 +157,7 @@ private:
 	inline ZoneInfos const& zone_infos(size_t i) const { assert(i < _d->_zones_infos.size()); return _d->_zones_infos[i]; }
 
 private:
-	boost::shared_ptr<RouterData> _d;
+	std::shared_ptr<RouterData> _d;
 };
 
 }

@@ -51,7 +51,7 @@ private:
 	CLASS_FILTER(Picviz::PVSelectionFilter)
 };
 
-typedef boost::shared_ptr<PVSelectionFilter> PVSelectionFilter_p;
+typedef std::shared_ptr<PVSelectionFilter> PVSelectionFilter_p;
 
 // For this wto work under windows, wez need to export here the PVFilterLibrary for PVLayerFilter
 #ifdef WIN32

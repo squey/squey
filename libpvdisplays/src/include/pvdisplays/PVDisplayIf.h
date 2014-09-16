@@ -150,7 +150,7 @@ class PVDisplayViewIf: public PVDisplayDataTreeIf<Picviz::PVView>, public PVCore
 {
 public:
 	typedef PVDisplayViewIf RegAs;
-	typedef boost::shared_ptr<RegAs> p_type;
+	typedef std::shared_ptr<RegAs> p_type;
 
 public:
 	PVDisplayViewIf(int flags = 0, QString const& tooltip_str = QString(), Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea):
@@ -162,7 +162,7 @@ class PVDisplaySourceIf: public PVDisplayDataTreeIf<Picviz::PVSource>, public PV
 {
 public:
 	typedef PVDisplaySourceIf RegAs;
-	typedef boost::shared_ptr<RegAs> p_type;
+	typedef std::shared_ptr<RegAs> p_type;
 
 public:
 	PVDisplaySourceIf(int flags = 0, QString const& tooltip_str = QString(), Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea):
@@ -243,7 +243,7 @@ public:
 
 public:
 	typedef PVDisplayViewAxisIf RegAs;
-	typedef boost::shared_ptr<RegAs> p_type;
+	typedef std::shared_ptr<RegAs> p_type;
 };
 
 class PVDisplayViewZoneIf: public __impl::PVDisplayViewAxisIf, public PVCore::PVRegistrableClass<PVDisplayViewZoneIf>
@@ -257,7 +257,7 @@ public:
 
 public:
 	typedef PVDisplayViewZoneIf RegAs;
-	typedef boost::shared_ptr<RegAs> p_type;
+	typedef std::shared_ptr<RegAs> p_type;
 };
 
 }

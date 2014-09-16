@@ -16,7 +16,6 @@
 
 #include <picviz/PVSelRowFilteringFunction_types.h>
 
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
@@ -28,12 +27,12 @@ class PVView;
 
 /*! \brief Interface from selection row filtering functions
  */
-class PVSelRowFilteringFunction: public PVCore::PVFunctionArgs<boost::function<void(PVRow, PVView const&, PVView const&, PVSparseSelection&)> >, public PVCore::PVRegistrableClass<PVSelRowFilteringFunction>, public boost::enable_shared_from_this<PVSelRowFilteringFunction>
+class PVSelRowFilteringFunction: public PVCore::PVFunctionArgs<boost::function<void(PVRow, PVView const&, PVView const&, PVSparseSelection&)> >, public PVCore::PVRegistrableClass<PVSelRowFilteringFunction>, public std::enable_shared_from_this<PVSelRowFilteringFunction>
 {
 	typedef PVCore::PVFunctionArgs<boost::function<void(PVRow, PVView const&, PVView const&, PVSparseSelection&)> > fargs_t;
 	typedef PVCore::PVRegistrableClass<PVSelRowFilteringFunction> reg_class_t;
 public:
-	typedef boost::shared_ptr<PVSelRowFilteringFunction> p_type;
+	typedef std::shared_ptr<PVSelRowFilteringFunction> p_type;
 public:
 	PVSelRowFilteringFunction():
 		fargs_t(),

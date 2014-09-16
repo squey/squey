@@ -11,11 +11,11 @@
 
 #include <boost/math/common_factor_rt.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/type_traits.hpp>
 
 #include <list>
 #include <iterator>
 
+#include <type_traits>
 #include <cmath>
 #include <cassert>
 #include <iostream>
@@ -27,8 +27,8 @@ namespace PVCore {
 template <typename T, typename size_type_ = size_t, size_type_ NB = 1000, class Alloc = std::allocator<T> >
 class PVPODTree: protected Alloc::template rebind<unsigned char>::other
 {
-	BOOST_STATIC_ASSERT((boost::is_pod<T>::value));
-	BOOST_STATIC_ASSERT((boost::is_same<typename Alloc::value_type, T>::value));
+	BOOST_STATIC_ASSERT((std::is_pod<T>::value));
+	BOOST_STATIC_ASSERT((std::is_same<typename Alloc::value_type, T>::value));
 public:
 	typedef Alloc allocator_type;
 	typedef typename allocator_type::template rebind<unsigned char>::other allocator_byte;

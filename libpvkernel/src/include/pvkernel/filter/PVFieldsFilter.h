@@ -35,7 +35,7 @@ typedef QHash<QString, PVCol> filter_child_axes_tag_t;
 class PVFieldsBaseFilter: public PVFilterFunction< PVCore::list_fields, PVFieldsBaseFilter >
 {
 public:
-	typedef boost::shared_ptr<PVFieldsBaseFilter> p_type;
+	typedef std::shared_ptr<PVFieldsBaseFilter> p_type;
 	typedef PVFilterFunction< PVCore::list_fields, PVFieldsBaseFilter >::func_type func_type;
 public:
 	PVFieldsBaseFilter() :
@@ -137,7 +137,7 @@ protected:
 
 	// Custom registration functions (CLASS_REGISTRABLE should be used here, but we have issues under Windows)
 public:
-	typedef boost::shared_ptr<FilterT> p_type;
+	typedef std::shared_ptr<FilterT> p_type;
 protected:
 	virtual base_registrable* _clone_me() const { FilterT* ret = new FilterT(*this); return ret; }
 };

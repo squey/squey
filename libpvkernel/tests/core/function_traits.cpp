@@ -11,7 +11,6 @@
 #include <pvkernel/core/PVFunctionTraits.h>
 
 #include <boost/thread.hpp>
-#include <boost/type_traits.hpp>
 
 #include <pvkernel/core/picviz_assert.h>
 

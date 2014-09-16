@@ -12,11 +12,12 @@
 #endif
 
 #include <pvkernel/core/stdint.h>
-#include <boost/shared_ptr.hpp>
+
+#include <memory>
 
 // Taken from Qt's qhash.h
 template <class T>
-inline unsigned int qHash(boost::shared_ptr<T> const& p)
+inline unsigned int qHash(std::shared_ptr<T> const& p)
 {
 	uintptr_t key = (uintptr_t)p.get();
 	if (sizeof(uintptr_t) > sizeof(unsigned int)) {

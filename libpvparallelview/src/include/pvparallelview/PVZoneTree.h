@@ -21,10 +21,10 @@
 #include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/PVZoneTreeBase.h>
 
+#include <memory>
+
 #include <boost/array.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/type_traits.hpp>
 
 #include <tbb/enumerable_thread_specific.h>
 #include <tbb/scalable_allocator.h>
@@ -56,7 +56,7 @@ class PVZoneTree: public PVZoneTreeBase
 	friend class PVSelectionGenerator;
 
 public:
-	typedef boost::shared_ptr<PVZoneTree> p_type;
+	typedef std::shared_ptr<PVZoneTree> p_type;
 
 protected:
 	typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vec_rows_t;

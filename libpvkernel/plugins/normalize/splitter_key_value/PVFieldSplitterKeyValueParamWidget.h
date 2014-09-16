@@ -9,7 +9,6 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
-#include <boost/shared_ptr.hpp>
 
 class QAction;
 class QWidget;

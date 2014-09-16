@@ -20,16 +20,13 @@
 #include <pvkernel/rush/PVNraw.h>
 #include <picviz/PVPtrObjects.h>
 #include <picviz/PVMapped.h>
-#include <boost/shared_ptr.hpp>
 #include <picviz/PVView_types.h>
 #include <picviz/PVPlotting.h>
 #include <picviz/PVSelection.h>
 
-
 #ifdef CUDA
 #include <picviz/cuda/PVPlotted_create_table_cuda.h>
 #endif
-
 
 namespace Picviz {
 
@@ -57,7 +54,7 @@ private:
 			col(0)
 		{ }
 		PVCol col;
-		boost::shared_ptr<PVSelection> sel_p;
+		std::shared_ptr<PVSelection> sel_p;
 		QString type;
 		void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 		{

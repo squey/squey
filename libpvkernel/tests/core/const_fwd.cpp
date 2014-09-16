@@ -1,6 +1,7 @@
 
 #include <pvkernel/core/PVTypeTraits.h>
 #include <iostream>
+#include <sstream>
 
 #include <pvkernel/core/picviz_assert.h>
 

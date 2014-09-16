@@ -23,9 +23,6 @@
 #include <picviz/PVView_types.h>
 #include <picviz/PVScene_types.h>
 
-
-#include <boost/shared_ptr.hpp>
-
 #define PICVIZ_SCENE_ARCHIVE_EXT "pv"
 #define PICVIZ_SCENE_ARCHIVE_FILTER "Picviz project files (*." PICVIZ_SCENE_ARCHIVE_EXT ")"
 

@@ -8,12 +8,13 @@
 #define PVCORE_PVMATRIX_H
 
 #include <pvkernel/core/stdint.h>
-#include <boost/shared_ptr.hpp>
 #include <boost/type_traits/is_pod.hpp>
 #include <boost/bind.hpp>
 #include <vector>
 
 #include <pvkernel/core/PVTypeTraits.h>
+
+#include <cassert>
 
 #include <sys/mman.h>
 #include <stdio.h>

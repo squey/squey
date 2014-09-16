@@ -357,7 +357,7 @@ void PVInspector::PVFormatBuilderWidget::initSplitters() {
         LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::list_classes converters = LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list();
 
         // _list_* is a QHash. Its keys are a QString with the registered name of the class (in our case, "csv", "regexp", etc...).
-        // Its values are a boost::shared_ptr<PVFieldsSplitterParamWidget> or boost::shared_ptr<PVFieldsFilterParamWidget<one_to_one> > object.
+        // Its values are a std::shared_ptr<PVFieldsSplitterParamWidget> or std::shared_ptr<PVFieldsFilterParamWidget<one_to_one> > object.
         // For instance :
         LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes::const_iterator it;
         for (it = splitters.begin(); it != splitters.end(); it++) {

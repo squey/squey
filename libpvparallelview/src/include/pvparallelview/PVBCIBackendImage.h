@@ -21,7 +21,7 @@ namespace PVParallelView {
 class PVBCIBackendImage: boost::noncopyable
 {
 public:
-	typedef boost::shared_ptr<PVBCIBackendImage> p_type;
+	typedef std::shared_ptr<PVBCIBackendImage> p_type;
 
 protected:
 	PVBCIBackendImage(uint32_t width, uint8_t height_bits):

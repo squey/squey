@@ -13,7 +13,6 @@
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/rush/PVInput_types.h>
 #include <QString>
-#include <boost/shared_ptr.hpp>
 
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 

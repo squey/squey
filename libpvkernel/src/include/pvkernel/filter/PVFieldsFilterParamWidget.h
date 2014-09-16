@@ -24,7 +24,7 @@ class LibKernelDecl PVFieldsFilterParamWidgetBase : public QObject, public PVCor
 	Q_OBJECT
 
 public:
-    typedef boost::shared_ptr< PVFieldsFilterParamWidgetBase > p_type;
+    typedef std::shared_ptr< PVFieldsFilterParamWidgetBase > p_type;
 public:
 
     virtual ~PVFieldsFilterParamWidgetBase() {
@@ -60,13 +60,13 @@ signals:
 	void nchilds_changed_Signal();
 };
 
-typedef boost::shared_ptr<PVFieldsFilterParamWidgetBase> PVFieldsFilterParamWidgetBase_p;
+typedef std::shared_ptr<PVFieldsFilterParamWidgetBase> PVFieldsFilterParamWidgetBase_p;
 
 template <PVFilter::fields_filter_type Ttype>
 class PVFieldsFilterParamWidget : public PVFieldsFilterParamWidgetBase {
 public:
     typedef PVFieldsFilterParamWidget<Ttype> RegAs;
-    typedef boost::shared_ptr< PVFieldsFilterParamWidget<Ttype> > p_type;
+    typedef std::shared_ptr< PVFieldsFilterParamWidget<Ttype> > p_type;
 	typedef typename PVFilter::PVFieldsFilter<Ttype>::p_type filter_p;
 public:
 

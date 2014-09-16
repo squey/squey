@@ -12,8 +12,7 @@
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVSerializeObject.h>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
+#include <memory>
 #include <vector>
 #include <QVariant>
 #include <QHash>
@@ -22,7 +21,7 @@ namespace PVCore {
 
 class PVSerializeArchiveOptions;
 
-class LibKernelDecl PVSerializeArchive: public boost::enable_shared_from_this<PVSerializeArchive>
+class LibKernelDecl PVSerializeArchive: public std::enable_shared_from_this<PVSerializeArchive>
 {
 	friend class PVSerializeObject;
 public:
@@ -31,7 +30,7 @@ public:
 		write
 	};
 	typedef uint32_t version_t;
-	typedef QList<boost::shared_ptr<PVSerializeArchiveFixError> > list_errors_t;
+	typedef QList<std::shared_ptr<PVSerializeArchiveFixError> > list_errors_t;
 public:
 	PVSerializeArchive(version_t version);
 	PVSerializeArchive(QString const& dir, archive_mode mode, version_t version);
@@ -40,14 +39,14 @@ public:
 
 protected:
 	PVSerializeArchive(const PVSerializeArchive& obj):
-   		boost::enable_shared_from_this<PVSerializeArchive>(obj)
+		std::enable_shared_from_this<PVSerializeArchive>(obj)
 	{ assert(false); }
 
 public:
 	void open(QString const& dir, archive_mode mode);
 	PVSerializeObject_p get_root();
 	version_t get_version() const;
-	void set_options(boost::shared_ptr<PVSerializeArchiveOptions> options) { _options = options; };
+	void set_options(std::shared_ptr<PVSerializeArchiveOptions> options) { _options = options; };
 	void set_save_everything(bool save_everything) { _save_everything = save_everything; };
 	// Finish function
 	virtual void finish();
@@ -87,7 +86,7 @@ protected:
 	virtual void file(PVSerializeObject const& so, QString const& name, QString& path);
 
 	// Called by PVSerializeObject
-	void repairable_error(boost::shared_ptr<PVSerializeArchiveFixError> const& error);
+	void repairable_error(std::shared_ptr<PVSerializeArchiveFixError> const& error);
 	void error_fixed(PVSerializeArchiveFixError* error);
 
 	QString get_object_path_in_archive(const void* obj_ptr) const;
@@ -110,7 +109,7 @@ protected:
 	QHash<QString, PVSerializeObject_p> _objects;
 
 private:
-	boost::shared_ptr<PVSerializeArchiveOptions> _options;
+	std::shared_ptr<PVSerializeArchiveOptions> _options;
 	bool _save_everything;
 
 	/*! \brief List of the declared repairable errors.

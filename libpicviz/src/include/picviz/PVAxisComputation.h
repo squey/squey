@@ -10,7 +10,7 @@
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace PVRush {
 class PVNraw;
@@ -23,7 +23,7 @@ class PVSource;
 class PVAxisComputation: public PVFilter::PVFilterFunctionBase<bool, PVRush::PVNraw*>, public PVCore::PVRegistrableClass<PVAxisComputation>
 {
 public:
-	typedef boost::shared_ptr<PVAxisComputation> p_type;
+	typedef std::shared_ptr<PVAxisComputation> p_type;
 public:
 	virtual ~PVAxisComputation() { }
 	virtual QString get_human_name() const = 0;

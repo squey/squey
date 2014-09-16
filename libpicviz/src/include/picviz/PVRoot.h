@@ -20,8 +20,6 @@
 #include <picviz/PVRoot_types.h>
 #include <picviz/PVPtrObjects.h> // For PVScene_p
 
-#include <boost/shared_ptr.hpp>
-
 #define PICVIZ_ROOT_ARCHIVE_EXT "pvi"
 #define PICVIZ_ROOT_ARCHIVE_FILTER "Picviz investigation files (*." PICVIZ_ROOT_ARCHIVE_EXT ")"
 
@@ -47,7 +45,7 @@ public:
 	friend class PVScene;
 	friend class PVSource;
 	friend class PVCore::PVSerializeObject;
-	//typedef boost::shared_ptr<PVRoot> p_type;
+	//typedef std::shared_ptr<PVRoot> p_type;
 	typedef std::list<PVAD2GView_p> correlations_t;
 
 public:

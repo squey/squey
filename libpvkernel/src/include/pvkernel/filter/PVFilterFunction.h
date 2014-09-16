@@ -13,7 +13,8 @@
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
+
+#include <memory>
 
 namespace PVFilter {
 
@@ -96,7 +97,7 @@ public:
 	typedef Tout_ Tout;
 	typedef Tin_ Tin;
 	typedef boost::function<Tout(Tin)> func_type;
-	typedef boost::shared_ptr< PVFilterFunctionBase<Tout,Tin> > p_type;
+	typedef std::shared_ptr< PVFilterFunctionBase<Tout,Tin> > p_type;
 	typedef PVFilterFunctionBase<Tout,Tin> base;
 public:
 	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<Tout,Tin>::default_args()):
@@ -119,7 +120,7 @@ public:
 	typedef void Tout;
 	typedef Tin_ Tin;
 	typedef boost::function<void(Tin)> func_type;
-	typedef boost::shared_ptr< PVFilterFunctionBase<void,Tin> > p_type;
+	typedef std::shared_ptr< PVFilterFunctionBase<void,Tin> > p_type;
 	typedef PVFilterFunctionBase<void,Tin> base;
 public:
 	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<void,Tin>::default_args()):
@@ -142,7 +143,7 @@ public:
 	typedef Tout_ Tout;
 	typedef void Tin;
 	typedef boost::function<Tout()> func_type;
-	typedef boost::shared_ptr< PVFilterFunctionBase<Tout,void> > p_type;
+	typedef std::shared_ptr< PVFilterFunctionBase<Tout,void> > p_type;
 	typedef PVFilterFunctionBase<Tout,void> base;
 public:
 	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<Tout,void>::default_args()):
@@ -167,7 +168,7 @@ class PVFilterFunction : public PVFilterFunctionBase<T&,T&>, public PVCore::PVRe
 public:
 	typedef FilterT_ FilterT;
 	typedef FilterT RegAs;
-	typedef boost::shared_ptr< PVFilterFunction<T,FilterT> > p_type;
+	typedef std::shared_ptr< PVFilterFunction<T,FilterT> > p_type;
 	//typedef PVFilterFunction<T,FilterT_> base_registrable;
 	typedef typename PVFilterFunctionBase<T&,T&>::func_type func_type;
 public:

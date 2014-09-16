@@ -15,13 +15,13 @@
 #include <pvkernel/filter/PVChunkFilterCountElts.h>
 #include <pvkernel/filter/PVChunkFilterDumpElts.h>
 #include <pvkernel/rush/PVOutput.h>
-#include <boost/shared_ptr.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 #include <tbb/pipeline.h>
 #include <tbb/tick_count.h>
+
+#include <memory>
 
 #include <QObject>
 #include <QStringList>
@@ -51,7 +51,7 @@ class PVController;
  * Moreover, a "dummy" controller job exists (PVControllerJobDummy). Its wait method returns immediatly. It is used
  * if an invalid job has to be created/returned (used by PVExtractor for instance).
  */
-class LibKernelDecl PVControllerJob : public QObject, public boost::enable_shared_from_this<PVControllerJob>, boost::noncopyable
+class LibKernelDecl PVControllerJob : public QObject, public std::enable_shared_from_this<PVControllerJob>, boost::noncopyable
 {
 friend class PVController;
 
@@ -72,7 +72,7 @@ public:
 		sc_idx_end
 	} stop_cdtion;
 
-	typedef boost::shared_ptr<PVControllerJob> p_type;
+	typedef std::shared_ptr<PVControllerJob> p_type;
 
 private:
 	PVControllerJob();
@@ -172,7 +172,7 @@ signals:
 // This class is a helper in case a "false" job has to be returned, and it won't be waited
 class LibKernelDecl PVControllerJobDummy : public PVControllerJob {
 public:
-	typedef boost::shared_ptr<PVControllerJobDummy> p_type;
+	typedef std::shared_ptr<PVControllerJobDummy> p_type;
 
 public:
 	PVControllerJobDummy() :

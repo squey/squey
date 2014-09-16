@@ -11,7 +11,6 @@
 #include <tbb/atomic.h>
 
 #include <boost/utility.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 

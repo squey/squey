@@ -16,7 +16,7 @@
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVInputType.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <list>
 
 namespace PVRush {
@@ -25,8 +25,8 @@ class LibKernelDecl PVSourceCreator: public PVCore::PVRegistrableClass< PVSource
 {
 public:
 	typedef PVRush::PVRawSourceBase source_t;
-	typedef boost::shared_ptr<source_t> source_p;
-	typedef boost::shared_ptr<PVSourceCreator> p_type;
+	typedef std::shared_ptr<source_t> source_p;
+	typedef std::shared_ptr<PVSourceCreator> p_type;
 public:
 	virtual ~PVSourceCreator() {}
 public:

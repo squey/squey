@@ -14,13 +14,11 @@
 #include <pvkernel/core/PVTypeTraits.h>
 #include <pvkernel/core/PVTypeInfo.h>
 
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/type_traits.hpp>
-
 #include <QDir>
 #include <QSettings>
 
+#include <memory>
+#include <type_traits>
 #include <vector>
 
 namespace PVCore {
@@ -28,12 +26,12 @@ namespace PVCore {
 class PVSerializeArchive;
 class PVSerializeArchiveFixError;
 
-typedef boost::shared_ptr<PVSerializeArchive> PVSerializeArchive_p;
+typedef std::shared_ptr<PVSerializeArchive> PVSerializeArchive_p;
 
 /*! \brief Serialization file error
  * Exception that is thrown when a file error has occured.
  */
-class LibKernelDecl PVSerializeObjectFileError: public PVSerializeArchiveError 
+class LibKernelDecl PVSerializeObjectFileError: public PVSerializeArchiveError
 {
 public:
 	PVSerializeObjectFileError(QFile const& file):
@@ -45,14 +43,14 @@ public:
  *
  * This class is the main helper class used for object serialisation.
  */
-class LibKernelDecl PVSerializeObject: public boost::enable_shared_from_this<PVSerializeObject>
+class LibKernelDecl PVSerializeObject: public std::enable_shared_from_this<PVSerializeObject>
 {
 	friend class PVSerializeArchive;
 	friend class PVSerializeArchiveFixError;
 	friend class PVSerializeArchiveFixAttribute;
 
 public:
-	typedef boost::shared_ptr<PVSerializeObject> p_type;
+	typedef std::shared_ptr<PVSerializeObject> p_type;
 	typedef QHash<QString, p_type> list_childs_t;
 
 protected:
@@ -112,7 +110,7 @@ public:
 	}
 
 	template <class T>
-	QString get_child_path(boost::shared_ptr<T> const& obj) const
+	QString get_child_path(std::shared_ptr<T> const& obj) const
 	{
 		return get_child_path(obj.get());
 	}
@@ -280,7 +278,7 @@ public:
 
 	/*! \brief Declare an error in the archive (while reading it) that can be repaired by further user actions.
 	 */
-	void repairable_error(boost::shared_ptr<PVSerializeArchiveFixError> const& error);
+	void repairable_error(std::shared_ptr<PVSerializeArchiveFixError> const& error);
 
 protected:
 	void error_fixed(PVSerializeArchiveFixError* error);
@@ -306,7 +304,7 @@ private:
 	void call_serialize(T* obj, p_type new_obj, T const* def_v) { call_serialize(*obj, new_obj, def_v); }
 
 	template <typename T>
-	void call_serialize(boost::shared_ptr<T>& obj, p_type new_obj, T const* def_v)
+	void call_serialize(std::shared_ptr<T>& obj, p_type new_obj, T const* def_v)
 	{
 		if (!obj) {
 			assert(!is_writing());
@@ -350,7 +348,7 @@ private:
 	static void* obj_pointer(T& obj) { return &obj; }
 
 	template <typename T>
-	static void* obj_pointer(boost::shared_ptr<T>& obj) { return obj.get(); }
+	static void* obj_pointer(std::shared_ptr<T>& obj) { return obj.get(); }
 
 	template <typename T>
 	void pointer_to_obj(void* p, T& obj)
@@ -360,7 +358,7 @@ private:
 	}
 
 	template <typename T>
-	void pointer_to_obj(void* p, boost::shared_ptr<T>& obj)
+	void pointer_to_obj(void* p, std::shared_ptr<T>& obj)
 	{
 		T* dp = (T*) (p);
 		obj = dp->shared_from_this();

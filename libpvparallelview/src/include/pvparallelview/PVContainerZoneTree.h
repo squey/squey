@@ -25,7 +25,6 @@
 #include <pvparallelview/PVZoneTreeBase.h>
 
 #include <boost/static_assert.hpp>
-#include <boost/type_traits.hpp>
 
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_reduce.h>
@@ -163,7 +162,7 @@ void PVContainerZoneTree<Container>::process_serial_sse(PVZoneProcessing const& 
 		b.int_v = 0;
 		b.s.l = y1 >> (32-NBITS_INDEX);
 		b.s.r = y2 >> (32-NBITS_INDEX);
-		
+
 		_tree[b.int_v].push_back(r);
 		if (_tree[b.int_v].size() == 0 ) {
 			_first_elts[b.int_v] = r;

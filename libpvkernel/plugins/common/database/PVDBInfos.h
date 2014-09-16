@@ -11,7 +11,6 @@
 #include <pvkernel/core/stdint.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
-#include <boost/shared_ptr.hpp>
 
 #include <QSqlDatabase>
 #include <QString>

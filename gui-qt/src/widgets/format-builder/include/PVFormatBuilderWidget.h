@@ -155,7 +155,7 @@ protected:
 	PVRush::PVInputType_p _log_input_type;
 	PVRush::PVSourceCreator_p _log_sc;
 	PVRush::PVRawSourceBase_p _log_source;
-	boost::shared_ptr<PVRush::PVExtractor> _log_extract;
+	std::shared_ptr<PVRush::PVExtractor> _log_extract;
 	PVOptionsWidget* _options_widget;
 	PVGuiQt::PVAxesCombinationWidget* _axes_comb_widget;
 

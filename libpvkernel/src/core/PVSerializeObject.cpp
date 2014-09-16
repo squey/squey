@@ -204,7 +204,7 @@ void PVCore::PVSerializeObject::arguments(QString const& name, PVArgumentList& o
 	}
 }
 
-void PVCore::PVSerializeObject::repairable_error(boost::shared_ptr<PVSerializeArchiveFixError> const& error)
+void PVCore::PVSerializeObject::repairable_error(std::shared_ptr<PVSerializeArchiveFixError> const& error)
 {
 	_parent_ar->repairable_error(error);
 }

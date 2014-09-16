@@ -7,12 +7,12 @@
 #ifndef PICVIZ_PVSELROWFILTERINGFUNCTION_TYPES_H
 #define PICVIZ_PVSELROWFILTERINGFUNCTION_TYPES_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace Picviz {
 
 class PVSelRowFilteringFunction;
-typedef boost::shared_ptr<PVSelRowFilteringFunction> PVSelRowFilteringFunction_p;
+typedef std::shared_ptr<PVSelRowFilteringFunction> PVSelRowFilteringFunction_p;
 
 }
 

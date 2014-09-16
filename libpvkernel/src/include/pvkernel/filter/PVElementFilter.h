@@ -17,7 +17,7 @@ class PVElementFilter: public PVFilterFunctionBase<PVCore::PVElement&, PVCore::P
 {
 public:
 	typedef PVElementFilter FilterT;
-	typedef boost::shared_ptr<PVElementFilter> p_type;
+	typedef std::shared_ptr<PVElementFilter> p_type;
 
 public:
 	PVCore::PVElement& operator()(PVCore::PVElement& in) { return in; }

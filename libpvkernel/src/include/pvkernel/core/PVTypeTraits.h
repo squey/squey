@@ -7,10 +7,10 @@
 #ifndef PVCORE_PVTYPETRAITS_H
 #define PVCORE_PVTYPETRAITS_H
 
-#include <boost/call_traits.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/type_traits.hpp>
+#include <memory>
 #include <type_traits>
+
+#include <boost/call_traits.hpp>
 
 #include <iostream>
 
@@ -19,21 +19,21 @@ namespace PVCore {
 namespace PVTypeTraits {
 
 template <class T>
-struct is_shared_ptr: public boost::false_type
+struct is_shared_ptr: public std::false_type
 { };
 
 template <class T>
-struct is_shared_ptr<boost::shared_ptr<T> >: public boost::true_type
+struct is_shared_ptr<std::shared_ptr<T> >: public std::true_type
 { };
 
 template <class T>
 struct add_shared_ptr
 {
-	typedef boost::shared_ptr<T> type;
+	typedef std::shared_ptr<T> type;
 };
 
 template <class T>
-struct add_shared_ptr<boost::shared_ptr<T> >
+struct add_shared_ptr<std::shared_ptr<T> >
 {
 	typedef T type;
 };
@@ -45,7 +45,7 @@ struct remove_shared_ptr
 };
 
 template <class T>
-struct remove_shared_ptr<boost::shared_ptr<T> >
+struct remove_shared_ptr<std::shared_ptr<T> >
 {
 	typedef T type;
 };
@@ -58,18 +58,18 @@ struct dynamic_pointer_cast
 };
 
 template <class Y, class T>
-struct dynamic_pointer_cast<boost::shared_ptr<Y>, boost::shared_ptr<T> >
+struct dynamic_pointer_cast<std::shared_ptr<Y>, std::shared_ptr<T> >
 {
-	typedef typename boost::shared_ptr<T> org_pointer;
-	typedef typename boost::shared_ptr<Y> result_pointer;
-	static result_pointer cast(org_pointer const& p) { return boost::dynamic_pointer_cast<Y>(p); }
+	typedef typename std::shared_ptr<T> org_pointer;
+	typedef typename std::shared_ptr<Y> result_pointer;
+	static result_pointer cast(org_pointer const& p) { return std::dynamic_pointer_cast<Y>(p); }
 };
 
 // Get a pointer from whatever type
 template <class T>
 struct pointer
 {
-	typedef typename boost::remove_reference<T>::type type_noref;
+	typedef typename std::remove_reference<T>::type type_noref;
 	typedef type_noref* type;
 	static inline type get(type_noref& obj)
 	{
@@ -85,16 +85,16 @@ struct pointer<T*>
 };
 
 template <class T>
-struct pointer<boost::shared_ptr<T> >
+struct pointer<std::shared_ptr<T> >
 {
-	typedef boost::shared_ptr<T> type;
+	typedef std::shared_ptr<T> type;
 	static inline type get(type obj) { return obj; }
 };
 
 template <class T>
-struct pointer<boost::shared_ptr<T>& >
+struct pointer<std::shared_ptr<T>& >
 {
-	typedef boost::shared_ptr<T>& type;
+	typedef std::shared_ptr<T>& type;
 	static inline type get(type obj) { return obj; }
 };
 
@@ -111,10 +111,10 @@ template <class T>
 inline T const* get_pointer(T const* p) { return p; }
 
 template <class T>
-inline T* get_pointer(boost::shared_ptr<T> const& p) { return p.get(); }
+inline T* get_pointer(std::shared_ptr<T> const& p) { return p.get(); }
 
 template <class T>
-inline T const* get_pointer(boost::shared_ptr<T const> const& p) { return p.get(); }
+inline T const* get_pointer(std::shared_ptr<T const> const& p) { return p.get(); }
 
 namespace __impl {
 	template <std::size_t mod>
@@ -145,13 +145,13 @@ struct bigger_than
 template <typename T>
 struct add_pointer_const
 {
-	typedef typename boost::add_pointer<typename boost::add_const<T>::type>::type type;
+	typedef typename std::add_pointer<typename std::add_const<T>::type>::type type;
 };
 
 template <typename T>
 struct add_reference_const
 {
-	typedef typename boost::add_reference<typename boost::add_const<T>::type>::type type;
+	typedef typename std::add_lvalue_reference<typename std::add_const<T>::type>::type type;
 };
 
 // Const forwarder

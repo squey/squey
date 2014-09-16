@@ -10,16 +10,15 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace PVRush {
 
-class PVInputDescription: public boost::enable_shared_from_this<PVInputDescription>
+class PVInputDescription: public std::enable_shared_from_this<PVInputDescription>
 {
 	friend class PVCore::PVSerializeObject;
 public:
-	typedef boost::shared_ptr<PVInputDescription> p_type;
+	typedef std::shared_ptr<PVInputDescription> p_type;
 
 public:
 	virtual ~PVInputDescription() { }

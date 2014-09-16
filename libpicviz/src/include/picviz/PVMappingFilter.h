@@ -41,7 +41,7 @@ class PVLibPicvizDecl PVMappingFilter: public PVFilter::PVFilterFunctionBase<Pic
 {
 public:
 	typedef Picviz::mapped_decimal_storage_type decimal_storage_type;
-	typedef boost::shared_ptr<PVMappingFilter> p_type;
+	typedef std::shared_ptr<PVMappingFilter> p_type;
 	typedef PVMappingFilter FilterT;
 
 public:

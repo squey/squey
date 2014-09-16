@@ -10,13 +10,12 @@
 #include <iostream>
 #include <QCoreApplication>
 
-#include <boost/enable_shared_from_this.hpp>
 
 #include <pvkernel/core/picviz_assert.h>
 
 #include <list>
 
-class PVTestChild: public boost::enable_shared_from_this<PVTestChild>
+class PVTestChild: public std::enable_shared_from_this<PVTestChild>
 {
 	friend class PVCore::PVSerializeObject;
 public:
@@ -133,8 +132,8 @@ public:
 		}
 		_buf.set_buf();
 
-		boost::shared_ptr<PVTestChild> p1(new PVTestChild(1));
-		boost::shared_ptr<PVTestChild> p2(new PVTestChild(2));
+		std::shared_ptr<PVTestChild> p1(new PVTestChild(1));
+		std::shared_ptr<PVTestChild> p2(new PVTestChild(2));
 		_list_p1.push_back(p1);
 		_list_p1.push_back(p2);
 		_list_p2.push_back(p1);
@@ -212,7 +211,7 @@ public:
 		std::cout << "references:" << std::endl;
 		std::cout << "-----------" << std::endl;
 		std::cout << "Original list:" << std::endl;
-		std::list<boost::shared_ptr<PVTestChild> >::const_iterator it_ptr;
+		std::list<std::shared_ptr<PVTestChild> >::const_iterator it_ptr;
 		for (it_ptr = _list_p1.begin(); it_ptr != _list_p1.end(); it_ptr++) {
 			std::cout << it_ptr->get() << std::endl;
 		}
@@ -241,8 +240,8 @@ private:
 	int _a;
 	PVTestChild _child;
 	std::list<PVTestChild> _list_children;
-	std::list<boost::shared_ptr<PVTestChild> > _list_p1;
-	std::list<boost::shared_ptr<PVTestChild> > _list_p2;
+	std::list<std::shared_ptr<PVTestChild> > _list_p1;
+	std::list<std::shared_ptr<PVTestChild> > _list_p2;
 	std::list<int> _list_ints;
 	PVTestBuf _buf;
 };

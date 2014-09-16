@@ -308,7 +308,7 @@ bool PVCore::PVSerializeArchive::object_exists_by_path(QString const& path) cons
 	return _objects.contains(path);
 }
 
-void PVCore::PVSerializeArchive::repairable_error(boost::shared_ptr<PVSerializeArchiveFixError> const& error)
+void PVCore::PVSerializeArchive::repairable_error(std::shared_ptr<PVSerializeArchiveFixError> const& error)
 {
 	_repairable_errors.push_back(error);
 }

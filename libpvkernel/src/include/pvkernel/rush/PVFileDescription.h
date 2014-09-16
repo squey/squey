@@ -78,8 +78,8 @@ protected:
 		else
 		if (!so.is_writing()) {
 			if (!QFileInfo(_path).isReadable()) {
-				boost::shared_ptr<PVCore::PVSerializeArchiveError> exc(new PVCore::PVSerializeArchiveErrorFileNotReadable(_path));
-				boost::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(new PVCore::PVSerializeArchiveFixAttribute(so, exc, "file_path"));
+				std::shared_ptr<PVCore::PVSerializeArchiveError> exc(new PVCore::PVSerializeArchiveErrorFileNotReadable(_path));
+				std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(new PVCore::PVSerializeArchiveFixAttribute(so, exc, "file_path"));
 				so.repairable_error(error);
 			}
 		}

@@ -7,6 +7,8 @@
 #define TBB_PREVIEW_GRAPH_NODES 1
 #include <tbb/flow_graph.h>
 
+#include <cassert>
+
 namespace PVCore {
 class PVHSVColor;
 }

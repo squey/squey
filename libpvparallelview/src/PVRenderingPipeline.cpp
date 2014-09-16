@@ -23,7 +23,7 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 		tbb::flow::unlimited,
 		[&](ZoneRenderingWithColors const& zrc)
 		{
-			PVZoneRenderingBCIBase_p const& zr = boost::static_pointer_cast<PVZoneRenderingBCIBase>(zrc.zr);
+			PVZoneRenderingBCIBase_p const& zr = std::static_pointer_cast<PVZoneRenderingBCIBase>(zrc.zr);
 			PVBCICodeBase* bci_buf = _bci_buffers.get_available_buffer();
 			const size_t n = zr->compute_bci(zrc.colors, bci_buf);
 			return ZoneRenderingWithBCI(zr, bci_buf, n);

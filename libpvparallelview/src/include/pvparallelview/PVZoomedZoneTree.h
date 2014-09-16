@@ -17,8 +17,7 @@
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVTLRBuffer.h>
 
-#include <boost/shared_ptr.hpp>
-
+#include <memory>
 #include <functional>
 
 #include <tbb/tick_count.h>
@@ -849,7 +848,7 @@ private:
 	bool             _initialized;
 };
 
-typedef boost::shared_ptr<PVZoomedZoneTree> PVZoomedZoneTree_p;
+typedef std::shared_ptr<PVZoomedZoneTree> PVZoomedZoneTree_p;
 
 }
 

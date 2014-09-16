@@ -13,9 +13,10 @@
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 #include <tbb/pipeline.h>
+
+#include <memory>
 #include <vector>
 #include <map>
-#include <boost/shared_ptr.hpp>
 
 #define DEFAULT_NUMBER_LINES 1000000
 
@@ -35,7 +36,7 @@ class LibKernelDecl PVAggregator {
 	friend class PVSerializeObject;
 public:
 	typedef std::list<PVRush::PVRawSourceBase_p> list_inputs;
-	typedef boost::shared_ptr<PVAggregator> p_type;
+	typedef std::shared_ptr<PVAggregator> p_type;
 	typedef std::map<chunk_index, list_inputs::iterator> map_source_offsets;
 
 public:

@@ -50,8 +50,8 @@
 namespace tlp {
 
 template <typename T>
-struct StoredType<boost::shared_ptr<T> > {
-	typedef boost::shared_ptr<T> Value;
+struct StoredType<std::shared_ptr<T> > {
+	typedef std::shared_ptr<T> Value;
 	typedef Value ReturnedValue;
 	typedef Value const ReturnedConstValue;
 
@@ -137,7 +137,7 @@ public:
 		}
 
 		// Get weak pointer to the last serialized object of this view
-		boost::weak_ptr<PVCore::PVSerializeObject> view_so = view->get_last_so();
+		std::weak_ptr<PVCore::PVSerializeObject> view_so = view->get_last_so();
 		assert(!view_so.expired());
 		return std::string(qPrintable(view_so.lock()->get_logical_path()));
 	}

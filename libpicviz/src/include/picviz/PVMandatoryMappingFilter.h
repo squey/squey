@@ -40,7 +40,7 @@ typedef std::map<mandatory_mapping_param_type, mandatory_param_value> mandatory_
 class LibPicvizDecl PVMandatoryMappingFilter: public PVFilter::PVFilterFunctionBase<int, mandatory_param_value const&>, public PVCore::PVRegistrableClass<PVMandatoryMappingFilter>
 {
 public:
-	typedef boost::shared_ptr<PVMandatoryMappingFilter> p_type;
+	typedef std::shared_ptr<PVMandatoryMappingFilter> p_type;
 	typedef PVMandatoryMappingFilter FilterT;
 	typedef Picviz::mapped_decimal_storage_type decimal_storage_type;
 

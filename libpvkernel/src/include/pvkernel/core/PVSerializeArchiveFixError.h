@@ -10,7 +10,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVTypeTraits.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <QVariant>
 
@@ -22,7 +22,7 @@ class PVSerializeArchiveError;
 class LibKernelDecl PVSerializeArchiveFixError
 {
 public:
-	PVSerializeArchiveFixError(PVSerializeObject& so, boost::shared_ptr<PVSerializeArchiveError> const& ar_err):
+	PVSerializeArchiveFixError(PVSerializeObject& so, std::shared_ptr<PVSerializeArchiveError> const& ar_err):
 		_so(so),
 		_ar_err(ar_err)
 	{ }
@@ -37,13 +37,13 @@ public:
 	T* exception_as() { return dynamic_cast<typename PVTypeTraits::pointer<T>::type>(_ar_err.get()); }
 protected:
 	PVSerializeObject& _so;
-	boost::shared_ptr<PVSerializeArchiveError> _ar_err;
+	std::shared_ptr<PVSerializeArchiveError> _ar_err;
 };
 
 class LibKernelDecl PVSerializeArchiveFixAttribute: public PVSerializeArchiveFixError
 {
 public:
-	PVSerializeArchiveFixAttribute(PVSerializeObject& so, boost::shared_ptr<PVSerializeArchiveError> const& ar_err, QString const& attribute):
+	PVSerializeArchiveFixAttribute(PVSerializeObject& so, std::shared_ptr<PVSerializeArchiveError> const& ar_err, QString const& attribute):
 		PVSerializeArchiveFixError(so, ar_err),
 		_attribute(attribute)
 	{ }
@@ -55,7 +55,7 @@ private:
 	QString _attribute;
 };
 
-typedef boost::shared_ptr<PVSerializeArchiveFixError> PVSerializeArchiveFixError_p;
+typedef std::shared_ptr<PVSerializeArchiveFixError> PVSerializeArchiveFixError_p;
 
 }
 

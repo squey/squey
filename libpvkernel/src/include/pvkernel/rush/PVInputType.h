@@ -27,7 +27,7 @@ class LibKernelDecl PVInputType: public QObject, public PVCore::PVRegistrableCla
 {
 	Q_OBJECT
 public:
-	typedef boost::shared_ptr<PVInputType> p_type;
+	typedef std::shared_ptr<PVInputType> p_type;
 	// List of inputs description
 	typedef QList<PVInputDescription_p> list_inputs;
 	typedef list_inputs list_inputs_desc;
@@ -95,7 +95,7 @@ public:
 		for (it = inputs.begin(); it != inputs.end(); it++) {
 			descs << human_name_of_input(*it);
 		}
-		return obj.list<list_inputs, boost::shared_ptr<T> >(name, inputs, human_name_serialize(), NULL, descs);
+		return obj.list<list_inputs, std::shared_ptr<T> >(name, inputs, human_name_serialize(), NULL, descs);
 	}
 	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs, PVCore::PVSerializeObject_p so_ref) const
 	{

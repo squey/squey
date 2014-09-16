@@ -16,7 +16,6 @@
 #include <QString>
 #include <QMetaType>
 
-#include <boost/shared_ptr.hpp>
 
 #include <set>
 

@@ -1,14 +1,13 @@
 #ifndef PVPARALLELVIEW_PVZONERENDERING_TYPES_H
 #define PVPARALLELVIEW_PVZONERENDERING_TYPES_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace PVParallelView {
 
 class PVZoneRendering;
-typedef boost::shared_ptr<PVZoneRendering> PVZoneRendering_p;
+typedef std::shared_ptr<PVZoneRendering> PVZoneRendering_p;
 
 }
-
 
 #endif

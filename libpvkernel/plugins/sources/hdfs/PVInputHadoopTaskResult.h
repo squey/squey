@@ -11,7 +11,7 @@
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/rush/PVInput.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "PVChunkAlignHadoop.h"
 #include "PVHadoopTaskResult.h"
@@ -21,7 +21,7 @@ namespace PVRush {
 class PVInputHadoopTaskResult: public PVInput {
 	friend class PVChunkAlignHadoop;
 public:
-	typedef boost::shared_ptr<PVInputHadoopTaskResult> p_type;
+	typedef std::shared_ptr<PVInputHadoopTaskResult> p_type;
 public:
 	PVInputHadoopTaskResult(PVHadoopTaskResult_p task, PVCol nfields):
 		_align(*this,nfields), _last_off(0), _task(task)

@@ -20,7 +20,6 @@
 #include <omp.h>
 
 #include <boost/static_assert.hpp>
-#include <boost/type_traits.hpp>
 
 namespace PVCore {
 

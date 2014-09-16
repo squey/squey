@@ -1,7 +1,7 @@
+
 #include <iostream>
 #include <cassert>
-
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <pvkernel/core/PVSharedPointer.h>
 #include <pvkernel/core/PVWeakPointer.h>
@@ -157,7 +157,7 @@ int main()
 
 	// Test PVSharedPtr creation from a pointer of a derived type
 	Test2* test2_p4 = new Test2();
-	Test1_sp test1_sp5(test2_p4); // Warning: unlikely to boost::shared_ptr, the derived destructor has to be virtual to be called.
+	Test1_sp test1_sp5(test2_p4); // Warning: unlikely to std::shared_ptr, the derived destructor has to be virtual to be called.
 
 	PV_ASSERT_VALID(test1_sp5.get() == test2_p4);
 	std::cout << "test1_sp5.get()=" << test1_sp5.get() << ", test2_p4)=" << test2_p4 << std::endl;

@@ -390,8 +390,8 @@ public:
 		return sort_unique_indexes<L>(axes_combination.get_axis_column_index(column), idxes);
 	}
 
-	boost::weak_ptr<PVCore::PVSerializeObject> get_last_so() const { return _last_so; }
-	void set_last_so(PVCore::PVSerializeObject_p const& so) { _last_so = boost::weak_ptr<PVCore::PVSerializeObject>(so); }
+	std::weak_ptr<PVCore::PVSerializeObject> get_last_so() const { return _last_so; }
+	void set_last_so(PVCore::PVSerializeObject_p const& so) { _last_so = std::weak_ptr<PVCore::PVSerializeObject>(so); }
 
 
 /******************************************************************************
@@ -449,7 +449,7 @@ protected:
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
 	PVRush::PVNraw* _rushnraw_parent;
-	boost::weak_ptr<PVCore::PVSerializeObject> _last_so;
+	std::weak_ptr<PVCore::PVSerializeObject> _last_so;
 	id_t _view_id;
 	PVCol _active_axis;
 	QColor _color;

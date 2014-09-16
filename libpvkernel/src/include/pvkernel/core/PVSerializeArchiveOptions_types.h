@@ -7,12 +7,12 @@
 #ifndef PVCORE_PVSERIALIZEARCHIVEOPTONSTYPES_H
 #define PVCORE_PVSERIALIZEARCHIVEOPTONSTYPES_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace PVCore {
 
 class PVSerializeArchiveOptions;
-typedef boost::shared_ptr<PVSerializeArchiveOptions> PVSerializeArchiveOptions_p;
+typedef std::shared_ptr<PVSerializeArchiveOptions> PVSerializeArchiveOptions_p;
 
 }
 

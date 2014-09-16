@@ -16,7 +16,7 @@ namespace PVFilter {
 class PVFieldsFilterWidget: public PVCore::PVRegistrableClass<PVFieldsFilterWidget>
 {
 public:
-	typedef boost::shared_ptr<PVFieldsFilterWidget> p_type;
+	typedef std::shared_ptr<PVFieldsFilterWidget> p_type;
 public:
 	PVFieldsFilterWidget(PVFilter::fields_filter_type type, QString const& name_filter);
 

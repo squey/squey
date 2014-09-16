@@ -7,9 +7,10 @@
 #ifndef LIBPVHIVE_PVOBSERVER_H
 #define LIBPVHIVE_PVOBSERVER_H
 
-#include <cassert>
 #include <pvhive/PVObserverObjectBase.h>
-#include <boost/shared_ptr.hpp>
+
+#include <memory>
+#include <cassert>
 
 namespace PVHive
 {
@@ -75,7 +76,7 @@ public:
 };
 
 template <typename T>
-using PVObserver_p = boost::shared_ptr<PVObserver<T> >;
+using PVObserver_p = std::shared_ptr<PVObserver<T> >;
 
 }
 

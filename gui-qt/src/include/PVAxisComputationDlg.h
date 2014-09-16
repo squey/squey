@@ -10,7 +10,7 @@
 #include <QDialog>
 #include <pvkernel/core/PVArgument.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <gui-qt/ui/PVAxisComputationDlg.h>
 
@@ -34,7 +34,7 @@ public:
 	PVAxisComputationDlg(Picviz::PVView& view, QWidget* parent = NULL);
 
 public:
-	boost::shared_ptr<Picviz::PVAxisComputation> get_plugin();
+	std::shared_ptr<Picviz::PVAxisComputation> get_plugin();
 
 private:
 	void init_plugins(QComboBox* cb);
@@ -42,7 +42,7 @@ private slots:
 	void update_plugin_args();
 
 private:
-	boost::shared_ptr<Picviz::PVAxisComputation> _cur_plugin;
+	std::shared_ptr<Picviz::PVAxisComputation> _cur_plugin;
 	PVCore::PVArgumentList _plugin_args;
 };
 

@@ -539,7 +539,7 @@ void standard_use_case()
 	//  Test9 - Create an object without parent and then set a parent
 	//////////////////////////////////////////
 #if 0
-	boost::shared_ptr<C> c3(new C());
+	std::shared_ptr<C> c3(new C());
 	c3->set_parent(b3);
 
 	std::cout << "a1:" << std::endl;

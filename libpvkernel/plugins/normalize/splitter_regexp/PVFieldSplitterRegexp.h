@@ -14,8 +14,8 @@
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <boost/thread/tss.hpp>
 #ifdef PROCESS_REGEXP_ICU
-#include <boost/shared_ptr.hpp>
 #include <unicode/regex.h>
+#include <memory>
 #else
 #include <QRegExp>
 #endif
@@ -33,7 +33,7 @@ public:
 	virtual void set_args(PVCore::PVArgumentList const& args);
 protected:
 #ifdef PROCESS_REGEXP_ICU
-	boost::shared_ptr<RegexPattern> _regexp;
+	std::shared_ptr<RegexPattern> _regexp;
 	// We store a pointer to a pointer because, if we only store a pointer to RegexMatcher or RegexPattern,
 	// when boost::thread_specific_ptr will call the destructor function that we would have given us
 	// (that does nothing), it will do so after the unloading of the shared libraries, and our destruction

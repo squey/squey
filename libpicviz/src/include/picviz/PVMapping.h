@@ -22,7 +22,7 @@
 #include <picviz/PVMappingFilter.h>
 #include <picviz/PVMandatoryMappingFilter.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace Picviz {
 
@@ -36,7 +36,7 @@ class LibPicvizDecl PVMapping
 	friend class PVMapped;
 	friend class PVCore::PVSerializeObject;
 public:
-	typedef boost::shared_ptr<PVMapping> p_type;
+	typedef std::shared_ptr<PVMapping> p_type;
 
 public:
 	PVMapping(PVMapped* mapped);

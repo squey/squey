@@ -27,8 +27,6 @@
 
 #include <pvkernel/rush/PVFormat_types.h>
 
-#include <boost/shared_ptr.hpp>
-
 /**
  * \class PVRush::Format
  * \defgroup Format Input Formating

@@ -8,8 +8,10 @@
 #define PVCORE_PVREGISTRABLE_CLASS
 
 //#include <pvkernel/core/general.h>
-#include <boost/shared_ptr.hpp>
 #include <QString>
+
+#include <memory>
+#include <cassert>
 
 namespace PVCore {
 
@@ -93,7 +95,7 @@ class PVRegistrableClass
 	friend class PVCore::PVClassLibrary;
 public:
 	typedef RegAs_ RegAs;
-	typedef boost::shared_ptr< PVRegistrableClass<RegAs_> > p_type;
+	typedef std::shared_ptr< PVRegistrableClass<RegAs_> > p_type;
 	typedef PVRegistrableClass<RegAs_> base_registrable;
 	typedef int reg_id_t;
 public:
@@ -108,14 +110,14 @@ public:
 	 * \sa _clone_me
 	 */
 	template <typename Tc>
-	boost::shared_ptr<Tc> clone() const
+	std::shared_ptr<Tc> clone() const
 	{
 		base_registrable* rc = _clone_me();
 		assert(rc);
 		rc->__registered_class_name = __registered_class_name;
 		Tc* ret = dynamic_cast<Tc*>(rc);
 		assert(ret);
-		return boost::shared_ptr<Tc>(ret);
+		return std::shared_ptr<Tc>(ret);
 	}
 	inline QString const& registered_name() const { return __registered_class_name; }
 	inline reg_id_t registered_id() const { return __registered_class_id; }
@@ -156,13 +158,13 @@ unsigned int qHash(PVRegistrableClass<T> const& rc)
 
 #define CLASS_REGISTRABLE(T) \
 	public:\
-		typedef boost::shared_ptr<T> p_type;\
+		typedef std::shared_ptr<T> p_type;\
 	protected:\
 		virtual T::base_registrable* _clone_me() const { T* ret = new T(*this); return ret; }\
 
 #define CLASS_REGISTRABLE_NOCOPY(T) \
 	public:\
-		typedef boost::shared_ptr<T> p_type;\
+		typedef std::shared_ptr<T> p_type;\
 	protected:\
 		virtual T::base_registrable* _clone_me() const\
 		{\

@@ -11,17 +11,16 @@
 #include <pvkernel/core/stdint.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <hadoop/hdfs.h>
-
 
 namespace PVRush {
 
 class PVInputHDFSServer {
 	friend class PVCore::PVSerializeObject;
 public:
-	typedef boost::shared_ptr<PVInputHDFSServer> p_type;
+	typedef std::shared_ptr<PVInputHDFSServer> p_type;
 public:
 	PVInputHDFSServer(QString const& host, uint16_t port, QString const& user);
 	~PVInputHDFSServer();

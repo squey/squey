@@ -1,11 +1,12 @@
+
 #include <pvkernel/core/PVSharedPointer.h>
 #include <pvkernel/core/PVDataTreeObject.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class Test;
 typedef PVCore::PVSharedPtr<Test> Test_p;
-typedef boost::shared_ptr<Test> Test_p2;
+typedef std::shared_ptr<Test> Test_p2;
 
 struct A { };
 

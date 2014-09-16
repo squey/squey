@@ -12,7 +12,7 @@
 namespace PVRush {
 
 class LibKernelDecl PVRawSourceBase;
-typedef boost::shared_ptr<PVRawSourceBase> PVRawSourceBase_p;
+typedef std::shared_ptr<PVRawSourceBase> PVRawSourceBase_p;
 
 }
 

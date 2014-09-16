@@ -8,11 +8,12 @@
 #define PVHADOOPTASKRESULT_H
 
 #include <boost/asio.hpp>
-#include <boost/shared_ptr.hpp>
+
+#include <memory>
 
 namespace PVRush {
 
-typedef boost::shared_ptr<boost::asio::ip::tcp::socket> socket_ptr;
+typedef std::shared_ptr<boost::asio::ip::tcp::socket> socket_ptr;
 
 class PVHadoopResultServer;
 
@@ -24,7 +25,7 @@ class PVHadoopTaskResult {
 	};
 public:
 	typedef int32_t id_type;
-	typedef boost::shared_ptr<PVHadoopTaskResult> p_type;
+	typedef std::shared_ptr<PVHadoopTaskResult> p_type;
 
 public:
 	~PVHadoopTaskResult();

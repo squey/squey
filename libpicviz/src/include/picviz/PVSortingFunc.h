@@ -11,7 +11,7 @@
 #include <pvkernel/core/PVFunctionArgs.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace PVCore {
 class PVUnicodeString;
@@ -32,7 +32,7 @@ namespace __impl {
 class LibPicvizDecl PVSortingFunc : public PVCore::PVFunctionArgs<__impl::unicode_sorting_comp_func>, public PVCore::PVRegistrableClass<PVSortingFunc>
 {
 public:
-	typedef boost::shared_ptr<PVSortingFunc> p_type;
+	typedef std::shared_ptr<PVSortingFunc> p_type;
 	typedef __impl::unicode_sorting_comp_func f_type;
 	typedef __impl::unicode_sorting_lesser_func flesser_type;
 	typedef __impl::unicode_sorting_equals_func fequals_type;

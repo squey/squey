@@ -77,7 +77,7 @@ public:
 	const QString & get_name() const { return _name; }
 	void set_name(const QString & name) { _name = name; }
 
-	boost::shared_ptr<tlp::Graph> get_graph_serializable() const;
+	std::shared_ptr<tlp::Graph> get_graph_serializable() const;
 
 public:
 	tlp::node add_view(Picviz::PVView *view);

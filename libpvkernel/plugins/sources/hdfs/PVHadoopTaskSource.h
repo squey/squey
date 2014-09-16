@@ -23,7 +23,7 @@ namespace PVRush {
 
 class PVHadoopTaskSource {
 public:
-	typedef boost::shared_ptr<PVHadoopTaskSource> p_type;
+	typedef std::shared_ptr<PVHadoopTaskSource> p_type;
 	typedef tbb::concurrent_queue<PVCore::PVChunk*> list_pchunks;
 
 private:

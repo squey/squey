@@ -7,15 +7,15 @@
 #ifndef PVPARALLELVIEW_PVBCIBACKENDIMAGETYPES_H
 #define PVPARALLELVIEW_PVBCIBACKENDIMAGETYPES_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace PVParallelView {
 
 class PVBCIBackendImage;
-typedef boost::shared_ptr<PVBCIBackendImage> PVBCIBackendImage_p;
+typedef std::shared_ptr<PVBCIBackendImage> PVBCIBackendImage_p;
 
 //template <size_t Bbits>
-//using PVBCIBackendImage_p = boost::shared_ptr<PVBCIBackendImage<Bbits> >;
+//using PVBCIBackendImage_p = std::shared_ptr<PVBCIBackendImage<Bbits> >;
 
 }
 

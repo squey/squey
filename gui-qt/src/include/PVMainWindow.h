@@ -273,7 +273,7 @@ private:
 	bool load_root();
 	bool load_scene(Picviz::PVScene* scene);
 	bool load_source(Picviz::PVSource* src);
-	bool fix_project_errors(boost::shared_ptr<PVCore::PVSerializeArchive> ar);
+	bool fix_project_errors(std::shared_ptr<PVCore::PVSerializeArchive> ar);
 	void flag_investigation_as_cached(const QString& file);
 
 private:

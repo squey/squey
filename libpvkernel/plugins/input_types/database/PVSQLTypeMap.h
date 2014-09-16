@@ -7,7 +7,8 @@
 #ifndef PVSQLTYPEMAP_FILE_H
 #define PVSQLTYPEMAP_FILE_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
+
 #include <QString>
 #include <QHash>
 
@@ -18,7 +19,7 @@ typedef QHash<int, QString> map_type;
 class PVSQLTypeMap
 {
 public:
-	typedef boost::shared_ptr<PVSQLTypeMap> p_type;
+	typedef std::shared_ptr<PVSQLTypeMap> p_type;
 public:
 	static p_type get_map(QString const& driver);
 public:

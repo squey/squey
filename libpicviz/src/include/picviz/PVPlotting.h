@@ -21,7 +21,7 @@
 #include <picviz/PVPtrObjects.h>
 #include <picviz/PVPlottingFilter.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace Picviz {
 
@@ -34,7 +34,7 @@ class LibPicvizDecl PVPlotting {
 	friend class PVCore::PVSerializeObject;
 	friend class PVPlotted;
 public:
-	typedef boost::shared_ptr<PVPlotting> p_type;
+	typedef std::shared_ptr<PVPlotting> p_type;
 public:
 	/**
 	 * Constructor

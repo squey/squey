@@ -21,7 +21,6 @@
 #include <pvkernel/core/general.h>
 
 #include <boost/pool/object_pool.hpp>
-#include <boost/shared_ptr.hpp>
 
 namespace PVCore {
 
@@ -57,7 +56,7 @@ protected:
 
 	class TimeFormat : public TimeFormatInterface {
 		typedef SimpleDateFormat* SimpleDateFormat_p;
-		//typedef boost::shared_ptr<SimpleDateFormat> SimpleDateFormat_p;
+		//typedef std::shared_ptr<SimpleDateFormat> SimpleDateFormat_p;
 	private:
 		UErrorCode _err;
 		bool is_epoch;
@@ -90,9 +89,9 @@ protected:
 		bool to_datetime(UnicodeString const& value, Calendar* cal);
 	};
 
-//	typedef boost::shared_ptr<TimeFormat> TimeFormat_p;
-//	typedef boost::shared_ptr<TimeFormatEpoch> TimeFormatEpoch_p;
-//	typedef boost::shared_ptr<TimeFormatInterface> TimeFormatInterface_p;
+//	typedef std::shared_ptr<TimeFormat> TimeFormat_p;
+//	typedef std::shared_ptr<TimeFormatEpoch> TimeFormatEpoch_p;
+//	typedef std::shared_ptr<TimeFormatInterface> TimeFormatInterface_p;
 	typedef TimeFormat* TimeFormat_p;
 	typedef TimeFormatEpoch* TimeFormatEpoch_p;
 	typedef TimeFormatInterface* TimeFormatInterface_p;
