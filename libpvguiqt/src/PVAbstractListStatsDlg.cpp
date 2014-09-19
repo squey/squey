@@ -669,7 +669,7 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStrin
 	_ctxt_process = new PVGuiQt::PVLayerFilterProcessWidget(lib_view(), _ctxt_args, fclone, _values_view);
 
 	if (hide_dialog) {
-		connect(_ctxt_process, SIGNAL(accepted()), this, SLOT(hide()));
+		connect(_ctxt_process, SIGNAL(accepted()), this, SLOT(close()));
 	}
 
 	if (custom_args.get_edition_flag()) {
