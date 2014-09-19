@@ -1,3 +1,9 @@
+3.4.1 (2014-09-19)
+------------------
+
+This minor release fixes:
+* fix crash in statistics panel
+
 3.4.0 "Atlas" (2014-09-11)
 --------------------------
 
