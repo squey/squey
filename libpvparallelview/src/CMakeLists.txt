@@ -194,8 +194,7 @@ QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 if (CUDA_FOUND)
 	cuda_compile(CUDA_KERNELS cuda/bci_cuda_z24.cu)
 	set(SRC_FILES ${SRC_FILES} ${CUDA_SRC_FILES} ${CUDA_KERNELS})
-	# Specifying libcuda.so path manually because of a bug in cmake 2.8.12 causing FindCUDA to fail detecting properly the library
-	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES} /opt/cuda/lib64/libnpp.so /usr/lib/libcuda.so)
+	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_npp_LIBRARY})
 endif (CUDA_FOUND)
 
 add_library(pvparallelview SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC})

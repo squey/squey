@@ -43,10 +43,13 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
 	set(TBB_USE_DEBUG "1")
 endif()
 
-find_package(CUDA)
-if(CUDA_SDK_ROOT_DIR MATCHES "CUDA_SDK_ROOT_DIR-NOTFOUND")
-  set(CUDA_SDK_ROOT_DIR "/opt/cuda/")
-endif(CUDA_SDK_ROOT_DIR MATCHES "CUDA_SDK_ROOT_DIR-NOTFOUND")
+if (${CMAKE_VERSION} STRLESS 2.8.12.1)
+	# cmake support CUDA 5.5 since 2.8.12.1 because this CUDA version
+	# splitted libnpp.so into 3 sub-librairies
+	find_package(CUDA 5.0 EXACT)
+else()
+	find_package(CUDA 5.0)
+endif()
 
 if(CUDA_FOUND)
 	add_definitions(-DCUDA)

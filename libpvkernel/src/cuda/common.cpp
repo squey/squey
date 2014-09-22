@@ -12,7 +12,6 @@
 void PVCuda::init_cuda()
 {
 #ifdef CUDA
-	//cuInit(0);
 	init_cuda_thread();
 #endif
 }
@@ -20,7 +19,6 @@ void PVCuda::init_cuda()
 void PVCuda::init_cuda_thread()
 {
 #ifdef CUDA
-	cuInit(0);
 	//picviz_verify_cuda(cudaSetDevice(DEV_CUDA)); // Tesla
 	//picviz_verify_cuda(cudaSetDeviceFlags(cudaDeviceMapHost));
 #endif
@@ -53,7 +51,6 @@ void PVCuda::visit_usable_cuda_devices(std::function<void(int)> const& f)
 void PVCuda::init_gl_cuda()
 {
 #ifdef CUDA
-	cuInit(0);
 	picviz_verify_cuda(cudaGLSetGLDevice(DEV_CUDA)); // Tesla
 	//picviz_verify_cuda(cudaSetDeviceFlags(cudaDeviceMapHost));
 #endif
