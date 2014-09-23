@@ -5,6 +5,11 @@ project(picviz-inspector)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 cmake_policy(SET CMP0002 OLD)
 
+# this policy remains to "OLD" until the release process uses cmake 3.x
+if(POLICY  CMP0026)
+	cmake_policy(SET CMP0026 OLD)
+endif()
+
 include(CTest)
 
 include(CheckIncludeFiles)
