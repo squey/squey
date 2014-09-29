@@ -1,3 +1,9 @@
+3.4.2 (2014-09-19)
+------------------
+
+This minor release fixes:
+* fix empty selection when doing a "search for this value" on range picked selection in statistic views
+
 3.4.1 (2014-09-19)
 ------------------
 
