@@ -419,7 +419,7 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 
 	if (act) {
 		QStringList values;
-		for (const auto& item : _values_view->selectionModel()->selectedRows(0)) {
+		for (const auto& item : _values_view->selectionModel()->selection().indexes()) {
 			values.append(item.data().toString());
 		}
 
@@ -773,7 +773,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	/* as a selection is never sorted, we have to do it ourselves to have
 	 * the values in the same order than the view's one
 	 */
-	QModelIndexList indexes = _values_view->selectionModel()->selectedRows(0);
+	QModelIndexList indexes = _values_view->selectionModel()->selection().indexes();
 	qSort(indexes.begin(), indexes.end(), [](const QModelIndex& a, const QModelIndex& b) -> bool { return a.row() < b.row(); });
 
 	for(QModelIndex const & index : indexes) {
@@ -835,7 +835,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 {
 	/* first, we have to check if there is enough free space for new layers
 	 */
-	QModelIndexList indexes = _values_view->selectionModel()->selectedRows(0);
+	QModelIndexList indexes = _values_view->selectionModel()->selection().indexes();
 
 	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
 	Picviz::PVLayerStack& ls = view_sp->get_layer_stack();
