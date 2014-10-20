@@ -158,7 +158,12 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(
 
 	// Export selected lines
 	bool ret = PVCore::PVProgressBox::progress([&]() {
-		for (; start < nrows ;) {
+		while (true) {
+			start = sel.find_next_set_bit(start, nrows);
+			step_count = std::min(step_count, nrows - start);
+			if (start == PVROW_INVALID_VALUE) {
+				break;
+			}
 			nraw.export_lines(stream, sel, column_indexes, start, step_count, sep_char, quote_char);
 			start += step_count;
 			if (pbox.get_cancel_state() != PVCore::PVProgressBox::CONTINUE) {

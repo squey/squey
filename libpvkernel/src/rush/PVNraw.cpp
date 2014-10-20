@@ -244,8 +244,6 @@ void PVRush::PVNraw::export_lines(
 	const QString quote_char /* = default_quote_char */
 ) const
 {
-	PVRow nrows = get_number_rows();
-	assert(nrows > 0);
 #ifndef NDEBUG
 	PVCol ncols = get_number_cols();
 	assert(ncols > 0);
@@ -260,11 +258,10 @@ void PVRush::PVNraw::export_lines(
 		}
 	}
 
-	for (PVRow line_index = start_index; line_index < nrows; line_index++) {
+	for (PVRow line_index = start_index; line_index < start_index + step_count; line_index++) {
 		if (!sel.get_line_fast(line_index)) {
 			continue;
 		}
-
 		if (nrows_counter == step_count) {
 			return;
 		}

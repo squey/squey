@@ -103,5 +103,5 @@ int main(int argc, char** argv)
 	// Remove nraw folder
 	PVCore::PVDirectory::remove_rec(delete_nraw_parent_dir ? nraw_dir.path() : QString(nraw.get_nraw_folder().c_str()));
 
-	return !same_content;
+	return (!same_content)*5;
 }
