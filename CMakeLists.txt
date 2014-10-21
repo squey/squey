@@ -97,6 +97,11 @@ add_custom_target(testsuite DEPENDS ${__TESTS_TARGETS})
 # JBL's special request
 add_custom_target(love DEPENDS testsuite)
 
+message(STATUS "ICU found: " ${ICU_FOUND})
+if(ICU_FOUND)
+  message(STATUS "ICU include: ${ICU_INCLUDE}")
+  message(STATUS "ICU libraries: ${ICU_LIBRARY}")
+endif(ICU_FOUND)
 
 message(STATUS "CUDA found: " ${CUDA_FOUND})
 if(CUDA_FOUND)
