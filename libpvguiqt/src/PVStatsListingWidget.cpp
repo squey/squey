@@ -97,6 +97,11 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_real_output_selection(); }, *obs_sel);
 	obs_sel->connect_refresh(this, SLOT(selection_changed()));
 
+	// Observe layerstack to handle automatic refresh mode
+	PVHive::PVObserverSignal<Picviz::PVLayer>* obs_layer = new PVHive::PVObserverSignal<Picviz::PVLayer>();
+	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& v) { return &v.get_output_layer(); }, *obs_layer);
+	obs_layer->connect_refresh(this, SLOT(selection_changed()));
+
 	// Observer axes combination changes
 	PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t>* obs_axes_comb = new PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t>;
 	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); }, *obs_axes_comb);
