@@ -779,13 +779,21 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	QModelIndexList indexes = _values_view->selectionModel()->selection().indexes();
 	qSort(indexes.begin(), indexes.end(), [](const QModelIndex& a, const QModelIndex& b) -> bool { return a.row() < b.row(); });
 
+	QStringList value_names;
+
 	for(const auto& index : indexes) {
 		if (index.column() != 0) {
 			continue;
 		}
-		sl += index.data().toString();
+		QString s = index.data().toString();
+		sl += s;
+		if (s.isEmpty()) {
+			value_names += "(empty)";
+		} else {
+			value_names += s;
+		}
 	}
-	text.replace("%v", sl.join(","));
+	text.replace("%v", value_names.join(","));
 
 	/*
 	 * The process is little bit heavy:
@@ -911,7 +919,12 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 			continue;
 		}
 		QString layer_name(text);
-		layer_name.replace("%v", index.data().toString());
+		QString s = index.data().toString();
+		if (s.isEmpty()) {
+			layer_name.replace("%v", "(empty)");
+		} else {
+			layer_name.replace("%v", s);
+		}
 
 		QStringList sl;
 		sl.append(index.data().toString());
