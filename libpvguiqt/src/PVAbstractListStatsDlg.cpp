@@ -419,8 +419,11 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 
 	if (act) {
 		QStringList values;
-		for (const auto& item : _values_view->selectionModel()->selection().indexes()) {
-			values.append(item.data().toString());
+		for (const auto& index : _values_view->selectionModel()->selection().indexes()) {
+			if (index.isValid() == false) {
+				continue;
+			}
+			values.append(index.data().toString());
 		}
 
 		multiple_search(act, values);
@@ -776,7 +779,10 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	QModelIndexList indexes = _values_view->selectionModel()->selection().indexes();
 	qSort(indexes.begin(), indexes.end(), [](const QModelIndex& a, const QModelIndex& b) -> bool { return a.row() < b.row(); });
 
-	for(QModelIndex const & index : indexes) {
+	for(const auto& index : indexes) {
+		if (index.isValid() == false) {
+			continue;
+		}
 		sl += index.data().toString();
 	}
 	text.replace("%v", sl.join(","));
@@ -900,7 +906,11 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	qSort(indexes.begin(), indexes.end(), [](const QModelIndex& a, const QModelIndex& b) -> bool { return a.row() < b.row(); });
 
 	int offset = 1;
-	for(QModelIndex const & index : indexes) {
+	for(const auto& index : indexes) {
+		if (index.isValid() == false) {
+			continue;
+		}
+
 		QString layer_name(text);
 		layer_name.replace("%v", index.data().toString());
 
