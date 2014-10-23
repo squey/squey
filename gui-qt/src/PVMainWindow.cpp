@@ -425,7 +425,13 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView* pi
 
 	actor.call<FUNC(Picviz::PVView::add_new_layer)>(name);
 	Picviz::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
-	actor.call<FUNC(Picviz::PVView::commit_selection_to_layer)>(layer);
+
+	// We need to configure the layer
+	view_sp->commit_selection_to_layer(layer);
+	actor.call<FUNC(Picviz::PVView::compute_layer_min_max)>(layer);
+	actor.call<FUNC(Picviz::PVView::compute_selectable_count)>(layer);
+	// and to update the layer-stack
+	actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 }
 
 /******************************************************************************

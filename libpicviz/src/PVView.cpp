@@ -275,11 +275,6 @@ void Picviz::PVView::commit_selection_to_layer(PVLayer& new_layer)
 	/* We set it's selection to the final selection */
 	set_selection_with_final_selection(new_layer.get_selection());
 	output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(new_layer.get_lines_properties(), new_layer.get_selection(), row_count);
-
-	/* We need to reprocess the layer stack */
-	compute_layer_min_max(new_layer);
-	compute_selectable_count(new_layer);
-	process_from_layer_stack();
 }
 
 void Picviz::PVView::commit_volatile_in_floating_selection()

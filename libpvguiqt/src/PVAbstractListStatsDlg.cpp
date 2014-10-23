@@ -820,7 +820,13 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	Picviz::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
 	int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
 	actor.call<FUNC(Picviz::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
-	actor.call<FUNC(Picviz::PVView::commit_selection_to_layer)>(layer);
+
+	// We need to configure the layer
+	view_sp->commit_selection_to_layer(layer);
+	actor.call<FUNC(Picviz::PVView::compute_layer_min_max)>(layer);
+	actor.call<FUNC(Picviz::PVView::compute_selectable_count)>(layer);
+	// and to update the layer-stack
+	actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 
 	if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
 		int insert_pos;
@@ -934,8 +940,11 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 		Picviz::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
 		int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
 		actor.call<FUNC(Picviz::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
-		actor.call<FUNC(Picviz::PVView::commit_selection_to_layer)>(layer);
 
+		// We need to configure the layer
+		view_sp->commit_selection_to_layer(layer);
+		actor.call<FUNC(Picviz::PVView::compute_layer_min_max)>(layer);
+		actor.call<FUNC(Picviz::PVView::compute_selectable_count)>(layer);
 
 		if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
 			int insert_pos;
@@ -955,6 +964,9 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 		actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
 		++offset;
 	}
+
+	// we can update the layer-stack once all layers have been created
+	actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 }
 
 /******************************************************************************
