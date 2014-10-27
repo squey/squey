@@ -280,8 +280,9 @@ void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
 	int new_count = _listing_view->lib_view().get_axes_count();
 	int delta = new_count - old_count;
 	if (delta > 0) {
-		for (int row=0; row < _stats_panel->rowCount(); row++) {
-			for (PVCol col=old_count-1; col < new_count-1; col++) {
+		for (PVCol col=old_count-1; col < new_count-1; col++) {
+			_stats_panel->insertColumn(col);
+			for (int row=0; row < _stats_panel->rowCount(); row++) {
 				create_item<__impl::PVUniqueValuesCellWidget>(row, col);
 			}
 		}
