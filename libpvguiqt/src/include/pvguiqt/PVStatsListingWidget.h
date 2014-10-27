@@ -72,7 +72,7 @@ private:
 	void init_plugins();
 
 	template <typename T>
-	void init_plugin(QString header_text, bool visible = false)
+	int init_plugin(QString header_text, bool visible = false)
 	{
 		int row = _stats_panel->rowCount();
 		_stats_panel->insertRow(row);
@@ -87,6 +87,7 @@ private:
 		}
 
 		//_stats_panel->verticalHeaderItem(row)->setToolTip("Refresh all");
+		return row;
 	}
 
 	template <typename T>
@@ -125,6 +126,12 @@ private:
 	int _old_maximum_width;
 	bool _maxed = false;
 	QMenu* _vhead_ctxt_menu;
+
+	int _row_distinct;
+	int _row_sum;
+	int _row_min;
+	int _row_max;
+	int _row_avg;
 };
 
 namespace __impl

@@ -166,11 +166,11 @@ void PVGuiQt::PVStatsListingWidget::init_plugins()
 		_stats_panel->insertColumn(col);
 	}
 
-	init_plugin<__impl::PVUniqueValuesCellWidget>("distinct\nvalues", /* visible = */ true );
-	init_plugin<__impl::PVSumCellWidget>("sum", /* visible = */ false);
-	init_plugin<__impl::PVMinCellWidget>("min", /* visible = */ false);
-	init_plugin<__impl::PVMaxCellWidget>("max", /* visible = */ false);
-	init_plugin<__impl::PVAverageCellWidget>("avg", /* visible = */ false);
+	_row_distinct = init_plugin<__impl::PVUniqueValuesCellWidget>("distinct\nvalues", /* visible = */ true );
+	_row_sum = init_plugin<__impl::PVSumCellWidget>("sum", /* visible = */ false);
+	_row_min = init_plugin<__impl::PVMinCellWidget>("min", /* visible = */ false);
+	_row_max = init_plugin<__impl::PVMaxCellWidget>("max", /* visible = */ false);
+	_row_avg = init_plugin<__impl::PVAverageCellWidget>("avg", /* visible = */ false);
 
 	for (PVCol col=0; col < _listing_view->horizontalHeader()->count(); col++) {
 		_stats_panel->setColumnWidth(col, _listing_view->horizontalHeader()->sectionSize(col));
@@ -282,9 +282,11 @@ void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
 	if (delta > 0) {
 		for (PVCol col=old_count-1; col < new_count-1; col++) {
 			_stats_panel->insertColumn(col);
-			for (int row=0; row < _stats_panel->rowCount(); row++) {
-				create_item<__impl::PVUniqueValuesCellWidget>(row, col);
-			}
+			create_item<__impl::PVUniqueValuesCellWidget>(_row_distinct, col);
+			create_item<__impl::PVSumCellWidget>(_row_sum, col);
+			create_item<__impl::PVMinCellWidget>(_row_min, col);
+			create_item<__impl::PVMaxCellWidget>(_row_max, col);
+			create_item<__impl::PVAverageCellWidget>(_row_avg, col);
 		}
 	}
 	else {
