@@ -1,3 +1,14 @@
+3.4.3 (2014-10-29)
+------------------
+
+This minor release fixes:
+* export selection: in some cases, some lines were exported several times
+* parallel views: zombies lines were not set in black when creating a layer
+* statistics dialogs: empty layers being created
+* statistics panel: cells were not reset when changing layer
+* axes combination: adding new axes make the application crash
+* zoomed parallel view: crash when changing axes too quickly
+
 3.4.2 (2014-09-19)
 ------------------
 
