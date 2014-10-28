@@ -95,7 +95,13 @@ public:
 			zr_in = std::get<0>(in.result);
 		}
 
-		const uint32_t zone_id = zr_in->get_zone_id();
+		const PVZoneID zone_id = zr_in->get_zone_id();
+
+		if (zone_id == PVZONEID_INVALID) {
+			std::get<OutIdxCancel>(op).try_put(zr_in);
+			return;
+		}
+
 		ZoneInfos& infos = zone_infos(zone_id);
 		switch (infos.state) {
 			case ZoneStateInvalid:
