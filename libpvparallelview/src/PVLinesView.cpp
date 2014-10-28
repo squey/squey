@@ -458,7 +458,7 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(PVZoneID zone_id, 
 		{
 			return this->get_zones_manager().get_zone_tree<PVZoneTree>(zone_id).browse_tree_bci(colors, codes);
 		},
-		*single_zone_images.bg,
+		single_zone_images.bg,
 		0,
 		width,
 		zoom_y,
@@ -497,7 +497,7 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(PVZoneID zone_id,
 		{
 			return this->get_zones_manager().get_zone_tree<PVZoneTree>(zone_id).browse_tree_bci_sel(colors, codes);
 		},
-		*single_zone_images.sel,
+		single_zone_images.sel,
 		0,
 		width,
 		zoom_y,

@@ -16,10 +16,10 @@ public:
 	typedef PVZoneRenderingBCIBase_p p_type;
 
 public:
-	PVZoneRenderingBCIBase(PVZoneID zone_id, bci_func_type const& f_bci, PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, float zoom_y = 1.0f, bool reversed = false):
+	PVZoneRenderingBCIBase(PVZoneID zone_id, bci_func_type const& f_bci, PVBCIBackendImage_p& dst_img, uint32_t x_start, size_t width, float zoom_y = 1.0f, bool reversed = false):
 		PVZoneRendering(zone_id),
 		_f_bci(f_bci),
-		_dst_img(&dst_img),
+		_dst_img(dst_img),
 		_width(width),
 		_x_start(x_start),
 		_zoom_y(zoom_y),
@@ -42,17 +42,17 @@ public:
 	inline float render_zoom_y() const { return _zoom_y; }
 	inline bool render_reversed() const { return _reversed; }
 
-	inline void set_dst_img(PVBCIBackendImage& dst_img) { assert(finished()); _dst_img = &dst_img; }
+	inline void set_dst_img(PVBCIBackendImage_p& dst_img) { assert(finished()); _dst_img = dst_img; }
 	inline void set_img_width(uint32_t w) { assert(finished()); _width = w; }
 	inline void set_img_x_start(uint32_t x) { assert(finished()); _x_start = x; }
 
-	inline bool valid() const { return PVZoneRendering::valid() && _width != 0 && _dst_img != nullptr; }
+	inline bool valid() const { return PVZoneRendering::valid() && _width != 0 && _dst_img.get() != nullptr; }
 
 protected:
 	inline size_t compute_bci(PVCore::PVHSVColor const* colors, PVBCICodeBase* codes) const { return _f_bci(get_zone_id(), colors, codes); }
 	inline void render_bci(PVBCIDrawingBackend& backend, PVBCICodeBase* codes, size_t n, std::function<void()> const& render_done = std::function<void()>())
 	{
-		backend(*_dst_img, img_x_start(), img_width(), codes, n, render_zoom_y(), render_reversed(), render_done);
+		backend(_dst_img, img_x_start(), img_width(), codes, n, render_zoom_y(), render_reversed(), render_done);
 	}
 
 private:
@@ -61,7 +61,7 @@ private:
 	bci_func_type _f_bci;
 
 	// Dst image parameters
-	PVBCIBackendImage* _dst_img;
+	PVBCIBackendImage_p _dst_img;
 	size_t _width;
 	uint32_t _x_start;
 	float _zoom_y;
@@ -75,7 +75,7 @@ class PVZoneRenderingBCI: public PVZoneRenderingBCIBase
 {
 public:
 	template <class Fbci>
-	PVZoneRenderingBCI(PVZoneID zone_id, Fbci const& f_bci, PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, float zoom_y = 1.0f, bool reversed = false):
+	PVZoneRenderingBCI(PVZoneID zone_id, Fbci const& f_bci, PVBCIBackendImage_p& dst_img, uint32_t x_start, size_t width, float zoom_y = 1.0f, bool reversed = false):
 		PVZoneRenderingBCIBase(zone_id,
 			[=](PVZoneID z, PVCore::PVHSVColor const* colors, PVBCICodeBase* codes)
 				{

@@ -194,12 +194,12 @@ PVParallelView::PVBCIBackendImage_p PVParallelView::PVBCIDrawingBackendCUDA::cre
 	return ret;
 }
 
-void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage& dst_img, size_t x_start, size_t width, PVBCICodeBase* codes, size_t n, const float zoom_y, bool reverse, std::function<void()> const& render_done)
+void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage_p& dst_img, size_t x_start, size_t width, PVBCICodeBase* codes, size_t n, const float zoom_y, bool reverse, std::function<void()> const& render_done)
 {
 #ifdef NBDEUG
-	backend_image_t* dst_img_cuda = static_cast<backend_image_t*>(&dst_img);
+	backend_image_t* dst_img_cuda = static_cast<backend_image_t*>(dst_img.get());
 #else
-	backend_image_t* dst_img_cuda = dynamic_cast<backend_image_t*>(&dst_img);
+	backend_image_t* dst_img_cuda = dynamic_cast<backend_image_t*>(dst_img.get());
 	assert(dst_img_cuda != NULL);
 #endif
 	//assert(x_start + width <= (size_t) dst_img_cuda->width());
@@ -214,7 +214,7 @@ void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage& dst_
 	cudaStream_t stream = dev.stream;
 
 	picviz_verify_cuda(cudaMemcpyAsync(dev.device_codes, codes, n*sizeof(codes), cudaMemcpyHostToDevice, stream));
-	switch (dst_img.height_bits()) {
+	switch (dst_img->height_bits()) {
 		case 10:
 			cuda_kernel<10>::launch(&dev.device_codes->as<10>(), n, width, dst_img_cuda->device_img(), dst_img_cuda->org_width(), x_start, zoom_y, stream, reverse);
 			break;

@@ -636,7 +636,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					                                                                    zoom_level, image_width,
 					                                                                    colors, codes, beta);
 				                              },
-				                              *_left_zone->bg_image,
+				                              _left_zone->bg_image,
 				                              0, // x_start
 				                              image_width,
 				                              alpha, // zoom_y
@@ -661,7 +661,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					                                                                zoom_level, image_width,
 					                                                                colors, codes, beta);
 			                              },
-			                              *_left_zone->sel_image,
+			                              _left_zone->sel_image,
 			                              0, // x_start
 			                              image_width,
 			                              alpha, // zoom_y
@@ -688,7 +688,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					                                                                    zoom_level, image_width,
 					                                                                    colors, codes, beta);
 				                              },
-				                              *_right_zone->bg_image,
+				                              _right_zone->bg_image,
 				                              0, // x_start
 				                              image_width,
 				                              alpha, // zoom_y
@@ -713,7 +713,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					                                                                zoom_level, image_width,
 					                                                                colors, codes, beta);
 			                              },
-			                              *_right_zone->sel_image,
+			                              _right_zone->sel_image,
 			                              0, // x_start
 			                              image_width,
 			                              alpha, // zoom_y

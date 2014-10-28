@@ -214,7 +214,7 @@ public:
 	}
 
 private:
-	void draw_bci(backend_image_t& dst_img, uint32_t x_start, size_t width, bci_codes_t* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false)
+	void draw_bci(backend_image_p_t& dst_img, uint32_t x_start, size_t width, bci_codes_t* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false)
 	{
 		(*_draw_backend)(dst_img, x_start, width, codes, n, zoom_y, reverse);
 	}
