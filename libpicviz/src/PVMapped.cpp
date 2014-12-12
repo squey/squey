@@ -174,7 +174,7 @@ void Picviz::PVMapped::finish_process_from_rush_pipeline()
 		plotted->finish_process_from_rush_pipeline();
 	}
 
-	compute_unique_values();
+	//compute_unique_values();
 }
 
 void Picviz::PVMapped::compute_unique_values()
