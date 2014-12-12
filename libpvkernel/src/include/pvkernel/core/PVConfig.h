@@ -38,6 +38,8 @@ public:
 	 */
 	QSettings& config() const;
 
+	static QString username();
+
 private:
 	// private stuffs for a singleton declaration
 	PVConfig();
@@ -51,6 +53,7 @@ public:
 private:
 	static PVConfig_p  _pvconfig;
 	QSettings         *_config;
+	QString            _username;
 };
 
 }

@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
 	splash.repaint();
 	app.processEvents();
 #endif
-	PVRush::PVNrawCacheManager::get()->delete_unused_cache();
+	PVRush::PVNrawCacheManager::get().delete_unused_cache();
 
 #ifndef NO_MAIN_WINDOW
 	task_label->setText(QObject::tr("Finishing initialization..."));

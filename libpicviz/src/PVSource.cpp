@@ -19,6 +19,7 @@
 #include <pvkernel/rush/PVRawSource.h>
 #include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVControllerJob.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 
 #include <picviz/general.h>
 #include <picviz/PVScene.h>
@@ -425,11 +426,14 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	_extractor.set_last_nlines(nlines);
 
 	so.attribute("nraw_path", _nraw_folder, QString());
+
 	if (_nraw_folder.isEmpty() == false) {
-		QFileInfo fi(_nraw_folder);
-		if (!fi.exists()) {
-			_nraw_folder = QString();
-		} else if (fi.isDir() == false) {
+		QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() + QFileInfo(_nraw_folder).fileName();
+		QFileInfo fi(user_based_nraw_dir);
+		if (fi.exists() == true && fi.isDir() == true) {
+			_nraw_folder = user_based_nraw_dir;
+		}
+		else {
 			_nraw_folder = QString();
 		}
 	}

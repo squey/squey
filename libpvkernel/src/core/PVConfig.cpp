@@ -9,7 +9,9 @@
 #include <pvkernel/core/PVConfig.h>
 
 #include <QDir>
+#include <QDirIterator>
 #include <QSettings>
+#include <iostream>
 
 #define GLOBAL_CONFIG_FILENAME "pvconfig.ini"
 #define CONFIG_FILENAME "config.ini"
@@ -48,6 +50,8 @@ PVCore::PVConfig::PVConfig()
 	}
 
 	_config = new QSettings(fi.filePath(), QSettings::IniFormat);
+
+	_username = qgetenv("USER");
 }
 
 /*****************************************************************************
@@ -90,4 +94,9 @@ QString PVCore::PVConfig::get_lists_dir() const
 QSettings& PVCore::PVConfig::config() const
 {
 	return *_config;
+}
+
+QString PVCore::PVConfig::username()
+{
+	return get()._username;
 }

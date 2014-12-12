@@ -4,7 +4,7 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#include <pvkernel/core/PVConfig.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVNrawException.h>
@@ -48,10 +48,8 @@ PVRush::PVNraw::~PVNraw()
 
 void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
 {
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
-
 	// Generate random path
-	QString nraw_dir_base = pvconfig.value(config_nraw_tmp, default_tmp_path).toString() + QDir::separator() + nraw_tmp_pattern;
+	QString nraw_dir_base = PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() + nraw_tmp_pattern;
 	QByteArray nstr = nraw_dir_base.toLocal8Bit();
 	if (mkdtemp(nstr.data()) == nullptr) {
 		throw PVNrawException(QObject::tr("unable to create temporary directory ") + nraw_dir_base);
@@ -190,6 +188,9 @@ bool PVRush::PVNraw::load_from_disk(const std::string& nraw_folder, PVCol ncols)
 	return true;
 }
 
+//#define EXPORT_LINE_PARALLEL_REDUCE
+
+#ifdef EXPORT_LINE_PARALLEL_REDUCE
 QString PVRush::PVNraw::export_line(
 	PVRow idx,
 	PVCore::PVColumnIndexes col_indexes /* = PVCore::PVColumnIndexes() */,
@@ -233,6 +234,55 @@ QString PVRush::PVNraw::export_line(
 
 	return line;
 }
+#else
+QString PVRush::PVNraw::export_line(
+	PVRow idx,
+	PVCore::PVColumnIndexes col_indexes /* = PVCore::PVColumnIndexes() */,
+	const QString sep_char /* = default_sep_char */,
+	const QString quote_char /* = default_quote_char */
+) const
+{
+	static QString escaped_quote("\\" + quote_char);
+
+	size_t column_count = col_indexes.size() ? col_indexes.size() : get_number_cols();
+	if (col_indexes.size() == 0) {
+		for (size_t i = 0; i < column_count; i++) {
+			col_indexes.push_back(i);
+		}
+	}
+
+	QStringList fields;
+	fields.reserve(column_count);
+	for (size_t i = 0; i < column_count; i++) {
+		fields.append("");
+	}
+	tbb::parallel_for(
+		tbb::blocked_range<size_t>(tbb::blocked_range<size_t>(0, column_count, 1)),
+		[&](tbb::blocked_range<size_t> const& range) {
+
+			for (size_t c = range.begin(); c < range.end(); c++) {
+				size_t col = col_indexes[c];
+
+				assert(idx < get_number_rows());
+				QString v(at(idx, col));
+
+				PVRush::PVUtils::safe_export(v, sep_char, quote_char);
+
+				fields[c] = v;
+			}
+		}
+	), tbb::simple_partitioner();
+
+	size_t line_length = 0;
+	for (size_t i = 0; i < column_count; i++) {
+		line_length += fields[i].size();
+	}
+
+	QString line = fields.join(sep_char);
+
+	return line;
+}
+#endif
 
 void PVRush::PVNraw::export_lines(
 	QTextStream& stream,

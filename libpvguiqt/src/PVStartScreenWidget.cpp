@@ -569,7 +569,7 @@ void PVGuiQt::PVStartScreenWidget::delete_investigation_dlg()
 
 			if (item->is_checked()) {
 				if (dlg->remove_cache() || dlg->delete_investigation()) {
-					PVRush::PVNrawCacheManager::get()->remove_investigation(filenames[0], dlg->delete_investigation());
+					PVRush::PVNrawCacheManager::get().remove_investigation(filenames[0], dlg->delete_investigation());
 				}
 			}
 		}

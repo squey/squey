@@ -780,7 +780,7 @@ void PVInspector::PVMainWindow::flag_investigation_as_cached(const QString& inve
 	for (Picviz::PVSource_p& source : get_root().get_children<Picviz::PVSource>()) {
 		nraws << QString(source->get_rushnraw().get_nraw_folder().c_str());
 	}
-	PVRush::PVNrawCacheManager::get()->add_investigation(investigation, nraws);
+	PVRush::PVNrawCacheManager::get().add_investigation(investigation, nraws);
 }
 
 void PVInspector::PVMainWindow::set_window_title_with_filename()
