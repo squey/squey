@@ -26,7 +26,7 @@ PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount()
  *****************************************************************************/
 
 QWidget* PVDisplays::PVDisplayViewHitCount::create_widget(Inendi::PVView* view,
-                                                          PVCol axis_comb,
+                                                          Inendi::PVCombCol axis_comb,
                                                           QWidget* parent) const
 {
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
@@ -48,7 +48,8 @@ QIcon PVDisplays::PVDisplayViewHitCount::toolbar_icon() const
  * PVDisplays::PVDisplayViewHitCount::widget_title
  *****************************************************************************/
 
-QString PVDisplays::PVDisplayViewHitCount::widget_title(Inendi::PVView* view, PVCol axis_comb) const
+QString PVDisplays::PVDisplayViewHitCount::widget_title(Inendi::PVView* view,
+                                                        Inendi::PVCombCol axis_comb) const
 {
 	return "Hit count view [" + QString::fromStdString(view->get_name()) + " on axis " +
 	       view->get_axis_name(axis_comb) + "]";
@@ -59,7 +60,7 @@ QString PVDisplays::PVDisplayViewHitCount::widget_title(Inendi::PVView* view, PV
  *****************************************************************************/
 
 QString PVDisplays::PVDisplayViewHitCount::axis_menu_name(Inendi::PVView const* /*view*/,
-                                                          PVCol /*axis_comb*/) const
+                                                          Inendi::PVCombCol /*axis_comb*/) const
 {
 	return QString("New hit count view");
 }

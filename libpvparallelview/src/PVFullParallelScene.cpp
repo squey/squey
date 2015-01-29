@@ -150,10 +150,10 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
 
 	connect(axisw->get_sliders_group(), SIGNAL(selection_sliders_moved(PVCol)), this,
 	        SLOT(update_selection_from_sliders_Slot(PVCol)));
-	connect(axisw, SIGNAL(new_zoomed_parallel_view(int)), this,
-	        SLOT(emit_new_zoomed_parallel_view(int)));
-	connect(axisw, SIGNAL(mouse_hover_entered(PVCol, bool)), this,
-	        SLOT(axis_hover_entered(PVCol, bool)));
+	connect(axisw, SIGNAL(new_zoomed_parallel_view(Inendi::PVCombCol)), this,
+	        SLOT(emit_new_zoomed_parallel_view(Inendi::PVCombCol)));
+	connect(axisw, SIGNAL(mouse_hover_entered(Inendi::PVCombCol, bool)), this,
+	        SLOT(axis_hover_entered(Inendi::PVCombCol, bool)));
 
 	addItem(axisw);
 
@@ -165,7 +165,7 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
 	// axisw->get_sliders_group()->add_selection_sliders(768, 1000);
 }
 
-void PVParallelView::PVFullParallelScene::axis_hover_entered(PVCol col, bool entered)
+void PVParallelView::PVFullParallelScene::axis_hover_entered(Inendi::PVCombCol col, bool entered)
 {
 	_lib_view.set_axis_hovered(col, entered);
 }

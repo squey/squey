@@ -273,7 +273,7 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
  *
  *****************************************************************************/
 PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
-                                                        PVCol c,
+                                                        Inendi::PVCombCol c,
                                                         PVStatsModel* model,
                                                         QWidget* parent /* = nullptr */)
     : PVListDisplayDlg(model, parent), _view(&view), _col(c)

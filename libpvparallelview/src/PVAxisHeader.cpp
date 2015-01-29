@@ -35,7 +35,7 @@
  *****************************************************************************/
 
 PVParallelView::PVAxisHeader::PVAxisHeader(const Inendi::PVView& view,
-                                           PVCol comb_col,
+                                           Inendi::PVCombCol comb_col,
                                            PVAxisGraphicsItem* parent)
     : QGraphicsRectItem(parent)
     , _view(view)

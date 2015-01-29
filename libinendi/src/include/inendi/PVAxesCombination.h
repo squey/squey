@@ -14,6 +14,8 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVFormat.h>
 
+#include <inendi/PVCombCol.h>
+
 namespace Inendi
 {
 
@@ -24,14 +26,15 @@ class PVAxesCombination
 	PVAxesCombination(QList<PVRush::PVAxisFormat> const& axes);
 
   public:
-	PVRush::PVAxisFormat const& get_axis(size_t col) const;
-	PVCol get_nraw_axis(size_t col) const;
+	PVRush::PVAxisFormat const& get_axis(PVCombCol col) const;
+	PVCol get_nraw_axis(PVCombCol col) const;
 	std::vector<PVCol> const& get_combination() const;
 	QStringList get_nraw_names() const;
 	QStringList get_combined_names() const;
 	size_t get_axes_count() const;
-	PVCol get_first_comb_col(PVCol nraw_col) const;
+	PVCombCol get_first_comb_col(PVCol nraw_col) const;
 	QString to_string() const;
+	bool is_last_axis(PVCombCol) const;
 
   public:
 	void set_combination(std::vector<PVCol> const& comb);

@@ -178,7 +178,7 @@ QStringList Inendi::PVView::get_zones_names_list() const
 	return ret;
 }
 
-PVRush::PVAxisFormat const& Inendi::PVView::get_axis(PVCol index) const
+PVRush::PVAxisFormat const& Inendi::PVView::get_axis(PVCombCol index) const
 {
 	// INFO : It is only to get colors (PVAxisFormat) with index a "combined index"
 	return _axes_combination.get_axis(index);
@@ -189,7 +189,7 @@ PVRush::PVAxisFormat const& Inendi::PVView::get_axis(PVCol index) const
  * Inendi::PVView::get_axis_name
  *
  *****************************************************************************/
-const QString& Inendi::PVView::get_axis_name(PVCol index) const
+const QString& Inendi::PVView::get_axis_name(PVCombCol index) const
 {
 	PVAxis const& axis = _axes_combination.get_axis(index);
 	return axis.get_name();
@@ -226,7 +226,7 @@ PVCol Inendi::PVView::get_column_count() const
  * Inendi::PVView::get_data
  *
  *****************************************************************************/
-std::string Inendi::PVView::get_data(PVRow row, PVCol column) const
+std::string Inendi::PVView::get_data(PVRow row, PVCombCol column) const
 {
 	PVCol real_index = _axes_combination.get_nraw_axis(column);
 
@@ -238,7 +238,7 @@ std::string Inendi::PVView::get_data(PVRow row, PVCol column) const
  * Inendi::PVView::get_nraw_axis_index
  *
  *****************************************************************************/
-PVCol Inendi::PVView::get_nraw_axis_index(PVCol col) const
+PVCol Inendi::PVView::get_nraw_axis_index(PVCombCol col) const
 {
 	return _axes_combination.get_nraw_axis(col);
 }
@@ -618,13 +618,13 @@ void Inendi::PVView::set_axes_combination(std::vector<PVCol> const& comb)
 	_axis_combination_updated.emit();
 }
 
-PVRow Inendi::PVView::get_plotted_col_min_row(PVCol const combined_col) const
+PVRow Inendi::PVView::get_plotted_col_min_row(PVCombCol const combined_col) const
 {
 	PVCol const col = _axes_combination.get_nraw_axis(combined_col);
 	return get_parent<PVPlotted>().get_col_min_row(col);
 }
 
-PVRow Inendi::PVView::get_plotted_col_max_row(PVCol const combined_col) const
+PVRow Inendi::PVView::get_plotted_col_max_row(PVCombCol const combined_col) const
 {
 	PVCol const col = _axes_combination.get_nraw_axis(combined_col);
 	return get_parent<PVPlotted>().get_col_max_row(col);

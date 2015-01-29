@@ -42,7 +42,7 @@ int main()
 	}
 
 	PV_VALID(axe_comb.get_axes_count(), 8UL);
-	PV_VALID(axe_comb.get_first_comb_col(5), 3);
+	PV_ASSERT_VALID(axe_comb.get_first_comb_col(5) == Inendi::PVCombCol(3));
 	PV_VALID(axe_comb.to_string().toStdString(), std::string("3,0,11,5,6,7,8,9"));
 
 	axe_comb.axis_append(5);

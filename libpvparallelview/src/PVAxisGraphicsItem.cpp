@@ -89,7 +89,7 @@ class PVToolTipEventFilter : public QObject
 
 PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSlidersManager* sm_p,
                                                        Inendi::PVView const& view,
-                                                       PVCol comb_col,
+                                                       Inendi::PVCombCol comb_col,
                                                        PVRush::PVAxisFormat const& axis_fmt)
     : _sliders_manager_p(sm_p)
     , _comb_col(comb_col)
@@ -148,11 +148,12 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	addToGroup(_header_zone);
 	connect(_header_zone, &PVAxisHeader::new_selection_slider,
 	        [this]() { _sliders_group->add_selection_sliders(0, 1024); });
-	connect(_header_zone, SIGNAL(mouse_hover_entered(PVCol, bool)), this,
-	        SIGNAL(mouse_hover_entered(PVCol, bool)));
-	connect(_header_zone, SIGNAL(mouse_clicked(PVCol)), this, SIGNAL(mouse_clicked(PVCol)));
-	connect(_header_zone, SIGNAL(new_zoomed_parallel_view(int)), this,
-	        SLOT(emit_new_zoomed_parallel_view(int)));
+	connect(_header_zone, SIGNAL(mouse_hover_entered(Inendi::PVCombCol, bool)), this,
+	        SIGNAL(mouse_hover_entered(Inendi::PVCombCol, bool)));
+	connect(_header_zone, SIGNAL(mouse_clicked(Inendi::PVCombCol)), this,
+	        SIGNAL(mouse_clicked(Inendi::PVCombCol)));
+	connect(_header_zone, SIGNAL(new_zoomed_parallel_view(Inendi::PVCombCol)), this,
+	        SLOT(emit_new_zoomed_parallel_view(Inendi::PVCombCol)));
 }
 
 PVParallelView::PVAxisGraphicsItem::~PVAxisGraphicsItem()
@@ -236,7 +237,7 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_label_position()
 
 void PVParallelView::PVAxisGraphicsItem::update_axis_min_max_info()
 {
-	const PVCol combined_col = get_combined_axis_column();
+	const Inendi::PVCombCol combined_col = get_combined_axis_column();
 
 	const PVRow min_row = _lib_view.get_plotted_col_min_row(combined_col);
 	const PVRow max_row = _lib_view.get_plotted_col_max_row(combined_col);
@@ -247,7 +248,7 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_min_max_info()
 
 void PVParallelView::PVAxisGraphicsItem::set_axis_text_value(QGraphicsTextItem* item, PVRow const r)
 {
-	const PVCol combined_col = get_combined_axis_column();
+	const Inendi::PVCombCol combined_col = get_combined_axis_column();
 	const QColor color = _axis_fmt.get_titlecolor().toQColor();
 	const QString txt = QString::fromStdString(_lib_view.get_data(r, combined_col));
 
@@ -278,7 +279,7 @@ void PVParallelView::PVAxisGraphicsItem::update_layer_min_max_info()
 	PVRow max_row;
 	if ((size_t)original_col >= vmins.size() || (size_t)original_col >= vmaxs.size()) {
 		// Min/max values haven't been computed ! Take them from the plotted.
-		const PVCol combined_col = get_combined_axis_column();
+		const Inendi::PVCombCol combined_col = get_combined_axis_column();
 		min_row = _lib_view.get_plotted_col_min_row(combined_col);
 		max_row = _lib_view.get_plotted_col_max_row(combined_col);
 	} else {
@@ -366,7 +367,7 @@ void PVParallelView::PVAxisGraphicsItem::show_tooltip(QGraphicsTextItem* gti,
 
 bool PVParallelView::PVAxisGraphicsItem::is_last_axis() const
 {
-	return _lib_view.get_axes_combination().get_axes_count() == (size_t)(_comb_col + 1);
+	return _lib_view.get_axes_combination().is_last_axis(_comb_col);
 }
 
 void PVParallelView::PVAxisGraphicsItem::set_axis_length(int l)

@@ -63,8 +63,8 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 * @return The name of that axis
 	 *
 	 */
-	const QString& get_axis_name(PVCol index) const;
-	PVRush::PVAxisFormat const& get_axis(PVCol const comb_index) const;
+	const QString& get_axis_name(PVCombCol index) const;
+	PVRush::PVAxisFormat const& get_axis(PVCombCol const comb_index) const;
 	bool is_last_axis(PVCol const axis_comb) const { return axis_comb == get_column_count() - 1; }
 
 	const PVCore::PVHSVColor get_color_in_output_layer(PVRow index) const;
@@ -207,7 +207,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 * @return a string containing wanted data
 	 *
 	 */
-	std::string get_data(PVRow row, PVCol column) const;
+	std::string get_data(PVRow row, PVCombCol column) const;
 
 	/***********
 	 * FILTERS
@@ -241,10 +241,10 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	PVRush::PVNraw& get_rushnraw_parent();
 	PVRush::PVNraw const& get_rushnraw_parent() const;
 
-	PVCol get_nraw_axis_index(PVCol col) const;
+	PVCol get_nraw_axis_index(PVCombCol col) const;
 
-	PVRow get_plotted_col_min_row(PVCol const combined_col) const;
-	PVRow get_plotted_col_max_row(PVCol const combined_col) const;
+	PVRow get_plotted_col_min_row(PVCombCol const combined_col) const;
+	PVRow get_plotted_col_max_row(PVCombCol const combined_col) const;
 
   public:
 	void serialize_write(PVCore::PVSerializeObject& so);
@@ -252,10 +252,10 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 
   public:
 	// axis <-> section synchronisation
-	void set_axis_hovered(PVCol col, bool entered) { _axis_hovered.emit(col, entered); }
-	void set_axis_clicked(PVCol col) const { _axis_clicked.emit(col); }
+	void set_axis_hovered(PVCombCol col, bool entered) { _axis_hovered.emit(col, entered); }
+	void set_axis_clicked(PVCombCol col) const { _axis_clicked.emit(col); }
 
-	void set_section_clicked(PVCol col, size_t pos) const { _section_clicked.emit(col, pos); }
+	void set_section_clicked(PVCombCol col, size_t pos) const { _section_clicked.emit(col, pos); }
 
 	sigc::signal<void, size_t, bool> _axis_hovered;
 	sigc::signal<void, size_t> _axis_clicked;
