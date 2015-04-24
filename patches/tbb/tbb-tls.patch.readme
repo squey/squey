@@ -1,2 +1,0 @@
-To apply this patch, go to /opt/tbb-latest and do :
-$ patch -p1 <tbb-tls.patch
