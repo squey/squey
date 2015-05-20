@@ -770,6 +770,9 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	toArgumentList(filter_lib->get_default_args(), args);
 	filter_clone->set_args(args);
 
+	// initialize the filter
+	filter_clone->init();
+
 	// Set the number of expected children
 	filter_clone->set_number_expected_fields(countChildren());
 
