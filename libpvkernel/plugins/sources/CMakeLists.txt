@@ -1,7 +1,7 @@
 #
 # \file CMakeLists.txt
 #
-# Copyright (C) Picviz Labs 2010-2012
+# Copyright (C) Picviz Labs 2010-2015
 
 ################################################
 # QT5 related include and check
@@ -19,6 +19,7 @@ set(SOURCES_DIST_LIST
 source_text_file
 source_pcap_file
 source_perl_file
+source_elasticsearch
 #source_arcsight
 )
 
@@ -65,6 +66,10 @@ endif(HDFS_FOUND)
 # Arcsight
 add_library(source_arcsight SHARED arcsight/PVArcsightSource.cpp arcsight/PVSourceCreatorArcsight.cpp arcsight/register.cpp ../common/arcsight/PVArcsightInfos.cpp ../common/arcsight/PVArcsightQuery.cpp)
 target_link_libraries(source_arcsight /usr/local/lib/libarcsight.a pvkernel ${QT_LIBRARIES} gsoap++)
+
+# Elasticsearch
+add_library(source_elasticsearch SHARED elasticsearch/PVElasticsearchSource.cpp elasticsearch/PVSourceCreatorElasticsearch.cpp elasticsearch/register.cpp ../common/elasticsearch/PVElasticsearchInfos.cpp ../common/elasticsearch/PVElasticsearchQuery.cpp ../common/elasticsearch/PVElasticsearchAPI.cpp)
+target_link_libraries(source_elasticsearch curl)
 
 INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION sources
                                      RUNTIME DESTINATION sources)
