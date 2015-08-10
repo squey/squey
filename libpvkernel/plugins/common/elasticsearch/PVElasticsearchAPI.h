@@ -25,31 +25,35 @@ public:
 	using rows_t = std::vector<std::string>;
 
 public:
-	PVElasticsearchAPI(const PVElasticsearchQuery& query);
+	PVElasticsearchAPI(const PVElasticsearchInfos& infos);
 	~PVElasticsearchAPI();
 
 public:
-	bool scroll(std::string& json_data);
+	bool scroll(const PVRush::PVElasticsearchQuery& query, std::string& json_data);
 	bool clear_scroll();
 	bool parse_results(const std::string& json_data, rows_t& rows) const;
+	std::string sql_to_json(const std::string& sql) const;
 
 public:
+	bool check_connection(std::string* error = nullptr) const;
 	indexes_t indexes() const;
-	size_t count() const;
+	size_t count(const PVRush::PVElasticsearchQuery& query) const;
+	bool is_sql_available() const;
+
 
 private:
 	void prepare_query(const std::string& uri, const std::string& body = std::string()) const;
-	bool perform_query(std::string& result) const;
+	bool perform_query(std::string& result, std::string* error = nullptr) const;
 
 private:
-	bool init_scroll();
+	bool init_scroll(const PVRush::PVElasticsearchQuery& query);
 
 private:
 	std::string socket() const;
 
 private:
 	CURL* _curl;
-	const PVRush::PVElasticsearchQuery& _query;
+	const PVRush::PVElasticsearchInfos& _infos;
 	std::string _scroll_id;
 };
 

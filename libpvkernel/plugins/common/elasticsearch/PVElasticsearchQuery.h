@@ -27,7 +27,7 @@ public:
 	typedef std::set<uint32_t> fields_indexes_t;
 public:
 	PVElasticsearchQuery() {} ;
-	PVElasticsearchQuery(PVElasticsearchInfos const& infos, QString const& query);
+	PVElasticsearchQuery(PVElasticsearchInfos const& infos, QString const& query, QString const& query_type);
 	~PVElasticsearchQuery();
 
 public:
@@ -41,6 +41,9 @@ public:
 
 	void set_query(QString const& query) { _query = query; }
 	QString const& get_query() const { return _query; }
+
+	void set_query_type(QString const& query_type) { _query_type = query_type; }
+	QString const& get_query_type() const { return _query_type; }
 
 	PVElasticsearchInfos& get_infos() { return _infos; }
 	PVElasticsearchInfos const& get_infos() const { return _infos; }
@@ -65,6 +68,7 @@ protected:
 protected:
 	PVElasticsearchInfos _infos;
 	QString _query;
+	QString _query_type;
 	int64_t _start_ms;
 	int64_t _end_ms;
 	fields_indexes_t _fields_kept;

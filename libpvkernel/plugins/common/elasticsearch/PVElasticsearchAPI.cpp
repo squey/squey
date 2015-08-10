@@ -12,6 +12,8 @@
 
 #include <curl/curl.h>
 #include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 
 #define USE_DOM_API 1
 
@@ -56,7 +58,7 @@ private:
     size_t level = 0;
 };
 
-PVRush::PVElasticsearchAPI::PVElasticsearchAPI(const PVRush::PVElasticsearchQuery& query) : _curl(nullptr), _query(query)
+PVRush::PVElasticsearchAPI::PVElasticsearchAPI(const PVRush::PVElasticsearchInfos& infos) : _curl(nullptr), _infos(infos)
 {
 	_curl = curl_easy_init();
 }
@@ -68,38 +70,103 @@ PVRush::PVElasticsearchAPI::~PVElasticsearchAPI()
 
 void PVRush::PVElasticsearchAPI::prepare_query(const std::string& uri, const std::string& body /* = std::string() */) const
 {
-	const PVElasticsearchInfos& infos = _query.get_infos();
-
 	curl_easy_setopt(_curl, CURLOPT_URL, uri.c_str());
 	curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, write_callback);
 	if (body.empty() == false) {
 		curl_easy_setopt(_curl, CURLOPT_POSTFIELDS, body.c_str());
 	}
-	if (infos.get_login().isEmpty() == false) {
+	if (_infos.get_login().isEmpty() == false) {
 		curl_easy_setopt(_curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-		curl_easy_setopt(_curl, CURLOPT_USERPWD, (infos.get_login().toStdString() + ":" + infos.get_password().toStdString()).c_str());
+		curl_easy_setopt(_curl, CURLOPT_USERPWD, (_infos.get_login().toStdString() + ":" + _infos.get_password().toStdString()).c_str());
 	}
 	curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYPEER, false);
 }
 
-bool PVRush::PVElasticsearchAPI::perform_query(std::string& result) const
+bool PVRush::PVElasticsearchAPI::perform_query(std::string& result, std::string* error /* = nulltr */) const
 {
 	curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &result);
 	CURLcode res = curl_easy_perform(_curl);
 
 	if(res != CURLE_OK) {
-		PVLOG_ERROR("Error: %s\n", curl_easy_strerror(res));
+		if (error) {
+			*error = curl_easy_strerror(res);
+		}
 		return false;
 	}
 
 	return true;
 }
 
+bool PVRush::PVElasticsearchAPI::is_sql_available() const
+{
+	std::string json_buffer;
+	std::stringstream url;
+	url << socket() << "/_sql";
+
+	prepare_query(url.str());
+
+	if (perform_query(json_buffer)) {
+		rapidjson::Document json;
+		json.Parse<0>(json_buffer.c_str());
+
+		if (json.HasMember("status")) {
+			size_t status_code = json["status"].GetUint();
+			return status_code != 400;
+		}
+	}
+
+	return false;
+}
+
+bool PVRush::PVElasticsearchAPI::check_connection(std::string* error /* =  nullptr */) const
+{
+	std::string json_buffer;
+	std::stringstream url;
+	url << socket();
+
+	prepare_query(url.str());
+
+	return perform_query(json_buffer, error);
+}
+
+std::string PVRush::PVElasticsearchAPI::sql_to_json(const std::string& sql) const
+{
+	std::string json_buffer;
+	std::stringstream url;
+
+	// URL-encode SQL request
+	char* sql_url_encoded = curl_easy_escape(_curl, sql.c_str(), sql.size());
+	if(sql_url_encoded) {
+		url << socket() << "/_sql/_explain?sql=" << sql_url_encoded;
+		curl_free(sql_url_encoded);
+	}
+	else {
+		return std::string();
+	}
+
+	prepare_query(url.str());
+	if (perform_query(json_buffer)) {
+		rapidjson::Document json;
+		json.Parse<0>(json_buffer.c_str());
+
+		rapidjson::StringBuffer strbuf;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
+		json["query"].Accept(writer);
+
+		std::stringstream query;
+
+		query << "\"query\" : " << strbuf.GetString();
+
+		return query.str();
+	}
+
+	return std::string();
+}
+
 std::string PVRush::PVElasticsearchAPI::socket() const
 {
-	const PVElasticsearchInfos& infos = _query.get_infos();
 	std::stringstream socket;
-	socket << infos.get_host().toStdString() << ":" << infos.get_port();
+	socket << _infos.get_host().toStdString() << ":" << _infos.get_port();
 
 	return socket.str();
 }
@@ -109,7 +176,6 @@ PVRush::PVElasticsearchAPI::indexes_t PVRush::PVElasticsearchAPI::indexes() cons
 	indexes_t indexes;
 	std::string json_buffer;
 	std::stringstream url;
-	const PVElasticsearchInfos& infos = _query.get_infos();
 	url << socket() << "/_stats";
 
 	prepare_query(url.str());
@@ -132,14 +198,14 @@ PVRush::PVElasticsearchAPI::indexes_t PVRush::PVElasticsearchAPI::indexes() cons
 	return indexes;
 }
 
-size_t PVRush::PVElasticsearchAPI::count() const
+size_t PVRush::PVElasticsearchAPI::count(const PVRush::PVElasticsearchQuery& query) const
 {
-	const PVElasticsearchInfos& infos = _query.get_infos();
+	const PVElasticsearchInfos& infos = query.get_infos();
 	std::string json_buffer;
 	std::stringstream url;
 	url << socket() << "/" << infos.get_index().toStdString() << "/_count";
 
-	std::string complete_request = std::string("{") + _query.get_query().toStdString() + std::string("}");
+	std::string complete_request = std::string("{") + query.get_query().toStdString() + std::string("}");
 
 	prepare_query(url.str(), complete_request);
 	if (perform_query(json_buffer)) {
@@ -157,9 +223,9 @@ size_t PVRush::PVElasticsearchAPI::count() const
 	return 0;
 }
 
-bool PVRush::PVElasticsearchAPI::init_scroll()
+bool PVRush::PVElasticsearchAPI::init_scroll(const PVRush::PVElasticsearchQuery& query)
 {
-	const PVElasticsearchInfos& infos = _query.get_infos();
+	const PVElasticsearchInfos& infos = query.get_infos();
 	std::string json_buffer;
 	std::stringstream url;
 	url << socket() << "/" << infos.get_index().toStdString() << "/_search?scroll=1m&search_type=scan";
@@ -167,7 +233,7 @@ bool PVRush::PVElasticsearchAPI::init_scroll()
 	std::string complete_request = std::string("{ \
 		\"fields\": \"message\", \
 		\"size\":  1000," \
-		+ _query.get_query().toStdString() + std::string("}")
+		+ query.get_query().toStdString() + std::string("}")
 	).c_str();
 
 	prepare_query(url.str(), complete_request);
@@ -192,10 +258,10 @@ bool PVRush::PVElasticsearchAPI::init_scroll()
 	return true;
 }
 
-bool PVRush::PVElasticsearchAPI::scroll(std::string& json_buffer)
+bool PVRush::PVElasticsearchAPI::scroll(const PVRush::PVElasticsearchQuery& query, std::string& json_buffer)
 {
 	if (_scroll_id.empty()) {
-		init_scroll();
+		init_scroll(query);
 	}
 
 	return perform_query(json_buffer);
@@ -203,7 +269,6 @@ bool PVRush::PVElasticsearchAPI::scroll(std::string& json_buffer)
 
 bool PVRush::PVElasticsearchAPI::clear_scroll()
 {
-	const PVElasticsearchInfos& infos = _query.get_infos();
 	std::string result;
 	std::stringstream url;
 	url << socket() << "/_search/scroll";

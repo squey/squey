@@ -37,6 +37,7 @@ public:
 public:
 	void get_infos(PVElasticsearchInfos& infos);
 	QString get_query();
+	QString get_query_type();
 	void get_query(PVElasticsearchQuery& query);
 	bool is_format_custom() { return _radio_new_format->isChecked(); };
 	QString get_existing_format();
@@ -59,14 +60,24 @@ public slots:
 
 protected slots:
 	void refresh_indexes();
+	void query_type_changed();
+	void refresh_query_groupbox();
+	void index_changed(const QString& index);
+	void check_connection();
 
 protected:
 	bool set_infos(PVElasticsearchInfos const& infos);
 	void set_query(QString const& query);
+
+	void set_query_type(QString const& query_type);
+
 	void load_preset(PVElasticsearchPresets::id_t id);
 	void enable_used_format(bool is_existing);
 	void show_def_params();
 	static void show_layout_children(const QLayout* layout, bool show);
+
+private:
+	QString get_sql_query_prefix();
 
 protected:
 	PVWidgets::PVPresetsWidget* _presets_widget;

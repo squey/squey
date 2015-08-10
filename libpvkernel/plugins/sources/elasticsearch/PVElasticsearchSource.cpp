@@ -21,14 +21,13 @@
 PVRush::PVElasticsearchSource::PVElasticsearchSource(PVInputDescription_p input, PVFilter::PVChunkFilter_f src_filter):
 	PVRawSourceBase(src_filter),
 	_next_index(0),
-	_elasticsearch(PVElasticsearchAPI(*dynamic_cast<PVElasticsearchQuery*>(input.get())))
+	_query(*dynamic_cast<PVElasticsearchQuery*>(input.get())),
+	_elasticsearch(_query.get_infos())
 {
-	PVElasticsearchQuery* query = dynamic_cast<PVElasticsearchQuery*>(input.get());
-	assert(query);
+	const PVElasticsearchInfos& infos = _query.get_infos();
 
-	PVElasticsearchInfos const& infos = query->get_infos();
-	PVLOG_INFO("Create elasticsearch source with: host=%s, port=%d, index=%s, query=%s\n",
-		qPrintable(infos.get_host()), infos.get_port(), qPrintable(infos.get_index()), qPrintable(query->get_query()));
+	PVLOG_INFO("Create elasticsearch source with: host=%s, port=%d, index=%s\n",
+		qPrintable(infos.get_host()), infos.get_port(), qPrintable(infos.get_index()));
 }
 
 PVRush::PVElasticsearchSource::~PVElasticsearchSource()
@@ -83,7 +82,7 @@ PVCore::PVChunk* PVRush::PVElasticsearchSource::operator()()
 				}
 				std::string json_buffer;
 
-				_elasticsearch.scroll(json_buffer);
+				_elasticsearch.scroll(_query, json_buffer);
 
 				return indexed_json_buffer_t(std::move(json_buffer), request_count);
 			}

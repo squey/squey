@@ -32,10 +32,10 @@ public:
 	static PVElasticsearchPresets& get();
 
 public:
-	id_t add(QString const& name, PVElasticsearchInfos const& infos, QString const& query);
-	void set(id_t id, PVElasticsearchInfos const& infos, QString const& query, QString const& name = QString());
+	id_t add(QString const& name, PVElasticsearchInfos const& infos, QString const& query, QString const& query_type);
+	void set(id_t id, PVElasticsearchInfos const& infos, QString const& query, QString const& query_type, QString const& name = QString());
 	list_id_names_t list_id_names();
-	bool get(id_t id, PVElasticsearchInfos& infos, QString& query);
+	bool get(id_t id, PVElasticsearchInfos& infos, QString& query, QString& query_type);
 	void rm(id_t id);
 
 protected:

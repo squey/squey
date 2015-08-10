@@ -44,6 +44,7 @@ protected:
 	chunk_index _next_index;
 
 private:
+	PVElasticsearchQuery& _query;
 	PVElasticsearchAPI _elasticsearch;
 	bool _query_end = false;
 	std::string _scroll_id;

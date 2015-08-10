@@ -27,7 +27,12 @@ PVRush::PVElasticsearchPresets& PVRush::PVElasticsearchPresets::get()
 }
 
 
-PVRush::PVElasticsearchPresets::id_t PVRush::PVElasticsearchPresets::add(QString const& name, PVElasticsearchInfos const& infos, QString const& query)
+PVRush::PVElasticsearchPresets::id_t PVRush::PVElasticsearchPresets::add(
+	QString const& name,
+	PVElasticsearchInfos const& infos,
+	QString const& query,
+	QString const& query_type
+)
 {
 	QStringList grps = _settings.childGroups();
 	id_t max = 0;
@@ -39,11 +44,16 @@ PVRush::PVElasticsearchPresets::id_t PVRush::PVElasticsearchPresets::add(QString
 	}
 
 	id_t new_id = max+1;
-	set(new_id, infos, query, name);
+	set(new_id, infos, query, query_type, name);
 	return new_id;
 }
 
-void PVRush::PVElasticsearchPresets::set(id_t id, PVElasticsearchInfos const& infos, QString const& query, QString const& name)
+void PVRush::PVElasticsearchPresets::set(
+	id_t id, PVElasticsearchInfos const& infos,
+	QString const& query,
+	QString const& query_type,
+	QString const& name
+)
 {
 	QString grp = QString::number(id);
 	_settings.beginGroup(grp);
@@ -56,10 +66,11 @@ void PVRush::PVElasticsearchPresets::set(id_t id, PVElasticsearchInfos const& in
 	_settings.setValue("password", infos.get_password());
 	_settings.setValue("index", infos.get_index());
 	_settings.setValue("query", query);
+	_settings.setValue("query_type", query_type);
 	_settings.endGroup();
 }
 
-bool PVRush::PVElasticsearchPresets::get(id_t id, PVElasticsearchInfos& infos, QString& query)
+bool PVRush::PVElasticsearchPresets::get(id_t id, PVElasticsearchInfos& infos, QString& query, QString& query_type)
 {
 	QString grp = QString::number(id);
 	_settings.beginGroup(grp);
@@ -72,6 +83,7 @@ bool PVRush::PVElasticsearchPresets::get(id_t id, PVElasticsearchInfos& infos, Q
 		infos.set_password(_settings.value("password", "").toString());
 		infos.set_index(_settings.value("index", "").toString());
 		query = _settings.value("query", "").toString();
+		query_type = _settings.value("query_type", "JSON").toString();
 		ret = true;
 	}
 	_settings.endGroup();
