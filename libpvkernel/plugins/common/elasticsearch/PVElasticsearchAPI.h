@@ -17,11 +17,18 @@ namespace PVRush {
 class PVElasticsearchInfos;
 class PVElasticsearchQuery;
 
-
 class PVElasticsearchAPI
 {
 public:
+	struct mapping_t {
+		mapping_t(const std::string& n, const std::string& t) :name(n), type(t) {};
+		std::string name;
+		std::string type;
+	}; // Types supported by the QueryBuilder are: [string, integer, double, date, time, datetime, boolean]
+
+public:
 	using indexes_t = std::vector<std::string>;
+	using columns_t = std::vector<mapping_t>;
 	using rows_t = std::vector<std::string>;
 
 public:
@@ -37,9 +44,9 @@ public:
 public:
 	bool check_connection(std::string* error = nullptr) const;
 	indexes_t indexes() const;
+	columns_t columns(const PVRush::PVElasticsearchQuery& query) const;
 	size_t count(const PVRush::PVElasticsearchQuery& query) const;
 	bool is_sql_available() const;
-
 
 private:
 	void prepare_query(const std::string& uri, const std::string& body = std::string()) const;

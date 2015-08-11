@@ -198,6 +198,53 @@ PVRush::PVElasticsearchAPI::indexes_t PVRush::PVElasticsearchAPI::indexes() cons
 	return indexes;
 }
 
+PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::columns(const PVRush::PVElasticsearchQuery& query) const
+{
+	columns_t cols;
+
+	const PVElasticsearchInfos& infos = query.get_infos();
+
+	if (infos.get_index().isEmpty()) {
+		if (error) {
+			*error =  "No index specified";
+		}
+		return cols;
+	}
+
+	std::string json_buffer;
+	std::stringstream url;
+	url << socket() << "/" << infos.get_index().toStdString() << "/_mapping";
+
+	prepare_query(url.str());
+	if (perform_query(json_buffer)) {
+		rapidjson::Document json;
+		json.Parse<0>(json_buffer.c_str());
+
+		if (json.HasMember("error")) {
+			PVLOG_ERROR("Error: %s\n", json["error"].GetString());
+			return cols;
+		}
+
+		// TODO: if importer == "Logstash"
+
+		rapidjson::Value& json_mappings = json[infos.get_index().toStdString().c_str()]["mappings"];
+		rapidjson::Value& json_axes = json_mappings[json_mappings.MemberBegin()->name.GetString()]["properties"];
+
+		const std::vector<std::string> invalid_cols = { "message", "type", "host", "path", "geoip" };
+
+		for (rapidjson::Value::ConstMemberIterator axe = json_axes.MemberBegin(); axe != json_axes.MemberEnd(); ++axe) {
+			std::string name = axe->name.GetString();
+
+			if (std::find(invalid_cols.begin(), invalid_cols.end(), name) == invalid_cols.end() && (name.size() > 0 && name[0] != '@')) {
+				std::string type = json_axes[name.c_str()]["type"].GetString();
+				cols.emplace_back(mapping_t(name, type));
+			}
+		}
+	}
+
+	return cols;
+}
+
 size_t PVRush::PVElasticsearchAPI::count(const PVRush::PVElasticsearchQuery& query) const
 {
 	const PVElasticsearchInfos& infos = query.get_infos();
@@ -230,6 +277,7 @@ bool PVRush::PVElasticsearchAPI::init_scroll(const PVRush::PVElasticsearchQuery&
 	std::stringstream url;
 	url << socket() << "/" << infos.get_index().toStdString() << "/_search?scroll=1m&search_type=scan";
 
+	// TODO: test "_source : message" instead of "fields : message" to see if there is any performance change (don't forget to update the parsing)
 	std::string complete_request = std::string("{ \
 		\"fields\": \"message\", \
 		\"size\":  1000," \
