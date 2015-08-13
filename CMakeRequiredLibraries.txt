@@ -122,6 +122,16 @@ else()
   message(ERROR "libNUMA not found!")
 endif()
 
+#
+# Check for rapidjson
+#
+find_package(rapidjson REQUIRED)
+if (RAPIDJSON_FOUND)
+  message(STATUS " rapidjson include directory: ${RAPIDJSON_INCLUDE_DIRS}")
+else()
+  message(ERROR " rapidjson not found!")
+endif()
+
 ########################
 # Needed for libpvrush #
 ########################
