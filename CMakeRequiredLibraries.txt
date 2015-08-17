@@ -7,13 +7,7 @@
 # QT is needed for picviz-inspector
 #
 ADD_DEFINITIONS(-DQT_SHARED)
-#set(Qt4_DIR /opt/qt-picviz)
-find_package(Qt4 REQUIRED)
-# QT XML support
-set(QT_USE_QTXML TRUE)
-set(QT_USE_QTOPENGL TRUE)
-include(${QT_USE_FILE})
-set(QT4_WRAP_OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED)
+FIND_PACKAGE(Qt5 COMPONENTS Core)
 
 #
 # Check for Intel TBB library

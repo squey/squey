@@ -75,7 +75,7 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 
 	separator_text = new PVWidgets::QKeySequenceWidget();
 	separator_text->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
-	separator_text->setKeySequence(QKeySequence((int) l["sep"].toChar().toAscii()));
+	separator_text->setKeySequence(QKeySequence((int) l["sep"].toChar().toLatin1()));
 	separator_text->setMaxNumKey(1);
 	gridLayout->addWidget(separator_text, 0, 1);
 
@@ -85,7 +85,7 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 
 	quote_text = new PVWidgets::QKeySequenceWidget();
 	quote_text->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
-	quote_text->setKeySequence(QKeySequence((int) l["quote"].toChar().toAscii()));
+	quote_text->setKeySequence(QKeySequence((int) l["quote"].toChar().toLatin1()));
 	quote_text->setMaxNumKey(1);
 	gridLayout->addWidget(quote_text, 1, 1);
 
@@ -135,7 +135,7 @@ QAction* PVFilter::PVFieldSplitterCSVParamWidget::get_action_menu()
 void PVFilter::PVFieldSplitterCSVParamWidget::updateSeparator(QKeySequence key)
 {
 	PVCore::PVArgumentList args = get_filter()->get_args();
-	args["sep"] = QChar::fromAscii(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(key));
+	args["sep"] = QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(key));
 	this->get_filter()->set_args(args);
 
 	update_recommanded_nfields();
@@ -145,7 +145,7 @@ void PVFilter::PVFieldSplitterCSVParamWidget::updateSeparator(QKeySequence key)
 void PVFilter::PVFieldSplitterCSVParamWidget::updateQuote(QKeySequence key)
 {
 	PVCore::PVArgumentList args = get_filter()->get_args();
-	args["quote"] = QChar::fromAscii(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(key));
+	args["quote"] = QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(key));
 	this->get_filter()->set_args(args);
 
 	update_recommanded_nfields();

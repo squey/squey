@@ -46,9 +46,9 @@ PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Picviz::PVView_sp& lib_view, QWi
 	_layer_stack_view->setItemDelegate(delegate);
 	_layer_stack_view->setModel(model);
 	_layer_stack_view->resizeColumnsToContents();
-	_layer_stack_view->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-	_layer_stack_view->horizontalHeader()->setResizeMode(1, QHeaderView::Stretch);
-	_layer_stack_view->horizontalHeader()->setResizeMode(2, QHeaderView::Interactive);
+	_layer_stack_view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	_layer_stack_view->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+	_layer_stack_view->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
 
 	// TOOLBAR
 	// We create the ToolBar of the PVLayerStackWidget

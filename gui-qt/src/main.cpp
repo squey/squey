@@ -223,9 +223,6 @@ int main(int argc, char *argv[])
 #endif
 	QString wintitle;
 
-	// Here, we assume that everyone is coding with an editor using UTF-8
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-
 // #ifdef USE_UNIKEY
 	// DWORD retcode, lp1, lp2;
 	// WORD handle[16], p1, p2;

@@ -24,26 +24,47 @@ endif(HDFS_FOUND)
 set(INPUTS_DIST_FILES
 )
 
-set(QT_USE_QTSQL TRUE)
-include(${QT_USE_FILE})
+################################################
+# QT5 related include and check
+################################################
 
-#
+# For QSQLDatabase
+find_package(Qt5Sql REQUIRED)
+include_directories(${Qt5Sql_INCLUDE_DIRS})
+
+# For QConcurrent
+find_package(Qt5Concurrent REQUIRED)
+include_directories(${Qt5Concurrent_INCLUDE_DIRS})
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+################################################
 # File input plugin
-#
+################################################
+# Generate moc files
 SET(FILE_MOC_HEADERS file/PVImportFileDialog.h)
-QT4_WRAP_CPP(FILE_MOC_SRC ${FILE_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+QT5_WRAP_CPP(FILE_MOC_SRC ${FILE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 
+# Generate linkage configuration
 add_library(input_type_file SHARED file/PVInputTypeFilename.cpp file/PVImportFileDialog.cpp file/register.cpp ${FILE_MOC_SRC})
 target_link_libraries(input_type_file pvkernel ${QT_LIBRARIES} ${ARCHIVE_LIBRARY})
 
-#
+################################################
 # Database input plugin
-#
-SET(DB_MOC_HEADERS database/PVDatabaseParamsWidget.h)
-QT4_WRAP_CPP(DB_MOC_SRCS ${DB_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
-set(DB_UI database/db_params.ui database/db_preview.ui)
-PV_QT4_WRAP_UI(DB_UI_SRCS ${DB_UI})
+################################################
+# Declare ressource
+SET(DB_MOC_HEADERS
+database/PVDatabaseParamsWidget.h)
 
+set(DB_UI
+database/db_params.ui
+database/db_preview.ui)
+
+# Generate moc and ui files
+QT5_WRAP_CPP(DB_MOC_SRCS ${DB_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT5_WRAP_UI(DB_UI_SRCS ${DB_UI})
+
+# Generate linkage configuration
 add_library(input_type_database SHARED ${DB_UI_SRCS} ${DB_MOC_SRCS} database/PVDatabaseParamsWidget.cpp database/PVSQLTypeMap.cpp database/PVDBPreviewWidget.cpp database/PVInputTypeDatabase.cpp database/PVDBPresets.cpp ../common/database/PVDBInfos.cpp ../common/database/PVDBQuery.cpp database/register.cpp)
 target_link_libraries(input_type_database pvkernel ${QT_LIBRARIES})
 
@@ -54,15 +75,16 @@ if(HDFS_FOUND)
 #	include_directories(AFTER ${HDFS_INCLUDE_DIRS})
 #	SET(HDFS_UI hdfs/PVImportHDFSDlg.ui)
 #	SET(HDFS_MOC_HEADERS hdfs/PVImportHDFSDlg.h)
-#	QT4_WRAP_CPP(HDFS_MOC_SRCS ${HDFS_MOC_HEADERS})
-#	QT4_WRAP_UI(HDFS_UI_SRCS ${HDFS_UI})
+#	QT5_WRAP_CPP(HDFS_MOC_SRCS ${HDFS_MOC_HEADERS})
+#	QT5_WRAP_UI(HDFS_UI_SRCS ${HDFS_UI})
 #	add_library(input_type_hdfs SHARED hdfs/PVImportHDFSDlg.cpp hdfs/PVInputTypeHDFS.cpp ../common/hdfs/PVInputHDFSFile.cpp ../common/hdfs/PVInputHDFSServer.cpp hdfs/setenv.cpp hdfs/register.cpp ${HDFS_MOC_SRCS} ${HDFS_UI_SRCS})
 #	target_link_libraries(input_type_hdfs ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${HDFS_LIBRARIES})
 endif(HDFS_FOUND)
 
-#
+################################################
 # Remote file input plugin
-#
+################################################
+# Declare ressource
 set(REMOTEFILE_MOC_HEADERS
 remote_file/include/addmachinedialog.h
 remote_file/include/fileconnectiondialog.h
@@ -71,23 +93,31 @@ remote_file/include/logviewerwidget.h
 remote_file/include/PVLogViewerDialog.h
 )
 
-QT4_WRAP_CPP(REMOTEFILE_MOC_SRCS ${REMOTEFILE_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+# Generate moc files
+QT5_WRAP_CPP(REMOTEFILE_MOC_SRCS ${REMOTEFILE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+# Generate linkage configuration
 include_directories(AFTER ${CURL_INCLUDE_DIR})
 add_library(input_type_remotefile SHARED remote_file/addmachinedialog.cpp remote_file/fileconnectiondialog.cpp remote_file/filedownloader.cpp remote_file/logviewerwidget.cpp remote_file/PVLogViewerDialog.cpp remote_file/PVInputTypeRemoteFilename.cpp remote_file/register.cpp ${REMOTEFILE_MOC_SRCS} file/PVInputTypeFilename.cpp)
 target_link_libraries(input_type_remotefile pvkernel ${QT_LIBRARIES} ${ARCHIVE_LIBRARY} ${CURL_LIBRARY})
 
-#
+################################################
 # Arcsight
-#
+################################################
+# Declare ressource
 set(ARCSIGHT_MOC_HEADERS
 arcsight/PVArcsightParamsWidget.h
 #arcsight/PVArcsightPreviewWidget.h
 )
-QT4_WRAP_CPP(ARCSIGHT_MOC_SRCS ${ARCSIGHT_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 
-set(ARCSIGHT_UI arcsight/arcsight_params.ui)
-PV_QT4_WRAP_UI(ARCSIGHT_UI_SRCS ${ARCSIGHT_UI})
+set(ARCSIGHT_UI
+arcsight/arcsight_params.ui)
 
+# Generate moc and ui files
+QT5_WRAP_CPP(ARCSIGHT_MOC_SRCS ${ARCSIGHT_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT5_WRAP_UI(ARCSIGHT_UI_SRCS ${ARCSIGHT_UI})
+
+# Generate linkage configuration
 add_library(input_type_arcsight SHARED arcsight/PVArcsightParamsWidget.cpp arcsight/PVInputTypeArcsight.cpp arcsight/register.cpp ${ARCSIGHT_MOC_SRCS} ../common/arcsight/PVArcsightInfos.cpp ../common/arcsight/PVArcsightQuery.cpp ${ARCSIGHT_UI_SRCS})
 target_link_libraries(input_type_arcsight pvkernel ${QT_LIBRARIES} /usr/local/lib/libarcsight.a gsoap++)
 

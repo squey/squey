@@ -7,7 +7,7 @@
 #ifndef PVSIZEHINTLISTWIDGET_H__
 #define PVSIZEHINTLISTWIDGET_H__
 
-#include <QtGui/QListWidget>
+#include <QListWidget>
 
 namespace PVWidgets {
 

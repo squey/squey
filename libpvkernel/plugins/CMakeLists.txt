@@ -7,6 +7,10 @@ add_subdirectory(normalize)
 add_subdirectory(input_types)
 add_subdirectory(sources)
 
+################################################
+# Ressource declaration
+################################################
+
 SET(NORMALIZE_PCAP_FORMAT_FILES
 normalize-helpers/pcap/default.format
 normalize-helpers/pcap/local-192-168-src.format

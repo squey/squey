@@ -1,7 +1,7 @@
 #include "pvguiqt/PVLogoScene.h"
 #include "pvguiqt/PVLogoModel.h"
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QtOpenGL>
 
 #ifndef GL_MULTISAMPLE

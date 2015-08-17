@@ -12,7 +12,7 @@
 
 #include <memory>
 
-#include <gui-qt/ui/PVAxisComputationDlg.h>
+#include <ui_PVAxisComputationDlg.h>
 
 namespace PVWidgets
 {

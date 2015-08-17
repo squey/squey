@@ -4,7 +4,7 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QGLWidget>
 #include <iostream>
 

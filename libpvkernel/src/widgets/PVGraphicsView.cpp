@@ -2,16 +2,16 @@
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
 #include <pvkernel/widgets/PVGraphicsViewInteractorScene.h>
 
-#include <QGridLayout>
-#include <QGraphicsScene>
+#include <QApplication>
+#include <QDebug>
+#include <QEvent>
 #include <QGraphicsItem>
+#include <QGraphicsScene>
+#include <QGraphicsSceneWheelEvent>
+#include <QGridLayout>
 #include <QPaintEvent>
 #include <QPainter>
-#include <QApplication>
-#include <QEvent>
-#include <QGraphicsSceneWheelEvent>
 #include <QScrollBar64>
-#include <QDebug>
 
 #ifndef QT_NO_OPENGL
 #include <QGLWidget>

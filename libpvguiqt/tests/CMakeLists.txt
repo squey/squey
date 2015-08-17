@@ -21,7 +21,7 @@ declare_pv_test(Tqt_picviz_tree picviz_tree.cpp common.cpp)
 target_link_libraries(Tqt_picviz_tree ${COMMON_LIBRARIES})
 
 # Axes combination model
-qt4_wrap_cpp(AXES_COMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
+qt5_wrap_cpp(AXES_COMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT5_WRAP_OPTIONS})
 declare_pv_test(Tqt_axes_comb axes-comb.cpp ${AXES_COMB_MOC_SRC})
 target_link_libraries(Tqt_axes_comb ${COMMON_LIBRARIES})
 
@@ -33,7 +33,7 @@ declare_pv_test(Tqt_listing_model listing_model.cpp common.cpp)
 target_link_libraries(Tqt_listing_model ${COMMON_LIBRARIES})
 
 # Stats listing
-qt4_wrap_cpp(STATS_LISTING_MOC_SRC stats_listing.h OPTIONS ${QT4_WRAP_OPTIONS})
+qt5_wrap_cpp(STATS_LISTING_MOC_SRC stats_listing.h OPTIONS ${QT5_WRAP_OPTIONS})
 declare_pv_test(Tqt_stats_listing stats_listing.cpp common.cpp ${STATS_LISTING_MOC_SRC})
 target_link_libraries(Tqt_stats_listing ${COMMON_LIBRARIES})
 
@@ -55,7 +55,7 @@ target_link_libraries(Tqt_css ${COMMON_LIBRARIES})
 
 # Workspaces
 if (CUDA_FOUND)
-	qt4_wrap_cpp(WORKSPACES_MOC_SRC workspaces.h OPTIONS ${QT4_WRAP_OPTIONS})
+	qt5_wrap_cpp(WORKSPACES_MOC_SRC workspaces.h OPTIONS ${QT5_WRAP_OPTIONS})
 	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES} /opt/cuda/lib64/libnpp.so)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 	declare_pv_test(Tqt_workspaces workspaces.cpp common.cpp)

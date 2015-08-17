@@ -7,7 +7,7 @@
 #include <cmath>
 
 #include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/widgets/editors/PVPercentRangeEditor.h>

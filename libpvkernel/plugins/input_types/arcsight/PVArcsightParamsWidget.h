@@ -5,7 +5,7 @@
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/widgets/PVPresetsWidget.h>
 
-#include <pvkernel/ui/arcsight_params.h>
+#include <ui_arcsight_params.h>
 
 #include "../../common/arcsight/PVArcsightQuery.h"
 

@@ -5,7 +5,7 @@
  */
 
 #include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 
 #include <QVBoxLayout>
 #include <QDialog>

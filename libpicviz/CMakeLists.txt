@@ -5,6 +5,26 @@
 
 project(libpicviz)
 
+################################################
+# QT5 related include and check
+################################################
+
+# For QDomElement
+find_package(Qt5Xml REQUIRED)
+include_directories(${Qt5Xml_INCLUDE_DIRS})
+
+# For QColor
+find_package(Qt5Gui REQUIRED)
+include_directories(${Qt5Gui_INCLUDE_DIRS})
+
+# For QApplication
+find_package(Qt5Widgets REQUIRED)
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
+
+###################################################################
+# Add include directories for picviz's libs and external projects
+###################################################################
+
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 include_directories(AFTER ${ICU_INCLUDE})

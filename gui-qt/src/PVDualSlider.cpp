@@ -7,7 +7,7 @@
 #include <cmath>
 
 #include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 
 
 #include <pvkernel/core/general.h>
@@ -150,7 +150,7 @@ void PVInspector::PVDualSlider::mouseMoveEvent(QMouseEvent *event)
  *****************************************************************************/
 void PVInspector::PVDualSlider::mousePressEvent(QMouseEvent *event)
 {
-	last_mouse_press_position = event->posF();
+	last_mouse_press_position = event->localPos();
 	if (event->button() == Qt::LeftButton) {
 		SELECTED_SLIDER = get_selected_slider_index(event->x());
 		event->accept();

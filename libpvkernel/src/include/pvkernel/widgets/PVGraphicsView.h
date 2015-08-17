@@ -2,9 +2,9 @@
 #ifndef PVWIDGETS_PVGRAPHICSVIEW_H
 #define PVWIDGETS_PVGRAPHICSVIEW_H
 
-#include <QWidget>
-#include <QTransform>
 #include <QEvent>
+#include <QTransform>
+#include <QWidget>
 
 #include <vector>
 #include <list>
@@ -927,8 +927,8 @@ private:
 
 private:
 	QGridLayout        *_layout;
-	QScrollBar64       *_hbar;
-	QScrollBar64       *_vbar;
+	QScrollBar64         *_hbar;
+	QScrollBar64         *_vbar;
 	QWidget            *_viewport;
 
 	QGraphicsScene     *_scene;

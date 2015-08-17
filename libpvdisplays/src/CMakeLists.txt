@@ -3,6 +3,10 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+################################################
+# Ressource declaration
+################################################
+
 set(LIBDISPLAYS_SRC_FILES
 PVDisplayIf.cpp
 PVDisplaysImpl.cpp
@@ -23,17 +27,20 @@ SET(UI_FILES
 SET(QRC_FILES
 )
 
-QT4_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
+################################################
+# Generate extra QT files (moc, uic, rcc)
+################################################
 
 set(SRC_FILES ${LIBDISPLAYS_SRC_FILES})
 set(HEADER_FILES ${LIBDISPLAYS_HEADER_FILES})
 set(MOC_HEADERS ${LIBDISPLAYS_MOC_HEADERS})
-QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
-QT4_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
-PV_QT4_WRAP_UI(UI_SRC ${UI_FILES})
+QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT5_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
+QT5_WRAP_UI(UI_SRC ${UI_FILES})
 
-PV_QT4_UI_INC_DIR(UI_INC_DIR)
-include_directories(AFTER ${UI_INC_DIR})
+################################################
+# Declare the new library and linkage options
+################################################
 
 add_library(pvdisplays SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS} ${UI_FILES})
 

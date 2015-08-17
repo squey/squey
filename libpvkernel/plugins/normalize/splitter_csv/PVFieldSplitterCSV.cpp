@@ -19,8 +19,8 @@ PVFilter::PVFieldSplitterCSV::PVFieldSplitterCSV(PVCore::PVArgumentList const& a
 void PVFilter::PVFieldSplitterCSV::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	_sep = args["sep"].toChar().toAscii();
-	_quote = args["quote"].toChar().toAscii();
+	_sep = args["sep"].toChar().toLatin1();
+	_quote = args["quote"].toChar().toLatin1();
 }
 
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterCSV)
@@ -84,7 +84,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore:
 	inf._lf = &l;
 	inf._f_cur = (QChar*) field.begin();
 	inf._len_buf = field.size();
-	inf._cstr = field.get_qstr(str_tmp).toAscii();
+	inf._cstr = field.get_qstr(str_tmp).toLatin1();
 	inf._nelts = 0;
 
 	// And use libcsv

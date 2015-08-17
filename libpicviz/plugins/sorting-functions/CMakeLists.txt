@@ -16,7 +16,7 @@ sorting_ipv4_default
 set(FUNCTIONS_DIST_FILES
 )
 
-set(LINK_LIBRARIES picviz pvkernel ${QT_LIBRARIES})
+set(LINK_LIBRARIES picviz pvkernel)
 
 add_library(sorting_float_default SHARED float_default/PVFloatDefaultSortingFunc.cpp float_default/register.cpp)
 target_link_libraries(sorting_float_default ${LINK_LIBRARIES})

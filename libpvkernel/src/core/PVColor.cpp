@@ -4,8 +4,6 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
-#include <QRgb>
-
 #include <pvkernel/core/PVColor.h>
 
 PVCore::PVColor PVCore::PVColor::fromRgba(unsigned char r, unsigned char g, unsigned char b, unsigned char a)

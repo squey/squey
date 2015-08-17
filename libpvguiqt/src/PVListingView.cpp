@@ -32,15 +32,16 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QCursor>
-#include <QKeyEvent>
 #include <QHeaderView>
+#include <QInputDialog>
+#include <QKeyEvent>
+#include <QLinearGradient>
+#include <QMenu>
+#include <QPainter>
 #include <QScrollBar>
 #include <QSizePolicy>
 #include <QStatusBar>
-#include <QMenu>
 #include <QWheelEvent>
-#include <QLinearGradient>
-#include <QInputDialog>
 
 #define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
 #include <tbb/parallel_reduce.h>
@@ -222,7 +223,7 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	_vhead_ctxt_menu = new QMenu(this);
 	_vhead_ctxt_menu->addAction(_action_copy_row_value);
 
-	verticalHeader()->setClickable(true);
+	verticalHeader()->setSectionsClickable(true);
 	verticalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 	verticalHeader()->setObjectName("verticalHeader_of_PVListingView");
 	connect(verticalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -889,7 +890,7 @@ PVGuiQt::PVHorizontalHeaderView::PVHorizontalHeaderView(Qt::Orientation orientat
 {
 	// These two calls are required since they are done on the headers in QTableView::QTableView
 	// instead of in QHeaderView::QHeaderView !
-	setClickable(true);
+	setSectionsClickable(true);
 	setHighlightSections(true);
 
 	// Context menu of the horizontal header

@@ -23,7 +23,7 @@
 #include <tbb/enumerable_thread_specific.h>
 
 #include <QFuture>
-#include <qtconcurrentmap.h>
+#include <QtConcurrent/QtConcurrentMap>
 
 #include <cassert>
 #include <functional>

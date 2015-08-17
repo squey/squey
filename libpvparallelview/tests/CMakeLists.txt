@@ -25,7 +25,7 @@ target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
 #declare_pv_test(full_parallel_view_selections_sync full_parallel_view_selections_sync.cpp common.cpp)
 #target_link_libraries(full_parallel_view_selections_sync ${LINK_LIBRARIES})
 
-QT4_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
+QT5_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h OPTIONS ${QT5_WRAP_OPTIONS})
 declare_pv_test(both_views both_views.cpp ${ZOOM_DLG_MOC} common.cpp)
 target_link_libraries(both_views ${LINK_LIBRARIES})
 
@@ -189,7 +189,7 @@ if (CUDA_FOUND)
 	#declare_pv_test(rendering_pipeline_base rendering_pipeline_base.cpp)
 	#target_link_libraries(rendering_pipeline_base ${LINK_LIBRARIES})
 
-	#QT4_WRAP_CPP(ZD_MOC zone_drawing_events.h OPTIONS ${QT4_WRAP_OPTIONS})
+	#QT5_WRAP_CPP(ZD_MOC zone_drawing_events.h OPTIONS ${QT5_WRAP_OPTIONS})
 	#declare_pv_test(zone_drawing zone_drawing.cpp ${ZD_MOC})
 	#target_link_libraries(zone_drawing ${LINK_LIBRARIES})
 

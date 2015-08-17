@@ -3,6 +3,10 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+################################################
+# Ressource declaration
+################################################
+
 set(CORE_SRC_FILES
 core/debug.cpp
 core/environ.cpp
@@ -431,14 +435,22 @@ if(PYTHONLIBS_FOUND)
 	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
 endif(PYTHONLIBS_FOUND)
 
+################################################
+# Generate extra QT files (moc, uic, rcc)
+################################################
+
 set(SRC_FILES ${CORE_SRC_FILES} ${CUDA_SRC_FILES} ${FILTER_SRC_FILES} ${RUSH_SRC_FILES} ${WIDGETS_SRC_FILES})
 set(HEADER_FILES ${CORE_HEADER_FILES} ${CUDA_HEADER_FILES} ${FILTER_HEADER_FILES} ${RUSH_HEADER_FILES} ${WIDGETS_HEADER_FILES})
 set(MOC_HEADERS ${CORE_MOC_HEADERS} ${FILTER_MOC_HEADERS} ${RUSH_MOC_HEADERS} ${WIDGETS_MOC_HEADERS})
 
-QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
-PV_QT4_WRAP_UI(UI_SRC ${UI_FILES})
+QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+PV_QT5_WRAP_UI(UI_SRC pvkernel ${UI_FILES})
 
-add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${UI_FILES})
+################################################
+# Declare the new library and linkage options
+################################################
+
+add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${UI_SRC})
 
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 

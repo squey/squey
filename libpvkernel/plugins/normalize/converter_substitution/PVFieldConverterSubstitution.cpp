@@ -61,8 +61,8 @@ void PVFilter::PVFieldConverterSubstitution::init()
 	if (csv_init(&p, 0) != 0) {
 		PVLOG_ERROR("Unable to initialize libcsv !\n");
 	}
-	csv_set_delim(&p, _sep_char.toAscii());
-	csv_set_quote(&p, _quote_char.toAscii());
+	csv_set_delim(&p, _sep_char.toLatin1());
+	csv_set_quote(&p, _quote_char.toLatin1());
 	QFile f(_path);
 	if (!f.open(QFile::ReadOnly | QFile::Text)) {
 		PVLOG_WARN("Filter '%s' of type '%s' was unable to open conversion file !\n", qPrintable(type_name()), qPrintable(registered_name()));

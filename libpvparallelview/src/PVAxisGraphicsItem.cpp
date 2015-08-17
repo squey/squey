@@ -108,7 +108,7 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 
 	_label = new PVAxisLabel(view, _sliders_group);
 	addToGroup(_label);
-	_label->rotate(label_rotation);
+	_label->setRotation(label_rotation);
 	_label->setPos(0, - 6 * axis_extend);
 
 	_axis_min_value = new QGraphicsTextItem(this);

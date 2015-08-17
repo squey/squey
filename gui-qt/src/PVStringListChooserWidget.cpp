@@ -4,7 +4,7 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QDialog>
 
 #include <PVStringListChooserWidget.h>

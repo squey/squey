@@ -48,7 +48,7 @@ foreach(i ${squish_env_vars})
   set ( ENV{${CMAKE_MATCH_1}} ${CMAKE_MATCH_2} )
 endforeach()
 
-if (QT4_INSTALLED)
+if (QT5_INSTALLED)
   # record Qt lib directory
   set ( ENV{${SQUISH_LIBQTDIR}} ${squish_libqtdir} )
 endif ()
