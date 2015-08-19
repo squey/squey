@@ -37,11 +37,13 @@ public:
 	~PVElasticsearchParamsWidget();
 
 public:
-	void get_infos(PVElasticsearchInfos& infos);
-	QString get_query();
-	QString get_serialized_query();
-	QString get_query_type();
-	void get_query(PVElasticsearchQuery& query);
+	PVElasticsearchInfos get_infos() const;
+
+	PVElasticsearchQuery get_query() const;
+	QString get_elasticsearch_query() const;
+	QString get_serialized_query() const;
+	QString get_query_type() const;
+
 	bool is_format_custom() { return _radio_new_format->isChecked(); };
 	QString get_existing_format();
 	QDomDocument get_custom_format() { return _new_format_doc; };
@@ -66,7 +68,7 @@ protected slots:
 	void query_type_changed();
 	void index_changed_by_user_slot();
 	void index_changed(const QString& index);
-	void check_connection();
+	void check_connection_slot();
 
 protected:
 	bool set_infos(PVElasticsearchInfos const& infos);
@@ -80,7 +82,8 @@ protected:
 	static void show_layout_children(const QLayout* layout, bool show);
 
 private:
-	QString get_sql_query_prefix();
+	QString get_sql_query_prefix() const;
+	bool check_connection();
 
 protected:
 	PVWidgets::PVPresetsWidget* _presets_widget;

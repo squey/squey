@@ -61,7 +61,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(PVInputTypeElas
 	connect(_query_type_cb, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(query_type_changed()));
 	connect(_combo_index, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(index_changed(const QString&)));
 	connect(_combo_index, SIGNAL(activated(int)), this, SLOT(index_changed_by_user_slot()));
-	connect(_check_connection_push_button, SIGNAL(clicked()), this, SLOT(check_connection()));
+	connect(_check_connection_push_button, SIGNAL(clicked()), this, SLOT(check_connection_slot()));
 
 	for (size_t i = 0 ; i < EQueryType::COUNT ; i++) {
 		_query_type_cb->addItem(query_types[i]);
@@ -117,12 +117,9 @@ PVRush::PVElasticsearchPresets::id_t PVRush::PVElasticsearchParamsWidget::get_cu
 	return _presets_widget->get_preset_data().toUInt();
 }
 
-QString PVRush::PVElasticsearchParamsWidget::get_sql_query_prefix()
+QString PVRush::PVElasticsearchParamsWidget::get_sql_query_prefix() const
 {
-	PVElasticsearchInfos infos;
-	get_infos(infos);
-
-	return QString("SELECT * FROM %1 WHERE ").arg(infos.get_index());
+	return QString("SELECT * FROM %1 WHERE ").arg(get_infos().get_index());
 }
 
 void PVRush::PVElasticsearchParamsWidget::index_changed(const QString& index)
@@ -141,21 +138,21 @@ void PVRush::PVElasticsearchParamsWidget::index_changed_by_user_slot()
 	int query_type = _query_type_cb->currentIndex();
 
 	if (query_type == EQueryType::QUERY_BUILDER) {
-		PVElasticsearchInfos infos;
-		get_infos(infos);
-		PVRush::PVElasticsearchAPI es(infos);
-
-		PVRush::PVElasticsearchQuery q;
-		get_query(q);
-		_querybuilder->set_filters(es.columns(q));
+		PVRush::PVElasticsearchAPI es(get_infos());
+		_querybuilder->set_filters(es.columns(get_query()));
 	}
 }
 
-void PVRush::PVElasticsearchParamsWidget::check_connection()
+bool PVRush::PVElasticsearchParamsWidget::check_connection()
 {
-	PVElasticsearchInfos infos;
-	get_infos(infos);
-	PVRush::PVElasticsearchAPI es(infos);
+	PVRush::PVElasticsearchAPI es(get_infos());
+
+	return es.check_connection();
+}
+
+void PVRush::PVElasticsearchParamsWidget::check_connection_slot()
+{
+	PVRush::PVElasticsearchAPI es(get_infos());
 
 	std::string error_msg;
 	if (es.check_connection(&error_msg)) {
@@ -170,9 +167,7 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed()
 {
 	int query_type = _query_type_cb->currentIndex();
 
-	PVElasticsearchInfos infos;
-	get_infos(infos);
-	PVRush::PVElasticsearchAPI es(infos);
+	PVRush::PVElasticsearchAPI es(get_infos());
 
 	if (query_type == EQueryType::SQL) {
 		_txt_query->setPlainText("");
@@ -213,14 +208,12 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed()
 
 void PVRush::PVElasticsearchParamsWidget::preset_new_slot(const QString& name)
 {
-	PVElasticsearchInfos new_infos;
-	get_infos(new_infos);
-	QString query = get_query();
+	QString query = get_elasticsearch_query();
 	QString query_type = get_query_type();
 
 	// Set the new presets
 	// ignore returned value
-	PVElasticsearchPresets::get().add(name, new_infos, query, query_type);
+	PVElasticsearchPresets::get().add(name, get_infos(), query, query_type);
 }
 
 void PVRush::PVElasticsearchParamsWidget::preset_load_slot(const QString& /*preset*/)
@@ -265,11 +258,8 @@ void PVRush::PVElasticsearchParamsWidget::preset_save_slot(const QString& /*pres
 	PVElasticsearchPresets::id_t id = get_current_preset_id();
 	QString query = get_serialized_query();
 	QString query_type = get_query_type();
-	
-	PVElasticsearchInfos new_infos;
-	get_infos(new_infos);
 
-	PVElasticsearchPresets::get().set(id, new_infos, query, query_type);
+	PVElasticsearchPresets::get().set(id, get_infos(), query, query_type);
 }
 
 void PVRush::PVElasticsearchParamsWidget::preset_remove_slot(const QString& /*preset*/)
@@ -278,8 +268,10 @@ void PVRush::PVElasticsearchParamsWidget::preset_remove_slot(const QString& /*pr
 	PVElasticsearchPresets::get().rm(id);
 }
 
-void PVRush::PVElasticsearchParamsWidget::get_infos(PVElasticsearchInfos& infos)
+PVRush::PVElasticsearchInfos PVRush::PVElasticsearchParamsWidget::get_infos() const
 {
+	PVElasticsearchInfos infos;
+
 	infos.set_host(_txt_host->text());
 	infos.set_port(_port_sb->value());
 	infos.set_index(_combo_index->currentText());
@@ -287,6 +279,8 @@ void PVRush::PVElasticsearchParamsWidget::get_infos(PVElasticsearchInfos& infos)
 		infos.set_login(_login_txt->text());
 		infos.set_password(_passwd_txt->text());
 	}
+
+	return infos;
 }
 
 bool PVRush::PVElasticsearchParamsWidget::set_infos(PVElasticsearchInfos const& infos)
@@ -302,12 +296,12 @@ bool PVRush::PVElasticsearchParamsWidget::set_infos(PVElasticsearchInfos const& 
 	return true;
 }
 
-QString PVRush::PVElasticsearchParamsWidget::get_query_type()
+QString PVRush::PVElasticsearchParamsWidget::get_query_type() const
 {
 	return _query_type_cb->currentText();
 }
 
-QString PVRush::PVElasticsearchParamsWidget::get_query()
+QString PVRush::PVElasticsearchParamsWidget::get_elasticsearch_query() const
 {
 	QString q = get_serialized_query();
 	int query_type = _query_type_cb->currentIndex();
@@ -316,9 +310,7 @@ QString PVRush::PVElasticsearchParamsWidget::get_query()
 		q = _txt_query->toPlainText();
 	}
 	else {
-		PVElasticsearchInfos infos;
-		get_infos(infos);
-		PVRush::PVElasticsearchAPI es(infos);
+		PVRush::PVElasticsearchAPI es(get_infos());
 
 		if (query_type == EQueryType::SQL) {
 			q = es.sql_to_json(QString(get_sql_query_prefix() + q).toStdString()).c_str();
@@ -333,7 +325,7 @@ QString PVRush::PVElasticsearchParamsWidget::get_query()
 	return q;
 }
 
-QString PVRush::PVElasticsearchParamsWidget::get_serialized_query()
+QString PVRush::PVElasticsearchParamsWidget::get_serialized_query() const
 {
 	int query_type = _query_type_cb->currentIndex();
 
@@ -345,13 +337,11 @@ QString PVRush::PVElasticsearchParamsWidget::get_serialized_query()
 	}
 }
 
-void PVRush::PVElasticsearchParamsWidget::get_query(PVElasticsearchQuery& query)
+PVRush::PVElasticsearchQuery PVRush::PVElasticsearchParamsWidget::get_query() const
 {
-	PVElasticsearchInfos& infos(query.get_infos());
-	get_infos(infos);
+	PVElasticsearchQuery query(get_infos(), get_elasticsearch_query(), get_query_type());
 
-	query.set_query(get_query());
-	query.set_query_type(get_query_type());
+	return query;
 }
 
 void PVRush::PVElasticsearchParamsWidget::set_query(QString const& query)
@@ -359,14 +349,8 @@ void PVRush::PVElasticsearchParamsWidget::set_query(QString const& query)
 	int query_type = _query_type_cb->currentIndex();
 
 	if (query_type == EQueryType::QUERY_BUILDER) {
-		PVElasticsearchInfos infos;
-		get_infos(infos);
-
-		PVRush::PVElasticsearchQuery q;
-		get_query(q);
-
-		PVRush::PVElasticsearchAPI es(infos);
-		_querybuilder->set_filters(es.columns(q));
+		PVRush::PVElasticsearchAPI es(get_infos());
+		_querybuilder->set_filters(es.columns(get_query()));
 		_querybuilder->set_rules(query.toStdString());
 	}
 	else {
@@ -386,19 +370,12 @@ void PVRush::PVElasticsearchParamsWidget::show_def_params()
 
 void PVRush::PVElasticsearchParamsWidget::request_count()
 {
-	PVRush::PVElasticsearchQuery query;
-	get_query(query);
-
-	PVElasticsearchInfos infos;
-	get_infos(infos);
-
-	PVRush::PVElasticsearchAPI es(infos);
-
+	PVRush::PVElasticsearchAPI es(get_infos());
 
 	size_t request_count = 0;
 	PVCore::PVProgressBox pbox("Executing count request...");
 	PVCore::PVProgressBox::progress([&]() {
-		request_count = es.count(query);
+		request_count = es.count(get_query());
 	}, &pbox);
 
 	QMessageBox::information((QWidget*) QObject::parent(), tr("Request count"), tr("The request returned %L1 result(s)").arg(request_count));
@@ -456,10 +433,7 @@ QString PVRush::PVElasticsearchParamsWidget::get_existing_format()
 
 void PVRush::PVElasticsearchParamsWidget::refresh_indexes()
 {
-	PVElasticsearchInfos infos;
-	get_infos(infos);
-
-	PVRush::PVElasticsearchAPI es(infos);
+	PVRush::PVElasticsearchAPI es(get_infos());
 	PVRush::PVElasticsearchAPI::indexes_t indexes = es.indexes();
 
 	QString old_index = _combo_index->currentText();

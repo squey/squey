@@ -10,11 +10,12 @@
 #include <vector>
 #include <string>
 
+#include "PVElasticsearchInfos.h"
+
 #include <curl/curl.h>
 
 namespace PVRush {
 
-class PVElasticsearchInfos;
 class PVElasticsearchQuery;
 
 class PVElasticsearchAPI
@@ -57,7 +58,7 @@ private:
 
 private:
 	CURL* _curl;
-	const PVRush::PVElasticsearchInfos& _infos;
+	PVRush::PVElasticsearchInfos _infos;
 	std::string _scroll_id;
 };
 
