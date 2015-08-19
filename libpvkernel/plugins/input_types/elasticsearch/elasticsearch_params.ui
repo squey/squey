@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>703</width>
+    <width>888</width>
     <height>804</height>
    </rect>
   </property>
@@ -23,7 +23,7 @@
    <item>
     <layout class="QVBoxLayout" name="presets_layout">
      <property name="sizeConstraint">
-      <enum>QLayout::SetMaximumSize</enum>
+      <enum>QLayout::SetMinimumSize</enum>
      </property>
     </layout>
    </item>
@@ -96,7 +96,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Host :</string>
+               <string>URL :</string>
               </property>
              </widget>
             </item>
@@ -225,6 +225,9 @@
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
         <layout class="QVBoxLayout" name="verticalLayout_3">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMaximumSize</enum>
+         </property>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
@@ -280,18 +283,30 @@
          </item>
          <item>
           <widget class="QGroupBox" name="_gb_query">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="title">
             <string>Query</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_2">
             <item row="0" column="0" colspan="2">
              <widget class="QPlainTextEdit" name="_txt_query">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="plainText">
                <string>&quot;query&quot; : { &quot;match_all&quot; : { } }</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
+            <item row="2" column="0">
              <widget class="QLabel" name="_reference_label">
               <property name="text">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-filters.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Elasticsearch Filters reference&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -304,7 +319,7 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
+            <item row="2" column="1">
              <widget class="QPushButton" name="_count_btn">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -316,6 +331,13 @@
                <string>Get result count</string>
               </property>
              </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <layout class="QGridLayout" name="_querybuilder_layout">
+              <property name="sizeConstraint">
+               <enum>QLayout::SetMaximumSize</enum>
+              </property>
+             </layout>
             </item>
            </layout>
           </widget>

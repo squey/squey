@@ -9,6 +9,7 @@
 #include "PVElasticsearchQuery.h"
 
 #include <sstream>
+#include <unordered_map>
 
 #include <curl/curl.h>
 #include <rapidjson/document.h>
@@ -82,7 +83,7 @@ void PVRush::PVElasticsearchAPI::prepare_query(const std::string& uri, const std
 	curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYPEER, false);
 }
 
-bool PVRush::PVElasticsearchAPI::perform_query(std::string& result, std::string* error /* = nulltr */) const
+bool PVRush::PVElasticsearchAPI::perform_query(std::string& result, std::string* error /* = nullptr */) const
 {
 	curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &result);
 	CURLcode res = curl_easy_perform(_curl);
@@ -129,7 +130,7 @@ bool PVRush::PVElasticsearchAPI::check_connection(std::string* error /* =  nullp
 	return perform_query(json_buffer, error);
 }
 
-std::string PVRush::PVElasticsearchAPI::sql_to_json(const std::string& sql) const
+std::string PVRush::PVElasticsearchAPI::sql_to_json(const std::string& sql, std::string* error /* = nullptr */) const
 {
 	std::string json_buffer;
 	std::stringstream url;
@@ -148,6 +149,13 @@ std::string PVRush::PVElasticsearchAPI::sql_to_json(const std::string& sql) cons
 	if (perform_query(json_buffer)) {
 		rapidjson::Document json;
 		json.Parse<0>(json_buffer.c_str());
+
+		if (json.HasMember("error")) {
+			if (error) {
+				*error =  json["error"].GetString();
+			}
+			return std::string();
+		}
 
 		rapidjson::StringBuffer strbuf;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
@@ -228,16 +236,33 @@ PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::columns(const 
 		// TODO: if importer == "Logstash"
 
 		rapidjson::Value& json_mappings = json[infos.get_index().toStdString().c_str()]["mappings"];
-		rapidjson::Value& json_axes = json_mappings[json_mappings.MemberBegin()->name.GetString()]["properties"];
+
+		// Several mappings can potentially be defined but we can only chose one...
+		std::string mapping_type = "_default_";
+		for (rapidjson::Value::ConstMemberIterator mtype = json_mappings.MemberBegin(); mtype != json_mappings.MemberEnd(); ++mtype) {
+			mapping_type = mtype->name.GetString();
+			if (mapping_type.size() > 0 && mapping_type[0] != '_') {
+				break;
+			}
+		}
+
+		rapidjson::Value& json_axes = json_mappings[mapping_type.c_str()]["properties"];
 
 		const std::vector<std::string> invalid_cols = { "message", "type", "host", "path", "geoip" };
+		std::unordered_map<std::string, std::string> types_mapping = { { "long", "integer" }, { "float", "double" } };
 
 		for (rapidjson::Value::ConstMemberIterator axe = json_axes.MemberBegin(); axe != json_axes.MemberEnd(); ++axe) {
 			std::string name = axe->name.GetString();
 
 			if (std::find(invalid_cols.begin(), invalid_cols.end(), name) == invalid_cols.end() && (name.size() > 0 && name[0] != '@')) {
 				std::string type = json_axes[name.c_str()]["type"].GetString();
-				cols.emplace_back(mapping_t(name, type));
+
+				auto it = types_mapping.find(type);
+				if (it != types_mapping.end()) {
+					type = it->second;
+				}
+
+				cols.emplace_back(name, type);
 			}
 		}
 	}

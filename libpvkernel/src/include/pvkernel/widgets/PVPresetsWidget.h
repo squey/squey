@@ -61,6 +61,7 @@ public:
 	QVariant get_preset_data() const;
 	QString get_current_preset_name() const;
 	int get_preset_count() const;
+	void select_preset(int idx);
 
 private:
 	QGroupBox* _group_box;

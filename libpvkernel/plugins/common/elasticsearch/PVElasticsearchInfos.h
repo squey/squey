@@ -26,12 +26,14 @@ public:
 	void set_host(QString const& host) { _host = host; }
 	void set_port(uint16_t port) { _port = port; }
 	void set_index(QString const& index) { _index = index; }
+	void set_importer(QString const& importer) { _importer = importer; }
 	void set_login(QString const& login) { _login = login; }
 	void set_password(QString const& password) { _password = password; }
 
 	QString const& get_host() const { return _host; }
 	uint16_t get_port() const { return _port; }
 	QString const& get_index() const { return _index; }
+	QString const& get_importer() const { return _importer; }
 	QString const& get_login() const { return _login; }
 	QString const& get_password() const { return _password; }
 
@@ -41,6 +43,7 @@ public:
 			   _port == o._port &&
 			   _index == o._index &&
 			   _login == o._login &&
+			   _importer == o._importer &&
 			   _password == o._password;
 	}
 
@@ -51,6 +54,7 @@ protected:
 	QString _host;
 	uint16_t _port;
 	QString _index;
+	QString _importer;
 	QString _login;
 	QString _password;
 };

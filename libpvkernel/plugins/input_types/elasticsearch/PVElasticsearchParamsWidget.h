@@ -14,10 +14,12 @@
 
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
+#include <pvkernel/widgets/PVPresetsWidget.h>
+#include <pvkernel/widgets/PVQueryBuilder.h>
 
 #include <QDomDocument>
 
-#include <pvkernel/widgets/PVPresetsWidget.h>
+
 #include "PVElasticsearchPresets.h"
 
 namespace PVRush {
@@ -37,6 +39,7 @@ public:
 public:
 	void get_infos(PVElasticsearchInfos& infos);
 	QString get_query();
+	QString get_serialized_query();
 	QString get_query_type();
 	void get_query(PVElasticsearchQuery& query);
 	bool is_format_custom() { return _radio_new_format->isChecked(); };
@@ -47,21 +50,21 @@ protected:
 	void populate_presets();
 	PVElasticsearchPresets::id_t get_current_preset_id();
 
-public slots:
-	void preset_new_Slot(const QString& name);
-	void preset_load_Slot(const QString& name);
-	void preset_save_Slot(const QString& name);
-	void preset_remove_Slot(const QString& name);
-	void preset_text_changed_Slot(const QString& text);
-	void browse_existing_format_Slot();
-	void edit_new_format_Slot();
-	void use_existing_format_toggle_Slot(bool toggle);
+protected slots:
+	void preset_new_slot(const QString& name);
+	void preset_load_slot(const QString& name);
+	void preset_save_slot(const QString& name);
+	void preset_remove_slot(const QString& name);
+	void preset_text_changed_slot(const QString& text);
+	void browse_existing_format_slot();
+	void edit_new_format_slot();
+	void use_existing_format_toggle_slot(bool toggle);
 	void request_count();
 
 protected slots:
 	void refresh_indexes();
 	void query_type_changed();
-	void refresh_query_groupbox();
+	void index_changed_by_user_slot();
 	void index_changed(const QString& index);
 	void check_connection();
 
@@ -91,6 +94,7 @@ protected:
 
 private:
 	QFileDialog _file_dlg;
+	PVWidgets::PVQueryBuilder* _querybuilder = nullptr;
 };
 
 }

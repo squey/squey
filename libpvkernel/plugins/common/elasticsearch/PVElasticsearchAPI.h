@@ -20,15 +20,12 @@ class PVElasticsearchQuery;
 class PVElasticsearchAPI
 {
 public:
-	struct mapping_t {
-		mapping_t(const std::string& n, const std::string& t) :name(n), type(t) {};
-		std::string name;
-		std::string type;
-	}; // Types supported by the QueryBuilder are: [string, integer, double, date, time, datetime, boolean]
+	// Types supported by the QueryBuilder are: [string, integer, double, date, time, datetime, boolean]
+	// Types supported by Elasticsearch are: [string, integer/long, float/double, boolean, and null]
 
 public:
 	using indexes_t = std::vector<std::string>;
-	using columns_t = std::vector<mapping_t>;
+	using columns_t = std::vector<std::pair<std::string, std::string>>;
 	using rows_t = std::vector<std::string>;
 
 public:
@@ -39,7 +36,7 @@ public:
 	bool scroll(const PVRush::PVElasticsearchQuery& query, std::string& json_data);
 	bool clear_scroll();
 	bool parse_results(const std::string& json_data, rows_t& rows) const;
-	std::string sql_to_json(const std::string& sql) const;
+	std::string sql_to_json(const std::string& sql, std::string* error = nullptr) const;
 
 public:
 	bool check_connection(std::string* error = nullptr) const;

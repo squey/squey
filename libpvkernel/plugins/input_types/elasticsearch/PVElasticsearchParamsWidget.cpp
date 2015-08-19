@@ -11,9 +11,19 @@
 #include "../../common/elasticsearch/PVElasticsearchQuery.h"
 
 #include <pvkernel/core/lambda_connect.h>
+#include <pvkernel/core/PVProgressBox.h>
 
 #include <QMessageBox>
 #include <QPushButton>
+
+enum EQueryType {
+	QUERY_BUILDER = 0,
+	JSON,
+	SQL,
+
+	COUNT
+};
+static const char* query_types[] = { "Query Builder", "JSON", "SQL" };
 
 PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(PVInputTypeElasticsearch const* in_t, PVRush::hash_formats const& /*formats*/, QWidget* parent):
 	QDialog(parent),
@@ -23,32 +33,51 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(PVInputTypeElas
 	// Create the UI
 	setupUi(this);
 
+	// Create the Query Builder
+	_querybuilder = new PVWidgets::PVQueryBuilder(this);
+	_querybuilder_layout->addWidget(_querybuilder);
+
 	// Set the dialog title
 	setWindowTitle(tr("Import from Elasticsearch..."));
 	
 	// Presets widget
 	_presets_widget = new PVWidgets::PVPresetsWidget(tr("Saved settings"));
+	_presets_widget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+	_presets_widget->setFixedHeight(250);
 	presets_layout->addWidget(_presets_widget);
 	populate_presets();
 
 	// Set connections
-	connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this, SLOT(preset_load_Slot(const QString&)));
-	connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this, SLOT(preset_new_Slot(const QString&)));
-	connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this, SLOT(preset_save_Slot(const QString&)));
-	connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this, SLOT(preset_remove_Slot(const QString&)));
-	connect(_btn_browse_existing_format, SIGNAL(clicked()), this, SLOT(browse_existing_format_Slot()));
-	connect(_btn_edit_new, SIGNAL(clicked()), this, SLOT(edit_new_format_Slot()));
-	connect(_radio_use_existing, SIGNAL(toggled(bool)), this, SLOT(use_existing_format_toggle_Slot(bool)));
+	connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this, SLOT(preset_load_slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this, SLOT(preset_new_slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this, SLOT(preset_save_slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this, SLOT(preset_remove_slot(const QString&)));
+	connect(_btn_browse_existing_format, SIGNAL(clicked()), this, SLOT(browse_existing_format_slot()));
+	connect(_btn_edit_new, SIGNAL(clicked()), this, SLOT(edit_new_format_slot()));
+	connect(_radio_use_existing, SIGNAL(toggled(bool)), this, SLOT(use_existing_format_toggle_slot(bool)));
 	connect(_btn_refresh, SIGNAL(clicked()), this, SLOT(refresh_indexes()));
 	::connect(_auth_enabled_cb, SIGNAL(stateChanged(int)), [&]{_auth_grp->setEnabled(_auth_enabled_cb->isChecked());});
 	connect(_count_btn, SIGNAL(clicked()), this, SLOT(request_count()));
 	connect(_query_type_cb, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(query_type_changed()));
 	connect(_combo_index, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(index_changed(const QString&)));
+	connect(_combo_index, SIGNAL(activated(int)), this, SLOT(index_changed_by_user_slot()));
 	connect(_check_connection_push_button, SIGNAL(clicked()), this, SLOT(check_connection()));
-	
-	_last_load_preset = -1;
+
+	for (size_t i = 0 ; i < EQueryType::COUNT ; i++) {
+		_query_type_cb->addItem(query_types[i]);
+	}
+
+	// Set SQL field columns
+	_table_fields->setColumnCount(3);
+	_table_fields->setHorizontalHeaderLabels(QStringList() << "Field name" << "SQL type" << "Picviz type");
+
+	enable_used_format(true);
+
+	// Hide "format" tab for the moment
+	tabWidget->removeTab(2);
 
 	// Get the last preset ID loaded
+	_last_load_preset = -1;
 	_settings.beginGroup(PV_SETTINGS_INPUT_ELASTICSEARCH "ui");
 	if (_settings.contains("last_preset")) {
 		PVRush::PVElasticsearchPresets::id_t id = _settings.value("last_preset").toUInt();
@@ -60,21 +89,6 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(PVInputTypeElas
 			load_preset(_presets_widget->get_preset_data(0).toUInt());
 		}
 	}
-
-	PVElasticsearchQuery query;
-	get_query(query);
-
-	_query_type_cb->addItem("JSON");
-	_query_type_cb->addItem("SQL");
-
-	// Set SQL field columns
-	_table_fields->setColumnCount(3);
-	_table_fields->setHorizontalHeaderLabels(QStringList() << "Field name" << "SQL type" << "Picviz type");
-
-	enable_used_format(true);
-
-	// Hide "format" tab for the moment
-	tabWidget->removeTab(2);
 }
 
 PVRush::PVElasticsearchParamsWidget::~PVElasticsearchParamsWidget()
@@ -114,7 +128,27 @@ QString PVRush::PVElasticsearchParamsWidget::get_sql_query_prefix()
 void PVRush::PVElasticsearchParamsWidget::index_changed(const QString& index)
 {
 	buttonBox->buttons()[0]->setEnabled(index != "");
-	refresh_query_groupbox();
+
+	QString query_type = _query_type_cb->currentText();
+
+	if (query_type == query_types[EQueryType::SQL]) {
+		_gb_query->setTitle(get_sql_query_prefix() + " ...");
+	}
+}
+
+void PVRush::PVElasticsearchParamsWidget::index_changed_by_user_slot()
+{
+	int query_type = _query_type_cb->currentIndex();
+
+	if (query_type == EQueryType::QUERY_BUILDER) {
+		PVElasticsearchInfos infos;
+		get_infos(infos);
+		PVRush::PVElasticsearchAPI es(infos);
+
+		PVRush::PVElasticsearchQuery q;
+		get_query(q);
+		_querybuilder->set_filters(es.columns(q));
+	}
 }
 
 void PVRush::PVElasticsearchParamsWidget::check_connection()
@@ -132,36 +166,52 @@ void PVRush::PVElasticsearchParamsWidget::check_connection()
 	}
 }
 
-void PVRush::PVElasticsearchParamsWidget::refresh_query_groupbox()
-{
-	QString query_type = _query_type_cb->currentText();
-
-	if (query_type == "SQL") {
-
-		PVElasticsearchInfos infos;
-		get_infos(infos);
-		PVRush::PVElasticsearchAPI es(infos);
-
-		if (es.is_sql_available()) {
-			_gb_query->setTitle(get_sql_query_prefix() + " ...");
-			_reference_label->setText("<a href=\"https://github.com/NLPchina/elasticsearch-sql/\"><span style=\" text-decoration: underline; color:#0000ff;\">Elasticsearch SQL plugin");
-		}
-		else {
-
-		}
-	}
-	else {
-		_gb_query->setTitle("Query");
-		_reference_label->setText("<a href=\"https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-filters.html\"><span style=\" text-decoration: underline; color:#0000ff;\">Elasticsearch Filters reference");
-	}
-}
-
 void PVRush::PVElasticsearchParamsWidget::query_type_changed()
 {
-	refresh_query_groupbox();
+	int query_type = _query_type_cb->currentIndex();
+
+	PVElasticsearchInfos infos;
+	get_infos(infos);
+	PVRush::PVElasticsearchAPI es(infos);
+
+	if (query_type == EQueryType::SQL) {
+		_txt_query->setPlainText("");
+		_reference_label->setText(
+			"<a href=\"https://github.com/NLPchina/elasticsearch-sql/\">"
+			"<span style=\" text-decoration: underline; color:#0000ff;\">Elasticsearch SQL plugin"
+		);
+		if (es.is_sql_available()) {
+			_gb_query->setTitle(get_sql_query_prefix() + " ...");
+			_txt_query->setEnabled(true);
+		}
+		else {
+			_txt_query->setPlainText("Please, install the SQL plugin to your Elasticsearch instance to support this feature.");
+			_txt_query->setEnabled(false);
+		}
+		_querybuilder->setVisible(false);
+		_txt_query->setVisible(true);
+	}
+	else if (query_type == EQueryType::QUERY_BUILDER) {
+		_gb_query->setTitle("Query");
+		_reference_label->setText("");
+		_querybuilder->reset();
+		_querybuilder->setVisible(true);
+		_txt_query->setVisible(false);
+	}
+	else { // EQueryType::JSON
+		_txt_query->setPlainText("\"query\" : { \"match_all\" : { } }");
+		_gb_query->setTitle("Query");
+		_reference_label->setText(
+			"<a href=\"https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-filters.html\">"
+			"<span style=\" text-decoration: underline; color:#0000ff;\">Elasticsearch Filters reference"
+		);
+		_querybuilder->setVisible(false);
+		_txt_query->setVisible(true);
+		_txt_query->setEnabled(true);
+	}
 }
 
-void PVRush::PVElasticsearchParamsWidget::preset_new_Slot(const QString& name)
+void PVRush::PVElasticsearchParamsWidget::preset_new_slot(const QString& name)
 {
 	PVElasticsearchInfos new_infos;
 	get_infos(new_infos);
@@ -173,7 +223,7 @@ void PVRush::PVElasticsearchParamsWidget::preset_new_Slot(const QString& name)
 	PVElasticsearchPresets::get().add(name, new_infos, query, query_type);
 }
 
-void PVRush::PVElasticsearchParamsWidget::preset_load_Slot(const QString& /*preset*/)
+void PVRush::PVElasticsearchParamsWidget::preset_load_slot(const QString& /*preset*/)
 {
 	PVElasticsearchPresets::id_t id = get_current_preset_id();
 	load_preset(id);
@@ -199,20 +249,21 @@ void PVRush::PVElasticsearchParamsWidget::load_preset(PVElasticsearchPresets::id
 		return;
 	}
 
+	refresh_indexes();
+	_query_type_cb->setCurrentIndex(_query_type_cb->findText(query_type));
+	_combo_index->setCurrentIndex(_combo_index->findText(infos.get_index()));
+
 	set_query(query);
 	set_query_type(query_type);
 	_last_load_preset = id;
 
-	refresh_indexes();
-	_combo_index->setCurrentIndex(_combo_index->findText(infos.get_index()));
-
-	_query_type_cb->setCurrentIndex(_query_type_cb->findText(query_type));
+	_presets_widget->select_preset(id-1);
 }
 
-void PVRush::PVElasticsearchParamsWidget::preset_save_Slot(const QString& /*preset*/)
+void PVRush::PVElasticsearchParamsWidget::preset_save_slot(const QString& /*preset*/)
 {
 	PVElasticsearchPresets::id_t id = get_current_preset_id();
-	QString query = _txt_query->toPlainText();
+	QString query = get_serialized_query();
 	QString query_type = get_query_type();
 	
 	PVElasticsearchInfos new_infos;
@@ -221,7 +272,7 @@ void PVRush::PVElasticsearchParamsWidget::preset_save_Slot(const QString& /*pres
 	PVElasticsearchPresets::get().set(id, new_infos, query, query_type);
 }
 
-void PVRush::PVElasticsearchParamsWidget::preset_remove_Slot(const QString& /*preset*/)
+void PVRush::PVElasticsearchParamsWidget::preset_remove_slot(const QString& /*preset*/)
 {
 	PVElasticsearchPresets::id_t id = get_current_preset_id();
 	PVElasticsearchPresets::get().rm(id);
@@ -258,19 +309,40 @@ QString PVRush::PVElasticsearchParamsWidget::get_query_type()
 
 QString PVRush::PVElasticsearchParamsWidget::get_query()
 {
-	QString q = _txt_query->toPlainText();
+	QString q = get_serialized_query();
+	int query_type = _query_type_cb->currentIndex();
 
-	if (_query_type_cb->currentText() == "SQL") {
+	if (query_type == EQueryType::JSON) {
+		q = _txt_query->toPlainText();
+	}
+	else {
 		PVElasticsearchInfos infos;
 		get_infos(infos);
 		PVRush::PVElasticsearchAPI es(infos);
 
-		q = es.sql_to_json(QString(get_sql_query_prefix() + q).toStdString()).c_str();
+		if (query_type == EQueryType::SQL) {
+			q = es.sql_to_json(QString(get_sql_query_prefix() + q).toStdString()).c_str();
+		}
+		else if (query_type == EQueryType::QUERY_BUILDER) {
+			//q = es.rules_to_json(_querybuilder->get_rules());
+		}
 	}
 
 	while(q.endsWith('\n')) q.chop(1);
 
 	return q;
+}
+
+QString PVRush::PVElasticsearchParamsWidget::get_serialized_query()
+{
+	int query_type = _query_type_cb->currentIndex();
+
+	if (query_type == EQueryType::QUERY_BUILDER) {
+		return QString(_querybuilder->get_rules().c_str());
+	}
+	else {
+		return _txt_query->toPlainText();
+	}
 }
 
 void PVRush::PVElasticsearchParamsWidget::get_query(PVElasticsearchQuery& query)
@@ -284,7 +356,22 @@ void PVRush::PVElasticsearchParamsWidget::get_query(PVElasticsearchQuery& query)
 
 void PVRush::PVElasticsearchParamsWidget::set_query(QString const& query)
 {
-	_txt_query->setPlainText(query);
+	int query_type = _query_type_cb->currentIndex();
+
+	if (query_type == EQueryType::QUERY_BUILDER) {
+		PVElasticsearchInfos infos;
+		get_infos(infos);
+
+		PVRush::PVElasticsearchQuery q;
+		get_query(q);
+
+		PVRush::PVElasticsearchAPI es(infos);
+		_querybuilder->set_filters(es.columns(q));
+		_querybuilder->set_rules(query.toStdString());
+	}
+	else {
+		_txt_query->setPlainText(query);
+	}
 }
 
 void PVRush::PVElasticsearchParamsWidget::set_query_type(QString const& query_type)
@@ -306,7 +393,13 @@ void PVRush::PVElasticsearchParamsWidget::request_count()
 	get_infos(infos);
 
 	PVRush::PVElasticsearchAPI es(infos);
-	size_t request_count = es.count(query);
+
+
+	size_t request_count = 0;
+	PVCore::PVProgressBox pbox("Executing count request...");
+	PVCore::PVProgressBox::progress([&]() {
+		request_count = es.count(query);
+	}, &pbox);
 
 	QMessageBox::information((QWidget*) QObject::parent(), tr("Request count"), tr("The request returned %L1 result(s)").arg(request_count));
 }
@@ -328,7 +421,7 @@ void PVRush::PVElasticsearchParamsWidget::show_layout_children(const QLayout* la
 	}
 }
 
-void PVRush::PVElasticsearchParamsWidget::browse_existing_format_Slot()
+void PVRush::PVElasticsearchParamsWidget::browse_existing_format_slot()
 {
 	QFileDialog fd;
 	QString format_path = fd.getOpenFileName(0, QString("Select and existing format"), "."); //open file chooser
@@ -336,12 +429,12 @@ void PVRush::PVElasticsearchParamsWidget::browse_existing_format_Slot()
 	_txt_format->setText(format_path);
 }
 
-void PVRush::PVElasticsearchParamsWidget::edit_new_format_Slot()
+void PVRush::PVElasticsearchParamsWidget::edit_new_format_slot()
 {
 	_in_t->edit_format(_new_format_doc, this);
 }
 
-void PVRush::PVElasticsearchParamsWidget::use_existing_format_toggle_Slot(bool toggle)
+void PVRush::PVElasticsearchParamsWidget::use_existing_format_toggle_slot(bool toggle)
 {
 	enable_used_format(toggle);
 }

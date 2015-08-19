@@ -313,3 +313,10 @@ void PVWidgets::PVSavePresetAsDialog::text_changed_Slot(const QString& text)
 		_btn_save->setIcon(style()->standardIcon(QStyle::SP_FileIcon));
 	}
 }
+
+void PVWidgets::PVPresetsWidget::select_preset(int idx)
+{
+	if (idx <= _list->count()) {
+		_list->setCurrentRow(idx);
+	}
+}
