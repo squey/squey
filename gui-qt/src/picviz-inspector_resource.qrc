@@ -177,5 +177,9 @@
         <file alias="zoom-autofit-both">resources/zoom-autofit-both.png</file>
         <file alias="zoom-autofit-horizontal">resources/zoom-autofit-horizontal.png</file>
         <file alias="zoom-autofit-vertical">resources/zoom-autofit-vertical.png</file>
+        
+    <!-- INPUT TYPES -->
+    <file alias="elasticsearch_icon">resources/elasticsearch.png</file>
+    
     </qresource>
 </RCC>

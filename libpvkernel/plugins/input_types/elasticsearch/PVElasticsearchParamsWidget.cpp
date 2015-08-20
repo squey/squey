@@ -39,6 +39,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(PVInputTypeElas
 
 	// Set the dialog title
 	setWindowTitle(tr("Import from Elasticsearch..."));
+	setWindowIcon(QIcon(":/elasticsearch_icon"));
 	
 	// Presets widget
 	_presets_widget = new PVWidgets::PVPresetsWidget(tr("Saved settings"));

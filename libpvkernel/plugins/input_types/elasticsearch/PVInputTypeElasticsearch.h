@@ -33,7 +33,7 @@ public:
 	QKeySequence menu_shortcut() const;
 	bool get_custom_formats(PVInputDescription_p in, hash_formats &formats) const;
 
-	QIcon icon() const { return QIcon(":/import-icon-white"); }
+	QIcon icon() const { return QIcon(":/elasticsearch_icon"); }
 	QCursor cursor() const { return QCursor(Qt::PointingHandCursor); }
 
 protected:
