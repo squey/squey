@@ -21,10 +21,6 @@ include_directories(${Qt5Network_INCLUDE_DIRS})
 find_package(Qt5Xml REQUIRED)
 include_directories(${Qt5Xml_INCLUDE_DIRS})
 
-# For QWebPage
-find_package(Qt5WebKitWidgets REQUIRED)
-include_directories(${Qt5WebKitWidgets_INCLUDE_DIRS})
-
 # For QDesktopWidget
 find_package(Qt5Widgets REQUIRED)
 include_directories(${Qt5Widgets_INCLUDE_DIRS})
@@ -207,7 +203,7 @@ endif()
 set_property(TARGET picviz-inspector APPEND PROPERTY LINK_FLAGS ${GALVEZ_LDFLAGS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
-set(PV_QT_LIBS Qt5::Widgets Qt5::Network Qt5::Xml Qt5OpenGL Qt5WebKitWidgets)
+set(PV_QT_LIBS Qt5::Widgets Qt5::Network Qt5::Xml Qt5OpenGL Qt5WebEngineWidgets)
 
 target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES}
     pvguiqt pvparallelview pvhive picviz pvkernel ${WIN32_EXTRA_LIBS}

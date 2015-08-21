@@ -8,8 +8,7 @@
 #include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <QVBoxLayout>
-#include <QWebView>
-#include <QWebPage>
+#include <QWebEngineView>
 #include <QFile>
 #include <QResizeEvent>
 #include <QKeyEvent>
@@ -110,7 +109,7 @@ PVWidgets::PVTextPopupWidget::PVTextPopupWidget(QWidget* parent) :
 	l->setContentsMargins(0, 0, 0, 0);
 	setLayout(l);
 
-	_webview = new QWebView();
+	_webview = new QWebEngineView();
 
 	// no need for "reload" context menu
 	_webview->setContextMenuPolicy(Qt::NoContextMenu);

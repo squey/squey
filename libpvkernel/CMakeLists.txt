@@ -27,9 +27,9 @@ include_directories(${Qt5Widgets_INCLUDE_DIRS})
 find_package(Qt5OpenGL REQUIRED)
 include_directories(${Qt5OpenGL_INCLUDE_DIRS})
 
-# For QWebView
-find_package(Qt5WebKitWidgets REQUIRED)
-include_directories(${Qt5WebKitWidgets_INCLUDE_DIRS})
+# For QtWebEngineView
+find_package(Qt5WebEngineWidgets REQUIRED)
+include_directories(${Qt5WebEngineWidgets_INCLUDE_DIRS})
 
 ###################################################################
 # Add include directories for picviz's libs and external projects

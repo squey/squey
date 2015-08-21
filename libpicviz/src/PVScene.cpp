@@ -4,7 +4,6 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
-#include <QFileInfo>
 
 #include <pvkernel/core/hash_sharedptr.h>
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
@@ -13,6 +12,8 @@
 #include <picviz/PVScene.h>
 #include <picviz/PVSource.h>
 #include <picviz/PVView.h>
+
+#include <QFileInfo>
 
 
 #define ARCHIVE_SCENE_DESC (QObject::tr("Workspace"))

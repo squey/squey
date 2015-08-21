@@ -6,7 +6,7 @@
 
 #include <QString>
 
-class QWebView;
+class QWebEngineView;
 class QPaintEvent;
 
 namespace PVWidgets
@@ -158,12 +158,12 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 
 private:
-	QWebView* _webview;
-	QWidget*  _last_widget;
-	QString   _temp_text;
-	int       _last_align;
-	int       _last_expand;
-	int       _last_border;
+	QWebEngineView* _webview;
+	QWidget*        _last_widget;
+	QString         _temp_text;
+	int             _last_align;
+	int             _last_expand;
+	int             _last_border;
 };
 
 }

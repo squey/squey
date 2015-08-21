@@ -20,8 +20,6 @@
 #include <QDateTime>
 #include <QPushButton>
 #include <QGroupBox>
-#include <QWebPage>
-#include <QWebFrame>
 #include <QTabWidget>
 #include <QCheckBox>
 

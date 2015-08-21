@@ -30,7 +30,7 @@ mkdir %dest%\normalize-helpers\pcre
 :xcopy %qtdir%\QtOpenGL4.dll %dest%
 :xcopy %qtdir%\QtScript4.dll %dest%
 :xcopy %qtdir%\QtSvg4.dll %dest%
-:xcopy %qtdir%\QtWebKit4.dll %dest%
+:xcopy %qtdir%\QtWebEngine5.dll %dest%
 :xcopy %qtdir%\QtXml4.dll %dest%
 :xcopy %qtdir%\QtXmlPatterns4.dll %dest%
 
