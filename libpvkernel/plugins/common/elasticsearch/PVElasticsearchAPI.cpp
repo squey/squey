@@ -9,12 +9,16 @@
 #include "PVElasticsearchQuery.h"
 
 #include <sstream>
+#include <thread>
 #include <unordered_map>
 
 #include <curl/curl.h>
+
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
+
+#include <tbb/pipeline.h>
 
 #define USE_DOM_API 1
 
@@ -320,6 +324,7 @@ bool PVRush::PVElasticsearchAPI::init_scroll(const PVRush::PVElasticsearchQuery&
 		}
 
 		_scroll_id = json["_scroll_id"].GetString();
+		_scroll_count = json["hits"]["total"].GetUint();
 	}
 
 	url.clear();
@@ -338,6 +343,11 @@ bool PVRush::PVElasticsearchAPI::scroll(const PVRush::PVElasticsearchQuery& quer
 	}
 
 	return perform_query(json_buffer);
+}
+
+size_t PVRush::PVElasticsearchAPI::scroll_count() const
+{
+	return _scroll_count;
 }
 
 bool PVRush::PVElasticsearchAPI::clear_scroll()
@@ -389,3 +399,40 @@ bool PVRush::PVElasticsearchAPI::parse_results(const std::string& json_data, row
 #endif
 }
 
+bool PVRush::PVElasticsearchAPI::extract(const PVRush::PVElasticsearchQuery& query, PVRush::PVElasticsearchAPI::rows_chunk_t& rows_array) const
+{
+	int request_count = std::thread::hardware_concurrency();
+
+	using indexed_json_buffer_t = std::pair<std::string, size_t>;
+
+	rows_array.resize(request_count);
+
+	bool query_end = false;
+
+	tbb::parallel_pipeline(request_count,
+		tbb::make_filter<void, indexed_json_buffer_t>(tbb::filter::serial_in_order,
+			[&](tbb::flow_control& fc)
+			{
+				if (--request_count == -1 || query_end) {
+					fc.stop();
+					return indexed_json_buffer_t();
+				}
+				std::string json_buffer;
+
+				scroll(query, json_buffer);
+
+				return indexed_json_buffer_t(std::move(json_buffer), request_count);
+			}
+		) &
+		tbb::make_filter<indexed_json_buffer_t, void>(tbb::filter::parallel,
+			[&](indexed_json_buffer_t json_buffer)
+			{
+				if(parse_results(json_buffer.first, rows_array[json_buffer.second]) == false) {
+					query_end = true;
+				}
+			}
+		)
+	);
+
+	return query_end;
+}

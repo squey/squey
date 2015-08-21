@@ -28,6 +28,7 @@ public:
 	using indexes_t = std::vector<std::string>;
 	using columns_t = std::vector<std::pair<std::string, std::string>>;
 	using rows_t = std::vector<std::string>;
+	using rows_chunk_t = std::vector<rows_t>;
 
 public:
 	PVElasticsearchAPI(const PVElasticsearchInfos& infos);
@@ -35,6 +36,7 @@ public:
 
 public:
 	bool scroll(const PVRush::PVElasticsearchQuery& query, std::string& json_data);
+	size_t scroll_count() const;
 	bool clear_scroll();
 	bool parse_results(const std::string& json_data, rows_t& rows) const;
 	std::string sql_to_json(const std::string& sql, std::string* error = nullptr) const;
@@ -45,6 +47,7 @@ public:
 	columns_t columns(const PVRush::PVElasticsearchQuery& query) const;
 	size_t count(const PVRush::PVElasticsearchQuery& query) const;
 	bool is_sql_available() const;
+	bool extract(const PVRush::PVElasticsearchQuery& query, PVRush::PVElasticsearchAPI::rows_chunk_t& rows_array) const;
 
 private:
 	void prepare_query(const std::string& uri, const std::string& body = std::string()) const;
@@ -60,6 +63,7 @@ private:
 	CURL* _curl;
 	PVRush::PVElasticsearchInfos _infos;
 	std::string _scroll_id;
+	size_t _scroll_count = 0;
 };
 
 }

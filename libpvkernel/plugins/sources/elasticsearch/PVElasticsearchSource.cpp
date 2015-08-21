@@ -14,9 +14,6 @@
 #include "../../common/elasticsearch/PVElasticsearchQuery.h"
 
 #include <string>
-#include <thread>
-
-#include <tbb/pipeline.h>
 
 PVRush::PVElasticsearchSource::PVElasticsearchSource(PVInputDescription_p input, PVFilter::PVChunkFilter_f src_filter):
 	PVRawSourceBase(src_filter),
@@ -63,39 +60,10 @@ PVCore::PVChunk* PVRush::PVElasticsearchSource::operator()()
 		return nullptr;
 	}
 
-	int request_count = std::thread::hardware_concurrency();
+	PVElasticsearchAPI::rows_chunk_t rows_array;
+	_query_end = _elasticsearch.extract(_query, rows_array);
 
 	PVCore::PVChunk* chunk;
-
-	using indexed_json_buffer_t = std::pair<std::string, size_t>;
-
-	std::vector<PVElasticsearchAPI::rows_t> rows_array;
-	rows_array.resize(request_count);
-
-	tbb::parallel_pipeline(request_count,
-		tbb::make_filter<void, indexed_json_buffer_t>(tbb::filter::serial_in_order,
-			[&](tbb::flow_control& fc)
-			{
-				if (--request_count == -1 || _query_end) {
-					fc.stop();
-					return indexed_json_buffer_t();
-				}
-				std::string json_buffer;
-
-				_elasticsearch.scroll(_query, json_buffer);
-
-				return indexed_json_buffer_t(std::move(json_buffer), request_count);
-			}
-		) &
-		tbb::make_filter<indexed_json_buffer_t, void>(tbb::filter::parallel,
-			[&](indexed_json_buffer_t json_buffer)
-			{
-				if(_elasticsearch.parse_results(json_buffer.first, rows_array[json_buffer.second]) == false) {
-					_query_end = true;
-				}
-			}
-		)
-	);
 
 	chunk = PVCore::PVChunkMem<>::allocate(0, this);
 	chunk->set_index(_next_index);

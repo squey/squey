@@ -39,7 +39,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(PVInputTypeElas
 
 	// Set the dialog title
 	setWindowTitle(tr("Import from Elasticsearch..."));
-	setWindowIcon(QIcon(":/elasticsearch_icon"));
+	setWindowIcon(in_t->icon());
 	
 	// Presets widget
 	_presets_widget = new PVWidgets::PVPresetsWidget(tr("Saved settings"));
@@ -63,6 +63,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(PVInputTypeElas
 	connect(_combo_index, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(index_changed(const QString&)));
 	connect(_combo_index, SIGNAL(activated(int)), this, SLOT(index_changed_by_user_slot()));
 	connect(_check_connection_push_button, SIGNAL(clicked()), this, SLOT(check_connection_slot()));
+	connect(_export_pushbutton, SIGNAL(clicked()), this, SLOT(export_slot()));
 
 	for (size_t i = 0 ; i < EQueryType::COUNT ; i++) {
 		_query_type_cb->addItem(query_types[i]);
@@ -267,6 +268,57 @@ void PVRush::PVElasticsearchParamsWidget::preset_remove_slot(const QString& /*pr
 {
 	PVElasticsearchPresets::id_t id = get_current_preset_id();
 	PVElasticsearchPresets::get().rm(id);
+}
+
+void PVRush::PVElasticsearchParamsWidget::export_slot()
+{
+	QString csv_filename = QFileDialog::getSaveFileName(
+		this,
+	    "Export to...",
+	    "",
+	    QString("CSV File (*.csv);;All files (*.*)")
+	);
+
+	if (csv_filename.isEmpty() == false) {
+
+		QFile f(csv_filename);
+		if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
+
+			PVRush::PVElasticsearchAPI es(get_infos());
+			const PVRush::PVElasticsearchQuery& query = get_query();
+			QTextStream output_stream(&f);
+			size_t count = 0;
+			bool query_end = false;
+			bool once = true;
+
+			PVCore::PVProgressBox pbox("Exporting request result...");
+			PVCore::PVProgressBox::progress([&]() {
+				while (query_end == false) {
+					PVElasticsearchAPI::rows_chunk_t rows_array;
+					query_end = es.extract(query, rows_array);
+					if (once) {
+						size_t max_count = es.scroll_count();
+						pbox.getProgressBar()->setMaximum(max_count);
+						once = false;
+					};
+
+					if (pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL ||
+						pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL2) {
+						break;
+					}
+
+					for (const PVElasticsearchAPI::rows_t& rows : rows_array) {
+						for (const std::string& row : rows) {
+							output_stream << row.c_str() << endl;
+						}
+						count += rows.size();
+					}
+
+					pbox.getProgressBar()->setValue(count);
+				}
+			}, &pbox);
+		}
+	}
 }
 
 PVRush::PVElasticsearchInfos PVRush::PVElasticsearchParamsWidget::get_infos() const

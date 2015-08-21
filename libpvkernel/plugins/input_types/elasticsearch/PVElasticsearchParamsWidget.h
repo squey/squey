@@ -62,13 +62,12 @@ protected slots:
 	void edit_new_format_slot();
 	void use_existing_format_toggle_slot(bool toggle);
 	void request_count();
-
-protected slots:
 	void refresh_indexes();
 	void query_type_changed();
 	void index_changed_by_user_slot();
 	void index_changed(const QString& index);
 	void check_connection_slot();
+	void export_slot();
 
 protected:
 	bool set_infos(PVElasticsearchInfos const& infos);
