@@ -39,8 +39,8 @@ public:
 public:
 	PVElasticsearchInfos get_infos() const;
 
-	PVElasticsearchQuery get_query() const;
-	QString get_elasticsearch_query() const;
+	PVElasticsearchQuery get_query(std::string* error = nullptr) const;
+	QString get_elasticsearch_query(std::string* error = nullptr) const;
 	QString get_serialized_query() const;
 	QString get_query_type() const;
 

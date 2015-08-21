@@ -159,6 +159,7 @@ void PVRush::PVElasticsearchParamsWidget::check_connection_slot()
 	std::string error_msg;
 	if (es.check_connection(&error_msg)) {
 		QMessageBox::information(this, tr("Success"), tr("Connection successful"), QMessageBox::Ok);
+		refresh_indexes();
 	}
 	else {
 		QMessageBox::critical(this, tr("Failure"), tr("Connection error : %1").arg(error_msg.c_str()), QMessageBox::Ok);
@@ -169,14 +170,13 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed()
 {
 	int query_type = _query_type_cb->currentIndex();
 
-	PVRush::PVElasticsearchAPI es(get_infos());
-
 	if (query_type == EQueryType::SQL) {
 		_txt_query->setPlainText("");
 		_reference_label->setText(
 			"<a href=\"https://github.com/NLPchina/elasticsearch-sql/\">"
 			"<span style=\" text-decoration: underline; color:#0000ff;\">Elasticsearch SQL plugin"
 		);
+		PVRush::PVElasticsearchAPI es(get_infos());
 		if (es.is_sql_available()) {
 			_gb_query->setTitle(get_sql_query_prefix() + " ...");
 			_txt_query->setEnabled(true);
@@ -184,6 +184,7 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed()
 		else {
 			_txt_query->setPlainText("Please, install the SQL plugin to your Elasticsearch instance to support this feature.");
 			_txt_query->setEnabled(false);
+			//buttonBox->buttons()[0]->setEnabled(false);
 		}
 		_querybuilder->setVisible(false);
 		_txt_query->setVisible(true);
@@ -272,52 +273,64 @@ void PVRush::PVElasticsearchParamsWidget::preset_remove_slot(const QString& /*pr
 
 void PVRush::PVElasticsearchParamsWidget::export_slot()
 {
-	QString csv_filename = QFileDialog::getSaveFileName(
-		this,
-	    "Export to...",
-	    "",
-	    QString("CSV File (*.csv);;All files (*.*)")
-	);
+	std::string error;
+	const PVRush::PVElasticsearchQuery& query = get_query(&error);
 
-	if (csv_filename.isEmpty() == false) {
+	if (error.empty()) {
+		QString csv_filename = QFileDialog::getSaveFileName(
+			this,
+			"Export to...",
+			"",
+			QString("CSV File (*.csv);;All files (*.*)")
+		);
 
-		QFile f(csv_filename);
-		if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
+		if (csv_filename.isEmpty() == false) {
 
-			PVRush::PVElasticsearchAPI es(get_infos());
-			const PVRush::PVElasticsearchQuery& query = get_query();
-			QTextStream output_stream(&f);
-			size_t count = 0;
-			bool query_end = false;
-			bool once = true;
+			QFile f(csv_filename);
+			if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
 
-			PVCore::PVProgressBox pbox("Exporting request result...");
-			PVCore::PVProgressBox::progress([&]() {
-				while (query_end == false) {
+				PVRush::PVElasticsearchAPI es(get_infos());
+
+				QTextStream output_stream(&f);
+				size_t count = 0;
+				bool query_end = false;
+
+				PVCore::PVProgressBox pbox("Exporting request result...");
+				PVCore::PVProgressBox::progress([&]() {
+
 					PVElasticsearchAPI::rows_chunk_t rows_array;
-					query_end = es.extract(query, rows_array);
-					if (once) {
-						size_t max_count = es.scroll_count();
-						pbox.getProgressBar()->setMaximum(max_count);
-						once = false;
-					};
+					query_end = es.extract(query, rows_array, &error);
 
-					if (pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL ||
-						pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL2) {
-						break;
+					if (error.empty() == false) {
+						return;
 					}
 
-					for (const PVElasticsearchAPI::rows_t& rows : rows_array) {
-						for (const std::string& row : rows) {
-							output_stream << row.c_str() << endl;
+					size_t max_count = es.scroll_count();
+					pbox.getProgressBar()->setMaximum(max_count);
+
+					while (query_end == false) {
+
+						if (pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL ||
+							pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL2) {
+							break;
 						}
-						count += rows.size();
-					}
 
-					pbox.getProgressBar()->setValue(count);
-				}
-			}, &pbox);
+						for (const PVElasticsearchAPI::rows_t& rows : rows_array) {
+							for (const std::string& row : rows) {
+								output_stream << row.c_str() << endl;
+							}
+							count += rows.size();
+						}
+
+						pbox.getProgressBar()->setValue(count);
+					}
+				}, &pbox);
+			}
 		}
+	}
+
+	if (error.empty() == false) {
+		QMessageBox::critical((QWidget*) QObject::parent(), tr("Request failed"), tr("Request failed with the following error:\n\n%1").arg(QString(error.c_str())));
 	}
 }
 
@@ -354,7 +367,7 @@ QString PVRush::PVElasticsearchParamsWidget::get_query_type() const
 	return _query_type_cb->currentText();
 }
 
-QString PVRush::PVElasticsearchParamsWidget::get_elasticsearch_query() const
+QString PVRush::PVElasticsearchParamsWidget::get_elasticsearch_query(std::string* error /* = nullptr */) const
 {
 	QString q = get_serialized_query();
 	int query_type = _query_type_cb->currentIndex();
@@ -366,7 +379,7 @@ QString PVRush::PVElasticsearchParamsWidget::get_elasticsearch_query() const
 		PVRush::PVElasticsearchAPI es(get_infos());
 
 		if (query_type == EQueryType::SQL) {
-			q = es.sql_to_json(QString(get_sql_query_prefix() + q).toStdString()).c_str();
+			q = es.sql_to_json(QString(get_sql_query_prefix() + q).toStdString(), error).c_str();
 		}
 		else if (query_type == EQueryType::QUERY_BUILDER) {
 			//q = es.rules_to_json(_querybuilder->get_rules());
@@ -390,9 +403,9 @@ QString PVRush::PVElasticsearchParamsWidget::get_serialized_query() const
 	}
 }
 
-PVRush::PVElasticsearchQuery PVRush::PVElasticsearchParamsWidget::get_query() const
+PVRush::PVElasticsearchQuery PVRush::PVElasticsearchParamsWidget::get_query(std::string* error /* = nullptr */) const
 {
-	PVElasticsearchQuery query(get_infos(), get_elasticsearch_query(), get_query_type());
+	PVElasticsearchQuery query(get_infos(), get_elasticsearch_query(error), get_query_type());
 
 	return query;
 }
@@ -425,13 +438,23 @@ void PVRush::PVElasticsearchParamsWidget::request_count()
 {
 	PVRush::PVElasticsearchAPI es(get_infos());
 
+	std::string sql_error;
+	std::string query_error;
 	size_t request_count = 0;
 	PVCore::PVProgressBox pbox("Executing count request...");
 	PVCore::PVProgressBox::progress([&]() {
-		request_count = es.count(get_query());
+		const PVElasticsearchQuery& query = get_query(&sql_error);
+		request_count = es.count(query, &query_error);
 	}, &pbox);
 
-	QMessageBox::information((QWidget*) QObject::parent(), tr("Request count"), tr("The request returned %L1 result(s)").arg(request_count));
+	if (sql_error.empty() && query_error.empty()) {
+		QMessageBox::information((QWidget*) QObject::parent(), tr("Request count"), tr("The request returned %L1 result(s)").arg(request_count));
+	}
+	else
+	{
+		std::string error = sql_error.empty() == false ? sql_error : query_error;
+		QMessageBox::critical((QWidget*) QObject::parent(), tr("Request failed"), tr("Request failed with the following error:\n\n%1").arg(QString(error.c_str())));
+	}
 }
 
 void PVRush::PVElasticsearchParamsWidget::show_layout_children(const QLayout* layout, bool show)
