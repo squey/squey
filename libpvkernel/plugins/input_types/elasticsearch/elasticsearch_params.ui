@@ -496,6 +496,45 @@
        </layout>
       </widget>
      </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>&amp;Help</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMaximumSize</enum>
+         </property>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Logstash CSV plugin limitation:&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;When importing logs into Elasticsearch using Logstash CSV plugin, be careful not to name any of your columns &lt;span style=&quot; font-weight:600;&quot;&gt;message&lt;/span&gt;, &lt;span style=&quot; font-weight:600;&quot;&gt;type&lt;/span&gt;, &lt;span style=&quot; font-weight:600;&quot;&gt;host&lt;/span&gt;,&lt;span style=&quot; font-weight:600;&quot;&gt; path&lt;/span&gt; or &lt;span style=&quot; font-weight:600;&quot;&gt;geoip &lt;/span&gt;because these are internally used by Logstash and will likely to cause conflicts.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::RichText</enum>
+           </property>
+           <property name="scaledContents">
+            <bool>false</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
