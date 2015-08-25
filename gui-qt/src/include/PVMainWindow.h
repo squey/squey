@@ -211,7 +211,6 @@ public slots:
 	void get_screenshot_widget();
 	void get_screenshot_window();
 	void get_screenshot_desktop();
-	void show_correlation_Slot();
 	void update_reply_finished_Slot(QNetworkReply *reply);
 	void whats_this_Slot();
 	// Called by input_type plugins to edit a format.
@@ -397,7 +396,6 @@ signals:
 	void zombie_mode_changed_Signal();
 
 private:
-	//QDialog* _ad2g_mw;
 	QString _cur_project_file;
 	bool _cur_project_save_everything;
 	static int sequence_n;

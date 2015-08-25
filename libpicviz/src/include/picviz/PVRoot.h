@@ -69,13 +69,13 @@ public:
 public:
 #ifdef ENABLE_CORRELATION
 	PVAD2GView_p get_correlation(int index);
-	
+
 	void select_correlation(PVAD2GView* correlation) { _current_correlation = correlation; }
 
 	void add_correlations(correlations_t const& corrs);
 	void enable_correlations(bool enabled) { _correlations_enabled = enabled; }
 	PVAD2GView* current_correlation() { return _current_correlation; }
-	
+
 	PVAD2GView* add_correlation(const QString & name);
 	bool delete_correlation(PVAD2GView_p correlation_p);
 

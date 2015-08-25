@@ -233,7 +233,7 @@ private:
 	int _tab_animated_width;
 	bool _tab_animation_ongoing = false;
 	int _tab_animation_index;
-	
+
 	PVHive::PVObserverSignal<Picviz::PVRoot>* _obs;
 	Picviz::PVRoot& _root;
 };
@@ -347,7 +347,7 @@ protected:
 	void tabRemoved(int index) override;
 
 public slots:
-    /*! \brief Special behavior on tab change: select current correlation.
+	/*! \brief Special behavior on tab change: select current correlation.
 	 */
 	void tab_changed(int index);
 
