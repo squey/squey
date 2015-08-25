@@ -14,6 +14,8 @@
 #include <pvhive/waxes/picviz/PVSource.h>
 #include <pvhive/waxes/picviz/PVView.h>
 
+#ifdef ENABLE_CORRELATION
 #include <pvhive/waxes/picviz/PVAD2GView.h>
+#endif
 
 #endif

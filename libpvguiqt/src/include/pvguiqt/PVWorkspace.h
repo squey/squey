@@ -247,11 +247,15 @@ public:
 	PVOpenWorkspace(QWidget* parent = 0) : PVWorkspaceBase(parent) {}
 
 public:
+#ifdef ENABLE_CORRELATION
 	void set_correlation(Picviz::PVAD2GView* correlation) { _correlation = correlation; }
 	Picviz::PVAD2GView* get_correlation() const { return _correlation; }
+#endif
 
 private:
+#ifdef ENABLE_CORRELATION
 	Picviz::PVAD2GView* _correlation = nullptr;
+#endif
 };
 
 }

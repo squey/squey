@@ -243,12 +243,14 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 
 	data_tree_scene_t::serialize_read(so, v);
 
+#ifdef ENABLE_CORRELATION
 	// Correlation
 	// Optional in both version 1 and 2
 	PVRoot::correlations_t corrs;
 	if (so.list("correlations", corrs, QString(), (PVAD2GView*) nullptr, QStringList(), true, true)) {
 		get_parent<PVRoot>()->add_correlations(corrs);
 	}
+#endif
 }
 
 void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
@@ -276,6 +278,7 @@ void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 
 	data_tree_scene_t::serialize_write(so);
 
+#ifdef ENABLE_CORRELATION
 	// Correlation (optional)
 	// Save correlations that works for us
 	const bool root_corr_serialized = get_parent<PVRoot>()->are_correlations_serialized();
@@ -295,6 +298,7 @@ void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 			so.attribute("current_correlation", cur_path);
 		}
 	}
+#endif
 }
 
 PVCore::PVSerializeObject_p Picviz::PVScene::get_so_inputs(PVSource const& src)

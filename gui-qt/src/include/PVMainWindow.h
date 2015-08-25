@@ -32,7 +32,10 @@
 
 #include <pvhive/PVObserverSignal.h>
 
+#ifdef ENABLE_CORRELATION
 #include <pvguiqt/PVCorrelationMenu.h>
+#endif
+
 #include <pvguiqt/PVProjectsTabWidget.h>
 
 #include <PVFilesTypesSelWidget.h>
@@ -283,7 +286,9 @@ private:
 	QMenu *edit_Menu;
 	QMenu *layer_Menu;
 	QMenu *events_Menu;
+#ifdef ENABLE_CORRELATION
 	PVGuiQt::PVCorrelationMenu* correlation_Menu;
+#endif
 	QMenu *selection_Menu;
 	QMenu* tools_Menu;
 	QMenu *source_Menu;

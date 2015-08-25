@@ -16,7 +16,9 @@
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 
+#ifdef ENABLE_CORRELATION
 #include <picviz/PVAD2GView.h>
+#endif
 #include <picviz/PVRoot_types.h>
 #include <picviz/PVPtrObjects.h> // For PVScene_p
 
@@ -46,7 +48,9 @@ public:
 	friend class PVSource;
 	friend class PVCore::PVSerializeObject;
 	//typedef std::shared_ptr<PVRoot> p_type;
+#ifdef ENABLE_CORRELATION
 	typedef std::list<PVAD2GView_p> correlations_t;
+#endif
 
 public:
 	PVRoot();
@@ -63,6 +67,7 @@ public:
 	QColor get_new_view_color();
 
 public:
+#ifdef ENABLE_CORRELATION
 	PVAD2GView_p get_correlation(int index);
 	
 	void select_correlation(PVAD2GView* correlation) { _current_correlation = correlation; }
@@ -76,9 +81,11 @@ public:
 
 	correlations_t& get_correlations() { return _correlations; }
 	correlations_t const& get_correlations() const { return _correlations; }
+	void remove_view_from_correlations(PVView* view);
 
 	QList<Picviz::PVView*> process_correlation(PVView* src_view);
-	void remove_view_from_correlations(PVView* view);
+	correlations_t get_correlations_for_scene(Picviz::PVScene const& scene) const;
+#endif
 
 	void select_view(PVView& view);
 	void select_scene(PVScene& scene);
@@ -109,9 +116,6 @@ public:
 	const QString& get_path() const { return _path; }
 
 public:
-	correlations_t get_correlations_for_scene(Picviz::PVScene const& scene) const;
-
-public:
 	virtual QString get_serialize_description() const { return "Investigation"; }
 
 	virtual QString get_children_description() const { return "Data collection(s)"; }
@@ -123,8 +127,11 @@ protected:
 	void source_being_deleted(Picviz::PVSource* view);
 
 protected:
+#ifdef ENABLE_CORRELATION
 	bool are_correlations_serialized() const { return (bool) _so_correlations; }
 	QString get_serialized_correlation_path(PVAD2GView_p const& c) const { return _so_correlations->get_child_path(c); }
+#endif
+
 protected:
 	// Serialization
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
@@ -136,10 +143,12 @@ private:
 	PVSource* _current_source;
 	PVView* _current_view;
 
+#ifdef ENABLE_CORRELATION
 	correlations_t _correlations;
 	PVAD2GView* _current_correlation;
 	bool _correlation_running = false;
 	bool _correlations_enabled = true;
+#endif
 
 	QList<QRgb> _available_colors;
 	QList<QRgb> _used_colors;

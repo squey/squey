@@ -27,7 +27,6 @@ include/picviz/general.h
 include/picviz/limits.h
 include/picviz/plugins.h
 
-include/picviz/PVAD2GView.h
 include/picviz/PVAxesCombination.h
 include/picviz/PVAxis.h
 include/picviz/PVBitset.h
@@ -56,14 +55,6 @@ include/picviz/PVSource.h
 include/picviz/PVSquareArea.h
 include/picviz/PVStateMachine.h
 include/picviz/PVView.h
-
-# Correlation files
-include/picviz/PVSelRowFilteringFunction.h
-include/picviz/PVSelRowFilteringFunction_types.h
-include/picviz/PVTFViewRowFiltering.h
-include/picviz/PVTFViewRowFilterFastIPv4.h
-include/picviz/PVTransformationFunctionView.h
-include/picviz/PVTransformationFunctionView_types.h
 )
 
 set(NONCUDA_SRC_FILES
@@ -88,7 +79,6 @@ discover.cpp
 
 common.cpp
 
-PVAD2GView.cpp
 PVAxesCombination.cpp
 PVAxis.cpp
 PVEventline.cpp
@@ -111,7 +101,6 @@ PVRoot.cpp
 PVScene.cpp
 PVSelection.cpp
 PVSelectionFilter.cpp
-PVSelRowFilteringFunction.cpp
 PVSparseSelection.cpp
 PVSquareArea.cpp
 PVDefaultSortingFunc.cpp
@@ -119,11 +108,6 @@ PVSortingFunc.cpp
 PVSource.cpp
 PVStateMachine.cpp
 PVView.cpp
-
-# Correlation files
-PVCombiningFunctionView.cpp
-PVTFViewRowFiltering.cpp
-PVTFViewRowFilterFastIPv4.cpp
 
 plugins.cpp
 #square-area.cpp
@@ -133,11 +117,6 @@ update-protocol.cpp
 )
 
 set(WIDGETS_MOC_HEADERS
-include/picviz/widgets/PVAD2GEdgeEditor.h
-include/picviz/widgets/PVAD2GFunctionPropertiesWidget.h
-include/picviz/widgets/PVAD2GListEdgesWidget.h
-include/picviz/widgets/PVAD2GRFFListModel.h
-include/picviz/widgets/PVCombinOpDelegate.h
 include/picviz/widgets/PVMappingModeWidget.h
 include/picviz/widgets/PVMappingPlottingEditDialog.h
 include/picviz/widgets/PVNewLayerDialog.h
@@ -153,13 +132,8 @@ include/picviz/widgets/editors/PVZoneIndexEditor.h
 )
 
 set(WIDGETS_SRC_FILES
-widgets/PVAD2GEdgeEditor.cpp
-widgets/PVAD2GFunctionPropertiesWidget.cpp
-widgets/PVAD2GListEdgesWidget.cpp
-widgets/PVAD2GRFFListModel.cpp
 widgets/PVArgumentListWidgetFactory.cpp
 widgets/PVAxisTypeWidget.cpp
-widgets/PVCombinOpDelegate.cpp
 widgets/PVMappingModeWidget.cpp
 widgets/PVMappingPlottingEditDialog.cpp
 widgets/PVNewLayerDialog.cpp
@@ -176,6 +150,43 @@ widgets/editors/PVZoneIndexEditor.cpp
 
 set(MOC_HEADERS
 )
+
+if(ENABLE_CORRELATION)
+	list(APPEND HEADER_FILES
+	include/picviz/PVAD2GView.h
+	include/picviz/PVSelRowFilteringFunction.h
+	include/picviz/PVSelRowFilteringFunction_types.h
+	include/picviz/PVTFViewRowFiltering.h
+	include/picviz/PVTFViewRowFilterFastIPv4.h
+	include/picviz/PVTransformationFunctionView.h
+	include/picviz/PVTransformationFunctionView_types.h
+	)
+
+	list(APPEND WIDGETS_SRC_FILES
+	widgets/PVAD2GEdgeEditor.cpp
+	widgets/PVAD2GFunctionPropertiesWidget.cpp
+	widgets/PVAD2GListEdgesWidget.cpp
+	widgets/PVAD2GRFFListModel.cpp
+	widgets/PVCombinOpDelegate.cpp
+	)
+
+	list(APPEND SRC_FILES
+	PVAD2GView.cpp
+	PVCombiningFunctionView.cpp
+	PVTFViewRowFiltering.cpp
+	PVTFViewRowFilterFastIPv4.cpp
+	PVSelRowFilteringFunction.cpp
+	)
+
+	list(APPEND MOC_HEADERS
+	include/picviz/widgets/PVAD2GEdgeEditor.h
+	include/picviz/widgets/PVAD2GFunctionPropertiesWidget.h
+	include/picviz/widgets/PVAD2GListEdgesWidget.h
+	include/picviz/widgets/PVAD2GRFFListModel.h
+	include/picviz/widgets/PVCombinOpDelegate.h
+	)
+endif()
+
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} ${WIDGETS_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 
 #if(CUDA_FOUND)
@@ -207,7 +218,11 @@ add_definitions(-DUSE_PARALLEL_MAPPING_FILTERS)
 add_definitions(-DUSE_PARALLEL_PLOTTING_FILTERS)
 set_target_properties(picviz PROPERTIES SOVERSION 1)
 
-target_link_libraries(picviz ${MATHS_LIBRARY} ${PICVIZ_LIBRARIES_WITHOUT_PICVIZ} ${QT_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES} ${TULIP_LIBRARY} ${TULIP_QT4_LIBRARY} ${TULIP_OGL_LIBRARY} ${OPENGL_LIBRARIES} pvkernel)
+if(ENABLE_CORRELATION)
+        set (TULIP_LIBS ${TULIP_LIBRARY} ${TULIP_QT4_LIBRARY} ${TULIP_OGL_LIBRARY})
+endif()
+
+target_link_libraries(picviz ${MATHS_LIBRARY} ${PICVIZ_LIBRARIES_WITHOUT_PICVIZ} ${QT_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES} ${TULIP_LIBS} ${OPENGL_LIBRARIES} pvkernel)
 
 INSTALL(TARGETS picviz LIBRARY DESTINATION .
                        RUNTIME DESTINATION .)

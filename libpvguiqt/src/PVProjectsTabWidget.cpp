@@ -313,6 +313,7 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 		return;
 	}
 
+#ifdef ENABLE_CORRELATION
 	QWidget* new_widget = _stacked_widget->widget(index);
 	PVWorkspacesTabWidgetBase* workspace_tab_widget;
 
@@ -337,6 +338,7 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	}
 
 	_root->select_correlation(correlation);
+#endif
 }
 
 PVGuiQt::PVWorkspacesTabWidgetBase* PVGuiQt::PVProjectsTabWidget::current_workspace_tab_widget() const

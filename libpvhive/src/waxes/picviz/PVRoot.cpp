@@ -48,6 +48,7 @@ IMPL_WAX(Picviz::PVRoot::select_scene, root, args)
 }
 
 
+#ifdef ENABLE_CORRELATION
 IMPL_WAX(Picviz::PVRoot::add_correlation, root, args)
 {
 	Picviz::PVAD2GView* ret = call_object_default<Picviz::PVRoot, FUNC(Picviz::PVRoot::add_correlation)>(root, args);
@@ -75,5 +76,6 @@ IMPL_WAX(Picviz::PVRoot::process_correlation, root, args)
 	}
 	return changed_views;
 }
+#endif
 
 PVHIVE_CALL_OBJECT_BLOCK_END()

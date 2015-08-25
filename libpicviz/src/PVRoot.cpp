@@ -22,8 +22,10 @@ Picviz::PVRoot::PVRoot():
 	data_tree_root_t(),
 	_current_scene(nullptr),
 	_current_source(nullptr),
-	_current_view(nullptr),
-	_current_correlation(nullptr)
+	_current_view(nullptr)
+#ifdef ENABLE_CORRELATION
+	,_current_correlation(nullptr)
+#endif
 {
 	reset_colors();
 }
@@ -45,11 +47,13 @@ void Picviz::PVRoot::clear()
 	_current_scene = nullptr;
 	_current_source = nullptr;
 	_current_view = nullptr;
+#ifdef ENABLE_CORRELATION
 	_current_correlation = nullptr;
 	_correlations.clear();
 	_correlation_running = false;
 	_correlations_enabled = true;
 	_so_correlations.reset();
+#endif
 	_original_archive.reset();
 	_path.clear();
 	_new_view_id = 0;
@@ -169,6 +173,7 @@ QColor Picviz::PVRoot::get_new_view_color()
 	return color;
 }
 
+#ifdef ENABLE_CORRELATION
 /******************************************************************************
  *
  * Picviz::PVRoot::get_correlation
@@ -270,6 +275,7 @@ Picviz::PVRoot::correlations_t Picviz::PVRoot::get_correlations_for_scene(Picviz
 	}
 	return ret;
 }
+#endif
 
 Picviz::PVScene* Picviz::PVRoot::get_scene_from_path(const QString& path)
 {
@@ -283,10 +289,13 @@ Picviz::PVScene* Picviz::PVRoot::get_scene_from_path(const QString& path)
 
 void Picviz::PVRoot::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
+#ifdef ENABLE_CORRELATION
 	_correlations.clear();
+#endif
 
 	data_tree_root_t::serialize_read(so, v);
 
+#ifdef ENABLE_CORRELATION
 	_so_correlations = so.list("correlations", _correlations, QObject::tr("Correlations"), (PVAD2GView*) NULL, QStringList(), true, true);
 	if (_so_correlations) {
 		QString cur_path;
@@ -302,10 +311,12 @@ void Picviz::PVRoot::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSer
 	}
 
 	_so_correlations.reset();
+#endif
 }
 
 void Picviz::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 {
+#ifdef ENABLE_CORRELATION
 	QStringList corr_desc;
 	corr_desc.reserve(_correlations.size());
 	for (PVAD2GView_p const& c: _correlations) {
@@ -315,10 +326,12 @@ void Picviz::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 	_so_correlations = so.list("correlations", _correlations, QObject::tr("Correlations"), (Picviz::PVAD2GView*) NULL, corr_desc, true, true);
 	QString cur_path = _so_correlations->get_child_path(_current_correlation);
 	so.attribute("current_correlation", cur_path);
-
+#endif
 	data_tree_root_t::serialize_write(so);
 
+#ifdef ENABLE_CORRELATION
 	_so_correlations.reset();
+#endif
 }
 
 void Picviz::PVRoot::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options, bool save_everything)

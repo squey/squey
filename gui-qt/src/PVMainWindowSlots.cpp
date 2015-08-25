@@ -733,7 +733,9 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 
 	_root->set_path(file);
 
+#ifdef ENABLE_CORRELATION
 	correlation_Menu->load_correlations();
+#endif
 
 	set_window_title_with_filename();
 	if (solution_has_been_fixed) {

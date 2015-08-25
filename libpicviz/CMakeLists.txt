@@ -8,8 +8,9 @@ project(libpicviz)
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 include_directories(AFTER ${ICU_INCLUDE})
-include_directories(AFTER ${TULIP_INCLUDE_DIR})
-
+if(ENABLE_CORRELATION)
+        include_directories(AFTER ${TULIP_INCLUDE_DIR})
+endif()
 
 ##########################################
 # BEGIN: SET VARIOUS PLUGINS DIRECTORIES #

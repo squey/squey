@@ -16,7 +16,9 @@
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceDescription.h>
+#ifdef ENABLE_CORRELATION
 #include <picviz/PVAD2GView.h>
+#endif
 #include <picviz/PVPtrObjects.h>
 #include <picviz/PVSource_types.h>
 #include <picviz/PVRoot.h>
