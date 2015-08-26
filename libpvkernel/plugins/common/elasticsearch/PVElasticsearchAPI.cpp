@@ -7,6 +7,7 @@
 #include "PVElasticsearchAPI.h"
 #include "PVElasticsearchInfos.h"
 #include "PVElasticsearchQuery.h"
+#include "PVElasticsearchJsonConverter.h"
 
 #include <sstream>
 #include <thread>
@@ -173,6 +174,12 @@ std::string PVRush::PVElasticsearchAPI::sql_to_json(const std::string& sql, std:
 	}
 
 	return std::string();
+}
+
+std::string PVRush::PVElasticsearchAPI::rules_to_json(const std::string& rules) const
+{
+    PVElasticSearchJsonConverter esc(rules);
+    return esc.rules_to_json();
 }
 
 std::string PVRush::PVElasticsearchAPI::socket() const

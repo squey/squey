@@ -41,6 +41,15 @@ public:
 	bool parse_scroll_results(const std::string& json_data, rows_t& rows) const;
 	std::string sql_to_json(const std::string& sql, std::string* error = nullptr) const;
 
+	/*
+	 * Convert json from QueryBuilder to json as ElasticSearch input
+	 *
+	 * @param rules : json from QueryBuilder
+	 *
+	 * @return json as Elasticsearch input
+	 */
+	std::string rules_to_json(const std::string& rules) const;
+
 public:
 	bool check_connection(std::string* error = nullptr) const;
 	indexes_t indexes(std::string* error = nullptr) const;

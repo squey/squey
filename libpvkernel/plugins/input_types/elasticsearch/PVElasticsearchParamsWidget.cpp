@@ -380,9 +380,8 @@ QString PVRush::PVElasticsearchParamsWidget::get_elasticsearch_query(std::string
 
 		if (query_type == EQueryType::SQL) {
 			q = es.sql_to_json(QString(get_sql_query_prefix() + q).toStdString(), error).c_str();
-		}
-		else if (query_type == EQueryType::QUERY_BUILDER) {
-			//q = es.rules_to_json(_querybuilder->get_rules());
+		} else if (query_type == EQueryType::QUERY_BUILDER) {
+			q = QString::fromStdString(es.rules_to_json(_querybuilder->get_rules()));
 		}
 	}
 
