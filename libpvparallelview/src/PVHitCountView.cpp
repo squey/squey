@@ -366,7 +366,7 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	int zoom_level = get_y_axis_zoom().get_clamped_value();
 	double rel_y_scale = y_zoom_to_scale(zoom_level - _block_zoom_value);
 
-	painter->setPen(QPen(Qt::white));
+	painter->setPen(Qt::white);
 
 	int x_axis_right = std::min((int)map_margined_from_scene(QPointF(_max_count, 0.)).x(),
 	                            get_x_axis_length());

@@ -87,8 +87,7 @@ void PVParallelView::PVZoomedParallelView::drawForeground(QPainter* painter,
 {
 	PVGraphicsView::drawForeground(painter, rect);
 
-	QPen pen(QColor(0x16, 0xe8, 0x2a));
-	painter->setPen(pen);
+	painter->setPen(QPen(QColor(0x16, 0xe8, 0x2a), 0));
 
 	painter->drawText(8, 16, _display_axis_name);
 }

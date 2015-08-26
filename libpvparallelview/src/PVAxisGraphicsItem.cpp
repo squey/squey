@@ -192,7 +192,7 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 
 #ifdef PICVIZ_DEVELOPER_MODE
 	if (common::show_bboxes()) {
-		painter->setPen(QColor(0, 0xFF, 0));
+		painter->setPen(QPen(QColor(0, 0xFF, 0), 0));
 		painter->drawRect(boundingRect());
 	}
 #endif

@@ -427,7 +427,7 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 
 #ifdef PICVIZ_DEVELOPER_MODE
 	if (_show_quadtrees) {
-		painter->setPen(Qt::white);
+		painter->setPen(QPen(Qt::white, 0));
 		painter->setOpacity(1.0);
 		const Picviz::PVSelection& sel = _view.get_real_output_selection();
 		PVParallelView::PVBCode code_b;
@@ -446,7 +446,8 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 				QPointF view_point = map_margined_from_scene(QPointF(x_scene, y_scene));
 				QPointF view_point_rect = map_margined_from_scene(QPointF(x_rect_scene, y_rect_scene));
 
-				painter->setPen(_view.get_color_in_output_layer(row).toQColor());
+				painter->setPen(QPen(_view.get_color_in_output_layer(row).toQColor(),
+									 0));
 				painter->setOpacity(sel.get_line_fast(row) ? 1.0 : 0.25);
 				painter->drawRect(QRectF(view_point, view_point_rect));
 			}
@@ -466,7 +467,7 @@ void PVParallelView::PVScatterView::drawForeground(QPainter* painter, const QRec
 #ifdef SV_FPS
 	painter->save();
 	painter->resetTransform();
-	painter->setPen(QColor(Qt::green));
+	painter->setPen(QPen(Qt::green, 0));
 	painter->setBrush(QColor(Qt::white));
 	painter->drawText(QPointF(20.0, 20.0), _fps_str);
 	painter->restore();

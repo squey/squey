@@ -84,8 +84,7 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 
 	QRectF rect_view = mapFromScene(rect).boundingRect();
 
-	QPen pen(QColor(0x16, 0xe8, 0x2a));
-	painter->setPen(pen);
+	painter->setPen(QPen(QColor(0x16, 0xe8, 0x2a), 0));
 	
 	QString count = QString("%L1 (%2 %) / %L3").arg(_selected_events_number).arg((uint32_t) (100.0*(double)_selected_events_number/(double)_total_events_number)).arg(_total_events_number);
 
@@ -99,20 +98,16 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 
 #ifdef PICVIZ_DEVELOPER_MODE
 	if (common::show_bboxes()) {
-		painter->setPen(pen);
-
 		const QPolygonF scene_rect = mapFromScene(scene()->sceneRect());
-		painter->setPen(QColor(0xFF, 0, 0));
+		painter->setPen(QPen(QColor(0xFF, 0, 0), 0));
 		painter->setBrush(QColor(0xFF, 0, 0, 40));
 		painter->drawPolygon(scene_rect);
 
-		pen.setColor(QColor(0xf6, 0xf2, 0x40));
-		painter->setPen(pen);
+		painter->setPen(QPen(QColor(0xf6, 0xf2, 0x40), 0));
 		const QPolygonF items_rect = mapFromScene(scene()->itemsBoundingRect());
 		painter->drawPolygon(items_rect);
 
-		pen.setColor(QColor(0x00, 0x00, 0xFF));
-		painter->setPen(pen);
+		painter->setPen(QPen(QColor(0x00, 0x00, 0xFF), 0));
 		QList<QGraphicsItem*> pixmaps = scene()->items();
 		for (QGraphicsItem* p: pixmaps) {
 			if (dynamic_cast<QGraphicsPixmapItem*>(p)) {

@@ -33,7 +33,7 @@ void init_big(QGraphicsScene *scene, PVWidgets::PVGraphicsView *, QTimeLine *tim
 		if (i < (LINE_NUM - 5)) {
 			item->setPen(QColor(255 * (i / (double)LINE_NUM),
 			                    255 * ((LINE_NUM - i) / (double)LINE_NUM),
-			                    0));
+			                    0), 0);
 		}
 
 		QGraphicsItemAnimation *animation = new QGraphicsItemAnimation;
@@ -61,7 +61,7 @@ void init_small(QGraphicsScene *scene, PVWidgets::PVGraphicsView *, QTimeLine *t
 		if (i < (LINE_NUM - 5)) {
 			item->setPen(QColor(255 * (i / (double)LINE_NUM),
 			                    255 * ((LINE_NUM - i) / (double)LINE_NUM),
-			                    0));
+			                    0), 0);
 		}
 		QGraphicsItemAnimation *animation = new QGraphicsItemAnimation;
 		animation->setItem(item);

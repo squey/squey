@@ -53,7 +53,7 @@ void PVParallelView::PVSelectionAxisSlider::paint(QPainter *painter,
 		painter->fillRect(max_rect, b);
 	}
 
-	painter->setPen(Qt::white);
+	painter->setPen(QPen(Qt::white, 0));
 
 	if (_orientation == Min) {
 		painter->drawRect(min_rect);

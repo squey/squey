@@ -59,7 +59,7 @@ void PVParallelView::PVZoomedSelectionAxisSlider::paint(QPainter *painter,
 		painter->fillRect(max_rect, b);
 	}
 
-	painter->setPen(PVSelectionRectangle::rectangle_color);
+	painter->setPen(QPen(PVSelectionRectangle::rectangle_color, 0));
 
 	if (_orientation == Min) {
 		painter->drawRect(min_rect);

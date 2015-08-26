@@ -36,7 +36,7 @@ void PVParallelView::PVAbstractAxisSliders::paint(QPainter * painter, const QSty
 #ifdef PICVIZ_DEVELOPER_MODE
 	if (common::show_bboxes()) {
 		painter->save();
-		painter->setPen(QColor(0xFF, 0xFF, 0));
+		painter->setPen(QPen(QColor(0xFF, 0xFF, 0), 0));
 		painter->setBrush(QColor(0xFF, 0xFF, 0, 128));
 		const QRectF br = boundingRect();
 		painter->drawRect(br);

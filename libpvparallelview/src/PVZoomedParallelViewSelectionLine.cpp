@@ -60,12 +60,11 @@ void PVParallelView::PVZoomedParallelViewSelectionLine::paint(QPainter* painter,
 
         painter->save();
 
-        painter->setPen(_pen_color);
-        painter->drawLine(_tl_pos, _br_pos);
+        painter->setPen(QPen(_pen_color, 0));
 
         painter->drawLine(_tl_pos, _br_pos);
 
-        painter->setPen(PVSelectionRectangle::handle_color);
+        painter->setPen(QPen(PVSelectionRectangle::handle_color, 0));
 
         qreal x1 = 0.;
         qreal x2 = _tl_pos.x();
