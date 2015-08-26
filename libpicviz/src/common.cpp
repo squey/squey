@@ -9,12 +9,16 @@
 #include <picviz/PVScene.h>
 #include <picviz/PVView.h>
 
+#ifdef ENABLE_CORRELATION
 #include <tulip/TlpTools.h>
+#endif
 
 void Picviz::common::load_filters()
 {
+#ifdef ENABLE_CORRELATION
 	// Tulip initialisation
 	tlp::initTulipLib();
+#endif
 
 	// PVRoot handle the filters
 	load_layer_filters();

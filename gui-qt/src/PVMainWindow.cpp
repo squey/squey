@@ -83,8 +83,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 
 	reset_root();
 
-	//_ad2g_mw = NULL;
-
 	// SIZE STUFF
 	// WARNING: nothing should be set here.
 	

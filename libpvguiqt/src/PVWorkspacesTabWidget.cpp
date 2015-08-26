@@ -13,7 +13,9 @@
 #include <pvhive/PVObserverSignal.h>
 
 #include <picviz/PVSource.h>
+#ifdef ENABLE_CORRELATION
 #include <picviz/PVAD2GView.h>
+#endif
 
 #include <pvkernel/core/lambda_connect.h>
 
@@ -260,6 +262,7 @@ PVGuiQt::PVWorkspacesTabWidgetBase::PVWorkspacesTabWidgetBase(Picviz::PVRoot& ro
 	setMouseTracking(true);
 	tabBar()->setMouseTracking(true);
 
+#ifdef ENABLE_CORRELATION
 	_combo_box = new QComboBox();
 	connect(_combo_box, SIGNAL(activated(int)), this, SLOT(correlation_changed(int)));
 	setCornerWidget(_combo_box, Qt::TopRightCorner);
@@ -269,6 +272,7 @@ PVGuiQt::PVWorkspacesTabWidgetBase::PVWorkspacesTabWidgetBase(Picviz::PVRoot& ro
 	_obs = new PVHive::PVObserverSignal<Picviz::PVRoot>(this);
 	PVHive::get().register_observer(root_sp, [=](Picviz::PVRoot& root) { return &root.get_correlations(); }, *_obs);
 	_obs->connect_refresh(this, SLOT(update_correlations_list()));
+#endif
 }
 
 
@@ -337,6 +341,7 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::animation_state_changed(QAbstractAnimat
 	}
 }
 
+#ifdef ENABLE_CORRELATION
 void PVGuiQt::PVWorkspacesTabWidgetBase::correlation_changed(int /*index*/)
 {
 	get_root().select_correlation(get_correlation());
@@ -366,6 +371,7 @@ int PVGuiQt::PVWorkspacesTabWidgetBase::get_index_from_correlation(void* correla
 	}
 	return 0;
 }
+#endif
 
 void PVGuiQt::PVWorkspacesTabWidgetBase::tab_close_requested(int index)
 {
@@ -409,7 +415,9 @@ PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Picviz::PVScene&
 	_tab_bar = new PVSceneTabBar(this);
 	setTabBar(_tab_bar);
 
+#ifdef ENABLE_CORRELATION
 	update_correlations_list();
+#endif
 }
 
 void PVGuiQt::PVSceneWorkspacesTabWidget::set_project_modified(bool modified /* = true */, QString path /*= QString()*/)
@@ -437,12 +445,14 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tabRemoved(int index)
 	QTabWidget::tabRemoved(index);
 }
 
+#ifdef ENABLE_CORRELATION
 void PVGuiQt::PVSceneWorkspacesTabWidget::correlation_changed(int index)
 {
 	_correlation = (Picviz::PVAD2GView*) _combo_box->itemData(index, Qt::UserRole).value<void*>();
 
 	PVWorkspacesTabWidgetBase::correlation_changed(index);
 }
+#endif
 
 void PVGuiQt::PVSceneWorkspacesTabWidget::remove_workspace(int index, bool close_source /*= true*/)
 {
@@ -513,7 +523,9 @@ PVGuiQt::PVOpenWorkspacesTabWidget::PVOpenWorkspacesTabWidget(Picviz::PVRoot& ro
 
 	((PVOpenWorkspaceTabBar*) _tab_bar)->create_new_workspace();
 
+#ifdef ENABLE_CORRELATION
 	update_correlations_list();
+#endif
 }
 
 void PVGuiQt::PVOpenWorkspacesTabWidget::tabInserted(int index)
@@ -535,14 +547,17 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::tab_changed(int index)
 		if (_combo_box) {
 			PVOpenWorkspace * open_workspace = (PVOpenWorkspace*) widget(index);
 			if (open_workspace) {
+#ifdef ENABLE_CORRELATION
 				Picviz::PVAD2GView* correlation = open_workspace->get_correlation();
 				_combo_box->setCurrentIndex(get_index_from_correlation(correlation));
 				get_root().select_correlation(correlation);
+#endif
 			}
 		}
 	}
 }
 
+#ifdef ENABLE_CORRELATION
 Picviz::PVAD2GView* PVGuiQt::PVOpenWorkspacesTabWidget::get_correlation()
 {
 	PVGuiQt::PVOpenWorkspace* open_workspace = qobject_cast<PVGuiQt::PVOpenWorkspace*>(currentWidget());
@@ -562,6 +577,7 @@ void PVGuiQt::PVOpenWorkspacesTabWidget::correlation_changed(int index)
 
 	PVWorkspacesTabWidgetBase::correlation_changed(index);
 }
+#endif
 
 void PVGuiQt::PVOpenWorkspacesTabWidget::tabRemoved(int index)
 {

@@ -6,7 +6,9 @@
 add_subdirectory(layer-filters)
 add_subdirectory(mapping-filters)
 add_subdirectory(plotting-filters)
-add_subdirectory(row-filters)
+if(ENABLE_CORRELATION)
+	add_subdirectory(row-filters)
+endif()
 add_subdirectory(axis-computation)
 add_subdirectory(sorting-functions)
 

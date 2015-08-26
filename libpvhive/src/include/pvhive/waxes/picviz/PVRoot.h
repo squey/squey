@@ -14,9 +14,10 @@ DECLARE_WAX(Picviz::PVRoot::select_view)
 DECLARE_WAX(Picviz::PVRoot::select_source)
 DECLARE_WAX(Picviz::PVRoot::select_scene)
 
+#ifdef ENABLE_CORRELATION
 DECLARE_WAX(Picviz::PVRoot::add_correlation)
 DECLARE_WAX(Picviz::PVRoot::delete_correlation)
 DECLARE_WAX(Picviz::PVRoot::process_correlation)
-
+#endif
 
 #endif /* __PVHIVE_WAXES_PICVIZ_PVROOT__ */

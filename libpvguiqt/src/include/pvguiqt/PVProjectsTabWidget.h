@@ -117,6 +117,13 @@ class PVProjectsTabWidget : public QWidget
 	Q_OBJECT
 
 public:
+#ifdef ENABLE_CORRELATION
+	static constexpr int FIRST_PROJECT_INDEX = 2;
+#else
+	static constexpr int FIRST_PROJECT_INDEX = 1;
+#endif
+
+public:
 	PVProjectsTabWidget(Picviz::PVRoot* root, QWidget* parent = 0);
 
 	PVSceneWorkspacesTabWidget* add_project(Picviz::PVScene_p scene_p);
@@ -133,21 +140,21 @@ public:
 
 	inline Picviz::PVScene* current_scene() const { return _root->current_scene(); }
 	PVWorkspacesTabWidgetBase* current_workspace_tab_widget() const;
-	inline PVSceneWorkspacesTabWidget* current_project() const { return (_current_workspace_tab_widget_index >= 2) ? (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(_current_workspace_tab_widget_index) : nullptr; }
+	inline PVSceneWorkspacesTabWidget* current_project() const { return (_current_workspace_tab_widget_index >= FIRST_PROJECT_INDEX) ? (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(_current_workspace_tab_widget_index) : nullptr; }
 
 	inline void select_tab_from_scene(Picviz::PVScene* scene);
 	inline PVWorkspaceBase* current_workspace() const { return  current_project() ? (PVWorkspaceBase*) current_project()->currentWidget() : nullptr; }
 	inline Picviz::PVView* current_view() const { return _root->current_view(); }
-	inline int projects_count() { return _tab_widget->count() -2; }
+	inline int projects_count() { return _tab_widget->count() - FIRST_PROJECT_INDEX; }
 	inline const QStringList get_projects_list()
 	{
 		QStringList projects_list;
-		for (int i = 2; i < _tab_widget->count() ; i++) {
+		for (int i = FIRST_PROJECT_INDEX; i < _tab_widget->count() ; i++) {
 			projects_list << _tab_widget->tabText(i);
 		}
 		return projects_list;
 	}
-	inline int get_current_project_index() { return _current_workspace_tab_widget_index-2; }
+	inline int get_current_project_index() { return _current_workspace_tab_widget_index - FIRST_PROJECT_INDEX; }
 	Picviz::PVScene* get_scene_from_path(const QString & path);
 	PVSceneWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Picviz::PVScene* scene);
 

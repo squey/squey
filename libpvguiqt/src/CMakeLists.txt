@@ -39,9 +39,6 @@ PVProjectsTabWidget.cpp
 PVStartScreenWidget.cpp
 PVInputTypeMenuEntries.cpp
 PVImportSourceToProjectDlg.cpp
-PVCorrelationMenu.cpp
-PVAD2GWidget.cpp
-PVAD2GInteractor.cpp
 PVStatsListingWidget.cpp
 PVToolTipDelegate.cpp
 PVExportSelectionDlg.cpp
@@ -81,9 +78,6 @@ include/pvguiqt/PVAboutBoxDialog.h
 include/pvguiqt/PVProjectsTabWidget.h
 include/pvguiqt/PVStartScreenWidget.h
 include/pvguiqt/PVImportSourceToProjectDlg.h
-include/pvguiqt/PVCorrelationMenu.h
-include/pvguiqt/PVAD2GWidget.h
-include/pvguiqt/PVAD2GInteractor.h
 include/pvguiqt/PVStatsListingWidget.h
 include/pvguiqt/PVToolTipDelegate.h
 include/pvguiqt/PVExportSelectionDlg.h
@@ -106,6 +100,20 @@ set(LIBGUIQT_HEADER_FILES
 
 SET(QRC_FILES
 )
+
+if(ENABLE_CORRELATION)
+	list(APPEND LIBGUIQT_SRC_FILES
+	PVCorrelationMenu.cpp
+	PVAD2GWidget.cpp
+	PVAD2GInteractor.cpp
+	)
+
+	list(APPEND LIBGUIQT_MOC_HEADERS
+	include/pvguiqt/PVCorrelationMenu.h
+	include/pvguiqt/PVAD2GWidget.h
+	include/pvguiqt/PVAD2GInteractor.h
+	)
+endif()
 
 set(SRC_FILES ${LIBGUIQT_SRC_FILES})
 set(HEADER_FILES ${LIBGUIQT_HEADER_FILES})

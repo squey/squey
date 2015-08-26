@@ -733,7 +733,9 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 
 	_root->set_path(file);
 
+#ifdef ENABLE_CORRELATION
 	correlation_Menu->load_correlations();
+#endif
 
 	set_window_title_with_filename();
 	if (solution_has_been_fixed) {
@@ -1482,27 +1484,6 @@ void PVInspector::PVMainWindow::view_display_inv_elts_Slot()
 	if (current_view()) {
 		display_inv_elts();
 	}
-}
-
-void PVInspector::PVMainWindow::show_correlation_Slot()
-{
-	/*if (!_ad2g_mw) {
-		_ad2g_mw = new QDialog(this);
-		_ad2g_mw->setWindowTitle(tr("Correlations"));
-		PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(current_scene()->get_ad2g_view_p());
-		QVBoxLayout* l = new QVBoxLayout();
-		l->addWidget(ad2g_w);
-		_ad2g_mw->setLayout(l);
-	}
-	else {
-		QWidget* ad2g_mw_c = _ad2g_mw->layout()->itemAt(0)->widget();
-		PVWidgets::PVAD2GWidget* ad2g_w;
-		ad2g_w = dynamic_cast<PVWidgets::PVAD2GWidget*>(ad2g_mw_c);
-		assert(ad2g_w);
-		ad2g_w->update_list_views();
-		ad2g_w->update_list_edges();
-	}
-	_ad2g_mw->exec();*/
 }
 
 void PVInspector::PVMainWindow::layer_export_Slot()

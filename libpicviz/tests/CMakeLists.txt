@@ -42,9 +42,11 @@ target_link_libraries(Tpicviz_root_serialize ${LINK_LIBRARIES})
 declare_pv_test(Tpicviz_sizes sizes.cpp)
 target_link_libraries(Tpicviz_sizes ${LINK_LIBRARIES})
 
-# PVAD2GView
-#declare_pv_test(Tpicviz_ad2gview ad2gview.cpp)
-#target_link_libraries(Tpicviz_ad2gview ${LINK_LIBRARIES} ${TULIP_LIBRARY})
+if(ENABLE_CORRELATION)
+	# PVAD2GView
+	#declare_pv_test(Tpicviz_ad2gview ad2gview.cpp)
+	#target_link_libraries(Tpicviz_ad2gview ${LINK_LIBRARIES} ${TULIP_LIBRARY})
+endif()
 
 declare_pv_test(sel_red selection_red.cpp)
 target_link_libraries(sel_red ${LINK_LIBRARIES} ${TULIP_LIBRARY})

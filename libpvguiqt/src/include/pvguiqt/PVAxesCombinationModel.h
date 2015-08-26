@@ -7,8 +7,6 @@
 #ifndef PVGUIQT_AXESCOMBMODEL_H
 #define PVGUIQT_AXESCOMBMODEL_H
 
-#include <picviz/widgets/PVAD2GRFFListModel.h>
-#include <picviz/PVSelRowFilteringFunction.h>
 #include <picviz/PVView.h>
 
 #include <pvkernel/core/PVSharedPointer.h>
@@ -29,6 +27,7 @@ namespace PVGuiQt {
 class PVAxesCombinationModel;
 
 namespace __impl {
+
 class set_axis_name_Observer: public PVHive::PVFuncObserver<Picviz::PVView, decltype(&Picviz::PVView::set_axis_name), &Picviz::PVView::set_axis_name>
 {
 public:
@@ -80,7 +79,6 @@ private:
 	PVGuiQt::PVAxesCombinationModel* _model;
 };
 
-
 }
 
 class PVAxesCombinationModel: public QAbstractListModel
@@ -109,7 +107,7 @@ public:
 private slots:
 	void about_to_be_deleted_slot(PVHive::PVObserverBase*);
 	void refresh_slot(PVHive::PVObserverBase*);
-	
+
 private:
 	inline Picviz::PVView const& picviz_view() const { return *_view_observer.get_object(); }
 
@@ -118,7 +116,7 @@ private:
 	bool _view_deleted;
 
 	// Observers
-	__impl::set_axis_name_Observer _set_axis_name_observer; 
+	__impl::set_axis_name_Observer _set_axis_name_observer;
 	PVHive::PVObserverSignal<Picviz::PVView> _view_observer;
 	__impl::remove_column_Observer _remove_column_observer;
 	__impl::axis_append_Observer _axis_append_observer;

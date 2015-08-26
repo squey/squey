@@ -70,6 +70,9 @@ if (NOT DEFINED USE_LTO)
 	set(USE_LTO false)
 endif()
 
+# Default value for correlation
+set(ENABLE_CORRELATION FALSE CACHE BOOLEAN "Enable the correlation system")
+
 # Default values for tests files root
 if (NOT DEFINED TESTS_FILES_DIR)
 	set(TESTS_FILES_DIR "${CMAKE_SOURCE_DIR}/tests/files")

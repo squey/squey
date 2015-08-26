@@ -284,7 +284,10 @@ public:
 
 	void load_post_to_pre();
 
+#ifdef ENABLE_CORRELATION
 	QList<Picviz::PVView*> process_correlation();
+#endif
+
 	void process_from_eventline();
 	void process_from_filter();
 	QList<Picviz::PVView*> process_from_layer_stack();

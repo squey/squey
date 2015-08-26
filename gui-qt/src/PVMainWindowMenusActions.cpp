@@ -237,8 +237,10 @@ void PVInspector::PVMainWindow::create_menus()
 	filter_Menu->addSeparator();
 	create_filters_menu_and_actions();
 
+#ifdef ENABLE_CORRELATION
 	correlation_Menu = new PVGuiQt::PVCorrelationMenu(&get_root());
 	menubar->addMenu(correlation_Menu);
+#endif
 
 	source_Menu = menubar->addMenu(tr("&Source"));
 	source_Menu->addAction(extractor_file_Action);
@@ -319,7 +321,9 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	//axes_Menu->setEnabled(cond);
 	filter_Menu->setEnabled(cond);
 	events_Menu->setEnabled(cond);
+#ifdef ENABLE_CORRELATION
 	correlation_Menu->setEnabled(cond);
+#endif
 	selection_Menu->setEnabled(cond);
 	tools_cur_format_Action->setEnabled(cond);
 	source_Menu->setEnabled(cond);
