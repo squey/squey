@@ -26,7 +26,7 @@ const QString star = "*";
 void PVGuiQt::__impl::PVTabBar::mouseDoubleClickEvent(QMouseEvent* event)
 {
 	int index = tabAt(event->pos());
-	if (index >= 2) {
+	if (index >= PVProjectsTabWidget::FIRST_PROJECT_INDEX) {
 		rename_tab(index);
 	}
 	QTabBar::mouseDoubleClickEvent(event);
@@ -36,7 +36,7 @@ void PVGuiQt::__impl::PVTabBar::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::RightButton) {
 		int index = tabAt(event->pos());
-		if (index >= 2) {
+		if (index >= PVProjectsTabWidget::FIRST_PROJECT_INDEX) {
 			QMenu* menu = new QMenu(this);
 			QAction* rename_action = menu->addAction("&Rename...");
 			rename_action->setData(qVariantFromValue(index));
@@ -51,7 +51,7 @@ void PVGuiQt::__impl::PVTabBar::keyPressEvent(QKeyEvent * event)
 {
 	if (event->key() == Qt::Key_F2) {
 		int index = currentIndex();
-		if (index >= 2) {
+		if (index >= PVProjectsTabWidget::FIRST_PROJECT_INDEX) {
 			rename_tab(index);
 		}
 	}
@@ -151,6 +151,7 @@ void  PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	connect(_start_screen_widget, SIGNAL(load_format()), this, SIGNAL(load_format()));
 	connect(_start_screen_widget, SIGNAL(edit_format(const QString &)), this, SIGNAL(edit_format(const QString &)));
 
+#ifdef ENABLE_CORRELATION
 	// Open workspaces
 	_workspaces_tab_widget = new PVOpenWorkspacesWidget(_root);
 	_tab_widget->addTab(new QWidget(), "");
@@ -158,6 +159,7 @@ void  PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	_tab_widget->setTabToolTip(1, "Workspaces");
 	_tab_widget->setTabIcon(1, QIcon(":/brush.png"));
 	_stacked_widget->addWidget(_workspaces_tab_widget);
+#endif
 }
 
 void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* = true */)
@@ -208,7 +210,7 @@ void PVGuiQt::PVProjectsTabWidget::project_modified(bool modified, QString path 
 
 bool PVGuiQt::PVProjectsTabWidget::save_modified_projects()
 {
-	for (int i = 2; i < _tab_widget->count(); i++) {
+	for (int i = FIRST_PROJECT_INDEX; i < _tab_widget->count(); i++) {
 		PVSceneWorkspacesTabWidget* tab_widget = (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(i);
 		if (tab_widget->is_project_modified()) {
 			if (!tab_close_requested(i)) {
@@ -288,7 +290,7 @@ void PVGuiQt::PVProjectsTabWidget::remove_project(int index)
 
 		tab_widget->deleteLater();
 
-		if (_tab_widget->count() == 2) {
+		if (_tab_widget->count() == FIRST_PROJECT_INDEX) {
 			_tab_widget->setCurrentIndex(0);
 			emit is_empty();
 		}
@@ -303,7 +305,7 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	// to report if the active tab is for a project or not (start page or empty worspaces page)
 	QWidget* active_widget = _stacked_widget->currentWidget();
 	if ((active_widget == _start_screen_widget)
-	    || (_stacked_widget->count() <= 2)) {
+	    || (_stacked_widget->count() <= FIRST_PROJECT_INDEX)) {
 		emit active_project(false);
 	} else {
 		emit active_project(true);
@@ -348,16 +350,19 @@ PVGuiQt::PVWorkspacesTabWidgetBase* PVGuiQt::PVProjectsTabWidget::current_worksp
 	}
 
 	QWidget* w = _stacked_widget->widget(_current_workspace_tab_widget_index);
+
+#ifdef ENABLE_CORRELATION
 	if (_current_workspace_tab_widget_index == 1) {
 		return qobject_cast<PVOpenWorkspacesWidget*>(w)->workspace_tab_widget();
 	}
+#endif
 
 	return qobject_cast<PVWorkspacesTabWidgetBase*>(w);
 }
 
 PVGuiQt::PVSceneWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::get_workspace_tab_widget_from_scene(const Picviz::PVScene* scene)
 {
-	for (int i = 2 ; i < _stacked_widget->count(); i++) {
+	for (int i = FIRST_PROJECT_INDEX ; i < _stacked_widget->count(); i++) {
 		PVSceneWorkspacesTabWidget* workspace_tab_widget = (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(i);
 		if (workspace_tab_widget->get_scene() == scene) {
 			return workspace_tab_widget;
