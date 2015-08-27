@@ -7,6 +7,7 @@
 #include <pvbase/general.h>
 
 #include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVLogger.h>
 
 #include <QDir>
 #include <QDirIterator>
@@ -46,6 +47,9 @@ PVCore::PVConfig::PVConfig()
 
 		if (sys_fi.exists()) {
 			QFile::copy(sys_fi.filePath(), fi.filePath());
+		} else {
+			PVLOG_ERROR("%s file doesn't exists\n", fi.filePath().toLatin1().data());
+			exit(1);
 		}
 	}
 
