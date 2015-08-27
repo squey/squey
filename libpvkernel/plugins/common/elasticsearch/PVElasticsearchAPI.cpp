@@ -74,6 +74,9 @@ PVRush::PVElasticsearchAPI::~PVElasticsearchAPI()
 	curl_easy_cleanup(_curl);
 }
 
+/**
+ * Beware that curl_easy_setopt() *does not* make a string copy !
+ */
 void PVRush::PVElasticsearchAPI::prepare_query(const std::string& uri, const std::string& body /* = std::string() */) const
 {
 	curl_easy_setopt(_curl, CURLOPT_URL, uri.c_str());
@@ -168,7 +171,7 @@ std::string PVRush::PVElasticsearchAPI::sql_to_json(const std::string& sql, std:
 
 		std::stringstream query;
 
-		query << "\"query\" : " << strbuf.GetString();
+		query << "{ \"query\" : " << strbuf.GetString() << "}";
 
 		return query.str();
 	}
@@ -292,9 +295,9 @@ size_t PVRush::PVElasticsearchAPI::count(const PVRush::PVElasticsearchQuery& que
 	std::stringstream url;
 	url << socket() << "/" << infos.get_index().toStdString() << "/_count";
 
-	std::string complete_request = std::string("{") + query.get_query().toStdString() + std::string("}");
+	std::string request = query.get_query().toStdString();
 
-	prepare_query(url.str(), complete_request);
+	prepare_query(url.str(), request);
 	if (perform_query(json_buffer, error)) {
 		rapidjson::Document json;
 		json.Parse<0>(json_buffer.c_str());
@@ -320,14 +323,20 @@ bool PVRush::PVElasticsearchAPI::init_scroll(const PVRush::PVElasticsearchQuery&
 	std::stringstream url;
 	url << socket() << "/" << infos.get_index().toStdString() << "/_search?scroll=1m&search_type=scan";
 
-	// TODO: test "_source : message" instead of "fields : message" to see if there is any performance change (don't forget to update the parsing)
-	std::string complete_request = std::string("{ \
-		\"fields\": \"message\", \
-		\"size\":  1000," \
-		+ query.get_query().toStdString() + std::string("}")
-	).c_str();
+	rapidjson::Document json;
+	json.Parse<0>(query.get_query().toStdString().c_str());
 
-	prepare_query(url.str(), complete_request);
+	// TODO: test "_source : message" instead of "fields : message" to see if there is any performance change (don't forget to update the parsing)
+	json.AddMember("fields", "message", json.GetAllocator());
+	json.AddMember("size", 1000, json.GetAllocator());
+
+	rapidjson::StringBuffer strbuf;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
+	json.Accept(writer);
+
+	std::string request = strbuf.GetString();
+
+	prepare_query(url.str(), request);
 	if (perform_query(json_buffer)) {
 		rapidjson::Document json;
 		json.Parse<0>(json_buffer.c_str());
