@@ -3,6 +3,16 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+################################################
+# QT5 related include and check
+################################################
+
+# For QApplication
+find_package(Qt5Widgets REQUIRED)
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+
 configure_file(run-massive-call-obj.sh.cmake run-massive-call-obj.sh @ONLY)
 configure_file(run-massive-call-prop.sh.cmake run-massive-call-prop.sh @ONLY)
 configure_file(run-massive-register.sh.cmake run-massive-register.sh @ONLY)

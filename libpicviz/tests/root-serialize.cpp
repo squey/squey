@@ -24,7 +24,9 @@
 #include <QCoreApplication>
 #include "test-env.h"
 
+#ifdef ENABLE_CORRELATION
 #include <tulip/Graph.h>
+#endif
 
 int main(int argc, char** argv)
 {
@@ -78,6 +80,7 @@ int main(int argc, char** argv)
 	Picviz::PVView& v2 = *src2->get_children<Picviz::PVView>().at(0);
 	Picviz::PVView& v3 = *src2->get_children<Picviz::PVView>().at(1);
 
+#ifdef ENABLE_CORRELATION
 	// Set correlations
 	Picviz::PVAD2GView& corr0 = *root->add_correlation("corr0");
 	corr0.add_view(&v0);
@@ -101,6 +104,7 @@ int main(int argc, char** argv)
 	corr2.set_edge_f(&v0, &v2, cfv2);
 
 	root->select_correlation(0);
+#endif
 
 	// Serialize the root object
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive("/srv/tmp-picviz/test", PVCore::PVSerializeArchive::write, 1));

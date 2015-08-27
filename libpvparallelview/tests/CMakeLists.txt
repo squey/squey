@@ -3,12 +3,14 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libparallelview/src/include)
 add_definitions(${PICVIZ_DEFINITIONS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
-set(CUDA_NVCC_FLAGS "-gencode arch=compute_30,code=sm_30" "-Xptxas=-v")
+set(CUDA_NVCC_FLAGS "-gencode arch=compute_30,code=sm_30" "-Xptxas=-v" "-Xcompiler=-fPIC")
 #set(CUDA_NVCC_FLAGS "-g" "-G")
 
 add_definitions(${OpenMP_CXX_FLAGS})
@@ -140,6 +142,7 @@ target_link_libraries(Tqt_random_points ${LINK_LIBRARIES})
 
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
+
 	cuda_compile(CUDA_KERNELS bci_cuda.cu)
 	declare_pv_test(show_codes_cuda show_codes_cuda.cpp ${CUDA_KERNELS})
 	target_link_libraries(show_codes_cuda ${LINK_LIBRARIES} ${CUDA_LIBRARIES})

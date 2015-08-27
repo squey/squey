@@ -31,9 +31,9 @@ void init_big(QGraphicsScene *scene, PVWidgets::PVGraphicsView *, QTimeLine *tim
 		QGraphicsLineItem *item = scene->addLine(0, 0, 0, 100);
 
 		if (i < (LINE_NUM - 5)) {
-			item->setPen(QColor(255 * (i / (double)LINE_NUM),
-			                    255 * ((LINE_NUM - i) / (double)LINE_NUM),
-			                    0), 0);
+			item->setPen(QPen(QColor(255 * (i / (double)LINE_NUM),
+			                         255 * ((LINE_NUM - i) / (double)LINE_NUM),
+			                         0), 0));
 		}
 
 		QGraphicsItemAnimation *animation = new QGraphicsItemAnimation;
@@ -59,9 +59,9 @@ void init_small(QGraphicsScene *scene, PVWidgets::PVGraphicsView *, QTimeLine *t
 		                                         -i / (qreal)SCENE_WIDTH, 100);
 
 		if (i < (LINE_NUM - 5)) {
-			item->setPen(QColor(255 * (i / (double)LINE_NUM),
-			                    255 * ((LINE_NUM - i) / (double)LINE_NUM),
-			                    0), 0);
+			item->setPen(QPen(QColor(255 * (i / (double)LINE_NUM),
+			                         255 * ((LINE_NUM - i) / (double)LINE_NUM),
+			                         0), 0));
 		}
 		QGraphicsItemAnimation *animation = new QGraphicsItemAnimation;
 		animation->setItem(item);

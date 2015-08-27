@@ -86,15 +86,5 @@ int main(int argc, char** argv)
 	sel.select_all();
 	PVRush::PVNraw::count_by_t count_by;
 
-	PVLOG_INFO("count_by_with_sel:\n");
-	ext.get_nraw().count_by_with_sel(3, 6, count_by, sel);
-	/*for (auto& v1 : count_by) {
-		std::cout << v1.first << ":" << std::endl;
-		for (auto& v2 : count_by[v1.first]) {
-			std::cout << "   " << v2.first << ": " << v2.second << std::endl;
-		}
-		std::cout << "-----------------------" << std::endl;
-	}*/
-
 	return 0;
 }

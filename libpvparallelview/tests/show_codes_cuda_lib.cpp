@@ -58,7 +58,7 @@ PVParallelView::PVBCIBackendImage_p do_test(size_t n, size_t width, int pattern)
 
 	PVParallelView::PVBCIBackendImage_p dst_img = backend_cuda.create_image(width, Bbits);
 
-	backend_cuda(*dst_img, 0, width, (PVParallelView::PVBCICodeBase*) codes, n);
+	backend_cuda(dst_img, 0, width, (PVParallelView::PVBCICodeBase*) codes, n);
 	BENCH_START(render);
 	backend_cuda.wait_all();
 	BENCH_END(render, "render", 1, 1, 1, 1);

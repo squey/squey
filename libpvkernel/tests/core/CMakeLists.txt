@@ -5,11 +5,7 @@
 
 #add_definitions(-ftree-vectorizer-verbose=4)
 
-# if(WIN32)
-# 	set(PVCORE_LIBRARY pvcore)
-# else(WIN32)
-# 	set(PVCORE_LIBRARY pvcore m)
-# endif(WIN32)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 declare_pv_test(Tcore_capslock capslock.cpp)
 target_link_libraries(Tcore_capslock ${QT_LIBRARIES} pvkernel)

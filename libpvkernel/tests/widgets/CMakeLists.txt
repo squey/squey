@@ -3,6 +3,8 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+
 # Test data-tree model
 declare_pv_test(Twidgets_datatreemodel datatree-model.cpp)
 target_link_libraries(Twidgets_datatreemodel pvkernel ${QT_LIBRARIES})

@@ -3,6 +3,8 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+
 configure_file(test_issues.sh.cmake test_issues.sh @ONLY)
 configure_file(test_splitter_csv.sh.cmake test_splitter_csv.sh @ONLY)
 configure_file(test_splitter_duplicate.sh.cmake test_splitter_duplicate.sh @ONLY)
