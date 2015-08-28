@@ -10,8 +10,6 @@ if (CUDA_FOUND)
 endif(CUDA_FOUND)
 
 
-set(LINK_LIBRARIES pvdisplays picviz pvhive pvkernel ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
-
 # CUDA
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
 set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC ${CMAKE_NVCC_GENCODE_FLAGS}" "-Xptxas=-v")
@@ -199,6 +197,10 @@ QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 ################################################
 # Declare the new library and linkage options
 ################################################
+
+set(QT5_LIBS Qt5Core Qt5Gui Qt5Widgets Qt5Xml Qt5Concurrent Qt5OpenGL)
+
+set(LINK_LIBRARIES pvdisplays picviz pvhive pvkernel ${QT5_LIBS} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
 
 if (CUDA_FOUND)
 	cuda_compile(CUDA_KERNELS cuda/bci_cuda_z24.cu)

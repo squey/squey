@@ -46,7 +46,9 @@ add_library(pvdisplays SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEAD
 
 set_target_properties(pvdisplays PROPERTIES SOVERSION 1)
 
-set(PVDISPLAYS_LINK_LIBRARIES picviz pvkernel ${QT_LIBRARIES} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
+set(QT5_LIBS Qt5Core Qt5Xml Qt5Widgets)
+
+set(PVDISPLAYS_LINK_LIBRARIES picviz pvkernel ${QT5_LIBS} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 
 target_link_libraries(pvdisplays ${PVDISPLAYS_LINK_LIBRARIES})
 

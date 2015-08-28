@@ -133,7 +133,9 @@ add_library(pvguiqt SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-set(PVGUIQT_LINK_LIBRARIES pvdisplays pvhive picviz pvkernel ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
+set(QT5_LIBS Qt5Core Qt5Xml Qt5Widgets Qt5Concurrent Qt5OpenGL)
+
+set(PVGUIQT_LINK_LIBRARIES pvdisplays pvhive picviz pvkernel ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 
