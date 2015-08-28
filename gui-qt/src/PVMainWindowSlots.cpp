@@ -472,8 +472,10 @@ Picviz::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 	return scene_p;
 }
 
-void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
+bool PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc,
+                                                                  bool save_invalid_elts)
 {
+	bool has_error = false;
 	Picviz::PVScene_sp scene_p;
 
 	PVRush::PVFormat format = src_desc.get_format();
@@ -481,7 +483,7 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 		QMessageBox::warning(this,
 		                     tr("Format \"%1\" can not be read").arg(format.get_format_name()),
 		                     tr("Check that the file \"%1\" exists and is readable").arg(format.get_full_path()));
-		return;
+		return false;
 	}
 
 	QList<Picviz::PVScene_p> scenes = get_root().get_children();
@@ -497,12 +499,11 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 		scene_p = scenes.at(0)->shared_from_this();
 		Picviz::PVRoot_sp root_sp = get_root().shared_from_this();
 		PVHive::call<FUNC(Picviz::PVRoot::select_scene)>(root_sp, *scene_p.get());
-	}
-	else {
+	} else {
 		// More than one project loaded: ask the user the project he wants to use to load the source
 		PVGuiQt::PVImportSourceToProjectDlg* dlg = new PVGuiQt::PVImportSourceToProjectDlg(get_root(), get_root().current_scene(), this);
 		if (dlg->exec() != QDialog::Accepted) {
-			return;
+			return false;
 		}
 
 		Picviz::PVRoot_sp root_sp = get_root().shared_from_this();
@@ -514,19 +515,26 @@ void PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 	Picviz::PVSource_sp src_p;
 	try {
 		 src_p = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc);
-	}
-	catch (PVRush::PVInputException const& e) {
-		if (new_scene) {
-			_projects_tab_widget->remove_project(_projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get()));
-		}
+		 src_p->set_invalid_evts_mode(save_invalid_elts);
+	} catch (PVRush::PVFormatException const& e) {
+		PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
+		has_error = true;
+	} catch (PVRush::PVInputException const& e) {
 		QMessageBox::critical(this, tr("Fatal error while loading source..."), tr("Fatal error while loading source: %1").arg(e.what().c_str()));
-		return;
+		has_error = true;
+	}
 
+	if (has_error && new_scene) {
+		_projects_tab_widget->remove_project(_projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get()));
+		return false;
 	}
 
 	if (!load_source(src_p.get())) {
 		remove_source(src_p.get());
+		return false;
 	}
+
+	return true;
 }
 
 /******************************************************************************
