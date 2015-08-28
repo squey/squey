@@ -21,8 +21,7 @@ class PVElasticsearchQuery;
 class PVElasticsearchAPI
 {
 public:
-	// Types supported by the QueryBuilder are: [string, integer, double, date, time, datetime, boolean]
-	// Types supported by Elasticsearch are: [string, integer/long, float/double, boolean, and null]
+	static constexpr size_t DEFAULT_PORT = 9200;
 
 public:
 	using indexes_t = std::vector<std::string>;

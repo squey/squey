@@ -133,6 +133,7 @@ set(ELASTICSEARCH_SRC_FILES
 ../common/elasticsearch/PVElasticsearchInfos.cpp
 ../common/elasticsearch/PVElasticsearchJsonConverter.cpp
 ../common/elasticsearch/PVElasticsearchQuery.cpp
+common/PVParamsWidget.cpp
 elasticsearch/PVElasticsearchParamsWidget.cpp
 elasticsearch/PVElasticsearchPresets.cpp
 elasticsearch/PVInputTypeElasticsearch.cpp
@@ -140,10 +141,12 @@ elasticsearch/register.cpp
 )
 
 set(ELASTICSEARCH_MOC_HEADERS
-elasticsearch/PVElasticsearchParamsWidget.h)
+common/PVParamsWidget.h
+elasticsearch/PVElasticsearchParamsWidget.h
+)
 
 set(ELASTICSEARCH_UI
-elasticsearch/elasticsearch_params.ui)
+common/widget_params.ui)
 
 # Generate Qt Specific files
 QT5_WRAP_CPP(ELASTICSEARCH_MOC_SRCS ${ELASTICSEARCH_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})

@@ -14,12 +14,13 @@
 
 #include <map>
 
-#define PV_SETTINGS_INPUT_ELASTICSEARCH "plugins/input_type/elasticsearch/"
-
 namespace PVRush {
 
 class PVElasticsearchPresets
 {
+public:
+	static const char PV_SETTINGS_INPUT[];
+
 private:
 	PVElasticsearchPresets();
 	~PVElasticsearchPresets();

@@ -29,15 +29,8 @@ bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats const& formats,
 	PVInputDescription_p ind(query);
 	inputs.push_back(ind);
 
-	if (params->is_format_custom()) {
-		PVRush::PVFormat custom_format;
-		custom_format.populate_from_xml(params->get_custom_format().documentElement());
-		new_formats["custom"] = custom_format;
-		format = "custom";
-	}
-	else {
-		format = params->get_existing_format();
-	}
+
+	format = PICVIZ_BROWSE_FORMAT_STR;
 
 	return true;
 }

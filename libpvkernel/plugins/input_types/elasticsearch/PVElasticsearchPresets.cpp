@@ -9,10 +9,12 @@
 #include <QStringList>
 #include "PVElasticsearchPresets.h"
 
+const char PVRush::PVElasticsearchPresets::PV_SETTINGS_INPUT[] = "plugins/input_type/elasticsearch/";
+
 PVRush::PVElasticsearchPresets::PVElasticsearchPresets():
 	_settings(QSettings::UserScope, PICVIZ_ORGANISATION, PICVIZ_APPLICATIONNAME)
 {
-	_settings.beginGroup(PV_SETTINGS_INPUT_ELASTICSEARCH "presets");
+	_settings.beginGroup(QString(PV_SETTINGS_INPUT) + "presets");
 }
 
 PVRush::PVElasticsearchPresets::~PVElasticsearchPresets()
