@@ -23,7 +23,7 @@
 #include <QApplication>
 #include <QMainWindow>
 
-#include <QGLBuffer>
+#include <QOpenGLBuffer>
 
 #include "helpers.h"
 

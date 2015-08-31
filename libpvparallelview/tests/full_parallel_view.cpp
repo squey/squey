@@ -5,7 +5,7 @@
  */
 
 #include <QtWidgets>
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #include <iostream>
 
 #include <pvkernel/core/picviz_bench.h>
