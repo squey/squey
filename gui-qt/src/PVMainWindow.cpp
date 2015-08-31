@@ -889,41 +889,26 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	bool one_extraction_successful = false;
 	bool save_inv_elts = args_ext["inv_elts"].toBool();
 	// Load a type of file per view
-	QHash< QString, PVRush::PVInputType::list_inputs >::const_iterator it = discovered.constBegin();
-	for (; it != discovered.constEnd(); it++) {
+
+	/* can not use a C++11 foreach because QHash<...>::const_iterator is not
+	 * an usual const iterator but a non-const iterator which behaves as a
+	 * const one... I hate Qt!
+	 */
+	for (auto it = discovered.constBegin(); it != discovered.constEnd(); it++) {
 		// Create scene and source
 
 		const PVRush::PVInputType::list_inputs& inputs = it.value();
-		const QString& type = it.key();
 
-		PVRush::pair_format_creator const& fc = format_creator[type];
+		PVRush::pair_format_creator const& fc = format_creator[it.key()];
 
 		PVRush::PVControllerJob_p job_import;
 		PVRush::PVFormat const& cur_format = fc.first;
 
-		Picviz::PVSource* import_source;
-		try {
-			if (_projects_tab_widget->projects_count() == 0) {
-				project_new_Slot();
-			}
-			PVRush::PVSourceDescription src_desc(inputs, fc.second, cur_format);
-			Picviz::PVScene_p scene_p = current_scene()->shared_from_this();
-			import_source = PVHive::call<FUNC(Picviz::PVScene::add_source_from_description)>(scene_p, src_desc).get();
-			import_source->set_invalid_evts_mode(save_inv_elts);
-		}
-		catch (PVRush::PVFormatException const& e) {
-			PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
-			continue;
-		}
+		PVRush::PVSourceDescription src_desc(inputs, fc.second, cur_format);
 
-		if (!load_source(import_source)) {
-			remove_source(import_source);
-			continue;
+		if (load_source_from_description_Slot(src_desc, save_inv_elts)){
+			one_extraction_successful = true;
 		}
-		//import_source->set_parent(_scene);
-		//_scene->add_source(import_source);
-
-		one_extraction_successful = true;
 	}
 
 	if (!one_extraction_successful) {
