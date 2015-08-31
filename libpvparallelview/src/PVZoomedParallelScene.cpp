@@ -323,6 +323,10 @@ void PVParallelView::PVZoomedParallelScene::keyPressEvent(QKeyEvent *event)
 			_zpview->help_widget()->popup(_zpview->get_viewport(),
 			                              PVWidgets::PVTextPopupWidget::AlignCenter,
 			                              PVWidgets::PVTextPopupWidget::ExpandAll);
+			// FIXME : This is a hack to update the help_widget. It should be
+			// updated automaticaly as it does with QWebView but it doesn't
+			// with QWebEngineView
+			_zpview->raise();
 			event->accept();
 		}
 		return;

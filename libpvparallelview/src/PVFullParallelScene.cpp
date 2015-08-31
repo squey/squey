@@ -245,6 +245,11 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 			_full_parallel_view->help_widget()->popup(_full_parallel_view->viewport(),
 			                                          PVWidgets::PVTextPopupWidget::AlignCenter,
 			                                          PVWidgets::PVTextPopupWidget::ExpandAll);
+			// FIXME : This is a hack to update the help_widget. It should be
+			// updated automaticaly as it does with QWebView but it doesn't
+			// with QWebEngineView. Size have to differ to trigger an update.
+			QRect help_size = _full_parallel_view->help_widget()->geometry();
+			_full_parallel_view->help_widget()->resize(help_size.width(), help_size.height() - 1);
 		}
 		return;
 	}

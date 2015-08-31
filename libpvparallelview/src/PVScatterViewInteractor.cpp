@@ -28,6 +28,10 @@ bool PVParallelView::PVScatterViewInteractor::keyPressEvent(PVZoomableDrawingAre
 			sv->help_widget()->popup(sv->get_viewport(),
 			                         PVWidgets::PVTextPopupWidget::AlignCenter,
 			                         PVWidgets::PVTextPopupWidget::ExpandAll);
+			// FIXME : This is a hack to update the help_widget. It should be
+			// updated automaticaly as it does with QWebView but it doesn't
+			// with QWebEngineView
+			sv->raise();
 		}
 		return false;
 	}

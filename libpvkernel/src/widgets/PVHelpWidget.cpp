@@ -30,6 +30,7 @@ bool PVWidgets::PVHelpWidget::is_close_key(int key)
 
 bool PVWidgets::PVHelpWidget::is_help_key(int key)
 {
+	// TODO : We should use QKeySequence::HelpContents for help
 	return ((key == Qt::Key_Question)
 	        || (key == Qt::Key_Help)
 	        || (key == Qt::Key_F1));
