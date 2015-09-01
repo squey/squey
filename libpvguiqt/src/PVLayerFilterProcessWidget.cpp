@@ -10,6 +10,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QMessageBox>
+#include <QtConcurrent/QtConcurrent>
 
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>

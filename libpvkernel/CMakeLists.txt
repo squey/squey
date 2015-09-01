@@ -1,15 +1,39 @@
 #
 # \file CMakeLists.txt
 #
-# Copyright (C) Picviz Labs 2010-2012
+# Copyright (C) Picviz Labs 2010-2015
 
 project(libpvkernel)
 include(CTest)
 set(CTEST_PROJECT_NAME "PVKernel")
 
-set(QT_USE_QTXML TRUE)
-set(QT_USE_QTWEBKIT TRUE)
-include(${QT_USE_FILE})
+################################################
+# QT5 related include and check
+################################################
+
+# For QDomElement
+find_package(Qt5Xml REQUIRED)
+include_directories(${Qt5Xml_INCLUDE_DIRS})
+
+# For colors
+find_package(Qt5Gui REQUIRED)
+include_directories(${Qt5Gui_INCLUDE_DIRS})
+
+# For Dialog
+find_package(Qt5Widgets REQUIRED)
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
+
+# For QOpenGLWidget
+find_package(Qt5OpenGL REQUIRED)
+include_directories(${Qt5OpenGL_INCLUDE_DIRS})
+
+# For QtWebEngineView
+find_package(Qt5WebEngineWidgets REQUIRED)
+include_directories(${Qt5WebEngineWidgets_INCLUDE_DIRS})
+
+###################################################################
+# Add include directories for picviz's libs and external projects
+###################################################################
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${ICU_INCLUDE})
@@ -24,9 +48,6 @@ endif(CUDA_FOUND)
 if(PYTHONLIBS_FOUND)
 	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
 endif(PYTHONLIBS_FOUND)
-include_directories(AFTER ${QT_QTCORE_INCLUDE_DIR})
-include_directories(AFTER ${QT_INCLUDE_DIR})
-include_directories(AFTER ${QT_UI_INCLUDE_DIR})
 
 ##########################################
 # begin: SET VARIOUS PLUGINS DIRECTORIES #

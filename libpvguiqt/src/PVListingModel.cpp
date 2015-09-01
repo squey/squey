@@ -5,7 +5,7 @@
  */
 
 #include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVColor.h>
@@ -228,5 +228,6 @@ void PVGuiQt::PVListingModel::view_about_to_be_deleted(PVHive::PVObserverBase* /
 
 void PVGuiQt::PVListingModel::axes_comb_changed()
 {
-	reset();
+	beginResetModel();
+	endResetModel();
 }

@@ -19,13 +19,10 @@ add_definitions(-DSAD_PLUGINS_DIR="${SAD_PLUGINS_DIR}")
 # <Include directories>
 #
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/helpers/libsad/src/include)
-# include(${QT_USE_FILE})
 # include_directories(AFTER ${BOOST_INCLUDEDIR})
 #
 # </Include directories>
 #
-
-# message(STATUS "QtCore include dirs: " ${QT_QTCORE_INCLUDE_DIR})
 
 # Set SAD_PLUGINS_DIR
 if(WIN32)

@@ -7,6 +7,8 @@
 #ifndef PVGUIQT_PVLAYERFILTERPROCESSWIDGET_H
 #define PVGUIQT_PVLAYERFILTERPROCESSWIDGET_H
 
+#include <QSplitter>
+
 #include <picviz/PVLayerFilter.h>
 #include <pvkernel/widgets/PVPresetsWidget.h>
 

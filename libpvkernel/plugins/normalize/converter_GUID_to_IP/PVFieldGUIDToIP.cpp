@@ -64,7 +64,7 @@ PVCore::PVField& PVFilter::PVFieldGUIDToIP::one_to_one(PVCore::PVField& field)
 
 			size_t ip_dec_utf16_len = strlen(dec_ipv4)*2;
 
-			const ushort* dec_ipv4_utf16 = QString::fromAscii(dec_ipv4).utf16();
+			const ushort* dec_ipv4_utf16 = QString::fromLatin1(dec_ipv4).utf16();
 			field.allocate_new(ip_dec_utf16_len);
 			memcpy(field.begin(), dec_ipv4_utf16, ip_dec_utf16_len);
 			field.set_end(field.begin() + ip_dec_utf16_len);
@@ -81,7 +81,7 @@ PVCore::PVField& PVFilter::PVFieldGUIDToIP::one_to_one(PVCore::PVField& field)
 
 		if (sscanf(field_str.mid(start, ipv6_hexa_len).toStdString().c_str(), "%4X%4X-%4X-%4X-%4X-%4X%4X%4X", &a, &b, &c, &d, &e, &f, &g, &h) == 8) {
 			snprintf(ipv6_hexa, ipv6_hexa_len+1, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", a, b, c, d, e, f, g, h);
-			const ushort* ipv6_hexa_utf16 = QString::fromAscii(ipv6_hexa).utf16();
+			const ushort* ipv6_hexa_utf16 = QString::fromLatin1(ipv6_hexa).utf16();
 			field.allocate_new(ipv6_hexa_utf16_len);
 			memcpy(field.begin(), ipv6_hexa_utf16, ipv6_hexa_utf16_len);
 			field.set_end(field.begin() + ipv6_hexa_utf16_len);

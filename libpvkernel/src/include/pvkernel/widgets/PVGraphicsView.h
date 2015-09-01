@@ -2,9 +2,9 @@
 #ifndef PVWIDGETS_PVGRAPHICSVIEW_H
 #define PVWIDGETS_PVGRAPHICSVIEW_H
 
-#include <QWidget>
-#include <QTransform>
 #include <QEvent>
+#include <QTransform>
+#include <QWidget>
 
 #include <vector>
 #include <list>
@@ -20,7 +20,7 @@ class QPainter;
 class QPaintEvent;
 class QResizeEvent;
 class QEvent;
-class QGLFormat;
+class QSurfaceFormat;
 
 namespace PVWidgets {
 
@@ -102,23 +102,23 @@ public:
 	 */
 	void set_viewport(QWidget* w);
 
-	/*! \brief Set the viewport's widget as a QGLWidget if possible.
+	/*! \brief Set the viewport's widget as a QOpenGLWidget if possible.
 	 *
-	 * This function sets the viewport's widget as a QGLWidget if possible, and
+	 * This function sets the viewport's widget as a QOpenGLWidget if possible, and
 	 * fallback to the current viewport otherwise..
 	 *
-	 * \return true if a valid QGLWidget could have been created (that is, in
+	 * \return true if a valid QOpenGLWidget could have been created (that is, in
 	 * most case, if OpenGL is available on the running system), and false
 	 * otherwise. If Qt has been compiled with no OpenGL support, this will
 	 * always return false and do nothing.
 	 */
-	bool set_gl_viewport(QGLFormat const& format);
+	bool set_gl_viewport(QSurfaceFormat const& format);
 
-	/*! \brief Set the viewport's widget as a QGLWidget if possible.
+	/*! \brief Set the viewport's widget as a QOpenGLWidget if possible.
 	 *
-	 * This will use a default QGLFormat.
+	 * This will use a default QSurfaceFormat.
 	 *
-	 * \note This function is provided so that QGLFormat can be
+	 * \note This function is provided so that QSurfaceFormat can be
 	 * forward-declarated here, thus providing a stable API even if no OpenGL
 	 * support has been built within Qt.
 	 */
@@ -927,8 +927,8 @@ private:
 
 private:
 	QGridLayout        *_layout;
-	QScrollBar64       *_hbar;
-	QScrollBar64       *_vbar;
+	QScrollBar64         *_hbar;
+	QScrollBar64         *_vbar;
 	QWidget            *_viewport;
 
 	QGraphicsScene     *_scene;

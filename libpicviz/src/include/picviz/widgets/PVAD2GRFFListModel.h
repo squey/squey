@@ -8,7 +8,7 @@
 #define __PVAD2GRFFLISTMODEL_H
 
 #include <QtCore/qstringlist.h>
-#include <QtGui/qabstractitemview.h>
+#include <QtWidgets/qabstractitemview.h>
 #include <QtCore/QAbstractTableModel>
 
 #include <pvkernel/core/PVBinaryOperation.h>

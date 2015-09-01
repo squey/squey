@@ -3,12 +3,14 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libparallelview/src/include)
 add_definitions(${PICVIZ_DEFINITIONS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
-set(CUDA_NVCC_FLAGS "-gencode arch=compute_30,code=sm_30" "-Xptxas=-v")
+set(CUDA_NVCC_FLAGS "-gencode arch=compute_30,code=sm_30" "-Xptxas=-v" "-Xcompiler=-fPIC")
 #set(CUDA_NVCC_FLAGS "-g" "-G")
 
 add_definitions(${OpenMP_CXX_FLAGS})
@@ -25,7 +27,7 @@ target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
 #declare_pv_test(full_parallel_view_selections_sync full_parallel_view_selections_sync.cpp common.cpp)
 #target_link_libraries(full_parallel_view_selections_sync ${LINK_LIBRARIES})
 
-QT4_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
+QT5_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h OPTIONS ${QT5_WRAP_OPTIONS})
 declare_pv_test(both_views both_views.cpp ${ZOOM_DLG_MOC} common.cpp)
 target_link_libraries(both_views ${LINK_LIBRARIES})
 
@@ -140,6 +142,7 @@ target_link_libraries(Tqt_random_points ${LINK_LIBRARIES})
 
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
+
 	cuda_compile(CUDA_KERNELS bci_cuda.cu)
 	declare_pv_test(show_codes_cuda show_codes_cuda.cpp ${CUDA_KERNELS})
 	target_link_libraries(show_codes_cuda ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
@@ -189,7 +192,7 @@ if (CUDA_FOUND)
 	#declare_pv_test(rendering_pipeline_base rendering_pipeline_base.cpp)
 	#target_link_libraries(rendering_pipeline_base ${LINK_LIBRARIES})
 
-	#QT4_WRAP_CPP(ZD_MOC zone_drawing_events.h OPTIONS ${QT4_WRAP_OPTIONS})
+	#QT5_WRAP_CPP(ZD_MOC zone_drawing_events.h OPTIONS ${QT5_WRAP_OPTIONS})
 	#declare_pv_test(zone_drawing zone_drawing.cpp ${ZD_MOC})
 	#target_link_libraries(zone_drawing ${LINK_LIBRARIES})
 

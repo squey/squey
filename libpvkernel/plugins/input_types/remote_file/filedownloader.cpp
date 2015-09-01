@@ -15,6 +15,7 @@
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QtCore>
+#include <QtConcurrent/QtConcurrent>
 
 #include <pvkernel/core/PVProgressBox.h>
 

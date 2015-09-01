@@ -3,6 +3,18 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+################################################
+# QT5 related include and check
+################################################
+
+# For QSQLQuery
+find_package(Qt5Sql REQUIRED)
+include_directories(${Qt5Sql_INCLUDE_DIRS})
+
+################################################
+# Ressource declaration
+################################################
+
 set(SOURCES_DIST_LIST
 source_text_file
 source_pcap_file
@@ -14,9 +26,9 @@ source_perl_file
 set(SOURCES_DIST_FILES
 )
 
-set(QT_USE_QTSQL TRUE)
-include(${QT_USE_FILE})
-
+################################################
+# Declare the new library and linkage options
+################################################
 
 add_library(source_text_file SHARED text_file/PVSourceCreatorTextfile.cpp text_file/PVSourceCreatorTextfile.h text_file/PVSourceCreatorRemoteTextfile.cpp text_file/register.cpp)
 target_link_libraries(source_text_file pvkernel ${QT_LIBRARIES} ${PCAP_LIBRARIES})

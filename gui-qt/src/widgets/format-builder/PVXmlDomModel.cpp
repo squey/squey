@@ -192,8 +192,9 @@ QVariant PVInspector::PVXmlDomModel::data(const QModelIndex &index, int role)con
 * Setup the root.
 */
 void PVInspector::PVXmlDomModel::setRoot(PVRush::PVXmlTreeNodeDom *node){
+    beginResetModel();
     this->rootNode = node;
-    reset();
+    endResetModel();
 }
 
 

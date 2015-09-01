@@ -65,7 +65,8 @@ void PVGuiQt::PVHiveDataTreeModel::register_all_observers()
 				if (o_with_parent) {
 					/*QModelIndex idx = index_from_obj(o_with_parent->get_parent_base());
 					emit dataChanged(idx, idx);*/
-					reset();
+					beginResetModel();
+					endResetModel();
 				}
 			}
 		}
@@ -78,7 +79,8 @@ void PVGuiQt::PVHiveDataTreeModel::hive_refresh(PVHive::PVObserverBase* o)
 	assert(real_o);
 	const PVCore::PVDataTreeObjectBase* obj_base = real_o->get_object();
 	if (dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase const*>(obj_base) == _root) {
-		reset();
+		beginResetModel();
+		endResetModel();
 		return;
 	}
 
@@ -107,5 +109,6 @@ void PVGuiQt::PVHiveDataTreeModel::about_to_be_deleted(PVHive::PVObserverBase*)
 	if (idx.isValid()) {
 		removeRows(idx.row(), idx.column(), idx.parent());
 	}*/
-	reset();
+	beginResetModel();
+	endResetModel();
 }

@@ -7,7 +7,7 @@
 #ifndef PVGUIQT_PVLISTDISPLAYDLG_H
 #define PVGUIQT_PVLISTDISPLAYDLG_H
 
-#include <pvguiqt/ui/PVListDisplayDlg.h>
+#include <pvguiqt/ui_PVListDisplayDlg.h>
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserverSignal.h>

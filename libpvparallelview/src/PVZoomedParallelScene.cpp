@@ -323,6 +323,10 @@ void PVParallelView::PVZoomedParallelScene::keyPressEvent(QKeyEvent *event)
 			_zpview->help_widget()->popup(_zpview->get_viewport(),
 			                              PVWidgets::PVTextPopupWidget::AlignCenter,
 			                              PVWidgets::PVTextPopupWidget::ExpandAll);
+			// FIXME : This is a hack to update the help_widget. It should be
+			// updated automaticaly as it does with QWebView but it doesn't
+			// with QWebEngineView
+			_zpview->raise();
 			event->accept();
 		}
 		return;
@@ -519,10 +523,8 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 	painter->fillRect(screen_rect, common::color_view_bg());
 
 	// draw axis
-	QPen new_pen = QPen(_pvview.get_axis(_axis_index).get_color().toQColor());
-
-	new_pen.setWidth(PARALLELVIEW_AXIS_WIDTH);
-	painter->setPen(new_pen);
+	painter->setPen(QPen(_pvview.get_axis(_axis_index).get_color().toQColor(),
+						 PARALLELVIEW_AXIS_WIDTH));
 	painter->drawLine(screen_center, 0, screen_center, screen_rect.height());
 
 	// get back the painter's original state

@@ -223,7 +223,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v1(QPainter *paint
 
 	painter->save();
 	painter->resetTransform();
-	painter->setPen(_decoration_color);
+	painter->setPen(QPen(_decoration_color, 0));
 
 	QFontMetrics fm = painter->fontMetrics();
 	int fm_ascent = fm.ascent();
@@ -306,7 +306,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v2(QPainter *paint
 
 	painter->save();
 	painter->resetTransform();
-	painter->setPen(Qt::white);
+	painter->setPen(QPen(Qt::white, 0));
 
 	// scales
 	painter->drawLine(left, top, left, bottom);
@@ -467,7 +467,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter *paint
 
 	painter->save();
 	painter->resetTransform();
-	painter->setPen(_decoration_color);
+	painter->setPen(QPen(_decoration_color, 0));
 
 	// scales
 	painter->drawLine(left-AXIS_MARGIN, top-AXIS_MARGIN, left-AXIS_MARGIN, bottom+AXIS_MARGIN);
@@ -605,7 +605,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v4(QPainter *paint
 
 	painter->save();
 	painter->resetTransform();
-	painter->setPen(_decoration_color);
+	painter->setPen(QPen(_decoration_color, 0));
 
 	painter->drawLine(left, top, left, bottom);
 	painter->drawLine(left, bottom, right, bottom);

@@ -5,9 +5,6 @@
  */
 
 #include <PVCustomStyle.h>
-#include <QPlastiqueStyle>
-#include <QWindowsStyle>
-#include <QCleanlooksStyle>
 
 PVInspector::PVCustomStyle::PVCustomStyle():
 	QProxyStyle(/*new QGtkStyle()*/)

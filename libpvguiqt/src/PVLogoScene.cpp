@@ -1,7 +1,7 @@
 #include "pvguiqt/PVLogoScene.h"
 #include "pvguiqt/PVLogoModel.h"
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QtOpenGL>
 
 #ifndef GL_MULTISAMPLE
@@ -57,7 +57,7 @@ void PVGuiQt::PVLogoScene::drawBackground(QPainter *painter, const QRectF &)
     if (painter->paintEngine()->type() != QPaintEngine::OpenGL
         && painter->paintEngine()->type() != QPaintEngine::OpenGL2)
     {
-        qWarning("OpenGLScene: drawBackground needs a QGLWidget to be set as viewport on the graphics view");
+        qWarning("OpenGLScene: drawBackground needs a QOpenGLWidget to be set as viewport on the graphics view");
         return;
     }
 

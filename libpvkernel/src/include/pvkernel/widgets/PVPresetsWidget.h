@@ -9,7 +9,16 @@
 
 #include <pvkernel/core/PVLogger.h>
 
-#include <QtGui>
+#include <QGroupBox>
+#include <QDialog>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QAction>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QKeyEvent>
+#include <QToolBar>
 
 #include <pvkernel/widgets/PVSizeHintListWidget.h>
 

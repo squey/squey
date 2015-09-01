@@ -93,7 +93,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	vertical_header->setModel(new PVVerticalHeaderItemModel(_values_view->model()->rowCount(), vertical_header));
 	_values_view->setVerticalHeader(vertical_header);
 	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
-	_values_view->verticalHeader()->setResizeMode(QHeaderView::Fixed);
+	_values_view->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	_values_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	_values_view->setSelectionBehavior(QAbstractItemView::SelectRows);
 
@@ -231,7 +231,7 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<void (PVG
 {
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
-	QString sep(QChar::fromAscii(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_line_separator_button->keySequence())));
+	QString sep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_line_separator_button->keySequence())));
 	if (sep.isEmpty()) {
 		sep = "\n";
 	}

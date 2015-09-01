@@ -14,8 +14,8 @@
 #include <picviz/PVAxesCombination.h>
 #include <picviz/PVView_types.h>
 
-#include <pvguiqt/ui/PVAxesCombinationWidget.h>
-#include <pvguiqt/ui/PVAxesCombinationWidgetSelRange.h>
+#include <pvguiqt/ui_PVAxesCombinationWidget.h>
+#include <pvguiqt/ui_PVAxesCombinationWidgetSelRange.h>
 
 namespace PVGuiQt {
 

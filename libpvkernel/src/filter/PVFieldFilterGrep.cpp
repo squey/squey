@@ -51,7 +51,7 @@ void PVFilter::PVFieldFilterGrep::set_args(PVCore::PVArgumentList const& args)
  *****************************************************************************/
 PVCore::PVField& PVFilter::PVFieldFilterGrep::one_to_one(PVCore::PVField& obj)
 {
-	QString str = QString::fromAscii(obj.begin(), obj.size());
+	QString str = QString::fromLatin1(obj.begin(), obj.size());
 	bool found = str.contains(_str);
 	if (!(found ^ _inverse)) {
 		obj.set_invalid();

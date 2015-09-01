@@ -51,7 +51,7 @@ void PVParallelView::PVZoomAxisSlider::paint(QPainter *painter,
 		painter->setBrush(QBrush(Qt::black, Qt::SolidPattern));
 	}
 
-	painter->setPen(Qt::white);
+	painter->setPen(QPen(Qt::white, 0));
 
 	if (_orientation == Min) {
 		painter->drawPolygon(min_points, 3);

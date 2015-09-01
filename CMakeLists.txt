@@ -48,10 +48,8 @@ message(STATUS "OpenMP flags: ${OpenMP_CXX_FLAGS}")
 #############################################
 # BEGIN: ADD INCLUDE DIRS NEEDED EVERYWHERE #
 #############################################
-message(STATUS "QtCore include dirs: " ${QT_QTCORE_INCLUDE_DIR})
-include_directories(AFTER ${QT_QTCORE_INCLUDE_DIR})
-message(STATUS "Qt include dirs: " ${QT_INCLUDE_DIR})
-include_directories(AFTER ${QT_INCLUDE_DIR})
+message(STATUS "QtCore include dirs: " ${Qt5Core_INCLUDE_DIR})
+include_directories(${Qt5Core_INCLUDE_DIRS})
 #message(STATUS "Dumbnet include dirs: " ${DUMBNET_INCLUDE_DIRS})
 #include_directories(AFTER ${DUMBNET_INCLUDE_DIRS})
 message(STATUS "Boost include dirs: " ${BOOST_INCLUDEDIR})
@@ -68,9 +66,6 @@ include_directories(AFTER "${picviz-inspector_SOURCE_DIR}/include")
 
 # Test compilation target
 ADD_CUSTOM_TARGET(alltests COMMAND make)
-
-# Generic generated-ui files include directory
-PV_QT4_UI_INC_DIR(QT_UI_INCLUDE_DIR)
 
 add_subdirectory(scripts)
 

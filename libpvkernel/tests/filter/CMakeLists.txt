@@ -3,7 +3,9 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-set(LINK_LIBRARIES pvkernel ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+
+set(LINK_LIBRARIES pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY})
 
 #add_executable(Tfilter_sharedptr shared_ptr.cpp)
 #target_link_libraries(Tfilter_sharedptr ${LINK_LIBRARIES})

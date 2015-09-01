@@ -7,8 +7,8 @@
 #ifndef PICVIZ_PVROOT_H
 #define PICVIZ_PVROOT_H
 
+#include <QColor>
 #include <QList>
-#include <QRgb>
 #include <QStringList>
 
 #include <pvkernel/core/general.h>

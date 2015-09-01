@@ -10,19 +10,18 @@ if (CUDA_FOUND)
 endif(CUDA_FOUND)
 
 
-set(LINK_LIBRARIES pvdisplays picviz pvhive pvkernel ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
-
 # CUDA
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
 set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC ${CMAKE_NVCC_GENCODE_FLAGS}" "-Xptxas=-v")
 #set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC -gencode arch=compute_30,code=sm_30" "-Xptxas=-v")
 #set(CUDA_NVCC_FLAGS "-g -G -Xcompiler=-fPIC -gencode arch=compute_20,code=sm_20" "-Xptxas=-v")
 
-# Qt
-include(${QT_USE_FILE})
-
 add_definitions(${PICVIZ_DEFINITIONS})
 add_definitions(${OpenMP_CXX_FLAGS})
+
+################################################
+# Ressource declaration
+################################################
 
 SET(SRC_FILES
 PVAbstractAxisSlider.cpp
@@ -189,7 +188,19 @@ include/pvparallelview/PVScatterView.h
 include/pvparallelview/PVScatterViewParamsWidget.h
 )
 
-QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+################################################
+# Generate extra QT files (moc, uic, rcc)
+################################################
+
+QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+################################################
+# Declare the new library and linkage options
+################################################
+
+set(QT5_LIBS Qt5Core Qt5Gui Qt5Widgets Qt5Xml Qt5Concurrent Qt5OpenGL)
+
+set(LINK_LIBRARIES pvdisplays picviz pvhive pvkernel ${QT5_LIBS} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
 
 if (CUDA_FOUND)
 	cuda_compile(CUDA_KERNELS cuda/bci_cuda_z24.cu)

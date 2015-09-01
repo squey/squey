@@ -316,7 +316,7 @@ public:
 	                              const insert_entry_f &insert_f,
 	                              pv_tlr_buffer_t &tlr) const
 	{
-		visit_y1::get_n_m(*this, y1_min, y1_max, zoom, y2_count,
+		visit_y1::template get_n_m(*this, y1_min, y1_max, zoom, y2_count,
 		                  [](const PVQuadTreeEntry &e, const uint64_t y1_min, const uint64_t y1_max) -> bool
 		                  {
 			                  return (e.y1 >= y1_min) && (e.y1 < y1_max);
@@ -331,7 +331,7 @@ public:
 	                              const insert_entry_f &insert_f,
 	                              pv_tlr_buffer_t &tlr) const
 	{
-		visit_y2::get_n_m(*this, y2_min, y2_max, zoom, y1_count,
+		visit_y2::template get_n_m(*this, y2_min, y2_max, zoom, y1_count,
 		                  [](const PVQuadTreeEntry &e, const uint64_t y2_min, const uint64_t y2_max) -> bool
 		                  {
 			                  return (e.y2 >= y2_min) && (e.y2 < y2_max);
@@ -347,7 +347,7 @@ public:
 	                                  const insert_entry_f &insert_f,
 	                                  pv_tlr_buffer_t &tlr) const
 	{
-		visit_y1::get_n_m(*this, y1_min, y1_max, zoom, y2_count,
+		visit_y1::template get_n_m(*this, y1_min, y1_max, zoom, y2_count,
 		                  [&selection](const PVQuadTreeEntry &e, const uint64_t y1_min, const uint64_t y1_max) -> bool
 		                  {
 			                  return (e.y1 >= y1_min) && (e.y1 < y1_max)
@@ -364,7 +364,7 @@ public:
 	                                  const insert_entry_f &insert_f,
 	                                  pv_tlr_buffer_t &tlr) const
 	{
-		visit_y2::get_n_m(*this, y2_min, y2_max, zoom, y1_count,
+		visit_y2::template get_n_m(*this, y2_min, y2_max, zoom, y1_count,
 		                  [&selection](const PVQuadTreeEntry &e, const uint64_t y2_min, const uint64_t y2_max) -> bool
 		                  {
 			                  return (e.y2 >= y2_min) && (e.y2 < y2_max)
@@ -395,7 +395,7 @@ public:
 	                              const uint32_t zoom,
 	                              const uint32_t y1_count) const
 	{
-		visit_y2_tbb::get_n_m(*this, ctx, zoom, y1_count,
+		visit_y2_tbb::template get_n_m(*this, ctx, zoom, y1_count,
 		                      [](const PVQuadTreeEntry &e, const uint64_t y2_min, const uint64_t y2_max) -> bool
 		                      {
 			                      return (e.y2 >= y2_min) && (e.y2 < y2_max);
@@ -407,7 +407,7 @@ public:
 	                                  const Picviz::PVSelection &selection,
 	                                  uint32_t zoom, uint32_t y2_count) const
 	{
-		visit_y1_tbb::get_n_m(*this, ctx, zoom, y2_count,
+		visit_y1_tbb::template get_n_m(*this, ctx, zoom, y2_count,
 		                      [&selection](const PVQuadTreeEntry &e, const uint64_t y1_min, const uint64_t y1_max) -> bool
 		                      {
 			                      return (e.y1 >= y1_min) && (e.y1 < y1_max)
@@ -420,7 +420,7 @@ public:
 	                                  const Picviz::PVSelection &selection,
 	                                  uint32_t zoom, uint32_t y1_count) const
 	{
-		visit_y2_tbb::get_n_m(*this, ctx, zoom, y1_count,
+		visit_y2_tbb::template get_n_m(*this, ctx, zoom, y1_count,
 		                      [&selection](const PVQuadTreeEntry &e, const uint64_t y2_min, const uint64_t y2_max) -> bool
 		                      {
 			                      return (e.y2 >= y2_min) && (e.y2 < y2_max)
@@ -1266,7 +1266,7 @@ private:
 		virtual tbb::task *execute()
 		{
 			if (_depth == task_depth_limit) {
-				visit_y1_tbb::get_n_m<Ftest>(_qt, _ctx, _zoom, _y2_count, test_f);
+				visit_y1_tbb::template get_n_m<Ftest>(_qt, _ctx, _zoom, _y2_count, test_f);
 			} else {
 				if (_zoom == 0) {
 					tbb::empty_task *c = new(allocate_continuation()) tbb::empty_task;
@@ -1340,7 +1340,7 @@ private:
 					 */
 					// TODO: write a job_visit_y1_extract and use it!
 #ifdef QUADTREE_USE_SSE_EXTRACT
-					visit_y1_tbb::extract_sse<Ftest>(_qt, _ctx, _zoom, _y2_count, test_f);
+					visit_y1_tbb::template extract_sse<Ftest>(_qt, _ctx, _zoom, _y2_count, test_f);
 #else
 					visit_y1_tbb::extract_seq<Ftest>(_qt, _ctx, _zoom, _y2_count, test_f);
 #endif
@@ -1372,14 +1372,14 @@ private:
 		virtual tbb::task *execute()
 		{
 			if (_depth == task_depth_limit) {
-				visit_y1_tbb::get_1_m<Ftest>(_qt, _ctx, _y2_count, test_f);
+				visit_y1_tbb::template get_1_m<Ftest>(_qt, _ctx, _y2_count, test_f);
 			} else {
 				if (_y2_count == 1) {
 					/* time to extract
 					 */
 					const insert_entry_f insert_f = _ctx.get_insert_f();
 					PVQuadTreeEntry e(0, 0, PVROW_INVALID_VALUE);
-					visit_y1_tbb::get_1_1<Ftest>(_qt, _ctx, test_f, e);
+					visit_y1_tbb::template get_1_1<Ftest>(_qt, _ctx, test_f, e);
 					if (e.idx != PVROW_INVALID_VALUE) {
 						insert_f(e, _ctx.get_tls().local().get_tlr_buffer());
 					}
@@ -1425,7 +1425,7 @@ private:
 					 * entries is needed
 					 */
 #ifdef QUADTREE_USE_SSE_EXTRACT
-					visit_y1_tbb::extract_sse<Ftest>(_qt, _ctx, 0, _y2_count, test_f);
+					visit_y1_tbb::template extract_sse<Ftest>(_qt, _ctx, 0, _y2_count, test_f);
 #else
 					visit_y1_tbb::extract_seq<Ftest>(_qt, _ctx, 0, _y2_count, test_f);
 
@@ -1457,14 +1457,14 @@ private:
 		virtual tbb::task *execute()
 		{
 			if (_depth == task_depth_limit) {
-				visit_y1_tbb::get_n_1<Ftest>(_qt, _ctx, _zoom, test_f);
+				visit_y1_tbb::template get_n_1<Ftest>(_qt, _ctx, _zoom, test_f);
 			} else {
 				if (_zoom == 0) {
 					/* time to extract
 					 */
 					const insert_entry_f insert_f = _ctx.get_insert_f();
 					PVQuadTreeEntry e(0, 0, PVROW_INVALID_VALUE);
-					visit_y1_tbb::get_1_1<Ftest>(_qt, _ctx, test_f, e);
+					visit_y1_tbb::template get_1_1<Ftest>(_qt, _ctx, test_f, e);
 					if (e.idx != PVROW_INVALID_VALUE) {
 						insert_f(e, _ctx.get_tls().local().get_tlr_buffer());
 					}
@@ -1510,7 +1510,7 @@ private:
 					 * entries is needed
 					 */
 #ifdef QUADTREE_USE_SSE_EXTRACT
-					visit_y1_tbb::extract_sse<Ftest>(_qt, _ctx, _zoom, 1, test_f);
+					visit_y1_tbb::template extract_sse<Ftest>(_qt, _ctx, _zoom, 1, test_f);
 #else
 					visit_y1_tbb::extract_seq<Ftest>(_qt, _ctx, _zoom, 1, test_f);
 #endif

@@ -108,7 +108,7 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 
 	_label = new PVAxisLabel(view, _sliders_group);
 	addToGroup(_label);
-	_label->rotate(label_rotation);
+	_label->setRotation(label_rotation);
 	_label->setPos(0, - 6 * axis_extend);
 
 	_axis_min_value = new QGraphicsTextItem(this);
@@ -192,7 +192,7 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 
 #ifdef PICVIZ_DEVELOPER_MODE
 	if (common::show_bboxes()) {
-		painter->setPen(QColor(0, 0xFF, 0));
+		painter->setPen(QPen(QColor(0, 0xFF, 0), 0));
 		painter->drawRect(boundingRect());
 	}
 #endif

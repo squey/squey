@@ -4,8 +4,8 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#include <QtGui>
-#include <QGLWidget>
+#include <QtWidgets>
+#include <QOpenGLWidget>
 #include <iostream>
 
 #include <pvkernel/core/picviz_bench.h>

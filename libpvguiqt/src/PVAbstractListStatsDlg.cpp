@@ -34,6 +34,8 @@
 #include <QRadioButton>
 #include <QPushButton>
 #include <QInputDialog>
+#include <QMenu>
+#include <QPainter>
 
 /******************************************************************************
  * PVGuiQt::__impl::PVAbstractListStatsRangePicker
@@ -292,7 +294,7 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 	connect(table_view_resize_event_handler, SIGNAL(resized()), this, SLOT(view_resized()));
 	_values_view->horizontalHeader()->show();
 	_values_view->verticalHeader()->show();
-	_values_view->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
+	_values_view->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 	_values_view->setAlternatingRowColors (true);
 	connect(_values_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(section_resized(int, int, int)));
 	_values_view->setItemDelegateForColumn(1, new __impl::PVListStringsDelegate(this));

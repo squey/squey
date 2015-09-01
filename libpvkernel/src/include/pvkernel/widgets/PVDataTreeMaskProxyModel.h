@@ -248,7 +248,8 @@ protected slots:
 
 	virtual void model_about_to_be_reset()
 	{
-		reset();
+		beginResetModel();
+		endResetModel();
 	}
 
 private:

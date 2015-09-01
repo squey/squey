@@ -9,19 +9,19 @@ install(FILES "gui-qt/src/resources/picviz-inspector.ico" DESTINATION .)
 install(FILES "CHANGELOG" DESTINATION .)
 
 set(WIN_TBB_PATH "C:\\\\dev\\\\tbb\\\\bin\\\\intel64\\\\vc9")
-set(WIN_QT4_PATH "C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin")
+set(WIN_QT5_PATH "C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin")
 set(WIN_CURL_PATH "C:\\\\dev\\\\curl")
 set(WIN_ICU_PATH "c:\\\\dev\\\\icu-amd64\\\\bin64")
 set(WIN_BOOST_PATH "c:\\\\dev\\\\boost\\\\install-root\\\\lib")
 
-set(LINUX_QT4_PATH "/usr/lib/x86_64-linux-gnu")
+set(LINUX_QT5_PATH "/usr/lib/x86_64-linux-gnu")
 
-set(QTLIBS_MAJOR "4")
-set(QTLIBS_MINOR "8")
-set(QTLIBS_PATCH "4")
-set(QTWEBKIT_MAJOR "4")
-set(QTWEBKIT_MINOR "9")
-set(QTWEBKIT_PATCH "0")
+set(QTLIBS_MAJOR "5")
+set(QTLIBS_MINOR "4")
+set(QTLIBS_PATCH "2")
+set(QTWEBENGINE_MAJOR "5")
+set(QTWEBENGINE_MINOR "4")
+set(QTWEBENGINE_PATCH "2")
 
 set(LINUX_TBB_PATH "/opt/tbb-latest/lib")
 set(TBB_MAJOR "2")
@@ -43,23 +43,21 @@ if(WIN32)
 	)
 	install(FILES ${TBB_DIST_FILES} DESTINATION .)
 
-	set(QT4_DIST_FILES
-	${WIN_QT4_PATH}\\\\phonon4.dll
-	${WIN_QT4_PATH}\\\\QtCore4.dll
-	${WIN_QT4_PATH}\\\\QtGui4.dll
-	${WIN_QT4_PATH}\\\\QtMultimedia4.dll
-	${WIN_QT4_PATH}\\\\QtNetwork4.dll
-	${WIN_QT4_PATH}\\\\QtOpenGL4.dll
-	${WIN_QT4_PATH}\\\\QtScript4.dll
-	${WIN_QT4_PATH}\\\\QtSql4.dll
-	${WIN_QT4_PATH}\\\\QtSvg4.dll
-	${WIN_QT4_PATH}\\\\QtWebKit4.dll
-	${WIN_QT4_PATH}\\\\QtXml4.dll
-	${WIN_QT4_PATH}\\\\QtXmlPatterns4.dll
-	#C:\\\\Qt\\\\4.7.3\\\\plugins\\\\sqldrivers\\\\qsqlite4.dll
-	#C:\\\\Qt\\\\4.7.3\\\\plugins\\\\sqldrivers\\\\qsqlodbc4.dll
+	set(QT5_DIST_FILES
+	${WIN_QT5_PATH}\\\\phonon5.dll
+	${WIN_QT5_PATH}\\\\QtCore5.dll
+	${WIN_QT5_PATH}\\\\QtGui5.dll
+	${WIN_QT5_PATH}\\\\QtMultimedia5.dll
+	${WIN_QT5_PATH}\\\\QtNetwork5.dll
+	${WIN_QT5_PATH}\\\\QtOpenGL5.dll
+	${WIN_QT5_PATH}\\\\QtScript5.dll
+	${WIN_QT5_PATH}\\\\QtSql5.dll
+	${WIN_QT5_PATH}\\\\QtSvg5.dll
+	${WIN_QT5_PATH}\\\\QtWebKit5.dll
+	${WIN_QT5_PATH}\\\\QtXml5.dll
+	${WIN_QT5_PATH}\\\\QtXmlPatterns5.dll
 	)
-	install(FILES ${QT4_DIST_FILES} ${INSPECTOR_ICON} DESTINATION .)
+	install(FILES ${QT5_DIST_FILES} ${INSPECTOR_ICON} DESTINATION .)
 
 	set(CURL_DIST_FILES
 	${WIN_CURL_PATH}\\\\curllib.dll
@@ -114,33 +112,37 @@ else(WIN32)
 	# 
 	install(FILES 
 
-		${LINUX_QT4_PATH}/libQtScript.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtScript.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
-		${LINUX_QT4_PATH}/libQtScript.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
-		${LINUX_QT4_PATH}/libQtCore.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtCore.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
-		${LINUX_QT4_PATH}/libQtCore.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
-		${LINUX_QT4_PATH}/libQtDBus.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtDBus.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
-		${LINUX_QT4_PATH}/libQtDBus.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
-		${LINUX_QT4_PATH}/libQtDeclarative.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtDeclarative.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
-		${LINUX_QT4_PATH}/libQtDeclarative.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
-		${LINUX_QT4_PATH}/libQtDesigner.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtDesigner.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-		${LINUX_QT4_PATH}/libQtDesigner.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
-		${LINUX_QT4_PATH}/libQtGui.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtGui.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
-		${LINUX_QT4_PATH}/libQtGui.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
-		${LINUX_QT4_PATH}/libQtHelp.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtHelp.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
-		${LINUX_QT4_PATH}/libQtHelp.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
-		${LINUX_QT4_PATH}/libQtNetwork.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtNetwork.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
-		${LINUX_QT4_PATH}/libQtNetwork.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
-		${LINUX_QT4_PATH}/libQtOpenGL.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtOpenGL.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
-		${LINUX_QT4_PATH}/libQtOpenGL.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
-		${LINUX_QT4_PATH}/libQtSql.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtSql.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
-		${LINUX_QT4_PATH}/libQtSql.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
-		${LINUX_QT4_PATH}/libQtXmlPatterns.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtXmlPatterns.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
-		${LINUX_QT4_PATH}/libQtXmlPatterns.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
-		${LINUX_QT4_PATH}/libQtXml.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtXml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
-		${LINUX_QT4_PATH}/libQtXml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
-		${LINUX_QT4_PATH}/libQtWebKit.so.${QTWEBKIT_MAJOR}  ${LINUX_QT4_PATH}/libQtWebKit.so.${QTWEBKIT_MAJOR}.${QTWEBKIT_MINOR}  
-		${LINUX_QT4_PATH}/libQtWebKit.so.${QTWEBKIT_MAJOR}.${QTWEBKIT_MINOR}.${QTWEBKIT_PATCH} 
-		${LINUX_QT4_PATH}/libQtCLucene.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtCLucene.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} ${LINUX_QT4_PATH}/libQtCLucene.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
+		${LINUX_QT5_PATH}/libQtScript.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQtScript.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
+		${LINUX_QT5_PATH}/libQtScript.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
+		${LINUX_QT5_PATH}/libQtCore.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQtCore.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
+		${LINUX_QT5_PATH}/libQtCore.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
+		${LINUX_QT5_PATH}/libQtDBus.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQtDBus.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
+		${LINUX_QT5_PATH}/libQtDBus.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
+		${LINUX_QT5_PATH}/libQtDeclarative.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQtDeclarative.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
+		${LINUX_QT5_PATH}/libQtDeclarative.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
+		${LINUX_QT5_PATH}/libQtDesigner.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQtDesigner.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
+		${LINUX_QT5_PATH}/libQtDesigner.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
+		${LINUX_QT5_PATH}/libQtGui.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQtGui.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
+		${LINUX_QT5_PATH}/libQtGui.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
+		${LINUX_QT5_PATH}/libQtHelp.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQtHelp.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
+		${LINUX_QT5_PATH}/libQtHelp.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
+		${LINUX_QT5_PATH}/libQtNetwork.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQtNetwork.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
+		${LINUX_QT5_PATH}/libQtNetwork.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
+		${LINUX_QT5_PATH}/libQtOpenGL.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQtOpenGL.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
+		${LINUX_QT5_PATH}/libQtOpenGL.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
+		${LINUX_QT5_PATH}/libQtSql.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQtSql.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
+		${LINUX_QT5_PATH}/libQtSql.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
+		${LINUX_QT5_PATH}/libQtXmlPatterns.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQtXmlPatterns.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
+		${LINUX_QT5_PATH}/libQtXmlPatterns.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
+		${LINUX_QT5_PATH}/libQtXml.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQtXml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} 
+		${LINUX_QT5_PATH}/libQtXml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
+		${LINUX_QT5_PATH}/libQt5WebEngine.so.${QTWEBENGINE_MAJOR}  ${LINUX_QT5_PATH}/lib5QtWebEngine.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}  
+		${LINUX_QT5_PATH}/libQt5WebEngine.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH} 
+		${LINUX_QT5_PATH}/libQt5WebEngineCore.so.${QTWEBENGINE_MAJOR}  ${LINUX_QT5_PATH}/lib5QtWebEngineCore.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}  
+		${LINUX_QT5_PATH}/libQt5WebEngineCore.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH} 
+		${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}  ${LINUX_QT5_PATH}/lib5QtWebEngineWidgets.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}  
+		${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH} 
+		${LINUX_QT5_PATH}/libQtCLucene.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQtCLucene.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} ${LINUX_QT5_PATH}/libQtCLucene.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
 
 		DESTINATION .)
 
@@ -189,7 +191,7 @@ else(WIN32)
 	install(FILES ${LINUX_MISCLIB_PATH_64}/libffi.so.5  ${LINUX_MISCLIB_PATH_64}/libffi.so.5.0.10 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH_64}/libnettle.so.4 ${LINUX_MISCLIB_PATH_64}/libnettle.so.4.3 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH_64}/libhwloc.so ${LINUX_MISCLIB_PATH_64}/libhwloc.so.5 ${LINUX_MISCLIB_PATH_64}/libhwloc.so.5.0.1 DESTINATION .)
-	install(FILES /usr/local/lib/libgzstream.so /usr/local/lib/libftgl.so /usr/local/lib/libtulip-3.8.so /usr/local/lib/libtulip-ogdf-3.8.so /usr/local/lib/libtulip-ogl-3.8.so /usr/local/lib/libtulip-qt4-3.8.so DESTINATION libtulip/lib)
+	install(FILES /usr/local/lib/libgzstream.so /usr/local/lib/libftgl.so /usr/local/lib/libtulip-3.8.so /usr/local/lib/libtulip-ogdf-3.8.so /usr/local/lib/libtulip-ogl-3.8.so /usr/local/lib/libtulip-qt5-3.8.so DESTINATION libtulip/lib)
 	install(DIRECTORY /usr/local/share/tulip/bitmaps DESTINATION libtulip/share/tulip)
 	install(FILES ${LINUX_MISCLIB_PATH}/libnuma.so ${LINUX_MISCLIB_PATH}/libnuma.so.1 DESTINATION .)
 

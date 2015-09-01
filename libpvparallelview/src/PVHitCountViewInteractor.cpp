@@ -54,6 +54,10 @@ bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingAr
 			hcv->help_widget()->popup(hcv->get_viewport(),
 			                          PVWidgets::PVTextPopupWidget::AlignCenter,
 			                          PVWidgets::PVTextPopupWidget::ExpandAll);
+			// FIXME : This is a hack to update the help_widget. It should be
+			// updated automaticaly as it does with QWebView but it doesn't
+			// with QWebEngineView
+			hcv->raise();
 		}
 		return false;
 	}

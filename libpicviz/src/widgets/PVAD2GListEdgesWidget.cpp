@@ -100,7 +100,7 @@ PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& grap
 	_edges_table->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::MinimumExpanding);
 	_edges_table->resizeColumnsToContents();
 	_edges_table->horizontalHeader()->setStretchLastSection(true);
-	_edges_table->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
+	_edges_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	_edges_table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	_removeAct = new QAction(QIcon(), tr("Remove..."), this);

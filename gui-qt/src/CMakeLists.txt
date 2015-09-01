@@ -5,16 +5,17 @@
 
 include_directories(AFTER ${ICU_INCLUDE})
 
-set(QT_USE_QTNETWORK TRUE)
-set(QT_USE_QTOPENGL TRUE)
-set(QT_USE_QTWEBKIT TRUE)
-set(QT_USE_QTXML TRUE)
-include(${QT_USE_FILE})
+################################################
+# Extra WIN32 lib
+################################################
 
 if(WIN32)
-    link_libraries(${QT_QTMAIN_LIBRARY})
-	set(WIN32_EXTRA_LIBS "ws2_32.lib")
+    set(WIN32_EXTRA_LIBS "ws2_32.lib")
 endif(WIN32)
+
+################################################
+# Ressource declaration
+################################################
 
 set(INSPECTOR_ICON "resources////inspector.ico")
 
@@ -131,12 +132,17 @@ widgets/format-builder/PVAxisTagHelp.ui
 ui/PVViewCorrelationWidget.ui
 )
 
-QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
-PV_QT4_WRAP_UI(UI_SRC ${UI_FILES})
-QT4_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
+################################################
+# Generate extra QT files (moc, uic, rcc)
+################################################
 
-PV_QT4_UI_INC_DIR(UI_INC_DIR)
-include_directories(AFTER ${UI_INC_DIR})
+QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT5_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
+QT5_WRAP_UI(UI_SRC ${UI_FILES})
+
+################################################
+# Handle licences for picviz-inspector
+################################################
 
 add_definitions(-DUSE_NEW_INPUT_SYSTEM)
 
@@ -173,8 +179,14 @@ if(SET_PROTECT)
 endif()
 
 set_property(TARGET picviz-inspector APPEND PROPERTY LINK_FLAGS ${GALVEZ_LDFLAGS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
-target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES} pvguiqt pvparallelview pvhive picviz pvkernel ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY} ${GALVEZ_LIBS} ${OpenMP_LIBRARIES})
+set(PV_QT_LIBS Qt5Core Qt5Widgets Qt5Network Qt5Xml Qt5Widgets)
+
+target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES}
+    pvguiqt pvparallelview pvhive picviz pvkernel ${WIN32_EXTRA_LIBS}
+    ${TBB_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY}
+    ${GALVEZ_LIBS} ${OpenMP_LIBRARIES} ${PV_QT_LIBS})
 
 INSTALL(TARGETS picviz-inspector DESTINATION .)
 

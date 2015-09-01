@@ -71,6 +71,7 @@ void PVGuiQt::PVAxesListModel::about_to_be_deleted_slot(PVHive::PVObserverBase*)
 
 void PVGuiQt::PVAxesListModel::refresh_slot(PVHive::PVObserverBase*)
 {
-	reset();
+	beginResetModel();
+	endResetModel();
 }
 

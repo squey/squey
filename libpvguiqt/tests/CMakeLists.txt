@@ -3,6 +3,15 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+###################################################################
+# Add include directories for picviz's libs and external projects
+###################################################################
+
+FIND_PACKAGE(Qt5 COMPONENTS Core)
+FIND_PACKAGE(Qt5Gui)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIR})
 include_directories(AFTER ${PVHIVE_INCLUDE_DIR})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIR})
@@ -21,7 +30,7 @@ declare_pv_test(Tqt_picviz_tree picviz_tree.cpp common.cpp)
 target_link_libraries(Tqt_picviz_tree ${COMMON_LIBRARIES})
 
 # Axes combination model
-qt4_wrap_cpp(AXES_COMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
+qt5_wrap_cpp(AXES_COMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT5_WRAP_OPTIONS})
 declare_pv_test(Tqt_axes_comb axes-comb.cpp ${AXES_COMB_MOC_SRC})
 target_link_libraries(Tqt_axes_comb ${COMMON_LIBRARIES})
 
@@ -33,7 +42,7 @@ declare_pv_test(Tqt_listing_model listing_model.cpp common.cpp)
 target_link_libraries(Tqt_listing_model ${COMMON_LIBRARIES})
 
 # Stats listing
-qt4_wrap_cpp(STATS_LISTING_MOC_SRC stats_listing.h OPTIONS ${QT4_WRAP_OPTIONS})
+qt5_wrap_cpp(STATS_LISTING_MOC_SRC stats_listing.h OPTIONS ${QT5_WRAP_OPTIONS})
 declare_pv_test(Tqt_stats_listing stats_listing.cpp common.cpp ${STATS_LISTING_MOC_SRC})
 target_link_libraries(Tqt_stats_listing ${COMMON_LIBRARIES})
 
@@ -55,8 +64,8 @@ target_link_libraries(Tqt_css ${COMMON_LIBRARIES})
 
 # Workspaces
 if (CUDA_FOUND)
-	qt4_wrap_cpp(WORKSPACES_MOC_SRC workspaces.h OPTIONS ${QT4_WRAP_OPTIONS})
-	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES} /opt/cuda/lib64/libnpp.so)
+	qt5_wrap_cpp(WORKSPACES_MOC_SRC workspaces.h OPTIONS ${QT5_WRAP_OPTIONS})
+	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 	declare_pv_test(Tqt_workspaces workspaces.cpp common.cpp)
 	#declare_pv_test(Tqt_workspaces workspaces.cpp common.cpp ${WORKSPACES_MOC_SRC})
@@ -75,21 +84,22 @@ target_link_libraries(Tqt_vertical_tabs ${COMMON_LIBRARIES})
 declare_pv_test(Tqt_import_source_to_project_dlg import_source_to_project_dlg.cpp)
 target_link_libraries(Tqt_import_source_to_project_dlg ${COMMON_LIBRARIES})
 
-# correlation menu
-declare_pv_test(Tqt_correlation_menu correlation_menu.cpp)
-target_link_libraries(Tqt_correlation_menu ${COMMON_LIBRARIES})
-
 # Displays plugins
 declare_pv_test(Tqt_displays_plugins displays_plugins.cpp common.cpp)
 target_link_libraries(Tqt_displays_plugins ${COMMON_LIBRARIES})
 
+if(ENABLE_CORRELATION)
+	# correlation menu
+	declare_pv_test(Tqt_correlation_menu correlation_menu.cpp)
+	target_link_libraries(Tqt_correlation_menu ${COMMON_LIBRARIES})
 
-# AD2G Widget
-declare_pv_test(Tqt_AD2GWidget AD2GWidget.cpp)
-target_link_libraries(Tqt_AD2GWidget ${COMMON_LIBRARIES})
+	# AD2G Widget
+	declare_pv_test(Tqt_AD2GWidget AD2GWidget.cpp)
+	target_link_libraries(Tqt_AD2GWidget ${COMMON_LIBRARIES})
 
-# Listing filter performance
-declare_pv_test(Pqt_listing_sel_filter listing_sel_filter_perfs.cpp)
-target_link_libraries(Pqt_listing_sel_filter ${COMMON_LIBRARIES})
+	# Listing filter performance
+	declare_pv_test(Pqt_listing_sel_filter listing_sel_filter_perfs.cpp)
+	target_link_libraries(Pqt_listing_sel_filter ${COMMON_LIBRARIES})
+endif(ENABLE_CORRELATION)
 
 declare_lib_tests_target()

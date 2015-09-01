@@ -13,7 +13,7 @@
 #include <iostream>
 
 #include <QApplication>
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #include <QGridLayout>
 #include <QPushButton>
 
@@ -48,7 +48,15 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	_view3D_layout->setSpacing(0);
 	_view3D = new __impl::GraphicsView(this);
 	_view3D->setStyleSheet("QGraphicsView { background-color: white; color: white; border-style: none; }");
-	_view3D->setViewport(new QGLWidget(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer | QGL::SampleBuffers | QGL::DirectRendering)));
+
+	QOpenGLWidget* glwidget = new QOpenGLWidget();
+
+	// Enable Double buffering for OpenGL view
+	QSurfaceFormat format;
+	format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+	glwidget->setFormat(format);
+
+	_view3D->setViewport(glwidget);
 	_view3D->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 	_view3D->setScene(new PVGuiQt::PVLogoScene());
 	_view3D->setCursor(Qt::OpenHandCursor);

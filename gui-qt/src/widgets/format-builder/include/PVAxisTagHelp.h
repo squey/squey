@@ -8,7 +8,7 @@
 #define PVAXISTAGHELP_FILE_H
 
 #include <pvkernel/core/general.h>
-#include <gui-qt/ui/PVAxisTagHelp.h>
+#include <ui_PVAxisTagHelp.h>
 #include <QDialog>
 
 namespace PVInspector {

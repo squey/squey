@@ -185,6 +185,7 @@ void PVGuiQt::PVAxesCombinationModel::about_to_be_deleted_slot(PVHive::PVObserve
 
 void PVGuiQt::PVAxesCombinationModel::refresh_slot(PVHive::PVObserverBase*)
 {
-	reset();
+	beginResetModel();
+	endResetModel();
 }
 

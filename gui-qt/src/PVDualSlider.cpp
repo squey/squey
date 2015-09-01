@@ -7,7 +7,7 @@
 #include <cmath>
 
 #include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 
 
 #include <pvkernel/core/general.h>
@@ -150,7 +150,7 @@ void PVInspector::PVDualSlider::mouseMoveEvent(QMouseEvent *event)
  *****************************************************************************/
 void PVInspector::PVDualSlider::mousePressEvent(QMouseEvent *event)
 {
-	last_mouse_press_position = event->posF();
+	last_mouse_press_position = event->localPos();
 	if (event->button() == Qt::LeftButton) {
 		SELECTED_SLIDER = get_selected_slider_index(event->x());
 		event->accept();
@@ -195,7 +195,7 @@ void PVInspector::PVDualSlider::paintEvent(QPaintEvent *)
 	painter->begin(this);
 	painter->setRenderHint(QPainter::Antialiasing);
 	painter->setRenderHint(QPainter::TextAntialiasing);
-	painter->setPen(palette().color(QPalette::Mid));
+	painter->setPen(QPen(palette().color(QPalette::Mid), 0));
 	//painter->setBrush(palette().color(QPalette::AlternateBase));
 	painter->setBrush(linear_gradient);
 	painter->drawRect(rect());
@@ -204,8 +204,7 @@ void PVInspector::PVDualSlider::paintEvent(QPaintEvent *)
 	painter->save();
 	painter->translate(left_margin*kx,float_height/2);
 	painter->scale(kx,ky);
-	QColor line_color = QColor(Qt::black);
-	painter->setPen(line_color);
+	painter->setPen(QPen(Qt::black, 0));
 	painter->drawLine(0,0,100,0);
 	painter->restore();
 
@@ -213,7 +212,7 @@ void PVInspector::PVDualSlider::paintEvent(QPaintEvent *)
 	painter->save();
 	painter->translate((left_margin + sliders_positions[0]*100)*kx,float_height/2);
 	painter->scale(kx,ky);
-	painter->setPen(Qt::black);
+	painter->setPen(QPen(Qt::black, 0));
 	painter->setBrush(Qt::black);
 	painter->drawPolygon(left_slider_polygon);
 	painter->restore();
@@ -222,7 +221,7 @@ void PVInspector::PVDualSlider::paintEvent(QPaintEvent *)
 	painter->save();
 	painter->translate((left_margin + sliders_positions[1]*100)*kx,float_height/2);
 	painter->scale(kx,ky);
-	painter->setPen(Qt::black);
+	painter->setPen(QPen(Qt::black, 0));
 	painter->setBrush(Qt::black);
 	painter->drawPolygon(right_slider_polygon);
 	painter->restore();

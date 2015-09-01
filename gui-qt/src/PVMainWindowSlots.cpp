@@ -46,6 +46,8 @@
 
 #include <QPainter>
 #include <QDockWidget>
+#include <QDesktopWidget>
+#include <QWhatsThis>
 
 /******************************************************************************
  *

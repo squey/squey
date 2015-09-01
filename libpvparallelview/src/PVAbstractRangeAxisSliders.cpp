@@ -55,9 +55,7 @@ void PVParallelView::PVAbstractRangeAxisSliders::paint(QPainter *painter,
 
 		painter->setCompositionMode(QPainter::RasterOp_SourceXorDestination);
 
-		QPen new_pen(Qt::white);
-		new_pen.setWidth(0);
-		painter->setPen(new_pen);
+		painter->setPen(QPen(Qt::white, 0));
 		qreal vmax = _sl_max->pos().y();
 		painter->drawLine(QPointF(0., vmin), QPointF(0., vmax));
 

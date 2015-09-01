@@ -319,7 +319,7 @@ PVGuiQt::__impl::PVVerticalHeaderView::PVVerticalHeaderView(PVStatsListingWidget
 {
 	// These two calls are required since they are done on the headers in QTableView::QTableView
 	// instead of in QHeaderView::QHeaderView !
-	setClickable(true);
+	setSectionsClickable(true);
 	setHighlightSections(true);
 
 	// Context menu of the horizontal header

@@ -3,6 +3,8 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+
 # Test data-tree model
 declare_pv_test(Twidgets_datatreemodel datatree-model.cpp)
 target_link_libraries(Twidgets_datatreemodel pvkernel ${QT_LIBRARIES})
@@ -20,7 +22,7 @@ declare_pv_test(Twidgets_color-dialog color-dialog.cpp)
 target_link_libraries(Twidgets_color-dialog pvkernel ${QT_LIBRARIES})
 
 # QGraphicsView reimplementation to use QScrollBar64
-QT4_WRAP_CPP(PVGV_MOC mygraphicsview.h OPTIONS ${QT4_WRAP_OPTIONS})
+QT5_WRAP_CPP(PVGV_MOC mygraphicsview.h OPTIONS ${QT5_WRAP_OPTIONS})
 declare_pv_test(Epvgraphicsview pvgraphicsview.cpp ${PVGV_MOC})
 target_link_libraries(Epvgraphicsview pvkernel ${QT_LIBRARIES})
 

@@ -3,6 +3,8 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+
 configure_file(test_issues.sh.cmake test_issues.sh @ONLY)
 
 set(LINK_LIBRARIES pvkernel picviz ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES} ${OPENGL_LIBRARIES})

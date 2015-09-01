@@ -3,6 +3,10 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+################################################
+# Ressource declaration
+################################################
+
 set(LIBGUIQT_SRC_FILES
 common.cpp
 PVAxesCombinationDialog.cpp
@@ -84,8 +88,8 @@ include/pvguiqt/PVExportSelectionDlg.h
 )
 
 SET(UI_FILES
-PVAxesCombinationWidget.ui
 PVAxesCombinationWidgetSelRange.ui
+PVAxesCombinationWidget.ui
 PVListDisplayDlg.ui
 )
 
@@ -93,13 +97,12 @@ SET(QRC_FILES
 ../../gui-qt/src/picviz-inspector_resource.qrc
 )
 
-QT4_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
-
 set(LIBGUIQT_HEADER_FILES
 )
 
-SET(QRC_FILES
-)
+################################################
+# Generate extra QT files (moc, uic, rcc)
+################################################
 
 if(ENABLE_CORRELATION)
 	list(APPEND LIBGUIQT_SRC_FILES
@@ -118,18 +121,21 @@ endif()
 set(SRC_FILES ${LIBGUIQT_SRC_FILES})
 set(HEADER_FILES ${LIBGUIQT_HEADER_FILES})
 set(MOC_HEADERS ${LIBGUIQT_MOC_HEADERS})
-QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
-QT4_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
-PV_QT4_WRAP_UI(UI_SRC ${UI_FILES})
+QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT5_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
+PV_QT5_WRAP_UI(UI_SRC pvguiqt ${UI_FILES})
 
-PV_QT4_UI_INC_DIR(UI_INC_DIR)
-include_directories(AFTER ${UI_INC_DIR})
+################################################
+# Declare the new library and linkage options
+################################################
 
 add_library(pvguiqt SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS} ${UI_FILES})
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-set(PVGUIQT_LINK_LIBRARIES pvdisplays pvhive picviz pvkernel ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
+set(QT5_LIBS Qt5Core Qt5Xml Qt5Widgets Qt5Concurrent Qt5OpenGL)
+
+set(PVGUIQT_LINK_LIBRARIES pvdisplays pvhive picviz pvkernel ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 
