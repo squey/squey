@@ -32,9 +32,15 @@ public:
 	std::string get_rules() const;
 	void reset();
 
+public:
+	void setVisible(bool v);
+
 private:
 	void run_javascript(const std::string& javascript, std::string* result = nullptr) const;
 	void reinit();
+
+	void workaround_qwebengine_refresh_bug();
+	bool workaround_qwebengine_refresh_bug_toggle = false;
 
 protected:
 	QWebEngineView* _view;

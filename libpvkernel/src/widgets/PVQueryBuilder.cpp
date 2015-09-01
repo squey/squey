@@ -55,6 +55,8 @@ void PVWidgets::PVQueryBuilder::reinit()
 	std::stringstream js_color;
 	js_color << "document.body.style.background = \"" << qPrintable(bg_color.name()) << "\"";
 	run_javascript(js_color.str().c_str());
+
+	workaround_qwebengine_refresh_bug();
 }
 
 void PVWidgets::PVQueryBuilder::set_filters(const std::string& filters)
@@ -143,6 +145,8 @@ void PVWidgets::PVQueryBuilder::reset()
 	run_javascript(
 		"$('#querybuilder').queryBuilder('reset');"
 	);
+
+	workaround_qwebengine_refresh_bug();
 }
 
 std::string PVWidgets::PVQueryBuilder::get_rules() const
@@ -177,5 +181,22 @@ void PVWidgets::PVQueryBuilder::run_javascript(const std::string& javascript, st
 
 	if (result) {
 		*result = r.toString().toStdString();
+	}
+}
+
+void PVWidgets::PVQueryBuilder::setVisible(bool v)
+{
+	QWidget::setVisible(v);
+
+	workaround_qwebengine_refresh_bug();
+}
+
+void PVWidgets::PVQueryBuilder::workaround_qwebengine_refresh_bug()
+{
+	// Really really really ugly hack to workaround QWebEngine refresh bug
+	if (_view) {
+		int offset = workaround_qwebengine_refresh_bug_toggle ? +1 : -1;
+		_view->resize(_view->width() +offset, _view->height() +offset);
+		workaround_qwebengine_refresh_bug_toggle = !workaround_qwebengine_refresh_bug_toggle;
 	}
 }
