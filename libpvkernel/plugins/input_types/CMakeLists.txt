@@ -56,17 +56,29 @@ target_link_libraries(input_type_file pvkernel ${QT_LIBRARIES} ${ARCHIVE_LIBRARY
 SET(DB_MOC_HEADERS
 database/PVDatabaseParamsWidget.h)
 
+set(DB_SRC_FILES
+../common/database/PVDBInfos.cpp
+../common/database/PVDBQuery.cpp
+database/PVDBPresets.cpp
+database/PVDBPreviewWidget.cpp
+database/PVDatabaseParamsWidget.cpp
+database/PVInputTypeDatabase.cpp
+database/PVSQLTypeMap.cpp
+database/register.cpp)
+
 set(DB_UI
 database/db_params.ui
 database/db_preview.ui)
+
+set(DB_LIBS Qt5Sql)
 
 # Generate moc and ui files
 QT5_WRAP_CPP(DB_MOC_SRCS ${DB_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 QT5_WRAP_UI(DB_UI_SRCS ${DB_UI})
 
 # Generate linkage configuration
-add_library(input_type_database SHARED ${DB_UI_SRCS} ${DB_MOC_SRCS} database/PVDatabaseParamsWidget.cpp database/PVSQLTypeMap.cpp database/PVDBPreviewWidget.cpp database/PVInputTypeDatabase.cpp database/PVDBPresets.cpp ../common/database/PVDBInfos.cpp ../common/database/PVDBQuery.cpp database/register.cpp)
-target_link_libraries(input_type_database pvkernel ${QT_LIBRARIES})
+add_library(input_type_database SHARED ${DB_UI_SRCS} ${DB_MOC_SRCS} ${DB_SRC_FILES})
+target_link_libraries(input_type_database pvkernel ${DB_LIBS})
 
 #
 # HDFS input plugin
