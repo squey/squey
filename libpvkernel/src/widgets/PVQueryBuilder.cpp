@@ -51,7 +51,7 @@ void PVWidgets::PVQueryBuilder::reinit()
 	layout()->addWidget(_view);
 
 	// Set proper color
-	QColor bg_color = parentWidget()->palette().color(QWidget::backgroundRole());
+	QColor bg_color = parentWidget()->palette().color(QWidget::backgroundRole()).lighter(110);
 	std::stringstream js_color;
 	js_color << "document.body.style.background = \"" << qPrintable(bg_color.name()) << "\"";
 	run_javascript(js_color.str().c_str());
