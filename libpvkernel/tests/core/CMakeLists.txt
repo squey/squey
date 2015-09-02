@@ -33,7 +33,7 @@ add_test(TestLogger Tcore_logger)
 
 # Time format parser test
 declare_pv_test(Tcore_timeformat time-format.cpp)
-target_link_libraries(Tcore_timeformat pvkernel ${QT_LIBRARIES} ${ICU_LIBRARY})
+target_link_libraries(Tcore_timeformat pvkernel ${ICU_LIBRARY})
 add_test(TestTimeformat Tcore_timeformat ${CMAKE_CURRENT_SOURCE_DIR}/test-files/time_format)
 
 # Time format performance
@@ -101,7 +101,7 @@ target_link_libraries(Tcore_const_fwd pvkernel)
 
 # Bit count
 declare_pv_test(Tcore_bit_count bit_count.cpp)
-target_link_libraries(Tcore_bit_count pvkernel ${QT_LIBRARIES} ${OpenMP_LIBRARIES})
+target_link_libraries(Tcore_bit_count pvkernel ${OpenMP_LIBRARIES})
 add_test(TestBitCount Tcore_bit_count 65535)
 
 # Bit visitor
@@ -112,7 +112,7 @@ add_test(TestVisitBits Tcore_visit_bits)
 # Byte visitor performances 
 declare_pv_test(Tcore_visit_bytes_perf visit_bytes_perf.cpp)
 target_link_libraries(Tcore_visit_bytes_perf pvkernel ${QT_LIBRARIES} ${OpenMP_LIBRARIES})
-add_test(TestVisitBytesPerf Tcore_visit_bytes_perf)
+add_test(TestVisitBytesPerf Tcore_visit_bytes_perf 300)
 
 # Bit field
 declare_pv_test(Tcore_bit_field_visit bit_field_visit.cpp)
@@ -146,7 +146,7 @@ target_link_libraries(Tcore_raid_test pvkernel)
 # Decimal storage
 declare_pv_test(Tcore_decimal_storage decimal_storage.cpp)
 target_link_libraries(Tcore_decimal_storage pvkernel)
-add_test(TestDecimalStorage Tcore_decimal_storage)
+add_test(TestDecimalStorage Tcore_decimal_storage 1000)
 
 # Huge POD vector
 declare_pv_test(Tcore_huge_vector huge_vector.cpp)

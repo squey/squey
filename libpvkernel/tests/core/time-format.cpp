@@ -7,7 +7,6 @@
 #include <pvkernel/core/PVDateTimeParser.h>
 #include <pvkernel/core/stdint.h>
 
-#include <QCoreApplication>
 #include <QString>
 #include <QFile>
 #include <QTextStream>
@@ -28,9 +27,6 @@ int main(int argc, char** argv)
 		std::cerr << "01/01/1970 00:00:01,d/M/yyyy h:m:s,1" << std::endl;
 		return 1;
 	}
-
-	QCoreApplication app(argc,argv);
-
 
 	QFile file(argv[1]);
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {

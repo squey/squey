@@ -22,7 +22,6 @@
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/core/PVArgument.h>
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QStringList>
 
@@ -42,7 +41,6 @@ int main(int argc, char** argv)
 	init_env();
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVRush::PVPluginsLoad::load_all_plugins();
-	QCoreApplication app(argc, argv);
 
 	// Format reading
 	QDir dir_files(QString::fromLocal8Bit(argv[1]) + QLatin1String("/tickets/1/"));

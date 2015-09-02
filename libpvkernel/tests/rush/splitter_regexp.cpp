@@ -15,7 +15,6 @@
 #include <cstdlib>
 #include <iostream>
 #include "helpers.h"
-#include <QCoreApplication>
 #include "test-env.h"
 
 using std::cout;
@@ -33,8 +32,6 @@ int main(int argc, char** argv)
 	}
 
 	init_env();
-
-	QCoreApplication app(argc, argv);
 
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");

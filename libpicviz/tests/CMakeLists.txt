@@ -18,19 +18,24 @@ add_test(TestRoot Tpicviz_root)
 #declare_pv_test(Tpicviz_bench_mapping_time bench_mapping-time.cpp)
 #target_link_libraries(Tpicviz_bench_mapping_time ${LINK_LIBRARIES})
 
+# FIXME : This test is a bit slow but it test a lot of thing. We should split
+# it in multiple tests
 declare_pv_test(TPVSelection PVSelection.cpp)
 target_link_libraries(TPVSelection ${LINK_LIBRARIES})
 add_test(TestPVSelection TPVSelection)
 
 # Mapping testing (had_issues/mapping)
-declare_pv_test(Tpicviz_process_file_mapping process_file_mapping.cpp)
-target_link_libraries(Tpicviz_process_file_mapping ${LINK_LIBRARIES})
-add_test(TestIssuesMapping test_issues.sh mapping)
+# FIXME : This test can't work as it compare with references which doesn't
+# exists.
+#declare_pv_test(Tpicviz_process_file_mapping process_file_mapping.cpp)
+#target_link_libraries(Tpicviz_process_file_mapping ${LINK_LIBRARIES})
+#add_test(TestIssuesMapping test_issues.sh mapping)
 
 # Plotting testing (had_issues/plotting)
-declare_pv_test(Tpicviz_process_file_plotting process_file_plotting.cpp)
-target_link_libraries(Tpicviz_process_file_plotting ${LINK_LIBRARIES})
-add_test(TestIssuesPlotting test_issues.sh plotting)
+# FIXME : The plotting folder doesn't exist
+#declare_pv_test(Tpicviz_process_file_plotting process_file_plotting.cpp)
+#target_link_libraries(Tpicviz_process_file_plotting ${LINK_LIBRARIES})
+#add_test(TestIssuesPlotting test_issues.sh plotting)
 
 # Source serialization
 declare_pv_test(Tpicviz_source_serialize source-serialize.cpp)

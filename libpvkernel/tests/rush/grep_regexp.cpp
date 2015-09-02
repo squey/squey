@@ -14,7 +14,6 @@
 #include <cstdlib>
 #include <iostream>
 #include "helpers.h"
-#include <QCoreApplication>
 #include "test-env.h"
 
 using std::cout;
@@ -34,8 +33,6 @@ int main(int argc, char** argv)
 	bool reverse = (argc < 5) ? false : (argv[4][0] == '1');
 
 	init_env();
-
-	QCoreApplication app(argc, argv);
 
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_class_by_name("regexp");

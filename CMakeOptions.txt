@@ -78,6 +78,12 @@ if (NOT DEFINED TESTS_FILES_DIR)
 	set(TESTS_FILES_DIR "${CMAKE_SOURCE_DIR}/tests/files")
 endif()
 
+# Default values for tests kind
+if (DEFINED TESTS_LONG)
+	add_definitions(-DTESTS_LONG)
+endif()
+
+
 declare_customer_cap(CUSTOMER_LINESNUMBER 200000000 200000000)
 declare_customer_cap(CUSTOMER_CAPABILITY_SAVE 1 0)
 declare_customer_cap(CUSTOMER_CAPABILITY_IMPORT_REMOTE 1 0)

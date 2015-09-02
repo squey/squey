@@ -999,7 +999,7 @@
 'http','www','www.labo-sante.com','labo-sante.com','com','80','/images/images_new/c_bien_left2.jpg','','',''
 'http','www','www.labo-sante.com','labo-sante.com','com','80','/menu_img/menu_m1_e.pngxxxxx','','',''
 'http','qsdqsldqmlsdkqmldq.1223.www','qsdqsldqmlsdkqmldq.1223.www.lmfao.com','lmfao.com','com','80','','','',''
-'tcp','','google.com','','com','443','/blabla','','',''
+'tcp','','google.com','google.com','com','443','/blabla','','',''
 'tcp','','192.168.0.12','192.168.0.12','','443','/blabla','','',''
 'https','www','www.google.com','google.com','com','443','/blabla','','',''
 'http','','192.168.0.12','192.168.0.12','','443','/blabla','','',''
