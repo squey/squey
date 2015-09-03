@@ -8,19 +8,19 @@
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 declare_pv_test(Tcore_capslock capslock.cpp)
-target_link_libraries(Tcore_capslock ${QT_LIBRARIES} pvkernel)
+target_link_libraries(Tcore_capslock pvkernel)
 add_test(TestCapslock Tcore_capslock)
 
 declare_pv_test(Tcore_simple simple.cpp)
-target_link_libraries(Tcore_simple pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_simple pvkernel)
 add_test(TestSimple Tcore_simple)
 
 #add_executable(Tcore_debug debug.cpp)
-#target_link_libraries(Tcore_debug pvkernel ${QT_LIBRARIES})
+#target_link_libraries(Tcore_debug pvkernel)
 #add_test(TestDebug Tcore_debug)
 
 declare_pv_test(Tcore_network network.cpp)
-target_link_libraries(Tcore_network pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_network pvkernel)
 add_test(TestNetwork Tcore_network)
 
 # add_executable(Tcore_process process.cpp)
@@ -28,7 +28,7 @@ add_test(TestNetwork Tcore_network)
 # add_test(TestProcess Tcore_process)
 
 declare_pv_test(Tcore_logger logger.cpp)
-target_link_libraries(Tcore_logger pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_logger pvkernel)
 add_test(TestLogger Tcore_logger)
 
 # Time format parser test
@@ -38,49 +38,49 @@ add_test(TestTimeformat Tcore_timeformat ${CMAKE_CURRENT_SOURCE_DIR}/test-files/
 
 # Time format performance
 declare_pv_test(Tcore_timeformat_perf time-format-perf.cpp)
-target_link_libraries(Tcore_timeformat_perf pvkernel ${QT_LIBRARIES} ${ICU_LIBRARY})
+target_link_libraries(Tcore_timeformat_perf pvkernel ${ICU_LIBRARY})
 
 # Serialization
 declare_pv_test(Tcore_serialize serialize.cpp)
-target_link_libraries(Tcore_serialize pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_serialize pvkernel)
 
 declare_pv_test(Tcore_argument_serialize argument_serialize.cpp)
-target_link_libraries(Tcore_argument_serialize pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_argument_serialize pvkernel)
 add_test(TestArgumentSerialize Tcore_argument_serialize)
 
 # Strings
 declare_pv_test(Tcore_pvstring pvstring.cpp)
-target_link_libraries(Tcore_pvstring pvkernel ${QT_LIBRARIES} ${ICU_LIBRARY})
+target_link_libraries(Tcore_pvstring pvkernel ${ICU_LIBRARY})
 
 # Matrix
 declare_pv_test(Tcore_matrix matrix.cpp)
-target_link_libraries(Tcore_matrix pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_matrix pvkernel)
 
 # OpenGL's fill vbo bench
 declare_pv_test(Tcore_vbo vbo.cpp)
-target_link_libraries(Tcore_vbo pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_vbo pvkernel)
 
 declare_pv_test(Tcore_podtree pod_tree.cpp)
-target_link_libraries(Tcore_podtree pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_podtree pvkernel)
 
 declare_pv_test(Tcore_sizes sizes.cpp)
-target_link_libraries(Tcore_sizes pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_sizes pvkernel)
 
 declare_pv_test(Tcore_stable_reverse stable_reverse.cpp)
-target_link_libraries(Tcore_stable_reverse pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_stable_reverse pvkernel)
 
 declare_pv_test(Tcore_bench_stable_reverse bench_stable_reverse.cpp)
-target_link_libraries(Tcore_bench_stable_reverse pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_bench_stable_reverse pvkernel)
 
 declare_pv_test(Tcore_launch_adaptive launch_adaptive.cpp)
-target_link_libraries(Tcore_launch_adaptive pvkernel ${QT_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(Tcore_launch_adaptive pvkernel ${Boost_LIBRARIES})
 
 declare_pv_test(Tcore_transp transp.cpp)
-target_link_libraries(Tcore_transp pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_transp pvkernel)
 
 # Data tree
 declare_pv_test(Tcore_datatree datatree.cpp)
-target_link_libraries(Tcore_datatree pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_datatree pvkernel)
 add_test(TestDataTree Tcore_datatree)
 
 # Shared Pointer
@@ -106,25 +106,25 @@ add_test(TestBitCount Tcore_bit_count 65535)
 
 # Bit visitor
 declare_pv_test(Tcore_visit_bits visit_bits.cpp)
-target_link_libraries(Tcore_visit_bits pvkernel ${QT_LIBRARIES} ${OpenMP_LIBRARIES})
+target_link_libraries(Tcore_visit_bits pvkernel ${OpenMP_LIBRARIES})
 add_test(TestVisitBits Tcore_visit_bits)
 
 # Byte visitor performances 
 declare_pv_test(Tcore_visit_bytes_perf visit_bytes_perf.cpp)
-target_link_libraries(Tcore_visit_bytes_perf pvkernel ${QT_LIBRARIES} ${OpenMP_LIBRARIES})
+target_link_libraries(Tcore_visit_bytes_perf pvkernel ${OpenMP_LIBRARIES})
 add_test(TestVisitBytesPerf Tcore_visit_bytes_perf 300)
 
 # Bit field
 declare_pv_test(Tcore_bit_field_visit bit_field_visit.cpp)
-target_link_libraries(Tcore_bit_field_visit pvkernel ${QT_LIBRARIES} ${OpenMP_LIBRARIES})
+target_link_libraries(Tcore_bit_field_visit pvkernel ${OpenMP_LIBRARIES})
 add_test(TestBitFieldVisit Tcore_bit_field_visit)
 declare_pv_test(Tcore_bit_field_visit_packed bit_field_visit_packed.cpp)
-target_link_libraries(Tcore_bit_field_visit_packed pvkernel ${QT_LIBRARIES} ${OpenMP_LIBRARIES})
+target_link_libraries(Tcore_bit_field_visit_packed pvkernel ${OpenMP_LIBRARIES})
 add_test(TestBitFieldVisitPacked Tcore_bit_field_visit_packed)
 
 # POD tree
 declare_pv_test(Tcore_pod_tree pod_tree.cpp)
-target_link_libraries(Tcore_pod_tree pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_pod_tree pvkernel)
 
 # file helper
 declare_pv_test(Tcore_file_helper file_helper.cpp)
@@ -133,7 +133,7 @@ add_test(TestFileHelper Tcore_file_helper)
 
 # Hardware concurrency
 declare_pv_test(Tcore_hardware_concurrency hardware_concurrency.cpp)
-target_link_libraries(Tcore_hardware_concurrency pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_hardware_concurrency pvkernel)
 
 # Shared ptr forward
 declare_pv_test(Tcore_shared_ptr_fwd shared_ptr_fwd.cpp)
@@ -154,7 +154,7 @@ target_link_libraries(Tcore_huge_vector pvkernel)
 
 # lambda_connect
 declare_pv_test(Tcore_lambda_connect lambda_connect.cpp)
-target_link_libraries(Tcore_lambda_connect pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_lambda_connect pvkernel)
 
 # Intrinsics
 declare_pv_test(Tcore_intrinsics intrinsics.cpp)
@@ -163,6 +163,6 @@ add_test(TestIntrinsics Tcore_intrinsics)
 
 # Memory 2D
 declare_pv_test(Tcore_memory2d memory2d.cpp)
-target_link_libraries(Tcore_memory2d pvkernel ${QT_LIBRARIES})
+target_link_libraries(Tcore_memory2d pvkernel)
 
 declare_lib_tests_target()

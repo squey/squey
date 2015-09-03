@@ -14,7 +14,7 @@ set(FILTERS_DIST_LIST
 set(FILTERS_DIST_FILES
 )
 
-set(COMMON_LINK_LIBRARIES pvdisplays pvhive picviz pvkernel ${QT_LIBRARIES})
+set(COMMON_LINK_LIBRARIES pvdisplays pvhive picviz pvkernel)
 
 include_directories(${PVHIVE_INCLUDE_DIRS})
 

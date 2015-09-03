@@ -32,7 +32,7 @@ splitter_csv/PVFieldSplitterCSVParamWidget.h
 
 QT5_WRAP_CPP(CSV_MOC_SRCS ${CSV_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 add_library(normalize_filter_splitter_csv SHARED splitter_csv/PVFieldSplitterCSV.cpp splitter_csv/PVFieldSplitterCSV.h splitter_csv/PVFieldSplitterCSVParamWidget.cpp ${CSV_MOC_SRCS} splitter_csv/libcsv.cpp splitter_csv/register.cpp)
-target_link_libraries(normalize_filter_splitter_csv pvkernel ${QT_LIBRARIES})
+target_link_libraries(normalize_filter_splitter_csv pvkernel)
 declare_library(normalize_filter_splitter_csv)
 
 SET(REGEXP_MOC_HEADERS
@@ -40,20 +40,20 @@ splitter_regexp/PVFieldSplitterRegexpParamWidget.h
 )
 QT5_WRAP_CPP(REGEXP_MOC_SRCS ${REGEXP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 add_library(normalize_filter_splitter_regexp SHARED splitter_regexp/PVFieldSplitterRegexp.cpp splitter_regexp/PVFieldSplitterRegexp.h splitter_regexp/PVFieldSplitterRegexpParamWidget.cpp ${REGEXP_MOC_SRCS} splitter_regexp/register.cpp)
-target_link_libraries(normalize_filter_splitter_regexp pvkernel ${QT_LIBRARIES} ${Boost_LIBRARIES} ${ICU_LIBRARY})
+target_link_libraries(normalize_filter_splitter_regexp pvkernel ${Boost_LIBRARIES} ${ICU_LIBRARY})
 declare_library(normalize_filter_splitter_regexp)
 
 add_definitions(-DFURL_UTF16_CHAR)
 add_library(normalize_filter_splitter_url SHARED splitter_url/PVFieldSplitterURL.cpp splitter_url/PVFieldSplitterURL.h splitter_url/register.cpp)
-target_link_libraries(normalize_filter_splitter_url pvkernel ${QT_LIBRARIES} /usr/local/lib/libfurll.a)
+target_link_libraries(normalize_filter_splitter_url pvkernel /usr/local/lib/libfurll.a)
 declare_library(normalize_filter_splitter_url)
 
 add_library(normalize_filter_splitter_pcap SHARED splitter_pcap/PVFieldSplitterPcapPacket.cpp splitter_pcap/PVFieldSplitterPcapPacket.h splitter_pcap/register.cpp)
-target_link_libraries(normalize_filter_splitter_pcap pvkernel ${QT_LIBRARIES} ${PCAP_LIBRARIES} ${WINSOCK_LIB})
+target_link_libraries(normalize_filter_splitter_pcap pvkernel ${PCAP_LIBRARIES} ${WINSOCK_LIB})
 declare_library(normalize_filter_splitter_pcap)
 
 add_library(normalize_filter_splitter_ironport_mail SHARED splitter_ironport_mail/PVFieldSplitterIronPortMail.cpp splitter_ironport_mail/PVFieldSplitterIronPortMailParamWidget.cpp splitter_ironport_mail/register.cpp)
-target_link_libraries(normalize_filter_splitter_ironport_mail pvkernel ${QT_LIBRARIES})
+target_link_libraries(normalize_filter_splitter_ironport_mail pvkernel)
 declare_library(normalize_filter_splitter_ironport_mail)
 
 SET(GUIDTOIP_MOC_HEADERS
@@ -61,7 +61,7 @@ converter_GUID_to_IP/PVFieldConverterGUIDToIPParamWidget.h
 )
 QT5_WRAP_CPP(GUIDTOIP_MOC_SRCS ${GUIDTOIP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 add_library(normalize_filter_converter_GUID_to_IP SHARED converter_GUID_to_IP/PVFieldGUIDToIP.cpp converter_GUID_to_IP/PVFieldConverterGUIDToIPParamWidget.cpp ${GUIDTOIP_MOC_SRCS} converter_GUID_to_IP/register.cpp)
-target_link_libraries(normalize_filter_converter_GUID_to_IP pvkernel ${QT_LIBRARIES})
+target_link_libraries(normalize_filter_converter_GUID_to_IP pvkernel)
 declare_library(normalize_filter_converter_GUID_to_IP)
 
 SET(Substitution_MOC_HEADERS
@@ -69,7 +69,7 @@ converter_substitution/PVFieldConverterSubstitutionParamWidget.h
 )
 QT5_WRAP_CPP(Substitution_MOC_SRCS ${Substitution_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 add_library(normalize_filter_converter_substitution SHARED converter_substitution/PVFieldConverterSubstitution.cpp converter_substitution/PVFieldConverterSubstitutionParamWidget.cpp converter_substitution/libcsv.cpp ${Substitution_MOC_SRCS} converter_substitution/register.cpp)
-target_link_libraries(normalize_filter_converter_substitution pvkernel ${QT_LIBRARIES})
+target_link_libraries(normalize_filter_converter_substitution pvkernel)
 declare_library(normalize_filter_converter_substitution)
 
 SET(KEYVALUE_MOC_HEADERS
@@ -77,7 +77,7 @@ splitter_key_value/PVFieldSplitterKeyValueParamWidget.h
 )
 QT5_WRAP_CPP(KEYVALUE_MOC_SRCS ${KEYVALUE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 add_library(normalize_filter_splitter_key_value SHARED splitter_key_value/PVFieldSplitterKeyValue.cpp splitter_key_value/PVFieldSplitterKeyValueParamWidget.cpp ${KEYVALUE_MOC_SRCS} splitter_key_value/register.cpp)
-target_link_libraries(normalize_filter_splitter_key_value pvkernel ${QT_LIBRARIES})
+target_link_libraries(normalize_filter_splitter_key_value pvkernel)
 declare_library(normalize_filter_splitter_key_value)
 
 SET(SPLITTERIP_MOC_HEADERS
@@ -85,13 +85,13 @@ splitter_ip/PVFieldSplitterIPParamWidget.h
 )
 QT5_WRAP_CPP(SPLITTERIP_MOC_SRCS ${SPLITTERIP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 add_library(normalize_filter_splitter_ip SHARED splitter_ip/PVFieldSplitterIP.cpp splitter_ip/PVFieldSplitterIPParamWidget.cpp ${SPLITTERIP_MOC_SRCS} splitter_ip/register.cpp)
-target_link_libraries(normalize_filter_splitter_ip pvkernel ${QT_LIBRARIES})
+target_link_libraries(normalize_filter_splitter_ip pvkernel)
 declare_library(normalize_filter_splitter_ip)
 
 # "grep"
 
 add_library(normalize_filter_grep_regexp SHARED grep_regexp/PVFieldFilterRegexpGrep.cpp grep_regexp/PVFieldFilterRegexpGrep.h grep_regexp/register.cpp)
-target_link_libraries(normalize_filter_grep_regexp pvkernel ${QT_LIBRARIES})
+target_link_libraries(normalize_filter_grep_regexp pvkernel)
 declare_library(normalize_filter_grep_regexp)
 
 SET(DUPLICATE_MOC_HEADERS
@@ -100,7 +100,7 @@ splitter_duplicate/PVFieldSplitterDuplicateParamWidget.h
 
 QT5_WRAP_CPP(DUPLICATE_MOC_SRCS ${DUPLICATE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 add_library(normalize_filter_splitter_duplicate SHARED splitter_duplicate/PVFieldDuplicate.cpp splitter_duplicate/PVFieldDuplicate.h splitter_duplicate/PVFieldSplitterDuplicateParamWidget.cpp ${DUPLICATE_MOC_SRCS} splitter_duplicate/register.cpp)
-target_link_libraries(normalize_filter_splitter_duplicate pvkernel ${QT_LIBRARIES})
+target_link_libraries(normalize_filter_splitter_duplicate pvkernel)
 declare_library(normalize_filter_splitter_duplicate)
 
 SET(MACADDRESS_MOC_HEADERS
@@ -109,7 +109,7 @@ splitter_mac_address/PVFieldSplitterMacAddressParamWidget.h
 
 QT5_WRAP_CPP(MACADDRESS_MOC_SRCS ${MACADDRESS_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 add_library(normalize_filter_splitter_mac_address SHARED splitter_mac_address/PVFieldSplitterMacAddress.cpp splitter_mac_address/PVFieldSplitterMacAddress.h splitter_mac_address/PVFieldSplitterMacAddressParamWidget.cpp ${MACADDRESS_MOC_SRCS} splitter_mac_address/register.cpp)
-target_link_libraries(normalize_filter_splitter_mac_address pvkernel ${QT_LIBRARIES})
+target_link_libraries(normalize_filter_splitter_mac_address pvkernel)
 declare_library(normalize_filter_splitter_mac_address)
 
 SET(DNSFQDN_MOC_HEADERS
@@ -118,7 +118,7 @@ splitter_dns_fqdn/PVFieldSplitterDnsFqdnParamWidget.h
 
 QT5_WRAP_CPP(DNSFQDN_MOC_SRCS ${DNSFQDN_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 add_library(normalize_filter_splitter_dns_fqdn SHARED splitter_dns_fqdn/PVFieldSplitterDnsFqdn.cpp splitter_dns_fqdn/PVFieldSplitterDnsFqdn.h splitter_dns_fqdn/PVFieldSplitterDnsFqdnParamWidget.cpp ${DNSFQDN_MOC_SRCS} splitter_dns_fqdn/register.cpp)
-target_link_libraries(normalize_filter_splitter_dns_fqdn pvkernel ${QT_LIBRARIES})
+target_link_libraries(normalize_filter_splitter_dns_fqdn pvkernel)
 declare_library(normalize_filter_splitter_dns_fqdn)
 
 INSTALL(TARGETS ${NORMALIZE_FILTERS_DIST_LIST} LIBRARY DESTINATION normalize-filters

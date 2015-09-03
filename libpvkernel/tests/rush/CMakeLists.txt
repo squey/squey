@@ -13,7 +13,7 @@ configure_file(test_splitter_regexp.sh.cmake test_splitter_regexp.sh @ONLY)
 configure_file(test_splitter_url.sh.cmake test_splitter_url.sh @ONLY)
 configure_file(test_grep_regexp.sh.cmake test_grep_regexp.sh @ONLY)
 
-set(LINK_LIBRARIES pvkernel ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY})
+set(LINK_LIBRARIES pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY})
 
 # Temporary output directory for NRAW disk backend based tests
 if (NOT DEFINED PVKERNEL_RUSH_TEST_NRAW_TMP)
