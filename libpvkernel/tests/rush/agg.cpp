@@ -14,7 +14,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <QString>
-#include <QCoreApplication>
 #include <QDir>
 #include "helpers.h"
 
@@ -53,7 +52,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	PVCore::PVIntrinsics::init_cpuid();
-	QCoreApplication(argc, argv);
 
 	PVFilter::PVChunkFilter null;
 

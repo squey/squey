@@ -21,7 +21,6 @@
 #include <picviz/PVMapped.h>
 #include <cstdlib>
 #include <iostream>
-#include <QCoreApplication>
 #include "test-env.h"
 
 int main(int argc, char** argv)
@@ -33,7 +32,6 @@ int main(int argc, char** argv)
 
 	init_env();
 	PVCore::PVIntrinsics::init_cpuid();
-	QCoreApplication app(argc, argv);
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVRush::PVPluginsLoad::load_all_plugins();
 

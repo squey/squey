@@ -26,7 +26,7 @@ set(FILTERS_DIST_FILES
 create-layers/create-layers.conf
 )
 
-set(LINK_LIBRARIES picviz pvkernel ${QT_LIBRARIES})
+set(LINK_LIBRARIES picviz pvkernel)
 
 add_library(layer_filter_axis_gradient SHARED axis-gradient/PVLayerFilterAxisGradient.cpp axis-gradient/register.cpp)
 target_link_libraries(layer_filter_axis_gradient ${LINK_LIBRARIES})

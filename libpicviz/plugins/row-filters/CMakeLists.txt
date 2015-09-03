@@ -14,7 +14,7 @@ set(FILTERS_DIST_LIST
 set(FILTERS_DIST_FILES
 )
 
-set(LINK_LIBRARIES picviz pvkernel ${QT_LIBRARIES})
+set(LINK_LIBRARIES picviz pvkernel)
 
 add_library(row_filter_axes_bind SHARED axes-bind/PVRFFAxesBind.cpp axes-bind/register.cpp)
 target_link_libraries(row_filter_axes_bind ${LINK_LIBRARIES})

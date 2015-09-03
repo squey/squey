@@ -176,7 +176,8 @@ static QString pcap_decode_get_time_as_string(struct pcap_pkthdr *pheader)
 
 	packet_tv = pheader->ts;
 	t = packet_tv.tv_sec;
-	qt_datetime = qt_datetime.fromTime_t(t);
+	// We keep UTC format to have the same values everywhere.
+	qt_datetime = qt_datetime.fromTime_t(t, Qt::UTC);
 	QString time_str = qt_datetime.toString("dd-MM-yyyy hh:mm:ss");
 	// PVLOG_INFO("Packet time string='%s'\n", time_str.toUtf8().data());
 

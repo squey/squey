@@ -10,7 +10,6 @@
 
 #include <pvkernel/filter/PVPluginsLoad.h>
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QStringList>
 
@@ -37,7 +36,6 @@ int main(int argc, char** argv)
 	// Initialisation
 	init_env();
 	PVFilter::PVPluginsLoad::load_all_plugins();
-	QCoreApplication app(argc, argv);
 	// Format reading
 
 	QString fpath = argv[1];

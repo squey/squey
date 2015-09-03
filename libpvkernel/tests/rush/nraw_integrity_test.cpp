@@ -22,7 +22,7 @@
 #include <QDir>
 
 constexpr uint32_t COLUMN_COUNT = 2;
-constexpr uint32_t ROW_COUNT = 50000;
+constexpr uint32_t ROW_COUNT = 500;
 constexpr uint32_t MAX_FIELD_LENGTH = 512;
 static const std::string CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 

@@ -303,7 +303,7 @@ int main(void)
 
 	for (i=0; i<PICVIZ_LINES_MAX; i++) {
 		good = (a.get_line(i));
-		if (good) {
+		if (not good) {
 			std::cout << " i = " << i << ", and state of line n is : " << good << "\n";
 			std::cout << "selection test : [" << __LINE__ << "] : operator~ : failed\n";
 			return 1;

@@ -13,7 +13,7 @@ set(FILTERS_DIST_LIST
 set(FILTERS_DIST_FILES
 )
 
-set(LINK_LIBRARIES picviz pvkernel ${QT_LIBRARIES})
+set(LINK_LIBRARIES picviz pvkernel)
 
 if(PYTHONLIBS_FOUND)
 	# AG: BEFORE here is important, or boost does not include the good patchlevel.h (from Python), and does not

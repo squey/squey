@@ -15,17 +15,15 @@
 #include <cstdlib>
 #include <iostream>
 #include "helpers.h"
-#include <QCoreApplication>
 #include "test-env.h"
 
 using std::cout;
 using std::cerr;
 using std::endl;
 
-int main(int argc, char** argv)
+int main()
 {
 	init_env();
-	QCoreApplication app(argc, argv);
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVRush::PVPluginsLoad::load_all_plugins();
 
@@ -42,7 +40,6 @@ int main(int argc, char** argv)
 	}
 
 	// Get the source creator
-	QString file_path(argv[1]);
 	PVRush::PVSourceCreator_p sc_file;
 	if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
 		return 1;

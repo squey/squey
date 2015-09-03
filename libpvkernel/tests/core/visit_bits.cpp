@@ -14,39 +14,6 @@
 #include <assert.h>
 #include <time.h>
 
-#define COUNT_BITS_UINT64(ret,v)\
-	v = v - ((v >> 1) & 0x5555555555555555ULL);\
-	v = (v & 0x3333333333333333ULL) + ((v >> 2) & 0x3333333333333333ULL);\
-	ret += (((v + (v >> 4)) & 0x0f0f0f0f0f0f0f0f) * 0x0101010101010101) >> 56;\
-
-static uint32_t count_bits(size_t n, const uint64_t* data)
-{
-	uint32_t ret = 0;
-	for (size_t i = 0; i < n; i++) {
-		uint64_t v = data[i];
-		COUNT_BITS_UINT64(ret,v);
-	}
-	return ret;
-}
-
-static uint32_t count_bits_sse(size_t n, const uint64_t* data)
-{
-	uint32_t ret = 0;
-	for (size_t i = 0; i < n; i++) {
-		const uint64_t v = data[i];
-		ret += _mm_popcnt_u64(v);
-	}
-	return ret;
-}
-
-#define SIZE_BUF ((1UL<<(32-6))-1)
-
-#define MAX_SLICE_SIZE 1024
-size_t get_slice_size(size_t /*i*/)
-{
-	return rand()%MAX_SLICE_SIZE + 1;
-}
-
 void check_bit_visitor(int *bits_ref, size_t size)
 {
 	uint64_t v = 0;
@@ -123,11 +90,7 @@ void generate_random_slices(std::vector<std::string>& slices, size_t n, size_t m
 
 int main()
 {
-	{
-		int bits[] = {0, 4, 11, 18, 26, 35, 46, 59};
-		check_bit_visitor(bits, sizeof(bits)/sizeof(int));
-	}
-
+	std::cout << "Check bit visitor" << std::endl;
 	{
 		int bits[64];
 		for (int i = 0; i < 64; i++) {
@@ -135,10 +98,12 @@ int main()
 		}
 		check_bit_visitor(bits, sizeof(bits)/sizeof(int));
 	}
+	std::cout << "done" << std::endl;
 
 	//__m128i v_sse = _mm_set1_epi32(0x00FF0000);
 	//PVCore::PVByteVisitor::visit_bytes(v_sse, [=](size_t b) { std::cout << b << std::endl; });
 
+	std::cout << "Check slice visitor" << std::endl;
 	// Slices visitor
 	std::vector<std::string> slices;
 	for (uint8_t i = 0; i < 26; i++) {
@@ -153,19 +118,24 @@ int main()
 		slices.push_back(std::string(i, c));
 	}
 	check_slices_visitor(slices);
+	std::cout << "done" << std::endl;
 
 	srand(time(NULL));
 
 #define NSLICES 2048
 
+	std::cout << "Check slice visitor with random value" << std::endl;
 	generate_random_slices(slices, NSLICES, 1, 2048);
 	check_slices_visitor(slices);
+	std::cout << "done" << std::endl;
 
+#ifdef TESTS_LONG
 	generate_random_slices(slices, NSLICES*20, 1, 15);
 	check_slices_visitor(slices);
 
 	generate_random_slices(slices, NSLICES*10, 1, 4);
 	check_slices_visitor(slices);
+#endif
 
 	return 0;
 }

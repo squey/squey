@@ -31,18 +31,18 @@ set(SOURCES_DIST_FILES
 ################################################
 
 add_library(source_text_file SHARED text_file/PVSourceCreatorTextfile.cpp text_file/PVSourceCreatorTextfile.h text_file/PVSourceCreatorRemoteTextfile.cpp text_file/register.cpp)
-target_link_libraries(source_text_file pvkernel ${QT_LIBRARIES} ${PCAP_LIBRARIES})
+target_link_libraries(source_text_file pvkernel ${PCAP_LIBRARIES})
 
 add_library(source_pcap_file SHARED pcap_file/PVSourceCreatorPcapfile.cpp pcap_file/PVSourceCreatorPcapfile.h pcap_file/register.cpp)
-target_link_libraries(source_pcap_file pvkernel ${QT_LIBRARIES} ${PCAP_LIBRARIES})
+target_link_libraries(source_pcap_file pvkernel ${PCAP_LIBRARIES})
 
 add_library(source_database SHARED database/PVSourceCreatorDatabase.cpp database/PVDBSource.cpp ../common/database/PVDBInfos.cpp ../common/database/PVDBQuery.cpp database/register.cpp)
-target_link_libraries(source_database pvkernel ${QT_LIBRARIES})
+target_link_libraries(source_database pvkernel)
 
 if(PERLLIBS_FOUND)
 	include_directories(AFTER ${PERL_INCLUDE_PATH})
 	add_library(source_perl_file SHARED perl_file/PVPerlSource.cpp perl_file/PVPerlSource.h perl_file/PVSourceCreatorPerlfile.cpp perl_file/PVSourceCreatorPerlfile.h perl_file/register.cpp)
-	target_link_libraries(source_perl_file pvkernel ${QT_LIBRARIES} ${PERL_LIBRARY})
+	target_link_libraries(source_perl_file pvkernel ${PERL_LIBRARY})
 
 
 	#set(SOURCES_DIST_LIST ${SOURCES_DIST_LIST} source_perl_file)
@@ -53,7 +53,7 @@ if(PYTHONLIBS_FOUND)
 	# find the good Python version !!
 	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
 	add_library(source_python_file SHARED python_file/PVPythonSource.cpp python_file/PVPythonSource.h python_file/PVSourceCreatorPythonfile.cpp python_file/PVSourceCreatorPythonfile.h python_file/register.cpp)
-	target_link_libraries(source_python_file pvkernel ${QT_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES_PYTHON})
+	target_link_libraries(source_python_file pvkernel ${PYTHON_LIBRARIES} ${Boost_LIBRARIES_PYTHON})
 endif(PYTHONLIBS_FOUND)
 
 
@@ -64,7 +64,7 @@ endif(HDFS_FOUND)
 
 # Arcsight
 add_library(source_arcsight SHARED arcsight/PVArcsightSource.cpp arcsight/PVSourceCreatorArcsight.cpp arcsight/register.cpp ../common/arcsight/PVArcsightInfos.cpp ../common/arcsight/PVArcsightQuery.cpp)
-target_link_libraries(source_arcsight /usr/local/lib/libarcsight.a pvkernel ${QT_LIBRARIES} gsoap++)
+target_link_libraries(source_arcsight /usr/local/lib/libarcsight.a pvkernel gsoap++)
 
 INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION sources
                                      RUNTIME DESTINATION sources)

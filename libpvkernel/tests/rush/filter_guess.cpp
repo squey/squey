@@ -24,7 +24,6 @@
 #include <cstdlib>
 #include <algorithm>
 
-#include <QCoreApplication>
 #include <QString>
 
 int main(int argc, char** argv)
@@ -35,7 +34,6 @@ int main(int argc, char** argv)
 	}
 
 	init_env();
-	QCoreApplication app(argc, argv);
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVRush::PVPluginsLoad::load_all_plugins();
 

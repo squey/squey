@@ -1,7 +1,7 @@
 #include <iostream>
 #include <pvkernel/core/PVSelBitField.h>
 
-#define N 100000000
+#define N 1000000
 
 inline PVRow gather_func(const PVRow r) { return 4*r; }
 

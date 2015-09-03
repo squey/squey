@@ -17,7 +17,7 @@ add_definitions(${OpenMP_CXX_FLAGS})
 #set(QT_USE_QTOPENGL TRUE)
 #include(${QT_USE_FILE})
 
-set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY} pvparallelview ${OpenMP_LIBRARIES} numa)
+set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${ICU_LIBRARY} pvparallelview ${OpenMP_LIBRARIES} numa)
 
 enable_testing()
 
@@ -84,11 +84,11 @@ target_link_libraries(masks ${LINK_LIBRARIES})
 
 declare_pv_test(Tpview_zone_tree_dump_load zone_tree_dump_load.cpp common.cpp)
 target_link_libraries(Tpview_zone_tree_dump_load ${LINK_LIBRARIES})
-add_test(TestZoneTreeDumpLoad Tpview_zone_tree_dump_load 100000000 42)
+add_test(TestZoneTreeDumpLoad Tpview_zone_tree_dump_load 0 50 2)
 
 declare_pv_test(Tpview_quadtree_dump_load quadtree_dump_load.cpp)
 target_link_libraries(Tpview_quadtree_dump_load ${LINK_LIBRARIES})
-add_test(TestQuadTreeDumpLoad Tpview_quadtree_dump_load 100000000 42)
+add_test(TestQuadTreeDumpLoad Tpview_quadtree_dump_load 1000000 42)
 
 declare_pv_test(Tpview_zoomed_zone_tree_dump_load zoomed_zone_tree_dump_load.cpp common.cpp)
 target_link_libraries(Tpview_zoomed_zone_tree_dump_load ${LINK_LIBRARIES})

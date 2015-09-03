@@ -13,7 +13,7 @@ configure_file(test_splitter_regexp.sh.cmake test_splitter_regexp.sh @ONLY)
 configure_file(test_splitter_url.sh.cmake test_splitter_url.sh @ONLY)
 configure_file(test_grep_regexp.sh.cmake test_grep_regexp.sh @ONLY)
 
-set(LINK_LIBRARIES pvkernel ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY})
+set(LINK_LIBRARIES pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY})
 
 # Temporary output directory for NRAW disk backend based tests
 if (NOT DEFINED PVKERNEL_RUSH_TEST_NRAW_TMP)
@@ -56,11 +56,12 @@ endmacro()
 
 PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align 20000)
 PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align 2000)
-PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align_newline 20000)
-PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align_newline 2000)
+# FIXME : Align files do not exist
+#PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align_newline 20000)
+#PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align_newline 2000)
 
 # Test the aggregator
-declare_pv_test(Trush_agg "agg.cpp;helpers.cpp")
+declare_pv_test(Trush_agg agg.cpp helpers.cpp)
 target_link_libraries(Trush_agg ${LINK_LIBRARIES})
 add_test(TestAggregator1 ${TEST_DIFF_STDOUT}
 	${PVRUSH_TEST_FILES}/aggregator/set1.out
@@ -74,7 +75,7 @@ add_test(TestAggregator2 ${TEST_DIFF_STDOUT}
 	${PVRUSH_TEST_FILES}/aggregator/set2)
 
 # Test the aggregator in strict mode
-declare_pv_test(Trush_agg_strict "agg_strict.cpp;helpers.cpp")
+declare_pv_test(Trush_agg_strict agg_strict.cpp helpers.cpp)
 target_link_libraries(Trush_agg_strict ${LINK_LIBRARIES})
 add_test(TestAggregatorStrict1 ${TEST_DIFF_STDOUT}
 	${PVRUSH_TEST_FILES}/aggregator/set1.strict.out
@@ -87,35 +88,33 @@ add_test(TestAggregatorStrict2 ${TEST_DIFF_STDOUT}
 	${CMAKE_CURRENT_BINARY_DIR}/Trush_agg_strict 6000
 	${PVRUSH_TEST_FILES}/aggregator/set2)
 
-# Test the controller
-
 # Test the extractor
 
-declare_pv_test(Trush_splitter_regexp "splitter_regexp.cpp;helpers.cpp")
+declare_pv_test(Trush_splitter_regexp splitter_regexp.cpp helpers.cpp)
 target_link_libraries(Trush_splitter_regexp ${LINK_LIBRARIES})
 add_test(TestSplitterRegexp ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_regexp.sh)
 
-declare_pv_test(Trush_splitter_csv "splitter_csv.cpp;helpers.cpp")
+declare_pv_test(Trush_splitter_csv splitter_csv.cpp helpers.cpp)
 target_link_libraries(Trush_splitter_csv ${LINK_LIBRARIES})
 add_test(TestSplitterCSV ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_csv.sh)
 
-declare_pv_test(Trush_splitter_url "splitter_url.cpp;helpers.cpp")
+declare_pv_test(Trush_splitter_url splitter_url.cpp helpers.cpp)
 target_link_libraries(Trush_splitter_url ${LINK_LIBRARIES})
 add_test(TestSplitterURL ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_url.sh)
 
-declare_pv_test(Trush_splitter_pcap "splitter_pcap.cpp;helpers.cpp")
+declare_pv_test(Trush_splitter_pcap splitter_pcap.cpp helpers.cpp)
 target_link_libraries(Trush_splitter_pcap ${LINK_LIBRARIES})
 add_test(TestSplitterPCAP ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_pcap.sh)
 
-declare_pv_test(Trush_grep_regexp "grep_regexp.cpp;helpers.cpp")
+declare_pv_test(Trush_grep_regexp grep_regexp.cpp helpers.cpp)
 target_link_libraries(Trush_grep_regexp ${LINK_LIBRARIES})
 add_test(TestGrepRegexp ${CMAKE_CURRENT_BINARY_DIR}/test_grep_regexp.sh)
 
-declare_pv_test(Trush_splitter_duplicate "splitter_duplicate.cpp;helpers.cpp")
+declare_pv_test(Trush_splitter_duplicate splitter_duplicate.cpp helpers.cpp)
 target_link_libraries(Trush_splitter_duplicate ${LINK_LIBRARIES})
 add_test(TestSplitterDuplicate ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_duplicate.sh)
 
-declare_pv_test(Trush_filter_composition "filter_composition.cpp;helpers.cpp")
+declare_pv_test(Trush_filter_composition filter_composition.cpp helpers.cpp)
 target_link_libraries(Trush_filter_composition ${LINK_LIBRARIES})
 add_test(TestFilterComposition ${TEST_DIFF_STDOUT}
 	${PVRUSH_TEST_FILES}/filter_composition.out
@@ -126,11 +125,11 @@ add_test(TestFilterComposition ${TEST_DIFF_STDOUT}
 # Plugin input tests
 
 # Format parsing
-declare_pv_test(Trush_format "format.cpp;helpers.cpp")
+declare_pv_test(Trush_format format.cpp helpers.cpp)
 target_link_libraries(Trush_format ${LINK_LIBRARIES})
 add_test(TestFormats Trush_format ${PVRUSH_TEST_FILES}/formats)
 
-declare_pv_test(Trush_format_dump "format_dump.cpp;helpers.cpp")
+declare_pv_test(Trush_format_dump format_dump.cpp helpers.cpp)
 target_link_libraries(Trush_format_dump ${LINK_LIBRARIES})
 
 # For disk file, using source plugins and process through the extractor
@@ -146,11 +145,11 @@ declare_pv_test(Trush_process_file_auto_discovery "process_file_auto_discovery.c
 target_link_libraries(Trush_process_file_auto_discovery ${LINK_LIBRARIES})
 
 # Test cases for tickets
-declare_pv_test(Trush_ticket_1 "ticket_1.cpp")
+declare_pv_test(Trush_ticket_1 ticket_1.cpp)
 target_link_libraries(Trush_ticket_1 ${LINK_LIBRARIES})
 add_test(TestTicket1 Trush_ticket_1 ${PVRUSH_TEST_FILES})
 
-declare_pv_test(Trush_ticket_2 "ticket_2.cpp")
+declare_pv_test(Trush_ticket_2 ticket_2.cpp)
 target_link_libraries(Trush_ticket_2 ${LINK_LIBRARIES})
 add_test(TestTicket2 Trush_ticket_2)
 

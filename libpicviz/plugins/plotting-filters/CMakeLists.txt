@@ -20,7 +20,7 @@ plotting_filter_time_default
 set(FILTERS_DIST_FILES
 )
 
-set(LINK_LIBRARIES picviz pvkernel ${QT_LIBRARIES})
+set(LINK_LIBRARIES picviz pvkernel)
 
 add_library(plotting_filter_noprocess SHARED noprocess/PVPlottingFilterNoprocess.cpp noprocess/register.cpp)
 target_link_libraries(plotting_filter_noprocess ${LINK_LIBRARIES})

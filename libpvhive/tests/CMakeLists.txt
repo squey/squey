@@ -13,12 +13,8 @@ include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
-configure_file(run-massive-call-obj.sh.cmake run-massive-call-obj.sh @ONLY)
-configure_file(run-massive-call-prop.sh.cmake run-massive-call-prop.sh @ONLY)
-configure_file(run-massive-register.sh.cmake run-massive-register.sh @ONLY)
-
-
-set(COMMON_LIBRARIES pvhive pvkernel picviz ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${QT_LIBRARIES})
+set(COMMON_LIBRARIES pvhive pvkernel picviz ${TBB_LIBRARIES} ${BOOST_LIBRARIES}
+    ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY})
 
 declare_pv_test(Tsimplistic simplistic.cpp)
 target_link_libraries(Tsimplistic ${COMMON_LIBRARIES})
@@ -60,19 +56,161 @@ target_link_libraries(Tmultithreads ${COMMON_LIBRARIES})
 
 declare_pv_test(Thive_massive_mem massive-mem.cpp massive_common.cpp)
 target_link_libraries(Thive_massive_mem ${COMMON_LIBRARIES})
-add_test(TestHiveMemory Thive_massive_mem 100000)
+add_test(TestHiveMemory Thive_massive_mem 1000)
+
+###############################################################################
+# Massive register checking 
+###############################################################################
 
 declare_pv_test(Thive_massive_register massive-register.cpp massive_common.cpp)
 target_link_libraries(Thive_massive_register ${COMMON_LIBRARIES})
-add_test(TestHiveRegister run-massive-register.sh)
 
-declare_pv_test(Thive_massive_call_obj massive-call-obj.cpp massive_common.cpp)
-target_link_libraries(Thive_massive_call_obj ${COMMON_LIBRARIES})
-add_test(TestHiveCallObject run-massive-call-obj.sh)
+# object registration
+add_test(TestHiveRegister ./Thive_massive_register 1000 0 0 0 0 0)
 
-declare_pv_test(Thive_massive_call_prop massive-call-prop.cpp massive_common.cpp)
-target_link_libraries(Thive_massive_call_prop ${COMMON_LIBRARIES})
-add_test(TestHiveCallProperty run-massive-call-prop.sh)
+if(DEFINED TESTS_LONG)
+    add_test(TestHiveRegister ./Thive_massive_register 10000 0 0 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 100000 0 0 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1000000 0 0 0 0 0)
+endif()
+
+# property registration
+# varying property number
+add_test(TestHiveRegister ./Thive_massive_register 1 1000 0 0 0 0)
+
+if(DEFINED TESTS_LONG)
+    add_test(TestHiveRegister ./Thive_massive_register 1 10000 0 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1 100000 0 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1 1000000 0 0 0 0)
+endif()
+
+# varying objects/properties ratio
+add_test(TestHiveRegister ./Thive_massive_register 10 1000 0 0 0 0)
+
+if(DEFINED TESTS_LONG)
+    add_test(TestHiveRegister ./Thive_massive_register 10 100000 0 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 100 10000 0 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1000 1000 0 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 10000 100 0 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 100000 10 0 0 0 0)
+endif()
+
+# object actors registration
+# varying actors number
+add_test(TestHiveRegister ./Thive_massive_register 1 0 1000 0 0 0)
+
+if(DEFINED TESTS_LONG)
+    add_test(TestHiveRegister ./Thive_massive_register 1 0 10000 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1 0 100000 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1 0 1000000 0 0 0)
+endif()
+
+# varying objects/actors ratio
+add_test(TestHiveRegister ./Thive_massive_register 10 0 1000 0 0 0)
+
+if(DEFINED TESTS_LONG)
+    add_test(TestHiveRegister ./Thive_massive_register 10 0 100000 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 100 0 10000 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1000 0 1000 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 10000 0 100 0 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 100000 0 10 0 0 0)
+endif()
+
+# property actors registration
+# varying actors number
+add_test(TestHiveRegister ./Thive_massive_register 1 1 0 1000 0 0)
+
+if(DEFINED TESTS_LONG)
+    add_test(TestHiveRegister ./Thive_massive_register 1 1 0 10000 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1 1 0 100000 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1 1 0 1000000 0 0)
+endif()
+
+# varying properties/actors ratio
+add_test(TestHiveRegister ./Thive_massive_register 1 10 0 1000 0 0)
+
+if(DEFINED TESTS_LONG)
+    add_test(TestHiveRegister ./Thive_massive_register 1 10 0 100000 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1 100 0 10000 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1 1000 0 1000 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1 10000 0 100 0 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1 100000 0 10 0 0)
+endif()
+  
+# object pbservers registration
+# varying observers number
+add_test(TestHiveRegister ./Thive_massive_register 1 0 0 0 1000 0)
+
+if(DEFINED TESTS_LONG)
+    add_test(TestHiveRegister ./Thive_massive_register 1 0 0 0 10000 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1 0 0 0 100000 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1 0 0 0 1000000 0)
+endif()
+     
+# varying objects/observers ratio
+add_test(TestHiveRegister ./Thive_massive_register 10 0 0 0 1000 0)
+
+if(DEFINED TESTS_LONG)
+    add_test(TestHiveRegister ./Thive_massive_register 10 0 0 0 100000 0)
+    add_test(TestHiveRegister ./Thive_massive_register 100 0 0 0 10000 0)
+    add_test(TestHiveRegister ./Thive_massive_register 1000 0 0 0 1000 0)
+    add_test(TestHiveRegister ./Thive_massive_register 10000 0 0 0 100 0)
+    add_test(TestHiveRegister ./Thive_massive_register 100000 0 0 0 10 0)
+endif()
+      
+# property observers registration
+# varying servers number
+add_test(TestHiveRegister ./Thive_massive_register 1 1 0 0 0 1000)
+
+if(DEFINED TESTS_LONG)
+    add_test(TestHiveRegister ./Thive_massive_register 1 1 0 0 0 10000)
+    add_test(TestHiveRegister ./Thive_massive_register 1 1 0 0 0 100000)
+    add_test(TestHiveRegister ./Thive_massive_register 1 1 0 0 0 1000000)
+endif()
+ 
+# varying properties/observers ratio
+add_test(TestHiveRegister ./Thive_massive_register 1 10 0 0 0 1000)
+
+if(DEFINED TESTS_LONG)
+    add_test(TestHiveRegister ./Thive_massive_register 1 10 0 0 0 100000)
+    add_test(TestHiveRegister ./Thive_massive_register 1 100 0 0 0 10000)
+    add_test(TestHiveRegister ./Thive_massive_register 1 1000 0 0 0 1000)
+    add_test(TestHiveRegister ./Thive_massive_register 1 10000 0 0 0 100)
+    add_test(TestHiveRegister ./Thive_massive_register 1 100000 0 0 0 10)
+endif()
+
+
+###############################################################################
+# Massive call checking 
+# * Check done for call properties and call object
+###############################################################################
+
+macro(PV_MASSIVE_TEST acces)
+    declare_pv_test(Thive_massive_call_${acces} massive-call-${acces}.cpp massive_common.cpp)
+    target_link_libraries(Thive_massive_call_${acces} ${COMMON_LIBRARIES})
+    add_test(TestHiveCallObject Thive_massive_call_${acces} 100 100 100)
+
+    if(DEFINED TESTS_LONG)
+	add_test(TestHiveCallObject Thive_massive_call_${acces} 10000000 1       0)
+	add_test(TestHiveCallObject Thive_massive_call_${acces} 10000    1000    0)
+	add_test(TestHiveCallObject Thive_massive_call_${acces} 10       1000000 0)
+
+	add_test(TestHiveCallObject Thive_massive_call_${acces} 10000000 1       1)
+	add_test(TestHiveCallObject Thive_massive_call_${acces} 10000    1000    1)
+	add_test(TestHiveCallObject Thive_massive_call_${acces} 10       1000000 1)
+
+	add_test(TestHiveCallObject Thive_massive_call_${acces} 1000000 1       1000)
+	add_test(TestHiveCallObject Thive_massive_call_${acces} 1000    1000    1000)
+	add_test(TestHiveCallObject Thive_massive_call_${acces} 1       1000000 1000)
+
+	add_test(TestHiveCallObject Thive_massive_call_${acces} 10000000 1    1000000)
+	add_test(TestHiveCallObject Thive_massive_call_${acces} 1000    1    1000000)
+	add_test(TestHiveCallObject Thive_massive_call_${acces} 1       1000 1000000)
+    endif()
+endmacro()
+
+PV_MASSIVE_TEST(obj)
+PV_MASSIVE_TEST(prop)
 
 QT5_WRAP_CPP(TEST_MQ_MOC_SRC message-queue.h OPTIONS ${QT5_WRAP_OPTIONS})
 

@@ -7,7 +7,6 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVFormatVersion.h>
 
-#include <QCoreApplication>
 #include <QFile>
 #include <QTextStream>
 #include <QDomDocument>
