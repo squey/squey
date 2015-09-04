@@ -35,7 +35,6 @@ int main(int argc, char **argv)
 
 	atexit(clean);
 
-#ifdef PICVIZ_DEVELOPER_MODE
 	quadtree_t *qt;
 	quadtree_t* qt2;
 
@@ -58,7 +57,6 @@ int main(int argc, char **argv)
 
 	ret = (*qt == *qt2);
 	PV_VALID(ret, true);
-#endif
 
 	return 0;
 }
