@@ -61,6 +61,8 @@ void PVWidgets::PVQueryBuilder::reinit()
 
 void PVWidgets::PVQueryBuilder::set_filters(const std::string& filters)
 {
+	reinit();
+
 	rapidjson::Document json;
 	json.Parse<0>(filters.c_str());
 	rapidjson::Document::AllocatorType& allocator = json.GetAllocator();
@@ -92,7 +94,6 @@ void PVWidgets::PVQueryBuilder::set_filters(const std::string& filters)
 
 	js << "$('#querybuilder').queryBuilder(" << strbuf.GetString() << ");";
 
-	reset();
 	run_javascript(js.str().c_str());
 }
 
@@ -128,8 +129,6 @@ void PVWidgets::PVQueryBuilder::set_filters(const columns_t& columns)
 	rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
 	json.Accept(writer);
 
-	reinit();
-
 	set_filters(strbuf.GetString());
 }
 
@@ -140,7 +139,7 @@ void PVWidgets::PVQueryBuilder::set_rules(const std::string& rules)
 	);
 }
 
-void PVWidgets::PVQueryBuilder::reset()
+void PVWidgets::PVQueryBuilder::reset_rules()
 {
 	run_javascript(
 		"$('#querybuilder').queryBuilder('reset');"

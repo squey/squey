@@ -138,7 +138,7 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed_slot()
 	else if (query_type == EQueryType::QUERY_BUILDER) {
 		_gb_query->setTitle("Query");
 		_reference_label->setText("");
-		_querybuilder->reset();
+		_querybuilder->reset_rules();
 		_querybuilder->setVisible(true);
 		_txt_query->setVisible(false);
 	}
