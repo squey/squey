@@ -26,8 +26,6 @@ int main(int argc, char **argv)
 	if (pv == nullptr) {
 		return 1;
 	}
-	
-#ifdef PICVIZ_DEVELOPER_MODE
 
 	int pos = extra_param_start_at();
 
@@ -76,7 +74,6 @@ int main(int argc, char **argv)
 			zzt.reset();
 		}
 	}
-#endif
 
 	return 0;
 }

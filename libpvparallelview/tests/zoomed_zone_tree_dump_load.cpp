@@ -29,7 +29,6 @@ int main(int argc, char **argv)
 
 	atexit(clean);
 
-#ifdef PICVIZ_DEVELOPER_MODE
 	PVParallelView::common::init_cuda();
 
 	PVParallelView::PVLibView* pv = create_lib_view_from_args(argc, argv);
@@ -64,7 +63,6 @@ int main(int argc, char **argv)
 		zzt.reset();
 		delete zzt2;
 	}
-#endif
 
 	return 0;
 }
