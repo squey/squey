@@ -26,57 +26,83 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(Picviz::PVAxesCombination& c
 	setWindowTitle(tr("Export selection"));
 	setAcceptMode(QFileDialog::AcceptSave);
 
-	QGridLayout* main_layout = (QGridLayout *) layout();
+	// Get the layout from the QFileDialog
+	// Layout is:
+	// -----------------main_layout--------------------------------
+	// |           name bar where you can put filename/filedir    |
+	// ------------------------------------------------------------
+	// | dir tree | list of files                                 |
+	// ------------------------------------------------------------
+	// |filename_label | filename | valide_button                 |
+	// ------------------------------------------------------------
+	// |filetype_label | filetype | cancel_button                 |
+	// ------------------------------------------------------------
+	// |----------------group_box---------------------------------|
+	// ||                  export_layout                         ||
+	// |----------------------------------------------------------|
+	// ------------------------------------------------------------
+	QGridLayout* main_layout = static_cast<QGridLayout *>(layout());
 
 	QGroupBox* group_box = new QGroupBox();
-	main_layout->addWidget(group_box, 6, 1, 1, 2);
+	main_layout->addWidget(group_box, 4, 0, 1, 3);
 
-	QVBoxLayout* export_layout = new QVBoxLayout();
+	// Layout for export_layout is:
+	// --------------------export_layout---------------------------
+	// |----------------------------------------------------------|
+	// ||  left_layout              |   right layout             ||
+	// |----------------------------------------------------------|
+	// ------------------------------------------------------------
+	QHBoxLayout* export_layout = new QHBoxLayout();
 	group_box->setLayout(export_layout);
+	QVBoxLayout* left_layout = new QVBoxLayout();
+	QVBoxLayout* right_layout = new QVBoxLayout();
+	export_layout->addLayout(left_layout);
+	export_layout->addLayout(right_layout);
+
+	/// left_layout
 
 	// Export column name
 	_columns_header = new QCheckBox("Export column names as header");
 	_columns_header->setCheckState(Qt::CheckState::Checked);
-	export_layout->addWidget(_columns_header, 2, 0);
+	left_layout->addWidget(_columns_header);
+
+	// Define csv specific character
+	QFormLayout* char_layout = new QFormLayout();
+	char_layout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
 
 	// Separator character
-	QHBoxLayout* fields_separator_layout = new QHBoxLayout();
-	QLabel* separator_label = new QLabel(tr("Fields separator:"));
 	_separator_char = new PVWidgets::QKeySequenceWidget();
 	_separator_char->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	_separator_char->setKeySequence(QKeySequence(","));
 	_separator_char->setMaxNumKey(1);
-	fields_separator_layout->addWidget(separator_label);
-	fields_separator_layout->addWidget(_separator_char);
-	fields_separator_layout->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
-	export_layout->addLayout(fields_separator_layout);
+	char_layout->addRow(tr("Fields separator:"), _separator_char);
 
 	// Quote character
-	QHBoxLayout* quote_character_layout = new QHBoxLayout();
-	QLabel* quote_label = new QLabel(tr("Quote character:"));
 	_quote_char = new PVWidgets::QKeySequenceWidget();
 	_quote_char->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	_quote_char->setKeySequence(QKeySequence("\""));
 	_quote_char->setMaxNumKey(1);
-	quote_character_layout->addWidget(quote_label);
-	quote_character_layout->addWidget(_quote_char);
-	quote_character_layout->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
-	export_layout->addLayout(quote_character_layout);
+	char_layout->addRow(tr("Quote character:"), _quote_char);
 
-	// Use current axes combination
-	_use_current_axes_combination = new QRadioButton("Use current axes combination");
-	_use_current_axes_combination->setChecked(true);
-	export_layout->addWidget(_use_current_axes_combination, 3, 0);
+	left_layout->addLayout(char_layout);
+
+	/// right_layout
+
+	// Use all axes combination
+	_use_current_axes_combination = new QRadioButton("Use all axes combination");
+	right_layout->addWidget(_use_current_axes_combination);
 
 	// Use custom axes combination
 	QHBoxLayout* custom_axes_combination_layout = new QHBoxLayout();
+
 	QRadioButton* use_custom_axes_combination = new QRadioButton("Use custom axes combination");
-	custom_axes_combination_layout->addWidget(use_custom_axes_combination);
+	use_custom_axes_combination->setChecked(true);
 	_edit_axes_combination = new QPushButton("Edit");
 	_edit_axes_combination->setEnabled(use_custom_axes_combination->isChecked());
+
+	custom_axes_combination_layout->addWidget(use_custom_axes_combination);
 	custom_axes_combination_layout->addWidget(_edit_axes_combination);
-	custom_axes_combination_layout->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
-	export_layout->addLayout(custom_axes_combination_layout);
+	right_layout->addLayout(custom_axes_combination_layout);
 
 	connect(use_custom_axes_combination, SIGNAL(toggled(bool)), this, SLOT(show_axes_combination_widget(bool)));
 	connect(_edit_axes_combination, SIGNAL(clicked()), this, SLOT(edit_axes_combination()));
