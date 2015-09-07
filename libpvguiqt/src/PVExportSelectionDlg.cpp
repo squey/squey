@@ -112,12 +112,12 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(
 	Picviz::PVAxesCombination axes_combination = view.get_axes_combination();
 
 	Picviz::PVAxesCombination custom_axes_combination = axes_combination;
-	PVGuiQt::PVExportSelectionDlg* export_selection_dlg = new PVGuiQt::PVExportSelectionDlg(custom_axes_combination, view);
+	PVGuiQt::PVExportSelectionDlg export_selection_dlg(custom_axes_combination, view);
 
 	QFile file;
 	while (true) {
-		int res = export_selection_dlg->exec();
-		QString filename = export_selection_dlg->selectedFiles()[0];
+		int res = export_selection_dlg.exec();
+		QString filename = export_selection_dlg.selectedFiles()[0];
 		if (filename.isEmpty() || res == QDialog::Rejected) {
 			return;
 		}
@@ -140,17 +140,17 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(
 
 	// Use proper axes combination
 	PVCore::PVColumnIndexes column_indexes;
-	if (export_selection_dlg->use_custom_axes_combination()) {
-		axes_combination = export_selection_dlg->get_custom_axes_combination();
+	if (export_selection_dlg.use_custom_axes_combination()) {
+		axes_combination = export_selection_dlg.get_custom_axes_combination();
 		column_indexes = axes_combination.get_original_axes_indexes();
 	}
 
 	// Get export characters parameters
-	const QString sep_char = export_selection_dlg->separator_char();
-	const QString quote_char = export_selection_dlg->quote_char();
+	const QString sep_char = export_selection_dlg.separator_char();
+	const QString quote_char = export_selection_dlg.quote_char();
 
 	// Export header
-	if (export_selection_dlg->export_columns_header()) {
+	if (export_selection_dlg.export_columns_header()) {
 		QStringList str_list = axes_combination.get_axes_names_list();
 		PVRush::PVUtils::safe_export(str_list, sep_char, quote_char);
 		stream << "#" + str_list.join(sep_char) + "\n";
