@@ -14,6 +14,7 @@
 #include <QMenu>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QFontMetrics>
 
 #include <iostream>
 
@@ -83,4 +84,21 @@ QPainterPath PVParallelView::PVAxisLabel::shape() const
 PVParallelView::PVAxisGraphicsItem const* PVParallelView::PVAxisLabel::get_parent_axis() const
 {
 	return dynamic_cast<PVAxisGraphicsItem const*>(parentItem());
+}
+
+
+void PVParallelView::PVAxisLabel::set_text(const QString &text)
+{
+	QFontMetrics metrics = QFontMetrics(font());
+
+	if (metrics.width(text) > MAX_WIDTH) {
+
+		setText(metrics.elidedText(text, Qt::ElideMiddle, MAX_WIDTH));
+
+		setToolTip(text);
+	}
+	else {
+		setText(text);
+	}
+
 }

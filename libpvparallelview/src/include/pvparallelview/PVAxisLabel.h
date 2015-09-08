@@ -26,7 +26,10 @@ class PVSlidersGroup;
 
 class PVAxisLabel : public QObject, public QGraphicsSimpleTextItem
 {
-Q_OBJECT
+	Q_OBJECT
+private:
+	static constexpr int MAX_WIDTH = 120; /*!< The maximum width of a label in pixel. This value should be calculated later,
+											depend of the client's windows settings. */
 
 public:
 	PVAxisLabel(const Picviz::PVView &view, PVSlidersGroup *sg,
@@ -34,10 +37,9 @@ public:
 
 	virtual ~PVAxisLabel();
 
-	void set_text(const QString &text)
-	{
-		setText(text);
-	}
+    /** Elide the text if it is longer than MAX_WIDTH.*/
+	void set_text(const QString &text);
+
 
 	void set_color(const QColor &color)
 	{
