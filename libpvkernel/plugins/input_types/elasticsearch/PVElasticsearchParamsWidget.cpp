@@ -163,16 +163,16 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 	PVRush::PVElasticsearchAPI es(get_infos());
 	const PVElasticsearchQuery& query = get_query(error);
 	PVElasticsearchAPI::rows_chunk_t rows_array;
-	query_end = es.extract(query, rows_array, error);
-
-	if (error && error->empty() == false) {
-		return;
-	}
 
 	size_t max_count = es.scroll_count();
 	pbox.getProgressBar()->setMaximum(max_count);
 
 	do {
+		query_end = es.extract(query, rows_array, error);
+
+		if (error && error->empty() == false) {
+			return;
+		}
 
 		if (pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL ||
 			pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL2) {
@@ -184,6 +184,12 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 				output_stream << row.c_str() << endl;
 			}
 			count += rows.size();
+		}
+
+		if (output_stream.status() == QTextStream::WriteFailed) {
+			if (error) {
+				*error = "Write failed. Is your disk full ?";
+			}
 		}
 
 		pbox.set_status(count);
