@@ -12,16 +12,6 @@ PVRush::PVElasticsearchInfos::PVElasticsearchInfos()
 {
 }
 
-PVRush::PVElasticsearchInfos::PVElasticsearchInfos(PVElasticsearchInfos const& infos)
-{
-	_host = infos._host;
-	_port = infos._port;
-	_index = infos._index;
-	_login = infos._login;
-	_importer = infos._importer;
-	_password = infos._password;
-}
-
 void PVRush::PVElasticsearchInfos::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.attribute("host", _host);

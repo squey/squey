@@ -20,7 +20,7 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
-PVWidgets::PVQueryBuilder::PVQueryBuilder(QWidget* parent /*= nullptr*/) : QWidget(parent), _view(nullptr)
+PVWidgets::PVQueryBuilder::PVQueryBuilder(QWidget* parent /*= nullptr*/) : QWidget(parent), _view(new QWebEngineView)
 {
 	reinit();
 }
@@ -30,9 +30,6 @@ PVWidgets::PVQueryBuilder::PVQueryBuilder(QWidget* parent /*= nullptr*/) : QWidg
  */
 void PVWidgets::PVQueryBuilder::reinit()
 {
-	delete _view;
-	_view = new QWebEngineView;
-
 	_view->setContextMenuPolicy(Qt::NoContextMenu);
 
 	const char* querybuilder_dir = std::getenv("PICVIZ_QUERYBUILDER_DIR");
@@ -194,8 +191,7 @@ void PVWidgets::PVQueryBuilder::workaround_qwebengine_refresh_bug()
 {
 	// Really really really ugly hack to workaround QWebEngine refresh bug
 	if (_view) {
-		int offset = workaround_qwebengine_refresh_bug_toggle ? +1 : -1;
-		_view->resize(_view->width() +offset, _view->height() +offset);
-		workaround_qwebengine_refresh_bug_toggle = !workaround_qwebengine_refresh_bug_toggle;
+		_view->resize(_view->width() +1, _view->height() +1);
+		_view->resize(_view->width() -1, _view->height() -1);
 	}
 }

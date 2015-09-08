@@ -17,7 +17,7 @@ enum EQueryType {
 	JSON,
 	SQL,
 
-	COUNT
+	QUERY_TYPE_COUNT
 };
 static const char* query_types[] = { "Query Builder", "JSON", "SQL" };
 
@@ -46,7 +46,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
 	connect(_combo_index, SIGNAL(activated(int)), this, SLOT(index_changed_by_user_slot()));
 	connect(_btn_refresh, SIGNAL(clicked()), this, SLOT(fetch_server_data_slot()));
 
-	for (size_t i = 0 ; i < EQueryType::COUNT ; i++) {
+	for (size_t i = 0 ; i < QUERY_TYPE_COUNT ; i++) {
 		_query_type_cb->addItem(query_types[i]);
 	}
 
@@ -116,6 +116,9 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed_slot()
 {
 	int query_type = _query_type_cb->currentIndex();
 
+	_querybuilder->setVisible(false);
+	_txt_query->setVisible(false);
+
 	if (query_type == EQueryType::SQL) {
 		_txt_query->setPlainText("");
 		_reference_label->setText(
@@ -132,7 +135,6 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed_slot()
 			_txt_query->setEnabled(false);
 			//buttonBox->buttons()[0]->setEnabled(false);
 		}
-		_querybuilder->setVisible(false);
 		_txt_query->setVisible(true);
 	}
 	else if (query_type == EQueryType::QUERY_BUILDER) {
@@ -140,7 +142,6 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed_slot()
 		_reference_label->setText("");
 		_querybuilder->reset_rules();
 		_querybuilder->setVisible(true);
-		_txt_query->setVisible(false);
 	}
 	else { // EQueryType::JSON
 		_txt_query->setPlainText("{ \"query\" : { \"match_all\" : { } } }");
@@ -149,7 +150,6 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed_slot()
 			"<a href=\"https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-filters.html\">"
 			"<span style=\" text-decoration: underline; color:#0000ff;\">Elasticsearch Filters reference"
 		);
-		_querybuilder->setVisible(false);
 		_txt_query->setVisible(true);
 		_txt_query->setEnabled(true);
 	}
@@ -186,10 +186,7 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 			count += rows.size();
 		}
 
-		// This need to be fixed in the PVCore::PVProgressBox as we cannot safely update the GUI from a thread
-		//pbox.getProgressBar()->setValue(count);
-
-		query_end = es.extract(query, rows_array, error);
+		pbox.set_status(count);
 	} while (query_end == false);
 }
 

@@ -43,6 +43,7 @@ void PVRush::PVElasticsearchSource::seek_begin()
 
 bool PVRush::PVElasticsearchSource::seek(input_offset /*off*/)
 {
+	assert(false);
 	return false;
 }
 

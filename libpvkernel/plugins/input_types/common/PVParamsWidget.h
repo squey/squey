@@ -25,6 +25,14 @@ namespace PVRush
 
 class PVInputType;
 
+/**
+ * This class is the base class of PVParamsWidget and is not intended to be used directly
+ * or even derived except by PVParamsWidget.
+ *
+ * It contains all the Presets logic and some common messages raised to the user.
+ *
+ * Please, refer to PVParamsWidget documentation to subclass it correctly.
+ */
 class PVParamsWidgetBase : public QDialog, protected Ui::WidgetParams
 {
 	Q_OBJECT;
@@ -51,52 +59,8 @@ protected slots:
 	virtual void preset_remove_slot() = 0;
 	virtual void load_preset(unsigned int id) = 0;
 
-	void check_connection_slot()
-	{
-		std::string error;
-
-		if (check_connection(&error)) {
-			QMessageBox::information(
-				this,
-				tr("Success"),
-				tr("Connection successful"),
-				QMessageBox::Ok
-			);
-		}
-		else {
-			QMessageBox::critical(
-				this,
-				tr("Failure"),
-				tr("Connection error : %1").arg(error.c_str()), QMessageBox::Ok
-			);
-		}
-	}
-
-	void query_result_count_slot()
-	{
-		std::string error;
-
-		size_t count = 0;
-		PVCore::PVProgressBox pbox("Executing count request...");
-		PVCore::PVProgressBox::progress([&]() {
-			count = query_result_count(&error);
-		}, &pbox);
-
-		if (error.empty()) {
-			QMessageBox::information(
-				(QWidget*) QObject::parent(),
-				tr("Request count"),
-				tr("The request returned %L1 result(s)").arg(count));
-		}
-		else
-		{
-			QMessageBox::critical(
-				(QWidget*) QObject::parent(),
-				tr("Request failed"),
-				tr("Request failed with the following error:\n\n%1").arg(QString(error.c_str()))
-			);
-		}
-	}
+	void check_connection_slot();
+	void query_result_count_slot();
 
 signals:
 	// A bit hacky: this is to be able to call PVParamsWidget::set_info virtual pure function
@@ -274,8 +238,8 @@ protected:
 		if (error.empty() == false) {
 			QMessageBox::critical(
 				(QWidget*) QObject::parent(),
-				tr("Request failed"),
-				tr("Request failed with the following error:\n\n%1").arg(QString(error.c_str()))
+				tr("Export failed"),
+				tr("Export failed with the following error:\n\n%1").arg(QString(error.c_str()))
 			);
 		}
 	}
@@ -354,10 +318,8 @@ protected:
 		_presets_widget->clear_presets();
 
 		// List presets
-		typename Presets::list_id_names_t l = Presets::get().list_id_names();
-		typename Presets::list_id_names_t::const_iterator it;
-		for (it = l.begin(); it != l.end(); it++) {
-			_presets_widget->add_preset(it->second,  it->first);
+		for (const auto& preset : Presets::get().list_id_names()) {
+			_presets_widget->add_preset(preset.second,  preset.first);
 		}
 	}
 

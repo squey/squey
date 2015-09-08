@@ -187,10 +187,10 @@ private:
 	std::string socket() const;
 
 private:
-	CURL* _curl;
-	PVRush::PVElasticsearchInfos _infos;
-	std::string _scroll_id;
-	size_t _scroll_count = 0;
+	CURL* _curl; 							// cURL request handler
+	PVRush::PVElasticsearchInfos _infos; 	// Contains all the info to reach Elasticsearch server
+	std::string _scroll_id;					// ID returned by Elasticsearch scroll API
+	size_t _scroll_count = 0;				// total count of event that will be returned by a scrolling session
 };
 
 }

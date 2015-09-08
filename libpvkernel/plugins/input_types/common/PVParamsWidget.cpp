@@ -63,3 +63,50 @@ void PVRush::PVParamsWidgetBase::set_query_type(QString const& query_type)
 {
 	_query_type_cb->setCurrentIndex(_query_type_cb->findText(query_type));
 }
+
+void PVRush::PVParamsWidgetBase::check_connection_slot()
+{
+	std::string error;
+
+	if (check_connection(&error)) {
+		QMessageBox::information(
+			this,
+			tr("Success"),
+			tr("Connection successful"),
+			QMessageBox::Ok
+		);
+	}
+	else {
+		QMessageBox::critical(
+			this,
+			tr("Failure"),
+			tr("Connection error : %1").arg(error.c_str()), QMessageBox::Ok
+		);
+	}
+}
+
+void PVRush::PVParamsWidgetBase::query_result_count_slot()
+{
+	std::string error;
+
+	size_t count = 0;
+	PVCore::PVProgressBox pbox("Executing count request...");
+	PVCore::PVProgressBox::progress([&]() {
+		count = query_result_count(&error);
+	}, &pbox);
+
+	if (error.empty()) {
+		QMessageBox::information(
+			(QWidget*) QObject::parent(),
+			tr("Request count"),
+			tr("The request returned %L1 result(s)").arg(count));
+	}
+	else
+	{
+		QMessageBox::critical(
+			(QWidget*) QObject::parent(),
+			tr("Request failed"),
+			tr("Request failed with the following error:\n\n%1").arg(QString(error.c_str()))
+		);
+	}
+}

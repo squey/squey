@@ -20,7 +20,6 @@ class PVElasticsearchInfos
 	friend class PVCore::PVSerializeObject;
 public:
 	PVElasticsearchInfos();
-	PVElasticsearchInfos(PVElasticsearchInfos const& infos);
 
 public:
 	void set_host(QString const& host) { _host = host; }

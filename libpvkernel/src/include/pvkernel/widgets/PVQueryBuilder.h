@@ -81,7 +81,6 @@ private:
 	void reinit();
 
 	void workaround_qwebengine_refresh_bug();
-	bool workaround_qwebengine_refresh_bug_toggle = false;
 
 protected:
 	QWebEngineView* _view;
