@@ -23,6 +23,7 @@ endif(HDFS_FOUND)
 
 # Elasticsearch
 set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_elasticsearch)
+set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_splunk)
 
 set(INPUTS_DIST_FILES
 )
@@ -166,6 +167,39 @@ QT5_WRAP_UI(ELASTICSEARCH_UI_SRCS ${ELASTICSEARCH_UI})
 
 add_library(input_type_elasticsearch SHARED ${ELASTICSEARCH_UI_SRCS} ${ELASTICSEARCH_SRC_FILES} ${ELASTICSEARCH_MOC_SRCS})
 target_link_libraries(input_type_elasticsearch pvkernel curl)
+
+###############################################################################
+# Splunk
+###############################################################################
+# Declare ressources
+set(SPLUNK_SRC_FILES
+../common/splunk/PVSplunkAPI.cpp
+../common/splunk/PVSplunkJsonConverter.cpp
+../common/splunk/PVSplunkInfos.cpp
+../common/splunk/PVSplunkQuery.cpp
+common/PVParamsWidget.cpp
+splunk/PVSplunkParamsWidget.cpp
+splunk/PVSplunkPresets.cpp
+splunk/PVInputTypeSplunk.cpp
+splunk/register.cpp
+)
+
+set(SPLUNK_MOC_HEADERS
+common/PVParamsWidget.h
+splunk/PVSplunkParamsWidget.h
+)
+
+set(SPLUNK_UI
+common/widget_params.ui)
+
+# Generate Qt Specific files
+QT5_WRAP_CPP(SPLUNK_MOC_SRCS ${SPLUNK_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT5_WRAP_UI(SPLUNK_UI_SRCS ${SPLUNK_UI})
+
+add_library(input_type_splunk SHARED ${SPLUNK_UI_SRCS} ${SPLUNK_SRC_FILES} ${SPLUNK_MOC_SRCS})
+target_link_libraries(input_type_splunk pvkernel curl)
+
+###############################################################################
 
 INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION input-types
                                     RUNTIME DESTINATION input-types)

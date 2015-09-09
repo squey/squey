@@ -83,7 +83,7 @@ class PVSplunkJsonConverter: public PVCore::PVQueryBuilderJsonConverter
         *
         * id=""
         */
-       void is_empty(rapidjson::Value const& id);
+       void is_empty(rapidjson::Value const& /*id*/) { assert("not implemented yet" && false); }
 
        /** Generate is_null splunk request
         *

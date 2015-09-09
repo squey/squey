@@ -180,6 +180,7 @@
         
     <!-- INPUT TYPES -->
     <file alias="elasticsearch_icon">resources/elasticsearch.png</file>
+    <file alias="splunk_icon">resources/splunk.png</file>
     
     </qresource>
 </RCC>
