@@ -1,0 +1,53 @@
+
+body {
+    background-color: #FFF;
+    }
+    
+    
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary.focus,
+.btn-primary:active,
+.btn-primary.active,
+.open > .dropdown-toggle.btn-primary
+{
+  background-color: #aa5090;
+  border-color: #5F284F;
+}
+
+.btn-primary {
+    background-color: #999;
+    border-color: #5F284F;
+}
+
+
+
+.query-builder .rules-list > *::after, .query-builder .rules-list > *::before {
+    border-color: #aa5090;
+}
+
+.btn-success {
+    color: #62986C;
+    background-color: #FFF;
+    border-color: #4CAE4C;
+}
+
+
+.btn-danger {
+    color: #C85151;
+    background-color: #FFF;
+    border-color: #D43F3A;
+}
+
+
+.query-builder .rules-group-container {
+    padding: 10px 10px 6px;
+    border: 1.5px solid #999791;
+    background: rgba(213, 213, 213, 0.5) none repeat scroll 0% 0%;
+}
+
+.form-control {
+    height: 24px;
+    border: 1px solid #999791; /*1px solid #CCC;*/
+    }

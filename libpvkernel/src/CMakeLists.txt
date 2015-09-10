@@ -389,6 +389,8 @@ include/pvkernel/widgets/editors/PVRegexpEditor.h
 include/pvkernel/widgets/editors/PVTimeFormatEditor.h
 
 include/pvkernel/widgets/editors/PVPercentRangeEditor.h
+
+include/pvkernel/widgets/PVQueryBuilder.h
 )
 
 set(WIDGETS_HEADER_FILES
@@ -425,6 +427,8 @@ widgets/PVHelpWidget.cpp
 widgets/PVAbstractRangePicker.cpp
 
 widgets/PVLayerNamingPatternDialog.cpp
+
+widgets/PVQueryBuilder.cpp
 )
 
 SET(UI_FILES

@@ -200,6 +200,11 @@ else(WIN32)
 	#
 	install(FILES /opt/cuda/lib64/libcudart.so /opt/cuda/lib64/libcudart.so.5.0 /opt/cuda/lib64/libcudart.so.5.0.35 /opt/cuda/lib64/libnpp.so /opt/cuda/lib64/libnpp.so.5.0 /opt/cuda/lib64/libnpp.so.5.0.35 DESTINATION .)
 
+	#
+	# QueryBuilder
+	#
+	install(DIRECTORY ${picviz-inspector_SOURCE_DIR}/libpvkernel/src/widgets/querybuilder DESTINATION .)
+
 	# doc
 	if(DOC_ROOT_DIR)
 		message(STATUS "Documentation directory: " ${DOC_ROOT_DIR})

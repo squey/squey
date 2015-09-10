@@ -38,6 +38,8 @@ export PVRUSH_SOURCE_DIR=$PVKERNEL_PATH/plugins/sources
 
 export PVFILTER_NORMALIZE_DIR=$PVKERNEL_PATH/plugins/normalize
 
+export PICVIZ_QUERYBUILDER_DIR=@CMAKE_SOURCE_DIR@/libpvkernel/src/widgets/querybuilder
+
 VALGRIND_ALLOC_FNS="--alloc-fn=scalable_aligned_malloc --alloc-fn=scalable_malloc --alloc-fn=scalable_posix_memalign"
 
 CMD_ARGS=("$@")

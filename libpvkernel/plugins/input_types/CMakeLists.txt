@@ -21,6 +21,9 @@ if (HDFS_FOUND)
 	#endif(CUSTOMER_CAPABILITY_IMPORT_HADOOP)
 endif(HDFS_FOUND)
 
+# Elasticsearch
+set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_elasticsearch)
+
 set(INPUTS_DIST_FILES
 )
 
@@ -132,6 +135,37 @@ QT5_WRAP_UI(ARCSIGHT_UI_SRCS ${ARCSIGHT_UI})
 # Generate linkage configuration
 add_library(input_type_arcsight SHARED arcsight/PVArcsightParamsWidget.cpp arcsight/PVInputTypeArcsight.cpp arcsight/register.cpp ${ARCSIGHT_MOC_SRCS} ../common/arcsight/PVArcsightInfos.cpp ../common/arcsight/PVArcsightQuery.cpp ${ARCSIGHT_UI_SRCS})
 target_link_libraries(input_type_arcsight pvkernel /usr/local/lib/libarcsight.a gsoap++)
+
+###############################################################################
+# Elasticsearch
+###############################################################################
+# Declare ressources
+set(ELASTICSEARCH_SRC_FILES
+../common/elasticsearch/PVElasticsearchAPI.cpp
+../common/elasticsearch/PVElasticsearchInfos.cpp
+../common/elasticsearch/PVElasticsearchJsonConverter.cpp
+../common/elasticsearch/PVElasticsearchQuery.cpp
+common/PVParamsWidget.cpp
+elasticsearch/PVElasticsearchParamsWidget.cpp
+elasticsearch/PVElasticsearchPresets.cpp
+elasticsearch/PVInputTypeElasticsearch.cpp
+elasticsearch/register.cpp
+)
+
+set(ELASTICSEARCH_MOC_HEADERS
+common/PVParamsWidget.h
+elasticsearch/PVElasticsearchParamsWidget.h
+)
+
+set(ELASTICSEARCH_UI
+common/widget_params.ui)
+
+# Generate Qt Specific files
+QT5_WRAP_CPP(ELASTICSEARCH_MOC_SRCS ${ELASTICSEARCH_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT5_WRAP_UI(ELASTICSEARCH_UI_SRCS ${ELASTICSEARCH_UI})
+
+add_library(input_type_elasticsearch SHARED ${ELASTICSEARCH_UI_SRCS} ${ELASTICSEARCH_SRC_FILES} ${ELASTICSEARCH_MOC_SRCS})
+target_link_libraries(input_type_elasticsearch pvkernel curl)
 
 INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION input-types
                                     RUNTIME DESTINATION input-types)
