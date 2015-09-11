@@ -100,16 +100,14 @@ public:
 	 *
 	 * @param query the query to be executed
 	 * @param data a row std::string containing a batch result
-	 * @param data_size the size of the data that can be consumed
 	 *
 	 * @return true if more data is available, false otherwise
 	 */
 	bool extract(
 		const PVRush::PVSplunkQuery& query,
 		std::string& data,
-		size_t& data_size,
 		std::string* error = nullptr
-	) const;
+	);
 
 	/** Convert json from QueryBuilder to json as Splunk input
 	 *
@@ -131,7 +129,7 @@ private:
      * @param search_query the Splunk search string
      * @param error Store any occured error if provided
      */
-	void prepare_extract(const std::string& search_query, std::string* error = nullptr) const;
+	void prepare_extract(const std::string& search_query, std::string* error = nullptr);
 
     /** Execute the provided request in a synchronous way
      *
@@ -166,6 +164,7 @@ private:
 private:
 	/**
 	 * Helper function used by indexes, hosts and sourcetypes methods
+	 * to retrieve their content from the server.
 	 *
 	 * @param search_query the Splunk search string
 	 * @param type the type of list ("host", "index" or "sourcetype")
@@ -181,7 +180,7 @@ private:
 	 *
 	 * @return true if more data is available, false otherwise
 	 */
-	bool poll() const;
+	bool poll();
 
 	/**
 	 * Retrieve a batch of data from an ongoing extract query
@@ -196,20 +195,20 @@ private:
 	 *
 	 * @return the size of the data that must be consumed
 	 */
-	size_t extract_buffer(std::string& buffer) const;
+	void extract_buffer(std::string& buffer);
 
 private:
 	PVRush::PVSplunkInfos 	_infos; // the splunk server related infos
 
-	mutable std::string    	_data; //! the internal buffer filled by an extract query
-	mutable fd_set         	_fdset; //! file descriptor needed by cURL polling API
-	mutable int           	_ongoing_extract_query = 0; //! used the cURL polling API
-	mutable bool           	_extract_canceled; //! used the to abort an angoing extract query
-	mutable std::mutex 		_mutex; //! used to protected the internel buffer when accessing it
-	struct timeval 			_tv; //! used by cURL timeout
-	CURLM*         			_multi; //! cURL multi request handler
-	CURL*          			_easy; //! cURL easy request handler
-	curl_socket_t  			_socket; //!cURL socket
+	std::string    	_data; //! the internal buffer filled by an extract query
+	fd_set         	_fdset; //! file descriptor needed by cURL polling API
+	int           	_ongoing_extract_query = 0; //! used the cURL polling API
+	bool           	_extract_canceled; //! used the to abort an angoing extract query
+	std::mutex 		_mutex; //! used to protected the internel buffer when accessing it
+	struct timeval 	_tv; //! used by cURL timeout
+	CURLM*         	_multi; //! cURL multi request handler
+	CURL*          	_easy; //! cURL easy request handler
+	curl_socket_t  	_socket; //!cURL socket
 };
 
 } // namespace PVRush

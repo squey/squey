@@ -95,12 +95,12 @@ PVRush::PVSplunkAPI::strings_t PVRush::PVSplunkAPI::indexes(std::string* error /
 	return list("| eventcount summarize=f index=*", "index", error);
 }
 
-PVRush::PVSplunkAPI::strings_t PVRush::PVSplunkAPI::hosts(std::string* error) const
+PVRush::PVSplunkAPI::strings_t PVRush::PVSplunkAPI::hosts(std::string* error /* =  nullptr */) const
 {
 	return list("metadata type=hosts", "host", error);
 }
 
-PVRush::PVSplunkAPI::strings_t PVRush::PVSplunkAPI::sourcetypes(std::string* error) const
+PVRush::PVSplunkAPI::strings_t PVRush::PVSplunkAPI::sourcetypes(std::string* error /* =  nullptr */) const
 {
 	return list("metadata type=sourcetypes", "sourcetype", error);
 }
@@ -131,7 +131,7 @@ PVRush::PVSplunkAPI::columns_t PVRush::PVSplunkAPI::columns(std::string* error /
 
 	// Retrieve columns name (XML)
 	if (!perform_query(search_query, buffer, "xml", error)) {
-		return cols;
+		return {};
 	}
 
 	// As splunk is unable to return valid XML content, we're going to build our own valid XML !
@@ -143,7 +143,7 @@ PVRush::PVSplunkAPI::columns_t PVRush::PVSplunkAPI::columns(std::string* error /
 		if (error) {
 			*error = error_msg.toStdString();
 		}
-		return cols;
+		return {};
 	}
 
 	QDomElement dom = xml.documentElement();
@@ -158,9 +158,9 @@ PVRush::PVSplunkAPI::columns_t PVRush::PVSplunkAPI::columns(std::string* error /
 
 	// Retrieve columns type (JSON)
 	static constexpr char PICVIZ_PREFIX[] = "picviz_isnum_";
-	for (auto col : cols) {
+	for (auto& col : cols) {
 		const std::string& column_name = col.first;
-		search_query += std::string("| eval ") + PICVIZ_PREFIX + column_name + "=if(isnum(" + column_name + "),\"true\",\"false\") ";
+		search_query += std::string("| eval ") + PICVIZ_PREFIX + column_name + "=if(isnum(" + column_name + "),\"1\",\"0\") ";
 	}
 	buffer.clear();
 	if (perform_query(search_query, buffer, "json", error)) {
@@ -171,7 +171,7 @@ PVRush::PVSplunkAPI::columns_t PVRush::PVSplunkAPI::columns(std::string* error /
 			const std::string& column_name = col.first;
 			std::string& column_type = col.second;
 			std::string type_name = PICVIZ_PREFIX + column_name;
-			column_type = std::string(json_result[type_name.c_str()].GetString()) == "true" ? "integer" : "string";
+			column_type = json_result[type_name.c_str()].GetString()[0] == '1' ? "integer" : "string";
 		}
 	}
 
@@ -204,8 +204,7 @@ size_t PVRush::PVSplunkAPI::count(const PVRush::PVSplunkQuery& query, std::strin
 bool PVRush::PVSplunkAPI::extract(
 	const PVRush::PVSplunkQuery& query,
 	std::string& data_batch,
-	size_t& data_batch_size,
-	std::string* error /* = nullptr */) const
+	std::string* error /* = nullptr */)
 {
 	std::string search_query = filtered_search() + query.get_query().toStdString();
 
@@ -215,13 +214,13 @@ bool PVRush::PVSplunkAPI::extract(
 
 	while(poll()) {
 		if (extract_buffer_size() > BUFFER_SIZE) {
-			data_batch_size = extract_buffer(data_batch);
+			extract_buffer(data_batch);
 			return true;
 		}
 	};
 
 	if (extract_buffer_size()) {
-		data_batch_size = extract_buffer(data_batch);
+		extract_buffer(data_batch);
 	}
 
 	return false;
@@ -233,7 +232,7 @@ std::string PVRush::PVSplunkAPI::rules_to_json(const std::string& rules) const
     return sjc.rules_to_json();
 }
 
-bool PVRush::PVSplunkAPI::poll() const
+bool PVRush::PVSplunkAPI::poll()
 {
 	struct timeval tv = _tv;
 	int ret;
@@ -259,20 +258,22 @@ bool PVRush::PVSplunkAPI::poll() const
 	return _ongoing_extract_query > 0;
 }
 
-size_t PVRush::PVSplunkAPI::extract_buffer(std::string& buffer) const
+void PVRush::PVSplunkAPI::extract_buffer(std::string& buffer)
 {
-	_mutex.lock();
+	std::lock_guard<std::mutex> lock(_mutex);
+
+	size_t pos = _data.find_last_of("\n");
+
+	std::string last_line = _data.substr(pos+1, _data.size());
+
+	_data.resize(_data.size() - last_line.size());
 
 	buffer = std::move(_data);
-	size_t pos = buffer.find_last_of("\n");
-	_data = buffer.substr(pos+1, buffer.size());
 
-	_mutex.unlock();
-
-	return pos;
+	_data = std::move(last_line);
 }
 
-void PVRush::PVSplunkAPI::prepare_extract(const std::string& search_query, std::string* /* error = nullptr */) const
+void PVRush::PVSplunkAPI::prepare_extract(const std::string& search_query, std::string* /* error = nullptr */)
 {
 	_extract_canceled = false;
 	_data.clear();
@@ -408,9 +409,13 @@ void PVRush::PVSplunkAPI::set_timeout(long t)
 	_tv.tv_usec = (t % 1000) * 1000;
 }
 
+/**
+ * _data must be protected by a mutex because the extract_buffer method may want
+ * to access it at the same time from another thread.
+ */
 void PVRush::PVSplunkAPI::append_data(const void* data, size_t size)
 {
-	_mutex.lock();
+	std::lock_guard<std::mutex> lock(_mutex);
+
 	_data.append(static_cast<const char*>(data), size);
-	_mutex.unlock();
 }

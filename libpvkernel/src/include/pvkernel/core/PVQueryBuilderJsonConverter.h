@@ -28,6 +28,11 @@ class PVQueryBuilderJsonConverter
        */
        PVQueryBuilderJsonConverter(std::string const& qb_rule);
 
+       /**
+        * Virtual destructor
+        */
+       ~PVQueryBuilderJsonConverter() {};
+
        /** Translate querybuilder json to database-like input.
         *
         * @return database-like input

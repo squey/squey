@@ -10,13 +10,8 @@
 #include <QPushButton>
 #include <QFileDialog>
 
-enum EQueryType {
-	QUERY_BUILDER = 0,
-	SPLUNK,
-
-	COUNT
-};
 static const char* query_types[] = { "Query Builder", "Splunk search API" };
+static const size_t UNCORRECT_COUNT = -1;
 
 PVRush::PVSplunkParamsWidget::PVSplunkParamsWidget(PVInputTypeSplunk const* in_t, PVRush::hash_formats const& formats, QWidget* parent)
 	: PVParamsWidget<PVInputTypeSplunk, PVSplunkPresets, PVSplunkInfos, PVSplunkQuery>(in_t, formats, parent)
@@ -42,8 +37,8 @@ PVRush::PVSplunkParamsWidget::PVSplunkParamsWidget(PVInputTypeSplunk const* in_t
 
 	_port_sb->setValue(PVSplunkAPI::DEFAULT_PORT);
 
-	for (size_t i = 0 ; i < EQueryType::COUNT ; i++) {
-		_query_type_cb->addItem(query_types[i]);
+	for (const char * const qtype_name: query_types) {
+		_query_type_cb->addItem(qtype_name);
 	}
 
 	_help_label->setText(
@@ -101,10 +96,9 @@ void PVRush::PVSplunkParamsWidget::export_query_result(QTextStream& output_strea
 	PVRush::PVSplunkAPI splunk(get_infos());
 	const PVSplunkQuery& query = get_query(error);
 	std::string data;
-	size_t data_size;
 
 	do {
-		query_end = !splunk.extract(query, data, data_size, error);
+		query_end = !splunk.extract(query, data, error);
 
 		if (error && error->empty() == false) {
 			return;
@@ -112,11 +106,10 @@ void PVRush::PVSplunkParamsWidget::export_query_result(QTextStream& output_strea
 
 		if (pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL ||
 			pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL2) {
-			//splunk.cancel_extract();
 			break;
 		}
 
-		output_stream << data.substr(0, data_size).c_str() << endl;
+		output_stream << data.c_str() << endl;
 
 		if (output_stream.status() == QTextStream::WriteFailed) {
 			if (error) {
@@ -204,7 +197,7 @@ size_t PVRush::PVSplunkParamsWidget::query_result_count(std::string* error /* = 
 		if (error) {
 			*error = err;
 		}
-		return 0;
+		return UNCORRECT_COUNT;
 	}
 
 	return splunk.count(query, error);

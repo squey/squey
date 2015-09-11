@@ -12,13 +12,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-enum EQueryType {
-	QUERY_BUILDER = 0,
-	JSON,
-	SQL,
-
-	QUERY_TYPE_COUNT
-};
 static const char* query_types[] = { "Query Builder", "JSON", "SQL" };
 
 PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
@@ -46,8 +39,8 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
 	connect(_combo_index, SIGNAL(activated(int)), this, SLOT(index_changed_by_user_slot()));
 	connect(_btn_refresh, SIGNAL(clicked()), this, SLOT(fetch_server_data_slot()));
 
-	for (size_t i = 0 ; i < QUERY_TYPE_COUNT ; i++) {
-		_query_type_cb->addItem(query_types[i]);
+	for (const char * const qtype_name: query_types) {
+		_query_type_cb->addItem(qtype_name);
 	}
 
 	_help_label->setText(

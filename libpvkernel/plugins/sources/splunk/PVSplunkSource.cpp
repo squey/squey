@@ -52,9 +52,8 @@ PVCore::PVChunk* PVRush::PVSplunkSource::operator()()
 	}
 
 	std::string data;
-	size_t data_size;
 
-	_query_end = !_splunk.extract(_query, data, data_size);
+	_query_end = !_splunk.extract(_query, data);
 
 	PVCore::PVChunk* chunk;
 
@@ -64,7 +63,7 @@ PVCore::PVChunk* PVRush::PVSplunkSource::operator()()
 	size_t processed_size = 0;
 
 	std::istringstream iss(data);
-	for (std::string row; std::getline(iss, row) && processed_size < data_size;) {
+	for (std::string row; std::getline(iss, row);) {
 		PVCore::PVElement* elt = chunk->add_element();
 		elt->fields().clear();
 
@@ -74,8 +73,6 @@ PVCore::PVChunk* PVRush::PVSplunkSource::operator()()
 		f.allocate_new(size_buf);
 		memcpy(f.begin(), value.constData(), size_buf);
 		elt->fields().push_back(f);
-
-		processed_size += row.size()+1; // +1 to count std::end that std::getline discards
 	}
 
 	// Set the index of the elements inside the chunk

@@ -16,9 +16,21 @@ namespace PVRush
 
 class PVInputTypeSplunk;
 
+/**
+ * This class represent the widget associated with the splunk input plugin.
+ * It derives from PVParamsWidget : read its documentation for more information.
+ */
 class PVSplunkParamsWidget: public PVParamsWidget<PVInputTypeSplunk, PVSplunkPresets, PVSplunkInfos, PVSplunkQuery>
 {
 	Q_OBJECT
+
+private:
+	enum EQueryType {
+		QUERY_BUILDER = 0,
+		SPLUNK,
+
+		COUNT
+	};
 
 public:
 	PVSplunkParamsWidget(PVInputTypeSplunk const* in_t, PVRush::hash_formats const& formats, QWidget* parent);
