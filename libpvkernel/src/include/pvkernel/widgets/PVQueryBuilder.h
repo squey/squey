@@ -8,7 +8,13 @@
 #define __PVWIDGETS_PVQUERYBUILDER_H__
 
 #include <QApplication>
-#include <QtWebEngineWidgets/QWebEngineView>
+#ifdef QT_WEBKIT
+class QWebView;
+#else
+class QWebEngineView;
+#endif
+
+#include <QWidget>
 
 namespace PVWidgets
 {
@@ -83,7 +89,11 @@ private:
 	void workaround_qwebengine_refresh_bug();
 
 protected:
+#ifdef QT_WEBKIT
+	QWebView* 		_view;
+#else
 	QWebEngineView* _view;
+#endif
 };
 
 } // namespace PVWidgets
