@@ -6,8 +6,12 @@
 
 #include <pvkernel/widgets/PVQueryBuilder.h>
 
-#include <sstream>
-#include <iostream>
+#ifdef QT_WEBKIT
+#include <QtWebKitWidgets/QWebView>
+#include <QtWebKitWidgets/QWebFrame>
+#else
+#include <QtWebEngineWidgets/QWebEngineView>
+#endif
 
 #include <QDir>
 #include <QEventLoop>
@@ -16,11 +20,19 @@
 #include <QTextStream>
 #include <QMessageBox>
 
+#include <sstream>
+#include <iostream>
+
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
-PVWidgets::PVQueryBuilder::PVQueryBuilder(QWidget* parent /*= nullptr*/) : QWidget(parent), _view(new QWebEngineView)
+PVWidgets::PVQueryBuilder::PVQueryBuilder(QWidget* parent /*= nullptr*/) : QWidget(parent),
+#ifdef QT_WEBKIT
+	_view(new QWebView)
+#else
+	_view(new QWebEngineView)
+#endif
 {
 	reinit();
 }
@@ -164,6 +176,9 @@ void PVWidgets::PVQueryBuilder::run_javascript(const std::string& javascript, st
 {
 	QVariant r;
 
+#ifdef QT_WEBKIT
+	r = _view->page()->mainFrame()->evaluateJavaScript(javascript.c_str());
+#else
 	QEventLoop loop;
 
 	_view->page()->runJavaScript(javascript.c_str(), [&](const QVariant& res)
@@ -174,10 +189,12 @@ void PVWidgets::PVQueryBuilder::run_javascript(const std::string& javascript, st
 	);
 
 	loop.exec(); // Trick to run asynchronous code synchronously
+#endif
 
 	if (result) {
 		*result = r.toString().toStdString();
 	}
+
 }
 
 void PVWidgets::PVQueryBuilder::setVisible(bool v)
@@ -189,9 +206,11 @@ void PVWidgets::PVQueryBuilder::setVisible(bool v)
 
 void PVWidgets::PVQueryBuilder::workaround_qwebengine_refresh_bug()
 {
+#ifndef QT_WEBKIT
 	// Really really really ugly hack to workaround QWebEngine refresh bug
 	if (_view) {
 		_view->resize(_view->width() +1, _view->height() +1);
 		_view->resize(_view->width() -1, _view->height() -1);
 	}
+#endif
 }

@@ -6,7 +6,12 @@
 
 #include <QString>
 
+#ifdef QT_WEBKIT
+class QWebView;
+#else
 class QWebEngineView;
+#endif
+
 class QPaintEvent;
 
 namespace PVWidgets
@@ -158,12 +163,16 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 
 private:
+#ifdef QT_WEBKIT
+	QWebView*		_webview;
+#else
 	QWebEngineView* _webview;
-	QWidget*        _last_widget;
-	QString         _temp_text;
-	int             _last_align;
-	int             _last_expand;
-	int             _last_border;
+#endif
+	QWidget*		_last_widget;
+	QString			_temp_text;
+	int				_last_align;
+	int				_last_expand;
+	int				_last_border;
 };
 
 }

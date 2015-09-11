@@ -458,7 +458,13 @@ add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADER
 
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 
-set(QT5_LIBS Qt5Core Qt5WebEngineWidgets Qt5OpenGL Qt5Widgets Qt5Gui Qt5Xml)
+set(QT5_LIBS Qt5Core Qt5OpenGL Qt5Widgets Qt5Gui Qt5Xml)
+
+if(${QT_WEBKIT})
+	set(QT5_LIBS ${QT5_LIBS} Qt5WebKitWidgets)
+else(${QT_WEBKIT})
+	set(QT5_LIBS ${QT5_LIBS} Qt5WebEngineWidgets)
+endif(${QT_WEBKIT})
 
 set(PVKERNEL_LINK_LIBRARIES ${QT5_LIBS} ${ICU_LIBRARY} ${TBB_LIBRARIES}
 	${OpenMP_LIBRARIES} ${PYTHON_LIBRARY} ${Boost_LIBRARIES_PYTHON} ${Boost_THREAD_LIBRARIES}

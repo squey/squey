@@ -26,6 +26,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${picviz-inspector_SOURCE_DIR}/cmake)
 
 set(USE_OPENMP true)
 
+set(QT_WEBKIT 1)
+if(${QT_WEBKIT})
+	add_definitions(-DQT_WEBKIT)
+	message(STATUS "Using QtWebKit")
+else(${QT_WEBKIT})
+	message(STATUS "Using QtWebEngine")
+endif(${QT_WEBKIT})
+
 #
 # Required libraries
 #
