@@ -234,7 +234,7 @@ PVCore::PVSelBitField PVCore::PVSelBitField::operator&(const PVSelBitField &rhs)
 	PVCore::PVSelBitField result(*this);
 	result &= rhs;
 
-	return std::move(result);
+	return result;
 }
 
 /******************************************************************************
@@ -293,7 +293,7 @@ PVCore::PVSelBitField PVCore::PVSelBitField::operator~() const
 		}
 	}
 
-	return std::move(result);
+	return result;
 }
 
 /******************************************************************************
@@ -306,7 +306,7 @@ PVCore::PVSelBitField PVCore::PVSelBitField::operator|(const PVSelBitField &rhs)
 	PVSelBitField result(*this);
 	result |= rhs;
 
-	return std::move(result);
+	return result;
 }
 
 /******************************************************************************
@@ -344,7 +344,7 @@ PVCore::PVSelBitField PVCore::PVSelBitField::operator-(const PVSelBitField &rhs)
 	PVSelBitField result = *this;
 	result -= rhs;
 
-	return std::move(result);
+	return result;
 }
 
 /******************************************************************************
@@ -404,7 +404,7 @@ PVCore::PVSelBitField PVCore::PVSelBitField::operator^(const PVSelBitField &rhs)
 	PVSelBitField result = *this;
 	result ^= rhs;
 
-	return std::move(result);
+	return result;
 }
 
 /******************************************************************************

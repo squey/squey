@@ -167,21 +167,21 @@ IMPL_WAX(Picviz::PVView::set_layer_stack_layer_n_name, view, args)
 {
 	auto ret = call_object_default<Picviz::PVView, FUNC(Picviz::PVView::set_layer_stack_layer_n_name)>(view, args);
 	refresh_observers(&view->get_layer_stack());
-	return std::move(ret);
+	return ret;
 }
 
 IMPL_WAX(Picviz::PVView::toggle_layer_stack_layer_n_locked_state, view, args)
 {
 	auto ret = call_object_default<Picviz::PVView, FUNC(Picviz::PVView::toggle_layer_stack_layer_n_locked_state)>(view, args);
 	refresh_observers(&view->get_layer_stack());
-	return std::move(ret);
+	return ret;
 }
 
 IMPL_WAX(Picviz::PVView::toggle_layer_stack_layer_n_visible_state, view, args)
 {
 	auto ret = call_object_default<Picviz::PVView, FUNC(Picviz::PVView::toggle_layer_stack_layer_n_visible_state)>(view, args);
 	refresh_observers(&view->get_layer_stack());
-	return std::move(ret);
+	return ret;
 }
 
 IMPL_WAX(Picviz::PVView::toggle_view_unselected_zombie_visibility, view, args)
@@ -215,7 +215,7 @@ IMPL_WAX(Picviz::PVView::move_axis_to_new_position, view, args)
 {
 	auto ret = call_object_default<Picviz::PVView, FUNC(Picviz::PVView::move_axis_to_new_position)>(view, args);
 	refresh_observers(&view->get_axes_combination().get_axes_index_list());
-	return std::move(ret);
+	return ret;
 }
 
 IMPL_WAX(Picviz::PVView::remove_column, view, args)

@@ -284,7 +284,7 @@ struct function_traits_helper<R (T::*)(Tparams...)>: public function_traits_help
 	template <pointer_type f, template <class Y> class argument_storage, typename R_ = R, typename std::enable_if<std::is_same<R_, void>::value == false, int>::type = 0>
 	inline static R call(T& obj, function_args_list<argument_storage, Tparams...> const& args)
 	{
-		return std::move(do_call<f>(obj, args, typename gen_seq_n<sizeof...(Tparams)>::type()));
+		return do_call<f>(obj, args, typename gen_seq_n<sizeof...(Tparams)>::type());
 	}
 
 	template <pointer_type f, template <class Y> class argument_storage, typename R_ = R, typename std::enable_if<std::is_same<R_, void>::value == true, int>::type = 0>
@@ -314,7 +314,7 @@ struct function_traits_helper<R (T::*)(Tparams...) const>: public function_trait
 	template <pointer_type f, template <class Y> class argument_storage>
 	inline static R call(T const& obj, function_args_list<argument_storage, Tparams...> const& args)
 	{
-		return std::move(do_call<f>(obj, args, typename gen_seq_n<sizeof...(Tparams)>::type()));
+		return do_call<f>(obj, args, typename gen_seq_n<sizeof...(Tparams)>::type());
 	}
 
 private:

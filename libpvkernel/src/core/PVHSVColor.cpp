@@ -150,7 +150,7 @@ QColor PVCore::PVHSVColor::toQColor() const
 {
 	QColor ret;
 	toQColor(ret);
-	return std::move(ret);
+	return ret;
 }
 
 void PVCore::PVHSVColor::toQColorA(QColor& qc) const
@@ -164,7 +164,7 @@ QColor PVCore::PVHSVColor::toQColorA() const
 {
 	QColor ret;
 	toQColorA(ret);
-	return std::move(ret);
+	return ret;
 }
 
 bool PVCore::PVHSVColor::is_valid() const

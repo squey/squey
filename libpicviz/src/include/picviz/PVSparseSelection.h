@@ -173,10 +173,10 @@ private:
 	inline chunk_t const& get_last_chunk() const { return _last_chunk->second; }
 
 	inline map_chunks_t::iterator insert_new_chunk(const chunk_index_t idx)
-	{ return std::move(_chunks.insert(std::make_pair(idx, (chunk_t)0)).first); }
+	{ return _chunks.insert(std::make_pair(idx, (chunk_t)0)).first; }
 
 	inline map_chunks_t::iterator insert_new_chunk_with_last(const chunk_index_t idx)
-	{ return std::move(_chunks.insert(_last_chunk, std::make_pair(idx, (chunk_t)0))); }
+	{ return _chunks.insert(_last_chunk, std::make_pair(idx, (chunk_t)0)); }
 
 	// Common bit computations
 	inline static chunk_index_t bit_to_chunk_index(size_t bit) { return bit >> nbits_per_chunk_ln2; }

@@ -512,12 +512,12 @@ public:
 	virtual base_p_type base_shared_from_this()
 	{
 		PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
-		return std::move(base_p_type(p));
+		return base_p_type{p};
 	}
 	virtual const_base_p_type base_shared_from_this() const
 	{
 		PVCore::PVSharedPtr<real_type_t const> p(static_cast<real_type_t const*>(this)->shared_from_this());
-		return std::move(const_base_p_type(p));
+		return const_base_p_type{p};
 	}
 };
 
@@ -555,12 +555,12 @@ public:
 	virtual base_p_type base_shared_from_this()
 	{
 		PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
-		return std::move(base_p_type(p));
+		return base_p_type(p);
 	}
 	virtual const_base_p_type base_shared_from_this() const
 	{
 		PVCore::PVSharedPtr<real_type_t const> p(static_cast<real_type_t const*>(this)->shared_from_this());
-		return std::move(const_base_p_type(p));
+		return const_base_p_type(p);
 	}
 
 public:
@@ -620,12 +620,12 @@ public:
 	virtual base_p_type base_shared_from_this()
 	{
 		PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
-		return std::move(base_p_type(p));
+		return base_p_type{p};
 	}
 	virtual const_base_p_type base_shared_from_this() const
 	{
 		PVCore::PVSharedPtr<real_type_t const> p(static_cast<real_type_t const*>(this)->shared_from_this());
-		return std::move(const_base_p_type(p));
+		return const_base_p_type{p};
 	}
 
 public:

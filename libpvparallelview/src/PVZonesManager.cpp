@@ -216,7 +216,7 @@ std::vector<PVZoneID> PVParallelView::PVZonesManager::update_from_axes_comb(colu
 		update_zone(zone_id);
 	}
 
-	return std::move(zoneids);
+	return zoneids;
 }
 
 /******************************************************************************
@@ -226,7 +226,7 @@ std::vector<PVZoneID> PVParallelView::PVZonesManager::update_from_axes_comb(colu
  *****************************************************************************/
 std::vector<PVZoneID> PVParallelView::PVZonesManager::update_from_axes_comb(Picviz::PVView const& view)
 {
-	return std::move(update_from_axes_comb(view.get_axes_combination().get_axes_index_list()));
+	return update_from_axes_comb(view.get_axes_combination().get_axes_index_list());
 }
 
 /******************************************************************************

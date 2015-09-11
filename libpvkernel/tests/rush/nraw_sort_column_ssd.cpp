@@ -65,7 +65,7 @@ std::string random_string(uint32_t length)
 		result[i] = g_charset[rand()%(sizeof(g_charset)/sizeof(char))];
 	}
 
-	return std::move(result);
+	return result;
 }
 
 template <typename Iterator>

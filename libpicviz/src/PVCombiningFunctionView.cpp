@@ -45,7 +45,7 @@ Picviz::PVSelection Picviz::PVCombiningFunctionView::operator()(PVView const& vi
 		ret.or_optimized(*it_sel);
 	}
 
-	return std::move(ret);
+	return {std::move(ret)};
 }
 
 Picviz::PVTFViewRowFiltering* Picviz::PVCombiningFunctionView::get_first_tf()
