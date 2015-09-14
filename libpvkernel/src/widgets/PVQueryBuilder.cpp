@@ -34,6 +34,9 @@ PVWidgets::PVQueryBuilder::PVQueryBuilder(QWidget* parent /*= nullptr*/) : QWidg
 	_view(new QWebEngineView)
 #endif
 {
+	// Javascript content must be executed on the main Qt thread to avoid crashs
+	connect(this, SIGNAL(run_javascript_signal(const QString&, QString*)), this, SLOT(run_javascript_slot(const QString&, QString*)));
+
 	reinit();
 }
 
@@ -174,14 +177,25 @@ std::string PVWidgets::PVQueryBuilder::get_rules() const
 
 void PVWidgets::PVQueryBuilder::run_javascript(const std::string& javascript, std::string* result /*= nullptr*/) const
 {
+	QString r;
+
+	emit run_javascript_signal(javascript.c_str(), &r);
+
+	if (result) {
+		*result = r.toStdString();
+	}
+}
+
+void PVWidgets::PVQueryBuilder::run_javascript_slot(const QString& javascript, QString* result /*= nullptr*/) const
+{
 	QVariant r;
 
 #ifdef QT_WEBKIT
-	r = _view->page()->mainFrame()->evaluateJavaScript(javascript.c_str());
+	r = _view->page()->mainFrame()->evaluateJavaScript(javascript);
 #else
 	QEventLoop loop;
 
-	_view->page()->runJavaScript(javascript.c_str(), [&](const QVariant& res)
+	_view->page()->runJavaScript(javascript, [&](const QVariant& res)
 		{
 			r = res;
 			emit loop.quit();
@@ -192,9 +206,8 @@ void PVWidgets::PVQueryBuilder::run_javascript(const std::string& javascript, st
 #endif
 
 	if (result) {
-		*result = r.toString().toStdString();
+		*result = r.toString();
 	}
-
 }
 
 void PVWidgets::PVQueryBuilder::setVisible(bool v)
