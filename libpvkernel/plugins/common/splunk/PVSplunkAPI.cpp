@@ -297,7 +297,6 @@ void PVRush::PVSplunkAPI::prepare_extract(const std::string& search_query, std::
 	curl_multi_setopt(_multi, CURLMOPT_TIMERFUNCTION, timer_callback);
 	curl_multi_setopt(_multi, CURLMOPT_TIMERDATA, this);
 
-	curl_multi_setopt(_multi, CURLMOPT_MAX_TOTAL_CONNECTIONS, 1L);
 	curl_multi_setopt(_multi, CURLMOPT_PIPELINING, 1L);
 
 	curl_easy_setopt(_easy, CURLOPT_WRITEFUNCTION, write_callback_export);

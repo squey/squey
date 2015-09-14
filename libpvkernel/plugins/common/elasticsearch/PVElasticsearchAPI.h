@@ -91,7 +91,7 @@ public:
 		const PVRush::PVElasticsearchQuery& query,
 		PVRush::PVElasticsearchAPI::rows_chunk_t& rows_array,
 		std::string* error = nullptr
-	) const;
+	);
 
 	/** Get the total count of expected results
 	 *
