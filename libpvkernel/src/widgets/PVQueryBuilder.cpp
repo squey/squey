@@ -70,6 +70,9 @@ void PVWidgets::PVQueryBuilder::reinit()
 
 void PVWidgets::PVQueryBuilder::set_filters(const std::string& filters)
 {
+	// Show hourglass during loading
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+
 	reinit();
 
 	rapidjson::Document json;
@@ -104,6 +107,9 @@ void PVWidgets::PVQueryBuilder::set_filters(const std::string& filters)
 	js << "$('#querybuilder').queryBuilder(" << strbuf.GetString() << ");";
 
 	run_javascript(js.str().c_str());
+
+	// Back to normal cursor
+	QApplication::restoreOverrideCursor();
 }
 
 void PVWidgets::PVQueryBuilder::set_filters(const columns_t& columns)
