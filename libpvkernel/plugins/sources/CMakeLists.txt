@@ -20,6 +20,7 @@ source_text_file
 source_pcap_file
 source_perl_file
 source_elasticsearch
+source_splunk
 #source_arcsight
 )
 
@@ -67,9 +68,41 @@ endif(HDFS_FOUND)
 add_library(source_arcsight SHARED arcsight/PVArcsightSource.cpp arcsight/PVSourceCreatorArcsight.cpp arcsight/register.cpp ../common/arcsight/PVArcsightInfos.cpp ../common/arcsight/PVArcsightQuery.cpp)
 target_link_libraries(source_arcsight /usr/local/lib/libarcsight.a pvkernel gsoap++)
 
+###############################################################################
 # Elasticsearch
-add_library(source_elasticsearch SHARED elasticsearch/PVElasticsearchSource.cpp elasticsearch/PVSourceCreatorElasticsearch.cpp elasticsearch/register.cpp ../common/elasticsearch/PVElasticsearchInfos.cpp ../common/elasticsearch/PVElasticsearchQuery.cpp ../common/elasticsearch/PVElasticsearchAPI.cpp)
+###############################################################################
+
+set(ELASTICSEARCH_SRC_FILES
+elasticsearch/PVElasticsearchSource.cpp
+elasticsearch/PVSourceCreatorElasticsearch.cpp
+../common/elasticsearch/PVElasticsearchInfos.cpp
+../common/elasticsearch/PVElasticsearchQuery.cpp
+../common/elasticsearch/PVElasticsearchAPI.cpp
+../common/elasticsearch/PVElasticsearchJsonConverter.cpp
+elasticsearch/register.cpp
+)
+
+add_library(source_elasticsearch SHARED ${ELASTICSEARCH_SRC_FILES})
 target_link_libraries(source_elasticsearch curl)
+
+###############################################################################
+# Splunk
+###############################################################################
+
+set(SPLUNK_SRC_FILES
+splunk/PVSplunkSource.cpp
+splunk/PVSourceCreatorSplunk.cpp
+../common/splunk/PVSplunkInfos.cpp
+../common/splunk/PVSplunkQuery.cpp
+../common/splunk/PVSplunkAPI.cpp
+../common/splunk/PVSplunkJsonConverter.cpp
+splunk/register.cpp
+)
+
+add_library(source_splunk SHARED ${SPLUNK_SRC_FILES})
+target_link_libraries(source_splunk curl)
+
+###############################################################################
 
 INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION sources
                                      RUNTIME DESTINATION sources)

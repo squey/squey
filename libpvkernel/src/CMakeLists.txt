@@ -60,6 +60,7 @@ core/string_tbb.cpp
 core/PVConfig.cpp
 core/PVFileHelper.cpp
 core/PVMemory2D.cpp
+core/PVQueryBuilderJsonConverter.cpp
 )
 
 if(PYTHONLIBS_FOUND)

@@ -1,23 +1,16 @@
 #ifndef __PVELASTICSEARCHJSONCONVERTER_H__
 #define __PVELASTICSEARCHJSONCONVERTER_H__
 
-#include <unordered_map>
 #include <string>
-#include <vector>
 
-#include <rapidjson/document.h>                                                 
 #include <rapidjson/writer.h>                                                   
 #include <rapidjson/stringbuffer.h>
 
+#include <pvkernel/core/PVQueryBuilderJsonConverter.h>
+
 /** Converter object from QueryBuilder json to ElasticSearch json
- *
- * @note A class is required to keep internal state about in/not_in operators
- *
- * @note We perform a compilation from one DSL to another. It could be done
- * creating an AST and visiting it. As the conversion is pretty easy and 
- * simple (no optimisations or check) it is overkill...
  */
-class PVElasticSearchJsonConverter
+class PVElasticSearchJsonConverter: public PVCore::PVQueryBuilderJsonConverter
 {
    public:
       /** Parse json input to be processed
@@ -33,36 +26,10 @@ class PVElasticSearchJsonConverter
        std::string rules_to_json();
 
    private:
-       rapidjson::Document _doc;  //!< json document with querybuilder json
        rapidjson::StringBuffer _strbuf;  //!< internal buffer to store elasticsearch json in construction document
        rapidjson::Writer<rapidjson::StringBuffer> _writer;  //!< internal object to create elasticsearch json file
 
-       // We use a std::string as first parameter because const char* hash
-       // use pointer as value.
-       // const char* a = "ok", b = "ok" => std::hash(a) != std::hash(b)
-       using map_t = std::unordered_map<std::string, std::vector<const char*>>;
-       map_t _in_values;  //!< list of values with in operations for the current group
-       map_t _not_in_values;  //!< list of values with "not in" operations for the current group
-
    private:
-       /** Parse a node and add it's infomations in the json in progress.
-        *
-        * A node is a final object in the json tree.
-        * It looks like:
-        *
-        *   {
-        *       "id": "time_spent",
-        *       "field": "time_spent",
-        *       "type": "integer",
-        *       "input": "text",
-        *       "operator": "less",
-        *       "value": "5"
-        *   }
-        *
-        * @param obj : node to process
-        */
-
-       void parse_node(rapidjson::Value const& obj);
        /** Parse a condition and add it's infomations in the json in progress.
         *
         * A condition is an upper node in the json tree.
@@ -167,14 +134,8 @@ class PVElasticSearchJsonConverter
         *
         * {"not": contains_condition }
         */
-       template <class F, class ...T>
-       void not_(F fun, T && ... params);
-
-       /** Check if a json object is a condition node.
-        *
-        * Condition contains "condition" keyword.
-        */
-       static bool is_condition(rapidjson::Value const& obj);
+       void pre_not_();
+       void post_not_();
 
 };
 

@@ -31,6 +31,15 @@ class PVElasticsearchParamsWidget: public PVParamsWidget<PVInputTypeElasticsearc
 {
 	Q_OBJECT
 
+private:
+	enum EQueryType {
+		QUERY_BUILDER = 0,
+		JSON,
+		SQL,
+
+		COUNT
+	};
+
 public:
 	PVElasticsearchParamsWidget(PVInputTypeElasticsearch const* in_t, PVRush::hash_formats const& formats, QWidget* parent);
 
