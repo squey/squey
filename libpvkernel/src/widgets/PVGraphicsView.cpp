@@ -14,7 +14,7 @@
 #include <QScrollBar64>
 
 #ifndef QT_NO_OPENGL
-#include <QOpenGLWidget>
+#include <QGLWidget>
 #endif
 
 // to mimic QGraphicsView::::sizeHint() :-D
@@ -934,13 +934,12 @@ void PVWidgets::PVGraphicsView::set_viewport(QWidget* w)
  * PVWidgets::PVGraphicsView::set_gl_viewport
  *****************************************************************************/
 
-bool PVWidgets::PVGraphicsView::set_gl_viewport(QSurfaceFormat const& format)
+bool PVWidgets::PVGraphicsView::set_gl_viewport(QGLFormat const& format)
 {
 #ifdef QT_NO_OPENGL
 	return false;
 #else
-	QOpenGLWidget* w = new QOpenGLWidget();
-	w->setFormat(format);
+	QGLWidget* w = new QGLWidget(format);
 	if (!w->isValid()) {
 		w->deleteLater();
 		return false;
@@ -959,7 +958,7 @@ bool PVWidgets::PVGraphicsView::set_gl_viewport()
 #ifdef QT_NO_OPENGL
 	return false;
 #else
-	return set_gl_viewport(QSurfaceFormat());
+	return set_gl_viewport(QGLFormat());
 #endif
 }
 

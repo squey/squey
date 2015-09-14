@@ -7,7 +7,7 @@
 #ifndef SLVIEW_H
 #define SLVIEW_H
 
-#include <QOpenGLWidget>
+#include <QGLWidget>
 #include <iostream>
 
 struct PVRGB
@@ -25,10 +25,10 @@ struct PVRGB
 
 // Tc == type of the coordinates
 template <class Tc>
-class SLView: public QOpenGLWidget
+class SLView: public QGLWidget
 {
 public:
-	SLView(QWidget *parent): QOpenGLWidget(parent) { _colors = NULL; };
+	SLView(QWidget *parent): QGLWidget(parent) { _colors = NULL; };
 	void set_points(std::vector<Tc> const& pts) { _pts = &pts; };
 	void set_colors(std::vector<PVRGB> const& colors) { _colors = &colors; };
 	void set_ortho(Tc w, Tc h) { _ortho_w = w; _ortho_h = h; }
