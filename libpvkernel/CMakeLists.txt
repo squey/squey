@@ -23,9 +23,14 @@ include_directories(${Qt5Gui_INCLUDE_DIRS})
 find_package(Qt5Widgets REQUIRED)
 include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
+set(QT_NO_OPENGL 1)
+if(${QT_NO_OPENGL})
+	add_definitions("-DQT_NO_OPENGL")
+else(${QT_NO_OPENGL})
 # For QGLWidget
 find_package(Qt5OpenGL REQUIRED)
 include_directories(${Qt5OpenGL_INCLUDE_DIRS})
+endif(${QT_NO_OPENGL})
 
 # For QtWebKit or QtWebEngine
 if(${QT_WEBKIT})
