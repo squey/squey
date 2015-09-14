@@ -75,7 +75,7 @@ public:
 	void setVisible(bool v);
 
 private:
-	/** Execute javascript statement in a synchroneous way
+	/** Execute javascript statement in a synchroneous way in the main Qt thread
 	 *
 	 * @param javascript the javascript content to be executed
 	 * @param result the potential resulting string
@@ -87,6 +87,12 @@ private:
 	void reinit();
 
 	void workaround_qwebengine_refresh_bug();
+
+signals:
+	void run_javascript_signal(const QString& javascript, QString* result /*= nullptr*/) const;
+
+private slots:
+	void run_javascript_slot(const QString& javascript, QString* result /*= nullptr*/) const;
 
 protected:
 #ifdef QT_WEBKIT
