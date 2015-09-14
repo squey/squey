@@ -20,7 +20,7 @@ class QPainter;
 class QPaintEvent;
 class QResizeEvent;
 class QEvent;
-class QSurfaceFormat;
+class QGLFormat;
 
 namespace PVWidgets {
 
@@ -102,23 +102,23 @@ public:
 	 */
 	void set_viewport(QWidget* w);
 
-	/*! \brief Set the viewport's widget as a QOpenGLWidget if possible.
+	/*! \brief Set the viewport's widget as a QGLWidget if possible.
 	 *
-	 * This function sets the viewport's widget as a QOpenGLWidget if possible, and
+	 * This function sets the viewport's widget as a QGLWidget if possible, and
 	 * fallback to the current viewport otherwise..
 	 *
-	 * \return true if a valid QOpenGLWidget could have been created (that is, in
+	 * \return true if a valid QGLWidget could have been created (that is, in
 	 * most case, if OpenGL is available on the running system), and false
 	 * otherwise. If Qt has been compiled with no OpenGL support, this will
 	 * always return false and do nothing.
 	 */
-	bool set_gl_viewport(QSurfaceFormat const& format);
+	bool set_gl_viewport(QGLFormat const& format);
 
-	/*! \brief Set the viewport's widget as a QOpenGLWidget if possible.
+	/*! \brief Set the viewport's widget as a QGLWidget if possible.
 	 *
-	 * This will use a default QSurfaceFormat.
+	 * This will use a default QGLFormat.
 	 *
-	 * \note This function is provided so that QSurfaceFormat can be
+	 * \note This function is provided so that QGLFormat can be
 	 * forward-declarated here, thus providing a stable API even if no OpenGL
 	 * support has been built within Qt.
 	 */

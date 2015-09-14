@@ -7,8 +7,8 @@
 #ifndef SLVIEW_H
 #define SLVIEW_H
 
-#include <QOpenGLWidget>
-#include <QOpenGLBuffer>
+#include <QGLWidget>
+#include <QGLBuffer>
 #include <iostream>
 #include <pvkernel/core/picviz_bench.h>
 
@@ -28,10 +28,10 @@ struct PVRGB
 	};
 };
 
-class LBView : public QOpenGLWidget
+class LBView : public QGLWidget
 {
 public:
-	LBView(QWidget *parent, int width, int height): QOpenGLWidget(parent)
+	LBView(QWidget *parent, int width, int height): QGLWidget(parent)
 	{
 		makeCurrent();
 
@@ -69,22 +69,22 @@ public:
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		_pixel_buffer = new QOpenGLBuffer(QOpenGLBuffer::PixelUnpackBuffer);
-		_pixel_buffer->setUsagePattern(QOpenGLBuffer::DynamicCopy);
+		_pixel_buffer = new QGLBuffer(QGLBuffer::PixelUnpackBuffer);
+		_pixel_buffer->setUsagePattern(QGLBuffer::DynamicCopy);
 		_pixel_buffer->create();
 		if (_pixel_buffer->isCreated() == false) {
-			std::cerr << "error while creating QOpenGLbuffer" << std::endl;
+			std::cerr << "error while creating QGLbuffer" << std::endl;
 		}
 		if (_pixel_buffer->bind() == false) {
-			std::cerr << "error while binding QOpenGLbuffer" << std::endl;
+			std::cerr << "error while binding QGLbuffer" << std::endl;
 		} else {
-			std::cerr << "QOpenGLbuffer is binded: " << _pixel_buffer->bufferId() << std::endl;
+			std::cerr << "QGLbuffer is binded: " << _pixel_buffer->bufferId() << std::endl;
 		}
-		std::cerr << "allocating a QOpenGLbuffer" << std::endl;
+		std::cerr << "allocating a QGLbuffer" << std::endl;
 
 		_pixel_buffer->allocate(width*height*sizeof(unsigned));
 		if (_pixel_buffer->size() < 0) {
-			std::cerr << "error while allocating QOpenGLbuffer" << std::endl;
+			std::cerr << "error while allocating QGLbuffer" << std::endl;
 		}
 	}
 
@@ -158,7 +158,7 @@ protected:
 	int _h;
 	int _ortho_w;
 	int _ortho_h;
-	QOpenGLBuffer *_pixel_buffer;
+	QGLBuffer *_pixel_buffer;
 	GLuint _texid;
 };
 

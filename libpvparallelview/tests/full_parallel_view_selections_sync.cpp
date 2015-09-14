@@ -5,7 +5,7 @@
  */
 
 #include <QtWidgets>
-#include <QOpenGLWidget>
+#include <QGLWidget>
 #include <iostream>
 
 #include <pvparallelview/common.h>
