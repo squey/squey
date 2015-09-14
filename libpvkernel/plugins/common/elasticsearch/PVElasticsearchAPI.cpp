@@ -188,7 +188,7 @@ size_t PVRush::PVElasticsearchAPI::count(const PVRush::PVElasticsearchQuery& que
 bool PVRush::PVElasticsearchAPI::extract(
 	const PVRush::PVElasticsearchQuery& query,
 	PVRush::PVElasticsearchAPI::rows_chunk_t& rows_array,
-	std::string* error /* = nullptr */) const
+	std::string* error /* = nullptr */)
 {
 	int request_count = std::thread::hardware_concurrency();
 
