@@ -28,8 +28,16 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 
 	QString content = "Picviz Inspector version " + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"<br/>(c) 2014 Picviz Labs SAS<br/>";
 
-	content += "<br/>contact - <a href=\"mailto:contact@picviz.com\">contact@picviz.com</a><br/>";
-	content += "support - <a href=\"mailto:support@picviz.com\">support@picviz.com</a><br/>";
+	content += "<br/>contact - <a href=\"mailto:";
+	content += EMAIL_ADDRESS_CONTACT;
+	content += "?subject=%5BINENDI%5D\">";
+	content += EMAIL_ADDRESS_CONTACT;
+	content += "</a><br/>";
+	content += "support - <a href=\"mailto:";
+	content += EMAIL_ADDRESS_SUPPORT;
+	content += "?subject=%5BINENDI%5D\">";
+	content += EMAIL_ADDRESS_SUPPORT;
+	content += "</a><br/>";
 	content += "website - <a href=\"http://www.picviz.com\">www.picviz.com</a><br/>";
 
 	content += QString("<br/>Licensed to: ");
