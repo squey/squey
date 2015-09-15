@@ -96,6 +96,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 
 void PVGuiQt::PVAboutBoxDialog::keyPressEvent(QKeyEvent * event)
 {
+#if 0
 	bool change_mode = false;
 
 	if (event->key() == Qt::Key_F) {
@@ -110,18 +111,22 @@ void PVGuiQt::PVAboutBoxDialog::keyPressEvent(QKeyEvent * event)
 	if (change_mode) {
 		_view3D->set_fullscreen(_fullscreen);
 	}
+#endif
 }
 
 void PVGuiQt::__impl::GraphicsView::keyPressEvent(QKeyEvent* event)
 {
+#if 0
 	if (_parent->_fullscreen) {
 		if (event->key() == Qt::Key_F || event->key() == Qt::Key_Escape) {
 			set_fullscreen(false);
 		}
+
+		return;
 	}
-	else {
-		QGraphicsView::keyPressEvent(event);
-	}
+#endif
+
+	QGraphicsView::keyPressEvent(event);
 }
 
 void PVGuiQt::__impl::GraphicsView::resizeEvent(QResizeEvent *event)
