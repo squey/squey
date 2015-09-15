@@ -87,7 +87,33 @@ bool PVRush::PVSplunkAPI::check_connection(std::string* error /* =  nullptr */) 
 {
 	std::string buffer;
 
-	return perform_query("/services/server/info", buffer, "json", error);
+	if(not perform_query("", buffer, "json", error)) {
+	    return false; // Abort as the query didn't succeed
+	}
+
+	rapidjson::Document json;
+	json.Parse<0>(buffer.c_str());
+
+	if (not json.HasMember("messages")) {
+	    return false; // Abort as the answer is ill-formed
+	}
+
+	// We are connected if the server answer with a message type : FATAL
+	// and message content == "Empty search."
+
+	// Check message type
+	rapidjson::Value& messages = json["messages"][0];
+	bool correct_connection = std::string(messages["type"].GetString()) == "FATAL";
+	// Check message content
+	rapidjson::Value& error_msg = messages["text"];
+	std::string err = error_msg.GetString();
+	correct_connection &= err == "Empty search.";
+
+	if (error and not correct_connection) {
+	    *error = err;
+	}
+
+	return ret;
 }
 
 PVRush::PVSplunkAPI::strings_t PVRush::PVSplunkAPI::indexes(std::string* error /* =  nullptr */) const
