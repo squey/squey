@@ -54,8 +54,9 @@ do
 	then
 		# reading address field
 	        ADDR=`echo "$LINE" | sed -e 's+{{[^}]*}, [^0]*0x\([^,]*\).*+\1+'`
-		# a symbol has to be search for only if its address is not NULL
-		if test $ADDR -ne 0
+		# a symbol has to be searched for only if its address is not NULL
+		DECADDR=`printf "%d" 0x$ADDR`
+		if test $DECADDR -ne 0
 		then
 			# searching for the symbol corresponding to this address
 		        FUNC=`grep "$ADDR" "$TFILE" | sed -e 's+[^<]*<\([^>]*\)>:$+\1+'`
