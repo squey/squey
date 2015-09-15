@@ -16,6 +16,10 @@ class QWebEngineView;
 
 #include <QWidget>
 
+#include <atomic>
+#include <mutex>
+#include <condition_variable>
+
 namespace PVWidgets
 {
 
@@ -100,6 +104,12 @@ protected:
 #else
 	QWebEngineView* _view;
 #endif
+
+	// This is to ensure that run_javascript signal/slot are executed in
+	// a synchronous way even when called from a thread
+	mutable std::mutex _mutex;
+	mutable std::condition_variable _cv;
+	mutable std::atomic<bool> _javascript_executed;
 };
 
 } // namespace PVWidgets
