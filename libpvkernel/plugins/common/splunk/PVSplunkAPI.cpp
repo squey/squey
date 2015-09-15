@@ -420,7 +420,7 @@ std::string PVRush::PVSplunkAPI::filtered_search() const
 		search += " sourcetype=" + sourcetype;
 	}
 
-	return search;
+	return search + " ";
 }
 
 void PVRush::PVSplunkAPI::set_socket(int s)

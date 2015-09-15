@@ -221,6 +221,7 @@ bool PVRush::PVSplunkParamsWidget::fetch_server_data(const PVSplunkInfos& infos)
 	{
 		QString old_item = cb->currentText();
 		cb->clear();
+		cb->addItem("*");
 		for (const std::string& item : list) {
 			cb->addItem(QString(item.c_str()));
 		}
