@@ -127,3 +127,9 @@ set(BUILD_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/include/pvbase/build.h")
 configure_file(include/pvbase/build.h.cmake ${BUILD_FILE_PATH})
 add_definitions(-DPICVIZ_BUILD_FILE_PATH="${BUILD_FILE_PATH}")
 
+# email addresses
+set(EMAIL_ADDRESS_CONTACT "centralsupport@esi-group.com")
+set(EMAIL_ADDRESS_SUPPORT "centralsupport@esi-group.com")
+
+add_definitions(-DEMAIL_ADDRESS_CONTACT="${EMAIL_ADDRESS_CONTACT}")
+add_definitions(-DEMAIL_ADDRESS_SUPPORT="${EMAIL_ADDRESS_SUPPORT}")
