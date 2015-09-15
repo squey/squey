@@ -113,7 +113,7 @@ bool PVRush::PVSplunkAPI::check_connection(std::string* error /* =  nullptr */) 
 	    *error = err;
 	}
 
-	return ret;
+	return correct_connection;
 }
 
 PVRush::PVSplunkAPI::strings_t PVRush::PVSplunkAPI::indexes(std::string* error /* =  nullptr */) const
