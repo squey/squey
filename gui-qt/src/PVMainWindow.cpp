@@ -282,11 +282,15 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 
 			PVRush::list_creators::const_iterator it_lc;
 			for (it_lc = ctxt.lcr.begin(); it_lc != ctxt.lcr.end(); it_lc++) {
-				PVRush::hash_format_creator::mapped_type v(it_cus_f.value(), *it_lc);
-				dis_format_creator[it_cus_f.key()] = v;
+			    PVRush::hash_format_creator::mapped_type v(it_cus_f.value(), *it_lc);
+			    dis_format_creator[it_cus_f.key()] = v;
 
-				// Save this format/creator pair to the "format_creator" object
-				ctxt.format_creator[it_cus_f.key()] = v;
+			    // Save this format/creator pair to the "format_creator" object
+			    ctxt.format_creator[it_cus_f.key()] = v;
+
+			    // We don't want to override text format type with Python/Pcap or Perl
+			    if((*it_lc)->name() == "text")
+			      break;
 			}
 		}
 
@@ -686,9 +690,13 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			formats[it.key()] = it.value();
 			PVRush::list_creators::const_iterator it_lc;
 			for (it_lc = lcr.begin(); it_lc != lcr.end(); it_lc++) {
-				PVRush::hash_format_creator::mapped_type v(it.value(), *it_lc);
-				// Save this format/creator pair to the "format_creator" object
-				format_creator[it.key()] = v;
+			    PVRush::hash_format_creator::mapped_type v(it.value(), *it_lc);
+			    // Save this format/creator pair to the "format_creator" object
+			    format_creator[it.key()] = v;
+
+			    // We don't want to override text format type with Python/Pcap or Perl
+			    if((*it_lc)->name() == "text")
+			      break;
 			}
 		}
 	}
@@ -750,6 +758,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 				for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
 					PVRush::hash_format_creator::mapped_type v(hf_it.value(), *src_cr_it);
 					format_creator[hf_it.key()] = v;
+					// We don't want to override text format type with Python/Pcap or Perl
+					if((*src_cr_it)->name() == "text")
+					  break;
 				}
 			}
 		}
@@ -783,6 +794,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 			for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
 				PVRush::hash_format_creator::mapped_type v(format, *src_cr_it);
 				format_creator[format_name] = v;
+				// We don't want to override text format type with Python/Pcap or Perl
+				if((*src_cr_it)->name() == "text")
+				  break;
 			}
 
 			if (fi.isReadable()) {
@@ -905,6 +919,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		PVRush::PVFormat const& cur_format = fc.first;
 
 		PVRush::PVSourceDescription src_desc(inputs, fc.second, cur_format);
+
 
 		if (load_source_from_description_Slot(src_desc, save_inv_elts)){
 			one_extraction_successful = true;
@@ -1507,9 +1522,12 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 
 		PVRush::list_creators::const_iterator it_lc;
 		for (it_lc = lcr.begin(); it_lc != lcr.end(); it_lc++) {
-			PVRush::hash_format_creator::mapped_type v(new_format, *it_lc);
-			// Save this format/creator pair to the "format_creator" object
-			format_creator["custom:arg"] = v;
+		    PVRush::hash_format_creator::mapped_type v(new_format, *it_lc);
+		    // Save this format/creator pair to the "format_creator" object
+		    format_creator["custom:arg"] = v;
+		    // We don't want to override text format type with Python/Pcap or Perl
+		    if((*it_lc)->name() == "text")
+		      break;
 		}
 		format = "custom:arg";
 	}
