@@ -185,7 +185,15 @@ void PVWidgets::PVQueryBuilder::run_javascript(const std::string& javascript, st
 {
 	QString r;
 
+	_javascript_executed = false;
+
 	emit run_javascript_signal(javascript.c_str(), &r);
+
+	// Yet another new trick to run asynchronous code synchronously
+	if (not _javascript_executed) {
+		std::unique_lock<std::mutex> lck(_mutex);
+		_cv.wait(lck, [&](){ return _javascript_executed == true; });
+	}
 
 	if (result) {
 		*result = r.toStdString();
@@ -214,6 +222,9 @@ void PVWidgets::PVQueryBuilder::run_javascript_slot(const QString& javascript, Q
 	if (result) {
 		*result = r.toString();
 	}
+
+	_javascript_executed = true;
+	_cv.notify_one();
 }
 
 void PVWidgets::PVQueryBuilder::setVisible(bool v)
