@@ -19,9 +19,17 @@ string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
 
 # Arch flag
 if (NOT DEFINED CMAKE_CXX_ARCH_FLAGS)
-	# Guess flag from GCC. This is done so that icecc doesn't silently set all jobs as local-job !
-	execute_process(COMMAND bash -c "${CMAKE_C_COMPILER} -march=native -Q --help=target | grep march |  tr -d '[[:space:]]'" OUTPUT_VARIABLE CMAKE_CXX_ARCH_FLAGS)
-	#set(CMAKE_CXX_ARCH_FLAGS "-march=native")
+
+	# REMOVED FUNCTIONNALITY ##################################################
+	# Guess flag from GCC. This is done so that icecc doesn't silently set all
+	# jobs as local-job !
+	# This possibility is desactivated for now as icecc is not used and changing
+	# native to ivybridge (for example) may enable avx while it shouldn't be
+	# activated (It was the case on builder)
+	# execute_process(COMMAND bash -c "${CMAKE_C_COMPILER} -march=native -Q --help=target | grep march |  tr -d '[[:space:]]'" OUTPUT_VARIABLE CMAKE_CXX_ARCH_FLAGS)
+	# REMOVED FUNCTIONNALITY ##################################################
+
+	set(CMAKE_CXX_ARCH_FLAGS "-march=native")
 	message(STATUS "CMAKE_CXX_ARCH_FLAGS isn't set. Flag has been guessed to ${CMAKE_CXX_ARCH_FLAGS}")
 endif()
 
