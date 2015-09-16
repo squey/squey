@@ -1,3 +1,21 @@
+3.5.0 (2015-09-16)
+------------------
+
+This major release adds the following features:
+
+* Splunk connector
+* Elasticsearch connector
+
+This major release fixes or improves:
+
+* multi-users support
+* fixed a crash in the Format Builder when previewing the key/value splitter
+* import time slightly improved
+* long axes name are now elided on the global parallel view
+* export dialog clearer about axes combination choice
+* experimental correlation module is removed
+* visual identity updated for INENDI
+
 3.4.3 (2014-10-29)
 ------------------
 
