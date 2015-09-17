@@ -379,9 +379,9 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 	_copy_values_menu->addAction(_copy_values_without_count_act);
 
 	// layer creation actions
-	_create_layer_with_values_act = new QAction("create one layer with those values", _values_view);
+	_create_layer_with_values_act = new QAction("Create one layer with those values", _values_view);
 	_ctxt_menu->addAction(_create_layer_with_values_act);
-	_create_layers_for_values_act = new QAction("create layers from those values", _values_view);
+	_create_layers_for_values_act = new QAction("Create layers from those values", _values_view);
 	_ctxt_menu->addAction(_create_layers_for_values_act);
 }
 
