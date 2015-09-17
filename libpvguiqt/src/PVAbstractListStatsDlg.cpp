@@ -278,8 +278,11 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 		QAction* act = new QAction(it_ent.key(), _values_view);
 		act->setData(QVariant(search_multiples)); // Save the name of the layer filter associated to this action
 		_ctxt_menu->addAction(act);
-		// RH: my big hack see comment of _msearch_actions in .h
-		_msearch_actions.append(act);
+
+		// RH: a little hack. See comment of _msearch_action_for_layer_creation in .h
+		if (act->text() == QString("Search for this value")) {
+			_msearch_action_for_layer_creation = act;
+		}
 	}
 
 	__impl::PVTableViewResizeEventFilter* table_view_resize_event_handler = new __impl::PVTableViewResizeEventFilter();
@@ -816,7 +819,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	int old_selected_layer_index = ls.get_selected_layer_index();
 	Picviz::PVSelection old_sel(view_sp->get_pre_filter_layer().get_selection());
 
-	multiple_search(_msearch_actions[1], sl, false);
+	multiple_search(_msearch_action_for_layer_creation, sl, false);
 
 	actor.call<FUNC(Picviz::PVView::add_new_layer)>(text);
 	Picviz::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
@@ -936,7 +939,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 
 		QStringList sl;
 		sl.append(index.data().toString());
-		multiple_search(_msearch_actions[1], sl, false);
+		multiple_search(_msearch_action_for_layer_creation, sl, false);
 
 		actor.call<FUNC(Picviz::PVView::add_new_layer)>(layer_name);
 		Picviz::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
