@@ -23,7 +23,7 @@
 #include <picviz/PVPtrObjects.h> // For PVScene_p
 
 #define PICVIZ_ROOT_ARCHIVE_EXT "pvi"
-#define PICVIZ_ROOT_ARCHIVE_FILTER "Picviz investigation files (*." PICVIZ_ROOT_ARCHIVE_EXT ")"
+#define PICVIZ_ROOT_ARCHIVE_FILTER "INENDI investigation files (*." PICVIZ_ROOT_ARCHIVE_EXT ")"
 
 // Plugins prefix
 #define LAYER_FILTER_PREFIX "layer_filter"

@@ -21,12 +21,12 @@
 
 PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(parent)
 {
-	setWindowTitle("About Picviz Inspector");
+	setWindowTitle("About INENDI Inspector");
 
 	QGridLayout *main_layout = new QGridLayout;
 	main_layout->setHorizontalSpacing(0);
 
-	QString content = "Picviz Inspector version " + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"<br/>(c) 2014 Picviz Labs SAS<br/>";
+	QString content = "INENDI Inspector version " + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"<br/>(c) 2014 Picviz Labs SAS, 2015 ESI Group<br/>";
 
 	content += "<br/>contact - <a href=\"mailto:";
 	content += EMAIL_ADDRESS_CONTACT;

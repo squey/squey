@@ -133,7 +133,7 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 
 	// Set SQL field columns
 	_table_fields->setColumnCount(3);
-	_table_fields->setHorizontalHeaderLabels(QStringList() << "Field name" << "SQL type" << "Picviz type");
+	_table_fields->setHorizontalHeaderLabels(QStringList() << "Field name" << "SQL type" << "INENDI type");
 
 	enable_used_format(true);
 }

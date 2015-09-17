@@ -26,7 +26,7 @@
 #include <picviz/PVScene_types.h>
 
 #define PICVIZ_SCENE_ARCHIVE_EXT "pv"
-#define PICVIZ_SCENE_ARCHIVE_FILTER "Picviz project files (*." PICVIZ_SCENE_ARCHIVE_EXT ")"
+#define PICVIZ_SCENE_ARCHIVE_FILTER "INENDI project files (*." PICVIZ_SCENE_ARCHIVE_EXT ")"
 
 namespace Picviz {
 
