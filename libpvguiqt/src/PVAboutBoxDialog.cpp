@@ -25,6 +25,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 
 	QGridLayout *main_layout = new QGridLayout;
 	main_layout->setHorizontalSpacing(0);
+	main_layout->setSizeConstraint(QLayout::SetFixedSize);
 
 	QString content = "INENDI Inspector version " + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"<br/>(c) 2014 Picviz Labs SAS, 2015 ESI Group<br/>";
 
