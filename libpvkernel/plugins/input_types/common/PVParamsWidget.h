@@ -229,7 +229,7 @@ protected:
 					QTextStream output_stream(&f);
 					PVCore::PVProgressBox pbox("Exporting request result...");
 					PVCore::PVProgressBox::progress([&]() {
-						export_query_result(output_stream, pbox, &error);
+						this->export_query_result(output_stream, pbox, &error);
 					}, &pbox);
 				}
 			}
