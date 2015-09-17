@@ -129,7 +129,7 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(Picviz::PVSource& lib_src, PVG
 	update_infos();
 
 	setLayout(main_layout);
-	setWindowTitle(QString("Picviz source extractor: ") + this->lib_src().get_window_name());
+	setWindowTitle(QString("INENDI source extractor: ") + this->lib_src().get_window_name());
 }
 
 void PVInspector::PVExtractorWidget::refresh_and_show()

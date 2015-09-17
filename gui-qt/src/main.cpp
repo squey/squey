@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 	bpo::notify(vm);
 
 	if (vm.count("help")) {
-		std::cerr << "Picviz Inspector " << PICVIZ_CURRENT_VERSION_STR << std::endl << std::endl;
+		std::cerr << "INENDI Inspector " << PICVIZ_CURRENT_VERSION_STR << std::endl << std::endl;
 		std::cerr << "Usage: " << argv[0] << " [--format format] [file [file...]]" << std::endl;
 		std::cerr << desc_opts << std::endl;
 		return 1;
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
 	QLabel *task_label = new QLabel();
 	task_label->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-	QLabel *version_label = new QLabel(QString("Picviz Inspector ") + PICVIZ_CURRENT_VERSION_STR);
+	QLabel *version_label = new QLabel(QString("INENDI Inspector ") + PICVIZ_CURRENT_VERSION_STR);
 	version_label->setAlignment(Qt::AlignRight | Qt::AlignBottom);
 
 	vl->addWidget(task_label);
@@ -258,8 +258,8 @@ int main(int argc, char *argv[])
 #endif
 
 #ifndef NO_MAIN_WINDOW
-	app.setOrganizationName("PICVIZ Labs");
-	app.setApplicationName("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR);
+	app.setOrganizationName("ESI Group");
+	app.setApplicationName("INENDI Inspector " PICVIZ_CURRENT_VERSION_STR);
 	app.setWindowIcon(QIcon(":/picviz"));
 	app.installEventFilter(new DragNDropTransparencyHack());
 	app.installEventFilter(new DisplaysFocusInEventFilter());
