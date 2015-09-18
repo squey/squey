@@ -24,7 +24,6 @@ if test -z "$PICVIZ_DEBUG_LEVEL"
 then
 	export PICVIZ_DEBUG_LEVEL="INFO"
 fi
-export PICVIZ_AXIS_COMPUTATION_PLUGINS_DIR=$PICVIZ_PATH/plugins/axis-computation/
 
 export PVRUSH_NORMALIZE_HELPERS_DIR="@CMAKE_SOURCE_DIR@/libpvkernel/plugins/normalize-helpers;~/.pvrush-formats-extra"
 
