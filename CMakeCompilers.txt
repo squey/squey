@@ -1,5 +1,5 @@
 
-set(CMAKE_CONFIGURATION_TYPES debug release relwithdebinfo calltrace relprotect)
+set(CMAKE_CONFIGURATION_TYPES debug release relwithdebinfo calltrace relprotect distribute)
 
 MESSAGE(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
 

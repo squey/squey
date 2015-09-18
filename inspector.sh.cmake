@@ -24,12 +24,7 @@ if test -z "$PICVIZ_DEBUG_LEVEL"
 then
 	export PICVIZ_DEBUG_LEVEL="INFO"
 fi
-export PICVIZ_LAYER_FILTERS_DIR=$PICVIZ_PATH/plugins/layer-filters/
-export PICVIZ_MAPPING_FILTERS_DIR=$PICVIZ_PATH/plugins/mapping-filters/
-export PICVIZ_PLOTTING_FILTERS_DIR=$PICVIZ_PATH/plugins/plotting-filters/
 export PICVIZ_AXIS_COMPUTATION_PLUGINS_DIR=$PICVIZ_PATH/plugins/axis-computation/
-export PICVIZ_SORTING_FUNCTIONS_PLUGINS_DIR=$PICVIZ_PATH/plugins/sorting-functions/
-export PICVIZ_ROW_FILTERS_DIR=$PICVIZ_PATH/plugins/row-filters/
 
 export PVRUSH_NORMALIZE_HELPERS_DIR="@CMAKE_SOURCE_DIR@/libpvkernel/plugins/normalize-helpers;~/.pvrush-formats-extra"
 

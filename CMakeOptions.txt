@@ -39,7 +39,7 @@ if (NOT DEFINED USER_TARGET)
 endif()
 
 # Default value for protection mode
-if (CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
+if (CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect" OR CMAKE_BUILD_TYPE_LOWER STREQUAL "distribute")
 	set(PROTECT_PASS true)
 endif()
 
