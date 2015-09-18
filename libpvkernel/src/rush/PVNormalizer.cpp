@@ -23,26 +23,6 @@
 
 /******************************************************************************
  *
- * PVRush::normalize_get_plugins_dirs
- *
- *****************************************************************************/
-QStringList PVRush::normalize_get_plugins_dirs()
-{
-	QString pluginsdirs;
-	QStringList pluginsdirs_list; 
-
-	pluginsdirs = QString(getenv("PVRUSH_NORMALIZE_DIR"));
-	if (pluginsdirs.isEmpty()) {
-		pluginsdirs = QString(PVRUSH_NORMALIZE_DIR);
-	}
-
-	pluginsdirs_list = pluginsdirs.split(PVCORE_DIRECTORY_SEP);
-	
-	return pluginsdirs_list;
-}
-
-/******************************************************************************
- *
  * PVRush::normalize_get_helpers_plugins_dirs
  *
  *****************************************************************************/

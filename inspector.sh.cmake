@@ -25,13 +25,6 @@ then
 	export PICVIZ_DEBUG_LEVEL="INFO"
 fi
 
-export PVRUSH_NORMALIZE_HELPERS_DIR="@CMAKE_SOURCE_DIR@/libpvkernel/plugins/normalize-helpers;~/.pvrush-formats-extra"
-
-export PVRUSH_INPUTTYPE_DIR=$PVKERNEL_PATH/plugins/input_types
-export PVRUSH_SOURCE_DIR=$PVKERNEL_PATH/plugins/sources
-
-export PVFILTER_NORMALIZE_DIR=$PVKERNEL_PATH/plugins/normalize
-
 export PICVIZ_QUERYBUILDER_DIR=@CMAKE_SOURCE_DIR@/libpvkernel/src/widgets/querybuilder
 
 VALGRIND_ALLOC_FNS="--alloc-fn=scalable_aligned_malloc --alloc-fn=scalable_malloc --alloc-fn=scalable_posix_memalign"

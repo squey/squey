@@ -28,8 +28,6 @@ namespace PVRush {
 		QTextCodec *codec;
 		int is_compressed;
 	};
-
-	LibKernelDecl QString file_get_cache_dir();
 };
 
 #endif	/* PVCORE_FILE_H */

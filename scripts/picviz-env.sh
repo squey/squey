@@ -13,9 +13,3 @@ PVRUSH_PATH=$ISRD/
 PICVIZ_PATH=$ISRD/
 
 export PICVIZ_DEBUG_LEVEL="INFO"
-export PVRUSH_NORMALIZE_HELPERS_DIR=$ISRD/normalize-helpers/
-
-export PVRUSH_INPUTTYPE_DIR=$ISRD/input-types/
-export PVRUSH_SOURCE_DIR=$ISRD/sources/
-
-export PVFILTER_NORMALIZE_DIR=$ISRD/normalize-filters/

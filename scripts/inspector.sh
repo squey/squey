@@ -18,12 +18,6 @@ PICVIZ_PATH=$ISRD/
 
 export PICVIZ_DEBUG_LEVEL="INFO"
 export PICVIZ_QUERYBUILDER_DIR=$ISRD/querybuilder
-export PVRUSH_NORMALIZE_HELPERS_DIR=$ISRD/normalize-helpers/
-
-export PVRUSH_INPUTTYPE_DIR=$ISRD/input-types/
-export PVRUSH_SOURCE_DIR=$ISRD/sources/
-
-export PVFILTER_NORMALIZE_DIR=$ISRD/normalize-filters/
 
 export LD_LIBRARY_PATH=$ISRD/.:$ISRD/libtulip/lib:$LD_LIBRARY_PATH
 
