@@ -7,23 +7,29 @@ set(INPUTS_DIST_LIST
 input_type_file
 )
 
+###############################################################################
+# Define plugins to distribute for clients
+###############################################################################
+
+# Remote file
 if(CUSTOMER_CAPABILITY_IMPORT_REMOTE)
 	set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_remotefile)
 endif(CUSTOMER_CAPABILITY_IMPORT_REMOTE)
 
+# Database
 if(CUSTOMER_CAPABILITY_IMPORT_DB)
 	set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_database)
 endif(CUSTOMER_CAPABILITY_IMPORT_DB)
 
-if (HDFS_FOUND)
-	#if(CUSTOMER_CAPABILITY_IMPORT_HADOOP)
-	#	set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_hdfs)
-	#endif(CUSTOMER_CAPABILITY_IMPORT_HADOOP)
-endif(HDFS_FOUND)
-
 # Elasticsearch
-set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_elasticsearch)
-set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_splunk)
+if(CUSTOMER_CAPABILITY_IMPORT_ELASTICSEARCH)
+	set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_elasticsearch)
+endif(CUSTOMER_CAPABILITY_IMPORT_ELASTICSEARCH)
+
+#Splunk
+if(CUSTOMER_CAPABILITY_IMPORT_SPLUNK)
+	set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_splunk)
+endif(CUSTOMER_CAPABILITY_IMPORT_SPLUNK)
 
 set(INPUTS_DIST_FILES
 )
