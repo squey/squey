@@ -140,14 +140,14 @@ protected:
 	bool _copy_count;
 
 private:
-	/*RH this QAction list is a big workaround^Whack to:
-	 * - use a PVLayerFilter but not the right way
-	 * - keep track of "multiple search"'s dynamically created QAction as all _act_* do
-	 * - to use ::multiple_search() to change the current selection to affect it to
-	 *   newly created layer
-	 * theorically, the wanted action is numbered 1
+	/**
+	 * RH: a litle hack to replace a bigger one :-]
+	 * We use the multiple search action named "Search for this value" to
+	 * create layer(s) from selected values.
+	 * But as those actions come from a plugins, we have to retrieve it
+	 * while filing the context menu.
 	 */
-	QList<QAction*> _msearch_actions;
+	QAction* _msearch_action_for_layer_creation;
 };
 
 namespace __impl {
