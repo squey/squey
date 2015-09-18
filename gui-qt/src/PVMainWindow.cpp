@@ -30,12 +30,6 @@
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/picviz_bench.h>
 
-#ifdef CUSTOMER_RELEASE
-  #ifdef WIN32
-    #include <winlicensesdk.h>
-  #endif
-#endif	// CUSTOMER_RELEASE
-
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/debug.h>
 #include <pvkernel/core/PVAxisIndexType.h>
