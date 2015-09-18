@@ -1909,12 +1909,6 @@ void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<Q
 int PVInspector::PVMainWindow::update_check()
 {
 #ifdef CUSTOMER_RELEASE
-#ifndef CUSTOMER_NAME
-#error CUSTOMER_RELEASE is defined. You must set CUSTOMER_NAME.
-#endif
-#ifndef CUSTOMER_EMAIL
-#error CUSTOMER_RELEASE is defined. You must set CUSTOMER_EMAIL.
-#endif
 	QSettings &pvconfig = PVCore::PVConfig::get().config();
 
 	// If the user does not want us to check for new versions, just don't do it.

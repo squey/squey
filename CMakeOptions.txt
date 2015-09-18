@@ -86,6 +86,9 @@ else()
 	set(PICVIZ_DEVELOPER_MODE false)
 	add_definitions(-DCUSTOMER_RELEASE)
 	message(STATUS "Picviz mode is customer")
+	if (NOT DEFINED CUSTOMER_NAME OR NOT DEFINED CUSTOMER_COMPANY OR NOT DEFINED CUSTOMER_EMAIL)
+		message(FATAL_ERROR "CUSTOMER_NAME, CUSTOMER_COMPANY and CUSTOMER_EMAIL have to be defined")
+	endif()
 endif()
 
 ###############################################################################
