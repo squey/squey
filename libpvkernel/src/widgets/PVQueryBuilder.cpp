@@ -171,6 +171,11 @@ std::string PVWidgets::PVQueryBuilder::get_rules() const
 	std::string result;
 
 	run_javascript(
+		"var obj = document.activeElement;"
+		"if (obj) {"
+		"	var event = new Event('change');"
+		"	obj.dispatchEvent(event);"
+		"}"
 		"var result = $('#querybuilder').queryBuilder('getRules');"
 		"if (!$.isEmptyObject(result)) {"
 		"	JSON.stringify(result, null, 2);"
