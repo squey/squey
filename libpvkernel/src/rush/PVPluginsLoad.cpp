@@ -6,8 +6,9 @@
 
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/core/PVClassLibrary.h>
+#include <QCoreApplication>
+#include <QDir>
 
-#include <QStringList>
 #include <stdlib.h>
 
 int PVRush::PVPluginsLoad::load_all_plugins()
@@ -45,12 +46,9 @@ int PVRush::PVPluginsLoad::load_source_plugins()
 
 QString PVRush::PVPluginsLoad::get_input_type_dir()
 {
-	QString pluginsdirs;
-	QStringList pluginsdirs_list; 
-
-	pluginsdirs = QString(getenv("PVRUSH_INPUTTYPE_DIR"));
+	QString pluginsdirs = QString(getenv("PVRUSH_INPUTTYPE_DIR"));
 	if (pluginsdirs.isEmpty()) {
-		pluginsdirs = QString(PVRUSH_INPUTTYPE_DIR);
+		pluginsdirs = QCoreApplication::applicationDirPath() + QDir::separator() + PVRUSH_INPUTTYPE_DIR;
 	}
 
 	return pluginsdirs;
@@ -58,12 +56,9 @@ QString PVRush::PVPluginsLoad::get_input_type_dir()
 
 QString PVRush::PVPluginsLoad::get_source_dir()
 {
-	QString pluginsdirs;
-	QStringList pluginsdirs_list; 
-
-	pluginsdirs = QString(getenv("PVRUSH_SOURCE_DIR"));
+	QString pluginsdirs = QString(getenv("PVRUSH_SOURCE_DIR"));
 	if (pluginsdirs.isEmpty()) {
-		pluginsdirs = QString(PVRUSH_SOURCE_DIR);
+		pluginsdirs = QCoreApplication::applicationDirPath() + QDir::separator() + PVRUSH_SOURCE_DIR;
 	}
 
 	return pluginsdirs;
