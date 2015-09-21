@@ -10,7 +10,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVTag.h>
 
-#include <QHash>
+#include <QMap>
 #include <QString>
 
 #include <cassert>
@@ -75,7 +75,7 @@ class PVClassLibrary {
 public:
 	// PF is a shared pointer to a registered class's base class
 	typedef typename RegAs::p_type PF;
-	typedef QHash<QString,PF> list_classes;
+	typedef QMap<QString,PF> list_classes;
 	typedef PVClassLibrary<RegAs> C;
 	typedef PVTag<RegAs> tag;
 	typedef QList<tag> list_tags;
