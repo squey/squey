@@ -24,6 +24,7 @@
 #include <vector>
 #include <iostream>
 #include <sys/sysinfo.h>
+#include <sys/resource.h>
 
 #include <stdio.h>
 //#include <dlfcn.h>
@@ -115,6 +116,13 @@ namespace bpo = boost::program_options;
 int main(int argc, char *argv[])
 {
 	init_segfault_handler();
+
+	// Set the soft limit same as hard limit for number of possible files opened
+	rlimit ulimit_info;
+	getrlimit(RLIMIT_NOFILE, &ulimit_info);
+	ulimit_info.rlim_cur = ulimit_info.rlim_max;
+	setrlimit(RLIMIT_NOFILE, &ulimit_info);
+
 
 #ifndef NO_MAIN_WINDOW
 	QApplication app(argc, argv);
