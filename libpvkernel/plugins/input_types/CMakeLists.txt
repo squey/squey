@@ -115,7 +115,7 @@ QT5_WRAP_CPP(REMOTEFILE_MOC_SRCS ${REMOTEFILE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OP
 # Generate linkage configuration
 include_directories(AFTER ${CURL_INCLUDE_DIR})
 add_library(input_type_remotefile SHARED remote_file/addmachinedialog.cpp remote_file/fileconnectiondialog.cpp remote_file/filedownloader.cpp remote_file/logviewerwidget.cpp remote_file/PVLogViewerDialog.cpp remote_file/PVInputTypeRemoteFilename.cpp remote_file/register.cpp ${REMOTEFILE_MOC_SRCS} file/PVInputTypeFilename.cpp)
-target_link_libraries(input_type_remotefile pvkernel ${ARCHIVE_LIBRARY} ${CURL_LIBRARY})
+target_link_libraries(input_type_remotefile pvkernel ${ARCHIVE_LIBRARY} ${CURL_LIBRARIES})
 
 ################################################
 # Arcsight
