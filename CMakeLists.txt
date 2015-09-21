@@ -75,8 +75,6 @@ include_directories(AFTER "${picviz-inspector_SOURCE_DIR}/include")
 # Test compilation target
 ADD_CUSTOM_TARGET(alltests COMMAND make)
 
-add_subdirectory(scripts)
-
 declare_internal_library(pvkernel)
 
 # Helpers means various stuff we can use
@@ -92,6 +90,7 @@ declare_internal_library(pvguiqt)
 #declare_internal_library(pvhitgraph)
 
 add_subdirectory(gui-qt)
+add_subdirectory(scripts)
 
 # Declare test suite target
 # It has been populated thanks to the declare_pv_test macro
