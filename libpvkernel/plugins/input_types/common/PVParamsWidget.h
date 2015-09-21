@@ -227,7 +227,7 @@ protected:
 				if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
 
 					QTextStream output_stream(&f);
-					PVCore::PVProgressBox pbox("Exporting request result...");
+					PVCore::PVProgressBox pbox("Exporting request result...", this);
 					PVCore::PVProgressBox::progress([&]() {
 						this->export_query_result(output_stream, pbox, &error);
 					}, &pbox);

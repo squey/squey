@@ -90,21 +90,21 @@ void PVRush::PVParamsWidgetBase::query_result_count_slot()
 	std::string error;
 
 	size_t count = 0;
-	PVCore::PVProgressBox pbox("Executing count request...");
+	PVCore::PVProgressBox pbox("Executing count request...", this);
 	PVCore::PVProgressBox::progress([&]() {
 		count = query_result_count(&error);
 	}, &pbox);
 
 	if (error.empty()) {
 		QMessageBox::information(
-			(QWidget*) QObject::parent(),
+			this,
 			tr("Request count"),
 			tr("The request returned %L1 result(s)").arg(count));
 	}
 	else
 	{
 		QMessageBox::critical(
-			(QWidget*) QObject::parent(),
+			this,
 			tr("Request failed"),
 			tr("Request failed with the following error:\n\n%1").arg(QString(error.c_str()))
 		);
