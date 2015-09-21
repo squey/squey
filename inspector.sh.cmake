@@ -25,8 +25,6 @@ then
 	export PICVIZ_DEBUG_LEVEL="INFO"
 fi
 
-export PICVIZ_QUERYBUILDER_DIR=@CMAKE_SOURCE_DIR@/libpvkernel/src/widgets/querybuilder
-
 VALGRIND_ALLOC_FNS="--alloc-fn=scalable_aligned_malloc --alloc-fn=scalable_malloc --alloc-fn=scalable_posix_memalign"
 
 CMD_ARGS=("$@")

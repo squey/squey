@@ -47,8 +47,7 @@ void PVWidgets::PVQueryBuilder::reinit()
 {
 	_view->setContextMenuPolicy(Qt::NoContextMenu);
 
-	const char* querybuilder_dir = std::getenv("PICVIZ_QUERYBUILDER_DIR");
-	assert((querybuilder_dir != nullptr) && "PICVIZ_QUERYBUILDER_DIR not set");
+	const char* querybuilder_dir = PICVIZ_QUERYBUILDER_DIR;
 	_view->load(QUrl(std::string("file://" + std::string(querybuilder_dir) + "/index.html").c_str()));
 
 	// Trick to wait for the page to be properly loaded

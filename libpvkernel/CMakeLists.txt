@@ -96,6 +96,14 @@ else()
 endif()
 add_definitions(-DPVRUSH_SOURCE_DIR="${PVRUSH_SOURCE_DIR}")
 
+# Set PICVIZ_QUERYBUILDER_DIR
+if(CMAKE_BUILD_TYPE_LOWER STREQUAL "distribute")
+	set(PICVIZ_QUERYBUILDER_DIR "querybuilder")
+else()
+	set(PICVIZ_QUERYBUILDER_DIR "../../../libpvkernel/src/widgets/querybuilder")
+endif()
+add_definitions(-DPICVIZ_QUERYBUILDER_DIR="${PICVIZ_QUERYBUILDER_DIR}")
+
 ########################################
 # END: SET VARIOUS PLUGINS DIRECTORIES #
 ########################################
