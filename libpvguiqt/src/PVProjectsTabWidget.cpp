@@ -139,7 +139,11 @@ void  PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	_tab_widget->addTab(new QWidget(), "");
 	_tab_widget->setTabPosition(QTabWidget::West);
 	_tab_widget->tabBar()->tabButton(0, QTabBar::RightSide)->resize(0, 0);
-	_tab_widget->setTabIcon(0, QIcon(":/picviz"));
+
+	QPixmap pm(":/picviz");
+	QTransform trans;
+	_tab_widget->setTabIcon(0, pm.transformed(trans.rotate(90)));
+
 	_tab_widget->setTabToolTip(0, "Start screen");
 	_stacked_widget->addWidget(_start_screen_widget);
 	connect(_start_screen_widget, SIGNAL(load_source_from_description(PVRush::PVSourceDescription)), this, SIGNAL(load_source_from_description(PVRush::PVSourceDescription)));
