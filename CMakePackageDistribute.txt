@@ -200,7 +200,7 @@ endif(${QT_WEBKIT})
 	# libraries from /usr/lib/x86_64-linux-gnu
 	#
 	install(FILES ${LINUX_MISCLIB_PATH_64}/libarchive.so.12 ${LINUX_MISCLIB_PATH_64}/libarchive.so.12.0.4 DESTINATION .)
-	install(FILES ${CURL_LIBRARIES} ${CURL_LIBRARIES}.4.4.0 DESTINATION .)
+	install(FILES ${CURL_LIBRARIES}.4 ${CURL_LIBRARIES}.4.4.0 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH_64}/libgomp.so.1 ${LINUX_MISCLIB_PATH_64}/libgomp.so.1.0.0 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH_64}/libhwloc.so.5 ${LINUX_MISCLIB_PATH_64}/libhwloc.so.5.0.1 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH_64}/libicudata.so.48 ${LINUX_MISCLIB_PATH_64}/libicudata.so.48.1.1 DESTINATION .)
