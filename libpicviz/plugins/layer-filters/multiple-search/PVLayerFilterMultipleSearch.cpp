@@ -111,12 +111,20 @@ void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 	char* old_locale = setlocale(LC_COLLATE, NULL);
 	setlocale(LC_COLLATE, "fr_FR.UTF-8");
 	BENCH_START(visit);
+	tbb::task_group_context ctxt;
 	nraw.visit_column_tbb_sel(axis_id, [&](PVRow const r, const char* buf, size_t n)
 		{
 			//QString str(QString::fromUtf8(buf, n));
 			bool sel = false;
 			if (is_rx) {
 				for (pcrecpp::RE const& re: rxs) {
+					if (unlikely(should_cancel())) {
+						if (not ctxt.is_group_execution_cancelled()) {
+							ctxt.cancel_group_execution();
+						}
+						return;
+					}
+
 					// Local copy of object
 					pcrecpp::RE my_re = re;
 					bool found;
@@ -134,6 +142,13 @@ void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 			}
 			else {
 				for (int i = 0; i < exps.size(); i++) {
+					if (unlikely(should_cancel())) {
+						if (not ctxt.is_group_execution_cancelled()) {
+							ctxt.cancel_group_execution();
+						}
+						return;
+					}
+
 					QByteArray const& exp = exps_utf8[i];
 					if (exp.isEmpty()) {
 						continue;
@@ -169,8 +184,15 @@ void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 
 			sel = !(sel ^ include);
 			tls_sel.local().set_line(r, sel);
-		}, in.get_selection());
+		}, in.get_selection(), &ctxt);
 	BENCH_END(visit, "multiple-search", 1, 1, 1, 1);
+
+	if (should_cancel()) {
+		if (&in != &out) {
+			out = in;
+		}
+		return;
+	}
 
 	setlocale(LC_COLLATE, old_locale);
 
