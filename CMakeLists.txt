@@ -10,7 +10,11 @@ if(POLICY  CMP0026)
 	cmake_policy(SET CMP0026 OLD)
 endif()
 
+###############################################################################
+# Define testing environment
+###############################################################################
 include(CTest)
+enable_testing()
 
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
@@ -86,12 +90,17 @@ declare_internal_library(pvguiqt)
 add_subdirectory(gui-qt)
 add_subdirectory(scripts)
 
+###############################################################################
+# Define tests targets
+###############################################################################
 # Declare test suite target
 # It has been populated thanks to the declare_pv_test macro
-#
+# `make testsuite` will compile tests
+# `make test` will run tests
+# `make love` will compile and then run tests
 add_custom_target(testsuite DEPENDS ${__TESTS_TARGETS})
 # JBL's special request
-add_custom_target(love DEPENDS testsuite)
+add_custom_target(love COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS testsuite)
 
 message(STATUS "ICU found: " ${ICU_FOUND})
 if(ICU_FOUND)

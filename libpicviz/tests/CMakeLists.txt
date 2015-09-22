@@ -9,8 +9,6 @@ configure_file(test_issues.sh.cmake test_issues.sh @ONLY)
 
 set(LINK_LIBRARIES pvkernel picviz ${TBB_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES} ${OPENGL_LIBRARIES})
 
-enable_testing()
-
 declare_pv_test(Tpicviz_root root.cpp)
 target_link_libraries(Tpicviz_root ${LINK_LIBRARIES})
 add_test(TestRoot Tpicviz_root)

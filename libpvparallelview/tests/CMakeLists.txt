@@ -19,8 +19,6 @@ add_definitions(${OpenMP_CXX_FLAGS})
 
 set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${ICU_LIBRARY} pvparallelview ${OpenMP_LIBRARIES} numa)
 
-enable_testing()
-
 declare_pv_test(full_parallel_view full_parallel_view.cpp common.cpp)
 target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
 
