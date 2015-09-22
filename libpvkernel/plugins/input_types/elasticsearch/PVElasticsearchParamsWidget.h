@@ -52,6 +52,9 @@ protected slots:
 	bool fetch_server_data(const PVElasticsearchInfos& infos) override;
 	void query_type_changed_slot() override;
 
+protected:
+	QString get_export_filters() override;
+
 private slots:
 	void index_changed_by_user_slot();
 	void index_changed_slot(const QString& index);

@@ -64,6 +64,15 @@ void PVRush::PVParamsWidgetBase::set_query_type(QString const& query_type)
 	_query_type_cb->setCurrentIndex(_query_type_cb->findText(query_type));
 }
 
+/*****************************************************************************
+ * PVRush::PVParamsWidgetBase::get_export_filters
+ *****************************************************************************/
+
+QString PVRush::PVParamsWidgetBase::get_export_filters()
+{
+	return "All files (*)";
+}
+
 void PVRush::PVParamsWidgetBase::check_connection_slot()
 {
 	std::string error;

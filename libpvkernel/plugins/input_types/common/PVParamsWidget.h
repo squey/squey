@@ -49,6 +49,9 @@ protected:
 	QString get_query_type() const;
 	void set_query_type(QString const& query_type);
 
+protected:
+	virtual QString get_export_filters();
+
 protected slots:
 	virtual void export_slot() = 0;
 	virtual void query_type_changed_slot() = 0;
@@ -218,7 +221,7 @@ protected:
 				this,
 				"Export to...",
 				"",
-				QString("CSV File (*.csv);;All files (*.*)")
+				get_export_filters()
 			);
 
 			if (csv_filename.isEmpty() == false) {
