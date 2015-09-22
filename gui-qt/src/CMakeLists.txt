@@ -144,8 +144,6 @@ QT5_WRAP_UI(UI_SRC ${UI_FILES})
 # Handle licences for picviz-inspector
 ################################################
 
-add_definitions(-DUSE_NEW_INPUT_SYSTEM)
-
 if(PROTECT_PASS)
 	set(SET_PROTECT TRUE)
 	set(GALVEZ_CFLAGS $ENV{GALVEZ_READFWD_CFLAGS})

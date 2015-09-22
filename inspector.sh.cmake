@@ -15,15 +15,7 @@ ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 #LANG=C
 #export LC_ALL=C
 
-PVKERNEL_PATH=$ISRD/libpvkernel
-PICVIZ_PATH=$ISRD/libpicviz
-
 #export PICVIZ_LOG_FILE="log.txt"
-
-if test -z "$PICVIZ_DEBUG_LEVEL"
-then
-	export PICVIZ_DEBUG_LEVEL="INFO"
-fi
 
 VALGRIND_ALLOC_FNS="--alloc-fn=scalable_aligned_malloc --alloc-fn=scalable_malloc --alloc-fn=scalable_posix_memalign"
 
