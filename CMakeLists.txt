@@ -24,8 +24,6 @@ include(CMakeCompilers.txt)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${picviz-inspector_SOURCE_DIR}/cmake)
 
-set(USE_OPENMP true)
-
 set(QT_WEBKIT 1)
 if(${QT_WEBKIT})
 	add_definitions(-DQT_WEBKIT)
@@ -48,10 +46,6 @@ include(CMakeVersionHandler.txt)
 # Tests helpers
 #
 include(CMakePVTests.txt)
-
-# OpenMP for everyone
-add_definitions(${OpenMP_CXX_FLAGS})
-message(STATUS "OpenMP flags: ${OpenMP_CXX_FLAGS}")
 
 #############################################
 # BEGIN: ADD INCLUDE DIRS NEEDED EVERYWHERE #

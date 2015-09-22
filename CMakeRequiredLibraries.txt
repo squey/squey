@@ -91,22 +91,18 @@ set(Boost_LIBRARIES ${Boost_LIBRARIES_SAVE})
 
 find_package(FGP)
 
-#
+###############################################################################
 # Check for OpenMP
-#
-if (USE_OPENMP)
-	find_package(OpenMP REQUIRED)
-	# This package does not declare the library used by GCC
-	if (WIN32)
-		set(OpenMP_LIBRARIES "")
-	else (WIN32)
-		set(OpenMP_LIBRARIES ${OpenMP_CXX_FLAGS})
-	endif(WIN32)
-else (USE_OPENMP)
+###############################################################################
+find_package(OpenMP REQUIRED)
+# This package does not declare the library used by GCC
+if (WIN32)
 	set(OpenMP_LIBRARIES "")
-	set(OpenMP_C_FLAGS "")
-	set(OpenMP_CXX_FLAGS "")
-endif (USE_OPENMP)
+else (WIN32)
+	set(OpenMP_LIBRARIES ${OpenMP_CXX_FLAGS})
+endif(WIN32)
+add_definitions(${OpenMP_CXX_FLAGS})
+
 message(STATUS "OpenMP Libraries: ${OpenMP_LIBRARIES}")
 message(STATUS "OpenMP C FLAGS: ${OpenMP_C_FLAGS}")
 message(STATUS "OpenMP CXX FLAGS: ${OpenMP_CXX_FLAGS}")
