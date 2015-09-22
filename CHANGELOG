@@ -9,6 +9,7 @@ This major release adds the following features:
 This major release fixes or improves:
 
 * multi-users support
+* search filter can be properly canceled
 * fixed a crash in the Format Builder when previewing the key/value splitter
 * import time slightly improved
 * long axes name are now elided on the global parallel view
