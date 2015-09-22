@@ -30,7 +30,7 @@ include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-option(USE_OWN_LIBCURL "We have problems with quite some distributions with libcurl. Use installed version in /opt/curl/" TRUE)
+#option(USE_OWN_LIBCURL "We have problems with quite some distributions with libcurl. Use installed version in /opt/curl/" TRUE)
 
 if (WIN32)
     list( APPEND ALL_SOURCES src/resources/winicon.rc )
