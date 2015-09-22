@@ -7,9 +7,10 @@ add_subdirectory(normalize)
 add_subdirectory(input_types)
 add_subdirectory(sources)
 
-################################################
+###############################################################################
 # Ressource declaration
-################################################
+# These are default format files provided to users
+###############################################################################
 
 SET(NORMALIZE_PCAP_FORMAT_FILES
 normalize-helpers/pcap/default.format
@@ -30,11 +31,6 @@ normalize-helpers/text/iptables.format
 normalize-helpers/text/ssh-login.format
 normalize-helpers/text/squid.format
 normalize-helpers/text/syslog.format
-)
-
-SET(PLUGINS_LIST
-${NORMALIZE_FILTERS_LIB_LIST}
-PARENT_SCOPE
 )
 
 INSTALL(FILES ${NORMALIZE_TEXT_FORMAT_FILES} DESTINATION normalize-helpers/text)

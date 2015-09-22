@@ -23,6 +23,7 @@ include_directories(${Qt5Gui_INCLUDE_DIRS})
 find_package(Qt5Widgets REQUIRED)
 include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
+# FIXME : This is a hack waiting for Qt 5.4 and QOpenGLWidgets
 set(QT_NO_OPENGL 1)
 if(${QT_NO_OPENGL})
 	add_definitions("-DQT_NO_OPENGL")
@@ -59,9 +60,9 @@ if(PYTHONLIBS_FOUND)
 	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
 endif(PYTHONLIBS_FOUND)
 
-##########################################
-# begin: SET VARIOUS PLUGINS DIRECTORIES #
-##########################################
+###############################################################################
+# Define plugins ressources
+###############################################################################
 
 # Set PVFILTER_NORMALIZE_DIR
 if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
@@ -104,10 +105,9 @@ else()
 endif()
 add_definitions(-DPICVIZ_QUERYBUILDER_DIR="${PICVIZ_QUERYBUILDER_DIR}")
 
-########################################
-# END: SET VARIOUS PLUGINS DIRECTORIES #
-########################################
-
+###############################################################################
+# Configure subdirectories
+###############################################################################
 
 add_subdirectory(src)
 add_subdirectory(plugins)
@@ -115,7 +115,6 @@ add_subdirectory(plugins)
 set(PVKERNEL_PLUGINS_LIST ${PLUGINS_LIST})
 
 #add_subdirectory(bindings)
-#add_subdirectory(utils)
 
 add_subdirectory(tests)
 propagate_tests_targets_to_parent()

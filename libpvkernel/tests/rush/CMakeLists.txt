@@ -17,7 +17,7 @@ set(LINK_LIBRARIES pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY})
 
 # Temporary output directory for NRAW disk backend based tests
 if (NOT DEFINED PVKERNEL_RUSH_TEST_NRAW_TMP)
-	message(WARNING "PVKERNEL_RUSH_TEST_NRAW_TMP not defined, /tmp will be used by default")
+	message(STATUS "PVKERNEL_RUSH_TEST_NRAW_TMP not defined, /tmp will be used by default")
 	set(PVKERNEL_RUSH_TEST_NRAW_TMP "/tmp")
 endif()
 

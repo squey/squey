@@ -3,13 +3,13 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-set(INPUTS_DIST_LIST
-input_type_file
-)
-
 ###############################################################################
 # Define plugins to distribute for clients
 ###############################################################################
+
+set(INPUTS_DIST_LIST
+input_type_file
+)
 
 # Remote file
 if(CUSTOMER_CAPABILITY_IMPORT_REMOTE)
@@ -51,12 +51,20 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 ################################################
 # File input plugin
 ################################################
-# Generate moc files
+# Define ressources
 SET(FILE_MOC_HEADERS file/PVImportFileDialog.h)
+
+SET(FILE_SRC
+file/PVInputTypeFilename.cpp
+file/PVImportFileDialog.cpp
+file/register.cpp
+)
+
+# Generate moc files
 QT5_WRAP_CPP(FILE_MOC_SRC ${FILE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 
 # Generate linkage configuration
-add_library(input_type_file SHARED file/PVInputTypeFilename.cpp file/PVImportFileDialog.cpp file/register.cpp ${FILE_MOC_SRC})
+add_library(input_type_file SHARED ${FILE_SRC} ${FILE_MOC_SRC})
 target_link_libraries(input_type_file pvkernel ${ARCHIVE_LIBRARY})
 
 ################################################
@@ -115,32 +123,52 @@ remote_file/include/logviewerwidget.h
 remote_file/include/PVLogViewerDialog.h
 )
 
+SET(REMOTEFILE_SRC
+remote_file/addmachinedialog.cpp
+remote_file/fileconnectiondialog.cpp
+remote_file/filedownloader.cpp
+remote_file/logviewerwidget.cpp
+remote_file/PVLogViewerDialog.cpp
+remote_file/PVInputTypeRemoteFilename.cpp
+remote_file/register.cpp
+file/PVInputTypeFilename.cpp
+)
+
 # Generate moc files
 QT5_WRAP_CPP(REMOTEFILE_MOC_SRCS ${REMOTEFILE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 
 # Generate linkage configuration
 include_directories(AFTER ${CURL_INCLUDE_DIR})
-add_library(input_type_remotefile SHARED remote_file/addmachinedialog.cpp remote_file/fileconnectiondialog.cpp remote_file/filedownloader.cpp remote_file/logviewerwidget.cpp remote_file/PVLogViewerDialog.cpp remote_file/PVInputTypeRemoteFilename.cpp remote_file/register.cpp ${REMOTEFILE_MOC_SRCS} file/PVInputTypeFilename.cpp)
+add_library(input_type_remotefile SHARED ${REMOTEFILE_SRC} ${REMOTEFILE_MOC_SRCS})
 target_link_libraries(input_type_remotefile pvkernel ${ARCHIVE_LIBRARY} ${CURL_LIBRARIES})
 
 ################################################
 # Arcsight
+# TODO : Add correct detection for arcsight
 ################################################
 # Declare ressource
 set(ARCSIGHT_MOC_HEADERS
 arcsight/PVArcsightParamsWidget.h
-#arcsight/PVArcsightPreviewWidget.h
 )
 
 set(ARCSIGHT_UI
-arcsight/arcsight_params.ui)
+arcsight/arcsight_params.ui
+)
+
+SET(ARCSIGHT_SRC
+../common/arcsight/PVArcsightInfos.cpp
+../common/arcsight/PVArcsightQuery.cpp
+arcsight/PVArcsightParamsWidget.cpp
+arcsight/PVInputTypeArcsight.cpp
+arcsight/register.cpp
+)
 
 # Generate moc and ui files
 QT5_WRAP_CPP(ARCSIGHT_MOC_SRCS ${ARCSIGHT_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 QT5_WRAP_UI(ARCSIGHT_UI_SRCS ${ARCSIGHT_UI})
 
 # Generate linkage configuration
-add_library(input_type_arcsight SHARED arcsight/PVArcsightParamsWidget.cpp arcsight/PVInputTypeArcsight.cpp arcsight/register.cpp ${ARCSIGHT_MOC_SRCS} ../common/arcsight/PVArcsightInfos.cpp ../common/arcsight/PVArcsightQuery.cpp ${ARCSIGHT_UI_SRCS})
+add_library(input_type_arcsight SHARED ${ARCSIGHT_SRC} ${ARCSIGHT_MOC_SRCS} ${ARCSIGHT_UI_SRCS})
 target_link_libraries(input_type_arcsight pvkernel /usr/local/lib/libarcsight.a gsoap++)
 
 ###############################################################################
@@ -205,6 +233,8 @@ QT5_WRAP_UI(SPLUNK_UI_SRCS ${SPLUNK_UI})
 add_library(input_type_splunk SHARED ${SPLUNK_UI_SRCS} ${SPLUNK_SRC_FILES} ${SPLUNK_MOC_SRCS})
 target_link_libraries(input_type_splunk pvkernel curl)
 
+###############################################################################
+# Install plugins
 ###############################################################################
 
 INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION input-types
