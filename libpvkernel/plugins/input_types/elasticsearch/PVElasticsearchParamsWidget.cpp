@@ -150,6 +150,15 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed_slot()
 	}
 }
 
+/*****************************************************************************
+ * PVRush::PVElasticsearchParamsWidget::get_export_filters
+ *****************************************************************************/
+
+QString PVRush::PVElasticsearchParamsWidget::get_export_filters()
+{
+	return "CSV File (*.csv)";
+}
+
 void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& output_stream, PVCore::PVProgressBox& pbox, std::string* error /*= nullptr*/)
 {
 	size_t count = 0;
