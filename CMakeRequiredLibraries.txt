@@ -85,12 +85,6 @@ set(Boost_LIBRARIES_PYTHON ${Boost_LIBRARIES})
 # and a little restoration
 set(Boost_LIBRARIES ${Boost_LIBRARIES_SAVE})
 
-#
-# Check for libFGP (Function Graph Processing)
-#
-
-find_package(FGP)
-
 ###############################################################################
 # Check for OpenMP
 ###############################################################################
