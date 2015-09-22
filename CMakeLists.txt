@@ -16,18 +16,29 @@ endif()
 include(CTest)
 enable_testing()
 
-include(CheckIncludeFiles)
-include(CheckFunctionExists)
-include(CheckLibraryExists)
+###############################################################################
+# Generic configuration for inspector
+###############################################################################
 
+# Used for Dumbnet and Pcap
+include(CheckFunctionExists)
+
+# Used for ICU, TBB and HWLoc
 include(FindPkgConfig)
 
+# User defined macro
 include(CMakeMacros.txt)
+
+# Define option related to enabled/disabled features
 include(CMakeOptions.txt)
+
+# Define compilation option such CPP/CXXFLAGS, libs ...
 include(CMakeCompilers.txt)
 
+# Define folder for find_package macro
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${picviz-inspector_SOURCE_DIR}/cmake)
 
+# FIXME : This is a Hack waiting for QWebEngine integration
 set(QT_WEBKIT 1)
 if(${QT_WEBKIT})
 	add_definitions(-DQT_WEBKIT)
@@ -36,42 +47,26 @@ else(${QT_WEBKIT})
 	message(STATUS "Using QtWebEngine")
 endif(${QT_WEBKIT})
 
-#
 # Required libraries
-#
+# Define library that will be used everywhere in Inspector
 include(CMakeRequiredLibraries.txt)
 
-#
 # Handles the version
-#
 include(CMakeVersionHandler.txt)
 
-# 
-# Tests helpers
-#
+# Define variable and repo required for tests
 include(CMakePVTests.txt)
 
-#############################################
-# BEGIN: ADD INCLUDE DIRS NEEDED EVERYWHERE #
-#############################################
-message(STATUS "QtCore include dirs: " ${Qt5Core_INCLUDE_DIR})
-include_directories(${Qt5Core_INCLUDE_DIRS})
-#message(STATUS "Dumbnet include dirs: " ${DUMBNET_INCLUDE_DIRS})
-#include_directories(AFTER ${DUMBNET_INCLUDE_DIRS})
-message(STATUS "Boost include dirs: " ${BOOST_INCLUDEDIR})
-include_directories(AFTER ${BOOST_INCLUDEDIR})
-message(STATUS "TBB include dirs: " ${TBB_INCLUDE_DIRS})
-include_directories(AFTER ${TBB_INCLUDE_DIRS})
+###############################################################################
+# Add generic inspector includes
+###############################################################################
 
 # PVBase
 include_directories(AFTER "${picviz-inspector_SOURCE_DIR}/include")
 
-###########################################
-# END: ADD INCLUDE DIRS NEEDED EVERYWHERE #
-###########################################
-
-# Test compilation target
-ADD_CUSTOM_TARGET(alltests COMMAND make)
+###############################################################################
+# Define project dependencies
+###############################################################################
 
 declare_internal_library(pvkernel)
 
@@ -85,7 +80,6 @@ declare_internal_library(pvhive)
 declare_internal_library(pvdisplays)
 declare_internal_library(pvparallelview)
 declare_internal_library(pvguiqt)
-#declare_internal_library(pvhitgraph)
 
 add_subdirectory(gui-qt)
 add_subdirectory(scripts)
@@ -102,26 +96,17 @@ add_custom_target(testsuite DEPENDS ${__TESTS_TARGETS})
 # JBL's special request
 add_custom_target(love COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS testsuite)
 
-message(STATUS "ICU found: " ${ICU_FOUND})
-if(ICU_FOUND)
-  message(STATUS "ICU include: ${ICU_INCLUDE}")
-  message(STATUS "ICU libraries: ${ICU_LIBRARY}")
-endif(ICU_FOUND)
-
-message(STATUS "CUDA found: " ${CUDA_FOUND})
-if(CUDA_FOUND)
-  message(STATUS "CUDA version: " ${CUDA_VERSION_STRING})
-  message(STATUS "CUDA toolkit root dir: " ${CUDA_TOOLKIT_ROOT_DIR})
-  message(STATUS "CUDA 64bit device: " ${CUDA_64_BIT_DEVICE_CODE})
-  message(STATUS "CUDA runtime libraries: " ${CUDA_LIBRARIES})
-  message(STATUS "CUDA npp libraries: " ${CUDA_npp_LIBRARY})
-endif(CUDA_FOUND)
-
+###############################################################################
+# Define generated files
+###############################################################################
 # Set inspector.sh and make_protect for current build
 configure_file(inspector.sh.cmake inspector.sh @ONLY)
 configure_file(make_protect.cmake make_protect @ONLY)
 configure_file(grep_table.sh.cmake grep_table.sh @ONLY)
 configure_file(squish_ide.sh.cmake squish_ide.sh @ONLY)
 
+###############################################################################
+# Define distribution stuff
+###############################################################################
 include(CMakePackage.txt)
 include(CMakePackageDistribute.txt)
