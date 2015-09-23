@@ -84,22 +84,9 @@ else()
 endif()
 add_definitions(-DPICVIZ_SORTING_FUNCTIONS_PLUGINS_DIR="${PICVIZ_SORTING_FUNCTIONS_PLUGINS_DIR}")
 
-# #
-# # PCRE
-# if(WIN32)
-#     set(PCRE_FILES_DLL "C:\\\\dev\\\\GnuWin32\\\\bin\\\\pcre3.dll" "C:\\\\dev\\\\GnuWin32\\\\bin\\\\pcreposix3.dll") # For CPack; NSIS needs double escape
-# 	set(PCRE_INCLUDE_DIR "C:\\dev\\GnuWin32\\include")
-# 	set(PCRE_PCREPOSIX_LIBRARY "C:\\dev\\GnuWin32\\lib\\pcreposix.lib")
-# 	set(PCRE_PCRE_LIBRARY "C:\\dev\\GnuWin32\\lib\\pcre.lib")
-# else(WIN32)
-# 	FIND_PACKAGE(PCRE REQUIRED)
-# endif(WIN32)
-# #
-# # WinLicense
-# # 
-# if(WIN32)
-# 	set(WINLICENSE_LIBRARY "C:\\dev\\WinlicenseSDK.lib")
-# endif(WIN32)
+###############################################################################
+# Configure subdirectories
+###############################################################################
 
 add_subdirectory(src)
 add_subdirectory(plugins)

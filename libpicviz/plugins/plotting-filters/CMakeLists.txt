@@ -3,49 +3,96 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-#
+###############################################################################
 # Plotting filters
-#
+###############################################################################
+
+###############################################################################
+# Define plotting filter plugns to distribute
+###############################################################################
 
 set(FILTERS_DIST_LIST
 plotting_filter_noprocess
 plotting_filter_all_minmax
 plotting_filter_all_log_minmax
-#plotting_filter_all_divide
 plotting_filter_integer_port
 plotting_filter_time_default
-#plotting_filter_ipv4_default
 )
 
 set(FILTERS_DIST_FILES
 )
 
+# Extra libs
 set(LINK_LIBRARIES picviz pvkernel)
 
-add_library(plotting_filter_noprocess SHARED noprocess/PVPlottingFilterNoprocess.cpp noprocess/register.cpp)
+###############################################################################
+# No process filter
+###############################################################################
+# Define ressources
+SET(SRC_NOPROCESS
+noprocess/PVPlottingFilterNoprocess.cpp
+noprocess/register.cpp
+)
+
+#Create lib
+add_library(plotting_filter_noprocess SHARED ${SRC_NOPROCESS})
 target_link_libraries(plotting_filter_noprocess ${LINK_LIBRARIES})
 
-add_library(plotting_filter_all_minmax SHARED all_minmax/PVPlottingFilterMinmax.cpp all_minmax/register.cpp)
+###############################################################################
+# Min max filter
+###############################################################################
+# Define ressources
+SET(SRC_MINMAX
+all_minmax/PVPlottingFilterMinmax.cpp
+all_minmax/register.cpp
+)
+
+#Create lib
+add_library(plotting_filter_all_minmax SHARED ${SRC_MINMAX})
 target_link_libraries(plotting_filter_all_minmax ${LINK_LIBRARIES})
 
-add_library(plotting_filter_all_log_minmax SHARED all_log_minmax/PVPlottingFilterLogMinmax.cpp all_log_minmax/register.cpp)
+###############################################################################
+# Log min max filter
+###############################################################################
+# Define ressources
+SET(SRC_LOGMINMAX
+all_log_minmax/PVPlottingFilterLogMinmax.cpp
+all_log_minmax/register.cpp
+)
+
+#Create lib
+add_library(plotting_filter_all_log_minmax SHARED ${SRC_LOGMINMAX})
 target_link_libraries(plotting_filter_all_log_minmax ${LINK_LIBRARIES})
 
-#add_library(plotting_filter_float_igr SHARED float_igr/PVPlottingFilterFloatIGR.cpp float_igr/register.cpp)
-#target_link_libraries(plotting_filter_float_igr ${LINK_LIBRARIES})
+###############################################################################
+# Port filter
+###############################################################################
+# Define ressources
+SET(SRC_PORT
+integer_port/PVPlottingFilterIntegerPort.cpp
+integer_port/register.cpp
+)
 
-#add_library(plotting_filter_all_divide SHARED all_divide/PVPlottingFilterAllDivide.cpp all_divide/register.cpp)
-#target_link_libraries(plotting_filter_all_divide ${LINK_LIBRARIES})
-
-#add_library(plotting_filter_ipv4_default SHARED ipv4_default/PVPlottingFilterIpv4Default.cpp ipv4_default/register.cpp)
-#target_link_libraries(plotting_filter_ipv4_default ${LINK_LIBRARIES})
-
-add_library(plotting_filter_integer_port SHARED integer_port/PVPlottingFilterIntegerPort.cpp integer_port/register.cpp)
+#Create lib
+add_library(plotting_filter_integer_port SHARED ${SRC_PORT})
 target_link_libraries(plotting_filter_integer_port ${LINK_LIBRARIES})
 
-add_library(plotting_filter_time_default SHARED time_default/PVPlottingFilterTimeDefault.cpp time_default/register.cpp)
+###############################################################################
+# Time filter
+###############################################################################
+# Define ressources
+SET(SRC_TIME
+time_default/PVPlottingFilterTimeDefault.cpp
+time_default/register.cpp
+)
+
+#Create lib
+add_library(plotting_filter_time_default SHARED ${SRC_TIME})
 target_link_libraries(plotting_filter_time_default ${LINK_LIBRARIES})
 
+###############################################################################
+# Install plugins and ressources
+###############################################################################
 INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION plotting-filters
                                      RUNTIME DESTINATION plotting-filters)
 INSTALL(FILES ${FILTERS_DIST_FILES} DESTINATION plotting-filters)
