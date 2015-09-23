@@ -29,6 +29,4 @@ include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 include_directories(AFTER ${PVDISPLAYS_INCLUDE_DIRS})
 
 add_subdirectory(src)
-add_subdirectory(plugins)
-add_subdirectory(tests)
 propagate_tests_targets_to_parent()

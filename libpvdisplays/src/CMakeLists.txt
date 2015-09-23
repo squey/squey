@@ -12,19 +12,8 @@ PVDisplayIf.cpp
 PVDisplaysImpl.cpp
 )
 
-set(LIBDISPLAYS_HEADER_FILES
-include/pvdisplays/PVDisplayIf.h
-include/pvdisplays/PVDisplaysImpl.h
-)
-
 SET(LIBDISPLAYS_MOC_HEADERS
 include/pvdisplays/PVDisplaysContainer.h
-)
-
-SET(UI_FILES
-)
-
-SET(QRC_FILES
 )
 
 ################################################
@@ -32,17 +21,14 @@ SET(QRC_FILES
 ################################################
 
 set(SRC_FILES ${LIBDISPLAYS_SRC_FILES})
-set(HEADER_FILES ${LIBDISPLAYS_HEADER_FILES})
 set(MOC_HEADERS ${LIBDISPLAYS_MOC_HEADERS})
 QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-QT5_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
-QT5_WRAP_UI(UI_SRC ${UI_FILES})
 
 ################################################
 # Declare the new library and linkage options
 ################################################
 
-add_library(pvdisplays SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS} ${UI_FILES})
+add_library(pvdisplays SHARED ${SRC_FILES} ${MOC_SRC})
 
 set_target_properties(pvdisplays PROPERTIES SOVERSION 1)
 
