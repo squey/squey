@@ -13,11 +13,7 @@ endif(CUDA_FOUND)
 # CUDA
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
 set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC ${CMAKE_NVCC_GENCODE_FLAGS}" "-Xptxas=-v")
-#set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC -gencode arch=compute_30,code=sm_30" "-Xptxas=-v")
 #set(CUDA_NVCC_FLAGS "-g -G -Xcompiler=-fPIC -gencode arch=compute_20,code=sm_20" "-Xptxas=-v")
-
-add_definitions(${PICVIZ_DEFINITIONS})
-add_definitions(${OpenMP_CXX_FLAGS})
 
 ################################################
 # Ressource declaration
@@ -113,55 +109,6 @@ set(CUDA_SRC_FILES
 	PVBCIDrawingBackendCUDA.cpp
 )
 
-SET(HEADER_FILES
-include/pvparallelview/common.h
-include/pvparallelview/PVBCIBuffers.h
-include/pvparallelview/PVBCICode.h
-include/pvparallelview/PVBCode.h
-include/pvparallelview/PVContainerZoneTree.h
-include/pvparallelview/PVLinesView.h
-include/pvparallelview/PVParallelView.h
-include/pvparallelview/PVPODBlockContainer.h
-include/pvparallelview/PVQuadTree.h
-include/pvparallelview/PVTools.h
-include/pvparallelview/PVZoneProcessing.h
-include/pvparallelview/PVZonesManager.h
-include/pvparallelview/PVZoneTreeBase.h
-include/pvparallelview/PVZoneTree.h
-include/pvparallelview/PVZoneTreeNoAlloc.h
-include/pvparallelview/PVZoomedZoneTree.h
-include/pvparallelview/PVZoomedParallelScene.h
-include/pvparallelview/PVZoomedParallelView.h
-include/pvparallelview/PVSlidersManager.h
-include/pvparallelview/PVAxisLabel.h
-include/pvparallelview/PVFullParallelView.h
-include/pvparallelview/PVFullParallelViewSelectionRectangle.h
-include/pvparallelview/PVAxisHeader.h
-include/pvparallelview/PVFullParallelScene.h
-include/pvparallelview/PVSlidersGroup.h
-include/pvparallelview/PVAbstractAxisSlider.h
-include/pvparallelview/PVAbstractAxisSliders.h
-include/pvparallelview/PVSelectionAxisSlider.h
-include/pvparallelview/PVSelectionAxisSliders.h
-include/pvparallelview/PVZoomAxisSlider.h
-include/pvparallelview/PVZoomAxisSliders.h
-include/pvparallelview/PVZoomedSelectionAxisSlider.h
-include/pvparallelview/PVZoomedSelectionAxisSliders.h
-
-# ZoomableDrawingArea & co
-include/pvparallelview/PVZoomableDrawingArea.h
-include/pvparallelview/PVZoomableDrawingAreaWithAxes.h
-
-# views
-include/pvparallelview/PVHitCountView.h
-include/pvparallelview/PVScatterView.h
-include/pvparallelview/PVScatterViewDataInterface.h
-include/pvparallelview/PVScatterViewData.h
-include/pvparallelview/PVScatterViewDataImpl.h
-include/pvparallelview/PVScatterViewImage.h
-include/pvparallelview/PVScatterViewImagesManager.h
-)
-
 SET(MOC_HEADERS
 include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
@@ -200,7 +147,8 @@ QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 
 set(QT5_LIBS Qt5Core Qt5Gui Qt5Widgets Qt5Xml Qt5Concurrent Qt5OpenGL)
 
-set(LINK_LIBRARIES pvdisplays picviz pvhive pvkernel ${QT5_LIBS} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
+set(LINK_LIBRARIES pvdisplays picviz pvhive pvkernel ${QT5_LIBS} ${OPENGL_LIBRARIES}
+	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
 
 if (CUDA_FOUND)
 	cuda_compile(CUDA_KERNELS cuda/bci_cuda_z24.cu)
@@ -208,7 +156,7 @@ if (CUDA_FOUND)
 	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_npp_LIBRARY})
 endif (CUDA_FOUND)
 
-add_library(pvparallelview SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC})
+add_library(pvparallelview SHARED ${SRC_FILES} ${MOC_SRC})
 set_target_properties(pvparallelview PROPERTIES SOVERSION 1)
 
 target_link_libraries(pvparallelview ${LINK_LIBRARIES})
