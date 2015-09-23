@@ -64,7 +64,7 @@ endif(PYTHONLIBS_FOUND)
 ##########################################
 
 # Set PVFILTER_NORMALIZE_DIR
-if(CMAKE_BUILD_TYPE_LOWER STREQUAL "distribute")
+if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
         set(PVFILTER_NORMALIZE_DIR "normalize-filters")
 else()
         set(PVFILTER_NORMALIZE_DIR "../../libpvkernel/plugins/normalize/")
@@ -72,7 +72,7 @@ endif()
 add_definitions(-DPVFILTER_NORMALIZE_DIR="${PVFILTER_NORMALIZE_DIR}")
 
 # Set PVRUSH_NORMALIZE_HELPERS_DIR
-if(CMAKE_BUILD_TYPE_LOWER STREQUAL "distribute")
+if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
         set(PVRUSH_NORMALIZE_HELPERS_DIR "normalize-helpers")
 else()
 	# This one is in the source dir, not the build dir
@@ -81,7 +81,7 @@ endif()
 add_definitions(-DPVRUSH_NORMALIZE_HELPERS_DIR="${PVRUSH_NORMALIZE_HELPERS_DIR}")
 
 # Set PVRUSH_INPUTTYPE_DIR
-if(CMAKE_BUILD_TYPE_LOWER STREQUAL "distribute")
+if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
 	set(PVRUSH_INPUTTYPE_DIR "input-types")
 else()
 	set(PVRUSH_INPUTTYPE_DIR "../../libpvkernel/plugins/input_types/")
@@ -89,7 +89,7 @@ endif()
 add_definitions(-DPVRUSH_INPUTTYPE_DIR="${PVRUSH_INPUTTYPE_DIR}")
 
 # Set PVRUSH_SOURCE_DIR
-if(CMAKE_BUILD_TYPE_LOWER STREQUAL "distribute")
+if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
 	set(PVRUSH_SOURCE_DIR "sources")
 else()
 	set(PVRUSH_SOURCE_DIR "../../libpvkernel/plugins/sources/")
@@ -97,7 +97,7 @@ endif()
 add_definitions(-DPVRUSH_SOURCE_DIR="${PVRUSH_SOURCE_DIR}")
 
 # Set PICVIZ_QUERYBUILDER_DIR
-if(CMAKE_BUILD_TYPE_LOWER STREQUAL "distribute")
+if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
 	set(PICVIZ_QUERYBUILDER_DIR "querybuilder")
 else()
 	set(PICVIZ_QUERYBUILDER_DIR "../../../libpvkernel/src/widgets/querybuilder")
