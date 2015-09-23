@@ -123,7 +123,6 @@ include/pvkernel/filter/PVFieldsFilterParamWidget.h
 
 set(RUSH_SRC_FILES
 rush/PVAxisFormat.cpp
-rush/pvdecoder.cpp
 rush/PVFileRawSource.cpp
 rush/PVFormat.cpp
 rush/PVNraw.cpp
