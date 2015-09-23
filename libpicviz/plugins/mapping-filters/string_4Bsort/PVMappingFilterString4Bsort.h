@@ -8,7 +8,6 @@
 #define PVFILTER_PVMAPPINGFILTERSTRING4BSORT_H
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/core/stdint.h>
 #include <picviz/PVPureMappingFilter.h>
 
 #include <tbb/atomic.h>

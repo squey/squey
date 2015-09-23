@@ -8,7 +8,7 @@
 #include <pvkernel/core/PVPODTree.h>
 #include <pvkernel/core/picviz_bench.h>
 
-#include <stdint.h>
+#include <cstdint>
 #include <stdlib.h>
 #include <time.h>
 

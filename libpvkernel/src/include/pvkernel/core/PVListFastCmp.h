@@ -7,7 +7,6 @@
 #ifndef PVCORE_PVLISTFASTCMP_H
 #define PVCORE_PVLISTFASTCMP_H
 
-#include <pvkernel/core/stdint.h>
 #include <boost/functional/hash.hpp>
 
 namespace PVCore {

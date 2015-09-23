@@ -7,7 +7,7 @@
 #ifndef BCODE_TYPES_H
 #define BCODE_TYPES_H
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace PVParallelView {
 

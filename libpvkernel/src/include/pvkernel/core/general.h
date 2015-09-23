@@ -8,8 +8,6 @@
 #define PVCORE_GENERAL_H
 
 #include <pvbase/general.h>
-#include <pvkernel/core/stdint.h>
-
 
 #include "PVLogger.h"
 

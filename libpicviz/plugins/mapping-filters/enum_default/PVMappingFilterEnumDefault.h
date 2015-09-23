@@ -10,7 +10,6 @@
 #include <pvkernel/core/PVUnicodeString.h>
 #include <pvkernel/core/PVUnicodeString16.h>
 #include <pvkernel/core/general.h>
-#include <pvkernel/core/stdint.h>
 #include <picviz/PVMappingFilter.h>
 
 #include <QString>

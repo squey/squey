@@ -5,7 +5,6 @@
  */
 
 #include <pvkernel/core/PVDateTimeParser.h>
-#include <pvkernel/core/stdint.h>
 
 #include <QString>
 #include <QFile>

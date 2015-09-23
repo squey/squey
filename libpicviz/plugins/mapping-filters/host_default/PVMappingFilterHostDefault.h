@@ -10,8 +10,6 @@
 #include <pvkernel/core/general.h>
 #include <picviz/PVPureMappingFilter.h>
 
-#include <pvkernel/core/stdint.h>
-
 namespace Picviz {
 
 struct host_mapping

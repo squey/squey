@@ -5,7 +5,6 @@
  */
 
 #include <picviz/PVPlottingFilter.h>
-#include <pvkernel/core/stdint.h>
 
 Picviz::PVPlottingFilter::PVPlottingFilter() :
 	PVFilter::PVFilterFunctionBase<uint32_t*, mapped_decimal_storage_type const*>(),

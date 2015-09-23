@@ -10,8 +10,6 @@
 #include <pvkernel/core/general.h>
 #include <picviz/PVMappingFilter.h>
 
-#include <pvkernel/core/stdint.h>
-
 namespace Picviz {
 
 class PVMappingFilterStringSort: public PVMappingFilter

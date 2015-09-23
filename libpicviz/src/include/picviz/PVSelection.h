@@ -7,7 +7,6 @@
 #ifndef PICVIZ_PVSELECTION_H
 #define PICVIZ_PVSELECTION_H
 
-#include <pvkernel/core/stdint.h>
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVBitVisitor.h>

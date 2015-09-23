@@ -8,7 +8,7 @@
 #include <vector>
 #include <algorithm>
 
-#include <stdint.h>
+#include <cstdint>
 #include <limits.h>
 #include <stdlib.h>
 

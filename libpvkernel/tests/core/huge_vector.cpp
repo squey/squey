@@ -1,6 +1,5 @@
 #include <pvkernel/core/picviz_assert.h>
 #include <pvkernel/core/PVHugePODVector.h>
-#include <pvkernel/core/stdint.h>
 
 #include <iostream>
 

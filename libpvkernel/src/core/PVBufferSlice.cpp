@@ -9,7 +9,6 @@
 
 #include <tbb/tbb_allocator.h>
 
-#include <pvkernel/core/stdint.h>
 
 #define REALLOC_GROWBY_ADD 20
 

@@ -11,8 +11,6 @@
 #include <picviz/PVMappingFilter.h>
 #include <tbb/atomic.h>
 
-#include <pvkernel/core/stdint.h>
-
 namespace Picviz {
 
 class PVMappingFilterStringDefault: public PVMappingFilter
