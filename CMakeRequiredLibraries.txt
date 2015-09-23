@@ -173,27 +173,6 @@ endif(WIN32)
 ###############################################################################
 find_package(PCRE REQUIRED)
 
-###############################################################################
-# Check for Java and JNI Use with Hadoop
-# TODO : Could be removed?
-###############################################################################
-find_package(Java)
-find_package(JNI)
-
-if(JAVA_FOUND)
-	include(UseJava)
-endif(JAVA_FOUND)
-
-
-###############################################################################
-# Check for libhdfs (needed for Hadoop support).
-# TODO : Could be remove?
-###############################################################################
-if (WIN32)
-else (WIN32)
-	find_package(HDFS)
-endif(WIN32)
-
 #
 # Under Win32, check for Winsocks
 

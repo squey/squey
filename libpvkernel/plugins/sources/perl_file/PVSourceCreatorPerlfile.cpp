@@ -15,7 +15,7 @@
 
 #define DEFAULT_PERL_CHUNK_SIZE 1024 * 100
 
-PVRush::PVSourceCreatorPerlfile::source_p PVRush::PVSourceCreatorPerlfile::create_discovery_source_from_input(PVInputDescription_p input, const PVFormat& format) const
+PVRush::PVSourceCreatorPerlfile::source_p PVRush::PVSourceCreatorPerlfile::create_source_from_input(PVInputDescription_p input, const PVFormat& format) const
 {
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	QFileInfo perl_file_info(format.get_full_path());

@@ -30,9 +30,7 @@ public:
 public:
 	virtual ~PVSourceCreator() {}
 public:
-	/* Used for Hadoop since we read directly the file using libhdfs */
-	virtual source_p create_source_from_input(PVInputDescription_p input, PVFormat& format) const { return create_discovery_source_from_input(input, format); }
-	virtual source_p create_discovery_source_from_input(PVInputDescription_p input, const PVFormat& format) const = 0;
+	virtual source_p create_source_from_input(PVInputDescription_p input, const PVFormat& format) const = 0;
 	virtual QString supported_type() const = 0;
 	PVInputType_p supported_type_lib()
 	{
