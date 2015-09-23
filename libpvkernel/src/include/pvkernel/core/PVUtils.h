@@ -17,10 +17,4 @@
 	#define unlikely(x) (x)
 #endif
 
-namespace PVCore {
-	namespace PVUtils {
-		LibKernelDecl bool isCapsLockActivated(void);
-	}
-}
-
 #endif	/* PVCORE_PVUTILS_H */

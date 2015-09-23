@@ -7,10 +7,6 @@
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
-declare_pv_test(Tcore_capslock capslock.cpp)
-target_link_libraries(Tcore_capslock pvkernel)
-add_test(TestCapslock Tcore_capslock)
-
 declare_pv_test(Tcore_simple simple.cpp)
 target_link_libraries(Tcore_simple pvkernel)
 add_test(TestSimple Tcore_simple)

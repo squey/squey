@@ -249,14 +249,6 @@ if(PYTHONLIBS_FOUND)
 endif(PYTHONLIBS_FOUND)
 
 ###############################################################################
-# Check for X11 (used to detect caps lock activated ;-))
-# TODO : Qt5 doesn't need it anymore, is it still required?
-###############################################################################
-if(NOT WIN32)
-	find_package(X11 REQUIRED)
-endif(NOT WIN32)
-
-###############################################################################
 # Check for Correlation
 # FIXME : It can't be enable anymore as it will not compile.
 #
