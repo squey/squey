@@ -97,13 +97,6 @@ SET(QRC_FILES
 ../../gui-qt/src/picviz-inspector_resource.qrc
 )
 
-set(LIBGUIQT_HEADER_FILES
-)
-
-################################################
-# Generate extra QT files (moc, uic, rcc)
-################################################
-
 if(ENABLE_CORRELATION)
 	list(APPEND LIBGUIQT_SRC_FILES
 	PVCorrelationMenu.cpp
@@ -118,6 +111,10 @@ if(ENABLE_CORRELATION)
 	)
 endif()
 
+################################################
+# Generate extra QT files (moc, uic, rcc)
+################################################
+
 set(SRC_FILES ${LIBGUIQT_SRC_FILES})
 set(HEADER_FILES ${LIBGUIQT_HEADER_FILES})
 set(MOC_HEADERS ${LIBGUIQT_MOC_HEADERS})
@@ -129,13 +126,14 @@ PV_QT5_WRAP_UI(UI_SRC pvguiqt ${UI_FILES})
 # Declare the new library and linkage options
 ################################################
 
-add_library(pvguiqt SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS} ${UI_FILES})
+add_library(pvguiqt SHARED ${SRC_FILES} ${MOC_SRC} ${QRC_FILES_SRCS} ${UI_FILES})
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
 set(QT5_LIBS Qt5Core Qt5Xml Qt5Widgets Qt5Concurrent Qt5OpenGL)
 
-set(PVGUIQT_LINK_LIBRARIES pvdisplays pvhive picviz pvkernel ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
+set(PVGUIQT_LINK_LIBRARIES pvdisplays pvhive picviz pvkernel ${OPENGL_LIBRARIES}
+	${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 
