@@ -180,7 +180,7 @@ void PVSplunkJsonConverter::parse_condition(rapidjson::Value const& obj)
    if(not _in_values.empty())
        inject_in(_in_values);
    if(not _not_in_values.empty())
-       not_(&PVSplunkJsonConverter::inject_in, _not_in_values);
+       not_<PVSplunkJsonConverter>(&PVSplunkJsonConverter::inject_in, _not_in_values);
 
    _writer << ")";
 
