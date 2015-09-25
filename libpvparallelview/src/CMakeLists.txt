@@ -35,7 +35,6 @@ PVHitGraphBuffer.cpp
 PVHitGraphDataInterface.cpp
 PVHitGraphDataOMP.cpp
 PVHitGraphSSEHelpers.cpp
-#PVHitGraphDataZTRight.cpp
 PVLibView.cpp
 PVLinesView.cpp
 PVParallelView.cpp
@@ -105,7 +104,6 @@ PVScatterViewParamsWidget.cpp
 )
 
 set(CUDA_SRC_FILES
-	#PVBCIDrawingEngineCuda.cpp
 	PVBCIDrawingBackendCUDA.cpp
 )
 

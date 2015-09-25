@@ -6,7 +6,6 @@
 
 #include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/PVHitGraphDataOMP.h>
-#include <pvparallelview/PVHitGraphDataZTRight.h>
 
 #include "common.h"
 
