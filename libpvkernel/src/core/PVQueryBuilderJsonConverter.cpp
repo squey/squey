@@ -1,7 +1,5 @@
 #include "pvkernel/core/PVQueryBuilderJsonConverter.h"
 
-#include <functional>
-
 namespace PVCore {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,20 +10,6 @@ PVQueryBuilderJsonConverter::PVQueryBuilderJsonConverter(std::string const& qb_r
     _doc()
 {
     _doc.Parse(qb_rule.c_str());
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// not_
-///////////////////////////////////////////////////////////////////////////////
-
-template <class F, class ...T>
-void PVQueryBuilderJsonConverter::not_(F fun, T && ... params)
-{
-   pre_not_();
-
-   std::mem_fn(fun)(*this, std::forward<T>(params)...);
-
-   post_not_();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -84,7 +68,7 @@ void PVQueryBuilderJsonConverter::parse_node(rapidjson::Value const& obj)
          equal(obj["id"], obj["value"]);
          break;
       case NOT_EQUAL:
-         not_(&PVQueryBuilderJsonConverter::equal, obj["id"], obj["value"]);
+         not_<PVQueryBuilderJsonConverter>(&PVQueryBuilderJsonConverter::equal, obj["id"], obj["value"]);
          break;
       case BETWEEN:
          between(obj["id"], obj["value"][0], obj["value"][1]);
@@ -96,19 +80,19 @@ void PVQueryBuilderJsonConverter::parse_node(rapidjson::Value const& obj)
          not_in(obj["id"], obj["value"]);
          break;
       case NOT_BEGINS_WITH:
-         not_(&PVQueryBuilderJsonConverter::prefix, obj["id"], obj["value"]);
+    	 not_<PVQueryBuilderJsonConverter>(&PVQueryBuilderJsonConverter::prefix, obj["id"], obj["value"]);
          break;
       case BEGINS_WITH:
          prefix(obj["id"], obj["value"]);
          break;
       case NOT_CONTAINS:
-         not_(&PVQueryBuilderJsonConverter::contains, obj["id"], obj["value"]);
+    	 not_<PVQueryBuilderJsonConverter>(&PVQueryBuilderJsonConverter::contains, obj["id"], obj["value"]);
          break;
       case CONTAINS:
          contains(obj["id"], obj["value"]);
          break;
       case NOT_ENDS_WITH:
-         not_(&PVQueryBuilderJsonConverter::suffix, obj["id"], obj["value"]);
+    	 not_<PVQueryBuilderJsonConverter>(&PVQueryBuilderJsonConverter::suffix, obj["id"], obj["value"]);
          break;
       case ENDS_WITH:
          suffix(obj["id"], obj["value"]);
@@ -117,13 +101,13 @@ void PVQueryBuilderJsonConverter::parse_node(rapidjson::Value const& obj)
          is_null(obj["id"]);
          break;
       case IS_NOT_NULL:
-         not_(&PVQueryBuilderJsonConverter::is_null, obj["id"]);
+    	 not_<PVQueryBuilderJsonConverter>(&PVQueryBuilderJsonConverter::is_null, obj["id"]);
          break;
       case IS_EMPTY:
          is_empty(obj["id"]);
          break;
       case IS_NOT_EMPTY:
-         not_(&PVQueryBuilderJsonConverter::is_empty, obj["id"]);
+    	 not_<PVQueryBuilderJsonConverter>(&PVQueryBuilderJsonConverter::is_empty, obj["id"]);
          break;
       case LESS:
          less(obj["id"], obj["value"]);

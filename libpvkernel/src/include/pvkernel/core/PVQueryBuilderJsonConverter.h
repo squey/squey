@@ -1,6 +1,7 @@
 #ifndef __PVQUERYBUILDERJSONCONVERTER_H__
 #define __PVQUERYBUILDERJSONCONVERTER_H__
 
+#include <functional>
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -31,7 +32,7 @@ class PVQueryBuilderJsonConverter
        /**
         * Virtual destructor
         */
-       ~PVQueryBuilderJsonConverter() {};
+       virtual ~PVQueryBuilderJsonConverter() {};
 
        /** Translate querybuilder json to database-like input.
         *
@@ -144,11 +145,20 @@ class PVQueryBuilderJsonConverter
         *
         * @note : This method can't be virtual as it is also a template function.
         * pre_not_ and post_not_ are used to generate correct information.
-        * @note : Définition is in the cpp file as it is a private method so
-        * all possible signatures are known when we compile the .cpp file.
+        *
+        * Use an extra template parameter and a static_cast because the compiler doesn't understand
+        * inheritance dispatching with template and this is a PVQueryBuilderJsonConverter
+        * and not a derived pointer.
         */
-       template <class F, class ...T>
-       void not_(F fun, T && ... params);
+       template <class C, class F, class ...T>
+       void not_(F fun, T && ... params)
+       {
+          pre_not_();
+
+          std::mem_fn(fun)(*static_cast<C*>(this), std::forward<T>(params)...);
+
+          post_not_();
+       }
        virtual void pre_not_() = 0;
        virtual void post_not_() = 0;
 
