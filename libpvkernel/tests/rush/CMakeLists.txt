@@ -23,7 +23,7 @@ endif()
 
 #add_definitions(-DPV_USE_RINGBUFFER)
 
-set(PVRUSH_TEST_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test-files")
+set(PVRUSH_TEST_FILES "${TESTS_FILES_DIR}/pvkernel/rush")
 set(PVRUSH_TEST_FILES_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/test-files")
 
 # Test UTF16 conversion

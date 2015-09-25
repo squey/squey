@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 	}
 
 	if (files.size() == 0) {
-		std::cerr << "No files in test-files/tickets/1/. Test failed." << std::endl;
+		std::cerr << "No files in tickets/1/. Test failed." << std::endl;
 		return 1;
 	}
 

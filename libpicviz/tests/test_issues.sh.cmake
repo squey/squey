@@ -7,7 +7,7 @@
 #
 
 ROOTDIR="@CMAKE_SOURCE_DIR@/libpicviz/tests"
-DIR="$ROOTDIR/test-files/had_issues/$1"
+DIR="$ROOTDIR/had_issues/$1"
 
 test ! -d "$DIR" && echo "'$DIR' is not a directory" && exit 1
 

@@ -6,8 +6,8 @@
 
 #
 
-ROOTDIR="@CMAKE_CURRENT_SOURCE_DIR@"
-DIR="$ROOTDIR/test-files/splitters/url"
+ROOTDIR="@TESTS_FILES_DIR@"
+DIR="$ROOTDIR/pvkernel/rush/splitters/url"
 
 for f in $DIR/*.url; do
 	INPUT=$f

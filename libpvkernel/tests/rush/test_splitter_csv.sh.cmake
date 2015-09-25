@@ -6,8 +6,8 @@
 
 #
 
-ROOTDIR="@CMAKE_CURRENT_SOURCE_DIR@"
-DIR="$ROOTDIR/test-files/splitters/csv"
+ROOTDIR="@TESTS_FILES_DIR@"
+DIR="$ROOTDIR/pvkernel/rush/splitters/csv"
 
 test ! -d "$DIR" && echo "'$DIR' is not a directory" && exit 1
 

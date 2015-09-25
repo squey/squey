@@ -6,7 +6,7 @@
 
 #
 
-ROOTDIR="@CMAKE_SOURCE_DIR@/libpvkernel/tests/rush"
+ROOTDIR="@TESTS_FILES_DIR@/pvkernel/rush"
 
 test $# -eq 0 && echo "usage: `basename $0` [parameters for diff_stdout.py]" && exit 1
 

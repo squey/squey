@@ -16,7 +16,7 @@
 
 #include "test-env.h"
 
-#define FILES_DIR "test-files/tickets/28/"
+#define FILES_DIR "../../tests/files/pvkernel/run/tickets/28/"
 
 int main(int argc, char** argv)
 {

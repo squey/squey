@@ -210,8 +210,8 @@ else
     # list all files from git
     git ls-files
 fi |
-# some directories: test-files/, third-party/
-egrep -v '(test-files|third-party|tests/filter/test-agg)/' |
+# some directories: third-party/
+egrep -v '(third-party|tests/filter/test-agg)/' |
 # images, fonts, archives, "office" documents, Qt Help
 egrep -v '\.(png|jpg|svg|bmp|ico|ttf|gz|bz2|zip|odt|ods|pdf|doc|docx|xls|xlsx|qhcp)("|)$' |
 # Microsoft Visual Studio's files

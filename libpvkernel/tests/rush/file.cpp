@@ -13,14 +13,14 @@ int main(int argc, char **argv)
 {
 #include "test-env.h"
 
-  PVRush::File file("test-files/file_ending.utf16.gz");
+  PVRush::File file("../../tests/files/pvkernel/rush/file_ending.utf16.gz");
   QByteArray qba;
 
   printf("code name=%s\n", file.codec->name().data());
 //   printf("is compressed=%d\n", file.is_compressed);
 
 
-  file.Uncompress(QString("test-files/file_ending.utf16.gz"),QString("outfile"));
+  file.Uncompress(QString("../../tests/files/pvkernel/rush/file_ending.utf16.gz"),QString("outfile"));
 //   qba = file.file.read(12);
 //   printf("some data='%s'\n", qba.data());
 

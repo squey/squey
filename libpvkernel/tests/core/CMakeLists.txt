@@ -34,7 +34,7 @@ add_test(TestLogger Tcore_logger)
 # Time format parser test
 declare_pv_test(Tcore_timeformat time-format.cpp)
 target_link_libraries(Tcore_timeformat pvkernel ${ICU_LIBRARY})
-add_test(TestTimeformat Tcore_timeformat ${CMAKE_CURRENT_SOURCE_DIR}/test-files/time_format)
+add_test(TestTimeformat Tcore_timeformat ${TESTS_FILES_DIR}/pvkernel/core/time_format)
 
 # Time format performance
 declare_pv_test(Tcore_timeformat_perf time-format-perf.cpp)

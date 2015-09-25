@@ -23,7 +23,7 @@
 #include <math.h>
 
 #define FORMAT "csv"
-#define FILE "logs/collecte.csv"
+#define FILE "../../tests-files/picviz/collecte.csv"
 
 int main(int argc, char **argv)
 {

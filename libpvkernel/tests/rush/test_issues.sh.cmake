@@ -6,8 +6,8 @@
 
 #
 
-ROOTDIR="@CMAKE_SOURCE_DIR@/libpvkernel/tests/rush"
-DIR="$ROOTDIR/test-files/had_issues"
+ROOTDIR="@TESTS_FILES_DIR@"
+DIR="$ROOTDIR/pvkernel/rush/had_issues"
 
 test ! -d "$DIR" && echo "'$DIR' is not a directory" && exit 1
 
