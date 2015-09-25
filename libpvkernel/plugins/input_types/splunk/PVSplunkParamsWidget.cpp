@@ -1,7 +1,6 @@
 #include "PVSplunkParamsWidget.h"
 #include "PVInputTypeSplunk.h"
 #include "../../common/splunk/PVSplunkAPI.h"
-#include "../../common/splunk/PVSplunkJsonConverter.h"
 
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVQueryBuilder.h>
@@ -109,7 +108,7 @@ void PVRush::PVSplunkParamsWidget::export_query_result(QTextStream& output_strea
 			break;
 		}
 
-		output_stream << data.c_str() << endl;
+		output_stream << data.c_str();
 
 		if (output_stream.status() == QTextStream::WriteFailed) {
 			if (error) {
