@@ -97,20 +97,6 @@ SET(QRC_FILES
 ../../gui-qt/src/picviz-inspector_resource.qrc
 )
 
-if(ENABLE_CORRELATION)
-	list(APPEND LIBGUIQT_SRC_FILES
-	PVCorrelationMenu.cpp
-	PVAD2GWidget.cpp
-	PVAD2GInteractor.cpp
-	)
-
-	list(APPEND LIBGUIQT_MOC_HEADERS
-	include/pvguiqt/PVCorrelationMenu.h
-	include/pvguiqt/PVAD2GWidget.h
-	include/pvguiqt/PVAD2GInteractor.h
-	)
-endif()
-
 ################################################
 # Generate extra QT files (moc, uic, rcc)
 ################################################

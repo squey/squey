@@ -28,9 +28,6 @@ include_directories(${Qt5Widgets_INCLUDE_DIRS})
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 include_directories(AFTER ${ICU_INCLUDE})
-if(ENABLE_CORRELATION)
-        include_directories(AFTER ${TULIP_INCLUDE_DIR})
-endif()
 
 ##########################################
 # BEGIN: SET VARIOUS PLUGINS DIRECTORIES #
@@ -58,15 +55,6 @@ else()
 	set(PICVIZ_PLOTTING_FILTERS_DIR "../../libpicviz/plugins/plotting-filters/")
 endif()
 add_definitions(-DPICVIZ_PLOTTING_FILTERS_DIR="${PICVIZ_PLOTTING_FILTERS_DIR}")
-
-# Set PICVIZ_ROW_FILTERS_DIR
-# This is unused for now as it require correlation enable
-if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
-	set(PICVIZ_ROW_FILTERS_DIR "row-filters")
-else()
-	set(PICVIZ_ROW_FILTERS_DIR "../../libpicviz/plugins/row-filters/")
-endif()
-add_definitions(-DPICVIZ_ROW_FILTERS_DIR="${PICVIZ_ROW_FILTERS_DIR}")
 
 # Set PICVIZ_AXIS_COMPUTATION_PLUGINS_DIR
 if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")

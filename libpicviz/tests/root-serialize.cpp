@@ -24,10 +24,6 @@
 #include <QCoreApplication>
 #include "test-env.h"
 
-#ifdef ENABLE_CORRELATION
-#include <tulip/Graph.h>
-#endif
-
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
@@ -79,32 +75,6 @@ int main(int argc, char** argv)
 
 	Picviz::PVView& v2 = *src2->get_children<Picviz::PVView>().at(0);
 	Picviz::PVView& v3 = *src2->get_children<Picviz::PVView>().at(1);
-
-#ifdef ENABLE_CORRELATION
-	// Set correlations
-	Picviz::PVAD2GView& corr0 = *root->add_correlation("corr0");
-	corr0.add_view(&v0);
-	corr0.add_view(&v1);
-
-	Picviz::PVCombiningFunctionView_p cfv0(new Picviz::PVCombiningFunctionView());
-	corr0.set_edge_f(&v0, &v1, cfv0);
-
-	Picviz::PVAD2GView& corr1 = *root->add_correlation("corr1");
-	corr1.add_view(&v2);
-	corr1.add_view(&v3);
-
-	Picviz::PVCombiningFunctionView_p cfv1(new Picviz::PVCombiningFunctionView());
-	corr1.set_edge_f(&v2, &v3, cfv1);
-
-	Picviz::PVAD2GView& corr2 = *root->add_correlation("corr2");
-	corr2.add_view(&v0);
-	corr2.add_view(&v2);
-
-	Picviz::PVCombiningFunctionView_p cfv2(new Picviz::PVCombiningFunctionView());
-	corr2.set_edge_f(&v0, &v2, cfv2);
-
-	root->select_correlation(0);
-#endif
 
 	// Serialize the root object
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive("/srv/tmp-picviz/test", PVCore::PVSerializeArchive::write, 1));

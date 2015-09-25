@@ -97,32 +97,6 @@ widgets/editors/PVZoneIndexEditor.cpp
 set(MOC_HEADERS
 )
 
-if(ENABLE_CORRELATION)
-	list(APPEND WIDGETS_SRC_FILES
-	widgets/PVAD2GEdgeEditor.cpp
-	widgets/PVAD2GFunctionPropertiesWidget.cpp
-	widgets/PVAD2GListEdgesWidget.cpp
-	widgets/PVAD2GRFFListModel.cpp
-	widgets/PVCombinOpDelegate.cpp
-	)
-
-	list(APPEND SRC_FILES
-	PVAD2GView.cpp
-	PVCombiningFunctionView.cpp
-	PVTFViewRowFiltering.cpp
-	PVTFViewRowFilterFastIPv4.cpp
-	PVSelRowFilteringFunction.cpp
-	)
-
-	list(APPEND MOC_HEADERS
-	include/picviz/widgets/PVAD2GEdgeEditor.h
-	include/picviz/widgets/PVAD2GFunctionPropertiesWidget.h
-	include/picviz/widgets/PVAD2GListEdgesWidget.h
-	include/picviz/widgets/PVAD2GRFFListModel.h
-	include/picviz/widgets/PVCombinOpDelegate.h
-	)
-endif()
-
 ###############################################################################
 # Generate Qt files
 ###############################################################################
@@ -151,14 +125,9 @@ add_library(picviz SHARED ${SRC_FILES} ${WIDGETS_SRC_FILES} ${MOC_SRC})
 
 set_target_properties(picviz PROPERTIES SOVERSION 1)
 
-if(ENABLE_CORRELATION)
-        set (TULIP_LIBS ${TULIP_LIBRARY} ${TULIP_QT4_LIBRARY} ${TULIP_OGL_LIBRARY})
-endif()
-
 target_link_libraries(picviz ${QT5_LIBS} ${TBB_LIBRARIES}
 			     ${Boost_LIBRARIES} ${ICU_LIBRARY}
-			     ${OpenMP_LIBRARIES} ${TULIP_LIBS}
-			     ${OPENGL_LIBRARIES} pvkernel)
+			     ${OpenMP_LIBRARIES} ${OPENGL_LIBRARIES} pvkernel)
 
 ###############################################################################
 # Install files

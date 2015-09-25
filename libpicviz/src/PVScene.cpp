@@ -153,12 +153,6 @@ void Picviz::PVScene::child_added(PVSource& /*src*/)
 
 void Picviz::PVScene::child_about_to_be_removed(PVSource&)
 {
-	// Remove underlying views from the AD2G graph
-	/*for (auto view : src.get_children<PVView>())
-	{
-		_ad2g_view->del_view(view.get());
-	}*/
-	
 #if 0
 	// Remove this source's inputs if they are no longer used by other sources
 	PVRush::PVInputType::list_inputs>& type_srcs = _sources[*(src->get_input_type())];
@@ -243,15 +237,6 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 	}
 
 	data_tree_scene_t::serialize_read(so, v);
-
-#ifdef ENABLE_CORRELATION
-	// Correlation
-	// Optional in both version 1 and 2
-	PVRoot::correlations_t corrs;
-	if (so.list("correlations", corrs, QString(), (PVAD2GView*) nullptr, QStringList(), true, true)) {
-		get_parent<PVRoot>()->add_correlations(corrs);
-	}
-#endif
 }
 
 void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
@@ -278,28 +263,6 @@ void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("name", _name);
 
 	data_tree_scene_t::serialize_write(so);
-
-#ifdef ENABLE_CORRELATION
-	// Correlation (optional)
-	// Save correlations that works for us
-	const bool root_corr_serialized = get_parent<PVRoot>()->are_correlations_serialized();
-	Picviz::PVRoot::correlations_t corrs = get_parent<PVRoot>()->get_correlations_for_scene(*this);
-	if (root_corr_serialized) {
-		QStringList corrs_path;
-		for (PVAD2GView_p const& c: corrs) {
-			QString c_path = get_parent<PVRoot>()->get_serialized_correlation_path(c);
-			corrs_path << c_path;
-		}
-		so.list_attributes("correlations_path", corrs_path);
-	}
-	else {
-		PVCore::PVSerializeObject_p so_correlations = so.list("correlations", get_parent<PVRoot>()->get_correlations(), QObject::tr("Correlations"), (PVAD2GView*) NULL, QStringList(), true, true);
-		if (so_correlations) {
-			QString cur_path = so_correlations->get_child_path(get_parent<PVRoot>()->current_correlation());
-			so.attribute("current_correlation", cur_path);
-		}
-	}
-#endif
 }
 
 PVCore::PVSerializeObject_p Picviz::PVScene::get_so_inputs(PVSource const& src)

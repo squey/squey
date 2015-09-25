@@ -15,7 +15,6 @@
 
 #include <pvkernel/core/lambda_connect.h>
 
-class QComboBox;
 class QLineEdit;
 class QMouseEvent;
 class QWidget;
@@ -30,9 +29,6 @@ namespace Picviz
 {
 class PVSource;
 class PVScene;
-#ifdef ENABLE_CORRELATION
-class PVAD2GView;
-#endif
 }
 
 namespace PVGuiQt
@@ -161,16 +157,6 @@ public:
 	 */
 	virtual void remove_workspace(int index, bool animation = true);
 
-#ifdef ENABLE_CORRELATION
-	/*! \brief Return the current correlation of the workspace.
-	 */
-	virtual Picviz::PVAD2GView* get_correlation() = 0;
-
-	/*! \brief Return a list of available correlations for the workspace.
-	 */
-	virtual Picviz::PVRoot::correlations_t get_correlations() = 0;
-#endif
-
 	/*! \brief Returns the number of affective tabs in the widget (ie: special tab "+" button is not taken into account).
 	 */
 	int count() const { return _tab_bar->count(); }
@@ -178,11 +164,6 @@ public:
 	QList<PVWorkspaceBase*> list_workspaces() const;
 
 protected:
-#ifdef ENABLE_CORRELATION
-	/*! \brief Returns the index of a given correlation in the correlations combo box.
-	 */
-	int get_index_from_correlation(void* correlation);
-#endif
 
 	inline Picviz::PVRoot const& get_root() const { return _root; }
 	inline Picviz::PVRoot& get_root() { return _root; }
@@ -201,17 +182,6 @@ protected slots:
 	 */
 	void tab_close_requested(int index);
 
-#ifdef ENABLE_CORRELATION
-	/*! \brief Slot called when the user changes the current correlation from the combo box.
-	 */
-	virtual void correlation_changed(int index) = 0;
-
-	/*! \brief Keep the sync with available correlations.
-	 *  \note For source workspaces, a correlation is available if one of its views belong to the source.
-	 */
-	virtual void update_correlations_list();
-#endif
-
 private slots:
 	/*! \brief Change the CSS property width of the selected tab (used by the animation).
 	 */
@@ -226,7 +196,6 @@ private slots:
 	void animation_state_changed(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state);
 
 protected:
-	QComboBox* _combo_box;
 	PVSceneTabBar* _tab_bar;
 
 private:
@@ -234,7 +203,6 @@ private:
 	bool _tab_animation_ongoing = false;
 	int _tab_animation_index;
 
-	PVHive::PVObserverSignal<Picviz::PVRoot>* _obs;
 	Picviz::PVRoot& _root;
 };
 
@@ -257,16 +225,6 @@ public:
 	/*! \brief Remove the workspace and close its associated source if needed.
      */
 	void remove_workspace(int index, bool close_source = true) override;
-
-#ifdef ENABLE_CORRELATION
-	/*! \brief Return the current correlation of the workspace.
-	 */
-	Picviz::PVAD2GView* get_correlation() override { return _correlation; }
-
-	/*! \brief Return a list of available correlations for the workspace (using PVAD2GView::get_used_views(PVScene*)).
-	 */
-	Picviz::PVRoot::correlations_t get_correlations() override { return get_root().get_correlations_for_scene(*get_scene()); }
-#endif
 
 	bool is_project_modified() { return _project_modified; }
 	bool is_project_untitled() { return _project_untitled; }
@@ -292,11 +250,6 @@ public slots:
 	void tab_changed(int index);
 
 protected slots:
-#ifdef ENABLE_CORRELATION
-	/*! \brief Slot called when the user changes the current correlation from the combo box.
-	 */
-	void correlation_changed(int index);
-#endif
 
 	void check_new_sources();
 
@@ -306,10 +259,6 @@ private slots:
 private:
 	bool _project_modified = false;
 	bool _project_untitled = true;
-
-#ifdef ENABLE_CORRELATION
-	Picviz::PVAD2GView* _correlation = nullptr;
-#endif
 
 	PVHive::PVObserverSignal<Picviz::PVScene> _obs_scene;
 	__impl::PVSaveSceneToFileFuncObserver _save_scene_func_observer;
@@ -329,11 +278,6 @@ public:
 	PVOpenWorkspacesTabWidget(Picviz::PVRoot& root, QWidget* parent = 0);
 
 public:
-#ifdef ENABLE_CORRELATION
-	Picviz::PVAD2GView* get_correlation() override;
-	Picviz::PVRoot::correlations_t get_correlations() override { return get_root().get_correlations(); }
-#endif
-
 	PVOpenWorkspace* current_workspace() const;
 	PVOpenWorkspace* current_workspace_or_create();
 
@@ -345,18 +289,6 @@ protected:
 	/*! \brief Special behavior on workspace removal (emit "is_empty" signal when the last source is closed).
 	 */
 	void tabRemoved(int index) override;
-
-public slots:
-	/*! \brief Special behavior on tab change: select current correlation.
-	 */
-	void tab_changed(int index);
-
-#ifdef ENABLE_CORRELATION
-protected slots:
-	/*! \brief Slot called when the user changes the current correlation from the combo box.
-	 */
-	void correlation_changed(int index);
-#endif
 
 public slots:
 	/*! \brief Slot called to check if display drag&drop needs to switch tab.

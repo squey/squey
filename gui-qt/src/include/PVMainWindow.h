@@ -32,10 +32,6 @@
 
 #include <pvhive/PVObserverSignal.h>
 
-#ifdef ENABLE_CORRELATION
-#include <pvguiqt/PVCorrelationMenu.h>
-#endif
-
 #include <pvguiqt/PVProjectsTabWidget.h>
 
 #include <PVFilesTypesSelWidget.h>
@@ -104,16 +100,6 @@ private:
 		PVRush::list_creators& lcr;
 		PVRush::PVInputType_p in_t;
 		QHash<QString,PVCore::PVMeanValue<float> >& discovered_types;
-	};
-
-	class SceneMenuEventFilter : public QObject
-	{
-	public:
-		SceneMenuEventFilter(PVMainWindow* parent) : _parent(parent) {}
-	protected:
-		bool eventFilter(QObject *obj, QEvent *event);
-	private:
-		PVMainWindow* _parent;
 	};
 
 public:
@@ -285,9 +271,6 @@ private:
 	QMenu *edit_Menu;
 	QMenu *layer_Menu;
 	QMenu *events_Menu;
-#ifdef ENABLE_CORRELATION
-	PVGuiQt::PVCorrelationMenu* correlation_Menu;
-#endif
 	QMenu *selection_Menu;
 	QMenu* tools_Menu;
 	QMenu *source_Menu;
@@ -295,15 +278,12 @@ private:
 	QMenu *windows_Menu;
 	QMenu *help_Menu;
 
-	SceneMenuEventFilter* scene_menu_event_filter;
-
 	QAction *about_Action;
 	QAction *axes_editor_Action;
 	QAction *axes_combination_editor_Action;
 	QAction *axes_mode_Action;
 	QAction *axes_display_edges_Action;
 	QAction *axes_new_Action;
-	QAction *correlation_scene_Action;
 	QAction *expand_selection_on_axis_Action;
 	QAction *events_display_unselected_listing_Action;
 	QAction *events_display_unselected_GLview_Action;

@@ -33,7 +33,6 @@ namespace PVGuiQt
 {
 
 class PVStartScreenWidget;
-class PVOpenWorkspacesWidget;
 class PVSceneWorkspacesTabWidget;
 
 namespace __impl
@@ -117,11 +116,7 @@ class PVProjectsTabWidget : public QWidget
 	Q_OBJECT
 
 public:
-#ifdef ENABLE_CORRELATION
-	static constexpr int FIRST_PROJECT_INDEX = 2;
-#else
 	static constexpr int FIRST_PROJECT_INDEX = 1;
-#endif
 
 public:
 	PVProjectsTabWidget(Picviz::PVRoot* root, QWidget* parent = 0);
@@ -191,7 +186,6 @@ private:
 	__impl::PVTabWidget* _tab_widget = nullptr; // QTabWidget has a problem with CSS and background-color, that's why this class isn't inheriting from QTabWidget...
 	QStackedWidget* _stacked_widget = nullptr;
 	PVStartScreenWidget* _start_screen_widget;
-	PVOpenWorkspacesWidget* _workspaces_tab_widget;
 	int _current_workspace_tab_widget_index;
 	Picviz::PVRoot* _root;
 };
