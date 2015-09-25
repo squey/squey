@@ -1,6 +1,14 @@
 
 set(CMAKE_CONFIGURATION_TYPES debug release relwithdebinfo calltrace relprotect)
 
+# Use ccache if installed
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+    message(STATUS "Compilation will be done with CCache")
+endif(CCACHE_FOUND)
+
 MESSAGE(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
 
 if (WIN32)
