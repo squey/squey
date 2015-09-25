@@ -85,6 +85,12 @@ add_subdirectory(gui-qt)
 add_subdirectory(scripts)
 
 ###############################################################################
+# Define svn update tests files target
+###############################################################################
+# TODO : add builder account on SVN machine auth by ssh
+add_custom_target(update_tests_files COMMAND "${CMAKE_SOURCE_DIR}/tests/update-tests-files.sh" "${TESTS_FILES_DIR}" "${CMAKE_SOURCE_DIR}/tests/files-svn-rev")
+
+###############################################################################
 # Define tests targets
 ###############################################################################
 # Declare test suite target
@@ -94,7 +100,7 @@ add_subdirectory(scripts)
 # `make love` will compile and then run tests
 add_custom_target(testsuite DEPENDS ${__TESTS_TARGETS})
 # JBL's special request
-add_custom_target(love COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS testsuite)
+add_custom_target(love COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS testsuite update_tests_files)
 
 ###############################################################################
 # Define generated files
