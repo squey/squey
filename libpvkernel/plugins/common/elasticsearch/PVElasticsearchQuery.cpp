@@ -11,6 +11,7 @@
 PVRush::PVElasticsearchQuery::PVElasticsearchQuery(PVElasticsearchInfos const& infos, QString const& query, QString const& query_type):
 	_infos(infos),
 	_query(query),
+	_query_type(query_type),
 	_start_ms(0),
 	_end_ms((int64_t)(time(NULL))*1000)
 {
