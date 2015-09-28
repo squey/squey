@@ -155,11 +155,7 @@ if(ENABLE_CORRELATION)
         set (TULIP_LIBS ${TULIP_LIBRARY} ${TULIP_QT4_LIBRARY} ${TULIP_OGL_LIBRARY})
 endif()
 
-if (NOT WIN32)
-	set(MATHS_LIBRARY "-lm")
-endif(NOT WIN32)
-
-target_link_libraries(picviz ${QT5_LIBS} ${MATHS_LIBRARY} ${TBB_LIBRARIES}
+target_link_libraries(picviz ${QT5_LIBS} ${TBB_LIBRARIES}
 			     ${Boost_LIBRARIES} ${ICU_LIBRARY}
 			     ${OpenMP_LIBRARIES} ${TULIP_LIBS}
 			     ${OPENGL_LIBRARIES} pvkernel)
