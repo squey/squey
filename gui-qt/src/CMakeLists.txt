@@ -6,14 +6,6 @@
 include_directories(AFTER ${ICU_INCLUDE})
 
 ################################################
-# Extra WIN32 lib
-################################################
-
-if(WIN32)
-    set(WIN32_EXTRA_LIBS "ws2_32.lib")
-endif(WIN32)
-
-################################################
 # Ressource declaration
 ################################################
 
@@ -163,11 +155,7 @@ if (USE_LTO AND SET_PROTECT)
 	list(REMOVE_ITEM CMAKE_SHARED_LINKER_FLAGS_RELPROTECT ${LTO_LINK_FLAGS})
 endif()
 
-if (WIN32)
-	add_executable(picviz-inspector WIN32 ${SRC_FILES} ${MOC_SRC} ${UI_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
-else (WIN32)
-	add_executable(picviz-inspector ${SRC_FILES} ${MOC_SRC} ${UI_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
-endif(WIN32)
+add_executable(picviz-inspector ${SRC_FILES} ${MOC_SRC} ${UI_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
 
 if(SET_PROTECT)
 	message(STATUS "Protection activated !")
@@ -182,7 +170,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 set(PV_QT_LIBS Qt5Core Qt5Widgets Qt5Network Qt5Xml Qt5Widgets)
 
 target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES}
-    pvguiqt pvparallelview pvhive picviz pvkernel ${WIN32_EXTRA_LIBS}
+    pvguiqt pvparallelview pvhive picviz pvkernel 
     ${TBB_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY}
     ${GALVEZ_LIBS} ${OpenMP_LIBRARIES} ${PV_QT_LIBS})
 
