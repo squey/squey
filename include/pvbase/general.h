@@ -53,31 +53,14 @@
 
 #define PICVIZ_ARCHIVES_VERSION 2
 
-#ifdef WIN32
-#define PICVIZ_PATH_SEPARATOR "\\"
-#define PICVIZ_PATH_SEPARATOR_CHAR '\\'
-#else
 #define PICVIZ_PATH_SEPARATOR "/"
 #define PICVIZ_PATH_SEPARATOR_CHAR '/'
-#endif
 
-#ifdef WIN32
-#define PICVIZ_DLL_EXTENSION ".dll"
-#else
 #define PICVIZ_DLL_EXTENSION ".so"
-#endif
 
-#ifdef WIN32
-#define PICVIZ_DLL_PREFIX ""
-#else
 #define PICVIZ_DLL_PREFIX "lib"
-#endif
 
-#ifdef WIN32
-#define ESCAPE_PERCENT "%%"
-#else
 #define ESCAPE_PERCENT "\%"
-#endif
 
 #define PICVIZ_CONFDIR ".picviz"
 #define PICVIZ_INSPECTOR_CONFDIR PICVIZ_CONFDIR PICVIZ_PATH_SEPARATOR "inspector"

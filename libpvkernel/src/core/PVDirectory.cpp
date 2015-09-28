@@ -10,20 +10,6 @@
 
 #include <stdlib.h>
 
-#ifdef WIN32
-#include <io.h>
-#include <string.h>
-static char* mkdtemp(char* pattern)
-{
-	errno_t res = _mktemp_s(pattern, strlen(pattern)+1);
-	if (res == 0) {
-		return pattern;
-	}
-
-	return NULL;
-}
-#endif
-
 // Taken from http://john.nachtimwald.com/2010/06/08/qt-remove-directory-and-its-contents/
 bool PVCore::PVDirectory::remove_rec(QString const& dirName)
 {

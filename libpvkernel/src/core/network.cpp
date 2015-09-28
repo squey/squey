@@ -150,12 +150,7 @@ bool PVCore::Network::ipv4_aton(const char* str, size_t n, uint32_t& ret)
 char* PVCore::Network::ipv4_ntoa(const ip_addr_t addr)
 {
 	struct in_addr addr_source;
-
-#ifdef WIN32
-	addr_source.s_addr = (unsigned long)addr;
-#else
 	addr_source.s_addr = (in_addr_t)addr;
-#endif
 	return inet_ntoa(addr_source);
 }
 

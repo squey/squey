@@ -52,8 +52,4 @@ typedef PVSourceCreator::p_type PVSourceCreator_p;
 
 }
 
-#ifdef WIN32
-LibKernelDeclExplicitTempl PVCore::PVClassLibrary<PVRush::PVSourceCreator>;
-#endif
-
 #endif

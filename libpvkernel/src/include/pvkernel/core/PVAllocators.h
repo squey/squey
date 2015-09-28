@@ -355,17 +355,10 @@ public:
 	pointer allocate(size_type n)
 	{
 		pointer p;
-#ifdef WIN32
-		p = (pointer) _aligned_malloc(sizeof(value_type)*n, Align);
-		if (p == NULL) {
-			throw std::bad_alloc();
-		}
-#else
 		int ret = posix_memalign((void**) &p, Align, sizeof(value_type)*n);
 		if (ret != 0) {
 			throw std::bad_alloc();
 		}
-#endif
 		return p;
 	}
 

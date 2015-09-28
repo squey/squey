@@ -153,12 +153,4 @@ typedef PVFieldsConverterParamWidget::p_type PVFieldsConverterParamWidget_p;
 
 }
 
-#ifdef WIN32
-LibKernelDeclExplicitTempl PVCore::PVClassLibrary<PVFilter::PVFieldsSplitterParamWidget>;
-LibKernelDeclExplicitTempl PVCore::PVTag<PVFilter::PVFieldsSplitterParamWidget>;
-LibKernelDeclExplicitTempl PVCore::PVTag<PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one> >;
-LibKernelDeclExplicitTempl PVCore::PVTag<PVFilter::PVFieldsFilterParamWidget<PVFilter::many_to_many> >;
-
-#endif
-
 #endif

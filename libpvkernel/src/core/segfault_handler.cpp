@@ -9,7 +9,6 @@
 #ifdef PICVIZ_DEVELOPER_MODE
 
 
-#ifndef WIN32
 #include <stdio.h>
 #include <execinfo.h>
 #include <signal.h>
@@ -139,15 +138,6 @@ void init_segfault_handler()
 	sigaction(SIGSEGV, &sa, NULL);
 #endif
 }
-
-#else // WIN32
-// TODO: provide windows implementation if possible
-
-void init_segfault_handler()
-{
-}
-
-#endif // WIN32
 
 #else // PICVIZ_DEVELOPER_MODE
 

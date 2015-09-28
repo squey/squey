@@ -12,12 +12,7 @@
 #include <string>
 
 // PCAP
-#ifdef WIN32
-#include <winsock2.h>
-#include <pcap.h>
-#else
 #include <pcap/pcap.h>
-#endif
 
 namespace PVRush {
 

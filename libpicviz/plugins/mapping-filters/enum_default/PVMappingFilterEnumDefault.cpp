@@ -6,10 +6,7 @@
 
 #include "PVMappingFilterEnumDefault.h"
 
-#ifdef WIN32
-#include <float.h> // for _logb()
-#endif
-#include <math.h>
+#include <cmath>
 
 Picviz::PVMappingFilterEnumDefault::PVMappingFilterEnumDefault(PVCore::PVArgumentList const& args):
 	PVMappingFilter(),

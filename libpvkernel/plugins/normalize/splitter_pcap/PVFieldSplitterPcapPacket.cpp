@@ -14,15 +14,9 @@
 #include <QDateTime>
 
 // PCAP
-#ifdef WIN32
-#include <winsock2.h>
-#include <pcap.h>
-#include <pcap/sll.h>
-#else
 #include <pcap/pcap.h>
 #include <pcap/sll.h>
 #include <arpa/inet.h>
-#endif
 
 #include <pvkernel/core/dumbnet.h>
 

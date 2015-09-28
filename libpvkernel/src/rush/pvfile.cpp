@@ -14,11 +14,6 @@
 
 #include <stdlib.h>
 
-#ifdef WIN32
-  #include <windows.h>
-  #include <io.h>
-#endif
-
 using namespace PVCore;
 
 /******************************************************************************

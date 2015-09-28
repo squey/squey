@@ -7,12 +7,7 @@
 #ifndef PVKERNEL_CORE_PICVIZ_INTRIN_H
 #define PVKERNEL_CORE_PICVIZ_INTRIN_H
 
-#ifdef WIN32
-#define __SSE4_1__
-#include <smmintrin.h>
-#else
 #include <immintrin.h>
-#endif
 
 #include <pvkernel/core/general.h>
 

@@ -2,10 +2,6 @@
    Copyright 2010 ridiculous_fish
 */
 
-#if defined(_WIN32) || defined(WIN32)
-#define LIBDIVIDE_WINDOWS 1
-#endif
-
 #if defined(_MSC_VER)
 #define LIBDIVIDE_VC 1
 #endif

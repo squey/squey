@@ -120,9 +120,4 @@ typedef PVInputType::p_type PVInputType_p;
 
 }
 
-//#define REGISTER_INPUT_TYPE(T) REGISTER_CLASS(T().name(), T())
-#ifdef WIN32
-LibKernelDeclExplicitTempl PVCore::PVClassLibrary<PVRush::PVInputType>;
-#endif
-
 #endif

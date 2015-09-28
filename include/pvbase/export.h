@@ -14,17 +14,8 @@
 #define LibImport __declspec( dllimport )
 
 
-#ifdef WIN32
-#define LibCPPExport extern "C" __declspec( dllexport )
-#else
 #define LibCPPExport extern "C"
-#endif
-
-#ifdef WIN32			/* FIXME: This is totally weird! If I don't export plugin symbols like this, I have unknown symbols under Linux */
-#define PluginExport __declspec( dllexport )
-#else
 #define PluginExport extern "C"
-#endif
 
 // Decls for other libraries
 #include "../../libpvkernel/src/include/pvkernel/export.h"

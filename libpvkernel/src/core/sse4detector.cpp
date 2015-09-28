@@ -29,11 +29,7 @@
 // AG: add a function for SSE4.1 detection only
 
 #include <pvkernel/core/sse4detector.h>
-#ifdef WIN32
-#include <intrin.h>
-#else
 #include <cpuid.h>
-#endif
 #include <stdio.h>
 #include <cstdint>
 
@@ -42,15 +38,11 @@
 
 static void get_cpuid_infos(CPUIDinfo* infos, int InfoType)
 {
-#ifdef WIN32
-	__cpuid((int*) infos, InfoType);
-#else
 	uint32_t* eax = &infos->EAX;
 	uint32_t* ebx = &infos->EBX;
 	uint32_t* ecx = &infos->ECX;
 	uint32_t* edx = &infos->EDX;
 	__get_cpuid(InfoType, eax, ebx, ecx, edx);
-#endif
 }
 
 
