@@ -11,7 +11,7 @@
 namespace PVFilter {
 
 // Template specialisation for generic L<F>& operator()(L<F>&)
-template<> LibKernelDecl
+template<>
 PVCore::list_fields& PVFieldsFilter<one_to_one>::operator()(PVCore::list_fields& fields)
 {
 	PVCore::list_fields::iterator it,ite;
@@ -27,7 +27,7 @@ PVCore::list_fields& PVFieldsFilter<one_to_one>::operator()(PVCore::list_fields&
 	return fields;
 };
 
-template<> LibKernelDecl
+template<>
 PVCore::list_fields& PVFieldsFilter<one_to_many>::operator()(PVCore::list_fields& fields)
 {
 	PVCore::list_fields::iterator it,ite,it_cur;
@@ -47,25 +47,25 @@ PVCore::list_fields& PVFieldsFilter<one_to_many>::operator()(PVCore::list_fields
 };
 
 
-template<> LibKernelDecl
+template<>
 PVCore::list_fields& PVFieldsFilter<many_to_many>::operator()(PVCore::list_fields& fields)
 {
 	return many_to_many(fields);
 };
 
-template <> LibKernelDecl
+template <>
 QString PVFieldsFilter<one_to_one>::type_name()
 {
 	return QString("converter");
 }
 
-template <> LibKernelDecl
+template <>
 QString PVFieldsFilter<one_to_many>::type_name()
 {
 	return QString("splitter");
 }
 
-template <> LibKernelDecl
+template <>
 QString PVFieldsFilter<many_to_many>::type_name()
 {
 	return QString("generic");

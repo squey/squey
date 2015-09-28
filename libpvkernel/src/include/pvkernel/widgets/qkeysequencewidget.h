@@ -65,7 +65,7 @@ class QKeySequenceWidgetPrivate;
     connect(keyWidget, SIGNAL(keySequenceChanged(QKeySequence)), this, SLOT(slotKeySequenceChanged(QKeySequence)));
   \endcode 
 */
-class LibKernelDecl QKeySequenceWidget : public QWidget
+class QKeySequenceWidget : public QWidget
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QKeySequenceWidget);

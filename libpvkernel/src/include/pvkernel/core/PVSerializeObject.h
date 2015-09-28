@@ -30,7 +30,7 @@ typedef std::shared_ptr<PVSerializeArchive> PVSerializeArchive_p;
 /*! \brief Serialization file error
  * Exception that is thrown when a file error has occured.
  */
-class LibKernelDecl PVSerializeObjectFileError: public PVSerializeArchiveError
+class PVSerializeObjectFileError: public PVSerializeArchiveError
 {
 public:
 	PVSerializeObjectFileError(QFile const& file):
@@ -42,7 +42,7 @@ public:
  *
  * This class is the main helper class used for object serialisation.
  */
-class LibKernelDecl PVSerializeObject: public std::enable_shared_from_this<PVSerializeObject>
+class PVSerializeObject: public std::enable_shared_from_this<PVSerializeObject>
 {
 	friend class PVSerializeArchive;
 	friend class PVSerializeArchiveFixError;

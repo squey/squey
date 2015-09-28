@@ -31,7 +31,7 @@ protected:
 };
 
 template <class TReg>
-class LibKernelDecl PVTag
+class PVTag
 {
 	template<class RegAs>
 	friend class PVClassLibrary;

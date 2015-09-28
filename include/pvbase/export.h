@@ -17,8 +17,4 @@
 #define LibCPPExport extern "C"
 #define PluginExport extern "C"
 
-// Decls for other libraries
-#include "../../libpvkernel/src/include/pvkernel/export.h"
-#include "../../libpicviz/src/include/picviz/export.h"
-
 #endif	/* PVBASE_EXPORT_H */

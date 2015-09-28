@@ -31,7 +31,7 @@ class PVMapped;
 /**
  * \class PVMapping
  */
-class LibPicvizDecl PVMapping
+class PVMapping
 {
 	friend class PVMapped;
 	friend class PVCore::PVSerializeObject;

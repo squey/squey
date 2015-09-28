@@ -32,7 +32,7 @@ namespace PVRush {
 
 typedef QHash<QString, QSet<QString> > types_groups_t;
 
-class LibKernelDecl PVXmlTreeNodeDom:public QObject {
+class PVXmlTreeNodeDom:public QObject {
     Q_OBJECT
 public:
     enum Type {

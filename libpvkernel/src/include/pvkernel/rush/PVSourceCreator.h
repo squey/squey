@@ -21,7 +21,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVSourceCreator: public PVCore::PVRegistrableClass< PVSourceCreator >
+class PVSourceCreator: public PVCore::PVRegistrableClass< PVSourceCreator >
 {
 public:
 	typedef PVRush::PVRawSourceBase source_t;

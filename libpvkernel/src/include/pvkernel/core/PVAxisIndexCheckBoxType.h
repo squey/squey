@@ -18,7 +18,7 @@ namespace PVCore {
 /**
  * \class PVAxisIndexCheckBoxType
  */
-class LibKernelDecl PVAxisIndexCheckBoxType : public PVArgumentType<PVAxisIndexCheckBoxType>
+class PVAxisIndexCheckBoxType : public PVArgumentType<PVAxisIndexCheckBoxType>
 {
 	
 public:

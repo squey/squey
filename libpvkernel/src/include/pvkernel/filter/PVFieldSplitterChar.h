@@ -13,7 +13,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVFieldSplitterChar : public PVFieldsFilter<one_to_many> {
+class PVFieldSplitterChar : public PVFieldsFilter<one_to_many> {
 public:
 	PVFieldSplitterChar(PVCore::PVArgumentList const& args = PVFieldSplitterChar::default_args());
 public:

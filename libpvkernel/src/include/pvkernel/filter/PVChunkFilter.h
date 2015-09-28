@@ -13,7 +13,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVChunkFilter : public PVFilterFunctionBase<PVCore::PVChunk*,PVCore::PVChunk*>  {
+class PVChunkFilter : public PVFilterFunctionBase<PVCore::PVChunk*,PVCore::PVChunk*>  {
 public:
 	PVChunkFilter();
 public:

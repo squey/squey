@@ -37,7 +37,7 @@ signals:
 
 }
 
-class LibKernelDecl PVProgressBox: public QDialog
+class PVProgressBox: public QDialog
 {
 	Q_OBJECT
 

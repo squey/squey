@@ -15,7 +15,7 @@ namespace PVRush {
 
 class PVControllerJob;
 
-class LibKernelDecl PVOutput : public PVFilter::PVFilterFunctionBase<void,PVCore::PVChunk*> {
+class PVOutput : public PVFilter::PVFilterFunctionBase<void,PVCore::PVChunk*> {
 	friend class PVControllerJob;
 public:
 	// This is the output of a TBB pipeline

@@ -30,7 +30,7 @@ class PVMapped;
 /**
  * \class PVPlotting
  */
-class LibPicvizDecl PVPlotting {
+class PVPlotting {
 	friend class PVCore::PVSerializeObject;
 	friend class PVPlotted;
 public:

@@ -15,7 +15,7 @@ namespace Picviz {
 /**
  * \class PVEventline
  */
-class LibPicvizDecl PVEventline {
+class PVEventline {
 public:
 	PVEventline(PVRow row_count = 0);
 public:

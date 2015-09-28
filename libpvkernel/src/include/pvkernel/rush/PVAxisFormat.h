@@ -28,7 +28,7 @@ namespace PVRush {
 
 class PVXmlParamParser;
 
-class LibKernelDecl PVAxisFormat {
+class PVAxisFormat {
 	friend class PVXmlParamParser;
 public:
 	typedef PVCore::PVListFastCmp<uint32_t, 2> id_t;

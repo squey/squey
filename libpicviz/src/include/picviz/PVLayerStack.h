@@ -24,7 +24,7 @@ class PVPlotted;
 /**
  * \class PVLayerStack
  */
-class LibPicvizDecl PVLayerStack {
+class PVLayerStack {
 	friend class PVCore::PVSerializeObject;
 private:
 	PVLayerIndexArray lia;

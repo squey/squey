@@ -15,7 +15,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVCharsetDetect : public nsUniversalDetector {
+class PVCharsetDetect : public nsUniversalDetector {
 public:
 	PVCharsetDetect();
 

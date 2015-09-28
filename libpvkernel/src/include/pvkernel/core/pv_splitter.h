@@ -15,7 +15,7 @@
 
 
 
-class LibKernelDecl PVSplitter {
+class PVSplitter {
 	private:
 		QString name;
 

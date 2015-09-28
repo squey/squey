@@ -17,7 +17,7 @@ namespace Picviz {
 class PVTFViewRowFiltering;
 class PVView;
 
-class LibPicvizDecl PVCombiningFunctionView
+class PVCombiningFunctionView
 {
 private:
 	typedef QList<PVTransformationFunctionView_p> list_tf_t;

@@ -14,7 +14,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVNrawPython
+class PVNrawPython
 {
 public:
 	PVNrawPython():

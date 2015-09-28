@@ -18,7 +18,7 @@ namespace PVCore {
 
 /*! \brief Exception class if a filter argument is missing during PVFilterFunction::set_args()
  */
-class LibKernelDecl PVFunctionArgumentMissing : public std::exception
+class PVFunctionArgumentMissing : public std::exception
 {
 public:
 	PVFunctionArgumentMissing(QString const& arg) throw() :

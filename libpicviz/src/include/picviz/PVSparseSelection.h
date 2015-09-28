@@ -19,7 +19,7 @@
 
 namespace Picviz {
 
-class LibPicvizDecl PVSparseSelection
+class PVSparseSelection
 {
 public:
 	typedef uint32_t chunk_index_t;

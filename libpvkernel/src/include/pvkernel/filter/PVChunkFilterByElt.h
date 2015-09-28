@@ -13,7 +13,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVChunkFilterByElt : public PVChunkFilter {
+class PVChunkFilterByElt : public PVChunkFilter {
 public:
 	PVChunkFilterByElt(PVElementFilter_f elt_filter);
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);

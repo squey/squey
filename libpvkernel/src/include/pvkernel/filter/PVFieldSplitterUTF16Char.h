@@ -14,7 +14,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVFieldSplitterUTF16Char : public PVFieldsFilter<one_to_many> {
+class PVFieldSplitterUTF16Char : public PVFieldsFilter<one_to_many> {
 public:
 	PVFieldSplitterUTF16Char(PVCore::PVArgumentList const& args);
 public:

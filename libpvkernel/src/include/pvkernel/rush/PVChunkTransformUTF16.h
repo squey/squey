@@ -25,7 +25,7 @@ namespace PVRush {
 /*! \brief Transform a chunk's data into UTF16
  * It will automatically detect the source's encoding.
  */
-class LibKernelDecl PVChunkTransformUTF16 : public PVChunkTransform {
+class PVChunkTransformUTF16 : public PVChunkTransform {
 public:
 	PVChunkTransformUTF16();
 	virtual ~PVChunkTransformUTF16();

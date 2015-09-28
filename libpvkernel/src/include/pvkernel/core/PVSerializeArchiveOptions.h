@@ -13,7 +13,7 @@
 
 namespace PVCore {
 
-class LibKernelDecl PVSerializeArchiveOptions: public PVSerializeArchive
+class PVSerializeArchiveOptions: public PVSerializeArchive
 {
 	friend class PVSerializeObject;
 public:

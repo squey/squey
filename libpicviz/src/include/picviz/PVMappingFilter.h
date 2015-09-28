@@ -25,19 +25,9 @@ namespace PVRush {
 class PVFormat;
 }
 
-#ifdef WIN32
-#ifdef picviz_EXPORTS
-#define PVLibPicvizDecl __declspec(dllexport)
-#else
-#define PVLibPicvizDecl __declspec(dllimport)
-#endif
-#else
-#define PVLibPicvizDecl
-#endif
-
 namespace Picviz {
 
-class PVLibPicvizDecl PVMappingFilter: public PVFilter::PVFilterFunctionBase<Picviz::mapped_decimal_storage_type, PVCore::PVField const&>, public PVCore::PVRegistrableClass<PVMappingFilter>
+class PVMappingFilter: public PVFilter::PVFilterFunctionBase<Picviz::mapped_decimal_storage_type, PVCore::PVField const&>, public PVCore::PVRegistrableClass<PVMappingFilter>
 {
 public:
 	typedef Picviz::mapped_decimal_storage_type decimal_storage_type;
@@ -104,10 +94,5 @@ protected:
 typedef PVMappingFilter::func_type PVMappingFilter_f;
 
 }
-
-#ifdef WIN32
-LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVMappingFilter>;
-LibPicvizDeclExplicitTempl PVCore::PVTag<Picviz::PVMappingFilter>;
-#endif
 
 #endif

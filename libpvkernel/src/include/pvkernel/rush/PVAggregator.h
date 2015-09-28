@@ -32,7 +32,7 @@ namespace PVRush {
  * For now, each source must implement a working PVRawSourceBase::seek_begin method.
  *
  */
-class LibKernelDecl PVAggregator {
+class PVAggregator {
 	friend class PVSerializeObject;
 public:
 	typedef std::list<PVRush::PVRawSourceBase_p> list_inputs;
@@ -224,7 +224,7 @@ protected:
 /*! \brief Helper class to use a reference to an aggregator as a TBB filter.
  *  \sa PVAggregator copy constructor.
  */
-class LibKernelDecl PVAggregatorTBB {
+class PVAggregatorTBB {
 public:
 	PVAggregatorTBB(PVAggregator &ref) :
 		_ref(ref),

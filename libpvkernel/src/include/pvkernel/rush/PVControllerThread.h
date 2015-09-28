@@ -16,7 +16,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVControllerThread: public QThread
+class PVControllerThread: public QThread
 {
 public:
 	PVControllerThread(PVController& ctrl);

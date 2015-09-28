@@ -45,7 +45,7 @@ namespace Picviz {
  * \class PVView
  */
 typedef typename PVCore::PVDataTreeObject<PVPlotted, PVCore::PVDataTreeNoChildren<PVView> > data_tree_view_t;
-class LibPicvizDecl PVView: public data_tree_view_t
+class PVView: public data_tree_view_t
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVRoot;

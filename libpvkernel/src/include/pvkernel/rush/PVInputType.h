@@ -23,7 +23,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVInputType: public QObject, public PVCore::PVRegistrableClass<PVInputType>
+class PVInputType: public QObject, public PVCore::PVRegistrableClass<PVInputType>
 {
 	Q_OBJECT
 public:

@@ -33,7 +33,7 @@ namespace PVCore {
  */
 #pragma pack(push)
 #pragma pack(4)
-class LibKernelDecl PVUnicodeString
+class PVUnicodeString
 {
 public:
 	typedef uint8_t utf_char;

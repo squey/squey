@@ -13,7 +13,7 @@
 
 namespace PVCore {
 
-class LibKernelDecl PVIntrinsics
+class PVIntrinsics
 {
 public:
 	static bool has_sse41();

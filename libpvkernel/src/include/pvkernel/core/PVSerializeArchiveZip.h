@@ -12,7 +12,7 @@
 
 namespace PVCore {
 
-class LibKernelDecl PVSerializeArchiveZip: public PVSerializeArchive
+class PVSerializeArchiveZip: public PVSerializeArchive
 {
 public:
 	PVSerializeArchiveZip(version_t v);

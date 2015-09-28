@@ -19,7 +19,7 @@ namespace Picviz {
 /**
  * \class PVAxis
  */
-class LibPicvizDecl PVAxis: public PVRush::PVAxisFormat {
+class PVAxis: public PVRush::PVAxisFormat {
 	friend class PVCore::PVSerializeObject;
 public:
 	bool is_expandable;

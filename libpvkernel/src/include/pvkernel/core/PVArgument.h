@@ -28,7 +28,7 @@ namespace PVCore {
  * \todo We should be able to create std::map<PVArgumentKey, PVArgument> objects, or any other containers that uses
  * comparaison operations. Thus, it just means "implement operator<" :)
  */
-class LibKernelDecl PVArgumentKey: public QString
+class PVArgumentKey: public QString
 {
 public:
 	PVArgumentKey(QString const& key, QString const& desc = QString()):
@@ -64,7 +64,7 @@ private:
 
 }
 
-extern unsigned int LibKernelDecl qHash(PVCore::PVArgumentKey const& key);
+extern unsigned int qHash(PVCore::PVArgumentKey const& key);
 
 namespace PVCore {
 
@@ -135,18 +135,18 @@ class PVArgumentType: public PVArgumentTypeBase
 QDataStream &operator<<(QDataStream &out, const PVArgumentTypeBase &obj);
 QDataStream &operator>>(QDataStream &in, const PVArgumentTypeBase &obj);
 
-LibKernelDecl QString PVArgument_to_QString(PVArgument const& v);
-LibKernelDecl PVArgument QString_to_PVArgument(const QString &s, const QVariant& v, bool* res_ok = 0);
+QString PVArgument_to_QString(PVArgument const& v);
+PVArgument QString_to_PVArgument(const QString &s, const QVariant& v, bool* res_ok = 0);
 
-LibKernelDecl void PVArgumentList_to_QSettings(const PVArgumentList& args, QSettings& settings, const QString& group_name);
-LibKernelDecl PVArgumentList QSettings_to_PVArgumentList(QSettings& settings, const PVArgumentList& def_args, const QString& group_name);
+void PVArgumentList_to_QSettings(const PVArgumentList& args, QSettings& settings, const QString& group_name);
+PVArgumentList QSettings_to_PVArgumentList(QSettings& settings, const PVArgumentList& def_args, const QString& group_name);
 
-LibKernelDecl void PVArgumentList_to_QDomElement(const PVArgumentList& args, QDomElement& elt);
-LibKernelDecl PVArgumentList QDomElement_to_PVArgumentList(QDomElement const& elt, const PVArgumentList& def_args);
+void PVArgumentList_to_QDomElement(const PVArgumentList& args, QDomElement& elt);
+PVArgumentList QDomElement_to_PVArgumentList(QDomElement const& elt, const PVArgumentList& def_args);
 
-LibKernelDecl void dump_argument_list(PVArgumentList const& l);
+void dump_argument_list(PVArgumentList const& l);
 
-LibKernelDecl PVCore::PVArgumentList filter_argument_list_with_keys(PVArgumentList const& args, PVArgumentKeyList const& keys, PVArgumentList const& def_args);
+PVCore::PVArgumentList filter_argument_list_with_keys(PVArgumentList const& args, PVArgumentKeyList const& keys, PVArgumentList const& def_args);
 
 void PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret, PVCore::PVArgumentList const& ref);
 void PVArgumentList_set_missing_args(PVCore::PVArgumentList& ret, PVCore::PVArgumentList const& def_args);

@@ -24,7 +24,7 @@ namespace Picviz {
 /**
  * \class PVLinesProperties
  */
-class LibPicvizDecl PVLinesProperties {
+class PVLinesProperties {
 	friend class PVCore::PVSerializeObject;
 
 public:

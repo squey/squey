@@ -14,7 +14,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVInputFile : public PVInput {
+class PVInputFile : public PVInput {
 public:
 	PVInputFile(const char* path);
 	~PVInputFile();

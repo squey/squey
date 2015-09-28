@@ -13,7 +13,7 @@ namespace PVCore {
 
 class PVPythonInitializer;
 
-class LibKernelDecl PVPythonClassDecl
+class PVPythonClassDecl
 {
 	friend class PVPythonInitializer;
 public:
@@ -23,7 +23,7 @@ protected:
 	virtual PVPythonClassDecl* clone() const = 0;
 };
 
-class LibKernelDecl PVPythonClassRegister
+class PVPythonClassRegister
 {
 public:
 	PVPythonClassRegister(PVPythonClassDecl const& c);

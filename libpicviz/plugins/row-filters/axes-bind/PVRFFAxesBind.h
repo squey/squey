@@ -19,7 +19,7 @@
 
 namespace Picviz {
 
-class LibPicvizDecl PVRFFAxesBind: public PVSelRowFilteringFunction
+class PVRFFAxesBind: public PVSelRowFilteringFunction
 {
 private:
 	typedef std::unordered_map<Picviz::mapped_decimal_storage_type, std::vector<PVRow> > hash_rows;

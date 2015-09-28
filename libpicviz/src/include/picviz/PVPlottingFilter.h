@@ -16,7 +16,7 @@
 
 namespace Picviz {
 
-class LibPicvizDecl PVPlottingFilter: public PVFilter::PVFilterFunctionBase<uint32_t*, mapped_decimal_storage_type const*>, public PVCore::PVRegistrableClass<PVPlottingFilter>
+class PVPlottingFilter: public PVFilter::PVFilterFunctionBase<uint32_t*, mapped_decimal_storage_type const*>, public PVCore::PVRegistrableClass<PVPlottingFilter>
 {
 public:
 	typedef std::shared_ptr<PVPlottingFilter> p_type;
@@ -59,10 +59,5 @@ protected:
 typedef PVPlottingFilter::func_type PVPlottingFilter_f;
 
 }
-
-#ifdef WIN32
-LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVPlottingFilter>;
-LibPicvizDeclExplicitTempl PVCore::PVTag<Picviz::PVPlottingFilter>;
-#endif
 
 #endif

@@ -8,7 +8,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVPureMappingProcessing: public PVFilter::PVChunkFilter
+class PVPureMappingProcessing: public PVFilter::PVChunkFilter
 {
 	typedef PVCore::PVField::mapped_decimal_storage_type mapped_decimal_storage_type;
 public:

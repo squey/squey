@@ -16,7 +16,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVChunkFilterDumpElts : public PVChunkFilter {
+class PVChunkFilterDumpElts : public PVChunkFilter {
 
 public:
 	PVChunkFilterDumpElts(bool dump_valid, QStringList& l);

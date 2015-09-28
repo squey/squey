@@ -13,7 +13,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVPipelineTask : public tbb::task {
+class PVPipelineTask : public tbb::task {
 public:
 	PVPipelineTask();
 	task* execute();

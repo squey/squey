@@ -20,7 +20,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVFieldsFilterParamWidgetBase : public QObject, public PVCore::PVRegistrableClass<PVFieldsFilterParamWidgetBase> {
+class PVFieldsFilterParamWidgetBase : public QObject, public PVCore::PVRegistrableClass<PVFieldsFilterParamWidgetBase> {
 	Q_OBJECT
 
 public:

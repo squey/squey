@@ -12,7 +12,7 @@
 
 namespace Picviz {
 
-class LibPicvizDecl PVIPv4DefaultSortingFunc : public PVSortingFunc
+class PVIPv4DefaultSortingFunc : public PVSortingFunc
 {
 public:
 	PVIPv4DefaultSortingFunc(PVCore::PVArgumentList const& l = PVIPv4DefaultSortingFunc::default_args());

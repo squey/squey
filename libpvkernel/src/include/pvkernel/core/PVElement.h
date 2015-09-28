@@ -32,7 +32,7 @@ typedef std::list<PVField, PVPreAllocatedListAllocator<PVField, tbb::scalable_al
 //typedef std::list<PVField> list_fields;
 
 
-class LibKernelDecl PVElement : public PVBufferSlice {
+class PVElement : public PVBufferSlice {
 	friend class PVField;
 	friend class PVChunk;
 public:

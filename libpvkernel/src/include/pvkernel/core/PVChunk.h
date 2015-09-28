@@ -70,7 +70,7 @@ typedef std::list< PVElement*, tbb::scalable_allocator<PVElement*> > list_elts;
  * There is a concept of logical and physical end, that is the same as \ref PVBufferSlice. Refer to the documentation of this class for more information.
  *
  */
-class LibKernelDecl PVChunk {
+class PVChunk {
 friend class PVRush::PVAggregator;
 
 protected:

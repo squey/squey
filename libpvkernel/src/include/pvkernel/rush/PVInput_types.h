@@ -12,7 +12,7 @@
 namespace PVRush {
 
 // Forward declaration of PVInput
-class LibKernelDecl PVInput;
+class PVInput;
 
 // Pointer type to a PVInput
 typedef std::shared_ptr<PVInput> PVInput_p;

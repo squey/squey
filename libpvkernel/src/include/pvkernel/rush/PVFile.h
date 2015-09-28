@@ -14,7 +14,7 @@
 #include <pvkernel/core/general.h>
 
 namespace PVRush {
-	class LibKernelDecl File {
+	class File {
 	public:
 		File(QString filename);
 		~File();

@@ -18,7 +18,7 @@ namespace PVCore {
 /**
  * \class PVAxisIndexType
  */
-class LibKernelDecl PVAxisIndexType : public PVArgumentType<PVAxisIndexType>
+class PVAxisIndexType : public PVArgumentType<PVAxisIndexType>
 {
 	
 public:

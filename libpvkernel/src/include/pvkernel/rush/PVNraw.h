@@ -39,7 +39,7 @@ namespace Picviz {
 
 namespace PVRush {
 
-class LibKernelDecl PVNraw
+class PVNraw
 {
 public:
 	static const QString config_nraw_tmp;

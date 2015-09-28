@@ -31,7 +31,7 @@ typedef std::list< std::pair<char*,size_t> > buf_list_t;
  * is the size of useful data inside this slice. The pysical size is the size to which a slice can grow without the need
  * of any reallocations. 
  */
-class LibKernelDecl PVBufferSlice {
+class PVBufferSlice {
 public:
 	/*! \brief Construct a buffer slice from a start and end pointer.
 	 *  \param[in] begin    Begin of the buffer slice

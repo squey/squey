@@ -13,7 +13,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVFieldSplitterChunkMatch
+class PVFieldSplitterChunkMatch
 {
 public:
 	PVFieldSplitterChunkMatch(PVFilter::PVFieldsSplitter_p filter) :

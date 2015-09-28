@@ -32,7 +32,7 @@ class PVPlotted;
 /**
  * \class PVLayer
  */
-class LibPicvizDecl PVLayer {
+class PVLayer {
 	friend class PVCore::PVSerializeObject;
 public:
 	typedef std::vector<PVRow> list_row_indexes_t;

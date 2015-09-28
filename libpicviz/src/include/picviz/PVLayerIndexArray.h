@@ -41,7 +41,7 @@ namespace Picviz {
 /**
  * \class PVLayerIndexArray
  */
-class LibPicvizDecl PVLayerIndexArray {
+class PVLayerIndexArray {
 	friend class PVCore::PVSerializeObject;
 private:
 	int array [PICVIZ_LAYER_INDEX_ARRAY_MAX_SIZE];

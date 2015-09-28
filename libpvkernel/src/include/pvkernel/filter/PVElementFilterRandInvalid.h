@@ -14,7 +14,7 @@ namespace PVFilter {
 
 // This class will randomly invalidate elements
 // This is used for the controller's test cases
-class LibKernelDecl PVElementFilterRandInvalid : public PVElementFilter {
+class PVElementFilterRandInvalid : public PVElementFilter {
 public:
 	PVElementFilterRandInvalid();
 public:

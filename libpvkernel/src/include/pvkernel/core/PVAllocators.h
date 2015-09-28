@@ -515,7 +515,7 @@ public:
 
 namespace PVMemory {
 
-void LibKernelDecl get_memory_usage(double& vm_usage, double& rss);
+void get_memory_usage(double& vm_usage, double& rss);
 
 }
 

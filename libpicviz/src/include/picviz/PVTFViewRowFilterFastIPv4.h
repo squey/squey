@@ -17,7 +17,7 @@ namespace Picviz {
 
 class PVView;
 
-class LibPicvizDecl PVTFViewRowFilterFastIPv4: public PVTFViewRowFiltering
+class PVTFViewRowFilterFastIPv4: public PVTFViewRowFiltering
 {
 public:
 	PVSelection operator()(PVView const& view_src, PVView const& view_dst, PVSelection const& sel_org) const;

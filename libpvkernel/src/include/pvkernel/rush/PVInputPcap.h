@@ -16,7 +16,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVInputPcap : public PVInput {
+class PVInputPcap : public PVInput {
 public:
 	PVInputPcap(pcap_t* pcap);
 	PVInputPcap(const char* path);

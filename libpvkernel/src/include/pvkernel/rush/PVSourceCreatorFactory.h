@@ -22,7 +22,7 @@ typedef std::list<PVSourceCreator_p> list_creators;
 typedef std::pair<PVFormat,PVSourceCreator_p> pair_format_creator;
 typedef QHash<QString, pair_format_creator> hash_format_creator;
 
-class LibKernelDecl PVSourceCreatorFactory
+class PVSourceCreatorFactory
 {
 public:
 	static list_creators get_by_input_type(PVInputType_p in_t);

@@ -15,7 +15,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVPluginsLoad
+class PVPluginsLoad
 {
 public:
 	static int load_all_plugins();

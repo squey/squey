@@ -14,7 +14,7 @@ namespace Picviz {
 /**
  * \class PVSquareArea
  */
-class LibPicvizDecl PVSquareArea {
+class PVSquareArea {
 public:
 	PVSquareArea();
 

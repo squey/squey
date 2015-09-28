@@ -11,7 +11,7 @@
 
 namespace Picviz {
 
-class LibPicvizDecl PVAxesCombination;
+class PVAxesCombination;
 
 }
 

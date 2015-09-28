@@ -29,7 +29,7 @@
  */
 
 
-class LibKernelDecl PVAxisFormat {
+class PVAxisFormat {
 	private:
 		QString color;
 		QString mapping;
@@ -60,7 +60,7 @@ class LibKernelDecl PVAxisFormat {
 };
 
 
-class LibKernelDecl PVFormat {
+class PVFormat {
 	private:
 
 

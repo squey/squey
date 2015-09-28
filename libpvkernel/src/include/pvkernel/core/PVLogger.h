@@ -38,7 +38,7 @@
 
 namespace PVCore {
 
-class LibKernelDecl PVLogger
+class PVLogger
 {
 public:
 	enum LogLevel {

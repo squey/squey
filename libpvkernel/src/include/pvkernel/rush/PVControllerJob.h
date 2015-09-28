@@ -51,7 +51,7 @@ class PVController;
  * Moreover, a "dummy" controller job exists (PVControllerJobDummy). Its wait method returns immediatly. It is used
  * if an invalid job has to be created/returned (used by PVExtractor for instance).
  */
-class LibKernelDecl PVControllerJob : public QObject, public std::enable_shared_from_this<PVControllerJob>, boost::noncopyable
+class PVControllerJob : public QObject, public std::enable_shared_from_this<PVControllerJob>, boost::noncopyable
 {
 friend class PVController;
 
@@ -170,7 +170,7 @@ signals:
 };
 
 // This class is a helper in case a "false" job has to be returned, and it won't be waited
-class LibKernelDecl PVControllerJobDummy : public PVControllerJob {
+class PVControllerJobDummy : public PVControllerJob {
 public:
 	typedef std::shared_ptr<PVControllerJobDummy> p_type;
 
