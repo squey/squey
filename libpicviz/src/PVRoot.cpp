@@ -9,7 +9,9 @@
 #include <picviz/PVView.h>
 #include <picviz/plugins.h>
 
+#ifdef ENABLE_CORRELATION
 #include <tulip/TlpTools.h>
+#endif
 
 #define ARCHIVE_ROOT_DESC (QObject::tr("Solution"))
 
