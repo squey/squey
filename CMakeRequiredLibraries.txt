@@ -120,11 +120,9 @@ find_package(PCAP REQUIRED)
 
 ###############################################################################
 # Check for Archive library
-# TODO : Check if it is found?
 ###############################################################################
 
-set(ARCHIVE_LIBRARY "archive")
-set(ARCHIVE_INCLUDE_DIRS "")
+pkg_check_modules(ARCHIVE REQUIRED libarchive)
 
 ###############################################################################
 # Check for libpcre++
