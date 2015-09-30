@@ -5,9 +5,6 @@
 
 project(libpvdisplays)
 
-include(CTest)
-set(CTEST_PROJECT_NAME "PVDisplays")
-
 ################################################
 # QT5 related include and check
 ################################################
@@ -29,4 +26,3 @@ include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 include_directories(AFTER ${PVDISPLAYS_INCLUDE_DIRS})
 
 add_subdirectory(src)
-propagate_tests_targets_to_parent()

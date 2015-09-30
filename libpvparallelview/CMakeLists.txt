@@ -41,4 +41,3 @@ include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 
 add_subdirectory(src)
 add_subdirectory(tests)
-propagate_tests_targets_to_parent()

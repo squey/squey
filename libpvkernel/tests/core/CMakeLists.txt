@@ -2,163 +2,69 @@
 # \file CMakeLists.txt
 #
 # Copyright (C) Picviz Labs 2010-2012
+# Copyright (C) ESI Group INENDI 2015
 
-#add_definitions(-ftree-vectorizer-verbose=4)
+add_pv_compile_test(Tcore_timeformat_perf LINKS pvkernel ${ICU_LIBRARY} FILES time-format-perf.cpp)
+add_pv_compile_test(Tcore_serialize LINKS pvkernel FILES serialize.cpp)
+add_pv_compile_test(Tcore_pvstring LINKS pvkernel ${ICU_LIBRARY} FILES pvstring.cpp)
+add_pv_compile_test(Tcore_matrix LINKS pvkernel FILES matrix.cpp)
+add_pv_compile_test(Tcore_vbo LINKS pvkernel FILES vbo.cpp)
+add_pv_compile_test(Tcore_podtree LINKS pvkernel FILES pod_tree.cpp)
+add_pv_compile_test(Tcore_sizes LINKS pvkernel FILES sizes.cpp)
+add_pv_compile_test(Tcore_stable_reverse LINKS pvkernel FILES stable_reverse.cpp)
+add_pv_compile_test(Tcore_bench_stable_reverse LINKS pvkernel FILES bench_stable_reverse.cpp)
+add_pv_compile_test(Tcore_launch_adaptive LINKS pvkernel ${Boost_LIBRARIES} FILES launch_adaptive.cpp)
+add_pv_compile_test(Tcore_transp LINKS pvkernel FILES transp.cpp)
+add_pv_compile_test(Tcore_shared_ptr LINKS pvkernel FILES shared_ptr.cpp)
+add_pv_compile_test(Tcore_weak_ptr LINKS pvkernel FILES weak_ptr.cpp)
+add_pv_compile_test(Tcore_function_traits LINKS pvkernel FILES function_traits.cpp)
+add_pv_compile_test(Tcore_const_fwd LINKS pvkernel FILES const_fwd.cpp)
+add_pv_compile_test(Tcore_pod_tree LINKS pvkernel FILES pod_tree.cpp)
+add_pv_compile_test(Tcore_hardware_concurrency LINKS pvkernel FILES hardware_concurrency.cpp)
+add_pv_compile_test(Tcore_shared_ptr_fwd LINKS pvkernel FILES shared_ptr_fwd.cpp)
+add_pv_compile_test(Tcore_raid_test LINKS pvkernel FILES raid_test.cpp)
+add_pv_compile_test(Tcore_huge_vector LINKS pvkernel FILES huge_vector.cpp)
+add_pv_compile_test(Tcore_lambda_connect LINKS pvkernel FILES lambda_connect.cpp)
+add_pv_compile_test(Tcore_memory2d LINKS pvkernel FILES memory2d.cpp)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+add_pv_compile_test(Tcore_file_helper LINKS pvkernel FILES file_helper.cpp)
+add_test(Tcore_file_helper Tcore_file_helper)
 
-declare_pv_test(Tcore_simple simple.cpp)
-target_link_libraries(Tcore_simple pvkernel)
-add_test(TestSimple Tcore_simple)
+add_pv_compile_test(Tcore_decimal_storage LINKS pvkernel FILES decimal_storage.cpp)
+add_test(Tcore_decimal_storage Tcore_decimal_storage 1000)
 
-#add_executable(Tcore_debug debug.cpp)
-#target_link_libraries(Tcore_debug pvkernel)
-#add_test(TestDebug Tcore_debug)
+add_pv_compile_test(Tcore_intrinsics LINKS pvkernel FILES intrinsics.cpp)
+add_test(Tcore_intrinsics Tcore_intrinsics)
 
-declare_pv_test(Tcore_network network.cpp)
-target_link_libraries(Tcore_network pvkernel)
-add_test(TestNetwork Tcore_network)
+add_pv_compile_test(Tcore_bit_count LINKS pvkernel ${OpenMP_LIBRARIES} FILES bit_count.cpp)
+add_test(Tcore_bit_count Tcore_bit_count 65535)
 
-# add_executable(Tcore_process process.cpp)
-# target_link_libraries(Tcore_process ${PVLIBRARIES} pthread)
-# add_test(TestProcess Tcore_process)
+add_pv_compile_test(Tcore_visit_bits LINKS pvkernel ${OpenMP_LIBRARIES} FILES visit_bits.cpp)
+add_test(Tcore_visit_bits Tcore_visit_bits)
 
-declare_pv_test(Tcore_logger logger.cpp)
-target_link_libraries(Tcore_logger pvkernel)
-add_test(TestLogger Tcore_logger)
+add_pv_compile_test(Tcore_visit_bytes_perf LINKS pvkernel ${OpenMP_LIBRARIES} FILES visit_bytes_perf.cpp)
+add_test(Tcore_visit_bytes_perf Tcore_visit_bytes_perf 300)
 
-# Time format parser test
-declare_pv_test(Tcore_timeformat time-format.cpp)
-target_link_libraries(Tcore_timeformat pvkernel ${ICU_LIBRARY})
-add_test(TestTimeformat Tcore_timeformat ${TESTS_FILES_DIR}/pvkernel/core/time_format)
+add_pv_compile_test(Tcore_bit_field_visit LINKS pvkernel ${OpenMP_LIBRARIES} FILES bit_field_visit.cpp)
+add_test(Tcore_bit_field_visit Tcore_bit_field_visit)
 
-# Time format performance
-declare_pv_test(Tcore_timeformat_perf time-format-perf.cpp)
-target_link_libraries(Tcore_timeformat_perf pvkernel ${ICU_LIBRARY})
+add_pv_compile_test(Tcore_bit_field_visit_packed LINKS pvkernel ${OpenMP_LIBRARIES} FILES bit_field_visit_packed.cpp)
+add_test(Tcore_bit_field_visit_packed Tcore_bit_field_visit_packed)
 
-# Serialization
-declare_pv_test(Tcore_serialize serialize.cpp)
-target_link_libraries(Tcore_serialize pvkernel)
+add_pv_compile_test(Tcore_datatree LINKS pvkernel FILES datatree.cpp)
+add_test(Tcore_datatree Tcore_datatree)
 
-declare_pv_test(Tcore_argument_serialize argument_serialize.cpp)
-target_link_libraries(Tcore_argument_serialize pvkernel)
-add_test(TestArgumentSerialize Tcore_argument_serialize)
+add_pv_compile_test(Tcore_argument_serialize LINKS pvkernel FILES argument_serialize.cpp)
+add_test(Tcore_argument_serialize Tcore_argument_serialize)
 
-# Strings
-declare_pv_test(Tcore_pvstring pvstring.cpp)
-target_link_libraries(Tcore_pvstring pvkernel ${ICU_LIBRARY})
+add_pv_compile_test(Tcore_simple LINKS pvkernel FILES simple.cpp)
+add_test(Tcore_simple Tcore_simple)
 
-# Matrix
-declare_pv_test(Tcore_matrix matrix.cpp)
-target_link_libraries(Tcore_matrix pvkernel)
+add_pv_compile_test(Tcore_network LINKS pvkernel FILES network.cpp)
+add_test(Tcore_network Tcore_network)
 
-# OpenGL's fill vbo bench
-declare_pv_test(Tcore_vbo vbo.cpp)
-target_link_libraries(Tcore_vbo pvkernel)
+add_pv_compile_test(Tcore_logger LINKS pvkernel FILES logger.cpp)
+add_test(Tcore_logger  Tcore_logger)
 
-declare_pv_test(Tcore_podtree pod_tree.cpp)
-target_link_libraries(Tcore_podtree pvkernel)
-
-declare_pv_test(Tcore_sizes sizes.cpp)
-target_link_libraries(Tcore_sizes pvkernel)
-
-declare_pv_test(Tcore_stable_reverse stable_reverse.cpp)
-target_link_libraries(Tcore_stable_reverse pvkernel)
-
-declare_pv_test(Tcore_bench_stable_reverse bench_stable_reverse.cpp)
-target_link_libraries(Tcore_bench_stable_reverse pvkernel)
-
-declare_pv_test(Tcore_launch_adaptive launch_adaptive.cpp)
-target_link_libraries(Tcore_launch_adaptive pvkernel ${Boost_LIBRARIES})
-
-declare_pv_test(Tcore_transp transp.cpp)
-target_link_libraries(Tcore_transp pvkernel)
-
-# Data tree
-declare_pv_test(Tcore_datatree datatree.cpp)
-target_link_libraries(Tcore_datatree pvkernel)
-add_test(TestDataTree Tcore_datatree)
-
-# Shared Pointer
-declare_pv_test(Tcore_shared_ptr shared_ptr.cpp)
-target_link_libraries(Tcore_shared_ptr pvkernel)
-
-# Weak Pointer
-declare_pv_test(Tcore_weak_ptr weak_ptr.cpp)
-target_link_libraries(Tcore_weak_ptr pvkernel)
-
-# Function traits
-declare_pv_test(Tcore_function_traits function_traits.cpp)
-target_link_libraries(Tcore_function_traits pvkernel)
-
-# Const forward
-declare_pv_test(Tcore_const_fwd const_fwd.cpp)
-target_link_libraries(Tcore_const_fwd pvkernel)
-
-# Bit count
-declare_pv_test(Tcore_bit_count bit_count.cpp)
-target_link_libraries(Tcore_bit_count pvkernel ${OpenMP_LIBRARIES})
-add_test(TestBitCount Tcore_bit_count 65535)
-
-# Bit visitor
-declare_pv_test(Tcore_visit_bits visit_bits.cpp)
-target_link_libraries(Tcore_visit_bits pvkernel ${OpenMP_LIBRARIES})
-add_test(TestVisitBits Tcore_visit_bits)
-
-# Byte visitor performances 
-declare_pv_test(Tcore_visit_bytes_perf visit_bytes_perf.cpp)
-target_link_libraries(Tcore_visit_bytes_perf pvkernel ${OpenMP_LIBRARIES})
-add_test(TestVisitBytesPerf Tcore_visit_bytes_perf 300)
-
-# Bit field
-declare_pv_test(Tcore_bit_field_visit bit_field_visit.cpp)
-target_link_libraries(Tcore_bit_field_visit pvkernel ${OpenMP_LIBRARIES})
-add_test(TestBitFieldVisit Tcore_bit_field_visit)
-declare_pv_test(Tcore_bit_field_visit_packed bit_field_visit_packed.cpp)
-target_link_libraries(Tcore_bit_field_visit_packed pvkernel ${OpenMP_LIBRARIES})
-add_test(TestBitFieldVisitPacked Tcore_bit_field_visit_packed)
-
-# POD tree
-declare_pv_test(Tcore_pod_tree pod_tree.cpp)
-target_link_libraries(Tcore_pod_tree pvkernel)
-
-# file helper
-declare_pv_test(Tcore_file_helper file_helper.cpp)
-target_link_libraries(Tcore_file_helper pvkernel)
-add_test(TestFileHelper Tcore_file_helper)
-
-# Hardware concurrency
-declare_pv_test(Tcore_hardware_concurrency hardware_concurrency.cpp)
-target_link_libraries(Tcore_hardware_concurrency pvkernel)
-
-# Shared ptr forward
-declare_pv_test(Tcore_shared_ptr_fwd shared_ptr_fwd.cpp)
-target_link_libraries(Tcore_shared_ptr_fwd pvkernel)
-
-# Raid0
-declare_pv_test(Tcore_raid_test raid_test.cpp)
-target_link_libraries(Tcore_raid_test pvkernel)
-
-# Decimal storage
-declare_pv_test(Tcore_decimal_storage decimal_storage.cpp)
-target_link_libraries(Tcore_decimal_storage pvkernel)
-add_test(TestDecimalStorage Tcore_decimal_storage 1000)
-
-# Huge POD vector
-declare_pv_test(Tcore_huge_vector huge_vector.cpp)
-target_link_libraries(Tcore_huge_vector pvkernel)
-
-# lambda_connect
-declare_pv_test(Tcore_lambda_connect lambda_connect.cpp)
-target_link_libraries(Tcore_lambda_connect pvkernel)
-
-# Intrinsics
-declare_pv_test(Tcore_intrinsics intrinsics.cpp)
-target_link_libraries(Tcore_intrinsics pvkernel)
-add_test(TestIntrinsics Tcore_intrinsics)
-
-# Memory 2D
-declare_pv_test(Tcore_memory2d memory2d.cpp)
-target_link_libraries(Tcore_memory2d pvkernel)
-
-declare_lib_tests_target()
+add_pv_compile_test(Tcore_timeformat LINKS pvkernel ${ICU_LIBRARY} FILES time-format.cpp)
+add_test(Tcore_timeformat Tcore_timeformat ${TESTS_FILES_DIR}/pvkernel/core/time_format)

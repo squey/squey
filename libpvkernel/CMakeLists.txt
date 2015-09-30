@@ -114,4 +114,3 @@ add_subdirectory(plugins)
 set(PVKERNEL_PLUGINS_LIST ${PLUGINS_LIST})
 
 add_subdirectory(tests)
-propagate_tests_targets_to_parent()

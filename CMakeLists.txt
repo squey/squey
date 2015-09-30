@@ -65,6 +65,24 @@ include(CMakePVTests.txt)
 include_directories(AFTER "${picviz-inspector_SOURCE_DIR}/include")
 
 ###############################################################################
+# Define svn update tests files target
+###############################################################################
+# TODO : add builder account on SVN machine auth by ssh
+add_custom_target(update_tests_files COMMAND "${CMAKE_SOURCE_DIR}/tests/update-tests-files.sh" "${TESTS_FILES_DIR}" "${CMAKE_SOURCE_DIR}/tests/files-svn-rev")
+
+###############################################################################
+# Define tests targets
+###############################################################################
+# Declare test suite target
+# It has been populated thanks to the declare_pv_test macro
+# `make testsuite` will compile tests
+# `make love` will compile, download ref files and then run tests
+add_custom_target(testsuite)
+add_custom_target(love COMMAND ${CMAKE_CTEST_COMMAND})
+add_dependencies(love update_tests_files)
+add_dependencies(love testsuite)
+
+###############################################################################
 # Define project dependencies
 ###############################################################################
 
@@ -84,25 +102,6 @@ declare_internal_library(pvguiqt)
 add_subdirectory(gui-qt)
 add_subdirectory(scripts)
 
-###############################################################################
-# Define svn update tests files target
-###############################################################################
-# TODO : add builder account on SVN machine auth by ssh
-add_custom_target(update_tests_files COMMAND "${CMAKE_SOURCE_DIR}/tests/update-tests-files.sh" "${TESTS_FILES_DIR}" "${CMAKE_SOURCE_DIR}/tests/files-svn-rev")
-
-###############################################################################
-# Define tests targets
-###############################################################################
-# Declare test suite target
-# It has been populated thanks to the declare_pv_test macro
-# `make testsuite` will compile tests
-# `make test` will run tests
-# `make love` will compile and then run tests
-add_custom_target(testsuite DEPENDS ${__TESTS_TARGETS})
-# JBL's special request
-add_custom_target(love COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS testsuite update_tests_files)
-
-###############################################################################
 # Define generated files
 ###############################################################################
 # Set inspector.sh and make_protect for current build

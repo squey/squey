@@ -43,21 +43,34 @@ macro(declare_customer_cap cap default_dev default_customer)
 	endif()
 endmacro()
 
-macro(declare_pv_test target)
-	add_executable(${target} EXCLUDE_FROM_ALL ${ARGN})
-	set(__OWN_TESTS_TARGETS "${__OWN_TESTS_TARGETS};${target}")
-	set(__TESTS_TARGETS "${__OWN_TESTS_TARGETS};${__TESTS_TARGETS}" PARENT_SCOPE)
-endmacro()
+###############################################################################
+# Function to define a test
+#
+# Syntax to use it : add_pv_compile_test(binary_name LINKS libs_to_link FILES files_to_compile)
+#
+# Compilation for tests declared with this function arre added to the testsuite
+# dependency
+###############################################################################
+function(add_pv_compile_test test_exe)
+	# Define all kinds of arguments
+	set(options)
+	set(oneValueArgs)
+	set(multiValueArgs FILES LINKS)
 
-macro(propagate_tests_targets_to_parent)
-	set(__TESTS_TARGETS ${__TESTS_TARGETS} PARENT_SCOPE)
-endmacro()
+	# Call cmake_parse_arguments to extract information in variables
+	cmake_parse_arguments(_WRAP_TEST "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-macro(declare_lib_tests_target)
-	add_custom_target(testsuite DEPENDS ${__OWN_TESTS_TARGETS})
-	# JBL's special request
-	add_custom_target(love DEPENDS testsuite)
-endmacro()
+	set(args ${_WRAP_TEST_UNPARSED_ARGUMENTS})
+	set(files ${_WRAP_TEST_FILES})
+	set(links ${_WRAP_TEST_LINKS})
+	
+	# Now, we have all arguments, compile the executable
+	add_executable(${test_exe} EXCLUDE_FROM_ALL ${files})
+	# Link library with it
+	target_link_libraries(${test_exe} ${links})
+	# All of this will be done on the already defined testsuite target
+	add_dependencies(testsuite ${test_exe})
+endfunction()
 
 function(strcasecmp res str1 str2)
 	string(TOLOWER ${str1} str1_lower)
