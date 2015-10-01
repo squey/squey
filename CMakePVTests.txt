@@ -4,10 +4,6 @@ set(TESTS_SCRIPTS_DIR "${TESTS_ROOT_DIR}/scripts")
 # Script to compare tests' stdout output
 set(TEST_DIFF_STDOUT "${TESTS_SCRIPTS_DIR}/diff_stdout.py")
 
-# Generate tests scripts
-configure_file(squish_run.sh.cmake squish_run.sh @ONLY)
-configure_file(squish_ide.sh.cmake squish_ide.sh @ONLY)
-
 # Generate statistic script
 if(STAT_RUN)
   execute_process(COMMAND realpath ${STAT_RUN} OUTPUT_VARIABLE STAT_RUN)

@@ -234,10 +234,3 @@ if(NOT EXISTS ${ARCSIGHT_STATIC_LIB})
 endif ()
 
 set(ARCSIGHT_LIBRARIES ${ARCSIGHT_STATIC_LIB} ${GSOAPPP_LIBRARIES})
-
-###############################################################################
-# Check for Squish 4.0 installation
-# TODO : Check if it is found?
-###############################################################################
-set(SQUISH_INSTALL_DIR /opt/squish)
-find_package(Squish 4.0)

@@ -45,4 +45,3 @@ include_directories(AFTER src/include)
 include_directories(AFTER src/widgets/format-builder/include)
 
 add_subdirectory(src)
-add_subdirectory(tests)
