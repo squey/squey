@@ -64,60 +64,46 @@ endif(PYTHONLIBS_FOUND)
 ##########################################
 
 # Set PVFILTER_NORMALIZE_DIR
-if(WIN32)
+if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
         set(PVFILTER_NORMALIZE_DIR "normalize-filters")
-else(WIN32)
-        set(PVFILTER_NORMALIZE_DIR "${CMAKE_INSTALL_PREFIX}/share/pvfilter/normalize-filters/")
-endif(WIN32)
+else()
+        set(PVFILTER_NORMALIZE_DIR "../../libpvkernel/plugins/normalize/")
+endif()
 add_definitions(-DPVFILTER_NORMALIZE_DIR="${PVFILTER_NORMALIZE_DIR}")
 
-# Set PVRUSH_NORMALIZE_DIR
-if(WIN32)
-        set(PVRUSH_NORMALIZE_DIR "normalize")
-else(WIN32)
-        set(PVRUSH_NORMALIZE_DIR "${CMAKE_INSTALL_PREFIX}/share/picviz/normalize/")
-endif(WIN32)
-add_definitions(-DPVRUSH_NORMALIZE_DIR="${PVRUSH_NORMALIZE_DIR}")
-
 # Set PVRUSH_NORMALIZE_HELPERS_DIR
-if(WIN32)
+if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
         set(PVRUSH_NORMALIZE_HELPERS_DIR "normalize-helpers")
-else(WIN32)
-        set(PVRUSH_NORMALIZE_HELPERS_DIR "${CMAKE_INSTALL_PREFIX}/share/picviz/normalize-helpers/")
-endif(WIN32)
+else()
+	# This one is in the source dir, not the build dir
+        set(PVRUSH_NORMALIZE_HELPERS_DIR "../../../libpvkernel/plugins/normalize-helpers")
+endif()
 add_definitions(-DPVRUSH_NORMALIZE_HELPERS_DIR="${PVRUSH_NORMALIZE_HELPERS_DIR}")
 
-# Set PVRUSH_DECODERS_DIR
-if(WIN32)
-        set(PVRUSH_DECODERS_DIR "decoders")
-else(WIN32)
-        set(PVRUSH_DECODERS_DIR "${CMAKE_INSTALL_PREFIX}/share/picviz/decoders/")
-endif(WIN32)
-add_definitions(-DPVRUSH_DECODERS_DIR="${PVRUSH_DECODERS_DIR}")
-
-# Set PVRUSH_CACHE_DIR
-if(WIN32)
-        set(PVRUSH_CACHE_DIR "cache")
-else(WIN32)
-        set(PVRUSH_CACHE_DIR "${CMAKE_INSTALL_PREFIX}/share/picviz/cache/")
-endif(WIN32)
-add_definitions(-DPVRUSH_CACHE_DIR="${PVRUSH_CACHE_DIR}")
-
 # Set PVRUSH_INPUTTYPE_DIR
-if(WIN32)
+if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
 	set(PVRUSH_INPUTTYPE_DIR "input-types")
-else(WIN32)
-	set(PVRUSH_INPUTTYPE_DIR "${CMAKE_INSTALL_PREFIX}/share/picviz/input-types/")
-endif(WIN32)
+else()
+	set(PVRUSH_INPUTTYPE_DIR "../../libpvkernel/plugins/input_types/")
+endif()
 add_definitions(-DPVRUSH_INPUTTYPE_DIR="${PVRUSH_INPUTTYPE_DIR}")
 
 # Set PVRUSH_SOURCE_DIR
-if(WIN32)
+if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
 	set(PVRUSH_SOURCE_DIR "sources")
-else(WIN32)
-	set(PVRUSH_SOURCE_DIR "${CMAKE_INSTALL_PREFIX}/share/picviz/sources/")
-endif(WIN32)
+else()
+	set(PVRUSH_SOURCE_DIR "../../libpvkernel/plugins/sources/")
+endif()
 add_definitions(-DPVRUSH_SOURCE_DIR="${PVRUSH_SOURCE_DIR}")
+
+# Set PICVIZ_QUERYBUILDER_DIR
+if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
+	set(PICVIZ_QUERYBUILDER_DIR "querybuilder")
+else()
+	set(PICVIZ_QUERYBUILDER_DIR "../../../libpvkernel/src/widgets/querybuilder")
+endif()
+add_definitions(-DPICVIZ_QUERYBUILDER_DIR="${PICVIZ_QUERYBUILDER_DIR}")
+
 ########################################
 # END: SET VARIOUS PLUGINS DIRECTORIES #
 ########################################

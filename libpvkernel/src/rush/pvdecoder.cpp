@@ -29,9 +29,7 @@ QStringList PVRush::decoders_get_plugins_dirs()
 	QStringList pluginsdirs_list; 
 
 	pluginsdirs = QString(getenv("PVRUSH_DECODERS_DIR"));
-	if (pluginsdirs.isEmpty()) {
-		pluginsdirs = QString(PVRUSH_DECODERS_DIR);
-	}
+	//FIXME : This is a dead code
 
 	pluginsdirs_list = pluginsdirs.split(":");
 	

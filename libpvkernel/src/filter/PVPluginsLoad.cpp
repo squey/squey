@@ -7,8 +7,9 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 
-#include <QStringList>
 #include <stdlib.h>
+#include <QCoreApplication>
+#include <QDir>
 
 int PVFilter::PVPluginsLoad::load_all_plugins()
 {
@@ -36,7 +37,7 @@ QString PVFilter::PVPluginsLoad::get_normalize_dir()
 
 	pluginsdirs = QString(getenv("PVFILTER_NORMALIZE_DIR"));
 	if (pluginsdirs.isEmpty()) {
-		pluginsdirs = QString(PVFILTER_NORMALIZE_DIR);
+		pluginsdirs = QCoreApplication::applicationDirPath() + QDir::separator() + PVFILTER_NORMALIZE_DIR;
 	}
 
 	return pluginsdirs;

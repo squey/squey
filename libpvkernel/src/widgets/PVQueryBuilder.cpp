@@ -19,6 +19,8 @@
 #include <QHBoxLayout>
 #include <QTextStream>
 #include <QMessageBox>
+#include <QCoreApplication>
+#include <QDir>
 
 #include <sstream>
 #include <iostream>
@@ -47,9 +49,7 @@ void PVWidgets::PVQueryBuilder::reinit()
 {
 	_view->setContextMenuPolicy(Qt::NoContextMenu);
 
-	const char* querybuilder_dir = std::getenv("PICVIZ_QUERYBUILDER_DIR");
-	assert((querybuilder_dir != nullptr) && "PICVIZ_QUERYBUILDER_DIR not set");
-	_view->load(QUrl(std::string("file://" + std::string(querybuilder_dir) + "/index.html").c_str()));
+	_view->load(QUrl(std::string("file://" + (QCoreApplication::applicationDirPath() + QDir::separator() + PICVIZ_QUERYBUILDER_DIR).toStdString() + "/index.html").c_str()));
 
 	// Trick to wait for the page to be properly loaded
 	QEventLoop loop;

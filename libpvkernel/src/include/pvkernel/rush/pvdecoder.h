@@ -79,7 +79,7 @@ typedef int (*pvrush_decoder_run_function)(PVRush::PVFormat *format, QVector<QSt
 			QHash<QString, PVRush::DecodeFunctions> functions;
 	};
 
-        LibKernelDecl QStringList decoders_get_plugins_dirs();
+	LibKernelDecl QStringList decoders_get_plugins_dirs();
 };
 
 

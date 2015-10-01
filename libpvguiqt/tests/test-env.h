@@ -16,7 +16,6 @@
 
 void init_env()
 {
-	pv_setenv("PVRUSH_NORMALIZE_DIR",PICVIZ_BUILD_DIRECTORY "/libpvkernel/plugins/normalize",0);
 	pv_setenv("PVFILTER_NORMALIZE_DIR",PICVIZ_BUILD_DIRECTORY "/libpvkernel/plugins/normalize",0);
 	pv_setenv("PVRUSH_NORMALIZE_HELPERS_DIR",PICVIZ_SOURCE_DIRECTORY "/libpvkernel/plugins/normalize-helpers:./test-formats",0);
 	pv_setenv("PICVIZ_CACHE_DIR","./cache",0);

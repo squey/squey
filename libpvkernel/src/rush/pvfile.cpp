@@ -23,23 +23,6 @@ using namespace PVCore;
 
 /******************************************************************************
  *
- * PVRush::file_get_cache_dir
- *
- *****************************************************************************/
-QString PVRush::file_get_cache_dir()
-{
-	QString cachedir;
-
-	cachedir = QString(getenv("PVRUSH_CACHE_DIR"));
-	if (cachedir.isEmpty()) {
-		cachedir = QString(PVRUSH_CACHE_DIR);
-	}
-
-	return cachedir;
-}
-
-/******************************************************************************
- *
  * PVRush::File::File
  *
  *****************************************************************************/

@@ -14,7 +14,6 @@
 
 namespace PVRush {
 
-	QStringList LibKernelDecl normalize_get_plugins_dirs();
 	QStringList LibKernelDecl normalize_get_helpers_plugins_dirs(QString helper);
 
 };

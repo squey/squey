@@ -254,7 +254,7 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<void (PVG
 					if unlikely(ctxt.is_group_execution_cancelled()) {
 						return QString();
 					}
-					QString s = std::move(export_line(m, f, i));
+					QString s = export_line(m, f, i);
 					if (!s.isNull()) {
 						l.append(s.append(sep));
 					}
