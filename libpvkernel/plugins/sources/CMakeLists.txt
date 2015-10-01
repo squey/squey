@@ -126,7 +126,7 @@ arcsight/register.cpp
 
 # Create lib
 add_library(source_arcsight SHARED ${ARCSIGHT_SRC})
-target_link_libraries(source_arcsight /usr/local/lib/libarcsight.a pvkernel gsoap++)
+target_link_libraries(source_arcsight pvkernel ${ARCSIGHT_LIBRARIES})
 
 ###############################################################################
 # Elasticsearch

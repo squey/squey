@@ -224,6 +224,18 @@ else()
 endif ()
 
 ###############################################################################
+# Check for Arcsight installation
+###############################################################################
+
+pkg_check_modules(GSOAPPP REQUIRED gsoap++)
+set(ARCSIGHT_STATIC_LIB /usr/local/lib/libarcsight.a)
+if(NOT EXISTS ${ARCSIGHT_STATIC_LIB})
+  message( FATAL_ERROR "Arcsight Can't be found" )
+endif ()
+
+set(ARCSIGHT_LIBRARIES ${ARCSIGHT_STATIC_LIB} ${GSOAPPP_LIBRARIES})
+
+###############################################################################
 # Check for Squish 4.0 installation
 # TODO : Check if it is found?
 ###############################################################################
