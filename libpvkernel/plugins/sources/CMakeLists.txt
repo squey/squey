@@ -78,19 +78,17 @@ target_link_libraries(source_database pvkernel)
 ###############################################################################
 # perl sources
 ###############################################################################
-if(PERLLIBS_FOUND)
-	# Define ressources
-	SET(PERL_SRC
-	perl_file/PVPerlSource.cpp
-	perl_file/PVSourceCreatorPerlfile.cpp
-	perl_file/register.cpp
-	)
+# Define ressources
+SET(PERL_SRC
+perl_file/PVPerlSource.cpp
+perl_file/PVSourceCreatorPerlfile.cpp
+perl_file/register.cpp
+)
 
-	# Create lib
-	include_directories(AFTER ${PERL_INCLUDE_PATH})
-	add_library(source_perl_file SHARED ${PERL_SRC})
-	target_link_libraries(source_perl_file pvkernel ${PERL_LIBRARY})
-endif(PERLLIBS_FOUND)
+# Create lib
+include_directories(AFTER ${PERL_INCLUDE_PATH})
+add_library(source_perl_file SHARED ${PERL_SRC})
+target_link_libraries(source_perl_file pvkernel ${PERL_LIBRARY})
 
 ###############################################################################
 # Python sources

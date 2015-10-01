@@ -155,9 +155,8 @@ find_package(CURL "7.38.0" REQUIRED)
 
 ###############################################################################
 # Check for Perl support
-# TODO : Check if it is found?
 ###############################################################################
-find_package(PerlLibs)
+find_package(PerlLibs REQUIRED)
 
 ###############################################################################
 # Check for Python support
