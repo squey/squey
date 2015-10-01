@@ -45,7 +45,6 @@ protected:
 	virtual void ask_for_copying_count() {}
 	virtual void sort_by_column(int col);
 	virtual bool process_context_menu(QAction* act);
-	virtual void process_hhead_context_menu(QAction* act);
 	virtual QString export_line(
 		PVGuiQt::PVStringSortProxyModel* model,
 		std::function<void (PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f,
@@ -60,7 +59,6 @@ protected slots:
 	void append_to_file() { export_to_file_ui(true); }
 	void sort();
 	void show_ctxt_menu(const QPoint& pos);
-	void show_hhead_ctxt_menu(const QPoint& pos);
 
 private:
 	void export_to_file_ui(bool append);
@@ -71,7 +69,6 @@ protected:
 	QFileDialog _file_dlg;
 	QAction* _copy_values_act;
 	QMenu* _ctxt_menu;
-	QMenu* _hhead_ctxt_menu;
 	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process = nullptr;
 	PVCore::PVArgumentList _ctxt_args;
 	//QItemSelection _item_selection;

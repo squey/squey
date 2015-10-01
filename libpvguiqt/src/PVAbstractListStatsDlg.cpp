@@ -302,6 +302,10 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 	connect(_values_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(section_resized(int, int, int)));
 	_values_view->setItemDelegateForColumn(1, new __impl::PVListStringsDelegate(this));
 
+	// Add content for right click menu on vertical headers
+	_hhead_ctxt_menu = new QMenu(this);
+	connect(_values_view->horizontalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_hhead_ctxt_menu(const QPoint&)));
+
 	QActionGroup* act_group_scale = new QActionGroup(this);
 	act_group_scale->setExclusive(true);
 	connect(act_group_scale, SIGNAL(triggered(QAction*)), this, SLOT(scale_changed(QAction*)));
@@ -394,6 +398,19 @@ PVGuiQt::PVAbstractListStatsDlg::~PVAbstractListStatsDlg()
 	model()->deleteLater();
 }
 
+/******************************************************************************
+ * show_hhead_ctxt_menu
+ *****************************************************************************/
+
+void PVGuiQt::PVAbstractListStatsDlg::show_hhead_ctxt_menu(const QPoint& pos)
+{
+   // Show the menu if we click on the second column
+   if (_values_view->horizontalHeader()->logicalIndexAt(pos) == 1) {
+	   //  Menu appear next to the mouse
+	_hhead_ctxt_menu->exec(QCursor::pos());
+   }
+}
+
 bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 {
 	if (PVListDisplayDlg::process_context_menu(act)) {
@@ -436,11 +453,6 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 	}
 
 	return false;
-}
-
-void PVGuiQt::PVAbstractListStatsDlg::process_hhead_context_menu(QAction* act)
-{
-	PVListDisplayDlg::process_hhead_context_menu(act);
 }
 
 void PVGuiQt::PVAbstractListStatsDlg::scale_changed(QAction* act)

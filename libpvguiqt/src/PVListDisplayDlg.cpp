@@ -100,8 +100,6 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	_copy_values_act = new QAction(tr("Copy values"), this);
 
 	_ctxt_menu = new QMenu(this);
-	_hhead_ctxt_menu = new QMenu(this);
-
 	_ctxt_menu->addAction(_copy_values_act);
 
 	_nb_values_edit->setText(QString().setNum(model->rowCount()));
@@ -116,8 +114,8 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	connect(_btn_append_file, SIGNAL(clicked()), this, SLOT(append_to_file()));
 	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort()));
 
+	// Bind the click on header to sort the clicked column
 	connect(_values_view->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(section_clicked(int)));
-	connect(_values_view->horizontalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_hhead_ctxt_menu(const QPoint&)));
 	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	if (model->rowCount() < AUTOMATIC_SORT_MAX_NUMBER) {
@@ -140,16 +138,6 @@ void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& /*pos*/)
 	process_context_menu(act_sel);
 }
 
-void PVGuiQt::PVListDisplayDlg::show_hhead_ctxt_menu(const QPoint& pos)
-{
-	// Show the menu at the given pos
-	if (_values_view->horizontalHeader()->logicalIndexAt(pos) > 0) {
-		QAction* act_sel = _hhead_ctxt_menu->exec(QCursor::pos());
-
-		process_hhead_context_menu(act_sel);
-	}
-}
-
 bool PVGuiQt::PVListDisplayDlg::process_context_menu(QAction* act)
 {
 	if (act) {
@@ -159,10 +147,6 @@ bool PVGuiQt::PVListDisplayDlg::process_context_menu(QAction* act)
 		}
 	}
 	return false;
-}
-
-void PVGuiQt::PVListDisplayDlg::process_hhead_context_menu(QAction* /*act*/)
-{
 }
 
 void PVGuiQt::PVListDisplayDlg::copy_all_to_clipboard()
