@@ -213,6 +213,17 @@ if (HWLOC_FOUND)
 endif ()
 
 ###############################################################################
+# Check for Furl installation
+###############################################################################
+
+set(FURL_STATIC_LIB /usr/local/lib/libfurll.a)
+if(EXISTS ${FURL_STATIC_LIB})
+  add_definitions(-DFURL_UTF16_CHAR)
+else()
+  message( FATAL_ERROR "FURL Can't be found" )
+endif ()
+
+###############################################################################
 # Check for Squish 4.0 installation
 # TODO : Check if it is found?
 ###############################################################################
