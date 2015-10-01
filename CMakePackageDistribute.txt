@@ -195,6 +195,7 @@ endif(${QT_WEBKIT})
 	# libraries from /usr/lib
 	#
 	install(FILES ${LINUX_MISCLIB_PATH}/libnuma.so.1 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/libhal.so.1 ${LINUX_MISCLIB_PATH}/libhal.so.1.0.0 DESTINATION .)
 
 	#
 	# libraries from /usr/lib/x86_64-linux-gnu
