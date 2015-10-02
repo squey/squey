@@ -739,7 +739,8 @@ QString PVGuiQt::PVAbstractListStatsDlg::export_line(
 				value.replace(quote, escaped_quote);
 				s.append(quote + value + quote + sep);
 
-				QModelIndex idx2 = model->index(i, idx1.column()+1, QModelIndex());
+				// Extract data from second column of i-th element
+				QModelIndex idx2 = model->index(idx1.row(), 1, QModelIndex());
 				uint64_t occurence_count = idx2.data(Qt::UserRole).toULongLong();
 
 				double ratio = (double) occurence_count / max_count();

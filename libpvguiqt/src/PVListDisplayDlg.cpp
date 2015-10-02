@@ -164,7 +164,7 @@ void PVGuiQt::PVListDisplayDlg::copy_all_to_clipboard()
 
 void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 {
-	QModelIndexList indexes = _values_view->selectionModel()->selectedIndexes();
+	QModelIndexList indexes = _values_view->selectionModel()->selectedRows();
 
 	QString content;
 	export_values(indexes.size(), [&indexes](int i) -> QModelIndex {
