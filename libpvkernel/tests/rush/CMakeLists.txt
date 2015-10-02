@@ -230,6 +230,28 @@ add_test(TestNrawUnusedDirectories Trush_nraw_unused_directories ${PVKERNEL_RUSH
 declare_pv_test(Trush_nraw_count_by nraw_count_by.cpp)
 target_link_libraries(Trush_nraw_count_by  ${LINK_LIBRARIES})
 
+# Elasticsearch plugin test
+set(ELASTICSEARCH_SRC_FILES
+../../plugins/common/elasticsearch/PVElasticsearchAPI.cpp
+../../plugins/common/elasticsearch/PVElasticsearchInfos.cpp
+../../plugins/common/elasticsearch/PVElasticsearchQuery.cpp
+../../plugins/common/elasticsearch/PVElasticsearchJsonConverter.cpp
+)
+declare_pv_test(Trush_elasticsearch elasticsearch.cpp ${ELASTICSEARCH_SRC_FILES})
+target_link_libraries(Trush_elasticsearch ${LINK_LIBRARIES} pvkernel curl)
+add_test(TestElasticsearch Trush_elasticsearch ${TESTS_FILES_DIR}/exports/Trush_elasticsearch)
+
+# Splunk plugin test
+set(SPLUNK_SRC_FILES
+../../plugins/common/splunk/PVSplunkAPI.cpp
+../../plugins/common/splunk/PVSplunkInfos.cpp
+../../plugins/common/splunk/PVSplunkQuery.cpp
+../../plugins/common/splunk/PVSplunkJsonConverter.cpp
+)
+declare_pv_test(Trush_splunk splunk.cpp ${SPLUNK_SRC_FILES})
+target_link_libraries(Trush_splunk ${LINK_LIBRARIES} pvkernel curl)
+add_test(TestSplunk Trush_splunk ${TESTS_FILES_DIR}/exports/Trush_splunk)
+
 if(PYTHONLIBS_FOUND)
 	# Python NRAW
 	#	add_executable(Trush_python_nraw python_nraw.cpp)

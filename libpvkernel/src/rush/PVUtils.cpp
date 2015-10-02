@@ -13,6 +13,8 @@
 
 #include <pvkernel/rush/PVUtils.h>
 
+#include <fstream>
+
 /*
 QString PVRush::PVUtils::generate_key_from_axes_values(PVCore::PVAxesIndexType const& axes, PVRush::PVNraw::const_nraw_table_line const& values)
 {
@@ -41,6 +43,28 @@ const QByteArray PVRush::PVUtils::get_file_checksum(const QString& path)
 bool PVRush::PVUtils::files_have_same_content(const QString& path1, const QString& path2)
 {
 	return get_file_checksum(path1) == get_file_checksum(path2);
+}
+
+void PVRush::PVUtils::sort_file(const char* input_file, const char* output_file /*= nullptr*/)
+{
+	std::ifstream fin(input_file);
+	std::vector<std::string> array;
+
+	while (true) {
+		std::string s;
+		getline(fin, s);
+		if (fin.eof()) {
+			break;
+		}
+		array.emplace_back(s);
+	}
+	fin.close();
+
+	std::sort(array.begin(), array.end());
+
+	std::ofstream fout(output_file ? output_file : input_file);
+	std::copy(array.begin(), array.end(), std::ostream_iterator<std::string>(fout, "\n"));
+	fout.close();
 }
 
 bool PVRush::PVUtils::safe_export(QString& str, const QString& sep_char, const QString& quote_char)
