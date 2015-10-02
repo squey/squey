@@ -154,8 +154,8 @@ void PVGuiQt::PVListDisplayDlg::copy_all_to_clipboard()
 	ask_for_copying_count();
 
 	QString content;
-	export_values(model()->rowCount(), [&](PVGuiQt::PVStringSortProxyModel* model, int i, QModelIndex& idx) {
-		idx = model->index(i, 0, QModelIndex());
+	export_values(model()->rowCount(), [&](int i) -> QModelIndex {
+		return proxy_model()->index(i, 0, QModelIndex());
 	}, content);
 
 	QApplication::clipboard()->setText(content);
@@ -166,8 +166,8 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 	QModelIndexList indexes = _values_view->selectionModel()->selectedIndexes();
 
 	QString content;
-	export_values(indexes.size(), [&indexes](PVGuiQt::PVStringSortProxyModel*, int i, QModelIndex& idx) {
-		idx = indexes.at(i);
+	export_values(indexes.size(), [&indexes](int i) -> QModelIndex {
+		return indexes.at(i);
 	}, content);
 
 	QApplication::clipboard()->setText(content);
@@ -179,8 +179,8 @@ void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 	QTextStream outstream(&file);
 
 	QString content;
-	bool success = export_values(model()->rowCount(), [&](PVGuiQt::PVStringSortProxyModel* model, int i, QModelIndex& idx) {
-		idx = model->index(i, 0, QModelIndex());
+	bool success = export_values(model()->rowCount(), [&](int i) -> QModelIndex {
+		return proxy_model()->index(i, 0, QModelIndex());
 	}, content);
 
 	outstream << content;
@@ -197,13 +197,11 @@ void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 
 QString PVGuiQt::PVListDisplayDlg::export_line(
 	PVGuiQt::PVStringSortProxyModel* model,
-	std::function<void(PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f,
+	std::function<QModelIndex(int)> f,
 	int i
 )
 {
-	QModelIndex idx;
-
-	f(model, i, idx); // using return instead of ref parameter fails
+	QModelIndex idx = f(i); // using return instead of ref parameter fails
 	if (likely(idx.isValid())) {
 		return model->data(idx).toString();
 	}
@@ -211,7 +209,7 @@ QString PVGuiQt::PVListDisplayDlg::export_line(
 	return QString();
 }
 
-bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<void (PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f, QString& content)
+bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<QModelIndex (int)> f, QString& content)
 {
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 

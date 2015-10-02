@@ -711,17 +711,19 @@ void PVGuiQt::PVAbstractListStatsDlg::ask_for_copying_count()
 
 QString PVGuiQt::PVAbstractListStatsDlg::export_line(
 	PVGuiQt::PVStringSortProxyModel* model,
-	std::function<void(PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f,
+	std::function<QModelIndex(int)> f,
 	int i
 )
 {
 	static QString sep(",");
 	static QString escaped_quote("\"\"");
 	static QString quote("\"");
-	QModelIndex idx1;
 	QString s;
 
-	f(model, i, idx1); // using return instead of ref parameter fails
+	// Get the indice for the i-th elements
+	// It could be the i-th element of the model or the i-th element of the
+	// selection depending on the f function.
+	QModelIndex idx1 = f(i);
 
 	if(idx1.column() == 0) {
 

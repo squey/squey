@@ -47,7 +47,7 @@ protected:
 	virtual bool process_context_menu(QAction* act);
 	virtual QString export_line(
 		PVGuiQt::PVStringSortProxyModel* model,
-		std::function<void (PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f,
+		std::function<QModelIndex(int)> f,
 		int i
 	);
 
@@ -63,7 +63,18 @@ protected slots:
 private:
 	void export_to_file_ui(bool append);
 	void export_to_file(QFile& file);
-	bool export_values(int count, std::function<void (PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f, QString& content);
+	/** Export count value in a QString
+	 *
+	 * Data can be extract from raw indices in the model but also from anything
+	 * as long as the access is provided through the f function.
+	 *
+	 * @param[in] count : Number of elements to extract
+	 * @param[in] f : Function to find the i-th elements.
+	 * @param[out] content : Exported line in a QString
+	 * @return : Where it success or fail. It fails only in case of cancellation.
+	 *
+	 */
+	bool export_values(int count, std::function<QModelIndex (int)> f, QString& content);
 
 protected:
 	QFileDialog _file_dlg;

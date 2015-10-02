@@ -74,7 +74,7 @@ protected:
 	void ask_for_copying_count() override;
 	QString export_line(
 		PVGuiQt::PVStringSortProxyModel* model,
-		std::function<void (PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f,
+		std::function<QModelIndex(int)> f,
 		int i
 	) override;
 
