@@ -106,6 +106,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 
 	set_description(QString());
 
+	// Show contextual menu on right click in the table (set menuPolicy to emit signals)
 	connect(_values_view, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
 	_values_view->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -213,13 +214,15 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<QModelInd
 {
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
+	// Get the line separator to use for export (defined in UI)
 	QString sep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_line_separator_button->keySequence())));
 	if (sep.isEmpty()) {
 		sep = "\n";
 	}
 
-	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Copying values..."), parentWidget());
+	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Copying values..."), this);
 
+	// Define parallel execution environment
 	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 	tbb::task_scheduler_init init(nthreads);
 	tbb::task_group_context ctxt;
@@ -243,6 +246,7 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<QModelInd
 				}
 				return l;
 			},
+			// Get ordered result
 			[](const QString& left, const QString& right) -> QString {
 				const_cast<QString&>(left).append(right); // const_cast needed to use optimized append method
 				return left;
@@ -252,8 +256,6 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<QModelInd
 
 		return !ctxt.is_group_execution_cancelled();
 	}, ctxt, pbox);
-
-	//content.truncate(content.size()-sep.size()); // Remove last carriage return
 
 	QApplication::restoreOverrideCursor();
 

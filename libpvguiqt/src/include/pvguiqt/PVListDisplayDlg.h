@@ -45,6 +45,17 @@ protected:
 	virtual void ask_for_copying_count() {}
 	virtual void sort_by_column(int col);
 	virtual bool process_context_menu(QAction* act);
+
+	/** Export a line in a QString format
+	 *
+	 * Extract the model index for the i-th elements using f and return its
+	 * formated content
+	 *
+	 * @param[in] model: The model containing data
+	 * @param[in] f : Funtion to extract the index in the model from global index
+	 * @param[in] i : Global index to extract
+	 * @return : Qstring content of the line
+	 */
 	virtual QString export_line(
 		PVGuiQt::PVStringSortProxyModel* model,
 		std::function<QModelIndex(int)> f,
@@ -52,6 +63,13 @@ protected:
 	);
 
 protected slots:
+	/** Handle click on horizontal headers
+	 *
+	 * It sorts columns based on the clicked column but keep the current
+	 * selection
+	 *
+	 * @param col : Index of the clicked column
+	 */
 	void section_clicked(int col);
 	void copy_all_to_clipboard();
 	void copy_selected_to_clipboard();

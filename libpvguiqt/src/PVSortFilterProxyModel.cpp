@@ -165,6 +165,8 @@ bool PVGuiQt::PVSortFilterProxyModel::do_sort(int column, Qt::SortOrder order)
 void PVGuiQt::PVSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 {
 	bool changed = false;
+
+	// This path could be call only from Qt (not checked)
 	if (column == -1) {
 		init_default_sort();
 		do_filter();
