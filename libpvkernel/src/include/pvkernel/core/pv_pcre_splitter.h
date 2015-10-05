@@ -17,7 +17,7 @@
 #include <pvkernel/core/pv_splitter.h>
 
 
-class LibKernelDecl PVPCRESplitter : public PVSplitter {
+class PVPCRESplitter : public PVSplitter {
 	private:
 		QRegExp q_regex;
 		QString regex;

@@ -23,7 +23,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVInputType: public QObject, public PVCore::PVRegistrableClass<PVInputType>
+class PVInputType: public QObject, public PVCore::PVRegistrableClass<PVInputType>
 {
 	Q_OBJECT
 public:
@@ -119,10 +119,5 @@ public:
 typedef PVInputType::p_type PVInputType_p;
 
 }
-
-//#define REGISTER_INPUT_TYPE(T) REGISTER_CLASS(T().name(), T())
-#ifdef WIN32
-LibKernelDeclExplicitTempl PVCore::PVClassLibrary<PVRush::PVInputType>;
-#endif
 
 #endif

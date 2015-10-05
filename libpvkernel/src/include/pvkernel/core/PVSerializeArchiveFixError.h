@@ -19,7 +19,7 @@ namespace PVCore {
 class PVSerializeObject;
 class PVSerializeArchiveError;
 
-class LibKernelDecl PVSerializeArchiveFixError
+class PVSerializeArchiveFixError
 {
 public:
 	PVSerializeArchiveFixError(PVSerializeObject& so, std::shared_ptr<PVSerializeArchiveError> const& ar_err):
@@ -40,7 +40,7 @@ protected:
 	std::shared_ptr<PVSerializeArchiveError> _ar_err;
 };
 
-class LibKernelDecl PVSerializeArchiveFixAttribute: public PVSerializeArchiveFixError
+class PVSerializeArchiveFixAttribute: public PVSerializeArchiveFixError
 {
 public:
 	PVSerializeArchiveFixAttribute(PVSerializeObject& so, std::shared_ptr<PVSerializeArchiveError> const& ar_err, QString const& attribute):

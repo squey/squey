@@ -19,10 +19,10 @@ extern "C" {
 
 namespace PVRush {
 
-class LibKernelDecl unorder_deallocation : public std::exception {};
+class unorder_deallocation : public std::exception {};
 
 template<typename T>
-class LibKernelDecl PVVrbAllocator {
+class PVVrbAllocator {
 public : 
 	typedef T value_type;
 	typedef value_type* pointer;

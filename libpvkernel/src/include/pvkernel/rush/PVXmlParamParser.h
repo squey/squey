@@ -35,13 +35,13 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVXmlParamParserException
+class PVXmlParamParserException
 {
 public:
 	virtual QString what() = 0;
 };
 
-class LibKernelDecl PVXmlParamParserExceptionPluginNotFound: public PVXmlParamParserException
+class PVXmlParamParserExceptionPluginNotFound: public PVXmlParamParserException
 {
 public:
 	PVXmlParamParserExceptionPluginNotFound(QString type, QString plugin_name);
@@ -50,7 +50,7 @@ protected:
 	QString _what;
 };
 
-class LibKernelDecl PVXmlParamParser {
+class PVXmlParamParser {
 public:
 	typedef QList<PVXmlParamParserData> list_params;
 	typedef std::vector<PVCol> axes_comb_t;

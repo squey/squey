@@ -91,10 +91,8 @@ void clear_disk_cache()
 {
 	//std::cerr << "Clearing disk caches...";
 	// Clear disk cache in order to have real results !
-#ifndef WIN32
 	system("sync");
 	system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'");
-#endif
 	//std::cerr << " done." << std::endl;
 }
 

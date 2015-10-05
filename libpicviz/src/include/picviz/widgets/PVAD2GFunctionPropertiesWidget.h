@@ -24,7 +24,7 @@ namespace PVWidgets {
 
 class PVArgumentListWidget;
 
-class LibPicvizDecl PVAD2GFunctionPropertiesWidget: public QWidget
+class PVAD2GFunctionPropertiesWidget: public QWidget
 {
 	Q_OBJECT
 	

@@ -11,7 +11,6 @@
 
 namespace PVCore {
 
-// No "LibKernelDecl", as this is a template class
 template <typename V, size_t MAX_DEPTH>
 class PVListFastCmp
 {

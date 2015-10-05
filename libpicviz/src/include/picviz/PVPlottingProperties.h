@@ -27,7 +27,7 @@ class PVMapping;
 *
 * \brief Stored functions and variables that can to be modified by those functions
 */
-class LibPicvizDecl PVPlottingProperties {
+class PVPlottingProperties {
 	friend class PVCore::PVSerializeObject;
 	friend class PVPlotting;
 	friend class PVPlotted;

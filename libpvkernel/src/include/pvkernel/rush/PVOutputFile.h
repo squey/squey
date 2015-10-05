@@ -13,7 +13,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVOutputFile : public PVOutput {
+class PVOutputFile : public PVOutput {
 public:
 	PVOutputFile(const char* path);
 	~PVOutputFile();

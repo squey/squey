@@ -20,7 +20,7 @@ namespace PVCore {
 
 class PVSerializeArchiveOptions;
 
-class LibKernelDecl PVSerializeArchive: public std::enable_shared_from_this<PVSerializeArchive>
+class PVSerializeArchive: public std::enable_shared_from_this<PVSerializeArchive>
 {
 	friend class PVSerializeObject;
 public:

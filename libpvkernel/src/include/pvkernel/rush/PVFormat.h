@@ -58,7 +58,7 @@ public:
 /**
 * This is the Format class
 */
-class LibKernelDecl PVFormat {
+class PVFormat {
 	friend class PVCore::PVSerializeObject;
 public:
 	typedef PVFormat_p p_type;

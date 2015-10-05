@@ -18,7 +18,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVNrawOutput : public PVRush::PVOutput {
+class PVNrawOutput : public PVRush::PVOutput {
 public:
 	typedef std::map<PVRow,chunk_index> map_pvrow;
 public:

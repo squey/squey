@@ -21,7 +21,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVSourceCreator: public PVCore::PVRegistrableClass< PVSourceCreator >
+class PVSourceCreator: public PVCore::PVRegistrableClass< PVSourceCreator >
 {
 public:
 	typedef PVRush::PVRawSourceBase source_t;
@@ -51,9 +51,5 @@ public:
 typedef PVSourceCreator::p_type PVSourceCreator_p;
 
 }
-
-#ifdef WIN32
-LibKernelDeclExplicitTempl PVCore::PVClassLibrary<PVRush::PVSourceCreator>;
-#endif
 
 #endif

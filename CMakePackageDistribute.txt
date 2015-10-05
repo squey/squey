@@ -8,12 +8,6 @@ install(FILES "gui-qt/src/resources/icon.png" DESTINATION .)
 install(FILES "gui-qt/src/resources/picviz-inspector.ico" DESTINATION .)
 install(FILES "CHANGELOG" DESTINATION .)
 
-set(WIN_TBB_PATH "C:\\\\dev\\\\tbb\\\\bin\\\\intel64\\\\vc9")
-set(WIN_QT5_PATH "C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin")
-set(WIN_CURL_PATH "C:\\\\dev\\\\curl")
-set(WIN_ICU_PATH "c:\\\\dev\\\\icu-amd64\\\\bin64")
-set(WIN_BOOST_PATH "c:\\\\dev\\\\boost\\\\install-root\\\\lib")
-
 set(LINUX_QT5_PATH "/usr/lib/x86_64-linux-gnu")
 
 set(QTLIBS_MAJOR "5")
@@ -43,186 +37,114 @@ set(LINUX_MISCLIB_PATH_64 "/usr/lib/x86_64-linux-gnu")
 set(LINUX_LIB_PATH "/lib")
 set(LINUX_LIB_PATH_64 "/lib/x86_64-linux-gnu")
 
-if(WIN32)
-	set(TBB_DIST_FILES
-		${WIN_TBB_PATH}\\\\tbb.dll
-		${WIN_TBB_PATH}\\\\tbbmalloc.dll
-	)
-	install(FILES ${TBB_DIST_FILES} DESTINATION .)
-
-	set(QT5_DIST_FILES
-	${WIN_QT5_PATH}\\\\phonon5.dll
-	${WIN_QT5_PATH}\\\\QtCore5.dll
-	${WIN_QT5_PATH}\\\\QtGui5.dll
-	${WIN_QT5_PATH}\\\\QtMultimedia5.dll
-	${WIN_QT5_PATH}\\\\QtNetwork5.dll
-	${WIN_QT5_PATH}\\\\QtOpenGL5.dll
-	${WIN_QT5_PATH}\\\\QtScript5.dll
-	${WIN_QT5_PATH}\\\\QtSql5.dll
-	${WIN_QT5_PATH}\\\\QtSvg5.dll
-	${WIN_QT5_PATH}\\\\QtWebKit5.dll
-	${WIN_QT5_PATH}\\\\QtXml5.dll
-	${WIN_QT5_PATH}\\\\QtXmlPatterns5.dll
-	)
-	install(FILES ${QT5_DIST_FILES} ${INSPECTOR_ICON} DESTINATION .)
-
-	set(CURL_DIST_FILES
-	${WIN_CURL_PATH}\\\\curllib.dll
-	${WIN_CURL_PATH}\\\\libeay32.dll
-	${WIN_CURL_PATH}\\\\openldap.dll
-	${WIN_CURL_PATH}\\\\ssleay32.dll
-	)
-	install(FILES ${CURL_DIST_FILES} DESTINATION .)
-	
-	#set(PCRE_DIST_FILES
-	#C:\\\\dev\\\\GnuWin32\\\\bin\\\\pcre3.dll
-	#C:\\\\dev\\\\GnuWin32\\\\bin\\\\pcreposix3.dll
-	#)
-	#install(FILES ${PCRE_DIST_FILES} DESTINATION .)		
-
-	#set(ZLIB_DIST_FILES
-	#C:\\\\dev\\\\zlib-amd64\\\\bin\\\\zlib1.dll
-	#)
-	#install(FILES ${ZLIB_DIST_FILES} DESTINATION .)	
-
-	set(ICU_DIST_FILES
-	${WIN_ICU_PATH}\\\\icudt44.dll
-	${WIN_ICU_PATH}\\\\icuio44.dll
-	${WIN_ICU_PATH}\\\\iculx44.dll
-	${WIN_ICU_PATH}\\\\icule44.dll
-	${WIN_ICU_PATH}\\\\icutu44.dll
-	${WIN_ICU_PATH}\\\\icuin44.dll
-	${WIN_ICU_PATH}\\\\icuuc44.dll
-	)
-	install(FILES ${ICU_DIST_FILES} DESTINATION .)
-	
-	set(BOOST_DIST_FILES
-	${WIN_BOOST_PATH}\\\\boost_thread-vc90-mt-1_48.dll
-	${WIN_BOOST_PATH}\\\\boost_system-vc90-mt-1_48.dll
-	${WIN_BOOST_PATH}\\\\boost_date_time-vc90-mt-1_48.dll
-	${WIN_BOOST_PATH}\\\\boost_python3-vc90-mt-1_48.dll
-	${WIN_BOOST_PATH}\\\\boost_program-options-vc90-mt-1_48.dll
-	)
-	install(FILES ${BOOST_DIST_FILES} DESTINATION .)
-	
-	set(REDIST_FILES
-	${picviz-inspector_SOURCE_DIR}/third-party/vcredist_x64.exe
-	${picviz-inspector_SOURCE_DIR}/third-party/openmp_release.msi
-	${picviz-inspector_SOURCE_DIR}/third-party/WinPcap_4_1_2.exe
-	${picviz-inspector_SOURCE_DIR}/third-party/python-3.2.2.amd64.msi
-	)
-	install(FILES ${REDIST_FILES} DESTINATION redist)
-	
-else(WIN32)
-	#
-	# QT libraries
-	#
-	install(FILES
-		# QtBase
-		${LINUX_QT5_PATH}/libQt5Concurrent.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Concurrent.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-		${LINUX_QT5_PATH}/libQt5Concurrent.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-		${LINUX_QT5_PATH}/libQt5Core.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Core.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-		${LINUX_QT5_PATH}/libQt5Core.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-		${LINUX_QT5_PATH}/libQt5Gui.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Gui.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-		${LINUX_QT5_PATH}/libQt5Gui.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-		${LINUX_QT5_PATH}/libQt5Network.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Network.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-		${LINUX_QT5_PATH}/libQt5Network.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-		${LINUX_QT5_PATH}/libQt5OpenGL.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5OpenGL.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-		${LINUX_QT5_PATH}/libQt5OpenGL.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-		${LINUX_QT5_PATH}/libQt5PrintSupport.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5PrintSupport.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-		${LINUX_QT5_PATH}/libQt5PrintSupport.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-		${LINUX_QT5_PATH}/libQt5Sql.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Sql.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-		${LINUX_QT5_PATH}/libQt5Sql.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-		${LINUX_QT5_PATH}/libQt5Widgets.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Widgets.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-		${LINUX_QT5_PATH}/libQt5Widgets.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-		${LINUX_QT5_PATH}/libQt5Xml.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Xml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-		${LINUX_QT5_PATH}/libQt5Xml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-		# QtDeclarative
-		${LINUX_QT5_PATH}/libQt5Qml.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Qml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-		${LINUX_QT5_PATH}/libQt5Qml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-		${LINUX_QT5_PATH}/libQt5Quick.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Quick.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-		${LINUX_QT5_PATH}/libQt5Quick.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-		DESTINATION .)
+#
+# QT libraries
+#
+install(FILES
+	# QtBase
+	${LINUX_QT5_PATH}/libQt5Concurrent.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Concurrent.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
+	${LINUX_QT5_PATH}/libQt5Concurrent.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
+	${LINUX_QT5_PATH}/libQt5Core.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Core.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
+	${LINUX_QT5_PATH}/libQt5Core.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
+	${LINUX_QT5_PATH}/libQt5Gui.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Gui.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
+	${LINUX_QT5_PATH}/libQt5Gui.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
+	${LINUX_QT5_PATH}/libQt5Network.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Network.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
+	${LINUX_QT5_PATH}/libQt5Network.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
+	${LINUX_QT5_PATH}/libQt5OpenGL.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5OpenGL.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
+	${LINUX_QT5_PATH}/libQt5OpenGL.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
+	${LINUX_QT5_PATH}/libQt5PrintSupport.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5PrintSupport.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
+	${LINUX_QT5_PATH}/libQt5PrintSupport.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
+	${LINUX_QT5_PATH}/libQt5Sql.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Sql.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
+	${LINUX_QT5_PATH}/libQt5Sql.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
+	${LINUX_QT5_PATH}/libQt5Widgets.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Widgets.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
+	${LINUX_QT5_PATH}/libQt5Widgets.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
+	${LINUX_QT5_PATH}/libQt5Xml.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Xml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
+	${LINUX_QT5_PATH}/libQt5Xml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
+	# QtDeclarative
+	${LINUX_QT5_PATH}/libQt5Qml.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Qml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
+	${LINUX_QT5_PATH}/libQt5Qml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
+	${LINUX_QT5_PATH}/libQt5Quick.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Quick.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
+	${LINUX_QT5_PATH}/libQt5Quick.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
+	DESTINATION .)
 
 if(${QT_WEBKIT})
-	install(FILES
-		${LINUX_QT5_PATH}/libQt5WebKit.so.${QTWEBKIT_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebKit.so.${QTWEBKIT_MAJOR}.${QTWEBKIT_MINOR}
-		${LINUX_QT5_PATH}/libQt5WebKit.so.${QTWEBKIT_MAJOR}.${QTWEBKIT_MINOR}.${QTWEBKIT_PATCH}
-		${LINUX_QT5_PATH}/libQt5WebKitWidgets.so.${QTWEBKIT_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebKitWidgets.so.${QTWEBKIT_MAJOR}.${QTWEBKIT_MINOR}
-		${LINUX_QT5_PATH}/libQt5WebKitWidgets.so.${QTWEBKIT_MAJOR}.${QTWEBKIT_MINOR}.${QTWEBKIT_PATCH}
-		DESTINATION .)
+install(FILES
+	${LINUX_QT5_PATH}/libQt5WebKit.so.${QTWEBKIT_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebKit.so.${QTWEBKIT_MAJOR}.${QTWEBKIT_MINOR}
+	${LINUX_QT5_PATH}/libQt5WebKit.so.${QTWEBKIT_MAJOR}.${QTWEBKIT_MINOR}.${QTWEBKIT_PATCH}
+	${LINUX_QT5_PATH}/libQt5WebKitWidgets.so.${QTWEBKIT_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebKitWidgets.so.${QTWEBKIT_MAJOR}.${QTWEBKIT_MINOR}
+	${LINUX_QT5_PATH}/libQt5WebKitWidgets.so.${QTWEBKIT_MAJOR}.${QTWEBKIT_MINOR}.${QTWEBKIT_PATCH}
+	DESTINATION .)
 else(${QT_WEBKIT})
-	install(FILES
-		${LINUX_QT5_PATH}/libQt5WebEngine.so.${QTWEBENGINE_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebEngine.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}
-		${LINUX_QT5_PATH}/libQt5WebEngine.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH}
-		${LINUX_QT5_PATH}/libQt5WebEngineCore.so.${QTWEBENGINE_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebEngineCore.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}
-		${LINUX_QT5_PATH}/libQt5WebEngineCore.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH}
-		${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}
-		${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH}
-		DESTINATION .)
+install(FILES
+	${LINUX_QT5_PATH}/libQt5WebEngine.so.${QTWEBENGINE_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebEngine.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}
+	${LINUX_QT5_PATH}/libQt5WebEngine.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH}
+	${LINUX_QT5_PATH}/libQt5WebEngineCore.so.${QTWEBENGINE_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebEngineCore.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}
+	${LINUX_QT5_PATH}/libQt5WebEngineCore.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH}
+	${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}
+	${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH}
+	DESTINATION .)
 endif(${QT_WEBKIT})
 
-	#
-	# TBB
-	#
-	install(FILES
-		${LINUX_TBB_PATH}/libtbb.so.${TBB_MAJOR}
-		${LINUX_TBB_PATH}/libtbbmalloc.so.${TBB_MAJOR}
-		DESTINATION .)
+#
+# TBB
+#
+install(FILES
+	${LINUX_TBB_PATH}/libtbb.so.${TBB_MAJOR}
+	${LINUX_TBB_PATH}/libtbbmalloc.so.${TBB_MAJOR}
+	DESTINATION .)
 
-	#
-	# Boost
-	#
-	install(FILES
-		${LINUX_BOOST_PATH}/libboost_date_time.so.${BOOST_VER}
-		${LINUX_BOOST_PATH}/libboost_program_options.so.${BOOST_VER}
-		${LINUX_BOOST_PATH}/libboost_python-py27.so.${BOOST_VER}
-		${LINUX_BOOST_PATH}/libboost_system.so.${BOOST_VER}
-		${LINUX_BOOST_PATH}/libboost_thread.so.${BOOST_VER}
-		DESTINATION .)
+#
+# Boost
+#
+install(FILES
+	${LINUX_BOOST_PATH}/libboost_date_time.so.${BOOST_VER}
+	${LINUX_BOOST_PATH}/libboost_program_options.so.${BOOST_VER}
+	${LINUX_BOOST_PATH}/libboost_python-py27.so.${BOOST_VER}
+	${LINUX_BOOST_PATH}/libboost_system.so.${BOOST_VER}
+	${LINUX_BOOST_PATH}/libboost_thread.so.${BOOST_VER}
+	DESTINATION .)
 
-	install(FILES
-		${LINUX_BOOST_PATH}/libpython${BOOST_PYTHON_VER}.so.1.0
-		DESTINATION .)
+install(FILES
+	${LINUX_BOOST_PATH}/libpython${BOOST_PYTHON_VER}.so.1.0
+	DESTINATION .)
 
-	#
-	# CUDA + NPP
-	#
-	install(FILES /opt/cuda/lib64/libcudart.so.5.0 /opt/cuda/lib64/libcudart.so.5.0.35 DESTINATION .)
-	install(FILES /opt/cuda/lib64/libnpp.so.5.0 /opt/cuda/lib64/libnpp.so.5.0.35 DESTINATION .)
+#
+# CUDA + NPP
+#
+install(FILES /opt/cuda/lib64/libcudart.so.5.0 /opt/cuda/lib64/libcudart.so.5.0.35 DESTINATION .)
+install(FILES /opt/cuda/lib64/libnpp.so.5.0 /opt/cuda/lib64/libnpp.so.5.0.35 DESTINATION .)
 
-	#
-	# libraries from /usr/lib
-	#
-	install(FILES ${LINUX_MISCLIB_PATH}/libnuma.so.1 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH}/libhal.so.1 ${LINUX_MISCLIB_PATH}/libhal.so.1.0.0 DESTINATION .)
+#
+# libraries from /usr/lib
+#
+install(FILES ${LINUX_MISCLIB_PATH}/libnuma.so.1 DESTINATION .)
+install(FILES ${LINUX_MISCLIB_PATH}/libhal.so.1 ${LINUX_MISCLIB_PATH}/libhal.so.1.0.0 DESTINATION .)
 
-	#
-	# libraries from /usr/lib/x86_64-linux-gnu
-	#
-	install(FILES ${LINUX_MISCLIB_PATH_64}/libarchive.so.12 ${LINUX_MISCLIB_PATH_64}/libarchive.so.12.0.4 DESTINATION .)
-	install(FILES ${CURL_LIBRARIES}.4 ${CURL_LIBRARIES}.4.4.0 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH_64}/libgomp.so.1 ${LINUX_MISCLIB_PATH_64}/libgomp.so.1.0.0 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH_64}/libhwloc.so.5 ${LINUX_MISCLIB_PATH_64}/libhwloc.so.5.0.1 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH_64}/libicudata.so.48 ${LINUX_MISCLIB_PATH_64}/libicudata.so.48.1.1 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH_64}/libicui18n.so.48 ${LINUX_MISCLIB_PATH_64}/libicui18n.so.48.1.1 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH_64}/libicuuc.so.48 ${LINUX_MISCLIB_PATH_64}/libicuuc.so.48.1.1 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH_64}/libnettle.so.4 ${LINUX_MISCLIB_PATH_64}/libnettle.so.4.3 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH_64}/libpcap.so.0.8 ${LINUX_MISCLIB_PATH_64}/libpcap.so.1.3.0 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH_64}/libpcrecpp.so.0 ${LINUX_MISCLIB_PATH_64}/libpcrecpp.so.0.0.0 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH_64}/libssh2.so.1 ${LINUX_MISCLIB_PATH_64}/libssh2.so.1.0.1 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH_64}/libxslt.so.1 ${LINUX_MISCLIB_PATH_64}/libxslt.so.1.1.26 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH_64}/librtmp.so.0 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH_64}/libwebp.so.2 ${LINUX_MISCLIB_PATH_64}/libwebp.so.2.0.0 DESTINATION .)
+#
+# libraries from /usr/lib/x86_64-linux-gnu
+#
+install(FILES ${LINUX_MISCLIB_PATH_64}/libarchive.so.12 ${LINUX_MISCLIB_PATH_64}/libarchive.so.12.0.4 DESTINATION .)
+install(FILES ${CURL_LIBRARIES}.4 ${CURL_LIBRARIES}.4.4.0 DESTINATION .)
+install(FILES ${LINUX_MISCLIB_PATH_64}/libgomp.so.1 ${LINUX_MISCLIB_PATH_64}/libgomp.so.1.0.0 DESTINATION .)
+install(FILES ${LINUX_MISCLIB_PATH_64}/libhwloc.so.5 ${LINUX_MISCLIB_PATH_64}/libhwloc.so.5.0.1 DESTINATION .)
+install(FILES ${LINUX_MISCLIB_PATH_64}/libicudata.so.48 ${LINUX_MISCLIB_PATH_64}/libicudata.so.48.1.1 DESTINATION .)
+install(FILES ${LINUX_MISCLIB_PATH_64}/libicui18n.so.48 ${LINUX_MISCLIB_PATH_64}/libicui18n.so.48.1.1 DESTINATION .)
+install(FILES ${LINUX_MISCLIB_PATH_64}/libicuuc.so.48 ${LINUX_MISCLIB_PATH_64}/libicuuc.so.48.1.1 DESTINATION .)
+install(FILES ${LINUX_MISCLIB_PATH_64}/libnettle.so.4 ${LINUX_MISCLIB_PATH_64}/libnettle.so.4.3 DESTINATION .)
+install(FILES ${LINUX_MISCLIB_PATH_64}/libpcap.so.0.8 ${LINUX_MISCLIB_PATH_64}/libpcap.so.1.3.0 DESTINATION .)
+install(FILES ${LINUX_MISCLIB_PATH_64}/libpcrecpp.so.0 ${LINUX_MISCLIB_PATH_64}/libpcrecpp.so.0.0.0 DESTINATION .)
+install(FILES ${LINUX_MISCLIB_PATH_64}/libssh2.so.1 ${LINUX_MISCLIB_PATH_64}/libssh2.so.1.0.1 DESTINATION .)
+install(FILES ${LINUX_MISCLIB_PATH_64}/libxslt.so.1 ${LINUX_MISCLIB_PATH_64}/libxslt.so.1.1.26 DESTINATION .)
+install(FILES ${LINUX_MISCLIB_PATH_64}/librtmp.so.0 DESTINATION .)
+install(FILES ${LINUX_MISCLIB_PATH_64}/libwebp.so.2 ${LINUX_MISCLIB_PATH_64}/libwebp.so.2.0.0 DESTINATION .)
 
-	#
-	# QueryBuilder
-	#
-	install(DIRECTORY ${picviz-inspector_SOURCE_DIR}/libpvkernel/src/widgets/querybuilder DESTINATION .)
+#
+# QueryBuilder
+#
+install(DIRECTORY ${picviz-inspector_SOURCE_DIR}/libpvkernel/src/widgets/querybuilder DESTINATION .)
 
-	# doc
-	if(DOC_ROOT_DIR)
-		message(STATUS "Documentation directory: " ${DOC_ROOT_DIR})
-		install(DIRECTORY ${DOC_ROOT_DIR}/ DESTINATION "docs")
-	endif(DOC_ROOT_DIR)
-endif(WIN32)
+# doc
+if(DOC_ROOT_DIR)
+	message(STATUS "Documentation directory: " ${DOC_ROOT_DIR})
+	install(DIRECTORY ${DOC_ROOT_DIR}/ DESTINATION "docs")
+endif(DOC_ROOT_DIR)

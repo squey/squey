@@ -20,7 +20,7 @@ namespace PVCore {
  *
  * \todo We might consider outsourcing some of these as this might be useful for the community (see libarchive's mailing-list archive).
  */
-class LibKernelDecl PVArchive
+class PVArchive
 {
 public:
 	/* \brief Detects if a file can be processed as an archive thanks to libarchive.

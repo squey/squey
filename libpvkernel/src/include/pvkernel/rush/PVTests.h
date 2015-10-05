@@ -14,7 +14,7 @@
 namespace PVRush
 {
 
-struct LibKernelDecl PVTests
+struct PVTests
 {
 	/*! \brief Normalize a file with the given format
 	 */

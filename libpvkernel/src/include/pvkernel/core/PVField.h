@@ -15,7 +15,7 @@ namespace PVCore {
 
 class PVElement;
 
-class LibKernelDecl PVField : public PVBufferSlice {
+class PVField : public PVBufferSlice {
 public:
 	typedef PVCore::PVDecimalStorage<32> mapped_decimal_storage_type;
 public:

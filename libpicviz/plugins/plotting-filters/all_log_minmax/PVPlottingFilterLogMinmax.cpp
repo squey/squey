@@ -5,13 +5,9 @@
  */
 
 #include "PVPlottingFilterLogMinmax.h"
-#include <math.h>
+#include <cmath>
 
 #include <omp.h>
-
-#ifdef WIN32
-#define log2f logf
-#endif
 
 Picviz::PVPlottingFilterLogMinmax::PVPlottingFilterLogMinmax(PVCore::PVArgumentList const& args):
 	PVPlottingFilter()
@@ -138,8 +134,8 @@ void Picviz::PVPlottingFilterLogMinmax::init_expand(uint32_t min, uint32_t max)
 	else {
 		_offset = 0;
 	}
-	_expand_min = log2f(min);
-	_expand_max = log2f(max);
+	_expand_min = log2(min);
+	_expand_max = log2(max);
 	_expand_diff = _expand_max - _expand_min;
 }
 

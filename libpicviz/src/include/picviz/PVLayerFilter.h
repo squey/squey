@@ -28,7 +28,7 @@ namespace Picviz {
 /**
  * \class PVLayerFilter
  */
-class LibPicvizDecl PVLayerFilter : public PVFilter::PVFilterFunction<PVLayer, PVLayerFilter> {
+class PVLayerFilter : public PVFilter::PVFilterFunction<PVLayer, PVLayerFilter> {
 public:
 	typedef PVFilter::PVFilterFunction<PVLayer, PVLayerFilter>::base_registrable base_registrable;
 	
@@ -95,12 +95,6 @@ private:
 
 typedef PVLayerFilter::p_type PVLayerFilter_p;
 typedef PVLayerFilter::func_type PVLayerFilter_f;
-
-// For this to work under windows, we need to export here the PVFilterLibrary for PVLayerFilter
-#ifdef WIN32
-LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVLayerFilter>;
-LibPicvizDeclExplicitTempl PVCore::PVTag<Picviz::PVLayerFilter>;
-#endif
 
 typedef PVCore::PVClassLibrary<Picviz::PVLayerFilter>::tag PVLayerFilterTag;
 typedef PVCore::PVClassLibrary<Picviz::PVLayerFilter>::list_tags PVLayerFilterListTags;

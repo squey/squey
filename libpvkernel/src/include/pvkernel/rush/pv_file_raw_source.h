@@ -15,7 +15,7 @@
 
 
 
-class LibKernelDecl PVFileRawSource {
+class PVFileRawSource {
 	private:
 		QString filename;
 

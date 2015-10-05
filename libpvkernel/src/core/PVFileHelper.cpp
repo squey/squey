@@ -3,18 +3,12 @@
 
 #include <pvkernel/core/PVLogger.h>
 
-#ifdef WIN32
-#error PVCore::PVFileHelper::is_already_opened is not implemented for MS Windows environments
-#else
 #include <unistd.h>
 #include <fcntl.h>
-#endif
 
 bool PVCore::PVFileHelper::is_already_opened(const char* file_name)
 {
 	bool ret = false;
-#ifdef WIN32
-#else
 	int fd = open(file_name, O_RDONLY);
 	if (fd < 0) {
 		PVLOG_WARN("trying to test a file which does not exist: %s\n", file_name);
@@ -28,6 +22,5 @@ bool PVCore::PVFileHelper::is_already_opened(const char* file_name)
 		close(fd);
 	}
 
-#endif
     return ret;
 }

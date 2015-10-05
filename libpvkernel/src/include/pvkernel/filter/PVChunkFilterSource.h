@@ -12,7 +12,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVChunkFilterSource : public PVChunkFilter {
+class PVChunkFilterSource : public PVChunkFilter {
 public:
 	PVChunkFilterSource();
 public:

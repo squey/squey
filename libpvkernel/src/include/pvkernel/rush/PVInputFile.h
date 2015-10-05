@@ -12,13 +12,9 @@
 #include <fstream>
 #include <string>
 
-#ifdef WIN32
-#include <windows.h>
-#endif
-
 namespace PVRush {
 
-class LibKernelDecl PVInputFile : public PVInput {
+class PVInputFile : public PVInput {
 public:
 	PVInputFile(const char* path);
 	~PVInputFile();
@@ -38,11 +34,7 @@ public:
 	// File specific
 	uint64_t file_size();
 protected:
-#ifdef WIN32
-	HANDLE _hfile;
-#else
 	std::ifstream _file;
-#endif
 	std::string _path;
 
 	CLASS_INPUT(PVRush::PVInputFile)
@@ -57,18 +49,7 @@ public:
 		_what = "Unable to open file ";
 		_what += _path;
 		_what += ": ";
-#ifdef WIN32
-		char* buffer;
-		if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, (LPSTR) &buffer, 0, NULL) != 0) {
-			_what += buffer;
-		}
-		else {
-			_what += "unable to get error message";
-		}
-		LocalFree(buffer);
-#else
 		_what += strerror(err);
-#endif
 	}
 public:
 	inline int err() const { return _err; }

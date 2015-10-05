@@ -14,7 +14,7 @@
 namespace PVCore {
 
 // Helper class to serialize the original file if wanted
-class LibKernelDecl PVFileSerialize
+class PVFileSerialize
 {
 	friend class PVCore::PVSerializeObject;
 public:

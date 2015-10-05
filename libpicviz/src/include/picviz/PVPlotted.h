@@ -38,7 +38,7 @@ class PVSource;
  * \class PVPlotted
  */
 typedef typename PVCore::PVDataTreeObject<PVMapped, PVView> data_tree_plotted_t ;
-class LibPicvizDecl PVPlotted : public data_tree_plotted_t {
+class PVPlotted : public data_tree_plotted_t {
 	friend class PVCore::PVSerializeObject;
 	friend class PVMapped;
 	friend class PVSource;

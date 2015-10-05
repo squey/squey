@@ -18,7 +18,7 @@ namespace PVCore {
 /**
  * \class PVZoneIndexType
  */
-class LibKernelDecl PVZoneIndexType : public PVArgumentType<PVZoneIndexType>
+class PVZoneIndexType : public PVArgumentType<PVZoneIndexType>
 {
 public:
 	/**

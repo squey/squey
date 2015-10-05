@@ -31,7 +31,7 @@ namespace Picviz {
 /**
 * \class PVAxesCombination
 */
-class LibPicvizDecl PVAxesCombination {
+class PVAxesCombination {
 	friend class PVCore::PVSerializeObject;
 public:
 	struct axes_comb_id_t

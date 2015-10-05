@@ -13,10 +13,8 @@
 
 #include <stdlib.h>
 
-#ifndef WIN32
 #include <sys/time.h>
 #include <sys/resource.h>
-#endif
 
 PVRush::PVInputTypeRemoteFilename::PVInputTypeRemoteFilename() :
 	PVInputTypeFilename()

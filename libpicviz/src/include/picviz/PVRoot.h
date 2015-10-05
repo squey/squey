@@ -41,7 +41,7 @@ class PVView;
  * \class PVRoot
  */
 typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<PVRoot>, PVScene> data_tree_root_t;
-class LibPicvizDecl PVRoot : public data_tree_root_t {
+class PVRoot : public data_tree_root_t {
 public:
 	friend class PVView;
 	friend class PVScene;

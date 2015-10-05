@@ -78,10 +78,6 @@ struct ubvec4
 };
 #endif // __cplusplus
 
-#ifdef WIN32
-#define DECLARE_ALIGN(n) __declspec(align(n))
-#else
 #define DECLARE_ALIGN(n) __attribute__((aligned(n)))
-#endif
 
 #endif	/* PVBASE_TYPES_H */

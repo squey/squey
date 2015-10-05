@@ -17,7 +17,7 @@ namespace PVCore {
 
 /**
  * \class PVSpinBoxType
- * \note This class is fully implemented in its definition, so no LibKernelDecl is needed (each library will have its own version).
+ * \note This class is fully implemented in its definition, so no is needed (each library will have its own version).
  */
 class PVSpinBoxType : public PVArgumentType<PVSpinBoxType>
 {

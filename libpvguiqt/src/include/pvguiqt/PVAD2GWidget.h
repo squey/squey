@@ -48,7 +48,7 @@ class AD2GInteractor;
 class AD2GInteractor2;
 class AD2GNodeLinkDiagramComponent;
 
-class LibPicvizDecl PVAD2GWidget : public QWidget, public tlp::Observable
+class PVAD2GWidget : public QWidget, public tlp::Observable
 {
 	Q_OBJECT;
 

@@ -27,7 +27,7 @@ namespace PVWidgets {
 class PVAD2GEdgeEditor;
 class PVAD2GFunctionPropertiesWidget;
 
-class LibPicvizDecl PVAD2GListEdgesWidget: public QWidget
+class PVAD2GListEdgesWidget: public QWidget
 {
 	Q_OBJECT
 

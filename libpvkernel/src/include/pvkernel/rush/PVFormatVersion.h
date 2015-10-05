@@ -12,7 +12,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVFormatVersion
+class PVFormatVersion
 {
 public:
 	static bool to_current(QDomDocument& doc);

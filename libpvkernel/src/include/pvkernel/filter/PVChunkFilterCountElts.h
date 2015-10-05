@@ -14,7 +14,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVChunkFilterCountElts : public PVChunkFilter {
+class PVChunkFilterCountElts : public PVChunkFilter {
 
 public:
 	PVChunkFilterCountElts(bool* done_ptr);

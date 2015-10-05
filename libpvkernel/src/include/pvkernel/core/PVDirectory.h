@@ -13,7 +13,7 @@
 
 namespace PVCore {
 
-class LibKernelDecl PVDirectory
+class PVDirectory
 {
 public:
 	static bool remove_rec(QString const& dirName);

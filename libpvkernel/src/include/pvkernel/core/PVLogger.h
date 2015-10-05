@@ -16,16 +16,6 @@
 #include <pvbase/export.h>
 
 
-#ifdef WIN32_DISABLE__
-#define PVLOG_FATAL(fmt, ...) {}
-#define PVLOG_ERROR(fmt, ...) {}
-#define PVLOG_CUDA_ERROR(fmt, ...) {}
-#define PVLOG_WARN(fmt, ...) {}
-#define PVLOG_INFO(fmt, ...) {}
-#define PVLOG_DEBUG(fmt, ...) {}
-#define PVLOG_HEAVYDEBUG(fmt, ...) {}
-#define PVLOG_PLAIN(fmt, ...) {}
-#else
 // The following are given be decreasing order of importance/verbosity
 // Rem : Use HEAVYDEBUG level when you know that the message is potentially produced
 //       a lot of times (as in a loop) and don't want it to appear in an everyday
@@ -45,11 +35,10 @@
 #endif
 // The next MACRO outputs the given message without prefixing it with the usual stuff (works as a printf)
 #define PVLOG_PLAIN(fmt, ...) PVCore::PVLogger::getInstance()->plain(fmt, ##__VA_ARGS__) 
-#endif
 
 namespace PVCore {
 
-class LibKernelDecl PVLogger
+class PVLogger
 {
 public:
 	enum LogLevel {

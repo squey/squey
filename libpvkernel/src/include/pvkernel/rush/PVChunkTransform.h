@@ -16,7 +16,7 @@ namespace PVRush {
  *
  * \sa PVChunkTransformUTF16
  */
-class LibKernelDecl PVChunkTransform
+class PVChunkTransform
 {
 public:
 	/*! \brief Returns the number of bytes that should be read for the following chunk, knowning the original size.

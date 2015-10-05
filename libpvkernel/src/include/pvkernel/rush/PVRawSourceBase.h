@@ -18,7 +18,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*,void> {
+class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*,void> {
 public:
 	typedef PVRawSourceBase_p p_type;
 public:

@@ -37,7 +37,7 @@ enum mandatory_mapping_param_type
 //typedef tbb::concurrent_unordered_map<mandatory_mapping_param_type, mandatory_param_value> mandatory_param_map;
 typedef std::map<mandatory_mapping_param_type, mandatory_param_value> mandatory_param_map;
 
-class LibPicvizDecl PVMandatoryMappingFilter: public PVFilter::PVFilterFunctionBase<int, mandatory_param_value const&>, public PVCore::PVRegistrableClass<PVMandatoryMappingFilter>
+class PVMandatoryMappingFilter: public PVFilter::PVFilterFunctionBase<int, mandatory_param_value const&>, public PVCore::PVRegistrableClass<PVMandatoryMappingFilter>
 {
 public:
 	typedef std::shared_ptr<PVMandatoryMappingFilter> p_type;
@@ -62,10 +62,5 @@ protected:
 typedef PVMandatoryMappingFilter::func_type PVMandatoryMappingFilter_f;
 
 }
-
-#ifdef WIN32
-LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVMandatoryMappingFilter>;
-LibPicvizDeclExplicitTempl PVCore::PVTag<Picviz::PVMandatoryMappingFilter>;
-#endif
 
 #endif

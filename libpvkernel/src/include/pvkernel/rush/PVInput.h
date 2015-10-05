@@ -17,7 +17,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVInput {
+class PVInput {
 public:
 	typedef PVInput_p p_type;
 public:
@@ -40,7 +40,7 @@ public:
 	virtual bool seek(input_offset off) = 0;
 };
 
-class LibKernelDecl PVInputException {
+class PVInputException {
 public:
 	virtual std::string const& what() const = 0;
 };

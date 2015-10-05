@@ -51,7 +51,7 @@ typedef enum {
   eHighbyte  = 2
 } nsInputState;
 
-class LibKernelDecl nsUniversalDetector {
+class nsUniversalDetector {
 public:
    nsUniversalDetector();
    virtual ~nsUniversalDetector();

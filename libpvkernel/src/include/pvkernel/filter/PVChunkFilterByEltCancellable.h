@@ -13,7 +13,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVChunkFilterByEltCancellable : public PVChunkFilter {
+class PVChunkFilterByEltCancellable : public PVChunkFilter {
 public:
 	PVChunkFilterByEltCancellable(PVElementFilter_f elt_filter, float timeout,
 	                              bool *cancellation = nullptr);

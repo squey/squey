@@ -19,8 +19,6 @@ class QStringList;
 
 namespace PVRush {
 namespace PVUtils {
-	//LibKernelDecl QString generate_key_from_axes_values(PVCore::PVAxesIndexType const& axes, PVRush::PVNraw::const_nraw_table_line const& values);
-
 	const QByteArray get_file_checksum(const QString& path);
 	bool files_have_same_content(const QString& path1, const QString& path2);
 

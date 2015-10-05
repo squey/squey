@@ -14,23 +14,10 @@ include_directories(${Qt5Core_INCLUDE_DIRS})
 ###############################################################################
 # Define the Intel TBB Library
 ###############################################################################
-if(WIN32)
-	# TODO : Check if TBB have been found
-	set(TBB_FOUND "true")
-	set(TBB_INCLUDE_DIRS "C:\\dev\\tbb\\include\\")
-	if(CMAKE_BUILD_TYPE MATCHES "Debug")	
-		set(TBB_LIBRARY "C:\\dev\\tbb\\lib\\intel64\\vc9\\tbb_debug.lib")
-		set(TBB_MALLOC_LIBRARY "C:\\dev\\tbb\\lib\\intel64\\vc9\\tbbmalloc_debug.lib")
-	else()
-		set(TBB_LIBRARY "C:\\dev\\tbb\\lib\\intel64\\vc9\\tbb.lib")
-		set(TBB_MALLOC_LIBRARY "C:\\dev\\tbb\\lib\\intel64\\vc9\\tbbmalloc.lib")
-	endif()
-	set(TBB_LIBRARIES ${TBB_LIBRARY} ${TBB_MALLOC_LIBRARY})
-else(WIN32)
-	set(TBB_ROOT /opt/tbb-latest)
-	find_package(TBB REQUIRED)
-	set(TBB_LIBRARIES ${TBB_LIBRARY} ${TBB_MALLOC_LIBRARY} -L/opt/tbb-latest)
-endif(WIN32)
+
+set(TBB_ROOT /opt/tbb-latest)
+find_package(TBB REQUIRED)
+set(TBB_LIBRARIES ${TBB_LIBRARY} ${TBB_MALLOC_LIBRARY} -L/opt/tbb-latest)
 
 message(STATUS "TBB include dirs: " ${TBB_INCLUDE_DIRS})
 include_directories(AFTER ${TBB_INCLUDE_DIRS})
@@ -68,21 +55,9 @@ endif(CUDA_FOUND)
 ###############################################################################
 
 #set(Boost_DEBUG TRUE)
-if(WIN32)
-	set(BOOST_ROOT "C:\\dev\\boost\\install-root")
-	set(BOOST_INCLUDEDIR "C:\\dev\\boost\\install-root\\include\\boost-1_48")
-	#set(BOOST_LIBRARYDIR "C:\\dev\\boost\\install-root\\lib")
-	set(Boost_USE_STATIC_LIBS       OFF)
-	set(Boost_USE_MULTITHREADED      ON)
-	set(Boost_USE_STATIC_RUNTIME    OFF)
-	# Define this or boost automatically tries to link with lib* files, which aren't present under Windows
-	add_definitions(-DBOOST_ALL_NO_LIB)
-	#link_directories("C:\\dev\\boost\\stage\\lib")
-else(WIN32)
-	set(Boost_USE_STATIC_LIBS       OFF)
-	set(Boost_USE_MULTITHREADED      ON)
-	set(Boost_USE_STATIC_RUNTIME    OFF)
-endif(WIN32)
+set(Boost_USE_STATIC_LIBS       OFF)
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
 add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 
 # as we want to separate Boost's Python library path to others Boost libraries,
@@ -105,11 +80,7 @@ include_directories(AFTER ${BOOST_INCLUDEDIR})
 ###############################################################################
 find_package(OpenMP REQUIRED)
 # This package does not declare the library used by GCC
-if (WIN32)
-	set(OpenMP_LIBRARIES "")
-else (WIN32)
-	set(OpenMP_LIBRARIES ${OpenMP_CXX_FLAGS})
-endif(WIN32)
+set(OpenMP_LIBRARIES ${OpenMP_CXX_FLAGS})
 add_definitions(${OpenMP_CXX_FLAGS})
 
 message(STATUS "OpenMP Libraries: ${OpenMP_LIBRARIES}")
@@ -144,42 +115,21 @@ endif()
 ###############################################################################
 # Check for PCAP library
 ###############################################################################
-if(NOT WIN32)
-	find_package(PCAP REQUIRED)
-else(NOT WIN32)
-	# TODO : Check if it is found?
-	set(PCAP_LIBRARIES "C:\\dev\\winpcap\\Lib\\x64\\wpcap.lib" "C:\\dev\\winpcap\\Lib\\x64\\Packet.lib")
-	set(PCAP_INCLUDE_DIRS "C:\\dev\\winpcap\\Include")
-endif(NOT WIN32)
-
+find_package(PCAP REQUIRED)
 
 ###############################################################################
 # Check for Archive library
 # TODO : Check if it is found?
 ###############################################################################
 
-if (WIN32)
-	set(ARCHIVE_LIBRARY "C:\\dev\\libarchive\\libarchive\\Release\\archive_static.lib")
-	set(ARCHIVE_INCLUDE_DIRS "C:\\dev\\libarchive\\libarchive\\")
-	add_definitions(-DLIBARCHIVE_STATIC=1)
-else(WIN32)
-	set(ARCHIVE_LIBRARY "archive")
-	set(ARCHIVE_INCLUDE_DIRS "")
-endif(WIN32)
+set(ARCHIVE_LIBRARY "archive")
+set(ARCHIVE_INCLUDE_DIRS "")
 
 ###############################################################################
 # Check for libpcre++
 # This is a library to handle perl regex
 ###############################################################################
 find_package(PCRE REQUIRED)
-
-#
-# Under Win32, check for Winsocks
-
-if(WIN32)
-	#FIND_LIBRARY(WINSOCK_LIB NAMES ws2_32)
-	set(WINSOCK_LIB ws2_32)
-endif(WIN32)
 
 ###############################################################################
 # OpenGL
@@ -190,19 +140,7 @@ find_package(OpenGL REQUIRED)
 ###############################################################################
 # IBM ICU
 ###############################################################################
-if (WIN32)
-	# TODO : Check if it is found?
-	set(ICU_LIBRARY "C:\\dev\\icu-amd64\\lib64\\icudt.lib"
-			"C:\\dev\\icu-amd64\\lib64\\icuin.lib"
-			"C:\\dev\\icu-amd64\\lib64\\icuio.lib"
-			"C:\\dev\\icu-amd64\\lib64\\icule.lib"
-			"C:\\dev\\icu-amd64\\lib64\\iculx.lib"
-			"C:\\dev\\icu-amd64\\lib64\\icutu.lib"
-			"C:\\dev\\icu-amd64\\lib64\\icuuc.lib")
-	set(ICU_INCLUDE "C:\\dev\\icu-amd64\\include\\")
-else(WIN32)
-	find_package(ICU REQUIRED) 
-endif(WIN32)
+find_package(ICU REQUIRED) 
 
 message(STATUS "ICU found: " ${ICU_FOUND})
 if(ICU_FOUND)
@@ -214,25 +152,13 @@ endif(ICU_FOUND)
 ###############################################################################
 # Check for CURL
 ###############################################################################
-if(WIN32)
-	# TODO : Check if it is found?
-	add_definitions(-DCURL_STATICLIB)
-	set(CURL_INCLUDE_DIR "C:\\dev\\curl\\include")
-#	set(CURL_LIBRARY "C:\\dev\\curl\\lib\\LIB-Release\\libcurl.lib" "wldap32.lib")
-	set(CURL_LIBRARY "C:\\dev\\curl\\lib\\Release\\curllib_static.lib" "C:\\dev\\curl\\openldap.lib" "C:\\dev\\curl\\ssleay32.lib" "C:\\dev\\curl\\libeay32.lib")
-else(WIN32)
- 	find_package(CURL "7.38.0" REQUIRED)
-endif(WIN32)
+find_package(CURL "7.38.0" REQUIRED)
 
 ###############################################################################
 # Check for Perl support
 # TODO : Check if it is found?
 ###############################################################################
-if(WIN32)
-        set(PERLLIBS_FOUND "FALSE")
-else(WIN32)
-        find_package(PerlLibs)
-endif(WIN32)
+find_package(PerlLibs)
 
 ###############################################################################
 # Check for Python support
@@ -260,23 +186,20 @@ if(ENABLE_CORRELATION)
 	#
 	# find_package(TULIP3 <VERSION> ...) does not seem to work...
 	set(TULIP_REQUIRED_VERSION 3.7)
-	if(WIN32)
-	else(WIN32)
-		find_package(TULIP3 3.7 REQUIRED)
-		if(TULIP_FOUND)
-			if(TULIP_VERSION STRLESS TULIP_REQUIRED_VERSION)
-				message(FATAL_ERROR "Tulip ${TULIP_VERSION} is installed but ${TULIP_REQUIRED_VERSION} is required")
-			else()
-				message(STATUS "Tulip found: ${TULIP_VERSION}")
-				message(STATUS "Tulip include dir: ${TULIP_INCLUDE_DIR}")
-				add_definitions(-DENABLE_CORRELATION)
-			endif()
-			message(STATUS "Correlation enabled")
+	find_package(TULIP3 3.7 REQUIRED)
+	if(TULIP_FOUND)
+		if(TULIP_VERSION STRLESS TULIP_REQUIRED_VERSION)
+			message(FATAL_ERROR "Tulip ${TULIP_VERSION} is installed but ${TULIP_REQUIRED_VERSION} is required")
 		else()
-			message(WARNING "Tulip not found, disabling correlation")
-			set(ENABLE_CORRELATION FALSE)
+			message(STATUS "Tulip found: ${TULIP_VERSION}")
+			message(STATUS "Tulip include dir: ${TULIP_INCLUDE_DIR}")
+			add_definitions(-DENABLE_CORRELATION)
 		endif()
-	endif(WIN32)
+		message(STATUS "Correlation enabled")
+	else()
+		message(WARNING "Tulip not found, disabling correlation")
+		set(ENABLE_CORRELATION FALSE)
+	endif()
 else(ENABLE_CORRELATION)
 	message(STATUS "Correlation disabled")
 endif(ENABLE_CORRELATION)

@@ -12,7 +12,7 @@
 
 namespace PVCore {
 
-class LibKernelDecl PVVersion
+class PVVersion
 {
 public:
 	static bool from_network_reply(QByteArray const& reply, version_t& current, version_t& last);

@@ -39,7 +39,7 @@ namespace Picviz {
  * \class PVSource
  */
 typedef typename PVCore::PVDataTreeObject<PVScene, PVMapped> data_tree_source_t;
-class LibPicvizDecl PVSource: public data_tree_source_t
+class PVSource: public data_tree_source_t
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVRoot;

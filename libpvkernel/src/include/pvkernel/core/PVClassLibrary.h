@@ -67,7 +67,7 @@ namespace PVCore {
  * In the end, it looks like two plugins exists, but they are using the same underlying class.
  *
  * \note
- * AG: WARNING: there is *no* LibKernelDecl and this is *wanted* !
+ * AG: WARNING: there is *no* and this is *wanted* !
  *              check the wiki for more informations
  */
 template<class RegAs>
@@ -183,7 +183,7 @@ private:
 	int _last_registered_id;
 };
 
-class LibKernelDecl PVClassLibraryLibLoader {
+class PVClassLibraryLibLoader {
 public:
 	static bool load_class(QString const& path);
 	static int load_class_from_dir(QString const& pluginsdir, QString const& prefix);

@@ -11,7 +11,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVFieldFilterReplace : public PVFieldFilter {
+class PVFieldFilterReplace : public PVFieldFilter {
 public:
 	PVCore::PVField
 };

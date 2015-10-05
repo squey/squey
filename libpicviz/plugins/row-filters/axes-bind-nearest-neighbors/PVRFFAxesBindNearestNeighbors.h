@@ -17,7 +17,7 @@
 
 namespace Picviz {
 
-class LibPicvizDecl PVRFFAxesBindNearestNeighbors: public PVSelRowFilteringFunction
+class PVRFFAxesBindNearestNeighbors: public PVSelRowFilteringFunction
 {
 private:
 	typedef std::map<Picviz::mapped_decimal_storage_type, std::vector<PVRow>, std::less<Picviz::mapped_decimal_storage_type> > map_rows;

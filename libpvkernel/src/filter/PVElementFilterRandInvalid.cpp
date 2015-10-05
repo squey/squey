@@ -11,11 +11,7 @@
 PVFilter::PVElementFilterRandInvalid::PVElementFilterRandInvalid() :
 	PVElementFilter()
 {
-#ifdef WIN32
-	std::srand(0); // Not a big deal, just for testing anyway
-#else
 	std::srand(time(NULL));
-#endif
 }
 
 PVCore::PVElement& PVFilter::PVElementFilterRandInvalid::operator()(PVCore::PVElement &elt)

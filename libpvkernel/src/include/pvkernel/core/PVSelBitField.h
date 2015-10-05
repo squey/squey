@@ -37,7 +37,7 @@ namespace PVCore {
 #define PICVIZ_SELECTION_NUMBER_OF_ROWS (PICVIZ_SELECTION_NUMBER_OF_CHUNKS * PICVIZ_SELECTION_CHUNK_SIZE)
 #define PICVIZ_SELECTION_NUMBER_OF_BYTES (PICVIZ_SELECTION_NUMBER_OF_ROWS / 8)
 
-class LibKernelDecl PVSelBitField
+class PVSelBitField
 {
 	friend class PVCore::PVSerializeObject;
 	friend class Picviz::PVSelection;

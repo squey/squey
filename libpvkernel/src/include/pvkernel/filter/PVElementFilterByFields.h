@@ -15,7 +15,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVElementFilterByFields : public PVElementFilter {
+class PVElementFilterByFields : public PVElementFilter {
 public:
 	PVElementFilterByFields(PVFieldsBaseFilter_f fields_f);
 public:

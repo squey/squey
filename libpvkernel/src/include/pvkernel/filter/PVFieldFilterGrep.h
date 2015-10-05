@@ -13,7 +13,7 @@
 
 namespace PVFilter {
 
-class LibKernelDecl PVFieldFilterGrep: public PVFieldsFilter<one_to_one> {
+class PVFieldFilterGrep: public PVFieldsFilter<one_to_one> {
 public:
 	PVFieldFilterGrep(PVCore::PVArgumentList const& args = PVFieldFilterGrep::default_args());
 public:

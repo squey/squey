@@ -36,7 +36,7 @@ class PVSource;
  * \class PVScene
  */
 typedef typename PVCore::PVDataTreeObject<PVRoot, PVSource> data_tree_scene_t;
-class LibPicvizDecl PVScene: public data_tree_scene_t
+class PVScene: public data_tree_scene_t
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVRoot;

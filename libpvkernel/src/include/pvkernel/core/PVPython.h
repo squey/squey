@@ -28,7 +28,7 @@ namespace PVCore {
 
 class PVPythonClassDecl;
 
-class LibKernelDecl PVPythonInitializer
+class PVPythonInitializer
 {
 	friend class PVPythonClassRegister;
 public:
@@ -71,7 +71,7 @@ private:
 };
 
 namespace PVPython {
-	extern QString LibKernelDecl get_list_index_as_qstring(boost::python::list pylist, int index);
+	extern QString get_list_index_as_qstring(boost::python::list pylist, int index);
 }
 
 }

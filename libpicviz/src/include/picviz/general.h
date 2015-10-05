@@ -15,25 +15,12 @@
 /* #define PICVIZ_BEGIN_NAMESPACE namespace Picviz { */
 /* #define PICVIZ_CLOSE_NAMESPACE } */
 
-//#ifdef WIN32
-//#ifndef WIN32_LEAN_AND_MEAN
-//	#define WIN32_LEAN_AND_MEAN
-//#endif
-
-//#ifdef CUSTOMER_RELEASE
-//#ifdef WIN32
-//  #ifndef PICVIZ_INSPECTOR
-//    #include <winlicensesdk.h>
-//  #endif
-//#else
 #ifndef VM_START
 	#define VM_START
 	#define VM_END
 	#define CODEREPLACE_START
 	#define CODEREPLACE_END
 #endif
-//#endif
-//#endif
 
 /* Global that holds the error message */
 /* extern char *debug_msg;  */

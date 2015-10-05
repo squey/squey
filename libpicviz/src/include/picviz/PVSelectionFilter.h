@@ -21,7 +21,7 @@ namespace Picviz {
 /**
  * \class PVSelectionFilter
  */
-class LibPicvizDecl PVSelectionFilter : public PVFilter::PVFilterFunction<PVSelection, PVSelectionFilter> {
+class PVSelectionFilter : public PVFilter::PVFilterFunction<PVSelection, PVSelectionFilter> {
 public:
 	typedef PVFilter::PVFilterFunction<PVSelection, PVSelectionFilter>::base_registrable base_registrable;
 public:
@@ -52,12 +52,6 @@ private:
 };
 
 typedef std::shared_ptr<PVSelectionFilter> PVSelectionFilter_p;
-
-// For this wto work under windows, wez need to export here the PVFilterLibrary for PVLayerFilter
-#ifdef WIN32
-LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVSelectionFilter>;
-LibPicvizDeclExplicitTempl PVCore::PVTag<Picviz::PVSelectionFilter>;
-#endif
 
 }
 

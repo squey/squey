@@ -27,7 +27,7 @@ namespace PVWidgets {
 
 class PVCombinOpDelegate;
 
-class LibPicvizDecl PVAD2GEdgeEditor : public QWidget
+class PVAD2GEdgeEditor : public QWidget
 {
 	Q_OBJECT
 public:

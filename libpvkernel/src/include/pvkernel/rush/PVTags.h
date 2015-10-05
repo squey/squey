@@ -25,7 +25,7 @@
  */
 
 namespace PVRush {
-class LibKernelDecl PVTags {
+class PVTags {
 
  private:
 	QSet<QString> _tags;

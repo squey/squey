@@ -13,23 +13,7 @@ SET(CPACK_PACKAGE_VERSION_PATCH ${VERSION_MICRO})
 SET(CPACK_STRIP_FILES "TRUE")
 SET(CPACK_SOURCE_STRIP_FILES "TRUE")
 SET(CPACK_RESOURCE_FILE_LICENSE ${picviz-inspector_SOURCE_DIR}/COPYING.txt)
-IF(WIN32 AND NOT UNIX)
-	STRING(REGEX REPLACE "/" "\\\\\\\\" CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/gui-qt/src/resources/nsis.bmp")
-	SET(CPACK_GENERATOR "NSIS")
-        SET(CPACK_NSIS_HELP_LINK "http://www.picviz.com")
-        SET(CPACK_NSIS_URL_INFO_ABOUT "http://www.picviz.com")
-        SET(CPACK_NSIS_CONTACT "${EMAIL_ADDRESS_CONTACT}")
-	SET(CPACK_NSIS_DISPLAY_NAME "Picviz Inspector")	
-	#SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "ExecWait 'c:\\\\windows\\\\notepad.exe'")
-	SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "ExecWait '\\\"$INSTDIR\\\\redist\\\\vcredist_x64.exe\\\" /q:a'
-	ExecWait '\\\"$INSTDIR\\\\redist\\\\WinPcap_4_1_2.exe\\\"'
-	ExecWait 'msiexec.exe /quiet /i \\\"$INSTDIR\\\\redist\\\\openmp_release.msi\\\"'
-	ExecWait 'msiexec.exe /quiet /i \\\"$INSTDIR\\\\redist\\\\python-3.2.2.amd64.msi\\\"'
-	")
-	#	SET(CPACK_NSIS_MODIFY_PATH ON)
-ELSE(WIN32 AND NOT UNIX)
-	SET(CPACK_SYSTEM_NAME "linux")
-	SET(CPACK_GENERATOR "TGZ")
-ENDIF(WIN32 AND NOT UNIX)
+SET(CPACK_SYSTEM_NAME "linux")
+SET(CPACK_GENERATOR "TGZ")
 
 include(CPack)

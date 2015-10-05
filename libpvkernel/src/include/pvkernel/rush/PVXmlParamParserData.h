@@ -22,7 +22,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVXmlParamParserData {
+class PVXmlParamParserData {
 
 public:    
 	PVXmlParamParserData()

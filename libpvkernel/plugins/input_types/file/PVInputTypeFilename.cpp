@@ -12,15 +12,12 @@
 #include <QMessageBox>
 #include <QFileInfo>
 
-#ifndef WIN32
 #include <sys/time.h>
 #include <sys/resource.h>
-#endif
 
 PVRush::PVInputTypeFilename::PVInputTypeFilename() :
 	PVInputTypeDesc<PVFileDescription>()
 {
-#ifndef WIN32
 	struct rlimit rlim;
 	if (getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
 		PVLOG_WARN("Unable to get nofile limit. Uses 1024 by default.\n");
@@ -29,7 +26,6 @@ PVRush::PVInputTypeFilename::PVInputTypeFilename() :
 	else {
 		_limit_nfds = rlim.rlim_cur-1; // Take the soft limit as this is the one that will limit us...
 	}
-#endif
 }
 
 bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent) const
@@ -108,7 +104,6 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames, bool 
 		}
 	}
 
-#ifndef WIN32
 	if (inputs.size() >= _limit_nfds - 200) {
 		ssize_t nopen = _limit_nfds - 200;
 		if (nopen <= 0) {
@@ -128,7 +123,6 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames, bool 
 		}
 		inputs = in_shrink;
 	}
-#endif
 
 	return inputs.size() > 0;
 }

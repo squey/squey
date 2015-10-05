@@ -29,7 +29,7 @@ namespace __impl {
 	typedef int(*qt_sorting_comp_func)(QString const&, QString const&);
 }
 
-class LibPicvizDecl PVSortingFunc : public PVCore::PVFunctionArgs<__impl::unicode_sorting_comp_func>, public PVCore::PVRegistrableClass<PVSortingFunc>
+class PVSortingFunc : public PVCore::PVFunctionArgs<__impl::unicode_sorting_comp_func>, public PVCore::PVRegistrableClass<PVSortingFunc>
 {
 public:
 	typedef std::shared_ptr<PVSortingFunc> p_type;

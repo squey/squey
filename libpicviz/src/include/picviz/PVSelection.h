@@ -34,7 +34,7 @@ class PVSparseSelection;
 /**
 * \class PVSelection
 */
-class LibPicvizDecl PVSelection: public PVCore::PVSelBitField
+class PVSelection: public PVCore::PVSelBitField
 {
 	friend class PVCore::PVSerializeObject;
 

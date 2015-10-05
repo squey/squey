@@ -15,7 +15,7 @@ namespace PVCore {
 
 namespace priv {
 
-class LibKernelDecl PVSerializeArchiveErrorBase
+class PVSerializeArchiveErrorBase
 {
 public:
 	virtual ~PVSerializeArchiveErrorBase() { }
@@ -24,7 +24,7 @@ public:
 
 }
 
-class LibKernelDecl PVSerializeArchiveError: public priv::PVSerializeArchiveErrorBase
+class PVSerializeArchiveError: public priv::PVSerializeArchiveErrorBase
 {
 public:
 	PVSerializeArchiveError(QString const& msg):
@@ -37,7 +37,7 @@ protected:
 	QString _msg;
 };
 
-class LibKernelDecl PVSerializeArchiveErrorNoObject: public PVSerializeArchiveError
+class PVSerializeArchiveErrorNoObject: public PVSerializeArchiveError
 {
 public:
 	PVSerializeArchiveErrorNoObject(QString const& obj, QString const& msg):
@@ -50,7 +50,7 @@ protected:
 	QString _obj;
 };
 
-class LibKernelDecl PVSerializeArchiveErrorFileNotReadable: public PVSerializeArchiveError
+class PVSerializeArchiveErrorFileNotReadable: public PVSerializeArchiveError
 {
 public:
 	PVSerializeArchiveErrorFileNotReadable(QString const& path):

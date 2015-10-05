@@ -11,8 +11,8 @@
 
 namespace PVCore {
 
-	LibKernelDecl int mkenv(const char *name, const char *value);
-	LibKernelDecl int rmenv(const char *name);
+	int mkenv(const char *name, const char *value);
+	int rmenv(const char *name);
 
 }
 
