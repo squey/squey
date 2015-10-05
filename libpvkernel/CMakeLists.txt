@@ -50,7 +50,6 @@ include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${ICU_INCLUDE})
 include_directories(AFTER ${ARCHIVE_INCLUDE_DIRS})
 include_directories(AFTER ${PCAP_INCLUDE_DIRS})
-include_directories(AFTER ${X11_INCLUDE_DIR})
 include_directories(AFTER ${Boost_INCLUDE_DIR})
 include_directories(AFTER ${HWLOC_INCLUDE_DIRS})
 if(CUDA_FOUND)
@@ -113,8 +112,6 @@ add_subdirectory(src)
 add_subdirectory(plugins)
 
 set(PVKERNEL_PLUGINS_LIST ${PLUGINS_LIST})
-
-#add_subdirectory(bindings)
 
 add_subdirectory(tests)
 propagate_tests_targets_to_parent()

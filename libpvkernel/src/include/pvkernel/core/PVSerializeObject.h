@@ -7,7 +7,6 @@
 #ifndef PVCORE_PVSERIALIZEOBJECT_H
 #define PVCORE_PVSERIALIZEOBJECT_H
 
-#include <pvkernel/core/stdint.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVDataTreeAutoShared.h>
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>

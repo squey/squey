@@ -16,7 +16,7 @@
 
 #define DEFAULT_PYTHON_CHUNK_SIZE 1024 * 100
 
-PVRush::PVSourceCreatorPythonfile::source_p PVRush::PVSourceCreatorPythonfile::create_discovery_source_from_input(PVInputDescription_p input, const PVFormat& format) const
+PVRush::PVSourceCreatorPythonfile::source_p PVRush::PVSourceCreatorPythonfile::create_source_from_input(PVInputDescription_p input, const PVFormat& format) const
 {
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	QFileInfo python_file_info(format.get_full_path());

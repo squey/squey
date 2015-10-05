@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include <cstdint>
 #include <stdlib.h>
 #include <time.h>
 #include <iostream>

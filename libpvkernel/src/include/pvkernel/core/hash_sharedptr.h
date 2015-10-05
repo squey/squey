@@ -11,8 +11,6 @@
 #error libpvkernel/core/hash_sharedptr.h must be included before QHash if you want to use it as a QHash key.
 #endif
 
-#include <pvkernel/core/stdint.h>
-
 #include <memory>
 
 // Taken from Qt's qhash.h

@@ -166,17 +166,6 @@ add_test(TestTicket28 Trush_ticket_28 ${PVRUSH_TEST_FILES})
 declare_pv_test(Trush_mem "bench_memory.cpp")
 target_link_libraries(Trush_mem ${LINK_LIBRARIES})
 
-declare_pv_test(Trush_input_hdfs "input_hdfs.cpp")
-target_link_libraries(Trush_input_hdfs ${LINK_LIBRARIES})
-
-if(HDFS_FOUND)
-	#add_executable(Trush_input_hadoop input_hadoop.cpp helpers.cpp ../../plugins/common/hdfs/PVInputHDFSFile.cpp ../../plugins/common/hdfs/PVInputHDFSServer.cpp)
-	#target_link_libraries(Trush_input_hadoop ${LINK_LIBRARIES} ${HDFS_LIBRARIES})
-endif(HDFS_FOUND)
-
-declare_pv_test(Trush_fake_hadoop_src "fake_hadoop_src.cpp")
-target_link_libraries(Trush_fake_hadoop_src ${LINK_LIBRARIES})
-
 # libarchive auto detect
 #add_executable(Trush_archive_detect archive_detect.cpp ../plugins/input_types/file/extract.cpp)
 #target_link_libraries(Trush_archive_detect ${LINK_LIBRARIES})

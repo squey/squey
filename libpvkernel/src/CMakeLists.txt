@@ -53,7 +53,6 @@ core/PVSerializeArchiveOptions.cpp
 core/PVSerializeArchiveZip.cpp
 core/PVSerializeObject.cpp
 core/PVSplitter.cpp
-core/PVUtils.cpp
 core/PVUnicodeString.cpp
 core/PVUnicodeString16.cpp
 core/PVVersion.cpp
@@ -123,7 +122,6 @@ include/pvkernel/filter/PVFieldsFilterParamWidget.h
 
 set(RUSH_SRC_FILES
 rush/PVAxisFormat.cpp
-rush/pvdecoder.cpp
 rush/PVFileRawSource.cpp
 rush/PVFormat.cpp
 rush/PVNraw.cpp
@@ -298,7 +296,7 @@ endif(${QT_WEBKIT})
 set(PVKERNEL_LINK_LIBRARIES ${QT5_LIBS} ${ICU_LIBRARY} ${TBB_LIBRARIES}
 	${OpenMP_LIBRARIES} ${PYTHON_LIBRARY} ${Boost_LIBRARIES_PYTHON} ${Boost_LIBRARIES}
 	${ARCHIVE_LIBRARY} ${PCAP_LIBRARIES} ${WINSOCK_LIB}
-	${X11_LIBRARIES} ${HWLOC_LIBRARIES} ${NUMA_LIBRARIES})
+	${HWLOC_LIBRARIES} ${NUMA_LIBRARIES})
 
 if(CUDA_FOUND)
 	set(PVKERNEL_LINK_LIBRARIES ${PVKERNEL_LINK_LIBRARIES} ${CUDA_LIBRARIES})

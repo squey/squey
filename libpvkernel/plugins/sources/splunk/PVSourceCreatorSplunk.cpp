@@ -9,7 +9,7 @@
 
 #include <pvkernel/filter/PVChunkFilter.h>
 
-PVRush::PVSourceCreatorSplunk::source_p PVRush::PVSourceCreatorSplunk::create_discovery_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
+PVRush::PVSourceCreatorSplunk::source_p PVRush::PVSourceCreatorSplunk::create_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
 {
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	source_p src(new PVRush::PVSplunkSource(input, chk_flt->f()));

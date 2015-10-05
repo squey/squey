@@ -111,12 +111,6 @@ if(PYTHONLIBS_FOUND)
 	target_link_libraries(source_python_file pvkernel ${PYTHON_LIBRARIES} ${Boost_LIBRARIES_PYTHON})
 endif(PYTHONLIBS_FOUND)
 
-
-if(HDFS_FOUND)
-#	add_library(source_text_hdfs SHARED hdfs/text/PVSourceCreatorTexthdfs.cpp hdfs/text/PVSourceCreatorTexthdfs.h ../common/hdfs/PVInputHDFSFile.cpp ../common/hdfs/PVInputHDFSServer.cpp hdfs/PVInputHDFS.cpp hdfs/PVChunkAlignHadoop.cpp  hdfs/PVHadoopResultServer.cpp  hdfs/PVHadoopTaskResult.cpp  hdfs/PVInputHDFS.cpp hdfs/text/register.cpp)
-#	target_link_libraries(source_text_hdfs pvkernel ${HDFS_LIBRARIES})
-endif(HDFS_FOUND)
-
 ###############################################################################
 # Arcsight sources
 # TODO : Improve detection of arcsight and gsoap

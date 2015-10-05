@@ -7,7 +7,7 @@
 #include <pvkernel/core/PVMemory2D.h>
 
 #include <stdlib.h>
-#include <stdint.h>
+#include <cstdint>
 #include <memory.h>
 
 #include <pvkernel/core/general.h>

@@ -7,8 +7,6 @@
 #include <picviz/PVMappingFilter.h>
 #include <pvkernel/rush/PVFormat.h>
 
-#include <pvkernel/core/stdint.h>
-
 Picviz::PVMappingFilter::PVMappingFilter()
 {
 	_dest = NULL;

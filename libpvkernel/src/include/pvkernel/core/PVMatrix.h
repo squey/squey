@@ -7,7 +7,6 @@
 #ifndef PVCORE_PVMATRIX_H
 #define PVCORE_PVMATRIX_H
 
-#include <pvkernel/core/stdint.h>
 #include <boost/type_traits/is_pod.hpp>
 #include <boost/bind.hpp>
 #include <vector>

@@ -8,7 +8,6 @@
 #define PVCORE_HSVCOLOR_H
 
 //#include <pvkernel/core/general.h>
-//#include <pvkernel/core/stdint.h>
 #include <pvbase/types.h>
 #include <stdint.h>
 #include <pvkernel/cuda/constexpr.h>

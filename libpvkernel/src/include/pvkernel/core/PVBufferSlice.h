@@ -15,8 +15,6 @@
 #include <QRegExp>
 #include <boost/shared_array.hpp>
 
-#include <pvkernel/core/stdint.h>
-
 namespace PVCore {
 
 typedef std::list< std::pair<char*,size_t> > buf_list_t;

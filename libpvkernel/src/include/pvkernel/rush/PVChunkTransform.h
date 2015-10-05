@@ -8,7 +8,6 @@
 #define PVCHUNKTRANSFORM_FILE_H
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/core/stdint.h>
 
 namespace PVRush {
 

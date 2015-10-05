@@ -7,7 +7,7 @@
 #ifndef QUADTREE_TMPL_H
 #define QUADTREE_TMPL_H
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <stdlib.h>
 #include <string.h>

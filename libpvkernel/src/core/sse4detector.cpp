@@ -28,7 +28,6 @@
 
 // AG: add a function for SSE4.1 detection only
 
-#include <pvkernel/core/stdint.h>
 #include <pvkernel/core/sse4detector.h>
 #ifdef WIN32
 #include <intrin.h>
@@ -36,6 +35,7 @@
 #include <cpuid.h>
 #endif
 #include <stdio.h>
+#include <cstdint>
 
 #define SSE4_1_FLAG     0x080000 
 #define SSE4_2_FLAG     0x100000 

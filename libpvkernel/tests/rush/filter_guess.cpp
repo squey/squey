@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 
 	PVRush::PVFormat format;
 	// Process that file with the found source creator thanks to the extractor
-	PVRush::PVSourceCreator::source_p src = sc_file->create_discovery_source_from_input(file, format);
+	PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file, format);
 	if (!src) {
 		std::cerr << "Unable to create PVRush source from file " << argv[1] << std::endl;
 		return 1;

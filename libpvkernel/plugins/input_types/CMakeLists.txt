@@ -98,19 +98,6 @@ QT5_WRAP_UI(DB_UI_SRCS ${DB_UI})
 add_library(input_type_database SHARED ${DB_UI_SRCS} ${DB_MOC_SRCS} ${DB_SRC_FILES})
 target_link_libraries(input_type_database pvkernel ${DB_LIBS})
 
-#
-# HDFS input plugin
-#
-if(HDFS_FOUND)
-#	include_directories(AFTER ${HDFS_INCLUDE_DIRS})
-#	SET(HDFS_UI hdfs/PVImportHDFSDlg.ui)
-#	SET(HDFS_MOC_HEADERS hdfs/PVImportHDFSDlg.h)
-#	QT5_WRAP_CPP(HDFS_MOC_SRCS ${HDFS_MOC_HEADERS})
-#	QT5_WRAP_UI(HDFS_UI_SRCS ${HDFS_UI})
-#	add_library(input_type_hdfs SHARED hdfs/PVImportHDFSDlg.cpp hdfs/PVInputTypeHDFS.cpp ../common/hdfs/PVInputHDFSFile.cpp ../common/hdfs/PVInputHDFSServer.cpp hdfs/setenv.cpp hdfs/register.cpp ${HDFS_MOC_SRCS} ${HDFS_UI_SRCS})
-#	target_link_libraries(input_type_hdfs ${PVKERNEL_LIBRARIES} ${HDFS_LIBRARIES})
-endif(HDFS_FOUND)
-
 ################################################
 # Remote file input plugin
 ################################################

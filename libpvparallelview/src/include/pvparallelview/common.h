@@ -8,7 +8,6 @@
 #define PVPARALLELVIEW_CONFIG_H
 
 #include <vector>
-#include <stdint.h>
 #include <pvbase/types.h>
 
 #ifndef __CUDACC__

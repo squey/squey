@@ -173,27 +173,6 @@ endif(WIN32)
 ###############################################################################
 find_package(PCRE REQUIRED)
 
-###############################################################################
-# Check for Java and JNI Use with Hadoop
-# TODO : Could be removed?
-###############################################################################
-find_package(Java)
-find_package(JNI)
-
-if(JAVA_FOUND)
-	include(UseJava)
-endif(JAVA_FOUND)
-
-
-###############################################################################
-# Check for libhdfs (needed for Hadoop support).
-# TODO : Could be remove?
-###############################################################################
-if (WIN32)
-else (WIN32)
-	find_package(HDFS)
-endif(WIN32)
-
 #
 # Under Win32, check for Winsocks
 
@@ -268,14 +247,6 @@ find_package(PythonLibs)
 if(PYTHONLIBS_FOUND)
 	add_definitions(-DENABLE_PYTHON_SUPPORT)
 endif(PYTHONLIBS_FOUND)
-
-###############################################################################
-# Check for X11 (used to detect caps lock activated ;-))
-# TODO : Qt5 doesn't need it anymore, is it still required?
-###############################################################################
-if(NOT WIN32)
-	find_package(X11 REQUIRED)
-endif(NOT WIN32)
 
 ###############################################################################
 # Check for Correlation

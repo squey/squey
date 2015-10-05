@@ -9,7 +9,6 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/core/PVDateTimeParser.h>
 #include <pvkernel/core/PVTimeFormatType.h>
-#include <pvkernel/core/stdint.h>
 
 #include <QStringList>
 #include <omp.h>

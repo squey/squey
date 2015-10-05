@@ -8,7 +8,6 @@
 #define PVDBINFOS_FILE_H
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/core/stdint.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
 #include <QString>

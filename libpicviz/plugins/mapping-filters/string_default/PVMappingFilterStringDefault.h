@@ -11,8 +11,6 @@
 #include <picviz/PVPureMappingFilter.h>
 #include <tbb/atomic.h>
 
-#include <pvkernel/core/stdint.h>
-
 namespace Picviz {
 
 struct string_mapping

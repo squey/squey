@@ -44,7 +44,7 @@ compound=true;
  *
  * The input are segmented with two main properties :
  * <ul>
- * <li>where it comes from (a local file, an HDFS cluster, a database). Handled by the "input type" plugins</li>
+ * <li>where it comes from (a local file, a database). Handled by the "input type" plugins</li>
  * <li>the contained data (PCAP packets, text data, SQL result, etc...). It is handled by the" 
  * </ul>
  *
