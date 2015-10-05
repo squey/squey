@@ -69,31 +69,31 @@ public:
 	{
 		PVSelection ret(*this);
 		ret &= rhs;
-		return std::move(ret);
+		return ret;
 	}
 	inline PVSelection operator-(const PVSelection &rhs) const
 	{
 		PVSelection ret(*this);
 		ret -= rhs;
-		return std::move(ret);
+		return ret;
 	}
 	inline PVSelection operator^(const PVSelection &rhs) const
 	{
 		PVSelection ret(*this);
 		ret ^= rhs;
-		return std::move(ret);
+		return ret;
 	}
 	inline PVSelection operator~() const
 	{
 		PVSelection ret;
 		move_from_base(ret, PVCore::PVSelBitField::operator~());
-		return std::move(ret);
+		return ret;
 	}
 	inline PVSelection operator|(const PVSelection &rhs) const
 	{
 		PVSelection ret(*this);
 		ret |= rhs;
-		return std::move(ret);
+		return ret;
 	}
 
 private:

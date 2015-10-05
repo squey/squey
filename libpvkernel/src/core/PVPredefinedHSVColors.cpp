@@ -25,7 +25,7 @@ std::vector<PVCore::PVHSVColor> PVCore::PVPredefinedHSVColors::get_predefined_co
 	}
 	pvconfig.endGroup();
 
-	return std::move(ret);
+	return ret;
 }
 
 bool PVCore::PVPredefinedHSVColors::set_predefined_color(size_t i, PVCore::PVHSVColor c)

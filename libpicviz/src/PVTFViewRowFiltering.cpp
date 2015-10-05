@@ -40,7 +40,7 @@ bool Picviz::PVTFViewRowFiltering::all_rff_or_operation() const
 Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_src, PVView const& view_dst, PVSelection const& sel_org) const
 {
 	if (_rffs.size() == 0) {
-		return std::move(PVSelection());
+		return {};
 	}
 
 	// AG: the algorithm here is hard coded, and the idea in a close future is to have the user being able
@@ -149,7 +149,7 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 	}
 
 	if (tls_sel.size() == 0) {
-		return std::move(PVSelection());
+		return {};
 	}
 	PVSelection& final_sel = *tls_sel.begin();
 	// Merge all TLS selections
@@ -162,7 +162,7 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 	}
 	BENCH_END(sel_red, "selection reduction", 1, 1, 1, 1);
 	BENCH_END(merge, "merge", 1, 1, 1, 1);
-	return std::move(final_sel);
+	return {std::move(final_sel)};
 }
 
 

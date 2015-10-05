@@ -83,8 +83,8 @@ public:
 public:
 	template<typename... P>
 	inline void call(T* object, P && ... params) { _result = (object->*f)(std::forward<P>(params)...); }
-	inline result_type result() const { return std::move(_result); }
-	inline result_type default_value() const { return std::move(result_type()); }
+	inline result_type result() const { return {std::move(_result)}; }
+	inline result_type default_value() const { return {}; }
 
 private:
 	result_type _result;

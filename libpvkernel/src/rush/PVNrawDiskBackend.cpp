@@ -468,9 +468,7 @@ const char* PVRush::PVNrawDiskBackend::at_no_cache(PVRow field, PVCol col, size_
 
 std::string PVRush::PVNrawDiskBackend::get_disk_index_file() const
 {
-	std::stringstream filename;
-	filename << _nraw_folder << "/" << INDEX_FILENAME;
-	return std::move(filename.str());
+	return  _nraw_folder + "/" + INDEX_FILENAME;
 }
 
 std::string PVRush::PVNrawDiskBackend::get_disk_column_file(uint64_t col) const
@@ -478,7 +476,7 @@ std::string PVRush::PVNrawDiskBackend::get_disk_column_file(uint64_t col) const
 	assert(col < get_number_cols());
 	std::stringstream filename;
 	filename << _nraw_folder << "/column_" << col;
-	return std::move(filename.str());
+	return filename.str();
 }
 
 // class PVCachePool
