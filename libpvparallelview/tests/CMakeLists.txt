@@ -3,9 +3,7 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
-
-include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libparallelview/src/include)
+include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 add_definitions(${PICVIZ_DEFINITIONS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 
@@ -13,192 +11,70 @@ set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
 set(CUDA_NVCC_FLAGS "-gencode arch=compute_30,code=sm_30" "-Xptxas=-v" "-Xcompiler=-fPIC")
 #set(CUDA_NVCC_FLAGS "-g" "-G")
 
-add_definitions(${OpenMP_CXX_FLAGS})
-#set(QT_USE_QTOPENGL TRUE)
-#include(${QT_USE_FILE})
-
 set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${ICU_LIBRARY} pvparallelview ${OpenMP_LIBRARIES} numa)
 
-declare_pv_test(full_parallel_view full_parallel_view.cpp common.cpp)
-target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
-
-#declare_pv_test(full_parallel_view_selections_sync full_parallel_view_selections_sync.cpp common.cpp)
-#target_link_libraries(full_parallel_view_selections_sync ${LINK_LIBRARIES})
-
 QT5_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h OPTIONS ${QT5_WRAP_OPTIONS})
-declare_pv_test(both_views both_views.cpp ${ZOOM_DLG_MOC} common.cpp)
-target_link_libraries(both_views ${LINK_LIBRARIES})
 
-declare_pv_test(zoomed_parallel_view zoomed_parallel_view.cpp common.cpp)
-target_link_libraries(zoomed_parallel_view ${LINK_LIBRARIES})
+add_pv_compile_test(full_parallel_view LINKS ${LINK_LIBRARIES} FILES full_parallel_view.cpp common.cpp)
+add_pv_compile_test(both_views LINKS ${LINK_LIBRARIES} FILES both_views.cpp ${ZOOM_DLG_MOC} common.cpp)
+add_pv_compile_test(zoomed_parallel_view LINKS ${LINK_LIBRARIES} FILES zoomed_parallel_view.cpp common.cpp)
+add_pv_compile_test(create_tree LINKS ${LINK_LIBRARIES} FILES create_tree.cpp)
+add_pv_compile_test(Pqt-extract-sse LINKS ${LINK_LIBRARIES} FILES qt-extract-sse.cpp)
+add_pv_compile_test(Eqt-tbb-tasks LINKS ${LINK_LIBRARIES} FILES qt-tbb-tasks.cpp)
+add_pv_compile_test(Eqt-tbb-traversal LINKS ${LINK_LIBRARIES} FILES qt-tbb-traversal.cpp)
+add_pv_compile_test(sse_bci LINKS ${LINK_LIBRARIES} FILES sse_bci.cpp)
+add_pv_compile_test(create_quadtree LINKS ${LINK_LIBRARIES} FILES create_quadtree.cpp)
+add_pv_compile_test(create_zoomedzonetree LINKS ${LINK_LIBRARIES} FILES create_zoomedzonetree.cpp)
+add_pv_compile_test(extract_quadtree LINKS ${LINK_LIBRARIES} FILES extract_quadtree.cpp)
+add_pv_compile_test(Tquadtree_impl LINKS ${LINK_LIBRARIES} FILES quadtree_impl.cpp)
+add_pv_compile_test(Tmultigrid_impl LINKS ${LINK_LIBRARIES} FILES multigrid_impl.cpp)
+add_pv_compile_test(show_codes_gl LINKS ${LINK_LIBRARIES} FILES show_codes_gl.cpp)
+add_pv_compile_test(masks LINKS ${LINK_LIBRARIES} FILES masks.cpp)
+add_pv_compile_test(Ppview_zoomed_zone_tree_perf LINKS ${LINK_LIBRARIES} FILES zoomed_zone_tree_perf.cpp common.cpp)
+add_pv_compile_test(Tpview_dump_zoomed_zone_tree LINKS ${LINK_LIBRARIES} FILES dump_zoomed_zone_tree.cpp common.cpp)
+add_pv_compile_test(Tpview_dump_zone_tree LINKS ${LINK_LIBRARIES} FILES dump_zone_tree.cpp common.cpp)
+add_pv_compile_test(Tpview_dump_all_trees LINKS ${LINK_LIBRARIES} FILES dump_all_trees.cpp common.cpp)
+add_pv_compile_test(Ehitgraph-test LINKS ${LINK_LIBRARIES} FILES hitgraph-test.cpp common.cpp)
+add_pv_compile_test(Ehitgraph-zonetree LINKS ${LINK_LIBRARIES} FILES hitgraph-zonetree.cpp common.cpp)
+add_pv_compile_test(Ehitgraph-perf LINKS ${LINK_LIBRARIES} FILES hitgraph-perf.cpp)
+add_pv_compile_test(Ehitgraph-alpha-perf LINKS ${LINK_LIBRARIES} FILES hitgraph-alpha-perf.cpp)
+add_pv_compile_test(Ehist_plotted_perf LINKS ${LINK_LIBRARIES} FILES hist_plotted_perf.cpp common.cpp)
+add_pv_compile_test(zoomable_drawing_area_test LINKS ${LINK_LIBRARIES} FILES zoomable_drawing_area_test.cpp)
+add_pv_compile_test(hitgraph-buffer LINKS ${LINK_LIBRARIES} FILES hitgraph-buffer.cpp)
+add_pv_compile_test(hit_count_view LINKS ${LINK_LIBRARIES} FILES hit_count_view.cpp common.cpp)
+add_pv_compile_test(hit_count_sel_perf LINKS ${LINK_LIBRARIES} FILES hit_count_sel_perf.cpp common.cpp)
+add_pv_compile_test(scatter_view LINKS ${LINK_LIBRARIES} FILES scatter_view.cpp common.cpp)
+add_pv_compile_test(Tqt_random_points LINKS ${LINK_LIBRARIES} FILES random_points.cpp)
 
-declare_pv_test(create_tree create_tree.cpp)
-target_link_libraries(create_tree ${LINK_LIBRARIES})
+add_pv_compile_test(Tpview_zone_tree_dump_load LINKS ${LINK_LIBRARIES} FILES zone_tree_dump_load.cpp common.cpp)
+add_test(Tpview_zone_tree_dump_load Tpview_zone_tree_dump_load 0 50 2)
 
-#declare_pv_test(quadtree-create-bench quadtree-create-bench.cpp common.cpp)
-#target_link_libraries(quadtree-create-bench ${LINK_LIBRARIES})
+add_pv_compile_test(Tpview_quadtree_dump_load LINKS ${LINK_LIBRARIES} FILES quadtree_dump_load.cpp)
+add_test(Tpview_quadtree_dump_load Tpview_quadtree_dump_load 1000000 42)
 
-declare_pv_test(Pqt-extract-sse qt-extract-sse.cpp)
-target_link_libraries(Pqt-extract-sse ${LINK_LIBRARIES})
-
-declare_pv_test(Eqt-tbb-tasks qt-tbb-tasks.cpp)
-target_link_libraries(Eqt-tbb-tasks ${LINK_LIBRARIES})
-
-declare_pv_test(Eqt-tbb-traversal qt-tbb-traversal.cpp)
-target_link_libraries(Eqt-tbb-traversal ${LINK_LIBRARIES})
-
-declare_pv_test(sse_bci sse_bci.cpp)
-target_link_libraries(sse_bci ${LINK_LIBRARIES})
-
-declare_pv_test(create_quadtree create_quadtree.cpp)
-target_link_libraries(create_quadtree ${LINK_LIBRARIES})
-
-declare_pv_test(create_zoomedzonetree create_zoomedzonetree.cpp)
-target_link_libraries(create_zoomedzonetree ${LINK_LIBRARIES})
-
-declare_pv_test(extract_quadtree extract_quadtree.cpp)
-target_link_libraries(extract_quadtree ${LINK_LIBRARIES})
-
-#declare_pv_test(quadtree_browse quadtree_browse.cpp)
-#target_link_libraries(quadtree_browse ${LINK_LIBRARIES})
-
-declare_pv_test(Tquadtree_impl quadtree_impl.cpp)
-target_link_libraries(Tquadtree_impl ${LINK_LIBRARIES})
-
-declare_pv_test(Tmultigrid_impl multigrid_impl.cpp)
-target_link_libraries(Tmultigrid_impl ${LINK_LIBRARIES})
-
-declare_pv_test(show_codes_gl show_codes_gl.cpp)
-target_link_libraries(show_codes_gl ${LINK_LIBRARIES})
-
-declare_pv_test(masks masks.cpp)
-target_link_libraries(masks ${LINK_LIBRARIES})
-
-#declare_pv_test(Tsort_test sort_test.cpp)
-#target_link_libraries(Tsort_test ${LINK_LIBRARIES})
-
-#declare_pv_test(qgraphicsitem_events qgraphicsitem_events.cpp)
-#target_link_libraries(qgraphicsitem_events ${LINK_LIBRARIES})
-
-declare_pv_test(Tpview_zone_tree_dump_load zone_tree_dump_load.cpp common.cpp)
-target_link_libraries(Tpview_zone_tree_dump_load ${LINK_LIBRARIES})
-add_test(TestZoneTreeDumpLoad Tpview_zone_tree_dump_load 0 50 2)
-
-declare_pv_test(Tpview_quadtree_dump_load quadtree_dump_load.cpp)
-target_link_libraries(Tpview_quadtree_dump_load ${LINK_LIBRARIES})
-add_test(TestQuadTreeDumpLoad Tpview_quadtree_dump_load 1000000 42)
-
-declare_pv_test(Tpview_zoomed_zone_tree_dump_load zoomed_zone_tree_dump_load.cpp common.cpp)
-target_link_libraries(Tpview_zoomed_zone_tree_dump_load ${LINK_LIBRARIES})
-add_test(TestZoomedZoneTreeDumpLoad Tpview_zoomed_zone_tree_dump_load 0 100 2)
-
-declare_pv_test(Ppview_zoomed_zone_tree_perf zoomed_zone_tree_perf.cpp common.cpp)
-target_link_libraries(Ppview_zoomed_zone_tree_perf ${LINK_LIBRARIES})
-#add_test(PerfZoomedZoneTreeCreate Ppview_zoomed_zone_tree_perf 0 100 2)
-
-declare_pv_test(Tpview_dump_zoomed_zone_tree dump_zoomed_zone_tree.cpp common.cpp)
-target_link_libraries(Tpview_dump_zoomed_zone_tree ${LINK_LIBRARIES})
-
-declare_pv_test(Tpview_dump_zone_tree dump_zone_tree.cpp common.cpp)
-target_link_libraries(Tpview_dump_zone_tree ${LINK_LIBRARIES})
-
-declare_pv_test(Tpview_dump_all_trees dump_all_trees.cpp common.cpp)
-target_link_libraries(Tpview_dump_all_trees ${LINK_LIBRARIES})
-
-declare_pv_test(Ehitgraph-test hitgraph-test.cpp common.cpp)
-target_link_libraries(Ehitgraph-test ${LINK_LIBRARIES} -lnuma)
-
-declare_pv_test(Ehitgraph-zonetree hitgraph-zonetree.cpp common.cpp)
-target_link_libraries(Ehitgraph-zonetree ${LINK_LIBRARIES} -lnuma)
-
-declare_pv_test(Ehitgraph-perf hitgraph-perf.cpp)
-target_link_libraries(Ehitgraph-perf ${LINK_LIBRARIES} -lnuma)
-
-declare_pv_test(Ehitgraph-alpha-perf hitgraph-alpha-perf.cpp)
-target_link_libraries(Ehitgraph-alpha-perf ${LINK_LIBRARIES} -lnuma)
-
-declare_pv_test(Ehist_plotted_perf hist_plotted_perf.cpp common.cpp)
-target_link_libraries(Ehist_plotted_perf ${LINK_LIBRARIES} -lnuma)
-
-declare_pv_test(zoomable_drawing_area_test zoomable_drawing_area_test.cpp)
-target_link_libraries(zoomable_drawing_area_test ${LINK_LIBRARIES})
-
-declare_pv_test(hitgraph-buffer hitgraph-buffer.cpp)
-target_link_libraries(hitgraph-buffer ${LINK_LIBRARIES})
-
-declare_pv_test(hit_count_view hit_count_view.cpp common.cpp)
-target_link_libraries(hit_count_view ${LINK_LIBRARIES})
-
-declare_pv_test(hit_count_sel_perf hit_count_sel_perf.cpp common.cpp)
-target_link_libraries(hit_count_sel_perf ${LINK_LIBRARIES})
-
-declare_pv_test(scatter_view scatter_view.cpp common.cpp)
-target_link_libraries(scatter_view ${LINK_LIBRARIES})
-
-declare_pv_test(Tqt_random_points random_points.cpp)
-target_link_libraries(Tqt_random_points ${LINK_LIBRARIES})
+add_pv_compile_test(Tpview_zoomed_zone_tree_dump_load LINKS ${LINK_LIBRARIES} FILES zoomed_zone_tree_dump_load.cpp common.cpp)
+add_test(Tpview_zoomed_zone_tree_dump_load Tpview_zoomed_zone_tree_dump_load 0 100 2)
 
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 
 	cuda_compile(CUDA_KERNELS bci_cuda.cu)
-	declare_pv_test(show_codes_cuda show_codes_cuda.cpp ${CUDA_KERNELS})
-	target_link_libraries(show_codes_cuda ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
-
-# does not compile
-#	cuda_compile(CUDA_KERNELS bci_cuda_z24.cu)
-#	declare_pv_test(show_codes_cuda24 show_codes_cuda.cpp ${CUDA_KERNELS})
-#	target_link_libraries(show_codes_cuda24 ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
-
-# does not compile
-#	declare_pv_test(show_codes_cuda_tex show_codes_cuda_tex.cpp ${CUDA_KERNELS})
-#	target_link_libraries(show_codes_cuda_tex ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+	add_pv_compile_test(show_codes_cuda LINKS ${LINK_LIBRARIES} ${CUDA_LIBRARIES} FILES show_codes_cuda.cpp ${CUDA_KERNELS})
 
 	cuda_compile(CUDA_KERNELS bci_cuda_z24_atomic.cu)
-	declare_pv_test(show_codes_cuda24_atomic show_codes_cuda.cpp ${CUDA_KERNELS})
-	target_link_libraries(show_codes_cuda24_atomic ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+	add_pv_compile_test(show_codes_cuda24_atomic LINKS ${LINK_LIBRARIES} ${CUDA_LIBRARIES} FILES show_codes_cuda.cpp ${CUDA_KERNELS})
 
 	cuda_compile(CUDA_KERNELS bci_cuda_z24_atomic_sm30_straight.cu)
-	declare_pv_test(show_codes_cuda24_atomic_sm30_straight show_codes_cuda_test_30.cpp helpers.cpp ${CUDA_KERNELS})
-	target_link_libraries(show_codes_cuda24_atomic_sm30_straight ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
-
-	#cuda_compile(CUDA_KERNELS bci_cuda_z24_unroll_x.cu)
-	#declare_pv_test(show_codes_cuda24_unroll_x show_codes_cuda.cpp ${CUDA_KERNELS})
-	#target_link_libraries(show_codes_cuda24_unroll_x ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+	add_pv_compile_test(show_codes_cuda24_atomic_sm30_straight LINKS ${LINK_LIBRARIES} ${CUDA_LIBRARIES} FILES show_codes_cuda_test_30.cpp helpers.cpp ${CUDA_KERNELS})
 
 	cuda_compile(CUDA_KERNELS bci_cuda_z24_s16.cu)
-	declare_pv_test(show_codes_cuda24_s16 show_codes_cuda.cpp ${CUDA_KERNELS})
-	target_link_libraries(show_codes_cuda24_s16 ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+	add_pv_compile_test(show_codes_cuda24_s16 LINKS ${LINK_LIBRARIES} ${CUDA_LIBRARIES} FILES show_codes_cuda.cpp ${CUDA_KERNELS})
 
 	cuda_compile(CUDA_KERNELS bci_cuda_z24_smembci.cu)
-	declare_pv_test(show_codes_cuda24_smembci show_codes_cuda.cpp ${CUDA_KERNELS})
-	target_link_libraries(show_codes_cuda24_smembci ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+	add_pv_compile_test(show_codes_cuda24_smembci LINKS ${LINK_LIBRARIES} ${CUDA_LIBRARIES} FILES show_codes_cuda.cpp ${CUDA_KERNELS})
 
 	cuda_compile(CUDA_KERNELS multiple_zones_cuda.cu)
-	declare_pv_test(multiple_zones_cuda multiple_zones_cuda.cpp ${CUDA_KERNELS})
-	target_link_libraries(multiple_zones_cuda ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
-
-	#declare_pv_test(lines_drawing lines_drawing.cpp)
-	#target_link_libraries(lines_drawing ${LINK_LIBRARIES})
-
-	declare_pv_test(show_codes_cuda_lib show_codes_cuda_lib.cpp helpers.cpp)
-	target_link_libraries(show_codes_cuda_lib ${LINK_LIBRARIES})
-
-	declare_pv_test(perf_codes_cuda_lib perf_codes_cuda_lib.cpp helpers.cpp)
-	target_link_libraries(perf_codes_cuda_lib ${LINK_LIBRARIES})
-
-	#declare_pv_test(rendering_pipeline_base rendering_pipeline_base.cpp)
-	#target_link_libraries(rendering_pipeline_base ${LINK_LIBRARIES})
-
-	#QT5_WRAP_CPP(ZD_MOC zone_drawing_events.h OPTIONS ${QT5_WRAP_OPTIONS})
-	#declare_pv_test(zone_drawing zone_drawing.cpp ${ZD_MOC})
-	#target_link_libraries(zone_drawing ${LINK_LIBRARIES})
-
-	#declare_pv_test(zoomed_zone_tree_render zoomed_zone_tree_render.cpp)
-	#target_link_libraries(zoomed_zone_tree_render ${LINK_LIBRARIES})
-
-	#declare_pv_test(zoomed_zone_tree_render2 zoomed_zone_tree_render2.cpp)
-	#target_link_libraries(zoomed_zone_tree_render2 ${LINK_LIBRARIES})
+	add_pv_compile_test(multiple_zones_cuda LINKS ${LINK_LIBRARIES} ${CUDA_LIBRARIES} FILES multiple_zones_cuda.cpp ${CUDA_KERNELS})
+	add_pv_compile_test(show_codes_cuda_lib LINKS ${LINK_LIBRARIES} FILES show_codes_cuda_lib.cpp helpers.cpp)
+	add_pv_compile_test(perf_codes_cuda_lib LINKS ${LINK_LIBRARIES} FILES perf_codes_cuda_lib.cpp helpers.cpp)
 endif (CUDA_FOUND)
-
-declare_lib_tests_target()

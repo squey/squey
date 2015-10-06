@@ -7,99 +7,45 @@
 # Add include directories for picviz's libs and external projects
 ###################################################################
 
-FIND_PACKAGE(Qt5 COMPONENTS Core)
-FIND_PACKAGE(Qt5Gui)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
-
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIR})
 include_directories(AFTER ${PVHIVE_INCLUDE_DIR})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIR})
-include_directories(AFTER ${CMAKE_SOURCE_DIR}/libpvparallelview/src/include)
+include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 
 add_subdirectory(squish)
 
 set(COMMON_LIBRARIES pvparallelview pvguiqt pvhive picviz pvkernel ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${OpenMP_LIBRARIES})
 
-# Datatree model
-declare_pv_test(Tqt_datatree datatree-model.cpp)
-target_link_libraries(Tqt_datatree ${COMMON_LIBRARIES})
+add_pv_compile_test(Tqt_datatree LINKS ${COMMON_LIBRARIES} FILES datatree-model.cpp)
+add_pv_compile_test(Tqt_picviz_tree LINKS ${COMMON_LIBRARIES} FILES picviz_tree.cpp common.cpp)
 
-# Picviz datatree model
-declare_pv_test(Tqt_picviz_tree picviz_tree.cpp common.cpp)
-target_link_libraries(Tqt_picviz_tree ${COMMON_LIBRARIES})
-
-# Axes combination model
 qt5_wrap_cpp(AXES_COMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT5_WRAP_OPTIONS})
-declare_pv_test(Tqt_axes_comb axes-comb.cpp ${AXES_COMB_MOC_SRC})
-target_link_libraries(Tqt_axes_comb ${COMMON_LIBRARIES})
+add_pv_compile_test(Tqt_axes_comb LINKS ${COMMON_LIBRARIES} FILES axes-comb.cpp ${AXES_COMB_MOC_SRC})
+add_pv_compile_test(Tqt_axes_comb_view LINKS ${COMMON_LIBRARIES} FILES axes-comb-view.cpp ${AXES_COMB_MOC_SRC})
+add_pv_compile_test(Tqt_listing_model LINKS ${COMMON_LIBRARIES} FILES listing_model.cpp common.cpp)
 
-declare_pv_test(Tqt_axes_comb_view axes-comb-view.cpp ${AXES_COMB_MOC_SRC})
-target_link_libraries(Tqt_axes_comb_view ${COMMON_LIBRARIES})
-
-# Picviz listing model
-declare_pv_test(Tqt_listing_model listing_model.cpp common.cpp)
-target_link_libraries(Tqt_listing_model ${COMMON_LIBRARIES})
-
-# Stats listing
 qt5_wrap_cpp(STATS_LISTING_MOC_SRC stats_listing.h OPTIONS ${QT5_WRAP_OPTIONS})
-declare_pv_test(Tqt_stats_listing stats_listing.cpp common.cpp ${STATS_LISTING_MOC_SRC})
-target_link_libraries(Tqt_stats_listing ${COMMON_LIBRARIES})
+add_pv_compile_test(Tqt_stats_listing LINKS ${COMMON_LIBRARIES} FILES stats_listing.cpp common.cpp ${STATS_LISTING_MOC_SRC})
+add_pv_compile_test(Tqt_layerstack LINKS ${COMMON_LIBRARIES} FILES layerstack-model.cpp common.cpp)
+add_pv_compile_test(Tqt_layerstack_widget LINKS ${COMMON_LIBRARIES} FILES layerstack-widget.cpp common.cpp)
+add_pv_compile_test(Tqt_huge-model LINKS ${COMMON_LIBRARIES} FILES huge-model.cpp)
+add_pv_compile_test(Tqt_css LINKS ${COMMON_LIBRARIES} FILES css.cpp)
+add_pv_compile_test(Tqt_desktop_geometry LINKS ${COMMON_LIBRARIES} FILES desktop_geometry.cpp)
+add_pv_compile_test(Tqt_vertical_tabs LINKS ${COMMON_LIBRARIES} FILES vertical_tabs.cpp common.cpp)
+add_pv_compile_test(Tqt_import_source_to_project_dlg LINKS ${COMMON_LIBRARIES} FILES import_source_to_project_dlg.cpp)
+add_pv_compile_test(Tqt_displays_plugins LINKS ${COMMON_LIBRARIES} FILES displays_plugins.cpp common.cpp)
 
-# Picviz layer-stack model
-declare_pv_test(Tqt_layerstack layerstack-model.cpp common.cpp)
-target_link_libraries(Tqt_layerstack ${COMMON_LIBRARIES})
-
-# Picviz layer-stack widget 
-declare_pv_test(Tqt_layerstack_widget layerstack-widget.cpp common.cpp)
-target_link_libraries(Tqt_layerstack_widget ${COMMON_LIBRARIES})
-
-# Huge model
-declare_pv_test(Tqt_huge-model huge-model.cpp)
-target_link_libraries(Tqt_huge-model ${COMMON_LIBRARIES})
-
-# Confusing Qt Stylesheets
-declare_pv_test(Tqt_css css.cpp)
-target_link_libraries(Tqt_css ${COMMON_LIBRARIES})
+if(ENABLE_CORRELATION)
+	add_pv_compile_test(Tqt_correlation_menu LINKS ${COMMON_LIBRARIES} FILES correlation_menu.cpp)
+	add_pv_compile_test(Tqt_AD2GWidget LINKS ${COMMON_LIBRARIES} FILES AD2GWidget.cpp)
+	add_pv_compile_test(Pqt_listing_sel_filter LINKS ${COMMON_LIBRARIES} FILES listing_sel_filter_perfs.cpp)
+endif(ENABLE_CORRELATION)
 
 # Workspaces
 if (CUDA_FOUND)
 	qt5_wrap_cpp(WORKSPACES_MOC_SRC workspaces.h OPTIONS ${QT5_WRAP_OPTIONS})
 	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
-	declare_pv_test(Tqt_workspaces workspaces.cpp common.cpp)
-	#declare_pv_test(Tqt_workspaces workspaces.cpp common.cpp ${WORKSPACES_MOC_SRC})
-	target_link_libraries(Tqt_workspaces ${MOC_SRC} ${MOC_HEADERS} ${COMMON_LIBRARIES} ${CUDA_LIBRARIES} ${LINK_LIBRARIES} )
+
+	add_pv_compile_test(Tqt_workspaces LINKS ${MOC_SRC} ${MOC_HEADERS} ${COMMON_LIBRARIES} ${CUDA_LIBRARIES} ${LINK_LIBRARIES} FILES workspaces.cpp common.cpp)
 endif(CUDA_FOUND)
-
-# Desktop geometry
-declare_pv_test(Tqt_desktop_geometry desktop_geometry.cpp)
-target_link_libraries(Tqt_desktop_geometry ${COMMON_LIBRARIES})
-
-# Vertical tabs
-declare_pv_test(Tqt_vertical_tabs vertical_tabs.cpp common.cpp)
-target_link_libraries(Tqt_vertical_tabs ${COMMON_LIBRARIES})
-
-# PVImportSourceToProjectDlg
-declare_pv_test(Tqt_import_source_to_project_dlg import_source_to_project_dlg.cpp)
-target_link_libraries(Tqt_import_source_to_project_dlg ${COMMON_LIBRARIES})
-
-# Displays plugins
-declare_pv_test(Tqt_displays_plugins displays_plugins.cpp common.cpp)
-target_link_libraries(Tqt_displays_plugins ${COMMON_LIBRARIES})
-
-if(ENABLE_CORRELATION)
-	# correlation menu
-	declare_pv_test(Tqt_correlation_menu correlation_menu.cpp)
-	target_link_libraries(Tqt_correlation_menu ${COMMON_LIBRARIES})
-
-	# AD2G Widget
-	declare_pv_test(Tqt_AD2GWidget AD2GWidget.cpp)
-	target_link_libraries(Tqt_AD2GWidget ${COMMON_LIBRARIES})
-
-	# Listing filter performance
-	declare_pv_test(Pqt_listing_sel_filter listing_sel_filter_perfs.cpp)
-	target_link_libraries(Pqt_listing_sel_filter ${COMMON_LIBRARIES})
-endif(ENABLE_CORRELATION)
-
-declare_lib_tests_target()
