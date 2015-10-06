@@ -24,7 +24,7 @@ public:
 	{
 		_mode = write;
 	}
-	virtual ~PVSerializeArchiveOptions() { this->PVSerializeArchive::~PVSerializeArchive(); }
+	virtual ~PVSerializeArchiveOptions() { }
 
 private:
 	PVSerializeArchiveOptions(const PVSerializeArchiveOptions& obj):
