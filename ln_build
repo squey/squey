@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Create symbolic links for Makefiles, according to a build directory
 # Create a "bin" symlink for every tests directory
 

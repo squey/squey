@@ -3,6 +3,7 @@
  *
  * Copyright (C) Picviz Labs 2014
  */
+
 #ifndef __PVCORE_PVCOLUMNINDEXES_H__
 #define __PVCORE_PVCOLUMNINDEXES_H__
 

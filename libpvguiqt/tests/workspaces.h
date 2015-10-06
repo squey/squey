@@ -1,6 +1,3 @@
-#if 0
-#else
-
 /**
  * \file workspaces.h
  *
@@ -67,5 +64,3 @@ private:
 
 
 #endif /* WORKSPACES_H_ */
-
-#endif

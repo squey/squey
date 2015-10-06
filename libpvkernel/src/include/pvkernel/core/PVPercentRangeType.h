@@ -3,6 +3,7 @@
  *
  * Copyright (C) Picviz Labs 2014
  */
+
 #ifndef PVCORE_PVPERCENTRANGETYPE_H
 #define PVCORE_PVPERCENTRANGETYPE_H
 
