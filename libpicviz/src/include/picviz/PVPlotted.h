@@ -200,6 +200,15 @@ public:
 
 	void get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min, uint32_t& max, PVSelection const& sel, PVCol col) const;
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
+
+	/** get_col_minmax
+	 *
+	 * Compute row indices for containing min and max value for a given column.
+	 *
+	 * @param[out] min : Minimum value of the column
+	 * @param[out] max : Maximum value of the column
+	 * @param[in] col : Column where we want to extra minmax
+	 */
 	void get_col_minmax(PVRow& min, PVRow& max, PVCol const col) const;
 
 	inline PVView* current_view() { return get_parent<PVSource>()->current_view(); }

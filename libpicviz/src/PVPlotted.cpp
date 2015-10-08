@@ -10,7 +10,7 @@
 #include <QVector>
 
 #include <stdlib.h>
-#include <float.h>
+#include <limits>
 
 #include <picviz/PVMapped.h>
 #include <picviz/PVMapping.h>
@@ -24,8 +24,6 @@
 #include <tbb/tick_count.h>
 
 #include <iostream>
-
-#include <omp.h>
 
 #define dbg { std::cout<<"*** CUDA TRACE ***  file "<<__FILE__<<"  line "<<__LINE__<<std::endl; }
 
@@ -482,7 +480,7 @@ QList<PVCol> Picviz::PVPlotted::get_columns_indexes_values_not_within_range(uint
 void Picviz::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min, uint32_t& max, PVSelection const& sel, PVCol col) const
 {
 	uint32_t local_min, local_max;
-	local_min = UINT_MAX;
+	local_min = UINT32_MAX;
 	local_max = 0;
 	const PVRow size = get_row_count();
 	ret.reserve(sel.get_number_of_selected_lines_in_range(0, size));
@@ -507,7 +505,7 @@ void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const
 {
 	PVRow local_min,local_max;
 	uint32_t vmin,vmax;
-	vmin = UINT_MAX;
+	vmin = UINT32_MAX;
 	vmax = 0;
 	local_min = 0;
 	local_max = 0;
@@ -530,32 +528,60 @@ void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const
 	max = local_max;
 }
 
+/******************************************************************************
+ * get_col_minmax
+ *
+ * Use a parallele reduction to compute the indices of the row with min and max
+ * value
+ *****************************************************************************/
+
 void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) const
 {
-	uint32_t vmin,vmax;
-	vmin = UINT_MAX;
-	vmax = 0;
-	PVRow min_local = 0;
-	PVRow max_local = 0;
+	uint32_t vmin = UINT32_MAX;
+	uint32_t vmax = 0;
 	const PVRow nrows = get_row_count();
 	// TODO: use the SSE4.2 optimised version here
+#pragma omp parallel
+	{
+		// Define thread local variables for local minmax extraction
+		uint32_t local_min = 0;
+		uint32_t local_max = UINT32_MAX;
+		PVRow local_min_col = 0;
+		PVRow local_max_col = 0;
+
+		// Share work among threads
+#pragma omp for
 	for (PVRow i = 0; i < nrows; i++) {
 		const uint32_t v = this->get_value(i, col);
-		if (v > vmax) {
-			vmax = v;
-			max_local = i;
+		if (v > local_max) {
+			local_max = v;
+			local_max_col = i;
 		}
-		if (v < vmin) {
-			vmin = v;
-			min_local = i;
+		else if (v < local_min) {
+			local_min = v;
+			local_min_col = i;
+		}
+	}
+
+	// Perform final reduction. This is not a parallel reduction but it should
+	// not be really expensive.
+	// TODO : As it is a two arguments reduction, it can be done using
+	// OpenMP 3.1 but maybe with custom reduction from OpenMP 4.0
+#pragma omp critical
+		{
+			if(local_min < vmin) {
+				vmin = local_min;
+				min = local_min_col;
+			}
+			else if(local_max > vmax) {
+				vmax = local_max;
+				max = local_max_col;
+			}
 		}
 	}
 
 	// We need to swap as the plotted has been reversed
-	std::swap(min_local, max_local);
-
-	min = min_local;
-	max = max_local;
+	std::swap(min, max);
 }
 
 PVRow Picviz::PVPlotted::get_col_min_row(PVCol const c) const
@@ -676,7 +702,7 @@ void Picviz::PVPlotted::norm_int_plotted(plotted_table_t const& trans_plotted, u
 #pragma omp parallel for
 	for (PVCol c = 0; c < ncols; c++) {
 		for (PVRow r = 0; r < nrows; r++) {
-			res[c*nrows_aligned+r] = ((uint32_t) ((double)trans_plotted[c*nrows+r] * (double)UINT_MAX));
+			res[c*nrows_aligned+r] = ((uint32_t) ((double)trans_plotted[c*nrows+r] * (double)UINT32_MAX));
 		}
 		for (PVRow r = nrows; r < nrows_aligned; r++) {
 			res[c*nrows_aligned+r] = 0;
