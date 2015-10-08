@@ -20,6 +20,8 @@ PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget 
 	treat_as_combobox = new QComboBox();
 	QLabel *treat_as_label = new QLabel("Format: ");
 
+	setOption(QFileDialog::DontUseNativeDialog);
+
 	QGridLayout *this_layout = (QGridLayout *)layout();
 
 	QGroupBox *option_group = new QGroupBox();
