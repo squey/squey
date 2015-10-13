@@ -25,7 +25,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterEnumDefault)
 void Picviz::PVMappingFilterEnumDefault::set_args(PVCore::PVArgumentList const& args)
 {
 	Picviz::PVMappingFilter::set_args(args);
-	_case_sensitive = !args["convert-lowercase"].toBool();
+	_case_sensitive = !args.at("convert-lowercase").toBool();
 }
 
 uint32_t Picviz::PVMappingFilterEnumDefault::_enum_position_factorize(uint32_t v)

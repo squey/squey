@@ -28,10 +28,10 @@ void PVFilter::PVFieldSplitterKeyValue::set_args(PVCore::PVArgumentList const& a
 {
 	FilterT::set_args(args);
 
-	_separator = args["sep"].toString();
-	_quote     = args["quote"].toChar();
-	_affect    = args["affectation"].toString();
-	_keys 	   = args["keys"].toStringList();
+	_separator = args.at("sep").toString();
+	_quote     = args.at("quote").toChar();
+	_affect    = args.at("affectation").toString();
+	_keys 	   = args.at("keys").toStringList();
 }
 
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterKeyValue)

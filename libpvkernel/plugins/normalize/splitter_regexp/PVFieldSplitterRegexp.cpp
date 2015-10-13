@@ -47,7 +47,7 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 {
 	FilterT::set_args(args);
 #ifdef PROCESS_REGEXP_ICU
-	QString pattern = args["regexp"].toString();
+	QString pattern = args.at("regexp").toString();
 	UnicodeString icu_pat;
 	icu_pat.setTo(false, (const UChar *)(pattern.constData()), pattern.size());
 	UErrorCode err = U_ZERO_ERROR;
@@ -64,7 +64,7 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 	_regexp.setPattern(args["regexp"].toString());
 	_valid_rx = true;
 #endif
-	_full_line = args["full-line"].toBool();
+	_full_line = args.at("full-line").toBool();
 }
 
 /******************************************************************************

@@ -38,7 +38,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterUTF16Char)
 void PVFilter::PVFieldSplitterUTF16Char::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	_c = args["c"].toChar();
+	_c = args.at("c").toChar();
 }
 
 /******************************************************************************

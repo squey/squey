@@ -90,7 +90,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterHostDefault)
 void Picviz::PVMappingFilterHostDefault::set_args(PVCore::PVArgumentList const& args)
 {
 	Picviz::PVMappingFilter::set_args(args);
-	_case_sensitive = !args["convert-lowercase"].toBool();
+	_case_sensitive = !args.at("convert-domain-lowercase").toBool();
 }
 
 Picviz::PVMappingFilter::decimal_storage_type Picviz::host_mapping::process_utf8(const char* buf, size_t size, PVMappingFilter*)

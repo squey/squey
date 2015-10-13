@@ -23,8 +23,8 @@ PVFilter::PVFieldSplitterIP::PVFieldSplitterIP(PVCore::PVArgumentList const& arg
 void PVFilter::PVFieldSplitterIP::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	_ipv6 = args["ipv6"].toBool();
-	_params = args["params"].toString();
+	_ipv6 = args.at("ipv6").toBool();
+	_params = args.at("params").toString();
 
 	_indexes.clear();
 	for (const QString& s : _params.split(sep, QString::SkipEmptyParts)) {

@@ -894,7 +894,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	}
 
 	bool one_extraction_successful = false;
-	bool save_inv_elts = args_ext["inv_elts"].toBool();
+	bool save_inv_elts = args_ext.at("inv_elts").toBool();
 	// Load a type of file per view
 
 	/* can not use a C++11 foreach because QHash<...>::const_iterator is not

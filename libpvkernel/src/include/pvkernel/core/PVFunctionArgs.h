@@ -52,9 +52,9 @@ public:
 		ite = _def_args.end();
 		for (; it != ite; it++) {
 			// If that default argument is not present in the given list
-			if (args.find(it.key()) == args.end()) {
+			if (args.find(it->key()) == args.end()) {
 				// An exception is thrown
-				throw PVFunctionArgumentMissing(it.key());
+				throw PVFunctionArgumentMissing(it->key());
 			}
 		}
 	   _args = args;
@@ -65,7 +65,7 @@ public:
 	PVArgumentList get_args_for_preset() const
 	{
 		PVArgumentList args = get_args();
-		QList<PVCore::PVArgumentKey> keys = get_args_keys_for_preset();
+		std::vector<PVCore::PVArgumentKey> keys = get_args_keys_for_preset();
 
 		// Get rid of unwanted args
 		PVArgumentList filtered_args ;
@@ -74,13 +74,13 @@ public:
 			PVArgumentList::const_iterator it = args.find(key);
 			if (it != args.end())
 			{
-				filtered_args[it.key()] = it.value();
+				filtered_args[it->key()] = it->value();
 			}
 		}
 
 		return filtered_args;
 	}
-	virtual QList<PVCore::PVArgumentKey> get_args_keys_for_preset() const
+	virtual std::vector<PVCore::PVArgumentKey> get_args_keys_for_preset() const
 	{
 		return get_default_args().keys();
 	}
@@ -89,8 +89,8 @@ public:
 		PVArgumentList preset_args = get_args_for_preset();
 		PVArgumentList::const_iterator it;
 		for (it = args.begin(); it != args.end(); it++) {
-			if (preset_args.contains(it.key())) {
-				_args[it.key()] = it.value();
+			if (preset_args.contains(it->key())) {
+				_args[it->key()] = it->value();
 			}
 		}
 	}

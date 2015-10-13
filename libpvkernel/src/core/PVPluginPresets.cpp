@@ -93,5 +93,5 @@ PVCore::PVArgumentList PVCore::__impl::PVPluginPresets::get_args_for_preset() co
 
 bool PVCore::__impl::PVPluginPresets::can_have_presets() const
 {
-	return _fargs->get_args_keys_for_preset().count() > 0;
+	return _fargs->get_args_keys_for_preset().size() > 0;
 }

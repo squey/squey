@@ -677,9 +677,9 @@ void PVRush::PVXmlTreeNodeDom::setFromArgumentList(QDomElement& elt, PVCore::PVA
 {
     PVCore::PVArgumentList::const_iterator it;
     for (it = args.begin(); it != args.end(); it++) {
-		QString key = it.key();
-		QVariant v = it.value();
-		QVariant def_v = def_args[key];
+		QString key = it->key();
+		QVariant v = it->value();
+		QVariant def_v = def_args.at(key);
 		if (v != def_v) {
 			elt.setAttribute(key, PVCore::PVArgument_to_QString(v));
 		}
@@ -689,7 +689,7 @@ void PVRush::PVXmlTreeNodeDom::setFromArgumentList(QDomElement& elt, PVCore::PVA
 void PVRush::PVXmlTreeNodeDom::setFromArgumentList(PVCore::PVArgumentList const& args) {
 	PVCore::PVArgumentList::const_iterator it;
 	for (it = args.begin(); it != args.end(); it++) {
-		setAttribute(it.key(), PVCore::PVArgument_to_QString(it.value()), true);
+		setAttribute(it->key(), PVCore::PVArgument_to_QString(it->value()), true);
 	}
 }
 
@@ -708,13 +708,13 @@ void PVRush::PVXmlTreeNodeDom::toArgumentList(QDomElement& elt, PVCore::PVArgume
 {
 	PVCore::PVArgumentList::const_iterator it;
 	for (it = def_args.begin(); it != def_args.end(); it++) {
-		QString const& key = it.key();
+		QString const& key = it->key();
 		QString v = elt.attribute(key);
 		PVCore::PVArgument vset;
 		if (v.trimmed().isEmpty()) {
-			vset = it.value();
+			vset = it->value();
 		} else {
-			vset = PVCore::QString_to_PVArgument(v, it.value());
+			vset = PVCore::QString_to_PVArgument(v, it->value());
 		}
 		args[key] = vset;
 	}
@@ -723,13 +723,13 @@ void PVRush::PVXmlTreeNodeDom::toArgumentList(QDomElement& elt, PVCore::PVArgume
 void PVRush::PVXmlTreeNodeDom::toArgumentList(PVCore::PVArgumentList const& default_args, PVCore::PVArgumentList& args) {
     PVCore::PVArgumentList::const_iterator it;
     for (it = default_args.begin(); it != default_args.end(); it++) {
-        QString const& key = it.key();
+        QString const& key = it->key();
         QString v = attribute(key, true);
         PVCore::PVArgument vset;
         if (v.isEmpty()) {
-            vset = it.value();
+            vset = it->value();
         } else {
-            vset = PVCore::QString_to_PVArgument(v, it.value());
+            vset = PVCore::QString_to_PVArgument(v, it->value());
         }
         args[key] = vset;
     }

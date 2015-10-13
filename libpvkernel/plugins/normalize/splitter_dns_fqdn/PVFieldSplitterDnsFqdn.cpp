@@ -66,16 +66,16 @@ void PVFilter::PVFieldSplitterDnsFqdn::set_args(PVCore::PVArgumentList const& ar
 {
 	FilterT::set_args(args);
 
-	_n         = args[N].toInt();
-	_tld1      = args[TLD1].toBool();
-	_tld2      = args[TLD2].toBool();
-	_tld3      = args[TLD3].toBool();
-	_subd1     = args[SUBD1].toBool();
-	_subd2     = args[SUBD2].toBool();
-	_subd3     = args[SUBD3].toBool();
-	_subd1_rev = args[SUBD1_REV].toBool();
-	_subd2_rev = args[SUBD2_REV].toBool();
-	_subd3_rev = args[SUBD3_REV].toBool();
+	_n         = args.at(N).toInt();
+	_tld1      = args.at(TLD1).toBool();
+	_tld2      = args.at(TLD2).toBool();
+	_tld3      = args.at(TLD3).toBool();
+	_subd1     = args.at(SUBD1).toBool();
+	_subd2     = args.at(SUBD2).toBool();
+	_subd3     = args.at(SUBD3).toBool();
+	_subd1_rev = args.at(SUBD1_REV).toBool();
+	_subd2_rev = args.at(SUBD2_REV).toBool();
+	_subd3_rev = args.at(SUBD3_REV).toBool();
 
 	_need_inv = (_subd1 && _subd1_rev) || (_subd2 && _subd2_rev) || (_subd3 && _subd3_rev);
 }

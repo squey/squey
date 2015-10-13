@@ -52,7 +52,7 @@ public:
 
 		for (PVCore::PVArgumentList::const_iterator it = al.begin(); it != al.end(); ++it) {
 			// use of a non-printable character as arguments values separator
-			str.append("\01"+it->toString());
+			str.append("\01"+it->value().toString());
 		}
 
 		data_map_t::iterator it = _data_map.find(str);
@@ -76,7 +76,7 @@ public:
 			std::cout << "key: " << qPrintable(dm_it.key()) << std::endl << "  al :";
 
 			for (PVCore::PVArgumentList::const_iterator al_it = dm_it->first.begin(); al_it != dm_it->first.end(); ++al_it) {
-				std::cout << " (" << qPrintable(al_it->toString()) << ")";
+				std::cout << " (" << qPrintable(al_it->value().toString()) << ")";
 			}
 			std::cout << std::endl << "  cnt:";
 

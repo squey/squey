@@ -83,7 +83,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 
-	PVCore::PVAxisIndexType axis = _args.value(ARG_NAME_AXES).value<PVCore::PVAxisIndexType>();
+	PVCore::PVAxisIndexType axis = _args[ARG_NAME_AXES].value<PVCore::PVAxisIndexType>();
 	const PVCol axis_id = axis.get_original_index();
 	/*if (axes.size() == 0) {
 		_args = get_default_args_for_view(*_view);
@@ -97,14 +97,14 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 		}
 	}*/
 
-	PVCore::PVPercentRangeType ratios = _args.value(ARG_NAME_COLORS).value<PVCore::PVPercentRangeType>();
+	PVCore::PVPercentRangeType ratios = _args[ARG_NAME_COLORS].value<PVCore::PVPercentRangeType>();
 
 	const double *freq_values = ratios.get_values();
 
 	const double freq_min = freq_values[0];
 	const double freq_max = freq_values[1];
 
-	bool bLog = _args.value(ARG_NAME_SCALE).value<PVCore::PVEnumType>().get_sel().compare("Log") == 0;
+	bool bLog = _args[ARG_NAME_SCALE].value<PVCore::PVEnumType>().get_sel().compare("Log") == 0;
 
 	out.get_selection() = in.get_selection();
 
@@ -190,10 +190,10 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 	BENCH_END(heatline, "heatline", 1, 1, sizeof(PVRow), nrows);
 }
 
-QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterHeatlineBase::get_args_keys_for_preset() const
+std::vector<PVCore::PVArgumentKey> Picviz::PVLayerFilterHeatlineBase::get_args_keys_for_preset() const
 {
-	QList<PVCore::PVArgumentKey> keys = get_default_args().keys();
-	keys.removeAll(ARG_NAME_AXES);
+	std::vector<PVCore::PVArgumentKey> keys = get_default_args().keys();
+	keys.erase(std::find(keys.begin(), keys.end(), ARG_NAME_AXES));
 	return keys;
 }
 
