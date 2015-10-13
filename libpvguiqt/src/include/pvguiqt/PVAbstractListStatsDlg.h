@@ -71,11 +71,10 @@ protected:
 	void showEvent(QShowEvent * event) override;
 	void sort_by_column(int col) override;
 	bool process_context_menu(QAction* act) override;
-	void process_hhead_context_menu(QAction* act) override;
 	void ask_for_copying_count() override;
 	QString export_line(
 		PVGuiQt::PVStringSortProxyModel* model,
-		std::function<void (PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f,
+		std::function<QModelIndex(int)> f,
 		int i
 	) override;
 
@@ -99,6 +98,11 @@ protected slots:
 	void select_set_mode_count(bool checked);
 	void select_set_mode_frequency(bool checked);
 	void select_refresh(bool checked);
+
+	/**
+	 * Show the context menu on header view for the second column.
+	 */
+	void show_hhead_ctxt_menu(const QPoint& pos);
 
 protected:
 	Picviz::PVView* lib_view() { return _obs.get_object(); }
@@ -138,6 +142,7 @@ protected:
 	QAction* _create_layers_for_values_act;
 
 	bool _copy_count;
+	QMenu* _hhead_ctxt_menu; //!< Context menu for right click on the vertical headers
 
 private:
 	/**

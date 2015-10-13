@@ -100,14 +100,13 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	_copy_values_act = new QAction(tr("Copy values"), this);
 
 	_ctxt_menu = new QMenu(this);
-	_hhead_ctxt_menu = new QMenu(this);
-
 	_ctxt_menu->addAction(_copy_values_act);
 
 	_nb_values_edit->setText(QString().setNum(model->rowCount()));
 
 	set_description(QString());
 
+	// Show contextual menu on right click in the table (set menuPolicy to emit signals)
 	connect(_values_view, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
 	_values_view->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -116,8 +115,8 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	connect(_btn_append_file, SIGNAL(clicked()), this, SLOT(append_to_file()));
 	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort()));
 
+	// Bind the click on header to sort the clicked column
 	connect(_values_view->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(section_clicked(int)));
-	connect(_values_view->horizontalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_hhead_ctxt_menu(const QPoint&)));
 	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	if (model->rowCount() < AUTOMATIC_SORT_MAX_NUMBER) {
@@ -140,16 +139,6 @@ void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& /*pos*/)
 	process_context_menu(act_sel);
 }
 
-void PVGuiQt::PVListDisplayDlg::show_hhead_ctxt_menu(const QPoint& pos)
-{
-	// Show the menu at the given pos
-	if (_values_view->horizontalHeader()->logicalIndexAt(pos) > 0) {
-		QAction* act_sel = _hhead_ctxt_menu->exec(QCursor::pos());
-
-		process_hhead_context_menu(act_sel);
-	}
-}
-
 bool PVGuiQt::PVListDisplayDlg::process_context_menu(QAction* act)
 {
 	if (act) {
@@ -161,17 +150,13 @@ bool PVGuiQt::PVListDisplayDlg::process_context_menu(QAction* act)
 	return false;
 }
 
-void PVGuiQt::PVListDisplayDlg::process_hhead_context_menu(QAction* /*act*/)
-{
-}
-
 void PVGuiQt::PVListDisplayDlg::copy_all_to_clipboard()
 {
 	ask_for_copying_count();
 
 	QString content;
-	export_values(model()->rowCount(), [&](PVGuiQt::PVStringSortProxyModel* model, int i, QModelIndex& idx) {
-		idx = model->index(i, 0, QModelIndex());
+	export_values(model()->rowCount(), [&](int i) -> QModelIndex {
+		return proxy_model()->index(i, 0, QModelIndex());
 	}, content);
 
 	QApplication::clipboard()->setText(content);
@@ -179,11 +164,11 @@ void PVGuiQt::PVListDisplayDlg::copy_all_to_clipboard()
 
 void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 {
-	QModelIndexList indexes = _values_view->selectionModel()->selectedIndexes();
+	QModelIndexList indexes = _values_view->selectionModel()->selectedRows();
 
 	QString content;
-	export_values(indexes.size(), [&indexes](PVGuiQt::PVStringSortProxyModel*, int i, QModelIndex& idx) {
-		idx = indexes.at(i);
+	export_values(indexes.size(), [&indexes](int i) -> QModelIndex {
+		return indexes.at(i);
 	}, content);
 
 	QApplication::clipboard()->setText(content);
@@ -195,8 +180,8 @@ void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 	QTextStream outstream(&file);
 
 	QString content;
-	bool success = export_values(model()->rowCount(), [&](PVGuiQt::PVStringSortProxyModel* model, int i, QModelIndex& idx) {
-		idx = model->index(i, 0, QModelIndex());
+	bool success = export_values(model()->rowCount(), [&](int i) -> QModelIndex {
+		return proxy_model()->index(i, 0, QModelIndex());
 	}, content);
 
 	outstream << content;
@@ -213,13 +198,11 @@ void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 
 QString PVGuiQt::PVListDisplayDlg::export_line(
 	PVGuiQt::PVStringSortProxyModel* model,
-	std::function<void(PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f,
+	std::function<QModelIndex(int)> f,
 	int i
 )
 {
-	QModelIndex idx;
-
-	f(model, i, idx); // using return instead of ref parameter fails
+	QModelIndex idx = f(i); // using return instead of ref parameter fails
 	if (likely(idx.isValid())) {
 		return model->data(idx).toString();
 	}
@@ -227,17 +210,19 @@ QString PVGuiQt::PVListDisplayDlg::export_line(
 	return QString();
 }
 
-bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<void (PVGuiQt::PVStringSortProxyModel*, int, QModelIndex&)> f, QString& content)
+bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<QModelIndex (int)> f, QString& content)
 {
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
+	// Get the line separator to use for export (defined in UI)
 	QString sep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_line_separator_button->keySequence())));
 	if (sep.isEmpty()) {
 		sep = "\n";
 	}
 
-	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Copying values..."), parentWidget());
+	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Copying values..."), this);
 
+	// Define parallel execution environment
 	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 	tbb::task_scheduler_init init(nthreads);
 	tbb::task_group_context ctxt;
@@ -261,6 +246,7 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<void (PVG
 				}
 				return l;
 			},
+			// Get ordered result
 			[](const QString& left, const QString& right) -> QString {
 				const_cast<QString&>(left).append(right); // const_cast needed to use optimized append method
 				return left;
@@ -270,8 +256,6 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<void (PVG
 
 		return !ctxt.is_group_execution_cancelled();
 	}, ctxt, pbox);
-
-	//content.truncate(content.size()-sep.size()); // Remove last carriage return
 
 	QApplication::restoreOverrideCursor();
 

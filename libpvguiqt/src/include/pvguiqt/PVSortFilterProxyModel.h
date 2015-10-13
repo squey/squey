@@ -90,6 +90,13 @@ public:
 
 	// Function from QAbstractItemModel to implement
 public:
+	/** Sort the model content on the given column
+	 * 
+	 * @param[in] column : Column to use for sorting
+	 * @param[in] order : Sorting order to use
+	 *
+	 * @note : This function is a Qt required function to make sortFilter work
+	 */
 	virtual void sort(int column, Qt::SortOrder order);
 	virtual int rowCount(const QModelIndex& parent) const;
 	virtual int columnCount(const QModelIndex& parent) const;
@@ -115,7 +122,12 @@ private slots:
 	void src_model_reset();
 
 protected:
-	QTableView* _view;
+	/* View and model are fusionned here because Qt require a sort methods with
+	 * a specific signature. Because of this constraint, we can't return the
+	 * result of the sort function (success or fail) and we have to handle the
+	 * view modification in the sort function.
+	 */
+	QTableView* _view; //!< View representation of the model.
 
 private:
 	vec_indexes_t _vec_sort_m2s; // map-to-source indexes after sorting
