@@ -12,6 +12,7 @@
 #include <QVector>
 #include <vector>
 #include <utility>
+#include <limits>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAllocators.h>
@@ -42,6 +43,11 @@ class PVPlotted : public data_tree_plotted_t {
 	friend class PVCore::PVSerializeObject;
 	friend class PVMapped;
 	friend class PVSource;
+
+public:
+	using value_type = uint32_t;
+	static constexpr value_type MAX_VALUE = std::numeric_limits<value_type>::max();
+
 private:
 	struct ExpandedSelection
 	{
