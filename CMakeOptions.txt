@@ -56,9 +56,6 @@ if (NOT DEFINED USE_LTO)
 	set(USE_LTO false)
 endif()
 
-# Default value for correlation
-set(ENABLE_CORRELATION FALSE CACHE BOOLEAN "Enable the correlation system")
-
 ###############################################################################
 # Defined test information (long/short, test file folder)
 ###############################################################################

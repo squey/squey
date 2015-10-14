@@ -237,7 +237,6 @@ private:
  * \class PVOpenWorkspace
  *
  * \note This class is a PVWorkspaceBase derivation representing open workspaces i.e, not related to any particular source.
- *       Each open workspace has its own current correlation (selected in the list of all available correlations).
  */
 class PVOpenWorkspace : public PVWorkspaceBase
 {
@@ -245,17 +244,6 @@ class PVOpenWorkspace : public PVWorkspaceBase
 
 public:
 	PVOpenWorkspace(QWidget* parent = 0) : PVWorkspaceBase(parent) {}
-
-public:
-#ifdef ENABLE_CORRELATION
-	void set_correlation(Picviz::PVAD2GView* correlation) { _correlation = correlation; }
-	Picviz::PVAD2GView* get_correlation() const { return _correlation; }
-#endif
-
-private:
-#ifdef ENABLE_CORRELATION
-	Picviz::PVAD2GView* _correlation = nullptr;
-#endif
 };
 
 }

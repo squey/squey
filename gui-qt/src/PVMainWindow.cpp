@@ -1956,26 +1956,6 @@ void PVInspector::PVMainWindow::update_statemachine_label(Picviz::PVView_sp view
 	statemachine_label->setText(view->state_machine->get_string());
 }
 
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::SceneMenuEventFilter::eventFilter
- *
- *****************************************************************************/
-bool PVInspector::PVMainWindow::SceneMenuEventFilter::eventFilter(QObject* obj, QEvent* event)
-{
-	if(event->type() == QEvent::Show) {
-		bool is_enabled = false;
-		Picviz::PVScene* s = _parent->current_scene();
-		if (s) {
-			uint32_t nb_sources = _parent->current_scene()->get_children<Picviz::PVSource>().size();
-			is_enabled = nb_sources >= 2;
-		}
-		_parent->correlation_scene_Action->setEnabled(is_enabled);
-		return true;
-	}
-	return QObject::eventFilter(obj, event);
-}
-
 // Mainly from Qt's SDI example
 PVInspector::PVMainWindow *PVInspector::PVMainWindow::find_main_window(const QString& path)
 {

@@ -26,12 +26,6 @@ waxes/picviz/PVRoot.cpp
 waxes/picviz/PVPlotted.cpp
 )
 
-if(ENABLE_CORRELATION)
-	list(APPEND PVHIVE_WAXES_FILES
-	waxes/picviz/PVAD2GView.cpp
-	)
-endif()
-
 SET(PVHIVE_MOC_HEADERS
 include/pvhive/PVRefreshSignal.h
 include/pvhive/PVQRefresh.h

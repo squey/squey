@@ -18,7 +18,6 @@ QString picviz_plugins_get_layer_filters_dir(void);
 const char *picviz_plugins_get_layer_filters_config_dir(void);
 QString picviz_plugins_get_mapping_filters_dir(void);
 QString picviz_plugins_get_plotting_filters_dir(void);
-QString picviz_plugins_get_row_filters_dir(void);
 QString picviz_plugins_get_axis_computation_dir(void);
 QString picviz_plugins_get_sorting_functions_dir(void);
 

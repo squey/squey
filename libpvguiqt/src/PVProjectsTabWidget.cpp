@@ -154,16 +154,6 @@ void  PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	connect(_start_screen_widget, SIGNAL(new_format()), this, SIGNAL(new_format()));
 	connect(_start_screen_widget, SIGNAL(load_format()), this, SIGNAL(load_format()));
 	connect(_start_screen_widget, SIGNAL(edit_format(const QString &)), this, SIGNAL(edit_format(const QString &)));
-
-#ifdef ENABLE_CORRELATION
-	// Open workspaces
-	_workspaces_tab_widget = new PVOpenWorkspacesWidget(_root);
-	_tab_widget->addTab(new QWidget(), "");
-	_tab_widget->tabBar()->tabButton(1, QTabBar::RightSide)->resize(0, 0);
-	_tab_widget->setTabToolTip(1, "Workspaces");
-	_tab_widget->setTabIcon(1, QIcon(":/brush.png"));
-	_stacked_widget->addWidget(_workspaces_tab_widget);
-#endif
 }
 
 void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* = true */)
@@ -318,33 +308,6 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	if (index == 0) {
 		return;
 	}
-
-#ifdef ENABLE_CORRELATION
-	QWidget* new_widget = _stacked_widget->widget(index);
-	PVWorkspacesTabWidgetBase* workspace_tab_widget;
-
-	Picviz::PVAD2GView* correlation = nullptr;
-
-	if (index == 1) {
-		PVOpenWorkspacesWidget* w = qobject_cast<PVOpenWorkspacesWidget*>(new_widget);
-		assert(w);
-		workspace_tab_widget = w->workspace_tab_widget();
-		correlation = workspace_tab_widget->get_correlation();
-	}
-	else {
-		workspace_tab_widget = qobject_cast<PVWorkspacesTabWidgetBase*>(new_widget);
-		assert(workspace_tab_widget);
-		correlation = workspace_tab_widget->get_correlation();
-
-		PVSceneWorkspacesTabWidget* scene_tab = qobject_cast<PVSceneWorkspacesTabWidget*>(workspace_tab_widget);
-		assert(scene_tab);
-
-		Picviz::PVRoot_sp root_sp = _root->shared_from_this();
-		PVHive::call<FUNC(Picviz::PVRoot::select_scene)>(root_sp, *scene_tab->get_scene());
-	}
-
-	_root->select_correlation(correlation);
-#endif
 }
 
 PVGuiQt::PVWorkspacesTabWidgetBase* PVGuiQt::PVProjectsTabWidget::current_workspace_tab_widget() const
@@ -354,12 +317,6 @@ PVGuiQt::PVWorkspacesTabWidgetBase* PVGuiQt::PVProjectsTabWidget::current_worksp
 	}
 
 	QWidget* w = _stacked_widget->widget(_current_workspace_tab_widget_index);
-
-#ifdef ENABLE_CORRELATION
-	if (_current_workspace_tab_widget_index == 1) {
-		return qobject_cast<PVOpenWorkspacesWidget*>(w)->workspace_tab_widget();
-	}
-#endif
 
 	return qobject_cast<PVWorkspacesTabWidgetBase*>(w);
 }

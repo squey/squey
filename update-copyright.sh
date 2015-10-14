@@ -252,7 +252,7 @@ do
     FILENAME=`basename "$FILE"`
 
     case "$FILE" in
-	cmake/FindAPR.cmake | cmake/FindBoost.cmake | cmake/FindDUMBNET.cmake | cmake/FindHWLoc.cmake | cmake/FindICU.cmake | cmake/FindPCAP.cmake | cmake/FindPCRE.cmake | cmake/FindPkgMacros.cmake | cmake/FindTBB.cmake | cmake/FindTULIP3.cmake)
+	cmake/FindAPR.cmake | cmake/FindBoost.cmake | cmake/FindDUMBNET.cmake | cmake/FindHWLoc.cmake | cmake/FindICU.cmake | cmake/FindPCAP.cmake | cmake/FindPCRE.cmake | cmake/FindPkgMacros.cmake | cmake/FindTBB.cmake)
 	    # files not owned by Picviz Labs
 	    ;;
 

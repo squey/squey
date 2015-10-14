@@ -140,9 +140,6 @@ Picviz::PVView::~PVView()
 	PVLOG_DEBUG("In PVView destructor: 0x%x\n", this);
 	PVRoot* root = get_parent<PVRoot>();
 	if (root) {
-#ifdef ENABLE_CORRELATION
-		root->remove_view_from_correlations(this);
-#endif
 		root->view_being_deleted(this);
 	}
 	delete state_machine;
@@ -765,23 +762,6 @@ void Picviz::PVView::process_filter()
 	post_filter_layer = pre_filter_layer;
 }
 
-#ifdef ENABLE_CORRELATION
-/******************************************************************************
- *
- * Picviz::PVView::process_correlation
- *
- *****************************************************************************/
-QList<Picviz::PVView*> Picviz::PVView::process_correlation()
-{
-	Picviz::PVRoot* root = get_parent<Picviz::PVRoot>();
-	// AG: in some test cases, there is no PVRoot!
-	if (root) {
-		return root->process_correlation(this);
-	}
-	return QList<Picviz::PVView*>();
-}
-#endif
-
 /******************************************************************************
  *
  * Picviz::PVView::process_from_eventline
@@ -822,9 +802,6 @@ QList<Picviz::PVView*> Picviz::PVView::process_from_layer_stack()
 	process_visibility();
 
 	QList<Picviz::PVView*> changed_views;
-#ifdef ENABLE_CORRELATION
-	changed_views = process_correlation();
-#endif
 	tbb::tick_count end = tbb::tick_count::now();
 	PVLOG_INFO("(Picviz::PVView::process_from_layer_stack) function took %0.4f seconds.\n", (end-start).seconds());
 
@@ -844,9 +821,6 @@ QList<Picviz::PVView*> Picviz::PVView::process_from_selection()
 	process_eventline();
 	process_visibility();
 	QList<Picviz::PVView*> changed_views;
-#ifdef ENABLE_CORRELATION
-	changed_views = process_correlation();
-#endif
 
 	return changed_views;
 }

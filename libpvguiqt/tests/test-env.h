@@ -18,6 +18,5 @@ void init_env()
 	setenv("PICVIZ_MAPPING_FILTERS_DIR",PICVIZ_BUILD_DIRECTORY "/libpicviz/plugins/mapping-filters",0);
 	setenv("PICVIZ_PLOTTING_FILTERS_DIR",PICVIZ_BUILD_DIRECTORY "/libpicviz/plugins/plotting-filters",0);
 	setenv("PICVIZ_LAYER_FILTERS_DIR",PICVIZ_BUILD_DIRECTORY "/libpicviz/plugins/layer-filters",0);
-	setenv("PICVIZ_ROW_FILTERS_DIR",PICVIZ_BUILD_DIRECTORY "/libpicviz/plugins/row-filters",0);
 	Picviz::common::load_filters();
 }

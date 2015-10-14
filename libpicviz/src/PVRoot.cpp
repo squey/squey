@@ -9,10 +9,6 @@
 #include <picviz/PVView.h>
 #include <picviz/plugins.h>
 
-#ifdef ENABLE_CORRELATION
-#include <tulip/TlpTools.h>
-#endif
-
 #define ARCHIVE_ROOT_DESC (QObject::tr("Solution"))
 
 /******************************************************************************
@@ -25,9 +21,6 @@ Picviz::PVRoot::PVRoot():
 	_current_scene(nullptr),
 	_current_source(nullptr),
 	_current_view(nullptr)
-#ifdef ENABLE_CORRELATION
-	,_current_correlation(nullptr)
-#endif
 {
 	reset_colors();
 }
@@ -49,13 +42,6 @@ void Picviz::PVRoot::clear()
 	_current_scene = nullptr;
 	_current_source = nullptr;
 	_current_view = nullptr;
-#ifdef ENABLE_CORRELATION
-	_current_correlation = nullptr;
-	_correlations.clear();
-	_correlation_running = false;
-	_correlations_enabled = true;
-	_so_correlations.reset();
-#endif
 	_original_archive.reset();
 	_path.clear();
 	_new_view_id = 0;
@@ -175,110 +161,6 @@ QColor Picviz::PVRoot::get_new_view_color()
 	return color;
 }
 
-#ifdef ENABLE_CORRELATION
-/******************************************************************************
- *
- * Picviz::PVRoot::get_correlation
- *
- *****************************************************************************/
-Picviz::PVAD2GView_p Picviz::PVRoot::get_correlation(int index)
-{
-	correlations_t::iterator i = _correlations.begin();
-	std::advance(i, index);
-	return *i;
-}
-
-/******************************************************************************
- *
- * Picviz::PVRoot::add_correlation
- *
- *****************************************************************************/
-Picviz::PVAD2GView* Picviz::PVRoot::add_correlation(const QString & name)
-{
-	Picviz::PVAD2GView* correlation = new Picviz::PVAD2GView(name);
-	_correlations.push_back(PVAD2GView_p(correlation));
-
-	return correlation;
-}
-
-
-/******************************************************************************
- *
- * Picviz::PVRoot::add_correlations
- *
- *****************************************************************************/
-void Picviz::PVRoot::add_correlations(correlations_t const& corrs)
-{
-	for (PVAD2GView_p const& c: corrs) {
-		_correlations.push_back(c);
-	}
-}
-
-
-
-/******************************************************************************
- *
- * Picviz::PVRoot::delete_correlation
- *
- *****************************************************************************/
-bool Picviz::PVRoot::delete_correlation(PVAD2GView_p correlation_p)
-{
-	for (auto it=_correlations.begin() ; it != _correlations.end(); it++) {
-		if ((*it).get() == correlation_p.get()) {
-			_correlations.erase(it);
-			return true;
-		}
-	}
-
-	return false;
-}
-
-/******************************************************************************
- *
- * Picviz::PVRoot::remove_view_from_correlations
- *
- *****************************************************************************/
-void Picviz::PVRoot::remove_view_from_correlations(PVView* view)
-{
-	for (PVAD2GView_p correlation : _correlations) {
-		correlation->del_view(view);
-	}
-}
-
-/******************************************************************************
- *
- * Picviz::PVRoot::process_correlation
- *
- *****************************************************************************/
-QList<Picviz::PVView*> Picviz::PVRoot::process_correlation(PVView* src_view)
-{
-	QList<Picviz::PVView*> changed_views;
-	if (_correlations_enabled && _current_correlation && !_correlation_running) {
-		_correlation_running = true;
-		_current_correlation->pre_process();
-		_current_correlation->run(src_view, &changed_views);
-		for (Picviz::PVView* view : changed_views) {
-			view->process_from_selection();
-		}
-		_correlation_running = false;
-	}
-
-	return changed_views;
-}
-
-Picviz::PVRoot::correlations_t Picviz::PVRoot::get_correlations_for_scene(Picviz::PVScene const& scene) const
-{
-	Picviz::PVRoot::correlations_t ret;
-	for (PVAD2GView_p const& c: get_correlations()) {
-		QList<Picviz::PVView*> c_views = c->get_used_views();
-		if (scene.children_belongs_to_me(c_views)) {
-			ret.push_back(c);
-		}
-	}
-	return ret;
-}
-#endif
-
 Picviz::PVScene* Picviz::PVRoot::get_scene_from_path(const QString& path)
 {
 	for (Picviz::PVScene_sp const& scene: get_children()) {
@@ -291,49 +173,12 @@ Picviz::PVScene* Picviz::PVRoot::get_scene_from_path(const QString& path)
 
 void Picviz::PVRoot::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
-#ifdef ENABLE_CORRELATION
-	_correlations.clear();
-#endif
-
 	data_tree_root_t::serialize_read(so, v);
-
-#ifdef ENABLE_CORRELATION
-	_so_correlations = so.list("correlations", _correlations, QObject::tr("Correlations"), (PVAD2GView*) NULL, QStringList(), true, true);
-	if (_so_correlations) {
-		QString cur_path;
-		so.attribute("current_correlation", cur_path);
-		PVCore::PVSerializeObject_p so_cur_corr = _so_correlations->get_object_by_path(cur_path);
-		if (so_cur_corr) {
-			_current_correlation = so_cur_corr->bound_obj_as<PVAD2GView>();
-		}
-		else {
-			_current_correlation = nullptr;
-		}
-		PVLOG_INFO("%d correlations loaded. %p is current one.\n", _correlations.size(), _current_correlation);
-	}
-
-	_so_correlations.reset();
-#endif
 }
 
 void Picviz::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 {
-#ifdef ENABLE_CORRELATION
-	QStringList corr_desc;
-	corr_desc.reserve(_correlations.size());
-	for (PVAD2GView_p const& c: _correlations) {
-		corr_desc << c->get_name();
-	}
-
-	_so_correlations = so.list("correlations", _correlations, QObject::tr("Correlations"), (Picviz::PVAD2GView*) NULL, corr_desc, true, true);
-	QString cur_path = _so_correlations->get_child_path(_current_correlation);
-	so.attribute("current_correlation", cur_path);
-#endif
 	data_tree_root_t::serialize_write(so);
-
-#ifdef ENABLE_CORRELATION
-	_so_correlations.reset();
-#endif
 }
 
 void Picviz::PVRoot::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options, bool save_everything)

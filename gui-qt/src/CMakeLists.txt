@@ -119,7 +119,6 @@ picviz-inspector_resource.qrc
 SET(UI_FILES
 PVAxisComputationDlg.ui
 widgets/format-builder/PVAxisTagHelp.ui
-ui/PVViewCorrelationWidget.ui
 )
 
 ################################################
