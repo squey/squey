@@ -12,6 +12,7 @@
 #include <QVector>
 #include <vector>
 #include <utility>
+#include <limits>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAllocators.h>
@@ -42,6 +43,11 @@ class PVPlotted : public data_tree_plotted_t {
 	friend class PVCore::PVSerializeObject;
 	friend class PVMapped;
 	friend class PVSource;
+
+public:
+	using value_type = uint32_t;
+	static constexpr value_type MAX_VALUE = std::numeric_limits<value_type>::max();
+
 private:
 	struct ExpandedSelection
 	{
@@ -200,6 +206,15 @@ public:
 
 	void get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min, uint32_t& max, PVSelection const& sel, PVCol col) const;
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
+
+	/** get_col_minmax
+	 *
+	 * Compute row indices for containing min and max value for a given column.
+	 *
+	 * @param[out] min : Minimum value of the column
+	 * @param[out] max : Maximum value of the column
+	 * @param[in] col : Column where we want to extra minmax
+	 */
 	void get_col_minmax(PVRow& min, PVRow& max, PVCol const col) const;
 
 	inline PVView* current_view() { return get_parent<PVSource>()->current_view(); }
