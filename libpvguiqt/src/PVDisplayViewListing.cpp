@@ -1,5 +1,4 @@
 #include <pvguiqt/PVListingModel.h>
-#include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVListingView.h>
 #include <pvguiqt/PVStatsListingWidget.h>
 
@@ -20,9 +19,7 @@ QWidget* PVDisplays::PVDisplayViewListing::create_widget(Picviz::PVView* view, Q
 
 	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(view_sp);
 	PVGuiQt::PVListingView* listing_view = new PVGuiQt::PVListingView(view_sp, parent);
-	PVGuiQt::PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view_sp, listing_view);
-	proxy_model->setSourceModel(model);
-	listing_view->setModel(proxy_model);
+	listing_view->setModel(model);
 
 	PVGuiQt::PVHorizontalHeaderView* hheaderview = new PVGuiQt::PVHorizontalHeaderView(Qt::Horizontal, listing_view);
 	listing_view->setHorizontalHeader(hheaderview);

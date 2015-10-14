@@ -13,7 +13,6 @@
 #include <QAbstractTableModel>
 #include <QBrush>
 #include <QFont>
-#include <QFontDatabase>
 
 #include <pvkernel/core/general.h>
 #include <picviz/PVAxesCombination.h>
@@ -30,92 +29,220 @@
 
 namespace PVGuiQt {
 
+    class PVListingModel;
+
+namespace __impl {
+    /**
+     * PVListingVisibilityObserver
+     *
+     * This dummy class is used to look at the toggle_listing_unselected_visibility
+     * function call to update filter in the ListingModel
+     *
+     * @note Hive inside
+     *
+     */
+    struct PVListingVisibilityObserver: public PVHive::PVFuncObserver<Picviz::PVView, FUNC(Picviz::PVView::toggle_listing_unselected_visibility)>
+    {
+	/**
+	 * Save the ListingModel to be updated.
+	 *
+	 * @param parent : ListingModel to update.
+	 */
+	PVListingVisibilityObserver(PVGuiQt::PVListingModel* parent):
+	    _parent(parent)
+	{ }
+
+	private:
+	/**
+	 * Update the ListingModel update.
+	 *
+	 * @param args : None
+	 */
+	void update(arguments_type const&) const override;
+
+	private:
+	PVGuiQt::PVListingModel* _parent; //!< ListingModel to update.
+    };
+
+    /**
+     * PVListingVisibilityObserver
+     *
+     * This dummy class is used to look at the toggle_listing_zombie_visibility
+     * function call to update filter in the ListingModel
+     *
+     * @note Hive inside
+     *
+     */
+    struct PVListingVisibilityZombieObserver: public PVHive::PVFuncObserver<Picviz::PVView, FUNC(Picviz::PVView::toggle_listing_zombie_visibility)>
+    {
+	/**
+	 * Save the ListingModel to be updated.
+	 *
+	 * @param parent : ListingModel to update.
+	 */
+	PVListingVisibilityZombieObserver(PVGuiQt::PVListingModel* parent):
+	    _parent(parent)
+	{ }
+
+	private:
+	/**
+	 * Update the ListingModel update.
+	 *
+	 * @param args : None
+	 */
+	void update(arguments_type const& args) const override;
+
+	private:
+	PVGuiQt::PVListingModel* _parent; //!< ListingModel to update.
+    };
+
+}
+
 /**
  * \class PVListingModel
+ *
+ * Model to display an NRaw table.
+ *
+ * It supports Selected, Unselected and Zombie lines.
  */
 
 class PVListingModel : public QAbstractTableModel
 {
-	Q_OBJECT
+    Q_OBJECT
 
-public:
-    enum TypeOfSort {
-        NoOrder, AscendingOrder, DescendingOrder
-    };
+    /// Graphical information
+
+    // These data are graphical but have to be in the model because in Qt MVC
+    // pattern, the model is responsive to give this information using roles
+    // status.
 
 private:
-	QBrush zombie_font_brush; //!<
-
-protected:
-	QFont  row_header_font;
-	QBrush select_brush;            //!<
-	QFont  vheader_font;             //!<
-	QBrush unselect_brush;          //!<
-	QFont  unselect_font;           //!<
+	QBrush _zombie_brush;	//!< Aspect of zombie lines
+	QFont  _vheader_font;	//!< Font for header view
 
 public:
     /**
-     * Constructor.
+     * Create a Listing model.
      *
-     * @param mw
-     * @param parent
+     * Initialise communication with others widgets and set graphical aspect.
+     *
+     * @param view : Global display for data informations
+     * @param parent : Parent widget
+     *
+     * @note It use a view as a parameter to register observer. Thanks to this
+     * record, every view will be updated on listing model modification.
+     *
      */
-    PVListingModel(Picviz::PVView_sp& view, QObject* parent = NULL);
+    PVListingModel(Picviz::PVView_sp& view, QObject* parent = nullptr);
 
     /**
-     * return data requested by the View
-     * @param index
-     * @param role
-     * @return
+     * Return data requested by the View
+     *
+     * Provided data are value content,text alignment, background and forground
+     * colors and font
+     *
+     * @param index : Cell asked for information.
+     * @param role : Kind of information required.
+     * @return Matching information depending on role (QVariant)
+     *
+     * @note : Do not use DisplayRole as a default because this function can be
+     * call only through the view. Ask to the nraw if you want information.
      */
     QVariant data(const QModelIndex &index, int role) const;
 
     /**
-     * return header requested by the View
-     * @param section
-     * @param orientation
-     * @param role
-     * @return 
+     * return header information for given section.
+     *
+     * Returned informations are value, font and alignment.
+     *
+     * @param section : line number or colonne number
+     * @param orientation : Which header to concider. It is use with section to
+     * determine correct header.
+     * @param role : What kind of information is required.
+     * @return Header information depending on role. (QVariant)
      */
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     /**
-     * 
-     * @param index
+     * Number of row in the NRaw.
+     *
+     * @param index : Parent index (unused here)
      * @return the number of log line.
      */
-    int rowCount(const QModelIndex &index) const;
+    int rowCount(const QModelIndex &index = QModelIndex()) const;
 
     /**
+     * compute row number from a QModelIndex
      *
-     * @param index
-     *
-     * @return
+     *@param[in] index : index asked from view.
      */
-    int columnCount(const QModelIndex &index) const;
+    int rowIndex(QModelIndex const& index) const;
+    int rowIndex(PVRow index) const;
 
     /**
+     * Number of column in the view
      *
-     * @param index
+     * @param index : Parent index (unused here)
+     * @return The number of axis in the view.
+     */
+    int columnCount(const QModelIndex &index = QModelIndex()) const;
+
+    /**
+     * Define possible interactions witht the model.
      *
-     * @return
+     * @param index : flags can be partial. (Unused here)
+     *
+     * @return model flags.
      */
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
+    /**
+     * Sort the Listing on a given column and order.
+     *
+     * @param[in] col : Column to sort.
+     * @param[in] order : Order to use for sorting.
+     * @param[in,out] ctxt : Information about sorting processing to enable cancel.
+     *
+     */
+    void sort(PVCol col, Qt::SortOrder order, tbb::task_group_context & ctxt);
+
 private slots:
-	void view_about_to_be_deleted(PVHive::PVObserverBase* o);
-	void axes_comb_changed();
+    /**
+     * With axes combination modifications, we have to update the model and
+     * reorder/add/remove columns.
+     */
+    void axes_comb_changed();
+
+public slots:
+    // public slots call through Hive
+    /**
+     *  Update the current filter to show selected lines only.
+     */
+    void update_filter();
 
 private:
-	inline Picviz::PVView const& lib_view() const { return *_obs.get_object(); }
+    /**
+     * Get the view linked with the listingView
+     *
+     * @return linked view.
+     */
+    inline Picviz::PVView const& lib_view() const { return *_view; }
 
 private:
-	PVHive::PVActor<Picviz::PVView> _actor;
-	PVHive::PVObserverSignal<Picviz::PVView> _obs;
-	PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
-	bool _view_valid;
-	typedef std::pair<size_t, size_t> row_col_t;
-	mutable std::list<row_col_t> _incomplete_fields;
+	Picviz::PVView_sp _view; //!< Observed view
+	PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t> _obs_axes_comb; //!< Observe axs combination modifications
+	PVHive::PVObserverSignal<Picviz::PVSelection> _obs_sel; //!< Observe the seletion to update on selection modifications
+	PVHive::PVObserverSignal<Picviz::PVLayer> _obs_output_layer; //!< Observe selected/unselected calques
+	__impl::PVListingVisibilityObserver _obs_vis; //!< Observer for selected/unselected lines
+	__impl::PVListingVisibilityZombieObserver _obs_zomb; //! Observer for zombies lines
+
+	// We save the current data to avoid asking for it twice in the NRaw.
+	// We ask for NRaw value at FontRole time and re-use it at Display time
+	// which is called right after the fontrole.
+	// We use mutable as the data Qt interface function have to be const
+	mutable QString _current_data; //!< Data of the current cell.
+	std::vector<int> _filter; //!< Lines to use
+	std::vector<int> _sort; //!< Sorted lines
 };
 
 }

@@ -8,9 +8,11 @@
 #define PVLISTINGVIEW_H
 
 #include <QTableView>
+#include <QMenu>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserverSignal.h>
@@ -29,7 +31,7 @@ class PVHelpWidget;
 namespace PVGuiQt {
 
 class PVLayerFilterProcessWidget;
-class PVListingSortFilterProxyModel;
+class PVListingModel;
 
 /**
  * \class PVListingView
@@ -41,97 +43,241 @@ class PVListingView : public QTableView
 	friend class PVHorizontalHeaderView;
 
 public:
-	PVListingView(Picviz::PVView_sp& view, QWidget* parent = NULL);
+	/**
+	 * Create a Listing view.
+	 *
+	 * Design widget and default connections
+	 *
+	 * @param view : Global display for data informations
+	 * @param parent : Parent widget
+	 *
+	 * @note It use a view as a parameter to register observer. Thanks to this
+	 * record, every view will be updated on listing model modification.
+	 */
+	PVListingView(Picviz::PVView_sp& view, QWidget* parent = nullptr);
 
-	void refresh_listing_filter();
 
-	PVListingSortFilterProxyModel* get_listing_model();
+	/**
+	 * Get associate model
+	 */
+	PVListingModel* listing_model();
 
 public slots:
-	void selectAll();
-	void corner_button_clicked();
+	/**
+	 * Inform other Hive view about column click
+	 */
 	void section_clicked(int col);
 
 protected:
-	void mouseDoubleClickEvent(QMouseEvent* event);
+	/**
+	 * Handle Help, goto line and selection shortcut
+	 */
 	void keyPressEvent(QKeyEvent* event) override;
+
+	/**
+	 * Resize hovered column on control modifier.
+	 */
 	void wheelEvent(QWheelEvent* e);
+
+	/**
+	 * Set correct header size on reset
+	 *
+	 * Reset is called by Qt
+	 * FIXME : Is it really called?
+	 */
 	void reset() override;
+
+	/**
+	 * Use to inform others widgets about its resizing
+	 */
 	void resizeEvent(QResizeEvent * event) override;
+
+	/**
+	 * Handle focus
+	 *
+	 * FIXME : Why is it so important?
+	 */
 	void enterEvent(QEvent* event) override;
 	void leaveEvent(QEvent* event) override;
+
+	/**
+	 * Add nice border on hovered column
+	 */
 	void paintEvent(QPaintEvent * event) override;
 
 signals:
+	/**
+	 * Signal emited to update the Stat view (lower part of listing)
+	 */
 	void resized();
 
 private:
+	/**
+	 * Get list of select rows
+	 */
 	QVector<PVRow> get_selected_rows();
-	void extract_selection(Picviz::PVSelection &sel);
-	void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+
+	/**
+	 * Save the QSelection in the current PVSelection
+	 */
+	void extract_selection();
+
+	/**
+	 * Apply the current selection and notify others views about this update.
+	 *
+	 * Normal selection : replace the old one
+	 * Shift selection : Add unselected line in the QSelection to the PVSelection
+	 * Control selection : Remove selected line to the PVSelection
+	 * Shift + constrol selection : Remove lines not in QSelection but keep state of the others lines
+	 *
+	 */
+	void update_view_selection_from_listing_selection();
 
 private:
+	/**
+	 * Process action from plugins (layer filter)
+	 */
 	void process_ctxt_menu_action(QAction* act);
+
+	/**
+	 * Copy right clicked value in the clipboard.
+	 */
 	void process_ctxt_menu_copy();
+
+	/**
+	 * Prompt user for a color and apply it to selection.
+	 */
 	void process_ctxt_menu_set_color();
 
+	/**
+	 * Move listing to line (asked from prompt)
+	 */
 	void goto_line();
 
+	/**
+	 * Ask to sort the widgets based on a column value.
+	 *
+	 * It shows progress box and ask the model to be sorted.
+	 *
+	 * @param[in] col : Column to use for sort
+	 * @param[in] order : Order to use for sort
+	 */
+	void sort(int col, Qt::SortOrder order);
+
 private:
-	void update_view_selection_from_listing_selection();
 	Picviz::PVView const& lib_view() const { return *_obs.get_object(); }
 	Picviz::PVView& lib_view() { return *_obs.get_object(); }
-	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
+	PVWidgets::PVHelpWidget* help_widget() { return &_help_widget; }
 
 private slots:
+	/**
+	 * Selected the current selection (which is the current line after the
+	 * first click)
+	 */
 	void slotDoubleClickOnVHead(int);
+	void slotDoubleClickOnVHead(QModelIndex const&);
+
+	/**
+	 * Show context menu and process its actions
+	 */
 	void show_ctxt_menu(const QPoint& pos);
+
+	/**
+	 * Show horizontal header context menu and process its actions
+	 */
 	void show_hhead_ctxt_menu(const QPoint& pos);
+
+	/**
+	 * Show vertical header context menu and process its actions
+	 */
 	void show_vhead_ctxt_menu(const QPoint& pos);
+
+	/**
+	 * Set the selected color for all selected lines and notify others
+	 * view about the color modification.
+	 *
+	 * Color is set only for the current layer.
+	 *
+	 * @param[in] color : Selected color
+	 *
+	 * @note Also use selection to know where it has to be applied.
+	 */
 	void set_color_selected(const PVCore::PVHSVColor& color);
+
+	/**
+	 * Save resize information for later use
+	 */
 	void columnResized(int column, int oldWidth, int newWidth);
 
 public slots:
+	/**
+	 * Highlight the column specified from an external (Hive) source.
+	 *
+	 * @param[in] o : Observer signal containing column information.
+	 */
 	void highlight_column(PVHive::PVObserverBase* o);
+
+	/**
+	 * Highlight the specified column.
+	 *
+	 * @param[in] col : column to highlight
+	 */
 	void highlight_column(int col);
-	void set_section_visible(PVHive::PVObserverBase* o);
+
+	/**
+	 * Notify Hive views about hovered horizontal header column.
+	 *
+	 * @param[in] col : Hovered column.
+	 * @param[in] enter : Whether the hover begin or end.
+	 */
 	void section_hovered_enter(int col, bool enter);
 
 private:
-	QMenu* _ctxt_menu;
-	QMenu* _hhead_ctxt_menu;
-	QMenu* _vhead_ctxt_menu;
-	QAction* _action_col_sort;
-	QAction* _action_col_unique;
-	QAction* _action_copy_row_value;
-	QMenu* _menu_col_count_by;
-	QMenu* _menu_col_sum_by;
-	QMenu* _menu_col_min_by;
-	QMenu* _menu_col_max_by;
-	QMenu* _menu_col_avg_by;
-	bool _show_ctxt_menu;
-	PVRow _ctxt_row;
-	PVCol _ctxt_col;
-	QString _ctxt_v;
-	PVCore::PVArgumentList _ctxt_args;
-	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process;
-	QAction* _act_copy;
-	QAction* _act_set_color;
+	// Context menu
+	QMenu _ctxt_menu; //!< Context menu for right click on table cells
+	QAction* _act_copy; //!< Copy cell content action for context menu
+	QAction* _act_set_color; //!< Set a color for clicked row action for context menu
 
-	std::unordered_map<uint32_t, uint32_t> _headers_width;
-	int _hovered_axis = -1;
+	// Header context menu
+	QMenu _hhead_ctxt_menu; //!< Context menu for right click on horizontal header
+	QMenu* _menu_col_count_by; //!< Count by action for horizontal context menu
+	QMenu* _menu_col_sum_by; //!< Sum by action for horizontal context menu
+	QMenu* _menu_col_min_by; //!< Min by action for horizontal context menu
+	QMenu* _menu_col_max_by; //!< Max by action for horizontal context menu
+	QMenu* _menu_col_avg_by; //!< Average by action for horizontal context menu
+	QAction* _action_col_sort; //!< Sort a column action for horizontal context menu
+	QAction* _action_col_unique; //!< Count distinct values action for horizontal context menu
 
-	PVWidgets::PVHelpWidget *_help_widget;
-	int _vhead_max_width;
+	// Vertical context menu
+	QMenu _vhead_ctxt_menu; //!< Context menu for right click on vertival header
+	QAction* _action_copy_row_value; //!< Copy clicked row action for vertical header action
+
+	// Help menu
+	PVWidgets::PVHelpWidget _help_widget; //!< Help menu for listing view
+
+	// FIXME : This should be in a "context menu" context
+	PVRow _ctxt_row; //!< Clicked row for context menu actions
+	PVCol _ctxt_col; //!< Clicked col for context menu actions
+	QString _ctxt_v; //!< Clicked value for context menu actions
+	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process; //!< Current open LayerFilter plugins widget
+
+	// FIXME : Horrible data structure
+	// Can't we do this in HeaderView?
+	std::unordered_map<uint32_t, uint32_t> _headers_width; //!< Width for each header
+
+	int _hovered_axis = -1; //!< Hovered axis flags for paintEvent
+	int _vhead_max_width; //!< Max width for the vertical header
+
+	PVCore::PVArgumentList _ctxt_args; //!< awfull
 
 private:
 	// Observers
-	PVHive::PVObserverSignal<Picviz::PVView> _obs;
-	PVHive::PVObserverSignal<int> _axis_hover_obs;
-	PVHive::PVObserverSignal<PVCol> _axis_clicked_obs;
+	PVHive::PVObserverSignal<Picviz::PVView> _obs; //!< Observer for current view to delete listing on view deletion
+	// FIXME : It should be a PVCol instead of int
+	PVHive::PVObserverSignal<int> _axis_hover_obs; //!< Observer for hovered column
 
 	// Actor
-	PVHive::PVActor<Picviz::PVView> _actor;
+	PVHive::PVActor<Picviz::PVView> _actor; //!< Actor to emit notification about listing modification to the view
 };
 
 class PVHorizontalHeaderView : public QHeaderView
