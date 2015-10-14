@@ -4,8 +4,8 @@
  * Copyright (C) Picviz Labs 2015
  */
 
-#ifndef PVARCSIGHTQUERY_FILE_H
-#define PVARCSIGHTQUERY_FILE_H
+#ifndef PVELASTICSEARCHQUERY_FILE_H
+#define PVELASTICSEARCHQUERY_FILE_H
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>

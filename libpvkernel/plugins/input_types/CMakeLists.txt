@@ -156,7 +156,7 @@ QT5_WRAP_UI(ARCSIGHT_UI_SRCS ${ARCSIGHT_UI})
 
 # Generate linkage configuration
 add_library(input_type_arcsight SHARED ${ARCSIGHT_SRC} ${ARCSIGHT_MOC_SRCS} ${ARCSIGHT_UI_SRCS})
-target_link_libraries(input_type_arcsight pvkernel /usr/local/lib/libarcsight.a gsoap++)
+target_link_libraries(input_type_arcsight pvkernel ${ARCSIGHT_LIBRARIES})
 
 ###############################################################################
 # Elasticsearch

@@ -108,7 +108,6 @@ add_subdirectory(scripts)
 configure_file(inspector.sh.cmake inspector.sh @ONLY)
 configure_file(make_protect.cmake make_protect @ONLY)
 configure_file(grep_table.sh.cmake grep_table.sh @ONLY)
-configure_file(squish_ide.sh.cmake squish_ide.sh @ONLY)
 
 ###############################################################################
 # Define distribution stuff

@@ -118,7 +118,6 @@ declare_library(normalize_filter_splitter_regexp)
 
 ###############################################################################
 # URL Splitter
-# TODO : Add a correct detection for furl
 ###############################################################################
 
 # Define ressources
@@ -128,9 +127,8 @@ splitter_url/register.cpp
 )
 
 # Create lib
-add_definitions(-DFURL_UTF16_CHAR)
 add_library(normalize_filter_splitter_url SHARED ${URL_SRC})
-target_link_libraries(normalize_filter_splitter_url pvkernel /usr/local/lib/libfurll.a)
+target_link_libraries(normalize_filter_splitter_url pvkernel ${FURL_STATIC_LIB})
 declare_library(normalize_filter_splitter_url)
 
 ###############################################################################

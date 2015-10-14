@@ -120,11 +120,9 @@ find_package(PCAP REQUIRED)
 
 ###############################################################################
 # Check for Archive library
-# TODO : Check if it is found?
 ###############################################################################
 
-set(ARCHIVE_LIBRARY "archive")
-set(ARCHIVE_INCLUDE_DIRS "")
+pkg_check_modules(ARCHIVE REQUIRED libarchive)
 
 ###############################################################################
 # Check for libpcre++
@@ -157,9 +155,8 @@ find_package(CURL "7.38.0" REQUIRED)
 
 ###############################################################################
 # Check for Perl support
-# TODO : Check if it is found?
 ###############################################################################
-find_package(PerlLibs)
+find_package(PerlLibs REQUIRED)
 
 ###############################################################################
 # Check for Python support
@@ -185,8 +182,24 @@ if (HWLOC_FOUND)
 endif ()
 
 ###############################################################################
-# Check for Squish 4.0 installation
-# TODO : Check if it is found?
+# Check for Furl installation
 ###############################################################################
-set(SQUISH_INSTALL_DIR /opt/squish)
-find_package(Squish 4.0)
+
+set(FURL_STATIC_LIB /usr/local/lib/libfurll.a)
+if(EXISTS ${FURL_STATIC_LIB})
+  add_definitions(-DFURL_UTF16_CHAR)
+else()
+  message( FATAL_ERROR "FURL Can't be found" )
+endif ()
+
+###############################################################################
+# Check for Arcsight installation
+###############################################################################
+
+pkg_check_modules(GSOAPPP REQUIRED gsoap++)
+set(ARCSIGHT_STATIC_LIB /usr/local/lib/libarcsight.a)
+if(NOT EXISTS ${ARCSIGHT_STATIC_LIB})
+  message( FATAL_ERROR "Arcsight Can't be found" )
+endif ()
+
+set(ARCSIGHT_LIBRARIES ${ARCSIGHT_STATIC_LIB} ${GSOAPPP_LIBRARIES})
