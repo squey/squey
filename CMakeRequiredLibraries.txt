@@ -202,3 +202,9 @@ if(NOT EXISTS ${ARCSIGHT_STATIC_LIB})
 endif ()
 
 set(ARCSIGHT_LIBRARIES ${ARCSIGHT_STATIC_LIB} ${GSOAPPP_LIBRARIES})
+
+###############################################################################
+# Check for PVCOP installation
+###############################################################################      
+
+find_package(PVCOP)
