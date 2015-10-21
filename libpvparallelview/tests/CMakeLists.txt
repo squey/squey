@@ -7,6 +7,8 @@ include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 add_definitions(${PICVIZ_DEFINITIONS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
+
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
 set(CUDA_NVCC_FLAGS "-gencode arch=compute_30,code=sm_30" "-Xptxas=-v" "-Xcompiler=-fPIC")
 #set(CUDA_NVCC_FLAGS "-g" "-G")

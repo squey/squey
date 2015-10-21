@@ -5,6 +5,8 @@
 
 configure_file(test_issues.sh.cmake test_issues.sh @ONLY)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
+
 set(LINK_LIBRARIES pvkernel picviz ${TBB_LIBRARIES} ${ICU_LIBRARY}
 				   ${OpenMP_LIBRARIES} ${OPENGL_LIBRARIES})
 
