@@ -12,6 +12,7 @@
 #endif
 
 #include <memory>
+#include <cstdint>
 
 // Taken from Qt's qhash.h
 template <class T>
