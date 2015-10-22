@@ -101,6 +101,12 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 		// Define alignment of data
 		case (Qt::TextAlignmentRole):
 			return {Qt::AlignLeft | Qt::AlignVCenter};
+		// Get Tooltip content for the cell
+		case Qt::ToolTipRole:
+			{
+			    const PVRow r = rowIndex(index);
+			    return lib_view().get_parent<Picviz::PVSource>()->get_value(r, org_col);
+			}
 		// Define brackground color for cells
 		case (Qt::BackgroundRole):
 		{
