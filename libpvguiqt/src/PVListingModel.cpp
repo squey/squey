@@ -19,8 +19,11 @@
 #include <pvguiqt/PVCustomQtRoles.h>
 #include <pvguiqt/PVListingModel.h>
 
-// Maximum number of ticks in the scroll bar
+// Adjustable number of ticks in the scrollbar
 constexpr static size_t SCROLL_SIZE = 5000;
+// Minimum number of elements per page to enable pagination
+// It should be more than the maximum number of row we can display on a screen.
+constexpr static size_t MIN_PAGE_SIZE = 100;
 
 /******************************************************************************
  *
@@ -39,6 +42,8 @@ PVGuiQt::PVListingModel::PVListingModel(Picviz::PVView_sp& view, QObject* parent
 	_pos_in_page(0),
 	_page_size(0),
 	_last_page_size(0),
+	_page_number(SCROLL_SIZE),
+	_page_step(0),
 	_start_sel(-1),
 	_end_sel(-1),
 	_in_select_mode(true)
@@ -233,7 +238,11 @@ QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orient
 int PVGuiQt::PVListingModel::rowCount(const QModelIndex &) const
 {
     // Define the number of ticks in the scrollbar
-    return std::min<int>(_filter.size(), SCROLL_SIZE);
+    if(_filter.size() > MIN_PAGE_SIZE * SCROLL_SIZE) {
+	return _page_number + _page_step;
+    } else {
+	return _filter.size();
+    }
 }
 
 
@@ -347,16 +356,6 @@ void PVGuiQt::PVListingModel::update_filter()
 
 /******************************************************************************
  *
- * PVGuiQt::PVListingModel::max_page
- *
- *****************************************************************************/
-size_t PVGuiQt::PVListingModel::max_page() const
-{
-    return (_filter.size() - _last_page_size) / _page_size;
-}
-
-/******************************************************************************
- *
  * PVGuiQt::PVListingModel::start_selection
  *
  *****************************************************************************/
@@ -421,18 +420,16 @@ void PVGuiQt::PVListingModel::commit_selection()
 
 void PVGuiQt::PVListingModel::move_by(int inc_elts, size_t page_step)
 {
-    const size_t max_page = this->max_page();
-
     // Compute new position
     int new_pos = static_cast<int>(_pos_in_page) + inc_elts;
 
     // Reach next page but not the last one
-    if(inc_elts > 0 and static_cast<size_t>(new_pos) > _page_size and _current_page != max_page) {
+    if(inc_elts > 0 and static_cast<size_t>(new_pos) >= _page_size and _current_page != _page_number - 1) {
 	int incp = new_pos / _page_size; // Number of new page scrolled
-	if(incp + _current_page > max_page)
+	if(incp + _current_page >= _page_number)
 	{
 	    // Reach the end of the listing
-	    _current_page = max_page;
+	    _current_page = _page_number - 1;
 	    _pos_in_page = _last_page_size - page_step;
 	} else {
 	    // Go to the correct page
@@ -453,11 +450,11 @@ void PVGuiQt::PVListingModel::move_by(int inc_elts, size_t page_step)
 	    _current_page += decp;
 	    _pos_in_page = new_pos - decp * _page_size;
 	}
-    } else if((new_pos + _current_page * _page_size) > (_filter.size() - page_step)) {
+    } else if((new_pos + _current_page * _page_size) >= (_filter.size() - page_step)) {
 	// It is not the end of the last page but almost the end so we stop
 	// now to show the last line at the bottom of the screen
-	_current_page = max_page;
-	_pos_in_page = _last_page_size - page_step;
+	_current_page = _page_number - 1;
+	_pos_in_page = std::max<int>(0, _last_page_size - page_step - 1);
     } else {
 	// Scroll in the current page
 	_pos_in_page = new_pos;
@@ -488,9 +485,9 @@ void PVGuiQt::PVListingModel::move_to_row(PVRow row, size_t page_step)
     _current_page = row / _page_size;
     _pos_in_page = row - _current_page * _page_size;
 
-    if(_current_page == max_page()) {
+    if(_current_page == _page_number) {
 	// Do not scroll to much
-	_pos_in_page = std::min(_pos_in_page, _last_page_size - page_step);
+	_pos_in_page = std::min(_pos_in_page, _last_page_size - page_step - 1);
     }
 }
 
@@ -513,10 +510,10 @@ void PVGuiQt::PVListingModel::move_to_page(size_t page)
  *****************************************************************************/
 void PVGuiQt::PVListingModel::move_to_end(size_t page_step)
 {
-    _current_page = max_page();
+    _current_page = _page_number - 1;
     // It may happen that _last_page_size is 1 less than page_step du to
     // incomplete last row
-    _pos_in_page = std::max<int>(0, _last_page_size - page_step);
+    _pos_in_page = std::max<int>(0, _last_page_size - page_step - 1);
 }
 
 /******************************************************************************
@@ -524,23 +521,54 @@ void PVGuiQt::PVListingModel::move_to_end(size_t page_step)
  * PVGuiQt::PVListingModel::update_pages
  *
  *****************************************************************************/
-void PVGuiQt::PVListingModel::update_pages(size_t num_pages, size_t page_step)
+void PVGuiQt::PVListingModel::update_pages(size_t nbr_tick, size_t page_step)
 {
-    // With filter.size() < page_step, num_pages should be 0 but pages may be
-    // update before QtableView update for the verticalScrollbar
-    if(num_pages == 0 or _filter.size() < page_step) {
-	_page_size = 1;
-	_last_page_size = std::min(_filter.size(), page_step);
-    } else {
-	// filter.size() - page_step < num_pages is a strange bug du to 
-	// incomplete last row ...
-	if((_filter.size() - page_step) < num_pages) {
-	    _page_size = 1;
+    // Save pagination parameter to check for updates
+    size_t old_page_num = _page_number;
+    size_t old_step = _page_step;
+    size_t old_last_page = _last_page_size;
+
+    _page_step = page_step;
+    // Filter may be updated before scrollbar
+    assert(nbr_tick != 0 && "At least, there is the current page");
+    if(_filter.size() > MIN_PAGE_SIZE * SCROLL_SIZE) {
+	if(nbr_tick < SCROLL_SIZE / 2) {
+	    // _filter is updated bu nbr_tick is not. Set a dummy value to
+	    // initiate the fixed point algorithm and get correct page number
+	    _page_size = _filter.size() / SCROLL_SIZE;
 	} else {
-	    _page_size = (_filter.size() - page_step) / num_pages;
+	    // We keep the last tick for bottom
+	    _page_size = _filter.size() / (nbr_tick - 1);
 	}
-	_last_page_size = _filter.size() - _page_size * num_pages;
+	_page_number = _filter.size() / _page_size;
+	// Last page is normal page + remainder
+	_last_page_size = _filter.size() - _page_size * (_page_number - 1);
+    } else {
+	_page_size = 1;
+	if(_page_step <= _filter.size()) {
+	    _page_number = _filter.size() - _page_step + 1;
+	} else {
+	    _page_number = 1;
+	}
+	// Last page is normal page + remainder
+	_last_page_size = _filter.size() - _page_number + 1;
     }
+    if(old_page_num != _page_number or _page_step != old_step or
+	    old_last_page != _last_page_size) {
+	// Loop if we didn't reach a fixed point in pagination information
+	emit layoutChanged();
+    }
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingModel::is_last_pos
+ *
+ *****************************************************************************/
+bool PVGuiQt::PVListingModel::is_last_pos() const
+{
+    return (_page_number - 1) == _current_page and
+	_pos_in_page == static_cast<size_t>(std::max<int>(0, _last_page_size - _page_step - 1));
 }
 
 /******************************************************************************
