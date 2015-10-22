@@ -128,11 +128,6 @@ protected:
 	void mouseReleaseEvent(QMouseEvent * event) override;
 
 	/**
-	 * Commit the current selection on Shift key release.
-	 */
-	void keyReleaseEvent(QKeyEvent * event) override;
-
-	/**
 	 * Move the table in the mouse direction. It also update the
 	 * "in progress" selection
 	 *

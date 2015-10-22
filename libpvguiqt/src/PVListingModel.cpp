@@ -386,7 +386,7 @@ void PVGuiQt::PVListingModel::end_selection(int row)
  *****************************************************************************/
 void PVGuiQt::PVListingModel::commit_selection()
 {
-    if(_start_sel == -1 or _end_sel == -1) {
+    if(_end_sel == -1) {
 	// No selection in progress
 	return;
     }
@@ -397,6 +397,10 @@ void PVGuiQt::PVListingModel::commit_selection()
     }
 
     auto start_filter = std::find(_filter.begin(), _filter.end(), _start_sel);
+    if(_start_sel == -1)
+    {
+	start_filter = _filter.begin();
+    }
     auto end_filter = std::find(start_filter, _filter.end(), _end_sel);
 
     // Update current_selection from "in progress" selection
@@ -405,7 +409,7 @@ void PVGuiQt::PVListingModel::commit_selection()
     }
 
     // reset in progress selection
-    _start_sel = _end_sel = -1;
+    _end_sel = _start_sel;
 
 }
 

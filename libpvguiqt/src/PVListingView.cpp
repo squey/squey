@@ -378,9 +378,10 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 			scrollclick(QAbstractSlider::SliderToMaximum);
 			break;
 		case Qt::Key_Right:
+			horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+			break;
 		case Qt::Key_Left:
-			// These keys do nothing
-			// TODO : We may move the horizontal scrollbar on these
+			horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
 			break;
 		default:
 			QTableView::keyPressEvent(event);
@@ -407,7 +408,7 @@ void PVGuiQt::PVListingView::mousePressEvent(QMouseEvent * event)
 			return; 
 		}
 
-		if(listing_model()->have_selection() and (mod & Qt::ShiftModifier)) {
+		if(mod & Qt::ShiftModifier) {
 			// Shift modifier complete the selection between clicks
 			listing_model()->end_selection(clc_row);
 		} else {
@@ -458,30 +459,10 @@ void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
  *****************************************************************************/
 void PVGuiQt::PVListingView::mouseReleaseEvent(QMouseEvent * event)
 {
-	Qt::KeyboardModifiers mod = event->modifiers();
-	if(not (mod & Qt::ShiftModifier)) {
-		// Mouse release without shift commit the current selection
-		listing_model()->commit_selection();
-		viewport()->update();
-		event->accept();
-	}
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::keyReleaseEvent
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::keyReleaseEvent(QKeyEvent * event)
-{
-	if(event->key() == Qt::Key_Shift) {
-		// Shift release commit the selection
-		listing_model()->commit_selection();
-		viewport()->update();
-		event->accept();
-	} else {
-		QTableView::keyReleaseEvent(event);
-	}
+	// Mouse release commit the current selection
+	listing_model()->commit_selection();
+	viewport()->update();
+	event->accept();
 }
 
 /******************************************************************************
