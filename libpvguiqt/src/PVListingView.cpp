@@ -69,9 +69,10 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	PVHive::get().register_observer(src_sp, [=](Picviz::PVSource& source) { return &source.axis_hovered(); }, _axis_hover_obs);
 	_axis_hover_obs.connect_refresh(this, SLOT(highlight_column(PVHive::PVObserverBase*)));
 
-	 connect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(slider_move_to(int)));
-	 connect(verticalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(scrollclick(int)));
-	 connect(verticalScrollBar(), SIGNAL(rangeChanged(int, int)), this, SLOT(new_range(int, int)));
+	 connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PVGuiQt::PVListingView::slider_move_to);
+	 connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, &PVGuiQt::PVListingView::scrollclick);
+	 connect(verticalScrollBar(), &QScrollBar::rangeChanged, this,
+			 (void (PVGuiQt::PVListingView::*)(int, int)) &PVGuiQt::PVListingView::new_range);
 	 connect(verticalScrollBar(), &QScrollBar::sliderReleased, this, &PVGuiQt::PVListingView::clip_slider);
 
 	// SIZE STUFF
@@ -154,12 +155,14 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	_hhead_ctxt_menu.addAction(_action_col_sort);
 
 	// Context menu for the listing
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
+	connect(this, &PVGuiQt::PVListingView::customContextMenuRequested, this, &PVGuiQt::PVListingView::show_ctxt_menu);
 	setContextMenuPolicy(Qt::CustomContextMenu); // Enable context menu signal
 
 	// A double click on the vertical header select the line in the lib view
-	connect(verticalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnVHead(int)));
-	connect(this, SIGNAL(doubleClicked(QModelIndex const&)), this, SLOT(slotDoubleClickOnVHead(QModelIndex const&)));
+	connect(verticalHeader(), &QHeaderView::sectionDoubleClicked, this,
+			(void (PVGuiQt::PVListingView::*)(int)) &PVGuiQt::PVListingView::slotDoubleClickOnVHead);
+	connect(this, &PVGuiQt::PVListingView::doubleClicked, this,
+			(void (PVGuiQt::PVListingView::*)(QModelIndex const&)) &PVGuiQt::PVListingView::slotDoubleClickOnVHead);
 
 	// Context menu on vertical header
 	_action_copy_row_value = new QAction(tr("Copy line index to clipbard"), this);
@@ -169,8 +172,8 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	verticalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 	verticalHeader()->setObjectName("verticalHeader_of_PVListingView");
-	connect(verticalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)),
-	        this, SLOT(show_vhead_ctxt_menu(const QPoint&)));
+	connect(verticalHeader(), &QHeaderView::customContextMenuRequested,
+	        this, &PVGuiQt::PVListingView::show_vhead_ctxt_menu);
 
 	// Text elipsis
 	setWordWrap(false);
@@ -527,7 +530,8 @@ void PVGuiQt::PVListingView::mouseMoveEvent(QMouseEvent * event)
 void PVGuiQt::PVListingView::setModel(QAbstractItemModel * model)
 {
 	QTableView::setModel(model);
-	connect(model, SIGNAL(layoutChanged()), this, SLOT(new_range()));
+	connect(model, &QAbstractItemModel::layoutChanged, this,
+			(void (PVGuiQt::PVListingView::*)()) &PVGuiQt::PVListingView::new_range);
 }
 
 /******************************************************************************
@@ -1186,15 +1190,15 @@ PVGuiQt::PVHorizontalHeaderView::PVHorizontalHeaderView(Qt::Orientation orientat
 
 	// Context menu of the horizontal header
 	setStretchLastSection(true);
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), parent, SLOT(show_hhead_ctxt_menu(const QPoint&)));
+	connect(this, &PVGuiQt::PVHorizontalHeaderView::customContextMenuRequested, parent, &PVListingView::show_hhead_ctxt_menu);
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// Save horizontal headers width to be persistent across axes combination changes
-	connect(this, SIGNAL(sectionResized(int, int, int)), parent, SLOT(columnResized(int, int, int)));
+	connect(this, &PVGuiQt::PVHorizontalHeaderView::sectionResized, parent, &PVListingView::columnResized);
 
 	// section <-> axis synchronisation
-	connect(this, SIGNAL(mouse_hovered_section(int, bool)), parent, SLOT(section_hovered_enter(int, bool)));
-	connect(this, SIGNAL(sectionClicked(int)), parent, SLOT(section_clicked(int)));
+	connect(this, &PVGuiQt::PVHorizontalHeaderView::mouse_hovered_section, parent, &PVListingView::section_hovered_enter);
+	connect(this, &PVGuiQt::PVHorizontalHeaderView::sectionClicked, parent, &PVListingView::section_clicked);
 
 	// Force hover events on every theme so that "column -> axis" visual synchronisation always works !
 	setAttribute(Qt::WA_Hover);

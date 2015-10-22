@@ -307,7 +307,7 @@ void PVGuiQt::PVListingModel::sort(PVCol col, Qt::SortOrder order, tbb::task_gro
  *****************************************************************************/
 void PVGuiQt::PVListingModel::update_filter()
 {
-	// Reset the current selection as context change
+	// Reset the current selection as context changed
 	reset_selection();
 
 	Picviz::PVSelection const* sel = lib_view().get_selection_visible_listing();
