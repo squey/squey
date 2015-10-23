@@ -8,7 +8,6 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVAlgorithms.h>
-#include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVColorDialog.h>
@@ -23,89 +22,25 @@
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVQNraw.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
-#include <pvguiqt/PVToolTipDelegate.h>
 
 #include <pvdisplays/PVDisplaysContainer.h>
 #include <pvdisplays/PVDisplaysImpl.h>
 
-#include <QAbstractButton>
 #include <QApplication>
 #include <QClipboard>
 #include <QCursor>
 #include <QHeaderView>
 #include <QInputDialog>
 #include <QKeyEvent>
-#include <QLinearGradient>
 #include <QMenu>
 #include <QPainter>
-#include <QScrollBar>
 #include <QSizePolicy>
-#include <QStatusBar>
 #include <QWheelEvent>
+#include <QToolTip>
+#include <QScrollBar>
 
 #define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
-#include <tbb/parallel_reduce.h>
 #include <tbb/task_scheduler_init.h>
-
-namespace PVGuiQt
-{
-
-namespace __impl
-{
-
-class PVListingViewSelectionExtractor
-{
-public:
-	typedef tbb::blocked_range<int> blocked_range;
-
-	PVListingViewSelectionExtractor(PVGuiQt::PVListingView *lv) : _lv(lv)
-	{}
-
-	PVListingViewSelectionExtractor(PVListingViewSelectionExtractor& e, tbb::split) :
-		_lv(e._lv)
-	{}
-
-	Picviz::PVSelection &get_selection()
-	{
-		return _sel;
-	}
-
-	void operator()(const blocked_range &r)
-	{
-		const PVGuiQt::PVListingModel* list_model = _lv->listing_model();
-		QItemSelectionModel *sel_model = _lv->selectionModel();
-
-		_sel.select_none();
-
-		_min = INT_MAX;
-		_max = 0;
-		for (int i = r.begin(); i < r.end(); ++i) {
-			QModelIndex index = list_model->index(i, 0, QModelIndex());
-			if (sel_model->isSelected(index)) {
-				int row_index = list_model->rowIndex(index);
-				_min = PVCore::min(_min, row_index);
-				_max = PVCore::max(_max, row_index);
-				_sel.set_bit_fast(row_index);
-			}
-		}
-	}
-
-	void join(PVListingViewSelectionExtractor &rhs)
-	{
-		_sel.or_range(rhs._sel, rhs._min, rhs._max);
-		_min = PVCore::min(_min, rhs._min);
-		_max = PVCore::max(_max, rhs._max);
-	}
-
-private:
-	PVGuiQt::PVListingView *_lv;
-	Picviz::PVSelection     _sel;
-	int                     _min, _max;
-};
-
-}
-
-}
 
 /******************************************************************************
  *
@@ -134,6 +69,11 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	PVHive::get().register_observer(src_sp, [=](Picviz::PVSource& source) { return &source.axis_hovered(); }, _axis_hover_obs);
 	_axis_hover_obs.connect_refresh(this, SLOT(highlight_column(PVHive::PVObserverBase*)));
 
+	 connect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(slider_move_to(int)));
+	 connect(verticalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(scrollclick(int)));
+	 connect(verticalScrollBar(), SIGNAL(rangeChanged(int, int)), this, SLOT(new_range(int, int)));
+	 connect(verticalScrollBar(), &QScrollBar::sliderReleased, this, &PVGuiQt::PVListingView::clip_slider);
+
 	// SIZE STUFF
 	setMinimumSize(60,40);
 	QSizePolicy temp_size_policy = QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
@@ -146,13 +86,12 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
 
 	// FOCUS POLICY
+	// Used for WheelEvent handling as it is called only on focused widget
 	setFocusPolicy(Qt::StrongFocus);
-	setSelectionMode(QAbstractItemView::ExtendedSelection);
-	setSelectionBehavior(QAbstractItemView::SelectRows);
 
 	// Sorting disable as we do it ourself
 	setSortingEnabled(false);
-	
+
 	// Custom context menu.
 	// It is created based on what layer filter plugins tell us.
 	LIB_CLASS(Picviz::PVLayerFilter)::list_classes const& lf = LIB_CLASS(Picviz::PVLayerFilter)::get().get_list();
@@ -183,7 +122,7 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	_ctxt_menu.addAction(_act_set_color);
 
 	// Horizontal header context menu
-	// Actions are added later as there depend on clicked column but we have to 
+	// Actions are added later as there depend on clicked column but we have to
 	// add them here to to avoid memory leak if the widgets is remove before any
 	// header context creation
 	_action_col_unique = new QAction(tr("Distinct values"), this);
@@ -227,12 +166,11 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	_vhead_ctxt_menu.addAction(_action_copy_row_value);
 
 	verticalHeader()->setSectionsClickable(true);
+	verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	verticalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 	verticalHeader()->setObjectName("verticalHeader_of_PVListingView");
 	connect(verticalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)),
 	        this, SLOT(show_vhead_ctxt_menu(const QPoint&)));
-
-	setSelectionBehavior(QAbstractItemView::SelectRows);
 
 	// Text elipsis
 	setWordWrap(false);
@@ -261,31 +199,32 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	_vhead_max_width = QFontMetrics(font).width(QString().leftJustified(QString::number(PICVIZ_LINES_MAX).size(), '9'));
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::update_view_selection_from_listing_selection
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 {
-	/* VARIABLES */
-	QModelIndexList selected_items_list;
-	int modifiers;
-	// Get current lib view for this source
-
 	/* Commit the previous volatile selection */
 	_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
 
 	/* Modify the state of the state machine according to the modifiers */
-	modifiers = (unsigned int) QApplication::keyboardModifiers();
-	/* We don't care about a keypad button being pressed */
-	modifiers &= ~Qt::KeypadModifier;
-	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier aren't really
-	 * constants */
-	if (modifiers == (Qt::ShiftModifier | Qt::ControlModifier)) {
+	Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
+
+	// Interserct selection on Shift + Ctrl
+	// Substract new selection on Ctrl
+	// Expand the selection on Shift
+	// Replace the old selection without modifiers
+	if (modifiers & (Qt::ShiftModifier | Qt::ControlModifier)) {
 		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	}
 	else
-	if (modifiers == Qt::ControlModifier) {
+	if (modifiers & Qt::ControlModifier) {
 		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 	}
 	else
-	if (modifiers == Qt::ShiftModifier) {
+	if (modifiers & Qt::ShiftModifier) {
 		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
 	}
 	else {
@@ -330,34 +269,17 @@ void PVGuiQt::PVListingView::leaveEvent(QEvent*)
 	clearFocus();
 }
 
-QVector<PVRow> PVGuiQt::PVListingView::get_selected_rows()
-{
-	QModelIndexList selected_rows_list = selectionModel()->selectedRows(0);
-	int selected_rows_count = selected_rows_list.count();
-	QVector<PVRow> selected_rows_vector(selected_rows_count);
-
-	for (int i=0; i<selected_rows_count; ++i) {
-		selected_rows_vector[i] = listing_model()->rowIndex(selected_rows_list.at(i));
-	}
-
-	return selected_rows_vector;
-}
-
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::extract_selection
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::extract_selection()
 {
-	typedef __impl::PVListingViewSelectionExtractor tvse_t;
+	// Validate the current selection and reset the local one
 	Picviz::PVSelection& sel = lib_view().get_volatile_selection();
-
-	int thread_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
-	tbb::task_scheduler_init init(thread_num);
-	int count = model()->rowCount(QModelIndex());
-	tvse_t tvse(this);
-	BENCH_START(sel_create);
-	tbb::parallel_deterministic_reduce(tvse_t::blocked_range(0, count,
-															 std::max(1, count / thread_num)),
-	                                   tvse);
-	BENCH_END(sel_create, "extract_selection", 1, 1, 1, 1);
-	sel = tvse.get_selection();
+	std::swap(sel, listing_model()->current_selection());
+	listing_model()->reset_selection();
 }
 
 /******************************************************************************
@@ -398,18 +320,87 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 	switch (event->key()) {
 		case Qt::Key_Return:
 		case Qt::Key_Enter:
-			if (selectionModel()->hasSelection()) {
+			if (not listing_model()->current_selection().is_empty()) {
 				update_view_selection_from_listing_selection();
 			}
 			break;
 		case Qt::Key_G:
 			goto_line();
 			break;
+
+		// Bind document displacement key
+		case Qt::Key_PageUp:
+			scrollclick(QAbstractSlider::SliderPageStepSub);
+			break;
+		case Qt::Key_PageDown:
+			scrollclick(QAbstractSlider::SliderPageStepAdd);
+			break;
+		case Qt::Key_Up:
+			scrollclick(QAbstractSlider::SliderSingleStepSub);
+			break;
+		case Qt::Key_Down:
+			scrollclick(QAbstractSlider::SliderSingleStepAdd);
+			break;
+		case Qt::Key_Home:
+			scrollclick(QAbstractSlider::SliderToMinimum);
+			break;
+		case Qt::Key_End:
+			scrollclick(QAbstractSlider::SliderToMaximum);
+			break;
+		case Qt::Key_Right:
+		case Qt::Key_Left:
+			// These keys do nothing
+			// TODO : We may move the horizontal scrollbar on these
+			break;
 		default:
 			QTableView::keyPressEvent(event);
 	}
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::mousePressEvent
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::mousePressEvent(QMouseEvent * event)
+{
+	if(event->button() == Qt::LeftButton) {
+		Qt::KeyboardModifiers mod = event->modifiers();
+		// Shift and Ctrl continue the selection and don't reset it
+		if(not (mod & (Qt::ControlModifier | Qt::ShiftModifier))) {
+			listing_model()->current_selection().select_none();
+		}
+
+		int clc_row = rowAt(event->y());
+		if(clc_row < 0) {
+			// No row under the mouse.
+			return; 
+		}
+
+		if(listing_model()->have_selection() and (mod & Qt::ShiftModifier)) {
+			// Shift modifier complete the selection between clicks
+			listing_model()->end_selection(clc_row);
+		} else {
+			// Start the selection
+			listing_model()->start_selection(clc_row);
+		}
+
+		// Move below if we click on the half shown row
+		int row_pos = rowViewportPosition(clc_row);
+		if((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
+			move_by(1);
+		}
+
+		viewport()->update(); // To show the selection
+		QTableView::mousePressEvent(event);
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::wheelEvent
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 {
 	if (e->modifiers() == Qt::ControlModifier)
@@ -421,16 +412,113 @@ void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 		_headers_width[lib_view().get_real_axis_index(colIndex)] = width;
 	}
 	else {
-		QTableView::wheelEvent(e);
+		// delta is wheel movement in degree. QtWheelEvent doc give this formule
+		// to convert it to "wheel step"
+		// http://doc.qt.io/qt-5/qwheelevent.html
+		// Scroll 3 line by wheel step on listing
+		move_by(- e->delta() / 8 / 15 * 3);
+	}
+	e->accept(); // I am the one who handle event
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::mouseReleaseEvent
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::mouseReleaseEvent(QMouseEvent * event)
+{
+	Qt::KeyboardModifiers mod = event->modifiers();
+	if(not (mod & Qt::ShiftModifier)) {
+		// Mouse release without shift commit the current selection
+		listing_model()->commit_selection();
+		viewport()->update();
+		event->accept();
 	}
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::keyReleaseEvent
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::keyReleaseEvent(QKeyEvent * event)
+{
+	if(event->key() == Qt::Key_Shift) {
+		// Shift release commit the selection
+		listing_model()->commit_selection();
+		viewport()->update();
+		event->accept();
+	} else {
+		QTableView::keyReleaseEvent(event);
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::mouseMoveEvent
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::mouseMoveEvent(QMouseEvent * event)
+{
+	int pos = event->y();
+	// Scroll up while the clicked mouse is above the listing
+	while(pos < 0) {
+		move_by(-1);
+		listing_model()->end_selection(rowAt(0));
+		pos += rowHeight(rowAt(0));
+		if(listing_model()->current_page() == 0 and listing_model()->pos_in_page() == 0) {
+			// We reach the top of the listing, stop scrolling upper
+			return;
+		}
+	}
+
+	int clc_row = rowAt(pos);
+	if(clc_row < 0) {
+		// We are max up and we keep moving upper
+		return;
+	}
+
+	// Update selection
+	listing_model()->end_selection(clc_row);
+
+	// We are in the last partially shown cell, move below
+	int row_pos = rowViewportPosition(clc_row);
+	if((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
+		move_by(1);
+	}
+
+	viewport()->update(); // Show selection modification
+	event->accept();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::setModel
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::setModel(QAbstractItemModel * model)
+{
+	QTableView::setModel(model);
+	connect(model, SIGNAL(layoutChanged()), this, SLOT(new_range()));
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::columnResized
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::columnResized(int column, int oldWidth, int newWidth)
 {
 	QTableView::columnResized(column, oldWidth, newWidth);
 	_headers_width[lib_view().get_real_axis_index(column)] = newWidth;
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::reset
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::reset()
 {
 	uint32_t default_width = horizontalHeader()->defaultSectionSize();
@@ -574,8 +662,8 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
  *****************************************************************************/
 void PVGuiQt::PVListingView::show_vhead_ctxt_menu(const QPoint& pos)
 {
-	// Use QCursor and not pos as pos is relatif to the widgets while QCursor is
-	// a screen position
+	// Use QCursor and not pos as pos is relative to the widgets while QCursor
+	// is a screen position.
 	QAction* sel = _vhead_ctxt_menu.exec(QCursor::pos());
 
 	if(sel == _action_copy_row_value) {
@@ -626,8 +714,11 @@ void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 	Picviz::PVLayer& layer = lib_view().get_current_layer();
 	Picviz::PVLinesProperties& lines_properties = layer.get_lines_properties();
 
-	for(PVRow line : get_selected_rows()) {
-		lines_properties.line_set_color(line, color);
+	// Color every lines in the current selection
+	for(PVRow line : listing_model()->shown_lines()) {
+		if(listing_model()->current_selection().get_line_fast(line)) {
+			lines_properties.line_set_color(line, color);
+		}
 	}
 
 	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
@@ -747,6 +838,165 @@ void PVGuiQt::PVListingView::highlight_column(int col)
 	viewport()->update();
 }
 
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::slider_move_to
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::slider_move_to(int value)
+{
+	if(value == verticalScrollBar()->maximum()) {
+		// Move to the end of the listing
+		move_to_end();
+	} else {
+		// Move to the top of the page
+		move_to_page(value);
+	}
+	viewport()->update();
+	verticalHeader()->viewport()->update();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::new_range
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::new_range(int min, int max)
+{
+	if(model()) {
+		listing_model()->update_pages(max - min, verticalScrollBar()->pageStep());
+		move_to_page(0);
+	}
+}
+
+void PVGuiQt::PVListingView::new_range()
+{
+	if(model()) {
+		listing_model()->update_pages(verticalScrollBar()->maximum() - verticalScrollBar()->minimum(),
+				verticalScrollBar()->pageStep());
+		move_to_page(0);
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::clip_slider
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::clip_slider()
+{
+	if(verticalScrollBar()->value() == 0) {
+		move_to_page(0);
+	} else if(verticalScrollBar()->value() == verticalScrollBar()->maximum()) {
+		move_to_end();
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::scrollclick
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::scrollclick(int action) {
+	switch(action) {
+		case QAbstractSlider::SliderSingleStepAdd:
+			move_by(1);
+			break;
+		case QAbstractSlider::SliderSingleStepSub:
+			move_by(-1);
+			break;
+		case QAbstractSlider::SliderPageStepAdd:
+			move_by(verticalScrollBar()->pageStep());
+			break;
+		case QAbstractSlider::SliderPageStepSub:
+			move_by(-verticalScrollBar()->pageStep());
+			break;
+		case QAbstractSlider::SliderToMinimum:
+			move_to_page(0);
+			break;
+		case QAbstractSlider::SliderToMaximum:
+			move_to_end();
+			break;
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::move_by
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::move_by(int row)
+{
+	listing_model()->move_by(row, verticalScrollBar()->pageStep());
+	update_on_move();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::move_to_nraw
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::move_to_nraw(PVRow row)
+{
+	listing_model()->move_to_nraw(row, verticalScrollBar()->pageStep());
+	update_on_move();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::move_to_row
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::move_to_row(PVRow row)
+{
+	listing_model()->move_to_row(row, verticalScrollBar()->pageStep());
+	update_on_move();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::move_to_page
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::move_to_page(int page)
+{
+	listing_model()->move_to_page(page);
+	update_on_move();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::move_to_end
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::move_to_end()
+{
+	listing_model()->move_to_end(verticalScrollBar()->pageStep());
+	update_on_move();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::update_on_move
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::update_on_move()
+{
+	// Save and restore pos_in_range as moving cursor call slider_move_to which
+	// set pos_in_page_to 0.
+	size_t pos_in_page = listing_model()->pos_in_page();
+	verticalScrollBar()->setValue(listing_model()->current_page());
+	listing_model()->pos_in_page() = pos_in_page;
+	verticalHeader()->viewport()->update();
+	viewport()->update();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::paintEvent
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::paintEvent(QPaintEvent* event)
 {
 	QTableView::paintEvent(event);
@@ -862,29 +1112,17 @@ void PVGuiQt::PVListingView::goto_line()
 	 * row, we search for the first next set one. If there is no such row,
 	 * there is nothing to do.
 	 */
+	// FIXME : It doesn't really work with sorted values
 	if (sel.get_line_fast(row) == false) {
-		if(row == 0) {
+		row = sel.find_previous_set_bit(row - 1, nrows);
+
+		if(row == PVROW_INVALID_VALUE) {
 			row = sel.find_next_set_bit(row + 1, nrows);
-		} else {
-			row = sel.find_previous_set_bit(row - 1, nrows);
 		}
 	}
 
-	// FIXME : Is it possible?
 	if (row != PVROW_INVALID_VALUE) {
-		/* as the row is in model's space, we have to convert it into
-		 * view's space
-		 */
-		QModelIndex index = listing_model()->index(listing_model()->rowIndex(row), 0, QModelIndex());
-
-		/* move the wanted item at the top of the view
-		 */
-		scrollTo(index, QAbstractItemView::PositionAtTop);
-
-		/* not to kill the keyboard navigation, we have to update the
-		 * currentIndex too (whithout killing the current selection)
-		 */
-		selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+		move_to_nraw(row);
 	} // nothing to do otherwise
 }
 

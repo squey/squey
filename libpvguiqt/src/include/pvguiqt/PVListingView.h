@@ -19,7 +19,11 @@
 
 #include <picviz/PVView_types.h>
 
+#include <pvguiqt/PVListingModel.h>
+
 #include <QHeaderView>
+
+class QMouseEvent;
 
 namespace PVWidgets
 {
@@ -56,11 +60,16 @@ public:
 	 */
 	PVListingView(Picviz::PVView_sp& view, QWidget* parent = nullptr);
 
-
 	/**
 	 * Get associate model
 	 */
 	PVListingModel* listing_model();
+
+	/**
+	 * Define the current model and update pagination information depending
+	 * on its number of elements.
+	 */
+	void setModel(QAbstractItemModel * model) override;
 
 public slots:
 	/**
@@ -70,14 +79,14 @@ public slots:
 
 protected:
 	/**
-	 * Handle Help, goto line and selection shortcut
+	 * Handle Help, goto line, selection and table movement
 	 */
 	void keyPressEvent(QKeyEvent* event) override;
 
 	/**
-	 * Resize hovered column on control modifier.
+	 * Resize hovered column on control modifier and move in the listing table.
 	 */
-	void wheelEvent(QWheelEvent* e);
+	void wheelEvent(QWheelEvent* e) override;
 
 	/**
 	 * Set correct header size on reset
@@ -93,9 +102,7 @@ protected:
 	void resizeEvent(QResizeEvent * event) override;
 
 	/**
-	 * Handle focus
-	 *
-	 * FIXME : Why is it so important?
+	 * Handle focus to correctly handle mouseMoveEvent
 	 */
 	void enterEvent(QEvent* event) override;
 	void leaveEvent(QEvent* event) override;
@@ -105,6 +112,34 @@ protected:
 	 */
 	void paintEvent(QPaintEvent * event) override;
 
+	/**
+	 * Handle selection on click and move table on last row click.
+	 *
+	 * Works with Shift and Control modifier for selection.
+	 */
+	void mousePressEvent(QMouseEvent * event) override;
+
+	/**
+	 * Commit in the current selection if a selection is in progress.
+	 *
+	 * @note Shift modifier prevent from commiting, it will commit on
+	 * Shift key release
+	 */
+	void mouseReleaseEvent(QMouseEvent * event) override;
+
+	/**
+	 * Commit the current selection on Shift key release.
+	 */
+	void keyReleaseEvent(QKeyEvent * event) override;
+
+	/**
+	 * Move the table in the mouse direction. It also update the
+	 * "in progress" selection
+	 *
+	 * @note Called only when button is pressed.
+	 */
+	void mouseMoveEvent(QMouseEvent * event) override;
+
 signals:
 	/**
 	 * Signal emited to update the Stat view (lower part of listing)
@@ -113,12 +148,7 @@ signals:
 
 private:
 	/**
-	 * Get list of select rows
-	 */
-	QVector<PVRow> get_selected_rows();
-
-	/**
-	 * Save the QSelection in the current PVSelection
+	 * Save the QSelection in the current PVSelection and reset the QSelection
 	 */
 	void extract_selection();
 
@@ -165,6 +195,7 @@ private:
 	void sort(int col, Qt::SortOrder order);
 
 private:
+	/// Getters
 	Picviz::PVView const& lib_view() const { return *_obs.get_object(); }
 	Picviz::PVView& lib_view() { return *_obs.get_object(); }
 	PVWidgets::PVHelpWidget* help_widget() { return &_help_widget; }
@@ -209,7 +240,6 @@ private slots:
 	 */
 	void columnResized(int column, int oldWidth, int newWidth);
 
-public slots:
 	/**
 	 * Highlight the column specified from an external (Hive) source.
 	 *
@@ -231,6 +261,69 @@ public slots:
 	 * @param[in] enter : Whether the hover begin or end.
 	 */
 	void section_hovered_enter(int col, bool enter);
+
+	/**
+	 * Slots called on slider movement.
+	 */
+	void slider_move_to(int value);
+
+	/**
+	 * Clip the listing on top or bottom depending on slider position.
+	 */
+	void clip_slider();
+
+	/**
+	 * Update pagination when number of step in the scrollbar change.
+	 */
+	void new_range(int min, int max);
+	void new_range();
+
+	/**
+	 * Handle action from click on the scrollbar.
+	 *
+	 * It handles button click but also others actions from right click.
+	 */
+	void scrollclick(int action);
+
+private:
+
+	/**
+	 * Move the pagination information and update view.
+	 *
+	 * @param[in] row : Number of line to move by
+	 */
+	void move_by(int row);
+
+	/**
+	 * Move the pagination information to have row as first line and update view.
+	 *
+	 * @param[in] row : row from nraw to display
+	 */
+	void move_to_nraw(PVRow row);
+
+	/**
+	 * Move the pagination information to have to row as first line and update view.
+	 *
+	 * @param[in] row : row from view to display
+	 */
+	void move_to_row(PVRow row);
+
+	/**
+	 * Move the pagination information to be on a given page and update view.
+	 *
+	 * @param[in] page : Page to move on
+	 */
+	void move_to_page(int page);
+
+	/**
+	 * Move the pagination information to be at the end of the listing and update view.
+	 */
+	void move_to_end();
+
+	/**
+	 * Update view after a pagination movement
+	 */
+	void update_on_move();
 
 private:
 	// Context menu
@@ -262,13 +355,14 @@ private:
 	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process; //!< Current open LayerFilter plugins widget
 
 	// FIXME : Horrible data structure
-	// Can't we do this in HeaderView?
 	std::unordered_map<uint32_t, uint32_t> _headers_width; //!< Width for each header
 
 	int _hovered_axis = -1; //!< Hovered axis flags for paintEvent
 	int _vhead_max_width; //!< Max width for the vertical header
 
-	PVCore::PVArgumentList _ctxt_args; //!< awfull
+	// Plugins call capture local variable reference without copy making it
+	// invalide at the end of the scope...
+	PVCore::PVArgumentList _ctxt_args; //!< FIXME : awfull hidden global variable
 
 private:
 	// Observers
