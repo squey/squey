@@ -54,7 +54,8 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	_hhead_ctxt_menu(this),
 	_vhead_ctxt_menu(this),
 	_help_widget(this),
-	_ctxt_process(nullptr)
+	_ctxt_process(nullptr),
+	_headers_width(view->get_original_axes_count(), horizontalHeader()->defaultSectionSize())
 {
 	PVHive::get().register_actor(view, _actor);
 
@@ -506,10 +507,12 @@ void PVGuiQt::PVListingView::columnResized(int column, int oldWidth, int newWidt
  *****************************************************************************/
 void PVGuiQt::PVListingView::reset()
 {
-	uint32_t default_width = horizontalHeader()->defaultSectionSize();
+	// Resize header_width with default value if it is greater
+	_headers_width.resize(horizontalHeader()->count(), horizontalHeader()->defaultSectionSize());
+
 	for (int i = 0; i <  horizontalHeader()->count(); i++) {
 		uint32_t axis_index = lib_view().get_real_axis_index(i);
-		setColumnWidth(i, _headers_width[axis_index] ? _headers_width[axis_index] : default_width);
+		setColumnWidth(i, _headers_width[axis_index]);
 	}
 
 	verticalHeader()->setFixedWidth(_vhead_max_width);

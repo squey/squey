@@ -92,7 +92,6 @@ protected:
 	 * Set correct header size on reset
 	 *
 	 * Reset is called by Qt
-	 * FIXME : Is it really called?
 	 */
 	void reset() override;
 
@@ -348,9 +347,7 @@ private:
 	PVCol _ctxt_col; //!< Clicked col for context menu actions
 	QString _ctxt_v; //!< Clicked value for context menu actions
 	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process; //!< Current open LayerFilter plugins widget
-
-	// FIXME : Horrible data structure
-	std::unordered_map<uint32_t, uint32_t> _headers_width; //!< Width for each header
+	std::vector<uint32_t> _headers_width; //!< Width for each header
 
 	int _hovered_axis = -1; //!< Hovered axis flags for paintEvent
 	int _vhead_max_width; //!< Max width for the vertical header

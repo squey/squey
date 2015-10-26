@@ -1,11 +1,11 @@
 /**
- * \file PVSortFilterProxyModel.h
+ * \file
  *
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef PVGUIQT_PVFILTERPROXYMODEL_H
-#define PVGUIQT_PVFILTERPROXYMODEL_H
+#ifndef PVGUIQT_PVSTRINGSORTPROXYMODEL_H
+#define PVGUIQT_PVSTRINGSORTPROXYMODEL_H
 
 #include <QAbstractProxyModel>
 #include <QModelIndex>
