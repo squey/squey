@@ -13,7 +13,6 @@
 #include <picviz/PVView.h>
 
 #include <pvguiqt/PVListingModel.h>
-#include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVListingView.h>
 #include <pvguiqt/PVStatsListingWidget.h>
 
@@ -71,9 +70,7 @@ int main(int argc, char** argv)
 	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(view);
 
 	PVGuiQt::PVListingView* qt_view = new PVGuiQt::PVListingView(view);
-	PVGuiQt::PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view, qt_view);
-	proxy_model->setSourceModel(model);
-	qt_view->setModel(proxy_model);
+	qt_view->setModel(model);
 
 
 	ViewSlots view_slots(*view);

@@ -39,7 +39,6 @@ class PVDisplayViewZoneIf;
 
 namespace PVGuiQt {
 
-class PVListingView;
 class PVViewDisplay;
 
 /**

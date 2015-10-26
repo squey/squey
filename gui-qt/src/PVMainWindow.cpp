@@ -23,7 +23,6 @@
 #include <PVStringListChooserWidget.h>
 
 #include <pvguiqt/PVWorkspace.h>
-#include <pvguiqt/PVListingView.h>
 #include <picviz/widgets/PVNewLayerDialog.h>
 
 #include <pvkernel/core/PVRecentItemsManager.h>

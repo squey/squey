@@ -325,7 +325,6 @@ int PVGuiQt::PVSortFilterProxyModel::rowCount(const QModelIndex& parent) const
 	if (parent.isValid()) {
 		return 0;
 	}
-
 	return _vec_filtered_m2s.size();
 }
 

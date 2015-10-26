@@ -8,10 +8,9 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVAlgorithms.h>
-#include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVColorDialog.h>
-#include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVView.h>
@@ -20,92 +19,28 @@
 #include <pvhive/PVCallHelper.h>
 
 #include <pvguiqt/PVListingView.h>
-#include <pvguiqt/PVListingSortFilterProxyModel.h>
+#include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVQNraw.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
-#include <pvguiqt/PVToolTipDelegate.h>
 
 #include <pvdisplays/PVDisplaysContainer.h>
 #include <pvdisplays/PVDisplaysImpl.h>
 
-#include <QAbstractButton>
 #include <QApplication>
 #include <QClipboard>
 #include <QCursor>
 #include <QHeaderView>
 #include <QInputDialog>
 #include <QKeyEvent>
-#include <QLinearGradient>
 #include <QMenu>
 #include <QPainter>
-#include <QScrollBar>
 #include <QSizePolicy>
-#include <QStatusBar>
 #include <QWheelEvent>
+#include <QToolTip>
+#include <QScrollBar>
 
 #define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
-#include <tbb/parallel_reduce.h>
 #include <tbb/task_scheduler_init.h>
-
-namespace PVGuiQt
-{
-
-namespace __impl
-{
-
-class PVListingViewSelectionExtractor
-{
-public:
-	typedef tbb::blocked_range<int> blocked_range;
-
-	PVListingViewSelectionExtractor(PVGuiQt::PVListingView *lv) : _lv(lv)
-	{}
-
-	PVListingViewSelectionExtractor(PVListingViewSelectionExtractor& e, tbb::split) :
-		_lv(e._lv)
-	{}
-
-	Picviz::PVSelection &get_selection()
-	{
-		return _sel;
-	}
-
-	void operator()(const blocked_range &r)
-	{
-		const PVGuiQt::PVListingSortFilterProxyModel* list_model = _lv->get_listing_model();
-		QItemSelectionModel *sel_model = _lv->selectionModel();
-
-		_sel.select_none();
-
-		_min = INT_MAX;
-		_max = 0;
-		for (int i = r.begin(); i < r.end(); ++i) {
-			QModelIndex index = list_model->index(i, 0, QModelIndex());
-			if (sel_model->isSelected(index)) {
-				int row_index = list_model->mapToSource(index).row();
-				_min = PVCore::min(_min, row_index);
-				_max = PVCore::max(_max, row_index);
-				_sel.set_bit_fast(row_index);
-			}
-		}
-	}
-
-	void join(PVListingViewSelectionExtractor &rhs)
-	{
-		_sel.or_range(rhs._sel, rhs._min, rhs._max);
-		_min = PVCore::min(_min, rhs._min);
-		_max = PVCore::max(_max, rhs._max);
-	}
-
-private:
-	PVGuiQt::PVListingView *_lv;
-	Picviz::PVSelection     _sel;
-	int                     _min, _max;
-};
-
-}
-
-}
 
 /******************************************************************************
  *
@@ -115,170 +50,211 @@ private:
 
 PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	QTableView(parent),
+	_ctxt_menu(this),
+	_hhead_ctxt_menu(this),
+	_vhead_ctxt_menu(this),
+	_help_widget(this),
 	_ctxt_process(nullptr)
 {
-	PVHive::get().register_observer(view, _obs);
 	PVHive::get().register_actor(view, _actor);
 
+	// When removing the observer, also remove the GUI
+	// FIXME : It loops...
 	_obs.connect_about_to_be_deleted(this, SLOT(deleteLater()));
+	PVHive::get().register_observer(view, _obs);
 
-	// Register source for axes hovering events
+	/// Source events
 	Picviz::PVSource_sp src_sp = view->get_parent<Picviz::PVSource>()->shared_from_this();
+	// Register source for axes hovering events
 	PVHive::get().register_observer(src_sp, [=](Picviz::PVSource& source) { return &source.axis_hovered(); }, _axis_hover_obs);
 	_axis_hover_obs.connect_refresh(this, SLOT(highlight_column(PVHive::PVObserverBase*)));
 
-	// Register source for axes click events
-	PVHive::get().register_observer(src_sp, [=](Picviz::PVSource& source) { return &source.axis_clicked(); }, _axis_clicked_obs);
-	_axis_clicked_obs.connect_refresh(this, SLOT(set_section_visible(PVHive::PVObserverBase*)));
+	 connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PVGuiQt::PVListingView::slider_move_to);
+	 connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, &PVGuiQt::PVListingView::scrollclick);
+	 connect(verticalScrollBar(), &QScrollBar::rangeChanged, this,
+			 (void (PVGuiQt::PVListingView::*)(int, int)) &PVGuiQt::PVListingView::new_range);
+	 connect(verticalScrollBar(), &QScrollBar::sliderReleased, this, &PVGuiQt::PVListingView::clip_slider);
 
-	//_ctxt_process = NULL;
-	
 	// SIZE STUFF
 	setMinimumSize(60,40);
-	QSizePolicy temp_size_policy = QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Expanding);
+	QSizePolicy temp_size_policy = QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
 	temp_size_policy.setHorizontalStretch(1);
 	setSizePolicy(temp_size_policy);
 
-	// OBJECTNAME STUFF
+	// OBJECTNAME STUFF useful for css
 	setObjectName("PVListingView");
 	horizontalScrollBar()->setObjectName("horizontalScrollBar_of_PVListingView");
 	verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
 
-	setItemDelegate(new PVToolTipDelegate(this));
-
 	// FOCUS POLICY
+	// Used for WheelEvent handling as it is called only on focused widget
 	setFocusPolicy(Qt::StrongFocus);
-	setSelectionMode(QAbstractItemView::ExtendedSelection);
-	setSelectionBehavior(QAbstractItemView::SelectRows);
 
-	// Sorting
+	// Sorting disable as we do it ourself
 	setSortingEnabled(false);
-	
+
 	// Custom context menu.
 	// It is created based on what layer filter plugins tell us.
-	_ctxt_menu = new QMenu(this);
-	_show_ctxt_menu = false;
 	LIB_CLASS(Picviz::PVLayerFilter)::list_classes const& lf = LIB_CLASS(Picviz::PVLayerFilter)::get().get_list();
-	LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator it,itlast;
-	for (it = lf.begin(); it != lf.end(); it++) {
+	using const_layer_iterator = LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator;
+	// Iterator over all layer filter plugins
+	// We can't use autoFor here because iterate over a QMap return only value
+	// FIXME : Here we search for all layer filter plugins names and save only
+	// the name in the action for a later look up for real action. It is bad!!
+	// We should add a connect for every plugins action and save a context which
+	// will be updated before sending the signal so that we can process plugins
+	// widgets
+	for (const_layer_iterator it = lf.begin(); it != lf.end(); it++) {
 		Picviz::PVLayerFilter::hash_menu_function_t const& entries = it.value()->get_menu_entries();
-		Picviz::PVLayerFilter::hash_menu_function_t::const_iterator it_ent;
+		using const_layer_menu_iterator = Picviz::PVLayerFilter::hash_menu_function_t::const_iterator;
 		PVLOG_DEBUG("(listing context-menu) for filter '%s', there are %d entries\n", qPrintable(it.key()), entries.size());
-		for (it_ent = entries.begin(); it_ent != entries.end(); it_ent++) {
+		for (const_layer_menu_iterator it_ent = entries.begin(); it_ent != entries.end(); it_ent++) {
 			PVLOG_DEBUG("(listing context-menu) add action '%s' for filter '%s'\n", qPrintable(it_ent.key()), qPrintable(it.key()));
-			_show_ctxt_menu = true;
-			QAction* act = new QAction(it_ent.key(), _ctxt_menu);
+			QAction* act = new QAction(it_ent.key(), &_ctxt_menu);
 			act->setData(QVariant(it.key())); // Save the name of the layer filter associated to this action
-			_ctxt_menu->addAction(act);
+			_ctxt_menu.addAction(act);
 		}
-		_ctxt_menu->addSeparator();
+		_ctxt_menu.addSeparator();
 	}
-	_act_copy = new QAction(tr("Copy this value to the clipboard"), _ctxt_menu);
-	_act_set_color = new QAction(tr("Set color"), _ctxt_menu);
-	_ctxt_menu->addAction(_act_copy);
-	_ctxt_menu->addSeparator();
-	_ctxt_menu->addAction(_act_set_color);
+	_act_copy = new QAction(tr("Copy this value to the clipboard"), &_ctxt_menu);
+	_act_set_color = new QAction(tr("Set color"), &_ctxt_menu);
+	_ctxt_menu.addAction(_act_copy);
+	_ctxt_menu.addSeparator();
+	_ctxt_menu.addAction(_act_set_color);
 
 	// Horizontal header context menu
-	//
-	_hhead_ctxt_menu = new QMenu(this);
+	// Actions are added later as there depend on clicked column but we have to
+	// add them here to to avoid memory leak if the widgets is remove before any
+	// header context creation
 	_action_col_unique = new QAction(tr("Distinct values"), this);
 	_action_col_unique->setIcon(QIcon(":/fileslist_black"));
-	_hhead_ctxt_menu->addAction(_action_col_unique);
+	_hhead_ctxt_menu.addAction(_action_col_unique);
 
 	_menu_col_count_by = new QMenu(tr("Count by"), this);
 	_menu_col_count_by->setIcon(QIcon(":/count_by"));
-	_hhead_ctxt_menu->addMenu(_menu_col_count_by);
+	_hhead_ctxt_menu.addMenu(_menu_col_count_by);
 
 	_menu_col_sum_by = new QMenu(tr("Sum by"), this);
 	_menu_col_sum_by->setIcon(QIcon(":/sum_by"));
-	_hhead_ctxt_menu->addMenu(_menu_col_sum_by);
+	_hhead_ctxt_menu.addMenu(_menu_col_sum_by);
 
 	_menu_col_min_by = new QMenu(tr("Min by"), this);
 	_menu_col_min_by->setIcon(QIcon(":/min_by"));
-	_hhead_ctxt_menu->addMenu(_menu_col_min_by);
+	_hhead_ctxt_menu.addMenu(_menu_col_min_by);
 
 	_menu_col_max_by = new QMenu(tr("Max by"), this);
 	_menu_col_max_by->setIcon(QIcon(":/max_by"));
-	_hhead_ctxt_menu->addMenu(_menu_col_max_by);
+	_hhead_ctxt_menu.addMenu(_menu_col_max_by);
 
 	_menu_col_avg_by = new QMenu(tr("Average by"), this);
 	_menu_col_avg_by->setIcon(QIcon(":/avg_by"));
-	_hhead_ctxt_menu->addMenu(_menu_col_avg_by);
+	_hhead_ctxt_menu.addMenu(_menu_col_avg_by);
 
 	_action_col_sort = new QAction(tr("Sort this axis"), this);
 	_action_col_sort->setIcon(QIcon(":/sort_desc"));
-
+	_hhead_ctxt_menu.addAction(_action_col_sort);
 
 	// Context menu for the listing
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
-	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, &PVGuiQt::PVListingView::customContextMenuRequested, this, &PVGuiQt::PVListingView::show_ctxt_menu);
+	setContextMenuPolicy(Qt::CustomContextMenu); // Enable context menu signal
 
 	// A double click on the vertical header select the line in the lib view
-	connect(verticalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnVHead(int)));
+	connect(verticalHeader(), &QHeaderView::sectionDoubleClicked, this,
+			(void (PVGuiQt::PVListingView::*)(int)) &PVGuiQt::PVListingView::slotDoubleClickOnVHead);
+	connect(this, &PVGuiQt::PVListingView::doubleClicked, this,
+			(void (PVGuiQt::PVListingView::*)(QModelIndex const&)) &PVGuiQt::PVListingView::slotDoubleClickOnVHead);
 
-	// the vertical header context menu
+	// Context menu on vertical header
 	_action_copy_row_value = new QAction(tr("Copy line index to clipbard"), this);
-
-	_vhead_ctxt_menu = new QMenu(this);
-	_vhead_ctxt_menu->addAction(_action_copy_row_value);
+	_vhead_ctxt_menu.addAction(_action_copy_row_value);
 
 	verticalHeader()->setSectionsClickable(true);
+	verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	verticalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 	verticalHeader()->setObjectName("verticalHeader_of_PVListingView");
-	connect(verticalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)),
-	        this, SLOT(show_vhead_ctxt_menu(const QPoint&)));
+	connect(verticalHeader(), &QHeaderView::customContextMenuRequested,
+	        this, &PVGuiQt::PVListingView::show_vhead_ctxt_menu);
 
-	setSelectionBehavior(QAbstractItemView::SelectRows);
+	// Text elipsis
 	setWordWrap(false);
 
-	_help_widget = new PVWidgets::PVHelpWidget(this);
-	_help_widget->hide();
+	// Define help
+	_help_widget.hide();
 
-	_help_widget->initTextFromFile("listing view's help",
+	_help_widget.initTextFromFile("listing view's help",
 	                               ":help-style");
-	_help_widget->addTextFromFile(":help-selection");
-	_help_widget->addTextFromFile(":help-layers");
-	_help_widget->newColumn();
-	_help_widget->addTextFromFile(":help-lines");
-	_help_widget->addTextFromFile(":help-application");
+	_help_widget.addTextFromFile(":help-selection");
+	_help_widget.addTextFromFile(":help-layers");
+	_help_widget.newColumn();
+	_help_widget.addTextFromFile(":help-lines");
+	_help_widget.addTextFromFile(":help-application");
 
-	_help_widget->newTable();
-	_help_widget->addTextFromFile(":help-mouse-listing-view");
-	_help_widget->newColumn();
-	_help_widget->addTextFromFile(":help-shortcuts-listing-view");
-	_help_widget->finalizeText();
+	_help_widget.newTable();
+	_help_widget.addTextFromFile(":help-mouse-listing-view");
+	_help_widget.newColumn();
+	_help_widget.addTextFromFile(":help-shortcuts-listing-view");
+	_help_widget.finalizeText();
 
+	// We fix the vertical header size on bold max number of line to avoid
+	// resizing on scrolling
 	QFont font = verticalHeader()->font();
 	font.setBold(true);
 	_vhead_max_width = QFontMetrics(font).width(QString().leftJustified(QString::number(PICVIZ_LINES_MAX).size(), '9'));
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::viewportEvent
+ *
+ *****************************************************************************/
+bool PVGuiQt::PVListingView::viewportEvent(QEvent *event) {
+	if (event->type() == QEvent::ToolTip) {
+		// Check if the text is elided. If it is, keep going, otherwise, hide
+		// the current ToolTip (from another cell maybe) and intercept the
+		// event.
+		QHelpEvent *helpEvent = static_cast<QHelpEvent*>(event);
+		// We don't need to care about row reindexing as row are fixed height
+		// and column give same width for every row
+		QModelIndex index = indexAt(helpEvent->pos());
+		if (index.isValid()) {
+			QSize sizeHint = itemDelegate(index)->sizeHint(viewOptions(), index);
+			QRect rItem(0, 0, sizeHint.width(), sizeHint.height());
+			QRect rVisual = visualRect(index);
+			if (rItem.width() <= rVisual.width()) {
+				QToolTip::hideText();
+				return true;
+			}
+		}
+	}
+	return QTableView::viewportEvent(event);
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::update_view_selection_from_listing_selection
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 {
-	/* VARIABLES */
-	QModelIndexList selected_items_list;
-	int modifiers;
-	// Get current lib view for this source
-
 	/* Commit the previous volatile selection */
 	_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
 
 	/* Modify the state of the state machine according to the modifiers */
-	modifiers = (unsigned int) QApplication::keyboardModifiers();
-	/* We don't care about a keypad button being pressed */
-	modifiers &= ~Qt::KeypadModifier;
-	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier aren't really
-	 * constants */
-	if (modifiers == (Qt::ShiftModifier | Qt::ControlModifier)) {
+	Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
+
+	// Interserct selection on Shift + Ctrl
+	// Substract new selection on Ctrl
+	// Expand the selection on Shift
+	// Replace the old selection without modifiers
+	if (modifiers & (Qt::ShiftModifier | Qt::ControlModifier)) {
 		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	}
 	else
-	if (modifiers == Qt::ControlModifier) {
+	if (modifiers & Qt::ControlModifier) {
 		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 	}
 	else
-	if (modifiers == Qt::ShiftModifier) {
+	if (modifiers & Qt::ShiftModifier) {
 		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
 	}
 	else {
@@ -286,87 +262,66 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	}
 
 	/* We define the volatile_selection using selection in the listing */
-	Picviz::PVSelection& vsel = lib_view().get_volatile_selection();
-	extract_selection(vsel);
+	extract_selection();
 
 	/* We reprocess the view from the selection */
 	_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
 }
 
-void PVGuiQt::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
-{
-	// Here is the reference:
-	// * if a double click is made on a line, then this line is selected in the table view *and* in the lib view
-	if (selectionModel()->hasSelection()) {
-		update_view_selection_from_listing_selection();
-	}
-	else {
-		QTableView::mouseDoubleClickEvent(event);
-	}
-}
-
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::resizeEvent
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::resizeEvent(QResizeEvent * event)
 {
 	QTableView::resizeEvent(event);
 	emit resized();
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::enterEvent
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::enterEvent(QEvent*)
 {
 	setFocus(Qt::MouseFocusReason);
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::leaveEvent
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::leaveEvent(QEvent*)
 {
 	clearFocus();
 }
 
-QVector<PVRow> PVGuiQt::PVListingView::get_selected_rows()
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::extract_selection
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::extract_selection()
 {
-	QModelIndexList selected_rows_list = selectionModel()->selectedRows(0);
-	int selected_rows_count = selected_rows_list.count();
-	QVector<PVRow> selected_rows_vector;
-	selected_rows_vector.reserve(selected_rows_count);
-	PVListingSortFilterProxyModel* myModel = get_listing_model();
-
-	for (int i=0; i<selected_rows_count; ++i) {
-		int row_index = myModel->mapToSource(selected_rows_list.at(i)).row();
-		selected_rows_vector.append(row_index);
-	}
-
-	return selected_rows_vector;
+	// Validate the current selection and reset the local one
+	Picviz::PVSelection& sel = lib_view().get_volatile_selection();
+	std::swap(sel, listing_model()->current_selection());
+	listing_model()->reset_selection();
 }
 
-void PVGuiQt::PVListingView::extract_selection(Picviz::PVSelection &sel)
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::slotDoubleClickOnVHead
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::slotDoubleClickOnVHead(QModelIndex const&)
 {
-	typedef __impl::PVListingViewSelectionExtractor tvse_t;
-
-	int thread_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
-	tbb::task_scheduler_init init(thread_num);
-	int count = model()->rowCount(QModelIndex());
-	tvse_t tvse(this);
-	BENCH_START(sel_create);
-	tbb::parallel_deterministic_reduce(tvse_t::blocked_range(0, count,
-															 std::max(1, count / thread_num)),
-	                                   tvse);
-	BENCH_END(sel_create, "extract_selection", 1, 1, 1, 1);
-	sel = tvse.get_selection();
-}
-
-void PVGuiQt::PVListingView::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
-{
-#if 0
-	bool has_sel = selected.indexes().size() > 0;
-	QStatusBar* sb = main_window->statusBar();
-	if (has_sel) {
-		sb->showMessage(tr("Press Enter to select these lines, Shift+Enter to add these lines, Ctrl+Enter to remove these lines and Shift+Ctrl+Enter to have the intersection between these lines and the current selection."));
-	}
-	else {
-		sb->clearMessage();
-	}
-
-#endif
-	QTableView::selectionChanged(selected, deselected);
+	// The double click automatically select the line, so just call our global
+	// selection function.
+	update_view_selection_from_listing_selection();
 }
 
 void PVGuiQt::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
@@ -376,6 +331,11 @@ void PVGuiQt::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
 	update_view_selection_from_listing_selection();
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::keyPressEvent
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 {
 	if(PVWidgets::PVHelpWidget::is_help_key(event->key())) {
@@ -390,18 +350,88 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 	switch (event->key()) {
 		case Qt::Key_Return:
 		case Qt::Key_Enter:
-			if (selectionModel()->hasSelection()) {
+			if (not listing_model()->current_selection().is_empty()) {
 				update_view_selection_from_listing_selection();
 			}
 			break;
 		case Qt::Key_G:
 			goto_line();
 			break;
+
+		// Bind document displacement key
+		case Qt::Key_PageUp:
+			scrollclick(QAbstractSlider::SliderPageStepSub);
+			break;
+		case Qt::Key_PageDown:
+			scrollclick(QAbstractSlider::SliderPageStepAdd);
+			break;
+		case Qt::Key_Up:
+			scrollclick(QAbstractSlider::SliderSingleStepSub);
+			break;
+		case Qt::Key_Down:
+			scrollclick(QAbstractSlider::SliderSingleStepAdd);
+			break;
+		case Qt::Key_Home:
+			scrollclick(QAbstractSlider::SliderToMinimum);
+			break;
+		case Qt::Key_End:
+			scrollclick(QAbstractSlider::SliderToMaximum);
+			break;
+		case Qt::Key_Right:
+			horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+			break;
+		case Qt::Key_Left:
+			horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
+			break;
 		default:
 			QTableView::keyPressEvent(event);
 	}
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::mousePressEvent
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::mousePressEvent(QMouseEvent * event)
+{
+	if(event->button() == Qt::LeftButton) {
+		Qt::KeyboardModifiers mod = event->modifiers();
+		// Shift and Ctrl continue the selection and don't reset it
+		if(not (mod & (Qt::ControlModifier | Qt::ShiftModifier))) {
+			listing_model()->current_selection().select_none();
+		}
+
+		int clc_row = rowAt(event->y());
+		if(clc_row < 0) {
+			// No row under the mouse.
+			return; 
+		}
+
+		if(mod & Qt::ShiftModifier) {
+			// Shift modifier complete the selection between clicks
+			listing_model()->end_selection(clc_row);
+		} else {
+			// Start the selection
+			listing_model()->start_selection(clc_row);
+		}
+
+		// Move below if we click on the half shown row
+		int row_pos = rowViewportPosition(clc_row);
+		if((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
+			move_by(1);
+		}
+
+		viewport()->update(); // To show the selection
+		QTableView::mousePressEvent(event);
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::wheelEvent
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 {
 	if (e->modifiers() == Qt::ControlModifier)
@@ -413,16 +443,94 @@ void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 		_headers_width[lib_view().get_real_axis_index(colIndex)] = width;
 	}
 	else {
-		QTableView::wheelEvent(e);
+		// delta is wheel movement in degree. QtWheelEvent doc give this formule
+		// to convert it to "wheel step"
+		// http://doc.qt.io/qt-5/qwheelevent.html
+		// Scroll 3 line by wheel step on listing
+		move_by(- e->delta() / 8 / 15 * 3);
 	}
+	e->accept(); // I am the one who handle event
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::mouseReleaseEvent
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::mouseReleaseEvent(QMouseEvent * event)
+{
+	// Mouse release commit the current selection
+	listing_model()->commit_selection();
+	viewport()->update();
+	event->accept();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::mouseMoveEvent
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::mouseMoveEvent(QMouseEvent * event)
+{
+	int pos = event->y();
+	// Scroll up while the clicked mouse is above the listing
+	while(pos < 0) {
+		move_by(-1);
+		listing_model()->end_selection(rowAt(0));
+		pos += rowHeight(rowAt(0));
+		if(listing_model()->current_page() == 0 and listing_model()->pos_in_page() == 0) {
+			// We reach the top of the listing, stop scrolling upper
+			return;
+		}
+	}
+
+	int clc_row = rowAt(pos);
+	if(clc_row < 0) {
+		// We are max up and we keep moving upper
+		return;
+	}
+
+	// Update selection
+	listing_model()->end_selection(clc_row);
+
+	// We are in the last partially shown cell, move below
+	int row_pos = rowViewportPosition(clc_row);
+	if((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
+		move_by(1);
+	}
+
+	viewport()->update(); // Show selection modification
+	event->accept();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::setModel
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::setModel(QAbstractItemModel * model)
+{
+	QTableView::setModel(model);
+	connect(model, &QAbstractItemModel::layoutChanged, this,
+			(void (PVGuiQt::PVListingView::*)()) &PVGuiQt::PVListingView::new_range);
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::columnResized
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::columnResized(int column, int oldWidth, int newWidth)
 {
 	QTableView::columnResized(column, oldWidth, newWidth);
 	_headers_width[lib_view().get_real_axis_index(column)] = newWidth;
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::reset
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::reset()
 {
 	uint32_t default_width = horizontalHeader()->defaultSectionSize();
@@ -434,73 +542,76 @@ void PVGuiQt::PVListingView::reset()
 	verticalHeader()->setFixedWidth(_vhead_max_width);
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::show_ctxt_menu
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 {
-	if (!_show_ctxt_menu) {
-		return;
-	}
-
 	QModelIndex idx_click = indexAt(pos);
 	if (!idx_click.isValid()) {
 		return;
 	}
 
-	// Get the string associated (that is, taken from the NRAW)
-	QString v = idx_click.data().toString();
-
-	// Get the real row index
-	PVRow row = get_listing_model()->mapToSource(idx_click).row();
-
 	// Set these informations in our object, so that they will be retrieved by the slot connected
 	// to the menu's actions.
-	_ctxt_v = v;
-	_ctxt_row = row;
+	_ctxt_row = listing_model()->rowIndex(idx_click);
 	_ctxt_col = idx_click.column(); // This is the *combined* axis index
+	_ctxt_v = lib_view().get_parent<Picviz::PVSource>()->get_value(_ctxt_row, lib_view().get_original_axis_index(_ctxt_col));
 
 	// Show the menu at the given pos
-	QAction* act_sel = _ctxt_menu->exec(QCursor::pos());
-	if (act_sel) {
-		if (act_sel == _act_copy) {
-			process_ctxt_menu_copy();
-		}
-		else
-		if (act_sel == _act_set_color) {
-			process_ctxt_menu_set_color();
-		}
-		else {
-			process_ctxt_menu_action(act_sel);
-		}
+	QAction* act_sel = _ctxt_menu.exec(QCursor::pos());
+
+	if (act_sel == _act_copy) {
+		process_ctxt_menu_copy();
+	} else if (act_sel == _act_set_color) {
+		process_ctxt_menu_set_color();
+	} else if(act_sel) {
+		// process plugins extracted action
+		process_ctxt_menu_action(act_sel);
 	}
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::show_hhead_ctxt_menu
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 {
 	PVCol comb_col = horizontalHeader()->logicalIndexAt(pos);
 	PVCol col = lib_view().get_original_axis_index(comb_col);
 
+	// Disable hover picture
 	section_hovered_enter(col, false);
 
-	_hhead_ctxt_menu->clear();
+	// Create a new horizontal header context as it depend on the clicked column
+	_hhead_ctxt_menu.clear();
+
+	// Add view creation based on an axis.
 	PVDisplays::PVDisplaysContainer* container = PVDisplays::get().get_parent_container(this);
 	if (container) {
 		// Add entries to the horizontal header context menu for new widgets creation.
-		PVDisplays::get().add_displays_view_axis_menu(*_hhead_ctxt_menu, container, SLOT(create_view_axis_widget()), (Picviz::PVView*) &lib_view(), comb_col);
+		PVDisplays::get().add_displays_view_axis_menu(_hhead_ctxt_menu, container, SLOT(create_view_axis_widget()), (Picviz::PVView*) &lib_view(), comb_col);
+
+		// Do not show view which need the next axis for the last axis.
 		if (!lib_view().is_last_axis(comb_col)) {
-			PVDisplays::get().add_displays_view_zone_menu(*_hhead_ctxt_menu, container, SLOT(create_view_zone_widget()), (Picviz::PVView*) &lib_view(), comb_col);
+			PVDisplays::get().add_displays_view_zone_menu(_hhead_ctxt_menu, container, SLOT(create_view_zone_widget()), (Picviz::PVView*) &lib_view(), comb_col);
 		}
-		_hhead_ctxt_menu->addSeparator();
+		_hhead_ctxt_menu.addSeparator();
 	}
-	_hhead_ctxt_menu->addAction(_action_col_unique);
+	_hhead_ctxt_menu.addAction(_action_col_unique);
 	_menu_col_count_by->clear();
-	_hhead_ctxt_menu->addMenu(_menu_col_count_by);
+	_hhead_ctxt_menu.addMenu(_menu_col_count_by);
 	_menu_col_sum_by->clear();
-	_hhead_ctxt_menu->addMenu(_menu_col_sum_by);
+	_hhead_ctxt_menu.addMenu(_menu_col_sum_by);
 	_menu_col_min_by->clear();
-	_hhead_ctxt_menu->addMenu(_menu_col_min_by);
+	_hhead_ctxt_menu.addMenu(_menu_col_min_by);
 	_menu_col_max_by->clear();
-	_hhead_ctxt_menu->addMenu(_menu_col_max_by);
+	_hhead_ctxt_menu.addMenu(_menu_col_max_by);
 	_menu_col_avg_by->clear();
-	_hhead_ctxt_menu->addMenu(_menu_col_avg_by);
+	_hhead_ctxt_menu.addMenu(_menu_col_avg_by);
 
 	const QStringList axes = lib_view().get_axes_names_list();
 	for (int i = 0; i < axes.size(); i++) {
@@ -526,58 +637,61 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 			_menu_col_avg_by->addAction(action_col_avg_by);
 		}
 	}
-	_hhead_ctxt_menu->addAction(_action_col_sort);
+	_hhead_ctxt_menu.addAction(_action_col_sort);
 
-	QAction* sel = _hhead_ctxt_menu->exec(QCursor::pos());
+	QAction* sel = _hhead_ctxt_menu.exec(QCursor::pos());
+
+	// Process actions
 	if (sel == _action_col_unique) {
 		Picviz::PVView_sp view = lib_view().shared_from_this();
 		PVQNraw::show_unique_values(view, lib_view().get_rushnraw_parent(), col, *lib_view().get_selection_visible_listing(), this);
-	}
-	if (sel && sel->parent() == _menu_col_count_by) {
-		Picviz::PVView_sp view = lib_view().shared_from_this();
-		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());
-		PVQNraw::show_count_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
-	}
-	if (sel && sel->parent() == _menu_col_sum_by) {
-		Picviz::PVView_sp view = lib_view().shared_from_this();
-		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());
-		PVQNraw::show_sum_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
-	}
-	else if (sel && sel->parent() == _menu_col_min_by) {
-		Picviz::PVView_sp view = lib_view().shared_from_this();
-		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());
-		PVQNraw::show_min_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
-	}
-	else if (sel && sel->parent() == _menu_col_max_by) {
-		Picviz::PVView_sp view = lib_view().shared_from_this();
-		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());
-		PVQNraw::show_max_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
-	}
-	else if (sel && sel->parent() == _menu_col_avg_by) {
-		Picviz::PVView_sp view = lib_view().shared_from_this();
-		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());
-		PVQNraw::show_avg_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
-	}
-	else if (sel == _action_col_sort) {
+	} else if (sel == _action_col_sort) {
 		Qt::SortOrder order =  (Qt::SortOrder)!((bool)horizontalHeader()->sortIndicatorOrder());
-		sortByColumn(col, order);
+		sort(col, order);
+	} else if(sel) {
+		Picviz::PVView_sp view = lib_view().shared_from_this();
+		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());
+		if (sel->parent() == _menu_col_count_by) {
+			PVQNraw::show_count_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
+		} else if (sel->parent() == _menu_col_sum_by) {
+			PVQNraw::show_sum_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
+		} else if (sel->parent() == _menu_col_min_by) {
+			PVQNraw::show_min_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
+		} else if (sel->parent() == _menu_col_max_by) {
+			PVQNraw::show_max_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
+		} else if (sel->parent() == _menu_col_avg_by) {
+			PVQNraw::show_avg_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
+		}
+	} else {
+		// No selected action
 	}
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::show_vhead_ctxt_menu
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::show_vhead_ctxt_menu(const QPoint& pos)
 {
-	QAction* sel = _vhead_ctxt_menu->exec(QCursor::pos());
+	// Use QCursor and not pos as pos is relative to the widgets while QCursor
+	// is a screen position.
+	QAction* sel = _vhead_ctxt_menu.exec(QCursor::pos());
 
-	if (sel == _action_copy_row_value) {
+	if(sel == _action_copy_row_value) {
 		int idx = verticalHeader()->logicalIndexAt(pos);
-		PVListingSortFilterProxyModel* proxy_model = get_listing_model();
-		QModelIndex index = proxy_model->index(idx, 0, QModelIndex());
-		index = proxy_model->mapToSource(index);
-
-		QApplication::clipboard()->setText(QString::number(index.row()));
+		// FIXME : We should return the full line content
+		QApplication::clipboard()->setText(QString::number(listing_model()->rowIndex(idx)));
+	} else {
+		assert(sel == nullptr && "No other possible vertical menu action");
 	}
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::process_ctxt_menu_copy
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::process_ctxt_menu_copy()
 {
 	// The value to copy is in _ctxt_v
@@ -585,6 +699,11 @@ void PVGuiQt::PVListingView::process_ctxt_menu_copy()
 	cb->setText(_ctxt_v);
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::process_ctxt_menu_set_color
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
 {
 	/* We let the user select a color */
@@ -597,26 +716,35 @@ void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
 	set_color_selected(color);
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::set_color_selected
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 {
-	PVHive::PVActor<Picviz::PVView> actor;
-	Picviz::PVView_sp view_sp(lib_view().shared_from_this());
-	PVHive::get().register_actor(view_sp, actor);
-
-	QVector<PVRow> selected_rows_vector = get_selected_rows();
 	Picviz::PVLayer& layer = lib_view().get_current_layer();
 	Picviz::PVLinesProperties& lines_properties = layer.get_lines_properties();
 
-	foreach (PVRow line, selected_rows_vector) {
-		lines_properties.line_set_color(line, color);
+	// Color every lines in the current selection
+	for(PVRow line : listing_model()->shown_lines()) {
+		if(listing_model()->current_selection().get_line_fast(line)) {
+			lines_properties.line_set_color(line, color);
+		}
 	}
 
-	actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::process_ctxt_menu_action
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
 {
-	assert(act);
+	assert(act); // FIXME : Should use a reference
+	// FIXME : This should be done another way (see menu creation)
 	// Get the filter associated with that menu entry
 	QString filter_name = act->data().toString();
 	Picviz::PVLayerFilter_p lib_filter = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
@@ -641,6 +769,7 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
 	// Show the layout filter widget
 	Picviz::PVLayerFilter_p fclone = lib_filter->clone<Picviz::PVLayerFilter>();
 	assert(fclone);
+	// FIXME : The last one is never free'd
 	if (_ctxt_process) {
 		_ctxt_process->deleteLater();
 	}
@@ -656,43 +785,21 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
 	}
 }
 
-PVGuiQt::PVListingSortFilterProxyModel* PVGuiQt::PVListingView::get_listing_model()
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::listing_model
+ *
+ *****************************************************************************/
+PVGuiQt::PVListingModel* PVGuiQt::PVListingView::listing_model()
 {
-	PVListingSortFilterProxyModel* proxy_model = dynamic_cast<PVListingSortFilterProxyModel*>(model());
-	assert(proxy_model);
-	return proxy_model;
+	return static_cast<PVListingModel*>(model());
 }
 
-void PVGuiQt::PVListingView::refresh_listing_filter()
-{
-	get_listing_model()->refresh_filter();
-}
-
-void PVGuiQt::PVListingView::selectAll()
-{
-	// AG: this function is called by QTableView when the corner button is pushed.
-	// That behaviour can't be changed (it is hardcoded in Qt, see qtableview.cpp:632).
-	// One hack (this one) is to check that the sender of this action is a QAbstractButton whose parent is this
-	// QTableView. Another hack is to take the first child that is a QAbstractButton of this QTableView
-	// and to reconnect it to another slot. Both have drawbacks, we chose this one because it is the quicker to
-	// implement.
-	
-	QObject* s = sender();
-	if (dynamic_cast<QAbstractButton*>(s) && s->parent() == this) {
-		corner_button_clicked();
-	}
-	else {
-		QTableView::selectAll();
-	}
-}
-
-void PVGuiQt::PVListingView::corner_button_clicked()
-{
-	// Reset to default ordering
-	get_listing_model()->reset_to_default_ordering_or_reverse();
-	sortByColumn(-1, Qt::AscendingOrder);
-}
-
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::section_hovered_enter
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
 {
 	Picviz::PVSource_sp src = lib_view().get_parent<Picviz::PVSource>()->shared_from_this();
@@ -700,6 +807,11 @@ void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
 	highlight_column(entered ? col : -1);
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::section_clicked
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::section_clicked(int col)
 {
 	Picviz::PVSource_sp src = lib_view().get_parent<Picviz::PVSource>()->shared_from_this();
@@ -708,8 +820,16 @@ void PVGuiQt::PVListingView::section_clicked(int col)
 	PVHive::call<FUNC(Picviz::PVSource::set_section_clicked)>(src, col, verticalHeader()->width() + x + width/2);
 }
 
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::highlight_column
+ *
+ *****************************************************************************/
+
 void PVGuiQt::PVListingView::highlight_column(PVHive::PVObserverBase* o)
 {
+	// Extract column to highlight
 	PVHive::PVObserverSignal<int>* real_o = dynamic_cast<PVHive::PVObserverSignal<int>*>(o);
 	assert(real_o);
 	int* obj = real_o->get_object();
@@ -718,27 +838,177 @@ void PVGuiQt::PVListingView::highlight_column(PVHive::PVObserverBase* o)
 	highlight_column(col);
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::highlight_column
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::highlight_column(int col)
 {
+	// Mark the column for future painting and force update
 	_hovered_axis = col;
 	viewport()->update();
 }
 
-void PVGuiQt::PVListingView::set_section_visible(PVHive::PVObserverBase* o)
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::slider_move_to
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::slider_move_to(int value)
 {
-	PVHive::PVObserverSignal<PVCol>* real_o = dynamic_cast<PVHive::PVObserverSignal<PVCol>*>(o);
-	assert(real_o);
-	int* obj = real_o->get_object();
-	int col = *obj;
-
-	setSelectionBehavior(QAbstractItemView::SelectColumns);
-
-	selectColumn(col);
-	clearSelection();
-
-	setSelectionBehavior(QAbstractItemView::SelectRows);
+	if(value == verticalScrollBar()->maximum()) {
+		// Move to the end of the listing
+		move_to_end();
+	} else {
+		// Move to the top of the page
+		move_to_page(value);
+	}
+	viewport()->update();
+	verticalHeader()->viewport()->update();
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::new_range
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::new_range(int min, int max)
+{
+	if(model()) {
+		listing_model()->update_pages(max - min, verticalScrollBar()->pageStep());
+		move_to_page(0);
+	}
+}
+
+void PVGuiQt::PVListingView::new_range()
+{
+	if(model()) {
+		listing_model()->update_pages(verticalScrollBar()->maximum() - verticalScrollBar()->minimum(),
+				verticalScrollBar()->pageStep());
+		move_to_page(0);
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::clip_slider
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::clip_slider()
+{
+	if(verticalScrollBar()->value() == 0) {
+		move_to_page(0);
+	} else if(verticalScrollBar()->value() == verticalScrollBar()->maximum()) {
+		move_to_end();
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::scrollclick
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::scrollclick(int action) {
+	switch(action) {
+		case QAbstractSlider::SliderSingleStepAdd:
+			move_by(1);
+			break;
+		case QAbstractSlider::SliderSingleStepSub:
+			move_by(-1);
+			break;
+		case QAbstractSlider::SliderPageStepAdd:
+			move_by(verticalScrollBar()->pageStep());
+			break;
+		case QAbstractSlider::SliderPageStepSub:
+			move_by(-verticalScrollBar()->pageStep());
+			break;
+		case QAbstractSlider::SliderToMinimum:
+			move_to_page(0);
+			break;
+		case QAbstractSlider::SliderToMaximum:
+			move_to_end();
+			break;
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::move_by
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::move_by(int row)
+{
+	listing_model()->move_by(row, verticalScrollBar()->pageStep());
+	update_on_move();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::move_to_nraw
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::move_to_nraw(PVRow row)
+{
+	listing_model()->move_to_nraw(row, verticalScrollBar()->pageStep());
+	update_on_move();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::move_to_row
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::move_to_row(PVRow row)
+{
+	listing_model()->move_to_row(row, verticalScrollBar()->pageStep());
+	update_on_move();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::move_to_page
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::move_to_page(int page)
+{
+	listing_model()->move_to_page(page);
+	update_on_move();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::move_to_end
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::move_to_end()
+{
+	listing_model()->move_to_end(verticalScrollBar()->pageStep());
+	update_on_move();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::update_on_move
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::update_on_move()
+{
+	// Save and restore pos_in_range as moving cursor call slider_move_to which
+	// set pos_in_page_to 0.
+	size_t pos_in_page = listing_model()->pos_in_page();
+	verticalScrollBar()->setValue(listing_model()->current_page());
+	listing_model()->pos_in_page() = pos_in_page;
+	verticalHeader()->viewport()->update();
+	viewport()->update();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::paintEvent
+ *
+ *****************************************************************************/
 void PVGuiQt::PVListingView::paintEvent(QPaintEvent* event)
 {
 	QTableView::paintEvent(event);
@@ -830,7 +1100,9 @@ void PVGuiQt::PVListingView::paintEvent(QPaintEvent* event)
 }
 
 /******************************************************************************
+ *
  * PVGuiQt::PVListingView::goto_line
+ *
  *****************************************************************************/
 
 void PVGuiQt::PVListingView::goto_line()
@@ -852,32 +1124,36 @@ void PVGuiQt::PVListingView::goto_line()
 	 * row, we search for the first next set one. If there is no such row,
 	 * there is nothing to do.
 	 */
+	// FIXME : It doesn't really work with sorted values
 	if (sel.get_line_fast(row) == false) {
-		PVRow row2 = (row == 0)?PVROW_INVALID_VALUE:sel.find_previous_set_bit(row - 1, nrows);
-		if (row2 != PVROW_INVALID_VALUE) {
-			row = row2;
-		} else {
+		row = sel.find_previous_set_bit(row - 1, nrows);
+
+		if(row == PVROW_INVALID_VALUE) {
 			row = sel.find_next_set_bit(row + 1, nrows);
 		}
 	}
 
 	if (row != PVROW_INVALID_VALUE) {
-		/* as the row is in model's space, we have to convert it into
-		 * view's space
-		 */
-		PVListingSortFilterProxyModel* proxy_model = get_listing_model();
-		QModelIndex index = proxy_model->index(row, 0, QModelIndex());
-		index = proxy_model->mapFromSource(index);
-
-		/* move the wanted item at the top of the view
-		 */
-		scrollTo(index, QAbstractItemView::PositionAtTop);
-
-		/* not to kill the keyboard navigation, we have to update the
-		 * currentIndex too (whithout killing the current selection)
-		 */
-		selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+		move_to_nraw(row);
 	} // nothing to do otherwise
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::sort
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::sort(int col, Qt::SortOrder order)
+{
+	assert(col >= 0 && col < listing_model()->columnCount());
+	PVCore::PVProgressBox* box = new PVCore::PVProgressBox(tr("Sorting..."), this);
+	box->set_enable_cancel(true);
+	tbb::task_group_context ctxt;
+	bool changed = PVCore::PVProgressBox::progress([&]() { listing_model()->sort(col, order, ctxt); }, ctxt, box);
+	if(changed) {
+		horizontalHeader()->setSortIndicator(col, order);
+	}
+	horizontalHeader()->setSortIndicatorShown(true);
 }
 
 /******************************************************************************
@@ -895,15 +1171,15 @@ PVGuiQt::PVHorizontalHeaderView::PVHorizontalHeaderView(Qt::Orientation orientat
 
 	// Context menu of the horizontal header
 	setStretchLastSection(true);
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), parent, SLOT(show_hhead_ctxt_menu(const QPoint&)));
+	connect(this, &PVGuiQt::PVHorizontalHeaderView::customContextMenuRequested, parent, &PVListingView::show_hhead_ctxt_menu);
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// Save horizontal headers width to be persistent across axes combination changes
-	connect(this, SIGNAL(sectionResized(int, int, int)), parent, SLOT(columnResized(int, int, int)));
-	
+	connect(this, &PVGuiQt::PVHorizontalHeaderView::sectionResized, parent, &PVListingView::columnResized);
+
 	// section <-> axis synchronisation
-	connect(this, SIGNAL(mouse_hovered_section(int, bool)), parent, SLOT(section_hovered_enter(int, bool)));
-	connect(this, SIGNAL(sectionClicked(int)), parent, SLOT(section_clicked(int)));
+	connect(this, &PVGuiQt::PVHorizontalHeaderView::mouse_hovered_section, parent, &PVListingView::section_hovered_enter);
+	connect(this, &PVGuiQt::PVHorizontalHeaderView::sectionClicked, parent, &PVListingView::section_clicked);
 
 	// Force hover events on every theme so that "column -> axis" visual synchronisation always works !
 	setAttribute(Qt::WA_Hover);

@@ -23,7 +23,6 @@ PVListDisplayDlg.cpp
 PVAbstractListStatsDlg.cpp
 PVCountByStringsDlg.cpp
 PVListingModel.cpp
-PVListingSortFilterProxyModel.cpp
 PVListingView.cpp
 PVOpenWorkspacesWidget.cpp
 PVRootTreeModel.cpp
@@ -67,7 +66,6 @@ include/pvguiqt/PVLayerStackWidget.h
 include/pvguiqt/PVListDisplayDlg.h
 include/pvguiqt/PVAbstractListStatsDlg.h
 include/pvguiqt/PVListingModel.h
-include/pvguiqt/PVListingSortFilterProxyModel.h
 include/pvguiqt/PVListingView.h
 include/pvguiqt/PVOpenWorkspacesWidget.h
 include/pvguiqt/PVRootTreeModel.h
