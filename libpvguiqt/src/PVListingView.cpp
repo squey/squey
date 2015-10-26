@@ -60,8 +60,6 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	PVHive::get().register_actor(view, _actor);
 
 	// When removing the observer, also remove the GUI
-	// FIXME : It loops...
-	_obs.connect_about_to_be_deleted(this, SLOT(deleteLater()));
 	PVHive::get().register_observer(view, _obs);
 
 	/// Source events
