@@ -61,6 +61,11 @@ public:
 	PVListingView(Picviz::PVView_sp& view, QWidget* parent = nullptr);
 
 	/**
+	 * Clean up plugin in progress
+	 */
+	~PVListingView();
+
+	/**
 	 * Get associate model
 	 */
 	PVListingModel* listing_model();

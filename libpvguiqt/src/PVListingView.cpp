@@ -205,6 +205,18 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 
 /******************************************************************************
  *
+ * PVGuiQt::PVListingView::~PVListingView
+ *
+ *****************************************************************************/
+PVGuiQt::PVListingView::~PVListingView()
+{
+	if(_ctxt_process) {
+		delete _ctxt_process;
+	}
+}
+
+/******************************************************************************
+ *
  * PVGuiQt::PVListingView::update_view_selection_from_listing_selection
  *
  *****************************************************************************/
@@ -745,7 +757,6 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
 	// Show the layout filter widget
 	Picviz::PVLayerFilter_p fclone = lib_filter->clone<Picviz::PVLayerFilter>();
 	assert(fclone);
-	// FIXME : The last one is never free'd
 	if (_ctxt_process) {
 		_ctxt_process->deleteLater();
 	}
