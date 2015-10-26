@@ -27,7 +27,6 @@ PVListingView.cpp
 PVOpenWorkspacesWidget.cpp
 PVRootTreeModel.cpp
 PVRootTreeView.cpp
-PVSortFilterProxyModel.cpp
 PVStringSortProxyModel.cpp
 PVLogoModel.cpp
 PVLogoScene.cpp
@@ -71,7 +70,7 @@ include/pvguiqt/PVOpenWorkspacesWidget.h
 include/pvguiqt/PVRootTreeModel.h
 include/pvguiqt/PVRootTreeView.h
 include/pvguiqt/PVHiveDataTreeModel.h
-include/pvguiqt/PVSortFilterProxyModel.h
+include/pvguiqt/PVStringSortProxyModel.h
 include/pvguiqt/PVLogoScene.h
 include/pvguiqt/PVWorkspacesTabWidget.h
 include/pvguiqt/PVWorkspace.h
