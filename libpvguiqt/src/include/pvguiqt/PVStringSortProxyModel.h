@@ -32,7 +32,7 @@ public:
 	// Public interface
 	PVStringSortProxyModel(QTableView* view, QObject* parent = nullptr);
 
-	inline vec_indexes_t const& get_proxy_indexes() const { return _vec_filtered_m2s; }
+	inline vec_indexes_t const& get_proxy_indexes() const { return _vec_sort_m2s; }
 
 	/**
 	 * RH: the parameter has no constness because GCC seems to have a
@@ -44,15 +44,9 @@ public:
 
 	// Helper functions for derived classes
 protected:
-	void invalidate_sort();
-	void invalidate_filter();
 	void invalidate_all();
 
 	void sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes, tbb::task_group_context* ctxt);
-	void filter_source_indexes(vec_indexes_t const& src_idxes_in, vec_indexes_t& src_idxes_out)
-	{
-		src_idxes_out = src_idxes_in;
-	}
 
 	// Function from QAbstractProxyModel to implement
 public:
@@ -81,7 +75,6 @@ signals:
 private:
 	bool reverse_sort_order();
 	bool do_sort(int column, Qt::SortOrder order);
-	void do_filter();
 	void init_default_sort();
 	void reprocess_source();
 	void __do_sort(int column, Qt::SortOrder order, tbb::task_group_context* ctxt);
@@ -104,7 +97,6 @@ protected:
 
 private:
 	vec_indexes_t _vec_sort_m2s; //!< map-to-source indexes after sorting
-	vec_indexes_t _vec_filtered_m2s; //!< map-to-source indexes after filtering
 	int _sort_idx; //!< Index of the column used to perform sorting
 	Qt::SortOrder _cur_order; //!< Sorting ordering
 };

@@ -85,29 +85,6 @@ bool PVGuiQt::PVStringSortProxyModel::reverse_sort_order()
 
 /******************************************************************************
  *
- * PVGuiQt::PVStringSortProxyModel::do_filter
- *
- *****************************************************************************/
-void PVGuiQt::PVStringSortProxyModel::do_filter()
-{
-	BENCH_START(b);
-	vec_indexes_t tmp;
-	filter_source_indexes(_vec_sort_m2s, tmp);
-	if (tmp.size() == _vec_filtered_m2s.size()) {
-		emit layoutAboutToBeChanged();
-		_vec_filtered_m2s = tmp;
-		emit layoutChanged();
-	}
-	else {
-		beginResetModel();
-		_vec_filtered_m2s = tmp;
-		endResetModel();
-	}
-	BENCH_END(b, "PVStringSortProxyModel::do_filter", 1, 1, 1, 1);
-}
-
-/******************************************************************************
- *
  * PVGuiQt::PVStringSortProxyModel::__do_sort
  *
  *****************************************************************************/
@@ -145,11 +122,12 @@ bool PVGuiQt::PVStringSortProxyModel::do_sort(int column, Qt::SortOrder order)
 void PVGuiQt::PVStringSortProxyModel::sort(int column, Qt::SortOrder order)
 {
 	bool changed = false;
+	emit layoutAboutToBeChanged();
 
 	// This path could be call only from Qt (not checked)
 	if (column == -1) {
 		init_default_sort();
-		do_filter();
+		emit layoutChanged();
 		return;
 	}
 
@@ -161,7 +139,6 @@ void PVGuiQt::PVStringSortProxyModel::sort(int column, Qt::SortOrder order)
 	}
 
 	if (changed) {
-		do_filter();
 		_sort_idx = column;
 		_cur_order = order;
 	} else {
@@ -171,6 +148,7 @@ void PVGuiQt::PVStringSortProxyModel::sort(int column, Qt::SortOrder order)
 	}
 
 	_view->horizontalHeader()->setSortIndicatorShown(true);
+	emit layoutChanged();
 }
 
 /******************************************************************************
@@ -180,34 +158,9 @@ void PVGuiQt::PVStringSortProxyModel::sort(int column, Qt::SortOrder order)
  *****************************************************************************/
 void PVGuiQt::PVStringSortProxyModel::reprocess_source()
 {
+	emit layoutAboutToBeChanged();
 	init_default_sort();
-
-	do_filter();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVStringSortProxyModel::invalidate_sort
- *
- *****************************************************************************/
-void PVGuiQt::PVStringSortProxyModel::invalidate_sort()
-{
-	// Force a sort if suitable
-	if (_sort_idx >= 0 && _sort_idx < sourceModel()->columnCount()) {
-		do_sort(_sort_idx, _cur_order);
-		do_filter();
-	}
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVStringSortProxyModel::invalidate_filter
- *
- *****************************************************************************/
-void PVGuiQt::PVStringSortProxyModel::invalidate_filter()
-{
-	// Force a computation of the filter
-	do_filter();
+	emit layoutChanged();
 }
 
 /******************************************************************************
@@ -217,18 +170,16 @@ void PVGuiQt::PVStringSortProxyModel::invalidate_filter()
  *****************************************************************************/
 void PVGuiQt::PVStringSortProxyModel::invalidate_all()
 {
+	emit layoutAboutToBeChanged();
 	// Force a sort if suitable
-	if (sourceModel() != NULL && sourceModel()->rowCount() != (int)_vec_sort_m2s.size()) {
+	if (sourceModel() != nullptr && sourceModel()->rowCount() != (int)_vec_sort_m2s.size()) {
 		// Size has changed, recreate a default sort array.
-		int sort_idx = _sort_idx;
 		init_default_sort();
-		_sort_idx = sort_idx;
 	}
 	if (_sort_idx >= 0 && _sort_idx < sourceModel()->columnCount()) {
 		do_sort(_sort_idx, _cur_order);
 	}
-	// And reprocess the filter everytime
-	do_filter();
+	emit layoutChanged();
 }
 
 /******************************************************************************
@@ -245,8 +196,8 @@ QModelIndex PVGuiQt::PVStringSortProxyModel::mapFromSource(QModelIndex const& sr
 
 	// Reverse search of the original index to save in the source index
 	int search_src_row = src_idx.row();
-	for (int proxy_row = 0; proxy_row < (int)_vec_filtered_m2s.size(); proxy_row++) {
-		int src_row = _vec_filtered_m2s[proxy_row];
+	for (int proxy_row = 0; proxy_row < (int)_vec_sort_m2s.size(); proxy_row++) {
+		int src_row =_vec_sort_m2s[proxy_row];
 		if (src_row == search_src_row) {
 			return index(proxy_row, src_idx.column(), QModelIndex());
 		}
@@ -267,18 +218,18 @@ QModelIndex PVGuiQt::PVStringSortProxyModel::mapToSource(QModelIndex const& src_
 		return QModelIndex();
 	}
 
-	if (src_idx.row() == 0 && _vec_filtered_m2s.size() == 0) {
+	if (src_idx.row() == 0 && _vec_sort_m2s.size() == 0) {
 		// Special case where no lines are displayed but we still want header information !!
 		// This function is called by QAbstractProxyModel::headerData to find out the good column.
 		// TODO: we should use the axis combination in the proxy, and not in the model.
 		return sourceModel()->index(0, src_idx.column(), QModelIndex());
 	}
 
-	if (src_idx.row() >= (int)_vec_filtered_m2s.size()) {
+	if (src_idx.row() >= (int)_vec_sort_m2s.size()) {
 		return QModelIndex();
 	}
 
-	return sourceModel()->index(_vec_filtered_m2s[src_idx.row()], src_idx.column(), QModelIndex());
+	return sourceModel()->index(_vec_sort_m2s[src_idx.row()], src_idx.column(), QModelIndex());
 }
 
 /******************************************************************************
@@ -300,7 +251,6 @@ void PVGuiQt::PVStringSortProxyModel::setSourceModel(QAbstractItemModel* model)
 
 	QAbstractProxyModel::setSourceModel(model);
 	init_default_sort();
-	do_filter();
 
 	connect(model, SIGNAL(layoutAboutToBeChanged()), this, SLOT(src_layout_about_changed()));
 	connect(model, SIGNAL(layoutChanged()), this, SLOT(src_layout_changed()));
@@ -317,10 +267,7 @@ void PVGuiQt::PVStringSortProxyModel::setSourceModel(QAbstractItemModel* model)
  *****************************************************************************/
 int PVGuiQt::PVStringSortProxyModel::rowCount(const QModelIndex& parent) const
 {
-	if (parent.isValid()) {
-		return 0;
-	}
-	return _vec_filtered_m2s.size();
+	return sourceModel()->rowCount(parent);
 }
 
 /******************************************************************************
@@ -340,10 +287,6 @@ int PVGuiQt::PVStringSortProxyModel::columnCount(const QModelIndex& parent) cons
  *****************************************************************************/
 QModelIndex PVGuiQt::PVStringSortProxyModel::index(int row, int col, const QModelIndex&) const
 {
-	if (parent.isValid()) {
-		return QModelIndex();
-	}
-
 	return createIndex(row, col);
 }
 
