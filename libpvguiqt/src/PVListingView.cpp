@@ -49,7 +49,7 @@
  *****************************************************************************/
 
 PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
-	QTableView(parent),
+	PVTableView(parent),
 	_ctxt_menu(this),
 	_hhead_ctxt_menu(this),
 	_vhead_ctxt_menu(this),
@@ -204,33 +204,6 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 
 /******************************************************************************
  *
- * PVGuiQt::PVListingView::viewportEvent
- *
- *****************************************************************************/
-bool PVGuiQt::PVListingView::viewportEvent(QEvent *event) {
-	if (event->type() == QEvent::ToolTip) {
-		// Check if the text is elided. If it is, keep going, otherwise, hide
-		// the current ToolTip (from another cell maybe) and intercept the
-		// event.
-		QHelpEvent *helpEvent = static_cast<QHelpEvent*>(event);
-		// We don't need to care about row reindexing as row are fixed height
-		// and column give same width for every row
-		QModelIndex index = indexAt(helpEvent->pos());
-		if (index.isValid()) {
-			QSize sizeHint = itemDelegate(index)->sizeHint(viewOptions(), index);
-			QRect rItem(0, 0, sizeHint.width(), sizeHint.height());
-			QRect rVisual = visualRect(index);
-			if (rItem.width() <= rVisual.width()) {
-				QToolTip::hideText();
-				return true;
-			}
-		}
-	}
-	return QTableView::viewportEvent(event);
-}
-
-/******************************************************************************
- *
  * PVGuiQt::PVListingView::update_view_selection_from_listing_selection
  *
  *****************************************************************************/
@@ -275,7 +248,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
  *****************************************************************************/
 void PVGuiQt::PVListingView::resizeEvent(QResizeEvent * event)
 {
-	QTableView::resizeEvent(event);
+	PVTableView::resizeEvent(event);
 	emit resized();
 }
 
@@ -384,7 +357,7 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 			horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
 			break;
 		default:
-			QTableView::keyPressEvent(event);
+			PVTableView::keyPressEvent(event);
 	}
 }
 
@@ -423,7 +396,7 @@ void PVGuiQt::PVListingView::mousePressEvent(QMouseEvent * event)
 		}
 
 		viewport()->update(); // To show the selection
-		QTableView::mousePressEvent(event);
+		PVTableView::mousePressEvent(event);
 	}
 }
 
@@ -510,7 +483,7 @@ void PVGuiQt::PVListingView::mouseMoveEvent(QMouseEvent * event)
  *****************************************************************************/
 void PVGuiQt::PVListingView::setModel(QAbstractItemModel * model)
 {
-	QTableView::setModel(model);
+	PVTableView::setModel(model);
 	connect(model, &QAbstractItemModel::layoutChanged, this,
 			(void (PVGuiQt::PVListingView::*)()) &PVGuiQt::PVListingView::new_range);
 }
@@ -522,7 +495,7 @@ void PVGuiQt::PVListingView::setModel(QAbstractItemModel * model)
  *****************************************************************************/
 void PVGuiQt::PVListingView::columnResized(int column, int oldWidth, int newWidth)
 {
-	QTableView::columnResized(column, oldWidth, newWidth);
+	PVTableView::columnResized(column, oldWidth, newWidth);
 	_headers_width[lib_view().get_real_axis_index(column)] = newWidth;
 }
 
@@ -1011,7 +984,7 @@ void PVGuiQt::PVListingView::update_on_move()
  *****************************************************************************/
 void PVGuiQt::PVListingView::paintEvent(QPaintEvent* event)
 {
-	QTableView::paintEvent(event);
+	PVTableView::paintEvent(event);
 
 	if (_hovered_axis != -1) {
 

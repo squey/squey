@@ -7,7 +7,6 @@
 #ifndef PVLISTINGVIEW_H
 #define PVLISTINGVIEW_H
 
-#include <QTableView>
 #include <QMenu>
 
 #include <pvkernel/core/general.h>
@@ -20,6 +19,7 @@
 #include <picviz/PVView_types.h>
 
 #include <pvguiqt/PVListingModel.h>
+#include <pvguiqt/PVTableView.h>
 
 #include <QHeaderView>
 
@@ -40,7 +40,7 @@ class PVListingModel;
 /**
  * \class PVListingView
  */
-class PVListingView : public QTableView
+class PVListingView : public PVTableView
 {
 	Q_OBJECT
 	friend class PVStatsListingWidget;
@@ -134,12 +134,6 @@ protected:
 	 * @note Called only when button is pressed.
 	 */
 	void mouseMoveEvent(QMouseEvent * event) override;
-
-	/**
-	 * Check for ToolTip event to disable tooltip when cell is big enough
-	 * to show the full cell content
-	 */
-	bool viewportEvent(QEvent *event) override;
 
 signals:
 	/**

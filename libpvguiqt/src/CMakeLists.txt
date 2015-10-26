@@ -28,6 +28,7 @@ PVOpenWorkspacesWidget.cpp
 PVRootTreeModel.cpp
 PVRootTreeView.cpp
 PVStringSortProxyModel.cpp
+PVTableView.cpp
 PVLogoModel.cpp
 PVLogoScene.cpp
 PVQNraw.cpp
