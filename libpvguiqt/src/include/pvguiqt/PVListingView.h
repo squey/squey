@@ -166,7 +166,7 @@ private:
 	/**
 	 * Process action from plugins (layer filter)
 	 */
-	void process_ctxt_menu_action(QAction* act);
+	void process_ctxt_menu_action(QAction const& act);
 
 	/**
 	 * Copy right clicked value in the clipboard.

@@ -555,7 +555,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 		process_ctxt_menu_set_color();
 	} else if(act_sel) {
 		// process plugins extracted action
-		process_ctxt_menu_action(act_sel);
+		process_ctxt_menu_action(*act_sel);
 	}
 }
 
@@ -727,12 +727,11 @@ void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
  * PVGuiQt::PVListingView::process_ctxt_menu_action
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
+void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction const& act)
 {
-	assert(act); // FIXME : Should use a reference
 	// FIXME : This should be done another way (see menu creation)
 	// Get the filter associated with that menu entry
-	QString filter_name = act->data().toString();
+	QString filter_name = act.data().toString();
 	Picviz::PVLayerFilter_p lib_filter = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
 	if (!lib_filter) {
 		PVLOG_ERROR("(listing context-menu) filter '%s' does not exist !\n", qPrintable(filter_name));
@@ -740,7 +739,7 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
 	}
 
 	Picviz::PVLayerFilter::hash_menu_function_t entries = lib_filter->get_menu_entries();
-	QString act_name = act->text();
+	QString act_name = act.text();
 	if (entries.find(act_name) == entries.end()) {
 		PVLOG_ERROR("(listing context-menu) unable to find action '%s' in filter '%s'.\n", qPrintable(act_name), qPrintable(filter_name));
 		return;
