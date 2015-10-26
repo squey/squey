@@ -43,7 +43,6 @@ PVStartScreenWidget.cpp
 PVInputTypeMenuEntries.cpp
 PVImportSourceToProjectDlg.cpp
 PVStatsListingWidget.cpp
-PVToolTipDelegate.cpp
 PVExportSelectionDlg.cpp
 
 # Displays that will be registered to libpvdisplays
@@ -81,7 +80,6 @@ include/pvguiqt/PVProjectsTabWidget.h
 include/pvguiqt/PVStartScreenWidget.h
 include/pvguiqt/PVImportSourceToProjectDlg.h
 include/pvguiqt/PVStatsListingWidget.h
-include/pvguiqt/PVToolTipDelegate.h
 include/pvguiqt/PVExportSelectionDlg.h
 )
 
