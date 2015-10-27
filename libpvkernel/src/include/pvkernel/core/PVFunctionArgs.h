@@ -65,7 +65,7 @@ public:
 	PVArgumentList get_args_for_preset() const
 	{
 		PVArgumentList args = get_args();
-		std::vector<PVCore::PVArgumentKey> keys = get_args_keys_for_preset();
+		PVCore::PVArgumentKeyList keys = get_args_keys_for_preset();
 
 		// Get rid of unwanted args
 		PVArgumentList filtered_args ;
@@ -80,7 +80,7 @@ public:
 
 		return filtered_args;
 	}
-	virtual std::vector<PVCore::PVArgumentKey> get_args_keys_for_preset() const
+	virtual PVCore::PVArgumentKeyList get_args_keys_for_preset() const
 	{
 		return get_default_args().keys();
 	}

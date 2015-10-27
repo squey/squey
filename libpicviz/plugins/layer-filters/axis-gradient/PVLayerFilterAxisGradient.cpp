@@ -71,7 +71,7 @@ void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 
 std::vector<PVCore::PVArgumentKey> Picviz::PVLayerFilterAxisGradient::get_args_keys_for_preset() const
 {
-	std::vector<PVCore::PVArgumentKey> keys = get_default_args().keys();
+	PVCore::PVArgumentKeyList keys = get_default_args().keys();
 	keys.erase(std::find(keys.begin(), keys.end(), ARG_NAME_AXIS));
 	return keys;
 }

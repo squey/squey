@@ -190,9 +190,9 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 	BENCH_END(heatline, "heatline", 1, 1, sizeof(PVRow), nrows);
 }
 
-std::vector<PVCore::PVArgumentKey> Picviz::PVLayerFilterHeatlineBase::get_args_keys_for_preset() const
+PVCore::PVArgumentKeyList Picviz::PVLayerFilterHeatlineBase::get_args_keys_for_preset() const
 {
-	std::vector<PVCore::PVArgumentKey> keys = get_default_args().keys();
+	PVCore::PVArgumentKeyList keys = get_default_args().keys();
 	keys.erase(std::find(keys.begin(), keys.end(), ARG_NAME_AXES));
 	return keys;
 }

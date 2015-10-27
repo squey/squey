@@ -86,7 +86,7 @@ private:
 	bool _edit_flag;
 };
 
-typedef QList<PVArgumentList::key_type>    PVArgumentKeyList;
+using PVArgumentKeyList = std::vector<PVArgumentList::key_type>;
 
 //class PVArgumentList : public QHash<PVArgumentKey, PVArgument>
 //{

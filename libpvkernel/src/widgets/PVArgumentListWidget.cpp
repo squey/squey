@@ -244,7 +244,7 @@ void PVWidgets::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
  *****************************************************************************/
 void PVWidgets::PVArgumentListWidget::set_args_values(PVCore::PVArgumentList const& args)
 {
-	std::vector<PVCore::PVArgumentList::key_type> keys_to_change = args.keys();
+	PVCore::PVArgumentKeyList keys_to_change = args.keys();
 	foreach(PVCore::PVArgumentList::key_type const& key, keys_to_change) {
 		if (_args->contains(key)) {
 			(*_args)[key] = args.at(key);

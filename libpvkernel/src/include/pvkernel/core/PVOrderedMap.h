@@ -15,6 +15,8 @@ namespace PVCore {
 /**
  * \class PVOrderedMapNode
  * \brief A node<key,value> for a PVOrderedMap.
+ *
+ * Inspired from https://github.com/zzjin/CoopES/blob/master/include/ssyntax/qorderedmap.h
  */
 template <class Key, class Value>
 class PVOrderedMapNode
@@ -375,8 +377,9 @@ Value& PVOrderedMap<Key, Value>::operator[](const Key& key)
 {
 	// test if key exist, only return its value
 	iterator it = find(key);
-	if (it != _nodes.end())
+	if (it != _nodes.end()) {
 		return it->value();
+	}
 
 	//key doesn't exist, we add a new node and return its value
  	_nodes.push_back({key, Value()});
@@ -394,8 +397,9 @@ Value& PVOrderedMap<Key, Value>::at(const Key& key)
 {
 	// test if key exist, only return its value
 	iterator it = find(key);
-	if (it != _nodes.end())
+	if (it != _nodes.end()) {
 		return it->value();
+	}
 
 	//key doesn't exist
 	throw std::out_of_range("This key doesn't exist in this PVOrderedMap");
@@ -413,8 +417,9 @@ const Value& PVOrderedMap<Key, Value>::at(const Key& key) const
 {
 	// test if key exist, only return its value
 	const_iterator it = find(key);
-	if (it != _nodes.end())
+	if (it != _nodes.end()) {
 		return it->value();
+	}
 
 	//key doesn't exist
 	throw std::out_of_range("This key doesn't exist in this PVOrderedMap");

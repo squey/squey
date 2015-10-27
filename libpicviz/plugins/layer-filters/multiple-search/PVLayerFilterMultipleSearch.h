@@ -23,7 +23,7 @@ public:
 	PVLayerFilterMultipleSearch(PVCore::PVArgumentList const& l = PVLayerFilterMultipleSearch::default_args());
 public:
 	virtual void operator()(PVLayer& in, PVLayer &out);
-	virtual std::vector<PVCore::PVArgumentKey> get_args_keys_for_preset() const;
+	virtual PVCore::PVArgumentKeyList get_args_keys_for_preset() const;
 	virtual QString menu_name() const { return "Text Search/Multiple values"; }
 
 public:
