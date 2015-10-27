@@ -27,8 +27,8 @@ PVListingView.cpp
 PVOpenWorkspacesWidget.cpp
 PVRootTreeModel.cpp
 PVRootTreeView.cpp
-PVSortFilterProxyModel.cpp
 PVStringSortProxyModel.cpp
+PVTableView.cpp
 PVLogoModel.cpp
 PVLogoScene.cpp
 PVQNraw.cpp
@@ -43,7 +43,6 @@ PVStartScreenWidget.cpp
 PVInputTypeMenuEntries.cpp
 PVImportSourceToProjectDlg.cpp
 PVStatsListingWidget.cpp
-PVToolTipDelegate.cpp
 PVExportSelectionDlg.cpp
 
 # Displays that will be registered to libpvdisplays
@@ -71,7 +70,7 @@ include/pvguiqt/PVOpenWorkspacesWidget.h
 include/pvguiqt/PVRootTreeModel.h
 include/pvguiqt/PVRootTreeView.h
 include/pvguiqt/PVHiveDataTreeModel.h
-include/pvguiqt/PVSortFilterProxyModel.h
+include/pvguiqt/PVStringSortProxyModel.h
 include/pvguiqt/PVLogoScene.h
 include/pvguiqt/PVWorkspacesTabWidget.h
 include/pvguiqt/PVWorkspace.h
@@ -81,7 +80,6 @@ include/pvguiqt/PVProjectsTabWidget.h
 include/pvguiqt/PVStartScreenWidget.h
 include/pvguiqt/PVImportSourceToProjectDlg.h
 include/pvguiqt/PVStatsListingWidget.h
-include/pvguiqt/PVToolTipDelegate.h
 include/pvguiqt/PVExportSelectionDlg.h
 )
 

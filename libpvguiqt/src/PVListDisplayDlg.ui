@@ -31,7 +31,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QTableView" name="_values_view"/>
+       <widget class="PVGuiQt::PVTableView" name="_values_view"/>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -198,6 +198,11 @@
    <extends>QWidget</extends>
    <header location="global">pvkernel/widgets/qkeysequencewidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>PVGuitQt::PVTableView</class>
+   <extends>QTableView</extends>
+   <header>pvguiqt/PVTableView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

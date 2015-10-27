@@ -501,7 +501,7 @@ void PVGuiQt::PVListingModel::move_to_row(PVRow row, size_t page_step)
  *****************************************************************************/
 void PVGuiQt::PVListingModel::move_to_page(size_t page)
 {
-    assert(page< _filter.size() && "Impossible Row id");
+    assert((page == 0 or page < _filter.size()) && "Impossible Row id");
     _current_page = page;
     _pos_in_page = 0;
 }

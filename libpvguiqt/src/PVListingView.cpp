@@ -49,18 +49,17 @@
  *****************************************************************************/
 
 PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
-	QTableView(parent),
+	PVTableView(parent),
 	_ctxt_menu(this),
 	_hhead_ctxt_menu(this),
 	_vhead_ctxt_menu(this),
 	_help_widget(this),
-	_ctxt_process(nullptr)
+	_ctxt_process(nullptr),
+	_headers_width(view->get_original_axes_count(), horizontalHeader()->defaultSectionSize())
 {
 	PVHive::get().register_actor(view, _actor);
 
 	// When removing the observer, also remove the GUI
-	// FIXME : It loops...
-	_obs.connect_about_to_be_deleted(this, SLOT(deleteLater()));
 	PVHive::get().register_observer(view, _obs);
 
 	/// Source events
@@ -204,29 +203,14 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 
 /******************************************************************************
  *
- * PVGuiQt::PVListingView::viewportEvent
+ * PVGuiQt::PVListingView::~PVListingView
  *
  *****************************************************************************/
-bool PVGuiQt::PVListingView::viewportEvent(QEvent *event) {
-	if (event->type() == QEvent::ToolTip) {
-		// Check if the text is elided. If it is, keep going, otherwise, hide
-		// the current ToolTip (from another cell maybe) and intercept the
-		// event.
-		QHelpEvent *helpEvent = static_cast<QHelpEvent*>(event);
-		// We don't need to care about row reindexing as row are fixed height
-		// and column give same width for every row
-		QModelIndex index = indexAt(helpEvent->pos());
-		if (index.isValid()) {
-			QSize sizeHint = itemDelegate(index)->sizeHint(viewOptions(), index);
-			QRect rItem(0, 0, sizeHint.width(), sizeHint.height());
-			QRect rVisual = visualRect(index);
-			if (rItem.width() <= rVisual.width()) {
-				QToolTip::hideText();
-				return true;
-			}
-		}
+PVGuiQt::PVListingView::~PVListingView()
+{
+	if(_ctxt_process) {
+		delete _ctxt_process;
 	}
-	return QTableView::viewportEvent(event);
 }
 
 /******************************************************************************
@@ -275,7 +259,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
  *****************************************************************************/
 void PVGuiQt::PVListingView::resizeEvent(QResizeEvent * event)
 {
-	QTableView::resizeEvent(event);
+	PVTableView::resizeEvent(event);
 	emit resized();
 }
 
@@ -384,7 +368,7 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 			horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
 			break;
 		default:
-			QTableView::keyPressEvent(event);
+			PVTableView::keyPressEvent(event);
 	}
 }
 
@@ -423,7 +407,7 @@ void PVGuiQt::PVListingView::mousePressEvent(QMouseEvent * event)
 		}
 
 		viewport()->update(); // To show the selection
-		QTableView::mousePressEvent(event);
+		PVTableView::mousePressEvent(event);
 	}
 }
 
@@ -510,7 +494,7 @@ void PVGuiQt::PVListingView::mouseMoveEvent(QMouseEvent * event)
  *****************************************************************************/
 void PVGuiQt::PVListingView::setModel(QAbstractItemModel * model)
 {
-	QTableView::setModel(model);
+	PVTableView::setModel(model);
 	connect(model, &QAbstractItemModel::layoutChanged, this,
 			(void (PVGuiQt::PVListingView::*)()) &PVGuiQt::PVListingView::new_range);
 }
@@ -522,7 +506,7 @@ void PVGuiQt::PVListingView::setModel(QAbstractItemModel * model)
  *****************************************************************************/
 void PVGuiQt::PVListingView::columnResized(int column, int oldWidth, int newWidth)
 {
-	QTableView::columnResized(column, oldWidth, newWidth);
+	PVTableView::columnResized(column, oldWidth, newWidth);
 	_headers_width[lib_view().get_real_axis_index(column)] = newWidth;
 }
 
@@ -533,10 +517,12 @@ void PVGuiQt::PVListingView::columnResized(int column, int oldWidth, int newWidt
  *****************************************************************************/
 void PVGuiQt::PVListingView::reset()
 {
-	uint32_t default_width = horizontalHeader()->defaultSectionSize();
+	// Resize header_width with default value if it is greater
+	_headers_width.resize(horizontalHeader()->count(), horizontalHeader()->defaultSectionSize());
+
 	for (int i = 0; i <  horizontalHeader()->count(); i++) {
 		uint32_t axis_index = lib_view().get_real_axis_index(i);
-		setColumnWidth(i, _headers_width[axis_index] ? _headers_width[axis_index] : default_width);
+		setColumnWidth(i, _headers_width[axis_index]);
 	}
 
 	verticalHeader()->setFixedWidth(_vhead_max_width);
@@ -569,7 +555,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 		process_ctxt_menu_set_color();
 	} else if(act_sel) {
 		// process plugins extracted action
-		process_ctxt_menu_action(act_sel);
+		process_ctxt_menu_action(*act_sel);
 	}
 }
 
@@ -741,12 +727,11 @@ void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
  * PVGuiQt::PVListingView::process_ctxt_menu_action
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
+void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction const& act)
 {
-	assert(act); // FIXME : Should use a reference
 	// FIXME : This should be done another way (see menu creation)
 	// Get the filter associated with that menu entry
-	QString filter_name = act->data().toString();
+	QString filter_name = act.data().toString();
 	Picviz::PVLayerFilter_p lib_filter = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
 	if (!lib_filter) {
 		PVLOG_ERROR("(listing context-menu) filter '%s' does not exist !\n", qPrintable(filter_name));
@@ -754,7 +739,7 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
 	}
 
 	Picviz::PVLayerFilter::hash_menu_function_t entries = lib_filter->get_menu_entries();
-	QString act_name = act->text();
+	QString act_name = act.text();
 	if (entries.find(act_name) == entries.end()) {
 		PVLOG_ERROR("(listing context-menu) unable to find action '%s' in filter '%s'.\n", qPrintable(act_name), qPrintable(filter_name));
 		return;
@@ -769,7 +754,6 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
 	// Show the layout filter widget
 	Picviz::PVLayerFilter_p fclone = lib_filter->clone<Picviz::PVLayerFilter>();
 	assert(fclone);
-	// FIXME : The last one is never free'd
 	if (_ctxt_process) {
 		_ctxt_process->deleteLater();
 	}
@@ -1011,7 +995,7 @@ void PVGuiQt::PVListingView::update_on_move()
  *****************************************************************************/
 void PVGuiQt::PVListingView::paintEvent(QPaintEvent* event)
 {
-	QTableView::paintEvent(event);
+	PVTableView::paintEvent(event);
 
 	if (_hovered_axis != -1) {
 

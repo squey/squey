@@ -7,7 +7,6 @@
 #ifndef PVLISTINGVIEW_H
 #define PVLISTINGVIEW_H
 
-#include <QTableView>
 #include <QMenu>
 
 #include <pvkernel/core/general.h>
@@ -20,6 +19,7 @@
 #include <picviz/PVView_types.h>
 
 #include <pvguiqt/PVListingModel.h>
+#include <pvguiqt/PVTableView.h>
 
 #include <QHeaderView>
 
@@ -40,7 +40,7 @@ class PVListingModel;
 /**
  * \class PVListingView
  */
-class PVListingView : public QTableView
+class PVListingView : public PVTableView
 {
 	Q_OBJECT
 	friend class PVStatsListingWidget;
@@ -59,6 +59,11 @@ public:
 	 * record, every view will be updated on listing model modification.
 	 */
 	PVListingView(Picviz::PVView_sp& view, QWidget* parent = nullptr);
+
+	/**
+	 * Clean up plugin in progress
+	 */
+	~PVListingView();
 
 	/**
 	 * Get associate model
@@ -92,7 +97,6 @@ protected:
 	 * Set correct header size on reset
 	 *
 	 * Reset is called by Qt
-	 * FIXME : Is it really called?
 	 */
 	void reset() override;
 
@@ -135,12 +139,6 @@ protected:
 	 */
 	void mouseMoveEvent(QMouseEvent * event) override;
 
-	/**
-	 * Check for ToolTip event to disable tooltip when cell is big enough
-	 * to show the full cell content
-	 */
-	bool viewportEvent(QEvent *event) override;
-
 signals:
 	/**
 	 * Signal emited to update the Stat view (lower part of listing)
@@ -168,7 +166,7 @@ private:
 	/**
 	 * Process action from plugins (layer filter)
 	 */
-	void process_ctxt_menu_action(QAction* act);
+	void process_ctxt_menu_action(QAction const& act);
 
 	/**
 	 * Copy right clicked value in the clipboard.
@@ -354,9 +352,7 @@ private:
 	PVCol _ctxt_col; //!< Clicked col for context menu actions
 	QString _ctxt_v; //!< Clicked value for context menu actions
 	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process; //!< Current open LayerFilter plugins widget
-
-	// FIXME : Horrible data structure
-	std::unordered_map<uint32_t, uint32_t> _headers_width; //!< Width for each header
+	std::vector<uint32_t> _headers_width; //!< Width for each header
 
 	int _hovered_axis = -1; //!< Hovered axis flags for paintEvent
 	int _vhead_max_width; //!< Max width for the vertical header
