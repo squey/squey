@@ -30,7 +30,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterStringDefault)
 void Picviz::PVMappingFilterStringDefault::set_args(PVCore::PVArgumentList const& args)
 {
 	Picviz::PVMappingFilter::set_args(args);
-	_case_sensitive = !args["convert-lowercase"].toBool();
+	_case_sensitive = !args.at("convert-lowercase").toBool();
 }
 
 Picviz::PVMappingFilter::decimal_storage_type Picviz::string_mapping::process_utf16(const uint16_t* buf, size_t size, PVMappingFilter* m)

@@ -67,7 +67,7 @@ QVariant PVWidgets::PVArgumentListModel::data(const QModelIndex& index, int role
 	std::advance(it, index.row());
 
 	// We return the value of tha argument at that position
-	return it.value();
+	return it->value();
 }
 
 
@@ -155,7 +155,7 @@ bool PVWidgets::PVArgumentListModel::setData(const QModelIndex& index, const QVa
 	if (it == _args->end())
 		return false; // Should never happen !
 
-	it.value() = value;
+	it->value() = value;
 
 	emit dataChanged(index, index);
 

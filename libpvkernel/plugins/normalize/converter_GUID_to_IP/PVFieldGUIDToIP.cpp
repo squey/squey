@@ -20,7 +20,7 @@ PVFilter::PVFieldGUIDToIP::PVFieldGUIDToIP(PVCore::PVArgumentList const& args) :
 void PVFilter::PVFieldGUIDToIP::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	_ipv6 = args["ipv6"].toBool();
+	_ipv6 = args.at("ipv6").toBool();
 }
 
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldGUIDToIP)

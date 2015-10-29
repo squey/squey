@@ -158,7 +158,7 @@ void PVRush::PVFormat::debug()
 			PVCore::PVArgumentList const& args = fdata.filter_args;
 			PVCore::PVArgumentList::const_iterator it_a;
 			for (it_a = args.begin(); it_a != args.end(); it_a++) {
-				PVLOG_PLAIN("'%s' = '%s'\n", qPrintable(it_a.key()), qPrintable(PVCore::PVArgument_to_QString(it_a.value())));
+				PVLOG_PLAIN("'%s' = '%s'\n", qPrintable(it_a->key()), qPrintable(PVCore::PVArgument_to_QString(it_a->value())));
 			}
 		}
 	}

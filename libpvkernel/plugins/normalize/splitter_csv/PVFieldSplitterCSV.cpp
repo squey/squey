@@ -19,8 +19,8 @@ PVFilter::PVFieldSplitterCSV::PVFieldSplitterCSV(PVCore::PVArgumentList const& a
 void PVFilter::PVFieldSplitterCSV::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	_sep = args["sep"].toChar().toLatin1();
-	_quote = args["quote"].toChar().toLatin1();
+	_sep = args.at("sep").toChar().toLatin1();
+	_quote = args.at("quote").toChar().toLatin1();
 }
 
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterCSV)

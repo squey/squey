@@ -145,7 +145,7 @@ void PVCore::PVArgumentList_to_QSettings(const PVArgumentList& args, QSettings& 
 	PVArgumentList::const_iterator it;
 	settings.beginGroup(group_name);
 	for (it = args.begin(); it != args.end(); it++) {
-		settings.setValue(it.key(), PVArgument_to_QString(it.value()));
+		settings.setValue(it->key(), PVArgument_to_QString(it->value()));
 	}
 	settings.endGroup();
 }
@@ -166,7 +166,7 @@ PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings, 
 			else {
 				str = settings.value(key).toString();
 			}
-			args[key] = QString_to_PVArgument(str, def_args[key]);
+			args[key] = QString_to_PVArgument(str, def_args.at(key));
 		}
 	}
 	settings.endGroup();
@@ -181,8 +181,8 @@ void PVCore::PVArgumentList_to_QDomElement(const PVArgumentList& args, QDomEleme
 	PVArgumentList::const_iterator it;
 	for (it = args.begin(); it != args.end(); it++) {
 		QDomElement arg_elt = elt.ownerDocument().createElement("argument");
-		arg_elt.setAttribute("name", it.key());
-		arg_elt.setAttribute("value", PVArgument_to_QString(it.value())); 
+		arg_elt.setAttribute("name", it->key());
+		arg_elt.setAttribute("value", PVArgument_to_QString(it->value()));
 		elt.appendChild(arg_elt);
 	}
 }
@@ -198,7 +198,7 @@ PVCore::PVArgumentList PVCore::QDomElement_to_PVArgumentList(QDomElement const& 
 			continue;
 		}
 		QString value = child.attribute("value", QString());
-		args[key] = QString_to_PVArgument(value, def_args[key]);
+		args[key] = QString_to_PVArgument(value, def_args.at(key));
 	}
 	return args;
 }
@@ -207,7 +207,7 @@ void PVCore::dump_argument_list(PVArgumentList const& l)
 {
 	PVCore::PVArgumentList::const_iterator it;
 	for (it = l.begin(); it != l.end(); it++) {
-		PVLOG_INFO("%s = %s (%s)\n", qPrintable(it.key().key()), qPrintable(it.value().toString()), qPrintable(PVArgument_to_QString(it.value())));
+		PVLOG_INFO("%s = %s (%s)\n", qPrintable(it->key().key()), qPrintable(it->value().toString()), qPrintable(PVArgument_to_QString(it->value())));
 	}
 }
 
@@ -220,10 +220,10 @@ PVCore::PVArgumentList PVCore::filter_argument_list_with_keys(PVArgumentList con
 		}
 		PVCore::PVArgument arg;
 		if (args.contains(key)) {
-			arg = args[key];
+			arg = args.at(key);
 		}
 		else {
-			arg = def_args[key];
+			arg = def_args.at(key);
 		}
 		ret[key] = arg;
 	}
@@ -234,9 +234,9 @@ void PVCore::PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret, PV
 {
 	PVCore::PVArgumentList::iterator it;
 	for (it = ret.begin(); it != ret.end(); it++) {
-		QString const& key(it.key());
+		QString const& key(it->key());
 		if (ref.contains(key)) {
-			it.value() = ref[key];
+			it->value() = ref.at(key);
 		}
 	}
 }
@@ -245,9 +245,9 @@ void PVCore::PVArgumentList_set_missing_args(PVCore::PVArgumentList& ret, PVCore
 {
 	PVCore::PVArgumentList::const_iterator it;
 	for (it = def_args.begin(); it != def_args.end(); it++) {
-		QString const& key(it.key());
+		QString const& key(it->key());
 		if (!ret.contains(key)) {
-			ret[key] = it.value();
+			ret[key] = it->value();
 		}
 	}
 }

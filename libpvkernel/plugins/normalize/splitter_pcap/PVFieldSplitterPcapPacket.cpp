@@ -60,7 +60,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterPcapPacket)
 void PVFilter::PVFieldSplitterPcapPacket::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	_datalink_type = args["datalink"].toInt();
+	_datalink_type = args.at("datalink").toInt();
 }
 
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterPcapPacket::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)

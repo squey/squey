@@ -80,7 +80,7 @@ PVCore::PVArgumentList Picviz::PVAxis::args_from_node(node_args_t const& args_st
 	for (it = args_str.begin(); it != args_str.end(); it++) {
 		QString const& key(it.key());
 		if (def_args.contains(key)) {
-			ret[it.key()] = PVCore::QString_to_PVArgument(it.value(), def_args[key]);
+			ret[it.key()] = PVCore::QString_to_PVArgument(it.value(), def_args.at(key));
 		}
 	}
 	return ret;

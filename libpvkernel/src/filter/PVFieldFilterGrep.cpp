@@ -40,8 +40,8 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldFilterGrep)
 void PVFilter::PVFieldFilterGrep::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	_str = _args["str"].toString();
-	_inverse = args["reverse"].toBool();
+	_str = _args.at("str").toString();
+	_inverse = args.at("reverse").toBool();
 }
 
 /******************************************************************************

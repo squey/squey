@@ -247,7 +247,7 @@ PVFilter::PVFieldSplitterMacAddress::PVFieldSplitterMacAddress(PVCore::PVArgumen
 void PVFilter::PVFieldSplitterMacAddress::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	_uppercased = args[UPPERCASE].toBool();
+	_uppercased = args.at(UPPERCASE).toBool();
 }
 
 /******************************************************************************

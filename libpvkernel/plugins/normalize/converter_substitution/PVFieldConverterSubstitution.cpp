@@ -38,11 +38,11 @@ void PVFilter::PVFieldConverterSubstitution::set_args(PVCore::PVArgumentList con
 {
 	FilterT::set_args(args);
 
-	_path              = args["path"].toString();
-	_default_value     = args["default_value"].toString();
-	_use_default_value = args["use_default_value"].toBool();
-	_sep_char          = args["sep"].toChar();
-	_quote_char        = args["quote"].toChar();
+	_path              = args.at("path").toString();
+	_default_value     = args.at("default_value").toString();
+	_use_default_value = args.at("use_default_value").toBool();
+	_sep_char          = args.at("sep").toChar();
+	_quote_char        = args.at("quote").toChar();
 }
 
 /******************************************************************************

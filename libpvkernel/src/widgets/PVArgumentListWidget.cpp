@@ -221,9 +221,9 @@ void PVWidgets::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
 	// Delete all items from this main QGridLayout
 	clearLayout(_args_layout);
 	for (it = args.begin(); it != args.end(); it++) {
-		QVariant::Type vtype = (QVariant::Type) it.value().userType();
+		QVariant::Type vtype = (QVariant::Type) it->value().userType();
 		QWidget* widget = _args_widget_factory->createEditor(vtype, this);
-		QLabel* label = new QLabel(it.key().desc() + QLatin1String(":"));
+		QLabel* label = new QLabel(it->key().desc() + QLatin1String(":"));
 		label->setBuddy(widget);
 		_args_layout->addWidget(label, row, 0, Qt::AlignRight);
 		_args_layout->addWidget(widget, row, 1);
@@ -244,10 +244,10 @@ void PVWidgets::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
  *****************************************************************************/
 void PVWidgets::PVArgumentListWidget::set_args_values(PVCore::PVArgumentList const& args)
 {
-	QList<PVCore::PVArgumentList::key_type> keys_to_change = args.keys();
+	PVCore::PVArgumentKeyList keys_to_change = args.keys();
 	foreach(PVCore::PVArgumentList::key_type const& key, keys_to_change) {
 		if (_args->contains(key)) {
-			(*_args)[key] = args.value(key);
+			(*_args)[key] = args.at(key);
 		}
 	}
 	_mapper->revert();

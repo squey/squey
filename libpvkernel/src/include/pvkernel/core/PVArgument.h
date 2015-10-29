@@ -8,6 +8,7 @@
 #define PVCORE_PVARGUMENT_H
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVOrderedMap.h>
 #include <QHash>
 #include <QString>
 #include <QDomElement>
@@ -70,10 +71,10 @@ namespace PVCore {
 
 typedef QVariant                           PVArgument;
 
-class PVArgumentList : public QHash<PVArgumentKey,PVArgument>
+class PVArgumentList : public PVOrderedMap<PVArgumentKey,PVArgument>
 {
 public:
-	PVArgumentList() : QHash<PVArgumentKey,PVArgument>(),
+	PVArgumentList() : PVOrderedMap<PVArgumentKey,PVArgument>(),
 	                   _edit_flag(true)
 	{}
 
@@ -85,7 +86,7 @@ private:
 	bool _edit_flag;
 };
 
-typedef QList<PVArgumentList::key_type>    PVArgumentKeyList;
+using PVArgumentKeyList = std::vector<PVArgumentList::key_type>;
 
 //class PVArgumentList : public QHash<PVArgumentKey, PVArgument>
 //{
