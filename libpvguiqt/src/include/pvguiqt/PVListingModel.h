@@ -212,11 +212,6 @@ public:
     void reset_selection();
 
     /**
-     * Maximum number of pages in the current view
-     */
-    size_t max_page() const;
-
-    /**
      * Start a selection at a given row.
      *
      * @param[in] row : Where we start the selection
@@ -310,6 +305,11 @@ public:
      */
     void update_pages(size_t num_pages, size_t page_step);
 
+    /**
+     * Check if we reach the end of the listing to get the last scrollbar tick.
+     */
+    bool is_last_pos() const;
+
     private slots:
 	/**
 	 * With axes combination modifications, we have to update the model and
@@ -353,6 +353,8 @@ public:
     size_t _pos_in_page; //!< Position in the page
     size_t _page_size; //!< Number of elements per page
     size_t _last_page_size; //!< Number of elements in the last page
+    size_t _page_number; //!< Number of pages
+    size_t _page_step; //!< Number of elements not counted in scroll ticks
 
     // Selection information
     Picviz::PVSelection _current_selection; //!< The current "visual" selection

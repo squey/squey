@@ -861,7 +861,7 @@ void PVGuiQt::PVListingView::slider_move_to(int value)
 void PVGuiQt::PVListingView::new_range(int min, int max)
 {
 	if(model()) {
-		listing_model()->update_pages(max - min, verticalScrollBar()->pageStep());
+		listing_model()->update_pages(max - min + 1, verticalScrollBar()->pageStep());
 		move_to_page(0);
 	}
 }
@@ -869,7 +869,7 @@ void PVGuiQt::PVListingView::new_range(int min, int max)
 void PVGuiQt::PVListingView::new_range()
 {
 	if(model()) {
-		listing_model()->update_pages(verticalScrollBar()->maximum() - verticalScrollBar()->minimum(),
+		listing_model()->update_pages(verticalScrollBar()->maximum() - verticalScrollBar()->minimum() + 1,
 				verticalScrollBar()->pageStep());
 		move_to_page(0);
 	}
@@ -982,7 +982,14 @@ void PVGuiQt::PVListingView::update_on_move()
 	// Save and restore pos_in_range as moving cursor call slider_move_to which
 	// set pos_in_page_to 0.
 	size_t pos_in_page = listing_model()->pos_in_page();
-	verticalScrollBar()->setValue(listing_model()->current_page());
+	// Check if there is a scrollbar, otherwise current_page can be 0 but
+	// setValue(1) is invalid.
+	if(listing_model()->is_last_pos() and listing_model()->current_page() != 0) {
+		// Last tick is only use when we reach the end
+		verticalScrollBar()->setValue(listing_model()->current_page() + 1);
+	} else {
+		verticalScrollBar()->setValue(listing_model()->current_page());
+	}
 	listing_model()->pos_in_page() = pos_in_page;
 	verticalHeader()->viewport()->update();
 	viewport()->update();

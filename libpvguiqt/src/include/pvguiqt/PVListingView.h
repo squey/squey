@@ -157,7 +157,7 @@ private:
 	 * Normal selection : replace the old one
 	 * Shift selection : Add unselected line in the QSelection to the PVSelection
 	 * Control selection : Remove selected line to the PVSelection
-	 * Shift + constrol selection : Remove lines not in QSelection but keep state of the others lines
+	 * Shift + control selection : Remove lines not in QSelection but keep state of the others lines
 	 *
 	 */
 	void update_view_selection_from_listing_selection();
