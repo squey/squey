@@ -1,3 +1,9 @@
+#
+# @file
+#
+# @copyright (C) Picviz Labs 2011-March 2015
+# @copyright (C) ESI Group INENDI April 2015-2015
+
 cmake_minimum_required(VERSION 2.8)
 
 project(picviz-inspector)

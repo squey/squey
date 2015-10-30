@@ -1,8 +1,9 @@
 #!/bin/sh
-
-# \file run-extract_quadtree.sh
 #
-# Copyright (C) Picviz Labs 2010-2012
+# @file
+#
+# @copyright (C) Picviz Labs 2010-March 2015
+# @copyright (C) ESI Group INENDI April 2015-2015
 
 TEST_NUM=`./extract_quadtree 1 -1`
 for COUNT in 1000 10000 100000 1000000 10000000 100000000 ; do

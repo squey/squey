@@ -1,12 +1,8 @@
 /**
- * \file nraw_count_by.cpp
+ * @file
  *
- * Copyright (C) Picviz Labs 2013
- */
-/**
- * \file nraw_create.cpp
- *
- * Copyright (C) Picviz Labs 2010-2012
+ * @copyright (C) Picviz Labs 2010-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
 #define SIMULATE_PIPELINE

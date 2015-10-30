@@ -1,7 +1,8 @@
 /**
- * \file
+ * @file
  *
- * Copyright (C) ESI Group INENDI 2015
+ * 
+ * @copyright (C) ESI Group INENDI 2015-2015
  */
 
 #ifndef PVGUIQT_PVTABLEVIEW_HPP

@@ -1,8 +1,8 @@
 #
-# \file CMakeLists.txt
+# @file
 #
-# Copyright (C) Picviz Labs 2010-2012
-# Copyright (C) ESI Group INENDI 2015
+# @copyright (C) Picviz Labs 2010-March 2015
+# @copyright (C) ESI Group INENDI April 2015-2015
 
 add_pv_compile_test(Tcore_timeformat_perf LINKS pvkernel ${ICU_LIBRARY} FILES time-format-perf.cpp)
 add_pv_compile_test(Tcore_serialize LINKS pvkernel FILES serialize.cpp)

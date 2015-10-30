@@ -1,7 +1,8 @@
 /**
  * @file
  *
- * @copyright (C) Picviz Labs 2015
+ * 
+ * @copyright (C) ESI Group INENDI 2015-2015
  */
 
 #ifndef LIBPVKERNEL_PLUGINS_INPUT_TYPES_COMMON_PVPARAMSWIDGET_H_

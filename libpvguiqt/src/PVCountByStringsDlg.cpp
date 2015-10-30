@@ -1,7 +1,8 @@
 /**
- * \file PVCountByStringsDlg.cpp
+ * @file
  *
- * Copyright (C) Picviz Labs 2012-2013
+ * @copyright (C) Picviz Labs 2012-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
 #include <pvguiqt/PVCountByStringsDlg.h>

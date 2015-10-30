@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# @file
+#
+# @copyright (C) Picviz Labs 2012-March 2015
+# @copyright (C) ESI Group INENDI April 2015-2015
+
 import time
 
 def load_investigation(path):

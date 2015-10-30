@@ -1,7 +1,8 @@
 /**
- * \file PVElasticsearchQuery.cpp
+ * @file
  *
- * Copyright (C) Picviz Labs 2015
+ * 
+ * @copyright (C) ESI Group INENDI 2015-2015
  */
 
 #include "PVElasticsearchQuery.h"

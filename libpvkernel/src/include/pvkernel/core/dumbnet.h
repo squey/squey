@@ -1,7 +1,8 @@
 /**
- * \file dumbnet.h
+ * @file
  *
- * Copyright (C) Picviz Labs 2001-2012
+ * @copyright (C) Picviz Labs 2001-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
 #ifndef DNET_H

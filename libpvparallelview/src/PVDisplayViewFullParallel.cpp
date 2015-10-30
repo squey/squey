@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @copyright (C) Picviz Labs 2012-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
+ */
+
 #include <picviz/PVView.h>
 
 #include <pvparallelview/PVLibView.h>

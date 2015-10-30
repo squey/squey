@@ -1,7 +1,8 @@
 /**
- * \file PVField.h
+ * @file
  *
- * Copyright (C) Picviz Labs 2010-2012
+ * @copyright (C) Picviz Labs 2010-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
 #ifndef PVFIELD_FILE_H

@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * 
+ * @copyright (C) ESI Group INENDI 2015-2015
+ */
+
 #ifndef __PVSPLUNKJSONCONVERTER_H__
 #define __PVSPLUNKJSONCONVERTER_H__
 

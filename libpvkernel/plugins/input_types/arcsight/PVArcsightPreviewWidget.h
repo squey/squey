@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @copyright (C) Picviz Labs 2011-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
+ */
+
 #ifndef PVDBPREVIEWWIDGET_FILE_H
 #define PVDBPREVIEWWIDGET_FILE_H
 

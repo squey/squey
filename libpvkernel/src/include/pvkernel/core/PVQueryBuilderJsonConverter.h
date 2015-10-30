@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * 
+ * @copyright (C) ESI Group INENDI 2015-2015
+ */
+
 #ifndef __PVQUERYBUILDERJSONCONVERTER_H__
 #define __PVQUERYBUILDERJSONCONVERTER_H__
 

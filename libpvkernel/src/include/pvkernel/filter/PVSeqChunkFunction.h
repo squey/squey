@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @copyright (C) Picviz Labs 2013-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
+ */
+
 #ifndef PVFILTER_PVSEQCHUNKFUNCTION_H
 #define PVFILTER_PVSEQCHUNKFUNCTION_H
 

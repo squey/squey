@@ -1,7 +1,8 @@
 /**
- * \file PVPlotted_create_table_cuda.h
+ * @file
  *
- * Copyright (C) Picviz Labs 2009-2012
+ * @copyright (C) Picviz Labs 2009-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
 #ifndef PICVIZ_PVPLOTTED_CREATE_TABLE_CUDA_H

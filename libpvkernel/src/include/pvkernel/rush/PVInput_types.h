@@ -1,7 +1,8 @@
 /**
- * \file PVInput_types.h
+ * @file
  *
- * Copyright (C) Picviz Labs 2010-2012
+ * @copyright (C) Picviz Labs 2010-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
 #ifndef PVKERNEL_RUSH_PVINPUT_TYPES_H

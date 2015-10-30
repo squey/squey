@@ -1,7 +1,8 @@
 /**
- * \file PVCombiningFunctionView_types.h
+ * @file
  *
- * Copyright (C) Picviz Labs 2010-2012
+ * @copyright (C) Picviz Labs 2010-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
 #ifndef PICVIZ_PVCOMBININGFUNCTIONVIEW_TYPES_H

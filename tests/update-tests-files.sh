@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# @file
+#
+# 
+# @copyright (C) ESI Group INENDI 2015-2015
 
 if [ $# -ne 2 ]; then
 	echo "Usage: $0 test-files-root rev-file" 1>&2

@@ -1,3 +1,9 @@
+#
+# @file
+#
+# @copyright (C) Picviz Labs 2013-March 2015
+# @copyright (C) ESI Group INENDI April 2015-2015
+
 find_path(NUMA_INCLUDE_DIR numa.h HINTS /usr/include)
 find_library(NUMA_LIBRARY NAMES numa HINTS /usr/lib)
 

@@ -1,7 +1,8 @@
 /**
- * \file
+ * @file
  *
- * Copyright (C) Picviz Labs 2015
+ * 
+ * @copyright (C) ESI Group INENDI 2015-2015
  */
 
 #ifndef __LIBPVKERNEL_PLUGINS_COMMON_SPLUNK_SPLUNKAPI_H__

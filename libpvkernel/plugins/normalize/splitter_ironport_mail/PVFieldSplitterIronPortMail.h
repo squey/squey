@@ -1,7 +1,8 @@
 /**
- * \file PVFieldSplitterIronPortMail.h
+ * @file
  *
- * Copyright (C) Picviz Labs 2011-2013
+ * @copyright (C) Picviz Labs 2011-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
 #ifndef PVFILTER_PVFIELDSPLITTERIRONPORTMAIL_H

@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @copyright (C) Picviz Labs 2011-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
+ */
+
 #include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
