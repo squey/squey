@@ -288,10 +288,6 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Inendi::PVView_sp& view)
 
 	__impl::PVTableViewResizeEventFilter* table_view_resize_event_handler = new __impl::PVTableViewResizeEventFilter();
 
-	Inendi::PVSortingFunc_p sf = view->get_sort_plugin_for_col(_col);
-	PVStringSortProxyModel* proxy_model = static_cast<PVStringSortProxyModel*>(_values_view->model());
-	proxy_model->set_qt_order_func(sf->qt_f_lesser());
-
 	sort_by_column(0);
 
 	_values_view->installEventFilter(table_view_resize_event_handler);

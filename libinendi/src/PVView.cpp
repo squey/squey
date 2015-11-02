@@ -10,6 +10,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 #include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/inendi_bench.h>
 
 #include <inendi/PVPlotted.h>
 #include <inendi/PVRoot.h>
@@ -1252,22 +1253,6 @@ bool& Inendi::PVView::are_view_unselected_zombie_visible()
 	return state_machine->are_view_unselected_zombie_visible();
 }
 
-Inendi::PVSortingFunc_p Inendi::PVView::get_sort_plugin_for_col(PVCol col) const
-{
-	// Temporary, waiting for all of this to be configurable
-	PVAxis const& axis = axes_combination.get_original_axis(col);
-	QString type = axis.get_type();
-	QString mapping = axis.get_mapping();
-	PVSortingFunc_p f_lib = LIB_CLASS(Inendi::PVSortingFunc)::get().get_class_by_name(type + "_" + mapping);
-	if (!f_lib) {
-		f_lib = LIB_CLASS(Inendi::PVSortingFunc)::get().get_class_by_name(type + "_default");
-		if (!f_lib) {
-			f_lib = PVSortingFunc_p(new PVDefaultSortingFunc());
-		}
-	}
-	return f_lib;
-}
-
 void Inendi::PVView::compute_layer_min_max(Inendi::PVLayer& layer)
 {
 	layer.compute_min_max(*get_parent<Inendi::PVPlotted>());
@@ -1303,6 +1288,14 @@ PVRow Inendi::PVView::get_plotted_col_max_row(PVCol const combined_col) const
 {
 	PVCol const col = axes_combination.get_axis_column_index(combined_col);
 	return get_parent<PVPlotted>()->get_col_max_row(col);
+}
+
+void Inendi::PVView::sort_indexes(PVCol col, pvcop::db::indexes& idxes, tbb::task_group_context* /*ctxt = NULL*/) const
+{
+	BENCH_START(pvcop_sort);
+	pvcop::db::array column = get_rushnraw_parent().collection().column(col);
+	idxes.parallel_sort_on(column);
+	BENCH_END(pvcop_sort, "pvcop_sort", 0, 0, 1, idxes.size());
 }
 
 // Load/save and serialization

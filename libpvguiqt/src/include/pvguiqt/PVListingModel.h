@@ -347,7 +347,9 @@ public:
     // We use mutable as the data Qt interface function have to be const
     mutable QString _current_data; //!< Data of the current cell.
     std::vector<PVRow> _filter; //!< Lines to use, map listing_row_id to nraw_row_id unsorted
-    std::vector<PVRow> _sort; //!< Sorted lines, map listing not filtered position to nraw position
+    pvcop::db::indexes _sort; //!< Sorted lines, map listing not filtered position to nraw position
+    PVCol _sorted_column; //!< The current sorted column
+    Qt::SortOrder _sort_order; //!< The sort order of the current sorted column
 
     // Pagination information
     size_t _current_page; //!< Page currently processed
@@ -362,6 +364,8 @@ public:
     ssize_t _start_sel; //!< Begin of the "in progress" selection
     ssize_t _end_sel; //!< End of the "in progress" selection
     bool _in_select_mode; //!< Whether elements should be selected of unselected from "in progress" selection to current selection.
+
+
 };
 
 }

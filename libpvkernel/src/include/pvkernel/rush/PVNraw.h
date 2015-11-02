@@ -235,6 +235,9 @@ public:
 	 */
 	const std::string& get_nraw_folder() const { return _backend.get_nraw_folder(); }
 
+	pvcop::collection& collection() { assert(_collection); return *_collection; }
+	const pvcop::collection& collection() const { assert(_collection); return *_collection; }
+
 public:
 	bool load_from_disk(const std::string& nraw_folder, PVCol ncols);
 
@@ -256,7 +259,7 @@ private:
 
 	pvcop::collector* _collector = nullptr;
 	pvcop::collection* _collection = nullptr;
-	pvcop::format _format;
+	pvcop::format* _format = nullptr;
 };
 
 }

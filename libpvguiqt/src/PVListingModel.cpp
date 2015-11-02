@@ -39,6 +39,9 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent
 	_view(view),
 	_obs_vis(this),
 	_obs_zomb(this),
+	_sort(lib_view().get_parent<Inendi::PVSource>()->get_row_count()),
+	_sorted_column(PVCOL_INVALID_VALUE),
+	_sort_order(Qt::SortOrder::AscendingOrder),
 	_current_page(0),
 	_pos_in_page(0),
 	_page_size(0),
@@ -75,8 +78,8 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent
 	std::iota(_filter.begin(), _filter.end(), 0);
 
 	// No reorder at start
-	_sort.resize(lib_view().get_parent<Inendi::PVSource>()->get_row_count());
-	std::iota(_sort.begin(), _sort.end(), 0);
+	auto& sort = _sort.to_core_array();
+	std::iota(sort.begin(), sort.end(), 0);
 
 	// Start with empty selection
 	_current_selection.select_none();
@@ -297,7 +300,16 @@ int PVGuiQt::PVListingModel::rowIndex(PVRow index) const
     // the "screen"
     // _filter convert listing line number to sorted nraw line number
     // _sort convert sorted nraw line number to nraw line number
-    return _sort[_filter[(_current_page * _page_size + _pos_in_page) + (index - _current_page)]];
+
+	size_t idx = (_current_page * _page_size + _pos_in_page) + (index - _current_page);
+
+	// Simply invert index when sort order is descending
+	if (_sort_order == Qt::SortOrder::DescendingOrder) {
+		idx = _sort.size() - idx -1;
+	}
+
+	const auto& sort = _sort.to_core_array();
+    return sort[_filter[idx]];
 }
 
 /******************************************************************************
@@ -307,7 +319,11 @@ int PVGuiQt::PVListingModel::rowIndex(PVRow index) const
  *****************************************************************************/
 void PVGuiQt::PVListingModel::sort(PVCol col, Qt::SortOrder order, tbb::task_group_context & ctxt)
 {
-	lib_view().sort_indexes_with_axes_combination(col, order, _sort, &ctxt);
+	lib_view().sort_indexes_with_axes_combination(col, _sort, &ctxt);
+	if (not ctxt.is_group_execution_cancelled()) {
+		_sorted_column = col;
+		_sort_order = order;
+	}
 }
 
 /******************************************************************************
