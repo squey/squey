@@ -23,7 +23,7 @@ PVRush::list_creators PVRush::PVSourceCreatorFactory::get_by_input_type(PVInputT
 	PVRush::list_creators lcreators_type;
 
 	for (itc = list_creators.begin(); itc != list_creators.end(); itc++) {
-		PVRush::PVSourceCreator_p sc = itc.value();
+		PVRush::PVSourceCreator_p sc = itc->value();
 		if (sc->supported_type().compare(itype) != 0) {
 			continue;
 		}

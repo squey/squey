@@ -204,7 +204,7 @@ PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_i
 	LIB_CLASS(PVFilter::PVFieldsSplitter)::list_classes const& lf = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_list();
 	LIB_CLASS(PVFilter::PVFieldsSplitter)::list_classes::const_iterator it;
 	for (it = lf.begin(); it != lf.end(); it++) {
-		PVFilter::PVFieldsSplitter_p sp = (*it)->clone<PVFilter::PVFieldsSplitter>();
+		PVFilter::PVFieldsSplitter_p sp = it->value()->clone<PVFilter::PVFieldsSplitter>();
 		PVFilter::PVFieldSplitterChunkMatch match(sp);
 		match.push_chunk(chunk);
 
@@ -212,7 +212,7 @@ PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_i
 		size_t nfields;
 
 		if (match.get_match(args, nfields)) {
-			PVLOG_DEBUG("(PVFieldSplitterChunkMatch) filter %s matches with %d fields\n with arguments:\n", qPrintable(it.key()), nfields);
+			PVLOG_DEBUG("(PVFieldSplitterChunkMatch) filter %s matches with %d fields\n with arguments:\n", qPrintable(it->key()), nfields);
 			PVCore::dump_argument_list(args);
 			ret = sp;
 			ret->set_number_expected_fields(nfields);

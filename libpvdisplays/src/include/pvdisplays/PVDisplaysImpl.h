@@ -53,7 +53,7 @@ public:
 		typename PVCore::PVClassLibrary<If>::list_classes const& lc = PVCore::PVClassLibrary<If>::get().get_list();
 		// `lc' is of type QHash<QString,shared_pointer<If>>
 		for (auto it = lc.begin(); it != lc.end(); it++) {
-			If& obj = *(it.value());
+			If& obj = *(it->value());
 			if (obj.match_flags(flags)) {
 				f(obj);
 			}

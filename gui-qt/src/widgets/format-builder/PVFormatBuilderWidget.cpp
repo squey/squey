@@ -361,19 +361,19 @@ void PVInspector::PVFormatBuilderWidget::initSplitters() {
         // For instance :
         LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes::const_iterator it;
         for (it = splitters.begin(); it != splitters.end(); it++) {
-			PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it.value();
+			PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it->value();
 			assert(pluginsSplitter);
 			_list_splitters.push_back(pluginsSplitter);
-			pluginsSplitter->get_action_menu()->setData(it.key());
+			pluginsSplitter->get_action_menu()->setData(it->key());
 			connect(pluginsSplitter->get_action_menu(), SIGNAL(triggered()), this, SLOT(slotAddSplitter()));
         }
 
         LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::list_classes::const_iterator itc;
 		for (itc = converters.begin(); itc != converters.end(); itc++) {
-			PVFilter::PVFieldsConverterParamWidget_p pluginsConverter = itc.value();
+			PVFilter::PVFieldsConverterParamWidget_p pluginsConverter = itc->value();
 			assert(pluginsConverter);
 			_list_converters.push_back(pluginsConverter);
-			pluginsConverter->get_action_menu()->setData(itc.key());
+			pluginsConverter->get_action_menu()->setData(itc->key());
 			connect(pluginsConverter->get_action_menu(), SIGNAL(triggered()), this, SLOT(slotAddConverter()));
 		}
 }

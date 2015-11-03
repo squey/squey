@@ -10,7 +10,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVTag.h>
 
-#include <QMap>
+#include <pvkernel/core/PVOrderedMap.h>
 #include <QString>
 
 #include <cassert>
@@ -75,7 +75,7 @@ class PVClassLibrary {
 public:
 	// PF is a shared pointer to a registered class's base class
 	typedef typename RegAs::p_type PF;
-	typedef QMap<QString,PF> list_classes;
+	typedef PVCore::PVOrderedMap<QString,PF> list_classes;
 	typedef PVClassLibrary<RegAs> C;
 	typedef PVTag<RegAs> tag;
 	typedef QList<tag> list_tags;
@@ -101,7 +101,7 @@ public:
 		pf->__registered_class_name = name;
 		pf->__registered_class_id = _last_registered_id;
 		_last_registered_id++;
-		_classes.insert(name, pf);
+		_classes[name] = pf;
 	}
 
 	template<class T>
@@ -111,8 +111,8 @@ public:
 		typename list_classes::iterator it_c;
 		PF pf;
 		for (it_c = _classes.begin(); it_c != _classes.end(); it_c++) {
-			if (dynamic_cast<T*>(it_c.value().get()) != NULL) {
-				pf = it_c.value();
+			if (dynamic_cast<T*>(it_c->value().get()) != NULL) {
+				pf = it_c->value();
 				break;
 			}
 		}
@@ -174,7 +174,7 @@ public:
 	{
 		if (!_classes.contains(name))
 			return PF();
-		return _classes[name];
+		return _classes.at(name);
 	}
 
 private:
