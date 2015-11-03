@@ -108,8 +108,8 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 		using const_layer_menu_iterator = Picviz::PVLayerFilter::hash_menu_function_t::const_iterator;
 		PVLOG_DEBUG("(listing context-menu) for filter '%s', there are %d entries\n", qPrintable(it.key()), entries.size());
 		for (const_layer_menu_iterator it_ent = entries.begin(); it_ent != entries.end(); it_ent++) {
-			PVLOG_DEBUG("(listing context-menu) add action '%s' for filter '%s'\n", qPrintable(it_ent.key()), qPrintable(it.key()));
-			QAction* act = new QAction(it_ent.key(), &_ctxt_menu);
+			PVLOG_DEBUG("(listing context-menu) add action '%s' for filter '%s'\n", qPrintable(it_ent->key()), qPrintable(it.key()));
+			QAction* act = new QAction(it_ent->key(), &_ctxt_menu);
 			act->setData(QVariant(it.key())); // Save the name of the layer filter associated to this action
 			_ctxt_menu.addAction(act);
 		}
