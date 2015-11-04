@@ -554,9 +554,9 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 
 	for (it = lf.begin(); it != lf.end(); it++) {
 		//(*it).get_args()["Menu_name"]
-		QString filter_name = it.key();
-		QString action_name = it.value()->menu_name();
-		QString status_tip = it.value()->status_bar_description();
+		QString filter_name = it->key();
+		QString action_name = it->value()->menu_name();
+		QString status_tip = it->value()->status_bar_description();
 
 		QStringList actions_name = action_name.split(QString("/"));
 		if (actions_name.count() > 1) {

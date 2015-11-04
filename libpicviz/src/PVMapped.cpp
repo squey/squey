@@ -141,7 +141,7 @@ void Picviz::PVMapped::finish_process_from_rush_pipeline()
 	LIB_CLASS(Picviz::PVMandatoryMappingFilter)::list_classes::const_iterator it_lfmf;
 	mand_mapping_filters.reserve(lfmf.size());
 	for (it_lfmf = lfmf.begin(); it_lfmf != lfmf.end(); it_lfmf++) {
-		PVMandatoryMappingFilter::p_type mf = (*it_lfmf)->clone<PVMandatoryMappingFilter>();
+		PVMandatoryMappingFilter::p_type mf = it_lfmf->value()->clone<PVMandatoryMappingFilter>();
 		mand_mapping_filters.push_back(mf);
 	}
 	std::vector<PVMandatoryMappingFilter::p_type>::const_iterator it_pmf;
@@ -266,7 +266,7 @@ void Picviz::PVMapped::create_table()
 	LIB_CLASS(Picviz::PVMandatoryMappingFilter)::list_classes::const_iterator it_lfmf;
 	mand_mapping_filters.reserve(lfmf.size());
 	for (it_lfmf = lfmf.begin(); it_lfmf != lfmf.end(); it_lfmf++) {
-		PVMandatoryMappingFilter::p_type mf = (*it_lfmf)->clone<PVMandatoryMappingFilter>();
+		PVMandatoryMappingFilter::p_type mf = it_lfmf->value()->clone<PVMandatoryMappingFilter>();
 		mand_mapping_filters.push_back(mf);
 	}
 	std::vector<PVMandatoryMappingFilter::p_type>::const_iterator it_pmf;

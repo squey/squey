@@ -22,7 +22,7 @@
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
 
-#include <QMap>
+#include <pvkernel/core/PVOrderedMap.h>
 
 namespace Picviz {
 
@@ -37,7 +37,7 @@ public:
 	// This is used for context menu integration (in the NRAW listing)
 	typedef boost::function<PVCore::PVArgumentList(PVRow, PVCol, PVCol, QString const&)> ctxt_menu_f;
 	// This QHash will be used for specifying a list of couple (name, function) that will be used in the context menu
-	typedef QMap<QString, ctxt_menu_f> hash_menu_function_t;
+	typedef PVCore::PVOrderedMap<QString, ctxt_menu_f> hash_menu_function_t;
 
 public:
 	/**

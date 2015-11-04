@@ -104,13 +104,13 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	// will be updated before sending the signal so that we can process plugins
 	// widgets
 	for (const_layer_iterator it = lf.begin(); it != lf.end(); it++) {
-		Picviz::PVLayerFilter::hash_menu_function_t const& entries = it.value()->get_menu_entries();
+		Picviz::PVLayerFilter::hash_menu_function_t const& entries = it->value()->get_menu_entries();
 		using const_layer_menu_iterator = Picviz::PVLayerFilter::hash_menu_function_t::const_iterator;
-		PVLOG_DEBUG("(listing context-menu) for filter '%s', there are %d entries\n", qPrintable(it.key()), entries.size());
+		PVLOG_DEBUG("(listing context-menu) for filter '%s', there are %d entries\n", qPrintable(it->key()), entries.size());
 		for (const_layer_menu_iterator it_ent = entries.begin(); it_ent != entries.end(); it_ent++) {
-			PVLOG_DEBUG("(listing context-menu) add action '%s' for filter '%s'\n", qPrintable(it_ent.key()), qPrintable(it.key()));
-			QAction* act = new QAction(it_ent.key(), &_ctxt_menu);
-			act->setData(QVariant(it.key())); // Save the name of the layer filter associated to this action
+			PVLOG_DEBUG("(listing context-menu) add action '%s' for filter '%s'\n", qPrintable(it_ent->key()), qPrintable(it->key()));
+			QAction* act = new QAction(it_ent->key(), &_ctxt_menu);
+			act->setData(QVariant(it->key())); // Save the name of the layer filter associated to this action
 			_ctxt_menu.addAction(act);
 		}
 		_ctxt_menu.addSeparator();

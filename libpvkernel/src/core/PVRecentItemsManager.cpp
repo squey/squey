@@ -191,7 +191,7 @@ const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager:
 	LIB_CLASS(PVRush::PVInputType)::list_classes::const_iterator it;
 
 	for (it = lf.begin(); it != lf.end(); it++) {
-		PVRush::PVInputType_p in = it.value();
+		PVRush::PVInputType_p in = it->value();
 
 		PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in);
 		PVRush::hash_format_creator format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);

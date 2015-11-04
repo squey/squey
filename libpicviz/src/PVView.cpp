@@ -75,7 +75,7 @@ void Picviz::PVView::set_parent_from_ptr(PVPlotted* plotted)
 	LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator it;
 
 	for (it = lf.begin(); it != lf.end(); it++) {
-		filters_args[it.key()] = it.value()->get_default_args_for_view(*this);
+		filters_args[it->key()] = it->value()->get_default_args_for_view(*this);
 	}
 	row_count = get_parent<PVPlotted>()->get_row_count();
 	layer_stack.set_row_count(row_count);

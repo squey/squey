@@ -74,9 +74,9 @@ void PVWidgets::PVPlottingModeWidget::populate_from_type(QString const& type)
 	LIB_CLASS(Picviz::PVPlottingFilter)::list_classes const& map_filters = LIB_CLASS(Picviz::PVPlottingFilter)::get().get_list();
 	LIB_CLASS(Picviz::PVPlottingFilter)::list_classes::const_iterator it;
 	for (it = map_filters.begin(); it != map_filters.end(); it++) {
-		Picviz::PVPlottingFilter::p_type filter = *it;
-		QString const& name = it.key();
-		QString human_name = (*it)->get_human_name();
+		Picviz::PVPlottingFilter::p_type filter = it->value();
+		QString const& name = it->key();
+		QString human_name = it->value()->get_human_name();
 		QStringList params = name.split('_');
 		if (params[0].compare(type) == 0) {
 			_combo->addItem(human_name, params[1]);

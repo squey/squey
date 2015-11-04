@@ -66,14 +66,14 @@ int main(int argc, char** argv)
 	LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_classes const& lf = LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::get().get_list();
 	LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_classes::const_iterator it;
 	for (it = lf.begin(); it != lf.end(); it++) {
-		PVFilter::PVFieldSplitterChunkMatch match(*it);
+		PVFilter::PVFieldSplitterChunkMatch match(it->value());
 		match.push_chunk(chunk);
 
 		PVCore::PVArgumentList args;
 		size_t nfields;
 
 		if (match.get_match(args, nfields)) {
-			std::cout << "Filter " << qPrintable(it.key()) << " matches with " << nfields << " fields and arguments:" << std::endl;
+			std::cout << "Filter " << qPrintable(it->key()) << " matches with " << nfields << " fields and arguments:" << std::endl;
 			PVCore::dump_argument_list(args);
 		}
 	}

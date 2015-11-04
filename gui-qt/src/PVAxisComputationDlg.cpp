@@ -31,8 +31,8 @@ void PVInspector::PVAxisComputationDlg::init_plugins(QComboBox* cb)
 	LIB_CLASS(Picviz::PVAxisComputation)::list_classes const& axis_plugins = LIB_CLASS(Picviz::PVAxisComputation)::get().get_list();
 	LIB_CLASS(Picviz::PVAxisComputation)::list_classes::const_iterator it;
 	for (it = axis_plugins.begin(); it != axis_plugins.end(); it++) {
-		QString name = it.value()->get_human_name();
-		QString key = it.key();
+		QString name = it->value()->get_human_name();
+		QString key = it->key();
 		cb->addItem(name, key);
 	}
 	cb->setCurrentIndex(0);

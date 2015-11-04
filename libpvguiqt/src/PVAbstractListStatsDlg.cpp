@@ -276,7 +276,7 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 	Picviz::PVLayerFilter::hash_menu_function_t const& entries = fclone->get_menu_entries();
 	Picviz::PVLayerFilter::hash_menu_function_t::const_iterator it_ent;
 	for (it_ent = entries.begin(); it_ent != entries.end(); it_ent++) {
-		QAction* act = new QAction(it_ent.key(), _values_view);
+		QAction* act = new QAction(it_ent->key(), _values_view);
 		act->setData(QVariant(search_multiples)); // Save the name of the layer filter associated to this action
 		_ctxt_menu->addAction(act);
 

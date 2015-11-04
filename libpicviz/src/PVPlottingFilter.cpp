@@ -61,10 +61,10 @@ QStringList Picviz::PVPlottingFilter::list_modes(QString const& type, bool only_
 	LIB_CLASS(PVPlottingFilter)::list_classes::const_iterator it;
 	QStringList ret;
 	for (it = pl_filters.begin(); it != pl_filters.end(); it++) {
-		if (only_expandable && !it.value()->can_expand()) {
+		if (only_expandable && !it->value()->can_expand()) {
 			continue;
 		}
-		QString const& name = it.key();
+		QString const& name = it->key();
 		QStringList params = name.split('_');
 		if (params[0].compare(type) == 0) {
 			ret << params[1];
@@ -80,13 +80,13 @@ QList<Picviz::PVPlottingFilter::p_type> Picviz::PVPlottingFilter::list_modes_lib
 	QList<p_type> ret;
 	ret.reserve(pl_filters.size());
 	for (it = pl_filters.begin(); it != pl_filters.end(); it++) {
-		if (only_expandable && !it.value()->can_expand()) {
+		if (only_expandable && !it->value()->can_expand()) {
 			continue;
 		}
-		QString const& name = it.key();
+		QString const& name = it->key();
 		QStringList params = name.split('_');
 		if (params[0].compare(type) == 0) {
-			ret << it.value();
+			ret << it->value();
 		}
 	}
     return ret;

@@ -24,13 +24,13 @@ static void map_input_by_sorted_internal_name(const F &f)
 	std::list<ele_t> pairs;
 
 	for(const auto &it: lf) {
-		pairs.push_back(std::make_pair(it->internal_name(),it->registered_name()));
+		pairs.push_back(std::make_pair(it.value()->internal_name(),it.value()->registered_name()));
 	}
 
 	pairs.sort([](const ele_t& a, const ele_t& b) { return a.first.compare(b.first) < 0; });
 
 	for(const auto &it: pairs) {
-		f(it.second, lf[it.second]);
+		f(it.second, lf.at(it.second));
 	}
 }
 
