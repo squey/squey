@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @copyright (C) Picviz Labs 2012-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
+ */
+
 #ifndef PVDISPLAYS_PVDISPLAYSCONTAINER_H
 #define PVDISPLAYS_PVDISPLAYSCONTAINER_H
 

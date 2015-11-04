@@ -1,8 +1,10 @@
+#
+# @file
+#
+# @copyright (C) Picviz Labs 2010-March 2015
+# @copyright (C) ESI Group INENDI April 2015-2015
+
 # Locate APR-Util include paths and libraries
-#
-# \file FindAPRUtil.cmake
-#
-# Copyright (C) Picviz Labs 2010-2012
 #
 # This module defines
 # APRUTIL_INCLUDES, where to find apr.h, etc.

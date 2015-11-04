@@ -1,7 +1,8 @@
 /**
- * \file PVFieldSplitterUTF16Char.h
+ * @file
  *
- * Copyright (C) Picviz Labs 2011-2012
+ * @copyright (C) Picviz Labs 2011-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
 #ifndef PVFILTER_PVFIELDSPLITTERUTF16CHAR_H

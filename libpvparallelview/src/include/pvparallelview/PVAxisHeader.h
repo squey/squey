@@ -1,8 +1,10 @@
 /**
- * \file PVAxisHeader.h
+ * @file
  *
- * Copyright (C) Picviz Labs 2013
+ * @copyright (C) Picviz Labs 2013-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
  */
+
 #ifndef __PVPARALLELVIEW_PVAXISHEADER_H__
 #define __PVPARALLELVIEW_PVAXISHEADER_H__
 

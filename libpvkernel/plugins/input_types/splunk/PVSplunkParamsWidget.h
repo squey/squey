@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * 
+ * @copyright (C) ESI Group INENDI 2015-2015
+ */
+
 #ifndef PVSPLUNKPARAMSWIDGET_H
 #define PVSPLUNKPARAMSWIDGET_H
 

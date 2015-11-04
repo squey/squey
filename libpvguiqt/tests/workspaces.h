@@ -1,10 +1,8 @@
-#if 0
-#else
-
 /**
- * \file workspaces.h
+ * @file
  *
- * Copyright (C) Picviz Labs 2012
+ * @copyright (C) Picviz Labs 2012-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
 #ifndef WORKSPACES_H_
@@ -67,5 +65,3 @@ private:
 
 
 #endif /* WORKSPACES_H_ */
-
-#endif

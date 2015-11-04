@@ -1,8 +1,9 @@
 #!/bin/bash
-
-# \file inspector.sh.cmake
 #
-# Copyright (C) Picviz Labs 2010-2012
+# @file
+#
+# @copyright (C) Picviz Labs 2010-March 2015
+# @copyright (C) ESI Group INENDI April 2015-2015
 
 INSPECTOR_SOURCE_ROOT_DIR=@CMAKE_BINARY_DIR@
 ISRD=$INSPECTOR_SOURCE_ROOT_DIR

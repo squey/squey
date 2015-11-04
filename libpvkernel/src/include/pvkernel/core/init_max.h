@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @copyright (C) Picviz Labs 2014-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
+ */
+
 // builtin.h
 
 #ifndef __INIT_MAX__

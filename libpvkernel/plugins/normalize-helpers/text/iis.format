@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- \file iis.format -->
-<!-- Copyright (C) Picviz Labs 2010-2012 -->
+<!-- @file -->
+<!-- @copyright (C) Picviz Labs 2010-March 2015 -->
+<!-- @copyright (C) ESI Group INENDI April 2015-2015 -->
 <!DOCTYPE PVParamXml>
 <param version="1">
  <field>

@@ -1,7 +1,8 @@
 #
-# \file CTestConfig.cmake
+# @file
 #
-# Copyright (C) Picviz Labs 2010-2012
+# @copyright (C) Picviz Labs 2010-March 2015
+# @copyright (C) ESI Group INENDI April 2015-2015
 
 SET(CTEST_PROJECT_NAME "libpicviz")
 SET(CTEST_NIGHTLY_START_TIME "00:00:00 EST")

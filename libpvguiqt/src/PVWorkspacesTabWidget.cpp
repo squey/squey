@@ -1,9 +1,9 @@
 /**
- * \file PVWorkspacesTabWidget.cpp
+ * @file
  *
- * Copyright (C) Picviz Labs 2012
+ * @copyright (C) Picviz Labs 2012-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
  */
-
 
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVWorkspace.h>

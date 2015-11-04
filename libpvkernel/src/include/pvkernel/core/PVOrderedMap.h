@@ -1,7 +1,8 @@
 /**
- * \file PVOrderedMap.h
+ * @file
  *
- * Copyright (C) INENDI 2015
+ * 
+ * @copyright (C) ESI Group INENDI 2015-2015
  */
 
 #ifndef PVCORE_PVORDEREDMAP_H

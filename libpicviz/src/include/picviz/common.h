@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @copyright (C) Picviz Labs 2012-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
+ */
+
 #ifndef __PICVIZ_COMMON_H__
 #define __PICVIZ_COMMON_H__
 

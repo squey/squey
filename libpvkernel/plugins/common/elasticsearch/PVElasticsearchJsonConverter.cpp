@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * 
+ * @copyright (C) ESI Group INENDI 2015-2015
+ */
+
 #include "PVElasticsearchJsonConverter.h"
 
 ///////////////////////////////////////////////////////////////////////////////

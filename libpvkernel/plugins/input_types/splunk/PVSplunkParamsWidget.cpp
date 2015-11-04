@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * 
+ * @copyright (C) ESI Group INENDI 2015-2015
+ */
+
 #include "PVSplunkParamsWidget.h"
 #include "PVInputTypeSplunk.h"
 #include "../../common/splunk/PVSplunkAPI.h"

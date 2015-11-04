@@ -1,7 +1,8 @@
 #
-# \file CMakeLists.txt
+# @file
 #
-# Copyright (C) Picviz Labs 2010-2012
+# @copyright (C) Picviz Labs 2010-March 2015
+# @copyright (C) ESI Group INENDI April 2015-2015
 
 add_pv_compile_test(Twidgets_datatreemodel LINKS pvkernel FILES datatree-model.cpp)
 add_pv_compile_test(Twidgets_datatreeproxy LINKS pvkernel FILES datatree-proxy.cpp)

@@ -1,7 +1,8 @@
 /**
- * \file PVChunkFilterByElt.cpp
+ * @file
  *
- * Copyright (C) Picviz Labs 2011-2012
+ * @copyright (C) Picviz Labs 2011-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
 #include <pvkernel/filter/PVChunkFilterByEltCancellable.h>

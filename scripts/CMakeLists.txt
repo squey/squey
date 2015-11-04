@@ -1,7 +1,8 @@
-# \file
 #
-# Copyright (C) Picviz Labs 2010-2012
-# Copyright (C) ESI Group 2015
+# @file
+#
+# @copyright (C) Picviz Labs 2010-March 2015
+# @copyright (C) ESI Group INENDI April 2015-2015
 
 SET(SCRIPTS_FILES
 inspector.sh
