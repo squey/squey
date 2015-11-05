@@ -8,6 +8,20 @@
 INSPECTOR_SOURCE_ROOT_DIR=@CMAKE_BINARY_DIR@
 ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 
+# Migration from picviz to inendi
+if [ ! -d $HOME/.inendi ] && [ -d $HOME/.picviz ];
+then
+    mv $HOME/.picviz $HOME/.inendi
+    ln -s $HOME/.inendi $HOME/.picviz
+fi
+
+if [ ! -d $HOME/.config/ESI\ Group/ ] && [ -d $HOME/.config/Picviz\ Labs/ ];
+then
+        mv $HOME/.config/Picviz\ Labs/ $HOME/.config/ESI\ Group
+	mv $HOME/.config/ESI\ Group/Picviz\ Inspector.conf $HOME/.config/ESI\ Group/INENDI\ Inspector.conf
+	ln -s $HOME/.config/ESI\ Group $HOME/.config/Picviz\ Labs/
+fi
+
 # AG: we don't need this anymore, because
 # the locale is automatically found for times in log files
 # Moreover, it breaks Qt's qPrintable(QString) (because the wrong locale is choosen) and
