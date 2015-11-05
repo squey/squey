@@ -20,7 +20,7 @@ namespace PVCore {
 class PVHSVColor;
 }
 
-namespace Picviz {
+namespace Inendi {
 class PVSelection;
 }
 
@@ -72,8 +72,8 @@ public:
 
 public:
 	// Static helper functions, implemented in PVZonesProcessor.cpp
-	static PVZonesProcessor declare_processor_zm_sel(PVRenderingPipeline& pipeline, PVZonesManager& zm, PVCore::PVHSVColor const* colors, Picviz::PVSelection const& sel);
-	static PVZonesProcessor declare_background_processor_zm_sel(PVRenderingPipeline& pipeline, PVZonesManager& zm, PVCore::PVHSVColor const* colors, Picviz::PVSelection const& sel);
+	static PVZonesProcessor declare_processor_zm_sel(PVRenderingPipeline& pipeline, PVZonesManager& zm, PVCore::PVHSVColor const* colors, Inendi::PVSelection const& sel);
+	static PVZonesProcessor declare_background_processor_zm_sel(PVRenderingPipeline& pipeline, PVZonesManager& zm, PVCore::PVHSVColor const* colors, Inendi::PVSelection const& sel);
 	static PVZonesProcessor declare_processor_direct(PVRenderingPipeline& pipeline, PVCore::PVHSVColor const* colors);
 
 private:

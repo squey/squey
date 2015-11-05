@@ -5,8 +5,8 @@
 # @copyright (C) ESI Group INENDI April 2015-2015
 
 Test files must be checked out on an external SVN, with the revision given by the "files-svn-rev" file.
-Your usual picviz developer credentials must be used.
+Your usual inendi developer credentials must be used.
 
-To get these files, you can do, in the picviz-inspector/tests directory :
+To get these files, you can do, in the inendi-inspector/tests directory :
 
 $ svn co https://svn.srv.picviz/tests-files@$(cat files-svn-rev) files

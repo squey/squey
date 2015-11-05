@@ -20,8 +20,8 @@ void PVCuda::init_cuda()
 void PVCuda::init_cuda_thread()
 {
 #ifdef CUDA
-	//picviz_verify_cuda(cudaSetDevice(DEV_CUDA)); // Tesla
-	//picviz_verify_cuda(cudaSetDeviceFlags(cudaDeviceMapHost));
+	//inendi_verify_cuda(cudaSetDevice(DEV_CUDA)); // Tesla
+	//inendi_verify_cuda(cudaSetDeviceFlags(cudaDeviceMapHost));
 #endif
 }
 
@@ -29,7 +29,7 @@ size_t PVCuda::get_number_of_devices()
 {
 #ifdef CUDA
 	int ret;
-	picviz_verify_cuda(cudaGetDeviceCount(&ret));
+	inendi_verify_cuda(cudaGetDeviceCount(&ret));
 	return ret;
 #else
 	return 0;
@@ -41,7 +41,7 @@ void PVCuda::visit_usable_cuda_devices(std::function<void(int)> const& f)
 #ifdef CUDA
 	cudaDeviceProp prop;
 	for (size_t i = 0; i < get_number_of_devices(); i++) {
-		picviz_verify_cuda(cudaGetDeviceProperties(&prop, i));
+		inendi_verify_cuda(cudaGetDeviceProperties(&prop, i));
 		if (prop.major >= 2) {
 			f(i);
 		}
@@ -52,8 +52,8 @@ void PVCuda::visit_usable_cuda_devices(std::function<void(int)> const& f)
 void PVCuda::init_gl_cuda()
 {
 #ifdef CUDA
-	picviz_verify_cuda(cudaGLSetGLDevice(DEV_CUDA)); // Tesla
-	//picviz_verify_cuda(cudaSetDeviceFlags(cudaDeviceMapHost));
+	inendi_verify_cuda(cudaGLSetGLDevice(DEV_CUDA)); // Tesla
+	//inendi_verify_cuda(cudaSetDeviceFlags(cudaDeviceMapHost));
 #endif
 }
 
@@ -61,7 +61,7 @@ int PVCuda::get_number_blocks()
 {
 #ifdef CUDA
 	int cur_device;
-	picviz_verify_cuda(cudaGetDevice(&cur_device));
+	inendi_verify_cuda(cudaGetDevice(&cur_device));
 	cudaDeviceProp prop;
 	cudaGetDeviceProperties(&prop, cur_device);
 	return prop.multiProcessorCount;
@@ -74,7 +74,7 @@ size_t PVCuda::get_shared_mem_size()
 {
 #ifdef CUDA
 	int cur_device;
-	picviz_verify_cuda(cudaGetDevice(&cur_device));
+	inendi_verify_cuda(cudaGetDevice(&cur_device));
 	cudaDeviceProp prop;
 	cudaGetDeviceProperties(&prop, cur_device);
 	return prop.sharedMemPerBlock;

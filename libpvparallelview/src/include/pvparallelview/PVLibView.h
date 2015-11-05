@@ -10,9 +10,9 @@
 
 #include <pvkernel/core/PVSharedPointer.h>
 
-#include <picviz/PVAxesCombination.h>
-#include <picviz/PVPlotting.h>
-#include <picviz/PVView_types.h>
+#include <inendi/PVAxesCombination.h>
+#include <inendi/PVPlotting.h>
+#include <inendi/PVView_types.h>
 
 #include <pvhive/PVObserverSignal.h>
 #include <pvhive/PVCallHelper.h>
@@ -47,9 +47,9 @@ private:
 	friend class process_selection_Observer;
 
 public:
-	PVLibView(Picviz::PVView_sp& view_sp);
+	PVLibView(Inendi::PVView_sp& view_sp);
 	// For testing purposes
-	PVLibView(Picviz::PVView_sp& view_sp, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
+	PVLibView(Inendi::PVView_sp& view_sp, Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
 	~PVLibView();
 
 public:
@@ -60,7 +60,7 @@ public:
 
 	void request_zoomed_zone_trees(const PVCol axis);
 	PVZonesManager& get_zones_manager() { return _zones_manager; }
-	Picviz::PVView* lib_view() { return _obs_view->get_object(); }
+	Inendi::PVView* lib_view() { return _obs_view->get_object(); }
 
 	void remove_view(PVFullParallelScene *scene);
 	void remove_zoomed_view(PVZoomedParallelScene *scene);
@@ -77,18 +77,18 @@ protected:
 	void plotting_updated();
 
 protected:
-	void common_init_view(Picviz::PVView_sp& view_sp);
+	void common_init_view(Inendi::PVView_sp& view_sp);
 	void common_init_zm();
 
 private:
 	PVZonesManager                            _zones_manager;
 	PVCore::PVSharedPtr<PVSlidersManager>     _sliders_manager_p;
-	PVHive::PVObserver_p<Picviz::PVLayer>     _obs_output_layer;
-	PVHive::PVObserver_p<Picviz::PVLayer>     _obs_layer_stack_output_layer;
-	PVHive::PVObserver_p<Picviz::PVSelection> _obs_sel;
-	PVHive::PVObserver_p<Picviz::PVView>      _obs_view;
-	PVHive::PVObserver_p<Picviz::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
-	PVHive::PVObserver_p<Picviz::PVPlotting>  _obs_plotting;
+	PVHive::PVObserver_p<Inendi::PVLayer>     _obs_output_layer;
+	PVHive::PVObserver_p<Inendi::PVLayer>     _obs_layer_stack_output_layer;
+	PVHive::PVObserver_p<Inendi::PVSelection> _obs_sel;
+	PVHive::PVObserver_p<Inendi::PVView>      _obs_view;
+	PVHive::PVObserver_p<Inendi::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
+	PVHive::PVObserver_p<Inendi::PVPlotting>  _obs_plotting;
 	scene_list_t                              _parallel_scenes;
 	zoomed_scene_list_t                       _zoomed_parallel_scenes;
 	hit_count_view_list_t                     _hit_count_views;

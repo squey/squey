@@ -9,10 +9,10 @@
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 
-#include <picviz/PVStateMachine.h>
-#include <picviz/PVView.h>
+#include <inendi/PVStateMachine.h>
+#include <inendi/PVView.h>
 
-#include <picviz/widgets/editors/PVAxisIndexEditor.h>
+#include <inendi/widgets/editors/PVAxisIndexEditor.h>
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
@@ -50,7 +50,7 @@
  * PVParallelView::PVFullParallelScene::PVFullParallelScene
  *
  *****************************************************************************/
-PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* full_parallel_view, Picviz::PVView_sp& view_sp, PVParallelView::PVSlidersManager_p sm_p, PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg):
+PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* full_parallel_view, Inendi::PVView_sp& view_sp, PVParallelView::PVSlidersManager_p sm_p, PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg):
 	QGraphicsScene(),
 	_lines_view(backend, zm, zp_sel, zp_bg, this),
 	_lib_view(*view_sp),
@@ -74,16 +74,16 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 
 	// Register view for unselected & zombie events toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
-	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.are_view_unselected_zombie_visible(); }, *obs);
+	PVHive::get().register_observer(view_sp, [=](Inendi::PVView& view) { return &view.are_view_unselected_zombie_visible(); }, *obs);
 	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
 
 	// Register source for sections hover events
-	Picviz::PVSource_sp src_sp = view_sp->get_parent<Picviz::PVSource>()->shared_from_this();
-	PVHive::get().register_observer(src_sp, [=](Picviz::PVSource& source) { return &source.section_hovered(); }, _section_hover_obs);
+	Inendi::PVSource_sp src_sp = view_sp->get_parent<Inendi::PVSource>()->shared_from_this();
+	PVHive::get().register_observer(src_sp, [=](Inendi::PVSource& source) { return &source.section_hovered(); }, _section_hover_obs);
 	_section_hover_obs.connect_refresh(this, SLOT(highlight_axis(PVHive::PVObserverBase*)));
 
 	// Register source for sections click events
-	PVHive::get().register_observer(src_sp, [=](Picviz::PVSource& source) { return &source.section_clicked(); }, _section_click_obs);
+	PVHive::get().register_observer(src_sp, [=](Inendi::PVSource& source) { return &source.section_clicked(); }, _section_click_obs);
 	_section_click_obs.connect_refresh(this, SLOT(sync_axis_with_section(PVHive::PVObserverBase*)));
 
 	_obs_selected_layer = PVHive::create_observer_callback_heap<int>(
@@ -92,7 +92,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 		[&](int const*) { }
 	);
 
-	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_layer_stack().get_selected_layer_index(); }, *_obs_selected_layer);
+	PVHive::get().register_observer(view_sp, [=](Inendi::PVView& view) { return &view.get_layer_stack().get_selected_layer_index(); }, *_obs_selected_layer);
 
 	setBackgroundBrush(QBrush(common::color_view_bg()));
 
@@ -182,15 +182,15 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
 
 void PVParallelView::PVFullParallelScene::axis_hover_entered(PVCol col, bool entered)
 {
-	Picviz::PVSource_sp src = _lib_view.get_parent<Picviz::PVSource>()->shared_from_this();
-	PVHive::call<FUNC(Picviz::PVSource::set_axis_hovered)>(src, col, entered);
+	Inendi::PVSource_sp src = _lib_view.get_parent<Inendi::PVSource>()->shared_from_this();
+	PVHive::call<FUNC(Inendi::PVSource::set_axis_hovered)>(src, col, entered);
 	highlight_axis(entered ? col : -1);
 }
 
 void PVParallelView::PVFullParallelScene::axis_clicked(PVCol col)
 {
-	Picviz::PVSource_sp src = _lib_view.get_parent<Picviz::PVSource>()->shared_from_this();
-	PVHive::call<FUNC(Picviz::PVSource::set_axis_clicked)>(src, col);
+	Inendi::PVSource_sp src = _lib_view.get_parent<Inendi::PVSource>()->shared_from_this();
+	PVHive::call<FUNC(Inendi::PVSource::set_axis_clicked)>(src, col);
 }
 
 /******************************************************************************
@@ -284,7 +284,7 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		update_all();
 		event->accept();
 		break;
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 	case Qt::Key_B:
 		if (event->modifiers() == Qt::ControlModifier) {
 			common::toggle_show_bboxes();

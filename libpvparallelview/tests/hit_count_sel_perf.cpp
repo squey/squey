@@ -9,10 +9,10 @@
 
 #include "common.h"
 
-#include <pvkernel/core/picviz_assert.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/inendi_bench.h>
 
-#include <picviz/PVPlotted.h>
+#include <inendi/PVPlotted.h>
 
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
@@ -44,10 +44,10 @@ int main(int argc, char **argv)
 
 	const PVCol axis = atoi(argv[pos]);
 
-	Picviz::PVSelection layout_sel;
+	Inendi::PVSelection layout_sel;
 	layout_sel.select_all();
 
-	Picviz::PVSelection sel_ref, sel_sse, sel_inv, sel_sse_inv;
+	Inendi::PVSelection sel_ref, sel_sse, sel_inv, sel_sse_inv;
 	sel_ref.select_all();
 	sel_inv.select_all();
 	sel_sse.select_all();
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 	sel_sse_inv.select_none();
 
 	PVParallelView::PVZonesManager& zm = lv->get_zones_manager();
-	const uint32_t *plotted = Picviz::PVPlotted::get_plotted_col_addr(zm.get_uint_plotted(), zm.get_number_rows(), axis);
+	const uint32_t *plotted = Inendi::PVPlotted::get_plotted_col_addr(zm.get_uint_plotted(), zm.get_number_rows(), axis);
 	PVParallelView::PVHitGraphBlocksManager manager(plotted, zm.get_number_rows(), NBLOCKS, layout_sel, sel_ref);
 	manager.change_and_process_view(0, 2, 0.5f);
 

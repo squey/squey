@@ -34,7 +34,7 @@ extern "C" {
 #include <unicode/ucnv.h>
 }
 
-namespace Picviz {
+namespace Inendi {
 	class PVAxesCombination;
 }
 

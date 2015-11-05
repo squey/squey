@@ -11,12 +11,12 @@
 
 #include <fcntl.h>
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 #include <pvkernel/rush/PVNrawDiskBackend.h>
 
-#include <pvkernel/core/picviz_assert.h>
-#include <pvkernel/core/picviz_stat.h>
+#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/inendi_stat.h>
 
 constexpr uint64_t DEFAULT_CONTENT_SIZE = 1024*1024*1024/2;
 constexpr uint64_t DEFAULT_WRITE_CHUNK_SIZE = 8*1024*1024;

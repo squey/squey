@@ -64,7 +64,7 @@ compound=true;
  * \subsection rushimprove Improvements
  *
  \dot
-  digraph picvizarch {
+  digraph inendiarch {
       db [label="database", shape="parallelogram"];
       binary [label="binary file", shape="parallelogram"];
       plaintext [label="plaintext file", shape="parallelogram"];

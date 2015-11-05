@@ -19,9 +19,9 @@ public:
 	PVDisplayViewLayerStack();
 
 public:
-	QWidget* create_widget(Picviz::PVView* view, QWidget* parent) const override;
+	QWidget* create_widget(Inendi::PVView* view, QWidget* parent) const override;
 	QIcon toolbar_icon() const override;
-	QString widget_title(Picviz::PVView* view) const override;
+	QString widget_title(Inendi::PVView* view) const override;
 
 	CLASS_REGISTRABLE(PVDisplayViewLayerStack)
 };

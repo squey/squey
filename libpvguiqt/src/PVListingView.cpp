@@ -8,12 +8,12 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVAlgorithms.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVColorDialog.h>
 
-#include <picviz/PVLayerFilter.h>
-#include <picviz/PVView.h>
+#include <inendi/PVLayerFilter.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
@@ -48,7 +48,7 @@
  *
  *****************************************************************************/
 
-PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
+PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent):
 	PVTableView(parent),
 	_ctxt_menu(this),
 	_hhead_ctxt_menu(this),
@@ -63,9 +63,9 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	PVHive::get().register_observer(view, _obs);
 
 	/// Source events
-	Picviz::PVSource_sp src_sp = view->get_parent<Picviz::PVSource>()->shared_from_this();
+	Inendi::PVSource_sp src_sp = view->get_parent<Inendi::PVSource>()->shared_from_this();
 	// Register source for axes hovering events
-	PVHive::get().register_observer(src_sp, [=](Picviz::PVSource& source) { return &source.axis_hovered(); }, _axis_hover_obs);
+	PVHive::get().register_observer(src_sp, [=](Inendi::PVSource& source) { return &source.axis_hovered(); }, _axis_hover_obs);
 	_axis_hover_obs.connect_refresh(this, SLOT(highlight_column(PVHive::PVObserverBase*)));
 
 	 connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PVGuiQt::PVListingView::slider_move_to);
@@ -94,8 +94,8 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 
 	// Custom context menu.
 	// It is created based on what layer filter plugins tell us.
-	LIB_CLASS(Picviz::PVLayerFilter)::list_classes const& lf = LIB_CLASS(Picviz::PVLayerFilter)::get().get_list();
-	using const_layer_iterator = LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator;
+	LIB_CLASS(Inendi::PVLayerFilter)::list_classes const& lf = LIB_CLASS(Inendi::PVLayerFilter)::get().get_list();
+	using const_layer_iterator = LIB_CLASS(Inendi::PVLayerFilter)::list_classes::const_iterator;
 	// Iterator over all layer filter plugins
 	// We can't use autoFor here because iterate over a QMap return only value
 	// FIXME : Here we search for all layer filter plugins names and save only
@@ -104,8 +104,8 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	// will be updated before sending the signal so that we can process plugins
 	// widgets
 	for (const_layer_iterator it = lf.begin(); it != lf.end(); it++) {
-		Picviz::PVLayerFilter::hash_menu_function_t const& entries = it->value()->get_menu_entries();
-		using const_layer_menu_iterator = Picviz::PVLayerFilter::hash_menu_function_t::const_iterator;
+		Inendi::PVLayerFilter::hash_menu_function_t const& entries = it->value()->get_menu_entries();
+		using const_layer_menu_iterator = Inendi::PVLayerFilter::hash_menu_function_t::const_iterator;
 		PVLOG_DEBUG("(listing context-menu) for filter '%s', there are %d entries\n", qPrintable(it->key()), entries.size());
 		for (const_layer_menu_iterator it_ent = entries.begin(); it_ent != entries.end(); it_ent++) {
 			PVLOG_DEBUG("(listing context-menu) add action '%s' for filter '%s'\n", qPrintable(it_ent->key()), qPrintable(it->key()));
@@ -198,7 +198,7 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	// resizing on scrolling
 	QFont font = verticalHeader()->font();
 	font.setBold(true);
-	_vhead_max_width = QFontMetrics(font).width(QString().leftJustified(QString::number(PICVIZ_LINES_MAX).size(), '9'));
+	_vhead_max_width = QFontMetrics(font).width(QString().leftJustified(QString::number(INENDI_LINES_MAX).size(), '9'));
 }
 
 /******************************************************************************
@@ -221,7 +221,7 @@ PVGuiQt::PVListingView::~PVListingView()
 void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 {
 	/* Commit the previous volatile selection */
-	_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
+	_actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
 
 	/* Modify the state of the state machine according to the modifiers */
 	Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
@@ -231,25 +231,25 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	// Expand the selection on Shift
 	// Replace the old selection without modifiers
 	if (modifiers & (Qt::ShiftModifier | Qt::ControlModifier)) {
-		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
+		_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	}
 	else
 	if (modifiers & Qt::ControlModifier) {
-		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
+		_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 	}
 	else
 	if (modifiers & Qt::ShiftModifier) {
-		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
+		_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE);
 	}
 	else {
-		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	}
 
 	/* We define the volatile_selection using selection in the listing */
 	extract_selection();
 
 	/* We reprocess the view from the selection */
-	_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
+	_actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
 }
 
 /******************************************************************************
@@ -291,7 +291,7 @@ void PVGuiQt::PVListingView::leaveEvent(QEvent*)
 void PVGuiQt::PVListingView::extract_selection()
 {
 	// Validate the current selection and reset the local one
-	Picviz::PVSelection& sel = lib_view().get_volatile_selection();
+	Inendi::PVSelection& sel = lib_view().get_volatile_selection();
 	std::swap(sel, listing_model()->current_selection());
 	listing_model()->reset_selection();
 }
@@ -544,7 +544,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 	// to the menu's actions.
 	_ctxt_row = listing_model()->rowIndex(idx_click);
 	_ctxt_col = idx_click.column(); // This is the *combined* axis index
-	_ctxt_v = lib_view().get_parent<Picviz::PVSource>()->get_value(_ctxt_row, lib_view().get_original_axis_index(_ctxt_col));
+	_ctxt_v = lib_view().get_parent<Inendi::PVSource>()->get_value(_ctxt_row, lib_view().get_original_axis_index(_ctxt_col));
 
 	// Show the menu at the given pos
 	QAction* act_sel = _ctxt_menu.exec(QCursor::pos());
@@ -579,11 +579,11 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	PVDisplays::PVDisplaysContainer* container = PVDisplays::get().get_parent_container(this);
 	if (container) {
 		// Add entries to the horizontal header context menu for new widgets creation.
-		PVDisplays::get().add_displays_view_axis_menu(_hhead_ctxt_menu, container, SLOT(create_view_axis_widget()), (Picviz::PVView*) &lib_view(), comb_col);
+		PVDisplays::get().add_displays_view_axis_menu(_hhead_ctxt_menu, container, SLOT(create_view_axis_widget()), (Inendi::PVView*) &lib_view(), comb_col);
 
 		// Do not show view which need the next axis for the last axis.
 		if (!lib_view().is_last_axis(comb_col)) {
-			PVDisplays::get().add_displays_view_zone_menu(_hhead_ctxt_menu, container, SLOT(create_view_zone_widget()), (Picviz::PVView*) &lib_view(), comb_col);
+			PVDisplays::get().add_displays_view_zone_menu(_hhead_ctxt_menu, container, SLOT(create_view_zone_widget()), (Inendi::PVView*) &lib_view(), comb_col);
 		}
 		_hhead_ctxt_menu.addSeparator();
 	}
@@ -629,13 +629,13 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 
 	// Process actions
 	if (sel == _action_col_unique) {
-		Picviz::PVView_sp view = lib_view().shared_from_this();
+		Inendi::PVView_sp view = lib_view().shared_from_this();
 		PVQNraw::show_unique_values(view, lib_view().get_rushnraw_parent(), col, *lib_view().get_selection_visible_listing(), this);
 	} else if (sel == _action_col_sort) {
 		Qt::SortOrder order =  (Qt::SortOrder)!((bool)horizontalHeader()->sortIndicatorOrder());
 		sort(col, order);
 	} else if(sel) {
-		Picviz::PVView_sp view = lib_view().shared_from_this();
+		Inendi::PVView_sp view = lib_view().shared_from_this();
 		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());
 		if (sel->parent() == _menu_col_count_by) {
 			PVQNraw::show_count_by(view, lib_view().get_rushnraw_parent(), col, col2, *lib_view().get_selection_visible_listing(), this); // FIXME: AxesCombination
@@ -709,8 +709,8 @@ void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
  *****************************************************************************/
 void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 {
-	Picviz::PVLayer& layer = lib_view().get_current_layer();
-	Picviz::PVLinesProperties& lines_properties = layer.get_lines_properties();
+	Inendi::PVLayer& layer = lib_view().get_current_layer();
+	Inendi::PVLinesProperties& lines_properties = layer.get_lines_properties();
 
 	// Color every lines in the current selection
 	for(PVRow line : listing_model()->shown_lines()) {
@@ -719,7 +719,7 @@ void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 		}
 	}
 
-	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 }
 
 /******************************************************************************
@@ -732,19 +732,19 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction const& act)
 	// FIXME : This should be done another way (see menu creation)
 	// Get the filter associated with that menu entry
 	QString filter_name = act.data().toString();
-	Picviz::PVLayerFilter_p lib_filter = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
+	Inendi::PVLayerFilter_p lib_filter = LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
 	if (!lib_filter) {
 		PVLOG_ERROR("(listing context-menu) filter '%s' does not exist !\n", qPrintable(filter_name));
 		return;
 	}
 
-	Picviz::PVLayerFilter::hash_menu_function_t entries = lib_filter->get_menu_entries();
+	Inendi::PVLayerFilter::hash_menu_function_t entries = lib_filter->get_menu_entries();
 	QString act_name = act.text();
 	if (entries.find(act_name) == entries.end()) {
 		PVLOG_ERROR("(listing context-menu) unable to find action '%s' in filter '%s'.\n", qPrintable(act_name), qPrintable(filter_name));
 		return;
 	}
-	Picviz::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
+	Inendi::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
 
 	// Get the arguments
 	_ctxt_args = lib_view().get_last_args_filter(filter_name);
@@ -752,7 +752,7 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction const& act)
 	PVCore::PVArgumentList_set_common_args_from(_ctxt_args, custom_args);
 
 	// Show the layout filter widget
-	Picviz::PVLayerFilter_p fclone = lib_filter->clone<Picviz::PVLayerFilter>();
+	Inendi::PVLayerFilter_p fclone = lib_filter->clone<Inendi::PVLayerFilter>();
 	assert(fclone);
 	if (_ctxt_process) {
 		_ctxt_process->deleteLater();
@@ -786,8 +786,8 @@ PVGuiQt::PVListingModel* PVGuiQt::PVListingView::listing_model()
  *****************************************************************************/
 void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
 {
-	Picviz::PVSource_sp src = lib_view().get_parent<Picviz::PVSource>()->shared_from_this();
-	PVHive::call<FUNC(Picviz::PVSource::set_section_hovered)>(src, col, entered);
+	Inendi::PVSource_sp src = lib_view().get_parent<Inendi::PVSource>()->shared_from_this();
+	PVHive::call<FUNC(Inendi::PVSource::set_section_hovered)>(src, col, entered);
 	highlight_column(entered ? col : -1);
 }
 
@@ -798,10 +798,10 @@ void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
  *****************************************************************************/
 void PVGuiQt::PVListingView::section_clicked(int col)
 {
-	Picviz::PVSource_sp src = lib_view().get_parent<Picviz::PVSource>()->shared_from_this();
+	Inendi::PVSource_sp src = lib_view().get_parent<Inendi::PVSource>()->shared_from_this();
 	int x = horizontalHeader()->sectionViewportPosition(col);
 	int width = horizontalHeader()->sectionSize(col);
-	PVHive::call<FUNC(Picviz::PVSource::set_section_clicked)>(src, col, verticalHeader()->width() + x + width/2);
+	PVHive::call<FUNC(Inendi::PVSource::set_section_clicked)>(src, col, verticalHeader()->width() + x + width/2);
 }
 
 
@@ -1099,7 +1099,7 @@ void PVGuiQt::PVListingView::paintEvent(QPaintEvent* event)
 void PVGuiQt::PVListingView::goto_line()
 {
 	PVRow nrows = lib_view().get_rushnraw_parent().get_number_rows();
-	const Picviz::PVSelection& sel = lib_view().get_real_output_selection();
+	const Inendi::PVSelection& sel = lib_view().get_real_output_selection();
 
 	bool ok;
 	PVRow row = QInputDialog::getInt(this,

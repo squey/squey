@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <picviz/PVLayerStack.h>
-#include <picviz/PVView.h>
+#include <inendi/PVLayerStack.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVHive.h>
 
@@ -18,7 +18,7 @@
  * PVGuiQt::PVLayerStackModel::PVLayerStackModel
  *
  *****************************************************************************/
-PVGuiQt::PVLayerStackModel::PVLayerStackModel(Picviz::PVView_sp& lib_view, QObject* parent):
+PVGuiQt::PVLayerStackModel::PVLayerStackModel(Inendi::PVView_sp& lib_view, QObject* parent):
 	QAbstractTableModel(parent),
 	_lib_view(*lib_view),
 	select_brush(QColor(255,240,200)),
@@ -31,7 +31,7 @@ PVGuiQt::PVLayerStackModel::PVLayerStackModel(Picviz::PVView_sp& lib_view, QObje
 	select_font.setBold(true);
 
 	PVHive::get().register_actor(lib_view, _actor);
-	PVHive::get().register_observer(lib_view, [=](Picviz::PVView& view) { return &view.get_layer_stack(); }, _obs);
+	PVHive::get().register_observer(lib_view, [=](Inendi::PVView& view) { return &view.get_layer_stack(); }, _obs);
 
 	_obs.connect_about_to_be_deleted(this, SLOT(layer_stack_about_to_be_deleted(PVHive::PVObserverBase*)));
 	_obs.connect_about_to_be_refreshed(this, SLOT(layer_stack_about_to_be_refreshed(PVHive::PVObserverBase*)));
@@ -205,16 +205,16 @@ bool PVGuiQt::PVLayerStackModel::setData(const QModelIndex &index, const QVarian
 		case (Qt::EditRole):
 			switch (index.column()) {
 				case 0:
-					_actor.call<FUNC(Picviz::PVView::toggle_layer_stack_layer_n_visible_state)>(lib_index);
-					_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+					_actor.call<FUNC(Inendi::PVView::toggle_layer_stack_layer_n_visible_state)>(lib_index);
+					_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 					return true;
 
 				/*case 1:
-					_actor.call<FUNC(Picviz::PVView::toggle_layer_stack_layer_n_locked_state)>(lib_index);
+					_actor.call<FUNC(Inendi::PVView::toggle_layer_stack_layer_n_locked_state)>(lib_index);
 					return true;*/
 
 				case 1:
-					_actor.call<FUNC(Picviz::PVView::set_layer_stack_layer_n_name)>(lib_index, value.toString());
+					_actor.call<FUNC(Inendi::PVView::set_layer_stack_layer_n_name)>(lib_index, value.toString());
 					return true;
 
 				default:
@@ -224,7 +224,7 @@ bool PVGuiQt::PVLayerStackModel::setData(const QModelIndex &index, const QVarian
 		case (PVCustomQtRoles::RoleSetSelectedItem): {
 			const bool is_sel = value.toBool();
 			if (is_sel) {
-				_actor.call<FUNC(Picviz::PVView::set_layer_stack_selected_layer_index)>(lib_index);
+				_actor.call<FUNC(Inendi::PVView::set_layer_stack_selected_layer_index)>(lib_index);
 			}
 			return true;
 		}
@@ -250,16 +250,16 @@ void PVGuiQt::PVLayerStackModel::layer_stack_about_to_be_refreshed(PVHive::PVObs
 
 void PVGuiQt::PVLayerStackModel::add_new_layer_from_file(const QString& path)
 {
-	_actor.call<FUNC(Picviz::PVView::add_new_layer_from_file)>(path);
-	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	_actor.call<FUNC(Inendi::PVView::add_new_layer_from_file)>(path);
+	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 }
 
 void PVGuiQt::PVLayerStackModel::reset_layer_colors(const int idx)
 {
-	Picviz::PVLayerStack& layerstack = lib_layer_stack();
-	Picviz::PVLayer& layer = layerstack.get_layer_n(lib_index_from_model_index(idx));
+	Inendi::PVLayerStack& layerstack = lib_layer_stack();
+	Inendi::PVLayer& layer = layerstack.get_layer_n(lib_index_from_model_index(idx));
 	layer.reset_to_default_color();
-	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 }
 
 void PVGuiQt::PVLayerStackModel::layer_stack_refreshed(PVHive::PVObserverBase* /*o*/)
@@ -269,50 +269,50 @@ void PVGuiQt::PVLayerStackModel::layer_stack_refreshed(PVHive::PVObserverBase* /
 
 void PVGuiQt::PVLayerStackModel::add_new_layer(QString name)
 {
-	_actor.call<FUNC(Picviz::PVView::add_new_layer)>(name);
+	_actor.call<FUNC(Inendi::PVView::add_new_layer)>(name);
 	lib_layer_stack().get_layer_n(rowCount() - 1).reset_to_full_and_default_color();
-	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 }
 
 void PVGuiQt::PVLayerStackModel::move_selected_layer_up()
 {
 	beginResetModel();
-	_actor.call<FUNC(Picviz::PVView::move_selected_layer_up)>();
-	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	_actor.call<FUNC(Inendi::PVView::move_selected_layer_up)>();
+	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 	endResetModel();
 }
 
 void PVGuiQt::PVLayerStackModel::move_selected_layer_down()
 {
 	beginResetModel();
-	_actor.call<FUNC(Picviz::PVView::move_selected_layer_down)>();
-	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	_actor.call<FUNC(Inendi::PVView::move_selected_layer_down)>();
+	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 	endResetModel();
 }
 
 void PVGuiQt::PVLayerStackModel::delete_selected_layer()
 {
-	_actor.call<FUNC(Picviz::PVView::delete_selected_layer)>();
-	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	_actor.call<FUNC(Inendi::PVView::delete_selected_layer)>();
+	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 }
 
 void PVGuiQt::PVLayerStackModel::duplicate_selected_layer(const QString &name)
 {
 	beginResetModel();
-	_actor.call<FUNC(Picviz::PVView::duplicate_selected_layer)>(name);
-	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	_actor.call<FUNC(Inendi::PVView::duplicate_selected_layer)>(name);
+	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 	endResetModel();
 }
 
 void PVGuiQt::PVLayerStackModel::delete_layer_n(const int idx)
 {
 	assert(idx < rowCount());
-	_actor.call<FUNC(Picviz::PVView::delete_layer_n)>(idx);
-	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	_actor.call<FUNC(Inendi::PVView::delete_layer_n)>(idx);
+	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 }
 
 void PVGuiQt::PVLayerStackModel::load_from_file(const QString& file)
 {
-	_actor.call<FUNC(Picviz::PVView::load_from_file)>(file);
-	_actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	_actor.call<FUNC(Inendi::PVView::load_from_file)>(file);
+	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 }

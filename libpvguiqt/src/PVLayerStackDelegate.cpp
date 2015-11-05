@@ -11,9 +11,9 @@
 #include <QMetaType>
 #include <QVariant>
 
-#include <picviz/PVSelection.h>
-#include <picviz/PVStateMachine.h>
-#include <picviz/PVView.h>
+#include <inendi/PVSelection.h>
+#include <inendi/PVStateMachine.h>
+#include <inendi/PVView.h>
 
 #include <pvguiqt/PVLayerStackDelegate.h>
 
@@ -24,7 +24,7 @@
  * PVGuiQt::PVLayerStackDelegate::PVLayerStackDelegate
  *
  *****************************************************************************/
-PVGuiQt::PVLayerStackDelegate::PVLayerStackDelegate(Picviz::PVView const& view, QObject* parent):
+PVGuiQt::PVLayerStackDelegate::PVLayerStackDelegate(Inendi::PVView const& view, QObject* parent):
 	QStyledItemDelegate(parent),
 	_view(view)
 {
@@ -49,7 +49,7 @@ bool PVGuiQt::PVLayerStackDelegate::editorEvent(QEvent *event, QAbstractItemMode
 #if 0
 				lib_view->process_layer_stack();
 				/* We might need to reprocess the volatile_selection */
-				//if (picviz_state_machine_get_square_area_mode(state_machine) != PICVIZ_SM_SQUARE_AREA_MODE_OFF) {
+				//if (inendi_state_machine_get_square_area_mode(state_machine) != INENDI_SM_SQUARE_AREA_MODE_OFF) {
 				/* square_area_selection is ACTIVE so we reprocess it */
 				/* We do the selection on the layer_stack_output_layer's selection */
 				lib_view->selection_A2B_select_with_square_area(lib_view->layer_stack_output_layer.get_selection(), lib_view->volatile_selection);

@@ -91,7 +91,7 @@ PVListDisplayDlg.ui
 )
 
 SET(QRC_FILES
-../../gui-qt/src/picviz-inspector_resource.qrc
+../../gui-qt/src/inendi-inspector_resource.qrc
 )
 
 ################################################
@@ -115,7 +115,7 @@ set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
 set(QT5_LIBS Qt5Core Qt5Xml Qt5Widgets Qt5Concurrent Qt5OpenGL)
 
-set(PVGUIQT_LINK_LIBRARIES pvdisplays pvhive picviz pvkernel ${OPENGL_LIBRARIES}
+set(PVGUIQT_LINK_LIBRARIES pvdisplays pvhive inendi pvkernel ${OPENGL_LIBRARIES}
 	${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})

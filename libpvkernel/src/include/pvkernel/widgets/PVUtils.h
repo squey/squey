@@ -12,7 +12,7 @@
 #include <QString>
 
 
-#define PICVIZ_TOOLTIP_MAX_WIDTH 800
+#define INENDI_TOOLTIP_MAX_WIDTH 800
 
 namespace PVWidgets
 {

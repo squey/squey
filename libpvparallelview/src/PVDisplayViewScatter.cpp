@@ -25,7 +25,7 @@ PVDisplays::PVDisplayViewScatter::PVDisplayViewScatter():
  *****************************************************************************/
 
 QWidget* PVDisplays::PVDisplayViewScatter::create_widget(
-	Picviz::PVView* view,
+	Inendi::PVView* view,
     PVCol 			axis_comb,
     QWidget* 		parent
 ) const
@@ -50,7 +50,7 @@ QIcon PVDisplays::PVDisplayViewScatter::toolbar_icon() const
  *****************************************************************************/
 
 QString PVDisplays::PVDisplayViewScatter::widget_title(
-	Picviz::PVView* view,
+	Inendi::PVView* view,
     PVCol 			axis_comb
 ) const
 {
@@ -62,7 +62,7 @@ QString PVDisplays::PVDisplayViewScatter::widget_title(
  *****************************************************************************/
 
 QString PVDisplays::PVDisplayViewScatter::axis_menu_name(
-	Picviz::PVView const* /*view*/,
+	Inendi::PVView const* /*view*/,
     PVCol 				  /*axis_comb*/
 ) const
 {

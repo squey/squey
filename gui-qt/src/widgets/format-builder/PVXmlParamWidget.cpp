@@ -32,7 +32,7 @@ PVInspector::PVXmlParamWidget::PVXmlParamWidget(PVFormatBuilderWidget* parent) :
     type = no;
     layout->setContentsMargins(0,0,0,0);
     setLayout(layout);
-    pluginListURL = picviz_plugins_get_functions_dir();
+    pluginListURL = inendi_plugins_get_functions_dir();
 }
 
 

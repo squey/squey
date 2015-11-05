@@ -11,7 +11,7 @@
 #include "PVFieldSplitterIronPortMailTag.h"
 #include "PVFieldSplitterIronPortMailParamWidget.h"
 
-// This method will be called by libpicviz
+// This method will be called by libinendi
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("ironport_mail", PVFilter::PVFieldSplitterIronPortMail);

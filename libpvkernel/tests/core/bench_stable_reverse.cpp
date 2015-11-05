@@ -13,7 +13,7 @@
 #include <time.h>
 #include <tbb/tick_count.h>
 
-#include <pvkernel/core/picviz_stat.h>
+#include <pvkernel/core/inendi_stat.h>
 
 typedef std::pair<int, int> pair_int_t;
 typedef std::vector<pair_int_t> vec_t;

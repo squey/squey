@@ -8,7 +8,7 @@
 #ifndef PVGUIQT_AXESCOMBMODEL_H
 #define PVGUIQT_AXESCOMBMODEL_H
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 #include <pvkernel/core/PVSharedPointer.h>
 
@@ -29,7 +29,7 @@ class PVAxesCombinationModel;
 
 namespace __impl {
 
-class set_axis_name_Observer: public PVHive::PVFuncObserver<Picviz::PVView, decltype(&Picviz::PVView::set_axis_name), &Picviz::PVView::set_axis_name>
+class set_axis_name_Observer: public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::set_axis_name), &Inendi::PVView::set_axis_name>
 {
 public:
 	set_axis_name_Observer(PVGuiQt::PVAxesCombinationModel* model) : _model(model) {}
@@ -41,7 +41,7 @@ private:
 	PVGuiQt::PVAxesCombinationModel* _model;
 };
 
-class remove_column_Observer: public PVHive::PVFuncObserver<Picviz::PVView, decltype(&Picviz::PVView::remove_column), &Picviz::PVView::remove_column>
+class remove_column_Observer: public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::remove_column), &Inendi::PVView::remove_column>
 {
 public:
 	remove_column_Observer(PVGuiQt::PVAxesCombinationModel* model) : _model(model) {}
@@ -55,7 +55,7 @@ private:
 	PVGuiQt::PVAxesCombinationModel* _model;
 };
 
-class axis_append_Observer: public PVHive::PVFuncObserver<Picviz::PVView, decltype(&Picviz::PVView::axis_append), &Picviz::PVView::axis_append>
+class axis_append_Observer: public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::axis_append), &Inendi::PVView::axis_append>
 {
 public:
 	axis_append_Observer(PVGuiQt::PVAxesCombinationModel* model) : _model(model) {}
@@ -68,7 +68,7 @@ private:
 	PVGuiQt::PVAxesCombinationModel* _model;
 };
 
-class move_axis_to_new_position_Observer: public PVHive::PVFuncObserver<Picviz::PVView, decltype(&Picviz::PVView::move_axis_to_new_position), &Picviz::PVView::move_axis_to_new_position>
+class move_axis_to_new_position_Observer: public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::move_axis_to_new_position), &Inendi::PVView::move_axis_to_new_position>
 {
 public:
 	move_axis_to_new_position_Observer(PVGuiQt::PVAxesCombinationModel* model) : _model(model) {}
@@ -92,7 +92,7 @@ class PVAxesCombinationModel: public QAbstractListModel
 	friend class __impl::axis_append_Observer;
 
 public:
-	PVAxesCombinationModel(Picviz::PVView_sp& view_p, QObject* parent = NULL);
+	PVAxesCombinationModel(Inendi::PVView_sp& view_p, QObject* parent = NULL);
 
 public:
 	int rowCount(const QModelIndex &parent) const;
@@ -110,19 +110,19 @@ private slots:
 	void refresh_slot(PVHive::PVObserverBase*);
 
 private:
-	inline Picviz::PVView const& picviz_view() const { return *_view_observer.get_object(); }
+	inline Inendi::PVView const& inendi_view() const { return *_view_observer.get_object(); }
 
 private:
-	PVHive::PVActor<Picviz::PVView> _actor;
+	PVHive::PVActor<Inendi::PVView> _actor;
 	bool _view_deleted;
 
 	// Observers
 	__impl::set_axis_name_Observer _set_axis_name_observer;
-	PVHive::PVObserverSignal<Picviz::PVView> _view_observer;
+	PVHive::PVObserverSignal<Inendi::PVView> _view_observer;
 	__impl::remove_column_Observer _remove_column_observer;
 	__impl::axis_append_Observer _axis_append_observer;
 	__impl::move_axis_to_new_position_Observer _move_axis_to_new_position_observer;
-	PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
+	PVHive::PVObserverSignal<Inendi::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
 };
 
 }

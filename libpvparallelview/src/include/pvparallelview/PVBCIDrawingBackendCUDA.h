@@ -55,19 +55,19 @@ public:
 
 	inline void copy_device_to_host(cudaStream_t const& stream) const
 	{
-		picviz_verify_cuda(cudaMemcpyAsync(_host_img, _device_img, size_org_pixel()*sizeof(pixel_t), cudaMemcpyDeviceToHost, stream));
+		inendi_verify_cuda(cudaMemcpyAsync(_host_img, _device_img, size_org_pixel()*sizeof(pixel_t), cudaMemcpyDeviceToHost, stream));
 	}
 
 	inline void copy_device_to_host() const
 	{
-		picviz_verify_cuda(cudaMemcpy(_host_img, _device_img, size_org_pixel()*sizeof(pixel_t), cudaMemcpyDeviceToHost));
+		inendi_verify_cuda(cudaMemcpy(_host_img, _device_img, size_org_pixel()*sizeof(pixel_t), cudaMemcpyDeviceToHost));
 	}
 
 	inline size_t org_width() const { return _org_width; }
 
 	void set_current_device() const
 	{
-		picviz_verify_cuda(cudaSetDevice(_cuda_device));
+		inendi_verify_cuda(cudaSetDevice(_cuda_device));
 	}
 
 	int get_cuda_device() const { return _cuda_device; }
@@ -112,7 +112,7 @@ class PVBCIDrawingBackendCUDA: public PVBCIDrawingBackendAsync
 		{
 			cudaStream_t s;
 			while (_streams.try_pop(s)) {
-				picviz_verify_cuda(cudaStreamDestroy(s));
+				inendi_verify_cuda(cudaStreamDestroy(s));
 			}
 		}
 
@@ -122,7 +122,7 @@ class PVBCIDrawingBackendCUDA: public PVBCIDrawingBackendAsync
 			_streams.set_capacity(n);
 			cudaStream_t s;
 			for (size_t i = 0; i < n; i++) {
-				picviz_verify_cuda(cudaStreamCreate(&s));
+				inendi_verify_cuda(cudaStreamCreate(&s));
 				_streams.try_push(s);
 			}
 		}

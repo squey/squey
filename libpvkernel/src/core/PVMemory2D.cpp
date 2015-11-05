@@ -14,7 +14,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/PVLogger.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 void PVCore::memmove2d(
 	void* source,

@@ -157,7 +157,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_pvrow(PVRow start, P
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority)
 {
-	nlines = std::min(nlines, (chunk_index) PICVIZ_LINES_MAX);
+	nlines = std::min(nlines, (chunk_index) INENDI_LINES_MAX);
 
 	set_sources_number_fields();
 	get_nraw().reserve(nlines, get_number_axes());
@@ -183,7 +183,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start, chunk_index end, int priority)
 {
-	end = std::min(end, start + ((chunk_index) PICVIZ_LINES_MAX) - 1);
+	end = std::min(end, start + ((chunk_index) INENDI_LINES_MAX) - 1);
 
 	set_sources_number_fields();
 	get_nraw().reserve(end-start, get_number_axes());
@@ -221,13 +221,13 @@ void PVRush::PVExtractor::dump_mapnraw()
 
 void PVRush::PVExtractor::dump_nraw()
 {
-//	for (int i = 0; i < picviz_min(10,_nraw.table.size()); i++) {
+//	for (int i = 0; i < inendi_min(10,_nraw.table.size()); i++) {
 //		PVLOG_INFO("Line %d: ", i);
 //		debug_qstringlist(_nraw.table[i]);
 //	}
 
 	PVLOG_INFO("Nraw:\n");
-	for (size_t i = 0; i < picviz_min(10,get_nraw().get_number_rows()); i++) {
+	for (size_t i = 0; i < inendi_min(10,get_nraw().get_number_rows()); i++) {
 		PVLOG_INFO("Line %d: ", i);
 		for (int j = 0; j < get_nraw().get_number_cols(); j++) {
 			std::cerr << qPrintable(get_nraw().at(i,j)) << ",";

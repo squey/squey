@@ -33,7 +33,7 @@ EOF
 #cmake -DPROTECT_PASS=1 . ||exit $?
 make -j$1
 
-cp picviz-inspector picviz-inspector.with-empty-table
+cp inendi-inspector inendi-inspector.with-empty-table
 
 export CCACHE_DISABLE=1
 touch "$SRCDIR/gui-qt/src/main.cpp"
@@ -45,8 +45,8 @@ make ||exit $?
 # finalizing protection
 cd "$BINDIR/gui-qt/src"
 TFILE="./dump"
-objdump -d picviz-inspector | grep '>:$' > "$TFILE"
-$GALVEZ_ROOT/tools/gen_table picviz-inspector $2 > gen_table.c ||exit $?
+objdump -d inendi-inspector | grep '>:$' > "$TFILE"
+$GALVEZ_ROOT/tools/gen_table inendi-inspector $2 > gen_table.c ||exit $?
 
 cp gen_table.c gen_table.old.c
 while read LINE
@@ -78,19 +78,19 @@ cp gen_table.new.c "$BINDIR/gen_table.c"
 #
 make ||exit $?
 
-cp picviz-inspector picviz-inspector.unpatched-with-table
+cp inendi-inspector inendi-inspector.unpatched-with-table
 
 sh $GALVEZ_ROOT/bin/gen_patcher.sh gen_table.c ||exit $?
-./patcher ./picviz-inspector
+./patcher ./inendi-inspector
 
-cp ./picviz-inspector picviz-inspector.with-debug
+cp ./inendi-inspector inendi-inspector.with-debug
 
 # getting debug info
-objcopy --only-keep-debug ./picviz-inspector "$BINDIR/picviz-inspector.symbols"
-cp ./picviz-inspector "$BINDIR/picviz-inspector-with-debug"
+objcopy --only-keep-debug ./inendi-inspector "$BINDIR/inendi-inspector.symbols"
+cp ./inendi-inspector "$BINDIR/inendi-inspector-with-debug"
 
-cp ./picviz-inspector picviz-inspector.after-objcopy
+cp ./inendi-inspector inendi-inspector.after-objcopy
 
 # saving a stripped version of PV-I
-strip --strip-all "$BINDIR/gui-qt/src/picviz-inspector" -o "$BINDIR/gui-qt/src/picviz-inspector.stripped"
+strip --strip-all "$BINDIR/gui-qt/src/inendi-inspector" -o "$BINDIR/gui-qt/src/inendi-inspector.stripped"
 

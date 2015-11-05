@@ -16,7 +16,7 @@ ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 #LANG=C
 #export LC_ALL=C
 
-#export PICVIZ_LOG_FILE="log.txt"
+#export INENDI_LOG_FILE="log.txt"
 
 VALGRIND_ALLOC_FNS="--alloc-fn=scalable_aligned_malloc --alloc-fn=scalable_malloc --alloc-fn=scalable_posix_memalign"
 
@@ -27,102 +27,102 @@ if [ "$1" == "debug" ]; then
 	if [ "${2: -3}" == ".pv" ]; then
 		LOAD_PROJECT="--project "
 	fi
-	export PICVIZ_DEBUG_LEVEL="DEBUG"
-	#export PICVIZ_DEBUG_FILE="debug.txt"
+	export INENDI_DEBUG_LEVEL="DEBUG"
+	#export INENDI_DEBUG_FILE="debug.txt"
 	unset CMD_ARGS[0]
-	gdb -ex run --args $ISRD/gui-qt/src/picviz-inspector $LOAD_PROJECT ${CMD_ARGS[@]}
+	gdb -ex run --args $ISRD/gui-qt/src/inendi-inspector $LOAD_PROJECT ${CMD_ARGS[@]}
 	exit 0
 fi
 
 if [ "$1" == "qdebug" ]; then
-	qtcreator -debug $ISRD/gui-qt/src/picviz-inspector
+	qtcreator -debug $ISRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 
 if [ "$1" == "ddd" ]
 then
-export PICVIZ_DEBUG_LEVEL="DEBUG"
-#export PICVIZ_DEBUG_FILE="debug.txt"
-	ddd $ISRD/gui-qt/src/picviz-inspector
+export INENDI_DEBUG_LEVEL="DEBUG"
+#export INENDI_DEBUG_FILE="debug.txt"
+	ddd $ISRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 if [ "$1" == "nem" ]
 then
-#export PICVIZ_DEBUG_LEVEL="DEBUG"
-#export PICVIZ_DEBUG_FILE="debug.txt"
-	nemiver $ISRD/gui-qt/src/picviz-inspector
+#export INENDI_DEBUG_LEVEL="DEBUG"
+#export INENDI_DEBUG_FILE="debug.txt"
+	nemiver $ISRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 if [ "$1" == "debug-nogl" ]
 then
-export PICVIZ_DEBUG_LEVEL="DEBUG"
-#export PICVIZ_DEBUG_FILE="debug.txt"
+export INENDI_DEBUG_LEVEL="DEBUG"
+#export INENDI_DEBUG_FILE="debug.txt"
 	unset ARGS[0]
-	gdb --args $ISRD/gui-qt/src/picviz-inspector ${ARGS[@]}
+	gdb --args $ISRD/gui-qt/src/inendi-inspector ${ARGS[@]}
 	exit 0
 fi
 
 if [ "$1" == "debug-quiet" ]
 then
-export PICVIZ_DEBUG_LEVEL="NOTICE"
-#export PICVIZ_DEBUG_FILE="debug.txt"
+export INENDI_DEBUG_LEVEL="NOTICE"
+#export INENDI_DEBUG_FILE="debug.txt"
 	unset ARGS[0]
-	gdb --args $ISRD/gui-qt/src/picviz-inspector ${ARGS[@]}
+	gdb --args $ISRD/gui-qt/src/inendi-inspector ${ARGS[@]}
 	exit 0
 fi
 
 if [ "$1" == "valgrind" ]
 then
-	valgrind --log-file=./valgrind.out --leak-check=full --track-origins=yes --show-reachable=yes $ISRD/gui-qt/src/picviz-inspector
+	valgrind --log-file=./valgrind.out --leak-check=full --track-origins=yes --show-reachable=yes $ISRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 
 if [ "$1" == "massif" ]
 then
-	valgrind $VALGRIND_ALLOC_FNS --depth=60 --tool=massif --heap=yes --detailed-freq=1 --threshold=0.1 $ISRD/gui-qt/src/picviz-inspector
+	valgrind $VALGRIND_ALLOC_FNS --depth=60 --tool=massif --heap=yes --detailed-freq=1 --threshold=0.1 $ISRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 
 if [ "$1" == "callgrind" ]
 then
-export PICVIZ_DEBUG_LEVEL="NOTICE"
-	#valgrind --tool=callgrind --instr-atstart=no gui-qt/src/picviz-inspector
-	valgrind --tool=callgrind $ISRD/gui-qt/src/picviz-inspector
+export INENDI_DEBUG_LEVEL="NOTICE"
+	#valgrind --tool=callgrind --instr-atstart=no gui-qt/src/inendi-inspector
+	valgrind --tool=callgrind $ISRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 
 if [ "$1" == "calltrace" ]
 then
-	LD_PRELOAD=`pwd`/calltrace.so $ISRD/gui-qt/src/picviz-inspector
+	LD_PRELOAD=`pwd`/calltrace.so $ISRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 
 if [ "$1" == "gldebug" ]
 then
-	/usr/local/bin/gldb-gui gui-qt/src/picviz-inspector
+	/usr/local/bin/gldb-gui gui-qt/src/inendi-inspector
 	exit 0
 fi
 
 if [ "$1" == "cuda-debug" ]
 then
-export PICVIZ_DEBUG_LEVEL="DEBUG"
-#export PICVIZ_DEBUG_FILE="debug.txt"
-cd libpicviz/src/
+export INENDI_DEBUG_LEVEL="DEBUG"
+#export INENDI_DEBUG_FILE="debug.txt"
+cd libinendi/src/
 make
 cd ../..
 	export LD_LIBRARY_PATH=/usr/local/cuda/lib64
-	#/usr/local/cuda/bin/cuda-memcheck --continue gui-qt/src/picviz-inspector >/tmp/cuda-test-log.txt 2>&1
-	/usr/local/cuda/bin/cuda-gdb --quiet --nw gui-qt/src/picviz-inspector 
-	#gui-qt/src/picviz-inspector
+	#/usr/local/cuda/bin/cuda-memcheck --continue gui-qt/src/inendi-inspector >/tmp/cuda-test-log.txt 2>&1
+	/usr/local/cuda/bin/cuda-gdb --quiet --nw gui-qt/src/inendi-inspector 
+	#gui-qt/src/inendi-inspector
 	#gedit /tmp/cuda-test-log.txt
 	exit 0
 fi
 
 if [ "$1" == "test" ]
 then
-#export PICVIZ_DEBUG_FILE="debug.txt"
-	gui-qt/src/picviz-inspector test_petit.log
+#export INENDI_DEBUG_FILE="debug.txt"
+	gui-qt/src/inendi-inspector test_petit.log
 	exit 0
 fi
 	
-catchsegv $ISRD/gui-qt/src/picviz-inspector $LOAD_PROJECT $@
+catchsegv $ISRD/gui-qt/src/inendi-inspector $LOAD_PROJECT $@

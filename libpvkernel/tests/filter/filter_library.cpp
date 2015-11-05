@@ -13,7 +13,7 @@
 #include <iostream>
 #include <QString>
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 typedef LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>) fields_filter_o2m_t;
 

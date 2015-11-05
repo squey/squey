@@ -10,7 +10,7 @@
 
 #include <QSplitter>
 
-#include <picviz/PVLayerFilter.h>
+#include <inendi/PVLayerFilter.h>
 #include <pvkernel/widgets/PVPresetsWidget.h>
 
 namespace PVWidgets {
@@ -24,7 +24,7 @@ class PVLayerFilterProcessWidget: public QDialog
 	Q_OBJECT
 
 public:
-	PVLayerFilterProcessWidget(Picviz::PVView* view, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p, QWidget* parent = NULL);
+	PVLayerFilterProcessWidget(Inendi::PVView* view, PVCore::PVArgumentList& args, Inendi::PVLayerFilter_p filter_p, QWidget* parent = NULL);
 	virtual ~PVLayerFilterProcessWidget();
 
 	void change_args(PVCore::PVArgumentList const& args);
@@ -49,11 +49,11 @@ protected:
 	bool process();
 
 private:
-	static void process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* layer, Picviz::PVLayer* out_layer);
+	static void process_layer_filter(Inendi::PVLayerFilter* filter, Inendi::PVLayer* layer, Inendi::PVLayer* out_layer);
 
 protected:
-	Picviz::PVView* _view;
-	Picviz::PVLayerFilter_p _filter_p;
+	Inendi::PVView* _view;
+	Inendi::PVLayerFilter_p _filter_p;
 	PVWidgets::PVPresetsWidget* _presets_widget;
 	QSplitter* _splitter;
 	QHBoxLayout* _presets_layout;

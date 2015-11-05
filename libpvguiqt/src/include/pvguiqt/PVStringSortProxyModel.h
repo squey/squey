@@ -14,7 +14,7 @@
 #include <QTableView>
 
 #include <pvkernel/core/PVSharedBuffer.h>
-#include <picviz/PVSortingFunc.h>
+#include <inendi/PVSortingFunc.h>
 
 #include <boost/date_time/time_duration.hpp>
 
@@ -39,7 +39,7 @@ public:
 	 * RH: the parameter has no constness because GCC seems to have a
 	 * problem with purity and const methods...
 	 */
-	void set_qt_order_func(const Picviz::PVQtSortingFunc_flesser& lt_t);
+	void set_qt_order_func(const Inendi::PVQtSortingFunc_flesser& lt_t);
 
 	void set_default_qt_order_func();
 
@@ -80,7 +80,7 @@ private:
 	void reprocess_source();
 	void __do_sort(int column, Qt::SortOrder order, tbb::task_group_context* ctxt);
 	bool __reverse_sort_order(tbb::task_group_context* ctxt);
-	mutable Picviz::PVQtSortingFunc_flesser _qt_lesser_f;
+	mutable Inendi::PVQtSortingFunc_flesser _qt_lesser_f;
 
 private slots:
 	void src_layout_about_changed();

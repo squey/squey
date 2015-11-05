@@ -30,7 +30,7 @@ PVCore::__impl::PVPluginPresets::PVPluginPresets(PVCore::PVFunctionArgsBase* far
  , _abs_reg_name(path + "/" + registered_name)
 {
 	if (g_presets_settings.get() == nullptr) {
-		QFileInfo fi(QDir::homePath() + QDir::separator() + PICVIZ_INSPECTOR_CONFDIR + QDir::separator() + PRESETS_FILENAME);
+		QFileInfo fi(QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR + QDir::separator() + PRESETS_FILENAME);
 
 		if (fi.exists() == false) {
 			fi.dir().mkpath(fi.path());

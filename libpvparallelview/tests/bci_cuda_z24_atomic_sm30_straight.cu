@@ -179,7 +179,7 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 template <size_t Bbits>
 static inline int get_nthread_x_from_width(int width)
 {
-	return (picviz_min(width, (SMEM_IMG_KB*1024)/(PVParallelView::constants<Bbits>::image_height*sizeof(img_zbuffer_t))));
+	return (inendi_min(width, (SMEM_IMG_KB*1024)/(PVParallelView::constants<Bbits>::image_height*sizeof(img_zbuffer_t))));
 }
 
 template <size_t Bbits, bool reverse>
@@ -208,14 +208,14 @@ static float show_and_perf_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_c
 {
 	// WARNING!
 	// This will imply a synchronous call to the CUDA kernel, thus must not be used
-	// inside the Picviz rendering pipeline!!
+	// inside the INENDI rendering pipeline!!
 	cudaEvent_t start, stop;
 	cudaEventCreate(&start);
 	cudaEventCreateWithFlags(&stop, cudaEventBlockingSync);
 
 	cudaEventRecord(start, stream);
 	show_codes_cuda<Bbits, reverse>(device_codes, n, width, device_img, img_width, x_start, zoom_y, stream);
-	picviz_verify_cuda_kernel();
+	inendi_verify_cuda_kernel();
 	cudaEventRecord(stop, stream);
 	cudaEventSynchronize(stop);
 

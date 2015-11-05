@@ -9,7 +9,7 @@
 #include <pvparallelview/PVScatterView.h>
 #include <pvparallelview/PVSelectionGenerator.h>
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 #include <cassert>
 
@@ -67,10 +67,10 @@ void PVParallelView::PVScatterViewSelectionRectangle::commit(bool use_selection_
 	r.setX(x_min);
 	r.setWidth(x_delta);
 
-	Picviz::PVView& view = lib_view();
+	Inendi::PVView& view = lib_view();
 
-	Picviz::PVSelection& sel = view.get_volatile_selection();
-	Picviz::PVSelection const& layers_sel = view.get_layer_stack_output_layer().get_selection();
+	Inendi::PVSelection& sel = view.get_volatile_selection();
+	Inendi::PVSelection const& layers_sel = view.get_layer_stack_output_layer().get_selection();
 
 	if (selection_mode() == SelectionMode::VERTICAL) {
 		PVSelectionGenerator::compute_selection_from_plotted_range(_y1_plotted, _nrows,
@@ -97,7 +97,7 @@ void PVParallelView::PVScatterViewSelectionRectangle::commit(bool use_selection_
  * PVParallelView::PVScatterViewSelectionRectangle::lib_view
  *****************************************************************************/
 
-Picviz::PVView& PVParallelView::PVScatterViewSelectionRectangle::lib_view()
+Inendi::PVView& PVParallelView::PVScatterViewSelectionRectangle::lib_view()
 {
 	return _sv->lib_view();
 }

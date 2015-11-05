@@ -7,8 +7,8 @@
 
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/PVHSVColor.h>
-#include <pvkernel/core/picviz_bench.h>
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/inendi_intrin.h>
 
 #include <pvparallelview/PVBCode.h>
 #include <pvparallelview/PVBCICode.h>
@@ -31,7 +31,7 @@ class TBBPF {
 public:
 	TBBPF (
 		PVParallelView::PVZoneTreeNoAlloc* tree,
-		const Picviz::PVSelection::const_pointer sel_buf,
+		const Inendi::PVSelection::const_pointer sel_buf,
 		PVParallelView::PVZoneTreeNoAlloc::TLS* tls
 	) :
 		_tree(tree),
@@ -75,16 +75,16 @@ public:
 	}
 
 	mutable PVParallelView::PVZoneTreeNoAlloc* _tree;
-	Picviz::PVSelection::const_pointer _sel_buf;
+	Inendi::PVSelection::const_pointer _sel_buf;
 	PVParallelView::PVZoneTreeNoAlloc::TLS* _tls;
 };
 
 }
 
-size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_by_sel(PVCore::PVHSVColor* colors, PVBCICode<NBITS_INDEX>* /*codes*/, Picviz::PVSelection const& sel)
+size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_by_sel(PVCore::PVHSVColor* colors, PVBCICode<NBITS_INDEX>* /*codes*/, Inendi::PVSelection const& sel)
 {
 	size_t idx_code = 0;
-	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 #pragma omp parallel firstprivate(sel_buf) reduction(+:idx_code) num_threads(nthreads)
 	{
@@ -265,7 +265,7 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse(PVZoneProcessing const& 
 	for (ssize_t b = 0; b < (ssize_t) NBUCKETS; b++) {
 		for (int ith = 0; ith < ntrees; ith++) {
 			_tree.move_branch(b, b, thread_trees[ith]);
-			_first_elts[b] = picviz_min(
+			_first_elts[b] = inendi_min(
 				_first_elts[b],
 				thread_first_elts[ith][b]
 			);
@@ -283,7 +283,7 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse(PVZoneProcessing const& 
 	//PVLOG_INFO("OMP tree process reduction in %0.4f ms.\n", (end-red_start).seconds()*1000.0);
 }
 
-void PVParallelView::PVZoneTreeNoAlloc::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
+void PVParallelView::PVZoneTreeNoAlloc::get_float_pts(pts_t& pts, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
 {
 	pts.reserve(NBUCKETS*4);
 	for (uint32_t i = 0; i < NBUCKETS; i++) {
@@ -297,11 +297,11 @@ void PVParallelView::PVZoneTreeNoAlloc::get_float_pts(pts_t& pts, Picviz::PVPlot
 	}
 }
 
-void PVParallelView::PVZoneTreeNoAlloc::filter_by_sel_tbb(Picviz::PVSelection const& sel)
+void PVParallelView::PVZoneTreeNoAlloc::filter_by_sel_tbb(Inendi::PVSelection const& sel)
 {
 	// returns a zone tree with only the selected events
 	BENCH_START(subtree);
-	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	TLS tls;
 	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 	tbb::task_scheduler_init init(nthreads);
@@ -309,10 +309,10 @@ void PVParallelView::PVZoneTreeNoAlloc::filter_by_sel_tbb(Picviz::PVSelection co
 	BENCH_END(subtree, "tbb::parallel_for", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 
-void PVParallelView::PVZoneTreeNoAlloc::filter_by_sel_omp(Picviz::PVSelection const& sel)
+void PVParallelView::PVZoneTreeNoAlloc::filter_by_sel_omp(Inendi::PVSelection const& sel)
 {
 	BENCH_START(subtree);
-	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	const size_t nthreads = omp_get_max_threads()/2;
 #pragma omp parallel for schedule(dynamic, atol(getenv("GRAINSIZE"))) firstprivate(sel_buf) num_threads(nthreads)
 	for (uint64_t b = 0; b < NBUCKETS; b++) {

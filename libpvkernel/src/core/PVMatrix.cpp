@@ -8,7 +8,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVMatrix.h>
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 
 // SSE-transposition functions
 // Adapted from GCC's xmmintrin.h

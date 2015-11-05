@@ -5,13 +5,13 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVDataTreeObject.h>
 
-#include <picviz/PVMapped.h>
-#include <picviz/PVPlotted.h>
-#include <picviz/PVSource.h>
-#include <picviz/PVView.h>
+#include <inendi/PVMapped.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVSource.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVObserverCallback.h>
 #include <pvhive/PVHive.h>
@@ -35,15 +35,15 @@ int main(int argc, char** argv)
 	PVCore::PVIntrinsics::init_cpuid();
 	init_env();
 
-	// Get a Picviz tree from the given file/format
-	Picviz::PVRoot_p root;
-	Picviz::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
+	// Get a INENDI tree from the given file/format
+	Inendi::PVRoot_p root;
+	Inendi::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
 	src->create_default_view();
 
 	// Qt app
 	QApplication app(argc, argv);
 
-	Picviz::PVView_sp view = src->current_view()->shared_from_this();
+	Inendi::PVView_sp view = src->current_view()->shared_from_this();
 	view->add_new_layer();
 
 	PVGuiQt::PVLayerStackWidget* ls = new PVGuiQt::PVLayerStackWidget(view);
@@ -59,12 +59,12 @@ int main(int argc, char** argv)
 	mw2->show();
 
 	// Register callback event
-	auto observer = PVHive::create_observer_callback<Picviz::PVLayerStack>(
-	    [](Picviz::PVLayerStack const*) { std::cout << "about to be refreshed." << std::endl; },
-	    [](Picviz::PVLayerStack const*) { std::cout << "refreshed." << std::endl; },
-	    [](Picviz::PVLayerStack const*) { std::cout << "about to be deleted." << std::endl; });
+	auto observer = PVHive::create_observer_callback<Inendi::PVLayerStack>(
+	    [](Inendi::PVLayerStack const*) { std::cout << "about to be refreshed." << std::endl; },
+	    [](Inendi::PVLayerStack const*) { std::cout << "refreshed." << std::endl; },
+	    [](Inendi::PVLayerStack const*) { std::cout << "about to be deleted." << std::endl; });
 
-	PVHive::get().register_observer(view, [=](Picviz::PVView& view) { return &view.get_layer_stack(); }, observer);
+	PVHive::get().register_observer(view, [=](Inendi::PVView& view) { return &view.get_layer_stack(); }, observer);
 	 
 	int ret = app.exec();
 

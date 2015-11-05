@@ -7,7 +7,7 @@
 
 #include <pvkernel/core/PVConfig.h>
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
 #ifdef CUDA
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
@@ -89,7 +89,7 @@ void PVParallelView::PVParallelViewImpl::release()
 	}
 }
 
-PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Picviz::PVView& view)
+PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Inendi::PVView& view)
 {
 	tbb::mutex::scoped_lock lock(_mutex);
 
@@ -98,13 +98,13 @@ PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Picv
 		return it->second;
 	}
 
-	Picviz::PVView_sp view_sp = view.shared_from_this();
+	Inendi::PVView_sp view_sp = view.shared_from_this();
 	PVLibView* new_view = new PVLibView(view_sp);
 	_lib_views.insert(std::make_pair(&view, new_view));
 	return new_view;
 }
 
-PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Picviz::PVView& view, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols)
+PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Inendi::PVView& view, Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols)
 {
 	tbb::mutex::scoped_lock lock(_mutex);
 
@@ -113,13 +113,13 @@ PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Picv
 		return it->second;
 	}
 
-	Picviz::PVView_sp view_sp = view.shared_from_this();
+	Inendi::PVView_sp view_sp = view.shared_from_this();
 	PVLibView* new_view = new PVLibView(view_sp, plotted, nrows, ncols);
 	_lib_views.insert(std::make_pair(&view, new_view));
 	return new_view;
 }
 
-void PVParallelView::PVParallelViewImpl::remove_lib_view(Picviz::PVView& view)
+void PVParallelView::PVParallelViewImpl::remove_lib_view(Inendi::PVView& view)
 {
 	tbb::mutex::scoped_lock lock(_mutex);
 

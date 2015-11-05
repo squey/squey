@@ -8,8 +8,8 @@
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
 
-#include <picviz/PVPlotted.h>
-#include <picviz/PVView.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVView.h>
 
 #include <stdlib.h>
 #include <iostream>
@@ -19,13 +19,13 @@
 
 #include "common.h"
 
-static Picviz::PVView_sp g_fake_view;
-static Picviz::PVPlotted::uint_plotted_table_t g_norm_plotted;
+static Inendi::PVView_sp g_fake_view;
+static Inendi::PVPlotted::uint_plotted_table_t g_norm_plotted;
 static const char *extra_param_text = nullptr;
 static int extra_param_num = 0;
 static bool input_is_file = false;
 
-static void init_rand_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
+static void init_rand_plotted(Inendi::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
 	srand(time(NULL));
 	p.clear();
@@ -38,7 +38,7 @@ static void init_rand_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow 
 	}
 }
 
-static void init_qt_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
+static void init_qt_plotted(Inendi::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
 	p.clear();
 	const PVRow nrows_aligned = ((nrows+3)/4)*4;
@@ -74,7 +74,7 @@ static void init_qt_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nr
 	}
 }
 
-static void init_gauss_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
+static void init_gauss_plotted(Inendi::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
 	static boost::random::mt19937 rng;
 	p.clear();
@@ -117,10 +117,10 @@ bool input_is_a_file()
 	return input_is_file;
 }
 
-Picviz::PVView_sp& get_view_sp() { return g_fake_view; }
+Inendi::PVView_sp& get_view_sp() { return g_fake_view; }
 
 
-bool create_plotted_table_from_args(Picviz::PVPlotted::uint_plotted_table_t &norm_plotted,
+bool create_plotted_table_from_args(Inendi::PVPlotted::uint_plotted_table_t &norm_plotted,
                                     PVRow &nrows, PVCol &ncols, int argc, char** argv)
 {
 	QString fplotted(argv[1]);
@@ -132,8 +132,8 @@ bool create_plotted_table_from_args(Picviz::PVPlotted::uint_plotted_table_t &nor
 		srand(time(NULL));
 		nrows = atol(argv[2]);
 
-		if (nrows > PICVIZ_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+		if (nrows > INENDI_LINES_MAX) {
+			std::cerr << "nrows is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
 			return false;
 		}
 
@@ -141,7 +141,7 @@ bool create_plotted_table_from_args(Picviz::PVPlotted::uint_plotted_table_t &nor
 
 		if (fplotted == "0") {
 			init_rand_plotted(norm_plotted, nrows, ncols);
-			//Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
+			//Inendi::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 		} else if (fplotted == "1") {
 			init_qt_plotted(norm_plotted, nrows, ncols);
 		} else {
@@ -157,23 +157,23 @@ bool create_plotted_table_from_args(Picviz::PVPlotted::uint_plotted_table_t &nor
 		}
 
 		if (argv[2][0] == '1') {
-			if (!Picviz::PVPlotted::load_buffer_from_file(norm_plotted, nrows, ncols, true, QString(argv[1]))) {
+			if (!Inendi::PVPlotted::load_buffer_from_file(norm_plotted, nrows, ncols, true, QString(argv[1]))) {
 				std::cerr << "Unable to load plotted !" << std::endl;
 				return false;
 			}
 		}
 		else {
-			Picviz::PVPlotted::plotted_table_t plotted;
-			if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
+			Inendi::PVPlotted::plotted_table_t plotted;
+			if (!Inendi::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
 				std::cerr << "Unable to load plotted !" << std::endl;
 				return false;
 			}
 			nrows = plotted.size()/ncols;
-			Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
+			Inendi::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 		}
 
-		if (nrows > PICVIZ_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+		if (nrows > INENDI_LINES_MAX) {
+			std::cerr << "nrows is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
 			return false;
 		}
 
@@ -188,7 +188,7 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 	PVCol ncols;
 	PVRow nrows;
 
-	Picviz::PVPlotted::uint_plotted_table_t &norm_plotted = g_norm_plotted;
+	Inendi::PVPlotted::uint_plotted_table_t &norm_plotted = g_norm_plotted;
 
 	if (!create_plotted_table_from_args(norm_plotted, nrows, ncols, argc, argv)) {
 		return NULL;
@@ -196,7 +196,7 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 
 	//PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
 
-	g_fake_view.reset(new Picviz::PVView());
+	g_fake_view.reset(new Inendi::PVView());
 	g_fake_view->reset_layers();
 	g_fake_view->set_fake_axes_comb(ncols);
 

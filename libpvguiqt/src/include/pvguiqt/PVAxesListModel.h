@@ -8,7 +8,7 @@
 #ifndef PVGUIQT_AXESLISTMODEL_H
 #define PVGUIQT_AXESLISTMODEL_H
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 #include <pvkernel/core/PVSharedPointer.h>
 
@@ -30,7 +30,7 @@ class PVAxesListModel: public QAbstractListModel
 	Q_OBJECT;
 
 public:
-	PVAxesListModel(Picviz::PVView_sp& view_p, QObject* parent = NULL);
+	PVAxesListModel(Inendi::PVView_sp& view_p, QObject* parent = NULL);
 
 public:
 	int rowCount(const QModelIndex &parent) const override;
@@ -43,13 +43,13 @@ private slots:
 	void refresh_slot(PVHive::PVObserverBase*);
 
 protected:
-	inline Picviz::PVView const& picviz_view() const { return *_view_observer.get_object(); }
+	inline Inendi::PVView const& inendi_view() const { return *_view_observer.get_object(); }
 
 private:
 	bool _view_deleted;
 
 	// Observers
-	PVHive::PVObserverSignal<Picviz::PVView> _view_observer;
+	PVHive::PVObserverSignal<Inendi::PVView> _view_observer;
 };
 
 }

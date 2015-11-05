@@ -88,7 +88,7 @@ bool PVGuiQt::PVCountByStringsDlg::process_context_menu(QAction* act)
 				max_rel = std::max(max_rel, v.second);
 			}
 
-			Picviz::PVView_sp view_sp = _view.shared_from_this();
+			Inendi::PVView_sp view_sp = _view.shared_from_this();
 
 			PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view_sp, _col2, unique_values_vector, total_count, min_rel, max_rel, parentWidget());
 			dlg->setWindowTitle("Details of value '" + QString(v1_v2_pair.first.first.c_str())+ "'");

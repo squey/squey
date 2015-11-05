@@ -10,7 +10,7 @@
 
 #include <pvkernel/core/general.h>
 
-namespace Picviz {
+namespace Inendi {
 class PVMapped;
 }
 
@@ -18,7 +18,7 @@ namespace PVGuiQt {
 
 struct PVQMapped
 {
-	static bool edit_mapped(Picviz::PVMapped& plotted, QWidget* parent = NULL);
+	static bool edit_mapped(Inendi::PVMapped& plotted, QWidget* parent = NULL);
 };
 
 }

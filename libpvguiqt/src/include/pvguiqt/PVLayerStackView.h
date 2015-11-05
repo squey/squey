@@ -11,8 +11,8 @@
 #include <QFileDialog>
 #include <QTableView>
 
-#include <picviz/PVLayer_types.h>
-#include <picviz/PVView_types.h>
+#include <inendi/PVLayer_types.h>
+#include <inendi/PVView_types.h>
 
 namespace PVGuiQt {
 
@@ -41,7 +41,7 @@ private:
 	void export_layer_selection(int model_idx);
 	void reset_layer_colors(int layer_idx);
 
-	Picviz::PVLayer& get_layer_from_idx(int model_idx);
+	Inendi::PVLayer& get_layer_from_idx(int model_idx);
 
 private slots:
 	void show_ctxt_menu(QPoint const& pt);

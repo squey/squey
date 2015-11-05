@@ -8,7 +8,7 @@
 #ifndef __PVGUIQT_PVWORKSPACESTABWIDGET_H__
 #define __PVGUIQT_PVWORKSPACESTABWIDGET_H__
 
-#include <picviz/PVScene.h>
+#include <inendi/PVScene.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
@@ -26,7 +26,7 @@ class QWidget;
 #include <QTabWidget>
 #include <QTimer>
 
-namespace Picviz
+namespace Inendi
 {
 class PVSource;
 class PVScene;
@@ -50,7 +50,7 @@ namespace __impl
 	 *
 	 * \note This class is handling "*" for modified scene workspaces.
 	 */
-	class PVSaveSceneToFileFuncObserver: public PVHive::PVFuncObserverSignal<Picviz::PVScene, FUNC(Picviz::PVScene::save_to_file)>
+	class PVSaveSceneToFileFuncObserver: public PVHive::PVFuncObserverSignal<Inendi::PVScene, FUNC(Inendi::PVScene::save_to_file)>
 	{
 	public:
 		PVSaveSceneToFileFuncObserver(PVSceneWorkspacesTabWidget* parent) : _parent(parent) {}
@@ -147,7 +147,7 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 	friend class PVOpenWorkspaceTabBar;
 
 public:
-	PVWorkspacesTabWidgetBase(Picviz::PVRoot& root, QWidget* parent = 0);
+	PVWorkspacesTabWidgetBase(Inendi::PVRoot& root, QWidget* parent = 0);
 
 public:
 	/*! \brief Add a workspace with or without animation.
@@ -166,8 +166,8 @@ public:
 
 protected:
 
-	inline Picviz::PVRoot const& get_root() const { return _root; }
-	inline Picviz::PVRoot& get_root() { return _root; }
+	inline Inendi::PVRoot const& get_root() const { return _root; }
+	inline Inendi::PVRoot& get_root() { return _root; }
 
 signals:
 	/*! \brief Signal emitted when a workspace is dragged outside of a PVMainWindow.
@@ -204,7 +204,7 @@ private:
 	bool _tab_animation_ongoing = false;
 	int _tab_animation_index;
 
-	Picviz::PVRoot& _root;
+	Inendi::PVRoot& _root;
 };
 
 /**
@@ -219,7 +219,7 @@ class PVSceneWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
 	friend class PVSceneTabBar;
 
 public:
-	PVSceneWorkspacesTabWidget(Picviz::PVScene& scene, QWidget* parent = 0);
+	PVSceneWorkspacesTabWidget(Inendi::PVScene& scene, QWidget* parent = 0);
 
 public:
 
@@ -230,8 +230,8 @@ public:
 	bool is_project_modified() { return _project_modified; }
 	bool is_project_untitled() { return _project_untitled; }
 
-	QList<Picviz::PVSource*> list_sources() const;
-	Picviz::PVScene* get_scene() { return _obs_scene.get_object(); }
+	QList<Inendi::PVSource*> list_sources() const;
+	Inendi::PVScene* get_scene() { return _obs_scene.get_object(); }
 
 protected:
 	/*! \brief Special behavior on workspace removal (emit "is_empty" when all sources are closed).
@@ -246,7 +246,7 @@ signals:
 	void is_empty();
 
 public slots:
-    /*! \brief Call Picviz::PVRoot::select_source throught the Hive to keep track of current source.
+    /*! \brief Call Inendi::PVRoot::select_source throught the Hive to keep track of current source.
 	 */
 	void tab_changed(int index);
 
@@ -261,7 +261,7 @@ private:
 	bool _project_modified = false;
 	bool _project_untitled = true;
 
-	PVHive::PVObserverSignal<Picviz::PVScene> _obs_scene;
+	PVHive::PVObserverSignal<Inendi::PVScene> _obs_scene;
 	__impl::PVSaveSceneToFileFuncObserver _save_scene_func_observer;
 };
 
@@ -276,7 +276,7 @@ class PVOpenWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
 	friend class PVOpenWorkspaceTabBar;
 
 public:
-	PVOpenWorkspacesTabWidget(Picviz::PVRoot& root, QWidget* parent = 0);
+	PVOpenWorkspacesTabWidget(Inendi::PVRoot& root, QWidget* parent = 0);
 
 public:
 	PVOpenWorkspace* current_workspace() const;

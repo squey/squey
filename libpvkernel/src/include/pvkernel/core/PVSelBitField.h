@@ -8,7 +8,7 @@
 #ifndef PVCORE_PVBITFIELD_H
 #define PVCORE_PVBITFIELD_H
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVBitVisitor.h>
@@ -19,7 +19,7 @@
 
 #include <vector>
 
-namespace Picviz {
+namespace Inendi {
 class PVSelection;
 }
 
@@ -29,19 +29,19 @@ namespace PVCore {
 * \class PVSelBitField
 */
 
-#define PICVIZ_SELECTION_CHUNK_SIZE 64
-#if (PICVIZ_LINES_MAX % PICVIZ_SELECTION_CHUNK_SIZE == 0)
-#define PICVIZ_SELECTION_NUMBER_OF_CHUNKS (PICVIZ_LINES_MAX / PICVIZ_SELECTION_CHUNK_SIZE)
+#define INENDI_SELECTION_CHUNK_SIZE 64
+#if (INENDI_LINES_MAX % INENDI_SELECTION_CHUNK_SIZE == 0)
+#define INENDI_SELECTION_NUMBER_OF_CHUNKS (INENDI_LINES_MAX / INENDI_SELECTION_CHUNK_SIZE)
 #else
-#define PICVIZ_SELECTION_NUMBER_OF_CHUNKS ((PICVIZ_LINES_MAX / PICVIZ_SELECTION_CHUNK_SIZE) + 1)
+#define INENDI_SELECTION_NUMBER_OF_CHUNKS ((INENDI_LINES_MAX / INENDI_SELECTION_CHUNK_SIZE) + 1)
 #endif
-#define PICVIZ_SELECTION_NUMBER_OF_ROWS (PICVIZ_SELECTION_NUMBER_OF_CHUNKS * PICVIZ_SELECTION_CHUNK_SIZE)
-#define PICVIZ_SELECTION_NUMBER_OF_BYTES (PICVIZ_SELECTION_NUMBER_OF_ROWS / 8)
+#define INENDI_SELECTION_NUMBER_OF_ROWS (INENDI_SELECTION_NUMBER_OF_CHUNKS * INENDI_SELECTION_CHUNK_SIZE)
+#define INENDI_SELECTION_NUMBER_OF_BYTES (INENDI_SELECTION_NUMBER_OF_ROWS / 8)
 
 class PVSelBitField
 {
 	friend class PVCore::PVSerializeObject;
-	friend class Picviz::PVSelection;
+	friend class Inendi::PVSelection;
 
 public:
 	typedef uint64_t chunk_t;
@@ -368,7 +368,7 @@ public:
 	{
 		const PVRow pos = line_index_to_chunk(line_index);
 		const PVRow shift = line_index_to_chunk_bit(line_index);
-		assert(shift <= (PICVIZ_SELECTION_CHUNK_SIZE-4));
+		assert(shift <= (INENDI_SELECTION_CHUNK_SIZE-4));
 
 		_table[pos] |= ((chunk_t)bits << shift);
 	}
@@ -393,7 +393,7 @@ public:
 	 */
 	inline uint64_t get_chunk_fast(PVRow const chunk_index) const
 	{
-		assert(chunk_index < PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		assert(chunk_index < INENDI_SELECTION_NUMBER_OF_CHUNKS);
 		return _table[chunk_index];
 	}
 
@@ -404,7 +404,7 @@ public:
 	 */
 	inline void set_chunk_fast(PVRow const chunk_index, chunk_t const chunk)
 	{
-		assert(chunk_index < PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		assert(chunk_index < INENDI_SELECTION_NUMBER_OF_CHUNKS);
 		_table[chunk_index] = chunk;
 	}
 
@@ -422,7 +422,7 @@ public:
 
 	// Returns the index of the chunk following the last chunk that contains a line
 	// Thus, returns 0 if no chunk is empty
-	ssize_t get_last_nonzero_chunk_index(ssize_t starting_chunk = 0, ssize_t ending_chunk = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1) const;
+	ssize_t get_last_nonzero_chunk_index(ssize_t starting_chunk = 0, ssize_t ending_chunk = INENDI_SELECTION_NUMBER_OF_CHUNKS-1) const;
 
 	/**
 	 * search forward for the first bit set to 1 from the position \a index.
@@ -449,13 +449,13 @@ public:
 	PVRow find_previous_set_bit(const PVRow index, const PVRow size) const;
 
 	template <class F>
-	void visit_selected_lines(F const& f, PVRow b = PICVIZ_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
+	void visit_selected_lines(F const& f, PVRow b = INENDI_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
 	{
 		if (!_table || (b <= 0)) {
 			return;
 		}
 		assert(b > a);
-		assert(b <= PICVIZ_SELECTION_NUMBER_OF_ROWS);
+		assert(b <= INENDI_SELECTION_NUMBER_OF_ROWS);
 		b--;
 		int last_bit = line_index_to_chunk_bit(b);
 		const ssize_t org_chunk_end = line_index_to_chunk(b);
@@ -466,7 +466,7 @@ public:
 			return;
 		}
 		if (chunk_end != org_chunk_end) {
-			last_bit = PICVIZ_SELECTION_CHUNK_SIZE-1;
+			last_bit = INENDI_SELECTION_CHUNK_SIZE-1;
 		}
 
 		// If there are less than or exactly 3 chunks, use the serial version
@@ -506,20 +506,20 @@ public:
 
 		// Epilogue
 		uint64_t last_chunk = _table[chunk_end];
-		if (last_bit < PICVIZ_SELECTION_CHUNK_SIZE-1) {
+		if (last_bit < INENDI_SELECTION_CHUNK_SIZE-1) {
 			last_chunk &= ((1ULL<<(last_bit+1))-1);
 		}
 		PVCore::PVBitVisitor::visit_bits(last_chunk, f, chunk_to_line_index(chunk_end));
 	}
 
 	template <class F>
-	void visit_selected_lines_tbb(F const& f, PVRow b = PICVIZ_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
+	void visit_selected_lines_tbb(F const& f, PVRow b = INENDI_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
 	{
 		if (!_table || (b <= 0)) {
 			return;
 		}
 		assert(b > a);
-		assert(b <= PICVIZ_SELECTION_NUMBER_OF_ROWS);
+		assert(b <= INENDI_SELECTION_NUMBER_OF_ROWS);
 		b--;
 		int last_bit = line_index_to_chunk_bit(b);
 		const ssize_t org_chunk_end = line_index_to_chunk(b);
@@ -530,7 +530,7 @@ public:
 			return;
 		}
 		if (chunk_end != org_chunk_end) {
-			last_bit = PICVIZ_SELECTION_CHUNK_SIZE-1;
+			last_bit = INENDI_SELECTION_CHUNK_SIZE-1;
 		}
 
 		// If there are less than or exactly 3 chunks, use the serial version
@@ -573,14 +573,14 @@ public:
 
 		// Epilogue
 		uint64_t last_chunk = _table[chunk_end];
-		if (last_bit < PICVIZ_SELECTION_CHUNK_SIZE-1) {
+		if (last_bit < INENDI_SELECTION_CHUNK_SIZE-1) {
 			last_chunk &= ((1ULL<<(last_bit+1))-1);
 		}
 		PVCore::PVBitVisitor::visit_bits(last_chunk, f, chunk_to_line_index(chunk_end));
 	}
 
 	template <size_t N, class Fpacked, class Funpacked>
-	void visit_selected_lines_packed(Fpacked const& fpacked, Funpacked const& funpacked, PVRow b = PICVIZ_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
+	void visit_selected_lines_packed(Fpacked const& fpacked, Funpacked const& funpacked, PVRow b = INENDI_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
 	{
 		PVRow packed_rows[N];
 		int cur_packed = 0;
@@ -601,7 +601,7 @@ public:
 	}
 
 	template <class Fpacked, class Funpacked, class Fload>
-	void visit_selected_lines_gather_sse(Fpacked const& fpacked, Funpacked const& funpacked, Fload const& fload, PVRow b = PICVIZ_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
+	void visit_selected_lines_gather_sse(Fpacked const& fpacked, Funpacked const& funpacked, Fload const& fload, PVRow b = INENDI_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
 	{
 		visit_selected_lines_packed<4>(
 			[&](PVRow const packed_rows[4])
@@ -631,7 +631,7 @@ public:
 
 public:
 	template <class F>
-	void visit_selected_lines_serial(F const& f, PVRow b = PICVIZ_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
+	void visit_selected_lines_serial(F const& f, PVRow b = INENDI_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
 	{
 		if (!_table || (b <= 0)) {
 			return;
@@ -646,7 +646,7 @@ public:
 		if (cbit > 0) {
 			// Prelogue
 			uint64_t cv = _table[chunk_start];
-			PVRow end_bit = PICVIZ_SELECTION_CHUNK_SIZE-1;
+			PVRow end_bit = INENDI_SELECTION_CHUNK_SIZE-1;
 			bool same = (chunk_end == chunk_start);
 			if (same) {
 				end_bit = line_index_to_chunk_bit(b);
@@ -681,8 +681,8 @@ public:
 	}
 
 protected:
-	inline void allocate_table() { _table = allocator().allocate(PICVIZ_SELECTION_NUMBER_OF_CHUNKS); }
-	inline void free_table() { allocator().deallocate(_table, PICVIZ_SELECTION_NUMBER_OF_CHUNKS); }
+	inline void allocate_table() { _table = allocator().allocate(INENDI_SELECTION_NUMBER_OF_CHUNKS); }
+	inline void free_table() { allocator().deallocate(_table, INENDI_SELECTION_NUMBER_OF_CHUNKS); }
 	inline void allocate_and_copy_from(PVSelBitField const& o)
 	{
 		if (o._table) {
@@ -701,13 +701,13 @@ protected:
 	{
 		assert(_table);
 		assert(o._table);
-		static_assert(PICVIZ_SELECTION_NUMBER_OF_CHUNKS % 2 == 0, "PICVIZ_SELECTION_NUMBER_OF_CHUNKS must be a multiple of 2.");
+		static_assert(INENDI_SELECTION_NUMBER_OF_CHUNKS % 2 == 0, "INENDI_SELECTION_NUMBER_OF_CHUNKS must be a multiple of 2.");
 		__m128i sse_c;
-		for (size_t i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i += 2) {
+		for (size_t i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i += 2) {
 			sse_c = _mm_load_si128((__m128i const*) &o._table[i]);
 			_mm_store_si128((__m128i*) &_table[i], sse_c);
 		}
-		//memcpy(_table, o._table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+		//memcpy(_table, o._table, INENDI_SELECTION_NUMBER_OF_BYTES);
 	}
 
 protected:

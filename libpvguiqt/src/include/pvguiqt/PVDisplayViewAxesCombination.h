@@ -19,7 +19,7 @@ public:
 	PVDisplayViewAxesCombination();
 
 public:
-	QWidget* create_widget(Picviz::PVView* view, QWidget* parent) const override;
+	QWidget* create_widget(Inendi::PVView* view, QWidget* parent) const override;
 
 	CLASS_REGISTRABLE(PVDisplayViewAxesCombination)
 };

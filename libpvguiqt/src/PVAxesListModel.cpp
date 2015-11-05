@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
@@ -14,7 +14,7 @@
 
 // Model
 
-PVGuiQt::PVAxesListModel::PVAxesListModel(Picviz::PVView_sp& view_p, QObject* parent):
+PVGuiQt::PVAxesListModel::PVAxesListModel(Inendi::PVView_sp& view_p, QObject* parent):
 		QAbstractListModel(parent),
 		_view_deleted(false),
 		_view_observer(this)
@@ -38,7 +38,7 @@ int PVGuiQt::PVAxesListModel::rowCount(const QModelIndex &parent) const
 int PVGuiQt::PVAxesListModel::rowCount() const
 {
 	if (!_view_deleted) {
-		return picviz_view().get_original_axes_count();
+		return inendi_view().get_original_axes_count();
 	}
 	return 0;
 }
@@ -49,7 +49,7 @@ QVariant PVGuiQt::PVAxesListModel::data(const QModelIndex &index, int role) cons
 		return QVariant();
 
 	if (role == Qt::DisplayRole) {
-		return QVariant(picviz_view().get_original_axis_name(index.row()));
+		return QVariant(inendi_view().get_original_axis_name(index.row()));
 	}
 
 	return QVariant();

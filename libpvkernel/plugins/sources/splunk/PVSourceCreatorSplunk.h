@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#ifndef PICVIZ_PVSOURCECREATORSPLUNK_H
-#define PICVIZ_PVSOURCECREATORSPLUNK_H
+#ifndef INENDI_PVSOURCECREATORSPLUNK_H
+#define INENDI_PVSOURCECREATORSPLUNK_H
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
@@ -29,4 +29,4 @@ public:
 
 } // namespace PVRush
 
-#endif	// PICVIZ_PVSOURCECREATORSPLUNK_H
+#endif	// INENDI_PVSOURCECREATORSPLUNK_H

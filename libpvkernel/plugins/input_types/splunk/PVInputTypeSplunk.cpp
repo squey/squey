@@ -30,7 +30,7 @@ bool PVRush::PVInputTypeSplunk::createWidget(hash_formats const& formats, hash_f
 	PVInputDescription_p ind(query);
 	inputs.push_back(ind);
 
-	format = PICVIZ_BROWSE_FORMAT_STR;
+	format = INENDI_BROWSE_FORMAT_STR;
 
 	return true;
 }

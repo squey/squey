@@ -48,8 +48,8 @@ int main(int argc, char** argv)
 	PVCuda::init_cuda();
 
 	// Enable peer-to-peer access
-	picviz_verify_cuda(cudaSetDevice(1));
-	picviz_verify_cuda(cudaDeviceEnablePeerAccess(0, 0));
+	inendi_verify_cuda(cudaSetDevice(1));
+	inendi_verify_cuda(cudaDeviceEnablePeerAccess(0, 0));
 
 	size_t n = atoll(argv[1]);
 
@@ -64,23 +64,23 @@ int main(int argc, char** argv)
 	const int nzones = width/zone_width;
 	cudaStream_t *cstreams = new cudaStream_t[nzones];
 	for (int z = 0; z < nzones; z++) {
-		picviz_verify_cuda(cudaSetDevice(z & 1));
-		picviz_verify_cuda(cudaStreamCreate(&cstreams[z]));
+		inendi_verify_cuda(cudaSetDevice(z & 1));
+		inendi_verify_cuda(cudaStreamCreate(&cstreams[z]));
 	}
 	cudaEvent_t start,end;
 	cudaEventCreate(&start); cudaEventCreate(&end);
-	picviz_verify_cuda(cudaEventRecord(start, 0));
+	inendi_verify_cuda(cudaEventRecord(start, 0));
 	for (int z = 0; z < nzones; z++) {
 		int device = z & 1;
 		cudaSetDevice(device);
 		printf("Launching kernel on stream %p w/ device %d\n", cstreams[z], device);
 		copy_codes_to_cuda(device_codes[device], host_codes, n, cstreams[z]);
 		show_codes_cuda(device_codes[device], n, zone_width, device_img, width, z*zone_width, cstreams[z]);
-		picviz_verify_cuda(cudaStreamAddCallback(cstreams[z], &stream_callback, NULL, 0));
+		inendi_verify_cuda(cudaStreamAddCallback(cstreams[z], &stream_callback, NULL, 0));
 
 	}
-	picviz_verify_cuda(cudaEventRecord(end, 0));
-	picviz_verify_cuda(cudaEventSynchronize(end));
+	inendi_verify_cuda(cudaEventRecord(end, 0));
+	inendi_verify_cuda(cudaEventSynchronize(end));
 
 	float time;
 	cudaEventElapsedTime(&time, start, end);

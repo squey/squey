@@ -25,7 +25,7 @@ public:
 	static p_type get_map(QString const& driver);
 public:
 	virtual QString map(int type) const = 0;
-	virtual QString map_picviz(int type) const = 0;
+	virtual QString map_inendi(int type) const = 0;
 };
 
 typedef PVSQLTypeMap::p_type PVSQLTypeMap_p;
@@ -34,21 +34,21 @@ class PVSQLTypeMapMysql: public PVSQLTypeMap
 {
 public:
 	QString map(int type) const;
-	QString map_picviz(int type) const;
+	QString map_inendi(int type) const;
 };
 
 class PVSQLTypeMapODBC: public PVSQLTypeMap
 {
 public:
 	QString map(int /*type*/) const { return "unknown"; }
-	QString map_picviz(int /*type*/) const { return "enum"; }
+	QString map_inendi(int /*type*/) const { return "enum"; }
 };
 
 class PVSQLTypeMapSQLite: public PVSQLTypeMap
 {
 public:
 	QString map(int /*type*/) const { return "unknown"; }
-	QString map_picviz(int /*type*/) const { return "enum"; }
+	QString map_inendi(int /*type*/) const { return "enum"; }
 };
 
 }

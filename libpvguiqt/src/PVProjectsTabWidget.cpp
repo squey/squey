@@ -78,10 +78,10 @@ void PVGuiQt::__impl::PVTabBar::rename_tab(int index)
 	QString name = QInputDialog::getText(this, "Rename data collection", "New data collection name:", QLineEdit::Normal, tab_name);
 	if (!name.isEmpty()) {
 		setTabText(index, name + (add_star ? star : ""));
-		Picviz::PVScene* scene = _root.current_scene();
+		Inendi::PVScene* scene = _root.current_scene();
 		assert(scene);
-		Picviz::PVScene_p scene_p = scene->shared_from_this();
-		PVHive::call<FUNC(Picviz::PVScene::set_name)>(scene_p, name);
+		Inendi::PVScene_p scene_p = scene->shared_from_this();
+		PVHive::call<FUNC(Inendi::PVScene::set_name)>(scene_p, name);
 	}
 }
 
@@ -90,7 +90,7 @@ void PVGuiQt::__impl::PVTabBar::rename_tab(int index)
  * PVGuiQt::PVProjectsTabWidget
  *
  *****************************************************************************/
-PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Picviz::PVRoot* root, QWidget* parent /*= 0*/):
+PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Inendi::PVRoot* root, QWidget* parent /*= 0*/):
 	QWidget(parent),
 	_root(root)
 {
@@ -127,10 +127,10 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Picviz::PVRoot* root, QWidget*
 
 	// Hive
 	// Register for current scene changing
-	Picviz::PVRoot_sp root_sp = root->shared_from_this();
-	PVHive::PVObserverSignal<Picviz::PVRoot>* obs = new PVHive::PVObserverSignal<Picviz::PVRoot>(this);
+	Inendi::PVRoot_sp root_sp = root->shared_from_this();
+	PVHive::PVObserverSignal<Inendi::PVRoot>* obs = new PVHive::PVObserverSignal<Inendi::PVRoot>(this);
 	obs->connect_refresh(this, SLOT(select_tab_from_current_scene()));
-	PVHive::get().register_observer(root_sp, [=](Picviz::PVRoot& root) { return root.get_current_scene_hive_property(); }, *obs);
+	PVHive::get().register_observer(root_sp, [=](Inendi::PVRoot& root) { return root.get_current_scene_hive_property(); }, *obs);
 }
 
 void  PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
@@ -141,7 +141,7 @@ void  PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	_tab_widget->setTabPosition(QTabWidget::West);
 	_tab_widget->tabBar()->tabButton(0, QTabBar::RightSide)->resize(0, 0);
 
-	QPixmap pm(":/picviz");
+	QPixmap pm(":/inendi");
 	QTransform trans;
 	_tab_widget->setTabIcon(0, pm.transformed(trans.rotate(90)));
 
@@ -165,7 +165,7 @@ void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* = true */)
 	_splitter->setSizes(sizes);
 }
 
-PVGuiQt::PVSceneWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::add_project(Picviz::PVScene_p scene_p)
+PVGuiQt::PVSceneWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::add_project(Inendi::PVScene_p scene_p)
 {
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = new PVSceneWorkspacesTabWidget(*scene_p);
 	connect(workspace_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(emit_workspace_dragged_outside(QWidget*)));
@@ -235,7 +235,7 @@ bool PVGuiQt::PVProjectsTabWidget::tab_close_requested(int index)
 	return true;
 }
 
-PVGuiQt::PVSourceWorkspace* PVGuiQt::PVProjectsTabWidget::add_source(Picviz::PVSource* source)
+PVGuiQt::PVSourceWorkspace* PVGuiQt::PVProjectsTabWidget::add_source(Inendi::PVSource* source)
 {
 	PVGuiQt::PVSourceWorkspace* workspace = new PVGuiQt::PVSourceWorkspace(source);
 
@@ -246,14 +246,14 @@ PVGuiQt::PVSourceWorkspace* PVGuiQt::PVProjectsTabWidget::add_source(Picviz::PVS
 
 void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 {
-	Picviz::PVScene* scene = workspace->get_source()->get_parent<Picviz::PVScene>();
+	Inendi::PVScene* scene = workspace->get_source()->get_parent<Inendi::PVScene>();
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(scene);
 
 	if (!workspace_tab_widget) {
 		workspace_tab_widget = add_project(scene->shared_from_this());
 	}
 
-	const Picviz::PVSource *src = workspace->get_source();
+	const Inendi::PVSource *src = workspace->get_source();
 	workspace_tab_widget->add_workspace(workspace, src->get_name());
 
 	int index = workspace_tab_widget->indexOf(workspace);
@@ -265,7 +265,7 @@ void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 
 void PVGuiQt::PVProjectsTabWidget::remove_workspace(PVSourceWorkspace* workspace, bool animation /* = true */)
 {
-	Picviz::PVScene* scene = workspace->get_source()->get_parent<Picviz::PVScene>();
+	Inendi::PVScene* scene = workspace->get_source()->get_parent<Inendi::PVScene>();
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(scene);
 	workspace_tab_widget->remove_workspace(workspace_tab_widget->indexOf(workspace), animation);
 }
@@ -322,7 +322,7 @@ PVGuiQt::PVWorkspacesTabWidgetBase* PVGuiQt::PVProjectsTabWidget::current_worksp
 	return qobject_cast<PVWorkspacesTabWidgetBase*>(w);
 }
 
-PVGuiQt::PVSceneWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::get_workspace_tab_widget_from_scene(const Picviz::PVScene* scene)
+PVGuiQt::PVSceneWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::get_workspace_tab_widget_from_scene(const Inendi::PVScene* scene)
 {
 	for (int i = FIRST_PROJECT_INDEX ; i < _stacked_widget->count(); i++) {
 		PVSceneWorkspacesTabWidget* workspace_tab_widget = (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(i);
@@ -333,15 +333,15 @@ PVGuiQt::PVSceneWorkspacesTabWidget* PVGuiQt::PVProjectsTabWidget::get_workspace
 	return nullptr;
 }
 
-void PVGuiQt::PVProjectsTabWidget::select_tab_from_scene(Picviz::PVScene* scene)
+void PVGuiQt::PVProjectsTabWidget::select_tab_from_scene(Inendi::PVScene* scene)
 {
 	_tab_widget->setCurrentIndex(_tab_widget->indexOf(get_workspace_tab_widget_from_scene(scene)));
 }
 
 void PVGuiQt::PVProjectsTabWidget::select_tab_from_current_scene()
 {
-	Picviz::PVScene* cur_scene = _root->current_scene();
-	if (cur_scene->get_parent<Picviz::PVRoot>() != _root) {
+	Inendi::PVScene* cur_scene = _root->current_scene();
+	if (cur_scene->get_parent<Inendi::PVRoot>() != _root) {
 		return;
 	}
 

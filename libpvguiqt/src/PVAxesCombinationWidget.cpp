@@ -5,14 +5,14 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <picviz/PVAxesCombination.h>
-#include <picviz/PVView.h>
-#include <picviz/PVPlotted.h>
+#include <inendi/PVAxesCombination.h>
+#include <inendi/PVView.h>
+#include <inendi/PVPlotted.h>
 #include <pvguiqt/PVAxesCombinationWidget.h>
 
 #include <QDialogButtonBox>
 
-PVGuiQt::PVAxesCombinationWidget::PVAxesCombinationWidget(Picviz::PVAxesCombination& axes_combination, Picviz::PVView* view, QWidget* parent):
+PVGuiQt::PVAxesCombinationWidget::PVAxesCombinationWidget(Inendi::PVAxesCombination& axes_combination, Inendi::PVView* view, QWidget* parent):
 	QWidget(parent),
 	_axes_combination(axes_combination),
 	_view(view)
@@ -144,7 +144,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_remove_Slot()
 	QVector<PVCol> axes_id = get_used_axes_selected();	
 	_axes_combination.remove_axes(axes_id);
 	update_used_axes();
-	_list_used->setCurrentRow(picviz_min(axes_id.at(0), _list_used->count()-1));
+	_list_used->setCurrentRow(inendi_min(axes_id.at(0), _list_used->count()-1));
 
 	emit axes_count_changed();
 	emit axes_combination_changed();
@@ -316,7 +316,7 @@ void PVGuiQt::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> cons
 void PVGuiQt::PVAxesCombinationWidget::sel_singleton_Slot()
 {
 	assert(_view);
-	QList<PVCol> cols_rem = _view->get_parent<Picviz::PVPlotted>()->get_singleton_columns_indexes();
+	QList<PVCol> cols_rem = _view->get_parent<Inendi::PVPlotted>()->get_singleton_columns_indexes();
 	set_selection_from_cols(cols_rem);
 }
 
@@ -334,8 +334,8 @@ void PVGuiQt::PVAxesCombinationWidget::sel_range_Slot()
 		return;
 	}
 
-	Picviz::PVPlotted* plotted = _view->get_parent<Picviz::PVPlotted>();
-	Picviz::PVMapped* mapped = _view->get_parent<Picviz::PVMapped>();
+	Inendi::PVPlotted* plotted = _view->get_parent<Inendi::PVPlotted>();
+	Inendi::PVMapped* mapped = _view->get_parent<Inendi::PVMapped>();
 
 	double rate = dlg->rate();
 	QList<PVCol> cols;

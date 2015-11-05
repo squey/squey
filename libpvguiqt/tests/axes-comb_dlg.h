@@ -27,14 +27,14 @@
 
 #include <pvguiqt/PVAxesCombinationModel.h>
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 class TestDlg : public QDialog
 {
 	Q_OBJECT
 
 public:
-	TestDlg(Picviz::PVView_sp& view_p, QWidget *parent = nullptr) :
+	TestDlg(Inendi::PVView_sp& view_p, QWidget *parent = nullptr) :
 		QDialog(parent),
 		_lib_view(*view_p.get())
 	{
@@ -94,45 +94,45 @@ private slots:
 	void add()
 	{
 		PVRush::PVAxisFormat format = PVRush::PVAxisFormat();
-		Picviz::PVAxis axis(format);
+		Inendi::PVAxis axis(format);
 		axis.set_name(QString::number(rand() % 1000));
 
-		_actor.call<FUNC(Picviz::PVView::axis_append)>(axis);
+		_actor.call<FUNC(Inendi::PVView::axis_append)>(axis);
 	}
 
 	void swap()
 	{
-		PVCol idx1 = rand() % picviz_view().get_axes_count();
-		PVCol idx2 = rand() % picviz_view().get_axes_count();
+		PVCol idx1 = rand() % inendi_view().get_axes_count();
+		PVCol idx2 = rand() % inendi_view().get_axes_count();
 
-		_actor.call<FUNC(Picviz::PVView::move_axis_to_new_position)>(idx1, idx2);
+		_actor.call<FUNC(Inendi::PVView::move_axis_to_new_position)>(idx1, idx2);
 	}
 
 	void remove()
 	{
-		int idx = rand() % picviz_view().get_axes_count();
+		int idx = rand() % inendi_view().get_axes_count();
 
 		std::cout << "Removing axis #" << idx << std::endl;
 
-		_actor.call<FUNC(Picviz::PVView::remove_column)>(idx);
+		_actor.call<FUNC(Inendi::PVView::remove_column)>(idx);
 	}
 
 	void rename(int idx = -1, QString s = QString::number(rand() % 1000))
 	{
 		if (idx == -1)
 		{
-			idx = rand() % picviz_view().get_axes_count();
+			idx = rand() % inendi_view().get_axes_count();
 		}
 
-		_actor.call<FUNC(Picviz::PVView::set_axis_name)>(idx, s);
+		_actor.call<FUNC(Inendi::PVView::set_axis_name)>(idx, s);
 	}
 
 	void destroy()
 	{
-		((Picviz::PVView*) &_lib_view)->remove_from_tree();
+		((Inendi::PVView*) &_lib_view)->remove_from_tree();
 	}
 
-	Picviz::PVView const& picviz_view() const { return _lib_view; }
+	Inendi::PVView const& inendi_view() const { return _lib_view; }
 
 private:
 	PVGuiQt::PVAxesCombinationModel* _model1;
@@ -141,8 +141,8 @@ private:
 	QListView* _list2;
 	QLabel *_label;
 
-	PVHive::PVActor<Picviz::PVView> _actor;
-	Picviz::PVView const& _lib_view;
+	PVHive::PVActor<Inendi::PVView> _actor;
+	Inendi::PVView const& _lib_view;
 };
 
 #endif // AXES_COMB_H

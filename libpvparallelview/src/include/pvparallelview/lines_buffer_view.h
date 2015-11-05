@@ -11,7 +11,7 @@
 #include <QGLWidget>
 #include <QGLBuffer>
 #include <iostream>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 #include <GL/gl.h>
 #include <GL/glext.h>

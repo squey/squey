@@ -16,7 +16,7 @@
 #include <pvguiqt/PVCountByStringsDlg.h>
 #include <pvguiqt/PVQNraw.h>
 
-bool PVGuiQt::PVQNraw::show_unique_values(Picviz::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol c, Picviz::PVSelection const& sel, QWidget* parent, QDialog** dialog /*= nullptr*/)
+bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol c, Inendi::PVSelection const& sel, QWidget* parent, QDialog** dialog /*= nullptr*/)
 {
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
 	pbox->set_enable_cancel(true);
@@ -46,7 +46,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(Picviz::PVView_sp& view, PVRush::PVNra
 	return true;
 }
 
-bool PVGuiQt::PVQNraw::show_count_by(Picviz::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Picviz::PVSelection const& sel, QWidget* parent)
+bool PVGuiQt::PVQNraw::show_count_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
 	pbox->set_enable_cancel(true);
@@ -69,7 +69,7 @@ bool PVGuiQt::PVQNraw::show_count_by(Picviz::PVView_sp& view, PVRush::PVNraw con
 	return true;
 }
 
-bool PVGuiQt::PVQNraw::show_sum_by(Picviz::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Picviz::PVSelection const& sel, QWidget* parent)
+bool PVGuiQt::PVQNraw::show_sum_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
 	pbox->set_enable_cancel(true);
@@ -92,7 +92,7 @@ bool PVGuiQt::PVQNraw::show_sum_by(Picviz::PVView_sp& view, PVRush::PVNraw const
 	return true;
 }
 
-bool PVGuiQt::PVQNraw::show_max_by(Picviz::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Picviz::PVSelection const& sel, QWidget* parent)
+bool PVGuiQt::PVQNraw::show_max_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
 	pbox->set_enable_cancel(true);
@@ -114,7 +114,7 @@ bool PVGuiQt::PVQNraw::show_max_by(Picviz::PVView_sp& view, PVRush::PVNraw const
 	return true;
 }
 
-bool PVGuiQt::PVQNraw::show_min_by(Picviz::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Picviz::PVSelection const& sel, QWidget* parent)
+bool PVGuiQt::PVQNraw::show_min_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
 	pbox->set_enable_cancel(true);
@@ -136,7 +136,7 @@ bool PVGuiQt::PVQNraw::show_min_by(Picviz::PVView_sp& view, PVRush::PVNraw const
 	return true;
 }
 
-bool PVGuiQt::PVQNraw::show_avg_by(Picviz::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Picviz::PVSelection const& sel, QWidget* parent)
+bool PVGuiQt::PVQNraw::show_avg_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
 	pbox->set_enable_cancel(true);

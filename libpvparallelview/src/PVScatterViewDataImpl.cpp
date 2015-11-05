@@ -13,7 +13,7 @@ void PVParallelView::PVScatterViewDataImpl::process_bg(ProcessParams const& para
 	process_image(params, image, nullptr, ctxt);
 }
 
-void PVParallelView::PVScatterViewDataImpl::process_sel(ProcessParams const& params, PVScatterViewImage& image, Picviz::PVSelection const& sel, tbb::task_group_context* ctxt) const
+void PVParallelView::PVScatterViewDataImpl::process_sel(ProcessParams const& params, PVScatterViewImage& image, Inendi::PVSelection const& sel, tbb::task_group_context* ctxt) const
 {
 	process_image(params, image, &sel, ctxt);
 }
@@ -21,7 +21,7 @@ void PVParallelView::PVScatterViewDataImpl::process_sel(ProcessParams const& par
 void PVParallelView::PVScatterViewDataImpl::process_image(
 	ProcessParams const& params,
 	PVScatterViewImage& image,
-	Picviz::PVSelection const* sel,
+	Inendi::PVSelection const* sel,
 	tbb::task_group_context* ctxt)
 {
 	if (params.can_optimize_translation()) { // In case of optimizable translation, recompute only the dirty rectangles

@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVBitCount.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
 

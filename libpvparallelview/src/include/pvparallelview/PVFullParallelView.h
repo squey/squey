@@ -18,7 +18,7 @@
 
 #include <pvparallelview/common.h>
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 class QEvent;
 
@@ -64,7 +64,7 @@ protected:
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 
 signals:
-	void new_zoomed_parallel_view(Picviz::PVView* view, int axis_index);
+	void new_zoomed_parallel_view(Inendi::PVView* view, int axis_index);
 
 private:
 	PVWidgets::PVHelpWidget *_help_widget;

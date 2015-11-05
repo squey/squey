@@ -262,7 +262,7 @@ PVRush::PVSourceDescription PVCore::PVRecentItemsManager::deserialize_source_des
 
 PVCore::PVRecentItemsManager::PVRecentItemsManager()
 {
-	QFileInfo fi(QDir::homePath() + QDir::separator() + PICVIZ_INSPECTOR_CONFDIR + QDir::separator() + RECENTS_FILENAME);
+	QFileInfo fi(QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR + QDir::separator() + RECENTS_FILENAME);
 
 	if (fi.exists() == false) {
 		fi.dir().mkpath(fi.path());

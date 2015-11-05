@@ -7,7 +7,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVPODTree.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 #include <cstdint>
 #include <stdlib.h>

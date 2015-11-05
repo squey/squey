@@ -13,7 +13,7 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserverSignal.h>
 
-#include <picviz/PVView_types.h>
+#include <inendi/PVView_types.h>
 
 #include <pvkernel/core/PVArgument.h>
 

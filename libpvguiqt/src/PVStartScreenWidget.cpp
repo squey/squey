@@ -24,8 +24,8 @@
 #include <pvguiqt/PVStartScreenWidget.h>
 #include <pvguiqt/PVInputTypeMenuEntries.h>
 
-#include <picviz/PVSource.h>
-#include <picviz/PVView.h>
+#include <inendi/PVSource.h>
+#include <inendi/PVView.h>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/lambda_connect.h>
@@ -87,10 +87,10 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) :
 	QLabel* label = new QLabel(tr("Current version") + QString(" :"));
 	label->setAlignment(Qt::AlignRight);
 	versionLayout->addWidget(label, 0, 0);
-	label = new QLabel(QString(PICVIZ_CURRENT_VERSION_STR));
+	label = new QLabel(QString(INENDI_CURRENT_VERSION_STR));
 	label->setAlignment(Qt::AlignRight);
 	versionLayout->addWidget(label, 0, 2);
-	label = new QLabel(tr("Last version of the %1.%2 branch").arg(PICVIZ_CURRENT_VERSION_MAJOR).arg(PICVIZ_CURRENT_VERSION_MINOR) + QString(" :"));
+	label = new QLabel(tr("Last version of the %1.%2 branch").arg(INENDI_CURRENT_VERSION_MAJOR).arg(INENDI_CURRENT_VERSION_MINOR) + QString(" :"));
 	label->setAlignment(Qt::AlignRight);
 	versionLayout->addWidget(label, 2, 0);
 	QLabel* pv_lastCurVersion = new QLabel("N/A");

@@ -5,9 +5,9 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 
-#include <picviz/PVSelection.h>
+#include <inendi/PVSelection.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
@@ -31,7 +31,7 @@ inline static uint32_t y_to_idx_in_red_buffer(const uint32_t y, const uint32_t z
 	return ((double)y_to_idx_in_buffer(y, zoom))*alpha;
 }
 
-PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Picviz::PVSelection& layer_sel, Picviz::PVSelection const& sel):
+PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Inendi::PVSelection& layer_sel, Inendi::PVSelection const& sel):
 	_data_z0(PARALLELVIEW_ZT_BBITS, 1),
 	_data(PARALLELVIEW_ZZT_BBITS, nblocks),
 	_layer_sel(layer_sel),
@@ -151,7 +151,7 @@ void PVParallelView::PVHitGraphBlocksManager::process_all_buffers()
 	}
 }
 
-void PVParallelView::PVHitGraphBlocksManager::set_layer_sel(const Picviz::PVSelection &sel)
+void PVParallelView::PVHitGraphBlocksManager::set_layer_sel(const Inendi::PVSelection &sel)
 {
 	_layer_sel = sel;
 }

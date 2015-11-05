@@ -21,7 +21,7 @@
 # last-maj
 # last-min
 # last-patch
-# where last-xxxx is the maj/min/patch version of the latest picviz version
+# where last-xxxx is the maj/min/patch version of the latest inendi version
 
 import sys,os
 
@@ -57,7 +57,7 @@ for v in versions_tmp:
 			last_version = v
 
 
-# We have the different versions, 
+# We have the different versions,
 
 for v in versions:
 	major,minor,patch = v

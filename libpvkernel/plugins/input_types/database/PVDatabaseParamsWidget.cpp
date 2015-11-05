@@ -60,7 +60,7 @@ static HashDriversName g_drivers_name;
 
 PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const* in_t, PVRush::hash_formats const& formats, QWidget* parent):
 	QDialog(parent),
-	_settings(QSettings::UserScope, PICVIZ_ORGANISATION, PICVIZ_APPLICATIONNAME),
+	_settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME),
 	_in_t(in_t)
 {
 	// Create the UI
@@ -378,7 +378,7 @@ void PVRush::PVDatabaseParamsWidget::update_fields_Slot()
 		int type_id = field.typeID();
 		_table_fields->setItem(i, 1, new QTableWidgetItem(type_map->map(type_id)));
 
-		QString pv_type = type_map->map_picviz(type_id);
+		QString pv_type = type_map->map_inendi(type_id);
 		_table_fields->setItem(i, 2, new QTableWidgetItem(pv_type));
 		new_format_root->addOneField(name, pv_type);
 	}

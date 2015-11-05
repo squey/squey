@@ -8,8 +8,8 @@
 #ifndef PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 #define PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 
-#include <picviz/PVView_types.h>
-#include <picviz/PVAxesCombination.h>
+#include <inendi/PVView_types.h>
+#include <inendi/PVAxesCombination.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVFuncObserver.h>
@@ -86,7 +86,7 @@ public:
 	 * Constructor
 	 *
 	 * @param zpview the container/layout
-	 * @param pvview_sp a shared pointer on the corresponding Picviz::PVView
+	 * @param pvview_sp a shared pointer on the corresponding Inendi::PVView
 	 * @param sliders_manager_p a shared pointer on the sliders manager
 	 * @param zp_sel the PVZonesProcessor used for selection image
 	 * @param zp_bg the PVZonesProcessor used for background image
@@ -95,7 +95,7 @@ public:
 
 	 */
 	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
-	                      Picviz::PVView_sp& pvview_sp,
+	                      Inendi::PVView_sp& pvview_sp,
 	                      PVSlidersManager_p sliders_manager_p,
 	                      PVZonesProcessor& zp_sel,
 	                      PVZonesProcessor& zp_bg,
@@ -354,8 +354,8 @@ private:
 	/**
 	 * Getter of the shared selection.
 	 */
-	inline Picviz::PVSelection& real_selection() { return _pvview.get_real_output_selection(); }
-	inline Picviz::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
+	inline Inendi::PVSelection& real_selection() { return _pvview.get_real_output_selection(); }
+	inline Inendi::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
 
 	/**
 	 * Get the \z zone's PVZoomedZoneTree.
@@ -555,7 +555,7 @@ private:
 
 private:
 	PVZoomedParallelView           *_zpview;
-	Picviz::PVView&                 _pvview;
+	Inendi::PVView&                 _pvview;
 	PVSlidersManager_p              _sliders_manager_p;
 	PVSlidersGroup                 *_sliders_group;
 	zoom_sliders_update_obs         _zsu_obs;
@@ -589,7 +589,7 @@ private:
 	// about selection in the zoom view
 	PVZoomedParallelViewSelectionLine *_sel_line;
 	PVZoomedSelectionAxisSliders   *_selection_sliders;
-	PVHive::PVActor<Picviz::PVView> _view_actor;
+	PVHive::PVActor<Inendi::PVView> _view_actor;
 
 	// about rendering invalidation
 	render_t                        _render_type;

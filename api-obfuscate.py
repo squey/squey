@@ -19,7 +19,7 @@ import binascii
 # this is simply used to identify a leaked binary.
 # Since AES requires a 16, 24 or 32 bits key we then
 # need to add padding.
-CUSTOMER_KEY="Picviz Labs"
+CUSTOMER_KEY="ESI Group"
 # Add automatic padding
 lcustomer = len(CUSTOMER_KEY)
 # We take the first 32 chars, that is enough
@@ -31,18 +31,16 @@ else:
         CUSTOMER_KEY=CUSTOMER_KEY + "."
         i += 1
 
-#print CUSTOMER_KEY -> "Picviz Labs....................."
-
 aes_obj = AES.new(CUSTOMER_KEY)
 
-OBFUSCATE_HEADER="src/include/picviz/api-obfuscate.h"
+OBFUSCATE_HEADER="src/include/inendi/api-obfuscate.h"
 OBFUSCATE_TMP=OBFUSCATE_HEADER + ".tmp"
 
-os.system("grep LibExport src/include/picviz/*.h |grep -v define > %s" % (OBFUSCATE_TMP))
+os.system("grep LibExport src/include/inendi/*.h |grep -v define > %s" % (OBFUSCATE_TMP))
 f_tmp = open(OBFUSCATE_TMP, "r")
 f_header = open(OBFUSCATE_HEADER, "w")
 
-extract_function_pattern = re.compile(".*(picviz_.*)\(.*")
+extract_function_pattern = re.compile(".*(inendi_.*)\(.*")
 struct_pattern = re.compile(".*_t .*")
 for line in f_tmp:
     m  = extract_function_pattern.match(line)

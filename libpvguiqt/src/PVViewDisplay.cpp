@@ -23,10 +23,10 @@
 
 #include <pvhive/PVObserverCallback.h>
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 PVGuiQt::PVViewDisplay::PVViewDisplay(
-	Picviz::PVView* view,
+	Inendi::PVView* view,
 	QWidget* view_widget,
 	std::function<QString()> name,
 	bool can_be_central_widget,
@@ -74,25 +74,25 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(
 	register_view(view);
 }
 
-void PVGuiQt::PVViewDisplay::register_view(Picviz::PVView* view)
+void PVGuiQt::PVViewDisplay::register_view(Inendi::PVView* view)
 {
 	if (view) {
 		// Register for view name changes
 		if (_obs_plotting) {
 			delete _obs_plotting;
 		}
-		_obs_plotting = new PVHive::PVObserverSignal<Picviz::PVPlotting>(this);
-		Picviz::PVPlotted_sp plotted_sp = view->get_parent()->shared_from_this();
-		PVHive::get().register_observer(plotted_sp, [=](Picviz::PVPlotted& plotted) { return &plotted.get_plotting(); }, *_obs_plotting);
+		_obs_plotting = new PVHive::PVObserverSignal<Inendi::PVPlotting>(this);
+		Inendi::PVPlotted_sp plotted_sp = view->get_parent()->shared_from_this();
+		PVHive::get().register_observer(plotted_sp, [=](Inendi::PVPlotted& plotted) { return &plotted.get_plotting(); }, *_obs_plotting);
 		_obs_plotting->connect_refresh(this, SLOT(plotting_updated()));
 
 		// Register for view deletion
-		_obs_view = PVHive::create_observer_callback_heap<Picviz::PVView>(
-		    [&](Picviz::PVView const*) {},
-			[&](Picviz::PVView const*) {},
-			[&](Picviz::PVView const*) { _about_to_be_deleted = true; }
+		_obs_view = PVHive::create_observer_callback_heap<Inendi::PVView>(
+		    [&](Inendi::PVView const*) {},
+			[&](Inendi::PVView const*) {},
+			[&](Inendi::PVView const*) { _about_to_be_deleted = true; }
 		);
-		Picviz::PVView_sp view_sp = view->shared_from_this();
+		Inendi::PVView_sp view_sp = view->shared_from_this();
 		PVHive::get().register_observer(view_sp, *_obs_view);
 	}
 }
@@ -307,8 +307,8 @@ void PVGuiQt::PVViewDisplay::restore()
 void PVGuiQt::PVViewDisplay::set_current_view()
 {
 	if (_view && !_about_to_be_deleted) {
-		Picviz::PVRoot_sp root_sp = _view->get_parent<Picviz::PVRoot>()->shared_from_this();
-		PVHive::call<FUNC(Picviz::PVRoot::select_view)>(root_sp, *_view);
+		Inendi::PVRoot_sp root_sp = _view->get_parent<Inendi::PVRoot>()->shared_from_this();
+		PVHive::call<FUNC(Inendi::PVRoot::select_view)>(root_sp, *_view);
 	}
 }
 

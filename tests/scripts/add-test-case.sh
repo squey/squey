@@ -61,10 +61,10 @@ PI_SOURCE_DIR=`dirname "$PI_FILES_DIR"`
 PI_FILES_DIR="$PI_FILES_DIR/files"
 PI_OUTPUTS_DIR="$PI_FILES_DIR/outputs"
 
-PI_MAPPING_DUMPER="$PI_SOURCE_DIR/libpicviz/tests/bin/Tpicviz_process_file_mapping"
+PI_MAPPING_DUMPER="$PI_SOURCE_DIR/libinendi/tests/bin/Tinendi_process_file_mapping"
 test ! -x "$PI_MAPPING_DUMPER" && echo "'$PI_MAPPING_DUMPER' not reachable" 1>&2 && exit 2
 
-PI_PLOTTING_DUMPER="$PI_SOURCE_DIR/libpicviz/tests/bin/Tpicviz_process_file_plotting"
+PI_PLOTTING_DUMPER="$PI_SOURCE_DIR/libinendi/tests/bin/Tinendi_process_file_plotting"
 test ! -x "$PI_PLOTTING_DUMPER" && echo "'$PI_PLOTTING_DUMPER' not reachable" 1>&2 && exit 2
 
 PI_CSV_DUMPER="$PI_SOURCE_DIR/libpvkernel/tests/rush/bin/Trush_process_file"

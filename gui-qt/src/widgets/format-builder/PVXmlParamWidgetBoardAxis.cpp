@@ -5,14 +5,14 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <picviz/PVMappingFilter.h>
-#include <picviz/PVPlottingFilter.h>
+#include <inendi/PVMappingFilter.h>
+#include <inendi/PVPlottingFilter.h>
 
 #include <PVXmlParamWidgetBoardAxis.h>
 #include <PVFormatBuilderWidget.h>
 #include <PVAxisTagHelp.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
-#include <picviz/widgets/PVArgumentListWidgetFactory.h>
+#include <inendi/widgets/PVArgumentListWidgetFactory.h>
 
 #include <QDialogButtonBox>
 
@@ -316,7 +316,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 	updatePlotMapping(node_type);
 
 	_args_mapping.clear();
-	Picviz::PVMappingFilter::p_type map_lib = get_mapping_lib_filter();
+	Inendi::PVMappingFilter::p_type map_lib = get_mapping_lib_filter();
 	QString node_mapping = node->getMappingProperties(map_lib->get_default_args(), _args_mapping);
     if (node_mapping.isEmpty()) {
 		node_mapping = PVFORMAT_AXIS_MAPPING_DEFAULT;
@@ -326,7 +326,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 	_params_mapping->set_args(_args_mapping);
 	
 	_args_plotting.clear();
-	Picviz::PVPlottingFilter::p_type plot_lib = get_plotting_lib_filter();
+	Inendi::PVPlottingFilter::p_type plot_lib = get_plotting_lib_filter();
 	QString node_plotting = node->getPlottingProperties(plot_lib->get_default_args(), _args_plotting);
     if (node_plotting.isEmpty()) {
 		node_plotting = PVFORMAT_AXIS_PLOTTING_DEFAULT;
@@ -370,7 +370,7 @@ QWidget *PVInspector::PVXmlParamWidgetBoardAxis::getWidgetToFocus(){
  *
  *****************************************************************************/
 QStringList PVInspector::PVXmlParamWidgetBoardAxis::listType() const {
-	return Picviz::PVMappingFilter::list_types();
+	return Inendi::PVMappingFilter::list_types();
 }
 
 
@@ -380,7 +380,7 @@ QStringList PVInspector::PVXmlParamWidgetBoardAxis::listType() const {
  *
  *****************************************************************************/
 QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTypeMapping(const QString& mType) {
-	return Picviz::PVMappingFilter::list_modes(mType);
+	return Inendi::PVMappingFilter::list_modes(mType);
 }
 
 /******************************************************************************
@@ -389,7 +389,7 @@ QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTypeMapping(const QSt
  *
  *****************************************************************************/
 QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTypePlotting(const QString& mType) {
-	return Picviz::PVPlottingFilter::list_modes(mType);
+	return Inendi::PVPlottingFilter::list_modes(mType);
 }
 
 /******************************************************************************
@@ -427,7 +427,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues(){
 void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsMapping()
 {
 	QString mode = comboMapping->get_mode();
-	Picviz::PVMappingFilter::p_type lib_filter = get_mapping_lib_filter();
+	Inendi::PVMappingFilter::p_type lib_filter = get_mapping_lib_filter();
 	if (!lib_filter) {
 		return;
 	}
@@ -438,7 +438,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsMapping()
 void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsPlotting()
 {
 	QString mode = comboPlotting->get_mode();
-	Picviz::PVPlottingFilter::p_type lib_filter = get_plotting_lib_filter();
+	Inendi::PVPlottingFilter::p_type lib_filter = get_plotting_lib_filter();
 	if (!lib_filter) {
 		return;
 	}
@@ -491,23 +491,23 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
 	}
 }
 
-Picviz::PVMappingFilter::p_type PVInspector::PVXmlParamWidgetBoardAxis::get_mapping_lib_filter()
+Inendi::PVMappingFilter::p_type PVInspector::PVXmlParamWidgetBoardAxis::get_mapping_lib_filter()
 {
-	Picviz::PVMappingFilter::p_type lib_filter;
+	Inendi::PVMappingFilter::p_type lib_filter;
 	QString mode = comboMapping->get_mode();
 	if (!mode.isEmpty()) {
-		lib_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_class_by_name(mapPlotType->get_sel_type() + "_" + mode);
+		lib_filter = LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(mapPlotType->get_sel_type() + "_" + mode);
 	}
 
 	return lib_filter;
 }
 
-Picviz::PVPlottingFilter::p_type PVInspector::PVXmlParamWidgetBoardAxis::get_plotting_lib_filter()
+Inendi::PVPlottingFilter::p_type PVInspector::PVXmlParamWidgetBoardAxis::get_plotting_lib_filter()
 {
-	Picviz::PVPlottingFilter::p_type lib_filter;
+	Inendi::PVPlottingFilter::p_type lib_filter;
 	QString mode = comboPlotting->get_mode();
 	if (!mode.isEmpty()) {
-		lib_filter = LIB_CLASS(Picviz::PVPlottingFilter)::get().get_class_by_name(mapPlotType->get_sel_type() + "_" + mode);
+		lib_filter = LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(mapPlotType->get_sel_type() + "_" + mode);
 	}
 
 	return lib_filter;
@@ -516,11 +516,11 @@ Picviz::PVPlottingFilter::p_type PVInspector::PVXmlParamWidgetBoardAxis::get_plo
 void PVInspector::PVXmlParamWidgetBoardAxis::updateMappingParams()
 {
 	_args_mapping.clear();
-	Picviz::PVMappingFilter::p_type lib_filter = get_mapping_lib_filter();
+	Inendi::PVMappingFilter::p_type lib_filter = get_mapping_lib_filter();
 	if (!lib_filter) {
 		return;
 	}
-	std::map<Picviz::PVMappingFilter::base_registrable, PVCore::PVArgumentList>::iterator it;
+	std::map<Inendi::PVMappingFilter::base_registrable, PVCore::PVArgumentList>::iterator it;
 	if ((it = _args_map_mode.find(*lib_filter)) != _args_map_mode.end()) {
 		_args_mapping = it->second;
 	}
@@ -535,11 +535,11 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updateMappingParams()
 void PVInspector::PVXmlParamWidgetBoardAxis::updatePlottingParams()
 {
 	_args_plotting.clear();
-	Picviz::PVPlottingFilter::p_type lib_filter = get_plotting_lib_filter();
+	Inendi::PVPlottingFilter::p_type lib_filter = get_plotting_lib_filter();
 	if (!lib_filter) {
 		return;
 	}
-	std::map<Picviz::PVPlottingFilter::base_registrable, PVCore::PVArgumentList>::iterator it;
+	std::map<Inendi::PVPlottingFilter::base_registrable, PVCore::PVArgumentList>::iterator it;
 	if ((it = _args_plot_mode.find(*lib_filter)) != _args_plot_mode.end()) {
 		_args_plotting = it->second;
 	}
@@ -627,10 +627,10 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotAddGroup()
 QSet<QString> PVInspector::PVXmlParamWidgetBoardAxis::getListTags()
 {
 	QSet<QString> ret;
-	Picviz::PVLayerFilterListTags const& lt = LIB_CLASS(Picviz::PVLayerFilter)::get().get_tags();
-	Picviz::PVLayerFilterListTags::const_iterator it;
+	Inendi::PVLayerFilterListTags const& lt = LIB_CLASS(Inendi::PVLayerFilter)::get().get_tags();
+	Inendi::PVLayerFilterListTags::const_iterator it;
 	for (it = lt.begin(); it != lt.end(); it++) {
-		Picviz::PVLayerFilterTag const& tag = *it;
+		Inendi::PVLayerFilterTag const& tag = *it;
 		ret << (QString) tag;
 	}
 	return ret;

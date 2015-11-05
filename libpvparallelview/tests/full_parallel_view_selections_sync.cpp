@@ -10,9 +10,9 @@
 #include <iostream>
 
 #include <pvparallelview/common.h>
-#include <pvkernel/core/picviz_bench.h>
-#include <picviz/PVPlotted.h>
-#include <picviz/PVSelection.h>
+#include <pvkernel/core/inendi_bench.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVSelection.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVParallelView.h>

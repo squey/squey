@@ -43,7 +43,7 @@ bool PVCore::PVVersion::from_network_reply(QByteArray const& reply, version_t& c
 	if (!ok) {
 		return false;
 	}
-	current = PICVIZ_VERSION(major, minor, patch);
+	current = INENDI_VERSION(major, minor, patch);
 
 	major = (uint8_t) versions[3].toUShort(&ok);
 	if (!ok) {
@@ -58,18 +58,18 @@ bool PVCore::PVVersion::from_network_reply(QByteArray const& reply, version_t& c
 	if (!ok) {
 		return false;
 	}
-	last = PICVIZ_VERSION(major, minor, patch);
+	last = INENDI_VERSION(major, minor, patch);
 
 	return true;
 }
 
 QString PVCore::PVVersion::to_str(version_t v)
 {
-	return QString("%1.%2.%3").arg(PICVIZ_MAJOR_VERSION(v)).arg(PICVIZ_MINOR_VERSION(v)).arg(PICVIZ_PATCH_VERSION(v));
+	return QString("%1.%2.%3").arg(INENDI_MAJOR_VERSION(v)).arg(INENDI_MINOR_VERSION(v)).arg(INENDI_PATCH_VERSION(v));
 }
 
 QString PVCore::PVVersion::update_url()
 {
-	//return QString("http://files.geekou.info/pv-test/update-%1.%2").arg(PICVIZ_CURRENT_VERSION_MAJOR).arg(PICVIZ_CURRENT_VERSION_MINOR);
-	return QString("http://www.picviz.com/update-%1.%2").arg(PICVIZ_CURRENT_VERSION_MAJOR).arg(PICVIZ_CURRENT_VERSION_MINOR);
+	//return QString("http://files.geekou.info/pv-test/update-%1.%2").arg(INENDI_CURRENT_VERSION_MAJOR).arg(INENDI_CURRENT_VERSION_MINOR);
+	return QString("http://www.picviz.com/update-%1.%2").arg(INENDI_CURRENT_VERSION_MAJOR).arg(INENDI_CURRENT_VERSION_MINOR);
 }

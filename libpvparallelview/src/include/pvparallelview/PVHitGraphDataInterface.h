@@ -18,7 +18,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace Picviz {
+namespace Inendi {
 class PVSelection;
 }
 
@@ -60,9 +60,9 @@ public:
 
 public:
 	inline void process_buffer_all(ProcessParams const& params) { process_all(params, _buf_all); }
-	inline void process_buffer_selected(ProcessParams const& params, Picviz::PVSelection const& sel) { process_sel(params, _buf_selected, sel); }
-	inline void process_buffer_selectable(ProcessParams const& params, Picviz::PVSelection const& sel) { process_sel(params, _buf_selectable, sel); }
-	virtual void process_all_buffers(ProcessParams const& params, Picviz::PVSelection const& layer_sel, Picviz::PVSelection const& sel);
+	inline void process_buffer_selected(ProcessParams const& params, Inendi::PVSelection const& sel) { process_sel(params, _buf_selected, sel); }
+	inline void process_buffer_selectable(ProcessParams const& params, Inendi::PVSelection const& sel) { process_sel(params, _buf_selectable, sel); }
+	virtual void process_all_buffers(ProcessParams const& params, Inendi::PVSelection const& layer_sel, Inendi::PVSelection const& sel);
 
 public:
 	void shift_left(const uint32_t nblocks, const double alpha);
@@ -92,7 +92,7 @@ public:
 
 protected:
 	virtual void process_all(ProcessParams const& params, PVHitGraphBuffer& buf) const = 0;
-	virtual void process_sel(ProcessParams const& params, PVHitGraphBuffer& buf, Picviz::PVSelection const& sel) const = 0;
+	virtual void process_sel(ProcessParams const& params, PVHitGraphBuffer& buf, Inendi::PVSelection const& sel) const = 0;
 
 private:
 	PVHitGraphBuffer _buf_all;

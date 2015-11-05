@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <picviz/PVRoot.h>
-#include <picviz/PVScene.h>
+#include <inendi/PVRoot.h>
+#include <inendi/PVScene.h>
 #include <pvguiqt/PVImportSourceToProjectDlg.h>
 
 #include <QDialogButtonBox>
@@ -15,7 +15,7 @@
 #include <QComboBox>
 
 
-PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Picviz::PVRoot const& root, Picviz::PVScene const* sel_scene, QWidget* parent /* = 0 */) :
+PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Inendi::PVRoot const& root, Inendi::PVScene const* sel_scene, QWidget* parent /* = 0 */) :
 	QDialog(parent)
 {
 	setWindowTitle(tr("Select project"));
@@ -42,7 +42,7 @@ PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Picviz::PVRoot c
 
 	// Set combo box
 	int cur_idx = 0;
-	for (Picviz::PVScene_sp const& scene: root.get_children()) {
+	for (Inendi::PVScene_sp const& scene: root.get_children()) {
 		QVariant var;
 		var.setValue<void*>(scene.get());
 		if (scene.get() == sel_scene) {
@@ -56,10 +56,10 @@ PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Picviz::PVRoot c
 	show();
 }
 
-Picviz::PVScene const* PVGuiQt::PVImportSourceToProjectDlg::get_selected_scene() const
+Inendi::PVScene const* PVGuiQt::PVImportSourceToProjectDlg::get_selected_scene() const
 {
 	int sel_idx = _combo_box->currentIndex();
-	Picviz::PVScene const* ret = (Picviz::PVScene const*) _combo_box->itemData(sel_idx).value<void*>();
+	Inendi::PVScene const* ret = (Inendi::PVScene const*) _combo_box->itemData(sel_idx).value<void*>();
 	assert(ret);
 	return ret;
 }

@@ -20,7 +20,7 @@ namespace tbb {
 class task_group_context;
 }
 
-namespace Picviz {
+namespace Inendi {
 class PVSelection;
 }
 
@@ -142,7 +142,7 @@ public:
 		}
 	}
 
-	inline void process_image_sel(ProcessParams const& params, Picviz::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr)
+	inline void process_image_sel(ProcessParams const& params, Inendi::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr)
 	{
 		process_sel(params, image_sel_processing(), sel, ctxt);
 		if (!is_ctxt_cancelled(ctxt)) {
@@ -150,7 +150,7 @@ public:
 		}
 	}
 
-	inline void process_all_images(ProcessParams const& params, Picviz::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr)
+	inline void process_all_images(ProcessParams const& params, Inendi::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr)
 	{
 		process_all(params, image_bg_processing(), image_sel_processing(), sel, ctxt);
 		if (!is_ctxt_cancelled(ctxt)) {
@@ -186,8 +186,8 @@ public:
 
 protected:
 	virtual void process_bg(ProcessParams const& params, PVScatterViewImage& image, tbb::task_group_context* ctxt = nullptr) const = 0;
-	virtual void process_sel(ProcessParams const& params, PVScatterViewImage& image, Picviz::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr) const = 0;
-	virtual void process_all(ProcessParams const& params, PVScatterViewImage& image_bg, PVScatterViewImage& image_sel, Picviz::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr) const
+	virtual void process_sel(ProcessParams const& params, PVScatterViewImage& image, Inendi::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr) const = 0;
+	virtual void process_all(ProcessParams const& params, PVScatterViewImage& image_bg, PVScatterViewImage& image_sel, Inendi::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr) const
 	{
 		process_bg(params, image_bg, ctxt);
 		if (!is_ctxt_cancelled(ctxt)) {

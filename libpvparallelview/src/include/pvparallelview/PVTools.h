@@ -9,7 +9,7 @@
 #define PVPARALLELVIEW_TOOLS_H
 
 #include <pvparallelview/common.h>
-#include <picviz/PVPlotted.h>
+#include <inendi/PVPlotted.h>
 
 namespace PVParallelView {
 

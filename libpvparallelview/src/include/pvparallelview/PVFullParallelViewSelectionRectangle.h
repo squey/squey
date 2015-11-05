@@ -55,7 +55,7 @@ public:
 protected:
 	void commit(bool use_selection_modifiers) override;
 
-	Picviz::PVView& lib_view() override;
+	Inendi::PVView& lib_view() override;
 
 private:
 	void store();

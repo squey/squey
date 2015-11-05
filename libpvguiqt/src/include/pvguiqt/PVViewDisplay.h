@@ -24,7 +24,7 @@ class QPoint;
 class QWidget;
 #include <QDockWidget>
 
-namespace Picviz
+namespace Inendi
 {
 class PVView;
 }
@@ -55,14 +55,14 @@ public:
 	~PVViewDisplay() { delete _obs_plotting; }
 
 public:
-	/*! \brief Call Picviz::PVRoot::select_view through the Hive.
+	/*! \brief Call Inendi::PVRoot::select_view through the Hive.
 	 * This is called by the application level events filter DisplaysFocusInEventFilter on PVViewDisplay QEvent::FocusIn events.
 	 */
 	void set_current_view();
 
 public:
-	Picviz::PVView* get_view() { return _view; }
-	void set_view(Picviz::PVView* view) { _view = view; }
+	Inendi::PVView* get_view() { return _view; }
+	void set_view(Inendi::PVView* view) { _view = view; }
 	void about_to_be_deleted() { _about_to_be_deleted = true; }
 
 protected:
@@ -101,7 +101,7 @@ signals:
 private:
 	/*! \brief Register the view to handle several events.
 	 */
-	void register_view(Picviz::PVView* view);
+	void register_view(Inendi::PVView* view);
 
 private:
 	/*! \brief Creates a view display.
@@ -115,7 +115,7 @@ private:
 	 *  \note this constructor is intended to be called only by PVWorkspace, hence the private visibility.
 	 */
 	PVViewDisplay(
-		Picviz::PVView* view,
+		Inendi::PVView* view,
 		QWidget* view_widget,
 		std::function<QString()> name,
 		bool can_be_central_widget,
@@ -124,12 +124,12 @@ private:
 	);
 
 private:
-	Picviz::PVView* _view;
+	Inendi::PVView* _view;
 	std::function<QString()> _name;
 	PVWorkspaceBase* _workspace;
 	QPoint _press_pt;
-	PVHive::PVObserverSignal<Picviz::PVPlotting>*  _obs_plotting = nullptr;
-	PVHive::PVObserver_p<Picviz::PVView> _obs_view;
+	PVHive::PVObserverSignal<Inendi::PVPlotting>*  _obs_plotting = nullptr;
+	PVHive::PVObserver_p<Inendi::PVView> _obs_view;
 	bool _about_to_be_deleted = false;
 	bool _can_be_central_widget;
 

@@ -50,7 +50,7 @@ void PVWidgets::PVQueryBuilder::reinit()
 {
 	_view->setContextMenuPolicy(Qt::NoContextMenu);
 
-	_view->load(QUrl(std::string("file://" + (QCoreApplication::applicationDirPath() + QDir::separator() + PICVIZ_QUERYBUILDER_DIR).toStdString() + "/index.html").c_str()));
+	_view->load(QUrl(std::string("file://" + (QCoreApplication::applicationDirPath() + QDir::separator() + INENDI_QUERYBUILDER_DIR).toStdString() + "/index.html").c_str()));
 
 	// Trick to wait for the page to be properly loaded
 	QEventLoop loop;

@@ -258,7 +258,7 @@ static int pcap_decode_layer3_IP(pcap_decode_buf *buf, struct pcap_pkthdr *phead
 
 static int pcap_decode_layer4_TCP(pcap_decode_buf *buf, struct pcap_pkthdr* /*pheader*/, u_char *packet, uint32_t /*len*/)
 {
-	QByteArray netflow_env = qgetenv("PICVIZ_NONETFLOW"); // FIXME: Evil, should avoid calling this for *each* packet!
+	QByteArray netflow_env = qgetenv("INENDI_NONETFLOW"); // FIXME: Evil, should avoid calling this for *each* packet!
 	struct tcp_hdr *tcp;
 
 	tcp = (struct tcp_hdr *)(packet);

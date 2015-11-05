@@ -8,7 +8,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 #include <QHash>
 
@@ -183,7 +183,7 @@ bool PVFilter::PVFieldSplitterChunkMatch::get_match(PVCore::PVArgumentList& args
 	red.reduce();
 	BENCH_END(reduction, "configuration detection", _guess_res.size(), 1, red.size(), 1);
 
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 	PVLOG_INFO("encountered splitting schemes\n");
 	red.dump();
 #endif

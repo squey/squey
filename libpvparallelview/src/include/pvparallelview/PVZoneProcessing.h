@@ -9,7 +9,7 @@
 #define PVPARALLELVIW_PVZONEPROCESSING_H
 
 #include <pvkernel/core/general.h>
-#include <picviz/PVPlotted.h>
+#include <inendi/PVPlotted.h>
 
 namespace PVParallelView {
 
@@ -17,7 +17,7 @@ class PVZoneProcessing
 {
 public:
 	PVZoneProcessing(
-		Picviz::PVPlotted::uint_plotted_table_t const& plotted,
+		Inendi::PVPlotted::uint_plotted_table_t const& plotted,
 		PVRow nrows,
 		PVCol col_a = 0,
 		PVCol col_b = 1
@@ -26,7 +26,7 @@ public:
 		_nrows(nrows),
 		_col_a(col_a),
 		_col_b(col_b),
-		_nrows_aligned(Picviz::PVPlotted::get_aligned_row_count(nrows))
+		_nrows_aligned(Inendi::PVPlotted::get_aligned_row_count(nrows))
 	{ }
 
 public:
@@ -48,14 +48,14 @@ public:
 
 	inline uint32_t const* get_plotted_col(PVCol c) const
 	{
-		return Picviz::PVPlotted::get_plotted_col_addr(&_plotted.at(0), _nrows, c);
+		return Inendi::PVPlotted::get_plotted_col_addr(&_plotted.at(0), _nrows, c);
 	}
 
 	inline uint32_t const* get_plotted_col_a() const { return get_plotted_col(col_a()); }
 	inline uint32_t const* get_plotted_col_b() const { return get_plotted_col(col_b()); }
 
 private:
-	Picviz::PVPlotted::uint_plotted_table_t const& _plotted;
+	Inendi::PVPlotted::uint_plotted_table_t const& _plotted;
 	PVRow _nrows;
 	PVCol _col_a;
 	PVCol _col_b;

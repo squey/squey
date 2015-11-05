@@ -213,7 +213,7 @@ do
 	    # files not owned by us
 	    ;;
 
-	*asciidoc | *CHANGELOG | scripts/versions/versions | libpicviz/doc/LICENSES.txt | COPYING.txt | doc/license-demo.txt | pvconfig.ini | *syslog | VERSION.txt | VERSION-NAME.txt | CMakeCustomerSpecifics.txt | CMakePicvizDeveloperSpecifics.txt | .gitignore | *.graphml | *files-svn-rev)
+	*asciidoc | *CHANGELOG | scripts/versions/versions | libinendi/doc/LICENSES.txt | COPYING.txt | doc/license-demo.txt | pvconfig.ini | *syslog | VERSION.txt | VERSION-NAME.txt | CMakeCustomerSpecifics.txt | CMakePicvizDeveloperSpecifics.txt | .gitignore | *.graphml | *files-svn-rev)
 	    # files which do not need any header
 	    ;;
 
@@ -230,7 +230,7 @@ do
 		ln_build | *.sh | *.sh.cmake | make_protect.cmake | parallel_make | doc/gen_doc | *.py | *.pl | *.format | *.ui )
 		    INFO_LINE=1
 		    ;;
-		*.c | *.h | *.h.cmake | *.cpp | *.hpp | *.cxx | *.hxx | *.java | *.geom | *.vert | *.frag | *.cu | *.css | *.txt | *Doxyfile* | *README | libpicviz/CTestConfig.cmake | cmake/* | *.html | *.qrc | *.obj)
+		*.c | *.h | *.h.cmake | *.cpp | *.hpp | *.cxx | *.hxx | *.java | *.geom | *.vert | *.frag | *.cu | *.css | *.txt | *Doxyfile* | *README | libinendi/CTestConfig.cmake | cmake/* | *.html | *.qrc | *.obj)
 		    INFO_LINE=0
 		    ;;
 		* )
@@ -284,7 +284,7 @@ EOF
 		    cat "$CONTENT" >> "$FILE"
 		    ;;
 
-		*.txt | *Doxyfile* | *README | libpicviz/CTestConfig.cmake | cmake/* | *.sh | ln_build | *.sh.cmake | make_protect.cmake | parallel_make | doc/gen_doc | *.py | *.pl | *.obj)
+		*.txt | *Doxyfile* | *README | libinendi/CTestConfig.cmake | cmake/* | *.sh | ln_build | *.sh.cmake | make_protect.cmake | parallel_make | doc/gen_doc | *.py | *.pl | *.obj)
 		    cat >> "$FILE" <<EOF
 #
 # @file

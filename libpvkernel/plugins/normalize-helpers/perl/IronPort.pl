@@ -5,36 +5,36 @@
 # @copyright (C) Picviz Labs 2010-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
-# This script implements method useds by Picviz Inspector for the normalization process.
-# Please note that processing files this way might be slower than using native picviz normalization process.
+# This script implements method useds by INENDI Inspector for the normalization process.
+# Please note that processing files this way might be slower than using native inendi normalization process.
 
 my ($LOGFILE) = 0;
 
 # Open the file given as a parameter
-sub picviz_open_file {
+sub inendi_open_file {
     $filename = $_[0];
     open $main::LOGFILE, '<', $filename or die $!;
 }
 
 # Seek the file to the beggining
-sub picviz_seek_begin {
+sub inendi_seek_begin {
 	seek($main::LOGFILE,0,0);
 }
 
 # Returns 0 if and only if we know for sure that this script can't decode the previous opened file
-sub picviz_pre_discovery {
+sub inendi_pre_discovery {
 	return 1;
 }
 
 # Returns 1 if and only if text data are processed
-sub picviz_is_element_text {
+sub inendi_is_element_text {
 	return 1;
 }
 
 # This method must return a double-dimensional array of the processed data.
 # Any rows that does not contain the good number of elements (according to the corresponding format)
 # will be discarded.
-sub picviz_get_next_chunk {
+sub inendi_get_next_chunk {
 	my ($min_chunk_size) = $_[0];
 	$row = 0;
 	$nbytes = 0;
@@ -75,6 +75,6 @@ sub picviz_get_next_chunk {
 }
 
 # Close the previous opened file
-sub picviz_close {
+sub inendi_close {
 	close $main::LOGFILE
 }

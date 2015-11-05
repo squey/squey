@@ -14,9 +14,9 @@
 #include <QDialogButtonBox>
 
 #include <pvkernel/core/PVAxesIndexType.h>
-#include <picviz/PVView_types.h>
+#include <inendi/PVView_types.h>
 
-#include <picviz/widgets/editors/PVAxesIndexEditor.h>
+#include <inendi/widgets/editors/PVAxesIndexEditor.h>
 
 namespace PVInspector {
 
@@ -24,7 +24,7 @@ class PVExpandSelDlg: public QDialog
 {
 	Q_OBJECT
 public:
-	PVExpandSelDlg(Picviz::PVView const& view, QWidget* parent);
+	PVExpandSelDlg(Inendi::PVView const& view, QWidget* parent);
 
 public:
 	PVCore::PVAxesIndexType get_axes() const;
@@ -34,7 +34,7 @@ private slots:
 	void update_list_modes();
 
 private:
-	Picviz::PVView const& _view;
+	Inendi::PVView const& _view;
 	PVWidgets::PVAxesIndexEditor* _axes_editor;
 	QComboBox* _combo_modes;
 	QDialogButtonBox* _btns;

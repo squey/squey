@@ -175,7 +175,7 @@ public:
 	}
 
 	template <class Fbci>
-	inline void draw_zoomed_zone_sel(zzt_context_t &ctx, PVBCIBackendImage &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, Picviz::PVSelection &selection, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false)
+	inline void draw_zoomed_zone_sel(zzt_context_t &ctx, PVBCIBackendImage &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, Inendi::PVSelection &selection, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false)
 	{
 		PVZoomedZoneTree const &zoomed_zone_tree = _zm.get_zone_tree<PVZoomedZoneTree>(zone);
 		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>

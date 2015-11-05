@@ -9,7 +9,7 @@
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 #include <QList>
 
@@ -46,7 +46,7 @@ public:
 
 	void save_to_file(QString const& path, bool save_everything = true)
 	{
-		PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, PICVIZ_ARCHIVES_VERSION));
+		PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, INENDI_ARCHIVES_VERSION));
 		ar->set_save_everything(save_everything);
 		QString name = "root";
 		ar->get_root()->object(name, *this);
@@ -55,7 +55,7 @@ public:
 
 	void load_from_file(QString const& path)
 	{
-		PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
+		PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
 		QString name = "root";
 		ar->get_root()->object(name, *this);
 	}

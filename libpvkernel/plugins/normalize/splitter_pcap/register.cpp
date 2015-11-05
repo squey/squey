@@ -11,7 +11,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include "PVFieldSplitterPcapPacket.h"
 
-// This method will be called by libpicviz
+// This method will be called by libinendi
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("pcap", PVFilter::PVFieldSplitterPcapPacket);

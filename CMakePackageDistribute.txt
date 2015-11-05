@@ -6,7 +6,7 @@
 
 install(FILES "pvconfig.ini" DESTINATION .)
 install(FILES "gui-qt/src/resources/icon.png" DESTINATION .)
-install(FILES "gui-qt/src/resources/picviz-inspector.ico" DESTINATION .)
+install(FILES "gui-qt/src/resources/inendi-inspector.ico" DESTINATION .)
 install(FILES "CHANGELOG" DESTINATION .)
 
 set(LINUX_QT5_PATH "/usr/lib/x86_64-linux-gnu")
@@ -142,7 +142,7 @@ install(FILES ${LINUX_MISCLIB_PATH_64}/libwebp.so.2 ${LINUX_MISCLIB_PATH_64}/lib
 #
 # QueryBuilder
 #
-install(DIRECTORY ${picviz-inspector_SOURCE_DIR}/libpvkernel/src/widgets/querybuilder DESTINATION .)
+install(DIRECTORY ${inendi-inspector_SOURCE_DIR}/libpvkernel/src/widgets/querybuilder DESTINATION .)
 
 # doc
 if(DOC_ROOT_DIR)

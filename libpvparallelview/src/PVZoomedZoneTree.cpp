@@ -419,13 +419,13 @@ void PVParallelView::PVZoomedZoneTree::process(const PVZoneProcessing &zp,
 
 	init_structures();
 
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 	tbb::tick_count start, end;
 	start = tbb::tick_count::now();
 #endif
 	process_omp_from_zt(zp, zt);
 
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 	end = tbb::tick_count::now();
 	PVLOG_INFO("PVZoomedZoneTree::process in %0.4f ms.\n", (end-start).seconds()*1000.0);
 	PVLOG_INFO("PVZoomedZoneTree::memory: %lu octets.\n", memory());
@@ -1206,7 +1206,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &c
 }
 
 
-void PVParallelView::PVZoomedZoneTree::compute_min_indexes_sel(Picviz::PVSelection const& sel)
+void PVParallelView::PVZoomedZoneTree::compute_min_indexes_sel(Inendi::PVSelection const& sel)
 {
 	BENCH_START(compute);
 	if (sel.is_empty()) {
@@ -1229,7 +1229,7 @@ void PVParallelView::PVZoomedZoneTree::compute_min_indexes_sel(Picviz::PVSelecti
 	BENCH_END(compute, "PVZoomedZoneTree::compute_min_indexes_sel", 1, 1, 1, 1);
 }
 
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 double PVParallelView::extract_stat::all_dt = 0;
 size_t PVParallelView::extract_stat::all_cnt = 0;
 size_t PVParallelView::extract_stat::test_cnt = 0;

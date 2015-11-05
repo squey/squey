@@ -13,9 +13,9 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 
-#include <picviz/PVPlottingFilter.h>
+#include <inendi/PVPlottingFilter.h>
 
-PVInspector::PVExpandSelDlg::PVExpandSelDlg(Picviz::PVView const& view, QWidget* parent):
+PVInspector::PVExpandSelDlg::PVExpandSelDlg(Inendi::PVView const& view, QWidget* parent):
 	QDialog(parent),
 	_view(view)
 {
@@ -54,11 +54,11 @@ void PVInspector::PVExpandSelDlg::update_list_modes()
 {
 	PVCore::PVAxesIndexType axes = _axes_editor->get_axes_index();
 
-	QSet<Picviz::PVPlottingFilter::p_type> modes;
+	QSet<Inendi::PVPlottingFilter::p_type> modes;
 	PVCore::PVAxesIndexType::const_iterator it_axes;
 	for (it_axes = axes.begin(); it_axes != axes.end(); it_axes++) {
 		PVCol axis_id = *it_axes;
-		QSet<Picviz::PVPlottingFilter::p_type> axis_modes = Picviz::PVPlottingFilter::list_modes_lib(_view.get_original_axis_type(axis_id), true).toSet();
+		QSet<Inendi::PVPlottingFilter::p_type> axis_modes = Inendi::PVPlottingFilter::list_modes_lib(_view.get_original_axis_type(axis_id), true).toSet();
 		if (modes.size() == 0) {
 			modes = axis_modes;
 		}
@@ -73,7 +73,7 @@ void PVInspector::PVExpandSelDlg::update_list_modes()
 	_combo_modes->setEnabled(activate);
 	_btns->button(QDialogButtonBox::Ok)->setEnabled(activate);
 
-	foreach (Picviz::PVPlottingFilter::p_type const& lib_f, modes) {
+	foreach (Inendi::PVPlottingFilter::p_type const& lib_f, modes) {
 		_combo_modes->addItem(lib_f->get_human_name(), lib_f->registered_name());
 	}
 
@@ -82,7 +82,7 @@ void PVInspector::PVExpandSelDlg::update_list_modes()
 
 QString PVInspector::PVExpandSelDlg::get_mode()
 {
-	return Picviz::PVPlottingFilter::mode_from_registered_name(_combo_modes->itemData(_combo_modes->currentIndex()).toString());
+	return Inendi::PVPlottingFilter::mode_from_registered_name(_combo_modes->itemData(_combo_modes->currentIndex()).toString());
 }
 
 PVCore::PVAxesIndexType PVInspector::PVExpandSelDlg::get_axes() const

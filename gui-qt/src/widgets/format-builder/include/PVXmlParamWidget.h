@@ -25,7 +25,7 @@
 
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamTextEdit.h>
-#include <picviz/plugins.h>
+#include <inendi/plugins.h>
 #include <PVXmlParamColorDialog.h>
 #include <PVXmlParamWidgetBoardAxis.h>
 #include <PVXmlParamWidgetBoardFilter.h>

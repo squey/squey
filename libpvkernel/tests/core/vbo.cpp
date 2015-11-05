@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_bench.h>
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVMatrix.h>
 
 #include <iostream>
@@ -14,8 +14,8 @@
 #include <ctime>
 #include <sstream>
 
-#include <pvkernel/core/picviz_assert.h>
-#include <pvkernel/core/picviz_stat.h>
+#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/inendi_stat.h>
 
 std::string get_full_name(const char* name, size_t nrows, size_t ncols)
 {

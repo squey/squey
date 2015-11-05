@@ -19,10 +19,10 @@ public:
 	PVDisplaySourceDataTree();
 
 public:
-	QWidget* create_widget(Picviz::PVSource* src, QWidget* parent) const override;
+	QWidget* create_widget(Inendi::PVSource* src, QWidget* parent) const override;
 	QIcon toolbar_icon() const override;
 
-	QString widget_title(Picviz::PVSource*) const override { return QString("Data tree"); } 
+	QString widget_title(Inendi::PVSource*) const override { return QString("Data tree"); } 
 
 	CLASS_REGISTRABLE(PVDisplaySourceDataTree)
 };

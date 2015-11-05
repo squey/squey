@@ -13,8 +13,8 @@
 //static PVCore::PVHSVColor g_predefined_colors[] = {HSV_COLOR_WHITE, HSV_COLOR_RED, HSV_COLOR_GREEN, HSV_COLOR_BLUE};
 
 #define GRID_COL_SIZE 11
-#define HSV_COLOR_PROPERTY "picviz_hsv_color_property"
-#define HSV_COLOR_INDEX    "picviz_hsv_color_index"
+#define HSV_COLOR_PROPERTY "inendi_hsv_color_property"
+#define HSV_COLOR_INDEX    "inendi_hsv_color_index"
 
 static void fill_label_with_color(QLabel* l, PVCore::PVHSVColor c)
 {

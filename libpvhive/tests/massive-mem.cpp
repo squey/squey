@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActor.h>
@@ -15,7 +15,7 @@
 
 #include "massive_common.h"
 
-#include <pvkernel/core/picviz_stat.h>
+#include <pvkernel/core/inendi_stat.h>
 
 #if 0
 void print_size(const char *text, size_t size, int num)

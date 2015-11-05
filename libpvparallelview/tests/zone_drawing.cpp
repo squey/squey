@@ -7,8 +7,8 @@
 
 #include <pvkernel/cuda/common.h>
 
-#include <picviz/PVPlotted.h>
-#include <picviz/PVView.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVView.h>
 
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/PVLinesView.h>
@@ -50,7 +50,7 @@ void LinesViewMw::zr_bg_finished(int zone_id)
 	PVLOG_INFO("Bg zone rendering finished for zone %d\n", zone_id);
 }
 
-static void init_rand_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
+static void init_rand_plotted(Inendi::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
 	srand(time(NULL));
 	p.clear();
@@ -63,7 +63,7 @@ static void init_rand_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow 
 	}
 }
 
-static void init_qt_plotted(Picviz::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
+static void init_qt_plotted(Inendi::PVPlotted::uint_plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
 	p.clear();
 	const PVRow nrows_aligned = ((nrows+3)/4)*4;
@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 	PVCol ncols;
 	PVRow nrows;
 
-	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
+	Inendi::PVPlotted::uint_plotted_table_t norm_plotted;
 	QString fplotted(argv[1]);
 	if ((fplotted == "0") || (fplotted == "1")) {
 		if (argc < 4) {
@@ -98,8 +98,8 @@ int main(int argc, char** argv)
 		srand(time(NULL));
 		nrows = atol(argv[2]);
 
-		if (nrows > PICVIZ_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+		if (nrows > INENDI_LINES_MAX) {
+			std::cerr << "nrows is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
 			return 1;
 		}
 
@@ -107,7 +107,7 @@ int main(int argc, char** argv)
 
 		if (fplotted == "0") {
 			init_rand_plotted(norm_plotted, nrows, ncols);
-			//Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
+			//Inendi::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 		} else {
 			init_qt_plotted(norm_plotted, nrows, ncols);
 		}
@@ -120,23 +120,23 @@ int main(int argc, char** argv)
 		}
 
 		if (plotted_uint) {
-			if (!Picviz::PVPlotted::load_buffer_from_file(norm_plotted, nrows, ncols, true, QString(argv[1]))) {
+			if (!Inendi::PVPlotted::load_buffer_from_file(norm_plotted, nrows, ncols, true, QString(argv[1]))) {
 				std::cerr << "Unable to load plotted !" << std::endl;
 				return 1;
 			}
 		}
 		else {
-			Picviz::PVPlotted::plotted_table_t plotted;
-			if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
+			Inendi::PVPlotted::plotted_table_t plotted;
+			if (!Inendi::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
 				std::cerr << "Unable to load plotted !" << std::endl;
 				return 1;
 			}
 			nrows = plotted.size()/ncols;
-			Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
+			Inendi::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 		}
 
-		if (nrows > PICVIZ_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+		if (nrows > INENDI_LINES_MAX) {
+			std::cerr << "nrows is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
 			return 1;
 		}
 	}
@@ -154,7 +154,7 @@ int main(int argc, char** argv)
 		colors[i] = (i%(HSV_COLOR_RED-HSV_COLOR_GREEN))+HSV_COLOR_GREEN;
 	}
 
-	Picviz::PVSelection sel;
+	Inendi::PVSelection sel;
 	sel.select_none();
 	for (size_t i = 0; i < 100; i++) {
 		sel.set_bit_fast(i);

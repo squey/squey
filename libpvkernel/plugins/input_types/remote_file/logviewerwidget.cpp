@@ -193,7 +193,7 @@ LogViewerWidget::~LogViewerWidget()
 
 void LogViewerWidget::saveSettings()
 {
-    QSettings settings( QLatin1String( "Picviz" ), QLatin1String( "logviewerwidget" ) );
+    QSettings settings( QLatin1String( "INENDI" ), QLatin1String( "logviewerwidget" ) );
     settings.beginGroup( QLatin1String( "Machine" ) );
     //Be sure to clear it
     settings.clear();
@@ -229,7 +229,7 @@ void LogViewerWidget::saveSettings()
 
 void LogViewerWidget::loadSettings()
 {
-    QSettings settings( QLatin1String( "Picviz" ), QLatin1String( "logviewerwidget" ) );
+    QSettings settings( QLatin1String( "INENDI" ), QLatin1String( "logviewerwidget" ) );
     settings.beginGroup( QLatin1String( "Machine" ) );
     const QStringList list = settings.childGroups();
     const int countList = list.count();

@@ -16,7 +16,7 @@
 #include <QDir>
 #include <QDirIterator>
 
-static void picviz_archive_read_support(struct archive* a)
+static void inendi_archive_read_support(struct archive* a)
 {
 	// Support all formats
 	archive_read_support_format_all(a);
@@ -33,7 +33,7 @@ static void picviz_archive_read_support(struct archive* a)
 	archive_clear_error(a);
 }
 
-static void picviz_archive_read_support_noformat(struct archive* a)
+static void inendi_archive_read_support_noformat(struct archive* a)
 {
 	// Support all formats
 	archive_read_support_format_raw(a);
@@ -76,7 +76,7 @@ bool PVCore::PVArchive::is_archive(QString const& path)
 	const char* filename = path_local.constData();
 
 	a = archive_read_new();
-	picviz_archive_read_support(a);
+	inendi_archive_read_support(a);
 	ret = archive_read_open_filename(a, filename, 1000) == ARCHIVE_OK;
 	if (!ret) {
 		archive_read_close(a);
@@ -87,7 +87,7 @@ bool PVCore::PVArchive::is_archive(QString const& path)
 
 	if (!ret) {
 		a = archive_read_new();
-		picviz_archive_read_support_noformat(a);
+		inendi_archive_read_support_noformat(a);
 		ret = archive_read_open_filename(a, filename, 1000) == ARCHIVE_OK;
 		if (ret) {
 			ret = archive_read_next_header(a, &entry) == ARCHIVE_OK;
@@ -133,7 +133,7 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 	flags |= ARCHIVE_EXTRACT_SECURE_NODOTDOT;
 
 	a = archive_read_new();
-	picviz_archive_read_support(a);
+	inendi_archive_read_support(a);
 	ext = archive_write_disk_new();
 	archive_write_disk_set_options(ext, flags);
 	archive_write_disk_set_standard_lookup(ext);
@@ -145,7 +145,7 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 	if (r != ARCHIVE_OK) {
 		archive_read_close(a);
 		a = archive_read_new();
-		picviz_archive_read_support_noformat(a);
+		inendi_archive_read_support_noformat(a);
 		archive_read_open_filename(a, filename, 10240);
 		r = archive_read_next_header(a, &entry);
 		read_raw = true;
@@ -249,7 +249,7 @@ bool PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir
 			QString path = it.fileInfo().canonicalFilePath();
 			stat(qPrintable(path), &st);
 			QString ar_en_path = path.mid(dir_path_abs.size());
-			while (ar_en_path.at(0) == PICVIZ_PATH_SEPARATOR_CHAR) {
+			while (ar_en_path.at(0) == INENDI_PATH_SEPARATOR_CHAR) {
 				ar_en_path = ar_en_path.mid(1);
 			}
 			QByteArray ar_en_path_ba = ar_en_path.toLocal8Bit();

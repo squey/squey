@@ -38,4 +38,4 @@ struct PVColor: ubvec4 {
 };
 }
 
-#endif /* PICVIZ_PVCOLOR_H */
+#endif /* INENDI_PVCOLOR_H */

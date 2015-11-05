@@ -14,7 +14,7 @@
 
 #include <pvkernel/rush/PVAxisTagsDec.h>
 
-// This method will be called by libpicviz
+// This method will be called by libinendi
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("key_value", PVFilter::PVFieldSplitterKeyValue);

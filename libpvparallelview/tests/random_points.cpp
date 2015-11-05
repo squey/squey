@@ -12,7 +12,7 @@
 
 #include <QImage>
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 constexpr uint32_t IMAGE_WIDTH = 1024;
 constexpr uint32_t IMAGE_HEIGHT = IMAGE_WIDTH;

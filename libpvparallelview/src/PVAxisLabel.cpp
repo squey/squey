@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 #include <pvparallelview/PVAxisLabel.h>
 #include <pvparallelview/PVAxisGraphicsItem.h>
@@ -24,7 +24,7 @@
  * PVParallelView::PVAxisLabel::PVAxisLabel
  *****************************************************************************/
 
-PVParallelView::PVAxisLabel::PVAxisLabel(const Picviz::PVView &view,
+PVParallelView::PVAxisLabel::PVAxisLabel(const Inendi::PVView &view,
                                          PVSlidersGroup *sg,
                                          QGraphicsItem *parent) :
 	QGraphicsSimpleTextItem(parent), _lib_view(view), _sliders_group(sg)

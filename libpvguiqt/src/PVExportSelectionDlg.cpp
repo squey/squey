@@ -15,14 +15,14 @@
 #include <pvguiqt/PVExportSelectionDlg.h>
 #include <pvguiqt/PVAxesCombinationWidget.h>
 
-#include <picviz/PVSelection.h>
-#include <picviz/PVView.h>
+#include <inendi/PVSelection.h>
+#include <inendi/PVView.h>
 
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/core/PVProgressBox.h>
 
-PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(Picviz::PVAxesCombination& custom_axes_combination,
-													Picviz::PVView& view, QWidget* parent /* = 0 */) :
+PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(Inendi::PVAxesCombination& custom_axes_combination,
+													Inendi::PVView& view, QWidget* parent /* = 0 */) :
 	QFileDialog(parent)
 {
 	setWindowTitle(tr("Export selection"));
@@ -150,13 +150,13 @@ PVGuiQt::PVExportSelectionDlg::combination_kind() const
  * It creates the ExportSelectionDlg and handle the result.
  */
 void PVGuiQt::PVExportSelectionDlg::export_selection(
-	Picviz::PVView& view,
-	const Picviz::PVSelection& sel)
+	Inendi::PVView& view,
+	const Inendi::PVSelection& sel)
 {
 	// Axis (column) to export
-	Picviz::PVAxesCombination const& axes_combination = view.get_axes_combination();
+	Inendi::PVAxesCombination const& axes_combination = view.get_axes_combination();
 	// Keep a separate value for custom axis selection
-	Picviz::PVAxesCombination custom_axes_combination = axes_combination;
+	Inendi::PVAxesCombination custom_axes_combination = axes_combination;
 
 	// FileDialog for option selection and file to write
 	PVGuiQt::PVExportSelectionDlg export_selection_dlg(custom_axes_combination, view);
@@ -201,12 +201,12 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(
 	switch(export_selection_dlg.combination_kind())
 	{
 		case AxisCombinationKind::CUSTOM:
-			for(const Picviz::PVAxesCombination::axes_comb_id_t& a: custom_axes_combination.get_axes_index_list())
+			for(const Inendi::PVAxesCombination::axes_comb_id_t& a: custom_axes_combination.get_axes_index_list())
 				column_indexes.push_back(a.get_axis());
 			str_list = custom_axes_combination.get_axes_names_list();
 			break;
 		case AxisCombinationKind::CURRENT:
-			for(const Picviz::PVAxesCombination::axes_comb_id_t& a: axes_combination.get_axes_index_list())
+			for(const Inendi::PVAxesCombination::axes_comb_id_t& a: axes_combination.get_axes_index_list())
 				column_indexes.push_back(a.get_axis());
 			str_list = axes_combination.get_axes_names_list();
 			break;

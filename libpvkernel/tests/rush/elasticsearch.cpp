@@ -10,7 +10,7 @@
 #include "../../plugins/common/elasticsearch/PVElasticsearchQuery.h"
 
 #include <pvkernel/rush/PVUtils.h>
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 #include <fstream>
 

@@ -10,7 +10,7 @@
 #include <iostream>
 using namespace std;
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/general.h>
 #include <pvbase/types.h>
 

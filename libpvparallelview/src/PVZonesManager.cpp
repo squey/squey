@@ -6,7 +6,7 @@
  */
 
 #include <pvkernel/core/PVHardwareConcurrency.h>
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoneProcessing.h>
 
@@ -56,7 +56,7 @@ PVParallelView::PVZonesManager::PVZonesManager()
  * PVParallelView::PVZonesManager::set_uint_plotted
  *
  *****************************************************************************/
-void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols)
+void PVParallelView::PVZonesManager::set_uint_plotted(Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols)
 {
 	_uint_plotted = &plotted;
 	_nrows = nrows;
@@ -225,7 +225,7 @@ std::vector<PVZoneID> PVParallelView::PVZonesManager::update_from_axes_comb(colu
  * PVParallelView::PVZonesManager::update_from_axes_comb
  *
  *****************************************************************************/
-std::vector<PVZoneID> PVParallelView::PVZonesManager::update_from_axes_comb(Picviz::PVView const& view)
+std::vector<PVZoneID> PVParallelView::PVZonesManager::update_from_axes_comb(Inendi::PVView const& view)
 {
 	return update_from_axes_comb(view.get_axes_combination().get_axes_index_list());
 }
@@ -261,7 +261,7 @@ void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID zone_id)
  * PVParallelView::PVZonesManager::lazy_init_from_view
  *
  *****************************************************************************/
-void PVParallelView::PVZonesManager::lazy_init_from_view(Picviz::PVView const& view)
+void PVParallelView::PVZonesManager::lazy_init_from_view(Inendi::PVView const& view)
 {
 	set_uint_plotted(view);
 	_axes_comb = view.get_axes_combination().get_axes_index_list();
@@ -272,13 +272,13 @@ void PVParallelView::PVZonesManager::lazy_init_from_view(Picviz::PVView const& v
  * PVParallelView::PVZonesManager::filter_zone_by_sel
  *
  *****************************************************************************/
-void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zone_id, const Picviz::PVSelection& sel)
+void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zone_id, const Inendi::PVSelection& sel)
 {
 	assert(zone_id < (PVZoneID) _zones.size());
 	_zones[zone_id].filter_by_sel(sel, _nrows);
 }
 
-void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone_id, const Picviz::PVSelection& sel)
+void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone_id, const Inendi::PVSelection& sel)
 {
 	assert(zone_id < (PVZoneID) _zones.size());
 	_zones[zone_id].filter_by_sel_background(sel, _nrows);
@@ -289,9 +289,9 @@ void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone
  * PVParallelView::PVZonesManager::set_uint_plotted
  *
  *****************************************************************************/
-void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVView const& view)
+void PVParallelView::PVZonesManager::set_uint_plotted(Inendi::PVView const& view)
 {
-	set_uint_plotted(view.get_parent<Picviz::PVPlotted>()->get_uint_plotted(), view.get_row_count(), view.get_column_count());
+	set_uint_plotted(view.get_parent<Inendi::PVPlotted>()->get_uint_plotted(), view.get_row_count(), view.get_column_count());
 }
 
 /******************************************************************************

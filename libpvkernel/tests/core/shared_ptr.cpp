@@ -11,7 +11,7 @@
 
 #include <pvkernel/core/PVSharedPointer.h>
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 struct pouet
 {

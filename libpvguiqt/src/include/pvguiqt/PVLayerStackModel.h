@@ -10,8 +10,8 @@
 
 #include <QAbstractTableModel>
 
-#include <picviz/PVLayerStack.h>
-#include <picviz/PVView_types.h>
+#include <inendi/PVLayerStack.h>
+#include <inendi/PVView_types.h>
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserverSignal.h>
@@ -19,7 +19,7 @@
 #include <QBrush>
 #include <QFont>
 
-namespace Picviz
+namespace Inendi
 {
 	class PVView;
 }
@@ -34,7 +34,7 @@ class PVLayerStackModel : public QAbstractTableModel
 	Q_OBJECT
 
 public:
-	PVLayerStackModel(Picviz::PVView_sp& lib_view, QObject* parent = NULL);
+	PVLayerStackModel(Inendi::PVView_sp& lib_view, QObject* parent = NULL);
 
 public:
 	int columnCount(const QModelIndex &index) const override;
@@ -56,11 +56,11 @@ public:
 	void reset_layer_colors(const int idx);
 
 public:
-	Picviz::PVLayerStack const& lib_layer_stack() const { return *_obs.get_object(); }
-	Picviz::PVLayerStack& lib_layer_stack() { return *_obs.get_object(); }
-	PVHive::PVActor<Picviz::PVView>& view_actor() { return _actor; }
-	Picviz::PVView const& lib_view() const { return _lib_view; }
-	Picviz::PVView& lib_view() { return _lib_view; }
+	Inendi::PVLayerStack const& lib_layer_stack() const { return *_obs.get_object(); }
+	Inendi::PVLayerStack& lib_layer_stack() { return *_obs.get_object(); }
+	PVHive::PVActor<Inendi::PVView>& view_actor() { return _actor; }
+	Inendi::PVView const& lib_view() const { return _lib_view; }
+	Inendi::PVView& lib_view() { return _lib_view; }
 
 private:
 	inline int lib_index_from_model_index(int model_index) const { assert(model_index < rowCount()); return rowCount() - model_index - 1; }
@@ -71,14 +71,14 @@ private slots:
 	void layer_stack_refreshed(PVHive::PVObserverBase* o);
 
 private:
-	Picviz::PVView& _lib_view;
+	Inendi::PVView& _lib_view;
 	QBrush select_brush;       //!<
 	QFont select_font;         //!<
 	QBrush unselect_brush;     //!<
 	QFont unselect_font;       //!<
 
-	PVHive::PVActor<Picviz::PVView> _actor;
-	PVHive::PVObserverSignal<Picviz::PVLayerStack> _obs;
+	PVHive::PVActor<Inendi::PVView> _actor;
+	PVHive::PVObserverSignal<Inendi::PVLayerStack> _obs;
 
 	bool _ls_valid;
 };

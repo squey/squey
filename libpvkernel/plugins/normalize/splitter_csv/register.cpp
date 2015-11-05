@@ -12,7 +12,7 @@
 #include "PVFieldSplitterCSV.h"
 #include "PVFieldSplitterCSVParamWidget.h"
 
-// This method will be called by libpicviz
+// This method will be called by libinendi
 LibCPPExport void register_class()
 {
 	// Register as a field splitter and as a general fields filter

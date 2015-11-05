@@ -32,8 +32,8 @@
 
 #include <valgrind/callgrind.h>
 
-#include <pvkernel/core/picviz_bench.h>
-#include <pvkernel/core/picviz_stat.h>
+#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/inendi_stat.h>
 
 #define NLINES 10000000
 

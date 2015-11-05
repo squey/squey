@@ -19,7 +19,7 @@ namespace PVWidgets
 	class QKeySequenceWidget;
 }
 
-namespace Picviz
+namespace Inendi
 {
 	class PVAxesCombination;
 	class PVView;
@@ -45,7 +45,7 @@ public:
 	 * ExportSelectionDlg can't be created directly, creation and export are
 	 * done in one step.
 	 */
-	static void export_selection(Picviz::PVView& view, const Picviz::PVSelection& sel);
+	static void export_selection(Inendi::PVView& view, const Inendi::PVSelection& sel);
 
 private: // Interfaces used to export the selection
 	enum class AxisCombinationKind {ALL, CURRENT, CUSTOM};
@@ -56,7 +56,7 @@ private: // Interfaces used to export the selection
 	 * @param view : The view to export
 	 * @param parent : parent widget (as usual in Qt)
 	 */
-	PVExportSelectionDlg(Picviz::PVAxesCombination& custom_axes_combination, Picviz::PVView& view, QWidget* parent = 0);
+	PVExportSelectionDlg(Inendi::PVAxesCombination& custom_axes_combination, Inendi::PVView& view, QWidget* parent = 0);
 
 	/** Return the kind of axis combination we want to export. */
 	AxisCombinationKind combination_kind() const;

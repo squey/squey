@@ -35,7 +35,7 @@ public:
 		PVZonesProcessor& zp_sel,
 		PVZonesManager const& zm,
 		const PVCore::PVHSVColor* colors,
-		Picviz::PVSelection const& sel
+		Inendi::PVSelection const& sel
 	);
 
 public:
@@ -81,7 +81,7 @@ protected:
 
 	PVScatterViewData _data;
 
-	Picviz::PVSelection const& _sel;
+	Inendi::PVSelection const& _sel;
 	PVCore::PVHSVColor const* _colors;
 
 	PVZoneRenderingScatter_p _zr_bg;

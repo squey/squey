@@ -13,7 +13,7 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZonesManager.h>
 
-namespace Picviz {
+namespace Inendi {
 class PVSelection;
 }
 
@@ -22,7 +22,7 @@ namespace PVParallelView {
 class PVTaskFilterSel: public tbb::task
 {
 public:
-	PVTaskFilterSel(PVZonesManager& zm, PVZoneID z, Picviz::PVSelection const& sel):
+	PVTaskFilterSel(PVZonesManager& zm, PVZoneID z, Inendi::PVSelection const& sel):
 		_zm(zm),
 		_sel(sel),
 		_z(z)
@@ -37,7 +37,7 @@ public:
 
 private:
 	PVZonesManager& _zm;
-	Picviz::PVSelection const& _sel;
+	Inendi::PVSelection const& _sel;
 	PVZoneID _z;
 };
 

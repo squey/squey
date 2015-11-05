@@ -15,8 +15,8 @@ set(CORE_SRC_FILES
 core/debug.cpp
 core/environ.cpp
 core/network.cpp
-core/picviz_intrin.cpp
-core/picviz_trace.cpp
+core/inendi_intrin.cpp
+core/inendi_trace.cpp
 core/sse4detector.cpp
 core/segfault_handler.cpp
 

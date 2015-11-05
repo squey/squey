@@ -11,7 +11,7 @@
 #include <tbb/tick_count.h>
 
 #include <pvkernel/rush/PVNrawDiskBackend.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 #define N 2000000000
 #define M 1000000

@@ -10,7 +10,7 @@
 
 #include <pvkernel/rush/PVNraw.h>
 
-#include <picviz/PVView_types.h>
+#include <inendi/PVView_types.h>
 
 #include <pvguiqt/PVListDisplayDlg.h>
 
@@ -41,7 +41,7 @@ class PVAbstractListStatsDlg: public PVListDisplayDlg
 
 public:
 	PVAbstractListStatsDlg(
-		Picviz::PVView_sp& view,
+		Inendi::PVView_sp& view,
 		PVCol c,
 		__impl::PVAbstractListStatsModel* model,
 		size_t absolute_max_count,
@@ -57,7 +57,7 @@ public:
 		init(view);
 	}
 
-	void init(Picviz::PVView_sp& view);
+	void init(Inendi::PVView_sp& view);
 	virtual ~PVAbstractListStatsDlg();
 
 public:
@@ -106,14 +106,14 @@ protected slots:
 	void show_hhead_ctxt_menu(const QPoint& pos);
 
 protected:
-	Picviz::PVView* lib_view() { return _obs.get_object(); }
+	Inendi::PVView* lib_view() { return _obs.get_object(); }
 	void multiple_search(QAction* act, const QStringList &sl, bool hide_dialog = true);
 	void resize_section();
 
 protected:
 	PVCol _col;
-	PVHive::PVObserverSignal<Picviz::PVView> _obs;
-	PVHive::PVActor<Picviz::PVView> _actor;
+	PVHive::PVObserverSignal<Inendi::PVView> _obs;
+	PVHive::PVActor<Inendi::PVView> _actor;
 	bool _store_last_section_width = true;
 	int _last_section_width = 250;
 

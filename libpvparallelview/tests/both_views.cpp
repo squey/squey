@@ -10,8 +10,8 @@
 #include <iostream>
 
 #include <pvparallelview/common.h>
-#include <pvkernel/core/picviz_bench.h>
-#include <picviz/PVPlotted.h>
+#include <pvkernel/core/inendi_bench.h>
+#include <inendi/PVPlotted.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVParallelView.h>
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 	zdlg->show();
 
 	{
-		/*Picviz::PVView_sp view_sp = plib_view->lib_view()->shared_from_this();
+		/*Inendi::PVView_sp view_sp = plib_view->lib_view()->shared_from_this();
 		PVGuiQt::PVAxesCombinationDialog* axes_dlg = new PVGuiQt::PVAxesCombinationDialog(view_sp);
 		axes_dlg->show();*/
 	}

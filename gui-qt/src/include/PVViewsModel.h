@@ -9,8 +9,8 @@
 #define PVVIEWSMODEL_H
 
 #include <pvkernel/core/general.h>
-#include <picviz/PVSource.h>
-#include <picviz/PVPtrObjects.h>
+#include <inendi/PVSource.h>
+#include <inendi/PVPtrObjects.h>
 
 #include <QAbstractItemModel>
 
@@ -22,27 +22,27 @@ public:
 	class PVIndexNode
 	{
 	public:
-		PVIndexNode(Picviz::PVMapped* mapped)
+		PVIndexNode(Inendi::PVMapped* mapped)
 		{ _plotted = NULL; _mapped = mapped; }
 
-		PVIndexNode(Picviz::PVPlotted* plotted)
+		PVIndexNode(Inendi::PVPlotted* plotted)
 		{ _plotted = plotted; _mapped = NULL; }
 
 	public:
 		bool is_mapped() const { return _mapped != NULL; }
 		bool is_plotted() const { return _plotted != NULL; }
 
-		Picviz::PVMapped* as_mapped() const { return _mapped; }
-		Picviz::PVPlotted* as_plotted() const { return _plotted; }
+		Inendi::PVMapped* as_mapped() const { return _mapped; }
+		Inendi::PVPlotted* as_plotted() const { return _plotted; }
 
 		bool operator==(const PVIndexNode& other) const { return (_mapped == other._mapped) && (_plotted == other._plotted); }
 
 	protected:
-		Picviz::PVMapped* _mapped;
-		Picviz::PVPlotted* _plotted;
+		Inendi::PVMapped* _mapped;
+		Inendi::PVPlotted* _plotted;
 	};
 public:
-	PVViewsModel(Picviz::PVSource const& src, QObject* parent = 0);
+	PVViewsModel(Inendi::PVSource const& src, QObject* parent = 0);
 	~PVViewsModel();
 
 public:
@@ -62,7 +62,7 @@ public:
 	PVIndexNode const& get_object(QModelIndex const& index) const;
 
 protected:
-	Picviz::PVSource const& _src;
+	Inendi::PVSource const& _src;
 	mutable QList<PVIndexNode*> _nodes_todel;
 };
 

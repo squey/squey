@@ -41,8 +41,8 @@ void PVParallelView::PVHitGraphDataInterface::shift_right(const uint32_t n, cons
 }
 
 void PVParallelView::PVHitGraphDataInterface::process_all_buffers(ProcessParams const& params,
-                                                          Picviz::PVSelection const& layer_sel,
-                                                          Picviz::PVSelection const& sel)
+                                                          Inendi::PVSelection const& layer_sel,
+                                                          Inendi::PVSelection const& sel)
 {
 	process_buffer_all(params);
 	process_buffer_selected(params, sel);

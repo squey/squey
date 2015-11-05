@@ -13,8 +13,8 @@
 #include <QLineEdit>
 #include <QFileDialog>
 
-#include <picviz/general.h>
-#include <picviz/plugins.h>
+#include <inendi/general.h>
+#include <inendi/plugins.h>
 
 namespace PVInspector {
 

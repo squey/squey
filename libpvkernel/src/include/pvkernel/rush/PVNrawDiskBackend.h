@@ -25,7 +25,7 @@
 #include <tbb/enumerable_thread_specific.h>
 #include <tbb/concurrent_unordered_map.h>
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVMatrix.h>
 #include <pvkernel/core/PVByteVisitor.h>

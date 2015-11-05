@@ -178,7 +178,7 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 
 	setCentralWidget(central_widget);
 
-	/* add of user/picviz inspector's path for formats
+	/* add of user/inendi inspector's path for formats
 	 */
 	setCentralWidget(central_widget);
 

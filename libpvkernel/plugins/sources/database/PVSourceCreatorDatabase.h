@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#ifndef PICVIZ_PVSOURCECREATORDATABASE_H
-#define PICVIZ_PVSOURCECREATORDATABASE_H
+#ifndef INENDI_PVSOURCECREATORDATABASE_H
+#define INENDI_PVSOURCECREATORDATABASE_H
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>

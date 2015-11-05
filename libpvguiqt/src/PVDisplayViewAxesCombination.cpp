@@ -13,9 +13,9 @@ PVDisplays::PVDisplayViewAxesCombination::PVDisplayViewAxesCombination():
 {
 }
 
-QWidget* PVDisplays::PVDisplayViewAxesCombination::create_widget(Picviz::PVView* view, QWidget* parent) const
+QWidget* PVDisplays::PVDisplayViewAxesCombination::create_widget(Inendi::PVView* view, QWidget* parent) const
 {
-	Picviz::PVView_sp view_sp = view->shared_from_this();
+	Inendi::PVView_sp view_sp = view->shared_from_this();
 	PVGuiQt::PVAxesCombinationDialog* dlg = new PVGuiQt::PVAxesCombinationDialog(view_sp, parent);
 
 	return dlg;

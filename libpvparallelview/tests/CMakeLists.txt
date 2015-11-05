@@ -5,8 +5,8 @@
 # @copyright (C) ESI Group INENDI April 2015-2015
 
 include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
-add_definitions(${PICVIZ_DEFINITIONS})
-include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
+add_definitions(${INENDI_DEFINITIONS})
+include_directories(AFTER ${INENDI_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
@@ -14,7 +14,7 @@ set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
 set(CUDA_NVCC_FLAGS "-gencode arch=compute_30,code=sm_30" "-Xptxas=-v" "-Xcompiler=-fPIC")
 #set(CUDA_NVCC_FLAGS "-g" "-G")
 
-set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${ICU_LIBRARY} pvparallelview ${OpenMP_LIBRARIES} numa)
+set(LINK_LIBRARIES ${INENDI_LIBRARY} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${ICU_LIBRARY} pvparallelview ${OpenMP_LIBRARIES} numa)
 
 QT5_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h OPTIONS ${QT5_WRAP_OPTIONS})
 

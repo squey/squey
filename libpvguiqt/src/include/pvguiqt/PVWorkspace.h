@@ -23,14 +23,14 @@ class QWidget;
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
 
-#include <picviz/PVSource_types.h>
-#include <picviz/PVView_types.h>
+#include <inendi/PVSource_types.h>
+#include <inendi/PVView_types.h>
 
-namespace Picviz {
+namespace Inendi {
 class PVView;
 }
 
-Q_DECLARE_METATYPE(Picviz::PVView*)
+Q_DECLARE_METATYPE(Inendi::PVView*)
 
 namespace PVDisplays {
 class PVDisplayViewIf;
@@ -62,9 +62,9 @@ private:
 		{
 		public:
 			PVGuiQt::PVAxesCombinationDialog* _axes_combination_editor;
-			PVViewWidgets(Picviz::PVView* view, PVWorkspaceBase* tab)
+			PVViewWidgets(Inendi::PVView* view, PVWorkspaceBase* tab)
 			{
-				Picviz::PVView_sp view_sp = view->shared_from_this();
+				Inendi::PVView_sp view_sp = view->shared_from_this();
 				_axes_combination_editor = new PVAxesCombinationDialog(view_sp, tab);
 			}
 			PVViewWidgets() { _axes_combination_editor = nullptr; }
@@ -75,8 +75,8 @@ private:
 		};
 
 public:
-		PVViewWidgets const& get_view_widgets(Picviz::PVView* view);
-		PVAxesCombinationDialog* get_axes_combination_editor(Picviz::PVView* view)
+		PVViewWidgets const& get_view_widgets(Inendi::PVView* view);
+		PVAxesCombinationDialog* get_axes_combination_editor(Inendi::PVView* view)
 		{
 			PVViewWidgets const& widgets = get_view_widgets(view);
 			return widgets._axes_combination_editor;
@@ -99,7 +99,7 @@ public:
 	 *  \return A pointer to the view display.
 	 */
 	PVViewDisplay* add_view_display(
-		Picviz::PVView* view,
+		Inendi::PVView* view,
 		QWidget* view_display,
 		std::function<QString()> name,
 		bool can_be_central_display = true,
@@ -117,7 +117,7 @@ public:
 	 *  \return A pointer to the view display.
 	 */
 	PVViewDisplay* set_central_display(
-		Picviz::PVView* view,
+		Inendi::PVView* view,
 		QWidget* view_widget,
 		std::function<QString()> name,
 		bool delete_on_close
@@ -195,7 +195,7 @@ protected:
 	int _z_order_index = 0;
 	static uint64_t _z_order_counter;
 	static bool _drag_started;
-	QHash<Picviz::PVView const*, PVViewWidgets> _view_widgets;
+	QHash<Inendi::PVView const*, PVViewWidgets> _view_widgets;
 };
 
 /**
@@ -208,10 +208,10 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	Q_OBJECT
 
 public:
-	PVSourceWorkspace(Picviz::PVSource* source, QWidget* parent = 0);
+	PVSourceWorkspace(Inendi::PVSource* source, QWidget* parent = 0);
 
 public:
-	inline Picviz::PVSource* get_source() const { return _source; }
+	inline Inendi::PVSource* get_source() const { return _source; }
 	inline PVGuiQt::PVListDisplayDlg* get_source_invalid_evts_dlg() const { return _inv_evts_dlg; }
 
 private slots:
@@ -225,7 +225,7 @@ private:
 	void refresh_views_menus();
 
 private:
-	Picviz::PVSource* _source = nullptr;
+	Inendi::PVSource* _source = nullptr;
 	QToolBar* _toolbar;
 	std::list<datatree_obs_t> _obs;
 	uint64_t _views_count;

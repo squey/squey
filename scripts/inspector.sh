@@ -8,4 +8,4 @@
 export LD_LIBRARY_PATH=$(/usr/bin/realpath $(dirname $0)):$LD_LIBRARY_PATH
 export PATH=$(/usr/bin/realpath $(dirname $0)):$PATH
 
-picviz-inspector
+inendi-inspector

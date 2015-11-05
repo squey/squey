@@ -21,8 +21,8 @@
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
-#include <picviz/general.h>
-#include <picviz/PVSource.h>
+#include <inendi/general.h>
+#include <inendi/PVSource.h>
 
 namespace PVCore {
 class PVProgressBox;
@@ -45,7 +45,7 @@ public:
 	/**
 	 * Constructor.
 	 */
-	PVExtractorWidget(Picviz::PVSource& lib_src, PVGuiQt::PVProjectsTabWidget* projects_tab, QWidget* parent = NULL);
+	PVExtractorWidget(Inendi::PVSource& lib_src, PVGuiQt::PVProjectsTabWidget* projects_tab, QWidget* parent = NULL);
 
 	void refresh_and_show();
 	static void update_status_ext(PVCore::PVProgressBox* pbox, PVRush::PVControllerJob_p job);
@@ -81,13 +81,13 @@ protected:
 	size_t _cur_src_offset;
 
 private:
-	inline Picviz::PVSource& lib_src() { return *_lib_src; }
+	inline Inendi::PVSource& lib_src() { return *_lib_src; }
 	inline PVRush::PVExtractor& get_extractor() { return lib_src().get_extractor(); }
 
 	//bool process_extraction_job(PVRush::PVControllerJob_p job);
 
 private:
-	Picviz::PVSource* _lib_src;
+	Inendi::PVSource* _lib_src;
 	int _slider_pressed_value;
 	QLineEdit* _sources_number_lines;
 	PVGuiQt::PVProjectsTabWidget* _projects_tab;

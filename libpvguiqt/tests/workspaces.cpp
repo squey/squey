@@ -5,13 +5,13 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 
-#include <picviz/PVRoot.h>
-#include <picviz/PVMapped.h>
-#include <picviz/PVPlotted.h>
-#include <picviz/PVSource.h>
-#include <picviz/PVView.h>
+#include <inendi/PVRoot.h>
+#include <inendi/PVMapped.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVSource.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
@@ -49,12 +49,12 @@ int main(int argc, char** argv)
 	PVCore::PVIntrinsics::init_cpuid();
 	init_env();
 
-	// Get a Picviz tree from the given file/format
-	Picviz::PVRoot_p root;
-	Picviz::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
+	// Get a INENDI tree from the given file/format
+	Inendi::PVRoot_p root;
+	Inendi::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
 	src->create_default_view();
 
-	Picviz::PVView_p view(src->current_view()->get_parent()->shared_from_this());
+	Inendi::PVView_p view(src->current_view()->get_parent()->shared_from_this());
 	view->process_parent_plotted();
 
 	// Qt app

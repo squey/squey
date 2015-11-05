@@ -5,10 +5,10 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
 
-#include <picviz/PVPlotted.h>
+#include <inendi/PVPlotted.h>
 
 #include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/PVHitGraphDataOMP.h>
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 {
 	set_extra_param(3, "col y_min zoom");
 
-	Picviz::PVPlotted::uint_plotted_table_t plotted;
+	Inendi::PVPlotted::uint_plotted_table_t plotted;
 	PVCol col_count;
 	PVRow row_count;
 
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 
 	int buffer_size = 1024;
 
-	Picviz::PVSelection selection;
+	Inendi::PVSelection selection;
 
 	std::cout << "start test" << std::endl;
 

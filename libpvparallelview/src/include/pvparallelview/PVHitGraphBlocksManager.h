@@ -8,12 +8,12 @@
 #ifndef PVPARALLELVIEW_PVHITGRAPHBLOCKSMANAGER_H
 #define PVPARALLELVIEW_PVHITGRAPHBLOCKSMANAGER_H
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVHitGraphData.h>
 
-namespace Picviz {
+namespace Inendi {
 class PVSelection;
 }
 
@@ -25,7 +25,7 @@ protected:
 	typedef PVHitGraphData::ProcessParams DataProcessParams ;
 
 public:
-	PVHitGraphBlocksManager(const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Picviz::PVSelection& layer_sel, Picviz::PVSelection const& sel);
+	PVHitGraphBlocksManager(const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Inendi::PVSelection& layer_sel, Inendi::PVSelection const& sel);
 
 public:
 	bool change_and_process_view(const uint32_t y_min, const int zoom, double alpha);
@@ -34,7 +34,7 @@ public:
 	void process_all_buffers();
 
 public:
-	void set_layer_sel(const Picviz::PVSelection &sel);
+	void set_layer_sel(const Inendi::PVSelection &sel);
 
 public:
 	uint32_t const* buffer_all() const;
@@ -75,8 +75,8 @@ protected:
 	PVHitGraphData _data_z0; // Data for initial zoom (with 10-bit precision)
 	PVHitGraphData _data;
 
-	Picviz::PVSelection& _layer_sel;
-	Picviz::PVSelection const& _sel;
+	Inendi::PVSelection& _layer_sel;
+	Inendi::PVSelection const& _sel;
 
 	DataProcessParams _data_params;
 };

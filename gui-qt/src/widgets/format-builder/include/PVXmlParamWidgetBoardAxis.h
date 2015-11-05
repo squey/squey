@@ -35,14 +35,14 @@
 #include <PVXmlParamList.h>
 
 // Widget helpers
-#include <picviz/widgets/PVAxisTypeWidget.h>
-#include <picviz/widgets/PVMappingModeWidget.h>
-#include <picviz/widgets/PVPlottingModeWidget.h>
+#include <inendi/widgets/PVAxisTypeWidget.h>
+#include <inendi/widgets/PVMappingModeWidget.h>
+#include <inendi/widgets/PVPlottingModeWidget.h>
 
-#include <picviz/plugins.h>
-#include <picviz/PVLayerFilter.h>
-#include <picviz/PVMappingFilter.h>
-#include <picviz/PVPlottingFilter.h>
+#include <inendi/plugins.h>
+#include <inendi/PVLayerFilter.h>
+#include <inendi/PVMappingFilter.h>
+#include <inendi/PVPlottingFilter.h>
 
 namespace PVWidgets {
 class PVArgumentListWidget;
@@ -71,8 +71,8 @@ public:
 	void checkMappingTimeFormat();
 	void setComboGroup();
 	void setListTags();
-	Picviz::PVMappingFilter::p_type get_mapping_lib_filter();
-	Picviz::PVPlottingFilter::p_type get_plotting_lib_filter();
+	Inendi::PVMappingFilter::p_type get_mapping_lib_filter();
+	Inendi::PVPlottingFilter::p_type get_plotting_lib_filter();
     
     QStringList listType() const;
     QStringList getListTypeMapping(const QString& mType);
@@ -111,8 +111,8 @@ public:
 
 	// Mapping/plotting parameters widgets
 	QHBoxLayout* _layout_params_mp;
-	std::map<Picviz::PVMappingFilter::base_registrable, PVCore::PVArgumentList> _args_map_mode;
-	std::map<Picviz::PVPlottingFilter::base_registrable, PVCore::PVArgumentList> _args_plot_mode;
+	std::map<Inendi::PVMappingFilter::base_registrable, PVCore::PVArgumentList> _args_map_mode;
+	std::map<Inendi::PVPlottingFilter::base_registrable, PVCore::PVArgumentList> _args_plot_mode;
 	PVCore::PVArgumentList _args_mapping;
 	PVCore::PVArgumentList _args_plotting;
 	PVWidgets::PVArgumentListWidget* _params_mapping;

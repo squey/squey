@@ -12,8 +12,8 @@
 #include <QComboBox>
 #include <QList>
 
-#include <picviz/PVAxesCombination.h>
-#include <picviz/PVView_types.h>
+#include <inendi/PVAxesCombination.h>
+#include <inendi/PVView_types.h>
 
 #include <pvguiqt/ui_PVAxesCombinationWidget.h>
 #include <pvguiqt/ui_PVAxesCombinationWidgetSelRange.h>
@@ -41,7 +41,7 @@ private:
 	};
 
 public:
-	PVAxesCombinationWidget(Picviz::PVAxesCombination& axes_combination, Picviz::PVView* view = NULL, QWidget* parent = 0);
+	PVAxesCombinationWidget(Inendi::PVAxesCombination& axes_combination, Inendi::PVView* view = NULL, QWidget* parent = 0);
 
 public:
 	void save_current_combination();
@@ -79,10 +79,10 @@ signals:
 	void axes_count_changed();
 
 protected:
-	Picviz::PVAxesCombination& _axes_combination;
-	Picviz::PVAxesCombination _saved_combination;
+	Inendi::PVAxesCombination& _axes_combination;
+	Inendi::PVAxesCombination _saved_combination;
 	PVMoveToDlg* _move_dlg;
-	Picviz::PVView* _view;
+	Inendi::PVView* _view;
 };
 
 class PVAxesCombinationWidgetSelRange: public QDialog, Ui::PVAxesCombinationWidgetSelRange

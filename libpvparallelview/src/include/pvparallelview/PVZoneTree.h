@@ -9,14 +9,14 @@
 #define PVPARALLELVIEW_PVZONETREE_H
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/PVPODStaticArray.h>
 #include <pvkernel/core/PVHSVColor.h>
 
-#include <picviz/PVSelection.h>
-#include <picviz/PVPlotted.h>
+#include <inendi/PVSelection.h>
+#include <inendi/PVPlotted.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZoneProcessing.h>
@@ -184,16 +184,16 @@ protected:
 	struct PVTBBFilterSelParams
 		{
 		public:
-		PVTBBFilterSelParams(PVZoneProcessing const& zp, Picviz::PVSelection const& sel, PVZoneTree::ProcessData& pdata):
+		PVTBBFilterSelParams(PVZoneProcessing const& zp, Inendi::PVSelection const& sel, PVZoneTree::ProcessData& pdata):
 				_zp(zp), _sel(sel), _pdata(pdata)
 			{ }
 		public:
 			inline PVZoneProcessing const& zp() const { return _zp; }
 			inline ProcessData& pdata() const { return _pdata; }
-			inline Picviz::PVSelection const& sel() const { return _sel; }
+			inline Inendi::PVSelection const& sel() const { return _sel; }
 		private:
 			PVZoneProcessing const& _zp;
-			Picviz::PVSelection const& _sel;
+			Inendi::PVSelection const& _sel;
 			ProcessData& _pdata;
 		};
 
@@ -204,8 +204,8 @@ public:
 public:
 	inline void process(PVZoneProcessing const& zp, ProcessData& pdata) { process_tbb_sse_treeb(zp, pdata); }
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
-	inline void filter_by_sel(Picviz::PVSelection const& sel, const PVRow nrows) { filter_by_sel_tbb_treeb(sel, nrows, _sel_elts); }
-	inline void filter_by_sel_background(Picviz::PVSelection const& sel, const PVRow nrows) { filter_by_sel_background_tbb_treeb(sel, nrows, _bg_elts); }
+	inline void filter_by_sel(Inendi::PVSelection const& sel, const PVRow nrows) { filter_by_sel_tbb_treeb(sel, nrows, _sel_elts); }
+	inline void filter_by_sel_background(Inendi::PVSelection const& sel, const PVRow nrows) { filter_by_sel_background_tbb_treeb(sel, nrows, _bg_elts); }
 
 	inline uint32_t get_branch_count(uint32_t branch_id) const
 	{
@@ -267,10 +267,10 @@ public:
 	void process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata);
 	void process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp);
 
-	void filter_by_sel_omp_treeb(Picviz::PVSelection const& sel);
-	void filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
-	void filter_by_sel_background_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
-	void filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel);
+	void filter_by_sel_omp_treeb(Inendi::PVSelection const& sel);
+	void filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
+	void filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
+	void filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Inendi::PVSelection& sel);
 
 	uint32_t get_right_axis_count_seq(const uint32_t branch_r) const;
 
@@ -278,7 +278,7 @@ public:
 	PVBranch const& get_branch(uint32_t branch_id) const { return _treeb[branch_id]; }
 
 private:
-	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
+	void get_float_pts(pts_t& pts, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
 
 protected:
 	PVBranch _treeb[NBUCKETS];

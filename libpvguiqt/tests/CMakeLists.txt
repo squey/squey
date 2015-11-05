@@ -5,7 +5,7 @@
 # @copyright (C) ESI Group INENDI April 2015-2015
 
 ###################################################################
-# Add include directories for picviz's libs and external projects
+# Add include directories for inendi's libs and external projects
 ###################################################################
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIR})
@@ -15,10 +15,10 @@ include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
-set(COMMON_LIBRARIES pvparallelview pvguiqt pvhive picviz pvkernel ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${OpenMP_LIBRARIES})
+set(COMMON_LIBRARIES pvparallelview pvguiqt pvhive inendi pvkernel ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${OpenMP_LIBRARIES})
 
 add_pv_compile_test(Tqt_datatree LINKS ${COMMON_LIBRARIES} FILES datatree-model.cpp)
-add_pv_compile_test(Tqt_picviz_tree LINKS ${COMMON_LIBRARIES} FILES picviz_tree.cpp common.cpp)
+add_pv_compile_test(Tqt_inendi_tree LINKS ${COMMON_LIBRARIES} FILES inendi_tree.cpp common.cpp)
 
 qt5_wrap_cpp(AXES_COMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT5_WRAP_OPTIONS})
 add_pv_compile_test(Tqt_axes_comb LINKS ${COMMON_LIBRARIES} FILES axes-comb.cpp ${AXES_COMB_MOC_SRC})

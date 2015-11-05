@@ -83,7 +83,7 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::update_position()
 
 void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selection_modifiers)
 {
-	Picviz::PVView& view = lib_view();
+	Inendi::PVView& view = lib_view();
 	QRectF srect = get_rect();
 
 	// Too much on the left dude!
@@ -104,8 +104,8 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
 
 	for (PVZoneID z = zone_id_start; z <= zone_id_end; z++) {
 		QRect r = scene_parent()->map_to_axis(z, srect);
-		r.setX(picviz_max(0, r.x()));
-		r.setRight(picviz_min(pos_end-1, r.right()));
+		r.setX(inendi_max(0, r.x()));
+		r.setRight(inendi_min(pos_end-1, r.right()));
 		PVSelectionGenerator::compute_selection_from_parallel_view_rect(get_lines_view(), z, r, lib_view().get_volatile_selection());
 	}
 
@@ -118,7 +118,7 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
  * PVParallelView::PVFullParallelViewSelectionRectangle::lib_view
  *****************************************************************************/
 
-Picviz::PVView& PVParallelView::PVFullParallelViewSelectionRectangle::lib_view()
+Inendi::PVView& PVParallelView::PVFullParallelViewSelectionRectangle::lib_view()
 {
 	return scene_parent()->lib_view();
 }
