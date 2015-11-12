@@ -9,18 +9,18 @@ export LD_LIBRARY_PATH=$(/usr/bin/realpath $(dirname $0)):$LD_LIBRARY_PATH
 export PATH=$(/usr/bin/realpath $(dirname $0)):$PATH
 
 # Migration from picviz to inendi
-if [ ! -d $HOME/.inendi ] && [ -d $HOME/.picviz ];
+if [ ! -d "$HOME/.inendi" ] && [ -d "$HOME/.picviz" ]
 then
-    mv $HOME/.picviz $HOME/.inendi
-    ln -s $HOME/.inendi $HOME/.picviz
+	mv "$HOME/.picviz" "$HOME/.inendi"
+	ln -s "$HOME/.inendi" "$HOME/.picviz"
 fi
 
-if [ ! -d $HOME/.config/ESI\ Group/ ] && [ -d $HOME/.config/Picviz\ Labs/ ];
+if [ ! -d "$HOME/.config/ESI Group" ] && [ -d "$HOME/.config/Picviz Labs" ]
 then
-        mv $HOME/.config/Picviz\ Labs/ $HOME/.config/ESI\ Group
-	mv $HOME/.config/ESI\ Group/Picviz\ Inspector.conf $HOME/.config/ESI\ Group/INENDI\ Inspector.conf
-	ln -s $HOME/.config/ESI\ Group $HOME/.config/Picviz\ Labs/
+	mv "$HOME/.config/Picviz Labs" "$HOME/.config/ESI Group"
+	mv "$HOME/.config/ESI Group/Picviz Inspector.conf" "$HOME/.config/ESI Group/INENDI Inspector.conf"
+	ln -s "$HOME/.config/ESI Group" "$HOME/.config/Picviz Labs"
+	ln -s "$HOME/.config/ESI Group/INENDI Inspector.conf" "$HOME/.config/ESI Group/Picviz Inspector.conf"
 fi
-
 
 inendi-inspector
