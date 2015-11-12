@@ -4,6 +4,7 @@
  * @copyright (C) Picviz Labs 2010-March 2015
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
+#include <pvbase/general.h>
 
 #include "include/logviewerwidget.h"
 #include "include/logviewerwidget_p.h"
@@ -193,7 +194,7 @@ LogViewerWidget::~LogViewerWidget()
 
 void LogViewerWidget::saveSettings()
 {
-    QSettings settings( QLatin1String( "INENDI" ), QLatin1String( "logviewerwidget" ) );
+    QSettings settings(QSettings::UserScope, INENDI_ORGANISATION, QLatin1String("logviewerwidget"));
     settings.beginGroup( QLatin1String( "Machine" ) );
     //Be sure to clear it
     settings.clear();
@@ -229,7 +230,7 @@ void LogViewerWidget::saveSettings()
 
 void LogViewerWidget::loadSettings()
 {
-    QSettings settings( QLatin1String( "INENDI" ), QLatin1String( "logviewerwidget" ) );
+    QSettings settings(QSettings::UserScope, INENDI_ORGANISATION, QLatin1String("logviewerwidget"));
     settings.beginGroup( QLatin1String( "Machine" ) );
     const QStringList list = settings.childGroups();
     const int countList = list.count();

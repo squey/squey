@@ -23,4 +23,11 @@ then
 	ln -s "$HOME/.config/ESI Group/INENDI Inspector.conf" "$HOME/.config/ESI Group/Picviz Inspector.conf"
 fi
 
+if [ -d "$HOME/.config/Picviz" ] && [ ! -h "$HOME/.config/Picviz" ]
+then
+	mv "$HOME"/.config/Picviz/* "$HOME/.config/ESI Group"
+	rmdir "$HOME/.config/Picviz"
+	ln -s "$HOME/.config/ESI Group" "$HOME/.config/Picviz"
+fi
+
 inendi-inspector
