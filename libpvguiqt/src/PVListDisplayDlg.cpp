@@ -8,7 +8,7 @@
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/rush/PVNraw.h>
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 #include <pvguiqt/PVListDisplayDlg.h>
 #include <pvguiqt/PVStringSortProxyModel.h>
@@ -19,7 +19,7 @@
 
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVAlgorithms.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 #include <tbb/blocked_range.h>
 #include <tbb/task_scheduler_init.h>

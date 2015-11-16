@@ -34,7 +34,7 @@
  * PVInspector::PVExtractorWidget::PVExtractorWidget
  *
  *****************************************************************************/
-PVInspector::PVExtractorWidget::PVExtractorWidget(Picviz::PVSource& lib_src, PVGuiQt::PVProjectsTabWidget* projects_tab, QWidget* parent):
+PVInspector::PVExtractorWidget::PVExtractorWidget(Inendi::PVSource& lib_src, PVGuiQt::PVProjectsTabWidget* projects_tab, QWidget* parent):
 	QDialog(parent),
 	_lib_src(&lib_src),
 	_projects_tab(projects_tab)
@@ -109,7 +109,7 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(Picviz::PVSource& lib_src, PVG
 	_slider_index->setTickPosition(QSlider::TicksBelow);
 	QIntValidator *iv = new QIntValidator();
 	iv->setBottom(10);
-	iv->setTop(PICVIZ_LINES_MAX);
+	iv->setTop(INENDI_LINES_MAX);
 	_size_batch_widget->setValidator(iv);
 	_size_batch_widget->setText(QString("%1").arg(_batch_size));
 	QIntValidator *iv_line = new QIntValidator();
@@ -232,7 +232,7 @@ void PVInspector::PVExtractorWidget::process_Slot()
 	_batch_size = _size_batch_widget->text().toLong();
 	
 	//get_extractor().save_nraw();
-	Picviz::PVSource_sp src_clone = lib_src().clone_with_no_process();
+	Inendi::PVSource_sp src_clone = lib_src().clone_with_no_process();
 	PVRush::PVExtractor& ext = src_clone->get_extractor();
 
 	PVRush::PVControllerJob_p job = src_clone->extract_from_agg_nlines(index, _batch_size);
@@ -242,10 +242,10 @@ void PVInspector::PVExtractorWidget::process_Slot()
 
 	if (success) {
 		src_clone->wait_extract_end(job);
-		//Picviz::PVSource_sp src = lib_src().shared_from_this();
-		//PVHive::call<FUNC(Picviz::PVSource::process_from_source)>(src);
+		//Inendi::PVSource_sp src = lib_src().shared_from_this();
+		//PVHive::call<FUNC(Inendi::PVSource::process_from_source)>(src);
 		//_view->last_extractor_batch_size = _batch_size;
-		PVHive::call<FUNC(Picviz::PVSource::create_default_view)>(src_clone);
+		PVHive::call<FUNC(Inendi::PVSource::create_default_view)>(src_clone);
 		_projects_tab->add_source(src_clone.get());
 	}
 	else {

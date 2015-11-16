@@ -15,7 +15,7 @@ namespace PVCore {
 class PVDataTreeObjectBase;
 }
 
-namespace Picviz {
+namespace Inendi {
 class PVPlotted;
 class PVMapped;
 class PVView;

@@ -5,14 +5,14 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActor.h>
 #include <pvkernel/core/PVSharedPointer.h>
 #include <pvhive/PVCallHelper.h>
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 #define INT_CST1 42
 #define INT_CST2 43

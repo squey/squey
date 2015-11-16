@@ -5,13 +5,13 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVAlignedBlockedRange.h>
 #include <pvkernel/core/PVPODTree.h>
 #include <pvkernel/core/PVHSVColor.h>
 
-#include <picviz/PVSelection.h>
-#include <picviz/PVPlotted.h>
+#include <inendi/PVSelection.h>
+#include <inendi/PVPlotted.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCode.h>
@@ -32,7 +32,7 @@
 
 #define GRAINSIZE 128
 
-using Picviz::PVSelection;
+using Inendi::PVSelection;
 
 namespace PVParallelView { namespace __impl {
 
@@ -142,7 +142,7 @@ public:
 			_ztree->_treeb[b].count = 0;
 			for (uint32_t task = 0 ; task < _pdata.ntasks; task++) {
 				_ztree->_treeb[b].count += _pdata.trees[task][b].size();
-				_ztree->_first_elts[b] = picviz_min(_ztree->_first_elts[b], _pdata.first_elts[task][b]);
+				_ztree->_first_elts[b] = inendi_min(_ztree->_first_elts[b], _pdata.first_elts[task][b]);
 			}
 			_alloc_size += (((_ztree->_treeb[b].count + 15) / 16) * 16);
 		}
@@ -198,7 +198,7 @@ class TBBSelFilter {
 public:
 	TBBSelFilter (
 		PVParallelView::PVZoneTree* tree,
-		const Picviz::PVSelection::const_pointer sel_buf
+		const Inendi::PVSelection::const_pointer sel_buf
 	) :
 		_tree(tree),
 		_sel_buf(sel_buf)
@@ -230,7 +230,7 @@ public:
 
 private:
 	mutable PVParallelView::PVZoneTree* _tree;
-	Picviz::PVSelection::const_pointer _sel_buf;
+	Inendi::PVSelection::const_pointer _sel_buf;
 };
 
 class TBBSelFilterMaxCount {
@@ -238,7 +238,7 @@ public:
 	TBBSelFilterMaxCount (
 		PVParallelView::PVZoneTree* tree,
 		PVRow* buf_elts,
-		const Picviz::PVSelection::const_pointer sel_buf,
+		const Inendi::PVSelection::const_pointer sel_buf,
 		tbb::atomic<ssize_t>& nelts,
 		tbb::task_group_context& ctxt
 	) :
@@ -254,7 +254,7 @@ public:
 	{
 		const ssize_t cur_remaing = (ssize_t) *_nelts;
 		ssize_t nelts_found = 0;
-		const Picviz::PVSelection::const_pointer sel_buf = _sel_buf;
+		const Inendi::PVSelection::const_pointer sel_buf = _sel_buf;
 		if (cur_remaing == 0) {
 			return;
 		}
@@ -293,14 +293,14 @@ public:
 private:
 	mutable PVParallelView::PVZoneTree* _tree;
 	mutable PVRow* _buf_elts;
-	Picviz::PVSelection::const_pointer _sel_buf;
+	Inendi::PVSelection::const_pointer _sel_buf;
 	mutable tbb::atomic<ssize_t>* _nelts;
 	mutable tbb::task_group_context* _ctxt;
 };
 
 } }
 
-void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel)
+void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Inendi::PVSelection& sel)
 {
 	BENCH_START(subtree);
 	memset(_sel_elts, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
@@ -312,7 +312,7 @@ void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb_new(PVZoneProcessing co
 		const PVRow y2 = pcol_b[r] >> (32-NBITS_INDEX);
 
 		const PVRow b = y1 | (y2 << NBITS_INDEX);
-		_sel_elts[b] = picviz_min(_sel_elts[b], r);
+		_sel_elts[b] = inendi_min(_sel_elts[b], r);
 	}, zp.nrows());
 	BENCH_END(subtree, "filter_by_sel_tbb_treeb_new", 1, 1, sizeof(PVRow), zp.nrows());
 }
@@ -331,7 +331,7 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 
 	PVRow nrows = zp.nrows();
 
-	assert(nrows <= PICVIZ_LINES_MAX);
+	assert(nrows <= INENDI_LINES_MAX);
 
 	for (uint32_t task = 0 ; task < pdata.ntasks ; task++) {
 		memset(pdata.first_elts[task].elems, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
@@ -378,7 +378,7 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 
 void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& zp)
 {
-	assert(zp.nrows() <= PICVIZ_LINES_MAX);
+	assert(zp.nrows() <= INENDI_LINES_MAX);
 
 	const uint32_t* pcol_a = zp.get_plotted_col_a();
 	const uint32_t* pcol_b = zp.get_plotted_col_b();
@@ -475,7 +475,7 @@ void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& z
 			_treeb[b].count = 0;
 			for (size_t ith = 0; ith < nthreads; ith++) {
 				_treeb[b].count += thread_trees[ith][b].size();
-				_first_elts[b] = picviz_min(_first_elts[b], first_elts_list[ith][b]);
+				_first_elts[b] = inendi_min(_first_elts[b], first_elts_list[ith][b]);
 			}
 			alloc_size += (((_treeb[b].count + 15) / 16) * 16);
 		}
@@ -529,10 +529,10 @@ void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& z
 	PVLOG_INFO("OMP tree process in %0.4f ms.\n", (end-start).seconds()*1000.0);
 }
 
-void PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Picviz::PVSelection const& sel)
+void PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Inendi::PVSelection const& sel)
 {
 	BENCH_START(subtree);
-	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 #pragma omp parallel for schedule(dynamic, GRAINSIZE) firstprivate(sel_buf) num_threads(nthreads)
 	for (size_t b = 0; b < NBUCKETS; b++) {
@@ -563,10 +563,10 @@ void PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Picviz::PVSelection con
 	BENCH_END(subtree, "filter_by_sel_omp_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 
-void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts)
+void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts)
 {
 	// returns a zone tree with only the selected events
-	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	tbb::atomic<ssize_t> nelts_sel;
 	BENCH_START(subtree2);
 	nelts_sel = (ssize_t) sel.get_number_of_selected_lines_in_range(0, nrows);
@@ -585,10 +585,10 @@ void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection con
 	BENCH_END(subtree, "filter_by_sel_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);*/
 }
 
-void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Picviz::PVSelection const& sel, const PVRow /*nrows*/, PVRow* buf_elts)
+void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel, const PVRow /*nrows*/, PVRow* buf_elts)
 {
 	// returns a zone tree with only the selected events
-	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	if (sel_buf == nullptr) {
 		// Empty selection
 		memcpy(buf_elts, _first_elts, sizeof(PVRow)*NBUCKETS);
@@ -675,7 +675,7 @@ uint32_t PVParallelView::PVZoneTree::get_right_axis_count_sse(const uint32_t bra
 	return count;
 }*/
 
-void PVParallelView::PVZoneTree::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
+void PVParallelView::PVZoneTree::get_float_pts(pts_t& pts, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
 {
 	pts.reserve(NBUCKETS*4);
 	for (size_t i = 0; i < NBUCKETS; i++) {

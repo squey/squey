@@ -13,7 +13,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <pvkernel/core/picviz_stat.h>
+#include <pvkernel/core/inendi_stat.h>
 
 int main(int argc, char** argv)
 {

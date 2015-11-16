@@ -17,7 +17,7 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserverSignal.h>
 
-#include <picviz/PVView_types.h>
+#include <inendi/PVView_types.h>
 
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVTableView.h>
@@ -59,7 +59,7 @@ public:
 	 * @note It use a view as a parameter to register observer. Thanks to this
 	 * record, every view will be updated on listing model modification.
 	 */
-	PVListingView(Picviz::PVView_sp& view, QWidget* parent = nullptr);
+	PVListingView(Inendi::PVView_sp& view, QWidget* parent = nullptr);
 
 	/**
 	 * Clean up plugin in progress
@@ -196,8 +196,8 @@ private:
 
 private:
 	/// Getters
-	Picviz::PVView const& lib_view() const { return *_obs.get_object(); }
-	Picviz::PVView& lib_view() { return *_obs.get_object(); }
+	Inendi::PVView const& lib_view() const { return *_obs.get_object(); }
+	Inendi::PVView& lib_view() { return *_obs.get_object(); }
 	PVWidgets::PVHelpWidget* help_widget() { return &_help_widget; }
 
 private slots:
@@ -364,12 +364,12 @@ private:
 
 private:
 	// Observers
-	PVHive::PVObserverSignal<Picviz::PVView> _obs; //!< Observer for current view to delete listing on view deletion
+	PVHive::PVObserverSignal<Inendi::PVView> _obs; //!< Observer for current view to delete listing on view deletion
 	// FIXME : It should be a PVCol instead of int
 	PVHive::PVObserverSignal<int> _axis_hover_obs; //!< Observer for hovered column
 
 	// Actor
-	PVHive::PVActor<Picviz::PVView> _actor; //!< Actor to emit notification about listing modification to the view
+	PVHive::PVActor<Inendi::PVView> _actor; //!< Actor to emit notification about listing modification to the view
 };
 
 class PVHorizontalHeaderView : public QHeaderView

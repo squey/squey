@@ -5,14 +5,14 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <picviz/PVPlotted.h>
-#include <picviz/widgets/PVMappingPlottingEditDialog.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/widgets/PVMappingPlottingEditDialog.h>
 #include <pvguiqt/PVQPlotted.h>
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
 
-bool PVGuiQt::PVQPlotted::edit_plotted(Picviz::PVPlotted& plotted, QWidget* parent)
+bool PVGuiQt::PVQPlotted::edit_plotted(Inendi::PVPlotted& plotted, QWidget* parent)
 {
 	PVWidgets::PVMappingPlottingEditDialog* dlg = new PVWidgets::PVMappingPlottingEditDialog(NULL, &plotted.get_plotting(), parent);
 	if (dlg->exec() != QDialog::Accepted) {
@@ -20,8 +20,8 @@ bool PVGuiQt::PVQPlotted::edit_plotted(Picviz::PVPlotted& plotted, QWidget* pare
 	}
 
 	if (plotted.is_current_plotted()) {
-		Picviz::PVPlotted_sp plotted_sp = plotted.shared_from_this();
-		PVHive::call<FUNC(Picviz::PVPlotted::process_parent_mapped)>(plotted_sp);
+		Inendi::PVPlotted_sp plotted_sp = plotted.shared_from_this();
+		PVHive::call<FUNC(Inendi::PVPlotted::process_parent_mapped)>(plotted_sp);
 	}
 
 	return true;

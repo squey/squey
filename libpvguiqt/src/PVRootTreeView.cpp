@@ -5,12 +5,12 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <picviz/PVScene.h>
-#include <picviz/PVSource.h>
-#include <picviz/PVMapped.h>
-#include <picviz/PVPlotted.h>
-#include <picviz/PVView.h>
-#include <picviz/widgets/PVMappingPlottingEditDialog.h>
+#include <inendi/PVScene.h>
+#include <inendi/PVSource.h>
+#include <inendi/PVMapped.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVView.h>
+#include <inendi/widgets/PVMappingPlottingEditDialog.h>
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
@@ -61,16 +61,16 @@ void PVGuiQt::PVRootTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 	}
 
 	PVCore::PVDataTreeObjectBase* obj = (PVCore::PVDataTreeObjectBase*) idx_click.internalPointer();
-	Picviz::PVView* view = dynamic_cast<Picviz::PVView*>(obj);
+	Inendi::PVView* view = dynamic_cast<Inendi::PVView*>(obj);
 	if (!view) {
 		return;
 	}
 
 	// Double click on a view set this view as the current view of the parent source
-	Picviz::PVRoot_sp root_sp(view->get_parent<Picviz::PVRoot>()->shared_from_this());
+	Inendi::PVRoot_sp root_sp(view->get_parent<Inendi::PVRoot>()->shared_from_this());
 	
 	// Call select_view throught the Hive :)
-	PVHive::call<FUNC(Picviz::PVRoot::select_view)>(root_sp, *view);
+	PVHive::call<FUNC(Inendi::PVRoot::select_view)>(root_sp, *view);
 
 	event->accept();
 }
@@ -84,7 +84,7 @@ void PVGuiQt::PVRootTreeView::contextMenuEvent(QContextMenuEvent* event)
 
 	PVCore::PVDataTreeObjectBase* obj = (PVCore::PVDataTreeObjectBase*) idx_click.internalPointer();
 
-	Picviz::PVPlotted* plotted = dynamic_cast<Picviz::PVPlotted*>(obj);
+	Inendi::PVPlotted* plotted = dynamic_cast<Inendi::PVPlotted*>(obj);
 	if (plotted) {
 		QMenu* ctxt_menu = new QMenu(this);
 		ctxt_menu->addAction(_act_new_view);
@@ -93,7 +93,7 @@ void PVGuiQt::PVRootTreeView::contextMenuEvent(QContextMenuEvent* event)
 		return;
 	}
 
-	Picviz::PVMapped* mapped = dynamic_cast<Picviz::PVMapped*>(obj);
+	Inendi::PVMapped* mapped = dynamic_cast<Inendi::PVMapped*>(obj);
 	if (mapped) {
 		QMenu* ctxt_menu = new QMenu(this);
 		ctxt_menu->addAction(_act_edit_mapping);
@@ -122,16 +122,16 @@ void PVGuiQt::PVRootTreeView::leaveEvent(QEvent*)
 
 void PVGuiQt::PVRootTreeView::create_new_view()
 {
-	Picviz::PVPlotted* plotted = get_selected_obj_as<Picviz::PVPlotted>();
+	Inendi::PVPlotted* plotted = get_selected_obj_as<Inendi::PVPlotted>();
 	if (plotted) {
-		Picviz::PVPlotted_sp plotted_sp = plotted->shared_from_this();
-		PVHive::call<FUNC(Picviz::PVPlotted::new_child_default)>(plotted_sp);
+		Inendi::PVPlotted_sp plotted_sp = plotted->shared_from_this();
+		PVHive::call<FUNC(Inendi::PVPlotted::new_child_default)>(plotted_sp);
 	}
 }
 
 void PVGuiQt::PVRootTreeView::edit_mapping()
 {
-	Picviz::PVMapped* mapped = get_selected_obj_as<Picviz::PVMapped>();
+	Inendi::PVMapped* mapped = get_selected_obj_as<Inendi::PVMapped>();
 	if (mapped) {
 		PVQMapped::edit_mapped(*mapped, this);
 	}
@@ -139,7 +139,7 @@ void PVGuiQt::PVRootTreeView::edit_mapping()
 
 void PVGuiQt::PVRootTreeView::edit_plotting()
 {
-	Picviz::PVPlotted* plotted = get_selected_obj_as<Picviz::PVPlotted>();
+	Inendi::PVPlotted* plotted = get_selected_obj_as<Inendi::PVPlotted>();
 	if (plotted) {
 		PVQPlotted::edit_plotted(*plotted, this);
 	}

@@ -22,7 +22,7 @@
 
 #include <pvhive/PVHive.h>
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
@@ -55,7 +55,7 @@ using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
 bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
 PVParallelView::PVScatterView::PVScatterView(
-	Picviz::PVView_sp &pvview_sp,
+	Inendi::PVView_sp &pvview_sp,
 	PVZonesManager const& zm,
 	PVCol const zone_index,
 	PVZonesProcessor& zp_bg,
@@ -174,7 +174,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	// Register view for unselected & zombie events toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
 	PVHive::get().register_observer(pvview_sp,
-	                                [=](Picviz::PVView& view) {
+	                                [=](Inendi::PVView& view) {
 		                                return &view.are_view_unselected_zombie_visible();
 	                                },
 	                                *obs);
@@ -254,7 +254,7 @@ void PVParallelView::PVScatterView::update_all_async()
 void PVParallelView::PVScatterView::keyPressEvent(QKeyEvent* event)
 {
 		PVZoomableDrawingAreaWithAxes::keyPressEvent(event);
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 		if ((event->key() == Qt::Key_B) && (event->modifiers() & Qt::ControlModifier)) {
 			PVScatterView::toggle_show_quadtrees();
 		}
@@ -426,11 +426,11 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 	painter->setOpacity(1);
 	_image_sel.draw(this, painter);
 
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 	if (_show_quadtrees) {
 		painter->setPen(QPen(Qt::white, 0));
 		painter->setOpacity(1.0);
-		const Picviz::PVSelection& sel = _view.get_real_output_selection();
+		const Inendi::PVSelection& sel = _view.get_real_output_selection();
 		PVParallelView::PVBCode code_b;
 		PVParallelView::PVZoneTree const& zt = get_zone_tree();
 		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)

@@ -9,7 +9,7 @@
 
 #include "common.h"
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>

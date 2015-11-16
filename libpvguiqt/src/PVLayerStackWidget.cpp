@@ -15,14 +15,14 @@
 #include <pvguiqt/PVLayerStackView.h>
 #include <pvguiqt/PVLayerStackWidget.h>
 
-#include <picviz/widgets/PVNewLayerDialog.h>
+#include <inendi/widgets/PVNewLayerDialog.h>
 
 /******************************************************************************
  *
  * PVGuiQt::PVLayerStackWidget::PVLayerStackWidget
  *
  *****************************************************************************/
-PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Picviz::PVView_sp& lib_view, QWidget* parent):
+PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Inendi::PVView_sp& lib_view, QWidget* parent):
 	QWidget(parent)
 {
 	QVBoxLayout *main_layout;
@@ -67,7 +67,7 @@ PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Picviz::PVView_sp& lib_view, QWi
 
 	setLayout(main_layout);
 
-	PVHive::PVObserverSignal<Picviz::PVView*>* obs = new PVHive::PVObserverSignal<Picviz::PVView*>(this);
+	PVHive::PVObserverSignal<Inendi::PVView*>* obs = new PVHive::PVObserverSignal<Inendi::PVView*>(this);
 	PVHive::get().register_observer(lib_view, *obs);
 	obs->connect_about_to_be_deleted(this, SLOT(deleteLater()));
 

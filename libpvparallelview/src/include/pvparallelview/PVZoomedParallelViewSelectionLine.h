@@ -12,7 +12,7 @@
 
 class QTimer;
 
-namespace Picviz
+namespace Inendi
 {
 
 class PVView;

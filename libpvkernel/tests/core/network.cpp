@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 // TODO: add more tests, surely performance stats
 const char* ip_text[] = {

@@ -9,9 +9,9 @@
 #include <QGLWidget>
 #include <iostream>
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
-#include <picviz/PVPlotted.h>
+#include <inendi/PVPlotted.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVParallelView.h>

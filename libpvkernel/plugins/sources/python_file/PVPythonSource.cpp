@@ -60,7 +60,7 @@ PVRush::PVPythonSource::PVPythonSource(PVInputDescription_p input, size_t min_ch
 		// Load our script
 		boost::python::exec_file(qPrintable(python_file), _python_own_namespace, _python_own_namespace);
 		//boost::python::exec_file(qPrintable(python_file), _python_main, _python_main_namespace);
-		boost::python::object open_file_f = _python_own_namespace["picviz_open_file"];
+		boost::python::object open_file_f = _python_own_namespace["inendi_open_file"];
 		open_file_f(file->path().toUtf8().constData());
 	}
 	catch (boost::python::error_already_set const&)
@@ -76,7 +76,7 @@ PVRush::PVPythonSource::~PVPythonSource()
 {
 	PVCore::PVPythonLocker locker;
 	try {
-		_python_own_namespace["picviz_close"]();
+		_python_own_namespace["inendi_close"]();
 	}
 	catch (boost::python::error_already_set const&)
 	{
@@ -95,7 +95,7 @@ void PVRush::PVPythonSource::seek_begin()
 {
 	PVCore::PVPythonLocker locker;
 	try {
-		_python_own_namespace["picviz_seek_begin"]();
+		_python_own_namespace["inendi_seek_begin"]();
 	}
 	catch (boost::python::error_already_set const&)
 	{
@@ -116,7 +116,7 @@ PVCore::PVChunk* PVRush::PVPythonSource::operator()()
 
 	PVCore::PVChunk* chunk;
 	try {
-		boost::python::list elements = boost::python::extract<boost::python::list>(_python_own_namespace["picviz_get_next_chunk"](_min_chunk_size));
+		boost::python::list elements = boost::python::extract<boost::python::list>(_python_own_namespace["inendi_get_next_chunk"](_min_chunk_size));
 		nelts = boost::python::len(elements);
 		if (nelts == 0) {
 			// That's the end

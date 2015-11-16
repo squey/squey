@@ -13,7 +13,7 @@
 #include <pvkernel/core/general.h>
 
 #define PV_MAX_INDEX 1000000000
-#define PV_MAX_NELTS PICVIZ_LINES_MAX
+#define PV_MAX_NELTS INENDI_LINES_MAX
 
 PVRush::PVControllerJob::PVControllerJob(job_action a, int priority) :
 	_elt_valid_filter(true, _all_elts),

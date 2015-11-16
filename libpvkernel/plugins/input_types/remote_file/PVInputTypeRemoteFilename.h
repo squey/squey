@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#ifndef PICVIZ_PVINPUTTYPEREMOTEFILENAME_H
-#define PICVIZ_PVINPUTTYPEREMOTEFILENAME_H
+#ifndef INENDI_PVINPUTTYPEREMOTEFILENAME_H
+#define INENDI_PVINPUTTYPEREMOTEFILENAME_H
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVInputType.h>

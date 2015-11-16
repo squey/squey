@@ -20,7 +20,7 @@
 
 PVCore::PVConfig::PVConfig_p PVCore::PVConfig::_pvconfig;
 
-static const QString _config_dir = QDir::homePath() + QDir::separator() + PICVIZ_CONFDIR;
+static const QString _config_dir = QDir::homePath() + QDir::separator() + INENDI_CONFDIR;
 static const QString _lists_folder = "lists";
 
 /*****************************************************************************
@@ -39,7 +39,7 @@ PVCore::PVConfig::PVConfig()
 	dir.mkdir("whitelist");
 	dir.mkdir("greylist");
 
-	QFileInfo fi(QDir::homePath() + QDir::separator() + PICVIZ_INSPECTOR_CONFDIR + QDir::separator() + CONFIG_FILENAME);
+	QFileInfo fi(QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR + QDir::separator() + CONFIG_FILENAME);
 
 	if (fi.exists() == false) {
 		fi.dir().mkpath(fi.path());

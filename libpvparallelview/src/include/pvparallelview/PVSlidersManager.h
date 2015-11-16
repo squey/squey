@@ -10,7 +10,7 @@
 
 #include <pvbase/types.h>
 
-#include <picviz/PVAxesCombination.h>
+#include <inendi/PVAxesCombination.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVSlidersManager_types.h>
@@ -37,7 +37,7 @@ public:
 		ZoomSliderBoth   = 3 // 1 + 2
 	} ZoomSliderChange;
 
-	typedef Picviz::PVAxesCombination::axes_comb_id_t axis_id_t;
+	typedef Inendi::PVAxesCombination::axes_comb_id_t axis_id_t;
 	typedef void*                                     id_t;
 
 	struct range_geometry_t

@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVSelBitField.h>
 #include <pvkernel/core/PVBitCount.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
@@ -86,11 +86,11 @@ std::vector<PVRow> PVCore::PVSelBitField::get_rows_table()
 	}
 
 	std::vector<PVRow> r_table;
-	r_table.reserve(PICVIZ_LINES_MAX);
+	r_table.reserve(INENDI_LINES_MAX);
 
 	PVRow line_index;
 
-	for (line_index = 0; line_index < PICVIZ_LINES_MAX; line_index++) {
+	for (line_index = 0; line_index < INENDI_LINES_MAX; line_index++) {
 		if (get_line(line_index)) {
 			r_table.push_back(line_index);
 		}
@@ -112,14 +112,14 @@ bool PVCore::PVSelBitField::is_empty() const
 #ifdef __SSE4_1__
 	const __m128i ones = _mm_set1_epi32(0xFFFFFFFF);
 	__m128i vec;
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i += 4) {
+	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i += 4) {
 		vec = _mm_load_si128((__m128i*) &_table[i]);
 		if (_mm_testz_si128(vec, ones) == 0) {
 			return false;
 		}
 	}
-#if (PICVIZ_SELECTION_NUMBER_OF_CHUNKS % 4 != 0)
-	for (PVRow i = (PICVIZ_SELECTION_NUMBER_OF_CHUNKS/4)*4; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+#if (INENDI_SELECTION_NUMBER_OF_CHUNKS % 4 != 0)
+	for (PVRow i = (INENDI_SELECTION_NUMBER_OF_CHUNKS/4)*4; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		if (_table[i] != 0) {
 			return false;
 		}
@@ -128,7 +128,7 @@ bool PVCore::PVSelBitField::is_empty() const
 	return true;
 
 #else
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		if (_table[i] != 0) {
 			return false;
 		}
@@ -145,7 +145,7 @@ bool PVCore::PVSelBitField::is_empty() const
 bool PVCore::PVSelBitField::is_empty_between(PVRow const a, PVRow b) const
 {
 	assert(b > a);
-	assert(b <= PICVIZ_LINES_MAX);
+	assert(b <= INENDI_LINES_MAX);
 
 	if (!_table) {
 		return true;
@@ -154,15 +154,15 @@ bool PVCore::PVSelBitField::is_empty_between(PVRow const a, PVRow b) const
 	// 'b' is not included
 	b--;
 
-	size_t chunk_start = a/PICVIZ_SELECTION_CHUNK_SIZE;
-	const size_t chunk_end   = b/PICVIZ_SELECTION_CHUNK_SIZE;
+	size_t chunk_start = a/INENDI_SELECTION_CHUNK_SIZE;
+	const size_t chunk_end   = b/INENDI_SELECTION_CHUNK_SIZE;
 	
 	const PVRow cbit = line_index_to_chunk_bit(a);
 	if (cbit > 0) {
 		// Prelogue
 		uint64_t cv = _table[chunk_start];
 		if (chunk_end == chunk_start) {
-			const size_t off = PICVIZ_SELECTION_CHUNK_SIZE-line_index_to_chunk_bit(b)-1;
+			const size_t off = INENDI_SELECTION_CHUNK_SIZE-line_index_to_chunk_bit(b)-1;
 			cv = (cv << off) >> off;
 			return (cv >> cbit) == 0;
 		}
@@ -180,7 +180,7 @@ bool PVCore::PVSelBitField::is_empty_between(PVRow const a, PVRow b) const
 	}
 
 	// Epilogue
-	return (_table[chunk_end] << (PICVIZ_SELECTION_CHUNK_SIZE-line_index_to_chunk_bit(b)-1)) == 0;
+	return (_table[chunk_end] << (INENDI_SELECTION_CHUNK_SIZE-line_index_to_chunk_bit(b)-1)) == 0;
 }
 
 bool PVCore::PVSelBitField::operator==(const PVSelBitField &rhs) const
@@ -196,7 +196,7 @@ bool PVCore::PVSelBitField::operator==(const PVSelBitField &rhs) const
 		return true;
 	}
 
-	return memcmp(_table, rhs._table, PICVIZ_SELECTION_NUMBER_OF_BYTES) == 0;
+	return memcmp(_table, rhs._table, INENDI_SELECTION_NUMBER_OF_BYTES) == 0;
 }
 
 /******************************************************************************
@@ -218,7 +218,7 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::operator=(const PVSelBitField &rhs
 	}
 	else {
 		if (_table) {
-			memset(_table, 0x00, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+			memset(_table, 0x00, INENDI_SELECTION_NUMBER_OF_BYTES);
 		}
 	}
 
@@ -251,7 +251,7 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::operator&=(const PVSelBitField &r
 		return *this;
 	}
 
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] &= rhs._table[i];
 	}
 
@@ -289,7 +289,7 @@ PVCore::PVSelBitField PVCore::PVSelBitField::operator~() const
 		result.select_all();
 	}
 	else {
-		for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 			result._table[i] = ~_table[i];
 		}
 	}
@@ -328,7 +328,7 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::operator|=(const PVSelBitField &r
 	}
 
 
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] |= rhs._table[i];
 	}
 
@@ -365,7 +365,7 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::operator-=(const PVSelBitField &r
 		return *this;
 	}
 
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] &= ~rhs._table[i];
 	}
 
@@ -390,7 +390,7 @@ void PVCore::PVSelBitField::AB_sub(PVSelBitField const& a, PVSelBitField const& 
 	}
 
 #pragma omp parallel for num_threads(nthreads)
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] = a._table[i] & (~b._table[i]);
 	}
 }
@@ -425,7 +425,7 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::operator^=(const PVSelBitField &r
 		return *this;
 	}
 
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] ^= rhs._table[i];
 	}
 
@@ -450,13 +450,13 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::or_not(const PVSelBitField &rhs)
 
 	if (!_table) {
 		allocate_table();
-		for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 			_table[i] = ~(rhs._table[i]);
 		}
 		return *this;
 	}
 
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] |= ~(rhs._table[i]);
 	}
 
@@ -480,7 +480,7 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::and_not(const PVSelBitField &rhs)
 		return *this;
 	}
 
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] &= ~(rhs._table[i]);
 	}
 
@@ -505,13 +505,13 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::xor_not(const PVSelBitField &rhs)
 
 	if (!_table) {
 		allocate_table();
-		for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 			_table[i] = ~(rhs._table[i]);
 		}
 		return *this;
 	}
 
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] ^= ~(rhs._table[i]);
 	}
 
@@ -528,7 +528,7 @@ void PVCore::PVSelBitField::select_all()
 	if (!_table) {
 		allocate_table();
 	}
-	memset(_table, 0xFF, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	memset(_table, 0xFF, INENDI_SELECTION_NUMBER_OF_BYTES);
 }
 
 void PVCore::PVSelBitField::select_random()
@@ -536,7 +536,7 @@ void PVCore::PVSelBitField::select_random()
 	if (!_table) {
 		allocate_table();
 	}
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] = (uint64_t) (rand()) | ((uint64_t)(rand()) << 32);
 	}
 }
@@ -550,7 +550,7 @@ void PVCore::PVSelBitField::select_random(const PVRow n)
 	select_none();
 
 	for (PVRow i = 0; i < n; i++) {
-		set_bit_fast(rand() % PICVIZ_SELECTION_NUMBER_OF_ROWS);
+		set_bit_fast(rand() % INENDI_SELECTION_NUMBER_OF_ROWS);
 	}
 }
 
@@ -566,7 +566,7 @@ void PVCore::PVSelBitField::select_even()
 	if (!_table) {
 		allocate_table();
 	}
-	memset(_table, 0xAA, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	memset(_table, 0xAA, INENDI_SELECTION_NUMBER_OF_BYTES);
 }
 
 /******************************************************************************
@@ -579,7 +579,7 @@ void PVCore::PVSelBitField::select_none()
 	if (!_table) {
 		allocate_table();
 	}
-	memset(_table, 0x00, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	memset(_table, 0x00, INENDI_SELECTION_NUMBER_OF_BYTES);
 }
 
 /******************************************************************************
@@ -592,7 +592,7 @@ void PVCore::PVSelBitField::select_odd()
 	if (!_table) {
 		allocate_table();
 	}
-	memset(_table, 0x55, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	memset(_table, 0x55, INENDI_SELECTION_NUMBER_OF_BYTES);
 }
 
 /******************************************************************************
@@ -608,7 +608,7 @@ void PVCore::PVSelBitField::select_inverse()
 		return;
 	}
 
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] = ~_table[i];
 	}
 }
@@ -768,7 +768,7 @@ ssize_t PVCore::PVSelBitField::get_max_last_nonzero_chunk_index(PVSelBitField co
 		return -1;
 	}
 	const ssize_t last_chunk = other.get_last_nonzero_chunk_index();
-	return get_last_nonzero_chunk_index(last_chunk, PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1);
+	return get_last_nonzero_chunk_index(last_chunk, INENDI_SELECTION_NUMBER_OF_CHUNKS-1);
 }
 
 
@@ -816,7 +816,7 @@ void PVCore::PVSelBitField::serialize(PVCore::PVSerializeObject& so, PVCore::PVS
 {
 	if (so.is_writing()) {
 		if (_table) {
-			so.buffer("selection_data", _table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+			so.buffer("selection_data", _table, INENDI_SELECTION_NUMBER_OF_BYTES);
 		}
 	}
 	else {
@@ -824,7 +824,7 @@ void PVCore::PVSelBitField::serialize(PVCore::PVSerializeObject& so, PVCore::PVS
 			if (!_table) {
 				allocate_table();
 			}
-			so.buffer("selection_data", &_table[0], PICVIZ_SELECTION_NUMBER_OF_BYTES);
+			so.buffer("selection_data", &_table[0], INENDI_SELECTION_NUMBER_OF_BYTES);
 		}
 		else {
 			if (_table) {

@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVZonesManager.h>
@@ -19,8 +19,8 @@
 
 #include <sstream>
 
-#include <pvkernel/core/picviz_bench.h>
-#include <pvkernel/core/picviz_stat.h>
+#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/inendi_stat.h>
 
 typedef PVParallelView::PVZoomedZoneTree zzt_t;
 

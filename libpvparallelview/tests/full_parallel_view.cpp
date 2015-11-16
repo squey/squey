@@ -9,7 +9,7 @@
 #include <QGLWidget>
 #include <iostream>
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVSharedPointer.h>
 
 #include <pvparallelview/common.h>
@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 	dlg->show();
 
 	{
-		Picviz::PVView_sp view_sp = plib_view->lib_view()->shared_from_this();
+		Inendi::PVView_sp view_sp = plib_view->lib_view()->shared_from_this();
 
 		dlg = new QDialog();
 		dlg->setAttribute(Qt::WA_DeleteOnClose, true);

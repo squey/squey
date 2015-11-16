@@ -12,7 +12,7 @@
 #include "PVFieldSplitterRegexp.h"
 #include "PVFieldSplitterRegexpParamWidget.h"
 
-// This method will be called by libpicviz
+// This method will be called by libinendi
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("regexp", PVFilter::PVFieldSplitterRegexp);

@@ -16,13 +16,13 @@
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVZoneRenderingBCI_types.h>
 
-#include <picviz/PVSelection.h>
+#include <inendi/PVSelection.h>
 
 #include <pvhive/PVCallHelper.h>
 
 #include <boost/integer/static_log2.hpp>
 
-namespace Picviz {
+namespace Inendi {
 class PVSelection;
 }
 
@@ -116,7 +116,7 @@ public:
 	void decrease_global_zoom_level();
 
 	inline PVZoneID get_first_visible_zone_index() const { return _first_zone; }
-	inline PVZoneID get_last_visible_zone_index() const { return picviz_min((PVZoneID)(_first_zone + get_number_of_visible_zones()-1), get_number_of_managed_zones()-1); }
+	inline PVZoneID get_last_visible_zone_index() const { return inendi_min((PVZoneID)(_first_zone + get_number_of_visible_zones()-1), get_number_of_managed_zones()-1); }
 	uint32_t get_left_border_position_of_zone_in_scene(PVZoneID zone_id) const;
 
 	PVZoneID get_number_of_managed_zones() const;

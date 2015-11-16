@@ -6,7 +6,7 @@
  */
 
 #include <pvkernel/filter/PVFieldsFilter.h>
-#include <picviz/PVLayerFilter.h>
+#include <inendi/PVLayerFilter.h>
 
 #include <PVAxisTagHelp.h>
 
@@ -21,7 +21,7 @@ PVInspector::PVAxisTagHelp::PVAxisTagHelp(QStringList /*sel_tags*/, QWidget* par
 	_table_tags->setHorizontalHeaderLabels(QStringList() << tr("Tag name") << tr("Description") << tr("Filters that uses it") << tr("Splitters that provide it"));
 
 	// Get layer-filters tags
-	Picviz::PVLayerFilterListTags const& tags = LIB_CLASS(Picviz::PVLayerFilter)::get().get_tags();
+	Inendi::PVLayerFilterListTags const& tags = LIB_CLASS(Inendi::PVLayerFilter)::get().get_tags();
 
 	// Get splitters tags
 	PVFilter::PVFieldsSplitterListTags const& sp_tags = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_tags();
@@ -34,10 +34,10 @@ PVInspector::PVAxisTagHelp::PVAxisTagHelp(QStringList /*sel_tags*/, QWidget* par
 	}
 
 	_table_tags->setRowCount(tags.size());
-	Picviz::PVLayerFilterListTags::const_iterator it;
+	Inendi::PVLayerFilterListTags::const_iterator it;
 	int row = 0;
 	for (it = tags.begin(); it != tags.end(); it++) {
-		Picviz::PVLayerFilterTag const& tag = *it;
+		Inendi::PVLayerFilterTag const& tag = *it;
 		QString const& tag_name = tag.name();
 		_table_tags->setItem(row, 0, new QTableWidgetItem(tag.name()));
 		_table_tags->setItem(row, 1, new QTableWidgetItem(tag.desc()));

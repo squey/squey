@@ -11,7 +11,7 @@
 
 #include <pvguiqt/PVDisplayViewListing.h>
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 #include <QObject>
 
@@ -20,9 +20,9 @@ PVDisplays::PVDisplayViewListing::PVDisplayViewListing():
 {
 }
 
-QWidget* PVDisplays::PVDisplayViewListing::create_widget(Picviz::PVView* view, QWidget* parent) const
+QWidget* PVDisplays::PVDisplayViewListing::create_widget(Inendi::PVView* view, QWidget* parent) const
 {
-	Picviz::PVView_sp view_sp = view->shared_from_this();
+	Inendi::PVView_sp view_sp = view->shared_from_this();
 
 	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(view_sp);
 	PVGuiQt::PVListingView* listing_view = new PVGuiQt::PVListingView(view_sp, parent);
@@ -41,7 +41,7 @@ QIcon PVDisplays::PVDisplayViewListing::toolbar_icon() const
 	return QIcon(":/view-listing");
 }
 
-QString PVDisplays::PVDisplayViewListing::widget_title(Picviz::PVView* view) const
+QString PVDisplays::PVDisplayViewListing::widget_title(Inendi::PVView* view) const
 {
 	return QString("Listing [" + view->get_name() + "]");
 }

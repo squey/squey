@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
@@ -28,7 +28,7 @@ void PVGuiQt::__impl::remove_column_Observer::update(const arguments_type& /*arg
 
 void PVGuiQt::__impl::axis_append_Observer::about_to_be_updated(const arguments_type& /*args*/) const
 {
-	int axis_index = ((Picviz::PVView*)get_object())->get_axes_count();
+	int axis_index = ((Inendi::PVView*)get_object())->get_axes_count();
 
 	_model->beginInsertRow(axis_index);
 }
@@ -59,7 +59,7 @@ void PVGuiQt::__impl::move_axis_to_new_position_Observer::update(arguments_type 
 
 // Model
 
-PVGuiQt::PVAxesCombinationModel::PVAxesCombinationModel(Picviz::PVView_sp& view_p, QObject* parent):
+PVGuiQt::PVAxesCombinationModel::PVAxesCombinationModel(Inendi::PVView_sp& view_p, QObject* parent):
 		QAbstractListModel(parent),
 		_view_deleted(false),
 		_set_axis_name_observer(this),
@@ -103,7 +103,7 @@ PVGuiQt::PVAxesCombinationModel::PVAxesCombinationModel(Picviz::PVView_sp& view_
 	*/
 
 	_obs_axes_comb.connect_refresh(this, SLOT(refresh_slot(PVHive::PVObserverBase*)));
-	PVHive::get().register_observer(view_p, [=](Picviz::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); }, _obs_axes_comb);
+	PVHive::get().register_observer(view_p, [=](Inendi::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); }, _obs_axes_comb);
 
 	// Register view actor
 	PVHive::get().register_actor(view_p, _actor);
@@ -120,7 +120,7 @@ int PVGuiQt::PVAxesCombinationModel::rowCount(const QModelIndex &parent) const
 int PVGuiQt::PVAxesCombinationModel::rowCount() const
 {
 	if (!_view_deleted) {
-		return picviz_view().get_axes_count();
+		return inendi_view().get_axes_count();
 	}
 	return 0;
 }
@@ -130,7 +130,7 @@ QVariant PVGuiQt::PVAxesCombinationModel::data(const QModelIndex &index, int rol
 	if (index.row() < 0 || index.row() >= rowCount())
 		return QVariant();
 
-	QString axis_name = picviz_view().get_axis_name(index.row());
+	QString axis_name = inendi_view().get_axis_name(index.row());
 	if (role == Qt::DisplayRole)
 		return QVariant(axis_name);
 
@@ -149,7 +149,7 @@ bool PVGuiQt::PVAxesCombinationModel::setData(const QModelIndex &index, const QV
 {
 	if (index.row() >= 0 && index.row() < rowCount()) {
 		if (role == Qt::EditRole) {
-			_actor.call<FUNC(Picviz::PVView::set_axis_name)>(index.row(), value.toString());
+			_actor.call<FUNC(Inendi::PVView::set_axis_name)>(index.row(), value.toString());
 			//emit dataChanged(index, index);
 			return true;
 		}

@@ -24,7 +24,7 @@ class QToolBar;
 class QSignalMapper;
 class QToolButton;
 
-namespace Picviz
+namespace Inendi
 {
 
 class PVView;
@@ -384,7 +384,7 @@ protected slots:
 	/**
 	 * method to override to implement PVView retrieval
 	 */
-	virtual Picviz::PVView& lib_view() = 0;
+	virtual Inendi::PVView& lib_view() = 0;
 
 private:
 	void move_by(qreal hstep, qreal vstep);

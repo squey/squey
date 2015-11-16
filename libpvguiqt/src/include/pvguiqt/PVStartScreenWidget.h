@@ -116,8 +116,8 @@ private:
 	 */
 	static descr_strings_t get_strings_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var);
 
-	/*! \brief Extract a descr_strings_t from a Picviz::PVFormat QVariant.
-	 *  \param[in] var The Picviz::PVFormat QVariant to convert to descr_strings_t.
+	/*! \brief Extract a descr_strings_t from a Inendi::PVFormat QVariant.
+	 *  \param[in] var The Inendi::PVFormat QVariant to convert to descr_strings_t.
 	 */
 	static descr_strings_t get_strings_from_format(const QVariant& var);
 

@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
@@ -51,10 +51,10 @@ PVParallelView::PVBCIBackendImageCUDA::PVBCIBackendImageCUDA(const uint32_t widt
 {
 	size_t simg = PVBCIBackendImage::size_pixel();
 	//_host_img = pixel_allocator().allocate(simg);
-	picviz_verify_cuda(cudaHostAlloc(&_host_img, simg*sizeof(pixel_t), cudaHostAllocPortable));
+	inendi_verify_cuda(cudaHostAlloc(&_host_img, simg*sizeof(pixel_t), cudaHostAllocPortable));
 	set_current_device();
-	picviz_verify_cuda(cudaMalloc(&_device_img, simg*sizeof(pixel_t)));
-	picviz_verify_cuda(cudaMemsetAsync(_device_img, 0, simg*sizeof(pixel_t), stream));
+	inendi_verify_cuda(cudaMalloc(&_device_img, simg*sizeof(pixel_t)));
+	inendi_verify_cuda(cudaMemsetAsync(_device_img, 0, simg*sizeof(pixel_t), stream));
 	_org_width = width;
 }
 
@@ -62,8 +62,8 @@ PVParallelView::PVBCIBackendImageCUDA::~PVBCIBackendImageCUDA()
 {
 	//size_t simg = PVBCIBackendImage::size_pixel();
 	//pixel_allocator().deallocate(_host_img, simg);
-	picviz_verify_cuda(cudaFreeHost(_host_img));
-	picviz_verify_cuda(cudaFree(_device_img));
+	inendi_verify_cuda(cudaFreeHost(_host_img));
+	inendi_verify_cuda(cudaFree(_device_img));
 }
 
 void PVParallelView::PVBCIBackendImageCUDA::resize_width(PVBCIBackendImage& dst, const uint32_t width) const
@@ -105,17 +105,17 @@ PVParallelView::PVBCIDrawingBackendCUDA::PVBCIDrawingBackendCUDA()
 	std::vector<int> list_ids;
 	PVCuda::visit_usable_cuda_devices([&](int id)
 			{
-				picviz_verify_cuda(cudaSetDevice(id));
-				picviz_verify_cuda(cudaDeviceReset());
-				picviz_verify_cuda(cudaGLSetGLDevice(id));
-				picviz_verify_cuda(cudaDeviceReset());
+				inendi_verify_cuda(cudaSetDevice(id));
+				inendi_verify_cuda(cudaDeviceReset());
+				inendi_verify_cuda(cudaGLSetGLDevice(id));
+				inendi_verify_cuda(cudaDeviceReset());
 				// Set scheduling to yield, as we need all processes!
 				cudaSetDeviceFlags(cudaDeviceScheduleYield | cudaDeviceMapHost);
 				list_ids.push_back(id);
 
 				device_t dev;
-				picviz_verify_cuda(cudaMalloc(&dev.device_codes, PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase)));
-				picviz_verify_cuda(cudaStreamCreate(&dev.stream));
+				inendi_verify_cuda(cudaMalloc(&dev.device_codes, PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase)));
+				inendi_verify_cuda(cudaStreamCreate(&dev.stream));
 				this->_devices.insert(std::make_pair(id, dev));
 			});
 
@@ -148,8 +148,8 @@ PVParallelView::PVBCIDrawingBackendCUDA::~PVBCIDrawingBackendCUDA()
 	decltype(_devices)::const_iterator it;
 	for (it = _devices.begin(); it != _devices.end(); it++) {
 		cudaSetDevice(it->first);
-		picviz_verify_cuda(cudaFree(it->second.device_codes));
-		picviz_verify_cuda(cudaStreamDestroy(it->second.stream));
+		inendi_verify_cuda(cudaFree(it->second.device_codes));
+		inendi_verify_cuda(cudaStreamDestroy(it->second.stream));
 	}
 }
 
@@ -220,7 +220,7 @@ void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage_p& ds
 	data->done_function = render_done;
 	cudaStream_t stream = dev.stream;
 
-	picviz_verify_cuda(cudaMemcpyAsync(dev.device_codes, codes, n*sizeof(codes), cudaMemcpyHostToDevice, stream));
+	inendi_verify_cuda(cudaMemcpyAsync(dev.device_codes, codes, n*sizeof(codes), cudaMemcpyHostToDevice, stream));
 	switch (dst_img->height_bits()) {
 		case 10:
 			cuda_kernel<10>::launch(&dev.device_codes->as<10>(), n, width, dst_img_cuda->device_img(), dst_img_cuda->org_width(), x_start, zoom_y, stream, reverse);
@@ -232,9 +232,9 @@ void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage_p& ds
 			assert(false);
 			break;
 	};
-	picviz_verify_cuda_kernel();
+	inendi_verify_cuda_kernel();
 	dst_img_cuda->copy_device_to_host(stream);
-	picviz_verify_cuda(cudaStreamAddCallback(stream, &PVBCIDrawingBackendCUDA::image_rendered_and_copied_callback, (void*) data, 0));
+	inendi_verify_cuda(cudaStreamAddCallback(stream, &PVBCIDrawingBackendCUDA::image_rendered_and_copied_callback, (void*) data, 0));
 }
 
 void PVParallelView::PVBCIDrawingBackendCUDA::image_rendered_and_copied_callback(cudaStream_t /*stream*/, cudaError_t /*status*/, void* data_)
@@ -267,11 +267,11 @@ void PVParallelView::PVBCIDrawingBackendCUDA::wait_all()
 PVParallelView::PVBCICodeBase* PVParallelView::PVBCIDrawingBackendCUDA::allocate_bci(size_t n)
 {
 	PVParallelView::PVBCICodeBase* ret;
-	picviz_verify_cuda(cudaHostAlloc(&ret, n*sizeof(PVParallelView::PVBCICodeBase), cudaHostAllocPortable));
+	inendi_verify_cuda(cudaHostAlloc(&ret, n*sizeof(PVParallelView::PVBCICodeBase), cudaHostAllocPortable));
 	return ret;
 }
 
 void PVParallelView::PVBCIDrawingBackendCUDA::free_bci(PVParallelView::PVBCICodeBase* buf)
 {
-	picviz_verify_cuda(cudaFreeHost(buf));
+	inendi_verify_cuda(cudaFreeHost(buf));
 }

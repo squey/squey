@@ -26,7 +26,7 @@
 #define MAX_SIZE_RESERVE (size_t(1024*1024*1024u)) // 1GB
 
 const QString PVRush::PVNraw::config_nraw_tmp = "pvkernel/nraw_tmp";
-const QString PVRush::PVNraw::default_tmp_path = QDir::tempPath() + "/picviz";
+const QString PVRush::PVNraw::default_tmp_path = QDir::tempPath() + "/inendi";
 const QString PVRush::PVNraw::nraw_tmp_pattern = "nraw-XXXXXX";
 const QString PVRush::PVNraw::nraw_tmp_name_regexp = "nraw-??????";
 const QString PVRush::PVNraw::default_sep_char = ",";
@@ -59,7 +59,7 @@ void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
 	_backend.init(nstr.constData(), ncols);
 
 	if(nrows == 0) {
-		_max_nrows = PICVIZ_LINES_MAX;
+		_max_nrows = INENDI_LINES_MAX;
 	} else {
 		_max_nrows = nrows;
 	}
@@ -160,8 +160,8 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 void PVRush::PVNraw::fit_to_content()
 {
 	_backend.flush();
-	if (_real_nrows > PICVIZ_LINES_MAX) {
-		_real_nrows = PICVIZ_LINES_MAX;
+	if (_real_nrows > INENDI_LINES_MAX) {
+		_real_nrows = INENDI_LINES_MAX;
 	}
 }
 

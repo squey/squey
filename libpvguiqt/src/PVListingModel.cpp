@@ -11,8 +11,8 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVColor.h>
 
-#include <picviz/PVSource.h>
-#include <picviz/PVView.h>
+#include <inendi/PVSource.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVCallHelper.h>
@@ -31,7 +31,7 @@ constexpr static size_t MIN_PAGE_SIZE = 100;
  * PVInspector::PVListingModel::PVListingModel
  *
  *****************************************************************************/
-PVGuiQt::PVListingModel::PVListingModel(Picviz::PVView_sp& view, QObject* parent):
+PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent):
 	QAbstractTableModel(parent),
 	_zombie_brush(QColor(0, 0, 0)),
 	_selection_brush(QColor(88, 172, 250)),
@@ -51,16 +51,16 @@ PVGuiQt::PVListingModel::PVListingModel(Picviz::PVView_sp& view, QObject* parent
 {
 	// Update the full model if axis combination change
 	_obs_axes_comb.connect_refresh(this, SLOT(axes_comb_changed()));
-	PVHive::get().register_observer(view, [=](Picviz::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); },
+	PVHive::get().register_observer(view, [=](Inendi::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); },
 		    			_obs_axes_comb);
 
 	// Call update_filter on selection update
 	_obs_sel.connect_refresh(this, SLOT(update_filter()));
-	PVHive::get().register_observer(view, [=](Picviz::PVView& view) { return &view.get_real_output_selection(); }, _obs_sel);
+	PVHive::get().register_observer(view, [=](Inendi::PVView& view) { return &view.get_real_output_selection(); }, _obs_sel);
 
 	// Update filter if we change layer content
 	_obs_output_layer.connect_refresh(this, SLOT(update_filter()));
-	PVHive::get().register_observer(view, [=](Picviz::PVView& view) { return &view.get_output_layer(); }, _obs_output_layer);
+	PVHive::get().register_observer(view, [=](Inendi::PVView& view) { return &view.get_output_layer(); }, _obs_output_layer);
 
 	// Update display of zombie lines on option toggling
 	// FIXME : Can't we work without these specific struct?
@@ -71,11 +71,11 @@ PVGuiQt::PVListingModel::PVListingModel(Picviz::PVView_sp& view, QObject* parent
 	PVHive::get().register_func_observer(view, _obs_vis);
 
 	// No filter at start
-	_filter.resize(lib_view().get_parent<Picviz::PVSource>()->get_row_count());
+	_filter.resize(lib_view().get_parent<Inendi::PVSource>()->get_row_count());
 	std::iota(_filter.begin(), _filter.end(), 0);
 
 	// No reorder at start
-	_sort.resize(lib_view().get_parent<Picviz::PVSource>()->get_row_count());
+	_sort.resize(lib_view().get_parent<Inendi::PVSource>()->get_row_count());
 	std::iota(_sort.begin(), _sort.end(), 0);
 
 	// Start with empty selection
@@ -111,7 +111,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 		case Qt::ToolTipRole:
 			{
 			    const PVRow r = rowIndex(index);
-			    return lib_view().get_parent<Picviz::PVSource>()->get_value(r, org_col);
+			    return lib_view().get_parent<Inendi::PVSource>()->get_value(r, org_col);
 			}
 		// Define brackground color for cells
 		case (Qt::BackgroundRole):
@@ -175,7 +175,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 			}
 			// Ask data from NRaw
 			bool complete;
-			_current_data = lib_view().get_parent<Picviz::PVSource>()->get_value(r, org_col, &complete);
+			_current_data = lib_view().get_parent<Inendi::PVSource>()->get_value(r, org_col, &complete);
 			QFont f;
 			if(not complete) {
 				f.setItalic(true);
@@ -320,7 +320,7 @@ void PVGuiQt::PVListingModel::update_filter()
 	// Reset the current selection as context changed
 	reset_selection();
 
-	Picviz::PVSelection const* sel = lib_view().get_selection_visible_listing();
+	Inendi::PVSelection const* sel = lib_view().get_selection_visible_listing();
 
 	// Inform view about future update
 	emit layoutAboutToBeChanged();

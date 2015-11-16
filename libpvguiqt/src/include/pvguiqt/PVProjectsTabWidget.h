@@ -11,8 +11,8 @@
 #include <assert.h>
 #include <list>
 
-#include <picviz/PVScene.h>
-#include <picviz/PVRoot_types.h>
+#include <inendi/PVScene.h>
+#include <inendi/PVRoot_types.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
@@ -44,7 +44,7 @@ class PVTabBar : public QTabBar
 	Q_OBJECT
 
 public:
-	PVTabBar(Picviz::PVRoot& root, QWidget* parent = 0) : QTabBar(parent), _root(root) {}
+	PVTabBar(Inendi::PVRoot& root, QWidget* parent = 0) : QTabBar(parent), _root(root) {}
 
 protected:
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
@@ -56,13 +56,13 @@ private slots:
 	void rename_tab(int index);
 
 private:
-	Picviz::PVRoot& _root;
+	Inendi::PVRoot& _root;
 };
 
 class PVTabWidget : public QTabWidget
 {
 public:
-	PVTabWidget(Picviz::PVRoot& root, QWidget* parent = 0) : QTabWidget(parent) { setTabBar(new PVTabBar(root, this)); }
+	PVTabWidget(Inendi::PVRoot& root, QWidget* parent = 0) : QTabWidget(parent) { setTabBar(new PVTabBar(root, this)); }
 
 public:
 	QTabBar* tabBar() const
@@ -120,12 +120,12 @@ public:
 	static constexpr int FIRST_PROJECT_INDEX = 1;
 
 public:
-	PVProjectsTabWidget(Picviz::PVRoot* root, QWidget* parent = 0);
+	PVProjectsTabWidget(Inendi::PVRoot* root, QWidget* parent = 0);
 
-	PVSceneWorkspacesTabWidget* add_project(Picviz::PVScene_p scene_p);
+	PVSceneWorkspacesTabWidget* add_project(Inendi::PVScene_p scene_p);
 	void remove_project(PVSceneWorkspacesTabWidget* workspace_tab_widget);
 
-	PVSourceWorkspace* add_source(Picviz::PVSource* source);
+	PVSourceWorkspace* add_source(Inendi::PVSource* source);
 
 	void add_workspace(PVSourceWorkspace* workspace);
 	void remove_workspace(PVSourceWorkspace* workspace, bool animation = true);
@@ -134,13 +134,13 @@ public:
 	bool is_current_project_untitled() { return current_project() ? current_project()->is_project_untitled() : false; }
 	void collapse_tabs(bool collapse = true);
 
-	inline Picviz::PVScene* current_scene() const { return _root->current_scene(); }
+	inline Inendi::PVScene* current_scene() const { return _root->current_scene(); }
 	PVWorkspacesTabWidgetBase* current_workspace_tab_widget() const;
 	inline PVSceneWorkspacesTabWidget* current_project() const { return (_current_workspace_tab_widget_index >= FIRST_PROJECT_INDEX) ? (PVSceneWorkspacesTabWidget*) _stacked_widget->widget(_current_workspace_tab_widget_index) : nullptr; }
 
-	inline void select_tab_from_scene(Picviz::PVScene* scene);
+	inline void select_tab_from_scene(Inendi::PVScene* scene);
 	inline PVWorkspaceBase* current_workspace() const { return  current_project() ? (PVWorkspaceBase*) current_project()->currentWidget() : nullptr; }
-	inline Picviz::PVView* current_view() const { return _root->current_view(); }
+	inline Inendi::PVView* current_view() const { return _root->current_view(); }
 	inline int projects_count() { return _tab_widget->count() - FIRST_PROJECT_INDEX; }
 	inline const QStringList get_projects_list()
 	{
@@ -151,8 +151,8 @@ public:
 		return projects_list;
 	}
 	inline int get_current_project_index() { return _current_workspace_tab_widget_index - FIRST_PROJECT_INDEX; }
-	Picviz::PVScene* get_scene_from_path(const QString & path);
-	PVSceneWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Picviz::PVScene* scene);
+	Inendi::PVScene* get_scene_from_path(const QString & path);
+	PVSceneWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Inendi::PVScene* scene);
 
 private slots:
 	void current_tab_changed(int index);
@@ -188,7 +188,7 @@ private:
 	QStackedWidget* _stacked_widget = nullptr;
 	PVStartScreenWidget* _start_screen_widget;
 	int _current_workspace_tab_widget_index;
-	Picviz::PVRoot* _root;
+	Inendi::PVRoot* _root;
 };
 
 }

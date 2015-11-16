@@ -24,7 +24,7 @@ namespace PVCore {
 class PVHSVColor;
 }
 
-namespace Picviz {
+namespace Inendi {
 class PVSelection;
 }
 

@@ -14,9 +14,9 @@
  * PVInspector::PVColorDialog::PVColorDialog
  *
  *****************************************************************************/
-PVInspector::PVColorDialog::PVColorDialog(Picviz::PVView& picviz_view, QWidget* parent):
+PVInspector::PVColorDialog::PVColorDialog(Inendi::PVView& inendi_view, QWidget* parent):
 	QColorDialog(Qt::white, parent),
-	_picviz_view(picviz_view)
+	_inendi_view(inendi_view)
 {
 	setOption(QColorDialog::ShowAlphaChannel, true);
 	//setWindowFlags(Qt::WindowStaysOnTopHint);

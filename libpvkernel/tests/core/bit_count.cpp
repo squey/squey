@@ -6,10 +6,10 @@
  */
 
 #include <pvkernel/core/PVBitCount.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 #include <iostream>
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 #include <cstdlib>
 #include <ctime>

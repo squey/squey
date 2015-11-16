@@ -13,7 +13,7 @@
 #include <pvdisplays/PVDisplaysImpl.h>
 #include <pvdisplays/PVDisplaysContainer.h>
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVAlgorithms.h>
@@ -36,7 +36,7 @@
  *****************************************************************************/
 
 PVParallelView::PVAxisHeader::PVAxisHeader(
-	const Picviz::PVView& view,
+	const Inendi::PVView& view,
 	PVSlidersGroup* sg,
 	PVAxisGraphicsItem* parent) :
 	QGraphicsRectItem(parent),
@@ -60,9 +60,9 @@ void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEve
 	QMenu menu;
 
 	if (container) {
-		PVDisplays::get().add_displays_view_axis_menu(menu, container, SLOT(create_view_axis_widget()), (Picviz::PVView*) &_view, get_axis_index());
+		PVDisplays::get().add_displays_view_axis_menu(menu, container, SLOT(create_view_axis_widget()), (Inendi::PVView*) &_view, get_axis_index());
 		if (!is_last_axis()) {
-			PVDisplays::get().add_displays_view_zone_menu(menu, container, SLOT(create_view_zone_widget()), (Picviz::PVView*) &_view, get_axis_index());
+			PVDisplays::get().add_displays_view_zone_menu(menu, container, SLOT(create_view_zone_widget()), (Inendi::PVView*) &_view, get_axis_index());
 		}
 		menu.addSeparator();
 	}

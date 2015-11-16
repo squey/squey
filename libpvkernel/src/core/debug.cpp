@@ -19,13 +19,8 @@
 
 #include <pvkernel/core/debug.h>
 
-/**
- * \ingroup PicvizMain
- * @{
- */
-
 /** \file debug.c
- * \brief Helper functions to debug Picviz
+ * \brief Helper functions to debug INENDI
  */
 
 void debug_qstringlist(QStringList list)
@@ -36,6 +31,3 @@ void debug_qstringlist(QStringList list)
 	}
 	printf("\n");
 }
-
-/*@}*/
-

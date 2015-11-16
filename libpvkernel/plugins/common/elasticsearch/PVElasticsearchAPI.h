@@ -19,7 +19,7 @@ namespace PVRush {
 
 class PVElasticsearchQuery;
 
-/** This class contains all the logic needed by Picviz Inspector
+/** This class contains all the logic needed by INENDI Inspector
  *  to communicate with an Elasticsearch server.
  */
 class PVElasticsearchAPI
@@ -77,7 +77,7 @@ public:
 	 *
 	 * This method is used by the input plugin when exporting the result
 	 * of a query, and by the source plugin when importing the result in
-	 * Picviz Inspector.
+	 * INENDI Inspector.
 	 *
 	 * Note that the order of the lines is not the same as when imported
 	 * due to a limitation of Elasticsearch.

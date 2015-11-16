@@ -16,7 +16,7 @@ PVCore::PVLogger::PVLogger()
 {
 	QByteArray log_level;
 
-	log_filename = qgetenv("PICVIZ_LOG_FILE");
+	log_filename = qgetenv("INENDI_LOG_FILE");
 	datetime_format = "yyyy-MM-dd hh:mm:ss.zzz";
 
 	if (!log_filename.isEmpty()) {
@@ -24,7 +24,7 @@ PVCore::PVLogger::PVLogger()
 	}
 
 	level = PVLOG_INFO;
-	log_level = qgetenv("PICVIZ_DEBUG_LEVEL");
+	log_level = qgetenv("INENDI_DEBUG_LEVEL");
 	if (!log_level.isEmpty()) {
 		if (log_level == QString("FATAL")) {
 			level = PVLOG_FATAL;

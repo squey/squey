@@ -23,7 +23,7 @@ namespace PVRush
 class PVSplunkQuery;
 
 /**
- * This class contains all the logic needed by Picviz Inspector
+ * This class contains all the logic needed by INENDI Inspector
  * to communicate with a Splunk server.
  */
 class PVSplunkAPI
@@ -94,7 +94,7 @@ public:
 	 *
 	 * This method is used by the input plugin when exporting the result
 	 * of a query, and by the source plugin when importing the result in
-	 * Picviz Inspector.
+	 * INENDI Inspector.
 	 *
 	 * Note that the order of the lines is not the same as when imported
 	 * due to a limitation of Splunk.

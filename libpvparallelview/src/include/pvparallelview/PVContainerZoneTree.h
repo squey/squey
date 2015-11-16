@@ -11,13 +11,13 @@
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAlignedBlockedRange.h>
-#include <pvkernel/core/picviz_bench.h>
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVPODTree.h>
 #include <pvkernel/core/PVHSVColor.h>
 
-#include <picviz/PVSelection.h>
-#include <picviz/PVPlotted.h>
+#include <inendi/PVSelection.h>
+#include <inendi/PVPlotted.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCode.h>
@@ -85,10 +85,10 @@ public:
 	void process_tbb_concurrent_vector(PVZoneProcessing const& zp);
 	void process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp);
 
-	void filter_by_sel_omp_tree(Picviz::PVSelection const& sel);
-	void filter_by_sel_tbb_tree(Picviz::PVSelection const& sel);
+	void filter_by_sel_omp_tree(Inendi::PVSelection const& sel);
+	void filter_by_sel_tbb_tree(Inendi::PVSelection const& sel);
 private:
-	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
+	void get_float_pts(pts_t& pts, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
 public:
 	list_rows_t _tree[NBUCKETS];
 };
@@ -253,7 +253,7 @@ void PVContainerZoneTree<Container>::process_omp_sse_tree(PVZoneProcessing const
 				//main_b.reserve(main_b.size() + cur_b.size());
 				//std::copy(cur_b.begin(), cur_b.end(), main_b.end());
 				main_b.insert(main_b.end(), cur_b.begin(), cur_b.end());
-				_first_elts[b] = picviz_min(_first_elts[b], first_elts[b]);
+				_first_elts[b] = inendi_min(_first_elts[b], first_elts[b]);
 			}
 		}
 #pragma omp barrier
@@ -303,25 +303,25 @@ public:
 
 				uint32_t b0 = _mm_extract_epi32(sse_bcodes, 0);
 				if (b0 == b) {
-					ztree._first_elts[b0] = picviz_min(ztree._first_elts[b0], r+0);
+					ztree._first_elts[b0] = inendi_min(ztree._first_elts[b0], r+0);
 					ztree._tree[b0].push_back(r+0);
 				}
 
 				uint32_t b1 = _mm_extract_epi32(sse_bcodes, 1);
 				if (b1 == b) {
-					ztree._first_elts[b1] = picviz_min(ztree._first_elts[b1], r+1);
+					ztree._first_elts[b1] = inendi_min(ztree._first_elts[b1], r+1);
 					ztree._tree[b1].push_back(r+1);
 				}
 
 				uint32_t b2 = _mm_extract_epi32(sse_bcodes, 2);
 				if (b2 == b) {
-					ztree._first_elts[b2] = picviz_min(ztree._first_elts[b2], r+2);
+					ztree._first_elts[b2] = inendi_min(ztree._first_elts[b2], r+2);
 					ztree._tree[b2].push_back(r+2);
 				}
 
 				uint32_t b3 = _mm_extract_epi32(sse_bcodes, 3);
 				if (b3 == b) {
-					ztree._first_elts[b3] = picviz_min(ztree._first_elts[b3], r+3);
+					ztree._first_elts[b3] = inendi_min(ztree._first_elts[b3], r+3);
 					ztree._tree[b3].push_back(r+3);
 				}
 			}
@@ -334,7 +334,7 @@ public:
 				code_b.s.r = y2 >> (32-NBITS_INDEX);
 
 				if (code_b.int_v == b) {
-					ztree._first_elts[code_b.int_v] = picviz_min(ztree._first_elts[code_b.int_v], r);
+					ztree._first_elts[code_b.int_v] = inendi_min(ztree._first_elts[code_b.int_v], r);
 					ztree._tree[code_b.int_v].push_back(r);
 				}
 			}
@@ -391,11 +391,11 @@ void PVContainerZoneTree<Container>::process_tbb_concurrent_vector(PVZoneProcess
 }
 
 template <class Container>
-void PVContainerZoneTree<Container>::filter_by_sel_omp_tree(Picviz::PVSelection const& sel)
+void PVContainerZoneTree<Container>::filter_by_sel_omp_tree(Inendi::PVSelection const& sel)
 {
 	// returns a zone tree with only the selected events
 	BENCH_START(subtree);
-	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	const size_t nthreads = atol(getenv("NUM_THREADS"));
 #pragma omp parallel for schedule(dynamic, atol(getenv("GRAINSIZE"))) firstprivate(sel_buf) num_threads(nthreads)
 	for (size_t b = 0; b < NBUCKETS; b++) {
@@ -433,7 +433,7 @@ class TBBPF2 {
 public:
 	TBBPF2 (
 		PVContainerZoneTree<Container>* tree,
-		const Picviz::PVSelection::const_pointer sel_buf
+		const Inendi::PVSelection::const_pointer sel_buf
 	) :
 		_tree(tree),
 		_sel_buf(sel_buf)
@@ -473,14 +473,14 @@ public:
 	}
 
 	mutable PVContainerZoneTree<Container>* _tree;
-	Picviz::PVSelection::const_pointer _sel_buf;
+	Inendi::PVSelection::const_pointer _sel_buf;
 };
 
 template <class Container>
-void PVContainerZoneTree<Container>::filter_by_sel_tbb_tree(Picviz::PVSelection const& sel)
+void PVContainerZoneTree<Container>::filter_by_sel_tbb_tree(Inendi::PVSelection const& sel)
 {
 	// returns a zone tree with only the selected events
-	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	TLS tls;
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
 	BENCH_START(subtree);
@@ -490,7 +490,7 @@ void PVContainerZoneTree<Container>::filter_by_sel_tbb_tree(Picviz::PVSelection 
 }
 
 template <class Container>
-void PVContainerZoneTree<Container>::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
+void PVContainerZoneTree<Container>::get_float_pts(pts_t& pts, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
 {
 	pts.reserve(NBUCKETS*4);
 	for (size_t i = 0; i < NBUCKETS; i++) {

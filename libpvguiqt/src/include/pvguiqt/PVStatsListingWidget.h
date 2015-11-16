@@ -165,7 +165,7 @@ class PVCellWidgetBase : public QWidget
 	Q_OBJECT;
 
 public:
-	PVCellWidgetBase(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item);
+	PVCellWidgetBase(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item);
 	virtual ~PVCellWidgetBase() {}
 
 public:
@@ -207,7 +207,7 @@ protected:
 
 protected:
 	QTableWidget* _table;
-	Picviz::PVView const& _view;
+	Inendi::PVView const& _view;
 	QTableWidgetItem* _item;
 
 	bool _valid = false;
@@ -235,7 +235,7 @@ class PVUniqueValuesCellWidget : public PVCellWidgetBase
 	Q_OBJECT
 
 public:
-	PVUniqueValuesCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item);
+	PVUniqueValuesCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item);
 
 public slots:
 	virtual void refresh_impl() override;
@@ -256,7 +256,7 @@ class PVSumCellWidget : public PVCellWidgetBase
 	Q_OBJECT
 
 public:
-	PVSumCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
+	PVSumCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
 
 public slots:
 	virtual void refresh_impl() override;
@@ -267,7 +267,7 @@ class PVMinCellWidget : public PVCellWidgetBase
 	Q_OBJECT
 
 public:
-	PVMinCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
+	PVMinCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
 
 public slots:
 	virtual void refresh_impl() override;
@@ -278,7 +278,7 @@ class PVMaxCellWidget : public PVCellWidgetBase
 	Q_OBJECT
 
 public:
-	PVMaxCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
+	PVMaxCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
 
 public slots:
 	virtual void refresh_impl() override;
@@ -289,7 +289,7 @@ class PVAverageCellWidget : public PVCellWidgetBase
 	Q_OBJECT
 
 public:
-	PVAverageCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
+	PVAverageCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
 
 public slots:
 	virtual void refresh_impl() override;

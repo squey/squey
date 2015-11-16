@@ -16,9 +16,9 @@
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVVector.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
-#include <picviz/PVSelection.h>
+#include <inendi/PVSelection.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
@@ -342,7 +342,7 @@ public:
 
 
 	inline void get_first_sel_from_y1(uint64_t y1_min, uint64_t y1_max,
-	                                  const Picviz::PVSelection &selection,
+	                                  const Inendi::PVSelection &selection,
 	                                  uint32_t zoom, uint32_t y2_count,
 	                                  pv_quadtree_buffer_entry_t *buffer,
 	                                  const insert_entry_f &insert_f,
@@ -359,7 +359,7 @@ public:
 
 
 	inline void get_first_sel_from_y2(uint64_t y2_min, uint64_t y2_max,
-	                                  const Picviz::PVSelection &selection,
+	                                  const Inendi::PVSelection &selection,
 	                                  uint32_t zoom, uint32_t y1_count,
 	                                  pv_quadtree_buffer_entry_t *buffer,
 	                                  const insert_entry_f &insert_f,
@@ -405,7 +405,7 @@ public:
 
 
 	inline void get_first_sel_from_y1(visit_context_t &ctx,
-	                                  const Picviz::PVSelection &selection,
+	                                  const Inendi::PVSelection &selection,
 	                                  uint32_t zoom, uint32_t y2_count) const
 	{
 		visit_y1_tbb::template get_n_m(*this, ctx, zoom, y2_count,
@@ -418,7 +418,7 @@ public:
 
 
 	inline void get_first_sel_from_y2(visit_context_t &ctx,
-	                                  const Picviz::PVSelection &selection,
+	                                  const Inendi::PVSelection &selection,
 	                                  uint32_t zoom, uint32_t y1_count) const
 	{
 		visit_y2_tbb::template get_n_m(*this, ctx, zoom, y1_count,
@@ -454,7 +454,7 @@ public:
 		return new_tree;
 	}
 
-	PVQuadTree *get_subtree_from_selection(const Picviz::PVSelection &selection)
+	PVQuadTree *get_subtree_from_selection(const Inendi::PVSelection &selection)
 	{
 		PVQuadTree *new_tree = new PVQuadTree(*this);
 		new_tree->init(*this);
@@ -462,12 +462,12 @@ public:
 		return new_tree;
 	}
 
-	size_t compute_selection_y1(const uint64_t y1_min, const uint64_t y1_max, Picviz::PVSelection &selection) const
+	size_t compute_selection_y1(const uint64_t y1_min, const uint64_t y1_max, Inendi::PVSelection &selection) const
 	{
 		return compute_selection_y1(*this, y1_min, y1_max, selection);
 	}
 
-	size_t compute_selection_y2(const uint64_t y2_min, const uint64_t y2_max, Picviz::PVSelection &selection) const
+	size_t compute_selection_y2(const uint64_t y2_min, const uint64_t y2_max, Inendi::PVSelection &selection) const
 	{
 		return compute_selection_y2(*this, y2_min, y2_max, selection);
 	}
@@ -2317,7 +2317,7 @@ private:
 		}
 	}
 
-	size_t compute_selection_y1(PVQuadTree const& obj, const uint64_t y1_min, const uint64_t y1_max, Picviz::PVSelection &selection) const
+	size_t compute_selection_y1(PVQuadTree const& obj, const uint64_t y1_min, const uint64_t y1_max, Inendi::PVSelection &selection) const
 	{
 		size_t num = 0;
 		if (obj._nodes != 0) {
@@ -2341,7 +2341,7 @@ private:
 		return num;
 	}
 
-	size_t compute_selection_y2(PVQuadTree const& obj, const uint64_t y2_min, const uint64_t y2_max, Picviz::PVSelection &selection) const
+	size_t compute_selection_y2(PVQuadTree const& obj, const uint64_t y2_min, const uint64_t y2_max, Inendi::PVSelection &selection) const
 	{
 		size_t num = 0;
 		if (obj._nodes != 0) {

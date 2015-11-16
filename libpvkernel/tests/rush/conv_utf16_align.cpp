@@ -6,7 +6,7 @@
  */
 
 #define SIMULATE_PIPELINE
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVChunkAlign.h>

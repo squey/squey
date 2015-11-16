@@ -23,7 +23,7 @@
 #include <PVXmlParamWidget.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
-#include <picviz/PVAxesCombination.h>
+#include <inendi/PVAxesCombination.h>
 
 namespace PVInspector{
 class PVXmlDomModel: public QAbstractItemModel {
@@ -145,7 +145,7 @@ public:
 
 	PVRush::types_groups_t& getGroups() { return _groups; }
 
-	Picviz::PVAxesCombination& get_axes_combination() { return _axes_combination; }
+	Inendi::PVAxesCombination& get_axes_combination() { return _axes_combination; }
     
 private:
 	static void setDefaultAttributesForAxis(QDomElement& elt);
@@ -161,7 +161,7 @@ private:
 	// types_groups_t defined in pvkernel/rush/PVXmlTreeNodeDom.h
 	PVRush::types_groups_t _groups;
     
-	Picviz::PVAxesCombination _axes_combination;
+	Inendi::PVAxesCombination _axes_combination;
     
 public slots:
     void saveDefault();

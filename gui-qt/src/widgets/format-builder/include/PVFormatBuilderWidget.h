@@ -38,7 +38,7 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVInputType.h>
-#include <picviz/PVSource_types.h>
+#include <inendi/PVSource_types.h>
 
 namespace PVGuiQt {
 class PVAxesCombinationWidget;
@@ -80,7 +80,7 @@ private:
     //
     QVBoxLayout *vbParam;
     QMenuBar *menuBar;
-	Picviz::PVSource* _org_source; // If this widget is bound to a PVSource's format
+	Inendi::PVSource* _org_source; // If this widget is bound to a PVSource's format
 
     //
     QFile logFile;///!< file we open to edit the format

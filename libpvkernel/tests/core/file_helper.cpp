@@ -6,7 +6,7 @@
  */
 
 #include <pvkernel/core/PVFileHelper.h>
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 #include <iostream>
 #include <stdio.h>

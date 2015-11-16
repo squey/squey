@@ -184,10 +184,10 @@ PVRush::PVSplunkAPI::columns_t PVRush::PVSplunkAPI::columns(std::string* error /
 	}
 
 	// Retrieve columns type (JSON)
-	static constexpr char PICVIZ_PREFIX[] = "picviz_isnum_";
+	static constexpr char INENDI_PREFIX[] = "inendi_isnum_";
 	for (auto& col : cols) {
 		const std::string& column_name = col.first;
-		search_query += std::string("| eval ") + PICVIZ_PREFIX + column_name + "=if(isnum(" + column_name + "),\"1\",\"0\") ";
+		search_query += std::string("| eval ") + INENDI_PREFIX + column_name + "=if(isnum(" + column_name + "),\"1\",\"0\") ";
 	}
 	buffer.clear();
 	if (perform_query(search_query, buffer, "json", error)) {
@@ -197,7 +197,7 @@ PVRush::PVSplunkAPI::columns_t PVRush::PVSplunkAPI::columns(std::string* error /
 		for (auto& col : cols) {
 			const std::string& column_name = col.first;
 			std::string& column_type = col.second;
-			std::string type_name = PICVIZ_PREFIX + column_name;
+			std::string type_name = INENDI_PREFIX + column_name;
 			column_type = json_result[type_name.c_str()].GetString()[0] == '1' ? "integer" : "string";
 		}
 	}

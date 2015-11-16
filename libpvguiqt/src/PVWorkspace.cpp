@@ -19,7 +19,7 @@
 
 #include <pvdisplays/PVDisplaysImpl.h>
 
-#include <picviz/widgets/PVArgumentListWidgetFactory.h>
+#include <inendi/widgets/PVArgumentListWidgetFactory.h>
 
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVZoneIndexType.h>
@@ -90,7 +90,7 @@ void PVGuiQt::PVWorkspaceBase::changeEvent(QEvent *event)
 }
 
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::add_view_display(
-	Picviz::PVView* view,
+	Inendi::PVView* view,
 	QWidget* view_widget,
 	std::function<QString()> name,
 	bool can_be_central_display /*= true*/,
@@ -112,7 +112,7 @@ PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::add_view_display(
 }
 
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(
-	Picviz::PVView* view,
+	Inendi::PVView* view,
 	QWidget* view_widget,
 	std::function<QString()> name,
 	bool delete_on_close
@@ -161,8 +161,8 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(PVViewDisplay* display
 		display_dock->_name = tmp_name;
 
 		// Exchange views and view events registering
-		Picviz::PVView* central_view = central_dock->get_view();
-		Picviz::PVView* display_view = display_dock->get_view();
+		Inendi::PVView* central_view = central_dock->get_view();
+		Inendi::PVView* display_view = display_dock->get_view();
 		central_dock->set_view(display_view);
 		central_dock->register_view(display_view);
 		display_dock->set_view(central_view);
@@ -202,7 +202,7 @@ void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(QAction* act)
 		}
 	}
 
-	Picviz::PVSource* src = nullptr;
+	Inendi::PVSource* src = nullptr;
 	PVDisplays::PVDisplaySourceIf& display_if = PVDisplays::get().get_params_from_action<PVDisplays::PVDisplaySourceIf>(*act, src);
 
 	if (!src) {
@@ -248,7 +248,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_widget(QAction* act)
 		}
 	}
 
-	Picviz::PVView* view = nullptr;
+	Inendi::PVView* view = nullptr;
 	PVDisplays::PVDisplayViewIf& display_if = PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewIf>(*act, view);
 
 	if (!view) {
@@ -269,7 +269,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(QAction* act)
 		}
 	}
 
-	Picviz::PVView* view = nullptr;
+	Inendi::PVView* view = nullptr;
 	PVCol axis_comb = PVCOL_INVALID_VALUE;
 	PVDisplays::PVDisplayViewAxisIf& display_if = PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewAxisIf>(*act, view, axis_comb);
 
@@ -302,7 +302,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(QAction* act)
 		}
 	}
 
-	Picviz::PVView* view = nullptr;
+	Inendi::PVView* view = nullptr;
 	PVCol zone_idx = PVCOL_INVALID_VALUE;
 	PVDisplays::PVDisplayViewZoneIf& display_if = PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewZoneIf>(*act, view, zone_idx);
 
@@ -331,13 +331,13 @@ void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(QAction* act)
  * PVGuiQt::PVSourceWorkspace
  *
  *****************************************************************************/
-PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Picviz::PVSource* source, QWidget* parent) :
+PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget* parent) :
 	PVWorkspaceBase(parent),
 	_source(source)
 {
 	//setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);
 
-	_views_count = _source->get_children<Picviz::PVView>().size();
+	_views_count = _source->get_children<Inendi::PVView>().size();
 
 	// Invalid events widget
 	PVSimpleStringListModel<QStringList>* inv_elts_model = new PVSimpleStringListModel<QStringList>(source->get_invalid_evts());
@@ -349,7 +349,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Picviz::PVSource* source, QWidget*
 	// Register observers on the mapped and plotted
 	source->depth_first_list(
 		[&](PVCore::PVDataTreeObjectBase* o) {
-			if(dynamic_cast<Picviz::PVMapped*>(o) || dynamic_cast<Picviz::PVPlotted*>(o)) {
+			if(dynamic_cast<Inendi::PVMapped*>(o) || dynamic_cast<Inendi::PVPlotted*>(o)) {
 				this->_obs.emplace_back(static_cast<QObject*>(this));
 				datatree_obs_t* obs = &_obs.back();
 				auto datatree_o = o->base_shared_from_this();
@@ -431,7 +431,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Picviz::PVSource* source, QWidget*
 
 	refresh_views_menus();
 
-	for (Picviz::PVView_sp const& view: _source->get_children<Picviz::PVView>()) {
+	for (Inendi::PVView_sp const& view: _source->get_children<Inendi::PVView>()) {
 		bool already_center = false;
 		// Create default widgets
 		PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
@@ -439,7 +439,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Picviz::PVSource* source, QWidget*
 			{
 				QWidget* w = PVDisplays::get().get_widget(obj, view.get());
 
-				Picviz::PVView* v = view.get();
+				Inendi::PVView* v = view.get();
 				std::function<QString()> name = [&,v](){ return obj.widget_title(v); };
 				const bool as_central = obj.default_position_as_central_hint();
 
@@ -460,14 +460,14 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Picviz::PVSource* source, QWidget*
 
 void PVGuiQt::PVSourceWorkspace::update_view_count(PVHive::PVObserverBase* /*obs_base*/)
 {
-	uint64_t views_count = _source->get_children<Picviz::PVView>().size();
+	uint64_t views_count = _source->get_children<Inendi::PVView>().size();
 	if (views_count != _views_count) {
 		refresh_views_menus();
 		_views_count = views_count;
 	}
 }
 
-const PVGuiQt::PVWorkspaceBase::PVViewWidgets& PVGuiQt::PVWorkspaceBase::get_view_widgets(Picviz::PVView* view)
+const PVGuiQt::PVWorkspaceBase::PVViewWidgets& PVGuiQt::PVWorkspaceBase::get_view_widgets(Inendi::PVView* view)
 {
 	if (!_view_widgets.contains(view)) {
 		PVViewWidgets widgets(view, this);
@@ -489,7 +489,7 @@ void PVGuiQt::PVSourceWorkspace::refresh_views_menus()
 		}
 	}
 
-	for (Picviz::PVView_sp const& view: _source->get_children<Picviz::PVView>()) {
+	for (Inendi::PVView_sp const& view: _source->get_children<Inendi::PVView>()) {
 		QString action_name = view->get_name();
 
 		for (std::pair<QToolButton*, PVDisplays::PVDisplayViewIf*> const& p: _view_display_if_btns) {

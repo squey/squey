@@ -110,7 +110,7 @@ widgets/format-builder/PVOptionsWidget.cpp
 )
 
 SET(QRC_FILES
-picviz-inspector_resource.qrc
+inendi-inspector_resource.qrc
 )
 
 SET(UI_FILES
@@ -127,7 +127,7 @@ QT5_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
 QT5_WRAP_UI(UI_SRC ${UI_FILES})
 
 ################################################
-# Handle licences for picviz-inspector
+# Handle licences for inendi-inspector
 ################################################
 
 if(PROTECT_PASS)
@@ -144,12 +144,12 @@ if(SET_PROTECT)
 endif()
 
 if (USE_LTO AND SET_PROTECT)
-	# Remove LTO for picviz-inspector as it remove the calls made with MAO
+	# Remove LTO for inendi-inspector as it remove the calls made with MAO
 	list(REMOVE_ITEM CMAKE_CXX_FLAGS_RELPROTECT ${LTO_CXX_FLAGS})
 	list(REMOVE_ITEM CMAKE_SHARED_LINKER_FLAGS_RELPROTECT ${LTO_LINK_FLAGS})
 endif()
 
-add_executable(picviz-inspector ${SRC_FILES} ${MOC_SRC} ${UI_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
+add_executable(inendi-inspector ${SRC_FILES} ${MOC_SRC} ${UI_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
 
 if(SET_PROTECT)
 	message(STATUS "Protection activated !")
@@ -158,15 +158,15 @@ if(SET_PROTECT)
 	add_definitions(${GALVEZ_CFLAGS})
 endif()
 
-set_property(TARGET picviz-inspector APPEND PROPERTY LINK_FLAGS ${GALVEZ_LDFLAGS})
+set_property(TARGET inendi-inspector APPEND PROPERTY LINK_FLAGS ${GALVEZ_LDFLAGS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 set(PV_QT_LIBS Qt5Core Qt5Widgets Qt5Network Qt5Xml Qt5Widgets)
 
-target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES}
-    pvguiqt pvparallelview pvhive picviz pvkernel 
+target_link_libraries(inendi-inspector ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES}
+    pvguiqt pvparallelview pvhive inendi pvkernel 
     ${TBB_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY}
     ${GALVEZ_LIBS} ${OpenMP_LIBRARIES} ${PV_QT_LIBS})
 
-INSTALL(TARGETS picviz-inspector DESTINATION .)
+INSTALL(TARGETS inendi-inspector DESTINATION .)
 

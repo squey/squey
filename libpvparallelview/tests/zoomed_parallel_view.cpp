@@ -7,11 +7,11 @@
 
 #include <iostream>
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
-#include <picviz/PVAxis.h>
-#include <picviz/PVPlotted.h>
-#include <picviz/PVView.h>
+#include <inendi/PVAxis.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVView.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
@@ -36,7 +36,7 @@
 
 //#define CONE
 
-void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p,
+void init_rand_plotted(Inendi::PVPlotted::plotted_table_t& p,
                        PVRow nrows, PVCol ncols)
 {
 	srand(0);

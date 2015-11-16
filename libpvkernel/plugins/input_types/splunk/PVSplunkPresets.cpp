@@ -13,7 +13,7 @@
 const char PVRush::PVSplunkPresets::PV_SETTINGS_INPUT[] = "plugins/input_type/splunk/";
 
 PVRush::PVSplunkPresets::PVSplunkPresets():
-	_settings(QSettings::UserScope, PICVIZ_ORGANISATION, PICVIZ_APPLICATIONNAME)
+	_settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
 {
 	_settings.beginGroup(QString(PV_SETTINGS_INPUT) + "presets");
 }

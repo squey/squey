@@ -5,11 +5,11 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 
-#include <picviz/PVPlotted.h>
+#include <inendi/PVPlotted.h>
 
 #include <pvparallelview/PVZoneProcessing.h>
 
@@ -39,7 +39,7 @@
  *****************************************************************************/
 
 void count_y1_seq_v1(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
-                     const Picviz::PVSelection &selection,
+                     const Inendi::PVSelection &selection,
                      const uint64_t y_min, const uint64_t y_max, const int zoom, double /*alpha*/,
                      uint32_t *buffer, const size_t buffer_size)
 {
@@ -57,7 +57,7 @@ void count_y1_seq_v1(const PVRow row_count, const uint32_t *col_y1, const uint32
 /* sequential version using shift'n mask but which keeps relative indexes
  */
 void count_y1_seq_v2(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
-                     const Picviz::PVSelection &selection,
+                     const Inendi::PVSelection &selection,
                      const uint64_t y_min, const uint64_t y_max, const int zoom, double alpha,
                      uint32_t *buffer, const size_t buffer_size)
 {
@@ -78,7 +78,7 @@ void count_y1_seq_v2(const PVRow row_count, const uint32_t *col_y1, const uint32
 /* sequential version using shift'n mask which uses indexed block
  */
 void count_y1_seq_v3(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
-                     const Picviz::PVSelection &selection,
+                     const Inendi::PVSelection &selection,
                      const uint64_t y_min, const uint64_t y_max, const int zoom, double alpha,
                      uint32_t *buffer, const size_t buffer_size)
 {
@@ -112,7 +112,7 @@ inline __m256i mm256_srli_epi32(const __m256i v, const int count)
 }
 
 void count_y1_avx_v3(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
-                     const Picviz::PVSelection &selection,
+                     const Inendi::PVSelection &selection,
                      const uint64_t y_min, const uint64_t y_max, const int zoom, double alpha,
                      uint32_t *buffer, const size_t buffer_size)
 {
@@ -170,7 +170,7 @@ void count_y1_avx_v3(const PVRow row_count, const uint32_t *col_y1, const uint32
 /* TODO: change it to use SSE intrinsics (and libdivide, see in pvkernel/core)
  */
 void count_y1_sse_v1(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
-                     const Picviz::PVSelection &selection,
+                     const Inendi::PVSelection &selection,
                      const uint64_t y_min, const uint64_t y_max, const int zoom, double alpha,
                      uint32_t *buffer, const size_t buffer_size)
 {
@@ -186,7 +186,7 @@ void count_y1_sse_v1(const PVRow row_count, const uint32_t *col_y1, const uint32
 }
 
 void count_y1_sse_v3(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
-                     const Picviz::PVSelection &selection,
+                     const Inendi::PVSelection &selection,
                      const uint64_t y_min, const uint64_t y_max, const int zoom, double alpha,
                      uint32_t *buffer, const size_t buffer_size)
 {
@@ -331,7 +331,7 @@ struct omp_sse_v3_ctx_t
 };
 
 void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
-                         const Picviz::PVSelection &selection,
+                         const Inendi::PVSelection &selection,
                          const uint64_t y_min, const uint64_t y_max, const int zoom, double alpha,
                          uint32_t *buffer, const size_t buffer_size, omp_sse_v3_ctx_t &ctx)
 {
@@ -442,7 +442,7 @@ void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t *col_y1, const ui
 }
 
 void count_y1_omp_sse_v3_2(const PVRow row_count, const uint32_t *col_y1, const uint32_t *col_y2,
-                           const Picviz::PVSelection &selection,
+                           const Inendi::PVSelection &selection,
                            const uint64_t y_min, const uint64_t y_max, const int zoom, double alpha,
                            uint32_t *buffer, const size_t buffer_size, omp_sse_v3_ctx_t &ctx)
 {
@@ -611,7 +611,7 @@ int main(int argc, char **argv)
 {
 	set_extra_param(ARG_EXTRA_COUNT, "col y_min zoom alpha");
 
-	Picviz::PVPlotted::uint_plotted_table_t plotted;
+	Inendi::PVPlotted::uint_plotted_table_t plotted;
 	PVCol col_count;
 	PVRow row_count;
 
@@ -647,7 +647,7 @@ int main(int argc, char **argv)
 
 	int buffer_size = 1024;
 
-	Picviz::PVSelection selection;
+	Inendi::PVSelection selection;
 
 	std::cout << "start test" << std::endl;
 

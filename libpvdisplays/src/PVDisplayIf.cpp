@@ -9,7 +9,7 @@
 
 
 // PVDisplayViewAxisIf implementation
-QWidget* PVDisplays::__impl::PVDisplayViewAxisIf::get_unique_widget(Picviz::PVView* view, PVCol axis_comb, QWidget* parent)
+QWidget* PVDisplays::__impl::PVDisplayViewAxisIf::get_unique_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent)
 {
 	QWidget* ret;
 	map_widgets_t::const_iterator it = _widgets.find(Params(view, axis_comb));
@@ -26,7 +26,7 @@ QWidget* PVDisplays::__impl::PVDisplayViewAxisIf::get_unique_widget(Picviz::PVVi
 	return ret;
 }
 
-QAction* PVDisplays::__impl::PVDisplayViewAxisIf::action_bound_to_params(Picviz::PVView* view, PVCol axis_comb, QObject* parent) const
+QAction* PVDisplays::__impl::PVDisplayViewAxisIf::action_bound_to_params(Inendi::PVView* view, PVCol axis_comb, QObject* parent) const
 {
 	QAction* action = new QAction(parent);
 

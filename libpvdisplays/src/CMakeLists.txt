@@ -35,7 +35,7 @@ set_target_properties(pvdisplays PROPERTIES SOVERSION 1)
 
 set(QT5_LIBS Qt5Core Qt5Xml Qt5Widgets)
 
-set(PVDISPLAYS_LINK_LIBRARIES picviz pvkernel ${QT5_LIBS} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
+set(PVDISPLAYS_LINK_LIBRARIES inendi pvkernel ${QT5_LIBS} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 
 target_link_libraries(pvdisplays ${PVDISPLAYS_LINK_LIBRARIES})
 

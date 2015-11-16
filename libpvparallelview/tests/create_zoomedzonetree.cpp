@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_bench.h>
-#include <picviz/PVPlotted.h>
+#include <pvkernel/core/inendi_bench.h>
+#include <inendi/PVPlotted.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/PVZoomedZoneTree.h>
@@ -82,7 +82,7 @@ void show_codes(QString const& title, bcicode_t* codes, size_t n)
 	mw->show();
 }
 
-void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol ncols)
+void init_rand_plotted(Inendi::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
 	//srand(time(NULL));
 	p.clear();
@@ -92,7 +92,7 @@ void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol
 	}
 }
 
-void init_normal_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol ncols)
+void init_normal_plotted(Inendi::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
 	// Generator engine
 	boost::mt19937 rand_gen(boost::mt19937(time(0)));
@@ -152,7 +152,7 @@ void fdprintf(int fd, const char *format, ...)
 }
 
 void test(
-	Picviz::PVPlotted::plotted_table_t& plotted,
+	Inendi::PVPlotted::plotted_table_t& plotted,
 	PVRow nrows,
 	PVCol ncols,
 	PVCore::PVHSVColor* colors,
@@ -164,8 +164,8 @@ void test(
 
 	std::cout << "== test ==" << std::endl;
 
-	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
-	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
+	Inendi::PVPlotted::uint_plotted_table_t norm_plotted;
+	Inendi::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 
 	{
 		PVParallelView::PVZoomedZoneTree* zzt = new PVParallelView::PVZoomedZoneTree(nullptr, nullptr, 8);
@@ -238,7 +238,7 @@ int main(int argc, char** argv)
 	QApplication app(argc, argv);
 
 	PVCol ncols, nrows;
-	Picviz::PVPlotted::plotted_table_t plotted;
+	Inendi::PVPlotted::plotted_table_t plotted;
 	//PVLOG_INFO("Loading plotted...\n");
 	QString fplotted(argv[1]);
 
@@ -264,8 +264,8 @@ int main(int argc, char** argv)
 		srand(0);
 		nrows = atol(argv[2]);
 
-		if (nrows > PICVIZ_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+		if (nrows > INENDI_LINES_MAX) {
+			std::cerr << "nrows is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
 			return 1;
 		}
 
@@ -288,14 +288,14 @@ int main(int argc, char** argv)
 		bcicode_t::free_codes(bci_codes_ref);
 		bcicode_t::free_codes(bci_codes);
 	} else {
-		if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
+		if (!Inendi::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
 			std::cerr << "Unable to load plotted !" << std::endl;
 			return 1;
 		}
 		nrows = plotted.size()/ncols;
 
-		if (nrows > PICVIZ_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+		if (nrows > INENDI_LINES_MAX) {
+			std::cerr << "nrows is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
 			return 1;
 		}
 
@@ -311,9 +311,9 @@ int main(int argc, char** argv)
 	}
 	//PVLOG_INFO("Plotted loaded with %u rows and %u columns.\n", nrows, ncols);
 
-	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
+	Inendi::PVPlotted::uint_plotted_table_t norm_plotted;
 	//PVLOG_INFO("Normalizing to 32-bit unsigned integers...\n");
-	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
+	Inendi::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 	//PVLOG_INFO("Done !\n");
 
 	// app.exec();

@@ -33,7 +33,7 @@ public:
 	PVZoomedZoneTree& zoomed_ztree() { return *_zoomed_ztree; }
 	PVZoomedZoneTree const& zoomed_ztree() const { return *_zoomed_ztree; }
 
-	inline void filter_by_sel(const Picviz::PVSelection& sel, const PVRow nrows)
+	inline void filter_by_sel(const Inendi::PVSelection& sel, const PVRow nrows)
 	{
 		_ztree->filter_by_sel(sel, nrows);
 		if (_zoomed_ztree->is_initialized()) {
@@ -41,7 +41,7 @@ public:
 		}
 	}
 
-	inline void filter_by_sel_background(const Picviz::PVSelection& sel, const PVRow nrows)
+	inline void filter_by_sel_background(const Inendi::PVSelection& sel, const PVRow nrows)
 	{
 		_ztree->filter_by_sel_background(sel, nrows);
 	}

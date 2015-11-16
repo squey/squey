@@ -19,7 +19,7 @@
 #include <pvguiqt/PVStatsListingWidget.h>
 #include <pvguiqt/PVQNraw.h>
 
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 	#define SIMULATE_LONG_COMPUTATION 0
 #endif
 
@@ -92,19 +92,19 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	connect(_listing_view->horizontalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(update_scrollbar_position()));
 
 	// Observe selection to handle automatic refresh mode
-	PVHive::PVObserverSignal<Picviz::PVSelection>* obs_sel = new PVHive::PVObserverSignal<Picviz::PVSelection>(this);
-	Picviz::PVView_sp view_sp = _listing_view->lib_view().shared_from_this();
-	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_real_output_selection(); }, *obs_sel);
+	PVHive::PVObserverSignal<Inendi::PVSelection>* obs_sel = new PVHive::PVObserverSignal<Inendi::PVSelection>(this);
+	Inendi::PVView_sp view_sp = _listing_view->lib_view().shared_from_this();
+	PVHive::get().register_observer(view_sp, [=](Inendi::PVView& view) { return &view.get_real_output_selection(); }, *obs_sel);
 	obs_sel->connect_refresh(this, SLOT(selection_changed()));
 
 	// Observe layerstack to handle automatic refresh mode
-	PVHive::PVObserverSignal<Picviz::PVLayer>* obs_layer = new PVHive::PVObserverSignal<Picviz::PVLayer>();
-	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& v) { return &v.get_output_layer(); }, *obs_layer);
+	PVHive::PVObserverSignal<Inendi::PVLayer>* obs_layer = new PVHive::PVObserverSignal<Inendi::PVLayer>();
+	PVHive::get().register_observer(view_sp, [=](Inendi::PVView& v) { return &v.get_output_layer(); }, *obs_layer);
 	obs_layer->connect_refresh(this, SLOT(selection_changed()));
 
 	// Observer axes combination changes
-	PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t>* obs_axes_comb = new PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t>;
-	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); }, *obs_axes_comb);
+	PVHive::PVObserverSignal<Inendi::PVAxesCombination::columns_indexes_t>* obs_axes_comb = new PVHive::PVObserverSignal<Inendi::PVAxesCombination::columns_indexes_t>;
+	PVHive::get().register_observer(view_sp, [=](Inendi::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); }, *obs_axes_comb);
 	obs_axes_comb->connect_refresh(this, SLOT(axes_comb_changed()));
 
 	init_plugins();
@@ -337,7 +337,7 @@ std::thread PVGuiQt::__impl::PVCellWidgetBase::_thread = std::thread();
 tbb::task_group_context* PVGuiQt::__impl::PVCellWidgetBase::_ctxt = new tbb::task_group_context();
 bool PVGuiQt::__impl::PVCellWidgetBase::_thread_running = false;
 
-PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) :
+PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item) :
 	_table(table),
 	_view(view),
 	_item(item),
@@ -438,7 +438,7 @@ typename PVGuiQt::PVStatsListingWidget::PVParams& PVGuiQt::__impl::PVCellWidgetB
 QMovie* PVGuiQt::__impl::PVCellWidgetBase::get_movie()
 {
 	if (_loading_movie == nullptr) {
-		_loading_movie = new QMovie(":/picviz-loading-animation");
+		_loading_movie = new QMovie(":/inendi-loading-animation");
 		_loading_movie->setScaledSize(QSize(16, 16));
 	}
 	return _loading_movie;
@@ -573,7 +573,7 @@ void PVGuiQt::__impl::PVCellWidgetBase::toggle_auto_refresh()
  * PVGuiQt::__impl::PVUniqueValuesCellWidget
  *
  *****************************************************************************/
-PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget* table, Picviz::PVView const& view, QTableWidgetItem* item) :
+PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item) :
 	PVCellWidgetBase(table, view, item),
 	_unique_values_pixmap(QPixmap::fromImage(QImage(":/fileslist_black")))
 {
@@ -606,7 +606,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
 {
 	if (!_dialog) {
-		Picviz::PVView_sp view = (const_cast<Picviz::PVView&>(_view)).shared_from_this();
+		Inendi::PVView_sp view = (const_cast<Inendi::PVView&>(_view)).shared_from_this();
 		PVQNraw::show_unique_values(view, _view.get_rushnraw_parent(), get_real_axis_col(), *_view.get_selection_visible_listing(), this, &_dialog);
 		connect(_dialog, SIGNAL(finished(int)), this, SLOT(unique_values_dlg_closed()));
 	}

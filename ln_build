@@ -27,7 +27,7 @@ if [ "$BUILDDIR" == "$SRCDIR" ]; then
 fi
 
 if [ ! -f "$SRCDIR/CMakeLists.txt" ]; then
-	echo "$SRCDIR does not contain any CMakeLists.txt file. Are you sure this is a picviz inspector source directory ?" 1>&2
+	echo "$SRCDIR does not contain any CMakeLists.txt file. Are you sure this is a inendi inspector source directory ?" 1>&2
 	exit 2
 fi
 

@@ -7,7 +7,7 @@
 
 #include <pvkernel/core/segfault_handler.h>
 
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 
 
 #include <stdio.h>
@@ -25,9 +25,9 @@
 
 #include <tbb/atomic.h>
 
-//#define PICVIZ_DEV_USE_SIGACTION
+//#define INENDI_DEV_USE_SIGACTION
 
-#ifdef PICVIZ_DEV_USE_SIGACTION
+#ifdef INENDI_DEV_USE_SIGACTION
 
 // From http://stackoverflow.com/questions/3596781/detect-if-gdb-is-running
 static bool are_we_ptraced()
@@ -123,7 +123,7 @@ static void segfault_handler(int sig, siginfo_t* sinfo, void* uctxt)
 
 void init_segfault_handler()
 {
-#ifdef PICVIZ_DEV_USE_SIGACTION
+#ifdef INENDI_DEV_USE_SIGACTION
 	// If we are already ptraced (like if gdb is alreadu running on top of us),
 	// do nothing here.
 	if (are_we_ptraced()) {
@@ -140,11 +140,11 @@ void init_segfault_handler()
 #endif
 }
 
-#else // PICVIZ_DEVELOPER_MODE
+#else // INENDI_DEVELOPER_MODE
 
 // TODO: use google breakpad so that users can send us backtraces ?
 void init_segfault_handler()
 {
 }
 
-#endif // PICVIZ_DEVELOPER_MODE
+#endif // INENDI_DEVELOPER_MODE

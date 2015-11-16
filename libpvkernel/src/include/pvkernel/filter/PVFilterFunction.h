@@ -46,7 +46,7 @@ namespace PVFilter {
 //! Here is an example of how to implement a filter that convert a QString to const char* using system locale (should not be used in real life !) :
 //! \code
 //! // In the header file:
-//! namespace Picviz
+//! namespace Inendi
 //! {
 //! 
 //! class PVFilterQString: public PVFilterFunctionRegistrable<const char*, QString const&> {
@@ -60,18 +60,18 @@ namespace PVFilter {
 //! }
 //! 
 //! // In the implementation file
-//! Picviz::PVFilterQString::PVFilterQString(PVCore::PVArgumentList const& args)
+//! Inendi::PVFilterQString::PVFilterQString(PVCore::PVArgumentList const& args)
 //! {
 //! 	INIT_FILTER(PVFilterQString, args);
 //! }
 //! 
-//! DEFAULT_ARGS_FILTER(Picviz::PVFilterQString)
+//! DEFAULT_ARGS_FILTER(Inendi::PVFilterQString)
 //! {
 //! 	PVCore::PVArgumentList args;
 //! 	args["arg1"] = true; // This is a QVariant !
 //! }
 //! 
-//! IMPL_FILTER(Picviz::PVFilterQString)
+//! IMPL_FILTER(Inendi::PVFilterQString)
 //! \endcode 
 //
 //! As said above, a filter function takes two templates argument: Tin and Tout. It specifies that this filter takes
@@ -162,7 +162,7 @@ protected:
 /*! \brief Define a filter function that takes the same type as reference in input and output (Tout = T&, Tin = T&)
  *
  * Define a filter function that takes the same type as reference in input and output (Tout = T&, Tin = T&) and that is registrable.\n
- * Used by many filters in libpicviz and others.
+ * Used by many filters in libinendi and others.
  */
 template < typename T, typename FilterT_ = PVFilterFunctionBase<T&,T&> >
 class PVFilterFunction : public PVFilterFunctionBase<T&,T&>, public PVCore::PVRegistrableClass< FilterT_ > {

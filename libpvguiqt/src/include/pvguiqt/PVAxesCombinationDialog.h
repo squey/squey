@@ -10,8 +10,8 @@
 
 #include <pvkernel/core/general.h>
 
-#include <picviz/PVAxesCombination.h>
-#include <picviz/PVView_types.h>
+#include <inendi/PVAxesCombination.h>
+#include <inendi/PVView_types.h>
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserverSignal.h>
@@ -29,7 +29,7 @@ class PVAxesCombinationDialog: public QDialog
 	Q_OBJECT
 
 public:
-	PVAxesCombinationDialog(Picviz::PVView_sp& view, QWidget* parent = NULL);
+	PVAxesCombinationDialog(Inendi::PVView_sp& view, QWidget* parent = NULL);
 	~PVAxesCombinationDialog();
 
 public:
@@ -39,7 +39,7 @@ public:
 	void reset_used_axes();
 
 private:
-	Picviz::PVView const& lib_view() const { return _lib_view; }
+	Inendi::PVView const& lib_view() const { return _lib_view; }
 
 protected slots:
 	void axes_comb_updated();
@@ -50,10 +50,10 @@ protected slots:
 
 protected:
 	PVAxesCombinationWidget* _axes_widget;
-	PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
-	PVHive::PVActor<Picviz::PVView> _actor;
-	Picviz::PVAxesCombination _temp_axes_comb;
-	Picviz::PVView const& _lib_view;
+	PVHive::PVObserverSignal<Inendi::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
+	PVHive::PVActor<Inendi::PVView> _actor;
+	Inendi::PVAxesCombination _temp_axes_comb;
+	Inendi::PVView const& _lib_view;
 	bool _valid;
 
 private:

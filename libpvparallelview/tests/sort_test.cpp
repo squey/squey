@@ -11,7 +11,7 @@
 
 #include <tbb/parallel_sort.h>
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 #include <pvparallelview/PVQuadTree.h>
 

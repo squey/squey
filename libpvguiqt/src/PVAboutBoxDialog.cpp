@@ -28,7 +28,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	main_layout->setHorizontalSpacing(0);
 	main_layout->setSizeConstraint(QLayout::SetFixedSize);
 
-	QString content = "INENDI Inspector version " + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"<br/>(c) 2014 Picviz Labs SAS, 2015 ESI Group<br/>";
+	QString content = "INENDI Inspector version " + QString(INENDI_CURRENT_VERSION_STR) + " \"" + QString(INENDI_VERSION_NAME) + "\"<br/>(c) 2014 Picviz Labs SAS, 2015 ESI Group<br/>";
 
 	content += "<br/>contact - <a href=\"mailto:";
 	content += EMAIL_ADDRESS_CONTACT;
@@ -46,7 +46,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	content += QString("<a href=\"mailto:%1\">%2</a>, %3<br/>").arg(CUSTOMER_EMAIL).arg(CUSTOMER_NAME).arg(CUSTOMER_COMPANY);
 
 	content += QString("Licence expiration day: %1<br/>").arg(CUSTOMER_EXPIRATIONDAY);
-	content += QString("Maximum events per source: %L1<br/>").arg(PICVIZ_LINES_MAX);
+	content += QString("Maximum events per source: %L1<br/>").arg(INENDI_LINES_MAX);
 
 
 #ifdef CUDA
@@ -76,9 +76,9 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	QPushButton *ok = new QPushButton("OK");
 
 	QLabel* doc = new QLabel();
-	doc->setText("<br/>Reference Manual: <a href=\"file:///opt/picviz-inspector/docs/picviz_inspector_reference_manual/index.html\">HTML</a> | " \
-	             "<a href=\"file:///opt/picviz-inspector/docs/picviz_inspector_reference_manual.pdf\">PDF</a><br/><br/>" \
-	             "All documentations: <a href=\"file:///opt/picviz-inspector/docs/\">local files</a> | " \
+	doc->setText("<br/>Reference Manual: <a href=\"file:///opt/inendi-inspector/docs/inendi_inspector_reference_manual/index.html\">HTML</a> | " \
+	             "<a href=\"file:///opt/inendi-inspector/docs/inendi_inspector_reference_manual.pdf\">PDF</a><br/><br/>" \
+	             "All documentations: <a href=\"file:///opt/inendi-inspector/docs/\">local files</a> | " \
 	             "<a href=\"https://docs.picviz.com\">docs.picviz.com</a><br/><br/>" \
 	);
 	doc->setTextFormat(Qt::RichText);

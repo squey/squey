@@ -27,7 +27,7 @@ PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) :
 
 	QLabel* ignore_label = new QLabel("Ignore");
 	_ignore_first_lines_spinbox = new PVGuiQt::PVLocalizedSpinBox();
-	_ignore_first_lines_spinbox->setMaximum(PICVIZ_LINES_MAX);
+	_ignore_first_lines_spinbox->setMaximum(INENDI_LINES_MAX);
 	QLabel* first_lines_label = new QLabel("first line(s) for each input file");
 
 	ignore_first_lines_layout->addWidget(ignore_label);
@@ -39,7 +39,7 @@ PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) :
 	_line_count_checkbox = new QCheckBox();
 	_line_count_label = new QLabel("Stop at line count");
 	_line_count_spinbox = new PVGuiQt::PVLocalizedSpinBox();
-	_line_count_spinbox->setMaximum(PICVIZ_LINES_MAX);
+	_line_count_spinbox->setMaximum(INENDI_LINES_MAX);
 
 	line_count_layout->addWidget(_line_count_checkbox);
 	line_count_layout->addWidget(_line_count_label);

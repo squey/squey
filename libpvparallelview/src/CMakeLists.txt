@@ -146,7 +146,7 @@ QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 
 set(QT5_LIBS Qt5Core Qt5Gui Qt5Widgets Qt5Xml Qt5Concurrent Qt5OpenGL)
 
-set(LINK_LIBRARIES pvdisplays picviz pvhive pvkernel ${QT5_LIBS} ${OPENGL_LIBRARIES}
+set(LINK_LIBRARIES pvdisplays inendi pvhive pvkernel ${QT5_LIBS} ${OPENGL_LIBRARIES}
 	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
 
 if (CUDA_FOUND)

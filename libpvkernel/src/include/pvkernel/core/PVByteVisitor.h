@@ -8,7 +8,7 @@
 #ifndef PVCORE_PVBYTEVISITOR_H
 #define PVCORE_PVBYTEVISITOR_H
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 
 #include <boost/integer.hpp>
 #include <boost/integer_traits.hpp>

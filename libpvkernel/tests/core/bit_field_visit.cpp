@@ -11,7 +11,7 @@
 #include <tbb/concurrent_vector.h>
 #include <tbb/parallel_sort.h>
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 #define N 100000000
 
@@ -120,17 +120,17 @@ int main()
 	ranges.push_back(std::make_pair(63, 215));
 #ifdef TESTS_LONG
 	// More than 4 chunks involved
-	ranges.push_back(std::make_pair(65, std::min(1000008, PICVIZ_LINES_MAX)));
-	ranges.push_back(std::make_pair(111, std::min(1000008, PICVIZ_LINES_MAX)));
-	ranges.push_back(std::make_pair(0, std::min(1500000, PICVIZ_LINES_MAX)));
+	ranges.push_back(std::make_pair(65, std::min(1000008, INENDI_LINES_MAX)));
+	ranges.push_back(std::make_pair(111, std::min(1000008, INENDI_LINES_MAX)));
+	ranges.push_back(std::make_pair(0, std::min(1500000, INENDI_LINES_MAX)));
 	// Prime-number ranges
-	ranges.push_back(std::make_pair(89767, std::min(99991, PICVIZ_LINES_MAX)));
+	ranges.push_back(std::make_pair(89767, std::min(99991, INENDI_LINES_MAX)));
 	// Previous bugous ranges
 	//
 	// There was an issue with the epilogue if the last chunk was indeed full
-	ranges.push_back(std::make_pair(57262, std::min(58624, PICVIZ_LINES_MAX)));
+	ranges.push_back(std::make_pair(57262, std::min(58624, INENDI_LINES_MAX)));
 	// Related to #245
-	ranges.push_back(std::make_pair(81990, std::min(102886, PICVIZ_LINES_MAX)));
+	ranges.push_back(std::make_pair(81990, std::min(102886, INENDI_LINES_MAX)));
 #endif
 
 	std::cout << "Tests with full selection..." << std::endl;
@@ -176,10 +176,10 @@ int main()
 
 	std::cout << "Tests with the first chunk full and a random second-one..." << std::endl;
 	bits.select_none();
-	for (size_t i = 0; i < PICVIZ_SELECTION_CHUNK_SIZE; i++) {
+	for (size_t i = 0; i < INENDI_SELECTION_CHUNK_SIZE; i++) {
 		bits.set_bit_fast(i);
 	}
-	for (size_t i = PICVIZ_SELECTION_CHUNK_SIZE; i < PICVIZ_SELECTION_CHUNK_SIZE*2; i++) {
+	for (size_t i = INENDI_SELECTION_CHUNK_SIZE; i < INENDI_SELECTION_CHUNK_SIZE*2; i++) {
 		if (rand() & 1) {
 			bits.set_bit_fast(i);
 		}
@@ -188,10 +188,10 @@ int main()
 
 	std::cout << "Tests with the two first chunks full and a random third one..." << std::endl;
 	bits.select_none();
-	for (size_t i = 0; i < PICVIZ_SELECTION_CHUNK_SIZE*2; i++) {
+	for (size_t i = 0; i < INENDI_SELECTION_CHUNK_SIZE*2; i++) {
 		bits.set_bit_fast(i);
 	}
-	for (size_t i = PICVIZ_SELECTION_CHUNK_SIZE*2; i < PICVIZ_SELECTION_CHUNK_SIZE*3; i++) {
+	for (size_t i = INENDI_SELECTION_CHUNK_SIZE*2; i < INENDI_SELECTION_CHUNK_SIZE*3; i++) {
 		if (rand() & 1) {
 			bits.set_bit_fast(i);
 		}

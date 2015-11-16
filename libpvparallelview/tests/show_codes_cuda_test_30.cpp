@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
@@ -53,8 +53,8 @@ PVParallelView::PVBCIBackendImage_p do_test(size_t n, size_t width, int pattern)
 	assert(dst_img_cuda);
 	
 	PVParallelView::PVBCICodeBase* dev_codes;
-	picviz_verify_cuda(cudaMalloc(&dev_codes, n * sizeof(PVParallelView::PVBCICodeBase)));
-	picviz_verify_cuda(cudaMemcpy(dev_codes, codes, n*sizeof(codes), cudaMemcpyHostToDevice));
+	inendi_verify_cuda(cudaMalloc(&dev_codes, n * sizeof(PVParallelView::PVBCICodeBase)));
+	inendi_verify_cuda(cudaMemcpy(dev_codes, codes, n*sizeof(codes), cudaMemcpyHostToDevice));
 	double bw;
 	float time;
 	switch (Bbits) {

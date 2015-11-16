@@ -18,7 +18,7 @@
 
 PVRush::PVNrawCacheManager::PVNrawCacheManager() :
 	_cache_file(std::unique_ptr<QSettings>(new QSettings(QString(PVCore::PVConfig::get().config().value(PVRush::PVNraw::config_nraw_tmp, PVRush::PVNraw::default_tmp_path).toString()) \
-			    + PICVIZ_PATH_SEPARATOR_CHAR + ".cache", QSettings::IniFormat)))
+			    + INENDI_PATH_SEPARATOR_CHAR + ".cache", QSettings::IniFormat)))
 {
 	_cache_file->beginGroup("cache");
 
@@ -180,7 +180,7 @@ QString PVRush::PVNrawCacheManager::path_to_key(const QString& path)
 
 QString PVRush::PVNrawCacheManager::key_to_path(const QString& key)
 {
-	return QString(PICVIZ_PATH_SEPARATOR_CHAR) + key;
+	return QString(INENDI_PATH_SEPARATOR_CHAR) + key;
 }
 
 void PVRush::PVNrawCacheManager::compatibility_move_nraws_to_user_nraws_dir()

@@ -20,7 +20,7 @@ QString PVWidgets::PVUtils::shorten_path(const QString& s, const QFont& font, ui
 
 	QString str(s);
 
-	const QString separator(PICVIZ_PATH_SEPARATOR_CHAR);
+	const QString separator(INENDI_PATH_SEPARATOR_CHAR);
 	const QString elipsis("...");
 
 	QStringList list = str.split(separator);

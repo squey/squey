@@ -20,7 +20,7 @@ static const char * plugins_get_displays_dir(void)
 	const char *pluginsdir;
 
 	// FIXME : This is dead code
-	pluginsdir = getenv("PICVIZ_DISPLAYS_DIR");
+	pluginsdir = getenv("INENDI_DISPLAYS_DIR");
 
 	return pluginsdir;
 }
@@ -61,7 +61,7 @@ void PVDisplays::PVDisplaysImpl::static_release()
 	visit_all_displays(	[](PVDisplayIf& obj) { obj.static_release(); } );
 }
 
-void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu, QObject* receiver, const char* slot, Picviz::PVView* view, PVCol axis_comb) const
+void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu, QObject* receiver, const char* slot, Inendi::PVView* view, PVCol axis_comb) const
 {
 	visit_displays_by_if<PVDisplayViewAxisIf>(
 		[&](PVDisplayViewAxisIf& interface)
@@ -75,7 +75,7 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu, QObjec
 		}, PVDisplayIf::ShowInCtxtMenu);
 }
 
-void PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(QMenu& menu, QObject* receiver, const char* slot, Picviz::PVView* view, PVCol axis_comb) const
+void PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(QMenu& menu, QObject* receiver, const char* slot, Inendi::PVView* view, PVCol axis_comb) const
 {
 	visit_displays_by_if<PVDisplayViewZoneIf>(
 		[&](PVDisplayViewZoneIf& interface)

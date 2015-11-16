@@ -101,7 +101,7 @@ bool PVCore::PVUnicodeString16::operator<(const PVUnicodeString16& o) const
 {
 	const utf_char* a = _buf;
 	const utf_char* b = o._buf;
-	int ret = memcmp(a, b, picviz_min(_len, o._len)*sizeof(utf_char));
+	int ret = memcmp(a, b, inendi_min(_len, o._len)*sizeof(utf_char));
 	if (ret == 0) {
 		return _len < o._len;
 	}
@@ -113,7 +113,7 @@ int PVCore::PVUnicodeString16::compare(const char* str) const
 {
 	QString str_(str);
 	const uint32_t str_size = str_.size();
-	int ret = memcmp(str_.constData(), _buf, picviz_min(_len, str_size)*sizeof(utf_char));
+	int ret = memcmp(str_.constData(), _buf, inendi_min(_len, str_size)*sizeof(utf_char));
 	if (ret == 0) {
 		if (_len < str_size) {
 			ret = -1;
@@ -128,7 +128,7 @@ int PVCore::PVUnicodeString16::compare(const char* str) const
 
 int PVCore::PVUnicodeString16::compare(const PVUnicodeString16& o) const
 {
-	int ret = memcmp(o._buf, _buf, picviz_min(o._len, _len)*sizeof(utf_char));
+	int ret = memcmp(o._buf, _buf, inendi_min(o._len, _len)*sizeof(utf_char));
 	if (ret == 0) {
 		if (_len < o._len) {
 			ret = -1;

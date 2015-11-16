@@ -12,7 +12,7 @@
 #include <QCoreApplication>
 
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 #include <list>
 

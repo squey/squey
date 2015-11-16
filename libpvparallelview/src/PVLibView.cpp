@@ -9,8 +9,8 @@
 
 #include <pvkernel/core/PVProgressBox.h>
 
-#include <picviz/PVPlotted.h>
-#include <picviz/PVView.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverCallback.h>
@@ -27,7 +27,7 @@
 
 #include <iostream>
 
-PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp):
+PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp):
 	_colors(view_sp->output_layer.get_lines_properties().get_buffer())
 {
 	common_init_view(view_sp);
@@ -35,7 +35,7 @@ PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp):
 	common_init_zm();
 }
 
-PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols):
+PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp, Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols):
 	_colors(view_sp->get_output_layer_color_buffer())
 {
 	common_init_view(view_sp);
@@ -48,54 +48,54 @@ PVParallelView::PVLibView::~PVLibView()
 	PVLOG_DEBUG("In PVLibView destructor\n");
 }
 
-void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
+void PVParallelView::PVLibView::common_init_view(Inendi::PVView_sp& view_sp)
 {
-	_obs_sel = PVHive::create_observer_callback_heap<Picviz::PVSelection>(
-	    [&](Picviz::PVSelection const*) { },
-		[&](Picviz::PVSelection const*) { this->selection_updated(); },
-		[&](Picviz::PVSelection const*) { }
+	_obs_sel = PVHive::create_observer_callback_heap<Inendi::PVSelection>(
+	    [&](Inendi::PVSelection const*) { },
+		[&](Inendi::PVSelection const*) { this->selection_updated(); },
+		[&](Inendi::PVSelection const*) { }
 	);
 
-	_obs_output_layer = PVHive::create_observer_callback_heap<Picviz::PVLayer>(
-	    [&](Picviz::PVLayer const*) { },
-		[&](Picviz::PVLayer const*) { this->output_layer_updated(); },
-		[&](Picviz::PVLayer const*) { }
+	_obs_output_layer = PVHive::create_observer_callback_heap<Inendi::PVLayer>(
+	    [&](Inendi::PVLayer const*) { },
+		[&](Inendi::PVLayer const*) { this->output_layer_updated(); },
+		[&](Inendi::PVLayer const*) { }
 	);
 
-	_obs_layer_stack_output_layer = PVHive::create_observer_callback_heap<Picviz::PVLayer>(
-	    [&](Picviz::PVLayer const*) { },
-		[&](Picviz::PVLayer const*) { this->layer_stack_output_layer_updated(); },
-		[&](Picviz::PVLayer const*) { }
+	_obs_layer_stack_output_layer = PVHive::create_observer_callback_heap<Inendi::PVLayer>(
+	    [&](Inendi::PVLayer const*) { },
+		[&](Inendi::PVLayer const*) { this->layer_stack_output_layer_updated(); },
+		[&](Inendi::PVLayer const*) { }
 	);
 
-	_obs_axes_comb = PVHive::create_observer_callback_heap<Picviz::PVAxesCombination::columns_indexes_t>(
-	    [&](Picviz::PVAxesCombination::columns_indexes_t const*) { this->axes_comb_about_to_be_updated(); },
-		[&](Picviz::PVAxesCombination::columns_indexes_t const*) { this->axes_comb_updated(); },
-		[&](Picviz::PVAxesCombination::columns_indexes_t const*) { }
+	_obs_axes_comb = PVHive::create_observer_callback_heap<Inendi::PVAxesCombination::columns_indexes_t>(
+	    [&](Inendi::PVAxesCombination::columns_indexes_t const*) { this->axes_comb_about_to_be_updated(); },
+		[&](Inendi::PVAxesCombination::columns_indexes_t const*) { this->axes_comb_updated(); },
+		[&](Inendi::PVAxesCombination::columns_indexes_t const*) { }
 	);
 
-	_obs_view = PVHive::create_observer_callback_heap<Picviz::PVView>(
-	    [&](Picviz::PVView const*) { },
-		[&](Picviz::PVView const*) { },
-		[&](Picviz::PVView const*) { this->view_about_to_be_deleted(); }
+	_obs_view = PVHive::create_observer_callback_heap<Inendi::PVView>(
+	    [&](Inendi::PVView const*) { },
+		[&](Inendi::PVView const*) { },
+		[&](Inendi::PVView const*) { this->view_about_to_be_deleted(); }
 	);
 
-	_obs_plotting = PVHive::create_observer_callback_heap<Picviz::PVPlotting>(
-	    [&](Picviz::PVPlotting const*) { },
-		[&](Picviz::PVPlotting const*) { this->plotting_updated(); },
-		[&](Picviz::PVPlotting const*) { }
+	_obs_plotting = PVHive::create_observer_callback_heap<Inendi::PVPlotting>(
+	    [&](Inendi::PVPlotting const*) { },
+		[&](Inendi::PVPlotting const*) { this->plotting_updated(); },
+		[&](Inendi::PVPlotting const*) { }
 	);
 
 
-	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_real_output_selection(); }, *_obs_sel);
-	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_output_layer(); }, *_obs_output_layer);
-	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_layer_stack_output_layer(); }, *_obs_layer_stack_output_layer);
-	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_axes_combination().get_axes_index_list(); }, *_obs_axes_comb);
+	PVHive::get().register_observer(view_sp, [=](Inendi::PVView& view) { return &view.get_real_output_selection(); }, *_obs_sel);
+	PVHive::get().register_observer(view_sp, [=](Inendi::PVView& view) { return &view.get_output_layer(); }, *_obs_output_layer);
+	PVHive::get().register_observer(view_sp, [=](Inendi::PVView& view) { return &view.get_layer_stack_output_layer(); }, *_obs_layer_stack_output_layer);
+	PVHive::get().register_observer(view_sp, [=](Inendi::PVView& view) { return &view.get_axes_combination().get_axes_index_list(); }, *_obs_axes_comb);
 	PVHive::get().register_observer(view_sp, *_obs_view);
 
 	if (view_sp->get_parent()) {
-		Picviz::PVPlotted_sp plotted_sp = view_sp->get_parent()->shared_from_this();
-		PVHive::get().register_observer(plotted_sp, [=](Picviz::PVPlotted& plotted) { return &plotted.get_plotting(); }, *_obs_plotting);
+		Inendi::PVPlotted_sp plotted_sp = view_sp->get_parent()->shared_from_this();
+		PVHive::get().register_observer(plotted_sp, [=](Inendi::PVPlotted& plotted) { return &plotted.get_plotting(); }, *_obs_plotting);
 	}
 
 	_sliders_manager_p = PVParallelView::PVSlidersManager_p(new PVSlidersManager);
@@ -120,7 +120,7 @@ void PVParallelView::PVLibView::common_init_zm()
 PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidget* parent)
 {
 	PVParallelView::PVFullParallelView* view = new PVParallelView::PVFullParallelView(parent);
-	Picviz::PVView_sp vsp = lib_view()->shared_from_this();
+	Inendi::PVView_sp vsp = lib_view()->shared_from_this();
 
 	PVParallelView::PVFullParallelScene *scene = new PVParallelView::PVFullParallelScene(view, vsp, _sliders_manager_p, common::backend(), _zones_manager, _processor_sel, _processor_bg);
 	_parallel_scenes.push_back(scene);
@@ -141,7 +141,7 @@ PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_v
 		}, &pbox);
 
 	PVParallelView::PVZoomedParallelView* view = new PVParallelView::PVZoomedParallelView(parent);
-	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
+	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
 	PVParallelView::PVZoomedParallelScene *scene = new PVParallelView::PVZoomedParallelScene(view, view_sp, _sliders_manager_p, _processor_sel, _processor_bg, _zones_manager, axis);
 	_zoomed_parallel_scenes.push_back(scene);
 	view->set_scene(scene);
@@ -152,10 +152,10 @@ PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_v
 PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view(PVCol const axis,
 	                                                                         QWidget* parent)
 {
-	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
+	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
 
 	const uint32_t *uint_plotted =
-		Picviz::PVPlotted::get_plotted_col_addr(_zones_manager.get_uint_plotted(),
+		Inendi::PVPlotted::get_plotted_col_addr(_zones_manager.get_uint_plotted(),
 				_zones_manager.get_number_rows(),
 				lib_view()->get_original_axis_index(axis));
 
@@ -176,7 +176,7 @@ PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(
 	QWidget* parent
 )
 {
-	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
+	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
 	PVCore::PVProgressBox pbox("Initializing scatter view");
 
 	pbox.set_enable_cancel(false);
@@ -287,7 +287,7 @@ void PVParallelView::PVLibView::output_layer_updated()
 
 void PVParallelView::PVLibView::plotting_updated()
 {
-	QList<PVCol> const& cols_updated = lib_view()->get_parent<Picviz::PVPlotted>()->last_updated_cols();
+	QList<PVCol> const& cols_updated = lib_view()->get_parent<Inendi::PVPlotted>()->last_updated_cols();
 	if (cols_updated.size() == 0) {
 		return;
 	}

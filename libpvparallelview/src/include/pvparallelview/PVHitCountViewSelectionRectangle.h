@@ -10,7 +10,7 @@
 
 #include <pvparallelview/PVSelectionRectangle.h>
 
-namespace Picviz
+namespace Inendi
 {
 
 class PVView;
@@ -46,11 +46,11 @@ protected:
 	void commit(bool use_selection_modifiers) override;
 
 	/**
-	 * get the Picviz::PVView associated with the hit-count view
+	 * get the Inendi::PVView associated with the hit-count view
 	 *
-	 * @return the associated Picviz::PVView
+	 * @return the associated Inendi::PVView
 	 */
-	Picviz::PVView& lib_view() override;
+	Inendi::PVView& lib_view() override;
 
 private:
 	PVHitCountView* _hcv;

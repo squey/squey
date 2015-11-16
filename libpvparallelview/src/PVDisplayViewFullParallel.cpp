@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
@@ -18,7 +18,7 @@ PVDisplays::PVDisplayViewFullParallel::PVDisplayViewFullParallel():
 {
 }
 
-QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Picviz::PVView* view, QWidget* parent) const
+QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Inendi::PVView* view, QWidget* parent) const
 {
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
 	QWidget* widget = lib_view->create_view(parent);
@@ -31,7 +31,7 @@ QIcon PVDisplays::PVDisplayViewFullParallel::toolbar_icon() const
 	return QIcon(":/view-parallel-full");
 }
 
-QString PVDisplays::PVDisplayViewFullParallel::widget_title(Picviz::PVView* view) const
+QString PVDisplays::PVDisplayViewFullParallel::widget_title(Inendi::PVView* view) const
 {
 	return QString("Parallel view [" + view->get_name() + "]");
 }

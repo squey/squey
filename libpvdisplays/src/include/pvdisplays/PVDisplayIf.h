@@ -12,8 +12,8 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 
-#include <picviz/PVSource_types.h>
-#include <picviz/PVView_types.h>
+#include <inendi/PVSource_types.h>
+#include <inendi/PVView_types.h>
 
 #include <QAction>
 #include <QIcon>
@@ -147,7 +147,7 @@ private:
 	hash_widgets_t _widgets;
 };
 
-class PVDisplayViewIf: public PVDisplayDataTreeIf<Picviz::PVView>, public PVCore::PVRegistrableClass<PVDisplayViewIf>
+class PVDisplayViewIf: public PVDisplayDataTreeIf<Inendi::PVView>, public PVCore::PVRegistrableClass<PVDisplayViewIf>
 {
 public:
 	typedef PVDisplayViewIf RegAs;
@@ -155,11 +155,11 @@ public:
 
 public:
 	PVDisplayViewIf(int flags = 0, QString const& tooltip_str = QString(), Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea):
-		PVDisplayDataTreeIf<Picviz::PVView>(flags, tooltip_str, def_pos)
+		PVDisplayDataTreeIf<Inendi::PVView>(flags, tooltip_str, def_pos)
 	{ }
 };
 
-class PVDisplaySourceIf: public PVDisplayDataTreeIf<Picviz::PVSource>, public PVCore::PVRegistrableClass<PVDisplaySourceIf>
+class PVDisplaySourceIf: public PVDisplayDataTreeIf<Inendi::PVSource>, public PVCore::PVRegistrableClass<PVDisplaySourceIf>
 {
 public:
 	typedef PVDisplaySourceIf RegAs;
@@ -167,7 +167,7 @@ public:
 
 public:
 	PVDisplaySourceIf(int flags = 0, QString const& tooltip_str = QString(), Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea):
-		PVDisplayDataTreeIf<Picviz::PVSource>(flags, tooltip_str, def_pos)
+		PVDisplayDataTreeIf<Inendi::PVSource>(flags, tooltip_str, def_pos)
 	{ }
 };
 
@@ -180,12 +180,12 @@ public:
 	{
 		Params(): view(nullptr), axis_comb(0) { }
 		Params(const Params& o): view(o.view), axis_comb(o.axis_comb) { }
-		Params(Picviz::PVView* view_, PVCol axis_comb_):
+		Params(Inendi::PVView* view_, PVCol axis_comb_):
 			view(view_),
 			axis_comb(axis_comb_)
 		{ }
 
-		Picviz::PVView* view;
+		Inendi::PVView* view;
 		PVCol axis_comb;
 
 		inline bool operator<(Params const& p) const { return view < p.view && axis_comb < p.axis_comb; }
@@ -200,26 +200,26 @@ public:
 	{ }
 
 public:
-	virtual QString widget_title(Picviz::PVView* /*obj*/, PVCol /*axis_comb*/) const { return QString(); }
-	virtual QString axis_menu_name(Picviz::PVView const* /*obj*/, PVCol /*axis_comb*/) const { return QString(); }
+	virtual QString widget_title(Inendi::PVView* /*obj*/, PVCol /*axis_comb*/) const { return QString(); }
+	virtual QString axis_menu_name(Inendi::PVView const* /*obj*/, PVCol /*axis_comb*/) const { return QString(); }
 
 protected:
-	QWidget* get_unique_widget(Picviz::PVView* view, PVCol axis_comb, QWidget* parent = NULL);
+	QWidget* get_unique_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent = NULL);
 	QWidget* get_unique_widget_from_action(QAction const& action, QWidget* parent = NULL);
 
 	QWidget* create_widget_from_action(QAction const& action, QWidget* parent = NULL) const;
 
-	inline void get_params_from_action(QAction const& action, Picviz::PVView* &view, PVCol& axis_comb)
+	inline void get_params_from_action(QAction const& action, Inendi::PVView* &view, PVCol& axis_comb)
 	{
 		Params p = get_params_from_action(action);
 		view = p.view;
 		axis_comb = p.axis_comb;
 	}
 
-	QAction* action_bound_to_params(Picviz::PVView* view, PVCol axis_comb, QObject* parent = NULL) const;
+	QAction* action_bound_to_params(Inendi::PVView* view, PVCol axis_comb, QObject* parent = NULL) const;
 
 protected:
-	virtual QWidget* create_widget(Picviz::PVView* view, PVCol axis_comb, QWidget* parent = NULL) const = 0;
+	virtual QWidget* create_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent = NULL) const = 0;
 
 private:
 	inline static Params get_params_from_action(QAction const& action)

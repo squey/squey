@@ -10,7 +10,7 @@
 
 #include <PVMapWidget.h>
 
-#include <picviz/general.h>
+#include <inendi/general.h>
 
 PVMapWidget::PVMapWidget(QWidget *parent) : QWebView(parent)
 {

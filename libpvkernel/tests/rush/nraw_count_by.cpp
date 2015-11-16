@@ -14,7 +14,7 @@
 #include <pvkernel/rush/PVTests.h>
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/core/PVSelBitField.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 #include <cstdlib>
 #include <iostream>
 #include "helpers.h"

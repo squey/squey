@@ -12,7 +12,7 @@
 
 #include <pvkernel/core/PVVector.h>
 
-#include <picviz/PVSelection.h>
+#include <inendi/PVSelection.h>
 
 #include <pvparallelview/PVBCICode.h>
 

@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <picviz/PVSource.h>
-#include <picviz/PVView.h>
+#include <inendi/PVSource.h>
+#include <inendi/PVView.h>
 
 #include <pvguiqt/PVRootTreeModel.h>
 
@@ -22,8 +22,8 @@ QVariant PVGuiQt::PVRootTreeModel::data(const QModelIndex& index, int role) cons
 {
 	if (role == Qt::FontRole) {
 		PVCore::PVDataTreeObjectBase const* obj = (PVCore::PVDataTreeObjectBase const*) index.internalPointer();
-		Picviz::PVView const* view = dynamic_cast<Picviz::PVView const*>(obj);
-		if (view && view->get_parent<Picviz::PVRoot>()->current_view() == view) {
+		Inendi::PVView const* view = dynamic_cast<Inendi::PVView const*>(obj);
+		if (view && view->get_parent<Inendi::PVRoot>()->current_view() == view) {
 		   QFont font;
 		   font.setBold(true);
 		   return font;
@@ -32,7 +32,7 @@ QVariant PVGuiQt::PVRootTreeModel::data(const QModelIndex& index, int role) cons
 	else
 	if (role == Qt::ForegroundRole) {
 		PVCore::PVDataTreeObjectBase const* obj = (PVCore::PVDataTreeObjectBase const*) index.internalPointer();
-		Picviz::PVView const* view = dynamic_cast<Picviz::PVView const*>(obj);
+		Inendi::PVView const* view = dynamic_cast<Inendi::PVView const*>(obj);
 		if (view) {
 			return QBrush(view->get_color());
 		}

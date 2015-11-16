@@ -14,9 +14,9 @@
 #include <pvbase/qhashes.h>
 
 #include <pvkernel/core/string_tbb.h>
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 #include <pvkernel/rush/PVNrawDiskBackend.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVUnicodeString.h>
 
 #include <iostream>

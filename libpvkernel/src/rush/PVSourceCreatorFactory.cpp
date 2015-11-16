@@ -12,7 +12,7 @@
 
 #include <tbb/tick_count.h>
 
-#define PICVIZ_DISCOVERY_NCHUNKS 1
+#define INENDI_DISCOVERY_NCHUNKS 1
 
 PVRush::list_creators PVRush::PVSourceCreatorFactory::get_by_input_type(PVInputType_p in_t)
 {
@@ -101,7 +101,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 
 	static size_t nelts_max = pvconfig.value("pvkernel/auto_discovery_number_elts", 500).toInt();
 
-	for (int i = 0; i < PICVIZ_DISCOVERY_NCHUNKS; i++) {
+	for (int i = 0; i < INENDI_DISCOVERY_NCHUNKS; i++) {
 		// Create a chunk
 		PVCore::PVChunk* chunk = (*src)();
 		if (chunk == NULL) { // No more chunks !

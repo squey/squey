@@ -16,8 +16,8 @@
 #include <QFont>
 
 #include <pvkernel/core/general.h>
-#include <picviz/PVAxesCombination.h>
-#include <picviz/PVView_types.h>
+#include <inendi/PVAxesCombination.h>
+#include <inendi/PVView_types.h>
 
 #include <pvhive/PVObserverSignal.h>
 
@@ -41,7 +41,7 @@ namespace __impl {
      * @note Hive inside
      *
      */
-    struct PVListingVisibilityObserver: public PVHive::PVFuncObserver<Picviz::PVView, FUNC(Picviz::PVView::toggle_listing_unselected_visibility)>
+    struct PVListingVisibilityObserver: public PVHive::PVFuncObserver<Inendi::PVView, FUNC(Inendi::PVView::toggle_listing_unselected_visibility)>
     {
 	/**
 	 * Save the ListingModel to be updated.
@@ -73,7 +73,7 @@ namespace __impl {
      * @note Hive inside
      *
      */
-    struct PVListingVisibilityZombieObserver: public PVHive::PVFuncObserver<Picviz::PVView, FUNC(Picviz::PVView::toggle_listing_zombie_visibility)>
+    struct PVListingVisibilityZombieObserver: public PVHive::PVFuncObserver<Inendi::PVView, FUNC(Inendi::PVView::toggle_listing_zombie_visibility)>
     {
 	/**
 	 * Save the ListingModel to be updated.
@@ -134,7 +134,7 @@ public:
      * record, every view will be updated on listing model modification.
      *
      */
-    PVListingModel(Picviz::PVView_sp& view, QObject* parent = nullptr);
+    PVListingModel(Inendi::PVView_sp& view, QObject* parent = nullptr);
 
     /**
      * Return data requested by the View
@@ -243,7 +243,7 @@ public:
      *
      * @note: Modification is possible to enable Selection swapping
      */
-    Picviz::PVSelection & current_selection() { return _current_selection; }
+    Inendi::PVSelection & current_selection() { return _current_selection; }
 
     /// Accessors
     size_t current_page() const { return _current_page; }
@@ -331,13 +331,13 @@ public:
      *
      * @return linked view.
      */
-    inline Picviz::PVView const& lib_view() const { return *_view; }
+    inline Inendi::PVView const& lib_view() const { return *_view; }
 
     private:
-    Picviz::PVView_sp _view; //!< Observed view
-    PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t> _obs_axes_comb; //!< Observe axs combination modifications
-    PVHive::PVObserverSignal<Picviz::PVSelection> _obs_sel; //!< Observe the seletion to update on selection modifications
-    PVHive::PVObserverSignal<Picviz::PVLayer> _obs_output_layer; //!< Observe selected/unselected calques
+    Inendi::PVView_sp _view; //!< Observed view
+    PVHive::PVObserverSignal<Inendi::PVAxesCombination::columns_indexes_t> _obs_axes_comb; //!< Observe axs combination modifications
+    PVHive::PVObserverSignal<Inendi::PVSelection> _obs_sel; //!< Observe the seletion to update on selection modifications
+    PVHive::PVObserverSignal<Inendi::PVLayer> _obs_output_layer; //!< Observe selected/unselected calques
     __impl::PVListingVisibilityObserver _obs_vis; //!< Observer for selected/unselected lines
     __impl::PVListingVisibilityZombieObserver _obs_zomb; //! Observer for zombies lines
 
@@ -358,7 +358,7 @@ public:
     size_t _page_step; //!< Number of elements not counted in scroll ticks
 
     // Selection information
-    Picviz::PVSelection _current_selection; //!< The current "visual" selection
+    Inendi::PVSelection _current_selection; //!< The current "visual" selection
     ssize_t _start_sel; //!< Begin of the "in progress" selection
     ssize_t _end_sel; //!< End of the "in progress" selection
     bool _in_select_mode; //!< Whether elements should be selected of unselected from "in progress" selection to current selection.

@@ -5,13 +5,13 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_bench.h>
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
 
 #include <QApplication>
 
-#include <picviz/PVSelection.h>
+#include <inendi/PVSelection.h>
 
 #include <pvparallelview/PVSelectionGenerator.h>
 #include <pvparallelview/PVBCode.h>
@@ -37,7 +37,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 	PVLinesView& lines_view,
 	PVZoneID zone_id,
 	QRect rect,
-	Picviz::PVSelection& sel
+	Inendi::PVSelection& sel
 )
 {
 	uint32_t nb_selected = 0;
@@ -56,8 +56,8 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 	line.b = -width;
 
 	//tbb::tag_tls_construct_args tag_c;
-	//tbb::enumerable_thread_specific<Picviz::PVSelection> sel_tls(tag_c, Picviz::PVSelection::tag_allocate_empty());
-	//tbb::enumerable_thread_specific<Picviz::PVSelection> sel_tls;
+	//tbb::enumerable_thread_specific<Inendi::PVSelection> sel_tls(tag_c, Inendi::PVSelection::tag_allocate_empty());
+	//tbb::enumerable_thread_specific<Inendi::PVSelection> sel_tls;
 	for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
 	{
 		uint32_t branch_count = ztree.get_branch_count(branch);
@@ -67,7 +67,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 		}
 
 		//PVRow r =  ztree.get_first_elt_of_branch(branch);
-		//Picviz::PVSelection& sel_th = sel_tls.local();
+		//Inendi::PVSelection& sel_th = sel_tls.local();
 		code_b.int_v = branch;
 		int32_t y1 = code_b.s.l;
 		int32_t y2 = code_b.s.r;
@@ -91,7 +91,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 			//sel_th.set_bit_fast(cur_r);
 			sel.set_bit_fast(cur_r);
 //#pragma omp atomic
-			//sel.get_buffer()[Picviz::PVSelection::line_index_to_chunk(cur_r)] |= 1UL<<Picviz::PVSelection::line_index_to_chunk_bit(cur_r);
+			//sel.get_buffer()[Inendi::PVSelection::line_index_to_chunk(cur_r)] |= 1UL<<Inendi::PVSelection::line_index_to_chunk_bit(cur_r);
 		}
 		nb_selected += branch_count;
 	}
@@ -116,7 +116,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 	PVLinesView& lines_view,
 	PVZoneID zone_id,
 	const typename PVAxisGraphicsItem::selection_ranges_t& ranges,
-	Picviz::PVSelection& sel)
+	Inendi::PVSelection& sel)
 {
 	uint32_t nb_selected = 0;
 
@@ -294,7 +294,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 	const PVHitGraphBlocksManager& manager,
 	const QRectF& rect,
 	const uint32_t max_count,
-	Picviz::PVSelection& sel,
+	Inendi::PVSelection& sel,
 	bool use_selectable
 )
 {
@@ -308,7 +308,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_seri
 	const PVHitGraphBlocksManager& manager,
 	const QRectF& rect,
 	const uint32_t max_count,
-	Picviz::PVSelection& sel)
+	Inendi::PVSelection& sel)
 {
 	sel.ensure_allocated();
 
@@ -352,7 +352,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_seri
 	const PVHitGraphBlocksManager& manager,
 	const QRectF& rect,
 	const uint32_t max_count,
-	Picviz::PVSelection& sel)
+	Inendi::PVSelection& sel)
 {
 	sel.ensure_allocated();
 
@@ -415,7 +415,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse(
 	const PVHitGraphBlocksManager& manager,
 	const QRectF& rect,
 	const uint32_t max_count,
-	Picviz::PVSelection& sel)
+	Inendi::PVSelection& sel)
 {
 	sel.ensure_allocated();
 
@@ -449,13 +449,13 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse(
 			// _mm_andnot_si128(a,b) = ~a & b
 			// _mm_cmplt_epi32(a,b) = a < b;
 			// thus andnot(cmplt(a,b),cmplt(a,c)) <=> (!(a < b)) && (a < c) <=> (a >=b) && (a < c)
-			const __m128i mask_y = picviz_mm_cmprange_in_epu32(y_sse, v_min_sse, v_max_sse);
+			const __m128i mask_y = inendi_mm_cmprange_in_epu32(y_sse, v_min_sse, v_max_sse);
 
 			if (!_mm_test_all_zeros(mask_y, _mm_set1_epi32(0xFFFFFFFFU))) {
 
 				const __m128i count_sse = manager.get_count_for(y_sse);
 
-				const __m128i mask_count = picviz_mm_cmprange_in_epi32(count_sse, c_min_sse, c_max_sse);
+				const __m128i mask_count = inendi_mm_cmprange_in_epi32(count_sse, c_min_sse, c_max_sse);
 
 				const __m128i mask = _mm_and_si128(mask_y, mask_count);
 
@@ -464,7 +464,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse(
 				chunk |= sel_bits << j;
 			}
 		}
-		sel.set_chunk_fast(Picviz::PVSelection::line_index_to_chunk(i), chunk);
+		sel.set_chunk_fast(Inendi::PVSelection::line_index_to_chunk(i), chunk);
 	}
 	for (; i < nrows; i++) {
 		const uint32_t v = plotted[i];
@@ -491,7 +491,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 	const PVHitGraphBlocksManager& manager,
 	const QRectF& rect,
 	const uint32_t max_count,
-	Picviz::PVSelection& sel,
+	Inendi::PVSelection& sel,
 	bool use_selectable
 	)
 {
@@ -543,7 +543,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 		int32_t chunk = 0;
 		for (int j = 0; j < 32; j += 4) {
 			const __m128i y_sse = _mm_load_si128((__m128i const*) &plotted[i+j]);
-			const __m128i mask_y = picviz_mm_cmprange_in_epu32(y_sse, v_min_sse, v_max_sse);
+			const __m128i mask_y = inendi_mm_cmprange_in_epu32(y_sse, v_min_sse, v_max_sse);
 
 			if (!_mm_test_all_zeros(mask_y, _mm_set1_epi32(0xFFFFFFFFU))) {
 
@@ -551,7 +551,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 				const __m128i base_sse = _mm_srli_epi32(y_sse, zoom_shift);
 				const __m128i p_sse = _mm_sub_epi32(base_sse, base_y_sse);
 
-				const __m128i res_sse = picviz_mm_cmprange_epi32(p_sse, _mm_setzero_si128(), nblocks_sse);
+				const __m128i res_sse = inendi_mm_cmprange_epi32(p_sse, _mm_setzero_si128(), nblocks_sse);
 
 				if (!_mm_test_all_zeros(res_sse, _mm_set1_epi32(0xFFFFFFFFU))) {
 					const __m128i idx_sse = PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(y_sse, p_sse, y_min_ref_sse, alpha_sse, zoom_mask_sse, idx_shift, zoom_shift, nbits);
@@ -570,7 +570,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 						count_sse = _mm_insert_epi32(count_sse, buffer[_mm_extract_epi32(idx_sse, 3)], 3);
 					}
 
-					const __m128i mask_count = picviz_mm_cmprange_in_epi32(count_sse, c_min_sse, c_max_sse);
+					const __m128i mask_count = inendi_mm_cmprange_in_epi32(count_sse, c_min_sse, c_max_sse);
 
 					const __m128i mask = _mm_and_si128(mask_y, mask_count);
 
@@ -580,7 +580,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 				}
 			}
 		}
-		sel.set_chunk32_fast_stream(Picviz::PVSelection::line_index_to_chunk32(i), chunk);
+		sel.set_chunk32_fast_stream(Inendi::PVSelection::line_index_to_chunk32(i), chunk);
 	}
 	for (i = nrows_sse; i < nrows; i++) {
 		const uint32_t v = plotted[i];
@@ -605,8 +605,8 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_plotted_ra
 	PVRow nrows,
 	uint64_t y_min,
 	uint64_t y_max,
-	Picviz::PVSelection& sel,
-	Picviz::PVSelection const& layers_sel
+	Inendi::PVSelection& sel,
+	Inendi::PVSelection const& layers_sel
 )
 {
 	return __impl::compute_selection_from_plotted_range_sse(plotted, nrows, y_min, y_max, sel, layers_sel);
@@ -620,8 +620,8 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_seq(
 	PVRow nrows,
 	uint64_t y_min,
 	uint64_t y_max,
-	Picviz::PVSelection& sel,
-	const Picviz::PVSelection& layers_sel)
+	Inendi::PVSelection& sel,
+	const Inendi::PVSelection& layers_sel)
 {
 	if (y_min == y_max) {
 		return 0;
@@ -656,8 +656,8 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
 	PVRow nrows,
 	uint64_t y_min,
 	uint64_t y_max,
-	Picviz::PVSelection& sel,
-	const Picviz::PVSelection& layers_sel)
+	Inendi::PVSelection& sel,
+	const Inendi::PVSelection& layers_sel)
 {
 	if (y_min == y_max) {
 		return 0;
@@ -680,14 +680,14 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
 		for (int j = 0; j < 64; j += 4) {
 			const __m128i y_sse = _mm_load_si128((__m128i const*) &plotted[i+j]);
 
-			const __m128i mask_y = picviz_mm_cmprange_in_epu32(y_sse, y_min_sse, y_max_sse);
+			const __m128i mask_y = inendi_mm_cmprange_in_epu32(y_sse, y_min_sse, y_max_sse);
 
 			if (!(_mm_test_all_zeros(mask_y, sse_ff))) {
 				const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask_y));
 				chunk |= sel_bits << j;
 			}
 		}
-		const PVRow chunk_idx = Picviz::PVSelection::line_index_to_chunk(i);
+		const PVRow chunk_idx = Inendi::PVSelection::line_index_to_chunk(i);
 		sel.set_chunk_fast(chunk_idx, chunk & layers_sel.get_chunk_fast(chunk_idx));
 	}
 	for (PVRow i = nrows_sse; i < nrows; i++) {
@@ -703,7 +703,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
 		sel.clear_bit_fast(i);
 	}
 
-	BENCH_END(compute_selection_from_plotted_range_sse, "compute_selection_from_plotted_range_sse", nrows, sizeof(uint32_t), Picviz::PVSelection::line_index_to_chunk(nrows), sizeof(uint64_t));
+	BENCH_END(compute_selection_from_plotted_range_sse, "compute_selection_from_plotted_range_sse", nrows, sizeof(uint32_t), Inendi::PVSelection::line_index_to_chunk(nrows), sizeof(uint64_t));
 
 	return 0;
 }
@@ -716,8 +716,8 @@ const uint32_t* y1_plotted,
 	const uint32_t* y2_plotted,
 	const PVRow nrows,
 	const QRectF& rect,
-	Picviz::PVSelection& sel,
-	Picviz::PVSelection const& layers_sel
+	Inendi::PVSelection& sel,
+	Inendi::PVSelection const& layers_sel
 )
 {
 	return __impl::compute_selection_from_plotteds_ranges_sse(y1_plotted, y2_plotted, nrows, rect, sel, layers_sel);
@@ -731,8 +731,8 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_ranges_seq(
 	const uint32_t* y2_plotted,
 	const PVRow nrows,
 	const QRectF& rect,
-	Picviz::PVSelection& sel,
-	Picviz::PVSelection const& layers_sel
+	Inendi::PVSelection& sel,
+	Inendi::PVSelection const& layers_sel
 )
 {
 	if (rect.isNull()) {
@@ -775,8 +775,8 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 	const uint32_t* y2_plotted,
 	const PVRow nrows,
 	const QRectF& rect,
-	Picviz::PVSelection& sel,
-	Picviz::PVSelection const& layers_sel
+	Inendi::PVSelection& sel,
+	Inendi::PVSelection const& layers_sel
 )
 {
 	if (rect.isNull()) {
@@ -809,19 +809,19 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 		for (int j = 0; j < 64; j += 4) {
 			const __m128i y1_sse = _mm_load_si128((__m128i const*) &y1_plotted[i+j]);
 
-			const __m128i mask_y1 = picviz_mm_cmprange_in_epu32(y1_sse, y1_min_sse, y1_max_sse);
+			const __m128i mask_y1 = inendi_mm_cmprange_in_epu32(y1_sse, y1_min_sse, y1_max_sse);
 
 			if (!(_mm_test_all_zeros(mask_y1, sse_ff))) {
 				const __m128i y2_sse = _mm_load_si128((__m128i const*) &y2_plotted[i+j]);
 
-				const __m128i mask_y2 = picviz_mm_cmprange_in_epu32(y2_sse, y2_min_sse, y2_max_sse);
+				const __m128i mask_y2 = inendi_mm_cmprange_in_epu32(y2_sse, y2_min_sse, y2_max_sse);
 				const __m128i mask_y1_y2 = _mm_and_si128(mask_y1, mask_y2);
 
 				const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask_y1_y2));
 				chunk |= sel_bits << j;
 			}
 		}
-		const PVRow chunk_idx = Picviz::PVSelection::line_index_to_chunk(i);
+		const PVRow chunk_idx = Inendi::PVSelection::line_index_to_chunk(i);
 		sel.set_chunk_fast(chunk_idx, chunk & layers_sel.get_chunk_fast(chunk_idx));
 	}
 	for (PVRow i = nrows_sse; i < nrows; i++) {
@@ -838,7 +838,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 		sel.clear_bit_fast(i);
 	}
 
-	BENCH_END(compute_selection_from_plotteds_ranges_sse, "compute_selection_from_plotteds_ranges_sse", 2*nrows, sizeof(uint32_t), Picviz::PVSelection::line_index_to_chunk(nrows), sizeof(uint64_t));
+	BENCH_END(compute_selection_from_plotteds_ranges_sse, "compute_selection_from_plotteds_ranges_sse", 2*nrows, sizeof(uint32_t), Inendi::PVSelection::line_index_to_chunk(nrows), sizeof(uint64_t));
 
 	return 0;
 }
@@ -846,9 +846,9 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 /*****************************************************************************
  * PVParallelView::PVSelectionGenerator::process_selection
  *****************************************************************************/
-void PVParallelView::PVSelectionGenerator::process_selection(Picviz::PVView_sp view_sp, bool use_modifiers /*= true*/)
+void PVParallelView::PVSelectionGenerator::process_selection(Inendi::PVView_sp view_sp, bool use_modifiers /*= true*/)
 {
-	PVHive::PVActor<Picviz::PVView> view_actor;
+	PVHive::PVActor<Inendi::PVView> view_actor;
 	PVHive::get().register_actor(view_sp, view_actor);
 
 	unsigned int modifiers = (unsigned int) QApplication::keyboardModifiers();
@@ -858,22 +858,22 @@ void PVParallelView::PVSelectionGenerator::process_selection(Picviz::PVView_sp v
 	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier aren't really
 	 * constants */
 	if (use_modifiers && modifiers == AND_MODIFIER) {
-		view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
+		view_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	}
 	else if (use_modifiers && modifiers == NAND_MODIFIER) {
-		view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
+		view_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 	}
 	else if (use_modifiers && modifiers == OR_MODIFIER) {
-		view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
+		view_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE);
 	}
 	else {
-		view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		view_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	}
 
 	/* Commit the previous volatile selection */
-	view_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
+	view_actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
 
-	view_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
+	view_actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
 
 	PVHive::get().unregister_actor(view_actor);
 }

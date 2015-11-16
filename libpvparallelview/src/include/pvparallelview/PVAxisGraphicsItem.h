@@ -17,7 +17,7 @@ class QPropertyAnimation;
 
 #include <pvkernel/core/PVAlgorithms.h>
 
-#include <picviz/PVAxis.h>
+#include <inendi/PVAxis.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVFuncObserver.h>
@@ -62,7 +62,7 @@ public:
 	constexpr static int axis_extend = 8;
 
 public:
-	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVView const& view, const axis_id_t &axis_id);
+	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Inendi::PVView const& view, const axis_id_t &axis_id);
 	~PVAxisGraphicsItem();
 
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) override;
@@ -138,7 +138,7 @@ signals:
 	void mouse_clicked(PVCol axis);
 
 private:
-	Picviz::PVAxis const* lib_axis() const;
+	Inendi::PVAxis const* lib_axis() const;
 	void set_axis_text_value(QGraphicsTextItem* item, PVRow const r);
 	inline bool show_min_max_values() const { return _minmax_visible; }
 
@@ -150,7 +150,7 @@ private:
 	PVSlidersManager_p              _sliders_manager_p;
 	axis_id_t                       _axis_id;
 	QRectF                          _bbox;
-	Picviz::PVView const&           _lib_view;
+	Inendi::PVView const&           _lib_view;
 	PVSlidersGroup                 *_sliders_group;
 	PVAxisLabel                    *_label;
 	PVAxisHeader              	   *_header_zone;

@@ -10,7 +10,7 @@
 
 #include <pvbase/types.h>
 #include <pvparallelview/common.h>
-#include <picviz/PVPlotted.h>
+#include <inendi/PVPlotted.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVQuadTree.h>
@@ -278,7 +278,7 @@ public:
 	 * @return the count of selected events in selection
 	 */
 	inline size_t compute_selection_y1(PVRow t1, const uint64_t y_min, const uint64_t y_max,
-	                                   Picviz::PVSelection &selection) const
+	                                   Inendi::PVSelection &selection) const
 	{
 		if (_initialized == false) {
 			return 0;
@@ -306,7 +306,7 @@ public:
 	 * @return the count of selected events in selection
 	 */
 	inline size_t compute_selection_y2(PVRow t2, const uint64_t y_min, const uint64_t y_max,
-	                                   Picviz::PVSelection &selection) const
+	                                   Inendi::PVSelection &selection) const
 	{
 		if (_initialized == false) {
 			return 0;
@@ -402,7 +402,7 @@ public:
 		double alpha,
 		PVCore::PVHSVColor const* const colors,
 		PVCore::PVHSVColor* const image,
-		Picviz::PVSelection const& sel,
+		Inendi::PVSelection const& sel,
 		uint32_t image_width,
 		tbb::task_group_context* tbb_ctxt = nullptr
 	) const
@@ -481,7 +481,7 @@ public:
 	 */
 	inline size_t browse_bci_sel_by_y1(context_t &ctx,
 	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
-	                                   const Picviz::PVSelection &selection,
+	                                   const Inendi::PVSelection &selection,
 	                                   int zoom, uint32_t width,
 	                                   const PVCore::PVHSVColor *colors,
 	                                   pv_bci_code_t *codes,
@@ -528,7 +528,7 @@ public:
 	 */
 	inline size_t browse_bci_sel_by_y2(context_t &ctx,
 	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
-	                                   const Picviz::PVSelection &selection,
+	                                   const Inendi::PVSelection &selection,
 	                                   int zoom, uint32_t width,
 	                                   const PVCore::PVHSVColor *colors,
 	                                   pv_bci_code_t *codes,
@@ -559,7 +559,7 @@ public:
 
 	inline size_t browse_bci_bg_by_y1(context_t &ctx,
 	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
-	                                   const Picviz::PVSelection &unselected,
+	                                   const Inendi::PVSelection &unselected,
 	                                   int zoom, uint32_t width,
 	                                   const PVCore::PVHSVColor *colors,
 	                                   pv_bci_code_t *codes,
@@ -595,7 +595,7 @@ public:
 
 	inline size_t browse_bci_bg_by_y2(context_t &ctx,
 	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
-	                                   const Picviz::PVSelection &unselected,
+	                                   const Inendi::PVSelection &unselected,
 	                                   int zoom, uint32_t width,
 	                                   const PVCore::PVHSVColor *colors,
 	                                   pv_bci_code_t *codes,
@@ -751,7 +751,7 @@ public:
 		                                  colors, codes, beta);
 	}
 
-	void compute_min_indexes_sel(Picviz::PVSelection const& sel);
+	void compute_min_indexes_sel(Inendi::PVSelection const& sel);
 
 private:
 	/**

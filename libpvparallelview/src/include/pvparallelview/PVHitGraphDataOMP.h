@@ -20,7 +20,7 @@ public:
 
 protected:
 	void process_all(ProcessParams const& params, PVHitGraphBuffer& buf) const override;
-	void process_sel(ProcessParams const& params, PVHitGraphBuffer& buf, Picviz::PVSelection const& sel) const override;
+	void process_sel(ProcessParams const& params, PVHitGraphBuffer& buf, Inendi::PVSelection const& sel) const override;
 
 public:
 	struct omp_ctx_t

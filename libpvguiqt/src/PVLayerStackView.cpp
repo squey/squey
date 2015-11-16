@@ -102,7 +102,7 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent):
 void PVGuiQt::PVLayerStackView::import_layer()
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	QString file = _layer_dialog.getOpenFileName(this, tr("Import a layer..."), _layer_dialog.directory().absolutePath(), PICVIZ_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	QString file = _layer_dialog.getOpenFileName(this, tr("Import a layer..."), _layer_dialog.directory().absolutePath(), INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
 
 	if (!file.isEmpty()) {
 		// Create a new layer
@@ -168,7 +168,7 @@ void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
 	switch (event->key()) {
 	case Qt::Key_F2:
 		int model_index = ls_model()->lib_layer_stack().get_selected_layer_index();
-		Picviz::PVLayer &layer = get_layer_from_idx(model_index);
+		Inendi::PVLayer &layer = get_layer_from_idx(model_index);
 		QString current_name = layer.get_name();
 		QString name = QInputDialog::getText(this,
 		                                     "Rename current layer",
@@ -194,7 +194,7 @@ void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
 void PVGuiQt::PVLayerStackView::load_layer_stack()
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	QString file = _layerstack_dialog.getOpenFileName(this, tr("Import a layer stack..."), _layerstack_dialog.directory().absolutePath(), PICVIZ_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	QString file = _layerstack_dialog.getOpenFileName(this, tr("Import a layer stack..."), _layerstack_dialog.directory().absolutePath(), INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
 	if(!file.isEmpty()) {
 		ls_model()->load_from_file(file);
 	}
@@ -209,17 +209,17 @@ void PVGuiQt::PVLayerStackView::load_layer_stack()
 void PVGuiQt::PVLayerStackView::save_layer(int idx)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	QString file = _layer_dialog.getSaveFileName(this, tr("Export this layer..."), _layer_dialog.directory().absolutePath(), PICVIZ_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	QString file = _layer_dialog.getSaveFileName(this, tr("Export this layer..."), _layer_dialog.directory().absolutePath(), INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
 	if (!file.isEmpty()) {
 		get_layer_from_idx(idx).save_to_file(file);
 	}
 #endif
 }
 
-Picviz::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int model_idx)
+Inendi::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int model_idx)
 {
 	QVariant var = ls_model()->data(ls_model()->index(model_idx, 0), PVCustomQtRoles::UnderlyingObject);
-	return *reinterpret_cast<Picviz::PVLayer*>(var.value<void*>());
+	return *reinterpret_cast<Inendi::PVLayer*>(var.value<void*>());
 }
 
 /******************************************************************************
@@ -230,9 +230,9 @@ Picviz::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int model_idx)
 void PVGuiQt::PVLayerStackView::save_layer_stack()
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	QString file = _layerstack_dialog.getSaveFileName(this, tr("Save layer stack..."), _layerstack_dialog.directory().absolutePath(), PICVIZ_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	QString file = _layerstack_dialog.getSaveFileName(this, tr("Save layer stack..."), _layerstack_dialog.directory().absolutePath(), INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
 	if(!file.isEmpty()) {
-		Picviz::PVLayerStack& layer_stack = ls_model()->lib_layer_stack();
+		Inendi::PVLayerStack& layer_stack = ls_model()->lib_layer_stack();
 		layer_stack.save_to_file(file);
 	}
 #endif
@@ -294,17 +294,17 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 
 void PVGuiQt::PVLayerStackView::set_current_selection_from_layer(int model_idx)
 {
-	Picviz::PVLayer const& layer = get_layer_from_idx(model_idx);
-	ls_model()->view_actor().call<FUNC(Picviz::PVView::set_selection_from_layer)>(layer);
-	ls_model()->view_actor().call<FUNC(Picviz::PVView::process_real_output_selection)>();
+	Inendi::PVLayer const& layer = get_layer_from_idx(model_idx);
+	ls_model()->view_actor().call<FUNC(Inendi::PVView::set_selection_from_layer)>(layer);
+	ls_model()->view_actor().call<FUNC(Inendi::PVView::process_real_output_selection)>();
 }
 
 void PVGuiQt::PVLayerStackView::export_layer_selection(int model_idx)
 {
-	Picviz::PVLayer const& layer = get_layer_from_idx(model_idx);
+	Inendi::PVLayer const& layer = get_layer_from_idx(model_idx);
 
-	const Picviz::PVSelection& sel = layer.get_selection();
-	Picviz::PVView& view = ls_model()->lib_view();
+	const Inendi::PVSelection& sel = layer.get_selection();
+	Inendi::PVView& view = ls_model()->lib_view();
 
 	PVGuiQt::PVExportSelectionDlg::export_selection(view, sel);
 }

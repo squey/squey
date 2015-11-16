@@ -9,9 +9,9 @@
 
 #include <pvkernel/widgets/PVUtils.h>
 
-#include <picviz/PVAxis.h>
-#include <picviz/PVView.h>
-#include <picviz/PVMapping.h>
+#include <inendi/PVAxis.h>
+#include <inendi/PVView.h>
+#include <inendi/PVMapping.h>
 
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVAxisLabel.h>
@@ -24,7 +24,7 @@
 #include <QGraphicsScene>
 #include <QToolTip>
 
-#define PROPERTY_TOOLTIP_VALUE "picviz_property_tooltip"
+#define PROPERTY_TOOLTIP_VALUE "inendi_property_tooltip"
 
 static inline QString make_elided_text(const QFont &font, const QString &text, int elided_width)
 {
@@ -88,7 +88,7 @@ private:
  *****************************************************************************/
 
 PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSlidersManager_p sm_p,
-                                                       Picviz::PVView const& view, const axis_id_t &axis_id) :
+                                                       Inendi::PVView const& view, const axis_id_t &axis_id) :
 	_sliders_manager_p(sm_p),
 	_axis_id(axis_id),
 	_lib_view(view),
@@ -191,7 +191,7 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 	    lib_axis()->get_color().toQColor()
 	);
 
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 	if (common::show_bboxes()) {
 		painter->setPen(QPen(QColor(0, 0xFF, 0), 0));
 		painter->drawRect(boundingRect());
@@ -233,7 +233,7 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_label_position()
 
 void PVParallelView::PVAxisGraphicsItem::update_axis_min_max_info()
 {
-	const Picviz::PVMapping *mapping = _lib_view.get_parent<Picviz::PVMapped>()->get_mapping();
+	const Inendi::PVMapping *mapping = _lib_view.get_parent<Inendi::PVMapped>()->get_mapping();
 
 	if (mapping == nullptr) {
 		return;
@@ -273,14 +273,14 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_min_max_position()
 
 void PVParallelView::PVAxisGraphicsItem::update_layer_min_max_info()
 {
-	const Picviz::PVMapping *mapping = _lib_view.get_parent<Picviz::PVMapped>()->get_mapping();
+	const Inendi::PVMapping *mapping = _lib_view.get_parent<Inendi::PVMapped>()->get_mapping();
 
 	if (mapping == nullptr) {
 		return;
 	}
 
-	const Picviz::PVLayer::list_row_indexes_t &vmins = _lib_view.get_current_layer().get_mins();
-	const Picviz::PVLayer::list_row_indexes_t &vmaxs = _lib_view.get_current_layer().get_maxs();
+	const Inendi::PVLayer::list_row_indexes_t &vmins = _lib_view.get_current_layer().get_mins();
+	const Inendi::PVLayer::list_row_indexes_t &vmaxs = _lib_view.get_current_layer().get_maxs();
 
 	const PVCol original_col = get_original_axis_column();
 	PVRow min_row;
@@ -364,7 +364,7 @@ QRectF PVParallelView::PVAxisGraphicsItem::get_bottom_decoration_scene_bbox() co
  * PVParallelView::PVAxisGraphicsItem::lib_axis
  *****************************************************************************/
 
-Picviz::PVAxis const* PVParallelView::PVAxisGraphicsItem::lib_axis() const
+Inendi::PVAxis const* PVParallelView::PVAxisGraphicsItem::lib_axis() const
 {
 	return &_lib_view.get_axis_by_id(_axis_id);
 }

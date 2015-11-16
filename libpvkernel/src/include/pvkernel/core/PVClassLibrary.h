@@ -49,7 +49,7 @@ namespace PVCore {
  * For instance, if you have a plugin implementation like this:
  *
  * \code
- * class MyMappingPlugin: public Picviz::PVMappingFilter
+ * class MyMappingPlugin: public Inendi::PVMappingFilter
  * {
  * public:
  *     MyMappingPlugin(PVCore::PVArgumentList args = MyMappingPlugin::default_args());

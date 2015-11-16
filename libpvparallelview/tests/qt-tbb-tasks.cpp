@@ -10,7 +10,7 @@
 
 #include <libgen.h>
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 #include <tbb/enumerable_thread_specific.h>
 #include <tbb/task.h>

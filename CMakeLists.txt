@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 2.8)
 
-project(picviz-inspector)
+project(inendi-inspector)
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 cmake_policy(SET CMP0002 OLD)
@@ -42,7 +42,7 @@ include(CMakeOptions.txt)
 include(CMakeCompilers.txt)
 
 # Define folder for find_package macro
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${picviz-inspector_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${inendi-inspector_SOURCE_DIR}/cmake)
 
 # FIXME : This is a Hack waiting for QWebEngine integration
 set(QT_WEBKIT 1)
@@ -68,7 +68,7 @@ include(CMakePVTests.txt)
 ###############################################################################
 
 # PVBase
-include_directories(AFTER "${picviz-inspector_SOURCE_DIR}/include")
+include_directories(AFTER "${inendi-inspector_SOURCE_DIR}/include")
 
 ###############################################################################
 # Define svn update tests files target
@@ -99,7 +99,7 @@ declare_internal_library(pvkernel)
 # on PVKernel
 add_subdirectory(helpers)
 
-declare_internal_library(picviz)
+declare_internal_library(inendi)
 declare_internal_library(pvhive)
 declare_internal_library(pvdisplays)
 declare_internal_library(pvparallelview)

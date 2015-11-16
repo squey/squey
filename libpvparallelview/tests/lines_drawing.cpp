@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_bench.h>
-#include <picviz/PVPlotted.h>
+#include <pvkernel/core/inendi_bench.h>
+#include <inendi/PVPlotted.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
@@ -38,7 +38,7 @@ void usage(const char* path)
 	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl;
 }
 
-void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol ncols)
+void init_rand_plotted(Inendi::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
 	srand(time(NULL));
 	p.clear();
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 	QApplication app(argc, argv);
 
 	PVCol ncols, nrows;
-	Picviz::PVPlotted::plotted_table_t plotted;
+	Inendi::PVPlotted::plotted_table_t plotted;
 	QString fplotted(argv[1]);
 	if (fplotted == "0") {
 		if (argc < 4) {
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
+		if (!Inendi::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
 			std::cerr << "Unable to load plotted !" << std::endl;
 			return 1;
 		}
@@ -94,8 +94,8 @@ int main(int argc, char** argv)
 
 	PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
 
-	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
-	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
+	Inendi::PVPlotted::uint_plotted_table_t norm_plotted;
+	Inendi::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 
 	PVParallelView::PVZonesManager &zm = *(new PVParallelView::PVZonesManager());
 	zm.set_uint_plotted(norm_plotted, nrows, ncols);

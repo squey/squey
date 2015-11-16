@@ -6,7 +6,7 @@
  */
 
 #include <pvkernel/core/PVByteVisitor.h>
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 
 #include <assert.h>
 #include <iostream>
@@ -74,7 +74,7 @@ uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_sse(uint8_t const* b
 		const size_t sse_found = (_mm_popcnt_u64(b0) + _mm_popcnt_u64(b1)) >> 3;
 		if ((sse_found == 1) && (nfound + 1) == n) {
 			// This branch should be fast as it covers most cases
-			size_ret = i + picviz_mm_getpos_nonzero_epi8(sse_cmp, sse_ff) - off_start;
+			size_ret = i + inendi_mm_getpos_nonzero_epi8(sse_cmp, sse_ff) - off_start;
 			return &buffer[off_start];
 		}
 
@@ -214,7 +214,7 @@ uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_sse(uint8_t const* b
 		}
 
 		nfound = new_nfound;
-		off_start = i + picviz_mm_getpos_lastnonzero_epi8(sse_cmp) + 1;
+		off_start = i + inendi_mm_getpos_lastnonzero_epi8(sse_cmp) + 1;
 	}
 	for (; i < sbuf; i++) {
 		if (buffer[i] == 0) {

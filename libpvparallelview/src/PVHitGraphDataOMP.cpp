@@ -5,10 +5,10 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
 
-#include <picviz/PVSelection.h>
+#include <inendi/PVSelection.h>
 
 #include <pvparallelview/PVHitGraphDataOMP.h>
 #include <pvparallelview/PVHitGraphSSEHelpers.h>
@@ -263,7 +263,7 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 
 // Version for N blocks (N>=1), with selection
 void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
-                             const Picviz::PVSelection &selection,
+                             const Inendi::PVSelection &selection,
                              const uint64_t y_min, const int zoom,
                              const double &alpha,
                              uint32_t *buffer, int block_count,
@@ -401,7 +401,7 @@ void PVParallelView::PVHitGraphDataOMP::process_all(ProcessParams const& p, PVHi
 	}
 }
 
-void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p, PVHitGraphBuffer& buf, Picviz::PVSelection const& sel) const
+void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p, PVHitGraphBuffer& buf, Inendi::PVSelection const& sel) const
 {
 	int nblocks_ = std::min((uint32_t) p.nblocks, nblocks() - p.block_start);
 	if (nblocks_ <= 0) {

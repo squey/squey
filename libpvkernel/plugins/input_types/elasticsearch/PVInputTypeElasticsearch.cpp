@@ -31,7 +31,7 @@ bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats const& formats,
 	inputs.push_back(ind);
 
 
-	format = PICVIZ_BROWSE_FORMAT_STR;
+	format = INENDI_BROWSE_FORMAT_STR;
 
 	return true;
 }

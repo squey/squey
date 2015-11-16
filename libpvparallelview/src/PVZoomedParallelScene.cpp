@@ -10,7 +10,7 @@
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 
-#include <picviz/PVSelection.h>
+#include <inendi/PVSelection.h>
 
 #include <pvparallelview/PVAbstractAxisSlider.h>
 #include <pvparallelview/PVParallelView.h>
@@ -51,7 +51,7 @@
  *****************************************************************************/
 
 PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
-		Picviz::PVView_sp& pvview_sp,
+		Inendi::PVView_sp& pvview_sp,
 		PVParallelView::PVSlidersManager_p sliders_manager_p,
 		PVZonesProcessor& zp_sel,
 		PVZonesProcessor& zp_bg,
@@ -118,7 +118,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	// Register view for unselected & zombie events toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
 	PVHive::get().register_observer(pvview_sp,
-	                                [=](Picviz::PVView& view) {
+	                                [=](Inendi::PVView& view) {
 		                                return &view.are_view_unselected_zombie_visible();
 	                                },
 	                                *obs);
@@ -341,7 +341,7 @@ void PVParallelView::PVZoomedParallelScene::keyPressEvent(QKeyEvent *event)
 		}
 		event->accept();
 	}
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 	else if (event->key() == Qt::Key_Space) {
 		PVLOG_INFO("PVZoomedParallelScene: forcing full redraw\n");
 		update_all();
@@ -939,14 +939,14 @@ void PVParallelView::PVZoomedParallelScene::all_rendering_done()
 
 void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
 {
-	Picviz::PVSelection &vol_sel = _pvview.get_volatile_selection();
+	Inendi::PVSelection &vol_sel = _pvview.get_volatile_selection();
 	vol_sel.select_none();
 
 	if (_sel_line->is_null()) {
 		// force selection update
-		_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-		_view_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
-		_view_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
+		_view_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		_view_actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
+		_view_actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
 	} else {
 		int64_t y_min = _sel_line->top() * BUCKET_ELT_COUNT;
 		int64_t y_max = _sel_line->bottom() * BUCKET_ELT_COUNT;

@@ -16,7 +16,7 @@
 #include <QBrush>
 #include <QPainterPath>
 
-namespace Picviz
+namespace Inendi
 {
 
 class PVView;
@@ -38,7 +38,7 @@ private:
 											depend of the client's windows settings. */
 
 public:
-	PVAxisLabel(const Picviz::PVView &view, PVSlidersGroup *sg,
+	PVAxisLabel(const Inendi::PVView &view, PVSlidersGroup *sg,
 	            QGraphicsItem *parent = nullptr);
 
 	virtual ~PVAxisLabel();
@@ -73,7 +73,7 @@ private:
 	PVAxisGraphicsItem const* get_parent_axis() const;
 
 private:
-	const Picviz::PVView &_lib_view;
+	const Inendi::PVView &_lib_view;
 	PVSlidersGroup       *_sliders_group;
 	PVCol                 _axis_index;
 	int 				  _bounding_box_width = 0;

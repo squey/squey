@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#ifndef PICVIZ_PVINPUTTYPE_H
-#define PICVIZ_PVINPUTTYPE_H
+#ifndef INENDI_PVINPUTTYPE_H
+#define INENDI_PVINPUTTYPE_H
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>

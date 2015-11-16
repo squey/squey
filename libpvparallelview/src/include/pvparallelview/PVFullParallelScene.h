@@ -13,8 +13,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneWheelEvent>
 
-#include <picviz/PVAxis.h>
-#include <picviz/PVView_types.h>
+#include <inendi/PVAxis.h>
+#include <inendi/PVView_types.h>
 
 #include <pvparallelview/PVBCIBackendImage_types.h>
 #include <pvparallelview/PVFullParallelViewSelectionRectangle.h>
@@ -51,7 +51,7 @@ public:
 	typedef PVSlidersManager::axis_id_t axis_id_t;
 
 public:
-	PVFullParallelScene(PVFullParallelView* full_parallel_view, Picviz::PVView_sp& view_sp, PVParallelView::PVSlidersManager_p sm_p, PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg);
+	PVFullParallelScene(PVFullParallelView* full_parallel_view, Inendi::PVView_sp& view_sp, PVParallelView::PVSlidersManager_p sm_p, PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg);
 	virtual ~PVFullParallelScene();
 
 	void first_render();
@@ -68,8 +68,8 @@ public:
 	PVParallelView::PVLinesView& get_lines_view() { return _lines_view; }
 	PVParallelView::PVLinesView const& get_lines_view() const { return _lines_view; }
 
-	Picviz::PVView& lib_view() { return _lib_view; }
-	Picviz::PVView const& lib_view() const { return _lib_view; }
+	Inendi::PVView& lib_view() { return _lib_view; }
+	Inendi::PVView const& lib_view() const { return _lib_view; }
 
 	void set_enabled(bool value)
 	{
@@ -241,7 +241,7 @@ private:
 	typedef std::pair<size_t, size_t> section_pos_t;
 	PVHive::PVObserverSignal<section_pos_t> _section_click_obs;
 
-	Picviz::PVView& _lib_view;
+	Inendi::PVView& _lib_view;
 
 	PVFullParallelView* _full_parallel_view;
 

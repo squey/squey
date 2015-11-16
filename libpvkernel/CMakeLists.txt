@@ -44,7 +44,7 @@ else(${QT_WEBKIT})
 endif(${QT_WEBKIT})
 
 ###################################################################
-# Add include directories for picviz's libs and external projects
+# Add include directories for inendi's libs and external projects
 ###################################################################
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
@@ -97,13 +97,13 @@ else()
 endif()
 add_definitions(-DPVRUSH_SOURCE_DIR="${PVRUSH_SOURCE_DIR}")
 
-# Set PICVIZ_QUERYBUILDER_DIR
+# Set INENDI_QUERYBUILDER_DIR
 if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
-	set(PICVIZ_QUERYBUILDER_DIR "querybuilder")
+	set(INENDI_QUERYBUILDER_DIR "querybuilder")
 else()
-	set(PICVIZ_QUERYBUILDER_DIR "../../../libpvkernel/src/widgets/querybuilder")
+	set(INENDI_QUERYBUILDER_DIR "../../../libpvkernel/src/widgets/querybuilder")
 endif()
-add_definitions(-DPICVIZ_QUERYBUILDER_DIR="${PICVIZ_QUERYBUILDER_DIR}")
+add_definitions(-DINENDI_QUERYBUILDER_DIR="${INENDI_QUERYBUILDER_DIR}")
 
 ###############################################################################
 # Configure subdirectories

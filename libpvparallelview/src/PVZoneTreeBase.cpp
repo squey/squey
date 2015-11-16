@@ -6,7 +6,7 @@
  */
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVZoneTree.h>
@@ -24,7 +24,7 @@ PVParallelView::PVZoneTreeBase::PVZoneTreeBase()
 	memset(_sel_elts, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
 }
 
-void PVParallelView::PVZoneTreeBase::display(QString const& name, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
+void PVParallelView::PVZoneTreeBase::display(QString const& name, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
 {
 	QMainWindow *window = new QMainWindow();
 	window->setWindowTitle(name);

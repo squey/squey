@@ -41,9 +41,9 @@ class PVViewportEventFilter;
  *
  * @brief a widget which mimics QGraphicsView but which uses QScrollbar64.
  *
- * This widget reproduces QGraphicsView's behaviours used in Picviz Inspector.
+ * This widget reproduces QGraphicsView's behaviours used in INENDI Inspector.
  * So that, the differences are:
- * - the members functions name have been adapted to Picviz Labs coding style
+ * - the members functions name have been adapted to ESI Group coding style
  * - no caching when rendering (the repainted area is always renderer from
  *   scratch)
  * - margins can be defined in viewport space to have free space around the

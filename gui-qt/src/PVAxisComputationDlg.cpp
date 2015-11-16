@@ -8,12 +8,12 @@
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
-#include <picviz/PVAxisComputation.h>
-#include <picviz/widgets/PVArgumentListWidgetFactory.h>
+#include <inendi/PVAxisComputation.h>
+#include <inendi/widgets/PVArgumentListWidgetFactory.h>
 
 #include <PVAxisComputationDlg.h>
 
-PVInspector::PVAxisComputationDlg::PVAxisComputationDlg(Picviz::PVView& view, QWidget* parent):
+PVInspector::PVAxisComputationDlg::PVAxisComputationDlg(Inendi::PVView& view, QWidget* parent):
 	QDialog(parent)
 {
 	setupUi(this);
@@ -28,8 +28,8 @@ PVInspector::PVAxisComputationDlg::PVAxisComputationDlg(Picviz::PVView& view, QW
 void PVInspector::PVAxisComputationDlg::init_plugins(QComboBox* cb)
 {
 	// List all available plugins and add them to the combo box
-	LIB_CLASS(Picviz::PVAxisComputation)::list_classes const& axis_plugins = LIB_CLASS(Picviz::PVAxisComputation)::get().get_list();
-	LIB_CLASS(Picviz::PVAxisComputation)::list_classes::const_iterator it;
+	LIB_CLASS(Inendi::PVAxisComputation)::list_classes const& axis_plugins = LIB_CLASS(Inendi::PVAxisComputation)::get().get_list();
+	LIB_CLASS(Inendi::PVAxisComputation)::list_classes::const_iterator it;
 	for (it = axis_plugins.begin(); it != axis_plugins.end(); it++) {
 		QString name = it->value()->get_human_name();
 		QString key = it->key();
@@ -46,18 +46,18 @@ void PVInspector::PVAxisComputationDlg::update_plugin_args()
 	}
 
 	QString cur_plugin = _combo_plugins->itemData(cur_idx).toString();
-	Picviz::PVAxisComputation_p plugin_lib = LIB_CLASS(Picviz::PVAxisComputation)::get().get_class_by_name(cur_plugin);
+	Inendi::PVAxisComputation_p plugin_lib = LIB_CLASS(Inendi::PVAxisComputation)::get().get_class_by_name(cur_plugin);
 	if (!plugin_lib) {
 		PVLOG_ERROR("(PVInspector::PVAxisComputationDlg) unable to find plugin %s\n", qPrintable(cur_plugin));
 		return;
 	}
 	_plugin_args = plugin_lib->get_default_args();
 
-	_cur_plugin = plugin_lib->clone<Picviz::PVAxisComputation>();
+	_cur_plugin = plugin_lib->clone<Inendi::PVAxisComputation>();
 	_args_plugin_widget->set_args(_plugin_args);
 }
 
-Picviz::PVAxisComputation_p PVInspector::PVAxisComputationDlg::get_plugin()
+Inendi::PVAxisComputation_p PVInspector::PVAxisComputationDlg::get_plugin()
 {
 	_cur_plugin->set_args(_plugin_args);
 	return _cur_plugin;

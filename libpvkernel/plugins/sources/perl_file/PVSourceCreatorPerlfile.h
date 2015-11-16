@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#ifndef PICVIZ_PVSOURCECREATORPERLFILE_H
-#define PICVIZ_PVSOURCECREATORPERLFILE_H
+#ifndef INENDI_PVSOURCECREATORPERLFILE_H
+#define INENDI_PVSOURCECREATORPERLFILE_H
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
@@ -31,4 +31,4 @@ public:
 
 }
 
-#endif	/* PICVIZ_PVSOURCECREATORPERLFILE_H */
+#endif	/* INENDI_PVSOURCECREATORPERLFILE_H */

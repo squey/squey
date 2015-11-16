@@ -9,7 +9,7 @@
 #include <pvkernel/core/PVMatrix.h>
 #include <QString>
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 #include <iostream>
 

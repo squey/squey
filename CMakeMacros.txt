@@ -41,7 +41,7 @@ endfunction()
 macro(declare_customer_cap cap default_dev default_customer)
 	# Default value
 	if (NOT DEFINED ${cap})
-		if (PICVIZ_DEVELOPER_MODE)
+		if (INENDI_DEVELOPER_MODE)
 			set(${cap} ${default_dev})
 		else()
 			set(${cap} ${default_customer})

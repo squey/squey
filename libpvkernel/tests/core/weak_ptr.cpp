@@ -13,7 +13,7 @@
 #include <pvkernel/core/PVWeakPointer.h>
 #include <pvkernel/core/PVEnableSharedFromThis.h>
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 class Test1;
 class Test2;

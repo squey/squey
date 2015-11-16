@@ -80,7 +80,7 @@ bool PVCore::PVUnicodeString::operator<(const PVUnicodeString& o) const
 {
 	const utf_char* a = _buf;
 	const utf_char* b = o._buf;
-	int ret = memcmp(a, b, picviz_min(_len, o._len)*sizeof(utf_char));
+	int ret = memcmp(a, b, inendi_min(_len, o._len)*sizeof(utf_char));
 	if (ret == 0) {
 		return _len < o._len;
 	}
@@ -96,7 +96,7 @@ int PVCore::PVUnicodeString::compare(const char* str) const
 
 int PVCore::PVUnicodeString::compare(const PVUnicodeString& o) const
 {
-	int ret = memcmp(_buf, o._buf, picviz_min(o._len, _len)*sizeof(utf_char));
+	int ret = memcmp(_buf, o._buf, inendi_min(o._len, _len)*sizeof(utf_char));
 	if (ret == 0) {
 		if (_len < o._len) {
 			ret = -1;

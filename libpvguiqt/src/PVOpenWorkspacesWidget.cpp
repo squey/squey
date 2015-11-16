@@ -12,14 +12,14 @@
 #include <pvguiqt/PVRootTreeModel.h>
 #include <pvguiqt/PVRootTreeView.h>
 
-#include <picviz/PVRoot.h>
-#include <picviz/PVView.h>
+#include <inendi/PVRoot.h>
+#include <inendi/PVView.h>
 
-#include <picviz/PVMapped.h>
-#include <picviz/PVPlotted.h>
+#include <inendi/PVMapped.h>
+#include <inendi/PVPlotted.h>
 
 #include <pvkernel/widgets/PVDataTreeMaskProxyModel.h>
-#include <picviz/PVSelection.h>
+#include <inendi/PVSelection.h>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -40,7 +40,7 @@ public:
 	Qt::ItemFlags flags(const QModelIndex & index) const
 	{
 		PVCore::PVDataTreeObjectBase const* obj = (PVCore::PVDataTreeObjectBase const*) index.internalPointer();
-		Picviz::PVView const* view = dynamic_cast<Picviz::PVView const*>(obj);
+		Inendi::PVView const* view = dynamic_cast<Inendi::PVView const*>(obj);
 		Qt::ItemFlags flags = PVGuiQt::PVRootTreeModel::flags(index);
 		if (view) {
 			flags |= Qt::ItemIsSelectable;
@@ -54,11 +54,11 @@ public:
 
 } }
 
-PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Picviz::PVRoot* root, QWidget* parent):
+PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Inendi::PVRoot* root, QWidget* parent):
 	QWidget(parent)
 {
-	typedef PVWidgets::PVDataTreeMaskProxyModel<Picviz::PVMapped> maping_mask_proxy_t;
-	typedef PVWidgets::PVDataTreeMaskProxyModel<Picviz::PVPlotted> plotting_mask_proxy_t;
+	typedef PVWidgets::PVDataTreeMaskProxyModel<Inendi::PVMapped> maping_mask_proxy_t;
+	typedef PVWidgets::PVDataTreeMaskProxyModel<Inendi::PVPlotted> plotting_mask_proxy_t;
 
 	// Layouts
 	//
@@ -155,8 +155,8 @@ void PVGuiQt::PVOpenWorkspacesWidget::create_views_widget()
 	PVOpenWorkspace* cur_workspace = _tab_widget->current_workspace_or_create();
 
 	PVDisplays::PVDisplayViewIf& interface = *(reinterpret_cast<PVDisplays::PVDisplayViewIf*>(act->data().value<void*>()));
-	_root_view->visit_selected_objs_as<Picviz::PVView>(
-		[&](Picviz::PVView* view)
+	_root_view->visit_selected_objs_as<Inendi::PVView>(
+		[&](Inendi::PVView* view)
 		{
 			QAction* creation_act = PVDisplays::get().action_bound_to_params(interface, view);
 			cur_workspace->create_view_widget(creation_act);

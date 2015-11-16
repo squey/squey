@@ -13,7 +13,7 @@
 
 #include <boost/thread.hpp>
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 void f(int a, short b, char c, uint64_t d)
 {

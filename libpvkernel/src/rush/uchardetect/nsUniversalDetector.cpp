@@ -46,7 +46,7 @@
 #include <pvkernel/rush/uchardetect/nsEscCharsetProber.h>
 #include <pvkernel/rush/uchardetect/nsLatin1Prober.h>
 
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 
 nsUniversalDetector::nsUniversalDetector()
 {

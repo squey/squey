@@ -8,8 +8,8 @@
 #include <iostream>
 
 #include <pvparallelview/common.h>
-#include <pvkernel/core/picviz_bench.h>
-#include <picviz/PVPlotted.h>
+#include <pvkernel/core/inendi_bench.h>
+#include <inendi/PVPlotted.h>
 #include <pvparallelview/PVBCode.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
 	PVCol ncols;
 	PVRow nrows;
 
-	Picviz::PVPlotted::uint_plotted_table_t plotted;
+	Inendi::PVPlotted::uint_plotted_table_t plotted;
 	if (!create_plotted_table_from_args(plotted, nrows, ncols, argc, argv)) {
 		return 1;
 	}

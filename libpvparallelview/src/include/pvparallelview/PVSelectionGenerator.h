@@ -17,7 +17,7 @@
 #include <pvhive/PVFuncObserver.h>
 #include <pvhive/PVObserverSignal.h>
 
-namespace Picviz
+namespace Inendi
 {
 class PVSelection;
 class PVView;
@@ -40,21 +40,21 @@ struct PVSelectionGenerator
 		PVLinesView& lines_view,
 		PVZoneID zone_id,
 		QRect rect,
-		Picviz::PVSelection& sel
+		Inendi::PVSelection& sel
 	);
 
 	static uint32_t compute_selection_from_parallel_view_sliders(
 		PVLinesView& lines_view,
 		PVZoneID zone_id,
 		const typename PVAxisGraphicsItem::selection_ranges_t& ranges,
-		Picviz::PVSelection& sel
+		Inendi::PVSelection& sel
 	);
 
 	static uint32_t compute_selection_from_hit_count_view_rect(
 		const PVHitGraphBlocksManager& manager,
 	    const QRectF& rect,
 	    const uint32_t max_count,
-	    Picviz::PVSelection& sel,
+	    Inendi::PVSelection& sel,
 	    bool use_selectable
 	);
 
@@ -63,8 +63,8 @@ struct PVSelectionGenerator
 		PVRow nrows,
 		uint64_t y_min,
 		uint64_t y_max,
-		Picviz::PVSelection& sel,
-		Picviz::PVSelection const& layers_sel
+		Inendi::PVSelection& sel,
+		Inendi::PVSelection const& layers_sel
 	);
 
 	static uint32_t compute_selection_from_plotteds_ranges(
@@ -72,11 +72,11 @@ struct PVSelectionGenerator
 		const uint32_t* y2_plotted,
 		const PVRow nrows,
 		const QRectF& rect,
-		Picviz::PVSelection& sel,
-		Picviz::PVSelection const& layers_sel
+		Inendi::PVSelection& sel,
+		Inendi::PVSelection const& layers_sel
 	);
 
-	static void process_selection(Picviz::PVView_sp view, bool use_modifiers = true);
+	static void process_selection(Inendi::PVView_sp view, bool use_modifiers = true);
 };
 
 namespace __impl
@@ -86,8 +86,8 @@ namespace __impl
 		PVRow nrows,
 		uint64_t y_min,
 		uint64_t y_max,
-		Picviz::PVSelection& sel,
-		Picviz::PVSelection const& layers_sel
+		Inendi::PVSelection& sel,
+		Inendi::PVSelection const& layers_sel
 	);
 
 	uint32_t compute_selection_from_plotted_range_sse(
@@ -95,8 +95,8 @@ namespace __impl
 		PVRow nrows,
 		uint64_t y_min,
 		uint64_t y_max,
-		Picviz::PVSelection& sel,
-		Picviz::PVSelection const& layers_sel
+		Inendi::PVSelection& sel,
+		Inendi::PVSelection const& layers_sel
 	);
 
 	uint32_t compute_selection_from_plotted_ranges_seq(
@@ -104,8 +104,8 @@ namespace __impl
 		const uint32_t* y2_plotted,
 		const PVRow nrows,
 		const QRectF& rect,
-		Picviz::PVSelection& sel,
-		Picviz::PVSelection const& layers_sel
+		Inendi::PVSelection& sel,
+		Inendi::PVSelection const& layers_sel
 	);
 
 	uint32_t compute_selection_from_plotteds_ranges_sse(
@@ -113,36 +113,36 @@ namespace __impl
 		const uint32_t* y2_plotted,
 		const PVRow nrows,
 		const QRectF& rect,
-		Picviz::PVSelection& sel,
-		Picviz::PVSelection const& layers_sel
+		Inendi::PVSelection& sel,
+		Inendi::PVSelection const& layers_sel
 	);
 
 	uint32_t compute_selection_from_hit_count_view_rect_serial(
 		const PVHitGraphBlocksManager& manager,
 		const QRectF& rect,
 		const uint32_t max_count,
-		Picviz::PVSelection& sel
+		Inendi::PVSelection& sel
 	);
 
 	uint32_t compute_selection_from_hit_count_view_rect_serial_invariant(
 		const PVHitGraphBlocksManager& manager,
 		const QRectF& rect,
 		const uint32_t max_count,
-		Picviz::PVSelection& sel
+		Inendi::PVSelection& sel
 	);
 
 	uint32_t compute_selection_from_hit_count_view_rect_sse(
 		const PVHitGraphBlocksManager& manager,
 		const QRectF& rect,
 		const uint32_t max_count,
-		Picviz::PVSelection& sel
+		Inendi::PVSelection& sel
 	);
 
 	uint32_t compute_selection_from_hit_count_view_rect_sse_invariant_omp(
 		const PVHitGraphBlocksManager& manager,
 		const QRectF& rect,
 		const uint32_t max_count,
-		Picviz::PVSelection& sel,
+		Inendi::PVSelection& sel,
 		bool use_selectable
 	);
 }

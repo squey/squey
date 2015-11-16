@@ -548,7 +548,7 @@ private:
 		if (p == NULL) {
 			return false;
 		}
-		index_col colmin = picviz_min(_ncols, ncols);
+		index_col colmin = inendi_min(_ncols, ncols);
 		if (value_pod::value) {
 			for (index_row i = 0; i < _nrows; i++) {
 				memcpy(&p[i*ncols], &_data[i*_ncols], colmin);

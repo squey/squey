@@ -1,0 +1,189 @@
+<!-- @file -->
+<!-- @copyright (C) Picviz Labs 2011-March 2015 -->
+<!-- @copyright (C) ESI Group INENDI April 2015-2015 -->
+<RCC>
+    <qresource prefix="/">
+	<!-- OLD STUFF to be checked or changed -->
+
+	<file alias="background-window.png">resources/background-window.png</file>
+        <file alias="window-icon.png">resources/inspector.png</file>
+        <file alias="logo.png">resources/logo.png</file>
+        <file alias="logo_text.png">resources/logo_text.png</file>
+        <file>resources/filelink-32.png</file>
+        <file>resources/standardbutton-open-32.png</file>
+        <file alias="save">resources/standardbutton-save-32.png</file>
+        <file>resources/up-32.png</file>
+	<file alias="brush.png">resources/brush.png</file>
+	<file alias="hide.png">resources/hide.png</file>
+	<file alias="less.png">resources/less.png</file>
+	<file alias="lesszoom.png">resources/lesszoom.png</file>
+	<file alias="lock.png">resources/lock.png</file>
+	<file alias="more.png">resources/more.png</file>
+	<file alias="morezoom.png">resources/morezoom.png</file>
+	<file alias="width.png">resources/width.png</file>
+	<file alias="inendi">resources/icon.png</file>
+	<file alias="inendi.ico">resources/inendi-inspector.ico</file>
+	
+
+	<file alias="layer-active.png">resources/layer-active.png</file>
+	<file alias="layer-inactive.png">resources/layer-inactive.png</file>
+
+	<file alias="pv-linked-20">resources/20x20/stock-linked-20.png</file>
+	<file alias="pv-white-20">resources/20x20/pv-white-20.png</file>
+	<file alias="document-new.png">resources/22x22/document-new.png</file>
+	<file alias="document-open.png">resources/22x22/document-open.png</file>
+	<file alias="edit-copy.png">resources/22x22/edit-copy.png</file>
+	<file alias="edit-cut.png">resources/22x22/edit-cut.png</file>
+	<file alias="edit-paste.png">resources/22x22/edit-paste.png</file>
+	<file alias="edit-redo.png">resources/22x22/edit-redo.png</file>
+	<file alias="edit-undo.png">resources/22x22/edit-undo.png</file>
+	<file alias="go-down.png">resources/22x22/go-down.png</file>
+	<file alias="go-up.png">resources/22x22/go-up.png</file>
+	<file alias="red-cross">resources/22x22/red-cross.png</file>
+	<file alias="green-check">resources/22x22/green-check.png</file>
+	<file alias="filter">resources/22x22/filter.png</file>
+	<file alias="add-axis">resources/22x22/add-axis.png</file>
+	<file alias="add-regexp">resources/22x22/add-regexp.png</file>
+	<file alias="add-url">resources/22x22/add-url.png</file>
+	<file alias="help">resources/22x22/help.png</file>
+	
+	<file alias="append_file">resources/append_file.png</file>
+	<file alias="import_file">resources/import_file.png</file>
+	<file alias="export_file">resources/export_file.png</file>
+	
+	<file alias="Presets_Load_Action_Icon">resources/Presets_Load_Action_Icon.png</file>
+	<file alias="Presets_Save_Action_Icon">resources/Presets_Save_Action_Icon.png</file>
+	<file alias="remove-preset">resources/22x22/remove-preset.png</file>
+	
+	<file alias="inendi-logo">resources/logo.png</file>
+	<file alias="splash-screen">resources/splash_noversion.png</file>
+
+	<file alias="save32-32.png">resources/save32-32.png</file>
+
+	<file alias="preferences-system-windows.png">resources/22x22/preferences-system-windows.png</file>
+	<file alias="user-trash.png">resources/22x22/user-trash.png</file>
+
+	<file alias="gmaps.html">resources/gmaps.html</file>
+    <file alias="log-icon">resources/log-icon.png</file>
+
+	<!-- AXIS SELECTED ICONS -->
+	<file alias="location">resources/location.png</file>
+	<file alias="location_hole">resources/location_hole.png</file>
+	<file alias="location_dot">resources/location_dot.png</file>
+	
+	<!-- SORT -->
+	<file alias="sort_asc">resources/sort_asc.png</file>
+	<file alias="sort_desc">resources/sort_desc.png</file>
+
+	<!-- CSS -->
+	<file alias="gui.css">resources/gui.css</file>
+	
+	<!-- SPLITTER IP -->
+	<file alias="scissors_on">resources/scissors_on.png</file>
+	<file alias="scissors_off">resources/scissors_off.png</file>
+
+
+	<!-- FONTS -->
+	<!-- WARNING : alias must have .ttf extension here not used in the CSS file -->
+	<file alias="Convergence-Regular.ttf">resources/fonts/Convergence-Regular.ttf</file>
+	<file alias="OSP-DIN.ttf">resources/fonts/OSP-foundry_DIN/OSP-DIN.ttf</file>
+	<file alias="Jura-DemiBold.ttf">resources/fonts/Jura/Jura-DemiBold.ttf</file>
+	<file alias="PT_Sans-Narrow-Web-Regular.ttf">resources/fonts/PT_Sans-Narrow-Web/PT_Sans-Narrow-Web-Regular.ttf</file>
+	<file alias="PT_Sans-Narrow-Web-Bold.ttf">resources/fonts/PT_Sans-Narrow-Web/PT_Sans-Narrow-Web-Bold.ttf</file>
+	
+	<!-- HANDLES -->
+	<file alias="vertical_handle">resources/gui-elements/pv_vertical_handle_01.png</file>
+	<file alias="horizontal_handle">resources/gui-elements/pv_horizontal_handle_01.png</file>
+
+	<!-- ICONS for PVLayerStackWidget (it's QToolBar) -->
+	<file alias="delete_layer_icon">resources/trafik/elements-interface/icone-supprimer-blanc.png</file>
+	<file alias="duplicate_layer_icon">resources/trafik/elements-interface/icone-dupliquer-blanc.png</file>
+	<file alias="move_layer_up_icon">resources/trafik/elements-interface/icone-monter-blanc.png</file>
+	<file alias="move_layer_down_icon">resources/trafik/elements-interface/icone-descendre-blanc.png</file>
+	<file alias="new_layer_icon">resources/trafik/elements-interface/icone-nouveau-blanc.png</file>
+
+
+	<!-- START SCREEN -->
+	<file alias="start-logo">resources/trafik/elements-interface/logo-inendi-intro.png</file>
+	<file alias="import-icon-white">resources/trafik/elements-interface/icone-import-blanc.png</file>
+	<file alias="new-icon-white">resources/trafik/elements-interface/icone-nouveau-blanc.png</file>
+	<file alias="open-icon-white">resources/trafik/elements-interface/icone-ouvrirdossier-blanc.png</file>
+	<file alias="edit-icon-white">resources/trafik/elements-interface/icone-editer-blanc.png</file>
+	
+	<!-- ABOUT BOX -->
+	<file alias="logo3d">resources/logo.obj</file>
+	
+	<!-- LOADING STUFF -->
+	<file alias="inendi-loading-animation">resources/inendi_loading_animation.gif</file>
+
+	<!-- QSCROLLBAR ICONS -->
+	<file alias="horizontal-scrollbar-handle">resources/trafik/elements-interface/ascenceur-horizontal-barre-defilement.png</file>
+	<file alias="horizontal-scrollbar-right-arrow">resources/trafik/elements-interface/ascenceur-horizontal-bouton-droite.png</file>
+	<file alias="horizontal-scrollbar-left-arrow">resources/trafik/elements-interface/ascenceur-horizontal-bouton-gauche.png</file>
+	<file alias="horizontal-scrollbar-page-area">resources/trafik/elements-interface/ascenceur-horizontal-portion-milieu.png</file>
+	<file alias="vertical-scrollbar-handle">resources/trafik/elements-interface/ascenceur-vertical-barre-defilement.png</file>
+	<file alias="vertical-scrollbar-down-arrow">resources/trafik/elements-interface/ascenceur-vertical-bouton-bas.png</file>
+	<file alias="vertical-scrollbar-up-arrow">resources/trafik/elements-interface/ascenceur-vertical-bouton-haut.png</file>
+	<file alias="vertical-scrollbar-page-area">resources/trafik/elements-interface/ascenceur-vertical-portion-milieu.png</file>
+
+	<!-- WORKSPACES ICONS -->
+	<file alias="view-listing">resources/view_display_listing.png</file>
+	<file alias="view-datatree">resources/view_display_datatree.png</file>
+	<file alias="view-layerstack">resources/view_display_layerstack.png</file>
+	<file alias="view-parallel-full">resources/view_display_parallel_full.png</file>
+	<file alias="view-parallel-zoomed">resources/view_display_parallel_zoomed.png</file>
+	<file alias="view-scatter">resources/view_display_scatter.png</file>
+	<file alias="view-hit-count">resources/view_display_hitcount.png</file>
+
+	<!-- LISTING STATS PANEL -->
+	<file alias="icon_linked">resources/trafik/elements-interface/icone-lier-actif.png</file>
+	<file alias="icon_unlinked">resources/trafik/elements-interface/icone-lier-passif.png</file>
+	<file alias="fileslist_black">resources/trafik/elements-interface/icone-listefichiers-noir.png</file>
+	<file alias="count_by">resources/22x22/count_by.png</file>
+	<file alias="sum_by">resources/22x22/sum_by.png</file>
+	<file alias="min_by">resources/22x22/min_by.png</file>
+	<file alias="max_by">resources/22x22/max_by.png</file>
+	<file alias="avg_by">resources/22x22/avg_by.png</file>
+	<file alias="refresh_small_grey">resources/refresh.png</file>
+
+	<!-- CONFIG POPUP WIDGET -->
+	<file alias="pin-on">resources/pin-on.png</file>
+	<file alias="pin-off">resources/pin-off.png</file>
+
+	<!-- HELP CONTENT -->
+	<file alias="help-style">resources/help/style.css</file>
+	<file alias="help-application">resources/help/application.html</file>
+	<file alias="help-selection">resources/help/selection.html</file>
+	<file alias="help-layers">resources/help/layers.html</file>
+	<file alias="help-lines">resources/help/lines.html</file>
+	<file alias="help-mouse-view">resources/help/view-mouse.html</file>
+	<file alias="help-sel-rect-simple">resources/help/view-sel-rect-simple.html</file>
+	<file alias="help-sel-rect-full">resources/help/view-sel-rect-full.html</file>
+	<file alias="help-mouse-listing-view">resources/help/view-mouse-listing.html</file>
+	<file alias="help-shortcuts-listing-view">resources/help/view-shortcuts-listing.html</file>
+	<file alias="help-mouse-full-parallel-view">resources/help/view-mouse-full-parallel.html</file>
+	<file alias="help-shortcuts-full-parallel-view">resources/help/view-shortcuts-full-parallel.html</file>
+	<file alias="help-mouse-zoomed-paralllel-view">resources/help/view-mouse-zoomed-parallel.html</file>
+	<file alias="help-mouse-hit-count-view">resources/help/view-mouse-hit-count.html</file>
+	<file alias="help-shortcuts-hit-count-view">resources/help/view-shortcuts-hit-count.html</file>
+	<file alias="help-mouse-scatter-view">resources/help/view-mouse-scatter.html</file>
+
+        <!-- VIEW ICONS -->
+        <file alias="selection-rectangle">resources/selection-rectangle.png</file>
+        <file alias="selection-horizontal">resources/selection-horizontal.png</file>
+        <file alias="selection-vertical">resources/selection-vertical.png</file>
+
+        <file alias="select-axis">resources/select-axis.png</file>
+
+        <file alias="colormap-log">resources/colormap-log.png</file>
+
+        <file alias="zoom-autofit-both">resources/zoom-autofit-both.png</file>
+        <file alias="zoom-autofit-horizontal">resources/zoom-autofit-horizontal.png</file>
+        <file alias="zoom-autofit-vertical">resources/zoom-autofit-vertical.png</file>
+        
+    <!-- INPUT TYPES -->
+    <file alias="elasticsearch_icon">resources/elasticsearch.png</file>
+    <file alias="splunk_icon">resources/splunk.png</file>
+    
+    </qresource>
+</RCC>

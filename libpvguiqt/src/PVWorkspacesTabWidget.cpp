@@ -12,7 +12,7 @@
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVObserverSignal.h>
 
-#include <picviz/PVSource.h>
+#include <inendi/PVSource.h>
 
 #include <pvkernel/core/lambda_connect.h>
 
@@ -139,7 +139,7 @@ void PVGuiQt::PVSceneTabBar::start_drag(QWidget* workspace)
 	byte_array.reserve(sizeof(void*));
 	byte_array.append((const char*) &workspace, sizeof(void*));
 
-	mimeData->setData("application/x-picviz_workspace", byte_array);
+	mimeData->setData("application/x-inendi_workspace", byte_array);
 
 	drag->setMimeData(mimeData);
 
@@ -249,7 +249,7 @@ PVGuiQt::PVOpenWorkspace* PVGuiQt::PVOpenWorkspaceTabBar::create_new_workspace()
  * PVGuiQt::PVWorkspacesTabWidgetBase
  *
  *****************************************************************************/
-PVGuiQt::PVWorkspacesTabWidgetBase::PVWorkspacesTabWidgetBase(Picviz::PVRoot& root, QWidget* parent /* = 0 */) :
+PVGuiQt::PVWorkspacesTabWidgetBase::PVWorkspacesTabWidgetBase(Inendi::PVRoot& root, QWidget* parent /* = 0 */) :
 	QTabWidget(parent),
 	_root(root)
 {
@@ -349,11 +349,11 @@ QList<PVGuiQt::PVWorkspaceBase*> PVGuiQt::PVWorkspacesTabWidgetBase::list_worksp
  * PVGuiQt::PVSceneWorkspacesTabWidget
  *
  *****************************************************************************/
-PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Picviz::PVScene& scene, QWidget* parent /* = 0 */) :
-	PVWorkspacesTabWidgetBase(*scene.get_parent<Picviz::PVRoot>(), parent),
+PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Inendi::PVScene& scene, QWidget* parent /* = 0 */) :
+	PVWorkspacesTabWidgetBase(*scene.get_parent<Inendi::PVRoot>(), parent),
 	_save_scene_func_observer(this)
 {
-	Picviz::PVScene_sp scene_p = scene.shared_from_this();
+	Inendi::PVScene_sp scene_p = scene.shared_from_this();
 	PVHive::get().register_observer(scene_p, _obs_scene);
 	_obs_scene.connect_refresh(this, SLOT(set_project_modified()));
 
@@ -412,14 +412,14 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 
 	PVSourceWorkspace* workspace = qobject_cast<PVSourceWorkspace*>(widget(index));
 	assert(workspace);
-	Picviz::PVRoot_sp root_sp = get_scene()->get_parent<Picviz::PVRoot>()->shared_from_this();
-	PVHive::call<FUNC(Picviz::PVRoot::select_source)>(root_sp, *workspace->get_source());
+	Inendi::PVRoot_sp root_sp = get_scene()->get_parent<Inendi::PVRoot>()->shared_from_this();
+	PVHive::call<FUNC(Inendi::PVRoot::select_source)>(root_sp, *workspace->get_source());
 }
 
 void PVGuiQt::PVSceneWorkspacesTabWidget::check_new_sources()
 {
-	QList<Picviz::PVSource*> known_srcs = list_sources();
-	for (Picviz::PVSource_sp& src: get_scene()->get_children<Picviz::PVSource>()) {
+	QList<Inendi::PVSource*> known_srcs = list_sources();
+	for (Inendi::PVSource_sp& src: get_scene()->get_children<Inendi::PVSource>()) {
 		if (known_srcs.contains(src.get())) {
 			continue;
 		}
@@ -429,9 +429,9 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::check_new_sources()
 	}
 }
 
-QList<Picviz::PVSource*> PVGuiQt::PVSceneWorkspacesTabWidget::list_sources() const
+QList<Inendi::PVSource*> PVGuiQt::PVSceneWorkspacesTabWidget::list_sources() const
 {
-	QList<Picviz::PVSource*> ret;
+	QList<Inendi::PVSource*> ret;
 	for (PVWorkspaceBase* w: list_workspaces()) {
 		ret << qobject_cast<PVSourceWorkspace*>(w)->get_source();
 	}
@@ -443,7 +443,7 @@ QList<Picviz::PVSource*> PVGuiQt::PVSceneWorkspacesTabWidget::list_sources() con
  * PVGuiQt::PVOpenWorkspacesTabWidget
  *
  *****************************************************************************/
-PVGuiQt::PVOpenWorkspacesTabWidget::PVOpenWorkspacesTabWidget(Picviz::PVRoot& root,QWidget* parent /* = 0 */) :
+PVGuiQt::PVOpenWorkspacesTabWidget::PVOpenWorkspacesTabWidget(Inendi::PVRoot& root,QWidget* parent /* = 0 */) :
 	PVWorkspacesTabWidgetBase(root, parent),
 	_automatic_tab_switch_timer(this)
 {

@@ -10,8 +10,8 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVFormat_types.h>
-#include <picviz/PVPtrObjects.h>
-#include <picviz/PVAxesCombination.h>
+#include <inendi/PVPtrObjects.h>
+#include <inendi/PVAxesCombination.h>
 
 #include <QDialog>
 #include <QComboBox>
@@ -26,7 +26,7 @@ class PVMappingPlottingEditDialog: public QDialog
 {
 	Q_OBJECT
 public:
-	PVMappingPlottingEditDialog(Picviz::PVMapping* mapping, Picviz::PVPlotting* plotting, QWidget* parent = NULL);
+	PVMappingPlottingEditDialog(Inendi::PVMapping* mapping, Inendi::PVPlotting* plotting, QWidget* parent = NULL);
 	virtual ~PVMappingPlottingEditDialog();
 
 private:
@@ -48,9 +48,9 @@ private:
 	QGridLayout* _main_grid;
 	QVBoxLayout* _main_layout;
 	QLineEdit* _edit_name;
-	Picviz::PVMapping* _mapping;
-	Picviz::PVPlotting* _plotting;
-	const Picviz::PVAxesCombination::list_axes_t* _axes;
+	Inendi::PVMapping* _mapping;
+	Inendi::PVPlotting* _plotting;
+	const Inendi::PVAxesCombination::list_axes_t* _axes;
 };
 
 }

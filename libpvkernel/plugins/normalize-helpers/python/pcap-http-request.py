@@ -12,7 +12,7 @@ import dpkt
 pcap = None
 first = True
 
-def picviz_open_file(path):
+def inendi_open_file(path):
 	global pcap
 
 	pcap_file = open(path, mode="rb")
@@ -21,16 +21,16 @@ def picviz_open_file(path):
 	except:
 		pass
 
-def picviz_seek_begin():
+def inendi_seek_begin():
 	pass
 
-def picviz_pre_discovery():
+def inendi_pre_discovery():
 	return True;
 
-def picviz_is_element_text():
+def inendi_is_element_text():
 	return True;
 
-def picviz_get_next_chunk(min_chunk_size):
+def inendi_get_next_chunk(min_chunk_size):
 	global pcap, first
 	if not first:
 		return list()
@@ -62,12 +62,12 @@ def picviz_get_next_chunk(min_chunk_size):
 	print (str(elements))
 	return elements
 
-def picviz_close():
+def inendi_close():
 	pass
 
 
 # if __name__ == "__main__":
 # 	my_pcap = "/donnees/SVN/cactuslogs/pcap/waledac.pcap"
-# 	picviz_open_file(my_pcap)
-# 	picviz_get_next_chunk(0)
+# 	inendi_open_file(my_pcap)
+# 	inendi_get_next_chunk(0)
 

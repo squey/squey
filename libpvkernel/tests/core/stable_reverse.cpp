@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 typedef std::pair<int, int> pair_int_t;
 typedef std::vector<pair_int_t> vec_t;

@@ -34,9 +34,9 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash
 	QStringList formats_name = formats.keys();
 	formats_name.sort();
 
-	formats_name.prepend(QString(PICVIZ_BROWSE_FORMAT_STR));
-	formats_name.prepend(QString(PICVIZ_LOCAL_FORMAT_STR));
-	formats_name.prepend(QString(PICVIZ_AUTOMATIC_FORMAT_STR));
+	formats_name.prepend(QString(INENDI_BROWSE_FORMAT_STR));
+	formats_name.prepend(QString(INENDI_LOCAL_FORMAT_STR));
+	formats_name.prepend(QString(INENDI_AUTOMATIC_FORMAT_STR));
 	_file_dlg = new PVImportFileDialog(formats_name, parent);
 	_file_dlg->setDefaults();
 	QStringList filenames = _file_dlg->getFileNames(format);
@@ -70,9 +70,9 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames, bool 
 					extract_all_archive = true;
 				case QMessageBox::Yes:
 				{
-					// Create a temporary directory of name "/tmp/picviz-archivename-XXXXXX"
+					// Create a temporary directory of name "/tmp/inendi-archivename-XXXXXX"
 					QFileInfo fi(path);
-					QString tmp_dir = PVCore::PVDirectory::temp_dir(QString("picviz-") + fi.fileName() + QString("-XXXXXXXX"));
+					QString tmp_dir = PVCore::PVDirectory::temp_dir(QString("inendi-") + fi.fileName() + QString("-XXXXXXXX"));
 					if (tmp_dir.isEmpty()) {
 						PVLOG_WARN("Extraction of %s: unable to create a temporary directory !\n", qPrintable(path));
 						break;
@@ -179,7 +179,7 @@ QString PVRush::PVInputTypeFilename::tab_name_of_inputs(list_inputs const& in) c
 
 bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in, hash_formats &formats) const
 {
-	// Two types of custom format: picviz.format exist in the directory of the file,
+	// Two types of custom format: inendi.format exist in the directory of the file,
 	// or file + ".format" exists
 	bool res = false;
 	PVFileDescription* f = dynamic_cast<PVFileDescription*>(in.get());
@@ -194,7 +194,7 @@ bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in, ha
 	}
 
 	QDir d = fi.dir();
-	QString path_custom_dir_format = d.absoluteFilePath("picviz.format");
+	QString path_custom_dir_format = d.absoluteFilePath("inendi.format");
 	fi = QFileInfo(path_custom_dir_format);
 	if ((!fi.exists()) || (!fi.isReadable())) {
 		return res;

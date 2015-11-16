@@ -41,7 +41,7 @@ PVRush::PVPerlSource::PVPerlSource(PVInputDescription_p input, size_t min_chunk_
 	PUSHMARK(SP);
 	XPUSHs(sv_2mortal(newSVpv(file_str.data(), 0)));
 	PUTBACK;
-	perl_call_pv("picviz_open_file", G_ARRAY | G_EVAL);
+	perl_call_pv("inendi_open_file", G_ARRAY | G_EVAL);
 	SPAGAIN;
 	svp = GvSV(gv_fetchpv("@", TRUE, SVt_PV));
 	if (SvTRUE(svp)) {
@@ -63,7 +63,7 @@ PVRush::PVPerlSource::~PVPerlSource()
 	SAVETMPS;
 	PUSHMARK(SP);
 	PUTBACK;
-	perl_call_pv("picviz_close", G_EVAL);
+	perl_call_pv("inendi_close", G_EVAL);
 	SPAGAIN;
 	svp = GvSV(gv_fetchpv("@", TRUE, SVt_PV));
 	if (SvTRUE(svp)) {
@@ -90,7 +90,7 @@ void PVRush::PVPerlSource::seek_begin()
 {
 	// AG: if I understand correctly, we should be using something
 	// like this:
-	// perl_call_pv("picviz_seek_begin", G_DISCARD | G_NOARGS);
+	// perl_call_pv("inendi_seek_begin", G_DISCARD | G_NOARGS);
 	// because w have no argument (so no need for Perl stack stuff) and
 	// we discard the output of the function.
 	// Still, it does not work (segfault) so we are using the code below...
@@ -101,7 +101,7 @@ void PVRush::PVPerlSource::seek_begin()
 	SAVETMPS;
 	PUSHMARK(SP);
 	PUTBACK;
-	perl_call_pv("picviz_seek_begin", G_EVAL);
+	perl_call_pv("inendi_seek_begin", G_EVAL);
 	SPAGAIN;
 	svp = GvSV(gv_fetchpv("@", TRUE, SVt_PV));
 	if (SvTRUE(svp)) {
@@ -137,7 +137,7 @@ PVCore::PVChunk* PVRush::PVPerlSource::operator()()
 	PUSHMARK(SP);
 	mXPUSHu((UV) _min_chunk_size);
 	PUTBACK;
-	nelts = perl_call_pv("picviz_get_next_chunk", G_ARRAY | G_EVAL);
+	nelts = perl_call_pv("inendi_get_next_chunk", G_ARRAY | G_EVAL);
 	SPAGAIN;
 	svp = GvSV(gv_fetchpv("@", TRUE, SVt_PV));
 	if (SvTRUE(svp)) {

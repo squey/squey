@@ -20,7 +20,7 @@
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 
 #include <pvkernel/core/PVLogger.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 #include <pvguiqt/PVStringSortProxyModel.h>
 
 #include <pvkernel/widgets/PVLayerNamingPatternDialog.h>
@@ -264,17 +264,17 @@ protected:
  * PVGuiQt::PVAbstractListStatsDlg
  *
  *****************************************************************************/
-void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
+void PVGuiQt::PVAbstractListStatsDlg::init(Inendi::PVView_sp& view)
 {
 	PVHive::get().register_observer(view, _obs);
 	PVHive::get().register_actor(view, _actor);
 	_obs.connect_about_to_be_deleted(this, SLOT(deleteLater()));
 
 	QString search_multiples = "search-multiple";
-	Picviz::PVLayerFilter::p_type search_multiple = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(search_multiples);
-	Picviz::PVLayerFilter::p_type fclone = search_multiple->clone<Picviz::PVLayerFilter>();
-	Picviz::PVLayerFilter::hash_menu_function_t const& entries = fclone->get_menu_entries();
-	Picviz::PVLayerFilter::hash_menu_function_t::const_iterator it_ent;
+	Inendi::PVLayerFilter::p_type search_multiple = LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(search_multiples);
+	Inendi::PVLayerFilter::p_type fclone = search_multiple->clone<Inendi::PVLayerFilter>();
+	Inendi::PVLayerFilter::hash_menu_function_t const& entries = fclone->get_menu_entries();
+	Inendi::PVLayerFilter::hash_menu_function_t::const_iterator it_ent;
 	for (it_ent = entries.begin(); it_ent != entries.end(); it_ent++) {
 		QAction* act = new QAction(it_ent->key(), _values_view);
 		act->setData(QVariant(search_multiples)); // Save the name of the layer filter associated to this action
@@ -288,7 +288,7 @@ void PVGuiQt::PVAbstractListStatsDlg::init(Picviz::PVView_sp& view)
 
 	__impl::PVTableViewResizeEventFilter* table_view_resize_event_handler = new __impl::PVTableViewResizeEventFilter();
 
-	Picviz::PVSortingFunc_p sf = view->get_sort_plugin_for_col(_col);
+	Inendi::PVSortingFunc_p sf = view->get_sort_plugin_for_col(_col);
 	PVStringSortProxyModel* proxy_model = static_cast<PVStringSortProxyModel*>(_values_view->model());
 	proxy_model->set_qt_order_func(sf->qt_f_lesser());
 
@@ -658,19 +658,19 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStrin
 
 	// Get the filter associated with that menu entry
 	QString filter_name = act->data().toString();
-	Picviz::PVLayerFilter_p lib_filter = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
+	Inendi::PVLayerFilter_p lib_filter = LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
 	if (!lib_filter) {
 		PVLOG_ERROR("(listing context-menu) filter '%s' does not exist !\n", qPrintable(filter_name));
 		return;
 	}
 
-	Picviz::PVLayerFilter::hash_menu_function_t entries = lib_filter->get_menu_entries();
+	Inendi::PVLayerFilter::hash_menu_function_t entries = lib_filter->get_menu_entries();
 	QString act_name = act->text();
 	if (entries.find(act_name) == entries.end()) {
 		PVLOG_ERROR("(listing context-menu) unable to find action '%s' in filter '%s'.\n", qPrintable(act_name), qPrintable(filter_name));
 		return;
 	}
-	Picviz::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
+	Inendi::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
 
 	// Set the arguments
 	_ctxt_args = lib_view()->get_last_args_filter(filter_name);
@@ -679,7 +679,7 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStrin
 	PVCore::PVArgumentList_set_common_args_from(_ctxt_args, custom_args);
 
 	// Show the layout filter widget
-	Picviz::PVLayerFilter_p fclone = lib_filter->clone<Picviz::PVLayerFilter>();
+	Inendi::PVLayerFilter_p fclone = lib_filter->clone<Inendi::PVLayerFilter>();
 	assert(fclone);
 	if (_ctxt_process) {
 		_ctxt_process->deleteLater();
@@ -784,10 +784,10 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	QString text = dlg.get_name_pattern();
 	PVWidgets::PVLayerNamingPatternDialog::insert_mode mode = dlg.get_insertion_mode();
 
-	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
-	PVHive::PVActor<Picviz::PVView> actor;
+	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
+	PVHive::PVActor<Inendi::PVView> actor;
 	PVHive::get().register_actor(view_sp, actor);
-	Picviz::PVLayerStack &ls = view_sp->get_layer_stack();
+	Inendi::PVLayerStack &ls = view_sp->get_layer_stack();
 
 	text.replace("%l", ls.get_selected_layer().get_name());
 	text.replace("%a", view_sp->get_axes_combination().get_axis(_col).get_name());
@@ -833,21 +833,21 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	 *   reprocessing...
 	 */
 	int old_selected_layer_index = ls.get_selected_layer_index();
-	Picviz::PVSelection old_sel(view_sp->get_pre_filter_layer().get_selection());
+	Inendi::PVSelection old_sel(view_sp->get_pre_filter_layer().get_selection());
 
 	multiple_search(_msearch_action_for_layer_creation, sl, false);
 
-	actor.call<FUNC(Picviz::PVView::add_new_layer)>(text);
-	Picviz::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
+	actor.call<FUNC(Inendi::PVView::add_new_layer)>(text);
+	Inendi::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
 	int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
-	actor.call<FUNC(Picviz::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
+	actor.call<FUNC(Inendi::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
 
 	// We need to configure the layer
 	view_sp->commit_selection_to_layer(layer);
-	actor.call<FUNC(Picviz::PVView::compute_layer_min_max)>(layer);
-	actor.call<FUNC(Picviz::PVView::compute_selectable_count)>(layer);
+	actor.call<FUNC(Inendi::PVView::compute_layer_min_max)>(layer);
+	actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(layer);
 	// and to update the layer-stack
-	actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 
 	if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
 		int insert_pos;
@@ -858,14 +858,14 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 			insert_pos = old_selected_layer_index;
 			++old_selected_layer_index;
 		}
-		actor.call<FUNC(Picviz::PVView::move_selected_layer_to)>(insert_pos);
+		actor.call<FUNC(Inendi::PVView::move_selected_layer_to)>(insert_pos);
 	}
 
 	ls.set_selected_layer_index(old_selected_layer_index);
 
 	view_sp->get_volatile_selection() = old_sel;
-	actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
-        actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
+	actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
+        actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
 }
 
 /******************************************************************************
@@ -878,11 +878,11 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	 */
 	QModelIndexList indexes = _values_view->selectionModel()->selection().indexes();
 
-	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
-	Picviz::PVLayerStack& ls = view_sp->get_layer_stack();
+	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
+	Inendi::PVLayerStack& ls = view_sp->get_layer_stack();
 
 	int layer_num = indexes.size();
-	int layer_max = PICVIZ_LAYER_STACK_MAX_DEPTH - ls.get_layer_count();
+	int layer_max = INENDI_LAYER_STACK_MAX_DEPTH - ls.get_layer_count();
 	if (layer_num >= layer_max) {
 		QMessageBox::critical(this, "multiple layer creation",
 		                      QString("You try to create %1 layer(s) but no more than %2 layer(s) can be created").arg(layer_num).arg(layer_max));
@@ -908,7 +908,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	text.replace("%l", ls.get_selected_layer().get_name());
 	text.replace("%a", lib_view()->get_axes_combination().get_axis(_col).get_name());
 
-	PVHive::PVActor<Picviz::PVView> actor;
+	PVHive::PVActor<Inendi::PVView> actor;
 	PVHive::get().register_actor(view_sp, actor);
 
 	/*
@@ -929,7 +929,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	 *   reprocessing...
 	 */
 
-	Picviz::PVSelection old_sel(view_sp->get_pre_filter_layer().get_selection());
+	Inendi::PVSelection old_sel(view_sp->get_pre_filter_layer().get_selection());
 	int old_selected_layer_index = ls.get_selected_layer_index();
 
 	/* layers creation
@@ -957,15 +957,15 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 		sl.append(index.data().toString());
 		multiple_search(_msearch_action_for_layer_creation, sl, false);
 
-		actor.call<FUNC(Picviz::PVView::add_new_layer)>(layer_name);
-		Picviz::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
+		actor.call<FUNC(Inendi::PVView::add_new_layer)>(layer_name);
+		Inendi::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
 		int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
-		actor.call<FUNC(Picviz::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
+		actor.call<FUNC(Inendi::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
 
 		// We need to configure the layer
 		view_sp->commit_selection_to_layer(layer);
-		actor.call<FUNC(Picviz::PVView::compute_layer_min_max)>(layer);
-		actor.call<FUNC(Picviz::PVView::compute_selectable_count)>(layer);
+		actor.call<FUNC(Inendi::PVView::compute_layer_min_max)>(layer);
+		actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(layer);
 
 		if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
 			int insert_pos;
@@ -976,18 +976,18 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 				insert_pos = old_selected_layer_index;
 				++old_selected_layer_index;
 			}
-			actor.call<FUNC(Picviz::PVView::move_selected_layer_to)>(insert_pos);
+			actor.call<FUNC(Inendi::PVView::move_selected_layer_to)>(insert_pos);
 		}
 
 		ls.set_selected_layer_index(old_selected_layer_index);
 		view_sp->get_volatile_selection() = old_sel;
-		actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
-		actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
+		actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
+		actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
 		++offset;
 	}
 
 	// we can update the layer-stack once all layers have been created
-	actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 }
 
 /******************************************************************************

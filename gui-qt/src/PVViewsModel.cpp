@@ -6,16 +6,16 @@
  */
 
 #include "PVViewsModel.h"
-#include <picviz/PVMapped.h>
-#include <picviz/PVPlotted.h>
-#include <picviz/PVSource.h>
+#include <inendi/PVMapped.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVSource.h>
 
 #include <QFont>
 
-// AG: FIXME: cf. libpicviz/src/PVPlotted.cpp
-#include <picviz/PVView.h>
+// AG: FIXME: cf. libinendi/src/PVPlotted.cpp
+#include <inendi/PVView.h>
 
-PVInspector::PVViewsModel::PVViewsModel(Picviz::PVSource const& src, QObject* parent):
+PVInspector::PVViewsModel::PVViewsModel(Inendi::PVSource const& src, QObject* parent):
 	QAbstractItemModel(parent),
 	_src(src)
 {
@@ -40,12 +40,12 @@ QModelIndex PVInspector::PVViewsModel::index(int row, int column, const QModelIn
 	// Column is always 0 (see columnCount), but asserts it
 	assert(column == 0);
 
-	auto mappeds =  _src.get_children<Picviz::PVMapped>();
+	auto mappeds =  _src.get_children<Inendi::PVMapped>();
 
 	if (!parent.isValid()) {
 		// Root elements are mapped objects
 		assert(row <mappeds.size());
-		Picviz::PVMapped_p mapped(mappeds.at(row));
+		Inendi::PVMapped_p mapped(mappeds.at(row));
 		PVIndexNode nt(mapped.get());
 		PVIndexNode* pnt = NULL;
 		QList<PVIndexNode*>::iterator it;
@@ -65,7 +65,7 @@ QModelIndex PVInspector::PVViewsModel::index(int row, int column, const QModelIn
 	PVIndexNode node_obj = get_object(parent);
 	assert(node_obj.is_mapped());
 	// Create an index for a plotted child object
-	auto plotteds_p = node_obj.as_mapped()->get_children<Picviz::PVPlotted>();
+	auto plotteds_p = node_obj.as_mapped()->get_children<Inendi::PVPlotted>();
 	assert(row < plotteds_p.size());
 	PVIndexNode nt(plotteds_p.at(row).get());
 	PVIndexNode* pnt = NULL;
@@ -85,7 +85,7 @@ QModelIndex PVInspector::PVViewsModel::index(int row, int column, const QModelIn
 
 int PVInspector::PVViewsModel::rowCount(const QModelIndex &index) const
 {
-	auto mappeds = _src.get_children<Picviz::PVMapped>();
+	auto mappeds = _src.get_children<Inendi::PVMapped>();
 
 	if (!index.isValid()) {
 		// Return number of mapped
@@ -100,7 +100,7 @@ int PVInspector::PVViewsModel::rowCount(const QModelIndex &index) const
 
 	assert(index.row() < mappeds.size());
 	// Return the number of plotted children objects
-	return mappeds.at(index.row())->get_children<Picviz::PVPlotted>().size();
+	return mappeds.at(index.row())->get_children<Inendi::PVPlotted>().size();
 }
 
 int PVInspector::PVViewsModel::columnCount(const QModelIndex& /*index*/) const
@@ -120,7 +120,7 @@ QVariant PVInspector::PVViewsModel::data(const QModelIndex &index, int role) con
 		{
 			QString ret;
 			if (node_obj.is_mapped()) {
-				Picviz::PVMapped* mapped = node_obj.as_mapped();
+				Inendi::PVMapped* mapped = node_obj.as_mapped();
 				ret = QString("Mapping");
 				ret += ": " + mapped->get_name();
 				if (!mapped->is_uptodate()) {
@@ -128,7 +128,7 @@ QVariant PVInspector::PVViewsModel::data(const QModelIndex &index, int role) con
 				}
 			}
 			else {
-				Picviz::PVPlotted* plotted = node_obj.as_plotted();
+				Inendi::PVPlotted* plotted = node_obj.as_plotted();
 				ret = QString("Plotting");
 				ret += ": " + plotted->get_name();
 				if (!node_obj.as_plotted()->is_uptodate()) {
@@ -142,7 +142,7 @@ QVariant PVInspector::PVViewsModel::data(const QModelIndex &index, int role) con
 			if (!node_obj.is_plotted()) {
 				return QVariant();
 			}
-			Picviz::PVPlotted* plotted = node_obj.as_plotted();
+			Inendi::PVPlotted* plotted = node_obj.as_plotted();
 			if (plotted->current_view() == _src.current_view()) {
 				QFont font;
 				font.setBold(true);
@@ -174,12 +174,12 @@ QModelIndex PVInspector::PVViewsModel::parent(const QModelIndex & index) const
 		return QModelIndex();
 	}
 
-	auto mappeds = _src.get_children<Picviz::PVMapped>();
+	auto mappeds = _src.get_children<Inendi::PVMapped>();
 
-	Picviz::PVPlotted* plotted = node_obj.as_plotted();
-	Picviz::PVMapped* mapped = plotted->get_parent<Picviz::PVMapped>();
+	Inendi::PVPlotted* plotted = node_obj.as_plotted();
+	Inendi::PVMapped* mapped = plotted->get_parent<Inendi::PVMapped>();
 
-	Picviz::PVSource::list_mapped_t::const_iterator it;
+	Inendi::PVSource::list_mapped_t::const_iterator it;
 #ifndef NDEBUG
 	bool found = false;
 #endif

@@ -12,7 +12,7 @@
 #include <QToolBar>
 #include <QWidget>
 
-#include <picviz/PVView_types.h>
+#include <inendi/PVView_types.h>
 
 namespace PVGuiQt {
 
@@ -27,7 +27,7 @@ class PVLayerStackWidget : public QWidget
 	Q_OBJECT
 
 public:
-	PVLayerStackWidget(Picviz::PVView_sp& lib_view, QWidget* parent = NULL);
+	PVLayerStackWidget(Inendi::PVView_sp& lib_view, QWidget* parent = NULL);
 
 public:
 	PVLayerStackView *get_layer_stack_view() const { return _layer_stack_view; }

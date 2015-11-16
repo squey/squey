@@ -18,11 +18,11 @@
 
 #include <boost/math/distributions/normal.hpp>
 
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/PVBCICode.h>
-#include <picviz/PVSelection.h>
+#include <inendi/PVSelection.h>
 
 #include <pvbase/general.h>
 
@@ -180,7 +180,7 @@ unsigned count;
 int what;
 entry *entries;
 std::vector<entry> res1;
-Picviz::PVSelection *selection;
+Inendi::PVSelection *selection;
 PVQuadTree<Vector1<entry>, entry> *sqt1;
 PVQuadTree<Vector1<entry>, entry> *subtree;
 std::vector<PVParallelView::PVBCICode<NBITS_INDEX>> codes;
@@ -206,8 +206,8 @@ int main(int argc, char **argv)
 
 	count = (unsigned)atoi(argv[1]);
 
-	if (count > PICVIZ_LINES_MAX) {
-		std::cerr << "count is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+	if (count > INENDI_LINES_MAX) {
+		std::cerr << "count is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
 		return 1;
 	}
 
@@ -230,7 +230,7 @@ int main(int argc, char **argv)
 		entries[i].idx = i;
 	}
 
-	selection = new Picviz::PVSelection();
+	selection = new Inendi::PVSelection();
 
 	sqt1 = new PVQuadTree<Vector1<entry>, entry>(0, MAX_VALUE, 0, MAX_VALUE, DEPTH);
 	std::cout << "Filling quadtree, it can take a while..." << std::endl;
@@ -293,7 +293,7 @@ void do_extract_first_y1_tests()
 
 	if(what == TEST_FIRST_Y1_FULL_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_CHUNKS);
 		BENCH_START(time);
 		sqt1->extract_first_from_y1_and_selection(0, MAX_VALUE, *selection, res1);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -343,7 +343,7 @@ void do_extract_first_y1y2_tests()
 
 	if(what == TEST_FIRST_Y1Y2_FULL_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_CHUNKS);
 		BENCH_START(time);
 		sqt1->extract_first_from_y1y2_and_selection(0, MAX_VALUE, 0, MAX_VALUE, *selection, res1);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -382,7 +382,7 @@ void do_extract_first_sel_tests()
 
 	if(what == TEST_FIRST_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_CHUNKS);
 		BENCH_START(time);
 		sqt1->extract_first_from_selection(*selection, res1);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -431,7 +431,7 @@ void do_extract_first_bci_y1_tests()
 
 	if(what == TEST_FIRST_BCI_Y1_FULL_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_CHUNKS);
 		BENCH_START(time);
 		sqt1->extract_first_bci_from_y1_and_selection(0, MAX_VALUE, *selection, codes);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -480,7 +480,7 @@ void do_extract_first_bci_y1y2_tests()
 
 	if(what == TEST_FIRST_BCI_Y1Y2_FULL_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_CHUNKS);
 		BENCH_START(time);
 		sqt1->extract_first_bci_from_y1y2_and_selection(0, MAX_VALUE, 0, MAX_VALUE, *selection, codes);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -519,7 +519,7 @@ void do_extract_first_bci_sel_tests()
 
 	if(what == TEST_FIRST_BCI_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_CHUNKS);
 		BENCH_START(time);
 		sqt1->extract_first_bci_from_selection(*selection, codes);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -681,7 +681,7 @@ void do_selection_tests()
 
 	if(what == TEST_SUB_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_BYTES);
 		BENCH_START(time);
 		subtree = sqt1->extract_subtree_from_selection(*selection);
 		BENCH_END(time, "time", 1, 1, 1, 1);

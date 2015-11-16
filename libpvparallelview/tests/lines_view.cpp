@@ -7,8 +7,8 @@
 
 #include <pvkernel/cuda/common.h>
 
-#include <picviz/PVPlotted.h>
-#include <picviz/PVView.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVView.h>
 
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/PVLinesView.h>

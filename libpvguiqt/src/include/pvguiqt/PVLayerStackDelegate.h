@@ -8,7 +8,7 @@
 #ifndef PVLAYERSTACKDELEGATE_H
 #define PVLAYERSTACKDELEGATE_H
 
-#include <picviz/PVView_types.h>
+#include <inendi/PVView_types.h>
 
 #include <QStyledItemDelegate>
 
@@ -28,7 +28,7 @@ public:
 	 *  @param mw
 	 *  @param parent
 	 */
-	PVLayerStackDelegate(Picviz::PVView const& view, QObject* parent = NULL);
+	PVLayerStackDelegate(Inendi::PVView const& view, QObject* parent = NULL);
 
 	/**
 	 *  @param event
@@ -49,10 +49,10 @@ public:
 	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index ) const;
 
 private:
-	Picviz::PVView const& lib_view() const { return _view; }
+	Inendi::PVView const& lib_view() const { return _view; }
 
 private:
-	Picviz::PVView const& _view;
+	Inendi::PVView const& _view;
 };
 
 }

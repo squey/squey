@@ -12,7 +12,7 @@
 
 #include <pvkernel/core/PVSharedPointer.h>
 
-#include <picviz/PVAxesCombination.h>
+#include <inendi/PVAxesCombination.h>
 
 #include <pvparallelview/PVScatterViewImagesManager.h>
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
@@ -31,7 +31,7 @@ class PVHelpWidget;
 
 }
 
-namespace Picviz
+namespace Inendi
 {
 
 class PVView;
@@ -87,7 +87,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 	};
 
 public:
-	PVScatterView(Picviz::PVView_sp &pvview_sp,
+	PVScatterView(Inendi::PVView_sp &pvview_sp,
 	              PVZonesManager const& zm,
 	              PVCol const axis_index,
 	              PVZonesProcessor& zp_bg,
@@ -100,8 +100,8 @@ public:
 	void update_new_selection_async();
 	void update_all_async();
 
-	inline Picviz::PVView& lib_view() { return _view; }
-	inline Picviz::PVView const& lib_view() const { return _view; }
+	inline Inendi::PVView& lib_view() { return _view; }
+	inline Inendi::PVView const& lib_view() const { return _view; }
 
 	PVZoneID get_zone_index() const { return get_images_manager().get_zone_index(); }
 
@@ -156,7 +156,7 @@ private slots:
 	void compute_fps();
 
 private:
-	Picviz::PVView& _view;
+	Inendi::PVView& _view;
 	PVScatterViewImagesManager _images_manager;
 	bool _view_deleted;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> *_zoom_converter;
@@ -180,7 +180,7 @@ private:
 	QRectF _last_image_margined_viewport;
 	QTransform _last_image_mv2s;
 
-	Picviz::PVAxesCombination::axes_comb_id_t _axis_id;
+	Inendi::PVAxesCombination::axes_comb_id_t _axis_id;
 
 	PVScatterViewParamsWidget* _params_widget;
 	PVWidgets::PVHelpWidget   *_help_widget;

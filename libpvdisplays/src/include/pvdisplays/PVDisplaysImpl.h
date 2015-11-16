@@ -133,8 +133,8 @@ public:
 		return act;
 	}
 
-	void add_displays_view_axis_menu(QMenu& menu, QObject* receiver, const char* slot, Picviz::PVView* view, PVCol axis_comb) const;
-	void add_displays_view_zone_menu(QMenu& menu, QObject* receiver, const char* slot, Picviz::PVView* view, PVCol axis_comb) const;
+	void add_displays_view_axis_menu(QMenu& menu, QObject* receiver, const char* slot, Inendi::PVView* view, PVCol axis_comb) const;
+	void add_displays_view_zone_menu(QMenu& menu, QObject* receiver, const char* slot, Inendi::PVView* view, PVCol axis_comb) const;
 
 	PVDisplaysContainer* get_parent_container(QWidget* self) const;
 

@@ -9,7 +9,7 @@
 #include <pvkernel/core/PVUnicodeString.h>
 #include <iostream>
 
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_assert.h>
 
 int main()
 {

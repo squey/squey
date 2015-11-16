@@ -8,7 +8,7 @@
 #ifndef PVVRBALLOCATOR_FILE_H
 #define PVVRBALLOCATOR_FILE_H
 
-#ifdef PICVIZ_USE_VRB
+#ifdef INENDI_USE_VRB
 
 extern "C" {
 #include <vrb.h>
@@ -105,7 +105,7 @@ private:
 
 }
 
-#endif //PICVIZ_USE_VRB
+#endif //INENDI_USE_VRB
 
 
 #endif

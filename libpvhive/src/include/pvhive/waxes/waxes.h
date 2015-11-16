@@ -10,6 +10,6 @@
 
 #include <pvhive/PVWax.h>
 
-#include <pvhive/waxes/picviz/waxes.h>
+#include <pvhive/waxes/inendi/waxes.h>
 
 #endif

@@ -8,7 +8,7 @@
 #include <pvkernel/widgets/PVConfigPopupWidget.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 
-#include <picviz/PVView.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVHive.h>
 
@@ -93,7 +93,7 @@ void __print_scalar(const char *text, const V &v)
  * PVParallelView::PVHitCountView::PVHitCountView
  *****************************************************************************/
 
-PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
+PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView_sp &pvview_sp,
                                                const uint32_t *col_plotted,
                                                const PVRow nrows,
                                                const PVCol axis_index,
@@ -227,7 +227,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Picviz::PVView_sp &pvview_sp,
 	// Register view for unselected & zombie events toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
 	PVHive::get().register_observer(pvview_sp,
-	                                [=](Picviz::PVView& view) {
+	                                [=](Inendi::PVView& view) {
 		                                return &view.are_view_unselected_zombie_visible();
 	                                },
 	                                *obs);

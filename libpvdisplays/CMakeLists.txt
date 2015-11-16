@@ -19,11 +19,11 @@ find_package(Qt5Widgets REQUIRED)
 include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
 #################################################
-# Add include directories for picviz's libs
+# Add include directories for inendi's libs
 #################################################
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
-include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
+include_directories(AFTER ${INENDI_INCLUDE_DIRS})
 include_directories(AFTER ${PVDISPLAYS_INCLUDE_DIRS})
 
 add_subdirectory(src)

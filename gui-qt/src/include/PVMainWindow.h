@@ -23,12 +23,12 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 
-#include <picviz/PVRoot_types.h>
-#include <picviz/PVScene_types.h>
-#include <picviz/PVSource_types.h>
-#include <picviz/PVView_types.h>
-#include <picviz/PVLayerFilter.h>
-#include <picviz/PVSelection.h>
+#include <inendi/PVRoot_types.h>
+#include <inendi/PVScene_types.h>
+#include <inendi/PVSource_types.h>
+#include <inendi/PVView_types.h>
+#include <inendi/PVLayerFilter.h>
+#include <inendi/PVSelection.h>
 
 
 #include <pvhive/PVObserverSignal.h>
@@ -117,22 +117,22 @@ public:
 	int report_image_index;
 	QString *report_filename;
 
-	Picviz::PVView* current_view() { return get_root().current_view(); }
-	Picviz::PVView const* current_view() const { return get_root().current_view(); }
+	Inendi::PVView* current_view() { return get_root().current_view(); }
+	Inendi::PVView const* current_view() const { return get_root().current_view(); }
 
-	Picviz::PVScene* current_scene() { return get_root().current_scene(); }
-	Picviz::PVScene const* current_scene() const { return get_root().current_scene(); }
+	Inendi::PVScene* current_scene() { return get_root().current_scene(); }
+	Inendi::PVScene const* current_scene() const { return get_root().current_scene(); }
 
-	void commit_selection_in_current_layer(Picviz::PVView* view);
-	void move_selection_to_new_layer(Picviz::PVView* view);
-	void commit_selection_to_new_layer(Picviz::PVView* view);
-	void set_color(Picviz::PVView* view);
+	void commit_selection_in_current_layer(Inendi::PVView* view);
+	void move_selection_to_new_layer(Inendi::PVView* view);
+	void commit_selection_to_new_layer(Inendi::PVView* view);
+	void set_color(Inendi::PVView* view);
 
 	void import_type(PVRush::PVInputType_p in_t);
 	void import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat, PVCore::PVArgumentList const& args_ext);
 	void load_files(std::vector<QString> const& files, QString format);
 	/* void import_type(); */
-	void update_statemachine_label(Picviz::PVView_sp view);
+	void update_statemachine_label(Inendi::PVView_sp view);
 
 	QString get_solution_path() const { return get_root().get_path(); }
 
@@ -141,7 +141,7 @@ public:
 	bool maybe_save_solution();
 
 protected:
-	void remove_source(Picviz::PVSource* src_p);
+	void remove_source(Inendi::PVSource* src_p);
 
 protected:
 	bool event(QEvent* event) override;
@@ -180,7 +180,7 @@ public slots:
 	void events_display_unselected_zombies_parallelview_Slot();
 	void map_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription, bool save_invalid_elts = false);
-	Picviz::PVScene_p project_new_Slot();
+	Inendi::PVScene_p project_new_Slot();
 	void project_load_Slot();
 	bool project_save_Slot();
 	bool project_saveas_Slot();
@@ -228,7 +228,7 @@ protected:
 
 private:
 	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
-	void set_selection_from_layer(Picviz::PVView_sp view, Picviz::PVLayer const& layer);
+	void set_selection_from_layer(Inendi::PVView_sp view, Inendi::PVLayer const& layer);
 	void display_inv_elts();
 
 	void save_screenshot(const QPixmap& pixmap,
@@ -260,8 +260,8 @@ private:
 		return _projects_tab_widget->is_current_project_untitled();
 	}
 	bool load_root();
-	bool load_scene(Picviz::PVScene* scene);
-	bool load_source(Picviz::PVSource* src);
+	bool load_scene(Inendi::PVScene* scene);
+	bool load_source(Inendi::PVSource* src);
 	bool fix_project_errors(std::shared_ptr<PVCore::PVSerializeArchive> ar);
 	void flag_investigation_as_cached(const QString& file);
 
@@ -352,14 +352,14 @@ protected:
 	void keyPressEvent(QKeyEvent *event);
 	int update_check();
 	void treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors);
-	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Picviz::PVView* picviz_view);
-	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Picviz::PVView const& picviz_view);
+	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Inendi::PVView* inendi_view);
+	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Inendi::PVView const& inendi_view);
 	void set_version_informations();
 
 private:
-	Picviz::PVRoot& get_root();
-	Picviz::PVRoot const& get_root() const;
-	Picviz::PVRoot_sp get_root_sp();
+	Inendi::PVRoot& get_root();
+	Inendi::PVRoot const& get_root() const;
+	Inendi::PVRoot_sp get_root_sp();
 
 private:
 	static PVMainWindow* find_main_window(const QString& path);
@@ -380,8 +380,8 @@ private:
 	QString _cur_project_file;
 	bool _cur_project_save_everything;
 	static int sequence_n;
-	Picviz::PVRoot_sp _root;
-	PVHive::PVObserverSignal<Picviz::PVRoot> _obs_root;
+	Inendi::PVRoot_sp _root;
+	PVHive::PVObserverSignal<Inendi::PVRoot> _obs_root;
 	bool _auto_detect_cancellation;
 
 private:

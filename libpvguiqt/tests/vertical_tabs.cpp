@@ -18,10 +18,10 @@
 #include <QSplitterHandle>
 #include <QStackedWidget>
 
-#include <picviz/PVMapped.h>
-#include <picviz/PVPlotted.h>
-#include <picviz/PVSource.h>
-#include <picviz/PVView.h>
+#include <inendi/PVMapped.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVSource.h>
+#include <inendi/PVView.h>
 
 #include "common.h"
 #include "test-env.h"
@@ -87,15 +87,15 @@ int main(int argc, char** argv)
 	PVCore::PVIntrinsics::init_cpuid();
 	init_env();
 
-	// Get a Picviz tree from the given file/format
-	Picviz::PVRoot_p root;
-	Picviz::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
-	Picviz::PVSource_sp src2 = get_src_from_file(root->get_children().at(0), argv[1], argv[2]);
+	// Get a INENDI tree from the given file/format
+	Inendi::PVRoot_p root;
+	Inendi::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
+	Inendi::PVSource_sp src2 = get_src_from_file(root->get_children().at(0), argv[1], argv[2]);
 	src2->create_default_view();
 	src->create_default_view();
 
 
-	Picviz::PVView_p view(src->current_view()->get_parent()->shared_from_this());
+	Inendi::PVView_p view(src->current_view()->get_parent()->shared_from_this());
 	view->process_parent_plotted();
 
 	// Qt app

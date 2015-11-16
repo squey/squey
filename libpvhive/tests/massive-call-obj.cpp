@@ -13,9 +13,9 @@
 
 #include "massive_common.h"
 
-#include <pvkernel/core/picviz_bench.h>
-#include <pvkernel/core/picviz_stat.h>
-#include <pvkernel/core/picviz_assert.h>
+#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/inendi_stat.h>
+#include <pvkernel/core/inendi_assert.h>
 
 /*****************************************************************************
  * main

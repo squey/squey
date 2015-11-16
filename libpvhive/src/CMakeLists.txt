@@ -19,12 +19,12 @@ PVFuncObserver.cpp
 )
 
 set(PVHIVE_WAXES_FILES
-waxes/picviz/PVScene.cpp
-waxes/picviz/PVMapped.cpp
-waxes/picviz/PVSource.cpp
-waxes/picviz/PVView.cpp
-waxes/picviz/PVRoot.cpp
-waxes/picviz/PVPlotted.cpp
+waxes/inendi/PVScene.cpp
+waxes/inendi/PVMapped.cpp
+waxes/inendi/PVSource.cpp
+waxes/inendi/PVView.cpp
+waxes/inendi/PVRoot.cpp
+waxes/inendi/PVPlotted.cpp
 )
 
 SET(PVHIVE_MOC_HEADERS
@@ -51,7 +51,7 @@ set_target_properties(pvhive PROPERTIES SOVERSION 1)
 
 set(QT5_LIBS Qt5Core Qt5Xml Qt5Gui)
 
-set(PVHIVE_LINK_LIBRARIES ${QT5_LIBS} ${TBB_LIBRARIES} picviz pvkernel)
+set(PVHIVE_LINK_LIBRARIES ${QT5_LIBS} ${TBB_LIBRARIES} inendi pvkernel)
 
 target_link_libraries(pvhive ${PVHIVE_LINK_LIBRARIES})
 

@@ -12,7 +12,7 @@
 #include <QStringList>
 
 PVRush::PVDBPresets::PVDBPresets():
-	_settings(QSettings::UserScope, PICVIZ_ORGANISATION, PICVIZ_APPLICATIONNAME)
+	_settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
 {
 	_settings.beginGroup(PV_SETTINGS_INPUT_DB "presets");
 }

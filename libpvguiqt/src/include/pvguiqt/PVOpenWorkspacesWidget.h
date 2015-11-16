@@ -8,7 +8,7 @@
 #ifndef PVGUIQT_PVOPENWORKSPACES_WIDGET_H
 #define PVGUIQT_PVOPENWORKSPACES_WIDGET_H
 
-#include <picviz/PVRoot_types.h>
+#include <inendi/PVRoot_types.h>
 #include <QWidget>
 
 namespace PVGuiQt {
@@ -21,7 +21,7 @@ class PVOpenWorkspacesWidget: public QWidget
 	Q_OBJECT
 
 public:
-	PVOpenWorkspacesWidget(Picviz::PVRoot* root, QWidget* parent = NULL);
+	PVOpenWorkspacesWidget(Inendi::PVRoot* root, QWidget* parent = NULL);
 
 public:
 	inline PVOpenWorkspacesTabWidget* workspace_tab_widget() const { return _tab_widget; }

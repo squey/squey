@@ -50,7 +50,7 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	_ext_start = new QLineEdit();
 	QIntValidator *iv_start = new QIntValidator();
 	iv_start->setBottom(0);
-	iv_start->setTop(PICVIZ_LINES_MAX);
+	iv_start->setTop(INENDI_LINES_MAX);
 	_ext_start->setValidator(iv_start);
 	_ext_start->setText(QString::number(FORMATBUILDER_EXTRACT_START_DEFAULT));
 	ext_layout->addWidget(_ext_start);
@@ -60,7 +60,7 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	_ext_end = new QLineEdit();
 	QIntValidator *iv_end = new QIntValidator();
 	iv_end->setBottom(100);
-	iv_end->setTop(PICVIZ_LINES_MAX);
+	iv_end->setTop(INENDI_LINES_MAX);
 	_ext_end->setValidator(iv_start);
 	_ext_end->setText(QString::number(FORMATBUILDER_EXTRACT_END_DEFAULT));
 	ext_layout->addWidget(_ext_end);

@@ -75,7 +75,7 @@ QString PVRush::PVSQLTypeMapMysql::map(int type) const
 	return "unknown";
 }
 
-QString PVRush::PVSQLTypeMapMysql::map_picviz(int type) const
+QString PVRush::PVSQLTypeMapMysql::map_inendi(int type) const
 {
     switch (type) {
     case FIELD_TYPE_TINY :

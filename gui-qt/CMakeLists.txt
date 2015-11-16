@@ -36,7 +36,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 ################################################
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
-include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
+include_directories(AFTER ${INENDI_INCLUDE_DIRS})
 include_directories(AFTER ${PVHIVE_INCLUDE_DIRS})
 include_directories(AFTER ${PVDISPLAYS_INCLUDE_DIRS})
 include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})

@@ -33,13 +33,13 @@ public:
 	void process_sse(PVZoneProcessing const& zp);
 	void process_omp_sse(PVZoneProcessing const& zp);
 
-	void filter_by_sel_omp(Picviz::PVSelection const& sel);
-	void filter_by_sel_tbb(Picviz::PVSelection const& sel);
+	void filter_by_sel_omp(Inendi::PVSelection const& sel);
+	void filter_by_sel_tbb(Inendi::PVSelection const& sel);
 
-	size_t browse_tree_bci_by_sel(PVCore::PVHSVColor* colors, PVBCICode<NBITS_INDEX>* codes, Picviz::PVSelection const& sel);
+	size_t browse_tree_bci_by_sel(PVCore::PVHSVColor* colors, PVBCICode<NBITS_INDEX>* codes, Inendi::PVSelection const& sel);
 
 private:
-	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
+	void get_float_pts(pts_t& pts, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
 
 public://private:
 	Tree _tree;

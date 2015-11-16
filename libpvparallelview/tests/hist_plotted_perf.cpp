@@ -6,10 +6,10 @@
  */
 
 #include <pvbase/types.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
-#include <pvkernel/core/picviz_intrin.h>
-#include <picviz/PVPlotted.h>
+#include <pvkernel/core/inendi_intrin.h>
+#include <inendi/PVPlotted.h>
 
 #include <pvparallelview/PVHitGraphData.h>
 #include <pvparallelview/PVZoneTree.h>
@@ -407,7 +407,7 @@ void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
  *****************************************************************************/
 
 void count_y1_sel_seq_v4(const PVRow row_count, const uint32_t *col_y1,
-                         const Picviz::PVSelection &selection,
+                         const Inendi::PVSelection &selection,
                          const uint64_t y_min, const int zoom,
                          uint32_t *buffer, int block_count)
 {
@@ -432,7 +432,7 @@ void count_y1_sel_seq_v4(const PVRow row_count, const uint32_t *col_y1,
 }
 
 void count_y1_sel_sse_v4(const PVRow row_count, const uint32_t *col_y1,
-                         const Picviz::PVSelection &selection,
+                         const Inendi::PVSelection &selection,
                          const uint64_t y_min, const int zoom,
                          uint32_t *buffer, int block_count)
 {
@@ -512,7 +512,7 @@ void count_y1_sel_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 }
 
 void count_y1_sel_omp_v4(const PVRow row_count, const uint32_t *col_y1,
-                         const Picviz::PVSelection &selection,
+                         const Inendi::PVSelection &selection,
                          const uint64_t y_min, const int zoom,
                          uint32_t *buffer, int block_count, omp_ctx_t &ctx)
 {
@@ -557,7 +557,7 @@ void count_y1_sel_omp_v4(const PVRow row_count, const uint32_t *col_y1,
 }
 
 void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
-                             const Picviz::PVSelection &selection,
+                             const Inendi::PVSelection &selection,
                              const uint64_t y_min, const int zoom,
                              uint32_t *buffer, int block_count, omp_ctx_t &ctx)
 {
@@ -658,7 +658,7 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t *col_y1,
 }
 
 void count_y1_sel_seq_v5(const PVRow row_count, const uint32_t *col_y1,
-                         const Picviz::PVSelection &selection,
+                         const Inendi::PVSelection &selection,
                          const uint64_t y_min, const int zoom,
                          uint32_t *buffer, int block_count)
 {
@@ -680,7 +680,7 @@ void count_y1_sel_seq_v5(const PVRow row_count, const uint32_t *col_y1,
 }
 
 void count_y1_sel_packed_v5(const PVRow row_count, const uint32_t *col_y1,
-                            const Picviz::PVSelection &selection,
+                            const Inendi::PVSelection &selection,
                             const uint64_t y_min, const int zoom,
                             uint32_t *buffer, int block_count)
 {
@@ -864,7 +864,7 @@ void test_no_sel(const size_t real_buffer_size,
 
 void test_sel(const size_t real_buffer_size,
               const uint32_t y_min, const int zoom,
-              const Picviz::PVSelection &selection,
+              const Inendi::PVSelection &selection,
               PVParallelView::PVZoneTree const& /*zt*/,
               const uint32_t* col_a, const size_t row_count,
               const int block_count)
@@ -968,7 +968,7 @@ int main(int argc, char **argv)
 {
 	set_extra_param(4, "col block_count y_min zoom");
 
-	Picviz::PVPlotted::uint_plotted_table_t plotted;
+	Inendi::PVPlotted::uint_plotted_table_t plotted;
 	PVCol col_count;
 	PVRow row_count;
 
@@ -998,7 +998,7 @@ int main(int argc, char **argv)
 
 	test_no_sel(real_buffer_size, y_min, zoom, zt, col_a, row_count, block_count);
 
-	Picviz::PVSelection sel;
+	Inendi::PVSelection sel;
 
 	std::cout << "select_all()" << std::endl;
 	sel.select_all();

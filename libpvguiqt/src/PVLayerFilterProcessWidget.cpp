@@ -15,13 +15,13 @@
 
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
-#include <picviz/PVStateMachine.h>
-#include <picviz/widgets/PVArgumentListWidgetFactory.h>
+#include <inendi/PVStateMachine.h>
+#include <inendi/widgets/PVArgumentListWidgetFactory.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVCallHelper.h>
 
-PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Picviz::PVView* view, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p, QWidget* parent) :
+PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Inendi::PVView* view, PVCore::PVArgumentList& args, Inendi::PVLayerFilter_p filter_p, QWidget* parent) :
 	QDialog(parent),
 	_view(view),
 	_filter_p(filter_p),
@@ -173,8 +173,8 @@ void PVGuiQt::PVLayerFilterProcessWidget::reject()
 	//_view->post_filter_layer = _view->pre_filter_layer;
 
 	// Update everything
-	Picviz::PVView_sp view_p(_view->shared_from_this());
-	PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_from_layer_stack)>(view_p);
+	Inendi::PVView_sp view_p(_view->shared_from_this());
+	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(view_p);
 
 	QDialog::reject();
 }
@@ -198,7 +198,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	}
 
 	// Save in current layer
-	Picviz::PVLayer &current_selected_layer = _view->layer_stack.get_selected_layer();
+	Inendi::PVLayer &current_selected_layer = _view->layer_stack.get_selected_layer();
 	/* We fill it's lines_properties */
 	// _view->post_filter_layer.A2B_copy_restricted_by_selection_and_nelts(current_selected_layer, _view->real_output_selection, _view->row_count);
 
@@ -207,10 +207,10 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	//
 	_view->get_post_filter_layer().get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), _view->real_output_selection, _view->row_count);
 	// volatile selection has been set by `process'
-	_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	_view->state_machine->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 
-	Picviz::PVView_sp view_p(_view->shared_from_this());
-	PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_from_layer_stack)>(view_p);
+	Inendi::PVView_sp view_p(_view->shared_from_this());
+	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(view_p);
 
 	// Save last used filter
 	_view->set_last_used_filter(_filter_p->registered_name());
@@ -223,9 +223,9 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 	_args_widget->force_submit();
 
 	//_view->process_selection();
-	//_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
+	//_view->state_machine->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_OFF);
 
-	Picviz::PVLayerFilter_p filter_p = _filter_p->clone<Picviz::PVLayerFilter>();
+	Inendi::PVLayerFilter_p filter_p = _filter_p->clone<Inendi::PVLayerFilter>();
 	filter_p->set_args(*_args_widget->get_args());
 	filter_p->set_view(_view->shared_from_this());
 	filter_p->set_output(&_view->post_filter_layer);
@@ -259,8 +259,8 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 	_view->get_volatile_selection() = _view->get_post_filter_layer().get_selection();
 
 	// We reprocess the pipeline from the eventline stage
-	Picviz::PVView_sp view_p(_view->shared_from_this());
-	PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_from_eventline)>(view_p);
+	Inendi::PVView_sp view_p(_view->shared_from_this());
+	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_eventline)>(view_p);
 
 	_has_apply = true;
 	_args_widget->clear_args_state();
@@ -281,7 +281,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::reset_Slot()
 	change_args(_filter_p->get_default_args_for_view(*_view));
 }
 
-void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* in_layer, Picviz::PVLayer* out_layer)
+void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Inendi::PVLayerFilter* filter, Inendi::PVLayer* in_layer, Inendi::PVLayer* out_layer)
 {
 	filter->set_output(out_layer);
 	filter->operator()(*in_layer);

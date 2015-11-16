@@ -16,7 +16,7 @@
 //#define ADD_DEBUG_TO_FILE 1
 
 //Define temporary template filename
-#define TEMPORARYFILENAME_TEMPLATE QDir::tempPath() + QLatin1Char( '/' ) +QLatin1String( "picviz_temp" )
+#define TEMPORARYFILENAME_TEMPLATE QDir::tempPath() + QLatin1Char( '/' ) +QLatin1String( "inendi_temp" )
 
 #endif /* LOGVIEWER_CONFIG_H */
 

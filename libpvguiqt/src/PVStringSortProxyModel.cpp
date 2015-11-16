@@ -5,10 +5,10 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <picviz/PVDefaultSortingFunc.h>
+#include <inendi/PVDefaultSortingFunc.h>
 #include <pvguiqt/PVStringSortProxyModel.h>
 #include <pvkernel/core/PVProgressBox.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 
 #include <algorithm>
 #include <cassert>
@@ -26,7 +26,7 @@
 
 PVGuiQt::PVStringSortProxyModel::PVStringSortProxyModel(QTableView* view, QObject* parent):
 	QAbstractProxyModel(parent),
-	_qt_lesser_f(Picviz::PVDefaultSortingFunc().qt_f_lesser()),
+	_qt_lesser_f(Inendi::PVDefaultSortingFunc().qt_f_lesser()),
 	_view(view),
 	_sort_idx(-1)
 {
@@ -348,7 +348,7 @@ void PVGuiQt::PVStringSortProxyModel::src_model_reset()
  * PVGuiQt::PVStringSortProxyModel::set_qt_order_func
  *
  *****************************************************************************/
-void PVGuiQt::PVStringSortProxyModel::set_qt_order_func(const Picviz::PVQtSortingFunc_flesser& lt_t)
+void PVGuiQt::PVStringSortProxyModel::set_qt_order_func(const Inendi::PVQtSortingFunc_flesser& lt_t)
 {
 	_qt_lesser_f = lt_t;
 }

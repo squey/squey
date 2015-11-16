@@ -16,10 +16,10 @@
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVVector.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVLogger.h>
 
-#include <picviz/PVSelection.h>
+#include <inendi/PVSelection.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
@@ -36,7 +36,7 @@
 
 namespace PVParallelView {
 
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 struct extract_stat {
 	static double all_dt;
 	static size_t all_cnt;
@@ -465,7 +465,7 @@ public:
 			const double alpha,
 			PVCore::PVHSVColor* image,
 			const insert_entry_y1_y2_f &insert_f,
-			Picviz::PVSelection const& sel
+			Inendi::PVSelection const& sel
 			) const
 		{
 			return visit_y1_y2::get_n_m_sel(*this, y1_min, y1_max, y2_min, y2_max, zoom, alpha,
@@ -492,7 +492,7 @@ public:
 	 * @param tls a TLR buffer used to store the result of extraction
 	 */
 	inline size_t get_first_sel_from_y1(uint64_t y1_min, uint64_t y1_max,
-	                                  const Picviz::PVSelection &selection,
+	                                  const Inendi::PVSelection &selection,
 	                                  uint32_t zoom, uint32_t y2_count,
 	                                  pv_quadtree_buffer_entry_t *buffer,
 	                                  const insert_entry_f &insert_f,
@@ -523,7 +523,7 @@ public:
 	 * @param tls a TLR buffer used to store the result of extraction
 	 */
 	inline size_t get_first_sel_from_y2(uint64_t y2_min, uint64_t y2_max,
-	                                  const Picviz::PVSelection &selection,
+	                                  const Inendi::PVSelection &selection,
 	                                  uint32_t zoom, uint32_t y1_count,
 	                                  pv_quadtree_buffer_entry_t *buffer,
 	                                  const insert_entry_f &insert_f,
@@ -550,7 +550,7 @@ public:
 	 *
 	 * @return the number of selected events
 	 */
-	size_t compute_selection_y1(const uint64_t y1_min, const uint64_t y1_max, Picviz::PVSelection &selection) const
+	size_t compute_selection_y1(const uint64_t y1_min, const uint64_t y1_max, Inendi::PVSelection &selection) const
 	{
 		return compute_selection_y1(*this, y1_min, y1_max, selection);
 	}
@@ -567,7 +567,7 @@ public:
 	 *
 	 * @return the number of selected events
 	 */
-	size_t compute_selection_y2(const uint64_t y2_min, const uint64_t y2_max, Picviz::PVSelection &selection) const
+	size_t compute_selection_y2(const uint64_t y2_min, const uint64_t y2_max, Inendi::PVSelection &selection) const
 	{
 		return compute_selection_y2(*this, y2_min, y2_max, selection);
 	}
@@ -582,7 +582,7 @@ public:
 		}
 	}
 
-	PVRow compute_min_indexes_sel_notempty(Picviz::PVSelection const& sel)
+	PVRow compute_min_indexes_sel_notempty(Inendi::PVSelection const& sel)
 	{
 		PVRow idx_min;
 
@@ -601,7 +601,7 @@ public:
 			                             _nodes[1].compute_min_indexes_sel_notempty(sel),
 			                             _nodes[2].compute_min_indexes_sel_notempty(sel),
 			                             _nodes[3].compute_min_indexes_sel_notempty(sel));
-			idx_min = picviz_mm_hmin_epu32(mins);
+			idx_min = inendi_mm_hmin_epu32(mins);
 		}
 
 		_index_min_sel = idx_min;
@@ -609,7 +609,7 @@ public:
 	}
 
 	/*
-	PVRow compute_min_indexes_bg(Picviz::PVSelection const& layers_sel)
+	PVRow compute_min_indexes_bg(Inendi::PVSelection const& layers_sel)
 	{
 		PVRow idx_min;
 		if (!_nodes) {
@@ -629,7 +629,7 @@ public:
 			mins = _mm_insert_epi32(mins, _nodes[1].compute_min_indexes_bg(layers_sel), 1);
 			mins = _mm_insert_epi32(mins, _nodes[2].compute_min_indexes_bg(layers_sel), 2);
 			mins = _mm_insert_epi32(mins, _nodes[3].compute_min_indexes_bg(layers_sel), 3);
-			idx_min = picviz_mm_hmin_epu32(mins);
+			idx_min = inendi_mm_hmin_epu32(mins);
 		}
 
 		_index_min_sel = idx_min;
@@ -874,7 +874,7 @@ public:
 		return true;
 	}
 
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 	
 	/**
 	 * Clear the chronometer used to measure the whole extraction process time.
@@ -1306,7 +1306,7 @@ private:
 
 			size_t ninsert = 0;
 			for(size_t i = 0; i < obj._datas.size(); ++i) {
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 				++extract_stat::all_cnt;
 #endif
 				const PVQuadTreeEntry &e = obj._datas.at(i);
@@ -1314,14 +1314,14 @@ private:
 					continue;
 				}
 				const uint32_t pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min) + clipped_max_count * ((e.y2 - y2_orig) / y2_scale);
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 				++extract_stat::test_cnt;
 #endif
 				if (B_IS_SET(buffer[pos >> 5], pos & 31)) {
 					continue;
 				}
 				insert_f(e, tlr);
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 				++extract_stat::insert_cnt;
 #endif
 				ninsert++;
@@ -1332,7 +1332,7 @@ private:
 				}
 			}
 			BENCH_STOP(extract);
-#ifdef PICVIZ_DEVELOPER_MODE
+#ifdef INENDI_DEVELOPER_MODE
 			extract_stat::all_dt += BENCH_END_TIME(extract);
 #endif
 			return ninsert;
@@ -2131,7 +2131,7 @@ private:
 	 *
 	 * @return the count of selected events in selection
 	 */
-	size_t compute_selection_y1(PVQuadTree const& obj, const uint64_t y1_min, const uint64_t y1_max, Picviz::PVSelection &selection) const
+	size_t compute_selection_y1(PVQuadTree const& obj, const uint64_t y1_min, const uint64_t y1_max, Inendi::PVSelection &selection) const
 	{
 		size_t num = 0;
 		if (obj._nodes != 0) {
@@ -2166,7 +2166,7 @@ private:
 	 *
 	 * @return the count of selected events in selection
 	 */
-	size_t compute_selection_y2(PVQuadTree const& obj, const uint64_t y2_min, const uint64_t y2_max, Picviz::PVSelection &selection) const
+	size_t compute_selection_y2(PVQuadTree const& obj, const uint64_t y2_min, const uint64_t y2_max, Inendi::PVSelection &selection) const
 	{
 		size_t num = 0;
 		if (obj._nodes != 0) {

@@ -18,7 +18,7 @@
  *****************************************************************************/
 PVRush::PVParamsWidgetBase::PVParamsWidgetBase(PVInputType const* in_t, PVRush::hash_formats const& /*formats*/, QWidget* parent):
 	QDialog(parent),
-	_settings(QSettings::UserScope, PICVIZ_ORGANISATION, PICVIZ_APPLICATIONNAME),
+	_settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME),
 	_in_t(in_t)
 {
 	// Create the UI

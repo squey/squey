@@ -18,7 +18,7 @@ class QPropertyAnimation;
 class QPainter;
 class QGraphicsSceneMouseEvent;
 
-namespace Picviz
+namespace Inendi
 {
 class PVView;
 }
@@ -50,7 +50,7 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
 
 public:
 	PVAxisHeader(
-		const Picviz::PVView &view,
+		const Inendi::PVView &view,
 		PVSlidersGroup* sg,
 		PVAxisGraphicsItem* parent
 	);
@@ -84,7 +84,7 @@ private:
 	PVCol get_axis_index() const;
 
 private:
-	const Picviz::PVView&            _view;
+	const Inendi::PVView&            _view;
 	PVSlidersGroup*                  _sliders_group;
 	int                              _width;
 

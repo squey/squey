@@ -10,9 +10,9 @@
 
 #include <pvkernel/core/PVSharedPointer.h>
 
-#include <picviz/PVView.h>
-#include <picviz/PVView_types.h>
-#include <picviz/PVAxesCombination.h>
+#include <inendi/PVView.h>
+#include <inendi/PVView_types.h>
+#include <inendi/PVAxesCombination.h>
 
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
@@ -30,7 +30,7 @@ class PVHelpWidget;
 
 }
 
-namespace Picviz
+namespace Inendi
 {
 class PVSelection;
 }
@@ -69,7 +69,7 @@ private:
 	typedef PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
 
 public:
-	PVHitCountView(Picviz::PVView_sp &pvview_sp,
+	PVHitCountView(Inendi::PVView_sp &pvview_sp,
 	               const uint32_t *col_plotted,
 	               const PVRow nrows,
 	               const PVCol axis_index,
@@ -91,7 +91,7 @@ public:
 
 	inline uint32_t get_max_count() const { return _max_count; }
 
-	inline Picviz::PVView& lib_view() { return _pvview; }
+	inline Inendi::PVView& lib_view() { return _pvview; }
 
 	inline const PVHitGraphBlocksManager& get_hit_graph_manager() const
 	{
@@ -126,8 +126,8 @@ protected:
 		return x_zoom_converter().scale_to_zoom((double)get_margined_viewport_width()/(double)_max_count);
 	}
 
-	inline Picviz::PVSelection& real_selection() { return _pvview.get_real_output_selection(); }
-	inline Picviz::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
+	inline Inendi::PVSelection& real_selection() { return _pvview.get_real_output_selection(); }
+	inline Inendi::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
 
 	inline bool auto_x_zoom_sel() const { return _auto_x_zoom_sel; }
 	inline bool use_log_color() const { return _use_log_color; }
@@ -174,9 +174,9 @@ private slots:
 	void update_sel();
 
 private:
-	Picviz::PVView&                              _pvview;
+	Inendi::PVView&                              _pvview;
 	PVCol                                        _axis_index;
-	Picviz::PVAxesCombination::axes_comb_id_t    _axis_id;
+	Inendi::PVAxesCombination::axes_comb_id_t    _axis_id;
 	QTimer                                       _update_all_timer;
 
 	PVHitGraphBlocksManager                      _hit_graph_manager;

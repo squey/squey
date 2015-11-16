@@ -31,14 +31,14 @@
 //#include <dlfcn.h>
 
 #include <time.h>
-#include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/segfault_handler.h>
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 
-#include <picviz/common.h>
-#include <picviz/PVRoot.h>
-#include <picviz/common.h>
+#include <inendi/common.h>
+#include <inendi/PVRoot.h>
+#include <inendi/common.h>
 
 #include <pvparallelview/PVParallelView.h>
 
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
 	bpo::notify(vm);
 
 	if (vm.count("help")) {
-		std::cerr << "INENDI Inspector " << PICVIZ_CURRENT_VERSION_STR << std::endl << std::endl;
+		std::cerr << "INENDI Inspector " << INENDI_CURRENT_VERSION_STR << std::endl << std::endl;
 		std::cerr << "Usage: " << argv[0] << " [--format format] [file [file...]]" << std::endl;
 		std::cerr << desc_opts << std::endl;
 		return 1;
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
 	QLabel *task_label = new QLabel();
 	task_label->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-	QLabel *version_label = new QLabel(QString("INENDI Inspector ") + PICVIZ_CURRENT_VERSION_STR);
+	QLabel *version_label = new QLabel(QString("INENDI Inspector ") + INENDI_CURRENT_VERSION_STR);
 	version_label->setAlignment(Qt::AlignRight | Qt::AlignBottom);
 
 	vl->addWidget(task_label);
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
 	splash.repaint();
 	app.processEvents();
 #endif
-	Picviz::common::load_filters();
+	Inendi::common::load_filters();
 #ifndef NO_MAIN_WINDOW
 	PVGuiQt::common::register_displays();
 #endif
@@ -268,8 +268,8 @@ int main(int argc, char *argv[])
 
 #ifndef NO_MAIN_WINDOW
 	app.setOrganizationName("ESI Group");
-	app.setApplicationName("INENDI Inspector " PICVIZ_CURRENT_VERSION_STR);
-	app.setWindowIcon(QIcon(":/picviz"));
+	app.setApplicationName("INENDI Inspector " INENDI_CURRENT_VERSION_STR);
+	app.setWindowIcon(QIcon(":/inendi"));
 	app.installEventFilter(new DragNDropTransparencyHack());
 	app.installEventFilter(new DisplaysFocusInEventFilter());
 #endif
