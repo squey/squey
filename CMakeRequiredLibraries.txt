@@ -207,4 +207,10 @@ set(ARCSIGHT_LIBRARIES ${ARCSIGHT_STATIC_LIB} ${GSOAPPP_LIBRARIES})
 # Check for PVCOP installation
 ###############################################################################      
 
-find_package(PVCOP)
+find_package(PVCOP REQUIRED)
+
+###############################################################################
+# Check for License installation
+###############################################################################      
+
+find_package(PVLicense REQUIRED)
