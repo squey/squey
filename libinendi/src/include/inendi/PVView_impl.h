@@ -65,55 +65,6 @@ protected:
 };
 
 template <class Tint>
-struct PVViewSortAsc: public PVViewSortBuf
-{
-	PVViewSortAsc(PVRush::PVNraw const* nraw_, PVCol col, Inendi::PVSortingFunc_flesser f_): 
-		PVViewSortBuf(), nraw(nraw_), column(col), f(f_)
-	{ }
-	bool operator()(Tint idx1, Tint idx2) const
-	{
-		ReallocableBuffer& tmp_buf = _tmp_buf.local();
-		PVCore::PVUnicodeString const s1 = nraw->at_unistr_no_cache(idx1, column);
-		const size_t size_buf = s1.size()+1;
-		tmp_buf.reallocate(size_buf);
-		memcpy(tmp_buf.buffer(), s1.buffer(), s1.size());
-
-		PVCore::PVUnicodeString const s2 = nraw->at_unistr_no_cache(idx2, column);
-
-		return f(PVCore::PVUnicodeString((char*) tmp_buf.buffer(), s1.size()), s2);
-	}
-private:
-	PVRush::PVNraw const* nraw;
-	PVCol column;
-	Inendi::PVSortingFunc_flesser f;
-	mutable ReallocableBufferTLS _tmp_buf;
-};
-
-template <class Tint>
-struct PVViewSortDesc: public PVViewSortBuf
-{
-	PVViewSortDesc(PVRush::PVNraw const* nraw_, PVCol col, Inendi::PVSortingFunc_flesser f_): 
-		PVViewSortBuf(), nraw(nraw_), column(col), f(f_)
-	{ }
-	bool operator()(Tint idx1, Tint idx2) const
-	{
-		ReallocableBuffer& tmp_buf = _tmp_buf.local();
-		PVCore::PVUnicodeString const s1 = nraw->at_unistr(idx1, column);
-		const size_t size_buf = s1.size()+1;
-		tmp_buf.reallocate(size_buf);
-		memcpy(tmp_buf.buffer(), s1.buffer(), s1.size());
-
-		PVCore::PVUnicodeString const s2 = nraw->at_unistr(idx2, column);
-
-		return f(s2, PVCore::PVUnicodeString((char*) tmp_buf.buffer(), s1.size()));
-	}
-private:
-	PVRush::PVNraw const* nraw;
-	PVCol column;
-	Inendi::PVSortingFunc_flesser f;
-};
-
-template <class Tint>
 struct PVViewStableSortAsc: public PVViewSortBuf
 {
 	PVViewStableSortAsc(PVRush::PVNraw const* nraw_, PVCol col, Inendi::PVSortingFunc_f f_): 
@@ -280,33 +231,6 @@ private:
 	uint32_t _index = 0;
 };
 
-template <class L>
-void nraw_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Inendi::PVSortingFunc_f f, Qt::SortOrder order, L& idxes, tbb::task_group_context* ctxt = NULL)
-{
-	typedef typename L::value_type Tint;
-	L tmp_indexes;
-	tmp_indexes.reserve(idxes.size());
-	tmp_indexes.resize(idxes.size());
-	bool success = false;
-
-	tbb::tag_tls_construct_args tag_c;
-
-	if (order == Qt::AscendingOrder) {
-		PVMultisetSortAsc<string_index_t> sort(f);
-		multiset_string_index_asc_tls_t multiset_tls(tag_c, sort);
-		success = stable_insert_sort_indexes_f(nraw, col, multiset_tls, sort, order, tmp_indexes, ctxt);
-	}
-	else {
-		PVMultisetSortDesc<string_index_t> sort(f);
-		multiset_string_index_desc_tls_t multiset_tls(tag_c, sort);
-		success = stable_insert_sort_indexes_f(nraw, col, multiset_tls, sort, order, tmp_indexes, ctxt);
-	}
-
-	if (success) {
-		idxes = std::move(tmp_indexes);
-	}
-}
-
 template <class L, class Comp, class TLS>
 bool stable_insert_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, TLS& multiset_tls, Comp& /*sort*/, Qt::SortOrder /*order*/, L& idxes, tbb::task_group_context* ctxt = NULL)
 {
@@ -348,25 +272,6 @@ bool stable_insert_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, TLS& mu
 	}
 
 	return !cancelled;
-}
-
-template <class L>
-void sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Inendi::PVSortingFunc_flesser f, Qt::SortOrder order, L& idxes, tbb::task_group_context* ctxt = NULL)
-{
-	typedef typename L::value_type Tint;
-	tbb::task_group_context my_ctxt;
-	if (ctxt == NULL) {
-		ctxt = &my_ctxt;
-	}
-
-	if (order == Qt::AscendingOrder) {
-		PVViewSortAsc<Tint> s(nraw, col, f);
-		tbb::parallel_sort(idxes.begin(), idxes.end(), s);
-	}
-	else {
-		PVViewSortDesc<Tint> s(nraw, col, f);
-		tbb::parallel_sort(idxes.begin(), idxes.end(), s);
-	}
 }
 
 template <class L>
