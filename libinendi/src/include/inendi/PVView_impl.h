@@ -23,6 +23,9 @@ namespace Inendi { namespace __impl {
 class ReallocableBuffer
 {
 public:
+	ReallocableBuffer() : ReallocableBuffer(32)
+	{}
+
 	ReallocableBuffer(size_t size)
 	{
 		_buf = scalable_malloc(size);
@@ -31,6 +34,7 @@ public:
 
 	~ReallocableBuffer()
 	{
+		// FIXME : This is certainly a memory leak...
 		//scalable_free(_buf);
 	}
 
@@ -57,7 +61,7 @@ class PVViewSortBuf
 
 public:
 	PVViewSortBuf():
-		_tmp_buf(tbb::tag_tls_construct_args(), 32)
+		_tmp_buf()
 	{ }
 
 protected:
