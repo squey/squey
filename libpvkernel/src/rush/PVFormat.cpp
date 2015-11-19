@@ -28,6 +28,8 @@
 #include <pvkernel/filter/PVFieldSplitterUTF16Char.h>
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
 
+#include <pvcop/types/impl/formatter_factory.h>
+
 PVRush::PVFormat::PVFormat()
 {
 	axes_count = 0;
@@ -58,7 +60,131 @@ PVRush::PVFormat::~PVFormat()
 {
 }
 
+/**
+ * ICU : http://userguide.icu-project.org/formatparse/datetime
+ * boost : http://www.boost.org/doc/libs/1_55_0/doc/html/date_time/date_time_io.html
+ */
+static std::string convert_ICU_to_boost(const std::string& tf)
+{
+	static std::vector<std::pair<std::string, std::string>> map;
 
+	// epoch
+	map.emplace_back("epoch", "%s");
+
+	// year
+	map.emplace_back("yyyy", "%Y");
+	map.emplace_back("yy", "%y");
+
+	// day of week
+	map.emplace_back("eeee", "%a");
+	map.emplace_back("eee", "%a");
+	map.emplace_back("e", "%a");
+	map.emplace_back("EEEE", "%a");
+	map.emplace_back("EEE", "%a");
+
+	// month
+	map.emplace_back("MMMM", "%b");
+	map.emplace_back("MMM", "%b");
+	map.emplace_back("M", "%m");
+
+	// day in month
+	map.emplace_back("d", "%d");
+
+	// hour
+	map.emplace_back("H", "%H");
+	map.emplace_back("h", "%h");
+
+	// minute
+	map.emplace_back("m", "%M");
+
+	// seconde
+	map.emplace_back("ss", "%S");
+
+	// fractional second
+	map.emplace_back("S", "%F");
+
+	// am/pm marker
+	map.emplace_back("a", "%p");
+
+	// timezone
+	map.emplace_back("Z", "%z");
+	map.emplace_back("v", "%Z");
+	map.emplace_back("VVV", "%Z");
+	map.emplace_back("V", "%Z");
+
+	std::string time_format = tf;
+
+	// iterate on the map with respect to the order of insertion
+	for (const auto& token : map) {
+
+		const std::string& key = token.first;
+		const std::string& value = token.second;
+
+		int pos = - value.size();
+		while ((pos = time_format.find(key, pos + value.size())) != std::string::npos) {
+
+			// check that we are not in a '...' section
+			bool verbatim = std::count(time_format.begin(), time_format.begin() + pos, '\'') % 2 == 1;
+			if (not verbatim) {
+
+				// Don't try to replace an already replaced token
+				bool already_replaced_token = (pos > 0 && time_format[pos -1] == '%');
+				if (not already_replaced_token) {
+					time_format.replace(pos, key.size(), value);
+				}
+			}
+		}
+	}
+
+	return time_format;
+}
+
+pvcop::format PVRush::PVFormat::get_storage_format() const
+{
+	pvcop::format::formatters formatters;
+
+	for (const PVAxisFormat& axe : _axes) {
+
+		std::string formatter;
+		std::string formatter_params;
+
+		std::string axe_type = axe.get_type().toStdString();
+		std::string axe_mapping = axe.get_mapping().toStdString();
+
+		if (axe_type == "time") {
+			formatter = "datetime";
+
+			const PVAxisFormat::node_args_t& mapping_args = axe.get_args_mapping_string();
+			std::string time_format = mapping_args["time-format"].toStdString();
+
+			formatter_params = convert_ICU_to_boost(time_format);
+		}
+		else if (axe_type == "integer") {
+			if (axe_mapping == "unsigned") {
+				formatter = "number_uint32";
+			}
+			else if (axe_mapping == "default") {
+				formatter = "number_int32";
+			}
+		}
+		else if (axe_type == "float") {
+			formatter = "number_float";
+		}
+		else if (axe_type == "ipv4") {
+			formatter = "ipv4";
+		}
+
+		pvcop::types::formatter_interface* fi = pvcop::types::__impl::formatter_factory::create(formatter, formatter_params);
+		if (not fi) {
+			PVLOG_ERROR("Error when loading formatter '%s' with parameters '%s'\n", formatter.c_str(), formatter_params.c_str());
+			formatters.clear();
+			//return {}; // FIXME !
+		}
+		formatters.push_back(pvcop::types::formatter_interface::sp(fi));
+	}
+
+	return pvcop::format(formatters);
+}
 
 void PVRush::PVFormat::clear()
 {

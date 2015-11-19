@@ -25,8 +25,9 @@
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/rush/PVAxisFormat.h>
-
 #include <pvkernel/rush/PVFormat_types.h>
+
+#include <pvcop/format.h>
 
 /**
  * \class PVRush::Format
@@ -100,6 +101,8 @@ public:
 	PVFormat();
 	PVFormat(QString const& format_name_, QString const& full_path_);
 	~PVFormat();
+
+	pvcop::format get_storage_format() const;
 
 	/* Methods */
 	void clear();
