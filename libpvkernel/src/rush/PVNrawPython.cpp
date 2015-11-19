@@ -9,10 +9,6 @@
 #include <pvkernel/core/PVPythonClassDecl.h>
 #include <pvkernel/rush/PVNrawPython.h>
 
-PVCore::PVUnicodeString PVRush::PVNrawPython::at_alias(PVRow i, PVCol j)
-{
-	return _nraw->at_unistr(i, j);
-}
 void PVRush::PVNrawPython::set_value(PVRow i, PVCol j, PVCore::PVUnicodeString const& str)
 {
 	if (!_nraw) {

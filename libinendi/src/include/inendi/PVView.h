@@ -320,7 +320,6 @@ public:
 	 *
 	 */
 	QString get_data(PVRow row, PVCol column) const;
-	PVCore::PVUnicodeString get_data_unistr(PVRow row, PVCol column) const;
 
 	/**
 	 * Gets the data directly from nraw, without #PVAxesCombination
@@ -332,7 +331,6 @@ public:
 	 *
 	 */
 	QString get_data_raw(PVRow row, PVCol column) const { return get_rushnraw_parent().at(row, column); }
-	inline PVCore::PVUnicodeString get_data_unistr_raw(PVRow row, PVCol column) const { return get_rushnraw_parent().at_unistr(row, column); }
 
 
 	void commit_volatile_in_floating_selection();

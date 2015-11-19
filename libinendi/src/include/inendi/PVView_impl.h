@@ -82,15 +82,14 @@ struct PVViewStableSortAsc: public PVViewSortBuf
 
 	bool operator()(Tint idx1, Tint idx2) const
 	{
-		ReallocableBuffer& tmp_buf = _tmp_buf.local();
-		PVCore::PVUnicodeString const s1 = nraw->at_unistr_no_cache(idx1, column);
-		const size_t size_buf = s1.size()+1;
-		tmp_buf.reallocate(size_buf);
-		memcpy(tmp_buf.buffer(), s1.buffer(), s1.size());
+		const std::string& s1 = nraw->at_string(idx1, column);
+		const std::string& s2 = nraw->at_string(idx2, column);
 
-		PVCore::PVUnicodeString const s2 = nraw->at_unistr_no_cache(idx2, column);
+		int ret = f(
+			PVCore::PVUnicodeString((char*) s1.c_str(), s1.size()),
+			PVCore::PVUnicodeString((char*) s2.c_str(), s2.size())
+		);
 
-		int ret = f(PVCore::PVUnicodeString((char*) tmp_buf.buffer(), s1.size()), s2);
 		if (ret == 0) {
 			return idx1 < idx2;
 		}
@@ -110,15 +109,14 @@ struct PVViewStableSortDesc: public PVViewSortBuf
 	{ }
 	bool operator()(Tint idx1, Tint idx2) const
 	{
-		ReallocableBuffer& tmp_buf = _tmp_buf.local();
-		PVCore::PVUnicodeString const s1 = nraw->at_unistr_no_cache(idx1, column);
-		const size_t size_buf = s1.size()+1;
-		tmp_buf.reallocate(size_buf);
-		memcpy(tmp_buf.buffer(), s1.buffer(), s1.size());
+		const std::string& s1 = nraw->at_string(idx1, column);
+		const std::string& s2 = nraw->at_string(idx2, column);
 
-		PVCore::PVUnicodeString const s2 = nraw->at_unistr_no_cache(idx2, column);
+		int ret = f(
+			PVCore::PVUnicodeString((char*) s1.c_str(), s1.size()),
+			PVCore::PVUnicodeString((char*) s2.c_str(), s2.size())
+		);
 
-		int ret = f(PVCore::PVUnicodeString((char*) tmp_buf.buffer(), s1.size()), s2);
 		if (ret == 0) {
 			return idx1 > idx2;
 		}
@@ -138,15 +136,13 @@ struct PVViewCompEquals: public PVViewSortBuf
 	{ }
 	bool operator()(Tint idx1, Tint idx2) const
 	{
-		ReallocableBuffer& tmp_buf = _tmp_buf.local();
-		PVCore::PVUnicodeString const s1 = nraw->at_unistr_no_cache(idx1, column);
-		const size_t size_buf = s1.size()+1;
-		tmp_buf.reallocate(size_buf);
-		memcpy(tmp_buf.buffer(), s1.buffer(), s1.size());
+		const std::string& s1 = nraw->at_string(idx1, column);
+		const std::string& s2 = nraw->at_string(idx2, column);
 
-		PVCore::PVUnicodeString const s2 = nraw->at_unistr_no_cache(idx2, column);
-
-		return f(PVCore::PVUnicodeString((char*) tmp_buf.buffer(), s1.size()), s2);
+		return f(
+			PVCore::PVUnicodeString((char*) s1.c_str(), s1.size()),
+			PVCore::PVUnicodeString((char*) s2.c_str(), s2.size())
+		);
 	}
 private:
 	PVRush::PVNraw const* nraw;
