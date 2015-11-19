@@ -34,6 +34,14 @@ extern "C" {
 #include <unicode/ucnv.h>
 }
 
+#include <pvcop/collection.h>
+#include <pvcop/format.h>
+
+namespace pvcop
+{
+class collector;
+}
+
 namespace Inendi {
 	class PVAxesCombination;
 }
@@ -88,32 +96,13 @@ public:
 	inline PVCol get_number_cols() const { return _backend.get_number_cols(); }
 
 	QString get_value(PVRow row, PVCol col, bool* complete = nullptr) const;
-	inline PVCore::PVUnicodeString at_unistr(PVRow row, PVCol col) const
-	{
-		assert(row < get_number_rows());
-		assert(col < get_number_cols());
-		size_t size;
-		const char* buf = _backend.at(row, col, size);
-		return PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size);
-	}
-
-	inline PVCore::PVUnicodeString at_unistr_no_cache(PVRow row, PVCol col) const
-	{
-		assert(row < get_number_rows());
-		assert(col < get_number_cols());
-		size_t size;
-		const char* buf = _backend.at_no_cache(row, col, size);
-		return PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size);
-	}
 
 	inline QString at(PVRow row, PVCol col, bool* complete = nullptr) const { return get_value(row, col, complete); }
 	inline std::string at_string(PVRow row, PVCol col) const
 	{
 		assert(row < get_number_rows());
 		assert(col < get_number_cols());
-		size_t size;
-		const char* buf = _backend.at(row, col, size);
-		return std::string(buf, size);
+		return _collection->column(col).at(row);
 	}
 
 	bool add_chunk_utf16(PVCore::PVChunk const& chunk);
@@ -264,6 +253,10 @@ private:
 
 	char* _tmp_conv_buf;
 	size_t _tmp_conv_buf_size;
+
+	pvcop::collector* _collector = nullptr;
+	pvcop::collection* _collection = nullptr;
+	pvcop::format _format;
 };
 
 }

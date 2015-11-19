@@ -11,6 +11,9 @@
 #include <pvkernel/rush/PVNrawException.h>
 #include <pvkernel/rush/PVUtils.h>
 
+#include <pvcop/collector.h>
+#include <pvcop/sink.h>
+
 #include <tbb/tick_count.h>
 
 #include <iostream>
@@ -32,6 +35,7 @@ const QString PVRush::PVNraw::nraw_tmp_name_regexp = "nraw-??????";
 const QString PVRush::PVNraw::default_sep_char = ",";
 const QString PVRush::PVNraw::default_quote_char = "\"";
 
+
 PVRush::PVNraw::PVNraw():
 	_tmp_conv_buf(nullptr)
 {
@@ -45,6 +49,7 @@ PVRush::PVNraw::~PVNraw()
 {
 	ucnv_close(_ucnv);
 	clear();
+	delete _format;
 }
 
 void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
@@ -57,6 +62,16 @@ void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
 	}
 
 	_backend.init(nstr.constData(), ncols);
+
+	//const char* collector_path = (std::string(nstr.data()) + "_pvcop").c_str();
+	const char* collector_path = "/srv/tmp-picviz/pvcop_nraw";
+	delete _format;
+	_format = new pvcop::format(get_format()->get_storage_format());
+	_collector = new pvcop::collector(collector_path, *_format);
+
+	if (not _collector) {
+		PVLOG_ERROR("Collector failed to initialize properly\n");
+	}
 
 	if(nrows == 0) {
 		_max_nrows = INENDI_LINES_MAX;
@@ -107,6 +122,8 @@ void PVRush::PVNraw::reserve_tmp_buf(size_t n)
 	}
 }
 
+#define CHUNK_BY_COLUMN 0
+
 bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 {
 	if (_real_nrows == _max_nrows) {
@@ -114,11 +131,21 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 		return false;
 	}
 
+	const size_t column_count = _format->column_count();
+
 	// Write all elements of the chunk in the final nraw
 	PVCore::list_elts const& elts = chunk.c_elements();
 	PVCore::list_elts::const_iterator it_elt;
+	PVCore::list_fields::const_iterator it_field;
+
+	pvcop::sink snk(*_collector, *_format);
+
+	pvcop::sink::field_t* pvcop_fields = tbb::scalable_allocator<pvcop::sink::field_t>().allocate(elts.size() *  column_count);
+
+	char* tmp_conv_buf[column_count][elts.size()];
 
 	UErrorCode err = U_ZERO_ERROR;
+	PVRow local_row = 0;
 	for (it_elt = elts.begin(); it_elt != elts.end(); it_elt++) {
 		PVCore::PVElement& e = *(*it_elt);
 		if (!e.valid())
@@ -135,24 +162,60 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 			return true;
 		}
 
-		_real_nrows++;
 		PVCol col = 0;
-		PVCore::list_fields::const_iterator it_field;
 		for (it_field = fields.begin(); it_field != fields.end(); it_field++) {
 			// Convert to UTF8
 			// TODO: make the whole process in utf8.. !
 			PVCore::PVField const& field = *it_field;
-			reserve_tmp_buf(field.size());
-			const size_t size_utf8 = ucnv_fromUChars(_ucnv, _tmp_conv_buf, _tmp_conv_buf_size, (const UChar*) field.begin(), field.size()/sizeof(UChar), &err);
+			char* tmp_buf = tmp_conv_buf[col][local_row] = tbb::scalable_allocator<char>().allocate(field.size());
+			size_t size_utf8 = ucnv_fromUChars(_ucnv, tmp_buf, field.size(), (const UChar*) field.begin(), field.size()/sizeof(UChar), &err);
 			if (!U_SUCCESS(err)) {
 				PVLOG_WARN("Unable to convert field %d to UTF8! Field is ignored..\n", col);
 				continue;
 			}
 
-			_backend.add(col, _tmp_conv_buf, size_utf8);
+			_backend.add(col, tmp_buf, size_utf8);
+
+#if CHUNK_BY_COLUMN
+			new (pvcop_fields + col * elts.size() + local_row) pvcop::sink::field_t(tmp_buf, size_utf8);
+
+#else
+			new (pvcop_fields + local_row * column_count + col) pvcop::sink::field_t(tmp_buf, size_utf8);
+#endif
+
 			col++;
 		}
+		local_row++;
 	}
+
+
+#if CHUNK_BY_COLUMN
+	if (not snk.write_chunk_by_column(_real_nrows, elts.size(), pvcop_fields)) {
+#else
+	if (not snk.write_chunk_by_row(_real_nrows, elts.size(), pvcop_fields)) {
+#endif
+		PVLOG_WARN("Unable to write chunk to disk..\n");
+	}
+
+	_real_nrows += local_row;
+
+	size_t row = 0;
+	for (it_elt = elts.begin(); it_elt != elts.end(); it_elt++) {
+		PVCore::PVElement& e = *(*it_elt);
+		if (!e.valid())
+			continue;
+		PVCore::list_fields const& fields = e.c_fields();
+		if (fields.size() == 0)
+			continue;
+		size_t col = 0;
+		for (it_field = fields.begin(); it_field != fields.end(); it_field++) {
+			PVCore::PVField const& field = *it_field;
+			tbb::scalable_allocator<char>().deallocate(tmp_conv_buf[col++][row], field.size());
+		}
+		row++;
+	}
+
+	tbb::scalable_allocator<pvcop::sink::field_t>().deallocate(pvcop_fields, elts.size() *  column_count);
 
 	return true;
 }
@@ -163,15 +226,37 @@ void PVRush::PVNraw::fit_to_content()
 	if (_real_nrows > INENDI_LINES_MAX) {
 		_real_nrows = INENDI_LINES_MAX;
 	}
+
+	// Close collector
+	if (not _collector->close()) {
+		PVLOG_ERROR("Error when closing collector..\n");
+	}
+	delete _collector;
+	_collector = nullptr;
+
+	// Open collection
+	//_collection = new pvcop::collection((std::string(_backend.get_nraw_folder().c_str()) + "_pvcop").c_str());
+	_collection = new pvcop::collection("/srv/tmp-picviz/pvcop_nraw");
+	if (_collection) {
+		PVLOG_ERROR("Error when opening collector..\n");
+	}
 }
 
 QString PVRush::PVNraw::get_value(PVRow row, PVCol col, bool* complete /*= nullptr*/) const
 {
 	assert(row < get_number_rows());
 	assert(col < get_number_cols());
-	size_t size = 0;
-	const char* buf = _backend.at_no_cache(row, col, size, complete);
-	return QString::fromUtf8(buf, size);
+	if (complete) {
+		*complete = true;
+	}
+	pvcop::db::array column = _collection->column(col);
+
+	if (not column) {
+		PVLOG_ERROR("Error when accessing column..\n");
+		return {};
+	}
+
+	return column.at(row).c_str();
 }
 
 bool PVRush::PVNraw::load_from_disk(const std::string& nraw_folder, PVCol ncols)
