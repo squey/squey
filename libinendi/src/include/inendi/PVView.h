@@ -364,15 +364,6 @@ public:
 		__impl::unique_indexes_copy_f<L>(&get_rushnraw_parent(), column, sp->f_equals(), idxes_in, idxes_out);
 	}
 
-	template <class L>
-	size_t sort_unique_indexes(PVCol column, L& idxes) const
-	{
-		PVSortingFunc_p sp = get_sort_plugin_for_col(column);
-		__impl::sort_indexes_f(&get_rushnraw_parent(), column, sp->f_lesser(), Qt::AscendingOrder, idxes);
-		typename L::iterator it_end = __impl::unique_indexes_f<L>(&get_rushnraw_parent(), column, sp->f_equals(), idxes);
-		return it_end-idxes.begin();
-	}
-
 	// Helper functions for sorting
 	template <class L>
 	inline void sort_indexes_with_axes_combination(PVCol column, Qt::SortOrder order, L& idxes, tbb::task_group_context* ctxt = NULL) const
@@ -383,11 +374,6 @@ public:
 	inline void unique_indexes_copy_with_axes_combination(PVCol column, L const& idxes_in, L& idxes_out) const
 	{
 		unique_indexes_copy<L>(axes_combination.get_axis_column_index(column), idxes_in, idxes_out);
-	}
-	template <class L>
-	inline size_t sort_unique_indexes_with_axes_combination(PVCol column, L& idxes) const
-	{
-		return sort_unique_indexes<L>(axes_combination.get_axis_column_index(column), idxes);
 	}
 
 	std::weak_ptr<PVCore::PVSerializeObject> get_last_so() const { return _last_so; }

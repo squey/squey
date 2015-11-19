@@ -58,7 +58,7 @@ class PVRenderingPipelinePreprocessRouter
 		OutIdxCancel = 2,
 	};
 
-	typedef tbb::flow::or_node< std::tuple<PVZoneRendering_p, PVZoneRendering_p> > process_or_type;
+	typedef tbb::flow::indexer_node< PVZoneRendering_p, PVZoneRendering_p> process_or_type;
 
 	struct RouterData
 	{
@@ -93,14 +93,8 @@ public:
 public:
 	void operator()(process_or_type::output_type in, multinode_router::output_ports_type& op)
 	{
-		bool has_been_processed = (in.indx == InputIdxPostProcess);
-		PVZoneRendering_p zr_in;
-		if (has_been_processed) {
-			zr_in = std::get<1>(in.result);
-		}
-		else {
-			zr_in = std::get<0>(in.result);
-		}
+		bool has_been_processed = (in.tag() == InputIdxPostProcess);
+		PVZoneRendering_p zr_in = tbb::flow::cast_to<PVZoneRendering_p>(in);
 
 		const PVZoneID zone_id = zr_in->get_zone_id();
 

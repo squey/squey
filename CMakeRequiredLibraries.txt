@@ -16,9 +16,8 @@ include_directories(${Qt5Core_INCLUDE_DIRS})
 # Define the Intel TBB Library
 ###############################################################################
 
-set(TBB_ROOT /opt/tbb-latest)
-find_package(TBB REQUIRED)
-set(TBB_LIBRARIES ${TBB_LIBRARY} ${TBB_MALLOC_LIBRARY} -L/opt/tbb-latest)
+set(TBB_ROOT_DIR /opt/tbb-latest)
+find_package(TBB 4.4 REQUIRED)
 
 message(STATUS "TBB include dirs: " ${TBB_INCLUDE_DIRS})
 include_directories(AFTER ${TBB_INCLUDE_DIRS})
