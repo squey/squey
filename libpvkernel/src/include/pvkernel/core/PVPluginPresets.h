@@ -32,8 +32,6 @@ public:
 
 private:
 	PVFunctionArgsBase* _fargs;
-	const QString&      _registered_name;
-	const QString&      _path;
 	QString     	    _abs_reg_name;
 };
 
