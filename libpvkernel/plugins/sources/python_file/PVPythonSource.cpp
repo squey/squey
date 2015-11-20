@@ -17,29 +17,6 @@
 
 #include <string>
 
-static boost::python::object borrow_ptr(PyObject* p)
-{
-	boost::python::handle<> h(p);
-	return boost::python::object(h);
-}
-
-static std::string convert_py_exception_to_string()
-{
-	std::string ret;
-
-	PyObject *ptype = NULL, *pvalue = NULL, *ptraceback = NULL;
-
-	PyErr_Fetch(&ptype, &pvalue, &ptraceback);
-	boost::python::object traceback = boost::python::import("traceback");
-	boost::python::object tb_namespace = traceback.attr("__dict__");
-	boost::python::list lstr = boost::python::extract<boost::python::list>(tb_namespace["format_exception"](borrow_ptr(ptype), borrow_ptr(pvalue), borrow_ptr(ptraceback), boost::python::object(), false));
-	for (boost::python::ssize_t i = 0; i < boost::python::len(lstr); i++) {
-		ret += boost::python::extract<const char*>(lstr[i]);
-	}   
-
-	return ret;
-}
-
 PVRush::PVPythonSource::PVPythonSource(PVInputDescription_p input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter, const QString& python_file):
 	PVRawSourceBase(src_filter),
 	_python_file(python_file),
@@ -65,9 +42,7 @@ PVRush::PVPythonSource::PVPythonSource(PVInputDescription_p input, size_t min_ch
 	}
 	catch (boost::python::error_already_set const&)
 	{
-		//std::string exc = convert_py_exception_to_string();
 		PyErr_Print();
-		//throw PVPythonExecException(python_file, exc.c_str());
 		throw PVPythonExecException(python_file, "");
 	}
 }
@@ -80,9 +55,7 @@ PVRush::PVPythonSource::~PVPythonSource()
 	}
 	catch (boost::python::error_already_set const&)
 	{
-		//std::string exc = convert_py_exception_to_string();
 		PyErr_Print();
-		//PVLOG_ERROR("Error in Python file %s: %s\n", qPrintable(_python_file), exc.c_str());
 	}
 }
 
@@ -100,8 +73,6 @@ void PVRush::PVPythonSource::seek_begin()
 	catch (boost::python::error_already_set const&)
 	{
 		PyErr_Print();
-		//std::string exc = convert_py_exception_to_string();
-		//PVLOG_ERROR("Error in Python file %s: %s\n", qPrintable(_python_file), exc.c_str());
 	}
 }
 
@@ -147,9 +118,7 @@ PVCore::PVChunk* PVRush::PVPythonSource::operator()()
 	}
 	catch (boost::python::error_already_set const&)
 	{
-		//std::string exc = convert_py_exception_to_string();
 		PyErr_Print();
-		//PVLOG_ERROR("Error in Python file %s: %s\n", qPrintable(_python_file), exc.c_str());
 		return NULL;
 	}
 
