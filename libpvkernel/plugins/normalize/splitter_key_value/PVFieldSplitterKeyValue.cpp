@@ -104,8 +104,6 @@ PVFilter::PVFieldSplitterKeyValue::~PVFieldSplitterKeyValue()
  *****************************************************************************/
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterKeyValue::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
 {
-	PVCore::list_fields::size_type ret = 0;
-
 	const char* sep = _separator_utf16.c_str();
 	size_t sep_len = _separator_utf16.size();
 
