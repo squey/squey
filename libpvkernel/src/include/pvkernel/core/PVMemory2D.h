@@ -13,14 +13,6 @@
 
 namespace PVCore {
 
-	void memmove2d (
-		void* source,
-		size_t width,
-		size_t height,
-		ssize_t x_offset,
-		ssize_t y_offset
-	);
-
 	void memcpy2d(
 		void* dst,
 		const void* source,
