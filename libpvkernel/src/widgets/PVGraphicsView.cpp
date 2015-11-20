@@ -944,6 +944,7 @@ void PVWidgets::PVGraphicsView::set_viewport(QWidget* w)
 bool PVWidgets::PVGraphicsView::set_gl_viewport(QGLFormat const& format)
 {
 #ifdef QT_NO_OPENGL
+	(void) format;
 	return false;
 #else
 	QGLWidget* w = new QGLWidget(format);
