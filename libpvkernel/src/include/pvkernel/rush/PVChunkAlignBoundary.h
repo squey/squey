@@ -21,7 +21,7 @@ namespace PVRush {
  */
 class PVChunkAlignBoundary : public PVChunkAlign {
 public:
-	PVChunkAlignBoundary(QTextBoundaryFinder::BoundaryType boundary);
+	PVChunkAlignBoundary(QTextBoundaryFinder::BoundaryType boundary = QTextBoundaryFinder::Line);
 public:
 	virtual bool operator()(PVCore::PVChunk &cur_chunk, PVCore::PVChunk &next_chunk);
 protected:

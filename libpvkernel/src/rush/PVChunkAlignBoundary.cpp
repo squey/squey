@@ -8,7 +8,7 @@
 #include <pvkernel/rush/PVChunkAlignBoundary.h>
 
 
-PVRush::PVChunkAlignBoundary::PVChunkAlignBoundary(QTextBoundaryFinder::BoundaryType boundary = QTextBoundaryFinder::Line) :
+PVRush::PVChunkAlignBoundary::PVChunkAlignBoundary(QTextBoundaryFinder::BoundaryType boundary) :
 	_b(boundary)
 {
 }
