@@ -45,7 +45,6 @@ protected:
 	chunk_index _next_index;
 private:
 	boost::python::dict _python_own_namespace;
-	PyThreadState* _python_thread;
 };
 
 class PVPythonFormatInvalid: public PVFormatInvalid
