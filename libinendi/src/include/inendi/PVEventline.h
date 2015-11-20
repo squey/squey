@@ -37,8 +37,6 @@ public:
 	void set_row_count(int row_count_) { row_count = row_count_; }
 
 private:
-	void *dtri;
-	void *parent;
 
 	int row_count;
 	
