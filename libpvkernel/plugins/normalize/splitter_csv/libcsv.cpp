@@ -62,11 +62,11 @@ URL: http://libcsv.sourceforge.net/
 
 #define SUBMIT_CHAR(p, c) ((p)->entry_buf[entry_pos++] = (c))
 
-static char *csv_errors[] = {"success",
-                             "error parsing data while strict checking enabled",
-                             "memory exhausted while increasing buffer size",
-                             "data size too large",
-                             "invalid status code"};
+static const char *csv_errors[] = {"success",
+                                   "error parsing data while strict checking enabled",
+                                   "memory exhausted while increasing buffer size",
+                                   "data size too large",
+                                   "invalid status code"};
 
 int
 csv_error(struct csv_parser *p)
@@ -75,7 +75,7 @@ csv_error(struct csv_parser *p)
   return p->status;
 }
 
-char *
+const char *
 csv_strerror(int status)
 {
   /* Return a textual description of status */
