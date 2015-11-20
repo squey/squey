@@ -102,7 +102,7 @@ void PVRush::PVNrawDiskBackend::init(const char* nraw_folder, const uint64_t num
 			column.field_length = 0; // Or any value grater than 0 to specify a fixed field length;
 		}
 	}
-	const offset_fields_t null_offset_fields;
+	const offset_fields_t null_offset_fields{};
 	_indexes.resize(_next_indexes_nrows, num_cols, null_offset_fields);
 	_next_indexes_nrows += _index_fields_size_pattern[++_fields_size_idx];
 
@@ -123,7 +123,7 @@ uint64_t PVRush::PVNrawDiskBackend::add(PVCol col_idx, const char* field, const 
 {
 	PVColumn& column = get_col(col_idx);
 	const uint64_t written_field_size = field_size + column.end_char();
-	const offset_fields_t null_offset_fields;
+	const offset_fields_t null_offset_fields{};
 	uint64_t field_part2_size = 0;
 	char* field_part2 = nullptr;
 	uint64_t write_size = 0;
@@ -324,7 +324,7 @@ void PVRush::PVNrawDiskBackend::store_index_to_disk()
 
 bool PVRush::PVNrawDiskBackend::load_index_from_disk()
 {
-	const offset_fields_t null_offset_fields;
+	const offset_fields_t null_offset_fields{};
 	// TODO: wrong size computation!
 	set_direct_mode(false);
 	file_t file;
