@@ -13,44 +13,6 @@
 
 QHash<QString,QString> PVCore::PVArgumentKey::_key_desc;
 
-// Inspired from QSettingsPrivate functions !
-
-//int PVCore::PVArgumentList::remove(const PVArgumentKey& key)
-//{
-//
-//}
-//
-//PVCore::PVArgumentList::iterator PVCore::PVArgumentList::insert(const PVArgumentKey& key, const PVArgument & value)
-//{
-//	QHash::insert()
-//}
-
-static QStringList splitArgs(const QString &s, int idx)
-{
-	int l = s.length();
-	Q_ASSERT(l > 0);
-	Q_ASSERT(s.at(idx) == QLatin1Char('('));
-	Q_ASSERT(s.at(l - 1) == QLatin1Char(')'));
-
-	QStringList result;
-	QString item;
-
-	for (++idx; idx < l; ++idx) {
-		QChar c = s.at(idx);
-		if (c == QLatin1Char(')')) {
-			Q_ASSERT(idx == l - 1);
-			result.append(item);
-		} else if (c == QLatin1Char(' ')) {
-			result.append(item);
-			item.clear();
-		} else {
-			item.append(c);
-		}
-	}
-
-	return result;
-}
-
 QDataStream &operator<<(QDataStream &out, const PVCore::PVArgumentTypeBase &obj)
 {
 	obj.serialize(out);
