@@ -60,7 +60,6 @@ protected:
 		//typedef std::shared_ptr<SimpleDateFormat> SimpleDateFormat_p;
 	private:
 		UErrorCode _err;
-		bool is_epoch;
 		QString time_format_;
 		SimpleDateFormat* _parsers;
 		size_t _nparsers;
