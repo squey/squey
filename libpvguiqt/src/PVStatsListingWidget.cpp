@@ -19,6 +19,8 @@
 #include <pvguiqt/PVStatsListingWidget.h>
 #include <pvguiqt/PVQNraw.h>
 
+#include <pvcop/db/algo.h>
+
 #ifdef INENDI_DEVELOPER_MODE
 	#define SIMULATE_LONG_COMPUTATION 0
 #endif
@@ -376,7 +378,7 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table, Inendi:
 	_autorefresh_icon->setVisible(false); // Disabled before having a better job handling pipeline
 	connect(_autorefresh_icon, SIGNAL(clicked(bool)), this, SLOT(toggle_auto_refresh()));
 
-	connect(this, SIGNAL(refresh_impl_finished(QString, bool)), this, SLOT(refreshed(QString, bool)));
+	connect(this, SIGNAL(refresh_impl_finished(QString)), this, SLOT(refreshed(QString)));
 
 	_main_layout = new QHBoxLayout();
 	_main_layout->setSizeConstraint(QLayout::SetMinimumSize);
@@ -402,6 +404,9 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table, Inendi:
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	setLayout(_main_layout);
+
+	QString column_type = _view.get_rushnraw_parent().get_format()->get_axes().at(get_real_axis_col()).get_type();
+	_is_summable = (column_type == "float" || column_type == "integer"); // FIXME : this should be capabilities, not types names !
 }
 
 void PVGuiQt::__impl::PVCellWidgetBase::context_menu_requested(const QPoint&)
@@ -511,17 +516,20 @@ void PVGuiQt::__impl::PVCellWidgetBase::auto_refresh()
 	}
 }
 
-void PVGuiQt::__impl::PVCellWidgetBase::refreshed(QString value, bool valid)
+void PVGuiQt::__impl::PVCellWidgetBase::refreshed(QString value)
 {
-	if (valid) {
+	if (value != "") {
 		QString cached_value = value;
 		get_params().cached_value = cached_value;
 		bool auto_refresh = get_params().auto_refresh;
 		set_valid(cached_value, auto_refresh);
 	}
-	else {
-		set_invalid();
-	}
+
+	QString cached_value = value;
+	get_params().cached_value = cached_value;
+	bool auto_refresh = get_params().auto_refresh;
+	set_valid(cached_value, auto_refresh);
+
 	set_loading(false);
 	_thread_running = false;
 }
@@ -593,14 +601,14 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 	PVRush::PVNraw::unique_values_t values;
 	uint64_t min;
 	uint64_t max;
-	bool valid = _view.get_rushnraw_parent().get_unique_values(get_real_axis_col(), values, min, max, *_view.get_selection_visible_listing(), _ctxt);
+	_view.get_rushnraw_parent().get_unique_values(get_real_axis_col(), values, min, max, *_view.get_selection_visible_listing(), _ctxt);
 #if SIMULATE_LONG_COMPUTATION
 	for (uint32_t i = 0; i < 10 && !_ctxt->is_group_execution_cancelled(); i++) {
 		usleep(500000);
 	}
 	valid = !_ctxt->is_group_execution_cancelled();
 #endif
-	emit refresh_impl_finished(QString("%L1").arg(values.size()), valid); // We must go back on the Qt thread to update the GUI
+	emit refresh_impl_finished(QString("%L1").arg(values.size())); // We must go back on the Qt thread to update the GUI
 }
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
@@ -628,10 +636,16 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::unique_values_dlg_closed()
  *****************************************************************************/
 void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
 {
-	uint64_t sum = 0;
-	bool valid = _view.get_rushnraw_parent().get_sum(get_real_axis_col(), sum, *_view.get_selection_visible_listing(), _ctxt);
+	const pvcop::db::array column = _view.get_rushnraw_parent().collection().column(get_real_axis_col());
 
-	emit refresh_impl_finished(QString("%L1").arg(sum), valid); // We must go back on the Qt thread to update the GUI
+	double sum = pvcop::db::algo::sum(column, *_view.get_selection_visible_listing());
+
+	double intpart;
+	bool integer = std::modf(sum, &intpart) == 0.0;
+	QString sum_str = integer ? QString("%L1").arg((int64_t) sum) : QString("%L1").arg(sum, 0, 'f');
+
+	emit refresh_impl_finished(sum_str); // We must go back on the Qt thread to update the GUI
+
 }
 
 /******************************************************************************
@@ -641,10 +655,13 @@ void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
  *****************************************************************************/
 void PVGuiQt::__impl::PVMinCellWidget::refresh_impl()
 {
-	uint64_t min = 0;
-	bool valid = _view.get_rushnraw_parent().get_min(get_real_axis_col(), min, *_view.get_selection_visible_listing(), _ctxt);
+	const pvcop::db::array column = _view.get_rushnraw_parent().collection().column(get_real_axis_col());
 
-	emit refresh_impl_finished(QString("%L1").arg(min), valid); // We must go back on the Qt thread to update the GUI
+	const pvcop::db::array& min_array = pvcop::db::algo::min(column, *_view.get_selection_visible_listing());
+
+	std::string min = min_array.size() == 1 ? min_array.at(0) : "";
+
+	emit refresh_impl_finished(QString(min.c_str())); // We must go back on the Qt thread to update the GUI
 }
 
 /******************************************************************************
@@ -654,10 +671,13 @@ void PVGuiQt::__impl::PVMinCellWidget::refresh_impl()
  *****************************************************************************/
 void PVGuiQt::__impl::PVMaxCellWidget::refresh_impl()
 {
-	uint64_t max = 0;
-	bool valid = _view.get_rushnraw_parent().get_max(get_real_axis_col(), max, *_view.get_selection_visible_listing(), _ctxt);
+	const pvcop::db::array column = _view.get_rushnraw_parent().collection().column(get_real_axis_col());
 
-	emit refresh_impl_finished(QString("%L1").arg(max), valid); // We must go back on the Qt thread to update the GUI
+	const pvcop::db::array& max_array = pvcop::db::algo::max(column, *_view.get_selection_visible_listing());
+
+		std::string max = max_array.size() == 1 ? max_array.at(0) : "";
+
+	emit refresh_impl_finished(QString(max.c_str())); // We must go back on the Qt thread to update the GUI
 }
 
 /******************************************************************************
@@ -667,8 +687,13 @@ void PVGuiQt::__impl::PVMaxCellWidget::refresh_impl()
  *****************************************************************************/
 void PVGuiQt::__impl::PVAverageCellWidget::refresh_impl()
 {
-	uint64_t avg = 0;
-	bool valid = _view.get_rushnraw_parent().get_avg(get_real_axis_col(), avg, *_view.get_selection_visible_listing(), _ctxt);
+	const pvcop::db::array column = _view.get_rushnraw_parent().collection().column(get_real_axis_col());
 
-	emit refresh_impl_finished(QString("%L1").arg(avg), valid); // We must go back on the Qt thread to update the GUI
+	double avg = pvcop::db::algo::average(column, *_view.get_selection_visible_listing());
+
+	double intpart;
+	bool integer = std::modf(avg, &intpart) == 0.0;
+	QString avg_str = integer ? QString("%L1").arg((int64_t) avg) : QString("%L1").arg(avg, 0, 'f');
+
+	emit refresh_impl_finished(avg_str); // We must go back on the Qt thread to update the GUI
 }

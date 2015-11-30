@@ -26,7 +26,7 @@ namespace PVGuiQt {
 
 class PVLayerFilterProcessWidget;
 
-class PVStringSortProxyModel;
+class PVStatsSortProxyModel;
 
 class PVListDisplayDlg: public QDialog, public Ui::PVListDisplayDlg
 {
@@ -39,12 +39,10 @@ public:
 	void set_description(QString const& desc);
 
 protected:
-	QAbstractListModel* model();
-	PVStringSortProxyModel* proxy_model();
+	QAbstractListModel* model() { return _model; }
 
 protected:
 	virtual void ask_for_copying_count() {}
-	virtual void sort_by_column(int col);
 	virtual bool process_context_menu(QAction* act);
 
 	/** Export a line in a QString format
@@ -58,7 +56,7 @@ protected:
 	 * @return : Qstring content of the line
 	 */
 	virtual QString export_line(
-		PVGuiQt::PVStringSortProxyModel* model,
+		QAbstractListModel* model,
 		std::function<QModelIndex(int)> f,
 		int i
 	);
@@ -71,12 +69,10 @@ protected slots:
 	 *
 	 * @param col : Index of the clicked column
 	 */
-	void section_clicked(int col);
 	void copy_all_to_clipboard();
 	void copy_selected_to_clipboard();
 	void copy_to_file() { export_to_file_ui(false); }
 	void append_to_file() { export_to_file_ui(true); }
-	void sort();
 	void show_ctxt_menu(const QPoint& pos);
 
 private:
@@ -96,6 +92,7 @@ private:
 	bool export_values(int count, std::function<QModelIndex (int)> f, QString& content);
 
 protected:
+	QAbstractListModel* _model;
 	QFileDialog _file_dlg;
 	QAction* _copy_values_act;
 	QMenu* _ctxt_menu;

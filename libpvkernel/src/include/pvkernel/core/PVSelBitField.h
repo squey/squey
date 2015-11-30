@@ -22,6 +22,9 @@ core
 {
 template <typename T>
 class memarray;
+
+template <typename T>
+class array;
 }
 }
 
@@ -58,11 +61,11 @@ public:
 	typedef chunk_t DECLARE_ALIGN(16) * pointer;
 	typedef chunk_t DECLARE_ALIGN(16) const* const_pointer;
 	typedef PVCore::PVAlignedAllocator<chunk_t, 16> allocator;
-	typedef pvcop::core::memarray<bool> pvcop_selection_t;
+	typedef pvcop::core::array<bool> pvcop_selection_t;
 
 protected:
 	pointer _table;
-	pvcop_selection_t* _selection = nullptr;
+	pvcop::core::memarray<bool>* _selection = nullptr;
 
 public:
 	/**
@@ -97,8 +100,8 @@ public:
 		o._selection = nullptr;
 	}
 
-	operator pvcop_selection_t&() { return *_selection; }
-	operator pvcop_selection_t&() const  { return *_selection; }
+	operator pvcop_selection_t&();
+	operator const pvcop_selection_t&() const;
 
 	/*! \brief Ensure that selection buffer is allocated.
 	 *

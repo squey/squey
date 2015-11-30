@@ -11,7 +11,6 @@
 #include <inendi/PVView.h>
 
 #include <pvguiqt/PVListDisplayDlg.h>
-#include <pvguiqt/PVStringSortProxyModel.h>
 
 #include <QClipboard>
 #include <QMessageBox>
@@ -62,16 +61,12 @@ private:
 };
 
 PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* parent):
-	QDialog(parent)
+	QDialog(parent), _model(model)
 {
 	setupUi(this);
 	_line_separator_button->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	_line_separator_button->setKeySequence(QKeySequence(Qt::Key_Return));
 	_line_separator_button->setMaxNumKey(1);
-
-	// Sort proxy model
-	PVStringSortProxyModel* proxy_model = new PVStringSortProxyModel(_values_view);
-	proxy_model->setSourceModel(model);
 
 	// `_values_view' is a QTableView, because QListView suffers from the same
 	// bug than QTableView used to suffer when a "large" (> 75000000) number of
@@ -82,7 +77,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	// setDefaultSectionSize that must be called *before* setModel, or it could
 	// take a huge amount of time.
 
-	_values_view->setModel(proxy_model);
+	_values_view->setModel(model);
 	_values_view->setGridStyle(Qt::NoPen);
 	_values_view->setContextMenuPolicy(Qt::ActionsContextMenu);
 	_values_view->verticalHeader()->hide();
@@ -112,15 +107,6 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	connect(_btn_copy_clipboard, SIGNAL(clicked()), this, SLOT(copy_all_to_clipboard()));
 	connect(_btn_copy_file, SIGNAL(clicked()), this, SLOT(copy_to_file()));
 	connect(_btn_append_file, SIGNAL(clicked()), this, SLOT(append_to_file()));
-	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort()));
-
-	// Bind the click on header to sort the clicked column
-	connect(_values_view->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(section_clicked(int)));
-	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
-
-	if (model->rowCount() < AUTOMATIC_SORT_MAX_NUMBER) {
-		sort();
-	}
 }
 
 void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& /*pos*/)
@@ -155,7 +141,7 @@ void PVGuiQt::PVListDisplayDlg::copy_all_to_clipboard()
 
 	QString content;
 	export_values(model()->rowCount(), [&](int i) -> QModelIndex {
-		return proxy_model()->index(i, 0, QModelIndex());
+		return _values_view->model()->index(i, 0, QModelIndex());
 	}, content);
 
 	QApplication::clipboard()->setText(content);
@@ -180,7 +166,7 @@ void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 
 	QString content;
 	bool success = export_values(model()->rowCount(), [&](int i) -> QModelIndex {
-		return proxy_model()->index(i, 0, QModelIndex());
+		return model()->index(i, 0, QModelIndex());
 	}, content);
 
 	outstream << content;
@@ -196,7 +182,7 @@ void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 }
 
 QString PVGuiQt::PVListDisplayDlg::export_line(
-	PVGuiQt::PVStringSortProxyModel* model,
+	QAbstractListModel* model,
 	std::function<QModelIndex(int)> f,
 	int i
 )
@@ -233,12 +219,11 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<QModelInd
 			tbb::blocked_range<int>(0, count, std::max(nthreads, count / nthreads)),
 			content,
 			[&](const tbb::blocked_range<int>& range, QString l) -> QString {
-				PVGuiQt::PVStringSortProxyModel* m = proxy_model();
 				for (int i = range.begin(); i < range.end(); i++) {
 					if unlikely(ctxt.is_group_execution_cancelled()) {
 						return QString();
 					}
-					QString s = export_line(m, f, i);
+					QString s = export_line(model(), f, i);
 					if (!s.isNull()) {
 						l.append(s.append(sep));
 					}
@@ -298,44 +283,4 @@ void PVGuiQt::PVListDisplayDlg::set_description(QString const& desc)
 		_desc_label->setVisible(true);
 		_desc_label->setText(desc);
 	}
-}
-
-PVGuiQt::PVStringSortProxyModel* PVGuiQt::PVListDisplayDlg::proxy_model()
-{
-	return static_cast<PVStringSortProxyModel*>(_values_view->model());
-}
-
-QAbstractListModel* PVGuiQt::PVListDisplayDlg::model()
-{
-	return static_cast<QAbstractListModel*>(proxy_model()->sourceModel());
-}
-
-void PVGuiQt::PVListDisplayDlg::section_clicked(int col)
-{
-	// Save selection
-	QItemSelection sel = _values_view->selectionModel()->selection();
-	sel = proxy_model()->mapSelectionToSource(sel);
-
-	// Sort
-	sort_by_column(col);
-
-	// Restore selection
-	_values_view->selectionModel()->setCurrentIndex(QModelIndex(), QItemSelectionModel::Clear); // Get rid of the annoying misplaced focus...
-	_values_view->selectionModel()->clearSelection();
-	sel = proxy_model()->mapSelectionFromSource(sel);
-	_values_view->selectionModel()->select(sel, QItemSelectionModel::Select);
-}
-
-void PVGuiQt::PVListDisplayDlg::sort_by_column(int col)
-{
-	if (col == 0) {
-		sort();
-	}
-}
-
-void PVGuiQt::PVListDisplayDlg::sort()
-{
-	Qt::SortOrder order =  _values_view->horizontalHeader()->sortIndicatorOrder();
-	proxy_model()->sort(0, order);
-	_btn_sort->hide();
 }

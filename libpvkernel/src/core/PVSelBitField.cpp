@@ -46,6 +46,8 @@ PVCore::PVSelBitField::PVSelBitField(PVSelBitField const& o):
 	allocate_and_copy_from(o);
 }
 
+PVCore::PVSelBitField::operator pvcop_selection_t&() { return *static_cast<pvcop_selection_t*>(_selection); }
+PVCore::PVSelBitField::operator const pvcop_selection_t&() const { return *static_cast<const pvcop_selection_t*>(_selection); }
 
 void PVCore::PVSelBitField::ensure_allocated()
 {
