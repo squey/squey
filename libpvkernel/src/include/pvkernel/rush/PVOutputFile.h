@@ -6,7 +6,7 @@
  */
 
 #ifndef PVOUTPUTFILE_FILE_H
-#define PVINPUTFILE_FILE_H
+#define PVOUTPUTFILE_FILE_H
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVOutput.h>

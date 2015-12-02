@@ -217,7 +217,7 @@ public:
 	 *    ...
 	 */
 	template <typename K, typename V>
-	void hash(QString const& name, QHash<K,V>& obj);
+	void hash(QHash<K,V> const& obj);
 
 	void arguments(QString const& name, PVArgumentList& obj, PVArgumentList const& def_args);
 
@@ -586,16 +586,13 @@ void PVSerializeObject::list_ref(QString const& name, T& obj, p_type ref_so)
 }
 
 template <typename K, typename V>
-void PVSerializeObject::hash(QString const& name, QHash<K,V>& obj)
+void PVSerializeObject::hash(QHash<K,V> const& obj)
 {
 	if (is_writing()) {
-		typename QHash<K,V>::const_iterator it;
-		for (it = obj.begin(); it != obj.end(); it++) {
+		for (auto it = obj.begin(); it != obj.end(); it++) {
 			PVSerializeObject_p new_obj = create_object(it.key());
 			it.value().serialize(*new_obj);
 		}
-	}
-	else {
 	}
 }
 

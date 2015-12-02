@@ -61,8 +61,6 @@ PVCore::PVChunk* PVRush::PVSplunkSource::operator()()
 	chunk = PVCore::PVChunkMem<>::allocate(0, this);
 	chunk->set_index(_next_index);
 
-	size_t processed_size = 0;
-
 	std::istringstream iss(data);
 	for (std::string row; std::getline(iss, row);) {
 		PVCore::PVElement* elt = chunk->add_element();

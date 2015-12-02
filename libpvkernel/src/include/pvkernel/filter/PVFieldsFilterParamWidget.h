@@ -73,7 +73,7 @@ public:
 
     PVFieldsFilterParamWidget(filter_p filter) {
         assert(filter);
-        _filter = filter->clone< PVFieldsFilter<Ttype> >();
+        _filter = filter->template clone< PVFieldsFilter<Ttype> >();
 		_nchilds = 0;
     }
 

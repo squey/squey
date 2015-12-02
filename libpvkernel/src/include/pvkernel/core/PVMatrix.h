@@ -294,8 +294,10 @@ public:
 
 	virtual ~PVMatrix() { free(); }
 private:
-	PVMatrix(const PVMatrix& org) { assert(false); }
-	PVMatrix& operator=(const PVMatrix& org) { assert(false); return *this; }
+	/**
+	 * A matrix can't be copy
+	 */
+	PVMatrix(const PVMatrix& org) = delete;
 public:
 	void clear()
 	{

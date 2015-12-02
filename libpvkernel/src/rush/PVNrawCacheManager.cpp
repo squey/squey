@@ -55,8 +55,6 @@ void PVRush::PVNrawCacheManager::remove_nraws_from_investigation(const QString& 
 
 void PVRush::PVNrawCacheManager::delete_unused_cache()
 {
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
-
 	QString regexp(PVRush::PVNraw::nraw_tmp_name_regexp);
 
 	QStringList nraw_without_opened_files = visit_nraw_folders(nraw_dir(), regexp, [](QDirIterator& it) {

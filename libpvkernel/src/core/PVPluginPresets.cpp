@@ -25,8 +25,6 @@ static QSettings_p g_presets_settings;
 
 PVCore::__impl::PVPluginPresets::PVPluginPresets(PVCore::PVFunctionArgsBase* fargs, QString const& registered_name, QString const& path)
  : _fargs(fargs)
- , _registered_name(registered_name)
- , _path(path)
  , _abs_reg_name(path + "/" + registered_name)
 {
 	if (g_presets_settings.get() == nullptr) {

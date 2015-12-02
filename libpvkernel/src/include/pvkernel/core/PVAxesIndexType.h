@@ -49,9 +49,10 @@ public:
 		bool res_ok = true;
 		QStringList strList = str.split(",");
 		PVAxesIndexType vec;
+		bool tmp_ok = true;
 		for (int i = 0; i < strList.count(); i++) {
-			vec.push_back(strList[i].toInt(&res_ok));
-			res_ok &= res_ok;
+			vec.push_back(strList[i].toInt(&tmp_ok));
+			res_ok &= tmp_ok;
 		}
 
 		if (ok) {

@@ -266,7 +266,7 @@ std::string PVRush::PVElasticsearchAPI::sql_to_json(const std::string& sql, std:
 
 	// URL-encode SQL request
 	char* sql_url_encoded = curl_easy_escape(_curl, sql.c_str(), sql.size());
-	if (sql_url_encoded == false) {
+	if (sql_url_encoded == nullptr) {
 		if (error) {
 			*error = "Unable to URL-encode SQL query";
 		}

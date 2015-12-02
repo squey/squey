@@ -53,8 +53,6 @@ public:
 private:
 	QHash<QString,QString> _hash;
 	QHash<QString,uint16_t> _port;
-
-	QHBoxLayout* _sqlite_layout;
 };
 static HashDriversName g_drivers_name;
 

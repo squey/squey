@@ -215,7 +215,7 @@ protected:
 	void export_slot()
 	{
 		std::string error;
-		const Query& query = get_query(&error);
+		get_query(&error);
 
 		if (error.empty()) {
 			QString csv_filename = QFileDialog::getSaveFileName(

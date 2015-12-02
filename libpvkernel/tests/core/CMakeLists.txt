@@ -25,7 +25,6 @@ add_pv_compile_test(Tcore_shared_ptr_fwd LINKS pvkernel FILES shared_ptr_fwd.cpp
 add_pv_compile_test(Tcore_raid_test LINKS pvkernel FILES raid_test.cpp)
 add_pv_compile_test(Tcore_huge_vector LINKS pvkernel FILES huge_vector.cpp)
 add_pv_compile_test(Tcore_lambda_connect LINKS pvkernel FILES lambda_connect.cpp)
-add_pv_compile_test(Tcore_memory2d LINKS pvkernel FILES memory2d.cpp)
 
 add_pv_compile_test(Tcore_file_helper LINKS pvkernel FILES file_helper.cpp)
 add_test(Tcore_file_helper Tcore_file_helper)
