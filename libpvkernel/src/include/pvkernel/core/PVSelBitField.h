@@ -15,6 +15,16 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVAlignedBlockedRange.h>
 
+namespace pvcop
+{
+namespace
+core
+{
+template <typename T>
+class memarray;
+}
+}
+
 #include <tbb/parallel_for.h>
 
 #include <vector>
@@ -48,9 +58,11 @@ public:
 	typedef chunk_t DECLARE_ALIGN(16) * pointer;
 	typedef chunk_t DECLARE_ALIGN(16) const* const_pointer;
 	typedef PVCore::PVAlignedAllocator<chunk_t, 16> allocator;
+	typedef pvcop::core::memarray<bool> pvcop_selection_t;
 
 protected:
 	pointer _table;
+	pvcop_selection_t* _selection = nullptr;
 
 public:
 	/**
@@ -79,8 +91,14 @@ public:
 	PVSelBitField(PVSelBitField&& o)
 	{
 		_table = o._table;
-		o._table = NULL;
+		o._table = nullptr;
+
+		_selection = o._selection;
+		o._selection = nullptr;
 	}
+
+	operator pvcop_selection_t&() { return *_selection; }
+	operator pvcop_selection_t&() const  { return *_selection; }
 
 	/*! \brief Ensure that selection buffer is allocated.
 	 *
@@ -204,7 +222,10 @@ public:
 				free_table();
 			}
 			_table = rhs._table;
-			rhs._table = NULL;
+			rhs._table = nullptr;
+
+			_selection = rhs._selection;
+			rhs._selection = nullptr;
 		}
 
 		return *this;
@@ -681,8 +702,9 @@ public:
 	}
 
 protected:
-	inline void allocate_table() { _table = allocator().allocate(INENDI_SELECTION_NUMBER_OF_CHUNKS); }
-	inline void free_table() { allocator().deallocate(_table, INENDI_SELECTION_NUMBER_OF_CHUNKS); }
+	void allocate_table();
+	void free_table();
+
 	inline void allocate_and_copy_from(PVSelBitField const& o)
 	{
 		if (o._table) {
@@ -697,18 +719,7 @@ protected:
 		}
 	}
 
-	inline void copy_from(PVSelBitField const& o)
-	{
-		assert(_table);
-		assert(o._table);
-		static_assert(INENDI_SELECTION_NUMBER_OF_CHUNKS % 2 == 0, "INENDI_SELECTION_NUMBER_OF_CHUNKS must be a multiple of 2.");
-		__m128i sse_c;
-		for (size_t i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i += 2) {
-			sse_c = _mm_load_si128((__m128i const*) &o._table[i]);
-			_mm_store_si128((__m128i*) &_table[i], sse_c);
-		}
-		//memcpy(_table, o._table, INENDI_SELECTION_NUMBER_OF_BYTES);
-	}
+	void copy_from(PVSelBitField const& o);
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/);
