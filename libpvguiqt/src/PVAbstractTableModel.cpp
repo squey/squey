@@ -38,8 +38,6 @@ PVAbstractTableModel::PVAbstractTableModel(int row_count, QObject* parent):
 
 	// Start with empty selection
 	_current_selection.select_none();
-
-	connect(this, &PVAbstractTableModel::is_sorted, this, &PVAbstractTableModel::sorted);
 }
 
 /******************************************************************************
@@ -73,8 +71,8 @@ void PVAbstractTableModel::reset_selection()
 void PVAbstractTableModel::start_selection(int row)
 {
     assert(row != -1 && "Should be called only on checked row");
-    _end_sel = _start_sel = rowIndex(row);
-    _in_select_mode = not _current_selection.get_line_fast(_end_sel);
+    _end_sel = _start_sel = row_pos(row);
+    _in_select_mode = not _current_selection.get_line_fast(row_pos_to_index(_end_sel));
 }
 
 /******************************************************************************
@@ -85,7 +83,7 @@ void PVAbstractTableModel::start_selection(int row)
 void PVAbstractTableModel::end_selection(int row)
 {
     if(row != -1) {
-	_end_sel = rowIndex(row);
+	_end_sel = row_pos(row);
     }
 }
 
@@ -106,16 +104,10 @@ void PVAbstractTableModel::commit_selection()
 	std::swap(_start_sel, _end_sel);
     }
 
-    auto start_filter = std::find(_filter.begin(), _filter.end(), _start_sel);
-    if(_start_sel == -1)
-    {
-	start_filter = _filter.begin();
-    }
-    auto end_filter = std::find(start_filter, _filter.end(), _end_sel);
-
     // Update current_selection from "in progress" selection
-    for(; start_filter<=end_filter; start_filter++) {
-	_current_selection.set_line(*start_filter, _in_select_mode);
+    auto const& sort = _sort.to_core_array();
+    for(; _start_sel<=_end_sel; _end_sel--) {
+	_current_selection.set_line(row_pos_to_index(_end_sel), _in_select_mode);
     }
 
     // reset in progress selection
@@ -142,15 +134,38 @@ int PVAbstractTableModel::rowIndex(PVRow index) const
     // _filter convert listing line number to sorted nraw line number
     // _sort convert sorted nraw line number to nraw line number
 
-	size_t idx = (_current_page * _page_size + _pos_in_page) + (index - _current_page);
+	size_t idx = row_pos(index);
 
-	// Simply invert index when sort order is descending
-	if (_sort_order == Qt::SortOrder::DescendingOrder) {
-		idx = _sort.size() - idx -1;
-	}
+return row_pos_to_index(idx);
+}
 
-	const auto& sort = _sort.to_core_array();
-    return sort[_filter[idx]];
+/******************************************************************************
+ *
+ * PVAbstractTableModel::row_pos_to_index
+ *
+ *****************************************************************************/
+int PVAbstractTableModel::row_pos_to_index(PVRow idx) const
+{
+    return filter_to_sort(_filter[idx]);
+
+}
+
+/******************************************************************************
+ *
+ * PVAbstractTableModel::row_pos
+ *
+ *****************************************************************************/
+int PVAbstractTableModel::row_pos(QModelIndex const& index) const
+{
+	return row_pos(index.row());
+}
+
+int PVAbstractTableModel::row_pos(PVRow index) const
+{
+    // Compute index with : pagination information + offset from the start of
+    // the "screen"
+
+	return (_current_page * _page_size + _pos_in_page) + (index - _current_page);
 }
 
 
@@ -334,8 +349,10 @@ bool PVAbstractTableModel::is_last_pos() const
  * PVAbstractTableModel::is_selected
  *
  *****************************************************************************/
-bool PVAbstractTableModel::is_selected(int row_id) const
+bool PVAbstractTableModel::is_selected(QModelIndex const& index) const
 {
+	int row_id = row_pos(index);
+	int row = rowIndex(index);
 
 	// Compute if line is in the "in progress" selection
 	bool in_in_progress_sel = (_start_sel <= row_id and row_id <= _end_sel) or
@@ -345,8 +362,8 @@ bool PVAbstractTableModel::is_selected(int row_id) const
 	// If we unselect event, an element is selected if it is
 	// in current_selection but not in the "in progress" 
 	// selection
-	bool is_selected = (_in_select_mode and (in_in_progress_sel or _current_selection.get_line_fast(row_id)))
-		or (not _in_select_mode and not in_in_progress_sel and _current_selection.get_line_fast(row_id));
+	bool is_selected = (_in_select_mode and (in_in_progress_sel or _current_selection.get_line_fast(row)))
+		or (not _in_select_mode and not in_in_progress_sel and _current_selection.get_line_fast(row));
 
 	return is_selected;
 }
@@ -360,6 +377,40 @@ void PVAbstractTableModel::sorted(PVCol col, Qt::SortOrder order)
 {
 	_sorted_column = col;
 	_sort_order = order;
+}
+
+/******************************************************************************
+*
+* PVAbstractTableModel::filter_to_sort
+*
+*****************************************************************************/
+int PVAbstractTableModel::filter_to_sort(PVRow idx) const
+{
+	if (_sort_order == Qt::SortOrder::DescendingOrder) {
+		idx = _sort.size() - idx -1;
+	}
+
+	const auto& sort = _sort.to_core_array();
+    return sort[idx];
+
+}
+
+/******************************************************************************
+*
+* PVAbstractTableModel::set_filter
+*
+*****************************************************************************/
+void PVAbstractTableModel::set_filter(Inendi::PVSelection const* sel, size_t size)
+{
+	auto const& sort = _sort.to_core_array();
+
+	// Push selected lines
+	for (PVRow line=0; line< size; line++) {
+		// A line is selected if sorted one is in the selection.
+		if (sel->get_line(sort[line])) {
+			_filter.push_back(line);
+		}
+	}
 }
 
 }

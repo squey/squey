@@ -65,7 +65,7 @@ class PVAbstractTableModel: public QAbstractTableModel {
 	 * 
 	 * @note It care about selection in progress and current selection state.
 	 */
-	bool is_selected(int row_id) const;
+	bool is_selected(QModelIndex const& index) const;
 
 	/**
 	 * Compute row number from a QModelIndex
@@ -74,6 +74,21 @@ class PVAbstractTableModel: public QAbstractTableModel {
 	 */
 	int rowIndex(QModelIndex const& index) const;
 	int rowIndex(PVRow index) const;
+
+	/**
+	 * Compute row position from Qt row position
+	 *
+	 * @note : use pagination information to get real position.
+	 */
+	int row_pos(QModelIndex const& index) const;
+	int row_pos(PVRow index) const;
+
+	/**
+	 * Compute index from a row position.
+	 *
+	 * @note : apply filtering and sorting to row with pagination information.
+	 */
+	int row_pos_to_index(PVRow index) const;
 
 	/**
 	 * Number of ticks in the scrollbar
@@ -175,24 +190,19 @@ class PVAbstractTableModel: public QAbstractTableModel {
 
 	/**
 	 * Set the filter with the matching selection.
+	 *
+	 * @note perform convertion from selection to filter removing sort filtering.
 	 */
-	void set_filter(Inendi::PVSelection const* sel, size_t size)
-	{
-		// Push selected lines
-		for (PVRow line=0; line< size; line++) {
-			if (sel->get_line(line)) {
-				_filter.push_back(line);
-			}
-		}
-	}
+	void set_filter(Inendi::PVSelection const* sel, size_t size);
 
-signals:
 	/**
-	 * Emit this signal with column and ordering information after sorting is done.
+	 * get index from filtered value.
+	 *
+	 * @note perform only sorting filtering.
 	 */
-	void is_sorted(int col, Qt::SortOrder order);
+	int filter_to_sort(PVRow row) const;
 
-	private slots:
+	protected:
 	/**
 	 * Set sorting contextual informations.
 	 */

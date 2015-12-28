@@ -95,7 +95,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 			    return {};
 			}
 
-			if(is_selected(r)) {
+			if(is_selected(index)) {
 				// Visual selected lines from current selection
 				// and "in progress" selection
 				return _selection_brush;
@@ -234,7 +234,7 @@ void PVGuiQt::PVListingModel::sort(PVCol col, Qt::SortOrder order, tbb::task_gro
 {
 	lib_view().sort_indexes_with_axes_combination(col, sorting(), &ctxt);
 	if (not ctxt.is_group_execution_cancelled()) {
-		emit is_sorted(col, order);
+		sorted(col, order);
 	}
 }
 
