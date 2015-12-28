@@ -17,14 +17,7 @@
 #include <pvhive/PVHive.h>
 #include <pvhive/PVCallHelper.h>
 
-#include <pvguiqt/PVCustomQtRoles.h>
 #include <pvguiqt/PVListingModel.h>
-
-// Adjustable number of ticks in the scrollbar
-constexpr static size_t SCROLL_SIZE = 5000;
-// Minimum number of elements per page to enable pagination
-// It should be more than the maximum number of row we can display on a screen.
-constexpr static size_t MIN_PAGE_SIZE = 100;
 
 /******************************************************************************
  *
@@ -32,25 +25,13 @@ constexpr static size_t MIN_PAGE_SIZE = 100;
  *
  *****************************************************************************/
 PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent):
-	QAbstractTableModel(parent),
+	PVAbstractTableModel(view->get_parent<Inendi::PVSource>()->get_row_count(), parent),
 	_zombie_brush(QColor(0, 0, 0)),
 	_selection_brush(QColor(88, 172, 250)),
 	_vheader_font(":/Convergence-Regular"),
 	_view(view),
 	_obs_vis(this),
-	_obs_zomb(this),
-	_sort(lib_view().get_parent<Inendi::PVSource>()->get_row_count()),
-	_sorted_column(PVCOL_INVALID_VALUE),
-	_sort_order(Qt::SortOrder::AscendingOrder),
-	_current_page(0),
-	_pos_in_page(0),
-	_page_size(0),
-	_last_page_size(0),
-	_page_number(SCROLL_SIZE),
-	_page_step(0),
-	_start_sel(-1),
-	_end_sel(-1),
-	_in_select_mode(true)
+	_obs_zomb(this)
 {
 	// Update the full model if axis combination change
 	_obs_axes_comb.connect_refresh(this, SLOT(axes_comb_changed()));
@@ -72,17 +53,6 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent
 	// Update display of unselected lines on option toogling
 	// FIXME : Can't we work without these specific struct?
 	PVHive::get().register_func_observer(view, _obs_vis);
-
-	// No filter at start
-	_filter.resize(lib_view().get_parent<Inendi::PVSource>()->get_row_count());
-	std::iota(_filter.begin(), _filter.end(), 0);
-
-	// No reorder at start
-	auto& sort = _sort.to_core_array();
-	std::iota(sort.begin(), sort.end(), 0);
-
-	// Start with empty selection
-	_current_selection.select_none();
 }
 
 /******************************************************************************
@@ -125,18 +95,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 			    return {};
 			}
 
-			// Compute if line is in the "in progress" selection
-			bool in_in_progress_sel = (_start_sel <= r and r <= _end_sel) or
-			    (_end_sel <= r and r <= _start_sel);
-			// An element is selected if it is in curent_selection or
-			// in "in progress" selection if we select new event
-			// If we unselect event, an element is selected if it is
-			// in current_selection but not in the "in progress" 
-			// selection
-			bool is_selected = (_in_select_mode and (in_in_progress_sel or _current_selection.get_line_fast(r)))
-			    or (not _in_select_mode and not in_in_progress_sel and _current_selection.get_line_fast(r));
-
-			if(is_selected) {
+			if(is_selected(r)) {
 				// Visual selected lines from current selection
 				// and "in progress" selection
 				return _selection_brush;
@@ -236,22 +195,6 @@ QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orient
 
 /******************************************************************************
  *
- * PVGuiQt::PVListingModel::rowCount
- *
- *****************************************************************************/
-int PVGuiQt::PVListingModel::rowCount(const QModelIndex &) const
-{
-    // Define the number of ticks in the scrollbar
-    if(_filter.size() > MIN_PAGE_SIZE * SCROLL_SIZE) {
-	return _page_number + _page_step;
-    } else {
-	return _filter.size();
-    }
-}
-
-
-/******************************************************************************
- *
  * PVGuiQt::PVListingModel::columnCount
  *
  *****************************************************************************/
@@ -282,36 +225,6 @@ void PVGuiQt::PVListingModel::axes_comb_changed()
 	endResetModel();
 }
 
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingModel::rowIndex
- *
- *****************************************************************************/
-
-int PVGuiQt::PVListingModel::rowIndex(QModelIndex const& index) const
-{
-	return rowIndex(index.row());
-}
-
-int PVGuiQt::PVListingModel::rowIndex(PVRow index) const
-{
-    // Compute index with : pagination information + offset from the start of
-    // the "screen"
-    // _filter convert listing line number to sorted nraw line number
-    // _sort convert sorted nraw line number to nraw line number
-
-	size_t idx = (_current_page * _page_size + _pos_in_page) + (index - _current_page);
-
-	// Simply invert index when sort order is descending
-	if (_sort_order == Qt::SortOrder::DescendingOrder) {
-		idx = _sort.size() - idx -1;
-	}
-
-	const auto& sort = _sort.to_core_array();
-    return sort[_filter[idx]];
-}
-
 /******************************************************************************
  *
  * PVGuiQt::PVListingModel::sort
@@ -319,10 +232,9 @@ int PVGuiQt::PVListingModel::rowIndex(PVRow index) const
  *****************************************************************************/
 void PVGuiQt::PVListingModel::sort(PVCol col, Qt::SortOrder order, tbb::task_group_context & ctxt)
 {
-	lib_view().sort_indexes_with_axes_combination(col, _sort, &ctxt);
+	lib_view().sort_indexes_with_axes_combination(col, sorting(), &ctxt);
 	if (not ctxt.is_group_execution_cancelled()) {
-		_sorted_column = col;
-		_sort_order = order;
+		emit is_sorted(col, order);
 	}
 }
 
@@ -343,15 +255,16 @@ void PVGuiQt::PVListingModel::update_filter()
 
 	// Everything is selected
 	if(not sel) {
-		_filter.resize(lib_view().get_row_count());
-		std::iota(_filter.begin(), _filter.end(), 0);
+		reset_filter(lib_view().get_row_count());
 		emit layoutChanged(); // FIXME : Should use RAII
 		return;
 	}
 
 	// Filter out lines according to the good selection.
-	_filter.clear();
+	clear_filter();
+
 	const PVRow nvisible_lines = sel->get_number_of_selected_lines_in_range(0, lib_view().get_row_count());
+
 	// Nothing is visible
 	if (nvisible_lines == 0) {
 	    emit layoutChanged(); // FIXME : Should use RAII
@@ -359,244 +272,12 @@ void PVGuiQt::PVListingModel::update_filter()
 	}
 
 	// Push selected lines
-	for (PVRow line=0; line< lib_view().get_row_count(); line++) {
-		if (sel->get_line(line)) {
-			_filter.push_back(line);
-		}
-	}
+	set_filter(sel, lib_view().get_row_count());
 
 	// Inform view new_filter is set
 	// This is not done using Hive as _filter have to be set, PVSelection is not
 	// enough
 	emit layoutChanged();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingModel::start_selection
- *
- *****************************************************************************/
-void PVGuiQt::PVListingModel::start_selection(int row)
-{
-    assert(row != -1 && "Should be called only on checked row");
-    _end_sel = _start_sel = rowIndex(row);
-    _in_select_mode = not _current_selection.get_line_fast(_end_sel);
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingModel::end_selection
- *
- *****************************************************************************/
-void PVGuiQt::PVListingModel::end_selection(int row)
-{
-    if(row != -1) {
-	_end_sel = rowIndex(row);
-    }
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingModel::commit_selection
- *
- *****************************************************************************/
-void PVGuiQt::PVListingModel::commit_selection()
-{
-    if(_end_sel == -1) {
-	// No selection in progress
-	return;
-    }
-
-    // Order begin and end of selection
-    if(_end_sel < _start_sel) {
-	std::swap(_start_sel, _end_sel);
-    }
-
-    auto start_filter = std::find(_filter.begin(), _filter.end(), _start_sel);
-    if(_start_sel == -1)
-    {
-	start_filter = _filter.begin();
-    }
-    auto end_filter = std::find(start_filter, _filter.end(), _end_sel);
-
-    // Update current_selection from "in progress" selection
-    for(; start_filter<=end_filter; start_filter++) {
-	_current_selection.set_line(*start_filter, _in_select_mode);
-    }
-
-    // reset in progress selection
-    _end_sel = _start_sel;
-
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingModel::move_by
- *
- *****************************************************************************/
-
-void PVGuiQt::PVListingModel::move_by(int inc_elts, size_t page_step)
-{
-    // Compute new position
-    int new_pos = static_cast<int>(_pos_in_page) + inc_elts;
-
-    // Reach next page but not the last one
-    if(inc_elts > 0 and static_cast<size_t>(new_pos) >= _page_size and _current_page != _page_number - 1) {
-	int incp = new_pos / _page_size; // Number of new page scrolled
-	if(incp + _current_page >= _page_number)
-	{
-	    // Reach the end of the listing
-	    _current_page = _page_number - 1;
-	    _pos_in_page = _last_page_size - page_step;
-	} else {
-	    // Go to the correct page
-	    _current_page += incp;
-	    _pos_in_page = new_pos - incp * _page_size;
-	}
-    } else if(inc_elts < 0 and new_pos < 0) {
-	// Reach previous page
-	// Number of page scroll back
-	// -1 as we keep positif _pos_in_page
-	int decp = new_pos / static_cast<int>(_page_size) - 1;
-	if((decp + static_cast<int>(_current_page)) < 0) {
-	    // Reach the start of the listing
-	    _current_page = 0;
-	    _pos_in_page = 0;
-	} else {
-	    // go to the correct previous page
-	    _current_page += decp;
-	    _pos_in_page = new_pos - decp * _page_size;
-	}
-    } else if((new_pos + _current_page * _page_size) >= (_filter.size() - page_step)) {
-	// It is not the end of the last page but almost the end so we stop
-	// now to show the last line at the bottom of the screen
-	_current_page = _page_number - 1;
-	_pos_in_page = std::max<int>(0, _last_page_size - page_step - 1);
-    } else {
-	// Scroll in the current page
-	_pos_in_page = new_pos;
-    }
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingModel::move_to_nraw
- *
- *****************************************************************************/
-void PVGuiQt::PVListingModel::move_to_nraw(PVRow row, size_t page_step)
-{
-    // Row is line number in the full NRaw while line is the line number in
-    // the current selection
-    PVRow line = std::distance(_filter.begin(), std::find(_filter.begin(), _filter.end(), row));
-    move_to_row(line, page_step);
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingModel::move_to_row
- *
- *****************************************************************************/
-void PVGuiQt::PVListingModel::move_to_row(PVRow row, size_t page_step)
-{
-    assert(row< _filter.size() && "Impossible Row id");
-    _current_page = row / _page_size;
-    _pos_in_page = row - _current_page * _page_size;
-
-    if(_current_page == _page_number) {
-	// Do not scroll to much
-	_pos_in_page = std::min(_pos_in_page, _last_page_size - page_step - 1);
-    }
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingModel::move_to_page
- *
- *****************************************************************************/
-void PVGuiQt::PVListingModel::move_to_page(size_t page)
-{
-    assert((page == 0 or page < _filter.size()) && "Impossible Row id");
-    _current_page = page;
-    _pos_in_page = 0;
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingModel::move_to_end
- *
- *****************************************************************************/
-void PVGuiQt::PVListingModel::move_to_end(size_t page_step)
-{
-    _current_page = _page_number - 1;
-    // It may happen that _last_page_size is 1 less than page_step du to
-    // incomplete last row
-    _pos_in_page = std::max<int>(0, _last_page_size - page_step - 1);
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingModel::update_pages
- *
- *****************************************************************************/
-void PVGuiQt::PVListingModel::update_pages(size_t nbr_tick, size_t page_step)
-{
-    // Save pagination parameter to check for updates
-    size_t old_page_num = _page_number;
-    size_t old_step = _page_step;
-    size_t old_last_page = _last_page_size;
-
-    _page_step = page_step;
-    // Filter may be updated before scrollbar
-    assert(nbr_tick != 0 && "At least, there is the current page");
-    if(_filter.size() > MIN_PAGE_SIZE * SCROLL_SIZE) {
-	if(nbr_tick < SCROLL_SIZE / 2) {
-	    // _filter is updated bu nbr_tick is not. Set a dummy value to
-	    // initiate the fixed point algorithm and get correct page number
-	    _page_size = _filter.size() / SCROLL_SIZE;
-	} else {
-	    // We keep the last tick for bottom
-	    _page_size = _filter.size() / (nbr_tick - 1);
-	}
-	_page_number = _filter.size() / _page_size;
-	// Last page is normal page + remainder
-	_last_page_size = _filter.size() - _page_size * (_page_number - 1);
-    } else {
-	_page_size = 1;
-	if(_page_step <= _filter.size()) {
-	    _page_number = _filter.size() - _page_step + 1;
-	} else {
-	    _page_number = 1;
-	}
-	// Last page is normal page + remainder
-	_last_page_size = _filter.size() - _page_number + 1;
-    }
-    if(old_page_num != _page_number or _page_step != old_step or
-	    old_last_page != _last_page_size) {
-	// Loop if we didn't reach a fixed point in pagination information
-	emit layoutChanged();
-    }
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingModel::is_last_pos
- *
- *****************************************************************************/
-bool PVGuiQt::PVListingModel::is_last_pos() const
-{
-    return (_page_number - 1) == _current_page and
-	_pos_in_page == static_cast<size_t>(std::max<int>(0, _last_page_size - _page_step - 1));
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingModel::reset_selection
- *
- *****************************************************************************/
-void PVGuiQt::PVListingModel::reset_selection()
-{
-    _current_selection.select_none();
-    _start_sel = _end_sel = -1;
 }
 
 /******************************************************************************
