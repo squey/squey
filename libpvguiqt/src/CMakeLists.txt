@@ -26,6 +26,7 @@ PVGroupByStringsDlg.cpp
 PVListingModel.cpp
 PVAbstractTableModel.cpp
 PVListingView.cpp
+PVAbstractTableView.cpp
 PVOpenWorkspacesWidget.cpp
 PVRootTreeModel.cpp
 PVRootTreeView.cpp
@@ -68,6 +69,7 @@ include/pvguiqt/PVAbstractListStatsDlg.h
 include/pvguiqt/PVListingModel.h
 include/pvguiqt/PVAbstractTableModel.h
 include/pvguiqt/PVListingView.h
+include/pvguiqt/PVAbstractTableView.h
 include/pvguiqt/PVOpenWorkspacesWidget.h
 include/pvguiqt/PVRootTreeModel.h
 include/pvguiqt/PVRootTreeView.h
