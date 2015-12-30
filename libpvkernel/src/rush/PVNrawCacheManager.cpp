@@ -61,12 +61,8 @@ void PVRush::PVNrawCacheManager::delete_unused_cache()
 		bool has_opened_file = false;
 
 		while(it.hasNext()) {
-			if (it.fileName().isEmpty()) {
-				it.next();
-				continue;
-			}
-
-			const char *c_file_name = it.filePath().toLocal8Bit().data();
+			QByteArray data = it.filePath().toLocal8Bit();
+			const char *c_file_name = data.data();
 			has_opened_file |= PVCore::PVFileHelper::is_already_opened(c_file_name);
 
 			it.next();
