@@ -226,32 +226,6 @@ int main(int argc, char *argv[])
 	app.processEvents();
 #endif
 
-	//app.setStyle(new PVInspector::PVCustomStyle());
-#ifndef NO_MAIN_WINDOW
-	PVInspector::PVMainWindow* pv_mw = new PVInspector::PVMainWindow();
-#endif
-	QString wintitle;
-
-// #ifdef USE_UNIKEY
-	// DWORD retcode, lp1, lp2;
-	// WORD handle[16], p1, p2;
-
-	// p1=65143;
-	// p2=39181;
-
-	// retcode = UniKey_Find(&handle[0], &lp1, &lp2);
-	// if (retcode) {
-	// 	PVLOG_ERROR("Cannot find Unikey. Error code:%d\n", retcode);
-	// 	exit(1);
-	// }
-
-	// retcode = UniKey_User_Logon(&handle[0], &p1, &p2);
-	// if (retcode) {
-	// 	PVLOG_ERROR("Logon error. Invalid key?. Error code:%d\n", retcode);
-	// 	exit(1);
-	// }
-// #endif
-
 	QString locale = QLocale::system().name();
 	PVLOG_INFO("System locale: %s\n", qPrintable(locale));
 
@@ -275,39 +249,40 @@ int main(int argc, char *argv[])
 #endif
 
 #ifndef NO_MAIN_WINDOW
-	pv_mw->show();
-	splash.finish(pv_mw);
+	PVInspector::PVMainWindow pv_mw;
+	pv_mw.show();
+	splash.finish(&pv_mw);
 
 	if (vm.count("project")) {
 		QString prj_path = QString::fromLocal8Bit(vm["project"].as<std::string>().c_str());
-		pv_mw->load_project(prj_path);
+		pv_mw.load_project(prj_path);
 	}
 	else 
 	if (files.size() > 0) {
-		pv_mw->load_files(files, format);
+		pv_mw.load_files(files, format);
 	}
 	else {
 		// Set default title
-		pv_mw->set_window_title_with_filename();
+		pv_mw.set_window_title_with_filename();
 	}
 
 	/* set the screenshot shortcuts as global shortcuts
 	 */
 	QShortcut* sc;
-	sc = new QShortcut(QKeySequence(Qt::Key_P), pv_mw);
+	sc = new QShortcut(QKeySequence(Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
 	QObject::connect(sc, SIGNAL(activated()),
-	                 pv_mw, SLOT(get_screenshot_widget()));
+	                 &pv_mw, SLOT(get_screenshot_widget()));
 
-	sc = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_P), pv_mw);
+	sc = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
 	QObject::connect(sc, SIGNAL(activated()),
-	                 pv_mw, SLOT(get_screenshot_window()));
+	                 &pv_mw, SLOT(get_screenshot_window()));
 
-	sc = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_P), pv_mw);
+	sc = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
 	QObject::connect(sc, SIGNAL(activated()),
-	                 pv_mw, SLOT(get_screenshot_desktop()));
+	                 &pv_mw, SLOT(get_screenshot_desktop()));
 
 	int ret = app.exec();
 #else
