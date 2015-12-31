@@ -407,12 +407,6 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
-PVGuiQt::PVAbstractListStatsDlg::~PVAbstractListStatsDlg()
-{
-	// Force deletion so that the internal std::vector is destroyed!
-	model()->deleteLater();
-}
-
 void PVGuiQt::PVAbstractListStatsDlg::section_clicked(int col)
 {
 	// Save selection

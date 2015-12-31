@@ -28,12 +28,24 @@ class PVLayerFilterProcessWidget;
 
 class PVStatsSortProxyModel;
 
+/**
+ * This is the base class for all Widget with a "table" of value and
+ * some options in it. It is use for example with invalid elements listing
+ * or stat (distinct values, max values, ...) widgets.
+ *
+ * This class handle the model given in parameter (the one to display the 
+ * table of values) as we don't want to save the result of this computation
+ * for a long time. Because of this constraint, the model should not have
+ * parent otherwise, it will be double free.
+ */
 class PVListDisplayDlg: public QDialog, public Ui::PVListDisplayDlg
 {
 	Q_OBJECT
 
 public:
 	PVListDisplayDlg(QAbstractListModel* model,  QWidget* parent = NULL);
+
+	~PVListDisplayDlg();
 
 public:
 	void set_description(QString const& desc);

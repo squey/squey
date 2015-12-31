@@ -23,7 +23,7 @@ class PVGroupByStringsDlg : public PVAbstractListStatsDlg
 
 public:
 	PVGroupByStringsDlg(Inendi::PVView_sp& view, PVCol c1, PVCol c2, pvcop::db::array col1, pvcop::db::array col2, double abs_max, double rel_min, double rel_max, QWidget* parent = nullptr) :
-			PVAbstractListStatsDlg(view, c1, new PVStatsModel(std::move(col1), std::move(col2), parent), abs_max, rel_min, rel_max, parent),
+			PVAbstractListStatsDlg(view, c1, new PVStatsModel(std::move(col1), std::move(col2)), abs_max, rel_min, rel_max, parent),
 			_view(*view), _col2(c2)
 	{
 		_ctxt_menu->addSeparator();

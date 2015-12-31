@@ -63,6 +63,7 @@ private:
 PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* parent):
 	QDialog(parent), _model(model)
 {
+	assert(_model->parent() == nullptr && "Model should not have parent as we destroy it");
 	setupUi(this);
 	_line_separator_button->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	_line_separator_button->setKeySequence(QKeySequence(Qt::Key_Return));
@@ -107,6 +108,12 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	connect(_btn_copy_clipboard, SIGNAL(clicked()), this, SLOT(copy_all_to_clipboard()));
 	connect(_btn_copy_file, SIGNAL(clicked()), this, SLOT(copy_to_file()));
 	connect(_btn_append_file, SIGNAL(clicked()), this, SLOT(append_to_file()));
+}
+
+PVGuiQt::PVListDisplayDlg::~PVListDisplayDlg()
+{
+	// Force deletion so that the internal array is destroyed!
+	delete _model;
 }
 
 void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& /*pos*/)

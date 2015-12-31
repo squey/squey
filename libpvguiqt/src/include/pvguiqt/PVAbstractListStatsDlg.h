@@ -52,7 +52,6 @@ public:
 	);
 
 	void init(Inendi::PVView_sp& view);
-	virtual ~PVAbstractListStatsDlg();
 
 public:
 	inline double absolute_max_count() const { return _absolute_max_count; }
