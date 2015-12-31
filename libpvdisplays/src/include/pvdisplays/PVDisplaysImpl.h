@@ -41,7 +41,6 @@ private:
 
 public:
 	static PVDisplaysImpl& get();
-	static void release();
 
 public:
 	template <typename F>
@@ -149,7 +148,6 @@ private:
 
 
 inline PVDisplaysImpl& get() { return PVDisplaysImpl::get(); }
-inline void release() { PVDisplaysImpl::release(); }
 
 }
 

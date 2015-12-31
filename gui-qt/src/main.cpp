@@ -284,15 +284,9 @@ int main(int argc, char *argv[])
 	QObject::connect(sc, SIGNAL(activated()),
 	                 &pv_mw, SLOT(get_screenshot_desktop()));
 
-	int ret = app.exec();
+	return app.exec();
 #else
-	int ret = 0;
+	return 0;
 #endif
-
-#ifndef NO_MAIN_WINDOW
-	PVDisplays::release();
-#endif
-
-	return ret;
 }
 //! [0]

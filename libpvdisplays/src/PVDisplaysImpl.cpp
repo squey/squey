@@ -27,17 +27,8 @@ static const char * plugins_get_displays_dir(void)
 
 PVDisplays::PVDisplaysImpl& PVDisplays::PVDisplaysImpl::get()
 {
-	if (_instance == nullptr) {
-		_instance = new PVDisplaysImpl;
-	}
-	return *_instance;
-}
-
-void PVDisplays::PVDisplaysImpl::release()
-{
-	if (_instance) {
-		delete _instance;
-	}
+	static PVDisplaysImpl instance;
+	return instance;
 }
 
 void PVDisplays::PVDisplaysImpl::load_plugins()
