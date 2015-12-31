@@ -31,8 +31,7 @@ public:
 	~PVParallelViewImpl();
 
 public:
-	static PVParallelViewImpl* get();
-	static void release();
+	static PVParallelViewImpl& get();
 
 public:
 	template <class Backend>
@@ -77,28 +76,39 @@ private:
 	bool _show_bboxes;
 
 private:
-	static PVParallelViewImpl* _s;
+	static PVParallelViewImpl* _s; //<! Instance of the singleton
 };
 
 namespace common {
 
+/**
+ * RAII class to automagicaly free cuda ParallelView resources.
+ *
+ * We need a specific RAII class here instead of scott meyer's singleton as
+ * static variables are free'd after global variables so nvidia driver is shutdown
+ * before memory disallocation and disallocation will fail.
+ */
+	class RAII_cuda_init{
+		public:
+		RAII_cuda_init();
+
+		~RAII_cuda_init() { delete _instance; }
+
+		private:
+		PVParallelView::PVParallelViewImpl* _instance; // Singleton pointer of the ParallelViewImpl.
+	};
+
 	// Proxy functions
-	template <class Backend>
-	inline void init() { PVParallelView::PVParallelViewImpl::get()->init_backends<Backend>(); }
-
-	void init_cuda();
-
-	inline void remove_lib_view(Inendi::PVView& view) { PVParallelView::PVParallelViewImpl::get()->remove_lib_view(view); }
-	inline PVLibView* get_lib_view(Inendi::PVView& view) { return PVParallelView::PVParallelViewImpl::get()->get_lib_view(view); }
-	inline PVLibView* get_lib_view(Inendi::PVView& view, Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols) { return PVParallelView::PVParallelViewImpl::get()->get_lib_view(view, plotted, nrows, ncols); }
-	inline void release() { PVParallelView::PVParallelViewImpl::release(); }
-	inline PVBCIDrawingBackend& backend() { return PVParallelView::PVParallelViewImpl::get()->backend(); }
-	inline PVRenderingPipeline& pipeline() { return PVParallelView::PVParallelViewImpl::get()->pipeline(); }
-	inline QColor const& color_view_bg() { return PVParallelView::PVParallelViewImpl::get()->color_view_bg(); }
+	inline void remove_lib_view(Inendi::PVView& view) { PVParallelView::PVParallelViewImpl::get().remove_lib_view(view); }
+	inline PVLibView* get_lib_view(Inendi::PVView& view) { return PVParallelView::PVParallelViewImpl::get().get_lib_view(view); }
+	inline PVLibView* get_lib_view(Inendi::PVView& view, Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols) { return PVParallelView::PVParallelViewImpl::get().get_lib_view(view, plotted, nrows, ncols); }
+	inline PVBCIDrawingBackend& backend() { return PVParallelView::PVParallelViewImpl::get().backend(); }
+	inline PVRenderingPipeline& pipeline() { return PVParallelView::PVParallelViewImpl::get().pipeline(); }
+	inline QColor const& color_view_bg() { return PVParallelView::PVParallelViewImpl::get().color_view_bg(); }
 
 #ifdef INENDI_DEVELOPER_MODE
-	inline bool show_bboxes() { return PVParallelView::PVParallelViewImpl::get()->show_bboxes(); }
-	inline void toggle_show_bboxes() { return PVParallelView::PVParallelViewImpl::get()->toggle_show_bboxes(); }
+	inline bool show_bboxes() { return PVParallelView::PVParallelViewImpl::get().show_bboxes(); }
+	inline void toggle_show_bboxes() { return PVParallelView::PVParallelViewImpl::get().toggle_show_bboxes(); }
 #endif
 }
 

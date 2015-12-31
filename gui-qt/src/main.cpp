@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
 	task_label->setText(QObject::tr("Initializing CUDA..."));
 	splash.repaint();
 	app.processEvents();
-	PVParallelView::common::init_cuda();
+	PVParallelView::common::RAII_cuda_init cuda_resources;
 #endif
 #endif
 #ifndef NO_MAIN_WINDOW
@@ -290,7 +290,6 @@ int main(int argc, char *argv[])
 #endif
 
 #ifndef NO_MAIN_WINDOW
-	PVParallelView::common::release();
 	PVDisplays::release();
 #endif
 

@@ -25,7 +25,6 @@
 
 PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::_s = nullptr;
 
-
 PVParallelView::PVParallelViewImpl::PVParallelViewImpl():
 	_backend(nullptr),
 	_pipeline(nullptr),
@@ -74,19 +73,12 @@ void PVParallelView::PVParallelViewImpl::register_displays()
 	REGISTER_CLASS("parallelview_scatterview", PVDisplays::PVDisplayViewScatter);
 }
 
-PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::get()
+PVParallelView::PVParallelViewImpl& PVParallelView::PVParallelViewImpl::get()
 {
-	if (_s == NULL) {
-		_s = new PVParallelViewImpl();
+	if(not _s) {
+		_s = new PVParallelViewImpl;
 	}
-	return _s;
-}
-
-void PVParallelView::PVParallelViewImpl::release()
-{
-	if (_s) {
-		delete _s;
-	}
+	return *_s;
 }
 
 PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Inendi::PVView& view)
@@ -130,10 +122,19 @@ void PVParallelView::PVParallelViewImpl::remove_lib_view(Inendi::PVView& view)
 	}
 }
 
-
-void PVParallelView::common::init_cuda()
+namespace PVParallelView
 {
-#ifdef CUDA
-	init<PVBCIDrawingBackendCUDA>();
-#endif
+namespace common
+{
+/************************************************************
+ *
+ * RAII cuda resources implementation
+ *
+ ************************************************************/
+	RAII_cuda_init::RAII_cuda_init():
+		_instance(&PVParallelView::PVParallelViewImpl::get())
+		{
+			_instance->init_backends<PVBCIDrawingBackendCUDA>();
+		}
+}
 }
