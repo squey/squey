@@ -21,7 +21,7 @@
 
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/inendi_bench.h>
-#include <pvguiqt/PVAbstractStatsModel.h>
+#include <pvguiqt/PVStatsModel.h>
 
 #include <pvkernel/widgets/PVLayerNamingPatternDialog.h>
 
@@ -267,7 +267,7 @@ protected:
 PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 	Inendi::PVView_sp& view,
 	PVCol c,
-	PVAbstractStatsModel* model,
+	PVStatsModel* model,
 	double absolute_max_count,
 	double relative_min_count,
 	double relative_max_count,

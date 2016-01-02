@@ -13,9 +13,8 @@
 #include <inendi/PVView_types.h>
 
 #include <pvguiqt/PVListDisplayDlg.h>
-#include <pvguiqt/PVAbstractStatsModel.h>
+#include <pvguiqt/PVStatsModel.h> // TODO : remove it
 
-#include <QAbstractListModel> // ?
 #include <QStyledItemDelegate>
 
 #include <QResizeEvent>
@@ -24,7 +23,7 @@ class QComboBox;
 
 namespace PVGuiQt {
 
-class PVAbstractStatsModel;
+class PVStatsModel;
 
 namespace __impl {
 class PVListStringsDelegate;
@@ -44,7 +43,7 @@ public:
 	PVAbstractListStatsDlg(
 		Inendi::PVView_sp& view,
 		PVCol c,
-		PVAbstractStatsModel* model,
+		PVStatsModel* model,
 		double absolute_max_count,
 		double relative_min_count,
 		double relative_max_count,

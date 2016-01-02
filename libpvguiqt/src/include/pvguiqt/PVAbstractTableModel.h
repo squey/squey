@@ -208,6 +208,11 @@ class PVAbstractTableModel: public QAbstractTableModel {
 	 */
 		void sorted(int col, Qt::SortOrder order);
 
+	protected:
+		/**
+		 * Accessor for sorted column index.
+		 */
+		PVCol sorted_column() const { return _sorted_column; }
 
 	private:
 
