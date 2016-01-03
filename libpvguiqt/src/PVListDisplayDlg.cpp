@@ -34,15 +34,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 	_line_separator_button->setKeySequence(QKeySequence(Qt::Key_Return));
 	_line_separator_button->setMaxNumKey(1);
 
-	// `_values_view' is a QTableView, because QListView suffers from the same
-	// bug than QTableView used to suffer when a "large" (> 75000000) number of
-	// items are present in the model. See
-	// https://bugreports.qt-project.org/browse/QTBUG-18490 for more
-	// informations.
-	// The order of the calls here are important, especially the call to
-	// setDefaultSectionSize that must be called *before* setModel, or it could
-	// take a huge amount of time.
-
+	// `_values_view' is a PVAbstractTableView to handle huge number of values.
 	_values_view->setModel(model);
 	_values_view->setGridStyle(Qt::NoPen);
 	_values_view->setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -52,8 +44,6 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 
 	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
 	_values_view->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-	_values_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	_values_view->setSelectionBehavior(QAbstractItemView::SelectRows);
 
 	_copy_values_act = new QAction(tr("Copy values"), this);
 
