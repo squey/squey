@@ -126,6 +126,9 @@ protected:
 
 	QMenu* _hhead_ctxt_menu; //!< Context menu for right click on the vertical headers
 
+	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process = nullptr;
+	PVCore::PVArgumentList _ctxt_args;
+
 private:
 	/**
 	 * RH: a litle hack to replace a bigger one :-]

@@ -90,11 +90,8 @@ private:
 
 protected:
 	PVAbstractTableModel* _model;
-	QFileDialog _file_dlg;
 	QAction* _copy_values_act;
 	QMenu* _ctxt_menu;
-	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process = nullptr;
-	PVCore::PVArgumentList _ctxt_args;
 };
 
 }
