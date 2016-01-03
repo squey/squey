@@ -38,7 +38,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 			const pvcop::db::array col2_in = nraw.collection().column(_col2);
 
 			int idx = indexes.find_next_set_bit(0, col1_in.size()); // TODO : Why do we skip others values?
-			const QString value = "lala"; //idx.data().toString().toStdString();
+			const QString value = QString::fromStdString(col1_out.at(idx));
 			// TODO : I don't understand where this string is comming from...
 
 			tbb::task_group_context ctxt(tbb::task_group_context::isolated);

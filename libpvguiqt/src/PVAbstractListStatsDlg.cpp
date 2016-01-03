@@ -465,7 +465,12 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 	}
 
 	if (act) { // TODO : Check it is the correct act?
-		QStringList values; // = col1[model()->current_selection()];
+		QStringList values;
+		for(size_t i=0; i<model()->size(); i++) {
+			if(model()->current_selection().get_line(i)) {
+				values << QString::fromStdString(((PVStatsModel*)model())->value_col().at(i));
+			}
+		}
 		multiple_search(act, values);
 		return true;
 	}
@@ -883,10 +888,9 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 	QStyledItemDelegate::paint(painter, option, index);
 
 	if (index.column() == 1) {
-		//auto const& col2_array = ((PVStatsModel*)model())->stat_col().to_core_array<double>();
-		double occurence_count = 0;//col2_array[rowIndex(index)];
-		// TODO : Recuperer la bonne valeur ici, c'etait fait par l index mais on peu plus.
-
+		auto const& col2_array = ((PVStatsModel*)d()->model())->stat_col().to_core_array<double>();
+		int real_index = ((PVStatsModel*)d()->model())->rowIndex(index);
+		double occurence_count = col2_array[real_index];
 		double ratio = occurence_count / d()->max_count();
 		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->max_count());
 		bool log_scale = d()->use_logarithmic_scale();
@@ -895,7 +899,7 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 		QRect r(option.rect.x(), option.rect.y(), option.rect.width(), option.rect.height());
 		QColor base_color = QPalette().color(QPalette::Base);
 		QColor alt_color = QPalette().color(QPalette::AlternateBase);
-		painter->fillRect(r, index.row() % 2 ? alt_color : base_color);
+		painter->fillRect(r, real_index % 2 ? alt_color : base_color);
 
 		// Fill rectangle with color
 		painter->fillRect(
