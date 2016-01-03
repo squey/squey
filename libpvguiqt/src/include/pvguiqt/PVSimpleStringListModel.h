@@ -12,12 +12,12 @@
 #include <boost/static_assert.hpp>
 
 #include <QString>
-#include <QAbstractListModel>
+#include <pvguiqt/PVAbstractTableModel.h>
 
 namespace PVGuiQt {
 
 template <class Container>
-class PVSimpleStringListModel: public QAbstractListModel
+class PVSimpleStringListModel: public PVAbstractTableModel
 {
 private:
 	// Ensure that container is a container of QString's
@@ -28,27 +28,23 @@ public:
 
 public:
 	PVSimpleStringListModel(container_type const& values, QObject* parent = NULL):
-		QAbstractListModel(parent),
+		PVAbstractTableModel(values.size(), parent),
 		_values(values)
 	{ }
 
-public:
-	int rowCount(QModelIndex const& parent = QModelIndex()) const
+	QString export_line(int row) const override
 	{
-		if (parent.isValid()) {
-			return 0;
-		}
-
-		return _values.size();
+		return _values.at(row);
 	}
 
+public:
 	QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const
 	{
 		if (role == Qt::DisplayRole) {
-			return QVariant(_values.at(index.row()));
+			return _values.at(rowIndex(index));
 		}
 		
-		return QVariant();
+		return {};
 	}
 
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const
@@ -63,6 +59,11 @@ public:
 
 		return QVariant();
 	}
+
+int columnCount(QModelIndex const& index = QModelIndex()) const override
+{
+	return 1;
+}
 
 private:
 	container_type const& _values;
