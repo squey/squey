@@ -53,7 +53,6 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
 
-#include <pvguiqt/PVListDisplayDlg.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
 
 #include <PVFormatBuilderWidget.h>

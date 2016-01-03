@@ -23,13 +23,13 @@
 #include <tbb/blocked_range.h>
 #include <tbb/task_scheduler_init.h>
 
-#define AUTOMATIC_SORT_MAX_NUMBER 32768
-
 PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget* parent):
 	QDialog(parent), _model(model)
 {
 	assert(_model->parent() == nullptr && "Model should not have parent as we destroy it");
 	setupUi(this);
+
+	// Define default line separator
 	_line_separator_button->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	_line_separator_button->setKeySequence(QKeySequence(Qt::Key_Return));
 	_line_separator_button->setMaxNumKey(1);
@@ -86,11 +86,10 @@ void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& /*pos*/)
 
 bool PVGuiQt::PVListDisplayDlg::process_context_menu(QAction* act)
 {
-	if (act) {
-		if (act == _copy_values_act) {
-			copy_selected_to_clipboard();
-			return true;
-		}
+	// act can be null if user click outsize the context_menu
+	if (act and act == _copy_values_act) {
+		copy_selected_to_clipboard();
+		return true;
 	}
 	return false;
 }
