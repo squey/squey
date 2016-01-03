@@ -295,12 +295,9 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 		}
 	}
 
-	__impl::PVTableViewResizeEventFilter* table_view_resize_event_handler = new __impl::PVTableViewResizeEventFilter();
-
 	sort_by_column(0);
 
-	_values_view->installEventFilter(table_view_resize_event_handler);
-	connect(table_view_resize_event_handler, SIGNAL(resized()), this, SLOT(view_resized()));
+	connect(_values_view, &PVTableView::resize, this, &PVAbstractListStatsDlg::view_resized);
 	_values_view->horizontalHeader()->show();
 	_values_view->verticalHeader()->show();
 	_values_view->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);

@@ -39,3 +39,13 @@ bool PVGuiQt::PVTableView::viewportEvent(QEvent *event) {
 	}
 	return QTableView::viewportEvent(event);
 }
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVTableView::resizeEvent
+ *
+ *****************************************************************************/
+void PVGuiQt::PVTableView::resizeEvent(QResizeEvent *event) {
+	QTableView::resizeEvent(event);
+	emit resize();
+}

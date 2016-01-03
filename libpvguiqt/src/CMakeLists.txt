@@ -70,6 +70,7 @@ include/pvguiqt/PVListingModel.h
 include/pvguiqt/PVAbstractTableModel.h
 include/pvguiqt/PVListingView.h
 include/pvguiqt/PVAbstractTableView.h
+include/pvguiqt/PVTableView.h
 include/pvguiqt/PVOpenWorkspacesWidget.h
 include/pvguiqt/PVRootTreeModel.h
 include/pvguiqt/PVRootTreeView.h

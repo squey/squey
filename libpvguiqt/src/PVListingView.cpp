@@ -245,17 +245,6 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 
 /******************************************************************************
  *
- * PVGuiQt::PVListingView::resizeEvent
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::resizeEvent(QResizeEvent * event)
-{
-	PVTableView::resizeEvent(event);
-	emit resized();
-}
-
-/******************************************************************************
- *
  * PVGuiQt::PVListingView::enterEvent
  *
  *****************************************************************************/

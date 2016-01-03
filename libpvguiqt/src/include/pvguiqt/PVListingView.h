@@ -96,11 +96,6 @@ protected:
 	void reset() override;
 
 	/**
-	 * Use to inform others widgets about its resizing
-	 */
-	void resizeEvent(QResizeEvent * event) override;
-
-	/**
 	 * Handle focus to correctly handle mouseMoveEvent
 	 */
 	void enterEvent(QEvent* event) override;

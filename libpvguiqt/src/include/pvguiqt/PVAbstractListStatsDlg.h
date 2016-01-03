@@ -152,35 +152,6 @@ protected:
 	PVGuiQt::PVAbstractListStatsDlg* d() const;
 };
 
-/**
- * \class PVTableViewResizeEventFilter
- *
- * \note This class is intended to be notified of the resize of the table view
- *       to resize its last section according to the user preference.
- *       i.e: the last section can only be changed by user interaction
- *       on the section, not on the dialog size.
- *
- *       Note: I couldn't subclass the QTableView to achieve this goal because
- *             the UI was created using Qt Creator, but it would also have
- *             been a bit overkill anyway...
- */
-class PVTableViewResizeEventFilter : public QObject
-{
-	Q_OBJECT
-
-signals:
-	void resized();
-
-protected:
-	bool eventFilter(QObject *obj, QEvent *event) override
-	{
-		 if (event->type() == QEvent::Resize) {
-			 emit resized();
-		 }
-		 return QObject::eventFilter(obj, event);
-	}
-};
-
 }
 
 }
