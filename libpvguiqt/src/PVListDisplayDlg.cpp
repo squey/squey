@@ -50,7 +50,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 	_ctxt_menu = new QMenu(this);
 	_ctxt_menu->addAction(_copy_values_act);
 
-	_nb_values_edit->setText(QString().setNum(model->rowCount()));
+	_nb_values_edit->setText(QString().setNum(model->rowCount())); // TODO : Get the correctvalue !!
 
 	set_description(QString());
 

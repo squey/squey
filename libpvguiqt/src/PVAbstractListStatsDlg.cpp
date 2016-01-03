@@ -415,18 +415,8 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 
 void PVGuiQt::PVAbstractListStatsDlg::section_clicked(int col)
 {
-	// Save selection
-	QItemSelection sel = _values_view->selectionModel()->selection();
-	//sel = model()->mapSelectionToSource(sel);
-
 	// Sort
 	sort_by_column(col);
-
-	// Restore selection
-	_values_view->selectionModel()->setCurrentIndex(QModelIndex(), QItemSelectionModel::Clear); // Get rid of the annoying misplaced focus...
-	_values_view->selectionModel()->clearSelection();
-	//sel = model()->mapSelectionFromSource(sel);
-	_values_view->selectionModel()->select(sel, QItemSelectionModel::Select);
 }
 
 void PVGuiQt::PVAbstractListStatsDlg::sort()
@@ -477,15 +467,8 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 		return true;
 	}
 
-	if (act) {
-		QStringList values;
-		for (const auto& index : _values_view->selectionModel()->selection().indexes()) {
-			if (index.column() != 0) {
-				continue;
-			}
-			values.append(index.data().toString());
-		}
-
+	if (act) { // TODO : Check it is the correct act?
+		QStringList values; // = col1[model()->current_selection()];
 		multiple_search(act, values);
 		return true;
 	}
@@ -561,92 +544,28 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 		vmax = freq_to_count_max(count_to_freq_max(_select_picker->get_range_max(), ((PVStatsModel*)model())->max_count()), ((PVStatsModel*)model())->max_count());
 	}
 
-	QAbstractItemModel* data_model = _values_view->model();
-	QItemSelectionModel* sel_model = _values_view->selectionModel();
-
-	int row_count = data_model->rowCount();
-
-	sel_model->clear();
+	int row_count = ((PVStatsModel*)model())->stat_col().size();
 
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing selection..."), this);
 	pbox->set_enable_cancel(true);
 	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
 
-	// Use our own selection because QItemSelection::select(...) crashes due to the persistent indexes' update stored in the shared model
-	typedef std::vector<std::pair<QModelIndex, QModelIndex>> selection_t;
-
-	selection_t sel;
-
 	BENCH_START(select_values);
 
-	// See https://bugreports.qt-project.org/browse/QTBUG-25904
-
-	bool res = PVCore::PVProgressBox::progress([&sel, &data_model, vmin, vmax, row_count, &ctxt]
+	bool res = PVCore::PVProgressBox::progress([this, row_count, vmax, vmin]
 	{
-		const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+		Inendi::PVSelection & sel = model()->current_selection();
+		sel.select_none();
+		auto const& col2_array = ((PVStatsModel*)model())->stat_col().to_core_array<double>();
 
-		sel = tbb::parallel_reduce(
-			tbb::blocked_range<int>(0, row_count, std::max(nthreads, row_count / nthreads)),
-			selection_t(),
-			[&](const tbb::blocked_range<int>& range, selection_t sel) -> selection_t const {
+		#pragma omp parallel for
+		for(int i=0; i<row_count; i++) {
+			sel.set_line(i, col2_array[i] <= vmax and col2_array[i] >=vmin);
+		}
 
-				sel.reserve(sel.size() + (range.end() - range.begin()));
-
-				// Compute our own ranges to minimise the QItemSelectionRange to be created
-
-				int first_row = -1;
-				int last_row = -1;
-
-				for (int row = range.begin(); row < range.end(); row++) {
-
-					const double v = data_model->index(row, 1).data(Qt::UserRole).toDouble();
-
-					if ((v >= vmin) && (v <= vmax)) {
-						if (first_row == -1) {
-							first_row = row;
-						}
-						last_row = row;
-					}
-					else {
-						if (first_row != -1) {
-							sel.emplace_back(data_model->index(first_row, 0), data_model->index(last_row, 0));
-						}
-						first_row = -1;
-						last_row = -1;
-					}
-				}
-
-				// last range
-				if (first_row != -1) {
-					sel.emplace_back(data_model->index(first_row, 0), data_model->index(last_row, 0));
-				}
-
-				return sel;
-			},
-			[](selection_t sel1, selection_t sel2) -> selection_t {
-				sel1.insert(sel1.end(), sel2.begin(), sel2.end());
-				return sel1;
-			});
-
-		return true;
 	}, ctxt, pbox);
 
 	BENCH_END(select_values, "select_values", 0, 0, 1, row_count);
-
-
-	BENCH_START(compute_item_selection);
-
-	if (res) {
-		QItemSelection item_selection;
-
-		for (auto& range : sel) {
-			item_selection.select(std::move(range.first), std::move(range.second));
-		}
-
-		sel_model->select(item_selection, QItemSelectionModel::Select);
-	}
-
-	BENCH_END(compute_item_selection, "compute_item_selection", 0, 0, 1, row_count);
 }
 
 void PVGuiQt::PVAbstractListStatsDlg::showEvent(QShowEvent * event)
@@ -769,25 +688,17 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	text.replace("%a", view_sp->get_axes_combination().get_axis(_col).get_name());
 
 	QStringList sl;
-
-	/* as a selection is never sorted, we have to do it ourselves to have
-	 * the values in the same order than the view's one
-	 */
-	QModelIndexList indexes = _values_view->selectionModel()->selection().indexes();
-	qSort(indexes.begin(), indexes.end(), [](const QModelIndex& a, const QModelIndex& b) -> bool { return a.row() < b.row(); });
-
 	QStringList value_names;
 
-	for(const auto& index : indexes) {
-		if (index.column() != 0) {
-			continue;
-		}
-		QString s = index.data().toString();
-		sl += s;
-		if (s.isEmpty()) {
-			value_names += "(empty)";
-		} else {
-			value_names += s;
+	for(size_t i=0; i<((PVStatsModel*)model())->value_col().size(); i++) {
+		if(((PVStatsModel*)model())->current_selection().get_line(i)) {
+			QString s = QString::fromStdString(((PVStatsModel*)model())->value_col().at(i));
+			sl += s;
+			if (s.isEmpty()) {
+				value_names += "(empty)";
+			} else {
+				value_names += s;
+			}
 		}
 	}
 	text.replace("%v", value_names.join(","));
@@ -850,14 +761,10 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 
 void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 {
-	/* first, we have to check if there is enough free space for new layers
-	 */
-	QModelIndexList indexes = _values_view->selectionModel()->selection().indexes();
-
 	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
 	Inendi::PVLayerStack& ls = view_sp->get_layer_stack();
 
-	int layer_num = indexes.size();
+	int layer_num = model()->current_selection().get_number_of_selected_lines_in_range(0, ((PVStatsModel*)model())->value_col().size());
 	int layer_max = INENDI_LAYER_STACK_MAX_DEPTH - ls.get_layer_count();
 	if (layer_num >= layer_max) {
 		QMessageBox::critical(this, "multiple layer creation",
@@ -911,18 +818,13 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	/* layers creation
 	 */
 
-	/* as a selection is never sorted, we have to do it ourselves to have
-	 * the values in the same order than the view's one
-	 */
-	qSort(indexes.begin(), indexes.end(), [](const QModelIndex& a, const QModelIndex& b) -> bool { return a.row() < b.row(); });
-
 	int offset = 1;
-	for(const auto& index : indexes) {
-		if (index.column() != 0) {
-			continue;
+	for(size_t i=0; i<((PVStatsModel*)model())->value_col().size(); i++) {
+		if(not ((PVStatsModel*)model())->current_selection().get_line(i)) {
+			continue; // Skip unselected lines
 		}
 		QString layer_name(text);
-		QString s = index.data().toString();
+		QString s = QString::fromStdString(((PVStatsModel*)model())->value_col().at(i));
 		if (s.isEmpty()) {
 			layer_name.replace("%v", "(empty)");
 		} else {
@@ -930,7 +832,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 		}
 
 		QStringList sl;
-		sl.append(index.data().toString());
+		sl.append(s);
 		multiple_search(_msearch_action_for_layer_creation, sl, false);
 
 		actor.call<FUNC(Inendi::PVView::add_new_layer)>(layer_name);
@@ -984,7 +886,9 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 	QStyledItemDelegate::paint(painter, option, index);
 
 	if (index.column() == 1) {
-		double occurence_count = index.data(Qt::UserRole).toDouble();
+		//auto const& col2_array = ((PVStatsModel*)model())->stat_col().to_core_array<double>();
+		double occurence_count = 0;//col2_array[rowIndex(index)];
+		// TODO : Recuperer la bonne valeur ici, c'etait fait par l index mais on peu plus.
 
 		double ratio = occurence_count / d()->max_count();
 		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->max_count());

@@ -20,10 +20,10 @@
  *****************************************************************************/
 bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 {
-	if (act && act == _act_list_v2) {
+	if (act && act == _act_details) {
 		bool ret = false;
-		QModelIndexList indexes = _values_view->selectionModel()->selectedIndexes();
-		if (indexes.size() > 0 && indexes[0].isValid()) {
+		Inendi::PVSelection const& indexes = model()->current_selection();
+		if (not indexes.is_empty()) {
 
 			double count;
 			double min;
@@ -37,8 +37,9 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 			const pvcop::db::array col1_in = nraw.collection().column(_col);
 			const pvcop::db::array col2_in = nraw.collection().column(_col2);
 
-			const QModelIndex& idx = indexes[0];
-			const std::string& value = idx.data().toString().toStdString();
+			int idx = indexes.find_next_set_bit(0, col1_in.size()); // TODO : Why do we skip others values?
+			const QString value = "lala"; //idx.data().toString().toStdString();
+			// TODO : I don't understand where this string is comming from...
 
 			tbb::task_group_context ctxt(tbb::task_group_context::isolated);
 			ctxt.reset();
@@ -48,7 +49,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 
 			ret = PVCore::PVProgressBox::progress([&]
 			{
-				pvcop::db::algo::op_by_details(col1_in, col2_in, value, col1_out, col2_out);
+				pvcop::db::algo::op_by_details(col1_in, col2_in, value.toStdString(), col1_out, col2_out);
 
 				std::string min_str = pvcop::db::algo::min(col2_out).at(0);
 				std::istringstream min_buf(min_str);
@@ -63,7 +64,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 
 			if (ret) {
 				PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view_sp, _col2, std::move(col1_out), std::move(col2_out), count, min, max, parentWidget());
-				dlg->setWindowTitle("Details of value '" + idx.data().toString()+ "'");
+				dlg->setWindowTitle("Details of value '" + value + "'");
 				dlg->move(x()+width()+10, y());
 				dlg->show();
 			}

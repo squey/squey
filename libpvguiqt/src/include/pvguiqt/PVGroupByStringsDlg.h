@@ -27,8 +27,8 @@ public:
 			_view(*view), _col2(c2)
 	{
 		_ctxt_menu->addSeparator();
-		_act_list_v2 = new QAction("Show details", _ctxt_menu);
-		_ctxt_menu->addAction(_act_list_v2);
+		_act_details = new QAction("Show details", _ctxt_menu);
+		_ctxt_menu->addAction(_act_details);
 	}
 
 	bool process_context_menu(QAction* act);
@@ -39,7 +39,7 @@ private:
 private:
 	Inendi::PVView& _view;
 	PVCol _col2;
-	QAction* _act_list_v2;
+	QAction* _act_details; //!< Action to show details
 };
 
 }
