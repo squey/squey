@@ -65,11 +65,6 @@ protected:
 	void sort_by_column(int col);
 	bool process_context_menu(QAction* act) override;
 	void ask_for_copying_count() override;
-	QString export_line(
-		QAbstractListModel* model,
-		std::function<QModelIndex(int)> f,
-		int i
-	) override;
 
 	/**
 	 * create a new layer using the selected values.

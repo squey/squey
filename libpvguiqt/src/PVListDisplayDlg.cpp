@@ -147,23 +147,24 @@ void PVGuiQt::PVListDisplayDlg::copy_all_to_clipboard()
 	ask_for_copying_count();
 
 	QString content;
-	export_values(model()->rowCount(), [&](int i) -> QModelIndex {
-		return _values_view->model()->index(i, 0, QModelIndex());
-	}, content);
+
+	// TODO : Why we don't check return value? Exception would have avoid it :-)
+	export_values(model()->rowCount(), [&](int i) { return i; }, content);
 
 	QApplication::clipboard()->setText(content);
 }
 
 void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 {
-	QModelIndexList indexes = _values_view->selectionModel()->selectedRows();
-
-	QString content;
-	export_values(indexes.size(), [&indexes](int i) -> QModelIndex {
-		return indexes.at(i);
-	}, content);
-
-	QApplication::clipboard()->setText(content);
+//TODO: An iterator as parameter would be really better !!
+//	PVSelection& sel = table_model()->current_selection();
+//
+//	QString content;
+//	export_values(indexes.size(), [&indexes](int i) -> QModelIndex {
+//		return indexes.at(i);
+//	}, content);
+//
+//	QApplication::clipboard()->setText(content);
 }
 
 void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
@@ -172,9 +173,7 @@ void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 	QTextStream outstream(&file);
 
 	QString content;
-	bool success = export_values(model()->rowCount(), [&](int i) -> QModelIndex {
-		return model()->index(i, 0, QModelIndex());
-	}, content);
+	bool success = export_values(model()->rowCount(), [&](int i) -> int { return i; }, content);
 
 	outstream << content;
 
@@ -188,21 +187,7 @@ void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 	}
 }
 
-QString PVGuiQt::PVListDisplayDlg::export_line(
-	QAbstractListModel* model,
-	std::function<QModelIndex(int)> f,
-	int i
-)
-{
-	QModelIndex idx = f(i); // using return instead of ref parameter fails
-	if (likely(idx.isValid())) {
-		return model->data(idx).toString();
-	}
-
-	return QString();
-}
-
-bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<QModelIndex (int)> f, QString& content)
+bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<int(int)> f, QString& content)
 {
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
@@ -226,11 +211,11 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<QModelInd
 			tbb::blocked_range<int>(0, count, std::max(nthreads, count / nthreads)),
 			content,
 			[&](const tbb::blocked_range<int>& range, QString l) -> QString {
-				for (int i = range.begin(); i < range.end(); i++) {
+				for (int i = range.begin(); i != range.end(); ++i) {
 					if unlikely(ctxt.is_group_execution_cancelled()) {
 						return QString();
 					}
-					QString s = export_line(model(), f, i);
+					QString s = _model->export_line(f(i));
 					if (!s.isNull()) {
 						l.append(s.append(sep));
 					}

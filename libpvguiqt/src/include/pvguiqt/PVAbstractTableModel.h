@@ -32,6 +32,11 @@ class PVAbstractTableModel: public QAbstractTableModel {
 	 */
 	PVAbstractTableModel(int row_count, QObject* parent=nullptr);
 
+	/**
+	 * Function to export asked line;
+	 */
+	virtual QString export_line(int) const = 0;
+
 	/// Selection
 
 	/**

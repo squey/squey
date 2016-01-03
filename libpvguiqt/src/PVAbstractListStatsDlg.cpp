@@ -738,62 +738,6 @@ void PVGuiQt::PVAbstractListStatsDlg::ask_for_copying_count()
 	}
 }
 
-QString PVGuiQt::PVAbstractListStatsDlg::export_line(
-	QAbstractListModel* model,
-	std::function<QModelIndex(int)> f,
-	int i
-)
-{
-	static QString sep(",");
-	static QString escaped_quote("\"\"");
-	static QString quote("\"");
-	QString s;
-
-	// Get the indice for the i-th elements
-	// It could be the i-th element of the model or the i-th element of the
-	// selection depending on the f function.
-	QModelIndex idx1 = f(i);
-
-	if(idx1.column() == 0) {
-
-		if (likely(idx1.isValid())) {
-
-			QString value = idx1.data(Qt::DisplayRole).toString();
-
-			if (!_copy_count) {
-				s.append(value);
-			}
-			else {
-				// Escape quotes
-				value.replace(quote, escaped_quote);
-				s.append(quote + value + quote + sep);
-
-				// Extract data from second column of i-th element
-				QModelIndex idx2 = model->index(idx1.row(), 1, QModelIndex());
-				double occurence_count = idx2.data(Qt::UserRole).toDouble();
-
-				double ratio = occurence_count / max_count();
-
-				if (_act_show_count->isChecked()) {
-					s.append(quote + PVAbstractStatsModel::format_occurence(occurence_count) + quote + sep);
-				}
-				if (_act_show_scientific_notation->isChecked()) {
-					s.append(quote + PVAbstractStatsModel::format_scientific_notation(ratio) + quote + sep);
-				}
-				if (_act_show_percentage->isChecked()) {
-					s.append(quote + PVAbstractStatsModel::format_percentage(ratio) + quote + sep);
-				}
-
-				if (s.endsWith(sep)) {
-					return s.left(s.size()-1);
-				}
-			}
-		}
-	}
-
-	return s;
-}
-
 /******************************************************************************
  * PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values
  *****************************************************************************/

@@ -191,6 +191,14 @@ public:
      */
     void sort(PVCol col, Qt::SortOrder order, tbb::task_group_context & ctxt);
 
+    /**
+     * Export row-th line in a QString.
+     * 
+     * @param row: Element to export.
+     * @return row-th line as a QString.
+     */
+    QString export_line(int row) const override;
+
     private slots:
 	/**
 	 * With axes combination modifications, we have to update the model and

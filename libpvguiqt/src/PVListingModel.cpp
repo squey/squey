@@ -240,6 +240,16 @@ void PVGuiQt::PVListingModel::sort(PVCol col, Qt::SortOrder order, tbb::task_gro
 
 /******************************************************************************
  *
+ * PVGuiQt::PVListingModel::export_line
+ *
+ *****************************************************************************/
+QString PVGuiQt::PVListingModel::export_line(int row) const
+{
+	return "Not implemented.";
+}
+
+/******************************************************************************
+ *
  * PVGuiQt::PVListingModel::update_filter
  *
  *****************************************************************************/

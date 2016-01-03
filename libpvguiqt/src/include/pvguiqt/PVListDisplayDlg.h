@@ -16,8 +16,8 @@
 #include <inendi/PVView_types.h>
 
 #include <pvkernel/core/PVArgument.h>
+#include <pvguiqt/PVAbstractTableModel.h>
 
-#include <QAbstractListModel>
 #include <QVector>
 #include <QDialog>
 #include <QFileDialog>
@@ -43,7 +43,7 @@ class PVListDisplayDlg: public QDialog, public Ui::PVListDisplayDlg
 	Q_OBJECT
 
 public:
-	PVListDisplayDlg(QAbstractListModel* model,  QWidget* parent = NULL);
+	PVListDisplayDlg(PVAbstractTableModel* model,  QWidget* parent = nullptr);
 
 	~PVListDisplayDlg();
 
@@ -51,27 +51,12 @@ public:
 	void set_description(QString const& desc);
 
 protected:
-	QAbstractListModel* model() { return _model; }
+	PVAbstractTableModel* model() { return _model; }
+	PVAbstractTableModel const* model() const { return _model; }
 
 protected:
 	virtual void ask_for_copying_count() {}
 	virtual bool process_context_menu(QAction* act);
-
-	/** Export a line in a QString format
-	 *
-	 * Extract the model index for the i-th elements using f and return its
-	 * formated content
-	 *
-	 * @param[in] model: The model containing data
-	 * @param[in] f : Funtion to extract the index in the model from global index
-	 * @param[in] i : Global index to extract
-	 * @return : Qstring content of the line
-	 */
-	virtual QString export_line(
-		QAbstractListModel* model,
-		std::function<QModelIndex(int)> f,
-		int i
-	);
 
 protected slots:
 	/** Handle click on horizontal headers
@@ -101,16 +86,15 @@ private:
 	 * @return : Where it success or fail. It fails only in case of cancellation.
 	 *
 	 */
-	bool export_values(int count, std::function<QModelIndex (int)> f, QString& content);
+	bool export_values(int count, std::function<int (int)> f, QString& content);
 
 protected:
-	QAbstractListModel* _model;
+	PVAbstractTableModel* _model;
 	QFileDialog _file_dlg;
 	QAction* _copy_values_act;
 	QMenu* _ctxt_menu;
 	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process = nullptr;
 	PVCore::PVArgumentList _ctxt_args;
-	//QItemSelection _item_selection;
 };
 
 }
