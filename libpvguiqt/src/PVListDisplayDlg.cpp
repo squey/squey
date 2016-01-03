@@ -109,15 +109,41 @@ void PVGuiQt::PVListDisplayDlg::copy_all_to_clipboard()
 
 void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 {
-//TODO: An iterator as parameter would be really better !!
-//	PVSelection& sel = table_model()->current_selection();
-//
-//	QString content;
-//	export_values(indexes.size(), [&indexes](int i) -> QModelIndex {
-//		return indexes.at(i);
-//	}, content);
-//
-//	QApplication::clipboard()->setText(content);
+	QApplication::setOverrideCursor(Qt::BusyCursor);
+
+	// Get the line separator to use for export (defined in UI)
+	QString sep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_line_separator_button->keySequence())));
+	if (sep.isEmpty()) {
+		sep = "\n";
+	}
+
+	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Copying values..."), this);
+
+	// Define parallel execution environment
+	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	tbb::task_scheduler_init init(nthreads);
+	tbb::task_group_context ctxt;
+
+	QString content;
+
+	// TODO(pbrunet) : do something on this check.
+	bool success = PVCore::PVProgressBox::progress([&]() {
+
+		BENCH_START(export_values);
+		_model->current_selection().visit_selected_lines([this, &ctxt, &content, &sep](int row){
+			if unlikely(ctxt.is_group_execution_cancelled()) {
+				return QString();
+			}
+			QString s = _model->export_line(row);
+			if (!s.isNull()) {
+				content.append(s.append(sep));
+			}
+				}, model()->size());
+		BENCH_END(export_values, "export_values", 0, 0, 1, content.size());
+		return !ctxt.is_group_execution_cancelled();
+	}, ctxt, pbox);
+
+	QApplication::restoreOverrideCursor();
 }
 
 void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
