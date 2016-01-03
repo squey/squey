@@ -44,12 +44,13 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
 	_values_view->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
+	// Define context menu to copy values in clipboard.
 	_copy_values_act = new QAction(tr("Copy values"), this);
 
 	_ctxt_menu = new QMenu(this);
 	_ctxt_menu->addAction(_copy_values_act);
 
-	_nb_values_edit->setText(QString().setNum(model->rowCount())); // TODO : Get the correctvalue !!
+	_nb_values_edit->setText(QString().setNum(model->size()));
 
 	set_description(QString());
 
@@ -101,7 +102,7 @@ void PVGuiQt::PVListDisplayDlg::copy_all_to_clipboard()
 	QString content;
 
 	// TODO : Why we don't check return value? Exception would have avoid it :-)
-	export_values(model()->rowCount(), [&](int i) { return i; }, content);
+	export_values(model()->size(), [&](int i) { return i; }, content);
 
 	QApplication::clipboard()->setText(content);
 }

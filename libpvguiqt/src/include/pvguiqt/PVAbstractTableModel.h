@@ -104,6 +104,11 @@ class PVAbstractTableModel: public QAbstractTableModel {
 	int rowCount(const QModelIndex &index = QModelIndex()) const override final;
 
 	/**
+	 * Get real number of elements in the Table.
+	 */
+	size_t size() const { return _filter.size(); }
+
+	/**
 	 * Accessor for all lines in the ListingView
 	 */
 	std::vector<PVRow> const& shown_lines() const { return _filter; }
