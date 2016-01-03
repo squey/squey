@@ -25,42 +25,7 @@
 
 #define AUTOMATIC_SORT_MAX_NUMBER 32768
 
-class PVVerticalHeaderItemModel : public QAbstractItemModel
-{
-public:
-	PVVerticalHeaderItemModel(int row_count, QWidget* parent = nullptr) : QAbstractItemModel(parent), _row_count(row_count) {}
-
-protected:
-	int columnCount(const QModelIndex& /*index*/) const override
-	{
-		return 1;
-	}
-
-	int rowCount(const QModelIndex& /*index*/) const override
-	{
-		return _row_count;
-	}
-
-	QModelIndex index(int row, int column, const QModelIndex& /*parent*/) const override
-	{
-		return createIndex(row, column, nullptr);
-	}
-
-	QVariant data(const QModelIndex & /*index*/, int /*role*/ = Qt::DisplayRole) const override
-	{
-		return QVariant();
-	}
-
-	QModelIndex parent(const QModelIndex & /*index*/) const override
-	{
-		return QModelIndex();
-	}
-
-private:
-	int _row_count;
-};
-
-PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* parent):
+PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget* parent):
 	QDialog(parent), _model(model)
 {
 	assert(_model->parent() == nullptr && "Model should not have parent as we destroy it");
@@ -81,12 +46,10 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(QAbstractListModel* model, QWidget* 
 	_values_view->setModel(model);
 	_values_view->setGridStyle(Qt::NoPen);
 	_values_view->setContextMenuPolicy(Qt::ActionsContextMenu);
-	_values_view->verticalHeader()->hide();
+
 	_values_view->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 	_values_view->horizontalHeader()->setStretchLastSection(true);
-	QHeaderView* vertical_header = new QHeaderView(Qt::Vertical);
-	vertical_header->setModel(new PVVerticalHeaderItemModel(_values_view->model()->rowCount(), vertical_header));
-	_values_view->setVerticalHeader(vertical_header);
+
 	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
 	_values_view->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	_values_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
