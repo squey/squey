@@ -53,12 +53,11 @@ public:
 	void init(Inendi::PVView_sp& view);
 
 public:
-	inline double absolute_max_count() const { return _absolute_max_count; }
-	inline double relative_min_count() const { return _relative_min_count; }
-	inline double relative_max_count() const { return _relative_max_count; }
-	inline double max_count() const { return _use_absolute_max_count ? _absolute_max_count : _relative_max_count; }
+	inline double absolute_max_count() const { return ((PVStatsModel const*)model())->absolute_max_count(); }
+	inline double relative_max_count() const { return ((PVStatsModel const*)model())->relative_max_count(); }
+	inline double max_count() const { return ((PVStatsModel const*)model())->max_count(); }
 
-	inline bool use_logarithmic_scale() { return _use_logarithmic_scale; }
+	inline bool use_logarithmic_scale() { return ((PVStatsModel const*)model())->use_log_scale();  }
 
 protected:
 	void showEvent(QShowEvent * event) override;
@@ -106,12 +105,6 @@ protected:
 	bool _store_last_section_width = true;
 	int _last_section_width = 250;
 
-	double _absolute_max_count;
-	double _relative_min_count;
-	double _relative_max_count;
-	bool _use_absolute_max_count = true;
-
-	bool _use_logarithmic_scale = true;
 	QAction* _act_toggle_linear;
 	QAction* _act_toggle_log;
 	QAction* _act_toggle_absolute;
@@ -131,7 +124,6 @@ protected:
 	QAction* _create_layer_with_values_act;
 	QAction* _create_layers_for_values_act;
 
-	bool _copy_count;
 	QMenu* _hhead_ctxt_menu; //!< Context menu for right click on the vertical headers
 
 private:

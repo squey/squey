@@ -272,11 +272,8 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 	double relative_min_count,
 	double relative_max_count,
 	QWidget* parent /* = nullptr */) :
-	PVListDisplayDlg((QAbstractListModel*) model, parent),
-	_col(c),
-	_absolute_max_count(absolute_max_count),
-	_relative_min_count(relative_min_count),
-	_relative_max_count(relative_max_count)
+	PVListDisplayDlg(model, parent),
+	_col(c)
 {
 	PVHive::get().register_observer(view, _obs);
 	PVHive::get().register_actor(view, _actor);
@@ -340,12 +337,21 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 
 	_act_show_count = new QAction("Count", _hhead_ctxt_menu);
 	_act_show_count->setCheckable(true);
-	_act_show_count->setChecked(true);
 	_act_show_scientific_notation = new QAction("Scientific notation", _hhead_ctxt_menu);
 	_act_show_scientific_notation->setCheckable(true);
 	_act_show_percentage = new QAction("Percentage", _hhead_ctxt_menu);
 	_act_show_percentage->setCheckable(true);
 	_act_show_percentage->setChecked(true);
+
+	// Give formating information to the model
+	// TODO(pbrunet) : It should be a group !!
+	model->set_format(ValueFormat::Percent);
+	connect(_act_show_count, &QAction::triggered,
+		[model](bool) { model->set_format(ValueFormat::Count); });
+	connect(_act_show_scientific_notation, &QAction::triggered,
+		[model](bool) { model->set_format(ValueFormat::Scientific); });
+	connect(_act_show_percentage, &QAction::triggered,
+		[model](bool) { model->set_format(ValueFormat::Percent); });
 
 	_hhead_ctxt_menu->addAction(_act_show_count);
 	_hhead_ctxt_menu->addAction(_act_show_scientific_notation);
@@ -377,14 +383,14 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 	vl->addWidget(b);
 
 	_select_picker = new __impl::PVAbstractListStatsRangePicker(relative_min_count, relative_max_count, absolute_max_count);
-	_select_picker->use_logarithmic_scale(_use_logarithmic_scale);
+	_select_picker->use_logarithmic_scale(model->use_log_scale());
 	hbox->addWidget(_select_picker, 2);
 
 	// set default mode to "count"
 	r1->click();
 
 	// propagate the scale mode
-	_act_toggle_log->setChecked(_use_logarithmic_scale);
+	_act_toggle_log->setChecked(model->use_log_scale());
 
 	// Copy values menu
 	_copy_values_menu = new QMenu();
@@ -450,13 +456,13 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 	}
 
 	if (act == _copy_values_with_count_act) {
-		_copy_count = true;
+		((PVStatsModel*)model())->set_copy_count(true);
 		copy_selected_to_clipboard();
 		return true;
 	}
 
 	if (act == _copy_values_without_count_act) {
-		_copy_count = false;
+		((PVStatsModel*)model())->set_copy_count(false);
 		copy_selected_to_clipboard();
 		return true;
 	}
@@ -490,9 +496,9 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 void PVGuiQt::PVAbstractListStatsDlg::scale_changed(QAction* act)
 {
 	if (act) {
-		_use_logarithmic_scale = (act == _act_toggle_log);
-		_select_picker->use_logarithmic_scale(_use_logarithmic_scale);
-		((PVGuiQt::PVAbstractStatsModel*) model())->use_logarithmic_scale(_use_logarithmic_scale);
+		bool use_log = (act == _act_toggle_log);
+		_select_picker->use_logarithmic_scale(use_log);
+		((PVGuiQt::PVStatsModel*) model())->set_use_log_scale(use_log);
 		_values_view->update();
 		_values_view->horizontalHeader()->viewport()->update();
 	}
@@ -501,14 +507,12 @@ void PVGuiQt::PVAbstractListStatsDlg::scale_changed(QAction* act)
 void PVGuiQt::PVAbstractListStatsDlg::max_changed(QAction* act)
 {
 	if (act) {
-		_use_absolute_max_count = (act == _act_toggle_absolute);
-		_use_logarithmic_scale = (act == _act_toggle_absolute);
+		((PVStatsModel*)model())->set_use_absolute(act == _act_toggle_absolute);
 		_act_toggle_linear->setChecked(act == _act_toggle_relative);
 		_act_toggle_log->setChecked(act == _act_toggle_absolute);
 		_select_picker->use_logarithmic_scale(act == _act_toggle_absolute);
-		((PVGuiQt::PVAbstractStatsModel*) model())->use_logarithmic_scale(act == _act_toggle_absolute);
+		((PVGuiQt::PVStatsModel*) model())->set_use_log_scale(act == _act_toggle_absolute);
 		_select_picker->use_absolute_max_count(act == _act_toggle_absolute);
-		((PVGuiQt::PVAbstractStatsModel*) model())->use_absolute_max_count(act == _act_toggle_absolute);
 		_values_view->update();
 		_values_view->horizontalHeader()->viewport()->update();
 	}
@@ -553,8 +557,8 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 		vmax = _select_picker->get_range_max();
 	}
 	else {
-		vmin = freq_to_count_min(count_to_freq_min(_select_picker->get_range_min(), max_count()), max_count());
-		vmax = freq_to_count_max(count_to_freq_max(_select_picker->get_range_max(), max_count()), max_count());
+		vmin = freq_to_count_min(count_to_freq_min(_select_picker->get_range_min(), ((PVStatsModel*)model())->max_count()), ((PVStatsModel*)model())->max_count());
+		vmax = freq_to_count_max(count_to_freq_max(_select_picker->get_range_max(), ((PVStatsModel*)model())->max_count()), ((PVStatsModel*)model())->max_count());
 	}
 
 	QAbstractItemModel* data_model = _values_view->model();
@@ -731,10 +735,10 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStrin
 void PVGuiQt::PVAbstractListStatsDlg::ask_for_copying_count()
 {
 	if (QMessageBox::question(this, tr("Copy count values"), tr("Do you want to copy count values as well?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
-		_copy_count = true;
+		((PVStatsModel*)model())->set_copy_count(true);
 	}
 	else {
-		_copy_count = false;
+		((PVStatsModel*)model())->set_copy_count(false);
 	}
 }
 
@@ -1015,20 +1019,20 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 
 		size_t representation_count = 0;
 		if (d()->_act_show_count->isChecked()) {
-			occurence = PVAbstractStatsModel::format_occurence(occurence_count);
-			occurence_max_width = QFontMetrics(painter->font()).width(PVAbstractStatsModel::format_occurence(d()->relative_max_count()));
+			occurence = PVStatsModel::format_occurence(occurence_count);
+			occurence_max_width = QFontMetrics(painter->font()).width(PVStatsModel::format_occurence(d()->relative_max_count()));
 			margin -= occurence_max_width;
 			representation_count++;
 		}
 		if (d()->_act_show_scientific_notation->isChecked()) {
-			scientific_notation = PVAbstractStatsModel::format_scientific_notation(ratio);
-			scientific_notation_max_width = QFontMetrics(painter->font()).width(PVAbstractStatsModel::format_scientific_notation(1));
+			scientific_notation = PVStatsModel::format_scientific_notation(ratio);
+			scientific_notation_max_width = QFontMetrics(painter->font()).width(PVStatsModel::format_scientific_notation(1));
 			margin -= scientific_notation_max_width;
 			representation_count++;
 		}
 		if (d()->_act_show_percentage->isChecked()) {
-			percentage = PVAbstractStatsModel::format_percentage(ratio);
-			percentage_max_width = QFontMetrics(painter->font()).width(PVAbstractStatsModel::format_percentage((double)d()->relative_max_count() / d()->max_count()));
+			percentage = PVStatsModel::format_percentage(ratio);
+			percentage_max_width = QFontMetrics(painter->font()).width(PVStatsModel::format_percentage((double)d()->relative_max_count() / d()->max_count()));
 			margin -= percentage_max_width;
 			representation_count++;
 		}
