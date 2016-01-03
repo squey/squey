@@ -34,6 +34,8 @@ PVAbstractTableView::PVAbstractTableView(QWidget* parent):
 
 	// Text elipsis
 	setWordWrap(false);
+
+	setSelectionMode(QAbstractItemView::NoSelection);
 }
 
 /******************************************************************************
