@@ -35,37 +35,21 @@
 
 /******************************************************************************
  *
- * Inendi::PVLayerFilterHeatlineBase::PVLayerFilterHeatlineBase
+ * Inendi::PVLayerFilterHeatline::PVLayerFilterHeatline
  *
  *****************************************************************************/
-Inendi::PVLayerFilterHeatlineBase::PVLayerFilterHeatlineBase(PVCore::PVArgumentList const& l)
+Inendi::PVLayerFilterHeatline::PVLayerFilterHeatline(PVCore::PVArgumentList const& l)
 	: PVLayerFilter(l)
 {
-	INIT_FILTER(PVLayerFilterHeatlineBase, l);
+	INIT_FILTER(PVLayerFilterHeatline, l);
 }
 
 /******************************************************************************
  *
- * DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterHeatlineBase)
+ * Inendi::PVLayerFilterHeatline::get_default_args_for_view
  *
  *****************************************************************************/
-DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterHeatlineBase)
-{
-	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey(ARG_NAME_AXES, ARG_DESC_AXES)].setValue(PVCore::PVAxisIndexType());
-
-	PVCore::PVEnumType scale(QStringList() << "Linear" << "Log", 0);
-	args[PVCore::PVArgumentKey(ARG_NAME_SCALE, ARG_DESC_SCALE)].setValue(scale);
-
-	return args;
-}
-
-/******************************************************************************
- *
- * Inendi::PVLayerFilterHeatlineBase::get_default_args_for_view
- *
- *****************************************************************************/
-PVCore::PVArgumentList Inendi::PVLayerFilterHeatlineBase::get_default_args_for_view(PVView const&)
+PVCore::PVArgumentList Inendi::PVLayerFilterHeatline::get_default_args_for_view(PVView const&)
 {
 	PVCore::PVArgumentList args = get_default_args();
 	// Default args with the "key" tag
@@ -75,10 +59,10 @@ PVCore::PVArgumentList Inendi::PVLayerFilterHeatlineBase::get_default_args_for_v
 
 /******************************************************************************
  *
- * Inendi::PVLayerFilterHeatlineBase::operator()
+ * Inendi::PVLayerFilterHeatline::operator()
  *
  *****************************************************************************/
-void Inendi::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
+void Inendi::PVLayerFilterHeatline::operator()(PVLayer& in, PVLayer &out)
 {
 	BENCH_START(heatline);
 
@@ -90,7 +74,7 @@ void Inendi::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 		_args = get_default_args_for_view(*_view);
 		axes = _args.value(ARG_NAME_AXES).value<PVCore::PVAxesIndexType>();
 		if (axes.size() == 0) {
-			PVLOG_ERROR("(PVLayerFilterHeatlineBase) no key axes defined in the format and no axes selected !\n");
+			PVLOG_ERROR("(PVLayerFilterHeatline) no key axes defined in the format and no axes selected !\n");
 			if (&in != &out) {
 				out = in;
 			}
@@ -191,91 +175,26 @@ void Inendi::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 	BENCH_END(heatline, "heatline", 1, 1, sizeof(PVRow), nrows);
 }
 
-PVCore::PVArgumentKeyList Inendi::PVLayerFilterHeatlineBase::get_args_keys_for_preset() const
+PVCore::PVArgumentKeyList Inendi::PVLayerFilterHeatline::get_args_keys_for_preset() const
 {
 	PVCore::PVArgumentKeyList keys = get_default_args().keys();
 	keys.erase(std::find(keys.begin(), keys.end(), ARG_NAME_AXES));
 	return keys;
 }
 
-void Inendi::PVLayerFilterHeatlineBase::post(const PVLayer& /*in*/, PVLayer& /*out*/,
-                                             const double /*ratio*/,
-                                             const double /*fmin*/, const double /*fmax*/,
-                                             const PVRow /*line_id*/)
+DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterHeatline)
 {
-	// The base filter does nothing
-}
+	PVCore::PVArgumentList args;
 
-IMPL_FILTER(Inendi::PVLayerFilterHeatlineBase)
+	PVCore::PVEnumType scale(QStringList() << "Linear" << "Log", 0);
 
-
-// "Colorize mode" filter
-
-Inendi::PVLayerFilterHeatlineColor::PVLayerFilterHeatlineColor(PVCore::PVArgumentList const& l)
-	: PVLayerFilterHeatlineBase(l)
-{
-	INIT_FILTER(PVLayerFilterHeatlineColor, l);
-}
-
-DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterHeatlineColor)
-{
-	return Inendi::PVLayerFilterHeatlineBase::default_args();
-}
-
-void Inendi::PVLayerFilterHeatlineColor::post(const PVLayer& /*in*/, PVLayer& out,
-                                              const double ratio,
-                                              const double /*fmin*/, const double /*fmax*/,
-                                              const PVRow line_id)
-{
-	const PVCore::PVHSVColor color((uint8_t)((double)(HSV_COLOR_RED-HSV_COLOR_GREEN)*ratio + (double)HSV_COLOR_GREEN));
-	out.get_lines_properties().line_set_color(line_id, color);
-}
-
-IMPL_FILTER(Inendi::PVLayerFilterHeatlineColor)
-
-
-// "Selection mode" filter
-
-Inendi::PVLayerFilterHeatlineSel::PVLayerFilterHeatlineSel(PVCore::PVArgumentList const& l)
-	: PVLayerFilterHeatlineBase(l)
-{
-	INIT_FILTER(PVLayerFilterHeatlineSel, l);
-}
-
-DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterHeatlineSel)
-{
-	PVCore::PVArgumentList args = Inendi::PVLayerFilterHeatlineBase::default_args();
+	args[PVCore::PVArgumentKey(ARG_NAME_SCALE, ARG_DESC_SCALE)].setValue(scale);
+	args[PVCore::PVArgumentKey(ARG_NAME_AXES, ARG_DESC_AXES)].setValue(PVCore::PVAxisIndexType());
 	args[PVCore::PVArgumentKey(ARG_NAME_COLORS, ARG_DESC_COLORS)].setValue(PVCore::PVPercentRangeType());
 	return args;
 }
 
-void Inendi::PVLayerFilterHeatlineSel::post(const PVLayer& /*in*/, PVLayer& out,
-                                            const double ratio,
-                                            const double fmin, const double fmax,
-                                            const PVRow line_id)
-{
-	if ((ratio >= fmin) && (ratio <= fmax)) {
-		out.get_selection().set_line(line_id, 0);
-	}
-}
-
-IMPL_FILTER(Inendi::PVLayerFilterHeatlineSel)
-
-// "Select and colorize" mode
-Inendi::PVLayerFilterHeatlineSelAndCol::PVLayerFilterHeatlineSelAndCol(PVCore::PVArgumentList const& l)
-	: PVLayerFilterHeatlineBase(l)
-{
-	INIT_FILTER(PVLayerFilterHeatlineSelAndCol, l);
-}
-
-DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterHeatlineSelAndCol)
-{
-	PVCore::PVArgumentList args = Inendi::PVLayerFilterHeatlineBase::default_args();
-	args[PVCore::PVArgumentKey(ARG_NAME_COLORS, ARG_DESC_COLORS)].setValue(PVCore::PVPercentRangeType());
-	return args;
-}
-
-void Inendi::PVLayerFilterHeatlineSelAndCol::post(const PVLayer& /*in*/, PVLayer& out,
+void Inendi::PVLayerFilterHeatline::post(const PVLayer& /*in*/, PVLayer& out,
                                                   const double ratio,
                                                   const double fmin, const double fmax,
                                                   const PVRow line_id)
@@ -290,4 +209,4 @@ void Inendi::PVLayerFilterHeatlineSelAndCol::post(const PVLayer& /*in*/, PVLayer
 	}
 }
 
-IMPL_FILTER(Inendi::PVLayerFilterHeatlineSelAndCol)
+IMPL_FILTER(Inendi::PVLayerFilterHeatline)

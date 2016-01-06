@@ -15,8 +15,6 @@
 // This method will be called by libinendi
 LibCPPExport void register_class()
 {
-	//REGISTER_CLASS("Heatline/Colorize", Inendi::PVLayerFilterHeatlineColor);
-	//REGISTER_CLASS("Heatline/Select", Inendi::PVLayerFilterHeatlineSel);
-	REGISTER_CLASS("frequency-gradient", Inendi::PVLayerFilterHeatlineSelAndCol);
-	DECLARE_TAG(PVAXIS_TAG_KEY, PVAXIS_TAG_KEY_DESC, Inendi::PVLayerFilterHeatlineSelAndCol);
+	REGISTER_CLASS("frequency-gradient", Inendi::PVLayerFilterHeatline);
+	DECLARE_TAG(PVAXIS_TAG_KEY, PVAXIS_TAG_KEY_DESC, Inendi::PVLayerFilterHeatline);
 }
