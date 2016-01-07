@@ -15,7 +15,7 @@
 
 /******************************************************************************
  *
- * PVGuiQt::PVCountByStringsDlg
+ * PVGuiQt::PVGroupByStringsDlg
  *
  *****************************************************************************/
 bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
@@ -34,12 +34,13 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 			Inendi::PVView_sp view_sp = _view.shared_from_this();
 			PVRush::PVNraw const& nraw = view_sp->get_rushnraw_parent();
 
+			// We did the col1_in by col2_in computation
 			const pvcop::db::array col1_in = nraw.collection().column(_col);
 			const pvcop::db::array col2_in = nraw.collection().column(_col2);
 
-			int idx = indexes.find_next_set_bit(0, col1_in.size()); // TODO : Why do we skip others values?
-			const QString value = QString::fromStdString(col1_out.at(idx));
-			// TODO : I don't understand where this string is comming from...
+			int idx = indexes.find_next_set_bit(0, col1_in.size()); // We can only get the details of the first selected value
+			// Get it from value_col which is col2_in but without duplication
+			const QString value = QString::fromStdString(((PVStatsModel const*)model())->value_col().at(idx));
 
 			tbb::task_group_context ctxt(tbb::task_group_context::isolated);
 			ctxt.reset();
@@ -49,7 +50,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 
 			ret = PVCore::PVProgressBox::progress([&]
 			{
-				pvcop::db::algo::op_by_details(col1_in, col2_in, value.toStdString(), col1_out, col2_out);
+				pvcop::db::algo::op_by_details(col1_in, col2_in, value.toStdString(), col1_out, col2_out, *view_sp->get_selection_visible_listing());
 
 				std::string min_str = pvcop::db::algo::min(col2_out).at(0);
 				std::istringstream min_buf(min_str);
