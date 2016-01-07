@@ -44,9 +44,6 @@ public:
 		Inendi::PVView_sp& view,
 		PVCol c,
 		PVStatsModel* model,
-		double absolute_max_count,
-		double relative_min_count,
-		double relative_max_count,
 		QWidget* parent = nullptr
 	);
 
@@ -54,6 +51,7 @@ public:
 
 public:
 	inline double absolute_max_count() const { return ((PVStatsModel const*)model())->absolute_max_count(); }
+	inline double relative_min_count() const { return ((PVStatsModel const*)model())->relative_min_count(); }
 	inline double relative_max_count() const { return ((PVStatsModel const*)model())->relative_max_count(); }
 	inline double max_count() const { return ((PVStatsModel const*)model())->max_count(); }
 

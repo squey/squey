@@ -268,9 +268,6 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 	Inendi::PVView_sp& view,
 	PVCol c,
 	PVStatsModel* model,
-	double absolute_max_count,
-	double relative_min_count,
-	double relative_max_count,
 	QWidget* parent /* = nullptr */) :
 	PVListDisplayDlg(model, parent),
 	_col(c)
@@ -379,7 +376,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 
 	vl->addWidget(b);
 
-	_select_picker = new __impl::PVAbstractListStatsRangePicker(relative_min_count, relative_max_count, absolute_max_count);
+	_select_picker = new __impl::PVAbstractListStatsRangePicker(model->relative_min_count(), model->relative_max_count(), model->absolute_max_count());
 	_select_picker->use_logarithmic_scale(model->use_log_scale());
 	hbox->addWidget(_select_picker, 2);
 
@@ -937,7 +934,7 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 		}
 		if (d()->_act_show_percentage->isChecked()) {
 			percentage = PVStatsModel::format_percentage(ratio);
-			percentage_max_width = QFontMetrics(painter->font()).width(PVStatsModel::format_percentage((double)d()->relative_max_count() / d()->max_count()));
+			percentage_max_width = QFontMetrics(painter->font()).width(PVStatsModel::format_percentage(d()->relative_max_count() / d()->max_count()));
 			margin -= percentage_max_width;
 			representation_count++;
 		}

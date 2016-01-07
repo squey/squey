@@ -21,10 +21,13 @@ enum class ValueFormat { Percent, Scientific, Count};
 class PVStatsModel: public PVAbstractTableModel
 {
 public:
-	PVStatsModel(pvcop::db::array col1, pvcop::db::array col2, QWidget* parent = nullptr)
+	PVStatsModel(pvcop::db::array col1, pvcop::db::array col2, double absolute_max, double relative_min, double relative_max, QWidget* parent = nullptr)
 		: PVAbstractTableModel(col1.size(), parent),
 		 _col1(std::move(col1)),
-		 _col2(std::move(col2))
+		 _col2(std::move(col2)),
+		 _absolute_max_count(absolute_max),
+		 _relative_min_count(relative_min),
+		 _relative_max_count(relative_max)
 	{
 	}
 
@@ -174,6 +177,7 @@ private:
 public:
 	inline double max_count() const { return _use_absolute_max_count ? _absolute_max_count : _relative_max_count; }
 	inline double relative_max_count() const { return _relative_max_count; }
+	inline double relative_min_count() const { return _relative_min_count; }
 	inline double absolute_max_count() const { return _absolute_max_count; }
 	bool use_log_scale() const { return _use_logarithmic_scale; }
 	pvcop::db::array const& value_col() const { return _col1; }
@@ -191,11 +195,12 @@ private:
 	// Export generic with other TableModels.
 	bool _copy_count; //!< If on line copy, we also copy values.
 
-	bool _use_absolute_max_count;
-	int _absolute_max_count;
-	int _relative_max_count;
+	double _absolute_max_count;
+	double _relative_min_count;
+	double _relative_max_count;
 
-	bool _use_logarithmic_scale;
+	bool _use_absolute_max_count = true; // FIXME : should not be in the model as it only concern the display
+	bool _use_logarithmic_scale = true; // FIXME : should not be in the model as it only concern the display
 };
 
 } // namespace PVGuiQt
