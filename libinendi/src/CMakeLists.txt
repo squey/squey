@@ -47,7 +47,6 @@ PVPlottingProperties.cpp
 PVRoot.cpp
 PVScene.cpp
 PVSelection.cpp
-PVSelectionFilter.cpp
 PVSparseSelection.cpp
 PVSquareArea.cpp
 PVDefaultSortingFunc.cpp
