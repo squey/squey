@@ -18,6 +18,8 @@
 
 #include <inendi/PVView.h>
 
+#include <pvcop/db/algo.h>
+
 #include <cmath>
 #include <unordered_map>
 
@@ -82,88 +84,66 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer& in, PVLayer &out)
 	// Default to the original selection
 	out.get_selection() = in.get_selection();
 
-	// Per-thread frequencies
-	typedef std::unordered_map<std::string_tbb, PVRow> lines_hash_t;
-	lines_hash_t freqs;
-
-	// Get full number of row
-	const PVRow nrows = _view->get_row_count();
-	freqs.reserve(nrows);
-
-	std::vector<PVRow const*> row_values;
-	row_values.resize(nrows, nullptr);
-
 	// Count number of occurance for each value in choosen axis.
-	nraw.visit_column_sel(axis_id,
-		[&](const PVRow r, const char* buf, size_t size)
-		{
-			std::string_tbb tmp_str(buf, size);
-			lines_hash_t::iterator it = freqs.find(tmp_str);
-			if (it == freqs.end()) {
-				it = freqs.emplace(std::move(tmp_str), 1).first;
-			}
-			else {
-				it->second++;
-			}
-			row_values[r] = &it->second;
-		},
-		in.get_selection());
+	pvcop::db::array const& col = nraw.collection().column(axis_id);
 
-	// Compute min/max values for every frequency.
-	PVRow max_n = std::numeric_limits<PVRow>::lowest();
-	PVRow min_n = std::numeric_limits<PVRow>::max();
-	for (auto & freq: freqs) {
-		const PVRow cur_n = freq.second;
-		if (cur_n > max_n) {
-			max_n = cur_n;
-		}
-		if (cur_n < min_n) {
-			min_n = cur_n;
-		}
-	}
+	pvcop::db::groups group;
+	pvcop::db::extents extents;
+	pvcop::db::selection& pvsel = out.get_selection();
+
+	// Set correct size to selection.
+	pvcop::db::selection sel(pvsel, 0, col.size());
+
+	col.group(group, extents, sel);
+
+	pvcop::db::array count = col.group_count(group, extents);
+
+	// Compute min and max value
+	// FIXME (pbrunet) : We may have a minmax primitive
+	pvcop::db::indexes::type min_n = pvcop::db::algo::min(count).to_core_array<pvcop::db::indexes::type>()[0];
+	pvcop::db::indexes::type max_n = pvcop::db::algo::max(count).to_core_array<pvcop::db::indexes::type>()[0];
+
 	assert(min_n <= max_n && "We should have a correct order between min/max");
 
 	if (max_n == min_n) {
-		in.get_selection().visit_selected_lines(
-			[&](const PVRow r)
-			{
-				this->post(out, 1.0 / (double)freqs.size(),
-				           freq_min, freq_max, r);
-			}, nrows);
+		// Case where every value have the same frequency.
+		// Set the same color depending on the number of value
+		for(auto it=sel.begin(); it != sel.end(); ++it) {
+			post(out, 1.0 / extents.size(), freq_min, freq_max, it.index());
+		}
 	}
 	else {
 		const double diff = max_n - min_n;
 		const double log_diff = std::log(diff);
 
-		in.get_selection().visit_selected_lines(
-			[&](const PVRow r)
-			{
-				assert(r < row_values.size());
-				const PVRow *pfreq = row_values[r];
+		size_t index = 0;
+		auto const& group_array = group.to_core_array();
+		auto const& count_array = count.to_core_array<pvcop::db::indexes::type>();
+		for(auto it=sel.begin(); it != sel.end(); ++it) {
+			if(not *it) {
+				index++;
+				continue;
+			}
+			size_t cum = count_array[group_array[index]];
 
-				assert(pfreq && "This should be filled by frequency computation");
-
-				const PVRow freq = *pfreq;
-
-				// Computation ratio to havec 1 for freq = max_n and 0 for freq = min_n
-				double ratio;
-				if (bLog) {
-					if (freq == min_n) {
-						ratio = 0;
-					}
-					else {
-						ratio = std::log(freq-min_n)/log_diff;
-					}
+			// Computation ratio to havec 1 for freq = max_n and 0 for freq = min_n
+			double ratio;
+			if (bLog) {
+				if (cum == min_n) {
+					ratio = 0;
 				}
 				else {
-					ratio = (double)(freq-min_n)/diff;
+					ratio = std::log(cum - min_n)/(double)log_diff;
 				}
-
-				this->post(out, ratio, freq_min, freq_max, r);
-			}, nrows);
+			}
+			else {
+				ratio = (double)(cum - min_n)/diff;
+			}
+			post(out, ratio, freq_min, freq_max, index++);
+		}
 	}
 
-	BENCH_END(heatline, "heatline", 1, 1, sizeof(PVRow), nrows);
+	BENCH_END(heatline, "heatline", 1, 1, sizeof(PVRow), sel.size());
 }
 
 PVCore::PVArgumentKeyList Inendi::PVLayerFilterHeatline::get_args_keys_for_preset() const

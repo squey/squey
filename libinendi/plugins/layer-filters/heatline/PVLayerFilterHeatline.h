@@ -42,7 +42,7 @@ public:
 	 *
 	 * It is the same as args except for axis.
 	 */
-	virtual PVCore::PVArgumentKeyList get_args_keys_for_preset() const;
+	PVCore::PVArgumentKeyList get_args_keys_for_preset() const override;
 
 	/**
 	 * Defines args.
@@ -51,7 +51,7 @@ public:
 	 * axis : Axis on which we want to apply this frequency computation.
 	 * range : min and max frequency we want to handle.
 	 */
-	PVCore::PVArgumentList get_default_args_for_view(PVView const& view);
+	PVCore::PVArgumentList get_default_args_for_view(PVView const& view) override;
 
 protected:
 	/**
@@ -70,7 +70,7 @@ protected:
 	/**
 	 * Name to display in the menu.
 	 */
-	virtual QString menu_name() const override { return "Frequency gradient"; }
+	QString menu_name() const override { return "Frequency gradient"; }
 
 	CLASS_FILTER(Inendi::PVLayerFilterHeatline)
 };
