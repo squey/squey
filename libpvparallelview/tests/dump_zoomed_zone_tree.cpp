@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 {
 	set_extra_param(2, "dump_name_format (zone-id|\"all\")");
 
-	PVParallelView::common::init_cuda();
+	PVParallelView::common::RAII_cuda_init cuda_resources;
 
 	PVParallelView::PVLibView* pv = create_lib_view_from_args(argc, argv);
 

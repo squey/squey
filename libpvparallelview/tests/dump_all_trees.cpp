@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 {
 	set_extra_param(2, "zt_dump_name_format zzt_dump_name_format");
 
-	PVParallelView::common::init_cuda();
+	PVParallelView::common::RAII_cuda_init cuda_resources;
 
 	PVParallelView::PVLibView* pv = create_lib_view_from_args(argc, argv);
 

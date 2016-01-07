@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 
 	QApplication app(argc, argv);
 
-	PVParallelView::common::init_cuda();
+	PVParallelView::common::RAII_cuda_init cuda_resources;
 
 	PVParallelView::PVLibView* plib_view = create_lib_view_from_args(argc, argv);
 	PVParallelView::PVZoomedParallelView* zpview = plib_view->create_zoomed_view(1);
@@ -75,8 +75,6 @@ int main(int argc, char** argv)
 	zpview->show();
 
 	app.exec();
-
-	PVParallelView::common::release();
 
 	return 0;
 }
