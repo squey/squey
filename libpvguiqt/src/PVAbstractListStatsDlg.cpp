@@ -555,14 +555,20 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	{
 		Inendi::PVSelection & sel = model()->current_selection();
 		sel.select_none();
-		auto const& col2_array = ((PVStatsModel*)model())->stat_col().to_core_array<double>();
 
-		#pragma omp parallel for
+		const pvcop::db::array& col2_array = ((PVStatsModel*)model())->stat_col();
+
+#pragma omp parallel for
 		for(int i=0; i<row_count; i++) {
-			sel.set_line(i, col2_array[i] <= vmax and col2_array[i] >=vmin);
+			// TODO: this could be improved by implementing db::array::subselect(min, max)
+			const double v = QString::fromStdString(col2_array.at(i)).toDouble();
+			sel.set_line(i, v <= vmax && v >=vmin);
 		}
 
 	}, ctxt, pbox);
+
+	// FIXME : Qt selection is not rendered: PVGuiQt::PVListingModel::data (case Qt::BackgroundRole)
+	//         should be moved elsewhere in order to use it properly
 
 	BENCH_END(select_values, "select_values", 0, 0, 1, row_count);
 }
@@ -885,9 +891,9 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 	QStyledItemDelegate::paint(painter, option, index);
 
 	if (index.column() == 1) {
-		auto const& col2_array = ((PVStatsModel*)d()->model())->stat_col().to_core_array<double>();
+		const pvcop::db::array& col2_array = ((PVStatsModel*)d()->model())->stat_col();
 		int real_index = ((PVStatsModel*)d()->model())->rowIndex(index);
-		double occurence_count = col2_array[real_index];
+		double occurence_count = QString::fromStdString(col2_array.at(real_index)).toDouble();
 		double ratio = occurence_count / d()->max_count();
 		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->max_count());
 		bool log_scale = d()->use_logarithmic_scale();
