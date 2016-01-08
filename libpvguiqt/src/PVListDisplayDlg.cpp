@@ -101,7 +101,7 @@ void PVGuiQt::PVListDisplayDlg::copy_all_to_clipboard()
 	QString content;
 
 	// TODO : Why we don't check return value? Exception would have avoid it :-)
-	export_values(model()->size(), [&](int i) { return i; }, content);
+	export_values(model()->size(), content);
 
 	QApplication::clipboard()->setText(content);
 }
@@ -128,7 +128,6 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 	// TODO(pbrunet) : do something on this check.
 	bool success = PVCore::PVProgressBox::progress([&]() {
 
-		BENCH_START(export_values);
 		_model->current_selection().visit_selected_lines([this, &ctxt, &content, &sep](int row){
 			if unlikely(ctxt.is_group_execution_cancelled()) {
 				return QString();
@@ -138,7 +137,6 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 				content.append(s.append(sep));
 			}
 				}, model()->size());
-		BENCH_END(export_values, "export_values", 0, 0, 1, content.size());
 		return !ctxt.is_group_execution_cancelled();
 	}, ctxt, pbox);
 
@@ -153,7 +151,7 @@ void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 	QTextStream outstream(&file);
 
 	QString content;
-	bool success = export_values(model()->rowCount(), [&](int i) -> int { return i; }, content);
+	bool success = export_values(model()->rowCount(), content);
 
 	outstream << content;
 
@@ -167,7 +165,7 @@ void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 	}
 }
 
-bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<int(int)> f, QString& content)
+bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 {
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
@@ -195,7 +193,7 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, std::function<int(int)>
 					if unlikely(ctxt.is_group_execution_cancelled()) {
 						return QString();
 					}
-					QString s = _model->export_line(f(i));
+					QString s = _model->export_line(i);
 					if (!s.isNull()) {
 						l.append(s.append(sep));
 					}

@@ -80,16 +80,14 @@ private:
 	void export_to_file(QFile& file);
 	/** Export count value in a QString
 	 *
-	 * Data can be extract from raw indices in the model but also from anything
-	 * as long as the access is provided through the f function.
+	 * Data can be extract from raw indices in the model.
 	 *
 	 * @param[in] count : Number of elements to extract
-	 * @param[in] f : Function to find the i-th elements.
 	 * @param[out] content : Exported line in a QString
 	 * @return : Where it success or fail. It fails only in case of cancellation.
 	 *
 	 */
-	bool export_values(int count, std::function<int (int)> f, QString& content);
+	bool export_values(int count, QString& content);
 
 protected:
 	PVAbstractTableModel* _model;
