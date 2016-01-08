@@ -234,6 +234,7 @@ void PVGuiQt::PVListingModel::sort(PVCol col, Qt::SortOrder order, tbb::task_gro
 	lib_view().sort_indexes_with_axes_combination(col, sorting(), &ctxt);
 	if (not ctxt.is_group_execution_cancelled()) {
 		sorted(col, order);
+		update_filter();
 	}
 }
 

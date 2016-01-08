@@ -210,13 +210,6 @@ class PVAbstractTableModel: public QAbstractTableModel {
 	 */
 	void set_filter(Inendi::PVSelection const* sel, size_t size);
 
-	/**
-	 * get index from filtered value.
-	 *
-	 * @note perform only sorting filtering.
-	 */
-	int filter_to_sort(PVRow row) const;
-
 	protected:
 	/**
 	 * Set sorting contextual informations.
@@ -228,6 +221,18 @@ class PVAbstractTableModel: public QAbstractTableModel {
 		 * Accessor for sorted column index.
 		 */
 		PVCol sorted_column() const { return _sorted_column; }
+
+		/**
+		 * filtering is the same as sort (mean everything is selected but sorted.).
+		 */
+		void filter_is_sort() {
+			auto const& sort = _sort.to_core_array();
+			if(_sort_order != Qt::DescendingOrder) {
+				std::copy(sort.begin(), sort.end(), _filter.begin());
+			} else {
+				std::copy(sort.begin(), sort.end(), _filter.rbegin());
+			}
+		}
 
 	protected:
 	const QBrush _selection_brush = QColor(88, 172, 250);//!< Aspect of selected lines

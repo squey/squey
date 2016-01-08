@@ -139,6 +139,7 @@ public:
 
 		// FIXME(pbrunet) : What ifwe cancel it?
 		sorted(col_idx, order);
+		filter_is_sort();
 
 		emit layoutChanged();
 	}
