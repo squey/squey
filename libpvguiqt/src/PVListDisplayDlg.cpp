@@ -101,7 +101,7 @@ void PVGuiQt::PVListDisplayDlg::copy_all_to_clipboard()
 	QString content;
 
 	// TODO : Why we don't check return value? Exception would have avoid it :-)
-	export_values(model()->size(), content);
+	export_values(model().size(), content);
 
 	QApplication::clipboard()->setText(content);
 }
@@ -136,7 +136,7 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 			if (!s.isNull()) {
 				content.append(s.append(sep));
 			}
-				}, model()->size());
+				}, model().size());
 		return !ctxt.is_group_execution_cancelled();
 	}, ctxt, pbox);
 
@@ -151,7 +151,8 @@ void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 	QTextStream outstream(&file);
 
 	QString content;
-	bool success = export_values(model()->rowCount(), content);
+	// TODO : Fix rowCount
+	bool success = export_values(model().rowCount(), content);
 
 	outstream << content;
 

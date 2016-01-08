@@ -22,7 +22,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 {
 	if (act && act == _act_details) {
 		bool ret = false;
-		Inendi::PVSelection const& indexes = model()->current_selection();
+		Inendi::PVSelection const& indexes = model().current_selection();
 		if (not indexes.is_empty()) {
 
 			double count;
@@ -40,7 +40,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 
 			int idx = indexes.find_next_set_bit(0, col1_in.size()); // We can only get the details of the first selected value
 			// Get it from value_col which is col2_in but without duplication
-			const QString value = QString::fromStdString(((PVStatsModel const*)model())->value_col().at(idx));
+			const QString value = QString::fromStdString(model().value_col().at(idx));
 
 			tbb::task_group_context ctxt(tbb::task_group_context::isolated);
 			ctxt.reset();

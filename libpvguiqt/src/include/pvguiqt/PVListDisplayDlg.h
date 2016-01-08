@@ -54,8 +54,8 @@ public:
 	void set_description(QString const& desc);
 
 protected:
-	PVAbstractTableModel* model() { return _model; }
-	PVAbstractTableModel const* model() const { return _model; }
+	virtual PVAbstractTableModel& model() { return *_model; }
+	virtual PVAbstractTableModel const& model() const { return *_model; }
 
 protected:
 	virtual void ask_for_copying_count() {}

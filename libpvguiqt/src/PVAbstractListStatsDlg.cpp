@@ -416,7 +416,7 @@ void PVGuiQt::PVAbstractListStatsDlg::section_clicked(int col)
 void PVGuiQt::PVAbstractListStatsDlg::sort()
 {
 	Qt::SortOrder order = _values_view->horizontalHeader()->sortIndicatorOrder();
-	model()->sort(0, order);
+	model().sort(0, order);
 	_btn_sort->hide();
 }
 
@@ -440,13 +440,13 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 	}
 
 	if (act == _copy_values_with_count_act) {
-		((PVStatsModel*)model())->set_copy_count(true);
+		model().set_copy_count(true);
 		copy_selected_to_clipboard();
 		return true;
 	}
 
 	if (act == _copy_values_without_count_act) {
-		((PVStatsModel*)model())->set_copy_count(false);
+		model().set_copy_count(false);
 		copy_selected_to_clipboard();
 		return true;
 	}
@@ -463,9 +463,9 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 
 	if (act) { // TODO : Check it is the correct act?
 		QStringList values;
-		for(size_t i=0; i<model()->size(); i++) {
-			if(model()->current_selection().get_line(i)) {
-				values << QString::fromStdString(((PVStatsModel*)model())->value_col().at(i));
+		for(size_t i=0; i<model().size(); i++) {
+			if(model().current_selection().get_line(i)) {
+				values << QString::fromStdString(model().value_col().at(i));
 			}
 		}
 		multiple_search(act, values);
@@ -480,7 +480,7 @@ void PVGuiQt::PVAbstractListStatsDlg::scale_changed(QAction* act)
 	if (act) {
 		bool use_log = (act == _act_toggle_log);
 		_select_picker->use_logarithmic_scale(use_log);
-		((PVGuiQt::PVStatsModel*) model())->set_use_log_scale(use_log);
+		model().set_use_log_scale(use_log);
 		_values_view->update();
 		_values_view->horizontalHeader()->viewport()->update();
 	}
@@ -489,11 +489,11 @@ void PVGuiQt::PVAbstractListStatsDlg::scale_changed(QAction* act)
 void PVGuiQt::PVAbstractListStatsDlg::max_changed(QAction* act)
 {
 	if (act) {
-		((PVStatsModel*)model())->set_use_absolute(act == _act_toggle_absolute);
+		model().set_use_absolute(act == _act_toggle_absolute);
 		_act_toggle_linear->setChecked(act == _act_toggle_relative);
 		_act_toggle_log->setChecked(act == _act_toggle_absolute);
 		_select_picker->use_logarithmic_scale(act == _act_toggle_absolute);
-		((PVGuiQt::PVStatsModel*) model())->set_use_log_scale(act == _act_toggle_absolute);
+		model().set_use_log_scale(act == _act_toggle_absolute);
 		_select_picker->use_absolute_max_count(act == _act_toggle_absolute);
 		_values_view->update();
 		_values_view->horizontalHeader()->viewport()->update();
@@ -539,11 +539,11 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 		vmax = _select_picker->get_range_max();
 	}
 	else {
-		vmin = freq_to_count_min(count_to_freq_min(_select_picker->get_range_min(), ((PVStatsModel*)model())->max_count()), ((PVStatsModel*)model())->max_count());
-		vmax = freq_to_count_max(count_to_freq_max(_select_picker->get_range_max(), ((PVStatsModel*)model())->max_count()), ((PVStatsModel*)model())->max_count());
+		vmin = freq_to_count_min(count_to_freq_min(_select_picker->get_range_min(), model().max_count()), model().max_count());
+		vmax = freq_to_count_max(count_to_freq_max(_select_picker->get_range_max(), model().max_count()), model().max_count());
 	}
 
-	int row_count = ((PVStatsModel*)model())->stat_col().size();
+	int row_count = model().stat_col().size();
 
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing selection..."), this);
 	pbox->set_enable_cancel(true);
@@ -553,10 +553,10 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 
 	bool res = PVCore::PVProgressBox::progress([this, row_count, vmax, vmin]
 	{
-		Inendi::PVSelection & sel = model()->current_selection();
+		Inendi::PVSelection & sel = model().current_selection();
 		sel.select_none();
 
-		const pvcop::db::array& col2_array = ((PVStatsModel*)model())->stat_col();
+		const pvcop::db::array& col2_array = model().stat_col();
 
 #pragma omp parallel for
 		for(int i=0; i<row_count; i++) {
@@ -605,7 +605,7 @@ void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(int col)
 {
 	_values_view->horizontalHeader()->setSortIndicatorShown(true);
 	Qt::SortOrder order =  (Qt::SortOrder)!((bool)_values_view->horizontalHeader()->sortIndicatorOrder());
-	model()->sort(col, order);
+	model().sort(col, order);
 }
 
 void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStringList &sl,
@@ -659,10 +659,10 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStrin
 void PVGuiQt::PVAbstractListStatsDlg::ask_for_copying_count()
 {
 	if (QMessageBox::question(this, tr("Copy count values"), tr("Do you want to copy count values as well?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
-		((PVStatsModel*)model())->set_copy_count(true);
+		model().set_copy_count(true);
 	}
 	else {
-		((PVStatsModel*)model())->set_copy_count(false);
+		model().set_copy_count(false);
 	}
 }
 
@@ -695,9 +695,9 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	QStringList sl;
 	QStringList value_names;
 
-	for(size_t i=0; i<((PVStatsModel*)model())->value_col().size(); i++) {
-		if(((PVStatsModel*)model())->current_selection().get_line(i)) {
-			QString s = QString::fromStdString(((PVStatsModel*)model())->value_col().at(i));
+	for(size_t i=0; i<model().value_col().size(); i++) {
+		if(model().current_selection().get_line(i)) {
+			QString s = QString::fromStdString(model().value_col().at(i));
 			sl += s;
 			if (s.isEmpty()) {
 				value_names += "(empty)";
@@ -769,7 +769,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
 	Inendi::PVLayerStack& ls = view_sp->get_layer_stack();
 
-	int layer_num = model()->current_selection().get_number_of_selected_lines_in_range(0, ((PVStatsModel*)model())->value_col().size());
+	int layer_num = model().current_selection().get_number_of_selected_lines_in_range(0, model().value_col().size());
 	int layer_max = INENDI_LAYER_STACK_MAX_DEPTH - ls.get_layer_count();
 	if (layer_num >= layer_max) {
 		QMessageBox::critical(this, "multiple layer creation",
@@ -824,12 +824,12 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	 */
 
 	int offset = 1;
-	for(size_t i=0; i<((PVStatsModel*)model())->value_col().size(); i++) {
-		if(not ((PVStatsModel*)model())->current_selection().get_line(i)) {
+	for(size_t i=0; i<model().value_col().size(); i++) {
+		if(not model().current_selection().get_line(i)) {
 			continue; // Skip unselected lines
 		}
 		QString layer_name(text);
-		QString s = QString::fromStdString(((PVStatsModel*)model())->value_col().at(i));
+		QString s = QString::fromStdString(model().value_col().at(i));
 		if (s.isEmpty()) {
 			layer_name.replace("%v", "(empty)");
 		} else {
@@ -891,8 +891,8 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 	QStyledItemDelegate::paint(painter, option, index);
 
 	if (index.column() == 1) {
-		const pvcop::db::array& col2_array = ((PVStatsModel*)d()->model())->stat_col();
-		int real_index = ((PVStatsModel*)d()->model())->rowIndex(index);
+		const pvcop::db::array& col2_array = d()->model().stat_col();
+		int real_index = d()->model().rowIndex(index);
 		double occurence_count = QString::fromStdString(col2_array.at(real_index)).toDouble();
 		double ratio = occurence_count / d()->max_count();
 		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->max_count());

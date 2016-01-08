@@ -50,12 +50,18 @@ public:
 	void init(Inendi::PVView_sp& view);
 
 public:
-	inline double absolute_max_count() const { return ((PVStatsModel const*)model())->absolute_max_count(); }
-	inline double relative_min_count() const { return ((PVStatsModel const*)model())->relative_min_count(); }
-	inline double relative_max_count() const { return ((PVStatsModel const*)model())->relative_max_count(); }
-	inline double max_count() const { return ((PVStatsModel const*)model())->max_count(); }
+	/**
+	 * Get the model with correct type.
+	 */
+	PVStatsModel& model() override { return *static_cast<PVStatsModel *>(_model); }
+	PVStatsModel const& model() const override { return *static_cast<PVStatsModel const*>(_model); }
 
-	inline bool use_logarithmic_scale() { return ((PVStatsModel const*)model())->use_log_scale();  }
+	inline double absolute_max_count() const { return model().absolute_max_count(); }
+	inline double relative_min_count() const { return model().relative_min_count(); }
+	inline double relative_max_count() const { return model().relative_max_count(); }
+	inline double max_count() const { return model().max_count(); }
+
+	inline bool use_logarithmic_scale() { return model().use_log_scale();  }
 
 protected:
 	void showEvent(QShowEvent * event) override;
