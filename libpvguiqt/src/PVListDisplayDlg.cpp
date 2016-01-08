@@ -142,6 +142,8 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 		return !ctxt.is_group_execution_cancelled();
 	}, ctxt, pbox);
 
+	QApplication::clipboard()->setText(content);
+
 	QApplication::restoreOverrideCursor();
 }
 
