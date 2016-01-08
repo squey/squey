@@ -20,7 +20,7 @@
 #include <inendi/PVView_types.h>
 
 #include <pvguiqt/PVListingModel.h>
-#include <pvguiqt/PVTableView.h>
+#include <pvguiqt/PVAbstractTableView.h>
 
 #include <QHeaderView>
 
@@ -41,7 +41,7 @@ class PVListingModel;
 /**
  * \class PVListingView
  */
-class PVListingView : public PVTableView
+class PVListingView : public PVAbstractTableView
 {
 	Q_OBJECT
 	friend class PVStatsListingWidget;
@@ -71,12 +71,6 @@ public:
 	 */
 	PVListingModel* listing_model();
 
-	/**
-	 * Define the current model and update pagination information depending
-	 * on its number of elements.
-	 */
-	void setModel(QAbstractItemModel * model) override;
-
 public slots:
 	/**
 	 * Inform other Hive view about column click
@@ -85,12 +79,12 @@ public slots:
 
 protected:
 	/**
-	 * Handle Help, goto line, selection and table movement
+	 * Handle Help and goto line.
 	 */
 	void keyPressEvent(QKeyEvent* event) override;
 
 	/**
-	 * Resize hovered column on control modifier and move in the listing table.
+	 * Resize hovered column on control modifier.
 	 */
 	void wheelEvent(QWheelEvent* e) override;
 
@@ -102,11 +96,6 @@ protected:
 	void reset() override;
 
 	/**
-	 * Use to inform others widgets about its resizing
-	 */
-	void resizeEvent(QResizeEvent * event) override;
-
-	/**
 	 * Handle focus to correctly handle mouseMoveEvent
 	 */
 	void enterEvent(QEvent* event) override;
@@ -116,29 +105,6 @@ protected:
 	 * Add nice border on hovered column
 	 */
 	void paintEvent(QPaintEvent * event) override;
-
-	/**
-	 * Handle selection on click and move table on last row click.
-	 *
-	 * Works with Shift and Control modifier for selection.
-	 */
-	void mousePressEvent(QMouseEvent * event) override;
-
-	/**
-	 * Commit in the current selection if a selection is in progress.
-	 *
-	 * @note Shift modifier prevent from commiting, it will commit on
-	 * Shift key release
-	 */
-	void mouseReleaseEvent(QMouseEvent * event) override;
-
-	/**
-	 * Move the table in the mouse direction. It also update the
-	 * "in progress" selection
-	 *
-	 * @note Called only when button is pressed.
-	 */
-	void mouseMoveEvent(QMouseEvent * event) override;
 
 signals:
 	/**
@@ -261,69 +227,6 @@ private slots:
 	 * @param[in] enter : Whether the hover begin or end.
 	 */
 	void section_hovered_enter(int col, bool enter);
-
-	/**
-	 * Slots called on slider movement.
-	 */
-	void slider_move_to(int value);
-
-	/**
-	 * Clip the listing on top or bottom depending on slider position.
-	 */
-	void clip_slider();
-
-	/**
-	 * Update pagination when number of step in the scrollbar change.
-	 */
-	void new_range(int min, int max);
-	void new_range();
-
-	/**
-	 * Handle action from click on the scrollbar.
-	 *
-	 * It handles button click but also others actions from right click.
-	 */
-	void scrollclick(int action);
-
-private:
-
-	/**
-	 * Move the pagination information and update view.
-	 *
-	 * @param[in] row : Number of line to move by
-	 */
-	void move_by(int row);
-
-	/**
-	 * Move the pagination information to have row as first line and update view.
-	 *
-	 * @param[in] row : row from nraw to display
-	 */
-	void move_to_nraw(PVRow row);
-
-	/**
-	 * Move the pagination information to have to row as first line and update view.
-	 *
-	 * @param[in] row : row from view to display
-	 */
-	void move_to_row(PVRow row);
-
-	/**
-	 * Move the pagination information to be on a given page and update view.
-	 *
-	 * @param[in] page : Page to move on
-	 */
-	void move_to_page(int page);
-
-	/**
-	 * Move the pagination information to be at the end of the listing and update view.
-	 */
-	void move_to_end();
-
-	/**
-	 * Update view after a pagination movement
-	 */
-	void update_on_move();
 
 private:
 	// Context menu

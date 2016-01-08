@@ -49,7 +49,7 @@
  *****************************************************************************/
 
 PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent):
-	PVTableView(parent),
+	PVAbstractTableView(parent),
 	_ctxt_menu(this),
 	_hhead_ctxt_menu(this),
 	_vhead_ctxt_menu(this),
@@ -68,12 +68,6 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent):
 	PVHive::get().register_observer(src_sp, [=](Inendi::PVSource& source) { return &source.axis_hovered(); }, _axis_hover_obs);
 	_axis_hover_obs.connect_refresh(this, SLOT(highlight_column(PVHive::PVObserverBase*)));
 
-	 connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PVGuiQt::PVListingView::slider_move_to);
-	 connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, &PVGuiQt::PVListingView::scrollclick);
-	 connect(verticalScrollBar(), &QScrollBar::rangeChanged, this,
-			 (void (PVGuiQt::PVListingView::*)(int, int)) &PVGuiQt::PVListingView::new_range);
-	 connect(verticalScrollBar(), &QScrollBar::sliderReleased, this, &PVGuiQt::PVListingView::clip_slider);
-
 	// SIZE STUFF
 	setMinimumSize(60,40);
 	QSizePolicy temp_size_policy = QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
@@ -88,9 +82,6 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent):
 	// FOCUS POLICY
 	// Used for WheelEvent handling as it is called only on focused widget
 	setFocusPolicy(Qt::StrongFocus);
-
-	// Sorting disable as we do it ourself
-	setSortingEnabled(false);
 
 	// Custom context menu.
 	// It is created based on what layer filter plugins tell us.
@@ -174,9 +165,6 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent):
 	connect(verticalHeader(), &QHeaderView::customContextMenuRequested,
 	        this, &PVGuiQt::PVListingView::show_vhead_ctxt_menu);
 
-	// Text elipsis
-	setWordWrap(false);
-
 	// Define help
 	_help_widget.hide();
 
@@ -199,6 +187,9 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent):
 	QFont font = verticalHeader()->font();
 	font.setBold(true);
 	_vhead_max_width = QFontMetrics(font).width(QString().leftJustified(QString::number(INENDI_LINES_MAX).size(), '9'));
+
+	// Handle selection modification signal.
+	connect(this, &PVAbstractTableView::validate_selection, this, &PVListingView::update_view_selection_from_listing_selection);
 }
 
 /******************************************************************************
@@ -254,17 +245,6 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 
 /******************************************************************************
  *
- * PVGuiQt::PVListingView::resizeEvent
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::resizeEvent(QResizeEvent * event)
-{
-	PVTableView::resizeEvent(event);
-	emit resized();
-}
-
-/******************************************************************************
- *
  * PVGuiQt::PVListingView::enterEvent
  *
  *****************************************************************************/
@@ -292,8 +272,8 @@ void PVGuiQt::PVListingView::extract_selection()
 {
 	// Validate the current selection and reset the local one
 	Inendi::PVSelection& sel = lib_view().get_volatile_selection();
-	std::swap(sel, listing_model()->current_selection());
-	listing_model()->reset_selection();
+	std::swap(sel, table_model()->current_selection());
+	table_model()->reset_selection();
 }
 
 /******************************************************************************
@@ -332,82 +312,11 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 	}
 
 	switch (event->key()) {
-		case Qt::Key_Return:
-		case Qt::Key_Enter:
-			if (not listing_model()->current_selection().is_empty()) {
-				update_view_selection_from_listing_selection();
-			}
-			break;
 		case Qt::Key_G:
 			goto_line();
 			break;
-
-		// Bind document displacement key
-		case Qt::Key_PageUp:
-			scrollclick(QAbstractSlider::SliderPageStepSub);
-			break;
-		case Qt::Key_PageDown:
-			scrollclick(QAbstractSlider::SliderPageStepAdd);
-			break;
-		case Qt::Key_Up:
-			scrollclick(QAbstractSlider::SliderSingleStepSub);
-			break;
-		case Qt::Key_Down:
-			scrollclick(QAbstractSlider::SliderSingleStepAdd);
-			break;
-		case Qt::Key_Home:
-			scrollclick(QAbstractSlider::SliderToMinimum);
-			break;
-		case Qt::Key_End:
-			scrollclick(QAbstractSlider::SliderToMaximum);
-			break;
-		case Qt::Key_Right:
-			horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
-			break;
-		case Qt::Key_Left:
-			horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
-			break;
 		default:
-			PVTableView::keyPressEvent(event);
-	}
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::mousePressEvent
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::mousePressEvent(QMouseEvent * event)
-{
-	if(event->button() == Qt::LeftButton) {
-		Qt::KeyboardModifiers mod = event->modifiers();
-		// Shift and Ctrl continue the selection and don't reset it
-		if(not (mod & (Qt::ControlModifier | Qt::ShiftModifier))) {
-			listing_model()->current_selection().select_none();
-		}
-
-		int clc_row = rowAt(event->y());
-		if(clc_row < 0) {
-			// No row under the mouse.
-			return; 
-		}
-
-		if(mod & Qt::ShiftModifier) {
-			// Shift modifier complete the selection between clicks
-			listing_model()->end_selection(clc_row);
-		} else {
-			// Start the selection
-			listing_model()->start_selection(clc_row);
-		}
-
-		// Move below if we click on the half shown row
-		int row_pos = rowViewportPosition(clc_row);
-		if((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
-			move_by(1);
-		}
-
-		viewport()->update(); // To show the selection
-		PVTableView::mousePressEvent(event);
+			PVAbstractTableView::keyPressEvent(event);
 	}
 }
 
@@ -425,78 +334,11 @@ void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 		uint32_t width = std::max(columnWidth(colIndex) + d, horizontalHeader()->minimumSectionSize());
 		setColumnWidth(colIndex, width);
 		_headers_width[lib_view().get_real_axis_index(colIndex)] = width;
+		e->accept(); // I am the one who handle event
 	}
 	else {
-		// delta is wheel movement in degree. QtWheelEvent doc give this formule
-		// to convert it to "wheel step"
-		// http://doc.qt.io/qt-5/qwheelevent.html
-		// Scroll 3 line by wheel step on listing
-		move_by(- e->delta() / 8 / 15 * 3);
+		PVAbstractTableView::wheelEvent(e);
 	}
-	e->accept(); // I am the one who handle event
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::mouseReleaseEvent
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::mouseReleaseEvent(QMouseEvent * event)
-{
-	// Mouse release commit the current selection
-	listing_model()->commit_selection();
-	viewport()->update();
-	event->accept();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::mouseMoveEvent
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::mouseMoveEvent(QMouseEvent * event)
-{
-	int pos = event->y();
-	// Scroll up while the clicked mouse is above the listing
-	while(pos < 0) {
-		move_by(-1);
-		listing_model()->end_selection(rowAt(0));
-		pos += rowHeight(rowAt(0));
-		if(listing_model()->current_page() == 0 and listing_model()->pos_in_page() == 0) {
-			// We reach the top of the listing, stop scrolling upper
-			return;
-		}
-	}
-
-	int clc_row = rowAt(pos);
-	if(clc_row < 0) {
-		// We are max up and we keep moving upper
-		return;
-	}
-
-	// Update selection
-	listing_model()->end_selection(clc_row);
-
-	// We are in the last partially shown cell, move below
-	int row_pos = rowViewportPosition(clc_row);
-	if((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
-		move_by(1);
-	}
-
-	viewport()->update(); // Show selection modification
-	event->accept();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::setModel
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::setModel(QAbstractItemModel * model)
-{
-	PVTableView::setModel(model);
-	connect(model, &QAbstractItemModel::layoutChanged, this,
-			(void (PVGuiQt::PVListingView::*)()) &PVGuiQt::PVListingView::new_range);
 }
 
 /******************************************************************************
@@ -714,8 +556,9 @@ void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 
 	// Color every lines in the current selection
 	for(PVRow line : listing_model()->shown_lines()) {
-		if(listing_model()->current_selection().get_line_fast(line)) {
-			lines_properties.line_set_color(line, color);
+		PVRow sorted_l = table_model()->filter_to_sort(line);
+		if(listing_model()->current_selection().get_line_fast(sorted_l)) {
+			lines_properties.line_set_color(sorted_l, color);
 		}
 	}
 
@@ -831,167 +674,6 @@ void PVGuiQt::PVListingView::highlight_column(int col)
 {
 	// Mark the column for future painting and force update
 	_hovered_axis = col;
-	viewport()->update();
-}
-
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::slider_move_to
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::slider_move_to(int value)
-{
-	if(value == verticalScrollBar()->maximum()) {
-		// Move to the end of the listing
-		move_to_end();
-	} else {
-		// Move to the top of the page
-		move_to_page(value);
-	}
-	viewport()->update();
-	verticalHeader()->viewport()->update();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::new_range
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::new_range(int min, int max)
-{
-	if(model()) {
-		listing_model()->update_pages(max - min + 1, verticalScrollBar()->pageStep());
-		move_to_page(0);
-	}
-}
-
-void PVGuiQt::PVListingView::new_range()
-{
-	if(model()) {
-		listing_model()->update_pages(verticalScrollBar()->maximum() - verticalScrollBar()->minimum() + 1,
-				verticalScrollBar()->pageStep());
-		move_to_page(0);
-	}
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::clip_slider
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::clip_slider()
-{
-	if(verticalScrollBar()->value() == 0) {
-		move_to_page(0);
-	} else if(verticalScrollBar()->value() == verticalScrollBar()->maximum()) {
-		move_to_end();
-	}
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::scrollclick
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::scrollclick(int action) {
-	switch(action) {
-		case QAbstractSlider::SliderSingleStepAdd:
-			move_by(1);
-			break;
-		case QAbstractSlider::SliderSingleStepSub:
-			move_by(-1);
-			break;
-		case QAbstractSlider::SliderPageStepAdd:
-			move_by(verticalScrollBar()->pageStep());
-			break;
-		case QAbstractSlider::SliderPageStepSub:
-			move_by(-verticalScrollBar()->pageStep());
-			break;
-		case QAbstractSlider::SliderToMinimum:
-			move_to_page(0);
-			break;
-		case QAbstractSlider::SliderToMaximum:
-			move_to_end();
-			break;
-	}
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::move_by
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::move_by(int row)
-{
-	listing_model()->move_by(row, verticalScrollBar()->pageStep());
-	update_on_move();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::move_to_nraw
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::move_to_nraw(PVRow row)
-{
-	listing_model()->move_to_nraw(row, verticalScrollBar()->pageStep());
-	update_on_move();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::move_to_row
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::move_to_row(PVRow row)
-{
-	listing_model()->move_to_row(row, verticalScrollBar()->pageStep());
-	update_on_move();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::move_to_page
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::move_to_page(int page)
-{
-	listing_model()->move_to_page(page);
-	update_on_move();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::move_to_end
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::move_to_end()
-{
-	listing_model()->move_to_end(verticalScrollBar()->pageStep());
-	update_on_move();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::update_on_move
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::update_on_move()
-{
-	// Save and restore pos_in_range as moving cursor call slider_move_to which
-	// set pos_in_page_to 0.
-	size_t pos_in_page = listing_model()->pos_in_page();
-	// Check if there is a scrollbar, otherwise current_page can be 0 but
-	// setValue(1) is invalid.
-	if(listing_model()->is_last_pos() and listing_model()->current_page() != 0) {
-		// Last tick is only use when we reach the end
-		verticalScrollBar()->setValue(listing_model()->current_page() + 1);
-	} else {
-		verticalScrollBar()->setValue(listing_model()->current_page());
-	}
-	listing_model()->pos_in_page() = pos_in_page;
-	verticalHeader()->viewport()->update();
 	viewport()->update();
 }
 

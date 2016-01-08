@@ -564,6 +564,7 @@ void PVInspector::PVMainWindow::project_load_Slot()
 void PVInspector::PVMainWindow::solution_new_Slot()
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
+	// FIXME : This Windows is a memory leak
 	PVMainWindow* new_mw = new PVMainWindow();
 	new_mw->move(x() + 40, y() + 40);
 	new_mw->show();
@@ -597,6 +598,7 @@ void PVInspector::PVMainWindow::load_solution_and_create_mw(QString const& file)
 		load_solution(file);
 	}
 	else {
+	// FIXME : This Windows is a memory leak
 		PVMainWindow* other = new PVMainWindow();
 		other->move(x() + 40, y() + 40); 
 		other->show();
@@ -810,6 +812,7 @@ void PVInspector::PVMainWindow::set_window_title_with_filename()
 
 void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_workspace)
 {
+	// FIXME : This Windows is a memory leak
 	PVMainWindow* other = new PVMainWindow();
 	other->move(QCursor::pos());
 	other->resize(size());

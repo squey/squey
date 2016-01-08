@@ -151,7 +151,7 @@ int main(int argc, char** argv)
 	PVGuiQt::PVAxesCombinationDialog* axes_dlg = new PVGuiQt::PVAxesCombinationDialog(view_p);
 	axes_dlg->show();
 
-	PVParallelView::common::init_cuda();
+	PVParallelView::common::RAII_cuda_init cuda_resources;
 	PVParallelView::PVLibView* plib_view = PVParallelView::common::get_lib_view(*view_p);
 	PVParallelView::PVFullParallelView* parallel_view = plib_view->create_view(NULL);
 	parallel_view->show();

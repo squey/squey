@@ -63,6 +63,10 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView_sp& view, PVRush::PVNra
 	PVGuiQt::PVListUniqStringsDlg* dlg = new PVGuiQt::PVListUniqStringsDlg(view, c, std::move(col1_out), std::move(col2_out), count, min, max, parent);
 	dlg->setWindowTitle("Distinct values of axe '" + nraw.get_axis_name(c) + "'");
 	dlg->show();
+	if(dialog) {
+		// Save the current dialog to close the old one when you open a new one.
+		*dialog = dlg;
+	}
 
 	return true;
 }

@@ -598,17 +598,18 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 {
-	PVRush::PVNraw::unique_values_t values;
-	uint64_t min;
-	uint64_t max;
-	_view.get_rushnraw_parent().get_unique_values(get_real_axis_col(), values, min, max, *_view.get_selection_visible_listing(), _ctxt);
+	const pvcop::db::array col_in = _view.get_rushnraw_parent().collection().column(get_real_axis_col());
+	pvcop::db::array col1_out;
+	pvcop::db::array col2_out;
+
+	pvcop::db::algo::distinct(col_in, col1_out, col2_out, *_view.get_selection_visible_listing());
 #if SIMULATE_LONG_COMPUTATION
 	for (uint32_t i = 0; i < 10 && !_ctxt->is_group_execution_cancelled(); i++) {
 		usleep(500000);
 	}
 	valid = !_ctxt->is_group_execution_cancelled();
 #endif
-	emit refresh_impl_finished(QString("%L1").arg(values.size())); // We must go back on the Qt thread to update the GUI
+	emit refresh_impl_finished(QString("%L1").arg(col1_out.size())); // We must go back on the Qt thread to update the GUI
 }
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()

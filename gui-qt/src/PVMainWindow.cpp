@@ -53,7 +53,6 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
 
-#include <pvguiqt/PVListDisplayDlg.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
 
 #include <PVFormatBuilderWidget.h>
@@ -72,7 +71,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	_load_solution_dlg(this, tr("Load an investigation..."), QString(), INENDI_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER),
 	_root(new Inendi::PVRoot())
 {
-	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
 
 	reset_root();
@@ -362,7 +360,6 @@ void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 {
 	if (maybe_save_solution()) {
 		_root.reset();
-		deleteLater();
 		event->accept();
 	}
 	else {

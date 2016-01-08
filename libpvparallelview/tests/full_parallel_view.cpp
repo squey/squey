@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 
 	QApplication app(argc, argv);
 
-	PVParallelView::common::init_cuda();
+	PVParallelView::common::RAII_cuda_init cuda_resources;
 
 	QDialog *dlg = new QDialog();
 	dlg->setAttribute(Qt::WA_DeleteOnClose, true);

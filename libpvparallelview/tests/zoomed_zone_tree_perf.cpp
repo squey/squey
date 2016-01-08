@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 {
 	std::stringstream ss;
 
-	PVParallelView::common::init_cuda();
+	PVParallelView::common::RAII_cuda_init cuda_resources;
 
 	PVParallelView::PVLibView* pv = create_lib_view_from_args(argc, argv);
 

@@ -13,9 +13,8 @@
 #include <inendi/PVView_types.h>
 
 #include <pvguiqt/PVListDisplayDlg.h>
-#include <pvguiqt/PVAbstractStatsModel.h>
+#include <pvguiqt/PVStatsModel.h> // TODO : remove it
 
-#include <QAbstractListModel> // ?
 #include <QStyledItemDelegate>
 
 #include <QResizeEvent>
@@ -24,7 +23,7 @@ class QComboBox;
 
 namespace PVGuiQt {
 
-class PVAbstractStatsModel;
+class PVStatsModel;
 
 namespace __impl {
 class PVListStringsDelegate;
@@ -44,34 +43,31 @@ public:
 	PVAbstractListStatsDlg(
 		Inendi::PVView_sp& view,
 		PVCol c,
-		PVAbstractStatsModel* model,
-		double absolute_max_count,
-		double relative_min_count,
-		double relative_max_count,
+		PVStatsModel* model,
 		QWidget* parent = nullptr
 	);
 
 	void init(Inendi::PVView_sp& view);
-	virtual ~PVAbstractListStatsDlg();
 
 public:
-	inline double absolute_max_count() const { return _absolute_max_count; }
-	inline double relative_min_count() const { return _relative_min_count; }
-	inline double relative_max_count() const { return _relative_max_count; }
-	inline double max_count() const { return _use_absolute_max_count ? _absolute_max_count : _relative_max_count; }
+	/**
+	 * Get the model with correct type.
+	 */
+	PVStatsModel& model() override { return *static_cast<PVStatsModel *>(_model); }
+	PVStatsModel const& model() const override { return *static_cast<PVStatsModel const*>(_model); }
 
-	inline bool use_logarithmic_scale() { return _use_logarithmic_scale; }
+	inline double absolute_max_count() const { return model().absolute_max_count(); }
+	inline double relative_min_count() const { return model().relative_min_count(); }
+	inline double relative_max_count() const { return model().relative_max_count(); }
+	inline double max_count() const { return model().max_count(); }
+
+	inline bool use_logarithmic_scale() { return model().use_log_scale();  }
 
 protected:
 	void showEvent(QShowEvent * event) override;
 	void sort_by_column(int col);
 	bool process_context_menu(QAction* act) override;
 	void ask_for_copying_count() override;
-	QString export_line(
-		QAbstractListModel* model,
-		std::function<QModelIndex(int)> f,
-		int i
-	) override;
 
 	/**
 	 * create a new layer using the selected values.
@@ -113,12 +109,6 @@ protected:
 	bool _store_last_section_width = true;
 	int _last_section_width = 250;
 
-	double _absolute_max_count;
-	double _relative_min_count;
-	double _relative_max_count;
-	bool _use_absolute_max_count = true;
-
-	bool _use_logarithmic_scale = true;
 	QAction* _act_toggle_linear;
 	QAction* _act_toggle_log;
 	QAction* _act_toggle_absolute;
@@ -138,8 +128,10 @@ protected:
 	QAction* _create_layer_with_values_act;
 	QAction* _create_layers_for_values_act;
 
-	bool _copy_count;
 	QMenu* _hhead_ctxt_menu; //!< Context menu for right click on the vertical headers
+
+	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process = nullptr;
+	PVCore::PVArgumentList _ctxt_args;
 
 private:
 	/**
@@ -165,35 +157,6 @@ protected:
 	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 	PVGuiQt::PVAbstractListStatsDlg* d() const;
-};
-
-/**
- * \class PVTableViewResizeEventFilter
- *
- * \note This class is intended to be notified of the resize of the table view
- *       to resize its last section according to the user preference.
- *       i.e: the last section can only be changed by user interaction
- *       on the section, not on the dialog size.
- *
- *       Note: I couldn't subclass the QTableView to achieve this goal because
- *             the UI was created using Qt Creator, but it would also have
- *             been a bit overkill anyway...
- */
-class PVTableViewResizeEventFilter : public QObject
-{
-	Q_OBJECT
-
-signals:
-	void resized();
-
-protected:
-	bool eventFilter(QObject *obj, QEvent *event) override
-	{
-		 if (event->type() == QEvent::Resize) {
-			 emit resized();
-		 }
-		 return QObject::eventFilter(obj, event);
-	}
 };
 
 }

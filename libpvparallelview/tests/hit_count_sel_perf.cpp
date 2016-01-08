@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
 	printf("init_cuda: before\n");
 	BENCH_START(init);
-	PVParallelView::common::init_cuda();
+	PVParallelView::common::RAII_cuda_init cuda_resources;
 	BENCH_STOP(init);
 	printf("init_cuda in %g sec\n", BENCH_END_TIME(init));
 

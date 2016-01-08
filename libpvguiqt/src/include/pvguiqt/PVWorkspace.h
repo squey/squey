@@ -212,6 +212,10 @@ public:
 
 public:
 	inline Inendi::PVSource* get_source() const { return _source; }
+	
+	/**
+	 * Get the Dialog widget that show invalid elements.
+	 */
 	inline PVGuiQt::PVListDisplayDlg* get_source_invalid_evts_dlg() const { return _inv_evts_dlg; }
 
 private slots:
@@ -230,7 +234,7 @@ private:
 	std::list<datatree_obs_t> _obs;
 	uint64_t _views_count;
 
-	PVGuiQt::PVListDisplayDlg* _inv_evts_dlg;
+	PVGuiQt::PVListDisplayDlg* _inv_evts_dlg;  //<! Dialog with listing of invalid elements.
 };
 
 /**

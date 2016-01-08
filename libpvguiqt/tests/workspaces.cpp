@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 	// Qt app
 	QApplication app(argc, argv);
 
-	PVParallelView::common::init_cuda();
+	PVParallelView::common::RAII_cuda_init cuda_resources;
 	PVGuiQt::common::register_displays();
 
 	// Create our model and view

@@ -24,6 +24,8 @@ PVInspector::PVSaveDataTreeDialog::PVSaveDataTreeDialog(PVCore::PVSerializeArchi
 	QFileDialog(parent),
 	_options(*options)
 {
+	// Do not use native dialog as we modify the layout
+	setOption(QFileDialog::DontUseNativeDialog, true);
 	setAcceptMode(QFileDialog::AcceptSave);
 	setDefaultSuffix(suffix);
 	setWindowTitle(tr("Save project..."));
