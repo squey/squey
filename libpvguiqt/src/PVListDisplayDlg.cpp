@@ -151,8 +151,7 @@ void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 	QTextStream outstream(&file);
 
 	QString content;
-	// TODO : Fix rowCount
-	bool success = export_values(model().rowCount(), content);
+	bool success = export_values(model().size(), content);
 
 	outstream << content;
 
