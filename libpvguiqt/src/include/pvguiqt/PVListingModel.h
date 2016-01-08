@@ -117,9 +117,8 @@ class PVListingModel : public PVAbstractTableModel
     // status.
 
 private:
-	QBrush _zombie_brush;	//!< Aspect of zombie lines
-	QBrush _selection_brush;//!< Aspect of selected lines
-	QFont  _vheader_font;	//!< Font for header view
+	const QBrush _zombie_brush;	//!< Aspect of zombie lines
+	const QFont  _vheader_font;	//!< Font for header view
 
 public:
     /**

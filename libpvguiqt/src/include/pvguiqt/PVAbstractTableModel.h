@@ -8,6 +8,8 @@
 #define PVGUIQT_PVABSTRACTTABLEMODEL_H
 
 #include <QAbstractTableModel>
+#include <QBrush>
+
 #include <pvbase/types.h>
 #include <inendi/PVSelection.h>
 #include <pvcop/db/array.h>
@@ -22,6 +24,9 @@ namespace PVGuiQt {
  * This model also handle sorting and filtering.
  *
  * @warning In Subclass functions, do not forget the rowIndex convertion to have correct row id
+ *
+ * user have to care about background display. If he want to handle selection,
+ * he has to return the _selection_brush color on background for selected elements.
  */
 class PVAbstractTableModel: public QAbstractTableModel {
 	Q_OBJECT;
@@ -223,6 +228,9 @@ class PVAbstractTableModel: public QAbstractTableModel {
 		 * Accessor for sorted column index.
 		 */
 		PVCol sorted_column() const { return _sorted_column; }
+
+	protected:
+	const QBrush _selection_brush = QColor(88, 172, 250);//!< Aspect of selected lines
 
 	private:
 

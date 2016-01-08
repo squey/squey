@@ -100,24 +100,26 @@ public:
 		size_t row = rowIndex(index);
 		assert(row < _col1.size());
 
-		if (role == Qt::DisplayRole) {
-			switch (index.column()) {
-				case 0:
-				{
+		switch(role) {
+			case Qt::DisplayRole:
+				if (index.column() == 0) {
 					std::string const& str = _col1.at(row);
 					return QString::fromUtf8(str.c_str(), str.size());
 				}
 				break;
-			}
-		}
-		else if (role == Qt::UserRole) {
-			switch (index.column()) {
-				case 1:
-				{
+			case Qt::UserRole:
+				if(index.column() == 1) {
 					std::string const& str = _col2.at(row);
 					return QString::fromUtf8(str.c_str(), str.size());
 				}
-			}
+				break;
+			case Qt::BackgroundRole:
+				if (is_selected(index)) {
+					return _selection_brush;
+				}
+				break;
+			default:
+				break;
 		}
 
 		return QVariant();
