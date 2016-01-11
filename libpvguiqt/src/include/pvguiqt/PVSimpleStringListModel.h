@@ -40,8 +40,13 @@ public:
 public:
 	QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const
 	{
-		if (role == Qt::DisplayRole) {
-			return _values.at(rowIndex(index));
+		switch(role) {
+			case Qt::DisplayRole:
+				return _values.at(rowIndex(index));
+			case Qt::BackgroundRole:                                            
+				if (is_selected(index)) {                                       
+					return _selection_brush;                                    
+				}        
 		}
 		
 		return {};

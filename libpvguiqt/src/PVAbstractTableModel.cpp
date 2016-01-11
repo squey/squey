@@ -105,7 +105,6 @@ void PVAbstractTableModel::commit_selection()
     }
 
     // Update current_selection from "in progress" selection
-    auto const& sort = _sort.to_core_array();
     for(; _start_sel<=_end_sel; _end_sel--) {
 	_current_selection.set_line(row_pos_to_index(_end_sel), _in_select_mode);
     }
@@ -146,7 +145,7 @@ return row_pos_to_index(idx);
  *****************************************************************************/
 int PVAbstractTableModel::row_pos_to_index(PVRow idx) const
 {
-    return filter_to_sort(_filter[idx]);
+    return _filter[idx];
 
 }
 
@@ -381,36 +380,30 @@ void PVAbstractTableModel::sorted(PVCol col, Qt::SortOrder order)
 
 /******************************************************************************
 *
-* PVAbstractTableModel::filter_to_sort
-*
-*****************************************************************************/
-int PVAbstractTableModel::filter_to_sort(PVRow idx) const
-{
-	if (_sort_order == Qt::SortOrder::DescendingOrder) {
-		idx = _sort.size() - idx -1;
-	}
-
-	const auto& sort = _sort.to_core_array();
-    return sort[idx];
-
-}
-
-/******************************************************************************
-*
 * PVAbstractTableModel::set_filter
 *
 *****************************************************************************/
 void PVAbstractTableModel::set_filter(Inendi::PVSelection const* sel, size_t size)
 {
-	auto const& sort = _sort.to_core_array();
 
-	// Push selected lines
+    auto const& sort = _sort.to_core_array();
+
+    // Push selected lines
+    if(_sort_order != Qt::DescendingOrder) {
 	for (PVRow line=0; line< size; line++) {
-		// A line is selected if sorted one is in the selection.
-		if (sel->get_line(sort[line])) {
-			_filter.push_back(line);
-		}
+	    // A line is selected if sorted one is in the selection.
+	    if (sel->get_line(sort[line])) {
+		_filter.push_back(sort[line]);
+	    }
 	}
-}
+    } else {
+	for (PVRow line=size; line> 0; line--) {
+	    // A line is selected if sorted one is in the selection.
+	    if (sel->get_line(sort[line - 1])) {
+		_filter.push_back(sort[line - 1]);
+	    }
+	}
+    }
 
+}
 }

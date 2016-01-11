@@ -27,7 +27,6 @@
 PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent):
 	PVAbstractTableModel(view->get_parent<Inendi::PVSource>()->get_row_count(), parent),
 	_zombie_brush(QColor(0, 0, 0)),
-	_selection_brush(QColor(88, 172, 250)),
 	_vheader_font(":/Convergence-Regular"),
 	_view(view),
 	_obs_vis(this),
@@ -235,6 +234,7 @@ void PVGuiQt::PVListingModel::sort(PVCol col, Qt::SortOrder order, tbb::task_gro
 	lib_view().sort_indexes_with_axes_combination(col, sorting(), &ctxt);
 	if (not ctxt.is_group_execution_cancelled()) {
 		sorted(col, order);
+		update_filter();
 	}
 }
 
