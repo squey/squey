@@ -145,6 +145,7 @@ public:
 	// keeps fields.
 	void only_keep_axes();
 
+	static std::string convert_ICU_to_boost(const std::string& tf);
 
 public:
 	/* Attributes */

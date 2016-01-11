@@ -65,7 +65,7 @@ PVRush::PVFormat::~PVFormat()
  * ICU : http://userguide.icu-project.org/formatparse/datetime
  * boost : http://www.boost.org/doc/libs/1_55_0/doc/html/date_time/date_time_io.html
  */
-static std::string convert_ICU_to_boost(const std::string& tf)
+std::string PVRush::PVFormat::convert_ICU_to_boost(const std::string& tf)
 {
 	static std::vector<std::pair<std::string, std::string>> map;
 
