@@ -34,6 +34,7 @@ Inendi::PVView::PVView():
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
 	output_layer("output_layer"),
+	_rushnraw_parent(nullptr),
 	_view_id(-1)
 {
 	init_defaults();
@@ -158,7 +159,7 @@ void Inendi::PVView::init_defaults()
 
 	_is_consistent = false;
 	_active_axis = 0;
-	_rushnraw_parent = NULL;
+	_rushnraw_parent = nullptr;
 
 	last_extractor_batch_size = pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
 
