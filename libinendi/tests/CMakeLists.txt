@@ -20,6 +20,7 @@ add_pv_compile_test(Tinendi_process_file_plotting LINKS ${LINK_LIBRARIES} FILES 
 
 add_pv_compile_test(Tinendi_heat_line LINKS ${LINK_LIBRARIES} FILES heat_line.cpp)
 add_test(Tinendi_heat_line Tinendi_heat_line)
+add_bench(Tinendi_heat_line LINKS ${LINK_LIBRARIES} FILES heat_line.cpp)
 
 add_pv_compile_test(Tinendi_source_serialize LINKS ${LINK_LIBRARIES} FILES source-serialize.cpp)
 add_pv_compile_test(Tinendi_root_serialize LINKS ${LINK_LIBRARIES} FILES root-serialize.cpp)

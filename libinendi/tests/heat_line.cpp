@@ -14,6 +14,10 @@
 
 #include <pvkernel/core/inendi_assert.h>
 
+#include <chrono>
+#include <fstream>
+#include <string>
+
 constexpr size_t CHECK_COUNT = 10000;
 
 const std::string filename = TEST_FOLDER "/picviz/heat_line.csv";
@@ -48,7 +52,28 @@ void check_line_validity(Inendi::PVLayer const& out, size_t line)
 int main()
 {
     // Init nraw
+#ifdef INSPECTOR_BENCH
+    std::string big_file_path;
+    big_file_path.resize(L_tmpnam);
+    // We assume that this name will not be use by another program before we create it.
+    tmpnam (&big_file_path.front());
+
+    {
+        std::ifstream ifs(filename);
+        std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
+
+        std::ofstream big_file(big_file_path);
+        // Duplicate file to have one millions lines
+        for(int i=0; i<20; i++) {
+            big_file << content;
+        }
+    }
+    pvtest::TestEnv env(big_file_path, fileformat);
+    std::remove(big_file_path.c_str());
+#else
     pvtest::TestEnv env(filename, fileformat);
+#endif
+
     Inendi::PVView* view = env.view;
 
     // Load every layer filter.
@@ -71,9 +96,16 @@ int main()
     fclone->set_output(&out);
     fclone->set_args(args);
 
+    auto start = std::chrono::system_clock::now();                                
+
     // Run heat line computation
     fclone->operator()(in);
 
+    auto end = std::chrono::system_clock::now();                                
+    std::chrono::duration<double> diff = end - start;
+    std::cout << diff.count();
+
+#ifndef INSPECTOR_BENCH
     // Check result
     PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
     pvcop::db::array const& col = nraw.collection().column(1);
@@ -91,6 +123,7 @@ int main()
         uint8_t to_check = v[distribution(generator)];
         check_line_validity(out, to_check);
     }
+#endif
 
     return 0;
 }
