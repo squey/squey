@@ -37,7 +37,7 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
 
 	if(!xmlfile.exists()) {
 		PVLOG_ERROR("(PVRush::PVXmlParamparser::PVXmlParamParser) file to parse not found!\n");
-		return;
+		throw std::runtime_error("Can't create the xml parameter parser");
 	}
 	if (!xmlfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		PVLOG_ERROR("(PVRush::PVXmlParamparser::PVXmlParamParser) can't open file to parse.\n");
