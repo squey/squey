@@ -126,7 +126,7 @@ void Inendi::PVView::set_fake_axes_comb(PVCol const ncols)
 {
 	axes_combination.clear();
 	for (PVCol c = 0; c < ncols; c++) {
-		PVAxis axis;
+		PVAxis axis("integer", "default", "port");
 		axis.set_name(QString("axis ") + QString::number(c));
 		axis.set_titlecolor("#ffffff");
 		axes_combination.axis_append(axis);
