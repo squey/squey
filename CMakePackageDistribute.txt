@@ -74,7 +74,6 @@ endif(NOT ${QT_WEBKIT})
 install(FILES
 	${LINUX_TBB_PATH}/libtbb.so.${TBB_MAJOR}
 	${LINUX_TBB_PATH}/libtbbmalloc.so.${TBB_MAJOR}
-	${LINUX_TBB_PATH}/libtbb_preview.so.${TBB_MAJOR}
 	DESTINATION .)
 
 #
