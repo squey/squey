@@ -5,7 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#define SIMULATE_PIPELINE
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVChunkFilterSource.h>
 #include <pvkernel/rush/PVInputFile.h>
