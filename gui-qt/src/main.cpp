@@ -24,7 +24,6 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <sys/sysinfo.h>
 #include <sys/resource.h>
 
 #include <stdio.h>
@@ -94,24 +93,6 @@ public:
 		return false;
 	}
 };
-
-static __attribute__((noinline)) void __check__t()
-{
-	// License validity test : it's a simple "time" check
-	if (time(NULL) >= CUSTOMER_RELEASE_EXPIRATION_DATE) {
-		exit(0);
-	}
-}
-
-static __attribute__((noinline)) void __check__m()
-{
-	struct sysinfo info;
-	sysinfo(&info);
-
-	if (info.totalram > (size_t) (CUSTOMER_CAPABILITY_MEMORY^4294967295) * 1 << (30)) {
-		exit(0);
-	}
-}
 
 namespace bpo = boost::program_options;
 
@@ -196,8 +177,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	__check__t();
-	__check__m();
+	PVLicense::check_ram();
 
 #ifndef NO_MAIN_WINDOW
 	QSplashScreen splash(QPixmap(":/splash-screen"));

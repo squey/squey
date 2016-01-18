@@ -103,20 +103,6 @@ declare_customer_cap(CUSTOMER_CAPABILITY_IMPORT_SPLUNK 1 0)
 declare_customer_cap(CUSTOMER_NAME "John Doe" "name")
 declare_customer_cap(CUSTOMER_EMAIL "jdoe@acme.com" "email")
 declare_customer_cap(CUSTOMER_COMPANY "ACME" "company")
-declare_customer_cap(CUSTOMER_RELEASE_EXPIRATION_DATE 2147483647 0)
-declare_customer_cap(CUSTOMER_CAPABILITY_MEMORY 0 0)
-
-###############################################################################
-# Show License time informations
-###############################################################################
-
-execute_process(COMMAND date +%Y-%m-%d --date "@${CUSTOMER_RELEASE_EXPIRATION_DATE}" OUTPUT_VARIABLE LICENSE_EXP_DAY OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND date +%Y-%m-%d --date "${LICENSE_EXP_DAY} - 1 day" OUTPUT_VARIABLE LICENSE_LAST_DAY OUTPUT_STRIP_TRAILING_WHITESPACE)
-message(STATUS "License's expiration day is ${LICENSE_EXP_DAY}")
-message(STATUS "License's last validity day is ${LICENSE_LAST_DAY}")
-
-# This is a string representation to show in the help widget
-declare_customer_cap(CUSTOMER_EXPIRATIONDAY "\"Unlimited\"" "\"${LICENSE_LAST_DAY}\"")
 
 ###############################################################################
 # Generate customer.h/build.h

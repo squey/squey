@@ -7,6 +7,8 @@
 #include <string>
 #include <stdexcept>
 
+#include <sys/sysinfo.h>
+
 namespace PVLicense {
 
     /**
@@ -86,6 +88,26 @@ namespace PVLicense {
             std::string _feature;
 
     };
+
+    /**
+     * Check if the quantity of Ram provided by the license is respected.
+     */
+    void check_ram() {
+        struct sysinfo info;
+        sysinfo(&info);
+
+        size_t status = flexGetLimitedValue ("INENDI", "INSPECTOR", "MAXIMEM");
+        if (info.totalram > (status * 1024 * 1024 * 1024)) {
+            throw NotAvailableFeatureException("INENDI Inspctor", std::to_string(status) + " Go of ram");
+        }
+    }
+
+    /**
+     * Get number of days remaining in the license file.
+     */
+    int get_remaining_days() {
+        return flexExpireDays("INENDI","INSPECTOR");
+    }
 
 }
 
