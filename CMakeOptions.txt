@@ -39,11 +39,6 @@ if (NOT DEFINED USER_TARGET)
 	set(USER_TARGET "developer")
 endif()
 
-# Default value for protection mode
-if (CMAKE_BUILD_TYPE_LOWER STREQUAL "relprotect")
-	set(PROTECT_PASS true)
-endif()
-
 # Default value for LTO
 if (NOT DEFINED USE_LTO)
 	# By default, not set only in release mode
