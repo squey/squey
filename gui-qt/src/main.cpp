@@ -137,7 +137,6 @@ int main(int argc, char *argv[])
 	desc_opts.add_options()
 		("help", "produce help message")
 		("format", bpo::value<std::string>(), "path to the format to use. Default is automatic discovery.")
-		("project", bpo::value<std::string>(), "path to the project to load.")
 		;
 	bpo::options_description hidden_opts("Hidden options");
 	hidden_opts.add_options()
@@ -256,11 +255,6 @@ int main(int argc, char *argv[])
 	pv_mw.show();
 	splash.finish(&pv_mw);
 
-	if (vm.count("project")) {
-		QString prj_path = QString::fromLocal8Bit(vm["project"].as<std::string>().c_str());
-		pv_mw.load_project(prj_path);
-	}
-	else
 	if (files.size() > 0) {
 		pv_mw.load_files(files, format);
 	}

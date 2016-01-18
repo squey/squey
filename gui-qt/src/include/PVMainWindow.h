@@ -211,7 +211,6 @@ public slots:
 	void solution_saveas_Slot();
 
 	void close_solution_Slot();
-	bool load_project(const QString &file);
 
 	void create_new_window_for_workspace(QWidget* workspace);
 
