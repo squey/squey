@@ -237,9 +237,6 @@ void PVRush::PVNraw::fit_to_content()
 	// Open collection
 	//_collection = new pvcop::collection((std::string(_backend.get_nraw_folder().c_str()) + "_pvcop").c_str());
 	_collection = new pvcop::collection("/srv/tmp-picviz/pvcop_nraw");
-	if (_collection) {
-		PVLOG_ERROR("Error when opening collector..\n");
-	}
 }
 
 QString PVRush::PVNraw::get_value(PVRow row, PVCol col, bool* complete /*= nullptr*/) const
