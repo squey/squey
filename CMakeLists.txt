@@ -87,6 +87,9 @@ add_custom_target(testsuite)
 add_custom_target(love COMMAND ${CMAKE_CTEST_COMMAND} -E BENCH)
 add_dependencies(love update_tests_files)
 add_dependencies(love testsuite)
+add_custom_target(bench COMMAND ${CMAKE_CTEST_COMMAND} -R BENCH)
+add_dependencies(bench update_tests_files)
+add_dependencies(bench testsuite)
 
 ###############################################################################
 # Define project dependencies

@@ -22,25 +22,27 @@ const std::string filename = TEST_FOLDER "/picviz/heat_line.csv";
 const std::string fileformat = TEST_FOLDER "/picviz/heat_line.csv.format";
 
 /**
- * Load data in the NRaw.
+ * Load an NRaw from a file and a format, dump it and check result is the same as csv input.
  */
 int main()
 {
 	pvtest::TestEnv env(filename, fileformat, nb_dup);
 
+	env.load_data(nb_lines);
+
+	// Dump the NRAW to file and check value is the same
 	auto start = std::chrono::system_clock::now(); 
 
-	env.load_data(nb_lines);
+	std::string out_path = pvtest::get_tmp_filename();
+
+	env._ext.get_nraw().dump_csv(QString::fromStdString(out_path));
 
 	auto end = std::chrono::system_clock::now(); 
 	std::chrono::duration<double> diff = end - start;
 	std::cout << diff.count();
 
-#ifndef INSPECTOR_BENCH
-	std::string out_path = pvtest::get_tmp_filename();
-	// Dump the NRAW to file and check value is the same
-	env._ext.get_nraw().dump_csv(QString::fromStdString(out_path));
 
+#ifndef INSPECTOR_BENCH
 	std::ifstream ifs_res(out_path);
 	std::string content_res{std::istreambuf_iterator<char>(ifs_res), std::istreambuf_iterator<char>()};
 
@@ -48,9 +50,9 @@ int main()
 	std::string content_ref{std::istreambuf_iterator<char>(ifs_ref), std::istreambuf_iterator<char>()};
 
 	PV_VALID(content_ref, content_res);
+#endif
 
 	std::remove(out_path.c_str());
-#endif
 
 	return 0;
 }
