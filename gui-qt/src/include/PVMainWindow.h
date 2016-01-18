@@ -181,7 +181,6 @@ public slots:
 	void map_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription, bool save_invalid_elts = false);
 	Inendi::PVScene_p project_new_Slot();
-	void project_load_Slot();
 	bool project_save_Slot();
 	bool project_saveas_Slot();
 	void quit_Slot();
@@ -298,7 +297,6 @@ private:
 	QAction *cut_Action;
 	QAction *filter_reprocess_last_filter; 
 	QAction *project_new_Action;
-	QAction *project_load_Action;
 	QAction *project_save_Action;
 	QAction *project_saveas_Action;
 	QAction *solution_new_Action;

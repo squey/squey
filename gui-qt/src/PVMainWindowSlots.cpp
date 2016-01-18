@@ -540,27 +540,6 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 	return true;
 }
 
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::project_load_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::project_load_Slot()
-{
-	/*
-#ifdef CUSTOMER_CAPABILITY_SAVE
-	_load_solution_dlg.setFileMode(QFileDialog::ExistingFile);
-	_load_solution_dlg.setAcceptMode(QFileDialog::AcceptOpen);
-	if (_load_solution_dlg.exec() != QDialog::Accepted) {
-		return;
-	}
-	QString file = _load_solution_dlg.selectedFiles().at(0);
-
-	load_project(file);
-#endif
-	*/
-}
-
 void PVInspector::PVMainWindow::solution_new_Slot()
 {
 	// FIXME : This Windows is a memory leak
@@ -900,7 +879,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& /*file*/)
 	}
 
 	if (!load_scene(scene_p.get())) {
-		PVLOG_ERROR("(PVMainWindow::project_load_Slot) error while processing the scene...\n");
+		PVLOG_ERROR("(PVMainWindow::load_project) error while processing the scene...\n");
 		//close_scene();
 		//_scene.reset();
 		return false;
