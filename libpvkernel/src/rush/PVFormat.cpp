@@ -47,6 +47,7 @@ PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path
 	_dump_elts = false;
 	_already_pop = false;
 	_original_was_serialized = false;
+	_restore_inv_elts = false;
 
 	if (format_name.isEmpty() && !full_path.isEmpty()) {
 		QFileInfo info(full_path);
