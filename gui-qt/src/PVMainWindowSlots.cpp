@@ -563,18 +563,15 @@ void PVInspector::PVMainWindow::project_load_Slot()
 
 void PVInspector::PVMainWindow::solution_new_Slot()
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	// FIXME : This Windows is a memory leak
 	PVMainWindow* new_mw = new PVMainWindow();
 	new_mw->move(x() + 40, y() + 40);
 	new_mw->show();
 	new_mw->set_window_title_with_filename();
-#endif
 }
 
 void PVInspector::PVMainWindow::solution_load_Slot()
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	_load_solution_dlg.setFileMode(QFileDialog::ExistingFile);
 	_load_solution_dlg.setAcceptMode(QFileDialog::AcceptOpen);
 	if (_load_solution_dlg.exec() != QDialog::Accepted) {
@@ -582,7 +579,6 @@ void PVInspector::PVMainWindow::solution_load_Slot()
 	}
 	QString file = _load_solution_dlg.selectedFiles().at(0);
 	load_solution_and_create_mw(file);
-#endif
 }
 
 void PVInspector::PVMainWindow::load_solution_and_create_mw(QString const& file)
@@ -611,7 +607,6 @@ void PVInspector::PVMainWindow::load_solution_and_create_mw(QString const& file)
 
 void PVInspector::PVMainWindow::solution_save_Slot()
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (is_solution_untitled()) {
 		solution_saveas_Slot();
 	}
@@ -619,12 +614,10 @@ void PVInspector::PVMainWindow::solution_save_Slot()
 		PVCore::PVSerializeArchiveOptions_p options(get_root().get_default_serialize_options());
 		save_solution(get_solution_path(), options);
 	}
-#endif
 }
 
 void PVInspector::PVMainWindow::solution_saveas_Slot()
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (get_root().is_empty()) {
 		return;
 	}
@@ -641,12 +634,10 @@ void PVInspector::PVMainWindow::solution_saveas_Slot()
 	}    
 	_current_save_root_folder = dlg->directory().absolutePath();
 	dlg->deleteLater();
-#endif
 }
 
 bool PVInspector::PVMainWindow::maybe_save_solution()
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (isWindowModified()) {
 		QMessageBox::StandardButton ret;
 		QString solution_name = QFileInfo(windowFilePath()).fileName();
@@ -667,14 +658,10 @@ bool PVInspector::PVMainWindow::maybe_save_solution()
 		}
 	}
 	return true;
-#else
-	return false;
-#endif
 }
 
 bool PVInspector::PVMainWindow::load_solution(QString const& file)
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	setWindowModified(false);
 
 	PVCore::PVSerializeArchive_p ar;
@@ -756,14 +743,10 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 	flag_investigation_as_cached(file);
 
 	return true;
-#endif
-
-	return false;
 }
 
 void PVInspector::PVMainWindow::save_solution(QString const& file, PVCore::PVSerializeArchiveOptions_p const& options)
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	try {
 		PVCore::PVProgressBox* pbox_solution = new PVCore::PVProgressBox("Saving investigation...", this);
 		pbox_solution->set_enable_cancel(true);
@@ -782,7 +765,6 @@ void PVInspector::PVMainWindow::save_solution(QString const& file, PVCore::PVSer
 	flag_investigation_as_cached(file);
 
 	set_window_title_with_filename();
-#endif
 }
 
 void PVInspector::PVMainWindow::flag_investigation_as_cached(const QString& investigation)
@@ -850,7 +832,6 @@ bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p 
 
 bool PVInspector::PVMainWindow::load_project(QString const& /*file*/)
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	/*if (!maybe_save_project()) {
 		return false;
 	}
@@ -932,7 +913,6 @@ bool PVInspector::PVMainWindow::load_project(QString const& /*file*/)
 
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 	*/
-#endif
 
 	return true;
 }
@@ -944,7 +924,6 @@ bool PVInspector::PVMainWindow::load_project(QString const& /*file*/)
  *****************************************************************************/
 bool PVInspector::PVMainWindow::project_save_Slot()
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (is_project_untitled()) {
 		return project_saveas_Slot();
 	}
@@ -952,7 +931,6 @@ bool PVInspector::PVMainWindow::project_save_Slot()
 		PVCore::PVSerializeArchiveOptions_p options(current_scene()->get_default_serialize_options());
 		return save_project(_cur_project_file, options);
 	}
-#endif
 }
 
 /******************************************************************************
@@ -963,7 +941,6 @@ bool PVInspector::PVMainWindow::project_save_Slot()
 bool PVInspector::PVMainWindow::project_saveas_Slot()
 {
 	bool ret = false;
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (current_scene()) {
 		PVCore::PVSerializeArchiveOptions_p options(current_scene()->get_default_serialize_options());
 		PVSaveDataTreeDialog* dlg = new PVSaveDataTreeDialog(options, INENDI_SCENE_ARCHIVE_EXT, INENDI_SCENE_ARCHIVE_FILTER, this);
@@ -978,13 +955,11 @@ bool PVInspector::PVMainWindow::project_saveas_Slot()
 		//_current_save_project_folder = dlg->directory().absolutePath();
 		dlg->deleteLater();
 	}
-#endif
 	return ret;
 }
 
 bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSerializeArchiveOptions_p options)
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	try {
 		Inendi::PVScene_p scene_p = current_scene()->shared_from_this();
 		PVHive::call<FUNC(Inendi::PVScene::save_to_file)>(scene_p, file, options, false);
@@ -998,9 +973,6 @@ bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSeri
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 
 	return true;
-#else
-	return false;
-#endif
 }
 
 /******************************************************************************
@@ -1498,7 +1470,6 @@ void PVInspector::PVMainWindow::view_display_inv_elts_Slot()
 
 void PVInspector::PVMainWindow::layer_export_Slot()
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (current_view() == nullptr) {
 		return;
 	}
@@ -1510,12 +1481,10 @@ void PVInspector::PVMainWindow::layer_export_Slot()
 	if(!file.isEmpty()) {
 		current_view()->get_current_layer().save_to_file(file);
 	}
-#endif
 }
 
 void PVInspector::PVMainWindow::layer_import_Slot()
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (current_view() == nullptr) {
 		return;
 	}
@@ -1534,12 +1503,10 @@ void PVInspector::PVMainWindow::layer_import_Slot()
 		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::add_new_layer_from_file)>(lib_view, file);
 		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(lib_view);
 	}
-#endif
 }
 
 void PVInspector::PVMainWindow::layer_save_ls_Slot()
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (current_view() == nullptr) {
 		return;
 	}
@@ -1551,12 +1518,10 @@ void PVInspector::PVMainWindow::layer_save_ls_Slot()
 	if(!file.isEmpty()) {
 		current_view()->get_layer_stack().save_to_file(file);
 	}
-#endif
 }
 
 void PVInspector::PVMainWindow::layer_load_ls_Slot()
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (current_view() == nullptr) {
 		return;
 	}
@@ -1568,7 +1533,6 @@ void PVInspector::PVMainWindow::layer_load_ls_Slot()
 	if(!file.isEmpty()) {
 		current_view()->get_layer_stack().load_from_file(file);
 	}
-#endif
 }
 
 void PVInspector::PVMainWindow::layer_copy_ls_details_to_clipboard_Slot()
