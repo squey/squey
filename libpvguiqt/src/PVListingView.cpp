@@ -824,6 +824,7 @@ void PVGuiQt::PVListingView::sort(int col, Qt::SortOrder order)
 	bool changed = PVCore::PVProgressBox::progress([&]() { listing_model()->sort(col, order, ctxt); }, ctxt, box);
 	if(changed) {
 		horizontalHeader()->setSortIndicator(col, order);
+		verticalHeader()->viewport()->update();
 	}
 	horizontalHeader()->setSortIndicatorShown(true);
 }
