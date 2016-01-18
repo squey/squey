@@ -14,8 +14,11 @@
  * Inendi::PVAxis::PVAxis
  *
  *****************************************************************************/
-Inendi::PVAxis::PVAxis()
+Inendi::PVAxis::PVAxis(QString type, QString mapping, QString plotting): PVRush::PVAxisFormat()
 {
+	set_type(type);
+	set_mapping(mapping);
+	set_plotting(plotting);
 	init();
 }
 

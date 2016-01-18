@@ -30,7 +30,8 @@ public:
 	/**
 	 * Constructor
 	 */
-	PVAxis();
+	PVAxis() {};
+	PVAxis(QString type, QString mapping, QString plotting);
 	PVAxis(PVRush::PVAxisFormat const& axis_format);
 
 	/**

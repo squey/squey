@@ -54,6 +54,9 @@ public:
 	static void to_rgba(const PVHSVColor* hsv_image, QImage& rbg_image, QRect const& img_rect = QRect());
 	bool is_valid() const;
 
+	bool operator==(PVHSVColor const& c) const { return c._h == _h;}
+	bool operator!=(PVHSVColor const& c) const { return not(c == *this); }
+
 public:
 	void to_rgb(T& r, T& g, T& b) const;
 	void to_rgb(T* rgb) const;

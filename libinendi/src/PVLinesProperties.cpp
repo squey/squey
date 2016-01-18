@@ -22,6 +22,7 @@ Inendi::PVLinesProperties::color_allocator_type Inendi::PVLinesProperties::_colo
 Inendi::PVLinesProperties::PVLinesProperties():
 	_table(nullptr)
 {
+	allocate_table();
 }
 
 /******************************************************************************

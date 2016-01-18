@@ -34,6 +34,7 @@ Inendi::PVView::PVView():
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
 	output_layer("output_layer"),
+	_rushnraw_parent(nullptr),
 	_view_id(-1)
 {
 	init_defaults();
@@ -125,7 +126,7 @@ void Inendi::PVView::set_fake_axes_comb(PVCol const ncols)
 {
 	axes_combination.clear();
 	for (PVCol c = 0; c < ncols; c++) {
-		PVAxis axis;
+		PVAxis axis("integer", "default", "port");
 		axis.set_name(QString("axis ") + QString::number(c));
 		axis.set_titlecolor("#ffffff");
 		axes_combination.axis_append(axis);
@@ -158,7 +159,7 @@ void Inendi::PVView::init_defaults()
 
 	_is_consistent = false;
 	_active_axis = 0;
-	_rushnraw_parent = NULL;
+	_rushnraw_parent = nullptr;
 
 	last_extractor_batch_size = pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
 

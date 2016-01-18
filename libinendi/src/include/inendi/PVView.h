@@ -408,7 +408,7 @@ protected:
 	bool _is_consistent;
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
-	PVRush::PVNraw* _rushnraw_parent;
+	PVRush::PVNraw* _rushnraw_parent = nullptr;
 	std::weak_ptr<PVCore::PVSerializeObject> _last_so;
 	id_t _view_id;
 	PVCol _active_axis;

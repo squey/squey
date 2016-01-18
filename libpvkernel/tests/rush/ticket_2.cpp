@@ -29,11 +29,11 @@ int main()
 	PVRush::PVPluginsLoad::load_all_plugins();
 
 	// Input file
-	QString path_file("../../tests/files/pvkernel/run/tickets/2/apache.access");
+	QString path_file(TEST_FOLDER "/pvkernel/rush/tickets/2/apache.access");
 	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 
 	// Load the given format file
-	QString path_format("../../tests/files/pvkernel/run/tickets/2/apache.access.format");
+	QString path_format(TEST_FOLDER "/pvkernel/rush/tickets/2/apache.access.format");
 	PVRush::PVFormat format("format", path_format);
 	if (!format.populate()) {
 		std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;

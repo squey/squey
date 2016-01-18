@@ -142,7 +142,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 
 	pvcop::sink::field_t* pvcop_fields = tbb::scalable_allocator<pvcop::sink::field_t>().allocate(elts.size() *  column_count);
 
-	char* tmp_conv_buf[column_count][elts.size()];
+	std::unique_ptr<char*[]> tmp_conv_buf(new char*[column_count * elts.size()]);
 
 	UErrorCode err = U_ZERO_ERROR;
 	PVRow local_row = 0;
@@ -167,7 +167,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 			// Convert to UTF8
 			// TODO: make the whole process in utf8.. !
 			PVCore::PVField const& field = *it_field;
-			char* tmp_buf = tmp_conv_buf[col][local_row] = tbb::scalable_allocator<char>().allocate(field.size());
+			char* tmp_buf = tmp_conv_buf[col * elts.size() + local_row] = tbb::scalable_allocator<char>().allocate(field.size());
 			size_t size_utf8 = ucnv_fromUChars(_ucnv, tmp_buf, field.size(), (const UChar*) field.begin(), field.size()/sizeof(UChar), &err);
 			if (!U_SUCCESS(err)) {
 				PVLOG_WARN("Unable to convert field %d to UTF8! Field is ignored..\n", col);
@@ -210,7 +210,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 		size_t col = 0;
 		for (it_field = fields.begin(); it_field != fields.end(); it_field++) {
 			PVCore::PVField const& field = *it_field;
-			tbb::scalable_allocator<char>().deallocate(tmp_conv_buf[col++][row], field.size());
+			tbb::scalable_allocator<char>().deallocate(tmp_conv_buf[col++ * elts.size() + row], field.size());
 		}
 		row++;
 	}

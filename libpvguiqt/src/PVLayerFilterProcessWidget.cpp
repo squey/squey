@@ -11,7 +11,6 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QMessageBox>
-#include <QtConcurrent/QtConcurrent>
 
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
@@ -234,22 +233,10 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 
 	QWidget* parent_widget = isVisible()?this:parentWidget();
 
-	PVCore::PVProgressBox *progressDialog = new PVCore::PVProgressBox(tr("Previewing filter..."), parent_widget, 0);
-	QFuture<void> worker = QtConcurrent::run<>(process_layer_filter, filter_p.get(), &_view->pre_filter_layer, &_view->post_filter_layer);
-	QFutureWatcher<void> watcher;
-	watcher.setFuture(worker);
-	QObject::connect(&watcher, SIGNAL(finished()), progressDialog, SLOT(accept()), Qt::QueuedConnection);
+	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Previewing filter..."), parent_widget);
+	bool res = PVCore::PVProgressBox::progress([&]() { process_layer_filter(filter_p.get(), &_view->pre_filter_layer, &_view->post_filter_layer); }, pbox);
 	
-	if(!progressDialog->exec()) {
-		// If it has been canceled...
-		disconnect(&watcher, SIGNAL(finished()), 0, 0);
-
-		// Tell the filter that it should stop its processing
-		filter_p->cancel();
-
-		// Wait for the filter to finish
-		watcher.waitForFinished();
-
+	if(not res) {
 		return false;
 	}
 

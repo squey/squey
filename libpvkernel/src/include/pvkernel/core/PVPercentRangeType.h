@@ -13,6 +13,8 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 
+#include <array>
+
 namespace PVCore
 {
 
@@ -25,6 +27,10 @@ public:
 		_values[1] = 100.;
 	}
 
+	PVPercentRangeType(double min, double max): _values{{min, max}}
+	{
+	}
+
 	PVPercentRangeType(const double values[2])
 	{
 		set_values(values);
@@ -32,7 +38,7 @@ public:
 
 	inline const double* get_values() const
 	{
-		return _values;
+		return _values.data();
 	}
 
 	inline void set_values(const double values[2])
@@ -74,7 +80,7 @@ public:
         }
 
 private:
-	double _values[2];
+	std::array<double, 2> _values;
 };
 
 }
