@@ -6,6 +6,8 @@
  */
 
 #include <pvkernel/core/PVSelBitField.h>
+#include <pvkernel/core/PVElement.h>
+#include <pvkernel/core/PVField.h>
 
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVNraw.h>

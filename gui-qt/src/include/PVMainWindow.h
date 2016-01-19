@@ -19,6 +19,8 @@
 #include <QStackedWidget>
 
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVMeanValue.h>
+
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>

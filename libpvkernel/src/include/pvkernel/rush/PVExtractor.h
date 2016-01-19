@@ -22,6 +22,7 @@
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 namespace PVRush {
+	class PVFormat;
 
 // The famous and wanted PVExtractor !!!!
 /*! \brief Extract datas from an aggregator, process them through filters and write the result to an NRaw

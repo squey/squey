@@ -17,6 +17,8 @@
 
 #include <QChar>
 
+#include <pvkernel/core/PVUnicodeString.h>
+
 namespace PVCore {
 
 class PVStringUtils {

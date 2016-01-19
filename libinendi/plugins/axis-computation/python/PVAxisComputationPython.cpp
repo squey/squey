@@ -6,6 +6,8 @@
  */
 
 #include <pvkernel/core/PVPython.h>
+#include <pvkernel/core/PVUnicodeString.h>
+
 #include <pvkernel/rush/PVNrawPython.h>
 #include <pvkernel/rush/PVNraw.h>
 

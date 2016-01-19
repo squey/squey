@@ -10,17 +10,13 @@
 
 #include <QString>
 #include <QStringList>
-#include <QVector>
+#include <QTextStream>
 
 #include <vector>
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/core/PVElement.h>
-#include <pvkernel/core/PVField.h>
-#include <pvkernel/core/PVMatrix.h>
-#include <pvkernel/core/PVMeanValue.h>
-#include <pvkernel/core/PVUnicodeString.h>
 #include <pvkernel/core/PVColumnIndexes.h>
+#include <pvkernel/core/PVChunk.h>
 
 #include <pvkernel/rush/PVFormat.h>
 

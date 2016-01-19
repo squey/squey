@@ -11,9 +11,13 @@
 #include <pvkernel/core/PVPythonClassDecl.h>
 #include <pvkernel/core/general.h>
 
-#include <pvkernel/rush/PVNraw.h>
+namespace PVCore {
+	class PVUnicodeString;
+}
 
 namespace PVRush {
+
+	class PVNraw;
 
 class PVNrawPython
 {
