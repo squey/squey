@@ -100,7 +100,7 @@ int main(int argc, char** argv)
 	bool same_content = PVRush::PVUtils::files_have_same_content(argv[1], output_file.fileName());
 
 	// Remove nraw folder
-	PVCore::PVDirectory::remove_rec(delete_nraw_parent_dir ? nraw_dir.path() : QString(nraw.get_nraw_folder().c_str()));
+	PVCore::PVDirectory::remove_rec(delete_nraw_parent_dir ? nraw_dir.path() : QString::fromStdString(nraw.collection().rootdir()));
 
 	return (!same_content)*5;
 }

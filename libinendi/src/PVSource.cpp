@@ -389,7 +389,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("index_start", start);
 	so.attribute("nlines", nlines);
 
-	QString nraw_path = QString::fromStdString(get_rushnraw().get_nraw_folder());
+	QString nraw_path = QString::fromStdString(get_rushnraw().collection().rootdir());
 	so.attribute("nraw_path", nraw_path, QString());
 
 	// Save the format

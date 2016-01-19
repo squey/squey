@@ -6,6 +6,9 @@
  */
 
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/PVHardwareConcurrency.h>
+#include <pvkernel/core/PVUtils.h>
+
 #include <pvkernel/rush/PVNraw.h>
 
 #include <inendi/PVView.h>
@@ -22,6 +25,7 @@
 
 #include <tbb/blocked_range.h>
 #include <tbb/task_scheduler_init.h>
+#include <tbb/parallel_reduce.h>
 
 PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget* parent):
 	QDialog(parent), _model(model)

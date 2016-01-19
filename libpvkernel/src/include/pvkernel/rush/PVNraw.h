@@ -23,11 +23,6 @@
 #include <pvkernel/core/PVColumnIndexes.h>
 
 #include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVNrawDiskBackend.h>
-
-#include <tbb/tbb_allocator.h>
-#include <tbb/tick_count.h>
-#include <tbb/parallel_reduce.h>
 
 extern "C" {
 #include <unicode/ucsdet.h>
@@ -44,6 +39,10 @@ class collector;
 
 namespace Inendi {
 	class PVAxesCombination;
+}
+
+namespace PVCore {
+	class PVSelBitField;
 }
 
 namespace PVRush {
@@ -63,37 +62,13 @@ private:
 	PVNraw(const PVNraw&) = delete;
 
 public:
-	// Unique values
-	typedef typename PVNrawDiskBackend::unique_values_t unique_values_t;
-	typedef typename PVNrawDiskBackend::unique_values_value_t unique_values_value_t;
-	typedef typename PVNrawDiskBackend::unique_values_unordered_map_t unique_values_unordered_map_t;
-
-	// Count by
-	typedef PVNrawDiskBackend::count_by_t count_by_t;
-	typedef PVNrawDiskBackend::count_by_v1_v2_pair_t count_by_v1_v2_pair_t;
-
-	// Sum by
-	typedef PVNrawDiskBackend::sum_by_t sum_by_t;
-
-	// Min by
-	typedef PVNrawDiskBackend::min_by_t min_by_t;
-
-	// Max by
-	typedef PVNrawDiskBackend::max_by_t max_by_t;
-
-	// Avg by
-	typedef PVNrawDiskBackend::avg_by_t avg_by_t;
-
-public:
 	PVNraw();
 	~PVNraw();
 
 	void reserve(PVRow const nrows, PVCol const ncols);
-	void clear();
 
-	// Move an nraw data to another PVNraw object. No copy and allocations occurs.
 	inline PVRow get_number_rows() const { return _real_nrows; }
-	inline PVCol get_number_cols() const { return _backend.get_number_cols(); }
+	inline PVCol get_number_cols() const { return _format->column_count(); }
 
 	QString get_value(PVRow row, PVCol col, bool* complete = nullptr) const;
 
@@ -128,80 +103,6 @@ public:
 		}
 	}
 
-	template <typename F>
-	inline bool visit_column_tbb(PVCol const c, F const& f, tbb::task_group_context* ctxt = NULL) const
-	{
-		return _backend.visit_column_tbb(c, f, ctxt);
-	}
-
-	template <typename F>
-	inline bool visit_column(PVCol const c, F const& f) const
-	{
-		return _backend.visit_column2(c, f);
-	}
-
-	template <typename F>
-	inline bool visit_column_sel(PVCol const c, F const& f, PVCore::PVSelBitField const& sel) const
-	{
-		return _backend.visit_column2_sel(c, f, sel);
-	}
-
-	template <typename F>
-	inline bool visit_column_tbb_sel(PVCol const c, F const& f, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL) const
-	{
-		return _backend.visit_column_tbb_sel(c, f, sel, ctxt);
-	}
-
-	inline bool get_unique_values(PVCol const c, unique_values_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.get_unique_values(c, ret, min, max, sel, ctxt);
-	}
-
-	inline bool count_by(PVCol const col1, PVCol const col2, count_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, size_t& v2_unique_values_count, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.count_by(col1, col2, ret, min, max, sel, v2_unique_values_count, ctxt);
-	}
-
-	inline bool get_sum(PVCol const col, uint64_t& sum, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.get_sum(col, sum, sel, ctxt);
-	}
-
-	inline bool get_min(PVCol const col, uint64_t& min, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.get_min(col, min, sel, ctxt);
-	}
-
-	inline bool get_max(PVCol const col, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.get_max(col, max, sel, ctxt);
-	}
-
-	inline bool get_avg(PVCol const col, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.get_avg(col, max, sel, ctxt);
-	}
-
-	inline bool sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.sum_by(col1, col2, ret, min, max, sel, sum, ctxt);
-	}
-
-	inline bool max_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.max_by(col1, col2, ret, min, max, sel, ctxt);
-	}
-
-	inline bool min_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.min_by(col1, col2, ret, min, max, sel, ctxt);
-	}
-
-	inline bool avg_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.avg_by(col1, col2, ret, min, max, sel, ctxt);
-	}
-
 	QStringList nraw_line_to_qstringlist(PVRow idx) const;
 
 	void fit_to_content();
@@ -230,11 +131,6 @@ public:
 	PVFormat_p& get_format() { return format; }
 	PVFormat_p const& get_format() const { return format; }
 
-	/**
-	 * returns the folder path used for Nraw files
-	 */
-	const std::string& get_nraw_folder() const { return _backend.get_nraw_folder(); }
-
 	pvcop::collection& collection() { assert(_collection); return *_collection; }
 	const pvcop::collection& collection() const { assert(_collection); return *_collection; }
 
@@ -243,7 +139,6 @@ public:
 
 private:
 	void clear_table();
-	void reserve_tmp_buf(size_t n);
 	const PVCore::PVColumnIndexes get_column_indexes() const;
 
 private:
@@ -251,11 +146,7 @@ private:
 	PVRow _real_nrows;
 	PVRow _max_nrows;
 
-	mutable PVNrawDiskBackend _backend;
 	UConverter* _ucnv;
-
-	char* _tmp_conv_buf;
-	size_t _tmp_conv_buf_size;
 
 	pvcop::collector* _collector = nullptr;
 	pvcop::collection* _collection = nullptr;

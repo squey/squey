@@ -126,7 +126,6 @@ rush/PVAxisFormat.cpp
 rush/PVFileRawSource.cpp
 rush/PVFormat.cpp
 rush/PVNraw.cpp
-rush/PVNrawDiskBackend.cpp
 rush/PVNrawOutput.cpp
 rush/PVNormalizer.cpp
 rush/PVXmlParamParser.cpp

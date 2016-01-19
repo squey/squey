@@ -32,13 +32,15 @@ public:
 
 	virtual decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override
 	{
-		nraw.visit_column_tbb(col, [&](PVRow const r, const char* buf, size_t size)
-			{
-				assert(r < _dest_size);
-				//QString stmp(QString::fromUtf8(buf, size));
-				//this->_dest[r] = mapping_impl_t::process_utf16((const uint16_t*) stmp.constData(), stmp.size(), this);
-				this->_dest[r] = mapping_impl_t::process_utf8(buf, size, this);
-			});
+		auto const& array =  nraw.collection().column(col);
+		assert(array.size() <= _dest_size);
+
+#pragma omp parallel for
+		for(size_t row=0; row< array.size(); row++) {
+			std::string content = array.at(row);
+			this->_dest[row] = mapping_impl_t::process_utf8(content.c_str(), content.size(), this);
+		}
+
 		return this->_dest;
 	}
 

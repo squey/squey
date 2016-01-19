@@ -5,8 +5,9 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/rush/PVNrawCacheManager.h>
+#include <pvkernel/core/PVSelBitField.h>
 
+#include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVNrawException.h>
 #include <pvkernel/rush/PVUtils.h>
@@ -14,7 +15,10 @@
 #include <pvcop/collector.h>
 #include <pvcop/sink.h>
 
+#include <tbb/tbb_allocator.h>
 #include <tbb/tick_count.h>
+#include <tbb/parallel_reduce.h>
+#include <tbb/parallel_for.h>
 
 #include <iostream>
 
@@ -36,8 +40,7 @@ const QString PVRush::PVNraw::default_sep_char = ",";
 const QString PVRush::PVNraw::default_quote_char = "\"";
 
 
-PVRush::PVNraw::PVNraw():
-	_tmp_conv_buf(nullptr)
+PVRush::PVNraw::PVNraw()
 {
 	_real_nrows = 0;
 
@@ -48,8 +51,10 @@ PVRush::PVNraw::PVNraw():
 PVRush::PVNraw::~PVNraw()
 {
 	ucnv_close(_ucnv);
-	clear();
+	_real_nrows = 0;
 	delete _format;
+	delete _collector;
+	delete _collection;
 }
 
 void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
@@ -61,64 +66,17 @@ void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
 		throw PVNrawException(QObject::tr("unable to create temporary directory ") + nraw_dir_base);
 	}
 
-	_backend.init(nstr.constData(), ncols);
-
-	//const char* collector_path = (std::string(nstr.data()) + "_pvcop").c_str();
-	const char* collector_path = "/srv/tmp-picviz/pvcop_nraw";
-	delete _format;
+	// Create collector and format
+	// FIXME : Memory leak inside
+	std::string const collector_path = nstr.constData();
 	_format = new pvcop::format(get_format()->get_storage_format());
-	_collector = new pvcop::collector(collector_path, *_format);
+	_collector = new pvcop::collector(collector_path.data(), *_format);
 
-	if (not _collector) {
-		PVLOG_ERROR("Collector failed to initialize properly\n");
-	}
-
+	// Define maximum number of row;
 	if(nrows == 0) {
 		_max_nrows = INENDI_LINES_MAX;
 	} else {
 		_max_nrows = nrows;
-	}
-}
-
-void PVRush::PVNraw::clear()
-{
-	if (_tmp_conv_buf) {
-		tbb::scalable_allocator<char>().deallocate(_tmp_conv_buf, _tmp_conv_buf_size);
-	}
-	_real_nrows = 0;
-	_backend.clear_and_remove();
-}
-
-void PVRush::PVNraw::dump_csv()
-{
-	for (PVRow i = 0; i < get_number_rows(); i++) {
-		std::cout << qPrintable(export_line(i)) << std::endl;
-	}
-}
-
-void PVRush::PVNraw::dump_csv(const QString& file_path)
-{
-	FILE* file = fopen(qPrintable(file_path), "w");
-	for (PVRow i = 0; i < get_number_rows(); i++) {
-		const std::string& csv_line = export_line(i).toStdString();
-		fwrite(csv_line.c_str(), csv_line.length(), 1, file);
-		fputc('\n', file);
-	}
-	fclose(file);
-}
-
-void PVRush::PVNraw::reserve_tmp_buf(size_t n)
-{
-	if (_tmp_conv_buf) {
-		if (_tmp_conv_buf_size < n) {
-			tbb::scalable_allocator<char>().deallocate(_tmp_conv_buf, _tmp_conv_buf_size);
-			_tmp_conv_buf = tbb::scalable_allocator<char>().allocate(n);
-			_tmp_conv_buf_size = n;
-		}
-	}
-	else {
-		_tmp_conv_buf = tbb::scalable_allocator<char>().allocate(n);
-		_tmp_conv_buf_size = n;
 	}
 }
 
@@ -190,9 +148,10 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	return true;
 }
 
+// Function call once import is done
+// FIXME : It has to be rename
 void PVRush::PVNraw::fit_to_content()
 {
-	_backend.flush();
 	if (_real_nrows > INENDI_LINES_MAX) {
 		_real_nrows = INENDI_LINES_MAX;
 	}
@@ -201,12 +160,11 @@ void PVRush::PVNraw::fit_to_content()
 	if (not _collector->close()) {
 		PVLOG_ERROR("Error when closing collector..\n");
 	}
+	// FIXME : memory leak inside
+	_collection = new pvcop::collection(_collector->rootdir());
+
 	delete _collector;
 	_collector = nullptr;
-
-	// Open collection
-	//_collection = new pvcop::collection((std::string(_backend.get_nraw_folder().c_str()) + "_pvcop").c_str());
-	_collection = new pvcop::collection("/srv/tmp-picviz/pvcop_nraw");
 }
 
 QString PVRush::PVNraw::get_value(PVRow row, PVCol col, bool* complete /*= nullptr*/) const
@@ -226,68 +184,33 @@ QString PVRush::PVNraw::get_value(PVRow row, PVCol col, bool* complete /*= nullp
 	return column.at(row).c_str();
 }
 
+// FIXME : Should not return values.
 bool PVRush::PVNraw::load_from_disk(const std::string& nraw_folder, PVCol ncols)
 {
-	_backend.init(nraw_folder.c_str(), ncols, false);
-
-	if (_backend.load_index_from_disk() == false) {
-		return false;
-	}
-
-	_real_nrows = _backend.get_number_rows();
-
-	// _backend.print_indexes();
+	_collection = new pvcop::collection(nraw_folder);
+	_real_nrows = _collection->row_count();
 
 	return true;
 }
 
-//#define EXPORT_LINE_PARALLEL_REDUCE
-
-#ifdef EXPORT_LINE_PARALLEL_REDUCE
-QString PVRush::PVNraw::export_line(
-	PVRow idx,
-	PVCore::PVColumnIndexes col_indexes /* = PVCore::PVColumnIndexes() */,
-	const QString sep_char /* = default_sep_char */,
-	const QString quote_char /* = default_quote_char */
-) const
+void PVRush::PVNraw::dump_csv()
 {
-	static QString escaped_quote("\\" + quote_char);
-
-	size_t column_count = col_indexes.size() ? col_indexes.size() : get_number_cols();
-	if (col_indexes.size() == 0) {
-		for (size_t i = 0; i < column_count; i++) {
-			col_indexes.push_back(i);
-		}
+	for (PVRow i = 0; i < get_number_rows(); i++) {
+		std::cout << qPrintable(export_line(i)) << std::endl;
 	}
-
-	QString empty;
-	QString line = tbb::parallel_deterministic_reduce(
-		tbb::blocked_range<size_t>(tbb::blocked_range<size_t>(0, column_count, 1)),
-		empty,
-		[&](const tbb::blocked_range<size_t>& column, QString) -> QString {
-
-			PVCol c = column.begin();
-			size_t col = col_indexes[c];
-
-			assert(idx < get_number_rows());
-			QString v(at(idx, col));
-
-			PVRush::PVUtils::safe_export(v, sep_char, quote_char);
-
-			return v;
-		},
-		[&](const QString& left, const QString& right) -> QString {
-			QString& l = const_cast<QString&>(left);
-			l.append(sep_char);
-			l.append(right);
-
-			return l;
-		}
-	);
-
-	return line;
 }
-#else
+
+void PVRush::PVNraw::dump_csv(const QString& file_path)
+{
+	FILE* file = fopen(qPrintable(file_path), "w");
+	for (PVRow i = 0; i < get_number_rows(); i++) {
+		const std::string& csv_line = export_line(i).toStdString();
+		fwrite(csv_line.c_str(), csv_line.length(), 1, file);
+		fputc('\n', file);
+	}
+	fclose(file);
+}
+
 QString PVRush::PVNraw::export_line(
 	PVRow idx,
 	PVCore::PVColumnIndexes col_indexes /* = PVCore::PVColumnIndexes() */,
@@ -335,7 +258,6 @@ QString PVRush::PVNraw::export_line(
 
 	return line;
 }
-#endif
 
 void PVRush::PVNraw::export_lines(
 	QTextStream& stream,
