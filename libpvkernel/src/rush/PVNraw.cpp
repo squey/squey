@@ -122,12 +122,10 @@ void PVRush::PVNraw::reserve_tmp_buf(size_t n)
 	}
 }
 
-#define CHUNK_BY_COLUMN 0
-
 bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 {
 	if (_real_nrows == _max_nrows) {
-		// the whole chunk can be skipped
+		// the whole chunk can be skipped as we extracted enough data.
 		return false;
 	}
 
@@ -135,24 +133,27 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 
 	// Write all elements of the chunk in the final nraw
 	PVCore::list_elts const& elts = chunk.c_elements();
-	PVCore::list_elts::const_iterator it_elt;
-	PVCore::list_fields::const_iterator it_field;
 
+	// Use the sink to write data from RAM to HDD
 	pvcop::sink snk(*_collector, *_format);
 
-	pvcop::sink::field_t* pvcop_fields = tbb::scalable_allocator<pvcop::sink::field_t>().allocate(elts.size() *  column_count);
+	std::vector<pvcop::sink::field_t> pvcop_fields;
+	pvcop_fields.reserve(elts.size() *  column_count);
 
-	std::unique_ptr<char*[]> tmp_conv_buf(new char*[column_count * elts.size()]);
-
-	UErrorCode err = U_ZERO_ERROR;
+	// Count number of extracted line. It is not the same as the number of elements as some of them
+	// may be invalid or empty or we may skip the end when enough data is extracted.
 	PVRow local_row = 0;
-	for (it_elt = elts.begin(); it_elt != elts.end(); it_elt++) {
-		PVCore::PVElement& e = *(*it_elt);
-		if (!e.valid())
+	for (PVCore::PVElement* elt: elts) {
+
+		PVCore::PVElement& e = *elt;
+		if (!e.valid()) {
 			continue;
+		}
+
 		PVCore::list_fields const& fields = e.c_fields();
-		if (fields.size() == 0)
+		if (fields.size() == 0) {
 			continue;
+		}
 
 		if (_real_nrows == _max_nrows) {
 			/* we have enough events, skips the others. As the
@@ -162,60 +163,29 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 			return true;
 		}
 
-		PVCol col = 0;
-		for (it_field = fields.begin(); it_field != fields.end(); it_field++) {
-			// Convert to UTF8
+		for (PVCore::PVField const& field :fields) {
 			// TODO: make the whole process in utf8.. !
-			PVCore::PVField const& field = *it_field;
-			char* tmp_buf = tmp_conv_buf[col * elts.size() + local_row] = tbb::scalable_allocator<char>().allocate(field.size());
-			size_t size_utf8 = ucnv_fromUChars(_ucnv, tmp_buf, field.size(), (const UChar*) field.begin(), field.size()/sizeof(UChar), &err);
+			// Convert field to UT8
+			std::unique_ptr<char> tmp_buf(new char[field.size()]);
+			UErrorCode err = U_ZERO_ERROR;
+			size_t size_utf8 = ucnv_fromUChars(_ucnv, tmp_buf.get(), field.size(), (const UChar*) field.begin(), field.size()/sizeof(UChar), &err);
 			if (!U_SUCCESS(err)) {
-				PVLOG_WARN("Unable to convert field %d to UTF8! Field is ignored..\n", col);
+				PVLOG_WARN("Unable to convert a field to UTF8! Field is ignored..\n");
 				continue;
 			}
 
-			_backend.add(col, tmp_buf, size_utf8);
-
-#if CHUNK_BY_COLUMN
-			new (pvcop_fields + col * elts.size() + local_row) pvcop::sink::field_t(tmp_buf, size_utf8);
-
-#else
-			new (pvcop_fields + local_row * column_count + col) pvcop::sink::field_t(tmp_buf, size_utf8);
-#endif
-
-			col++;
+			// Save the field
+			pvcop_fields.emplace_back(pvcop::sink::field_t{std::move(tmp_buf), size_utf8});
 		}
 		local_row++;
 	}
 
 
-#if CHUNK_BY_COLUMN
-	if (not snk.write_chunk_by_column(_real_nrows, elts.size(), pvcop_fields)) {
-#else
-	if (not snk.write_chunk_by_row(_real_nrows, elts.size(), pvcop_fields)) {
-#endif
+	if (not snk.write_chunk_by_row(_real_nrows, elts.size(), pvcop_fields.data())) {
 		PVLOG_WARN("Unable to write chunk to disk..\n");
 	}
 
 	_real_nrows += local_row;
-
-	size_t row = 0;
-	for (it_elt = elts.begin(); it_elt != elts.end(); it_elt++) {
-		PVCore::PVElement& e = *(*it_elt);
-		if (!e.valid())
-			continue;
-		PVCore::list_fields const& fields = e.c_fields();
-		if (fields.size() == 0)
-			continue;
-		size_t col = 0;
-		for (it_field = fields.begin(); it_field != fields.end(); it_field++) {
-			PVCore::PVField const& field = *it_field;
-			tbb::scalable_allocator<char>().deallocate(tmp_conv_buf[col++ * elts.size() + row], field.size());
-		}
-		row++;
-	}
-
-	tbb::scalable_allocator<pvcop::sink::field_t>().deallocate(pvcop_fields, elts.size() *  column_count);
 
 	return true;
 }
