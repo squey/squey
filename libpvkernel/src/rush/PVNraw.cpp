@@ -27,6 +27,11 @@ const std::string PVRush::PVNraw::nraw_tmp_name_regexp = "nraw-??????";
 const std::string PVRush::PVNraw::default_sep_char = ",";
 const std::string PVRush::PVNraw::default_quote_char = "\"";
 
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::PVNraw
+ *
+ ****************************************************************************/
 
 PVRush::PVNraw::PVNraw():
 	_real_nrows(0)
@@ -39,6 +44,12 @@ PVRush::PVNraw::~PVNraw()
 {
 	ucnv_close(_ucnv);
 }
+
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::reserve
+ *
+ ****************************************************************************/
 
 void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
 {
@@ -59,6 +70,12 @@ void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
 		_max_nrows = nrows;
 	}
 }
+
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::add_chunk_utf16
+ *
+ ****************************************************************************/
 
 bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 {
@@ -128,6 +145,11 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	return true;
 }
 
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::fit_to_content
+ *
+ ****************************************************************************/
 // Function call once import is done
 // FIXME : It has to be rename
 void PVRush::PVNraw::fit_to_content()
@@ -145,11 +167,23 @@ void PVRush::PVNraw::fit_to_content()
 	_collector.reset();
 }
 
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::load_from_disk
+ *
+ ****************************************************************************/
+
 void PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
 {
 	_collection.reset(new pvcop::collection(nraw_folder));
 	_real_nrows = _collection->row_count();
 }
+
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::dump_csv
+ *
+ ****************************************************************************/
 
 void PVRush::PVNraw::dump_csv(std::ostream& os)
 {
@@ -160,11 +194,23 @@ void PVRush::PVNraw::dump_csv(std::ostream& os)
 	}
 }
 
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::dump_csv
+ *
+ ****************************************************************************/
+
 void PVRush::PVNraw::dump_csv(std::string const& file_path)
 {
 	std::ofstream ofs(file_path);
 	dump_csv(ofs);
 }
+
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::export_line
+ *
+ ****************************************************************************/
 
 std::string PVRush::PVNraw::export_line(PVRow idx,
 	const PVCore::PVColumnIndexes& col_indexes,
@@ -188,6 +234,12 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
 
 	return line;
 }
+
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::export_lines
+ *
+ ****************************************************************************/
 
 void PVRush::PVNraw::export_lines(
 	std::ofstream& stream,
