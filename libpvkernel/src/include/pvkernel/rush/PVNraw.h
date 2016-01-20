@@ -106,12 +106,6 @@ public:
 	/**
 	 * Shrink the current NRaw to nrows values.
 	 */
-	void resize_nrows(PVRow const nrows)
-	{
-		if (nrows < _real_nrows) {
-			_real_nrows = nrows;
-		}
-	}
 
 	void fit_to_content();
 

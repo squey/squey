@@ -66,11 +66,6 @@ public:
 	 */
 	void set_chunk_filter(PVFilter::PVChunkFilter_f chk_flt);
 
-	/*! \brief 
-	 *  \return A PVControllerJob object that represent the job that has been pushed to the internal job controller. It can be used by the caller to wait for the end of the job (see PVControllerJob::wait_end).
-	 */
-	PVControllerJob_p process_from_pvrow(PVRow start, PVRow end, int priority = 0, bool force_process = true);
-
 	/*! \brief Process a given number of lines from a given index
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
 	 *  \param[in] nlines Number of lines to extract. It is 

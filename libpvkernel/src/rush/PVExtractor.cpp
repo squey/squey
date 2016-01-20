@@ -106,51 +106,6 @@ chunk_index PVRush::PVExtractor::pvrow_to_agg_index(PVRow start, bool& found)
 	return ret;
 }
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_pvrow(PVRow start, PVRow end, int priority, bool force_process)
-{
-	assert(start <= end);
-	set_sources_number_fields();
-
-	// Given two pvrows, this function will create an nraw from these two indexes. If the indexes are already in the nraw,
-	// it is just shrinked, unless force_process is set to true.
-	
-	// Find the aggregator chunk index corresponding to start
-	bool idx_found;
-	chunk_index idx_start = pvrow_to_agg_index(start, idx_found);
-	
-	// If it can't be found...
-	if (!idx_found) {
-		if (start != 0) {
-			// Well, heh, we don't know what to do, because we can't know where to start from !
-			assert(false);
-		}
-		// This means we need "end+1" lines from 0. Let's go !
-		return process_from_agg_nlines(0, end+1, priority);
-	}
-
-	// Check whether lines from "start" to "end" already exists
-	if (end < get_nraw().get_number_rows()) {
-		if (force_process) {
-			// Ok, we got them, but we want them to be reprocessed. Let's do this !
-			return process_from_agg_nlines(idx_start, end-start + 1);
-		}
-		// Shrink the nraw
-		get_nraw().resize_nrows(end-start+1);
-		return PVControllerJob_p(new PVControllerJobDummy());
-	}
-	else {
-		// Process the missing ones (or all of them if force_process is set)
-		if (!force_process) {
-			// TODO!
-			//new_idx_start = _agg.last_elt_agg_index() + 1;
-		}
-		return process_from_agg_nlines(idx_start, end-start+1, priority);
-	}
-
-	return PVControllerJob_p(new PVControllerJobDummy());
-}
-
-
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority)
 {
 	nlines = std::min(nlines, (chunk_index) INENDI_LINES_MAX);
