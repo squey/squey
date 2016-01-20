@@ -47,11 +47,11 @@ PVRush::PVNraw::~PVNraw()
 
 /*****************************************************************************
  *
- * PVRush::PVNraw::reserve
+ * PVRush::PVNraw::prepare_load
  *
  ****************************************************************************/
 
-void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
+void PVRush::PVNraw::prepare_load(PVRow const nrows)
 {
 	// Generate random path
 	std::string collector_path = PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/" + nraw_tmp_pattern;
@@ -147,16 +147,13 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 
 /*****************************************************************************
  *
- * PVRush::PVNraw::fit_to_content
+ * PVRush::PVNraw::load_done
  *
  ****************************************************************************/
-// Function call once import is done
-// FIXME : It has to be rename
-void PVRush::PVNraw::fit_to_content()
+void PVRush::PVNraw::load_done()
 {
-	if (_real_nrows > INENDI_LINES_MAX) {
-		_real_nrows = INENDI_LINES_MAX;
-	}
+	assert(_collector);
+	assert(_real_nrows <= INENDI_LINES_MAX);
 
 	// Close collector to be sure it is saved before we load it in the collection.
 	if (not _collector->close()) {

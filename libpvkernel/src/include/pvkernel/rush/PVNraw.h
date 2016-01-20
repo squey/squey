@@ -63,8 +63,6 @@ public:
 	PVNraw();
 	~PVNraw();
 
-	void reserve(PVRow const nrows, PVCol const ncols);
-
 	/**
 	 * Access layout of the NRaw.
 	 *
@@ -104,10 +102,14 @@ public:
 	}
 
 	/**
-	 * Shrink the current NRaw to nrows values.
+	 * Close the collector and start the collection as import is done.
 	 */
+	void load_done();
 
-	void fit_to_content();
+	/**
+	 * Create collector and format to load content.
+	 */
+	void prepare_load(PVRow const nrows);
 
 	std::string export_line(
 		PVRow idx,

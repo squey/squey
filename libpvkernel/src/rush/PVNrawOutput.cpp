@@ -57,8 +57,6 @@ PVRow PVRush::PVNrawOutput::get_rows_count()
 
 void PVRush::PVNrawOutput::job_has_finished()
 {
-	// Tell the destination NRAW to resize its content
-	// to what it actually has, in case too much
-	// elements have been pre-allocated.
-	nraw_dest().fit_to_content();
+	// Tell the destination NRAW that clean up can be done, everything is imported
+	nraw_dest().load_done();
 }
