@@ -8,12 +8,10 @@
 #ifndef PVRUSH_NRAW_H
 #define PVRUSH_NRAW_H
 
-#include <vector>
 #include <fstream>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVColumnIndexes.h>
-#include <pvkernel/core/PVChunk.h>
 
 #include <pvkernel/rush/PVFormat.h>
 
@@ -32,6 +30,7 @@ namespace Inendi {
 
 namespace PVCore {
 	class PVSelBitField;
+	class PVChunk;
 }
 
 namespace PVRush {

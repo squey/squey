@@ -17,20 +17,8 @@
 #include <pvcop/collector.h>
 #include <pvcop/sink.h>
 
-#include <tbb/tbb_allocator.h>
-#include <tbb/tick_count.h>
-#include <tbb/parallel_reduce.h>
-#include <tbb/parallel_for.h>
-
 #include <iostream>
 #include <fstream>
-
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <QDir>
-#include <QFileInfo>
 
 const std::string PVRush::PVNraw::config_nraw_tmp = "pvkernel/nraw_tmp";
 const std::string PVRush::PVNraw::default_tmp_path = "/tmp/inendi";
