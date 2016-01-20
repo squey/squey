@@ -41,6 +41,8 @@ namespace PVRush {
  * Start in an invalid state as format is not known yet.
  * Then, we set format so we can create the collector (import struct)
  * Finally, data is imported, we don't need collector and use collection instead.
+ *
+ * We can say it has : invalide state, read state and write state.
  */
 class PVNraw
 {
@@ -109,6 +111,11 @@ public:
 	 */
 	void prepare_load(PVRow const nrows);
 
+	/**
+	 * Export asked line with a specific column ordering.
+	 *
+	 * Column ordering may differ from original ordering.
+	 */
 	std::string export_line(
 		PVRow idx,
 		const PVCore::PVColumnIndexes& col_indexes,
@@ -116,6 +123,13 @@ public:
 		const std::string quote_char = default_quote_char
 	) const;
 
+	/**
+	 * Export step_count lines from start_index with a specific column ordering.
+	 * Less lines may be output as it care about selection and not selected
+	 * lines are not exported
+	 *
+	 * Column ordering may differ from original ordering.
+	 */
 	void export_lines(
 		std::ofstream& stream,
 		const PVCore::PVSelBitField& sel,
@@ -126,6 +140,9 @@ public:
 		const std::string& quote_char = default_quote_char
 	) const;
 
+	/**
+	 * Export the PVNraw with initial ordering.
+	 */
 	void dump_csv(std::ostream &os=std::cout);
 	void dump_csv(const std::string& file_path);
 
