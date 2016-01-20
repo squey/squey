@@ -65,18 +65,16 @@ public:
 
 	/**
 	 * Access layout of the NRaw.
-	 *
-	 * @warning: _real_nrows looks to be a copy from an invariang
-	 * @fixme
 	 */
-	inline PVRow get_number_rows() const { return _real_nrows; }
-	inline PVCol get_number_cols() const { return _format->column_count(); }
+	inline PVRow get_number_rows() const { assert(_collection && "We should be in read state"); return _collection->row_count(); }
+	inline PVCol get_number_cols() const { assert(_collection && "We should be in read state"); return _collection->column_count(); }
 
 	/**
 	 * Random access to an element in the NRaw.
 	 */
 	inline std::string at_string(PVRow row, PVCol col) const
 	{
+		assert(_collection && "We have to be in read state");
 		assert(row < get_number_rows());
 		assert(col < get_number_cols());
 		return _collection->column(col).at(row);
@@ -137,8 +135,17 @@ public:
 	void set_format(PVFormat_p const& f) { format = f;}
 	PVFormat_p const& get_format() const { return format; }
 
-	pvcop::collection& collection() { assert(_collection); return *_collection; }
-	const pvcop::collection& collection() const { assert(_collection); return *_collection; }
+	pvcop::collection& collection()
+	{
+		assert(_collection && "we have to be in read state");
+		return *_collection;
+	}
+
+	pvcop::collection const& collection() const
+	{
+		assert(_collection && "we have to be in read state");
+		return *_collection;
+	}
 
 public:
 	/**
@@ -147,15 +154,18 @@ public:
 	void load_from_disk(const std::string& nraw_folder);
 
 private:
-	PVFormat_p format; //!< Format with graphical information.
+	/// Variable usefull for reading
+	std::unique_ptr<pvcop::collection> _collection = nullptr; //!< Structure to read NRaw content.
+
+	/// Variable usefull for loading
 	PVRow _real_nrows; //!< Current number of line in the NRaw.
 	PVRow _max_nrows;  //!< Maximum number of lines required.
-
 	UConverter* _ucnv; //!< Converter from UTF16 to UTF8
-
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
-	std::unique_ptr<pvcop::collection> _collection = nullptr; //!< Structure to read NRaw content.
 	std::unique_ptr<pvcop::format> _format = nullptr; //!< Format with data management information.
+
+	/// Variable usefull for both
+	PVFormat_p format; //!< Format with graphical information.
 };
 
 }

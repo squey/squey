@@ -60,8 +60,10 @@ void PVRush::PVNraw::prepare_load(PVRow const nrows)
 	}
 
 	// Create collector and format
+	// FIXME : why collector doesn't hold it format while collection do?
 	_format.reset(new pvcop::format(get_format()->get_storage_format()));
 	_collector.reset(new pvcop::collector(collector_path.data(), *_format));
+	_collection.reset();
 
 	// Define maximum number of row;
 	if(nrows == 0) {
@@ -79,6 +81,8 @@ void PVRush::PVNraw::prepare_load(PVRow const nrows)
 
 bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 {
+	assert(_collector && _format && "We have to be in read state");
+
 	if (_real_nrows == _max_nrows) {
 		// the whole chunk can be skipped as we extracted enough data.
 		return false;
@@ -162,6 +166,7 @@ void PVRush::PVNraw::load_done()
 
 	_collection.reset(new pvcop::collection(*_collector, *_format));
 	_collector.reset();
+	_format.reset();
 }
 
 /*****************************************************************************
@@ -172,6 +177,8 @@ void PVRush::PVNraw::load_done()
 
 void PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
 {
+	_format.reset();
+	_collector.reset();
 	_collection.reset(new pvcop::collection(nraw_folder));
 	_real_nrows = _collection->row_count();
 }
