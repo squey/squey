@@ -152,7 +152,8 @@ void PVRush::PVNraw::fit_to_content()
 	if (not _collector->close()) {
 		PVLOG_ERROR("Error when closing collector..\n");
 	}
-	_collection.reset(new pvcop::collection(_collector->rootdir()));
+
+	_collection.reset(new pvcop::collection(*_collector, *_format));
 	_collector.reset();
 }
 
