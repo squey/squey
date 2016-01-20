@@ -114,8 +114,6 @@ public:
 		}
 	}
 
-	QStringList nraw_line_to_qstringlist(PVRow idx) const;
-
 	void fit_to_content();
 
 	std::string export_line(
