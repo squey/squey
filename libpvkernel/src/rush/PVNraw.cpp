@@ -52,9 +52,6 @@ PVRush::PVNraw::PVNraw():
 PVRush::PVNraw::~PVNraw()
 {
 	ucnv_close(_ucnv);
-	delete _format;
-	delete _collector;
-	delete _collection;
 }
 
 void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
@@ -67,10 +64,9 @@ void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
 	}
 
 	// Create collector and format
-	// FIXME : Memory leak inside
 	std::string const collector_path = nstr.constData();
-	_format = new pvcop::format(get_format()->get_storage_format());
-	_collector = new pvcop::collector(collector_path.data(), *_format);
+	_format.reset(new pvcop::format(get_format()->get_storage_format()));
+	_collector.reset(new pvcop::collector(collector_path.data(), *_format));
 
 	// Define maximum number of row;
 	if(nrows == 0) {
@@ -160,17 +156,14 @@ void PVRush::PVNraw::fit_to_content()
 	if (not _collector->close()) {
 		PVLOG_ERROR("Error when closing collector..\n");
 	}
-	// FIXME : memory leak inside
-	_collection = new pvcop::collection(_collector->rootdir());
-
-	delete _collector;
-	_collector = nullptr;
+	_collection.reset(new pvcop::collection(_collector->rootdir()));
+	_collector.reset();
 }
 
 // FIXME : Should not return values.
 bool PVRush::PVNraw::load_from_disk(const std::string& nraw_folder, PVCol ncols)
 {
-	_collection = new pvcop::collection(nraw_folder);
+	_collection.reset(new pvcop::collection(nraw_folder));
 	_real_nrows = _collection->row_count();
 
 	return true;

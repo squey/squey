@@ -26,12 +26,8 @@ extern "C" {
 }
 
 #include <pvcop/collection.h>
+#include <pvcop/collector.h>
 #include <pvcop/format.h>
-
-namespace pvcop
-{
-class collector;
-}
 
 namespace Inendi {
 	class PVAxesCombination;
@@ -144,9 +140,9 @@ private:
 
 	UConverter* _ucnv;
 
-	pvcop::collector* _collector = nullptr;
-	pvcop::collection* _collection = nullptr;
-	pvcop::format* _format = nullptr;
+	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
+	std::unique_ptr<pvcop::collection> _collection = nullptr; //!< Structure to read NRaw content.
+	std::unique_ptr<pvcop::format> _format = nullptr; //!< Format with data management information.
 };
 
 }
