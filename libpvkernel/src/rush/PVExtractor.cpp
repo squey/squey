@@ -210,7 +210,7 @@ void PVRush::PVExtractor::save_nraw()
 	}
 	_saved_nraw = _nraw;
 	_nraw = new PVRush::PVNraw();
-	_nraw->get_format() = _saved_nraw->get_format();
+	_nraw->set_format(_saved_nraw->get_format());
 	_out_nraw.set_nraw_dest(*_nraw);
 	_saved_nraw_valid = true;
 }
@@ -244,14 +244,13 @@ void PVRush::PVExtractor::reset_nraw()
 	}
 	PVRush::PVFormat_p format = _nraw->get_format();
 	_nraw = new PVNraw();
-	_nraw->get_format() = format;
+	_nraw->set_format(format);
 	_out_nraw.set_nraw_dest(*_nraw);
 }
 
 void PVRush::PVExtractor::set_format(PVFormat const& format)
 {
-	PVFormat* nraw_format = new PVFormat(format);
-	get_nraw().get_format().reset(nraw_format);
+	get_nraw().set_format(std::make_shared<PVFormat>(format));
 }
 
 void PVRush::PVExtractor::force_number_axes(PVCol naxes)

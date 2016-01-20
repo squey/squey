@@ -134,7 +134,7 @@ public:
 	/**
 	 * Accessors
 	 */
-	PVFormat_p& get_format() { return format; }
+	void set_format(PVFormat_p const& f) { format = f;}
 	PVFormat_p const& get_format() const { return format; }
 
 	pvcop::collection& collection() { assert(_collection); return *_collection; }
