@@ -17,7 +17,7 @@
 #include <QStringList>
 
 PVRush::PVNrawCacheManager::PVNrawCacheManager() :
-	_cache_file(std::unique_ptr<QSettings>(new QSettings(QString(PVCore::PVConfig::get().config().value(PVRush::PVNraw::config_nraw_tmp, PVRush::PVNraw::default_tmp_path).toString()) \
+	_cache_file(std::unique_ptr<QSettings>(new QSettings(QString(PVCore::PVConfig::get().config().value(QString::fromStdString(PVRush::PVNraw::config_nraw_tmp), QString::fromStdString(PVRush::PVNraw::default_tmp_path)).toString()) \
 			    + INENDI_PATH_SEPARATOR_CHAR + ".cache", QSettings::IniFormat)))
 {
 	_cache_file->beginGroup("cache");
@@ -55,7 +55,7 @@ void PVRush::PVNrawCacheManager::remove_nraws_from_investigation(const QString& 
 
 void PVRush::PVNrawCacheManager::delete_unused_cache()
 {
-	QString regexp(PVRush::PVNraw::nraw_tmp_name_regexp);
+	QString regexp = QString::fromStdString(PVRush::PVNraw::nraw_tmp_name_regexp);
 
 	QStringList nraw_without_opened_files = visit_nraw_folders(nraw_dir(), regexp, [](QDirIterator& it) {
 		bool has_opened_file = false;
@@ -104,7 +104,7 @@ QStringList PVRush::PVNrawCacheManager::list_nraws_used_by_investigations()
 
 QString PVRush::PVNrawCacheManager::nraw_dir()
 {
-	return PVCore::PVConfig::get().config().value(PVRush::PVNraw::config_nraw_tmp, PVRush::PVNraw::default_tmp_path).toString() + QDir::separator() + PVCore::PVConfig::username();
+	return PVCore::PVConfig::get().config().value(QString::fromStdString(PVRush::PVNraw::config_nraw_tmp), QString::fromStdString(PVRush::PVNraw::default_tmp_path)).toString() + QDir::separator() + PVCore::PVConfig::username();
 }
 
 QStringList PVRush::PVNrawCacheManager::list_nraws_used_by_investigation(const QString& investigation)
@@ -180,13 +180,13 @@ QString PVRush::PVNrawCacheManager::key_to_path(const QString& key)
 void PVRush::PVNrawCacheManager::compatibility_move_nraws_to_user_nraws_dir()
 {
 	// Compatibility : Move nraw temp directories to nraw user subdirectory
-	QString nraw_dir_base = PVCore::PVConfig::get().config().value(PVRush::PVNraw::config_nraw_tmp, PVRush::PVNraw::default_tmp_path).toString();
+	QString nraw_dir_base = PVCore::PVConfig::get().config().value(QString::fromStdString(PVRush::PVNraw::config_nraw_tmp), QString::fromStdString(PVRush::PVNraw::default_tmp_path)).toString();
 	QString user_nraw_dir_base = nraw_dir_base + QDir::separator() + PVCore::PVConfig::username();
 	QFileInfo fi(user_nraw_dir_base);
 	if (fi.exists() == false) {
 		fi.dir().mkpath(user_nraw_dir_base);
 
-		QDir nraw_dirs(nraw_dir_base, PVRush::PVNraw::nraw_tmp_name_regexp);
+		QDir nraw_dirs(nraw_dir_base, QString::fromStdString(PVRush::PVNraw::nraw_tmp_name_regexp));
 		for (const QString &sub_dir_name : nraw_dirs.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
 			QFile::rename(nraw_dir_base + QDir::separator() + sub_dir_name, user_nraw_dir_base + QDir::separator() + sub_dir_name);
 		}

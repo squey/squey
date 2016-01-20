@@ -8,11 +8,8 @@
 #ifndef PVRUSH_NRAW_H
 #define PVRUSH_NRAW_H
 
-#include <QString>
-#include <QStringList>
-#include <QTextStream>
-
 #include <vector>
+#include <fstream>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVColumnIndexes.h>
@@ -42,12 +39,12 @@ namespace PVRush {
 class PVNraw
 {
 public:
-	static const QString config_nraw_tmp;
-	static const QString default_tmp_path;
-	static const QString nraw_tmp_pattern;
-	static const QString nraw_tmp_name_regexp;
-	static const QString default_sep_char;
-	static const QString default_quote_char;
+	static const std::string config_nraw_tmp;
+	static const std::string default_tmp_path;
+	static const std::string nraw_tmp_pattern;
+	static const std::string nraw_tmp_name_regexp;
+	static const std::string default_sep_char;
+	static const std::string default_quote_char;
 
 private:
 	PVNraw& operator=(const PVNraw&) = delete;
@@ -74,18 +71,15 @@ public:
 
 	bool add_chunk_utf16(PVCore::PVChunk const& chunk);
 
-	template <class Iterator>
-	bool add_column(Iterator /*begin*/, Iterator /*end*/)
-	{
-		return false;
-	}
-
-	inline QString get_axis_name(PVCol format_axis_id) const
+	/**
+	 * Get the axis name from the format.
+	 */
+	inline std::string get_axis_name(PVCol format_axis_id) const
 	{
 		if(format_axis_id < format->get_axes().size()) {
-			return format->get_axes().at(format_axis_id).get_name();
+			return format->get_axes().at(format_axis_id).get_name().toStdString();
 		}
-		return QString("");
+		return "";
 	}
 
 	void resize_nrows(PVRow const nrows)
@@ -99,26 +93,25 @@ public:
 
 	void fit_to_content();
 
-
-	QString export_line(
+	std::string export_line(
 		PVRow idx,
-		PVCore::PVColumnIndexes col_indexes = PVCore::PVColumnIndexes(),
-		const QString sep_char = default_sep_char,
-		const QString quote_char = default_quote_char
+		const PVCore::PVColumnIndexes& col_indexes,
+		const std::string sep_char = default_sep_char,
+		const std::string quote_char = default_quote_char
 	) const;
 
 	void export_lines(
-		QTextStream& stream,
+		std::ofstream& stream,
 		const PVCore::PVSelBitField& sel,
 		const PVCore::PVColumnIndexes& col_indexes,
 		size_t start_index,
 		size_t step_count,
-		const QString sep_char = default_sep_char,
-		const QString quote_char = default_quote_char
+		const std::string& sep_char = default_sep_char,
+		const std::string& quote_char = default_quote_char
 	) const;
 
-	void dump_csv();
-	void dump_csv(const QString& file_path);
+	void dump_csv(std::ostream &os=std::cout);
+	void dump_csv(const std::string& file_path);
 
 	PVFormat_p& get_format() { return format; }
 	PVFormat_p const& get_format() const { return format; }

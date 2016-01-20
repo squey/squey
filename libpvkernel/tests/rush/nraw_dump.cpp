@@ -35,7 +35,7 @@ int main()
 
 	std::string out_path = pvtest::get_tmp_filename();
 
-	env._ext.get_nraw().dump_csv(QString::fromStdString(out_path));
+	env._ext.get_nraw().dump_csv(out_path);
 
 	auto end = std::chrono::system_clock::now(); 
 	std::chrono::duration<double> diff = end - start;

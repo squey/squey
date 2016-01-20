@@ -189,13 +189,3 @@ bool process_filter(PVRush::PVRawSourceBase& source, PVFilter::PVChunkFilter_f f
 	std::cout << nelts_valid << "/" << nelts_org << " elements are valid." << std::endl;
 	return true;
 }
-
-void dump_nraw_csv(PVRush::PVNraw& nraw_)
-{
-	nraw_.dump_csv();
-}
-
-void dump_nraw_csv(PVRush::PVNraw& nraw_, const QString& csv_path)
-{
-	nraw_.dump_csv(csv_path);
-}

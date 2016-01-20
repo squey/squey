@@ -8,25 +8,13 @@
 #ifndef PVRUSH_PVNRAWEXCEPTION_H
 #define PVRUSH_PVNRAWEXCEPTION_H
 
-#include <exception>
+#include <stdexcept>
 
 namespace PVRush {
 
-class PVNrawException: public std::exception
+struct PVNrawException: public std::runtime_error
 {
-public:
-	PVNrawException(QString const& str):
-		_msg(str.toLocal8Bit())
-	{ }
-
-	~PVNrawException() throw()
-	{ }
-
-public:
-	const char* what() const throw() override { return _msg.constData(); }
-
-private:
-	QByteArray _msg;
+	using std::runtime_error::runtime_error;
 };
 
 }

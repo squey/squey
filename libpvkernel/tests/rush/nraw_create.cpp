@@ -39,7 +39,7 @@ int main()
 #ifndef INSPECTOR_BENCH
 	std::string out_path = pvtest::get_tmp_filename();
 	// Dump the NRAW to file and check value is the same
-	env._ext.get_nraw().dump_csv(QString::fromStdString(out_path));
+	env._ext.get_nraw().dump_csv(out_path);
 
 	std::ifstream ifs_res(out_path);
 	std::string content_res{std::istreambuf_iterator<char>(ifs_res), std::istreambuf_iterator<char>()};

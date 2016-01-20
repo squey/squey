@@ -68,30 +68,27 @@ void PVRush::PVUtils::sort_file(const char* input_file, const char* output_file 
 	fout.close();
 }
 
-bool PVRush::PVUtils::safe_export(QString& str, const QString& sep_char, const QString& quote_char)
+static std::string& replace(std::string& init, std::string const& from, std::string const& to)
 {
-	static QString escaped_quote("\\" + quote_char);
-
-	bool do_quote = false;
-
-	if (str.contains(sep_char)) {
-		do_quote = true;
-	}
-	if (str.contains(quote_char)) {
-		do_quote = true;
-		str.replace(quote_char, escaped_quote);
-	}
-	if (do_quote) {
-		str.append(quote_char);
-		str.prepend(quote_char);
-	}
-
-	return do_quote;
+        size_t pos = 0;
+        while ((pos = init.find(from, pos)) != std::string::npos) {
+                init.replace(pos, from.size(), to);
+                // Advance to avoid replacing the same character again (case of " for example)
+                pos += to.size();
+        }
+        return init;
 }
 
-void PVRush::PVUtils::safe_export(QStringList& str_list, const QString& sep_char, const QString& quote_char)
+std::string PVRush::PVUtils::safe_export(std::string str, const std::string& quote_char)
+{
+	static std::string escaped_quote("\\" + quote_char);
+
+        return quote_char + replace(replace(replace(str, "\n", "\\n"), "\r", "\\r"), quote_char, escaped_quote) + quote_char;
+}
+
+void PVRush::PVUtils::safe_export(QStringList& str_list, const std::string& quote_char)
 {
 	for (QString& str : str_list) {
-		safe_export(str, sep_char, quote_char);
+		str = QString::fromStdString(safe_export(str.toStdString(), quote_char));
 	}
 }

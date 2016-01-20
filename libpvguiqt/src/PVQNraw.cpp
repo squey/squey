@@ -61,7 +61,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView_sp& view, PVRush::PVNra
 	}
 
 	PVGuiQt::PVListUniqStringsDlg* dlg = new PVGuiQt::PVListUniqStringsDlg(view, c, std::move(col1_out), std::move(col2_out), count, min, max, parent);
-	dlg->setWindowTitle("Distinct values of axe '" + nraw.get_axis_name(c) + "'");
+	dlg->setWindowTitle("Distinct values of axe '" + QString::fromStdString(nraw.get_axis_name(c)) + "'");
 	dlg->show();
 	if(dialog) {
 		// Save the current dialog to close the old one when you open a new one.
@@ -141,7 +141,7 @@ static bool show_stats_dialog(
 	}
 
 	PVGuiQt::PVGroupByStringsDlg* dlg = new PVGuiQt::PVGroupByStringsDlg(view, col1, col2, std::move(col1_out), std::move(col2_out), abs_max, rel_min, rel_max, parent);
-	dlg->setWindowTitle(title + " of axes '" + nraw.get_axis_name(col1) + "' and '" + nraw.get_axis_name(col2)+ "'");
+	dlg->setWindowTitle(title + " of axes '" + QString::fromStdString(nraw.get_axis_name(col1)) + "' and '" + QString::fromStdString(nraw.get_axis_name(col2)) + "'");
 	dlg->show();
 
 	return true;

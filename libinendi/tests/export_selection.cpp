@@ -41,9 +41,9 @@ int main(int argc, char** argv)
 	PVRush::PVPluginsLoad::load_all_plugins();
 
 	bool delete_nraw_parent_dir = false;
-	QDir nraw_dir(PVRush::PVNraw::default_tmp_path);
+	QDir nraw_dir(QString::fromStdString(PVRush::PVNraw::default_tmp_path));
 	if (!nraw_dir.exists()){
-		nraw_dir.mkdir(PVRush::PVNraw::default_tmp_path);
+		nraw_dir.mkdir(QString::fromStdString(PVRush::PVNraw::default_tmp_path));
 		delete_nraw_parent_dir = true;
 	}
 
@@ -86,18 +86,16 @@ int main(int argc, char** argv)
 	// Export selection to temporary file
 	Inendi::PVSelection& sel = view->get_real_output_selection();
 	sel.select_all();
-	QTemporaryFile output_file;
-	QTextStream stream(&output_file);
-	if (!output_file.open()) {
-		return 4;
-	}
+	std::string output_file = pvtest::get_tmp_filename();
+	std::ofstream stream(output_file);
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();
 	const PVCore::PVColumnIndexes& col_indexes = view->get_axes_combination().get_original_axes_indexes();
 	nraw.export_lines(stream, sel, col_indexes, 0, src->get_row_count());
 	stream.flush();
 
 	// Compare files content
-	bool same_content = PVRush::PVUtils::files_have_same_content(argv[1], output_file.fileName());
+	bool same_content = PVRush::PVUtils::files_have_same_content(argv[1], output_file);
+	std::remove(output_file);
 
 	// Remove nraw folder
 	PVCore::PVDirectory::remove_rec(delete_nraw_parent_dir ? nraw_dir.path() : QString::fromStdString(nraw.collection().rootdir()));

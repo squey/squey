@@ -31,8 +31,8 @@ namespace PVUtils {
 	 */
 	void sort_file(const char* input_file, const char* output_file = nullptr);
 
-	bool safe_export(QString& str, const QString& sep_char, const QString& quote_char);
-	void safe_export(QStringList& str_list, const QString& sep_char, const QString& quote_char);
+	std::string safe_export(std::string str, const std::string& quote_char);
+	void safe_export(QStringList& str_list, const std::string& quote_char);
 
 }
 }
