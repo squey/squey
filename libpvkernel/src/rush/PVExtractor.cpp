@@ -20,7 +20,7 @@ PVRush::PVExtractor::PVExtractor(unsigned int chunks) :
 	_saved_nraw_valid(false),
 	_ctrl(),
 	_ctrl_th(_ctrl),
-	_out_nraw(_nraw),
+	_out_nraw(*_nraw),
 	_chunks(chunks),
 	_dump_inv_elts(false),
 	_dump_all_elts(false),
