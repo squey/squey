@@ -95,10 +95,10 @@ public:
 	 */
 	inline std::string get_axis_name(PVCol format_axis_id) const
 	{
-		if(format_axis_id < format->get_axes().size()) {
-			return format->get_axes().at(format_axis_id).get_name().toStdString();
+		if(format_axis_id >= format->get_axes().size()) {
+			throw std::runtime_error("Invalid axis id, can't get its name.");
 		}
-		return "";
+		return format->get_axes().at(format_axis_id).get_name().toStdString();
 	}
 
 	/**
