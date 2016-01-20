@@ -36,6 +36,13 @@ namespace PVCore {
 
 namespace PVRush {
 
+/**
+ * Contains all informations to access imported data.
+ *
+ * Start in an invalid state as format is not known yet.
+ * Then, we set format so we can create the collector (import struct)
+ * Finally, data is imported, we don't need collector and use collection instead.
+ */
 class PVNraw
 {
 public:
@@ -47,6 +54,9 @@ public:
 	static const std::string default_quote_char;
 
 private:
+	/**
+	 * Disable copy constructors.
+	 */
 	PVNraw& operator=(const PVNraw&) = delete;
 	PVNraw(const PVNraw&) = delete;
 
@@ -56,6 +66,12 @@ public:
 
 	void reserve(PVRow const nrows, PVCol const ncols);
 
+	/**
+	 * Access layout of the NRaw.
+	 *
+	 * @warning: _real_nrows looks to be a copy from an invariang
+	 * @fixme
+	 */
 	inline PVRow get_number_rows() const { return _real_nrows; }
 	inline PVCol get_number_cols() const { return _format->column_count(); }
 
@@ -69,6 +85,12 @@ public:
 		return _collection->column(col).at(row);
 	}
 
+	/**
+	 * Insert data in the NRaw.
+	 *
+	 * @note: Input data is in utf16 and it is saved using utf8
+	 * @note: We save a full chunk in a raw.
+	 */
 	bool add_chunk_utf16(PVCore::PVChunk const& chunk);
 
 	/**
@@ -82,6 +104,9 @@ public:
 		return "";
 	}
 
+	/**
+	 * Shrink the current NRaw to nrows values.
+	 */
 	void resize_nrows(PVRow const nrows)
 	{
 		if (nrows < _real_nrows) {
@@ -113,6 +138,9 @@ public:
 	void dump_csv(std::ostream &os=std::cout);
 	void dump_csv(const std::string& file_path);
 
+	/**
+	 * Accessors
+	 */
 	PVFormat_p& get_format() { return format; }
 	PVFormat_p const& get_format() const { return format; }
 
@@ -126,11 +154,11 @@ public:
 	void load_from_disk(const std::string& nraw_folder);
 
 private:
-	PVFormat_p format;
-	PVRow _real_nrows;
-	PVRow _max_nrows;
+	PVFormat_p format; //!< Format with graphical information.
+	PVRow _real_nrows; //!< Current number of line in the NRaw.
+	PVRow _max_nrows;  //!< Maximum number of lines required.
 
-	UConverter* _ucnv;
+	UConverter* _ucnv; //!< Converter from UTF16 to UTF8
 
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
 	std::unique_ptr<pvcop::collection> _collection = nullptr; //!< Structure to read NRaw content.

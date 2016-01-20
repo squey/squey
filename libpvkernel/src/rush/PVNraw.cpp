@@ -148,7 +148,7 @@ void PVRush::PVNraw::fit_to_content()
 		_real_nrows = INENDI_LINES_MAX;
 	}
 
-	// Close collector
+	// Close collector to be sure it is saved before we load it in the collection.
 	if (not _collector->close()) {
 		PVLOG_ERROR("Error when closing collector..\n");
 	}
