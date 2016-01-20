@@ -1046,7 +1046,7 @@ void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row
 	QStringList names;
 	for (PVCol j = 0; j < nraw.get_number_cols(); j++) {
 		// We need to do a deep copy of this
-		names << nraw.at(row, j);
+		names << QString::fromStdString(nraw.at_string(row, j));
 	}
 	myTreeModel->setAxesNames(names);
 }

@@ -217,16 +217,11 @@ void PVRush::PVExtractor::dump_mapnraw()
 
 void PVRush::PVExtractor::dump_nraw()
 {
-//	for (int i = 0; i < inendi_min(10,_nraw.table.size()); i++) {
-//		PVLOG_INFO("Line %d: ", i);
-//		debug_qstringlist(_nraw.table[i]);
-//	}
-
 	PVLOG_INFO("Nraw:\n");
 	for (size_t i = 0; i < inendi_min(10,get_nraw().get_number_rows()); i++) {
 		PVLOG_INFO("Line %d: ", i);
 		for (int j = 0; j < get_nraw().get_number_cols(); j++) {
-			std::cerr << qPrintable(get_nraw().at(i,j)) << ",";
+			std::cerr << get_nraw().at_string(i,j) << ",";
 		}
 		std::cerr << std::endl;
 	}

@@ -167,23 +167,6 @@ void PVRush::PVNraw::fit_to_content()
 	_collector = nullptr;
 }
 
-QString PVRush::PVNraw::get_value(PVRow row, PVCol col, bool* complete /*= nullptr*/) const
-{
-	assert(row < get_number_rows());
-	assert(col < get_number_cols());
-	if (complete) {
-		*complete = true;
-	}
-	pvcop::db::array column = _collection->column(col);
-
-	if (not column) {
-		PVLOG_ERROR("Error when accessing column..\n");
-		return {};
-	}
-
-	return column.at(row).c_str();
-}
-
 // FIXME : Should not return values.
 bool PVRush::PVNraw::load_from_disk(const std::string& nraw_folder, PVCol ncols)
 {
@@ -240,7 +223,7 @@ QString PVRush::PVNraw::export_line(
 				size_t col = col_indexes[c];
 
 				assert(idx < get_number_rows());
-				QString v(at(idx, col));
+				QString v = QString::fromStdString(at_string(idx, col));
 
 				PVRush::PVUtils::safe_export(v, sep_char, quote_char);
 

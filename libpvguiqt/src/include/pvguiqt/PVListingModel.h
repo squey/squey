@@ -228,12 +228,6 @@ public:
     __impl::PVListingVisibilityObserver _obs_vis; //!< Observer for selected/unselected lines
     __impl::PVListingVisibilityZombieObserver _obs_zomb; //! Observer for zombies lines
 
-    // We save the current data to avoid asking for it twice in the NRaw.
-    // We ask for NRaw value at FontRole time and re-use it at Display time
-    // which is called right after the fontrole.
-    // We use mutable as the data Qt interface function have to be const
-    mutable QString _current_data; //!< Data of the current cell.
-
 };
 
 }

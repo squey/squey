@@ -74,7 +74,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 			    // the NRaw
 			    return {};
 			}
-			return _current_data;
+			return QString::fromStdString(lib_view().get_parent<Inendi::PVSource>()->get_value(r, org_col));
 		    }
 		// Define alignment of data
 		case (Qt::TextAlignmentRole):
@@ -83,7 +83,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 		case Qt::ToolTipRole:
 			{
 			    const PVRow r = rowIndex(index);
-			    return lib_view().get_parent<Inendi::PVSource>()->get_value(r, org_col);
+			    return QString::fromStdString(lib_view().get_parent<Inendi::PVSource>()->get_value(r, org_col));
 			}
 		// Define brackground color for cells
 		case (Qt::BackgroundRole):
@@ -125,24 +125,6 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 				return QBrush(Qt::white);
 			}
 			return QVariant();
-		}
-		// Define font to use
-		case (Qt::FontRole):
-		{
-			// Set incomplete fields in italic
-			const PVRow r = rowIndex(index);
-			if(r >= lib_view().get_row_count()) {
-			    return {};
-			}
-			// Ask data from NRaw
-			bool complete;
-			_current_data = lib_view().get_parent<Inendi::PVSource>()->get_value(r, org_col, &complete);
-			QFont f;
-			if(not complete) {
-				f.setItalic(true);
-			}
-
-			return f;
 		}
 	}
 	return QVariant();

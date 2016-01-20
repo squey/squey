@@ -386,7 +386,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 	// to the menu's actions.
 	_ctxt_row = listing_model()->rowIndex(idx_click);
 	_ctxt_col = idx_click.column(); // This is the *combined* axis index
-	_ctxt_v = lib_view().get_parent<Inendi::PVSource>()->get_value(_ctxt_row, lib_view().get_original_axis_index(_ctxt_col));
+	_ctxt_v = QString::fromStdString(lib_view().get_parent<Inendi::PVSource>()->get_value(_ctxt_row, lib_view().get_original_axis_index(_ctxt_col)));
 
 	// Show the menu at the given pos
 	QAction* act_sel = _ctxt_menu.exec(QCursor::pos());

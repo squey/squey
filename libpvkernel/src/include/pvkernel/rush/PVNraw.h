@@ -66,9 +66,9 @@ public:
 	inline PVRow get_number_rows() const { return _real_nrows; }
 	inline PVCol get_number_cols() const { return _format->column_count(); }
 
-	QString get_value(PVRow row, PVCol col, bool* complete = nullptr) const;
-
-	inline QString at(PVRow row, PVCol col, bool* complete = nullptr) const { return get_value(row, col, complete); }
+	/**
+	 * Random access to an element in the NRaw.
+	 */
 	inline std::string at_string(PVRow row, PVCol col) const
 	{
 		assert(row < get_number_rows());

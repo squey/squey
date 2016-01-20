@@ -437,11 +437,11 @@ float Inendi::PVView::get_column_count_as_float()
  * Inendi::PVView::get_data
  *
  *****************************************************************************/
-QString Inendi::PVView::get_data(PVRow row, PVCol column) const
+std::string Inendi::PVView::get_data(PVRow row, PVCol column) const
 {
 	PVCol real_index = axes_combination.get_axis_column_index_fast(column);
 
-	return get_rushnraw_parent().at(row, real_index);
+	return get_rushnraw_parent().at_string(row, real_index);
 }
 
 /******************************************************************************

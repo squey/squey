@@ -40,7 +40,7 @@ QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int rol
 {
 	switch (role) {
 		case Qt::DisplayRole:
-			return QVariant(_nraw->get_value(index.row(), index.column()));
+			return QString::fromStdString(_nraw->at_string(index.row(), index.column()));
 
 		case Qt::BackgroundRole:
 		{

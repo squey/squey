@@ -23,7 +23,7 @@
 namespace Inendi {
 
 typedef std::pair<PVCol, mapped_decimal_storage_type*> mandatory_param_list_values;
-typedef std::pair<QString, mapped_decimal_storage_type> mandatory_param_value;
+typedef std::pair<std::string, mapped_decimal_storage_type> mandatory_param_value;
 
 class PVMapped;
 

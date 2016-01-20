@@ -254,9 +254,9 @@ PVCol Inendi::PVSource::get_column_count() const
 	return get_format().get_axes().size();
 }
 
-QString Inendi::PVSource::get_value(PVRow row, PVCol col, bool* complete /*= nullptr*/) const
+std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
 {
-	return nraw->at(row, col, complete);
+	return nraw->at_string(row, col);
 }
 
 PVRush::PVExtractor& Inendi::PVSource::get_extractor()
