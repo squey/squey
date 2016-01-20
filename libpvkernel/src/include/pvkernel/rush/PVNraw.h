@@ -120,11 +120,10 @@ public:
 	const pvcop::collection& collection() const { assert(_collection); return *_collection; }
 
 public:
-	bool load_from_disk(const std::string& nraw_folder, PVCol ncols);
-
-private:
-	void clear_table();
-	const PVCore::PVColumnIndexes get_column_indexes() const;
+	/**
+	 * Create a NRaw from and NRaw folder on HDD.
+	 */
+	void load_from_disk(const std::string& nraw_folder);
 
 private:
 	PVFormat_p format;

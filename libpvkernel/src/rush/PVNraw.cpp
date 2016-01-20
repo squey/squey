@@ -156,13 +156,10 @@ void PVRush::PVNraw::fit_to_content()
 	_collector.reset();
 }
 
-// FIXME : Should not return values.
-bool PVRush::PVNraw::load_from_disk(const std::string& nraw_folder, PVCol ncols)
+void PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
 {
 	_collection.reset(new pvcop::collection(nraw_folder));
 	_real_nrows = _collection->row_count();
-
-	return true;
 }
 
 void PVRush::PVNraw::dump_csv(std::ostream& os)

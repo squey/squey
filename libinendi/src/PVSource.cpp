@@ -198,8 +198,9 @@ bool Inendi::PVSource::load_from_disk()
 		return false;
 	}
 
-	return nraw->load_from_disk(_nraw_folder.toStdString(),
-	                            _extractor.get_number_axes());
+	nraw->load_from_disk(_nraw_folder.toStdString());
+
+	return true;
 }
 
 void Inendi::PVSource::extract_finished()
