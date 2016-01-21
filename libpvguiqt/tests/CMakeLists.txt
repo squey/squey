@@ -15,7 +15,7 @@ include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
-set(COMMON_LIBRARIES pvparallelview pvguiqt pvhive inendi pvkernel ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${OpenMP_LIBRARIES})
+set(COMMON_LIBRARIES pvparallelview pvguiqt pvhive inendi pvkernel ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${OpenMP_LIBRARIES} ${PVLICENSE_LIBRARIES})
 
 add_pv_compile_test(Tqt_datatree LINKS ${COMMON_LIBRARIES} FILES datatree-model.cpp)
 add_pv_compile_test(Tqt_inendi_tree LINKS ${COMMON_LIBRARIES} FILES inendi_tree.cpp common.cpp)
