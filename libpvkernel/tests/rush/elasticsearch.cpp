@@ -161,7 +161,7 @@ int main(int argc, char** argv)
 	PV_ASSERT_VALID((output_file_line_count == reference_file_line_count && output_file_line_count == count));
 
 	// Checksum of reference and exported files are sames
-	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file.c_str(), reference_sorted_file.c_str()));
+	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, reference_sorted_file));
 
 	/*
 	 * Do some clean up

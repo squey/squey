@@ -5,7 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <QCryptographicHash>
 #include <QFile>
 #include <QString>
 
@@ -16,34 +15,15 @@
 
 #include <fstream>
 
-/*
-QString PVRush::PVUtils::generate_key_from_axes_values(PVCore::PVAxesIndexType const& axes, PVRush::PVNraw::const_nraw_table_line const& values)
+bool PVRush::PVUtils::files_have_same_content(const std::string& path1, const std::string& path2)
 {
-	QString ret;
-	PVCore::PVAxesIndexType::const_iterator it;
-	for (it = axes.begin(); it != axes.end(); it++) {
-		ret.append(values[*it].get_qstr());
-	}
-	return ret;
-}
-*/
+	std::ifstream ifs1(path1);
+	std::ifstream ifs2(path2);
 
-const QByteArray PVRush::PVUtils::get_file_checksum(const QString& path)
-{
-	QFile file;
-	file.setFileName(path);
-	if (!file.open(QIODevice::ReadOnly)) {
-		return QByteArray();
-	}
-	QByteArray data = file.readAll();
-	file.close();
+	auto res = std::mismatch(std::istreambuf_iterator<char>(ifs1), std::istreambuf_iterator<char>(), std::istreambuf_iterator<char>(ifs2));
+	std::cout << (res.first == std::istreambuf_iterator<char>()) << "/" << (res.second == std::istreambuf_iterator<char>()) << std::endl;
 
-	return QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex();
-}
-
-bool PVRush::PVUtils::files_have_same_content(const QString& path1, const QString& path2)
-{
-	return get_file_checksum(path1) == get_file_checksum(path2);
+	return res.first == std::istreambuf_iterator<char>() && res.second == std::istreambuf_iterator<char>();
 }
 
 void PVRush::PVUtils::sort_file(const char* input_file, const char* output_file /*= nullptr*/)

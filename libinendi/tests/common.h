@@ -21,6 +21,22 @@
 namespace pvtest {
 
     /**
+     * Get a tmp filename not already use.
+     *
+     * @warning, It can be use between this call and your creation.
+     */
+    std::string get_tmp_filename()
+    {
+        std::string out_path;
+        // Duplicate input log to make it bigger
+        out_path.resize(L_tmpnam);
+        // We assume that this name will not be use by another program before we create it.
+        tmpnam (&out_path.front());
+
+        return out_path;
+    }
+
+    /**
      * Create and save context for a view creation.
      *
      * * Required when we want to work with NRaw content

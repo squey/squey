@@ -20,8 +20,7 @@ class QStringList;
 
 namespace PVRush {
 namespace PVUtils {
-	const QByteArray get_file_checksum(const QString& path);
-	bool files_have_same_content(const QString& path1, const QString& path2);
+	bool files_have_same_content(const std::string& path1, const std::string& path2);
 
 	/**
 	 * Alphabetically sort the lines of a text file
