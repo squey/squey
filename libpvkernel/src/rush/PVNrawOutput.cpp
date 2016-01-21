@@ -11,8 +11,8 @@
 
 #include <tbb/parallel_invoke.h>
 
-PVRush::PVNrawOutput::PVNrawOutput():
-	_nraw_dest(nullptr)
+PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw):
+	_nraw_dest(&nraw)
 {
 	_nraw_cur_index = 0;
 }

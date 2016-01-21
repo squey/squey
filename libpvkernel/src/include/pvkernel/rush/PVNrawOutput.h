@@ -23,7 +23,8 @@ class PVNrawOutput : public PVRush::PVOutput {
 public:
 	typedef std::map<PVRow,chunk_index> map_pvrow;
 public:
-	PVNrawOutput();
+	PVNrawOutput(PVNraw& nraw);
+	PVNrawOutput() = delete;;
 
 public:
 	// This is the output of a TBB pipeline
