@@ -48,6 +48,9 @@ void PVRush::PVUtils::sort_file(const char* input_file, const char* output_file 
 	fout.close();
 }
 
+/**
+ * Replace `from` with `to` in `init`.
+ */
 static std::string& replace(std::string& init, std::string const& from, std::string const& to)
 {
         size_t pos = 0;
@@ -63,7 +66,7 @@ std::string PVRush::PVUtils::safe_export(std::string str, const std::string& quo
 {
 	static std::string escaped_quote("\\" + quote_char);
 
-        return quote_char + replace(replace(replace(str, "\n", "\\n"), "\r", "\\r"), quote_char, escaped_quote) + quote_char;
+        return quote_char + replace(str, quote_char, escaped_quote) + quote_char;
 }
 
 void PVRush::PVUtils::safe_export(QStringList& str_list, const std::string& quote_char)
