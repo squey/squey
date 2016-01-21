@@ -15,28 +15,24 @@
 #include <tbb/task_scheduler_init.h>
 
 PVRush::PVExtractor::PVExtractor(unsigned int chunks) :
-	_nraw(nullptr),
+	_nraw(new PVRush::PVNraw()),
 	_saved_nraw(nullptr),
+	_saved_nraw_valid(false),
+	_ctrl(),
 	_ctrl_th(_ctrl),
-	_out_nraw()
+	_out_nraw(_nraw),
+	_chunks(chunks),
+	_dump_inv_elts(false),
+	_dump_all_elts(false),
+	_force_naxes(0),
+	_last_start(0),
+	_last_nlines(1)
 {
 	if (chunks == 0) {
 		// Compute a value as 5 times the number of tbb's processors
 		 _chunks = tbb::task_scheduler_init::default_num_threads() * 5;
 		 PVLOG_DEBUG("(PVExtractor::PVExtractor) using %d chunks\n", _chunks);
 	}
-	else {
-		_chunks = chunks;
-	}
-	_saved_nraw_valid = false;
-	_dump_inv_elts = false;
-	_dump_all_elts = false;
-	_last_start = 0;
-	_last_nlines = 1;
-	_force_naxes = 0;
-
-	_nraw = new PVRush::PVNraw();
-	_out_nraw.set_nraw_dest(*_nraw);
 }
 
 PVRush::PVExtractor::~PVExtractor()
