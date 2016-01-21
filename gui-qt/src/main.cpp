@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
 
 	if (not QFile(license_file).exists()) {
 	  QMessageBox::critical(
-	      nullptr, QObject::tr("INENDI-evtx-rewriter"),
+	      nullptr, QObject::tr("INENDI-inspector"),
 	      QObject::tr("You don't have you license file : %1. If you have a license file, rename "
 		"it with this name, otherwise contact : <a "
 		"href=\"mailto:%2?subject=%5BINENDI%5D\">%2</a>")
