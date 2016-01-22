@@ -110,10 +110,8 @@ add_subdirectory(scripts)
 
 # Define generated files
 ###############################################################################
-# Set inspector.sh and make_protect for current build
+# Set inspector.sh for current build
 configure_file(inspector.sh.cmake inspector.sh @ONLY)
-configure_file(make_protect.cmake make_protect @ONLY)
-configure_file(grep_table.sh.cmake grep_table.sh @ONLY)
 
 ###############################################################################
 # Define distribution stuff
