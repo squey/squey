@@ -70,7 +70,7 @@ std::string PVRush::PVFormat::convert_ICU_to_boost(const std::string& tf)
 	static std::vector<std::pair<std::string, std::string>> map;
 
 	// epoch
-	map.emplace_back("epoch", "%s");
+	map.emplace_back("epoch", "%S");
 
 	// year
 	map.emplace_back("yyyy", "%Y");
@@ -118,7 +118,7 @@ std::string PVRush::PVFormat::convert_ICU_to_boost(const std::string& tf)
 	map.emplace_back("Z", "%z");
 	map.emplace_back("v", "%Z");
 	map.emplace_back("VVV", "%Z");
-	map.emplace_back("V", "%Z");
+	map.emplace_back("V", "%z");
 
 	std::string time_format = tf;
 
@@ -143,6 +143,18 @@ std::string PVRush::PVFormat::convert_ICU_to_boost(const std::string& tf)
 			}
 		}
 	}
+
+	// FIXME : Remove verbatim quote et '' -> ' replacement
+	std::string value = "";
+	std::string key = "'";
+		int pos = - value.size();
+		while ((pos = time_format.find(key, pos + value.size())) != std::string::npos) {
+			if(time_format[pos + 1] == '\'') {
+				pos+=1;
+				continue;
+			}
+				time_format.replace(pos, key.size(), value);
+		}
 
 	return time_format;
 }

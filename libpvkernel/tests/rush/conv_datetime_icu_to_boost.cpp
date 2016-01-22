@@ -19,17 +19,23 @@ int main()
 	//list of couple ("datetime","icu format") to test
 	datetime_array.push_back(std::make_pair("1223884800", "epoch"));
 	datetime_array.push_back(std::make_pair("1334036784.745", "epoch"));
+	// No timezone support
 	datetime_array.push_back(std::make_pair("Mon Oct 13 10:00:00 GMT 2008", "eee MMM d H:m:ss V yyyy"));
 	datetime_array.push_back(std::make_pair("2017-03-19 10:00:59.001", "yyyy-M-d H:m:ss.S"));
 	datetime_array.push_back(std::make_pair("2012-03-19T10:00:59.000000000Z", "yyyy-M-d'T'H:m:ss.S"));
 	datetime_array.push_back(std::make_pair("2015-03-27T00:00:07.1882+01:00", "yyyy-M-d'T'H:m:s.SZ"));
 	datetime_array.push_back(std::make_pair("2015-03-26 23:42:35", "yyyy-M-d H:m:s"));
+// No time zone support
 	datetime_array.push_back(std::make_pair("1996.07.10 AD at 15:08:56 PDT", "yyyy.MM.dd G 'at' HH:mm:ss zzz"));
+//	Incorrect day (Wed -> Tue)
 	datetime_array.push_back(std::make_pair("Wed, July 10, '96", "EEE, MMM d, ''yy"));
+//	Error with 12 as h
 	datetime_array.push_back(std::make_pair("12:08 PM", "h:mm a"));
 	datetime_array.push_back(std::make_pair("12 o'clock PM, Pacific Daylight Time", "hh 'o''clock' a, zzzz"));
+	// No time zone support
 	datetime_array.push_back(std::make_pair("0:00 PM, PST", "K:mm a, z"));
-	datetime_array.push_back(std::make_pair("01996.July.10 AD 12:08 PM", "yyyyy.MMMM.dd GGG hh:mm aaa"));
+//	No support for 12 with h
+	datetime_array.push_back(std::make_pair("01996.July.10 12:08 PM", "yyyyy.MMMM.dd hh:mm aaa"));
 
 	// db::array table of datetime_us type
 	pvcop::types::formatter_datetime_us dtf_us("");
@@ -47,7 +53,7 @@ int main()
 			static constexpr size_t str_len = 1024;
 			char str[str_len];
 
-			if(dtf_us.to_string(str, str_len, out_array.data(), i)) {
+			if(dtf_us.to_string(str, str_len, out_array.data(), i) > 0) {
 				if(strncmp(datetime_array[i].first.c_str(), str, datetime_array[i].first.size()!=0)){
 					std::cerr << "Error: datetimes are not identical" << std::endl;
 					std::cerr << "date: " << datetime_array[i].first << " - icu_format: " << datetime_array[i].second
