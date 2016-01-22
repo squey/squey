@@ -140,9 +140,9 @@ static std::string convert_ICU_to_boost(const std::string& tf)
 	return time_format;
 }
 
-pvcop::format PVRush::PVFormat::get_storage_format() const
+pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 {
-	pvcop::format::formatters formatters;
+	pvcop::formatter_desc_list formatters;
 
 	for (const PVAxisFormat& axe : _axes) {
 
@@ -152,7 +152,9 @@ pvcop::format PVRush::PVFormat::get_storage_format() const
 		std::string axe_type = axe.get_type().toStdString();
 		std::string axe_mapping = axe.get_mapping().toStdString();
 
-		if (axe_type == "time") {
+		if (axe_type == "string" || axe_type == "enum") {
+			formatter = "string";
+		} else if (axe_type == "time") {
 			formatter = "datetime";
 
 			const PVAxisFormat::node_args_t& mapping_args = axe.get_args_mapping_string();
@@ -175,16 +177,10 @@ pvcop::format PVRush::PVFormat::get_storage_format() const
 			formatter = "ipv4";
 		}
 
-		pvcop::types::formatter_interface* fi = pvcop::types::__impl::formatter_factory::create(formatter, formatter_params);
-		if (not fi) {
-			PVLOG_ERROR("Error when loading formatter '%s' with parameters '%s'\n", formatter.c_str(), formatter_params.c_str());
-			formatters.clear();
-			//return {}; // FIXME !
-		}
-		formatters.push_back(pvcop::types::formatter_interface::sp(fi));
+		formatters.emplace_back(pvcop::formatter_desc(formatter, formatter_params));
 	}
 
-	return pvcop::format(formatters);
+	return formatters;
 }
 
 void PVRush::PVFormat::clear()
@@ -438,7 +434,7 @@ QHash<QString, PVRush::PVFormat> PVRush::PVFormat::list_formats_in_dir(QString c
 
 	for (int counter=0; counter < normalize_helpers_dir_list.count(); counter++) {
 		QString normalize_helpers_dir_str(normalize_helpers_dir_list[counter]);
-		PVLOG_INFO("Search for formats in %s\n", qPrintable(normalize_helpers_dir_str));	
+		PVLOG_INFO("Search for formats in %s\n", qPrintable(normalize_helpers_dir_str));
 		QDir normalize_helpers_dir(normalize_helpers_dir_str);
 		normalize_helpers_dir.setNameFilters(QStringList() << "*.format" << "*.pcre");
 		QStringList files = normalize_helpers_dir.entryList();

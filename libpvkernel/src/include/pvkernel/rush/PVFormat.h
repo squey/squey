@@ -27,7 +27,7 @@
 #include <pvkernel/rush/PVAxisFormat.h>
 #include <pvkernel/rush/PVFormat_types.h>
 
-#include <pvcop/format.h>
+#include <pvcop/formatter_desc_list.h>
 
 /**
  * \class PVRush::Format
@@ -102,7 +102,7 @@ public:
 	PVFormat(QString const& format_name_, QString const& full_path_);
 	~PVFormat();
 
-	pvcop::format get_storage_format() const;
+	pvcop::formatter_desc_list get_storage_format() const;
 
 	/* Methods */
 	void clear();

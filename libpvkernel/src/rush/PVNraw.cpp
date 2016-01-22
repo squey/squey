@@ -60,9 +60,7 @@ void PVRush::PVNraw::prepare_load(PVRow const nrows)
 	}
 
 	// Create collector and format
-	// FIXME : why collector doesn't hold it format while collection do?
-	_format.reset(new pvcop::format(get_format()->get_storage_format()));
-	_collector.reset(new pvcop::collector(collector_path.data(), *_format));
+	_collector.reset(new pvcop::collector(collector_path.data(), get_format()->get_storage_format()));
 	_collection.reset();
 
 	// Define maximum number of row;
@@ -81,20 +79,20 @@ void PVRush::PVNraw::prepare_load(PVRow const nrows)
 
 bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 {
-	assert(_collector && _format && "We have to be in read state");
+	assert(_collector && "We have to be in read state");
 
 	if (_real_nrows == _max_nrows) {
 		// the whole chunk can be skipped as we extracted enough data.
 		return false;
 	}
 
-	const size_t column_count = _format->column_count();
+	const size_t column_count = _collector->column_count();
 
 	// Write all elements of the chunk in the final nraw
 	PVCore::list_elts const& elts = chunk.c_elements();
 
 	// Use the sink to write data from RAM to HDD
-	pvcop::sink snk(*_collector, *_format);
+	pvcop::sink snk(*_collector);
 
 	std::vector<pvcop::sink::field_t> pvcop_fields;
 	pvcop_fields.reserve(elts.size() *  column_count);
@@ -160,13 +158,10 @@ void PVRush::PVNraw::load_done()
 	assert(_real_nrows <= INENDI_LINES_MAX);
 
 	// Close collector to be sure it is saved before we load it in the collection.
-	if (not _collector->close()) {
-		PVLOG_ERROR("Error when closing collector..\n");
-	}
+	_collector->close();
 
-	_collection.reset(new pvcop::collection(*_collector, *_format));
+	_collection.reset(new pvcop::collection(_collector->rootdir()));
 	_collector.reset();
-	_format.reset();
 }
 
 /*****************************************************************************
@@ -177,7 +172,6 @@ void PVRush::PVNraw::load_done()
 
 void PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
 {
-	_format.reset();
 	_collector.reset();
 	_collection.reset(new pvcop::collection(nraw_folder));
 	_real_nrows = _collection->row_count();

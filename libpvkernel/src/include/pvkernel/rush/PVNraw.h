@@ -22,7 +22,6 @@ extern "C" {
 
 #include <pvcop/collection.h>
 #include <pvcop/collector.h>
-#include <pvcop/format.h>
 
 namespace Inendi {
 	class PVAxesCombination;
@@ -179,7 +178,6 @@ private:
 	PVRow _max_nrows;  //!< Maximum number of lines required.
 	UConverter* _ucnv; //!< Converter from UTF16 to UTF8
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
-	std::unique_ptr<pvcop::format> _format = nullptr; //!< Format with data management information.
 
 	/// Variable usefull for both
 	PVFormat_p format; //!< Format with graphical information.
