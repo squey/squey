@@ -187,7 +187,7 @@ void PVRush::PVNraw::dump_csv(std::ostream& os)
 {
 	PVCore::PVColumnIndexes cols(get_number_cols());
 	std::iota(cols.begin(), cols.end(), 0);
-	for (PVRow i = 0; i < get_number_rows(); i++) {
+	for (PVRow i = 0; i < get_row_count(); i++) {
 		os << export_line(i, cols) << "\n";
 	}
 }

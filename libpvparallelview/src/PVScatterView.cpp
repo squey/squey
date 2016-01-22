@@ -399,7 +399,7 @@ void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 	const uint32_t *y1_plotted, *y2_plotted;
 	get_zones_manager().get_zone_plotteds(zid, &y1_plotted, &y2_plotted);
 	get_images_manager().set_zone(zid);
-	_sel_rect->set_plotteds(y1_plotted, y2_plotted, get_zones_manager().get_number_rows());
+	_sel_rect->set_plotteds(y1_plotted, y2_plotted, get_zones_manager().get_row_count());
 
 	// TODO: register axis name change through the hive
 	set_x_legend(lib_view().get_axis_name(zid));

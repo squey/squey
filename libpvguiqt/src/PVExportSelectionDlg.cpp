@@ -225,7 +225,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(
 
 	// Rows to export
 	PVRush::PVNraw const& nraw = view.get_rushnraw_parent();
-	PVRow nrows = nraw.get_number_rows();
+	PVRow nrows = nraw.get_row_count();
 
 	PVRow start = 0;
 	PVRow step_count = 20000;

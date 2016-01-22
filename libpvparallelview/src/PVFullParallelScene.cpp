@@ -110,7 +110,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 		add_axis(z);
 	}
 
-	_full_parallel_view->set_total_events_number(_lines_view.get_zones_manager().get_number_rows());
+	_full_parallel_view->set_total_events_number(_lines_view.get_zones_manager().get_row_count());
 
 	_timer_render = new QTimer(this);
 	_timer_render->setSingleShot(true);
@@ -604,7 +604,7 @@ void PVParallelView::PVFullParallelScene::update_all_with_timer()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_selected_event_number()
 {
-	const PVRow nlines = lib_view().get_real_output_selection().get_number_of_selected_lines_in_range(0, _lines_view.get_zones_manager().get_number_rows());
+	const PVRow nlines = lib_view().get_real_output_selection().get_number_of_selected_lines_in_range(0, _lines_view.get_zones_manager().get_row_count());
 	graphics_view()->set_selected_events_number(nlines);
 }
 

@@ -1678,7 +1678,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		}
 		src->wait_extract_end(job_import);
 		PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
-		if (src->get_rushnraw().get_number_rows() == 0) {
+		if (src->get_rushnraw().get_row_count() == 0) {
 			QString msg = QString("<p>The files <strong>%1</strong> using format <strong>%2</strong> cannot be opened. ").arg(src->get_name()).arg(src->get_format_name());
 			PVRow nelts = job_import->rejected_elements();
 			if (nelts > 0) {

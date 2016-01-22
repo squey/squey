@@ -173,7 +173,7 @@ void PVRush::PVExtractor::dump_mapnraw()
 void PVRush::PVExtractor::dump_nraw()
 {
 	PVLOG_INFO("Nraw:\n");
-	for (size_t i = 0; i < inendi_min(10,get_nraw().get_number_rows()); i++) {
+	for (size_t i = 0; i < inendi_min(10,get_nraw().get_row_count()); i++) {
 		PVLOG_INFO("Line %d: ", i);
 		for (int j = 0; j < get_nraw().get_number_cols(); j++) {
 			std::cerr << get_nraw().at_string(i,j) << ",";

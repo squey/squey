@@ -182,7 +182,7 @@ bool PVInspector::PVExtractorWidget::process_extraction_job(PVRush::PVController
 	}
 	else {
 		lib_src().wait_extract_end(job);
-		if (ext.get_nraw().get_number_rows() == 0) {
+		if (ext.get_nraw().get_row_count() == 0) {
 			// Empty extraction, cancel it.
 			QMessageBox::warning(this, tr("Empty extraction"), tr("The extraction just performed is empty. Returning to the previous state..."));
 			//ext.restore_nraw();

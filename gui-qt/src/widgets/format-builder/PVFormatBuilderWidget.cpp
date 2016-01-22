@@ -1040,7 +1040,7 @@ void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex
 void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row)
 {
 	PVRush::PVNraw const& nraw = _log_extract->get_nraw();
-	if ((PVRow)row >= nraw.get_number_rows()) {
+	if ((PVRow)row >= nraw.get_row_count()) {
 		return;
 	}
 	QStringList names;

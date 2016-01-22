@@ -24,7 +24,7 @@ int PVInspector::PVNrawListingModel::rowCount(const QModelIndex &parent) const
 	if (parent.isValid() || !_is_consistent)
 		return 0;
 
-	return _nraw->get_number_rows();
+	return _nraw->get_row_count();
 }
 
 int PVInspector::PVNrawListingModel::columnCount(const QModelIndex& parent) const

@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();
 	const PVCore::PVColumnIndexes& col_indexes = view->get_axes_combination().get_original_axes_indexes();
-	nraw.export_lines(stream, sel, col_indexes, 0, nraw.get_number_rows());
+	nraw.export_lines(stream, sel, col_indexes, 0, nraw.get_row_count());
 	stream.flush();
 
 	// Compare files content

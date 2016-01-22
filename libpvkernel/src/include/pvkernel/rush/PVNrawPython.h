@@ -33,7 +33,7 @@ public:
 public:
 	void set_value(PVRow i, PVCol j, PVCore::PVUnicodeString const& str); 
 	std::wstring at(PVRow i, PVCol j);
-	PVRow get_number_rows() const;
+	PVRow get_row_count() const;
 	PVCol get_number_cols() const;
 
 private:

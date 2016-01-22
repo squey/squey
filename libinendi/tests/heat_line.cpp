@@ -86,7 +86,8 @@ int main()
 
     // Setup parameters.
     args["axes"].setValue(PVCore::PVAxisIndexType(1));
-    args["scale"].value<PVCore::PVEnumType>().set_sel(0);
+    args["scale"].value<PVCore::PVEnumType>().set_sel(1);
+    args["scale"];
     args["colors"].setValue(PVCore::PVPercentRangeType(0.6, 0.8));
 
     Inendi::PVLayer out("Out");

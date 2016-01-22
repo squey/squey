@@ -58,8 +58,8 @@ int main(int argc, char **argv)
 	sel_sse_inv.select_none();
 
 	PVParallelView::PVZonesManager& zm = lv->get_zones_manager();
-	const uint32_t *plotted = Inendi::PVPlotted::get_plotted_col_addr(zm.get_uint_plotted(), zm.get_number_rows(), axis);
-	PVParallelView::PVHitGraphBlocksManager manager(plotted, zm.get_number_rows(), NBLOCKS, layout_sel, sel_ref);
+	const uint32_t *plotted = Inendi::PVPlotted::get_plotted_col_addr(zm.get_uint_plotted(), zm.get_row_count(), axis);
+	PVParallelView::PVHitGraphBlocksManager manager(plotted, zm.get_row_count(), NBLOCKS, layout_sel, sel_ref);
 	manager.change_and_process_view(0, 2, 0.5f);
 
 	uint32_t max_count = 0;
@@ -79,10 +79,10 @@ int main(int argc, char **argv)
 	PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse(manager, rect, max_count, sel_sse);
 	PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_invariant_omp(manager, rect, max_count, sel_sse_inv, true);
 
-	std::cout << "Number of selected lines (ref): " << sel_ref.get_number_of_selected_lines_in_range(0, zm.get_number_rows()) << std::endl;
-	std::cout << "Number of selected lines (invariant): " << sel_inv.get_number_of_selected_lines_in_range(0, zm.get_number_rows()) << std::endl;
-	std::cout << "Number of selected lines (sse): " << sel_sse.get_number_of_selected_lines_in_range(0, zm.get_number_rows()) << std::endl;
-	std::cout << "Number of selected lines (sse-invariant): " << sel_sse_inv.get_number_of_selected_lines_in_range(0, zm.get_number_rows()) << std::endl;
+	std::cout << "Number of selected lines (ref): " << sel_ref.get_number_of_selected_lines_in_range(0, zm.get_row_count()) << std::endl;
+	std::cout << "Number of selected lines (invariant): " << sel_inv.get_number_of_selected_lines_in_range(0, zm.get_row_count()) << std::endl;
+	std::cout << "Number of selected lines (sse): " << sel_sse.get_number_of_selected_lines_in_range(0, zm.get_row_count()) << std::endl;
+	std::cout << "Number of selected lines (sse-invariant): " << sel_sse_inv.get_number_of_selected_lines_in_range(0, zm.get_row_count()) << std::endl;
 
 	bool valid = (sel_ref == sel_inv);
 	PV_ASSERT_VALID(valid);

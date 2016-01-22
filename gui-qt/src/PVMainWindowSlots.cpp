@@ -1282,7 +1282,7 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 	Inendi::PVView* view = current_view();
 	/*
 	std::vector<PVCore::PVUnicodeString> vec_str;
-	PVRow nrows = view->get_rushnraw_parent().get_number_rows();
+	PVRow nrows = view->get_rushnraw_parent().get_row_count();
 	vec_str.reserve(nrows);
 
 	QString* tmp = new QString("test");

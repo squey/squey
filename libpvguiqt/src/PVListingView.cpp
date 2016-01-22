@@ -779,7 +779,7 @@ void PVGuiQt::PVListingView::paintEvent(QPaintEvent* event)
 
 void PVGuiQt::PVListingView::goto_line()
 {
-	PVRow nrows = lib_view().get_rushnraw_parent().get_number_rows();
+	PVRow nrows = lib_view().get_rushnraw_parent().get_row_count();
 	const Inendi::PVSelection& sel = lib_view().get_real_output_selection();
 
 	bool ok;

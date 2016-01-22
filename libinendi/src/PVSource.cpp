@@ -247,7 +247,7 @@ const PVRush::PVNraw& Inendi::PVSource::get_rushnraw() const
 
 PVRow Inendi::PVSource::get_row_count() const
 {
-	return nraw->get_number_rows();
+	return nraw->get_row_count();
 }
 
 PVCol Inendi::PVSource::get_column_count() const

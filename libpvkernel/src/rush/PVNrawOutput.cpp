@@ -49,7 +49,7 @@ void PVRush::PVNrawOutput::clear_pvrow_index_map()
 PVRow PVRush::PVNrawOutput::get_rows_count()
 {
 	if (_nraw_dest != nullptr) {
-		return _nraw_dest->get_number_rows();
+		return _nraw_dest->get_row_count();
 	} else {
 		return 0;
 	}
