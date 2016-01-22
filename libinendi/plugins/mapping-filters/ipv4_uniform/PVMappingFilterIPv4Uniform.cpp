@@ -73,11 +73,11 @@ Inendi::PVMappingFilterIPv4Uniform::operator()(PVCol const c,
 	/* first travers the nraw to save into _dest the IPv4 as uint32
 	 */
 	auto const& array = nraw.collection().column(c);
+	auto const& core_array = array.to_core_array<uint32_t>();
+
+#pragma omp parallel for
 	for(size_t i=0; i<array.size(); i++) {
-		std::string content = array.at(i);
-		uint32_t ipv4;
-		PVCore::Network::ipv4_aton(content.data(), content.size(), ipv4);
-		_dest[i].storage_as_uint() = ipv4;
+		_dest[i].storage_as_uint() = core_array[i];
 	}
 
 	/* then ::finalize() do the rest
