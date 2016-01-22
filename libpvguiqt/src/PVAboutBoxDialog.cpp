@@ -10,6 +10,7 @@
 #include <pvguiqt/PVAboutBoxDialog.h>
 
 #include <pvkernel/core/PVVersion.h>
+#include <pvkernel/core/PVLicense.h>
 
 #include <iostream>
 
@@ -45,7 +46,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	content += QString("<br/>Licensed to: ");
 	content += QString("<a href=\"mailto:%1\">%2</a>, %3<br/>").arg(CUSTOMER_EMAIL).arg(CUSTOMER_NAME).arg(CUSTOMER_COMPANY);
 
-	content += QString("Licence expiration day: %1<br/>").arg(CUSTOMER_EXPIRATIONDAY);
+	content += QString("Licence expiration in %1 days<br/>").arg(PVLicense::get_remaining_days());
 	content += QString("Maximum events per source: %L1<br/>").arg(INENDI_LINES_MAX);
 
 

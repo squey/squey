@@ -23,7 +23,6 @@ void PVInspector::PVMainWindow::create_actions()
 	 * For the "File" menu entry
 	 ************************/
 
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	// The solution actions
 	solution_new_Action = new QAction(tr("&New investigation"), this);
 	solution_load_Action = new QAction(tr("&Load an investigation..."), this);
@@ -32,10 +31,8 @@ void PVInspector::PVMainWindow::create_actions()
 
 	// The project actions
 	project_new_Action = new QAction(tr("&New data collection"), this);
-	project_load_Action = new QAction(tr("&Load a data collection..."), this);
 	project_save_Action = new QAction(tr("&Save data collection"), this);
 	project_saveas_Action = new QAction(tr("S&ave data collection as..."), this);
-#endif	// CUSTOMER_CAPABILITY_SAVE
 
 	// The new_file Action
 	new_file_Action = new QAction(tr("&New"), this);
@@ -177,7 +174,6 @@ void PVInspector::PVMainWindow::create_menus()
 	menubar = menuBar();
 
 	file_Menu = menubar->addMenu(tr("&File"));
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	QMenu *solution_Menu = new QMenu(tr("&Investigation"));
 	solution_Menu->addAction(solution_new_Action);
 	solution_Menu->addAction(solution_load_Action);
@@ -186,8 +182,7 @@ void PVInspector::PVMainWindow::create_menus()
 
 	QMenu *project_Menu = new QMenu(tr("&Data collection"));
 	project_Menu->addAction(project_new_Action);
-	/*project_Menu->addAction(project_load_Action);
-	project_Menu->addAction(project_save_Action);
+	/*project_Menu->addAction(project_save_Action);
 	project_Menu->addAction(project_saveas_Action);*/
 
 	file_Menu->addMenu(solution_Menu);
@@ -195,7 +190,6 @@ void PVInspector::PVMainWindow::create_menus()
 	file_Menu->addMenu(project_Menu);
 	file_Menu->addSeparator();
 	file_Menu->addSeparator();
-#endif
 	file_Menu->addSeparator();
 	QMenu *import_Menu = new QMenu(tr("I&mport"));
 	create_actions_import_types(import_Menu);
@@ -259,18 +253,14 @@ void PVInspector::PVMainWindow::create_menus()
 	axes_Menu->addSeparator();*/
 
 	layer_Menu = menubar->addMenu(tr("&Layers"));
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	layer_Menu->addAction(layer_export_Action);
 	layer_Menu->addAction(layer_import_Action);
 	layer_Menu->addSeparator();
-#endif
 
 	layer_Menu->addAction(layer_reset_color_Action);
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	layer_Menu->addSeparator();
 	layer_Menu->addAction(layer_save_ls_Action);
 	layer_Menu->addAction(layer_load_ls_Action);
-#endif
 	layer_Menu->addSeparator();
 	layer_Menu->addAction(layer_copy_ls_details_to_clipboard_Action);
 
@@ -335,17 +325,14 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 void PVInspector::PVMainWindow::connect_actions()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	connect(solution_new_Action, SIGNAL(triggered()), this, SLOT(solution_new_Slot()));
 	connect(solution_load_Action, SIGNAL(triggered()), this, SLOT(solution_load_Slot()));
 	connect(solution_save_Action, SIGNAL(triggered()), this, SLOT(solution_save_Slot()));
 	connect(solution_saveas_Action, SIGNAL(triggered()), this, SLOT(solution_saveas_Slot()));
 
 	connect(project_new_Action, SIGNAL(triggered()), this, SLOT(project_new_Slot()));
-	connect(project_load_Action, SIGNAL(triggered()), this, SLOT(project_load_Slot()));
 	connect(project_save_Action, SIGNAL(triggered()), this, SLOT(project_save_Slot()));
 	connect(project_saveas_Action, SIGNAL(triggered()), this, SLOT(project_saveas_Slot()));
-#endif
 	connect(export_file_Action, SIGNAL(triggered()), this, SLOT(export_file_Slot()));
 	connect(export_selection_Action, SIGNAL(triggered()), this, SLOT(export_selection_Slot()));
 	connect(extractor_file_Action, SIGNAL(triggered()), this, SLOT(extractor_file_Slot()));

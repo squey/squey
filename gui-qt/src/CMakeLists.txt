@@ -166,7 +166,7 @@ set(PV_QT_LIBS Qt5Core Qt5Widgets Qt5Network Qt5Xml Qt5Widgets)
 target_link_libraries(inendi-inspector ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES}
     pvguiqt pvparallelview pvhive inendi pvkernel 
     ${TBB_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY}
-    ${GALVEZ_LIBS} ${OpenMP_LIBRARIES} ${PV_QT_LIBS})
+    ${GALVEZ_LIBS} ${OpenMP_LIBRARIES} ${PV_QT_LIBS} ${PVLICENSE_LIBRARIES})
 
 INSTALL(TARGETS inendi-inspector DESTINATION .)
 

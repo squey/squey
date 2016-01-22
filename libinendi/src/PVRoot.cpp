@@ -184,7 +184,6 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 
 void Inendi::PVRoot::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options, bool save_everything)
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	set_path(path);
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, INENDI_ARCHIVES_VERSION));
 	if (options) {
@@ -193,23 +192,18 @@ void Inendi::PVRoot::save_to_file(QString const& path, PVCore::PVSerializeArchiv
 	ar->set_save_everything(save_everything);
 	ar->get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
 	ar->finish();
-#endif
 }
 
 void Inendi::PVRoot::load_from_file(QString const& path)
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
 	load_from_archive(ar);
-#endif
 }
 
 void Inendi::PVRoot::load_from_archive(PVCore::PVSerializeArchive_p ar)
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	ar->get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
 	_original_archive = ar;
-#endif
 }
 
 PVCore::PVSerializeArchiveOptions_p Inendi::PVRoot::get_default_serialize_options()

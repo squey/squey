@@ -81,12 +81,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	// OBJECTNAME STUFF
 	setObjectName("PVMainWindow");
 	
-
-	// License validity test : it's a simple "time" check
-	if (time(NULL) >= CUSTOMER_RELEASE_EXPIRATION_DATE) {
-		exit(0);
-	}
-
 	//setWindowFlags(Qt::FramelessWindowHint);
 
 	// FIXME

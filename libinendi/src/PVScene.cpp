@@ -279,7 +279,6 @@ PVCore::PVSerializeArchiveOptions_p Inendi::PVScene::get_default_serialize_optio
 
 void Inendi::PVScene::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options, bool save_everything)
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	set_path(path);
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, INENDI_ARCHIVES_VERSION));
 	if (options) {
@@ -288,21 +287,16 @@ void Inendi::PVScene::save_to_file(QString const& path, PVCore::PVSerializeArchi
 	ar->set_save_everything(save_everything);
 	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
 	ar->finish();
-#endif
 }
 
 void Inendi::PVScene::load_from_file(QString const& path)
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
 	load_from_archive(ar);
-#endif
 }
 
 void Inendi::PVScene::load_from_archive(PVCore::PVSerializeArchive_p ar)
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
 	_original_archive = ar;
-#endif
 }

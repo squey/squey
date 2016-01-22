@@ -24,7 +24,6 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <sys/sysinfo.h>
 #include <sys/resource.h>
 
 #include <stdio.h>
@@ -34,6 +33,7 @@
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/segfault_handler.h>
 #include <pvkernel/core/qobject_helpers.h>
+#include <pvkernel/core/PVLicense.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 
 #include <inendi/common.h>
@@ -50,6 +50,8 @@
 #include <boost/program_options.hpp>
 
 #define JULY_5 1309856400
+
+static QString email_address = EMAIL_ADDRESS_CONTACT;
 
 // #ifdef USE_UNIKEY
   // #include <UniKeyFR.h>
@@ -92,30 +94,13 @@ public:
 	}
 };
 
-static __attribute__((noinline)) void __check__t()
-{
-	// License validity test : it's a simple "time" check
-	if (time(NULL) >= CUSTOMER_RELEASE_EXPIRATION_DATE) {
-		exit(0);
-	}
-}
-
-static __attribute__((noinline)) void __check__m()
-{
-	struct sysinfo info;
-	sysinfo(&info);
-
-	if (info.totalram > (size_t) (CUSTOMER_CAPABILITY_MEMORY^4294967295) * 1 << (30)) {
-		exit(0);
-	}
-}
-
 namespace bpo = boost::program_options;
 
 // #define NO_MAIN_WINDOW
 
 int main(int argc, char *argv[])
 {
+
 	init_segfault_handler();
 
 	// Set the soft limit same as hard limit for number of possible files opened
@@ -124,16 +109,34 @@ int main(int argc, char *argv[])
 	ulimit_info.rlim_cur = ulimit_info.rlim_max;
 	setrlimit(RLIMIT_NOFILE, &ulimit_info);
 
+      QString license_file = "/etc/inendi/licenses/inendi-inspector.lic";
 
 #ifndef NO_MAIN_WINDOW
 	QApplication app(argc, argv);
+
+	if (not QFile(license_file).exists()) {
+	  QMessageBox::critical(
+	      nullptr, QObject::tr("INENDI-inspector"),
+	      QObject::tr("You don't have you license file : %1. If you have a license file, rename "
+		"it with this name, otherwise contact : <a "
+		"href=\"mailto:%2?subject=%5BINENDI%5D\">%2</a>")
+	      .arg(license_file)
+	      .arg(email_address));
+	  return 1;
+	}
 #endif
+
+      // Set location to check for license file.
+      setenv("LM_LICENSE_FILE", license_file.toUtf8().constData(), 1);
+
+      PVLicense::RAII_InitLicense license_manager;
+
+      PVLicense::RAII_LicenseFeature full_program_license("INENDI", "INSPECTOR");
 	// Program options
 	bpo::options_description desc_opts("Options");
 	desc_opts.add_options()
 		("help", "produce help message")
 		("format", bpo::value<std::string>(), "path to the format to use. Default is automatic discovery.")
-		("project", bpo::value<std::string>(), "path to the project to load.")
 		;
 	bpo::options_description hidden_opts("Hidden options");
 	hidden_opts.add_options()
@@ -173,8 +176,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	__check__t();
-	__check__m();
+	PVLicense::check_ram();
 
 #ifndef NO_MAIN_WINDOW
 	QSplashScreen splash(QPixmap(":/splash-screen"));
@@ -253,11 +255,6 @@ int main(int argc, char *argv[])
 	pv_mw.show();
 	splash.finish(&pv_mw);
 
-	if (vm.count("project")) {
-		QString prj_path = QString::fromLocal8Bit(vm["project"].as<std::string>().c_str());
-		pv_mw.load_project(prj_path);
-	}
-	else 
 	if (files.size() > 0) {
 		pv_mw.load_files(files, format);
 	}
