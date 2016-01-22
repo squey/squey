@@ -67,7 +67,7 @@ public:
 	/**
 	 * Access layout of the NRaw.
 	 */
-	inline PVRow get_number_rows() const { assert(_collection && "We should be in read state"); return _collection->row_count(); }
+	inline PVRow get_number_rows() const { return _collection?_collection->row_count():_real_nrows; }
 	inline PVCol get_number_cols() const { assert(_collection && "We should be in read state"); return _collection->column_count(); }
 
 	/**
