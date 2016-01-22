@@ -44,16 +44,23 @@
 
 namespace PVRush {
 
-class PVFormatException
+class PVFormatException : public std::runtime_error
 {
-public:
-	virtual QString what() const = 0;
+	public:
+		using std::runtime_error::runtime_error;
 };
 
 class PVFormatInvalid: public PVFormatException
 {
 public:
-	QString what() const { return QString("invalid format (no filters and/or axes)"); }
+	PVFormatInvalid(std::string const& msg) : PVFormatException(msg) {}
+	PVFormatInvalid() : PVFormatException("invalid format (no filters and/or axes)") {}
+};
+
+class PVFormatUnknownType: public PVFormatException
+{
+public:
+	PVFormatUnknownType(std::string const& t) : PVFormatException(t) {}
 };
 
 

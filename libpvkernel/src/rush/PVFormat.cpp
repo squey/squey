@@ -152,7 +152,7 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 		std::string axe_type = axe.get_type().toStdString();
 		std::string axe_mapping = axe.get_mapping().toStdString();
 
-		if (axe_type == "string" || axe_type == "enum") {
+		if (axe_type == "string" || axe_type == "enum" || axe_type == "host") {
 			formatter = "string";
 		} else if (axe_type == "time") {
 			formatter = "datetime";
@@ -175,6 +175,8 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 		}
 		else if (axe_type == "ipv4") {
 			formatter = "ipv4";
+		} else {
+			throw PVRush::PVFormatUnknownType("Unknown axis type : " + axe_type);
 		}
 
 		formatters.emplace_back(pvcop::formatter_desc(formatter, formatter_params));

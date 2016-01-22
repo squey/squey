@@ -51,25 +51,13 @@ private:
 class PVPerlFormatInvalid: public PVFormatInvalid
 {
 public:
-	PVPerlFormatInvalid(QString const& file)
-	{
-		_msg = QObject::tr("Unable to parse %1").arg(file);
-	}
-	QString what() const { return _msg; }
-private:
-	QString _msg;
+	PVPerlFormatInvalid(QString const& file) : PVFormatInvalid(QObject::tr("Unable to parse %1").arg(file).toStdString()) {}
 };
 
 class PVPerlExecException: public PVFormatInvalid
 {
 public:
-	PVPerlExecException(QString const& file, char* msg)
-	{
-		_msg = QObject::tr("Error in Perl file %1: %2").arg(file).arg(QString::fromLocal8Bit(msg));
-	}
-	QString what() const { return _msg; }
-private:
-	QString _msg;
+	PVPerlExecException(QString const& file, char* msg) : PVFormatInvalid(QObject::tr("Error in Perl file %1: %2").arg(file).arg(QString::fromLocal8Bit(msg)).toStdString()) {}
 };
 
 }
