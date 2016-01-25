@@ -95,7 +95,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	pvcop::sink snk(*_collector);
 
 	std::vector<pvcop::sink::field_t> pvcop_fields;
-	pvcop_fields.reserve(elts.size() *  column_count);
+	pvcop_fields.reserve(elts.size() * column_count);
 
 	// Count number of extracted line. It is not the same as the number of elements as some of them
 	// may be invalid or empty or we may skip the end when enough data is extracted.
@@ -120,10 +120,11 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 			return true;
 		}
 
+		assert(column_count == fields.size());
 		for (PVCore::PVField const& field :fields) {
 			// TODO: make the whole process in utf8.. !
 			// Convert field to UT8
-			std::unique_ptr<char> tmp_buf(new char[field.size()]);
+			std::unique_ptr<char[]> tmp_buf(new char[field.size()]);
 			UErrorCode err = U_ZERO_ERROR;
 			size_t size_utf8 = ucnv_fromUChars(_ucnv, tmp_buf.get(), field.size(), (const UChar*) field.begin(), field.size()/sizeof(UChar), &err);
 			if (!U_SUCCESS(err)) {
