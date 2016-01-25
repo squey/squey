@@ -89,13 +89,18 @@ static std::string convert_ICU_to_boost(const std::string& tf)
 	map.emplace_back("M", "%m");
 
 	// day in month
+	map.emplace_back("dd", "%d");
 	map.emplace_back("d", "%d");
 
 	// hour
+	map.emplace_back("HH", "%H");
 	map.emplace_back("H", "%H");
-	map.emplace_back("h", "%h");
+	map.emplace_back("hh", "%l");
+	map.emplace_back("h", "%l");
+	map.emplace_back("K", "%h");
 
 	// minute
+	map.emplace_back("mm", "%M");
 	map.emplace_back("m", "%M");
 
 	// seconde
@@ -105,6 +110,8 @@ static std::string convert_ICU_to_boost(const std::string& tf)
 	map.emplace_back("S", "%F");
 
 	// am/pm marker
+	map.emplace_back("aaa", "%p");
+	map.emplace_back("aa", "%p");
 	map.emplace_back("a", "%p");
 
 	// timezone
