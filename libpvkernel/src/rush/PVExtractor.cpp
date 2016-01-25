@@ -16,8 +16,6 @@
 
 PVRush::PVExtractor::PVExtractor(unsigned int chunks) :
 	_nraw(new PVRush::PVNraw()),
-	_saved_nraw(nullptr),
-	_saved_nraw_valid(false),
 	_ctrl(),
 	_ctrl_th(_ctrl),
 	_out_nraw(*_nraw),
@@ -40,9 +38,6 @@ PVRush::PVExtractor::~PVExtractor()
 	force_stop_controller();
 	if (_nraw) {
 		delete _nraw;
-	}
-	if (_saved_nraw) {
-		delete _saved_nraw;
 	}
 }
 
@@ -202,43 +197,8 @@ void PVRush::PVExtractor::debug()
 	dump_mapnraw();
 }
 
-void PVRush::PVExtractor::save_nraw()
-{
-	//_saved_nraw.format.reset(new PVRush::PVFormat(*_nraw.format));
-	if (_saved_nraw) {
-		delete _saved_nraw;
-	}
-	_saved_nraw = _nraw;
-	_nraw = new PVRush::PVNraw();
-	_nraw->set_format(_saved_nraw->get_format());
-	_out_nraw.set_nraw_dest(*_nraw);
-	_saved_nraw_valid = true;
-}
-
-void PVRush::PVExtractor::restore_nraw()
-{
-	if (_saved_nraw_valid) {
-		assert(_nraw);
-		delete _nraw;
-		_nraw = _saved_nraw;
-		_out_nraw.set_nraw_dest(*_nraw);
-		_saved_nraw_valid = false;
-	}
-}
-
-void PVRush::PVExtractor::clear_saved_nraw()
-{
-	if (_saved_nraw_valid) {
-		assert(_saved_nraw);
-		delete _saved_nraw;
-		_saved_nraw = nullptr;
-		_saved_nraw_valid = false;
-	}
-}
-
 void PVRush::PVExtractor::reset_nraw()
 {
-	clear_saved_nraw();
 	if (_nraw) {
 		delete _nraw;
 	}

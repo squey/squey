@@ -170,32 +170,6 @@ void PVInspector::PVExtractorWidget::update_status_ext(PVCore::PVProgressBox* pb
 	}
 }
 
-/*
-bool PVInspector::PVExtractorWidget::process_extraction_job(PVRush::PVControllerJob_p job)
-{
-	bool ret = true;
-	PVRush::PVExtractor& ext = get_extractor();
-	// Show a progress box that will finish with "accept" when the job is done
-	if (!PVExtractorWidget::show_job_progress_bar(job, ext.get_format().get_format_name(), job->nb_elts_max(), this)) {
-		//ext.restore_nraw();
-		ret = false;
-	}
-	else {
-		lib_src().wait_extract_end(job);
-		if (ext.get_nraw().get_row_count() == 0) {
-			// Empty extraction, cancel it.
-			QMessageBox::warning(this, tr("Empty extraction"), tr("The extraction just performed is empty. Returning to the previous state..."));
-			//ext.restore_nraw();
-			ret = false;
-		}
-		else {
-			//ext.clear_saved_nraw();
-		}
-	}
-
-	return ret;
-}*/
-
 bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int /*nlines*/, QWidget* parent = NULL)
 {
 	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Extracting %1...").arg(desc), parent, 0, QString("Number of elements extracted: %L1"));
@@ -231,7 +205,6 @@ void PVInspector::PVExtractorWidget::process_Slot()
 	size_t index = _slider_index->value();
 	_batch_size = _size_batch_widget->text().toLong();
 	
-	//get_extractor().save_nraw();
 	Inendi::PVSource_sp src_clone = lib_src().clone_with_no_process();
 	PVRush::PVExtractor& ext = src_clone->get_extractor();
 

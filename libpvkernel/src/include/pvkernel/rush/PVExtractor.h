@@ -113,30 +113,9 @@ public:
 	 */
 	void set_format(PVFormat const& format);
 
-	/*! \brief Save a copy of the current NRaw
-	 *
-	 * Save a copy of the current NRaw. If a copy has already been saved, it is ereased by this one.
-	 *  \sa restore_nraw
-	 *  \sa clear_save_nraw
-	 */
-	void save_nraw();
-
-	/*! \brief Restore a copy of the NRaw previously saved by save_nraw
-	 *
-	 * Restore a copy of the NRaw previously saved thanks to save_nraw. If no NRaw has been saved, this
-	 * function does nothing.
-	 */
-	void restore_nraw();
-
 	/*! \brief Clear the current nraw and saved nraw, and create a new empty one.
 	 */
 	void reset_nraw();
-
-	/*! \brief Clear the NRaw previously saved by save_nraw
-	 *
-	 * Clear the NRaw previously saved thanks to save_nraw. If no NRaw has been saved, this function does nothing.
-	 */
-	void clear_saved_nraw();
 
 	/*! \brief Get the number of axes expected by the internal format.
 	 */
@@ -182,8 +161,6 @@ protected:
 protected:
 	PVAggregator _agg;
 	PVNraw *_nraw;
-	PVNraw *_saved_nraw;
-	bool _saved_nraw_valid;
 	PVController _ctrl;
 	PVControllerThread _ctrl_th;
 	PVNrawOutput _out_nraw; // Linked to _nraw
