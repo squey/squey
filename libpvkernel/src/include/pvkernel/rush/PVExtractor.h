@@ -22,6 +22,7 @@
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 namespace PVRush {
+	class PVFormat;
 
 // The famous and wanted PVExtractor !!!!
 /*! \brief Extract datas from an aggregator, process them through filters and write the result to an NRaw
@@ -64,11 +65,6 @@ public:
 	 * \note It is the responsability of the caller to have the pointer to the original PVChunkFilter object valid.
 	 */
 	void set_chunk_filter(PVFilter::PVChunkFilter_f chk_flt);
-
-	/*! \brief 
-	 *  \return A PVControllerJob object that represent the job that has been pushed to the internal job controller. It can be used by the caller to wait for the end of the job (see PVControllerJob::wait_end).
-	 */
-	PVControllerJob_p process_from_pvrow(PVRow start, PVRow end, int priority = 0, bool force_process = true);
 
 	/*! \brief Process a given number of lines from a given index
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
@@ -117,30 +113,9 @@ public:
 	 */
 	void set_format(PVFormat const& format);
 
-	/*! \brief Save a copy of the current NRaw
-	 *
-	 * Save a copy of the current NRaw. If a copy has already been saved, it is ereased by this one.
-	 *  \sa restore_nraw
-	 *  \sa clear_save_nraw
-	 */
-	void save_nraw();
-
-	/*! \brief Restore a copy of the NRaw previously saved by save_nraw
-	 *
-	 * Restore a copy of the NRaw previously saved thanks to save_nraw. If no NRaw has been saved, this
-	 * function does nothing.
-	 */
-	void restore_nraw();
-
 	/*! \brief Clear the current nraw and saved nraw, and create a new empty one.
 	 */
 	void reset_nraw();
-
-	/*! \brief Clear the NRaw previously saved by save_nraw
-	 *
-	 * Clear the NRaw previously saved thanks to save_nraw. If no NRaw has been saved, this function does nothing.
-	 */
-	void clear_saved_nraw();
 
 	/*! \brief Get the number of axes expected by the internal format.
 	 */
@@ -186,8 +161,6 @@ protected:
 protected:
 	PVAggregator _agg;
 	PVNraw *_nraw;
-	PVNraw *_saved_nraw;
-	bool _saved_nraw_valid;
 	PVController _ctrl;
 	PVControllerThread _ctrl_th;
 	PVNrawOutput _out_nraw; // Linked to _nraw

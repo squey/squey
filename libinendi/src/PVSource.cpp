@@ -198,8 +198,9 @@ bool Inendi::PVSource::load_from_disk()
 		return false;
 	}
 
-	return nraw->load_from_disk(_nraw_folder.toStdString(),
-	                            _extractor.get_number_axes());
+	nraw->load_from_disk(_nraw_folder.toStdString());
+
+	return true;
 }
 
 void Inendi::PVSource::extract_finished()
@@ -246,7 +247,7 @@ const PVRush::PVNraw& Inendi::PVSource::get_rushnraw() const
 
 PVRow Inendi::PVSource::get_row_count() const
 {
-	return nraw->get_number_rows();
+	return nraw->get_row_count();
 }
 
 PVCol Inendi::PVSource::get_column_count() const
@@ -254,9 +255,9 @@ PVCol Inendi::PVSource::get_column_count() const
 	return get_format().get_axes().size();
 }
 
-QString Inendi::PVSource::get_value(PVRow row, PVCol col, bool* complete /*= nullptr*/) const
+std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
 {
-	return nraw->at(row, col, complete);
+	return nraw->at_string(row, col);
 }
 
 PVRush::PVExtractor& Inendi::PVSource::get_extractor()
@@ -389,7 +390,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("index_start", start);
 	so.attribute("nlines", nlines);
 
-	QString nraw_path = QString::fromStdString(get_rushnraw().get_nraw_folder());
+	QString nraw_path = QString::fromStdString(get_rushnraw().collection().rootdir());
 	so.attribute("nraw_path", nraw_path, QString());
 
 	// Save the format

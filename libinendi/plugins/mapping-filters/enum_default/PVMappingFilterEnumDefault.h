@@ -55,10 +55,12 @@ private:
 		}
 		uint32_t poscount = 0;
 
-		nraw.visit_column(c, [&](PVRow i, const char* buf, size_t size)
-			{
-				_dest[i].storage_as_uint() = this->process<HashType>(PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size), enum_hash, poscount);
-			});
+		auto const& array = nraw.collection().column(c);
+
+		for(size_t i=0; i<array.size(); i++) {
+			std::string content = array.at(i);
+			_dest[i].storage_as_uint() = this->process<HashType>(PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) content.c_str(), content.size()), enum_hash, poscount);
+		}
 
 		if (_grp_value) {
 			_grp_value->setValue<HashType>(enum_hash);

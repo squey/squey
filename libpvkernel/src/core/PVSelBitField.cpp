@@ -11,6 +11,8 @@
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/rush/PVNraw.h>
 
+#include <pvcop/core/memarray.h>
+
 /******************************************************************************
  *
  * PVCore::PVSelBitField::PVSelBitField()
@@ -44,11 +46,37 @@ PVCore::PVSelBitField::PVSelBitField(PVSelBitField const& o):
 	allocate_and_copy_from(o);
 }
 
+PVCore::PVSelBitField::operator pvcop_selection_t&() { return *static_cast<pvcop_selection_t*>(_selection); }
+PVCore::PVSelBitField::operator const pvcop_selection_t&() const { return *static_cast<const pvcop_selection_t*>(_selection); }
 
 void PVCore::PVSelBitField::ensure_allocated()
 {
 	if (!_table) {
 		allocate_table();
+	}
+}
+
+void PVCore::PVSelBitField::allocate_table() {
+	_selection = new pvcop::core::memarray<bool>(INENDI_LINES_MAX);
+	_table = (pointer) _selection->data();
+}
+
+void PVCore::PVSelBitField::free_table()
+{
+	delete _selection; _table = nullptr;
+}
+
+void PVCore::PVSelBitField::copy_from(PVSelBitField const& o)
+{
+	assert(_table);
+	assert(o._table);
+
+	// FIXME : should use pvcop::core::array<bool>::copy_from
+	static_assert(INENDI_SELECTION_NUMBER_OF_CHUNKS % 2 == 0, "INENDI_SELECTION_NUMBER_OF_CHUNKS must be a multiple of 2.");
+	__m128i sse_c;
+	for (size_t i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i += 2) {
+		sse_c = _mm_load_si128((__m128i const*) &o._table[i]);
+		_mm_store_si128((__m128i*) &_table[i], sse_c);
 	}
 }
 

@@ -156,12 +156,12 @@ PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view
 
 	const uint32_t *uint_plotted =
 		Inendi::PVPlotted::get_plotted_col_addr(_zones_manager.get_uint_plotted(),
-				_zones_manager.get_number_rows(),
+				_zones_manager.get_row_count(),
 				lib_view()->get_original_axis_index(axis));
 
 	PVHitCountView* view = new PVHitCountView(view_sp,
 	                                          uint_plotted,
-	                                          _zones_manager.get_number_rows(),
+	                                          _zones_manager.get_row_count(),
 	                                          axis,
 	                                          parent);
 

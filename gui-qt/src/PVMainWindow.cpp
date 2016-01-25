@@ -53,7 +53,6 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
 
-#include <pvguiqt/PVListDisplayDlg.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
 
 #include <PVFormatBuilderWidget.h>
@@ -72,7 +71,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	_load_solution_dlg(this, tr("Load an investigation..."), QString(), INENDI_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER),
 	_root(new Inendi::PVRoot())
 {
-	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
 
 	reset_root();
@@ -83,12 +81,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	// OBJECTNAME STUFF
 	setObjectName("PVMainWindow");
 	
-
-	// License validity test : it's a simple "time" check
-	if (time(NULL) >= CUSTOMER_RELEASE_EXPIRATION_DATE) {
-		exit(0);
-	}
-
 	//setWindowFlags(Qt::FramelessWindowHint);
 
 	// FIXME
@@ -362,7 +354,6 @@ void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 {
 	if (maybe_save_solution()) {
 		_root.reset();
-		deleteLater();
 		event->accept();
 	}
 	else {
@@ -1687,7 +1678,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		}
 		src->wait_extract_end(job_import);
 		PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
-		if (src->get_rushnraw().get_number_rows() == 0) {
+		if (src->get_rushnraw().get_row_count() == 0) {
 			QString msg = QString("<p>The files <strong>%1</strong> using format <strong>%2</strong> cannot be opened. ").arg(src->get_name()).arg(src->get_format_name());
 			PVRow nelts = job_import->rejected_elements();
 			if (nelts > 0) {

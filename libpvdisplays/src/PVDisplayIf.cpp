@@ -37,15 +37,3 @@ QAction* PVDisplays::__impl::PVDisplayViewAxisIf::action_bound_to_params(Inendi:
 
 	return action;
 }
-
-QWidget* PVDisplays::__impl::PVDisplayViewAxisIf::get_unique_widget_from_action(QAction const& action, QWidget* parent)
-{
-	Params p = get_params_from_action(action);
-	return get_unique_widget(p.view, p.axis_comb, parent);
-}
-
-QWidget* PVDisplays::__impl::PVDisplayViewAxisIf::create_widget_from_action(QAction const& action, QWidget* parent) const
-{
-	Params p = get_params_from_action(action);
-	return create_widget(p.view, p.axis_comb, parent);
-}

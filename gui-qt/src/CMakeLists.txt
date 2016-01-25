@@ -130,35 +130,9 @@ QT5_WRAP_UI(UI_SRC ${UI_FILES})
 # Handle licences for inendi-inspector
 ################################################
 
-if(PROTECT_PASS)
-	set(SET_PROTECT TRUE)
-	set(GALVEZ_CFLAGS $ENV{GALVEZ_READFWD_CFLAGS})
-	set(GALVEZ_LIBS $ENV{GALVEZ_READFWD_LIBS})
-	set(GALVEZ_LDFLAGS $ENV{GALVEZ_READFWD_LDFLAGS})
-	set(GALVEZ_GCC "$ENV{GCC_FLAGS_READFWD}+fake_table_file[${CMAKE_CURRENT_BINARY_DIR}/gen_table.c]")
-endif()
-
-if(SET_PROTECT)
-	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gen_table.c "")
-	list(APPEND SRC_FILES ${CMAKE_CURRENT_BINARY_DIR}/gen_table.c)
-endif()
-
-if (USE_LTO AND SET_PROTECT)
-	# Remove LTO for inendi-inspector as it remove the calls made with MAO
-	list(REMOVE_ITEM CMAKE_CXX_FLAGS_RELPROTECT ${LTO_CXX_FLAGS})
-	list(REMOVE_ITEM CMAKE_SHARED_LINKER_FLAGS_RELPROTECT ${LTO_LINK_FLAGS})
-endif()
-
 add_executable(inendi-inspector ${SRC_FILES} ${MOC_SRC} ${UI_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
 
-if(SET_PROTECT)
-	message(STATUS "Protection activated !")
-	#set_property(SOURCE PVMainWindow.cpp APPEND PROPERTY COMPILE_FLAGS ${GALVEZ_GCC})
-	set_property(SOURCE main.cpp APPEND PROPERTY COMPILE_FLAGS ${GALVEZ_GCC})
-	add_definitions(${GALVEZ_CFLAGS})
-endif()
-
-set_property(TARGET inendi-inspector APPEND PROPERTY LINK_FLAGS ${GALVEZ_LDFLAGS})
+set_property(TARGET inendi-inspector APPEND PROPERTY LINK_FLAGS)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 set(PV_QT_LIBS Qt5Core Qt5Widgets Qt5Network Qt5Xml Qt5Widgets)
@@ -166,7 +140,6 @@ set(PV_QT_LIBS Qt5Core Qt5Widgets Qt5Network Qt5Xml Qt5Widgets)
 target_link_libraries(inendi-inspector ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES}
     pvguiqt pvparallelview pvhive inendi pvkernel 
     ${TBB_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY}
-    ${GALVEZ_LIBS} ${OpenMP_LIBRARIES} ${PV_QT_LIBS})
+    ${OpenMP_LIBRARIES} ${PV_QT_LIBS} ${PVLICENSE_LIBRARIES})
 
 INSTALL(TARGETS inendi-inspector DESTINATION .)
-

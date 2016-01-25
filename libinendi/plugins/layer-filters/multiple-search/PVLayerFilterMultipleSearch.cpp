@@ -12,6 +12,9 @@
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 #include <inendi/PVView.h>
 
+#include <pvcop/db/algo.h>
+#include <pvcop/core/algo/selection.h>
+
 #include <locale.h>
 
 #include <tbb/enumerable_thread_specific.h>
@@ -67,8 +70,16 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterMultipleSearch)
  * Inendi::PVLayerFilterMultipleSearch::operator()
  *
  *****************************************************************************/
+enum ESearchOptions
+{
+	NONE               = 0,
+	REGULAR_EXPRESSION = 1 << 0,
+	EXACT_MATCH        = 1 << 1,
+	CASE_INSENSITIVE   = 1 << 2
+};
+
 void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
-{	
+{
 	int axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>().get_original_index();
 	int interpret = _args[ARG_NAME_INTERPRET].value<PVCore::PVEnumType>().get_sel_index();
 	bool include = _args[ARG_NAME_INCLUDE].value<PVCore::PVEnumType>().get_sel_index() == 0;
@@ -77,138 +88,96 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 	bool is_rx = interpret >= 1;
 	//bool is_wildcard = interpret == 2;
 
+	size_t opts = ((REGULAR_EXPRESSION * is_rx) | (EXACT_MATCH * exact_match) | (CASE_INSENSITIVE * (not case_match)));
+
 	QString const& txt = _args[ARG_NAME_EXPS].value<PVCore::PVPlainTextType>().get_text();
 	QStringList exps = txt.split("\n");
-	std::vector<QByteArray> exps_utf8;
-	std::vector<pcrecpp::RE> rxs;
-	if (is_rx) {
-		int flags = PCRE_UTF8;
-		if (!case_match) {
-			flags |= PCRE_CASELESS;
-		}
-		rxs.reserve(exps.size());
-		for (int i = 0; i < exps.size(); i++) {
-			QString pattern = exps.at(i);
-			if (!pattern.isEmpty()) {
-				rxs.emplace_back(pattern.toUtf8().constData(), flags);
-			}
-		}
-	}
-	else {
-		exps_utf8.resize(exps.size());
+	std::vector<std::string> exps_utf8;
+	exps_utf8.resize(exps.size());
+
 #pragma omp parallel for
-		for (int i = 0; i < exps.size(); i++) {
-			QString const& str = exps[i];
-			if (!str.isEmpty()) {
-				exps_utf8[i] = str.toUtf8();
-			}
+	for (int i = 0; i < exps.size(); i++) {
+		QString const& str = exps[i];
+		if (!str.isEmpty()) {
+			exps_utf8[i] = str.toUtf8().constData();
 		}
 	}
 
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
-
-	tbb::enumerable_thread_specific<PVSelection> tls_sel;
-
-	char* old_locale = setlocale(LC_COLLATE, NULL);
-	setlocale(LC_COLLATE, "fr_FR.UTF-8");
-	BENCH_START(visit);
-	tbb::task_group_context ctxt;
-	nraw.visit_column_tbb_sel(axis_id, [&](PVRow const r, const char* buf, size_t n)
-		{
-			//QString str(QString::fromUtf8(buf, n));
-			bool sel = false;
-			if (is_rx) {
-				for (pcrecpp::RE const& re: rxs) {
-					if (unlikely(should_cancel())) {
-						if (not ctxt.is_group_execution_cancelled()) {
-							ctxt.cancel_group_execution();
-						}
-						return;
-					}
-
-					// Local copy of object
-					pcrecpp::RE my_re = re;
-					bool found;
-					if (exact_match) {
-						found = my_re.FullMatch(pcrecpp::StringPiece(buf, n));
-					}
-					else {
-						found = my_re.PartialMatch(pcrecpp::StringPiece(buf, n));
-					}
-					if (found) {
-						sel = true;
-						break;
-					}
-				}
-			}
-			else {
-				for (int i = 0; i < exps.size(); i++) {
-					if (unlikely(should_cancel())) {
-						if (not ctxt.is_group_execution_cancelled()) {
-							ctxt.cancel_group_execution();
-						}
-						return;
-					}
-
-					QByteArray const& exp = exps_utf8[i];
-					if (exp.isEmpty()) {
-						continue;
-					}
-					if (exact_match) {
-						bool found;
-						if (case_match) {
-							found = (PVCore::PVUnicodeString(buf, n) == PVCore::PVUnicodeString(exp.constData(), exp.size()));
-						}
-						else {
-							found = (PVCore::PVUnicodeString(buf, n).compareNoCase(PVCore::PVUnicodeString(exp.constData(), exp.size())) == 0);
-						}
-						if (found) {
-							sel = true;
-							break;
-						}
-					}
-					else {
-						bool found;
-						if (case_match) {
-							found = (strstr(buf, exp.constData()) != NULL);
-						}
-						else {
-							found = (strcasestr(buf, exp.constData()) != NULL);
-						}
-						if (found) {
-							sel = true;
-							break;
-						}
-					}
-				}
-			}
-
-			sel = !(sel ^ include);
-			tls_sel.local().set_line(r, sel);
-		}, in.get_selection(), &ctxt);
-	BENCH_END(visit, "multiple-search", 1, 1, 1, 1);
-
-	if (should_cancel()) {
-		if (&in != &out) {
-			out = in;
-		}
-		return;
-	}
-
-	setlocale(LC_COLLATE, old_locale);
-
-	typename decltype(tls_sel)::const_iterator it_tls = tls_sel.begin();
 	PVSelection& out_sel = out.get_selection();
-	// Save one copy with std::move :) !
-	if (it_tls == tls_sel.end()) {
-		out_sel.select_none();
-	}
-	else {
-		out_sel = std::move(*it_tls);
-		it_tls++;
-		for (; it_tls != tls_sel.end(); it_tls++) {
-			out_sel.or_optimized(*it_tls);
+
+	const pvcop::db::array& column = nraw.collection().column(axis_id);
+
+	BENCH_START(subselect);
+
+	switch(opts) {
+		case (EXACT_MATCH) : {
+			try {
+				pvcop::db::algo::subselect(column, exps_utf8, in.get_selection(), out_sel);
+			} catch (pvcop::db::exception::partially_converted_error& e) {
+				PVLOG_ERROR("multiple-search : Unable to convert some values");
+			}
 		}
+		break;
+		case (EXACT_MATCH | CASE_INSENSITIVE) : {
+			pvcop::db::algo::subselect_if(column, exps_utf8, [](const std::string& array_value, const std::string& exp_value) {
+				return strcasecmp(array_value.c_str(), exp_value.c_str()) == 0;
+			}, in.get_selection(), out_sel);
+		}
+		break;
+		case (EXACT_MATCH | REGULAR_EXPRESSION) : {
+			pvcop::db::algo::subselect_if(column, exps_utf8, [](const std::string& array_value, const std::string& exp_value) {
+				pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8);
+				return re.FullMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+			}, in.get_selection(), out_sel);
+		}
+		break;
+		case (EXACT_MATCH | REGULAR_EXPRESSION | CASE_INSENSITIVE) : {
+			pvcop::db::algo::subselect_if(column, exps_utf8, [](const std::string& array_value, const std::string& exp_value) {
+				pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8 | PCRE_CASELESS);
+				return re.FullMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+			}, in.get_selection(), out_sel);
+		}
+		break;
+		case (REGULAR_EXPRESSION) : {
+			pvcop::db::algo::subselect_if(column, exps_utf8, [](const std::string& array_value, const std::string& exp_value) {
+				pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8);
+				return re.PartialMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+			}, in.get_selection(), out_sel);
+		}
+		break;
+		case (REGULAR_EXPRESSION | CASE_INSENSITIVE) : {
+			pvcop::db::algo::subselect_if(column, exps_utf8, [](const std::string& array_value, const std::string& exp_value) {
+				pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8 | PCRE_CASELESS);
+				return re.PartialMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+			}, in.get_selection(), out_sel);
+		}
+		break;
+		case (CASE_INSENSITIVE) : {
+			pvcop::db::algo::subselect_if(column, exps_utf8, [](const std::string& array_value, const std::string& exp_value) {
+				return strcasestr(array_value.c_str(), exp_value.c_str()) != nullptr;
+			}, in.get_selection(), out_sel);
+		}
+		break;
+		case (NONE) : {
+			pvcop::db::algo::subselect_if(column, exps_utf8, [](const std::string& array_value, const std::string& exp_value) {
+				return strstr(array_value.c_str(), exp_value.c_str()) != nullptr;
+			}, in.get_selection(), out_sel);
+		}
+		break;
+		default : {
+			assert(false);
+		}
+		break;
+	}
+
+	BENCH_END(subselect, "subselect", 1, 1, 1, 1);
+
+	if (not include) {
+		// invert selection
+		BENCH_START(invert_selection);
+		pvcop::core::algo::invert_selection(out_sel);
+		BENCH_END(invert_selection, "invert_selection", 1, 1, 1, 1);
 	}
 }
 

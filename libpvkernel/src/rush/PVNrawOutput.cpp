@@ -11,8 +11,8 @@
 
 #include <tbb/parallel_invoke.h>
 
-PVRush::PVNrawOutput::PVNrawOutput():
-	_nraw_dest(nullptr)
+PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw):
+	_nraw_dest(&nraw)
 {
 	_nraw_cur_index = 0;
 }
@@ -49,7 +49,7 @@ void PVRush::PVNrawOutput::clear_pvrow_index_map()
 PVRow PVRush::PVNrawOutput::get_rows_count()
 {
 	if (_nraw_dest != nullptr) {
-		return _nraw_dest->get_number_rows();
+		return _nraw_dest->get_row_count();
 	} else {
 		return 0;
 	}
@@ -57,8 +57,6 @@ PVRow PVRush::PVNrawOutput::get_rows_count()
 
 void PVRush::PVNrawOutput::job_has_finished()
 {
-	// Tell the destination NRAW to resize its content
-	// to what it actually has, in case too much
-	// elements have been pre-allocated.
-	nraw_dest().fit_to_content();
+	// Tell the destination NRAW that clean up can be done, everything is imported
+	nraw_dest().load_done();
 }

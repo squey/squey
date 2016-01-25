@@ -140,13 +140,12 @@ int main()
 	PVCore::PVPythonLocker locker;
 
 	boost::python::dict python_own_namespace = python.python_main_namespace.copy();
-	const char* code_ = "print(nraw.at(0,0))\nprint(nraw.at(1,0))\nnraw.set_value(0, 0, nraw.at_alias(1,0))\nprint(nraw.at(0,0))\nref = nraw.at_alias(0,0)\nl = list()\nl.append(ref)\ntest = nraw.at_alias(8,1)";
+	const char* code_ = "print(nraw.at(0,0))\nprint(nraw.at(1,0))\nnraw.set_value(0, 0, nraw.at(1,0))\nprint(nraw.at(0,0))\nref = nraw.at(0,0)\nl = list()\nl.append(ref)\ntest = nraw.at(8,1)";
 
 	try {
 		class_<PVCore::PVUnicodeString>("PVUnicodeString");
 		class_<PVNrawPython>("PVNraw")
 			.def("at", &PVNrawPython::at)
-			.def("at_alias", &PVNrawPython::at_alias, return_internal_reference<>())
 			.def("set_value", &PVNrawPython::set_value)
 			;
 

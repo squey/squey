@@ -5,38 +5,37 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/rush/PVNrawCacheManager.h>
+#include <pvkernel/core/PVSelBitField.h>
+#include <pvkernel/core/PVElement.h>
+#include <pvkernel/core/PVField.h>
 
+#include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVNrawException.h>
 #include <pvkernel/rush/PVUtils.h>
 
-#include <tbb/tick_count.h>
+#include <pvcop/collector.h>
+#include <pvcop/sink.h>
 
 #include <iostream>
+#include <fstream>
 
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
+const std::string PVRush::PVNraw::config_nraw_tmp = "pvkernel/nraw_tmp";
+const std::string PVRush::PVNraw::default_tmp_path = "/tmp/inendi";
+const std::string PVRush::PVNraw::nraw_tmp_pattern = "nraw-XXXXXX";
+const std::string PVRush::PVNraw::nraw_tmp_name_regexp = "nraw-??????";
+const std::string PVRush::PVNraw::default_sep_char = ",";
+const std::string PVRush::PVNraw::default_quote_char = "\"";
 
-#include <QDir>
-#include <QFileInfo>
-
-#define DEFAULT_LINE_SIZE 100
-#define MAX_SIZE_RESERVE (size_t(1024*1024*1024u)) // 1GB
-
-const QString PVRush::PVNraw::config_nraw_tmp = "pvkernel/nraw_tmp";
-const QString PVRush::PVNraw::default_tmp_path = QDir::tempPath() + "/inendi";
-const QString PVRush::PVNraw::nraw_tmp_pattern = "nraw-XXXXXX";
-const QString PVRush::PVNraw::nraw_tmp_name_regexp = "nraw-??????";
-const QString PVRush::PVNraw::default_sep_char = ",";
-const QString PVRush::PVNraw::default_quote_char = "\"";
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::PVNraw
+ *
+ ****************************************************************************/
 
 PVRush::PVNraw::PVNraw():
-	_tmp_conv_buf(nullptr)
+	_real_nrows(0)
 {
-	_real_nrows = 0;
-
 	UErrorCode status = U_ZERO_ERROR;
 	_ucnv = ucnv_open("UTF8", &status);
 }
@@ -44,20 +43,27 @@ PVRush::PVNraw::PVNraw():
 PVRush::PVNraw::~PVNraw()
 {
 	ucnv_close(_ucnv);
-	clear();
 }
 
-void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::prepare_load
+ *
+ ****************************************************************************/
+
+void PVRush::PVNraw::prepare_load(PVRow const nrows)
 {
 	// Generate random path
-	QString nraw_dir_base = PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() + nraw_tmp_pattern;
-	QByteArray nstr = nraw_dir_base.toLocal8Bit();
-	if (mkdtemp(nstr.data()) == nullptr) {
-		throw PVNrawException(QObject::tr("unable to create temporary directory ") + nraw_dir_base);
+	std::string collector_path = PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/" + nraw_tmp_pattern;
+	if (mkdtemp(&collector_path.front()) == nullptr) {
+		throw PVNrawException("unable to create temporary directory " + collector_path);
 	}
 
-	_backend.init(nstr.constData(), ncols);
+	// Create collector and format
+	_collector.reset(new pvcop::collector(collector_path.data(), get_format()->get_storage_format()));
+	_collection.reset();
 
+	// Define maximum number of row;
 	if(nrows == 0) {
 		_max_nrows = INENDI_LINES_MAX;
 	} else {
@@ -65,67 +71,46 @@ void PVRush::PVNraw::reserve(PVRow const nrows, PVCol const ncols)
 	}
 }
 
-void PVRush::PVNraw::clear()
-{
-	if (_tmp_conv_buf) {
-		tbb::scalable_allocator<char>().deallocate(_tmp_conv_buf, _tmp_conv_buf_size);
-	}
-	_real_nrows = 0;
-	_backend.clear_and_remove();
-}
-
-void PVRush::PVNraw::dump_csv()
-{
-	for (PVRow i = 0; i < get_number_rows(); i++) {
-		std::cout << qPrintable(export_line(i)) << std::endl;
-	}
-}
-
-void PVRush::PVNraw::dump_csv(const QString& file_path)
-{
-	FILE* file = fopen(qPrintable(file_path), "w");
-	for (PVRow i = 0; i < get_number_rows(); i++) {
-		const std::string& csv_line = export_line(i).toStdString();
-		fwrite(csv_line.c_str(), csv_line.length(), 1, file);
-		fputc('\n', file);
-	}
-	fclose(file);
-}
-
-void PVRush::PVNraw::reserve_tmp_buf(size_t n)
-{
-	if (_tmp_conv_buf) {
-		if (_tmp_conv_buf_size < n) {
-			tbb::scalable_allocator<char>().deallocate(_tmp_conv_buf, _tmp_conv_buf_size);
-			_tmp_conv_buf = tbb::scalable_allocator<char>().allocate(n);
-			_tmp_conv_buf_size = n;
-		}
-	}
-	else {
-		_tmp_conv_buf = tbb::scalable_allocator<char>().allocate(n);
-		_tmp_conv_buf_size = n;
-	}
-}
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::add_chunk_utf16
+ *
+ ****************************************************************************/
 
 bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 {
+	assert(_collector && "We have to be in read state");
+
 	if (_real_nrows == _max_nrows) {
-		// the whole chunk can be skipped
+		// the whole chunk can be skipped as we extracted enough data.
 		return false;
 	}
 
+	const size_t column_count = _collector->column_count();
+
 	// Write all elements of the chunk in the final nraw
 	PVCore::list_elts const& elts = chunk.c_elements();
-	PVCore::list_elts::const_iterator it_elt;
 
-	UErrorCode err = U_ZERO_ERROR;
-	for (it_elt = elts.begin(); it_elt != elts.end(); it_elt++) {
-		PVCore::PVElement& e = *(*it_elt);
-		if (!e.valid())
+	// Use the sink to write data from RAM to HDD
+	pvcop::sink snk(*_collector);
+
+	std::vector<pvcop::sink::field_t> pvcop_fields;
+	pvcop_fields.reserve(elts.size() * column_count);
+
+	// Count number of extracted line. It is not the same as the number of elements as some of them
+	// may be invalid or empty or we may skip the end when enough data is extracted.
+	PVRow local_row = 0;
+	for (PVCore::PVElement* elt: elts) {
+
+		PVCore::PVElement& e = *elt;
+		if (!e.valid()) {
 			continue;
+		}
+
 		PVCore::list_fields const& fields = e.c_fields();
-		if (fields.size() == 0)
+		if (fields.size() == 0) {
 			continue;
+		}
 
 		if (_real_nrows == _max_nrows) {
 			/* we have enough events, skips the others. As the
@@ -135,191 +120,145 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 			return true;
 		}
 
-		_real_nrows++;
-		PVCol col = 0;
-		PVCore::list_fields::const_iterator it_field;
-		for (it_field = fields.begin(); it_field != fields.end(); it_field++) {
-			// Convert to UTF8
+		assert(column_count == fields.size());
+		for (PVCore::PVField const& field :fields) {
 			// TODO: make the whole process in utf8.. !
-			PVCore::PVField const& field = *it_field;
-			reserve_tmp_buf(field.size());
-			const size_t size_utf8 = ucnv_fromUChars(_ucnv, _tmp_conv_buf, _tmp_conv_buf_size, (const UChar*) field.begin(), field.size()/sizeof(UChar), &err);
+			// Convert field to UT8
+			std::unique_ptr<char[]> tmp_buf(new char[field.size()]);
+			UErrorCode err = U_ZERO_ERROR;
+			size_t size_utf8 = ucnv_fromUChars(_ucnv, tmp_buf.get(), field.size(), (const UChar*) field.begin(), field.size()/sizeof(UChar), &err);
 			if (!U_SUCCESS(err)) {
-				PVLOG_WARN("Unable to convert field %d to UTF8! Field is ignored..\n", col);
+				PVLOG_WARN("Unable to convert a field to UTF8! Field is ignored..\n");
 				continue;
 			}
 
-			_backend.add(col, _tmp_conv_buf, size_utf8);
-			col++;
+			// Save the field
+			pvcop_fields.emplace_back(pvcop::sink::field_t{std::move(tmp_buf), size_utf8});
 		}
+		local_row++;
 	}
+
+
+	if (not snk.write_chunk_by_row(_real_nrows, elts.size(), pvcop_fields.data())) {
+		PVLOG_WARN("Unable to write chunk to disk..\n");
+	}
+
+	_real_nrows += local_row;
 
 	return true;
 }
 
-void PVRush::PVNraw::fit_to_content()
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::load_done
+ *
+ ****************************************************************************/
+void PVRush::PVNraw::load_done()
 {
-	_backend.flush();
-	if (_real_nrows > INENDI_LINES_MAX) {
-		_real_nrows = INENDI_LINES_MAX;
+	assert(_collector);
+	assert(_real_nrows <= INENDI_LINES_MAX);
+
+	// Close collector to be sure it is saved before we load it in the collection.
+	_collector->close();
+
+	_collection.reset(new pvcop::collection(_collector->rootdir()));
+	_collector.reset();
+}
+
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::load_from_disk
+ *
+ ****************************************************************************/
+
+void PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
+{
+	_collector.reset();
+	_collection.reset(new pvcop::collection(nraw_folder));
+	_real_nrows = _collection->row_count();
+}
+
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::dump_csv
+ *
+ ****************************************************************************/
+
+void PVRush::PVNraw::dump_csv(std::ostream& os)
+{
+	PVCore::PVColumnIndexes cols(get_number_cols());
+	std::iota(cols.begin(), cols.end(), 0);
+	for (PVRow i = 0; i < get_row_count(); i++) {
+		os << export_line(i, cols) << "\n";
 	}
 }
 
-QString PVRush::PVNraw::get_value(PVRow row, PVCol col, bool* complete /*= nullptr*/) const
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::dump_csv
+ *
+ ****************************************************************************/
+
+void PVRush::PVNraw::dump_csv(std::string const& file_path)
 {
-	assert(row < get_number_rows());
-	assert(col < get_number_cols());
-	size_t size = 0;
-	const char* buf = _backend.at_no_cache(row, col, size, complete);
-	return QString::fromUtf8(buf, size);
+	std::ofstream ofs(file_path);
+	dump_csv(ofs);
 }
 
-bool PVRush::PVNraw::load_from_disk(const std::string& nraw_folder, PVCol ncols)
-{
-	_backend.init(nraw_folder.c_str(), ncols, false);
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::export_line
+ *
+ ****************************************************************************/
 
-	if (_backend.load_index_from_disk() == false) {
-		return false;
-	}
-
-	_real_nrows = _backend.get_number_rows();
-
-	// _backend.print_indexes();
-
-	return true;
-}
-
-//#define EXPORT_LINE_PARALLEL_REDUCE
-
-#ifdef EXPORT_LINE_PARALLEL_REDUCE
-QString PVRush::PVNraw::export_line(
-	PVRow idx,
-	PVCore::PVColumnIndexes col_indexes /* = PVCore::PVColumnIndexes() */,
-	const QString sep_char /* = default_sep_char */,
-	const QString quote_char /* = default_quote_char */
+std::string PVRush::PVNraw::export_line(PVRow idx,
+	const PVCore::PVColumnIndexes& col_indexes,
+	const std::string sep_char /* = default_sep_char */,
+	const std::string quote_char /* = default_quote_char */
 ) const
 {
-	static QString escaped_quote("\\" + quote_char);
+	static std::string escaped_quote("\\" + quote_char);
 
-	size_t column_count = col_indexes.size() ? col_indexes.size() : get_number_cols();
-	if (col_indexes.size() == 0) {
-		for (size_t i = 0; i < column_count; i++) {
-			col_indexes.push_back(i);
-		}
+	assert(col_indexes.size() != 0);
+
+	// Displayed column, not NRaw column
+	std::string line;
+
+	for(int c: col_indexes) {
+		line += PVRush::PVUtils::safe_export(at_string(idx, c), quote_char) + sep_char;
 	}
 
-	QString empty;
-	QString line = tbb::parallel_deterministic_reduce(
-		tbb::blocked_range<size_t>(tbb::blocked_range<size_t>(0, column_count, 1)),
-		empty,
-		[&](const tbb::blocked_range<size_t>& column, QString) -> QString {
-
-			PVCol c = column.begin();
-			size_t col = col_indexes[c];
-
-			assert(idx < get_number_rows());
-			QString v(at(idx, col));
-
-			PVRush::PVUtils::safe_export(v, sep_char, quote_char);
-
-			return v;
-		},
-		[&](const QString& left, const QString& right) -> QString {
-			QString& l = const_cast<QString&>(left);
-			l.append(sep_char);
-			l.append(right);
-
-			return l;
-		}
-	);
+	// Remove last sep_char
+	line.resize(line.size() - sep_char.size());
 
 	return line;
 }
-#else
-QString PVRush::PVNraw::export_line(
-	PVRow idx,
-	PVCore::PVColumnIndexes col_indexes /* = PVCore::PVColumnIndexes() */,
-	const QString sep_char /* = default_sep_char */,
-	const QString quote_char /* = default_quote_char */
-) const
-{
-	static QString escaped_quote("\\" + quote_char);
 
-	size_t column_count = col_indexes.size() ? col_indexes.size() : get_number_cols();
-	if (col_indexes.size() == 0) {
-		for (size_t i = 0; i < column_count; i++) {
-			col_indexes.push_back(i);
-		}
-	}
-
-	QStringList fields;
-	fields.reserve(column_count);
-	for (size_t i = 0; i < column_count; i++) {
-		fields.append("");
-	}
-	tbb::parallel_for(
-		tbb::blocked_range<size_t>(tbb::blocked_range<size_t>(0, column_count, 1)),
-		[&](tbb::blocked_range<size_t> const& range) {
-
-			for (size_t c = range.begin(); c < range.end(); c++) {
-				size_t col = col_indexes[c];
-
-				assert(idx < get_number_rows());
-				QString v(at(idx, col));
-
-				PVRush::PVUtils::safe_export(v, sep_char, quote_char);
-
-				fields[c] = v;
-			}
-		}
-	), tbb::simple_partitioner();
-
-	size_t line_length = 0;
-	for (size_t i = 0; i < column_count; i++) {
-		line_length += fields[i].size();
-	}
-
-	QString line = fields.join(sep_char);
-
-	return line;
-}
-#endif
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::export_lines
+ *
+ ****************************************************************************/
 
 void PVRush::PVNraw::export_lines(
-	QTextStream& stream,
+	std::ofstream& stream,
 	const PVCore::PVSelBitField& sel,
 	const PVCore::PVColumnIndexes& col_indexes,
 	size_t start_index,
 	size_t step_count,
-	const QString sep_char /* = default_sep_char */,
-	const QString quote_char /* = default_quote_char */
+	const std::string& sep_char /* = default_sep_char */,
+	const std::string& quote_char /* = default_quote_char */
 ) const
 {
-#ifndef NDEBUG
-	PVCol ncols = get_number_cols();
-	assert(ncols > 0);
-#endif
-
-	PVRow nrows_counter = 0;
-
-	PVCore::PVColumnIndexes cols = col_indexes;
-	if (cols.size() == 0) {
-		for (PVCol i = 0; i < get_number_cols(); i++) {
-			cols.push_back(i);
-		}
-	}
+	assert(get_number_cols() > 0);
+	assert(col_indexes.size() != 0);
 
 	for (PVRow line_index = start_index; line_index < start_index + step_count; line_index++) {
+
 		if (!sel.get_line_fast(line_index)) {
 			continue;
 		}
-		if (nrows_counter == step_count) {
-			return;
-		}
 
-		QString line = export_line(line_index, cols, sep_char, quote_char);
-		stream << line << QString("\n");
-
-		nrows_counter++;
+		stream << export_line(line_index, col_indexes, sep_char, quote_char) << "\n";
 	}
 }

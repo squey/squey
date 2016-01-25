@@ -9,10 +9,6 @@
 #include <pvkernel/core/PVPythonClassDecl.h>
 #include <pvkernel/rush/PVNrawPython.h>
 
-PVCore::PVUnicodeString PVRush::PVNrawPython::at_alias(PVRow i, PVCol j)
-{
-	return _nraw->at_unistr(i, j);
-}
 void PVRush::PVNrawPython::set_value(PVRow i, PVCol j, PVCore::PVUnicodeString const& str)
 {
 	if (!_nraw) {
@@ -29,9 +25,9 @@ std::wstring PVRush::PVNrawPython::at(PVRow i, PVCol j)
 	return _nraw->at(i, j).toStdWString();
 }
 
-PVRow PVRush::PVNrawPython::get_number_rows() const
+PVRow PVRush::PVNrawPython::get_row_count() const
 {
-	return _nraw->get_number_rows();
+	return _nraw->get_row_count();
 }
 
 PVCol PVRush::PVNrawPython::get_number_cols() const
@@ -45,7 +41,7 @@ PYTHON_EXPOSE_IMPL(PVRush::PVNrawPython)
 		.def("at", &PVNrawPython::at)
 		.def("at_alias", &PVNrawPython::at_alias)
 		.def("set_value", &PVNrawPython::set_value)
-		.def("get_number_rows", &PVNrawPython::get_number_rows)
+		.def("get_row_count", &PVNrawPython::get_row_count)
 		.def("get_number_cols", &PVNrawPython::get_number_cols)
 	;
 }

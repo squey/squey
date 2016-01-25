@@ -106,18 +106,18 @@ add_pv_compile_test(Trush_mem LINKS ${LINK_LIBRARIES} FILES bench_memory.cpp)
 add_pv_compile_test(Trush_filter_guess LINKS ${LINK_LIBRARIES} FILES filter_guess.cpp)
 add_pv_compile_test(Trush_parser LINKS ${LINK_LIBRARIES} FILES parser.cpp)
 add_pv_compile_test(Trush_format_conv LINKS ${LINK_LIBRARIES} FILES format_conv.cpp)
-add_pv_compile_test(Trush_nraw_backend LINKS ${LINK_LIBRARIES} FILES nraw_backend.cpp)
-add_pv_compile_test(Trush_nraw_sort_uniq LINKS ${LINK_LIBRARIES} FILES nraw_sort_uniq.cpp)
-add_pv_compile_test(Trush_nraw_sort_column LINKS ${LINK_LIBRARIES} FILES nraw_sort_column.cpp)
-add_pv_compile_test(Trush_nraw_sort_column_ssd LINKS ${LINK_LIBRARIES} FILES nraw_sort_column_ssd.cpp)
-add_pv_compile_test(Trush_nraw_create LINKS ${LINK_LIBRARIES} FILES nraw_create.cpp helpers.cpp)
-add_pv_compile_test(Trush_nraw_load_bench LINKS ${LINK_LIBRARIES} FILES nraw_load_bench.cpp)
+add_pv_compile_test(Trush_nraw_create LINKS ${LINK_LIBRARIES} FILES nraw_create.cpp)
+add_test(Trush_nraw_create Trush_nraw_create)
+add_bench(Trush_nraw_create LINKS ${LINK_LIBRARIES} FILES nraw_create.cpp)
+add_pv_compile_test(Trush_nraw_dump LINKS ${LINK_LIBRARIES} FILES nraw_dump.cpp)
+add_test(Trush_nraw_dump Trush_nraw_dump)
+add_bench(Trush_nraw_dump LINKS ${LINK_LIBRARIES} FILES nraw_dump.cpp)
+
 add_pv_compile_test(Trush_format_dump LINKS ${LINK_LIBRARIES} FILES format_dump.cpp helpers.cpp)
 add_pv_compile_test(Trush_process_file_auto_discovery LINKS ${LINK_LIBRARIES} FILES process_file_auto_discovery.cpp helpers.cpp)
 add_pv_compile_test(arcsight_src LINKS ${LINK_LIBRARIES} FILES test_arcsight_source.cpp helpers.cpp
 	${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightInfos.cpp
 	${CMAKE_SOURCE_DIR}/libpvkernel/plugins/common/arcsight/PVArcsightQuery.cpp)
-add_pv_compile_test(Trush_nraw_count_by LINKS ${LINK_LIBRARIES} FILES nraw_count_by.cpp)
 
 add_pv_compile_test(Trush_format LINKS ${LINK_LIBRARIES} FILES format.cpp helpers.cpp)
 add_test(Trush_format Trush_format ${PVRUSH_TEST_FILES}/formats)
@@ -130,9 +130,6 @@ add_test(Trush_ticket_2 Trush_ticket_2)
 
 add_pv_compile_test(Trush_ticket_28 LINKS ${LINK_LIBRARIES} FILES ticket_28.cpp)
 add_test(Trush_ticket_28 Trush_ticket_28 ${PVRUSH_TEST_FILES})
-
-add_pv_compile_test(Trush_nraw_integrity_test LINKS ${LINK_LIBRARIES} FILES nraw_integrity_test.cpp)
-add_test(Trush_nraw_integrity_test Trush_nraw_integrity_test ${PVKERNEL_RUSH_TEST_NRAW_TMP})
 
 add_pv_compile_test(Trush_nraw_unused_directories LINKS ${LINK_LIBRARIES} FILES nraw_unused_directories.cpp)
 add_test(Trush_nraw_unused_directories Trush_nraw_unused_directories ${PVKERNEL_RUSH_TEST_NRAW_TMP})

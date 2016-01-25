@@ -242,7 +242,7 @@ void Inendi::PVMapped::process_rush_pipeline_chunk(PVCore::PVChunk const* chunk,
 void Inendi::PVMapped::create_table()
 {
 	PVRush::PVNraw const& nraw = get_parent()->get_rushnraw();
-	const PVRow nrows = nraw.get_number_rows();
+	const PVRow nrows = nraw.get_row_count();
 	const PVCol ncols = nraw.get_number_cols();
 
 	tbb::tick_count tstart = tbb::tick_count::now();

@@ -106,18 +106,6 @@ protected:
 		return ret;
 	}
 
-	QWidget* get_unique_widget_from_action(QAction const& action, QWidget* parent = NULL)
-	{
-		value_type* obj = get_value_from_action(action);
-		return obj == nullptr ? nullptr : get_unique_widget(obj, parent);
-	}
-
-	QWidget* create_widget_from_action(QAction const& action, QWidget* parent = NULL) const
-	{
-		value_type* obj = get_value_from_action(action);
-		return obj == nullptr ? nullptr : create_widget(obj, parent);
-	}
-
 	inline void get_params_from_action(QAction const& action, value_type* &ret)
 	{
 		ret = get_value_from_action(action);
@@ -205,9 +193,6 @@ public:
 
 protected:
 	QWidget* get_unique_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent = NULL);
-	QWidget* get_unique_widget_from_action(QAction const& action, QWidget* parent = NULL);
-
-	QWidget* create_widget_from_action(QAction const& action, QWidget* parent = NULL) const;
 
 	inline void get_params_from_action(QAction const& action, Inendi::PVView* &view, PVCol& axis_comb)
 	{

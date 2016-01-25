@@ -19,6 +19,8 @@
 #include <QStackedWidget>
 
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVMeanValue.h>
+
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
@@ -181,7 +183,6 @@ public slots:
 	void map_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription, bool save_invalid_elts = false);
 	Inendi::PVScene_p project_new_Slot();
-	void project_load_Slot();
 	bool project_save_Slot();
 	bool project_saveas_Slot();
 	void quit_Slot();
@@ -212,7 +213,6 @@ public slots:
 	void solution_saveas_Slot();
 
 	void close_solution_Slot();
-	bool load_project(const QString &file);
 
 	void create_new_window_for_workspace(QWidget* workspace);
 
@@ -298,7 +298,6 @@ private:
 	QAction *cut_Action;
 	QAction *filter_reprocess_last_filter; 
 	QAction *project_new_Action;
-	QAction *project_load_Action;
 	QAction *project_save_Action;
 	QAction *project_saveas_Action;
 	QAction *solution_new_Action;

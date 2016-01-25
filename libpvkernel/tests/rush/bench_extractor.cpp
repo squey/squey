@@ -117,7 +117,7 @@ double bench(PVRush::PVExtractor &ext, size_t nlines, size_t nthreads)
 	}
 	ext.force_stop_controller();
 	std::sort(durs.begin(), durs.end());
-	printf(" NRAW: %u lines, %u fields.\n", ext.get_nraw().get_number_rows(), ext.get_nraw().get_number_cols());
+	printf(" NRAW: %u lines, %u fields.\n", ext.get_nraw().get_row_count(), ext.get_nraw().get_number_cols());
 	return durs[NTRIES/2];
 }
 

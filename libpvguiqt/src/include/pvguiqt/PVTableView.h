@@ -17,9 +17,16 @@ namespace PVGuiQt {
  */
 class PVTableView: public QTableView
 {
+	Q_OBJECT;
     public:
         PVTableView(QWidget* parent): QTableView(parent)
         {}
+
+    signals:
+	/**
+	 * Emit it on resize event.
+	 */
+	void resize();
 
     protected:
         /**
@@ -27,6 +34,11 @@ class PVTableView: public QTableView
          * to show the full cell content
          */
         bool viewportEvent(QEvent *event) override;
+	
+	/**
+	 * Emite a resize signal on resize event.
+	 */
+	void resizeEvent(QResizeEvent * event) override;
 };
 
 }

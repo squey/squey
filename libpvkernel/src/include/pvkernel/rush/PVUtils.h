@@ -20,8 +20,7 @@ class QStringList;
 
 namespace PVRush {
 namespace PVUtils {
-	const QByteArray get_file_checksum(const QString& path);
-	bool files_have_same_content(const QString& path1, const QString& path2);
+	bool files_have_same_content(const std::string& path1, const std::string& path2);
 
 	/**
 	 * Alphabetically sort the lines of a text file
@@ -31,8 +30,8 @@ namespace PVUtils {
 	 */
 	void sort_file(const char* input_file, const char* output_file = nullptr);
 
-	bool safe_export(QString& str, const QString& sep_char, const QString& quote_char);
-	void safe_export(QStringList& str_list, const QString& sep_char, const QString& quote_char);
+	std::string safe_export(std::string str, const std::string& quote_char);
+	void safe_export(QStringList& str_list, const std::string& quote_char);
 
 }
 }

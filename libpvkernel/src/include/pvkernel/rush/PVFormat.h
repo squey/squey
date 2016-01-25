@@ -25,8 +25,9 @@
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/rush/PVAxisFormat.h>
-
 #include <pvkernel/rush/PVFormat_types.h>
+
+#include <pvcop/formatter_desc_list.h>
 
 /**
  * \class PVRush::Format
@@ -43,16 +44,23 @@
 
 namespace PVRush {
 
-class PVFormatException
+class PVFormatException : public std::runtime_error
 {
-public:
-	virtual QString what() const = 0;
+	public:
+		using std::runtime_error::runtime_error;
 };
 
 class PVFormatInvalid: public PVFormatException
 {
 public:
-	QString what() const { return QString("invalid format (no filters and/or axes)"); }
+	PVFormatInvalid(std::string const& msg) : PVFormatException(msg) {}
+	PVFormatInvalid() : PVFormatException("invalid format (no filters and/or axes)") {}
+};
+
+class PVFormatUnknownType: public PVFormatException
+{
+public:
+	PVFormatUnknownType(std::string const& t) : PVFormatException(t) {}
 };
 
 
@@ -100,6 +108,8 @@ public:
 	PVFormat();
 	PVFormat(QString const& format_name_, QString const& full_path_);
 	~PVFormat();
+
+	pvcop::formatter_desc_list get_storage_format() const;
 
 	/* Methods */
 	void clear();

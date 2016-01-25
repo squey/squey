@@ -104,20 +104,6 @@ void chunk_filter_test(PVChunkFilterByElt &chk_flt, int argc, char** argv)
 	std::cout << "Done. Nraw dump :" << std::endl;
 	dump_nraw(ext.get_nraw());
 
-	// The nraw has got 50 lines. Shrink it to 20
-	std::cout << "Ask the nraw from line 0 to 24 :" << std::endl;
-	job = ext.process_from_pvrow(0, 24, 0, false);
-	job->wait_end();
-	std::cout << "Done. Nraw dump :" << std::endl;
-	dump_nraw(ext.get_nraw());
-
-	// Now ask for nraw lines from 0 to 40
-	std::cout << "Ask the nraw from line 0 to 40 :" << std::endl;
-	job = ext.process_from_pvrow(0, 40, 0, false);
-	job->wait_end();
-	std::cout << "Done. Nraw dump :" << std::endl;
-	dump_nraw(ext.get_nraw());
-	
 	// Now read everything and dump the index table
 	std::cout << "Read everything... !\n" << std::endl;
 	job = ext.read_everything();
@@ -127,13 +113,6 @@ void chunk_filter_test(PVChunkFilterByElt &chk_flt, int argc, char** argv)
 	const PVRush::PVAggregator::list_inputs& in = ext.get_inputs();
 	for (it = in.begin(); it != in.end(); it++)
 		std::cout << "Source " << qPrintable((*it)->human_name()) << " has " << (*it)->last_elt_index() << " elements." << std::endl;
-
-	// Now reask for nraw lines from 0 to 40
-	std::cout << "Ask the nraw from line 0 to 40 :" << std::endl;
-	job = ext.process_from_pvrow(0, 40, 0, false);
-	job->wait_end();
-	std::cout << "Done. Nraw dump :" << std::endl;
-	dump_nraw(ext.get_nraw());
 
 	ext.gracefully_stop_controller();	
 

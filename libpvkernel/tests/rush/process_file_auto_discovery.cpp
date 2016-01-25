@@ -5,7 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#define SIMULATE_PIPELINE
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/rush/PVExtractor.h>
@@ -84,9 +83,6 @@ int main(int argc, char** argv)
 	// Ask for 1 million lines
 	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, 1000000);
 	job->wait_end();
-
-	// Dump the NRAW to stdout
-	dump_nraw_csv(ext.get_nraw());
 
 	return 0;
 }

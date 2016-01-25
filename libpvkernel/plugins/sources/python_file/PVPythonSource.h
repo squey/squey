@@ -50,25 +50,13 @@ private:
 class PVPythonFormatInvalid: public PVFormatInvalid
 {
 public:
-	PVPythonFormatInvalid(QString const& file)
-	{
-		_msg = QObject::tr("Unable to parse %1").arg(file);
-	}
-	QString what() const { return _msg; }
-private:
-	QString _msg;
+	PVPythonFormatInvalid(QString const& file): PVFormatInvalid(QObject::tr("Unable to parse %1").arg(file).toStdString()) {}
 };
 
 class PVPythonExecException: public PVFormatInvalid
 {
 public:
-	PVPythonExecException(QString const& file, const char* msg)
-	{
-		_msg = QObject::tr("Error in Python file %1: %2").arg(file).arg(QString::fromLocal8Bit(msg));
-	}
-	QString what() const { return _msg; }
-private:
-	QString _msg;
+	PVPythonExecException(QString const& file, const char* msg) : PVFormatInvalid(QObject::tr("Error in Python file %1: %2").arg(file).arg(QString::fromLocal8Bit(msg)).toStdString()) {}
 };
 
 }

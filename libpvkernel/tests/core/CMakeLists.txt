@@ -22,7 +22,6 @@ add_pv_compile_test(Tcore_const_fwd LINKS pvkernel FILES const_fwd.cpp)
 add_pv_compile_test(Tcore_pod_tree LINKS pvkernel FILES pod_tree.cpp)
 add_pv_compile_test(Tcore_hardware_concurrency LINKS pvkernel FILES hardware_concurrency.cpp)
 add_pv_compile_test(Tcore_shared_ptr_fwd LINKS pvkernel FILES shared_ptr_fwd.cpp)
-add_pv_compile_test(Tcore_raid_test LINKS pvkernel FILES raid_test.cpp)
 add_pv_compile_test(Tcore_huge_vector LINKS pvkernel FILES huge_vector.cpp)
 add_pv_compile_test(Tcore_lambda_connect LINKS pvkernel FILES lambda_connect.cpp)
 

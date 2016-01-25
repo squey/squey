@@ -8,262 +8,179 @@
 #ifndef PVRUSH_NRAW_H
 #define PVRUSH_NRAW_H
 
-#include <QString>
-#include <QStringList>
-#include <QVector>
-
-#include <vector>
+#include <fstream>
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/core/PVElement.h>
-#include <pvkernel/core/PVField.h>
-#include <pvkernel/core/PVMatrix.h>
-#include <pvkernel/core/PVMeanValue.h>
-#include <pvkernel/core/PVUnicodeString.h>
 #include <pvkernel/core/PVColumnIndexes.h>
 
 #include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVNrawDiskBackend.h>
-
-#include <tbb/tbb_allocator.h>
-#include <tbb/tick_count.h>
-#include <tbb/parallel_reduce.h>
 
 extern "C" {
 #include <unicode/ucsdet.h>
 #include <unicode/ucnv.h>
 }
 
+#include <pvcop/collection.h>
+#include <pvcop/collector.h>
+
 namespace Inendi {
 	class PVAxesCombination;
 }
 
+namespace PVCore {
+	class PVSelBitField;
+	class PVChunk;
+}
+
 namespace PVRush {
 
+/**
+ * Contains all informations to access imported data.
+ *
+ * Start in an invalid state as format is not known yet.
+ * Then, we set format so we can create the collector (import struct)
+ * Finally, data is imported, we don't need collector and use collection instead.
+ *
+ * We can say it has : invalide state, read state and write state.
+ */
 class PVNraw
 {
 public:
-	static const QString config_nraw_tmp;
-	static const QString default_tmp_path;
-	static const QString nraw_tmp_pattern;
-	static const QString nraw_tmp_name_regexp;
-	static const QString default_sep_char;
-	static const QString default_quote_char;
+	static const std::string config_nraw_tmp;
+	static const std::string default_tmp_path;
+	static const std::string nraw_tmp_pattern;
+	static const std::string nraw_tmp_name_regexp;
+	static const std::string default_sep_char;
+	static const std::string default_quote_char;
 
 private:
+	/**
+	 * Disable copy constructors.
+	 */
 	PVNraw& operator=(const PVNraw&) = delete;
 	PVNraw(const PVNraw&) = delete;
-
-public:
-	// Unique values
-	typedef typename PVNrawDiskBackend::unique_values_t unique_values_t;
-	typedef typename PVNrawDiskBackend::unique_values_value_t unique_values_value_t;
-	typedef typename PVNrawDiskBackend::unique_values_unordered_map_t unique_values_unordered_map_t;
-
-	// Count by
-	typedef PVNrawDiskBackend::count_by_t count_by_t;
-	typedef PVNrawDiskBackend::count_by_v1_v2_pair_t count_by_v1_v2_pair_t;
-
-	// Sum by
-	typedef PVNrawDiskBackend::sum_by_t sum_by_t;
-
-	// Min by
-	typedef PVNrawDiskBackend::min_by_t min_by_t;
-
-	// Max by
-	typedef PVNrawDiskBackend::max_by_t max_by_t;
-
-	// Avg by
-	typedef PVNrawDiskBackend::avg_by_t avg_by_t;
 
 public:
 	PVNraw();
 	~PVNraw();
 
-	void reserve(PVRow const nrows, PVCol const ncols);
-	void clear();
+	/**
+	 * Access layout of the NRaw.
+	 */
+	inline PVRow get_row_count() const { return _collection?_collection->row_count():_real_nrows; }
+	inline PVCol get_number_cols() const { assert(_collection && "We should be in read state"); return _collection->column_count(); }
 
-	// Move an nraw data to another PVNraw object. No copy and allocations occurs.
-	inline PVRow get_number_rows() const { return _real_nrows; }
-	inline PVCol get_number_cols() const { return _backend.get_number_cols(); }
-
-	QString get_value(PVRow row, PVCol col, bool* complete = nullptr) const;
-	inline PVCore::PVUnicodeString at_unistr(PVRow row, PVCol col) const
-	{
-		assert(row < get_number_rows());
-		assert(col < get_number_cols());
-		size_t size;
-		const char* buf = _backend.at(row, col, size);
-		return PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size);
-	}
-
-	inline PVCore::PVUnicodeString at_unistr_no_cache(PVRow row, PVCol col) const
-	{
-		assert(row < get_number_rows());
-		assert(col < get_number_cols());
-		size_t size;
-		const char* buf = _backend.at_no_cache(row, col, size);
-		return PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size);
-	}
-
-	inline QString at(PVRow row, PVCol col, bool* complete = nullptr) const { return get_value(row, col, complete); }
+	/**
+	 * Random access to an element in the NRaw.
+	 */
 	inline std::string at_string(PVRow row, PVCol col) const
 	{
-		assert(row < get_number_rows());
+		assert(_collection && "We have to be in read state");
+		assert(row < get_row_count());
 		assert(col < get_number_cols());
-		size_t size;
-		const char* buf = _backend.at(row, col, size);
-		return std::string(buf, size);
+		return _collection->column(col).at(row);
 	}
 
+	/**
+	 * Insert data in the NRaw.
+	 *
+	 * @note: Input data is in utf16 and it is saved using utf8
+	 * @note: We save a full chunk in a raw.
+	 */
 	bool add_chunk_utf16(PVCore::PVChunk const& chunk);
 
-	template <class Iterator>
-	bool add_column(Iterator /*begin*/, Iterator /*end*/)
+	/**
+	 * Get the axis name from the format.
+	 */
+	inline std::string get_axis_name(PVCol format_axis_id) const
 	{
-		return false;
-	}
-
-	inline QString get_axis_name(PVCol format_axis_id) const
-	{
-		if(format_axis_id < format->get_axes().size()) {
-			return format->get_axes().at(format_axis_id).get_name();
+		if(format_axis_id >= format->get_axes().size()) {
+			throw std::runtime_error("Invalid axis id, can't get its name.");
 		}
-		return QString("");
+		return format->get_axes().at(format_axis_id).get_name().toStdString();
 	}
 
-	void resize_nrows(PVRow const nrows)
-	{
-		if (nrows < _real_nrows) {
-			_real_nrows = nrows;
-		}
-	}
+	/**
+	 * Close the collector and start the collection as import is done.
+	 */
+	void load_done();
 
-	template <typename F>
-	inline bool visit_column_tbb(PVCol const c, F const& f, tbb::task_group_context* ctxt = NULL) const
-	{
-		return _backend.visit_column_tbb(c, f, ctxt);
-	}
+	/**
+	 * Create collector and format to load content.
+	 */
+	void prepare_load(PVRow const nrows);
 
-	template <typename F>
-	inline bool visit_column(PVCol const c, F const& f) const
-	{
-		return _backend.visit_column2(c, f);
-	}
-
-	template <typename F>
-	inline bool visit_column_sel(PVCol const c, F const& f, PVCore::PVSelBitField const& sel) const
-	{
-		return _backend.visit_column2_sel(c, f, sel);
-	}
-
-	template <typename F>
-	inline bool visit_column_tbb_sel(PVCol const c, F const& f, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = NULL) const
-	{
-		return _backend.visit_column_tbb_sel(c, f, sel, ctxt);
-	}
-
-	inline bool get_unique_values(PVCol const c, unique_values_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.get_unique_values(c, ret, min, max, sel, ctxt);
-	}
-
-	inline bool count_by(PVCol const col1, PVCol const col2, count_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, size_t& v2_unique_values_count, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.count_by(col1, col2, ret, min, max, sel, v2_unique_values_count, ctxt);
-	}
-
-	inline bool get_sum(PVCol const col, uint64_t& sum, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.get_sum(col, sum, sel, ctxt);
-	}
-
-	inline bool get_min(PVCol const col, uint64_t& min, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.get_min(col, min, sel, ctxt);
-	}
-
-	inline bool get_max(PVCol const col, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.get_max(col, max, sel, ctxt);
-	}
-
-	inline bool get_avg(PVCol const col, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.get_avg(col, max, sel, ctxt);
-	}
-
-	inline bool sum_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, uint64_t& sum, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.sum_by(col1, col2, ret, min, max, sel, sum, ctxt);
-	}
-
-	inline bool max_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.max_by(col1, col2, ret, min, max, sel, ctxt);
-	}
-
-	inline bool min_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.min_by(col1, col2, ret, min, max, sel, ctxt);
-	}
-
-	inline bool avg_by(PVCol const col1, PVCol const col2, sum_by_t& ret, uint64_t& min, uint64_t& max, PVCore::PVSelBitField const& sel, tbb::task_group_context* ctxt = nullptr) const
-	{
-		return _backend.avg_by(col1, col2, ret, min, max, sel, ctxt);
-	}
-
-	QStringList nraw_line_to_qstringlist(PVRow idx) const;
-
-	void fit_to_content();
-
-
-	QString export_line(
+	/**
+	 * Export asked line with a specific column ordering.
+	 *
+	 * Column ordering may differ from original ordering.
+	 */
+	std::string export_line(
 		PVRow idx,
-		PVCore::PVColumnIndexes col_indexes = PVCore::PVColumnIndexes(),
-		const QString sep_char = default_sep_char,
-		const QString quote_char = default_quote_char
+		const PVCore::PVColumnIndexes& col_indexes,
+		const std::string sep_char = default_sep_char,
+		const std::string quote_char = default_quote_char
 	) const;
 
+	/**
+	 * Export step_count lines from start_index with a specific column ordering.
+	 * Less lines may be output as it care about selection and not selected
+	 * lines are not exported
+	 *
+	 * Column ordering may differ from original ordering.
+	 */
 	void export_lines(
-		QTextStream& stream,
+		std::ofstream& stream,
 		const PVCore::PVSelBitField& sel,
 		const PVCore::PVColumnIndexes& col_indexes,
 		size_t start_index,
 		size_t step_count,
-		const QString sep_char = default_sep_char,
-		const QString quote_char = default_quote_char
+		const std::string& sep_char = default_sep_char,
+		const std::string& quote_char = default_quote_char
 	) const;
 
-	void dump_csv();
-	void dump_csv(const QString& file_path);
-
-	PVFormat_p& get_format() { return format; }
-	PVFormat_p const& get_format() const { return format; }
+	/**
+	 * Export the PVNraw with initial ordering.
+	 */
+	void dump_csv(std::ostream &os=std::cout);
+	void dump_csv(const std::string& file_path);
 
 	/**
-	 * returns the folder path used for Nraw files
+	 * Accessors
 	 */
-	const std::string& get_nraw_folder() const { return _backend.get_nraw_folder(); }
+	void set_format(PVFormat_p const& f) { format = f;}
+	PVFormat_p const& get_format() const { return format; }
+
+	pvcop::collection& collection()
+	{
+		assert(_collection && "we have to be in read state");
+		return *_collection;
+	}
+
+	pvcop::collection const& collection() const
+	{
+		assert(_collection && "we have to be in read state");
+		return *_collection;
+	}
 
 public:
-	bool load_from_disk(const std::string& nraw_folder, PVCol ncols);
+	/**
+	 * Create a NRaw from and NRaw folder on HDD.
+	 */
+	void load_from_disk(const std::string& nraw_folder);
 
 private:
-	void clear_table();
-	void reserve_tmp_buf(size_t n);
-	const PVCore::PVColumnIndexes get_column_indexes() const;
+	/// Variable usefull for reading
+	std::unique_ptr<pvcop::collection> _collection = nullptr; //!< Structure to read NRaw content.
 
-private:
-	PVFormat_p format;
-	PVRow _real_nrows;
-	PVRow _max_nrows;
+	/// Variable usefull for loading
+	PVRow _real_nrows; //!< Current number of line in the NRaw.
+	PVRow _max_nrows;  //!< Maximum number of lines required.
+	UConverter* _ucnv; //!< Converter from UTF16 to UTF8
+	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
 
-	mutable PVNrawDiskBackend _backend;
-	UConverter* _ucnv;
-
-	char* _tmp_conv_buf;
-	size_t _tmp_conv_buf_size;
+	/// Variable usefull for both
+	PVFormat_p format; //!< Format with graphical information.
 };
 
 }

@@ -341,10 +341,9 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 
 	// Invalid events widget
 	PVSimpleStringListModel<QStringList>* inv_elts_model = new PVSimpleStringListModel<QStringList>(source->get_invalid_evts());
-	PVGuiQt::PVListDisplayDlg* inv_dlg = new PVGuiQt::PVListDisplayDlg(inv_elts_model, this);
-	inv_dlg->setWindowTitle(tr("Invalid events"));
-	inv_dlg->set_description(tr("There were invalid events during the extraction:"));
-	_inv_evts_dlg = inv_dlg;
+	_inv_evts_dlg = new PVGuiQt::PVListDisplayDlg(inv_elts_model, this);
+	_inv_evts_dlg->setWindowTitle(tr("Invalid events"));
+	_inv_evts_dlg->set_description(tr("There were invalid events during the extraction:"));
 
 	// Register observers on the mapped and plotted
 	source->depth_first_list(

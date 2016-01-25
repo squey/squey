@@ -186,7 +186,7 @@ public slots:
 	static void cancel_thread();
 
 protected slots:
-	void refreshed(QString value, bool valid);
+	void refreshed(QString value);
 	void context_menu_requested(const QPoint&);
 
 private slots:
@@ -195,7 +195,7 @@ private slots:
 	void copy_to_clipboard();
 
 signals:
-	void refresh_impl_finished(QString value, bool valid);
+	void refresh_impl_finished(QString value);
 	void cell_refreshed(int col);
 
 protected:
@@ -228,6 +228,8 @@ protected:
 	static std::thread _thread;
 	static tbb::task_group_context* _ctxt;
 	static bool _thread_running;
+
+	bool _is_summable;
 };
 
 class PVUniqueValuesCellWidget : public PVCellWidgetBase
@@ -256,7 +258,10 @@ class PVSumCellWidget : public PVCellWidgetBase
 	Q_OBJECT
 
 public:
-	PVSumCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
+	PVSumCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item)
+	{
+		setEnabled(_is_summable);
+	}
 
 public slots:
 	virtual void refresh_impl() override;
@@ -289,7 +294,10 @@ class PVAverageCellWidget : public PVCellWidgetBase
 	Q_OBJECT
 
 public:
-	PVAverageCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item) {}
+	PVAverageCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item) : PVCellWidgetBase(table, view, item)
+	{
+		setEnabled(_is_summable);
+	}
 
 public slots:
 	virtual void refresh_impl() override;

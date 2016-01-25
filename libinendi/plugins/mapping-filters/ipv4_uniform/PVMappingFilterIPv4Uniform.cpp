@@ -72,12 +72,13 @@ Inendi::PVMappingFilterIPv4Uniform::operator()(PVCol const c,
 {
 	/* first travers the nraw to save into _dest the IPv4 as uint32
 	 */
-	nraw.visit_column(c, [&](PVRow r, const char* buf, size_t size)
-	                  {
-		                  uint32_t ipv4;
-		                  PVCore::Network::ipv4_aton(buf, size, ipv4);
-		                  _dest[r].storage_as_uint() = ipv4;
-	                  });
+	auto const& array = nraw.collection().column(c);
+	auto const& core_array = array.to_core_array<uint32_t>();
+
+#pragma omp parallel for
+	for(size_t i=0; i<array.size(); i++) {
+		_dest[i].storage_as_uint() = core_array[i];
+	}
 
 	/* then ::finalize() do the rest
 	 */

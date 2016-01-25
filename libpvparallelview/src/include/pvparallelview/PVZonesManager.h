@@ -86,7 +86,7 @@ public:
 	void lazy_init_from_view(Inendi::PVView const& view);
 	inline PVZoneID get_number_of_managed_zones() const { return _axes_comb.size()-1; }
 	inline PVCol get_number_cols() const { return _ncols; }
-	inline PVRow get_number_rows() const { return _nrows; }
+	inline PVRow get_row_count() const { return _nrows; }
 
 	inline Inendi::PVPlotted::uint_plotted_table_t const& get_uint_plotted() const { assert(_uint_plotted); return *_uint_plotted; }
 
@@ -95,8 +95,8 @@ public:
 	{
 		PVCol a, b;
 		get_zone_cols(z, a, b);
-		*plotted_a = Inendi::PVPlotted::get_plotted_col_addr(get_uint_plotted(), get_number_rows(), a);
-		*plotted_b = Inendi::PVPlotted::get_plotted_col_addr(get_uint_plotted(), get_number_rows(), b);
+		*plotted_a = Inendi::PVPlotted::get_plotted_col_addr(get_uint_plotted(), get_row_count(), a);
+		*plotted_b = Inendi::PVPlotted::get_plotted_col_addr(get_uint_plotted(), get_row_count(), b);
 	}
 
 	inline void get_zone_cols(PVZoneID z, PVCol& a, PVCol& b) const

@@ -173,8 +173,9 @@ public:
 	// saved pointer. If this is not wanted, a clone can be made thanks to the clone() method
 	PF get_class_by_name(QString const& name) const
 	{
-		if (!_classes.contains(name))
-			return PF();
+		if (!_classes.contains(name)) {
+			throw std::runtime_error("Unknown plugins : " + name.toStdString());
+		}
 		return _classes.at(name);
 	}
 

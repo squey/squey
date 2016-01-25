@@ -24,7 +24,7 @@ int PVInspector::PVNrawListingModel::rowCount(const QModelIndex &parent) const
 	if (parent.isValid() || !_is_consistent)
 		return 0;
 
-	return _nraw->get_number_rows();
+	return _nraw->get_row_count();
 }
 
 int PVInspector::PVNrawListingModel::columnCount(const QModelIndex& parent) const
@@ -40,7 +40,7 @@ QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int rol
 {
 	switch (role) {
 		case Qt::DisplayRole:
-			return QVariant(_nraw->get_value(index.row(), index.column()));
+			return QString::fromStdString(_nraw->at_string(index.row(), index.column()));
 
 		case Qt::BackgroundRole:
 		{
@@ -64,7 +64,7 @@ QVariant PVInspector::PVNrawListingModel::headerData(int section, Qt::Orientatio
 {
 	if (orientation != Qt::Horizontal || role != Qt::DisplayRole || !_is_consistent)
 		return QAbstractTableModel::headerData(section, orientation, role);
-	return _nraw->get_axis_name(section);
+	return QString::fromStdString(_nraw->get_axis_name(section));
 }
 
 void PVInspector::PVNrawListingModel::set_nraw(PVRush::PVNraw const& nraw)

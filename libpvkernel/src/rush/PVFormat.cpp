@@ -28,6 +28,8 @@
 #include <pvkernel/filter/PVFieldSplitterUTF16Char.h>
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
 
+#include <pvcop/types/impl/formatter_factory.h>
+
 PVRush::PVFormat::PVFormat()
 {
 	axes_count = 0;
@@ -45,6 +47,7 @@ PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path
 	_dump_elts = false;
 	_already_pop = false;
 	_original_was_serialized = false;
+	_restore_inv_elts = false;
 
 	if (format_name.isEmpty() && !full_path.isEmpty()) {
 		QFileInfo info(full_path);
@@ -58,7 +61,136 @@ PVRush::PVFormat::~PVFormat()
 {
 }
 
+/**
+ * ICU : http://userguide.icu-project.org/formatparse/datetime
+ * boost : http://www.boost.org/doc/libs/1_55_0/doc/html/date_time/date_time_io.html
+ */
+static std::string convert_ICU_to_boost(const std::string& tf)
+{
+	static std::vector<std::pair<std::string, std::string>> map;
 
+	// epoch
+	map.emplace_back("epoch", "%s");
+
+	// year
+	map.emplace_back("yyyy", "%Y");
+	map.emplace_back("yy", "%y");
+
+	// day of week
+	map.emplace_back("eeee", "%a");
+	map.emplace_back("eee", "%a");
+	map.emplace_back("e", "%a");
+	map.emplace_back("EEEE", "%a");
+	map.emplace_back("EEE", "%a");
+
+	// month
+	map.emplace_back("MMMM", "%b");
+	map.emplace_back("MMM", "%b");
+	map.emplace_back("M", "%m");
+
+	// day in month
+	map.emplace_back("dd", "%d");
+	map.emplace_back("d", "%d");
+
+	// hour
+	map.emplace_back("HH", "%H");
+	map.emplace_back("H", "%H");
+	map.emplace_back("hh", "%l");
+	map.emplace_back("h", "%l");
+	map.emplace_back("K", "%h");
+
+	// minute
+	map.emplace_back("mm", "%M");
+	map.emplace_back("m", "%M");
+
+	// seconde
+	map.emplace_back("ss", "%S");
+
+	// fractional second
+	map.emplace_back("S", "%F");
+
+	// am/pm marker
+	map.emplace_back("aaa", "%p");
+	map.emplace_back("aa", "%p");
+	map.emplace_back("a", "%p");
+
+	// timezone
+	map.emplace_back("Z", "%z");
+	map.emplace_back("v", "%Z");
+	map.emplace_back("VVV", "%Z");
+	map.emplace_back("V", "%Z");
+
+	std::string time_format = tf;
+
+	// iterate on the map with respect to the order of insertion
+	for (const auto& token : map) {
+
+		const std::string& key = token.first;
+		const std::string& value = token.second;
+
+		int pos = - value.size();
+		while ((pos = time_format.find(key, pos + value.size())) != std::string::npos) {
+
+			// check that we are not in a '...' section
+			bool verbatim = std::count(time_format.begin(), time_format.begin() + pos, '\'') % 2 == 1;
+			if (not verbatim) {
+
+				// Don't try to replace an already replaced token
+				bool already_replaced_token = (pos > 0 && time_format[pos -1] == '%');
+				if (not already_replaced_token) {
+					time_format.replace(pos, key.size(), value);
+				}
+			}
+		}
+	}
+
+	return time_format;
+}
+
+pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
+{
+	pvcop::formatter_desc_list formatters;
+
+	for (const PVAxisFormat& axe : _axes) {
+
+		std::string formatter;
+		std::string formatter_params;
+
+		std::string axe_type = axe.get_type().toStdString();
+		std::string axe_mapping = axe.get_mapping().toStdString();
+
+		if (axe_type == "string" || axe_type == "enum" || axe_type == "host") {
+			formatter = "string";
+		} else if (axe_type == "time") {
+			formatter = "datetime";
+
+			const PVAxisFormat::node_args_t& mapping_args = axe.get_args_mapping_string();
+			std::string time_format = mapping_args["time-format"].toStdString();
+
+			formatter_params = convert_ICU_to_boost(time_format);
+		}
+		else if (axe_type == "integer") {
+			if (axe_mapping == "unsigned") {
+				formatter = "number_uint32";
+			}
+			else if (axe_mapping == "default") {
+				formatter = "number_int32";
+			}
+		}
+		else if (axe_type == "float") {
+			formatter = "number_float";
+		}
+		else if (axe_type == "ipv4") {
+			formatter = "ipv4";
+		} else {
+			throw PVRush::PVFormatUnknownType("Unknown axis type : " + axe_type);
+		}
+
+		formatters.emplace_back(pvcop::formatter_desc(formatter, formatter_params));
+	}
+
+	return formatters;
+}
 
 void PVRush::PVFormat::clear()
 {
@@ -311,7 +443,7 @@ QHash<QString, PVRush::PVFormat> PVRush::PVFormat::list_formats_in_dir(QString c
 
 	for (int counter=0; counter < normalize_helpers_dir_list.count(); counter++) {
 		QString normalize_helpers_dir_str(normalize_helpers_dir_list[counter]);
-		PVLOG_INFO("Search for formats in %s\n", qPrintable(normalize_helpers_dir_str));	
+		PVLOG_INFO("Search for formats in %s\n", qPrintable(normalize_helpers_dir_str));
 		QDir normalize_helpers_dir(normalize_helpers_dir_str);
 		normalize_helpers_dir.setNameFilters(QStringList() << "*.format" << "*.pcre");
 		QStringList files = normalize_helpers_dir.entryList();

@@ -100,8 +100,5 @@ int main(int argc, char** argv)
 	memset(count_buffer, 0, sizeof(uint32_t)*SIZE_RED);
 	count_y2_seq(count_buffer, zt, plotted_col, 9, 0);
 
-	PVParallelView::common::release();
-
-
 	return 0;
 }

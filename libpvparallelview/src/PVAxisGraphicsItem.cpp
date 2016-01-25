@@ -252,7 +252,7 @@ void PVParallelView::PVAxisGraphicsItem::set_axis_text_value(QGraphicsTextItem* 
 {
 	const PVCol combined_col = get_combined_axis_column();
 	const QColor color = lib_axis()->get_titlecolor().toQColor();
-	const QString txt = _lib_view.get_data(r, combined_col);
+	const QString txt = QString::fromStdString(_lib_view.get_data(r, combined_col));
 
 	set_item_text_value(item, txt, color, _zone_width);
 }

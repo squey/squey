@@ -15,28 +15,22 @@
 #include <tbb/task_scheduler_init.h>
 
 PVRush::PVExtractor::PVExtractor(unsigned int chunks) :
-	_nraw(nullptr),
-	_saved_nraw(nullptr),
+	_nraw(new PVRush::PVNraw()),
+	_ctrl(),
 	_ctrl_th(_ctrl),
-	_out_nraw()
+	_out_nraw(*_nraw),
+	_chunks(chunks),
+	_dump_inv_elts(false),
+	_dump_all_elts(false),
+	_force_naxes(0),
+	_last_start(0),
+	_last_nlines(1)
 {
 	if (chunks == 0) {
 		// Compute a value as 5 times the number of tbb's processors
 		 _chunks = tbb::task_scheduler_init::default_num_threads() * 5;
 		 PVLOG_DEBUG("(PVExtractor::PVExtractor) using %d chunks\n", _chunks);
 	}
-	else {
-		_chunks = chunks;
-	}
-	_saved_nraw_valid = false;
-	_dump_inv_elts = false;
-	_dump_all_elts = false;
-	_last_start = 0;
-	_last_nlines = 1;
-	_force_naxes = 0;
-
-	_nraw = new PVRush::PVNraw();
-	_out_nraw.set_nraw_dest(*_nraw);
 }
 
 PVRush::PVExtractor::~PVExtractor()
@@ -44,9 +38,6 @@ PVRush::PVExtractor::~PVExtractor()
 	force_stop_controller();
 	if (_nraw) {
 		delete _nraw;
-	}
-	if (_saved_nraw) {
-		delete _saved_nraw;
 	}
 }
 
@@ -110,57 +101,12 @@ chunk_index PVRush::PVExtractor::pvrow_to_agg_index(PVRow start, bool& found)
 	return ret;
 }
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_pvrow(PVRow start, PVRow end, int priority, bool force_process)
-{
-	assert(start <= end);
-	set_sources_number_fields();
-
-	// Given two pvrows, this function will create an nraw from these two indexes. If the indexes are already in the nraw,
-	// it is just shrinked, unless force_process is set to true.
-	
-	// Find the aggregator chunk index corresponding to start
-	bool idx_found;
-	chunk_index idx_start = pvrow_to_agg_index(start, idx_found);
-	
-	// If it can't be found...
-	if (!idx_found) {
-		if (start != 0) {
-			// Well, heh, we don't know what to do, because we can't know where to start from !
-			assert(false);
-		}
-		// This means we need "end+1" lines from 0. Let's go !
-		return process_from_agg_nlines(0, end+1, priority);
-	}
-
-	// Check whether lines from "start" to "end" already exists
-	if (end < get_nraw().get_number_rows()) {
-		if (force_process) {
-			// Ok, we got them, but we want them to be reprocessed. Let's do this !
-			return process_from_agg_nlines(idx_start, end-start + 1);
-		}
-		// Shrink the nraw
-		get_nraw().resize_nrows(end-start+1);
-		return PVControllerJob_p(new PVControllerJobDummy());
-	}
-	else {
-		// Process the missing ones (or all of them if force_process is set)
-		if (!force_process) {
-			// TODO!
-			//new_idx_start = _agg.last_elt_agg_index() + 1;
-		}
-		return process_from_agg_nlines(idx_start, end-start+1, priority);
-	}
-
-	return PVControllerJob_p(new PVControllerJobDummy());
-}
-
-
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority)
 {
 	nlines = std::min(nlines, (chunk_index) INENDI_LINES_MAX);
 
 	set_sources_number_fields();
-	get_nraw().reserve(nlines, get_number_axes());
+	get_nraw().prepare_load(nlines);
 
 	_agg.set_skip_lines_count(start);
 	_agg.set_strict_mode(start > 0);
@@ -186,7 +132,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	end = std::min(end, start + ((chunk_index) INENDI_LINES_MAX) - 1);
 
 	set_sources_number_fields();
-	get_nraw().reserve(end-start, get_number_axes());
+	get_nraw().prepare_load(end-start);
 
 	_out_nraw.clear_pvrow_index_map();
 
@@ -221,16 +167,11 @@ void PVRush::PVExtractor::dump_mapnraw()
 
 void PVRush::PVExtractor::dump_nraw()
 {
-//	for (int i = 0; i < inendi_min(10,_nraw.table.size()); i++) {
-//		PVLOG_INFO("Line %d: ", i);
-//		debug_qstringlist(_nraw.table[i]);
-//	}
-
 	PVLOG_INFO("Nraw:\n");
-	for (size_t i = 0; i < inendi_min(10,get_nraw().get_number_rows()); i++) {
+	for (size_t i = 0; i < inendi_min(10,get_nraw().get_row_count()); i++) {
 		PVLOG_INFO("Line %d: ", i);
 		for (int j = 0; j < get_nraw().get_number_cols(); j++) {
-			std::cerr << qPrintable(get_nraw().at(i,j)) << ",";
+			std::cerr << get_nraw().at_string(i,j) << ",";
 		}
 		std::cerr << std::endl;
 	}
@@ -256,56 +197,20 @@ void PVRush::PVExtractor::debug()
 	dump_mapnraw();
 }
 
-void PVRush::PVExtractor::save_nraw()
-{
-	//_saved_nraw.format.reset(new PVRush::PVFormat(*_nraw.format));
-	if (_saved_nraw) {
-		delete _saved_nraw;
-	}
-	_saved_nraw = _nraw;
-	_nraw = new PVRush::PVNraw();
-	_nraw->get_format() = _saved_nraw->get_format();
-	_out_nraw.set_nraw_dest(*_nraw);
-	_saved_nraw_valid = true;
-}
-
-void PVRush::PVExtractor::restore_nraw()
-{
-	if (_saved_nraw_valid) {
-		assert(_nraw);
-		delete _nraw;
-		_nraw = _saved_nraw;
-		_out_nraw.set_nraw_dest(*_nraw);
-		_saved_nraw_valid = false;
-	}
-}
-
-void PVRush::PVExtractor::clear_saved_nraw()
-{
-	if (_saved_nraw_valid) {
-		assert(_saved_nraw);
-		delete _saved_nraw;
-		_saved_nraw = nullptr;
-		_saved_nraw_valid = false;
-	}
-}
-
 void PVRush::PVExtractor::reset_nraw()
 {
-	clear_saved_nraw();
 	if (_nraw) {
 		delete _nraw;
 	}
 	PVRush::PVFormat_p format = _nraw->get_format();
 	_nraw = new PVNraw();
-	_nraw->get_format() = format;
+	_nraw->set_format(format);
 	_out_nraw.set_nraw_dest(*_nraw);
 }
 
 void PVRush::PVExtractor::set_format(PVFormat const& format)
 {
-	PVFormat* nraw_format = new PVFormat(format);
-	get_nraw().get_format().reset(nraw_format);
+	get_nraw().set_format(std::make_shared<PVFormat>(format));
 }
 
 void PVRush::PVExtractor::force_number_axes(PVCol naxes)

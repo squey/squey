@@ -1,83 +1,56 @@
 /**
  * @file
  *
- * @copyright (C) Picviz Labs 2010-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI 2015
  */
 
-#define SIMULATE_PIPELINE
-#include <pvkernel/filter/PVPluginsLoad.h>
-#include <pvkernel/rush/PVPluginsLoad.h>
-#include <pvkernel/rush/PVExtractor.h>
-#include <pvkernel/rush/PVControllerJob.h>
-#include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVTests.h>
-#include <pvkernel/rush/PVFileDescription.h>
-#include <cstdlib>
-#include <iostream>
-#include "helpers.h"
-#include <QCoreApplication>
-#include "test-env.h"
+#include <fstream>
 
-int main(int argc, char** argv)
+#include <pvkernel/core/inendi_assert.h>
+
+#include "common.h"
+
+#ifdef INSPECTOR_BENCH
+constexpr static size_t nb_dup = 20;
+#else
+constexpr static size_t nb_dup = 1;
+#endif
+
+constexpr static size_t nb_lines = 50000 * nb_dup;
+
+const std::string filename = TEST_FOLDER "/picviz/heat_line.csv";
+const std::string fileformat = TEST_FOLDER "/picviz/heat_line.csv.format";
+
+/**
+ * Load data in the NRaw.
+ */
+int main()
 {
-	if (argc <= 3) {
-		std::cerr << "Usage: " << argv[0] << " input_log_file format output_csv_file [lines_count=1000000]" << std::endl;
-		return 1;
-	}
-	uint64_t nb_lines = 1000000;
-	if (argc >= 5) {
-		nb_lines = atoi(argv[4]);
-	}
+	pvtest::TestEnv env(filename, fileformat, nb_dup);
 
-	init_env();
-	QCoreApplication app(argc, argv);
-	PVFilter::PVPluginsLoad::load_all_plugins();
-	PVRush::PVPluginsLoad::load_all_plugins();
+	auto start = std::chrono::system_clock::now(); 
 
-	// Input file
-	QString path_file(argv[1]);
-	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
+	env.load_data(nb_lines);
 
-	// Load the given format file
-	QString path_format(argv[2]);
-	PVLOG_INFO("Load format...\n");
-	PVRush::PVFormat format("format", path_format);
-	if (!format.populate(true)) {
-		std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;
-		return 1;
-	}
-	PVLOG_INFO("Format loaded.\n");
+	auto end = std::chrono::system_clock::now(); 
+	std::chrono::duration<double> diff = end - start;
+	std::cout << diff.count();
 
-	// Get the source creator
-	QString file_path(argv[1]);
-	PVRush::PVSourceCreator_p sc_file;
-	if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
-		return 1;
-	}
+#ifndef INSPECTOR_BENCH
+	std::string out_path = pvtest::get_tmp_filename();
+	// Dump the NRAW to file and check value is the same
+	env._ext.get_nraw().dump_csv(out_path);
 
-	// Process that file with the found source creator thanks to the extractor
-	PVLOG_INFO("Creating source...\n");
-	PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file, format);
-	if (!src) {
-		std::cerr << "Unable to create PVRush source from file " << argv[1] << std::endl;
-		return 1;
-	}
-	PVLOG_INFO("Source created.\n");
+	std::ifstream ifs_res(out_path);
+	std::string content_res{std::istreambuf_iterator<char>(ifs_res), std::istreambuf_iterator<char>()};
 
-	// Create the extractor
-	PVRush::PVExtractor ext;
-	ext.start_controller();
-	ext.add_source(src);
-	ext.set_format(format);
-	ext.set_chunk_filter(format.create_tbb_filters());
+	std::ifstream ifs_ref(filename);
+	std::string content_ref{std::istreambuf_iterator<char>(ifs_ref), std::istreambuf_iterator<char>()};
 
-	PVLOG_INFO("Asking for %lu lines...\n", nb_lines);
-	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, nb_lines);
-	job->wait_end();
+	PV_VALID(content_ref, content_res);
 
-	// Dump the NRAW to file
-	dump_nraw_csv(ext.get_nraw(), argv[3]);
+	std::remove(out_path.c_str());
+#endif
 
 	return 0;
 }

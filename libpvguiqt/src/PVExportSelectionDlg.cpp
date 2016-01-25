@@ -185,11 +185,11 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(
 
 	// TODO: put an option in the widget for the file locale
 	// Open a text stream with the current locale (by default in QTextStream)
-	QTextStream stream(&file);
+	std::ofstream ofs(file.fileName().toStdString());
 
 	// Get export characters parameters
-	const QString sep_char = export_selection_dlg.separator_char();
-	const QString quote_char = export_selection_dlg.quote_char();
+	const std::string sep_char = export_selection_dlg.separator_char().toStdString();
+	const std::string quote_char = export_selection_dlg.quote_char().toStdString();
 
 	// Select the correct selection:
 	// CUSTOM: use the export_selection_dlg axis combination and export
@@ -219,13 +219,13 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(
 
 	// Export header
 	if (export_selection_dlg.export_columns_header()) {
-		PVRush::PVUtils::safe_export(str_list, sep_char, quote_char);
-		stream << "#" << str_list.join(sep_char) << "\n";
+		PVRush::PVUtils::safe_export(str_list, quote_char);
+		ofs << "#" << str_list.join(export_selection_dlg.separator_char()).toStdString() << "\n";
 	}
 
 	// Rows to export
 	PVRush::PVNraw const& nraw = view.get_rushnraw_parent();
-	PVRow nrows = nraw.get_number_rows();
+	PVRow nrows = nraw.get_row_count();
 
 	PVRow start = 0;
 	PVRow step_count = 20000;
@@ -242,7 +242,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(
 				break;
 			}
 			step_count = std::min(step_count, nrows - start);
-			nraw.export_lines(stream, sel, column_indexes, start, step_count, sep_char, quote_char);
+			nraw.export_lines(ofs, sel, column_indexes, start, step_count, sep_char, quote_char);
 			start += step_count;
 			if (pbox.get_cancel_state() != PVCore::PVProgressBox::CONTINUE) {
 				return;

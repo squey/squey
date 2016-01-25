@@ -13,147 +13,161 @@
 #include <pvkernel/rush/PVNraw.h>
 
 #include <pvguiqt/PVListUniqStringsDlg.h>
-#include <pvguiqt/PVCountByStringsDlg.h>
+#include <pvguiqt/PVGroupByStringsDlg.h>
 #include <pvguiqt/PVQNraw.h>
+
+#include <pvcop/db/algo.h>
+
+#include <pvkernel/core/inendi_bench.h>
 
 bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol c, Inendi::PVSelection const& sel, QWidget* parent, QDialog** dialog /*= nullptr*/)
 {
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
 	pbox->set_enable_cancel(true);
-	PVRush::PVNraw::unique_values_t values;
-	uint64_t min;
-	uint64_t max;
+
+	const pvcop::db::array col_in = nraw.collection().column(c);
+
+	pvcop::db::array col1_out;
+	pvcop::db::array col2_out;
+
+	double min;
+	double max;
+	double count;
+
 	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
 	ctxt.reset();
 
-	bool ret_pbox = PVCore::PVProgressBox::progress([&,c] {
-		nraw.get_unique_values(c, values, min, max, *((PVCore::PVSelBitField const*) &sel), &ctxt);
+	BENCH_START(distinct_values);
+
+	bool ret_pbox = PVCore::PVProgressBox::progress([&,c]
+	{
+		pvcop::db::algo::distinct(col_in, col1_out, col2_out, sel);
+
+		std::string min_str = pvcop::db::algo::min(col2_out).at(0);
+		std::istringstream min_buf(min_str);
+		min_buf >> min;
+
+		std::string max_str = pvcop::db::algo::max(col2_out).at(0);
+		std::istringstream max_buf(max_str);
+		max_buf >> max;
+
+		count = col_in.size(); // FIXME : count = pvcop::core::algo::parallel::bit_count(sel);
 	}, ctxt, pbox);
 
-	if (!ret_pbox || values.size() == 0) {
+	BENCH_END(distinct_values, "distinct values", col_in.size(), 4, col1_out.size(), 4);
+
+	if (!ret_pbox || col2_out.size() == 0) { // FIXME : col1_out.size() == 0 should not happen anymore
 		return false;
 	}
 
-	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, c, values, sel.get_number_of_selected_lines_in_range(0, nraw.get_number_rows()), min, max, parent);
-	dlg->setAttribute(Qt::WA_DeleteOnClose);
-	dlg->setWindowTitle("Distinct values of axis '" + nraw.get_axis_name(c) +"'");
+	PVGuiQt::PVListUniqStringsDlg* dlg = new PVGuiQt::PVListUniqStringsDlg(view, c, std::move(col1_out), std::move(col2_out), count, min, max, parent);
+	dlg->setWindowTitle("Distinct values of axe '" + QString::fromStdString(nraw.get_axis_name(c)) + "'");
 	dlg->show();
-
-	if (dialog) { // Keep dialog pointer to allow display toggle.
-		*dialog = (QDialog*) dlg;
+	if(dialog) {
+		// Save the current dialog to close the old one when you open a new one.
+		*dialog = dlg;
 	}
+
+	return true;
+}
+
+enum class ABS_MAX_OP
+{
+	MAX,
+	SUM,
+	COUNT
+};
+
+template <typename F>
+static bool show_stats_dialog(
+	const QString& title,
+	const F& op,
+	ABS_MAX_OP abs_max_op,
+	Inendi::PVView_sp& view,
+	PVRush::PVNraw const& nraw,
+	PVCol col1,
+	PVCol col2,
+	Inendi::PVSelection const& sel,
+	QWidget* parent
+)
+{
+	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
+	pbox->set_enable_cancel(true);
+
+	const pvcop::db::array col1_in = nraw.collection().column(col1);
+	const pvcop::db::array col2_in = nraw.collection().column(col2);
+
+	pvcop::db::array col1_out;
+	pvcop::db::array col2_out;
+
+	double rel_min;
+	double rel_max;
+	double abs_max;
+
+	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
+	ctxt.reset();
+
+	BENCH_START(operation);
+
+	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2]
+	{
+		op(col1_in, col2_in, col1_out, col2_out, sel);
+
+		std::string min_str = pvcop::db::algo::min(col2_out).at(0);
+		std::istringstream min_buf(min_str);
+		min_buf >> rel_min;
+
+		std::string max_str = pvcop::db::algo::max(col2_out).at(0);
+		std::istringstream max_buf(max_str);
+		max_buf >> rel_max;
+
+		switch (abs_max_op) {
+		case ABS_MAX_OP::MAX:
+			abs_max = rel_max;
+			break;
+		case ABS_MAX_OP::SUM:
+			abs_max = pvcop::db::algo::sum(col2_out);
+			break;
+		case ABS_MAX_OP::COUNT:
+			abs_max = (double) col1_in.size(); // FIXME : count = pvcop::core::algo::parallel::bit_count(sel);
+			break;
+		}
+	}, ctxt, pbox);
+
+	BENCH_END(operation, title.toStdString().c_str(), col1_in.size(), 4, col2_in.size(), 4);
+
+	if (!ret_pbox || col1_out.size() == 0) { // FIXME : col1_out.size() == 0 should not happen anymore
+		return false;
+	}
+
+	PVGuiQt::PVGroupByStringsDlg* dlg = new PVGuiQt::PVGroupByStringsDlg(view, col1, col2, std::move(col1_out), std::move(col2_out), abs_max, rel_min, rel_max, parent);
+	dlg->setWindowTitle(title + " of axes '" + QString::fromStdString(nraw.get_axis_name(col1)) + "' and '" + QString::fromStdString(nraw.get_axis_name(col2)) + "'");
+	dlg->show();
 
 	return true;
 }
 
 bool PVGuiQt::PVQNraw::show_count_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
-	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
-	pbox->set_enable_cancel(true);
-	PVRush::PVNraw::count_by_t values;
-	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
-	ctxt.reset();
-	size_t v2_unique_values_count;
-	size_t min;
-	size_t max;
-	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2] { nraw.count_by(col1, col2, values, min, max, *((PVCore::PVSelBitField const*) &sel), v2_unique_values_count, &ctxt); }, ctxt, pbox);
-	if (!ret_pbox || values.size() == 0) {
-		return false;
-	}
-
-	// PVListUniqStringsDlg takes ownership of strings inside `values'
-	PVCountByStringsDlg* dlg = new PVCountByStringsDlg(view, col1, col2, values, v2_unique_values_count, min, max, parent);
-	dlg->setWindowTitle("Count by of axes '" + nraw.get_axis_name(col1) + "' and '" + nraw.get_axis_name(col2)+ "'");
-	dlg->show();
-
-	return true;
+	return show_stats_dialog("Count by", &pvcop::db::algo::count_by, ABS_MAX_OP::COUNT, view, nraw, col1, col2, sel, parent);
 }
 
 bool PVGuiQt::PVQNraw::show_sum_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
-	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
-	pbox->set_enable_cancel(true);
-	PVRush::PVNraw::sum_by_t values;
-	uint64_t min;
-	uint64_t max;
-	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
-	ctxt.reset();
-	uint64_t sum;
-	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2] { nraw.sum_by(col1, col2, values, min, max, *((PVCore::PVSelBitField const*) &sel), sum, &ctxt); }, ctxt, pbox);
-	if (!ret_pbox || values.size() == 0) {
-		return false;
-	}
-
-	// PVSumByStringsDlg takes ownership of strings inside `values'
-	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, col1, values, sum, min, max, parent);
-	dlg->setWindowTitle("Sum by of axes '" + nraw.get_axis_name(col1) + "' and '" + nraw.get_axis_name(col2)+ "'");
-	dlg->show();
-
-	return true;
+	return show_stats_dialog("Sum by", &pvcop::db::algo::sum_by, ABS_MAX_OP::SUM, view, nraw, col1, col2, sel, parent);
 }
 
 bool PVGuiQt::PVQNraw::show_max_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
-	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
-	pbox->set_enable_cancel(true);
-	PVRush::PVNraw::max_by_t values;
-	uint64_t min;
-	uint64_t max;
-	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
-	ctxt.reset();
-	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2] { nraw.max_by(col1, col2, values, min, max, *((PVCore::PVSelBitField const*) &sel), &ctxt); }, ctxt, pbox);
-	if (!ret_pbox || values.size() == 0) {
-		return false;
-	}
-
-	// PVSumByStringsDlg takes ownership of strings inside `values'
-	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, col1, values, max, min, max, parent);
-	dlg->setWindowTitle("Max by of axes '" + nraw.get_axis_name(col1) + "' and '" + nraw.get_axis_name(col2)+ "'");
-	dlg->show();
-
-	return true;
+	return show_stats_dialog("Max by", &pvcop::db::algo::max_by, ABS_MAX_OP::MAX, view, nraw, col1, col2, sel, parent);
 }
 
 bool PVGuiQt::PVQNraw::show_min_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
-	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
-	pbox->set_enable_cancel(true);
-	PVRush::PVNraw::min_by_t values;
-	uint64_t min;
-	uint64_t max;
-	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
-	ctxt.reset();
-	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2] { nraw.min_by(col1, col2, values, min, max, *((PVCore::PVSelBitField const*) &sel), &ctxt); }, ctxt, pbox);
-	if (!ret_pbox || values.size() == 0) {
-		return false;
-	}
-
-	// PVSumByStringsDlg takes ownership of strings inside `values'
-	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, col1, values, max, min, max, parent);
-	dlg->setWindowTitle("Min by of axes '" + nraw.get_axis_name(col1) + "' and '" + nraw.get_axis_name(col2)+ "'");
-	dlg->show();
-
-	return true;
+	return show_stats_dialog("Min by", &pvcop::db::algo::min_by, ABS_MAX_OP::MAX, view, nraw, col1, col2, sel, parent);
 }
 
 bool PVGuiQt::PVQNraw::show_avg_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
-	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
-	pbox->set_enable_cancel(true);
-	PVRush::PVNraw::avg_by_t values;
-	uint64_t min;
-	uint64_t max;
-	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
-	ctxt.reset();
-	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2] { nraw.avg_by(col1, col2, values, min, max, *((PVCore::PVSelBitField const*) &sel), &ctxt); }, ctxt, pbox);
-	if (!ret_pbox || values.size() == 0) {
-		return false;
-	}
-
-	// PVSumByStringsDlg takes ownership of strings inside `values'
-	PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view, col1, values, max, min, max, parent);
-	dlg->setWindowTitle("Average by of axes '" + nraw.get_axis_name(col1) + "' and '" + nraw.get_axis_name(col2)+ "'");
-	dlg->show();
-
-	return true;
+	return show_stats_dialog("Average by", &pvcop::db::algo::average_by, ABS_MAX_OP::MAX, view, nraw, col1, col2, sel, parent);
 }

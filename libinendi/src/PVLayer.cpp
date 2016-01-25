@@ -138,18 +138,14 @@ void Inendi::PVLayer::serialize(PVCore::PVSerializeObject& so, PVCore::PVSeriali
 
 void Inendi::PVLayer::load_from_file(QString const& path)
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
 	ar->get_root()->object("layer", *this);
 	ar->finish();
-#endif
 }
 
 void Inendi::PVLayer::save_to_file(QString const& path)
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, INENDI_ARCHIVES_VERSION));
 	ar->get_root()->object("layer", *this);
 	ar->finish();
-#endif
 }

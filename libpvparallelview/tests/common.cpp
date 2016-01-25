@@ -10,6 +10,7 @@
 
 #include <inendi/PVPlotted.h>
 #include <inendi/PVView.h>
+#include <inendi/common.h>
 
 #include <stdlib.h>
 #include <iostream>
@@ -18,6 +19,7 @@
 #include <boost/random/mersenne_twister.hpp>
 
 #include "common.h"
+#include "test-env.h"
 
 static Inendi::PVView_sp g_fake_view;
 static Inendi::PVPlotted::uint_plotted_table_t g_norm_plotted;
@@ -187,8 +189,11 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 {
 	PVCol ncols;
 	PVRow nrows;
-
+	
+	init_env();
 	Inendi::PVPlotted::uint_plotted_table_t &norm_plotted = g_norm_plotted;
+	Inendi::common::load_mapping_filters();
+	Inendi::common::load_plotting_filters();
 
 	if (!create_plotted_table_from_args(norm_plotted, nrows, ncols, argc, argv)) {
 		return NULL;

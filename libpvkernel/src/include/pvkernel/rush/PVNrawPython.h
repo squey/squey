@@ -11,9 +11,13 @@
 #include <pvkernel/core/PVPythonClassDecl.h>
 #include <pvkernel/core/general.h>
 
-#include <pvkernel/rush/PVNraw.h>
+namespace PVCore {
+	class PVUnicodeString;
+}
 
 namespace PVRush {
+
+	class PVNraw;
 
 class PVNrawPython
 {
@@ -27,10 +31,9 @@ public:
 	{ } 
 
 public:
-	PVCore::PVUnicodeString at_alias(PVRow i, PVCol j);
 	void set_value(PVRow i, PVCol j, PVCore::PVUnicodeString const& str); 
 	std::wstring at(PVRow i, PVCol j);
-	PVRow get_number_rows() const;
+	PVRow get_row_count() const;
 	PVCol get_number_cols() const;
 
 private:

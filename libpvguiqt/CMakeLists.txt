@@ -21,10 +21,6 @@ include_directories(${Qt5Xml_INCLUDE_DIRS})
 find_package(Qt5Widgets REQUIRED)
 include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
-# For QConcurrent
-find_package(Qt5Concurrent REQUIRED)
-include_directories(${Qt5Concurrent_INCLUDE_DIRS})
-
 # For QGLWidget
 find_package(Qt5OpenGL REQUIRED)
 include_directories(${Qt5OpenGL_INCLUDE_DIRS})
@@ -38,6 +34,7 @@ include_directories(AFTER ${INENDI_INCLUDE_DIRS})
 include_directories(AFTER ${PVHIVE_INCLUDE_DIRS})
 include_directories(AFTER ${PVDISPLAYS_INCLUDE_DIRS})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIRS})
+include_directories(AFTER ${PVLICENSE_INCLUDE_DIR})
 
 add_subdirectory(src)
 add_subdirectory(tests)

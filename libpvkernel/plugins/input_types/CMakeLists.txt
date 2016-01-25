@@ -4,37 +4,6 @@
 # @copyright (C) Picviz Labs 2010-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
-###############################################################################
-# Define plugins to distribute for clients
-###############################################################################
-
-set(INPUTS_DIST_LIST
-input_type_file
-)
-
-# Remote file
-if(CUSTOMER_CAPABILITY_IMPORT_REMOTE)
-	set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_remotefile)
-endif(CUSTOMER_CAPABILITY_IMPORT_REMOTE)
-
-# Database
-if(CUSTOMER_CAPABILITY_IMPORT_DB)
-	set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_database)
-endif(CUSTOMER_CAPABILITY_IMPORT_DB)
-
-# Elasticsearch
-if(CUSTOMER_CAPABILITY_IMPORT_ELASTICSEARCH)
-	set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_elasticsearch)
-endif(CUSTOMER_CAPABILITY_IMPORT_ELASTICSEARCH)
-
-#Splunk
-if(CUSTOMER_CAPABILITY_IMPORT_SPLUNK)
-	set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_splunk)
-endif(CUSTOMER_CAPABILITY_IMPORT_SPLUNK)
-
-set(INPUTS_DIST_FILES
-)
-
 ################################################
 # QT5 related include and check
 ################################################
@@ -225,6 +194,13 @@ target_link_libraries(input_type_splunk pvkernel curl)
 # Install plugins
 ###############################################################################
 
+set(INPUTS_DIST_LIST
+	input_type_file
+	input_type_remotefile
+	input_type_database
+	input_type_elasticsearch
+	input_type_splunk
+	)
+
 INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION input-types
                                     RUNTIME DESTINATION input-types)
-INSTALL(FILES ${INPUTS_DIST_FILES} DESTINATION input-types)

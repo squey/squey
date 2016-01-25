@@ -227,7 +227,7 @@ do
 
 	* )
 	    case "$FILE" in
-		ln_build | *.sh | *.sh.cmake | make_protect.cmake | parallel_make | doc/gen_doc | *.py | *.pl | *.format | *.ui )
+		ln_build | *.sh | *.sh.cmake | parallel_make | doc/gen_doc | *.py | *.pl | *.format | *.ui )
 		    INFO_LINE=1
 		    ;;
 		*.c | *.h | *.h.cmake | *.cpp | *.hpp | *.cxx | *.hxx | *.java | *.geom | *.vert | *.frag | *.cu | *.css | *.txt | *Doxyfile* | *README | libinendi/CTestConfig.cmake | cmake/* | *.html | *.qrc | *.obj)
@@ -284,7 +284,7 @@ EOF
 		    cat "$CONTENT" >> "$FILE"
 		    ;;
 
-		*.txt | *Doxyfile* | *README | libinendi/CTestConfig.cmake | cmake/* | *.sh | ln_build | *.sh.cmake | make_protect.cmake | parallel_make | doc/gen_doc | *.py | *.pl | *.obj)
+		*.txt | *Doxyfile* | *README | libinendi/CTestConfig.cmake | cmake/* | *.sh | ln_build | *.sh.cmake | parallel_make | doc/gen_doc | *.py | *.pl | *.obj)
 		    cat >> "$FILE" <<EOF
 #
 # @file

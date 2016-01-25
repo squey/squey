@@ -41,7 +41,6 @@ private:
 
 public:
 	static PVDisplaysImpl& get();
-	static void release();
 
 public:
 	template <typename F>
@@ -76,30 +75,6 @@ public:
 
 		return interface.create_widget(std::forward<P>(args)...);
 	}
-
-	/*
-	 * AG: fix this!
-	QWidget* get_widget_from_action(QAction& action, QWidget* parent = NULL) const
-	{
-		QVariant org_data = action.data();
-
-		ActionParams p = action.data().value<ActionParams>();
-		PVDisplayIf& interface = *p.disp_if;
-
-		action.setData(p.params);
-
-		QWidget* ret;
-		if (interface.match_flags(PVDisplayIf::UniquePerParameters)) {
-			ret = interface.get_unique_widget_from_action(action, parent);
-		}
-		else {
-			ret = interface.create_widget_from_action(action, parent);
-		}
-
-		action.setData(org_data);
-
-		return ret;
-	}*/
 
 	template <typename If, typename... P>
 	If& get_params_from_action(QAction& action, P && ... args) const
@@ -149,7 +124,6 @@ private:
 
 
 inline PVDisplaysImpl& get() { return PVDisplaysImpl::get(); }
-inline void release() { PVDisplaysImpl::release(); }
 
 }
 

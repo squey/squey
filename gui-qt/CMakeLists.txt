@@ -41,6 +41,7 @@ include_directories(AFTER ${PVHIVE_INCLUDE_DIRS})
 include_directories(AFTER ${PVDISPLAYS_INCLUDE_DIRS})
 include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIRS})
+include_directories(AFTER ${PVLICENSE_INCLUDE_DIR})
 
 include_directories(AFTER src/include)
 include_directories(AFTER src/widgets/format-builder/include)

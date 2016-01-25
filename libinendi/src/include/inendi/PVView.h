@@ -38,7 +38,6 @@
 #include <inendi/PVPlotted.h>
 
 #include <inendi/PVView_types.h>
-#include <inendi/PVView_impl.h>
 
 namespace Inendi {
 
@@ -254,8 +253,6 @@ public:
 	void toggle_view_unselected_zombie_visibility();
 	bool& are_view_unselected_zombie_visible();
 
-	PVSortingFunc_p get_sort_plugin_for_col(PVCol col) const;
-
 	void compute_layer_min_max(Inendi::PVLayer& layer);
 	void compute_selectable_count(Inendi::PVLayer& layer);
 
@@ -319,8 +316,7 @@ public:
 	 * @return a string containing wanted data
 	 *
 	 */
-	QString get_data(PVRow row, PVCol column) const;
-	PVCore::PVUnicodeString get_data_unistr(PVRow row, PVCol column) const;
+	std::string get_data(PVRow row, PVCol column) const;
 
 	/**
 	 * Gets the data directly from nraw, without #PVAxesCombination
@@ -331,8 +327,7 @@ public:
 	 * @return a string containing wanted data
 	 *
 	 */
-	QString get_data_raw(PVRow row, PVCol column) const { return get_rushnraw_parent().at(row, column); }
-	inline PVCore::PVUnicodeString get_data_unistr_raw(PVRow row, PVCol column) const { return get_rushnraw_parent().at_unistr(row, column); }
+	std::string get_data_raw(PVRow row, PVCol column) const { return get_rushnraw_parent().at_string(row, column); }
 
 
 	void commit_volatile_in_floating_selection();
@@ -346,34 +341,13 @@ public:
 	inline PVCore::PVArgumentList& get_last_args_filter(QString const& name) { return filters_args[name]; }
 
 
-	/* Sorting and unique functions */
-
-	// L must be a vector of integers
-	template <class L>
-	void sort_indexes(PVCol column, Qt::SortOrder order, L& idxes, tbb::task_group_context* ctxt = NULL) const
-	{
-		PVSortingFunc_p sp = get_sort_plugin_for_col(column);
-		__impl::stable_sort_indexes_f(&get_rushnraw_parent(), column, sp->f(), order, idxes, ctxt);
-	}
-
-	// L must be a vector of integers
-	template <class L>
-	void unique_indexes_copy(PVCol column, L const& idxes_in, L& idxes_out) const
-	{
-		PVSortingFunc_p sp = get_sort_plugin_for_col(column);
-		__impl::unique_indexes_copy_f<L>(&get_rushnraw_parent(), column, sp->f_equals(), idxes_in, idxes_out);
-	}
+	// Sorting functions
+	void sort_indexes(PVCol col, pvcop::db::indexes& idxes, tbb::task_group_context* ctxt = NULL) const;
 
 	// Helper functions for sorting
-	template <class L>
-	inline void sort_indexes_with_axes_combination(PVCol column, Qt::SortOrder order, L& idxes, tbb::task_group_context* ctxt = NULL) const
+	inline void sort_indexes_with_axes_combination(PVCol column, pvcop::db::indexes& idxes, tbb::task_group_context* ctxt = NULL) const
 	{
-		sort_indexes<L>(axes_combination.get_axis_column_index(column), order, idxes, ctxt);
-	}
-	template <class L>
-	inline void unique_indexes_copy_with_axes_combination(PVCol column, L const& idxes_in, L& idxes_out) const
-	{
-		unique_indexes_copy<L>(axes_combination.get_axis_column_index(column), idxes_in, idxes_out);
+		sort_indexes(axes_combination.get_axis_column_index(column), idxes, ctxt);
 	}
 
 	std::weak_ptr<PVCore::PVSerializeObject> get_last_so() const { return _last_so; }
@@ -434,11 +408,13 @@ protected:
 	bool _is_consistent;
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
-	PVRush::PVNraw* _rushnraw_parent;
+	PVRush::PVNraw* _rushnraw_parent = nullptr;
 	std::weak_ptr<PVCore::PVSerializeObject> _last_so;
 	id_t _view_id;
 	PVCol _active_axis;
 	QColor _color;
+
+	pvcop::db::collection* _collection;
 };
 
 typedef PVView::p_type PVView_p;

@@ -34,7 +34,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="PVGuiQt::PVTableView" name="_values_view"/>
+       <widget class="PVGuiQt::PVAbstractTableView" name="_values_view"/>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -203,9 +203,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>PVGuitQt::PVTableView</class>
+   <class>PVGuitQt::PVAbstractTableView</class>
    <extends>QTableView</extends>
-   <header>pvguiqt/PVTableView.h</header>
+   <header>pvguiqt/PVAbstractTableView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
