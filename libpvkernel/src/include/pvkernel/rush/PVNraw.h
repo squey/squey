@@ -163,6 +163,8 @@ public:
 		return *_collection;
 	}
 
+	size_t get_invalid_count() const { return _invalid_count; }
+
 public:
 	/**
 	 * Create a NRaw from and NRaw folder on HDD.
@@ -181,6 +183,7 @@ private:
 
 	/// Variable usefull for both
 	PVFormat_p format; //!< Format with graphical information.
+	size_t _invalid_count; //!< Number of invalid elements found during import.
 };
 
 }

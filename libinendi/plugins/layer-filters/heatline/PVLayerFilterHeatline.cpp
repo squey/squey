@@ -15,6 +15,7 @@
 #include <pvkernel/core/PVPercentRangeType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/rush/PVUtils.h>
+#include <pvkernel/core/PVAlgorithms.h>
 
 #include <inendi/PVView.h>
 
@@ -61,8 +62,6 @@ PVCore::PVArgumentList Inendi::PVLayerFilterHeatline::get_default_args_for_view(
  *****************************************************************************/
 void Inendi::PVLayerFilterHeatline::operator()(PVLayer& in, PVLayer &out)
 {
-	BENCH_START(heatline);
-
 	// Extract Nraw data
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 
@@ -113,8 +112,6 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 	else {
-		const double diff = max_n - min_n;
-		const double log_diff = std::log(diff);
 
 		size_t index = 0;
 		auto const& group_array = group.to_core_array();
@@ -124,26 +121,18 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer& in, PVLayer &out)
 				index++;
 				continue;
 			}
-			size_t cum = count_array[group_array[index]];
+			double cum = count_array[group_array[index]];
 
 			// Computation ratio to havec 1 for freq = max_n and 0 for freq = min_n
 			double ratio;
 			if (bLog) {
-				if (cum == min_n) {
-					ratio = 0;
-				}
-				else {
-					ratio = std::log(cum - min_n)/(double)log_diff;
-				}
-			}
-			else {
-				ratio = (double)(cum - min_n)/diff;
+				ratio = PVCore::log_scale(cum, min_n, max_n);
+			} else {
+				ratio = (cum - min_n)/(max_n - min_n);
 			}
 			post(out, ratio, freq_min, freq_max, index++);
 		}
 	}
-
-	BENCH_END(heatline, "heatline", 1, 1, sizeof(PVRow), sel.size());
 }
 
 PVCore::PVArgumentKeyList Inendi::PVLayerFilterHeatline::get_args_keys_for_preset() const
@@ -171,7 +160,7 @@ void Inendi::PVLayerFilterHeatline::post(PVLayer& out,
                                          const double fmin, const double fmax,
                                          const PVRow line_id)
 {
-	// Colorize line dpeending on ratio value. (High ration -> red, low ration -> green)
+	// Colorize line dpeending on ratio value. (High ratio -> red, low ratio -> green)
 	const PVCore::PVHSVColor color((uint8_t)((double)(HSV_COLOR_RED-HSV_COLOR_GREEN)*ratio + (double)HSV_COLOR_GREEN));
 	out.get_lines_properties().line_set_color(line_id, color);
 

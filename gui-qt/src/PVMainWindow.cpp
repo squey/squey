@@ -1694,6 +1694,9 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			//pvsdk_messenger->post_message_to_gl(message);
 			QMessageBox::warning(this, "Cannot load sources", msg);
 			return false;
+		} else if (src->get_rushnraw().get_invalid_count() != 0) {
+			// We can continue with it but user have to know that some values are incorrect.
+			QMessageBox::warning(this, "Failed conversions", "Some conversions from text to binary failed during import. Please, look at your terminal to know which conversions failed.");
 		}
 		src->get_extractor().dump_nraw();
 

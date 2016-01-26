@@ -34,7 +34,8 @@ const std::string PVRush::PVNraw::default_quote_char = "\"";
  ****************************************************************************/
 
 PVRush::PVNraw::PVNraw():
-	_real_nrows(0)
+	_real_nrows(0),
+	_invalid_count(0)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	_ucnv = ucnv_open("UTF8", &status);
@@ -139,10 +140,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	}
 
 
-	if (not snk.write_chunk_by_row(_real_nrows, elts.size(), pvcop_fields.data())) {
-		PVLOG_WARN("Unable to write chunk to disk..\n");
-	}
-
+	_invalid_count += snk.write_chunk_by_row(_real_nrows, elts.size(), pvcop_fields.data());
 	_real_nrows += local_row;
 
 	return true;
