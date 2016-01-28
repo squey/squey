@@ -15,6 +15,7 @@
 #include <pvkernel/core/debug.h>
 #include <pvkernel/core/PVFileSerialize.h>
 #include <pvkernel/core/PVCompList.h>
+#include <pvkernel/core/PVUtils.h>
 
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/rush/PVFormat.h>
@@ -29,6 +30,8 @@
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
 
 #include <pvcop/types/impl/formatter_factory.h>
+
+#include <pcrecpp.h>
 
 PVRush::PVFormat::PVFormat()
 {
@@ -65,62 +68,136 @@ PVRush::PVFormat::~PVFormat()
  * ICU : http://userguide.icu-project.org/formatparse/datetime
  * boost : http://www.boost.org/doc/libs/1_55_0/doc/html/date_time/date_time_io.html
  */
-std::string PVRush::PVFormat::convert_ICU_to_boost(const std::string& tf)
+pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::string& tf)
 {
-	static std::vector<std::pair<std::string, std::string>> map;
+	static constexpr const char escape_char = '\'';
 
-	// epoch
-	map.emplace_back("epoch", "%S");
+	std::string formatter;
 
-	// year
-	map.emplace_back("yyyy", "%Y");
-	map.emplace_back("yy", "%y");
+	auto contains = [&](const std::string& tf, const std::string& token)
+	{
+		size_t token_pos = tf.find(token);
+		if (token_pos != std::string::npos) {
+			size_t quote_count = std::count(tf.begin(), tf.begin() + token_pos, escape_char);
 
-	// day of week
-	map.emplace_back("eeee", "%a");
-	map.emplace_back("eee", "%a");
-	map.emplace_back("e", "%a");
-	map.emplace_back("EEEE", "%a");
-	map.emplace_back("EEE", "%a");
+			if (quote_count % 2 == 1) {
+				// our token can possibly be between escaped sequence, must look further...
+				size_t next_quote_pos = tf.find(escape_char, token_pos+token.size());
+				if (next_quote_pos != std::string::npos) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	};
 
-	// month
-	map.emplace_back("MMMM", "%b");
-	map.emplace_back("MMM", "%b");
-	map.emplace_back("M", "%m");
 
-	// day in month
-	map.emplace_back("dd", "%d");
-	map.emplace_back("d", "%d");
+	auto contains_one_of = [&](const std::string& tf, const std::vector<std::string>& tokens)
+	{
+		return std::any_of(tokens.cbegin(), tokens.cend(), [&](const std::string& token) {
+			return contains(tf, token);
+		});
+	};
 
-	// hour
-	map.emplace_back("HH", "%H");
-	map.emplace_back("H", "%H");
-	map.emplace_back("hh", "%l");
-	map.emplace_back("h", "%l");
-	map.emplace_back("K", "%h");
+	/**
+	 * The proper formatter is determined this way :
+	 *
+	 * 1. "datetime"    (libc)  : if no milliseconds and no timezone
+	 * 2. "datetime_us" (boost) : if milliseconds but
+	 *                            - no 2 digit year
+	 *                            - no 12h format,
+	 *                            - no timezone
+	 *                            - no milliseconds not preceded by a dot
+	 * 3. "datetime_ms" (ICU)   : in any other cases
+	 */
+	bool no_millisec_precision = not contains(tf, "S");
+	bool no_timezone = not contains_one_of(tf, { "z", "Z", "V", "v" });
+	bool no_12h_format = not (contains(tf, "h") && not contains(tf, "epoch"));
+	bool no_two_digit_year = not (contains(tf, "yy") && not contains(tf, "yyyy"));
+	bool no_epoch = not contains(tf, "epoch");
 
-	// minute
-	map.emplace_back("mm", "%M");
-	map.emplace_back("m", "%M");
+	if (no_millisec_precision && no_timezone) {
+		formatter = "datetime";
+	}
+	else {
+		bool dot_before_millisec = contains(tf, ".S");
+		if (dot_before_millisec && no_epoch && no_timezone && no_two_digit_year && no_12h_format) {
+			formatter = "datetime_us";
+		}
+		else {
+			// No need to make any format conversion as our input format is already good (ICU)
+			return {"datetime_ms", tf};
+		}
+	}
 
-	// seconde
-	map.emplace_back("ss", "%S");
+	static std::vector<std::pair<std::string, std::string>> map = {
+		// epoch
+		{"epoch", "%s"},
 
-	// fractional second
-	map.emplace_back("S", "%F");
+		// year
+		{"yyyy", "%Y"},
+		{"yy", "%y"},
 
-	// am/pm marker
-	map.emplace_back("aaa", "%p");
-	map.emplace_back("aa", "%p");
-	map.emplace_back("a", "%p");
+		// day of week
+		{"eeee", "%a"},
+		{"eee", "%a"},
+		{"e", "%a"},
+		{"EEEE", "%a"},
+		{"EEE", "%a"},
 
-	// timezone
-	map.emplace_back("Z", "%z");
-	map.emplace_back("v", "%Z");
-	map.emplace_back("VVV", "%Z");
-	map.emplace_back("V", "%z");
+		// month
+		{"MMMM", "%b"},
+		{"MMM", "%b"},
+		{"M", "%m"},
+
+		// day in month
+		{"dd", "%d"},
+		{"d", "%d"},
+
+		// hour
+		{"HH", "%H"},
+		{"H", "%H"},
+		{"hh", "%l"},
+		{"h", "%l"},
+		{"K", "%h"},
+
+		// minute
+		{"mm", "%M"},
+		{"m", "%M"},
+
+		// seconde
+		{"ss", "%S"},
+		{"s", "%S"},
+
+		// fractional second
+		{"SSSSSS", "%F"},
+		{"SSSSS", "%F"},
+		{"SSSS", "%F"},
+		{"SSS", "%F"},
+		{"SS", "%F"},
+		{"S", "%F"},
+
+		// am/pm marker
+		{"aaa", "%p"},
+		{"aa", "%p"},
+		{"a", "%p"},
+
+		// timezone
+		{"Z", "%z"},
+		{"zzzz", "%Z"},
+		{"zzz", "%Z"},
+		{"zz", "%Z"},
+		{"z", "%Z"},
+		{"v", "%Z"},
+		{"VVV", "%Z"},
+		{"V", "%z"}
+	};
 
 	std::string time_format = tf;
+
+	// Handle litteral "%" that should be replaced by "%%" without interfering with the conversion
+	PVCore::replace(time_format, "%", "☠");
 
 	// iterate on the map with respect to the order of insertion
 	for (const auto& token : map) {
@@ -129,10 +206,10 @@ std::string PVRush::PVFormat::convert_ICU_to_boost(const std::string& tf)
 		const std::string& value = token.second;
 
 		int pos = - value.size();
-		while ((pos = time_format.find(key, pos + value.size())) != std::string::npos) {
+		while ((pos = time_format.find(key, pos + value.size())) != (int) std::string::npos) {
 
 			// check that we are not in a '...' section
-			bool verbatim = std::count(time_format.begin(), time_format.begin() + pos, '\'') % 2 == 1;
+			bool verbatim = std::count(time_format.begin(), time_format.begin() + pos, escape_char) % 2 == 1;
 			if (not verbatim) {
 
 				// Don't try to replace an already replaced token
@@ -144,19 +221,21 @@ std::string PVRush::PVFormat::convert_ICU_to_boost(const std::string& tf)
 		}
 	}
 
-	// FIXME : Remove verbatim quote et '' -> ' replacement
+	PVCore::replace(time_format, "☠", "%%");
+
+	// replace '' by ' and remove verbatim
 	std::string value = "";
 	std::string key = "'";
-		int pos = - value.size();
-		while ((pos = time_format.find(key, pos + value.size())) != std::string::npos) {
-			if(time_format[pos + 1] == '\'') {
-				pos+=1;
-				continue;
-			}
-				time_format.replace(pos, key.size(), value);
+	int pos = - value.size();
+	while ((pos = time_format.find(key, pos + value.size())) != (int) std::string::npos) {
+		if(time_format[pos + 1] == '\'') {
+			pos+=1;
+			continue;
 		}
+		time_format.replace(pos, key.size(), value);
+	}
 
-	return time_format;
+	return {formatter, time_format};
 }
 
 pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
@@ -165,40 +244,40 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 
 	for (const PVAxisFormat& axe : _axes) {
 
-		std::string formatter;
-		std::string formatter_params;
-
 		std::string axe_type = axe.get_type().toStdString();
 		std::string axe_mapping = axe.get_mapping().toStdString();
 
-		if (axe_type == "string" || axe_type == "enum" || axe_type == "host") {
-			formatter = "string";
-		} else if (axe_type == "time") {
-			formatter = "datetime";
-
+		if (axe_type == "time") {
 			const PVAxisFormat::node_args_t& mapping_args = axe.get_args_mapping_string();
 			std::string time_format = mapping_args["time-format"].toStdString();
 
-			formatter_params = convert_ICU_to_boost(time_format);
+			formatters.emplace_back(get_datetime_formatter_desc(time_format));
 		}
-		else if (axe_type == "integer") {
-			if (axe_mapping == "unsigned") {
-				formatter = "number_uint32";
-			}
-			else if (axe_mapping == "default") {
-				formatter = "number_int32";
-			}
-		}
-		else if (axe_type == "float") {
-			formatter = "number_float";
-		}
-		else if (axe_type == "ipv4") {
-			formatter = "ipv4";
-		} else {
-			throw PVRush::PVFormatUnknownType("Unknown axis type : " + axe_type);
-		}
+		else {
+			std::string formatter;
 
-		formatters.emplace_back(pvcop::formatter_desc(formatter, formatter_params));
+			if (axe_type == "string" || axe_type == "enum" || axe_type == "host") {
+				formatter = "string";
+			}
+			else if (axe_type == "integer") {
+				if (axe_mapping == "unsigned") {
+					formatter = "number_uint32";
+				}
+				else if (axe_mapping == "default") {
+					formatter = "number_int32";
+				}
+			}
+			else if (axe_type == "float") {
+				formatter = "number_float";
+			}
+			else if (axe_type == "ipv4") {
+				formatter = "ipv4";
+			} else {
+				throw PVRush::PVFormatUnknownType("Unknown axis type : " + axe_type);
+			}
+
+			formatters.emplace_back(pvcop::formatter_desc(formatter, ""));
+		}
 	}
 
 	return formatters;
