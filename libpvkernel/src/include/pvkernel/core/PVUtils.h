@@ -18,4 +18,12 @@
 	#define unlikely(x) (x)
 #endif
 
+namespace PVCore
+{
+	/**
+	 * Replace `from` with `to` in `init`.
+	 */
+	std::string& replace(std::string& init, std::string const& from, std::string const& to);
+}
+
 #endif	/* PVCORE_PVUTILS_H */
