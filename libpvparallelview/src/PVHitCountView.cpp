@@ -378,6 +378,7 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	                            get_x_axis_length());
 
 	if (show_bg()) {
+		painter->setOpacity(0.25);
 		// BENCH_START(hcv_draw_all);
 		draw_lines(painter,
 		           x_axis_right,
