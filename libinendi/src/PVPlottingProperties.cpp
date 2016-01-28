@@ -22,7 +22,6 @@ Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVR
 {
 	_index = idx;
 	set_from_axis(format.get_axes().at(idx));
-	_is_uptodate = false;
 }
 
 Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVRush::PVAxisFormat const& axis, PVCol idx):
@@ -30,7 +29,6 @@ Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVR
 {
 	_index = idx;
 	set_from_axis(axis);
-	_is_uptodate = false;
 }
 
 void Inendi::PVPlottingProperties::set_from_axis(PVRush::PVAxisFormat const& axis)

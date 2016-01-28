@@ -40,7 +40,7 @@ namespace PVRush {
  * Start in an invalid state as format is not known yet.
  * Then, we set format so we can create the collector (import struct)
  * Finally, data is imported, we don't need collector and use collection instead.
- *
+ 
  * We can say it has : invalide state, read state and write state.
  */
 class PVNraw
@@ -130,7 +130,7 @@ public:
 	 * Column ordering may differ from original ordering.
 	 */
 	void export_lines(
-		std::ofstream& stream,
+		std::ostream& stream,
 		const PVCore::PVSelBitField& sel,
 		const PVCore::PVColumnIndexes& col_indexes,
 		size_t start_index,

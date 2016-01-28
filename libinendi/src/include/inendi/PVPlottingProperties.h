@@ -68,7 +68,7 @@ private:
 	PVCol _index;
 	PVPlottingFilter::p_type _plotting_filter;
 	PVCore::PVArgumentList _args;
-	bool _is_uptodate;
+	bool _is_uptodate = false;
 	const PVMapping* _mapping;
 };
 
