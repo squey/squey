@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <omp.h>
 
 const std::string PVRush::PVNraw::config_nraw_tmp = "pvkernel/nraw_tmp";
 const std::string PVRush::PVNraw::default_tmp_path = "/tmp/inendi";
@@ -250,13 +251,31 @@ void PVRush::PVNraw::export_lines(
 {
 	assert(get_number_cols() > 0);
 	assert(col_indexes.size() != 0);
+	// volatile as it will be modify by another thread.
+	int volatile current_thread = 0;
 
-	for (PVRow line_index = start_index; line_index < start_index + step_count; line_index++) {
+	// Parallelize export algo:
+	// Each thread have a local string. Thanks to static scheduling, first thread
+	// will handle N first line, second one, N to 2N, ...
+	// Finally, these string will be written in stream in thread order.
+#pragma omp parallel
+	{
+		std::string content;
+#pragma omp for schedule(static) nowait
+		for (PVRow line_index = start_index; line_index < start_index + step_count; line_index++) {
 
-		if (!sel.get_line_fast(line_index)) {
-			continue;
+			if (!sel.get_line_fast(line_index)) {
+				continue;
+			}
+
+			content += export_line(line_index, col_indexes, sep_char, quote_char) + "\n";
 		}
 
-		stream << export_line(line_index, col_indexes, sep_char, quote_char) << "\n";
+		// Data is in content but we lock here to make sure it is written ordered.
+		// Ordered reduction may be available in OpenMP 4.0
+		while(omp_get_thread_num() != current_thread);
+
+		stream << content;
+		current_thread++; // The next thread can do it.
 	}
 }
