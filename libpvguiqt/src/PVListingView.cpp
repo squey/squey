@@ -602,7 +602,7 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction const& act)
 
 	// Creating the PVLayerFilterProcessWidget will save the current args for this filter.
 	// Then we can change them !
-	_ctxt_process = new PVGuiQt::PVLayerFilterProcessWidget(&lib_view(), _ctxt_args, fclone);
+	_ctxt_process = new PVGuiQt::PVLayerFilterProcessWidget(&lib_view(), _ctxt_args, fclone, this);
 
 	if (custom_args.get_edition_flag()) {
 		_ctxt_process->show();
