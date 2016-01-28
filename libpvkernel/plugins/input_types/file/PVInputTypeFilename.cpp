@@ -37,11 +37,14 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash
 	formats_name.prepend(QString(INENDI_BROWSE_FORMAT_STR));
 	formats_name.prepend(QString(INENDI_LOCAL_FORMAT_STR));
 	formats_name.prepend(QString(INENDI_AUTOMATIC_FORMAT_STR));
-	_file_dlg = new PVImportFileDialog(formats_name, parent);
-	_file_dlg->setDefaults();
-	QStringList filenames = _file_dlg->getFileNames(format);
-	bool check_archives = _file_dlg->_check_archives_checkbox->checkState() == Qt::Checked;
-	args_ext["inv_elts"] = _file_dlg->save_inv_elts();
+
+	// Get information from file dialog
+	PVImportFileDialog file_dlg(formats_name);
+	file_dlg.setDefaults();
+	QStringList filenames = file_dlg.getFileNames(format);
+	bool check_archives = file_dlg._check_archives_checkbox->checkState() == Qt::Checked;
+	args_ext["inv_elts"] = file_dlg.save_inv_elts();
+
 	return load_files(filenames, check_archives, inputs, parent);
 }
 

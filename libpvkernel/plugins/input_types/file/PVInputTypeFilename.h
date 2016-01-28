@@ -47,9 +47,6 @@ protected:
 	mutable QStringList _tmp_dir_to_delete;
 	int _limit_nfds;
 	
-private:
-	mutable PVImportFileDialog* _file_dlg;
-
 protected:
 
 	CLASS_REGISTRABLE_NOCOPY(PVInputTypeFilename)
