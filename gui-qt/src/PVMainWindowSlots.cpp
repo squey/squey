@@ -381,7 +381,7 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		Inendi::PVLayerFilter::p_type filter_org = LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
 		Inendi::PVLayerFilter::p_type fclone = filter_org->clone<Inendi::PVLayerFilter>();
 		PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
-		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone);
+		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone, this);
 		filter_widget->show();
 	}
 }
@@ -402,7 +402,7 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
 		Inendi::PVLayerFilter::p_type filter_org = LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
 		Inendi::PVLayerFilter::p_type fclone = filter_org->clone<Inendi::PVLayerFilter>();
 		PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
-		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone);
+		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone, this);
 		filter_widget->show();
 		filter_widget->preview_Slot();
 	}
