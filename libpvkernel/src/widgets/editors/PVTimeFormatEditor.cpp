@@ -148,7 +148,10 @@ void PVWidgets::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
   sample :<br/>\
   MMM/d/yyyy H:m:ss<br/><br/>\
   Epoch:\
-  <table><tr><td>epoch</td><td>POSIX timestamp. Precision is supported up to three decimal points (milliseconds)</td></tr></table><br/><br/>\
+  <table>\
+      <tr><td>epoch</td><td>POSIX timestamp (precision up to the second)</td></tr>\
+	  <tr><td>epoch.S</td><td>POSIX timestamp (precision up to the millisecond)</td></tr>\
+  </table><br/><br/>\
   Date:\
   <table>\
   <tr><td>d</td><td>the day in month as a number (1 to 31)</td></tr>\
@@ -261,7 +264,7 @@ void PVWidgets::PVTimeFormatHelpDlg::validate_time_strings()
 	if (auto_validate) {
 		disconnect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(validate_time_strings()));
 	}
-	_validator_hl->set_time_format(_tfs_edit->toPlainText().split("\n"));
+	_validator_hl->set_time_format(_tfs_edit->toPlainText().replace("epoch.S", "epoch").split("\n"));
 	_validator_hl->rehighlight();
 	if (auto_validate) {
 		connect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(validate_time_strings()), Qt::UniqueConnection);
