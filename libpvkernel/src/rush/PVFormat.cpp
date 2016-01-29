@@ -70,25 +70,50 @@ PVRush::PVFormat::~PVFormat()
  */
 pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::string& tf)
 {
-	static constexpr const char escape_char = '\'';
+	static constexpr const char delimiter = '\'';
 
 	std::string formatter;
 
-	auto contains = [&](const std::string& tf, const std::string& token)
-	{
-		size_t token_pos = tf.find(token);
-		if (token_pos != std::string::npos) {
-			size_t quote_count = std::count(tf.begin(), tf.begin() + token_pos, escape_char);
+	auto contains = [&](const std::string& str, const std::string& substr) {
+		/**
+		 * As the delimiter are displayed by repeating it twice instead of escaping it, the
+		 * delimiter occurrences number in a well-formed string is necessarily even. Literal
+		 * blocks can also be trivially skipped.
+		 *
+		 * Testing if substr exists also consists in a simple strcmp with explicit boundary
+		 * checking.
+		 */
+		size_t str_pos = 0;
 
-			if (quote_count % 2 == 1) {
-				// our token can possibly be between escaped sequence, must look further...
-				size_t next_quote_pos = tf.find(escape_char, token_pos+token.size());
-				if (next_quote_pos != std::string::npos) {
-					return false;
+		const size_t str_size = str.size();
+		const size_t substr_size = substr.size();
+
+		/* The case of unclosed literal blocks is implictly included in the while test
+		 */
+		while (str_pos < str_size) {
+			if (str[str_pos] == delimiter) {
+				/* The literal block case.
+				 */
+				while ((str_pos < str_size) && (str[++str_pos] != delimiter)) {}
+				++str_pos;
+			} else {
+				size_t substr_pos = 0;
+
+				if (str[str_pos] == substr[substr_pos]) {
+					/* The substr case.
+					 */
+					while ((str_pos < str_size) && (substr_pos < substr_size) &&
+					       (str[++str_pos] == substr[++substr_pos])) {}
+					if (substr_pos == substr_size) {
+						/* substr has been entirely tested, have found it.
+						 */
+						return true;
+					}
 				}
+				++str_pos;
 			}
-			return true;
 		}
+
 		return false;
 	};
 
@@ -209,7 +234,7 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 		while ((pos = time_format.find(key, pos + value.size())) != (int) std::string::npos) {
 
 			// check that we are not in a '...' section
-			bool verbatim = std::count(time_format.begin(), time_format.begin() + pos, escape_char) % 2 == 1;
+			bool verbatim = std::count(time_format.begin(), time_format.begin() + pos, delimiter) % 2 == 1;
 			if (not verbatim) {
 
 				// Don't try to replace an already replaced token
