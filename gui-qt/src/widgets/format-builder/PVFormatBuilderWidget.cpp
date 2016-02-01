@@ -44,6 +44,7 @@ PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget * parent):
 
 bool PVInspector::PVFormatBuilderWidget::somethingChanged(void)
 {
+  // FIXME : It doesn't perform correct check. We can't save if we need a save after this.
 	if (myTreeView->model()->rowCount()) {
 		return true;
 	}
@@ -748,8 +749,8 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 	// If no files where selected, ask for one.
 	if (_inputs.isEmpty()) {
 
-	QString choosenFormat;
-	PVRush::hash_formats formats, new_formats;
+		QString choosenFormat;
+		PVRush::hash_formats formats, new_formats;
 
 		// This case is only encountered when a source is loaded from the menu
 		PVCore::PVArgumentList args;
@@ -762,12 +763,11 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 	try {
 		// Get the first input selected
 		_log_input = _inputs.front();
+		PVRush::PVFormat format = get_format_from_dom();
 		PVLOG_DEBUG("Input: %s\n", qPrintable(_log_input_type->human_name_of_input(_log_input)));
 
 		// Pre discover the input w/ the source creators
 		_log_sc.reset();
-		_log_input_type.reset();
-		create_extractor();
 
 		// Get list of inputs from the plugin.
 		for (PVRush::PVSourceCreator_p sc: PVRush::PVSourceCreatorFactory::get_by_input_type(_log_input_type)) {
@@ -775,12 +775,13 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 				try {
 					_log_sc = sc;
 					// The moni-extractor use the discovery source, as not that much processing is done (it can be handle locally for instance !)
-					_log_source = _log_sc->create_source_from_input(_log_input, PVRush::PVFormat());
+					_log_source = _log_sc->create_source_from_input(_log_input, format);
 				}
 				catch (PVRush::PVFormatInvalid& e) {
 					_log_sc.reset();
 					continue;
 				}
+				// If the log_source can't be create, look for another source.
 				if (_log_source.get() == nullptr) {
 					_log_sc.reset();
 					continue;
@@ -789,6 +790,7 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 			}
 		}
 
+		// No source found to load data. Show an error and quit.
 		if (!_log_sc) {
 			_log_input = PVRush::PVInputDescription_p();
 			QMessageBox box(QMessageBox::Critical, tr("Error"), tr("No input plugins can manage the source file '%1'. Aborting...").arg(_log_input_type->human_name_of_input(_log_input)));
@@ -796,14 +798,16 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 			return;
 		}
 
-		_log_extract->add_source(_log_source);
-		// FIXME : set_format
-		// FIXME : set chunk filter
-
 		// First extraction
 		if (is_dom_empty()) {
+		  // Try to fill the dom with data if non exists.
 			guess_first_splitter();
 		}
+
+		create_extractor();
+		_log_extract->add_source(_log_source);
+		_log_extract->set_format(format);
+		_log_extract->set_chunk_filter(format.create_tbb_filters());
 
 		update_table(rstart, rend);
 
@@ -845,6 +849,11 @@ void PVInspector::PVFormatBuilderWidget::create_extractor()
 	_log_extract->start_controller();
 }
 
+/******************************************************************************
+ *
+ * PVInspector::PVFormatBuilderWidget::guess_first_splitter
+ *
+ *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::guess_first_splitter()
 {
 	// Guess first splitter and add it to the dom before parsing it !
@@ -898,16 +907,14 @@ void PVInspector::PVFormatBuilderWidget::hideParamBoard(){
         PVLOG_DEBUG("PVInspector::PVFormatBuilderWidget::hideParamBoard\n");
 }
 
-void PVInspector::PVFormatBuilderWidget::set_format_from_dom()
+PVRush::PVFormat PVInspector::PVFormatBuilderWidget::get_format_from_dom()
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
 	PVRush::PVFormat format;
 	format.dump_elts(true);
 	format.populate_from_xml(rootDom, true);
-	_log_extract->set_format(format);
-	_log_extract->set_chunk_filter(_log_extract->get_format().create_tbb_filters());
+	return format;
 }
-
 
 /******************************************************************************
  *
@@ -925,59 +932,26 @@ void PVInspector::PVFormatBuilderWidget::showParamBoard(PVRush::PVXmlTreeNodeDom
 
 void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 {
-	if (!_log_extract) {
-		return;
-	}
-
+	assert(_log_extract);
 	assert(end > start);
 
-	// Here, two extractions are made.
-	// The first one use the aggregator of the extract to get the data through
-	// the filters of the widget (so that they can populate themselves).
-	// Then, the format is created according to the DOM, the real extraction is
-	// made and we get back the invalid events.
-	// AG: this is clearly subefficient but this is what I can do w/ the time I have.
-	
-	// First extraction
-	
 	// Clear the filter previous data
 	myTreeModel->clearFiltersData();
-
-	// Get the aggregator
-	PVRush::PVAggregator& agg = _log_extract->get_agg();
-	agg.set_strict_mode(true);
-	agg.process_indexes(start, end);
-	// And push the output through our filter tree
-	PVCore::PVChunk* ck = agg();
-	size_t nelts = 0;
-	while (ck) {
-		PVCore::list_elts::const_iterator it_elt;
-		for (it_elt = ck->c_elements().begin(); it_elt != ck->c_elements().end(); it_elt++) {
-			// The first field of a freshly created element is the whole element itself
-			myTreeModel->processChildrenWithField((*it_elt)->c_fields().front());
-			nelts++;
-		}
-		ck = agg();
-	}
 
 	// Update the data displaying of the filter param widgers
 	myTreeModel->updateFiltersDataDisplay();
 
-	_log_extract->reset_nraw();
-	// Do the real extraction using the DOM we just updated
-	set_format_from_dom();
 	// Create the nraw thanks to the extractor
+	_log_extract->reset_nraw();
+
 	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_idxes(start, end);
 	job->wait_end();
-	_log_extract->dump_nraw();
+
 	_nraw_model->set_nraw(_log_extract->get_nraw());
 
 	// Set the invalid lines widget
 	_inv_lines_widget->clear();
-	QStringList const& elts_invalid = job->get_invalid_evts();
-	QStringList::const_iterator it_ie;
-	for (it_ie = elts_invalid.begin(); it_ie != elts_invalid.end(); it_ie++) {
-		QString const& line = *it_ie;
+	for (QString const& line: job->get_invalid_evts()) {
 		_inv_lines_widget->addItem(line);
 	}
 }
@@ -1041,10 +1015,6 @@ void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row
 		names << QString::fromStdString(nraw.at_string(row, j));
 	}
 	myTreeModel->setAxesNames(names);
-}
-
-void PVInspector::PVFormatBuilderWidget::set_axes_type_selected_row_Slot(int /*row*/)
-{
 }
 
 bool PVInspector::PVFormatBuilderWidget::openFormat(QString const& path)

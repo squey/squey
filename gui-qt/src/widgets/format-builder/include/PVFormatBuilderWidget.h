@@ -113,9 +113,24 @@ private:
 // Log input management
 
 protected:
+    /**
+     * Clear filter data and run extraction filling NRaw and invalid elements.
+     */
 	void update_table(PVRow start, PVRow end);
-	void set_format_from_dom();
+
+	/**
+	 * Get the PVFormat from its dom representation.
+	 */
+	PVRush::PVFormat get_format_from_dom();
+
+	/**
+	 * Stop old extractor, create the new one with default argument and starts it.
+	 */
 	void create_extractor();
+
+	/**
+	 * Try to find a matching splitter when we import a file without format.
+	 */
 	void guess_first_splitter();
 	bool is_dom_empty();
 
@@ -147,14 +162,13 @@ public slots:
 
 	// Slot for the NRAW listing
 	void set_axes_name_selected_row_Slot(int row);
-	void set_axes_type_selected_row_Slot(int row);
 
 protected:
-	PVRush::PVInputDescription_p _log_input;
-	PVRush::PVInputType_p _log_input_type;
-	PVRush::PVSourceCreator_p _log_sc;
+	PVRush::PVInputDescription_p _log_input; //!< File use for Format building.
+	PVRush::PVInputType_p _log_input_type; //!< InputType plugin to load data.
+	PVRush::PVSourceCreator_p _log_sc; //!< The source from input file.
 	PVRush::PVRawSourceBase_p _log_source;
-	std::shared_ptr<PVRush::PVExtractor> _log_extract;
+	std::shared_ptr<PVRush::PVExtractor> _log_extract; //!< Extractor to load data.
 	PVOptionsWidget* _options_widget;
 	PVGuiQt::PVAxesCombinationWidget* _axes_comb_widget;
 
@@ -177,7 +191,7 @@ private:
 
     //FIXME: Those variables names are crap!
     PVXmlTreeView *myTreeView;
-    PVXmlDomModel *myTreeModel;
+    PVXmlDomModel *myTreeModel; //!< Model for the Tree representation of the format.
     PVXmlParamWidget *myParamBord_old_model;
     QWidget *myParamBord;
     QWidget emptyParamBoard;

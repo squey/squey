@@ -774,11 +774,13 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 		xmlRootDom.removeChild(axes_cb_elt);
 	}
 
-	PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, this->xmlFile);
-	setRoot(m_rootNode);
+	rootNode->set_root(xmlRootDom);
+	rootNode->set_file(xmlFile);
+	beginResetModel();
+	endResetModel();
 
 	// Go through the DOM to get all the different groups
-	m_rootNode->getGroupsByType(_groups);
+	rootNode->getGroupsByType(_groups);
 
 
 	emit layoutChanged(); // to resfresh screen
