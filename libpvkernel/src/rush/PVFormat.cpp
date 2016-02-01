@@ -136,17 +136,23 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	 *                            - no milliseconds not preceded by a dot
 	 * 3. "datetime_ms" (ICU)   : in any other cases
 	 */
+	// rfc_timezone = X, XX, x, xx, Z, ZZ, ZZZ
+	bool rfc_timezone = (contains_one_of(tf, { "X" }) && not contains_one_of(tf, { "XXX" })) ||
+			            (contains_one_of(tf, { "x" }) && not contains_one_of(tf, { "xxx" })) ||
+					    (contains_one_of(tf, { "Z" }) && not contains_one_of(tf, { "ZZZZ" }));
+	bool no_timezone = not contains_one_of(tf, { "x", "X", "z", "Z", "v", "V" });
+	bool no_extended_timezone = no_timezone || rfc_timezone;
 	bool no_millisec_precision = not contains(tf, "S");
-	bool no_timezone = not contains_one_of(tf, { "z", "Z", "V", "v" });
-	bool no_12h_format = not (contains(tf, "h") && not contains(tf, "epoch"));
-	bool no_two_digit_year = not (contains(tf, "yy") && not contains(tf, "yyyy"));
 	bool no_epoch = not contains(tf, "epoch");
+	bool no_12h_format = not contains(tf, "h") && no_epoch;
+	bool no_two_digit_year = not (contains(tf, "yy") && not contains(tf, "yyyy"));
 
-	if (no_millisec_precision && no_timezone) {
+	if (no_millisec_precision && no_extended_timezone) {
 		formatter = "datetime";
 	}
 	else {
 		bool dot_before_millisec = contains(tf, ".S");
+
 		if (dot_before_millisec && no_epoch && no_timezone && no_two_digit_year && no_12h_format) {
 			formatter = "datetime_us";
 		}
@@ -174,6 +180,7 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 		// month
 		{"MMMM", "%b"},
 		{"MMM", "%b"},
+		{"MM", "%m"},
 		{"M", "%m"},
 
 		// day in month
