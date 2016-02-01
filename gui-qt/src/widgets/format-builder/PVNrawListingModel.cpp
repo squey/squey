@@ -12,7 +12,7 @@
 
 PVInspector::PVNrawListingModel::PVNrawListingModel(QObject* parent):
 	QAbstractTableModel(parent),
-	_is_consistent(false),
+	_nraw(nullptr),
 	_col_tosel(0),
 	_show_sel(false)
 {
@@ -62,24 +62,7 @@ QVariant PVInspector::PVNrawListingModel::headerData(int section, Qt::Orientatio
 void PVInspector::PVNrawListingModel::set_nraw(PVRush::PVNraw const& nraw)
 {
 	_nraw = &nraw;
-}
-
-void PVInspector::PVNrawListingModel::set_consistent(bool c)
-{
-	_is_consistent = c;
-	if (c == false) {
-		// Data about to be changed !
-		emit layoutAboutToBeChanged();
-	}
-	else {
-		// Data has been changed
-		emit layoutChanged();
-	}
-}
-
-bool PVInspector::PVNrawListingModel::is_consistent()
-{
-	return _is_consistent;
+	emit layoutChanged();
 }
 
 void PVInspector::PVNrawListingModel::set_selected_column(PVCol col)

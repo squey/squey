@@ -160,7 +160,7 @@ protected:
 
 protected:
 	PVAggregator _agg;
-	PVNraw *_nraw;
+	std::unique_ptr<PVNraw> _nraw;
 	PVController _ctrl;
 	PVControllerThread _ctrl_th;
 	PVNrawOutput _out_nraw; // Linked to _nraw

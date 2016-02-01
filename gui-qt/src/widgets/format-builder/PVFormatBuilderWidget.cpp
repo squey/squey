@@ -758,7 +758,6 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		}
 	}
 
-	_nraw_model->set_consistent(false);
 	try {
 		// Get the first input selected
 		_log_input = _inputs.front();
@@ -812,10 +811,6 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		QMessageBox err(QMessageBox::Critical, tr("Error"), tr("Error while importing a source: %1").arg(QString(e.what().c_str())));
 		err.show();
 		return;
-	}
-
-	if (!_nraw_model->is_consistent()) {
-		_nraw_model->set_consistent(true);
 	}
 
 	// Tell the NRAW widget that the input has changed
@@ -933,9 +928,6 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 	}
 
 	assert(end > start);
-	if (_nraw_model->is_consistent()) {
-		_nraw_model->set_consistent(false);
-	}
 
 	// Here, two extractions are made.
 	// The first one use the aggregator of the extract to get the data through
@@ -977,8 +969,6 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 	job->wait_end();
 	_log_extract->dump_nraw();
 	_nraw_model->set_nraw(_log_extract->get_nraw());
-
-	_nraw_model->set_consistent(true);
 
 	// Set the invalid lines widget
 	_inv_lines_widget->clear();

@@ -36,9 +36,6 @@ PVRush::PVExtractor::PVExtractor(unsigned int chunks) :
 PVRush::PVExtractor::~PVExtractor()
 {
 	force_stop_controller();
-	if (_nraw) {
-		delete _nraw;
-	}
 }
 
 void PVRush::PVExtractor::start_controller()
@@ -199,11 +196,8 @@ void PVRush::PVExtractor::debug()
 
 void PVRush::PVExtractor::reset_nraw()
 {
-	if (_nraw) {
-		delete _nraw;
-	}
 	PVRush::PVFormat_p format = _nraw->get_format();
-	_nraw = new PVNraw();
+	_nraw.reset(new PVNraw());
 	_nraw->set_format(format);
 	_out_nraw.set_nraw_dest(*_nraw);
 }
