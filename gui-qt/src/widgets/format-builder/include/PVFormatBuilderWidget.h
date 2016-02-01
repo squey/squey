@@ -171,7 +171,6 @@ protected:
 	QString _cur_file;
 
 private:
-	PVRush::PVInputType_p            _in_t;
 	PVRush::PVInputType::list_inputs _inputs; //!< List of input files.
 
      QFileDialog _file_dialog;

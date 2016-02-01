@@ -745,31 +745,32 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar() {
 
 void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 {
-	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(_in_t);
+	// If no files where selected, ask for one.
+	if (_inputs.isEmpty()) {
 
 	QString choosenFormat;
 	PVRush::hash_formats formats, new_formats;
 
-	if (_inputs.isEmpty()) {
 		// This case is only encountered when a source is loaded from the menu
 		PVCore::PVArgumentList args;
-		if (!_in_t->createWidget(formats, new_formats, _inputs, choosenFormat, args, this)) {
+		if (!_log_input_type->createWidget(formats, new_formats, _inputs, choosenFormat, args, this)) {
 			return; // This means that the user pressed the "cancel" button
 		}
+		assert(not _inputs.empty() && "At least one file ahve to be seleced");
 	}
 
 	try {
 		// Get the first input selected
 		_log_input = _inputs.front();
-		PVLOG_DEBUG("Input: %s\n", qPrintable(_in_t->human_name_of_input(_log_input)));
+		PVLOG_DEBUG("Input: %s\n", qPrintable(_log_input_type->human_name_of_input(_log_input)));
 
 		// Pre discover the input w/ the source creators
-		PVRush::list_creators::const_iterator itcr;
 		_log_sc.reset();
 		_log_input_type.reset();
 		create_extractor();
-		for (itcr = lcr.begin(); itcr != lcr.end(); itcr++) {
-			PVRush::PVSourceCreator_p sc = *itcr;
+
+		// Get list of inputs from the plugin.
+		for (PVRush::PVSourceCreator_p sc: PVRush::PVSourceCreatorFactory::get_by_input_type(_log_input_type)) {
 			if (sc->pre_discovery(_log_input)) {
 				try {
 					_log_sc = sc;
@@ -790,13 +791,14 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 
 		if (!_log_sc) {
 			_log_input = PVRush::PVInputDescription_p();
-			QMessageBox box(QMessageBox::Critical, tr("Error"), tr("No input plugins can manage the source file '%1'. Aborting...").arg(_in_t->human_name_of_input(_log_input)));
+			QMessageBox box(QMessageBox::Critical, tr("Error"), tr("No input plugins can manage the source file '%1'. Aborting...").arg(_log_input_type->human_name_of_input(_log_input)));
 			box.show();
 			return;
 		}
-		_log_extract->add_source(_log_source);
 
-		_log_input_type = _in_t;
+		_log_extract->add_source(_log_source);
+		// FIXME : set_format
+		// FIXME : set chunk filter
 
 		// First extraction
 		if (is_dom_empty()) {
@@ -825,7 +827,7 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 {
-	_in_t = PVGuiQt::PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
+	_log_input_type = PVGuiQt::PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
 
 	_inputs.clear();
 
