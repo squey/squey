@@ -130,7 +130,6 @@ public:
     void setDoc(QDomDocument &file);
     
     
-    Type type;
     
     
 
@@ -275,17 +274,6 @@ public:
 	QString getPlottingProperties(PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList& args);
     
 private:
-    QDomDocument xmlFile;
-    QList<PVXmlTreeNodeDom*> children;
-    PVXmlTreeNodeDom *parent;
-    
-    QDomElement xmlDomElement;
-    QString str;
-    
-    QHash<QString,QString> otherData;
-    
-    PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin;
-    PVFilter::PVFieldsConverterParamWidget_p converterPlugin;
     
     
     bool isAlreadyExplored;
@@ -316,14 +304,6 @@ private:
 
     bool isFieldOfUrl();
 
-	// AG: still the same saturday morning hack
-	QStringList _data_for_regexp;
-
-	// Id of a field, when the pipeline of filter is linearised. If this id equals to -1
-	// it means that it has children !
-	// TODO: list the ids of the children, so that they will be selected !
-	ssize_t _field_linear_id;
-
 private:
 	QDomElement getMappingElement();
 	QDomElement getPlottingElement();
@@ -352,7 +332,30 @@ public slots:
     signals:
     void data_changed();
 
-    
+    public:
+	Type type;
+    private:
+
+	QDomDocument xmlFile;
+	QList<PVXmlTreeNodeDom*> children;
+	PVXmlTreeNodeDom *parent;
+
+	QDomElement xmlDomElement;
+	QString str;
+
+	QHash<QString,QString> otherData;
+
+	PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin;
+	PVFilter::PVFieldsConverterParamWidget_p converterPlugin;
+
+	// AG: still the same saturday morning hack
+	QStringList _data_for_regexp;
+
+	// Id of a field, when the pipeline of filter is linearised. If this id equals to -1
+	// it means that it has children !
+	// TODO: list the ids of the children, so that they will be selected !
+	ssize_t _field_linear_id;
+
 };
 }
 #endif	/* NODEDOM_H */
