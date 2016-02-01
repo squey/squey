@@ -20,16 +20,27 @@ PVInspector::PVNrawListingModel::PVNrawListingModel(QObject* parent):
 
 int PVInspector::PVNrawListingModel::rowCount(const QModelIndex &parent) const
 {
+	if(not _nraw) {
+		return 0;
+	}
+
 	return _nraw->get_row_count();
 }
 
 int PVInspector::PVNrawListingModel::columnCount(const QModelIndex& parent) const
 {
+	if(not _nraw) {
+		return 0;
+	}
 	return _nraw->get_number_cols();
 }
 
 QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int role) const
 {
+	if(not _nraw) {
+		return {};
+	}
+
 	switch (role) {
 		case Qt::DisplayRole:
 			return QString::fromStdString(_nraw->at_string(index.row(), index.column()));
@@ -54,6 +65,10 @@ Qt::ItemFlags PVInspector::PVNrawListingModel::flags(const QModelIndex& /*index*
 
 QVariant PVInspector::PVNrawListingModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+	if(not _nraw) {
+		return {};
+	}
+
 	if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
 		return QAbstractTableModel::headerData(section, orientation, role);
 	return QString::fromStdString(_nraw->get_axis_name(section));
