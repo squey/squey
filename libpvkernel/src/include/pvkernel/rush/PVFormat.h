@@ -145,6 +145,7 @@ public:
 	// keeps fields.
 	void only_keep_axes();
 
+	static pvcop::formatter_desc get_datetime_formatter_desc(const std::string& tf);
 
 public:
 	/* Attributes */

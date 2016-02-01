@@ -56,6 +56,7 @@ core/PVSerializeObject.cpp
 core/PVSplitter.cpp
 core/PVUnicodeString.cpp
 core/PVUnicodeString16.cpp
+core/PVUtils.cpp
 core/PVVersion.cpp
 core/PVAllocators.cpp
 core/PVRecentItemsManager.cpp

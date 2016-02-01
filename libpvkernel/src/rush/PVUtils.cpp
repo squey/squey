@@ -12,6 +12,7 @@
 #include <pvkernel/rush/PVNraw.h>
 
 #include <pvkernel/rush/PVUtils.h>
+#include <pvkernel/core/PVUtils.h>
 
 #include <fstream>
 
@@ -48,25 +49,11 @@ void PVRush::PVUtils::sort_file(const char* input_file, const char* output_file 
 	fout.close();
 }
 
-/**
- * Replace `from` with `to` in `init`.
- */
-static std::string& replace(std::string& init, std::string const& from, std::string const& to)
-{
-        size_t pos = 0;
-        while ((pos = init.find(from, pos)) != std::string::npos) {
-                init.replace(pos, from.size(), to);
-                // Advance to avoid replacing the same character again (case of " for example)
-                pos += to.size();
-        }
-        return init;
-}
-
 std::string PVRush::PVUtils::safe_export(std::string str, const std::string& quote_char)
 {
 	static std::string escaped_quote("\\" + quote_char);
 
-        return quote_char + replace(str, quote_char, escaped_quote) + quote_char;
+        return quote_char + PVCore::replace(str, quote_char, escaped_quote) + quote_char;
 }
 
 void PVRush::PVUtils::safe_export(QStringList& str_list, const std::string& quote_char)

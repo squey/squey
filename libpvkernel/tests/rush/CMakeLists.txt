@@ -153,3 +153,7 @@ set(SPLUNK_SRC_FILES
 )
 add_pv_compile_test(Trush_splunk LINKS ${LINK_LIBRARIES} pvkernel curl FILES splunk.cpp ${SPLUNK_SRC_FILES})
 add_test(Trush_splunk Trush_splunk ${TESTS_FILES_DIR}/exports/Trush_splunk)
+
+# Datetime ICU to boost
+add_pv_compile_test(Trush_datetime_support LINKS ${LINK_LIBRARIES} FILES datetime_support.cpp)
+add_test(Trush_datetime_support Trush_datetime_support)
