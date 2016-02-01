@@ -20,19 +20,11 @@ PVInspector::PVNrawListingModel::PVNrawListingModel(QObject* parent):
 
 int PVInspector::PVNrawListingModel::rowCount(const QModelIndex &parent) const
 {
-	// Cf. QAbstractTableModel's documentation. This is for a table view.
-	if (parent.isValid() || !_is_consistent)
-		return 0;
-
 	return _nraw->get_row_count();
 }
 
 int PVInspector::PVNrawListingModel::columnCount(const QModelIndex& parent) const
 {
-	// Same as above
-	if (parent.isValid() || !_is_consistent)
-		return 0;
-
 	return _nraw->get_number_cols();
 }
 
@@ -62,7 +54,7 @@ Qt::ItemFlags PVInspector::PVNrawListingModel::flags(const QModelIndex& /*index*
 
 QVariant PVInspector::PVNrawListingModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	if (orientation != Qt::Horizontal || role != Qt::DisplayRole || !_is_consistent)
+	if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
 		return QAbstractTableModel::headerData(section, orientation, role);
 	return QString::fromStdString(_nraw->get_axis_name(section));
 }
