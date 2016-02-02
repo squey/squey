@@ -170,20 +170,6 @@ void PVGuiQt::PVStatsListingWidget::init_plugins()
 	}
 }
 
-bool PVGuiQt::PVStatsListingWidget::eventFilter(QObject* obj, QEvent* event)
-{
-	// This is needed as _stats_panel->verticalHeader()->setCursor(QCursor(Qt::PointingHandCursor)) isn't working obviously...
-	/*if (event->type() == QEvent::Enter) {
-		setCursor(QCursor(Qt::PointingHandCursor));
-		return true;
-	}
-	else if (event->type() == QEvent::Leave) {
-		setCursor(QCursor(Qt::ArrowCursor));
-		return true;
-	}*/
-	return QWidget::eventFilter(obj, event);
-}
-
 void PVGuiQt::PVStatsListingWidget::refresh()
 {
 	sync_vertical_headers();
@@ -573,18 +559,17 @@ void PVGuiQt::__impl::PVCellWidgetBase::toggle_auto_refresh()
  *
  *****************************************************************************/
 PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item) :
-	PVCellWidgetBase(table, view, item),
-	_unique_values_pixmap(QPixmap::fromImage(QImage(":/fileslist_black")))
+	PVCellWidgetBase(table, view, item)
 {
-	_unique_values_dlg_icon = new QPushButton();
-	_unique_values_dlg_icon->setCursor(QCursor(Qt::PointingHandCursor));
-	_unique_values_dlg_icon->setFlat(true);
-	_unique_values_dlg_icon->setStyleSheet("QPushButton { border: none; } QPushButton:pressed { padding-left : 0px; }");
-	_unique_values_dlg_icon->setIcon(_unique_values_pixmap);
-	_unique_values_dlg_icon->setFocusPolicy(Qt::NoFocus);
-	_unique_values_dlg_icon->setToolTip("Show distinct values");
-	connect(_unique_values_dlg_icon, SIGNAL(clicked(bool)), this, SLOT(show_unique_values_dlg()));
-	_customizable_layout->addWidget(_unique_values_dlg_icon);
+	QPushButton* unique_values_dlg_icon = new QPushButton();
+	unique_values_dlg_icon->setCursor(QCursor(Qt::PointingHandCursor));
+	unique_values_dlg_icon->setFlat(true);
+	unique_values_dlg_icon->setStyleSheet("QPushButton { border: none; } QPushButton:pressed { padding-left : 0px; }");
+	unique_values_dlg_icon->setIcon(QPixmap::fromImage(QImage(":/fileslist_black")));
+	unique_values_dlg_icon->setFocusPolicy(Qt::NoFocus);
+	unique_values_dlg_icon->setToolTip("Show distinct values");
+	connect(unique_values_dlg_icon, SIGNAL(clicked(bool)), this, SLOT(show_unique_values_dlg()));
+	_customizable_layout->addWidget(unique_values_dlg_icon);
 }
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
