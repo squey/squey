@@ -12,7 +12,7 @@
 
 PVInspector::PVNrawListingModel::PVNrawListingModel(QObject* parent):
 	QAbstractTableModel(parent),
-	_is_consistent(false),
+	_nraw(nullptr),
 	_col_tosel(0),
 	_show_sel(false)
 {
@@ -20,24 +20,27 @@ PVInspector::PVNrawListingModel::PVNrawListingModel(QObject* parent):
 
 int PVInspector::PVNrawListingModel::rowCount(const QModelIndex &parent) const
 {
-	// Cf. QAbstractTableModel's documentation. This is for a table view.
-	if (parent.isValid() || !_is_consistent)
+	if(not _nraw) {
 		return 0;
+	}
 
 	return _nraw->get_row_count();
 }
 
 int PVInspector::PVNrawListingModel::columnCount(const QModelIndex& parent) const
 {
-	// Same as above
-	if (parent.isValid() || !_is_consistent)
+	if(not _nraw) {
 		return 0;
-
+	}
 	return _nraw->get_number_cols();
 }
 
 QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int role) const
 {
+	if(not _nraw) {
+		return {};
+	}
+
 	switch (role) {
 		case Qt::DisplayRole:
 			return QString::fromStdString(_nraw->at_string(index.row(), index.column()));
@@ -62,7 +65,11 @@ Qt::ItemFlags PVInspector::PVNrawListingModel::flags(const QModelIndex& /*index*
 
 QVariant PVInspector::PVNrawListingModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	if (orientation != Qt::Horizontal || role != Qt::DisplayRole || !_is_consistent)
+	if(not _nraw) {
+		return {};
+	}
+
+	if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
 		return QAbstractTableModel::headerData(section, orientation, role);
 	return QString::fromStdString(_nraw->get_axis_name(section));
 }
@@ -70,24 +77,7 @@ QVariant PVInspector::PVNrawListingModel::headerData(int section, Qt::Orientatio
 void PVInspector::PVNrawListingModel::set_nraw(PVRush::PVNraw const& nraw)
 {
 	_nraw = &nraw;
-}
-
-void PVInspector::PVNrawListingModel::set_consistent(bool c)
-{
-	_is_consistent = c;
-	if (c == false) {
-		// Data about to be changed !
-		emit layoutAboutToBeChanged();
-	}
-	else {
-		// Data has been changed
-		emit layoutChanged();
-	}
-}
-
-bool PVInspector::PVNrawListingModel::is_consistent()
-{
-	return _is_consistent;
+	emit layoutChanged();
 }
 
 void PVInspector::PVNrawListingModel::set_selected_column(PVCol col)

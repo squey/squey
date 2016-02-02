@@ -70,23 +70,7 @@ public:
 	PVRush::types_groups_t& getGroups() { return myTreeModel->getGroups(); }
 
 private:
-    //FIXME: Those variables names are crap!
-    PVXmlTreeView *myTreeView;
-    PVXmlDomModel *myTreeModel;
-    PVXmlParamWidget *myParamBord_old_model;
-    QWidget *myParamBord;
-    QWidget emptyParamBoard;
-    QTabWidget* _main_tab;
-    //
-    QVBoxLayout *vbParam;
-    QMenuBar *menuBar;
-	Inendi::PVSource* _org_source; // If this widget is bound to a PVSource's format
-
-    //
-    QFile logFile;///!< file we open to edit the format
     int lastSplitterPluginAdding;
-    
-     QFileDialog _file_dialog;
     
     void actionAllocation();
     
@@ -114,22 +98,6 @@ private:
      * @param vb
      */
     void initToolBar(QVBoxLayout *vb);
-    QAction *actionAddAxisAfter;
-    QAction *actionAddAxisIn;
-    QAction *actionAddFilterAfter;
-    QAction *actionAddRegExAfter;
-    QAction *actionAddRegExBefore;
-    QAction *actionAddUrl;
-    QAction *actionAddRegExIn;
-    QPushButton *actionApply;
-    QAction *actionCloseWindow;
-    QAction *actionDelete;
-    QAction *actionMoveUp;
-    QAction *actionMoveDown;
-    QAction *actionNewWindow;
-    QAction *actionOpen;
-    QAction *actionSave;
-    QAction *actionSaveAs;
     
     /**
      * init the splitters list, by listing the plugins found
@@ -145,32 +113,26 @@ private:
 // Log input management
 
 protected:
+    /**
+     * Clear filter data and run extraction filling NRaw and invalid elements.
+     */
 	void update_table(PVRow start, PVRow end);
-	void set_format_from_dom();
+
+	/**
+	 * Get the PVFormat from its dom representation.
+	 */
+	PVRush::PVFormat get_format_from_dom();
+
+	/**
+	 * Stop old extractor, create the new one with default argument and starts it.
+	 */
 	void create_extractor();
+
+	/**
+	 * Try to find a matching splitter when we import a file without format.
+	 */
 	void guess_first_splitter();
 	bool is_dom_empty();
-
-protected:
-	PVRush::PVInputDescription_p _log_input;
-	PVRush::PVInputType_p _log_input_type;
-	PVRush::PVSourceCreator_p _log_sc;
-	PVRush::PVRawSourceBase_p _log_source;
-	std::shared_ptr<PVRush::PVExtractor> _log_extract;
-	PVOptionsWidget* _options_widget;
-	PVGuiQt::PVAxesCombinationWidget* _axes_comb_widget;
-
-	// Model and widget for the NRAW
-	PVNrawListingModel* _nraw_model;
-	PVNrawListingWidget* _nraw_widget;
-
-	// Invalid lines
-	QListWidget* _inv_lines_widget;
-
-	static QList<QUrl> _original_shortcuts;
-
-protected:
-	QString _cur_file;
 
 private:
 	void load_log(PVRow rstart, PVRow rend);
@@ -200,11 +162,64 @@ public slots:
 
 	// Slot for the NRAW listing
 	void set_axes_name_selected_row_Slot(int row);
-	void set_axes_type_selected_row_Slot(int row);
+
+protected:
+	PVRush::PVInputDescription_p _log_input; //!< File use for Format building.
+	PVRush::PVInputType_p _log_input_type; //!< InputType plugin to load data.
+	PVRush::PVSourceCreator_p _log_sc; //!< The source from input file.
+	PVRush::PVRawSourceBase_p _log_source;
+	std::shared_ptr<PVRush::PVExtractor> _log_extract; //!< Extractor to load data.
+	PVOptionsWidget* _options_widget;
+	PVGuiQt::PVAxesCombinationWidget* _axes_comb_widget;
+
+	// Model and widget for the NRAW
+	PVNrawListingModel* _nraw_model;
+	PVNrawListingWidget* _nraw_widget;
+
+	// Invalid lines
+	QListWidget* _inv_lines_widget;
+
+	static QList<QUrl> _original_shortcuts;
+
+protected:
+	QString _cur_file;
 
 private:
-	PVRush::PVInputType_p            _in_t;
-	PVRush::PVInputType::list_inputs _inputs;
+	PVRush::PVInputType::list_inputs _inputs; //!< List of input files.
+
+     QFileDialog _file_dialog;
+
+    //FIXME: Those variables names are crap!
+    PVXmlTreeView *myTreeView;
+    PVXmlDomModel *myTreeModel; //!< Model for the Tree representation of the format.
+    PVXmlParamWidget *myParamBord_old_model;
+    QWidget *myParamBord;
+    QWidget emptyParamBoard;
+    QTabWidget* _main_tab;
+    //
+    QVBoxLayout *vbParam;
+    QMenuBar *menuBar;
+	Inendi::PVSource* _org_source; // If this widget is bound to a PVSource's format
+
+    //
+    QFile logFile;///!< file we open to edit the format
+
+    QAction *actionAddAxisAfter;
+    QAction *actionAddAxisIn;
+    QAction *actionAddFilterAfter;
+    QAction *actionAddRegExAfter;
+    QAction *actionAddRegExBefore;
+    QAction *actionAddUrl;
+    QAction *actionAddRegExIn;
+    QPushButton *actionApply;
+    QAction *actionCloseWindow;
+    QAction *actionDelete;
+    QAction *actionMoveUp;
+    QAction *actionMoveDown;
+    QAction *actionNewWindow;
+    QAction *actionOpen;
+    QAction *actionSave;
+    QAction *actionSaveAs;
 };
 
 }
