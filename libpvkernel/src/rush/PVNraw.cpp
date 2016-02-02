@@ -141,7 +141,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	}
 
 
-	_invalid_count += snk.write_chunk_by_row(_real_nrows, elts.size(), pvcop_fields.data());
+	_invalid_count += snk.write_chunk_by_row(_real_nrows, local_row, pvcop_fields.data());
 	_real_nrows += local_row;
 
 	return true;
