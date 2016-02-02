@@ -119,7 +119,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 			 * chunk has been partially saved, the current chunked
 			 * index has to be saved by the caller (PVNrawOutput).
 			 */
-			return true;
+			break;
 		}
 
 		assert(column_count == fields.size());
