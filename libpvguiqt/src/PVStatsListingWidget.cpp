@@ -21,10 +21,6 @@
 
 #include <pvcop/db/algo.h>
 
-#ifdef INENDI_DEVELOPER_MODE
-	#define SIMULATE_LONG_COMPUTATION 0
-#endif
-
 constexpr int QTABLEWIDGET_OFFSET = 4;
 
 // Originally from http://stackoverflow.com/questions/8766633/how-to-determine-the-correct-size-of-a-qtablewidget
@@ -603,12 +599,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 	pvcop::db::array col2_out;
 
 	pvcop::db::algo::distinct(col_in, col1_out, col2_out, *_view.get_selection_visible_listing());
-#if SIMULATE_LONG_COMPUTATION
-	for (uint32_t i = 0; i < 10 && !_ctxt->is_group_execution_cancelled(); i++) {
-		usleep(500000);
-	}
-	valid = !_ctxt->is_group_execution_cancelled();
-#endif
+
 	emit refresh_impl_finished(QString("%L1").arg(col1_out.size())); // We must go back on the Qt thread to update the GUI
 }
 
