@@ -62,9 +62,6 @@ private:
 	}
 	void set_refresh_buttons_enabled(bool loading);
 
-protected:
-	bool eventFilter(QObject *obj, QEvent *event);
-
 private slots:
 	void plugin_visibility_toggled(bool checked);
 	void resize_listing_column_if_needed(int col);
@@ -232,6 +229,9 @@ protected:
 	bool _is_summable;
 };
 
+/**
+ * Widget for cell at the bottom of the listing to display unique values.
+ */
 class PVUniqueValuesCellWidget : public PVCellWidgetBase
 {
 	Q_OBJECT
@@ -247,9 +247,6 @@ private slots:
 	void unique_values_dlg_closed();
 
 private:
-	uint32_t _unique_values_number;
-	QPushButton* _unique_values_dlg_icon;
-	QPixmap _unique_values_pixmap;
 	QDialog* _dialog = nullptr;
 };
 

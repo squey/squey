@@ -21,20 +21,11 @@
 
 #include <pvcop/db/algo.h>
 
-#ifdef INENDI_DEVELOPER_MODE
-	#define SIMULATE_LONG_COMPUTATION 0
-#endif
-
 constexpr int QTABLEWIDGET_OFFSET = 4;
 
 // Originally from http://stackoverflow.com/questions/8766633/how-to-determine-the-correct-size-of-a-qtablewidget
-static QSize compute_qtablewidget_size(QTableWidget* stats, QTableView* listing)
+static uint32_t compute_qtablewidget_height(QTableWidget* stats, QTableView* listing)
 {
-   int w = listing->verticalHeader()->width() + /*listing->verticalScrollBar()->width()*/ + QTABLEWIDGET_OFFSET;
-   for (int i = 0; i < listing->horizontalHeader()->count(); i++) {
-	   w += listing->columnWidth(i);
-   }
-
    int h = stats->horizontalHeader()->height() + QTABLEWIDGET_OFFSET;
    for (int i = 0; i < stats->verticalHeader()->count(); i++) {
 	   if(!stats->isRowHidden(i)) {
@@ -42,7 +33,7 @@ static QSize compute_qtablewidget_size(QTableWidget* stats, QTableView* listing)
 	   }
    }
 
-   return QSize(w, h);
+   return h;
 }
 
 /******************************************************************************
@@ -144,7 +135,7 @@ void PVGuiQt::PVStatsListingWidget::plugin_visibility_toggled(bool checked)
 	else {
 		_stats_panel->hideRow(row);
 	}
-	_stats_panel->setMaximumSize(compute_qtablewidget_size(_stats_panel, _listing_view));
+	_stats_panel->setMaximumHeight(compute_qtablewidget_height(_stats_panel, _listing_view));
 };
 
 void PVGuiQt::PVStatsListingWidget::resize_listing_column_if_needed(int col)
@@ -177,20 +168,6 @@ void PVGuiQt::PVStatsListingWidget::init_plugins()
 	for (PVCol col=0; col < _listing_view->horizontalHeader()->count(); col++) {
 		_stats_panel->setColumnWidth(col, _listing_view->horizontalHeader()->sectionSize(col));
 	}
-}
-
-bool PVGuiQt::PVStatsListingWidget::eventFilter(QObject* obj, QEvent* event)
-{
-	// This is needed as _stats_panel->verticalHeader()->setCursor(QCursor(Qt::PointingHandCursor)) isn't working obviously...
-	/*if (event->type() == QEvent::Enter) {
-		setCursor(QCursor(Qt::PointingHandCursor));
-		return true;
-	}
-	else if (event->type() == QEvent::Leave) {
-		setCursor(QCursor(Qt::ArrowCursor));
-		return true;
-	}*/
-	return QWidget::eventFilter(obj, event);
 }
 
 void PVGuiQt::PVStatsListingWidget::refresh()
@@ -232,7 +209,7 @@ void PVGuiQt::PVStatsListingWidget::update_header_width(int column, int /*old_wi
 
 void PVGuiQt::PVStatsListingWidget::resize_panel()
 {
-	_stats_panel->setMaximumSize(compute_qtablewidget_size(_stats_panel, _listing_view));
+	_stats_panel->setMaximumHeight(compute_qtablewidget_height(_stats_panel, _listing_view));
 	for (PVCol col=0; col < _stats_panel->columnCount(); col++) {
 		_stats_panel->setColumnWidth(col, _listing_view->columnWidth(col));
 	}
@@ -582,18 +559,17 @@ void PVGuiQt::__impl::PVCellWidgetBase::toggle_auto_refresh()
  *
  *****************************************************************************/
 PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item) :
-	PVCellWidgetBase(table, view, item),
-	_unique_values_pixmap(QPixmap::fromImage(QImage(":/fileslist_black")))
+	PVCellWidgetBase(table, view, item)
 {
-	_unique_values_dlg_icon = new QPushButton();
-	_unique_values_dlg_icon->setCursor(QCursor(Qt::PointingHandCursor));
-	_unique_values_dlg_icon->setFlat(true);
-	_unique_values_dlg_icon->setStyleSheet("QPushButton { border: none; } QPushButton:pressed { padding-left : 0px; }");
-	_unique_values_dlg_icon->setIcon(_unique_values_pixmap);
-	_unique_values_dlg_icon->setFocusPolicy(Qt::NoFocus);
-	_unique_values_dlg_icon->setToolTip("Show distinct values");
-	connect(_unique_values_dlg_icon, SIGNAL(clicked(bool)), this, SLOT(show_unique_values_dlg()));
-	_customizable_layout->addWidget(_unique_values_dlg_icon);
+	QPushButton* unique_values_dlg_icon = new QPushButton();
+	unique_values_dlg_icon->setCursor(QCursor(Qt::PointingHandCursor));
+	unique_values_dlg_icon->setFlat(true);
+	unique_values_dlg_icon->setStyleSheet("QPushButton { border: none; } QPushButton:pressed { padding-left : 0px; }");
+	unique_values_dlg_icon->setIcon(QPixmap::fromImage(QImage(":/fileslist_black")));
+	unique_values_dlg_icon->setFocusPolicy(Qt::NoFocus);
+	unique_values_dlg_icon->setToolTip("Show distinct values");
+	connect(unique_values_dlg_icon, SIGNAL(clicked(bool)), this, SLOT(show_unique_values_dlg()));
+	_customizable_layout->addWidget(unique_values_dlg_icon);
 }
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
@@ -603,12 +579,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 	pvcop::db::array col2_out;
 
 	pvcop::db::algo::distinct(col_in, col1_out, col2_out, *_view.get_selection_visible_listing());
-#if SIMULATE_LONG_COMPUTATION
-	for (uint32_t i = 0; i < 10 && !_ctxt->is_group_execution_cancelled(); i++) {
-		usleep(500000);
-	}
-	valid = !_ctxt->is_group_execution_cancelled();
-#endif
+
 	emit refresh_impl_finished(QString("%L1").arg(col1_out.size())); // We must go back on the Qt thread to update the GUI
 }
 
