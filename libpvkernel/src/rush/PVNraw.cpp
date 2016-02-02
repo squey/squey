@@ -160,7 +160,10 @@ void PVRush::PVNraw::load_done()
 	// Close collector to be sure it is saved before we load it in the collection.
 	_collector->close();
 
-	_collection.reset(new pvcop::collection(_collector->rootdir()));
+	if(_real_nrows != 0) {
+		// Create the collection only if there are imported lines.
+		_collection.reset(new pvcop::collection(_collector->rootdir()));
+	}
 	_collector.reset();
 }
 

@@ -76,7 +76,11 @@ QVariant PVInspector::PVNrawListingModel::headerData(int section, Qt::Orientatio
 
 void PVInspector::PVNrawListingModel::set_nraw(PVRush::PVNraw const& nraw)
 {
-	_nraw = &nraw;
+	if(nraw.get_row_count() == 0) {
+		_nraw = nullptr;
+	} else {
+		_nraw = &nraw;
+	}
 	emit layoutChanged();
 }
 
