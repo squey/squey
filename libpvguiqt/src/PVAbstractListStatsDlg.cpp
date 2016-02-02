@@ -27,6 +27,9 @@
 
 #include <pvhive/PVCallHelper.h>
 
+#include <pvcop/db/algo.h>
+#include <pvcop/db/types.h>
+
 #include <tbb/blocked_range.h>
 #include <tbb/task_scheduler_init.h>
 
@@ -553,17 +556,41 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 
 	bool res = PVCore::PVProgressBox::progress([this, row_count, vmax, vmin]
 	{
+		const pvcop::db::array& col2_array = model().stat_col();
+		std::string min_, max_;
+
+		// Manual check for typing convertion to string.
+		// FIXME : We should handle this with more specific widgets for each type.
+		switch(col2_array.type())
+		{
+		case pvcop::db::type_t::type_uint32:
+		min_ =  std::to_string(static_cast<uint32_t>(vmin));
+		max_ =  std::to_string(static_cast<uint32_t>(vmax));
+		break;
+		case pvcop::db::type_t::type_int32:
+		min_ =  std::to_string(static_cast<int32_t>(vmin));
+		max_ =  std::to_string(static_cast<int32_t>(vmax));
+		break;
+		case pvcop::db::type_t::type_uint64:
+		min_ =  std::to_string(static_cast<uint64_t>(vmin));
+		max_ =  std::to_string(static_cast<uint64_t>(vmax));
+		break;
+		case pvcop::db::type_t::type_int64:
+		min_ =  std::to_string(static_cast<int64_t>(vmin));
+		max_ =  std::to_string(static_cast<int64_t>(vmax));
+		break;
+		case pvcop::db::type_t::type_double:
+		min_ =  std::to_string(static_cast<double>(vmin));
+		max_ =  std::to_string(static_cast<double>(vmax));
+		   break;
+		default:
+		   PVLOG_ERROR(("Incorrect type to compute range selection." + std::to_string(col2_array.type())).c_str());
+		   return;
+		}
 		Inendi::PVSelection & sel = model().current_selection();
 		sel.select_none();
 
-		const pvcop::db::array& col2_array = model().stat_col();
-
-#pragma omp parallel for
-		for(int i=0; i<row_count; i++) {
-			// TODO: this could be improved by implementing db::array::subselect(min, max)
-			const double v = QString::fromStdString(col2_array.at(i)).toDouble();
-			sel.set_line(i, v <= vmax && v >=vmin);
-		}
+		pvcop::db::algo::range_select(col2_array, min_, max_, pvcop::db::selection(), sel);
 
 	}, ctxt, pbox);
 
