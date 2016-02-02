@@ -570,6 +570,9 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	// FIXME : Qt selection is not rendered: PVGuiQt::PVListingModel::data (case Qt::BackgroundRole)
 	//         should be moved elsewhere in order to use it properly
 
+	// Update the viewport to display selection.
+	_values_view->viewport()->update();
+
 	BENCH_END(select_values, "select_values", 0, 0, 1, row_count);
 }
 
