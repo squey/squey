@@ -49,15 +49,15 @@ void run_tests(
 )
 {
 	std::vector<testcase_t> tests {
-		{{{0, 1, 1, 0}, "Tue Jan 06 01:23:28 GMT 2004\n"
-				        "Mon Dec 12 23:56:00 GMT 2005"}, 100}, // EXACT_MATCH
-		{{{0, 0, 1, 0}, "MoN dEc 12 23:56:00 Gmt 2005"}, 50},  // EXACT_MATCH + CASE_INSENSITIVE
-		{{{0, 1, 1, 1}, ".*01.*"}, 700},                       // EXACT_MATCH + REGULAR_EXPRESSION
-		{{{0, 0, 1, 1}, ".*w\\D{2}.*"}, 700},                  // EXACT_MATCH + REGULAR_EXPRESSION + CASE_INSENSITIVE
-		{{{0, 1, 0, 1}, "\\d{2}\\:\\d{2}\\:00"}, 200},         // REGULAR_EXPRESSION
-		{{{0, 0, 0, 1}, "j\\D{2}"}, 950},                      // REGULAR_EXPRESSION + CASE_INSENSITIVE
-		{{{1, 0, 0, 0}, "jan"}, 4700},                         // CASE_INSENSITIVE
-		{{{0, 1, 0, 0}, "Oct\nDec"}, 750},                         // NONE
+		{{{0, 1, 1, 0}, "Tue Jan 06 01:23:28 2004\n"
+				        "Mon Dec 12 23:56:00 2005"}, 100}, // EXACT_MATCH
+		{{{0, 0, 1, 0}, "MoN dEc 12 23:56:00 2005"}, 50},  // EXACT_MATCH + CASE_INSENSITIVE
+		{{{0, 1, 1, 1}, ".*01.*"}, 700},                   // EXACT_MATCH + REGULAR_EXPRESSION
+		{{{0, 0, 1, 1}, ".*w\\D{2}.*"}, 700},              // EXACT_MATCH + REGULAR_EXPRESSION + CASE_INSENSITIVE
+		{{{0, 1, 0, 1}, "\\d{2}\\:\\d{2}\\:00"}, 200},     // REGULAR_EXPRESSION
+		{{{0, 0, 0, 1}, "j\\D{2}"}, 950},                  // REGULAR_EXPRESSION + CASE_INSENSITIVE
+		{{{1, 0, 0, 0}, "jan"}, 4700},                     // CASE_INSENSITIVE
+		{{{0, 1, 0, 0}, "Oct\nDec"}, 750},                 // NONE
 	};
 
 	for (const testcase_t& test : tests) {
