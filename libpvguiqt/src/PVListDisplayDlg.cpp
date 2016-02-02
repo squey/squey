@@ -134,7 +134,7 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 
 		_model->current_selection().visit_selected_lines([this, &ctxt, &content, &sep](int row){
 			if unlikely(ctxt.is_group_execution_cancelled()) {
-				return QString();
+				return;
 			}
 			QString s = _model->export_line(row);
 			if (!s.isNull()) {
