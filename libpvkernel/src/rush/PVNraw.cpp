@@ -119,7 +119,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 			 * chunk has been partially saved, the current chunked
 			 * index has to be saved by the caller (PVNrawOutput).
 			 */
-			return true;
+			break;
 		}
 
 		assert(column_count == fields.size());
@@ -141,7 +141,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	}
 
 
-	_invalid_count += snk.write_chunk_by_row(_real_nrows, elts.size(), pvcop_fields.data());
+	_invalid_count += snk.write_chunk_by_row(_real_nrows, local_row, pvcop_fields.data());
 	_real_nrows += local_row;
 
 	return true;
@@ -160,7 +160,10 @@ void PVRush::PVNraw::load_done()
 	// Close collector to be sure it is saved before we load it in the collection.
 	_collector->close();
 
-	_collection.reset(new pvcop::collection(_collector->rootdir()));
+	if(_real_nrows != 0) {
+		// Create the collection only if there are imported lines.
+		_collection.reset(new pvcop::collection(_collector->rootdir()));
+	}
 	_collector.reset();
 }
 

@@ -13,6 +13,7 @@
 
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QSpinBox>
 
 #include <QSpacerItem>
 #include <QPushButton>
@@ -94,9 +95,10 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	QLabel* col_label = new QLabel(tr("Number of columns:"));
 	gridLayout->addWidget(col_label, 2, 0, Qt::AlignLeft);
 
-	child_number_edit = new QLineEdit(QString::number(get_child_count()));
-	child_number_org_palette = child_number_edit->palette();
-	gridLayout->addWidget(child_number_edit, 2, 1);
+	// Set default value for number of csv field.
+	_child_number_edit = new QSpinBox();
+	_child_number_edit->setValue(get_child_count());
+	gridLayout->addWidget(_child_number_edit, 2, 1);
 
 	// "set number of children" button
 	QPushButton* set_nchilds_btn = new QPushButton(tr("Update format"));
@@ -155,12 +157,7 @@ void PVFilter::PVFieldSplitterCSVParamWidget::updateQuote(QKeySequence key)
 
 void PVFilter::PVFieldSplitterCSVParamWidget::updateNChilds()
 {
-	QString const& txt_n = child_number_edit->text();
-	if (txt_n.size() == 0) {
-		return;
-	}
-
-	set_child_count(txt_n.toLong());
+	set_child_count(_child_number_edit->value());
 	emit nchilds_changed_Signal();
 }
 

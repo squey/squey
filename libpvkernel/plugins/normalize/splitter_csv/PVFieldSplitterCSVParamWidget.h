@@ -15,9 +15,10 @@
 #include <QLabel>
 #include <QObject>
 #include <QAction>
-#include <QLineEdit>
 
 #include <pvkernel/widgets/qkeysequencewidget.h>
+
+class QSpinBox;
 
 namespace PVFilter {
 
@@ -32,8 +33,7 @@ public:
 private:
 	QAction* action_menu;
 	QWidget* param_widget;
-	QLineEdit *child_number_edit;
-	QPalette child_number_org_palette;
+	QSpinBox *_child_number_edit; //!< Widget to select number of child (number of column in csv)
 	PVWidgets::QKeySequenceWidget* separator_text;
 	PVWidgets::QKeySequenceWidget* quote_text;
 	//QLineEdit* separator_text;
