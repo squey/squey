@@ -78,6 +78,7 @@ remote_file/include/fileconnectiondialog.h
 remote_file/include/filedownloader.h
 remote_file/include/logviewerwidget.h
 remote_file/include/PVLogViewerDialog.h
+file/PVImportFileDialog.h
 )
 
 SET(REMOTEFILE_SRC
@@ -89,6 +90,7 @@ remote_file/PVLogViewerDialog.cpp
 remote_file/PVInputTypeRemoteFilename.cpp
 remote_file/register.cpp
 file/PVInputTypeFilename.cpp
+file/PVImportFileDialog.cpp
 )
 
 # Generate moc files
