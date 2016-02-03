@@ -76,6 +76,15 @@ public:
 	PVRow get_row_count() const;
 
 	PVRush::PVExtractor& get_extractor();
+	
+	/**
+	 * Start extraction of data for current source.
+	 *
+	 * @param line_count : Number of line to load
+	 * @param skip_lines_count : Number of line to skip at the beginning of the file.
+	 *
+	 * @return : Pointer to the started job.
+	 */
 	PVRush::PVControllerJob_p extract(size_t skip_lines_count = 0, size_t line_count = 0);
 	PVRush::PVControllerJob_p extract_from_agg_nlines(chunk_index start, chunk_index nlines);
 	void wait_extract_end(PVRush::PVControllerJob_p job);
@@ -158,6 +167,10 @@ public:
 private:
 	void add_column(Inendi::PVAxis const& axis);
 	void set_views_consistent(bool cons);
+
+	/**
+	 * Set function to compute mapping.
+	 */
 	void set_mapping_function_in_extractor();
 
 protected:

@@ -49,6 +49,14 @@ public:
 
 	void refresh_and_show();
 	static void update_status_ext(PVCore::PVProgressBox* pbox, PVRush::PVControllerJob_p job);
+
+	/**
+	 * Show a progress bar for given job.
+	 *
+	 * Return if some data have to be load.
+	 *
+	 * @todo : use nlines as maximum number of line to have a real progress bar.
+	 */
 	static bool show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int nlines, QWidget* parent);
 
 private:

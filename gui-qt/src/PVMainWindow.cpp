@@ -1684,8 +1684,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		}
 
 		if (!PVExtractorWidget::show_job_progress_bar(job_import, src->get_format_name(), job_import->nb_elts_max(), this)) {
-			//message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-			//pvsdk_messenger->post_message_to_gl(message);
+			// If job is canceled, stop here
 			return false;
 		}
 		src->wait_extract_end(job_import);
