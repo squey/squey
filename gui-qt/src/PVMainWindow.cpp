@@ -814,7 +814,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 			// must never happens
 			msg = "<p>No valid local format file found.</p>";
 			msg += "<ul>";
-			msg += "<li>the source's directory contains a readable format file named <em>inendi.format</em></li>";
+			msg += "<li>the source's directory contains a readable format file named <em>inendi.format</em> (or <em>picviz.format</em> for backward compatibility)</li>";
 			msg += "<li>the source file has a format file whose name is <em>file.ext<strong>.format</strong></em></li>";
 			msg +="</ul>";
 		}

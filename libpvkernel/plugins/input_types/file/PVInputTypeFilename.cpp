@@ -182,7 +182,7 @@ QString PVRush::PVInputTypeFilename::tab_name_of_inputs(list_inputs const& in) c
 
 bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in, hash_formats &formats) const
 {
-	// Two types of custom format: inendi.format exist in the directory of the file,
+	// Two types of custom format: inendi.format/picviz.format exists in the directory of the file,
 	// or file + ".format" exists
 	bool res = false;
 	PVFileDescription* f = dynamic_cast<PVFileDescription*>(in.get());
@@ -196,16 +196,23 @@ bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in, ha
 		res = true;
 	}
 
+	static std::vector<QString> custom_filenames = { "inendi.format", "picviz.format" };
+
 	QDir d = fi.dir();
-	QString path_custom_dir_format = d.absoluteFilePath("inendi.format");
-	fi = QFileInfo(path_custom_dir_format);
-	if ((!fi.exists()) || (!fi.isReadable())) {
+
+	auto path_custom_dir_format = std::find_if(custom_filenames.begin(), custom_filenames.end(),
+	                                           [&d](const QString& filename) {
+		                                           QFileInfo fi = QFileInfo(d.absoluteFilePath(filename));
+		                                           return fi.exists() && fi.isReadable();
+	                                           });
+
+	if (path_custom_dir_format == custom_filenames.end()) {
 		return res;
 	}
 
 	format_custom_name = "custom_directory:" + d.path();
 	if (!formats.contains(format_custom_name)) {
-		formats[format_custom_name] = PVRush::PVFormat(format_custom_name, path_custom_dir_format);
+		formats[format_custom_name] = PVRush::PVFormat(format_custom_name, *path_custom_dir_format);
 	}
 
 	return true;
