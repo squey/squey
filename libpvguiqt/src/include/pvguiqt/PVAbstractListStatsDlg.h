@@ -115,7 +115,7 @@ protected:
 	QAction* _act_toggle_relative;
 
 	QAction* _act_show_percentage;
-	QAction* _act_show_count;
+	QAction* _act_show_count; //!< Action to show count as stat information.
 	QAction* _act_show_scientific_notation;
 
 	__impl::PVAbstractListStatsRangePicker* _select_picker;
