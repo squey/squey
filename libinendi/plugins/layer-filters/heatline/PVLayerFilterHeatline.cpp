@@ -98,9 +98,10 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer& in, PVLayer &out)
 	pvcop::db::array count = col.group_count(group, extents);
 
 	// Compute min and max value
-	// FIXME (pbrunet) : We may have a minmax primitive
-	pvcop::db::indexes::type min_n = pvcop::db::algo::min(count).to_core_array<pvcop::db::indexes::type>()[0];
-	pvcop::db::indexes::type max_n = pvcop::db::algo::max(count).to_core_array<pvcop::db::indexes::type>()[0];
+	pvcop::db::array mm = pvcop::db::algo::minmax(count);
+	auto& minmax = mm.to_core_array<pvcop::db::indexes::type>();
+	pvcop::db::indexes::type min_n = minmax[0];
+	pvcop::db::indexes::type max_n = minmax[1];
 
 	assert(min_n <= max_n && "We should have a correct order between min/max");
 

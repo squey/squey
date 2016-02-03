@@ -43,11 +43,12 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView_sp& view, PVRush::PVNra
 	{
 		pvcop::db::algo::distinct(col_in, col1_out, col2_out, sel);
 
-		std::string min_str = pvcop::db::algo::min(col2_out).at(0);
+		pvcop::db::array minmax = pvcop::db::algo::minmax(col2_out);
+		std::string min_str = minmax.at(0);
 		std::istringstream min_buf(min_str);
 		min_buf >> min;
 
-		std::string max_str = pvcop::db::algo::max(col2_out).at(0);
+		std::string max_str = minmax.at(1);
 		std::istringstream max_buf(max_str);
 		max_buf >> max;
 
@@ -113,11 +114,12 @@ static bool show_stats_dialog(
 	{
 		op(col1_in, col2_in, col1_out, col2_out, sel);
 
-		std::string min_str = pvcop::db::algo::min(col2_out).at(0);
+		pvcop::db::array minmax = pvcop::db::algo::minmax(col2_out);
+		std::string min_str = minmax.at(0);
 		std::istringstream min_buf(min_str);
 		min_buf >> rel_min;
 
-		std::string max_str = pvcop::db::algo::max(col2_out).at(0);
+		std::string max_str = minmax.at(1);
 		std::istringstream max_buf(max_str);
 		max_buf >> rel_max;
 
