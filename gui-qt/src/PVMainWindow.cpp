@@ -901,7 +901,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 
 		PVRush::pair_format_creator const& fc = format_creator[it.key()];
 
-		PVRush::PVControllerJob_p job_import;
 		PVRush::PVFormat const& cur_format = fc.first;
 
 		PVRush::PVSourceDescription src_desc(inputs, fc.second, cur_format);
