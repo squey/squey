@@ -8,8 +8,6 @@
 #include <pvkernel/core/general.h>
 
 #include <inendi/PVMapping.h>
-#include <inendi/PVMappingFilter.h>
-#include <inendi/PVPlottingFilter.h>
 #include <inendi/PVPlotting.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>

@@ -129,7 +129,7 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 		return input_filter & middle_chunk_filter & count_filter & out_filter;
 	}
 	else {
-		return input_filter & source_transform_filter & transform_filter & mapped_filter & seq_chunk_filter & count_filter & out_filter;
+		return input_filter & source_transform_filter & transform_filter & count_filter & out_filter;
 	}
 }
 

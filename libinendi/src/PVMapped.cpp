@@ -94,6 +94,83 @@ void Inendi::PVMapped::init_process_from_rush_pipeline()
 	_grp_values_rush.clear();
 }
 
+void Inendi::PVMapped::compute()
+{
+	// Prepare mandatory mapping filters
+	std::vector<PVMandatoryMappingFilter::p_type> mand_mapping_filters;
+	LIB_CLASS(Inendi::PVMandatoryMappingFilter)::list_classes const& lfmf = LIB_CLASS(Inendi::PVMandatoryMappingFilter)::get().get_list();
+	mand_mapping_filters.reserve(lfmf.size());
+	for (auto it_lfmf = lfmf.begin(); it_lfmf != lfmf.end(); it_lfmf++) {
+		PVMandatoryMappingFilter::p_type mf = it_lfmf->value()->clone<PVMandatoryMappingFilter>();
+		mand_mapping_filters.push_back(mf);
+	}
+
+	const PVRow nrows = get_parent()->get_row_count();
+
+	PVCol const ncols = _mapping->get_number_cols();
+
+	if (nrows == 0) {
+		// Nothing to map, early stop.
+		return;
+	}
+
+	// Prepare the mapping table.
+	allocate_table(nrows, ncols);
+
+	// finalize import's mapping filters
+	PVRush::PVNraw const& nraw = get_parent()->get_rushnraw();
+
+	_mapping_filters_rush.resize(ncols);
+	for (PVCol j = 0; j < ncols; j++) {
+		// Create our own plugins from the library
+		PVMappingFilter::p_type mf = _mapping->get_filter_for_col(j);
+		_mapping_filters_rush[j] = mf->clone<PVMappingFilter>();
+		_mapping_filters_rush[j]->init();
+
+		// Compute mapping on this column
+		PVMappingFilter::p_type& mapping_filter = _mapping_filters_rush[j];
+
+		// Set MappingFilter array in filter to set it from filter.
+		// FIXME : Ugly interface
+		mapping_filter->set_dest_array(nrows, get_column_pointer(j));
+		
+		// Set mapping for the full column
+		mapping_filter->operator()(j, nraw);
+
+		tbb::tick_count start = tbb::tick_count::now();
+		mapping_filter->finalize(j, nraw);
+		tbb::tick_count end = tbb::tick_count::now();
+		PVLOG_INFO("(PVMapped::finish_process_from_rush_pipeline) finalizing mapping for axis %d took %0.4f seconds.\n", j, (end-start).seconds());
+
+		mandatory_param_map& params_map = _mapping->get_mandatory_params_for_col(j);
+		tbb::tick_count tmap_start = tbb::tick_count::now();
+		// Init the mandatory mapping
+		for (auto it_pmf = mand_mapping_filters.begin(); it_pmf != mand_mapping_filters.end(); it_pmf++) {
+			(*it_pmf)->set_dest_params(params_map);
+			(*it_pmf)->set_decimal_type(_mapping_filters_rush[j]->get_decimal_type());
+			(*it_pmf)->set_mapped(*this);
+			(*it_pmf)->operator()(Inendi::mandatory_param_list_values(j, get_column_pointer(j)));
+		}
+		tbb::tick_count tmap_end = tbb::tick_count::now();
+
+		PVLOG_INFO("(PVMapped::finish_process_from_rush_pipeline) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
+	}
+
+	// Validate all mapping!
+	validate_all();
+
+	// Clear mapping filters
+	_mapping_filters_rush.clear();
+
+	// Clear "group values" hash
+	_grp_values_rush.clear();
+
+	// force plotteds updates (in case of .pvi load)
+	for (auto plotted : get_children<PVPlotted>()) {
+		plotted->finish_process_from_rush_pipeline();
+	}
+}
+
 void Inendi::PVMapped::init_pure_mapping_functions(PVFilter::PVPureMappingProcessing::list_pure_mapping_t& funcs)
 {
 	const PVCol ncols = _mapping->get_number_cols();

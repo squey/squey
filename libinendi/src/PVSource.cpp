@@ -141,8 +141,6 @@ PVRush::PVControllerJob_p Inendi::PVSource::extract(size_t skip_lines_count /*= 
 		view_p->set_consistent(false);
 	}
 
-	set_mapping_function_in_extractor();
-
 	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(skip_lines_count,
 	                                                                   line_count ? line_count : INENDI_LINES_MAX);
 
@@ -165,6 +163,7 @@ PVRush::PVControllerJob_p Inendi::PVSource::extract_from_agg_nlines(chunk_index 
 
 void Inendi::PVSource::set_mapping_function_in_extractor()
 {
+	// Get mapping information from childrens (one child have mapping for every column)
 	children_t const& mappeds = get_children();
 	if (mappeds.size() == 0) {
 		return;
@@ -208,15 +207,10 @@ void Inendi::PVSource::extract_finished()
 {
 	// Finish mapping process. That will set all mapping as valid!
 	for (auto mapped_p : get_children<PVMapped>()) {
-		mapped_p->finish_process_from_rush_pipeline();
+		mapped_p->compute();
 	}
 
 	_extractor.get_agg().release_inputs();
-
-	// Reset all views and process the current one
-	/*for (auto view_p : get_children<PVView>()) {
-		view_p->reset_layers();
-	}*/
 }
 
 void Inendi::PVSource::set_format(PVRush::PVFormat const& format)
