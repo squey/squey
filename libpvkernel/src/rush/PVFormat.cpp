@@ -287,16 +287,23 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 		}
 		else {
 			std::string formatter;
+			std::string formatter_params;
 
 			if (axe_type == "string" || axe_type == "enum" || axe_type == "host") {
 				formatter = "string";
 			}
 			else if (axe_type == "integer") {
-				if (axe_mapping == "unsigned") {
-					formatter = "number_uint32";
-				}
-				else if (axe_mapping == "default") {
+				if (axe_mapping == "default") {
 					formatter = "number_int32";
+				}
+				else {
+					formatter = "number_uint32";
+					if (axe_mapping == "hexadecimal") {
+						formatter_params = "%x";
+					}
+					else if (axe_mapping == "octal") {
+						formatter_params = "%o";
+					}
 				}
 			}
 			else if (axe_type == "float") {
@@ -308,7 +315,7 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 				throw PVRush::PVFormatUnknownType("Unknown axis type : " + axe_type);
 			}
 
-			formatters.emplace_back(pvcop::formatter_desc(formatter, ""));
+			formatters.emplace_back(pvcop::formatter_desc(formatter, formatter_params));
 		}
 	}
 
