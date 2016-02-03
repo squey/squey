@@ -77,7 +77,7 @@ public:
 		value.replace(quote, escaped_quote);
 		value = quote + value + quote + sep;
 
-		double occurence_count = QString::fromStdString(_col2.at(row)).toDouble();
+		double occurence_count = QString::fromStdString(_col2.at(row_pos_to_index(row))).toDouble();
 
 		double ratio = occurence_count / max_count();
 		switch(_format) {
