@@ -52,11 +52,13 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 			{
 				pvcop::db::algo::op_by_details(col1_in, col2_in, value.toStdString(), col1_out, col2_out, *view_sp->get_selection_visible_listing());
 
-				std::string min_str = pvcop::db::algo::min(col2_out).at(0);
+				pvcop::db::array minmax = pvcop::db::algo::minmax(col2_out);
+
+				std::string min_str = minmax.at(0);
 				std::istringstream min_buf(min_str);
 				min_buf >> min;
 
-				std::string max_str = pvcop::db::algo::max(col2_out).at(0);
+				std::string max_str = minmax.at(1);
 				std::istringstream max_buf(max_str);
 				max_buf >> max;
 
