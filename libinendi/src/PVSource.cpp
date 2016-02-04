@@ -198,9 +198,7 @@ bool Inendi::PVSource::load_from_disk()
 		return false;
 	}
 
-	nraw->load_from_disk(_nraw_folder.toStdString());
-
-	return true;
+	return nraw->load_from_disk(_nraw_folder.toStdString());
 }
 
 void Inendi::PVSource::extract_finished()

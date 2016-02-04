@@ -17,6 +17,8 @@
 #include <pvcop/collector.h>
 #include <pvcop/sink.h>
 
+#include <pvcop/db/exceptions/invalid_collection.h>
+
 #include <iostream>
 #include <fstream>
 #include <omp.h>
@@ -175,11 +177,29 @@ void PVRush::PVNraw::load_done()
  *
  ****************************************************************************/
 
-void PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
+bool PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
 {
 	_collector.reset();
-	_collection.reset(new pvcop::collection(nraw_folder));
+
+	/**
+	 * to avoid leaking pvcop exception outside of PVNraw or PVRush, the
+	 * collection opening failure is catch there and is reported according
+	 * to the actual logic of error reporting in the Inspector stack.
+	 *
+	 * TODO: we will have to rething the error propagation from a library
+	 * to an other in the factorization process. Rethrowing an exception
+	 * PVRush::invalid_nraw could be a nicer solution than returning
+	 * a boolean.
+	 */
+	try {
+		_collection.reset(new pvcop::collection(nraw_folder));
+	} catch (pvcop::db::exception::invalid_collection&) {
+		return false;
+	}
+
 	_real_nrows = _collection->row_count();
+
+	return true;
 }
 
 /*****************************************************************************

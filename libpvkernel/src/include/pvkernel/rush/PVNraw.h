@@ -168,8 +168,10 @@ public:
 public:
 	/**
 	 * Create a NRaw from and NRaw folder on HDD.
+	 *
+	 * @return true in case of success; false otherwise.
 	 */
-	void load_from_disk(const std::string& nraw_folder);
+	bool load_from_disk(const std::string& nraw_folder);
 
 private:
 	/// Variable usefull for reading
