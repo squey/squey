@@ -65,6 +65,11 @@ void Inendi::tls_parser::init(QStringList const& time_format)
 void Inendi::PVMappingFilterTimeDefault::init()
 {
 	_time_format = _args["time-format"].value<PVCore::PVTimeFormatType>();
+
+	// Remove the ".S" specifier here for ICU to handle it
+	for (QString& str : _time_format) {
+		str.replace("epoch.S", "epoch");
+	}
 }
 
 Inendi::PVMappingFilter::decimal_storage_type Inendi::time_mapping::process_utf8(const char* buf, size_t size, PVMappingFilter* m)
