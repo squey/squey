@@ -150,6 +150,13 @@ int main(void)
 		return 1;
 	}
 
+	// Test of is_empty
+	for(int i = 0; i<256; i++) {
+		a.select_none();
+		a.set_bit_fast(i);
+		PV_ASSERT_VALID(not a.is_empty());
+	}
+
 	// Test of is_empty_between ([a,b[)
 	a.select_none();
 	a.set_bit_fast(6);
