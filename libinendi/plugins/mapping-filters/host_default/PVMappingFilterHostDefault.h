@@ -25,15 +25,9 @@ public:
 	PVMappingFilterHostDefault(PVCore::PVArgumentList const& args = PVMappingFilterHostDefault::default_args());
 
 public:
-	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw)
+	Inendi::PVMappingFilter::decimal_storage_type process_cell(const char* buf, size_t size) override
 	{
-		auto array = nraw.collection().column(col);
-		for(size_t row=0; row< array.size(); row++) {
-			std::string content = array.at(row);
-			this->_dest[row] = host_mapping::process_utf8(content.c_str(), content.size(), this);
-		}
-
-		return this->_dest;
+		return host_mapping::process_utf8(buf, size, this);
 	}
 	QString get_human_name() const override { return QString("Default"); }
 	void set_args(PVCore::PVArgumentList const& args) override;

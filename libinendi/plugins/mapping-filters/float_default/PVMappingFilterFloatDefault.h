@@ -25,15 +25,9 @@ class PVMappingFilterFloatDefault: public PVMappingFilter
 {
 	friend class float_mapping;
 public:
-	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw)
+	Inendi::PVMappingFilter::decimal_storage_type process_cell(const char* buf, size_t size) override
 	{
-		auto array = nraw.collection().column(col);
-		for(size_t row=0; row< array.size(); row++) {
-			std::string content = array.at(row);
-			this->_dest[row] = float_mapping::process_utf8(content.c_str(), content.size(), this);
-		}
-
-		return this->_dest;
+		return float_mapping::process_utf8(buf, size, this);
 	}
 
 	QString get_human_name() const { return QString("Default"); }

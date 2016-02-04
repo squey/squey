@@ -31,50 +31,31 @@ public:
 
 public:
 	void set_args(PVCore::PVArgumentList const& args) override;
-	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
+
+Inendi::PVMappingFilter::decimal_storage_type process_cell(const char* buf, size_t size) override {
+			Inendi::PVMappingFilter::decimal_storage_type ds;
+			ds.storage_as_uint() = this->process(PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size));
+			return ds;
+		}
 	QString get_human_name() const override { return QString("Default"); }
 	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 
 	void init() override;
 
 private:
-	template <class HashType>
-	decimal_storage_type* process_nraw(PVCol const c, PVRush::PVNraw const& nraw)
-	{
-		HashType enum_hash;
-		if (_grp_value && _grp_value->isValid()) {
-			PVLOG_DEBUG("(mapping-enum) using previous values for enumeration\n");
-			enum_hash = _grp_value->value<HashType>();
-		}
-		uint32_t poscount = 0;
-
-		auto const& array = nraw.collection().column(c);
-
-		for(size_t i=0; i<array.size(); i++) {
-			std::string content = array.at(i);
-			_dest[i].storage_as_uint() = this->process<HashType>(PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) content.c_str(), content.size()), enum_hash, poscount);
-		}
-
-		if (_grp_value) {
-			_grp_value->setValue<HashType>(enum_hash);
-		}
-
-		return _dest;
-	}
-
-	template <class HashType, class UniStr>
-	uint32_t process(UniStr const& uni_str, HashType& enum_hash, uint32_t& poscount)
+	template <class UniStr>
+	uint32_t process(UniStr const& uni_str)
 	{
 		uint32_t retval;
 		QString scopy(uni_str.get_qstr_copy());
-		typename HashType::iterator it_v = enum_hash.find(scopy);
+		typename hash_values::iterator it_v = enum_hash.find(scopy);
 		if (it_v != enum_hash.end()) {
 			const uint32_t position = it_v.value().toUInt();
 			retval = _enum_position_factorize(position);
 		} else {
-			poscount++;
-			enum_hash[scopy] = QVariant(poscount);
-			retval = _enum_position_factorize(poscount);
+			_poscount++;
+			enum_hash[scopy] = QVariant(_poscount);
+			retval = _enum_position_factorize(_poscount);
 		}
 		return retval;
 	}
@@ -84,6 +65,8 @@ private:
 
 protected:
 	bool _case_sensitive;
+	hash_values enum_hash;
+	uint32_t _poscount;
 
 	CLASS_FILTER(PVMappingFilterEnumDefault)
 };

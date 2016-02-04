@@ -9,7 +9,8 @@
 
 Inendi::PVMappingFilterEnumDefault::PVMappingFilterEnumDefault(PVCore::PVArgumentList const& args):
 	PVMappingFilter(),
-	_case_sensitive(true) // This will be changed by set_args anyway
+	_case_sensitive(true), // This will be changed by set_args anyway
+	_poscount(0)
 {
 	INIT_FILTER(PVMappingFilterEnumDefault, args);
 }
@@ -47,11 +48,6 @@ uint32_t Inendi::PVMappingFilterEnumDefault::_enum_position_factorize(uint32_t v
 
 void Inendi::PVMappingFilterEnumDefault::init()
 {
-}
-
-Inendi::PVMappingFilter::decimal_storage_type* Inendi::PVMappingFilterEnumDefault::operator()(PVCol const c, PVRush::PVNraw const& nraw)
-{
-	return process_nraw<hash_values>(c, nraw);
 }
 
 IMPL_FILTER(Inendi::PVMappingFilterEnumDefault)

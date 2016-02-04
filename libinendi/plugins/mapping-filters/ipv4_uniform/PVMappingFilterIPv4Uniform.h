@@ -29,6 +29,11 @@ public:
 	PVCore::DecimalType get_decimal_type() const override;
 
 	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
+	Inendi::PVMappingFilter::decimal_storage_type process_cell(const char* buf, size_t size) override
+	{
+		assert(false && "Should not use this path");
+		return {};
+	}
 
 	decimal_storage_type* finalize(PVCol const c,PVRush::PVNraw const& nraw) override;
 

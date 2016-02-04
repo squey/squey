@@ -25,15 +25,9 @@ class PVMappingFilterStringDefault: public PVMappingFilter
 	friend class string_mapping;
 public:
 	PVMappingFilterStringDefault(PVCore::PVArgumentList const& args = PVMappingFilterStringDefault::default_args());
-	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw)
+	Inendi::PVMappingFilter::decimal_storage_type process_cell(const char* buf, size_t size) override
 	{
-		auto array = nraw.collection().column(col);
-		for(size_t row=0; row< array.size(); row++) {
-			std::string content = array.at(row);
-			this->_dest[row] = string_mapping::process_utf8(content.c_str(), content.size(), this);
-		}
-
-		return this->_dest;
+		return string_mapping::process_utf8(buf, size, this);
 	}
 
 public:

@@ -38,7 +38,16 @@ public:
 public:
 	PVMappingFilter();
 public:
-	virtual decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) = 0;
+	virtual decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) {
+		auto array = nraw.collection().column(col);
+		for(size_t row=0; row< array.size(); row++) {
+			// FIXME : We should get only a buffer from NRaw.
+			std::string content = array.at(row);
+			_dest[row] = process_cell(content.c_str(), content.size());
+		}
+
+		return _dest;
+	}
 
 	/**
 	 * provide a post processing step for mapping computation
@@ -81,6 +90,10 @@ public:
 public:
 	static QStringList list_types();
 	static QStringList list_modes(QString const& type);
+
+protected:
+	virtual Inendi::PVMappingFilter::decimal_storage_type process_cell(const char* buf, size_t size) = 0;
+
 protected:
 	PVRow _dest_size;
 	decimal_storage_type* _dest;
