@@ -99,6 +99,8 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	std::vector<pvcop::sink::field_t> pvcop_fields;
 	pvcop_fields.reserve(elts.size() * column_count);
 
+	size_t remaining_fields_count = _max_nrows - _real_nrows;
+
 	// Count number of extracted line. It is not the same as the number of elements as some of them
 	// may be invalid or empty or we may skip the end when enough data is extracted.
 	PVRow local_row = 0;
@@ -114,7 +116,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 			continue;
 		}
 
-		if (_real_nrows == _max_nrows) {
+		if (local_row == remaining_fields_count) {
 			/* we have enough events, skips the others. As the
 			 * chunk has been partially saved, the current chunked
 			 * index has to be saved by the caller (PVNrawOutput).
