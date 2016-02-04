@@ -140,29 +140,27 @@ bool PVCore::PVSelBitField::is_empty() const
 #ifdef __SSE4_1__
 	const __m128i ones = _mm_set1_epi32(0xFFFFFFFF);
 	__m128i vec;
-	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i += 4) {
+	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i += 2) {
 		vec = _mm_load_si128((__m128i*) &_table[i]);
 		if (_mm_testz_si128(vec, ones) == 0) {
 			return false;
 		}
 	}
-#if (INENDI_SELECTION_NUMBER_OF_CHUNKS % 4 != 0)
-	for (PVRow i = (INENDI_SELECTION_NUMBER_OF_CHUNKS/4)*4; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+#if (INENDI_SELECTION_NUMBER_OF_CHUNKS % 2 != 0)
+	for (PVRow i = (INENDI_SELECTION_NUMBER_OF_CHUNKS/2)*2; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		if (_table[i] != 0) {
 			return false;
 		}
 	}
 #endif
-	return true;
-
 #else
 	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		if (_table[i] != 0) {
 			return false;
 		}
 	}
-	return true;
 #endif
+	return true;
 }
 
 /******************************************************************************
