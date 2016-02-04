@@ -82,18 +82,12 @@ public:
 	virtual QString get_serialize_description() const { return "Mapping: " + get_name(); }
 
 	inline PVCore::DecimalType get_decimal_type_of_col(PVCol const j) const { return _mapping->get_decimal_type_of_col(j); }
-	inline bool is_mapping_pure(PVCol const c) const { return _mapping->is_mapping_pure(c); }
-
-	void init_pure_mapping_functions(PVFilter::PVPureMappingProcessing::list_pure_mapping_t& funcs);
 
 	bool is_current_mapped() const;
 
 protected:
 	// This is accessed by PVSource !
-	void init_process_from_rush_pipeline();
-	void finish_process_from_rush_pipeline();
 	void compute();
-	void process_rush_pipeline_chunk(PVCore::PVChunk const* chunk, PVRow const cur_r);
 
 public:
 	// Data access
@@ -128,7 +122,15 @@ protected:
 private:
 	void invalidate_plotted_children_column(PVCol j);
 	void create_table();
+
+	/**
+	 * Allocate mapping table for given number fo column and row.
+	 */
 	void allocate_table(PVRow const nrows, PVCol const ncols);
+
+	/**
+	 * Keep already allocated number of column for mapping but adjust number of row.
+	 */
 	void reallocate_table(PVRow const nrows);
 
 	void compute_unique_values();

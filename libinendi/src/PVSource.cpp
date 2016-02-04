@@ -155,36 +155,8 @@ PVRush::PVControllerJob_p Inendi::PVSource::extract_from_agg_nlines(chunk_index 
 		view_p->set_consistent(false);
 	}
 
-	set_mapping_function_in_extractor();
-
 	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(start, nlines);
 	return job;
-}
-
-void Inendi::PVSource::set_mapping_function_in_extractor()
-{
-	// Get mapping information from childrens (one child have mapping for every column)
-	children_t const& mappeds = get_children();
-	if (mappeds.size() == 0) {
-		return;
-	}
-
-	// set sequential mapping functions.
-	PVFilter::PVSeqChunkFunction::list_chunk_functions& funcs = _extractor.chunk_functions();
-	funcs.clear();
-
-	for (auto m: mappeds) {
-		funcs.emplace_back(boost::bind<void>(&PVMapped::process_rush_pipeline_chunk, m.get(), _1, _2));
-		m->init_process_from_rush_pipeline();
-	}
-
-	// set pure mapping functions.
-	PVFilter::PVPureMappingProcessing::list_pure_mapping_t& m_funcs = _extractor.pure_mapping_functions();
-	m_funcs.clear();
-
-	// AG: *HACK*: only the first mapping get a placeholder for its pure mapped values...
-	Inendi::PVMapped& first_child = *mappeds.at(0);
-	first_child.init_pure_mapping_functions(m_funcs);
 }
 
 void Inendi::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)

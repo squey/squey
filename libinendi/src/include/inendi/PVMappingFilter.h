@@ -77,8 +77,6 @@ public:
 	void set_dest_array(PVRow size, decimal_storage_type *ptr);
 	void set_group_value(PVCore::PVArgument& group) { _grp_value = &group; }
 
-	virtual bool is_pure() const { return false; }
-
 	virtual QString get_human_name() const;
 
 	virtual PVCore::DecimalType get_decimal_type() const { return PVCore::FloatType; }

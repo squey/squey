@@ -168,11 +168,6 @@ private:
 	void add_column(Inendi::PVAxis const& axis);
 	void set_views_consistent(bool cons);
 
-	/**
-	 * Set function to compute mapping.
-	 */
-	void set_mapping_function_in_extractor();
-
 protected:
 	virtual void set_parent_from_ptr(PVScene* parent);
 	virtual QString get_children_description() const { return "Mapped(s)"; }

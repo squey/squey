@@ -72,28 +72,6 @@ void Inendi::PVMapped::reallocate_table(PVRow const nrows)
 	}
 }
 
-void Inendi::PVMapped::init_process_from_rush_pipeline()
-{
-	PVCol const ncols = _mapping->get_number_cols();
-	// Let's prepare the mappedtable for 10 million rows, and grow every 10 millions elements.
-	// No matter if we go too far, this is just virtual memory, and isn't physically allocated
-	// if nothing is written in it !
-	allocate_table(DEFAULT_MAPPING_NROWS, ncols);
-
-	// Create our own plugins from the library
-	_mapping_filters_rush.resize(ncols);
-	for (PVCol j = 0; j < ncols; j++) {
-		PVMappingFilter::p_type mf = _mapping->get_filter_for_col(j);
-		if (mf) {
-			_mapping_filters_rush[j] = mf->clone<PVMappingFilter>();
-			_mapping_filters_rush[j]->init();
-		}
-	}
-
-	// Clear "group values" hash (just in case..)
-	_grp_values_rush.clear();
-}
-
 void Inendi::PVMapped::compute()
 {
 	// Prepare mandatory mapping filters
@@ -140,7 +118,7 @@ void Inendi::PVMapped::compute()
 		tbb::tick_count start = tbb::tick_count::now();
 		mapping_filter->finalize(j, nraw);
 		tbb::tick_count end = tbb::tick_count::now();
-		PVLOG_INFO("(PVMapped::finish_process_from_rush_pipeline) finalizing mapping for axis %d took %0.4f seconds.\n", j, (end-start).seconds());
+		PVLOG_INFO("(PVMapped) finalizing mapping for axis %d took %0.4f seconds.\n", j, (end-start).seconds());
 
 		mandatory_param_map& params_map = _mapping->get_mandatory_params_for_col(j);
 		tbb::tick_count tmap_start = tbb::tick_count::now();
@@ -153,7 +131,7 @@ void Inendi::PVMapped::compute()
 		}
 		tbb::tick_count tmap_end = tbb::tick_count::now();
 
-		PVLOG_INFO("(PVMapped::finish_process_from_rush_pipeline) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
+		PVLOG_INFO("(PVMapped) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
 	}
 
 	// Validate all mapping!
@@ -169,90 +147,6 @@ void Inendi::PVMapped::compute()
 	for (auto plotted : get_children<PVPlotted>()) {
 		plotted->finish_process_from_rush_pipeline();
 	}
-}
-
-void Inendi::PVMapped::init_pure_mapping_functions(PVFilter::PVPureMappingProcessing::list_pure_mapping_t& funcs)
-{
-	const PVCol ncols = _mapping->get_number_cols();
-	assert((PVCol) _mapping_filters_rush.size() == ncols);
-	funcs.clear();
-	funcs.resize(ncols);
-	for (PVCol c = 0; c < ncols; c++) {
-		if (is_mapping_pure(c)) {
-			funcs[c] = _mapping_filters_rush[c]->f();
-		}
-	}
-}
-
-void Inendi::PVMapped::finish_process_from_rush_pipeline()
-{
-	const PVRow nrows = get_parent()->get_row_count();
-
-	if (nrows == 0) {
-		_trans_table.clear();
-		return;
-	}
-
-	// Give back unused memory (over-allocated)
-	reallocate_table(nrows);
-
-	// finalize import's mapping filters
-	PVRush::PVNraw const& nraw = get_parent()->get_rushnraw();
-
-	for (PVCol col = 0; col < get_column_count(); ++col) {
-		PVMappingFilter::p_type mapping_filter = _mapping_filters_rush[col];
-		mapping_filter->set_dest_array(nrows, get_column_pointer(col));
-
-		tbb::tick_count start = tbb::tick_count::now();
-		mapping_filter->finalize(col, nraw);
-		tbb::tick_count end = tbb::tick_count::now();
-		PVLOG_INFO("(PVMapped::finish_process_from_rush_pipeline) finalizing mapping for axis %d took %0.4f seconds.\n", col, (end-start).seconds());
-	}
-
-
-
-
-	// Process mandatory mapping filters
-	std::vector<PVMandatoryMappingFilter::p_type> mand_mapping_filters;
-	LIB_CLASS(Inendi::PVMandatoryMappingFilter)::list_classes const& lfmf = LIB_CLASS(Inendi::PVMandatoryMappingFilter)::get().get_list();
-	LIB_CLASS(Inendi::PVMandatoryMappingFilter)::list_classes::const_iterator it_lfmf;
-	mand_mapping_filters.reserve(lfmf.size());
-	for (it_lfmf = lfmf.begin(); it_lfmf != lfmf.end(); it_lfmf++) {
-		PVMandatoryMappingFilter::p_type mf = it_lfmf->value()->clone<PVMandatoryMappingFilter>();
-		mand_mapping_filters.push_back(mf);
-	}
-	std::vector<PVMandatoryMappingFilter::p_type>::const_iterator it_pmf;
-
-	for (PVCol j = 0; j < get_column_count(); j++) {
-		mandatory_param_map& params_map = _mapping->get_mandatory_params_for_col(j);
-		tbb::tick_count tmap_start = tbb::tick_count::now();
-		// Init the mandatory mapping
-		for (it_pmf = mand_mapping_filters.begin(); it_pmf != mand_mapping_filters.end(); it_pmf++) {
-			(*it_pmf)->set_dest_params(params_map);
-			(*it_pmf)->set_decimal_type(_mapping_filters_rush[j]->get_decimal_type());
-			(*it_pmf)->set_mapped(*this);
-			(*it_pmf)->operator()(Inendi::mandatory_param_list_values(j, get_column_pointer(j)));
-		}
-		tbb::tick_count tmap_end = tbb::tick_count::now();
-
-		PVLOG_INFO("(PVMapped::finish_process_from_rush_pipeline) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
-	}
-
-	// Validate all mapping!
-	validate_all();
-
-	// Clear mapping filters
-	_mapping_filters_rush.clear();
-
-	// Clear "group values" hash
-	_grp_values_rush.clear();
-
-	// force plotteds updates (in case of .pvi load)
-	for (auto plotted : get_children<PVPlotted>()) {
-		plotted->finish_process_from_rush_pipeline();
-	}
-
-	//compute_unique_values();
 }
 
 void Inendi::PVMapped::compute_unique_values()
@@ -284,31 +178,6 @@ void Inendi::PVMapped::compute_unique_values()
 	tbb::tick_count t_end = tbb::tick_count::now();
 
 	PVLOG_INFO("(PVMapped::compute_unique_values) Computing mapped columns entropy took %0.4f seconds.\n", (t_end-t_start).seconds());
-}
-
-void Inendi::PVMapped::process_rush_pipeline_chunk(PVCore::PVChunk const* chunk, PVRow const cur_r)
-{
-	PVCore::list_elts const& elts = chunk->c_elements();
-	const PVRow new_size = cur_r + elts.size();
-	if (new_size > _trans_table[0].size()) {
-		// Reallocate everyone for 10 more millions
-		for (mapped_row_t& mrow: _trans_table) {
-			mrow.resize(mrow.size() + DEFAULT_MAPPING_NROWS);
-		}
-	}
-
-	chunk->visit_by_column([&](PVRow const r, PVCol const c, PVCore::PVField const& field)
-		{
-			assert(c < (PVCol) _mapping_filters_rush.size());
-			if (is_mapping_pure(c)) {
-				// AG: HACK: if we are not the first mapping, that's a failure..
-				this->_trans_table[c].at(r+cur_r) = field.mapped_value();
-			}
-			else {
-				PVMappingFilter::p_type& mapping_filter = _mapping_filters_rush[c];
-				this->_trans_table[c].at(r+cur_r) = mapping_filter->operator()(field);
-			}
-		});
 }
 
 /******************************************************************************

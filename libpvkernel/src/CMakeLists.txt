@@ -111,7 +111,6 @@ filter/PVFieldSplitterUTF16Char.cpp
 filter/PVFieldsFilterParamWidget.cpp
 filter/PVPureMappingProcessing.cpp
 filter/PVPluginsLoad.cpp
-filter/PVSeqChunkFunction.cpp
 )
 
 SET(FILTER_MOC_HEADERS

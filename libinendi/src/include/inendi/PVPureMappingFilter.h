@@ -51,8 +51,6 @@ public:
 	 * ::finalize must not do anything and must not be overridden.
 	 */
 	decimal_storage_type* finalize(PVCol const, PVRush::PVNraw const&) override final { return nullptr; }
-
-	virtual bool is_pure() const override { return true; }
 };
 
 }
