@@ -1644,7 +1644,14 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 
 	if (src->has_nraw_folder()) {
 		BENCH_START(lfd);
-		loaded_from_disk = src->load_from_disk();
+		try {
+			loaded_from_disk = src->load_from_disk();
+		} catch (std::exception& e) {
+			PVLOG_ERROR("PVNraw error: %s\n", e.what());
+			QMessageBox::critical(this, "Cannot load sources", QString("Error while opening nraw: ") + e.what());
+			return false;
+		}
+
 		BENCH_STOP(lfd);
 #ifdef INENDI_DEVELOPER_MODE
 		if (loaded_from_disk) {
@@ -1664,10 +1671,12 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		}
 		catch (PVRush::PVInputException const& e) {
 			PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
+			QMessageBox::critical(this, "Cannot create sources", QString("Error with input: ") + e.what().c_str());
 			return false;
 		}
 		catch (PVRush::PVNrawException const& e) {
-			PVLOG_ERROR("Error while creating source: %s\n", e.what());
+			PVLOG_ERROR("PVNraw error: %s\n", e.what());
+			QMessageBox::critical(this, "Cannot create sources", QString("Error with nraw: ") + e.what());
 			return false;
 		}
 
