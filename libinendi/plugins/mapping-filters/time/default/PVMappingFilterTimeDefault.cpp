@@ -26,7 +26,7 @@
 // #pragma omp threadprivate(dtpars)
 
 Inendi::PVMappingFilterTimeDefault::PVMappingFilterTimeDefault(PVCore::PVArgumentList const& args):
-	PVPureMappingFilter<time_mapping>()
+	PVMappingFilter()
 {
 	INIT_FILTER(PVMappingFilterTimeDefault, args);
 }

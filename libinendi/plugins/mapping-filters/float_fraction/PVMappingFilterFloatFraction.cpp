@@ -10,6 +10,7 @@
 
 Inendi::PVMappingFilter::decimal_storage_type Inendi::float_mapping::process_utf8(const char* buf, size_t size, PVMappingFilter* m)
 {
+	// FIXME : we should handle this with UTF8 only.
 	QString stmp(QString::fromUtf8(buf, size));
 	return process_utf16((const uint16_t*) stmp.constData(), stmp.size(), m);
 }

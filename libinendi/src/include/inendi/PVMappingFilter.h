@@ -38,9 +38,6 @@ public:
 public:
 	PVMappingFilter();
 public:
-	// Two interfaces: one that compute the mapped values from a PVCore::PVChunk, and one
-	// that does it from an already existing nraw.
-	virtual decimal_storage_type operator()(PVCore::PVField const& field) = 0;
 	virtual decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) = 0;
 
 	/**

@@ -75,7 +75,7 @@ static uint32_t compute_str_factor(PVCore::PVUnicodeString const& str)
 
 
 Inendi::PVMappingFilterHostDefault::PVMappingFilterHostDefault(PVCore::PVArgumentList const& args):
-	PVPureMappingFilter<host_mapping>(),
+	PVMappingFilter(),
 	_case_sensitive(false) // This will be changed by set_args anyway
 {
 	INIT_FILTER(PVMappingFilterHostDefault, args);

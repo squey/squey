@@ -9,7 +9,7 @@
 
 Inendi::PVMappingFilterIntegerDefault::PVMappingFilterIntegerDefault(bool signed_,
                                                                      PVCore::PVArgumentList const& args):
-	PVPureMappingFilter<integer_mapping>(),
+	PVMappingFilter(),
 	_signed(signed_)
 {
 	INIT_FILTER(PVMappingFilterIntegerDefault, args);

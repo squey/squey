@@ -11,7 +11,7 @@
 #include <QString>
 
 Inendi::PVMappingFilterIntegerHex::PVMappingFilterIntegerHex(PVCore::PVArgumentList const& args):
-	PVPureMappingFilter<integer_mapping>(),
+	PVMappingFilter(),
 	_signed(true) // This will be changed by set_args anyway
 {
 	INIT_FILTER(PVMappingFilterIntegerHex, args);

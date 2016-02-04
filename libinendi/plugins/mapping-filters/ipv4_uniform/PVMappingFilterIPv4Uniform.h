@@ -29,7 +29,6 @@ public:
 	PVCore::DecimalType get_decimal_type() const override;
 
 	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
-	decimal_storage_type operator()(PVCore::PVField const& field) override;
 
 	decimal_storage_type* finalize(PVCol const c,PVRush::PVNraw const& nraw) override;
 

@@ -9,14 +9,11 @@
 #define PVFILTER_PVMAPPINGFILTERENUMDEFAULT_H
 
 #include <pvkernel/core/PVUnicodeString.h>
-#include <pvkernel/core/PVUnicodeString16.h>
 #include <pvkernel/core/general.h>
 #include <inendi/PVMappingFilter.h>
 
 #include <QString>
 #include <QMetaType>
-
-#include <tbb/concurrent_unordered_map.h>
 
 // Used by the concurrennt hash map below
 size_t tbb_hasher(const QString& str);
@@ -28,9 +25,6 @@ class PVMappingFilterEnumDefault: public PVMappingFilter
 	// AG: this needs to be public for Q_DECLARE_METATYPE
 public:
 	typedef QHash<QString, QVariant> hash_values;
-	//typedef QHash<PVCore::PVUnicodeStringHashNoCase, QVariant> hash_nocase_values;
-	//typedef QHash<PVCore::PVUnicodeString16, QVariant> hash16_values;
-	//typedef QHash<PVCore::PVUnicodeString16HashNoCase, QVariant> hash16_nocase_values;
 
 public:
 	PVMappingFilterEnumDefault(PVCore::PVArgumentList const& args = PVMappingFilterEnumDefault::default_args());
@@ -38,7 +32,6 @@ public:
 public:
 	void set_args(PVCore::PVArgumentList const& args) override;
 	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
-	decimal_storage_type operator()(PVCore::PVField const& field) override;
 	QString get_human_name() const override { return QString("Default"); }
 	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 
@@ -91,9 +84,6 @@ private:
 
 protected:
 	bool _case_sensitive;
-	hash_values _hash16_v;
-	//hash16_nocase_values _hash16_nocase_v;
-	uint32_t _poscount;
 
 	CLASS_FILTER(PVMappingFilterEnumDefault)
 };

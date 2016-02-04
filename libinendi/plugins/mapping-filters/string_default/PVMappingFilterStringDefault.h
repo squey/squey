@@ -9,7 +9,7 @@
 #define PVFILTER_PVMAPPINGFILTERSTRINGDEFAULT_H
 
 #include <pvkernel/core/general.h>
-#include <inendi/PVPureMappingFilter.h>
+#include <inendi/PVMappingFilter.h>
 #include <tbb/atomic.h>
 
 namespace Inendi {
@@ -20,11 +20,21 @@ struct string_mapping
 	static Inendi::PVMappingFilter::decimal_storage_type process_utf16(uint16_t const* buf, size_t size, PVMappingFilter* m);
 };
 
-class PVMappingFilterStringDefault: public PVPureMappingFilter<string_mapping>
+class PVMappingFilterStringDefault: public PVMappingFilter
 {
 	friend class string_mapping;
 public:
 	PVMappingFilterStringDefault(PVCore::PVArgumentList const& args = PVMappingFilterStringDefault::default_args());
+	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw)
+	{
+		auto array = nraw.collection().column(col);
+		for(size_t row=0; row< array.size(); row++) {
+			std::string content = array.at(row);
+			this->_dest[row] = string_mapping::process_utf8(content.c_str(), content.size(), this);
+		}
+
+		return this->_dest;
+	}
 
 public:
 	// Overloaded from PVFunctionArgs::set_args

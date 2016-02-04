@@ -9,7 +9,7 @@
 #define PVFILTER_PVMAPPINGFILTERTIMEDEFAULT_H
 
 #include <pvkernel/core/general.h>
-#include <inendi/PVPureMappingFilter.h>
+#include <inendi/PVMappingFilter.h>
 
 #include <unicode/calendar.h>
 
@@ -41,13 +41,23 @@ private:
 	PVCore::PVDateTimeParser* _parser;
 };
 
-class PVMappingFilterTimeDefault: public PVPureMappingFilter<time_mapping>
+class PVMappingFilterTimeDefault: public PVMappingFilter
 {
 	friend class time_mapping;
 public:
 	PVMappingFilterTimeDefault(PVCore::PVArgumentList const& args = PVMappingFilterTimeDefault::default_args());
 
 public:
+	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw)
+	{
+		auto array = nraw.collection().column(col);
+		for(size_t row=0; row< array.size(); row++) {
+			std::string content = array.at(row);
+			this->_dest[row] = time_mapping::process_utf8(content.c_str(), content.size(), this);
+		}
+
+		return this->_dest;
+	}
 	QString get_human_name() const override { return QString("Default"); }
 	PVCore::DecimalType get_decimal_type() const override { return PVCore::IntegerType; }
 	void init() override;

@@ -15,7 +15,7 @@
 
 
 Inendi::PVMappingFilterStringDefault::PVMappingFilterStringDefault(PVCore::PVArgumentList const& args):
-	PVPureMappingFilter<string_mapping>(),
+	PVMappingFilter(),
 	_case_sensitive(true) // This will be changed by set_args anyway
 {
 	INIT_FILTER(PVMappingFilterStringDefault, args);

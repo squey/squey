@@ -9,7 +9,7 @@
 #define PVFILTER_PVMAPPINGFILTERFLOAT_H
 
 #include <pvkernel/core/general.h>
-#include <inendi/PVPureMappingFilter.h>
+#include <inendi/PVMappingFilter.h>
 
 #include <tbb/enumerable_thread_specific.h>
 
@@ -21,10 +21,21 @@ struct float_mapping
 	static Inendi::PVMappingFilter::decimal_storage_type process_utf16(uint16_t const* buf, size_t size, PVMappingFilter* m);
 };
 
-class PVMappingFilterFloatFraction: public PVPureMappingFilter<float_mapping>
+class PVMappingFilterFloatFraction: public PVMappingFilter
 {
 	friend class float_mapping;
 public:
+
+	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw)
+	{
+		auto array = nraw.collection().column(col);
+		for(size_t row=0; row< array.size(); row++) {
+			std::string content = array.at(row);
+			this->_dest[row] = float_mapping::process_utf8(content.c_str(), content.size(), this);
+		}
+
+		return this->_dest;
+	}
 	QString get_human_name() const { return QString("Fraction (x/y) or classical"); }
 	PVCore::DecimalType get_decimal_type() const override { return PVCore::FloatType; }
 

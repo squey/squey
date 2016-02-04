@@ -104,7 +104,7 @@ Inendi::PVMappingFilter::decimal_storage_type Inendi::date_mapping::process_utf1
 }
 
 Inendi::PVMappingFilterDateBase::PVMappingFilterDateBase(PVCore::PVArgumentList const& args):
-	PVPureMappingFilter<date_mapping>()
+	PVMappingFilter()
 {
 	INIT_FILTER(PVMappingFilterDateBase, args);
 }

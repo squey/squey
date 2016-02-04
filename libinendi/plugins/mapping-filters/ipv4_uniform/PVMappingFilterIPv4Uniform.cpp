@@ -86,24 +86,6 @@ Inendi::PVMappingFilterIPv4Uniform::operator()(PVCol const c,
 }
 
 /*****************************************************************************
- * Inendi::PVMappingFilterIPv4Uniform::operator()
- *****************************************************************************/
-
-Inendi::PVMappingFilter::decimal_storage_type
-Inendi::PVMappingFilterIPv4Uniform::operator()(PVCore::PVField const& field)
-{
-	/* simply save IPv4 as uint32 in result's op
-	 */
-	Inendi::PVMappingFilter::decimal_storage_type ret_ds;
-	uint32_t ipv4;
-
-	PVCore::Network::ipv4_a16ton((uint16_t*)field.begin(), field.size()/sizeof(uint16_t), ipv4);
-	ret_ds.storage_as_uint() = ipv4;
-
-	return ret_ds;
-}
-
-/*****************************************************************************
  * Inendi::PVMappingFilterIPv4Uniform::finalize
  *****************************************************************************/
 

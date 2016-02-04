@@ -7,8 +7,6 @@
 
 #include "PVMappingFilterEnumDefault.h"
 
-#include <cmath>
-
 Inendi::PVMappingFilterEnumDefault::PVMappingFilterEnumDefault(PVCore::PVArgumentList const& args):
 	PVMappingFilter(),
 	_case_sensitive(true) // This will be changed by set_args anyway
@@ -49,21 +47,11 @@ uint32_t Inendi::PVMappingFilterEnumDefault::_enum_position_factorize(uint32_t v
 
 void Inendi::PVMappingFilterEnumDefault::init()
 {
-	_poscount = 0;
-	_hash16_v.clear();
 }
 
 Inendi::PVMappingFilter::decimal_storage_type* Inendi::PVMappingFilterEnumDefault::operator()(PVCol const c, PVRush::PVNraw const& nraw)
 {
 	return process_nraw<hash_values>(c, nraw);
-}
-
-Inendi::PVMappingFilter::decimal_storage_type Inendi::PVMappingFilterEnumDefault::operator()(PVCore::PVField const& field)
-{
-	PVCore::PVUnicodeString16 uni_str(field);
-	Inendi::PVMappingFilter::decimal_storage_type ret_ds;
-	ret_ds.storage_as_uint() = process<hash_values>(uni_str, _hash16_v, _poscount);
-	return ret_ds;
 }
 
 IMPL_FILTER(Inendi::PVMappingFilterEnumDefault)
