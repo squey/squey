@@ -241,6 +241,16 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent * event)
 		if((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
 			move_by(1);
 		}
+	} else if (event->button() == Qt::RightButton) {
+		QModelIndex index = indexAt(event->pos());
+
+		if ((index.isValid()) && (not table_model()->is_selected(index))) {
+			int clc_row = rowAt(event->y());
+
+			table_model()->reset_selection();
+			table_model()->start_selection(clc_row);
+			table_model()->commit_selection();
+		}
 	}
 
 	PVTableView::mousePressEvent(event);
