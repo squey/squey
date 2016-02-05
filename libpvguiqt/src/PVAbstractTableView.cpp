@@ -241,10 +241,9 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent * event)
 		if((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
 			move_by(1);
 		}
-
-		viewport()->update(); // To show the selection
-		PVTableView::mousePressEvent(event);
 	}
+
+	PVTableView::mousePressEvent(event);
 }
 
 /******************************************************************************
