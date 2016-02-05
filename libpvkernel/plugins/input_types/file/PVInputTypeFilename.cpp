@@ -212,7 +212,8 @@ bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in, ha
 
 	format_custom_name = "custom_directory:" + d.path();
 	if (!formats.contains(format_custom_name)) {
-		formats[format_custom_name] = PVRush::PVFormat(format_custom_name, *path_custom_dir_format);
+		formats[format_custom_name] = PVRush::PVFormat(format_custom_name,
+		                                               d.absoluteFilePath(*path_custom_dir_format));
 	}
 
 	return true;
