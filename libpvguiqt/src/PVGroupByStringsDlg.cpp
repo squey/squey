@@ -25,7 +25,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 		Inendi::PVSelection const& indexes = model().current_selection();
 		if (not indexes.is_empty()) {
 
-			double count;
+			double sum;
 			double min;
 			double max;
 			pvcop::db::array col1_out;
@@ -62,11 +62,11 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 				std::istringstream max_buf(max_str);
 				max_buf >> max;
 
-				count = col1_out.size();
+				sum = pvcop::db::algo::sum(col2_out);
 			}, ctxt, pbox);
 
 			if (ret) {
-				PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view_sp, _col2, std::move(col1_out), std::move(col2_out), count, min, max, parentWidget());
+				PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(view_sp, _col2, std::move(col1_out), std::move(col2_out), sum, min, max, parentWidget());
 				dlg->setWindowTitle("Details of value '" + value + "'");
 				dlg->move(x()+width()+10, y());
 				dlg->show();
