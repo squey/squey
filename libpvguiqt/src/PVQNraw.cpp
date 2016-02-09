@@ -41,7 +41,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView_sp& view, PVRush::PVNra
 
 	bool ret_pbox = PVCore::PVProgressBox::progress([&,c]
 	{
-		pvcop::db::algo::distinct(col_in, col1_out, col2_out, sel);
+		pvcop::db::algo::distinct(col_in, col1_out, col2_out, ((pvcop::db::selection)sel).slice(0, col_in.size()));
 
 		pvcop::db::array minmax = pvcop::db::algo::minmax(col2_out);
 		std::string min_str = minmax.at(0);
@@ -112,7 +112,7 @@ static bool show_stats_dialog(
 
 	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2]
 	{
-		op(col1_in, col2_in, col1_out, col2_out, sel);
+		op(col1_in, col2_in, col1_out, col2_out, ((pvcop::db::selection)sel).slice(0, col1_in.size()));
 
 		pvcop::db::array minmax = pvcop::db::algo::minmax(col2_out);
 		std::string min_str = minmax.at(0);
