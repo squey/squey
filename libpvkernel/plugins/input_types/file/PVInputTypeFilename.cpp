@@ -193,7 +193,7 @@ bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in, ha
 
 	if (fi.exists() && fi.isReadable()) {
 		formats[format_custom_name] = PVRush::PVFormat(format_custom_name, path_custom_format);
-		res = true;
+		return true;
 	}
 
 	static std::vector<QString> custom_filenames = { "inendi.format", "picviz.format" };
