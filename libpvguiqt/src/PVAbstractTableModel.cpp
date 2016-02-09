@@ -114,6 +114,16 @@ void PVAbstractTableModel::commit_selection()
 
 }
 
+/******************************************************************************
+ *
+ * PVAbstractTableModel::has_selection
+ *
+ *****************************************************************************/
+
+bool PVAbstractTableModel::has_selection() const
+{
+	return (not _current_selection.is_empty()) || (_end_sel != -1);
+}
 
 /******************************************************************************
  *

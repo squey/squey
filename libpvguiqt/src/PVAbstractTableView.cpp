@@ -266,7 +266,8 @@ void PVAbstractTableView::keyPressEvent(QKeyEvent* event)
 	switch (event->key()) {
 		case Qt::Key_Return:
 		case Qt::Key_Enter:
-			if (not table_model()->current_selection().is_empty()) {
+			if (table_model()->has_selection()) {
+				table_model()->commit_selection();
 				emit validate_selection();
 			}
 			break;

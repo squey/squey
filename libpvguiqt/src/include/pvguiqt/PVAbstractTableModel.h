@@ -71,6 +71,13 @@ class PVAbstractTableModel: public QAbstractTableModel {
 	void commit_selection();
 
 	/**
+	 * Tell if there is at least one selected row
+	 *
+	 * @return true if there is at least one selected row; false others
+	 */
+	bool has_selection() const;
+
+	/**
 	 * Wether a row is selected.
 	 * 
 	 * @note It care about selection in progress and current selection state.
