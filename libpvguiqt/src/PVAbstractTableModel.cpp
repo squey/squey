@@ -83,6 +83,9 @@ void PVAbstractTableModel::start_selection(int row)
 void PVAbstractTableModel::end_selection(int row)
 {
     if(row != -1) {
+	if (_start_sel == -1) {
+	    _start_sel = 0;
+	}
 	_end_sel = row_pos(row);
     }
 }

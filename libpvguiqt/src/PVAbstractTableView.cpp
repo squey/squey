@@ -217,22 +217,28 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent * event)
 {
 	if(event->button() == Qt::LeftButton) {
 		Qt::KeyboardModifiers mod = event->modifiers();
-		// Shift and Ctrl continue the selection and don't reset it
-		if(not (mod & (Qt::ControlModifier | Qt::ShiftModifier))) {
-			table_model()->current_selection().select_none();
-		}
-
 		int clc_row = rowAt(event->y());
+
 		if(clc_row < 0) {
 			// No row under the mouse.
-			return; 
+			if (mod == Qt::NoModifier) {
+				// Reset the selection only there is no used modifier
+				table_model()->reset_selection();
+			}
+			return;
 		}
 
-		if(mod & Qt::ShiftModifier) {
-			// Shift modifier complete the selection between clicks
+		if (mod & Qt::ShiftModifier) {
+			// Shift modifier only change the end position for a range selection
 			table_model()->end_selection(clc_row);
+		} else if (mod & Qt::ControlModifier) {
+			// Start the range selection
+			table_model()->commit_selection();
+			table_model()->start_selection(clc_row);
 		} else {
-			// Start the selection
+			// Reset committed selection and start the range selection
+			table_model()->reset_selection();
+			table_model()->commit_selection();
 			table_model()->start_selection(clc_row);
 		}
 
@@ -252,8 +258,6 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent * event)
 			table_model()->commit_selection();
 		}
 	}
-
-	PVTableView::mousePressEvent(event);
 }
 
 /******************************************************************************
@@ -325,7 +329,6 @@ void PVAbstractTableView::wheelEvent(QWheelEvent* e)
 void PVAbstractTableView::mouseReleaseEvent(QMouseEvent * event)
 {
 	// Mouse release commit the current selection
-	table_model()->commit_selection();
 	viewport()->update();
 	event->accept();
 }
