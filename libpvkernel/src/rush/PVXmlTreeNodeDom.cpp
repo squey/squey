@@ -26,6 +26,11 @@ PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom() {
  *
  *****************************************************************************/
 PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom(Type _type, const QString &_str, QDomElement &dom, QDomDocument &xmlFile_) {
+    init(_type, _str, dom, xmlFile_);
+}
+
+void PVRush::PVXmlTreeNodeDom::init(Type _type, const QString &_str, QDomElement &dom, QDomDocument &xmlFile_)
+{
     this->type = _type;
     this->str = _str;
     this->xmlDomElement = dom;

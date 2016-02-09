@@ -51,6 +51,7 @@ public:
      * @param _str
      */
     PVXmlTreeNodeDom(Type _type, const QString &_str,  QDomElement &dom, QDomDocument &file);
+    void init(Type _type, const QString &_str, QDomElement &dom, QDomDocument &xmlFile_);
     virtual ~PVXmlTreeNodeDom();
 
 
@@ -272,11 +273,6 @@ public:
 
 	void setPlottingProperties(QString const& mode, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList const& args);
 	QString getPlottingProperties(PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList& args);
-
-    void set_file(QDomDocument &xfile) { xmlFile = xfile; }
-    void set_root(QDomElement const& d) {
-	xmlDomElement = d;
-    }
     
 private:
     
