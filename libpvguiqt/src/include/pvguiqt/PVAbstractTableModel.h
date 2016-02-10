@@ -31,6 +31,13 @@ namespace PVGuiQt {
 class PVAbstractTableModel: public QAbstractTableModel {
 	Q_OBJECT;
 
+public:
+	using selection_mode_t = enum {
+		SET,            // mode to set rows as selected
+		TOGGLE_AND_USE, // mode to get the current row state and use it invers elsewhere
+		NEGATE          // mode to invert the rows states
+	};
+
 	public:
 	/**
 	 * Create a TableModel with a given number of row (default value)
@@ -43,6 +50,13 @@ class PVAbstractTableModel: public QAbstractTableModel {
 	virtual QString export_line(int) const = 0;
 
 	/// Selection
+
+	/**
+	 * Set the selection mode to use on the range selection
+	 *
+	 * @param mode the selection mode
+	 */
+	void set_selection_mode(selection_mode_t mode);
 
 	/**
 	 * Remove current selection
@@ -69,6 +83,13 @@ class PVAbstractTableModel: public QAbstractTableModel {
 	 * We use this mechanism to handle mouse movement during selection.
 	 */
 	void commit_selection();
+
+	/**
+	 * Tell if there is at least one selected row
+	 *
+	 * @return true if there is at least one selected row; false others
+	 */
+	bool has_selection() const;
 
 	/**
 	 * Wether a row is selected.
@@ -234,6 +255,16 @@ class PVAbstractTableModel: public QAbstractTableModel {
 			}
 		}
 
+protected:
+	/**
+	 * Apply the current selection mode to @p value
+	 *
+	 * @param value the bit value
+	 *
+	 * @return the new bit value according to the current selection mode
+	 */
+	bool apply_selection_mode(bool value) const;
+
 	protected:
 	const QBrush _selection_brush = QColor(88, 172, 250);//!< Aspect of selected lines
 
@@ -258,6 +289,7 @@ class PVAbstractTableModel: public QAbstractTableModel {
 	ssize_t _start_sel; //!< Begin of the "in progress" selection
 	ssize_t _end_sel; //!< End of the "in progress" selection
 	bool _in_select_mode; //!< Whether elements should be selected of unselected from "in progress" selection to current selection.
+	selection_mode_t _selection_mode; //!< the selection mode
 };
 
 }

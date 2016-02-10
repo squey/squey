@@ -73,9 +73,14 @@ PVGuiQt::PVListDisplayDlg::~PVListDisplayDlg()
 	delete _model;
 }
 
-void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& /*pos*/)
+void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& pos)
 {
-	QModelIndex index = _values_view->currentIndex();
+	QModelIndex index = _values_view->indexAt(pos);
+
+	if (not index.isValid()) {
+		// no contextual menu outside of valid rows
+		return;
+	}
 
 	if (index.column() != 0) {
 		// context menu only for the "value" column
@@ -131,16 +136,22 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 
 	// TODO(pbrunet) : do something on this check.
 	bool success = PVCore::PVProgressBox::progress([&]() {
-
-		_model->current_selection().visit_selected_lines([this, &ctxt, &content, &sep](int row){
+		for (int row = 0; row < model().rowCount(); ++row) {
 			if unlikely(ctxt.is_group_execution_cancelled()) {
-				return;
+				break;
 			}
-			QString s = _model->export_line(row);
-			if (!s.isNull()) {
-				content.append(s.append(sep));
+
+			QModelIndex index = model().index(row, 0);
+			int row_id = model().rowIndex(row);
+
+			if (model().is_selected(index)) {
+				QString s = model().export_line(row_id);
+				if (!s.isNull()) {
+					content.append(s.append(sep));
+				}
 			}
-				}, model().size());
+		}
+
 		return !ctxt.is_group_execution_cancelled();
 	}, ctxt, pbox);
 

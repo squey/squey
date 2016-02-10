@@ -217,22 +217,35 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent * event)
 {
 	if(event->button() == Qt::LeftButton) {
 		Qt::KeyboardModifiers mod = event->modifiers();
-		// Shift and Ctrl continue the selection and don't reset it
-		if(not (mod & (Qt::ControlModifier | Qt::ShiftModifier))) {
-			table_model()->current_selection().select_none();
-		}
-
 		int clc_row = rowAt(event->y());
+
 		if(clc_row < 0) {
-			// No row under the mouse.
-			return; 
+			// No valid row under the mouse
+			if (mod == Qt::NoModifier) {
+				// Reset the whole selection only if there is no used modifier
+				table_model()->reset_selection();
+			}
+			return;
 		}
 
-		if(mod & Qt::ShiftModifier) {
-			// Shift modifier complete the selection between clicks
+		if (mod == Qt::ShiftModifier) {
+			// Change the range selection end position in set selection mode
+			table_model()->set_selection_mode(PVAbstractTableModel::SET);
 			table_model()->end_selection(clc_row);
-		} else {
-			// Start the selection
+		} else if (mod == Qt::ControlModifier) {
+			// Start the range selection by getting the start row state an applying it to other rows
+			table_model()->commit_selection();
+			table_model()->set_selection_mode(PVAbstractTableModel::TOGGLE_AND_USE);
+			table_model()->start_selection(clc_row);
+		} else if (mod == (Qt::ShiftModifier | Qt::ControlModifier)) {
+			// Start the range selection in invert selection mode
+			table_model()->commit_selection();
+			table_model()->set_selection_mode(PVAbstractTableModel::NEGATE);
+			table_model()->start_selection(clc_row);
+		} else if (mod == Qt::NoModifier) {
+			// Reset the selection and start the range selection in set selection mode
+			table_model()->reset_selection();
+			table_model()->set_selection_mode(PVAbstractTableModel::SET);
 			table_model()->start_selection(clc_row);
 		}
 
@@ -241,9 +254,16 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent * event)
 		if((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
 			move_by(1);
 		}
+	} else if (event->button() == Qt::RightButton) {
+		QModelIndex index = indexAt(event->pos());
 
-		viewport()->update(); // To show the selection
-		PVTableView::mousePressEvent(event);
+		if ((index.isValid()) && (not table_model()->is_selected(index))) {
+			int clc_row = rowAt(event->y());
+
+			table_model()->reset_selection();
+			table_model()->start_selection(clc_row);
+			table_model()->commit_selection();
+		}
 	}
 }
 
@@ -257,7 +277,8 @@ void PVAbstractTableView::keyPressEvent(QKeyEvent* event)
 	switch (event->key()) {
 		case Qt::Key_Return:
 		case Qt::Key_Enter:
-			if (not table_model()->current_selection().is_empty()) {
+			if (table_model()->has_selection()) {
+				table_model()->commit_selection();
 				emit validate_selection();
 			}
 			break;
@@ -315,7 +336,6 @@ void PVAbstractTableView::wheelEvent(QWheelEvent* e)
 void PVAbstractTableView::mouseReleaseEvent(QMouseEvent * event)
 {
 	// Mouse release commit the current selection
-	table_model()->commit_selection();
 	viewport()->update();
 	event->accept();
 }
