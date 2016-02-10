@@ -16,7 +16,12 @@
 namespace PVGuiQt
 {
 
-enum class ValueFormat { Percent, Scientific, Count};
+enum ValueFormat
+{
+	Count		= 0,
+	Percent		= 1,
+	Scientific	= 2
+};
 
 class PVStatsModel: public PVAbstractTableModel
 {
@@ -80,16 +85,14 @@ public:
 		double occurence_count = QString::fromStdString(_col2.at(row_pos_to_index(row))).toDouble();
 
 		double ratio = occurence_count / max_count();
-		switch(_format) {
-			case ValueFormat::Count:
-				value.append(quote + format_occurence(occurence_count) + quote + sep);
-				break;
-			case ValueFormat::Scientific:
-				value.append(quote + format_scientific_notation(ratio) + quote + sep);
-				break;
-			case ValueFormat::Percent:
-				value.append(quote + format_percentage(ratio) + quote + sep);
-				break;
+		if ((_format & ValueFormat::Count) == ValueFormat::Count) {
+			value.append(quote + format_occurence(occurence_count) + quote + sep);
+		}
+		if ((_format & ValueFormat::Scientific) == ValueFormat::Scientific) {
+			value.append(quote + format_scientific_notation(ratio) + quote + sep);
+		}
+		if ((_format & ValueFormat::Percent) == ValueFormat::Percent) {
+			value.append(quote + format_percentage(ratio) + quote + sep);
 		}
 		return value;
 	}
@@ -167,7 +170,7 @@ public:
 
 	void set_copy_count(bool v) { _copy_count = v; }
 	void set_use_absolute(bool a) { _use_absolute_max_count = a; }
-	void set_format(ValueFormat f) { _format = f; }
+	void set_format(ValueFormat f, bool e) {if (e) { _format = (ValueFormat) (_format | f); } else { _format = (ValueFormat) (_format & ~f); } }
 	void set_use_log_scale(bool log_scale) { _use_logarithmic_scale = log_scale; }
 
 private:

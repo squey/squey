@@ -343,14 +343,14 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 	_act_show_percentage->setChecked(true);
 
 	// Give formating information to the model
-	// TODO(pbrunet) : It should be a group !!
-	model->set_format(ValueFormat::Percent);
+	model->set_format(ValueFormat::Count, true);
+	model->set_format(ValueFormat::Percent, true);
 	connect(_act_show_count, &QAction::triggered,
-		[model](bool) { model->set_format(ValueFormat::Count); });
+		[model](bool e) { model->set_format(ValueFormat::Count, e); });
 	connect(_act_show_scientific_notation, &QAction::triggered,
-		[model](bool) { model->set_format(ValueFormat::Scientific); });
+		[model](bool e) { model->set_format(ValueFormat::Scientific, e); });
 	connect(_act_show_percentage, &QAction::triggered,
-		[model](bool) { model->set_format(ValueFormat::Percent); });
+		[model](bool e) { model->set_format(ValueFormat::Percent, e); });
 
 	_hhead_ctxt_menu->addAction(_act_show_count);
 	_hhead_ctxt_menu->addAction(_act_show_scientific_notation);
@@ -556,7 +556,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 
 	BENCH_START(select_values);
 
-	bool res = PVCore::PVProgressBox::progress([this, row_count, vmax, vmin]
+	PVCore::PVProgressBox::progress([this, row_count, vmax, vmin]
 	{
 		const pvcop::db::array& col2_array = model().stat_col();
 		std::string min_, max_;
