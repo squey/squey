@@ -112,6 +112,7 @@ private slots:
 	void toggle_unselected_zombie_visibility();
 	void axis_hover_entered(PVCol col, bool entered);
 	void axis_clicked(PVCol col);
+	void disconnect_axes();
 
 private:
 	void update_zones_position(bool update_all = true, bool scale = true);
