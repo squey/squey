@@ -100,6 +100,10 @@ namespace bpo = boost::program_options;
 
 int main(int argc, char *argv[])
 {
+	setlocale(LC_ALL, "C");
+	setenv("LANG", "C", 1);
+	setenv("TZ", "GMT", 1);
+	tzset();
 
 	init_segfault_handler();
 
