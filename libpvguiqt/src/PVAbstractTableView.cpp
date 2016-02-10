@@ -220,30 +220,30 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent * event)
 		int clc_row = rowAt(event->y());
 
 		if(clc_row < 0) {
-			// No row under the mouse.
+			// No valid row under the mouse
 			if (mod == Qt::NoModifier) {
-				// Reset the selection only there is no used modifier
+				// Reset the whole selection only if there is no used modifier
 				table_model()->reset_selection();
 			}
 			return;
 		}
 
 		if (mod == Qt::ShiftModifier) {
-			// Update changes the end position for a range selection in set mode
+			// Change the range selection end position in set selection mode
 			table_model()->set_selection_mode(PVAbstractTableModel::SET);
 			table_model()->end_selection(clc_row);
 		} else if (mod == Qt::ControlModifier) {
-			// Start the range selection in get the get the first row state an apply it to other rows
+			// Start the range selection by getting the start row state an applying it to other rows
 			table_model()->commit_selection();
 			table_model()->set_selection_mode(PVAbstractTableModel::TOGGLE_AND_USE);
 			table_model()->start_selection(clc_row);
 		} else if (mod == (Qt::ShiftModifier | Qt::ControlModifier)) {
-			// Start the range selection in invert mode
+			// Start the range selection in invert selection mode
 			table_model()->commit_selection();
 			table_model()->set_selection_mode(PVAbstractTableModel::NEGATE);
 			table_model()->start_selection(clc_row);
 		} else if (mod == Qt::NoModifier) {
-			// Reset current selection and start the range selection in set mode
+			// Reset the selection and start the range selection in set selection mode
 			table_model()->reset_selection();
 			table_model()->set_selection_mode(PVAbstractTableModel::SET);
 			table_model()->start_selection(clc_row);

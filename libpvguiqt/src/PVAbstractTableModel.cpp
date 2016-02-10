@@ -97,6 +97,10 @@ void PVAbstractTableModel::end_selection(int row)
 {
     if(row != -1) {
 	if (_start_sel == -1) {
+	    /* if the range selection has been previously reset, doing a shift+left mouse button
+	     * in PVAbstractTableView will call this method; _start_sel must also be initialized
+	     * to 0 to have a valid range selection in compliance with QTableView behaviour.
+	     */
 	    _start_sel = 0;
 	}
 	_end_sel = row_pos(row);
