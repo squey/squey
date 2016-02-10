@@ -80,20 +80,21 @@ public:
 
 		// Escape quotes
 		value.replace(quote, escaped_quote);
-		value = quote + value + quote + sep;
+		value = quote + value + quote;
 
 		double occurence_count = QString::fromStdString(_col2.at(row_pos_to_index(row))).toDouble();
 
 		double ratio = occurence_count / max_count();
 		if ((_format & ValueFormat::Count) == ValueFormat::Count) {
-			value.append(quote + format_occurence(occurence_count) + quote + sep);
+			value.append(sep + quote + format_occurence(occurence_count) + quote);
 		}
 		if ((_format & ValueFormat::Scientific) == ValueFormat::Scientific) {
-			value.append(quote + format_scientific_notation(ratio) + quote + sep);
+			value.append(sep + quote + format_scientific_notation(ratio) + quote);
 		}
 		if ((_format & ValueFormat::Percent) == ValueFormat::Percent) {
-			value.append(quote + format_percentage(ratio) + quote + sep);
+			value.append(sep + quote + format_percentage(ratio) + quote);
 		}
+
 		return value;
 	}
 
