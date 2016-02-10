@@ -72,13 +72,22 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 
 	setItemIndexMethod(QGraphicsScene::NoIndex);
 
+	/**
+	 * Register source for deletion in order to disconnect axes events and therefore avoid crashes
+	 * when trying to access an already deleted source...
+	 * This indicate a design flaw because the scene should be deleted before the source !
+	 */
+	Inendi::PVSource_sp src_sp = view_sp->get_parent<Inendi::PVSource>()->shared_from_this();
+	PVHive::PVObserverSignal<Inendi::PVSource*>* src_obs = new PVHive::PVObserverSignal<Inendi::PVSource*>(this);
+	PVHive::get().register_observer(src_sp, *src_obs);
+	src_obs->connect_about_to_be_deleted(this, SLOT(disconnect_axes()));
+
 	// Register view for unselected & zombie events toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
 	PVHive::get().register_observer(view_sp, [=](Inendi::PVView& view) { return &view.are_view_unselected_zombie_visible(); }, *obs);
 	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
 
 	// Register source for sections hover events
-	Inendi::PVSource_sp src_sp = view_sp->get_parent<Inendi::PVSource>()->shared_from_this();
 	PVHive::get().register_observer(src_sp, [=](Inendi::PVSource& source) { return &source.section_hovered(); }, _section_hover_obs);
 	_section_hover_obs.connect_refresh(this, SLOT(highlight_axis(PVHive::PVObserverBase*)));
 
@@ -191,6 +200,13 @@ void PVParallelView::PVFullParallelScene::axis_clicked(PVCol col)
 {
 	Inendi::PVSource_sp src = _lib_view.get_parent<Inendi::PVSource>()->shared_from_this();
 	PVHive::call<FUNC(Inendi::PVSource::set_axis_clicked)>(src, col);
+}
+
+void PVParallelView::PVFullParallelScene::disconnect_axes()
+{
+	for (PVAxisGraphicsItem* axis : _axes) {
+		axis->disconnect();
+	}
 }
 
 /******************************************************************************
