@@ -228,17 +228,24 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent * event)
 			return;
 		}
 
-		if (mod & Qt::ShiftModifier) {
-			// Shift modifier only change the end position for a range selection
+		if (mod == Qt::ShiftModifier) {
+			// Update changes the end position for a range selection in set mode
+			table_model()->set_selection_mode(PVAbstractTableModel::SET);
 			table_model()->end_selection(clc_row);
-		} else if (mod & Qt::ControlModifier) {
-			// Start the range selection
+		} else if (mod == Qt::ControlModifier) {
+			// Start the range selection in get the get the first row state an apply it to other rows
 			table_model()->commit_selection();
+			table_model()->set_selection_mode(PVAbstractTableModel::TOGGLE_AND_USE);
 			table_model()->start_selection(clc_row);
-		} else {
-			// Reset committed selection and start the range selection
-			table_model()->reset_selection();
+		} else if (mod == (Qt::ShiftModifier | Qt::ControlModifier)) {
+			// Start the range selection in invert mode
 			table_model()->commit_selection();
+			table_model()->set_selection_mode(PVAbstractTableModel::NEGATE);
+			table_model()->start_selection(clc_row);
+		} else if (mod == Qt::NoModifier) {
+			// Reset current selection and start the range selection in set mode
+			table_model()->reset_selection();
+			table_model()->set_selection_mode(PVAbstractTableModel::SET);
 			table_model()->start_selection(clc_row);
 		}
 

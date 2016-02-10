@@ -27,7 +27,8 @@ PVAbstractTableModel::PVAbstractTableModel(int row_count, QObject* parent):
 	_page_step(0),
 	_start_sel(-1),
 	_end_sel(-1),
-	_in_select_mode(true)
+	_in_select_mode(true),
+	_selection_mode(SET)
 {
 	// No filter at start
 	reset_filter(row_count);
@@ -53,6 +54,18 @@ void PVAbstractTableModel::reset_filter(int size)
 }
 
 /******************************************************************************
+ *
+ * PVAbstractTableModel::set_selection_mode
+ *
+ *****************************************************************************/
+
+void PVAbstractTableModel::set_selection_mode(selection_mode_t mode)
+{
+	_selection_mode = mode;
+}
+
+/******************************************************************************
++ *
  *
  * PVAbstractTableModel::reset_selection
  *
@@ -109,7 +122,9 @@ void PVAbstractTableModel::commit_selection()
 
     // Update current_selection from "in progress" selection
     for(; _start_sel<=_end_sel; _end_sel--) {
-	_current_selection.set_line(row_pos_to_index(_end_sel), _in_select_mode);
+	int index = row_pos_to_index(_end_sel);
+	bool is_set = _current_selection.get_line_fast(index);
+	_current_selection.set_line(index, apply_selection_mode(is_set));
     }
 
     // reset in progress selection
@@ -365,17 +380,13 @@ bool PVAbstractTableModel::is_selected(QModelIndex const& index) const
 {
 	int row_id = row_pos(index);
 	int row = rowIndex(index);
-
-	// Compute if line is in the "in progress" selection
-	bool in_in_progress_sel = (_start_sel <= row_id and row_id <= _end_sel) or
+	bool is_selected = _current_selection.get_line_fast(row);
+	bool is_in_progress_sel = (_start_sel <= row_id and row_id <= _end_sel) or
 		(_end_sel <= row_id and row_id <= _start_sel);
-	// An element is selected if it is in curent_selection or
-	// in "in progress" selection if we select new event
-	// If we unselect event, an element is selected if it is
-	// in current_selection but not in the "in progress" 
-	// selection
-	bool is_selected = (_in_select_mode and (in_in_progress_sel or _current_selection.get_line_fast(row)))
-		or (not _in_select_mode and not in_in_progress_sel and _current_selection.get_line_fast(row));
+
+	if (is_in_progress_sel) {
+		is_selected = apply_selection_mode(is_selected);
+	}
 
 	return is_selected;
 }
@@ -421,4 +432,23 @@ void PVAbstractTableModel::set_filter(Inendi::PVSelection const* sel, size_t siz
     }
 
 }
+
+/******************************************************************************
+*
+* PVAbstractTableModel::apply_selection_mode
+*
+*****************************************************************************/
+
+bool PVAbstractTableModel::apply_selection_mode(bool value) const
+{
+	if (_selection_mode == PVAbstractTableModel::SET) {
+		return true;
+	} else if (_selection_mode == PVAbstractTableModel::TOGGLE_AND_USE) {
+		return _in_select_mode;
+	} else { // PVAbstractTableModel::NEGATE
+		return not value;
+	}
 }
+
+}
+
