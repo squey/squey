@@ -41,7 +41,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	content += "?subject=%5BINENDI%5D\">";
 	content += EMAIL_ADDRESS_SUPPORT;
 	content += "</a><br/>";
-	content += "website - <a href=\"http://www.picviz.com\">www.picviz.com</a><br/>";
+	content += "website - <a href=\"http://www.esi-inendi.com\">www.esi-inendi.com</a><br/>";
 
 	content += QString("<br/>Licensed to: ");
 	content += QString("<a href=\"mailto:%1\">%2</a>, %3<br/>").arg(CUSTOMER_EMAIL).arg(CUSTOMER_NAME).arg(CUSTOMER_COMPANY);
