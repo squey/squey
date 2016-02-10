@@ -400,7 +400,9 @@ void PVAbstractTableModel::sorted(PVCol col, Qt::SortOrder order)
 {
 	_sorted_column = col;
 	_sort_order = order;
-	// Sorting have been done so in progress selection doesn't have sens anymore.
+	// Commit the range selection to make the selected rows persistent
+	commit_selection();
+	// And reset the range selection which does not have sense anymore.
 	_end_sel = _start_sel = -1;
 }
 
