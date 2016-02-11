@@ -1,3 +1,12 @@
+4.0.0 "Phoenix" (2016-02-12)
+------------------
+
+ * Complete rewrite of the data storage backend
+    - reduced memory footprint
+    - highly increased performances in sort, statistics operations, search and frequency gradient
+
+ * New license manager
+
 3.5.0 (2015-09-16)
 ------------------
 
