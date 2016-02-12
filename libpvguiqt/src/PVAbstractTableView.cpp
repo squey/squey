@@ -335,7 +335,6 @@ void PVAbstractTableView::wheelEvent(QWheelEvent* e)
  *****************************************************************************/
 void PVAbstractTableView::mouseReleaseEvent(QMouseEvent * event)
 {
-	// Mouse release commit the current selection
 	viewport()->update();
 	event->accept();
 }

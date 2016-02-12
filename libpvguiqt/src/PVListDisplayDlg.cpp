@@ -119,6 +119,9 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 {
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
+	// Commit the selection to have a complete one during export.
+	_model->commit_selection();
+
 	// Get the line separator to use for export (defined in UI)
 	QString sep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_line_separator_button->keySequence())));
 	if (sep.isEmpty()) {
@@ -136,21 +139,16 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 
 	// TODO(pbrunet) : do something on this check.
 	bool success = PVCore::PVProgressBox::progress([&]() {
-		for (int row = 0; row < model().rowCount(); ++row) {
-			if unlikely(ctxt.is_group_execution_cancelled()) {
-				break;
-			}
+			_model->current_selection().visit_selected_lines([this, &ctxt, &content, &sep](int row){
+					if unlikely(ctxt.is_group_execution_cancelled()) {
+						return;
+					}
 
-			QModelIndex index = model().index(row, 0);
-			int row_id = model().rowIndex(row);
-
-			if (model().is_selected(index)) {
-				QString s = model().export_line(row_id);
-				if (!s.isNull()) {
-					content.append(s.append(sep));
-				}
-			}
-		}
+					QString s = model().export_line(row);
+					if (!s.isNull()) {
+						content.append(s.append(sep));
+					}
+				}, model().size());
 
 		return !ctxt.is_group_execution_cancelled();
 	}, ctxt, pbox);
