@@ -18,9 +18,9 @@ namespace PVGuiQt
 
 enum ValueFormat
 {
-	Count		= 0,
-	Percent		= 1,
-	Scientific	= 2
+	Count		= 1,
+	Percent		= 2,
+	Scientific	= 4
 };
 
 class PVStatsModel: public PVAbstractTableModel
