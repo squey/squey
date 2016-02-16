@@ -468,9 +468,13 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 
 	if (act) { // TODO : Check it is the correct act?
 		QStringList values;
-		for(size_t i=0; i<model().size(); i++) {
-			if(model().current_selection().get_line(i)) {
-				values << QString::fromStdString(model().value_col().at(i));
+
+		for(size_t row = 0; row < model().rowCount(); ++row) {
+			QModelIndex index = model().index(row, 0);
+			int row_id = model().rowIndex(row);
+
+			if (model().is_selected(index)) {
+				values << QString::fromStdString(model().value_col().at(row_id));
 			}
 		}
 		multiple_search(act, values);
