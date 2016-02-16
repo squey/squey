@@ -41,7 +41,9 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView_sp& view, PVRush::PVNra
 
 	bool ret_pbox = PVCore::PVProgressBox::progress([&,c]
 	{
-		pvcop::db::algo::distinct(col_in, col1_out, col2_out, ((pvcop::db::selection)sel).slice(0, col_in.size()));
+		pvcop::db::selection s = ((pvcop::db::selection)sel).slice(0, col_in.size());
+
+		pvcop::db::algo::distinct(col_in, col1_out, col2_out, s);
 
 		pvcop::db::array minmax = pvcop::db::algo::minmax(col2_out);
 		std::string min_str = minmax.at(0);
@@ -52,7 +54,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView_sp& view, PVRush::PVNra
 		std::istringstream max_buf(max_str);
 		max_buf >> max;
 
-		count = col_in.size(); // FIXME : count = pvcop::core::algo::parallel::bit_count(sel);
+		count = pvcop::core::algo::bit_count(s);
 	}, ctxt, pbox);
 
 	BENCH_END(distinct_values, "distinct values", col_in.size(), 4, col1_out.size(), 4);
@@ -112,7 +114,9 @@ static bool show_stats_dialog(
 
 	bool ret_pbox = PVCore::PVProgressBox::progress([&,col1,col2]
 	{
-		op(col1_in, col2_in, col1_out, col2_out, ((pvcop::db::selection)sel).slice(0, col1_in.size()));
+		pvcop::db::selection s = ((pvcop::db::selection)sel).slice(0, col1_in.size());
+
+		op(col1_in, col2_in, col1_out, col2_out, s);
 
 		pvcop::db::array minmax = pvcop::db::algo::minmax(col2_out);
 		std::string min_str = minmax.at(0);
@@ -131,7 +135,7 @@ static bool show_stats_dialog(
 			abs_max = pvcop::db::algo::sum(col2_out);
 			break;
 		case ABS_MAX_OP::COUNT:
-			abs_max = (double) col1_in.size(); // FIXME : count = pvcop::core::algo::parallel::bit_count(sel);
+			abs_max = (double) pvcop::core::algo::bit_count(s);
 			break;
 		}
 	}, ctxt, pbox);
