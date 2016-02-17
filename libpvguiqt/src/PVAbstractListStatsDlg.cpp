@@ -594,8 +594,8 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 		   PVLOG_ERROR(("Incorrect type to compute range selection." + std::to_string(col2_array.type())).c_str());
 		   return;
 		}
+		model().reset_selection();
 		Inendi::PVSelection & sel = model().current_selection();
-		sel.select_none();
 
 		pvcop::db::algo::range_select(col2_array, min_, max_, pvcop::db::selection(), sel);
 
