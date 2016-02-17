@@ -96,9 +96,9 @@ namespace PVLicense {
         struct sysinfo info;
         sysinfo(&info);
 
-        size_t status = flexGetLimitedValue ("INENDI", "INSPECTOR", "MAXIMEM");
+        size_t status = flexGetLimitedValue ("II", "INSPECTOR", "MAXMEM");
         if (info.totalram > (status * 1024 * 1024 * 1024)) {
-            throw NotAvailableFeatureException("INENDI Inspctor", std::to_string(status) + " Go of ram");
+            throw NotAvailableFeatureException("INENDI Inspector", std::to_string(status) + " Go of ram");
         }
     }
 
@@ -106,7 +106,7 @@ namespace PVLicense {
      * Get number of days remaining in the license file.
      */
     int get_remaining_days() {
-        return flexExpireDays("INENDI","INSPECTOR");
+        return flexExpireDays("II","INSPECTOR");
     }
 
 }

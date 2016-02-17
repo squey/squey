@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 
       PVLicense::RAII_InitLicense license_manager;
 
-      PVLicense::RAII_LicenseFeature full_program_license("INENDI", "INSPECTOR");
+      PVLicense::RAII_LicenseFeature full_program_license("II", "INSPECTOR");
 	// Program options
 	bpo::options_description desc_opts("Options");
 	desc_opts.add_options()
