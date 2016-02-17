@@ -142,6 +142,7 @@ private:
 	 * while filing the context menu.
 	 */
 	QAction* _msearch_action_for_layer_creation;
+	int _sort_section = 1;
 };
 
 namespace __impl {

@@ -295,7 +295,8 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 		}
 	}
 
-	sort_by_column(0);
+	_values_view->horizontalHeader()->setSortIndicator(_sort_section, Qt::SortOrder::AscendingOrder);
+	sort_by_column(_sort_section);
 
 	connect(_values_view, &PVTableView::resize, this, &PVAbstractListStatsDlg::view_resized);
 	_values_view->horizontalHeader()->show();
@@ -640,8 +641,15 @@ void PVGuiQt::PVAbstractListStatsDlg::section_resized(int logicalIndex, int /*ol
 void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(int col)
 {
 	_values_view->horizontalHeader()->setSortIndicatorShown(true);
-	Qt::SortOrder order =  (Qt::SortOrder)!((bool)_values_view->horizontalHeader()->sortIndicatorOrder());
-	model().sort(col, order);
+
+	int section = _values_view->horizontalHeader()->sortIndicatorSection();
+
+	Qt::SortOrder old_order = _values_view->horizontalHeader()->sortIndicatorOrder();
+	Qt::SortOrder new_order = col == _sort_section ? (Qt::SortOrder) not (bool) old_order : col == 0 ? Qt::SortOrder::AscendingOrder : Qt::SortOrder::DescendingOrder;
+
+	model().sort(col, new_order);
+
+	_sort_section = section;
 }
 
 void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStringList &sl,
