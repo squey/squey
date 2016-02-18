@@ -1,11 +1,20 @@
 4.0.0 "Phoenix" (2016-02-12)
+----------------------------
+
+* Complete rewrite of the data storage backend
+  - reduced memory footprint
+  - highly increased performances in sort, statistics operations, search and frequency gradient
+
+* New license manager
+
+3.5.1 (2015-10-23)
 ------------------
 
- * Complete rewrite of the data storage backend
-    - reduced memory footprint
-    - highly increased performances in sort, statistics operations, search and frequency gradient
-
- * New license manager
+This minor release fixes:
+* Qt limitation preventing to load more than 85,000 lines
+* crash when saving investigation
+* crash in local file dialog
+* splunk : export may contains some extra empty lines
 
 3.5.0 (2015-09-16)
 ------------------
@@ -81,7 +90,7 @@ This major release fixes or improves:
 * bugfix in URL splitter
 
 3.3.0 "Titan" (2014-04-25)
-----------------
+--------------------------
 
 This major release adds the following features:
 
@@ -121,7 +130,7 @@ This major release fixes or improves:
 * clarification and uniformization of dialogs and menus
 
 3.2.0 "Bifrost" (2013-11-12)
---------------------------
+----------------------------
 
 This major release adds the following features:
 
@@ -157,7 +166,7 @@ This major release fixes or improves:
  * various minors gui improvements
 
 3.1.0 "Adrien" (2013-05-31)
---------------------------
+---------------------------
 
 This major release add the following features:
 
@@ -176,7 +185,7 @@ This major release fixes:
  * fix bottom lines that were sometimes cropped in the full parallel view
 
 3.0.8 (2013-04-05)
------------------
+------------------
 
 This minor release add the following features:
  * display min/max values in the full parallel view when using the 'y' key
@@ -218,7 +227,7 @@ This minor release fixes:
 
 
 3.0.6 (2013-02-14)
------------------
+------------------
 
 This minor releases fixes:
 
@@ -228,7 +237,7 @@ This minor releases fixes:
    set the axes' name according to a given line
 
 3.0.5 (2013-01-29)
------------------
+------------------
 
 This minor releases add the following features:
 
@@ -315,7 +324,7 @@ Bug fixes:
  * Format builder creating invalid parameter for the "filter" plugin
 
 2.5.0 "Dean" (2012-04-11)
-------------------------
+-------------------------
 
 New features:
 
