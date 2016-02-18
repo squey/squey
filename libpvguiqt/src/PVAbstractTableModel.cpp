@@ -397,6 +397,39 @@ bool PVAbstractTableModel::is_selected(QModelIndex const& index) const
 
 /******************************************************************************
 *
+* PVAbstractTableModel::find_first_selected
+*
+*****************************************************************************/
+QModelIndex PVAbstractTableModel::find_first_selected() const
+{
+	for(int row = 0; row < rowCount(); ++row) {
+		const QModelIndex idx = index(row, 0);
+		if (is_selected(idx)) {
+			return idx;
+		}
+	}
+
+	return QModelIndex();
+}
+
+/******************************************************************************
+*
+* PVAbstractTableModel::count_selected
+*
+*****************************************************************************/
+size_t PVAbstractTableModel::count_selected() const
+{
+	size_t count = 0;
+
+	visit_selected_index([&count](const QModelIndex&) {
+			++count;
+		});
+
+	return count;
+}
+
+/******************************************************************************
+*
 * PVAbstractTableModel::sorted
 *
 *****************************************************************************/

@@ -470,14 +470,10 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 	if (act) { // TODO : Check it is the correct act?
 		QStringList values;
 
-		for(size_t row = 0; row < model().rowCount(); ++row) {
-			QModelIndex index = model().index(row, 0);
-			int row_id = model().rowIndex(row);
-
-			if (model().is_selected(index)) {
+		model().visit_selected_row_index([&](int row_id) {
 				values << QString::fromStdString(model().value_col().at(row_id));
-			}
-		}
+			});
+
 		multiple_search(act, values);
 		return true;
 	}
@@ -594,8 +590,8 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 		   PVLOG_ERROR(("Incorrect type to compute range selection." + std::to_string(col2_array.type())).c_str());
 		   return;
 		}
+		model().reset_selection();
 		Inendi::PVSelection & sel = model().current_selection();
-		sel.select_none();
 
 		pvcop::db::algo::range_select(col2_array, min_, max_, pvcop::db::selection(), sel);
 
@@ -739,17 +735,15 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	QStringList sl;
 	QStringList value_names;
 
-	for(size_t i=0; i<model().value_col().size(); i++) {
-		if(model().current_selection().get_line(i)) {
-			QString s = QString::fromStdString(model().value_col().at(i));
+	model().visit_selected_row_index([&](int row_id) {
+			QString s = QString::fromStdString(model().value_col().at(row_id));
 			sl += s;
 			if (s.isEmpty()) {
 				value_names += "(empty)";
 			} else {
 				value_names += s;
 			}
-		}
-	}
+		});
 	text.replace("%v", value_names.join(","));
 
 	/*
@@ -813,7 +807,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
 	Inendi::PVLayerStack& ls = view_sp->get_layer_stack();
 
-	int layer_num = model().current_selection().get_number_of_selected_lines_in_range(0, model().value_col().size());
+	int layer_num = model().count_selected();
 	int layer_max = INENDI_LAYER_STACK_MAX_DEPTH - ls.get_layer_count();
 	if (layer_num >= layer_max) {
 		QMessageBox::critical(this, "multiple layer creation",
@@ -868,50 +862,47 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	 */
 
 	int offset = 1;
-	for(size_t i=0; i<model().value_col().size(); i++) {
-		if(not model().current_selection().get_line(i)) {
-			continue; // Skip unselected lines
-		}
-		QString layer_name(text);
-		QString s = QString::fromStdString(model().value_col().at(i));
-		if (s.isEmpty()) {
-			layer_name.replace("%v", "(empty)");
-		} else {
-			layer_name.replace("%v", s);
-		}
-
-		QStringList sl;
-		sl.append(s);
-		multiple_search(_msearch_action_for_layer_creation, sl, false);
-
-		actor.call<FUNC(Inendi::PVView::add_new_layer)>(layer_name);
-		Inendi::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
-		int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
-		actor.call<FUNC(Inendi::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
-
-		// We need to configure the layer
-		view_sp->commit_selection_to_layer(layer);
-		actor.call<FUNC(Inendi::PVView::compute_layer_min_max)>(layer);
-		actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(layer);
-
-		if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
-			int insert_pos;
-
-			if( mode == PVWidgets::PVLayerNamingPatternDialog::ABOVE_CURRENT) {
-				insert_pos = old_selected_layer_index + offset;
+	model().visit_selected_row_index([&](int row_id) {
+			QString layer_name(text);
+			QString s = QString::fromStdString(model().value_col().at(row_id));
+			if (s.isEmpty()) {
+				layer_name.replace("%v", "(empty)");
 			} else {
-				insert_pos = old_selected_layer_index;
-				++old_selected_layer_index;
+				layer_name.replace("%v", s);
 			}
-			actor.call<FUNC(Inendi::PVView::move_selected_layer_to)>(insert_pos);
-		}
 
-		ls.set_selected_layer_index(old_selected_layer_index);
-		view_sp->get_volatile_selection() = old_sel;
-		actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
-		actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
-		++offset;
-	}
+			QStringList sl;
+			sl.append(s);
+			multiple_search(_msearch_action_for_layer_creation, sl, false);
+
+			actor.call<FUNC(Inendi::PVView::add_new_layer)>(layer_name);
+			Inendi::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
+			int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
+			actor.call<FUNC(Inendi::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
+
+			// We need to configure the layer
+			view_sp->commit_selection_to_layer(layer);
+			actor.call<FUNC(Inendi::PVView::compute_layer_min_max)>(layer);
+			actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(layer);
+
+			if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
+				int insert_pos;
+
+				if( mode == PVWidgets::PVLayerNamingPatternDialog::ABOVE_CURRENT) {
+					insert_pos = old_selected_layer_index + offset;
+				} else {
+					insert_pos = old_selected_layer_index;
+					++old_selected_layer_index;
+				}
+				actor.call<FUNC(Inendi::PVView::move_selected_layer_to)>(insert_pos);
+			}
+
+			ls.set_selected_layer_index(old_selected_layer_index);
+			view_sp->get_volatile_selection() = old_sel;
+			actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
+			actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
+			++offset;
+		});
 
 	// we can update the layer-stack once all layers have been created
 	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
