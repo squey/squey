@@ -119,7 +119,7 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 {
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
-	// Commit the selection to have a complete one during export.
+	// Commit the range selection to have a complete one during export.
 	_model->commit_selection();
 
 	// Get the line separator to use for export (defined in UI)
@@ -139,6 +139,9 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 
 	// TODO(pbrunet) : do something on this check.
 	bool success = PVCore::PVProgressBox::progress([&]() {
+			/* the PVSelection can be safely traversed because the range selection
+			 * has been committed earlier in this method
+			 */
 			_model->current_selection().visit_selected_lines([this, &ctxt, &content, &sep](int row){
 					if unlikely(ctxt.is_group_execution_cancelled()) {
 						return;
