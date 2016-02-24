@@ -263,6 +263,11 @@ public:
 	 */
 	void finish_process_from_rush_pipeline();
 
+	void add_mineset_dataset(const std::string& dataset_url)
+	{
+		_mineset_datasets.push_back(dataset_url);
+	}
+
 /******************************************************************************
 ******************************************************************************
 *
@@ -415,6 +420,7 @@ protected:
 	QColor _color;
 
 	pvcop::db::collection* _collection;
+	std::vector<std::string> _mineset_datasets;
 };
 
 typedef PVView::p_type PVView_p;
