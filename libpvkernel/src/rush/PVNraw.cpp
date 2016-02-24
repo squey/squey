@@ -249,7 +249,7 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
 	std::string line;
 
 	for(int c: col_indexes) {
-		line += PVRush::PVUtils::safe_export(at_string(idx, c), quote_char) + sep_char;
+		line += PVRush::PVUtils::safe_export(at_string(idx, c), sep_char, quote_char) + sep_char;
 	}
 
 	// Remove last sep_char

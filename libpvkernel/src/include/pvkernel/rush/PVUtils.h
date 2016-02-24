@@ -30,8 +30,8 @@ namespace PVUtils {
 	 */
 	void sort_file(const char* input_file, const char* output_file = nullptr);
 
-	std::string safe_export(std::string str, const std::string& quote_char);
-	void safe_export(QStringList& str_list, const std::string& quote_char);
+	std::string safe_export(std::string str, const std::string& sep_char, const std::string& quote_char);
+	void safe_export(QStringList& str_list, const std::string& sep_char, const std::string& quote_char);
 
 }
 }

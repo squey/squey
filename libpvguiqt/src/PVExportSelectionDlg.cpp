@@ -219,7 +219,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(
 
 	// Export header
 	if (export_selection_dlg.export_columns_header()) {
-		PVRush::PVUtils::safe_export(str_list, quote_char);
+		PVRush::PVUtils::safe_export(str_list, sep_char, quote_char);
 		ofs << "#" << str_list.join(export_selection_dlg.separator_char()).toStdString() << "\n";
 	}
 
