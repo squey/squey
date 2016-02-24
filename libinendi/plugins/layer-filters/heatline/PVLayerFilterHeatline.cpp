@@ -113,16 +113,18 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 	else {
-
-		size_t index = 0;
 		auto const& group_array = group.to_core_array();
 		auto const& count_array = count.to_core_array<pvcop::db::indexes::type>();
-		for(auto it=sel.begin(); it != sel.end(); ++it) {
+
+		size_t index = 0;
+		size_t selected_index = 0;
+		// FIXME : We should implement a pvcop::db::array::sel_iterator to iterate
+		//         more efficiently on selected rows
+		for(auto it=sel.begin(); it != sel.end(); ++it, index++) {
 			if(not *it) {
-				index++;
 				continue;
 			}
-			double cum = count_array[group_array[index]];
+			double cum = count_array[group_array[selected_index++]];
 
 			// Computation ratio to havec 1 for freq = max_n and 0 for freq = min_n
 			double ratio;
@@ -131,7 +133,7 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer& in, PVLayer &out)
 			} else {
 				ratio = (cum - min_n)/(max_n - min_n);
 			}
-			post(out, ratio, freq_min, freq_max, index++);
+			post(out, ratio, freq_min, freq_max, index);
 		}
 	}
 }
