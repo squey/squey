@@ -36,6 +36,21 @@ PVAbstractTableView::PVAbstractTableView(QWidget* parent):
 	setWordWrap(false);
 
 	setSelectionMode(QAbstractItemView::NoSelection);
+
+	// Show contextual menu on right click in the table (set menuPolicy to emit signals)
+	connect(this, &QWidget::customContextMenuRequested, this, &PVAbstractTableView::show_rclick_menu);
+	setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
+/******************************************************************************
+ *
+ * PVAbstractTableView::show_rclick_menu
+ *
+ *****************************************************************************/
+void PVAbstractTableView::show_rclick_menu(QPoint const& p)
+{
+	table_model()->commit_selection();
+	show_ctxt_menu(p);
 }
 
 /******************************************************************************

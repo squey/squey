@@ -41,7 +41,6 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 	// `_values_view' is a PVAbstractTableView to handle huge number of values.
 	_values_view->setModel(model);
 	_values_view->setGridStyle(Qt::NoPen);
-	_values_view->setContextMenuPolicy(Qt::ActionsContextMenu);
 
 	_values_view->horizontalHeader()->setStretchLastSection(true);
 
@@ -59,7 +58,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 	set_description(QString());
 
 	// Show contextual menu on right click in the table (set menuPolicy to emit signals)
-	connect(_values_view, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
+	connect(_values_view, &QWidget::customContextMenuRequested, this, &PVListDisplayDlg::show_ctxt_menu);
 	_values_view->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	connect(_btn_copy_clipboard, SIGNAL(clicked()), this, SLOT(copy_all_to_clipboard()));
@@ -75,6 +74,8 @@ PVGuiQt::PVListDisplayDlg::~PVListDisplayDlg()
 
 void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& pos)
 {
+	_values_view->table_model()->commit_selection();
+
 	QModelIndex index = _values_view->indexAt(pos);
 
 	if (not index.isValid()) {
@@ -119,9 +120,6 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 {
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
-	// Commit the range selection to have a complete one during export.
-	_model->commit_selection();
-
 	// Get the line separator to use for export (defined in UI)
 	QString sep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_line_separator_button->keySequence())));
 	if (sep.isEmpty()) {
@@ -140,21 +138,27 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 	// TODO(pbrunet) : do something on this check.
 	bool success = PVCore::PVProgressBox::progress([&]() {
 			/* the PVSelection can be safely traversed because the range selection
-			 * has been committed earlier in this method
+			 * has been committed earlier at right click.
+			 *
+			 * Manual iteration is done to keep sort ordering.
 			 */
-			_model->current_selection().visit_selected_lines([this, &ctxt, &content, &sep](int row){
-					if unlikely(ctxt.is_group_execution_cancelled()) {
-						return;
-					}
+			for(size_t row: model().shown_lines()) {
+				if(not _model->current_selection().get_line(row)) {
+					continue;
+				}
+				if unlikely(ctxt.is_group_execution_cancelled()) {
+					return false;;
+				}
 
-					QString s = model().export_line(row);
-					if (!s.isNull()) {
-						content.append(s.append(sep));
-					}
-				}, model().size());
+				QString s = model().export_line(row);
+				if (!s.isNull()) {
+					content.append(s.append(sep));
+				}
 
-		return !ctxt.is_group_execution_cancelled();
-	}, ctxt, pbox);
+			}
+
+			return true;
+		}, ctxt, pbox);
 
 	QApplication::clipboard()->setText(content);
 
@@ -209,7 +213,7 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 					if unlikely(ctxt.is_group_execution_cancelled()) {
 						return QString();
 					}
-					QString s = _model->export_line(i);
+					QString s = _model->export_line(model().row_pos_to_index(i));
 					if (!s.isNull()) {
 						l.append(s.append(sep));
 					}

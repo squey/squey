@@ -144,10 +144,6 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent):
 	_action_col_sort->setIcon(QIcon(":/sort_desc"));
 	_hhead_ctxt_menu.addAction(_action_col_sort);
 
-	// Context menu for the listing
-	connect(this, &PVGuiQt::PVListingView::customContextMenuRequested, this, &PVGuiQt::PVListingView::show_ctxt_menu);
-	setContextMenuPolicy(Qt::CustomContextMenu); // Enable context menu signal
-
 	// A double click on the vertical header select the line in the lib view
 	connect(verticalHeader(), &QHeaderView::sectionDoubleClicked, this,
 			(void (PVGuiQt::PVListingView::*)(int)) &PVGuiQt::PVListingView::slotDoubleClickOnVHead);

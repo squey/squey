@@ -177,7 +177,7 @@ private slots:
 	/**
 	 * Show context menu and process its actions
 	 */
-	void show_ctxt_menu(const QPoint& pos);
+	void show_ctxt_menu(const QPoint& pos) override;
 
 	/**
 	 * Show horizontal header context menu and process its actions
