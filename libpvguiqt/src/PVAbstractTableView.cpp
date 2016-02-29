@@ -185,18 +185,20 @@ void PVAbstractTableView::update_on_move()
 void PVAbstractTableView::new_range(int min, int max)
 {
 	if(model()) {
-		table_model()->update_pages(max - min + 1, verticalScrollBar()->pageStep());
+		// min == max means we have only the current page so it contains every lines without
+		// scroll. The page size must be big enought to get them all.
+		size_t step = verticalScrollBar()->pageStep();
+		if(min == max) {
+			step = table_model()->size();
+		}
+		table_model()->update_pages(max - min + 1, step);
 		move_to_page(0);
 	}
 }
 
 void PVAbstractTableView::new_range()
 {
-	if(model()) {
-		table_model()->update_pages(verticalScrollBar()->maximum() - verticalScrollBar()->minimum() + 1,
-				verticalScrollBar()->pageStep());
-		move_to_page(0);
-	}
+	new_range(verticalScrollBar()->minimum(), verticalScrollBar()->maximum());
 }
 
 /******************************************************************************
