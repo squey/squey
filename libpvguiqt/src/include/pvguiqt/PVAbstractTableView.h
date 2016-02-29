@@ -131,6 +131,19 @@ private:
 	 */
 	void update_on_move();
 
+	/**
+	 * Show right_click menu once selection is done.
+	 *
+	 * @note : default do nothing for TableView without context menu.
+	 */
+	virtual void show_ctxt_menu(QPoint const&) {}
+
+private slots:
+	/**
+	 * Commit the selection before any right-click action.
+	 */
+	void show_rclick_menu(QPoint const& p);
+
 signals:
 	void validate_selection();
 

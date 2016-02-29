@@ -470,7 +470,7 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 	if (act) { // TODO : Check it is the correct act?
 		QStringList values;
 
-		model().visit_selected_row_index([&](int row_id) {
+		model().current_selection().visit_selected_lines([&](int row_id) {
 				values << QString::fromStdString(model().value_col().at(row_id));
 			});
 
@@ -735,7 +735,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	QStringList sl;
 	QStringList value_names;
 
-	model().visit_selected_row_index([&](int row_id) {
+	model().current_selection().visit_selected_lines([&](int row_id) {
 			QString s = QString::fromStdString(model().value_col().at(row_id));
 			sl += s;
 			if (s.isEmpty()) {
@@ -807,7 +807,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
 	Inendi::PVLayerStack& ls = view_sp->get_layer_stack();
 
-	int layer_num = model().count_selected();
+	int layer_num = model().current_selection().get_number_of_selected_lines_in_range(0, model().value_col().size());;
 	int layer_max = INENDI_LAYER_STACK_MAX_DEPTH - ls.get_layer_count();
 	if (layer_num >= layer_max) {
 		QMessageBox::critical(this, "multiple layer creation",
@@ -862,7 +862,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	 */
 
 	int offset = 1;
-	model().visit_selected_row_index([&](int row_id) {
+	model().current_selection().visit_selected_lines([&](int row_id) {
 			QString layer_name(text);
 			QString s = QString::fromStdString(model().value_col().at(row_id));
 			if (s.isEmpty()) {
