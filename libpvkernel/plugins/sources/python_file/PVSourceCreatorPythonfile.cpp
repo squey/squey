@@ -15,6 +15,8 @@
 #include <QStringList>
 #include <QFileInfo>
 
+#include <fstream>
+
 #define DEFAULT_PYTHON_CHUNK_SIZE 1024 * 100
 
 PVRush::PVSourceCreatorPythonfile::source_p PVRush::PVSourceCreatorPythonfile::create_source_from_input(PVInputDescription_p input, const PVFormat& format) const
@@ -24,14 +26,13 @@ PVRush::PVSourceCreatorPythonfile::source_p PVRush::PVSourceCreatorPythonfile::c
 	QString python_file(python_file_info.dir().absoluteFilePath(python_file_info.completeBaseName() + ".py"));
 
 	QFileInfo fi(python_file);
-	source_p src;
 
-	if (fi.exists()) {
-		src = source_p(new PVRush::PVPythonSource(input, DEFAULT_PYTHON_CHUNK_SIZE,
-		                                          chk_flt->f(), python_file));
+	if (not fi.exists()) {
+		throw std::ifstream::failure("Unknown file, " + python_file.toStdString() + "can't create source.");
 	}
-
-	return src;
+	
+	return source_p{new PVRush::PVPythonSource(input, DEFAULT_PYTHON_CHUNK_SIZE,
+			chk_flt->f(), python_file)};
 }
 
 PVRush::hash_formats PVRush::PVSourceCreatorPythonfile::get_supported_formats() const

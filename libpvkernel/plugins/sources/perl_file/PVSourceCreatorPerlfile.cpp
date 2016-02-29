@@ -14,6 +14,8 @@
 #include <QStringList>
 #include <QFileInfo>
 
+#include <fstream>
+
 #define DEFAULT_PERL_CHUNK_SIZE 1024 * 100
 
 PVRush::PVSourceCreatorPerlfile::source_p PVRush::PVSourceCreatorPerlfile::create_source_from_input(PVInputDescription_p input, const PVFormat& format) const
@@ -23,14 +25,13 @@ PVRush::PVSourceCreatorPerlfile::source_p PVRush::PVSourceCreatorPerlfile::creat
 	QString perl_file(perl_file_info.dir().absoluteFilePath(perl_file_info.completeBaseName() + ".pl"));
 
 	QFileInfo fi(perl_file);
-	source_p src;
 
-	if (fi.exists()) {
-		src = source_p(new PVRush::PVPerlSource(input, DEFAULT_PERL_CHUNK_SIZE,
-		                                        chk_flt->f(), perl_file));
+	if (not fi.exists()) {
+		throw std::ifstream::failure("Unknown file, " + perl_file.toStdString() + " can't create source.");
 	}
 
-	return src;
+	return source_p{new PVRush::PVPerlSource(input, DEFAULT_PERL_CHUNK_SIZE,
+		                                        chk_flt->f(), perl_file)};
 }
 
 PVRush::hash_formats PVRush::PVSourceCreatorPerlfile::get_supported_formats() const
