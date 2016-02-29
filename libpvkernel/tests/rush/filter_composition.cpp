@@ -41,10 +41,6 @@ int main(int argc, char** argv)
 	PVFilter::PVFieldsSplitter::p_type duplicate_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("duplicate");
 	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type grep_lib_p = LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_class_by_name("regexp");
 
-	if (!url_lib_p || !regexp_lib_p || !duplicate_lib_p || !grep_lib_p) {
-		cerr << "Unable to load one of the filters" << endl;
-		return 1;
-	}
 	PVCore::PVArgumentList args;
 	args["regexp"] = QString("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/_-]+([0-9]+)\\s+[0-9]+\\s+(GET|POST|PUT|OPTIONS)\\s+(\\S+)\\s+(\\S+)\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)");
 	args["full-line"] = false;

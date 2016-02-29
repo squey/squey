@@ -650,7 +650,6 @@ QSet<QString> PVInspector::PVXmlParamWidgetBoardAxis::getListParentSplitterTag()
 
 	// Ok, we have a splitter has parent. Let's get its provided tags.
 	PVFilter::PVFieldsSplitter_p filter_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name(parent->attribute("type", ""));
-	assert(filter_p);
 
 	// Ok, get the tags !
 	PVFilter::PVFieldsSplitterListTags const& tags = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_tags_for_class(*filter_p);

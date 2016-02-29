@@ -49,10 +49,6 @@ int main(int argc, char** argv)
 
 	// Text file source creator
 	PVRush::PVSourceCreator_p text_file_lib = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("text_file");
-	if (!text_file_lib) {
-		std::cerr << "Unable to load the text_file pvrush plugin." << std::endl;
-		return 1;
-	}
 
 	if (files.size() == 0) {
 		std::cerr << "No files in tickets/1/. Test failed." << std::endl;
