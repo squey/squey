@@ -49,35 +49,6 @@ public:
 		return _dest;
 	}
 
-	/**
-	 * provide a post processing step for mapping computation
-	 *
-	 * in some cases, the mapping may not be directly computed and need
-	 * extra information about data. In those cases,
-	 * ::operator()(PVCore::PVField const&) is used to prepare those extra
-	 * informations and this method compute for real the resulting mapping.
-	 *
-	 * Thid is the default implementation which does nothing special.
-
-	 * @param col the column number
-	 * @param nraw a reference on the nraw
-	 *
-	 * @return a pointer on the filled decimal storage array
-	 */
-	virtual decimal_storage_type* finalize(PVCol const col, PVRush::PVNraw const& nraw)
-	{
-		(void)col;
-		(void)nraw;
-		return _dest;
-	}
-
-	/*
-	// Here we provide a default implementation which call operator()(QString const&) over an OpenMP-parallelised
-	// for loop over values
-	virtual decimal_storage_type* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
-	virtual decimal_storage_type operator()(QString const& value);
-	*/
-
 	virtual void init();
 
 	void set_dest_array(PVRow size, decimal_storage_type *ptr);

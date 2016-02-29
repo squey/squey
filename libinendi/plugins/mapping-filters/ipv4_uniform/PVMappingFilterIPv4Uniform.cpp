@@ -13,8 +13,6 @@
 
 #include <climits>
 
-typedef std::map<uint32_t, uint32_t> values_t;
-
 /*****************************************************************************
  * Inendi::PVMappingFilterIPv4Uniform::PVMappingFilterIPv4Uniform
  *****************************************************************************/
@@ -75,29 +73,11 @@ Inendi::PVMappingFilterIPv4Uniform::operator()(PVCol const c,
 	auto const& array = nraw.collection().column(c);
 	auto const& core_array = array.to_core_array<uint32_t>();
 
+	std::map<uint32_t, uint32_t> values;
+
 #pragma omp parallel for
 	for(size_t i=0; i<array.size(); i++) {
 		_dest[i].storage_as_uint() = core_array[i];
-	}
-
-	/* then ::finalize() do the rest
-	 */
-	return finalize(c, nraw);
-}
-
-/*****************************************************************************
- * Inendi::PVMappingFilterIPv4Uniform::finalize
- *****************************************************************************/
-
-Inendi::PVMappingFilter::decimal_storage_type*
-Inendi::PVMappingFilterIPv4Uniform::finalize(PVCol const,
-                                             PVRush::PVNraw const&)
-{
-	values_t values;
-
-	/* populate values with _dest (which contains IPv4 as uint32
-	 */
-	for(size_t i = 0; i < _dest_size; ++i) {
 		values[_dest[i].storage_as_uint()] = 0;
 	}
 
@@ -108,7 +88,8 @@ Inendi::PVMappingFilterIPv4Uniform::finalize(PVCol const,
 
 	uint32_t i = 0;
 	for (auto& kv : values) {
-		kv.second = (std::numeric_limits<uint32_t>::max() * (double)i) / value_count;
+		// Compute ration between 0 and 1 and match it to 0 -> max
+		kv.second = std::numeric_limits<uint32_t>::max() * ((double)i / value_count);
 		++i;
 	}
 

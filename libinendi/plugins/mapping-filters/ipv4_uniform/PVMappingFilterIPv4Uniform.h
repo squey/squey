@@ -35,8 +35,6 @@ public:
 		return {};
 	}
 
-	decimal_storage_type* finalize(PVCol const c,PVRush::PVNraw const& nraw) override;
-
 protected:
 	CLASS_FILTER(PVMappingFilterIPv4Uniform)
 };

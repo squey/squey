@@ -98,16 +98,13 @@ void Inendi::PVMapped::compute()
 	// finalize import's mapping filters
 	PVRush::PVNraw const& nraw = get_parent()->get_rushnraw();
 
-	_mapping_filters_rush.resize(ncols);
 	for (PVCol j = 0; j < ncols; j++) {
 		// Create our own plugins from the library
 		PVMappingFilter::p_type mf = _mapping->get_filter_for_col(j);
-		_mapping_filters_rush[j] = mf->clone<PVMappingFilter>();
-		_mapping_filters_rush[j]->init();
+		PVMappingFilter::p_type mapping_filter = mf->clone<PVMappingFilter>();
+		mapping_filter->init();
 
 		// Compute mapping on this column
-		PVMappingFilter::p_type& mapping_filter = _mapping_filters_rush[j];
-
 		// Set MappingFilter array in filter to set it from filter.
 		// FIXME : Ugly interface
 		mapping_filter->set_dest_array(nrows, get_column_pointer(j));
@@ -115,17 +112,12 @@ void Inendi::PVMapped::compute()
 		// Set mapping for the full column
 		mapping_filter->operator()(j, nraw);
 
-		tbb::tick_count start = tbb::tick_count::now();
-		mapping_filter->finalize(j, nraw);
-		tbb::tick_count end = tbb::tick_count::now();
-		PVLOG_INFO("(PVMapped) finalizing mapping for axis %d took %0.4f seconds.\n", j, (end-start).seconds());
-
 		mandatory_param_map& params_map = _mapping->get_mandatory_params_for_col(j);
 		tbb::tick_count tmap_start = tbb::tick_count::now();
 		// Init the mandatory mapping
 		for (auto it_pmf = mand_mapping_filters.begin(); it_pmf != mand_mapping_filters.end(); it_pmf++) {
 			(*it_pmf)->set_dest_params(params_map);
-			(*it_pmf)->set_decimal_type(_mapping_filters_rush[j]->get_decimal_type());
+			(*it_pmf)->set_decimal_type(mapping_filter->get_decimal_type());
 			(*it_pmf)->set_mapped(*this);
 			(*it_pmf)->operator()(Inendi::mandatory_param_list_values(j, get_column_pointer(j)));
 		}
@@ -136,9 +128,6 @@ void Inendi::PVMapped::compute()
 
 	// Validate all mapping!
 	validate_all();
-
-	// Clear mapping filters
-	_mapping_filters_rush.clear();
 
 	// Clear "group values" hash
 	_grp_values_rush.clear();
