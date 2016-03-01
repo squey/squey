@@ -121,10 +121,8 @@ static std::string dataset_url(const std::string& server_result)
 
 	if (json.HasMember("message")) {
 		if (std::string(json["message"].GetString()) == "Ok") {
-			if (json.HasMember("result")) {
-				if (json["result"].HasMember("id")) {
-					return std::string(MINESET_API_DATASET) + std::to_string(json["result"]["id"].GetUint());
-				}
+			if (json.HasMember("result") and json["result"].HasMember("id")) {
+			    return std::string(MINESET_API_DATASET) + std::to_string(json["result"]["id"].GetUint());
 			}
 		}
 		else if (json.HasMember("result")) {
@@ -174,11 +172,9 @@ static std::string schema(const Inendi::PVView& view)
 		else if (axis_type == "integer") {
 			column_type = "int";
 		}
-		else if (axis_type == "float") {
-			column_type = "double";
-		}
 		else {
-			assert(false && "Unkown axis type");
+			assert(axis_type == "float" && "Unkown axis type");
+			column_type = "double";
 		}
 
 		val.SetString(column_type.c_str(), alloc);
