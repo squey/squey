@@ -22,6 +22,12 @@
 #include <inendi/PVPlotted.h>
 #include <inendi/PVPlotting.h>
 
+#ifdef WITH_MINESET
+#include <inendi/PVMineset.h>
+#endif
+
+#include <future>
+
 #include <tbb/tick_count.h>
 
 /******************************************************************************
@@ -141,6 +147,14 @@ void Inendi::PVView::set_fake_axes_comb(PVCol const ncols)
 Inendi::PVView::~PVView()
 {
 	PVLOG_DEBUG("In PVView destructor: 0x%x\n", this);
+
+#ifdef WITH_MINESET
+	for (const std::string& mineset_dataset : _mineset_datasets) {
+		std::thread req(Inendi::PVMineset::delete_dataset, mineset_dataset);
+		req.detach();
+	}
+#endif
+
 	PVRoot* root = get_parent<PVRoot>();
 	if (root) {
 		root->view_being_deleted(this);

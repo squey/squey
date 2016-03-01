@@ -53,6 +53,15 @@ if (NOT DEFINED USE_LTO)
 endif()
 
 ###############################################################################
+# Defined Mineset coupling availability
+###############################################################################
+
+OPTION(MINESET "Enable Mineset selection export" OFF)
+if(MINESET)
+	add_definitions(-DWITH_MINESET)
+endif()
+
+###############################################################################
 # Defined test information (long/short, test file folder)
 ###############################################################################
 

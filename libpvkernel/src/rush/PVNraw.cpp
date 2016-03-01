@@ -303,4 +303,6 @@ void PVRush::PVNraw::export_lines(
 		stream << content;
 		current_thread++; // The next thread can do it.
 	}
+
+	std::flush(stream); // explicitely flush the stream
 }

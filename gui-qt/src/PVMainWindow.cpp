@@ -174,6 +174,10 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	css_file.close();
 	setStyleSheet(css_string);
 
+#ifdef WITH_MINESET
+	connect(this, &PVInspector::PVMainWindow::mineset_error, this, &PVInspector::PVMainWindow::mineset_error_slot);
+#endif
+
 	showMaximized();
 }
 
