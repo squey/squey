@@ -163,10 +163,12 @@ public slots:
 	void export_file_Slot();
 	void export_selection_Slot();
 
+#ifdef WITH_MINESET
 	/**
 	 * Export selection and import it on mineset using there REST API.
 	 */
 	void export_selection_to_mineset_Slot();
+#endif
 
 	void extractor_file_Slot();
 	void filter_select_all_Slot();
@@ -229,10 +231,12 @@ public slots:
 	void layer_copy_ls_details_to_clipboard_Slot();
 	void layer_reset_color_Slot();
 
+#ifdef WITH_MINESET
 	/**
 	 * Show error message for mineset export.
 	 */
 	void mineset_error_slot(QString error_msg);
+#endif
 
 protected:
 	void closeEvent(QCloseEvent* event);
@@ -317,7 +321,9 @@ private:
 	QAction *solution_saveas_Action;
 	QAction *export_file_Action;
 	QAction *export_selection_Action;
+#ifdef WITH_MINESET
 	QAction *export_selection_to_mineset_Action; //!< Menu to trigger mineset export
+#endif
 	QAction *extractor_file_Action;
 	QAction *new_file_Action;
 	QAction *new_scene_Action;
@@ -387,10 +393,12 @@ signals:
 	void selection_changed_Signal();
 	void zombie_mode_changed_Signal();
 
+#ifdef WITH_MINESET
 	/**
 	 * Signal to show a mineset error from a thread.
 	 */
 	void mineset_error(QString error_msg);
+#endif
 
 private:
 	QString _cur_project_file;

@@ -19,7 +19,10 @@
 #include <inendi/PVAxisComputation.h>
 #include <inendi/PVPlotting.h>
 #include <inendi/PVMapping.h>
+
+#ifdef WITH_MINESET
 #include <inendi/PVMineset.h>
+#endif
 
 #include <inendi/widgets/editors/PVAxisIndexEditor.h>
 
@@ -346,6 +349,7 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 	PVGuiQt::PVExportSelectionDlg::export_selection(*view, sel);
 }
 
+#ifdef WITH_MINESET
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::export_selection_to_mineset_Slot
@@ -384,6 +388,7 @@ void PVInspector::PVMainWindow::mineset_error_slot(QString error_msg)
 		QMessageBox::Ok
 	);
 }
+#endif
 
 /******************************************************************************
  *

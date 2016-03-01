@@ -54,7 +54,6 @@ PVSortingFunc.cpp
 PVSource.cpp
 PVStateMachine.cpp
 PVView.cpp
-PVMineset.cpp
 
 plugins.cpp
 #square-area.cpp
@@ -62,6 +61,10 @@ type-discovery.cpp
 update-protocol.cpp 
 #z-level-array.cpp
 )
+
+if (MINESET)
+set(SRC_FILES ${SRC_FILES} PVMineset.cpp)
+endif()
 
 set(WIDGETS_MOC_HEADERS
 include/inendi/widgets/PVMappingModeWidget.h
