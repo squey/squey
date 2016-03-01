@@ -192,6 +192,91 @@ static std::string schema(const Inendi::PVView& view)
 	return strbuf.GetString();
 }
 
+/**
+ * Compress data in tmp_dir and return zip file path.
+ */
+static std::string compress_data(std::string const& tmp_dir)
+{
+    // Compress dataset
+    std::string dataset_zip_path = tmp_dir + "/" + DATASET_NAME + ".tar.gz";
+
+    int ret_code = system((std::string("tar -c -I pigz -f ") + dataset_zip_path + " -C " + tmp_dir + " " + DATASET_NAME).c_str());
+    if (ret_code != 0) { // no pigz support ? falling back on standard gzip compression...
+	pvlogger::warn() << "Mineset export : error when compressing. Is pigz installed ? Retrying with standard gzip..." << std::endl;
+	if (system((std::string("tar zcf ") + dataset_zip_path + " -C " + tmp_dir + " " + DATASET_NAME).c_str()) != 0) {
+	    throw Inendi::PVMineset::mineset_error("Error when compressing dataset");
+	}
+    }
+    return dataset_zip_path;
+}
+
+// Use anonymous namespace to keep this class local.
+namespace {
+    /**
+     * RAII class that change NRaw format for times to match mineset format and set back its correct values at the end.
+     */
+    class LocalMinesetFormat
+    {
+	public:
+	    /**
+	     * Update format to match Mineset datetime format.
+	     */
+	    LocalMinesetFormat(Inendi::PVView& view): _view(view)
+	    {
+		PVRush::PVNraw& nraw = view.get_rushnraw_parent();
+
+		for(const Inendi::PVAxesCombination::axes_comb_id_t& a: view.get_axes_combination().get_axes_index_list()) {
+		    /**
+		     * Convert time to ISO 8601 standard
+		     */
+		    if (view.get_axes_combination().get_original_axis(a.get_axis()).get_type() == "time") {
+			auto f = nraw.collection().formatter(a.get_axis());
+
+			pvcop::collection::formatter_sp formatter_datetime;
+			if (std::string(f->name()) == "datetime") {
+			    formatter_datetime = std::shared_ptr<pvcop::types::formatter_interface>(
+				    pvcop::types::factory::create("datetime", "%Y-%m-%dT%H:%M:%SZ"));
+			}
+			else if (std::string(f->name()) == "datetime_us") {
+			    formatter_datetime = std::shared_ptr<pvcop::types::formatter_interface>(
+				    pvcop::types::factory::create("datetime_us", "%Y-%m-%dT%H:%M:%S.%FZ"));
+			}
+			else {
+			    assert(std::string(f->name()) == "datetime_ms" && "Unknown datetime formatter");
+			    formatter_datetime = std::shared_ptr<pvcop::types::formatter_interface>(
+				    pvcop::types::factory::create("datetime_ms", "yyyy-MM-dd'T'HH:mm:ss.S'Z'"));
+			}
+
+			_datetime_formatters[a.get_axis()] = f;
+			nraw.collection().set_formatter(a.get_axis(), formatter_datetime);
+		    }
+		}
+
+	    }
+
+	    /**
+	     * Set back NRaw format for time.
+	     */
+	    ~LocalMinesetFormat() {
+		PVRush::PVNraw& nraw = _view.get_rushnraw_parent();
+
+		// Put datetime formatters back
+		for (const auto& datetime_formatter_it : _datetime_formatters) {
+		    nraw.collection().set_formatter(datetime_formatter_it.first, datetime_formatter_it.second);
+		}
+	    }
+
+
+	private:
+	    std::unordered_map<size_t, pvcop::collection::formatter_sp> _datetime_formatters; //!< Updates format.
+	    Inendi::PVView & _view; //!< Changed view.
+
+    };
+}
+
+/**
+ * Import dataset from inspector to Mineset.
+ */
 std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 {
 	const Inendi::PVSelection& sel = view.get_real_output_selection();
@@ -210,79 +295,32 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 	schema_file << schema(view) << std::flush;
 
 	// Export dataset content
-	std::ofstream data_file(dataset_base_path + ".data");
-	PVCore::PVColumnIndexes column_indexes;
-	std::unordered_map<size_t, pvcop::collection::formatter_sp> datetime_formatters;
-	for(const Inendi::PVAxesCombination::axes_comb_id_t& a: view.get_axes_combination().get_axes_index_list()) {
-		column_indexes.push_back(a.get_axis());
+	{
 
-		/**
-		 * Convert time to ISO 8601 standard
-		 */
-		if (view.get_axes_combination().get_original_axis(a.get_axis()).get_type() == "time") {
-			auto f = nraw.collection().formatter(a.get_axis());
+	    LocalMinesetFormat lf(view);
 
-			pvcop::collection::formatter_sp formatter_datetime;
-			if (std::string(f->name()) == "datetime") {
-				formatter_datetime = std::shared_ptr<pvcop::types::formatter_interface>(
-					pvcop::types::factory::create("datetime", "%Y-%m-%dT%H:%M:%SZ"));
-			}
-			else if (std::string(f->name()) == "datetime_us") {
-				formatter_datetime = std::shared_ptr<pvcop::types::formatter_interface>(
-					pvcop::types::factory::create("datetime_us", "%Y-%m-%dT%H:%M:%S.%FZ"));
-			}
-			else if (std::string(f->name()) == "datetime_ms") {
-				formatter_datetime = std::shared_ptr<pvcop::types::formatter_interface>(
-				    pvcop::types::factory::create("datetime_ms", "yyyy-MM-dd'T'HH:mm:ss.S'Z'"));
-			}
-			else {
-				assert(false && "Unknown datetime formatter");
-			}
+	    std::ofstream data_file(dataset_base_path + ".data");
 
-			datetime_formatters[a.get_axis()] = f;
-			nraw.collection().set_formatter(a.get_axis(), formatter_datetime);
-		}
-	}
+	    PVCore::PVColumnIndexes column_indexes;
+	    for(const Inendi::PVAxesCombination::axes_comb_id_t& a: view.get_axes_combination().get_axes_index_list()) {
+		column_indexes.emplace_back(a.get_axis());
+	    }
 
-	PVRow start = 0;
-	PVRow step_count = 10000;
-	PVRow nrows = nraw.get_row_count();
-
-	while (true) {
-		start = sel.find_next_set_bit(start, nrows);
-		if (start == PVROW_INVALID_VALUE) {
-			break;
-		}
-		step_count = std::min(step_count, nrows - start);
-
-		view.get_rushnraw_parent().export_lines(
-				data_file,
-				sel,
-				column_indexes,
-				start,
-				step_count,
-				"\t" /* = default_sep_char */
-			);
-
-		start += step_count;
-	}
-
-	// Put datetime formatters back
-	for (const auto& datetime_formatter_it : datetime_formatters) {
-		nraw.collection().set_formatter(datetime_formatter_it.first, datetime_formatter_it.second);
+	    view.get_rushnraw_parent().export_lines(
+		    data_file,
+		    sel,
+		    column_indexes,
+		    0,
+		    nraw.get_row_count(),
+		    "\t" /* = default_sep_char */
+		    );
 	}
 
 	// Compress dataset
-	int ret_code = system((std::string("tar -c -I pigz -f ") + tmp_dir + "/" + DATASET_NAME + ".tar.gz -C " + tmp_dir + " " + DATASET_NAME).c_str());
-	if (ret_code != 0) { // no pigz support ? falling back on standard gzip compression...
-		pvlogger::warn() << "Mineset export : error when compressing. Is pigz installed ? Retrying with standard gzip..." << std::endl;
-		if (system((std::string("tar zcf ") + tmp_dir + "/" + DATASET_NAME + ".tar.gz -C " + tmp_dir + " " + DATASET_NAME).c_str()) != 0) {
-			throw Inendi::PVMineset::mineset_error("Error when compressing dataset");
-		}
-	}
+	std::string dataset_zip_path = compress_data(tmp_dir);
 
 	// Upload compressed dataset
-	std::string server_result = upload_dataset(std::string(tmp_dir) + "/" + DATASET_NAME + ".tar.gz");
+	std::string server_result = upload_dataset(dataset_zip_path);
 	std::string url = dataset_url(server_result);
 
 	// Cleanup temporary directory
