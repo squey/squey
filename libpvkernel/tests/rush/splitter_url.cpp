@@ -35,10 +35,6 @@ int main(int argc, char** argv)
 
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("url");
-	if (!sp_lib_p) {
-		cerr << "Unable to load splitter URL" << endl;
-		return 1;
-	}
 
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());

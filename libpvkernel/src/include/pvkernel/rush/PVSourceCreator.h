@@ -37,7 +37,6 @@ public:
 	{
 		QString name = supported_type();
 		PVInputType_p type_lib = LIB_CLASS(PVInputType)::get().get_class_by_name(name);
-		assert(type_lib);
 		return type_lib->clone<PVInputType>();
 	}
 	virtual QString name() const = 0;

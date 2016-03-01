@@ -142,8 +142,8 @@ public:
 	/**
 	 * Export the PVNraw with initial ordering.
 	 */
-	void dump_csv(std::ostream &os=std::cout);
-	void dump_csv(const std::string& file_path);
+	void dump_csv(std::ostream &os=std::cout) const;
+	void dump_csv(const std::string& file_path) const;
 
 	/**
 	 * Accessors

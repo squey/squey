@@ -78,23 +78,13 @@ void Inendi::PVPlottingProperties::set_mode(QString const& mode)
 	if (_is_uptodate) {
 		_is_uptodate = (_mode == mode);
 	}
+
 	_mode = mode;
 	PVPlottingFilter::p_type lib_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(get_type() + "_" + mode);
-	if (!lib_filter) {
-		PVLOG_WARN("Plotting mode '%s' for type '%s' does not exist ! Falling back to default mode...\n", qPrintable(mode), qPrintable(get_type()));
-		_mode = "default";
-		_is_uptodate = false;
-		lib_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(get_type() + "_" + _mode);
-		if (!lib_filter) {
-			PVLOG_ERROR("Plotting mode '%s' for type '%s' does not exist ! Falling back to default..\n", qPrintable(mode), qPrintable(get_type()));
-			lib_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(get_type() + "_default");
-		}
-		_plotting_filter = lib_filter->clone<PVPlottingFilter>();
-	}
-	else {
-		_plotting_filter = lib_filter->clone<PVPlottingFilter>();
-		set_args(_args);
-	}
+
+	_plotting_filter = lib_filter->clone<PVPlottingFilter>();
+	set_args(_args);
+
 	_type = get_type();
 }
 

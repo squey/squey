@@ -35,10 +35,6 @@ int main(int argc, char** argv)
 
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("duplicate");
-	if (!sp_lib_p) {
-		cerr << "Unable to load splitter duplicate" << endl;
-		return 1;
-	}
 
 	PVCore::PVArgumentList args = sp_lib_p->get_args();
 	args["n"] = 7;

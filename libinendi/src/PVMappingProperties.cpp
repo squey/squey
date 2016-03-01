@@ -76,21 +76,9 @@ void Inendi::PVMappingProperties::set_mode(QString const& mode)
 	_is_uptodate = false;
 	_mode = mode;
 	PVMappingFilter::p_type lib_filter = LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(_type + "_" + mode);
-	if (!lib_filter) {
-		PVLOG_WARN("Mapping '%s' for type '%s' does not exist ! Falling back to default mode...\n", qPrintable(mode), qPrintable(_type));
-		_mode = "default";
-		_is_uptodate = false;
-		lib_filter = LIB_CLASS(PVMappingFilter)::get().get_class_by_name(get_type() + "_" + _mode);
-		if (!lib_filter) {
-			PVLOG_ERROR("Mapping mode '%s' for type '%s' does not exist ! Fallibg back to string_default..\n", qPrintable(mode), qPrintable(get_type()));
-			lib_filter = LIB_CLASS(PVMappingFilter)::get().get_class_by_name("string_default");
-		}
-		_mapping_filter = lib_filter->clone<PVMappingFilter>();
-	}
-	else {
-		_mapping_filter = lib_filter->clone<PVMappingFilter>();
-		set_args(_args);
-	}
+
+	_mapping_filter = lib_filter->clone<PVMappingFilter>();
+	set_args(_args);
 }
 
 bool Inendi::PVMappingProperties::operator==(const PVMappingProperties& org)

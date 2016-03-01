@@ -37,10 +37,6 @@ int main(int argc, char** argv)
 
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_class_by_name("regexp");
-	if (!sp_lib_p) {
-		cerr << "Unable to load filter regexp" << endl;
-		return 1;
-	}
 
 	PVCore::PVArgumentList args;
 	args["regexp"] = PVCore::PVArgument(QString(argv[3]));

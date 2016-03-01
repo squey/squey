@@ -35,10 +35,6 @@ int main(int argc, char** argv)
 
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
-	if (!sp_lib_p) {
-		cerr << "Unable to load splitter regexp" << endl;
-		return 1;
-	}
 
 	PVCore::PVArgumentList args;
 	args["regexp"] = PVCore::PVArgument(QString(argv[3]));

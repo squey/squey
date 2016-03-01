@@ -136,21 +136,25 @@ QHash<int, QStringList> const& PVRush::PVXmlParamParser::getTimeFormat() const
 PVRush::PVAxisFormat::node_args_t PVRush::PVXmlParamParser::getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode)
 {
 	PVAxisFormat::node_args_t args;
-	QDomNodeList list = elt.elementsByTagName(tag);
-	if (list.size() < 1) {
-		return args;
+	// Get the first mapping/plotting elements (ignore other if there are multiples)
+	QDomElement node = elt.firstChildElement(tag);
+	if(node.isNull()) {
+		// No mapping or plotting, use default mapping/plotting
+		mode = PVFORMAT_MAP_PLOT_MODE_DEFAULT;
+		return {};
 	}
 	
-	QDomElement node = list.at(0).toElement();
+	// Save every attributes
 	QDomNamedNodeMap attrs = node.attributes();
 	for (int i = 0; i < attrs.size(); i++) {
 		QDomAttr a = attrs.item(i).toAttr();
 		args[a.name()] = a.value();
 	}
+
+	// Define mode.
 	if (args.contains(PVFORMAT_MAP_PLOT_MODE_STR)) {
 		mode = args.take(PVFORMAT_MAP_PLOT_MODE_STR);
-	}
-	else {
+	} else {
 		mode = PVFORMAT_MAP_PLOT_MODE_DEFAULT;
 	}
 

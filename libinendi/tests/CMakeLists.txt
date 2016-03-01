@@ -26,6 +26,9 @@ add_pv_compile_test(Tinendi_multiple_search LINKS ${LINK_LIBRARIES} FILES multip
 add_test(Tinendi_multiple_search Tinendi_multiple_search)
 add_bench(Tinendi_multiple_search LINKS ${LINK_LIBRARIES} FILES multiple_search.cpp)
 
+add_pv_compile_test(Tinendi_format LINKS ${LINK_LIBRARIES} FILES format.cpp)
+add_test(Tinendi_format Tinendi_format)
+
 add_pv_compile_test(Tinendi_source_serialize LINKS ${LINK_LIBRARIES} FILES source-serialize.cpp)
 add_pv_compile_test(Tinendi_root_serialize LINKS ${LINK_LIBRARIES} FILES root-serialize.cpp)
 add_pv_compile_test(Tinendi_sizes LINKS ${LINK_LIBRARIES} FILES sizes.cpp)
