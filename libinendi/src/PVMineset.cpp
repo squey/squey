@@ -20,15 +20,10 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
-#include <curl/curl.h>
-
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
-#define MINESET_HOST                                "horus1.sgi.com" // "beta.mineset.com" confuses cURL...
-constexpr const char MINESET_API_UPLOAD_DATASET[] = "https://" MINESET_HOST "/develop/api/datasets/upload-and-create";
-constexpr const char MINESET_API_DATASET[]        = "https://" MINESET_HOST "/develop/dataset?id=";
 constexpr const char DATASET_NAME[]               = "inendi_export";
 
 static size_t write_callback(void* contents, size_t size, size_t nmemb, void* userp)
@@ -41,24 +36,13 @@ static size_t write_callback(void* contents, size_t size, size_t nmemb, void* us
 /**
  * Initializes the server communication with the proper parameters
  */
-static CURL* init_curl()
+CURL* Inendi::PVMineset::init_curl()
 {
 	CURL* curl = curl_easy_init();
 
-	/**
-	 * config.ini :
-	 *
-	 * [mineset]
-	 * login=
-	 * password=
-	 */
-	const QSettings& pvconfig = PVCore::PVConfig::get().config();
-	std::string login = pvconfig.value("mineset/login").toString().toStdString();
-	std::string password = pvconfig.value("mineset/password").toString().toStdString();
-
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-	curl_easy_setopt(curl, CURLOPT_USERPWD, (login + ":" + password).c_str());
+	curl_easy_setopt(curl, CURLOPT_USERPWD, (_login + ":" + _password).c_str());
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, (std::string("INENDI Inspector ") + INENDI_CURRENT_VERSION_STR).c_str());
 	curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
@@ -73,11 +57,12 @@ static CURL* init_curl()
 /**
  * Upload a compressed dataset to Mineset
  */
-static std::string upload_dataset(const std::string& dataset_path)
+std::string Inendi::PVMineset::upload_dataset(const std::string& dataset_path)
 {
 	CURL* curl = init_curl();
 
-	curl_easy_setopt(curl, CURLOPT_URL, MINESET_API_UPLOAD_DATASET);
+	const std::string MINESET_API_UPLOAD_DATASET = "https://" + _host + "/develop/api/datasets/upload-and-create";
+	curl_easy_setopt(curl, CURLOPT_URL, MINESET_API_UPLOAD_DATASET.c_str());
 
 	struct curl_httppost* post = nullptr;
 	struct curl_httppost* last = nullptr;
@@ -111,18 +96,17 @@ static std::string upload_dataset(const std::string& dataset_path)
 	return server_result;
 }
 
-/**
- * Extract the dataset URL from the JSON string returned by the server on a dataset upload
- */
-static std::string dataset_url(const std::string& server_result)
+std::string Inendi::PVMineset::dataset_url(const std::string& server_result)
 {
 	rapidjson::Document json;
 	json.Parse<0>(server_result.c_str());
 
+	std::string const MINESET_API_DATASET = "https://" + _host + "/develop/dataset?id=";
+
 	if (json.HasMember("message")) {
 		if (std::string(json["message"].GetString()) == "Ok") {
 			if (json.HasMember("result") and json["result"].HasMember("id")) {
-			    return std::string(MINESET_API_DATASET) + std::to_string(json["result"]["id"].GetUint());
+			    return MINESET_API_DATASET + std::to_string(json["result"]["id"].GetUint());
 			}
 		}
 		else if (json.HasMember("result")) {
@@ -275,6 +259,21 @@ namespace {
 }
 
 /**
+ * config.ini :
+ *
+ * [mineset]
+ * login=
+ * password=
+ * host = 
+ */
+Inendi::PVMineset::PVMineset():
+    _login(PVCore::PVConfig::get().config().value("mineset/login").toString().toStdString()),
+    _password(PVCore::PVConfig::get().config().value("mineset/password").toString().toStdString()),
+    _host(PVCore::PVConfig::get().config().value("mineset/host").toString().toStdString())
+{
+}
+
+/**
  * Import dataset from inspector to Mineset.
  */
 std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
@@ -320,8 +319,8 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 	std::string dataset_zip_path = compress_data(tmp_dir);
 
 	// Upload compressed dataset
-	std::string server_result = upload_dataset(dataset_zip_path);
-	std::string url = dataset_url(server_result);
+	std::string server_result = instance().upload_dataset(dataset_zip_path);
+	std::string url = instance().dataset_url(server_result);
 
 	// Cleanup temporary directory
 	PVCore::PVDirectory::remove_rec(tmp_dir);
@@ -331,7 +330,7 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 
 void Inendi::PVMineset::delete_dataset(const std::string& dataset_url)
 {
-	CURL* curl = init_curl();
+	CURL* curl = instance().init_curl();
 
 	curl_easy_setopt(curl, CURLOPT_URL, dataset_url.c_str());
 	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
@@ -343,4 +342,10 @@ void Inendi::PVMineset::delete_dataset(const std::string& dataset_url)
 	}
 
 	curl_easy_cleanup(curl);
+}
+
+Inendi::PVMineset& Inendi::PVMineset::instance()
+{
+    static Inendi::PVMineset sing;
+    return sing;
 }
