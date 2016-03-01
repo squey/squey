@@ -263,9 +263,12 @@ public:
 	 */
 	void finish_process_from_rush_pipeline();
 
+	/**
+	 * Save added dataset to mineset to remove them at the end of the inspection.
+	 */
 	void add_mineset_dataset(const std::string& dataset_url)
 	{
-		_mineset_datasets.push_back(dataset_url);
+		_mineset_datasets.emplace_back(dataset_url);
 	}
 
 /******************************************************************************
@@ -420,7 +423,7 @@ protected:
 	QColor _color;
 
 	pvcop::db::collection* _collection;
-	std::vector<std::string> _mineset_datasets;
+	std::vector<std::string> _mineset_datasets; //!< Names of the exported dataset.
 };
 
 typedef PVView::p_type PVView_p;
