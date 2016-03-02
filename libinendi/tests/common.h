@@ -47,8 +47,11 @@ namespace pvtest {
         public:
         /**
          * Initialize Inspector internal until a view is correctly build and return this view.
+         *
+         * dup is the number of time we want to duplicate data.
          */
-        TestEnv(std::string const& log_file, std::string const& format_file)
+        TestEnv(std::string const& log_file, std::string const& format_file, size_t dup=1):
+                _big_file_path(get_tmp_filename())
         {
             // Need this core application to find plugins path.
             std::string prog_name = "test_inendi";
@@ -65,8 +68,19 @@ namespace pvtest {
             // Initialize sse4 detection
             PVCore::PVIntrinsics::init_cpuid();
 
+            {
+                std::ifstream ifs(log_file);
+                std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
+
+                std::ofstream big_file(_big_file_path);
+                // Duplicate file to have one millions lines
+                for(size_t i=0; i<dup; i++) {
+                    big_file << content;
+                }
+            }
+
             //Input file
-            QString path_file = QString::fromStdString(log_file);
+            QString path_file = QString::fromStdString(_big_file_path);
             PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 
             // Load the given format file
@@ -84,23 +98,38 @@ namespace pvtest {
 
             // Create the PVSource object
             Inendi::PVScene_p scene(root, "scene");
-            Inendi::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
+            src = Inendi::PVSource_p(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
             PVRush::PVControllerJob_p job = src->extract();
             job->wait_end();
-
-            // Map the nraw
-            Inendi::PVMapped_p mapped(src);
-            mapped->process_from_parent_source();
-
-            // And plot the mapped values
-            Inendi::PVPlotted_p plotted(mapped);
-            plotted->process_from_parent_mapped();
-
-            view = src->current_view();
         }
 
+        /**
+         * Compute mapping assuming PVSource is valid.
+         */
+        Inendi::PVMapped_p compute_mapping()
+        {
+                mapped = Inendi::PVMapped_p(src);
+                mapped->process_from_parent_source();
+                return mapped;
+        }
+
+        /**
+         * Compute plotting assuming PVMapped is valid.
+         */
+        Inendi::PVPlotted_p compute_plotting()
+        {
+                // And plot the mapped values
+                Inendi::PVPlotted_p plotted(mapped);
+                plotted->process_from_parent_mapped();
+                return plotted;
+        }
+
+        Inendi::PVMapped_p mapped;
+        Inendi::PVSource_p src;
         Inendi::PVRoot_p root;
-        Inendi::PVView* view;
+
+    private:
+        std::string _big_file_path;
     };
 
 }

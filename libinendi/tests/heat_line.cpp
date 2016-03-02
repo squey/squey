@@ -74,7 +74,8 @@ int main()
     pvtest::TestEnv env(filename, fileformat);
 #endif
 
-    Inendi::PVView* view = env.view;
+    env.compute_mapping();
+    Inendi::PVView* view = env.compute_plotting()->current_view();
 
     // Load every layer filter.
     Inendi::common::load_layer_filters();
