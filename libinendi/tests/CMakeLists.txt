@@ -48,6 +48,10 @@ add_pv_compile_test(Tmapping_enum_default LINKS ${LINK_LIBRARIES} FILES mapping_
 add_test(Tmapping_enum_default Tmapping_enum_default)
 add_bench(Tmapping_enum_default LINKS ${LINK_LIBRARIES} FILES mapping_enum_default.cpp)
 
+add_pv_compile_test(Tmapping_float_default LINKS ${LINK_LIBRARIES} FILES mapping_float_default.cpp)
+add_test(Tmapping_float_default Tmapping_float_default)
+add_bench(Tmapping_float_default LINKS ${LINK_LIBRARIES} FILES mapping_float_default.cpp)
+
 add_pv_compile_test(Tinendi_root LINKS ${LINK_LIBRARIES} FILES root.cpp)
 add_test(Tinendi_root Tinendi_root)
 
