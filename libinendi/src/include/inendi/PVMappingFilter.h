@@ -63,7 +63,7 @@ public:
 	static QStringList list_modes(QString const& type);
 
 protected:
-	virtual Inendi::PVMappingFilter::decimal_storage_type process_cell(const char* buf, size_t size) = 0;
+	virtual Inendi::PVMappingFilter::decimal_storage_type process_cell(const char*, size_t) { assert(false); return {}; };
 
 protected:
 	PVRow _dest_size;

@@ -169,6 +169,7 @@ void Inendi::PVMapped::compute_unique_values()
 	PVLOG_INFO("(PVMapped::compute_unique_values) Computing mapped columns entropy took %0.4f seconds.\n", (t_end-t_start).seconds());
 }
 
+// TODO : This is almost the same as compute()
 /******************************************************************************
  *
  * Inendi::PVMapped::create_table
