@@ -151,24 +151,6 @@ void Inendi::PVScene::child_added(PVSource& /*src*/)
 	get_parent<PVRoot>()->set_views_id();
 }
 
-void Inendi::PVScene::child_about_to_be_removed(PVSource&)
-{
-#if 0
-	// Remove this source's inputs if they are no longer used by other sources
-	PVRush::PVInputType::list_inputs>& type_srcs = _sources[*(src->get_input_type())];
-	list_sources_t& list_srcs(type_srcs.first);
-
-	list_sources_t::iterator it;
-	for (it = list_srcs.begin(); it != list_srcs.end(); it++) {
-		if (it->get() == src) {
-			list_srcs.erase(it);
-			set_views_id();
-			return;
-		}
-	}
-#endif
-}
-
 QList<PVRush::PVInputType_p> Inendi::PVScene::get_all_input_types() const
 {
 	QList<PVRush::PVInputType_p> ret;

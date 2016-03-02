@@ -183,9 +183,7 @@ public:
 		PVCore::PVSharedPtr<child_t> pchild;
 		for (int i = 0; i < _children.size(); i++) {
 			if (&child == _children[i].get()) {
-				//child_about_to_be_removed(child);
 				pchild = _children[i];
-				child_about_to_be_removed(*pchild);
 				_children.erase(_children.begin()+i);
 				//pchild->_parent = nullptr;
 				break;
@@ -223,10 +221,6 @@ public:
 
 	void remove_all_children()
 	{
-		for (int i = 0; i < _children.size(); i++) {
-			PVCore::PVSharedPtr<child_t> const& pchild = _children[i];
-			child_about_to_be_removed(*pchild);
-		}
 		_children.clear();
 	}
 
@@ -300,7 +294,6 @@ protected:
 protected:
 	// Events
 	virtual void child_added(child_t& /*child*/) { }
-	virtual void child_about_to_be_removed(child_t& /*child*/) { }
 
 private:
 	/*! \brief Implementation of the PVDataTreeObject::get_children() method.
