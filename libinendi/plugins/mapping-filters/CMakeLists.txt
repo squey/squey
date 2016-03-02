@@ -214,30 +214,6 @@ add_library(mapping_filter_mandatory_minmax SHARED ${SRC_MINMAX})
 target_link_libraries(mapping_filter_mandatory_minmax ${LINK_LIBRARIES})
 
 ###############################################################################
-# Date month mapping filters
-###############################################################################
-#Define ressources
-SET(SRC_DATEMONTH
-date/month/PVMappingFilterDateMonth.cpp
-date/month/register.cpp date/PVMappingFilterDateBase.cpp)
-
-#Create lib
-add_library(mapping_filter_date_month SHARED ${SRC_DATEMONTH})
-target_link_libraries(mapping_filter_date_month ${LINK_LIBRARIES} ${ICU_LIBRARY})
-
-###############################################################################
-# Date day mapping filters
-###############################################################################
-#Define ressources
-SET(SRC_DATEDAY
-date/day/PVMappingFilterDateDay.cpp
-date/day/register.cpp date/PVMappingFilterDateBase.cpp)
-
-#Create lib
-add_library(mapping_filter_date_day SHARED ${SRC_DATEDAY})
-target_link_libraries(mapping_filter_date_day ${LINK_LIBRARIES} ${ICU_LIBRARY})
-
-###############################################################################
 # Define install directory
 ###############################################################################
 
