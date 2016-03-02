@@ -155,7 +155,7 @@ private:
 	 *
 	 * It shows progress box and ask the model to be sorted.
 	 *
-	 * @param[in] col : Column to use for sort
+	 * @param[in] col : Column to use for sort. It is column without axis combination.
 	 * @param[in] order : Order to use for sort
 	 */
 	void sort(int col, Qt::SortOrder order);

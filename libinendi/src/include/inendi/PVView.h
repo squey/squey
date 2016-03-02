@@ -351,14 +351,13 @@ public:
 	inline PVCore::PVArgumentList& get_last_args_filter(QString const& name) { return filters_args[name]; }
 
 
-	// Sorting functions
+	/**
+	 * Sorting functions
+	 *
+	 * It sorts idxes based on "col" values.
+	 * "col" is the column id without axis combination modification.
+	 */
 	void sort_indexes(PVCol col, pvcop::db::indexes& idxes, tbb::task_group_context* ctxt = NULL) const;
-
-	// Helper functions for sorting
-	inline void sort_indexes_with_axes_combination(PVCol column, pvcop::db::indexes& idxes, tbb::task_group_context* ctxt = NULL) const
-	{
-		sort_indexes(axes_combination.get_axis_column_index(column), idxes, ctxt);
-	}
 
 	std::weak_ptr<PVCore::PVSerializeObject> get_last_so() const { return _last_so; }
 	void set_last_so(PVCore::PVSerializeObject_p const& so) { _last_so = std::weak_ptr<PVCore::PVSerializeObject>(so); }
