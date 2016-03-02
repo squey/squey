@@ -10,9 +10,6 @@
 #include <pvkernel/core/PVPython.h>
 #include <pvkernel/core/PVPythonClassDecl.h>
 
-boost::mutex PVCore::PVPythonInitializer::_python_init;
-PVCore::PVPythonInitializer* PVCore::PVPythonInitializer::g_python = NULL;
-
 PVCore::PVPythonInitializer::PVPythonInitializer()
 {
 	// Do not let python catch the signals !
@@ -22,9 +19,8 @@ PVCore::PVPythonInitializer::PVPythonInitializer()
 	python_main_namespace = boost::python::extract<boost::python::dict>(python_main.attr("__dict__"));
 
 	// Expose "exposable" class to Python
-	std::list<PVPythonClassDecl*>::iterator it;
-	for (it = get_class_list().begin(); it != get_class_list().end(); it++) {
-		(*it)->declare();
+	for (auto const& decl : get_class_list()) {
+		decl->declare();
 	}
 
 	mainThreadState = PyEval_SaveThread();
@@ -35,21 +31,12 @@ PVCore::PVPythonInitializer::~PVPythonInitializer()
 {
 	PyEval_RestoreThread(mainThreadState);
 	Py_Finalize();
-
-	std::list<PVPythonClassDecl*>::iterator it;
-	for (it = get_class_list().begin(); it != get_class_list().end(); it++) {
-		delete (*it);
-	}
 }
 
 PVCore::PVPythonInitializer& PVCore::PVPythonInitializer::get()
 {
-	boost::mutex::scoped_lock lock(_python_init);
-	if (g_python == NULL) {
-		g_python = new PVCore::PVPythonInitializer();
-	}
-
-	return *g_python;
+	static PVCore::PVPythonInitializer g_python;
+	return g_python;
 }
 
 QString PVCore::PVPython::get_list_index_as_qstring(boost::python::list pylist, int index)
@@ -66,15 +53,15 @@ QString PVCore::PVPython::get_list_index_as_qstring(boost::python::list pylist, 
 	return value;
 }
 
-std::list<PVCore::PVPythonClassDecl*>& PVCore::PVPythonInitializer::get_class_list()
+std::list<std::unique_ptr<PVCore::PVPythonClassDecl>>& PVCore::PVPythonInitializer::get_class_list()
 {
-	static std::list<PVCore::PVPythonClassDecl*> list;
+	static std::list<std::unique_ptr<PVCore::PVPythonClassDecl>> list;
 	return list;
 }
 
 void PVCore::PVPythonInitializer::register_class(PVPythonClassDecl const& c)
 {
-	get_class_list().push_back(c.clone());
+	get_class_list().emplace_back(c.clone());
 }
 
 PVCore::PVPythonClassRegister::PVPythonClassRegister(PVPythonClassDecl const& c)
