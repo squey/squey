@@ -14,7 +14,6 @@
 
 set(FILTERS_DIST_LIST
 mapping_filter_float_default
-mapping_filter_float_fraction
 mapping_filter_integer_default
 mapping_filter_integer_hex
 mapping_filter_integer_oct
@@ -44,18 +43,6 @@ float_default/register.cpp)
 #Create lib
 add_library(mapping_filter_float_default SHARED ${SRC_FLOAT})
 target_link_libraries(mapping_filter_float_default ${LINK_LIBRARIES})
-
-###############################################################################
-# Float fraction mapping filters
-###############################################################################
-#Define ressources
-SET(SRC_FRACTION
-float_fraction/PVMappingFilterFloatFraction.cpp
-float_fraction/register.cpp)
-
-#Create lib
-add_library(mapping_filter_float_fraction SHARED ${SRC_FRACTION})
-target_link_libraries(mapping_filter_float_fraction ${LINK_LIBRARIES})
 
 ###############################################################################
 # Integer mapping filters
