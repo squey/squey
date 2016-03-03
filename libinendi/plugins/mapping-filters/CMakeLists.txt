@@ -15,8 +15,7 @@
 set(FILTERS_DIST_LIST
 mapping_filter_float_default
 mapping_filter_integer_default
-mapping_filter_integer_hex
-mapping_filter_integer_oct
+mapping_filter_integer_unsigned
 mapping_filter_ipv4_default
 mapping_filter_ipv4_uniform
 mapping_filter_enum_default
@@ -45,7 +44,7 @@ add_library(mapping_filter_float_default SHARED ${SRC_FLOAT})
 target_link_libraries(mapping_filter_float_default ${LINK_LIBRARIES})
 
 ###############################################################################
-# Integer mapping filters
+# Signed Integer mapping filters
 ###############################################################################
 #Define ressources
 SET(SRC_INTEGER
@@ -57,28 +56,16 @@ add_library(mapping_filter_integer_default SHARED ${SRC_INTEGER})
 target_link_libraries(mapping_filter_integer_default ${LINK_LIBRARIES})
 
 ###############################################################################
-# Hexadecimal mapping filters
+# Unsigned Integer mapping filters
 ###############################################################################
 #Define ressources
-SET(SRC_HEXA
-integer_hex/PVMappingFilterIntegerHex.cpp
-integer_hex/register.cpp)
+SET(SRC_INTEGER
+integer_unsigned/PVMappingFilterIntegerUnsigned.cpp
+integer_unsigned/register.cpp)
 
 #Create lib
-add_library(mapping_filter_integer_hex SHARED ${SRC_HEXA})
-target_link_libraries(mapping_filter_integer_hex ${LINK_LIBRARIES})
-
-###############################################################################
-# Octadecimal mapping filters
-###############################################################################
-#Define ressources
-SET(SRC_OCT
-integer_oct/PVMappingFilterIntegerOct.cpp
-integer_oct/register.cpp)
-
-#Create lib
-add_library(mapping_filter_integer_oct SHARED ${SRC_OCT})
-target_link_libraries(mapping_filter_integer_oct ${LINK_LIBRARIES})
+add_library(mapping_filter_integer_unsigned SHARED ${SRC_INTEGER})
+target_link_libraries(mapping_filter_integer_unsigned ${LINK_LIBRARIES})
 
 ###############################################################################
 # IPV4 mapping filters

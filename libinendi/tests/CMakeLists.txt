@@ -56,6 +56,14 @@ add_pv_compile_test(Tmapping_host_default LINKS ${LINK_LIBRARIES} FILES mapping_
 add_test(Tmapping_host_default Tmapping_host_default)
 add_bench(Tmapping_host_default LINKS ${LINK_LIBRARIES} FILES mapping_host_default.cpp)
 
+add_pv_compile_test(Tmapping_integer_default LINKS ${LINK_LIBRARIES} FILES mapping_integer_default.cpp)
+add_test(Tmapping_integer_default Tmapping_integer_default)
+add_bench(Tmapping_integer_default LINKS ${LINK_LIBRARIES} FILES mapping_integer_default.cpp)
+
+add_pv_compile_test(Tmapping_integer_unsigned LINKS ${LINK_LIBRARIES} FILES mapping_integer_unsigned.cpp)
+add_test(Tmapping_integer_unsigned Tmapping_integer_unsigned)
+add_bench(Tmapping_integer_unsigned LINKS ${LINK_LIBRARIES} FILES mapping_integer_unsigned.cpp)
+
 add_pv_compile_test(Tinendi_root LINKS ${LINK_LIBRARIES} FILES root.cpp)
 add_test(Tinendi_root Tinendi_root)
 

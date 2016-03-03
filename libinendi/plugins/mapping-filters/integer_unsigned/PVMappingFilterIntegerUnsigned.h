@@ -13,15 +13,15 @@
 
 namespace Inendi {
 
-class PVMappingFilterIntegerDefault;
+class PVMappingFilterIntegerUnsigned;
 
 /**
- * Signed integer mapping. It keeps integer values.
+ * Unsigned integer mapping. It keeps integer values.
  */
-class PVMappingFilterIntegerDefault: public PVMappingFilter
+class PVMappingFilterIntegerUnsigned: public PVMappingFilter
 {
 	public:
-		PVMappingFilterIntegerDefault();
+		PVMappingFilterIntegerUnsigned();
 
 		/**
 		 * Copy NRaw values (real integers value) as mapping value.
@@ -31,7 +31,7 @@ class PVMappingFilterIntegerDefault: public PVMappingFilter
 
 			for(size_t row=0; row< array.size(); row++) {
 				Inendi::PVMappingFilter::decimal_storage_type ds;
-				ds.storage_as_int() = array.to_core_array<int32_t>()[row];
+				ds.storage_as_uint() = array.to_core_array<uint32_t>()[row];
 				_dest[row] = ds;
 			}
 
@@ -41,10 +41,10 @@ class PVMappingFilterIntegerDefault: public PVMappingFilter
 		/**
 		 * Metainformation for this plugin.
 		 */
-		QString get_human_name() const override { return QString("Signed decimal"); }
-		PVCore::DecimalType get_decimal_type() const override { return PVCore::IntegerType; }
+		QString get_human_name() const override { return QString("Unsigned decimal"); }
+		PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 
-	CLASS_FILTER_NOPARAM(PVMappingFilterIntegerDefault)
+	CLASS_FILTER_NOPARAM(PVMappingFilterIntegerUnsigned)
 };
 
 }
