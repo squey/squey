@@ -2,48 +2,37 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2010-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #include "PVMappingFilterString4Bsort.h"
-#include <pvkernel/core/PVTBBMaxArray.h>
-#include <pvkernel/core/PVUnicodeString.h>
 
-#include <tbb/parallel_reduce.h>
-
-#include <omp.h>
-
-inline uint32_t compute_str_factor(PVCore::PVUnicodeString const& str)
+/**
+ * Return a values which sort strings based on theirs 4 first chars.
+ *
+ * @warning this is a duplication from host mapping.
+ */
+static uint32_t compute_str_factor(const char* str, size_t len)
 {
-	char b1_c = 0;
-	char b2_c = 0;
-	char b3_c = 0;
-	char b4_c = 0;
-
-	const size_t len = str.len();
-	PVCore::PVUnicodeString::utf_char const* const buf = str.buffer();
-	// TODO: check for UTF8 real chars!
-	if (len >= 1) {
-		b1_c = buf[0];
-		if (len >= 2) {
-			b2_c = buf[1];
-			if (len >= 3) {
-				b3_c = buf[2];
-				if (len >= 4) {
-					b4_c = buf[3];
-				}
-			}
-		}
+	uint32_t res = *reinterpret_cast<const uint32_t*>(str);
+	switch(len) {
+		case 0:
+			return 0;
+		case 1:
+			return res & 0xFF000000;
+		case 2:
+			return res & 0xFFFF0000;
+		case 3:
+			return res & 0xFFFFFF00;
+		default:
+			return res;
 	}
-
-	return ((uint32_t)(b4_c) << 0)  | ((uint32_t)(b3_c) << 8) |
-	       ((uint32_t)(b2_c) << 16) | ((uint32_t)(b1_c) << 24);
 }
 
-Inendi::PVMappingFilter::decimal_storage_type Inendi::string_mapping::process_utf8(const char* buf, size_t size, PVMappingFilter*)
+Inendi::PVMappingFilter::decimal_storage_type Inendi::PVMappingFilterString4Bsort::process_cell(const char* buf, size_t size)
 {
 	Inendi::PVMappingFilter::decimal_storage_type ret_ds;
-	ret_ds.storage_as_uint() = compute_str_factor(PVCore::PVUnicodeString((const PVCore::PVUnicodeString::utf_char*) buf, size));
+	ret_ds.storage_as_uint() = compute_str_factor(buf, size);;
 	return ret_ds;
 }
 
