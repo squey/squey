@@ -120,8 +120,15 @@ find_package(PCAP REQUIRED)
 ###############################################################################
 # Check for Archive library
 ###############################################################################
-
 pkg_check_modules(ARCHIVE REQUIRED libarchive)
+
+###############################################################################
+# Google Breakpad
+###############################################################################
+pkg_check_modules(BREAKPAD REQUIRED breakpad-client)
+
+message(STATUS "Google Breakpad libraries: ${BREAKPAD_LIBRARIES}")
+message(STATUS "Google Breakpad include: ${BREAKPAD_INCLUDE_DIRS}")
 
 ###############################################################################
 # Check for libpcre++
@@ -145,7 +152,6 @@ if(ICU_FOUND)
 	message(STATUS "ICU include: ${ICU_INCLUDE}")
   	message(STATUS "ICU libraries: ${ICU_LIBRARY}")
 endif(ICU_FOUND)
-
 
 ###############################################################################
 # Check for CURL
