@@ -76,6 +76,10 @@ add_pv_compile_test(Tmapping_string_4bsort LINKS ${LINK_LIBRARIES} FILES mapping
 add_test(Tmapping_string_4bsort Tmapping_string_4bsort)
 add_bench(Tmapping_string_4bsort LINKS ${LINK_LIBRARIES} FILES mapping_string_4bsort.cpp)
 
+add_pv_compile_test(Tmapping_string_default LINKS ${LINK_LIBRARIES} FILES mapping_string_default.cpp)
+add_test(Tmapping_string_default Tmapping_string_default)
+add_bench(Tmapping_string_default LINKS ${LINK_LIBRARIES} FILES mapping_string_default.cpp)
+
 add_pv_compile_test(Tinendi_root LINKS ${LINK_LIBRARIES} FILES root.cpp)
 add_test(Tinendi_root Tinendi_root)
 

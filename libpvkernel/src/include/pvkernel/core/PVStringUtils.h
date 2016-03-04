@@ -24,11 +24,6 @@ namespace PVCore {
 class PVStringUtils {
 public:
 
-	static inline uint32_t compute_str_factor16(uint16_t const* str, size_t size, bool case_sensitive = true)
-	{
-		return _compute_str_factor<uint16_t, 9>(str, size, case_sensitive);
-	}
-
 	static inline uint32_t compute_str_factor(PVCore::PVUnicodeString const& str, bool /*case_sensitive*/)
 	{
 		const uint8_t* u8_buf = (const uint8_t*) str.buffer();

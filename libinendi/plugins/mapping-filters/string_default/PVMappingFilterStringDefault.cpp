@@ -6,17 +6,11 @@
  */
 
 #include "PVMappingFilterStringDefault.h"
-#include <pvkernel/core/PVTBBMaxArray.h>
 #include <pvkernel/core/PVStringUtils.h>
-
-#include <tbb/parallel_reduce.h>
-
-#include <omp.h>
-
 
 Inendi::PVMappingFilterStringDefault::PVMappingFilterStringDefault(PVCore::PVArgumentList const& args):
 	PVMappingFilter(),
-	_case_sensitive(true) // This will be changed by set_args anyway
+	_case_sensitive(false)
 {
 	INIT_FILTER(PVMappingFilterStringDefault, args);
 }
@@ -34,17 +28,10 @@ void Inendi::PVMappingFilterStringDefault::set_args(PVCore::PVArgumentList const
 	_case_sensitive = !args.at("convert-lowercase").toBool();
 }
 
-Inendi::PVMappingFilter::decimal_storage_type Inendi::string_mapping::process_utf16(const uint16_t* buf, size_t size, PVMappingFilter* m)
+Inendi::PVMappingFilter::decimal_storage_type Inendi::PVMappingFilterStringDefault::process_cell(const char* buf, size_t size)
 {
 	Inendi::PVMappingFilter::decimal_storage_type ret_ds;
-	ret_ds.storage_as_uint() = (uint32_t) PVCore::PVStringUtils::compute_str_factor16(buf, size, static_cast<PVMappingFilterStringDefault*>(m)->case_sensitive());
-	return ret_ds;
-}
-
-Inendi::PVMappingFilter::decimal_storage_type Inendi::string_mapping::process_utf8(const char* buf, size_t size, PVMappingFilter* m)
-{
-	Inendi::PVMappingFilter::decimal_storage_type ret_ds;
-	ret_ds.storage_as_uint() = (uint32_t) PVCore::PVStringUtils::compute_str_factor(PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size), static_cast<PVMappingFilterStringDefault*>(m)->case_sensitive());
+	ret_ds.storage_as_uint() = PVCore::PVStringUtils::compute_str_factor(PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size), _case_sensitive);
 	return ret_ds;
 }
 
