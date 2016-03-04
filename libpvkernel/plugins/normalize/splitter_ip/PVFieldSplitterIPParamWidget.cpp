@@ -29,7 +29,7 @@ constexpr size_t group_ipv6_count = 8;
 PVFilter::PVFieldSplitterIPParamWidget::PVFieldSplitterIPParamWidget() :
 	PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterIP()))
 {
-	_action_menu = new QAction(QString("add IP Splitter"), NULL);
+	_action_menu = new QAction(QString("add IP Splitter"), this);
 }
 
 /******************************************************************************

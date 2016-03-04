@@ -22,7 +22,7 @@
 PVFilter::PVFieldSplitterDuplicateParamWidget::PVFieldSplitterDuplicateParamWidget() :
 	PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldDuplicate()))
 {
-	_action_menu = new QAction(QString("add Duplicate Splitter"), NULL);
+	_action_menu = new QAction(QString("add Duplicate Splitter"), this);
 }
 
 /******************************************************************************

@@ -64,7 +64,7 @@ public:
 	~PVView();
 
 protected:
-	PVView(const PVView& org);
+	PVView(const PVView& org) = delete;
 
 	// For PVSource
 	void add_column(PVAxis const& axis);

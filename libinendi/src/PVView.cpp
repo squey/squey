@@ -46,30 +46,6 @@ Inendi::PVView::PVView():
 	init_defaults();
 }
 
-/*
-Inendi::PVView::PVView(PVPlotted* parent) :
-	pre_filter_layer("pre_filter_layer"),
-	post_filter_layer("post_filter_layer"),
-	layer_stack_output_layer("view_layer_stack_output_layer"),
-	output_layer("output_layer"),
-	_view_id(-1)
-{
-	set_parent(parent);
-
-	init_defaults();
-	init_from_plotted(parent, false);
-}*/
-
-Inendi::PVView::PVView(const PVView& /*org*/):
-	pre_filter_layer("pre_filter_layer"),
-	post_filter_layer("post_filter_layer"),
-	layer_stack_output_layer("view_layer_stack_output_layer"),
-	output_layer("output_layer"),
-	_view_id(-1)
-{
-	assert(false);
-}
-
 void Inendi::PVView::set_parent_from_ptr(PVPlotted* plotted)
 {
 	data_tree_view_t::set_parent_from_ptr(plotted);

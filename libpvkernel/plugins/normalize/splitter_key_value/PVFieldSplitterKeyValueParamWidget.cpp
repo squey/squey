@@ -28,7 +28,7 @@
 PVFilter::PVFieldSplitterKeyValueParamWidget::PVFieldSplitterKeyValueParamWidget() :
 	PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterKeyValue()))
 {
-	_action_menu = new QAction(QString("add Key Value"), NULL);
+	_action_menu = new QAction(QString("add Key Value"), this);
 }
 
 /******************************************************************************

@@ -100,7 +100,6 @@ protected:
 
 protected:
 	// Events
-	void child_about_to_be_removed(PVSource& src);
 	void child_added(PVSource& src);
 
 protected:
