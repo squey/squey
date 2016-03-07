@@ -46,7 +46,7 @@ public:
 		QString get_titlecolor_str() const { return titlecolor.toQColor().name(); }
 		PVCore::PVColor const& get_titlecolor() const { return titlecolor; }
 		QString get_type() const { return type; }
-		QString get_time_format() const { return time_format; }
+		QString get_str_format() const { return _str_format; }
 		node_args_t const& get_args_mapping_string() const { return args_mapping; }
 		node_args_t const& get_args_plotting_string() const { return args_plotting; }
 		id_t const& get_unique_id() const { return unique_id; }
@@ -77,11 +77,11 @@ public:
 		PVCore::PVColor color; //!< Color for this axis
 		QString name; //!< Name of this axis
 		QString type; //!< Type of this axis
-		QString mapping;
-		QString plotting;
-		QString time_format;
-		node_args_t args_mapping;
-		node_args_t args_plotting;
+		QString mapping; //!< Mapping name for this axis
+		QString plotting; //!< Plotting name for this axis
+		QString _str_format; //!< Parameter of string representation for this axis.
+		node_args_t args_mapping; //!< Arguments to compute Mapping.
+		node_args_t args_plotting; //!< Arguments to compute plotting.
 		PVTags tags;
 		id_t unique_id;
 		bool unique_id_computed;

@@ -39,7 +39,15 @@ void PVRush::PVAxisFormat::set_color(PVCore::PVColor color_)
 
 void PVRush::PVAxisFormat::set_mapping(QString str)
 {
-	mapping = str;
+	if(str == "hexadecimal") {
+		mapping = "unsigned";
+		_str_format = "%x";
+	} else if (str == "octal") {
+		mapping = "unsigned";
+		_str_format = "%o";
+	} else {
+		mapping = str;
+	}
 }
 
 

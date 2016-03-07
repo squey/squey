@@ -301,13 +301,9 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 					formatter = "number_int32";
 				}
 				else {
+					assert(axe_mapping == "unsigned");
 					formatter = "number_uint32";
-					if (axe_mapping == "hexadecimal") {
-						formatter_params = "%x";
-					}
-					else if (axe_mapping == "octal") {
-						formatter_params = "%o";
-					}
+					formatter_params = axe.get_str_format().toStdString();
 				}
 			}
 			else if (axe_type == "float") {
