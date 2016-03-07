@@ -80,6 +80,42 @@ add_pv_compile_test(Tmapping_string_default LINKS ${LINK_LIBRARIES} FILES mappin
 add_test(Tmapping_string_default Tmapping_string_default)
 add_bench(Tmapping_string_default LINKS ${LINK_LIBRARIES} FILES mapping_string_default.cpp)
 
+add_pv_compile_test(Tmapping_time_default LINKS ${LINK_LIBRARIES} FILES mapping_time_default.cpp)
+add_test(Tmapping_time_default Tmapping_time_default)
+add_bench(Tmapping_time_default LINKS ${LINK_LIBRARIES} FILES mapping_time_default.cpp)
+
+add_pv_compile_test(Tmapping_time_ms_default LINKS ${LINK_LIBRARIES} FILES mapping_time_ms_default.cpp)
+add_test(Tmapping_time_ms_default Tmapping_time_ms_default)
+add_bench(Tmapping_time_ms_default LINKS ${LINK_LIBRARIES} FILES mapping_time_ms_default.cpp)
+
+add_pv_compile_test(Tmapping_time_us_default LINKS ${LINK_LIBRARIES} FILES mapping_time_us_default.cpp)
+add_test(Tmapping_time_us_default Tmapping_time_us_default)
+add_bench(Tmapping_time_us_default LINKS ${LINK_LIBRARIES} FILES mapping_time_us_default.cpp)
+
+add_pv_compile_test(Tmapping_time_24h LINKS ${LINK_LIBRARIES} FILES mapping_time_24h.cpp)
+add_test(Tmapping_time_24h Tmapping_time_24h)
+add_bench(Tmapping_time_24h LINKS ${LINK_LIBRARIES} FILES mapping_time_24h.cpp)
+
+add_pv_compile_test(Tmapping_time_ms_24h LINKS ${LINK_LIBRARIES} FILES mapping_time_ms_24h.cpp)
+add_test(Tmapping_time_ms_24h Tmapping_time_ms_24h)
+add_bench(Tmapping_time_ms_24h LINKS ${LINK_LIBRARIES} FILES mapping_time_ms_24h.cpp)
+
+add_pv_compile_test(Tmapping_time_us_24h LINKS ${LINK_LIBRARIES} FILES mapping_time_us_24h.cpp)
+add_test(Tmapping_time_us_24h Tmapping_time_us_24h)
+add_bench(Tmapping_time_us_24h LINKS ${LINK_LIBRARIES} FILES mapping_time_us_24h.cpp)
+
+add_pv_compile_test(Tmapping_time_week LINKS ${LINK_LIBRARIES} FILES mapping_time_week.cpp)
+add_test(Tmapping_time_week Tmapping_time_week)
+add_bench(Tmapping_time_week LINKS ${LINK_LIBRARIES} FILES mapping_time_week.cpp)
+
+add_pv_compile_test(Tmapping_time_ms_week LINKS ${LINK_LIBRARIES} FILES mapping_time_ms_week.cpp)
+add_test(Tmapping_time_ms_week Tmapping_time_ms_week)
+add_bench(Tmapping_time_ms_week LINKS ${LINK_LIBRARIES} FILES mapping_time_ms_week.cpp)
+
+add_pv_compile_test(Tmapping_time_us_week LINKS ${LINK_LIBRARIES} FILES mapping_time_us_week.cpp)
+add_test(Tmapping_time_us_week Tmapping_time_us_week)
+add_bench(Tmapping_time_us_week LINKS ${LINK_LIBRARIES} FILES mapping_time_us_week.cpp)
+
 add_pv_compile_test(Tinendi_root LINKS ${LINK_LIBRARIES} FILES root.cpp)
 add_test(Tinendi_root Tinendi_root)
 
