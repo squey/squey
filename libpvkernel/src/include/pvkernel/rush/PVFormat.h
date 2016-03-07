@@ -118,7 +118,6 @@ public:
 	pvcop::formatter_desc_list get_storage_format() const;
 
 	/* Methods */
-	void clear();
 	void debug();
 	bool populate_from_xml(QString filename, bool forceOneAxis = false);
 	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);

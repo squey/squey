@@ -326,11 +326,6 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 	return formatters;
 }
 
-void PVRush::PVFormat::clear()
-{
-
-}
-
 bool PVRush::PVFormat::populate(bool forceOneAxis)
 {
 	if (!full_path.isEmpty()) {
