@@ -335,7 +335,7 @@ void PVAbstractTableModel::update_pages(size_t nbr_tick, size_t page_step)
     // Filter may be updated before scrollbar
     assert(nbr_tick != 0 && "At least, there is the current page");
     if(_filter.size() > MIN_PAGE_SIZE * SCROLL_SIZE) {
-	if(nbr_tick < SCROLL_SIZE / 2) {
+	if(nbr_tick < SCROLL_SIZE / 2 or nbr_tick > _filter.size()) {
 	    // _filter is updated bu nbr_tick is not. Set a dummy value to
 	    // initiate the fixed point algorithm and get correct page number
 	    _page_size = _filter.size() / SCROLL_SIZE;
