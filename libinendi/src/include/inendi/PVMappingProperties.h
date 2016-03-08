@@ -37,7 +37,6 @@ protected:
 	// For serialization
 	PVMappingProperties() { _index = 0; }
 public:
-	QString get_group_key() const { return _group_key; }
 	void set_type(QString const& type, QString const& mode);
 	void set_mode(QString const& mode);
 	void set_args(PVCore::PVArgumentList const& args);
@@ -62,7 +61,6 @@ private:
 
 private:
 	PVCol _index;
-	QString _group_key;
 	PVMappingFilter::p_type _mapping_filter;
 	PVCore::PVArgumentList _args;
 	QString _type;

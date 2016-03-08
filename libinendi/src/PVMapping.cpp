@@ -102,20 +102,6 @@ PVRush::PVFormat_p Inendi::PVMapping::get_format() const
 	return _mapped->get_parent()->get_rushnraw().get_format();
 }
 
-
-
-/******************************************************************************
- *
- * Inendi::PVMapping::get_group_key_for_col
- *
- *****************************************************************************/
-QString Inendi::PVMapping::get_group_key_for_col(PVCol col) const
-{
-	return columns[col].get_group_key();
-}
-
-
-
 /******************************************************************************
  *
  * Inendi::PVMapping::get_mandatory_params_for_col

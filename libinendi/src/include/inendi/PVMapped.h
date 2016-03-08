@@ -138,9 +138,6 @@ private:
 protected:
 	mapped_table_t _trans_table; //!< This is a vector of vector which contains "for each column" mapping of cell.
 	PVMapping_p _mapping;
-	// This is a hash whose key is "group_type", that contains the PVArgument
-	// passed through all mapping filters that have the same group and type
-	QHash<QString, PVCore::PVArgument> _grp_values_rush;
 	std::vector<size_t> _unique_values_count;
 };
 

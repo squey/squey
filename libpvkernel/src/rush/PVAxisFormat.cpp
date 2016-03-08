@@ -79,11 +79,6 @@ void PVRush::PVAxisFormat::set_type(QString str)
 	type = str;
 }
 
-void PVRush::PVAxisFormat::set_group(QString str)
-{
-	group = str;
-}
-
 void PVRush::PVAxisFormat::compute_unique_id(QVector<uint32_t> const& tree_ids)
 {
 	unique_id.clear();

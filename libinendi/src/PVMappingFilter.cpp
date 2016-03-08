@@ -11,7 +11,6 @@
 Inendi::PVMappingFilter::PVMappingFilter()
 {
 	_dest = NULL;
-	_grp_value = NULL;
 }
 
 void Inendi::PVMappingFilter::init()

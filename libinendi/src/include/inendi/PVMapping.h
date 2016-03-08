@@ -72,7 +72,6 @@ public:
 	PVMappingFilter::p_type get_filter_for_col(PVCol col);
 	QString const& get_type_for_col(PVCol col) const;
 	QString const& get_mode_for_col(PVCol col) const;
-	QString get_group_key_for_col(PVCol col) const;
 	PVMappingProperties const& get_properties_for_col(PVCol col) const { assert(col < columns.size()); return columns.at(col); }
 	PVMappingProperties& get_properties_for_col(PVCol col) { assert(col < columns.size()); return columns[col]; }
 	bool is_col_uptodate(PVCol j) const;

@@ -69,7 +69,6 @@ public:
     void initConnexion();
     void initValue();
 	void checkMappingTimeFormat();
-	void setComboGroup();
 	void setListTags();
 	Inendi::PVMappingFilter::p_type get_mapping_lib_filter();
 	Inendi::PVPlottingFilter::p_type get_plotting_lib_filter();
@@ -89,18 +88,14 @@ public:
 	PVWidgets::PVAxisTypeWidget* mapPlotType;
 	PVWidgets::PVMappingModeWidget* comboMapping;
 	PVWidgets::PVPlottingModeWidget* comboPlotting;
-	PVXmlParamComboBox * comboGroup;
 	PVXmlParamList* listTags;
     
     //***** tab time format ***** 
     QLabel *timeFormatLabel;
     QCheckBox *useParentRegExpValue;
-	QPushButton* btnGroupAdd;
 	QPushButton* btnTagHelp;
     
     //***** tab param ***** 
-    PVXmlParamWidgetEditorBox *group;
-    QLabel *groupLabel;
     PVXmlParamColorDialog *buttonColor;
     QLabel *colorLabel;
     PVXmlParamColorDialog *buttonTitleColor;
@@ -135,7 +130,6 @@ public slots:
     void slotGoNextAxis();
     void slotSetValues();
     void updatePlotMapping(const QString& t) ;
-	void slotAddGroup();
 	void slotShowTagHelp();
 	void updateMappingParams();
 	void updatePlottingParams();

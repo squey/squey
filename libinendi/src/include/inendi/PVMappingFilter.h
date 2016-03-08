@@ -52,7 +52,6 @@ public:
 	virtual void init();
 
 	void set_dest_array(PVRow size, decimal_storage_type *ptr);
-	void set_group_value(PVCore::PVArgument& group) { _grp_value = &group; }
 
 	virtual QString get_human_name() const;
 
@@ -68,7 +67,6 @@ protected:
 protected:
 	PVRow _dest_size;
 	decimal_storage_type* _dest;
-	PVCore::PVArgument* _grp_value;
 };
 
 typedef PVMappingFilter::func_type PVMappingFilter_f;

@@ -129,9 +129,6 @@ void Inendi::PVMapped::compute()
 	// Validate all mapping!
 	validate_all();
 
-	// Clear "group values" hash
-	_grp_values_rush.clear();
-
 	// force plotteds updates (in case of .pvi load)
 	for (auto plotted : get_children<PVPlotted>()) {
 		plotted->finish_process_from_rush_pipeline();
@@ -208,9 +205,6 @@ void Inendi::PVMapped::create_table()
 	std::vector<PVMandatoryMappingFilter::p_type>::const_iterator it_pmf;
 
 	try {
-		// This is a hash whose key is "group_type", that contains the PVArgument
-		// passed through all mapping filters that have the same group and type
-		QHash<QString, PVCore::PVArgument> grp_values;
 		for (PVCol j = 0; j < ncols; j++) {
 			// Check that an update is required
 			if (_mapping->get_properties_for_col(j).is_uptodate()) {
@@ -229,13 +223,7 @@ void Inendi::PVMapped::create_table()
 
 			// Let's make our mapping
 			mapping_filter->set_dest_array(nrows, get_column_pointer(j));
-			//mapping_filter->set_axis(j, *get_format());
-			// Get the group specific value if relevant
-			QString group_key = _mapping->get_group_key_for_col(j);
-			if (!group_key.isEmpty()) {
-				PVCore::PVArgument& group_v = grp_values[group_key];
-				mapping_filter->set_group_value(group_v);
-			}
+
 			boost::this_thread::interruption_point();
 			tbb::tick_count tmap_start = tbb::tick_count::now();
 			mapping_filter->init();

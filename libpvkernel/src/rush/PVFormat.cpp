@@ -375,8 +375,9 @@ void PVRush::PVFormat::debug()
 {
 	QHashIterator<int, QStringList> time_hash(time_format);
 
-	PVLOG_PLAIN( "\nid     |      type      |      mapping     |     plotting     |    key    |    group    |  color  |name \n");
-	PVLOG_PLAIN( "-------+----------------+------------------+------------------+-----------+-------------+---------+------...\n");
+	PVLOG_PLAIN( "\n"
+				 "id     |      type      |      mapping     |     plotting     |  color  |name \n");
+	PVLOG_PLAIN( "-------+----------------+------------------+------------------+---------+------...\n");
 
 	list_axes_t::const_iterator it;
 	unsigned int i = 0;
@@ -395,9 +396,6 @@ void PVRush::PVFormat::debug()
 		free(fill);
 		fill = fill_spaces(axis.get_plotting(), 17);
 		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_plotting()), fill);
-		free(fill);
-		fill = fill_spaces(axis.get_group(), 12);
-		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_group()), fill);
 		free(fill);
 		fill = fill_spaces(axis.get_color_str(), 8);
 		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_color_str()), fill);
@@ -454,7 +452,6 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 		fake_ax.set_type("string");
 		fake_ax.set_mapping("default");
 		fake_ax.set_plotting("default");
-		fake_ax.set_group(PVFORMAT_AXIS_GROUP_DEFAULT);
 		fake_ax.set_color(PVFORMAT_AXIS_COLOR_DEFAULT);
 		fake_ax.set_titlecolor(PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 		_axes.clear();

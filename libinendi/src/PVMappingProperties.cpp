@@ -31,15 +31,10 @@ void Inendi::PVMappingProperties::set_from_axis(Inendi::PVAxis const& axis)
 {
 	QString type = axis.get_type();
 	QString mode = axis.get_mapping();
-	QString group = axis.get_group();
 	PVCore::PVArgumentList args = axis.get_args_mapping();
 
 	set_args(args);
 	set_type(type, mode);
-
-	if (!group.isEmpty()) {
-		_group_key = group + "_" + _type;
-	}
 }
 
 void Inendi::PVMappingProperties::set_type(QString const& type, QString const& mode)
@@ -92,7 +87,6 @@ void Inendi::PVMappingProperties::serialize(PVCore::PVSerializeObject& so, PVCor
 	so.attribute("type", _type);
 	so.attribute("mode", _mode);
 	so.attribute("index", _index);
-	so.attribute("group_key", _group_key);
 
 	if (!so.is_writing()) {
 		_is_uptodate = false;

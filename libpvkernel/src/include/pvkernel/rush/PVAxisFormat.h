@@ -35,21 +35,6 @@ public:
 	typedef PVCore::PVListFastCmp<uint32_t, 2> id_t;
 	typedef QHash<QString, QString> node_args_t;
 
-	protected:
-		PVCore::PVColor titlecolor;
-		PVCore::PVColor color;
-		QString name;
-		QString type;
-		QString group;
-		QString mapping;
-		QString plotting;
-		QString time_format;
-		node_args_t args_mapping;
-		node_args_t args_plotting;
-		PVTags tags;
-		id_t unique_id;
-		bool unique_id_computed;
-
 	public:
 		PVAxisFormat();
 		~PVAxisFormat();
@@ -62,7 +47,6 @@ public:
 		QString get_titlecolor_str() const { return titlecolor.toQColor().name(); }
 		PVCore::PVColor const& get_titlecolor() const { return titlecolor; }
 		QString get_type() const { return type; }
-		QString get_group() const { return group; }
 		QString get_time_format() const { return time_format; }
 		node_args_t const& get_args_mapping_string() const { return args_mapping; }
 		node_args_t const& get_args_plotting_string() const { return args_plotting; }
@@ -78,7 +62,6 @@ public:
 		void set_titlecolor(QString str);
 		void set_titlecolor(PVCore::PVColor color_);
 		void set_type(QString str);
-		void set_group(QString str);
 		void set_args_mapping(node_args_t const& args) { args_mapping = args; }
 		void set_args_plotting(node_args_t const& args) { args_plotting = args; }
 		void add_tag(QString const& tag) { tags.add_tag(tag); }
@@ -89,6 +72,20 @@ public:
 			assert(unique_id_computed);
 			return unique_id == other.unique_id;
 		}
+
+	protected:
+		PVCore::PVColor titlecolor; //!< Color of the title for this axis
+		PVCore::PVColor color; //!< Color for this axis
+		QString name; //!< Name of this axis
+		QString type; //!< Type of this axis
+		QString mapping;
+		QString plotting;
+		QString time_format;
+		node_args_t args_mapping;
+		node_args_t args_plotting;
+		PVTags tags;
+		id_t unique_id;
+		bool unique_id_computed;
 
 	protected:
 		void compute_unique_id(QVector<uint32_t> const& tree_ids);
