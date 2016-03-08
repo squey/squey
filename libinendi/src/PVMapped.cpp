@@ -98,6 +98,7 @@ void Inendi::PVMapped::compute()
 	// finalize import's mapping filters
 	PVRush::PVNraw const& nraw = get_parent()->get_rushnraw();
 
+#pragma omp parallel for
 	for (PVCol j = 0; j < ncols; j++) {
 		// Create our own plugins from the library
 		PVMappingFilter::p_type mf = _mapping->get_filter_for_col(j);
