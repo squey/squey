@@ -37,7 +37,6 @@ public:
 
 	public:
 		PVAxisFormat();
-		~PVAxisFormat();
 
 		QString get_color_str() const { return color.toQColor().name(); }
 		PVCore::PVColor const& get_color() const { return color; }

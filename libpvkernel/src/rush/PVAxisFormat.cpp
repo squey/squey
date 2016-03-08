@@ -26,14 +26,6 @@ PVRush::PVAxisFormat::PVAxisFormat()
 	unique_id_computed = false;
 }
 
-
-PVRush::PVAxisFormat::~PVAxisFormat()
-{
-
-}
-
-
-
 void PVRush::PVAxisFormat::set_color(QString str)
 {
 	color.fromQColor(QColor(str));
