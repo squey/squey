@@ -48,7 +48,7 @@ int main()
     std::ofstream ofs(res_file);
 
     for(size_t i=0; i<column.size(); i++) {
-	ofs << mapped->get_value(i, 0).storage_as_uint();
+	ofs << mapped->get_value(i, 0).storage_as_uint() << std::endl;
     }
 
     std::cout << res_file << "/" << ref_file << std::endl;

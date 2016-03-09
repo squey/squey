@@ -25,8 +25,11 @@ public:
 	};
 
 private:
+	/**
+	 * Compute integer log2 values.
+	 */
 	static uint8_t int_log2(uint16_t v) {
-//https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup
+		//https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup
 		uint32_t shift = (v > 0xFF  ) << 3;
 		uint8_t r = shift;
 		v >>= shift;
@@ -96,11 +99,11 @@ private:
 								[&](uint8_t a, uint8_t b) { return std::tolower(a) + std::tolower(b); });
 		}
 
-//		size_t bits_in_sum = 8 + int_log2(max_remaining_size);
-//		if(bits_in_sum != (size_t) ceil(log2(max_remaining_size << 8)))
-//			std::cout << "Fail : " << bits_in_sum << "/" << (size_t) ceil(log2(max_remaining_size << 8)) << std::endl;
 		size_t d_bits = shift;
-		shift = std::max(0UL, shift - (size_t) ceil(log2(max_remaining_size << 8)));
+		// Number of bits in a char sum depend on the number of summed values.
+		uint8_t bits_in_sum = 8 + int_log2(max_remaining_size);
+		shift -= std::max(shift, bits_in_sum);
+		// Mask strong bits and set these values.
 		factor = factor | ((d & ((1 << d_bits)-1)) << shift);
 
 		return factor;
