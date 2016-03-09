@@ -27,24 +27,22 @@ public:
 			auto array = nraw.collection().column(col);
 
 			if (std::string(f->name()) == "datetime") {
+				auto& core_array = array.to_core_array<uint32_t>();
 				for(size_t row=0; row< array.size(); row++) {
-					Inendi::PVMappingFilter::decimal_storage_type ds;
-					ds.storage_as_uint() = array.to_core_array<uint32_t>()[row];
-					_dest[row] = ds;
+					_dest[row].storage_as_uint() = core_array[row];
 				}
 			} else if (std::string(f->name()) == "datetime_us") {
+				auto& core_array = array.to_core_array<uint64_t>();
+				const boost::posix_time::ptime epoch = boost::posix_time::from_time_t(0);
 				for(size_t row=0; row< array.size(); row++) {
-					Inendi::PVMappingFilter::decimal_storage_type ds;
-					const boost::posix_time::ptime t = *reinterpret_cast<const boost::posix_time::ptime*>(&array.to_core_array<uint64_t>()[row]);
-					ds.storage_as_uint() = (t - boost::posix_time::from_time_t(0)).total_seconds();
-					_dest[row] = ds;
+					const boost::posix_time::ptime t = *reinterpret_cast<const boost::posix_time::ptime*>(&core_array[row]);
+					_dest[row].storage_as_uint() = (t - epoch).total_seconds();
 				}
 			} else {
 				assert(std::string(f->name()) == "datetime_ms" && "Unknown datetime formatter");
+				auto& core_array = array.to_core_array<uint64_t>();
 				for(size_t row=0; row< array.size(); row++) {
-					Inendi::PVMappingFilter::decimal_storage_type ds;
-					ds.storage_as_uint() = array.to_core_array<uint64_t>()[row] / 1000;
-					_dest[row] = ds;
+					_dest[row].storage_as_uint() = core_array[row] / 1000; // ms to s
 				}
 			}
 

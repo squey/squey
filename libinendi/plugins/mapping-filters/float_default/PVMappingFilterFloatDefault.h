@@ -25,11 +25,10 @@ class PVMappingFilterFloatDefault: public PVMappingFilter
 		 */
 		decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override {
 			auto array = nraw.collection().column(col);
+			auto& core_array = array.to_core_array<float>();
 
 			for(size_t row=0; row< array.size(); row++) {
-				Inendi::PVMappingFilter::decimal_storage_type ds;
-				ds.storage_as_float() = array.to_core_array<float>()[row];
-				_dest[row] = ds;
+				_dest[row].storage_as_float() = core_array[row];
 			}
 
 			return _dest;

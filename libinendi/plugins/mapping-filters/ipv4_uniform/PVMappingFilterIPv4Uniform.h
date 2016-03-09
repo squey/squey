@@ -35,10 +35,11 @@ class PVMappingFilterIPv4Uniform: public PVMappingFilter
 
 			array.group(group, extents);
 
+			auto& core_group = group.to_core_array();
+
+			double extend_factor = std::numeric_limits<uint32_t>::max() / (double)extents.size();
 			for(size_t row=0; row< array.size(); row++) {
-				Inendi::PVMappingFilter::decimal_storage_type ds;
-				ds.storage_as_uint() = std::numeric_limits<uint32_t>::max() * (group.to_core_array()[row] / (double)extents.size());
-				_dest[row] = ds;
+				_dest[row].storage_as_uint() = extend_factor * core_group[row];
 			}
 
 			return _dest;

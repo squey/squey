@@ -28,41 +28,50 @@ public:
 			auto array = nraw.collection().column(col);
 
 			if (std::string(f->name()) == "datetime") {
+				auto& core_array = array.to_core_array<uint32_t>();
 				for(size_t row=0; row< array.size(); row++) {
-
-					thread_local tm local_tm;
-					const time_t t = static_cast<int64_t>(array.to_core_array<uint32_t>()[row]);
+					tm local_tm;
+					const time_t t = static_cast<int64_t>(core_array[row]);
 					gmtime_r(&t, &local_tm);
 
-					Inendi::PVMappingFilter::decimal_storage_type ds;
-					ds.storage_as_uint() = (local_tm.tm_sec + local_tm.tm_min * 60 + local_tm.tm_hour * 60 * 60) + 60 * 60 * 24 * local_tm.tm_wday;
-					_dest[row] = ds;
+					_dest[row].storage_as_uint() = local_tm.tm_sec + 60 * (local_tm.tm_min + 60 * (local_tm.tm_hour + 24 * local_tm.tm_wday));
 				}
 			} else if (std::string(f->name()) == "datetime_us") {
+				auto& core_array = array.to_core_array<uint64_t>();
 				for(size_t row=0; row< array.size(); row++) {
-					Inendi::PVMappingFilter::decimal_storage_type ds;
-					const boost::posix_time::ptime t = *reinterpret_cast<const boost::posix_time::ptime*>(&array.to_core_array<uint64_t>()[row]);
-					ds.storage_as_uint() = t.time_of_day().total_seconds() + 60 * 60 * 24 * t.date().day_of_week().as_number();
-					_dest[row] = ds;
+					const boost::posix_time::ptime t = *reinterpret_cast<const boost::posix_time::ptime*>(&core_array[row]);
+					_dest[row].storage_as_uint() = t.time_of_day().total_seconds() + 60 * 60 * 24 * t.date().day_of_week().as_number();
 				}
 			} else {
 				assert(std::string(f->name()) == "datetime_ms" && "Unknown datetime formatter");
 				UErrorCode err = U_ZERO_ERROR;
 				std::unique_ptr<Calendar> cal(Calendar::createInstance(err));
+				if (not U_SUCCESS(err)) {
+					throw std::runtime_error("Can't create calendar to compute mapping.");
+				}
+
 				for(size_t row=0; row< array.size(); row++) {
-					Inendi::PVMappingFilter::decimal_storage_type ds;
-					if (not U_SUCCESS(err)) {
-						continue;
-					}
 					cal->setTime(array.to_core_array<uint64_t>()[row], err);
 					if (not U_SUCCESS(err)) {
 						continue;
 					}
 					int32_t sec = cal->get(UCAL_SECOND, err);
+					if (not U_SUCCESS(err)) {
+						continue;
+					}
 					int32_t min = cal->get(UCAL_MINUTE, err);
+					if (not U_SUCCESS(err)) {
+						continue;
+					}
 					int32_t hour = cal->get(UCAL_HOUR_OF_DAY, err);
-					ds.storage_as_uint() = (sec +  (min * 60) + (hour * 60 * 60)) + 60 * 60 * 24 * cal->get(UCAL_DAY_OF_WEEK, err);
-					_dest[row] = ds;
+					if (not U_SUCCESS(err)) {
+						continue;
+					}
+					int32_t wday = cal->get(UCAL_DAY_OF_WEEK, err);
+					if (not U_SUCCESS(err)) {
+						continue;
+					}
+					_dest[row].storage_as_uint() = sec + 60 * (min + 60 * (hour + 24 * wday));
 				}
 			}
 
