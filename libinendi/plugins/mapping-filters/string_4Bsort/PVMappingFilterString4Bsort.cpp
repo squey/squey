@@ -7,6 +7,10 @@
 
 #include "PVMappingFilterString4Bsort.h"
 
+#include <pvcop/db/read_dict.h>
+
+#include <algorithm>
+
 /**
  * Return a values which sort strings based on theirs 4 first chars.
  *
@@ -14,26 +18,36 @@
  */
 static uint32_t compute_str_factor(const char* str, size_t len)
 {
-	uint32_t res = *reinterpret_cast<const uint32_t*>(str);
 	switch(len) {
 		case 0:
 			return 0;
 		case 1:
-			return res & 0xFF000000;
+			return str[0] << 24;
 		case 2:
-			return res & 0xFFFF0000;
+			return str[0] << 24 | str[1] << 16;
 		case 3:
-			return res & 0xFFFFFF00;
+			return str[0] << 24 | str[1] << 16 | str[2] << 8;
 		default:
-			return res;
+			return str[0] << 24 | str[1] << 16 | str[2] << 8 | str[3];
 	}
 }
 
-Inendi::PVMappingFilter::decimal_storage_type Inendi::PVMappingFilterString4Bsort::process_cell(const char* buf, size_t size)
-{
-	Inendi::PVMappingFilter::decimal_storage_type ret_ds;
-	ret_ds.storage_as_uint() = compute_str_factor(buf, size);;
-	return ret_ds;
+Inendi::PVMappingFilter::decimal_storage_type*
+Inendi::PVMappingFilterString4Bsort::operator()(PVCol const col, PVRush::PVNraw const& nraw) {
+	auto array = nraw.collection().column(col);
+	auto& core_array = array.to_core_array<uint32_t>();
+
+	auto& dict = *nraw.collection().dict(col);
+	std::vector<uint32_t> ret(dict.size());
+
+	std::transform(dict.begin(), dict.end(), ret.begin(), [&](const char* c) { return compute_str_factor(c, strlen(c)); });
+
+	// Copy mapping value based on computation from dict.
+	for(size_t row=0; row< array.size(); row++) {
+		_dest[row].storage_as_uint() = ret[core_array[row]];
+	}
+
+	return _dest;
 }
 
 IMPL_FILTER_NOPARAM(Inendi::PVMappingFilterString4Bsort)

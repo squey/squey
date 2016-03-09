@@ -18,18 +18,17 @@
  */
 static uint32_t compute_str_factor(const char* str, size_t len)
 {
-	uint32_t res = *reinterpret_cast<const uint32_t*>(str);
 	switch(len) {
 		case 0:
 			return 0;
 		case 1:
-			return res & 0xFF000000;
+			return str[0] << 24;
 		case 2:
-			return res & 0xFFFF0000;
+			return str[0] << 24 | str[1] << 16;
 		case 3:
-			return res & 0xFFFFFF00;
+			return str[0] << 24 | str[1] << 16 | str[2] << 8;
 		default:
-			return res;
+			return str[0] << 24 | str[1] << 16 | str[2] << 8 | str[3];
 	}
 }
 

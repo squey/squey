@@ -19,10 +19,8 @@ namespace Inendi {
 class PVMappingFilterString4Bsort: public PVMappingFilter
 {
 public:
-	/**
-	 * Sort string based on theirs 4 first bytes.
-	 */
-	Inendi::PVMappingFilter::decimal_storage_type process_cell(const char* buf, size_t size) override;
+
+	PVMappingFilter::decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
 
 	/**
 	 * Meta information from this plugin.
