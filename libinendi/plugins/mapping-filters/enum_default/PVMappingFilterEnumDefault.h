@@ -10,7 +10,7 @@
 
 #include <inendi/PVMappingFilter.h>
 
-#include <QString>
+#include <pvcop/db/read_dict.h>
 
 namespace Inendi {
 
@@ -30,18 +30,13 @@ class PVMappingFilterEnumDefault: public PVMappingFilter
 		 */
 		decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override {
 			auto array = nraw.collection().column(col);
-			pvcop::db::groups group;
-			pvcop::db::extents extents;
-
-			array.group(group, extents);
-
-			auto& core_group = group.to_core_array();
+			auto& core_array = array.to_core_array<uint32_t>();
 
 			// Apply this factor to make sure we use the full uint32 range.
-			double extend_factor = std::numeric_limits<uint32_t>::max() / (double)extents.size();
+			double extend_factor = std::numeric_limits<uint32_t>::max() / (double)nraw.collection().dict(col)->size();
 
 			for(size_t row=0; row< array.size(); row++) {
-				_dest[row].storage_as_uint() = extend_factor * core_group[row];
+				_dest[row].storage_as_uint() = extend_factor * core_array[row];
 			}
 
 			return _dest;
