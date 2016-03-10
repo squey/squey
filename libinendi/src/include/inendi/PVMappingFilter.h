@@ -53,9 +53,9 @@ public:
 
 	void set_dest_array(PVRow size, decimal_storage_type *ptr);
 
-	virtual QString get_human_name() const;
+	virtual QString get_human_name() const = 0;
 
-	virtual PVCore::DecimalType get_decimal_type() const { return PVCore::FloatType; }
+	virtual PVCore::DecimalType get_decimal_type() const = 0;
 
 public:
 	static QStringList list_types();

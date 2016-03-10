@@ -23,10 +23,7 @@ class PVMappingFilterStringDefault: public PVMappingFilter
 public:
 	PVMappingFilterStringDefault(PVCore::PVArgumentList const& args = PVMappingFilterStringDefault::default_args());
 
-	/**
-	 * Mapping computation computed by cell.
-	 */
-	Inendi::PVMappingFilter::decimal_storage_type process_cell(const char* buf, size_t size) override;
+	PVMappingFilter::decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
 
 public:
 	/**
