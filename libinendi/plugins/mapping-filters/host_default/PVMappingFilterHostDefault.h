@@ -24,12 +24,7 @@ public:
 	PVMappingFilterHostDefault();
 
 public:
-	/**
-	 * This mapping apply cell by cell.
-	 *
-	 * It compute mapping value.
-	 */
-	Inendi::PVMappingFilter::decimal_storage_type process_cell(const char* buf, size_t size) override;
+	PVMappingFilter::decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
 
 	/**
 	 * Meta information from this plugin.

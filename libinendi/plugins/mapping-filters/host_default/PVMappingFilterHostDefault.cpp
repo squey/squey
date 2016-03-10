@@ -13,6 +13,8 @@
 
 #include <pvkernel/core/dumbnet.h>
 
+#include <pvcop/db/read_dict.h>
+
 /**
  * Return a values which sort strings based on theirs 4 first chars.
  */
@@ -42,24 +44,36 @@ Inendi::PVMappingFilterHostDefault::PVMappingFilterHostDefault():
 /**
  * Ip values are between 0 and 2**31 while string values are between 2**31 and 2**32
  */
-Inendi::PVMappingFilter::decimal_storage_type Inendi::PVMappingFilterHostDefault::process_cell(const char* buf, size_t size)
-{
-	uint32_t ret;
-	if (PVCore::Network::ipv4_aton(buf, size, ret)) {
-		// That goes to the first half of the space
-		// Two consecutive value may have the same mapping value.
-		ret >>= 1;
-	}
-	else {
-		// Take the first four characters
-		ret = compute_str_factor(buf, size);
-		// That goes to the other half!
-		ret = (ret >> 1) | 0x80000000;
+Inendi::PVMappingFilter::decimal_storage_type*
+Inendi::PVMappingFilterHostDefault::operator()(PVCol const col, PVRush::PVNraw const& nraw) {
+	auto array = nraw.collection().column(col);
+	auto& core_array = array.to_core_array<uint32_t>();
+
+	// Store mapping for each dict value.
+	auto& dict = *nraw.collection().dict(col);
+	std::vector<uint32_t> ret(dict.size());
+	size_t i = 0;
+	for(const char* c: dict) {
+		if (PVCore::Network::ipv4_aton(c, strlen(c), ret[i])) {
+			// That goes to the first half of the space
+			// Two consecutive value may have the same mapping value.
+			ret[i] >>= 1;
+		}
+		else {
+			// Take the first four characters
+			ret[i] = compute_str_factor(c, strlen(c));
+			// That goes to the other half!
+			ret[i] = (ret[i] >> 1) | 0x80000000;
+		}
+		++i;
 	}
 
-	Inendi::PVMappingFilter::decimal_storage_type ret_ds;
-	ret_ds.storage_as_uint() = ret;
-	return ret_ds;
+	// Copy mapping value based on computation from dict.
+	for(size_t row=0; row< array.size(); row++) {
+		_dest[row].storage_as_uint() = ret[core_array[row]];
+	}
+
+	return _dest;
 }
 
 IMPL_FILTER_NOPARAM(Inendi::PVMappingFilterHostDefault)
