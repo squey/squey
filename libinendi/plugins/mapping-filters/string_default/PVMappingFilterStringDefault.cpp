@@ -7,6 +7,8 @@
 
 #include "PVMappingFilterStringDefault.h"
 
+#include <pvcop/db/read_dict.h>
+
 /**
  * Compute integer log2 values.
  */
@@ -114,9 +116,14 @@ void Inendi::PVMappingFilterStringDefault::set_args(PVCore::PVArgumentList const
 Inendi::PVMappingFilter::decimal_storage_type*
 Inendi::PVMappingFilterStringDefault::operator()(PVCol const col, PVRush::PVNraw const& nraw) {
 	auto array = nraw.collection().column(col);
+	auto& core_array = array.to_core_array<uint32_t>();
+
+	auto& dict = *nraw.collection().dict(col);
+	std::vector<uint32_t> ret(dict.size());
+	std::transform(dict.begin(), dict.end(), ret.begin(), [&](const char* c) { return compute_str_factor(c, strlen(c), _case_sensitive);});
+
 	for(size_t row=0; row< array.size(); row++) {
-		std::string content = array.at(row);
-		_dest[row].storage_as_uint() = compute_str_factor(content.c_str(), content.size(), _case_sensitive);
+		_dest[row].storage_as_uint() = ret[core_array[row]];
 	}
 
 	return _dest;
