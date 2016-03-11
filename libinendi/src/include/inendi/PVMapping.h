@@ -41,7 +41,6 @@ public:
 
 public:
 	PVMapping(PVMapped* mapped);
-	~PVMapping();
 
 protected:
 	// For serialization
@@ -51,8 +50,21 @@ protected:
 	// For PVMapped
 	void set_parent(PVSource* src);
 	void set_uptodate_for_col(PVCol j);
+
+	/**
+	 * Mark every mapping as not "uptodate" so compute will recompute its value again.
+	 *
+	 * @fixme : invalidate_all is a dead code.
+	 */
 	void invalidate_all();
+
+	/**
+	 * Mark every mapping as "uptodate" so compute will not recompute them.
+	 *
+	 * @fixme : invalidate_all is a dead code.
+	 */
 	void validate_all();
+
 	void add_column(PVMappingProperties const& props);
 
 public:

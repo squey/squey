@@ -121,7 +121,6 @@ protected:
 
 private:
 	void invalidate_plotted_children_column(PVCol j);
-	void create_table();
 
 	/**
 	 * Allocate mapping table for given number fo column and row.

@@ -54,17 +54,6 @@ Inendi::PVMapping::PVMapping() {}
 
 /******************************************************************************
  *
- * Inendi::PVMapping::~PVMapping
- *
- *****************************************************************************/
-Inendi::PVMapping::~PVMapping()
-{
-}
-
-
-
-/******************************************************************************
- *
  * Inendi::PVMapping::add_column
  *
  *****************************************************************************/
@@ -159,9 +148,8 @@ QString const& Inendi::PVMapping::get_type_for_col(PVCol col) const
  *****************************************************************************/
 void Inendi::PVMapping::invalidate_all()
 {
-	QList<PVMappingProperties>::iterator it;
-	for (it = columns.begin(); it != columns.end(); it++) {
-		it->invalidate();
+	for (PVMappingProperties & prop: columns) {
+		prop.invalidate();
 	}
 }
 
@@ -172,9 +160,8 @@ void Inendi::PVMapping::invalidate_all()
  *****************************************************************************/
 void Inendi::PVMapping::validate_all()
 {
-	QList<PVMappingProperties>::iterator it;
-	for (it = columns.begin(); it != columns.end(); it++) {
-		it->set_uptodate();
+	for (PVMappingProperties & prop: columns) {
+		prop.set_uptodate();
 	}
 }
 
@@ -200,13 +187,7 @@ bool Inendi::PVMapping::is_col_uptodate(PVCol j) const
  *****************************************************************************/
 bool Inendi::PVMapping::is_uptodate() const
 {
-	QList<PVMappingProperties>::const_iterator it;
-	for (it = columns.begin(); it != columns.end(); it++) {
-		if (!it->is_uptodate()) {
-			return false;
-		}
-	}
-	return true;
+	return std::all_of(columns.begin(), columns.end(), [](PVMappingProperties const& prop) { return prop.is_uptodate(); });
 }
 
 

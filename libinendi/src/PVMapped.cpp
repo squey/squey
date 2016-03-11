@@ -100,6 +100,11 @@ void Inendi::PVMapped::compute()
 
 #pragma omp parallel for
 	for (PVCol j = 0; j < ncols; j++) {
+		// Check that an update is required
+		if (_mapping->get_properties_for_col(j).is_uptodate()) {
+			continue;
+		}
+
 		// Create our own plugins from the library
 		PVMappingFilter::p_type mf = _mapping->get_filter_for_col(j);
 		PVMappingFilter::p_type mapping_filter = mf->clone<PVMappingFilter>();
@@ -125,10 +130,9 @@ void Inendi::PVMapped::compute()
 		tbb::tick_count tmap_end = tbb::tick_count::now();
 
 		PVLOG_INFO("(PVMapped) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
+		_mapping->set_uptodate_for_col(j);
+		invalidate_plotted_children_column(j);
 	}
-
-	// Validate all mapping!
-	validate_all();
 
 	// force plotteds updates (in case of .pvi load)
 	for (auto plotted : get_children<PVPlotted>()) {
@@ -165,98 +169,6 @@ void Inendi::PVMapped::compute_unique_values()
 	tbb::tick_count t_end = tbb::tick_count::now();
 
 	PVLOG_INFO("(PVMapped::compute_unique_values) Computing mapped columns entropy took %0.4f seconds.\n", (t_end-t_start).seconds());
-}
-
-// TODO : This is almost the same as compute()
-/******************************************************************************
- *
- * Inendi::PVMapped::create_table
- *
- *****************************************************************************/
-void Inendi::PVMapped::create_table()
-{
-	PVRush::PVNraw const& nraw = get_parent()->get_rushnraw();
-	const PVRow nrows = nraw.get_row_count();
-	const PVCol ncols = nraw.get_number_cols();
-
-	tbb::tick_count tstart = tbb::tick_count::now();
-	allocate_table(nrows, ncols);
-
-	PVLOG_INFO("(pvmapped::create_table) begin parallel mapping\n");
-
-	// Create our own plugins from the library
-	std::vector<PVMappingFilter::p_type> mapping_filters;
-	mapping_filters.resize(ncols);
-	for (PVCol j = 0; j < ncols; j++) {
-		PVMappingFilter::p_type mf = _mapping->get_filter_for_col(j);
-		if (mf) {
-			mapping_filters[j] = mf->clone<PVMappingFilter>();
-		}
-	}
-
-	// Do the same for the mandatory mappings
-	std::vector<PVMandatoryMappingFilter::p_type> mand_mapping_filters;
-	LIB_CLASS(Inendi::PVMandatoryMappingFilter)::list_classes const& lfmf = LIB_CLASS(Inendi::PVMandatoryMappingFilter)::get().get_list();
-	LIB_CLASS(Inendi::PVMandatoryMappingFilter)::list_classes::const_iterator it_lfmf;
-	mand_mapping_filters.reserve(lfmf.size());
-	for (it_lfmf = lfmf.begin(); it_lfmf != lfmf.end(); it_lfmf++) {
-		PVMandatoryMappingFilter::p_type mf = it_lfmf->value()->clone<PVMandatoryMappingFilter>();
-		mand_mapping_filters.push_back(mf);
-	}
-	std::vector<PVMandatoryMappingFilter::p_type>::const_iterator it_pmf;
-
-	try {
-		for (PVCol j = 0; j < ncols; j++) {
-			// Check that an update is required
-			if (_mapping->get_properties_for_col(j).is_uptodate()) {
-				continue;
-			}
-
-			// Get the corresponding object
-			PVMappingFilter::p_type mapping_filter = mapping_filters[j];
-			mandatory_param_map& params_map = _mapping->get_mandatory_params_for_col(j);
-			params_map.clear();
-
-			if (!mapping_filter) {
-				PVLOG_ERROR("An invalid mapping type and/or mode is set for axis %d !\n", j);
-				continue;
-			}
-
-			// Let's make our mapping
-			mapping_filter->set_dest_array(nrows, get_column_pointer(j));
-
-			boost::this_thread::interruption_point();
-			tbb::tick_count tmap_start = tbb::tick_count::now();
-			mapping_filter->init();
-			mapping_filter->operator()(j, nraw);
-			tbb::tick_count tmap_end = tbb::tick_count::now();
-			PVLOG_INFO("(PVMapped::create_table) parallel mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
-
-			tmap_start = tbb::tick_count::now();
-			// Init the mandatory mapping
-			boost::this_thread::interruption_point();
-			for (it_pmf = mand_mapping_filters.begin(); it_pmf != mand_mapping_filters.end(); it_pmf++) {
-				(*it_pmf)->set_dest_params(params_map);
-				(*it_pmf)->set_decimal_type(mapping_filter->get_decimal_type());
-				(*it_pmf)->set_mapped(*this);
-				(*it_pmf)->operator()(Inendi::mandatory_param_list_values(j, get_column_pointer(j)));
-			}
-			tmap_end = tbb::tick_count::now();
-
-			PVLOG_INFO("(PVMapped::create_table) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
-
-			_mapping->set_uptodate_for_col(j);
-			invalidate_plotted_children_column(j);
-		}
-		PVLOG_INFO("(pvmapped::create_table) end parallel mapping\n");
-		tbb::tick_count tend = tbb::tick_count::now();
-		PVLOG_INFO("(PVPlotted::create_table) mapping took %0.4f seconds.\n", (tend-tstart).seconds());
-	}
-	catch (boost::thread_interrupted const& e)
-	{
-		PVLOG_INFO("(PVPlotted::create_table) mapping canceled.\n");
-		throw e;
-	}
 }
 
 /******************************************************************************
@@ -369,7 +281,7 @@ void Inendi::PVMapped::add_column(PVMappingProperties const& props)
 
 void Inendi::PVMapped::process_parent_source()
 {
-	create_table();
+	compute();
 }
 
 void Inendi::PVMapped::process_from_parent_source()
