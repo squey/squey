@@ -198,7 +198,6 @@ public:
 		return get_plotted_col_addr(&plotted.at(0), nrows, col);
 	}
 
-	void get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min, uint32_t& max, PVSelection const& sel, PVCol col) const;
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
 
 	/** get_col_minmax

@@ -72,8 +72,6 @@ public:
 	void set_name(QString const& name) { _mapping->set_name(name); }
 	QString const& get_name() const { return _mapping->get_name(); }
 
-	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
-
 	virtual QString get_serialize_description() const { return "Mapping: " + get_name(); }
 
 	inline PVCore::DecimalType get_decimal_type_of_col(PVCol const j) const { return _mapping->get_decimal_type_of_col(j); }
@@ -92,7 +90,6 @@ public:
 	// Data access
 	PVRow get_row_count() const;
 	PVCol get_column_count() const;
-	void get_sub_col_minmax(mapped_sub_col_t& ret, decimal_storage_type& min, decimal_storage_type& max, PVSelection const& sel, PVCol col) const;
 
 	inline decimal_storage_type get_value(PVRow row, PVCol col) const { return _trans_table[col][row]; }
 

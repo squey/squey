@@ -439,30 +439,6 @@ QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_not_within_range(uint
 	return cols_ret;
 }
 
-void Inendi::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min, uint32_t& max, PVSelection const& sel, PVCol col) const
-{
-	uint32_t local_min, local_max;
-	local_min = PVPlotted::MAX_VALUE;
-	local_max = 0;
-	const PVRow size = get_row_count();
-	ret.reserve(sel.get_number_of_selected_lines_in_range(0, size));
-	sel.visit_selected_lines([&](PVRow const r)
-		{
-			const uint32_t v = this->get_value(r, col);
-			if (v > max) {
-				local_max = v;
-			}
-			if (v < min) {
-				local_min = v;
-			}		
-			ret.push_back(plotted_sub_col_t::value_type(r, v));
-		},
-		size);
-
-	min = local_min;
-	max = local_max;
-}
-
 void Inendi::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const
 {
 	PVRow local_min,local_max;

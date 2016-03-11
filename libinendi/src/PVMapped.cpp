@@ -176,48 +176,6 @@ PVRush::PVFormat_p Inendi::PVMapped::get_format() const
 
 /******************************************************************************
  *
- * Inendi::PVMapped::get_sub_col_minmax
- *
- *****************************************************************************/
-namespace Inendi { namespace __impl {
-struct get_sub_col_minmax_holder
-{
-	template <typename T>
-	static void call(Inendi::PVMapped::mapped_sub_col_t& ret, Inendi::PVMapped::decimal_storage_type& min, Inendi::PVMapped::decimal_storage_type& max, Inendi::PVSelection const& sel, PVCol const col, Inendi::PVMapped::mapped_table_t const& trans_table)
-	{
-		min.set_max<T>();
-		max.set_min<T>();
-
-		const Inendi::PVMapped::decimal_storage_type* mapped_values = &trans_table[col][0];
-		T& max_cast = max.storage_cast<T>();
-		T& min_cast = min.storage_cast<T>();
-		sel.visit_selected_lines([&](PVRow const i){
-			const Inendi::PVMapped::decimal_storage_type v = mapped_values[i];
-			const T v_cast = v.storage_cast<T>();
-			if (v_cast > max_cast) {
-				max_cast = v_cast;
-			}
-			if (v_cast < min_cast) {
-				min_cast = v_cast;
-			}
-			ret.push_back(Inendi::PVMapped::mapped_sub_col_t::value_type(i, v));
-		},
-		trans_table[0].size());
-	}
-};
-} }
-
-void Inendi::PVMapped::get_sub_col_minmax(mapped_sub_col_t& ret, decimal_storage_type& min, decimal_storage_type& max, PVSelection const& sel, PVCol const col) const
-{
-	PVCore::DecimalType const type_col = get_decimal_type_of_col(col);
-	PVRow size = get_row_count();
-	ret.reserve(sel.get_number_of_selected_lines_in_range(0, size-1));
-
-	decimal_storage_type::call_from_type<__impl::get_sub_col_minmax_holder>(type_col, ret, min, max, sel, col, _trans_table);
-}
-
-/******************************************************************************
- *
  * Inendi::PVMapped::get_row_count
  *
  *****************************************************************************/
