@@ -311,7 +311,6 @@ void Inendi::PVView::debug()
 void Inendi::PVView::expand_selection_on_axis(PVCol axis_id, QString const& mode)
 {
 	commit_volatile_in_floating_selection();
-	get_parent<PVPlotted>()->expand_selection_on_axis(floating_selection, axis_id, mode);
 }
 
 /******************************************************************************

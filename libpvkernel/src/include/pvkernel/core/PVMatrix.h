@@ -17,7 +17,8 @@
 #include <cassert>
 
 #include <sys/mman.h>
-#include <stdio.h>
+#include <cstdio>
+#include <pvkernel/core/PVLogger.h>
 
 namespace PVCore {
 
@@ -550,7 +551,7 @@ private:
 		if (p == NULL) {
 			return false;
 		}
-		index_col colmin = inendi_min(_ncols, ncols);
+		index_col colmin = std::min(_ncols, ncols);
 		if (value_pod::value) {
 			for (index_row i = 0; i < _nrows; i++) {
 				memcpy(&p[i*ncols], &_data[i*_ncols], colmin);

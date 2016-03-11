@@ -79,7 +79,6 @@ public:
 	//typedef std::vector<uint32_t, PVCore::PVNUMAHugePagedInterleavedAllocator<uint32_t> > uint_plotted_table_t;
 	typedef PVCore::PVHugePODVector<uint32_t, 16> uint_plotted_table_t;
 	typedef std::vector< std::pair<PVCol,uint32_t> > plotted_sub_col_t;
-	typedef std::list<ExpandedSelection> list_expanded_selection_t;
 	typedef std::vector<PVRow> rows_vector_t;
 
 public:
@@ -101,8 +100,6 @@ protected:
 	void add_column(PVPlottingProperties const& props);
 
 public:
-	void process_expanded_selections();
-
 	void process_parent_mapped();
 	void process_from_parent_mapped();
 
@@ -216,7 +213,6 @@ public:
 
 	inline PVView* current_view() { return get_parent<PVSource>()->current_view(); }
 	inline const PVView* current_view() const { return get_parent<PVSource>()->current_view(); }
-	void expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, QString const& mode, bool add = true);
 
 	// Plotted dump/load
 	bool dump_buffer_to_file(QString const& file, bool write_as_transposed = false) const;
@@ -256,7 +252,6 @@ protected:
 private:
 	PVPlotting_p _plotting;
 	uint_plotted_table_t _uint_table;
-	list_expanded_selection_t _expanded_sels;
 	QList<PVCol> _last_updated_cols;
 	std::vector<MinMax> _minmax_values;
 };

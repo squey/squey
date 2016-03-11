@@ -31,8 +31,6 @@
 
 #include <tbb/parallel_for.h>
 
-#define DEFAULT_MAPPING_NROWS (16*1024*1024)
-
 /******************************************************************************
  *
  * Inendi::PVMapped::PVMapped
@@ -62,11 +60,6 @@ void Inendi::PVMapped::set_parent_from_ptr(PVSource* source)
 void Inendi::PVMapped::allocate_table(PVRow const nrows, PVCol const ncols)
 {
 	_trans_table.resize(ncols);
-	reallocate_table(nrows);
-}
-
-void Inendi::PVMapped::reallocate_table(PVRow const nrows)
-{
 	for (mapped_row_t& mrow: _trans_table) {
 		mrow.resize(nrows);
 	}
@@ -138,37 +131,6 @@ void Inendi::PVMapped::compute()
 	for (auto plotted : get_children<PVPlotted>()) {
 		plotted->finish_process_from_rush_pipeline();
 	}
-}
-
-void Inendi::PVMapped::compute_unique_values()
-{
-	tbb::tick_count t_start = tbb::tick_count::now();
-
-	const PVRow nrows = get_parent()->get_row_count();
-	const PVCol ncols = _mapping->get_number_cols();
-	_unique_values_count.resize(ncols);
-
-	std::vector<std::unordered_set<uint32_t>> unique_values;
-	unique_values.resize(ncols);
-
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, ncols, 1),
-		[&](tbb::blocked_range<size_t> const& range) {
-			PVCol col = range.begin();
-			auto& column_unique_values = unique_values[col];
-			decimal_storage_type* buffer = get_column_pointer(col);
-			for (size_t row = 0; row < nrows; row++) {
-				column_unique_values.emplace(buffer[row].storage_as_uint());
-			}
-		}, tbb::simple_partitioner());
-
-	for (PVCol col = 0; col < ncols; col++) {
-		_unique_values_count[col] = unique_values[col].size();
-		PVLOG_DEBUG("Column %d unique values: %u\n", col,  _unique_values_count[col]);
-	}
-
-	tbb::tick_count t_end = tbb::tick_count::now();
-
-	PVLOG_INFO("(PVMapped::compute_unique_values) Computing mapped columns entropy took %0.4f seconds.\n", (t_end-t_start).seconds());
 }
 
 /******************************************************************************
@@ -309,66 +271,6 @@ void Inendi::PVMapped::validate_all()
 {
 	_mapping->validate_all();
 }
-
-#if 0
-QList<PVCol> Inendi::PVMapped::get_columns_indexes_values_within_range(decimal_storage_type const min, decimal_storage_type const max, double rate)
-{
-	QList<PVCol> cols_ret;
-	const PVRow nrows = get_row_count();
-	const PVCol ncols = get_column_count();
-
-	if (min > max) {
-		return cols_ret;
-	}
-
-	double nrows_d = (double) nrows;
-	for (PVCol j = 0; j < ncols; j++) {
-		PVRow nmatch = 0;
-		const float* values = trans_table.getRowData(j);
-		// TODO: optimise w/ SIMD if relevant
-		for (PVRow i = 0; i < nrows; i++) {
-			const float v = values[i];
-			if (v >= min && v <= max) {
-				nmatch++;
-			}
-		}
-		if ((double)nmatch/nrows_d >= rate) {
-			cols_ret << j;
-		}
-	}
-
-	return cols_ret;
-}
-
-QList<PVCol> Inendi::PVMapped::get_columns_indexes_values_not_within_range(decimal_storage_type const min, decimal_storage_type const max, double rate)
-{
-	QList<PVCol> cols_ret;
-	const PVRow nrows = get_row_count();
-	const PVCol ncols = get_column_count();
-
-	if (min > max) {
-		return cols_ret;
-	}
-
-	double nrows_d = (double) nrows;
-	for (PVCol j = 0; j < ncols; j++) {
-		PVRow nmatch = 0;
-		const float* values = trans_table.getRowData(j);
-		// TODO: optimise w/ SIMD if relevant
-		for (PVRow i = 0; i < nrows; i++) {
-			const float v = values[i];
-			if (v < min || v > max) {
-				nmatch++;
-			}
-		}
-		if ((double)nmatch/nrows_d >= rate) {
-			cols_ret << j;
-		}
-	}
-
-	return cols_ret;
-}
-#endif
 
 bool Inendi::PVMapped::is_current_mapped() const
 {

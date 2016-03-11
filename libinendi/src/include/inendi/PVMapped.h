@@ -72,8 +72,6 @@ public:
 	void set_name(QString const& name) { _mapping->set_name(name); }
 	QString const& get_name() const { return _mapping->get_name(); }
 
-	//QList<PVCol> get_columns_indexes_values_within_range(decimal_storage_type const min, decimal_storage_type const max, double rate = 1.0);
-	//QList<PVCol> get_columns_indexes_values_not_within_range(decimal_storage_type const min, decimal_storage_type const max, double rate = 1.0);
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
 
 	virtual QString get_serialize_description() const { return "Mapping: " + get_name(); }
@@ -83,7 +81,11 @@ public:
 	bool is_current_mapped() const;
 
 protected:
-	// This is accessed by PVSource !
+	/**
+	 * Ask to compute mapping based on Mapping filter for each column.
+	 *
+	 * Only "not up to date" mapping will be computer.
+	 */
 	void compute();
 
 public:
@@ -124,17 +126,9 @@ private:
 	 */
 	void allocate_table(PVRow const nrows, PVCol const ncols);
 
-	/**
-	 * Keep already allocated number of column for mapping but adjust number of row.
-	 */
-	void reallocate_table(PVRow const nrows);
-
-	void compute_unique_values();
-
 protected:
 	mapped_table_t _trans_table; //!< This is a vector of vector which contains "for each column" mapping of cell.
 	PVMapping_p _mapping;
-	std::vector<size_t> _unique_values_count;
 };
 
 typedef PVMapped::p_type  PVMapped_p;
