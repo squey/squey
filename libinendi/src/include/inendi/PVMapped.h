@@ -43,8 +43,6 @@ class PVMapped : public data_tree_mapped_t {
 	friend class PVCore::PVDataTreeAutoShared<PVMapped>;
 public:
 	typedef Inendi::mapped_decimal_storage_type decimal_storage_type;
-	typedef std::vector< std::pair<PVRow, decimal_storage_type> > mapped_sub_col_t;
-	typedef children_t list_plotted_t;
 	//typedef PVCore::PVMatrix<decimal_storage_type, PVCol, PVRow> mapped_table_t;
 	typedef PVCore::PVHugePODVector<decimal_storage_type, 16> mapped_row_t;
 	typedef std::vector<mapped_row_t> mapped_table_t;
