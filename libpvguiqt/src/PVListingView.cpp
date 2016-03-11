@@ -471,7 +471,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		PVQNraw::show_unique_values(view, lib_view().get_rushnraw_parent(), col, *lib_view().get_selection_visible_listing(), this);
 	} else if (sel == _action_col_sort) {
 		Qt::SortOrder order =  (Qt::SortOrder)!((bool)horizontalHeader()->sortIndicatorOrder());
-		sort(col, order);
+		sort(comb_col, order);
 	} else if(sel) {
 		Inendi::PVView_sp view = lib_view().shared_from_this();
 		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());
