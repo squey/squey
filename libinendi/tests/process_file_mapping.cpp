@@ -65,7 +65,6 @@ int main(int argc, char** argv)
 	Inendi::PVScene_p scene(root, "scene");
 	Inendi::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	Inendi::PVMapped_p mapped(src);
-	//src->set_invalid_evts_mode(true);
 	PVRush::PVControllerJob_p job;
 
 	if (raw_dump) {

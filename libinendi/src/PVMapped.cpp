@@ -220,16 +220,6 @@ void Inendi::PVMapped::invalidate_plotted_children_column(PVCol j)
 	}
 }
 
-void Inendi::PVMapped::invalidate_all()
-{
-	_mapping->invalidate_all();
-}
-
-void Inendi::PVMapped::validate_all()
-{
-	_mapping->validate_all();
-}
-
 bool Inendi::PVMapped::is_current_mapped() const
 {
 	Inendi::PVView const* cur_view = get_parent<PVSource>()->current_view();

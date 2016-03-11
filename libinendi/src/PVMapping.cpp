@@ -139,34 +139,6 @@ QString const& Inendi::PVMapping::get_type_for_col(PVCol col) const
 	return get_properties_for_col(col).get_type();
 }
 
-
-
-/******************************************************************************
- *
- * Inendi::PVMapping::invalidate_all
- *
- *****************************************************************************/
-void Inendi::PVMapping::invalidate_all()
-{
-	for (PVMappingProperties & prop: columns) {
-		prop.invalidate();
-	}
-}
-
-/******************************************************************************
- *
- * Inendi::PVMapping::validate_all
- *
- *****************************************************************************/
-void Inendi::PVMapping::validate_all()
-{
-	for (PVMappingProperties & prop: columns) {
-		prop.set_uptodate();
-	}
-}
-
-
-
 /******************************************************************************
  *
  * Inendi::PVMapping::is_col_uptodate

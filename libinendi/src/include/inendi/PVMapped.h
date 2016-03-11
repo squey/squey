@@ -56,8 +56,6 @@ public:
 	~PVMapped();
 
 	// For PVSource
-	void invalidate_all();
-	void validate_all();
 	void add_column(PVMappingProperties const& props);
 	
 public:
@@ -95,8 +93,6 @@ public:
 
 	inline decimal_storage_type* get_column_pointer(PVCol col) { return &_trans_table[col][0]; }
 	inline decimal_storage_type const* get_column_pointer(PVCol col) const { return &_trans_table[col][0]; }
-
-	inline mapped_table_t const& get_table() const { return _trans_table; }
 
 public:
 	// Debugging functions
