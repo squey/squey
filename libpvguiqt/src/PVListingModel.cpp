@@ -211,11 +211,12 @@ void PVGuiQt::PVListingModel::axes_comb_changed()
  * PVGuiQt::PVListingModel::sort
  *
  *****************************************************************************/
-void PVGuiQt::PVListingModel::sort(PVCol col, Qt::SortOrder order, tbb::task_group_context & ctxt)
+void PVGuiQt::PVListingModel::sort(PVCol comb_col, Qt::SortOrder order, tbb::task_group_context & ctxt)
 {
-	lib_view().sort_indexes(col, sorting(), &ctxt);
+	PVCol orig_col = lib_view().get_original_axis_index(comb_col);
+	lib_view().sort_indexes(orig_col, sorting(), &ctxt);
 	if (not ctxt.is_group_execution_cancelled()) {
-		sorted(col, order);
+		sorted(comb_col, order); // set Qt sort indicator
 		update_filter();
 	}
 }
