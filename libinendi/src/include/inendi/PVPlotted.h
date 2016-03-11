@@ -26,10 +26,6 @@
 #include <inendi/PVPlotting.h>
 #include <inendi/PVSelection.h>
 
-#ifdef CUDA
-#include <inendi/cuda/PVPlotted_create_table_cuda.h>
-#endif
-
 namespace Inendi {
 
 // Forward declaration

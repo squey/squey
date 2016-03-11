@@ -8,12 +8,6 @@
 # Define ressources
 ###############################################################################
 
-set(CUDA_SRC_FILES
-cuda/PVPlotted_create_table_cuda.cu
-cuda/PVMapped_create_table_cuda.cu
-#cuda/selection.cu
-)
-
 set(SRC_FILES
 #arguments.cpp 
 discover.cpp
@@ -109,19 +103,6 @@ QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} ${WIDGETS_MOC_HEADERS} OPTIONS ${QT5_WRAP_OP
 ###############################################################################
 # Define libs
 ###############################################################################
-# TODO : Should we remove this part? (cpp still exists)
-#if(CUDA_FOUND)
-#  set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
-#
-#  set(CUDA_NVCC_FLAGS -Xcompiler -fPIC -arch=compute_20 -code=sm_20 -g)
-#  #set(CUDA_NVCC_FLAGS -Xcompiler -fPIC)
-#  cuda_compile(CUDA_GENERATED_FILES ${CUDA_SRC_FILES})
-#
-##  cuda_add_library(inendi SHARED ${CUDA_GENERATED_FILES})
-#  cuda_add_library(inendi SHARED ${SRC_FILES} ${MOC_SRC} ${CUDA_GENERATED_FILES})
-#else(CUDA_FOUND)
-#  add_library(inendi SHARED ${SRC_FILES} ${MOC_SRC})
-#endif(CUDA_FOUND)
 
 set(QT5_LIBS Qt5Core Qt5Xml Qt5Gui Qt5Widgets)
 

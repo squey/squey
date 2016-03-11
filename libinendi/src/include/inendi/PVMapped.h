@@ -26,9 +26,6 @@
 #include <inendi/PVMapped_types.h>
 #include <inendi/PVMapping.h>
 #include <inendi/PVSource.h>
-#ifdef CUDA
-#include <inendi/cuda/PVMapped_create_table_cuda.h>
-#endif
 
 namespace Inendi {
 
