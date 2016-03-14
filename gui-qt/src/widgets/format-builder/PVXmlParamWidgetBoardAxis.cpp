@@ -61,7 +61,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     //name
     textName = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
     //type
-    mapPlotType = new PVWidgets::PVAxisTypeWidget(this);
+    mapPlotType = new PVWidgets::PVAxisTypeWidget("all", this);
     comboMapping = new PVWidgets::PVMappingModeWidget(this);
     comboPlotting = new PVWidgets::PVPlottingModeWidget(this);
     
