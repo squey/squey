@@ -109,7 +109,6 @@ filter/PVFieldSplitterChar.cpp
 filter/PVFieldSplitterChunkMatch.cpp
 filter/PVFieldSplitterUTF16Char.cpp
 filter/PVFieldsFilterParamWidget.cpp
-filter/PVPureMappingProcessing.cpp
 filter/PVPluginsLoad.cpp
 )
 
