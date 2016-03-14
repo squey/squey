@@ -127,12 +127,6 @@ private:
     PVRush::PVXmlTreeNodeDom  *nodeConfirmApply;
     QModelIndex editingIndex;
     
-    QStringList listType(const QStringList&)const;
-    QStringList getListTypeMapping(const QString& mType);
-    QStringList getListTypePlotting(const QString& mType);
-    
-    
-    
 public slots:
     /**
      * This slot is called when we select a tree item.<br>

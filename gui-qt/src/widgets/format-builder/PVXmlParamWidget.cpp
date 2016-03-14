@@ -32,7 +32,6 @@ PVInspector::PVXmlParamWidget::PVXmlParamWidget(PVFormatBuilderWidget* parent) :
     type = no;
     layout->setContentsMargins(0,0,0,0);
     setLayout(layout);
-    pluginListURL = inendi_plugins_get_functions_dir();
 }
 
 
@@ -275,80 +274,6 @@ QWidget * PVInspector::PVXmlParamWidget::getParamWidgetByName(QString nameParam)
     return NULL;
 }
 
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidget::listType
- *
- *****************************************************************************/
-QStringList PVInspector::PVXmlParamWidget::listType(const QStringList &listEntry)const {
-    //listEntry.filter("(.*function_mapping.*)");//no
-    QStringList ll;
-    QRegExp reg(".*function_mapping_([a-zA-Z0-9\\-]*)_.*");
-
-    for (int i = 0; i < listEntry.count(); i++) {
-        if (reg.exactMatch(listEntry.at(i))) {
-            reg.indexIn(listEntry.at(i));
-            if (!ll.contains(reg.cap(1)))
-                ll.push_back(reg.cap(1));
-        }
-    }
-    return ll;
-}
-
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidget::getListTypeMapping
- *
- *****************************************************************************/
-QStringList PVInspector::PVXmlParamWidget::getListTypeMapping(const QString& mType) {
-    QDir dir(pluginListURL);
-    QStringList lm;
-    QStringList fileList = dir.entryList();
-
-    QString regexpStr = QString(".*function_mapping_%1_([a-zA-Z0-9\\-]*)\\..*").arg(mType);
-    QRegExp reg(regexpStr);
-
-    for (int i = 0; i < fileList.count(); i++) {
-        if (reg.exactMatch(fileList.at(i))) {
-            reg.indexIn(fileList.at(i));
-            if (!lm.contains(reg.cap(1)))
-                lm.push_back(reg.cap(1));
-        }
-    }
-    return lm;
-}
-
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidget::getListTypePlotting
- *
- *****************************************************************************/
-QStringList PVInspector::PVXmlParamWidget::getListTypePlotting(const QString& mType) {
-    QDir dir(pluginListURL);
-    //qDebug() << "updatePlotMapping(" << mType << ")";
-    QStringList lp;
-    QStringList fileList = dir.entryList();
-
-    QString regexpStr = QString(".*function_plotting_%1_([a-zA-Z0-9\\-]*)\\..*").arg(mType);
-    QRegExp reg(regexpStr);
-
-    for (int i = 0; i < fileList.count(); i++) {
-        if (reg.exactMatch(fileList.at(i))) {
-            reg.indexIn(fileList.at(i));
-            if (!lp.contains(reg.cap(1)))
-                lp.push_back(reg.cap(1));
-        }
-    }
-    return lp;
-}
-
-
-
-
-
 /******************************** SLOTS ***************************************/
 
 
@@ -428,27 +353,12 @@ void PVInspector::PVXmlParamWidget::updatePlotMapping(const QString& t) {
     if (t.length() > 1) {
 
         PVXmlParamComboBox *myType = (PVXmlParamComboBox *) getParamWidgetByName("typeCombo");
-        PVXmlParamComboBox *myPlotting = (PVXmlParamComboBox *) getParamWidgetByName("plotting");
-        PVXmlParamComboBox *myMapping = (PVXmlParamComboBox *) getParamWidgetByName("mapping");
         PVXmlParamWidgetEditorBox *myName = (PVXmlParamWidgetEditorBox *) getParamWidgetByName("name");
-
-        myMapping->clear();
-        myMapping->addItem("");
-        myMapping->addItems(getListTypeMapping(myType->currentText()));
-        myMapping->select("default");
-
-        myPlotting->clear();
-        myPlotting->addItem("");
-        myPlotting->addItems(getListTypePlotting(myType->currentText()));
-        myPlotting->select("default");
 
         if (myType->currentText() == "time") {
             PVXmlParamTextEdit *timeFormat = (PVXmlParamTextEdit*) getParamWidgetByName("time-format");
             timeFormat->setVisible(true);
-            myMapping->select("24h");
             myName->setText("Time");
-        } else if (myType->currentText() == "integer") {
-            myPlotting->select("minmax");
         } else {
             PVXmlParamTextEdit *timeFormat = (PVXmlParamTextEdit*) getParamWidgetByName("time-format");
             timeFormat->setVisible(false);
