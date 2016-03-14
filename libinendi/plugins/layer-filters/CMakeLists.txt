@@ -67,6 +67,6 @@ target_link_libraries(layer_filter_multiple_search ${LINK_LIBRARIES} ${PCRE_LIBR
 # Install plugins and ressources
 ###############################################################################
 
-INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION layer-filters
-                                     RUNTIME DESTINATION layer-filters)
-INSTALL(FILES ${FILTERS_DIST_FILES} DESTINATION .)
+INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION ${INENDI_PLUGIN}/layer-filters
+                                     RUNTIME DESTINATION ${INENDI_PLUGIN}/layer-filters)
+INSTALL(FILES ${FILTERS_DIST_FILES} DESTINATION ${SHARE_RESSOURCES})

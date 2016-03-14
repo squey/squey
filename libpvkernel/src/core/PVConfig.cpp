@@ -15,7 +15,7 @@
 #include <QSettings>
 #include <iostream>
 
-#define GLOBAL_CONFIG_FILENAME "pvconfig.ini"
+#define GLOBAL_CONFIG_FILENAME INENDI_CONFIG "/pvconfig.ini"
 #define CONFIG_FILENAME "config.ini"
 
 PVCore::PVConfig::PVConfig_p PVCore::PVConfig::_pvconfig;

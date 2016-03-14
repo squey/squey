@@ -4,10 +4,34 @@
 # @copyright (C) Picviz Labs 2010-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
-install(FILES "pvconfig.ini" DESTINATION .)
-install(FILES "gui-qt/src/resources/icon.png" DESTINATION .)
-install(FILES "gui-qt/src/resources/inendi-inspector.ico" DESTINATION .)
-install(FILES "CHANGELOG" DESTINATION .)
+###############################################################################
+# Define installation path.
+###############################################################################
+# FIXME : We have to use CMAKE_INSTALL_PREFIX to have correct absolute path on plugins
+# but it will make cpack use this same path so we should not generate .deb file with
+# this variable set.
+
+SET(SHARE_RESSOURCES "${CMAKE_INSTALL_PREFIX}/share/inendi/inspector")
+SET(INENDI_CONFIG ${SHARE_RESSOURCES})
+SET(CUSTOM_QT_PATH "${CMAKE_INSTALL_PREFIX}/lib/inendi-inspector/qt")
+SET(CUSTOM_TBB_PATH "${CMAKE_INSTALL_PREFIX}/lib/inendi-inspector/tbb")
+SET(PVKERNEL_PLUGIN "${CMAKE_INSTALL_PREFIX}/lib/inendi-inspector/plugins")
+SET(INENDI_PLUGIN "${CMAKE_INSTALL_PREFIX}/lib/inendi-inspector/plugins")
+
+# Set rpath for custom Qt and TBB
+set(CMAKE_INSTALL_RPATH "${CUSTOM_QT_PATH}:${CUSTOM_TBB_PATH}")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+add_definitions(-DINENDI_CONFIG="${INENDI_CONFIG}")
+
+###############################################################################
+# Define files to install
+###############################################################################
+
+install(FILES "pvconfig.ini" DESTINATION ${INENDI_CONFIG})
+install(FILES "gui-qt/src/resources/icon.png" DESTINATION ${SHARE_RESSOURCES})
+install(FILES "gui-qt/src/resources/inendi-inspector.ico" DESTINATION ${SHARE_RESSOURCES})
+install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
 
 set(LINUX_QT5_PATH "/usr/lib/x86_64-linux-gnu")
 
@@ -55,7 +79,7 @@ install(FILES
 	${LINUX_QT5_PATH}/libQt5Widgets.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
 	${LINUX_QT5_PATH}/libQt5Xml.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Xml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
 	${LINUX_QT5_PATH}/libQt5Xml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-	DESTINATION .)
+	DESTINATION ${CUSTOM_QT_PATH})
 
 if(NOT ${QT_WEBKIT})
 install(FILES
@@ -65,7 +89,7 @@ install(FILES
 	${LINUX_QT5_PATH}/libQt5WebEngineCore.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH}
 	${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}
 	${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH}
-	DESTINATION .)
+	DESTINATION ${CUSTOM_QT_PATH})
 endif(NOT ${QT_WEBKIT})
 
 #
@@ -74,22 +98,10 @@ endif(NOT ${QT_WEBKIT})
 install(FILES
 	${LINUX_TBB_PATH}/libtbb.so.${TBB_MAJOR}
 	${LINUX_TBB_PATH}/libtbbmalloc.so.${TBB_MAJOR}
-	DESTINATION .)
-
-#
-# QueryBuilder
-#
-install(DIRECTORY ${inendi-inspector_SOURCE_DIR}/libpvkernel/src/widgets/querybuilder DESTINATION .)
-
-#
-# PVCop
-#
-install(FILES /usr/local/lib/libpvcop.so.1 DESTINATION .)
-install(FILES /usr/local/lib/libpvhwloc.so.1 DESTINATION .)
-install(FILES /usr/local/lib/libpvlogger.so.1 DESTINATION .)
+	DESTINATION ${CUSTOM_TBB_PATH})
 
 # doc
 if(DOC_ROOT_DIR)
 	message(STATUS "Documentation directory: " ${DOC_ROOT_DIR})
-	install(DIRECTORY ${DOC_ROOT_DIR}/ DESTINATION "docs")
+	install(DIRECTORY ${DOC_ROOT_DIR}/ DESTINATION share)
 endif(DOC_ROOT_DIR)

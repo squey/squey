@@ -30,7 +30,7 @@ enable_testing()
 include(CheckFunctionExists)
 
 # Used for ICU, TBB and HWLoc
-include(FindPkgConfig)
+find_package(PkgConfig)
 
 # User defined macro
 include(CMakeMacros.txt)
@@ -62,6 +62,12 @@ include(CMakeVersionHandler.txt)
 
 # Define variable and repo required for tests
 include(CMakePVTests.txt)
+
+###############################################################################
+# Define distribution stuff
+###############################################################################
+include(CMakePackage.txt)
+include(CMakePackageDistribute.txt)
 
 ###############################################################################
 # Add generic inspector includes
@@ -109,15 +115,8 @@ declare_internal_library(pvparallelview)
 declare_internal_library(pvguiqt)
 
 add_subdirectory(gui-qt)
-add_subdirectory(scripts)
 
 # Define generated files
 ###############################################################################
 # Set inspector.sh for current build
 configure_file(inspector.sh.cmake inspector.sh @ONLY)
-
-###############################################################################
-# Define distribution stuff
-###############################################################################
-include(CMakePackage.txt)
-include(CMakePackageDistribute.txt)

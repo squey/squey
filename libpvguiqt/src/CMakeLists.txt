@@ -123,5 +123,5 @@ set(PVGUIQT_LINK_LIBRARIES pvdisplays pvhive inendi pvkernel ${OPENGL_LIBRARIES}
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 
-INSTALL(TARGETS pvguiqt LIBRARY DESTINATION .
-                        RUNTIME DESTINATION .)
+INSTALL(TARGETS pvguiqt LIBRARY DESTINATION lib
+                        RUNTIME DESTINATION lib)

@@ -160,5 +160,5 @@ set_target_properties(pvparallelview PROPERTIES SOVERSION 1)
 
 target_link_libraries(pvparallelview ${LINK_LIBRARIES})
 
-INSTALL(TARGETS pvparallelview LIBRARY DESTINATION .
-                               RUNTIME DESTINATION .)
+INSTALL(TARGETS pvparallelview LIBRARY DESTINATION lib
+                               RUNTIME DESTINATION lib)

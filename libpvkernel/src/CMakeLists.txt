@@ -308,5 +308,5 @@ endif(CUDA_FOUND)
 target_link_libraries(pvkernel ${PVKERNEL_LINK_LIBRARIES})
 
 # Define installation directory
-INSTALL(TARGETS pvkernel LIBRARY DESTINATION .
-			 RUNTIME DESTINATION .)
+INSTALL(TARGETS pvkernel LIBRARY DESTINATION lib
+			 RUNTIME DESTINATION lib)

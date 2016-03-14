@@ -16,14 +16,13 @@
 
 namespace PVRush {
 
-class PVPluginsLoad
+namespace PVPluginsLoad
 {
-public:
-	static int load_all_plugins();
-	static int load_input_type_plugins();
-	static int load_source_plugins();
-	static QString get_input_type_dir();
-	static QString get_source_dir();
+	int load_all_plugins();
+	int load_input_type_plugins();
+	int load_source_plugins();
+	QString get_input_type_dir();
+	QString get_source_dir();
 };
 
 }

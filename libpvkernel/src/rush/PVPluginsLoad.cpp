@@ -47,20 +47,20 @@ int PVRush::PVPluginsLoad::load_source_plugins()
 
 QString PVRush::PVPluginsLoad::get_input_type_dir()
 {
-	QString pluginsdirs = QString(getenv("PVRUSH_INPUTTYPE_DIR"));
+	QString pluginsdirs = QString(getenv("PVKERNEL_PLUGIN_PATH"));
 	if (pluginsdirs.isEmpty()) {
-		pluginsdirs = QCoreApplication::applicationDirPath() + QDir::separator() + PVRUSH_INPUTTYPE_DIR;
+		pluginsdirs = QString(PVKERNEL_PLUGIN_PATH) + QDir::separator() + "input_types";
 	}
 
-	return pluginsdirs;
+	return pluginsdirs + QDir::separator() + "input_types";
 }
 
 QString PVRush::PVPluginsLoad::get_source_dir()
 {
-	QString pluginsdirs = QString(getenv("PVRUSH_SOURCE_DIR"));
+	QString pluginsdirs = QString(getenv("PVKERNEL_PLUGIN_PATH"));
 	if (pluginsdirs.isEmpty()) {
-		pluginsdirs = QCoreApplication::applicationDirPath() + QDir::separator() + PVRUSH_SOURCE_DIR;
+		pluginsdirs = QString(PVKERNEL_PLUGIN_PATH) + QDir::separator() + "sources";
 	}
 
-	return pluginsdirs;
+	return pluginsdirs + QDir::separator() + "sources";
 }

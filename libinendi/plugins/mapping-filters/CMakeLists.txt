@@ -30,9 +30,6 @@ mapping_filter_time_week
 mapping_filter_mandatory_minmax
 )
 
-set(FILTERS_DIST_FILES
-)
-
 # Linkage libs
 set(LINK_LIBRARIES inendi pvkernel)
 
@@ -244,6 +241,5 @@ target_link_libraries(mapping_filter_date_day ${LINK_LIBRARIES} ${ICU_LIBRARY})
 # Define install directory
 ###############################################################################
 
-INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION mapping-filters
-                                     RUNTIME DESTINATION mapping-filters)
-INSTALL(FILES ${FILTERS_DIST_FILES} DESTINATION mapping-filters)
+INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION ${INENDI_PLUGIN}/mapping-filters
+                                     RUNTIME DESTINATION ${INENDI_PLUGIN}/mapping-filters)
