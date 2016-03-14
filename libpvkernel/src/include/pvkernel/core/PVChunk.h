@@ -84,7 +84,7 @@ protected:
 	};
 
 public:
-	PVChunk() : _index(0), _n_elts_invalid(0), _p_chunk_fields(NULL) {};
+	PVChunk() : _index(0), _p_chunk_fields(NULL) {};
 	virtual ~PVChunk()
 	{
 		free_structs();
@@ -263,7 +263,6 @@ protected:
 	chunk_index _index;
 	chunk_index _agg_index;
 	PVRush::PVRawSourceBase *_source;
-	PVRow _n_elts_invalid;
 	size_t _nelts_org;
 	size_t _nelts_valid;
 
