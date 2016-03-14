@@ -21,8 +21,6 @@ namespace PVRush {
 
 class PVNrawOutput : public PVRush::PVOutput {
 public:
-	typedef std::map<PVRow,chunk_index> map_pvrow;
-public:
 	PVNrawOutput(PVNraw& nraw);
 	PVNrawOutput() = delete;;
 
@@ -31,8 +29,6 @@ public:
 	// It takes a PVCore::PVChunk* as a parameter, and do whatever he wants with it
 	// It *must* call PVChunk->free() in the end !!
 	void operator()(PVCore::PVChunk* out);
-	map_pvrow const& get_pvrow_index_map() const;
-	void clear_pvrow_index_map();
 
 	void set_nraw_dest(PVNraw& nraw) { _nraw_dest = &nraw; }
 
@@ -48,8 +44,6 @@ protected:
 	
 protected:
 	PVNraw* _nraw_dest;
-	map_pvrow _pvrow_chunk_idx;
-	PVRow _nraw_cur_index;
 
 	CLASS_FILTER_NONREG(PVNrawOutput)
 };

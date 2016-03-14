@@ -137,18 +137,12 @@ public:
 
 	static PVCore::PVArgumentList default_args_extractor();
 
-	void dump_mapnraw();
 	void dump_nraw();
 	void debug();
 
 private:
 	void set_sources_number_fields();
 	
-protected:
-	/*! \brief Find the aggregator index of a line present in the internal nraw
-	 */
-	chunk_index pvrow_to_agg_index(PVRow start, bool& found);
-
 protected:
 	PVAggregator _agg;
 	std::unique_ptr<PVNraw> _nraw;
