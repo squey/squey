@@ -18,7 +18,6 @@ PVFilter::PVChunkFilterByElt::PVChunkFilterByElt(PVElementFilter_f elt_filter) :
 	PVChunkFilter()
 {
 	_elt_filter = elt_filter;
-	_n_elts_invalid = 0;
 }
 
 /******************************************************************************
@@ -28,27 +27,17 @@ PVFilter::PVChunkFilterByElt::PVChunkFilterByElt(PVElementFilter_f elt_filter) :
  *****************************************************************************/
 PVCore::PVChunk* PVFilter::PVChunkFilterByElt::operator()(PVCore::PVChunk* chunk)
 {
-	PVCore::list_elts& elts = chunk->elements();
-	PVCore::list_elts::iterator it,ite;
-	it = elts.begin();
-	ite = elts.end();
-	size_t nelts = elts.size();
 	size_t nelts_valid = 0;
-	while (it != ite)
+
+	for(auto & elt_: chunk->elements())
 	{
-		PVCore::PVElement &elt = _elt_filter(*(*it));
-		if (!elt.valid())
+		PVCore::PVElement &elt = _elt_filter(*elt_);
+		if (elt.valid())
 		{
-			PVCore::PVElement::free(*it);
-			PVCore::list_elts::iterator it_rem = it;
-			it++;
-			elts.erase(it_rem);
-		}
-		else {
-			it++;
 			nelts_valid++;
 		}
 	}
-	chunk->set_elts_stat(nelts, nelts_valid);
+
+	chunk->set_elts_stat(chunk->elements().size(), nelts_valid);
 	return chunk;
 }
