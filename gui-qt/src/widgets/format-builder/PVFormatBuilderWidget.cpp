@@ -780,6 +780,10 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 				catch (PVRush::PVFormatInvalid& e) {
 					_log_sc.reset();
 					continue;
+				} catch (std::ios_base::failure const& e) {
+					// File can't be found, looks for another type.
+					_log_sc.reset();
+					continue;
 				}
 				// If the log_source can't be create, look for another source.
 				if (_log_source.get() == nullptr) {
