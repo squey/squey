@@ -27,10 +27,10 @@ Inendi::PVPlotting::PVPlotting(PVPlotted* plotted):
 	_plotted(plotted),
 	_name("default")
 {
-	PVRush::PVFormat_p format = _plotted->get_parent()->get_format();
+	PVRush::PVFormat_p format = _plotted->get_parent<Inendi::PVSource>()->get_rushnraw().get_format();
 
 	for (int i=0; i < format->get_axes().size(); i++) {
-		Inendi::PVMapping* mapping = _plotted->get_parent()->get_mapping();
+		Inendi::PVMapping const* mapping = _plotted->get_parent()->get_mapping();
 		assert(mapping);
 		PVPlottingProperties plotting_axis(*mapping, *format, i);
 		_columns << plotting_axis;
@@ -99,7 +99,7 @@ Inendi::PVPlottingFilter::p_type Inendi::PVPlotting::get_filter_for_col(PVCol co
  *****************************************************************************/
 PVRush::PVFormat_p Inendi::PVPlotting::get_format() const
 {
-	return _plotted->get_parent()->get_format();
+	return _plotted->get_parent<Inendi::PVSource>()->get_rushnraw().get_format();
 }
 
 /******************************************************************************
@@ -175,7 +175,7 @@ void Inendi::PVPlotting::serialize(PVCore::PVSerializeObject &so, PVCore::PVSeri
 	so.list("properties", _columns);
 	so.attribute("name", _name);
 	if (!so.is_writing()) {
-		Inendi::PVMapping* mapping = _plotted->get_parent()->get_mapping();
+		Inendi::PVMapping const* mapping = _plotted->get_parent()->get_mapping();
 		assert(mapping);
 		for (PVPlottingProperties& p: _columns) {
 			p.set_mapping(*mapping);

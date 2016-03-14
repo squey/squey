@@ -2,14 +2,10 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2009-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
-#include <QList>
-#include <QStringList>
 #include <QString>
-
-#include <pvkernel/rush/PVFormat.h>
 
 #include <inendi/PVMandatoryMappingFilter.h>
 #include <inendi/PVMapping.h>
@@ -21,15 +17,7 @@
 
 #include <inendi/PVRoot.h>
 
-#include <boost/thread.hpp>
-
 #include <iostream>
-
-#include <unordered_set>
-#include <float.h>
-#include <omp.h>
-
-#include <tbb/parallel_for.h>
 
 /******************************************************************************
  *
@@ -51,12 +39,22 @@ Inendi::PVMapped::~PVMapped()
 	PVLOG_DEBUG("In PVMapped destructor\n");
 }
 
+/******************************************************************************
+ *
+ * Inendi::PVMapped::set_parent_from_ptr
+ *
+ *****************************************************************************/
 void Inendi::PVMapped::set_parent_from_ptr(PVSource* source)
 {
 	data_tree_mapped_t::set_parent_from_ptr(source);
 	_mapping = PVMapping_p(new PVMapping(this));
 }
 
+/******************************************************************************
+ *
+ * Inendi::PVMapped::allocate_table
+ *
+ *****************************************************************************/
 void Inendi::PVMapped::allocate_table(PVRow const nrows, PVCol const ncols)
 {
 	_trans_table.resize(ncols);
@@ -65,6 +63,11 @@ void Inendi::PVMapped::allocate_table(PVRow const nrows, PVCol const ncols)
 	}
 }
 
+/******************************************************************************
+ *
+ * Inendi::PVMapped::compute
+ *
+ *****************************************************************************/
 void Inendi::PVMapped::compute()
 {
 	// Prepare mandatory mapping filters
@@ -149,7 +152,7 @@ struct to_csv_value_holder
 };
 } }
 
-void Inendi::PVMapped::to_csv()
+void Inendi::PVMapped::to_csv() const
 {
 	// WARNING: this is all but efficient. Uses this for testing and
 	// debugging purpose only !
@@ -162,16 +165,6 @@ void Inendi::PVMapped::to_csv()
 		}
 		std::cout << "\n";
 	}
-}
-
-/******************************************************************************
- *
- * Inendi::PVMapped::get_format
- *
- *****************************************************************************/
-PVRush::PVFormat_p Inendi::PVMapped::get_format() const
-{
-	return get_parent()->get_rushnraw().get_format();
 }
 
 /******************************************************************************
@@ -194,25 +187,35 @@ PVCol Inendi::PVMapped::get_column_count() const
 	return _trans_table.size();
 }
 
+/******************************************************************************
+ *
+ * Inendi::PVMapped::add_column
+ *
+ *****************************************************************************/
 void Inendi::PVMapped::add_column(PVMappingProperties const& props)
 {
 	_mapping->add_column(props);
 }
 
-void Inendi::PVMapped::process_parent_source()
-{
-	compute();
-}
-
+/******************************************************************************
+ *
+ * Inendi::PVMapped::process_from_parent_source
+ *
+ *****************************************************************************/
 void Inendi::PVMapped::process_from_parent_source()
 {
-	process_parent_source();
+	compute();
 	// Process plotting children
 	for (auto plotted_p : get_children<PVPlotted>()) {
 		plotted_p->process_from_parent_mapped();
 	}
 }
 
+/******************************************************************************
+ *
+ * Inendi::PVMapped::invalidate_plotted_children_column
+ *
+ *****************************************************************************/
 void Inendi::PVMapped::invalidate_plotted_children_column(PVCol j)
 {
 	for (auto plotted_p : get_children<PVPlotted>()) {
@@ -220,6 +223,11 @@ void Inendi::PVMapped::invalidate_plotted_children_column(PVCol j)
 	}
 }
 
+/******************************************************************************
+ *
+ * Inendi::PVMapped::is_current_mapped
+ *
+ *****************************************************************************/
 bool Inendi::PVMapped::is_current_mapped() const
 {
 	Inendi::PVView const* cur_view = get_parent<PVSource>()->current_view();
@@ -231,6 +239,11 @@ bool Inendi::PVMapped::is_current_mapped() const
 	return false;
 }
 
+/******************************************************************************
+ *
+ * Inendi::PVMapped::serialize_write
+ *
+ *****************************************************************************/
 void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 {
 	data_tree_mapped_t::serialize_write(so);
@@ -238,6 +251,11 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 	so.object(QString("mapping"), *_mapping, QString(), false, (PVMapping*) NULL, false);
 }
 
+/******************************************************************************
+ *
+ * Inendi::PVMapped::serialize_read
+ *
+ *****************************************************************************/
 void Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
 	PVMapping* mapping = new PVMapping();

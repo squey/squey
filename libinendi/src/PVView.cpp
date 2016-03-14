@@ -1124,7 +1124,7 @@ bool Inendi::PVView::is_consistent() const
 void Inendi::PVView::recreate_mapping_plotting()
 {
 	// Source has been changed, recreate mapping and plotting
-	get_parent<PVMapped>()->process_parent_source();
+	get_parent<PVMapped>()->compute();
 	get_parent<PVPlotted>()->process_from_parent_mapped();
 
 /*

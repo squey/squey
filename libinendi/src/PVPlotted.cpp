@@ -545,7 +545,7 @@ void Inendi::PVPlotted::process_from_parent_mapped()
 	auto mapped = get_parent();
 
 	if (!mapped->is_uptodate()) {
-		mapped->process_parent_source();
+		mapped->compute();
 	}
 
 	process_parent_mapped();
