@@ -23,10 +23,9 @@
 namespace PVRush {
 
 // 
-/*! \brief Job queue processing with priorities.
+/*! \brief Job queue processing.
  * 
- * This class process jobs (represented by PVControllerJob objects) one by one with a system of priority that
- * can put a job at the beggining of the queue if its priority is one.
+ * This class process jobs (represented by PVControllerJob objects) one by one 
  *
  * \note This class should be launched in a separate thread. See PVControllerThread for instance
  * \sa PVControllerThread, PVExtractor

@@ -28,8 +28,8 @@ namespace PVRush {
  * This class owns an aggregator and a NRaw (see PVRush::PVNraw). Given a chunk filter, it process a given number
  * of lines and write them to its internal NRaw.
  *
- * It also owns a PVRush::PVController object, that is used to launch and/or cancel running jobs. A priority system allows a job
- * to be the next one running. In order to work, start_controller need to be called.
+ * It also owns a PVRush::PVController object, that is used to launch and/or cancel running jobs.
+ * In order to work, start_controller need to be called.
  *
  * \note We could also imagine that a global PVController object would be used for all PVExtractor's, but that's not our choice for now.
  */
@@ -67,27 +67,24 @@ public:
 	/*! \brief Process a given number of lines from a given index
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
 	 *  \param[in] nlines Number of lines to extract. It is 
-	 *  \param[in] priority Priority of the job
 	 *  \return A PVControllerJob object that represent the job that has been pushed to the internal job controller. It can be used by the caller to wait for the end of the job (see PVControllerJob::wait_end).
 	 *  \sa PVAggregator
 	 */
-	PVControllerJob_p process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority = 0);
+	PVControllerJob_p process_from_agg_nlines(chunk_index start, chunk_index nlines);
 
 	/*! \brief Process param[in]s between indexes "start" and "end"
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
 	 *  \param[in] end Index to end the extraction at
-	 *  \param[in] priority Priority of the job
 	 *  \return A PVControllerJob object that represent the job that has been pushed to the internal job controller. It can be used by the caller to wait for the end of the job (see PVControllerJob::wait_end).
 	 *  \sa PVAggregator
 	 */
-	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end, int priority = 0);
+	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end);
 
 	/*! \brief 
-	 *  \param[in] priority Priority of the job
 	 *  \return A PVControllerJob object that represent the job that has been pushed to the internal job controller. It can be used by the caller to wait for the end of the job (see PVControllerJob::wait_end).
 	 *  \sa PVAggregator
 	 */
-	PVControllerJob_p read_everything(int priority = 0);
+	PVControllerJob_p read_everything();
 
 	/*! \brief Get the list of sources of the internal aggregator
 	 */

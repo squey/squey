@@ -15,13 +15,12 @@
 #define PV_MAX_INDEX 1000000000
 #define PV_MAX_NELTS INENDI_LINES_MAX
 
-PVRush::PVControllerJob::PVControllerJob(job_action a, int priority) :
+PVRush::PVControllerJob::PVControllerJob(job_action a) :
 	_elt_valid_filter(true, _all_elts),
 	_elt_invalid_filter(false, _inv_elts),
 	_agg_tbb(nullptr)
 {
 	_a = a;
-	_priority = priority;
 	_job_done = false;
 	_agg = NULL;
 	_out_filter = NULL;
@@ -166,11 +165,6 @@ bool PVRush::PVControllerJob::running() const
 bool PVRush::PVControllerJob::done() const
 {
 	return _job_done;
-}
-
-int PVRush::PVControllerJob::priority() const
-{
-	return _priority;
 }
 
 chunk_index PVRush::PVControllerJob::idx_begin() const

@@ -258,7 +258,7 @@ void PVInspector::PVExtractorWidget::slider_released_Slot()
 
 void PVInspector::PVExtractorWidget::read_all_Slot()
 {
-	PVRush::PVControllerJob_p job = get_extractor().read_everything(0);
+	PVRush::PVControllerJob_p job = get_extractor().read_everything();
 
 	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Counting elements..."), this);
 	connect(job.get(), SIGNAL(job_done_signal()), pbox, SLOT(accept()));

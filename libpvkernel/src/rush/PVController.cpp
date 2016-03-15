@@ -98,19 +98,7 @@ void PVRush::PVController::submit_job(PVControllerJob_p job)
 {
 	boost::mutex::scoped_lock lock(_mut_job);
 	bool was_empty = (_jobs.size() == 0);
-	if (job->priority() == 1) {
-		if (job->action() == PVControllerJob::stop_current) {
-			if (_pipeline) {
-				_pipeline->cancel();
-			}
-		}
-		else {
-			_jobs.push_front(job);
-		}
-	}
-	else {
-		_jobs.push_back(job);
-	}
+	_jobs.push_back(job);
 	if (was_empty)
 		_job_present.notify_one();
 }

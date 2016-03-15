@@ -54,7 +54,6 @@ PVRush::PVExtractor::~PVExtractor()
 void PVRush::PVExtractor::start_controller()
 {
 	// This function need to be called if you want your jobs to be processed... !
-	// TODO: should we start it with a low priority ?
 	_ctrl_th.start();	
 }
 
@@ -93,7 +92,7 @@ const PVRush::PVFormat& PVRush::PVExtractor::get_format() const
 	return *get_nraw().get_format();
 }
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority)
+PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines)
 {
 	nlines = std::min(nlines, (chunk_index) INENDI_LINES_MAX);
 
@@ -105,7 +104,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
 	// object when it is not needed anymore !
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start, priority));
+	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start));
 	job->set_params(start, 0, nlines, PVControllerJob::sc_n_elts, _agg, _chk_flt, _out_nraw, _chunks, _dump_inv_elts, _dump_all_elts);
 	
 	// The job is submitted to the controller and the pointer returned, so that the caller can wait for its end
@@ -117,7 +116,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	return job;
 }
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start, chunk_index end, int priority)
+PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start, chunk_index end)
 {
 	end = std::min(end, start + ((chunk_index) INENDI_LINES_MAX) - 1);
 
@@ -126,7 +125,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
 	// object when it is not needed anymore !
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start, priority));
+	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start));
 	job->set_params(start, end, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _out_nraw, _chunks, _dump_inv_elts, _dump_all_elts);
 	
 	// The job is submitted to the controller and the pointer returned, so that the caller can wait for its end
@@ -135,9 +134,9 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	return job;
 }
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::read_everything(int priority)
+PVRush::PVControllerJob_p PVRush::PVExtractor::read_everything()
 {
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::read_everything, priority));
+	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::read_everything));
 	job->set_params(0, 0, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _out_nraw, _chunks, false, false);
 
 	_ctrl.submit_job(job);

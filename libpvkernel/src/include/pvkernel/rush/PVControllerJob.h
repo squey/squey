@@ -34,7 +34,6 @@ class PVController;
  *
  * A job has the properties defined in set_params.
  * <ul>
- * <li>A priority (0 or 1). If the priority is equal to 1, the job will be added to the top of the job queue and will be the next job processed.</li>
  * <li>An action, defined by an enum (see job_action).</li>
  * <li>The aggregator that is used for the job.</li>
  * <li>The global start index, and the global end index or the number of lines that is wanted.</li>
@@ -80,7 +79,7 @@ private:
 public:
 	/*! \brief Create a PVControllerJob object.
 	 */
-	PVControllerJob(job_action a, int priority);
+	PVControllerJob(job_action a);
 	virtual ~PVControllerJob();
 	void set_params(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks, bool dump_inv_elts = false, bool dump_all_elts = false);
 	bool done() const;
@@ -110,7 +109,6 @@ protected:
 	void job_goingto_start(PVController& ctrl); // Called by PVController when the job is going to be launched
 
 protected:
-	int priority() const;
 	chunk_index idx_begin() const;
 	chunk_index idx_end() const;
 	chunk_index expected_nelts() const;
@@ -142,7 +140,6 @@ protected:
 
 private:
 	job_action _a;
-	int _priority;
 	// Indexes are aggregator indexes !
 	chunk_index _idx_begin;
 	chunk_index _idx_end;
@@ -172,7 +169,7 @@ public:
 
 public:
 	PVControllerJobDummy() :
-		PVControllerJob(PVControllerJob::start, 0)
+		PVControllerJob(PVControllerJob::start)
 	{
 	}
 	~PVControllerJobDummy() {}
