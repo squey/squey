@@ -18,7 +18,6 @@
 PVRush::PVControllerJob::PVControllerJob(job_action a, int priority) :
 	_elt_valid_filter(true, _all_elts),
 	_elt_invalid_filter(false, _inv_elts),
-	_f_nelts(&_job_done),
 	_agg_tbb(nullptr)
 {
 	_a = a;
@@ -87,12 +86,8 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 	// The "job" filter
 	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> transform_filter(tbb::filter::parallel, _filter);
 
-	// Elements count filter
-	_f_nelts.done_when(_n_elts);
-	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> count_filter(tbb::filter::serial_in_order, _f_nelts.f());
-
 	// Final output filter
-	tbb::filter_t<PVCore::PVChunk*,void> out_filter(tbb::filter::serial_in_order, _out_filter->f());
+	tbb::filter_t<PVCore::PVChunk*,void> out_filter(tbb::filter::parallel, _out_filter->f());
 
 	if (_dump_inv_elts | _dump_all_elts) {
 		_all_elts.clear();
@@ -112,10 +107,10 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 			middle_chunk_filter = middle_chunk_filter & dump_inv_elts_filter;
 		}
 
-		return input_filter & middle_chunk_filter & count_filter & out_filter;
+		return input_filter & middle_chunk_filter & out_filter;
 	}
 	else {
-		return input_filter & source_transform_filter & transform_filter & count_filter & out_filter;
+		return input_filter & source_transform_filter & transform_filter & out_filter;
 	}
 }
 
@@ -218,7 +213,7 @@ chunk_index PVRush::PVControllerJob::status() const
 
 chunk_index PVRush::PVControllerJob::rejected_elements() const
 {
-	return _f_nelts.n_elts_invalid();
+	return 0; // For now, we don't rejected element, we set them to 0.
 }
 
 chunk_index PVRush::PVControllerJob::nb_elts_max() const

@@ -13,7 +13,6 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVChunkFilterSource.h>
-#include <pvkernel/filter/PVChunkFilterCountElts.h>
 #include <pvkernel/filter/PVChunkFilterDumpElts.h>
 #include <pvkernel/rush/PVOutput.h>
 #include <boost/thread/condition_variable.hpp>
@@ -138,8 +137,6 @@ protected:
 	PVFilter::PVChunkFilter_f _filter;
 	PVOutput* _out_filter;
 
-	// Filter that count valid elements
-	PVFilter::PVChunkFilterCountElts _f_nelts;
 	// Source transform filter
 	PVFilter::PVChunkFilterSource _source_filter;
 
