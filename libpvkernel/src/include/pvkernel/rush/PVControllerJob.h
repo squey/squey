@@ -46,9 +46,6 @@ class PVController;
  * Once a job is submitted to a controller, its end can be waited by any thread by calling wait().
  * It can also be canceled by any thread by calling cancel().
  * Once a job is finished, its duration can be obtained thanks to duration().
- *
- * Moreover, a "dummy" controller job exists (PVControllerJobDummy). Its wait method returns immediatly. It is used
- * if an invalid job has to be created/returned (used by PVExtractor for instance).
  */
 class PVControllerJob : public QObject, public std::enable_shared_from_this<PVControllerJob>, boost::noncopyable
 {
@@ -162,22 +159,7 @@ signals:
 	void job_done_signal();
 };
 
-// This class is a helper in case a "false" job has to be returned, and it won't be waited
-class PVControllerJobDummy : public PVControllerJob {
-public:
-	typedef std::shared_ptr<PVControllerJobDummy> p_type;
-
-public:
-	PVControllerJobDummy() :
-		PVControllerJob(PVControllerJob::start)
-	{
-	}
-	~PVControllerJobDummy() {}
-	virtual void wait_end() { }
-};
-
 typedef PVControllerJob::p_type PVControllerJob_p;
-typedef PVControllerJobDummy::p_type PVControllerJobDummy_p;
 
 }
 
