@@ -141,10 +141,8 @@ rush/PVCharsetDetect.cpp
 rush/PVChunkTransform.cpp
 rush/PVChunkTransformUTF16.cpp
 rush/PVAggregator.cpp
-rush/PVController.cpp
 rush/PVPipelineTask.cpp
 rush/PVControllerJob.cpp
-rush/PVControllerThread.cpp
 rush/PVExtractor.cpp
 rush/PVPluginsLoad.cpp
 rush/PVSourceCreatorFactory.cpp

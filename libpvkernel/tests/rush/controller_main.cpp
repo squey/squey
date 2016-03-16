@@ -81,15 +81,8 @@ void chunk_filter_test(PVChunkFilterByElt &chk_flt, int argc, char** argv)
 	// Create a job and submit it to the controller
 	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start));
 	job->set_params(0, 0, 10000000, PVControllerJob::sc_n_elts, agg, chk_flt.f(), ofile, nchunks);
-	//job->set_params(0, 0, 10000000, PVControllerJob::sc_n_elts, agg, boost::bind(chk_flt.f(), boost::bind(chk_invalid.f(), _1)), ofile, nchunks);
-	
-//	PVControllerJob job1(PVControllerJob::start, 0);
-//	job1.set_params(10, 5000000, agg, chk_flt.f(), ofile, nchunks);
-//
-//	PVControllerJob job2(PVControllerJob::start, 0);
-//	job2.set_params(0, 5000, agg, chk_flt.f(), ofile, nchunks);
+	job->run_job();
 
-	_ctrl.submit_job(job);
 	std::cout << "wait_end" << std::endl;
 	job->wait_end();
 	std::cout << "wait_end done" << std::endl;

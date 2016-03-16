@@ -188,10 +188,6 @@ bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJ
 	boost::thread th_status(boost::bind(update_status_ext, pbox, job)); 
 	pbox->launch_timer_status();
 
-	if (!job->running() && (job->started())) {
-		// Job is finish before we can show the box.
-		return true;
-	}
 	// Show the progressBox
 	if (pbox->exec() == QDialog::Accepted) {
 		// Job finished, everything is fine.
@@ -262,10 +258,6 @@ void PVInspector::PVExtractorWidget::read_all_Slot()
 
 	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Counting elements..."), this);
 	connect(job.get(), SIGNAL(job_done_signal()), pbox, SLOT(accept()));
-	if (!job->running() && (job->started())) {
-		fill_source_list();
-		return;
-	}
 	if (pbox->exec() != QDialog::Accepted) {
 		job->cancel();
 	}

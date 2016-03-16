@@ -98,7 +98,6 @@ namespace pvtest {
             }
 
             // Create the extractor
-            _ext.start_controller();
             _ext.add_source(src);
             _ext.set_format(_format);
             _ext.set_chunk_filter(_format.create_tbb_filters());

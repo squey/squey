@@ -12,8 +12,6 @@
 
 #include <pvbase/types.h>
 #include <pvkernel/rush/PVAggregator.h>
-#include <pvkernel/rush/PVController.h>
-#include <pvkernel/rush/PVControllerThread.h>
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/filter/PVChunkFilter.h>
@@ -36,21 +34,7 @@ namespace PVRush {
 class PVExtractor {
 public:
 	PVExtractor(unsigned int nchunks = 0);
-	~PVExtractor();
 public:
-	/*! \brief Launch the internal job controller
-	 */
-	void start_controller();
-
-	/*! \brief Gracefully stop the internal job controller
-	 * This will stop the controller after the end of current job.
-	 */
-	void gracefully_stop_controller();
-	
-	/*! \brief Stop the internal job controller
-	 * This will cancel the current job and stop the controller.
-	 */
-	void force_stop_controller();
 
 	/*! \brief Add a PVRawSourceBase to the internal aggregator
 	 * This function adds a source to the internal aggregator.
@@ -143,8 +127,6 @@ private:
 protected:
 	PVAggregator _agg;
 	std::unique_ptr<PVNraw> _nraw;
-	PVController _ctrl;
-	PVControllerThread _ctrl_th;
 	PVNrawOutput _out_nraw; // Linked to _nraw
 	PVFilter::PVChunkFilter_f _chk_flt;
 	unsigned int _chunks;

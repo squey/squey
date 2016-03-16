@@ -1674,12 +1674,10 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			job_import = src->extract(src->get_format().get_first_line(), src->get_format().get_line_count());
 		}
 		catch (PVRush::PVInputException const& e) {
-			PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
 			QMessageBox::critical(this, "Cannot create sources", QString("Error with input: ") + e.what().c_str());
 			return false;
 		}
 		catch (PVRush::PVNrawException const& e) {
-			PVLOG_ERROR("PVNraw error: %s\n", e.what());
 			QMessageBox::critical(this, "Cannot create sources", QString("Error with nraw: ") + e.what());
 			return false;
 		}
@@ -1689,7 +1687,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			return false;
 		}
 		src->wait_extract_end(job_import);
-		PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
+
 		if (src->get_rushnraw().get_row_count() == 0) {
 			QString msg = QString("<p>The files <strong>%1</strong> using format <strong>%2</strong> cannot be opened. ").arg(src->get_name()).arg(src->get_format_name());
 			PVRow nelts = job_import->rejected_elements();
@@ -1702,15 +1700,12 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			else {
 				msg += QString("Indeed, the sources <strong>were empty</strong> (empty files, bad database query, etc...) because no elements have been extracted.</p><p>You should try to load another set of data.</p>");
 			}
-			//message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-			//pvsdk_messenger->post_message_to_gl(message);
-			QMessageBox::warning(this, "Cannot load sources", msg);
+			QMessageBox::critical(this, "Cannot load sources", msg);
 			return false;
 		} else if (src->get_rushnraw().get_invalid_count() != 0) {
 			// We can continue with it but user have to know that some values are incorrect.
 			QMessageBox::warning(this, "Failed conversions", "Some conversions from text to binary failed during import. Please, look at your terminal to know which conversions failed.");
 		}
-		src->get_extractor().dump_nraw();
 
 		BENCH_STOP(lff);
 #ifdef INENDI_DEVELOPER_MODE

@@ -16,8 +16,6 @@
 
 PVRush::PVExtractor::PVExtractor(unsigned int chunks) :
 	_nraw(new PVRush::PVNraw()),
-	_ctrl(),
-	_ctrl_th(_ctrl),
 	_out_nraw(*_nraw),
 	_chunks(chunks),
 	_dump_inv_elts(false),
@@ -44,31 +42,6 @@ PVRush::PVExtractor::PVExtractor(unsigned int chunks) :
 		_chunks = tbb::task_scheduler_init::default_num_threads();
 		PVLOG_DEBUG("(PVExtractor::PVExtractor) using %d chunks\n", _chunks);
 	}
-}
-
-PVRush::PVExtractor::~PVExtractor()
-{
-	force_stop_controller();
-}
-
-void PVRush::PVExtractor::start_controller()
-{
-	// This function need to be called if you want your jobs to be processed... !
-	_ctrl_th.start();	
-}
-
-void PVRush::PVExtractor::gracefully_stop_controller()
-{
-	// Graceful stop controller, which means that it will end for all jobs to stop
-	_ctrl.wait_end_and_stop();
-	_ctrl_th.wait();
-}
-
-void PVRush::PVExtractor::force_stop_controller()
-{
-	// Force the controller to stop by cancelling the current job
-	_ctrl.force_stop();
-	_ctrl_th.wait();
 }
 
 void PVRush::PVExtractor::add_source(PVRush::PVRawSourceBase_p src)
@@ -104,11 +77,9 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
 	// object when it is not needed anymore !
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start));
-	job->set_params(start, 0, nlines, PVControllerJob::sc_n_elts, _agg, _chk_flt, _out_nraw, _chunks, _dump_inv_elts, _dump_all_elts);
-	
-	// The job is submitted to the controller and the pointer returned, so that the caller can wait for its end
-	_ctrl.submit_job(job);
+	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(start, 0, nlines, PVControllerJob::sc_n_elts,
+				_agg, _chk_flt, _out_nraw, _chunks, _dump_inv_elts, _dump_all_elts));
+	job->run_job();	
 
 	_last_start = start;
 	_last_nlines = nlines;
@@ -125,21 +96,19 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
 	// object when it is not needed anymore !
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start));
-	job->set_params(start, end, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _out_nraw, _chunks, _dump_inv_elts, _dump_all_elts);
+	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(start, end, 0, PVControllerJob::sc_idx_end,
+				_agg, _chk_flt, _out_nraw, _chunks, _dump_inv_elts, _dump_all_elts));
+	job->run_job();
 	
-	// The job is submitted to the controller and the pointer returned, so that the caller can wait for its end
-	_ctrl.submit_job(job);
-
 	return job;
 }
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::read_everything()
 {
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::read_everything));
-	job->set_params(0, 0, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _out_nraw, _chunks, false, false);
+	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(0, 0, 0, PVControllerJob::sc_idx_end,
+				_agg, _chk_flt, _out_nraw, _chunks, false, false));
+	job->run_read_all_job();
 
-	_ctrl.submit_job(job);
 	return job;
 }
 

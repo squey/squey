@@ -63,7 +63,6 @@ Inendi::PVSource::~PVSource()
 		root->source_being_deleted(this);
 	}
 	PVLOG_DEBUG("In PVSource destructor: %p\n", this);
-	_extractor.force_stop_controller();
 	/*for (auto& m: get_children()) {
 		PVMapped* pm = m.get();
 		m.reset();
@@ -86,9 +85,6 @@ void Inendi::PVSource::init()
 	}
 
 	_restore_inv_elts = false;
-
-	// Launch the controller thread
-	_extractor.start_controller();
 }
 
 Inendi::PVSource_sp Inendi::PVSource::clone_with_no_process()

@@ -121,12 +121,8 @@ private:
 
 void bench(PVRush::PVExtractor &ext, size_t nlines)
 {
-	ext.start_controller();
-	//tbb::tick_count start = tbb::tick_count::now();
 	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, nlines);
 	job->wait_end();
-	//tbb::tick_count end = tbb::tick_count::now();
-	ext.force_stop_controller();
 }
 
 void bench(size_t nchunks, size_t size_chunk, size_t neltsperc, size_t nfields)

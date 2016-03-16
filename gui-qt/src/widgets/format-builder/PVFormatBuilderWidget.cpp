@@ -844,13 +844,9 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 
 void PVInspector::PVFormatBuilderWidget::create_extractor()
 {
-	if (_log_extract) {
-		_log_extract->force_stop_controller();
-	}
 	_log_extract.reset(new PVRush::PVExtractor());
 	_log_extract->dump_all_elts(true);
 	_log_extract->dump_inv_elts(true);
-	_log_extract->start_controller();
 }
 
 /******************************************************************************
