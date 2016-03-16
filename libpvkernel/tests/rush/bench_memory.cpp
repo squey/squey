@@ -133,7 +133,7 @@ void bench(size_t nchunks, size_t size_chunk, size_t neltsperc, size_t nfields)
 	PVFilter::PVChunkFilterByElt fchunk(felt.f());
 	PVRush::PVRawSourceBase_p src(new PVElementsSource<>(nchunks, size_chunk, neltsperc));
 
-	PVRush::PVExtractor ext(1);
+	PVRush::PVExtractor ext;
 	ext.add_source(src);
 
 	ext.set_chunk_filter(fchunk);

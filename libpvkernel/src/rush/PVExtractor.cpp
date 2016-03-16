@@ -14,33 +14,29 @@
 
 #include <tbb/task_scheduler_init.h>
 
-PVRush::PVExtractor::PVExtractor(unsigned int chunks) :
+PVRush::PVExtractor::PVExtractor() :
 	_nraw(new PVRush::PVNraw()),
 	_out_nraw(*_nraw),
-	_chunks(chunks),
+	_chunks(tbb::task_scheduler_init::default_num_threads()),
 	_dump_inv_elts(false),
 	_force_naxes(0),
 	_last_start(0),
 	_last_nlines(1)
 {
-	if (chunks == 0) {
-		/* the number of live TBB tokens in a pipeline does not need to be bigger than the
-		 * number of used cores (it was previously set to 5 * cores_number): That multiplier
-		 * does not have any impact on the import time but it increases the memory
-		 * consumption. On proto-03 (dual hyperthreaded 6-cores with 64 Gio RAM), the
-		 * proxy_sample.log file (10 Me) shows that:
-		 * - with 5, at most 11.7 Gio are used;
-		 * - with 2, at most 7.2 Gio are used;
-		 * - with 1, at most 5.3 Gio are used.
-		 *
-		 * With a mean import time of 240 seconds.
-		 *
-		 * An other example: a file with 2 columns of 0 makes swap proto-03 at 65 Me (63
-		 * Gio used).
-		 */
-		_chunks = tbb::task_scheduler_init::default_num_threads();
-		PVLOG_DEBUG("(PVExtractor::PVExtractor) using %d chunks\n", _chunks);
-	}
+	/* the number of live TBB tokens in a pipeline does not need to be bigger than the
+	 * number of used cores (it was previously set to 5 * cores_number): That multiplier
+	 * does not have any impact on the import time but it increases the memory
+	 * consumption. On proto-03 (dual hyperthreaded 6-cores with 64 Gio RAM), the
+	 * proxy_sample.log file (10 Me) shows that:
+	 * - with 5, at most 11.7 Gio are used;
+	 * - with 2, at most 7.2 Gio are used;
+	 * - with 1, at most 5.3 Gio are used.
+	 *
+	 * With a mean import time of 240 seconds.
+	 *
+	 * An other example: a file with 2 columns of 0 makes swap proto-03 at 65 Me (63
+	 * Gio used).
+	 */
 }
 
 void PVRush::PVExtractor::add_source(PVRush::PVRawSourceBase_p src)

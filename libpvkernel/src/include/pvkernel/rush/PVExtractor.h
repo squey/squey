@@ -33,7 +33,7 @@ namespace PVRush {
  */
 class PVExtractor {
 public:
-	PVExtractor(unsigned int nchunks = 0);
+	PVExtractor();
 public:
 
 	/*! \brief Add a PVRawSourceBase to the internal aggregator
