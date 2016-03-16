@@ -87,7 +87,7 @@ public:
 public:
 	QStringList const& get_invalid_evts() const { return _inv_elts; }
 	
-public:
+private:
 	tbb::filter_t<void,void> create_tbb_filter();
 	void job_has_run(); // Called when the job has finish to run
 	void job_has_run_no_output_update(); // Called when the job has finish to run
@@ -111,7 +111,9 @@ private:
 	PVOutput& _out_filter; //!< Filter Saving chunk in the NRaw.
 
 	// Source transform filter
-	PVFilter::PVChunkFilterSource _source_filter; //!< Filter that should be remove as it do nothing. // FIXME : To be remove
+	// TODO : It is not clear what is done by Aggregator and what is done by the Source tranformation.
+	// It looks like there can be race condition for "non file" source import.
+	PVFilter::PVChunkFilterSource _source_filter; //!< This one create chunks from source
 
 	// Indexes are aggregator indexes !
 	chunk_index _idx_begin; //!< Line number where we start extraction.
