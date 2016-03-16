@@ -145,21 +145,6 @@ bool PVRush::PVControllerJob::done() const
 	return _job_done;
 }
 
-chunk_index PVRush::PVControllerJob::idx_begin() const
-{
-	return _idx_begin;
-}
-
-chunk_index PVRush::PVControllerJob::idx_end() const
-{
-	return _idx_end;
-}
-
-size_t PVRush::PVControllerJob::ntokens() const
-{
-	return _ntokens;
-}
-
 chunk_index PVRush::PVControllerJob::status() const
 {
 	return _out_filter.get_rows_count();

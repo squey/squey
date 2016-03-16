@@ -27,9 +27,7 @@
 
 namespace PVRush {
 
-class PVController;
-
-/*! \brief Defines a job that is submitted to a PVController object.
+/*! \brief Defines a job to import data.
  *
  * A job has the properties defined in set_params.
  * <ul>
@@ -71,6 +69,10 @@ public:
 	bool done() const;
 	bool running() const;
 	void cancel();
+
+	/**
+	 * Return the number of rows saved in the NRaw.
+	 */
 	chunk_index status() const;
 	chunk_index rejected_elements() const;
 	chunk_index nb_elts_max() const;
@@ -91,13 +93,8 @@ public:
 	
 public:
 	tbb::filter_t<void,void> create_tbb_filter();
-	void job_has_run(); // Called by PVController when the job has finish to run
-	void job_has_run_no_output_update(); // Called by PVController when the job has finish to run
-
-protected:
-	chunk_index idx_begin() const;
-	chunk_index idx_end() const;
-	size_t ntokens() const;
+	void job_has_run(); // Called when the job has finish to run
+	void job_has_run_no_output_update(); // Called when the job has finish to run
 
 signals:
 	void job_done_signal();
