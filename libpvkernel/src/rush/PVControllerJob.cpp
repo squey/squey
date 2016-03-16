@@ -12,7 +12,6 @@
 #include <pvkernel/core/general.h>
 
 #define PV_MAX_INDEX 1000000000
-#define PV_MAX_NELTS INENDI_LINES_MAX
 
 PVRush::PVControllerJob::PVControllerJob(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc,
 		PVAggregator &agg, PVFilter::PVChunkFilter_f& filter, PVOutput& out_filter, size_t ntokens,
@@ -38,22 +37,19 @@ PVRush::PVControllerJob::PVControllerJob(chunk_index begin, chunk_index end, chu
 		_max_n_elts = end - begin;
 		_idx_end = end;
 	}
-
-	_job_finished_run = false;
 }
 
 void PVRush::PVControllerJob::run_read_all_job() {
 	// TODO : It doesn't work but it didn't neither before....
-	lalala = std::async(std::launch::async, [&](){
+	_executor = std::async(std::launch::async, [&](){
 				_agg.read_all_chunks_from_beggining();
 				job_has_run_no_output_update();
 	});
 }
 
 void PVRush::PVControllerJob::run_job() {
-	lalala = std::async(std::launch::async, [&](){
+	_executor = std::async(std::launch::async, [&](){
 			_job_done = false;
-
 
 			// Configure the aggregator
 			_agg.process_indexes(_idx_begin, _idx_end, _max_n_elts);
@@ -118,9 +114,7 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 
 void PVRush::PVControllerJob::wait_end()
 {
-	boost::unique_lock<boost::mutex> lock(_job_finished_mut);
-	while (!_job_finished_run)
-		_job_finished.wait(lock);
+	_executor.wait();
 }
 
 void PVRush::PVControllerJob::cancel()
@@ -132,13 +126,6 @@ void PVRush::PVControllerJob::cancel()
 
 void PVRush::PVControllerJob::job_has_run_no_output_update()
 {
-	PVLOG_DEBUG("PVControllerJob: job has finish to run.\n");
-	{
-		boost::lock_guard<boost::mutex> lock(_job_finished_mut);
-		_job_finished_run = true;
-	}
-	_job_finished.notify_all();
-
 	emit job_done_signal();
 }
 
@@ -150,7 +137,7 @@ void PVRush::PVControllerJob::job_has_run()
 
 bool PVRush::PVControllerJob::running() const
 {
-	return !_job_finished_run;
+	return _executor.wait_for(std::chrono::seconds(0)) != std::future_status::ready;
 }
 
 bool PVRush::PVControllerJob::done() const

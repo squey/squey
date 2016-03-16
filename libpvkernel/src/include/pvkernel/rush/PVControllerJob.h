@@ -15,12 +15,9 @@
 #include <pvkernel/filter/PVChunkFilterSource.h>
 #include <pvkernel/filter/PVChunkFilterDumpElts.h>
 #include <pvkernel/rush/PVOutput.h>
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/mutex.hpp>
 #include <pvkernel/rush/PVPipelineTask.h>
 
 #include <tbb/pipeline.h>
-#include <tbb/tick_count.h>
 
 #include <memory>
 #include <future>
@@ -46,10 +43,8 @@ class PVController;
  * Once a job is submitted to a controller, its end can be waited by any thread by calling wait().
  * It can also be canceled by any thread by calling cancel().
  */
-class PVControllerJob : public QObject, public std::enable_shared_from_this<PVControllerJob>, boost::noncopyable
+class PVControllerJob : public QObject, public std::enable_shared_from_this<PVControllerJob>
 {
-friend class PVController;
-
 	// This is defined as a QObject so that Qt objects can connect to the "job done" signal
 	Q_OBJECT
 
@@ -68,6 +63,11 @@ public:
 	PVControllerJob(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc,
 		PVAggregator &agg, PVFilter::PVChunkFilter_f& filter, PVOutput& out_filter, size_t ntokens,
 		bool dump_inv_elts, bool dump_all_elts);
+	PVControllerJob(PVControllerJob const&) = delete;
+	PVControllerJob(PVControllerJob &&) = delete;
+	PVControllerJob& operator=(PVControllerJob const&) = delete;
+	PVControllerJob& operator=(PVControllerJob &&) = delete;
+
 	bool done() const;
 	bool running() const;
 	void cancel();
@@ -129,12 +129,10 @@ private:
 	// Number of elements to read
 	chunk_index _max_n_elts; //!< Number of line we want to extract (Handle invalide elements so it is not begin - end)
 	size_t _ntokens; //!< Number of tokens use in the TBB pipeline process.
-	boost::condition_variable _job_finished;
-	boost::mutex _job_finished_mut;
-	bool _job_finished_run;
 	
-	std::future<void> lalala;
-	PVPipelineTask* _pipeline;
+	// TBB doesn't provide a way to get state of the task (wether it is over or not)
+	std::future<void> _executor; //!< Run the TBB Pipeline in this executor to have non blocking execution
+	PVPipelineTask* _pipeline; //!< The TBB pipeline performing data import.
 };
 
 typedef PVControllerJob::p_type PVControllerJob_p;
