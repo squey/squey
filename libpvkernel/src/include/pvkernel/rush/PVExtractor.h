@@ -114,7 +114,6 @@ public:
 	}
 
 	void dump_inv_elts(bool dump) { _dump_inv_elts = dump; }
-	void dump_all_elts(bool dump) { _dump_all_elts = dump; }
 
 	static PVCore::PVArgumentList default_args_extractor();
 
@@ -131,7 +130,6 @@ protected:
 	PVFilter::PVChunkFilter_f _chk_flt;
 	unsigned int _chunks;
 	bool _dump_inv_elts;
-	bool _dump_all_elts;
 	PVCol _force_naxes; 
 
 protected:

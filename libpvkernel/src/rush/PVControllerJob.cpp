@@ -15,11 +15,9 @@
 
 PVRush::PVControllerJob::PVControllerJob(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc,
 		PVAggregator &agg, PVFilter::PVChunkFilter_f& filter, PVOutput& out_filter, size_t ntokens,
-		bool dump_inv_elts, bool dump_all_elts) :
+		bool dump_inv_elts) :
 	_dump_inv_elts(dump_inv_elts),
-	_dump_all_elts(dump_all_elts),
-	_elt_valid_filter(true, _all_elts),
-	_elt_invalid_filter(false, _inv_elts),
+	_elt_invalid_filter(_inv_elts),
 	_job_done(false),
 	_agg(agg),
 	_split_filter(filter),
@@ -87,25 +85,13 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 	// Final output filter
 	tbb::filter_t<PVCore::PVChunk*,void> out_filter(tbb::filter::parallel, _out_filter.f());
 
-	if (_dump_inv_elts | _dump_all_elts) {
-		_all_elts.clear();
+	if (_dump_inv_elts) {
 		_inv_elts.clear();
 
-		tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> middle_chunk_filter(source_transform_filter & transform_filter);
+		// The next dump filter, that dumps all the invalid events
+		tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> dump_inv_elts_filter(tbb::filter::serial_in_order, _elt_invalid_filter.f());
 
-		if (_dump_all_elts) {
-			// The first dump filter, that dumps all the elements
-			tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> dump_all_elts_filter(tbb::filter::serial_in_order, _elt_valid_filter.f());
-			middle_chunk_filter = dump_all_elts_filter & middle_chunk_filter;
-		}
-
-		if (_dump_inv_elts) {
-			// The next dump filter, that dumps all the invalid events
-			tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> dump_inv_elts_filter(tbb::filter::serial_in_order, _elt_invalid_filter.f());
-			middle_chunk_filter = middle_chunk_filter & dump_inv_elts_filter;
-		}
-
-		return input_filter & middle_chunk_filter & out_filter;
+		return input_filter & source_transform_filter & transform_filter & dump_inv_elts_filter & out_filter;
 	}
 	else {
 		return input_filter & source_transform_filter & transform_filter & out_filter;

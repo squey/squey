@@ -60,7 +60,7 @@ public:
 	 */
 	PVControllerJob(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc,
 		PVAggregator &agg, PVFilter::PVChunkFilter_f& filter, PVOutput& out_filter, size_t ntokens,
-		bool dump_inv_elts, bool dump_all_elts);
+		bool dump_inv_elts);
 	PVControllerJob(PVControllerJob const&) = delete;
 	PVControllerJob(PVControllerJob &&) = delete;
 	PVControllerJob& operator=(PVControllerJob const&) = delete;
@@ -85,10 +85,6 @@ public:
 	void run_read_all_job();
 
 public:
-	QStringList& get_all_elts() { return _all_elts; }
-	QStringList& get_invalid_evts() { return _inv_elts; }
-
-	QStringList const& get_all_elts() const { return _all_elts; }
 	QStringList const& get_invalid_evts() const { return _inv_elts; }
 	
 public:
@@ -102,14 +98,11 @@ signals:
 private:
 	// For elements dumping
 	bool _dump_inv_elts; //!< Wether we should dump invalide elements.
-	bool _dump_all_elts; //!< Wether we should dump every elements.
 
 	// Lists
-	QStringList _all_elts; //!< Store invalide elements
 	QStringList _inv_elts; //!< Store all elements.
 	
 	// Filters
-	PVFilter::PVChunkFilterDumpElts _elt_valid_filter; //!< Filter that may dump invalid elements.
 	PVFilter::PVChunkFilterDumpElts _elt_invalid_filter; //!< Filter that may dump every elements.
 
 	bool _job_done; //!< Wether the job is over or not. // FIXME : It should work but it doesn't for now
