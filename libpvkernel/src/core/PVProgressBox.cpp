@@ -70,6 +70,8 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget *parent, Qt::WindowFla
 	::connect(_btnCancel, SIGNAL(clicked()), [&]{_cancel_state = CANCEL; cancel();});
 	::connect(_btnCancel2, SIGNAL(clicked()), [&]{_cancel_state = CANCEL2; cancel();});
 
+	connect(this, SIGNAL(sig_critical(QString const&, QString const&)), this, SLOT(critical_slot(QString const&, QString const&)));
+
 	setWindowTitle(msg);
 
 	_status = 0;

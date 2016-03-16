@@ -15,6 +15,7 @@
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QObject>
+#include <QMessageBox>
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
@@ -22,6 +23,8 @@
 #include <tbb/task.h>
 
 #include <pvkernel/core/general.h>
+
+#include <condition_variable>
 
 namespace PVCore {
 
@@ -149,9 +152,32 @@ public:
 		PVProgressBox* pbox = new PVProgressBox(text, parent);
 		return progress(root, pbox);
 	}
-
 public slots:
 	void update_status_Slot();
+
+/**
+ * These function are use to have blocking message in threads.
+ */
+public:
+	void critical(QString const& title, QString const& msg)
+	{
+		std::unique_lock<std::mutex> lk(_blocking_msg);
+		emit sig_critical(title, msg);
+		_cv.wait(lk);
+	}
+
+public slots:
+	void critical_slot(QString const& title, QString const& msg) {
+		{
+			std::lock_guard<std::mutex> lk(_blocking_msg);
+			QMessageBox::critical(this, title, msg);
+		}
+		_cv.notify_one();
+	}
+
+signals:
+	void sig_critical(QString const& title, QString const& msg);
+
 
 private:
 	static bool process_worker_thread(__impl::ThreadEndSignal* watcher, boost::thread& worker, PVProgressBox* pbox);
@@ -173,6 +199,8 @@ private:
 	QMutex _ext_str_mutex;
 	volatile CancelState _cancel_state = CONTINUE;
 	bool _need_confirmation = false;
+	std::mutex _blocking_msg; //!< Mutex to have blocking message during thread execution.
+	std::condition_variable _cv; //!< Condition variable to sync thread and message during thread execution.
 };
 
 }
