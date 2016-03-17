@@ -465,10 +465,6 @@ class PVDataTreeObject: public PVEnableSharedFromThis<typename Tparent::child_t 
 	template<typename T1, typename T2> friend class PVDataTreeObject;
 
 public:
-	static constexpr bool has_parent   = true;
-	static constexpr bool has_children = true;
-
-public:
 	typedef typename impl_children_t::child_t    child_t;
 	typedef typename impl_children_t::pchild_t   pchild_t;
 	typedef typename impl_children_t::children_t children_t;
@@ -526,10 +522,6 @@ class PVDataTreeObject<PVDataTreeNoParent<Troot>, Tchild>: public PVEnableShared
 	template<typename T1, typename T2> friend class PVDataTreeObject;
 
 public:
-	static constexpr bool has_parent   = false;
-	static constexpr bool has_children = true;
-
-public:
 	typedef typename impl_children_t::child_t    child_t;
 	typedef typename impl_children_t::pchild_t   pchild_t;
 	typedef typename impl_children_t::children_t children_t;
@@ -579,10 +571,6 @@ class PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal> >: public PVEnableSh
 	typedef __impl::PVDataTreeObjectWithParent<Tparent, Treal> impl_parent_t;
 
 	template<typename T1, typename T2> friend class PVDataTreeObject;
-
-public:
-	static constexpr bool has_parent   = true;
-	static constexpr bool has_children = false;
 
 public:
 	typedef PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal> > data_tree_t;
