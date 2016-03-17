@@ -1640,7 +1640,8 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	// Load a created source
 
 	if (src->get_children<Inendi::PVMapped>().size() == 0) {
-		Inendi::PVMapped_p default_mapped(src->shared_from_this());
+		Inendi::PVMapped_p default_mapped(new Inendi::PVMapped());
+		default_mapped->set_parent(src->shared_from_this());
 	}
 
 	bool loaded_from_disk = false;

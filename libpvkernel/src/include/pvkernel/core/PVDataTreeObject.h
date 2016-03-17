@@ -18,7 +18,6 @@
 
 #include <QList>
 
-#include <pvkernel/core/PVDataTreeAutoShared.h>
 #include <pvkernel/core/PVSharedPointer.h>
 #include <pvkernel/core/PVEnableSharedFromThis.h>
 #include <pvkernel/core/PVTypeTraits.h>
@@ -120,7 +119,7 @@ class PVDataTreeObjectWithChildren: public PVDataTreeObjectWithChildrenBase
 
 public:
 	typedef Tchild child_t;
-	typedef PVDataTreeAutoShared<child_t> pchild_t;
+	typedef PVSharedPtr<child_t> pchild_t;
 	typedef QList<pchild_t> children_t;
 
 public:
@@ -262,7 +261,7 @@ public:
 	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 	{
 		PVCore::PVSharedPtr<real_type_t> me_p(static_cast<real_type_t*>(this)->shared_from_this());
-		auto create_func = [&]{ return PVDataTreeAutoShared<child_t>(me_p); };
+		auto create_func = [&]{ PVSharedPtr<child_t> tmp(new child_t()); tmp->set_parent(me_p); return tmp; };
 		if (!so.list_read(create_func, get_children_serialize_name(), get_children_description(), true, true)) {
 			// No children born in here...
 			return;
@@ -485,7 +484,7 @@ private:
 	typedef typename parent_t::child_t real_type_t;
 
 public:
-	typedef PVDataTreeAutoShared<real_type_t> p_type;
+	typedef PVSharedPtr<real_type_t> p_type;
 	typedef PVCore::PVWeakPtr<real_type_t>   wp_type;
 
 public:
@@ -541,7 +540,7 @@ private:
 	typedef Troot real_type_t;
 
 public:
-	typedef PVDataTreeAutoShared<real_type_t> p_type;
+	typedef PVSharedPtr<real_type_t> p_type;
 	typedef PVCore::PVWeakPtr<real_type_t>   wp_type;
 	typedef real_type_t root_t;
 
@@ -592,7 +591,7 @@ private:
 	typedef Treal real_type_t;
 
 public:
-	typedef PVDataTreeAutoShared<real_type_t> p_type;
+	typedef PVSharedPtr<real_type_t> p_type;
 	typedef PVCore::PVWeakPtr<real_type_t>   wp_type;
 	typedef Tparent parent_t;
 	typedef typename parent_t::root_t root_t;

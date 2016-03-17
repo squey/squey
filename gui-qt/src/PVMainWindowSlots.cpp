@@ -514,7 +514,8 @@ void PVInspector::PVMainWindow::map_Slot()
 Inendi::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 {
 	QString scene_name = tr("Data collection %1").arg(sequence_n++);
-	PVCore::PVDataTreeAutoShared<Inendi::PVScene> scene_p = PVCore::PVDataTreeAutoShared<Inendi::PVScene>(get_root_sp(), scene_name);
+	PVCore::PVSharedPtr<Inendi::PVScene> scene_p(new Inendi::PVScene(scene_name));
+	scene_p->set_parent(get_root_sp());
 	_projects_tab_widget->add_project(scene_p);
 
 	return scene_p;
@@ -804,7 +805,7 @@ void PVInspector::PVMainWindow::save_solution(QString const& file, PVCore::PVSer
 void PVInspector::PVMainWindow::flag_investigation_as_cached(const QString& investigation)
 {
 	QStringList nraws;
-	for (Inendi::PVSource_p& source : get_root().get_children<Inendi::PVSource>()) {
+	for (Inendi::PVSource_sp& source : get_root().get_children<Inendi::PVSource>()) {
 		nraws << QString::fromStdString(source->get_rushnraw().collection().rootdir());
 	}
 	PVRush::PVNrawCacheManager::get().add_investigation(investigation, nraws);

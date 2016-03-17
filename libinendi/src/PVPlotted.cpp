@@ -552,7 +552,8 @@ void Inendi::PVPlotted::process_from_parent_mapped()
 	
 	PVView_sp cur_view;
 	if (get_children_count() == 0) {
-		cur_view = PVView_p(shared_from_this());
+		cur_view.reset(new PVView());
+		cur_view->set_parent(shared_from_this());
 	}
 	for (auto view : get_children<PVView>()) {
 		view->process_parent_plotted();

@@ -51,7 +51,6 @@ class PVView: public data_tree_view_t
 	friend class PVRoot;
 	friend class PVScene;
 	friend class PVSource;
-	friend class PVCore::PVDataTreeAutoShared<PVView>;
 public:
 	typedef QHash<QString,PVCore::PVArgumentList> map_filter_arguments;
 	typedef int32_t id_t;

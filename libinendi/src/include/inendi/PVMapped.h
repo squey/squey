@@ -41,19 +41,14 @@ class PVMapped : public data_tree_mapped_t {
 	friend class PVPlotted;
 	friend class PVSource;
 	friend class PVCore::PVSerializeObject;
-	friend class PVCore::PVDataTreeAutoShared<PVMapped>;
 public:
 	using decimal_storage_type = Inendi::mapped_decimal_storage_type;
 	using mapped_row_t = PVCore::PVHugePODVector<decimal_storage_type, 16>;
 	using mapped_table_t = std::vector<mapped_row_t>;
 
-protected:
-	/**
-	 * PVMapped constructor is private with friendship so that only friends can create it.
-	 */
+public:
 	PVMapped();
 
-public:
 	/**
 	 * Remove its children first.
 	 *

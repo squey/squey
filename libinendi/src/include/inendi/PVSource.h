@@ -47,17 +47,15 @@ class PVSource: public data_tree_source_t
 	friend class PVScene;
 	friend class PVView;
 	friend class PVPlotted;
-	friend class PVCore::PVDataTreeAutoShared<PVSource>;
 public:
-	//typedef PVSource_p p_type;
 	typedef children_t list_mapped_t;
 
 protected:
-	PVSource(PVRush::PVInputType::list_inputs_desc const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format);
-	PVSource();
 	PVSource(const PVSource& org);
 
 public:
+	PVSource();
+	PVSource(PVRush::PVInputType::list_inputs_desc const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format);
 	~PVSource();
 
 public:
@@ -125,14 +123,15 @@ public:
 
 	virtual QString get_serialize_description() const { return "Source: " + get_name(); }
 
-	static PVSource_p create_source_from_description(PVScene_p scene_p, const PVRush::PVSourceDescription& descr)
+	static PVSource_sp create_source_from_description(PVScene_p scene_p, const PVRush::PVSourceDescription& descr)
 	{
-		PVSource_p src_p(
-			scene_p,
+		PVSource_sp src_p(new PVSource(
 			descr.get_inputs(),
 			descr.get_source_creator(),
 			descr.get_format()
-		);
+		));
+
+		src_p->set_parent(scene_p);
 
 		return src_p;
 	}

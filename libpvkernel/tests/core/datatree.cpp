@@ -33,9 +33,8 @@ class D;
 typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, B> data_tree_a_t;
 class A : public data_tree_a_t
 {
-	friend class PVCore::PVDataTreeAutoShared<A>;
 
-protected:
+public:
 	A(int i = 0):
 		data_tree_a_t(),
 		_i(i)
@@ -88,10 +87,9 @@ private:
 typedef typename PVCore::PVDataTreeObject<A, C> data_tree_b_t;
 class B : public data_tree_b_t
 {
-	friend class PVCore::PVDataTreeAutoShared<B>;
 	friend class A;
 
-protected:
+public:
 	B(int i = 0):
 		data_tree_b_t(),
 		_a_was_here(false),
@@ -152,9 +150,8 @@ void A::child_added(B& b)
 typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
 class C : public data_tree_c_t
 {
-	friend class PVCore::PVDataTreeAutoShared<C>;
 
-protected:
+public:
 	C(int i = 0):
 		data_tree_c_t(),
 		_i(i)
@@ -199,9 +196,8 @@ private:
 typedef typename PVCore::PVDataTreeObject<C, PVCore::PVDataTreeNoChildren<D>> data_tree_d_t;
 class D : public data_tree_d_t
 {
-	friend class PVCore::PVDataTreeAutoShared<D>;
 
-protected:
+public:
 	D(int i = 0):
 		data_tree_d_t(),
 		_i(i)
@@ -251,12 +247,16 @@ typedef typename D::p_type D_p;
 void delete_use_case()
 {
 	std::cout << "Delete use case" << std::endl;
-	A_p a1(4);
+	A_p a1(new A(4));
 	{
-		B_p b1(a1, 5);
-		B_p b2(a1);
-		C_p c(b1);
-		D_p d(c);
+		B_p b1(new B(5));
+		b1->set_parent(a1);
+		B_p b2(new B());
+		b2->set_parent(a1);
+		C_p c(new C());
+		c->set_parent(b1);
+		D_p d(new D());
+		d->set_parent(c);
 	}
 
 	a1.reset();
@@ -268,13 +268,18 @@ void standard_use_case()
 	//  Test1 - Parent access
 	//////////////////////////////////////////
 	PVLOG_INFO("Constructing initial tree \n");
-	A_p a1(4);
-	A_p a2;
-	B_p b1(a1, 5);
-	B_p b2(a1);
-	B_p b3(a2);
-	C_p c(b1);
-	D_p d(c);
+	A_p a1(new A(4));
+	A_p a2(new A());
+	B_p b1(new B(5));
+	b1->set_parent(a1);
+	B_p b2(new B());
+	b2->set_parent(a1);
+	B_p b3(new B());
+	b3->set_parent(a2);
+	C_p c(new C());
+	c->set_parent(b1);
+	D_p d(new D());
+	d->set_parent(c);
 
 	// Check "child_added"
 	PV_ASSERT_VALID(b1->a_was_here());
@@ -290,11 +295,6 @@ void standard_use_case()
 	std::cout << "B2 other: " << b1_other.get() << " , b2: " << b2.get() << std::endl;
 	PV_ASSERT_VALID(b1_other.get() == b2.get());
 	PV_ASSERT_VALID(b1_other->i() == 0);
-
-
-	// Check invalid pointers
-	C_p c_inv = C_p::invalid();
-	PV_ASSERT_VALID(c_inv.get() == nullptr);
 
 	b1->f();
 
@@ -469,7 +469,8 @@ void standard_use_case()
 	//////////////////////////////////////////
 	//  Test6 - Create with parent and set same parent
 	//////////////////////////////////////////
-	PVCore::PVDataTreeAutoShared<C> c2(b2);
+	PVCore::PVSharedPtr<C> c2(new C());
+	c2->set_parent(b2);
 
 	{
 		// a1 <-> b2
@@ -559,7 +560,7 @@ void standard_use_case()
 	//////////////////////////////////////////
 	//  Test10 - Get null ancestor if parent is null
 	//////////////////////////////////////////
-	D_p d3;
+	D_p d3(new D());
 
 	PV_ASSERT_VALID(d3->get_parent() == nullptr && d3->get_parent<A>() == nullptr);
 
@@ -606,12 +607,16 @@ void serialize_use_case()
 
 	// Serialize datatree
 	{
-		A_p a1(5);
-		B_p b1(a1, 4);
-		B_p b2(a1, 3);
-		C_p c(b1, 2);
+		A_p a1(new A(5));
+		B_p b1(new B(4));
+		b1->set_parent(a1);
+		B_p b2(new B(3));
+		b2->set_parent(a1);
+		C_p c(new C(2));
+		c->set_parent(b1);
 		c->set_j(c->get_j() * 10);
-		D_p d(c, 1);
+		D_p d(new D(1));
+		d->set_parent(c);
 		d->set_j(d->get_j() * 10);
 		std::cout << "b1 = " << b1.get() << std::endl;
 		std::cout << "b2 = " << b2.get() << std::endl;
@@ -623,7 +628,7 @@ void serialize_use_case()
 
 	std::cout << std::endl << std::endl;
 	// Deserialize datatree
-	A_p a1;
+	A_p a1(new A());
 	a1->load_from_file("datatree_serialized");
 
 	a1->dump();
