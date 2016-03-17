@@ -167,6 +167,6 @@ target_link_libraries(source_splunk curl)
 # Define installation folders
 ###############################################################################
 
-INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION sources
-                                     RUNTIME DESTINATION sources)
-INSTALL(FILES ${SOURCES_DIST_FILES} DESTINATION sources)
+INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/sources
+				     RUNTIME DESTINATION ${PVKERNEL_PLUGIN}/sources)
+INSTALL(FILES ${SOURCES_DIST_FILES} DESTINATION ${SHARE_RESSOURCES}/sources)

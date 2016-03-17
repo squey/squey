@@ -171,14 +171,11 @@ if(PYTHONLIBS_FOUND)
 	add_definitions(-DENABLE_PYTHON_SUPPORT)
 endif(PYTHONLIBS_FOUND)
 
-###############################################################################
-# Check for Hwloc installation
-###############################################################################
-
-find_package(HWLoc REQUIRED)
-if (HWLOC_FOUND)
-  include_directories(${HWLOC_INCLUDE_DIRS})
-endif ()
+################################################################################
+## Check for Hwloc installation
+################################################################################
+# TODO : Should be replace by PVHwloc
+pkg_check_modules(HWLOC REQUIRED hwloc)
 
 ###############################################################################
 # Check for Furl installation

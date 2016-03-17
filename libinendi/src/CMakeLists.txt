@@ -137,5 +137,5 @@ target_link_libraries(inendi ${QT5_LIBS} ${TBB_LIBRARIES}
 # Install files
 ###############################################################################
 
-INSTALL(TARGETS inendi LIBRARY DESTINATION .
-                       RUNTIME DESTINATION .)
+INSTALL(TARGETS inendi LIBRARY DESTINATION lib
+                       RUNTIME DESTINATION lib)

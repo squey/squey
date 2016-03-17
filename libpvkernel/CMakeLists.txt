@@ -43,6 +43,13 @@ else(${QT_WEBKIT})
 	include_directories(${Qt5WebEngineWidgets_INCLUDE_DIRS})
 endif(${QT_WEBKIT})
 
+##################################################################
+# set installation path for query builder and plugins
+##################################################################
+install(DIRECTORY ${inendi-inspector_SOURCE_DIR}/libpvkernel/src/widgets/querybuilder DESTINATION ${SHARE_RESSOURCES})
+add_definitions(-DINENDI_QUERY_BUILDER="${SHARE_RESSOURCES}/querybuilder")
+add_definitions(-DPVKERNEL_PLUGIN_PATH="${PVKERNEL_PLUGIN}")
+
 ###################################################################
 # Add include directories for inendi's libs and external projects
 ###################################################################
@@ -59,51 +66,6 @@ endif(CUDA_FOUND)
 if(PYTHONLIBS_FOUND)
 	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
 endif(PYTHONLIBS_FOUND)
-
-###############################################################################
-# Define plugins ressources
-###############################################################################
-
-# Set PVFILTER_NORMALIZE_DIR
-if(CMAKE_BUILD_TYPE_LOWER STREQUAL "distrib")
-        set(PVFILTER_NORMALIZE_DIR "normalize-filters")
-else()
-        set(PVFILTER_NORMALIZE_DIR "../../libpvkernel/plugins/normalize/")
-endif()
-add_definitions(-DPVFILTER_NORMALIZE_DIR="${PVFILTER_NORMALIZE_DIR}")
-
-# Set PVRUSH_NORMALIZE_HELPERS_DIR
-if(CMAKE_BUILD_TYPE_LOWER STREQUAL "distrib")
-        set(PVRUSH_NORMALIZE_HELPERS_DIR "normalize-helpers")
-else()
-	# This one is in the source dir, not the build dir
-        set(PVRUSH_NORMALIZE_HELPERS_DIR "../../../libpvkernel/plugins/normalize-helpers")
-endif()
-add_definitions(-DPVRUSH_NORMALIZE_HELPERS_DIR="${PVRUSH_NORMALIZE_HELPERS_DIR}")
-
-# Set PVRUSH_INPUTTYPE_DIR
-if(CMAKE_BUILD_TYPE_LOWER STREQUAL "distrib")
-	set(PVRUSH_INPUTTYPE_DIR "input-types")
-else()
-	set(PVRUSH_INPUTTYPE_DIR "../../libpvkernel/plugins/input_types/")
-endif()
-add_definitions(-DPVRUSH_INPUTTYPE_DIR="${PVRUSH_INPUTTYPE_DIR}")
-
-# Set PVRUSH_SOURCE_DIR
-if(CMAKE_BUILD_TYPE_LOWER STREQUAL "distrib")
-	set(PVRUSH_SOURCE_DIR "sources")
-else()
-	set(PVRUSH_SOURCE_DIR "../../libpvkernel/plugins/sources/")
-endif()
-add_definitions(-DPVRUSH_SOURCE_DIR="${PVRUSH_SOURCE_DIR}")
-
-# Set INENDI_QUERYBUILDER_DIR
-if(CMAKE_BUILD_TYPE_LOWER STREQUAL "distrib")
-	set(INENDI_QUERYBUILDER_DIR "querybuilder")
-else()
-	set(INENDI_QUERYBUILDER_DIR "../../../libpvkernel/src/widgets/querybuilder")
-endif()
-add_definitions(-DINENDI_QUERYBUILDER_DIR="${INENDI_QUERYBUILDER_DIR}")
 
 ###############################################################################
 # Configure subdirectories

@@ -37,7 +37,7 @@ int main()
 	// libc
 	testcases.emplace_back("datetime",    "epoch",                      "1223884800");
 	testcases.emplace_back("datetime",    "epoch",                      "1334036784.745",				"1334036784");
-	testcases.emplace_back("datetime",    "yyyy.MMMM.dd H:mm",          "1996.Jul.10 12:08");
+	testcases.emplace_back("datetime",    "yyyy.MMMM.dd H:mm",          "1996.Jul.10 12:08.32",			"1996.Jul.10 12:08");
 	testcases.emplace_back("datetime",    "yyyy-M-d h:mm",              "2017-03-19 12:08");
 	testcases.emplace_back("datetime",    "yyyy/M/d",                   "2014/11/07");
 	testcases.emplace_back("datetime",    "yyyy-M-d H:m:s",             "2012-10-30 12:01:30");
@@ -55,7 +55,7 @@ int main()
 
 	// boost
 	testcases.emplace_back("datetime_us", "yyyy-M-d H:m:ss.S",          "2017-03-19 10:00:59.001000");
-	testcases.emplace_back("datetime_us", "yyyy-M-d'T'H:m:ss.S",        "2012-03-19T10:00:59.123456");
+	testcases.emplace_back("datetime_us", "yyyy-M-d'T'H:m:ss.S",        "2012-03-19T10:00:59.123",		"2012-03-19T10:00:59.123000");
 	testcases.emplace_back("datetime_us", "d/M/yyyy H:m:s.S",           "19/02/2014 15:55:47.723000");
 	testcases.emplace_back("datetime_us", "H:m:s.S",                    "05:35:02.506000");
 	testcases.emplace_back("datetime_us", "H%m%s.S",                    "05%35%02.506000");

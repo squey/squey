@@ -8,21 +8,17 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 
-#include <stdlib.h>
-#include <QCoreApplication>
-#include <QDir>
+#include <QString>
+#include <iostream>
 
 int PVFilter::PVPluginsLoad::load_all_plugins()
 {
-	int ret = 0;
-	ret += load_normalize_plugins();
-
-	return ret;
+	return load_normalize_plugins();
 }
 
 int PVFilter::PVPluginsLoad::load_normalize_plugins()
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(get_normalize_dir(), NORMALIZE_FILTER_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString::fromStdString(get_normalize_dir()), NORMALIZE_FILTER_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No normalization plugin have been loaded !\n");
 	}
@@ -32,14 +28,11 @@ int PVFilter::PVPluginsLoad::load_normalize_plugins()
 	return ret;
 }
 
-QString PVFilter::PVPluginsLoad::get_normalize_dir()
+std::string PVFilter::PVPluginsLoad::get_normalize_dir()
 {
-	QString pluginsdirs;
-
-	pluginsdirs = QString(getenv("PVFILTER_NORMALIZE_DIR"));
-	if (pluginsdirs.isEmpty()) {
-		pluginsdirs = QCoreApplication::applicationDirPath() + QDir::separator() + PVFILTER_NORMALIZE_DIR;
+	const char* path = std::getenv("PVKERNEL_PLUGIN_PATH");
+	if (path) {
+		return std::string(path) + "/normalize-filters";
 	}
-
-	return pluginsdirs;
+	return std::string(PVKERNEL_PLUGIN_PATH) + "/normalize-filters";
 }

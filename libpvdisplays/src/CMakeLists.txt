@@ -39,5 +39,5 @@ set(PVDISPLAYS_LINK_LIBRARIES inendi pvkernel ${QT5_LIBS} ${TBB_LIBRARIES} ${Ope
 
 target_link_libraries(pvdisplays ${PVDISPLAYS_LINK_LIBRARIES})
 
-INSTALL(TARGETS pvdisplays LIBRARY DESTINATION .
-                           RUNTIME DESTINATION .)
+INSTALL(TARGETS pvdisplays LIBRARY DESTINATION lib
+                           RUNTIME DESTINATION lib)

@@ -4,7 +4,7 @@
 # @copyright (C) Picviz Labs 2010-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
-add_subdirectory(normalize)
+add_subdirectory(normalize-filters)
 add_subdirectory(input_types)
 add_subdirectory(sources)
 
@@ -34,6 +34,6 @@ normalize-helpers/text/squid.format
 normalize-helpers/text/syslog.format
 )
 
-INSTALL(FILES ${NORMALIZE_TEXT_FORMAT_FILES} DESTINATION normalize-helpers/text)
-INSTALL(FILES ${NORMALIZE_PCAP_FORMAT_FILES} DESTINATION normalize-helpers/pcap)
-INSTALL(FILES ${NORMALIZE_PERL_FORMAT_FILES} DESTINATION normalize-helpers/perl)
+INSTALL(FILES ${NORMALIZE_TEXT_FORMAT_FILES} DESTINATION ${SHARE_RESSOURCES}/normalize-helpers/text)
+INSTALL(FILES ${NORMALIZE_PCAP_FORMAT_FILES} DESTINATION ${SHARE_RESSOURCES}/normalize-helpers/pcap)
+INSTALL(FILES ${NORMALIZE_PERL_FORMAT_FILES} DESTINATION ${SHARE_RESSOURCES}/normalize-helpers/perl)

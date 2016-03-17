@@ -20,9 +20,6 @@ plotting_filter_integer_port
 plotting_filter_time_default
 )
 
-set(FILTERS_DIST_FILES
-)
-
 # Extra libs
 set(LINK_LIBRARIES inendi pvkernel)
 
@@ -94,6 +91,5 @@ target_link_libraries(plotting_filter_time_default ${LINK_LIBRARIES})
 ###############################################################################
 # Install plugins and ressources
 ###############################################################################
-INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION plotting-filters
-                                     RUNTIME DESTINATION plotting-filters)
-INSTALL(FILES ${FILTERS_DIST_FILES} DESTINATION plotting-filters)
+INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION ${INENDI_PLUGIN}/plotting-filters
+                                     RUNTIME DESTINATION ${INENDI_PLUGIN}/plotting-filters)

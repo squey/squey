@@ -39,7 +39,7 @@ void Inendi::common::load_filters()
  *****************************************************************************/
 int Inendi::common::load_axis_computation_filters()
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(inendi_plugins_get_axis_computation_dir(), AXIS_COMPUTATION_PLUGINS_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString::fromStdString(inendi_plugins_get_axis_computation_dir()), AXIS_COMPUTATION_PLUGINS_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No axis computation plugin has been loaded !\n");
 	}
@@ -58,7 +58,7 @@ int Inendi::common::load_axis_computation_filters()
  *****************************************************************************/
 int Inendi::common::load_layer_filters()
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(inendi_plugins_get_layer_filters_dir(), LAYER_FILTER_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString::fromStdString(inendi_plugins_get_layer_filters_dir()), LAYER_FILTER_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No layer filters have been loaded !\n");
 	}
@@ -78,7 +78,7 @@ int Inendi::common::load_layer_filters()
  *****************************************************************************/
 int Inendi::common::load_mapping_filters()
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(inendi_plugins_get_mapping_filters_dir(), MAPPING_FILTER_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString::fromStdString(inendi_plugins_get_mapping_filters_dir()), MAPPING_FILTER_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No mapping filters have been loaded !\n");
 	}
@@ -97,7 +97,7 @@ int Inendi::common::load_mapping_filters()
  *****************************************************************************/
 int Inendi::common::load_plotting_filters()
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(inendi_plugins_get_plotting_filters_dir(), PLOTTING_FILTER_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString::fromStdString(inendi_plugins_get_plotting_filters_dir()), PLOTTING_FILTER_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No plotting filters have been loaded !\n");
 	}
@@ -114,7 +114,7 @@ int Inendi::common::load_plotting_filters()
  *****************************************************************************/
 int Inendi::common::load_sorting_functions_filters()
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(inendi_plugins_get_sorting_functions_dir(), SORTING_FUNCTIONS_PLUGINS_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString::fromStdString(inendi_plugins_get_sorting_functions_dir()), SORTING_FUNCTIONS_PLUGINS_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No sorting plugin has been loaded !\n");
 	}

@@ -299,6 +299,6 @@ declare_library(normalize_filter_grep_regexp)
 # Install normalize plugins
 ###############################################################################
 
-INSTALL(TARGETS ${NORMALIZE_FILTERS_DIST_LIST} LIBRARY DESTINATION normalize-filters
-                                               RUNTIME DESTINATION normalize-filters)
-INSTALL(FILES ${NORMALIZE_FILTERS_DIST_FILES} DESTINATION normalize-filters)
+INSTALL(TARGETS ${NORMALIZE_FILTERS_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/normalize-filters
+					       RUNTIME DESTINATION ${PVKERNEL_PLUGIN}/normalize-filters)
+INSTALL(FILES ${NORMALIZE_FILTERS_DIST_FILES} DESTINATION ${SHARE_RESSOURCES}/normalize-filters)

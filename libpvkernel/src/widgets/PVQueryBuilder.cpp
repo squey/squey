@@ -43,6 +43,15 @@ PVWidgets::PVQueryBuilder::PVQueryBuilder(QWidget* parent /*= nullptr*/) : QWidg
 	reinit();
 }
 
+static std::string get_query_builder_path()
+{
+	const char* path = getenv("QUERY_BUILDER_PATH");
+	if(path) {
+		return path;
+	}
+	return INENDI_QUERY_BUILDER;
+}
+
 /**
  * Changing filters imply to destroy and recreate the whole widget
  */
@@ -50,7 +59,7 @@ void PVWidgets::PVQueryBuilder::reinit()
 {
 	_view->setContextMenuPolicy(Qt::NoContextMenu);
 
-	_view->load(QUrl(std::string("file://" + (QCoreApplication::applicationDirPath() + QDir::separator() + INENDI_QUERYBUILDER_DIR).toStdString() + "/index.html").c_str()));
+	_view->load(QUrl(std::string("file://" + get_query_builder_path() + "/index.html").c_str()));
 
 	// Trick to wait for the page to be properly loaded
 	QEventLoop loop;

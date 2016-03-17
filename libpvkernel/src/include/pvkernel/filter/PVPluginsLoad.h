@@ -9,18 +9,17 @@
 #define PVFILTER_PVPLUGINS_H
 
 #include <pvkernel/core/general.h>
-#include <QString>
+#include <string>
 
 #define NORMALIZE_FILTER_PREFIX "normalize"
 
 namespace PVFilter {
 
-class PVPluginsLoad
+namespace PVPluginsLoad
 {
-public:
-	static int load_all_plugins();
-	static int load_normalize_plugins();
-	static QString get_normalize_dir();
+	int load_all_plugins();
+	int load_normalize_plugins();
+	std::string get_normalize_dir();
 };
 
 }
