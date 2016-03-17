@@ -77,7 +77,7 @@ namespace pvtest {
             }
 
             //Input file
-            QString path_file = QString::fromStdString(log_file);
+            QString path_file = QString::fromStdString(_big_file_path);
             PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 
             // Load the given format file
