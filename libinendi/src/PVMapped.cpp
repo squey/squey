@@ -94,6 +94,12 @@ void Inendi::PVMapped::compute()
 	// finalize import's mapping filters
 	PVRush::PVNraw const& nraw = get_parent()->get_rushnraw();
 
+/**
+ * For now, the mapping parallelization is only done by column
+ * but when we will want to parallelise the computation of the mapping also by rows
+ * (to speed up the recomputation of one specific mapping) we should carrefelluly
+ * handle this nested parallelization, using tasks for example.
+ */
 #pragma omp parallel for
 	for (PVCol j = 0; j < ncols; j++) {
 		// Check that an update is required
