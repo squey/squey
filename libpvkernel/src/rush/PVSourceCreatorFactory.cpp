@@ -119,7 +119,9 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 			for (; it_elt != l.end(); it_elt++) {
 				PVCore::PVElement::free(*it_elt);
 			}
-			l.resize(new_size);
+			it_elt = l.begin();
+			std::advance(it_elt, new_size);
+			l.erase(it_elt, l.end());
 		}
 
 		// Apply the filter
