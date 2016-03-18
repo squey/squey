@@ -8,6 +8,9 @@
 INSPECTOR_SOURCE_ROOT_DIR=@CMAKE_BINARY_DIR@
 ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 
+export PVKERNEL_PLUGIN_PATH=$ISRD/libpvkernel/plugins
+export INENDI_PLUGIN_PATH=$ISRD/libinendi/plugins
+
 # Migration from picviz to inendi
 if [ ! -d "$HOME/.inendi" ] && [ -d "$HOME/.picviz" ]
 then
