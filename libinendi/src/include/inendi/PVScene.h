@@ -40,17 +40,14 @@ class PVScene: public data_tree_scene_t
 	friend class PVRoot;
 	friend class PVSource;
 	friend class PVView;
-	friend class PVCore::PVDataTreeAutoShared<PVScene>;
 public:
 	typedef QList<PVSource*> list_sources_t;
 private:
 	// PVRush::list_inputs is QList<PVRush::PVInputDescription_p>
 	typedef std::map<PVRush::PVInputType::base_registrable, PVCore::PVSerializeObject_p> hash_type_so_inputs;
 
-protected:
-	PVScene(QString scene_path = QString());
-
 public:
+	PVScene(QString scene_path = QString());
 	~PVScene();
 
 public:
@@ -80,8 +77,8 @@ public:
 
 	inline bool is_empty() const { return get_children().size() == 0; }
 
-	void add_source(PVSource_p const& src);
-	Inendi::PVSource_p add_source_from_description(const PVRush::PVSourceDescription& descr);
+	void add_source(PVSource_sp const& src);
+	Inendi::PVSource_sp add_source_from_description(const PVRush::PVSourceDescription& descr);
 
 	virtual QString get_serialize_description() const { return get_name(); }
 

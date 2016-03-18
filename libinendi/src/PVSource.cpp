@@ -93,8 +93,11 @@ void Inendi::PVSource::init()
 
 Inendi::PVSource_sp Inendi::PVSource::clone_with_no_process()
 {
-	Inendi::PVSource_p src(get_parent()->shared_from_this(), _inputs, _src_plugin, get_format());
-	Inendi::PVMapped_p mapped(src);
+	Inendi::PVSource_sp src(new Inendi::PVSource(_inputs, _src_plugin, get_format()));
+	src->set_parent(get_parent()->shared_from_this());
+
+	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
+	mapped->set_parent(src);
 	
 	return src;
 }
@@ -241,11 +244,15 @@ PVRush::PVInputType_p Inendi::PVSource::get_input_type() const
 void Inendi::PVSource::create_default_view()
 {
 	if (get_children_count() == 0) {
-		PVMapped_p def_mapped(shared_from_this());
+		PVMapped_p def_mapped(new PVMapped());
+		def_mapped->set_parent(shared_from_this());
 	}
 	for (PVMapped_p& m: get_children()) {
-		PVPlotted_p def_plotted(m);
-		PVView_p def_view(def_plotted);
+		PVPlotted_p def_plotted(new PVPlotted());
+		def_plotted->set_parent(m);
+
+		PVView_p def_view(new PVView());
+		def_view->set_parent(def_plotted);
 		def_view->get_parent<PVRoot>()->select_view(*def_view);
 		process_from_source();
 	}

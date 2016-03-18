@@ -28,16 +28,16 @@ Inendi::PVSource_sp get_src_from_file(Inendi::PVScene_sp scene, QString const& p
 	// Load the given format file
 	PVRush::PVFormat format("format", path_format);
 	if (!format.populate()) {
-		std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;
-		return Inendi::PVSource_p::invalid();
+		throw std::runtime_error("Can't read format file " + path_format.toStdString());
 	}   
 
 	PVRush::PVSourceCreator_p sc_file;
 	if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
-		return Inendi::PVSource_p::invalid();
+		throw std::runtime_error("Can't read file source");
 	}   
 
-	Inendi::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	Inendi::PVSource_sp src(new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	src->set_parent(scene);
 	src->get_extractor().get_agg().set_strict_mode(true);
 	PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 200000);
 	src->wait_extract_end(job);
@@ -47,7 +47,8 @@ Inendi::PVSource_sp get_src_from_file(Inendi::PVScene_sp scene, QString const& p
 
 Inendi::PVSource_sp get_src_from_file(Inendi::PVRoot_sp root, QString const& file, QString const& format)
 {
-	Inendi::PVScene_p scene(root);
+	Inendi::PVScene_p scene(new Inendi::PVScene());
+	scene->set_parent(root);
 	return get_src_from_file(Inendi::PVScene_sp(scene), file, format);
 }
 

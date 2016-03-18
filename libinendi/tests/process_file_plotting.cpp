@@ -63,7 +63,7 @@ int main(int argc, char** argv)
 
 	// Create the PVSource object
 	Inendi::PVRoot_p root(new Inendi::PVRoot());
-	Inendi::PVSource_p src(new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	Inendi::PVSource_sp src(new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
 	PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 40000000);
 	job->wait_end();
 	PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
@@ -107,10 +107,13 @@ int main(int argc, char** argv)
 	}
 
 	// Create the PVSource object
-	Inendi::PVRoot_p root;
-	Inendi::PVScene_p scene(root, "scene");
-	Inendi::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	Inendi::PVMapped_p mapped(src);
+	Inendi::PVRoot_p root(new Inendi::PVRoot());
+	Inendi::PVScene_p scene(new Inendi::PVScene("scene"));
+	scene->set_parent(root);
+	Inendi::PVSource_sp src(new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	src->set_parent(scene);
+	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
+	mapped->set_parent(src);
 	PVRush::PVControllerJob_p job;
 
 	if (raw_dump) {
@@ -126,7 +129,8 @@ int main(int argc, char** argv)
 	mapped->process_from_parent_source();
 
 	// And plot the mapped values
-	Inendi::PVPlotted_p plotted(mapped);
+	Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
+	plotted->set_parent(mapped);
 	plotted->process_from_parent_mapped();
 
 	if (raw_dump) {

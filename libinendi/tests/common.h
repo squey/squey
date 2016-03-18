@@ -51,7 +51,8 @@ namespace pvtest {
          * dup is the number of time we want to duplicate data.
          */
         TestEnv(std::string const& log_file, std::string const& format_file, size_t dup=1):
-                _big_file_path(get_tmp_filename())
+                _big_file_path(get_tmp_filename()),
+                root(new Inendi::PVRoot())
         {
             // Need this core application to find plugins path.
             std::string prog_name = "test_inendi";
@@ -97,8 +98,10 @@ namespace pvtest {
             }
 
             // Create the PVSource object
-            Inendi::PVScene_p scene(root, "scene");
-            src = Inendi::PVSource_p(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
+            Inendi::PVScene_p scene(new Inendi::PVScene("scene"));
+            scene->set_parent(root);
+            src.reset(new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+            src->set_parent(scene);
             PVRush::PVControllerJob_p job = src->extract();
             job->wait_end();
         }
@@ -108,7 +111,8 @@ namespace pvtest {
          */
         Inendi::PVMapped_p compute_mapping()
         {
-                mapped = Inendi::PVMapped_p(src);
+                mapped.reset(new Inendi::PVMapped());
+                mapped->set_parent(src);
                 mapped->process_from_parent_source();
                 return mapped;
         }
@@ -119,13 +123,14 @@ namespace pvtest {
         Inendi::PVPlotted_p compute_plotting()
         {
                 // And plot the mapped values
-                Inendi::PVPlotted_p plotted(mapped);
+                Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
+                plotted->set_parent(mapped);
                 plotted->process_from_parent_mapped();
                 return plotted;
         }
 
         Inendi::PVMapped_p mapped;
-        Inendi::PVSource_p src;
+        Inendi::PVSource_sp src;
         Inendi::PVRoot_p root;
 
     private:

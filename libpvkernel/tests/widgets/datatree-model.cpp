@@ -37,9 +37,8 @@ class E;
 typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, B> data_tree_a_t;
 class A : public data_tree_a_t
 {
-	friend class PVCore::PVDataTreeAutoShared<A>;
 
-protected:
+public:
 	A(int i = 0):
 		data_tree_a_t(),
 		_i(i)
@@ -61,10 +60,9 @@ private:
 typedef typename PVCore::PVDataTreeObject<A, C> data_tree_b_t;
 class B : public data_tree_b_t
 {
-	friend class PVCore::PVDataTreeAutoShared<B>;
 	friend class A;
 
-protected:
+public:
 	B(int i = 0):
 		data_tree_b_t(),
 		_i(i)
@@ -87,9 +85,8 @@ private:
 typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
 class C : public data_tree_c_t
 {
-	friend class PVCore::PVDataTreeAutoShared<C>;
 
-protected:
+public:
 	C(int i = 0):
 		data_tree_c_t(),
 		_i(i)
@@ -111,9 +108,8 @@ private:
 typedef typename PVCore::PVDataTreeObject<C, E> data_tree_d_t;
 class D : public data_tree_d_t
 {
-	friend class PVCore::PVDataTreeAutoShared<D>;
 
-protected:
+public:
 	D(int i = 0):
 		data_tree_d_t(),
 		_i(i)
@@ -139,9 +135,8 @@ private:
 typedef typename PVCore::PVDataTreeObject<D, PVCore::PVDataTreeNoChildren<E>> data_tree_e_t;
 class E : public data_tree_e_t
 {
-	friend class PVCore::PVDataTreeAutoShared<E>;
 
-protected:
+public:
 	E(int i = 0):
 		data_tree_e_t(),
 		_i(i)
@@ -183,21 +178,35 @@ void usage(char *progname)
 int main(int argc, char** argv)
 {
 	// Objects, let's create our tree !
-	A_p a;
-	B_p b1(a, 0);
-	B_p b2(a, 1);
-	C_p c1(b1, 0);
-	C_p c2(b1, 1);
-	C_p c4(b2, 2);
-	C_p c5(b2, 3);
-	D_p d1(c1, 0);
-	D_p d2(c1, 1);
-	D_p d4(c2, 2);
-	D_p d5(c2, 3);
-	D_p d6(c4, 4);
-	D_p d7(c5, 5);
-	E_p e1(d1, 0);
-	E_p e2(d1, 1);
+	A_p a(new A());
+	B_p b1(new B(0));
+	b1->set_parent(a);
+	B_p b2(new B(1));
+	b2->set_parent(a);
+	C_p c1(new C(0));
+	c1->set_parent(b1);
+	C_p c2(new C(1));
+	c2->set_parent(b1);
+	C_p c4(new C(2));
+	c4->set_parent(b2);
+	C_p c5(new C(3));
+	c5->set_parent(b2);
+	D_p d1(new D(0));
+	d1->set_parent(c1);
+	D_p d2(new D(1));
+	d2->set_parent(c1);
+	D_p d4(new D(2));
+	d4->set_parent(c2);
+	D_p d5(new D(3));
+	d5->set_parent(c2);
+	D_p d6(new D(4));
+	d6->set_parent(c4);
+	D_p d7(new D(5));
+	d7->set_parent(c5);
+	E_p e1(new E(0));
+	e1->set_parent(d1);
+	E_p e2(new E(1));
+	e2->set_parent(d1);
 
 	// Qt app
 	QApplication app(argc, argv);

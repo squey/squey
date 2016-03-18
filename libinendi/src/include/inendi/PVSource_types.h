@@ -14,7 +14,6 @@
 namespace Inendi {
 
 class PVSource;
-typedef PVCore::PVDataTreeAutoShared<PVSource> PVSource_p;
 typedef PVCore::PVSharedPtr<PVSource> PVSource_sp;
 typedef PVCore::PVWeakPtr<PVSource>   PVSource_wp;
 }

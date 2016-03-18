@@ -33,9 +33,9 @@
 
 #include "axes-comb_dlg.h"
 
-Inendi::PVSource_p create_src(const QString &path_file, const QString &path_format)
+Inendi::PVSource_sp create_src(const QString &path_file, const QString &path_format)
 {
-	Inendi::PVRoot_p root;
+	Inendi::PVRoot_p root(new Inendi::PVRoot());
         // Input file
         PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 
@@ -43,16 +43,18 @@ Inendi::PVSource_p create_src(const QString &path_file, const QString &path_form
         PVRush::PVFormat format("format", path_format);
         if (!format.populate()) {
                 std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;
-                return Inendi::PVSource_p();
+                return Inendi::PVSource_sp();
         }
 
         PVRush::PVSourceCreator_p sc_file;
         if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
-                return Inendi::PVSource_p();
+                return Inendi::PVSource_sp();
         }
 
-	Inendi::PVScene_p scene(root);
-        Inendi::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	Inendi::PVScene_p scene(new Inendi::PVScene());
+	scene->set_parent(root);
+        Inendi::PVSource_sp src(new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	src->set_parent(scene);
         src->get_extractor().get_agg().set_strict_mode(true);
         PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 200000);
         job->wait_end();
@@ -119,11 +121,14 @@ int main(int argc, char** argv)
 	PVLOG_INFO("loading file  : %s\n", argv[1]);
 	PVLOG_INFO("        format: %s\n", argv[2]);
 
-	Inendi::PVSource_p src = create_src (argv[1], argv[2]);
-	Inendi::PVMapped_p mapped(src);
-	Inendi::PVPlotted_p plotted(mapped);
+	Inendi::PVSource_sp src = create_src (argv[1], argv[2]);
+	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
+	mapped->set_parent(src);
+	Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
+	plotted->set_parent(mapped);
 
-	Inendi::PVView_p view_p(plotted);
+	Inendi::PVView_p view_p(new Inendi::PVView());
+	view_p->set_parent(plotted);
 
 	boost::thread th(boost::bind(thread, view_p.get()));
 	PVViewObs view_observer = PVViewObs(th);

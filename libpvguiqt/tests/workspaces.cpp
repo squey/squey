@@ -54,7 +54,8 @@ int main(int argc, char** argv)
 	Inendi::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
 	src->create_default_view();
 
-	Inendi::PVView_p view(src->current_view()->get_parent()->shared_from_this());
+	Inendi::PVView_p view(new Inendi::PVView());
+	view->set_parent(src->current_view()->get_parent()->shared_from_this());
 	view->process_parent_plotted();
 
 	// Qt app
