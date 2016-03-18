@@ -2,41 +2,44 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2011-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #ifndef PVFILTER_PVMAPPINGFILTERSTRINGDEFAULT_H
 #define PVFILTER_PVMAPPINGFILTERSTRINGDEFAULT_H
 
 #include <pvkernel/core/general.h>
-#include <inendi/PVPureMappingFilter.h>
-#include <tbb/atomic.h>
+#include <inendi/PVMappingFilter.h>
 
 namespace Inendi {
 
-struct string_mapping
+/**
+ * Compute string default mapping.
+ *
+ * This mapping split first on string len, then sort them on value.
+ */
+class PVMappingFilterStringDefault: public PVMappingFilter
 {
-	static Inendi::PVMappingFilter::decimal_storage_type process_utf8(const char* buf, size_t size, PVMappingFilter* m);
-	static Inendi::PVMappingFilter::decimal_storage_type process_utf16(uint16_t const* buf, size_t size, PVMappingFilter* m);
-};
-
-class PVMappingFilterStringDefault: public PVPureMappingFilter<string_mapping>
-{
-	friend class string_mapping;
 public:
 	PVMappingFilterStringDefault(PVCore::PVArgumentList const& args = PVMappingFilterStringDefault::default_args());
 
+	PVMappingFilter::decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
+
 public:
-	// Overloaded from PVFunctionArgs::set_args
-	void set_args(PVCore::PVArgumentList const& args);
+	/**
+	 * Setter for case_sensitif information.
+	 */
+	void set_args(PVCore::PVArgumentList const& args) override;
+
+	/**
+	 * MetaInformation for this plugin.
+	 */
 	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 	QString get_human_name() const override { return "Default"; }
 
-protected:
-	bool case_sensitive() const { return _case_sensitive; }
-
 private:
-	bool _case_sensitive;
+	bool _case_sensitive; //!< Whether we should care about case for mapping.
+
 	CLASS_FILTER(PVMappingFilterStringDefault)
 };
 

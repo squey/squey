@@ -179,22 +179,29 @@ bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJ
 	QProgressBar *pbar = pbox->getProgressBar();
 	pbar->setValue(0);
 	// set min and max to 0 to have an activity effect
+	// FIXME : We should be able to use nlines as max.
 	pbar->setMaximum(0);
 	pbar->setMinimum(0);
+
 	connect(job.get(), SIGNAL(job_done_signal()), pbox, SLOT(accept()));
 	// launch a thread in order to update the status of the progress bar
-	boost::thread th_status(boost::bind(update_status_ext, pbox, job));	
+	boost::thread th_status(boost::bind(update_status_ext, pbox, job)); 
 	pbox->launch_timer_status();
+
 	if (!job->running() && (job->started())) {
+		// Job is finish before we can show the box.
 		return true;
 	}
+	// Show the progressBox
 	if (pbox->exec() == QDialog::Accepted) {
+		// Job finished, everything is fine.
 		return true;
 	}
 
 	// Cancel this job and ask the user if he wants to keep the extracted data.
 	job->cancel();
 	PVLOG_DEBUG("extractor: job canceled !\n");
+	// Sucess if we ask to continue with loaded data.
 	return (pbox->get_cancel_state() == PVCore::PVProgressBox::CANCEL2);
 }
 

@@ -22,7 +22,6 @@ bool PVRush::PVUtils::files_have_same_content(const std::string& path1, const st
 	std::ifstream ifs2(path2);
 
 	auto res = std::mismatch(std::istreambuf_iterator<char>(ifs1), std::istreambuf_iterator<char>(), std::istreambuf_iterator<char>(ifs2));
-	std::cout << (res.first == std::istreambuf_iterator<char>()) << "/" << (res.second == std::istreambuf_iterator<char>()) << std::endl;
 
 	return res.first == std::istreambuf_iterator<char>() && res.second == std::istreambuf_iterator<char>();
 }

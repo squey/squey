@@ -9,44 +9,41 @@
 #define PVFILTER_PVMAPPINGFILTERINTEGER_H
 
 #include <pvkernel/core/general.h>
-#include <inendi/PVPureMappingFilter.h>
+#include <inendi/PVMappingFilter.h>
 
 namespace Inendi {
 
 class PVMappingFilterIntegerDefault;
 
-struct integer_mapping
+/**
+ * Signed integer mapping. It keeps integer values.
+ */
+class PVMappingFilterIntegerDefault: public PVMappingFilter
 {
-	static Inendi::PVMappingFilter::decimal_storage_type process_utf8(const char* buf, size_t size, PVMappingFilter* m);
-	static Inendi::PVMappingFilter::decimal_storage_type process_utf16(uint16_t const* buf, size_t size, PVMappingFilter* m);
-};
+	public:
+		PVMappingFilterIntegerDefault();
 
-class PVMappingFilterIntegerDefault: public PVPureMappingFilter<integer_mapping>
-{
-	friend class integer_mapping;
+		/**
+		 * Copy NRaw values (real integers value) as mapping value.
+		 */
+		decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override {
+			auto array = nraw.collection().column(col);
+			auto& core_array = array.to_core_array<int32_t>();
 
-public:
-	PVMappingFilterIntegerDefault(bool signed_, PVCore::PVArgumentList const& args = PVMappingFilterIntegerDefault::default_args());
+			for(size_t row=0; row< array.size(); row++) {
+				_dest[row].storage_as_int() = core_array[row];
+			}
 
-public:
-	QString get_human_name() const override
-	{
-		if (_signed) {
-			return QString("Signed decimal");
-		} else {
-			return QString("Unsigned decimal");
+			return _dest;
 		}
-	}
-	PVCore::DecimalType get_decimal_type() const override;
-	void set_args(PVCore::PVArgumentList const& args) override;
 
-protected:
-	inline bool is_signed() const { return _signed; }
+		/**
+		 * Metainformation for this plugin.
+		 */
+		QString get_human_name() const override { return QString("Signed decimal"); }
+		PVCore::DecimalType get_decimal_type() const override { return PVCore::IntegerType; }
 
-private:
-	bool _signed;
-
-	CLASS_FILTER(PVMappingFilterIntegerDefault)
+	CLASS_FILTER_NOPARAM(PVMappingFilterIntegerDefault)
 };
 
 }

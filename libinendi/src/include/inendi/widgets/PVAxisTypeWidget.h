@@ -12,10 +12,19 @@
 
 namespace PVWidgets{
 
+/**
+ * This widget is a combo box showing types names.
+ */
 class PVAxisTypeWidget: public PVComboBox
 {
 public:
-	PVAxisTypeWidget(QWidget* parent = NULL);
+	/**
+	 * Build the combo box with only type that have same storage as current_type.
+	 *
+	 * It current_type is "all", then all types can be use.
+	 */
+	PVAxisTypeWidget(QString const& current_type, QWidget* parent = nullptr);
+
 public:
 	inline QString get_sel_type() const { return currentText(); }
 	inline bool sel_type(QString const& type) { return select(type); }

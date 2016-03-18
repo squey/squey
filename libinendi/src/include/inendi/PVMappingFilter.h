@@ -38,58 +38,35 @@ public:
 public:
 	PVMappingFilter();
 public:
-	// Two interfaces: one that compute the mapped values from a PVCore::PVChunk, and one
-	// that does it from an already existing nraw.
-	virtual decimal_storage_type operator()(PVCore::PVField const& field) = 0;
-	virtual decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) = 0;
+	virtual decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) {
+		auto array = nraw.collection().column(col);
+		for(size_t row=0; row< array.size(); row++) {
+			// FIXME : We should get only a buffer from NRaw.
+			std::string content = array.at(row);
+			_dest[row] = process_cell(content.c_str(), content.size());
+		}
 
-	/**
-	 * provide a post processing step for mapping computation
-	 *
-	 * in some cases, the mapping may not be directly computed and need
-	 * extra information about data. In those cases,
-	 * ::operator()(PVCore::PVField const&) is used to prepare those extra
-	 * informations and this method compute for real the resulting mapping.
-	 *
-	 * Thid is the default implementation which does nothing special.
-
-	 * @param col the column number
-	 * @param nraw a reference on the nraw
-	 *
-	 * @return a pointer on the filled decimal storage array
-	 */
-	virtual decimal_storage_type* finalize(PVCol const col, PVRush::PVNraw const& nraw)
-	{
-		(void)col;
-		(void)nraw;
 		return _dest;
 	}
-
-	/*
-	// Here we provide a default implementation which call operator()(QString const&) over an OpenMP-parallelised
-	// for loop over values
-	virtual decimal_storage_type* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
-	virtual decimal_storage_type operator()(QString const& value);
-	*/
 
 	virtual void init();
 
 	void set_dest_array(PVRow size, decimal_storage_type *ptr);
-	void set_group_value(PVCore::PVArgument& group) { _grp_value = &group; }
 
-	virtual bool is_pure() const { return false; }
+	virtual QString get_human_name() const = 0;
 
-	virtual QString get_human_name() const;
-
-	virtual PVCore::DecimalType get_decimal_type() const { return PVCore::FloatType; }
+	virtual PVCore::DecimalType get_decimal_type() const = 0;
 
 public:
 	static QStringList list_types();
 	static QStringList list_modes(QString const& type);
+
+protected:
+	virtual Inendi::PVMappingFilter::decimal_storage_type process_cell(const char*, size_t) { assert(false); return {}; };
+
 protected:
 	PVRow _dest_size;
 	decimal_storage_type* _dest;
-	PVCore::PVArgument* _grp_value;
 };
 
 typedef PVMappingFilter::func_type PVMappingFilter_f;

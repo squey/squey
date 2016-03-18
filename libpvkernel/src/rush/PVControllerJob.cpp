@@ -25,8 +25,6 @@ PVRush::PVControllerJob::PVControllerJob(job_action a, int priority) :
 	_priority = priority;
 	_job_done = false;
 	_agg = NULL;
-	_mapping_filter = NULL;
-	_seq_chunk_function_filter = NULL;
 	_out_filter = NULL;
 	_job_finished_run = false;
 	_ctrl_parent = NULL;
@@ -48,15 +46,13 @@ PVRush::PVControllerJob::~PVControllerJob()
 	}
 }
 
-void PVRush::PVControllerJob::set_params(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVFilter::PVChunkFilter& mapping_filter, PVFilter::PVChunkFilter& seq_chunk_function_filter, PVOutput& out_filter, size_t nchunks, bool dump_inv_elts, bool dump_all_elts)
+void PVRush::PVControllerJob::set_params(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks, bool dump_inv_elts, bool dump_all_elts)
 {
 	_idx_begin = begin;
 	_idx_end = end;
 	_nchunks = nchunks;
 	_agg = &agg;
 	_filter = filter;
-	_mapping_filter = &mapping_filter;
-	_seq_chunk_function_filter = &seq_chunk_function_filter;
 	_out_filter = &out_filter;
 	_n_elts = n_elts;
 	_sc = sc;
@@ -78,8 +74,6 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 	assert(_agg);
 	assert(_filter);
 	assert(_out_filter);
-	assert(_mapping_filter);
-	assert(_seq_chunk_function_filter);
 
 	if (_agg_tbb) {
 		delete _agg_tbb;
@@ -93,14 +87,6 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 	// The "job" filter
 	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> transform_filter(tbb::filter::parallel, _filter);
 
-	// The "pure mapping" filter
-	PVFilter::PVChunkFilter_f mf = _mapping_filter->f();
-	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> mapped_filter(tbb::filter::parallel, mf);
-
-	// The "sequential chunk function" filter
-	PVFilter::PVChunkFilter_f cf = _seq_chunk_function_filter->f();
-	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> seq_chunk_filter(tbb::filter::serial_in_order, cf);
-	
 	// Elements count filter
 	_f_nelts.done_when(_n_elts);
 	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> count_filter(tbb::filter::serial_in_order, _f_nelts.f());
@@ -112,7 +98,7 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 		_all_elts.clear();
 		_inv_elts.clear();
 
-		tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> middle_chunk_filter(source_transform_filter & transform_filter & mapped_filter & seq_chunk_filter);
+		tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> middle_chunk_filter(source_transform_filter & transform_filter);
 
 		if (_dump_all_elts) {
 			// The first dump filter, that dumps all the elements
@@ -129,7 +115,7 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 		return input_filter & middle_chunk_filter & count_filter & out_filter;
 	}
 	else {
-		return input_filter & source_transform_filter & transform_filter & mapped_filter & seq_chunk_filter & count_filter & out_filter;
+		return input_filter & source_transform_filter & transform_filter & count_filter & out_filter;
 	}
 }
 

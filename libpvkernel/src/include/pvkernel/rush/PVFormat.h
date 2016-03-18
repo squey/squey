@@ -96,16 +96,6 @@ public:
 	};
 
 private:
-	/* QString key_axis; */
-	/* QString axis_color; */
-	/* QString axis_titlecolor; */
-	/* QString axis_group; */
-	/* QString axis_name; */
-	/* QString axis_type; */
-	/* QString axis_mapping; */
-	/* QString axis_plotting; */
-	/* QString time_format_string; */
-	/* QString decode_type; */
 
 	QString format_name; // human readable name, displayed in a widget for instance
 	QString full_path;
@@ -118,7 +108,6 @@ public:
 	pvcop::formatter_desc_list get_storage_format() const;
 
 	/* Methods */
-	void clear();
 	void debug();
 	bool populate_from_xml(QString filename, bool forceOneAxis = false);
 	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);

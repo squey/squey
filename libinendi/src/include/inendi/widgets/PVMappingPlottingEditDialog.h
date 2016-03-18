@@ -34,12 +34,11 @@ class PVMappingPlottingEditDialog: public QDialog
 {
 	Q_OBJECT
 public:
-	PVMappingPlottingEditDialog(Inendi::PVMapping* mapping, Inendi::PVPlotting* plotting, QWidget* parent = NULL);
-	virtual ~PVMappingPlottingEditDialog();
+	PVMappingPlottingEditDialog(Inendi::PVMapping* mapping, Inendi::PVPlotting* plotting, QWidget* parent = nullptr);
 
 private:
-	inline bool has_mapping() const { return _mapping != NULL; };
-	inline bool has_plotting() const { return _plotting != NULL; }
+	inline bool has_mapping() const { return _mapping != nullptr; };
+	inline bool has_plotting() const { return _plotting != nullptr; }
 
 	void init_layout();
 	void finish_layout();

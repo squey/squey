@@ -85,6 +85,15 @@ void PVWidgets::PVMappingModeWidget::populate_from_mapping(PVCol axis_id, Inendi
 	QString mode = props.get_mode();
 	_filter_params[type][mode] = _props->get_args();
 	populate_from_type(props.get_type());
+
+	// FIXME : This is a hack as integer unsigned is a mapping while it should be a type.
+	// This should be fix when mapping/plotting and type will be more standard.
+	if(mode == "unsigned") {
+		_combo->removeItem(_combo->findText("Signed decimal"));
+	} else if(mode == "default" and type == "integer") {
+		_combo->removeItem(_combo->findText("Unsigned decimal"));
+	}
+
 	set_mode(mode);
 }
 

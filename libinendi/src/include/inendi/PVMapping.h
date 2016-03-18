@@ -41,7 +41,6 @@ public:
 
 public:
 	PVMapping(PVMapped* mapped);
-	~PVMapping();
 
 protected:
 	// For serialization
@@ -51,8 +50,7 @@ protected:
 	// For PVMapped
 	void set_parent(PVSource* src);
 	void set_uptodate_for_col(PVCol j);
-	void invalidate_all();
-	void validate_all();
+
 	void add_column(PVMappingProperties const& props);
 
 public:
@@ -72,13 +70,11 @@ public:
 	PVMappingFilter::p_type get_filter_for_col(PVCol col);
 	QString const& get_type_for_col(PVCol col) const;
 	QString const& get_mode_for_col(PVCol col) const;
-	QString get_group_key_for_col(PVCol col) const;
 	PVMappingProperties const& get_properties_for_col(PVCol col) const { assert(col < columns.size()); return columns.at(col); }
 	PVMappingProperties& get_properties_for_col(PVCol col) { assert(col < columns.size()); return columns[col]; }
 	bool is_col_uptodate(PVCol j) const;
 	PVCol get_number_cols() const { return columns.size(); }
 	PVCore::DecimalType get_decimal_type_of_col(PVCol const j) const;
-	inline bool is_mapping_pure(PVCol const c) const { assert(c < columns.size()); return columns.at(c).is_mapping_pure(); }
 
 	QString const& get_name() const { return _name; }
 	void set_name(QString const& name) { _name = name; }

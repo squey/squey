@@ -8,8 +8,6 @@
 #include <pvkernel/core/general.h>
 
 #include <inendi/PVMapping.h>
-#include <inendi/PVMappingFilter.h>
-#include <inendi/PVPlottingFilter.h>
 #include <inendi/PVPlotting.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
@@ -66,21 +64,6 @@ PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Inendi::PVMa
 	// Adapt scroll area width so that everything fits in (closes #0x100)
 	_main_group_box->setMinimumWidth(_main_scroll_area->viewport()->width());
 }
-
-
-
-/******************************************************************************
- *
- * PVWidgets::PVMappingPlottingEditDialog::~PVMappingPlottingEditDialog
- *
- *****************************************************************************/
-PVWidgets::PVMappingPlottingEditDialog::~PVMappingPlottingEditDialog()
-{
-	PVLOG_DEBUG("PVWidgets::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
-	
-}
-
-
 
 /******************************************************************************
  *
@@ -203,14 +186,12 @@ void PVWidgets::PVMappingPlottingEditDialog::load_settings()
 
 	// Add widgets
 
-	Inendi::PVAxesCombination::list_axes_t::const_iterator it_axes;
 	PVCol axis_id = 0;
-	for (it_axes = _axes->begin(); it_axes != _axes->end(); it_axes++) {
+	for (auto& axe: *_axes) {
 		col = 0;
-		_main_grid->addWidget(new QLabel(it_axes->get_name(), this), row, col++);
+		_main_grid->addWidget(new QLabel(axe.get_name(), this), row, col++);
 		if (has_mapping()) {
-			PVWidgets::PVAxisTypeWidget* type_combo = new PVWidgets::PVAxisTypeWidget(this);
-			type_combo->sel_type(_mapping->get_type_for_col(axis_id));
+			PVWidgets::PVAxisTypeWidget* type_combo = new PVWidgets::PVAxisTypeWidget(_mapping->get_type_for_col(axis_id), this);
 			_main_grid->addWidget(type_combo, row, col++);
 			connect(type_combo, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(type_changed(const QString&)));
 			_main_grid->addWidget(new PVWidgets::PVMappingModeWidget(axis_id, *_mapping, this), row, col++);

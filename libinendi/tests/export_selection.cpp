@@ -44,7 +44,8 @@ int main(int argc, char** argv)
 		delete_nraw_parent_dir = true;
 	}
 
-	Inendi::PVView* view = env.view;
+	env.compute_mapping();
+	Inendi::PVView* view = env.compute_plotting()->current_view();
 
 	// Export selection to temporary file
 	Inendi::PVSelection& sel = view->get_real_output_selection();

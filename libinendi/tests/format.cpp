@@ -24,8 +24,9 @@ int main()
 {
     // Init nraw
     pvtest::TestEnv env(filename, fileformat);
+    env.compute_mapping();
 
-    Inendi::PVView* view = env.view;
+    Inendi::PVView* view = env.compute_plotting()->current_view();
 
     // Check result
     PVRush::PVNraw const& nraw = view->get_rushnraw_parent();

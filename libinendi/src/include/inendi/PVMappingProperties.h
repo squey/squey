@@ -37,7 +37,6 @@ protected:
 	// For serialization
 	PVMappingProperties() { _index = 0; }
 public:
-	QString get_group_key() const { return _group_key; }
 	void set_type(QString const& type, QString const& mode);
 	void set_mode(QString const& mode);
 	void set_args(PVCore::PVArgumentList const& args);
@@ -46,7 +45,6 @@ public:
 	inline QString const& get_type() const { return _type; }
 	inline QString const& get_mode() const { return _mode; }
 	inline bool is_uptodate() const { return _is_uptodate; }
-	inline bool is_mapping_pure() const { return _mapping_filter->is_pure(); }
 
 public:
 	bool operator==(const PVMappingProperties& org);
@@ -63,7 +61,6 @@ private:
 
 private:
 	PVCol _index;
-	QString _group_key;
 	PVMappingFilter::p_type _mapping_filter;
 	PVCore::PVArgumentList _args;
 	QString _type;

@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <limits>
 
+#include <pvkernel/core/PVMatrix.h>
+
 #include <inendi/PVMapped.h>
 #include <inendi/PVMapping.h>
 #include <inendi/PVPlotting.h>
@@ -125,47 +127,6 @@ int Inendi::PVPlotted::create_table()
 	}
 
 	return 0;
-}
-
-void Inendi::PVPlotted::process_expanded_selections()
-{
-	list_expanded_selection_t::const_iterator it;
-	for (it = _expanded_sels.begin(); it != _expanded_sels.end(); it++) {
-		expand_selection_on_axis(*(it->sel_p), it->col, it->type, false);
-	}
-}
-
-void Inendi::PVPlotted::expand_selection_on_axis(PVSelection const& /*sel*/, PVCol /*axis_id*/, QString const& /*mode*/, bool /*add*/)
-{
-	// Recompute a part of the plotted by expanding a selection through the whole axis
-	//
-	
-#if 0
-	// Get axis type
-	QString plugin = _plotting->get_properties_for_col(axis_id).get_type() + "_" + mode;
-	PVPlottingFilter::p_type filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(plugin);
-	if (!filter) {
-		return;
-	}
-	PVPlottingFilter::p_type filter_clone = filter->clone<PVPlottingFilter>();
-
-	PVCol ncols = get_column_count();
-	assert(axis_id < ncols);
-	PVMapped::mapped_sub_col_t sub_plotted;
-	float min,max;
-	get_parent<PVMapped>()->get_sub_col_minmax(sub_plotted, min, max, sel, axis_id);
-	if (sub_plotted.size() == 0 || min >= max) {
-		return;
-	}
-	PVMapped::mapped_sub_col_t::const_iterator it;
-	filter_clone->init_expand(min, max);
-	for (it = sub_plotted.begin(); it != sub_plotted.end(); it++) {
-		_table[it->first*ncols+axis_id] = filter_clone->expand_plotted(it->second);
-	}
-	if (add) {
-		_expanded_sels.push_back(ExpandedSelection(axis_id, sel, mode));
-	}
-#endif
 }
 
 bool Inendi::PVPlotted::dump_buffer_to_file(QString const& file, bool write_as_transposed) const
@@ -478,30 +439,6 @@ QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_not_within_range(uint
 	return cols_ret;
 }
 
-void Inendi::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min, uint32_t& max, PVSelection const& sel, PVCol col) const
-{
-	uint32_t local_min, local_max;
-	local_min = PVPlotted::MAX_VALUE;
-	local_max = 0;
-	const PVRow size = get_row_count();
-	ret.reserve(sel.get_number_of_selected_lines_in_range(0, size));
-	sel.visit_selected_lines([&](PVRow const r)
-		{
-			const uint32_t v = this->get_value(r, col);
-			if (v > max) {
-				local_max = v;
-			}
-			if (v < min) {
-				local_min = v;
-			}		
-			ret.push_back(plotted_sub_col_t::value_type(r, v));
-		},
-		size);
-
-	min = local_min;
-	max = local_max;
-}
-
 void Inendi::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const
 {
 	PVRow local_min,local_max;
@@ -608,11 +545,10 @@ void Inendi::PVPlotted::process_from_parent_mapped()
 	auto mapped = get_parent();
 
 	if (!mapped->is_uptodate()) {
-		mapped->process_parent_source();
+		mapped->compute();
 	}
 
 	process_parent_mapped();
-	process_expanded_selections();
 	
 	PVView_sp cur_view;
 	if (get_children_count() == 0) {
@@ -680,15 +616,11 @@ void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 	data_tree_plotted_t::serialize_write(so);
 
 	so.object("plotting", _plotting, QString(), false, (PVPlotting*) NULL, false);
-
-	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);
 }
 
 void Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
 	so.object("plotting", _plotting, QString(), false, (PVPlotting*) NULL, false);
-
-	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);
 
 	data_tree_plotted_t::serialize_read(so, v);
 }

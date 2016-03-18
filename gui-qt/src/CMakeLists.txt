@@ -22,7 +22,6 @@ include/PVDualSlider.h
 include/PVExpandSelDlg.h
 include/PVFilesTypesSelWidget.h
 include/PVMainWindow.h
-#include/PVMappingPlottingEditDialog.h
 include/PVSaveDataTreeDialog.h
 include/PVSerializeOptionsWidget.h
 include/PVStringListChooserWidget.h

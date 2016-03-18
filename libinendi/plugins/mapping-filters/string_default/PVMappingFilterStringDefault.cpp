@@ -6,17 +6,96 @@
  */
 
 #include "PVMappingFilterStringDefault.h"
-#include <pvkernel/core/PVTBBMaxArray.h>
-#include <pvkernel/core/PVStringUtils.h>
 
-#include <tbb/parallel_reduce.h>
+#include <pvcop/db/read_dict.h>
 
-#include <omp.h>
+/**
+ * Compute integer log2 values.
+ */
+static uint8_t int_log2(uint16_t v) {
+	//https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup
+	uint32_t shift = (v > 0xFF  ) << 3;
+	uint8_t r = shift;
+	v >>= shift;
 
+	shift = (v > 0xF   ) << 2;
+	r |= shift;
+	v >>= shift;
+
+	shift = (v > 0x3   ) << 1;
+	r |= shift;
+	v >>= shift;
+
+	r |= (v >> 1);
+
+	return r;
+}
+
+static inline uint32_t compute_str_factor(char const* buf, size_t size, bool case_sensitive = true)
+{
+	if (size < 1) {
+		return 0;
+	}
+
+	// -------------------------------------------------------------------
+	// |  a (4)  |  b (0..12)  |      c (8)        |      d (8..20)      | 32 bits
+	// -------------------------------------------------------------------
+	// a : log2(length)
+	// b : linear splitting between 'a' according to the length of remainder of the log2 computing.
+	// c : the first bytes
+	// d : weak bits of the sum of the remaining bytes
+
+	assert(size <= 4096UL && "PVCOP give smaller str, string size would be too big");
+
+
+	// Compute "a" and set it in the first 4 bits of factor
+	uint8_t shift = 32 - 4;
+	const uint8_t a = int_log2(size);
+	uint32_t factor = (a+1) << shift; // +1 to separate 1 length strings from 0 length strings
+
+	// Compute "b" and set it in the shortest number of bits that may contains it after "a"
+	// The shortest number of bits is "a"
+	shift -= a;
+	size_t b = (size - (1 << a));
+	factor = factor | (b << shift);
+
+	// Set the first bytes in "c"
+	shift -= 8;
+	uint8_t c = buf[0];
+	factor = factor | (c << shift);
+
+	// Compute the sum of remaining bytes. Truncate it on the remaining bytes (truncate strong bits) and set it in "d".
+	// "d" size depend on "b" size.
+	size_t max_remaining_size = std::min(size, 1UL << (32-4-a-8)) - 1;
+
+	if(max_remaining_size == 0) {
+		// Nothing more to sum.
+		return factor;
+	}
+
+	size_t d = 0;
+
+	if (case_sensitive) {
+		d = std::accumulate(buf + 1, buf + 1 + max_remaining_size, 0, std::plus<uint32_t>());
+	}
+	else {
+		d = std::accumulate(buf + 1, buf + 1 + max_remaining_size, 0,
+							[&](uint8_t a, uint8_t b) { return std::tolower(a) + std::tolower(b); });
+	}
+
+	size_t d_bits = shift;
+	// Number of bits in a char sum depend on the number of summed values.
+	uint8_t bits_in_sum = 8 + int_log2(max_remaining_size);
+	shift -= std::max(shift, bits_in_sum);
+	// Mask strong bits and set these values as we want maximal entropy.
+	factor = factor | ((d & ((1 << d_bits)-1)) << shift);
+
+	return factor;
+}
 
 Inendi::PVMappingFilterStringDefault::PVMappingFilterStringDefault(PVCore::PVArgumentList const& args):
-	PVPureMappingFilter<string_mapping>(),
-	_case_sensitive(true) // This will be changed by set_args anyway
+	PVMappingFilter(),
+	_case_sensitive(false)
 {
 	INIT_FILTER(PVMappingFilterStringDefault, args);
 }
@@ -34,18 +113,20 @@ void Inendi::PVMappingFilterStringDefault::set_args(PVCore::PVArgumentList const
 	_case_sensitive = !args.at("convert-lowercase").toBool();
 }
 
-Inendi::PVMappingFilter::decimal_storage_type Inendi::string_mapping::process_utf16(const uint16_t* buf, size_t size, PVMappingFilter* m)
-{
-	Inendi::PVMappingFilter::decimal_storage_type ret_ds;
-	ret_ds.storage_as_uint() = (uint32_t) PVCore::PVStringUtils::compute_str_factor16(buf, size, static_cast<PVMappingFilterStringDefault*>(m)->case_sensitive());
-	return ret_ds;
-}
+Inendi::PVMappingFilter::decimal_storage_type*
+Inendi::PVMappingFilterStringDefault::operator()(PVCol const col, PVRush::PVNraw const& nraw) {
+	auto array = nraw.collection().column(col);
+	auto& core_array = array.to_core_array<uint32_t>();
 
-Inendi::PVMappingFilter::decimal_storage_type Inendi::string_mapping::process_utf8(const char* buf, size_t size, PVMappingFilter* m)
-{
-	Inendi::PVMappingFilter::decimal_storage_type ret_ds;
-	ret_ds.storage_as_uint() = (uint32_t) PVCore::PVStringUtils::compute_str_factor(PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size), static_cast<PVMappingFilterStringDefault*>(m)->case_sensitive());
-	return ret_ds;
+	auto& dict = *nraw.collection().dict(col);
+	std::vector<uint32_t> ret(dict.size());
+	std::transform(dict.begin(), dict.end(), ret.begin(), [&](const char* c) { return compute_str_factor(c, strlen(c), _case_sensitive);});
+
+	for(size_t row=0; row< array.size(); row++) {
+		_dest[row].storage_as_uint() = ret[core_array[row]];
+	}
+
+	return _dest;
 }
 
 IMPL_FILTER(Inendi::PVMappingFilterStringDefault)

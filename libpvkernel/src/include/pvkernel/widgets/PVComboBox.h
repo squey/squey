@@ -21,7 +21,7 @@ public:
 public:
 	QString get_selected() const;
 	QVariant get_sel_userdata() const;
-    bool select(QString const& str);
+	bool select(QString const& str);
 	bool select_userdata(QVariant const& data);
 
 public:

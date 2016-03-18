@@ -311,7 +311,6 @@ void Inendi::PVView::debug()
 void Inendi::PVView::expand_selection_on_axis(PVCol axis_id, QString const& mode)
 {
 	commit_volatile_in_floating_selection();
-	get_parent<PVPlotted>()->expand_selection_on_axis(floating_selection, axis_id, mode);
 }
 
 /******************************************************************************
@@ -1125,7 +1124,7 @@ bool Inendi::PVView::is_consistent() const
 void Inendi::PVView::recreate_mapping_plotting()
 {
 	// Source has been changed, recreate mapping and plotting
-	get_parent<PVMapped>()->process_parent_source();
+	get_parent<PVMapped>()->compute();
 	get_parent<PVPlotted>()->process_from_parent_mapped();
 
 /*

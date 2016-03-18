@@ -44,6 +44,78 @@ add_pv_compile_test(Tinendi_export_selection_to_mineset LINKS ${LINK_LIBRARIES} 
 add_test(Tinendi_export_selection_to_mineset Tinendi_export_selection_to_mineset ${TESTS_FILES_DIR}/sources/proxy_mineset.log ${TESTS_FILES_DIR}/formats/proxy.log.format)
 add_test(Tinendi_formatter_number Tinendi_export_selection ${TESTS_FILES_DIR}/picviz/formatter_number.csv ${TESTS_FILES_DIR}/picviz/formatter_number.csv.format)
 
+add_pv_compile_test(Tmapping_enum_default LINKS ${LINK_LIBRARIES} FILES mapping_enum_default.cpp)
+add_test(Tmapping_enum_default Tmapping_enum_default)
+add_bench(Tmapping_enum_default LINKS ${LINK_LIBRARIES} FILES mapping_enum_default.cpp)
+
+add_pv_compile_test(Tmapping_float_default LINKS ${LINK_LIBRARIES} FILES mapping_float_default.cpp)
+add_test(Tmapping_float_default Tmapping_float_default)
+add_bench(Tmapping_float_default LINKS ${LINK_LIBRARIES} FILES mapping_float_default.cpp)
+
+add_pv_compile_test(Tmapping_host_default LINKS ${LINK_LIBRARIES} FILES mapping_host_default.cpp)
+add_test(Tmapping_host_default Tmapping_host_default)
+add_bench(Tmapping_host_default LINKS ${LINK_LIBRARIES} FILES mapping_host_default.cpp)
+
+add_pv_compile_test(Tmapping_integer_default LINKS ${LINK_LIBRARIES} FILES mapping_integer_default.cpp)
+add_test(Tmapping_integer_default Tmapping_integer_default)
+add_bench(Tmapping_integer_default LINKS ${LINK_LIBRARIES} FILES mapping_integer_default.cpp)
+
+add_pv_compile_test(Tmapping_integer_unsigned LINKS ${LINK_LIBRARIES} FILES mapping_integer_unsigned.cpp)
+add_test(Tmapping_integer_unsigned Tmapping_integer_unsigned)
+add_bench(Tmapping_integer_unsigned LINKS ${LINK_LIBRARIES} FILES mapping_integer_unsigned.cpp)
+
+add_pv_compile_test(Tmapping_ipv4_default LINKS ${LINK_LIBRARIES} FILES mapping_ipv4_default.cpp)
+add_test(Tmapping_ipv4_default Tmapping_ipv4_default)
+add_bench(Tmapping_ipv4_default LINKS ${LINK_LIBRARIES} FILES mapping_ipv4_default.cpp)
+
+add_pv_compile_test(Tmapping_ipv4_uniform LINKS ${LINK_LIBRARIES} FILES mapping_ipv4_uniform.cpp)
+add_test(Tmapping_ipv4_uniform Tmapping_ipv4_uniform)
+add_bench(Tmapping_ipv4_uniform LINKS ${LINK_LIBRARIES} FILES mapping_ipv4_uniform.cpp)
+
+add_pv_compile_test(Tmapping_string_4bsort LINKS ${LINK_LIBRARIES} FILES mapping_string_4bsort.cpp)
+add_test(Tmapping_string_4bsort Tmapping_string_4bsort)
+add_bench(Tmapping_string_4bsort LINKS ${LINK_LIBRARIES} FILES mapping_string_4bsort.cpp)
+
+add_pv_compile_test(Tmapping_string_default LINKS ${LINK_LIBRARIES} FILES mapping_string_default.cpp)
+add_test(Tmapping_string_default Tmapping_string_default)
+add_bench(Tmapping_string_default LINKS ${LINK_LIBRARIES} FILES mapping_string_default.cpp)
+
+add_pv_compile_test(Tmapping_time_default LINKS ${LINK_LIBRARIES} FILES mapping_time_default.cpp)
+add_test(Tmapping_time_default Tmapping_time_default)
+add_bench(Tmapping_time_default LINKS ${LINK_LIBRARIES} FILES mapping_time_default.cpp)
+
+add_pv_compile_test(Tmapping_time_ms_default LINKS ${LINK_LIBRARIES} FILES mapping_time_ms_default.cpp)
+add_test(Tmapping_time_ms_default Tmapping_time_ms_default)
+add_bench(Tmapping_time_ms_default LINKS ${LINK_LIBRARIES} FILES mapping_time_ms_default.cpp)
+
+add_pv_compile_test(Tmapping_time_us_default LINKS ${LINK_LIBRARIES} FILES mapping_time_us_default.cpp)
+add_test(Tmapping_time_us_default Tmapping_time_us_default)
+add_bench(Tmapping_time_us_default LINKS ${LINK_LIBRARIES} FILES mapping_time_us_default.cpp)
+
+add_pv_compile_test(Tmapping_time_24h LINKS ${LINK_LIBRARIES} FILES mapping_time_24h.cpp)
+add_test(Tmapping_time_24h Tmapping_time_24h)
+add_bench(Tmapping_time_24h LINKS ${LINK_LIBRARIES} FILES mapping_time_24h.cpp)
+
+add_pv_compile_test(Tmapping_time_ms_24h LINKS ${LINK_LIBRARIES} FILES mapping_time_ms_24h.cpp)
+add_test(Tmapping_time_ms_24h Tmapping_time_ms_24h)
+add_bench(Tmapping_time_ms_24h LINKS ${LINK_LIBRARIES} FILES mapping_time_ms_24h.cpp)
+
+add_pv_compile_test(Tmapping_time_us_24h LINKS ${LINK_LIBRARIES} FILES mapping_time_us_24h.cpp)
+add_test(Tmapping_time_us_24h Tmapping_time_us_24h)
+add_bench(Tmapping_time_us_24h LINKS ${LINK_LIBRARIES} FILES mapping_time_us_24h.cpp)
+
+add_pv_compile_test(Tmapping_time_week LINKS ${LINK_LIBRARIES} FILES mapping_time_week.cpp)
+add_test(Tmapping_time_week Tmapping_time_week)
+add_bench(Tmapping_time_week LINKS ${LINK_LIBRARIES} FILES mapping_time_week.cpp)
+
+add_pv_compile_test(Tmapping_time_ms_week LINKS ${LINK_LIBRARIES} FILES mapping_time_ms_week.cpp)
+add_test(Tmapping_time_ms_week Tmapping_time_ms_week)
+add_bench(Tmapping_time_ms_week LINKS ${LINK_LIBRARIES} FILES mapping_time_ms_week.cpp)
+
+add_pv_compile_test(Tmapping_time_us_week LINKS ${LINK_LIBRARIES} FILES mapping_time_us_week.cpp)
+add_test(Tmapping_time_us_week Tmapping_time_us_week)
+add_bench(Tmapping_time_us_week LINKS ${LINK_LIBRARIES} FILES mapping_time_us_week.cpp)
+
 add_pv_compile_test(Tinendi_root LINKS ${LINK_LIBRARIES} FILES root.cpp)
 add_test(Tinendi_root Tinendi_root)
 

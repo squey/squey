@@ -9,61 +9,50 @@
 #define PVFILTER_PVMAPPINGFILTERTIMEDEFAULT_H
 
 #include <pvkernel/core/general.h>
-#include <inendi/PVPureMappingFilter.h>
+#include <inendi/PVMappingFilter.h>
 
-#include <unicode/calendar.h>
-
-#include <tbb/enumerable_thread_specific.h>
-
-namespace PVCore {
-class PVDateTimeParser;
-}
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace Inendi {
 
-struct time_mapping
-{
-	static Inendi::PVMappingFilter::decimal_storage_type process_utf8(const char* buf, size_t size, PVMappingFilter* m);
-	static Inendi::PVMappingFilter::decimal_storage_type process_utf16(uint16_t const* buf, size_t size, PVMappingFilter* m);
-};
-
-struct tls_parser
-{
-	tls_parser();
-	~tls_parser();
-
-	void init(QStringList const& time_format);
-
-	Calendar* cal() { return _cal; }
-	PVCore::PVDateTimeParser& parser() { return *_parser; }
-private:
-	Calendar* _cal;
-	PVCore::PVDateTimeParser* _parser;
-};
-
-class PVMappingFilterTimeDefault: public PVPureMappingFilter<time_mapping>
+class PVMappingFilterTimeDefault: public PVMappingFilter
 {
 	friend class time_mapping;
 public:
-	PVMappingFilterTimeDefault(PVCore::PVArgumentList const& args = PVMappingFilterTimeDefault::default_args());
+	PVMappingFilterTimeDefault();
 
-public:
-	QString get_human_name() const override { return QString("Default"); }
-	PVCore::DecimalType get_decimal_type() const override { return PVCore::IntegerType; }
-	void init() override;
+	public:
+		decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override {
+			auto f = nraw.collection().formatter(col);
+			auto array = nraw.collection().column(col);
 
-protected:
-	inline QStringList const& time_format() const { return _time_format; }
-	inline tbb::enumerable_thread_specific<tls_parser>& tls_parsers() { return _tls_parsers; }
+			if (std::string(f->name()) == "datetime") {
+				auto& core_array = array.to_core_array<uint32_t>();
+				for(size_t row=0; row< array.size(); row++) {
+					_dest[row].storage_as_uint() = core_array[row];
+				}
+			} else if (std::string(f->name()) == "datetime_us") {
+				auto& core_array = array.to_core_array<uint64_t>();
+				const boost::posix_time::ptime epoch = boost::posix_time::from_time_t(0);
+				for(size_t row=0; row< array.size(); row++) {
+					const boost::posix_time::ptime t = *reinterpret_cast<const boost::posix_time::ptime*>(&core_array[row]);
+					_dest[row].storage_as_uint() = (t - epoch).total_seconds();
+				}
+			} else {
+				assert(std::string(f->name()) == "datetime_ms" && "Unknown datetime formatter");
+				auto& core_array = array.to_core_array<uint64_t>();
+				for(size_t row=0; row< array.size(); row++) {
+					_dest[row].storage_as_uint() = core_array[row] / 1000; // ms to s
+				}
+			}
 
-protected:
-	virtual int32_t cal_to_int(Calendar* cal, bool& success);
+			return _dest;
+		}
 
-private:
-	QStringList _time_format;
-	tbb::enumerable_thread_specific<tls_parser> _tls_parsers;
+		QString get_human_name() const override { return QString("Default"); }
+		PVCore::DecimalType get_decimal_type() const override { return PVCore::IntegerType; }
 
-	CLASS_FILTER(PVMappingFilterTimeDefault)
+	CLASS_FILTER_NOPARAM(PVMappingFilterTimeDefault)
 };
 
 }
