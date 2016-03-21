@@ -68,7 +68,6 @@ private:
 	QLabel* _source_starts_directory;
 	QComboBox *_source_starts_sel;
 	QLineEdit *_source_starts_line;
-	PVRush::PVRawSourceBase_p _cur_src;
 
 public slots:
 	void exit_Slot();
@@ -90,7 +89,8 @@ protected:
 
 private:
 	inline Inendi::PVSource& lib_src() { return *_lib_src; }
-	inline PVRush::PVExtractor& get_extractor() { return lib_src().get_extractor(); }
+	inline Inendi::PVSource const& lib_src() const { return *_lib_src; }
+	inline PVRush::PVExtractor & get_extractor() { return lib_src().get_extractor(); }
 
 	//bool process_extraction_job(PVRush::PVControllerJob_p job);
 

@@ -14,22 +14,17 @@
 #include <pvkernel/rush/PVAggregator.h>
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVNrawOutput.h>
+#include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 namespace PVRush {
-	class PVFormat;
 
 // The famous and wanted PVExtractor !!!!
 /*! \brief Extract datas from an aggregator, process them through filters and write the result to an NRaw
  *
  * This class owns an aggregator and a NRaw (see PVRush::PVNraw). Given a chunk filter, it process a given number
  * of lines and write them to its internal NRaw.
- *
- * It also owns a PVRush::PVController object, that is used to launch and/or cancel running jobs.
- * In order to work, start_controller need to be called.
- *
- * \note We could also imagine that a global PVController object would be used for all PVExtractor's, but that's not our choice for now.
  */
 class PVExtractor {
 public:
@@ -76,7 +71,8 @@ public:
 
 	/*! \brief Get a reference to the internal aggregator
 	 */
-	PVAggregator& get_agg();
+	PVAggregator& get_agg() { return _agg; }
+	PVAggregator const& get_agg() const { return _agg; }
 
 	/*! \brief Get a reference to the internal NRaw
 	 */
@@ -96,10 +92,6 @@ public:
 	 */
 	void reset_nraw();
 
-	/*! \brief Get the number of axes expected by the internal format.
-	 */
-	PVCol get_number_axes();
-
 	void force_number_axes(PVCol naxes);
 
 	chunk_index get_last_start() const { return _last_start; }
@@ -117,14 +109,12 @@ public:
 
 	static PVCore::PVArgumentList default_args_extractor();
 
-	void dump_nraw();
-	void debug();
-
 private:
 	void set_sources_number_fields();
 	
 protected:
 	PVAggregator _agg;
+	PVFormat _format; //!< It is the format use for extraction.
 	std::unique_ptr<PVNraw> _nraw;
 	PVNrawOutput _out_nraw; // Linked to _nraw
 	PVFilter::PVChunkFilterByElt* _chk_flt;

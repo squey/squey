@@ -8,6 +8,7 @@
 #include <pvkernel/core/PVSelBitField.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
+#include <pvkernel/core/PVChunk.h>
 
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVNraw.h>
@@ -55,7 +56,7 @@ PVRush::PVNraw::~PVNraw()
  *
  ****************************************************************************/
 
-void PVRush::PVNraw::prepare_load(PVRow const nrows)
+void PVRush::PVNraw::prepare_load(PVRow const nrows, pvcop::formatter_desc_list const& format)
 {
 	// Generate random path
 	std::string collector_path = PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/" + nraw_tmp_pattern;
@@ -64,7 +65,7 @@ void PVRush::PVNraw::prepare_load(PVRow const nrows)
 	}
 
 	// Create collector and format
-	_collector.reset(new pvcop::collector(collector_path.data(), get_format()->get_storage_format()));
+	_collector.reset(new pvcop::collector(collector_path.data(), format));
 	_collection.reset();
 
 	// Define maximum number of row;

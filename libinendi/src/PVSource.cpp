@@ -225,11 +225,6 @@ std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
 	return nraw->at_string(row, col);
 }
 
-PVRush::PVExtractor& Inendi::PVSource::get_extractor()
-{
-	return _extractor;
-}
-
 PVRush::PVInputType_p Inendi::PVSource::get_input_type() const
 {
 	assert(_src_plugin);

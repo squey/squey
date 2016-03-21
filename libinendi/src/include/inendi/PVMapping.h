@@ -63,7 +63,7 @@ public:
 
 	void set_source(PVSource* src);
 
-	PVRush::PVFormat_p get_format() const;
+	PVRush::PVFormat const& get_format() const;
 
 public:
 	// Column properties

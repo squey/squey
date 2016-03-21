@@ -21,7 +21,6 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/core/PVDataTreeObject.h>
-#include <pvkernel/rush/PVExtractor.h>
 
 #include <inendi/PVLinesProperties.h>
 #include <inendi/PVMapped.h>
@@ -167,8 +166,6 @@ public:
 
 	PVLayer& get_output_layer();
 	PVLayer const& get_output_layer() const { return output_layer; }
-
-	PVRush::PVExtractor& get_extractor();
 
 	QString get_name() const;
 	QString get_window_name() const;

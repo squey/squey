@@ -947,6 +947,7 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 	job->wait_end();
 
 	_nraw_model->set_nraw(_log_extract->get_nraw());
+	_nraw_model->set_format(get_format_from_dom());
 
 	// Set the invalid lines widget
 	_inv_lines_widget->clear();

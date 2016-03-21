@@ -367,7 +367,7 @@ char *fill_spaces(QString str, int max_spaces)
 	return retbuf;
 }
 
-void PVRush::PVFormat::debug()
+void PVRush::PVFormat::debug() const
 {
 	QHashIterator<int, QStringList> time_hash(time_format);
 

@@ -72,7 +72,14 @@ public:
 
 	PVRow get_row_count() const;
 
-	PVRush::PVExtractor& get_extractor();
+	PVRush::PVExtractor const& get_extractor() const { return _extractor; }
+
+	/**
+	 * This one is call by extractor widget after a source clone.
+	 *
+	 * @fixme: Should be remove so we can use the new one form new source.
+	 */
+	PVRush::PVExtractor & get_extractor() { return _extractor; }
 	
 	/**
 	 * Start extraction of data for current source.

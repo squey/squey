@@ -71,7 +71,7 @@ QVariant PVInspector::PVNrawListingModel::headerData(int section, Qt::Orientatio
 
 	if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
 		return QAbstractTableModel::headerData(section, orientation, role);
-	return QString::fromStdString(_nraw->get_axis_name(section));
+	return _format.get_axes().at(section).get_name();
 }
 
 void PVInspector::PVNrawListingModel::set_nraw(PVRush::PVNraw const& nraw)

@@ -1026,11 +1026,6 @@ void Inendi::PVView::move_selected_layer_to(int new_index)
 	get_layer_stack().move_selected_layer_to(new_index);
 }
 
-PVRush::PVExtractor& Inendi::PVView::get_extractor()
-{
-	return get_parent<PVSource>()->get_extractor();
-}
-
 void Inendi::PVView::set_consistent(bool c)
 {
 	_is_consistent = c;

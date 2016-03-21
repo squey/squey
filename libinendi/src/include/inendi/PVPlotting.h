@@ -63,7 +63,7 @@ public:
 	/**
 	 * Gets the associated format
 	 */
-	PVRush::PVFormat_p get_format() const;
+	PVRush::PVFormat const& get_format() const;
 
 	PVPlotted* get_plotted() { return _plotted; }
 

@@ -160,7 +160,7 @@ public:
 
 	void set_sources_number_fields(PVCol nfields);
 
-	void debug();
+	void debug() const;
 
 public:
 	/*! \brief Helper static function to create a PVAggregator object from a unique source.

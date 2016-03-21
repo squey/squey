@@ -41,7 +41,6 @@ PVRush::PVExtractor::PVExtractor() :
 
 void PVRush::PVExtractor::add_source(PVRush::PVRawSourceBase_p src)
 {
-	//TODO: check if controller is running a job
 	_agg.add_input(src);
 }
 
@@ -52,12 +51,12 @@ void PVRush::PVExtractor::set_chunk_filter(PVFilter::PVChunkFilterByElt* chk_flt
 
 PVRush::PVFormat& PVRush::PVExtractor::get_format()
 {
-	return *get_nraw().get_format();
+	return _format;
 }
 
 const PVRush::PVFormat& PVRush::PVExtractor::get_format() const
 {
-	return *get_nraw().get_format();
+	return _format;
 }
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines)
@@ -65,7 +64,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	nlines = std::min(nlines, (chunk_index) INENDI_LINES_MAX);
 
 	set_sources_number_fields();
-	get_nraw().prepare_load(nlines);
+	get_nraw().prepare_load(nlines, _format.get_storage_format());
 
 	_agg.set_skip_lines_count(start);
 	_agg.set_strict_mode(start > 0);
@@ -87,7 +86,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	end = std::min(end, start + ((chunk_index) INENDI_LINES_MAX) - 1);
 
 	set_sources_number_fields();
-	get_nraw().prepare_load(end-start);
+	get_nraw().prepare_load(end-start, _format.get_storage_format());
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
 	// object when it is not needed anymore !
@@ -107,47 +106,20 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::read_everything()
 	return job;
 }
 
-void PVRush::PVExtractor::dump_nraw()
-{
-	PVLOG_INFO("Nraw:\n");
-	for (size_t i = 0; i < inendi_min(10,get_nraw().get_row_count()); i++) {
-		PVLOG_INFO("Line %d: ", i);
-		for (int j = 0; j < get_nraw().get_number_cols(); j++) {
-			std::cerr << get_nraw().at_string(i,j) << ",";
-		}
-		std::cerr << std::endl;
-	}
-}
-
 PVRush::PVAggregator::list_inputs const& PVRush::PVExtractor::get_inputs() const
 {
 	return _agg.get_inputs();
 }
 
-PVRush::PVAggregator& PVRush::PVExtractor::get_agg()
-{
-	return _agg;
-}
-
-void PVRush::PVExtractor::debug()
-{
-	PVLOG_DEBUG("PVExtractor debug\n");
-	_agg.debug();
-	PVLOG_DEBUG("PVExtractor nraw\n");
-	dump_nraw();
-}
-
 void PVRush::PVExtractor::reset_nraw()
 {
-	PVRush::PVFormat_p format = _nraw->get_format();
 	_nraw.reset(new PVNraw());
-	_nraw->set_format(format);
 	_out_nraw.set_nraw_dest(*_nraw);
 }
 
 void PVRush::PVExtractor::set_format(PVFormat const& format)
 {
-	get_nraw().set_format(std::make_shared<PVFormat>(format));
+	_format = format;
 }
 
 void PVRush::PVExtractor::force_number_axes(PVCol naxes)
@@ -155,20 +127,9 @@ void PVRush::PVExtractor::force_number_axes(PVCol naxes)
 	_force_naxes = naxes;
 }
 
-PVCol PVRush::PVExtractor::get_number_axes()
-{
-	if (get_nraw().get_format()) {
-		return get_nraw().get_format()->get_axes().size();
-	}
-	
-	// The number of axes is unknown, the NRAW will be resized
-	// when the first line is created (see PVNraw::add_row)
-	return _force_naxes;
-}
-
 void PVRush::PVExtractor::set_sources_number_fields()
 {
-	_agg.set_sources_number_fields(get_number_axes());
+	_agg.set_sources_number_fields(_format.get_axes().size());
 }
 
 PVCore::PVArgumentList PVRush::PVExtractor::default_args_extractor()

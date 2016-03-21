@@ -380,19 +380,18 @@ void PVRush::PVAggregator::set_sources_number_fields(PVCol ncols)
 	}
 }
 
-void PVRush::PVAggregator::debug()
+void PVRush::PVAggregator::debug() const
 {
 	// List sources
 	PVLOG_DEBUG("PVAggregator::debug\n");
-	list_inputs::iterator iti;
 	PVLOG_DEBUG("PVAggregator::debug source\n");
-	for (iti = _inputs.begin(); iti != _inputs.end(); iti++) {
-		PVLOG_DEBUG("source %s\n", qPrintable((*iti)->human_name()));
+	for (auto const& input: _inputs) {
+		PVLOG_DEBUG("source %s\n", qPrintable(input->human_name()));
 	}
 
 	PVLOG_DEBUG("PVAggregator::debug offset->source\n");
-	map_source_offsets::iterator it;
-	for (it = _src_offsets.begin(); it != _src_offsets.end(); it++)
-		PVLOG_DEBUG("offset %d: source %s\n", (*it).first, qPrintable((*(it->second))->human_name()));
+	for (auto const& src_off: _src_offsets) {
+		PVLOG_DEBUG("offset %d: source %s\n", src_off.first, qPrintable((*(src_off.second))->human_name()));
+	}
 	PVLOG_DEBUG("PVAggregator::debug nstart=%d nlast=%d nend=%d\n", _nstart, _nlast, _nend);
 }

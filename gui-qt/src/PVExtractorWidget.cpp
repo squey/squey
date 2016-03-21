@@ -125,8 +125,6 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(Inendi::PVSource& lib_src, PVG
 	connect(_size_batch_widget, SIGNAL(textEdited(QString const&)), this, SLOT(size_batch_edited_Slot(QString const&)));
 	connect(_source_starts_line, SIGNAL(textEdited(QString const&)), this, SLOT(line_start_edited_Slot(QString const&)));
 
-	get_extractor().get_agg().debug();
-
 	update_infos();
 
 	setLayout(main_layout);
@@ -276,16 +274,16 @@ void PVInspector::PVExtractorWidget::update_infos()
 	size_t index = _slider_index->value();
 	chunk_index offset = 0;
 	PVRush::PVRawSourceBase_p src = get_extractor().get_agg().agg_index_to_source(index, &offset);
-	_cur_src = src;
 	_cur_src_offset = offset;
 	QString file;
-	if (src == NULL)
+	if (src == nullptr)
 	{
 		// Take the last one
 		file = _list_inputs->takeTopLevelItem(_list_inputs->topLevelItemCount()-1)->text(0);
 	}
-	else
+	else {
 		file = src->human_name();
+	}
 
 	QFileInfo fi(file);
 	_source_starts_filename->setText(fi.fileName());
