@@ -11,7 +11,6 @@
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
 #include <pvkernel/filter/PVFieldSplitterUTF16Char.h>
-#include <pvkernel/filter/PVFieldsMappingFilter.h>
 
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVInputPcap.h>
