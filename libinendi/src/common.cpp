@@ -22,31 +22,12 @@ void Inendi::common::load_filters()
 	load_layer_filters();
 	load_mapping_filters();
 	load_plotting_filters();
-	load_axis_computation_filters();
-	load_sorting_functions_filters();
 
 	// Load PVRush plugins
 	PVRush::PVPluginsLoad::load_all_plugins();
 
 	// Load PVFilter plugins
 	PVFilter::PVPluginsLoad::load_all_plugins();
-}
-
-/******************************************************************************
- *
- * Inendi::PVRoot::load_axis_computation_filters
- *
- *****************************************************************************/
-int Inendi::common::load_axis_computation_filters()
-{
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString::fromStdString(inendi_plugins_get_axis_computation_dir()), AXIS_COMPUTATION_PLUGINS_PREFIX);
-	if (ret == 0) {
-		PVLOG_WARN("No axis computation plugin has been loaded !\n");
-	}
-	else {
-		PVLOG_INFO("%d axis computation plugins have been loaded.\n", ret);
-	}
-	return ret;
 }
 
 // Layer filters loading
@@ -103,23 +84,6 @@ int Inendi::common::load_plotting_filters()
 	}
 	else {
 		PVLOG_INFO("%d plotting filters have been loaded.\n", ret);
-	}
-	return ret;
-}
-
-/******************************************************************************
- *
- * Inendi::PVRoot::load_sorting_functions_filters
- *
- *****************************************************************************/
-int Inendi::common::load_sorting_functions_filters()
-{
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString::fromStdString(inendi_plugins_get_sorting_functions_dir()), SORTING_FUNCTIONS_PLUGINS_PREFIX);
-	if (ret == 0) {
-		PVLOG_WARN("No sorting plugin has been loaded !\n");
-	}
-	else {
-		PVLOG_INFO("%d sorting plugins have been loaded.\n", ret);
 	}
 	return ret;
 }
