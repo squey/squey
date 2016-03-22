@@ -397,26 +397,26 @@ protected:
 	 */
 	PVAxesCombination axes_combination;
 
-	PVCore::PVHSVColor default_zombie_line_properties;
-	PVSelection floating_selection;
-	PVLayer pre_filter_layer;
-	PVLayer post_filter_layer;
+	PVCore::PVHSVColor default_zombie_line_properties; //!< Default color for Zombies lines.
+	PVSelection floating_selection; //!< This is the current selection
+	PVLayer pre_filter_layer; //!< This is the layer on which we will apply filtering.
+	PVLayer post_filter_layer; //!< This is the result of the filtering on pre_filter_layer
 	PVLayer layer_stack_output_layer;
 	PVLayer output_layer;
-	PVRow row_count;
+	PVRow row_count; //!< This is the number of row in the plotted FIXME : It is invariant duplication.
 	PVLayerStack layer_stack;
-	PVSelection nu_selection;
-	PVSelection real_output_selection;
+	PVSelection nu_selection; //!< This is zombi and selected elements
+	PVSelection real_output_selection; //!< This is selected elements
 	PVEventline eventline;
 	PVSquareArea square_area;
 	PVStateMachine *state_machine;
-	PVSelection volatile_selection;
+	PVSelection volatile_selection; //!< It is the selection currently computed. It will be flush in floating_selection once it is completed.
 	int last_extractor_batch_size;
 
 	bool _is_consistent;
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
-	PVRush::PVNraw* _rushnraw_parent = nullptr;
+	PVRush::PVNraw* _rushnraw_parent = nullptr; //!< Pointer to the NRaw from source.
 	std::weak_ptr<PVCore::PVSerializeObject> _last_so;
 	id_t _view_id;
 	PVCol _active_axis;

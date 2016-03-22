@@ -839,28 +839,22 @@ void Inendi::PVView::process_selection()
 	switch (state_machine->get_square_area_mode()) {
 		case Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
 			pre_filter_layer.get_selection() = volatile_selection;
-//			volatile_selection.A2B_copy(pre_filter_layer->selection);
 			break;
 
 		case Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE:
 			pre_filter_layer.get_selection() = std::move(floating_selection | volatile_selection);
-//			floating_selection.AB2C_or(volatile_selection, pre_filter_layer->selection);
 			break;
 
 		case Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
-			// This is an optimized version of:
-			// pre_filter_layer.get_selection() = floating_selection, volatile_selection
 			pre_filter_layer.get_selection().AB_sub(floating_selection, volatile_selection);
 			break;
 
 		case Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
 			pre_filter_layer.get_selection() = std::move(floating_selection & volatile_selection);
-		//	floating_selection.AB2C_and(volatile_selection, pre_filter_layer->selection);
 			break;
 
 		default:
 			pre_filter_layer.get_selection() = layer_stack_output_layer.get_selection();
-		//	layer_stack_output_layer->selection.A2B_copy(pre_filter_layer->selection);
 			break;
 	}
 
@@ -985,7 +979,6 @@ void Inendi::PVView::set_color_on_post_filter_layer(const PVCore::PVHSVColor c)
 void Inendi::PVView::set_floating_selection(PVSelection &selection)
 {
 	floating_selection = selection;
-//	selection.A2B_copy(floating_selection);
 }
 
 /******************************************************************************
