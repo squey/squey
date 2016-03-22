@@ -61,6 +61,10 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent
  *****************************************************************************/
 QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 {
+	if(not index.isValid()) {
+		return {};
+	}
+
 	// Axis may have been duplicated and moved, get the real one.
 	const PVCol org_col = lib_view().get_original_axis_index(index.column());
 
