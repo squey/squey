@@ -64,7 +64,7 @@ PVParallelView::PVScatterView::PVScatterView(
 ) :
 	PVZoomableDrawingAreaWithAxes(parent),
 	_view(*pvview_sp),
-	_images_manager(zone_index, zp_bg, zp_sel, zm, pvview_sp->output_layer.get_lines_properties().get_buffer(), pvview_sp->get_real_output_selection()),
+	_images_manager(zone_index, zp_bg, zp_sel, zm, pvview_sp->get_output_layer_color_buffer(), pvview_sp->get_real_output_selection()),
 	_view_deleted(false),
 	_show_bg(true)
 {

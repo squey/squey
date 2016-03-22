@@ -372,16 +372,12 @@ void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
  *****************************************************************************/
 void PVInspector::PVMainWindow::commit_selection_in_current_layer(Inendi::PVView* inendi_view)
 {
-	//Inendi::StateMachine *state_machine = NULL;
-
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
-	//state_machine = inendi_view->state_machine;
-
 	/* We get the current selected layer */
-	Inendi::PVLayer &current_selected_layer = inendi_view->layer_stack.get_selected_layer();
+	Inendi::PVLayer &current_selected_layer = inendi_view->get_current_layer();
 	/* We fill it's lines_properties */
-	inendi_view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), inendi_view->real_output_selection, inendi_view->row_count);
+	inendi_view->get_output_layer().get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), inendi_view->get_real_output_selection(), inendi_view->get_row_count());
 
 	/* We need to process the view from the layer_stack */
 	Inendi::PVView_sp view_sp = inendi_view->shared_from_this();
@@ -412,7 +408,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
 	}
 
 	actor.call<FUNC(Inendi::PVView::add_new_layer)>(name);
-	Inendi::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
+	Inendi::PVLayer &layer = view_sp->get_current_layer();
 
 	// We need to configure the layer
 	view_sp->commit_selection_to_layer(layer);
@@ -434,7 +430,7 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 	PVHive::PVActor<Inendi::PVView> actor;
 	PVHive::get().register_actor(view_sp, actor);
 
-	Inendi::PVLayer& current_layer = inendi_view->layer_stack.get_selected_layer();
+	Inendi::PVLayer& current_layer = inendi_view->get_current_layer();
 	
 	bool& should_hide_layers = view_sp->get_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(view_sp->get_layer_stack().get_new_layer_name(), should_hide_layers);
@@ -445,11 +441,11 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 		}
 
 		actor.call<FUNC(Inendi::PVView::add_new_layer)>(name);
-		Inendi::PVLayer& new_layer = inendi_view->layer_stack.get_selected_layer();
+		Inendi::PVLayer& new_layer = inendi_view->get_current_layer();
 
 		/* We set it's selection to the final selection */
 		inendi_view->set_selection_with_final_selection(new_layer.get_selection());
-		inendi_view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(new_layer.get_lines_properties(), new_layer.get_selection(), inendi_view->row_count);
+		inendi_view->get_output_layer().get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(new_layer.get_lines_properties(), new_layer.get_selection(), inendi_view->get_row_count());
 
 		// We remove that selection from the current layer
 		current_layer.get_selection().and_not(new_layer.get_selection());
@@ -982,469 +978,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 	}
 #endif
 
-#if 0
-	/* VARIABLES */
-	int column_index;
-	/* We prepare a direct access to the current lib_view */
-	Inendi::PVView* current_lib_view;
-	/* ... and the current_selected_layer */
-	Inendi::PVLayer *current_selected_layer = NULL;
-	/* We also need an access to the state machine */
-	Inendi::PVStateMachine *state_machine = NULL;
-	/* things needed for the screenshot */
-	QString initial_path;
-	QImage screenshot_image;
-	QPixmap screenshot_pixmap;
-	QString screenshot_filename;
-	
-	// FIXME!  This is so UGLY !!!
-	QFile css_file("/donnees/GIT/OLD/inendi-inspector/gui-qt/src/resources/gui.css");
-	css_file.open(QFile::ReadOnly);
-	QTextStream css_stream(&css_file);
-	QString css_string(css_stream.readAll());
-	css_file.close();
-	
-
-
-	if (current_tab) {
-		current_lib_view = current_tab->current_view();
-		state_machine = current_lib_view->state_machine;
-	}
-	/* Now we switch according to the key pressed */
-	switch (event->key()) {
-
-		/* Select all */
-		case Qt::Key_A:
-			/* If there is no view at all, don't do anything */
-			if (_workspaces_tab_widget->currentIndex() == -1) {
-				break;
-			}
-			switch (event->modifiers()) {
-				case (Qt::ShiftModifier):
-					current_lib_view->floating_selection.select_all();
-					break;
-
-				default:
-					current_lib_view->volatile_selection = current_lib_view->layer_stack_output_layer.get_selection();
-//						current_lib_view->layer_stack_output_layer.get_selection().A2B_copy(current_lib_view->volatile_selection);
-					break;
-			}
-
-			/* We deactivate the square area */
-			state_machine->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_OFF);
-			/* We process the view from the selection */
-			current_lib_view->process_from_selection();
-			/* We refresh the listing */
-			current_tab->refresh_listing_with_horizontal_header_Slot();
-			current_tab->update_pv_listing_model_Slot();
-			current_tab->refresh_listing_Slot();
-			break;
-
-		case Qt::Key_C:
-			/* If there is no view at all, don't do anything */
-			if (_workspaces_tab_widget->currentIndex() == -1) {
-				break;
-			}
-			set_color_Slot();
-			break;
-
-		case Qt::Key_D:
-			// current_lib_view->layer_stack.write_file("out.data");
-			break;
-		case Qt::Key_E:
-			// current_lib_view->layer_stack.read_file("out.data");
-			break;
-
-		/* Delete active axis */
-		case Qt::Key_Delete:
-			/* If there is no view at all, don't do anything */
-			if (_workspaces_tab_widget->currentIndex() == -1) {
-				break;
-			}
-			/* If we are not in AXIS_MODE, don't do anything */
-			if (!state_machine->is_axes_mode()) {
-				break;
-			}
-
-			/* We decide to leave at least two axes... */
-			if (current_lib_view->get_axes_count() <= 2) {
-				break;
-			}
-
-			switch (event->modifiers()) {
-				case (Qt::MetaModifier):
-
-						break;
-
-				case (Qt::AltModifier):
-
-						break;
-
-				case (Qt::ShiftModifier):
-
-						break;
-
-				default:
-					current_lib_view->axes_combination.remove_axis(current_lib_view->active_axis);
-					/* We check if we have just removed the rightmost axis */
-					if ( current_lib_view->axes_combination.get_axes_count() == current_lib_view->active_axis ) {
-						current_lib_view->active_axis -= 1;
-					}
-					break;
-			}
-
-			current_tab->refresh_listing_with_horizontal_header_Slot();
-			current_tab->update_pv_listing_model_Slot();
-			current_tab->refresh_listing_Slot();
-			break;
-
-
-#ifndef NDEBUG
-		case Qt::Key_Dollar:
-		{
-			if (_workspaces_tab_widget->currentIndex() == -1) {
-				break;
-			}
-
-			// PhS
-			setStyleSheet(css_string);
-			setStyle(QApplication::style());
-
-			QFile css_file("/donnees/GIT/OLD/inendi-inspector/gui-qt/src/resources/gui.css");
-			css_file.open(QFile::ReadOnly);
-			QTextStream css_stream(&css_file);
-			QString css_string(css_stream.readAll());
-			css_file.close();
-
-			// PhS
-			setStyleSheet(css_string);
-			setStyle(QApplication::style());
-			break;
-		}
-#endif
-
-		/* Decrease active axis column index */
-		case Qt::Key_Down:
-			/* If there is no view at all, don't do anything */
-			if (_workspaces_tab_widget->currentIndex() == -1) {
-				break;
-			}
-			/* If we are not in AXIS_MODE, don't do anything */
-			if (!state_machine->is_axes_mode()) {
-				break;
-			}
-
-			/* We test if we have reached the lowest column_index value */
-			column_index = current_lib_view->axes_combination.get_axis_column_index(current_lib_view->active_axis);
-			if ( column_index <= 0 ) {
-				break;
-			}
-
-			switch (event->modifiers()) {
-				case (Qt::MetaModifier):
-				case (Qt::AltModifier):
-				case (Qt::ShiftModifier):
-						break;
-
-				default:
-						current_lib_view->axes_combination.decrease_axis_column_index(current_lib_view->active_axis);
-						break;
-			}
-
-			current_tab->refresh_listing_with_horizontal_header_Slot();
-			break;
-
-		/* Forget about the current selection */
-		case Qt::Key_Escape:
-			/* If there is no view at all, don't do anything */
-			if (_workspaces_tab_widget->currentIndex() == -1) {
-				break;
-			}
-			/* We turn SQUARE AREA mode OFF */
-			state_machine->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_OFF);
-			/* We need to process the view from the selection */
-			current_lib_view->process_from_selection();
-			current_tab->refresh_listing_Slot();
-			break;
-
-		/* Kommit the current selection to an old/new layer */
-		case Qt::Key_K:
-			/* If there is no view at all, don't do anything */
-			if (_workspaces_tab_widget->currentIndex() == -1) {
-				break;
-			}
-
-			switch (event->modifiers()) {
-				case (Qt::MetaModifier): // The "Windows key!"
-						/* We Kommit and restet to active layer the actuel output lines properties and selection */
-						/* We get the current selected layer */
-						current_selected_layer = &(current_lib_view->layer_stack.get_selected_layer());
-						/* We fill it's lines_properties */
-						current_lib_view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer->get_lines_properties(), current_lib_view->real_output_selection, current_lib_view->row_count);
-						// inendi_lines_properties_A2B_copy_restricted_by_selection_and_nelts(current_lib_view->output_layer.get_lines_properties(), current_selected_layer->lines_properties, current_lib_view->real_output_selection, current_lib_view->row_count);
-						/* We fill it's selection */
-						current_selected_layer->get_selection() = current_lib_view->real_output_selection;
-						//current_lib_view->real_output_selection.A2B_copy(current_selected_layer.get_selection());
-						/* We need to process the view from the layer_stack */
-						current_lib_view->process_from_layer_stack();
-						current_tab->refresh_listing_Slot();
-						PVLOG_INFO("%s: MetaModifier!\n", __FUNCTION__);
-						break;
-
-						/* We Kommit to a new layer */
-				case (Qt::AltModifier):
-						commit_selection_to_new_layer_Slot();
-						//PVLOG_INFO("%s: AltModifier!\n", __FUNCTION__);
-						break;
-
-				case (Qt::ShiftModifier):
-						/* We Kommit to active layer and add events if not yet present */
-
-						break;
-
-						/* We Kommit to active layer (only the lines properties)*/
-				default:
-						commit_selection_in_current_layer_Slot();
-						break;
-			}
-
-			break;
-
-		/* Move active axis to the left */
-		case Qt::Key_Left: // FIXME: should we keep this in the Qt view.
-			/* If there is no view at all, don't do anything */
-			if (_workspaces_tab_widget->currentIndex() == -1) {
-				break;
-			}
-			/* We test if we are at the leftmost axis */
-			if (current_lib_view->active_axis == 0 ) {
-				break;
-			}
-
-			switch (event->modifiers()) {
-				case (Qt::MetaModifier):
-
-						break;
-
-				case (Qt::AltModifier):
-
-						break;
-
-				case (Qt::ShiftModifier):
-						current_lib_view->axes_combination.move_axis_left_one_position(current_lib_view->active_axis);
-						current_lib_view->active_axis -= 1;
-						break;
-
-				default:
-						current_lib_view->active_axis -= 1;
-						break;
-			}
-
-			current_tab->refresh_listing_with_horizontal_header_Slot();
-			break;
-
-
-		/* Suppress the selected events ... */
-		case Qt::Key_Minus:
-			/* If there is no view at all, don't do anything */
-			if (_workspaces_tab_widget->currentIndex() == -1) {
-				break;
-			}
-			switch (event->modifiers()) {
-				case (Qt::MetaModifier):
-
-					break;
-
-				case (Qt::AltModifier):
-
-
-					break;
-
-				case (Qt::ShiftModifier):
-					/*  */
-
-					break;
-
-				/* We supress the actuel selected events in the selected layer */
-				default:
-					/* We get the current selected layer */
-					current_selected_layer = &(current_lib_view->layer_stack.get_selected_layer());
-					/* We suppress the real_output_selection from it */
-					current_selected_layer->get_selection() -= current_lib_view->real_output_selection;
-					//current_selected_layer->get_selection().AB2A_substraction(current_lib_view->real_output_selection);
-					/* We need to process the view from the layer_stack */
-					current_lib_view->process_from_layer_stack();
-					current_tab->refresh_listing_Slot();
-					break;
-			}
-
-			break;
- 
-		case Qt::Key_Enter:
-		case Qt::Key_Return: {
-			if (current_tab) {
-				current_tab->pv_listing_view->keyEnterPressed();
-			}
-			break;
-		}
-
-				/* Toggle antialiasing */
-		case Qt::Key_NumberSign:
-				/* If there is no view at all, don't do anything */
-				if (_workspaces_tab_widget->currentIndex() == -1) {
-					break;
-				}
-				/* We toggle the ANTIALIASING mode */
-				state_machine->toggle_antialiased();
-				break;
-
-		// This is only for testing purposes !
-		case Qt::Key_Percent:
-				// if (pv_WorkspacesTabWidget->currentIndex() == -1) {
-				// 	break;
-				// }
-
-				// switch (event->modifiers()) {
-				// 	case (Qt::ShiftModifier):
-				// 		pv_AxisProperties->create();
-				// 		pv_AxisProperties->show();
-				// 			break;
-				// }
-				break;
-
-
-				/* Add the selected events ... */
-		case Qt::Key_Plus:
-				/* If there is no view at all, don't do anything */
-				if (_workspaces_tab_widget->currentIndex() == -1) {
-					break;
-				}
-				switch (event->modifiers()) {
-					case (Qt::MetaModifier):
-
-							break;
-
-					case (Qt::AltModifier):
-
-							break;
-
-					case (Qt::ShiftModifier):
-
-							/* We add the actuel selected events in the selected layer */
-					case (Qt::NoModifier):
-							Inendi::PVSelection temp_selection;
-							PVCore::PVColor line_properties;
-							// line_properties = inendi_line_properties_new();
-							/* We get the current selected layer */
-							current_selected_layer = &(current_lib_view->layer_stack.get_selected_layer());
-							/* We compute the selection of events really new to that layer */
-							temp_selection = current_lib_view->real_output_selection - current_selected_layer->get_selection();
-//							current_lib_view->real_output_selection.AB2C_substraction(current_selected_layer.get_selection(), temp_selection);
-							/* We add the real_output_selection to the current selected layer */
-							current_selected_layer->get_selection() -= current_lib_view->real_output_selection;
-							//current_selected_layer.get_selection().AB2A_or(current_lib_view->real_output_selection);
-							/* We set the line_properties of the newly added events to default */
-							current_selected_layer->get_lines_properties().A2A_set_to_line_properties_restricted_by_selection_and_nelts(line_properties, temp_selection, current_lib_view->row_count);
-							// inendi_lines_properties_A2A_set_to_line_properties_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), line_properties, temp_selection, current_lib_view->row_count);
-							/* We need to process the view from the layer_stack */
-							current_lib_view->process_from_layer_stack();
-
-							current_tab->refresh_listing_Slot();
-
-							break;
-				}
-
-				break;
-
-
-				/* Move active axis to the right */
-		case Qt::Key_Right:
-				/* If there is no view at all, don't do anything */
-				if (_workspaces_tab_widget->currentIndex() == -1) {
-					break;
-				}
-				/* We test if we are at the rightmost axis */
-				if (current_lib_view->active_axis == current_lib_view->get_axes_count() - 1) {
-					break;
-				}
-
-				switch (event->modifiers()) {
-					case (Qt::MetaModifier):
-
-							break;
-
-					case (Qt::AltModifier):
-
-							break;
-
-					case (Qt::ShiftModifier):
-							current_lib_view->axes_combination.move_axis_right_one_position(current_lib_view->active_axis);
-							current_lib_view->active_axis += 1;
-							break;
-
-					default:
-							current_lib_view->active_axis += 1;
-							break;
-				}
-
-				current_tab->refresh_listing_with_horizontal_header_Slot();
-				break;
-
-				/* Make a screenshot and save it to a file */
-		case Qt::Key_Space:
-				menuBar()->setVisible(! menuBar()->isVisible());
-				break;
-
-				/* Increase active axis column index */
-		case Qt::Key_Up:
-				/* If there is no view at all, don't do anything */
-				if (_workspaces_tab_widget->currentIndex() == -1) {
-					break;
-				}
-				/* If we are not in AXIS_MODE, don(t do anything */
-				if (!state_machine->is_axes_mode()) {
-					break;
-				}
-
-				/* We test if we have reached the highest column_index value */
-				column_index = current_lib_view->axes_combination.get_axis_column_index(current_lib_view->active_axis);
-				if ( column_index >= current_lib_view->get_original_axes_count() - 1) {
-					break;
-				}
-
-				switch (event->modifiers()) {
-					case (Qt::MetaModifier):
-					case (Qt::AltModifier):
-					case (Qt::ShiftModifier):
-							break;
-
-					default:
-						current_lib_view->axes_combination.increase_axis_column_index(current_lib_view->active_axis);
-						break;
-				}
-
-				current_tab->refresh_listing_with_horizontal_header_Slot();
-				break;
-
-
-				/* Toggle the AXES_MODE */
-		case Qt::Key_X:
-				/* If there is no view at all, don't do anything */
-				if (_workspaces_tab_widget->currentIndex() == -1) {
-					break;
-				}
-				state_machine->toggle_axes_mode();
-
-				/* if we enter in AXES_MODE we must disable SQUARE_AREA_MODE */
-				if (state_machine->is_axes_mode()) {
-					/* We turn SQUARE AREA mode OFF */
-					state_machine->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_OFF);
-				}
-
-				current_tab->refresh_listing_Slot();
-				break;
-	}
-#endif
 }
 
 /******************************************************************************
@@ -1454,16 +987,14 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
  *****************************************************************************/
 void PVInspector::PVMainWindow::events_display_unselected_Slot()
 {
-
-	Inendi::PVStateMachine *state_machine = NULL;
-
 	if (!current_view()) {
 		return;
 	}
-	state_machine = current_view()->state_machine;
 
-	state_machine->toggle_gl_unselected_visibility();
-	state_machine->toggle_listing_unselected_visibility();
+	Inendi::PVStateMachine& state_machine = current_view()->get_state_machine();
+
+	state_machine.toggle_gl_unselected_visibility();
+	state_machine.toggle_listing_unselected_visibility();
 }
 
 
@@ -1951,7 +1482,7 @@ void PVInspector::PVMainWindow::close_solution()
  *****************************************************************************/
 void PVInspector::PVMainWindow::update_statemachine_label(Inendi::PVView_sp view)
 {
-	statemachine_label->setText(view->state_machine->get_string());
+	statemachine_label->setText(view->get_state_machine().get_string());
 }
 
 // Mainly from Qt's SDI example

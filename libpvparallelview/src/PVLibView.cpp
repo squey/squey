@@ -28,7 +28,7 @@
 #include <iostream>
 
 PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp):
-	_colors(view_sp->output_layer.get_lines_properties().get_buffer())
+	_colors(view_sp->get_output_layer_color_buffer())
 {
 	common_init_view(view_sp);
 	_zones_manager.lazy_init_from_view(*view_sp);

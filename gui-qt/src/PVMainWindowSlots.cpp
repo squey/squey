@@ -107,12 +107,12 @@ void PVInspector::PVMainWindow::axes_mode_Slot()
 	}
 	current_lib_view = current_view();
 
-	current_lib_view->state_machine->toggle_axes_mode();
+	current_lib_view->get_state_machine().toggle_axes_mode();
 
 	// if we enter in AXES_MODE we must disable SQUARE_AREA_MODE
-	if (current_lib_view->state_machine->is_axes_mode()) {
+	if (current_lib_view->get_state_machine().is_axes_mode()) {
 		/* We turn SQUARE AREA mode OFF */
-		current_lib_view->state_machine->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_OFF);
+		current_lib_view->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_OFF);
 		//current_view->update_axes();
 		axes_mode_Action->setText(QString("Leave Axes mode"));
 	} else {
@@ -201,19 +201,17 @@ void PVInspector::PVMainWindow::events_display_unselected_listing_Slot()
 void PVInspector::PVMainWindow::events_display_unselected_GLview_Slot()
 {
 	Inendi::PVView* current_lib_view;
-	Inendi::PVStateMachine *state_machine = NULL;
 
 	if (!current_view()) {
 		return;
 	}
 	current_lib_view = current_view();
-	state_machine = current_lib_view->state_machine;
 
 	if (_projects_tab_widget->current_workspace() == nullptr) {
 		return;
 	}
 
-	state_machine->toggle_gl_unselected_visibility();
+	current_lib_view->get_state_machine().toggle_gl_unselected_visibility();
 	/* We refresh the view */
 	current_lib_view->process_visibility();
 }
@@ -226,18 +224,15 @@ void PVInspector::PVMainWindow::events_display_unselected_GLview_Slot()
 void PVInspector::PVMainWindow::events_display_zombies_Slot()
 {
 	Inendi::PVView* current_lib_view;
-	Inendi::PVStateMachine *state_machine = NULL;
 
 	if (!current_view()) {
 		return;
 	}
 	current_lib_view = current_view();
-	state_machine = current_lib_view->state_machine;
+	Inendi::PVStateMachine& state_machine = current_lib_view->get_state_machine();
 
-	state_machine->toggle_listing_zombie_visibility();
-	state_machine->toggle_gl_zombie_visibility();
-	/* We set the listing to be the same */
-	// state_machine->set_listing_zombie_visibility(state_machine->are_zombie_visible());
+	state_machine.toggle_listing_zombie_visibility();
+	state_machine.toggle_gl_zombie_visibility();
 	/* We refresh the view */
 	current_lib_view->process_visibility();
 	/* We refresh the listing */
@@ -272,15 +267,13 @@ void PVInspector::PVMainWindow::events_display_zombies_listing_Slot()
 void PVInspector::PVMainWindow::events_display_zombies_GLview_Slot()
 {
 	Inendi::PVView* current_lib_view;
-	Inendi::PVStateMachine *state_machine = NULL;
 
 	if (!current_view()) {
 		return;
 	}
 	current_lib_view = current_view();
-	state_machine = current_lib_view->state_machine;
 
-	state_machine->toggle_gl_zombie_visibility();
+	current_lib_view->get_state_machine().toggle_gl_zombie_visibility();
 	/* We refresh the view */
 	current_lib_view->process_visibility();
 }

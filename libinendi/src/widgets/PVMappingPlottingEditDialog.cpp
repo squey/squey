@@ -46,10 +46,10 @@ PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Inendi::PVMa
 	}
 #endif
 	if (has_mapping()) {
-		_axes = &(_mapping->get_mapped()->get_parent<Inendi::PVSource>()->current_view()->axes_combination.get_original_axes_list());
+		_axes = &(_mapping->get_mapped()->get_parent<Inendi::PVSource>()->current_view()->get_axes_combination().get_original_axes_list());
 	}
 	else {
-		_axes = &(_plotting->get_plotted()->get_parent<Inendi::PVSource>()->current_view()->axes_combination.get_original_axes_list());
+		_axes = &(_plotting->get_plotted()->get_parent<Inendi::PVSource>()->current_view()->get_axes_combination().get_original_axes_list());
 	}
 
 	setWindowTitle(tr("Edit properties..."));

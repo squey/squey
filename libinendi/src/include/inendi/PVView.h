@@ -71,31 +71,6 @@ protected:
 
 public:
 
-	/* Variables */
-	QString    name;
-
-	/*! \brief PVView's specific axes combination
-	 *  It is originaly copied from the parent's PVSource, and then become specific
-	 *  to that view.
-	 */
-	PVAxesCombination axes_combination;
-
-	PVCore::PVHSVColor default_zombie_line_properties;
-	PVSelection floating_selection;
-	PVLayer pre_filter_layer;
-	PVLayer post_filter_layer;
-	PVLayer layer_stack_output_layer;
-	PVLayer output_layer;
-	PVRow row_count;
-	PVLayerStack layer_stack;
-	PVSelection nu_selection;
-	PVSelection real_output_selection;
-	PVEventline eventline;
-	PVSquareArea square_area;
-	PVStateMachine *state_machine;
-	PVSelection volatile_selection;
-	int last_extractor_batch_size;
-
 	inline PVSelection& get_floating_selection() { return floating_selection; }
 	inline PVSelection& get_volatile_selection() { return volatile_selection; }
 
@@ -413,6 +388,31 @@ protected:
 
 
 protected:
+	/* Variables */
+	QString    name;
+
+	/*! \brief PVView's specific axes combination
+	 *  It is originaly copied from the parent's PVSource, and then become specific
+	 *  to that view.
+	 */
+	PVAxesCombination axes_combination;
+
+	PVCore::PVHSVColor default_zombie_line_properties;
+	PVSelection floating_selection;
+	PVLayer pre_filter_layer;
+	PVLayer post_filter_layer;
+	PVLayer layer_stack_output_layer;
+	PVLayer output_layer;
+	PVRow row_count;
+	PVLayerStack layer_stack;
+	PVSelection nu_selection;
+	PVSelection real_output_selection;
+	PVEventline eventline;
+	PVSquareArea square_area;
+	PVStateMachine *state_machine;
+	PVSelection volatile_selection;
+	int last_extractor_batch_size;
+
 	bool _is_consistent;
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
