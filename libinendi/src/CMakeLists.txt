@@ -11,12 +11,7 @@
 set(SRC_FILES
 #arguments.cpp 
 discover.cpp
-#eventline.cpp
-#index-array.cpp 
 #layer.cpp 
-#layer-index-array.cpp 
-#layer-stack.cpp 
-#line-properties.cpp 
 
 common.cpp
 

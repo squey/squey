@@ -93,24 +93,6 @@ const PVRush::PVFormat& PVRush::PVExtractor::get_format() const
 	return *get_nraw().get_format();
 }
 
-chunk_index PVRush::PVExtractor::pvrow_to_agg_index(PVRow start, bool& found)
-{
-	chunk_index ret = 0;
-	found = false;
-	PVNrawOutput::map_pvrow const& mapnrow = _out_nraw.get_pvrow_index_map();
-	PVNrawOutput::map_pvrow::const_iterator it_map;
-	for (it_map = mapnrow.begin(); it_map != mapnrow.end(); it_map++) {
-		// If the index in the Nraw if greater or equal to the one in the current map element...
-		if (start >= (*it_map).first) {
-			// ...that's our guy !
-			ret = (*it_map).second;
-			found = true;
-			break;
-		}
-	}
-	return ret;
-}
-
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority)
 {
 	nlines = std::min(nlines, (chunk_index) INENDI_LINES_MAX);
@@ -120,8 +102,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 
 	_agg.set_skip_lines_count(start);
 	_agg.set_strict_mode(start > 0);
-
-	_out_nraw.clear_pvrow_index_map();
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
 	// object when it is not needed anymore !
@@ -144,8 +124,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	set_sources_number_fields();
 	get_nraw().prepare_load(end-start);
 
-	_out_nraw.clear_pvrow_index_map();
-
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
 	// object when it is not needed anymore !
 	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start, priority));
@@ -164,15 +142,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::read_everything(int priority)
 
 	_ctrl.submit_job(job);
 	return job;
-}
-
-void PVRush::PVExtractor::dump_mapnraw()
-{
-	PVNrawOutput::map_pvrow const& mapnrow = _out_nraw.get_pvrow_index_map();
-	PVNrawOutput::map_pvrow::const_iterator it_map;
-	for (it_map = mapnrow.begin(); it_map != mapnrow.end(); it_map++) {
-		PVLOG_INFO("pvrow %d goes to index %d\n", (*it_map).first, (*it_map).second);
-	}
 }
 
 void PVRush::PVExtractor::dump_nraw()
@@ -203,8 +172,6 @@ void PVRush::PVExtractor::debug()
 	_agg.debug();
 	PVLOG_DEBUG("PVExtractor nraw\n");
 	dump_nraw();
-	PVLOG_DEBUG("PVExtractor map nraw\n");
-	dump_mapnraw();
 }
 
 void PVRush::PVExtractor::reset_nraw()
