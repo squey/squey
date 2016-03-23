@@ -5,8 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <boost/function.hpp>
-
 #include <pvkernel/filter/PVChunkFilterSource.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/core/PVChunk.h>
