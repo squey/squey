@@ -11,7 +11,6 @@
 
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVInputFile.h>
-#include <pvkernel/rush/PVNormalizer.h>
 #include <pvkernel/rush/PVInputPcap.h>
 
 #include <pvkernel/filter/PVChunkFilter.h>

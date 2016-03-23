@@ -340,8 +340,6 @@ public:
 	PVRush::PVNraw& get_rushnraw_parent() { assert(_rushnraw_parent); return *_rushnraw_parent; };
 	PVRush::PVNraw const& get_rushnraw_parent() const { assert(_rushnraw_parent); return *_rushnraw_parent; };
 
-	void debug();
-
 	bool is_consistent() const ;
 	void set_consistent(bool c);
 

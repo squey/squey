@@ -18,7 +18,6 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 
 #include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVFile.h>
 #include <pvkernel/rush/PVNraw.h>
 
 #include <inendi/PVAxesCombination.h>

@@ -100,7 +100,6 @@ filter/PVChunkFilterByEltSaveInvalid.cpp
 filter/PVChunkFilterSource.cpp
 filter/PVChunkFilterDumpElts.cpp
 filter/PVElementFilterByFields.cpp
-filter/PVElementFilterRandInvalid.cpp
 filter/PVFieldFilterGrep.cpp
 filter/PVFieldsFilter.cpp
 filter/PVFieldsMappingFilter.cpp
@@ -121,7 +120,6 @@ include/pvkernel/filter/PVFieldsFilterParamWidget.h
 
 set(RUSH_SRC_FILES
 rush/PVAxisFormat.cpp
-rush/PVFileRawSource.cpp
 rush/PVFormat.cpp
 rush/PVNraw.cpp
 rush/PVNrawOutput.cpp
