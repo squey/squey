@@ -54,7 +54,6 @@ class PVZoneTree: public PVZoneTreeBase
 	friend class __impl::TBBComputeAllocSizeAndFirstElts;
 	friend class __impl::TBBSelFilter;
 	friend class __impl::TBBSelFilterMaxCount;
-	friend class PVSelectionGenerator;
 
 public:
 	typedef std::shared_ptr<PVZoneTree> p_type;
