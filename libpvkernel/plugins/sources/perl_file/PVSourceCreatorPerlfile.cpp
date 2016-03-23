@@ -8,7 +8,6 @@
 #include "PVSourceCreatorPerlfile.h"
 
 #include <pvkernel/rush/PVFileDescription.h>
-#include <pvkernel/filter/PVChunkFilter.h>
 
 #include <QDir>
 #include <QStringList>
@@ -20,7 +19,6 @@
 
 PVRush::PVSourceCreatorPerlfile::source_p PVRush::PVSourceCreatorPerlfile::create_source_from_input(PVInputDescription_p input, const PVFormat& format) const
 {
-	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	QFileInfo perl_file_info(format.get_full_path());
 	QString perl_file(perl_file_info.dir().absoluteFilePath(perl_file_info.completeBaseName() + ".pl"));
 
@@ -31,7 +29,7 @@ PVRush::PVSourceCreatorPerlfile::source_p PVRush::PVSourceCreatorPerlfile::creat
 	}
 
 	return source_p{new PVRush::PVPerlSource(input, DEFAULT_PERL_CHUNK_SIZE,
-		                                        chk_flt->f(), perl_file)};
+		                                        perl_file)};
 }
 
 PVRush::hash_formats PVRush::PVSourceCreatorPerlfile::get_supported_formats() const

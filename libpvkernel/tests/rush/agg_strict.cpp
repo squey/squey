@@ -8,7 +8,6 @@
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVChunkAlignUTF16Char.h>
-#include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/rush/PVChunkTransformUTF16.h>
 #include <pvkernel/rush/PVUnicodeSource.h>
 #include <pvkernel/rush/PVAggregator.h>
@@ -54,8 +53,6 @@ int main(int argc, char** argv)
 	}
 	PVCore::PVIntrinsics::init_cpuid();
 
-	PVFilter::PVChunkFilter null;
-
 	QString dir_path = argv[2];
 	QDir dir_files(dir_path);
 	dir_files.setFilter(QDir::Files | QDir::Readable);
@@ -64,7 +61,7 @@ int main(int argc, char** argv)
 	PVAggregator agg;
 	for (int i = 0; i < files.size(); i++) {
 		PVInput_p in(new PVInputFile(qPrintable(dir_files.absoluteFilePath(files[i]))));
-		PVRush::PVRawSourceBase_p source(new PVUnicodeSource<>(in, chunk_size, null));
+		PVRush::PVRawSourceBase_p source(new PVUnicodeSource<>(in, chunk_size));
 		agg.add_input(source);
 	}
 	

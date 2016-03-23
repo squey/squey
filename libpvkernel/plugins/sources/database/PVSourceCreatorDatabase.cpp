@@ -9,14 +9,11 @@
 #include "PVDBSource.h"
 #include "../../common/database/PVDBQuery.h"
 
-#include <pvkernel/filter/PVChunkFilter.h>
-
 PVRush::PVSourceCreatorDatabase::source_p PVRush::PVSourceCreatorDatabase::create_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
 {
-	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	PVDBQuery* query = dynamic_cast<PVDBQuery*>(input.get());
 	assert(query);
-	source_p src = source_p(new PVRush::PVDBSource(*query, 100, chk_flt->f()));
+	source_p src = source_p(new PVRush::PVDBSource(*query, 100));
 
 	return src;
 }

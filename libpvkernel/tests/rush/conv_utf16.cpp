@@ -10,7 +10,6 @@
 #include <pvkernel/rush/PVChunkAlign.h>
 #include <pvkernel/rush/PVChunkTransformUTF16.h>
 #include <pvkernel/rush/PVRawSource.h>
-#include <pvkernel/filter/PVChunkFilter.h>
 #include <cstdlib>
 #include <iostream>
 #include "helpers.h"
@@ -34,8 +33,7 @@ int main(int argc, char** argv)
 	PVInput_p ifile(new PVInputFile(argv[1]));
 	PVChunkAlign calign;
 	PVChunkTransformUTF16 transform;
-	PVFilter::PVChunkFilter null;
-	PVRawSource<> source(ifile, calign, atoi(argv[2]), transform, null);
+	PVRawSource<> source(ifile, calign, atoi(argv[2]), transform);
 
 	PVChunk* pc = source();
 

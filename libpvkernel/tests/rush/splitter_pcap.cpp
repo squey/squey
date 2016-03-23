@@ -6,7 +6,6 @@
  */
 
 #include <pvkernel/core/PVClassLibrary.h>
-#include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
@@ -42,10 +41,9 @@ int main(int argc, char** argv)
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
 
 	PVInput_p ifile(new PVInputPcap(argv[1]));
-	PVFilter::PVChunkFilter null;
 	PVRush::PVChunkAlign align;
 	PVRush::PVChunkTransform transform;
-	PVRush::PVRawSource<> source(ifile, align, atoi(argv[2]), transform, null);
+	PVRush::PVRawSource<> source(ifile, align, atoi(argv[2]), transform);
 
 	return !process_filter(source, chk_flt->f());
 }

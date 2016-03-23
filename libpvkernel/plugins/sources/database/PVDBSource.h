@@ -13,8 +13,6 @@
 #include "../../common/database/PVDBQuery.h"
 
 #include <pvkernel/core/PVChunk.h>
-#include <pvkernel/filter/PVChunkFilter.h>
-#include <pvkernel/filter/PVFilterFunction.h>
 #include <boost/bind.hpp>
 
 #include <QSqlDatabase>
@@ -23,7 +21,7 @@ namespace PVRush {
 
 class PVDBSource: public PVRawSourceBase {
 public:
-	PVDBSource(PVDBQuery const& query, chunk_index nelts_chunk, PVFilter::PVChunkFilter_f src_filter);
+	PVDBSource(PVDBQuery const& query, chunk_index nelts_chunk);
 	virtual ~PVDBSource();
 public:
 	virtual QString human_name();

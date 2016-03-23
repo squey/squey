@@ -12,7 +12,6 @@
 #include <pvkernel/rush/PVAggregator.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
-#include <pvkernel/filter/PVChunkFilterSource.h>
 #include <pvkernel/filter/PVChunkFilterDumpElts.h>
 #include <pvkernel/rush/PVOutput.h>
 #include <pvkernel/rush/PVPipelineTask.h>
@@ -114,11 +113,6 @@ private:
 	PVAggregator& _agg; //!< Aggregator use to generate chunks.
 	PVFilter::PVChunkFilterByElt& _split_filter; //!< Filter to split a line in multiple elements.
 	PVOutput& _out_filter; //!< Filter Saving chunk in the NRaw.
-
-	// Source transform filter
-	// TODO : It is not clear what is done by Aggregator and what is done by the Source tranformation.
-	// It looks like there can be race condition for "non file" source import.
-	PVFilter::PVChunkFilterSource _source_filter; //!< This one create chunks from source
 
 	// Indexes are aggregator indexes !
 	chunk_index _idx_begin; //!< Line number where we start extraction.

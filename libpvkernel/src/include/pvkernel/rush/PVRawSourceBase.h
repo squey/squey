@@ -23,20 +23,14 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*,v
 public:
 	typedef PVRawSourceBase_p p_type;
 public:
-	PVRawSourceBase(PVFilter::PVChunkFilter_f src_filter);
-	virtual ~PVRawSourceBase();
-private:
-	PVRawSourceBase(const PVRawSourceBase& src) :
-		PVFilter::PVFilterFunctionBase<PVCore::PVChunk*,void>(src)
-	{
-		assert(false);
-	}
+	PVRawSourceBase();
+	virtual ~PVRawSourceBase() {};
+	PVRawSourceBase(const PVRawSourceBase& src) = delete;
 
 public:
 	virtual void release_input() {}
 
 public:
-	PVFilter::PVChunkFilter_f source_filter();
 	chunk_index last_elt_index() { return _last_elt_index; }
 	void set_number_cols_to_reserve(PVCol col)
 	{
@@ -54,7 +48,6 @@ public:
 	virtual input_offset get_input_offset_from_index(chunk_index idx, chunk_index& known_idx) = 0;
 
 protected:
-	PVFilter::PVChunkFilter_f _src_filter;
 	mutable chunk_index _last_elt_index; // Local file index of the last element of that source. Can correspond to a number of lines
 	PVCol _ncols_to_reserve;
 };

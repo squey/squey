@@ -9,7 +9,6 @@
 #include "PVSourceCreatorPythonfile.h"
 
 #include <pvkernel/rush/PVFileDescription.h>
-#include <pvkernel/filter/PVChunkFilter.h>
 
 #include <QDir>
 #include <QStringList>
@@ -21,7 +20,6 @@
 
 PVRush::PVSourceCreatorPythonfile::source_p PVRush::PVSourceCreatorPythonfile::create_source_from_input(PVInputDescription_p input, const PVFormat& format) const
 {
-	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	QFileInfo python_file_info(format.get_full_path());
 	QString python_file(python_file_info.dir().absoluteFilePath(python_file_info.completeBaseName() + ".py"));
 
@@ -32,7 +30,7 @@ PVRush::PVSourceCreatorPythonfile::source_p PVRush::PVSourceCreatorPythonfile::c
 	}
 	
 	return source_p{new PVRush::PVPythonSource(input, DEFAULT_PYTHON_CHUNK_SIZE,
-			chk_flt->f(), python_file)};
+			python_file)};
 }
 
 PVRush::hash_formats PVRush::PVSourceCreatorPythonfile::get_supported_formats() const

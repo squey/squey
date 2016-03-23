@@ -120,12 +120,11 @@ void PVWidgets::PVPlainTextEditor::slot_import_file()
 
 	// Use PVUnicodeSource to read the text file. It gives us automatic charset detection !
 	try {
-		PVFilter::PVChunkFilter null_filter;
 		PVRush::PVChunkTransformUTF16 trans_utf16;
 		PVRush::PVChunkAlign null_align;
 		PVRush::PVInputFile* pfile = new PVRush::PVInputFile(qPrintable(file));
 		PVRush::PVInput_p input(pfile);
-		PVRush::PVRawSource<std::allocator> txt_src(input, null_align, 10*1024*1024, trans_utf16, null_filter.f());
+		PVRush::PVRawSource<std::allocator> txt_src(input, null_align, 10*1024*1024, trans_utf16);
 		PVCore::PVChunk* chunk = txt_src();
 		QString txt("");
 		QString str_tmp;

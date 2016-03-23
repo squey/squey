@@ -75,9 +75,6 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 {
 	tbb::filter_t<void,PVCore::PVChunk*> input_filter(tbb::filter::serial_in_order, [this](tbb::flow_control &fc){ return _agg(fc);});
 
-	// The source transform filter takes care of source-specific filterings
-	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> source_transform_filter(tbb::filter::parallel, _source_filter.f());
-
 	// The "job" filter
 	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> transform_filter(tbb::filter::parallel, _split_filter.f());
 
@@ -90,10 +87,10 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 		// The next dump filter, that dumps all the invalid events
 		tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> dump_inv_elts_filter(tbb::filter::serial_in_order, _elt_invalid_filter.f());
 
-		return input_filter & source_transform_filter & transform_filter & dump_inv_elts_filter & out_filter;
+		return input_filter & transform_filter & dump_inv_elts_filter & out_filter;
 	}
 	else {
-		return input_filter & source_transform_filter & transform_filter & out_filter;
+		return input_filter & transform_filter & out_filter;
 	}
 }
 

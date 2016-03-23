@@ -8,12 +8,9 @@
 #include "PVArcsightSource.h"
 #include "PVSourceCreatorArcsight.h"
 
-#include <pvkernel/filter/PVChunkFilter.h>
-
 PVRush::PVSourceCreatorArcsight::source_p PVRush::PVSourceCreatorArcsight::create_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
 {
-	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
-	source_p src(new PVRush::PVArcsightSource(input, 128, chk_flt->f()));
+	source_p src(new PVRush::PVArcsightSource(input, 128));
 
 	return src;
 }
