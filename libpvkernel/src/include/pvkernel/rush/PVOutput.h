@@ -22,7 +22,7 @@ public:
 	// This is the output of a TBB pipeline
 	// It takes a PVCore::PVChunk* as a parameter, and do whatever he wants with it
 	// It *must* call PVChunk->free() in the end !!
-	void operator()(PVCore::PVChunk* out);
+	virtual void operator()(PVCore::PVChunk* out) = 0;
 
 public:
 	virtual PVRow get_rows_count() = 0;
@@ -32,7 +32,7 @@ public:
 	 *
 	 * operator() will set it to TRUE if anough events have been saved.
 	 */
-	void set_stop_condition(bool* cond);
+	void set_stop_condition(bool* cond) { _stop_cond = cond; }
 
 protected:
 	bool *_stop_cond;

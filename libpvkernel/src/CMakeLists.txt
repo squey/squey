@@ -133,7 +133,6 @@ rush/PVFormatVersion.cpp
 rush/PVInput.cpp
 rush/PVInputFile.cpp
 rush/PVInputPcap.cpp
-rush/PVOutput.cpp
 rush/PVOutputFile.cpp
 rush/PVCharsetDetect.cpp
 rush/PVChunkTransform.cpp

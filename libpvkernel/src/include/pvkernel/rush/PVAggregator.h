@@ -10,7 +10,6 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
-#include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 #include <tbb/pipeline.h>
@@ -18,8 +17,6 @@
 #include <memory>
 #include <vector>
 #include <map>
-
-#define DEFAULT_NUMBER_LINES 1000000
 
 namespace PVRush {
 
@@ -34,7 +31,6 @@ namespace PVRush {
  *
  */
 class PVAggregator {
-	friend class PVSerializeObject;
 public:
 	typedef std::list<PVRush::PVRawSourceBase_p> list_inputs;
 	typedef std::shared_ptr<PVAggregator> p_type;

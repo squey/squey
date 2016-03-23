@@ -2,14 +2,10 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2010-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #include <pvkernel/rush/PVNrawOutput.h>
-#include <pvkernel/core/PVChunk.h>
-#include <pvkernel/core/PVField.h>
-
-#include <tbb/parallel_invoke.h>
 
 PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw):
 	_nraw_dest(&nraw)
