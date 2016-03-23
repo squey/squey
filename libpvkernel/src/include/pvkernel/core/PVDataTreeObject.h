@@ -129,13 +129,6 @@ public:
 	}
 
 public:
-	template <typename... Tparams>
-	child_t* new_child(Tparams && ... params)
-	{
-		pchild_t ret(new child_t(std::forward<Tparams>(params)...));
-		add_child(ret);
-		return ret.get();
-	}
 
 	child_t* new_child_default()
 	{
