@@ -1196,6 +1196,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 #endif
 	}
 
+	std::vector<size_t> invalid_elements;
 	if (loaded_from_disk == false) {
 		// Extract the source
 		BENCH_START(lff);
@@ -1218,6 +1219,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			return false;
 		}
 		src->wait_extract_end(job_import);
+		invalid_elements = job_import->get_not_splitted_index();
 
 		if (src->get_rushnraw().get_row_count() == 0) {
 			QString msg = QString("<p>The files <strong>%1</strong> using format <strong>%2</strong> cannot be opened. ").arg(src->get_name()).arg(src->get_format_name());
@@ -1268,6 +1270,12 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	if (src->get_children<Inendi::PVView>().size() > 0) {
 		Inendi::PVView_sp first_view_p = src->get_children<Inendi::PVView>().at(0);
 		first_view_p->get_parent<Inendi::PVRoot>()->select_view(*first_view_p);
+		for(size_t inv: invalid_elements) {
+			first_view_p->get_current_layer().get_selection().set_line(inv, false);
+		}
+		first_view_p->process_from_layer_stack();
+		first_view_p->get_volatile_selection() = first_view_p->get_current_layer().get_selection();
+		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(first_view_p);
 	}
 
 	//connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));

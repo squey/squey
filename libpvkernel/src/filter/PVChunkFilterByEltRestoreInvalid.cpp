@@ -15,9 +15,8 @@
  *
  *****************************************************************************/
 PVFilter::PVChunkFilterByEltRestoreInvalid::PVChunkFilterByEltRestoreInvalid(PVElementFilter_f elt_filter) :
-	PVChunkFilter()
+	PVChunkFilterByElt(elt_filter)
 {
-	_elt_filter = elt_filter;
 }
 
 /******************************************************************************

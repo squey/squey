@@ -485,22 +485,20 @@ PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXml
 	return field_f;
 }
 
-PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()
+PVFilter::PVChunkFilterByElt* PVRush::PVFormat::create_tbb_filters()
 {
 	PVFilter::PVElementFilter_f elt_f = create_tbb_filters_elt();
 	assert(elt_f);
-	PVFilter::PVChunkFilter* chk_flt;
 	if (_dump_elts) {
-		chk_flt = new PVFilter::PVChunkFilterByEltSaveInvalid(elt_f);
+		return new PVFilter::PVChunkFilterByEltSaveInvalid(elt_f);
 	}
 	else
 	if (_restore_inv_elts) {
-		chk_flt = new PVFilter::PVChunkFilterByEltRestoreInvalid(elt_f);
+		return new PVFilter::PVChunkFilterByEltRestoreInvalid(elt_f);
 	}
 	else {
-		chk_flt = new PVFilter::PVChunkFilterByElt(elt_f);
+		return new PVFilter::PVChunkFilterByElt(elt_f);
 	}
-	return chk_flt->f();
 }
 
 PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters_autodetect(float timeout, bool *cancellation)

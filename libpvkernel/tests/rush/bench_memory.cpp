@@ -136,7 +136,7 @@ void bench(size_t nchunks, size_t size_chunk, size_t neltsperc, size_t nfields)
 	PVRush::PVExtractor ext;
 	ext.add_source(src);
 
-	ext.set_chunk_filter(fchunk);
+	ext.set_chunk_filter(&fchunk);
 	ext.force_number_axes(nfields);
 
 	bench(ext, nchunks*neltsperc);

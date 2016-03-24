@@ -46,7 +46,7 @@ public:
 	 *
 	 * \note It is the responsability of the caller to have the pointer to the original PVChunkFilter object valid.
 	 */
-	void set_chunk_filter(PVFilter::PVChunkFilter_f chk_flt);
+	void set_chunk_filter(PVFilter::PVChunkFilterByElt* chk_flt);
 
 	/*! \brief Process a given number of lines from a given index
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
@@ -127,7 +127,7 @@ protected:
 	PVAggregator _agg;
 	std::unique_ptr<PVNraw> _nraw;
 	PVNrawOutput _out_nraw; // Linked to _nraw
-	PVFilter::PVChunkFilter_f _chk_flt;
+	PVFilter::PVChunkFilterByElt* _chk_flt;
 	unsigned int _chunks;
 	bool _dump_inv_elts;
 	PVCol _force_naxes; 

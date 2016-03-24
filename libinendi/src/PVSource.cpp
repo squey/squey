@@ -196,7 +196,7 @@ void Inendi::PVSource::set_format(PVRush::PVFormat const& format)
 	}
 	_axes_combination.set_from_format(_extractor.get_format());
 
-	PVFilter::PVChunkFilter_f chk_flt = _extractor.get_format().create_tbb_filters();
+	PVFilter::PVChunkFilterByElt* chk_flt = _extractor.get_format().create_tbb_filters();
 	_extractor.set_chunk_filter(chk_flt);
 }
 

@@ -11,7 +11,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVAggregator.h>
 #include <pvkernel/core/PVChunk.h>
-#include <pvkernel/filter/PVChunkFilter.h>
+#include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVChunkFilterSource.h>
 #include <pvkernel/filter/PVChunkFilterDumpElts.h>
 #include <pvkernel/rush/PVOutput.h>
@@ -59,7 +59,7 @@ public:
 	/*! \brief Create a PVControllerJob object.
 	 */
 	PVControllerJob(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc,
-		PVAggregator &agg, PVFilter::PVChunkFilter_f& filter, PVOutput& out_filter, size_t ntokens,
+		PVAggregator &agg, PVFilter::PVChunkFilterByElt& filter, PVOutput& out_filter, size_t ntokens,
 		bool dump_inv_elts);
 	PVControllerJob(PVControllerJob const&) = delete;
 	PVControllerJob(PVControllerJob &&) = delete;
@@ -86,6 +86,11 @@ public:
 
 public:
 	QStringList const& get_invalid_evts() const { return _inv_elts; }
+
+	/**
+	 * Get index from PVElement that where not splitted.
+	 */
+	std::vector<size_t> const& get_not_splitted_index() const { return _split_filter.get_invalid_index(); }
 	
 private:
 	tbb::filter_t<void,void> create_tbb_filter();
@@ -107,7 +112,7 @@ private:
 
 	bool _job_done; //!< Wether the job is over or not. // FIXME : It should work but it doesn't for now
 	PVAggregator& _agg; //!< Aggregator use to generate chunks.
-	PVFilter::PVChunkFilter_f& _split_filter; //!< Filter to split a line in multiple elements.
+	PVFilter::PVChunkFilterByElt& _split_filter; //!< Filter to split a line in multiple elements.
 	PVOutput& _out_filter; //!< Filter Saving chunk in the NRaw.
 
 	// Source transform filter

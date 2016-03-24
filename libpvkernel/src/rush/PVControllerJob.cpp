@@ -7,14 +7,13 @@
 
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/core/PVChunk.h>
-#include <pvkernel/filter/PVChunkFilter.h>
 #include <assert.h>
 #include <pvkernel/core/general.h>
 
 #define PV_MAX_INDEX 1000000000
 
 PVRush::PVControllerJob::PVControllerJob(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc,
-		PVAggregator &agg, PVFilter::PVChunkFilter_f& filter, PVOutput& out_filter, size_t ntokens,
+		PVAggregator &agg, PVFilter::PVChunkFilterByElt& filter, PVOutput& out_filter, size_t ntokens,
 		bool dump_inv_elts) :
 	_dump_inv_elts(dump_inv_elts),
 	_elt_invalid_filter(_inv_elts),
@@ -80,7 +79,7 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> source_transform_filter(tbb::filter::parallel, _source_filter.f());
 
 	// The "job" filter
-	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> transform_filter(tbb::filter::parallel, _split_filter);
+	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> transform_filter(tbb::filter::parallel, _split_filter.f());
 
 	// Final output filter
 	tbb::filter_t<PVCore::PVChunk*,void> out_filter(tbb::filter::parallel, _out_filter.f());
