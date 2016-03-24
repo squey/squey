@@ -144,13 +144,6 @@ IMPL_WAX(Inendi::PVView::duplicate_selected_layer, view, args)
 	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
-IMPL_WAX(Inendi::PVView::commit_to_new_layer, view, args)
-{
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::commit_to_new_layer)>(view, args);
-	refresh_observers(&view->get_layer_stack());
-	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
-}
-
 IMPL_WAX(Inendi::PVView::reset_layers, view, args)
 {
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::reset_layers)>(view, args);

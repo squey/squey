@@ -244,21 +244,6 @@ void Inendi::PVView::apply_filter_named_select_all()
 }
 
 /******************************************************************************
- *
- * Inendi::PVView::commit_to_new_layer
- *
- *****************************************************************************/
-void Inendi::PVView::commit_to_new_layer() // TODO: seems to be unused
-{
-	const PVSelection& sel = post_filter_layer.get_selection();
-	const PVLinesProperties &lp = output_layer.get_lines_properties();
-
-	PVLayer *layer = layer_stack.append_new_layer_from_selection_and_lines_properties(sel, lp);
-	layer->compute_min_max(*get_parent<Inendi::PVPlotted>());
-	layer->compute_selectable_count(row_count);
-}
-
-/******************************************************************************
  * Inendi::PVView::commit_selection_to_layer
  *****************************************************************************/
 
@@ -411,18 +396,6 @@ PVCol Inendi::PVView::get_column_count() const
 
 /******************************************************************************
  *
- * Inendi::PVView::get_column_count_as_float
- *
- *****************************************************************************/
-float Inendi::PVView::get_column_count_as_float()
-{
-	// AG: why?
-	return (float)get_column_count();
-}
-
-
-/******************************************************************************
- *
  * Inendi::PVView::get_data
  *
  *****************************************************************************/
@@ -441,26 +414,6 @@ std::string Inendi::PVView::get_data(PVRow row, PVCol column) const
 PVCol Inendi::PVView::get_real_axis_index(PVCol col) const
 {
 	return axes_combination.get_axis_column_index(col);
-}
-
-/******************************************************************************
- *
- * Inendi::PVView::get_layer_index
- *
- *****************************************************************************/
-int Inendi::PVView::get_layer_index(int index)
-{
-	return layer_stack.get_lia().get_value(index);
-}
-
-/******************************************************************************
- *
- * Inendi::PVView::get_layer_index_as_float
- *
- *****************************************************************************/
-float Inendi::PVView::get_layer_index_as_float(int index)
-{
-	return (float)get_layer_index(index);
 }
 
 /******************************************************************************
@@ -521,11 +474,6 @@ Inendi::PVLayer &Inendi::PVView::get_layer_stack_output_layer()
  * Inendi::PVView::get_line_state_in_layer_stack_output_layer
  *
  *****************************************************************************/
-bool Inendi::PVView::get_line_state_in_layer_stack_output_layer(PVRow index)
-{
-	return layer_stack_output_layer.get_selection().get_line(index);
-}
-
 bool Inendi::PVView::get_line_state_in_layer_stack_output_layer(PVRow index) const
 {
 	return layer_stack_output_layer.get_selection().get_line(index);
@@ -536,11 +484,6 @@ bool Inendi::PVView::get_line_state_in_layer_stack_output_layer(PVRow index) con
  * Inendi::PVView::get_line_state_in_output_layer
  *
  *****************************************************************************/
-bool Inendi::PVView::get_line_state_in_output_layer(PVRow index)
-{
-	return output_layer.get_selection().get_line(index);
-}
-
 bool Inendi::PVView::get_line_state_in_output_layer(PVRow index) const
 {
 	return output_layer.get_selection().get_line(index);
@@ -551,11 +494,6 @@ bool Inendi::PVView::get_line_state_in_output_layer(PVRow index) const
  * Inendi::PVView::get_line_state_in_pre_filter_layer
  *
  *****************************************************************************/
-bool Inendi::PVView::get_line_state_in_pre_filter_layer(PVRow index)
-{
-	return pre_filter_layer.get_selection().get_line(index);
-}
-
 bool Inendi::PVView::get_line_state_in_pre_filter_layer(PVRow index) const
 {
 	return pre_filter_layer.get_selection().get_line(index);
@@ -576,7 +514,7 @@ Inendi::PVSelection &Inendi::PVView::get_nu_selection()
  * Inendi::PVView::get_number_of_selected_lines
  *
  *****************************************************************************/
-int Inendi::PVView::get_number_of_selected_lines()
+int Inendi::PVView::get_number_of_selected_lines() const
 {
 	return real_output_selection.get_number_of_selected_lines_in_range(0, row_count);
 }

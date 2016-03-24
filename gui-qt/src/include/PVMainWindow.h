@@ -389,7 +389,6 @@ signals:
 	void change_of_current_view_Signal();
 	void color_changed_Signal();
 	void filter_applied_Signal();
-	void commit_to_new_layer_Signal();
 	void selection_changed_Signal();
 	void zombie_mode_changed_Signal();
 

@@ -120,9 +120,6 @@ public:
 
 	const PVCore::PVHSVColor get_color_in_output_layer(PVRow index) const;
 	PVCol get_column_count() const;
-	float get_column_count_as_float();
-	int get_layer_index(int index);
-	float get_layer_index_as_float(int index);
 	PVLayerStack &get_layer_stack();
 	inline PVLayerStack const& get_layer_stack() const { return layer_stack; };
 	int get_layer_stack_layer_n_locked_state(int n) const;;
@@ -148,11 +145,8 @@ public:
 
 	inline PVCore::PVHSVColor const* get_output_layer_color_buffer() const { return output_layer.get_lines_properties().get_buffer(); }
 	
-	bool get_line_state_in_layer_stack_output_layer(PVRow index);
 	bool get_line_state_in_layer_stack_output_layer(PVRow index) const;
-	bool get_line_state_in_output_layer(PVRow index);
 	bool get_line_state_in_output_layer(PVRow index) const;
-	bool get_line_state_in_pre_filter_layer(PVRow index);
 	bool get_line_state_in_pre_filter_layer(PVRow index) const;
 	bool is_line_visible_listing(PVRow index) const;
 	bool is_real_output_selection_empty() const;
@@ -160,7 +154,7 @@ public:
 
 	PVSelection &get_nu_selection();
 	inline PVSelection const& get_nu_selection() const { return nu_selection; };
-	int get_number_of_selected_lines();
+	int get_number_of_selected_lines() const;
 
 	inline id_t get_view_id() const { return _view_id; }
 	inline id_t get_display_view_id() const { return _view_id+1; }
@@ -187,7 +181,6 @@ public:
 
 	PVSelection &get_real_output_selection();
 	PVSelection const& get_real_output_selection() const;
-	int get_real_row_index(int index);
 	PVRow get_row_count() const;
 
 	void reset_layers();
@@ -261,7 +254,6 @@ public:
 	void delete_selected_layer();
 	void duplicate_selected_layer(const QString &name);
 	void load_from_file(const QString& file);
-	void commit_to_new_layer();
 	void commit_selection_to_layer(PVLayer& layer);
 
 	void load_post_to_pre();

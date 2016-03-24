@@ -127,14 +127,6 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 			}
 			continue;
 		}
-// FIXME : No cancel anymore in the middle of a chunk.
-//		if (local_row == remaining_fields_count) {
-//			/* we have enough events, skips the others. As the
-//			 * chunk has been partially saved, the current chunked
-//			 * index has to be saved by the caller (PVNrawOutput).
-//			 */
-//			break;
-//		}
 
 		assert(column_count == fields.size());
 		for (PVCore::PVField const& field :fields) {
@@ -151,7 +143,6 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 			// Save the field
 			pvcop_fields.emplace_back(pvcop::sink::field_t{std::move(tmp_buf), size_utf8});
 		}
-//		local_row++;
 	}
 
 
