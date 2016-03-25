@@ -188,7 +188,6 @@ public slots:
 	void events_display_zombies_listing_Slot();
 	void events_display_zombies_GLview_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
-	void map_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
 	Inendi::PVScene_p project_new_Slot();
 	bool project_save_Slot();

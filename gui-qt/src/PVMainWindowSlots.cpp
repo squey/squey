@@ -466,41 +466,6 @@ void PVInspector::PVMainWindow::extractor_file_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::map_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::map_Slot()
-{
-
-	QDialog *dialog = new QDialog;
-	QHBoxLayout *layout = new QHBoxLayout;
-
-
-	//	GKMapView *mapView = new GKMapView;
-
- //    mapView->resize(580, 410);
- //  //  mapView->setMapType(GKMapTypeSatellite);
- // //   mapView->locationFromAddress("San Mateo");
- //   // mapView->addressFromLocation(32.718834, -117.164);
- //  mapView->addMarkerWithWindow("Attacks seen", "We have an intrusion attemp in France!", "Paris, France");
- // //   mapView.addInfoWindow("Hello from <b>San Mateo</b>", "San Mateo");
- //   // mapView.addInfoWindow("Hello from <b>San Diego</b>", 32.718834, -117.164);
- //   mapView->setLocation("France");
- //    mapView->show();
-
- //    layout->addWidget(mapView);
-//	main_layout->addWidget(mapView, 0, 0);
-
-	dialog->setLayout(layout);
-
-	dialog->setWindowTitle("Map Widget");
-
-	dialog->show();
-
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::project_new_Slot
  *
  *****************************************************************************/
