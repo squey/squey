@@ -70,7 +70,15 @@ public:
 
 	std::string get_value(PVRow row, PVCol col) const;
 
+	/**
+	 * Return the number of row in the datastorage.
+	 */
 	PVRow get_row_count() const;
+
+	/**
+	 * Return number of correctly splitted row in the datastorage.
+	 */
+	PVRow get_valid_row_count() const { return get_row_count() - _inv_elts.size(); }
 
 	PVRush::PVExtractor const& get_extractor() const { return _extractor; }
 
@@ -201,7 +209,7 @@ private:
 
 	PVRush::PVSourceCreator_p _src_plugin;
 	PVRush::PVNraw *nraw; //!< Pointer to Nraw data (owned by extractor)
-	std::map<size_t, std::string> _inv_elts;
+	std::map<size_t, std::string> _inv_elts; //!< List of invalid elements sorted by line number.
 
 	PVAxesCombination _axes_combination;
 

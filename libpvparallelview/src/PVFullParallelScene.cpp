@@ -117,7 +117,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 		add_axis(z);
 	}
 
-	_full_parallel_view->set_total_events_number(_lines_view.get_zones_manager().get_row_count());
+	_full_parallel_view->set_total_events_number(_lib_view.get_parent<Inendi::PVSource>()->get_valid_row_count());
 
 	_timer_render = new QTimer(this);
 	_timer_render->setSingleShot(true);
