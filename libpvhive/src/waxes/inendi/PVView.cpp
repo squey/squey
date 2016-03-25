@@ -22,7 +22,7 @@ IMPL_WAX(Inendi::PVView::process_eventline, view, args)
 IMPL_WAX(Inendi::PVView::process_selection, view, args)
 {
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_eventline)>(view, args);
-	refresh_observers(&view->get_pre_filter_layer());
+	//refresh_observers(&view->get_pre_filter_layer());
 }
 
 IMPL_WAX(Inendi::PVView::process_layer_stack, view, args)
@@ -50,7 +50,7 @@ IMPL_WAX(Inendi::PVView::process_from_selection, view, args)
 	changed_views.push_front(view);
 	for (Inendi::PVView* v : changed_views) {
 		//refresh_observers(&v->get_real_output_selection());
-		refresh_observers(&v->get_pre_filter_layer());
+		//refresh_observers(&v->get_pre_filter_layer());
 		refresh_observers(&v->get_post_filter_layer());
 		refresh_observers(&v->get_output_layer());
 	}
@@ -65,7 +65,7 @@ IMPL_WAX(Inendi::PVView::process_from_layer_stack, view, args)
 	for (Inendi::PVView* v : changed_views) {
 		//refresh_observers(&v->get_real_output_selection());
 		refresh_observers(&v->get_layer_stack_output_layer());
-		refresh_observers(&v->get_pre_filter_layer());
+//		refresh_observers(&v->get_pre_filter_layer());
 		refresh_observers(&v->get_post_filter_layer());
 		refresh_observers(&v->get_output_layer());
 	}

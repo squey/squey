@@ -23,11 +23,11 @@ class PVLayerFilterAxisGradient : public PVLayerFilter {
 public:
 	PVLayerFilterAxisGradient(PVCore::PVArgumentList const& l = PVLayerFilterAxisGradient::default_args());
 public:
-	virtual void operator()(PVLayer& in, PVLayer &out);
-	virtual PVCore::PVArgumentKeyList get_args_keys_for_preset() const;
-	virtual QString status_bar_description();
-	virtual QString detailed_description();
-	virtual QString menu_name() const { return "Axis gradient"; }
+	void operator()(PVLayer const& in, PVLayer &out) override;
+	PVCore::PVArgumentKeyList get_args_keys_for_preset() const override;
+	QString status_bar_description() override;
+	QString detailed_description() override;
+	QString menu_name() const override { return "Axis gradient"; }
 
 public:
 	static PVCore::PVArgumentList gradient_menu(PVRow row, PVCol col, PVCol org_col, QString const& v);

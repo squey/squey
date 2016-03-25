@@ -37,49 +37,17 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilter)
 
 /******************************************************************************
  *
- * Inendi::PVLayerFilter::operator_differentout
- *
- *****************************************************************************/
-Inendi::PVLayer& Inendi::PVLayerFilter::operator_differentout(PVLayer &layer)
-{
-	operator()(layer, *_out_p);
-	return *_out_p;
-}
-
-/******************************************************************************
- *
  * Inendi::PVLayerFilter::operator()
  *
  *****************************************************************************/
-Inendi::PVLayer& Inendi::PVLayerFilter::operator()(PVLayer& layer)
+Inendi::PVLayer const& Inendi::PVLayerFilter::operator()(PVLayer const& layer)
 {
 	assert(_view);
-	if (_out_p)
-		return operator_differentout(layer);
-	return operator_sameout(layer);
-}
-
-/******************************************************************************
- *
- * Inendi::PVLayerFilter::operator()
- *
- *****************************************************************************/
-void Inendi::PVLayerFilter::operator()(PVLayer &in, PVLayer &out)
-{
-	// By default, if out != in, copy it
-	if (&out != &in)
-		out = in;
-}
-
-/******************************************************************************
- *
- * Inendi::PVLayerFilter::operator_sameout
- *
- *****************************************************************************/
-Inendi::PVLayer& Inendi::PVLayerFilter::operator_sameout(PVLayer &layer)
-{
-	operator()(layer, layer);
-	return layer;
+	if (_out_p) {
+		operator()(layer, *_out_p);
+		return *_out_p;
+	}
+	throw std::runtime_error("Can't apply filter on same layer.");
 }
 
 /******************************************************************************
@@ -90,12 +58,6 @@ Inendi::PVLayer& Inendi::PVLayerFilter::operator_sameout(PVLayer &layer)
 void Inendi::PVLayerFilter::set_output(PVLayer* out)
 {
 	_out_p = out;
-
-/*	AG: TOFIX: do not remember the clean way to do this... later
- 	if (out == NULL)
-		this->operator()(PVLayer&) = &(this->operator_sameout);
-	else
-		this->operator()(PVLayer&) = &(this->operator_differentout);*/
 }
 
 /******************************************************************************

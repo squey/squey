@@ -29,9 +29,9 @@ namespace Inendi {
 /**
  * \class PVLayerFilter
  */
-class PVLayerFilter : public PVFilter::PVFilterFunction<PVLayer, PVLayerFilter> {
+class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFilter> {
 public:
-	typedef PVFilter::PVFilterFunction<PVLayer, PVLayerFilter>::base_registrable base_registrable;
+	typedef PVFilter::PVFilterFunction<const PVLayer, PVLayerFilter>::base_registrable base_registrable;
 	
 public:
 	// This is used for context menu integration (in the NRAW listing)
@@ -68,9 +68,7 @@ protected:
 	bool should_cancel();
 
 public:
-	PVLayer& operator()(PVLayer& layer);
-	PVLayer& operator_sameout(PVLayer &in);
-	PVLayer& operator_differentout(PVLayer &in);
+	PVLayer const& operator()(PVLayer const& layer);
 
 public:
 	static PVCore::PVTag<PVLayerFilter> get_tag(QString const& name);
@@ -79,7 +77,10 @@ public:
 	PVCore::PVPluginPresets<PVLayerFilter> get_presets();
 
 protected:
-	virtual void operator()(PVLayer &in, PVLayer &out);
+	virtual void operator()(PVLayer const&, PVLayer &) {
+		// This method is virtual and can't be pure as we provide clone function.
+		assert(false);
+	};
 
 protected:
 	void add_ctxt_menu_entry(QString menu_name, ctxt_menu_f f);

@@ -60,7 +60,7 @@ PVCore::PVArgumentList Inendi::PVLayerFilterHeatline::get_default_args_for_view(
  * Inendi::PVLayerFilterHeatline::operator()
  *
  *****************************************************************************/
-void Inendi::PVLayerFilterHeatline::operator()(PVLayer& in, PVLayer &out)
+void Inendi::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer &out)
 {
 	// Extract Nraw data
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();

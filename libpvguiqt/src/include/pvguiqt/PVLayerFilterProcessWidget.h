@@ -49,7 +49,7 @@ protected:
 	bool process();
 
 private:
-	static void process_layer_filter(Inendi::PVLayerFilter* filter, Inendi::PVLayer* layer, Inendi::PVLayer* out_layer);
+	static void process_layer_filter(Inendi::PVLayerFilter* filter, Inendi::PVLayer const* layer, Inendi::PVLayer* out_layer);
 
 protected:
 	Inendi::PVView* _view;

@@ -78,7 +78,7 @@ enum ESearchOptions
 	CASE_INSENSITIVE   = 1 << 2
 };
 
-void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
+void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer &out)
 {
 	int axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>().get_original_index();
 	int interpret = _args[ARG_NAME_INTERPRET].value<PVCore::PVEnumType>().get_sel_index();

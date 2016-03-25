@@ -268,7 +268,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::reset_Slot()
 	change_args(_filter_p->get_default_args_for_view(*_view));
 }
 
-void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Inendi::PVLayerFilter* filter, Inendi::PVLayer* in_layer, Inendi::PVLayer* out_layer)
+void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Inendi::PVLayerFilter* filter, Inendi::PVLayer const* in_layer, Inendi::PVLayer* out_layer)
 {
 	filter->set_output(out_layer);
 	filter->operator()(*in_layer);

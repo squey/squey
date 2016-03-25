@@ -544,7 +544,7 @@ Inendi::PVLayer &Inendi::PVView::get_post_filter_layer()
  * Inendi::Inendi::PVView::get_pre_filter_layer
  *
  *****************************************************************************/
-Inendi::PVLayer &Inendi::PVView::get_pre_filter_layer()
+Inendi::PVLayer const&Inendi::PVView::get_pre_filter_layer() const
 {
 	return pre_filter_layer;
 }

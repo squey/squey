@@ -42,7 +42,7 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterAxisGradient)
  * Inendi::PVLayerFilterAxisGradient::operator()
  *
  *****************************************************************************/
-void Inendi::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
+void Inendi::PVLayerFilterAxisGradient::operator()(PVLayer const& in, PVLayer &out)
 {	
 	int axis_id;
 

@@ -167,7 +167,7 @@ public:
 	QColor get_color() const { return _color; }
 
 	PVLayer &get_post_filter_layer();
-	PVLayer &get_pre_filter_layer();
+	PVLayer const&get_pre_filter_layer() const;
 
 	PVSelection &get_real_output_selection();
 	PVSelection const& get_real_output_selection() const;
