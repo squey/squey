@@ -81,7 +81,7 @@ class PVMineset
 	private:
 		std::string _login; //!< Connection login.
 		std::string _password; //!< Connection password.
-		std::string _host; //!< Mineset host server.
+		std::string _url; //!< Mineset instance API url
 };
 
 }
