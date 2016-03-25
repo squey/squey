@@ -27,7 +27,7 @@ public:
 	PVInputTypeFilename();
 	virtual ~PVInputTypeFilename();
 public:
-	bool createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent = NULL) const;
+	bool createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent = nullptr) const;
 	QString name() const;
 	QString human_name() const;
 	QString human_name_serialize() const;
@@ -41,7 +41,10 @@ public:
 	QCursor cursor() const { return QCursor(Qt::PointingHandCursor); }
 
 protected:
-	bool load_files(QStringList const& filenames, bool check_archives, list_inputs& inputs, QWidget* parent) const;
+	/**
+	 * Push input corresponding to filenames in "inputs" performing uncompress if required.
+	 */
+	bool load_files(QStringList const& filenames, list_inputs& inputs, QWidget* parent) const;
 
 protected:
 	mutable QStringList _tmp_dir_to_delete;

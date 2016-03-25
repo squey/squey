@@ -102,7 +102,7 @@ public:
 
 	void create_default_view();
 
-	QStringList const& get_invalid_evts() const { return _inv_elts; }
+	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }
 
 	PVRush::PVInputType::list_inputs const& get_inputs() const { return _inputs; }
 
@@ -122,8 +122,6 @@ public:
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
 	PVRush::PVFormat const& get_format() const { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
-
-	void set_invalid_evts_mode(bool restore_inv_elts);
 
 	void add_column(PVAxisComputation_f f_axis, Inendi::PVAxis const& axis);
 
@@ -197,14 +195,13 @@ private:
 private:
 	PVView* _last_active_view = nullptr;
 
-	PVRush::PVExtractor _extractor;
+	PVRush::PVExtractor _extractor; //!< Tool to extract data and generate NRaw.
 	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
 	PVRush::PVInputType::list_inputs _inputs;
 
 	PVRush::PVSourceCreator_p _src_plugin;
-	PVRush::PVNraw *nraw;
-	bool _restore_inv_elts;
-	QStringList _inv_elts;
+	PVRush::PVNraw *nraw; //!< Pointer to Nraw data (owned by extractor)
+	std::map<size_t, std::string> _inv_elts;
 
 	PVAxesCombination _axes_combination;
 

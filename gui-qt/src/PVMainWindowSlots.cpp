@@ -514,8 +514,7 @@ Inendi::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 	return scene_p;
 }
 
-bool PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc,
-                                                                  bool save_invalid_elts)
+bool PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
 {
 	bool has_error = false;
 	Inendi::PVScene_sp scene_p;
@@ -557,7 +556,6 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 	Inendi::PVSource_sp src_p;
 	try {
 		 src_p = PVHive::call<FUNC(Inendi::PVScene::add_source_from_description)>(scene_p, src_desc);
-		 src_p->set_invalid_evts_mode(save_invalid_elts);
 	} catch (PVRush::PVFormatException const& e) {
 		PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
 		has_error = true;

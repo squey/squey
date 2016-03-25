@@ -683,7 +683,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		}
 	}
 
-	import_type(in_t, inputs, formats, format_creator, choosenFormat, args_extract);
+	import_type(in_t, inputs, formats, format_creator, choosenFormat);
 }
 
 
@@ -692,7 +692,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
  * PVInspector::PVMainWindow::import_type
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat, PVCore::PVArgumentList const& args_ext)
+void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat)
 {
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 
@@ -883,7 +883,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	}
 
 	bool one_extraction_successful = false;
-	bool save_inv_elts = args_ext.at("inv_elts").toBool();
 	// Load a type of file per view
 
 	/* can not use a C++11 foreach because QHash<...>::const_iterator is not
@@ -902,7 +901,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		PVRush::PVSourceDescription src_desc(inputs, fc.second, cur_format);
 
 
-		if (load_source_from_description_Slot(src_desc, save_inv_elts)){
+		if (load_source_from_description_Slot(src_desc)){
 			one_extraction_successful = true;
 		}
 	}
@@ -1051,7 +1050,7 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 		format = INENDI_AUTOMATIC_FORMAT_STR;
 	}
 
-	import_type(in_file, files_in, formats, format_creator, format, PVRush::PVExtractor::default_args_extractor());
+	import_type(in_file, files_in, formats, format_creator, format);
 }
 
 
@@ -1196,7 +1195,6 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 #endif
 	}
 
-	std::vector<size_t> invalid_elements;
 	if (loaded_from_disk == false) {
 		// Extract the source
 		BENCH_START(lff);
@@ -1219,7 +1217,6 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			return false;
 		}
 		src->wait_extract_end(job_import);
-		invalid_elements = job_import->get_not_splitted_index();
 
 		if (src->get_rushnraw().get_row_count() == 0) {
 			QString msg = QString("<p>The files <strong>%1</strong> using format <strong>%2</strong> cannot be opened. ").arg(src->get_name()).arg(src->get_format_name());
@@ -1270,8 +1267,8 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	if (src->get_children<Inendi::PVView>().size() > 0) {
 		Inendi::PVView_sp first_view_p = src->get_children<Inendi::PVView>().at(0);
 		first_view_p->get_parent<Inendi::PVRoot>()->select_view(*first_view_p);
-		for(size_t inv: invalid_elements) {
-			first_view_p->get_current_layer().get_selection().set_line(inv, false);
+		for(auto& inv_elts: src->get_invalid_evts()) {
+			first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
 		}
 		first_view_p->process_from_layer_stack();
 		first_view_p->get_volatile_selection() = first_view_p->get_current_layer().get_selection();

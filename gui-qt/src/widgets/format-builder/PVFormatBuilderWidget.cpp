@@ -845,7 +845,6 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 void PVInspector::PVFormatBuilderWidget::create_extractor()
 {
 	_log_extract.reset(new PVRush::PVExtractor());
-	_log_extract->dump_inv_elts(true);
 }
 
 /******************************************************************************
@@ -951,8 +950,8 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 
 	// Set the invalid lines widget
 	_inv_lines_widget->clear();
-	for (QString const& line: job->get_invalid_evts()) {
-		_inv_lines_widget->addItem(line);
+	for (auto const& line: job->get_invalid_evts()) {
+		_inv_lines_widget->addItem(QString::fromStdString(line.second));
 	}
 }
 

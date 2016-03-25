@@ -8,11 +8,9 @@
 #ifndef PVFILTER_PVCHUNKFILTERDUMPELTS_H
 #define PVFILTER_PVCHUNKFILTERDUMPELTS_H
 
-#include <pvkernel/core/general.h>
-#include <pvbase/types.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 
-#include <QStringList>
+#include <map>
 
 namespace PVFilter {
 
@@ -23,12 +21,12 @@ namespace PVFilter {
 class PVChunkFilterDumpElts : public PVChunkFilter {
 
 public:
-	PVChunkFilterDumpElts(QStringList& l);
+	PVChunkFilterDumpElts(std::map<size_t, std::string>& l);
 
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 
 protected:
-	QStringList& _l; //!< List with invlaid elements.
+	std::map<size_t, std::string>& _l; //!< List with invlaid elements.
 
 	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterDumpElts)
 };

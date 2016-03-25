@@ -58,8 +58,7 @@ public:
 	/*! \brief Create a PVControllerJob object.
 	 */
 	PVControllerJob(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc,
-		PVAggregator &agg, PVFilter::PVChunkFilterByElt& filter, PVOutput& out_filter, size_t ntokens,
-		bool dump_inv_elts);
+		PVAggregator &agg, PVFilter::PVChunkFilterByElt& filter, PVOutput& out_filter, size_t ntokens);
 	PVControllerJob(PVControllerJob const&) = delete;
 	PVControllerJob(PVControllerJob &&) = delete;
 	PVControllerJob& operator=(PVControllerJob const&) = delete;
@@ -84,13 +83,8 @@ public:
 	void run_read_all_job();
 
 public:
-	QStringList const& get_invalid_evts() const { return _inv_elts; }
+	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }
 
-	/**
-	 * Get index from PVElement that where not splitted.
-	 */
-	std::vector<size_t> const& get_not_splitted_index() const { return _split_filter.get_invalid_index(); }
-	
 private:
 	tbb::filter_t<void,void> create_tbb_filter();
 	void job_has_run(); // Called when the job has finish to run
@@ -100,11 +94,8 @@ signals:
 	void job_done_signal();
 
 private:
-	// For elements dumping
-	bool _dump_inv_elts; //!< Wether we should dump invalide elements.
-
 	// Lists
-	QStringList _inv_elts; //!< Store all elements.
+	std::map<size_t, std::string> _inv_elts; //!< Store all invalid elements.
 	
 	// Filters
 	PVFilter::PVChunkFilterDumpElts _elt_invalid_filter; //!< Filter that may dump every elements.

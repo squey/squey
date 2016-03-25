@@ -16,15 +16,10 @@
 
 namespace PVGuiQt {
 
-template <class Container>
 class PVSimpleStringListModel: public PVAbstractTableModel
 {
-private:
-	// Ensure that container is a container of QString's
-	BOOST_STATIC_ASSERT((boost::is_same<typename Container::value_type, QString>::value));
-
 public:
-	typedef Container container_type;
+	using container_type = std::map<size_t, std::string>;
 
 public:
 	PVSimpleStringListModel(container_type const& values, QObject* parent = NULL):
@@ -34,7 +29,9 @@ public:
 
 	QString export_line(int row) const override
 	{
-		return _values.at(row);
+		auto it = _values.begin();
+		std::advance(it, rowIndex(row));
+		return QString::fromStdString(it->second);
 	}
 
 public:
@@ -42,13 +39,17 @@ public:
 	{
 		switch(role) {
 			case Qt::DisplayRole:
-				return _values.at(rowIndex(index));
-			case Qt::BackgroundRole:                                            
-				if (is_selected(index)) {                                       
-					return _selection_brush;                                    
-				}        
+				{
+					auto it = _values.begin();
+					std::advance(it, rowIndex(index));
+					return QString::fromStdString(it->second);
+				}
+			case Qt::BackgroundRole:
+				if (is_selected(index)) {
+					return _selection_brush;
+				}
 		}
-		
+
 		return {};
 	}
 
@@ -59,7 +60,9 @@ public:
 				return QVariant();
 			}
 
-			return QVariant(QString().setNum(section));
+			auto it = _values.begin();
+			std::advance(it, rowIndex(section));
+			return QString().setNum(it->first);
 		}
 
 		return QVariant();

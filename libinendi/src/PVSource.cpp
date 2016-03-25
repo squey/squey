@@ -82,8 +82,6 @@ void Inendi::PVSource::init()
 	if (nchunks != 0) {
 		_extractor.set_number_living_chunks(nchunks);
 	}
-
-	_restore_inv_elts = false;
 }
 
 Inendi::PVSource_sp Inendi::PVSource::clone_with_no_process()
@@ -186,14 +184,7 @@ void Inendi::PVSource::extract_finished()
 void Inendi::PVSource::set_format(PVRush::PVFormat const& format)
 {
 	_extractor.set_format(format);
-	if (_restore_inv_elts) {
-		_extractor.get_format().restore_invalid_evts(true);
-		_extractor.dump_inv_elts(true);
-	}
-	else {
-		_extractor.get_format().restore_invalid_evts(false);
-		_extractor.dump_inv_elts(false);
-	}
+	_extractor.get_format().restore_invalid_evts(true);
 	_axes_combination.set_from_format(_extractor.get_format());
 
 	PVFilter::PVChunkFilterByElt* chk_flt = _extractor.get_format().create_tbb_filters();
@@ -302,13 +293,6 @@ void Inendi::PVSource::add_column(PVAxisComputation_f f_axis, PVAxis const& axis
 		add_column(axis);
 	}
 	set_views_consistent(true);
-}
-
-void Inendi::PVSource::set_invalid_evts_mode(bool restore_inv_elts)
-{
-	_restore_inv_elts = restore_inv_elts;
-	PVRush::PVFormat format = _extractor.get_format();
-	set_format(format);
 }
 
 QString Inendi::PVSource::get_window_name() const

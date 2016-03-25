@@ -12,7 +12,7 @@
  * PVFilter::PVChunkFilterDumpElts::PVChunkFilterDumpElts
  *
  *****************************************************************************/
-PVFilter::PVChunkFilterDumpElts::PVChunkFilterDumpElts(QStringList& l):
+PVFilter::PVChunkFilterDumpElts::PVChunkFilterDumpElts(std::map<size_t, std::string>& l):
 	PVChunkFilter(), _l(l)
 {
 }
@@ -24,19 +24,12 @@ PVFilter::PVChunkFilterDumpElts::PVChunkFilterDumpElts(QStringList& l):
  *****************************************************************************/
 PVCore::PVChunk* PVFilter::PVChunkFilterDumpElts::operator()(PVCore::PVChunk* chunk)
 {
+	// TODO : This should be const
 	for (PVCore::PVElement* elt: chunk->elements()) {
 		if (not elt->valid()) {
-			size_t saved_buf_size = 0;
-			char* saved_buf = elt->get_saved_elt_buffer(saved_buf_size);
-			if (saved_buf) {
-				QString str_elt((QChar*) saved_buf, saved_buf_size/sizeof(QChar));
-				_l << str_elt;
-			}
-			else {
-				//PVLOG_WARN("(PVChunkFilterDumpElts) WARNING: no copy of the original element exists. The value saved for an invalid element might be completely changed by previous filters... Remember to use PVChunkFilterByEltSaveInvalid or PVChunkFilterByEltRestoreInvalid to avoid this issue !\n");
-				QString deep_copy((const QChar*) elt->begin(), elt->size()/sizeof(QChar));
-				_l << deep_copy;
-			}
+			// TODO : Could be remove when UTF16 is remove too.
+			QString deep_copy((const QChar*) elt->begin(), elt->size()/sizeof(QChar));
+			_l[elt->get_elt_agg_index()] = deep_copy.toStdString();
 		}
 	}
 

@@ -131,7 +131,7 @@ public:
 	void set_color(Inendi::PVView* view);
 
 	void import_type(PVRush::PVInputType_p in_t);
-	void import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat, PVCore::PVArgumentList const& args_ext);
+	void import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat);
 	void load_files(std::vector<QString> const& files, QString format);
 	/* void import_type(); */
 	void update_statemachine_label(Inendi::PVView_sp view);
@@ -189,7 +189,7 @@ public slots:
 	void events_display_zombies_GLview_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
 	void map_Slot();
-	bool load_source_from_description_Slot(PVRush::PVSourceDescription, bool save_invalid_elts = false);
+	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
 	Inendi::PVScene_p project_new_Slot();
 	bool project_save_Slot();
 	bool project_saveas_Slot();

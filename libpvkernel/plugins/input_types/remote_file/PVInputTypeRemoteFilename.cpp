@@ -42,13 +42,8 @@ bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats
 		PVLOG_INFO("%s\n", qPrintable(files[i]));
 	}
 	format = RemoteLogDialog->getSelFormat();
-	return load_files(files, true, inputs, parent);
+	return load_files(files, inputs, parent);
 }
-
-PVRush::PVInputTypeRemoteFilename::~PVInputTypeRemoteFilename()
-{
-}
-
 
 QString PVRush::PVInputTypeRemoteFilename::name() const
 {
