@@ -184,7 +184,6 @@ public slots:
 	void events_display_unselected_Slot();
 	void events_display_unselected_listing_Slot();
 	void events_display_unselected_GLview_Slot();
-	void events_display_zombies_Slot();
 	void events_display_zombies_listing_Slot();
 	void events_display_zombies_GLview_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();

@@ -218,31 +218,6 @@ void PVInspector::PVMainWindow::events_display_unselected_GLview_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::events_display_zombies_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::events_display_zombies_Slot()
-{
-	Inendi::PVView* current_lib_view;
-
-	if (!current_view()) {
-		return;
-	}
-	current_lib_view = current_view();
-	Inendi::PVStateMachine& state_machine = current_lib_view->get_state_machine();
-
-	state_machine.toggle_listing_zombie_visibility();
-	state_machine.toggle_gl_zombie_visibility();
-	/* We refresh the view */
-	current_lib_view->process_visibility();
-	/* We refresh the listing */
-	// TODO: hive!
-	//current_tab->update_pv_listing_model_Slot();
-
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::events_display_zombies_listing_Sloupdate_recent_projectst()
  *
  *****************************************************************************/
