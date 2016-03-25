@@ -74,9 +74,9 @@ public:
 	inline PVSelection& get_volatile_selection() { return volatile_selection; }
 
     // Proxy functions for PVHive
-	void remove_column(PVCol index) { axes_combination.remove_axis(index); }
-	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest) { return axes_combination.move_axis_to_new_position(index_source, index_dest); }
-	void axis_append(const PVAxis &axis) { axes_combination.axis_append(axis); }
+	void remove_column(PVCol index) { _axes_combination.remove_axis(index); }
+	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest) { return _axes_combination.move_axis_to_new_position(index_source, index_dest); }
+	void axis_append(const PVAxis &axis) { _axes_combination.axis_append(axis); }
 
 	//void init_from_plotted(PVPlotted* parent, bool keep_layers);
 	void set_fake_axes_comb(PVCol const ncols);
@@ -85,12 +85,6 @@ public:
 
 	/* Functions */
 	PVCol get_axes_count() const;
-
-	template <class T>
-	QList<PVCol> get_original_axes_index_with_tag(T const& tag) const
-	{
-		return axes_combination.get_original_axes_index_with_tag<T>(tag);
-	}
 
 	/**
 	 * Gets the QStringList of all Axes names according to the current PVAxesCombination
@@ -132,8 +126,7 @@ public:
 	PVStateMachine& get_state_machine() { return *state_machine; }
 	PVStateMachine const& get_state_machine() const { return *state_machine; }
 
-	PVAxesCombination const& get_axes_combination() const { return axes_combination; }
-	PVAxesCombination& get_axes_combination() { return axes_combination; }
+	PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
 	void set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes, PVAxesCombination::list_axes_t const& axes);
 
 	inline PVLayer const& get_current_layer() const { return layer_stack.get_selected_layer(); }
@@ -162,7 +155,7 @@ public:
 	PVCol get_original_axes_count() const;
 	QString get_original_axis_name(PVCol axis_id) const;
 	QString get_original_axis_type(PVCol axis_id) const;
-	inline PVCol get_original_axis_index(PVCol view_idx) const { return axes_combination.get_axis_column_index(view_idx); }
+	inline PVCol get_original_axis_index(PVCol view_idx) const { return _axes_combination.get_axis_column_index(view_idx); }
 
 	PVLayer& get_output_layer();
 	PVLayer const& get_output_layer() const { return output_layer; }
@@ -375,16 +368,12 @@ protected:
 
 
 protected:
-	/* Variables */
-	QString    name;
-
 	/*! \brief PVView's specific axes combination
 	 *  It is originaly copied from the parent's PVSource, and then become specific
 	 *  to that view.
 	 */
-	PVAxesCombination axes_combination;
+	PVAxesCombination _axes_combination;
 
-	PVCore::PVHSVColor default_zombie_line_properties; //!< Default color for Zombies lines.
 	PVSelection floating_selection; //!< This is the current selection
 	PVLayer pre_filter_layer; //!< This is the layer on which we will apply filtering.
 	PVLayer post_filter_layer; //!< This is the result of the filtering on pre_filter_layer
@@ -409,10 +398,12 @@ protected:
 	PVCol _active_axis;
 	QColor _color;
 
-	pvcop::db::collection* _collection;
 #ifdef WITH_MINESET
 	std::vector<std::string> _mineset_datasets; //!< Names of the exported dataset.
 #endif
+
+private:
+	static PVCore::PVHSVColor _default_zombie_line_properties; //!< Default color for Zombies lines.
 };
 
 typedef PVView::p_type PVView_p;

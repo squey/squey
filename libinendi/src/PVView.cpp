@@ -30,6 +30,8 @@
 
 #include <tbb/tick_count.h>
 
+PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLACK);
+
 /******************************************************************************
  *
  * Inendi::PVView::PVView
@@ -76,8 +78,8 @@ void Inendi::PVView::process_parent_plotted()
 	// Init default axes combination from source
 	Inendi::PVPlotted* plotted = get_parent();
 	PVSource* source = plotted->get_parent<PVSource>();
-	axes_combination.set_from_format(source->get_format());
-	axes_combination.set_axis_name(0, axes_combination.get_axis(0).get_name()); // Hack to detach QVector
+	_axes_combination.set_from_format(source->get_format());
+	_axes_combination.set_axis_name(0, _axes_combination.get_axis(0).get_name()); // Hack to detach QVector
 
 	row_count = get_parent<PVPlotted>()->get_row_count();
 	layer_stack.set_row_count(row_count);
@@ -100,18 +102,18 @@ void Inendi::PVView::reset_view()
 	reset_layers();
 
 	PVSource* source = get_parent<PVSource>();
-	axes_combination = source->get_axes_combination();
-	axes_combination.set_axis_name(0, axes_combination.get_axis(0).get_name()); // Hack to detach QVector
+	_axes_combination = source->get_axes_combination();
+	_axes_combination.set_axis_name(0, _axes_combination.get_axis(0).get_name()); // Hack to detach QVector
 }
 
 void Inendi::PVView::set_fake_axes_comb(PVCol const ncols)
 {
-	axes_combination.clear();
+	_axes_combination.clear();
 	for (PVCol c = 0; c < ncols; c++) {
 		PVAxis axis("integer", "default", "port");
 		axis.set_name(QString("axis ") + QString::number(c));
 		axis.set_titlecolor("#ffffff");
-		axes_combination.axis_append(axis);
+		_axes_combination.axis_append(axis);
 	}
 }
 
@@ -154,8 +156,6 @@ void Inendi::PVView::init_defaults()
 	last_extractor_batch_size = pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
 
 	state_machine = new Inendi::PVStateMachine();
-
-	default_zombie_line_properties.h() = HSV_COLOR_BLACK;
 }
 
 /******************************************************************************
@@ -295,7 +295,7 @@ void Inendi::PVView::expand_selection_on_axis(PVCol axis_id, QString const& mode
  *****************************************************************************/
 PVCol Inendi::PVView::get_axes_count() const
 {
-	return axes_combination.get_axes_count();
+	return _axes_combination.get_axes_count();
 }
 
 /******************************************************************************
@@ -305,7 +305,7 @@ PVCol Inendi::PVView::get_axes_count() const
  *****************************************************************************/
 QStringList Inendi::PVView::get_axes_names_list() const
 {
-	return axes_combination.get_axes_names_list();
+	return _axes_combination.get_axes_names_list();
 }
 
 QStringList Inendi::PVView::get_zones_names_list() const
@@ -326,12 +326,12 @@ QStringList Inendi::PVView::get_zones_names_list() const
 
 Inendi::PVAxis const& Inendi::PVView::get_axis(PVCol index) const
 {
-	return axes_combination.get_axis(index);
+	return _axes_combination.get_axis(index);
 }
 
 Inendi::PVAxis const& Inendi::PVView::get_axis_by_id(axes_comb_id_t const axes_comb_id) const
 {
-	return axes_combination.get_axis(axes_combination.get_index_by_id(axes_comb_id));
+	return _axes_combination.get_axis(_axes_combination.get_index_by_id(axes_comb_id));
 }
 
 /******************************************************************************
@@ -341,25 +341,25 @@ Inendi::PVAxis const& Inendi::PVView::get_axis_by_id(axes_comb_id_t const axes_c
  *****************************************************************************/
 const QString& Inendi::PVView::get_axis_name(PVCol index) const
 {
-	PVAxis const& axis = axes_combination.get_axis(index);
+	PVAxis const& axis = _axes_combination.get_axis(index);
 	return axis.get_name();
 }
 
 QString Inendi::PVView::get_axis_type(PVCol index) const
 {
-	PVAxis const& axis = axes_combination.get_axis(index);
+	PVAxis const& axis = _axes_combination.get_axis(index);
 	return axis.get_type();
 }
 
 QString Inendi::PVView::get_original_axis_name(PVCol axis_id) const
 {
-	PVAxis const& axis = axes_combination.get_original_axis(axis_id);
+	PVAxis const& axis = _axes_combination.get_original_axis(axis_id);
 	return axis.get_name();
 }
 
 QString Inendi::PVView::get_original_axis_type(PVCol axis_id) const
 {
-	PVAxis const& axis = axes_combination.get_original_axis(axis_id);
+	PVAxis const& axis = _axes_combination.get_original_axis(axis_id);
 	return axis.get_type();
 }
 
@@ -391,7 +391,7 @@ PVCol Inendi::PVView::get_column_count() const
  *****************************************************************************/
 std::string Inendi::PVView::get_data(PVRow row, PVCol column) const
 {
-	PVCol real_index = axes_combination.get_axis_column_index_fast(column);
+	PVCol real_index = _axes_combination.get_axis_column_index_fast(column);
 
 	return get_rushnraw_parent().at_string(row, real_index);
 }
@@ -403,7 +403,7 @@ std::string Inendi::PVView::get_data(PVRow row, PVCol column) const
  *****************************************************************************/
 PVCol Inendi::PVView::get_real_axis_index(PVCol col) const
 {
-	return axes_combination.get_axis_column_index(col);
+	return _axes_combination.get_axis_column_index(col);
 }
 
 /******************************************************************************
@@ -516,7 +516,7 @@ int Inendi::PVView::get_number_of_selected_lines() const
  *****************************************************************************/
 PVCol Inendi::PVView::get_original_axes_count() const
 {
-	return axes_combination.get_original_axes_count();
+	return _axes_combination.get_original_axes_count();
 }
 
 /******************************************************************************
@@ -596,7 +596,7 @@ int Inendi::PVView::move_active_axis_closest_to_position(float x)
 
 	/* We move the axis if there is a movement */
 	if ( new_index != _active_axis ) {
-		axes_combination.move_axis_to_new_position(_active_axis, new_index);
+		_axes_combination.move_axis_to_new_position(_active_axis, new_index);
 		_active_axis = new_index;
 
 		return 1;
@@ -612,7 +612,7 @@ int Inendi::PVView::move_active_axis_closest_to_position(float x)
  *****************************************************************************/
 PVCol Inendi::PVView::get_active_axis_closest_to_position(float x)
 {
-	PVCol axes_count = axes_combination.get_axes_count();
+	PVCol axes_count = _axes_combination.get_axes_count();
 	int ret = (int)floor(x + 0.5);
 	if (ret < 0) {
 		/* We set the leftmost AXIS as destination */
@@ -659,7 +659,7 @@ void Inendi::PVView::process_eventline()
 				out_lp = post_lp;
 			} else {
 				/* The event is a zombie one */
-				out_lp = default_zombie_line_properties;
+				out_lp = _default_zombie_line_properties;
 			}
 		}
 	}
@@ -853,7 +853,7 @@ void Inendi::PVView::set_active_axis_closest_to_position(float x)
 		/* We set the leftmost AXIS as active */
 		_active_axis = 0;
 	} else {
-		axes_count = axes_combination.get_axes_count();
+		axes_count = _axes_combination.get_axes_count();
 		if ( closest_int >= axes_count ) {
 			/* We set the rightmost AXIS as active */
 			_active_axis = axes_count - 1;
@@ -873,7 +873,7 @@ void Inendi::PVView::set_axis_name(PVCol index, const QString &name_)
 {
 	PVAxis axis;
 
-	axes_combination.set_axis_name(index, name_);
+	_axes_combination.set_axis_name(index, name_);
 }
 
 /******************************************************************************
@@ -1042,17 +1042,6 @@ void Inendi::PVView::recreate_mapping_plotting()
 	// Source has been changed, recreate mapping and plotting
 	get_parent<PVMapped>()->compute();
 	get_parent<PVPlotted>()->process_from_parent_mapped();
-
-/*
-	// Save current axes combination
-	PVAxesCombination cur_axes_combination = axes_combination;
-
-	// Reiinit the view with the new plotted
-	init_from_plotted(plotted, false);
-
-	// Restore the previous axes combination
-	axes_combination = cur_axes_combination;
-*/
 }
 
 void Inendi::PVView::select_all_nonzb_lines()
@@ -1091,7 +1080,7 @@ QString Inendi::PVView::get_window_name() const
 
 void Inendi::PVView::add_column(PVAxis const& axis)
 {
-	axes_combination.axis_append(axis);
+	_axes_combination.axis_append(axis);
 }
 
 Inendi::PVSelection const* Inendi::PVView::get_selection_visible_listing() const
@@ -1181,18 +1170,18 @@ void Inendi::PVView::finish_process_from_rush_pipeline()
 
 void Inendi::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes, PVAxesCombination::list_axes_t const& axes)
 {
-	get_axes_combination().set_axes_index_list(idxes, axes);
+	_axes_combination.set_axes_index_list(idxes, axes);
 }
 
 PVRow Inendi::PVView::get_plotted_col_min_row(PVCol const combined_col) const
 {
-	PVCol const col = axes_combination.get_axis_column_index(combined_col);
+	PVCol const col = _axes_combination.get_axis_column_index(combined_col);
 	return get_parent<PVPlotted>()->get_col_min_row(col);
 }
 
 PVRow Inendi::PVView::get_plotted_col_max_row(PVCol const combined_col) const
 {
-	PVCol const col = axes_combination.get_axis_column_index(combined_col);
+	PVCol const col = _axes_combination.get_axis_column_index(combined_col);
 	return get_parent<PVPlotted>()->get_col_max_row(col);
 }
 
@@ -1208,7 +1197,7 @@ void Inendi::PVView::sort_indexes(PVCol col, pvcop::db::indexes& idxes, tbb::tas
 void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.object("layer-stack", layer_stack, "Layers", true);
-	so.object("axes-combination", axes_combination, "Axes combination", true);
+	so.object("axes-combination", _axes_combination, "Axes combination", true);
 	set_last_so(so.shared_from_this());
 }
 
@@ -1218,5 +1207,5 @@ void Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSer
 		// If no layer stack, reset all layers so that we have one :)
 		reset_layers();
 	}
-	so.object("axes-combination", axes_combination, "Axes combination", true);
+	so.object("axes-combination", _axes_combination, "Axes combination", true);
 }
