@@ -632,7 +632,7 @@ void Inendi::PVView::process_from_eventline()
  * Inendi::PVView::process_from_layer_stack
  *
  *****************************************************************************/
-QList<Inendi::PVView*> Inendi::PVView::process_from_layer_stack()
+void Inendi::PVView::process_from_layer_stack()
 {
 	tbb::tick_count start = tbb::tick_count::now();
 
@@ -642,11 +642,8 @@ QList<Inendi::PVView*> Inendi::PVView::process_from_layer_stack()
 	process_eventline();
 	process_visibility();
 
-	QList<Inendi::PVView*> changed_views;
 	tbb::tick_count end = tbb::tick_count::now();
 	PVLOG_INFO("(Inendi::PVView::process_from_layer_stack) function took %0.4f seconds.\n", (end-start).seconds());
-
-	return changed_views;
 }
 
 /******************************************************************************
@@ -654,22 +651,18 @@ QList<Inendi::PVView*> Inendi::PVView::process_from_layer_stack()
  * Inendi::PVView::process_from_selection
  *
  *****************************************************************************/
-QList<Inendi::PVView*> Inendi::PVView::process_from_selection()
+void Inendi::PVView::process_from_selection()
 {
 	PVLOG_DEBUG("Inendi::PVView::%s\n",__FUNCTION__);
 	process_selection();
 	process_eventline();
 	process_visibility();
-	QList<Inendi::PVView*> changed_views;
-
-	return changed_views;
 }
 
-QList<Inendi::PVView*> Inendi::PVView::process_real_output_selection()
+void Inendi::PVView::process_real_output_selection()
 {
 	// AG: TODO: should be optimised to only create real_output_selection
-	QList<Inendi::PVView*> changed_views = process_from_selection();
-	return changed_views;
+	process_from_selection();
 }
 
 /******************************************************************************

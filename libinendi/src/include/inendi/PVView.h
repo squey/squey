@@ -243,9 +243,9 @@ public:
 	void commit_selection_to_layer(PVLayer& layer);
 
 	void process_from_eventline();
-	QList<Inendi::PVView*> process_from_layer_stack();
-	QList<Inendi::PVView*> process_from_selection();
-	QList<Inendi::PVView*> process_real_output_selection();
+	void process_from_layer_stack();
+	void process_from_selection();
+	void process_real_output_selection();
 
 	void process_eventline();
 	void process_layer_stack();
