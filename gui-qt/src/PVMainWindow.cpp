@@ -144,7 +144,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	create_actions();
 	create_menus();
 	connect_actions();
-	connect_widgets();
 	menu_activate_is_file_opened(false);
 	
 	statusBar();
@@ -460,52 +459,6 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 		actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 	}
 }
-
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::connect_widgets()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::connect_widgets()
-{
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	/* for the this::color_changed_Signal() */
-	connect(this, SIGNAL(color_changed_Signal()), this, SLOT(refresh_current_view_Slot()));
-// FIXME: connect this elsewhere please! connect(this, SIGNAL(color_changed_Signal()),  pv_ListingWindow, SLOT(refresh_listing_Slot()));
-	
-	/* for this::selection_changed_Signal() */
-	connect(this, SIGNAL(selection_changed_Signal()), this, SLOT(refresh_current_view_Slot()));
-// FIXME really, there's should be a better place to connect this signal to. connect(this, SIGNAL(selection_changed_Signal()), pv_ListingWindow, SLOT(refresh_listing_Slot()));
-
-	
-}
-
-/******************************************************************************
- *
- * Callback: filtering_function_foreach; Create one menu entry in filter per plugin
- *
- *****************************************************************************/
-#if 0 // FIXME
-void filtering_function_foreach(char *name, inendi_filter_t * /*filter*/, void *userdata)
-{
-	QAction *action;
-	PVMainWindow *mw = reinterpret_cast<PVMainWindow *>(userdata);
-	QMenu *menu = mw->filter_Menu;
-
-	QString filter_name = QString(name);
-	QString action_name = QString(name);
-	action_name.replace('_', ' ');
-	action_name[0] = action_name[0].toUpper();
-
-	action = new QAction(action_name, menu);
-	action->setObjectName(filter_name);
-	mw->connect(action, SIGNAL(triggered()), mw, SLOT(filter_Slot()));
-
-	menu->addAction(action);
-}
-#endif
 
 // Check if we have already a menu with this name at this level
 static QMenu *create_filters_menu_exists(QHash<QMenu *, int> actions_list, QString name, int level)

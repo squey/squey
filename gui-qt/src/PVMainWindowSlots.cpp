@@ -294,16 +294,6 @@ void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::export_file_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::export_file_Slot()
-{
-
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::export_selection_Slot
  *
  *****************************************************************************/
@@ -373,10 +363,6 @@ void PVInspector::PVMainWindow::filter_select_all_Slot()
 	/* We do all that has to be done in the lib FIRST */
 	current_view()->apply_filter_named_select_all();
 	current_view()->process_from_eventline();
-
-	/* THEN we can emit the signal */
-	emit selection_changed_Signal();
-
 }
 
 /******************************************************************************
@@ -866,25 +852,6 @@ void PVInspector::PVMainWindow::quit_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::refresh_current_view_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::refresh_current_view_Slot()
-{
-	// FIXME: this function should probably just die. current_tab->refresh_view_Slot();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::select_scene_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::select_scene_Slot()
-{
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::selection_inverse_Slot()
  *
  *****************************************************************************/
@@ -953,47 +920,6 @@ void PVInspector::PVMainWindow::set_color_Slot()
 	if (!current_view())
 		return;
 	set_color(current_view());
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::textedit_text_changed_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::textedit_text_changed_Slot()
-{
-#if 0 // FIXME
-	/* VARIABLES */
-	QObject *s = sender();
-	QLineEdit *lineedit = reinterpret_cast<QLineEdit *>(s);
-	char *text = strdup(lineedit->text().toUtf8().data());
-
-	inendi_arguments_t *args;
-	inendi_argument_item_t item;
-	char *sender_name;
-
-	if (strcmp(text, "")) {
-		sender_name = strdup(s->objectName().toUtf8().data());
-
-		args = filter->get_arguments_func();
-
-		item = inendi_arguments_get_item_from_name(args, sender_name);
-		inendi_arguments_item_set_string(item, text);
-		inendi_arguments_set_item_from_name(args, item.name, item);
-
-		inendi_arguments_debug(args);
-
-		current_view()->apply_filter_from_name(last_sendername, args);
-		current_view()->process_from_eventline();
-
-		free(sender_name);
-
-		/* THEN we can emit the signal */
-		emit filter_applied_Signal();
-	}
-
-	free(text);
-#endif
 }
 
 /******************************************************************************
