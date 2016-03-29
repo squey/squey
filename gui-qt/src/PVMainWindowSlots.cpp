@@ -302,7 +302,7 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
 	Inendi::PVView* view = current_view();
-	Inendi::PVSelection& sel = view->get_real_output_selection();
+	Inendi::PVSelection const& sel = view->get_real_output_selection();
 
 	PVGuiQt::PVExportSelectionDlg::export_selection(*view, sel);
 }

@@ -506,11 +506,6 @@ Inendi::PVLayer &Inendi::PVView::get_post_filter_layer()
  * Inendi::PVView::get_real_output_selection
  *
  *****************************************************************************/
-Inendi::PVSelection &Inendi::PVView::get_real_output_selection()
-{
-	return real_output_selection;
-}
-
 Inendi::PVSelection const& Inendi::PVView::get_real_output_selection() const
 {
 	return real_output_selection;

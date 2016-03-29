@@ -354,7 +354,7 @@ private:
 	/**
 	 * Getter of the shared selection.
 	 */
-	inline Inendi::PVSelection& real_selection() { return _pvview.get_real_output_selection(); }
+	inline Inendi::PVSelection const& real_selection() const { return _pvview.get_real_output_selection(); }
 	inline Inendi::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
 
 	/**
