@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 
 	PVCore::PVChunk* chunk;
 	while ((chunk = src->operator()())) {
-		dump_chunk_csv(*chunk);
+		dump_chunk_csv(*chunk, std::cout);
 		chunk->free();
 	}
 	

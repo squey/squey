@@ -29,7 +29,7 @@ void dump_agg(PVAggregator& agg)
 {
 	PVChunk* pc = agg();
 	while (pc) {
-		dump_chunk_csv(*pc);
+		dump_chunk_csv(*pc, std::cout);
 		pc->free();
 		pc = agg();
 	}

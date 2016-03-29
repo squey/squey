@@ -71,7 +71,7 @@ void dump_buffer(char* start, char* end)
 //	}
 }
 
-void dump_chunk_csv(PVChunk& c)
+void dump_chunk_csv(PVChunk& c, std::ostream & out)
 {
 	// Assume locale is UTF8 !
 	list_elts& l = c.elements();
@@ -85,7 +85,7 @@ void dump_chunk_csv(PVChunk& c)
 		}
 		list_fields& l = elt.fields();
 		if (l.size() == 1) {
-			cout << l.begin()->get_qstr(str_tmp).toUtf8().constData();
+			out << l.begin()->get_qstr(str_tmp).toUtf8().constData();
 		}
 		else {
 			list_fields::iterator itf,itfe;
@@ -93,15 +93,15 @@ void dump_chunk_csv(PVChunk& c)
 			itfe--;
 			for (itf = l.begin(); itf != itfe; itf++) {
 				PVField& f = *itf;
-				cout << "'" << f.get_qstr(str_tmp).toUtf8().constData() << "',";
+				out << "'" << f.get_qstr(str_tmp).toUtf8().constData() << "',";
 			}
 			PVField& f = *itf;
-			cout << "'" << f.get_qstr(str_tmp).toUtf8().constData() << "'";
+			out << "'" << f.get_qstr(str_tmp).toUtf8().constData() << "'";
 		}
 		if (!elt.valid()) {
-			cout << " (invalid)";
+			out << " (invalid)";
 		}
-		cout << endl;
+		out << endl;
 	}
 }
 
@@ -180,7 +180,7 @@ bool process_filter(PVRush::PVRawSourceBase& source, PVFilter::PVChunkFilter_f f
 		pc->get_elts_stat(no, nv);
 		nelts_org += no;
 		nelts_valid += nv;
-		dump_chunk_csv(*pc);
+		dump_chunk_csv(*pc, std::cout);
 		//dump_chunk_size_elts(*pc);
 		pc->free();
 		pc = source();
