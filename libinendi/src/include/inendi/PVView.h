@@ -123,8 +123,8 @@ public:
 	void hide_layers() { layer_stack.hide_layers(); }
 
 	PVCol get_active_axis() const { assert(_active_axis < get_column_count()); return _active_axis; }
-	PVStateMachine& get_state_machine() { return *state_machine; }
-	PVStateMachine const& get_state_machine() const { return *state_machine; }
+	PVStateMachine& get_state_machine() { return _state_machine; }
+	PVStateMachine const& get_state_machine() const { return _state_machine; }
 
 	PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
 	void set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes, PVAxesCombination::list_axes_t const& axes);
@@ -139,8 +139,6 @@ public:
 	
 	bool get_line_state_in_layer_stack_output_layer(PVRow index) const;
 	bool get_line_state_in_output_layer(PVRow index) const;
-	bool is_line_visible_listing(PVRow index) const;
-	bool is_real_output_selection_empty() const;
 	PVSelection const* get_selection_visible_listing() const;
 
 	PVSelection &get_nu_selection();
@@ -336,7 +334,7 @@ public:
 
 public:
 	// State machine
-	inline void set_square_area_mode(PVStateMachine::SquareAreaModes mode) { state_machine->set_square_area_mode(mode); }
+	inline void set_square_area_mode(PVStateMachine::SquareAreaModes mode) { _state_machine.set_square_area_mode(mode); }
 
 protected:
 	void set_parent_from_ptr(PVPlotted* plotted);
@@ -351,16 +349,6 @@ protected:
 	void serialize_write(PVCore::PVSerializeObject& so);
 	PVSERIALIZEOBJECT_SPLIT
 
-/******************************************************************************
-******************************************************************************
-*
-* Initialisation
-*
-******************************************************************************
-*****************************************************************************/
-	void init_defaults();
-
-
 protected:
 	/*! \brief PVView's specific axes combination
 	 *  It is originaly copied from the parent's PVSource, and then become specific
@@ -371,14 +359,14 @@ protected:
 	PVSelection floating_selection; //!< This is the current selection
 	PVLayer post_filter_layer; //!< This is the result of the filtering. TODO : FIXME
 	PVLayer layer_stack_output_layer; //!< Layer grouping every information from the layer stack
-	PVLayer output_layer;
+	PVLayer output_layer; //!< This is the shown layer.
 	PVRow row_count; //!< This is the number of row in the plotted FIXME : It is invariant duplication.
 	PVLayerStack layer_stack;
 	PVSelection nu_selection; //!< This is zombi and selected elements
 	PVSelection real_output_selection; //!< This is selected elements
 	PVEventline eventline;
 	PVSquareArea square_area;
-	PVStateMachine *state_machine;
+	PVStateMachine _state_machine;
 	PVSelection volatile_selection; //!< It is the selection currently computed. It will be flush in floating_selection once it is completed.
 	int last_extractor_batch_size;
 

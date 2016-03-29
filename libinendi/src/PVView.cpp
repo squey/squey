@@ -41,10 +41,13 @@ Inendi::PVView::PVView():
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
 	output_layer("output_layer"),
+	_is_consistent(false),
 	_rushnraw_parent(nullptr),
-	_view_id(-1)
+	_view_id(-1),
+	_active_axis(0)
 {
-	init_defaults();
+	QSettings &pvconfig = PVCore::PVConfig::get().config();
+	last_extractor_batch_size = pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
 }
 
 void Inendi::PVView::set_parent_from_ptr(PVPlotted* plotted)
@@ -136,25 +139,6 @@ Inendi::PVView::~PVView()
 	if (root) {
 		root->view_being_deleted(this);
 	}
-	delete state_machine;
-}
-
-/******************************************************************************
- *
- * Inendi::PVView::init_defaults
- *
- *****************************************************************************/
-void Inendi::PVView::init_defaults()
-{
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
-
-	_is_consistent = false;
-	_active_axis = 0;
-	_rushnraw_parent = nullptr;
-
-	last_extractor_batch_size = pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
-
-	state_machine = new Inendi::PVStateMachine();
 }
 
 /******************************************************************************
@@ -253,7 +237,7 @@ void Inendi::PVView::commit_selection_to_layer(PVLayer& new_layer)
 
 void Inendi::PVView::commit_volatile_in_floating_selection()
 {
-	switch (state_machine->get_square_area_mode()) {
+	switch (_state_machine.get_square_area_mode()) {
 		case Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE:
 			floating_selection |= volatile_selection;
 			break;
@@ -706,7 +690,7 @@ void Inendi::PVView::process_layer_stack()
 void Inendi::PVView::process_selection()
 {
 	/* We treat the selection according to specific SQUARE_AREA_SELECTION mode */
-	switch (state_machine->get_square_area_mode()) {
+	switch (_state_machine.get_square_area_mode()) {
 		case Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
 			post_filter_layer.get_selection() = volatile_selection;
 			break;
@@ -748,10 +732,10 @@ void Inendi::PVView::process_visibility()
 {
     PVLOG_DEBUG("Inendi::PVView::process_visibility\n");
 	/* We First need to check if the UNSELECTED lines are visible */
-	if (state_machine->are_listing_unselected_visible()) {
+	if (_state_machine.are_listing_unselected_visible()) {
 		/* The UNSELECTED are visible */
 		/* Now we need to know if the ZOMBIE are visible */
-		if (state_machine->are_listing_zombie_visible()) {
+		if (_state_machine.are_listing_zombie_visible()) {
 			/* ZOMBIE are visible */
 			output_layer.get_selection().select_all();
 		} else {
@@ -762,7 +746,7 @@ void Inendi::PVView::process_visibility()
 		/* UNSELECTED lines are invisible */
 		output_layer.get_selection() = real_output_selection;
 		/* Now we need to know if the ZOMBIE are visible */
-		if (state_machine->are_listing_zombie_visible()) {
+		if (_state_machine.are_listing_zombie_visible()) {
 			/* ZOMBIE are visible */
 			output_layer.get_selection().or_not(layer_stack_output_layer.get_selection());
 		}
@@ -893,24 +877,9 @@ void Inendi::PVView::set_selection_from_layer(PVLayer const& layer)
  *****************************************************************************/
 void Inendi::PVView::set_selection_view(PVSelection const& sel)
 {
-	state_machine->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	_state_machine.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection = sel;
 }
-/******************************************************************************
- *
- * Inendi::PVView::sortByColumn
- *
- *****************************************************************************/
-/*void Inendi::PVView::sortByColumn(int idColumn){
-	PVLOG_INFO("Inendi::PVView::sortByColumn(%d)\n",idColumn);
-	//init
-	QVector<QStringList> nraw;
-	nraw = get_qtnraw_parent();
-	//sorting
-	PVSortQVectorQStringList sorter;
-	sorter.setList(&nraw);
-	sorter.sortByColumn(idColumn);
-}*/
 
 /******************************************************************************
  *
@@ -979,14 +948,14 @@ void Inendi::PVView::recreate_mapping_plotting()
 
 void Inendi::PVView::select_all_nonzb_lines()
 {
-	state_machine->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	_state_machine.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection.select_all();
 }
 
 void Inendi::PVView::select_no_line()
 {
 	// Set square area mode w/ volatile
-	state_machine->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	_state_machine.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection.select_none();
 }
 
@@ -995,7 +964,7 @@ void Inendi::PVView::select_inv_lines()
 	// Commit current volatile selection
 	commit_volatile_in_floating_selection();
 	// Set square area mode w/ volatile
-	state_machine->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	_state_machine.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection = ~floating_selection;
 }
 
@@ -1018,67 +987,39 @@ void Inendi::PVView::add_column(PVAxis const& axis)
 
 Inendi::PVSelection const* Inendi::PVView::get_selection_visible_listing() const
 {
-	if (state_machine->are_listing_no_nu_nz()) {
+	if (_state_machine.are_listing_no_nu_nz()) {
 		return &real_output_selection;
 	}
 
-	if (state_machine->are_listing_no_nu()) {
+	if (_state_machine.are_listing_no_nu()) {
 		return &nu_selection;
 	}
 
-	if (state_machine->are_listing_no_nz()) {
+	if (_state_machine.are_listing_no_nz()) {
 		return &layer_stack_output_layer.get_selection();
 	}
 
-	// If we're here, then we are listing all...
-	return NULL;
-}
-
-bool Inendi::PVView::is_line_visible_listing(PVRow index) const
-{
-	if (state_machine->are_listing_all()) {
-		return true;
-	}
-
-	if (state_machine->are_listing_no_nu_nz()) {
-		return real_output_selection.get_line(index);
-	}
-
-	if (state_machine->are_listing_no_nu()) {
-		return nu_selection.get_line(index);
-	}
-
-	if (state_machine->are_listing_no_nz()) {
-		return layer_stack_output_layer.get_selection().get_line(index);
-	}
-
-	//return real_output_selection.get_line(index);
-	return true;
-}
-
-bool Inendi::PVView::is_real_output_selection_empty() const
-{
-	return real_output_selection.is_empty();
+	throw std::runtime_error("Invalid machine state");
 }
 
 void Inendi::PVView::toggle_listing_unselected_visibility()
 {
-	state_machine->toggle_listing_unselected_visibility();
+	_state_machine.toggle_listing_unselected_visibility();
 }
 
 void Inendi::PVView::toggle_listing_zombie_visibility()
 {
-	state_machine->toggle_listing_zombie_visibility();
+	_state_machine.toggle_listing_zombie_visibility();
 }
 
 void Inendi::PVView::toggle_view_unselected_zombie_visibility()
 {
-	state_machine->toggle_view_unselected_zombie_visibility();
+	_state_machine.toggle_view_unselected_zombie_visibility();
 }
 
 bool& Inendi::PVView::are_view_unselected_zombie_visible()
 {
-	return state_machine->are_view_unselected_zombie_visible();
+	return _state_machine.are_view_unselected_zombie_visible();
 }
 
 void Inendi::PVView::compute_layer_min_max(Inendi::PVLayer& layer)
