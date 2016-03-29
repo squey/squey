@@ -749,7 +749,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	/*
 	 * The process is little bit heavy:
 	 * - backup the current layer's index
-	 * - backup the current selection (the pre_filter_layer's one...
+	 * - backup the current selection (the output_layer's one...
 	 *   not volatile/floating/whatever)
 	 * - run the multiple-search
 	 * - create a new layer (do not for forget to notify the layerstackview
@@ -763,7 +763,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	 *   reprocessing...
 	 */
 	int old_selected_layer_index = ls.get_selected_layer_index();
-	Inendi::PVSelection old_sel(view_sp->get_pre_filter_layer().get_selection());
+	Inendi::PVSelection old_sel(view_sp->get_output_layer().get_selection());
 
 	multiple_search(_msearch_action_for_layer_creation, sl, false);
 
@@ -840,7 +840,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	/*
 	 * The process is little bit heavy:
 	 * - backup the current layer's index
-	 * - backup the current selection (the pre_filter_layer's one...
+	 * - backup the current selection (the output_layer's one...
 	 *   not volatile/floating/whatever)
 	 * and for each layer to create:
 	 * - run the multiple-search
@@ -855,7 +855,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	 *   reprocessing...
 	 */
 
-	Inendi::PVSelection old_sel(view_sp->get_pre_filter_layer().get_selection());
+	Inendi::PVSelection old_sel(view_sp->get_output_layer().get_selection());
 	int old_selected_layer_index = ls.get_selected_layer_index();
 
 	/* layers creation

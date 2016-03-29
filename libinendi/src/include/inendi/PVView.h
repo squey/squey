@@ -139,7 +139,6 @@ public:
 	
 	bool get_line_state_in_layer_stack_output_layer(PVRow index) const;
 	bool get_line_state_in_output_layer(PVRow index) const;
-	bool get_line_state_in_pre_filter_layer(PVRow index) const;
 	bool is_line_visible_listing(PVRow index) const;
 	bool is_real_output_selection_empty() const;
 	PVSelection const* get_selection_visible_listing() const;
@@ -167,7 +166,6 @@ public:
 	QColor get_color() const { return _color; }
 
 	PVLayer &get_post_filter_layer();
-	PVLayer const&get_pre_filter_layer() const;
 
 	PVSelection &get_real_output_selection();
 	PVSelection const& get_real_output_selection() const;
@@ -246,16 +244,12 @@ public:
 	void load_from_file(const QString& file);
 	void commit_selection_to_layer(PVLayer& layer);
 
-	void load_post_to_pre();
-
 	void process_from_eventline();
-	void process_from_filter();
 	QList<Inendi::PVView*> process_from_layer_stack();
 	QList<Inendi::PVView*> process_from_selection();
 	QList<Inendi::PVView*> process_real_output_selection();
 
 	void process_eventline();
-	void process_filter();
 	void process_layer_stack();
 	void process_selection();
 	void process_visibility();
@@ -375,9 +369,8 @@ protected:
 	PVAxesCombination _axes_combination;
 
 	PVSelection floating_selection; //!< This is the current selection
-	PVLayer pre_filter_layer; //!< This is the layer on which we will apply filtering.
-	PVLayer post_filter_layer; //!< This is the result of the filtering on pre_filter_layer
-	PVLayer layer_stack_output_layer;
+	PVLayer post_filter_layer; //!< This is the result of the filtering. TODO : FIXME
+	PVLayer layer_stack_output_layer; //!< Layer grouping every information from the layer stack
 	PVLayer output_layer;
 	PVRow row_count; //!< This is the number of row in the plotted FIXME : It is invariant duplication.
 	PVLayerStack layer_stack;

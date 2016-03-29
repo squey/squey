@@ -31,12 +31,6 @@ IMPL_WAX(Inendi::PVView::process_layer_stack, view, args)
 	refresh_observers(&view->get_layer_stack_output_layer());
 }
 
-IMPL_WAX(Inendi::PVView::process_filter, view, args)
-{
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_filter)>(view, args);
-	refresh_observers(&view->get_post_filter_layer());
-}
-
 IMPL_WAX(Inendi::PVView::process_visibility, view, args)
 {
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_visibility)>(view, args);
@@ -71,14 +65,6 @@ IMPL_WAX(Inendi::PVView::process_from_layer_stack, view, args)
 	}
 	changed_views.pop_front();
 	return changed_views;
-}
-
-IMPL_WAX(Inendi::PVView::process_from_filter, view, args)
-{
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_from_filter)>(view, args);
-	//refresh_observers(&view->get_real_output_selection());
-	refresh_observers(&view->get_post_filter_layer());
-	refresh_observers(&view->get_output_layer());
 }
 
 IMPL_WAX(Inendi::PVView::process_from_eventline, view, args)

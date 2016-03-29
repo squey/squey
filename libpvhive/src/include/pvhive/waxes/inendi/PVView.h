@@ -17,11 +17,9 @@
 DECLARE_WAX(Inendi::PVView::process_eventline)
 DECLARE_WAX(Inendi::PVView::process_selection)
 DECLARE_WAX(Inendi::PVView::process_layer_stack)
-DECLARE_WAX(Inendi::PVView::process_filter)
 DECLARE_WAX(Inendi::PVView::process_visibility)
 DECLARE_WAX(Inendi::PVView::process_from_selection)
 DECLARE_WAX(Inendi::PVView::process_from_layer_stack)
-DECLARE_WAX(Inendi::PVView::process_from_filter)
 DECLARE_WAX(Inendi::PVView::process_from_eventline)
 DECLARE_WAX(Inendi::PVView::process_real_output_selection)
 

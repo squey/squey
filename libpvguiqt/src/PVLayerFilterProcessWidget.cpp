@@ -168,9 +168,6 @@ void PVGuiQt::PVLayerFilterProcessWidget::reject()
 	// Restore original arguments of this layer filter
 	*_args_widget->get_args() = _args_org;
 
-	// Restore the original post_filter_layer
-	//_view->post_filter_layer = _view->pre_filter_layer;
-
 	// Update everything
 	Inendi::PVView_sp view_p(_view->shared_from_this());
 	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(view_p);
@@ -229,19 +226,16 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 	filter_p->set_view(_view->shared_from_this());
 	filter_p->set_output(&_view->get_post_filter_layer());
 
-	//_view->pre_filter_layer.get_selection() &= _view->layer_stack.get_selected_layer().get_selection();
-
 	QWidget* parent_widget = isVisible()?this:parentWidget();
 
 	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Previewing filter..."), parent_widget);
-	bool res = PVCore::PVProgressBox::progress([&]() { process_layer_filter(filter_p.get(), &_view->get_pre_filter_layer(), &_view->get_post_filter_layer()); }, pbox);
+	bool res = PVCore::PVProgressBox::progress([&]() { process_layer_filter(filter_p.get(), &_view->get_output_layer(), &_view->get_post_filter_layer()); }, pbox);
 	
 	if(not res) {
 		return false;
 	}
 
 	// We made it ! :)
-	// _view->pre_filter_layer = _view->post_filter_layer;
 	_view->get_floating_selection() = _view->get_post_filter_layer().get_selection();
 	_view->get_volatile_selection() = _view->get_post_filter_layer().get_selection();
 

@@ -38,7 +38,6 @@ PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLA
  *
  *****************************************************************************/
 Inendi::PVView::PVView():
-	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
 	output_layer("output_layer"),
@@ -178,7 +177,6 @@ void Inendi::PVView::reset_layers()
 		 */
 		layer_stack.get_layer_n(0).compute_selectable_count(row_count);
 	}
-	pre_filter_layer.reset_to_full_and_default_color();
 	post_filter_layer.reset_to_full_and_default_color();
 	layer_stack_output_layer.reset_to_full_and_default_color();
 	output_layer.reset_to_full_and_default_color();
@@ -239,7 +237,6 @@ void Inendi::PVView::load_from_file(const QString& file)
  *****************************************************************************/
 void Inendi::PVView::apply_filter_named_select_all()
 {
-	pre_filter_layer = layer_stack_output_layer;
 	post_filter_layer.get_selection().select_all();
 }
 
@@ -481,16 +478,6 @@ bool Inendi::PVView::get_line_state_in_output_layer(PVRow index) const
 
 /******************************************************************************
  *
- * Inendi::PVView::get_line_state_in_pre_filter_layer
- *
- *****************************************************************************/
-bool Inendi::PVView::get_line_state_in_pre_filter_layer(PVRow index) const
-{
-	return pre_filter_layer.get_selection().get_line(index);
-}
-
-/******************************************************************************
- *
  * Inendi::PVView::get_nu_selection
  *
  *****************************************************************************/
@@ -541,16 +528,6 @@ Inendi::PVLayer &Inendi::PVView::get_post_filter_layer()
 
 /******************************************************************************
  *
- * Inendi::Inendi::PVView::get_pre_filter_layer
- *
- *****************************************************************************/
-Inendi::PVLayer const&Inendi::PVView::get_pre_filter_layer() const
-{
-	return pre_filter_layer;
-}
-
-/******************************************************************************
- *
  * Inendi::PVView::get_real_output_selection
  *
  *****************************************************************************/
@@ -572,16 +549,6 @@ Inendi::PVSelection const& Inendi::PVView::get_real_output_selection() const
 PVRow Inendi::PVView::get_row_count() const
 {
 	return get_parent<PVPlotted>()->get_row_count();
-}
-
-/******************************************************************************
- *
- * Inendi::PVView::load_post_to_pre
- *
- *****************************************************************************/
-void Inendi::PVView::load_post_to_pre()
-{
-	pre_filter_layer = post_filter_layer;
 }
 
 /******************************************************************************
@@ -667,34 +634,11 @@ void Inendi::PVView::process_eventline()
 
 /******************************************************************************
  *
- * Inendi::PVView::process_filter
- *
- *****************************************************************************/
-void Inendi::PVView::process_filter()
-{
-	// FIXME: This is temporary!!! -> AG: why ?
-	post_filter_layer = pre_filter_layer;
-}
-
-/******************************************************************************
- *
  * Inendi::PVView::process_from_eventline
  *
  *****************************************************************************/
 void Inendi::PVView::process_from_eventline()
 {
-	process_eventline();
-	process_visibility();
-}
-
-/******************************************************************************
- *
- * Inendi::PVView::process_from_filter
- *
- *****************************************************************************/
-void Inendi::PVView::process_from_filter()
-{
-	process_filter();
 	process_eventline();
 	process_visibility();
 }
@@ -711,7 +655,6 @@ QList<Inendi::PVView*> Inendi::PVView::process_from_layer_stack()
 	/* We start by reprocessing the layer_stack */
 	process_layer_stack();
 	process_selection();
-	process_filter();
 	process_eventline();
 	process_visibility();
 
@@ -731,7 +674,6 @@ QList<Inendi::PVView*> Inendi::PVView::process_from_selection()
 {
 	PVLOG_DEBUG("Inendi::PVView::%s\n",__FUNCTION__);
 	process_selection();
-	process_filter();
 	process_eventline();
 	process_visibility();
 	QList<Inendi::PVView*> changed_views;
@@ -766,41 +708,32 @@ void Inendi::PVView::process_selection()
 	/* We treat the selection according to specific SQUARE_AREA_SELECTION mode */
 	switch (state_machine->get_square_area_mode()) {
 		case Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
-			pre_filter_layer.get_selection() = volatile_selection;
+			post_filter_layer.get_selection() = volatile_selection;
 			break;
 
 		case Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE:
-			pre_filter_layer.get_selection() = std::move(floating_selection | volatile_selection);
+			post_filter_layer.get_selection() = std::move(floating_selection | volatile_selection);
 			break;
 
 		case Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
-			pre_filter_layer.get_selection().AB_sub(floating_selection, volatile_selection);
+			post_filter_layer.get_selection().AB_sub(floating_selection, volatile_selection);
 			break;
 
 		case Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
-			pre_filter_layer.get_selection() = std::move(floating_selection & volatile_selection);
+			post_filter_layer.get_selection() = std::move(floating_selection & volatile_selection);
 			break;
 
 		default:
-			pre_filter_layer.get_selection() = layer_stack_output_layer.get_selection();
+			post_filter_layer.get_selection() = layer_stack_output_layer.get_selection();
 			break;
 	}
 
 	/* We cut the resulting selection with what is available in the layer_stack */
-	/* We test if we are in ALL edit_mode or SOLO edit_mode */
-	if (state_machine->is_edit_mode_all()) {
-		//PVLOG_INFO("(process_selection) we are in edit mode all. Remove me !\n");
-		/* We are in ALL edit_mode */
-		pre_filter_layer.get_selection() &= layer_stack_output_layer.get_selection();
-	} else {
-		/* We are in SOLO edit_mode */
-		pre_filter_layer.get_selection() &= layer_stack.get_selected_layer().get_selection();
-	}
+	/* We are in ALL edit_mode */
+	post_filter_layer.get_selection() &= layer_stack_output_layer.get_selection();
 
 	/* We simply copy the lines_properties */
-	// inendi_lines_properties_A2B_copy(layer_stack_output_layer->lines_properties, pre_filter_layer->lines_properties);
-	//std::swap(pre_filter_layer.get_lines_properties(), layer_stack_output_layer.get_lines_properties());
-	pre_filter_layer.get_lines_properties() = layer_stack_output_layer.get_lines_properties();
+	post_filter_layer.get_lines_properties() = layer_stack_output_layer.get_lines_properties();
 
 	/* Now we MUST refresh the index_array associated to nznu */
 	/* WARNING ! nothing is done here because this function should be followed by process_eventline which changes the selection and DO update the nznu_index_array */
