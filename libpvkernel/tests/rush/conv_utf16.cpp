@@ -8,7 +8,6 @@
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVChunkAlign.h>
-#include <pvkernel/rush/PVChunkTransformUTF16.h>
 #include <pvkernel/rush/PVRawSource.h>
 #include <cstdlib>
 #include <iostream>
@@ -31,9 +30,7 @@ int main(int argc, char** argv)
 
 	PVCore::PVIntrinsics::init_cpuid();
 	PVInput_p ifile(new PVInputFile(argv[1]));
-	PVChunkAlign calign;
-	PVChunkTransformUTF16 transform;
-	PVRawSource<> source(ifile, calign, atoi(argv[2]), transform);
+	PVRawSource<> source(ifile, atoi(argv[2]));
 
 	PVChunk* pc = source();
 

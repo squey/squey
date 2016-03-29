@@ -27,9 +27,9 @@ PVCore::PVChunk* PVFilter::PVChunkFilterDumpElts::operator()(PVCore::PVChunk* ch
 	// TODO : This should be const
 	for (PVCore::PVElement* elt: chunk->elements()) {
 		if (not elt->valid()) {
-			// TODO : Could be remove when UTF16 is remove too.
-			QString deep_copy((const QChar*) elt->begin(), elt->size()/sizeof(QChar));
-			_l[elt->get_elt_agg_index()] = deep_copy.toStdString();
+			_l.emplace(std::piecewise_construct,
+					std::forward_as_tuple(elt->get_elt_agg_index()),
+					std::forward_as_tuple(elt->begin(), elt->size()));
 		}
 	}
 

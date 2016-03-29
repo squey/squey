@@ -6,6 +6,7 @@
  */
 
 #include "PVFieldSplitterCSV.h"
+#include <iostream>
 
 
 // CSV classic delimiters
@@ -69,6 +70,41 @@ void PVFilter::PVFieldSplitterCSV::_csv_new_row(int /*c*/, void* /*p*/)
 
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
 {
+	PVCore::list_fields::value_type elt(field);
+	assert(elt.begin() == field.begin());
+	char* cstr = elt.begin();
+	size_t n=0;
+	for(size_t i=0; i<field.size(); i++) {
+		if(cstr[i] == ',') {
+			elt.set_end(cstr + i);
+			elt.set_physical_end(cstr + i);
+			l.insert(it_ins, elt);
+			elt.set_begin(cstr + i + 1);
+			n++;
+		} else if(cstr[i] == '"' and (i == 0 or (i > 0 and cstr[i - 1] != '\\'))) {
+			elt.set_begin(cstr + i + 1);
+			do {
+				i = std::find(cstr + i + 1, cstr + field.size(), '"') - cstr;
+			} while(cstr[i - 1] == '\\' and i != field.size());
+			if(i == field.size()) {
+				return 0;
+			}
+			elt.set_end(cstr + i);
+			elt.set_physical_end(cstr + i);
+			l.insert(it_ins, elt);
+			i = std::find(cstr + i + 1, cstr + field.size(), ',') - cstr;
+			n++;
+			if(i == field.size())
+				return n;
+			elt.set_begin(cstr + i + 1);
+		}
+	}
+	elt.set_end(field.end());
+	elt.set_physical_end(field.end());
+	l.insert(it_ins, elt);
+	n++;
+	return n;
+
 	PVLOG_HEAVYDEBUG("(PVFieldSplitterCSV): in one_to_many\n");
 
 	buf_infos inf;

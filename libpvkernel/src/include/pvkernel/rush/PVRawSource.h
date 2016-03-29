@@ -15,6 +15,7 @@
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVInput.h>
 #include <memory>
+#include <iostream>
 
 #include <tbb/tbb_allocator.h>
 
@@ -30,8 +31,8 @@ public:
 	typedef std::map<chunk_index,input_offset> map_offsets;
 
 public:
-	PVRawSource(PVInput_p input,  PVChunkAlign &align, size_t chunk_size, PVChunkTransform &chunk_transform, const alloc_chunk &alloc = alloc_chunk()) :
-		PVRawSourceBase(), _align(align), _chunk_size(chunk_size), _transform(chunk_transform), _input(input), _alloc(alloc)
+	PVRawSource(PVInput_p input, size_t chunk_size, const alloc_chunk &alloc = alloc_chunk()) :
+		PVRawSourceBase(), _chunk_size(chunk_size), _input(input), _alloc(alloc)
 	{
 		assert(chunk_size > 10);
 		assert(input);
@@ -62,11 +63,28 @@ public:
 		
 		// Read data from input
 		char* begin_read = _curc->end();
-		size_t r = _input->operator()(begin_read, _transform.next_read_size(_curc->avail()));
-		if (r == 0) {
+		size_t r = _input->operator()(begin_read, _curc->avail());
+
+		if (r == 0) { // No more data to read.
 			if (_curc->size() > 0) {
-				// Create a final element with what's currently in the chunk and returns it
-				_align_base(*_curc, *_nextc);
+				auto begin = _curc->begin();
+				auto it = _curc->begin();
+				while((it = std::find(begin, _curc->end(), '\n')) != _curc->end()) {
+					if(*(it - 1) == 0xd) {
+						_curc->add_element(begin, it - 1)->set_physical_end(_curc->physical_end());
+					} else {
+						_curc->add_element(begin, it)->set_physical_end(_curc->physical_end());
+					}
+					begin = it + 1;
+				}
+				if(begin != _curc->end()) {
+					if(*(_curc->end() - 1) == 0xd) {
+						_curc->add_element(begin, _curc->end() - 1)->set_physical_end(_curc->physical_end());
+					} else {
+						_curc->add_element(begin, _curc->end())->set_physical_end(_curc->physical_end());
+					}
+				}
+
 				_curc->set_elements_index();
 				_curc->init_elements_fields();
 
@@ -80,26 +98,53 @@ public:
 				return NULL;
 			}
 		}
-		// Process the read data
-		size_t size_read_processed = _transform(begin_read, r, (size_t) ((uintptr_t)_curc->physical_end()-(uintptr_t)begin_read));
-
-		_curc->set_end(_curc->end()+size_read_processed);
-
-		// Align the chunk thanks to the next one if necessarry
-		while (!_align(*_curc, *_nextc)) {
-			// Ok, this chunk is too small, let's resize it !
-			size_t grow_by = _chunk_size/10;
-			_curc = _curc->realloc_grow(grow_by);
-			char* previous_end = _curc->end();
-			r = _input->operator()(previous_end, _transform.next_read_size(_curc->avail()));
-			if (r == 0) {
-				// Create a final element with what's in the chunk
-				_align_base(*_curc, *_nextc);
-				break;
+		size_t len_read = r + _curc->size();
+		auto b = _curc->begin();
+		// Check first four bytes
+		// //FIXME : TODO : FIXME : TODO : FIXME : TODO : FIXME
+		// It have to be done only for utfX, use chardetect to do it correctly!!
+		if (len_read >= 4) {
+			uint32_t bom = *((uint32_t*)begin_read);
+			if (bom == 0xFFFE0000 || bom == 0x0000FEFF) {
+				b += 4;
+				len_read -= 4;
 			}
-			size_read_processed = _transform(previous_end, r, (size_t) ((uintptr_t)_curc->physical_end()-(uintptr_t)previous_end));
-			_curc->set_end(previous_end+size_read_processed);
 		}
+		if (len_read >= 3) {
+			unsigned char* data_u = (unsigned char*) begin_read;
+			if (data_u[0] == 0xEF && data_u[1] == 0xBB && data_u[2] == 0xBF) {
+				b += 3;
+				len_read -= 3;
+			}
+		}
+		if (len_read >= 2) {
+			uint16_t& bom = *((uint16_t*) begin_read);
+			if (bom == 0xFFFE || bom == 0xFEFF) {
+				b += 2;
+				len_read -= 2;
+			}
+		}
+
+		// Process the read data
+		size_t size_read_processed = len_read;
+		auto end = _curc->end()+r;
+
+		// Create an element and align its end on Chunk's end
+		auto begin = b;
+		auto it = b;
+		while((it = std::find(begin, end, '\n')) != end) {
+			if(*(it - 1) == 0xd) {
+				_curc->add_element(begin, it - 1)->set_physical_end(it);
+			} else {
+				_curc->add_element(begin, it)->set_physical_end(it);
+			}
+			begin = it + 1;
+		}
+
+		// Copy remaining chars in the next chunk
+		_nextc->set_end(std::copy(begin, end, _nextc->begin()));
+
+		_curc->set_end(begin);
 
 		// Set the index of the elements inside the chunk
 		_curc->set_elements_index();
@@ -186,14 +231,11 @@ public:
 	virtual func_type f() { return boost::bind<PVCore::PVChunk*>(&PVRawSource<Allocator>::operator(), this); }
 
 protected:
-	PVChunkAlign &_align;
-	PVChunkAlign _align_base;
-	size_t _chunk_size;
-	PVChunkTransform &_transform;
-	PVInput_p _input;
+	size_t _chunk_size; //!< Size of the chunk
+	PVInput_p _input; //!< Input source where we read data
 protected:
-	mutable PVCore::PVChunk* _curc;
-	mutable PVCore::PVChunk* _nextc;
+	mutable PVCore::PVChunk* _curc; //!< Pointer to current chunk.
+	mutable PVCore::PVChunk* _nextc; //!< Pointer to next chunk.
 	alloc_chunk _alloc;
 	mutable map_offsets _offsets; // Map indexes to input offsets
 };

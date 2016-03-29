@@ -74,18 +74,13 @@ void dump_buffer(char* start, char* end)
 void dump_chunk_csv(PVChunk& c, std::ostream & out)
 {
 	// Assume locale is UTF8 !
-	list_elts& l = c.elements();
-	list_elts::iterator it,ite;
-	ite = l.end();
-	QString str_tmp;
-	for (it = l.begin(); it != ite; it++) {
-		PVElement& elt = *(*it);
-		if (!elt.valid()) {
+	for (PVElement* elt: c.elements()) {
+		if (!elt->valid()) {
 			continue;
 		}
-		list_fields& l = elt.fields();
+		list_fields& l = elt->fields();
 		if (l.size() == 1) {
-			out << l.begin()->get_qstr(str_tmp).toUtf8().constData();
+			out << std::string(l.begin()->begin(), l.begin()->size());
 		}
 		else {
 			list_fields::iterator itf,itfe;
@@ -93,13 +88,10 @@ void dump_chunk_csv(PVChunk& c, std::ostream & out)
 			itfe--;
 			for (itf = l.begin(); itf != itfe; itf++) {
 				PVField& f = *itf;
-				out << "'" << f.get_qstr(str_tmp).toUtf8().constData() << "',";
+				out << "'" << std::string(f.begin(), f.size()) << "',";
 			}
 			PVField& f = *itf;
-			out << "'" << f.get_qstr(str_tmp).toUtf8().constData() << "'";
-		}
-		if (!elt.valid()) {
-			out << " (invalid)";
+			out << "'" << std::string(f.begin(), f.size()) << "'";
 		}
 		out << endl;
 	}

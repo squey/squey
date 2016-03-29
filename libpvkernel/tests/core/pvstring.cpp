@@ -5,16 +5,13 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVUnicodeString16.h>
 #include <pvkernel/core/PVUnicodeString.h>
-#include <iostream>
-
 #include <pvkernel/core/inendi_assert.h>
 
 int main()
 {
-	QString refstr("salut");
-	PVCore::PVUnicodeString16 unistr((const PVCore::PVUnicodeString16::utf_char*) refstr.constData(), refstr.size());
+	std::string refstr("salut");
+	PVCore::PVUnicodeString unistr((const PVCore::PVUnicodeString::utf_char*) refstr.data(), refstr.size());
 
 	PV_VALID(unistr.compare("salut"), 0);
 	PV_VALID(refstr.compare("salut"), 0);

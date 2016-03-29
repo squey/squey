@@ -55,7 +55,6 @@ core/PVSerializeArchiveZip.cpp
 core/PVSerializeObject.cpp
 core/PVSplitter.cpp
 core/PVUnicodeString.cpp
-core/PVUnicodeString16.cpp
 core/PVUtils.cpp
 core/PVVersion.cpp
 core/PVAllocators.cpp
@@ -104,7 +103,6 @@ filter/PVFieldsFilter.cpp
 filter/PVFieldsMappingFilter.cpp
 filter/PVFieldSplitterChar.cpp
 filter/PVFieldSplitterChunkMatch.cpp
-filter/PVFieldSplitterUTF16Char.cpp
 filter/PVFieldsFilterParamWidget.cpp
 filter/PVPluginsLoad.cpp
 )
@@ -125,8 +123,6 @@ rush/PVNrawOutput.cpp
 rush/PVNormalizer.cpp
 rush/PVXmlParamParser.cpp
 rush/PVChunkAlign.cpp
-rush/PVChunkAlignUTF16Char.cpp
-rush/PVChunkAlignUTF16Newline.cpp
 rush/PVChunkAlignBoundary.cpp
 rush/PVFormatVersion.cpp
 rush/PVInput.cpp
@@ -135,7 +131,6 @@ rush/PVInputPcap.cpp
 rush/PVOutputFile.cpp
 rush/PVCharsetDetect.cpp
 rush/PVChunkTransform.cpp
-rush/PVChunkTransformUTF16.cpp
 rush/PVAggregator.cpp
 rush/PVPipelineTask.cpp
 rush/PVControllerJob.cpp

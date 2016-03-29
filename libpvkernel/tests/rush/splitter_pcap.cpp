@@ -41,9 +41,7 @@ int main(int argc, char** argv)
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
 
 	PVInput_p ifile(new PVInputPcap(argv[1]));
-	PVRush::PVChunkAlign align;
-	PVRush::PVChunkTransform transform;
-	PVRush::PVRawSource<> source(ifile, align, atoi(argv[2]), transform);
+	PVRush::PVRawSource<> source(ifile, atoi(argv[2]));
 
 	return !process_filter(source, chk_flt->f());
 }

@@ -102,8 +102,6 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	std::vector<pvcop::sink::field_t> pvcop_fields;
 	pvcop_fields.reserve(elts.size() * column_count);
 
-	size_t remaining_fields_count = _max_nrows - _real_nrows;
-
 	// Count number of extracted line. It is not the same as the number of elements as some of them
 	// may be invalid or empty or we may skip the end when enough data is extracted.
 	PVRow local_row = elts.size();
@@ -111,38 +109,24 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 
 		PVCore::PVElement& e = *elt;
 		if (!e.valid()) {
-			for(int i=0; i<column_count; i++) {
-				std::unique_ptr<char[]> tmp_buf(new char[1]);
-				tmp_buf[0] = '\0';
-				pvcop_fields.emplace_back(pvcop::sink::field_t{std::move(tmp_buf), 1});
+			for(size_t i=0; i<column_count; i++) {
+				pvcop_fields.emplace_back(pvcop::sink::field_t{"", 0});
 			}
 			continue;
 		}
 
 		PVCore::list_fields const& fields = e.c_fields();
 		if (fields.size() == 0) {
-			for(int i=0; i<column_count; i++) {
-				std::unique_ptr<char[]> tmp_buf(new char[1]);
-				tmp_buf[0] = '\0';
-				pvcop_fields.emplace_back(pvcop::sink::field_t{std::move(tmp_buf), 1});
+			for(size_t i=0; i<column_count; i++) {
+				pvcop_fields.emplace_back(pvcop::sink::field_t{"", 0});
 			}
 			continue;
 		}
 
 		assert(column_count == fields.size());
 		for (PVCore::PVField const& field :fields) {
-			// TODO: make the whole process in utf8.. !
-			// Convert field to UT8
-			std::unique_ptr<char[]> tmp_buf(new char[field.size()]);
-			UErrorCode err = U_ZERO_ERROR;
-			size_t size_utf8 = ucnv_fromUChars(_ucnv, tmp_buf.get(), field.size(), (const UChar*) field.begin(), field.size()/sizeof(UChar), &err);
-			if (!U_SUCCESS(err)) {
-				PVLOG_WARN("Unable to convert a field to UTF8! Field is ignored..\n");
-				continue;
-			}
-
 			// Save the field
-			pvcop_fields.emplace_back(pvcop::sink::field_t{std::move(tmp_buf), size_utf8});
+			pvcop_fields.emplace_back(pvcop::sink::field_t{field.begin(), field.size()});
 		}
 	}
 

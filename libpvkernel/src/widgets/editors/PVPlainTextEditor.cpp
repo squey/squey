@@ -12,12 +12,11 @@
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QTextStream>
+#include <QTextCodec>
 
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVElement.h>
-#include <pvkernel/rush/PVChunkAlign.h>
-#include <pvkernel/rush/PVChunkTransformUTF16.h>
 #include <pvkernel/rush/PVRawSource.h>
 #include <pvkernel/rush/PVInputFile.h>
 
@@ -120,11 +119,9 @@ void PVWidgets::PVPlainTextEditor::slot_import_file()
 
 	// Use PVUnicodeSource to read the text file. It gives us automatic charset detection !
 	try {
-		PVRush::PVChunkTransformUTF16 trans_utf16;
-		PVRush::PVChunkAlign null_align;
 		PVRush::PVInputFile* pfile = new PVRush::PVInputFile(qPrintable(file));
 		PVRush::PVInput_p input(pfile);
-		PVRush::PVRawSource<std::allocator> txt_src(input, null_align, 10*1024*1024, trans_utf16);
+		PVRush::PVRawSource<std::allocator> txt_src(input, 10*1024*1024);
 		PVCore::PVChunk* chunk = txt_src();
 		QString txt("");
 		QString str_tmp;

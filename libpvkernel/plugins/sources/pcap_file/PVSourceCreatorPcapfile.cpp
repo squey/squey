@@ -17,13 +17,11 @@
 PVRush::PVSourceCreatorPcapfile::source_p PVRush::PVSourceCreatorPcapfile::create_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
 {
 	// input is a QString !
-	PVRush::PVChunkTransform* transform_null = new PVRush::PVChunkTransform();
 	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
 	assert(file);
 	PVRush::PVInput_p ipcap(new PVRush::PVInputPcap(file->path().toLocal8Bit().constData()));
-	PVRush::PVChunkAlign* align_org = new PVRush::PVChunkAlign();
 	// FIXME: chunk size must be computed somewhere once and for all !
-	source_p src = PVRush::PVRawSourceBase_p(new PVRush::PVRawSource<>(ipcap, *align_org, 16000, *transform_null));
+	source_p src = PVRush::PVRawSourceBase_p(new PVRush::PVRawSource<>(ipcap, 16000));
 
 	return src;
 }
