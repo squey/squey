@@ -27,7 +27,6 @@
 #include <inendi/PVPlotted.h>
 #include <inendi/PVRoot.h>
 #include <inendi/PVSource.h>
-#include <inendi/PVEventline.h>
 #include <inendi/PVLayerStack.h>
 #include <inendi/PVIndexArray.h>
 #include <inendi/PVSquareArea.h>
@@ -188,8 +187,6 @@ public:
 
 	void set_floating_selection(PVSelection &selection);
 
-	//void set_selection_with_square_area_selection(PVSelection &selection, float xmin, float ymin, float xmax, float ymax);
-	void set_selection_with_final_selection(PVSelection &selection);
 	void set_selection_from_layer(PVLayer const& layer);
 	void set_selection_view(PVSelection const& sel);
 
@@ -364,7 +361,6 @@ protected:
 	PVLayerStack layer_stack;
 	PVSelection nu_selection; //!< This is zombi and selected elements
 	PVSelection real_output_selection; //!< This is selected elements
-	PVEventline eventline;
 	PVSquareArea square_area;
 	PVStateMachine _state_machine;
 	PVSelection volatile_selection; //!< It is the selection currently computed. It will be flush in floating_selection once it is completed.

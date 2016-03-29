@@ -17,7 +17,6 @@ common.cpp
 
 PVAxesCombination.cpp
 PVAxis.cpp
-PVEventline.cpp
 PVIndexArray.cpp
 PVLayer.cpp
 PVLayerFilter.cpp

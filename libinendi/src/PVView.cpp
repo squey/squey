@@ -67,10 +67,6 @@ void Inendi::PVView::set_parent_from_ptr(PVPlotted* plotted)
 	}
 	row_count = get_parent<PVPlotted>()->get_row_count();
 	layer_stack.set_row_count(row_count);
-	eventline.set_row_count(row_count);
-	eventline.set_first_index(0);
-	eventline.set_current_index(row_count);
-	eventline.set_last_index(row_count);
 
 	reset_view();
 }
@@ -85,10 +81,6 @@ void Inendi::PVView::process_parent_plotted()
 
 	row_count = get_parent<PVPlotted>()->get_row_count();
 	layer_stack.set_row_count(row_count);
-	eventline.set_row_count(row_count);
-	eventline.set_first_index(0);
-	eventline.set_current_index(row_count);
-	eventline.set_last_index(row_count);
 
 	// First process
 	//select_all_nonzb_lines(); Fixes bug #279
@@ -231,7 +223,6 @@ void Inendi::PVView::apply_filter_named_select_all()
 void Inendi::PVView::commit_selection_to_layer(PVLayer& new_layer)
 {
 	/* We set it's selection to the final selection */
-	set_selection_with_final_selection(new_layer.get_selection());
 	output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(new_layer.get_lines_properties(), new_layer.get_selection(), row_count);
 }
 
@@ -586,7 +577,7 @@ PVCol Inendi::PVView::get_active_axis_closest_to_position(float x)
 void Inendi::PVView::process_eventline()
 {
 	/* We compute the real_output_selection */
-	eventline.selection_A2B_filter(post_filter_layer.get_selection(), real_output_selection);
+	real_output_selection = post_filter_layer.get_selection();
 
 	/* We refresh the nu_selection */
 	nu_selection = std::move(~layer_stack_output_layer.get_selection());
@@ -839,18 +830,6 @@ int Inendi::PVView::set_layer_stack_layer_n_name(int n, QString const& name)
 void Inendi::PVView::set_layer_stack_selected_layer_index(int index)
 {
 	layer_stack.set_selected_layer_index(index);
-}
-
-/******************************************************************************
- *
- * Inendi::PVView::set_selection_with_final_selection
- *
- *****************************************************************************/
-void Inendi::PVView::set_selection_with_final_selection(PVSelection &selection)
-{
-	selection = post_filter_layer.get_selection();
-//	post_filter_layer->selection.A2B_copy(selection);
-	eventline.selection_A2A_filter(selection);
 }
 
 /******************************************************************************
