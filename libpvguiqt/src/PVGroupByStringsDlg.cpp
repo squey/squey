@@ -22,9 +22,9 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 {
 	if (act && act == _act_details) {
 		bool ret = false;
-		QModelIndex idx =  model().find_first_selected();
+		Inendi::PVSelection const& indexes = model().current_selection();
 
-		if (idx.isValid()) {
+		if (not indexes.is_empty()) {
 			double sum;
 			double min;
 			double max;
@@ -38,7 +38,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 			const pvcop::db::array col1_in = nraw.collection().column(_col);
 			const pvcop::db::array col2_in = nraw.collection().column(_col2);
 
-			int row_id = model().rowIndex(idx);
+			int row_id = indexes.find_next_set_bit(0, col1_in.size()); // We can only get the details of the first selected value
 			// Get it from value_col which is col2_in but without duplication
 			const QString value = QString::fromStdString(model().value_col().at(row_id));
 

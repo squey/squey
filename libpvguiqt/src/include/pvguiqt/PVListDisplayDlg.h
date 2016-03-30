@@ -73,6 +73,10 @@ protected slots:
 	void copy_selected_to_clipboard();
 	void copy_to_file() { export_to_file_ui(false); }
 	void append_to_file() { export_to_file_ui(true); }
+
+	/**
+	 * Show context menu for content listing.
+	 */
 	void show_ctxt_menu(const QPoint& pos);
 
 private:

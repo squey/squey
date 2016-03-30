@@ -36,6 +36,21 @@ PVAbstractTableView::PVAbstractTableView(QWidget* parent):
 	setWordWrap(false);
 
 	setSelectionMode(QAbstractItemView::NoSelection);
+
+	// Show contextual menu on right click in the table (set menuPolicy to emit signals)
+	connect(this, &QWidget::customContextMenuRequested, this, &PVAbstractTableView::show_rclick_menu);
+	setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
+/******************************************************************************
+ *
+ * PVAbstractTableView::show_rclick_menu
+ *
+ *****************************************************************************/
+void PVAbstractTableView::show_rclick_menu(QPoint const& p)
+{
+	table_model()->commit_selection();
+	show_ctxt_menu(p);
 }
 
 /******************************************************************************
@@ -170,18 +185,20 @@ void PVAbstractTableView::update_on_move()
 void PVAbstractTableView::new_range(int min, int max)
 {
 	if(model()) {
-		table_model()->update_pages(max - min + 1, verticalScrollBar()->pageStep());
+		// min == max means we have only the current page so it contains every lines without
+		// scroll. The page size must be big enought to get them all.
+		size_t step = verticalScrollBar()->pageStep();
+		if(min == max) {
+			step = table_model()->size();
+		}
+		table_model()->update_pages(max - min + 1, step);
 		move_to_page(0);
 	}
 }
 
 void PVAbstractTableView::new_range()
 {
-	if(model()) {
-		table_model()->update_pages(verticalScrollBar()->maximum() - verticalScrollBar()->minimum() + 1,
-				verticalScrollBar()->pageStep());
-		move_to_page(0);
-	}
+	new_range(verticalScrollBar()->minimum(), verticalScrollBar()->maximum());
 }
 
 /******************************************************************************

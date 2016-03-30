@@ -27,7 +27,7 @@
 PVFilter::PVFieldConverterSubstitutionParamWidget::PVFieldConverterSubstitutionParamWidget() :
 	PVFieldsConverterParamWidget(PVFilter::PVFieldsConverter_p(new PVFieldConverterSubstitution()))
 {
-	_action_menu = new QAction(QString("add Substitution"), NULL);
+	_action_menu = new QAction(QString("add Substitution"), this);
 }
 
 /******************************************************************************

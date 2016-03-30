@@ -19,7 +19,7 @@ PVFilter::PVFieldSplitterIronPortMailParamWidget::PVFieldSplitterIronPortMailPar
 {
 	PVLOG_DEBUG("constructor PVFieldSplitterIronPortMailParamWidget\n");
 	_menu_action = new QAction(QString("add IronPort Mail Splitter"),
-	                           nullptr);
+	                           this);
 }
 
 /******************************************************************************

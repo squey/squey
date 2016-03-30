@@ -99,53 +99,6 @@ public:
 	bool is_selected(QModelIndex const& index) const;
 
 	/**
-	 * Visit the model to call a lambda function on all selected rows
-	 *
-	 * This function is used to iterated over QModelIndex
-	 *
-	 * @param f the function to call on selected rows
-	 */
-	template <typename F>
-	void visit_selected_index(const F&& f) const
-	{
-		for(int row = 0; row < rowCount(); ++row) {
-			const QModelIndex idx = index(row, 0);
-			if (is_selected(idx)) {
-				f(idx);
-			}
-		}
-	}
-
-	/**
-	 * Visit the model to call a lambda function on all selected rows
-	 *
-	 * This function is used to iterated over row index @see rowIndex
-	 *
-	 * @param f the function to call on selected rows
-	 */
-	template <typename F>
-	void visit_selected_row_index(const F&& f) const
-	{
-		visit_selected_index([&](const QModelIndex& index) {
-				f(rowIndex(index));
-			});
-	}
-
-	/**
-	 * Find the first selected row in the model
-	 *
-	 * @return a valid QModelIndex in case of success; an invalid one otherwise
-	 */
-	QModelIndex find_first_selected() const;
-
-	/**
-	 * Compute the number of selected rows in the model
-	 *
-	 * @return the number of selected rows
-	 */
-	size_t count_selected() const;
-
-	/**
 	 * Compute row number from a QModelIndex
 	 *
 	 *@param[in] index : index asked from view.
@@ -173,6 +126,8 @@ public:
 	 *
 	 * @param index : Parent index (unused here)
 	 * @return the number of scrollbar tick.
+	 *
+	 * @warning : It is not the number of rows in the listing.
 	 */
 	int rowCount(const QModelIndex &index = QModelIndex()) const override final;
 

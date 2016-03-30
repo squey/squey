@@ -62,6 +62,10 @@ update-protocol.cpp
 #z-level-array.cpp
 )
 
+if (MINESET)
+set(SRC_FILES ${SRC_FILES} PVMineset.cpp)
+endif()
+
 set(WIDGETS_MOC_HEADERS
 include/inendi/widgets/PVMappingModeWidget.h
 include/inendi/widgets/PVMappingPlottingEditDialog.h
@@ -127,7 +131,7 @@ set_target_properties(inendi PROPERTIES SOVERSION 1)
 
 target_link_libraries(inendi ${QT5_LIBS} ${TBB_LIBRARIES}
 			     ${Boost_LIBRARIES} ${ICU_LIBRARY}
-			     ${OpenMP_LIBRARIES} ${OPENGL_LIBRARIES} pvkernel)
+			     ${OpenMP_LIBRARIES} ${OPENGL_LIBRARIES} pvkernel curl)
 
 ###############################################################################
 # Install files

@@ -49,16 +49,30 @@ void PVRush::PVUtils::sort_file(const char* input_file, const char* output_file 
 	fout.close();
 }
 
-std::string PVRush::PVUtils::safe_export(std::string str, const std::string& quote_char)
+std::string PVRush::PVUtils::safe_export(std::string str, const std::string& sep_char, const std::string& quote_char)
 {
 	static std::string escaped_quote("\\" + quote_char);
 
-        return quote_char + PVCore::replace(str, quote_char, escaped_quote) + quote_char;
+	bool do_quote = false;
+
+	if (str.find(sep_char) != std::string::npos) {
+		do_quote = true;
+	}
+	if (str.find(quote_char) != std::string::npos) {
+		do_quote = true;
+		PVCore::replace(str, quote_char, escaped_quote);
+	}
+	if (do_quote) {
+		str.append(quote_char);
+		str.insert(0, quote_char);
+	}
+
+	return str;
 }
 
-void PVRush::PVUtils::safe_export(QStringList& str_list, const std::string& quote_char)
+void PVRush::PVUtils::safe_export(QStringList& str_list, const std::string& sep_char, const std::string& quote_char)
 {
 	for (QString& str : str_list) {
-		str = QString::fromStdString(safe_export(str.toStdString(), quote_char));
+		str = QString::fromStdString(safe_export(str.toStdString(), sep_char, quote_char));
 	}
 }

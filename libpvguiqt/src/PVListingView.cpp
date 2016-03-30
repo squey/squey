@@ -144,10 +144,6 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent):
 	_action_col_sort->setIcon(QIcon(":/sort_desc"));
 	_hhead_ctxt_menu.addAction(_action_col_sort);
 
-	// Context menu for the listing
-	connect(this, &PVGuiQt::PVListingView::customContextMenuRequested, this, &PVGuiQt::PVListingView::show_ctxt_menu);
-	setContextMenuPolicy(Qt::CustomContextMenu); // Enable context menu signal
-
 	// A double click on the vertical header select the line in the lib view
 	connect(verticalHeader(), &QHeaderView::sectionDoubleClicked, this,
 			(void (PVGuiQt::PVListingView::*)(int)) &PVGuiQt::PVListingView::slotDoubleClickOnVHead);
@@ -475,7 +471,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		PVQNraw::show_unique_values(view, lib_view().get_rushnraw_parent(), col, *lib_view().get_selection_visible_listing(), this);
 	} else if (sel == _action_col_sort) {
 		Qt::SortOrder order =  (Qt::SortOrder)!((bool)horizontalHeader()->sortIndicatorOrder());
-		sort(col, order);
+		sort(comb_col, order);
 	} else if(sel) {
 		Inendi::PVView_sp view = lib_view().shared_from_this();
 		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());

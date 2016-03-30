@@ -53,14 +53,20 @@ class PVFormatException : public std::runtime_error
 class PVFormatInvalid: public PVFormatException
 {
 public:
-	PVFormatInvalid(std::string const& msg) : PVFormatException(msg) {}
+	using PVFormatException::PVFormatException;
 	PVFormatInvalid() : PVFormatException("invalid format (no filters and/or axes)") {}
 };
 
 class PVFormatUnknownType: public PVFormatException
 {
 public:
-	PVFormatUnknownType(std::string const& t) : PVFormatException(t) {}
+	using PVFormatException::PVFormatException;
+};
+
+class PVFormatNoTimeMapping: public PVFormatException
+{
+public:
+	using PVFormatException::PVFormatException;
 };
 
 

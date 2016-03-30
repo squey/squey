@@ -41,10 +41,6 @@ int main(int argc, char** argv)
 
 	// Load source plugins that take a file as input
 	PVRush::PVInputType_p file_type = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
-	if (!file_type) {
-		std::cerr << "Unable to load the file input type plugin !" << std::endl;
-		return false;
-	}
 
 	// Auto-discovery on that input
 	std::multimap<float, PVRush::pair_format_creator> discovery = PVRush::PVSourceCreatorFactory::discover_input(file_type, file);

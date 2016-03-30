@@ -28,7 +28,7 @@
 PVFilter::PVFieldConverterGUIDToIPParamWidget::PVFieldConverterGUIDToIPParamWidget() :
 	PVFieldsConverterParamWidget(PVFilter::PVFieldsConverter_p(new PVFieldGUIDToIP()))
 {
-	_action_menu = new QAction(QString("add GUID to IP Converter"), NULL);
+	_action_menu = new QAction(QString("add GUID to IP Converter"), this);
 }
 
 /******************************************************************************

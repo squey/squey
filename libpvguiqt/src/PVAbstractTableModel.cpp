@@ -335,7 +335,7 @@ void PVAbstractTableModel::update_pages(size_t nbr_tick, size_t page_step)
     // Filter may be updated before scrollbar
     assert(nbr_tick != 0 && "At least, there is the current page");
     if(_filter.size() > MIN_PAGE_SIZE * SCROLL_SIZE) {
-	if(nbr_tick < SCROLL_SIZE / 2) {
+	if(nbr_tick < SCROLL_SIZE / 2 or nbr_tick > _filter.size()) {
 	    // _filter is updated bu nbr_tick is not. Set a dummy value to
 	    // initiate the fixed point algorithm and get correct page number
 	    _page_size = _filter.size() / SCROLL_SIZE;
@@ -393,39 +393,6 @@ bool PVAbstractTableModel::is_selected(QModelIndex const& index) const
 	}
 
 	return is_selected;
-}
-
-/******************************************************************************
-*
-* PVAbstractTableModel::find_first_selected
-*
-*****************************************************************************/
-QModelIndex PVAbstractTableModel::find_first_selected() const
-{
-	for(int row = 0; row < rowCount(); ++row) {
-		const QModelIndex idx = index(row, 0);
-		if (is_selected(idx)) {
-			return idx;
-		}
-	}
-
-	return QModelIndex();
-}
-
-/******************************************************************************
-*
-* PVAbstractTableModel::count_selected
-*
-*****************************************************************************/
-size_t PVAbstractTableModel::count_selected() const
-{
-	size_t count = 0;
-
-	visit_selected_index([&count](const QModelIndex&) {
-			++count;
-		});
-
-	return count;
 }
 
 /******************************************************************************

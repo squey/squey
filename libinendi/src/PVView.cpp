@@ -22,6 +22,12 @@
 #include <inendi/PVPlotted.h>
 #include <inendi/PVPlotting.h>
 
+#ifdef WITH_MINESET
+#include <inendi/PVMineset.h>
+#endif
+
+#include <future>
+
 #include <tbb/tick_count.h>
 
 /******************************************************************************
@@ -38,30 +44,6 @@ Inendi::PVView::PVView():
 	_view_id(-1)
 {
 	init_defaults();
-}
-
-/*
-Inendi::PVView::PVView(PVPlotted* parent) :
-	pre_filter_layer("pre_filter_layer"),
-	post_filter_layer("post_filter_layer"),
-	layer_stack_output_layer("view_layer_stack_output_layer"),
-	output_layer("output_layer"),
-	_view_id(-1)
-{
-	set_parent(parent);
-
-	init_defaults();
-	init_from_plotted(parent, false);
-}*/
-
-Inendi::PVView::PVView(const PVView& /*org*/):
-	pre_filter_layer("pre_filter_layer"),
-	post_filter_layer("post_filter_layer"),
-	layer_stack_output_layer("view_layer_stack_output_layer"),
-	output_layer("output_layer"),
-	_view_id(-1)
-{
-	assert(false);
 }
 
 void Inendi::PVView::set_parent_from_ptr(PVPlotted* plotted)
@@ -141,6 +123,14 @@ void Inendi::PVView::set_fake_axes_comb(PVCol const ncols)
 Inendi::PVView::~PVView()
 {
 	PVLOG_DEBUG("In PVView destructor: 0x%x\n", this);
+
+#ifdef WITH_MINESET
+	for (const std::string& mineset_dataset : _mineset_datasets) {
+		std::thread req(Inendi::PVMineset::delete_dataset, mineset_dataset);
+		req.detach();
+	}
+#endif
+
 	PVRoot* root = get_parent<PVRoot>();
 	if (root) {
 		root->view_being_deleted(this);

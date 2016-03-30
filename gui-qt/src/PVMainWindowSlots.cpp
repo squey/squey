@@ -20,6 +20,10 @@
 #include <inendi/PVPlotting.h>
 #include <inendi/PVMapping.h>
 
+#ifdef WITH_MINESET
+#include <inendi/PVMineset.h>
+#endif
+
 #include <inendi/widgets/editors/PVAxisIndexEditor.h>
 
 #include <pvhive/PVHive.h>
@@ -47,6 +51,7 @@
 
 #include <QPainter>
 #include <QDockWidget>
+#include <QDesktopServices>
 #include <QDesktopWidget>
 #include <QWhatsThis>
 
@@ -344,6 +349,46 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 	PVGuiQt::PVExportSelectionDlg::export_selection(*view, sel);
 }
 
+#ifdef WITH_MINESET
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::export_selection_to_mineset_Slot
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::export_selection_to_mineset_Slot()
+{
+	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+
+	PVCore::PVProgressBox pbox("Exporting data to Mineset...");
+	pbox.set_enable_cancel(false);
+
+	PVCore::PVProgressBox::progress([&]() {
+		try {
+			std::string dataset_url = Inendi::PVMineset::import_dataset(*current_view());
+			current_view()->add_mineset_dataset(dataset_url);
+			QDesktopServices::openUrl(QUrl(dataset_url.c_str()));
+		}
+		catch (const Inendi::PVMineset::mineset_error& e) {
+			emit mineset_error(QString(e.what()));
+		}
+	}, &pbox);
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::mineset_error_slot
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::mineset_error_slot(QString error_msg)
+{
+	QMessageBox::critical(
+		this,
+		"Error when exporting current selection to Mineset",
+		error_msg,
+		QMessageBox::Ok
+	);
+}
+#endif
 
 /******************************************************************************
  *
@@ -532,8 +577,18 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 		return false;
 	}
 
-	if (!load_source(src_p.get())) {
-		remove_source(src_p.get());
+	try {
+		if (!load_source(src_p.get())) {
+			remove_source(src_p.get());
+			return false;
+		}
+	}
+	catch (const PVRush::PVFormatNoTimeMapping& e) {
+		QMessageBox::critical(
+			this,
+			tr("Fatal error while loading source..."),
+			(std::string("\nNo mapping format specified for axis '") + e.what() + "'").c_str()
+		);
 		return false;
 	}
 

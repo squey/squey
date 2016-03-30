@@ -20,7 +20,7 @@
 PVFilter::PVFieldSplitterDnsFqdnParamWidget::PVFieldSplitterDnsFqdnParamWidget() :
 	PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterDnsFqdn()))
 {
-	_action_menu = new QAction(QString("add DNS FQDN Splitter"), NULL);
+	_action_menu = new QAction(QString("add DNS FQDN Splitter"), this);
 }
 
 /******************************************************************************

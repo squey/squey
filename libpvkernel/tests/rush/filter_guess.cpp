@@ -45,10 +45,6 @@ int main(int argc, char** argv)
 	// Get the source creator
 	QString file_path(argv[1]);
 	PVRush::PVSourceCreator_p sc_file = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("text_file");
-	if (!sc_file) {
-		std:: cerr << "text_file source creator plugin isn't available!" << std::endl;
-		return 1;
-	}
 
 	PVRush::PVFormat format;
 	// Process that file with the found source creator thanks to the extractor

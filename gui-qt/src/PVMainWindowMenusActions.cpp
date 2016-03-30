@@ -45,6 +45,11 @@ void PVInspector::PVMainWindow::create_actions()
 	export_selection_Action = new QAction(tr("&Selection..."), this);
 	export_selection_Action->setToolTip(tr("Export the current selection"));
 
+#ifdef WITH_MINESET
+	export_selection_to_mineset_Action = new QAction(tr("&Selection to Mineset..."), this);
+	export_selection_to_mineset_Action->setToolTip(tr("Export the current selection to Mineset"));
+#endif
+
 	// The extractorFile Action
 	extractor_file_Action = new QAction(tr("&Create new source from input..."), this);
 	extractor_file_Action->setToolTip(tr("Launch the INENDI Extractor to create a new source from the current input"));
@@ -196,6 +201,9 @@ void PVInspector::PVMainWindow::create_menus()
 	file_Menu->addMenu(import_Menu);
 	QMenu *export_Menu = new QMenu(tr("E&xport"));
 	export_Menu->addAction(export_selection_Action);
+#ifdef WITH_MINESET
+	export_Menu->addAction(export_selection_to_mineset_Action);
+#endif
 	file_Menu->addMenu(export_Menu);
 	file_Menu->addSeparator();
 	file_Menu->addAction(quit_Action);
@@ -303,6 +311,9 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 {
 	extractor_file_Action->setEnabled(cond);
 	export_selection_Action->setEnabled(cond);
+#ifdef WITH_MINESET
+	export_selection_to_mineset_Action->setEnabled(cond);
+#endif
 
 	//axes_Menu->setEnabled(cond);
 	filter_Menu->setEnabled(cond);
@@ -335,6 +346,9 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(project_saveas_Action, SIGNAL(triggered()), this, SLOT(project_saveas_Slot()));
 	connect(export_file_Action, SIGNAL(triggered()), this, SLOT(export_file_Slot()));
 	connect(export_selection_Action, SIGNAL(triggered()), this, SLOT(export_selection_Slot()));
+#ifdef WITH_MINESET
+	connect(export_selection_to_mineset_Action, SIGNAL(triggered()), this, SLOT(export_selection_to_mineset_Slot()));
+#endif
 	connect(extractor_file_Action, SIGNAL(triggered()), this, SLOT(extractor_file_Slot()));
 	connect(quit_Action, SIGNAL(triggered()), this, SLOT(quit_Slot()));
 

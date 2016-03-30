@@ -208,7 +208,7 @@ bool PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
  *
  ****************************************************************************/
 
-void PVRush::PVNraw::dump_csv(std::ostream& os)
+void PVRush::PVNraw::dump_csv(std::ostream& os) const
 {
 	PVCore::PVColumnIndexes cols(get_number_cols());
 	std::iota(cols.begin(), cols.end(), 0);
@@ -223,7 +223,7 @@ void PVRush::PVNraw::dump_csv(std::ostream& os)
  *
  ****************************************************************************/
 
-void PVRush::PVNraw::dump_csv(std::string const& file_path)
+void PVRush::PVNraw::dump_csv(std::string const& file_path) const
 {
 	std::ofstream ofs(file_path);
 	dump_csv(ofs);
@@ -249,7 +249,7 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
 	std::string line;
 
 	for(int c: col_indexes) {
-		line += PVRush::PVUtils::safe_export(at_string(idx, c), quote_char) + sep_char;
+		line += PVRush::PVUtils::safe_export(at_string(idx, c), sep_char, quote_char) + sep_char;
 	}
 
 	// Remove last sep_char
@@ -303,4 +303,6 @@ void PVRush::PVNraw::export_lines(
 		stream << content;
 		current_thread++; // The next thread can do it.
 	}
+
+	std::flush(stream); // explicitely flush the stream
 }
