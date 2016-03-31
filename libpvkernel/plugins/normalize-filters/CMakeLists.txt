@@ -117,21 +117,21 @@ declare_library(normalize_filter_splitter_csv)
 #target_link_libraries(normalize_filter_splitter_regexp pvkernel ${Boost_LIBRARIES} ${ICU_LIBRARY})
 #declare_library(normalize_filter_splitter_regexp)
 #
-################################################################################
-## URL Splitter
-################################################################################
-#
-## Define ressources
-#set(URL_SRC
-#splitter_url/PVFieldSplitterURL.cpp
-#splitter_url/register.cpp
-#)
-#
-## Create lib
-#add_library(normalize_filter_splitter_url SHARED ${URL_SRC})
-#target_link_libraries(normalize_filter_splitter_url pvkernel ${FURL_STATIC_LIB})
-#declare_library(normalize_filter_splitter_url)
-#
+###############################################################################
+# URL Splitter
+###############################################################################
+
+# Define ressources
+set(URL_SRC
+splitter_url/PVFieldSplitterURL.cpp
+splitter_url/register.cpp
+)
+
+# Create lib
+add_library(normalize_filter_splitter_url SHARED ${URL_SRC})
+target_link_libraries(normalize_filter_splitter_url pvkernel ${FURL_STATIC_LIB})
+declare_library(normalize_filter_splitter_url)
+
 ################################################################################
 ## PCAP Splitter
 ################################################################################

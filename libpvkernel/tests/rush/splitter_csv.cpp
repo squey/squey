@@ -48,7 +48,7 @@ int main()
 
 		size_t nelts_org = 0;
 		size_t nelts_valid = 0;
-		std::chrono::duration<double> dur;
+		std::chrono::duration<double> dur(0.);
 		decltype(std::chrono::steady_clock::now()) start;
 		// TODO : Add parallelism on Chunk splitter!!
 		while (PVCore::PVChunk* pc = ts.get_source()()) {

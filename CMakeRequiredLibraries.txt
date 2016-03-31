@@ -264,7 +264,7 @@ pkg_check_modules(HWLOC REQUIRED hwloc)
 # Check for Furl installation
 ###############################################################################
 
-set(FURL_STATIC_LIB /usr/local/lib/libfurll.a)
+set(FURL_STATIC_LIB /usr/local/lib/libfurll-utf8.a)
 if(EXISTS ${FURL_STATIC_LIB})
   add_definitions(-DFURL_UTF8_CHAR)
 else()
