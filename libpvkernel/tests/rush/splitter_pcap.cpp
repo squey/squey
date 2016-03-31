@@ -10,7 +10,6 @@
 #include <pvkernel/filter/PVElementFilterByFields.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVInputPcap.h>
-#include <pvkernel/rush/PVChunkAlign.h>
 #include <pvkernel/rush/PVRawSource.h>
 #include <cstdlib>
 #include <iostream>
