@@ -145,15 +145,6 @@ public:
 	 */
 	template<class L> typename L::size_type split(L &container, char c, typename L::iterator it_ins);
 
-	/*! \brief Split this buffer slice into a list of buffer slices, according to a UTF16 character.
-	 *  \tparam     L          Standard C++ compliant container type where the slices will be inserted. L::value_type must have buffer slice as parent.
-	 *  \param[out] container  Container where the slices will be inserted.
-	 *  \param[in]  c          Separation byte
-	 *  \param[in]  it_ins     Iterator where the new slices will be inserted in container.
-	 *  \return The number of slices inserted.
-	 */
-	template<class L> typename L::size_type split_qchar(L &container, QChar c, typename L::iterator it_ins);
-
 	/*! \brief Split this buffer slice into a list of buffer slices, according to a Qt regular expression object.
 	 *  \tparam     L          Standard C++ compliant container type where the slices will be inserted. L::value_type must have buffer slice as parent.
 	 *  \param[out] container  Container where the slices will be inserted.
@@ -279,39 +270,6 @@ typename L::size_type PVCore::PVBufferSlice::split(L& container, char c, typenam
 	if (len > 0) {
 		typename L::value_type elt(*((typename L::value_type *)this));
 		elt._begin = start;
-		elt._end = this->end();
-		container.insert(it_ins, elt);
-		n++;
-	}
-
-	return n;
-}
-
-template <class L>
-typename L::size_type PVCore::PVBufferSlice::split_qchar(L& container, QChar c, typename L::iterator it_ins)
-{
-	QString qs;
-	get_qstr(qs);
-	QChar* str_start = (QChar*) begin();
-	int old_pos_c = 0;
-	int pos_c;
-	int n = 0;
-	ssize_t sstr = qs.size();
-	while ((pos_c = qs.indexOf(c, old_pos_c)) != -1) {
-		typename L::value_type elt(*((typename L::value_type *)this));
-		elt._begin = (char*) (str_start + old_pos_c);
-		elt._end = (char*) (str_start + pos_c);
-		elt._physical_end = elt._end;
-
-		container.insert(it_ins, elt);
-
-		n++;
-		old_pos_c = pos_c+1;
-	}
-
-	if (old_pos_c < sstr) {
-		typename L::value_type elt(*((typename L::value_type *)this));
-		elt._begin = (char*) (str_start + old_pos_c);
 		elt._end = this->end();
 		container.insert(it_ins, elt);
 		n++;
