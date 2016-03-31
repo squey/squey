@@ -70,6 +70,7 @@ void PVFilter::PVFieldSplitterCSV::_csv_new_row(int /*c*/, void* /*p*/)
 
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
 {
+	// FIXME : We should handle double Quote as escaped quote
 	PVCore::list_fields::value_type elt(field);
 	assert(elt.begin() == field.begin());
 	char* cstr = elt.begin();
