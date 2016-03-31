@@ -122,7 +122,6 @@ rush/PVNrawOutput.cpp
 rush/PVNormalizer.cpp
 rush/PVXmlParamParser.cpp
 rush/PVChunkAlign.cpp
-rush/PVChunkAlignBoundary.cpp
 rush/PVFormatVersion.cpp
 rush/PVInput.cpp
 rush/PVInputFile.cpp
