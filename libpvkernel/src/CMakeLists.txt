@@ -129,7 +129,6 @@ rush/PVInputFile.cpp
 rush/PVInputPcap.cpp
 rush/PVOutputFile.cpp
 rush/PVCharsetDetect.cpp
-rush/PVChunkTransform.cpp
 rush/PVAggregator.cpp
 rush/PVPipelineTask.cpp
 rush/PVControllerJob.cpp
