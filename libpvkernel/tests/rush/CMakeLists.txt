@@ -7,7 +7,6 @@
 configure_file(test_issues.sh.cmake test_issues.sh @ONLY)
 configure_file(test_splitter_duplicate.sh.cmake test_splitter_duplicate.sh @ONLY)
 configure_file(test_splitter_pcap.sh.cmake test_splitter_pcap.sh @ONLY)
-configure_file(test_splitter_regexp.sh.cmake test_splitter_regexp.sh @ONLY)
 configure_file(test_grep_regexp.sh.cmake test_grep_regexp.sh @ONLY)
 
 set(LINK_LIBRARIES pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY})
@@ -81,7 +80,9 @@ add_test(TestAggregatorStrict2 ${TEST_DIFF_STDOUT}
 
 # Test the extractor
 add_pv_compile_test(Trush_splitter_regexp LINKS ${LINK_LIBRARIES} FILES splitter_regexp.cpp helpers.cpp)
-add_test(Trush_splitter_regexp ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_regexp.sh)
+add_test(Trush_splitter_regexp Trush_splitter_regexp)
+add_bench(Trush_splitter_regexp LINKS ${LINK_LIBRARIES} FILES splitter_regexp.cpp helpers.cpp)
+
 add_pv_compile_test(Trush_splitter_csv LINKS ${LINK_LIBRARIES} FILES splitter_csv.cpp helpers.cpp)
 add_test(Trush_splitter_csv Trush_splitter_csv)
 add_bench(Trush_splitter_csv LINKS ${LINK_LIBRARIES} FILES splitter_csv.cpp helpers.cpp)
@@ -93,8 +94,6 @@ add_bench(Trush_splitter_url LINKS ${LINK_LIBRARIES} FILES splitter_url.cpp help
 
 add_pv_compile_test(Trush_splitter_pcap LINKS ${LINK_LIBRARIES} FILES splitter_pcap.cpp helpers.cpp)
 add_test(Trush_splitter_pcap ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_pcap.sh)
-add_pv_compile_test(Trush_splitter_regexp LINKS ${LINK_LIBRARIES} FILES splitter_regexp.cpp helpers.cpp)
-add_test(Trush_splitter_regexp ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_regexp.sh)
 add_pv_compile_test(Trush_splitter_duplicate LINKS ${LINK_LIBRARIES} FILES splitter_duplicate.cpp helpers.cpp)
 add_test(Trush_splitter_duplicate ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_duplicate.sh)
 add_pv_compile_test(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filter_composition.cpp helpers.cpp)

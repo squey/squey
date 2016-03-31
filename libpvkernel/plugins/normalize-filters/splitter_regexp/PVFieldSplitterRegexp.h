@@ -8,18 +8,11 @@
 #ifndef PVFILTER_PVFIELDSPLITTERREGEXP_H
 #define PVFILTER_PVFIELDSPLITTERREGEXP_H
 
-#define PROCESS_REGEXP_ICU
-
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
-#include <boost/thread/tss.hpp>
-#ifdef PROCESS_REGEXP_ICU
-#include <unicode/regex.h>
-#include <memory>
-#else
-#include <QRegExp>
-#endif
+
+#include <regex>
 
 
 namespace PVFilter {
@@ -33,21 +26,8 @@ protected:
 public:
 	virtual void set_args(PVCore::PVArgumentList const& args);
 protected:
-#ifdef PROCESS_REGEXP_ICU
-	std::shared_ptr<RegexPattern> _regexp;
-	// We store a pointer to a pointer because, if we only store a pointer to RegexMatcher or RegexPattern,
-	// when boost::thread_specific_ptr will call the destructor function that we would have given us
-	// (that does nothing), it will do so after the unloading of the shared libraries, and our destruction
-	// fonction won't be available. That's a dirty solution for a silly problem, we should be able to tell
-	// boost::thread_specific_ptr that we don't need any deallocation !
-	boost::thread_specific_ptr<RegexMatcher*> _regexp_matcher_thread;
-	boost::thread_specific_ptr<RegexPattern*> _regexp_pattern_thread;
-#else
-	QRegExp _regexp;
-	//boost::thread_specific_ptr<QRegExp> _regexp_thread;
-#endif
+	std::regex _regexp;
 
-	bool _valid_rx;
 	bool _full_line;
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterRegexp)

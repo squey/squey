@@ -47,24 +47,8 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterRegexp)
 void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-#ifdef PROCESS_REGEXP_ICU
-	QString pattern = args.at("regexp").toString();
-	UnicodeString icu_pat;
-	icu_pat.setTo(false, (const UChar *)(pattern.constData()), pattern.size());
-	UErrorCode err = U_ZERO_ERROR;
-	UErrorCode pe = U_ZERO_ERROR;
-	_regexp.reset(RegexPattern::compile(icu_pat, pe, err));
-	if (U_FAILURE(err)) {
-		PVLOG_WARN("Unable to compile pattern '%s' with ICU !\n", qPrintable(pattern));
-		_valid_rx = false;
-	}
-	else {
-		_valid_rx = true;
-	}
-#else
-	_regexp.setPattern(args["regexp"].toString());
-	_valid_rx = true;
-#endif
+	_regexp = std::regex(args.at("regexp").toString().toStdString());
+	// FIXME : We should use this variable
 	_full_line = args.at("full-line").toBool();
 }
 
@@ -76,28 +60,26 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterRegexp::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
 {
-	if (!_valid_rx) {
-		field.set_invalid();
-		return 0;
-	}
-#ifdef PROCESS_REGEXP_ICU
-	if (_regexp_matcher_thread.get() == NULL || _regexp_pattern_thread.get() == NULL || *(_regexp_pattern_thread.get()) !=  _regexp.get()) {
-		UErrorCode err = U_ZERO_ERROR;
-		_regexp_pattern_thread.reset(new RegexPattern*(_regexp.get()));
-		_regexp_matcher_thread.reset(new RegexMatcher*(_regexp->matcher(err)));
-	}
-	PVCore::list_fields::size_type n = field.split_regexp<PVCore::list_fields>(l, *(*_regexp_matcher_thread), it_ins, _full_line);
-#else
-	QRegExp regexp(_regexp);
-	PVCore::list_fields::size_type n = field.split_regexp<PVCore::list_fields>(l, regexp, it_ins, _full_line);
-#endif
-	if ((n == 0) || ((_fields_expected > 0) && (_fields_expected != n))) {
+	size_t n;
+	std::cmatch base_match;
+	if (std::regex_match<const char*>(field.begin(), field.end(), base_match, _regexp)) {
+		if((_fields_expected > 0) && (_fields_expected != base_match.size() - 1)) {
+			field.set_invalid();
+			field.elt_parent()->set_invalid();
+			return 0;
+		}
+		for(auto it = ++base_match.begin(); it != base_match.end(); it++) {
+			PVCore::list_fields::value_type elt(field);
+			elt.set_begin(field.begin() + std::distance(static_cast<const char*>(field.begin()), it->first));
+			elt.set_end(field.begin() + std::distance(static_cast<const char*>(field.begin()), it->second));
+			elt.set_physical_end(field.begin() + std::distance(static_cast<const char*>(field.begin()), it->second));
+			l.insert(it_ins, elt);
+		}
 
-		field.set_invalid();
-		field.elt_parent()->set_invalid();
-		return 0;
+		return base_match.size() - 1;
 	}
-	return n;
+
+	return 0;
 }
 
 IMPL_FILTER(PVFilter::PVFieldSplitterRegexp)

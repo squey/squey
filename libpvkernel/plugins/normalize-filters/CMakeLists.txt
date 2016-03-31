@@ -94,29 +94,29 @@ add_library(normalize_filter_splitter_csv SHARED ${CSV_SRC} ${CSV_MOC_SRCS})
 target_link_libraries(normalize_filter_splitter_csv pvkernel)
 declare_library(normalize_filter_splitter_csv)
 
-################################################################################
-## Regex Splitter
-################################################################################
-#
-## Declare ressources
-#SET(REGEXP_MOC_HEADERS
-#splitter_regexp/PVFieldSplitterRegexpParamWidget.h
-#)
-#
-#set(REGEX_SRC
-#splitter_regexp/PVFieldSplitterRegexp.cpp
-#splitter_regexp/PVFieldSplitterRegexpParamWidget.cpp
-#splitter_regexp/register.cpp
-#)
-#
-## Genrate Qt files
-#QT5_WRAP_CPP(REGEXP_MOC_SRCS ${REGEXP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-#
-## Create lib
-#add_library(normalize_filter_splitter_regexp SHARED ${REGEX_SRC} ${REGEXP_MOC_SRCS})
-#target_link_libraries(normalize_filter_splitter_regexp pvkernel ${Boost_LIBRARIES} ${ICU_LIBRARY})
-#declare_library(normalize_filter_splitter_regexp)
-#
+###############################################################################
+# Regex Splitter
+###############################################################################
+
+# Declare ressources
+SET(REGEXP_MOC_HEADERS
+splitter_regexp/PVFieldSplitterRegexpParamWidget.h
+)
+
+set(REGEX_SRC
+splitter_regexp/PVFieldSplitterRegexp.cpp
+splitter_regexp/PVFieldSplitterRegexpParamWidget.cpp
+splitter_regexp/register.cpp
+)
+
+# Genrate Qt files
+QT5_WRAP_CPP(REGEXP_MOC_SRCS ${REGEXP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+# Create lib
+add_library(normalize_filter_splitter_regexp SHARED ${REGEX_SRC} ${REGEXP_MOC_SRCS})
+target_link_libraries(normalize_filter_splitter_regexp pvkernel ${Boost_LIBRARIES} ${ICU_LIBRARY})
+declare_library(normalize_filter_splitter_regexp)
+
 ###############################################################################
 # URL Splitter
 ###############################################################################
