@@ -136,15 +136,6 @@ public:
 	void allocate_new(size_t n);
 
 public:
-	/*! \brief Split this buffer slice into a list of buffer slices, according to a given byte.
-	 *  \tparam     L          Standard C++ compliant container type where the slices will be inserted. L::value_type must have buffer slice as parent.
-	 *  \param[out] container  Container where the slices will be inserted.
-	 *  \param[in]  c          Separation byte
-	 *  \param[in]  it_ins     Iterator where the new slices will be inserted in container.
-	 *  \return The number of slices inserted.
-	 */
-	template<class L> typename L::size_type split(L &container, char c, typename L::iterator it_ins);
-
 	/*! \brief Split this buffer slice into a list of buffer slices, according to a Qt regular expression object.
 	 *  \tparam     L          Standard C++ compliant container type where the slices will be inserted. L::value_type must have buffer slice as parent.
 	 *  \param[out] container  Container where the slices will be inserted.
@@ -238,45 +229,6 @@ protected:
 
 	buf_list_t &_buf_list;
 };
-
-template <class L>
-typename L::size_type PVCore::PVBufferSlice::split(L& container, char c, typename L::iterator it_ins)
-{
-	char* start = begin();
-	char* end;
-	size_t len = size();
-	size_t n = 0;
-	while ((end = (char*) memchr(start, c, len)) != NULL) {
-		// Create a new element according to the current type
-		// and copy it
-		typename L::value_type elt(*((typename L::value_type *)this));
-
-		// Then, set the new slice
-		elt._begin = start;
-		elt._end = end;
-		elt._physical_end = elt._end;
-
-		// Add the new object to the container
-		container.insert(it_ins, elt);
-
-		// And go on
-		n++;
-		len -= (uintptr_t)end - (uintptr_t)start;
-		if (len == 0)
-			return n;
-		len--;
-		start = end+1;
-	}
-	if (len > 0) {
-		typename L::value_type elt(*((typename L::value_type *)this));
-		elt._begin = start;
-		elt._end = this->end();
-		container.insert(it_ins, elt);
-		n++;
-	}
-
-	return n;
-}
 
 template <class L>
 typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, RegexMatcher& re_, typename L::iterator it_ins, bool bFullLine)

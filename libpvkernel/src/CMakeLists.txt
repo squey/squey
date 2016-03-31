@@ -101,7 +101,6 @@ filter/PVElementFilterByFields.cpp
 filter/PVFieldFilterGrep.cpp
 filter/PVFieldsFilter.cpp
 filter/PVFieldsMappingFilter.cpp
-filter/PVFieldSplitterChar.cpp
 filter/PVFieldSplitterChunkMatch.cpp
 filter/PVFieldsFilterParamWidget.cpp
 filter/PVPluginsLoad.cpp
