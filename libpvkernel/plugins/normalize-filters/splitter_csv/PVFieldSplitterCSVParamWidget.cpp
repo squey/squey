@@ -97,6 +97,7 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 
 	// Set default value for number of csv field.
 	_child_number_edit = new QSpinBox();
+	_child_number_edit->setMaximum(10000);
 	_child_number_edit->setValue(get_child_count());
 	gridLayout->addWidget(_child_number_edit, 2, 1);
 
