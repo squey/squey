@@ -14,9 +14,6 @@
 #include <pvkernel/rush/PVOutput.h>
 #include <pvkernel/rush/PVNraw.h>
 
-#include <functional>
-#include <vector>
-
 namespace PVRush {
 
 class PVNrawOutput : public PVRush::PVOutput {

@@ -13,8 +13,6 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVColumnIndexes.h>
 
-#include <pvkernel/rush/PVFormat.h>
-
 extern "C" {
 #include <unicode/ucsdet.h>
 #include <unicode/ucnv.h>
@@ -90,17 +88,6 @@ public:
 	bool add_chunk_utf16(PVCore::PVChunk const& chunk);
 
 	/**
-	 * Get the axis name from the format.
-	 */
-	inline std::string get_axis_name(PVCol format_axis_id) const
-	{
-		if(format_axis_id >= format->get_axes().size()) {
-			throw std::runtime_error("Invalid axis id, can't get its name.");
-		}
-		return format->get_axes().at(format_axis_id).get_name().toStdString();
-	}
-
-	/**
 	 * Close the collector and start the collection as import is done.
 	 */
 	void load_done();
@@ -108,7 +95,7 @@ public:
 	/**
 	 * Create collector and format to load content.
 	 */
-	void prepare_load(PVRow const nrows);
+	void prepare_load(PVRow const nrows, pvcop::formatter_desc_list const& format);
 
 	/**
 	 * Export asked line with a specific column ordering.
@@ -148,9 +135,6 @@ public:
 	/**
 	 * Accessors
 	 */
-	void set_format(PVFormat_p const& f) { format = f;}
-	PVFormat_p const& get_format() const { return format; }
-
 	pvcop::collection& collection()
 	{
 		assert(_collection && "we have to be in read state");
@@ -184,7 +168,6 @@ private:
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
 
 	/// Variable usefull for both
-	PVFormat_p format; //!< Format with graphical information.
 	size_t _invalid_count; //!< Number of invalid elements found during import.
 };
 

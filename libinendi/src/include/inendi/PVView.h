@@ -21,14 +21,12 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/core/PVDataTreeObject.h>
-#include <pvkernel/rush/PVExtractor.h>
 
 #include <inendi/PVLinesProperties.h>
 #include <inendi/PVMapped.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVRoot.h>
 #include <inendi/PVSource.h>
-#include <inendi/PVEventline.h>
 #include <inendi/PVLayerStack.h>
 #include <inendi/PVIndexArray.h>
 #include <inendi/PVSquareArea.h>
@@ -71,38 +69,13 @@ protected:
 
 public:
 
-	/* Variables */
-	QString    name;
-
-	/*! \brief PVView's specific axes combination
-	 *  It is originaly copied from the parent's PVSource, and then become specific
-	 *  to that view.
-	 */
-	PVAxesCombination axes_combination;
-
-	PVCore::PVHSVColor default_zombie_line_properties;
-	PVSelection floating_selection;
-	PVLayer pre_filter_layer;
-	PVLayer post_filter_layer;
-	PVLayer layer_stack_output_layer;
-	PVLayer output_layer;
-	PVRow row_count;
-	PVLayerStack layer_stack;
-	PVSelection nu_selection;
-	PVSelection real_output_selection;
-	PVEventline eventline;
-	PVSquareArea square_area;
-	PVStateMachine *state_machine;
-	PVSelection volatile_selection;
-	int last_extractor_batch_size;
-
 	inline PVSelection& get_floating_selection() { return floating_selection; }
 	inline PVSelection& get_volatile_selection() { return volatile_selection; }
 
     // Proxy functions for PVHive
-	void remove_column(PVCol index) { axes_combination.remove_axis(index); }
-	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest) { return axes_combination.move_axis_to_new_position(index_source, index_dest); }
-	void axis_append(const PVAxis &axis) { axes_combination.axis_append(axis); }
+	void remove_column(PVCol index) { _axes_combination.remove_axis(index); }
+	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest) { return _axes_combination.move_axis_to_new_position(index_source, index_dest); }
+	void axis_append(const PVAxis &axis) { _axes_combination.axis_append(axis); }
 
 	//void init_from_plotted(PVPlotted* parent, bool keep_layers);
 	void set_fake_axes_comb(PVCol const ncols);
@@ -111,12 +84,6 @@ public:
 
 	/* Functions */
 	PVCol get_axes_count() const;
-
-	template <class T>
-	QList<PVCol> get_original_axes_index_with_tag(T const& tag) const
-	{
-		return axes_combination.get_original_axes_index_with_tag<T>(tag);
-	}
 
 	/**
 	 * Gets the QStringList of all Axes names according to the current PVAxesCombination
@@ -145,9 +112,6 @@ public:
 
 	const PVCore::PVHSVColor get_color_in_output_layer(PVRow index) const;
 	PVCol get_column_count() const;
-	float get_column_count_as_float();
-	int get_layer_index(int index);
-	float get_layer_index_as_float(int index);
 	PVLayerStack &get_layer_stack();
 	inline PVLayerStack const& get_layer_stack() const { return layer_stack; };
 	int get_layer_stack_layer_n_locked_state(int n) const;;
@@ -158,11 +122,10 @@ public:
 	void hide_layers() { layer_stack.hide_layers(); }
 
 	PVCol get_active_axis() const { assert(_active_axis < get_column_count()); return _active_axis; }
-	PVStateMachine& get_state_machine() { return *state_machine; }
-	PVStateMachine const& get_state_machine() const { return *state_machine; }
+	PVStateMachine& get_state_machine() { return _state_machine; }
+	PVStateMachine const& get_state_machine() const { return _state_machine; }
 
-	PVAxesCombination const& get_axes_combination() const { return axes_combination; }
-	PVAxesCombination& get_axes_combination() { return axes_combination; }
+	PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
 	void set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes, PVAxesCombination::list_axes_t const& axes);
 
 	inline PVLayer const& get_current_layer() const { return layer_stack.get_selected_layer(); }
@@ -173,19 +136,13 @@ public:
 
 	inline PVCore::PVHSVColor const* get_output_layer_color_buffer() const { return output_layer.get_lines_properties().get_buffer(); }
 	
-	bool get_line_state_in_layer_stack_output_layer(PVRow index);
 	bool get_line_state_in_layer_stack_output_layer(PVRow index) const;
-	bool get_line_state_in_output_layer(PVRow index);
 	bool get_line_state_in_output_layer(PVRow index) const;
-	bool get_line_state_in_pre_filter_layer(PVRow index);
-	bool get_line_state_in_pre_filter_layer(PVRow index) const;
-	bool is_line_visible_listing(PVRow index) const;
-	bool is_real_output_selection_empty() const;
 	PVSelection const* get_selection_visible_listing() const;
 
 	PVSelection &get_nu_selection();
 	inline PVSelection const& get_nu_selection() const { return nu_selection; };
-	int get_number_of_selected_lines();
+	int get_number_of_selected_lines() const;
 
 	inline id_t get_view_id() const { return _view_id; }
 	inline id_t get_display_view_id() const { return _view_id+1; }
@@ -194,12 +151,10 @@ public:
 	PVCol get_original_axes_count() const;
 	QString get_original_axis_name(PVCol axis_id) const;
 	QString get_original_axis_type(PVCol axis_id) const;
-	inline PVCol get_original_axis_index(PVCol view_idx) const { return axes_combination.get_axis_column_index(view_idx); }
+	inline PVCol get_original_axis_index(PVCol view_idx) const { return _axes_combination.get_axis_column_index(view_idx); }
 
 	PVLayer& get_output_layer();
 	PVLayer const& get_output_layer() const { return output_layer; }
-
-	PVRush::PVExtractor& get_extractor();
 
 	QString get_name() const;
 	QString get_window_name() const;
@@ -208,11 +163,8 @@ public:
 	QColor get_color() const { return _color; }
 
 	PVLayer &get_post_filter_layer();
-	PVLayer &get_pre_filter_layer();
 
-	PVSelection &get_real_output_selection();
 	PVSelection const& get_real_output_selection() const;
-	int get_real_row_index(int index);
 	PVRow get_row_count() const;
 
 	void reset_layers();
@@ -234,8 +186,6 @@ public:
 
 	void set_floating_selection(PVSelection &selection);
 
-	//void set_selection_with_square_area_selection(PVSelection &selection, float xmin, float ymin, float xmax, float ymax);
-	void set_selection_with_final_selection(PVSelection &selection);
 	void set_selection_from_layer(PVLayer const& layer);
 	void set_selection_view(PVSelection const& sel);
 
@@ -286,19 +236,14 @@ public:
 	void delete_selected_layer();
 	void duplicate_selected_layer(const QString &name);
 	void load_from_file(const QString& file);
-	void commit_to_new_layer();
 	void commit_selection_to_layer(PVLayer& layer);
 
-	void load_post_to_pre();
-
 	void process_from_eventline();
-	void process_from_filter();
-	QList<Inendi::PVView*> process_from_layer_stack();
-	QList<Inendi::PVView*> process_from_selection();
-	QList<Inendi::PVView*> process_real_output_selection();
+	void process_from_layer_stack();
+	void process_from_selection();
+	void process_real_output_selection();
 
 	void process_eventline();
-	void process_filter();
 	void process_layer_stack();
 	void process_selection();
 	void process_visibility();
@@ -373,8 +318,6 @@ public:
 	PVRush::PVNraw& get_rushnraw_parent() { assert(_rushnraw_parent); return *_rushnraw_parent; };
 	PVRush::PVNraw const& get_rushnraw_parent() const { assert(_rushnraw_parent); return *_rushnraw_parent; };
 
-	void debug();
-
 	bool is_consistent() const ;
 	void set_consistent(bool c);
 
@@ -387,7 +330,7 @@ public:
 
 public:
 	// State machine
-	inline void set_square_area_mode(PVStateMachine::SquareAreaModes mode) { state_machine->set_square_area_mode(mode); }
+	inline void set_square_area_mode(PVStateMachine::SquareAreaModes mode) { _state_machine.set_square_area_mode(mode); }
 
 protected:
 	void set_parent_from_ptr(PVPlotted* plotted);
@@ -402,30 +345,41 @@ protected:
 	void serialize_write(PVCore::PVSerializeObject& so);
 	PVSERIALIZEOBJECT_SPLIT
 
-/******************************************************************************
-******************************************************************************
-*
-* Initialisation
-*
-******************************************************************************
-*****************************************************************************/
-	void init_defaults();
-
-
 protected:
+	/*! \brief PVView's specific axes combination
+	 *  It is originaly copied from the parent's PVSource, and then become specific
+	 *  to that view.
+	 */
+	PVAxesCombination _axes_combination;
+
+	PVSelection floating_selection; //!< This is the current selection
+	PVLayer post_filter_layer; //!< This is the result of the filtering. TODO : FIXME
+	PVLayer layer_stack_output_layer; //!< Layer grouping every information from the layer stack
+	PVLayer output_layer; //!< This is the shown layer.
+	PVRow row_count; //!< This is the number of row in the plotted FIXME : It is invariant duplication.
+	PVLayerStack layer_stack;
+	PVSelection nu_selection; //!< This is zombi and selected elements
+	PVSelection real_output_selection; //!< This is selected elements
+	PVSquareArea square_area;
+	PVStateMachine _state_machine;
+	PVSelection volatile_selection; //!< It is the selection currently computed. It will be flush in floating_selection once it is completed.
+	int last_extractor_batch_size;
+
 	bool _is_consistent;
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
-	PVRush::PVNraw* _rushnraw_parent = nullptr;
+	PVRush::PVNraw* _rushnraw_parent = nullptr; //!< Pointer to the NRaw from source.
 	std::weak_ptr<PVCore::PVSerializeObject> _last_so;
 	id_t _view_id;
 	PVCol _active_axis;
 	QColor _color;
 
-	pvcop::db::collection* _collection;
 #ifdef WITH_MINESET
 	std::vector<std::string> _mineset_datasets; //!< Names of the exported dataset.
 #endif
+
+private:
+	static PVCore::PVHSVColor _default_zombie_line_properties; //!< Default color for Zombies lines.
 };
 
 typedef PVView::p_type PVView_p;

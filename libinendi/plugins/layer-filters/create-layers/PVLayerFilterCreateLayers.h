@@ -26,9 +26,9 @@ class PVLayerFilterCreateLayers : public PVLayerFilter {
 public:
 	PVLayerFilterCreateLayers(QString section_name, QMap<QString, QStringList> layers_regex, PVCore::PVArgumentList const& l = PVLayerFilterCreateLayers::default_args());
 public:
-	virtual void operator()(PVLayer& in, PVLayer &out);
-	PVCore::PVArgumentList get_default_args_for_view(PVView const& view);
-	virtual QString menu_name() const { return _menu_name; }
+	void operator()(PVLayer const& in, PVLayer &out) override;
+	PVCore::PVArgumentList get_default_args_for_view(PVView const& view) override;
+	QString menu_name() const override { return _menu_name; }
 
 private:
 	QString _section_name;

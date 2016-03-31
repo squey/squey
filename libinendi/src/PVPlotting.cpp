@@ -27,12 +27,12 @@ Inendi::PVPlotting::PVPlotting(PVPlotted* plotted):
 	_plotted(plotted),
 	_name("default")
 {
-	PVRush::PVFormat_p format = _plotted->get_parent<Inendi::PVSource>()->get_rushnraw().get_format();
+	PVRush::PVFormat const& format = _plotted->get_parent<Inendi::PVSource>()->get_extractor().get_format();
 
-	for (int i=0; i < format->get_axes().size(); i++) {
+	for (int i=0; i < format.get_axes().size(); i++) {
 		Inendi::PVMapping const* mapping = _plotted->get_parent()->get_mapping();
 		assert(mapping);
-		PVPlottingProperties plotting_axis(*mapping, *format, i);
+		PVPlottingProperties plotting_axis(*mapping, format, i);
 		_columns << plotting_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -97,9 +97,9 @@ Inendi::PVPlottingFilter::p_type Inendi::PVPlotting::get_filter_for_col(PVCol co
  * Inendi::PVPlotting::get_format
  *
  *****************************************************************************/
-PVRush::PVFormat_p Inendi::PVPlotting::get_format() const
+PVRush::PVFormat const& Inendi::PVPlotting::get_format() const
 {
-	return _plotted->get_parent<Inendi::PVSource>()->get_rushnraw().get_format();
+	return _plotted->get_parent<Inendi::PVSource>()->get_extractor().get_format();
 }
 
 /******************************************************************************

@@ -121,7 +121,6 @@ void Inendi::PVMapped::compute()
 		mapping_filter->operator()(j, nraw);
 
 		mandatory_param_map& params_map = _mapping->get_mandatory_params_for_col(j);
-		tbb::tick_count tmap_start = tbb::tick_count::now();
 		// Init the mandatory mapping
 		for (auto it_pmf = mand_mapping_filters.begin(); it_pmf != mand_mapping_filters.end(); it_pmf++) {
 			(*it_pmf)->set_dest_params(params_map);
@@ -129,9 +128,7 @@ void Inendi::PVMapped::compute()
 			(*it_pmf)->set_mapped(*this);
 			(*it_pmf)->operator()(Inendi::mandatory_param_list_values(j, get_column_pointer(j)));
 		}
-		tbb::tick_count tmap_end = tbb::tick_count::now();
 
-		PVLOG_INFO("(PVMapped) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
 		_mapping->set_uptodate_for_col(j);
 		invalidate_plotted_children_column(j);
 	}

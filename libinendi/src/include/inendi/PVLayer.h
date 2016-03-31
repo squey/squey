@@ -55,6 +55,12 @@ public:
 	 */
 	PVLayer(const QString & name_, const PVSelection & sel_ = PVSelection(), const PVLinesProperties & lp_ = PVLinesProperties());
 
+	/**
+	 * Copy this layer properties as b properties for selected elements (from selection)
+	 * and & selection between current and b layer.
+	 *
+	 * @param[in] : nelts is the number of elements in the selection.
+	 */
 	void A2B_copy_restricted_by_selection_and_nelts(PVLayer &b, PVSelection const& selection, PVRow nelts);
 
 	int get_index() const {return index;}

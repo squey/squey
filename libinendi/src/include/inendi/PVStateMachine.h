@@ -19,7 +19,7 @@ namespace Inendi {
             bool axes_mode;
             bool sync_all_views;
             bool grabbed;
-            bool edit_mode_all;
+            bool edit_mode_all; //!< Wether we modify all layer at once. FIXME : Always true
 
 	    /* lines states: this must *NOT* be handled by an enumeration
 	     * as it will limits the different possibilities (enum max elements) 

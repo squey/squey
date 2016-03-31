@@ -9,17 +9,16 @@
 #define PVFILTER_PVCHUNKFILTERBYELTRESTOREINVALID_H
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/filter/PVChunkFilter.h>
+#include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilter.h>
 
 namespace PVFilter {
 
-class PVChunkFilterByEltRestoreInvalid: public PVChunkFilter {
+class PVChunkFilterByEltRestoreInvalid: public PVChunkFilterByElt {
 public:
 	PVChunkFilterByEltRestoreInvalid(PVElementFilter_f elt_filter);
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 protected:
-	mutable PVElementFilter_f _elt_filter;
 
 	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterByEltRestoreInvalid)
 };

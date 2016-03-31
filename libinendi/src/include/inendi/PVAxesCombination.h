@@ -254,21 +254,6 @@ public:
 
 	PVCore::PVColumnIndexes get_original_axes_indexes() const;
 
-	template <class T>
-	QList<PVCol> get_original_axes_index_with_tag(T const& tag) const
-	{
-		QList<PVCol> ret;
-		QVector<PVAxis>::const_iterator it;
-		PVCol idx = 0;
-		for (it = original_axes_list.begin(); it != original_axes_list.end(); it++) {
-			if (it->has_tag(tag)) {
-				ret.push_back(idx);
-			}
-			idx++;
-		}
-		return ret;
-	}
-
 	/**
 	* Increment the column index of an axis.
 	*

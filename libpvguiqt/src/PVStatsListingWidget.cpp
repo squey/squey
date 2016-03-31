@@ -382,7 +382,7 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table, Inendi:
 
 	setLayout(_main_layout);
 
-	QString column_type = _view.get_rushnraw_parent().get_format()->get_axes().at(get_real_axis_col()).get_type();
+	QString column_type = _view.get_parent<Inendi::PVSource>()->get_extractor().get_format().get_axes().at(get_real_axis_col()).get_type();
 	_is_summable = (column_type == "float" || column_type == "integer"); // FIXME : this should be capabilities, not types names !
 }
 

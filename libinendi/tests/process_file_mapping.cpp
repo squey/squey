@@ -77,8 +77,6 @@ int main(int argc, char** argv)
 	}
 
 	src->wait_extract_end(job);
-	PVLOG_INFO("Extraction job bytes: %lu, time: %0.4fs, mean bw: %0.4f MB/s\n", job->total_bytes_processed(), job->duration().seconds(), job->mean_bw());
-
 
 	if (raw_dump) {
 		mapped->to_csv();

@@ -12,45 +12,24 @@
 
 #include <pvbase/types.h>
 #include <pvkernel/rush/PVAggregator.h>
-#include <pvkernel/rush/PVController.h>
-#include <pvkernel/rush/PVControllerThread.h>
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVNrawOutput.h>
+#include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 namespace PVRush {
-	class PVFormat;
 
 // The famous and wanted PVExtractor !!!!
 /*! \brief Extract datas from an aggregator, process them through filters and write the result to an NRaw
  *
  * This class owns an aggregator and a NRaw (see PVRush::PVNraw). Given a chunk filter, it process a given number
  * of lines and write them to its internal NRaw.
- *
- * It also owns a PVRush::PVController object, that is used to launch and/or cancel running jobs. A priority system allows a job
- * to be the next one running. In order to work, start_controller need to be called.
- *
- * \note We could also imagine that a global PVController object would be used for all PVExtractor's, but that's not our choice for now.
  */
 class PVExtractor {
 public:
-	PVExtractor(unsigned int nchunks = 0);
-	~PVExtractor();
+	PVExtractor();
 public:
-	/*! \brief Launch the internal job controller
-	 */
-	void start_controller();
-
-	/*! \brief Gracefully stop the internal job controller
-	 * This will stop the controller after the end of current job.
-	 */
-	void gracefully_stop_controller();
-	
-	/*! \brief Stop the internal job controller
-	 * This will cancel the current job and stop the controller.
-	 */
-	void force_stop_controller();
 
 	/*! \brief Add a PVRawSourceBase to the internal aggregator
 	 * This function adds a source to the internal aggregator.
@@ -62,32 +41,29 @@ public:
 	 *
 	 * \note It is the responsability of the caller to have the pointer to the original PVChunkFilter object valid.
 	 */
-	void set_chunk_filter(PVFilter::PVChunkFilter_f chk_flt);
+	void set_chunk_filter(PVFilter::PVChunkFilterByElt* chk_flt);
 
 	/*! \brief Process a given number of lines from a given index
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
 	 *  \param[in] nlines Number of lines to extract. It is 
-	 *  \param[in] priority Priority of the job
 	 *  \return A PVControllerJob object that represent the job that has been pushed to the internal job controller. It can be used by the caller to wait for the end of the job (see PVControllerJob::wait_end).
 	 *  \sa PVAggregator
 	 */
-	PVControllerJob_p process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority = 0);
+	PVControllerJob_p process_from_agg_nlines(chunk_index start, chunk_index nlines);
 
 	/*! \brief Process param[in]s between indexes "start" and "end"
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
 	 *  \param[in] end Index to end the extraction at
-	 *  \param[in] priority Priority of the job
 	 *  \return A PVControllerJob object that represent the job that has been pushed to the internal job controller. It can be used by the caller to wait for the end of the job (see PVControllerJob::wait_end).
 	 *  \sa PVAggregator
 	 */
-	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end, int priority = 0);
+	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end);
 
 	/*! \brief 
-	 *  \param[in] priority Priority of the job
 	 *  \return A PVControllerJob object that represent the job that has been pushed to the internal job controller. It can be used by the caller to wait for the end of the job (see PVControllerJob::wait_end).
 	 *  \sa PVAggregator
 	 */
-	PVControllerJob_p read_everything(int priority = 0);
+	PVControllerJob_p read_everything();
 
 	/*! \brief Get the list of sources of the internal aggregator
 	 */
@@ -95,7 +71,8 @@ public:
 
 	/*! \brief Get a reference to the internal aggregator
 	 */
-	PVAggregator& get_agg();
+	PVAggregator& get_agg() { return _agg; }
+	PVAggregator const& get_agg() const { return _agg; }
 
 	/*! \brief Get a reference to the internal NRaw
 	 */
@@ -115,10 +92,6 @@ public:
 	 */
 	void reset_nraw();
 
-	/*! \brief Get the number of axes expected by the internal format.
-	 */
-	PVCol get_number_axes();
-
 	void force_number_axes(PVCol naxes);
 
 	chunk_index get_last_start() const { return _last_start; }
@@ -132,27 +105,18 @@ public:
 		}
 	}
 
-	void dump_inv_elts(bool dump) { _dump_inv_elts = dump; }
-	void dump_all_elts(bool dump) { _dump_all_elts = dump; }
-
 	static PVCore::PVArgumentList default_args_extractor();
-
-	void dump_nraw();
-	void debug();
 
 private:
 	void set_sources_number_fields();
 	
 protected:
 	PVAggregator _agg;
+	PVFormat _format; //!< It is the format use for extraction.
 	std::unique_ptr<PVNraw> _nraw;
-	PVController _ctrl;
-	PVControllerThread _ctrl_th;
 	PVNrawOutput _out_nraw; // Linked to _nraw
-	PVFilter::PVChunkFilter_f _chk_flt;
+	PVFilter::PVChunkFilterByElt* _chk_flt;
 	unsigned int _chunks;
-	bool _dump_inv_elts;
-	bool _dump_all_elts;
 	PVCol _force_naxes; 
 
 protected:

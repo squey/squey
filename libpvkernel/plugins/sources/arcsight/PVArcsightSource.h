@@ -12,8 +12,6 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
-#include <pvkernel/filter/PVChunkFilter.h>
-#include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVInputDescription.h>
@@ -30,7 +28,7 @@ namespace PVRush {
 
 class PVArcsightSource: public PVRawSourceBase {
 public:
-	PVArcsightSource(PVInputDescription_p input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter);
+	PVArcsightSource(PVInputDescription_p input, size_t min_chunk_size);
 	virtual ~PVArcsightSource();
 public:
 	virtual QString human_name();

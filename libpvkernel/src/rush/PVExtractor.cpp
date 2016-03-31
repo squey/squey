@@ -14,102 +14,65 @@
 
 #include <tbb/task_scheduler_init.h>
 
-PVRush::PVExtractor::PVExtractor(unsigned int chunks) :
+PVRush::PVExtractor::PVExtractor() :
 	_nraw(new PVRush::PVNraw()),
-	_ctrl(),
-	_ctrl_th(_ctrl),
 	_out_nraw(*_nraw),
-	_chunks(chunks),
-	_dump_inv_elts(false),
-	_dump_all_elts(false),
+	_chunks(tbb::task_scheduler_init::default_num_threads()),
 	_force_naxes(0),
 	_last_start(0),
 	_last_nlines(1)
 {
-	if (chunks == 0) {
-		/* the number of live TBB tokens in a pipeline does not need to be bigger than the
-		 * number of used cores (it was previously set to 5 * cores_number): That multiplier
-		 * does not have any impact on the import time but it increases the memory
-		 * consumption. On proto-03 (dual hyperthreaded 6-cores with 64 Gio RAM), the
-		 * proxy_sample.log file (10 Me) shows that:
-		 * - with 5, at most 11.7 Gio are used;
-		 * - with 2, at most 7.2 Gio are used;
-		 * - with 1, at most 5.3 Gio are used.
-		 *
-		 * With a mean import time of 240 seconds.
-		 *
-		 * An other example: a file with 2 columns of 0 makes swap proto-03 at 65 Me (63
-		 * Gio used).
-		 */
-		_chunks = tbb::task_scheduler_init::default_num_threads();
-		PVLOG_DEBUG("(PVExtractor::PVExtractor) using %d chunks\n", _chunks);
-	}
-}
-
-PVRush::PVExtractor::~PVExtractor()
-{
-	force_stop_controller();
-}
-
-void PVRush::PVExtractor::start_controller()
-{
-	// This function need to be called if you want your jobs to be processed... !
-	// TODO: should we start it with a low priority ?
-	_ctrl_th.start();	
-}
-
-void PVRush::PVExtractor::gracefully_stop_controller()
-{
-	// Graceful stop controller, which means that it will end for all jobs to stop
-	_ctrl.wait_end_and_stop();
-	_ctrl_th.wait();
-}
-
-void PVRush::PVExtractor::force_stop_controller()
-{
-	// Force the controller to stop by cancelling the current job
-	_ctrl.force_stop();
-	_ctrl_th.wait();
+	/* the number of live TBB tokens in a pipeline does not need to be bigger than the
+	 * number of used cores (it was previously set to 5 * cores_number): That multiplier
+	 * does not have any impact on the import time but it increases the memory
+	 * consumption. On proto-03 (dual hyperthreaded 6-cores with 64 Gio RAM), the
+	 * proxy_sample.log file (10 Me) shows that:
+	 * - with 5, at most 11.7 Gio are used;
+	 * - with 2, at most 7.2 Gio are used;
+	 * - with 1, at most 5.3 Gio are used.
+	 *
+	 * With a mean import time of 240 seconds.
+	 *
+	 * An other example: a file with 2 columns of 0 makes swap proto-03 at 65 Me (63
+	 * Gio used).
+	 */
 }
 
 void PVRush::PVExtractor::add_source(PVRush::PVRawSourceBase_p src)
 {
-	//TODO: check if controller is running a job
 	_agg.add_input(src);
 }
 
-void PVRush::PVExtractor::set_chunk_filter(PVFilter::PVChunkFilter_f chk_flt)
+void PVRush::PVExtractor::set_chunk_filter(PVFilter::PVChunkFilterByElt* chk_flt)
 {
 	_chk_flt = chk_flt;
 }
 
 PVRush::PVFormat& PVRush::PVExtractor::get_format()
 {
-	return *get_nraw().get_format();
+	return _format;
 }
 
 const PVRush::PVFormat& PVRush::PVExtractor::get_format() const
 {
-	return *get_nraw().get_format();
+	return _format;
 }
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority)
+PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines)
 {
 	nlines = std::min(nlines, (chunk_index) INENDI_LINES_MAX);
 
 	set_sources_number_fields();
-	get_nraw().prepare_load(nlines);
+	get_nraw().prepare_load(nlines, _format.get_storage_format());
 
 	_agg.set_skip_lines_count(start);
 	_agg.set_strict_mode(start > 0);
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
 	// object when it is not needed anymore !
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start, priority));
-	job->set_params(start, 0, nlines, PVControllerJob::sc_n_elts, _agg, _chk_flt, _out_nraw, _chunks, _dump_inv_elts, _dump_all_elts);
-	
-	// The job is submitted to the controller and the pointer returned, so that the caller can wait for its end
-	_ctrl.submit_job(job);
+	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(start, 0, nlines, PVControllerJob::sc_n_elts,
+				_agg, *_chk_flt, _out_nraw, _chunks));
+	job->run_job();	
 
 	_last_start = start;
 	_last_nlines = nlines;
@@ -117,43 +80,29 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	return job;
 }
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start, chunk_index end, int priority)
+PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start, chunk_index end)
 {
 	end = std::min(end, start + ((chunk_index) INENDI_LINES_MAX) - 1);
 
 	set_sources_number_fields();
-	get_nraw().prepare_load(end-start);
+	get_nraw().prepare_load(end-start, _format.get_storage_format());
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
 	// object when it is not needed anymore !
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start, priority));
-	job->set_params(start, end, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _out_nraw, _chunks, _dump_inv_elts, _dump_all_elts);
+	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(start, end, 0, PVControllerJob::sc_idx_end,
+				_agg, *_chk_flt, _out_nraw, _chunks));
+	job->run_job();
 	
-	// The job is submitted to the controller and the pointer returned, so that the caller can wait for its end
-	_ctrl.submit_job(job);
-
 	return job;
 }
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::read_everything(int priority)
+PVRush::PVControllerJob_p PVRush::PVExtractor::read_everything()
 {
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::read_everything, priority));
-	job->set_params(0, 0, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _out_nraw, _chunks, false, false);
+	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(0, 0, 0, PVControllerJob::sc_idx_end,
+				_agg, *_chk_flt, _out_nraw, _chunks));
+	job->run_read_all_job();
 
-	_ctrl.submit_job(job);
 	return job;
-}
-
-void PVRush::PVExtractor::dump_nraw()
-{
-	PVLOG_INFO("Nraw:\n");
-	for (size_t i = 0; i < inendi_min(10,get_nraw().get_row_count()); i++) {
-		PVLOG_INFO("Line %d: ", i);
-		for (int j = 0; j < get_nraw().get_number_cols(); j++) {
-			std::cerr << get_nraw().at_string(i,j) << ",";
-		}
-		std::cerr << std::endl;
-	}
 }
 
 PVRush::PVAggregator::list_inputs const& PVRush::PVExtractor::get_inputs() const
@@ -161,30 +110,15 @@ PVRush::PVAggregator::list_inputs const& PVRush::PVExtractor::get_inputs() const
 	return _agg.get_inputs();
 }
 
-PVRush::PVAggregator& PVRush::PVExtractor::get_agg()
-{
-	return _agg;
-}
-
-void PVRush::PVExtractor::debug()
-{
-	PVLOG_DEBUG("PVExtractor debug\n");
-	_agg.debug();
-	PVLOG_DEBUG("PVExtractor nraw\n");
-	dump_nraw();
-}
-
 void PVRush::PVExtractor::reset_nraw()
 {
-	PVRush::PVFormat_p format = _nraw->get_format();
 	_nraw.reset(new PVNraw());
-	_nraw->set_format(format);
 	_out_nraw.set_nraw_dest(*_nraw);
 }
 
 void PVRush::PVExtractor::set_format(PVFormat const& format)
 {
-	get_nraw().set_format(std::make_shared<PVFormat>(format));
+	_format = format;
 }
 
 void PVRush::PVExtractor::force_number_axes(PVCol naxes)
@@ -192,20 +126,9 @@ void PVRush::PVExtractor::force_number_axes(PVCol naxes)
 	_force_naxes = naxes;
 }
 
-PVCol PVRush::PVExtractor::get_number_axes()
-{
-	if (get_nraw().get_format()) {
-		return get_nraw().get_format()->get_axes().size();
-	}
-	
-	// The number of axes is unknown, the NRAW will be resized
-	// when the first line is created (see PVNraw::add_row)
-	return _force_naxes;
-}
-
 void PVRush::PVExtractor::set_sources_number_fields()
 {
-	_agg.set_sources_number_fields(get_number_axes());
+	_agg.set_sources_number_fields(_format.get_axes().size());
 }
 
 PVCore::PVArgumentList PVRush::PVExtractor::default_args_extractor()

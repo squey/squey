@@ -7,13 +7,11 @@
 
 #include "PVSourceCreatorElasticsearch.h"
 
-#include <pvkernel/filter/PVChunkFilter.h>
 #include "PVElasticsearchSource.h"
 
 PVRush::PVSourceCreatorElasticsearch::source_p PVRush::PVSourceCreatorElasticsearch::create_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
 {
-	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
-	source_p src(new PVRush::PVElasticsearchSource(input, chk_flt->f()));
+	source_p src(new PVRush::PVElasticsearchSource(input));
 
 	return src;
 }

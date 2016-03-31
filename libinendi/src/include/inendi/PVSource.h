@@ -18,7 +18,6 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 
 #include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVFile.h>
 #include <pvkernel/rush/PVNraw.h>
 
 #include <inendi/PVAxesCombination.h>
@@ -71,9 +70,24 @@ public:
 
 	std::string get_value(PVRow row, PVCol col) const;
 
+	/**
+	 * Return the number of row in the datastorage.
+	 */
 	PVRow get_row_count() const;
 
-	PVRush::PVExtractor& get_extractor();
+	/**
+	 * Return number of correctly splitted row in the datastorage.
+	 */
+	PVRow get_valid_row_count() const { return get_row_count() - _inv_elts.size(); }
+
+	PVRush::PVExtractor const& get_extractor() const { return _extractor; }
+
+	/**
+	 * This one is call by extractor widget after a source clone.
+	 *
+	 * @fixme: Should be remove so we can use the new one form new source.
+	 */
+	PVRush::PVExtractor & get_extractor() { return _extractor; }
 	
 	/**
 	 * Start extraction of data for current source.
@@ -96,7 +110,7 @@ public:
 
 	void create_default_view();
 
-	QStringList const& get_invalid_evts() const { return _inv_elts; }
+	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }
 
 	PVRush::PVInputType::list_inputs const& get_inputs() const { return _inputs; }
 
@@ -116,8 +130,6 @@ public:
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
 	PVRush::PVFormat const& get_format() const { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
-
-	void set_invalid_evts_mode(bool restore_inv_elts);
 
 	void add_column(PVAxisComputation_f f_axis, Inendi::PVAxis const& axis);
 
@@ -191,14 +203,13 @@ private:
 private:
 	PVView* _last_active_view = nullptr;
 
-	PVRush::PVExtractor _extractor;
+	PVRush::PVExtractor _extractor; //!< Tool to extract data and generate NRaw.
 	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
 	PVRush::PVInputType::list_inputs _inputs;
 
 	PVRush::PVSourceCreator_p _src_plugin;
-	PVRush::PVNraw *nraw;
-	bool _restore_inv_elts;
-	QStringList _inv_elts;
+	PVRush::PVNraw *nraw; //!< Pointer to Nraw data (owned by extractor)
+	std::map<size_t, std::string> _inv_elts; //!< List of invalid elements sorted by line number.
 
 	PVAxesCombination _axes_combination;
 

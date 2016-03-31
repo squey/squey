@@ -11,10 +11,7 @@
 
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVInputFile.h>
-#include <pvkernel/rush/PVNormalizer.h>
 #include <pvkernel/rush/PVInputPcap.h>
-
-#include <pvkernel/filter/PVChunkFilter.h>
 
 #include <QDir>
 #include <QStringList>
@@ -29,12 +26,11 @@ PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::creat
 	assert(file);
 	PVRush::PVInput_p ifile(new PVRush::PVInputFile(file->path().toLocal8Bit().constData()));
 	// FIXME: chunk size must be computed somewhere once and for all !
-	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	int size_chunk = pvconfig.value("pvkernel/max_size_chunk").toInt();
 	if (size_chunk <= 0) {
 		size_chunk = 4096*100; // Aligned on a page boundary (4ko)
 	}
-	source_p src = source_p(new PVRush::PVUnicodeSource<>(ifile, size_chunk, chk_flt->f()));
+	source_p src = source_p(new PVRush::PVUnicodeSource<>(ifile, size_chunk));
 
 	return src;
 }

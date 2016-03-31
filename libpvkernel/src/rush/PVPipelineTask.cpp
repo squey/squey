@@ -12,7 +12,7 @@
 #include <assert.h>
 
 PVRush::PVPipelineTask::PVPipelineTask() :
-	tbb::task(), _nchunks(240), _running(false)
+	tbb::task(), _ntokens(240), _running(false)
 {
 }
 
@@ -24,20 +24,20 @@ void PVRush::PVPipelineTask::set_filter(tbb::filter_t<void,void> f)
 	_f = f;
 }
 
-void PVRush::PVPipelineTask::set_nchunks(size_t nchunks)
+void PVRush::PVPipelineTask::set_tokens(size_t tokens)
 {
-	_nchunks = nchunks;
+	_ntokens = tokens;
 }
 
 tbb::task* PVRush::PVPipelineTask::execute()
 {
-	assert(_nchunks > 0);
+	assert(_ntokens> 0);
 	_running = true;
 	try {
 #if (TBB_INTERFACE_VERSION >= 5006)
-		tbb::parallel_pipeline(_nchunks, _f, *group());
+		tbb::parallel_pipeline(_ntokens, _f, *group());
 #else
-		tbb::parallel_pipeline(_nchunks, _f);
+		tbb::parallel_pipeline(_ntokens, _f);
 #endif
 	}
 	catch (tbb::captured_exception& e) {

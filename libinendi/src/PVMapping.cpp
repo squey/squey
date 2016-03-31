@@ -37,9 +37,8 @@ Inendi::PVMapping::PVMapping(PVMapped* mapped):
 	_mandatory_filters_values.resize(naxes);
 
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
-	source->get_rushnraw().get_format()->debug();
 	for (PVCol i = 0; i < naxes; i++) {
-		PVMappingProperties mapping_axis(*source->get_rushnraw().get_format(), i);
+		PVMappingProperties mapping_axis(source->get_extractor().get_format(), i);
 		add_column(mapping_axis);
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -86,9 +85,9 @@ PVCore::DecimalType Inendi::PVMapping::get_decimal_type_of_col(PVCol const j) co
  * Inendi::PVMapping::get_format
  *
  *****************************************************************************/
-PVRush::PVFormat_p Inendi::PVMapping::get_format() const
+PVRush::PVFormat const& Inendi::PVMapping::get_format() const
 {
-	return _mapped->get_parent()->get_rushnraw().get_format();
+	return _mapped->get_parent()->get_extractor().get_format();
 }
 
 /******************************************************************************

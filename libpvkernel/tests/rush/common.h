@@ -5,11 +5,13 @@
 
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVInputDescription.h>
+#include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVTests.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
+#include <pvkernel/rush/PVUnicodeSource.h>
 
 #include <QCoreApplication>
 
@@ -33,23 +35,16 @@ namespace pvtest {
     }
 
     /**
-     * Create and save context for a view creation.
+     * Prepare Context to run tests.
      *
-     * * Required when we want to work with NRaw content
+     * * Set environment variables
+     * * Prepare QCoreApplication
+     * * Load plugins
+     * * Init cpu features
+     * * Duplicate log file
      */
-    class TestEnv
+    std::string init_ctxt(std::string const& log_file, size_t dup)
     {
-
-        public:
-        /**
-         * Initialize Inspector internal until pipeline is ready to process inputs.
-         *
-         * NRaw is not loaded, it has to be done with the load_data methods.
-         */
-        TestEnv(std::string const& log_file, std::string const& format_file, size_t dup = 1):
-                _format("format", QString::fromStdString(format_file)),
-                _big_file_path(get_tmp_filename())
-        {
             // Need this core application to find plugins path.
             std::string prog_name = "test_pvkernel_rush";
             char* arg = const_cast<char*>(prog_name.c_str());
@@ -65,17 +60,60 @@ namespace pvtest {
             // Initialize sse4 detection
             PVCore::PVIntrinsics::init_cpuid();
 
-            {
-                std::ifstream ifs(log_file);
-                std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
+            std::ifstream ifs(log_file);
+            std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
 
-                std::ofstream big_file(_big_file_path);
-                // Duplicate file to have one millions lines
-                for(size_t i=0; i<dup; i++) {
-                    big_file << content;
-                }
+            std::string big_log_file = get_tmp_filename();
+            std::ofstream big_file(big_log_file);
+            // Duplicate file to have one millions lines
+            for(size_t i=0; i<dup; i++) {
+                big_file << content;
             }
+            return big_log_file;
+    }
 
+    /**
+     * Create sources and splitter to be read for splitting.
+     *
+     * Usefull to check splitter behavior.
+     */
+    class TestSplitter
+    {
+        public:
+        TestSplitter(std::string const& log_file, size_t dup = 1):
+                _big_file_path(init_ctxt(log_file, dup)),
+                _source(std::make_shared<PVRush::PVInputFile>(_big_file_path.c_str()), chunk_size)
+        {}
+
+        PVRush::PVUnicodeSource<>& get_source() { return _source; }
+
+        ~TestSplitter() { std::remove(_big_file_path.c_str()); }
+
+        private:
+            static constexpr size_t chunk_size = 6000;
+
+            std::string _big_file_path;
+            PVRush::PVUnicodeSource<> _source;
+    };
+
+    /**
+     * Create and save context for a view creation.
+     *
+     * * Required when we want to work with NRaw content
+     */
+    class TestEnv
+    {
+
+        public:
+        /**
+         * Initialize Inspector internal until pipeline is ready to process inputs.
+         *
+         * NRaw is not loaded, it has to be done with the load_data methods.
+         */
+        TestEnv(std::string const& log_file, std::string const& format_file, size_t dup = 1):
+                _format("format", QString::fromStdString(format_file)),
+                _big_file_path(init_ctxt(log_file, dup))
+        {
             //Input file
             QString path_file = QString::fromStdString(_big_file_path);
             PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
@@ -98,7 +136,6 @@ namespace pvtest {
             }
 
             // Create the extractor
-            _ext.start_controller();
             _ext.add_source(src);
             _ext.set_format(_format);
             _ext.set_chunk_filter(_format.create_tbb_filters());

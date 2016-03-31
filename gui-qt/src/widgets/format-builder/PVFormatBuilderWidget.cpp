@@ -844,13 +844,7 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 
 void PVInspector::PVFormatBuilderWidget::create_extractor()
 {
-	if (_log_extract) {
-		_log_extract->force_stop_controller();
-	}
 	_log_extract.reset(new PVRush::PVExtractor());
-	_log_extract->dump_all_elts(true);
-	_log_extract->dump_inv_elts(true);
-	_log_extract->start_controller();
 }
 
 /******************************************************************************
@@ -951,12 +945,13 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_idxes(start, end);
 	job->wait_end();
 
+	_nraw_model->set_format(get_format_from_dom());
 	_nraw_model->set_nraw(_log_extract->get_nraw());
 
 	// Set the invalid lines widget
 	_inv_lines_widget->clear();
-	for (QString const& line: job->get_invalid_evts()) {
-		_inv_lines_widget->addItem(line);
+	for (auto const& line: job->get_invalid_evts()) {
+		_inv_lines_widget->addItem(QString::fromStdString(line.second));
 	}
 }
 

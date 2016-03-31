@@ -33,8 +33,8 @@ void visit_vector_with_indexes(V const& v, I const& idxes, F const& f)
 	}
 }
 
-PVRush::PVArcsightSource::PVArcsightSource(PVInputDescription_p input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter):
-	PVRawSourceBase(src_filter),
+PVRush::PVArcsightSource::PVArcsightSource(PVInputDescription_p input, size_t min_chunk_size):
+	PVRawSourceBase(),
 	_min_chunk_size(min_chunk_size),
 	_next_index(0)
 {

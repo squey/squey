@@ -22,6 +22,10 @@
 #include <QStringList>
 #include <QVector>
 
+namespace PVCore {
+class PVField;
+}
+
 namespace PVRush {
 class PVFormat;
 }

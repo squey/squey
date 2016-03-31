@@ -9,6 +9,7 @@
 #define PVNRAWLISTINGMODEL_H
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/rush/PVFormat.h>
 
 #include <QAbstractTableModel>
 #include <QVariant>
@@ -79,8 +80,14 @@ class PVNrawListingModel: public QAbstractTableModel
 	 */
 	void set_nraw(PVRush::PVNraw const& nraw);
 
+	/**
+	 * Set format to display.
+	 */
+	void set_format(PVRush::PVFormat const& format) { _format = format; }
+
 	protected:
 	const PVRush::PVNraw* _nraw; //!< NRaw data to display
+	PVRush::PVFormat _format; //!< Format use to extract the NRaw.
 	PVCol _col_tosel; //!< Id of the selected column (for coloring)
 	bool _show_sel; //!< Whether we show the selection or not.
     };

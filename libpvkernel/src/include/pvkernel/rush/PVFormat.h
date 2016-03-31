@@ -21,6 +21,7 @@
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/filter/PVChunkFilter.h>
+#include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilter.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
@@ -108,7 +109,7 @@ public:
 	pvcop::formatter_desc_list get_storage_format() const;
 
 	/* Methods */
-	void debug();
+	void debug() const;
 	bool populate_from_xml(QString filename, bool forceOneAxis = false);
 	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);
 	bool populate(bool forceOneAxis = false);
@@ -116,7 +117,7 @@ public:
 	Comparaison comp(PVFormat const& original) const;
 	
 	PVFilter::PVChunkFilter_f create_tbb_filters_autodetect(float timeout, bool *cancellation = nullptr);
-	PVFilter::PVChunkFilter_f create_tbb_filters();
+	PVFilter::PVChunkFilterByElt* create_tbb_filters();
 	PVFilter::PVElementFilter_f create_tbb_filters_elt();
 
 	static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix, QString const& dir);

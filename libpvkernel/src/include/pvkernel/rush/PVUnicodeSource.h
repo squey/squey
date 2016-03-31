@@ -22,8 +22,8 @@ class PVUnicodeSource : public PVRawSource<Allocator> {
 public:
 	typedef typename PVRawSource<Allocator>::alloc_chunk alloc_chunk;
 public:
-	PVUnicodeSource(PVInput_p input, size_t chunk_size, PVFilter::PVChunkFilter_f src_filter, const alloc_chunk &alloc = alloc_chunk()) :
-		PVRawSource<Allocator>(input, _align, chunk_size, _utf16, src_filter, alloc)
+	PVUnicodeSource(PVInput_p input, size_t chunk_size, const alloc_chunk &alloc = alloc_chunk()) :
+		PVRawSource<Allocator>(input, _align, chunk_size, _utf16, alloc)
 	{
 	}
 public:

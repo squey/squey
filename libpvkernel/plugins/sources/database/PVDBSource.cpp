@@ -15,8 +15,8 @@
 
 #define NCHUNKS 100
 
-PVRush::PVDBSource::PVDBSource(PVDBQuery const& query, chunk_index nelts_chunk, PVFilter::PVChunkFilter_f src_filter):
-	PVRawSourceBase(src_filter),
+PVRush::PVDBSource::PVDBSource(PVDBQuery const& query, chunk_index nelts_chunk):
+	PVRawSourceBase(),
 	_query(query),
 	_nelts_chunk(nelts_chunk)
 {

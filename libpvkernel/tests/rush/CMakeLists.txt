@@ -5,7 +5,6 @@
 # @copyright (C) ESI Group INENDI April 2015-2015
 
 configure_file(test_issues.sh.cmake test_issues.sh @ONLY)
-configure_file(test_splitter_csv.sh.cmake test_splitter_csv.sh @ONLY)
 configure_file(test_splitter_duplicate.sh.cmake test_splitter_duplicate.sh @ONLY)
 configure_file(test_splitter_pcap.sh.cmake test_splitter_pcap.sh @ONLY)
 configure_file(test_splitter_regexp.sh.cmake test_splitter_regexp.sh @ONLY)
@@ -85,7 +84,9 @@ add_test(TestAggregatorStrict2 ${TEST_DIFF_STDOUT}
 add_pv_compile_test(Trush_splitter_regexp LINKS ${LINK_LIBRARIES} FILES splitter_regexp.cpp helpers.cpp)
 add_test(Trush_splitter_regexp ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_regexp.sh)
 add_pv_compile_test(Trush_splitter_csv LINKS ${LINK_LIBRARIES} FILES splitter_csv.cpp helpers.cpp)
-add_test(Trush_splitter_csv ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_csv.sh)
+add_test(Trush_splitter_csv Trush_splitter_csv)
+add_bench(Trush_splitter_csv LINKS ${LINK_LIBRARIES} FILES splitter_csv.cpp helpers.cpp)
+
 add_pv_compile_test(Trush_splitter_url LINKS ${LINK_LIBRARIES} FILES splitter_url.cpp helpers.cpp)
 add_test(Trush_splitter_url ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_url.sh)
 add_pv_compile_test(Trush_splitter_pcap LINKS ${LINK_LIBRARIES} FILES splitter_pcap.cpp helpers.cpp)

@@ -70,7 +70,6 @@ int main(int argc, char** argv)
 	PVLOG_INFO("Source created.\n");
 
 	PVRush::PVExtractor ext;
-	ext.start_controller();
 	ext.add_source(src);
 	ext.set_format(used_format);
 	ext.set_chunk_filter(used_format.create_tbb_filters());

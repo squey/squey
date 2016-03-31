@@ -27,15 +27,6 @@ public:
 		std::vector<PVCol>()
 	{ }
 
-	// Used to create this type from the returned type of PVView::get_original_axes_index_with_tag
-	PVAxesIndexType(QList<PVCol> const& cols)
-	{
-		reserve(cols.size());
-		for (int i = 0; i < cols.size(); i++) {
-			push_back(cols[i]);
-		}
-	}
-
 	QString to_string() const
 	{
 		QStringList strList;

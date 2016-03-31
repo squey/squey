@@ -11,7 +11,6 @@
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
 #include <pvkernel/filter/PVFieldSplitterUTF16Char.h>
-#include <pvkernel/filter/PVFieldsMappingFilter.h>
 
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVInputPcap.h>
@@ -63,7 +62,6 @@ Inendi::PVSource::~PVSource()
 		root->source_being_deleted(this);
 	}
 	PVLOG_DEBUG("In PVSource destructor: %p\n", this);
-	_extractor.force_stop_controller();
 	/*for (auto& m: get_children()) {
 		PVMapped* pm = m.get();
 		m.reset();
@@ -84,11 +82,6 @@ void Inendi::PVSource::init()
 	if (nchunks != 0) {
 		_extractor.set_number_living_chunks(nchunks);
 	}
-
-	_restore_inv_elts = false;
-
-	// Launch the controller thread
-	_extractor.start_controller();
 }
 
 Inendi::PVSource_sp Inendi::PVSource::clone_with_no_process()
@@ -191,17 +184,10 @@ void Inendi::PVSource::extract_finished()
 void Inendi::PVSource::set_format(PVRush::PVFormat const& format)
 {
 	_extractor.set_format(format);
-	if (_restore_inv_elts) {
-		_extractor.get_format().restore_invalid_evts(true);
-		_extractor.dump_inv_elts(true);
-	}
-	else {
-		_extractor.get_format().restore_invalid_evts(false);
-		_extractor.dump_inv_elts(false);
-	}
+	_extractor.get_format().restore_invalid_evts(true);
 	_axes_combination.set_from_format(_extractor.get_format());
 
-	PVFilter::PVChunkFilter_f chk_flt = _extractor.get_format().create_tbb_filters();
+	PVFilter::PVChunkFilterByElt* chk_flt = _extractor.get_format().create_tbb_filters();
 	_extractor.set_chunk_filter(chk_flt);
 }
 
@@ -228,11 +214,6 @@ PVCol Inendi::PVSource::get_column_count() const
 std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
 {
 	return nraw->at_string(row, col);
-}
-
-PVRush::PVExtractor& Inendi::PVSource::get_extractor()
-{
-	return _extractor;
 }
 
 PVRush::PVInputType_p Inendi::PVSource::get_input_type() const
@@ -312,13 +293,6 @@ void Inendi::PVSource::add_column(PVAxisComputation_f f_axis, PVAxis const& axis
 		add_column(axis);
 	}
 	set_views_consistent(true);
-}
-
-void Inendi::PVSource::set_invalid_evts_mode(bool restore_inv_elts)
-{
-	_restore_inv_elts = restore_inv_elts;
-	PVRush::PVFormat format = _extractor.get_format();
-	set_format(format);
 }
 
 QString Inendi::PVSource::get_window_name() const

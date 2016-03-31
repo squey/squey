@@ -90,10 +90,6 @@ int main(int argc, char** argv)
 	view->process_selection();
 	BENCH_END(sel, "selection", 1, 1, 1, 1);
 
-	BENCH_START(filter);
-	view->process_filter();
-	BENCH_END(filter, "filter", 1, 1, 1, 1);
-
 	BENCH_START(el);
 	view->process_eventline();
 	BENCH_END(el, "eventline", 1, 1, 1, 1);

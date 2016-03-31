@@ -29,7 +29,7 @@ PVRush::PVInputTypeFilename::PVInputTypeFilename() :
 	}
 }
 
-bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent) const
+bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, PVCore::PVArgumentList& /*args_ext*/, QWidget* parent) const
 {
 	QStringList formats_name = formats.keys();
 	formats_name.sort();
@@ -40,16 +40,14 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash
 
 	// Get information from file dialog
 	PVImportFileDialog file_dlg(formats_name);
-	file_dlg.setDefaults();
 	QStringList filenames = file_dlg.getFileNames(format);
-	bool check_archives = file_dlg._check_archives_checkbox->checkState() == Qt::Checked;
-	args_ext["inv_elts"] = file_dlg.save_inv_elts();
 
-	return load_files(filenames, check_archives, inputs, parent);
+	return load_files(filenames, inputs, parent);
 }
 
-bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames, bool check_archives, list_inputs& inputs, QWidget* parent) const
+bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames, list_inputs& inputs, QWidget* parent) const
 {
+	bool check_archives = true;
 	bool extract_all_archive = false;
 	for (int i = 0; i < filenames.size(); i++) {
 		QString const& path = filenames[i];

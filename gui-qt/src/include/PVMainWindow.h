@@ -131,7 +131,7 @@ public:
 	void set_color(Inendi::PVView* view);
 
 	void import_type(PVRush::PVInputType_p in_t);
-	void import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat, PVCore::PVArgumentList const& args_ext);
+	void import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat);
 	void load_files(std::vector<QString> const& files, QString format);
 	/* void import_type(); */
 	void update_statemachine_label(Inendi::PVView_sp view);
@@ -160,7 +160,6 @@ public slots:
 	void selection_set_from_current_layer_Slot();
 	void selection_set_from_layer_Slot();
 	void expand_selection_on_axis_Slot();
-	void export_file_Slot();
 	void export_selection_Slot();
 
 #ifdef WITH_MINESET
@@ -184,24 +183,19 @@ public slots:
 	void events_display_unselected_Slot();
 	void events_display_unselected_listing_Slot();
 	void events_display_unselected_GLview_Slot();
-	void events_display_zombies_Slot();
 	void events_display_zombies_listing_Slot();
 	void events_display_zombies_GLview_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
-	void map_Slot();
-	bool load_source_from_description_Slot(PVRush::PVSourceDescription, bool save_invalid_elts = false);
+	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
 	Inendi::PVScene_p project_new_Slot();
 	bool project_save_Slot();
 	bool project_saveas_Slot();
 	void quit_Slot();
-	void refresh_current_view_Slot();
-	void select_scene_Slot();
 	void selection_all_Slot();
 	void selection_inverse_Slot();
 	void selection_none_Slot();
 	void enable_menu_filter_Slot(bool);
 	void set_color_Slot();
-	void textedit_text_changed_Slot();
 	void view_new_scatter_Slot();
 	void view_display_inv_elts_Slot();
 	void get_screenshot_widget();
@@ -259,7 +253,6 @@ private slots:
 
 private:
 	void connect_actions();
-	void connect_widgets();
 	void create_actions();
 	void create_menus();
 	void create_filters_menu_and_actions();
@@ -319,7 +312,6 @@ private:
 	QAction *solution_load_Action;
 	QAction *solution_save_Action;
 	QAction *solution_saveas_Action;
-	QAction *export_file_Action;
 	QAction *export_selection_Action;
 #ifdef WITH_MINESET
 	QAction *export_selection_to_mineset_Action; //!< Menu to trigger mineset export
@@ -387,10 +379,7 @@ private:
 
 signals:
 	void change_of_current_view_Signal();
-	void color_changed_Signal();
 	void filter_applied_Signal();
-	void commit_to_new_layer_Signal();
-	void selection_changed_Signal();
 	void zombie_mode_changed_Signal();
 
 #ifdef WITH_MINESET

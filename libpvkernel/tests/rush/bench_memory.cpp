@@ -13,7 +13,6 @@
 #include <pvkernel/rush/PVUnicodeSource.h>
 #include <pvkernel/rush/PVChunkAlign.h>
 #include <pvkernel/rush/PVChunkTransform.h>
-#include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
@@ -73,7 +72,7 @@ class PVElementsSource: public PVRush::PVRawSourceBase
 	typedef Allocator<char> alloc_chunk;
 public:
 	PVElementsSource(size_t nchunks, size_t size_chunk, size_t nelts_chunk):
-		PVRawSourceBase(_null_filter.f()),
+		PVRawSourceBase(),
 		_nchunks(nchunks),
 		_size_chunk(size_chunk),
 		_nelts_chunk(nelts_chunk)
@@ -111,7 +110,6 @@ public:
 
 	virtual func_type f() { return boost::bind<PVCore::PVChunk*>(&PVElementsSource<Allocator>::operator(), this); }
 private:
-	PVFilter::PVChunkFilter _null_filter;
 	alloc_chunk _alloc;
 	size_t _nchunks;
 	size_t _size_chunk;
@@ -121,12 +119,8 @@ private:
 
 void bench(PVRush::PVExtractor &ext, size_t nlines)
 {
-	ext.start_controller();
-	//tbb::tick_count start = tbb::tick_count::now();
 	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, nlines);
 	job->wait_end();
-	//tbb::tick_count end = tbb::tick_count::now();
-	ext.force_stop_controller();
 }
 
 void bench(size_t nchunks, size_t size_chunk, size_t neltsperc, size_t nfields)
@@ -137,10 +131,10 @@ void bench(size_t nchunks, size_t size_chunk, size_t neltsperc, size_t nfields)
 	PVFilter::PVChunkFilterByElt fchunk(felt.f());
 	PVRush::PVRawSourceBase_p src(new PVElementsSource<>(nchunks, size_chunk, neltsperc));
 
-	PVRush::PVExtractor ext(1);
+	PVRush::PVExtractor ext;
 	ext.add_source(src);
 
-	ext.set_chunk_filter(fchunk);
+	ext.set_chunk_filter(&fchunk);
 	ext.force_number_axes(nfields);
 
 	bench(ext, nchunks*neltsperc);

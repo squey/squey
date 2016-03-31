@@ -15,7 +15,6 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
-#include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVInput.h>
@@ -27,7 +26,7 @@ namespace PVRush {
 
 class PVPythonSource: public PVRawSourceBase {
 public:
-	PVPythonSource(PVInputDescription_p input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter, const QString& python_file);
+	PVPythonSource(PVInputDescription_p input, size_t min_chunk_size, const QString& python_file);
 	virtual ~PVPythonSource();
 public:
 	virtual QString human_name();

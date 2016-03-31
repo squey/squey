@@ -10,7 +10,6 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
-#include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 #include <tbb/pipeline.h>
@@ -18,8 +17,6 @@
 #include <memory>
 #include <vector>
 #include <map>
-
-#define DEFAULT_NUMBER_LINES 1000000
 
 namespace PVRush {
 
@@ -34,7 +31,6 @@ namespace PVRush {
  *
  */
 class PVAggregator {
-	friend class PVSerializeObject;
 public:
 	typedef std::list<PVRush::PVRawSourceBase_p> list_inputs;
 	typedef std::shared_ptr<PVAggregator> p_type;
@@ -164,7 +160,7 @@ public:
 
 	void set_sources_number_fields(PVCol nfields);
 
-	void debug();
+	void debug() const;
 
 public:
 	/*! \brief Helper static function to create a PVAggregator object from a unique source.
@@ -220,34 +216,6 @@ protected:
 	 * given to process_indexes. This is used for instance in the format builder.
 	 */
 	bool _strict_mode;
-};
-
-/*! \brief Helper class to use a reference to an aggregator as a TBB filter.
- *  \sa PVAggregator copy constructor.
- */
-class PVAggregatorTBB {
-public:
-	PVAggregatorTBB(PVAggregator &ref) :
-		_ref(ref),
-		_total_bytes(0)
-	{
-	}
-
-public:
-	inline PVCore::PVChunk* operator()(tbb::flow_control &fc) const
-	{
-		PVCore::PVChunk* ret = _ref(fc);
-		if (ret) {
-			_total_bytes += ret->size();
-		}
-		return ret;
-	}
-
-	inline size_t total_bytes() const { return _total_bytes; }
-
-protected:
-	PVAggregator &_ref;
-	mutable size_t _total_bytes;
 };
 
 typedef PVAggregator::p_type PVAggregator_p;

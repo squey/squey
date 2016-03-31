@@ -12,8 +12,6 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
-#include <pvkernel/filter/PVChunkFilter.h>
-#include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVInputDescription.h>
@@ -27,7 +25,7 @@ namespace PVRush {
 
 class PVElasticsearchSource: public PVRawSourceBase {
 public:
-	PVElasticsearchSource(PVInputDescription_p input, PVFilter::PVChunkFilter_f src_filter);
+	PVElasticsearchSource(PVInputDescription_p input);
 	virtual ~PVElasticsearchSource();
 
 public:

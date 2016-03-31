@@ -35,7 +35,7 @@ public:
 	 *
 	 * It computes frequency for each values on selected axis
 	 */
-	void operator()(PVLayer& in, PVLayer &out);
+	void operator()(PVLayer const& in, PVLayer &out) override;
 
 	/**
 	 * Get preset keys.

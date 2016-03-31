@@ -8,6 +8,7 @@
 #include <pvkernel/core/PVSelBitField.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
+#include <pvkernel/core/PVChunk.h>
 
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVNraw.h>
@@ -55,7 +56,7 @@ PVRush::PVNraw::~PVNraw()
  *
  ****************************************************************************/
 
-void PVRush::PVNraw::prepare_load(PVRow const nrows)
+void PVRush::PVNraw::prepare_load(PVRow const nrows, pvcop::formatter_desc_list const& format)
 {
 	// Generate random path
 	std::string collector_path = PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/" + nraw_tmp_pattern;
@@ -64,7 +65,7 @@ void PVRush::PVNraw::prepare_load(PVRow const nrows)
 	}
 
 	// Create collector and format
-	_collector.reset(new pvcop::collector(collector_path.data(), get_format()->get_storage_format()));
+	_collector.reset(new pvcop::collector(collector_path.data(), format));
 	_collection.reset();
 
 	// Define maximum number of row;
@@ -85,7 +86,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 {
 	assert(_collector && "We have to be in read state");
 
-	if (_real_nrows == _max_nrows) {
+	if (chunk.agg_index() > _max_nrows) {
 		// the whole chunk can be skipped as we extracted enough data.
 		return false;
 	}
@@ -105,25 +106,27 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 
 	// Count number of extracted line. It is not the same as the number of elements as some of them
 	// may be invalid or empty or we may skip the end when enough data is extracted.
-	PVRow local_row = 0;
+	PVRow local_row = elts.size();
 	for (PVCore::PVElement* elt: elts) {
 
 		PVCore::PVElement& e = *elt;
 		if (!e.valid()) {
+			for(int i=0; i<column_count; i++) {
+				std::unique_ptr<char[]> tmp_buf(new char[1]);
+				tmp_buf[0] = '\0';
+				pvcop_fields.emplace_back(pvcop::sink::field_t{std::move(tmp_buf), 1});
+			}
 			continue;
 		}
 
 		PVCore::list_fields const& fields = e.c_fields();
 		if (fields.size() == 0) {
+			for(int i=0; i<column_count; i++) {
+				std::unique_ptr<char[]> tmp_buf(new char[1]);
+				tmp_buf[0] = '\0';
+				pvcop_fields.emplace_back(pvcop::sink::field_t{std::move(tmp_buf), 1});
+			}
 			continue;
-		}
-
-		if (local_row == remaining_fields_count) {
-			/* we have enough events, skips the others. As the
-			 * chunk has been partially saved, the current chunked
-			 * index has to be saved by the caller (PVNrawOutput).
-			 */
-			break;
 		}
 
 		assert(column_count == fields.size());
@@ -141,11 +144,14 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 			// Save the field
 			pvcop_fields.emplace_back(pvcop::sink::field_t{std::move(tmp_buf), size_utf8});
 		}
-		local_row++;
 	}
 
 
-	_invalid_count += snk.write_chunk_by_row(_real_nrows, local_row, pvcop_fields.data());
+	int i = snk.write_chunk_by_row(chunk.agg_index(), local_row, pvcop_fields.data());
+
+#pragma omp atomic
+	_invalid_count += i;
+#pragma omp atomic
 	_real_nrows += local_row;
 
 	return true;

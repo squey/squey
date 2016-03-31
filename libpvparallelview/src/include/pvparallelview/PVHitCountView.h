@@ -126,7 +126,7 @@ protected:
 		return x_zoom_converter().scale_to_zoom((double)get_margined_viewport_width()/(double)_max_count);
 	}
 
-	inline Inendi::PVSelection& real_selection() { return _pvview.get_real_output_selection(); }
+	inline Inendi::PVSelection const& real_selection() const { return _pvview.get_real_output_selection(); }
 	inline Inendi::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
 
 	inline bool auto_x_zoom_sel() const { return _auto_x_zoom_sel; }

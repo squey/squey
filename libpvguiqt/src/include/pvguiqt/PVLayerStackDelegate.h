@@ -40,14 +40,6 @@ public:
 	 */
 	bool editorEvent (QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index);
 
-	/**
-	 *  @param painter
-	 *  @param option
-	 *  @param index
-	 *
-	 */
-	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index ) const;
-
 private:
 	Inendi::PVView const& lib_view() const { return _view; }
 

@@ -14,8 +14,8 @@
 #include "PVSplunkSource.h"
 #include "../../common/splunk/PVSplunkQuery.h"
 
-PVRush::PVSplunkSource::PVSplunkSource(PVInputDescription_p input, PVFilter::PVChunkFilter_f src_filter)
-	: PVRawSourceBase(src_filter),
+PVRush::PVSplunkSource::PVSplunkSource(PVInputDescription_p input)
+	: PVRawSourceBase(),
 	  _query(*dynamic_cast<PVSplunkQuery*>(input.get())),
 	  _splunk(_query.get_infos())
 {

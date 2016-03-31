@@ -33,7 +33,8 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	lv->lib_view()->get_real_output_selection().select_all();
+	lv->lib_view()->apply_filter_named_select_all();
+	lv->lib_view()->process_from_selection();
 
 	int pos = extra_param_start_at();
 

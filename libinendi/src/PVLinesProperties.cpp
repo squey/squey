@@ -89,16 +89,6 @@ void Inendi::PVLinesProperties::A2B_copy_restricted_by_selection_and_nelts(Inend
 
 /******************************************************************************
  *
- * Inendi::PVLinesProperties::A2B_copy_zombie_off_restricted_by_selection_and_nelts
- *
- *****************************************************************************/
-void Inendi::PVLinesProperties::A2B_copy_zombie_off_restricted_by_selection_and_nelts(Inendi::PVLinesProperties &b,  PVSelection const& selection, PVRow nelts)
-{
-	A2B_copy_restricted_by_selection_and_nelts(b, selection, nelts); // FIXME, this is the same code than the previous function, should remove it to make it more generic
-}
-
-/******************************************************************************
- *
  * Inendi::PVLinesProperties::operator=
  *
  *****************************************************************************/

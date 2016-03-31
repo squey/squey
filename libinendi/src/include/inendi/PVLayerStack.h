@@ -71,9 +71,6 @@ public:
 
 	PVLayer* duplicate_selected_layer(const QString &name);
 
-// 
-// 	inendi_layer_t *layer_get_by_index(int index);
-
 	void move_layer_down(int index);
 	void move_layer_up(int index);
 	void move_selected_layer_to(int new_index);
@@ -95,9 +92,6 @@ public:
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
-
-
-// 	void debug();
 };
 }
 

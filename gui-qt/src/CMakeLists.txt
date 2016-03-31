@@ -51,14 +51,9 @@ widgets/format-builder/include/PVOptionsWidget.h
 # include/logviewer/fileconnectiondialog.h
 # include/logviewer/filedownloader.h
 # include/logviewer/logviewerwidget.h
-
-#include/geo/GKLocation.h
-#include/geo/GKMapView.h
-#include/geo/GKMapView_p.h
 )
 
 SET(SRC_FILES
-#GKMapView.cpp
 main.cpp
 PVAxisComputationDlg.cpp
 #PVAxesCombinationWidget.cpp

@@ -34,11 +34,11 @@ public slots:
 	void change_axes_combination()
 	{
 		std::cout << "change_axes_combination" << std::endl;
-		Inendi::PVAxesCombination& axes_combination = _view.get_axes_combination();
 		_view.remove_column(0);
-		axes_combination.axis_append(1);
-		axes_combination.axis_append(2);
+		_view.axis_append(Inendi::PVAxis());
+		_view.axis_append(Inendi::PVAxis());
 
+		Inendi::PVAxesCombination const& axes_combination = _view.get_axes_combination();
 		auto& axes_index_list = axes_combination.get_axes_index_list();
 		auto& axes_list = axes_combination.get_axes_list();
 		Inendi::PVView_sp view_sp = _view.shared_from_this();

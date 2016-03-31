@@ -18,7 +18,7 @@
 #include <QString>
 
 void dump_chunk(PVCore::PVChunk const& c);
-void dump_chunk_csv(PVCore::PVChunk&c);
+void dump_chunk_csv(PVCore::PVChunk&c, std::ostream & out);
 void dump_chunk_raw(PVCore::PVChunk const& c);
 void dump_chunk_newline(PVCore::PVChunk const& c);
 void dump_elt(PVCore::PVElement const& elt);

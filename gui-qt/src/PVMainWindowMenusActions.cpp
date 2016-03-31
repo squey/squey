@@ -55,8 +55,6 @@ void PVInspector::PVMainWindow::create_actions()
 	extractor_file_Action->setToolTip(tr("Launch the INENDI Extractor to create a new source from the current input"));
 	extractor_file_Action->setEnabled(false);
 
-	export_file_Action = new QAction(tr("&Export"), this);
-
 	quit_Action = new QAction(tr("&Quit"), this);
 	quit_Action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
 
@@ -344,7 +342,6 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(project_new_Action, SIGNAL(triggered()), this, SLOT(project_new_Slot()));
 	connect(project_save_Action, SIGNAL(triggered()), this, SLOT(project_save_Slot()));
 	connect(project_saveas_Action, SIGNAL(triggered()), this, SLOT(project_saveas_Slot()));
-	connect(export_file_Action, SIGNAL(triggered()), this, SLOT(export_file_Slot()));
 	connect(export_selection_Action, SIGNAL(triggered()), this, SLOT(export_selection_Slot()));
 #ifdef WITH_MINESET
 	connect(export_selection_to_mineset_Action, SIGNAL(triggered()), this, SLOT(export_selection_to_mineset_Slot()));

@@ -5,7 +5,9 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <QtWidgets>
+#include <QComboBox>
+#include <QFormLayout>
+#include <QGroupBox>
 
 #include "PVImportFileDialog.h"
 
@@ -18,46 +20,22 @@ PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget 
 {
 	setWindowTitle("Import file");
 	setFileMode(QFileDialog::ExistingFile);
-	treat_as_combobox = new QComboBox();
-	QLabel *treat_as_label = new QLabel("Format: ");
 
+	// Set this flags to make sure we can access the layout.
 	setOption(QFileDialog::DontUseNativeDialog);
 
 	QGridLayout *this_layout = (QGridLayout *)layout();
 
 	QGroupBox *option_group = new QGroupBox();
-	this_layout->addWidget(option_group, 6, 1);
+	this_layout->addWidget(option_group, 6, 0, 1, 3);
 
-	QGridLayout *options_layout = new QGridLayout();
-	//options_layout->setColumnStretch(1, 10);
-	option_group->setLayout(options_layout);
+	QFormLayout * form_layout = new QFormLayout();
+	option_group->setLayout(form_layout);
 
+	treat_as_combobox = new QComboBox();
 	treat_as_combobox->addItems(pluginslist);
 
-	_check_save_inv_elts = new QCheckBox(tr("Keep invalid events during extraction.\nWarning: this can slow down the whole process and will consume more memory!"));
-	options_layout->addWidget(treat_as_label, 0, 0);
-	options_layout->addWidget(treat_as_combobox, 0, 2);
-	options_layout->addWidget(_check_save_inv_elts, 2, 0, 2, -1);
-
-	activate_netflow_checkbox = new QCheckBox("Use Netflow (PCAP only)");
-	activate_netflow_checkbox->setChecked(true);
-
-	_check_archives_checkbox = new QCheckBox("Automatically decompress detected archive files");
-	_check_archives_checkbox->setChecked(true);
-
-	//options_layout->addWidget(activate_netflow_checkbox, 1, 0);
-	//options_layout->addWidget(_check_archives_checkbox, 2, 0);
-
-//	QLabel *read_from_label = new QLabel("Read from line:");
-//	options_layout->addWidget(read_from_label, 2, 0);
-//	from_line_edit = new QLineEdit("0");
-//	options_layout->addWidget(from_line_edit, 2, 1);
-//	QLabel *read_to_label = new QLabel(" to ");
-//	options_layout->addWidget(read_to_label, 2, 2);
-//	to_line_edit = new QLineEdit("0");
-//	options_layout->addWidget(to_line_edit, 2, 3);
-
-	setFileMode(QFileDialog::ExistingFiles);
+	form_layout->addRow(tr("Format: "), treat_as_combobox);
 }
 
 /******************************************************************************
@@ -67,34 +45,14 @@ PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget 
  *****************************************************************************/
 QStringList PVRush::PVImportFileDialog::getFileNames(QString& treat_as)
 {
-	int         result_dialog_code;
-	QStringList list;
-	QStringList output_list;
 
-	/* We launch the QFileDialog */
-	result_dialog_code = exec();
-	/* We check if the user pressed Cancel button */
-	if ( result_dialog_code) {
-		/* The user didn't press the Cancel button */
-		list = selectedFiles();
+	/* Launch the Dialog and check if the user pressed Cancel button */
+	if ( not exec() ) {
+		return {};
 	}
 
+	/* The user didn't press the Cancel button */
 	treat_as = treat_as_combobox->currentText();
 
-	return list;
-}
-
-/******************************************************************************
- *
- * PVRush::PVImportFileDialog::setDefaults()
- *
- *****************************************************************************/
-void PVRush::PVImportFileDialog::setDefaults()
-{
-	treat_as_combobox->setCurrentIndex(0);
-	//activate_netflow_checkbox->setChecked(true);
-	//from_line_edit->setText(QString("0"));
-	//to_line_edit->setText(QString("0"));
-	_check_archives_checkbox->setChecked(true);
-	_check_save_inv_elts->setChecked(false);
+	return selectedFiles();
 }

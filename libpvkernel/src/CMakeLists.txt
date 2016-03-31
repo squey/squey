@@ -97,11 +97,8 @@ filter/PVChunkFilterByElt.cpp
 filter/PVChunkFilterByEltCancellable.cpp
 filter/PVChunkFilterByEltRestoreInvalid.cpp
 filter/PVChunkFilterByEltSaveInvalid.cpp
-filter/PVChunkFilterSource.cpp
-filter/PVChunkFilterCountElts.cpp
 filter/PVChunkFilterDumpElts.cpp
 filter/PVElementFilterByFields.cpp
-filter/PVElementFilterRandInvalid.cpp
 filter/PVFieldFilterGrep.cpp
 filter/PVFieldsFilter.cpp
 filter/PVFieldsMappingFilter.cpp
@@ -122,7 +119,6 @@ include/pvkernel/filter/PVFieldsFilterParamWidget.h
 
 set(RUSH_SRC_FILES
 rush/PVAxisFormat.cpp
-rush/PVFileRawSource.cpp
 rush/PVFormat.cpp
 rush/PVNraw.cpp
 rush/PVNrawOutput.cpp
@@ -136,16 +132,13 @@ rush/PVFormatVersion.cpp
 rush/PVInput.cpp
 rush/PVInputFile.cpp
 rush/PVInputPcap.cpp
-rush/PVOutput.cpp
 rush/PVOutputFile.cpp
 rush/PVCharsetDetect.cpp
 rush/PVChunkTransform.cpp
 rush/PVChunkTransformUTF16.cpp
 rush/PVAggregator.cpp
-rush/PVController.cpp
 rush/PVPipelineTask.cpp
 rush/PVControllerJob.cpp
-rush/PVControllerThread.cpp
 rush/PVExtractor.cpp
 rush/PVPluginsLoad.cpp
 rush/PVSourceCreatorFactory.cpp

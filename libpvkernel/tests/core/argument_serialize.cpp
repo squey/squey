@@ -105,7 +105,11 @@ int main()
 	mustFail.append(false);
 
 	// PVAxesIndexType
-	vars.append(QVariant::fromValue(PVCore::PVAxesIndexType(QList<PVCol>() << 1 << 2 << 3)));
+	auto ait = PVCore::PVAxesIndexType();
+	ait.push_back(1);
+	ait.push_back(2);
+	ait.push_back(3);
+	vars.append(QVariant::fromValue(ait));
 	expectedStrings.append("1,2,3");
 	mustFail.append(true);
 

@@ -91,12 +91,12 @@ public:
 
 	PVCol get_combined_axis_column() const
 	{
-		return _lib_view.axes_combination.get_index_by_id(_axis_id);
+		return _lib_view.get_axes_combination().get_index_by_id(_axis_id);
 	}
 
 	PVCol get_original_axis_column() const
 	{
-		return _lib_view.axes_combination.get_axis_column_index(_lib_view.axes_combination.get_index_by_id(_axis_id));
+		return _lib_view.get_axes_combination().get_axis_column_index(_lib_view.get_axes_combination().get_index_by_id(_axis_id));
 	}
 
 	QRectF get_top_decoration_scene_bbox() const;

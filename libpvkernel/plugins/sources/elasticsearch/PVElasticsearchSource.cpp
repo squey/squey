@@ -16,8 +16,8 @@
 
 #include <string>
 
-PVRush::PVElasticsearchSource::PVElasticsearchSource(PVInputDescription_p input, PVFilter::PVChunkFilter_f src_filter):
-	PVRawSourceBase(src_filter),
+PVRush::PVElasticsearchSource::PVElasticsearchSource(PVInputDescription_p input):
+	PVRawSourceBase(),
 	_next_index(0),
 	_query(*dynamic_cast<PVElasticsearchQuery*>(input.get())),
 	_elasticsearch(_query.get_infos())

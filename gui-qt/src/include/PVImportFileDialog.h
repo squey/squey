@@ -43,7 +43,6 @@ public:
 //    void open_file_Slot();
 //    void quit_Slot();
 //    void save_file_Slot();
-//    void select_scene_Slot();
 //    void set_color_Slot();
 };
 }

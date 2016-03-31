@@ -6,7 +6,6 @@
  */
 
 #include <pvkernel/core/inendi_intrin.h>
-#include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVChunkAlign.h>
 #include <pvkernel/rush/PVChunkAlignUTF16Char.h>
@@ -34,8 +33,7 @@ int main(int argc, char** argv)
 
 	PVCore::PVIntrinsics::init_cpuid();
 	PVInput_p ifile(new PVInputFile(argv[1]));
-	PVFilter::PVChunkFilter null;
-	PVUnicodeSource<> source(ifile, atoi(argv[2]), null);
+	PVUnicodeSource<> source(ifile, atoi(argv[2]));
 
 	PVChunk* pc = source();
 

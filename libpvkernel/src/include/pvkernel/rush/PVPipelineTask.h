@@ -20,11 +20,11 @@ public:
 	task* execute();
 	void cancel();
 	void set_filter(tbb::filter_t<void,void> f);
-	void set_nchunks(size_t nchunks);
+	void set_tokens(size_t tokens);
 
 protected:
 	tbb::filter_t<void,void> _f;
-	size_t _nchunks;
+	size_t _ntokens; //!< Number of tokens use in the TBB Pipeline
 	bool _running;
 };
 

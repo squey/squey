@@ -107,12 +107,12 @@ void PVInspector::PVMainWindow::axes_mode_Slot()
 	}
 	current_lib_view = current_view();
 
-	current_lib_view->state_machine->toggle_axes_mode();
+	current_lib_view->get_state_machine().toggle_axes_mode();
 
 	// if we enter in AXES_MODE we must disable SQUARE_AREA_MODE
-	if (current_lib_view->state_machine->is_axes_mode()) {
+	if (current_lib_view->get_state_machine().is_axes_mode()) {
 		/* We turn SQUARE AREA mode OFF */
-		current_lib_view->state_machine->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_OFF);
+		current_lib_view->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_OFF);
 		//current_view->update_axes();
 		axes_mode_Action->setText(QString("Leave Axes mode"));
 	} else {
@@ -201,49 +201,19 @@ void PVInspector::PVMainWindow::events_display_unselected_listing_Slot()
 void PVInspector::PVMainWindow::events_display_unselected_GLview_Slot()
 {
 	Inendi::PVView* current_lib_view;
-	Inendi::PVStateMachine *state_machine = NULL;
 
 	if (!current_view()) {
 		return;
 	}
 	current_lib_view = current_view();
-	state_machine = current_lib_view->state_machine;
 
 	if (_projects_tab_widget->current_workspace() == nullptr) {
 		return;
 	}
 
-	state_machine->toggle_gl_unselected_visibility();
+	current_lib_view->get_state_machine().toggle_gl_unselected_visibility();
 	/* We refresh the view */
 	current_lib_view->process_visibility();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::events_display_zombies_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::events_display_zombies_Slot()
-{
-	Inendi::PVView* current_lib_view;
-	Inendi::PVStateMachine *state_machine = NULL;
-
-	if (!current_view()) {
-		return;
-	}
-	current_lib_view = current_view();
-	state_machine = current_lib_view->state_machine;
-
-	state_machine->toggle_listing_zombie_visibility();
-	state_machine->toggle_gl_zombie_visibility();
-	/* We set the listing to be the same */
-	// state_machine->set_listing_zombie_visibility(state_machine->are_zombie_visible());
-	/* We refresh the view */
-	current_lib_view->process_visibility();
-	/* We refresh the listing */
-	// TODO: hive!
-	//current_tab->update_pv_listing_model_Slot();
-
 }
 
 /******************************************************************************
@@ -272,15 +242,13 @@ void PVInspector::PVMainWindow::events_display_zombies_listing_Slot()
 void PVInspector::PVMainWindow::events_display_zombies_GLview_Slot()
 {
 	Inendi::PVView* current_lib_view;
-	Inendi::PVStateMachine *state_machine = NULL;
 
 	if (!current_view()) {
 		return;
 	}
 	current_lib_view = current_view();
-	state_machine = current_lib_view->state_machine;
 
-	state_machine->toggle_gl_zombie_visibility();
+	current_lib_view->get_state_machine().toggle_gl_zombie_visibility();
 	/* We refresh the view */
 	current_lib_view->process_visibility();
 }
@@ -326,16 +294,6 @@ void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::export_file_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::export_file_Slot()
-{
-
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::export_selection_Slot
  *
  *****************************************************************************/
@@ -344,7 +302,7 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
 	Inendi::PVView* view = current_view();
-	Inendi::PVSelection& sel = view->get_real_output_selection();
+	Inendi::PVSelection const& sel = view->get_real_output_selection();
 
 	PVGuiQt::PVExportSelectionDlg::export_selection(*view, sel);
 }
@@ -405,10 +363,6 @@ void PVInspector::PVMainWindow::filter_select_all_Slot()
 	/* We do all that has to be done in the lib FIRST */
 	current_view()->apply_filter_named_select_all();
 	current_view()->process_from_eventline();
-
-	/* THEN we can emit the signal */
-	emit selection_changed_Signal();
-
 }
 
 /******************************************************************************
@@ -473,41 +427,6 @@ void PVInspector::PVMainWindow::extractor_file_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::map_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::map_Slot()
-{
-
-	QDialog *dialog = new QDialog;
-	QHBoxLayout *layout = new QHBoxLayout;
-
-
-	//	GKMapView *mapView = new GKMapView;
-
- //    mapView->resize(580, 410);
- //  //  mapView->setMapType(GKMapTypeSatellite);
- // //   mapView->locationFromAddress("San Mateo");
- //   // mapView->addressFromLocation(32.718834, -117.164);
- //  mapView->addMarkerWithWindow("Attacks seen", "We have an intrusion attemp in France!", "Paris, France");
- // //   mapView.addInfoWindow("Hello from <b>San Mateo</b>", "San Mateo");
- //   // mapView.addInfoWindow("Hello from <b>San Diego</b>", 32.718834, -117.164);
- //   mapView->setLocation("France");
- //    mapView->show();
-
- //    layout->addWidget(mapView);
-//	main_layout->addWidget(mapView, 0, 0);
-
-	dialog->setLayout(layout);
-
-	dialog->setWindowTitle("Map Widget");
-
-	dialog->show();
-
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::project_new_Slot
  *
  *****************************************************************************/
@@ -521,8 +440,7 @@ Inendi::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 	return scene_p;
 }
 
-bool PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc,
-                                                                  bool save_invalid_elts)
+bool PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
 {
 	bool has_error = false;
 	Inendi::PVScene_sp scene_p;
@@ -564,7 +482,6 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 	Inendi::PVSource_sp src_p;
 	try {
 		 src_p = PVHive::call<FUNC(Inendi::PVScene::add_source_from_description)>(scene_p, src_desc);
-		 src_p->set_invalid_evts_mode(save_invalid_elts);
 	} catch (PVRush::PVFormatException const& e) {
 		PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
 		has_error = true;
@@ -935,25 +852,6 @@ void PVInspector::PVMainWindow::quit_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::refresh_current_view_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::refresh_current_view_Slot()
-{
-	// FIXME: this function should probably just die. current_tab->refresh_view_Slot();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::select_scene_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::select_scene_Slot()
-{
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::selection_inverse_Slot()
  *
  *****************************************************************************/
@@ -1022,47 +920,6 @@ void PVInspector::PVMainWindow::set_color_Slot()
 	if (!current_view())
 		return;
 	set_color(current_view());
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::textedit_text_changed_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::textedit_text_changed_Slot()
-{
-#if 0 // FIXME
-	/* VARIABLES */
-	QObject *s = sender();
-	QLineEdit *lineedit = reinterpret_cast<QLineEdit *>(s);
-	char *text = strdup(lineedit->text().toUtf8().data());
-
-	inendi_arguments_t *args;
-	inendi_argument_item_t item;
-	char *sender_name;
-
-	if (strcmp(text, "")) {
-		sender_name = strdup(s->objectName().toUtf8().data());
-
-		args = filter->get_arguments_func();
-
-		item = inendi_arguments_get_item_from_name(args, sender_name);
-		inendi_arguments_item_set_string(item, text);
-		inendi_arguments_set_item_from_name(args, item.name, item);
-
-		inendi_arguments_debug(args);
-
-		current_view()->apply_filter_from_name(last_sendername, args);
-		current_view()->process_from_eventline();
-
-		free(sender_name);
-
-		/* THEN we can emit the signal */
-		emit filter_applied_Signal();
-	}
-
-	free(text);
-#endif
 }
 
 /******************************************************************************
