@@ -154,6 +154,11 @@ namespace pvtest {
             std::remove(_big_file_path.c_str());
         }
 
+        /**
+         * Get number of row in the imported NRaw.
+         */
+        size_t get_nraw_size() const { return _ext.get_nraw().get_row_count(); }
+
         PVRush::PVExtractor _ext;
 
     private:

@@ -2,21 +2,12 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2010-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
-#include <pvkernel/filter/PVPluginsLoad.h>
-#include <pvkernel/rush/PVPluginsLoad.h>
-#include <pvkernel/rush/PVExtractor.h>
-#include <pvkernel/rush/PVControllerJob.h>
-#include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVTests.h>
-#include <pvkernel/rush/PVFileDescription.h>
-#include <cstdlib>
-#include <iostream>
-#include "helpers.h"
-
 #include "common.h"
+
+#include <pvkernel/core/inendi_assert.h>
 
 int main()
 {
@@ -24,6 +15,8 @@ int main()
 
 	// Ask for 1 million lines
 	env.load_data(1000000);
+
+	PV_VALID(env.get_nraw_size(), 1000000UL);
 
 	return 0;
 }
