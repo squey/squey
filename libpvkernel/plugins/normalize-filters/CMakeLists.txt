@@ -82,7 +82,6 @@ splitter_csv/PVFieldSplitterCSVParamWidget.h
 set(CSV_SRC
 splitter_csv/PVFieldSplitterCSV.cpp
 splitter_csv/PVFieldSplitterCSVParamWidget.cpp
-splitter_csv/libcsv.cpp
 splitter_csv/register.cpp
 	)
 
