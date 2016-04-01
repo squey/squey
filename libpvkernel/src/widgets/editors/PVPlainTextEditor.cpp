@@ -123,18 +123,15 @@ void PVWidgets::PVPlainTextEditor::slot_import_file()
 		PVRush::PVInput_p input(pfile);
 		PVRush::PVRawSource<std::allocator> txt_src(input, 10*1024*1024);
 		PVCore::PVChunk* chunk = txt_src();
-		QString txt("");
-		QString str_tmp;
+		std::string txt;
 		while (chunk) {
-			PVCore::list_elts const& elts = chunk->c_elements();
-			PVCore::list_elts::const_iterator it;
-			for (it = elts.begin(); it != elts.end(); it++) {
-				txt += (*it)->get_qstr(str_tmp);
+			for (auto const* elt: chunk->c_elements()) {
+				txt += std::string(elt->begin(), elt->size());
 			}
 			chunk->free();
 			chunk = txt_src();
 		}
-		_text_edit->setPlainText(txt);
+		_text_edit->setPlainText(QString::fromStdString(txt));
 	}
 	catch (PVRush::PVInputException const& ex) {
 		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while opening file..."), QString::fromStdString(ex.what()), QMessageBox::Ok, this);

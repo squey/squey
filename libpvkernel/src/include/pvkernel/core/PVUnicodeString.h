@@ -11,6 +11,8 @@
 #include <pvbase/export.h>
 #include <pvkernel/core/PVPythonClassDecl.h>
 
+#include <cassert>
+
 namespace PVCore {
 
 class PVBufferSlice;

@@ -122,7 +122,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore:
 	inf._lf = &l;
 	inf._f_cur = (QChar*) field.begin();
 	inf._len_buf = field.size();
-	inf._cstr = field.get_qstr(str_tmp).toLatin1();
+	//inf._cstr = field.get_qstr(str_tmp).toLatin1();
 	inf._nelts = 0;
 
 	// And use libcsv

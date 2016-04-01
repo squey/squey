@@ -755,10 +755,7 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	}
 	
 	PVCore::PVField field(field_);
-	field.deep_copy();
-	QString qs;
-	field.get_qstr(qs);
-	QString str_copy(qs.unicode(), qs.size());
+	QString f_value = QString::fromUtf8(field.begin(), field.size());
 
 	QString plugin_name = attribute("type", "");
 
@@ -787,10 +784,10 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	// TODO: this should be all in plugins !
 	if (splitterPlugin) {
 		force_nchild = splitterPlugin->force_number_children();
-		splitterPlugin->push_data(str_copy);
+		splitterPlugin->push_data(f_value);
 	}
 	else if (converterPlugin) {
-		converterPlugin->push_data(str_copy);
+		converterPlugin->push_data(f_value);
 	}
 	else
 	if (plugin_name == "url") {
