@@ -13,10 +13,9 @@ int main()
 {
 	pvtest::TestEnv env(TEST_FOLDER "/pvkernel/rush/tickets/2/apache.access", TEST_FOLDER "/pvkernel/rush/tickets/2/apache.access.format");
 
-	// Ask for 1 million lines
-	env.load_data(1000000);
+	env.load_data(100000);
 
-	PV_VALID(env.get_nraw_size(), 1000000UL);
+	PV_VALID(env.get_nraw_size(), 100000UL);
 
 	return 0;
 }
