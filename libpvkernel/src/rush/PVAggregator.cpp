@@ -47,12 +47,6 @@ void PVRush::PVAggregator::init()
 	_skip_lines_count = 0;
 }
 
-
-PVRush::PVAggregator::PVAggregator(const PVAggregator& /*org*/)
-{
-	assert(false);
-}
-
 void PVRush::PVAggregator::set_stop_condition(bool *cond)
 {
 	_stop_cond = cond;
@@ -92,19 +86,6 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend,
 	_nend = nend;
 	_eoi = false;
 	_last_elt_agg_index = 0;
-
-	/*
-	_nlast = 0;
-	_last_elt_agg_index = 0;
-	_cur_src_index = 0;
-	_cur_input = _inputs.begin();
-
-	list_inputs::iterator it;
-	for (it = _inputs.begin(); it != _inputs.end(); it++) {
-		// Reset all inputs position pointer
-		PVLOG_DEBUG("PVExtractor::process_indexes seek begin on source %s\n", qPrintable((*it)->human_name()));
-		(*it)->seek_begin();
-	}*/
 
 	if (expected_nelts == 0) {
 		expected_nelts = nend-nstart;
