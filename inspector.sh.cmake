@@ -146,5 +146,5 @@ then
 	gui-qt/src/inendi-inspector test_petit.log
 	exit 0
 fi
-	
-catchsegv $ISRD/gui-qt/src/inendi-inspector $LOAD_PROJECT $@
+
+$ISRD/gui-qt/src/inendi-inspector $LOAD_PROJECT $@
