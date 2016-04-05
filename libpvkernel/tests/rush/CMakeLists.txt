@@ -54,16 +54,8 @@ PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align 2000)
 
 # Test the aggregator
 add_pv_compile_test(Trush_agg LINKS ${LINK_LIBRARIES} FILES agg.cpp helpers.cpp)
-add_test(TestAggregator1 ${TEST_DIFF_STDOUT}
-	${PVRUSH_TEST_FILES}/aggregator/set1.out
-	${PVRUSH_TEST_FILES_OUTPUT}/aggregator/set1.diff
-	${CMAKE_CURRENT_BINARY_DIR}/Trush_agg 6000
-	${PVRUSH_TEST_FILES}/aggregator/set1)
-add_test(TestAggregator2 ${TEST_DIFF_STDOUT}
-	${PVRUSH_TEST_FILES}/aggregator/set2.out
-	${PVRUSH_TEST_FILES_OUTPUT}/aggregator/set2.diff
-	${CMAKE_CURRENT_BINARY_DIR}/Trush_agg 6000
-	${PVRUSH_TEST_FILES}/aggregator/set2)
+add_test(TestAggregator1 Trush_agg 6000 ${PVRUSH_TEST_FILES}/aggregator/set1)
+add_test(TestAggregator2 Trush_agg 6000 ${PVRUSH_TEST_FILES}/aggregator/set2)
 
 # Test the aggregator in strict mode
 add_pv_compile_test(Trush_agg_strict LINKS ${LINK_LIBRARIES} FILES agg_strict.cpp helpers.cpp)
