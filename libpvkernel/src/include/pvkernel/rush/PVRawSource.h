@@ -55,6 +55,67 @@ public:
 	}
 
 public:
+
+	/**
+	 * Add element [begin, it[ as current chunk elements.
+	 *
+	 * @note Remove \r for \r\n new-line (windows style)
+	 */
+	void add_element(char* begin, char* it)
+	{
+		if(*(it - 1) == 0xd) {
+			_curc->add_element(begin, it - 1)->set_physical_end(it);
+		} else {
+			_curc->add_element(begin, it)->set_physical_end(it);
+		}
+	}
+
+	/**
+	 * Split a full chunk in elements on new-line.
+	 *
+	 * @return fist char which can't be put in a new element.
+	 */
+	char* create_elements(char* begin, char* end) {
+		auto it = begin;
+		while((it = std::find(begin, end, '\n')) != end) {
+			add_element(begin, it);
+			begin = it + 1;
+		}
+		return begin;
+	}
+
+	/**
+	 * Return beginning of the buffer skipping bom values.
+	 */
+	static char* begining_with_bom(char* begin_read)
+	{
+		// Check first four bytes
+		// //FIXME : TODO : FIXME : TODO : FIXME : TODO : FIXME
+		// It have to be done only for utfX, use chardetect to do it correctly!!
+		uint32_t bom32 = *((uint32_t*)begin_read);
+		if (bom32 == 0xFFFE0000 || bom32 == 0x0000FEFF) {
+			return begin_read + 4;
+		}
+		unsigned char* bom24 = (unsigned char*) begin_read;
+		if (bom24[0] == 0xEF && bom24[1] == 0xBB && bom24[2] == 0xBF) {
+			return begin_read + 3;
+		}
+		uint16_t& bom16 = *((uint16_t*) begin_read);
+		if (bom16 == 0xFFFE || bom16 == 0xFEFF) {
+			return begin_read + 2;
+		}
+		return begin_read;
+	}
+
+	/**
+	 * Generate a new Chunk.
+	 *
+	 * Continue with previous created chunk.
+	 * * Read data from source
+	 * * Split it on new lines and create elements with it
+	 * * Add remaining character in the next chunk.
+	 * * Computed indexes.
+	 */
 	PVCore::PVChunk* operator()()
 	{
 		// The current chunk must be filled with data, then aligned and returned
@@ -65,22 +126,9 @@ public:
 
 		if (r == 0) { // No more data to read.
 			if (_curc->size() > 0) {
-				auto begin = _curc->begin();
-				auto it = _curc->begin();
-				while((it = std::find(begin, _curc->end(), '\n')) != _curc->end()) {
-					if(*(it - 1) == 0xd) {
-						_curc->add_element(begin, it - 1)->set_physical_end(_curc->physical_end());
-					} else {
-						_curc->add_element(begin, it)->set_physical_end(_curc->physical_end());
-					}
-					begin = it + 1;
-				}
-				if(begin != _curc->end()) {
-					if(*(_curc->end() - 1) == 0xd) {
-						_curc->add_element(begin, _curc->end() - 1)->set_physical_end(_curc->physical_end());
-					} else {
-						_curc->add_element(begin, _curc->end())->set_physical_end(_curc->physical_end());
-					}
+				char* begin = create_elements(_curc->begin(), _curc->end());
+				if(begin != _curc->end()) { // Handle final line without new line.
+					add_element(begin, _curc->end());
 				}
 
 				_curc->set_elements_index();
@@ -96,48 +144,13 @@ public:
 				return NULL;
 			}
 		}
-		size_t len_read = r + _curc->size();
-		auto b = _curc->begin();
-		// Check first four bytes
-		// //FIXME : TODO : FIXME : TODO : FIXME : TODO : FIXME
-		// It have to be done only for utfX, use chardetect to do it correctly!!
-		if (len_read >= 4) {
-			uint32_t bom = *((uint32_t*)begin_read);
-			if (bom == 0xFFFE0000 || bom == 0x0000FEFF) {
-				b += 4;
-				len_read -= 4;
-			}
-		}
-		if (len_read >= 3) {
-			unsigned char* data_u = (unsigned char*) begin_read;
-			if (data_u[0] == 0xEF && data_u[1] == 0xBB && data_u[2] == 0xBF) {
-				b += 3;
-				len_read -= 3;
-			}
-		}
-		if (len_read >= 2) {
-			uint16_t& bom = *((uint16_t*) begin_read);
-			if (bom == 0xFFFE || bom == 0xFEFF) {
-				b += 2;
-				len_read -= 2;
-			}
-		}
 
 		// Process the read data
-		size_t size_read_processed = len_read;
+		char* b = begining_with_bom(_curc->begin());
 		auto end = _curc->end()+r;
 
 		// Create an element and align its end on Chunk's end
-		auto begin = b;
-		auto it = b;
-		while((it = std::find(begin, end, '\n')) != end) {
-			if(*(it - 1) == 0xd) {
-				_curc->add_element(begin, it - 1)->set_physical_end(it);
-			} else {
-				_curc->add_element(begin, it)->set_physical_end(it);
-			}
-			begin = it + 1;
-		}
+		char* begin = create_elements(b, end);
 
 		// Copy remaining chars in the next chunk
 		_nextc->set_end(std::copy(begin, end, _nextc->begin()));
@@ -170,11 +183,6 @@ public:
 		return ret;
 	}
 public:
-	static size_t get_ring_buffer_size(int nchunks, int chunk_size)
-	{
-		return (nchunks+2)*(chunk_size*sizeof(char)+sizeof(PVChunkAlloc));
-	}
-
 	virtual bool discover() { return false; }
 
 	virtual void seek_begin()
@@ -232,10 +240,10 @@ protected:
 	size_t _chunk_size; //!< Size of the chunk
 	PVInput_p _input; //!< Input source where we read data
 protected:
-	mutable PVCore::PVChunk* _curc; //!< Pointer to current chunk.
-	mutable PVCore::PVChunk* _nextc; //!< Pointer to next chunk.
+	PVCore::PVChunk* _curc; //!< Pointer to current chunk.
+	PVCore::PVChunk* _nextc; //!< Pointer to next chunk.
 	alloc_chunk _alloc;
-	mutable map_offsets _offsets; // Map indexes to input offsets
+	map_offsets _offsets; // Map indexes to input offsets
 };
 
 }
