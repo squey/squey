@@ -6,12 +6,12 @@
  */
 
 #include "PVFieldSplitterPcapPacket.h"
+
+#include <pvkernel/core/dumbnet.h>
 #include <pvkernel/core/network.h>
 #include <pvkernel/rush/PVUnicodeSource.h>
 #include <pvkernel/rush/PVInputPcap.h>
 
-#include <QStringList>
-#include <QHash>
 #include <QDateTime>
 
 // PCAP
@@ -19,13 +19,7 @@
 #include <pcap/sll.h>
 #include <arpa/inet.h>
 
-#include <pvkernel/core/dumbnet.h>
-
 #include <tbb/scalable_allocator.h>
-
-#define TCP_SESSIONS_MAX 4096
-#define TCP_DATA_KEEP_MAX 524288	// 512k should be enough to keep for modern internet :)
-QHash<uint32_t, QString> tcp_data;		// Key = ack number; string = data
 
 struct pcap_decode_buf {
 	PVCore::list_fields *l;
@@ -146,7 +140,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterPcapPacket::one_to_many(
 
 static void pcap_decode_add_field(pcap_decode_buf* buf, QString const& field)
 {
-	size_t bufsize = field.size() * sizeof(QChar);
+	size_t bufsize = field.size();
 	if (bufsize > buf->rem_len) {
 		PVCore::PVField f(*buf->parent);
 		PVCore::PVField &ins_f(*buf->l->insert(buf->it_ins, f));

@@ -28,7 +28,7 @@ static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/re
 
 int main()
 {
-	pvtest::TestSplitter ts(log_file, nb_dup);
+	pvtest::TestSplitter<> ts(log_file, nb_dup);
 
 	// Prepare splitter plugin
 	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");

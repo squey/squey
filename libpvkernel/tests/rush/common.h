@@ -77,12 +77,13 @@ namespace pvtest {
      *
      * Usefull to check splitter behavior.
      */
+    template <class Input = PVRush::PVInputFile>
     class TestSplitter
     {
         public:
         TestSplitter(std::string const& log_file, size_t dup = 1):
                 _big_file_path(init_ctxt(log_file, dup)),
-                _source(std::make_shared<PVRush::PVInputFile>(_big_file_path.c_str()), chunk_size)
+                _source(std::make_shared<Input>(_big_file_path.c_str()), chunk_size)
         {}
 
         PVRush::PVUnicodeSource<>& get_source() { return _source; }
