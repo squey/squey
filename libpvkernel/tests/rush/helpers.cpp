@@ -119,39 +119,21 @@ void dump_chunk_size_elts(PVChunk& c)
 
 void dump_chunk_raw(PVChunk const& c)
 {
-	list_elts const& l = c.c_elements();
-	list_elts::const_iterator it,ite;
-	ite = l.end();
-	for (it = l.begin(); it != ite; it++) {
-		PVElement const& elt = *(*it);
-		list_fields const& l = elt.c_fields();
-		list_fields::const_iterator itf;
-		for (itf = l.begin(); itf != l.end(); itf++) {
-			PVField const& f = *itf;
-			const char* start = f.begin();
-			const char* end = f.end();
-			write(1, start, ((ptrdiff_t)end-(ptrdiff_t)start));
+	for (PVElement const* elt: c.c_elements()) {
+		for (PVField const& f: elt->c_fields()) {
+			std::cout << std::string(f.begin(), f.end());
 		}
+		std::cout << std::endl;
 	}
 }
 
 void dump_chunk_newline(PVChunk const& c)
 {
-	list_elts const& l = c.c_elements();
-	list_elts::const_iterator it,ite;
-	ite = l.end();
-	const uint16_t newline = 0x0A;
-	for (it = l.begin(); it != ite; it++) {
-		PVElement const& elt = *(*it);
-		list_fields const& l = elt.c_fields();
-		list_fields::const_iterator itf;
-		for (itf = l.begin(); itf != l.end(); itf++) {
-			PVField const& f = *itf;
-			const char* start = f.begin();
-			const char* end = f.end();
-			write(1, start, ((ptrdiff_t)end-(ptrdiff_t)start));
+	for(PVElement const* elt: c.c_elements()) {
+		for(PVField const& f: elt->c_fields()) {
+			std::cout << std::string(f.begin(), f.end());
 		}
-		write(1, &newline, 2);
+		std::cout << std::endl;
 	}
 }
 

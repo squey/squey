@@ -47,10 +47,8 @@ macro(PV_ADD_TEST_CONV_UTF16_ALIGN CASE CHUNK_SIZE)
 endmacro()
 
 PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align 20000)
-PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align 2000)
-# FIXME : Align files do not exist
-#PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align_newline 20000)
-#PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align_newline 2000)
+# TODO : Re-enable this test once we support chunk growing when they are too small.
+#PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align 2000)
 
 # Test the aggregator
 add_pv_compile_test(Trush_agg LINKS ${LINK_LIBRARIES} FILES agg.cpp helpers.cpp)

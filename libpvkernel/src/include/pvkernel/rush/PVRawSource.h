@@ -11,11 +11,18 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
+#include <pvkernel/rush/PVCharsetDetect.h>
 #include <pvkernel/rush/PVInput.h>
 #include <memory>
 #include <iostream>
+#include <iterator>
 
 #include <tbb/tbb_allocator.h>
+
+extern "C" {
+#include <unicode/ucsdet.h>
+#include <unicode/ucnv.h>
+}
 
 namespace PVRush {
 
@@ -145,17 +152,89 @@ public:
 			}
 		}
 
+		char* b = _curc->begin();
+
+		UErrorCode status = U_ZERO_ERROR;
+
+		static std::string charset;
+		if (!_cd.found() and charset == "") {
+			if (_cd.HandleData(b, r) == NS_OK) {
+				_cd.DataEnd();
+				if (_cd.found()) {
+					charset = _cd.GetCharset();
+					PVLOG_DEBUG("Encoding found : %s\n", charset.c_str());
+					bool remove_bom = false;
+					if (charset.find("UTF") != charset.npos) // Remove BOM only for UTF-X
+						remove_bom = true;
+
+					if(remove_bom)
+						b = begining_with_bom(b);
+				} else {
+					// If charset is not set, it is pure ascii. Included in UTF-8.
+					charset = "UTF-8";
+					b = begining_with_bom(b);
+				}
+			}
+		}
+
+		int extra_char = 0;
+		if(charset.find("UTF-16") != charset.npos)
+		{
+			extra_char = 1;
+		} else if(charset.find("UTF-32") != charset.npos) {
+			extra_char = 3;
+		}
+
+		char* last = nullptr;
+		for(char* it=_curc->end() + r; it!=_curc->begin(); --it) {
+			if(*it == '\n') {
+				last = it;
+				break;
+			}
+		}
+		if(last == nullptr)
+		{
+			// TODO : We should increase chunk size and do it all over again.
+			throw std::runtime_error("No new line in the read chunk. You need bigger chunk size");
+		}
+
 		// Process the read data
-		char* b = begining_with_bom(_curc->begin());
 		auto end = _curc->end()+r;
 
-		// Create an element and align its end on Chunk's end
-		char* begin = create_elements(b, end);
-
 		// Copy remaining chars in the next chunk
-		_nextc->set_end(std::copy(begin, end, _nextc->begin()));
+		_nextc->set_end(std::copy(last + 1 + extra_char, end, _nextc->begin()));
 
-		_curc->set_end(begin);
+		_curc->set_end(last + 1 + extra_char);
+
+		if(charset != "UTF-8") {
+			size_t tmp_size = _curc->size();
+			std::unique_ptr<char[]> tmp_dest(new char[tmp_size]);
+			std::copy(b, _curc->end(), tmp_dest.get());
+
+			UConverter *utf8Cnv = ucnv_open("UTF-8", &status);
+
+			if(U_FAILURE(status)) {
+				throw std::runtime_error("Fail conversion 1");
+			}
+
+			UConverter* cnv = ucnv_open(charset.c_str(), &status);
+			if(U_FAILURE(status)) {
+				throw std::runtime_error("Fail conversion 2");
+			}
+			char* target = b;
+			const char* dest = tmp_dest.get();
+
+			ucnv_convertEx(utf8Cnv, cnv, &target, _curc->physical_end(), &dest, tmp_dest.get() + tmp_size, NULL, NULL, NULL, NULL, true, true, &status);
+			if (U_FAILURE(status)) {
+				throw std::runtime_error("Fail conversion");
+			}
+			_curc->set_end(target);
+			ucnv_close(cnv);
+			ucnv_close(utf8Cnv);
+		}
+
+		// Create an element and align its end on Chunk's end
+		create_elements(b, _curc->end());
 
 		// Set the index of the elements inside the chunk
 		_curc->set_elements_index();
@@ -244,6 +323,7 @@ protected:
 	PVCore::PVChunk* _nextc; //!< Pointer to next chunk.
 	alloc_chunk _alloc;
 	map_offsets _offsets; // Map indexes to input offsets
+	mutable PVCharsetDetect _cd; //!< Charset detector : FIXME Should exist only for Text files !!!
 };
 
 }
