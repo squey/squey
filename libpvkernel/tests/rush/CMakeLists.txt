@@ -65,7 +65,15 @@ add_test(TestAggregatorStrict2 ${TEST_DIFF_STDOUT}
 	${CMAKE_CURRENT_BINARY_DIR}/Trush_agg_strict 6000
 	${PVRUSH_TEST_FILES}/aggregator/set2)
 
-# Test the extractor
+# Test for splitters
+add_pv_compile_test(Trush_splitter_ipv4 LINKS ${LINK_LIBRARIES} FILES splitter_ipv4.cpp helpers.cpp)
+add_test(Trush_splitter_ipv4 Trush_splitter_ipv4)
+add_bench(Trush_splitter_ipv4 LINKS ${LINK_LIBRARIES} FILES splitter_ipv4.cpp helpers.cpp)
+
+add_pv_compile_test(Trush_splitter_ipv6 LINKS ${LINK_LIBRARIES} FILES splitter_ipv6.cpp helpers.cpp)
+add_test(Trush_splitter_ipv6 Trush_splitter_ipv6)
+add_bench(Trush_splitter_ipv6 LINKS ${LINK_LIBRARIES} FILES splitter_ipv6.cpp helpers.cpp)
+
 add_pv_compile_test(Trush_splitter_regexp LINKS ${LINK_LIBRARIES} FILES splitter_regexp.cpp helpers.cpp)
 add_test(Trush_splitter_regexp Trush_splitter_regexp)
 add_bench(Trush_splitter_regexp LINKS ${LINK_LIBRARIES} FILES splitter_regexp.cpp helpers.cpp)

@@ -187,29 +187,29 @@ declare_library(normalize_filter_splitter_pcap)
 #target_link_libraries(normalize_filter_splitter_key_value pvkernel)
 #declare_library(normalize_filter_splitter_key_value)
 #
-################################################################################
-## IP Splitter
-################################################################################
-#
-## Define ressources
-#SET(SPLITTERIP_MOC_HEADERS
-#splitter_ip/PVFieldSplitterIPParamWidget.h
-#)
-#
-#SET(IP_SRC
-#splitter_ip/PVFieldSplitterIP.cpp
-#splitter_ip/PVFieldSplitterIPParamWidget.cpp
-#splitter_ip/register.cpp
-#)
-#
-## Generate Qt files
-#QT5_WRAP_CPP(SPLITTERIP_MOC_SRCS ${SPLITTERIP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-#
-## Create lib
-#add_library(normalize_filter_splitter_ip SHARED ${IP_SRC} ${SPLITTERIP_MOC_SRCS})
-#target_link_libraries(normalize_filter_splitter_ip pvkernel)
-#declare_library(normalize_filter_splitter_ip)
-#
+###############################################################################
+# IP Splitter
+###############################################################################
+
+# Define ressources
+SET(SPLITTERIP_MOC_HEADERS
+splitter_ip/PVFieldSplitterIPParamWidget.h
+)
+
+SET(IP_SRC
+splitter_ip/PVFieldSplitterIP.cpp
+splitter_ip/PVFieldSplitterIPParamWidget.cpp
+splitter_ip/register.cpp
+)
+
+# Generate Qt files
+QT5_WRAP_CPP(SPLITTERIP_MOC_SRCS ${SPLITTERIP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+# Create lib
+add_library(normalize_filter_splitter_ip SHARED ${IP_SRC} ${SPLITTERIP_MOC_SRCS})
+target_link_libraries(normalize_filter_splitter_ip pvkernel)
+declare_library(normalize_filter_splitter_ip)
+
 ###############################################################################
 # Duplicate Splitter
 ###############################################################################
