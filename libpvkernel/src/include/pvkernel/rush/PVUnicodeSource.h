@@ -11,21 +11,25 @@
 #include <pvkernel/rush/PVCharsetDetect.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVInput.h>
-
-extern "C" {
-#include <unicode/ucsdet.h>
-#include <unicode/ucnv.h>
-}
+#include <pvkernel/rush/PVConverter.h>
 
 namespace PVRush {
 
-template < template <class T> class Allocator = PVCore::PVMMapAllocator >
+/**
+ * Exception throw from error with Unicode Source.
+ */
+class UnicodeSourceError : public std::runtime_error
+{
+	using std::runtime_error::runtime_error;
+};
 
-	/**
-	 * Source to read file in unicode format.
-	 *
-	 * It creates Chunks/Elements/Fields without BOM and in UTF-8
-	 */
+
+/**
+ * Source to read file in unicode format.
+ *
+ * It creates Chunks/Elements/Fields without BOM and in UTF-8
+ */
+template < template <class T> class Allocator = PVCore::PVMMapAllocator >
 class PVUnicodeSource : public PVRawSourceBase {
 public:
 	using alloc_chunk = Allocator<char>;
@@ -34,8 +38,8 @@ public:
 
 public:
 	PVUnicodeSource(PVInput_p input, size_t chunk_size, const alloc_chunk &alloc = alloc_chunk()) :
-		PVRawSourceBase(), _chunk_size(chunk_size), _input(input),
-		_curc(nullptr), _nextc(nullptr), _alloc(alloc)
+		PVRawSourceBase(), _chunk_size(chunk_size), _input(input), _alloc(alloc),
+		_utf8_converter("UTF-8")
 	{
 		assert(chunk_size > 10);
 		assert(input);
@@ -112,6 +116,87 @@ public:
 		return begin_read;
 	}
 
+	/**
+	 *  Give real begin and end of the buffer to process.
+	 *
+	 *  * Handle BOM
+	 *  * Handle new line for UTF-16 and UTF 32
+	 *  * Detect charset for future processing.
+	 */
+	std::pair<char*, char*> get_buffer_range(char* begin, size_t len)
+	{
+		if (!_cd.found() and _charset == "") {
+			if (_cd.HandleData(begin, len) == NS_OK) {
+				_cd.DataEnd();
+				if (_cd.found()) {
+					_charset = _cd.GetCharset();
+					PVLOG_DEBUG("Encoding found : %s\n", _charset.c_str());
+
+					bool remove_bom = (_charset.find("UTF") != _charset.npos); // Remove BOM only for UTF-X
+					if(remove_bom) {
+						begin = begining_with_bom(begin);
+					}
+
+				} else {
+					// If charset is not set, it is pure ascii. Included in UTF-8.
+					_charset = "UTF-8";
+					begin = begining_with_bom(begin);
+				}
+			}
+		}
+
+		int extra_char = 0;
+		if(_charset.find("UTF-16") != _charset.npos)
+		{
+			extra_char = 1;
+		} else if(_charset.find("UTF-32") != _charset.npos) {
+			extra_char = 3;
+		}
+
+		// FIXME : This is a manual "reverse find" as reverse_iterator appear only with C++14
+		char* last = nullptr;
+		for(char* it=begin + len; it!=begin; --it) {
+			if(*it == '\n') {
+				last = it;
+				break;
+			}
+		}
+		if(last == nullptr)
+		{
+			// TODO : We should increase chunk size and do it all over again.
+			throw UnicodeSourceError("No new line in the read chunk. You need bigger chunk size");
+		}
+
+		return std::make_pair(begin, last + 1 + extra_char);
+	}
+
+	/**
+	 * Refill Chunk buffer with UTF-8 data and return new end position for the buffer
+	 */
+	char* convert_buffer(char* begin, char* end)
+	{
+		if(_charset != "UTF-8") {
+			_tmp_buf.resize(std::distance(begin, end));
+			std::copy(begin, end, _tmp_buf.begin());
+
+			if(not _origin_converter) {
+				_origin_converter.reset(new PVConverter(_charset));
+			}
+
+			char* target = begin;
+			const char* dest = &_tmp_buf.front();
+
+			UErrorCode status = U_ZERO_ERROR;
+			ucnv_convertEx(&_utf8_converter.get(), &_origin_converter->get(), &target, _curc->physical_end(), &dest, dest + _tmp_buf.size(), NULL, NULL, NULL, NULL, true, true, &status);
+			if (U_FAILURE(status)) {
+				throw UnicodeSourceError("Fail conversion from ICU");
+			}
+			return target;
+		}
+		
+		return end;
+	}
+
 
 	/**
 	 * Generate a new Chunk.
@@ -151,86 +236,15 @@ public:
 			}
 		}
 
-		char* b = _curc->begin();
-
-		UErrorCode status = U_ZERO_ERROR;
-
-		static std::string charset;
-		if (!_cd.found() and charset == "") {
-			if (_cd.HandleData(b, r) == NS_OK) {
-				_cd.DataEnd();
-				if (_cd.found()) {
-					charset = _cd.GetCharset();
-					PVLOG_DEBUG("Encoding found : %s\n", charset.c_str());
-					bool remove_bom = false;
-					if (charset.find("UTF") != charset.npos) // Remove BOM only for UTF-X
-						remove_bom = true;
-
-					if(remove_bom)
-						b = begining_with_bom(b);
-				} else {
-					// If charset is not set, it is pure ascii. Included in UTF-8.
-					charset = "UTF-8";
-					b = begining_with_bom(b);
-				}
-			}
-		}
-
-		int extra_char = 0;
-		if(charset.find("UTF-16") != charset.npos)
-		{
-			extra_char = 1;
-		} else if(charset.find("UTF-32") != charset.npos) {
-			extra_char = 3;
-		}
-
-		char* last = nullptr;
-		for(char* it=_curc->end() + r; it!=_curc->begin(); --it) {
-			if(*it == '\n') {
-				last = it;
-				break;
-			}
-		}
-		if(last == nullptr)
-		{
-			// TODO : We should increase chunk size and do it all over again.
-			throw std::runtime_error("No new line in the read chunk. You need bigger chunk size");
-		}
+		char* b;
+		char* end;
+		std::tie(b, end) = get_buffer_range(_curc->begin(), _curc->size() + r);
 
 		// Process the read data
-		auto end = _curc->end()+r;
-
 		// Copy remaining chars in the next chunk
-		_nextc->set_end(std::copy(last + 1 + extra_char, end, _nextc->begin()));
+		_nextc->set_end(std::copy(end, _curc->end()+r, _nextc->begin()));
 
-		_curc->set_end(last + 1 + extra_char);
-
-		if(charset != "UTF-8") {
-			size_t tmp_size = _curc->size();
-			std::unique_ptr<char[]> tmp_dest(new char[tmp_size]);
-			std::copy(b, _curc->end(), tmp_dest.get());
-
-			UConverter *utf8Cnv = ucnv_open("UTF-8", &status);
-
-			if(U_FAILURE(status)) {
-				throw std::runtime_error("Fail conversion 1");
-			}
-
-			UConverter* cnv = ucnv_open(charset.c_str(), &status);
-			if(U_FAILURE(status)) {
-				throw std::runtime_error("Fail conversion 2");
-			}
-			char* target = b;
-			const char* dest = tmp_dest.get();
-
-			ucnv_convertEx(utf8Cnv, cnv, &target, _curc->physical_end(), &dest, tmp_dest.get() + tmp_size, NULL, NULL, NULL, NULL, true, true, &status);
-			if (U_FAILURE(status)) {
-				throw std::runtime_error("Fail conversion");
-			}
-			_curc->set_end(target);
-			ucnv_close(cnv);
-			ucnv_close(utf8Cnv);
-		}
+		_curc->set_end(convert_buffer(b, end));
 
 		// Create an element and align its end on Chunk's end
 		create_elements(b, _curc->end());
@@ -315,10 +329,16 @@ private:
 	size_t _chunk_size; //!< Size of the chunk
 	PVInput_p _input; //!< Input source where we read data
 	map_offsets _offsets; //!< Map indexes to input offsets
-	PVCore::PVChunk* _curc; //!< Pointer to current chunk.
-	PVCore::PVChunk* _nextc; //!< Pointer to next chunk.
-	PVCharsetDetect _cd; //!< Charset detector
+	PVCore::PVChunk* _curc = nullptr; //!< Pointer to current chunk.
+	PVCore::PVChunk* _nextc = nullptr; //!< Pointer to next chunk.
 	alloc_chunk _alloc; //!< Allocator to create chunks
+
+	// Attribute for charset conversion to UTF-8
+	PVCharsetDetect _cd; //!< Charset detector
+	std::string _charset; //!< Detected charset
+	PVConverter _utf8_converter = nullptr; //!< ICU converter to UTF 8
+	std::unique_ptr<PVConverter> _origin_converter = nullptr; //!< ICU converter from origin charset
+	std::string _tmp_buf; //!< Temporary buffer use for charset conversion
 };
 
 }
