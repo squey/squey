@@ -7,7 +7,7 @@
 
 #include "PVFieldSplitterPcapPacket.h"
 #include <pvkernel/core/network.h>
-#include <pvkernel/rush/PVRawSource.h>
+#include <pvkernel/rush/PVUnicodeSource.h>
 #include <pvkernel/rush/PVInputPcap.h>
 
 #include <QStringList>
@@ -72,7 +72,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterPcapPacket::one_to_many(
 	}
 
 	if (_datalink_type == -1) {
-		PVRush::PVRawSource<>* src = dynamic_cast<PVRush::PVRawSource<>*>(field.elt_parent()->chunk_parent()->source());
+		PVRush::PVUnicodeSource<>* src = dynamic_cast<PVRush::PVUnicodeSource<>*>(field.elt_parent()->chunk_parent()->source());
 		if (src) {
 			PVRush::PVInputPcap* pcap = dynamic_cast<PVRush::PVInputPcap*>(src->get_input().get());
 			if (pcap) {

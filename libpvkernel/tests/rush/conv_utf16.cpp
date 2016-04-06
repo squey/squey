@@ -7,7 +7,7 @@
 
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/rush/PVInputFile.h>
-#include <pvkernel/rush/PVRawSource.h>
+#include <pvkernel/rush/PVUnicodeSource.h>
 #include <cstdlib>
 #include <iostream>
 #include "helpers.h"
@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 
 	PVCore::PVIntrinsics::init_cpuid();
 	PVInput_p ifile(new PVInputFile(argv[1]));
-	PVRawSource<> source(ifile, atoi(argv[2]));
+	PVUnicodeSource<> source(ifile, atoi(argv[2]));
 
 	PVChunk* pc = source();
 

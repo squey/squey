@@ -17,7 +17,7 @@
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVElement.h>
-#include <pvkernel/rush/PVRawSource.h>
+#include <pvkernel/rush/PVUnicodeSource.h>
 #include <pvkernel/rush/PVInputFile.h>
 
 /******************************************************************************
@@ -121,7 +121,7 @@ void PVWidgets::PVPlainTextEditor::slot_import_file()
 	try {
 		PVRush::PVInputFile* pfile = new PVRush::PVInputFile(qPrintable(file));
 		PVRush::PVInput_p input(pfile);
-		PVRush::PVRawSource<std::allocator> txt_src(input, 10*1024*1024);
+		PVRush::PVUnicodeSource<std::allocator> txt_src(input, 10*1024*1024);
 		PVCore::PVChunk* chunk = txt_src();
 		std::string txt;
 		while (chunk) {

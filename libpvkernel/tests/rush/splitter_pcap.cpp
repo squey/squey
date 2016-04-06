@@ -10,7 +10,7 @@
 #include <pvkernel/filter/PVElementFilterByFields.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVInputPcap.h>
-#include <pvkernel/rush/PVRawSource.h>
+#include <pvkernel/rush/PVUnicodeSource.h>
 #include <cstdlib>
 #include <iostream>
 #include "helpers.h"
@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
 
 	PVInput_p ifile(new PVInputPcap(argv[1]));
-	PVRush::PVRawSource<> source(ifile, atoi(argv[2]));
+	PVRush::PVUnicodeSource<> source(ifile, atoi(argv[2]));
 
 	return !process_filter(source, chk_flt->f());
 }

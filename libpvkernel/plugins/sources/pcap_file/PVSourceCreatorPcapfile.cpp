@@ -21,7 +21,7 @@ PVRush::PVSourceCreatorPcapfile::source_p PVRush::PVSourceCreatorPcapfile::creat
 	assert(file);
 	PVRush::PVInput_p ipcap(new PVRush::PVInputPcap(file->path().toLocal8Bit().constData()));
 	// FIXME: chunk size must be computed somewhere once and for all !
-	source_p src = PVRush::PVRawSourceBase_p(new PVRush::PVRawSource<>(ipcap, 16000));
+	source_p src = PVRush::PVRawSourceBase_p(new PVRush::PVUnicodeSource<>(ipcap, 16000));
 
 	return src;
 }

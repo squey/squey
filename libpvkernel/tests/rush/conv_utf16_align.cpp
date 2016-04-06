@@ -7,7 +7,6 @@
 
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/rush/PVInputFile.h>
-#include <pvkernel/rush/PVRawSource.h>
 #include <pvkernel/rush/PVUnicodeSource.h>
 #include <pvkernel/rush/PVAggregator.h>
 #include <cstdlib>
