@@ -40,15 +40,7 @@ const std::string PVRush::PVNraw::default_quote_char = "\"";
 PVRush::PVNraw::PVNraw():
 	_real_nrows(0),
 	_invalid_count(0)
-{
-	UErrorCode status = U_ZERO_ERROR;
-	_ucnv = ucnv_open("UTF8", &status);
-}
-
-PVRush::PVNraw::~PVNraw()
-{
-	ucnv_close(_ucnv);
-}
+{}
 
 /*****************************************************************************
  *

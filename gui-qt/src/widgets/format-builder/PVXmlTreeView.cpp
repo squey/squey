@@ -32,10 +32,10 @@
  *****************************************************************************/
 PVInspector::PVXmlTreeView::PVXmlTreeView(QWidget * parent ) :QTreeView(parent) //
 {
-    setDragEnabled(TRUE);
-    setAcceptDrops(TRUE);
-    setDropIndicatorShown(TRUE);
-    isDraging = FALSE;
+    setDragEnabled(true);
+    setAcceptDrops(true);
+    setDropIndicatorShown(true);
+    isDraging = false;
     isEditing = false;
     setObjectName("PVXmlTreeView");
 }
