@@ -210,29 +210,29 @@ declare_library(normalize_filter_splitter_pcap)
 #target_link_libraries(normalize_filter_splitter_ip pvkernel)
 #declare_library(normalize_filter_splitter_ip)
 #
-################################################################################
-## Duplicate Splitter
-################################################################################
-#
-## Define ressource
-#SET(DUPLICATE_MOC_HEADERS
-#splitter_duplicate/PVFieldSplitterDuplicateParamWidget.h
-#)
-#
-#SET(DUPLICATE_SRC
-#splitter_duplicate/PVFieldDuplicate.cpp
-#splitter_duplicate/PVFieldSplitterDuplicateParamWidget.cpp
-#splitter_duplicate/register.cpp
-#)
-#
-## Generate Qt files
-#QT5_WRAP_CPP(DUPLICATE_MOC_SRCS ${DUPLICATE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-#
-## Create lib
-#add_library(normalize_filter_splitter_duplicate SHARED ${DUPLICATE_SRC} ${DUPLICATE_MOC_SRCS})
-#target_link_libraries(normalize_filter_splitter_duplicate pvkernel)
-#declare_library(normalize_filter_splitter_duplicate)
-#
+###############################################################################
+# Duplicate Splitter
+###############################################################################
+
+# Define ressource
+SET(DUPLICATE_MOC_HEADERS
+splitter_duplicate/PVFieldSplitterDuplicateParamWidget.h
+)
+
+SET(DUPLICATE_SRC
+splitter_duplicate/PVFieldDuplicate.cpp
+splitter_duplicate/PVFieldSplitterDuplicateParamWidget.cpp
+splitter_duplicate/register.cpp
+)
+
+# Generate Qt files
+QT5_WRAP_CPP(DUPLICATE_MOC_SRCS ${DUPLICATE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+# Create lib
+add_library(normalize_filter_splitter_duplicate SHARED ${DUPLICATE_SRC} ${DUPLICATE_MOC_SRCS})
+target_link_libraries(normalize_filter_splitter_duplicate pvkernel)
+declare_library(normalize_filter_splitter_duplicate)
+
 ################################################################################
 ## MacAdresse Splitter
 ################################################################################

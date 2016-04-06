@@ -5,7 +5,6 @@
 # @copyright (C) ESI Group INENDI April 2015-2015
 
 configure_file(test_issues.sh.cmake test_issues.sh @ONLY)
-configure_file(test_splitter_duplicate.sh.cmake test_splitter_duplicate.sh @ONLY)
 
 set(LINK_LIBRARIES pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY})
 
@@ -83,9 +82,10 @@ add_pv_compile_test(Trush_splitter_pcap LINKS ${LINK_LIBRARIES} FILES splitter_p
 add_test(Trush_splitter_pcap Trush_splitter_pcap)
 add_bench(Trush_splitter_pcap LINKS ${LINK_LIBRARIES} FILES splitter_pcap.cpp helpers.cpp)
 
-
 add_pv_compile_test(Trush_splitter_duplicate LINKS ${LINK_LIBRARIES} FILES splitter_duplicate.cpp helpers.cpp)
-add_test(Trush_splitter_duplicate ${CMAKE_CURRENT_BINARY_DIR}/test_splitter_duplicate.sh)
+add_test(Trush_splitter_duplicate Trush_splitter_duplicate)
+add_bench(Trush_splitter_duplicate LINKS ${LINK_LIBRARIES} FILES splitter_duplicate.cpp helpers.cpp)
+
 add_pv_compile_test(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filter_composition.cpp helpers.cpp)
 add_test(TestFilterComposition ${TEST_DIFF_STDOUT}
 	${PVRUSH_TEST_FILES}/filter_composition.out
