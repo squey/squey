@@ -42,7 +42,7 @@ void PVCuda::visit_usable_cuda_devices(std::function<void(int)> const& f)
 	cudaDeviceProp prop;
 	for (size_t i = 0; i < get_number_of_devices(); i++) {
 		inendi_verify_cuda(cudaGetDeviceProperties(&prop, i));
-		if (prop.major >= 2) {
+		if (prop.major >= CUDA_COMP_CAP_MIN_VERSION) {
 			f(i);
 		}
 	}
