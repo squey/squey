@@ -61,7 +61,7 @@ int main()
 		}
 		std::cout << dur.count();
 
-//		PV_VALID(nelts_valid, nelts_org);
+		PV_VALID(nelts_valid, nelts_org);
 	}
 
 #ifndef INSPECTOR_BENCH

@@ -11,7 +11,6 @@
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
 #include <QWidget>
-#include <QPushButton>
 
 namespace PVFilter {
 
@@ -30,13 +29,9 @@ public:
 		return 2;
 	}
 
-private slots:
-	void update_case(bool uppecased);
-
 private:
 	QAction*     _action_menu;
 	QWidget*     _param_widget;
-	QPushButton* _case_button;
 
 private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterMacAddressParamWidget)
