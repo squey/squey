@@ -30,7 +30,7 @@ public:
 	                                           PVCore::PVField &field);
 
 private:
-	bool _uppercased;
+	bool _uppercased; //!< Wether field should be uppercase. FIXME : Doesn't work.
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterMacAddress)
 };

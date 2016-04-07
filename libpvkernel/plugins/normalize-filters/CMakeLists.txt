@@ -216,29 +216,29 @@ add_library(normalize_filter_splitter_duplicate SHARED ${DUPLICATE_SRC} ${DUPLIC
 target_link_libraries(normalize_filter_splitter_duplicate pvkernel)
 declare_library(normalize_filter_splitter_duplicate)
 
-################################################################################
-## MacAdresse Splitter
-################################################################################
-#
-## Define ressources
-#SET(MACADDRESS_MOC_HEADERS
-#splitter_mac_address/PVFieldSplitterMacAddressParamWidget.h
-#)
-#
-#SET(MACADDRESS_SRC
-#splitter_mac_address/PVFieldSplitterMacAddress.cpp
-#splitter_mac_address/PVFieldSplitterMacAddressParamWidget.cpp
-#splitter_mac_address/register.cpp
-#)
-#
-##Generate Qt files
-#QT5_WRAP_CPP(MACADDRESS_MOC_SRCS ${MACADDRESS_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-#
-## Create lib
-#add_library(normalize_filter_splitter_mac_address SHARED ${MACADDRESS_SRC} ${MACADDRESS_MOC_SRCS})
-#target_link_libraries(normalize_filter_splitter_mac_address pvkernel)
-#declare_library(normalize_filter_splitter_mac_address)
-#
+###############################################################################
+# MacAdresse Splitter
+###############################################################################
+
+# Define ressources
+SET(MACADDRESS_MOC_HEADERS
+splitter_mac_address/PVFieldSplitterMacAddressParamWidget.h
+)
+
+SET(MACADDRESS_SRC
+splitter_mac_address/PVFieldSplitterMacAddress.cpp
+splitter_mac_address/PVFieldSplitterMacAddressParamWidget.cpp
+splitter_mac_address/register.cpp
+)
+
+#Generate Qt files
+QT5_WRAP_CPP(MACADDRESS_MOC_SRCS ${MACADDRESS_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+# Create lib
+add_library(normalize_filter_splitter_mac_address SHARED ${MACADDRESS_SRC} ${MACADDRESS_MOC_SRCS})
+target_link_libraries(normalize_filter_splitter_mac_address pvkernel)
+declare_library(normalize_filter_splitter_mac_address)
+
 ################################################################################
 ## DNSFQDN Splitter
 ################################################################################
