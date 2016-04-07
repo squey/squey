@@ -44,7 +44,6 @@ core/PVHSVColor.cpp
 core/PVPredefinedHSVColors.cpp
 core/PVLogger.cpp
 core/PVMatrix.cpp
-core/PVPCRESplitter.cpp
 core/PVProgressBox.cpp
 core/PVPluginPresets.cpp
 core/PVSelBitField.cpp
@@ -53,7 +52,6 @@ core/PVSerializeArchiveFixError.cpp
 core/PVSerializeArchiveOptions.cpp
 core/PVSerializeArchiveZip.cpp
 core/PVSerializeObject.cpp
-core/PVSplitter.cpp
 core/PVUnicodeString.cpp
 core/PVUtils.cpp
 core/PVVersion.cpp
