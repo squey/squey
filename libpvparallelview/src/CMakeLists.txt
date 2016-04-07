@@ -13,7 +13,7 @@ endif(CUDA_FOUND)
 
 # CUDA
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
-set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC ${CMAKE_NVCC_GENCODE_FLAGS}" "-Xptxas=-v")
+set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC ${NVCC_GENCODE_FLAGS}" "-Xptxas=-v" "--compiler-bindir gcc")
 #set(CUDA_NVCC_FLAGS "-g -G -Xcompiler=-fPIC -gencode arch=compute_20,code=sm_20" "-Xptxas=-v")
 
 ################################################
