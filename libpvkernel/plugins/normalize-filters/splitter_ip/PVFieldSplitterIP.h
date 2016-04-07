@@ -21,13 +21,13 @@ namespace PVFilter {
  * xxx.yyy.zzz.www
  *
  * with params = 1,3 => indexes = 2, 2
- * fields are : yyy and www
+ * fields are : xxx.yyy and zzz.www
  *
  * For ipv6:
- * aaaa::zzzz:eeee:rrrr:tttt:yyyy:uuuu:iiii
+ * aaaa:zzzz:eeee:rrrr:tttt:yyyy:uuuu:iiii
  *
  * with params = 0, 5, 6 => indexes = 1, 5, 1
- * fields are : aaaa, yyyy and uuuu
+ * fields are : aaaa, zzzz:eeee:rrrr:tttt:yyyy and uuuu
  *
  * @note incomplete ipv6 result in empty fields.
  */

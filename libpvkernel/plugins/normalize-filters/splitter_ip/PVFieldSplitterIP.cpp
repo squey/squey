@@ -45,7 +45,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterIP)
 {
 	PVCore::PVArgumentList args;
 	args["ipv6"] = false;
-	args["params"] = "0,1,2,3";
+	args["params"] = "0,1,2";
 	return args;
 }
 
@@ -57,32 +57,13 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterIP)
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterIP::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
 {
 	PVCore::list_fields::size_type ret = 0;
-	char token = '.';
-
-	if (_ipv6) {
-		// WARNING: We don't check second ':' for ipv6. Is it important?
-		token = ':';
-
-		// Set empty fields if the ipv6 is not "full" and mark field as invalid.
-		const size_t canonical_ipv6_max_length = 32+7;
-		// FIXME : Should we pick first elements?
-		std::cout << std::string(field.begin(), field.end()) << " - " << field.size() << "/" << canonical_ipv6_max_length << std::endl;
-		if (field.size() < canonical_ipv6_max_length)
-		{
-			for (size_t i = 0; i < _fields_expected; i++) {
-				PVCore::PVField &ins_f(*l.insert(it_ins, field));
-				ins_f.set_end(ins_f.begin());
-				ins_f.set_invalid();
-			}
-			return _fields_expected;
-		}
-	}
+	char token = (_ipv6)?':':'.';
 
 	char* pos = field.begin();
 	PVCore::PVField f(field);
 	for (size_t index : _indexes) {
+		f.set_begin(pos);
 		for (size_t j = 0; j < index; j++) {
-			f.set_begin(pos);
 			// + 1 to be after the token
 			pos = std::find(pos, field.end(), token) + 1;
 		}
