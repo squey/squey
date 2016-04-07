@@ -11,7 +11,6 @@
 
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVInputFile.h>
-#include <pvkernel/rush/PVInputPcap.h>
 
 #include <QDir>
 #include <QStringList>
@@ -49,19 +48,6 @@ bool PVRush::PVSourceCreatorTextfile::pre_discovery(PVInputDescription_p input) 
 {
 	// AG: I don't know a magic method for being sure that a file is a text-file
 	// We'll let the TBB filters work for the moment...
-	
-	// Just a special case: if this is a pcap, return false
-	pcap_t *pcaph;
-	char errbuf[PCAP_ERRBUF_SIZE];
-
-	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
-	assert(file);
-	pcaph = pcap_open_offline(file->path().toLocal8Bit().constData(), errbuf);
-	if (pcaph) {
-		pcap_close(pcaph);
-		return false;
-	}
-
 	return true;
 }
 

@@ -86,10 +86,6 @@ add_pv_compile_test(Trush_splitter_url LINKS ${LINK_LIBRARIES} FILES splitter_ur
 add_test(Trush_splitter_url Trush_splitter_url)
 add_bench(Trush_splitter_url LINKS ${LINK_LIBRARIES} FILES splitter_url.cpp helpers.cpp)
 
-add_pv_compile_test(Trush_splitter_pcap LINKS ${LINK_LIBRARIES} FILES splitter_pcap.cpp helpers.cpp)
-add_test(Trush_splitter_pcap Trush_splitter_pcap)
-add_bench(Trush_splitter_pcap LINKS ${LINK_LIBRARIES} FILES splitter_pcap.cpp helpers.cpp)
-
 add_pv_compile_test(Trush_splitter_duplicate LINKS ${LINK_LIBRARIES} FILES splitter_duplicate.cpp helpers.cpp)
 add_test(Trush_splitter_duplicate Trush_splitter_duplicate)
 add_bench(Trush_splitter_duplicate LINKS ${LINK_LIBRARIES} FILES splitter_duplicate.cpp helpers.cpp)

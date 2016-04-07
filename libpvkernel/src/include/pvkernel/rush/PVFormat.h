@@ -168,12 +168,6 @@ protected:
 	size_t _first_line;
 	size_t _line_count;
 
-protected:
-	// "Widget" arguments of the format, like:
-	//  * use netflow (for PCAP)
-	// They are editable by the user at the opening of a file/whatever
-	PVCore::PVArgumentList _widget_args;
-
 private:
 	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
 	bool _dump_elts;

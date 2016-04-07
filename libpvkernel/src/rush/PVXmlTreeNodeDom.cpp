@@ -638,10 +638,6 @@ void PVRush::PVXmlTreeNodeDom::version0to1() {
         type=splitter;
         getDom().setTagName("splitter");
         setAttribute("type", "url");
-    } else if (getDom().tagName() == "pcap") {
-        type=splitter;
-        getDom().setTagName("splitter");
-        setAttribute("type", "pcap");
     } else if (getDom().tagName() == "csv") {
         type=splitter;
         getDom().setTagName("splitter");

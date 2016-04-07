@@ -26,9 +26,6 @@ enable_testing()
 # Generic configuration for inspector
 ###############################################################################
 
-# Used for Dumbnet and Pcap
-include(CheckFunctionExists)
-
 # Used for ICU, TBB and HWLoc
 find_package(PkgConfig)
 

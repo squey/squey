@@ -12,7 +12,6 @@
 #include <pvkernel/filter/PVElementFilterByFields.h>
 
 #include <pvkernel/rush/PVInputFile.h>
-#include <pvkernel/rush/PVInputPcap.h>
 #include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>

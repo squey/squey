@@ -18,7 +18,6 @@ include_directories(${Qt5Sql_INCLUDE_DIRS})
 
 set(SOURCES_DIST_LIST
 source_text_file
-source_pcap_file
 source_perl_file
 source_elasticsearch
 source_splunk
@@ -46,19 +45,6 @@ text_file/register.cpp
 # Create lib
 add_library(source_text_file SHARED ${TEXT_FILE_SRC})
 target_link_libraries(source_text_file pvkernel)
-
-###############################################################################
-# pcap_file sources
-###############################################################################
-# Define ressources
-SET(PCAP_FILE_SRC
-pcap_file/PVSourceCreatorPcapfile.cpp
-pcap_file/register.cpp
-)
-
-# Create lib
-add_library(source_pcap_file SHARED ${PCAP_FILE_SRC})
-target_link_libraries(source_pcap_file pvkernel ${PCAP_LIBRARIES})
 
 ###############################################################################
 # database sources
