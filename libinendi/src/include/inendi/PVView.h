@@ -354,7 +354,6 @@ protected:
 	PVLayer post_filter_layer; //!< This is the result of the filtering. TODO : FIXME
 	PVLayer layer_stack_output_layer; //!< Layer grouping every information from the layer stack
 	PVLayer output_layer; //!< This is the shown layer.
-	PVRow row_count; //!< This is the number of row in the plotted FIXME : It is invariant duplication.
 	PVLayerStack layer_stack;
 	PVSelection nu_selection; //!< This is zombi and selected elements
 	PVSelection real_output_selection; //!< This is selected elements
