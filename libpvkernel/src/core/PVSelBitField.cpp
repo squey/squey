@@ -11,15 +11,14 @@
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/rush/PVNraw.h>
 
-#include <pvcop/core/memarray.h>
-
 /******************************************************************************
  *
  * PVCore::PVSelBitField::PVSelBitField()
  *
  *****************************************************************************/
-PVCore::PVSelBitField::PVSelBitField():
-	_table(nullptr)
+PVCore::PVSelBitField::PVSelBitField(PVRow count):
+	_table(nullptr),
+	_count(count)
 {
 }
 
@@ -29,7 +28,8 @@ PVCore::PVSelBitField::PVSelBitField():
  *
  *****************************************************************************/
 PVCore::PVSelBitField::PVSelBitField(std::vector<PVRow> const& r_table):
-	_table(nullptr)
+	_table(nullptr),
+	_count(r_table.size())
 {
 	allocate_table();
 	select_none();
@@ -41,9 +41,17 @@ PVCore::PVSelBitField::PVSelBitField(std::vector<PVRow> const& r_table):
 }
 
 PVCore::PVSelBitField::PVSelBitField(PVSelBitField const& o):
-	_table(nullptr)
+	_table(nullptr),
+	_count(o.count())
 {
 	allocate_and_copy_from(o);
+}
+
+PVCore::PVSelBitField::PVSelBitField(PVSelBitField&& o) :
+	_table(o._table),
+	_selection(o._selection),
+	_count(o.count())
+{
 }
 
 PVCore::PVSelBitField::operator pvcop_selection_t&() { return *static_cast<pvcop_selection_t*>(_selection); }
@@ -56,8 +64,10 @@ void PVCore::PVSelBitField::ensure_allocated()
 	}
 }
 
-void PVCore::PVSelBitField::allocate_table() {
-	_selection = new pvcop::core::memarray<bool>(INENDI_LINES_MAX);
+void PVCore::PVSelBitField::allocate_table()
+{
+	assert(_count < INENDI_LINES_MAX);
+	_selection = new pvcop::core::memarray<bool>(_count);
 	_table = (pointer) _selection->data();
 }
 
@@ -71,12 +81,17 @@ void PVCore::PVSelBitField::copy_from(PVSelBitField const& o)
 	assert(_table);
 	assert(o._table);
 
+	const size_t chunks = chunk_count();
+
 	// FIXME : should use pvcop::core::array<bool>::copy_from
-	static_assert(INENDI_SELECTION_NUMBER_OF_CHUNKS % 2 == 0, "INENDI_SELECTION_NUMBER_OF_CHUNKS must be a multiple of 2.");
 	__m128i sse_c;
-	for (size_t i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i += 2) {
+	const PVRow chunks_multiple_of_two = chunks & ~1;
+	for (size_t i = 0; i < chunks_multiple_of_two ; i += 2) {
 		sse_c = _mm_load_si128((__m128i const*) &o._table[i]);
 		_mm_store_si128((__m128i*) &_table[i], sse_c);
+	}
+	if (chunks % 2 != 0) {
+		_table[chunks-1] = o._table[chunks-1];
 	}
 }
 
@@ -114,11 +129,11 @@ std::vector<PVRow> PVCore::PVSelBitField::get_rows_table()
 	}
 
 	std::vector<PVRow> r_table;
-	r_table.reserve(INENDI_LINES_MAX);
+	r_table.reserve(count());
 
 	PVRow line_index;
 
-	for (line_index = 0; line_index < INENDI_LINES_MAX; line_index++) {
+	for (line_index = 0; line_index < count(); line_index++) {
 		if (get_line(line_index)) {
 			r_table.push_back(line_index);
 		}
@@ -137,24 +152,24 @@ bool PVCore::PVSelBitField::is_empty() const
 	if (!_table) {
 		return true;
 	}
+	const size_t chunks = chunk_count();
 #ifdef __SSE4_1__
 	const __m128i ones = _mm_set1_epi32(0xFFFFFFFF);
 	__m128i vec;
-	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i += 2) {
+	for (PVRow i = 0; i < chunks; i += 2) {
 		vec = _mm_load_si128((__m128i*) &_table[i]);
 		if (_mm_testz_si128(vec, ones) == 0) {
 			return false;
 		}
 	}
-#if (INENDI_SELECTION_NUMBER_OF_CHUNKS % 2 != 0)
-	for (PVRow i = (INENDI_SELECTION_NUMBER_OF_CHUNKS/2)*2; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+if (chunks % 2 != 0)
+	for (PVRow i = (chunks/2)*2; i < chunks; i++) {
 		if (_table[i] != 0) {
 			return false;
 		}
 	}
-#endif
 #else
-	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < chunks; i++) {
 		if (_table[i] != 0) {
 			return false;
 		}
@@ -171,7 +186,7 @@ bool PVCore::PVSelBitField::is_empty() const
 bool PVCore::PVSelBitField::is_empty_between(PVRow const a, PVRow b) const
 {
 	assert(b > a);
-	assert(b <= INENDI_LINES_MAX);
+	assert(b <= count());
 
 	if (!_table) {
 		return true;
@@ -180,15 +195,15 @@ bool PVCore::PVSelBitField::is_empty_between(PVRow const a, PVRow b) const
 	// 'b' is not included
 	b--;
 
-	size_t chunk_start = a/INENDI_SELECTION_CHUNK_SIZE;
-	const size_t chunk_end   = b/INENDI_SELECTION_CHUNK_SIZE;
+	size_t chunk_start = a/CHUNK_SIZE;
+	const size_t chunk_end   = b/CHUNK_SIZE;
 	
 	const PVRow cbit = line_index_to_chunk_bit(a);
 	if (cbit > 0) {
 		// Prelogue
 		uint64_t cv = _table[chunk_start];
 		if (chunk_end == chunk_start) {
-			const size_t off = INENDI_SELECTION_CHUNK_SIZE-line_index_to_chunk_bit(b)-1;
+			const size_t off = CHUNK_SIZE-line_index_to_chunk_bit(b)-1;
 			cv = (cv << off) >> off;
 			return (cv >> cbit) == 0;
 		}
@@ -206,7 +221,7 @@ bool PVCore::PVSelBitField::is_empty_between(PVRow const a, PVRow b) const
 	}
 
 	// Epilogue
-	return (_table[chunk_end] << (INENDI_SELECTION_CHUNK_SIZE-line_index_to_chunk_bit(b)-1)) == 0;
+	return (_table[chunk_end] << (CHUNK_SIZE-line_index_to_chunk_bit(b)-1)) == 0;
 }
 
 bool PVCore::PVSelBitField::operator==(const PVSelBitField &rhs) const
@@ -222,7 +237,9 @@ bool PVCore::PVSelBitField::operator==(const PVSelBitField &rhs) const
 		return true;
 	}
 
-	return memcmp(_table, rhs._table, INENDI_SELECTION_NUMBER_OF_BYTES) == 0;
+	assert(count() == rhs.count());
+
+	return memcmp(_table, rhs._table, _selection->mem_size()) == 0;
 }
 
 /******************************************************************************
@@ -244,7 +261,7 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::operator=(const PVSelBitField &rhs
 	}
 	else {
 		if (_table) {
-			memset(_table, 0x00, INENDI_SELECTION_NUMBER_OF_BYTES);
+			memset(_table, 0x00, _selection->mem_size());
 		}
 	}
 
@@ -277,7 +294,10 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::operator&=(const PVSelBitField &r
 		return *this;
 	}
 
-	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	assert(chunk_count() == rhs.chunk_count());
+
+	const size_t chunks = chunk_count();
+	for (PVRow i = 0; i < chunks; i++) {
 		_table[i] &= rhs._table[i];
 	}
 
@@ -291,6 +311,8 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::and_optimized(const PVSelBitField&
 		select_none();
 		return *this;
 	}
+
+	assert(chunk_count() == rhs.chunk_count());
 
 	const ssize_t last_chunk = get_max_last_nonzero_chunk_index(rhs);
 	if (last_chunk >= 0) {
@@ -309,13 +331,15 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::and_optimized(const PVSelBitField&
  *****************************************************************************/
 PVCore::PVSelBitField PVCore::PVSelBitField::operator~() const
 {
-	PVSelBitField result;
+	PVSelBitField result(count());
 	result.allocate_table();
 	if (!_table) {
 		result.select_all();
 	}
 	else {
-		for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		assert(chunk_count() == result.chunk_count());
+		const size_t chunks = chunk_count();
+		for (PVRow i = 0; i < chunks; i++) {
 			result._table[i] = ~_table[i];
 		}
 	}
@@ -330,6 +354,8 @@ PVCore::PVSelBitField PVCore::PVSelBitField::operator~() const
  *****************************************************************************/
 PVCore::PVSelBitField PVCore::PVSelBitField::operator|(const PVSelBitField &rhs) const
 {
+	assert(chunk_count() == rhs.chunk_count());
+
 	PVSelBitField result(*this);
 	result |= rhs;
 
@@ -353,8 +379,10 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::operator|=(const PVSelBitField &r
 		return *this;
 	}
 
+	assert(chunk_count() == rhs.chunk_count());
 
-	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	const size_t chunks = chunk_count();
+	for (PVRow i = 0; i < chunks; i++) {
 		_table[i] |= rhs._table[i];
 	}
 
@@ -391,7 +419,10 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::operator-=(const PVSelBitField &r
 		return *this;
 	}
 
-	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	assert(chunk_count() == rhs.chunk_count());
+
+	const size_t chunks = chunk_count();
+	for (PVRow i = 0; i < chunks; i++) {
 		_table[i] &= ~rhs._table[i];
 	}
 
@@ -415,10 +446,19 @@ void PVCore::PVSelBitField::AB_sub(PVSelBitField const& a, PVSelBitField const& 
 		select_all();
 	}
 
+	assert(chunk_count() == a.chunk_count() && chunk_count() == b.chunk_count());
+
+	const size_t chunks = chunk_count();
+
 #pragma omp parallel for num_threads(nthreads)
-	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < chunks; i++) {
 		_table[i] = a._table[i] & (~b._table[i]);
 	}
+}
+
+size_t PVCore::PVSelBitField::chunk_count() const
+{
+	return _selection->mem_size() / (CHUNK_SIZE / CHUNK_SIZE_BYTE);
 }
 
 /******************************************************************************
@@ -451,7 +491,8 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::operator^=(const PVSelBitField &r
 		return *this;
 	}
 
-	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	const size_t chunks = chunk_count();
+	for (PVRow i = 0; i < chunks; i++) {
 		_table[i] ^= rhs._table[i];
 	}
 
@@ -474,15 +515,17 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::or_not(const PVSelBitField &rhs)
 		return *this;
 	}
 
+	const size_t chunks = chunk_count();
+
 	if (!_table) {
 		allocate_table();
-		for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		for (PVRow i = 0; i < chunks; i++) {
 			_table[i] = ~(rhs._table[i]);
 		}
 		return *this;
 	}
 
-	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < chunks; i++) {
 		_table[i] |= ~(rhs._table[i]);
 	}
 
@@ -506,7 +549,8 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::and_not(const PVSelBitField &rhs)
 		return *this;
 	}
 
-	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	const size_t chunks = chunk_count();
+	for (PVRow i = 0; i < chunks; i++) {
 		_table[i] &= ~(rhs._table[i]);
 	}
 
@@ -529,15 +573,17 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::xor_not(const PVSelBitField &rhs)
 		return *this;
 	}
 
+	const size_t chunks = chunk_count();
+
 	if (!_table) {
 		allocate_table();
-		for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		for (PVRow i = 0; i < chunks; i++) {
 			_table[i] = ~(rhs._table[i]);
 		}
 		return *this;
 	}
 
-	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < chunks; i++) {
 		_table[i] ^= ~(rhs._table[i]);
 	}
 
@@ -554,7 +600,7 @@ void PVCore::PVSelBitField::select_all()
 	if (!_table) {
 		allocate_table();
 	}
-	memset(_table, 0xFF, INENDI_SELECTION_NUMBER_OF_BYTES);
+	memset(_table, 0xFF, _selection->mem_size());
 }
 
 void PVCore::PVSelBitField::select_random()
@@ -562,7 +608,8 @@ void PVCore::PVSelBitField::select_random()
 	if (!_table) {
 		allocate_table();
 	}
-	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	const size_t chunks = chunk_count();
+	for (PVRow i = 0; i < chunks; i++) {
 		_table[i] = (uint64_t) (rand()) | ((uint64_t)(rand()) << 32);
 	}
 }
@@ -576,7 +623,7 @@ void PVCore::PVSelBitField::select_random(const PVRow n)
 	select_none();
 
 	for (PVRow i = 0; i < n; i++) {
-		set_bit_fast(rand() % INENDI_SELECTION_NUMBER_OF_ROWS);
+		set_bit_fast(rand() % count());
 	}
 }
 
@@ -592,7 +639,7 @@ void PVCore::PVSelBitField::select_even()
 	if (!_table) {
 		allocate_table();
 	}
-	memset(_table, 0xAA, INENDI_SELECTION_NUMBER_OF_BYTES);
+	memset(_table, 0xAA, _selection->mem_size());
 }
 
 /******************************************************************************
@@ -605,7 +652,7 @@ void PVCore::PVSelBitField::select_none()
 	if (!_table) {
 		allocate_table();
 	}
-	memset(_table, 0x00, INENDI_SELECTION_NUMBER_OF_BYTES);
+	memset(_table, 0x00, _selection->mem_size());
 }
 
 /******************************************************************************
@@ -618,9 +665,21 @@ void PVCore::PVSelBitField::select_odd()
 	if (!_table) {
 		allocate_table();
 	}
-	memset(_table, 0x55, INENDI_SELECTION_NUMBER_OF_BYTES);
+	memset(_table, 0x55, _selection->mem_size());
 }
 
+/******************************************************************************
+ *
+ * PVCore::PVSelBitField::select_byte_pattern
+ *
+ *****************************************************************************/
+void PVCore::PVSelBitField::select_byte_pattern(const unsigned char byte_pattern)
+{
+	if (!_table) {
+		allocate_table();
+	}
+	memset(_table, byte_pattern, _selection->mem_size());
+}
 /******************************************************************************
  *
  * PVCore::PVSelBitField::select_inverse
@@ -634,7 +693,8 @@ void PVCore::PVSelBitField::select_inverse()
 		return;
 	}
 
-	for (PVRow i = 0; i < INENDI_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	const size_t chunks = chunk_count();
+	for (PVRow i = 0; i < chunks; i++) {
 		_table[i] = ~_table[i];
 	}
 }
@@ -677,6 +737,10 @@ void PVCore::PVSelBitField::set_line_select_only(PVRow line_index, bool bool_val
 
 ssize_t PVCore::PVSelBitField::get_last_nonzero_chunk_index(ssize_t starting_chunk, ssize_t ending_chunk) const
 {
+	if (ending_chunk == -1) {
+		ending_chunk = chunk_count() -1 ;
+	}
+
 	if (!_table || (starting_chunk < 0 || ending_chunk < 0)) {
 		return -1;
 	}
@@ -742,6 +806,8 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::or_optimized(const PVSelBitField& 
 		return *this;
 	}
 
+	assert(count() == rhs.count());
+
 	const ssize_t last_chunk = rhs.get_last_nonzero_chunk_index();
 	if (last_chunk >= 0) {
 		// TODO: GCC vectorize this, but we could try to
@@ -794,7 +860,7 @@ ssize_t PVCore::PVSelBitField::get_max_last_nonzero_chunk_index(PVSelBitField co
 		return -1;
 	}
 	const ssize_t last_chunk = other.get_last_nonzero_chunk_index();
-	return get_last_nonzero_chunk_index(last_chunk, INENDI_SELECTION_NUMBER_OF_CHUNKS-1);
+	return get_last_nonzero_chunk_index(last_chunk, chunk_count()-1);
 }
 
 
@@ -840,9 +906,11 @@ PVRow PVCore::PVSelBitField::find_previous_set_bit(const PVRow index, const PVRo
 
 void PVCore::PVSelBitField::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
+	so.attribute("count", _count);
+	size_t mem_size = pvcop::core::__impl::bit::to_mem_size(_count);
 	if (so.is_writing()) {
 		if (_table) {
-			so.buffer("selection_data", _table, INENDI_SELECTION_NUMBER_OF_BYTES);
+			so.buffer("selection_data", _table, mem_size);
 		}
 	}
 	else {
@@ -850,7 +918,7 @@ void PVCore::PVSelBitField::serialize(PVCore::PVSerializeObject& so, PVCore::PVS
 			if (!_table) {
 				allocate_table();
 			}
-			so.buffer("selection_data", &_table[0], INENDI_SELECTION_NUMBER_OF_BYTES);
+			so.buffer("selection_data", _table, mem_size);
 		}
 		else {
 			if (_table) {

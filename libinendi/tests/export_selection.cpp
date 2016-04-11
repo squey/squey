@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 	Inendi::PVView* view = env.compute_plotting()->current_view();
 
 	// Export selection to temporary file
-	Inendi::PVSelection sel;
+	Inendi::PVSelection sel(view->get_row_count());
 	sel.select_all();
 
 	std::string output_file = pvtest::get_tmp_filename();

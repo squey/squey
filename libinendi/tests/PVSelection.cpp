@@ -12,6 +12,7 @@
 #include <inendi/PVSelection.h>
 #include <iostream>
 
+static constexpr size_t SELECTION_COUNT = 1000000;
 
 int main(void)
 {
@@ -19,12 +20,10 @@ int main(void)
 // #include "test-env.h"
 
 	Inendi::PVSelection *selection;
-	Inendi::PVSelection *selection2 = new Inendi::PVSelection();
-	Inendi::PVSelection *selection3 = new Inendi::PVSelection();
-	Inendi::PVSelection a;
-	Inendi::PVSelection b;
-
-	int i, good;
+	Inendi::PVSelection *selection2 = new Inendi::PVSelection(SELECTION_COUNT);
+	Inendi::PVSelection *selection3 = new Inendi::PVSelection(SELECTION_COUNT);
+	Inendi::PVSelection a(SELECTION_COUNT);
+	Inendi::PVSelection b(SELECTION_COUNT);
 
 	PVRow last_index;
 	PVRow count;
@@ -35,19 +34,19 @@ int main(void)
 	*
 	**********************************************************************/
 
-	selection = new Inendi::PVSelection();
+	selection = new Inendi::PVSelection(SELECTION_COUNT);
 	delete(selection);
 
 
 	a.select_none();
 	BENCH_START(sel);
 	std::cout << "get_last_nonzero_chunk_index on empty sel: " << a.get_last_nonzero_chunk_index() << std::endl;
-	BENCH_END(sel, "bench", sizeof(uint32_t), INENDI_SELECTION_NUMBER_OF_CHUNKS, 1, 1);
+	BENCH_END(sel, "bench", sizeof(uint32_t), a.chunk_count(), 1, 1);
 
 	a.select_all();
 	BENCH_START(self);
-	std::cout << "get_last_nonzero_chunk_index on full sel (should be " << (INENDI_SELECTION_NUMBER_OF_CHUNKS-1) << "): " << a.get_last_nonzero_chunk_index() << std::endl;
-	BENCH_END(self, "bench", sizeof(uint32_t), INENDI_SELECTION_NUMBER_OF_CHUNKS, 1, 1);
+	std::cout << "get_last_nonzero_chunk_index on full sel (should be " << (a.chunk_count()-1) << "): " << a.get_last_nonzero_chunk_index() << std::endl;
+	BENCH_END(self, "bench", sizeof(uint32_t), a.chunk_count(), 1, 1);
 
 	a.select_none();
 	a.set_bit_fast(4);
@@ -67,16 +66,16 @@ int main(void)
 	a.select_none();
 #define NLINES_TEST 10000
 	for (int i = 0; i < NLINES_TEST; i++) {
-		a.set_bit_fast(rand()%(INENDI_LINES_MAX/4));
+		a.set_bit_fast(rand()%(SELECTION_COUNT/4));
 	}
 	std::vector<PVRow> ref,test;
 	ref.reserve(NLINES_TEST); test.reserve(NLINES_TEST);
 	BENCH_START(ref);
 	a.visit_selected_lines([&](PVRow r) { ref.push_back(r); });
-	BENCH_END(ref, "visit ref", sizeof(uint32_t), INENDI_SELECTION_NUMBER_OF_CHUNKS, sizeof(PVRow), ref.size());
+	BENCH_END(ref, "visit ref", sizeof(uint32_t), a.chunk_count(), sizeof(PVRow), ref.size());
 	//BENCH_START(sse);
 	//a.visit_selected_lines_sse([&](PVRow r) { test.push_back(r); });
-	//BENCH_END(sse, "visit sse", sizeof(uint32_t), INENDI_SELECTION_NUMBER_OF_CHUNKS, sizeof(PVRow), test.size());
+	//BENCH_END(sse, "visit sse", sizeof(uint32_t), a.chunk_count(), sizeof(PVRow), test.size());
 
 	std::cout << "Visit sse test: " << (ref == test) << std::endl;
 
@@ -87,9 +86,9 @@ int main(void)
 	**********************************************************************/
 
 	std::cout << "we test get_number_of_selected_lines_in_range() and select_all()\n";
-	last_index = INENDI_LINES_MAX;
+	last_index = SELECTION_COUNT;
 
-	selection = new Inendi::PVSelection();
+	selection = new Inendi::PVSelection(SELECTION_COUNT);
 	selection->select_all();
 	count = selection->get_number_of_selected_lines_in_range(0, 1);
 	std::cout << "count should be 1: " << count << std::endl;
@@ -122,24 +121,24 @@ int main(void)
 		return 1;
 	}
 	count = selection->get_number_of_selected_lines_in_range(0, last_index);
-	std::cout << "is " << INENDI_LINES_MAX << " = to " << count << " ?\n\n";
-	if (count != INENDI_LINES_MAX) {
+	std::cout << "is " << SELECTION_COUNT << " = to " << count << " ?\n\n";
+	if (count != SELECTION_COUNT) {
 		return 1;
 	}
 
 	std::cout << "we test select_even()\n";
 	selection->select_even();
 	count = selection->get_number_of_selected_lines_in_range(0, last_index);
-	std::cout << "is " << INENDI_LINES_MAX/2 << " = to " << count << " ?\n\n";
-	if (count != INENDI_LINES_MAX/2) {
+	std::cout << "is " << SELECTION_COUNT/2 << " = to " << count << " ?\n\n";
+	if (count != SELECTION_COUNT/2) {
 		return 1;
 	}
 	
 	std::cout << "we test select_odd()\n";
 	selection->select_odd();
 	count = selection->get_number_of_selected_lines_in_range(0, last_index);
-	std::cout << "is " << INENDI_LINES_MAX/2 << " = to " << count << " ?\n\n";
-	if (count != INENDI_LINES_MAX/2) {
+	std::cout << "is " << SELECTION_COUNT/2 << " = to " << count << " ?\n\n";
+	if (count != SELECTION_COUNT/2) {
 		return 1;
 	}
 
@@ -161,9 +160,9 @@ int main(void)
 	a.select_none();
 	a.set_bit_fast(6);
 	PV_ASSERT_VALID(a.is_empty_between(0, 6));
-	PV_ASSERT_VALID(a.is_empty_between(7, INENDI_LINES_MAX));
+	PV_ASSERT_VALID(a.is_empty_between(7, SELECTION_COUNT));
 	a.set_bit_fast(65);
-	PV_ASSERT_VALID(a.is_empty_between(66, INENDI_LINES_MAX));
+	PV_ASSERT_VALID(a.is_empty_between(66, SELECTION_COUNT));
 	a.set_bit_fast(88);
 	PV_ASSERT_VALID(a.is_empty_between(66, 88));
 	PV_ASSERT_VALID(a.is_empty_between(66, 89) == false);
@@ -194,27 +193,27 @@ int main(void)
 	c = a;
 	BENCH_START(original_or);
 	c |= b;
-	BENCH_END_TRANSFORM(original_or, "Original OR", sizeof(uint32_t), INENDI_SELECTION_NUMBER_OF_CHUNKS);
-	std::cout << "Last chunk should be " << INENDI_SELECTION_NUMBER_OF_CHUNKS-1 << " : " << c.get_last_nonzero_chunk_index() << std::endl;
+	BENCH_END_TRANSFORM(original_or, "Original OR", sizeof(uint32_t), c.chunk_count());
+	std::cout << "Last chunk should be " << c.chunk_count()-1 << " : " << c.get_last_nonzero_chunk_index() << std::endl;
 
 	c = a;
 	BENCH_START(opt_or);
 	c.or_optimized(b);
-	BENCH_END_TRANSFORM(opt_or, "Opt OR", sizeof(uint32_t), INENDI_SELECTION_NUMBER_OF_CHUNKS);
-	std::cout << "Last chunk should be " << INENDI_SELECTION_NUMBER_OF_CHUNKS-1 << " : " << c.get_last_nonzero_chunk_index() << std::endl;
+	BENCH_END_TRANSFORM(opt_or, "Opt OR", sizeof(uint32_t), c.chunk_count());
+	std::cout << "Last chunk should be " << c.chunk_count()-1 << " : " << c.get_last_nonzero_chunk_index() << std::endl;
 
 	b.select_none();
 
 	c = a;
 	BENCH_START(original_or2);
 	c |= b;
-	BENCH_END_TRANSFORM(original_or2, "Original OR", sizeof(uint32_t), INENDI_SELECTION_NUMBER_OF_CHUNKS);
+	BENCH_END_TRANSFORM(original_or2, "Original OR", sizeof(uint32_t), c.chunk_count());
 	std::cout << "Last chunk : " << c.get_last_nonzero_chunk_index() << std::endl;
 
 	c = a;
 	BENCH_START(opt_or2);
 	c.or_optimized(b);
-	BENCH_END_TRANSFORM(opt_or2, "Opt OR", sizeof(uint32_t), INENDI_SELECTION_NUMBER_OF_CHUNKS);
+	BENCH_END_TRANSFORM(opt_or2, "Opt OR", sizeof(uint32_t), c.chunk_count());
 	std::cout << "Last chunk : " << c.get_last_nonzero_chunk_index() << std::endl;
 
 	a.select_none();
@@ -274,11 +273,11 @@ int main(void)
 
 	/*
 	std::cout << "Checking only one line set in range [1024, 1088]" << std::endl;
-	for (int i = 0; i < (INENDI_SELECTION_CHUNK_SIZE * 2) + 1; ++i) {
+	for (int i = 0; i < (a.CHUNK_SIZE * 2) + 1; ++i) {
 		PVRow r = 1024 + i;
 		a.select_none();
 		a.set_line(r, true);
-		ssize_t expected = r / INENDI_SELECTION_CHUNK_SIZE;
+		ssize_t expected = r / a.CHUNK_SIZE;
 		ssize_t res = a.get_last_nonzero_chunk_index(0, 64);
 		if (res != expected) {
 			std::cout << "Test fails with line " << r
@@ -306,10 +305,11 @@ int main(void)
 	b.select_all();
 	BENCH_START(opnot);
 	b.select_inverse();
-	BENCH_END_TRANSFORM(opnot, "operator ~", sizeof(uint32_t), INENDI_SELECTION_NUMBER_OF_CHUNKS);
+	BENCH_END_TRANSFORM(opnot, "operator ~", sizeof(uint32_t), b.chunk_count());
 	a = ~b;
 
-	for (i=0; i<INENDI_LINES_MAX; i++) {
+	size_t i, good;
+	for (i=0; i<SELECTION_COUNT; i++) {
 		good = (a.get_line(i));
 		if (not good) {
 			std::cout << " i = " << i << ", and state of line n is : " << good << "\n";
@@ -332,8 +332,8 @@ int main(void)
 	delete(selection3);
 
 #if 0
-	Inendi::PVSelection *a = new Inendi::PVSelection();
-	Inendi::PVSelection b;
+	Inendi::PVSelection *a = new Inendi::PVSelection(SELECTION_COUNT);
+	Inendi::PVSelection b(SELECTION_COUNT);
 	a->select_all();
 	b.select_odd();
 	*a = ~b;

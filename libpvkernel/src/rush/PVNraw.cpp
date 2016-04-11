@@ -194,7 +194,7 @@ void PVRush::PVNraw::dump_csv(std::ostream& os) const
 {
 	PVCore::PVColumnIndexes cols(get_number_cols());
 	std::iota(cols.begin(), cols.end(), 0);
-	PVCore::PVSelBitField sel;
+	PVCore::PVSelBitField sel(get_row_count());
 	sel.select_all();
 	export_lines(os, sel, cols, 0, get_row_count());
 }

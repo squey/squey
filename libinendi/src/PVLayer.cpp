@@ -31,14 +31,29 @@
  * Inendi::PVLayer::PVLayer
  *
  *****************************************************************************/
-Inendi::PVLayer::PVLayer(const QString & name_, const PVSelection & sel_, const PVLinesProperties & lp_) :
-	lines_properties(lp_),
-	name(name_),
-	selection(sel_)
+Inendi::PVLayer::PVLayer(const QString & name_) :
+	index(0),
+	locked(false),
+	visible(true),
+	name(name_)
 {
+}
+
+/******************************************************************************
+ *
+ * Inendi::PVLayer::PVLayer
+ *
+ *****************************************************************************/
+Inendi::PVLayer::PVLayer(const QString & name_, PVRow row_count, const PVSelection & sel_, const PVLinesProperties & lp_) :
+	index(0),
+	locked(false),
+	visible(true),
+	name(name_),
+	selection(sel_),
+	lines_properties(lp_)
+{
+	set_count(row_count);
 	name.truncate(INENDI_LAYER_NAME_MAXLEN);
-	locked = false;
-	visible = true;
 }
 
 /******************************************************************************

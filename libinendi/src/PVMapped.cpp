@@ -79,7 +79,7 @@ void Inendi::PVMapped::compute()
 		mand_mapping_filters.push_back(mf);
 	}
 
-	const PVRow nrows = get_parent()->get_row_count();
+	const PVRow nrows = get_row_count();
 
 	PVCol const ncols = _mapping->get_number_cols();
 

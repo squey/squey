@@ -65,7 +65,16 @@ void Inendi::PVView::set_parent_from_ptr(PVPlotted* plotted)
 	for (it = lf.begin(); it != lf.end(); it++) {
 		filters_args[it->key()] = it->value()->get_default_args_for_view(*this);
 	}
+
+	// This is ugly as hell seriously... We should not deal with default constructed objects !!!
 	layer_stack.set_row_count(get_row_count());
+	floating_selection.set_count(get_row_count());
+	post_filter_layer.set_count(get_row_count());
+	layer_stack_output_layer.set_count(get_row_count());
+	output_layer.set_count(get_row_count());
+	nu_selection.set_count(get_row_count());
+	real_output_selection.set_count(get_row_count());
+	volatile_selection.set_count(get_row_count());
 
 	reset_view();
 }
@@ -138,13 +147,21 @@ Inendi::PVView::~PVView()
  *****************************************************************************/
 void Inendi::PVView::reset_layers()
 {
+	// FIXME: this is a workaround to have a view without a source working
+	// as 'Tpview_zone_tree_dump_load' and 'Tpview_zoomed_zone_tree_dump_load'
+	// tests create a PVView without a PVSource as indirect parent...
+	if (not get_parent()) {
+		return;
+	}
+
+	PVRow row_count = get_row_count();
+
 	// This function remove all the layers and add the default one with all events selected
 	bool old_consistent = _is_consistent;
 	_is_consistent = false;
 	layer_stack.delete_all_layers();
-	layer_stack.append_new_layer();
+	layer_stack.append_new_layer(row_count);
 	layer_stack.get_layer_n(0).reset_to_full_and_default_color();
-	PVRow row_count = get_row_count();
 	if (row_count != 0) {
 		/* when a .pvi is loaded, the mapped and the plotted are
 		 * uninitialized when the view is created (the rush pipeline
@@ -166,14 +183,14 @@ void Inendi::PVView::reset_layers()
  *****************************************************************************/
 void Inendi::PVView::add_new_layer(QString name)
 {
-	Inendi::PVLayer* layer = layer_stack.append_new_layer(name);
+	Inendi::PVLayer* layer = layer_stack.append_new_layer(get_row_count(), name);
 	layer->compute_selectable_count(get_row_count());
 }
 
 void Inendi::PVView::add_new_layer_from_file(const QString& path)
 {
 	// Create a new layer
-	Inendi::PVLayer* layer = layer_stack.append_new_layer();
+	Inendi::PVLayer* layer = layer_stack.append_new_layer(get_row_count());
 
 	// And load it
 	layer->load_from_file(path);
@@ -518,7 +535,7 @@ Inendi::PVSelection const& Inendi::PVView::get_real_output_selection() const
  *****************************************************************************/
 PVRow Inendi::PVView::get_row_count() const
 {
-	return get_parent<PVSource>()->get_row_count();
+	return get_parent<PVPlotted>()->get_row_count();
 }
 
 /******************************************************************************

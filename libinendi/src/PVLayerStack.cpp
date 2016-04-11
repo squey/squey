@@ -55,7 +55,7 @@ void Inendi::PVLayerStack::hide_layers()
  * Inendi::PVLayerStack::append_layer
  *
  *****************************************************************************/
-Inendi::PVLayer* Inendi::PVLayerStack::append_new_layer(QString const& name)
+Inendi::PVLayer* Inendi::PVLayerStack::append_new_layer(PVRow row_count, QString const& name /*= QString()*/)
 {
 	/* We prepare the string for the name of the new layer */
 	QString layer_name;
@@ -66,7 +66,7 @@ Inendi::PVLayer* Inendi::PVLayerStack::append_new_layer(QString const& name)
 		layer_name = name;
 	}
 	++next_new_layer_counter;
-	return append_layer(PVLayer(layer_name));
+	return append_layer(PVLayer(layer_name, row_count));
 }
 
 /******************************************************************************
@@ -100,7 +100,7 @@ Inendi::PVLayer* Inendi::PVLayerStack::append_new_layer_from_selection_and_lines
 {
 	/* We prepare the string for the name of the new layer */
 	QString new_layer_automatic_name = QString("New layer %1").arg(layer_count);
-	return append_layer(PVLayer(new_layer_automatic_name, selection, lines_properties));
+	return append_layer(PVLayer(new_layer_automatic_name, selection.count(), selection, lines_properties));
 }
 
 
@@ -154,7 +154,7 @@ Inendi::PVLayer* Inendi::PVLayerStack::duplicate_selected_layer(const QString &n
 	}
 
 	const PVLayer &selected_layer = table.at(selected_layer_index);
-	PVLayer *new_layer = append_new_layer(name);
+	PVLayer *new_layer = append_new_layer(selected_layer.get_selection().count(), name);
 
 	new_layer->get_selection() = selected_layer.get_selection();
 	new_layer->get_lines_properties() = selected_layer.get_lines_properties();
@@ -262,7 +262,7 @@ void Inendi::PVLayerStack::process(PVLayer &output_layer, PVRow row_count)
 	/* We prepare a pointer to the layer of the LS being processed */
 	PVLayer *layer_being_processed;
 	/* We prepare a temporary selection, needed in our computations */
-	PVSelection temp_selection;
+	PVSelection temp_selection(row_count);
 	/* We store locally the layer-stack->layer_count and prepare a counter */
 	int i;
 

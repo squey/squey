@@ -39,11 +39,11 @@ public:
 	typedef std::vector<PVRow> list_row_indexes_t;
 private:
 	int                index;
-	PVLinesProperties  lines_properties;
 	bool               locked;
+	bool               visible;
 	QString            name;
 	PVSelection        selection;
-	bool               visible;
+	PVLinesProperties  lines_properties;
 	PVRow              selectable_count;
 	list_row_indexes_t _row_mins;
 	list_row_indexes_t _row_maxs;
@@ -53,7 +53,8 @@ public:
 	/**
 	 * Constructor
 	 */
-	PVLayer(const QString & name_, const PVSelection & sel_ = PVSelection(), const PVLinesProperties & lp_ = PVLinesProperties());
+	PVLayer(const QString & name_);
+	PVLayer(const QString & name_, PVRow row_count, const PVSelection & sel_ = PVSelection(), const PVLinesProperties & lp_ = PVLinesProperties());
 
 	/**
 	 * Copy this layer properties as b properties for selected elements (from selection)
@@ -89,6 +90,7 @@ public:
 	void set_locked(bool locked_) {locked = locked_;}
 	void set_name(const QString & name_) {name = name_; name.truncate(INENDI_LAYER_NAME_MAXLEN);}
 	void set_visible(bool visible_) {visible = visible_;}
+	void set_count(PVRow count) { selection.set_count(count); }
 
 public:
 	void load_from_file(QString const& path);
@@ -96,7 +98,7 @@ public:
 
 protected:
 	// Default constructor is needed when recreating the object
-	PVLayer() { PVLayer(""); }
+	PVLayer() : PVLayer("") {}
 
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 };
