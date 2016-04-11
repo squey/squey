@@ -39,7 +39,7 @@ public:
 	/**
 	 * Constructor
 	 */
-	PVLayerStack(PVRow row_count = 0);
+	PVLayerStack();
 
 	QString get_new_layer_name() const;
 	bool& should_hide_layers() { return _should_hide_layers; }

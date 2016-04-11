@@ -8,21 +8,15 @@
 #ifndef INENDI_PVLAYERINDEXARRAY_H
 #define INENDI_PVLAYERINDEXARRAY_H
 
-#include <QtCore>
-
-#include <pvkernel/core/PVSerializeArchive.h>
 #include <inendi/general.h>
 
-#define INENDI_LAYER_INDEX_ARRAY_MAX_SIZE INENDI_LINES_MAX
-/* WARNING! : should be the same as INENDI_LAYER_STACK_MAX_DEPTH
-        but not used to avoid circular dependencies
-*/
-#define INENDI_LAYER_INDEX_ARRAY_MAX_VALUE 256
+#include <pvkernel/core/PVSerializeArchive.h>
 
-
+namespace PVCore {
+	class PVSerializeObject;
+}
 
 namespace Inendi {
-
 
 /******************************************************************************
  *
@@ -42,31 +36,28 @@ namespace Inendi {
 /**
  * \class PVLayerIndexArray
  */
-class PVLayerIndexArray {
+class PVLayerIndexArray
+{
 	friend class PVCore::PVSerializeObject;
-private:
-	int array [INENDI_LAYER_INDEX_ARRAY_MAX_SIZE];
-	int row_count;
+	using value_type = int;
 
 public:
-
-	/**
-	 * Constructor
-	 */
-	PVLayerIndexArray(int initial_row_count);
-
-	int get_value(int row_index) const { return array[row_index];}
-	int get_row_count() const {return row_count;}
+	int get_value(int row_index) const { return _array[row_index];}
+	int get_row_count() const { return _array.size(); }
 
 	void initialize();
 
-	void set_row_count(int new_row_count);
-	void set_value(int row_index, int value);
+	void set_row_count(int row_count);
+	void set_value(PVRow row_index, value_type value);
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+
+private:
+	std::vector<value_type> _array;
 };
-}
+
+} // namespace Inendi
 
 #endif /* INENDI_PVLAYERINDEXARRAY_H_ */
 

@@ -250,6 +250,16 @@ public:
 	 */
 	size_t buffer(QString const& name, void* buf, size_t n);
 
+	template <typename T>
+	size_t buffer(QString const& name, std::vector<T>& buf, size_t n)
+	{
+		if (not is_writing()) {
+			buf.resize(n);
+		}
+
+		return buffer(name, buf.data(), n * sizeof(T));
+	}
+
 	/*! \brief Read a buffer for this object, by just providing the path to its underlying filename.
 	 *  \param[in] name Name of the buffer. This will be used for the underlying filename.
 	 *  \param[in,out] path Path to the file. When reading the archive, this is set to the extracted file path.

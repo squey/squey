@@ -18,8 +18,7 @@
  * Inendi::PVLayerStack::PVLayerStack
  *
  *****************************************************************************/
-Inendi::PVLayerStack::PVLayerStack(PVRow row_count) :
-	lia(row_count)
+Inendi::PVLayerStack::PVLayerStack()
 {
 	layer_count = 0;
 	next_new_layer_counter = 0;
