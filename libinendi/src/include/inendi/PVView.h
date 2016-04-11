@@ -28,7 +28,6 @@
 #include <inendi/PVRoot.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVLayerStack.h>
-#include <inendi/PVIndexArray.h>
 #include <inendi/PVSquareArea.h>
 #include <inendi/PVStateMachine.h>
 #include <inendi/PVPlotted.h>

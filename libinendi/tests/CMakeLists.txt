@@ -31,7 +31,6 @@ add_test(Tinendi_format Tinendi_format)
 
 add_pv_compile_test(Tinendi_source_serialize LINKS ${LINK_LIBRARIES} FILES source-serialize.cpp)
 add_pv_compile_test(Tinendi_root_serialize LINKS ${LINK_LIBRARIES} FILES root-serialize.cpp)
-add_pv_compile_test(Tinendi_sizes LINKS ${LINK_LIBRARIES} FILES sizes.cpp)
 add_pv_compile_test(sel_red LINKS ${LINK_LIBRARIES} FILES selection_red.cpp)
 add_pv_compile_test(Tinendi_sparse_sel LINKS ${LINK_LIBRARIES} FILES sparse_selection.cpp)
 add_pv_compile_test(Tinendi_forward_decl LINKS ${LINK_LIBRARIES} FILES forward_decl.cpp)

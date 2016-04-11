@@ -17,7 +17,6 @@ common.cpp
 
 PVAxesCombination.cpp
 PVAxis.cpp
-PVIndexArray.cpp
 PVLayer.cpp
 PVLayerFilter.cpp
 PVLayerIndexArray.cpp
