@@ -75,30 +75,12 @@ else()
 	set(INENDI_DEVELOPER_MODE false)
 	add_definitions(-DCUSTOMER_RELEASE)
 	message(STATUS "Picviz mode is customer")
-	if (NOT DEFINED CUSTOMER_NAME OR NOT DEFINED CUSTOMER_COMPANY OR NOT DEFINED CUSTOMER_EMAIL)
-		message(FATAL_ERROR "CUSTOMER_NAME, CUSTOMER_COMPANY and CUSTOMER_EMAIL have to be defined")
-	endif()
 endif()
 
 ###############################################################################
-# Define all variable related to custom capacity
-###############################################################################
-
-declare_customer_cap(CUSTOMER_LINESNUMBER 200000000 200000000)
-
-declare_customer_cap(CUSTOMER_NAME "John Doe" "name")
-declare_customer_cap(CUSTOMER_EMAIL "jdoe@acme.com" "email")
-declare_customer_cap(CUSTOMER_COMPANY "ACME" "company")
-
-###############################################################################
-# Generate customer.h/build.h
-###############################################################################
-
-set(CFG_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/include/pvbase/customer.h")
-configure_file(include/pvbase/customer.h.cmake ${CFG_FILE_PATH})
-add_definitions(-DINENDI_CFG_FILE_PATH="${CFG_FILE_PATH}")
-
 # Generate build.h
+###############################################################################
+
 set(BUILD_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/include/pvbase/build.h")
 configure_file(include/pvbase/build.h.cmake ${BUILD_FILE_PATH})
 add_definitions(-DINENDI_BUILD_FILE_PATH="${BUILD_FILE_PATH}")

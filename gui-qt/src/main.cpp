@@ -5,6 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvbase/general.h>
+
 //! [0]
 #include <QApplication>
 #include <QFile>
@@ -33,12 +35,11 @@
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/segfault_handler.h>
 #include <pvkernel/core/qobject_helpers.h>
-#include <pvkernel/core/PVLicense.h>
+#include <License.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 
 #include <inendi/common.h>
 #include <inendi/PVRoot.h>
-#include <inendi/common.h>
 
 #include <pvparallelview/PVParallelView.h>
 
@@ -133,9 +134,9 @@ int main(int argc, char *argv[])
       // Set location to check for license file.
       setenv("LM_LICENSE_FILE", license_file.toUtf8().constData(), 1);
 
-      PVLicense::RAII_InitLicense license_manager;
+      Inendi::Utils::License::RAII_InitLicense license_manager;
 
-      PVLicense::RAII_LicenseFeature full_program_license("II", "INSPECTOR");
+      Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_FLEX_PREFIX, INENDI_FLEX_FEATURE);
 	// Program options
 	bpo::options_description desc_opts("Options");
 	desc_opts.add_options()
@@ -180,7 +181,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	PVLicense::check_ram();
+	Inendi::Utils::License::check_ram(INENDI_FLEX_PREFIX, INENDI_FLEX_FEATURE, INENDI_FLEX_MAXMEM);
 
 #ifndef NO_MAIN_WINDOW
 	QSplashScreen splash(QPixmap(":/splash-screen"));
