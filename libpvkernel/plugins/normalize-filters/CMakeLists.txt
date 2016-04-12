@@ -246,20 +246,20 @@ add_library(normalize_filter_splitter_dns_fqdn SHARED ${DNSFQDN_SRC} ${DNSFQDN_M
 target_link_libraries(normalize_filter_splitter_dns_fqdn pvkernel)
 declare_library(normalize_filter_splitter_dns_fqdn)
 
-################################################################################
-## grep
-################################################################################
-#
-## Define ressources
-#SET(GREP_SRC
-#grep_regexp/PVFieldFilterRegexpGrep.cpp
-#grep_regexp/register.cpp
-#)
-#
-## Create lib
-#add_library(normalize_filter_grep_regexp SHARED ${GREP_SRC})
-#target_link_libraries(normalize_filter_grep_regexp pvkernel)
-#declare_library(normalize_filter_grep_regexp)
+###############################################################################
+# grep
+###############################################################################
+
+# Define ressources
+SET(GREP_SRC
+grep_regexp/PVFieldFilterRegexpGrep.cpp
+grep_regexp/register.cpp
+)
+
+# Create lib
+add_library(normalize_filter_grep_regexp SHARED ${GREP_SRC})
+target_link_libraries(normalize_filter_grep_regexp pvkernel)
+declare_library(normalize_filter_grep_regexp)
 
 ###############################################################################
 # Install normalize plugins

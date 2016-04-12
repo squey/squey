@@ -65,6 +65,11 @@ add_test(TestAggregatorStrict2 ${TEST_DIFF_STDOUT}
 	${CMAKE_CURRENT_BINARY_DIR}/Trush_agg_strict 6000
 	${PVRUSH_TEST_FILES}/aggregator/set2)
 
+# Test for filters
+add_pv_compile_test(Trush_filter_grep LINKS ${LINK_LIBRARIES} FILES filter_grep.cpp helpers.cpp)
+add_test(Trush_filter_grep Trush_filter_grep)
+add_bench(Trush_filter_grep LINKS ${LINK_LIBRARIES} FILES filter_grep.cpp helpers.cpp)
+
 # Test for splitters
 add_pv_compile_test(Trush_splitter_dns_fqdn LINKS ${LINK_LIBRARIES} FILES splitter_dns_fqdn.cpp helpers.cpp)
 add_test(Trush_splitter_dns_fqdn Trush_splitter_dns_fqdn)

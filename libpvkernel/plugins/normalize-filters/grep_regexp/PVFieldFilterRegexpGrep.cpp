@@ -2,7 +2,7 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2011-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #include "PVFieldFilterRegexpGrep.h"
@@ -28,7 +28,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldFilterRegexpGrep)
 {
 	PVCore::PVArgumentList args;
 	args["regexp"] = QString("");
-	args["reverse"] = PVCore::PVArgument(false);
+	args["reverse"] = false;
 	return args;
 }
 
@@ -40,7 +40,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldFilterRegexpGrep)
 void PVFilter::PVFieldFilterRegexpGrep::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	_rx = QRegExp(args.at("regexp").toString());
+	_rx = std::regex(args.at("regexp").toString().toStdString());
 	_inverse = args.at("reverse").toBool();
 }
 
@@ -49,16 +49,15 @@ void PVFilter::PVFieldFilterRegexpGrep::set_args(PVCore::PVArgumentList const& a
  * PVFilter::PVFieldFilterRegexpGrep::one_to_one
  *
  *****************************************************************************/
-PVCore::PVField& PVFilter::PVFieldFilterRegexpGrep::one_to_one(PVCore::PVField& obj)
+PVCore::PVField& PVFilter::PVFieldFilterRegexpGrep::one_to_one(PVCore::PVField& field)
 {
-	QRegExp rx(_rx); // Local object (local to a thread !)
-	QString str_tmp;
-	bool found = (rx.indexIn(obj.get_qstr(str_tmp)) != -1);
-	if (!(found ^ _inverse))
-	{
-		obj.set_invalid();
+	std::cmatch base_match;
+	bool found = std::regex_search<const char*>(field.begin(), field.end(), base_match, _rx);
+	found |= base_match.size() > 1;
+	if (not (found ^ _inverse)) {
+		field.set_invalid();
 	}
-	return obj;
+	return field;
 }
 
 IMPL_FILTER(PVFilter::PVFieldFilterRegexpGrep)
