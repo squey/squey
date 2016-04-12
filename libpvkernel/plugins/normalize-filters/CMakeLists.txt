@@ -131,29 +131,29 @@ add_library(normalize_filter_splitter_url SHARED ${URL_SRC})
 target_link_libraries(normalize_filter_splitter_url pvkernel ${FURL_STATIC_LIB})
 declare_library(normalize_filter_splitter_url)
 
-################################################################################
-## key_value Splitter
-################################################################################
-#
-## Define ressources
-#SET(KEYVALUE_MOC_HEADERS
-#splitter_key_value/PVFieldSplitterKeyValueParamWidget.h
-#)
-#
-#SET(KEYVALUE_SRCS
-#splitter_key_value/PVFieldSplitterKeyValue.cpp
-#splitter_key_value/PVFieldSplitterKeyValueParamWidget.cpp
-#splitter_key_value/register.cpp
-#)
-#
-## Generate Qt files
-#QT5_WRAP_CPP(KEYVALUE_MOC_SRCS ${KEYVALUE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-#
-## Create lib
-#add_library(normalize_filter_splitter_key_value SHARED ${KEYVALUE_SRCS} ${KEYVALUE_MOC_SRCS})
-#target_link_libraries(normalize_filter_splitter_key_value pvkernel)
-#declare_library(normalize_filter_splitter_key_value)
-#
+###############################################################################
+# key_value Splitter
+###############################################################################
+
+# Define ressources
+SET(KEYVALUE_MOC_HEADERS
+splitter_key_value/PVFieldSplitterKeyValueParamWidget.h
+)
+
+SET(KEYVALUE_SRCS
+splitter_key_value/PVFieldSplitterKeyValue.cpp
+splitter_key_value/PVFieldSplitterKeyValueParamWidget.cpp
+splitter_key_value/register.cpp
+)
+
+# Generate Qt files
+QT5_WRAP_CPP(KEYVALUE_MOC_SRCS ${KEYVALUE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+# Create lib
+add_library(normalize_filter_splitter_key_value SHARED ${KEYVALUE_SRCS} ${KEYVALUE_MOC_SRCS})
+target_link_libraries(normalize_filter_splitter_key_value pvkernel)
+declare_library(normalize_filter_splitter_key_value)
+
 ###############################################################################
 # IP Splitter
 ###############################################################################

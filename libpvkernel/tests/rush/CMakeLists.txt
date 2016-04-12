@@ -71,6 +71,10 @@ add_test(Trush_filter_grep Trush_filter_grep)
 add_bench(Trush_filter_grep LINKS ${LINK_LIBRARIES} FILES filter_grep.cpp helpers.cpp)
 
 # Test for splitters
+add_pv_compile_test(Trush_splitter_key_value LINKS ${LINK_LIBRARIES} FILES splitter_key_value.cpp helpers.cpp)
+add_test(Trush_splitter_key_value Trush_splitter_key_value)
+add_bench(Trush_splitter_key_value LINKS ${LINK_LIBRARIES} FILES splitter_key_value.cpp helpers.cpp)
+
 add_pv_compile_test(Trush_splitter_dns_fqdn LINKS ${LINK_LIBRARIES} FILES splitter_dns_fqdn.cpp helpers.cpp)
 add_test(Trush_splitter_dns_fqdn Trush_splitter_dns_fqdn)
 add_bench(Trush_splitter_dns_fqdn LINKS ${LINK_LIBRARIES} FILES splitter_dns_fqdn.cpp helpers.cpp)
