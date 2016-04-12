@@ -90,7 +90,7 @@ public:
 	void set_locked(bool locked_) {locked = locked_;}
 	void set_name(const QString & name_) {name = name_; name.truncate(INENDI_LAYER_NAME_MAXLEN);}
 	void set_visible(bool visible_) {visible = visible_;}
-	void set_count(PVRow count) { selection.set_count(count); }
+	void set_count(PVRow count) { selection.set_count(count); lines_properties.set_row_count(count); }
 
 public:
 	void load_from_file(QString const& path);
