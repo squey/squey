@@ -13,11 +13,6 @@ add_subdirectory(sources)
 # These are default format files provided to users
 ###############################################################################
 
-SET(NORMALIZE_PERL_FORMAT_FILES
-normalize-helpers/perl/IronPort.format
-normalize-helpers/perl/IronPort.pl
-)
-
 SET(NORMALIZE_TEXT_FORMAT_FILES
 normalize-helpers/text/apache.access.format
 normalize-helpers/text/bluecoat.format
@@ -30,4 +25,3 @@ normalize-helpers/text/syslog.format
 )
 
 INSTALL(FILES ${NORMALIZE_TEXT_FORMAT_FILES} DESTINATION ${SHARE_RESSOURCES}/normalize-helpers/text)
-INSTALL(FILES ${NORMALIZE_PERL_FORMAT_FILES} DESTINATION ${SHARE_RESSOURCES}/normalize-helpers/perl)

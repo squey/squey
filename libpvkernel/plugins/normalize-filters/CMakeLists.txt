@@ -132,22 +132,6 @@ target_link_libraries(normalize_filter_splitter_url pvkernel ${FURL_STATIC_LIB})
 declare_library(normalize_filter_splitter_url)
 
 ################################################################################
-## IRONPORT Splitter
-################################################################################
-#
-## Define ressources
-#set(IRONPORT_SRC
-#splitter_ironport_mail/PVFieldSplitterIronPortMail.cpp
-#splitter_ironport_mail/PVFieldSplitterIronPortMailParamWidget.cpp
-#splitter_ironport_mail/register.cpp
-#)
-#
-## Create lib
-#add_library(normalize_filter_splitter_ironport_mail SHARED ${IRONPORT_SRC})
-#target_link_libraries(normalize_filter_splitter_ironport_mail pvkernel)
-#declare_library(normalize_filter_splitter_ironport_mail)
-#
-################################################################################
 ## key_value Splitter
 ################################################################################
 #
