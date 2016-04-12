@@ -108,15 +108,9 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterDnsFqdn)
  * domain in a FQDN. It returns true only if the string seems to have a
  * lower level domain.
  */
-static inline bool str_rscan(uint16_t *str, int &pos, int &start, int& len)
+static inline bool str_rscan(char *str, int &pos, int &start, int& len)
 {
-	bool ret = false;
 	len = 0;
-
-	if (pos == 0) {
-		start = 0;
-		return false;
-	}
 
 	while ((pos >= 0) && (str[pos] != '.')) {
 		--pos;
@@ -126,34 +120,31 @@ static inline bool str_rscan(uint16_t *str, int &pos, int &start, int& len)
 	if (pos < 0) {
 		++pos;
 		start = 0;
-	} else if (str[pos] == '.') {
+		return false;
+	} else {
+		assert(str[pos] == '.');
 		start = pos + 1;
 		pos -= 1;
-		ret = true; // only if (pos >= 0) && (str[pos] == '.')
-	} else {
-		--len;
+		return true; // only if (pos >= 0) && (str[pos] == '.')
 	}
-
-	return ret;
 }
 
-static inline void check_arpa_ip(uint16_t *str,
+static inline void check_arpa_ip(char *str,
                                  int tld1_pos, int tld1_len,
                                  int tld2_pos, int tld2_len,
                                  bool &is_ipv4, bool &is_ipv6)
 {
-	// UTF16 LE strings definition :-O==
-	static uint16_t ARPA[]        = { 'a', 'r', 'p', 'a' };
-	static uint16_t ARPA_INADDR[] = { 'i', 'n', '-', 'a', 'd', 'd', 'r' };
-	static uint16_t ARPA_IP6[]    = { 'i', 'p', '6' };
+	static char ARPA[] = "arpa";
+	static char ARPA_INADDR[] = "in-addr";
+	static char ARPA_IP6[] = "ip6";
 
-	if ((tld1_len != 4) || (memcmp(str + tld1_pos, ARPA, 8) != 0)) {
+	if ((tld1_len != 4) || (memcmp(str + tld1_pos, ARPA, 4) != 0)) {
 		is_ipv4 = false;
 		is_ipv6 = false;
-	} else if ((tld2_len == 7) && (memcmp(str + tld2_pos, ARPA_INADDR, 14) == 0)) {
+	} else if ((tld2_len == 7) && (memcmp(str + tld2_pos, ARPA_INADDR, 7) == 0)) {
 		is_ipv4 = true;
 		is_ipv6 = false;
-	} else if ((tld2_len == 3) && (memcmp(str + tld2_pos, ARPA_IP6, 6) == 0)) {
+	} else if ((tld2_len == 3) && (memcmp(str + tld2_pos, ARPA_IP6, 3) == 0)) {
 		is_ipv4 = false;
 		is_ipv6 = true;
 	} else {
@@ -162,10 +153,8 @@ static inline void check_arpa_ip(uint16_t *str,
 	}
 }
 
-static void fill_field(PVCore::PVField &field, uint16_t* str, int len)
+static void fill_field(PVCore::PVField &field, char* str, int len)
 {
-	len *= 2;
-
 	field.allocate_new(len);
 	if (len) {
 		memcpy(field.begin(), str, len);
@@ -184,14 +173,14 @@ PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
 {
 	PVCore::list_fields::size_type ret = 0;
 
-	uint16_t *str = (uint16_t*)field.begin();
+	char*str = field.begin();
 
-	int str_len = field.size() / 2;
+	int str_len = field.size();
 
 	int pos = str_len - 1;
 
 	if (str[pos] == '.') {
-		/* FQDN may finnish with a dot to indicate that no more
+		/* FQDN may finish with a dot to indicate that no more
 		 * expansion can be done; not removing it (because it is
 		 * useless) could be messy...
 		 */
@@ -220,7 +209,7 @@ PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
 		str_rscan(str, pos, tld3_pos, tld3_len);
 	}
 
-	uint16_t rev_str[64];
+	char rev_str[64];
 	int rev_len = 0;
 
 	if (tld3_len != 0) {
@@ -249,28 +238,31 @@ PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
 				int wpos = 0;
 				// 1st octet
 				str_rscan(str, pos, rpos, len);
-				memcpy(rev_str + wpos, str + rpos, 2 * len);
+				memcpy(rev_str + wpos, str + rpos, len);
 				wpos += len;
 				rev_str[wpos] = '.';
-				wpos += 1;
+				wpos++;
 
 				// 2nd octet
+				len = 0;
 				str_rscan(str, pos, rpos, len);
-				memcpy(rev_str + wpos, str + rpos, 2 * len);
+				memcpy(rev_str + wpos, str + rpos, len);
 				wpos += len;
 				rev_str[wpos] = '.';
-				wpos += 1;
+				wpos++;
 
 				// 3rd octet
+				len = 0;
 				str_rscan(str, pos, rpos, len);
-				memcpy(rev_str + wpos, str + rpos, 2 * len);
+				memcpy(rev_str + wpos, str + rpos, len);
 				wpos += len;
 				rev_str[wpos] = '.';
-				wpos += 1;
+				wpos++;
 
 				// 4th octet
+				len = 0;
 				str_rscan(str, pos, rpos, len);
-				memcpy(rev_str + wpos, str + rpos, 2 * len);
+				memcpy(rev_str + wpos, str + rpos, len);
 
 				rev_len = wpos + len;
 			} else {
@@ -282,10 +274,8 @@ PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
 				 * '.'.
 				 * trivial to invert :-]
 				 */
-				for(int i = 0; i < 63; ++i) {
-						rev_str[i] = str[62 - i];
-				}
 				rev_len = 63;
+				std::reverse_copy(str, str + rev_len, rev_str);
 			}
 		}
 	}
@@ -294,7 +284,8 @@ PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
 
 	if (_tld1) {
 		PVCore::PVField &f(*l.insert(it_ins, field));
-		fill_field(f, str + tld1_pos, len);
+		f.set_begin(str + tld1_pos);
+		f.set_end(str + tld1_pos + len);
 		++ret;
 	}
 
@@ -302,7 +293,9 @@ PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
 
 	if (_tld2) {
 		PVCore::PVField &f(*l.insert(it_ins, field));
-		fill_field(f, str + tld2_pos, len);
+		// set tld1 and tld2
+		f.set_begin(str + tld2_pos);
+		f.set_end(str + tld2_pos + len);
 		++ret;
 	}
 
@@ -310,32 +303,27 @@ PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
 
 	if (_tld3) {
 		PVCore::PVField &f(*l.insert(it_ins, field));
-		if (!is_ip) {
-			fill_field(f, str + tld3_pos, len);
-		} else {
-			f.allocate_new(0);
+		if (is_ip) {
+			// Empty field.
 			f.set_end(f.begin());
+		} else {
+			fill_field(f, str + tld3_pos, len);
 		}
 		++ret;
 	}
 
 	if (_subd1) {
 		PVCore::PVField &f(*l.insert(it_ins, field));
-		if (!is_ip) {
-			if (tld1_pos != 0) {
-				fill_field(f, str, tld1_pos - 1);
-			} else {
-				f.allocate_new(0);
-				f.set_end(f.begin());
-			}
-		} else  if (tld2_pos != 0) {
-			if (_subd1_rev) { // an in-order IP
+		if (not is_ip and tld1_pos != 0) {
+			f.set_end(f.begin() + tld1_pos - 1);
+		} else if (tld2_pos != 0) {
+			if (_subd1_rev) {
 				fill_field(f, rev_str, rev_len);
-			} else { // a reversed IP
-				fill_field(f, str, tld2_pos - 1);
+			} else {
+				f.set_end(f.begin() + tld2_pos - 1);
 			}
 		} else {
-			f.allocate_new(0);
+			// Empty field.
 			f.set_end(f.begin());
 		}
 		++ret;
@@ -343,22 +331,22 @@ PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
 
 	if (_subd2) {
 		PVCore::PVField &f(*l.insert(it_ins, field));
-		if (!is_ip) {
+		if (not is_ip) {
 			if (tld2_pos != 0) {
 				// there is a sub-domain under the SLD
-				fill_field(f, str, tld2_pos - 1);
+				f.set_end(f.begin() + tld2_pos - 1);
 			} else {
-				f.allocate_new(0);
+				// Empty field.
 				f.set_end(f.begin());
 			}
 		} else if (tld2_pos != 0) {
-			if (_subd2_rev) { // an in-order IP
+			if (_subd2_rev) {
 				fill_field(f, rev_str, rev_len);
-			} else { // a reversed IP
-				fill_field(f, str, tld2_pos - 1);
+			} else {
+				f.set_end(f.begin() + tld2_pos - 1);
 			}
 		} else {
-			f.allocate_new(0);
+			// Empty field.
 			f.set_end(f.begin());
 		}
 		++ret;
@@ -369,19 +357,19 @@ PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
 		if (!is_ip) {
 			if (tld3_pos != 0) {
 				// there is a sub-domain under the 3rd LD
-				fill_field(f, str, tld3_pos - 1);
+				f.set_end(f.begin() + tld3_pos - 1);
 			} else {
-				f.allocate_new(0);
+				// Empty field.
 				f.set_end(f.begin());
 			}
 		} else if (tld2_pos != 0) {
-			if (_subd3_rev) { // an in-order IP
+			if (_subd3_rev) {
 				fill_field(f, rev_str, rev_len);
-			} else { // a reversed IP
-				fill_field(f, str, tld2_pos - 1);
+			} else {
+				f.set_end(f.begin() + tld2_pos - 1);
 			}
 		} else {
-			f.allocate_new(0);
+			// Empty field.
 			f.set_end(f.begin());
 		}
 		++ret;

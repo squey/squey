@@ -66,6 +66,10 @@ add_test(TestAggregatorStrict2 ${TEST_DIFF_STDOUT}
 	${PVRUSH_TEST_FILES}/aggregator/set2)
 
 # Test for splitters
+add_pv_compile_test(Trush_splitter_dns_fqdn LINKS ${LINK_LIBRARIES} FILES splitter_dns_fqdn.cpp helpers.cpp)
+add_test(Trush_splitter_dns_fqdn Trush_splitter_dns_fqdn)
+add_bench(Trush_splitter_dns_fqdn LINKS ${LINK_LIBRARIES} FILES splitter_dns_fqdn.cpp helpers.cpp)
+
 add_pv_compile_test(Trush_splitter_mac LINKS ${LINK_LIBRARIES} FILES splitter_mac.cpp helpers.cpp)
 add_test(Trush_splitter_mac Trush_splitter_mac)
 add_bench(Trush_splitter_mac LINKS ${LINK_LIBRARIES} FILES splitter_mac.cpp helpers.cpp)

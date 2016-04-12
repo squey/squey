@@ -239,29 +239,29 @@ add_library(normalize_filter_splitter_mac_address SHARED ${MACADDRESS_SRC} ${MAC
 target_link_libraries(normalize_filter_splitter_mac_address pvkernel)
 declare_library(normalize_filter_splitter_mac_address)
 
-################################################################################
-## DNSFQDN Splitter
-################################################################################
-#
-## Define ressources
-#SET(DNSFQDN_MOC_HEADERS
-#splitter_dns_fqdn/PVFieldSplitterDnsFqdnParamWidget.h
-#)
-#
-#SET(DNSFQDN_SRC
-#splitter_dns_fqdn/PVFieldSplitterDnsFqdn.cpp
-#splitter_dns_fqdn/PVFieldSplitterDnsFqdnParamWidget.cpp
-#splitter_dns_fqdn/register.cpp
-#)
-#
-## Generate Qt files
-#QT5_WRAP_CPP(DNSFQDN_MOC_SRCS ${DNSFQDN_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-#
-## Create lib
-#add_library(normalize_filter_splitter_dns_fqdn SHARED ${DNSFQDN_SRC} ${DNSFQDN_MOC_SRCS})
-#target_link_libraries(normalize_filter_splitter_dns_fqdn pvkernel)
-#declare_library(normalize_filter_splitter_dns_fqdn)
-#
+###############################################################################
+# DNSFQDN Splitter
+###############################################################################
+
+# Define ressources
+SET(DNSFQDN_MOC_HEADERS
+splitter_dns_fqdn/PVFieldSplitterDnsFqdnParamWidget.h
+)
+
+SET(DNSFQDN_SRC
+splitter_dns_fqdn/PVFieldSplitterDnsFqdn.cpp
+splitter_dns_fqdn/PVFieldSplitterDnsFqdnParamWidget.cpp
+splitter_dns_fqdn/register.cpp
+)
+
+# Generate Qt files
+QT5_WRAP_CPP(DNSFQDN_MOC_SRCS ${DNSFQDN_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+# Create lib
+add_library(normalize_filter_splitter_dns_fqdn SHARED ${DNSFQDN_SRC} ${DNSFQDN_MOC_SRCS})
+target_link_libraries(normalize_filter_splitter_dns_fqdn pvkernel)
+declare_library(normalize_filter_splitter_dns_fqdn)
+
 ################################################################################
 ## grep
 ################################################################################
