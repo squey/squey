@@ -38,7 +38,6 @@
 
 #include "PVFieldSplitterDnsFqdn.h"
 
-const char* PVFilter::PVFieldSplitterDnsFqdn::N         = "n";
 const char* PVFilter::PVFieldSplitterDnsFqdn::TLD1      = "tld1";
 const char* PVFilter::PVFieldSplitterDnsFqdn::TLD2      = "tld2";
 const char* PVFilter::PVFieldSplitterDnsFqdn::TLD3      = "tld3";
@@ -67,7 +66,6 @@ void PVFilter::PVFieldSplitterDnsFqdn::set_args(PVCore::PVArgumentList const& ar
 {
 	FilterT::set_args(args);
 
-	_n         = args.at(N).toInt();
 	_tld1      = args.at(TLD1).toBool();
 	_tld2      = args.at(TLD2).toBool();
 	_tld3      = args.at(TLD3).toBool();
@@ -89,7 +87,6 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterDnsFqdn)
 {
 	PVCore::PVArgumentList args;
 
-	args[N]         = 2;
 	args[TLD1]      = true;
 	args[TLD2]      = false;
 	args[TLD3]      = false;

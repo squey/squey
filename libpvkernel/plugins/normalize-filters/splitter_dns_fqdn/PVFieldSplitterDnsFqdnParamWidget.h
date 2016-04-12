@@ -46,7 +46,6 @@ private:
 	QWidget*   _param_widget;
 	QCheckBox* _split_cb[6];
 	QCheckBox* _rev_cb[3];
-	int        _n;
 
 private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterDnsFqdnParamWidget)
