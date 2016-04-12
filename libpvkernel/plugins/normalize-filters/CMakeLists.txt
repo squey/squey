@@ -21,29 +21,29 @@ endmacro(declare_library)
 
 # Converter
 
-################################################################################
-## GUID_to_IP Converter
-################################################################################
-#
-## Define ressources
-#SET(GUIDTOIP_MOC_HEADERS
-#converter_GUID_to_IP/PVFieldConverterGUIDToIPParamWidget.h
-#)
-#
-#set(GUIDTOIP_SRC
-#converter_GUID_to_IP/PVFieldGUIDToIP.cpp
-#converter_GUID_to_IP/PVFieldConverterGUIDToIPParamWidget.cpp
-#converter_GUID_to_IP/register.cpp
-#)
-#
-## Generate Qt files
-#QT5_WRAP_CPP(GUIDTOIP_MOC_SRCS ${GUIDTOIP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-#
-## Create lib
-#add_library(normalize_filter_converter_GUID_to_IP SHARED ${GUIDTOIP_SRC} ${GUIDTOIP_MOC_SRCS})
-#target_link_libraries(normalize_filter_converter_GUID_to_IP pvkernel)
-#declare_library(normalize_filter_converter_GUID_to_IP)
-#
+###############################################################################
+# GUID_to_IP Converter
+###############################################################################
+
+# Define ressources
+SET(GUIDTOIP_MOC_HEADERS
+converter_GUID_to_IP/PVFieldConverterGUIDToIPParamWidget.h
+)
+
+set(GUIDTOIP_SRC
+converter_GUID_to_IP/PVFieldGUIDToIP.cpp
+converter_GUID_to_IP/PVFieldConverterGUIDToIPParamWidget.cpp
+converter_GUID_to_IP/register.cpp
+)
+
+# Generate Qt files
+QT5_WRAP_CPP(GUIDTOIP_MOC_SRCS ${GUIDTOIP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+# Create lib
+add_library(normalize_filter_converter_GUID_to_IP SHARED ${GUIDTOIP_SRC} ${GUIDTOIP_MOC_SRCS})
+target_link_libraries(normalize_filter_converter_GUID_to_IP pvkernel)
+declare_library(normalize_filter_converter_GUID_to_IP)
+
 ################################################################################
 ## substitution Converter
 ################################################################################

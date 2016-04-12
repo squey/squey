@@ -70,6 +70,15 @@ add_pv_compile_test(Trush_filter_grep LINKS ${LINK_LIBRARIES} FILES filter_grep.
 add_test(Trush_filter_grep Trush_filter_grep)
 add_bench(Trush_filter_grep LINKS ${LINK_LIBRARIES} FILES filter_grep.cpp helpers.cpp)
 
+# Test for converter
+add_pv_compile_test(Trush_converter_GUID_to_IPV4 LINKS ${LINK_LIBRARIES} FILES converter_GUID_to_IPV4.cpp helpers.cpp)
+add_test(Trush_converter_GUID_to_IPV4 Trush_converter_GUID_to_IPV4)
+add_bench(Trush_converter_GUID_to_IPV4 LINKS ${LINK_LIBRARIES} FILES converter_GUID_to_IPV4.cpp helpers.cpp)
+
+add_pv_compile_test(Trush_converter_GUID_to_IPV6 LINKS ${LINK_LIBRARIES} FILES converter_GUID_to_IPV6.cpp helpers.cpp)
+add_test(Trush_converter_GUID_to_IPV6 Trush_converter_GUID_to_IPV6)
+add_bench(Trush_converter_GUID_to_IPV6 LINKS ${LINK_LIBRARIES} FILES converter_GUID_to_IPV6.cpp helpers.cpp)
+
 # Test for splitters
 add_pv_compile_test(Trush_splitter_key_value LINKS ${LINK_LIBRARIES} FILES splitter_key_value.cpp helpers.cpp)
 add_test(Trush_splitter_key_value Trush_splitter_key_value)
