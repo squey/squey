@@ -19,7 +19,7 @@
 PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget *parent) : QFileDialog(parent)
 {
 	setWindowTitle("Import file");
-	setFileMode(QFileDialog::ExistingFile);
+	setFileMode(QFileDialog::ExistingFiles);
 
 	// Set this flags to make sure we can access the layout.
 	setOption(QFileDialog::DontUseNativeDialog);
