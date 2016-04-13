@@ -101,7 +101,6 @@ int main(int argc, char** argv)
 
 	size_t n = atoll(argv[1]);
 
-	PVCuda::init_cuda();
 	PVParallelView::PVBCIBackendImage_p dst_img;
 	switch (bbits) {
 		case 10:

@@ -10,21 +10,6 @@
 
 #define DEV_CUDA 0
 
-void PVCuda::init_cuda()
-{
-#ifdef CUDA
-	init_cuda_thread();
-#endif
-}
-
-void PVCuda::init_cuda_thread()
-{
-#ifdef CUDA
-	//inendi_verify_cuda(cudaSetDevice(DEV_CUDA)); // Tesla
-	//inendi_verify_cuda(cudaSetDeviceFlags(cudaDeviceMapHost));
-#endif
-}
-
 size_t PVCuda::get_number_of_devices()
 {
 #ifdef CUDA

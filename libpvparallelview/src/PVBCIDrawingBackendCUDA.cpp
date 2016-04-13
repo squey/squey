@@ -99,8 +99,6 @@ void PVParallelView::PVBCIBackendImageCUDA::resize_width(PVBCIBackendImage& dst,
 
 PVParallelView::PVBCIDrawingBackendCUDA::PVBCIDrawingBackendCUDA()
 {
-	PVCuda::init_cuda();
-
 	// List all usable cuda engines and create stream and appropriate structure
 	std::vector<int> list_ids;
 	PVCuda::visit_usable_cuda_devices([&](int id)
@@ -128,17 +126,6 @@ PVParallelView::PVBCIDrawingBackendCUDA::PVBCIDrawingBackendCUDA()
 		}
 		while (std::next_permutation(list_ids.begin(), list_ids.end()));
 	}
-
-
-	/*
-	// Init stream pools
-	const size_t ndevs = _devices.size();
-	const size_t streams_per_dev = (BCI_BUFFERS_COUNT+ndevs-1)/ndevs;
-
-	decltype(_devices)::iterator it;
-	for (it = _devices.begin(); it != _devices.end(); it++) {
-		it->second.streams.init(streams_per_dev);
-	}*/
 
 	_last_image_dev = _devices.begin();
 }

@@ -45,7 +45,6 @@ int main(int argc, char** argv)
 	srand(0);
 
 	QApplication app(argc, argv);
-	PVCuda::init_cuda();
 
 	// Enable peer-to-peer access
 	inendi_verify_cuda(cudaSetDevice(1));

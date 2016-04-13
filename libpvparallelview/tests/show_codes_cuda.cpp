@@ -66,7 +66,6 @@ int main(int argc, char** argv)
 	srand(0);
 
 	QApplication app(argc, argv);
-	PVCuda::init_cuda();
 
 	size_t n = atoll(argv[1]);
 
