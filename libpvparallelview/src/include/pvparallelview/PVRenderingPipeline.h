@@ -117,15 +117,6 @@ public:
 	void cancel_all();
 	void wait_for_all();
 
-public:
-	/*
-	template <size_t bbits>
-	static void* allocate_zr()
-	{
-		return malloc(sizeof(PVZoneRendering<bbits>));
-	}
-	static void free_zr(PVZoneRenderingBase_p zr);*/
-
 private:
 	inline tbb::flow::graph& tbb_graph() { return _g; }
 	inline tbb::flow::graph const& tbb_graph() const { return _g; }

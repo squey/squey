@@ -31,7 +31,6 @@ class PVHelpWidget;
 
 namespace PVParallelView {
 
-class PVFullParallelScene;
 class PVRenderingJob;
 class PVFullParallelScene;
 
@@ -49,7 +48,6 @@ public:
 	void set_selected_events_number(uint32_t selected_events_number) { _selected_events_number = selected_events_number; }
 
 protected:
-	void paintEvent(QPaintEvent *event) override;
 	void resizeEvent(QResizeEvent *event) override;
 	void enterEvent(QEvent *event) override;
 	void leaveEvent(QEvent *event) override;
