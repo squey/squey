@@ -30,11 +30,7 @@ class PVBCIBackendImageCUDA: public PVParallelView::PVBCIBackendImage
 	friend class PVParallelView::PVBCIDrawingBackendCUDA;
 	friend class cuda_engine;
 	
-	typedef uint32_t pixel_t;
-	typedef uint32_t* pixel_pointer_t;
-	typedef uint32_t const* const_pixel_pointer_t;
-
-	typedef std::allocator<pixel_t> pixel_allocator;
+	using pixel_t = uint32_t;
 
 protected:
 	PVBCIBackendImageCUDA(const uint32_t width, uint8_t height_bits, const int cuda_device, cudaStream_t stream);
@@ -47,11 +43,11 @@ public:
 
 // AG: should be protected, but used directly in some benchmarking tests
 public:
-	pixel_pointer_t device_img() { return _device_img; }
-	pixel_pointer_t host_img() { return _host_img; }
+	pixel_t* device_img() { return _device_img; }
+	pixel_t* host_img() { return _host_img; }
 
-	const_pixel_pointer_t device_img() const { return _device_img; }
-	const_pixel_pointer_t host_img() const { return _host_img; }
+	pixel_t const* device_img() const { return _device_img; }
+	pixel_t const* host_img() const { return _host_img; }
 
 	inline void copy_device_to_host(cudaStream_t const& stream) const
 	{
@@ -93,8 +89,8 @@ private:
 	inline size_t size_org_pixel() const { return _org_width*PVBCIBackendImage::height(); }
 
 private:
-	pixel_pointer_t _host_img;
-	pixel_pointer_t _device_img;
+	pixel_t* _host_img;
+	pixel_t* _device_img;
 	uint32_t _org_width;
 	int _cuda_device;
 };
@@ -163,7 +159,6 @@ class PVBCIDrawingBackendCUDA: public PVBCIDrawingBackendAsync
 
 private:
 	typedef typename backend_image_t::pixel_t pixel_t;
-	typedef typename backend_image_t::pixel_pointer_t pixel_pointer_t;
 
 private:
 	PVBCIDrawingBackendCUDA();
