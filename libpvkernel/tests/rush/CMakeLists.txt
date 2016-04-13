@@ -108,6 +108,10 @@ add_pv_compile_test(Trush_splitter_regexp LINKS ${LINK_LIBRARIES} FILES splitter
 add_test(Trush_splitter_regexp Trush_splitter_regexp)
 add_bench(Trush_splitter_regexp LINKS ${LINK_LIBRARIES} FILES splitter_regexp.cpp helpers.cpp)
 
+add_pv_compile_test(Trush_splitter_regexp_full_line LINKS ${LINK_LIBRARIES} FILES splitter_regexp_full_line.cpp helpers.cpp)
+add_test(Trush_splitter_regexp_full_line Trush_splitter_regexp_full_line)
+add_bench(Trush_splitter_regexp_full_line LINKS ${LINK_LIBRARIES} FILES splitter_regexp_full_line.cpp helpers.cpp)
+
 add_pv_compile_test(Trush_splitter_csv LINKS ${LINK_LIBRARIES} FILES splitter_csv.cpp helpers.cpp)
 add_test(Trush_splitter_csv Trush_splitter_csv)
 add_bench(Trush_splitter_csv LINKS ${LINK_LIBRARIES} FILES splitter_csv.cpp helpers.cpp)

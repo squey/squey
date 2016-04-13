@@ -27,7 +27,6 @@ public:
 	virtual void set_args(PVCore::PVArgumentList const& args);
 protected:
 	std::regex _regexp;
-
 	bool _full_line;
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterRegexp)

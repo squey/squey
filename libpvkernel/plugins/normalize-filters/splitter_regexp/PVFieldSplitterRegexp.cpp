@@ -48,7 +48,6 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 {
 	FilterT::set_args(args);
 	_regexp = std::regex(args.at("regexp").toString().toStdString());
-	// FIXME : We should use this variable
 	_full_line = args.at("full-line").toBool();
 }
 
@@ -60,9 +59,15 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterRegexp::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
 {
-	size_t n;
 	std::cmatch base_match;
-	if (std::regex_match<const char*>(field.begin(), field.end(), base_match, _regexp)) {
+	bool parse_success = true;
+	if(_full_line) {
+		parse_success = std::regex_match<const char*>(field.begin(), field.end(), base_match, _regexp);
+	} else {
+		parse_success = std::regex_search<const char*>(field.begin(), field.end(), base_match, _regexp);
+	}
+
+	if (parse_success) {
 		if((_fields_expected > 0) && (_fields_expected != base_match.size() - 1)) {
 			field.set_invalid();
 			field.elt_parent()->set_invalid();
