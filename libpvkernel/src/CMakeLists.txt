@@ -122,7 +122,6 @@ rush/PVXmlParamParser.cpp
 rush/PVFormatVersion.cpp
 rush/PVInput.cpp
 rush/PVInputFile.cpp
-rush/PVOutputFile.cpp
 rush/PVCharsetDetect.cpp
 rush/PVAggregator.cpp
 rush/PVPipelineTask.cpp
