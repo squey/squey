@@ -7,17 +7,7 @@
 
 #include "PVFieldConverterSubstitution.h"
 
-#include <QFile>
-#include <QTextStream>
-
-#include <pvkernel/widgets/qkeysequencewidget.h>
-#include <pvkernel/rush/PVCharsetDetect.h>
-#include <pvkernel/core/PVUtils.h>
-
-extern "C" {
-// libcsv
-#include "libcsv.h"
-}
+#include <fstream>
 
 /******************************************************************************
  *
@@ -39,67 +29,20 @@ void PVFilter::PVFieldConverterSubstitution::set_args(PVCore::PVArgumentList con
 {
 	FilterT::set_args(args);
 
-	_path              = args.at("path").toString();
-	_default_value     = args.at("default_value").toString();
+	_default_value     = args.at("default_value").toString().toStdString();
 	_use_default_value = args.at("use_default_value").toBool();
-	_sep_char          = args.at("sep").toChar();
-	_quote_char        = args.at("quote").toChar();
-}
+	_sep_char          = args.at("sep").toChar().toLatin1();
+	_quote_char        = args.at("quote").toChar().toLatin1();
 
-/******************************************************************************
- *
- * PVFilter::PVFieldConverterSubstitution::init
- *
- *****************************************************************************/
-void PVFilter::PVFieldConverterSubstitution::init()
-{
-	// Initialize ICU
-	UErrorCode status = U_ZERO_ERROR;
-	_csv_infos.ucnv = ucnv_open(_csv_infos.charset.c_str(), &status);
-
-	// Parse using libCSV
-	csv_parser p;
-	if (csv_init(&p, 0) != 0) {
-		PVLOG_ERROR("Unable to initialize libcsv !\n");
-	}
-	csv_set_delim(&p, _sep_char.toLatin1());
-	csv_set_quote(&p, _quote_char.toLatin1());
-	QFile f(_path);
-	if (!f.open(QFile::ReadOnly | QFile::Text)) {
-		PVLOG_WARN("Filter '%s' of type '%s' was unable to open conversion file !\n", qPrintable(type_name()), qPrintable(registered_name()));
-		_passthru = true;
-		return;
-	}
-	QTextStream in(&f);
-	QString content = in.readAll();
-	PVRush::PVCharsetDetect cd;
-	if (cd.HandleData(content.toStdString().c_str(), content.length()) == NS_OK) {
-		cd.DataEnd();
-		if (cd.found()) {
-			_csv_infos.charset = cd.GetCharset();
-		}
-	}
-	csv_parse(&p, content.toLocal8Bit().data(), content.size(), &PVFilter::PVFieldConverterSubstitution::csv_new_field, &PVFilter::PVFieldConverterSubstitution::csv_new_row, (void*)&_csv_infos);
-	csv_fini(&p, &PVFilter::PVFieldConverterSubstitution::csv_new_field, &PVFilter::PVFieldConverterSubstitution::csv_new_row, (void*)&_csv_infos);
-	csv_free(&p);
-	if (!_csv_infos.map.size()) {
-		PVLOG_WARN("Filter '%s' of type '%s' was unable to detect any value mapping !\n", qPrintable(type_name()), qPrintable(registered_name()));
-		_passthru = true;
-		return;
-	}
-
-	// Convert default value to UTF-16
-	if (_use_default_value) {
-		status = U_ZERO_ERROR;
-		static tbb::tbb_allocator<UChar> alloc;
-		_csv_infos.default_value_len_utf16 = _default_value.length() * 2;
-		_csv_infos.default_value_utf16 = alloc.allocate(_csv_infos.default_value_len_utf16);
-		UChar* target = _csv_infos.default_value_utf16;
-		const UChar* target_end = target + _csv_infos.default_value_len_utf16;
-		const char* data_conv = _default_value.toStdString().c_str();
-		const char* data_conv_end = _default_value.toStdString().c_str() + _default_value.length();
-
-		ucnv_toUnicode(_csv_infos.ucnv, &target, target_end, &data_conv, data_conv_end, NULL, true, &status);
+	std::ifstream ifs(args.at("path").toString().toStdString());
+	std::string buffer(4096 * 2, 0);
+	// FIXME : Add more check on file format.
+	// FIXME : Handle quote char
+	while(ifs.getline(&buffer.front(), buffer.size())) {
+		char* txt = &buffer.front();
+		char* key = std::find(txt, txt + buffer.size(), _sep_char);
+		char* v = std::find(key + 1, txt + buffer.size(), '\0');
+		_key[std::string(txt, key - txt)] = std::string(key + 1, v - key - 1);
 	}
 }
 
@@ -123,76 +66,20 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldConverterSubstitution)
  *****************************************************************************/
 PVCore::PVField& PVFilter::PVFieldConverterSubstitution::one_to_one(PVCore::PVField& field)
 {
-	if (!unlikely(_passthru)) {
-		QString str_tmp;
-		std::string f = field.get_qstr(str_tmp).toStdString();
+	auto it = _key.find(std::string(field.begin(), field.size()));
 
-		__impl::csv_infos::utf16_map_t::const_iterator iter = _csv_infos.map.find(f); // not using at() because throwing exceptions really really kills the perfs
-
-		if(iter != _csv_infos.map.end()) { // found
-			const __impl::csv_infos::utf16_string_t& mapped_field = iter->second;
-			size_t mapped_field_len_utf16 = mapped_field.second;
-			field.allocate_new(mapped_field_len_utf16);
-			memcpy(field.begin(), mapped_field.first, mapped_field_len_utf16);
-			field.set_end(field.begin() + mapped_field_len_utf16);
+	if(it == _key.end()) {
+		if (_use_default_value) {
+			field.allocate_new(_default_value.size());
+			field.set_end(std::copy(_default_value.begin(), _default_value.end(), field.begin()));
 		}
-		else { // not found
-			if (_use_default_value) {
-				field.allocate_new(_csv_infos.default_value_len_utf16);
-				memcpy(field.begin(), _csv_infos.default_value_utf16, _csv_infos.default_value_len_utf16);
-				field.set_end(field.begin() + _csv_infos.default_value_len_utf16);
-			}
-		}
+	} else {
+		std::string const& s = it->second;
+		field.allocate_new(s.size());
+		field.set_end(std::copy(s.begin(), s.end(), field.begin()));
 	}
 
 	return field;
 }
-
-/******************************************************************************
- *
- * PVFilter::PVFieldConverterSubstitution::csv_new_field
- *
- *****************************************************************************/
-void PVFilter::PVFieldConverterSubstitution::csv_new_field(void* s, size_t len, void* p)
-{
-	__impl::csv_infos* infos = (__impl::csv_infos*) p;
-
-	std::string str = std::string((const char*)s, len);
-
-	if (infos->first_field) {
-		infos->key = str;
-	}
-	else {
-		static tbb::tbb_allocator<UChar> alloc;
-
-		size_t mapped_field_len_utf16_max = len * 2;
-		UChar* output = alloc.allocate(mapped_field_len_utf16_max);
-		UChar* target = output;
-		const UChar* target_end = target + mapped_field_len_utf16_max;
-		const char* data_conv = str.c_str();
-		const char* data_conv_end = str.c_str() + str.length();
-
-		UErrorCode status = U_ZERO_ERROR;
-		ucnv_toUnicode(infos->ucnv, &target, target_end, &data_conv, data_conv_end, NULL, true, &status);
-
-		const size_t mapped_field_len_utf16 = (uintptr_t)target - (uintptr_t)output;
-		infos->map[infos->key] = __impl::csv_infos::utf16_string_t(output, mapped_field_len_utf16);
-	}
-
-	infos->first_field = false;
-}
-
-/******************************************************************************
- *
- * PVFilter::PVFieldConverterSubstitution::csv_new_row
- *
- *****************************************************************************/
-void PVFilter::PVFieldConverterSubstitution::csv_new_row(int /*c*/, void* p)
-{
-	__impl::csv_infos* infos = (__impl::csv_infos*) p;
-
-	infos->first_field = true;
-}
-
 
 IMPL_FILTER(PVFilter::PVFieldConverterSubstitution)

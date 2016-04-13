@@ -44,31 +44,30 @@ add_library(normalize_filter_converter_GUID_to_IP SHARED ${GUIDTOIP_SRC} ${GUIDT
 target_link_libraries(normalize_filter_converter_GUID_to_IP pvkernel)
 declare_library(normalize_filter_converter_GUID_to_IP)
 
-################################################################################
-## substitution Converter
-################################################################################
-#
-## Define ressources
-#SET(Substitution_MOC_HEADERS
-#converter_substitution/PVFieldConverterSubstitutionParamWidget.h
-#)
-#
-#SET(SUBSTITUTION_SRCS
-#converter_substitution/PVFieldConverterSubstitution.cpp
-#converter_substitution/PVFieldConverterSubstitutionParamWidget.cpp
-#converter_substitution/libcsv.cpp
-#converter_substitution/register.cpp
-#)
-#
-## Generate Qt files
-#QT5_WRAP_CPP(Substitution_MOC_SRCS ${Substitution_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-#
-## Create lib
-#add_library(normalize_filter_converter_substitution SHARED ${SUBSTITUTION_SRCS} ${Substitution_MOC_SRCS})
-#target_link_libraries(normalize_filter_converter_substitution pvkernel)
-#declare_library(normalize_filter_converter_substitution)
-#
-## Splitter
+###############################################################################
+# substitution Converter
+###############################################################################
+
+# Define ressources
+SET(Substitution_MOC_HEADERS
+converter_substitution/PVFieldConverterSubstitutionParamWidget.h
+)
+
+SET(SUBSTITUTION_SRCS
+converter_substitution/PVFieldConverterSubstitution.cpp
+converter_substitution/PVFieldConverterSubstitutionParamWidget.cpp
+converter_substitution/register.cpp
+)
+
+# Generate Qt files
+QT5_WRAP_CPP(Substitution_MOC_SRCS ${Substitution_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+# Create lib
+add_library(normalize_filter_converter_substitution SHARED ${SUBSTITUTION_SRCS} ${Substitution_MOC_SRCS})
+target_link_libraries(normalize_filter_converter_substitution pvkernel)
+declare_library(normalize_filter_converter_substitution)
+
+# Splitter
 
 ###############################################################################
 # CSV Splitter

@@ -79,6 +79,10 @@ add_pv_compile_test(Trush_converter_GUID_to_IPV6 LINKS ${LINK_LIBRARIES} FILES c
 add_test(Trush_converter_GUID_to_IPV6 Trush_converter_GUID_to_IPV6)
 add_bench(Trush_converter_GUID_to_IPV6 LINKS ${LINK_LIBRARIES} FILES converter_GUID_to_IPV6.cpp helpers.cpp)
 
+add_pv_compile_test(Trush_converter_substitution LINKS ${LINK_LIBRARIES} FILES converter_substitution.cpp helpers.cpp)
+add_test(Trush_converter_substitution Trush_converter_substitution)
+add_bench(Trush_converter_substitution LINKS ${LINK_LIBRARIES} FILES converter_substitution.cpp helpers.cpp)
+
 # Test for splitters
 add_pv_compile_test(Trush_splitter_key_value LINKS ${LINK_LIBRARIES} FILES splitter_key_value.cpp helpers.cpp)
 add_test(Trush_splitter_key_value Trush_splitter_key_value)
