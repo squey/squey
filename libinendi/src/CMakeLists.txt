@@ -37,8 +37,6 @@ PVScene.cpp
 PVSelection.cpp
 PVSparseSelection.cpp
 PVSquareArea.cpp
-PVDefaultSortingFunc.cpp
-PVSortingFunc.cpp
 PVSource.cpp
 PVStateMachine.cpp
 PVView.cpp

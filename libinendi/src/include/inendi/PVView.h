@@ -31,8 +31,6 @@
 #include <inendi/PVIndexArray.h>
 #include <inendi/PVSquareArea.h>
 #include <inendi/PVStateMachine.h>
-#include <inendi/PVSortingFunc.h>
-#include <inendi/PVDefaultSortingFunc.h>
 #include <inendi/PVPlotted.h>
 
 #include <inendi/PVView_types.h>
