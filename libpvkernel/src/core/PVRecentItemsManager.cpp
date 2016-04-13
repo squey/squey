@@ -236,7 +236,13 @@ PVRush::PVSourceDescription PVCore::PVRecentItemsManager::deserialize_source_des
 {
 	// source creator
 	QString source_creator_name = _recents_settings->value(ITEM_SUBKEY_SOURCE_CREATOR_NAME).toString();
-	PVRush::PVSourceCreator_p src_creator_p = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(source_creator_name);
+	PVRush::PVSourceCreator_p src_creator_p;
+	try {
+		src_creator_p = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(source_creator_name);
+	} catch(PVCore::InvalidPlugin const& e) {
+		// The plugin doesn't exists. It Should not be in recent file.
+		return {};
+	}
 	PVRush::PVInputType_p input_type_p = src_creator_p->supported_type_lib();
 
 	// inputs

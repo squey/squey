@@ -17,8 +17,14 @@
 #include <cassert>
 #include <algorithm>
 #include <typeinfo>
+#include <stdexcept>
 
 namespace PVCore {
+
+class InvalidPlugin: public std::runtime_error
+{
+	using std::runtime_error::runtime_error;
+};
 
 /*! \brief Template class library used to register relevant classes, with associated tags if necessary. used by the plugin system.
  *  \tparam RegAs Kind of class library. Must be a base class of T (see \ref register_class). This is generally the interface of a plugin type.
@@ -174,7 +180,7 @@ public:
 	PF get_class_by_name(QString const& name) const
 	{
 		if (!_classes.contains(name)) {
-			throw std::runtime_error("Unknown plugins : " + name.toStdString());
+			throw InvalidPlugin("Unknown plugins : " + name.toStdString());
 		}
 		return _classes.at(name);
 	}
