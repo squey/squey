@@ -39,8 +39,8 @@ class PVLinesView
 private:
 	struct SingleZoneImages
 	{
-		PVBCIBackendImage_p sel;
-		PVBCIBackendImage_p bg;
+		std::shared_ptr<PVBCIBackendImage> sel;
+		std::shared_ptr<PVBCIBackendImage> bg;
 
 		PVZoneRenderingBCIBase_p last_zr_sel;
 		PVZoneRenderingBCIBase_p last_zr_bg;

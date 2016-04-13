@@ -2,7 +2,7 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2010-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #ifndef PVPARALLELVIEW_PVBCIBACKENDIMAGE_H
@@ -10,27 +10,25 @@
 
 #include <pvkernel/core/general.h>
 
-#include <pvparallelview/common.h>
-#include <pvparallelview/PVBCIBackendImage_types.h>
-
-#include <boost/utility.hpp>
-
 #include <QImage>
 
 namespace PVParallelView {
 
-class PVBCIBackendImage: boost::noncopyable
+/**
+ * It represents an image convertible to QImage.
+ */
+class PVBCIBackendImage
 {
 public:
-	typedef std::shared_ptr<PVBCIBackendImage> p_type;
-
-protected:
 	PVBCIBackendImage(uint32_t width, uint8_t height_bits):
 		_width(width),
 		_height_bits(height_bits)
 	{ }
 
-public:
+	PVBCIBackendImage(PVBCIBackendImage const&) = delete;
+	PVBCIBackendImage(PVBCIBackendImage &&) = delete;
+	PVBCIBackendImage& operator=(PVBCIBackendImage &&) = delete;
+	PVBCIBackendImage& operator=(PVBCIBackendImage const&) = delete;
 	virtual ~PVBCIBackendImage() { }
 
 public:
