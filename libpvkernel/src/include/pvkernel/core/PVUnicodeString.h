@@ -17,7 +17,6 @@ namespace PVCore {
 
 class PVBufferSlice;
 class PVUnicodeString;
-class PVUnicodeStringHashNoCase;
 
 }
 
@@ -93,7 +92,6 @@ public:
 	bool operator<(const PVUnicodeString& o) const;
 	int compare(const PVUnicodeString& o) const;
 	int compare(const char* str) const;
-	int compareNoCase(const PVUnicodeString& o) const;
 
 	// == Data access ==
 	inline const utf_char* buffer() const { return _buf; }
@@ -138,17 +136,6 @@ private:
 	PYTHON_EXPOSE()
 };
 #pragma pack(pop)
-
-class PVUnicodeStringHashNoCase
-{
-public:
-	PVUnicodeStringHashNoCase(PVUnicodeString const& str): _str(str) { }
-public:
-	inline PVUnicodeString const& str() const { return _str; }
-	inline bool operator==(const PVUnicodeStringHashNoCase& o) const { return _str.compareNoCase(o.str()) == 0; }
-private:
-	PVUnicodeString const& _str;
-};
 
 }
 

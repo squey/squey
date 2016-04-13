@@ -9,9 +9,6 @@
 #include <pvkernel/core/PVPythonClassDecl.h>
 #include <pvkernel/core/PVUnicodeString.h>
 
-#include <unicode/ustring.h>
-#include <unicode/coll.h>
-
 #include <tbb/enumerable_thread_specific.h>
 
 // Taken from QT 4.7.3's source code
@@ -43,11 +40,6 @@ static inline unsigned int hash_lowercase(const PVCore::PVUnicodeString::utf_cha
 unsigned int qHash(PVCore::PVUnicodeString const& str)
 {
 	return hash(str.buffer(), str.size());
-}
-
-unsigned int qHash(PVCore::PVUnicodeStringHashNoCase const& str)
-{
-	return hash_lowercase(str.str().buffer(), str.str().size());
 }
 
 double PVCore::PVUnicodeString::to_double(bool& /*ok*/) const
@@ -107,22 +99,6 @@ int PVCore::PVUnicodeString::compare(const PVUnicodeString& o) const
 		}
 	}
 	return ret;
-}
-
-int PVCore::PVUnicodeString::compareNoCase(const PVUnicodeString& o) const
-{
-	static tbb::enumerable_thread_specific<Collator*> tls_collator(
-			[=]
-			{
-				UErrorCode err = U_ZERO_ERROR;
-				Collator* c = Collator::createInstance(err);
-				c->setStrength(Collator::PRIMARY);
-				return c;
-			});
-	Collator* const c = tls_collator.local();
-	UErrorCode err = U_ZERO_ERROR;
-	const UCollationResult res = c->compareUTF8(StringPiece((const char*) _buf, _len), StringPiece((const char*) o._buf, o._len), err);
-	return (int) res;
 }
 
 PYTHON_EXPOSE_IMPL(PVCore::PVUnicodeString)

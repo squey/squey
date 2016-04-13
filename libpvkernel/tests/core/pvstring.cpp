@@ -34,7 +34,7 @@ int main()
 	size_t i = 0;
 	std::sort(strs, strs+size, [=, &i, &ress](const char* a, const char* b)
 			{
-				int ret = PVCore::PVUnicodeString(a, strlen(a)).compareNoCase(PVCore::PVUnicodeString(b, strlen(b)));
+				int ret = PVCore::PVUnicodeString(a, strlen(a)).compare(PVCore::PVUnicodeString(b, strlen(b)));
 				PV_VALID(ret, ress[i], "a", a, "b", b);
 				++i;
 				return ret < 0;

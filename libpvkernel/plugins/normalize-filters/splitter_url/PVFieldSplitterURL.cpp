@@ -135,21 +135,16 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 		PVCore::PVUnicodeString proto(str_url + fh->furl.features.scheme.pos, fh->furl.features.scheme.size);
 		const PVCore::PVUnicodeString::utf_char* str_port;
 		size_t size_port;
-		if (proto.compareNoCase(g_str_http) == 0) {
+		if (proto == g_str_http) {
 			str_port = g_port_80;
 			size_port = 2;
-		}
-		else
-		if (proto.compareNoCase(g_str_https) == 0) {
+		} else if (proto == g_str_https) {
 			str_port = g_port_443;
 			size_port = 3;
-		}
-		else
-		if (proto.compareNoCase(g_str_ftp) == 0) {
+		} else if (proto == g_str_ftp) {
 			str_port = g_port_21;
 			size_port = 2;
-		}
-		else {
+		} else {
 			return ret;
 		}
 
