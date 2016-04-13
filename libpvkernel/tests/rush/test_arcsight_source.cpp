@@ -7,6 +7,7 @@
 
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/rush/PVSourceCreator.h>
+#include <pvkernel/rush/PVRawSourceBase.h>
 
 #include "../../plugins/common/arcsight/PVArcsightQuery.h"
 

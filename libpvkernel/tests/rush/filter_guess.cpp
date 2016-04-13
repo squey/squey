@@ -13,6 +13,7 @@
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVTests.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>

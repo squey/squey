@@ -125,11 +125,8 @@ add_test(Trush_splitter_duplicate Trush_splitter_duplicate)
 add_bench(Trush_splitter_duplicate LINKS ${LINK_LIBRARIES} FILES splitter_duplicate.cpp helpers.cpp)
 
 add_pv_compile_test(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filter_composition.cpp helpers.cpp)
-add_test(TestFilterComposition ${TEST_DIFF_STDOUT}
-	${PVRUSH_TEST_FILES}/filter_composition.out
-	${PVRUSH_TEST_FILES}/filter_composition.diff
-	${CMAKE_CURRENT_BINARY_DIR}/Trush_filter_composition
-	${PVRUSH_TEST_FILES}/filter_composition 6000)
+add_test(Trush_filter_composition Trush_filter_composition)
+add_bench(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filter_composition.cpp helpers.cpp)
 
 # Plugin input tests
 add_pv_compile_test(Trush_mem LINKS ${LINK_LIBRARIES} FILES bench_memory.cpp)

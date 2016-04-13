@@ -9,13 +9,8 @@
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVUnicodeSource.h>
 #include <pvkernel/rush/PVAggregator.h>
-#include <cstdlib>
 #include <iostream>
 #include "helpers.h"
-
-using std::cout;
-using std::cerr;
-using std::endl;
 
 using namespace PVRush;
 using namespace PVCore;
@@ -23,7 +18,7 @@ using namespace PVCore;
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
-		cerr << "Usage: " << argv[0] << " file chunk_size" << endl;
+		std::cerr << "Usage: " << argv[0] << " file chunk_size" << std::endl;
 		return 1;
 	}
 
@@ -31,12 +26,9 @@ int main(int argc, char** argv)
 	PVInput_p ifile(new PVInputFile(argv[1]));
 	PVUnicodeSource<> source(ifile, atoi(argv[2]));
 
-	PVChunk* pc = source();
-
-	while (pc) {
-		dump_chunk_newline(*pc);
+	while (PVChunk* pc = source()) {
+		dump_chunk_raw(*pc);
 		pc->free();
-		pc = source();
 	}
 
 	return 0;
