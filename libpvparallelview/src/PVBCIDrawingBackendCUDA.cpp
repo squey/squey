@@ -131,26 +131,6 @@ PVParallelView::PVBCIBackendImage_p PVParallelView::PVBCIDrawingBackendCUDA::cre
 	return ret;
 }
 
-PVParallelView::PVBCIBackendImage_p PVParallelView::PVBCIDrawingBackendCUDA::create_image_on_same_device(size_t img_width, uint8_t height_bits, backend_image_t const& ref) const
-{
-	assert(_devices.size() >= 1);
-
-	PVBCIBackendImageCUDA const* ref_cuda = dynamic_cast<PVBCIBackendImageCUDA const*>(&ref);
-	int dev;
-	if (ref_cuda) {
-		dev = ref_cuda->get_cuda_device();
-	}
-	else {
-		if (_last_image_dev == _devices.end()) {
-			_last_image_dev = _devices.begin();
-		}
-		dev = _last_image_dev->first;
-		++_last_image_dev;
-	}
-	PVBCIBackendImage_p ret(new PVBCIBackendImageCUDA(img_width, height_bits, dev, _devices[dev].stream));
-	return ret;
-}
-
 void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage_p& dst_img, size_t x_start, size_t width, PVBCICodeBase* codes, size_t n, const float zoom_y, bool reverse, std::function<void()> const& render_done)
 {
 #ifdef NDEBUG

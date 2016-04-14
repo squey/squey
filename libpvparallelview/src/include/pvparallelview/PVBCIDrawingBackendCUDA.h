@@ -175,7 +175,6 @@ public:
 public:
 	Flags flags() const { return Serial; }
 	PVBCIBackendImage_p create_image(size_t img_width, uint8_t height_bits) const override;
-	PVBCIBackendImage_p create_image_on_same_device(size_t img_width, uint8_t height_bits, backend_image_t const& ref) const;
 
 public:
 	PVBCICodeBase* allocate_bci(size_t n) override;
