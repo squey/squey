@@ -66,17 +66,14 @@ void Inendi::PVView::set_parent_from_ptr(PVPlotted* plotted)
 		filters_args[it->key()] = it->value()->get_default_args_for_view(*this);
 	}
 
-	// This is ugly as hell seriously... We should not deal with default constructed objects !!!
-	layer_stack.set_row_count(get_row_count());
-	floating_selection.set_count(get_row_count());
-	post_filter_layer.set_count(get_row_count());
-	layer_stack_output_layer.set_count(get_row_count());
-	output_layer.set_count(get_row_count());
-	nu_selection.set_count(get_row_count());
-	real_output_selection.set_count(get_row_count());
-	volatile_selection.set_count(get_row_count());
-
-	reset_view();
+	/**
+	 *  Avoid inializing view when default constructed...
+	 */
+	PVRow row_count = get_row_count();
+	if (row_count) {
+		set_row_count(row_count);
+		reset_view();
+	}
 }
 
 void Inendi::PVView::process_parent_plotted()
@@ -87,7 +84,7 @@ void Inendi::PVView::process_parent_plotted()
 	_axes_combination.set_from_format(source->get_format());
 	_axes_combination.set_axis_name(0, _axes_combination.get_axis(0).get_name()); // Hack to detach QVector
 
-	layer_stack.set_row_count(get_row_count());
+	set_row_count(get_row_count());
 
 	// First process
 	//select_all_nonzb_lines(); Fixes bug #279
@@ -536,6 +533,23 @@ Inendi::PVSelection const& Inendi::PVView::get_real_output_selection() const
 PVRow Inendi::PVView::get_row_count() const
 {
 	return get_parent<PVPlotted>()->get_row_count();
+}
+
+/******************************************************************************
+ *
+ * Inendi::PVView::set_row_count
+ *
+ *****************************************************************************/
+void Inendi::PVView::set_row_count(PVRow row_count)
+{
+	layer_stack.set_row_count(row_count);
+	floating_selection.set_count(row_count);
+	post_filter_layer.set_count(row_count);
+	layer_stack_output_layer.set_count(row_count);
+	output_layer.set_count(row_count);
+	nu_selection.set_count(row_count);
+	real_output_selection.set_count(row_count);
+	volatile_selection.set_count(row_count);
 }
 
 /******************************************************************************
@@ -1065,5 +1079,6 @@ void Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSer
 		// If no layer stack, reset all layers so that we have one :)
 		reset_layers();
 	}
+	set_row_count(layer_stack.get_layer_n(0).get_selection().count()); // please kill me
 	so.object("axes-combination", _axes_combination, "Axes combination", true);
 }

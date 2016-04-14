@@ -341,9 +341,6 @@ void Inendi::PVLayerStack::update_layer_index_array_completely()
 	******************************/
 	/* We prepare a reference to the layer of the LS being processed */
 // 	PVLayer &layer_being_processed;
-	/* We prepare the two selections needed in our algorithm */
-	PVSelection done_selection;
-	PVSelection temp_selection;
 	/* We prepare a direct access to the number of layers, and 2 counters */
        	int i, k;
 
@@ -352,6 +349,10 @@ void Inendi::PVLayerStack::update_layer_index_array_completely()
 	******************************/
 	/* The layer-stack might be empty so we have to be carefull... */
 	if ( layer_count > 0 ) {
+		/* We prepare the two selections needed in our algorithm */
+		const PVRow row_count = get_layer_n(0).get_selection().count();
+		PVSelection done_selection(row_count);
+		PVSelection temp_selection(row_count);
 		/* We process the layers from top to bottom */
 		for ( i=layer_count-1; i >= 0; i--) {
 			/* We prepare a direct access to the layer we have to process */
@@ -421,10 +422,6 @@ void Inendi::PVLayerStack::serialize(PVCore::PVSerializeObject& so, PVCore::PVSe
 
 	if (!so.is_writing()) {
 		layer_count = table.size();
-		if (layer_count == 0) {
-			// Create default layer
-			append_new_layer();
-		}
 	}
 }
 

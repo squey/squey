@@ -162,7 +162,9 @@ public:
 	PVLayer &get_post_filter_layer();
 
 	PVSelection const& get_real_output_selection() const;
+
 	PVRow get_row_count() const;
+	void set_row_count(PVRow row_count);
 
 	void reset_layers();
 
