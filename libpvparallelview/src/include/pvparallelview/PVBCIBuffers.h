@@ -45,17 +45,7 @@ class PVBCIBuffers: private PVBCIBuffersAlloc
 	static_assert(PARALLELVIEW_MAX_BCI_CODES % 16 == 0, "PARALLELVIEW_MAX_BCI_CODES must be a multiple of 16.");
 	static_assert(N >= 2, "The number of BCI buffers must be >= 2.");
 
-	typedef PVBCICode<> bci_type;
-
 public:
-	PVBCIBuffers():
-		_backend(nullptr)
-	{
-		_codes = (bci_base_type*) PVBCICode<>::allocate_codes(PARALLELVIEW_MAX_BCI_CODES*N);
-		_org_codes = _codes;
-		init();
-	}
-
 	PVBCIBuffers(PVBCIDrawingBackend& backend):
 		_backend(&backend)
 	{
@@ -70,17 +60,12 @@ public:
 			_codes = (bci_base_type*) ((((uintptr_t)_org_codes + 15)/16)*16);
 		}
 
-		init();
-	}
-
-	~PVBCIBuffers()
-	{
-		if (_backend) {
-			free(_org_codes, *_backend);
-		} else {
-			PVBCICode<>::free_codes((PVBCICode<>*)_codes);
+		for (size_t i = 0; i < N; i++) {
+			_free_bufs.push(get_buffer_n(i));
 		}
 	}
+
+	~PVBCIBuffers() { free(_org_codes, *_backend); }
 
 public:
 	bci_base_type* get_available_buffer()
@@ -103,14 +88,6 @@ public:
 	}
 
 private:
-	void init()
-	{
-		//_free_bufs.set_capacity(N);
-		for (size_t i = 0; i < N; i++) {
-			_free_bufs.push(get_buffer_n(i));
-		}
-	}
-
 	bci_base_type* get_buffer_n(size_t i)
 	{
 		assert(i <= N);
