@@ -1043,7 +1043,10 @@ void PVInspector::PVMainWindow::display_inv_elts()
 		if (current_view()->get_parent<Inendi::PVSource>()->get_invalid_evts().size() > 0) {
 			PVGuiQt::PVWorkspaceBase* workspace = _projects_tab_widget->current_workspace();
 			if (PVGuiQt::PVSourceWorkspace* source_workspace = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)) {
-				source_workspace->get_source_invalid_evts_dlg()->show();
+				PVGuiQt::PVListDisplayDlg* invalid_evts_dlg = source_workspace->get_source_invalid_evts_dlg();
+				if (invalid_evts_dlg) {
+					invalid_evts_dlg->show();
+				}
 			}
 		}
 		else {

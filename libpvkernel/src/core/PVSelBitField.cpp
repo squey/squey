@@ -66,6 +66,7 @@ void PVCore::PVSelBitField::ensure_allocated()
 
 void PVCore::PVSelBitField::allocate_table()
 {
+	assert(_count > 0);
 	assert(_count < INENDI_LINES_MAX);
 	_selection = new pvcop::core::memarray<bool>(_count);
 	_table = (pointer) _selection->data();
@@ -444,6 +445,7 @@ void PVCore::PVSelBitField::AB_sub(PVSelBitField const& a, PVSelBitField const& 
 
 	if (!b._table) {
 		select_all();
+		return;
 	}
 
 	assert(chunk_count() == a.chunk_count() && chunk_count() == b.chunk_count());
