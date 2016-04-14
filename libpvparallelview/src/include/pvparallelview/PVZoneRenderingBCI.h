@@ -13,6 +13,9 @@
 
 namespace PVParallelView {
 
+/**
+ * Class providing facilities to compute BCI values and images from this.
+ */
 class PVZoneRenderingBCIBase: public PVZoneRendering
 {
 	typedef std::function<size_t(PVZoneID, PVCore::PVHSVColor const* colors, PVBCICodeBase* codes)> bci_func_type;
@@ -50,13 +53,15 @@ public:
 	inline bool render_reversed() const { return _reversed; }
 
 	inline void set_dst_img(PVBCIBackendImage_p& dst_img) { assert(finished()); _dst_img = dst_img; }
-	inline void set_img_width(uint32_t w) { assert(finished()); _width = w; }
-	inline void set_img_x_start(uint32_t x) { assert(finished()); _x_start = x; }
 
 	inline bool valid() const { return PVZoneRendering::valid() && _width != 0 && _dst_img.get() != nullptr; }
 
 protected:
 	inline size_t compute_bci(PVCore::PVHSVColor const* colors, PVBCICodeBase* codes) const { return _f_bci(get_zone_id(), colors, codes); }
+
+	/**
+	 * Perform image computation from BCI codes.
+	 */
 	inline void render_bci(PVBCIDrawingBackend& backend, PVBCICodeBase* codes, size_t n, std::function<void()> const& render_done = std::function<void()>())
 	{
 		backend(_dst_img, img_x_start(), img_width(), codes, n, render_zoom_y(), render_reversed(), render_done);

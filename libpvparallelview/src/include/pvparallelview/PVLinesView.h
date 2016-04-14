@@ -37,6 +37,9 @@ class PVLinesView
 	constexpr static size_t bbits = PARALLELVIEW_ZT_BBITS;
 
 private:
+	/**
+	 * It keep BCI and Image information for a given zone.
+	 */
 	struct SingleZoneImages
 	{
 		std::shared_ptr<PVBCIBackendImage> sel;
@@ -68,6 +71,9 @@ private:
 	};
 
 public:
+	/**
+	 * It keeps zoom information for a given zone.
+	 */
 	struct ZoneWidthWithZoomLevel
 	{
 		constexpr static int default_base_width = PVParallelView::ZoneBaseWidth;
@@ -101,8 +107,8 @@ public:
 	};
 
 public:
-	typedef std::vector<SingleZoneImages> list_zone_images_t;
-	typedef std::vector<ZoneWidthWithZoomLevel> list_zone_width_with_zoom_level_t;
+	using list_zone_images_t = std::vector<SingleZoneImages>;
+	using list_zone_width_with_zoom_level_t = std::vector<ZoneWidthWithZoomLevel>;
 
 public:
 	PVLinesView(PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg, QObject* img_update_receiver = NULL, uint32_t zone_width = PVParallelView::ZoneMaxWidth);
