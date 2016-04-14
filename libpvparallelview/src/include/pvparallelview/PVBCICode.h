@@ -19,6 +19,16 @@ namespace PVParallelView {
 
 class PVBCICodeBase;
 
+/**
+ * It represents a line in a Zone of ParallelView
+ *
+ * * Line is:
+ *     * position (listing position)
+ *     * left plotting value
+ *     * right plotting value
+ *     * color
+ *     * direction (use?)
+ */
 template <size_t Bbits = NBITS_INDEX>
 struct PVBCICode
 {

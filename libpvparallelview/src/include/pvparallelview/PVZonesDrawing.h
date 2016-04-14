@@ -71,10 +71,6 @@ public:
 	~PVZonesDrawing()
 	{ }
 
-/*public:
-	template <typename Tree, typename Fbci>
-	void draw(QImage& dst_img, Tree const& tree, Fbci const& f_bci);*/
-
 public:
 	inline void set_backend(bci_backend_t const& backend) { _draw_backend = &backend; }
 
@@ -88,61 +84,6 @@ public:
 	}
 
 public:
-#if 0
-	template <class Fbci, class BackendImageIterator>
-	void draw_zones(BackendImageIterator dst_img_begin, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
-	{
-		for (PVZoneID zone = zone_start; zone < nzones; zone++) {
-			draw_zone<Fbci>(dst_img_begin, 0, zone, f_bci);
-			dst_img_begin++;
-		}
-	}
-
-	template <class Fbci, class BackendImageIterator>
-	inline QFuture<void> draw_zones_futur(BackendImageIterator dst_img_begin, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
-	{
-		return draw_zones_futur_lambda(dst_img_begin, zone_start, nzones,
-			[&](PVZoneTree const& zone_tree, PVCore::PVHSVColor const* colors, PVBCICode<Bbits>* codes)
-			{
-				return (zone_tree.*f_bci)(colors, codes);
-			}
-	   );
-	}
-
-	template <class Fbci, class BackendImageIterator>
-	QFuture<void> draw_zones_futur_lambda(BackendImageIterator dst_img_begin, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
-	{
-		return QtConcurrent::map(boost::counting_iterator<PVZoneID>(zone_start), boost::counting_iterator<PVZoneID>(nzones),
-			[&](PVZoneID zone)
-			{
-				// Get free BCI buffer
-				PVBCICode<Bbits>* codes = _computed_codes.get_available_buffer<Bbits>();
-
-				// Get the BCI codes
-				PVZoneTree const& zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
-				size_t ncodes = f_bci(zone_tree, _colors, codes);
-
-				// And draw them...
-				PVBCIBackendImage<Bbits> &dst_img = *(*(dst_img_begin + zone));
-				draw_bci(dst_img, 0, dst_img.width(), codes, ncodes);
-
-				_computed_codes.return_buffer<Bbits>(codes);
-			}
-		);
-	}
-
-	template <class Fbci>
-	uint32_t draw_zones(PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
-	{
-		for (PVZoneID zone = zone_start; zone < nzones; zone++) {
-			//assert(x_start + _zm.get_zone_width(zone) + AxisWidth <= dst_img.width());
-			draw_zone<Fbci>(dst_img, x_start, zone, f_bci);
-			x_start += _zm.get_zone_width(zone) + AxisWidth;
-		}
-		return x_start;
-	}
-#endif
-
 	template <class Fbci>
 	inline void draw_zone(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, uint32_t zone_width, Fbci const& f_bci, const float zoom_y = 1.0f)
 	{
