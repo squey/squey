@@ -11,6 +11,12 @@
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/cuda/bci_cuda.h>
 
+/******************************************************************************
+ *
+ * cuda_kernel
+ *
+ *****************************************************************************/
+
 template <size_t Bbits>
 struct cuda_kernel;
 
@@ -39,6 +45,12 @@ struct cuda_kernel<11>
 	}
 };
 
+/******************************************************************************
+ *
+ * BackendImageCUDA
+ *
+ *****************************************************************************/
+
 PVParallelView::PVBCIBackendImageCUDA::PVBCIBackendImageCUDA(const uint32_t width, uint8_t height_bits, const int cuda_device, cudaStream_t stream):
 	PVBCIBackendImage(width, height_bits),
 	_cuda_device(cuda_device)
@@ -57,6 +69,12 @@ PVParallelView::PVBCIBackendImageCUDA::~PVBCIBackendImageCUDA()
 	inendi_verify_cuda(cudaFreeHost(_host_img));
 	inendi_verify_cuda(cudaFree(_device_img));
 }
+
+/******************************************************************************
+ *
+ * DrawingBackendCUDA
+ *
+ *****************************************************************************/
 
 PVParallelView::PVBCIDrawingBackendCUDA::PVBCIDrawingBackendCUDA()
 {
@@ -80,12 +98,14 @@ PVParallelView::PVBCIDrawingBackendCUDA::PVBCIDrawingBackendCUDA()
 
 	// Enable full P2P access!
 	if (list_ids.size() > 1) {
-		std::sort(list_ids.begin(), list_ids.end());
-		do {
-			cudaSetDevice(*list_ids.begin());
-			cudaDeviceEnablePeerAccess(*(list_ids.begin()+1), 0);
+		for(size_t i=0; i<list_ids.size(); i++) {
+			for(size_t j=i+1; j<list_ids.size(); j++) {
+				cudaSetDevice(i);
+				cudaDeviceEnablePeerAccess(j, 0);
+				cudaSetDevice(j);
+				cudaDeviceEnablePeerAccess(i, 0);
+			}
 		}
-		while (std::next_permutation(list_ids.begin(), list_ids.end()));
 	}
 
 	_last_image_dev = _devices.begin();
@@ -93,11 +113,10 @@ PVParallelView::PVBCIDrawingBackendCUDA::PVBCIDrawingBackendCUDA()
 
 PVParallelView::PVBCIDrawingBackendCUDA::~PVBCIDrawingBackendCUDA()
 {
-	decltype(_devices)::const_iterator it;
-	for (it = _devices.begin(); it != _devices.end(); it++) {
-		cudaSetDevice(it->first);
-		inendi_verify_cuda(cudaFree(it->second.device_codes));
-		inendi_verify_cuda(cudaStreamDestroy(it->second.stream));
+	for (auto& device: _devices) {
+		cudaSetDevice(device.first);
+		inendi_verify_cuda(cudaFree(device.second.device_codes));
+		inendi_verify_cuda(cudaStreamDestroy(device.second.stream));
 	}
 }
 
@@ -107,13 +126,14 @@ PVParallelView::PVBCIDrawingBackendCUDA& PVParallelView::PVBCIDrawingBackendCUDA
 	return backend;
 }
 
-PVParallelView::PVBCIBackendImage_p PVParallelView::PVBCIDrawingBackendCUDA::create_image(size_t img_width, uint8_t height_bits) const
+PVParallelView::PVBCIBackendImage_p PVParallelView::PVBCIDrawingBackendCUDA::create_image(size_t img_width, uint8_t height_bits)
 {
 	assert(_devices.size() >= 1);
 	if (_last_image_dev == _devices.end()) {
 		_last_image_dev = _devices.begin();
 	}
 
+	// Create image on a device in a round robin way
 	int dev = _last_image_dev->first;
 	PVBCIBackendImage_p ret(new PVBCIBackendImageCUDA(img_width, height_bits, dev, _last_image_dev->second.stream));
 	++_last_image_dev;
@@ -162,9 +182,6 @@ void PVParallelView::PVBCIDrawingBackendCUDA::image_rendered_and_copied_callback
 
 	cuda_job_data* data = reinterpret_cast<cuda_job_data*>(data_);
 	
-	// Get back stream
-	//data->stream_pool->return_stream(stream);
-
 	// Call termination function
 	if (data->done_function) {
 		(data->done_function)();

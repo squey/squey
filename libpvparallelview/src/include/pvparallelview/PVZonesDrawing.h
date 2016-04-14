@@ -17,18 +17,11 @@
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 
-#include <boost/array.hpp>
-#include <boost/iterator/counting_iterator.hpp>
-#include <boost/utility.hpp>
-
 #include <tbb/enumerable_thread_specific.h>
-
-#include <QFuture>
-#include <QtConcurrent/QtConcurrentMap>
 
 #include <cassert>
 #include <functional>
-
+#include <array>
 
 namespace PVCore {
 class PVHSVColor;
@@ -38,20 +31,10 @@ namespace PVParallelView {
 
 class PVBCIDrawingBackend;
 
-namespace __impl {
-
-struct PVZonesDrawingBase
-{
-	// BCI buffers are shared among all instances of PVZonesDrawing
-	static PVBCIBuffers<BCI_BUFFERS_COUNT> _computed_codes;
-};
-
-}
-
 template <size_t Bbits>
-class PVZonesDrawing: boost::noncopyable, public __impl::PVZonesDrawingBase
+class PVZonesDrawing
 {
-	typedef boost::array<PVBCICodeBase, NBUCKETS> array_codes_t;
+	typedef std::array<PVBCICodeBase, NBUCKETS> array_codes_t;
 	typedef tbb::enumerable_thread_specific<array_codes_t> tls_codes_t;
 
 public:
@@ -68,20 +51,11 @@ public:
 		_colors(&colors)
 	{ }
 
-	~PVZonesDrawing()
-	{ }
-
-public:
-	inline void set_backend(bci_backend_t const& backend) { _draw_backend = &backend; }
-
-public:
-	inline PVBCIBackendImage_p create_image(size_t width) const
-	{
-		assert(_draw_backend);
-		PVBCIBackendImage_p ret = _draw_backend->create_image(width, Bbits);
-		ret->set_width(width);
-		return ret;
-	}
+	PVZonesDrawing(PVZonesDrawing const&) = delete;
+	PVZonesDrawing(PVZonesDrawing &&) = delete;
+	PVZonesDrawing& operator=(PVZonesDrawing const&) = delete;
+	PVZonesDrawing& operator=(PVZonesDrawing &&) = delete;
+	~PVZonesDrawing() { }
 
 public:
 	template <class Fbci>
@@ -141,7 +115,7 @@ public:
 		draw_bci(dst_img, x_start, width, bci_buf, ncodes, zoom_y, reverse,
 				[=]
 				{
-					PVZonesDrawingBase::_computed_codes.return_buffer(reinterpret_cast<PVBCICodeBase*>(bci_buf));
+					_computed_codes.return_buffer(reinterpret_cast<PVBCICodeBase*>(bci_buf));
 				}, zoom_y, reverse);
 	}
 
@@ -165,6 +139,10 @@ private:
 	PVZonesManager& _zm;
 	bci_backend_t* _draw_backend;
 	PVCore::PVHSVColor const* _colors;
+
+private:
+	// BCI buffers are shared among all instances of PVZonesDrawing
+	static PVBCIBuffers<BCI_BUFFERS_COUNT> _computed_codes;
 };
 
 }

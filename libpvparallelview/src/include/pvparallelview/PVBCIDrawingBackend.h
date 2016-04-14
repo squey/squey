@@ -37,7 +37,8 @@ public:
 	virtual ~PVBCIDrawingBackend() { }
 
 public:
-	virtual backend_image_p_t create_image(size_t img_width, uint8_t height_bits) const = 0;
+	virtual backend_image_p_t create_image(size_t img_width, uint8_t height_bits) = 0;
+	// TODO : flags is only Serial.
 	virtual Flags flags() const = 0;
 	virtual bool is_sync() const = 0;
 
@@ -70,6 +71,7 @@ public:
 	bool is_sync() const override { return false; }
 
 public:
+	// TODO : Remove this unused method.
 	virtual void wait_all() const = 0;
 };
 

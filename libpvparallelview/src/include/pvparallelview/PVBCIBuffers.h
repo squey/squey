@@ -2,14 +2,13 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2012-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #ifndef PVPARALLELVIEW_PBBCIBUFFERS_H
 #define PVPARALLELVIEW_PBBCIBUFFERS_H
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/cuda/common.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
@@ -31,6 +30,15 @@ public:
 	static void free(bci_base_type* codes, PVBCIDrawingBackend& backend);
 };
 
+/**
+ * Manager for BCI Buffers.
+ *
+ * It is a pool of BCI buffers that can be take and return.
+ *
+ * Depending on initialisation, buffer will be allocated using default allocator or backend allocator.
+ *
+ * A buffer is big enought to contains data for a full zone.
+ */
 template <size_t N>
 class PVBCIBuffers: private PVBCIBuffersAlloc
 {
@@ -69,8 +77,7 @@ public:
 	{
 		if (_backend) {
 			free(_org_codes, *_backend);
-		}
-		else {
+		} else {
 			PVBCICode<>::free_codes((PVBCICode<>*)_codes);
 		}
 	}

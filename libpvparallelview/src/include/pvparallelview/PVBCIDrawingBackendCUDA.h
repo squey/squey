@@ -114,21 +114,15 @@ class PVBCIDrawingBackendCUDA: public PVBCIDrawingBackendAsync
 	};
 
 private:
-	typedef typename backend_image_t::pixel_t pixel_t;
-
-private:
 	PVBCIDrawingBackendCUDA();
 
 public:
 	virtual ~PVBCIDrawingBackendCUDA();
-
-public:
 	static PVBCIDrawingBackendCUDA& get();
-//	static void release();
 
 public:
 	Flags flags() const { return Serial; }
-	PVBCIBackendImage_p create_image(size_t img_width, uint8_t height_bits) const override;
+	PVBCIBackendImage_p create_image(size_t img_width, uint8_t height_bits) override;
 
 public:
 	PVBCICodeBase* allocate_bci(size_t n) override;
@@ -139,11 +133,14 @@ public:
 	void wait_all() const;
 
 private:
+	/**
+	 * Callback function called once image creation is done and back on computer.
+	 */
 	static void image_rendered_and_copied_callback(cudaStream_t stream, cudaError_t status, void* data);
 
 private:
-	mutable std::map<int, device_t> _devices;
-	mutable std::map<int, device_t>::const_iterator _last_image_dev;
+	std::map<int, device_t> _devices; //!< List of available device from their ids
+	std::map<int, device_t>::const_iterator _last_image_dev; //!< Next device to use for computation.
 };
 
 }
