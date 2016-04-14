@@ -30,7 +30,7 @@ void PVParallelView::PVZoneRendering::finished(p_type const& this_sp)
 	// We need to be coherent according to the state at the beggining of this function.
 	if (_qobject_finished_success != nullptr && !_should_cancel) {
 		assert(QThread::currentThread() != _qobject_finished_success->thread());
-		const int zone_id = zid();
+		const int zone_id = get_zone_id();
 		QMetaObject::invokeMethod(_qobject_finished_success, _qobject_slot, Qt::QueuedConnection,
 				Q_ARG(PVParallelView::PVZoneRendering_p, this_sp),
 				Q_ARG(int, zone_id));

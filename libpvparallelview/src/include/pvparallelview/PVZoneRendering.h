@@ -79,7 +79,6 @@ public:
 
 public:
 	inline PVZoneID get_zone_id() const { return _zone_id; }
-	inline PVZoneID zid() const { return _zone_id; }
 	inline void set_zone_id(PVZoneID const zone_id) { assert(_finished); _zone_id = zone_id; }
 
 	inline bool should_cancel() const
