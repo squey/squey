@@ -41,9 +41,6 @@ public:
 	inline size_t size_pixel() const { return _width*height(); }
 	inline uint8_t height_bits() const { return _height_bits; }
 
-public:
-	virtual void resize_width(PVBCIBackendImage& dst, const uint32_t width) const = 0;
-
 private:
 	uint32_t _width;
 	uint8_t _height_bits;

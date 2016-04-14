@@ -11,10 +11,6 @@
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/cuda/bci_cuda.h>
 
-#include <npp.h> // NVIDIA's NPP library, for image resizing
-
-#include <iostream>
-
 PVParallelView::PVBCIDrawingBackendCUDA* PVParallelView::PVBCIDrawingBackendCUDA::_instance = nullptr;
 
 template <size_t Bbits>
@@ -60,41 +56,8 @@ PVParallelView::PVBCIBackendImageCUDA::PVBCIBackendImageCUDA(const uint32_t widt
 
 PVParallelView::PVBCIBackendImageCUDA::~PVBCIBackendImageCUDA()
 {
-	//size_t simg = PVBCIBackendImage::size_pixel();
-	//pixel_allocator().deallocate(_host_img, simg);
 	inendi_verify_cuda(cudaFreeHost(_host_img));
 	inendi_verify_cuda(cudaFree(_device_img));
-}
-
-void PVParallelView::PVBCIBackendImageCUDA::resize_width(PVBCIBackendImage& dst, const uint32_t width) const
-{
-	assert(org_width() % 4 == 0);
-
-	PVBCIBackendImageCUDA* dst_img = static_cast<PVBCIBackendImageCUDA*>(&dst);
-	assert(dst_img->org_width() % 4 == 0);
-
-	set_current_device();
-
-	cudaEvent_t end;
-	cudaEventCreate(&end);
-
-	// NPP resize method
-	NppiRect rorg;
-	rorg.x = 0; rorg.y = 0;
-	rorg.width = PVBCIBackendImage::width(); rorg.height = PVBCIBackendImage::height();
-	NppiSize sorg, sdst;
-	sorg.width = PVBCIBackendImage::width(); sorg.height = PVBCIBackendImage::height();
-	sdst.width = width; sdst.height = sorg.height;
-	nppiResize_8u_C4R((const Npp8u*) device_img(), sorg, org_width()*sizeof(pixel_t), rorg, (Npp8u*) dst_img->device_img(), dst_img->org_width()*sizeof(pixel_t), sdst, (double)width/(double)sorg.width, 1.0, NPPI_INTER_NN);
-
-	// wait for the end
-	cudaEventRecord(end);
-	cudaEventSynchronize(end);
-	cudaEventDestroy(end);
-
-	dst_img->set_width(width);
-	dst_img->set_current_device();
-	dst_img->copy_device_to_host();
 }
 
 PVParallelView::PVBCIDrawingBackendCUDA::PVBCIDrawingBackendCUDA()

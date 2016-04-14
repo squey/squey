@@ -29,13 +29,7 @@ endif()
 ###############################################################################
 # Define the Cuda runtime
 ###############################################################################
-if (${CMAKE_VERSION} STRLESS 2.8.12.1)
-	# cmake support CUDA 5.5 since 2.8.12.1 because this CUDA version
-	# splitted libnpp.so into 3 sub-librairies
-	find_package(CUDA 5.0 EXACT)
-else()
-	find_package(CUDA 5.0)
-endif()
+find_package(CUDA 5.0)
 
 message(STATUS "CUDA found: " ${CUDA_FOUND})
 if(CUDA_FOUND)
@@ -43,7 +37,6 @@ if(CUDA_FOUND)
   	message(STATUS "CUDA toolkit root dir: " ${CUDA_TOOLKIT_ROOT_DIR})
   	message(STATUS "CUDA 64bit device: " ${CUDA_64_BIT_DEVICE_CODE})
   	message(STATUS "CUDA runtime libraries: " ${CUDA_LIBRARIES})
-  	message(STATUS "CUDA npp libraries: " ${CUDA_npp_LIBRARY})
 	add_definitions(-DCUDA)
 
 	# As NVCC can generate fat object files which support more than one

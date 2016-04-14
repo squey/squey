@@ -152,7 +152,7 @@ set(LINK_LIBRARIES pvdisplays inendi pvhive pvkernel ${QT5_LIBS} ${OPENGL_LIBRAR
 if (CUDA_FOUND)
 	cuda_compile(CUDA_KERNELS cuda/bci_cuda_z24.cu)
 	set(SRC_FILES ${SRC_FILES} ${CUDA_SRC_FILES} ${CUDA_KERNELS})
-	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_npp_LIBRARY})
+	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 endif (CUDA_FOUND)
 
 add_library(pvparallelview SHARED ${SRC_FILES} ${MOC_SRC})

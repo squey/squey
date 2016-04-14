@@ -25,6 +25,13 @@ namespace PVParallelView {
 
 class PVBCIDrawingBackendCUDA;
 
+/**
+ * It is an image convertible to QImage with host/device management.
+ *
+ * Calls for data transfert have to be done manualy to make sure they are done
+ * the right time
+ * FIXME : Check this assert.
+ */
 class PVBCIBackendImageCUDA: public PVParallelView::PVBCIBackendImage
 {
 	friend class PVParallelView::PVBCIDrawingBackendCUDA;
@@ -32,14 +39,9 @@ class PVBCIBackendImageCUDA: public PVParallelView::PVBCIBackendImage
 	
 	using pixel_t = uint32_t;
 
-protected:
+public:
 	PVBCIBackendImageCUDA(const uint32_t width, uint8_t height_bits, const int cuda_device, cudaStream_t stream);
-
-public:
-	virtual ~PVBCIBackendImageCUDA();
-
-public:
-	virtual void resize_width(PVBCIBackendImage& dst, const uint32_t width) const override;
+	~PVBCIBackendImageCUDA() override;
 
 // AG: should be protected, but used directly in some benchmarking tests
 public:
@@ -89,10 +91,10 @@ private:
 	inline size_t size_org_pixel() const { return _org_width*PVBCIBackendImage::height(); }
 
 private:
-	pixel_t* _host_img;
-	pixel_t* _device_img;
-	uint32_t _org_width;
-	int _cuda_device;
+	pixel_t* _host_img; //!< Pointer to image representation on the host
+	pixel_t* _device_img; //!< Pointer to image representation on the device.
+	uint32_t _org_width; //!< Allocatad with size on the host.
+	int _cuda_device; //!< Id of the cuda device use for computation.
 };
 
 class PVBCIDrawingBackendCUDA: public PVBCIDrawingBackendAsync
