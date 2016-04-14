@@ -11,8 +11,6 @@
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/cuda/bci_cuda.h>
 
-PVParallelView::PVBCIDrawingBackendCUDA* PVParallelView::PVBCIDrawingBackendCUDA::_instance = nullptr;
-
 template <size_t Bbits>
 struct cuda_kernel;
 
@@ -105,17 +103,8 @@ PVParallelView::PVBCIDrawingBackendCUDA::~PVBCIDrawingBackendCUDA()
 
 PVParallelView::PVBCIDrawingBackendCUDA& PVParallelView::PVBCIDrawingBackendCUDA::get()
 {
-	if (_instance == nullptr) {
-		_instance = new PVBCIDrawingBackendCUDA();
-	}
-	return *_instance;
-}
-
-void PVParallelView::PVBCIDrawingBackendCUDA::release()
-{
-	if (_instance) {
-		delete _instance;
-	}
+	static PVBCIDrawingBackendCUDA backend;
+	return backend;
 }
 
 PVParallelView::PVBCIBackendImage_p PVParallelView::PVBCIDrawingBackendCUDA::create_image(size_t img_width, uint8_t height_bits) const
@@ -184,12 +173,11 @@ void PVParallelView::PVBCIDrawingBackendCUDA::image_rendered_and_copied_callback
 	delete data;
 }
 
-void PVParallelView::PVBCIDrawingBackendCUDA::wait_all()
+void PVParallelView::PVBCIDrawingBackendCUDA::wait_all() const
 {
 	// Wait all GPUs!
-	decltype(_devices)::const_iterator it;
-	for (it = _devices.begin(); it != _devices.end(); it++) {
-		cudaSetDevice(it->first);
+	for (auto& device: _devices) {
+		cudaSetDevice(device.first);
 		cudaDeviceSynchronize();
 	}
 }
