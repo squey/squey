@@ -13,17 +13,6 @@
 
 /******************************************************************************
  *
- * PVParallelView::PVZoneRenderingBase::init
- *
- *****************************************************************************/
-void PVParallelView::PVZoneRendering::init()
-{
-	_qobject_finished_success = nullptr;
-	_should_cancel = false;
-}
-
-/******************************************************************************
- *
  * PVParallelView::PVZoneRenderingBase::finished
  *
  *****************************************************************************/

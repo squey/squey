@@ -63,17 +63,14 @@ private:
 public:
 	PVZoneRendering(PVZoneID zone_id):
 		_zone_id(zone_id),
+		_should_cancel(false),
+		_qobject_finished_success(nullptr),
 		_finished(false)
 	{
-		init();
 	}
 
-	PVZoneRendering():
-		_zone_id(PVZONEID_INVALID),
-		_finished(false)
-	{
-		init();
-	}
+	PVZoneRendering(): PVZoneRendering(PVZONEID_INVALID)
+	{}
 
 	virtual ~PVZoneRendering()
 	{
@@ -91,7 +88,7 @@ public:
 	}
 	inline bool valid() const { return _zone_id != (PVZoneID) PVZONEID_INVALID; }
 
-	virtual bool cancel() { return _should_cancel = true; }
+	virtual bool cancel() { return _should_cancel.fetch_and_store(true); }
 
 	void cancel_and_add_job(PVZonesProcessor& zp, p_type const& zr);
 
@@ -117,9 +114,6 @@ public:
 
 protected:
 	void finished(p_type const& this_sp);
-
-private:
-	void init();
 
 private:
 	PVZoneID _zone_id;
