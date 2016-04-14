@@ -16,7 +16,7 @@ set(CUDA_NVCC_FLAGS "-gencode arch=compute_30,code=sm_30" "-Xptxas=-v" "-Xcompil
 
 set(LINK_LIBRARIES ${INENDI_LIBRARY} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${ICU_LIBRARY} pvparallelview ${OpenMP_LIBRARIES} numa)
 
-QT5_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h OPTIONS ${QT5_WRAP_OPTIONS})
+QT5_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h)
 
 add_pv_compile_test(full_parallel_view LINKS ${LINK_LIBRARIES} FILES full_parallel_view.cpp common.cpp)
 add_pv_compile_test(both_views LINKS ${LINK_LIBRARIES} FILES both_views.cpp ${ZOOM_DLG_MOC} common.cpp)
@@ -61,23 +61,6 @@ add_test(Tpview_zoomed_zone_tree_dump_load Tpview_zoomed_zone_tree_dump_load 0 1
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 
-	cuda_compile(CUDA_KERNELS bci_cuda.cu)
-	add_pv_compile_test(show_codes_cuda LINKS ${LINK_LIBRARIES} ${CUDA_LIBRARIES} FILES show_codes_cuda.cpp ${CUDA_KERNELS})
-
-	cuda_compile(CUDA_KERNELS bci_cuda_z24_atomic.cu)
-	add_pv_compile_test(show_codes_cuda24_atomic LINKS ${LINK_LIBRARIES} ${CUDA_LIBRARIES} FILES show_codes_cuda.cpp ${CUDA_KERNELS})
-
-	cuda_compile(CUDA_KERNELS bci_cuda_z24_atomic_sm30_straight.cu)
-	add_pv_compile_test(show_codes_cuda24_atomic_sm30_straight LINKS ${LINK_LIBRARIES} ${CUDA_LIBRARIES} FILES show_codes_cuda_test_30.cpp helpers.cpp ${CUDA_KERNELS})
-
-	cuda_compile(CUDA_KERNELS bci_cuda_z24_s16.cu)
-	add_pv_compile_test(show_codes_cuda24_s16 LINKS ${LINK_LIBRARIES} ${CUDA_LIBRARIES} FILES show_codes_cuda.cpp ${CUDA_KERNELS})
-
-	cuda_compile(CUDA_KERNELS bci_cuda_z24_smembci.cu)
-	add_pv_compile_test(show_codes_cuda24_smembci LINKS ${LINK_LIBRARIES} ${CUDA_LIBRARIES} FILES show_codes_cuda.cpp ${CUDA_KERNELS})
-
-	cuda_compile(CUDA_KERNELS multiple_zones_cuda.cu)
-	add_pv_compile_test(multiple_zones_cuda LINKS ${LINK_LIBRARIES} ${CUDA_LIBRARIES} FILES multiple_zones_cuda.cpp ${CUDA_KERNELS})
 	add_pv_compile_test(show_codes_cuda_lib LINKS ${LINK_LIBRARIES} FILES show_codes_cuda_lib.cpp helpers.cpp)
 	add_pv_compile_test(perf_codes_cuda_lib LINKS ${LINK_LIBRARIES} FILES perf_codes_cuda_lib.cpp helpers.cpp)
 endif (CUDA_FOUND)
