@@ -21,10 +21,7 @@ void PVParallelView::PVZoneRendering::finished(p_type const& this_sp)
 	// Having `this_sp' as parameter allows not to have an internal weak_ptr in PVZoneRenderingBase
 	assert(this_sp.get() == this);
 
-	{
-		boost::lock_guard<boost::mutex> lock(_wait_mut);
-		_finished = true;
-	}
+	_finished = true;
 
 	// Cancellation state may have been changed in the middle, but the listeners are aware of that!
 	// We need to be coherent according to the state at the beggining of this function.
@@ -45,16 +42,6 @@ void PVParallelView::PVZoneRendering::finished(p_type const& this_sp)
 	if (should_cancel()) {
 		_job_after_canceled.launch();
 	}
-}
-
-bool PVParallelView::PVZoneRendering::finished() const
-{
-	bool ret;
-	{
-		boost::lock_guard<boost::mutex> lock(_wait_mut);
-		ret = _finished;
-	}
-	return ret;
 }
 
 void PVParallelView::PVZoneRendering::cancel_and_add_job(PVZonesProcessor& zp, p_type const& zr)
