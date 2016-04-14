@@ -153,7 +153,7 @@ PVParallelView::PVBCIBackendImage_p PVParallelView::PVBCIDrawingBackendCUDA::cre
 
 void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage_p& dst_img, size_t x_start, size_t width, PVBCICodeBase* codes, size_t n, const float zoom_y, bool reverse, std::function<void()> const& render_done)
 {
-#ifdef NBDEUG
+#ifdef NDEBUG
 	backend_image_t* dst_img_cuda = static_cast<backend_image_t*>(dst_img.get());
 #else
 	backend_image_t* dst_img_cuda = dynamic_cast<backend_image_t*>(dst_img.get());
