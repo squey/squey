@@ -10,7 +10,6 @@
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/PVZoomedZoneTree.h>
-#include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVTools.h>
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/simple_lines_int_view.h>
@@ -46,7 +45,6 @@ enum {
 
 #define RENDERING_BITS PARALLELVIEW_ZZT_BBITS
 
-typedef PVParallelView::PVZonesDrawing<RENDERING_BITS> zones_drawing_t;
 typedef PVParallelView::PVBCICode<RENDERING_BITS> bcicode_t;
 
 int mode_value;

@@ -12,7 +12,6 @@
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVTools.h>
-#include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
 
 #include <pvbase/general.h>
@@ -33,7 +32,6 @@
 
 #define RENDERING_BITS PARALLELVIEW_ZZT_BBITS
 
-typedef PVParallelView::PVZonesDrawing<RENDERING_BITS> zones_drawing_t;
 typedef PVParallelView::PVBCICode<RENDERING_BITS> bcicode_t;
 
 void usage(const char* path)
