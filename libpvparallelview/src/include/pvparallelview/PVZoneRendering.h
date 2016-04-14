@@ -43,24 +43,9 @@ class PVZoneRendering: boost::noncopyable
 
 public:
 	typedef PVZoneRendering_p p_type;
-	typedef std::function<void(PVZoneRendering&)> on_success_function_type;
 
 private:
-	struct cancel_state
-	{   
-		union {
-			struct {
-				uint8_t should_cancel: 1;
-			} s;
-			uint8_t v;
-		};   
-
-		bool should_cancel() const { return s.should_cancel; }
-		//bool delete_on_finish() const { return s.delete_on_finish; }
-
-		static cancel_state value(bool cancel) { cancel_state ret; ret.v = cancel; return ret; } 
-		//static cancel_state value(bool cancel, bool del) { cancel_state ret; ret.v = (cancel | (del<<1)); return ret; }
-	};
+	using cancel_state = bool;
 
 	struct next_job
 	{
@@ -102,15 +87,11 @@ public:
 
 	inline bool should_cancel() const
 	{
-		return ((cancel_state)_cancel_state).should_cancel();
+		return _should_cancel;
 	}
 	inline bool valid() const { return _zone_id != (PVZoneID) PVZONEID_INVALID; }
 
-	virtual bool cancel()
-	{
-		// Returns true if it was previously canceled
-		return _cancel_state.fetch_and_store(cancel_state::value(true)).should_cancel();
-	}
+	virtual bool cancel() { return _should_cancel = true; }
 
 	void cancel_and_add_job(PVZonesProcessor& zp, p_type const& zr);
 
@@ -128,7 +109,7 @@ public:
 	void reset()
 	{
 		_finished = false;
-		_cancel_state = cancel_state::value(false);
+		_should_cancel = false;
 		assert(_job_after_canceled.zp == nullptr);
 	}
 
@@ -143,7 +124,7 @@ private:
 private:
 	PVZoneID _zone_id;
 	
-	tbb::atomic<cancel_state> _cancel_state;
+	tbb::atomic<cancel_state> _should_cancel;
 
 	// Qt signalisation
 	QObject* _qobject_finished_success;
