@@ -41,9 +41,12 @@ namespace pvtest {
      * * Prepare QCoreApplication
      * * Load plugins
      * * Init cpu features
-     * * Duplicate log file
+     *
+     * @note : we use constructor attribute to make sure every test which include this
+     * file have correctly initialized environment.
      */
-    std::string init_ctxt(std::string const& log_file, size_t dup)
+    __attribute__((constructor))
+    void init_ctxt()
     {
             // Need this core application to find plugins path.
             std::string prog_name = "test_pvkernel_rush";
@@ -59,7 +62,13 @@ namespace pvtest {
 
             // Initialize sse4 detection
             PVCore::PVIntrinsics::init_cpuid();
+    }
 
+    /**
+     * Duplicate input log dup times and return the new file with these data.
+     */
+    std::string duplicate_log_file(std::string const& log_file, size_t dup)
+    {
             std::ifstream ifs(log_file);
             std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
 
@@ -82,7 +91,7 @@ namespace pvtest {
     {
         public:
         TestSplitter(std::string const& log_file, size_t dup = 1):
-                _big_file_path(init_ctxt(log_file, dup)),
+                _big_file_path(duplicate_log_file(log_file, dup)),
                 _source(std::make_shared<Input>(_big_file_path.c_str()), chunk_size)
         {}
 
@@ -113,7 +122,7 @@ namespace pvtest {
          */
         TestEnv(std::string const& log_file, std::string const& format_file, size_t dup = 1):
                 _format("format", QString::fromStdString(format_file)),
-                _big_file_path(init_ctxt(log_file, dup))
+                _big_file_path(duplicate_log_file(log_file, dup))
         {
             //Input file
             QString path_file = QString::fromStdString(_big_file_path);
