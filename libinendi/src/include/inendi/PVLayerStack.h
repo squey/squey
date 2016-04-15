@@ -25,17 +25,11 @@ class PVPlotted;
 /**
  * \class PVLayerStack
  */
-class PVLayerStack {
+class PVLayerStack
+{
 	friend class PVCore::PVSerializeObject;
-private:
-	PVLayerIndexArray lia;
-	int               layer_count; // layer_count < 256
-	int               next_new_layer_counter; // counter for layers creation
-	int               selected_layer_index;
-	QList<PVLayer>    table;
-	bool			  _should_hide_layers = true;
-public:
 
+public:
 	/**
 	 * Constructor
 	 */
@@ -43,16 +37,16 @@ public:
 
 	QString get_new_layer_name() const;
 	bool& should_hide_layers() { return _should_hide_layers; }
-	int get_layer_count() const {return layer_count;}
- 	PVLayer const& get_layer_n(int n) const { return table[n]; };
- 	PVLayer& get_layer_n(int n) { return table[n]; };
+	inline int get_layer_count() const {return _table.size();}
+ 	PVLayer const& get_layer_n(int n) const { return _table[n]; };
+ 	PVLayer& get_layer_n(int n) { return _table[n]; };
 
- 	PVLayer& get_selected_layer() { return table[get_selected_layer_index()]; }
- 	PVLayer const& get_selected_layer() const { return table[get_selected_layer_index()]; }
+ 	PVLayer& get_selected_layer() { return _table[get_selected_layer_index()]; }
+ 	PVLayer const& get_selected_layer() const { return _table[get_selected_layer_index()]; }
 
-	int const& get_selected_layer_index() const {return selected_layer_index;}
+	int const& get_selected_layer_index() const {return _selected_layer_index;}
 	
-	void set_selected_layer_index(int index) {selected_layer_index = index;}
+	void set_selected_layer_index(int index) {_selected_layer_index = index;}
 // 
  	void process(PVLayer &output_layer, PVRow row_count);
 	void update_layer_index_array_completely();
@@ -78,10 +72,10 @@ public:
 	void move_selected_layer_up();
 	void hide_layers();
 
-	PVLayerIndexArray& get_lia() {return lia;}
-	const PVLayerIndexArray& get_lia() const {return lia;}
+	PVLayerIndexArray& get_lia() {return _lia;}
+	const PVLayerIndexArray& get_lia() const {return _lia;}
 
-	void set_row_count(PVRow row_count) { lia.set_row_count(row_count); };
+	void set_row_count(PVRow row_count) { _lia.set_row_count(row_count); };
 
 public:
 	void load_from_file(QString const& path);
@@ -92,6 +86,11 @@ public:
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
+private:
+	PVLayerIndexArray	_lia;
+	int					_selected_layer_index;
+	QList<PVLayer>		_table;
+	bool				_should_hide_layers = true;
 };
 }
 
