@@ -24,7 +24,7 @@ void Inendi::PVLayerIndexArray::initialize()
  * Inendi::PVLayerIndexArray::set_row_count
  *
  *****************************************************************************/
-void Inendi::PVLayerIndexArray::set_row_count(int row_count)
+void Inendi::PVLayerIndexArray::set_row_count(PVRow row_count)
 {
 	_array.resize(row_count);
 }

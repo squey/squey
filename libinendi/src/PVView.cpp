@@ -532,7 +532,7 @@ Inendi::PVSelection const& Inendi::PVView::get_real_output_selection() const
  *****************************************************************************/
 PVRow Inendi::PVView::get_row_count() const
 {
-	return get_parent<PVPlotted>()->get_row_count();
+	return get_parent<PVSource>()->get_row_count();
 }
 
 /******************************************************************************

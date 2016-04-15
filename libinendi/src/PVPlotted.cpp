@@ -327,7 +327,7 @@ bool Inendi::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols
 
 PVRow Inendi::PVPlotted::get_row_count() const
 {
-	return get_parent<PVMapped>()->get_row_count();
+	return get_parent<PVSource>()->get_row_count();
 }
 
 PVCol Inendi::PVPlotted::get_column_count() const

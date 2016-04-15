@@ -336,7 +336,8 @@ void Inendi::PVLayerStack::update_layer_index_array_completely()
 	/* We prepare a reference to the layer of the LS being processed */
 // 	PVLayer &layer_being_processed;
 	/* We prepare a direct access to the number of layers, and 2 counters */
-       	int i, k;
+       	int i;
+		PVRow k;
 
 	/******************************
 	* Main computation

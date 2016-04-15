@@ -58,10 +58,6 @@ public:
 	typedef PVCore::PVAlignedAllocator<chunk_t, 16> allocator;
 	typedef pvcop::core::array<bool> pvcop_selection_t;
 
-protected:
-	pointer _table;
-	pvcop::core::memarray<bool>* _selection = nullptr;
-
 public:
 	/**
 	 * Constructor
@@ -743,7 +739,9 @@ protected:
 	ssize_t get_min_last_nonzero_chunk_index(PVSelBitField const& other) const;
 	ssize_t get_max_last_nonzero_chunk_index(PVSelBitField const& other) const;
 
-private:
+protected:
+	pointer _table;
+	pvcop::core::memarray<bool>* _selection = nullptr;
 	PVRow _count;
 };
 

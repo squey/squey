@@ -106,18 +106,6 @@ size_t PVCore::PVSelBitField::get_number_of_selected_lines_in_range(PVRow a, PVR
 	if (!_table) {
 		return 0;
 	}
-#if 0	
-	PVRow line_index;
-	size_t count = 0;
-
-	for (line_index = a; line_index<b; line_index++) { 
-		if (get_line(line_index)) { 
-			count++;
-		}
-	}
-
-	return count;
-#endif
 	assert(b > a);
 	
 	return PVCore::PVBitCount::bit_count_between(a, b-1, &_table[0]);
@@ -262,7 +250,7 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::operator=(const PVSelBitField &rhs
 	}
 	else {
 		if (_table) {
-			memset(_table, 0x00, _selection->mem_size());
+			select_byte_pattern(0x00);
 		}
 	}
 
@@ -599,10 +587,7 @@ PVCore::PVSelBitField & PVCore::PVSelBitField::xor_not(const PVSelBitField &rhs)
  *****************************************************************************/
 void PVCore::PVSelBitField::select_all()
 {
-	if (!_table) {
-		allocate_table();
-	}
-	memset(_table, 0xFF, _selection->mem_size());
+	select_byte_pattern(0xFF);
 }
 
 void PVCore::PVSelBitField::select_random()
@@ -638,10 +623,7 @@ void PVCore::PVSelBitField::select_random(const PVRow n)
  *****************************************************************************/
 void PVCore::PVSelBitField::select_even()
 {
-	if (!_table) {
-		allocate_table();
-	}
-	memset(_table, 0xAA, _selection->mem_size());
+	select_byte_pattern(0xAA);
 }
 
 /******************************************************************************
@@ -651,10 +633,7 @@ void PVCore::PVSelBitField::select_even()
  *****************************************************************************/
 void PVCore::PVSelBitField::select_none()
 {
-	if (!_table) {
-		allocate_table();
-	}
-	memset(_table, 0x00, _selection->mem_size());
+	select_byte_pattern(0x00);
 }
 
 /******************************************************************************
@@ -664,10 +643,7 @@ void PVCore::PVSelBitField::select_none()
  *****************************************************************************/
 void PVCore::PVSelBitField::select_odd()
 {
-	if (!_table) {
-		allocate_table();
-	}
-	memset(_table, 0x55, _selection->mem_size());
+	select_byte_pattern(0x55);
 }
 
 /******************************************************************************

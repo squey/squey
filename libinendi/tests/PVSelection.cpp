@@ -60,8 +60,6 @@ int main(void)
 
 	a.visit_selected_lines([&](PVRow r) { std::cout << r << "," ; } );
 	std::cout << std::endl;
-	//a.visit_selected_lines_sse([&](PVRow r) { std::cout << r << "," ; } );
-	//std::cout << std::endl;
 
 	a.select_none();
 #define NLINES_TEST 10000
@@ -73,9 +71,6 @@ int main(void)
 	BENCH_START(ref);
 	a.visit_selected_lines([&](PVRow r) { ref.push_back(r); });
 	BENCH_END(ref, "visit ref", sizeof(uint32_t), a.chunk_count(), sizeof(PVRow), ref.size());
-	//BENCH_START(sse);
-	//a.visit_selected_lines_sse([&](PVRow r) { test.push_back(r); });
-	//BENCH_END(sse, "visit sse", sizeof(uint32_t), a.chunk_count(), sizeof(PVRow), test.size());
 
 	std::cout << "Visit sse test: " << (ref == test) << std::endl;
 
@@ -271,21 +266,6 @@ int main(void)
 	std::cout << "Line 32*5+2 set, last nonzero chunk to 6 (5) = " << b.get_last_nonzero_chunk_index(0, 6) << std::endl;
 	std::cout << "Line 32*5+2 set, last nonzero chunk to 7 (5) = " << b.get_last_nonzero_chunk_index(0, 7) << std::endl;
 
-	/*
-	std::cout << "Checking only one line set in range [1024, 1088]" << std::endl;
-	for (int i = 0; i < (a.CHUNK_SIZE * 2) + 1; ++i) {
-		PVRow r = 1024 + i;
-		a.select_none();
-		a.set_line(r, true);
-		ssize_t expected = r / a.CHUNK_SIZE;
-		ssize_t res = a.get_last_nonzero_chunk_index(0, 64);
-		if (res != expected) {
-			std::cout << "Test fails with line " << r
-			          << " set and last nonzero chunk to 64: returns "
-			          << res << " but " << expected << " expected" << std::endl;
-		}
-	}*/
-
 	/**********************************************************************
 	***********************************************************************
 	*
@@ -330,15 +310,6 @@ int main(void)
 	//delete(selection);
 	delete(selection2);
 	delete(selection3);
-
-#if 0
-	Inendi::PVSelection *a = new Inendi::PVSelection(SELECTION_COUNT);
-	Inendi::PVSelection b(SELECTION_COUNT);
-	a->select_all();
-	b.select_odd();
-	*a = ~b;
-	delete a;
-#endif
 
 	return 0;
 

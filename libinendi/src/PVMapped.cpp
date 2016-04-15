@@ -177,7 +177,7 @@ void Inendi::PVMapped::to_csv() const
  *****************************************************************************/
 PVRow Inendi::PVMapped::get_row_count() const
 {
-	return get_parent()->get_row_count();
+	return get_parent<PVSource>()->get_row_count();
 }
 
 /******************************************************************************

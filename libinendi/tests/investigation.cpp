@@ -34,20 +34,27 @@ double save_investigation()
 	PV_VALID(views.size(), 1);
 	auto view = views[0];
 
-	// Add layers
+	/**
+	 * Add layers
+	 */
 	view->add_new_layer("layer #2");
 	view->add_new_layer("layer #3");
 
-	// Color layer
+	/**
+	 * Color layer
+	 */
 	const PVRow row_count = view->get_row_count();
 	Inendi::PVSelection sel(row_count);
 	sel.select_all();
 	view->get_layer_stack().get_layer_n(2).get_lines_properties().selection_set_color(sel, row_count, HSV_COLOR_GREEN);
 
-	// Sort axes and remove last one
+	/**
+	 *  Sort axes and remove last one
+	 */
+	// use of const_cast to get direct access to API (don't try this at home)
 	Inendi::PVAxesCombination& axes_comb = const_cast<Inendi::PVAxesCombination&>(view->get_axes_combination());
 	axes_comb.sort_by_name();
-	axes_comb.remove_axis(14); // use of const_cast to get direct access to API (don't try this at home)
+	axes_comb.remove_axis(14);
 
 	auto start = std::chrono::system_clock::now();
 

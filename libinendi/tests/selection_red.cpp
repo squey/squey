@@ -16,9 +16,9 @@ static constexpr size_t SELECTION_COUNT = 100000;
 
 using sels_t = std::vector<PVSelection>;
 
-void reset_sels(sels_t& sels, const size_t n)
+void reset_sels(sels_t& sels)
 {
-	for (size_t i = 0; i < n; i++) {
+	for (size_t i = 0; i < sels.size(); i++) {
 		sels[i].select_none();
 		sels[i].set_line(i, true);
 	}
@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 
 	{
 		sels_t sels(n, PVSelection(SELECTION_COUNT));
-		reset_sels(sels, n);
+		reset_sels(sels);
 
 		PVSelection& first_sel = sels[0];
 
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 
 	{
 		sels_t sels(n, PVSelection(SELECTION_COUNT));
-		reset_sels(sels, n);
+		reset_sels(sels);
 
 		PVSelection& first_sel_omp = sels[0];
 
