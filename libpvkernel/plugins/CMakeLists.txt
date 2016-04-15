@@ -5,7 +5,7 @@
 # @copyright (C) ESI Group INENDI April 2015-2015
 
 add_subdirectory(normalize-filters)
-add_subdirectory(input_types)
+add_subdirectory(input-types)
 add_subdirectory(sources)
 
 ###############################################################################
