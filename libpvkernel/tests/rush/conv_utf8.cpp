@@ -20,14 +20,14 @@ using namespace PVCore;
 
 int main(int argc, char** argv)
 {
-	if (argc <= 4) {
+	if (argc < 4) {
 		std::cerr << "Usage: " << argv[0] << " input_file ref_file chunk_size" << std::endl;
 		return 1;
 	}
 
 	PVCore::PVIntrinsics::init_cpuid();
 	PVInput_p ifile(new PVInputFile(argv[1]));
-	PVUnicodeSource<> source(ifile, atoi(argv[3]);
+	PVUnicodeSource<> source(ifile, atoi(argv[3]));
 
 	std::string output_file = pvtest::get_tmp_filename();
 	// Extract source and split fields.

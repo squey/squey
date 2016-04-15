@@ -17,35 +17,20 @@ endif()
 set(PVRUSH_TEST_FILES "${TESTS_FILES_DIR}/pvkernel/rush")
 set(PVRUSH_TEST_FILES_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/test-files")
 
-# Test UTF16 conversion
-add_pv_compile_test(Trush_conv_utf16 LINKS ${LINK_LIBRARIES} FILES conv_utf16.cpp helpers.cpp)
+# Test UTF8 conversion
+add_pv_compile_test(Trush_conv_utf8 LINKS ${LINK_LIBRARIES} FILES conv_utf8.cpp helpers.cpp)
 
-macro(PV_ADD_TEST_CONV_UTF16 charset)
-	add_test(TestConvUtf16_${charset} ${TEST_DIFF_STDOUT}
-		${PVRUSH_TEST_FILES}/charset/${charset}.out
-		${PVRUSH_TEST_FILES_OUTPUT}/charset/${charset}.diff
-		${CMAKE_CURRENT_BINARY_DIR}/Trush_conv_utf16 ${PVRUSH_TEST_FILES}/charset/${charset} 20000)
+macro(PV_ADD_TEST_CONV_UTF8 input_file chunks_size)
+	add_test(TestConvUtf8_${input_file}_${chunks_size} Trush_conv_utf8 ${PVRUSH_TEST_FILES}/${input_file} ${PVRUSH_TEST_FILES}/${input_file}.out ${chunks_size})
 endmacro()
 
-PV_ADD_TEST_CONV_UTF16("utf8")
-PV_ADD_TEST_CONV_UTF16("utf16")
-PV_ADD_TEST_CONV_UTF16("utf32")
-PV_ADD_TEST_CONV_UTF16("latin1")
-
-# Test UTF16 conversion and alignement on a newline (PVUnicodeSource object)
-add_pv_compile_test(Trush_conv_utf16_align LINKS ${LINK_LIBRARIES} FILES conv_utf16_align.cpp helpers.cpp)
-
-macro(PV_ADD_TEST_CONV_UTF16_ALIGN CASE CHUNK_SIZE)
-	add_test(TestConvUtf16Align_${CASE}_${CHUNK_SIZE} ${TEST_DIFF_STDOUT}
-		${PVRUSH_TEST_FILES}/${CASE}.out
-		${PVRUSH_TEST_FILES_OUTPUT}/${CASE}.diff
-		${CMAKE_CURRENT_BINARY_DIR}/Trush_conv_utf16_align
-		${PVRUSH_TEST_FILES}/${CASE} ${CHUNK_SIZE})
-endmacro()
-
-PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align 20000)
+PV_ADD_TEST_CONV_UTF8("charset/utf8" 20000)
+PV_ADD_TEST_CONV_UTF8("charset/utf16" 20000)
+PV_ADD_TEST_CONV_UTF8("charset/utf32" 20000)
+PV_ADD_TEST_CONV_UTF8("charset/latin1" 20000)
+PV_ADD_TEST_CONV_UTF8("conv_utf8_align" 20000)
 # TODO : Re-enable this test once we support chunk growing when they are too small.
-#PV_ADD_TEST_CONV_UTF16_ALIGN(conv_utf16_align 2000)
+#PV_ADD_TEST_CONV_UTF8("conv_utf8_align" 200)
 
 # Test the aggregator
 add_pv_compile_test(Trush_agg LINKS ${LINK_LIBRARIES} FILES agg.cpp helpers.cpp)
