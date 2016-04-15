@@ -1193,39 +1193,6 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 	}
 	
 	Inendi::PVView* view = current_view();
-	/*
-	std::vector<PVCore::PVUnicodeString> vec_str;
-	PVRow nrows = view->get_rushnraw_parent().get_row_count();
-	vec_str.reserve(nrows);
-
-	QString* tmp = new QString("test");
-	const PVCore::PVUnicodeString::utf_char* buf = (const PVCore::PVUnicodeString::utf_char*) tmp->unicode();
-	for (PVRow i = 0; i < nrows; i++) {
-		vec_str.push_back(PVCore::PVUnicodeString(buf, tmp->size()));
-	}
-	*/
-
-	/*
-	QDialog* txt_dlg = new QDialog(this);
-	QTextEdit* code_edit = new QTextEdit();
-	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	QVBoxLayout* layout_dlg = new QVBoxLayout();
-	layout_dlg->addWidget(code_edit);
-	layout_dlg->addWidget(btns);
-	connect(btns, SIGNAL(accepted()), txt_dlg, SLOT(accept()));
-	connect(btns, SIGNAL(rejected()), txt_dlg, SLOT(reject()));
-	txt_dlg->setLayout(layout_dlg);
-	if (txt_dlg->exec() != QDialog::Accepted) {
-		return;
-	}
-
-	Inendi::PVAxisComputation::p_type ac_lib = LIB_CLASS(Inendi::PVAxisComputation)::get().get_class_by_name("python");
-	Inendi::PVAxisComputation::p_type ac_clone = ac_lib->clone<Inendi::PVAxisComputation>();
-
-	PVCore::PVArgumentList args;
-	args["script"] = code_edit->toPlainText();
-	ac_clone->set_args(args);
-	*/
 
 	PVAxisComputationDlg* dlg = new PVAxisComputationDlg(*view, this);
 	if (dlg->exec() != QDialog::Accepted) {

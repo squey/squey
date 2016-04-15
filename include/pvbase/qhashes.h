@@ -16,12 +16,6 @@
 
 #include <pvkernel/core/string_tbb.h>
 
-// Forward declarations
-namespace PVCore {
-class PVUnicodeString;
-}
-
-unsigned int qHash(PVCore::PVUnicodeString const& str);
 unsigned int qHash(std::string_tbb const& str);
 
 #endif

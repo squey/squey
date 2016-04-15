@@ -6,7 +6,6 @@
 
 add_pv_compile_test(Tcore_timeformat_perf LINKS pvkernel ${ICU_LIBRARY} FILES time-format-perf.cpp)
 add_pv_compile_test(Tcore_serialize LINKS pvkernel FILES serialize.cpp)
-add_pv_compile_test(Tcore_pvstring LINKS pvkernel ${ICU_LIBRARY} FILES pvstring.cpp)
 add_pv_compile_test(Tcore_matrix LINKS pvkernel FILES matrix.cpp)
 add_pv_compile_test(Tcore_vbo LINKS pvkernel FILES vbo.cpp)
 add_pv_compile_test(Tcore_podtree LINKS pvkernel FILES pod_tree.cpp)

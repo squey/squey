@@ -11,7 +11,6 @@
 
 #include "PVFieldSplitterURL.h"
 #include <pvkernel/core/PVBufferSlice.h>
-#include <pvkernel/core/PVUnicodeString.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVAxisTagsDec.h>
 
@@ -20,12 +19,12 @@
 #include <QUrl>
 
 static char empty_str = 0;
-static const PVCore::PVUnicodeString g_str_http((const PVCore::PVUnicodeString::utf_char*) "http", 4);
-static const PVCore::PVUnicodeString g_str_https((const PVCore::PVUnicodeString::utf_char*)"https", 5);
-static const PVCore::PVUnicodeString g_str_ftp((const PVCore::PVUnicodeString::utf_char*)"ftp", 3);
-static const PVCore::PVUnicodeString::utf_char g_port_80[] = {'8', '0'};
-static const PVCore::PVUnicodeString::utf_char g_port_443[] = {'4','4','3'};
-static const PVCore::PVUnicodeString::utf_char g_port_21[] = {'2', '1'};
+static constexpr const char* str_http = "http";
+static constexpr const char* str_https = "https";
+static constexpr const char* str_ftp = "ftp";
+static constexpr const char* str_port_80 = "80";
+static constexpr const char* str_port_443 = "443";
+static constexpr const char* str_port_21 = "21";
 
 #define URL_NUMBER_FIELDS_CREATED 10
 
@@ -132,17 +131,17 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	ret += set_field(_col_port, pf, str_url, fh->furl.features.port);
 	if (furl_features_exist(fh->furl.features.port) == 0) {
 		// Guess default port from protocol
-		PVCore::PVUnicodeString proto(str_url + fh->furl.features.scheme.pos, fh->furl.features.scheme.size);
-		const PVCore::PVUnicodeString::utf_char* str_port;
+		std::string proto(str_url + fh->furl.features.scheme.pos, fh->furl.features.scheme.size);
+		const char* str_port;
 		size_t size_port;
-		if (proto == g_str_http) {
-			str_port = g_port_80;
+		if (proto == str_http) {
+			str_port = str_port_80;
 			size_port = 2;
-		} else if (proto == g_str_https) {
-			str_port = g_port_443;
+		} else if (proto == str_https) {
+			str_port = str_port_443;
 			size_port = 3;
-		} else if (proto == g_str_ftp) {
-			str_port = g_port_21;
+		} else if (proto == str_ftp) {
+			str_port = str_port_21;
 			size_port = 2;
 		} else {
 			return ret;

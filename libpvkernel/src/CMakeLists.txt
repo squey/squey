@@ -52,7 +52,6 @@ core/PVSerializeArchiveFixError.cpp
 core/PVSerializeArchiveOptions.cpp
 core/PVSerializeArchiveZip.cpp
 core/PVSerializeObject.cpp
-core/PVUnicodeString.cpp
 core/PVUtils.cpp
 core/PVVersion.cpp
 core/PVAllocators.cpp
