@@ -101,35 +101,6 @@ include_directories(AFTER ${CURL_INCLUDE_DIR})
 add_library(input_type_remotefile SHARED ${REMOTEFILE_SRC} ${REMOTEFILE_MOC_SRCS})
 target_link_libraries(input_type_remotefile pvkernel ${ARCHIVE_LIBRARY} ${CURL_LIBRARIES})
 
-################################################
-# Arcsight
-# TODO : Add correct detection for arcsight
-################################################
-# Declare ressource
-set(ARCSIGHT_MOC_HEADERS
-arcsight/PVArcsightParamsWidget.h
-)
-
-set(ARCSIGHT_UI
-arcsight/arcsight_params.ui
-)
-
-SET(ARCSIGHT_SRC
-../common/arcsight/PVArcsightInfos.cpp
-../common/arcsight/PVArcsightQuery.cpp
-arcsight/PVArcsightParamsWidget.cpp
-arcsight/PVInputTypeArcsight.cpp
-arcsight/register.cpp
-)
-
-# Generate moc and ui files
-QT5_WRAP_CPP(ARCSIGHT_MOC_SRCS ${ARCSIGHT_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-QT5_WRAP_UI(ARCSIGHT_UI_SRCS ${ARCSIGHT_UI})
-
-# Generate linkage configuration
-add_library(input_type_arcsight SHARED ${ARCSIGHT_SRC} ${ARCSIGHT_MOC_SRCS} ${ARCSIGHT_UI_SRCS})
-target_link_libraries(input_type_arcsight pvkernel ${ARCSIGHT_LIBRARIES})
-
 ###############################################################################
 # Elasticsearch
 ###############################################################################

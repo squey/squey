@@ -21,7 +21,6 @@ source_text_file
 source_perl_file
 source_elasticsearch
 source_splunk
-#source_arcsight
 )
 
 
@@ -95,23 +94,6 @@ if(PYTHONLIBS_FOUND)
 	add_library(source_python_file SHARED ${PYTHON_FILE_SRC})
 	target_link_libraries(source_python_file pvkernel ${PYTHON_LIBRARIES} ${Boost_LIBRARIES_PYTHON})
 endif(PYTHONLIBS_FOUND)
-
-###############################################################################
-# Arcsight sources
-# TODO : Improve detection of arcsight and gsoap
-###############################################################################
-# Define ressources
-SET(ARCSIGHT_SRC
-../common/arcsight/PVArcsightInfos.cpp
-../common/arcsight/PVArcsightQuery.cpp
-arcsight/PVArcsightSource.cpp
-arcsight/PVSourceCreatorArcsight.cpp
-arcsight/register.cpp
-)
-
-# Create lib
-add_library(source_arcsight SHARED ${ARCSIGHT_SRC})
-target_link_libraries(source_arcsight pvkernel ${ARCSIGHT_LIBRARIES})
 
 ###############################################################################
 # Elasticsearch
