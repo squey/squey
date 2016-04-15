@@ -128,6 +128,17 @@ add_pv_compile_test(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filte
 add_test(Trush_filter_composition Trush_filter_composition)
 add_bench(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filter_composition.cpp helpers.cpp)
 
+# Plugin sources
+add_pv_compile_test(Trush_splunk_source LINKS ${LINK_LIBRARIES}
+	FILES splunk_source.cpp helpers.cpp
+	../../plugins/common/splunk/PVSplunkInfos.cpp
+	../../plugins/common/splunk/PVSplunkQuery.cpp)
+add_test(Trush_splunk_source Trush_splunk_source)
+add_bench(Trush_splunk_source LINKS ${LINK_LIBRARIES}
+	FILES splunk_source.cpp helpers.cpp
+	../../plugins/common/splunk/PVSplunkInfos.cpp
+	../../plugins/common/splunk/PVSplunkQuery.cpp)
+
 add_pv_compile_test(Trush_elasticsearch_source LINKS ${LINK_LIBRARIES}
 	FILES elasticsearch_source.cpp helpers.cpp
 	../../plugins/common/elasticsearch/PVElasticsearchInfos.cpp
