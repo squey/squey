@@ -36,11 +36,6 @@ bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats const& formats,
 	return true;
 }
 
-PVRush::PVInputTypeElasticsearch::~PVInputTypeElasticsearch()
-{
-}
-
-
 QString PVRush::PVInputTypeElasticsearch::name() const
 {
 	return QString("elasticsearch");

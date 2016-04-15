@@ -128,14 +128,27 @@ add_pv_compile_test(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filte
 add_test(Trush_filter_composition Trush_filter_composition)
 add_bench(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filter_composition.cpp helpers.cpp)
 
+add_pv_compile_test(Trush_elasticsearch_source LINKS ${LINK_LIBRARIES}
+	FILES elasticsearch_source.cpp helpers.cpp
+	../../plugins/common/elasticsearch/PVElasticsearchInfos.cpp
+	../../plugins/common/elasticsearch/PVElasticsearchQuery.cpp)
+add_test(Trush_elasticsearch_source Trush_elasticsearch_source)
+add_bench(Trush_elasticsearch_source LINKS ${LINK_LIBRARIES}
+	FILES elasticsearch_source.cpp helpers.cpp
+	../../plugins/common/elasticsearch/PVElasticsearchInfos.cpp
+	../../plugins/common/elasticsearch/PVElasticsearchQuery.cpp)
+
 # Plugin input tests
 add_pv_compile_test(Trush_mem LINKS ${LINK_LIBRARIES} FILES bench_memory.cpp)
 add_pv_compile_test(Trush_filter_guess LINKS ${LINK_LIBRARIES} FILES filter_guess.cpp)
 add_pv_compile_test(Trush_parser LINKS ${LINK_LIBRARIES} FILES parser.cpp)
 add_pv_compile_test(Trush_format_conv LINKS ${LINK_LIBRARIES} FILES format_conv.cpp)
+
+# Check NRaw fill and dump
 add_pv_compile_test(Trush_nraw_create LINKS ${LINK_LIBRARIES} FILES nraw_create.cpp)
 add_test(Trush_nraw_create Trush_nraw_create)
 add_bench(Trush_nraw_create LINKS ${LINK_LIBRARIES} FILES nraw_create.cpp)
+
 add_pv_compile_test(Trush_nraw_dump LINKS ${LINK_LIBRARIES} FILES nraw_dump.cpp)
 add_test(Trush_nraw_dump Trush_nraw_dump)
 add_bench(Trush_nraw_dump LINKS ${LINK_LIBRARIES} FILES nraw_dump.cpp)
