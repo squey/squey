@@ -18,16 +18,17 @@
 using namespace PVRush;
 using namespace PVCore;
 
+static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/charset/utf8";
+static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/charset/utf8.out";
+
 int main(int argc, char** argv)
 {
-	if (argc <= 4) {
-		std::cerr << "Usage: " << argv[0] << " input_file ref_file chunk_size" << std::endl;
-		return 1;
-	}
+	std::string input_file = (argc>1):argv[1]?log_file;
+	std::string reference_file = (argc>2):argv[2]?ref_file;
+	size_t chunk_size = (argc>3):atoi(argv[3])?20000;
 
-	PVCore::PVIntrinsics::init_cpuid();
-	PVInput_p ifile(new PVInputFile(argv[1]));
-	PVUnicodeSource<> source(ifile, atoi(argv[3]);
+	PVInput_p ifile(new PVInputFile(input_file));
+	PVUnicodeSource<> source(ifile, chunk_size);
 
 	std::string output_file = pvtest::get_tmp_filename();
 	// Extract source and split fields.
@@ -48,8 +49,8 @@ int main(int argc, char** argv)
 
 #ifndef INSPECTOR_BENCH
 	// Check output is the same as the reference
-	std::cout << std::endl << output_file << " - " << argv[2] << std::endl;
-	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, argv[2]));
+	std::cout << std::endl << output_file << " - " << reference_file << std::endl;
+	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, reference_file));
 #endif
 
 	return 0;
