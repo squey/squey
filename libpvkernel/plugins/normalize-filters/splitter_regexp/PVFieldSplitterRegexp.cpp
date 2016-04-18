@@ -68,11 +68,6 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterRegexp::one_to_many(PVCo
 	}
 
 	if (parse_success) {
-		if((_fields_expected > 0) && (_fields_expected != base_match.size() - 1)) {
-			field.set_invalid();
-			field.elt_parent()->set_invalid();
-			return 0;
-		}
 		for(auto it = ++base_match.begin(); it != base_match.end(); it++) {
 			PVCore::list_fields::value_type elt(field);
 			elt.set_begin(field.begin() + std::distance(static_cast<const char*>(field.begin()), it->first));

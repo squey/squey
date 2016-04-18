@@ -15,9 +15,8 @@ using PVCore::list_fields;
 
 void dump_chunk_csv(PVChunk& c, std::ostream & out)
 {
-	// Assume locale is UTF8 !
 	for (PVElement* elt: c.elements()) {
-		if (!elt->valid()) {
+		if (not elt->valid()) {
 			continue;
 		}
 		list_fields& l = elt->fields();
