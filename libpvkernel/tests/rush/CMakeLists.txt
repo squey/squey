@@ -7,6 +7,7 @@
 configure_file(test_issues.sh.cmake test_issues.sh @ONLY)
 
 set(LINK_LIBRARIES pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY})
+add_definitions(-fopenmp)
 
 # Temporary output directory for NRAW disk backend based tests
 if (NOT DEFINED PVKERNEL_RUSH_TEST_NRAW_TMP)

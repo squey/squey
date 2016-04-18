@@ -17,6 +17,7 @@
 #include <QCoreApplication>
 
 #include <functional>
+#include <omp.h>
 
 namespace pvtest {
 
@@ -107,22 +108,41 @@ namespace pvtest {
 
             size_t nelts_org = 0;
             size_t nelts_valid = 0;
-            std::chrono::duration<double> dur(0.);
-            decltype(std::chrono::steady_clock::now()) start;
-            // TODO : Add parallelism on Chunk splitter!!
+            double duration = 0.;
+
+            std::vector<PVCore::PVChunk*> _chunks;
             while (PVCore::PVChunk* pc = _source()) {
-                start = std::chrono::steady_clock::now();
-                flt_f(pc);
-                dur += std::chrono::steady_clock::now() - start;
-                size_t no = 0;
-                size_t nv = 0;
-                pc->get_elts_stat(no, nv);
-                nelts_org += no;
-                nelts_valid += nv;
-                dump_chunk_csv(*pc, ofs);
-                pc->free();
+                _chunks.push_back(pc);
             }
-            std::cout << dur.count();
+
+            // TODO : Parallelism slow down splitting. It looks like it is a locally issue on
+            // function splitter object with bad managed memory.
+#pragma omp parallel reduction(+:nelts_org, nelts_valid, duration)
+            {
+                std::ostringstream oss;
+#pragma omp for nowait
+                for(auto it=_chunks.begin(); it<_chunks.end(); ++it) {
+                    PVCore::PVChunk* pc = *it;
+                    auto start = std::chrono::steady_clock::now();
+                    flt_f(pc);
+                    std::chrono::duration<double> dur(std::chrono::steady_clock::now() - start);
+                    duration += dur.count();
+                    size_t no = 0;
+                    size_t nv = 0;
+                    pc->get_elts_stat(no, nv);
+                    nelts_org += no;
+                    nelts_valid += nv;
+                    dump_chunk_csv(*pc, oss);
+                    pc->free();
+                }
+
+#pragma omp for ordered
+                for(int i=0; i<omp_get_num_threads(); i++) {
+                    #pragma omp ordered
+                    ofs << oss.str();
+                }
+            }
+            std::cout << duration;
             return std::make_tuple(nelts_org, nelts_valid, output_file);
         }
 
