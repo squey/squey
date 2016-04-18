@@ -84,15 +84,18 @@ public:
 	/**
 	 * Split a full chunk in elements on new-line.
 	 *
-	 * @return fist char which can't be put in a new element.
+	 * @warning: we guess that end is an end of element.
 	 */
-	char* create_elements(char* begin, char* end) {
+	void create_elements(char* begin, char* end) {
 		auto it = begin;
 		while((it = std::find(begin, end, '\n')) != end) {
 			add_element(begin, it);
 			begin = it + 1;
 		}
-		return begin;
+		if(begin != end) {
+			// Add a final elements if the last "part" is the end of file.
+			add_element(begin, end);
+		}
 	}
 
 	/**
@@ -116,14 +119,11 @@ public:
 		return begin_read;
 	}
 
+
 	/**
-	 *  Give real begin and end of the buffer to process.
-	 *
-	 *  * Handle BOM
-	 *  * Handle new line for UTF-16 and UTF 32
-	 *  * Detect charset for future processing.
+	 * Detect charset and remove BOM if required.
 	 */
-	std::pair<char*, char*> get_buffer_range(char* begin, size_t len)
+	char* get_begin_from_charset(char* begin, size_t len)
 	{
 		if (!_cd.found() and _charset == "") {
 			if (_cd.HandleData(begin, len) == NS_OK) {
@@ -134,20 +134,28 @@ public:
 
 					bool remove_bom = (_charset.find("UTF") != _charset.npos); // Remove BOM only for UTF-X
 					if(remove_bom) {
-						begin = begining_with_bom(begin);
+						return begining_with_bom(begin);
 					}
 
 				} else {
 					// If charset is not set, it is pure ascii. Included in UTF-8.
 					_charset = "UTF-8";
-					begin = begining_with_bom(begin);
+					return begining_with_bom(begin);
 				}
 			}
 		}
+		return begin;
+	}
+
+	/**
+	 * Detect end and return nullptr if not new line can be found.
+	 */
+	char* get_end_from_charset(char* begin, size_t len)
+	{
+		assert(not _charset.empty());
 
 		int extra_char = 0;
-		if(_charset.find("UTF-16") != _charset.npos)
-		{
+		if(_charset.find("UTF-16") != _charset.npos) {
 			extra_char = 1;
 		} else if(_charset.find("UTF-32") != _charset.npos) {
 			extra_char = 3;
@@ -161,13 +169,12 @@ public:
 				break;
 			}
 		}
-		if(last == nullptr)
-		{
-			// TODO : We should increase chunk size and do it all over again.
-			throw UnicodeSourceError("No new line in the read chunk. You need bigger chunk size");
+		if(last == nullptr) {
+			return nullptr;
 		}
 
-		return std::make_pair(begin, last + 1 + extra_char);
+		assert(_chunk_size % 8 == 0 && "To be sure last + extra_char is in 'read' data");
+		return last + 1 + extra_char;
 	}
 
 	/**
@@ -175,6 +182,7 @@ public:
 	 */
 	char* convert_buffer(char* begin, char* end)
 	{
+		assert(not _charset.empty());
 		if(_charset != "UTF-8") {
 			_tmp_buf.resize(std::distance(begin, end));
 			std::copy(begin, end, _tmp_buf.begin());
@@ -217,10 +225,7 @@ public:
 
 		if (r == 0) { // No more data to read.
 			if (_curc->size() > 0) {
-				char* begin = create_elements(_curc->begin(), _curc->end());
-				if(begin != _curc->end()) { // Handle final line without new line.
-					add_element(begin, _curc->end());
-				}
+				create_elements(_curc->begin(), _curc->end());
 
 				_curc->set_elements_index();
 				_curc->init_elements_fields();
@@ -236,13 +241,29 @@ public:
 			}
 		}
 
-		char* b;
-		char* end;
-		std::tie(b, end) = get_buffer_range(_curc->begin(), _curc->size() + r);
+		char* b = get_begin_from_charset(_curc->begin(), _curc->size() + r);
+		char* end = get_end_from_charset(_curc->begin(), _curc->size() + r);
+		char* buffer_end = _curc->end()+r;
+		// Grow chunk until we have at least a new line in the chunk or end of file is reach.
+		while(end == nullptr) {
+			if(buffer_end != _curc->physical_end()) {
+				// Case where there is only the last line in the chunk.
+				end = buffer_end;
+				break;
+			}
+			size_t start_offset = b - _curc->begin();
+			_curc = _curc->realloc_grow(_chunk_size/10);
+
+			b = start_offset + _curc->begin();;
+			r = _input->operator()(_curc->end(), _curc->avail());
+			buffer_end = _curc->end() + r;
+
+			end = get_end_from_charset(_curc->end(), r);
+		}
 
 		// Process the read data
 		// Copy remaining chars in the next chunk
-		_nextc->set_end(std::copy(end, _curc->end()+r, _nextc->begin()));
+		_nextc->set_end(std::copy(end, buffer_end, _nextc->begin()));
 
 		_curc->set_end(convert_buffer(b, end));
 

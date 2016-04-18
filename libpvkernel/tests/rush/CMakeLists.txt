@@ -30,8 +30,8 @@ PV_ADD_TEST_CONV_UTF8("charset/utf16" 20000)
 PV_ADD_TEST_CONV_UTF8("charset/utf32" 20000)
 PV_ADD_TEST_CONV_UTF8("charset/latin1" 20000)
 PV_ADD_TEST_CONV_UTF8("conv_utf8_align" 20000)
-# TODO : Re-enable this test once we support chunk growing when they are too small.
-#PV_ADD_TEST_CONV_UTF8("conv_utf8_align" 200)
+# Check import can be done with too small chunk size.
+PV_ADD_TEST_CONV_UTF8("conv_utf8_align" 200)
 
 # Test the aggregator
 add_pv_compile_test(Trush_agg LINKS ${LINK_LIBRARIES} FILES agg.cpp helpers.cpp)

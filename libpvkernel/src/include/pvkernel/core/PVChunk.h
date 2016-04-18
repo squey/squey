@@ -316,8 +316,8 @@ public:
 		size_t cur_size = (size_t) ((uintptr_t)_physical_end - (uintptr_t)begin());
 		size_t new_size = cur_size + n;
 		PVChunkMem<Allocator>* ret = allocate(new_size, _source, _alloc);
-		memcpy(ret->begin(), begin(), size());
-		ret->_logical_end = ret->begin() + size();
+		memcpy(ret->begin(), begin(), cur_size);
+		ret->_logical_end = ret->begin() + cur_size;
 		free();
 		return ret;
 	}
