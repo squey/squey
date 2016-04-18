@@ -2,6 +2,7 @@
 #define LIBPVKERNEL_RUSH_TESTS_COMMON_H
 
 #include "test-env.h"
+#include "helpers.h"
 
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVInputDescription.h>
@@ -14,6 +15,8 @@
 #include <pvkernel/rush/PVUnicodeSource.h>
 
 #include <QCoreApplication>
+
+#include <functional>
 
 namespace pvtest {
 
@@ -86,18 +89,42 @@ namespace pvtest {
      *
      * Usefull to check splitter behavior.
      */
-    template <class Input = PVRush::PVInputFile>
     class TestSplitter
     {
         public:
         TestSplitter(std::string const& log_file, size_t dup = 1):
                 _big_file_path(duplicate_log_file(log_file, dup)),
-                _source(std::make_shared<Input>(_big_file_path.c_str()), chunk_size)
+                _source(std::make_shared<PVRush::PVInputFile>(_big_file_path.c_str()), chunk_size)
         {}
 
-        PVRush::PVUnicodeSource<>& get_source() { return _source; }
-
         ~TestSplitter() { std::remove(_big_file_path.c_str()); }
+
+        std::tuple<size_t, size_t, std::string> run_normalization(std::function<PVCore::PVChunk*(PVCore::PVChunk*)> const& flt_f)
+        {
+            std::string output_file = get_tmp_filename();
+            // Extract source and split fields.
+            std::ofstream ofs(output_file);
+
+            size_t nelts_org = 0;
+            size_t nelts_valid = 0;
+            std::chrono::duration<double> dur(0.);
+            decltype(std::chrono::steady_clock::now()) start;
+            // TODO : Add parallelism on Chunk splitter!!
+            while (PVCore::PVChunk* pc = _source()) {
+                start = std::chrono::steady_clock::now();
+                flt_f(pc);
+                dur += std::chrono::steady_clock::now() - start;
+                size_t no = 0;
+                size_t nv = 0;
+                pc->get_elts_stat(no, nv);
+                nelts_org += no;
+                nelts_valid += nv;
+                dump_chunk_csv(*pc, ofs);
+                pc->free();
+            }
+            std::cout << dur.count();
+            return std::make_tuple(nelts_org, nelts_valid, output_file);
+        }
 
         private:
             static constexpr size_t chunk_size = 6000;

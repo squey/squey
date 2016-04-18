@@ -28,7 +28,7 @@ static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/ip
 
 int main()
 {
-	pvtest::TestSplitter<> ts(log_file, nb_dup);
+	pvtest::TestSplitter ts(log_file, nb_dup);
 
 	// Prepare splitter plugin
 	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("ip");
@@ -42,32 +42,12 @@ int main()
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
 	PVFilter::PVChunkFilter_f flt_f = chk_flt->f();
 
-	std::string output_file = pvtest::get_tmp_filename();
-	// Extract source and split fields.
-	{
-		std::ofstream ofs(output_file);
+	auto res = ts.run_normalization(flt_f);
+	std::string output_file = std::get<2>(res);
+	size_t nelts_org = std::get<0>(res);
+	size_t nelts_valid = std::get<1>(res);
 
-		size_t nelts_org = 0;
-		size_t nelts_valid = 0;
-		std::chrono::duration<double> dur(0.);
-		decltype(std::chrono::steady_clock::now()) start;
-		// TODO : Add parallelism on Chunk splitter!!
-		while (PVCore::PVChunk* pc = ts.get_source()()) {
-			start = std::chrono::steady_clock::now();
-			flt_f(pc);
-			dur += std::chrono::steady_clock::now() - start;
-			size_t no = 0;
-			size_t nv = 0;
-			pc->get_elts_stat(no, nv);
-			nelts_org += no;
-			nelts_valid += nv;
-			dump_chunk_csv(*pc, ofs);
-			pc->free();
-		}
-		std::cout << dur.count();
-
-		PV_VALID(nelts_valid, nelts_org);
-	}
+	PV_VALID(nelts_valid, nelts_org);
 
 #ifndef INSPECTOR_BENCH
 	// Check output is the same as the reference
