@@ -32,15 +32,13 @@ class PVZonesManager;
 
 class PVZonesProcessor
 {
-	friend class PVRenderingPipeline;
 	typedef tbb::flow::receiver<PVZoneRendering_p> receiver_type;
 
-protected:
+public:
 	PVZonesProcessor(receiver_type& in_port, PVRenderingPipelinePreprocessRouter* preprocess = nullptr):
 		_in_port(&in_port), _preprocess(preprocess)
 	{ }
 
-public:
 	PVZonesProcessor():
 		_in_port(nullptr),
 		_preprocess(nullptr)
