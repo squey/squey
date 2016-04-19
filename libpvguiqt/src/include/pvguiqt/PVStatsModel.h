@@ -101,6 +101,10 @@ public:
 public:
 	QVariant data(QModelIndex const& index, int role) const
 	{
+		if(not index.isValid()) {
+			return {};
+		}
+
 		size_t row = rowIndex(index);
 		assert(row < _col1.size());
 
