@@ -24,28 +24,14 @@
 
 namespace PVParallelView {
 
-class PVRenderingPipeline;
-
 class PVRenderingPipelinePreprocessRouter
 {
-	friend class PVRenderingPipeline;
-
+	public:
 	typedef enum {
 		ZoneStateInvalid = 0,
 		ZoneStateValid,
 		ZoneStateProcessing
 	} ZoneState;
-
-	struct ZoneInfos
-	{
-		ZoneInfos()
-		{
-			state = ZoneStateInvalid;
-		}
-
-		tbb::atomic<ZoneState> state;
-		std::list<PVZoneRendering_p> waiters;
-	};
 
 	enum {
 		InputIdxDirect = 0,
@@ -58,15 +44,31 @@ class PVRenderingPipelinePreprocessRouter
 		OutIdxCancel = 2,
 	};
 
-	typedef tbb::flow::indexer_node< PVZoneRendering_p, PVZoneRendering_p> process_or_type;
+	private:
+	/**
+	 * Processing state and waiter for a given Zone.
+	 */
+	struct ZoneInfos
+	{
+		ZoneInfos() : state(ZoneStateInvalid)
+		{}
 
+		tbb::atomic<ZoneState> state;
+		std::list<PVZoneRendering_p> waiters;
+	};
+
+	/**
+	 * Data for every area.
+	 *
+	 * * Processing state and colors.
+	 */
 	struct RouterData
 	{
 		std::vector<ZoneInfos> _zones_infos;
 		PVCore::PVHSVColor const* _colors;
 	};
 
-protected:
+public:
 	struct ZoneRenderingWithColors
 	{
 		// Used by TBB internally
@@ -80,15 +82,13 @@ protected:
 		PVCore::PVHSVColor const* colors;
 	};
 
-	typedef tbb::flow::multifunction_node<process_or_type::output_type, std::tuple<PVZoneRendering_p, ZoneRenderingWithColors, PVZoneRendering_p> > multinode_router;
+	using process_or_type = tbb::flow::indexer_node< PVZoneRendering_p, PVZoneRendering_p>;
+	using multinode_router = tbb::flow::multifunction_node<process_or_type::output_type, std::tuple<PVZoneRendering_p, ZoneRenderingWithColors, PVZoneRendering_p> >;
 
 public:
 	PVRenderingPipelinePreprocessRouter(size_t nzones, PVCore::PVHSVColor const* colors):
-		_d(new RouterData())
-	{
-		_d->_colors = colors;
-		set_zones_count(nzones);
-	}
+		_d(new RouterData{std::vector<ZoneInfos>{nzones}, colors})
+	{}
 
 public:
 	void operator()(process_or_type::output_type in, multinode_router::output_ports_type& op)
@@ -103,7 +103,7 @@ public:
 			return;
 		}
 
-		ZoneInfos& infos = zone_infos(zone_id);
+		ZoneInfos& infos = _d->_zones_infos[zone_id];
 		switch (infos.state) {
 			case ZoneStateInvalid:
 				if (!zr_in->should_cancel()) {
@@ -151,19 +151,12 @@ public:
 	}
 
 public:
-	inline void set_zones_count(size_t n)
-	{
-		_d->_zones_infos.resize(n);
-	}
-
-	inline ZoneState zone_state(size_t i) const { assert(i < _d->_zones_infos.size()); return _d->_zones_infos[i].state; }
+	inline void set_zones_count(size_t n) { _d->_zones_infos.resize(n); }
 	inline void set_zone_invalid(size_t i) { assert(i < _d->_zones_infos.size()); _d->_zones_infos[i].state = ZoneStateInvalid; }
 
 private:
-	inline ZoneInfos& zone_infos(size_t i) { assert(i < _d->_zones_infos.size()); return _d->_zones_infos[i]; }
-	inline ZoneInfos const& zone_infos(size_t i) const { assert(i < _d->_zones_infos.size()); return _d->_zones_infos[i]; }
-
-private:
+	// It is shared_ptr as it is copied by TBB in a multifunction_node while data can be modified
+	// from user events.
 	std::shared_ptr<RouterData> _d;
 };
 
