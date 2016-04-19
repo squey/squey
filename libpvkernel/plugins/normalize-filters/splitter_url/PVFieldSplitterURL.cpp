@@ -16,8 +16,6 @@
 
 #include <furl/decode.h>
 
-#include <QUrl>
-
 static char empty_str = 0;
 static constexpr const char* str_http = "http";
 static constexpr const char* str_https = "https";
@@ -95,6 +93,51 @@ static bool set_field(int pos, PVCore::PVField** fields, char* str, furl_feature
 	return true;
 }
 
+/**
+ * Add port from url if available or try to guess it from protocol.
+ */
+static bool add_port(int pos, PVCore::PVField** fields, char* str, furl_feature_t ff, furl_feature_t ff_proto)
+{
+	if (pos == -1) {
+		return false;
+	}
+
+	PVCore::PVField* new_f = fields[pos];
+	if (furl_features_exist(ff)) {
+		char* field_str = str + ff.pos;
+		new_f->set_begin(field_str);
+		new_f->set_end(field_str + ff.size);
+		new_f->set_physical_end(field_str + ff.size);
+	}
+	else {
+		// Guess default port from protocol
+		std::string proto(str + ff_proto.pos, ff_proto.size);
+		const char* str_port;
+		size_t size_port;
+		if (proto == str_http) {
+			str_port = str_port_80;
+			size_port = 2;
+		} else if (proto == str_https) {
+			str_port = str_port_443;
+			size_port = 3;
+		} else if (proto == str_ftp) {
+			str_port = str_port_21;
+			size_port = 2;
+		} else {
+			new_f->set_begin(&empty_str);
+			new_f->set_end(&empty_str);
+			new_f->set_physical_end(&empty_str);
+			return true;
+		}
+
+		new_f->set_begin((char*) str_port);
+		new_f->set_end((char*) (str_port + size_port));
+		new_f->set_physical_end((char*) (str_port + size_port));
+	}
+
+	return true;
+}
+
 /******************************************************************************
  *
  * PVFilter::PVFieldSplitterURL::one_to_many
@@ -128,31 +171,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	ret += set_field(_col_variable, pf, str_url, fh->furl.features.query_string); 
 	ret += set_field(_col_fragment, pf, str_url, fh->furl.features.fragment); 
 	ret += set_field(_col_credentials, pf, str_url, fh->furl.features.credential); 
-	ret += set_field(_col_port, pf, str_url, fh->furl.features.port);
-	if (furl_features_exist(fh->furl.features.port) == 0) {
-		// Guess default port from protocol
-		std::string proto(str_url + fh->furl.features.scheme.pos, fh->furl.features.scheme.size);
-		const char* str_port;
-		size_t size_port;
-		if (proto == str_http) {
-			str_port = str_port_80;
-			size_port = 2;
-		} else if (proto == str_https) {
-			str_port = str_port_443;
-			size_port = 3;
-		} else if (proto == str_ftp) {
-			str_port = str_port_21;
-			size_port = 2;
-		} else {
-			return ret;
-		}
-
-		PVCore::PVField* fport = pf[_col_port];
-		fport->set_begin((char*) str_port);
-		fport->set_end((char*) (str_port + size_port));
-		fport->set_physical_end((char*) (str_port + size_port));
-		ret++;
-	}
+	ret += add_port(_col_port, pf, str_url, fh->furl.features.port, fh->furl.features.scheme);
 
 	return ret;
 }
