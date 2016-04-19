@@ -28,17 +28,13 @@ PVFilter::PVChunkFilterByElt::PVChunkFilterByElt(PVElementFilter_f elt_filter) :
 PVCore::PVChunk* PVFilter::PVChunkFilterByElt::operator()(PVCore::PVChunk* chunk)
 {
 	size_t nelts_valid = 0;
-	size_t current_elt = chunk->agg_index();
 
 	for(auto & elt_: chunk->elements())
 	{
 		PVCore::PVElement &elt = _elt_filter(*elt_);
 		if (elt.valid()) {
 			nelts_valid++;
-		} else {
-			_invalid_index.push_back(current_elt);
 		}
-		++current_elt;
 	}
 
 	chunk->set_elts_stat(chunk->elements().size(), nelts_valid);
