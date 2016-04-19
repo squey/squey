@@ -45,11 +45,8 @@ public:
 	 */
 	PVAggregator();
 
-private:
-	/*! \brief Copy constructor of an aggregator.
-	 * It is a private constructor as PVAggregator must be used as shared objects.
-	 */
-	PVAggregator(const PVAggregator& org);
+	PVAggregator(const PVAggregator& org) = delete;
+	PVAggregator(PVAggregator&& org) = delete;
 
 public:
 

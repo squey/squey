@@ -90,8 +90,11 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer 
 
 	size_t opts = ((REGULAR_EXPRESSION * is_rx) | (EXACT_MATCH * exact_match) | (CASE_INSENSITIVE * (not case_match)));
 
-	QString const& txt = _args[ARG_NAME_EXPS].value<PVCore::PVPlainTextType>().get_text();
-	QStringList exps = txt.split("\n");
+	const QString& txt = _args[ARG_NAME_EXPS].value<PVCore::PVPlainTextType>().get_text();
+
+	// Remove last carriage return if present otherwise we would search for empty strings as well
+	QStringList exps = (txt.right(1) == "\n" ? txt.left(txt.size()-1) : txt).split("\n");
+
 	std::vector<std::string> exps_utf8;
 	exps_utf8.resize(exps.size());
 
@@ -192,40 +195,12 @@ PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_value_menu(PV
 {
 	PVCore::PVArgumentList args = default_args();
 
-	PVCore::PVEnumType e;
-
-	if (v.isEmpty()) {
-		args[ARG_NAME_EXPS].setValue(PVCore::PVPlainTextType("^$"));
-		e = args[ARG_NAME_INTERPRET].value<PVCore::PVEnumType>();
-		e.set_sel(1);
-		args[ARG_NAME_INTERPRET].setValue(e);
-	} else {
-		QStringList sv = v.split('\n');
-		if (sv.size() > 1) {
-			QStringList sl;
-			bool has_empty = false;
-			for(const auto& s : sv) {
-				if (s.isEmpty()) {
-					sl += "^$";
-					has_empty = true;
-				} else {
-					sl += s;
-				}
-			}
-			args[ARG_NAME_EXPS].setValue(PVCore::PVPlainTextType(sl.join("\n")));
-			e = args[ARG_NAME_INTERPRET].value<PVCore::PVEnumType>();
-			e.set_sel(has_empty?1:0);
-			args[ARG_NAME_INTERPRET].setValue(e);
-		} else {
-			args[ARG_NAME_EXPS].setValue(PVCore::PVPlainTextType(v));
-			e = args[ARG_NAME_INTERPRET].value<PVCore::PVEnumType>();
-			e.set_sel(0);
-			args[ARG_NAME_INTERPRET].setValue(e);
-		}
-	}
+	// Show a carriage return just to be more explicit about the fact we are searching for empty lines
+	args[ARG_NAME_EXPS].setValue(PVCore::PVPlainTextType(v.isEmpty() ? "\n" : v));
 
 	args[ARG_NAME_AXIS].setValue(PVCore::PVOriginalAxisIndexType(org_col));
 
+	PVCore::PVEnumType e;
 	e = args[ARG_NAME_CASE].value<PVCore::PVEnumType>();
 	e.set_sel(1);
 	args[ARG_NAME_CASE].setValue(e);

@@ -209,7 +209,7 @@ do
     fi
 
     case "$FILE" in
-	cmake/FindAPR.cmake | cmake/FindBoost.cmake | cmake/FindDUMBNET.cmake | cmake/FindHWLoc.cmake | cmake/FindICU.cmake | cmake/FindPCAP.cmake | cmake/FindPCRE.cmake | cmake/FindPkgMacros.cmake | cmake/FindTBB.cmake | *.js)
+	cmake/FindAPR.cmake | cmake/FindBoost.cmake | cmake/FindDUMBNET.cmake | cmake/FindHWLoc.cmake | cmake/FindICU.cmake | cmake/FindPCRE.cmake | cmake/FindPkgMacros.cmake | cmake/FindTBB.cmake | *.js)
 	    # files not owned by us
 	    ;;
 

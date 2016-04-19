@@ -86,11 +86,10 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 		PVCore::PVElement* elt = chunk->add_element();
 		elt->fields().clear();
 		for (int i = 0; i < rec.count(); i++) {
-			QString value = rec.value(i).toString();
+			std::string value = rec.value(i).toString().toStdString();
 			PVCore::PVField f(*elt);
-			size_t size_buf = value.size() * sizeof(QChar);
-			f.allocate_new(size_buf);
-			memcpy(f.begin(), value.constData(), size_buf);
+			f.allocate_new(value.size());
+			memcpy(f.begin(), value.c_str(), value.size());
 			elt->fields().push_back(f);
 		}
 	}

@@ -42,7 +42,6 @@ QWidget* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_param_widget()
 	//get args
 	PVCore::PVArgumentList args =  get_filter()->get_args();
 
-	_n             = args[PVFieldSplitterDnsFqdn::N].toInt();
 	bool tld1      = args[PVFieldSplitterDnsFqdn::TLD1].toBool();
 	bool tld2      = args[PVFieldSplitterDnsFqdn::TLD2].toBool();
 	bool tld3      = args[PVFieldSplitterDnsFqdn::TLD3].toBool();
@@ -53,7 +52,7 @@ QWidget* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_param_widget()
 	bool subd2_rev = args[PVFieldSplitterDnsFqdn::SUBD2_REV].toBool();
 	bool subd3_rev = args[PVFieldSplitterDnsFqdn::SUBD3_REV].toBool();
 
-	set_child_count(_n);
+	set_child_count(tld1 + tld2 + tld3 + subd1 + subd2 + subd3);
 	emit nchilds_changed_Signal();
 
 	_param_widget = new QWidget();
@@ -120,12 +119,12 @@ void PVFilter::PVFieldSplitterDnsFqdnParamWidget::split_cb_changed(int)
 {
 	PVCore::PVArgumentList args = get_filter()->get_args();
 
-	_n = 0;
+	size_t n = 0;
 
 	for(int i = 0; i < 6; ++i) {
 		bool s = _split_cb[i]->isChecked();
 		if (s) {
-			++_n;
+			++n;
 		}
 		if (i >= 3) {
 			// need to enable/disable subdomains rev cb
@@ -137,7 +136,7 @@ void PVFilter::PVFieldSplitterDnsFqdnParamWidget::split_cb_changed(int)
 
 	get_filter()->set_args(args);
 
-	set_child_count(_n);
+	set_child_count(n);
 
 	emit nchilds_changed_Signal();
 	emit args_changed_Signal();
@@ -164,8 +163,6 @@ void PVFilter::PVFieldSplitterDnsFqdnParamWidget::rev_cb_changed(int)
 
 void PVFilter::PVFieldSplitterDnsFqdnParamWidget::update_args(PVCore::PVArgumentList& args)
 {
-	args[PVFieldSplitterDnsFqdn::N] = _n;
-
 	args[PVFieldSplitterDnsFqdn::TLD1] = _split_cb[0]->isChecked();
 	args[PVFieldSplitterDnsFqdn::TLD2] = _split_cb[1]->isChecked();
 	args[PVFieldSplitterDnsFqdn::TLD3] = _split_cb[2]->isChecked();

@@ -34,9 +34,8 @@ void PVRush::PVInputFile::release()
 
 size_t PVRush::PVInputFile::operator()(char* buffer, size_t n)
 {
-	size_t ret;
 	_file.read(buffer, n);
-	ret = _file.gcount();
+	size_t ret = _file.gcount();
 	return ret;
 }
 

@@ -7,6 +7,7 @@
 #include "common.h"
 
 #include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/rush/PVUtils.h>
 
 #include <fstream>
 #include <string>
@@ -31,19 +32,14 @@ int main()
     // Check result
     PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
 
-	std::string out_path = pvtest::get_tmp_filename();
-	// Dump the NRAW to file and check value is the same
+    std::string out_path = pvtest::get_tmp_filename();
+    // Dump the NRAW to file and check value is the same
     nraw.dump_csv(out_path);
 
-	std::ifstream ifs_res(out_path);
-	std::string content_res{std::istreambuf_iterator<char>(ifs_res), std::istreambuf_iterator<char>()};
+    std::cout << out_path << " - " << ref_out << std::endl;
+    PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(out_path, ref_out));
 
-	std::ifstream ifs_ref(ref_out);
-	std::string content_ref{std::istreambuf_iterator<char>(ifs_ref), std::istreambuf_iterator<char>()};
-
-	PV_VALID(content_ref, content_res);
-
-	std::remove(out_path.c_str());
+    std::remove(out_path.c_str());
 
     return 0;
 }

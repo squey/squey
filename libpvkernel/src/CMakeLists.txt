@@ -44,7 +44,6 @@ core/PVHSVColor.cpp
 core/PVPredefinedHSVColors.cpp
 core/PVLogger.cpp
 core/PVMatrix.cpp
-core/PVPCRESplitter.cpp
 core/PVProgressBox.cpp
 core/PVPluginPresets.cpp
 core/PVSelBitField.cpp
@@ -53,9 +52,6 @@ core/PVSerializeArchiveFixError.cpp
 core/PVSerializeArchiveOptions.cpp
 core/PVSerializeArchiveZip.cpp
 core/PVSerializeObject.cpp
-core/PVSplitter.cpp
-core/PVUnicodeString.cpp
-core/PVUnicodeString16.cpp
 core/PVUtils.cpp
 core/PVVersion.cpp
 core/PVAllocators.cpp
@@ -102,9 +98,7 @@ filter/PVElementFilterByFields.cpp
 filter/PVFieldFilterGrep.cpp
 filter/PVFieldsFilter.cpp
 filter/PVFieldsMappingFilter.cpp
-filter/PVFieldSplitterChar.cpp
 filter/PVFieldSplitterChunkMatch.cpp
-filter/PVFieldSplitterUTF16Char.cpp
 filter/PVFieldsFilterParamWidget.cpp
 filter/PVPluginsLoad.cpp
 )
@@ -124,18 +118,10 @@ rush/PVNraw.cpp
 rush/PVNrawOutput.cpp
 rush/PVNormalizer.cpp
 rush/PVXmlParamParser.cpp
-rush/PVChunkAlign.cpp
-rush/PVChunkAlignUTF16Char.cpp
-rush/PVChunkAlignUTF16Newline.cpp
-rush/PVChunkAlignBoundary.cpp
 rush/PVFormatVersion.cpp
 rush/PVInput.cpp
 rush/PVInputFile.cpp
-rush/PVInputPcap.cpp
-rush/PVOutputFile.cpp
 rush/PVCharsetDetect.cpp
-rush/PVChunkTransform.cpp
-rush/PVChunkTransformUTF16.cpp
 rush/PVAggregator.cpp
 rush/PVPipelineTask.cpp
 rush/PVControllerJob.cpp
@@ -286,9 +272,8 @@ endif(${QT_WEBKIT})
 
 set(PVKERNEL_LINK_LIBRARIES ${QT5_LIBS} ${ICU_LIBRARY} ${TBB_LIBRARIES}
 	${OpenMP_LIBRARIES} ${PYTHON_LIBRARY} ${Boost_LIBRARIES_PYTHON} ${Boost_LIBRARIES}
-	${ARCHIVE_LIBRARIES} ${BREAKPAD_LIBRARIES} ${PCAP_LIBRARIES} ${WINSOCK_LIB}
-	${HWLOC_LIBRARIES} ${NUMA_LIBRARIES}
-	${PVCOP_LIBRARIES})
+	${ARCHIVE_LIBRARIES} ${BREAKPAD_LIBRARIES} ${WINSOCK_LIB} ${HWLOC_LIBRARIES}
+	${NUMA_LIBRARIES} ${PVCOP_LIBRARIES})
 
 if(CUDA_FOUND)
 	set(PVKERNEL_LINK_LIBRARIES ${PVKERNEL_LINK_LIBRARIES} ${CUDA_LIBRARIES})

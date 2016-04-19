@@ -2,6 +2,7 @@
 #define LIBPVKERNEL_RUSH_TESTS_COMMON_H
 
 #include "test-env.h"
+#include "helpers.h"
 
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVInputDescription.h>
@@ -14,6 +15,9 @@
 #include <pvkernel/rush/PVUnicodeSource.h>
 
 #include <QCoreApplication>
+
+#include <functional>
+#include <omp.h>
 
 namespace pvtest {
 
@@ -41,9 +45,12 @@ namespace pvtest {
      * * Prepare QCoreApplication
      * * Load plugins
      * * Init cpu features
-     * * Duplicate log file
+     *
+     * @note : we use constructor attribute to make sure every test which include this
+     * file have correctly initialized environment.
      */
-    std::string init_ctxt(std::string const& log_file, size_t dup)
+    __attribute__((constructor))
+    void init_ctxt()
     {
             // Need this core application to find plugins path.
             std::string prog_name = "test_pvkernel_rush";
@@ -59,7 +66,13 @@ namespace pvtest {
 
             // Initialize sse4 detection
             PVCore::PVIntrinsics::init_cpuid();
+    }
 
+    /**
+     * Duplicate input log dup times and return the new file with these data.
+     */
+    std::string duplicate_log_file(std::string const& log_file, size_t dup)
+    {
             std::ifstream ifs(log_file);
             std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
 
@@ -81,13 +94,57 @@ namespace pvtest {
     {
         public:
         TestSplitter(std::string const& log_file, size_t dup = 1):
-                _big_file_path(init_ctxt(log_file, dup)),
+                _big_file_path(duplicate_log_file(log_file, dup)),
                 _source(std::make_shared<PVRush::PVInputFile>(_big_file_path.c_str()), chunk_size)
         {}
 
-        PVRush::PVUnicodeSource<>& get_source() { return _source; }
-
         ~TestSplitter() { std::remove(_big_file_path.c_str()); }
+
+        std::tuple<size_t, size_t, std::string> run_normalization(std::function<PVCore::PVChunk*(PVCore::PVChunk*)> const& flt_f)
+        {
+            std::string output_file = get_tmp_filename();
+            // Extract source and split fields.
+            std::ofstream ofs(output_file);
+
+            size_t nelts_org = 0;
+            size_t nelts_valid = 0;
+            double duration = 0.;
+
+            std::vector<PVCore::PVChunk*> _chunks;
+            while (PVCore::PVChunk* pc = _source()) {
+                _chunks.push_back(pc);
+            }
+
+            // TODO : Parallelism slow down splitting. It looks like it is a locally issue on
+            // function splitter object with bad managed memory.
+#pragma omp parallel reduction(+:nelts_org, nelts_valid, duration)
+            {
+                std::ostringstream oss;
+#pragma omp for nowait
+                for(auto it=_chunks.begin(); it<_chunks.end(); ++it) {
+                    PVCore::PVChunk* pc = *it;
+                    auto start = std::chrono::steady_clock::now();
+                    flt_f(pc);
+                    std::chrono::duration<double> dur(std::chrono::steady_clock::now() - start);
+                    duration += dur.count();
+                    size_t no = 0;
+                    size_t nv = 0;
+                    pc->get_elts_stat(no, nv);
+                    nelts_org += no;
+                    nelts_valid += nv;
+                    dump_chunk_csv(*pc, oss);
+                    pc->free();
+                }
+
+#pragma omp for ordered
+                for(int i=0; i<omp_get_num_threads(); i++) {
+                    #pragma omp ordered
+                    ofs << oss.str();
+                }
+            }
+            std::cout << duration;
+            return std::make_tuple(nelts_org, nelts_valid, output_file);
+        }
 
         private:
             static constexpr size_t chunk_size = 6000;
@@ -112,7 +169,7 @@ namespace pvtest {
          */
         TestEnv(std::string const& log_file, std::string const& format_file, size_t dup = 1):
                 _format("format", QString::fromStdString(format_file)),
-                _big_file_path(init_ctxt(log_file, dup))
+                _big_file_path(duplicate_log_file(log_file, dup))
         {
             //Input file
             QString path_file = QString::fromStdString(_big_file_path);
@@ -153,6 +210,11 @@ namespace pvtest {
         {
             std::remove(_big_file_path.c_str());
         }
+
+        /**
+         * Get number of row in the imported NRaw.
+         */
+        size_t get_nraw_size() const { return _ext.get_nraw().get_row_count(); }
 
         PVRush::PVExtractor _ext;
 

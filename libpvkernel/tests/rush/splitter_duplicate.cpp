@@ -1,38 +1,36 @@
 /**
  * @file
  *
- * @copyright (C) Picviz Labs 2011-March 2015
+ * @copyright (C) Picviz Labs 2010-March 2015
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
+
+#include <chrono>
 
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
-#include <pvkernel/filter/PVPluginsLoad.h>
-#include <pvkernel/rush/PVInputFile.h>
-#include <pvkernel/rush/PVUnicodeSource.h>
-#include <cstdlib>
-#include <iostream>
+#include <pvkernel/rush/PVUtils.h>
+#include <pvkernel/core/inendi_assert.h>
+
 #include "helpers.h"
-#include "test-env.h"
+#include "common.h"
 
-using std::cout;
-using std::cerr;
-using std::endl;
+#ifdef INSPECTOR_BENCH
+constexpr static size_t nb_dup = 10000;
+#else
+constexpr static size_t nb_dup = 1;
+#endif
 
-using namespace PVRush;
-using namespace PVCore;
+static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/splitters/duplicate/lines.txt";
+static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/duplicate/lines.txt.out";
 
-int main(int argc, char** argv)
+
+int main()
 {
-	if (argc <= 2) {
-		cerr << "Usage: " << argv[0] << " file chunk_size [separator]" << endl;
-		return 1;
-	}
+	pvtest::TestSplitter ts(log_file, nb_dup);
 
-	init_env();
-
-	PVFilter::PVPluginsLoad::load_all_plugins();
+	// Prepare splitter plugin
 	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("duplicate");
 
 	PVCore::PVArgumentList args = sp_lib_p->get_args();
@@ -41,9 +39,20 @@ int main(int argc, char** argv)
 
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
+	PVFilter::PVChunkFilter_f flt_f = chk_flt->f();
 
-	PVInput_p ifile(new PVInputFile(argv[1]));
-	PVUnicodeSource<> source(ifile, atoi(argv[2]));
+	auto res = ts.run_normalization(flt_f);
 
-	return !process_filter(source, chk_flt->f());
+	std::string output_file = std::get<2>(res);
+	size_t nelts_org = std::get<0>(res);
+	size_t nelts_valid = std::get<1>(res);
+
+	PV_VALID(nelts_valid, nelts_org);
+
+#ifndef INSPECTOR_BENCH
+	// Check output is the same as the reference
+	std::cout << std::endl << output_file << " - " << ref_file << std::endl;
+	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));
+#endif
+	return 0;
 }

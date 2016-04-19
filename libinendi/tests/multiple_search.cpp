@@ -23,7 +23,7 @@ constexpr size_t DUPL = 1;
 
 constexpr char FORMAT[] = TEST_FOLDER "/picviz/multiple_search.csv.format";
 constexpr PVCol COLUMN_INDEX = 1;
-static constexpr size_t row_count = 5150 * DUPL;
+static constexpr size_t row_count = 5160 * DUPL;
 
 using options_t = std::pair<std::array<uint8_t, 4>, std::string>;
 using testcase_t = std::pair<options_t, size_t>;
@@ -56,8 +56,13 @@ void run_tests(
 		{{{0, 0, 1, 1}, ".*w\\D{2}.*"}, 700},              // EXACT_MATCH + REGULAR_EXPRESSION + CASE_INSENSITIVE
 		{{{0, 1, 0, 1}, "\\d{2}\\:\\d{2}\\:00"}, 200},     // REGULAR_EXPRESSION
 		{{{0, 0, 0, 1}, "j\\D{2}"}, 950},                  // REGULAR_EXPRESSION + CASE_INSENSITIVE
-		{{{1, 0, 0, 0}, "jan"}, 4700},                     // CASE_INSENSITIVE
+		{{{1, 0, 0, 0}, "jan"}, 4710},                     // CASE_INSENSITIVE
 		{{{0, 1, 0, 0}, "Oct\nDec"}, 750},                 // NONE
+
+		// test blank rows
+		{{{0, 1, 1, 0}, ""}, 10},
+		{{{0, 1, 1, 0}, "Tue Jan 06 01:23:28 2004\n"}, 50},
+		{{{0, 1, 1, 0}, "Tue Jan 06 01:23:28 2004\n\n"}, 60},
 	};
 
 	for (const testcase_t& test : tests) {

@@ -10,13 +10,8 @@
 
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
-#include <pvkernel/filter/PVFieldSplitterUTF16Char.h>
 
 #include <pvkernel/rush/PVInputFile.h>
-#include <pvkernel/rush/PVInputPcap.h>
-#include <pvkernel/rush/PVChunkAlignUTF16Char.h>
-#include <pvkernel/rush/PVChunkTransformUTF16.h>
-#include <pvkernel/rush/PVRawSource.h>
 #include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>

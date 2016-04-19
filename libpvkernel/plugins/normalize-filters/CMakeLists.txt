@@ -56,7 +56,6 @@ converter_substitution/PVFieldConverterSubstitutionParamWidget.h
 SET(SUBSTITUTION_SRCS
 converter_substitution/PVFieldConverterSubstitution.cpp
 converter_substitution/PVFieldConverterSubstitutionParamWidget.cpp
-converter_substitution/libcsv.cpp
 converter_substitution/register.cpp
 )
 
@@ -82,7 +81,6 @@ splitter_csv/PVFieldSplitterCSVParamWidget.h
 set(CSV_SRC
 splitter_csv/PVFieldSplitterCSV.cpp
 splitter_csv/PVFieldSplitterCSVParamWidget.cpp
-splitter_csv/libcsv.cpp
 splitter_csv/register.cpp
 	)
 
@@ -131,39 +129,6 @@ splitter_url/register.cpp
 add_library(normalize_filter_splitter_url SHARED ${URL_SRC})
 target_link_libraries(normalize_filter_splitter_url pvkernel ${FURL_STATIC_LIB})
 declare_library(normalize_filter_splitter_url)
-
-###############################################################################
-# PCAP Splitter
-###############################################################################
-
-# Define ressources
-SET(PCAP_SRC
-splitter_pcap/PVFieldSplitterPcapPacket.cpp
-splitter_pcap/register.cpp
-)
-
-include_directories(AFTER ${PCAP_INCLUDE_DIRS})
-
-# Create lib
-add_library(normalize_filter_splitter_pcap SHARED ${PCAP_SRC})
-target_link_libraries(normalize_filter_splitter_pcap pvkernel ${PCAP_LIBRARIES} ${WINSOCK_LIB})
-declare_library(normalize_filter_splitter_pcap)
-
-###############################################################################
-# IRONPORT Splitter
-###############################################################################
-
-# Define ressources
-set(IRONPORT_SRC
-splitter_ironport_mail/PVFieldSplitterIronPortMail.cpp
-splitter_ironport_mail/PVFieldSplitterIronPortMailParamWidget.cpp
-splitter_ironport_mail/register.cpp
-)
-
-# Create lib
-add_library(normalize_filter_splitter_ironport_mail SHARED ${IRONPORT_SRC})
-target_link_libraries(normalize_filter_splitter_ironport_mail pvkernel)
-declare_library(normalize_filter_splitter_ironport_mail)
 
 ###############################################################################
 # key_value Splitter

@@ -13,11 +13,6 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVColumnIndexes.h>
 
-extern "C" {
-#include <unicode/ucsdet.h>
-#include <unicode/ucnv.h>
-}
-
 #include <pvcop/collection.h>
 #include <pvcop/collector.h>
 
@@ -51,16 +46,16 @@ public:
 	static const std::string default_sep_char;
 	static const std::string default_quote_char;
 
-private:
+public:
+	PVNraw();
+
 	/**
-	 * Disable copy constructors.
+	 * Disable copy/move constructors.
 	 */
 	PVNraw& operator=(const PVNraw&) = delete;
 	PVNraw(const PVNraw&) = delete;
-
-public:
-	PVNraw();
-	~PVNraw();
+	PVNraw& operator=(PVNraw&&) = delete;
+	PVNraw(PVNraw&&) = delete;
 
 	/**
 	 * Access layout of the NRaw.
@@ -164,7 +159,6 @@ private:
 	/// Variable usefull for loading
 	PVRow _real_nrows; //!< Current number of line in the NRaw.
 	PVRow _max_nrows;  //!< Maximum number of lines required.
-	UConverter* _ucnv; //!< Converter from UTF16 to UTF8
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
 
 	/// Variable usefull for both

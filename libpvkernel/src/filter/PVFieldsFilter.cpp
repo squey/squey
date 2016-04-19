@@ -37,7 +37,10 @@ PVCore::list_fields& PVFieldsFilter<one_to_many>::operator()(PVCore::list_fields
 	while (it != ite) {
 		it_cur = it;
 		it++;
-		if (this->one_to_many(fields, it_cur, *it_cur) == 0) {
+		size_t field_count = this->one_to_many(fields, it_cur, *it_cur);
+		// FIXME : _fields_expected is amnost not use. It should always be set for better invalid element detection.
+		if ((_fields_expected != 0 and field_count != _fields_expected) or field_count == 0) {
+			it_cur->set_invalid();
 			(*it_cur).elt_parent()->set_invalid();
 			fields.erase(it_cur);
 			break;

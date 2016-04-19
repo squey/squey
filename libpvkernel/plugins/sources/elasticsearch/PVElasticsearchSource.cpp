@@ -74,11 +74,9 @@ PVCore::PVChunk* PVRush::PVElasticsearchSource::operator()()
 			PVCore::PVElement* elt = chunk->add_element();
 			elt->fields().clear();
 
-			QString value(QString::fromUtf8(row.c_str(), row.size()));
 			PVCore::PVField f(*elt);
-			size_t size_buf = value.size() * sizeof(QChar);
-			f.allocate_new(size_buf);
-			memcpy(f.begin(), value.constData(), size_buf);
+			f.allocate_new(row.size());
+			memcpy(f.begin(), row.c_str(), row.size());
 			elt->fields().push_back(f);
 		}
 	}

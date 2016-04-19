@@ -26,7 +26,6 @@
 #include <pvkernel/filter/PVChunkFilterByEltRestoreInvalid.h>
 #include <pvkernel/filter/PVChunkFilterByEltSaveInvalid.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
-#include <pvkernel/filter/PVFieldSplitterUTF16Char.h>
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
 
 #include <pvcop/types/impl/formatter_factory.h>

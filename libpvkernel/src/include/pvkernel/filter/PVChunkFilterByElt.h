@@ -29,14 +29,8 @@ public:
 	 */
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 
-	/**
-	 * Get indexes for invalid elements.
-	 */
-	std::vector<size_t> const& get_invalid_index() const { return _invalid_index; }
-
 protected:
 	mutable PVElementFilter_f _elt_filter; // filter to apply for splitting.
-	std::vector<size_t> _invalid_index; // Index when splitting can't be done.
 
 	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterByElt)
 };

@@ -11,21 +11,18 @@
 
 #include "PVFieldSplitterURL.h"
 #include <pvkernel/core/PVBufferSlice.h>
-#include <pvkernel/core/PVUnicodeString16.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVAxisTagsDec.h>
 
 #include <furl/decode.h>
 
-#include <QUrl>
-
-static const uint16_t empty_str = 0;
-static const PVCore::PVUnicodeString16 g_str_http((const PVCore::PVUnicodeString16::utf_char*) "h\0t\0t\0p\0", 4);
-static const PVCore::PVUnicodeString16 g_str_https((const PVCore::PVUnicodeString16::utf_char*)"h\0t\0t\0p\0s\0", 5);
-static const PVCore::PVUnicodeString16 g_str_ftp((const PVCore::PVUnicodeString16::utf_char*)"f\0t\0p\0", 3);
-static const PVCore::PVUnicodeString16::utf_char g_port_80[] = {'8', '0'};
-static const PVCore::PVUnicodeString16::utf_char g_port_443[] = {'4','4','3'};
-static const PVCore::PVUnicodeString16::utf_char g_port_21[] = {'2', '1'};
+static char empty_str = 0;
+static constexpr const char* str_http = "http";
+static constexpr const char* str_https = "https";
+static constexpr const char* str_ftp = "ftp";
+static constexpr const char* str_port_80 = "80";
+static constexpr const char* str_port_443 = "443";
+static constexpr const char* str_port_21 = "21";
 
 #define URL_NUMBER_FIELDS_CREATED 10
 
@@ -74,7 +71,7 @@ void PVFilter::PVFieldSplitterURL::set_children_axes_tag(filter_child_axes_tag_t
 	}
 }
 
-static bool set_field(int pos, PVCore::PVField** fields, const uint16_t* str, furl_feature_t ff)
+static bool set_field(int pos, PVCore::PVField** fields, char* str, furl_feature_t ff)
 {
 	if (pos == -1) {
 		return false;
@@ -82,16 +79,60 @@ static bool set_field(int pos, PVCore::PVField** fields, const uint16_t* str, fu
 
 	PVCore::PVField* new_f = fields[pos];
 	if (furl_features_exist(ff)) {
-		const uint16_t* field_str = str + ff.pos;
-		new_f->set_begin((char*) field_str);
-		new_f->set_end((char*) (field_str + ff.size));
-		new_f->set_physical_end((char*) (field_str + ff.size));
-		//assert(new_f->end() <= new_f->elt_parent()->end());
+		char* field_str = str + ff.pos;
+		new_f->set_begin(field_str);
+		new_f->set_end(field_str + ff.size);
+		new_f->set_physical_end(field_str + ff.size);
 	}
 	else {
-		new_f->set_begin((char*) &empty_str);
-		new_f->set_end((char*) (&empty_str));
-		new_f->set_physical_end((char*) (&empty_str));
+		new_f->set_begin(&empty_str);
+		new_f->set_end(&empty_str);
+		new_f->set_physical_end(&empty_str);
+	}
+
+	return true;
+}
+
+/**
+ * Add port from url if available or try to guess it from protocol.
+ */
+static bool add_port(int pos, PVCore::PVField** fields, char* str, furl_feature_t ff, furl_feature_t ff_proto)
+{
+	if (pos == -1) {
+		return false;
+	}
+
+	PVCore::PVField* new_f = fields[pos];
+	if (furl_features_exist(ff)) {
+		char* field_str = str + ff.pos;
+		new_f->set_begin(field_str);
+		new_f->set_end(field_str + ff.size);
+		new_f->set_physical_end(field_str + ff.size);
+	}
+	else {
+		// Guess default port from protocol
+		std::string proto(str + ff_proto.pos, ff_proto.size);
+		const char* str_port;
+		size_t size_port;
+		if (proto == str_http) {
+			str_port = str_port_80;
+			size_port = 2;
+		} else if (proto == str_https) {
+			str_port = str_port_443;
+			size_port = 3;
+		} else if (proto == str_ftp) {
+			str_port = str_port_21;
+			size_port = 2;
+		} else {
+			new_f->set_begin(&empty_str);
+			new_f->set_end(&empty_str);
+			new_f->set_physical_end(&empty_str);
+			return true;
+		}
+
+		new_f->set_begin((char*) str_port);
+		new_f->set_end((char*) (str_port + size_port));
+		new_f->set_physical_end((char*) (str_port + size_port));
 	}
 
 	return true;
@@ -106,8 +147,8 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 {
 	// furl handler
 	furl_handler_t* fh = &_furl_handler.local();
-	const uint16_t* str_url = (const uint16_t*) field.begin();
-	if (furl_decode(fh, str_url, field.size()/sizeof(uint16_t)) != 0) {
+	char* str_url = field.begin();
+	if (furl_decode(fh, str_url, field.size()) != 0) {
 		field.set_invalid();
 		return 0;
 	}
@@ -130,35 +171,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	ret += set_field(_col_variable, pf, str_url, fh->furl.features.query_string); 
 	ret += set_field(_col_fragment, pf, str_url, fh->furl.features.fragment); 
 	ret += set_field(_col_credentials, pf, str_url, fh->furl.features.credential); 
-	ret += set_field(_col_port, pf, str_url, fh->furl.features.port);
-	if (furl_features_exist(fh->furl.features.port) == 0) {
-		// Guess default port from protocol
-		PVCore::PVUnicodeString16 proto(str_url + fh->furl.features.scheme.pos, fh->furl.features.scheme.size);
-		const PVCore::PVUnicodeString16::utf_char* str_port; size_t size_port;
-		if (proto.compareNoCase(g_str_http) == 0) {
-			str_port = g_port_80;
-			size_port = 2;
-		}
-		else
-		if (proto.compareNoCase(g_str_https) == 0) {
-			str_port = g_port_443;
-			size_port = 3;
-		}
-		else
-		if (proto.compareNoCase(g_str_ftp) == 0) {
-			str_port = g_port_21;
-			size_port = 2;
-		}
-		else {
-			return ret;
-		}
-
-		PVCore::PVField* fport = pf[_col_port];
-		fport->set_begin((char*) str_port);
-		fport->set_end((char*) (str_port + size_port));
-		fport->set_physical_end((char*) (str_port + size_port));
-		ret++;
-	}
+	ret += add_port(_col_port, pf, str_url, fh->furl.features.port, fh->furl.features.scheme);
 
 	return ret;
 }

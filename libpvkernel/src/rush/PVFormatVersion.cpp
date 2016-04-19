@@ -122,11 +122,6 @@ bool PVRush::PVFormatVersion::_rec_0to1(QDomElement elt)
 		elt.setAttribute("type", "url");
 	}
 	else
-	if (tag_name == "pcap") {
-		elt.setTagName("splitter");
-		elt.setAttribute("type", "pcap");
-	}
-	else
 	if (tag_name == "csv") {
 		elt.setTagName("splitter");
 		elt.setAttribute("type", "csv");		

@@ -190,11 +190,6 @@ endif()
 ########################
 
 ###############################################################################
-# Check for PCAP library
-###############################################################################
-find_package(PCAP REQUIRED)
-
-###############################################################################
 # Check for Archive library
 ###############################################################################
 pkg_check_modules(ARCHIVE REQUIRED libarchive)
@@ -264,24 +259,12 @@ pkg_check_modules(HWLOC REQUIRED hwloc)
 # Check for Furl installation
 ###############################################################################
 
-set(FURL_STATIC_LIB /usr/local/lib/libfurll.a)
+set(FURL_STATIC_LIB /usr/local/lib/libfurll-utf8.a)
 if(EXISTS ${FURL_STATIC_LIB})
-  add_definitions(-DFURL_UTF16_CHAR)
+  add_definitions(-DFURL_UTF8_CHAR)
 else()
   message( FATAL_ERROR "FURL Can't be found" )
 endif ()
-
-###############################################################################
-# Check for Arcsight installation
-###############################################################################
-
-pkg_check_modules(GSOAPPP REQUIRED gsoap++)
-set(ARCSIGHT_STATIC_LIB /usr/local/lib/libarcsight.a)
-if(NOT EXISTS ${ARCSIGHT_STATIC_LIB})
-  message( FATAL_ERROR "Arcsight Can't be found" )
-endif ()
-
-set(ARCSIGHT_LIBRARIES ${ARCSIGHT_STATIC_LIB} ${GSOAPPP_LIBRARIES})
 
 ###############################################################################
 # Check for PVCOP installation

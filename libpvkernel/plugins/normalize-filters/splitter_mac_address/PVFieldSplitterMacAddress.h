@@ -2,7 +2,7 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2014-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #ifndef PVFILTER_PVFIELDMACADDRESS_H
@@ -14,25 +14,19 @@
 
 namespace PVFilter {
 
+/**
+ * Split mac address with device part and constructor part.
+ */
 class PVFieldSplitterMacAddress : public PVFieldsFilter<one_to_many>
 {
-public:
-	static const char* UPPERCASE;
 
 public:
-	PVFieldSplitterMacAddress(PVCore::PVArgumentList const& args = PVFieldSplitterMacAddress::default_args());
-
-public:
-	void set_args(PVCore::PVArgumentList const& args);
-
+	PVFieldSplitterMacAddress();
 	PVCore::list_fields::size_type one_to_many(PVCore::list_fields &l,
 	                                           PVCore::list_fields::iterator it_ins,
 	                                           PVCore::PVField &field);
 
-private:
-	bool _uppercased;
-
-	CLASS_FILTER(PVFilter::PVFieldSplitterMacAddress)
+	CLASS_FILTER_NOPARAM(PVFilter::PVFieldSplitterMacAddress)
 };
 
 }

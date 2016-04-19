@@ -11,8 +11,6 @@
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVUnicodeSource.h>
-#include <pvkernel/rush/PVChunkAlign.h>
-#include <pvkernel/rush/PVChunkTransform.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
