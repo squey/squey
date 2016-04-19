@@ -11,16 +11,6 @@
 
 /******************************************************************************
  *
- * PVParallelView::PVZonesProcessor::declare_processor_direct
- *
- *****************************************************************************/
-PVParallelView::PVZonesProcessor PVParallelView::PVZonesProcessor::declare_processor_direct(PVRenderingPipeline& pipeline, PVCore::PVHSVColor const* colors)
-{
-	return pipeline.declare_processor(colors);
-}
-
-/******************************************************************************
- *
  * PVParallelView::PVZonesProcessor::declare_processor_zm_sel
  *
  *****************************************************************************/
