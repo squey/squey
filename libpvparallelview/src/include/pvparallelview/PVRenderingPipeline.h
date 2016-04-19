@@ -122,7 +122,8 @@ private:
 	inline tbb::flow::graph const& tbb_graph() const { return _g; }
 
 private:
-	std::vector<Preprocessor*> _preprocessors;
+	// FIXME : Unique ptr is use as move constructor is disabled
+	std::vector<std::unique_ptr<Preprocessor>> _preprocessors;
 	std::vector<DirectInput*> _direct_inputs;
 	PVBCIBuffers<BCI_BUFFERS_COUNT> _bci_buffers;
 

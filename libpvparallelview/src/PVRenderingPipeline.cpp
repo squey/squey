@@ -161,9 +161,6 @@ PVParallelView::PVRenderingPipeline::~PVRenderingPipeline()
 	cancel_all();
 	wait_for_all();
 
-	for (Preprocessor* p: _preprocessors) {
-		delete p;
-	}
 	for (DirectInput* di: _direct_inputs) {
 		delete di;
 	}
@@ -191,10 +188,8 @@ void PVParallelView::PVRenderingPipeline::wait_for_all()
 
 PVParallelView::PVZonesProcessor PVParallelView::PVRenderingPipeline::declare_processor(preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones)
 {
-	//Preprocessor* pp = new Preprocessor(tbb_graph(), _node_buffer, *_node_finish, f, colors, nzones);
-	Preprocessor* pp = new Preprocessor(tbb_graph(), *_workflow_router, *_node_finish, f, colors, nzones);
-	_preprocessors.push_back(pp);
-	return PVZonesProcessor(pp->input_port(), &pp->router);
+	_preprocessors.emplace_back(new Preprocessor(tbb_graph(), *_workflow_router, *_node_finish, f, colors, nzones));
+	return PVZonesProcessor(_preprocessors.back()->input_port(), &_preprocessors.back()->router);
 }
 
 PVParallelView::PVZonesProcessor PVParallelView::PVRenderingPipeline::declare_processor(PVCore::PVHSVColor const* colors)
