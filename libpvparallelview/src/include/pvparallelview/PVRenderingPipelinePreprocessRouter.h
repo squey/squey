@@ -25,11 +25,6 @@ class PVRenderingPipelinePreprocessRouter
 {
 	public:
 	enum {
-		InputIdxDirect = 0,
-		InputIdxPostProcess = 1,
-	};
-
-	enum {
 		OutIdxPreprocess = 0,
 		OutIdxContinue = 1,
 		OutIdxCancel = 2,
@@ -39,19 +34,12 @@ class PVRenderingPipelinePreprocessRouter
 	enum class ZoneState { NotStarted, Preprocessed };
 
 	/**
-	 * Processing state and waiter for a given Zone.
+	 * Processing state for a given Zone.
 	 */
-	struct ZoneInfos
-	{
-		ZoneInfos() : state(ZoneState::NotStarted)
-		{}
-
-		tbb::atomic<ZoneState> state;
-		std::list<PVZoneRendering_p> waiters;
-	};
+	using ZoneInfos = tbb::atomic<ZoneState>;
 
 	/**
-	 * Data for every area.
+	 * Data for every zone.
 	 *
 	 * * Processing state and colors.
 	 */
@@ -79,7 +67,7 @@ public:
 
 public:
 	PVRenderingPipelinePreprocessRouter(size_t nzones, PVCore::PVHSVColor const* colors):
-		_d(new RouterData{std::vector<ZoneInfos>{nzones}, colors})
+		_d(new RouterData{std::vector<ZoneInfos>{nzones, ZoneState::NotStarted}, colors})
 	{}
 
 public:
@@ -89,10 +77,10 @@ public:
 		assert(zone_id != PVZONEID_INVALID);
 
 		ZoneInfos& infos = _d->_zones_infos[zone_id];
-		switch (infos.state) {
+		switch (infos) {
 			case ZoneState::NotStarted:
 				if (!zr_in->should_cancel()) {
-					infos.state = ZoneState::Preprocessed;
+					infos = ZoneState::Preprocessed;
 					std::get<OutIdxPreprocess>(op).try_put(zr_in);
 				}
 				else {
@@ -114,7 +102,7 @@ public:
 
 public:
 	inline void set_zones_count(size_t n) { _d->_zones_infos.resize(n); }
-	inline void set_zone_invalid(size_t i) { assert(i < _d->_zones_infos.size()); _d->_zones_infos[i].state = ZoneState::NotStarted; }
+	inline void set_zone_invalid(size_t i) { assert(i < _d->_zones_infos.size()); _d->_zones_infos[i] = ZoneState::NotStarted; }
 
 private:
 	// It is shared_ptr as it is copied by TBB in a multifunction_node while data can be modified
