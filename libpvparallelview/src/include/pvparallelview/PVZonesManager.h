@@ -40,7 +40,6 @@ class PVZonesManager: public QObject, boost::noncopyable
 
 	friend class PVParallelView::__impl::ZoneCreation;
 
-	typedef std::vector<PVZone> list_zones_t;
 	typedef tbb::enumerable_thread_specific<PVZoneTree::ProcessData> process_ztree_tls_t;
 
 public:
@@ -81,9 +80,6 @@ public:
 	void filter_zone_by_sel_background(PVZoneID zone_id, const Inendi::PVSelection& sel);
 
 public:
-	void set_uint_plotted(Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
-	void set_uint_plotted(Inendi::PVView const& view);
-	void lazy_init_from_view(Inendi::PVView const& view);
 	inline PVZoneID get_number_of_managed_zones() const { return _axes_comb.size()-1; }
 	inline PVCol get_number_cols() const { return _ncols; }
 	inline PVRow get_row_count() const { return _nrows; }
@@ -110,13 +106,12 @@ signals:
 	void filter_by_sel_finished(int zone_id, bool changed);
 
 protected:
-	Inendi::PVPlotted::uint_plotted_table_t const* _uint_plotted = NULL;
+	Inendi::PVPlotted::uint_plotted_table_t const* _uint_plotted = nullptr;
 	PVRow _nrows = 0;
 	PVCol _ncols = 0;
 	columns_indexes_t _axes_comb;
-	list_zones_t _zones;
+	std::vector<PVZone> _zones;
 	process_ztree_tls_t _tls_ztree;
-	//list_zones_tree_t _quad_trees;
 };
 
 
