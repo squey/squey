@@ -193,12 +193,10 @@ PVParallelView::PVZonesProcessor PVParallelView::PVRenderingPipeline::declare_pr
 PVParallelView::PVRenderingPipeline::Preprocessor::Preprocessor(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones):
 	router(nzones, colors),
 	node_process(g, 24, [=](PVZoneRendering_p zr) { f(zr->get_zone_id()); return zr; }),
-	node_or(g),
 	node_router(g, tbb::flow::serial, router)
 {
-	tbb::flow::make_edge(node_or, node_router);
 	tbb::flow::make_edge(tbb::flow::output_port<PVRenderingPipelinePreprocessRouter::OutIdxPreprocess>(node_router), node_process);
 	tbb::flow::make_edge(tbb::flow::output_port<PVRenderingPipelinePreprocessRouter::OutIdxContinue>(node_router), node_in_job);
 	tbb::flow::make_edge(tbb::flow::output_port<PVRenderingPipelinePreprocessRouter::OutIdxCancel>(node_router), node_cancel_job);
-	tbb::flow::make_edge(node_process, tbb::flow::input_port<PVRenderingPipelinePreprocessRouter::InputIdxPostProcess>(node_or));
+	tbb::flow::make_edge(node_process, node_router);
 }

@@ -64,18 +64,16 @@ class PVRenderingPipeline: boost::noncopyable
 	{
 		typedef std::function<void(PVZoneID)> preprocess_func_type;
 
-		typedef PVRenderingPipelinePreprocessRouter::process_or_type process_or_type;
 		typedef PVRenderingPipelinePreprocessRouter::multinode_router multinode_router;
 
 		typedef tbb::flow::receiver<PVZoneRendering_p> input_port_type;
 
 		Preprocessor(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones);
 
-		inline input_port_type& input_port() { return tbb::flow::input_port<PVRenderingPipelinePreprocessRouter::InputIdxDirect>(node_or); }
+		inline input_port_type& input_port() { return node_router; }
 
 		PVRenderingPipelinePreprocessRouter router;
 		tbb::flow::function_node<PVZoneRendering_p, PVZoneRendering_p> node_process;
-		process_or_type node_or;
 		multinode_router node_router;
 	};
 

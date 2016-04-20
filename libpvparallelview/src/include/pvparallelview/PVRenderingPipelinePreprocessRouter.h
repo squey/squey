@@ -36,7 +36,7 @@ class PVRenderingPipelinePreprocessRouter
 	};
 
 	private:
-	enum class ZoneState { NotStarted, Preprocessed, Processing };
+	enum class ZoneState { NotStarted, Preprocessed };
 
 	/**
 	 * Processing state and waiter for a given Zone.
@@ -75,8 +75,7 @@ public:
 		PVCore::PVHSVColor const* colors;
 	};
 
-	using process_or_type = tbb::flow::indexer_node< PVZoneRendering_p, PVZoneRendering_p>;
-	using multinode_router = tbb::flow::multifunction_node<process_or_type::output_type, std::tuple<PVZoneRendering_p, ZoneRenderingWithColors, PVZoneRendering_p> >;
+	using multinode_router = tbb::flow::multifunction_node<PVZoneRendering_p, std::tuple<PVZoneRendering_p, ZoneRenderingWithColors, PVZoneRendering_p> >;
 
 public:
 	PVRenderingPipelinePreprocessRouter(size_t nzones, PVCore::PVHSVColor const* colors):
@@ -84,11 +83,8 @@ public:
 	{}
 
 public:
-	void operator()(process_or_type::output_type in, multinode_router::output_ports_type& op)
+	void operator()(PVZoneRendering_p zr_in, multinode_router::output_ports_type& op)
 	{
-		bool has_been_processed = (in.tag() == InputIdxPostProcess);
-		PVZoneRendering_p zr_in = tbb::flow::cast_to<PVZoneRendering_p>(in);
-
 		const PVZoneID zone_id = zr_in->get_zone_id();
 		assert(zone_id != PVZONEID_INVALID);
 
@@ -96,44 +92,21 @@ public:
 		switch (infos.state) {
 			case ZoneState::NotStarted:
 				if (!zr_in->should_cancel()) {
-					infos.state = ZoneState::Processing;
+					infos.state = ZoneState::Preprocessed;
 					std::get<OutIdxPreprocess>(op).try_put(zr_in);
 				}
 				else {
 					std::get<OutIdxCancel>(op).try_put(zr_in);
 				}
 				break;
-			case ZoneState::Processing:
-				if (has_been_processed) {
-					infos.state = ZoneState::Preprocessed;
-				}
-				else {
-					if (!zr_in->should_cancel()) {
-						infos.waiters.push_back(zr_in);
-					}
-					else {
-						std::get<OutIdxCancel>(op).try_put(zr_in);
-					}
-					break;
-				}
 			case ZoneState::Preprocessed:
 			{
-				// Put everyone and waiters
 				if (!zr_in->should_cancel()) {
 					std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(zr_in, _d->_colors));
 				}
 				else {
 					std::get<OutIdxCancel>(op).try_put(zr_in);
 				}
-				for (PVZoneRendering_p const& zr_wait: infos.waiters) {
-					if (!zr_wait->should_cancel()) {
-						std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(zr_wait, _d->_colors));
-					}
-					else {
-						std::get<OutIdxCancel>(op).try_put(zr_wait);
-					}
-				}
-				infos.waiters.clear();
 				break;
 			}
 		}
