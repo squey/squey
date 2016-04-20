@@ -19,9 +19,6 @@
 
 #include <tbb/atomic.h>
 
-#define ROUTER_INPUT_IDX_DIRECT 0
-#define ROUTER_INPUT_IDX_POSTPROCESS 1
-
 namespace PVParallelView {
 
 class PVRenderingPipelinePreprocessRouter
@@ -97,11 +94,7 @@ public:
 		PVZoneRendering_p zr_in = tbb::flow::cast_to<PVZoneRendering_p>(in);
 
 		const PVZoneID zone_id = zr_in->get_zone_id();
-
-		if (zone_id == PVZONEID_INVALID) {
-			std::get<OutIdxCancel>(op).try_put(zr_in);
-			return;
-		}
+		assert(zone_id != PVZONEID_INVALID);
 
 		ZoneInfos& infos = _d->_zones_infos[zone_id];
 		switch (infos.state) {

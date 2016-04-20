@@ -110,6 +110,7 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 			tbb::flow::unlimited,
 			[](PVZoneRendering_p zr)
 			{
+				// FIXME : It does nothing
 				zr->finished(zr);
 			});
 
