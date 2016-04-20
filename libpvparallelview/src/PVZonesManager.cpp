@@ -95,44 +95,7 @@ void PVParallelView::PVZonesManager::update_all()
 		const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 		tbb::task_scheduler_init init(nthreads);
 		tbb::parallel_for(tbb::blocked_range<PVZoneID>(0, nzones, 8), zc);
-
-#ifdef EXPLICIT_ZZTS_PROCESSING
-		BENCH_START(zztree);
-#if 1
-		// Create Zoomed Zone Tree (serial)
-		for (PVZoneID z = 0; z < nzones; z++) {
-			get_zone_cols(z, zp.col_a(), zp.col_b());
-			PVZoneTree& ztree = _zones[z].ztree();
-			PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
-			zztree.process(zp, ztree);
-		}
-		BENCH_END(zztree, "ZZTREES PROCESS (SERIAL)", 1, 1, 1, 1);
-#else
-		// Create Zoomed Zone Tree (parallel)
-		tbb::parallel_for(tbb::blocked_range<size_t>(0, nzones, 1), [&](tbb::blocked_range<size_t> const& range) {
-			for (size_t z = range.begin(); z != range.end(); z++) {
-				get_zone_cols(z, zp.col_a(), zp.col_b());
-				PVZoneTree& ztree = _zones[z].ztree();
-				PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
-				zztree.process(zp, ztree);
-			}
-		});
-		BENCH_END(zztree, "ZZTREES PROCESS (PARALLEL)", 1, 1, 1, 1);
-#endif
-#endif // EXPLICIT_ZZTS_PROCESSING
-
 	}
-
-	/*
-	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
-	PVParallelView::PVZoneTree::ProcessTLS tls;
-	for (PVZoneID z = 0; z < nzones; z++) {
-		get_zone_cols(z, zp.col_a(), zp.col_b());
-		PVZoneTree& ztree = _zones[z].ztree();
-		ztree.process(zp, tls);
-		//PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
-		//zztree.process(zp, ztree);
-	}*/
 }
 
 /******************************************************************************
@@ -155,11 +118,7 @@ void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
 	ztree.process(zp, pdata);
 
 	PVZoomedZoneTree& zztree = _zones[zone_id].zoomed_ztree();
-#if EXPLICIT_ZZTS_PROCESSING
-	zztree.process(zp, ztree);
-#else
 	zztree.reset();
-#endif
 }
 
 /******************************************************************************
