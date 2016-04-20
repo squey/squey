@@ -13,101 +13,124 @@
 #endif
 
 #include <vector>
-#include <list>
 #include <tuple>
-#include <iostream>
 
 #include <tbb/atomic.h>
 
 namespace PVParallelView {
 
+/**
+ * This class is a functor to fill the pipeline applying preprocessing before if required.
+ *
+ * @note: It handles ZoneRending cancellation.
+ */
 class PVRenderingPipelinePreprocessRouter
 {
 	public:
-	enum {
-		OutIdxPreprocess = 0,
-		OutIdxContinue = 1,
-		OutIdxCancel = 2,
-	};
+		/**
+		 * Identifier for output of this function router.
+		 */
+		enum {
+			OutIdxPreprocess = 0,
+			OutIdxContinue = 1,
+			OutIdxCancel = 2,
+		};
 
-	private:
-	enum class ZoneState { NotStarted, Preprocessed };
+		/**
+		 * Gather all data required for processing from the pipeline.
+		 */
+		struct ZoneRenderingWithColors
+		{
+			// Used by TBB internally
+			ZoneRenderingWithColors() { }
 
-	/**
-	 * Processing state for a given Zone.
-	 */
-	using ZoneInfos = tbb::atomic<ZoneState>;
+			ZoneRenderingWithColors(PVZoneRendering_p zr_, PVCore::PVHSVColor const* colors_):
+				zr(zr_), colors(colors_)
+			{ }
 
-	/**
-	 * Data for every zone.
-	 *
-	 * * Processing state and colors.
-	 */
-	struct RouterData
-	{
-		std::vector<ZoneInfos> _zones_infos;
-		PVCore::PVHSVColor const* _colors;
-	};
+			PVZoneRendering_p zr;
+			PVCore::PVHSVColor const* colors;
+		};
 
-public:
-	struct ZoneRenderingWithColors
-	{
-		// Used by TBB internally
-		ZoneRenderingWithColors() { }
+		using multinode_router = tbb::flow::multifunction_node<PVZoneRendering_p, std::tuple<PVZoneRendering_p, ZoneRenderingWithColors, PVZoneRendering_p> >;
 
-		ZoneRenderingWithColors(PVZoneRendering_p zr_, PVCore::PVHSVColor const* colors_):
-			zr(zr_), colors(colors_)
-		{ }
-		
-		PVZoneRendering_p zr;
-		PVCore::PVHSVColor const* colors;
-	};
+	public:
+		PVRenderingPipelinePreprocessRouter(size_t nzones, PVCore::PVHSVColor const* colors):
+			_d(new RouterData{std::vector<ZoneInfos>{nzones, ZoneState::NotStarted}, colors})
+		{}
 
-	using multinode_router = tbb::flow::multifunction_node<PVZoneRendering_p, std::tuple<PVZoneRendering_p, ZoneRenderingWithColors, PVZoneRendering_p> >;
+	public:
+		/**
+		 * Routing function for ZoneRendering input.
+		 *
+		 * Normal path is : Preprocess ZoneRendering then push it in the pipeline.
+		 * Preprocessing can be skipped if it is already done.
+		 * ZoneRendering Processing can be canceled.
+		 *
+		 * @warning : Cancelling possibility is certainly a loss of processing time.
+		 */
+		void operator()(PVZoneRendering_p zr_in, multinode_router::output_ports_type& op)
+		{
+			const PVZoneID zone_id = zr_in->get_zone_id();
+			assert(zone_id != PVZONEID_INVALID);
 
-public:
-	PVRenderingPipelinePreprocessRouter(size_t nzones, PVCore::PVHSVColor const* colors):
-		_d(new RouterData{std::vector<ZoneInfos>{nzones, ZoneState::NotStarted}, colors})
-	{}
-
-public:
-	void operator()(PVZoneRendering_p zr_in, multinode_router::output_ports_type& op)
-	{
-		const PVZoneID zone_id = zr_in->get_zone_id();
-		assert(zone_id != PVZONEID_INVALID);
-
-		ZoneInfos& infos = _d->_zones_infos[zone_id];
-		switch (infos) {
-			case ZoneState::NotStarted:
-				if (!zr_in->should_cancel()) {
-					infos = ZoneState::Preprocessed;
-					std::get<OutIdxPreprocess>(op).try_put(zr_in);
-				}
-				else {
-					std::get<OutIdxCancel>(op).try_put(zr_in);
-				}
-				break;
-			case ZoneState::Preprocessed:
-			{
-				if (!zr_in->should_cancel()) {
-					std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(zr_in, _d->_colors));
-				}
-				else {
-					std::get<OutIdxCancel>(op).try_put(zr_in);
-				}
-				break;
+			ZoneInfos& infos = _d->_zones_infos[zone_id];
+			switch (infos) {
+				case ZoneState::NotStarted:
+					if (!zr_in->should_cancel()) {
+						infos = ZoneState::Preprocessed;
+						std::get<OutIdxPreprocess>(op).try_put(zr_in);
+					}
+					else {
+						std::get<OutIdxCancel>(op).try_put(zr_in);
+					}
+					break;
+				case ZoneState::Preprocessed:
+					{
+						if (!zr_in->should_cancel()) {
+							std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(zr_in, _d->_colors));
+						}
+						else {
+							std::get<OutIdxCancel>(op).try_put(zr_in);
+						}
+						break;
+					}
 			}
 		}
-	}
 
-public:
-	inline void set_zones_count(size_t n) { _d->_zones_infos.resize(n); }
-	inline void set_zone_invalid(size_t i) { assert(i < _d->_zones_infos.size()); _d->_zones_infos[i] = ZoneState::NotStarted; }
+	public:
+		/**
+		 * Interface to update pipeline information for future processing.
+		 */
+		inline void set_zones_count(size_t n) { _d->_zones_infos.resize(n); }
+		inline void set_zone_invalid(size_t i) { assert(i < _d->_zones_infos.size()); _d->_zones_infos[i] = ZoneState::NotStarted; }
 
-private:
-	// It is shared_ptr as it is copied by TBB in a multifunction_node while data can be modified
-	// from user events.
-	std::shared_ptr<RouterData> _d;
+	private:
+		/**
+		 * Preprocessing possible state for zone rendering.
+		 */
+		enum class ZoneState { NotStarted, Preprocessed };
+
+		/**
+		 * Processing state for a given Zone.
+		 */
+		using ZoneInfos = tbb::atomic<ZoneState>;
+
+		/**
+		 * Data for every zone.
+		 *
+		 * * Processing state and colors.
+		 */
+		struct RouterData
+		{
+			std::vector<ZoneInfos> _zones_infos;
+			PVCore::PVHSVColor const* _colors;
+		};
+
+	private:
+		// It is shared_ptr as it is copied by TBB in a multifunction_node while data can be modified
+		// from user events.
+		std::shared_ptr<RouterData> _d;
 };
 
 }
