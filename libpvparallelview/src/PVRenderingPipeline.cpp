@@ -13,8 +13,6 @@
 
 #include <iostream>
 
-#include <mcheck.h>
-
 PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& backend):
 	_bci_buffers(backend),
 	_node_limiter(_g, BCI_BUFFERS_COUNT),
