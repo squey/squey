@@ -122,6 +122,10 @@ void Inendi::PVMapped::compute()
 
 		mandatory_param_map& params_map = _mapping->get_mandatory_params_for_col(j);
 		// Init the mandatory mapping
+		// FIXME : This part is critical has filter are function object and they are not thread local.
+		// FIXME : This is a generique handling of mandatory mapping while there is only one of these mapping.
+		// A less generique approach would make the code nicer and thread safe.
+#pragma omp critical
 		for (auto it_pmf = mand_mapping_filters.begin(); it_pmf != mand_mapping_filters.end(); it_pmf++) {
 			(*it_pmf)->set_dest_params(params_map);
 			(*it_pmf)->set_decimal_type(mapping_filter->get_decimal_type());
