@@ -48,8 +48,6 @@ private:
 
 public:
 	PVLibView(Inendi::PVView_sp& view_sp);
-	// For testing purposes
-	PVLibView(Inendi::PVView_sp& view_sp, Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
 	~PVLibView();
 
 public:
@@ -75,10 +73,6 @@ protected:
 	void axes_comb_about_to_be_updated();
 	void axes_comb_updated();
 	void plotting_updated();
-
-protected:
-	void common_init_view(Inendi::PVView_sp& view_sp);
-	void common_init_zm();
 
 private:
 	PVZonesManager                            _zones_manager;

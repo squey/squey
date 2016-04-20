@@ -195,7 +195,8 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 	g_fake_view->reset_layers();
 	g_fake_view->set_fake_axes_comb(ncols);
 
-	PVParallelView::PVLibView* plib_view = PVParallelView::common::get_lib_view(*g_fake_view, norm_plotted, nrows, ncols);
+	// TODO : Make it works with "normal" constructor.
+	PVParallelView::PVLibView* plib_view = nullptr;//PVParallelView::common::get_lib_view(*g_fake_view, norm_plotted, nrows, ncols);
 
 	return plib_view;
 }

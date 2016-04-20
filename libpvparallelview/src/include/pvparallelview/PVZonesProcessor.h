@@ -35,7 +35,7 @@ class PVZonesProcessor
 	typedef tbb::flow::receiver<PVZoneRendering_p> receiver_type;
 
 public:
-	PVZonesProcessor(receiver_type& in_port, PVRenderingPipelinePreprocessRouter* preprocess = nullptr):
+	PVZonesProcessor(receiver_type& in_port, PVRenderingPipelinePreprocessRouter* preprocess):
 		_in_port(&in_port), _preprocess(preprocess)
 	{ }
 

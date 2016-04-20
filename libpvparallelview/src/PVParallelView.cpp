@@ -96,21 +96,6 @@ PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Inen
 	return new_view;
 }
 
-PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Inendi::PVView& view, Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols)
-{
-	tbb::mutex::scoped_lock lock(_mutex);
-
-	map_lib_views::iterator it = _lib_views.find(&view);
-	if (it != _lib_views.end()) {
-		return it->second;
-	}
-
-	Inendi::PVView_sp view_sp = view.shared_from_this();
-	PVLibView* new_view = new PVLibView(view_sp, plotted, nrows, ncols);
-	_lib_views.insert(std::make_pair(&view, new_view));
-	return new_view;
-}
-
 void PVParallelView::PVParallelViewImpl::remove_lib_view(Inendi::PVView& view)
 {
 	tbb::mutex::scoped_lock lock(_mutex);

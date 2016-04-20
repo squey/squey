@@ -44,7 +44,7 @@ class PVZonesManager: public QObject, boost::noncopyable
 	typedef tbb::enumerable_thread_specific<PVZoneTree::ProcessData> process_ztree_tls_t;
 
 public:
-	PVZonesManager();
+	explicit PVZonesManager(Inendi::PVView const& view);
 
 public:
 	typedef Inendi::PVAxesCombination::axes_comb_id_t    axes_comb_id_t;

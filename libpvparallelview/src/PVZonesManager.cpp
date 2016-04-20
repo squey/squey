@@ -47,8 +47,10 @@ private:
  * PVParallelView::PVZonesManager::PVZonesManager
  *
  *****************************************************************************/
-PVParallelView::PVZonesManager::PVZonesManager()
+PVParallelView::PVZonesManager::PVZonesManager(Inendi::PVView const& view)
 {
+    lazy_init_from_view(view);
+    update_all();
 }
 
 /******************************************************************************
