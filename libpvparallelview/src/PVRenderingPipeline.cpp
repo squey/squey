@@ -183,10 +183,10 @@ void PVParallelView::PVRenderingPipeline::wait_for_all()
 	tbb_graph().wait_for_all();
 }
 
-PVParallelView::PVZonesProcessor PVParallelView::PVRenderingPipeline::declare_processor(preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones)
+PVParallelView::PVZonesProcessor PVParallelView::PVRenderingPipeline::declare_processor(Preprocessor::preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones)
 {
 	_preprocessors.emplace_back(new Preprocessor(tbb_graph(), *_workflow_router, *_node_finish, f, colors, nzones));
-	return PVZonesProcessor(_preprocessors.back()->input_port(), &_preprocessors.back()->router);
+	return PVZonesProcessor(_preprocessors.back()->input_port(), &_preprocessors.back()->get_router());
 }
 
 // Preprocess class
