@@ -79,14 +79,6 @@ class PVRenderingPipeline: boost::noncopyable
 		multinode_router node_router;
 	};
 
-	struct DirectInput: boost::noncopyable
-	{
-		typedef tbb::flow::multifunction_node<PVZoneRendering_p, std::tuple<ZoneRenderingWithColors, PVZoneRendering_p>> direct_process_type;
-		DirectInput(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, PVCore::PVHSVColor const* colors_);
-
-		direct_process_type node_process;
-	};
-
 	// Cancellation points types
 	constexpr static size_t cp_continue_port = 0;
 	constexpr static size_t cp_cancel_port = 1;
@@ -100,7 +92,6 @@ class PVRenderingPipeline: boost::noncopyable
 	typedef tbb::flow::multifunction_node<ZoneRenderingWithColors, std::tuple<ZoneRenderingWithColors, ZoneRenderingWithColors> > workflow_router_type;
 
 	friend class Preprocess;
-	friend class DirectInput;
 
 public:
 	typedef PVRenderingPipelinePreprocessRouter::ZoneState ZoneState;
@@ -112,7 +103,6 @@ public:
 
 public:
 	PVZonesProcessor declare_processor(preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones);
-	PVZonesProcessor declare_processor(PVCore::PVHSVColor const* colors);
 
 	void cancel_all();
 	void wait_for_all();
@@ -124,7 +114,6 @@ private:
 private:
 	// FIXME : Unique ptr is use as move constructor is disabled
 	std::vector<std::unique_ptr<Preprocessor>> _preprocessors;
-	std::vector<DirectInput*> _direct_inputs;
 	PVBCIBuffers<BCI_BUFFERS_COUNT> _bci_buffers;
 
 private:

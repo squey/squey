@@ -161,10 +161,6 @@ PVParallelView::PVRenderingPipeline::~PVRenderingPipeline()
 	cancel_all();
 	wait_for_all();
 
-	for (DirectInput* di: _direct_inputs) {
-		delete di;
-	}
-
 	delete _cp_postlimiter;
 	delete _cp_postcomputebci;
 
@@ -192,14 +188,6 @@ PVParallelView::PVZonesProcessor PVParallelView::PVRenderingPipeline::declare_pr
 	return PVZonesProcessor(_preprocessors.back()->input_port(), &_preprocessors.back()->router);
 }
 
-PVParallelView::PVZonesProcessor PVParallelView::PVRenderingPipeline::declare_processor(PVCore::PVHSVColor const* colors)
-{
-	//DirectInput* di = new DirectInput(tbb_graph(), _node_buffer, *_node_finish, colors);
-	DirectInput* di = new DirectInput(tbb_graph(), *_workflow_router, *_node_finish, colors);
-	_direct_inputs.push_back(di);
-	return PVZonesProcessor(di->node_process);
-}
-
 // Preprocess class
 PVParallelView::PVRenderingPipeline::Preprocessor::Preprocessor(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones):
 	router(nzones, colors),
@@ -213,22 +201,3 @@ PVParallelView::PVRenderingPipeline::Preprocessor::Preprocessor(tbb::flow::graph
 	tbb::flow::make_edge(tbb::flow::output_port<PVRenderingPipelinePreprocessRouter::OutIdxCancel>(node_router), node_cancel_job);
 	tbb::flow::make_edge(node_process, tbb::flow::input_port<PVRenderingPipelinePreprocessRouter::InputIdxPostProcess>(node_or));
 }
-
-// DirectInput class
-PVParallelView::PVRenderingPipeline::DirectInput::DirectInput(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, PVCore::PVHSVColor const* colors_):
-	node_process(g, tbb::flow::unlimited,
-		[=](PVZoneRendering_p zr, direct_process_type::output_ports_type& op)
-		{
-			if (zr->should_cancel()) {
-				std::get<1>(op).try_put(zr);
-			}
-			else {
-				std::get<0>(op).try_put(ZoneRenderingWithColors(zr, colors_));
-			}
-		})
-{
-	tbb::flow::make_edge(tbb::flow::output_port<0>(node_process), node_in_job);
-	tbb::flow::make_edge(tbb::flow::output_port<1>(node_process), node_cancel_job);
-}
-
-// The 8AM commit
