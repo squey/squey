@@ -41,9 +41,7 @@ PVParallelView::PVZonesProcessor PVParallelView::PVZonesProcessor::declare_backg
  *****************************************************************************/
 void PVParallelView::PVZonesProcessor::invalidate_zone_preprocessing(const PVZoneID zone_id)
 {
-	if (_preprocess) {
-		_preprocess->set_zone_invalid(zone_id);
-	}
+	_preprocess.set_zone_invalid(zone_id);
 }
 
 /******************************************************************************
@@ -53,7 +51,5 @@ void PVParallelView::PVZonesProcessor::invalidate_zone_preprocessing(const PVZon
  *****************************************************************************/
 void PVParallelView::PVZonesProcessor::set_number_zones(const PVZoneID zone_id)
 {
-	if (_preprocess) {
-		_preprocess->set_zones_count(zone_id);
-	}
+	_preprocess.set_zones_count(zone_id);
 }
