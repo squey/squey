@@ -106,10 +106,10 @@ signals:
 	void filter_by_sel_finished(int zone_id, bool changed);
 
 protected:
-	Inendi::PVPlotted::uint_plotted_table_t const* _uint_plotted = nullptr;
-	PVRow _nrows = 0;
-	PVCol _ncols = 0;
-	columns_indexes_t _axes_comb;
+	Inendi::PVPlotted::uint_plotted_table_t const* _uint_plotted = nullptr; //FIXME : This is a duplication, it should get it from view
+	PVRow _nrows = 0; //FIXME : This is a duplication, it should get it from view
+	PVCol _ncols = 0; //FIXME : This is a duplication, it should get it from view
+	columns_indexes_t _axes_comb; //FIXME : This is a duplication, it should get it from view
 	std::vector<PVZone> _zones;
 	process_ztree_tls_t _tls_ztree;
 };

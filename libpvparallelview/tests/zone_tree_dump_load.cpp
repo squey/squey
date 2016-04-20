@@ -15,33 +15,26 @@
 
 #include "common.h"
 
-#include <stdlib.h>
-
-#define FILENAME "zone_tree.dump"
+constexpr const char* dump_file = "/tmp/zone_tree.dump";
+const std::string filename = TEST_FOLDER "/picviz/heat_line.csv";
+const std::string fileformat = TEST_FOLDER "/picviz/heat_line.csv.format";
 
 typedef PVParallelView::PVZoneTree zt_t;
 
 void clean()
 {
-	remove(FILENAME);
+	remove(dump_file);
 }
 
-int main(int argc, char **argv)
+int main()
 {
-	if ((argc != 2) && (argc != 4)) {
-		usage(argv[0]);
-		return 1;
-	}
-
 	atexit(clean);
 
 	PVParallelView::common::RAII_cuda_init cuda_resources;
 
-	PVParallelView::PVLibView* pv = create_lib_view_from_args(argc, argv);
+	TestEnv env(filename, fileformat);
 
-	if (pv == nullptr) {
-		return 1;
-	}
+	PVParallelView::PVLibView* pv = env.get_lib_view();
 
 	PVParallelView::PVZonesManager &zm = pv->get_zones_manager();
 
@@ -50,12 +43,12 @@ int main(int argc, char **argv)
 		zt_t &zt = zm.get_zone_tree<zt_t>(zid);
 
 		std::cout << "  dumping" << std::endl;
-		bool ret = zt.dump_to_file(FILENAME);
+		bool ret = zt.dump_to_file(dump_file);
 		PV_VALID(ret, true);
 		std::cout << "  done" << std::endl;
 
 		std::cout << "  exhuming" << std::endl;
-		zt_t *zt2 = zt_t::load_from_file(FILENAME);
+		zt_t *zt2 = zt_t::load_from_file(dump_file);
 		PV_ASSERT_VALID(zt2 != nullptr);
 		std::cout << "  done" << std::endl;
 
