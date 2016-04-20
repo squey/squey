@@ -24,12 +24,6 @@ namespace PVParallelView {
 class PVRenderingPipelinePreprocessRouter
 {
 	public:
-	typedef enum {
-		ZoneStateInvalid = 0,
-		ZoneStateValid,
-		ZoneStateProcessing
-	} ZoneState;
-
 	enum {
 		InputIdxDirect = 0,
 		InputIdxPostProcess = 1,
@@ -42,12 +36,14 @@ class PVRenderingPipelinePreprocessRouter
 	};
 
 	private:
+	enum class ZoneState { NotStarted, Preprocessed, Processing };
+
 	/**
 	 * Processing state and waiter for a given Zone.
 	 */
 	struct ZoneInfos
 	{
-		ZoneInfos() : state(ZoneStateInvalid)
+		ZoneInfos() : state(ZoneState::NotStarted)
 		{}
 
 		tbb::atomic<ZoneState> state;
@@ -98,18 +94,18 @@ public:
 
 		ZoneInfos& infos = _d->_zones_infos[zone_id];
 		switch (infos.state) {
-			case ZoneStateInvalid:
+			case ZoneState::NotStarted:
 				if (!zr_in->should_cancel()) {
-					infos.state = ZoneStateProcessing;
+					infos.state = ZoneState::Processing;
 					std::get<OutIdxPreprocess>(op).try_put(zr_in);
 				}
 				else {
 					std::get<OutIdxCancel>(op).try_put(zr_in);
 				}
 				break;
-			case ZoneStateProcessing:
+			case ZoneState::Processing:
 				if (has_been_processed) {
-					infos.state = ZoneStateValid;
+					infos.state = ZoneState::Preprocessed;
 				}
 				else {
 					if (!zr_in->should_cancel()) {
@@ -120,7 +116,7 @@ public:
 					}
 					break;
 				}
-			case ZoneStateValid:
+			case ZoneState::Preprocessed:
 			{
 				// Put everyone and waiters
 				if (!zr_in->should_cancel()) {
@@ -145,7 +141,7 @@ public:
 
 public:
 	inline void set_zones_count(size_t n) { _d->_zones_infos.resize(n); }
-	inline void set_zone_invalid(size_t i) { assert(i < _d->_zones_infos.size()); _d->_zones_infos[i].state = ZoneStateInvalid; }
+	inline void set_zone_invalid(size_t i) { assert(i < _d->_zones_infos.size()); _d->_zones_infos[i].state = ZoneState::NotStarted; }
 
 private:
 	// It is shared_ptr as it is copied by TBB in a multifunction_node while data can be modified

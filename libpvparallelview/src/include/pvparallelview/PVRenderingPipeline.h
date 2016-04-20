@@ -94,7 +94,6 @@ class PVRenderingPipeline: boost::noncopyable
 	friend class Preprocess;
 
 public:
-	typedef PVRenderingPipelinePreprocessRouter::ZoneState ZoneState;
 	typedef Preprocessor::preprocess_func_type preprocess_func_type;
 
 public:
