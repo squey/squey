@@ -10,6 +10,8 @@ ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 
 export PVKERNEL_PLUGIN_PATH=$ISRD/libpvkernel/plugins
 export INENDI_PLUGIN_PATH=$ISRD/libinendi/plugins
+export QUERY_BUILDER_PATH=$ISRD/../libpvkernel/src/widgets/query_builder
+export PVFORMAT_HELPER=$ISRD/../libpvkernel/plugins/
 
 # Migration from picviz to inendi
 if [ ! -d "$HOME/.inendi" ] && [ -d "$HOME/.picviz" ]

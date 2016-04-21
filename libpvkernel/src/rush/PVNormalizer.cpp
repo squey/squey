@@ -30,10 +30,11 @@
  *****************************************************************************/
 QStringList PVRush::normalize_get_helpers_plugins_dirs(QString helper)
 {
-	QString pluginsdirs(std::getenv("PVKERNEL_PLUGIN_PATH"));
+	QString pluginsdirs(std::getenv("PVFORMAT_HELPER"));
 	if (pluginsdirs.isEmpty()) {
-		pluginsdirs = QString(PVKERNEL_PLUGIN_PATH) + QDir::separator() + "normalize-helpers";
+		pluginsdirs = QString(INENDI_CONFIG);
 	}
+	pluginsdirs += "/normalize-helpers";
 
 	QStringList pluginsdirs_list = pluginsdirs.split(PVCORE_DIRECTORY_SEP);
 	for (int counter=0; counter < pluginsdirs_list.count(); counter++) {
