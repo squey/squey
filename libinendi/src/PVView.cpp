@@ -223,6 +223,7 @@ void Inendi::PVView::apply_filter_named_select_all()
 void Inendi::PVView::commit_selection_to_layer(PVLayer& new_layer)
 {
 	/* We set it's selection to the final selection */
+	new_layer.get_selection() = post_filter_layer.get_selection();
 	output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(new_layer.get_lines_properties(), new_layer.get_selection(), row_count);
 }
 

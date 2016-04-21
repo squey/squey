@@ -443,7 +443,7 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 		Inendi::PVLayer& new_layer = inendi_view->get_current_layer();
 
 		/* We set it's selection to the final selection */
-		inendi_view->get_output_layer().get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(new_layer.get_lines_properties(), new_layer.get_selection(), inendi_view->get_row_count());
+		view_sp->commit_selection_to_layer(new_layer);
 
 		// We remove that selection from the current layer
 		current_layer.get_selection().and_not(new_layer.get_selection());
