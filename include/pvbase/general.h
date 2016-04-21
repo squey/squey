@@ -8,6 +8,8 @@
 #ifndef PVBASE_GENERAL_H
 #define PVBASE_GENERAL_H
 
+#include <limits>
+
 #include <QtGlobal>
 
 // "INENDI_VERSION_FILE_PATH" and "INENDI_BUILD_FILE_PATH" are set by cmake (CMakeOptions.txt/CMakeVersionHandler.txt respectively)
@@ -17,40 +19,31 @@
 #include "types.h"
 #include "export.h"
 
-#define INENDI_ORGANISATION "ESI Group"
-#define INENDI_APPLICATIONNAME "INENDI Inspector"
+static constexpr const char* INENDI_ORGANISATION    = "ESI Group";
+static constexpr const char* INENDI_APPLICATIONNAME = "INENDI Inspector";
 
-#define INENDI_FLEX_PREFIX "II"
-#define INENDI_FLEX_FEATURE "INSPECTOR"
-#define INENDI_FLEX_MAXMEM  "MAXMEM"
+static constexpr const char* INENDI_FLEX_PREFIX  = "II";
+static constexpr const char* INENDI_FLEX_FEATURE = "INSPECTOR";
+static constexpr const char* INENDI_FLEX_MAXMEM  = "MAXMEM";
 
-#define PVCORE_QVARIANT_METATYPE_HEIGHT 30
-#define PVCORE_QVARIANT_METATYPE_WIDTH 350
-
-
-#define inendi_max(x,y) ((x)>(y)?(x):(y))
 #define inendi_min(x,y) ((x)<(y)?(x):(y))
 
-#define INENDI_LINES_MAX INT_MAX
+static constexpr const int INENDI_LINES_MAX = std::numeric_limits<int>::max();
 
-#define INENDI_EVENTLINE_LINES_MAX INENDI_LINES_MAX
-#define INENDI_AXES_MAX 8096 // Max number of axes
-#define INENDI_FIELD_MAX 8096 // Max value a string can receive as a field
+static constexpr const int PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT = 1000000;
+static constexpr const int PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT = 1000000;
 
-#define PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT 1000000
-#define PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT 1000000
+static constexpr const int FORMATBUILDER_EXTRACT_START_DEFAULT = 0;
+static constexpr const int FORMATBUILDER_EXTRACT_END_DEFAULT = 100;
 
-#define FORMATBUILDER_EXTRACT_START_DEFAULT 0
-#define FORMATBUILDER_EXTRACT_END_DEFAULT 100
+static constexpr const char* INENDI_AUTOMATIC_FORMAT_STR = "[auto detection...]";
+static constexpr const char* INENDI_LOCAL_FORMAT_STR = "[default local format]";
+static constexpr const char* INENDI_BROWSE_FORMAT_STR = "[choose my format...]";
 
-#define INENDI_AUTOMATIC_FORMAT_STR "[auto detection...]"
-#define INENDI_LOCAL_FORMAT_STR "[default local format]"
-#define INENDI_BROWSE_FORMAT_STR "[choose my format...]"
+static constexpr const char PVCORE_DIRECTORY_SEP = ';';
 
-#define PVCORE_DIRECTORY_SEP ';'
-
-#define PVCONFIG_FORMATS_INVALID_IGNORED "formats/invalid/ignored"
-#define PVCONFIG_FORMATS_SHOW_INVALID "formats/invalid/warning"
+static constexpr const char* PVCONFIG_FORMATS_INVALID_IGNORED = "formats/invalid/ignored";
+static constexpr const char*  PVCONFIG_FORMATS_SHOW_INVALID = "formats/invalid/warning";
 #define PVCONFIG_FORMATS_SHOW_INVALID_DEFAULT (QVariant(true))
 
 #define ALL_FILES_FILTER "All files (*.*)"
@@ -58,13 +51,13 @@
 #define INENDI_ARCHIVES_VERSION 2
 
 #define INENDI_PATH_SEPARATOR "/"
-#define INENDI_PATH_SEPARATOR_CHAR '/'
+static constexpr const char INENDI_PATH_SEPARATOR_CHAR = '/';
 
-#define INENDI_DLL_EXTENSION ".so"
+static constexpr const char* INENDI_DLL_EXTENSION = ".so";
 
-#define INENDI_DLL_PREFIX "lib"
+static constexpr const char* INENDI_DLL_PREFIX = "lib";
 
-#define ESCAPE_PERCENT "\%"
+static constexpr const char* ESCAPE_PERCENT = "\%";
 
 #define INENDI_CONFDIR ".inendi"
 #define INENDI_INSPECTOR_CONFDIR INENDI_CONFDIR INENDI_PATH_SEPARATOR "inspector"
