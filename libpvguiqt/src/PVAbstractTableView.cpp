@@ -188,9 +188,6 @@ void PVAbstractTableView::new_range(int min, int max)
 		// min == max means we have only the current page so it contains every lines without
 		// scroll. The page size must be big enought to get them all.
 		size_t step = verticalScrollBar()->pageStep();
-		if(min == max) {
-			step = table_model()->size();
-		}
 		table_model()->update_pages(max - min + 1, step);
 		move_to_page(0);
 	}
