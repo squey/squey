@@ -96,7 +96,8 @@ void PVWidgets::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
   Epoch:\
   <table>\
       <tr><td>epoch</td><td>POSIX timestamp (precision up to the second)</td></tr>\
-	  <tr><td>epoch.S</td><td>POSIX timestamp (precision up to the millisecond)</td></tr>\
+	  <tr><td>epoch.S</td><td>POSIX timestamp (precision up to the millisecond, with dot)</td></tr>\
+      <tr><td>epochS</td><td>POSIX timestamp (precision up to the millisecond, without dot)</td></tr>\
   </table><br/><br/>\
   Date:\
   <table>\
