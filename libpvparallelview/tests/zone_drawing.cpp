@@ -98,11 +98,6 @@ int main(int argc, char** argv)
 		srand(time(NULL));
 		nrows = atol(argv[2]);
 
-		if (nrows > INENDI_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
-			return 1;
-		}
-
 		ncols = atol(argv[3]);
 
 		if (fplotted == "0") {
@@ -133,11 +128,6 @@ int main(int argc, char** argv)
 			}
 			nrows = plotted.size()/ncols;
 			Inendi::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
-		}
-
-		if (nrows > INENDI_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
-			return 1;
 		}
 	}
 

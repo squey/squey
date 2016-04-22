@@ -134,11 +134,6 @@ bool create_plotted_table_from_args(Inendi::PVPlotted::uint_plotted_table_t &nor
 		srand(time(NULL));
 		nrows = atol(argv[2]);
 
-		if (nrows > INENDI_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
-			return false;
-		}
-
 		ncols = atol(argv[3]);
 
 		if (fplotted == "0") {
@@ -172,11 +167,6 @@ bool create_plotted_table_from_args(Inendi::PVPlotted::uint_plotted_table_t &nor
 			}
 			nrows = plotted.size()/ncols;
 			Inendi::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
-		}
-
-		if (nrows > INENDI_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
-			return false;
 		}
 
 		input_is_file = true;

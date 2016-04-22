@@ -94,11 +94,6 @@ int main(int argc, char **argv)
 
 	int count = atoi(argv[1]);
 
-	if (count > INENDI_LINES_MAX) {
-		std::cerr << "count is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
-		return 1;
-	}
-
 	std::vector<int> tests;
 
 	for (int i = 2; i < argc; ++i) {

@@ -264,11 +264,6 @@ int main(int argc, char** argv)
 		srand(0);
 		nrows = atol(argv[2]);
 
-		if (nrows > INENDI_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
-			return 1;
-		}
-
 		ncols = atol(argv[3]);
 
 		memprintf("real data size", nrows * sizeof(PVParallelView::PVQuadTreeEntry));
@@ -293,11 +288,6 @@ int main(int argc, char** argv)
 			return 1;
 		}
 		nrows = plotted.size()/ncols;
-
-		if (nrows > INENDI_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
-			return 1;
-		}
 
 		std::cout << "Plotted loaded" << std::endl;
 
