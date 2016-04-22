@@ -268,7 +268,6 @@ public:
 
 	void filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
 	void filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
-	void filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Inendi::PVSelection& sel);
 
 	uint32_t get_right_axis_count_seq(const uint32_t branch_r) const;
 

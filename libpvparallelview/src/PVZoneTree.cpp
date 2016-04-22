@@ -300,23 +300,6 @@ private:
 
 } }
 
-void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Inendi::PVSelection& sel)
-{
-	BENCH_START(subtree);
-	memset(_sel_elts, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
-	const uint32_t* pcol_a = zp.get_plotted_col(zp.col_a());
-	const uint32_t* pcol_b = zp.get_plotted_col(zp.col_b());
-
-	sel.visit_selected_lines([&](PVRow r){
-		const PVRow y1 = pcol_a[r] >> (32-NBITS_INDEX);
-		const PVRow y2 = pcol_b[r] >> (32-NBITS_INDEX);
-
-		const PVRow b = y1 | (y2 << NBITS_INDEX);
-		_sel_elts[b] = inendi_min(_sel_elts[b], r);
-	}, zp.nrows());
-	BENCH_END(subtree, "filter_by_sel_tbb_treeb_new", 1, 1, sizeof(PVRow), zp.nrows());
-}
-
 // PVZoneTree implementation
 //
 
@@ -540,11 +523,6 @@ void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection con
 	tbb::task_group_context context;
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilterMaxCount(this, buf_elts, sel_buf, nelts_sel, context), tbb::simple_partitioner(), context);
 	BENCH_END(subtree2, "filter_by_sel_tbb_treeb_maxcount", 1, 1, sizeof(PVRow), NBUCKETS);
-
-	/*
-	BENCH_START(subtree);
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilter(this, sel_buf), tbb::simple_partitioner());
-	BENCH_END(subtree, "filter_by_sel_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);*/
 }
 
 void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel, const PVRow /*nrows*/, PVRow* buf_elts)

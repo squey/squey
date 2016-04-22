@@ -9,7 +9,6 @@
 #include <inendi/PVPlotted.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVZoneTree.h>
-#include <pvparallelview/PVZoneTreeNoAlloc.h>
 #include <pvparallelview/PVTools.h>
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/simple_lines_int_view.h>

@@ -49,7 +49,6 @@ PVTools.cpp
 PVZoneRendering.cpp
 PVZoneTree.cpp
 PVZoneTreeBase.cpp
-PVZoneTreeNoAlloc.cpp
 PVZonesManager.cpp
 PVZonesProcessor.cpp
 PVZoomAxisSlider.cpp
@@ -115,7 +114,6 @@ include/pvparallelview/PVFullParallelScene.h
 include/pvparallelview/PVSelectionRectangleItem.h
 include/pvparallelview/PVSelectionRectangle.h
 include/pvparallelview/PVZoomedParallelViewSelectionLine.h
-include/pvparallelview/PVZonesManager.h
 include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVSlidersGroup.h
 include/pvparallelview/PVAxisGraphicsItem.h

@@ -36,8 +36,6 @@ class ZoneCreation;
 
 class PVZonesManager: public QObject, boost::noncopyable
 {
-	Q_OBJECT;
-
 	friend class PVParallelView::__impl::ZoneCreation;
 
 	typedef tbb::enumerable_thread_specific<PVZoneTree::ProcessData> process_ztree_tls_t;
@@ -101,9 +99,6 @@ public:
 		a = _axes_comb[z].get_axis();
 		b = _axes_comb[z+1].get_axis();
 	}
-
-signals:
-	void filter_by_sel_finished(int zone_id, bool changed);
 
 protected:
 	Inendi::PVPlotted::uint_plotted_table_t const* _uint_plotted = nullptr; //FIXME : This is a duplication, it should get it from view
