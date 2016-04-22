@@ -63,25 +63,25 @@ public:
 	PVZoneTree const& get_zone_tree(PVZoneID z) const
 	{
 		assert(z < get_number_of_managed_zones());
-		return _zones[z].get_tree();
+		return _zones[z].ztree();
 	}
 
 	PVZoneTree & get_zone_tree(PVZoneID z) 
 	{
 		assert(z < get_number_of_managed_zones());
-		return _zones[z].get_tree();
+		return _zones[z].ztree();
 	}
 
 	PVZoomedZoneTree const& get_zoom_zone_tree(PVZoneID z) const
 	{
 		assert(z < get_number_of_managed_zones());
-		return _zones[z].get_zoom_tree();
+		return _zones[z].zoomed_ztree();
 	}
 
 	PVZoomedZoneTree & get_zoom_zone_tree(PVZoneID z) 
 	{
 		assert(z < get_number_of_managed_zones());
-		return _zones[z].get_zoom_tree();
+		return _zones[z].zoomed_ztree();
 	}
 
 	void filter_zone_by_sel(PVZoneID zone_id, const Inendi::PVSelection& sel);

@@ -8,8 +8,6 @@
 #ifndef PVPARALLELVIEW_PVZONE_H
 #define PVPARALLELVIEW_PVZONE_H
 
-#include <tbb/atomic.h>
-
 #include <pvkernel/core/PVTypeTraits.h>
 
 #include <pvparallelview/PVZoneTree.h>
@@ -18,6 +16,9 @@
 
 namespace PVParallelView {
 
+/**
+ * Gather zone tree and zoomed zone tree of a Zone.
+ */
 class PVZone
 {
 public:
@@ -44,18 +45,6 @@ public:
 	inline void filter_by_sel_background(const Inendi::PVSelection& sel, const PVRow nrows)
 	{
 		_ztree->filter_by_sel_background(sel, nrows);
-	}
-
-	inline PVZoneTree const& get_tree() const { return *_ztree; }
-	inline PVZoneTree & get_tree() { return *_ztree; }
-
-	inline PVZoomedZoneTree const& get_zoom_tree() const { return *_zoomed_ztree; }
-	inline PVZoomedZoneTree & get_zoom_tree() { return *_zoomed_ztree; }
-
-	void reset()
-	{
-		_ztree.reset(new PVZoneTree());
-		_zoomed_ztree.reset(new PVZoomedZoneTree(_ztree->get_sel_elts(), _ztree->get_bg_elts()));
 	}
 
 private:

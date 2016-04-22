@@ -85,7 +85,7 @@ void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
 {
 	assert(zone_id < (PVZoneID) _zones.size());
 
-	_zones[zone_id].reset();
+	_zones[zone_id] = PVZone();
 
 	PVZoneProcessing zp(get_uint_plotted(), get_row_count());
 	get_zone_cols(zone_id, zp.col_a(), zp.col_b());
