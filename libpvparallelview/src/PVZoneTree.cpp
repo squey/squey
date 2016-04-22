@@ -515,11 +515,7 @@ void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection con
 	tbb::atomic<ssize_t> nelts_sel;
 	BENCH_START(subtree2);
 	nelts_sel = (ssize_t) sel.get_number_of_selected_lines_in_range(0, nrows);
-	static_assert(NBUCKETS%4 == 0, "NBUCKETS isn't a multiple of 4");
-	const __m128i sse_invalid = _mm_set1_epi32(PVROW_INVALID_VALUE);
-	for (size_t b = 0; b < NBUCKETS; b += 4) {
-		_mm_stream_si128((__m128i*) &buf_elts[b], sse_invalid);
-	}
+	std::fill_n(buf_elts, NBUCKETS, PVROW_INVALID_VALUE);
 	tbb::task_group_context context;
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilterMaxCount(this, buf_elts, sel_buf, nelts_sel, context), tbb::simple_partitioner(), context);
 	BENCH_END(subtree2, "filter_by_sel_tbb_treeb_maxcount", 1, 1, sizeof(PVRow), NBUCKETS);
