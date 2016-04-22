@@ -87,7 +87,7 @@ int main()
 	size_t nelts_valid = std::get<1>(res);
 
 	PV_VALID(nelts_valid, 761UL * nb_dup);
-	PV_VALID(nelts_org, 1000UL);
+	PV_VALID(nelts_org, 1000UL * nb_dup);
 
 #ifndef INSPECTOR_BENCH
 	// Check output is the same as the reference

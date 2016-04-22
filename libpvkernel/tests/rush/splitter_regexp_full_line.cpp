@@ -17,7 +17,7 @@
 #include "common.h"
 
 #ifdef INSPECTOR_BENCH
-constexpr static size_t nb_dup = 1000;
+constexpr static size_t nb_dup = 100;
 #else
 constexpr static size_t nb_dup = 1;
 #endif

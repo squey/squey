@@ -13,11 +13,11 @@
 
 #include <pvkernel/core/inendi_assert.h>
 
+constexpr char FILENAME[] = TEST_FOLDER "/picviz/multiple_search.csv";
+
 #ifdef INSPECTOR_BENCH
-constexpr char FILENAME[] = TEST_FOLDER "/picviz/multiple_search_bench.csv";
 constexpr size_t DUPL = 1000;
 #else
-constexpr char FILENAME[] = TEST_FOLDER "/picviz/multiple_search.csv";
 constexpr size_t DUPL = 1;
 #endif
 
@@ -79,7 +79,7 @@ void run_tests(
 int main()
 {
     // Init nraw
-    pvtest::TestEnv env(FILENAME, FORMAT);
+    pvtest::TestEnv env(FILENAME, FORMAT, DUPL);
     env.compute_mapping();
     Inendi::PVView* view = env.compute_plotting()->current_view();
 
