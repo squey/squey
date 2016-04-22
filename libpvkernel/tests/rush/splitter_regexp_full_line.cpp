@@ -17,7 +17,7 @@
 #include "common.h"
 
 #ifdef INSPECTOR_BENCH
-constexpr static size_t nb_dup = 1000;
+constexpr static size_t nb_dup = 100;
 #else
 constexpr static size_t nb_dup = 1;
 #endif
@@ -55,5 +55,6 @@ int main()
 	std::cout << output_file << " - " << ref_file << std::endl;
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));
 #endif
+	std::remove(output_file.c_str());
 	return 0;
 }
