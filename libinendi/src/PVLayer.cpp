@@ -78,9 +78,9 @@ void Inendi::PVLayer::compute_selectable_count(PVRow const& nrows)
  * Inendi::PVLayer::reset_to_empty_and_default_color
  *
  *****************************************************************************/
-void Inendi::PVLayer::reset_to_empty_and_default_color()
+void Inendi::PVLayer::reset_to_empty_and_default_color(PVRow row_count)
 {
-	lines_properties.reset_to_default_color();
+	lines_properties.reset_to_default_color(row_count);
 	selection.select_none();
 }
 
@@ -89,9 +89,9 @@ void Inendi::PVLayer::reset_to_empty_and_default_color()
  * Inendi::PVLayer::reset_to_default_color
  *
  *****************************************************************************/
-void Inendi::PVLayer::reset_to_default_color()
+void Inendi::PVLayer::reset_to_default_color(PVRow row_count)
 {
-	lines_properties.reset_to_default_color();
+	lines_properties.reset_to_default_color(row_count);
 }
 
 /******************************************************************************
@@ -99,9 +99,9 @@ void Inendi::PVLayer::reset_to_default_color()
  * Inendi::PVLayer::reset_to_full_and_default_color
  *
  *****************************************************************************/
-void Inendi::PVLayer::reset_to_full_and_default_color()
+void Inendi::PVLayer::reset_to_full_and_default_color(PVRow row_count)
 {
-	lines_properties.reset_to_default_color();
+	lines_properties.reset_to_default_color(row_count);
 	selection.select_all();
 }
 

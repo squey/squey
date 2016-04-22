@@ -35,7 +35,7 @@ void Inendi::PVLinesProperties::ensure_initialized(size_t row_count)
 {
 	if (_colors.size() == 0) {
 		_colors.resize(row_count);
-		reset_to_default_color();
+		reset_to_default_color(row_count);
 	}
 }
 
@@ -78,8 +78,9 @@ void Inendi::PVLinesProperties::A2B_copy_restricted_by_selection_and_nelts(Inend
  * Inendi::PVLinesProperties::reset_to_default_color
  *
  *****************************************************************************/
-void Inendi::PVLinesProperties::reset_to_default_color()
+void Inendi::PVLinesProperties::reset_to_default_color(PVRow row_count)
 {
+	ensure_allocated(row_count);
 	std::fill(_colors.begin(), _colors.end(), 0xFF); // FIXME : should use PVCore::PVHSVColor::WHITE
 }
 

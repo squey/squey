@@ -158,7 +158,7 @@ void Inendi::PVView::reset_layers()
 	_is_consistent = false;
 	layer_stack.delete_all_layers();
 	layer_stack.append_new_layer(row_count);
-	layer_stack.get_layer_n(0).reset_to_full_and_default_color();
+	layer_stack.get_layer_n(0).reset_to_full_and_default_color(row_count);
 	if (row_count != 0) {
 		/* when a .pvi is loaded, the mapped and the plotted are
 		 * uninitialized when the view is created (the rush pipeline
@@ -166,9 +166,9 @@ void Inendi::PVView::reset_layers()
 		 */
 		layer_stack.get_layer_n(0).compute_selectable_count(row_count);
 	}
-	post_filter_layer.reset_to_full_and_default_color();
-	layer_stack_output_layer.reset_to_full_and_default_color();
-	output_layer.reset_to_full_and_default_color();
+	post_filter_layer.reset_to_full_and_default_color(row_count);
+	layer_stack_output_layer.reset_to_full_and_default_color(row_count);
+	output_layer.reset_to_full_and_default_color(row_count);
 
 	_is_consistent = old_consistent;
 }

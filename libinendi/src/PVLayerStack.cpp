@@ -263,7 +263,7 @@ void Inendi::PVLayerStack::process(PVLayer &output_layer, PVRow row_count)
 	* Initializations
 	******************************/
 	/* It's time to erase the output_layer ! */
-	output_layer.reset_to_empty_and_default_color();
+	output_layer.reset_to_empty_and_default_color(row_count);
 
 	/******************************
 	* Main computation
