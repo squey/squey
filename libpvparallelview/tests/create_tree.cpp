@@ -5,7 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvparallelview/PVContainerZoneTree.h>
 #include <pvkernel/core/inendi_bench.h>
 #include <inendi/PVPlotted.h>
 #include <pvparallelview/PVBCICode.h>
@@ -114,40 +113,7 @@ void test(
 )
 {
 	Inendi::PVPlotted::uint_plotted_table_t norm_plotted;
-	//PVLOG_INFO("Normalizing to 32-bit unsigned integers...\n");
 	Inendi::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
-	//PVLOG_INFO("Done !\n");
-
-	/*
-	{
-		typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vector;
-		PVParallelView::PVContainerZoneTree<vector>* ztree = new PVParallelView::PVContainerZoneTree<vector>(0, 1);
-		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
-
-		{
-		BENCH_START(sse);
-		ztree->process_omp_sse_tree();
-		BENCH_END_TRANSFORM(sse, "process_omp_sse_tree", 1, 1);
-		}
-
-		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
-		show_codes("serial", bci_codes, nb_codes);
-
-		{
-		Inendi::PVSelection sel;
-		sel.select_none();
-		ztree->filter_by_sel_omp_tree(sel);
-		}
-
-		{
-		Inendi::PVSelection sel;
-		sel.select_none();
-		ztree->filter_by_sel_tbb_tree(sel);
-		}
-
-		delete ztree;
-	}
-	std::cout << "---" << std::endl;*/
 
 	{
 		PVParallelView::PVZoneTree* ztree = new PVParallelView::PVZoneTree();
@@ -175,65 +141,10 @@ void test(
 		}
 		PVLOG_INFO("sorted=%d\n", sorted);
 
-		/*
-		{
-		BENCH_START(sse);
-		ztree->process_tbb_sse_treeb(zp);
-		BENCH_END_TRANSFORM(sse, "process_tbb_sse_treeb (again)", 1, 1);
-		}
-
-		BENCH_START(bci);
-		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
-		BENCH_END(bci, "bci", sizeof(PVRow), NBUCKETS, sizeof(PVParallelView::PVBCICode<NBITS_INDEX>), nb_codes);
-		show_codes("serial", bci_codes, nb_codes);
-
-		{
-		BENCH_START(sse);
-		ztree->process_omp_sse_treeb(zp);
-		BENCH_END_TRANSFORM(sse, "process_omp_sse_treeb", 1, 1);
-		}*/
-
-		/*
-		{
-		Inendi::PVSelection sel;
-		sel.select_none();
-		ztree->filter_by_sel_omp_treeb(sel);
-		}*/
-
-		/*{
-		Inendi::PVSelection sel;
-		sel.select_none();
-		ztree->filter_by_sel_tbb_treeb(sel, nrows);
-		}*/
-
 		delete ztree;
 	}
 	std::cout << "---" << std::endl;
 
-
-	/*
-	{
-		MEM_START(serial);
-		PVParallelView::PVZoneTreeNoAlloc* ztree = new PVParallelView::PVZoneTreeNoAlloc(0, 1);
-		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
-
-		BENCH_START(sse);
-		ztree->process_omp_sse();
-		BENCH_END_TRANSFORM(sse, "omp sse + noalloc", 1, 1);
-		MEM_END(serial, "mem omp sse + noalloc");
-
-		{
-		Inendi::PVSelection sel;
-		sel.select_none();
-		ztree->filter_by_sel_omp(sel);
-		}
-
-		{
-		Inendi::PVSelection sel;
-		sel.select_none();
-		ztree->filter_by_sel_tbb(sel);
-		}
-	}*/
 }
 
 int main(int argc, char** argv)
