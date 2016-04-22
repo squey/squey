@@ -308,39 +308,3 @@ void PVParallelView::PVZoneTreeNoAlloc::filter_by_sel_tbb(Inendi::PVSelection co
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBPF(this, sel_buf, &tls), tbb::simple_partitioner());
 	BENCH_END(subtree, "tbb::parallel_for", 1, 1, sizeof(PVRow), NBUCKETS);
 }
-
-void PVParallelView::PVZoneTreeNoAlloc::filter_by_sel_omp(Inendi::PVSelection const& sel)
-{
-	BENCH_START(subtree);
-	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
-	const size_t nthreads = omp_get_max_threads()/2;
-#pragma omp parallel for schedule(dynamic, atol(getenv("GRAINSIZE"))) firstprivate(sel_buf) num_threads(nthreads)
-	for (uint64_t b = 0; b < NBUCKETS; b++) {
-		if (branch_valid(b)) {
-			PVRow r = get_first_elt_of_branch(b);
-			bool found = false;
-			if ((sel_buf[r>>5]) & (1U<<(r&31))) {
-				found = true;
-			}
-			else {
-				Tree::const_branch_iterator it_src = _tree.begin_branch(b);
-				it_src++;
-				for (; it_src != _tree.end_branch(b); it_src++) {
-					r = *(it_src);
-					if ((sel_buf[r>>5]) & (1U<<(r&31))) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (found) {
-				_sel_elts[b] = r;
-			}
-			else {
-				_sel_elts[b] = PVROW_INVALID_VALUE;
-			}
-		}
-	}
-	BENCH_END(subtree, "filter_by_sel", 1, 1, sizeof(PVRow), NBUCKETS);
-}
-

@@ -266,7 +266,6 @@ public:
 	void process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata);
 	void process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp);
 
-	void filter_by_sel_omp_treeb(Inendi::PVSelection const& sel);
 	void filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
 	void filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
 	void filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Inendi::PVSelection& sel);

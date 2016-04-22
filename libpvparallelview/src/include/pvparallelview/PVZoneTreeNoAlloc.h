@@ -33,7 +33,6 @@ public:
 	void process_sse(PVZoneProcessing const& zp);
 	void process_omp_sse(PVZoneProcessing const& zp);
 
-	void filter_by_sel_omp(Inendi::PVSelection const& sel);
 	void filter_by_sel_tbb(Inendi::PVSelection const& sel);
 
 	size_t browse_tree_bci_by_sel(PVCore::PVHSVColor* colors, PVBCICode<NBITS_INDEX>* codes, Inendi::PVSelection const& sel);

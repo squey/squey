@@ -525,40 +525,6 @@ void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& z
 	PVLOG_INFO("OMP tree process in %0.4f ms.\n", (end-start).seconds()*1000.0);
 }
 
-void PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Inendi::PVSelection const& sel)
-{
-	BENCH_START(subtree);
-	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
-	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
-#pragma omp parallel for schedule(dynamic, GRAINSIZE) firstprivate(sel_buf) num_threads(nthreads)
-	for (size_t b = 0; b < NBUCKETS; b++) {
-		if (branch_valid(b)) {
-			const PVRow r = get_first_elt_of_branch(b);
-			bool found = false;
-			if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
-				found = true;
-			}
-			else {
-				for (size_t i=0; i<_treeb[b].count; i++) {
-					const PVRow r = _treeb[b].p[i];
-					if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (found) {
-				_sel_elts[b] = r;
-			}
-			else {
-				_sel_elts[b] = PVROW_INVALID_VALUE;
-			}
-		}
-	}
-	//BENCH_END(subtree, "filter_by_sel_omp_treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
-	BENCH_END(subtree, "filter_by_sel_omp_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
-}
-
 void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts)
 {
 	// returns a zone tree with only the selected events
