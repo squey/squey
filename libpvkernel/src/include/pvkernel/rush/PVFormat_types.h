@@ -22,6 +22,7 @@ typedef QHash<QString, PVRush::PVFormat> hash_formats;
 
 // Axes properties' name
 #define PVFORMAT_AXIS_NAME_STR "name"
+#define PVFORMAT_AXIS_FORMATING_STR "type_format"
 #define PVFORMAT_AXIS_TYPE_STR "type"
 #define PVFORMAT_AXIS_MAPPING_STR "mapping"
 #define PVFORMAT_AXIS_PLOTTING_STR "plotting"

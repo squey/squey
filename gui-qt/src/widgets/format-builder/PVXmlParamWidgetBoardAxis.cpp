@@ -60,6 +60,22 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     //tab general
     //name
     textName = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
+    // Try to read type format from xml file as default value.
+    _type_format = new PVXmlParamWidgetEditorBox(QString("type format"), new QVariant(node->attribute("type_format")));
+    if(_type_format->val().toString().isEmpty()) {
+	// If not found, try to get it from time-format as axius attributs
+	QString time_format = node->attribute("time-format");
+	if(time_format.isEmpty()) {
+	    // If still not found, try to find time-format from mapping node
+	    // FIXME : It is not related to mapping, it should not be here.
+	    PVCore::PVArgumentList def_args;
+	    def_args["time-format"].setValue(QString(""));
+	    _args_mapping.clear();
+	    node->getMappingProperties(def_args, _args_mapping);
+	    time_format = _args_mapping["time-format"].toString();
+	}
+	_type_format->setVal(QVariant(time_format));
+    }
     //type
     mapPlotType = new PVWidgets::PVAxisTypeWidget("all", this);
     comboMapping = new PVWidgets::PVMappingModeWidget(this);
@@ -143,6 +159,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::disAllocBoardFields(){
     comboMapping->deleteLater();
     comboPlotting->hide();
     comboPlotting->deleteLater();
+    _type_format->hide();
+    _type_format->deleteLater();
     
     //extra group
     buttonColor->hide();
@@ -159,6 +177,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::disAllocBoardFields(){
 void PVInspector::PVXmlParamWidgetBoardAxis::disableConnexion(){
     disconnect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(updatePlotMapping(const QString&)));
     disconnect(textName, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
+    disconnect(_type_format, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(comboMapping->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(comboPlotting->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
@@ -210,6 +229,10 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     gridLayout->addWidget(new QLabel(tr("Type :")), i, 0);
     gridLayout->addWidget(mapPlotType, i, 2, 1, -1);
 	i += 2;
+    //type format
+    gridLayout->addWidget(new QLabel(tr("Type Format:")), i, 0);
+    gridLayout->addWidget(_type_format, i, 2, 1, -1);
+	i += 2;
     // Mapping/Plotting
     gridLayout->addWidget(new QLabel(tr("Mapping :")), i, 0);
     gridLayout->addWidget(comboMapping, i, 2, 1, -1);
@@ -248,6 +271,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion() {
   
     connect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(updatePlotMapping(const QString&)));
     connect(textName, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
+    connect(_type_format, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(comboMapping->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(_params_mapping, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsMapping()));
@@ -380,6 +404,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues(){
 
   //apply modification
     node->setAttribute(QString(PVFORMAT_AXIS_NAME_STR),textName->text());
+    node->setAttribute(QString(PVFORMAT_AXIS_FORMATING_STR),_type_format->text());
+    // FIXME duplicate information to not change current format.
+    node->setAttribute(QString(PVFORMAT_AXIS_TIMEFORMAT_STR),_type_format->text());
     node->setAttribute(QString(PVFORMAT_AXIS_TYPE_STR),mapPlotType->get_sel_type());
     node->setAttribute(QString(PVFORMAT_AXIS_COLOR_STR),buttonColor->getColor());
     node->setAttribute(QString(PVFORMAT_AXIS_TITLECOLOR_STR),buttonTitleColor->getColor());

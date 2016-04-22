@@ -84,6 +84,7 @@ public:
     QTabWidget *tabParam;
     PVXmlParamWidgetEditorBox *textName;//name
     //type
+    PVXmlParamWidgetEditorBox *_type_format; //!< Format to parse data (use for time)
 	PVWidgets::PVAxisTypeWidget* mapPlotType;
 	PVWidgets::PVMappingModeWidget* comboMapping;
 	PVWidgets::PVPlottingModeWidget* comboPlotting;
