@@ -52,5 +52,6 @@ int main()
 	// Check output is the same as the reference
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));
 #endif
+	std::remove(output_file.c_str());
 	return 0;
 }

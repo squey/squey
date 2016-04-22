@@ -57,5 +57,7 @@ int main(int argc, char** argv)
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref));
 #endif
 
+	std::remove(output_file.c_str());
+
 	return 0;
 }

@@ -107,6 +107,11 @@ namespace pvtest {
         }
 
         /**
+         * Clean input duplicate file at the end.
+         */
+        ~TestEnv() { std::remove(_big_file_path.c_str()); }
+
+        /**
          * Compute mapping assuming PVSource is valid.
          */
         Inendi::PVMapped_p compute_mapping()
