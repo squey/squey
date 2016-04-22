@@ -40,7 +40,7 @@ int main()
 
 	for (PVZoneID zid = 0; zid < zm.get_number_of_managed_zones(); ++zid) {
 		std::cout << "testing zone " << zid << std::endl;
-		zt_t &zt = zm.get_zone_tree<zt_t>(zid);
+		zt_t &zt = zm.get_zone_tree(zid);
 
 		std::cout << "  dumping" << std::endl;
 		bool ret = zt.dump_to_file(dump_file);

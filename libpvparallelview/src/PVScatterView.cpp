@@ -210,7 +210,7 @@ PVParallelView::PVScatterView::~PVScatterView()
 
 PVParallelView::PVZoneTree const& PVParallelView::PVScatterView::get_zone_tree() const
 {
-	return get_zones_manager().get_zone_tree<PVParallelView::PVZoneTree>(get_zone_index());
+	return get_zones_manager().get_zone_tree(get_zone_index());
 }
 
 /*****************************************************************************

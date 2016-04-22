@@ -46,19 +46,11 @@ public:
 		_ztree->filter_by_sel_background(sel, nrows);
 	}
 
-	template <class Tree>
-	Tree const& get_tree() const
-	{
-		assert(false);
-		return *(new Tree());
-	}
+	inline PVZoneTree const& get_tree() const { return *_ztree; }
+	inline PVZoneTree & get_tree() { return *_ztree; }
 
-	template <class Tree>
-	Tree& get_tree()
-	{
-		assert(false);
-		return *(new Tree());
-	}
+	inline PVZoomedZoneTree const& get_zoom_tree() const { return *_zoomed_ztree; }
+	inline PVZoomedZoneTree & get_zoom_tree() { return *_zoomed_ztree; }
 
 	void reset()
 	{
@@ -71,30 +63,6 @@ private:
 	PVZoomedZoneTree_p _zoomed_ztree;
 
 };
-
-template <>
-inline PVZoneTree const& PVZone::get_tree<PVZoneTree>() const
-{
-	return *_ztree;
-}
-
-template <>
-inline PVZoneTree& PVZone::get_tree<PVZoneTree>()
-{
-	return *_ztree;
-}
-
-template <>
-inline PVZoomedZoneTree const& PVZone::get_tree<PVZoomedZoneTree>() const
-{
-	return *_zoomed_ztree;
-}
-
-template <>
-inline PVZoomedZoneTree& PVZone::get_tree<PVZoomedZoneTree>()
-{
-	return *_zoomed_ztree;
-}
 
 }
 

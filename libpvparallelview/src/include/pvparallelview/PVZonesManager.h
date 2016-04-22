@@ -60,18 +60,28 @@ public:
 	void request_zoomed_zone(PVZoneID zone);
 
 public:
-	template <class Tree>
-	inline Tree const& get_zone_tree(PVZoneID z) const
+	PVZoneTree const& get_zone_tree(PVZoneID z) const
 	{
 		assert(z < get_number_of_managed_zones());
-		return _zones[z].get_tree<Tree>();
+		return _zones[z].get_tree();
 	}
 
-	template <class Tree>
-	inline Tree& get_zone_tree(PVZoneID z)
+	PVZoneTree & get_zone_tree(PVZoneID z) 
 	{
 		assert(z < get_number_of_managed_zones());
-		return _zones[z].get_tree<Tree>();
+		return _zones[z].get_tree();
+	}
+
+	PVZoomedZoneTree const& get_zoom_zone_tree(PVZoneID z) const
+	{
+		assert(z < get_number_of_managed_zones());
+		return _zones[z].get_zoom_tree();
+	}
+
+	PVZoomedZoneTree & get_zoom_zone_tree(PVZoneID z) 
+	{
+		assert(z < get_number_of_managed_zones());
+		return _zones[z].get_zoom_tree();
 	}
 
 	void filter_zone_by_sel(PVZoneID zone_id, const Inendi::PVSelection& sel);

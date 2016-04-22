@@ -44,7 +44,7 @@ int main()
 
 		std::cout << "  initialization, it can take a while" << std::endl;
 		zm.request_zoomed_zone(zid);
-		zzt_t &zzt = zm.get_zone_tree<zzt_t>(zid);
+		zzt_t &zzt = zm.get_zoom_zone_tree(zid);
 		std::cout << "  done" << std::endl;
 
 		std::cout << "  dumping" << std::endl;
