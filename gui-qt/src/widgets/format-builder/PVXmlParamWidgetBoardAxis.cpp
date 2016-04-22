@@ -13,6 +13,7 @@
 #include <PVAxisTagHelp.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
+#include <pvkernel/widgets/editors/PVTimeFormatEditor.h>
 
 #include <QDialogButtonBox>
 
@@ -61,21 +62,10 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     //name
     textName = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
     // Try to read type format from xml file as default value.
+
     _type_format = new PVXmlParamWidgetEditorBox(QString("type format"), new QVariant(node->attribute("type_format")));
-    if(_type_format->val().toString().isEmpty()) {
-	// If not found, try to get it from time-format as axius attributs
-	QString time_format = node->attribute("time-format");
-	if(time_format.isEmpty()) {
-	    // If still not found, try to find time-format from mapping node
-	    // FIXME : It is not related to mapping, it should not be here.
-	    PVCore::PVArgumentList def_args;
-	    def_args["time-format"].setValue(QString(""));
-	    _args_mapping.clear();
-	    node->getMappingProperties(def_args, _args_mapping);
-	    time_format = _args_mapping["time-format"].toString();
-	}
-	_type_format->setVal(QVariant(time_format));
-    }
+    btnTypeFormatHelp = new QPushButton(QIcon(":/help"), "Help");
+
     //type
     mapPlotType = new PVWidgets::PVAxisTypeWidget("all", this);
     comboMapping = new PVWidgets::PVMappingModeWidget(this);
@@ -186,6 +176,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::disableConnexion(){
     disconnect(buttonTitleColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
     disconnect(buttonNextAxis,SIGNAL(clicked()), this, SLOT( slotGoNextAxis()));
 	disconnect(btnTagHelp, SIGNAL(clicked()), this, SLOT(slotShowTagHelp()));
+	disconnect(btnTypeFormatHelp, SIGNAL(clicked()), this, SLOT(slotShowTypeFormatHelp()));
 }
 
 /******************************************************************************
@@ -231,7 +222,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
 	i += 2;
     //type format
     gridLayout->addWidget(new QLabel(tr("Type Format:")), i, 0);
-    gridLayout->addWidget(_type_format, i, 2, 1, -1);
+    gridLayout->addWidget(_type_format, i, 2);
+    gridLayout->addWidget(btnTypeFormatHelp, i, 4);
 	i += 2;
     // Mapping/Plotting
     gridLayout->addWidget(new QLabel(tr("Mapping :")), i, 0);
@@ -240,10 +232,12 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     gridLayout->addWidget(new QLabel(tr("Plotting :")), i, 0);
     gridLayout->addWidget(comboPlotting, i, 2, 1, -1);
 	tabGeneral->addLayout(gridLayout);
+
 	// Mapping/plotting properties
 	_layout_params_mp->addWidget(_grp_mapping);
 	_layout_params_mp->addWidget(_grp_plotting);
 	tabGeneral->addLayout(_layout_params_mp);
+
     tabGeneral->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
     
     //***** tab parameter *****
@@ -279,6 +273,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion() {
 	connect(_params_plotting, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsPlotting()));
     connect(listTags, SIGNAL(itemSelectionChanged()), this, SLOT(slotSetValues()));
 	connect(btnTagHelp, SIGNAL(clicked()), this, SLOT(slotShowTagHelp()));
+	connect(btnTypeFormatHelp, SIGNAL(clicked()), this, SLOT(slotShowTypeFormatHelp()));
     
     //extra
     connect(buttonColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
@@ -583,5 +578,11 @@ QStringList PVInspector::PVXmlParamWidgetBoardAxis::get_current_tags()
 void PVInspector::PVXmlParamWidgetBoardAxis::slotShowTagHelp()
 {
 	PVAxisTagHelp* dlg = new PVAxisTagHelp(get_current_tags(), parent()->parent());
+	dlg->exec();
+}
+
+void PVInspector::PVXmlParamWidgetBoardAxis::slotShowTypeFormatHelp()
+{
+	PVWidgets::PVTimeFormatHelpDlg* dlg = new PVWidgets::PVTimeFormatHelpDlg(_type_format, parentWidget());
 	dlg->exec();
 }

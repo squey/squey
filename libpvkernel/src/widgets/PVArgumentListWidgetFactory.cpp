@@ -16,7 +16,6 @@
 #include <pvkernel/widgets/editors/PVRegexpEditor.h>
 #include <pvkernel/widgets/editors/PVEnumEditor.h>
 #include <pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h>
-#include <pvkernel/widgets/editors/PVTimeFormatEditor.h>
 #include <pvkernel/widgets/editors/PVPlainTextEditor.h>
 #include <pvkernel/widgets/PVArgumentListWidgetFactory.h>
 #include <pvkernel/widgets/editors/PVPercentRangeEditor.h>
@@ -33,7 +32,6 @@ QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_core_widgets_
 	QItemEditorCreatorBase *plaintext_creator = new QStandardItemEditorCreator<PVWidgets::PVPlainTextEditor>();
 	QItemEditorCreatorBase *qstr_creator = new QItemEditorCreator<QLineEdit>("text");
 	QItemEditorCreatorBase *pv_checkbox_creator = new QItemEditorCreator<QCheckBox>("checked");
-	QItemEditorCreatorBase *timeformat_creator = new QStandardItemEditorCreator<PVWidgets::PVTimeFormatEditor>();
 	QItemEditorCreatorBase *percentrange_creator = new QStandardItemEditorCreator<PVWidgets::PVPercentRangeEditor>();
 
 	// And register them into the factory
@@ -43,7 +41,6 @@ QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_core_widgets_
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVPlainTextType>(), plaintext_creator);
 	args_widget_factory->registerEditor(QVariant::RegExp, regexp_creator);
 	args_widget_factory->registerEditor(QVariant::String, qstr_creator);
-	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVTimeFormatType>(), timeformat_creator);
 
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVPercentRangeType>(), percentrange_creator);
 
