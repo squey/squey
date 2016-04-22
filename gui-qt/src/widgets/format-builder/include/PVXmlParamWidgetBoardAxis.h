@@ -68,7 +68,6 @@ public:
     void draw();
     void initConnexion();
     void initValue();
-	void checkMappingTimeFormat();
 	void setListTags();
 	Inendi::PVMappingFilter::p_type get_mapping_lib_filter();
 	Inendi::PVPlottingFilter::p_type get_plotting_lib_filter();
