@@ -57,6 +57,8 @@
 
 #include <PVFormatBuilderWidget.h>
 
+#include <tbb/tick_count.h>
+
 QFile *report_file;
 
 /******************************************************************************
@@ -1410,7 +1412,7 @@ int PVInspector::PVMainWindow::update_check()
 
 	//request.setUrl(QUrl("http://www.picviz.com/update.html"));
 	request.setUrl(QUrl(PVCore::PVVersion::update_url()));
-	request.setRawHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:5.0) Gecko/20100101 Firefox/5.0 " CUSTOMER_EMAIL " PV/" INENDI_CURRENT_VERSION_STR);
+	request.setRawHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:5.0) Gecko/20100101 Firefox/5.0 PV/" INENDI_CURRENT_VERSION_STR);
 
 	manager->get(request);
 
