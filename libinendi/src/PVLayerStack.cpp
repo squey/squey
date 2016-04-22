@@ -95,7 +95,7 @@ Inendi::PVLayer* Inendi::PVLayerStack::append_new_layer_from_selection_and_lines
 {
 	/* We prepare the string for the name of the new layer */
 	QString new_layer_automatic_name = QString("New layer %1").arg(get_layer_count());
-	return append_layer(PVLayer(new_layer_automatic_name, selection.count(), selection, lines_properties));
+	return append_layer(PVLayer(new_layer_automatic_name, selection, lines_properties));
 }
 
 

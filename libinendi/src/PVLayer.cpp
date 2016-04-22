@@ -18,19 +18,6 @@
  * Inendi::PVLayer::PVLayer
  *
  *****************************************************************************/
-// Inendi::PVLayer::PVLayer(const QString & name_) :
-// 	lines_properties(),
-// 	name(name_),
-// 	selection()
-// {
-// 	name.truncate(INENDI_LAYER_NAME_MAXLEN);
-// }
-
-/******************************************************************************
- *
- * Inendi::PVLayer::PVLayer
- *
- *****************************************************************************/
 Inendi::PVLayer::PVLayer(const QString & name_) :
 	index(0),
 	locked(false),
@@ -44,7 +31,7 @@ Inendi::PVLayer::PVLayer(const QString & name_) :
  * Inendi::PVLayer::PVLayer
  *
  *****************************************************************************/
-Inendi::PVLayer::PVLayer(const QString & name_, PVRow row_count, const PVSelection & sel_, const PVLinesProperties & lp_) :
+Inendi::PVLayer::PVLayer(const QString & name_, const PVSelection & sel_, const PVLinesProperties & lp_) :
 	index(0),
 	locked(false),
 	visible(true),
@@ -52,7 +39,7 @@ Inendi::PVLayer::PVLayer(const QString & name_, PVRow row_count, const PVSelecti
 	selection(sel_),
 	lines_properties(lp_)
 {
-	set_count(row_count);
+	set_count(selection.count());
 	name.truncate(INENDI_LAYER_NAME_MAXLEN);
 }
 

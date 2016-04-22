@@ -54,7 +54,7 @@ public:
 	 * Constructor
 	 */
 	PVLayer(const QString & name_);
-	PVLayer(const QString & name_, PVRow row_count, const PVSelection & sel_ = PVSelection(), const PVLinesProperties & lp_ = PVLinesProperties());
+	PVLayer(const QString & name_, const PVSelection & sel_, const PVLinesProperties & lp_ = PVLinesProperties());
 
 	/**
 	 * Copy this layer properties as b properties for selected elements (from selection)
