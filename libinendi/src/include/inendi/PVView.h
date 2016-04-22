@@ -28,7 +28,6 @@
 #include <inendi/PVRoot.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVLayerStack.h>
-#include <inendi/PVIndexArray.h>
 #include <inendi/PVSquareArea.h>
 #include <inendi/PVStateMachine.h>
 #include <inendi/PVPlotted.h>
@@ -163,7 +162,9 @@ public:
 	PVLayer &get_post_filter_layer();
 
 	PVSelection const& get_real_output_selection() const;
+
 	PVRow get_row_count() const;
+	void set_row_count(PVRow row_count);
 
 	void reset_layers();
 
@@ -354,7 +355,6 @@ protected:
 	PVLayer post_filter_layer; //!< This is the result of the filtering. TODO : FIXME
 	PVLayer layer_stack_output_layer; //!< Layer grouping every information from the layer stack
 	PVLayer output_layer; //!< This is the shown layer.
-	PVRow row_count; //!< This is the number of row in the plotted FIXME : It is invariant duplication.
 	PVLayerStack layer_stack;
 	PVSelection nu_selection; //!< This is zombi and selected elements
 	PVSelection real_output_selection; //!< This is selected elements

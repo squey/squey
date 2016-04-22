@@ -206,11 +206,6 @@ int main(int argc, char **argv)
 
 	count = (unsigned)atoi(argv[1]);
 
-	if (count > INENDI_LINES_MAX) {
-		std::cerr << "count is too big (max is " << INENDI_LINES_MAX << ")" << std::endl;
-		return 1;
-	}
-
 	what = atoi(argv[2]);
 
 	if(what >= TEST_LAST) {
@@ -293,7 +288,7 @@ void do_extract_first_y1_tests()
 
 	if(what == TEST_FIRST_Y1_FULL_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_CHUNKS);
+		selection->select_byte_pattern(0x88);
 		BENCH_START(time);
 		sqt1->extract_first_from_y1_and_selection(0, MAX_VALUE, *selection, res1);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -343,7 +338,7 @@ void do_extract_first_y1y2_tests()
 
 	if(what == TEST_FIRST_Y1Y2_FULL_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_CHUNKS);
+		selection->select_byte_pattern(0x88);
 		BENCH_START(time);
 		sqt1->extract_first_from_y1y2_and_selection(0, MAX_VALUE, 0, MAX_VALUE, *selection, res1);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -382,7 +377,7 @@ void do_extract_first_sel_tests()
 
 	if(what == TEST_FIRST_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_CHUNKS);
+		selection->select_byte_pattern(0x88);
 		BENCH_START(time);
 		sqt1->extract_first_from_selection(*selection, res1);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -431,7 +426,7 @@ void do_extract_first_bci_y1_tests()
 
 	if(what == TEST_FIRST_BCI_Y1_FULL_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_CHUNKS);
+		selection->select_byte_pattern(0x88);
 		BENCH_START(time);
 		sqt1->extract_first_bci_from_y1_and_selection(0, MAX_VALUE, *selection, codes);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -480,7 +475,7 @@ void do_extract_first_bci_y1y2_tests()
 
 	if(what == TEST_FIRST_BCI_Y1Y2_FULL_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_CHUNKS);
+		selection->select_byte_pattern(0x88);
 		BENCH_START(time);
 		sqt1->extract_first_bci_from_y1y2_and_selection(0, MAX_VALUE, 0, MAX_VALUE, *selection, codes);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -519,7 +514,7 @@ void do_extract_first_bci_sel_tests()
 
 	if(what == TEST_FIRST_BCI_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_CHUNKS);
+		selection->select_byte_pattern(0x88);
 		BENCH_START(time);
 		sqt1->extract_first_bci_from_selection(*selection, codes);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -681,7 +676,7 @@ void do_selection_tests()
 
 	if(what == TEST_SUB_SEL_QUARTER) {
 		std::cout << "# " << test_text[what] << std::endl;
-		memset(selection->get_buffer(), 0x88, INENDI_SELECTION_NUMBER_OF_BYTES);
+		selection->select_byte_pattern(0x88);
 		BENCH_START(time);
 		subtree = sqt1->extract_subtree_from_selection(*selection);
 		BENCH_END(time, "time", 1, 1, 1, 1);

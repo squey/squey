@@ -373,7 +373,7 @@ void Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	so.attribute("nraw_path", _nraw_folder, QString());
 
 	if (_nraw_folder.isEmpty() == false) {
-		QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() + QFileInfo(_nraw_folder).fileName();
+		QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() + QDir(_nraw_folder).dirName();
 		QFileInfo fi(user_based_nraw_dir);
 		if (fi.exists() == true && fi.isDir() == true) {
 			_nraw_folder = user_based_nraw_dir;

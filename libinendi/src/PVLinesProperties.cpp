@@ -16,38 +16,26 @@ Inendi::PVLinesProperties::color_allocator_type Inendi::PVLinesProperties::_colo
 
 /******************************************************************************
  *
- * Inendi::PVLinesProperties::PVLinesProperties
+ * Inendi::PVLinesProperties::ensure_allocated
  *
  *****************************************************************************/
-Inendi::PVLinesProperties::PVLinesProperties():
-	_table(nullptr)
+void Inendi::PVLinesProperties::ensure_allocated(size_t row_count)
 {
-	allocate_table();
-}
-
-/******************************************************************************
- *
- * Inendi::PVLinesProperties::PVLinesProperties
- *
- *****************************************************************************/
-Inendi::PVLinesProperties::PVLinesProperties(const PVLinesProperties & rhs):
-	_table(nullptr)
-{
-	if (rhs._table) {
-		allocate_table();
-		memcpy(_table, rhs._table, INENDI_LINESPROPS_NUMBER_OF_BYTES);
+	if (_colors.size() == 0) {
+		_colors.resize(row_count);
 	}
 }
 
 /******************************************************************************
  *
- * Inendi::PVLinesProperties::~PVLinesProperties
+ * Inendi::PVLinesProperties::ensure_initialized
  *
  *****************************************************************************/
-Inendi::PVLinesProperties::~PVLinesProperties()
+void Inendi::PVLinesProperties::ensure_initialized(size_t row_count)
 {
-	if (_table) {
-		_color_allocator.deallocate(_table, INENDI_LINESPROPS_NUMBER_OF_CHUNKS);
+	if (_colors.size() == 0) {
+		_colors.resize(row_count);
+		reset_to_default_color(row_count);
 	}
 }
 
@@ -58,13 +46,11 @@ Inendi::PVLinesProperties::~PVLinesProperties()
  *****************************************************************************/
 void Inendi::PVLinesProperties::A2A_set_to_line_properties_restricted_by_selection_and_nelts(PVCore::PVHSVColor line_properties,  PVSelection const& selection, PVRow nelts)
 {
-	if (!_table) {
-		reset_to_default_color();
-	}
+	ensure_initialized(nelts);
 
 	selection.visit_selected_lines([&](const PVRow r) {
-			this->_table[r] = line_properties;
-		}, nelts);
+		this->_colors[r] = line_properties;
+	}, nelts);
 }
 
 /******************************************************************************
@@ -74,44 +60,17 @@ void Inendi::PVLinesProperties::A2A_set_to_line_properties_restricted_by_selecti
  *****************************************************************************/
 void Inendi::PVLinesProperties::A2B_copy_restricted_by_selection_and_nelts(Inendi::PVLinesProperties &b,  PVSelection const& selection, PVRow nelts)
 {
-	if (!_table) {
+	if (not _colors.size()) {
 		return;
 	}
 
-	if (!b._table) {
-		b.reset_to_default_color();
+	if (not b._colors.size()) {
+		b.ensure_initialized(nelts);
 	}
 
 	selection.visit_selected_lines([&](const PVRow r) {
-			b._table[r] = this->_table[r];
-		}, nelts);
-}
-
-/******************************************************************************
- *
- * Inendi::PVLinesProperties::operator=
- *
- *****************************************************************************/
-Inendi::PVLinesProperties & Inendi::PVLinesProperties::operator=(const PVLinesProperties & rhs)
-{
-	// We check for self assignment
-	if (this == &rhs) {
-		return *this;
-	}
-
-	if (!rhs._table) {
-		if (_table) {
-			reset_to_default_color();
-		}
-	}
-	else {
-		if (!_table) {
-			allocate_table();
-		}
-		memcpy(_table, rhs._table, INENDI_LINESPROPS_NUMBER_OF_BYTES);
-	}
-
-	return *this;
+		b._colors[r] = this->_colors[r];
+	}, nelts);
 }
 
 /******************************************************************************
@@ -119,12 +78,10 @@ Inendi::PVLinesProperties & Inendi::PVLinesProperties::operator=(const PVLinesPr
  * Inendi::PVLinesProperties::reset_to_default_color
  *
  *****************************************************************************/
-void Inendi::PVLinesProperties::reset_to_default_color()
+void Inendi::PVLinesProperties::reset_to_default_color(PVRow row_count)
 {
-	if (!_table) {
-		allocate_table();
-	}
-	memset(&_table[0], 0xFF, INENDI_LINESPROPS_NUMBER_OF_BYTES);
+	ensure_allocated(row_count);
+	std::fill(_colors.begin(), _colors.end(), 0xFF); // FIXME : should use PVCore::PVHSVColor::WHITE
 }
 
 /******************************************************************************
@@ -134,54 +91,51 @@ void Inendi::PVLinesProperties::reset_to_default_color()
  *****************************************************************************/
 void Inendi::PVLinesProperties::selection_set_color(PVSelection const& selection, const PVRow nelts, const PVCore::PVHSVColor c)
 {
-	if (!_table) {
-		reset_to_default_color();
-	}
+	ensure_initialized(nelts);
+
 	selection.visit_selected_lines([&](const PVRow r) {
 		this->line_set_color(r, c);
 	},
 	nelts);
 }
 
+/******************************************************************************
+ *
+ * Inendi::PVLinesProperties::set_random
+ *
+ *****************************************************************************/
 void Inendi::PVLinesProperties::set_random(const PVRow n)
 {
-	if (!_table) {
-		allocate_table();
-	}
+	ensure_allocated(n);
+
 	for (PVRow i = 0; i < n; i++) {
 		line_set_color(i, PVCore::PVHSVColor(rand() % ((1<<HSV_COLOR_NBITS_ZONE)*6)));
 	}
 }
 
+/******************************************************************************
+ *
+ * Inendi::PVLinesProperties::set_linear
+ *
+ *****************************************************************************/
 void Inendi::PVLinesProperties::set_linear(const PVRow n)
 {
-	if (!_table) {
-		allocate_table();
-	}
+	ensure_allocated(n);
+
 	constexpr static size_t color_max = ((1<<HSV_COLOR_NBITS_ZONE)*6)-1;
 	for (PVRow i = 0; i < n; i++) {
 		line_set_color(i, PVCore::PVHSVColor((uint8_t)(((double)(i*color_max)/(double)n)*color_max)));
 	}
 }
 
+/******************************************************************************
+ *
+ * Inendi::PVLinesProperties::serialize
+ *
+ *****************************************************************************/
 void Inendi::PVLinesProperties::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	if (so.is_writing()) {
-		if (_table) {
-			so.buffer("lp_data", &_table[0], INENDI_LINESPROPS_NUMBER_OF_BYTES);
-		}
-	}
-	else {
-		if (so.buffer_exists("lp_data")) {
-			if (!_table) {
-				allocate_table();
-			}
-			so.buffer("lp_data", &_table[0], INENDI_LINESPROPS_NUMBER_OF_BYTES);
-		}
-		else {
-			if (_table) {
-				reset_to_default_color();
-			}
-		}
-	}
+	PVRow row_count = _colors.size();
+	so.attribute("row_count", row_count);
+	so.buffer("lp_data", _colors, row_count);
 }

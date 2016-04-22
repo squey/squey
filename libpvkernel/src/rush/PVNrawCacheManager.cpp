@@ -151,7 +151,7 @@ QStringList PVRush::PVNrawCacheManager::relative_to_absolute_nraws(const QString
 
 QString PVRush::PVNrawCacheManager::absolute_to_relative_nraw(const QString& absolute_nraw) const
 {
-	return QFileInfo(absolute_nraw).fileName();
+	return QDir(absolute_nraw).dirName();
 }
 
 QStringList PVRush::PVNrawCacheManager::absolute_to_relative_nraws(const QStringList& absolute_nraws) const

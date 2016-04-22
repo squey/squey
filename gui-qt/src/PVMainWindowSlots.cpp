@@ -1271,7 +1271,7 @@ void PVInspector::PVMainWindow::layer_import_Slot()
 
 	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
-		lib_view->get_current_layer().reset_to_default_color();
+		lib_view->get_current_layer().reset_to_default_color(lib_view->get_parent<Inendi::PVSource>()->get_rushnraw().get_row_count());
 		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::add_new_layer_from_file)>(lib_view, file);
 		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(lib_view);
 	}
@@ -1324,7 +1324,7 @@ void PVInspector::PVMainWindow::layer_reset_color_Slot()
 
 	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
-		lib_view->get_current_layer().reset_to_default_color();
+		lib_view->get_current_layer().reset_to_default_color(lib_view->get_parent<Inendi::PVSource>()->get_rushnraw().get_row_count());
 		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(lib_view);
 	}
 }

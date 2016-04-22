@@ -25,6 +25,7 @@ PVAbstractTableModel::PVAbstractTableModel(int row_count, QObject* parent):
 	_last_page_size(0),
 	_page_number(SCROLL_SIZE),
 	_page_step(0),
+	_current_selection(row_count),
 	_start_sel(-1),
 	_end_sel(-1),
 	_in_select_mode(true),

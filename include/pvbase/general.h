@@ -10,8 +10,7 @@
 
 #include <QtGlobal>
 
-// "INENDI_CFG_FILE_PATH", "INENDI_VERSION_FILE_PATH" and "INENDI_BUILD_FILE_PATH" are set by cmake (CMakeOptions.txt/CMakeVersionHandler.txt respectively)
-#include INENDI_CFG_FILE_PATH
+// "INENDI_VERSION_FILE_PATH" and "INENDI_BUILD_FILE_PATH" are set by cmake (CMakeOptions.txt/CMakeVersionHandler.txt respectively)
 #include INENDI_VERSION_FILE_PATH
 #include INENDI_BUILD_FILE_PATH
 
@@ -21,6 +20,10 @@
 #define INENDI_ORGANISATION "ESI Group"
 #define INENDI_APPLICATIONNAME "INENDI Inspector"
 
+#define INENDI_FLEX_PREFIX "II"
+#define INENDI_FLEX_FEATURE "INSPECTOR"
+#define INENDI_FLEX_MAXMEM  "MAXMEM"
+
 #define PVCORE_QVARIANT_METATYPE_HEIGHT 30
 #define PVCORE_QVARIANT_METATYPE_WIDTH 350
 
@@ -28,7 +31,7 @@
 #define inendi_max(x,y) ((x)>(y)?(x):(y))
 #define inendi_min(x,y) ((x)<(y)?(x):(y))
 
-#define INENDI_LINES_MAX CUSTOMER_LINESNUMBER
+#define INENDI_LINES_MAX INT_MAX
 
 #define INENDI_EVENTLINE_LINES_MAX INENDI_LINES_MAX
 #define INENDI_AXES_MAX 8096 // Max number of axes

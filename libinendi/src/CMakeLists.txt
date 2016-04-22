@@ -9,15 +9,11 @@
 ###############################################################################
 
 set(SRC_FILES
-#arguments.cpp 
-discover.cpp
-#layer.cpp 
 
 common.cpp
 
 PVAxesCombination.cpp
 PVAxis.cpp
-PVIndexArray.cpp
 PVLayer.cpp
 PVLayerFilter.cpp
 PVLayerIndexArray.cpp
@@ -42,10 +38,6 @@ PVStateMachine.cpp
 PVView.cpp
 
 plugins.cpp
-#square-area.cpp
-type-discovery.cpp 
-update-protocol.cpp 
-#z-level-array.cpp
 )
 
 if (MINESET)

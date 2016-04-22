@@ -15,13 +15,13 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVAlignedBlockedRange.h>
 
+#include <pvcop/core/memarray.h>
+
 namespace pvcop
 {
 namespace
 core
 {
-template <typename T>
-class memarray;
 
 template <typename T>
 class array;
@@ -42,19 +42,14 @@ namespace PVCore {
 * \class PVSelBitField
 */
 
-#define INENDI_SELECTION_CHUNK_SIZE 64
-#if (INENDI_LINES_MAX % INENDI_SELECTION_CHUNK_SIZE == 0)
-#define INENDI_SELECTION_NUMBER_OF_CHUNKS (INENDI_LINES_MAX / INENDI_SELECTION_CHUNK_SIZE)
-#else
-#define INENDI_SELECTION_NUMBER_OF_CHUNKS ((INENDI_LINES_MAX / INENDI_SELECTION_CHUNK_SIZE) + 1)
-#endif
-#define INENDI_SELECTION_NUMBER_OF_ROWS (INENDI_SELECTION_NUMBER_OF_CHUNKS * INENDI_SELECTION_CHUNK_SIZE)
-#define INENDI_SELECTION_NUMBER_OF_BYTES (INENDI_SELECTION_NUMBER_OF_ROWS / 8)
-
 class PVSelBitField
 {
 	friend class PVCore::PVSerializeObject;
 	friend class Inendi::PVSelection;
+
+public:
+	static constexpr auto CHUNK_SIZE = pvcop::core::__impl::bit::chunk_bit_size;
+	static constexpr auto CHUNK_SIZE_BYTE = pvcop::core::__impl::bit::chunk_byte_size;
 
 public:
 	typedef uint64_t chunk_t;
@@ -63,15 +58,11 @@ public:
 	typedef PVCore::PVAlignedAllocator<chunk_t, 16> allocator;
 	typedef pvcop::core::array<bool> pvcop_selection_t;
 
-protected:
-	pointer _table;
-	pvcop::core::memarray<bool>* _selection = nullptr;
-
 public:
 	/**
 	 * Constructor
 	 */
-	PVSelBitField();
+	PVSelBitField(PVRow count);
 
 	/**
 	 * Create a PVSelBitField object from a row table until we reach '0' marking
@@ -91,17 +82,15 @@ public:
 	}
 
 	// Move constructor. Save a lot of useless allocations, memcpys and desallocations !
-	PVSelBitField(PVSelBitField&& o)
-	{
-		_table = o._table;
-		o._table = nullptr;
-
-		_selection = o._selection;
-		o._selection = nullptr;
-	}
+	PVSelBitField(PVSelBitField&& o);
 
 	operator pvcop_selection_t&();
 	operator const pvcop_selection_t&() const;
+
+	void set_count(PVRow count) { _count = count; }
+	PVRow count() const { return _count; }
+
+	size_t chunk_count() const;
 
 	/*! \brief Ensure that selection buffer is allocated.
 	 *
@@ -362,6 +351,7 @@ public:
 	void select_none();
 	void select_odd();
 	void select_inverse();
+	void select_byte_pattern(const unsigned char byte_pattern);
 
 	/**
 	 * Sets the state of line N in the PVSelBitField
@@ -392,7 +382,7 @@ public:
 	{
 		const PVRow pos = line_index_to_chunk(line_index);
 		const PVRow shift = line_index_to_chunk_bit(line_index);
-		assert(shift <= (INENDI_SELECTION_CHUNK_SIZE-4));
+		assert(shift <= (CHUNK_SIZE-4));
 
 		_table[pos] |= ((chunk_t)bits << shift);
 	}
@@ -417,7 +407,7 @@ public:
 	 */
 	inline uint64_t get_chunk_fast(PVRow const chunk_index) const
 	{
-		assert(chunk_index < INENDI_SELECTION_NUMBER_OF_CHUNKS);
+		assert(chunk_index < chunk_count());
 		return _table[chunk_index];
 	}
 
@@ -428,7 +418,7 @@ public:
 	 */
 	inline void set_chunk_fast(PVRow const chunk_index, chunk_t const chunk)
 	{
-		assert(chunk_index < INENDI_SELECTION_NUMBER_OF_CHUNKS);
+		assert(chunk_index < chunk_count());
 		_table[chunk_index] = chunk;
 	}
 
@@ -446,7 +436,7 @@ public:
 
 	// Returns the index of the chunk following the last chunk that contains a line
 	// Thus, returns 0 if no chunk is empty
-	ssize_t get_last_nonzero_chunk_index(ssize_t starting_chunk = 0, ssize_t ending_chunk = INENDI_SELECTION_NUMBER_OF_CHUNKS-1) const;
+	ssize_t get_last_nonzero_chunk_index(ssize_t starting_chunk = 0, ssize_t ending_chunk = -1) const;
 
 	/**
 	 * search forward for the first bit set to 1 from the position \a index.
@@ -473,15 +463,19 @@ public:
 	PVRow find_previous_set_bit(const PVRow index, const PVRow size) const;
 
 	template <class F>
-	void visit_selected_lines(F const& f, PVRow b = INENDI_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
+	void visit_selected_lines(F const& f, PVRow b = PVROW_INVALID_VALUE, const PVRow a = 0) const
 	{
+		if (b == PVROW_INVALID_VALUE) {
+			b = count();
+		}
+
 		if (!_table || (b <= 0)) {
 			return;
 		}
 		assert(b > a);
-		assert(b <= INENDI_SELECTION_NUMBER_OF_ROWS);
+		assert(b <= count());
 		b--;
-		int last_bit = line_index_to_chunk_bit(b);
+		PVRow last_bit = line_index_to_chunk_bit(b);
 		const ssize_t org_chunk_end = line_index_to_chunk(b);
 		ssize_t chunk_start = line_index_to_chunk(a);
 		ssize_t chunk_end = get_last_nonzero_chunk_index(chunk_start, org_chunk_end);
@@ -490,7 +484,7 @@ public:
 			return;
 		}
 		if (chunk_end != org_chunk_end) {
-			last_bit = INENDI_SELECTION_CHUNK_SIZE-1;
+			last_bit = CHUNK_SIZE-1;
 		}
 
 		// If there are less than or exactly 3 chunks, use the serial version
@@ -530,22 +524,26 @@ public:
 
 		// Epilogue
 		uint64_t last_chunk = _table[chunk_end];
-		if (last_bit < INENDI_SELECTION_CHUNK_SIZE-1) {
+		if (last_bit < CHUNK_SIZE-1) {
 			last_chunk &= ((1ULL<<(last_bit+1))-1);
 		}
 		PVCore::PVBitVisitor::visit_bits(last_chunk, f, chunk_to_line_index(chunk_end));
 	}
 
 	template <class F>
-	void visit_selected_lines_tbb(F const& f, PVRow b = INENDI_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
+	void visit_selected_lines_tbb(F const& f, PVRow b = PVROW_INVALID_VALUE, const PVRow a = 0) const
 	{
+		if (b == PVROW_INVALID_VALUE) {
+			b = count();
+		}
+
 		if (!_table || (b <= 0)) {
 			return;
 		}
 		assert(b > a);
-		assert(b <= INENDI_SELECTION_NUMBER_OF_ROWS);
+		assert(b <= count());
 		b--;
-		int last_bit = line_index_to_chunk_bit(b);
+		PVRow last_bit = line_index_to_chunk_bit(b);
 		const ssize_t org_chunk_end = line_index_to_chunk(b);
 		ssize_t chunk_start = line_index_to_chunk(a);
 		ssize_t chunk_end = get_last_nonzero_chunk_index(chunk_start, org_chunk_end);
@@ -554,7 +552,7 @@ public:
 			return;
 		}
 		if (chunk_end != org_chunk_end) {
-			last_bit = INENDI_SELECTION_CHUNK_SIZE-1;
+			last_bit = CHUNK_SIZE-1;
 		}
 
 		// If there are less than or exactly 3 chunks, use the serial version
@@ -597,15 +595,19 @@ public:
 
 		// Epilogue
 		uint64_t last_chunk = _table[chunk_end];
-		if (last_bit < INENDI_SELECTION_CHUNK_SIZE-1) {
+		if (last_bit < CHUNK_SIZE-1) {
 			last_chunk &= ((1ULL<<(last_bit+1))-1);
 		}
 		PVCore::PVBitVisitor::visit_bits(last_chunk, f, chunk_to_line_index(chunk_end));
 	}
 
 	template <size_t N, class Fpacked, class Funpacked>
-	void visit_selected_lines_packed(Fpacked const& fpacked, Funpacked const& funpacked, PVRow b = INENDI_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
+	void visit_selected_lines_packed(Fpacked const& fpacked, Funpacked const& funpacked, PVRow b = PVROW_INVALID_VALUE, const PVRow a = 0) const
 	{
+		if (b == PVROW_INVALID_VALUE) {
+			b = count();
+		}
+
 		PVRow packed_rows[N];
 		int cur_packed = 0;
 		visit_selected_lines(
@@ -625,8 +627,12 @@ public:
 	}
 
 	template <class Fpacked, class Funpacked, class Fload>
-	void visit_selected_lines_gather_sse(Fpacked const& fpacked, Funpacked const& funpacked, Fload const& fload, PVRow b = INENDI_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
+	void visit_selected_lines_gather_sse(Fpacked const& fpacked, Funpacked const& funpacked, Fload const& fload, PVRow b = PVROW_INVALID_VALUE, const PVRow a = 0) const
 	{
+		if (b == PVROW_INVALID_VALUE) {
+			b = count();
+		}
+
 		visit_selected_lines_packed<4>(
 			[&](PVRow const packed_rows[4])
 			{
@@ -655,8 +661,12 @@ public:
 
 public:
 	template <class F>
-	void visit_selected_lines_serial(F const& f, PVRow b = INENDI_SELECTION_NUMBER_OF_ROWS, const PVRow a = 0) const
+	void visit_selected_lines_serial(F const& f, PVRow b = PVROW_INVALID_VALUE, const PVRow a = 0) const
 	{
+		if (b == PVROW_INVALID_VALUE) {
+			b = count();
+		}
+
 		if (!_table || (b <= 0)) {
 			return;
 		}
@@ -670,7 +680,7 @@ public:
 		if (cbit > 0) {
 			// Prelogue
 			uint64_t cv = _table[chunk_start];
-			PVRow end_bit = INENDI_SELECTION_CHUNK_SIZE-1;
+			PVRow end_bit = CHUNK_SIZE-1;
 			bool same = (chunk_end == chunk_start);
 			if (same) {
 				end_bit = line_index_to_chunk_bit(b);
@@ -728,6 +738,11 @@ protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/);
 	ssize_t get_min_last_nonzero_chunk_index(PVSelBitField const& other) const;
 	ssize_t get_max_last_nonzero_chunk_index(PVSelBitField const& other) const;
+
+protected:
+	pointer _table;
+	pvcop::core::memarray<bool>* _selection = nullptr;
+	PVRow _count;
 };
 
 }

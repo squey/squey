@@ -43,13 +43,7 @@ public:
 	struct tag_allocate_empty { };
 
 public:
-	PVSelection(): PVCore::PVSelBitField() { }
-	PVSelection(tag_allocate_empty):
-		PVCore::PVSelBitField()
-	{
-		allocate_table();
-		select_none();
-	}
+	PVSelection(PVRow row_count = INENDI_LINES_MAX): PVCore::PVSelBitField(row_count) { }
 
 	PVSelection(PVSelection const& o): PVCore::PVSelBitField(o) { }
 	PVSelection(PVSelection&& o): PVCore::PVSelBitField(o) { }
@@ -86,7 +80,7 @@ public:
 	}
 	inline PVSelection operator~() const
 	{
-		PVSelection ret;
+		PVSelection ret(count());
 		move_from_base(ret, PVCore::PVSelBitField::operator~());
 		return ret;
 	}

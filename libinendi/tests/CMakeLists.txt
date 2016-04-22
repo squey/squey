@@ -31,7 +31,6 @@ add_test(Tinendi_format Tinendi_format)
 
 add_pv_compile_test(Tinendi_source_serialize LINKS ${LINK_LIBRARIES} FILES source-serialize.cpp)
 add_pv_compile_test(Tinendi_root_serialize LINKS ${LINK_LIBRARIES} FILES root-serialize.cpp)
-add_pv_compile_test(Tinendi_sizes LINKS ${LINK_LIBRARIES} FILES sizes.cpp)
 add_pv_compile_test(sel_red LINKS ${LINK_LIBRARIES} FILES selection_red.cpp)
 add_pv_compile_test(Tinendi_sparse_sel LINKS ${LINK_LIBRARIES} FILES sparse_selection.cpp)
 add_pv_compile_test(Tinendi_forward_decl LINKS ${LINK_LIBRARIES} FILES forward_decl.cpp)
@@ -118,6 +117,9 @@ add_bench(Tmapping_time_us_week LINKS ${LINK_LIBRARIES} FILES mapping_time_us_we
 
 add_pv_compile_test(Tinendi_root LINKS ${LINK_LIBRARIES} FILES root.cpp)
 add_test(Tinendi_root Tinendi_root)
+
+add_pv_compile_test(Tinendi_investigation LINKS ${LINK_LIBRARIES} FILES investigation.cpp)
+add_test(Tinendi_investigation Tinendi_investigation)
 
 # FIXME : This test is a bit slow but it test a lot of thing. We should split
 # it in multiple tests

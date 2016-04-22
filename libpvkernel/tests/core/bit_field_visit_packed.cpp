@@ -28,7 +28,7 @@ void show_diff(std::vector<PVRow> const& packed, std::vector<PVRow> const& ref)
 
 int main()
 {
-	PVCore::PVSelBitField bits;
+	PVCore::PVSelBitField bits(N);
 	bits.select_random();
 
 	std::vector<PVRow> ref;
