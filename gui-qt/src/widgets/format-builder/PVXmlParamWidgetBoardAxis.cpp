@@ -399,9 +399,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues(){
 
   //apply modification
     node->setAttribute(QString(PVFORMAT_AXIS_NAME_STR),textName->text());
-    node->setAttribute(QString(PVFORMAT_AXIS_FORMATING_STR),_type_format->text());
-    // FIXME duplicate information to not change current format.
-    node->setAttribute(QString(PVFORMAT_AXIS_TIMEFORMAT_STR),_type_format->text());
+    node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR),_type_format->text());
     node->setAttribute(QString(PVFORMAT_AXIS_TYPE_STR),mapPlotType->get_sel_type());
     node->setAttribute(QString(PVFORMAT_AXIS_COLOR_STR),buttonColor->getColor());
     node->setAttribute(QString(PVFORMAT_AXIS_TITLECOLOR_STR),buttonTitleColor->getColor());

@@ -64,7 +64,6 @@ public:
 	int setDom(QDomElement const& node, int id = -1, QVector<uint32_t> tree_ids = QVector<uint32_t>());
 	list_axes_t const& getAxes()const;
 	QList<PVXmlParamParserData> const& getFields()const;
-	QHash<int, QStringList> const& getTimeFormat()const;
 	unsigned int getVersion() { return format_version; }
 	size_t get_first_line() const { return _first_line; }
 	size_t get_line_count() const { return _line_count; }
@@ -84,7 +83,6 @@ private:
 private:
 	QList<PVXmlParamParserData> fields;
 	list_axes_t _axes;
-	QHash<int, QStringList> time_format;
 	unsigned int format_version;
 	axes_comb_t _axes_combination;
 	size_t _first_line;

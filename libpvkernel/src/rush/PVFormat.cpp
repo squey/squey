@@ -279,8 +279,7 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 		std::string axe_mapping = axe.get_mapping().toStdString();
 
 		if (axe_type == "time") {
-			const PVAxisFormat::node_args_t& mapping_args = axe.get_args_mapping_string();
-			std::string time_format = mapping_args["time-format"].toStdString();
+			std::string time_format = axe.get_type_format().toStdString();
 
 			if (time_format.empty()) {
 				throw PVFormatNoTimeMapping(axe.get_name().toStdString());
@@ -368,8 +367,6 @@ char *fill_spaces(QString str, int max_spaces)
 
 void PVRush::PVFormat::debug() const
 {
-	QHashIterator<int, QStringList> time_hash(time_format);
-
 	PVLOG_PLAIN( "\n"
 				 "id     |      type      |      mapping     |     plotting     |  color  |name \n");
 	PVLOG_PLAIN( "-------+----------------+------------------+------------------+---------+------...\n");
@@ -436,7 +433,6 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 	filters_params = xml_parser.getFields();
 	_axes = xml_parser.getAxes();
 	_axes_comb = xml_parser.getAxesCombination();
-	time_format = xml_parser.getTimeFormat();
 	_first_line = xml_parser.get_first_line();
 	_line_count = xml_parser.get_line_count();
 

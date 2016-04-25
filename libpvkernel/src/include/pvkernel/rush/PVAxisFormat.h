@@ -46,6 +46,7 @@ public:
 		QString get_titlecolor_str() const { return titlecolor.toQColor().name(); }
 		PVCore::PVColor const& get_titlecolor() const { return titlecolor; }
 		QString get_type() const { return type; }
+		QString get_type_format() const { return type_format; }
 		QString get_str_format() const { return _str_format; }
 		node_args_t const& get_args_mapping_string() const { return args_mapping; }
 		node_args_t const& get_args_plotting_string() const { return args_plotting; }
@@ -61,6 +62,7 @@ public:
 		void set_titlecolor(QString str);
 		void set_titlecolor(PVCore::PVColor color_);
 		void set_type(QString str);
+		void set_type_format(QString str);
 		void set_args_mapping(node_args_t const& args) { args_mapping = args; }
 		void set_args_plotting(node_args_t const& args) { args_plotting = args; }
 		void add_tag(QString const& tag) { tags.add_tag(tag); }
@@ -77,6 +79,7 @@ public:
 		PVCore::PVColor color; //!< Color for this axis
 		QString name; //!< Name of this axis
 		QString type; //!< Type of this axis
+		QString type_format; //!< Format of the type of this axis
 		QString mapping; //!< Mapping name for this axis
 		QString plotting; //!< Plotting name for this axis
 		QString _str_format; //!< Parameter of string representation for this axis.

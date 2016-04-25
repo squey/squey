@@ -146,8 +146,6 @@ public:
 public:
 	/* Attributes */
 
-	QHash<int, QStringList> time_format;
-
 	// List of filters to apply
 	PVRush::PVXmlParamParser::list_params filters_params;
 

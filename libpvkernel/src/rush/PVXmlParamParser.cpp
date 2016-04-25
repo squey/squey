@@ -128,11 +128,6 @@ void PVRush::PVXmlParamParser::setAxesCombinationFromString(QString const& str)
 	}
 }
 
-QHash<int, QStringList> const& PVRush::PVXmlParamParser::getTimeFormat() const
-{
-	return time_format;
-}
-
 PVRush::PVAxisFormat::node_args_t PVRush::PVXmlParamParser::getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode)
 {
 	PVAxisFormat::node_args_t args;
@@ -218,6 +213,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 			PVAxisFormat axis;
 			axis.set_name(child.attribute(PVFORMAT_AXIS_NAME_STR, PVFORMAT_AXIS_NAME_DEFAULT));
 			axis.set_type(child.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT));
+			axis.set_type_format(child.attribute(PVFORMAT_AXIS_TYPE_FORMAT_STR, PVFORMAT_AXIS_TYPE_FORMAT_DEFAULT));
 			axis.set_color(child.attribute(PVFORMAT_AXIS_COLOR_STR, PVFORMAT_AXIS_COLOR_DEFAULT));
 			axis.set_titlecolor(child.attribute(PVFORMAT_AXIS_TITLECOLOR_STR, PVFORMAT_AXIS_TITLECOLOR_DEFAULT));
 			axis.compute_unique_id(tree_ids);
@@ -227,9 +223,6 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 				for (int j = 0; j < tags.size(); j++) {
 					axis.add_tag(tags[j]);
 				}
-			}
-			if(child.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT)=="time"){
-				time_format[newId+1]  = child.attribute(PVFORMAT_AXIS_TIMEFORMAT_STR, PVFORMAT_AXIS_TIMEFORMAT_DEFAULT).split("\n");
 			}
 
 			// Mapping and plotting parameters
