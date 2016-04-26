@@ -61,9 +61,6 @@ public:
 	size_t browse_tree_bci(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 	size_t browse_tree_bci_sel(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 
-	size_t browse_tree_bci_no_sse(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
-	size_t browse_tree_bci_old(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
-
 private:
 	size_t browse_tree_bci_from_buffer(const PVRow* elts, PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 
