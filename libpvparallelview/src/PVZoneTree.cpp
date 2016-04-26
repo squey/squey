@@ -199,13 +199,13 @@ public:
 	TBBSelFilterMaxCount (
 		PVParallelView::PVZoneTree* tree,
 		PVRow* buf_elts,
-		const Inendi::PVSelection::const_pointer sel_buf,
+		const Inendi::PVSelection& sel,
 		tbb::atomic<ssize_t>& nelts,
 		tbb::task_group_context& ctxt
 	) :
 		_tree(tree),
 		_buf_elts(buf_elts),
-		_sel_buf(sel_buf),
+		_sel(sel),
 		_nelts(&nelts),
 		_ctxt(&ctxt)
 	{
@@ -215,7 +215,6 @@ public:
 	{
 		const ssize_t cur_remaing = (ssize_t) *_nelts;
 		ssize_t nelts_found = 0;
-		const Inendi::PVSelection::const_pointer sel_buf = _sel_buf;
 		if (cur_remaing == 0) {
 			return;
 		}
@@ -226,14 +225,14 @@ public:
 			if (_tree->branch_valid(b)) {
 				const PVRow r = _tree->get_first_elt_of_branch(b);
 				// If bit is selected in selection, mark it
-				if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
+				if (_sel.get_line_fast(r)) {
 					res = r;
 					nelts_found++;
 				}
 				else {
 					for (size_t i=0; i< _tree->_treeb[b].count; i++) {
 						const PVRow r = _tree->_treeb[b].p[i];
-						if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
+						if (_sel.get_line_fast(r)) {
 							res = r;
 							nelts_found++;
 							break;
@@ -255,7 +254,7 @@ public:
 private:
 	mutable PVParallelView::PVZoneTree* _tree;
 	mutable PVRow* _buf_elts;
-	Inendi::PVSelection::const_pointer _sel_buf;
+	Inendi::PVSelection const& _sel;
 	mutable tbb::atomic<ssize_t>* _nelts;
 	mutable tbb::task_group_context* _ctxt;
 };
@@ -322,13 +321,12 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts)
 {
 	// returns a zone tree with only the selected events
-	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	tbb::atomic<ssize_t> nelts_sel;
 	BENCH_START(subtree2);
 	nelts_sel = (ssize_t) sel.get_number_of_selected_lines_in_range(0, nrows);
 	std::fill_n(buf_elts, NBUCKETS, PVROW_INVALID_VALUE);
 	tbb::task_group_context context;
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilterMaxCount(this, buf_elts, sel_buf, nelts_sel, context), tbb::simple_partitioner(), context);
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilterMaxCount(this, buf_elts, sel, nelts_sel, context), tbb::simple_partitioner(), context);
 	BENCH_END(subtree2, "filter_by_sel_tbb_treeb_maxcount", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 
