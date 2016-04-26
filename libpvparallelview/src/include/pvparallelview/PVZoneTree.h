@@ -41,7 +41,6 @@ namespace __impl {
 class TBBMergeTreesTask;
 class TBBCreateTreeTask;
 class TBBComputeAllocSizeAndFirstElts;
-class TBBSelFilter;
 class TBBSelFilterMaxCount;
 }
 
@@ -52,7 +51,6 @@ class PVZoneTree: public PVZoneTreeBase
 	friend class __impl::TBBCreateTreeTask;
 	friend class __impl::TBBMergeTreesTask;
 	friend class __impl::TBBComputeAllocSizeAndFirstElts;
-	friend class __impl::TBBSelFilter;
 	friend class __impl::TBBSelFilterMaxCount;
 
 public:
@@ -73,7 +71,6 @@ public:
 		friend class __impl::TBBCreateTreeTask;
 		friend class __impl::TBBMergeTreesTask;
 		friend class __impl::TBBComputeAllocSizeAndFirstElts;
-		friend class __impl::TBBSelFilter;
 
 		ProcessData(uint32_t n = PVCore::PVHardwareConcurrency::get_physical_core_number()) : ntasks(n)
 		{

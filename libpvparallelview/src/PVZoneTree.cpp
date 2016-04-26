@@ -194,45 +194,6 @@ private:
 	uint32_t _task_num;
 };
 
-class TBBSelFilter {
-public:
-	TBBSelFilter (
-		PVParallelView::PVZoneTree* tree,
-		const Inendi::PVSelection::const_pointer sel_buf
-	) :
-		_tree(tree),
-		_sel_buf(sel_buf)
-	{
-	}
-	
-	void operator() (const tbb::blocked_range<size_t>& range) const
-	{
-		for (PVRow b = range.begin(); b != range.end(); ++b) {
-			PVRow res = PVROW_INVALID_VALUE;
-			if (_tree->branch_valid(b)) {
-				const PVRow r = _tree->get_first_elt_of_branch(b);
-				if ((_sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
-					res = r;
-				}
-				else {
-					for (size_t i=0; i< _tree->_treeb[b].count; i++) {
-						const PVRow r = _tree->_treeb[b].p[i];
-						if ((_sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
-							res = r;
-							break;
-						}
-					}
-				}
-			}
-			_tree->_sel_elts[b] = res;
-		}
-	}
-
-private:
-	mutable PVParallelView::PVZoneTree* _tree;
-	Inendi::PVSelection::const_pointer _sel_buf;
-};
-
 class TBBSelFilterMaxCount {
 public:
 	TBBSelFilterMaxCount (
@@ -264,6 +225,7 @@ public:
 			PVRow res = PVROW_INVALID_VALUE;
 			if (_tree->branch_valid(b)) {
 				const PVRow r = _tree->get_first_elt_of_branch(b);
+				// If bit is selected in selection, mark it
 				if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
 					res = r;
 					nelts_found++;

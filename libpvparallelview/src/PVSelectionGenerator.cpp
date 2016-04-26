@@ -182,7 +182,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 						continue;
 					}
 
-					//ztree._sel_elts[branch] = r;
 					uint32_t branch_count = ztree.get_branch_count(branch);
 					for (size_t i = 0; i < branch_count; ++i) {
 						sel.set_bit_fast(ztree.get_branch_element(branch, i));
@@ -261,7 +260,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 						continue;
 					}
 
-					//ztree._sel_elts[branch] = r;
 					uint32_t branch_count = ztree.get_branch_count(branch);
 					for (size_t i = 0; i < branch_count; ++i) {
 						sel.set_bit_fast(ztree.get_branch_element(branch, i));
