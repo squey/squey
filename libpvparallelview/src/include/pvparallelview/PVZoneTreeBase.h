@@ -35,9 +35,6 @@ public:
 	virtual ~PVZoneTreeBase() { }
 
 public:
-	virtual void get_float_pts(pts_t& pts, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b) = 0;
-	void display(QString const& name, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
-
 	inline uint32_t get_first_elt_of_branch(uint32_t branch_id) const
 	{
 		return _first_elts[branch_id];

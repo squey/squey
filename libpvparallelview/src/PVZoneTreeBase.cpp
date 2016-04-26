@@ -10,13 +10,8 @@
 
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVZoneTree.h>
-#include <pvparallelview/simple_lines_float_view.h>
 
 #include <cassert>
-
-#include <QMainWindow>
-
-#include <omp.h>
 
 PVParallelView::PVZoneTreeBase::PVZoneTreeBase()
 {
@@ -24,28 +19,8 @@ PVParallelView::PVZoneTreeBase::PVZoneTreeBase()
 	memset(_sel_elts, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
 }
 
-void PVParallelView::PVZoneTreeBase::display(QString const& name, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
-{
-	QMainWindow *window = new QMainWindow();
-	window->setWindowTitle(name);
-	SLFloatView *v = new SLFloatView(window);
-
-	v->set_size(1024, 1024);
-	v->set_ortho(1.0f, 1.0f);
-
-	pts_t *pts = new pts_t();
-	get_float_pts(*pts, org_plotted, nrows, col_a, col_b);
-	PVLOG_INFO("Nb lines: %u\n", pts->size()/4);
-	v->set_points(*pts);
-
-	window->setCentralWidget(v);
-	window->resize(v->sizeHint());
-	window->show();
-}
-
 size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
 {
-	//return browse_tree_bci_from_buffer(_first_elts, colors, codes);
 	return browse_tree_bci_from_buffer(_bg_elts, colors, codes);
 }
 
@@ -58,11 +33,6 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(const PVRow* 
 {
 	size_t idx_code = 0;
 
-//	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
-//#pragma omp parallel num_threads(nthreads)
-//	{
-	//PVBCICode<NBITS_INDEX>* th_codes = PVBCICode::allocate_codes(NBUCKETS);
-//#pragma omp for reduction(+:idx_code) schedule(dynamic, 6)
 	for (uint64_t b = 0; b < NBUCKETS; b+=4) {
 
 		__m128i sse_ff = _mm_set1_epi32(0xFFFFFFFF);
@@ -135,7 +105,6 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(const PVRow* 
 			}
 		}
 	}
-//	}
 
 	return idx_code;
 }

@@ -60,8 +60,6 @@ PVZoomedParallelViewParamsWidget.cpp
 PVZoomedSelectionAxisSlider.cpp
 PVZoomedSelectionAxisSliders.cpp
 PVZoomedZoneTree.cpp
-simple_lines_float_view.cpp
-simple_lines_int_view.cpp
 
 # Display plugins
 PVDisplayViewFullParallel.cpp

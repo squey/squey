@@ -270,9 +270,6 @@ public:
 	PVBranch& get_branch(uint32_t branch_id) { return _treeb[branch_id]; }
 	PVBranch const& get_branch(uint32_t branch_id) const { return _treeb[branch_id]; }
 
-private:
-	void get_float_pts(pts_t& pts, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
-
 protected:
 	PVBranch _treeb[NBUCKETS];
 	PVRow* _tree_data;
