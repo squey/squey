@@ -43,7 +43,6 @@ QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_
 
 	QItemEditorCreatorBase *axes_index_creator = new PVViewArgumentEditorCreator<PVWidgets::PVAxesIndexEditor>(view);
 	QItemEditorCreatorBase *axis_index_checkbox_creator = new PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexCheckBoxEditor>(view);
-	QItemEditorCreatorBase *axis_index_creator = new PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexEditor>(view);
 	QItemEditorCreatorBase *layerenum_creator = new PVViewArgumentEditorCreator<PVWidgets::PVLayerEnumEditor>(view);
 	QItemEditorCreatorBase *original_axis_index_creator = new PVViewArgumentEditorCreator<PVWidgets::PVOriginalAxisIndexEditor>(view);
 	QItemEditorCreatorBase *rowsspinbox_creator = new PVViewArgumentEditorCreator<PVWidgets::PVViewRowsSpinBoxEditor>(view);
@@ -52,7 +51,6 @@ QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_
 	// And register them into the factory
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxesIndexType>(), axes_index_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexCheckBoxType>(), axis_index_checkbox_creator);
-	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexType>(), axis_index_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVOriginalAxisIndexType>(), original_axis_index_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVSpinBoxType>(), rowsspinbox_creator );
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVZoneIndexType>(), zone_index_creator);

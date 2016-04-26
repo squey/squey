@@ -9,6 +9,7 @@
 #define PVCORE_PVTIMEFORMATEDITOR_H
 
 #include <QTextEdit>
+#include <QLineEdit>
 #include <QDialog>
 #include <QTextCharFormat>
 #include <QSyntaxHighlighter>
@@ -26,39 +27,11 @@ namespace PVWidgets {
 class PVTimeFormatHelpDlg;
 class PVTimeValidatorHighLight;
 
-class PVTimeFormatEditor: public QWidget
-{
-	Q_OBJECT
-	Q_PROPERTY(PVCore::PVTimeFormatType time_formats READ get_time_formats WRITE set_time_formats USER true)
-
-public:
-	PVTimeFormatEditor(QWidget *parent = 0);
-
-public:
-	PVCore::PVTimeFormatType get_time_formats() const;
-	void set_time_formats(PVCore::PVTimeFormatType const& tfs);
-
-	inline QTextEdit* text_edit() { return _text_edit; }
-	inline const QTextEdit* text_edit() const { return _text_edit; }
-
-
-protected:
-	bool eventFilter(QObject* object, QEvent* event);
-
-private slots:
-	void show_help();
-
-private:
-	QTextEdit* _text_edit;
-	QPushButton* _help_btn;
-	PVTimeFormatHelpDlg* _help_dlg;
-};
-
 class PVTimeFormatHelpDlg: public QDialog
 {
 	Q_OBJECT
 public:
-	PVTimeFormatHelpDlg(PVTimeFormatEditor* editor, QWidget* parent);
+	PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* parent);
 
 private:
 	void set_help(QTextEdit* txt);
@@ -74,7 +47,7 @@ private slots:
 	void time_strings_changed();
 
 private:
-	QTextEdit* _editor; // Parent editor
+	QLineEdit* _editor; // Parent editor
 	QTextEdit* _tfs_edit;
 	QTextEdit* _ts_validate;
 	QTextEdit* _ts_interpreted;
@@ -91,7 +64,7 @@ public:
 	PVTimeValidatorHighLight(QTextEdit* parent);
 	virtual ~PVTimeValidatorHighLight();
 	
-	void set_time_format(QStringList const& tf);
+	void set_time_format(QString const& str);
 	virtual void highlightBlock(QString const& text);
 
 	inline PVCore::PVDateTimeParser* get_parser() const { return _cur_parser; };

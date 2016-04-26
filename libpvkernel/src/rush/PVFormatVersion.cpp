@@ -35,6 +35,9 @@ bool PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		if (!from4to5(doc)) {
 			return false;
 		}
+		if (!from5to6(doc)) {
+			return false;
+		}
 	}
 	if (version == "1") {
 		if (!from1to2(doc)) {
@@ -49,6 +52,9 @@ bool PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		if (!from4to5(doc)) {
 			return false;
 		}
+		if (!from5to6(doc)) {
+			return false;
+		}
 	}
 	if (version == "2") {
 		if (!from2to3(doc)) {
@@ -60,6 +66,9 @@ bool PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		if (!from4to5(doc)) {
 			return false;
 		}
+		if (!from5to6(doc)) {
+			return false;
+		}
 	}
 	if (version == "3") {
 		if (!from3to4(doc)) {
@@ -68,13 +77,24 @@ bool PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		if (!from4to5(doc)) {
 			return false;
 		}
+		if (!from5to6(doc)) {
+			return false;
+		}
 	}
 	if (version == "4") {
 		if (!from4to5(doc)) {
 			return false;
 		}
+		if (!from5to6(doc)) {
+			return false;
+		}
 	}
 	if (version == "5") {
+		if (!from5to6(doc)) {
+			return false;
+		}
+	}
+	if (version == "6") {
 		return false;
 	}
 
@@ -105,6 +125,11 @@ bool PVRush::PVFormatVersion::from3to4(QDomDocument& doc)
 bool PVRush::PVFormatVersion::from4to5(QDomDocument& doc)
 {
 	return _rec_4to5(doc.documentElement());
+}
+
+bool PVRush::PVFormatVersion::from5to6(QDomDocument& doc)
+{
+	return _rec_5to6(doc.documentElement());
 }
 
 bool PVRush::PVFormatVersion::_rec_0to1(QDomElement elt)
@@ -287,6 +312,51 @@ bool PVRush::PVFormatVersion::_rec_4to5(QDomNode node)
 	QDomNode child = node.firstChild();
 	while (!child.isNull()) {
 		_rec_4to5(child);
+		child = child.nextSibling();
+	}
+
+	return true;
+}
+bool PVRush::PVFormatVersion::_rec_5to6(QDomNode node)
+{
+	if (node.isElement()) {
+		QDomElement elt = node.toElement();
+		if (elt.tagName() == "mapping") {
+			QString tf = elt.attribute("time-format", QString());
+			if (tf.size() > 0) {
+				QDomElement axis_node = node.parentNode().toElement();
+				axis_node.setAttribute("type_format", tf);
+				elt.removeAttribute("time-format");
+			}
+		}
+		else if (elt.tagName() == "axis") {
+			// Move mapping from attribute to node
+			QString mapping = elt.attribute("mapping", QString());
+			QDomNode mapping_node;
+			mapping_node.setNodeValue(mapping);
+			elt.appendChild(mapping_node);
+			elt.removeAttribute("mapping");
+
+			// Move plotting from attribute to node
+			QString plotting = elt.attribute("plotting", QString());
+			QDomNode plotting_node;
+			plotting_node.setNodeValue(plotting);
+			elt.appendChild(plotting_node);
+			elt.removeAttribute("plotting");
+
+			// Move axis/time-format to axis/mapping/type_format
+			QString tf = elt.attribute("time-format", QString());
+			if (tf.size() > 0) {
+				QDomElement axis_node = node.toElement();
+				axis_node.setAttribute("type_format", tf);
+				elt.removeAttribute("time-format");
+			}
+		}
+	}
+
+	QDomNode child = node.firstChild();
+	while (!child.isNull()) {
+		_rec_5to6(child);
 		child = child.nextSibling();
 	}
 

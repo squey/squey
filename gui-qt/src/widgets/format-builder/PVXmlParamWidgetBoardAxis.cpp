@@ -13,6 +13,7 @@
 #include <PVAxisTagHelp.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
+#include <pvkernel/widgets/editors/PVTimeFormatEditor.h>
 
 #include <QDialogButtonBox>
 
@@ -60,6 +61,11 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     //tab general
     //name
     textName = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
+    // Try to read type format from xml file as default value.
+
+    _type_format = new PVXmlParamWidgetEditorBox(QString("type format"), new QVariant(node->attribute("type_format")));
+    btnTypeFormatHelp = new QPushButton(QIcon(":/help"), "Help");
+
     //type
     mapPlotType = new PVWidgets::PVAxisTypeWidget("all", this);
     comboMapping = new PVWidgets::PVMappingModeWidget(this);
@@ -143,6 +149,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::disAllocBoardFields(){
     comboMapping->deleteLater();
     comboPlotting->hide();
     comboPlotting->deleteLater();
+    _type_format->hide();
+    _type_format->deleteLater();
     
     //extra group
     buttonColor->hide();
@@ -159,6 +167,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::disAllocBoardFields(){
 void PVInspector::PVXmlParamWidgetBoardAxis::disableConnexion(){
     disconnect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(updatePlotMapping(const QString&)));
     disconnect(textName, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
+    disconnect(_type_format, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(comboMapping->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(comboPlotting->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
@@ -167,6 +176,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::disableConnexion(){
     disconnect(buttonTitleColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
     disconnect(buttonNextAxis,SIGNAL(clicked()), this, SLOT( slotGoNextAxis()));
 	disconnect(btnTagHelp, SIGNAL(clicked()), this, SLOT(slotShowTagHelp()));
+	disconnect(btnTypeFormatHelp, SIGNAL(clicked()), this, SLOT(slotShowTypeFormatHelp()));
 }
 
 /******************************************************************************
@@ -178,26 +188,18 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     
     //alloc
     QVBoxLayout *layoutParam=new QVBoxLayout();
-    //QVBoxLayout *layoutValues=new QVBoxLayout();
     QVBoxLayout *tabGeneral = createTab("General",tabParam);
     QVBoxLayout *tabParameter = createTab("Parameter",tabParam);
     QWidget *widgetTabAndNext = new QWidget(this);
-    //QWidget *widgetValues = new QWidget(this);
     QHBoxLayout *layoutRoot = new QHBoxLayout(this);
     
-    //QVBoxLayout *tabValuesApplied = createTab("Values applied",tabParam);
-    
     //general layout
-    //setLayout(layoutParam);
     setLayout(layoutRoot);
     layoutRoot->setContentsMargins(0,0,0,0);
     //tab widget
     layoutRoot->addWidget(widgetTabAndNext);
     layoutParam->setContentsMargins(0,0,0,0);
     widgetTabAndNext->setLayout(layoutParam);
-//    layoutRoot->addWidget(widgetValues);
-//    layoutValues->setContentsMargins(0,0,0,0);
-//    widgetValues->setLayout(layoutValues);
     
     layoutParam->addWidget(tabParam);
     
@@ -218,6 +220,11 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     gridLayout->addWidget(new QLabel(tr("Type :")), i, 0);
     gridLayout->addWidget(mapPlotType, i, 2, 1, -1);
 	i += 2;
+    //type format
+    gridLayout->addWidget(new QLabel(tr("Type Format:")), i, 0);
+    gridLayout->addWidget(_type_format, i, 2);
+    gridLayout->addWidget(btnTypeFormatHelp, i, 4);
+	i += 2;
     // Mapping/Plotting
     gridLayout->addWidget(new QLabel(tr("Mapping :")), i, 0);
     gridLayout->addWidget(comboMapping, i, 2, 1, -1);
@@ -225,13 +232,14 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     gridLayout->addWidget(new QLabel(tr("Plotting :")), i, 0);
     gridLayout->addWidget(comboPlotting, i, 2, 1, -1);
 	tabGeneral->addLayout(gridLayout);
+
 	// Mapping/plotting properties
 	_layout_params_mp->addWidget(_grp_mapping);
 	_layout_params_mp->addWidget(_grp_plotting);
 	tabGeneral->addLayout(_layout_params_mp);
+
     tabGeneral->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
     
-    //***** tab Time Format *****
     //***** tab parameter *****
 	gridLayout = new QGridLayout();
 	i = 0;
@@ -243,16 +251,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
 	tabParameter->addLayout(gridLayout);
     tabParameter->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
     
-    //***** view values from parent regexp *****
-//    layoutValues->addWidget(new QLabel("Values form parent regexp.\n(click on RegExp if it's empty\nand be sure that there is\na text validator for the regexp.)"));
-//    layoutValues->addWidget(tableValueFromParentRegExp);
-
     //button next
     layoutParam->addWidget(buttonNextAxis);
-    //buttonNextAxis->setShortcut(QKeySequence(Qt::Key_Enter));
     buttonNextAxis->setShortcut(QKeySequence(Qt::Key_Return));
-	
-	checkMappingTimeFormat();
 }
 
 /******************************************************************************
@@ -264,13 +265,15 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion() {
   
     connect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(updatePlotMapping(const QString&)));
     connect(textName, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
+    connect(_type_format, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(comboMapping->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
-	connect(_params_mapping, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsMapping()));
+    connect(_params_mapping, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsMapping()));
     connect(comboPlotting->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
 	connect(_params_plotting, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsPlotting()));
     connect(listTags, SIGNAL(itemSelectionChanged()), this, SLOT(slotSetValues()));
 	connect(btnTagHelp, SIGNAL(clicked()), this, SLOT(slotShowTagHelp()));
+	connect(btnTypeFormatHelp, SIGNAL(clicked()), this, SLOT(slotShowTypeFormatHelp()));
     
     //extra
     connect(buttonColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
@@ -396,6 +399,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues(){
 
   //apply modification
     node->setAttribute(QString(PVFORMAT_AXIS_NAME_STR),textName->text());
+    node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR),_type_format->text());
     node->setAttribute(QString(PVFORMAT_AXIS_TYPE_STR),mapPlotType->get_sel_type());
     node->setAttribute(QString(PVFORMAT_AXIS_COLOR_STR),buttonColor->getColor());
     node->setAttribute(QString(PVFORMAT_AXIS_TITLECOLOR_STR),buttonTitleColor->getColor());
@@ -427,32 +431,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsPlotting()
 	}
 	_args_plot_mode[*lib_filter] = _args_plotting;
 	node->setPlottingProperties(mode, lib_filter->get_default_args(), _args_plotting);
-}
-
-
-void PVInspector::PVXmlParamWidgetBoardAxis::checkMappingTimeFormat()
-{
-#if 0
-	// AG: this is a hack. Check that, if type is "time", that, if a "week" or
-	// "24h" mapping has been set, the good time-format comes with it.
-	QString time_mapping = comboMapping->get_mode();
-	comboMapping->clear_disabled_strings();
-
-	// 24h mapping:  check that 'h' or 'H' are present
-	bool reset_mapping = false;
-	if (timeFormatStr.indexOf(QChar('h'), 0, Qt::CaseInsensitive) == -1) {
-		comboMapping->add_disabled_string("24h");
-		reset_mapping = (time_mapping == "24h");
-	}
-	if (timeFormatStr.indexOf(QChar('d'), 0, Qt::CaseInsensitive) == -1 &&
-			timeFormatStr.indexOf(QChar('e'), 0, Qt::CaseInsensitive) == -1) {
-		comboMapping->add_disabled_string("week");
-		reset_mapping = (time_mapping == "week");
-	}
-	if (reset_mapping) {
-		comboMapping->select_default();
-	}
-#endif
 }
 
 /******************************************************************************
@@ -598,5 +576,11 @@ QStringList PVInspector::PVXmlParamWidgetBoardAxis::get_current_tags()
 void PVInspector::PVXmlParamWidgetBoardAxis::slotShowTagHelp()
 {
 	PVAxisTagHelp* dlg = new PVAxisTagHelp(get_current_tags(), parent()->parent());
+	dlg->exec();
+}
+
+void PVInspector::PVXmlParamWidgetBoardAxis::slotShowTypeFormatHelp()
+{
+	PVWidgets::PVTimeFormatHelpDlg* dlg = new PVWidgets::PVTimeFormatHelpDlg(_type_format, parentWidget());
 	dlg->exec();
 }

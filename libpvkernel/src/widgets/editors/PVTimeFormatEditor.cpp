@@ -18,69 +18,13 @@
 #include <QDialogButtonBox>
 #include <QEvent>
 
-PVWidgets::PVTimeFormatEditor::PVTimeFormatEditor(QWidget *parent):
-	QWidget(parent)
-{
-	_text_edit = new QTextEdit();
-	_text_edit->installEventFilter(this);
-	QFontMetrics m(_text_edit->font());
-	_text_edit->setFixedHeight(5*m.lineSpacing());
-
-	_help_btn = new QPushButton(QIcon(":/help"), tr("Help"));
-
-	QVBoxLayout* main_layout = new QVBoxLayout();
-	main_layout->addWidget(_text_edit);
-	main_layout->addWidget(_help_btn);
-
-	setLayout(main_layout);
-	setFocusPolicy(Qt::WheelFocus);
-
-	_help_dlg = new PVTimeFormatHelpDlg(this, parent);
-
-	connect(_help_btn, SIGNAL(clicked()), this, SLOT(show_help()));
-}
-
-void PVWidgets::PVTimeFormatEditor::set_time_formats(PVCore::PVTimeFormatType const& tfs)
-{
-	text_edit()->setText(tfs.join("\n"));
-}
-
-PVCore::PVTimeFormatType PVWidgets::PVTimeFormatEditor::get_time_formats() const
-{
-	return PVCore::PVTimeFormatType(text_edit()->toPlainText().split("\n"));
-}
-
-void PVWidgets::PVTimeFormatEditor::show_help()
-{
-	if (_help_dlg->isVisible()) {
-		return;
-	}
-
-	_help_dlg->update_tf_from_editor();
-	_help_dlg->show();
-}
-
-bool PVWidgets::PVTimeFormatEditor::eventFilter(QObject* object, QEvent* event)
-{
-	if (event->type() == QEvent::FocusOut)
-	{
-		if (object == (QObject*) _text_edit) {
-			// AG: force the widget to lose focus
-			// Using setFocusProxy with _text_edit does not seem to work...
-			setFocus(Qt::MouseFocusReason);
-			clearFocus();
-		}
-	}
-	return QWidget::eventFilter(object, event);
-}
-
 //
 // PVTimeFormatHelpDlg implementation
 //
 
-PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(PVTimeFormatEditor* editor, QWidget* parent):
+PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* parent):
 	QDialog(parent),
-	_editor(editor->text_edit())
+	_editor(editor)
 {
 	setWindowTitle(tr("Time format help"));
 
@@ -137,6 +81,8 @@ PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(PVTimeFormatEditor* editor, 
 	setLayout(main_layout);
 
 	auto_validate_chkbox->setCheckState(Qt::Checked);
+
+	_validator_hl->set_time_format(editor->text());
 }
 
 void PVWidgets::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
@@ -237,12 +183,12 @@ void PVWidgets::PVTimeFormatHelpDlg::time_strings_changed()
 
 void PVWidgets::PVTimeFormatHelpDlg::update_tf_to_editor()
 {
-	_editor->setPlainText(_tfs_edit->toPlainText());
+	_editor->setText(_tfs_edit->toPlainText());
 }
 
 void PVWidgets::PVTimeFormatHelpDlg::update_tf_from_editor()
 {
-	_tfs_edit->setPlainText(_editor->toPlainText());
+	_tfs_edit->setPlainText(_editor->text());
 }
 
 void PVWidgets::PVTimeFormatHelpDlg::activate_auto_validation(int state)
@@ -264,7 +210,7 @@ void PVWidgets::PVTimeFormatHelpDlg::validate_time_strings()
 	if (auto_validate) {
 		disconnect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(validate_time_strings()));
 	}
-	_validator_hl->set_time_format(_tfs_edit->toPlainText().replace("epoch.S", "epoch").split("\n"));
+	_validator_hl->set_time_format(_tfs_edit->toPlainText());
 	_validator_hl->rehighlight();
 	if (auto_validate) {
 		connect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(validate_time_strings()), Qt::UniqueConnection);
@@ -302,8 +248,10 @@ void PVWidgets::PVTimeValidatorHighLight::format_changed()
 	rehighlight();
 }
 
-void PVWidgets::PVTimeValidatorHighLight::set_time_format(QStringList const& tf)
+void PVWidgets::PVTimeValidatorHighLight::set_time_format(QString const& str)
 {
+	const QStringList& tf = QString(str).replace("epoch.S", "epoch").replace("epochS", "epoch").split("\n");
+
 	if (_cur_parser != NULL) {
 		if (_cur_parser->original_time_formats() == tf) {
 			_format_has_changed = false;

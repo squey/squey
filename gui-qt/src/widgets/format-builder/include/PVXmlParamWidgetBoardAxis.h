@@ -68,7 +68,6 @@ public:
     void draw();
     void initConnexion();
     void initValue();
-	void checkMappingTimeFormat();
 	void setListTags();
 	Inendi::PVMappingFilter::p_type get_mapping_lib_filter();
 	Inendi::PVPlottingFilter::p_type get_plotting_lib_filter();
@@ -85,6 +84,9 @@ public:
     QTabWidget *tabParam;
     PVXmlParamWidgetEditorBox *textName;//name
     //type
+    PVXmlParamWidgetEditorBox *_type_format; //!< Format to parse data (use for time)
+    QPushButton* btnTypeFormatHelp;
+
 	PVWidgets::PVAxisTypeWidget* mapPlotType;
 	PVWidgets::PVMappingModeWidget* comboMapping;
 	PVWidgets::PVPlottingModeWidget* comboPlotting;
@@ -131,6 +133,7 @@ public slots:
     void slotSetValues();
     void updatePlotMapping(const QString& t) ;
 	void slotShowTagHelp();
+	void slotShowTypeFormatHelp();
 	void updateMappingParams();
 	void updatePlottingParams();
 	void slotSetParamsMapping();
