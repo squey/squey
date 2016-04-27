@@ -144,7 +144,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_remove_Slot()
 	QVector<PVCol> axes_id = get_used_axes_selected();	
 	_axes_combination.remove_axes(axes_id);
 	update_used_axes();
-	_list_used->setCurrentRow(inendi_min(axes_id.at(0), _list_used->count()-1));
+	_list_used->setCurrentRow(std::min(axes_id.at(0), _list_used->count()-1));
 
 	emit axes_count_changed();
 	emit axes_combination_changed();

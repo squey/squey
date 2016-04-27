@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	size_t n = inendi_min(atoll(argv[1]), PVParallelView::MaxBciCodes);
+	size_t n = std::min(atoll(argv[1]), PVParallelView::MaxBciCodes);
 
 	PVCuda::init_cuda();
 	PVParallelView::PVBCIDrawingBackendCUDA& backend = PVParallelView::PVBCIDrawingBackendCUDA::get();

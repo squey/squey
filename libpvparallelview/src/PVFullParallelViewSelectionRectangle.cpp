@@ -105,7 +105,7 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
 	for (PVZoneID z = zone_id_start; z <= zone_id_end; z++) {
 		QRect r = scene_parent()->map_to_axis(z, srect);
 		r.setX(std::max(0, r.x()));
-		r.setRight(inendi_min(pos_end-1, r.right()));
+		r.setRight(std::min(pos_end-1, r.right()));
 		PVSelectionGenerator::compute_selection_from_parallel_view_rect(get_lines_view(), z, r, lib_view().get_volatile_selection());
 	}
 

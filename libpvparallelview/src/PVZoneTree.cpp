@@ -142,7 +142,7 @@ public:
 			_ztree->_treeb[b].count = 0;
 			for (uint32_t task = 0 ; task < _pdata.ntasks; task++) {
 				_ztree->_treeb[b].count += _pdata.trees[task][b].size();
-				_ztree->_first_elts[b] = inendi_min(_ztree->_first_elts[b], _pdata.first_elts[task][b]);
+				_ztree->_first_elts[b] = std::min(_ztree->_first_elts[b], _pdata.first_elts[task][b]);
 			}
 			_alloc_size += (((_ztree->_treeb[b].count + 15) / 16) * 16);
 		}
