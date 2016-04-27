@@ -61,6 +61,7 @@ int main()
 	testcases.emplace_back("datetime_us", "H%m%s.S",                    "05%35%02.506000");
 
 	// ICU
+	testcases.emplace_back("datetime_ms", "epochS",         			"1452520190588");
 	testcases.emplace_back("datetime_ms", "epoch.S",         			"1334036784.745");
 	testcases.emplace_back("datetime_ms", "epoch.SSS",         			"1452654558.123");
 	testcases.emplace_back("datetime_ms", "epoch.SSS",         			"1452654558.123456", 			"1452654558.123");
