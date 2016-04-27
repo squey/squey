@@ -24,26 +24,29 @@
  * PVInspector::PVListingModel::PVListingModel
  *
  *****************************************************************************/
-PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent):
-	PVAbstractTableModel(view->get_parent<Inendi::PVSource>()->get_row_count(), parent),
-	_zombie_brush(QColor(0, 0, 0)),
-	_vheader_font(":/Convergence-Regular"),
-	_view(view),
-	_obs_vis(this),
-	_obs_zomb(this)
+PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent)
+    : PVAbstractTableModel(view->get_parent<Inendi::PVSource>()->get_row_count(), parent)
+    , _zombie_brush(QColor(0, 0, 0))
+    , _vheader_font(":/Convergence-Regular")
+    , _view(view)
+    , _obs_vis(this)
+    , _obs_zomb(this)
 {
 	// Update the full model if axis combination change
 	_obs_axes_comb.connect_refresh(this, SLOT(axes_comb_changed()));
-	PVHive::get().register_observer(view, [=](Inendi::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); },
-		    			_obs_axes_comb);
+	PVHive::get().register_observer(
+	    view, [=](Inendi::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); },
+	    _obs_axes_comb);
 
 	// Call update_filter on selection update
 	_obs_sel.connect_refresh(this, SLOT(update_filter()));
-	PVHive::get().register_observer(view, [=](Inendi::PVView& view) { return &view.get_real_output_selection(); }, _obs_sel);
+	PVHive::get().register_observer(
+	    view, [=](Inendi::PVView& view) { return &view.get_real_output_selection(); }, _obs_sel);
 
 	// Update filter if we change layer content
 	_obs_output_layer.connect_refresh(this, SLOT(update_filter()));
-	PVHive::get().register_observer(view, [=](Inendi::PVView& view) { return &view.get_output_layer(); }, _obs_output_layer);
+	PVHive::get().register_observer(
+	    view, [=](Inendi::PVView& view) { return &view.get_output_layer(); }, _obs_output_layer);
 
 	// Update display of zombie lines on option toggling
 	// FIXME : Can't we work without these specific struct?
@@ -59,9 +62,9 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent
  * PVGuiQt::PVListingModel::data
  *
  *****************************************************************************/
-QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
+QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 {
-	if(not index.isValid()) {
+	if (not index.isValid()) {
 		return {};
 	}
 
@@ -69,121 +72,118 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 	const PVCol org_col = lib_view().get_original_axis_index(index.column());
 
 	switch (role) {
-		// Get content of the cell
-		case (Qt::DisplayRole):
-		    {
-			const PVRow r = rowIndex(index);
-			if(r >= lib_view().get_row_count()) {
-			    // This data should not be shown as it is not in
-			    // the NRaw
-			    return {};
-			}
-			return QString::fromStdString(lib_view().get_parent<Inendi::PVSource>()->get_value(r, org_col));
-		    }
-		// Define alignment of data
-		case (Qt::TextAlignmentRole):
-			return {Qt::AlignLeft | Qt::AlignVCenter};
-		// Get Tooltip content for the cell
-		case Qt::ToolTipRole:
-			{
-			    const PVRow r = rowIndex(index);
-			    return QString::fromStdString(lib_view().get_parent<Inendi::PVSource>()->get_value(r, org_col));
-			}
-		// Define brackground color for cells
-		case (Qt::BackgroundRole):
-		{
-			const PVRow r = rowIndex(index);
-			if(r >= lib_view().get_row_count()) {
-			    // Nothing for rows out of bound.
-			    return {};
-			}
+	// Get content of the cell
+	case (Qt::DisplayRole): {
+		const PVRow r = rowIndex(index);
+		if (r >= lib_view().get_row_count()) {
+			// This data should not be shown as it is not in
+			// the NRaw
+			return {};
+		}
+		return QString::fromStdString(
+		    lib_view().get_parent<Inendi::PVSource>()->get_value(r, org_col));
+	}
+	// Define alignment of data
+	case (Qt::TextAlignmentRole):
+		return {Qt::AlignLeft | Qt::AlignVCenter};
+	// Get Tooltip content for the cell
+	case Qt::ToolTipRole: {
+		const PVRow r = rowIndex(index);
+		return QString::fromStdString(
+		    lib_view().get_parent<Inendi::PVSource>()->get_value(r, org_col));
+	}
+	// Define brackground color for cells
+	case (Qt::BackgroundRole): {
+		const PVRow r = rowIndex(index);
+		if (r >= lib_view().get_row_count()) {
+			// Nothing for rows out of bound.
+			return {};
+		}
 
-			if(is_selected(index)) {
-				// Visual selected lines from current selection
-				// and "in progress" selection
-				return _selection_brush;
-			} else if (lib_view().get_real_output_selection().get_line(r)) {
-				// Selected elements, use output layer color
-				const PVCore::PVHSVColor color = lib_view().get_color_in_output_layer(r);
-				return QBrush(color.toQColor());
-			} else if (lib_view().get_line_state_in_layer_stack_output_layer(r)) {
-				/* The event is unselected use darker output layer color */
-				const PVCore::PVHSVColor color = lib_view().get_color_in_output_layer(r);
-				return QBrush(color.toQColor().darker(200));
-			} else {
-				/* The event is a ZOMBIE */
-				return _zombie_brush;
-			}
+		if (is_selected(index)) {
+			// Visual selected lines from current selection
+			// and "in progress" selection
+			return _selection_brush;
+		} else if (lib_view().get_real_output_selection().get_line(r)) {
+			// Selected elements, use output layer color
+			const PVCore::PVHSVColor color = lib_view().get_color_in_output_layer(r);
+			return QBrush(color.toQColor());
+		} else if (lib_view().get_line_state_in_layer_stack_output_layer(r)) {
+			/* The event is unselected use darker output layer color */
+			const PVCore::PVHSVColor color = lib_view().get_color_in_output_layer(r);
+			return QBrush(color.toQColor().darker(200));
+		} else {
+			/* The event is a ZOMBIE */
+			return _zombie_brush;
 		}
-		// Define Font color for cells
-		case (Qt::ForegroundRole):
-		{
-			const PVRow r = rowIndex(index);
-			if(r >= lib_view().get_row_count()) {
-			    // Nothing for rows out of bound.
-			    return {};
-			}
-			// Show text in white if this is a zombie event
-			if (!lib_view().get_real_output_selection().get_line(r) &&
-				!lib_view().get_line_state_in_layer_stack_output_layer(r)) {
-				return QBrush(Qt::white);
-			}
-			return QVariant();
+	}
+	// Define Font color for cells
+	case (Qt::ForegroundRole): {
+		const PVRow r = rowIndex(index);
+		if (r >= lib_view().get_row_count()) {
+			// Nothing for rows out of bound.
+			return {};
 		}
+		// Show text in white if this is a zombie event
+		if (!lib_view().get_real_output_selection().get_line(r) &&
+		    !lib_view().get_line_state_in_layer_stack_output_layer(r)) {
+			return QBrush(Qt::white);
+		}
+		return QVariant();
+	}
 	}
 	return QVariant();
 }
-
 
 /******************************************************************************
  *
  * PVGuiQt::PVListingModel::headerData
  *
  *****************************************************************************/
-QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation,
+                                             int role) const
 {
 	switch (role) {
-		// Horizontal header contains axis labels and Vertical is line number
-		case (Qt::DisplayRole):
-			if (orientation == Qt::Horizontal) {
-				if (section >= 0) {
-					return lib_view().get_axis_name(section);
-				}
-			} else if (section >= 0) {
-				assert(orientation == Qt::Vertical && "No others possible orientations.");
-				return rowIndex(section);
+	// Horizontal header contains axis labels and Vertical is line number
+	case (Qt::DisplayRole):
+		if (orientation == Qt::Horizontal) {
+			if (section >= 0) {
+				return lib_view().get_axis_name(section);
 			}
-			break;
-		// Selected lines are bold, others use class specific font
-		case (Qt::FontRole):
-			if (orientation == Qt::Vertical and section >= 0) {
-				if (lib_view().get_real_output_selection().get_line(section)) {
-					QFont f(_vheader_font);
-					f.setBold(true);
-					return f;
-				}
-				return _vheader_font;
+		} else if (section >= 0) {
+			assert(orientation == Qt::Vertical && "No others possible orientations.");
+			return rowIndex(section);
+		}
+		break;
+	// Selected lines are bold, others use class specific font
+	case (Qt::FontRole):
+		if (orientation == Qt::Vertical and section >= 0) {
+			if (lib_view().get_real_output_selection().get_line(section)) {
+				QFont f(_vheader_font);
+				f.setBold(true);
+				return f;
 			}
-			break;
-		// Define header alignment
-		case (Qt::TextAlignmentRole):
-			if (orientation == Qt::Horizontal) {
-				return (Qt::AlignLeft + Qt::AlignTop);
-			} else {
-				return (Qt::AlignRight + Qt::AlignVCenter);
-			}
+			return _vheader_font;
+		}
+		break;
+	// Define header alignment
+	case (Qt::TextAlignmentRole):
+		if (orientation == Qt::Horizontal) {
+			return (Qt::AlignLeft + Qt::AlignTop);
+		} else {
+			return (Qt::AlignRight + Qt::AlignVCenter);
+		}
 	}
 
 	return QVariant();
 }
-
 
 /******************************************************************************
  *
  * PVGuiQt::PVListingModel::columnCount
  *
  *****************************************************************************/
-int PVGuiQt::PVListingModel::columnCount(const QModelIndex &) const
+int PVGuiQt::PVListingModel::columnCount(const QModelIndex&) const
 {
 	return lib_view().get_column_count();
 }
@@ -193,7 +193,7 @@ int PVGuiQt::PVListingModel::columnCount(const QModelIndex &) const
  * PVGuiQt::PVListingModel::flags
  *
  *****************************************************************************/
-Qt::ItemFlags PVGuiQt::PVListingModel::flags(const QModelIndex &/*index*/) const
+Qt::ItemFlags PVGuiQt::PVListingModel::flags(const QModelIndex& /*index*/) const
 {
 	return Qt::ItemIsEnabled;
 }
@@ -215,7 +215,8 @@ void PVGuiQt::PVListingModel::axes_comb_changed()
  * PVGuiQt::PVListingModel::sort
  *
  *****************************************************************************/
-void PVGuiQt::PVListingModel::sort(PVCol comb_col, Qt::SortOrder order, tbb::task_group_context & ctxt)
+void PVGuiQt::PVListingModel::sort(PVCol comb_col, Qt::SortOrder order,
+                                   tbb::task_group_context& ctxt)
 {
 	PVCol orig_col = lib_view().get_original_axis_index(comb_col);
 	lib_view().sort_indexes(orig_col, sorting(), &ctxt);
@@ -248,7 +249,7 @@ void PVGuiQt::PVListingModel::update_filter()
 	emit layoutAboutToBeChanged();
 
 	// Everything is selected
-	if(not sel) {
+	if (not sel) {
 		reset_filter(lib_view().get_row_count());
 		emit layoutChanged(); // FIXME : Should use RAII
 		return;
@@ -257,12 +258,13 @@ void PVGuiQt::PVListingModel::update_filter()
 	// Filter out lines according to the good selection.
 	clear_filter();
 
-	const PVRow nvisible_lines = sel->get_number_of_selected_lines_in_range(0, lib_view().get_row_count());
+	const PVRow nvisible_lines =
+	    sel->get_number_of_selected_lines_in_range(0, lib_view().get_row_count());
 
 	// Nothing is visible
 	if (nvisible_lines == 0) {
-	    emit layoutChanged(); // FIXME : Should use RAII
-	    return;
+		emit layoutChanged(); // FIXME : Should use RAII
+		return;
 	}
 
 	// Push selected lines
@@ -281,7 +283,7 @@ void PVGuiQt::PVListingModel::update_filter()
  *****************************************************************************/
 void PVGuiQt::__impl::PVListingVisibilityObserver::update(arguments_type const&) const
 {
-    _parent->update_filter();
+	_parent->update_filter();
 }
 
 /******************************************************************************
@@ -291,5 +293,5 @@ void PVGuiQt::__impl::PVListingVisibilityObserver::update(arguments_type const&)
  *****************************************************************************/
 void PVGuiQt::__impl::PVListingVisibilityZombieObserver::update(arguments_type const&) const
 {
-    _parent->update_filter();
+	_parent->update_filter();
 }

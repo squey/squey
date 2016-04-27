@@ -12,10 +12,9 @@
 
 #include <QDialogButtonBox>
 
-PVGuiQt::PVAxesCombinationWidget::PVAxesCombinationWidget(Inendi::PVAxesCombination& axes_combination, Inendi::PVView* view, QWidget* parent):
-	QWidget(parent),
-	_axes_combination(axes_combination),
-	_view(view)
+PVGuiQt::PVAxesCombinationWidget::PVAxesCombinationWidget(
+    Inendi::PVAxesCombination& axes_combination, Inendi::PVView* view, QWidget* parent)
+    : QWidget(parent), _axes_combination(axes_combination), _view(view)
 {
 	setupUi(this);
 
@@ -52,7 +51,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_add_Slot()
 	_list_used->addItem(axis_name);
 	_axes_combination.axis_append(axis_id);
 
-	_list_used->setCurrentRow(_list_used->count()-1);
+	_list_used->setCurrentRow(_list_used->count() - 1);
 
 	emit axes_count_changed();
 	emit axes_combination_changed();
@@ -65,7 +64,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_up_Slot()
 	}
 
 	QVector<PVCol> axes_id(get_used_axes_selected());
-	foreach(PVCol c, axes_id) {
+	foreach (PVCol c, axes_id) {
 		if (c == 0) {
 			return;
 		}
@@ -74,8 +73,8 @@ void PVGuiQt::PVAxesCombinationWidget::axis_up_Slot()
 	_axes_combination.move_axes_left_one_position(axes_id.begin(), axes_id.end());
 	update_used_axes();
 	QItemSelection new_sel;
-	foreach(PVCol c, axes_id) {
-		QModelIndex midx = _list_used->model()->index(c-1, 0);
+	foreach (PVCol c, axes_id) {
+		QModelIndex midx = _list_used->model()->index(c - 1, 0);
 		new_sel.select(midx, midx);
 	}
 	_list_used->selectionModel()->select(new_sel, QItemSelectionModel::ClearAndSelect);
@@ -91,7 +90,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_down_Slot()
 
 	QVector<PVCol> axes_id(get_used_axes_selected());
 	foreach (PVCol c, axes_id) {
-		if (c == _list_used->count()-1) {
+		if (c == _list_used->count() - 1) {
 			return;
 		}
 	}
@@ -99,8 +98,8 @@ void PVGuiQt::PVAxesCombinationWidget::axis_down_Slot()
 	_axes_combination.move_axes_right_one_position(axes_id.begin(), axes_id.end());
 	update_used_axes();
 	QItemSelection new_sel;
-	foreach(PVCol c, axes_id) {
-		QModelIndex midx = _list_used->model()->index(c+1, 0);
+	foreach (PVCol c, axes_id) {
+		QModelIndex midx = _list_used->model()->index(c + 1, 0);
 		new_sel.select(midx, midx);
 	}
 	_list_used->selectionModel()->select(new_sel, QItemSelectionModel::ClearAndSelect);
@@ -141,10 +140,10 @@ void PVGuiQt::PVAxesCombinationWidget::axis_remove_Slot()
 		return;
 	}
 
-	QVector<PVCol> axes_id = get_used_axes_selected();	
+	QVector<PVCol> axes_id = get_used_axes_selected();
 	_axes_combination.remove_axes(axes_id);
 	update_used_axes();
-	_list_used->setCurrentRow(std::min(axes_id.at(0), _list_used->count()-1));
+	_list_used->setCurrentRow(std::min(axes_id.at(0), _list_used->count() - 1));
 
 	emit axes_count_changed();
 	emit axes_combination_changed();
@@ -154,7 +153,7 @@ void PVGuiQt::PVAxesCombinationWidget::reset_comb_Slot()
 {
 	PVCol nold_axes = _axes_combination.get_axes_count();
 	_axes_combination.reset_to_default();
-	
+
 	update_used_axes();
 
 	if (nold_axes != _axes_combination.get_axes_count()) {
@@ -237,7 +236,8 @@ void PVGuiQt::PVAxesCombinationWidget::save_current_combination()
 
 void PVGuiQt::PVAxesCombinationWidget::restore_saved_combination()
 {
-	bool count_changed = (_axes_combination.get_axes_count() != _saved_combination.get_axes_count());
+	bool count_changed =
+	    (_axes_combination.get_axes_count() != _saved_combination.get_axes_count());
 	_axes_combination = _saved_combination;
 	if (count_changed) {
 		emit axes_count_changed();
@@ -246,9 +246,8 @@ void PVGuiQt::PVAxesCombinationWidget::restore_saved_combination()
 }
 
 // PVMoveToDlg implementation
-PVGuiQt::PVAxesCombinationWidget::PVMoveToDlg::PVMoveToDlg(PVAxesCombinationWidget* parent):
-	QDialog(parent),
-	_parent(parent)
+PVGuiQt::PVAxesCombinationWidget::PVMoveToDlg::PVMoveToDlg(PVAxesCombinationWidget* parent)
+    : QDialog(parent), _parent(parent)
 {
 	setWindowTitle(tr("Move to..."));
 
@@ -303,7 +302,7 @@ void PVGuiQt::PVAxesCombinationWidget::PVMoveToDlg::update_axes()
 void PVGuiQt::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> const& cols)
 {
 	QItemSelection new_sel;
-	foreach(PVCol c, cols) {
+	foreach (PVCol c, cols) {
 		QList<PVCol> comb_cols = _axes_combination.get_combined_axes_columns_indexes(c);
 		foreach (PVCol comb_c, comb_cols) {
 			QModelIndex midx = _list_used->model()->index(comb_c, 0);
@@ -361,8 +360,8 @@ void PVGuiQt::PVAxesCombinationWidget::sel_range_Slot()
 }
 
 // PVAxesCombinationWidgetSelRange implementation
-PVGuiQt::PVAxesCombinationWidgetSelRange::PVAxesCombinationWidgetSelRange(QWidget* parent):
-	QDialog(parent)
+PVGuiQt::PVAxesCombinationWidgetSelRange::PVAxesCombinationWidgetSelRange(QWidget* parent)
+    : QDialog(parent)
 {
 	setupUi(this);
 }
@@ -385,14 +384,15 @@ bool PVGuiQt::PVAxesCombinationWidgetSelRange::reversed()
 
 double PVGuiQt::PVAxesCombinationWidgetSelRange::rate()
 {
-	double rate = _edit_rate->text().toDouble()/100.0;
+	double rate = _edit_rate->text().toDouble() / 100.0;
 	if (rate == 0.0) {
 		rate = 1.0;
 	}
 	return rate;
 }
 
-PVGuiQt::PVAxesCombinationWidgetSelRange::values_source_t PVGuiQt::PVAxesCombinationWidgetSelRange::get_source()
+PVGuiQt::PVAxesCombinationWidgetSelRange::values_source_t
+PVGuiQt::PVAxesCombinationWidgetSelRange::get_source()
 {
 	return (_combo_values_src->currentIndex() == 0) ? plotted : mapped;
 }

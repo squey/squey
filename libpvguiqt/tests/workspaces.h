@@ -24,44 +24,40 @@ class CustomMainWindow;
 
 class CustomDockWidget : public QDockWidget
 {
-        Q_OBJECT
+	Q_OBJECT
 
-public:
-        CustomDockWidget(QWidget* parent = 0) : QDockWidget(parent) {}
+  public:
+	CustomDockWidget(QWidget* parent = 0) : QDockWidget(parent) {}
 
-        CustomMainWindow* workspace_under_mouse();
+	CustomMainWindow* workspace_under_mouse();
 
-protected:
-        bool event(QEvent* event);
+  protected:
+	bool event(QEvent* event);
 
-        QPoint _press_pt;
+	QPoint _press_pt;
 };
-
-
 
 class CustomMainWindow : public QMainWindow
 {
-        Q_OBJECT
+	Q_OBJECT
 
-public:
+  public:
+	CustomMainWindow(QWidget* parent = 0);
 
-        CustomMainWindow(QWidget* parent = 0);
+  public:
+	void CreateDockWidgets();
 
-public:
-        void CreateDockWidgets();
+  public slots:
+	void dragStarted(bool started);
+	void dragEnded();
+	void changeEvent(QEvent* event);
 
-public slots:
-        void dragStarted(bool started);
-        void dragEnded();
-        void changeEvent(QEvent *event);
+  public:
+	int z_order() { return zOrderIndex; }
 
-public:
-        int z_order() { return zOrderIndex; }
-
-private:
-        int zOrderIndex;
-        static unsigned int zOrderCounter;
+  private:
+	int zOrderIndex;
+	static unsigned int zOrderCounter;
 };
-
 
 #endif /* WORKSPACES_H_ */

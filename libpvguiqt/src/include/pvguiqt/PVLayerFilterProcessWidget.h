@@ -13,23 +13,26 @@
 #include <inendi/PVLayerFilter.h>
 #include <pvkernel/widgets/PVPresetsWidget.h>
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 class PVArgumentListWidget;
 }
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
-class PVLayerFilterProcessWidget: public QDialog
+class PVLayerFilterProcessWidget : public QDialog
 {
 	Q_OBJECT
 
-public:
-	PVLayerFilterProcessWidget(Inendi::PVView* view, PVCore::PVArgumentList& args, Inendi::PVLayerFilter_p filter_p, QWidget* parent = NULL);
+  public:
+	PVLayerFilterProcessWidget(Inendi::PVView* view, PVCore::PVArgumentList& args,
+	                           Inendi::PVLayerFilter_p filter_p, QWidget* parent = NULL);
 	virtual ~PVLayerFilterProcessWidget();
 
 	void change_args(PVCore::PVArgumentList const& args);
 
-public slots:
+  public slots:
 	void save_Slot();
 	void preview_Slot();
 	void reset_Slot();
@@ -39,7 +42,7 @@ public slots:
 	void remove_preset_Slot(const QString& preset);
 	void rename_preset_Slot(const QString& old_preset, const QString& new_preset);
 
-protected:
+  protected:
 	void reject() override;
 
 	void create_btns();
@@ -48,10 +51,11 @@ protected:
 
 	bool process();
 
-private:
-	static void process_layer_filter(Inendi::PVLayerFilter* filter, Inendi::PVLayer const* layer, Inendi::PVLayer* out_layer);
+  private:
+	static void process_layer_filter(Inendi::PVLayerFilter* filter, Inendi::PVLayer const* layer,
+	                                 Inendi::PVLayer* out_layer);
 
-protected:
+  protected:
 	Inendi::PVView* _view;
 	Inendi::PVLayerFilter_p _filter_p;
 	PVWidgets::PVPresetsWidget* _presets_widget;
@@ -67,10 +71,9 @@ protected:
 	PVWidgets::PVArgumentListWidget* _args_widget;
 	QHBoxLayout* _btn_layout;
 
-private:
+  private:
 	bool _has_apply;
 };
-
 }
 
 #endif

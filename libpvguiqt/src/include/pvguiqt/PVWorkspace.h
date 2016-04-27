@@ -26,19 +26,22 @@ class QWidget;
 #include <inendi/PVSource_types.h>
 #include <inendi/PVView_types.h>
 
-namespace Inendi {
+namespace Inendi
+{
 class PVView;
 }
 
 Q_DECLARE_METATYPE(Inendi::PVView*)
 
-namespace PVDisplays {
+namespace PVDisplays
+{
 class PVDisplayViewIf;
 class PVDisplayViewAxisIf;
 class PVDisplayViewZoneIf;
 }
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 class PVViewDisplay;
 
@@ -47,46 +50,46 @@ class PVViewDisplay;
  *
  * \note This class is the base class for workspaces.
  */
-class PVWorkspaceBase: public PVDisplays::PVDisplaysContainer
+class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 {
 	Q_OBJECT
 
 	friend class PVViewDisplay;
 	friend class PVViewWidgets;
 
-public:
+  public:
 	typedef PVHive::PVObserverSignal<PVCore::PVDataTreeObjectBase> datatree_obs_t;
 
-private:
-		class PVViewWidgets
+  private:
+	class PVViewWidgets
+	{
+	  public:
+		PVGuiQt::PVAxesCombinationDialog* _axes_combination_editor;
+		PVViewWidgets(Inendi::PVView* view, PVWorkspaceBase* tab)
 		{
-		public:
-			PVGuiQt::PVAxesCombinationDialog* _axes_combination_editor;
-			PVViewWidgets(Inendi::PVView* view, PVWorkspaceBase* tab)
-			{
-				Inendi::PVView_sp view_sp = view->shared_from_this();
-				_axes_combination_editor = new PVAxesCombinationDialog(view_sp, tab);
-			}
-			PVViewWidgets() { _axes_combination_editor = nullptr; }
-			~PVViewWidgets() {};
-
-		protected:
-			void delete_widgets() { _axes_combination_editor->deleteLater(); }
-		};
-
-public:
-		PVViewWidgets const& get_view_widgets(Inendi::PVView* view);
-		PVAxesCombinationDialog* get_axes_combination_editor(Inendi::PVView* view)
-		{
-			PVViewWidgets const& widgets = get_view_widgets(view);
-			return widgets._axes_combination_editor;
+			Inendi::PVView_sp view_sp = view->shared_from_this();
+			_axes_combination_editor = new PVAxesCombinationDialog(view_sp, tab);
 		}
+		PVViewWidgets() { _axes_combination_editor = nullptr; }
+		~PVViewWidgets(){};
 
-public:
-	PVWorkspaceBase(QWidget* parent): PVDisplays::PVDisplaysContainer(parent) {}
+	  protected:
+		void delete_widgets() { _axes_combination_editor->deleteLater(); }
+	};
+
+  public:
+	PVViewWidgets const& get_view_widgets(Inendi::PVView* view);
+	PVAxesCombinationDialog* get_axes_combination_editor(Inendi::PVView* view)
+	{
+		PVViewWidgets const& widgets = get_view_widgets(view);
+		return widgets._axes_combination_editor;
+	}
+
+  public:
+	PVWorkspaceBase(QWidget* parent) : PVDisplays::PVDisplaysContainer(parent) {}
 	virtual ~PVWorkspaceBase() = 0;
 
-public:
+  public:
 	/*! \brief Create a view display from a widget and add it to the workspace.
 	 *
 	 *  \param[in] view The underlying PVView.
@@ -98,14 +101,10 @@ public:
 	 *
 	 *  \return A pointer to the view display.
 	 */
-	PVViewDisplay* add_view_display(
-		Inendi::PVView* view,
-		QWidget* view_display,
-		std::function<QString()> name,
-		bool can_be_central_display = true,
-		bool delete_on_close = true,
-		Qt::DockWidgetArea area = Qt::TopDockWidgetArea
-	);
+	PVViewDisplay* add_view_display(Inendi::PVView* view, QWidget* view_display,
+	                                std::function<QString()> name,
+	                                bool can_be_central_display = true, bool delete_on_close = true,
+	                                Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
 
 	/*! \brief Set a widget as the cental view display of the workspace.
 	 *
@@ -116,37 +115,33 @@ public:
 	 *
 	 *  \return A pointer to the view display.
 	 */
-	PVViewDisplay* set_central_display(
-		Inendi::PVView* view,
-		QWidget* view_widget,
-		std::function<QString()> name,
-		bool delete_on_close
-	);
+	PVViewDisplay* set_central_display(Inendi::PVView* view, QWidget* view_widget,
+	                                   std::function<QString()> name, bool delete_on_close);
 
 	/*! \brief Return the workspace located under the mouse.
 	 */
 	static PVWorkspaceBase* workspace_under_mouse();
 
-public:
+  public:
 	static bool drag_started() { return _drag_started; }
 	inline int z_order() { return _z_order_index; }
 	void displays_about_to_be_deleted();
 
-protected:
+  protected:
 	/*! \brief Keep track of the Z Order of the workspace.
 	 *
 	 *  \note Used by workspace_under_mouse to disambiguate overlapping workspaces.
 	 */
-	void changeEvent(QEvent *event) override;
+	void changeEvent(QEvent* event) override;
 
-public slots:
+  public slots:
 	/*! \brief Create the widget used by the view display.
 	 *
 	 *  \param[in] act The QAction triggering the creation of the widget.
 	 */
 	void create_view_widget(QAction* act = nullptr) override;
 
-private slots:
+  private slots:
 	/*! \brief Create the widget used by the view display with axis parameter.
 	 *
 	 *  \param[in] act The QAction triggering the creation of the widget.
@@ -170,7 +165,8 @@ private slots:
 	 *  \param[in] display_dock The view display to switch as central widget.
 	 *
 	 *  \note In order to keep the displays positions, the displays themselves are
-	 *        not really switched: instead we switch all of their content (name, colors, observers...)
+	 *        not really switched: instead we switch all of their content (name, colors,
+	 *observers...)
 	 */
 	void switch_with_central_widget(PVViewDisplay* display_dock = nullptr);
 
@@ -187,7 +183,7 @@ signals:
 	 */
 	void try_automatic_tab_switch();
 
-protected:
+  protected:
 	QList<PVViewDisplay*> _displays;
 	QList<std::pair<QToolButton*, PVDisplays::PVDisplayViewIf*>> _view_display_if_btns;
 	QList<std::pair<QToolButton*, PVDisplays::PVDisplayViewAxisIf*>> _view_axis_display_if_btns;
@@ -207,49 +203,49 @@ class PVSourceWorkspace : public PVWorkspaceBase
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVSourceWorkspace(Inendi::PVSource* source, QWidget* parent = 0);
 
-public:
+  public:
 	inline Inendi::PVSource* get_source() const { return _source; }
-	
+
 	/**
 	 * Get the Dialog widget that show invalid elements.
 	 */
 	inline PVGuiQt::PVListDisplayDlg* get_source_invalid_evts_dlg() const { return _inv_evts_dlg; }
 
-private slots:
+  private slots:
 	/*! \brief Check if the view count has changed in order to refresh toolbar menus.
 	 */
 	void update_view_count(PVHive::PVObserverBase* obs_base);
 
-private:
+  private:
 	/*! \brief Refresh toolbar menus to reflect views changes.
 	 */
 	void refresh_views_menus();
 
-private:
+  private:
 	Inendi::PVSource* _source = nullptr;
 	QToolBar* _toolbar;
 	std::list<datatree_obs_t> _obs;
 	uint64_t _views_count;
 
-	PVGuiQt::PVListDisplayDlg* _inv_evts_dlg;  //<! Dialog with listing of invalid elements.
+	PVGuiQt::PVListDisplayDlg* _inv_evts_dlg; //<! Dialog with listing of invalid elements.
 };
 
 /**
  * \class PVOpenWorkspace
  *
- * \note This class is a PVWorkspaceBase derivation representing open workspaces i.e, not related to any particular source.
+ * \note This class is a PVWorkspaceBase derivation representing open workspaces i.e, not related to
+ *any particular source.
  */
 class PVOpenWorkspace : public PVWorkspaceBase
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVOpenWorkspace(QWidget* parent = 0) : PVWorkspaceBase(parent) {}
 };
-
 }
 
 #endif /* __PVGUIQT_PVWORKSPACE_H__ */

@@ -20,17 +20,11 @@
 
 class CustomMainWindow : public QMainWindow
 {
-public:
-
+  public:
 	CustomMainWindow()
 	{
-		setGeometry(
-		    QStyle::alignedRect(
-		        Qt::LeftToRight,
-		        Qt::AlignCenter,
-		        size(),
-		        qApp->desktop()->availableGeometry()
-		    ));
+		setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(),
+		                                qApp->desktop()->availableGeometry()));
 	}
 };
 
@@ -43,12 +37,12 @@ void print_infos()
 	std::cout << "screenCount=" << QApplication::desktop()->screenCount() << std::endl;
 	std::cout << "screenNumber=" << QApplication::desktop()->screenNumber() << std::endl;
 
-	QRect screenres = QApplication::desktop()->screenGeometry(0/*screenNumber*//*1*/);
+	QRect screenres = QApplication::desktop()->screenGeometry(0 /*screenNumber*/ /*1*/);
 	QDockWidget* secondDisplay = new QDockWidget(); // Use your QWidget
 	secondDisplay->move(QPoint(screenres.x(), screenres.y()));
 	secondDisplay->resize(screenres.width(), screenres.height());
 	secondDisplay->show();
-	//secondDisplay->showFullScreen();
+	// secondDisplay->showFullScreen();
 }
 
 int main(int argc, char** argv)
@@ -60,7 +54,7 @@ int main(int argc, char** argv)
 	mw->setCentralWidget(button);
 	mw->show();
 
-	connect(button, SIGNAL(clicked(bool)), []{print_infos();});
+	connect(button, SIGNAL(clicked(bool)), [] { print_infos(); });
 
 	return app.exec();
 }

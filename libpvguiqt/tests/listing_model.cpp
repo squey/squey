@@ -47,7 +47,6 @@ int main(int argc, char** argv)
 	Inendi::PVView_sp view = src->current_view()->shared_from_this();
 	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(view);
 
-
 	PVGuiQt::PVListingView* qt_view = new PVGuiQt::PVListingView(view);
 	qt_view->setModel(model);
 
@@ -59,14 +58,13 @@ int main(int argc, char** argv)
 	mw->show();
 
 	// Remove listing when pressing enter
-	boost::thread key_thread([&]
-		{
-			std::cerr << "Press enter to remove data-tree..." << std::endl;
-			while (getchar() != '\n');
-			//pview->remove_from_tree();
-			root.reset();
-		}
-	);
+	boost::thread key_thread([&] {
+		std::cerr << "Press enter to remove data-tree..." << std::endl;
+		while (getchar() != '\n')
+			;
+		// pview->remove_from_tree();
+		root.reset();
+	});
 
 	int ret = app.exec();
 	key_thread.join();

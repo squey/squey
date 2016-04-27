@@ -24,7 +24,6 @@
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 
-
 #include "common.h"
 #include "test-env.h"
 
@@ -37,7 +36,6 @@
 #include <QDesktopWidget>
 #include <QLabel>
 #include <QPushButton>
-
 
 int main(int argc, char** argv)
 {
@@ -68,13 +66,15 @@ int main(int argc, char** argv)
 	root->dump();
 	src->dump();
 
-	PVGuiQt::PVSceneWorkspacesTabWidget* workspaces_tab_widget = new PVGuiQt::PVSceneWorkspacesTabWidget(*src->get_parent());
+	PVGuiQt::PVSceneWorkspacesTabWidget* workspaces_tab_widget =
+	    new PVGuiQt::PVSceneWorkspacesTabWidget(*src->get_parent());
 
 	PVGuiQt::PVSourceWorkspace* workspace = new PVGuiQt::PVSourceWorkspace(src.get());
 	workspaces_tab_widget->addTab(workspace, "Workspace1");
 	workspaces_tab_widget->show();
 
-	PVGuiQt::PVOpenWorkspacesWidget* open_workspace = new PVGuiQt::PVOpenWorkspacesWidget(root.get(), NULL);
+	PVGuiQt::PVOpenWorkspacesWidget* open_workspace =
+	    new PVGuiQt::PVOpenWorkspacesWidget(root.get(), NULL);
 	open_workspace->show();
 
 	return app.exec();

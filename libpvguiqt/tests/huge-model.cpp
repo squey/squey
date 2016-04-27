@@ -17,19 +17,19 @@
 #define NROWS 1000000000 // OK w/ 71580000, not w/ 71590000
 #define NCOLS 1
 
-class MyModel: public QAbstractTableModel
+class MyModel : public QAbstractTableModel
 {
-public:
+  public:
 	int rowCount(QModelIndex const&) const override { return NROWS; }
 	int columnCount(QModelIndex const&) const override { return NCOLS; }
 	QVariant data(QModelIndex const& idx, int role) const override
 	{
 		if (role == Qt::DisplayRole) {
-			//PVLOG_INFO("data w/ idx %d/%d\n", idx.row(), idx.column());
+			// PVLOG_INFO("data w/ idx %d/%d\n", idx.row(), idx.column());
 			return QVariant(QString::number(idx.row()));
-		}
-		else {
-			//PVLOG_INFO("data w/ idx %d/%d and role %d\n", idx.row(), idx.column(), role);
+		} else {
+			// PVLOG_INFO("data w/ idx %d/%d and role %d\n", idx.row(), idx.column(),
+			// role);
 		}
 		return QVariant();
 	}

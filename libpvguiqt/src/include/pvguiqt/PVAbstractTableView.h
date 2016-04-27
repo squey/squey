@@ -10,34 +10,36 @@
 #include <pvguiqt/PVTableView.h>
 #include <pvbase/types.h>
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 class PVAbstractTableModel;
 
 /**
  * Abstract class for Huge table view.
- * 
+ *
  * It has to be used with the PVAbstractTableModel to handle
  * huge tables.
  */
 class PVAbstractTableView : public PVTableView
 {
 	Q_OBJECT;
-public:
-	PVAbstractTableView(QWidget* parent=nullptr);
+
+  public:
+	PVAbstractTableView(QWidget* parent = nullptr);
 
 	/**
 	 * Define the current model and update pagination information depending
 	 * on its number of elements.
 	 */
-	void setModel(QAbstractItemModel * model) override;
+	void setModel(QAbstractItemModel* model) override;
 
 	/**
 	 * Get the associate model.
 	 */
 	PVAbstractTableModel* table_model();
 
-protected:
+  protected:
 	/**
 	 * Slots called on slider movement.
 	 */
@@ -66,7 +68,7 @@ protected:
 	 *
 	 * Works with Shift and Control modifier for selection.
 	 */
-	void mousePressEvent(QMouseEvent * event) override;
+	void mousePressEvent(QMouseEvent* event) override;
 
 	/**
 	 * Handle selection and table movement
@@ -81,7 +83,7 @@ protected:
 	/**
 	 * Commit in the current selection if a selection is in progress.
 	 */
-	void mouseReleaseEvent(QMouseEvent * event) override;
+	void mouseReleaseEvent(QMouseEvent* event) override;
 
 	/**
 	 * Move the table in the mouse direction. It also update the
@@ -89,7 +91,7 @@ protected:
 	 *
 	 * @note Called only when button is pressed.
 	 */
-	void mouseMoveEvent(QMouseEvent * event) override;
+	void mouseMoveEvent(QMouseEvent* event) override;
 
 	/**
 	 * Move the pagination information to have row as first line and update view.
@@ -98,8 +100,7 @@ protected:
 	 */
 	void move_to_nraw(PVRow row);
 
-private:
-
+  private:
 	/**
 	 * Move the pagination information and update view.
 	 *
@@ -138,7 +139,7 @@ private:
 	 */
 	virtual void show_ctxt_menu(QPoint const&) {}
 
-private slots:
+  private slots:
 	/**
 	 * Commit the selection before any right-click action.
 	 */
@@ -146,10 +147,7 @@ private slots:
 
 signals:
 	void validate_selection();
-
-
 };
-
 }
 
 #endif

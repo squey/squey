@@ -49,24 +49,21 @@ int main(int argc, char** argv)
 
 	// Display all the possible Qt displays of this view and source
 	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
-		[&](PVDisplays::PVDisplayViewIf& obj)
-		{
-			QWidget* w = PVDisplays::get().get_widget(obj, view);
-			w->show();
+	    [&](PVDisplays::PVDisplayViewIf& obj) {
+		    QWidget* w = PVDisplays::get().get_widget(obj, view);
+		    w->show();
 		});
 
 	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
-		[&](PVDisplays::PVDisplaySourceIf& obj)
-		{
-			QWidget* w = PVDisplays::get().get_widget(obj, src.get());
-			w->show();
+	    [&](PVDisplays::PVDisplaySourceIf& obj) {
+		    QWidget* w = PVDisplays::get().get_widget(obj, src.get());
+		    w->show();
 		});
 
 	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewAxisIf>(
-		[&](PVDisplays::PVDisplayViewAxisIf& obj)
-		{
-			QWidget* w = PVDisplays::get().get_widget(obj, view, 1);
-			w->show();
+	    [&](PVDisplays::PVDisplayViewAxisIf& obj) {
+		    QWidget* w = PVDisplays::get().get_widget(obj, view, 1);
+		    w->show();
 		});
 
 	app.exec();

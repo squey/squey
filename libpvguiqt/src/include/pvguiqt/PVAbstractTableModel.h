@@ -14,11 +14,12 @@
 #include <inendi/PVSelection.h>
 #include <pvcop/db/array.h>
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 /**
  * This class replace QAbstractTableModel for big tables.
- * 
+ *
  * It handles huge number of rows using pagination.
  *
  * This model also handle sorting and filtering.
@@ -28,21 +29,22 @@ namespace PVGuiQt {
  * user have to care about background display. If he want to handle selection,
  * he has to return the _selection_brush color on background for selected elements.
  */
-class PVAbstractTableModel: public QAbstractTableModel {
+class PVAbstractTableModel : public QAbstractTableModel
+{
 	Q_OBJECT;
 
-public:
+  public:
 	using selection_mode_t = enum {
 		SET,            // mode to set rows as selected
 		TOGGLE_AND_USE, // mode to get the current row state and use it invers elsewhere
 		NEGATE          // mode to invert the rows states
 	};
 
-	public:
+  public:
 	/**
 	 * Create a TableModel with a given number of row (default value)
 	 */
-	PVAbstractTableModel(int row_count, QObject* parent=nullptr);
+	PVAbstractTableModel(int row_count, QObject* parent = nullptr);
 
 	/**
 	 * Function to export asked line;
@@ -129,7 +131,7 @@ public:
 	 *
 	 * @warning : It is not the number of rows in the listing.
 	 */
-	int rowCount(const QModelIndex &index = QModelIndex()) const override final;
+	int rowCount(const QModelIndex& index = QModelIndex()) const override final;
 
 	/**
 	 * Get real number of elements in the Table.
@@ -146,7 +148,7 @@ public:
 	 *
 	 * @note: Modification is possible to enable Selection swapping
 	 */
-	Inendi::PVSelection & current_selection() { return _current_selection; }
+	Inendi::PVSelection& current_selection() { return _current_selection; }
 
 	/// Accessors
 	size_t current_page() const { return _current_page; }
@@ -221,9 +223,9 @@ public:
 	 */
 	void reset_filter(int size);
 
-        /**
-	 * Remove filter. No more line displaied
-	 */
+	/**
+ * Remove filter. No more line displaied
+ */
 	void clear_filter() { _filter.clear(); }
 
 	/**
@@ -233,31 +235,32 @@ public:
 	 */
 	void set_filter(Inendi::PVSelection const* sel, size_t size);
 
-	protected:
+  protected:
 	/**
 	 * Set sorting contextual informations.
 	 */
-		void sorted(int col, Qt::SortOrder order);
+	void sorted(int col, Qt::SortOrder order);
 
-	protected:
-		/**
-		 * Accessor for sorted column index.
-		 */
-		PVCol sorted_column() const { return _sorted_column; }
+  protected:
+	/**
+	 * Accessor for sorted column index.
+	 */
+	PVCol sorted_column() const { return _sorted_column; }
 
-		/**
-		 * filtering is the same as sort (mean everything is selected but sorted.).
-		 */
-		void filter_is_sort() {
-			auto const& sort = _sort.to_core_array();
-			if(_sort_order != Qt::DescendingOrder) {
-				std::copy(sort.begin(), sort.end(), _filter.begin());
-			} else {
-				std::copy(sort.begin(), sort.end(), _filter.rbegin());
-			}
+	/**
+	 * filtering is the same as sort (mean everything is selected but sorted.).
+	 */
+	void filter_is_sort()
+	{
+		auto const& sort = _sort.to_core_array();
+		if (_sort_order != Qt::DescendingOrder) {
+			std::copy(sort.begin(), sort.end(), _filter.begin());
+		} else {
+			std::copy(sort.begin(), sort.end(), _filter.rbegin());
 		}
+	}
 
-protected:
+  protected:
 	/**
 	 * Apply the current selection mode to @p value
 	 *
@@ -267,32 +270,31 @@ protected:
 	 */
 	bool apply_selection_mode(bool value) const;
 
-	protected:
-	const QBrush _selection_brush = QColor(88, 172, 250);//!< Aspect of selected lines
+  protected:
+	const QBrush _selection_brush = QColor(88, 172, 250); //!< Aspect of selected lines
 
-	private:
-
+  private:
 	// Sorting information
 	std::vector<PVRow> _filter; //!< Lines to use, map listing_row_id to nraw_row_id unsorted
-	pvcop::db::indexes _sort; //!< Sorted lines, map listing not filtered position to nraw position
-	PVCol _sorted_column; //!< The current sorted column
+	pvcop::db::indexes _sort;  //!< Sorted lines, map listing not filtered position to nraw position
+	PVCol _sorted_column;      //!< The current sorted column
 	Qt::SortOrder _sort_order; //!< The sort order of the current sorted column
 
 	// Pagination information
-	size_t _current_page; //!< Page currently processed
-	size_t _pos_in_page; //!< Position in the page
-	size_t _page_size; //!< Number of elements per page
+	size_t _current_page;   //!< Page currently processed
+	size_t _pos_in_page;    //!< Position in the page
+	size_t _page_size;      //!< Number of elements per page
 	size_t _last_page_size; //!< Number of elements in the last page
-	size_t _page_number; //!< Number of pages
-	size_t _page_step; //!< Number of elements not counted in scroll ticks
+	size_t _page_number;    //!< Number of pages
+	size_t _page_step;      //!< Number of elements not counted in scroll ticks
 
 	// Selection information
 	Inendi::PVSelection _current_selection; //!< The current "visual" selection
-	ssize_t _start_sel; //!< Begin of the "in progress" selection
-	ssize_t _end_sel; //!< End of the "in progress" selection
-	bool _in_select_mode; //!< Whether elements should be selected of unselected from "in progress" selection to current selection.
+	ssize_t _start_sel;                     //!< Begin of the "in progress" selection
+	ssize_t _end_sel;                       //!< End of the "in progress" selection
+	bool _in_select_mode; //!< Whether elements should be selected of unselected from "in progress"
+	// selection to current selection.
 	selection_mode_t _selection_mode; //!< the selection mode
 };
-
 }
 #endif

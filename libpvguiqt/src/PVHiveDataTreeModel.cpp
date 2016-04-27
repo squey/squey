@@ -12,8 +12,9 @@
 
 #include <pvguiqt/PVHiveDataTreeModel.h>
 
-PVGuiQt::PVHiveDataTreeModel::PVHiveDataTreeModel(PVCore::PVDataTreeObjectBase& root, QObject* parent):
-	PVDataTreeModel(root, parent)
+PVGuiQt::PVHiveDataTreeModel::PVHiveDataTreeModel(PVCore::PVDataTreeObjectBase& root,
+                                                  QObject* parent)
+    : PVDataTreeModel(root, parent)
 {
 	register_all_observers();
 
@@ -26,16 +27,16 @@ PVGuiQt::PVHiveDataTreeModel::PVHiveDataTreeModel(PVCore::PVDataTreeObjectBase& 
 	obs->connect_about_to_be_deleted(this, SLOT(root_about_to_be_deleted(PVHive::PVObserverBase*)));
 
 	_root_recursive_observer = PVHive::create_observer_callback_heap<PVCore::PVDataTreeObjectBase>(
-		[](PVCore::PVDataTreeObjectBase const*) { },
-		[&](PVCore::PVDataTreeObjectBase const*) { register_all_observers(); },
-		[](PVCore::PVDataTreeObjectBase const*) { });
+	    [](PVCore::PVDataTreeObjectBase const*) {},
+	    [&](PVCore::PVDataTreeObjectBase const*) { register_all_observers(); },
+	    [](PVCore::PVDataTreeObjectBase const*) {});
 	_root_recursive_observer->set_accept_recursive_refreshes(true);
 
 	auto root_sp = root.base_shared_from_this();
 	PVHive::get().register_observer(root_sp, *_root_recursive_observer);
 }
 
-int PVGuiQt::PVHiveDataTreeModel::rowCount(const QModelIndex &index) const
+int PVGuiQt::PVHiveDataTreeModel::rowCount(const QModelIndex& index) const
 {
 	if (!_view_valid) {
 		return 0;
@@ -46,7 +47,7 @@ int PVGuiQt::PVHiveDataTreeModel::rowCount(const QModelIndex &index) const
 
 bool PVGuiQt::PVHiveDataTreeModel::is_object_observed(PVCore::PVDataTreeObjectBase* o) const
 {
-	for (datatree_obs_t const& obs: _obs) {
+	for (datatree_obs_t const& obs : _obs) {
 		if (obs.get_object() == o) {
 			return true;
 		}
@@ -57,27 +58,26 @@ bool PVGuiQt::PVHiveDataTreeModel::is_object_observed(PVCore::PVDataTreeObjectBa
 void PVGuiQt::PVHiveDataTreeModel::register_all_observers()
 {
 	// Register observers on the whole tree
-	_root_base->depth_first_list(
-		[&](PVCore::PVDataTreeObjectBase* o) {
-			if (!is_object_observed(o)) {
-				this->_obs.emplace_back(static_cast<QObject*>(this));
-				datatree_obs_t* obs = &_obs.back();
-				auto datatree_o = o->base_shared_from_this();
-				PVHive::get().register_observer(datatree_o, *obs);
-				obs->connect_refresh(this, SLOT(hive_refresh(PVHive::PVObserverBase*)));
-				obs->connect_about_to_be_deleted(this, SLOT(about_to_be_deleted(PVHive::PVObserverBase*)));
+	_root_base->depth_first_list([&](PVCore::PVDataTreeObjectBase* o) {
+		if (!is_object_observed(o)) {
+			this->_obs.emplace_back(static_cast<QObject*>(this));
+			datatree_obs_t* obs = &_obs.back();
+			auto datatree_o = o->base_shared_from_this();
+			PVHive::get().register_observer(datatree_o, *obs);
+			obs->connect_refresh(this, SLOT(hive_refresh(PVHive::PVObserverBase*)));
+			obs->connect_about_to_be_deleted(this,
+			                                 SLOT(about_to_be_deleted(PVHive::PVObserverBase*)));
 
-				// Refresh parent
-				PVCore::PVDataTreeObjectWithParentBase* o_with_parent = o->cast_with_parent();
-				if (o_with_parent) {
-					/*QModelIndex idx = index_from_obj(o_with_parent->get_parent_base());
-					emit dataChanged(idx, idx);*/
-					beginResetModel();
-					endResetModel();
-				}
+			// Refresh parent
+			PVCore::PVDataTreeObjectWithParentBase* o_with_parent = o->cast_with_parent();
+			if (o_with_parent) {
+				/*QModelIndex idx = index_from_obj(o_with_parent->get_parent_base());
+				emit dataChanged(idx, idx);*/
+				beginResetModel();
+				endResetModel();
 			}
 		}
-	);
+	});
 }
 
 void PVGuiQt::PVHiveDataTreeModel::hive_refresh(PVHive::PVObserverBase* o)
@@ -114,7 +114,7 @@ void PVGuiQt::PVHiveDataTreeModel::about_to_be_deleted(PVHive::PVObserverBase*)
 	QModelIndex idx = index_from_obj(obj_base);
 
 	if (idx.isValid()) {
-		removeRows(idx.row(), idx.column(), idx.parent());
+	        removeRows(idx.row(), idx.column(), idx.parent());
 	}*/
 	beginResetModel();
 	endResetModel();

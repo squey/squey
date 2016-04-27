@@ -27,8 +27,8 @@
 #include <tbb/task_scheduler_init.h>
 #include <tbb/parallel_reduce.h>
 
-PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget* parent):
-	QDialog(parent), _model(model)
+PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget* parent)
+    : QDialog(parent), _model(model)
 {
 	assert(_model->parent() == nullptr && "Model should not have parent as we destroy it");
 	setupUi(this);
@@ -44,7 +44,8 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 
 	_values_view->horizontalHeader()->setStretchLastSection(true);
 
-	_values_view->verticalHeader()->setDefaultSectionSize(_values_view->verticalHeader()->minimumSectionSize());
+	_values_view->verticalHeader()->setDefaultSectionSize(
+	    _values_view->verticalHeader()->minimumSectionSize());
 	_values_view->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
 	// Define context menu to copy values in clipboard.
@@ -57,8 +58,10 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 
 	set_description(QString());
 
-	// Show contextual menu on right click in the table (set menuPolicy to emit signals)
-	connect(_values_view, &QWidget::customContextMenuRequested, this, &PVListDisplayDlg::show_ctxt_menu);
+	// Show contextual menu on right click in the table (set menuPolicy to emit
+	// signals)
+	connect(_values_view, &QWidget::customContextMenuRequested, this,
+	        &PVListDisplayDlg::show_ctxt_menu);
 	_values_view->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	connect(_btn_copy_clipboard, SIGNAL(clicked()), this, SLOT(copy_all_to_clipboard()));
@@ -121,7 +124,8 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
 	// Get the line separator to use for export (defined in UI)
-	QString sep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_line_separator_button->keySequence())));
+	QString sep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(
+	    _line_separator_button->keySequence())));
 	if (sep.isEmpty()) {
 		sep = "\n";
 	}
@@ -136,29 +140,34 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 	QString content;
 
 	// TODO(pbrunet) : do something on this check.
-	bool success = PVCore::PVProgressBox::progress([&]() {
-			/* the PVSelection can be safely traversed because the range selection
-			 * has been committed earlier at right click.
-			 *
-			 * Manual iteration is done to keep sort ordering.
-			 */
-			for(size_t row: model().shown_lines()) {
-				if(not _model->current_selection().get_line(row)) {
-					continue;
-				}
-				if unlikely(ctxt.is_group_execution_cancelled()) {
-					return false;;
-				}
+	bool success =
+	    PVCore::PVProgressBox::progress([&]() {
+		                                    /* the PVSelection can be safely traversed because the
+		                                     *range selection
+		                                     * has been committed earlier at right click.
+		                                     *
+		                                     * Manual iteration is done to keep sort ordering.
+		                                     */
+		                                    for (size_t row : model().shown_lines()) {
+			                                    if (not _model->current_selection().get_line(row)) {
+				                                    continue;
+			                                    }
+			                                    if
+				                                    unlikely(ctxt.is_group_execution_cancelled())
+				                                    {
+					                                    return false;
+					                                    ;
+				                                    }
 
-				QString s = model().export_line(row);
-				if (!s.isNull()) {
-					content.append(s.append(sep));
-				}
+			                                    QString s = model().export_line(row);
+			                                    if (!s.isNull()) {
+				                                    content.append(s.append(sep));
+			                                    }
+		                                    }
 
-			}
-
-			return true;
-		}, ctxt, pbox);
+		                                    return true;
+		                                },
+	                                    ctxt, pbox);
 
 	QApplication::clipboard()->setText(content);
 
@@ -176,9 +185,14 @@ void PVGuiQt::PVListDisplayDlg::export_to_file(QFile& file)
 	outstream << content;
 
 	if (!success) {
-		if (QMessageBox::question(this, tr("File writing cancelled"), tr("Do you want to remove the file '%1'?").arg(path), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+		if (QMessageBox::question(this, tr("File writing cancelled"),
+		                          tr("Do you want to remove the file '%1'?").arg(path),
+		                          QMessageBox::Yes | QMessageBox::No,
+		                          QMessageBox::Yes) == QMessageBox::Yes) {
 			if (!file.remove()) {
-				QMessageBox::warning(this, tr("File writing cancelled"), tr("Error while removing '%1': %2").arg(path).arg(file.errorString()));
+				QMessageBox::warning(
+				    this, tr("File writing cancelled"),
+				    tr("Error while removing '%1': %2").arg(path).arg(file.errorString()));
 			}
 		}
 		return;
@@ -190,7 +204,8 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
 	// Get the line separator to use for export (defined in UI)
-	QString sep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_line_separator_button->keySequence())));
+	QString sep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(
+	    _line_separator_button->keySequence())));
 	if (sep.isEmpty()) {
 		sep = "\n";
 	}
@@ -202,34 +217,35 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 	tbb::task_scheduler_init init(nthreads);
 	tbb::task_group_context ctxt;
 
-	bool success = PVCore::PVProgressBox::progress([&,count]() {
+	bool success = PVCore::PVProgressBox::progress(
+	    [&, count]() {
 
-		BENCH_START(export_values);
-		content = tbb::parallel_reduce(
-			tbb::blocked_range<int>(0, count, std::max(nthreads, count / nthreads)),
-			content,
-			[&](const tbb::blocked_range<int>& range, QString l) -> QString {
-				for (int i = range.begin(); i != range.end(); ++i) {
-					if unlikely(ctxt.is_group_execution_cancelled()) {
-						return QString();
-					}
-					QString s = _model->export_line(model().row_pos_to_index(i));
-					if (!s.isNull()) {
-						l.append(s.append(sep));
-					}
-				}
-				return l;
-			},
-			// Get ordered result
-			[](const QString& left, const QString& right) -> QString {
-				const_cast<QString&>(left).append(right); // const_cast needed to use optimized append method
-				return left;
-			}
-		, tbb::simple_partitioner());
-		BENCH_END(export_values, "export_values", 0, 0, 1, content.size());
+		    BENCH_START(export_values);
+		    content = tbb::parallel_reduce(
+		        tbb::blocked_range<int>(0, count, std::max(nthreads, count / nthreads)), content,
+		        [&](const tbb::blocked_range<int>& range, QString l) -> QString {
+			        for (int i = range.begin(); i != range.end(); ++i) {
+				        if
+					        unlikely(ctxt.is_group_execution_cancelled()) { return QString(); }
+				        QString s = _model->export_line(model().row_pos_to_index(i));
+				        if (!s.isNull()) {
+					        l.append(s.append(sep));
+				        }
+			        }
+			        return l;
+			    },
+		        // Get ordered result
+		        [](const QString& left, const QString& right) -> QString {
+			        const_cast<QString&>(left)
+			            .append(right); // const_cast needed to use optimized append method
+			        return left;
+			    },
+		        tbb::simple_partitioner());
+		    BENCH_END(export_values, "export_values", 0, 0, 1, content.size());
 
-		return !ctxt.is_group_execution_cancelled();
-	}, ctxt, pbox);
+		    return !ctxt.is_group_execution_cancelled();
+		},
+	    ctxt, pbox);
 
 	QApplication::restoreOverrideCursor();
 
@@ -244,7 +260,8 @@ void PVGuiQt::PVListDisplayDlg::export_to_file_ui(bool append)
 	if (append) {
 		options = QFileDialog::DontConfirmOverwrite;
 	}
-	QString path = QFileDialog::getSaveFileName(this, tr("Save to file..."), QString(), QString(), NULL, options);
+	QString path = QFileDialog::getSaveFileName(this, tr("Save to file..."), QString(), QString(),
+	                                            NULL, options);
 	if (path.isEmpty()) {
 		return;
 	}
@@ -253,12 +270,13 @@ void PVGuiQt::PVListDisplayDlg::export_to_file_ui(bool append)
 	QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
 	if (append) {
 		mode |= QIODevice::Append;
-	}
-	else {
+	} else {
 		mode |= QIODevice::Truncate;
 	}
 	if (!file.open(mode)) {
-		QMessageBox::critical(this, tr("Copy to file..."), tr("Unable to open '%1' for writing: %2.").arg(path).arg(file.errorString()));
+		QMessageBox::critical(
+		    this, tr("Copy to file..."),
+		    tr("Unable to open '%1' for writing: %2.").arg(path).arg(file.errorString()));
 		return;
 	}
 	export_to_file(file);
@@ -268,8 +286,7 @@ void PVGuiQt::PVListDisplayDlg::set_description(QString const& desc)
 {
 	if (desc.isEmpty()) {
 		_desc_label->setVisible(false);
-	}
-	else {
+	} else {
 		_desc_label->setVisible(true);
 		_desc_label->setText(desc);
 	}

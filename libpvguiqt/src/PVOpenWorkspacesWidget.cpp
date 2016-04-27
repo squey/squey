@@ -27,35 +27,39 @@
 #include <QToolButton>
 #include <QSplitter>
 
-namespace PVGuiQt { namespace __impl {
-
-class RootTreeModelViewsSelectable: public PVGuiQt::PVRootTreeModel
+namespace PVGuiQt
 {
-public:
-	RootTreeModelViewsSelectable(PVCore::PVDataTreeObjectBase& root, QObject* parent = 0):
-		PVGuiQt::PVRootTreeModel(root, parent)
-	{ }
+namespace __impl
+{
 
-public:
-	Qt::ItemFlags flags(const QModelIndex & index) const
+class RootTreeModelViewsSelectable : public PVGuiQt::PVRootTreeModel
+{
+  public:
+	RootTreeModelViewsSelectable(PVCore::PVDataTreeObjectBase& root, QObject* parent = 0)
+	    : PVGuiQt::PVRootTreeModel(root, parent)
 	{
-		PVCore::PVDataTreeObjectBase const* obj = (PVCore::PVDataTreeObjectBase const*) index.internalPointer();
+	}
+
+  public:
+	Qt::ItemFlags flags(const QModelIndex& index) const
+	{
+		PVCore::PVDataTreeObjectBase const* obj =
+		    (PVCore::PVDataTreeObjectBase const*)index.internalPointer();
 		Inendi::PVView const* view = dynamic_cast<Inendi::PVView const*>(obj);
 		Qt::ItemFlags flags = PVGuiQt::PVRootTreeModel::flags(index);
 		if (view) {
 			flags |= Qt::ItemIsSelectable;
-		}
-		else {
+		} else {
 			flags &= ~Qt::ItemIsSelectable;
 		}
 		return flags;
 	}
 };
+}
+}
 
-} }
-
-PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Inendi::PVRoot* root, QWidget* parent):
-	QWidget(parent)
+PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Inendi::PVRoot* root, QWidget* parent)
+    : QWidget(parent)
 {
 	typedef PVWidgets::PVDataTreeMaskProxyModel<Inendi::PVMapped> maping_mask_proxy_t;
 	typedef PVWidgets::PVDataTreeMaskProxyModel<Inendi::PVPlotted> plotting_mask_proxy_t;
@@ -81,7 +85,8 @@ PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Inendi::PVRoot* root, QW
 	_tab_widget = new PVOpenWorkspacesTabWidget(*root);
 
 	// Data tree from PVRoot
-	__impl::RootTreeModelViewsSelectable* tree_model = new __impl::RootTreeModelViewsSelectable(*root);
+	__impl::RootTreeModelViewsSelectable* tree_model =
+	    new __impl::RootTreeModelViewsSelectable(*root);
 
 	// the mask proxies
 	maping_mask_proxy_t* mapping_mask_proxy = new maping_mask_proxy_t();
@@ -100,27 +105,25 @@ PVGuiQt::PVOpenWorkspacesWidget::PVOpenWorkspacesWidget(Inendi::PVRoot* root, QW
 	toolbar->setIconSize(QSize(24, 24));
 
 	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
-		[&](PVDisplays::PVDisplayViewIf& obj)
-		{
-			if (!obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters)) {
-				QToolButton* btn = new QToolButton(toolbar);
+	    [&](PVDisplays::PVDisplayViewIf& obj) {
+		    if (!obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters)) {
+			    QToolButton* btn = new QToolButton(toolbar);
 
-				QAction* act = new QAction(btn);
-				act->setIcon(obj.toolbar_icon());
-				act->setToolTip(obj.tooltip_str());
+			    QAction* act = new QAction(btn);
+			    act->setIcon(obj.toolbar_icon());
+			    act->setToolTip(obj.tooltip_str());
 
-				QVariant var;
-				var.setValue<void*>(&obj);
-				act->setData(var);
+			    QVariant var;
+			    var.setValue<void*>(&obj);
+			    act->setData(var);
 
-				connect(act, SIGNAL(triggered()), this, SLOT(create_views_widget()));
+			    connect(act, SIGNAL(triggered()), this, SLOT(create_views_widget()));
 
-				btn->setDefaultAction(act);
-				toolbar->addWidget(btn);
-
-			}
-		}, PVDisplays::PVDisplayIf::ShowInToolbar);
-
+			    btn->setDefaultAction(act);
+			    toolbar->addWidget(btn);
+		    }
+		},
+	    PVDisplays::PVDisplayIf::ShowInToolbar);
 
 	// Composition of everyone
 	//
@@ -154,11 +157,10 @@ void PVGuiQt::PVOpenWorkspacesWidget::create_views_widget()
 
 	PVOpenWorkspace* cur_workspace = _tab_widget->current_workspace_or_create();
 
-	PVDisplays::PVDisplayViewIf& interface = *(reinterpret_cast<PVDisplays::PVDisplayViewIf*>(act->data().value<void*>()));
-	_root_view->visit_selected_objs_as<Inendi::PVView>(
-		[&](Inendi::PVView* view)
-		{
-			QAction* creation_act = PVDisplays::get().action_bound_to_params(interface, view);
-			cur_workspace->create_view_widget(creation_act);
-		});
+	PVDisplays::PVDisplayViewIf& interface =
+	    *(reinterpret_cast<PVDisplays::PVDisplayViewIf*>(act->data().value<void*>()));
+	_root_view->visit_selected_objs_as<Inendi::PVView>([&](Inendi::PVView* view) {
+		QAction* creation_act = PVDisplays::get().action_bound_to_params(interface, view);
+		cur_workspace->create_view_widget(creation_act);
+	});
 }

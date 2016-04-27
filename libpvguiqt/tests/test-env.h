@@ -11,13 +11,17 @@
 
 void init_env()
 {
-	setenv("PVFILTER_NORMALIZE_DIR",INENDI_BUILD_DIRECTORY "/libpvkernel/plugins/normalize",0);
-	setenv("PVRUSH_NORMALIZE_HELPERS_DIR",INENDI_SOURCE_DIRECTORY "/libpvkernel/plugins/normalize-helpers:./test-formats",0);
-	setenv("INENDI_CACHE_DIR","./cache",0);
-	setenv("PVRUSH_INPUTTYPE_DIR",INENDI_BUILD_DIRECTORY "/libpvkernel/plugins/input_types",0);
-	setenv("PVRUSH_SOURCE_DIR",INENDI_BUILD_DIRECTORY "/libpvkernel/plugins/sources",0);
-	setenv("INENDI_MAPPING_FILTERS_DIR",INENDI_BUILD_DIRECTORY "/libinendi/plugins/mapping-filters",0);
-	setenv("INENDI_PLOTTING_FILTERS_DIR",INENDI_BUILD_DIRECTORY "/libinendi/plugins/plotting-filters",0);
-	setenv("INENDI_LAYER_FILTERS_DIR",INENDI_BUILD_DIRECTORY "/libinendi/plugins/layer-filters",0);
+	setenv("PVFILTER_NORMALIZE_DIR", INENDI_BUILD_DIRECTORY "/libpvkernel/plugins/normalize", 0);
+	setenv("PVRUSH_NORMALIZE_HELPERS_DIR",
+	       INENDI_SOURCE_DIRECTORY "/libpvkernel/plugins/normalize-helpers:./test-formats", 0);
+	setenv("INENDI_CACHE_DIR", "./cache", 0);
+	setenv("PVRUSH_INPUTTYPE_DIR", INENDI_BUILD_DIRECTORY "/libpvkernel/plugins/input_types", 0);
+	setenv("PVRUSH_SOURCE_DIR", INENDI_BUILD_DIRECTORY "/libpvkernel/plugins/sources", 0);
+	setenv("INENDI_MAPPING_FILTERS_DIR",
+	       INENDI_BUILD_DIRECTORY "/libinendi/plugins/mapping-filters", 0);
+	setenv("INENDI_PLOTTING_FILTERS_DIR",
+	       INENDI_BUILD_DIRECTORY "/libinendi/plugins/plotting-filters", 0);
+	setenv("INENDI_LAYER_FILTERS_DIR", INENDI_BUILD_DIRECTORY "/libinendi/plugins/layer-filters",
+	       0);
 	Inendi::common::load_filters();
 }

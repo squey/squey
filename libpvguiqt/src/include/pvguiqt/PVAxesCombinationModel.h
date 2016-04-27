@@ -23,66 +23,75 @@
 
 #define SUBCLASSING_VERSION 0
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 class PVAxesCombinationModel;
 
-namespace __impl {
-
-class set_axis_name_Observer: public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::set_axis_name), &Inendi::PVView::set_axis_name>
+namespace __impl
 {
-public:
+
+class set_axis_name_Observer
+    : public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::set_axis_name),
+                                    &Inendi::PVView::set_axis_name>
+{
+  public:
 	set_axis_name_Observer(PVGuiQt::PVAxesCombinationModel* model) : _model(model) {}
 
-protected:
+  protected:
 	virtual void update(arguments_type const& args) const;
 
-private:
+  private:
 	PVGuiQt::PVAxesCombinationModel* _model;
 };
 
-class remove_column_Observer: public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::remove_column), &Inendi::PVView::remove_column>
+class remove_column_Observer
+    : public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::remove_column),
+                                    &Inendi::PVView::remove_column>
 {
-public:
+  public:
 	remove_column_Observer(PVGuiQt::PVAxesCombinationModel* model) : _model(model) {}
 
-protected:
+  protected:
 	virtual void about_to_be_updated(arguments_type const& args) const;
 	virtual void update(arguments_type const& args) const;
 
-
-private:
+  private:
 	PVGuiQt::PVAxesCombinationModel* _model;
 };
 
-class axis_append_Observer: public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::axis_append), &Inendi::PVView::axis_append>
+class axis_append_Observer
+    : public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::axis_append),
+                                    &Inendi::PVView::axis_append>
 {
-public:
+  public:
 	axis_append_Observer(PVGuiQt::PVAxesCombinationModel* model) : _model(model) {}
 
-protected:
+  protected:
 	virtual void update(arguments_type const& args) const;
 	virtual void about_to_be_updated(arguments_type const& args) const;
 
-private:
+  private:
 	PVGuiQt::PVAxesCombinationModel* _model;
 };
 
-class move_axis_to_new_position_Observer: public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::move_axis_to_new_position), &Inendi::PVView::move_axis_to_new_position>
+class move_axis_to_new_position_Observer
+    : public PVHive::PVFuncObserver<Inendi::PVView,
+                                    decltype(&Inendi::PVView::move_axis_to_new_position),
+                                    &Inendi::PVView::move_axis_to_new_position>
 {
-public:
+  public:
 	move_axis_to_new_position_Observer(PVGuiQt::PVAxesCombinationModel* model) : _model(model) {}
 
-protected:
+  protected:
 	virtual void update(arguments_type const& args) const;
 
-private:
+  private:
 	PVGuiQt::PVAxesCombinationModel* _model;
 };
-
 }
 
-class PVAxesCombinationModel: public QAbstractListModel
+class PVAxesCombinationModel : public QAbstractListModel
 {
 	Q_OBJECT;
 
@@ -91,28 +100,28 @@ class PVAxesCombinationModel: public QAbstractListModel
 	friend class __impl::remove_column_Observer;
 	friend class __impl::axis_append_Observer;
 
-public:
+  public:
 	PVAxesCombinationModel(Inendi::PVView_sp& view_p, QObject* parent = NULL);
 
-public:
-	int rowCount(const QModelIndex &parent) const;
+  public:
+	int rowCount(const QModelIndex& parent) const;
 	int rowCount() const;
-	QVariant data(const QModelIndex &index, int role) const;
-	Qt::ItemFlags flags(const QModelIndex &index) const;
-	bool setData(const QModelIndex &index, const QVariant &value, int role);
+	QVariant data(const QModelIndex& index, int role) const;
+	Qt::ItemFlags flags(const QModelIndex& index) const;
+	bool setData(const QModelIndex& index, const QVariant& value, int role);
 	void beginInsertRow(int row);
 	void endInsertRow();
 	void beginRemoveRow(int row);
 	void endRemoveRow();
 
-private slots:
+  private slots:
 	void about_to_be_deleted_slot(PVHive::PVObserverBase*);
 	void refresh_slot(PVHive::PVObserverBase*);
 
-private:
+  private:
 	inline Inendi::PVView const& inendi_view() const { return *_view_observer.get_object(); }
 
-private:
+  private:
 	PVHive::PVActor<Inendi::PVView> _actor;
 	bool _view_deleted;
 
@@ -124,8 +133,6 @@ private:
 	__impl::move_axis_to_new_position_Observer _move_axis_to_new_position_observer;
 	PVHive::PVObserverSignal<Inendi::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
 };
-
 }
-
 
 #endif // __AXESCOMBMODEL__H_

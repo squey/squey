@@ -18,43 +18,45 @@
 #include <pvguiqt/ui_PVAxesCombinationWidget.h>
 #include <pvguiqt/ui_PVAxesCombinationWidgetSelRange.h>
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
-class PVAxesCombinationWidget: public QWidget, Ui::PVAxesCombinationWidget
+class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 {
 	Q_OBJECT
 
-private:
-	class PVMoveToDlg: public QDialog
+  private:
+	class PVMoveToDlg : public QDialog
 	{
-	public:
+	  public:
 		PVMoveToDlg(PVAxesCombinationWidget* parent);
 
-	public:
+	  public:
 		PVCol get_dest_col(PVCol org);
 		void update_axes();
 
-	private:
+	  private:
 		QComboBox* _after_combo;
 		QComboBox* _axes_combo;
 		PVAxesCombinationWidget* _parent;
 	};
 
-public:
-	PVAxesCombinationWidget(Inendi::PVAxesCombination& axes_combination, Inendi::PVView* view = NULL, QWidget* parent = 0);
+  public:
+	PVAxesCombinationWidget(Inendi::PVAxesCombination& axes_combination,
+	                        Inendi::PVView* view = NULL, QWidget* parent = 0);
 
-public:
+  public:
 	void save_current_combination();
 	void restore_saved_combination();
 
 	void reset_used_axes();
 
-public slots:
+  public slots:
 	void update_orig_axes();
 	void update_used_axes();
 	void update_all();
 
-protected:
+  protected:
 	PVCol get_original_axis_selected();
 	QString get_original_axis_selected_name();
 	QVector<PVCol> get_used_axes_selected();
@@ -63,7 +65,7 @@ protected:
 	static QVector<PVCol> get_list_selection(QListWidget* widget);
 	void set_selection_from_cols(QList<PVCol> const& cols);
 
-protected slots:
+  protected slots:
 	void axis_add_Slot();
 	void axis_up_Slot();
 	void axis_down_Slot();
@@ -78,33 +80,28 @@ signals:
 	void axes_combination_changed();
 	void axes_count_changed();
 
-protected:
+  protected:
 	Inendi::PVAxesCombination& _axes_combination;
 	Inendi::PVAxesCombination _saved_combination;
 	PVMoveToDlg* _move_dlg;
 	Inendi::PVView* _view;
 };
 
-class PVAxesCombinationWidgetSelRange: public QDialog, Ui::PVAxesCombinationWidgetSelRange
+class PVAxesCombinationWidgetSelRange : public QDialog, Ui::PVAxesCombinationWidgetSelRange
 {
 	Q_OBJECT
-public:
-	enum values_source_t
-	{
-		mapped = 0,
-		plotted
-	};
+  public:
+	enum values_source_t { mapped = 0, plotted };
 
-public:
+  public:
 	PVAxesCombinationWidgetSelRange(QWidget* parent = NULL);
 
-public:
+  public:
 	bool get_range(float& min, float& max);
 	bool reversed();
 	double rate();
 	values_source_t get_source();
 };
-
 }
 
 #endif

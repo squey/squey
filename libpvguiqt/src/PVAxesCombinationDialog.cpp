@@ -12,35 +12,41 @@
 
 #include <QVBoxLayout>
 
-PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Inendi::PVView_sp& view, QWidget* parent):
-	QDialog(parent),
-	_lib_view(*view),
-	_valid(true)
+PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Inendi::PVView_sp& view, QWidget* parent)
+    : QDialog(parent), _lib_view(*view), _valid(true)
 {
 	QVBoxLayout* main_layout = new QVBoxLayout();
-	_box_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply);
+	_box_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel |
+	                                    QDialogButtonBox::Apply);
 	_temp_axes_comb = view->get_axes_combination();
 	_axes_widget = new PVAxesCombinationWidget(_temp_axes_comb, view.get());
 	main_layout->addWidget(_axes_widget);
 	main_layout->addWidget(_box_buttons);
 	setLayout(main_layout);
 
-	_update_box = new QMessageBox(QMessageBox::Question, tr("Axes combination modified..."), tr("The current axes combination has been modified by an external window. Do you want to erase your current combination and start from the new one ?"), QMessageBox::Yes | QMessageBox::No, this);
+	_update_box = new QMessageBox(QMessageBox::Question, tr("Axes combination modified..."),
+	                              tr("The current axes combination has been modified by an "
+	                                 "external window. Do you want to erase your current "
+	                                 "combination and start from the new one ?"),
+	                              QMessageBox::Yes | QMessageBox::No, this);
 	_update_box->setModal(false);
-	connect(_update_box, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(update_box_answered(QAbstractButton*)));
+	connect(_update_box, SIGNAL(buttonClicked(QAbstractButton*)), this,
+	        SLOT(update_box_answered(QAbstractButton*)));
 
 	// Buttons
 	connect(_box_buttons, SIGNAL(accepted()), this, SLOT(commit_axes_comb_to_view()));
 	connect(_box_buttons, SIGNAL(accepted()), this, SLOT(accept()));
-	connect(_box_buttons, SIGNAL(clicked(QAbstractButton*)),  this, SLOT(box_btn_clicked(QAbstractButton*)));
+	connect(_box_buttons, SIGNAL(clicked(QAbstractButton*)), this,
+	        SLOT(box_btn_clicked(QAbstractButton*)));
 	connect(_box_buttons, SIGNAL(rejected()), this, SLOT(reject()));
 
 	// Hive
 	_obs_axes_comb.connect_refresh(_update_box, SLOT(show()));
 	_obs_axes_comb.connect_about_to_be_deleted(this, SLOT(view_about_to_be_deleted()));
-	PVHive::get().register_observer(view, [=](Inendi::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); }, _obs_axes_comb);
+	PVHive::get().register_observer(
+	    view, [=](Inendi::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); },
+	    _obs_axes_comb);
 	PVHive::get().register_actor(view, _actor);
-
 
 	setWindowTitle("Edit axes combination... [" + view->get_name() + "]");
 }
@@ -60,7 +66,8 @@ void PVGuiQt::PVAxesCombinationDialog::commit_axes_comb_to_view()
 {
 	if (_valid) {
 		_obs_axes_comb.disconnect_refresh(_update_box, SLOT(show()));
-		_actor.call<FUNC(Inendi::PVView::set_axes_combination_list_id)>(_temp_axes_comb.get_axes_index_list(), _temp_axes_comb.get_axes_list());
+		_actor.call<FUNC(Inendi::PVView::set_axes_combination_list_id)>(
+		    _temp_axes_comb.get_axes_index_list(), _temp_axes_comb.get_axes_list());
 		_obs_axes_comb.connect_refresh(_update_box, SLOT(show()));
 	}
 }

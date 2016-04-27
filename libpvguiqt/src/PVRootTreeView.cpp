@@ -24,12 +24,12 @@
 #include <QMouseEvent>
 #include <QAbstractItemModel>
 
-PVGuiQt::PVRootTreeView::PVRootTreeView(QAbstractItemModel* model, QWidget* parent):
-	QTreeView(parent)
+PVGuiQt::PVRootTreeView::PVRootTreeView(QAbstractItemModel* model, QWidget* parent)
+    : QTreeView(parent)
 {
 	// Sizing
-	setMinimumSize(100,0);
-	setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Expanding);
+	setMinimumSize(100, 0);
+	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
 
 	setHeaderHidden(true);
 	setModel(model);
@@ -50,7 +50,6 @@ PVGuiQt::PVRootTreeView::PVRootTreeView(QAbstractItemModel* model, QWidget* pare
 	connect(_act_edit_mapping, SIGNAL(triggered()), this, SLOT(edit_mapping()));
 }
 
-
 void PVGuiQt::PVRootTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 {
 	QTreeView::mouseDoubleClickEvent(event);
@@ -60,15 +59,16 @@ void PVGuiQt::PVRootTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 		return;
 	}
 
-	PVCore::PVDataTreeObjectBase* obj = (PVCore::PVDataTreeObjectBase*) idx_click.internalPointer();
+	PVCore::PVDataTreeObjectBase* obj = (PVCore::PVDataTreeObjectBase*)idx_click.internalPointer();
 	Inendi::PVView* view = dynamic_cast<Inendi::PVView*>(obj);
 	if (!view) {
 		return;
 	}
 
-	// Double click on a view set this view as the current view of the parent source
+	// Double click on a view set this view as the current view of the parent
+	// source
 	Inendi::PVRoot_sp root_sp(view->get_parent<Inendi::PVRoot>()->shared_from_this());
-	
+
 	// Call select_view throught the Hive :)
 	PVHive::call<FUNC(Inendi::PVRoot::select_view)>(root_sp, *view);
 
@@ -82,7 +82,7 @@ void PVGuiQt::PVRootTreeView::contextMenuEvent(QContextMenuEvent* event)
 		return;
 	}
 
-	PVCore::PVDataTreeObjectBase* obj = (PVCore::PVDataTreeObjectBase*) idx_click.internalPointer();
+	PVCore::PVDataTreeObjectBase* obj = (PVCore::PVDataTreeObjectBase*)idx_click.internalPointer();
 
 	Inendi::PVPlotted* plotted = dynamic_cast<Inendi::PVPlotted*>(obj);
 	if (plotted) {
@@ -151,7 +151,7 @@ PVCore::PVDataTreeObjectBase* PVGuiQt::PVRootTreeView::get_selected_obj()
 	if (sel.size() == 0) {
 		return NULL;
 	}
-	return (PVCore::PVDataTreeObjectBase*) sel.at(0).internalPointer();
+	return (PVCore::PVDataTreeObjectBase*)sel.at(0).internalPointer();
 }
 
 PVGuiQt::PVRootTreeModel* PVGuiQt::PVRootTreeView::tree_model()

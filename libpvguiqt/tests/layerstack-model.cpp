@@ -71,8 +71,9 @@ int main(int argc, char** argv)
 	    [](Inendi::PVLayerStack const*) { std::cout << "refreshed." << std::endl; },
 	    [](Inendi::PVLayerStack const*) { std::cout << "about to be deleted." << std::endl; });
 
-	PVHive::get().register_observer(view, [=](Inendi::PVView& view) { return &view.get_layer_stack(); }, observer);
-	    
+	PVHive::get().register_observer(
+	    view, [=](Inendi::PVView& view) { return &view.get_layer_stack(); }, observer);
+
 	int ret = app.exec();
 
 	return ret;

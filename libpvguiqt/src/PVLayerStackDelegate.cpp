@@ -24,9 +24,8 @@
  * PVGuiQt::PVLayerStackDelegate::PVLayerStackDelegate
  *
  *****************************************************************************/
-PVGuiQt::PVLayerStackDelegate::PVLayerStackDelegate(Inendi::PVView const& view, QObject* parent):
-	QStyledItemDelegate(parent),
-	_view(view)
+PVGuiQt::PVLayerStackDelegate::PVLayerStackDelegate(Inendi::PVView const& view, QObject* parent)
+    : QStyledItemDelegate(parent), _view(view)
 {
 }
 
@@ -35,16 +34,18 @@ PVGuiQt::PVLayerStackDelegate::PVLayerStackDelegate(Inendi::PVView const& view, 
  * PVGuiQt::PVLayerStackDelegate::editorEvent
  *
  *****************************************************************************/
-bool PVGuiQt::PVLayerStackDelegate::editorEvent(QEvent *event, QAbstractItemModel* model, const QStyleOptionViewItem &/*option*/, const QModelIndex &index)
+bool PVGuiQt::PVLayerStackDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
+                                                const QStyleOptionViewItem& /*option*/,
+                                                const QModelIndex& index)
 {
 	switch (index.column()) {
-		case 0:
-			if (event->type() == QEvent::MouseButtonPress) {
-				model->setData(index, QVariant());
-				/* We start by reprocessing only the layer_stack */
-				return true;
-			}
-			break;
+	case 0:
+		if (event->type() == QEvent::MouseButtonPress) {
+			model->setData(index, QVariant());
+			/* We start by reprocessing only the layer_stack */
+			return true;
+		}
+		break;
 	}
 	return false;
 }

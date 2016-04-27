@@ -14,7 +14,8 @@
 #include <inendi/PVLayer_types.h>
 #include <inendi/PVView_types.h>
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 class PVLayerStackModel;
 
@@ -25,13 +26,13 @@ class PVLayerStackView : public QTableView
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVLayerStackView(QWidget* parent = NULL);
 
-public:
+  public:
 	PVLayerStackModel* ls_model();
 
-private:
+  private:
 	void save_layer(int idx);
 	void import_layer();
 	void save_layer_stack();
@@ -43,19 +44,18 @@ private:
 
 	Inendi::PVLayer& get_layer_from_idx(int model_idx);
 
-private slots:
+  private slots:
 	void show_ctxt_menu(QPoint const& pt);
 	void layer_clicked(QModelIndex const& idx);
 	void layer_double_clicked(QModelIndex const& idx);
 
-protected:
-	void enterEvent(QEvent *event) override;
-	void leaveEvent(QEvent *event) override;
+  protected:
+	void enterEvent(QEvent* event) override;
+	void leaveEvent(QEvent* event) override;
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 
-
-private:
+  private:
 	// Context menu
 	QMenu* _ctxt_menu;
 	QAction* _ctxt_menu_save_act;
@@ -70,7 +70,6 @@ private:
 	QFileDialog _layer_dialog;
 	QFileDialog _layerstack_dialog;
 };
-
 }
 
 #endif // PVLAYERSTACKVIEW_H

@@ -10,17 +10,18 @@
 
 #include <pvkernel/core/general.h>
 
-namespace Inendi {
+namespace Inendi
+{
 class PVPlotted;
 }
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 struct PVQPlotted
 {
 	static bool edit_plotted(Inendi::PVPlotted& plotted, QWidget* parent = NULL);
 };
-
 }
 
 #endif

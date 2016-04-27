@@ -16,13 +16,14 @@
 
 #include <iostream>
 
-struct ViewSlots : public QObject {
+struct ViewSlots : public QObject
+{
 	Q_OBJECT
 
-public:
+  public:
 	ViewSlots(Inendi::PVView& view) : _view(view) {}
 
-public slots:
+  public slots:
 	void select_all()
 	{
 		std::cout << "change_axes_combination" << std::endl;
@@ -42,12 +43,12 @@ public slots:
 		auto& axes_index_list = axes_combination.get_axes_index_list();
 		auto& axes_list = axes_combination.get_axes_list();
 		Inendi::PVView_sp view_sp = _view.shared_from_this();
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::set_axes_combination_list_id)>(view_sp, axes_index_list, axes_list);
+		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::set_axes_combination_list_id)>(
+		    view_sp, axes_index_list, axes_list);
 	}
 
-private:
+  private:
 	Inendi::PVView& _view;
 };
-
 
 #endif // __STATS_LISTING_H__

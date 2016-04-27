@@ -30,10 +30,10 @@ namespace PVWidgets
 {
 
 class PVHelpWidget;
-
 }
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 class PVLayerFilterProcessWidget;
 class PVListingModel;
@@ -47,7 +47,7 @@ class PVListingView : public PVAbstractTableView
 	friend class PVStatsListingWidget;
 	friend class PVHorizontalHeaderView;
 
-public:
+  public:
 	/**
 	 * Create a Listing view.
 	 *
@@ -71,13 +71,13 @@ public:
 	 */
 	PVListingModel* listing_model();
 
-public slots:
+  public slots:
 	/**
 	 * Inform other Hive view about column click
 	 */
 	void section_clicked(int col);
 
-protected:
+  protected:
 	/**
 	 * Handle Help and goto line.
 	 */
@@ -104,7 +104,7 @@ protected:
 	/**
 	 * Add nice border on hovered column
 	 */
-	void paintEvent(QPaintEvent * event) override;
+	void paintEvent(QPaintEvent* event) override;
 
 signals:
 	/**
@@ -112,7 +112,7 @@ signals:
 	 */
 	void resized();
 
-private:
+  private:
 	/**
 	 * Save the QSelection in the current PVSelection and reset the QSelection
 	 */
@@ -129,7 +129,7 @@ private:
 	 */
 	void update_view_selection_from_listing_selection();
 
-private:
+  private:
 	/**
 	 * Process action from plugins (layer filter)
 	 */
@@ -160,13 +160,13 @@ private:
 	 */
 	void sort(int col, Qt::SortOrder order);
 
-private:
+  private:
 	/// Getters
 	Inendi::PVView const& lib_view() const { return *_obs.get_object(); }
 	Inendi::PVView& lib_view() { return *_obs.get_object(); }
 	PVWidgets::PVHelpWidget* help_widget() { return &_help_widget; }
 
-private slots:
+  private slots:
 	/**
 	 * Selected the current selection (which is the current line after the
 	 * first click)
@@ -228,74 +228,75 @@ private slots:
 	 */
 	void section_hovered_enter(int col, bool enter);
 
-private:
+  private:
 	// Context menu
-	QMenu _ctxt_menu; //!< Context menu for right click on table cells
-	QAction* _act_copy; //!< Copy cell content action for context menu
+	QMenu _ctxt_menu;        //!< Context menu for right click on table cells
+	QAction* _act_copy;      //!< Copy cell content action for context menu
 	QAction* _act_set_color; //!< Set a color for clicked row action for context menu
 
 	// Header context menu
-	QMenu _hhead_ctxt_menu; //!< Context menu for right click on horizontal header
-	QMenu* _menu_col_count_by; //!< Count by action for horizontal context menu
-	QMenu* _menu_col_sum_by; //!< Sum by action for horizontal context menu
-	QMenu* _menu_col_min_by; //!< Min by action for horizontal context menu
-	QMenu* _menu_col_max_by; //!< Max by action for horizontal context menu
-	QMenu* _menu_col_avg_by; //!< Average by action for horizontal context menu
-	QAction* _action_col_sort; //!< Sort a column action for horizontal context menu
+	QMenu _hhead_ctxt_menu;      //!< Context menu for right click on horizontal header
+	QMenu* _menu_col_count_by;   //!< Count by action for horizontal context menu
+	QMenu* _menu_col_sum_by;     //!< Sum by action for horizontal context menu
+	QMenu* _menu_col_min_by;     //!< Min by action for horizontal context menu
+	QMenu* _menu_col_max_by;     //!< Max by action for horizontal context menu
+	QMenu* _menu_col_avg_by;     //!< Average by action for horizontal context menu
+	QAction* _action_col_sort;   //!< Sort a column action for horizontal context menu
 	QAction* _action_col_unique; //!< Count distinct values action for horizontal context menu
 
 	// Vertical context menu
-	QMenu _vhead_ctxt_menu; //!< Context menu for right click on vertival header
+	QMenu _vhead_ctxt_menu;          //!< Context menu for right click on vertival header
 	QAction* _action_copy_row_value; //!< Copy clicked row action for vertical header action
 
 	// Help menu
 	PVWidgets::PVHelpWidget _help_widget; //!< Help menu for listing view
 
 	// FIXME : This should be in a "context menu" context
-	PVRow _ctxt_row; //!< Clicked row for context menu actions
-	PVCol _ctxt_col; //!< Clicked col for context menu actions
-	QString _ctxt_v; //!< Clicked value for context menu actions
+	PVRow _ctxt_row;                                    //!< Clicked row for context menu actions
+	PVCol _ctxt_col;                                    //!< Clicked col for context menu actions
+	QString _ctxt_v;                                    //!< Clicked value for context menu actions
 	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process; //!< Current open LayerFilter plugins widget
-	std::vector<uint32_t> _headers_width; //!< Width for each header
+	std::vector<uint32_t> _headers_width;               //!< Width for each header
 
 	int _hovered_axis = -1; //!< Hovered axis flags for paintEvent
-	int _vhead_max_width; //!< Max width for the vertical header
+	int _vhead_max_width;   //!< Max width for the vertical header
 
 	// Plugins call capture local variable reference without copy making it
 	// invalide at the end of the scope...
 	PVCore::PVArgumentList _ctxt_args; //!< FIXME : awfull hidden global variable
 
-private:
+  private:
 	// Observers
-	PVHive::PVObserverSignal<Inendi::PVView> _obs; //!< Observer for current view to delete listing on view deletion
+	PVHive::PVObserverSignal<Inendi::PVView>
+	    _obs; //!< Observer for current view to delete listing on view deletion
 	// FIXME : It should be a PVCol instead of int
 	PVHive::PVObserverSignal<int> _axis_hover_obs; //!< Observer for hovered column
 
 	// Actor
-	PVHive::PVActor<Inendi::PVView> _actor; //!< Actor to emit notification about listing modification to the view
+	PVHive::PVActor<Inendi::PVView>
+	    _actor; //!< Actor to emit notification about listing modification to the view
 };
 
 class PVHorizontalHeaderView : public QHeaderView
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVHorizontalHeaderView(Qt::Orientation orientation, PVListingView* parent);
 
 signals:
-   	void mouse_hovered_section(int index, bool entered);
+	void mouse_hovered_section(int index, bool entered);
 
-protected:
-	bool event(QEvent *ev) override;
-	void paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const override;
+  protected:
+	bool event(QEvent* ev) override;
+	void paintSection(QPainter* painter, const QRect& rect, int logicalIndex) const override;
 
-private:
-	PVGuiQt::PVListingView* listing_view() const { return (PVGuiQt::PVListingView*) parent(); }
+  private:
+	PVGuiQt::PVListingView* listing_view() const { return (PVGuiQt::PVListingView*)parent(); }
 
-private:
+  private:
 	int _index = -1;
 };
-
 }
 
 #endif // PVLISTINGVIEW_H

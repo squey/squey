@@ -20,29 +20,38 @@
 #include <pvhive/PVHive.h>
 #include <pvhive/PVCallHelper.h>
 
-PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Inendi::PVView* view, PVCore::PVArgumentList& args, Inendi::PVLayerFilter_p filter_p, QWidget* parent) :
-	QDialog(parent),
-	_view(view),
-	_filter_p(filter_p),
-	_presets_widget(NULL),
-	_splitter(NULL),
-	_help_btn(NULL),
-	_args_org(args),
-	_has_apply(false)
+PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Inendi::PVView* view,
+                                                                PVCore::PVArgumentList& args,
+                                                                Inendi::PVLayerFilter_p filter_p,
+                                                                QWidget* parent)
+    : QDialog(parent)
+    , _view(view)
+    , _filter_p(filter_p)
+    , _presets_widget(NULL)
+    , _splitter(NULL)
+    , _help_btn(NULL)
+    , _args_org(args)
+    , _has_apply(false)
 {
-	_args_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view), args, this);
+	_args_widget = new PVWidgets::PVArgumentListWidget(
+	    PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view), args, this);
 	setWindowTitle("Filter properties...");
 	setObjectName("PVLayerFilterProcessWidget");
 
 	// Presets widget
-	if(_filter_p->get_presets().can_have_presets()) {
+	if (_filter_p->get_presets().can_have_presets()) {
 		_presets_widget = new PVWidgets::PVPresetsWidget(tr("Presets"));
 		_presets_widget->add_presets(_filter_p->get_presets().list_presets());
-		connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this, SLOT(load_preset_Slot(const QString&)));
-		connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this, SLOT(add_preset_Slot(const QString&)));
-		connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this, SLOT(save_preset_Slot(const QString&)));
-		connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this, SLOT(remove_preset_Slot(const QString&)));
-		connect(_presets_widget, SIGNAL(preset_renamed_Signal(const QString&, const QString&)), this, SLOT(rename_preset_Slot(const QString&, const QString&)));
+		connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this,
+		        SLOT(load_preset_Slot(const QString&)));
+		connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this,
+		        SLOT(add_preset_Slot(const QString&)));
+		connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this,
+		        SLOT(save_preset_Slot(const QString&)));
+		connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this,
+		        SLOT(remove_preset_Slot(const QString&)));
+		connect(_presets_widget, SIGNAL(preset_renamed_Signal(const QString&, const QString&)),
+		        this, SLOT(rename_preset_Slot(const QString&, const QString&)));
 		_presets_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 		_presets_widget->setMinimumSize(QSize(0, 130));
 	}
@@ -70,9 +79,7 @@ PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Inendi::PVView* 
 		_splitter->setStretchFactor(0, 4);
 		_splitter->setStretchFactor(1, 1);
 		main_layout->addWidget(_splitter);
-	}
-	else
-	{
+	} else {
 		main_layout->addWidget(args_widget_box);
 	}
 
@@ -114,23 +121,24 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_preset_Slot(const QString& preset
 	_filter_p->get_presets().modify_preset(preset);
 }
 
-void PVGuiQt::PVLayerFilterProcessWidget::rename_preset_Slot(const QString& old_preset, const QString& new_preset)
+void PVGuiQt::PVLayerFilterProcessWidget::rename_preset_Slot(const QString& old_preset,
+                                                             const QString& new_preset)
 {
 	_filter_p->get_presets().rename_preset(old_preset, new_preset);
 }
 
 void PVGuiQt::PVLayerFilterProcessWidget::create_btns()
 {
-	_apply_btn = new QPushButton(QIcon(":/green-check"),"Apply");
-	_preview_btn = new QPushButton(QIcon(":/filter"),"Preview");
+	_apply_btn = new QPushButton(QIcon(":/green-check"), "Apply");
+	_preview_btn = new QPushButton(QIcon(":/filter"), "Preview");
 	_preview_btn->setDefault(true);
-	_cancel_btn = new QPushButton(QIcon(":/red-cross"),"Cancel");
-	_reset_btn = new QPushButton(QIcon(":/document-new"),"Reset");
+	_cancel_btn = new QPushButton(QIcon(":/red-cross"), "Cancel");
+	_reset_btn = new QPushButton(QIcon(":/document-new"), "Reset");
 	_reset_btn->setVisible(_filter_p->get_presets().can_have_presets());
-	
+
 	QString filter_desc = _filter_p->detailed_description();
 	if (!filter_desc.isEmpty()) {
-		_help_btn = new QPushButton(QIcon(":/help"), "Help");	
+		_help_btn = new QPushButton(QIcon(":/help"), "Help");
 	}
 }
 
@@ -153,7 +161,9 @@ void PVGuiQt::PVLayerFilterProcessWidget::connect_btns()
 	connect(_preview_btn, SIGNAL(pressed()), this, SLOT(preview_Slot()));
 	connect(_apply_btn, SIGNAL(pressed()), this, SLOT(save_Slot()));
 	if (_help_btn) {
-		QMessageBox *msgBox = new QMessageBox(QMessageBox::Information, "Filter help", _filter_p->detailed_description(), QMessageBox::Ok, this);
+		QMessageBox* msgBox =
+		    new QMessageBox(QMessageBox::Information, "Filter help",
+		                    _filter_p->detailed_description(), QMessageBox::Ok, this);
 		connect(_help_btn, SIGNAL(pressed()), msgBox, SLOT(exec()));
 	}
 }
@@ -177,7 +187,8 @@ void PVGuiQt::PVLayerFilterProcessWidget::reject()
 
 void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 {
-	// Force the current parameter widget to lose its focus (in case it has not been updated yet !)
+	// Force the current parameter widget to lose its focus (in case it has not
+	// been updated yet !)
 	_apply_btn->setFocus(Qt::MouseFocusReason);
 
 	if (_has_apply) {
@@ -186,7 +197,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 				// It has been canceled, so don't close the window !
 				return;
 			}
-		}		
+		}
 	} else {
 		if (!process()) {
 			return;
@@ -194,14 +205,21 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	}
 
 	// Save in current layer
-	Inendi::PVLayer &current_selected_layer = _view->get_current_layer();
+	Inendi::PVLayer& current_selected_layer = _view->get_current_layer();
 	/* We fill it's lines_properties */
-	// _view->post_filter_layer.A2B_copy_restricted_by_selection_and_nelts(current_selected_layer, _view->real_output_selection, _view->row_count);
+	// _view->post_filter_layer.A2B_copy_restricted_by_selection_and_nelts(current_selected_layer,
+	// _view->real_output_selection, _view->row_count);
 
-	// we change current layer's lines properties with post filter layer's lines properties
-	// _view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), _view->real_output_selection, _view->row_count);
+	// we change current layer's lines properties with post filter layer's lines
+	// properties
+	// _view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(),
+	// _view->real_output_selection, _view->row_count);
 	//
-	_view->get_post_filter_layer().get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), _view->get_real_output_selection(), _view->get_row_count());
+	_view->get_post_filter_layer()
+	    .get_lines_properties()
+	    .A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(),
+	                                                _view->get_real_output_selection(),
+	                                                _view->get_row_count());
 	// volatile selection has been set by `process'
 	_view->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 
@@ -226,12 +244,18 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 	filter_p->set_view(_view->shared_from_this());
 	filter_p->set_output(&_view->get_post_filter_layer());
 
-	QWidget* parent_widget = isVisible()?this:parentWidget();
+	QWidget* parent_widget = isVisible() ? this : parentWidget();
 
-	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Previewing filter..."), parent_widget);
-	bool res = PVCore::PVProgressBox::progress([&]() { process_layer_filter(filter_p.get(), &_view->get_output_layer(), &_view->get_post_filter_layer()); }, pbox);
-	
-	if(not res) {
+	PVCore::PVProgressBox* pbox =
+	    new PVCore::PVProgressBox(tr("Previewing filter..."), parent_widget);
+	bool res = PVCore::PVProgressBox::progress([&]() {
+		                                           process_layer_filter(
+		                                               filter_p.get(), &_view->get_output_layer(),
+		                                               &_view->get_post_filter_layer());
+		                                       },
+	                                           pbox);
+
+	if (not res) {
 		return false;
 	}
 
@@ -251,7 +275,8 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 
 void PVGuiQt::PVLayerFilterProcessWidget::preview_Slot()
 {
-	// Force the current parameter widget to lose its focus (in case it has not been updated yet !)
+	// Force the current parameter widget to lose its focus (in case it has not
+	// been updated yet !)
 	_preview_btn->setFocus(Qt::MouseFocusReason);
 
 	process();
@@ -262,9 +287,10 @@ void PVGuiQt::PVLayerFilterProcessWidget::reset_Slot()
 	change_args(_filter_p->get_default_args_for_view(*_view));
 }
 
-void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Inendi::PVLayerFilter* filter, Inendi::PVLayer const* in_layer, Inendi::PVLayer* out_layer)
+void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Inendi::PVLayerFilter* filter,
+                                                               Inendi::PVLayer const* in_layer,
+                                                               Inendi::PVLayer* out_layer)
 {
 	filter->set_output(out_layer);
 	filter->operator()(*in_layer);
 }
-

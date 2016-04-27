@@ -21,10 +21,11 @@
 
 namespace Inendi
 {
-	class PVView;
+class PVView;
 }
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 /**
  * \class PVLayerStackModel
@@ -33,21 +34,21 @@ class PVLayerStackModel : public QAbstractTableModel
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVLayerStackModel(Inendi::PVView_sp& lib_view, QObject* parent = NULL);
 
-public:
-	int columnCount(const QModelIndex &index) const override;
-	QVariant data(const QModelIndex &index, int role) const override;
-	Qt::ItemFlags flags(const QModelIndex &index) const override;
+  public:
+	int columnCount(const QModelIndex& index) const override;
+	QVariant data(const QModelIndex& index, int role) const override;
+	Qt::ItemFlags flags(const QModelIndex& index) const override;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-	int rowCount(const QModelIndex &index = QModelIndex()) const override;
-	bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+	int rowCount(const QModelIndex& index = QModelIndex()) const override;
+	bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
-public:
+  public:
 	void delete_layer_n(const int idx);
 	void delete_selected_layer();
-	void duplicate_selected_layer(const QString &name);
+	void duplicate_selected_layer(const QString& name);
 	void add_new_layer(QString name);
 	void add_new_layer_from_file(const QString& path);
 	void load_from_file(const QString& file);
@@ -55,34 +56,37 @@ public:
 	void move_selected_layer_down();
 	void reset_layer_colors(const int idx);
 
-public:
+  public:
 	Inendi::PVLayerStack const& lib_layer_stack() const { return *_obs.get_object(); }
 	Inendi::PVLayerStack& lib_layer_stack() { return *_obs.get_object(); }
 	PVHive::PVActor<Inendi::PVView>& view_actor() { return _actor; }
 	Inendi::PVView const& lib_view() const { return _lib_view; }
 	Inendi::PVView& lib_view() { return _lib_view; }
 
-private:
-	inline int lib_index_from_model_index(int model_index) const { assert(model_index < rowCount()); return rowCount() - model_index - 1; }
+  private:
+	inline int lib_index_from_model_index(int model_index) const
+	{
+		assert(model_index < rowCount());
+		return rowCount() - model_index - 1;
+	}
 
-private slots:
+  private slots:
 	void layer_stack_about_to_be_deleted(PVHive::PVObserverBase* o);
 	void layer_stack_about_to_be_refreshed(PVHive::PVObserverBase* o);
 	void layer_stack_refreshed(PVHive::PVObserverBase* o);
 
-private:
+  private:
 	Inendi::PVView& _lib_view;
-	QBrush select_brush;       //!<
-	QFont select_font;         //!<
-	QBrush unselect_brush;     //!<
-	QFont unselect_font;       //!<
+	QBrush select_brush;   //!<
+	QFont select_font;     //!<
+	QBrush unselect_brush; //!<
+	QFont unselect_font;   //!<
 
 	PVHive::PVActor<Inendi::PVView> _actor;
 	PVHive::PVObserverSignal<Inendi::PVLayerStack> _obs;
 
 	bool _ls_valid;
 };
-
 }
 
 #endif

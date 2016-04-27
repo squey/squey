@@ -14,9 +14,10 @@
 #include <QLabel>
 #include <QComboBox>
 
-
-PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Inendi::PVRoot const& root, Inendi::PVScene const* sel_scene, QWidget* parent /* = 0 */) :
-	QDialog(parent)
+PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Inendi::PVRoot const& root,
+                                                                Inendi::PVScene const* sel_scene,
+                                                                QWidget* parent /* = 0 */)
+    : QDialog(parent)
 {
 	setWindowTitle(tr("Select project"));
 
@@ -30,19 +31,20 @@ PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Inendi::PVRoot c
 	hbox_layout->addWidget(label);
 	hbox_layout->addWidget(_combo_box);
 
-	QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	QDialogButtonBox* buttons =
+	    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
+	connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
+	connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
 
-    layout->addLayout(hbox_layout);
+	layout->addLayout(hbox_layout);
 	layout->addWidget(buttons);
 
 	setLayout(layout);
 
 	// Set combo box
 	int cur_idx = 0;
-	for (Inendi::PVScene_sp const& scene: root.get_children()) {
+	for (Inendi::PVScene_sp const& scene : root.get_children()) {
 		QVariant var;
 		var.setValue<void*>(scene.get());
 		if (scene.get() == sel_scene) {
@@ -59,7 +61,8 @@ PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Inendi::PVRoot c
 Inendi::PVScene const* PVGuiQt::PVImportSourceToProjectDlg::get_selected_scene() const
 {
 	int sel_idx = _combo_box->currentIndex();
-	Inendi::PVScene const* ret = (Inendi::PVScene const*) _combo_box->itemData(sel_idx).value<void*>();
+	Inendi::PVScene const* ret =
+	    (Inendi::PVScene const*)_combo_box->itemData(sel_idx).value<void*>();
 	assert(ret);
 	return ret;
 }
