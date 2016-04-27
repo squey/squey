@@ -55,12 +55,12 @@
 static QString email_address = EMAIL_ADDRESS_CONTACT;
 
 // #ifdef USE_UNIKEY
-  // #include <UniKeyFR.h>
+// #include <UniKeyFR.h>
 // #endif
 class DisplaysFocusInEventFilter : public QObject
 {
-protected:
-	bool eventFilter(QObject* obj, QEvent *event)
+  protected:
+	bool eventFilter(QObject* obj, QEvent* event)
 	{
 		if (event->type() == QEvent::FocusIn) {
 			// Is the widget a PVViewDisplay?
@@ -76,17 +76,17 @@ protected:
 
 		return QObject::eventFilter(obj, event);
 	}
-
 };
 
 class DragNDropTransparencyHack : public QObject
 {
-public:
+  public:
 	bool eventFilter(QObject* watched, QEvent* event)
 	{
 		if (event->type() == QEvent::Move) {
-			QWidget *window = qobject_cast<QWidget*>(watched);
-			if (window && QLatin1String("QShapedPixmapWidget") == window->metaObject()->className()) {
+			QWidget* window = qobject_cast<QWidget*>(watched);
+			if (window &&
+			    QLatin1String("QShapedPixmapWidget") == window->metaObject()->className()) {
 				window->setAttribute(Qt::WA_TranslucentBackground);
 				window->clearMask();
 			}
@@ -99,7 +99,7 @@ namespace bpo = boost::program_options;
 
 // #define NO_MAIN_WINDOW
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	setlocale(LC_ALL, "C");
 	setenv("LANG", "C", 1);
@@ -114,39 +114,38 @@ int main(int argc, char *argv[])
 	ulimit_info.rlim_cur = ulimit_info.rlim_max;
 	setrlimit(RLIMIT_NOFILE, &ulimit_info);
 
-      QString license_file = "/etc/inendi/licenses/inendi-inspector.lic";
+	QString license_file = "/etc/inendi/licenses/inendi-inspector.lic";
 
 #ifndef NO_MAIN_WINDOW
 	QApplication app(argc, argv);
 
 	if (not QFile(license_file).exists()) {
-	  QMessageBox::critical(
-	      nullptr, QObject::tr("INENDI-inspector"),
-	      QObject::tr("You don't have you license file : %1. If you have a license file, rename "
-		"it with this name, otherwise contact : <a "
-		"href=\"mailto:%2?subject=%5BINENDI%5D\">%2</a>")
-	      .arg(license_file)
-	      .arg(email_address));
-	  return 1;
+		QMessageBox::critical(nullptr, QObject::tr("INENDI-inspector"),
+		                      QObject::tr("You don't have you license file : %1. If you have a "
+		                                  "license file, rename "
+		                                  "it with this name, otherwise contact : <a "
+		                                  "href=\"mailto:%2?subject=%5BINENDI%5D\">%2</a>")
+		                          .arg(license_file)
+		                          .arg(email_address));
+		return 1;
 	}
 #endif
 
-      // Set location to check for license file.
-      setenv("LM_LICENSE_FILE", license_file.toUtf8().constData(), 1);
+	// Set location to check for license file.
+	setenv("LM_LICENSE_FILE", license_file.toUtf8().constData(), 1);
 
-      Inendi::Utils::License::RAII_InitLicense license_manager;
+	Inendi::Utils::License::RAII_InitLicense license_manager;
 
-      Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_FLEX_PREFIX, INENDI_FLEX_FEATURE);
+	Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_FLEX_PREFIX,
+	                                                                 INENDI_FLEX_FEATURE);
 	// Program options
 	bpo::options_description desc_opts("Options");
-	desc_opts.add_options()
-		("help", "produce help message")
-		("format", bpo::value<std::string>(), "path to the format to use. Default is automatic discovery.")
-		;
+	desc_opts.add_options()("help", "produce help message")(
+	    "format", bpo::value<std::string>(),
+	    "path to the format to use. Default is automatic discovery.");
 	bpo::options_description hidden_opts("Hidden options");
-	hidden_opts.add_options()
-		("input-file", bpo::value<std::vector<std::string> >(), "path to the file to load")
-		;
+	hidden_opts.add_options()("input-file", bpo::value<std::vector<std::string>>(),
+	                          "path to the file to load");
 	bpo::options_description all_opts;
 	all_opts.add(desc_opts).add(hidden_opts);
 
@@ -172,7 +171,7 @@ int main(int argc, char *argv[])
 
 	std::vector<QString> files;
 	if (vm.count("input-file")) {
-		std::vector<std::string> files_arg = vm["input-file"].as<std::vector<std::string> >();
+		std::vector<std::string> files_arg = vm["input-file"].as<std::vector<std::string>>();
 		files.reserve(files_arg.size());
 		std::vector<std::string>::const_iterator it;
 		// Convert file path to unicode
@@ -186,12 +185,12 @@ int main(int argc, char *argv[])
 #ifndef NO_MAIN_WINDOW
 	QSplashScreen splash(QPixmap(":/splash-screen"));
 
-	QVBoxLayout *vl = new QVBoxLayout(&splash);
+	QVBoxLayout* vl = new QVBoxLayout(&splash);
 
-	QLabel *task_label = new QLabel();
+	QLabel* task_label = new QLabel();
 	task_label->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-	QLabel *version_label = new QLabel(QString("INENDI Inspector ") + INENDI_CURRENT_VERSION_STR);
+	QLabel* version_label = new QLabel(QString("INENDI Inspector ") + INENDI_CURRENT_VERSION_STR);
 	version_label->setAlignment(Qt::AlignRight | Qt::AlignBottom);
 
 	vl->addWidget(task_label);
@@ -241,8 +240,7 @@ int main(int argc, char *argv[])
 	PVLOG_INFO("Compiled with SSE 4.1 instructions\n");
 	if (PVCore::PVIntrinsics::has_sse41()) {
 		PVLOG_INFO("SSE4.1 is supported by this CPU.\n");
-	}
-	else {
+	} else {
 		PVLOG_INFO("SSE4.1 is not supported by this CPU.\n");
 	}
 #endif
@@ -262,8 +260,7 @@ int main(int argc, char *argv[])
 
 	if (files.size() > 0) {
 		pv_mw.load_files(files, format);
-	}
-	else {
+	} else {
 		// Set default title
 		pv_mw.set_window_title_with_filename();
 	}
@@ -273,18 +270,15 @@ int main(int argc, char *argv[])
 	QShortcut* sc;
 	sc = new QShortcut(QKeySequence(Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
-	QObject::connect(sc, SIGNAL(activated()),
-	                 &pv_mw, SLOT(get_screenshot_widget()));
+	QObject::connect(sc, SIGNAL(activated()), &pv_mw, SLOT(get_screenshot_widget()));
 
 	sc = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
-	QObject::connect(sc, SIGNAL(activated()),
-	                 &pv_mw, SLOT(get_screenshot_window()));
+	QObject::connect(sc, SIGNAL(activated()), &pv_mw, SLOT(get_screenshot_window()));
 
 	sc = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
-	QObject::connect(sc, SIGNAL(activated()),
-	                 &pv_mw, SLOT(get_screenshot_desktop()));
+	QObject::connect(sc, SIGNAL(activated()), &pv_mw, SLOT(get_screenshot_desktop()));
 
 	return app.exec();
 #else

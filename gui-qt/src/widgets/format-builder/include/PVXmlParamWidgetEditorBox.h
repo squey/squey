@@ -6,7 +6,7 @@
  */
 
 #ifndef PVXMLPARAMWIDGETEDITORBOX_H
-#define	PVXMLPARAMWIDGETEDITORBOX_H
+#define PVXMLPARAMWIDGETEDITORBOX_H
 #include <QLineEdit>
 #include <QVariant>
 #include <QString>
@@ -15,19 +15,19 @@
 #include <QMessageBox>
 #include <iostream>
 
+namespace PVInspector
+{
+class PVXmlParamWidgetEditorBox : public QLineEdit
+{
+  public:
+	PVXmlParamWidgetEditorBox();
+	PVXmlParamWidgetEditorBox(QString name, QVariant* var);
+	virtual ~PVXmlParamWidgetEditorBox();
+	QVariant val();
+	void setVal(const QVariant& val);
 
-namespace PVInspector{
-class PVXmlParamWidgetEditorBox:public QLineEdit {
-public:
-    PVXmlParamWidgetEditorBox();
-    PVXmlParamWidgetEditorBox(QString name,QVariant *var);
-    virtual ~PVXmlParamWidgetEditorBox();
-    QVariant val();
-    void setVal(const QVariant &val);
-private:
-        QVariant *variable;
-
+  private:
+	QVariant* variable;
 };
 }
-#endif	/* PVXMLPARAMWIDGETEDITORBOX_H */
-
+#endif /* PVXMLPARAMWIDGETEDITORBOX_H */

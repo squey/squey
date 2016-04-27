@@ -31,4 +31,3 @@ public:
 #endif
 
 #endif // PVMAPWIDGET_H
-

@@ -32,7 +32,6 @@
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVSelection.h>
 
-
 #include <pvhive/PVObserverSignal.h>
 
 #include <pvguiqt/PVProjectsTabWidget.h>
@@ -45,14 +44,14 @@
 
 #include <tbb/task_scheduler_init.h>
 
-
 QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;
 class QPlainTextEdit;
 QT_END_NAMESPACE
 
-namespace PVCore {
+namespace PVCore
+{
 class PVSerializeArchive;
 }
 
@@ -63,7 +62,8 @@ class PVAboutBoxDialog;
 class PVExportSelectionDlg;
 }
 
-namespace PVInspector {
+namespace PVInspector
+{
 
 class PVMainWindow;
 class PVStartScreenWidget;
@@ -77,47 +77,56 @@ class PVMainWindow : public QMainWindow
 
 	friend class PVStartScreenWidget;
 
-private:
+  private:
 	struct PVFormatDetectCtxt
 	{
-		PVFormatDetectCtxt(PVRush::PVInputType::list_inputs const& inputs_, QHash<QString,PVRush::PVInputDescription_p>& hash_input_name_, PVRush::hash_formats& formats_, PVRush::hash_format_creator& format_creator_, map_files_types& files_multi_formats_, QHash< QString,PVRush::PVInputType::list_inputs >& discovered_, QHash<QString, std::pair<QString,QString> >& formats_error_, PVRush::list_creators& lcr_, PVRush::PVInputType_p in_t_, QHash<QString,PVCore::PVMeanValue<float> >& discovered_types_):
-			inputs(inputs_),
-			hash_input_name(hash_input_name_),
-			formats(formats_),
-			format_creator(format_creator_),
-			files_multi_formats(files_multi_formats_),
-			discovered(discovered_),
-			formats_error(formats_error_),
-			lcr(lcr_),
-			in_t(in_t_),
-			discovered_types(discovered_types_)
-		{ }
+		PVFormatDetectCtxt(PVRush::PVInputType::list_inputs const& inputs_,
+		                   QHash<QString, PVRush::PVInputDescription_p>& hash_input_name_,
+		                   PVRush::hash_formats& formats_,
+		                   PVRush::hash_format_creator& format_creator_,
+		                   map_files_types& files_multi_formats_,
+		                   QHash<QString, PVRush::PVInputType::list_inputs>& discovered_,
+		                   QHash<QString, std::pair<QString, QString>>& formats_error_,
+		                   PVRush::list_creators& lcr_, PVRush::PVInputType_p in_t_,
+		                   QHash<QString, PVCore::PVMeanValue<float>>& discovered_types_)
+		    : inputs(inputs_)
+		    , hash_input_name(hash_input_name_)
+		    , formats(formats_)
+		    , format_creator(format_creator_)
+		    , files_multi_formats(files_multi_formats_)
+		    , discovered(discovered_)
+		    , formats_error(formats_error_)
+		    , lcr(lcr_)
+		    , in_t(in_t_)
+		    , discovered_types(discovered_types_)
+		{
+		}
 
 		PVRush::PVInputType::list_inputs const& inputs;
-		QHash<QString,PVRush::PVInputDescription_p>& hash_input_name;
+		QHash<QString, PVRush::PVInputDescription_p>& hash_input_name;
 		PVRush::hash_formats& formats;
 		PVRush::hash_format_creator& format_creator;
 		map_files_types& files_multi_formats;
-		QHash< QString,PVRush::PVInputType::list_inputs >& discovered;
-		QHash<QString,std::pair<QString,QString> >& formats_error;
+		QHash<QString, PVRush::PVInputType::list_inputs>& discovered;
+		QHash<QString, std::pair<QString, QString>>& formats_error;
 		PVRush::list_creators& lcr;
 		PVRush::PVInputType_p in_t;
-		QHash<QString,PVCore::PVMeanValue<float> >& discovered_types;
+		QHash<QString, PVCore::PVMeanValue<float>>& discovered_types;
 	};
 
-public:
-	PVMainWindow(QWidget *parent = 0);
+  public:
+	PVMainWindow(QWidget* parent = 0);
 
 	PVGuiQt::PVProjectsTabWidget* _projects_tab_widget;
 
-	QMenuBar *menubar;
-	QMenu *filter_Menu;
-	QLabel *statemachine_label;
+	QMenuBar* menubar;
+	QMenu* filter_Menu;
+	QLabel* statemachine_label;
 
-	char *last_sendername;
+	char* last_sendername;
 	bool report_started;
 	int report_image_index;
-	QString *report_filename;
+	QString* report_filename;
 
 	Inendi::PVView* current_view() { return get_root().current_view(); }
 	Inendi::PVView const* current_view() const { return get_root().current_view(); }
@@ -131,7 +140,9 @@ public:
 	void set_color(Inendi::PVView* view);
 
 	void import_type(PVRush::PVInputType_p in_t);
-	void import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat);
+	void import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs,
+	                 PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator,
+	                 QString const& choosenFormat);
 	void load_files(std::vector<QString> const& files, QString format);
 	/* void import_type(); */
 	void update_statemachine_label(Inendi::PVView_sp view);
@@ -142,13 +153,13 @@ public:
 
 	bool maybe_save_solution();
 
-protected:
+  protected:
 	void remove_source(Inendi::PVSource* src_p);
 
-protected:
+  protected:
 	bool event(QEvent* event) override;
 
-public slots:
+  public slots:
 	void about_Slot();
 	void axes_editor_Slot();
 	void axes_mode_Slot();
@@ -179,7 +190,7 @@ public slots:
 	void filter_reprocess_last_Slot();
 	void import_type_default_Slot();
 	void import_type_Slot();
-	void import_type_Slot(const QString & itype);
+	void import_type_Slot(const QString& itype);
 	void events_display_unselected_Slot();
 	void events_display_unselected_listing_Slot();
 	void events_display_unselected_GLview_Slot();
@@ -201,7 +212,7 @@ public slots:
 	void get_screenshot_widget();
 	void get_screenshot_window();
 	void get_screenshot_desktop();
-	void update_reply_finished_Slot(QNetworkReply *reply);
+	void update_reply_finished_Slot(QNetworkReply* reply);
 	void whats_this_Slot();
 	// Called by input_type plugins to edit a format.
 	// Not an elegant solution, must find better.
@@ -232,145 +243,140 @@ public slots:
 	void mineset_error_slot(QString error_msg);
 #endif
 
-protected:
+  protected:
 	void closeEvent(QCloseEvent* event);
 
-private:
-	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
+  private:
+	bool save_project(const QString& file, PVCore::PVSerializeArchiveOptions_p options);
 	void set_selection_from_layer(Inendi::PVView_sp view, Inendi::PVLayer const& layer);
 	void display_inv_elts();
 
-	void save_screenshot(const QPixmap& pixmap,
-	                     const QString& title,
-	                     const QString& name);
+	void save_screenshot(const QPixmap& pixmap, const QString& title, const QString& name);
 
-private slots:
+  private slots:
 	void root_modified();
 	bool load_solution(QString const& file);
 	void load_solution_and_create_mw(QString const& file);
 	void set_auto_detect_cancellation(bool cancel = true) { _auto_detect_cancellation = cancel; }
 	void menu_activate_is_file_opened(bool cond);
 
-private:
+  private:
 	void connect_actions();
 	void create_actions();
 	void create_menus();
 	void create_filters_menu_and_actions();
 	void create_actions_import_types(QMenu* menu);
 
-	// AG: that needs to be redesigned. I outlined this code as an automatic outliner would do, so that
+	// AG: that needs to be redesigned. I outlined this code as an automatic outliner would do, so
+	// that
 	// a progress box can cancel this process.
 	void auto_detect_formats(PVFormatDetectCtxt ctxt);
 
-private:
-	bool is_project_untitled()
-	{
-		return _projects_tab_widget->is_current_project_untitled();
-	}
+  private:
+	bool is_project_untitled() { return _projects_tab_widget->is_current_project_untitled(); }
 	bool load_root();
 	bool load_scene(Inendi::PVScene* scene);
 	bool load_source(Inendi::PVSource* src);
 	bool fix_project_errors(std::shared_ptr<PVCore::PVSerializeArchive> ar);
 	void flag_investigation_as_cached(const QString& file);
 
-private:
-
-	QMenu *axes_Menu;
-	QMenu *file_Menu;
-	QMenu *edit_Menu;
-	QMenu *layer_Menu;
-	QMenu *events_Menu;
-	QMenu *selection_Menu;
+  private:
+	QMenu* axes_Menu;
+	QMenu* file_Menu;
+	QMenu* edit_Menu;
+	QMenu* layer_Menu;
+	QMenu* events_Menu;
+	QMenu* selection_Menu;
 	QMenu* tools_Menu;
-	QMenu *source_Menu;
-	QMenu *view_Menu;
-	QMenu *windows_Menu;
-	QMenu *help_Menu;
+	QMenu* source_Menu;
+	QMenu* view_Menu;
+	QMenu* windows_Menu;
+	QMenu* help_Menu;
 
-	QAction *about_Action;
-	QAction *axes_editor_Action;
-	QAction *axes_combination_editor_Action;
-	QAction *axes_mode_Action;
-	QAction *axes_display_edges_Action;
-	QAction *axes_new_Action;
-	QAction *expand_selection_on_axis_Action;
-	QAction *events_display_unselected_listing_Action;
-	QAction *events_display_unselected_GLview_Action;
-	QAction *events_display_zombies_listing_Action;
-	QAction *events_display_zombies_GLview_Action;
+	QAction* about_Action;
+	QAction* axes_editor_Action;
+	QAction* axes_combination_editor_Action;
+	QAction* axes_mode_Action;
+	QAction* axes_display_edges_Action;
+	QAction* axes_new_Action;
+	QAction* expand_selection_on_axis_Action;
+	QAction* events_display_unselected_listing_Action;
+	QAction* events_display_unselected_GLview_Action;
+	QAction* events_display_zombies_listing_Action;
+	QAction* events_display_zombies_GLview_Action;
 	QAction* events_display_unselected_zombies_parallelview_Action;
-	QAction *copy_Action;
-	QAction *commit_selection_in_current_layer_Action;
-	QAction *commit_selection_to_new_layer_Action;
-	QAction *move_selection_to_new_layer_Action;
-	QAction *cut_Action;
-	QAction *filter_reprocess_last_filter; 
-	QAction *project_new_Action;
-	QAction *project_save_Action;
-	QAction *project_saveas_Action;
-	QAction *solution_new_Action;
-	QAction *solution_load_Action;
-	QAction *solution_save_Action;
-	QAction *solution_saveas_Action;
-	QAction *export_selection_Action;
+	QAction* copy_Action;
+	QAction* commit_selection_in_current_layer_Action;
+	QAction* commit_selection_to_new_layer_Action;
+	QAction* move_selection_to_new_layer_Action;
+	QAction* cut_Action;
+	QAction* filter_reprocess_last_filter;
+	QAction* project_new_Action;
+	QAction* project_save_Action;
+	QAction* project_saveas_Action;
+	QAction* solution_new_Action;
+	QAction* solution_load_Action;
+	QAction* solution_save_Action;
+	QAction* solution_saveas_Action;
+	QAction* export_selection_Action;
 #ifdef WITH_MINESET
-	QAction *export_selection_to_mineset_Action; //!< Menu to trigger mineset export
+	QAction* export_selection_to_mineset_Action; //!< Menu to trigger mineset export
 #endif
-	QAction *extractor_file_Action;
-	QAction *new_file_Action;
-	QAction *new_scene_Action;
-	QAction *paste_Action;
-	QAction *quit_Action;
-	QAction *redo_Action;
-	QAction *select_scene_Action;
-	QAction *selection_all_Action;
-	QAction *selection_inverse_Action;
-	QAction *selection_none_Action;
-	QAction *selection_from_current_layer_Action;
-	QAction *selection_from_layer_Action;
-	QAction *set_color_Action;
+	QAction* extractor_file_Action;
+	QAction* new_file_Action;
+	QAction* new_scene_Action;
+	QAction* paste_Action;
+	QAction* quit_Action;
+	QAction* redo_Action;
+	QAction* select_scene_Action;
+	QAction* selection_all_Action;
+	QAction* selection_inverse_Action;
+	QAction* selection_none_Action;
+	QAction* selection_from_current_layer_Action;
+	QAction* selection_from_layer_Action;
+	QAction* set_color_Action;
 	QAction* tools_new_format_Action;
 	QAction* tools_cur_format_Action;
-	QAction *undo_Action;
-	QAction *undo_history_Action;
-	QAction *view_Action;
-	QAction *view_new_scatter_Action;
-	QAction *view_display_inv_elts_Action;
-	QAction *whats_this_Action;
+	QAction* undo_Action;
+	QAction* undo_history_Action;
+	QAction* view_Action;
+	QAction* view_new_scatter_Action;
+	QAction* view_display_inv_elts_Action;
+	QAction* whats_this_Action;
 
-	QAction *layer_export_Action;
-	QAction *layer_import_Action;
-	QAction *layer_save_ls_Action;
-	QAction *layer_load_ls_Action;
-	QAction *layer_copy_ls_details_to_clipboard_Action;
-	QAction *layer_reset_color_Action;
+	QAction* layer_export_Action;
+	QAction* layer_import_Action;
+	QAction* layer_save_ls_Action;
+	QAction* layer_load_ls_Action;
+	QAction* layer_copy_ls_details_to_clipboard_Action;
+	QAction* layer_reset_color_Action;
 
 	QSpacerItem* pv_mainSpacerTop;
 	QSpacerItem* pv_mainSpacerBottom;
-	QWidget *pv_centralMainWidget;
+	QWidget* pv_centralMainWidget;
 	QStackedWidget* pv_centralWidget;
-	QVBoxLayout *pv_mainLayout;
-	QVBoxLayout *pv_startLayout;
+	QVBoxLayout* pv_mainLayout;
+	QVBoxLayout* pv_startLayout;
 	QLabel* pv_lastCurVersion;
 	QLabel* pv_lastMajVersion;
 	QFileDialog _load_solution_dlg;
 
 	QString _current_save_root_folder;
 
-protected:
-	void keyPressEvent(QKeyEvent *event);
+  protected:
+	void keyPressEvent(QKeyEvent* event);
 	int update_check();
-	void treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors);
+	void treat_invalid_formats(QHash<QString, std::pair<QString, QString>> const& errors);
 	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Inendi::PVView* inendi_view);
 	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Inendi::PVView const& inendi_view);
 	void set_version_informations();
 
-private:
+  private:
 	Inendi::PVRoot& get_root();
 	Inendi::PVRoot const& get_root() const;
 	Inendi::PVRoot_sp get_root_sp();
 
-private:
+  private:
 	static PVMainWindow* find_main_window(const QString& path);
 	bool is_solution_untitled() const { return get_solution_path().isEmpty(); }
 	void save_solution(QString const& file, PVCore::PVSerializeArchiveOptions_p const& options);
@@ -389,7 +395,7 @@ signals:
 	void mineset_error(QString error_msg);
 #endif
 
-private:
+  private:
 	QString _cur_project_file;
 	bool _cur_project_save_everything;
 	static int sequence_n;
@@ -397,12 +403,11 @@ private:
 	PVHive::PVObserverSignal<Inendi::PVRoot> _obs_root;
 	bool _auto_detect_cancellation;
 
-private:
+  private:
 	version_t _last_known_cur_release;
 	version_t _last_known_maj_release;
-	QString   _screenshot_root_dir;
+	QString _screenshot_root_dir;
 };
-
 }
 
 #endif // PVMAINWINDOW_H

@@ -14,59 +14,68 @@
 
 #include <QAbstractItemModel>
 
-namespace PVInspector {
-
-class PVViewsModel: public QAbstractItemModel
+namespace PVInspector
 {
-public:
+
+class PVViewsModel : public QAbstractItemModel
+{
+  public:
 	class PVIndexNode
 	{
-	public:
+	  public:
 		PVIndexNode(Inendi::PVMapped* mapped)
-		{ _plotted = NULL; _mapped = mapped; }
+		{
+			_plotted = NULL;
+			_mapped = mapped;
+		}
 
 		PVIndexNode(Inendi::PVPlotted* plotted)
-		{ _plotted = plotted; _mapped = NULL; }
+		{
+			_plotted = plotted;
+			_mapped = NULL;
+		}
 
-	public:
+	  public:
 		bool is_mapped() const { return _mapped != NULL; }
 		bool is_plotted() const { return _plotted != NULL; }
 
 		Inendi::PVMapped* as_mapped() const { return _mapped; }
 		Inendi::PVPlotted* as_plotted() const { return _plotted; }
 
-		bool operator==(const PVIndexNode& other) const { return (_mapped == other._mapped) && (_plotted == other._plotted); }
+		bool operator==(const PVIndexNode& other) const
+		{
+			return (_mapped == other._mapped) && (_plotted == other._plotted);
+		}
 
-	protected:
+	  protected:
 		Inendi::PVMapped* _mapped;
 		Inendi::PVPlotted* _plotted;
 	};
-public:
+
+  public:
 	PVViewsModel(Inendi::PVSource const& src, QObject* parent = 0);
 	~PVViewsModel();
 
-public:
-	QVariant data(const QModelIndex &index, int role) const;
-    int rowCount(const QModelIndex &index) const;
-    int columnCount(const QModelIndex &index) const;
-	QModelIndex parent(const QModelIndex & index) const;
+  public:
+	QVariant data(const QModelIndex& index, int role) const;
+	int rowCount(const QModelIndex& index) const;
+	int columnCount(const QModelIndex& index) const;
+	QModelIndex parent(const QModelIndex& index) const;
 	QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const;
 	Qt::ItemFlags flags(const QModelIndex& index) const;
 
-public:
+  public:
 	void force_refresh();
 	void emitDataChanged(QModelIndex const& index);
 	QModelIndex get_index_from_node(PVIndexNode const& node);
 
-public:
+  public:
 	PVIndexNode const& get_object(QModelIndex const& index) const;
 
-protected:
+  protected:
 	Inendi::PVSource const& _src;
 	mutable QList<PVIndexNode*> _nodes_todel;
 };
-
 };
 
 #endif
-

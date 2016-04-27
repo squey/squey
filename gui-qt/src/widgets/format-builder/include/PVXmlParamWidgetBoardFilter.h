@@ -6,7 +6,7 @@
  */
 
 #ifndef PVXMLPARAMWIDGETBOARDFILTER_H
-#define	PVXMLPARAMWIDGETBOARDFILTER_H
+#define PVXMLPARAMWIDGETBOARDFILTER_H
 #include <QWidget>
 #include <QDir>
 #include <QStringList>
@@ -22,49 +22,47 @@
 #include <PVXmlParamComboBox.h>
 #include <PVXmlParamColorDialog.h>
 
-namespace PVInspector{
+namespace PVInspector
+{
 
 class PVXmlParamWidget;
 
-class PVXmlParamWidgetBoardFilter : public QWidget {
-    Q_OBJECT
-public:
-    PVXmlParamWidgetBoardFilter(PVRush::PVXmlTreeNodeDom *node, PVXmlParamWidget* parent);
-    virtual ~PVXmlParamWidgetBoardFilter();
-    QWidget *getWidgetToFocus();
-    
-    
-private:
-    void allocBoardFields();
-    void disableConnexion();
-    void disAllocBoardFields();
-    void draw();
-    void initConnexion();
-    void initValue();
-    
-    
-    //field
-    PVXmlParamWidgetEditorBox *name;
-    PVXmlParamTextEdit *exp;
-    PVXmlParamTextEdit *validWidget;
-    PVXmlParamComboBox *typeOfFilter;
-    QPushButton *buttonNext;
+class PVXmlParamWidgetBoardFilter : public QWidget
+{
+	Q_OBJECT
+  public:
+	PVXmlParamWidgetBoardFilter(PVRush::PVXmlTreeNodeDom* node, PVXmlParamWidget* parent);
+	virtual ~PVXmlParamWidgetBoardFilter();
+	QWidget* getWidgetToFocus();
 
+  private:
+	void allocBoardFields();
+	void disableConnexion();
+	void disAllocBoardFields();
+	void draw();
+	void initConnexion();
+	void initValue();
 
-    //editing node
-    PVRush::PVXmlTreeNodeDom *node;
+	// field
+	PVXmlParamWidgetEditorBox* name;
+	PVXmlParamTextEdit* exp;
+	PVXmlParamTextEdit* validWidget;
+	PVXmlParamComboBox* typeOfFilter;
+	QPushButton* buttonNext;
+
+	// editing node
+	PVRush::PVXmlTreeNodeDom* node;
 
 	PVXmlParamWidget* _parent;
 
-public slots:
-    void slotSetValues();
-    void slotVerifRegExpInName();
-    void slotEmitNext();
+  public slots:
+	void slotSetValues();
+	void slotVerifRegExpInName();
+	void slotEmitNext();
 
 signals:
-    void signalRefreshView();
-    void signalEmitNext();
+	void signalRefreshView();
+	void signalEmitNext();
 };
 }
-#endif	/* PVXMLPARAMWIDGETBOARDFILTER_H */
-
+#endif /* PVXMLPARAMWIDGETBOARDFILTER_H */

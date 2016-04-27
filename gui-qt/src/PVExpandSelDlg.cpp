@@ -15,9 +15,8 @@
 
 #include <inendi/PVPlottingFilter.h>
 
-PVInspector::PVExpandSelDlg::PVExpandSelDlg(Inendi::PVView const& view, QWidget* parent):
-	QDialog(parent),
-	_view(view)
+PVInspector::PVExpandSelDlg::PVExpandSelDlg(Inendi::PVView const& view, QWidget* parent)
+    : QDialog(parent), _view(view)
 {
 	setWindowTitle(tr("Expand selection..."));
 
@@ -58,11 +57,12 @@ void PVInspector::PVExpandSelDlg::update_list_modes()
 	PVCore::PVAxesIndexType::const_iterator it_axes;
 	for (it_axes = axes.begin(); it_axes != axes.end(); it_axes++) {
 		PVCol axis_id = *it_axes;
-		QSet<Inendi::PVPlottingFilter::p_type> axis_modes = Inendi::PVPlottingFilter::list_modes_lib(_view.get_original_axis_type(axis_id), true).toSet();
+		QSet<Inendi::PVPlottingFilter::p_type> axis_modes =
+		    Inendi::PVPlottingFilter::list_modes_lib(_view.get_original_axis_type(axis_id), true)
+		        .toSet();
 		if (modes.size() == 0) {
 			modes = axis_modes;
-		}
-		else {
+		} else {
 			modes.intersect(axis_modes);
 		}
 	}
@@ -82,7 +82,8 @@ void PVInspector::PVExpandSelDlg::update_list_modes()
 
 QString PVInspector::PVExpandSelDlg::get_mode()
 {
-	return Inendi::PVPlottingFilter::mode_from_registered_name(_combo_modes->itemData(_combo_modes->currentIndex()).toString());
+	return Inendi::PVPlottingFilter::mode_from_registered_name(
+	    _combo_modes->itemData(_combo_modes->currentIndex()).toString());
 }
 
 PVCore::PVAxesIndexType PVInspector::PVExpandSelDlg::get_axes() const

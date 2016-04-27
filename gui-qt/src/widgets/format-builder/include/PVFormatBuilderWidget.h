@@ -6,15 +6,15 @@
  */
 
 #ifndef PVFORMATBUILDER_H
-#define	PVFORMATBUILDER_H
+#define PVFORMATBUILDER_H
 #include <iostream>
 
 #include <QTreeView>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include<QPushButton>
-#include<QWidget>
-#include<QToolBar>
+#include <QPushButton>
+#include <QWidget>
+#include <QToolBar>
 #include <QFileDialog>
 #include <QAction>
 #include <QString>
@@ -40,82 +40,81 @@
 #include <pvkernel/rush/PVInputType.h>
 #include <inendi/PVSource_types.h>
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 class PVAxesCombinationWidget;
 }
 
-namespace PVInspector{
+namespace PVInspector
+{
 
 class PVOptionsWidget;
 
 typedef QList<PVFilter::PVFieldsSplitterParamWidget_p> list_splitters_t;
-typedef QList<PVFilter::PVFieldsConverterParamWidget_p > list_converters_t;
+typedef QList<PVFilter::PVFieldsConverterParamWidget_p> list_converters_t;
 
+class PVFormatBuilderWidget : public QMainWindow
+{
+	Q_OBJECT
+  public:
+	PVFormatBuilderWidget(QWidget* parent = NULL);
 
-class PVFormatBuilderWidget : public QMainWindow {
-    Q_OBJECT
-public:
-    PVFormatBuilderWidget(QWidget * parent = NULL);
+	virtual ~PVFormatBuilderWidget();
 
-    virtual ~PVFormatBuilderWidget();
-
-private:
-    void closeEvent(QCloseEvent *event);
+  private:
+	void closeEvent(QCloseEvent* event);
 	void init(QWidget* parent = 0);
 	bool somethingChanged(void);
 
-public:
+  public:
 	bool openFormat(QString const& path);
 	void openFormat(QDomDocument& doc);
 	PVRush::types_groups_t& getGroups() { return myTreeModel->getGroups(); }
 
-private:
-    int lastSplitterPluginAdding;
-    
-    void actionAllocation();
-    
-    void hideParamBoard();
-    
-    /**
-     * initialise les connexions dont tout les emitter/reciever sont des attributs
-     * de la classe
-     */
-    void initConnexions();
-    
-    /**
-     * init the menubar
-     */
-    void initMenuBar();
-    
-    void setWindowTitleForFile(QString const& path);
+  private:
+	int lastSplitterPluginAdding;
 
-    bool save();
-    bool saveAs();
+	void actionAllocation();
 
+	void hideParamBoard();
 
-    /**
-     * init the toolsbar
-     * @param vb
-     */
-    void initToolBar(QVBoxLayout *vb);
-    
-    /**
-     * init the splitters list, by listing the plugins found
-     */
-    void initSplitters();    
-    list_splitters_t _list_splitters;///!<list of the plugins splitters
-    list_converters_t _list_converters;///!<list of the plugins converters
-    
-    void showParamBoard(PVRush::PVXmlTreeNodeDom *node);
+	/**
+	 * initialise les connexions dont tout les emitter/reciever sont des attributs
+	 * de la classe
+	 */
+	void initConnexions();
 
+	/**
+	 * init the menubar
+	 */
+	void initMenuBar();
 
+	void setWindowTitleForFile(QString const& path);
 
-// Log input management
+	bool save();
+	bool saveAs();
 
-protected:
-    /**
-     * Clear filter data and run extraction filling NRaw and invalid elements.
-     */
+	/**
+	 * init the toolsbar
+	 * @param vb
+	 */
+	void initToolBar(QVBoxLayout* vb);
+
+	/**
+	 * init the splitters list, by listing the plugins found
+	 */
+	void initSplitters();
+	list_splitters_t _list_splitters;   ///!<list of the plugins splitters
+	list_converters_t _list_converters; ///!<list of the plugins converters
+
+	void showParamBoard(PVRush::PVXmlTreeNodeDom* node);
+
+	// Log input management
+
+  protected:
+	/**
+	 * Clear filter data and run extraction filling NRaw and invalid elements.
+	 */
 	void update_table(PVRow start, PVRow end);
 
 	/**
@@ -134,10 +133,10 @@ protected:
 	void guess_first_splitter();
 	bool is_dom_empty();
 
-private:
+  private:
 	void load_log(PVRow rstart, PVRow rend);
 
-public slots:
+  public slots:
 	// Tree slots
 	void slotAddAxisIn();
 	void slotAddFilterAfter();
@@ -155,18 +154,18 @@ public slots:
 	void slotOpenLog();
 	void slotSave();
 	void slotSaveAs();
-	void slotUpdateToolDesabled(const QModelIndex &);
+	void slotUpdateToolDesabled(const QModelIndex&);
 	void slotExtractorPreview();
-	void slotItemClickedInView(const QModelIndex &index);
+	void slotItemClickedInView(const QModelIndex& index);
 	void slotMainTabChanged(int idx);
 
 	// Slot for the NRAW listing
 	void set_axes_name_selected_row_Slot(int row);
 
-protected:
+  protected:
 	PVRush::PVInputDescription_p _log_input; //!< File use for Format building.
-	PVRush::PVInputType_p _log_input_type; //!< InputType plugin to load data.
-	PVRush::PVSourceCreator_p _log_sc; //!< The source from input file.
+	PVRush::PVInputType_p _log_input_type;   //!< InputType plugin to load data.
+	PVRush::PVSourceCreator_p _log_sc;       //!< The source from input file.
 	PVRush::PVRawSourceBase_p _log_source;
 	std::shared_ptr<PVRush::PVExtractor> _log_extract; //!< Extractor to load data.
 	PVOptionsWidget* _options_widget;
@@ -181,47 +180,45 @@ protected:
 
 	static QList<QUrl> _original_shortcuts;
 
-protected:
+  protected:
 	QString _cur_file;
 
-private:
+  private:
 	PVRush::PVInputType::list_inputs _inputs; //!< List of input files.
 
-     QFileDialog _file_dialog;
+	QFileDialog _file_dialog;
 
-    //FIXME: Those variables names are crap!
-    PVXmlTreeView *myTreeView;
-    PVXmlDomModel *myTreeModel; //!< Model for the Tree representation of the format.
-    PVXmlParamWidget *myParamBord_old_model;
-    QWidget *myParamBord;
-    QWidget emptyParamBoard;
-    QTabWidget* _main_tab;
-    //
-    QVBoxLayout *vbParam;
-    QMenuBar *menuBar;
+	// FIXME: Those variables names are crap!
+	PVXmlTreeView* myTreeView;
+	PVXmlDomModel* myTreeModel; //!< Model for the Tree representation of the format.
+	PVXmlParamWidget* myParamBord_old_model;
+	QWidget* myParamBord;
+	QWidget emptyParamBoard;
+	QTabWidget* _main_tab;
+	//
+	QVBoxLayout* vbParam;
+	QMenuBar* menuBar;
 	Inendi::PVSource* _org_source; // If this widget is bound to a PVSource's format
 
-    //
-    QFile logFile;///!< file we open to edit the format
+	//
+	QFile logFile; ///!< file we open to edit the format
 
-    QAction *actionAddAxisAfter;
-    QAction *actionAddAxisIn;
-    QAction *actionAddFilterAfter;
-    QAction *actionAddRegExAfter;
-    QAction *actionAddRegExBefore;
-    QAction *actionAddUrl;
-    QAction *actionAddRegExIn;
-    QPushButton *actionApply;
-    QAction *actionCloseWindow;
-    QAction *actionDelete;
-    QAction *actionMoveUp;
-    QAction *actionMoveDown;
-    QAction *actionNewWindow;
-    QAction *actionOpen;
-    QAction *actionSave;
-    QAction *actionSaveAs;
+	QAction* actionAddAxisAfter;
+	QAction* actionAddAxisIn;
+	QAction* actionAddFilterAfter;
+	QAction* actionAddRegExAfter;
+	QAction* actionAddRegExBefore;
+	QAction* actionAddUrl;
+	QAction* actionAddRegExIn;
+	QPushButton* actionApply;
+	QAction* actionCloseWindow;
+	QAction* actionDelete;
+	QAction* actionMoveUp;
+	QAction* actionMoveDown;
+	QAction* actionNewWindow;
+	QAction* actionOpen;
+	QAction* actionSave;
+	QAction* actionSaveAs;
 };
-
 }
-#endif	/* PVFORMATBUILDER_H */
-
+#endif /* PVFORMATBUILDER_H */

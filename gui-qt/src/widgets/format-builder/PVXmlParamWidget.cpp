@@ -11,137 +11,139 @@
 
 #include <PVXmlParamTextEdit.h>
 
-#define dbg {qDebug()<<__FILE__<<":"<<__LINE__;}
-
+#define dbg                                                                                        \
+	{                                                                                              \
+		qDebug() << __FILE__ << ":" << __LINE__;                                                   \
+	}
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::PVXmlParamWidget
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidget::PVXmlParamWidget(PVFormatBuilderWidget* parent) :
-	QWidget(),
-	_parent(parent)
+PVInspector::PVXmlParamWidget::PVXmlParamWidget(PVFormatBuilderWidget* parent)
+    : QWidget(), _parent(parent)
 {
-    layout = new QVBoxLayout();
-    setObjectName("PVXmlParamWidget");
+	layout = new QVBoxLayout();
+	setObjectName("PVXmlParamWidget");
 
-    //confirmApply = false;
-    //listeDeParam = new QList<QVariant*>();
-    removeListWidget();
-    type = no;
-    layout->setContentsMargins(0,0,0,0);
-    setLayout(layout);
+	// confirmApply = false;
+	// listeDeParam = new QList<QVariant*>();
+	removeListWidget();
+	type = no;
+	layout->setContentsMargins(0, 0, 0, 0);
+	setLayout(layout);
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::~PVXmlParamWidget
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidget::~PVXmlParamWidget() {
-    layout->deleteLater();
+PVInspector::PVXmlParamWidget::~PVXmlParamWidget()
+{
+	layout->deleteLater();
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::drawForNo
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForNo(QModelIndex) {
-    PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForNo\n");
-    //confirmApply = false;
-    if(type!=no){
-        emit signalQuittingAParamBoard();
-        removeListWidget();
-        type = no;
-    }
-    
+void PVInspector::PVXmlParamWidget::drawForNo(QModelIndex)
+{
+	PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForNo\n");
+	// confirmApply = false;
+	if (type != no) {
+		emit signalQuittingAParamBoard();
+		removeListWidget();
+		type = no;
+	}
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::drawForAxis
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForAxis(PVRush::PVXmlTreeNodeDom *nodeOnClick) {
-    PVXmlParamWidgetBoardAxis *axisboard = new PVXmlParamWidgetBoardAxis(nodeOnClick, this);
-    lesWidgetDuLayout.push_back(axisboard);
-    layout->addWidget(axisboard);
-    connect(axisboard, SIGNAL(signalRefreshView()), this, SLOT(slotEmitNeedApply()));
-    connect(axisboard, SIGNAL(signalSelectNext()), this, SLOT(slotSelectNext()));
-    type = filterParam;
-    //focus on name
-    axisboard->getWidgetToFocus()->setFocus();
+void PVInspector::PVXmlParamWidget::drawForAxis(PVRush::PVXmlTreeNodeDom* nodeOnClick)
+{
+	PVXmlParamWidgetBoardAxis* axisboard = new PVXmlParamWidgetBoardAxis(nodeOnClick, this);
+	lesWidgetDuLayout.push_back(axisboard);
+	layout->addWidget(axisboard);
+	connect(axisboard, SIGNAL(signalRefreshView()), this, SLOT(slotEmitNeedApply()));
+	connect(axisboard, SIGNAL(signalSelectNext()), this, SLOT(slotSelectNext()));
+	type = filterParam;
+	// focus on name
+	axisboard->getWidgetToFocus()->setFocus();
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::drawForFilter
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForFilter(PVRush::PVXmlTreeNodeDom *nodeFilter) {
-  
-    PVXmlParamWidgetBoardFilter *filterboard = new PVXmlParamWidgetBoardFilter(nodeFilter, this);
-    lesWidgetDuLayout.push_back(filterboard);
-    layout->addWidget(filterboard);
-    connect(filterboard, SIGNAL(signalRefreshView()), this, SLOT(slotEmitNeedApply()));
-    connect(filterboard, SIGNAL(signalEmitNext()), this, SLOT(slotSelectNext()));
-    type = filterParam;
-    
-    //focus name.
-    filterboard->getWidgetToFocus()->setFocus();
-}
+void PVInspector::PVXmlParamWidget::drawForFilter(PVRush::PVXmlTreeNodeDom* nodeFilter)
+{
 
+	PVXmlParamWidgetBoardFilter* filterboard = new PVXmlParamWidgetBoardFilter(nodeFilter, this);
+	lesWidgetDuLayout.push_back(filterboard);
+	layout->addWidget(filterboard);
+	connect(filterboard, SIGNAL(signalRefreshView()), this, SLOT(slotEmitNeedApply()));
+	connect(filterboard, SIGNAL(signalEmitNext()), this, SLOT(slotSelectNext()));
+	type = filterParam;
+
+	// focus name.
+	filterboard->getWidgetToFocus()->setFocus();
+}
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::drawForRegEx
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForRegEx(PVRush::PVXmlTreeNodeDom *nodeSplitter) {
-    PVXmlParamWidgetBoardSplitterRegEx *regExpBoard = new PVXmlParamWidgetBoardSplitterRegEx(nodeSplitter, this);
+void PVInspector::PVXmlParamWidget::drawForRegEx(PVRush::PVXmlTreeNodeDom* nodeSplitter)
+{
+	PVXmlParamWidgetBoardSplitterRegEx* regExpBoard =
+	    new PVXmlParamWidgetBoardSplitterRegEx(nodeSplitter, this);
 	// AG: yes, that's a saturday morning hack
 	regExpBoard->setData(nodeSplitter->getDataForRegexp());
-    lesWidgetDuLayout.push_back(regExpBoard);
-    layout->addWidget(regExpBoard);
-    connect(regExpBoard, SIGNAL(signalRefreshView()), this, SLOT(slotEmitNeedApply()));
-    connect(this, SIGNAL(signalQuittingAParamBoard()),regExpBoard,SLOT(exit()));
-    
-    addListWidget();
-    type = filterParam;
-    //focus on regexp
-    regExpBoard->getWidgetToFocus()->setFocus();
+	lesWidgetDuLayout.push_back(regExpBoard);
+	layout->addWidget(regExpBoard);
+	connect(regExpBoard, SIGNAL(signalRefreshView()), this, SLOT(slotEmitNeedApply()));
+	connect(this, SIGNAL(signalQuittingAParamBoard()), regExpBoard, SLOT(exit()));
+
+	addListWidget();
+	type = filterParam;
+	// focus on regexp
+	regExpBoard->getWidgetToFocus()->setFocus();
 }
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::drawForSplitter
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom *nodeSplitter) {
-        PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForSplitter\n");
-        assert(nodeSplitter);
-        assert(nodeSplitter->getSplitterPlugin());
-        QWidget *w = nodeSplitter->getSplitterParamWidget();
-        if (w != nullptr) {
-			PVLOG_DEBUG("PVInspector::PVXmlParamWidget->objectName() =%s\n",
-						qPrintable(w->objectName()));
-			lesWidgetDuLayout.push_back(w);
-			layout->addWidget(w);
-			addListWidget();
-			type = splitterParam;
+void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom* nodeSplitter)
+{
+	PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForSplitter\n");
+	assert(nodeSplitter);
+	assert(nodeSplitter->getSplitterPlugin());
+	QWidget* w = nodeSplitter->getSplitterParamWidget();
+	if (w != nullptr) {
+		PVLOG_DEBUG("PVInspector::PVXmlParamWidget->objectName() =%s\n",
+		            qPrintable(w->objectName()));
+		lesWidgetDuLayout.push_back(w);
+		layout->addWidget(w);
+		addListWidget();
+		type = splitterParam;
 
-			connect(nodeSplitter, SIGNAL(data_changed()), this, SLOT(slotEmitNeedApply()));
-			//slotEmitNeedApply();
-			//focus on regexp
-			//w->getWidgetToFocus()->setFocus();
-        } else {
-	        PVLOG_DEBUG("PVInspector::PVXmlParamWidget: no widget\n");
-        }
+		connect(nodeSplitter, SIGNAL(data_changed()), this, SLOT(slotEmitNeedApply()));
+		// slotEmitNeedApply();
+		// focus on regexp
+		// w->getWidgetToFocus()->setFocus();
+	} else {
+		PVLOG_DEBUG("PVInspector::PVXmlParamWidget: no widget\n");
+	}
 }
 
 /******************************************************************************
@@ -149,43 +151,45 @@ void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom *no
  * PVInspector::PVXmlParamWidget::drawForConverter
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForConverter(PVRush::PVXmlTreeNodeDom *nodeConverter) {
-        PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForConverter\n");
-        assert(nodeConverter);
-        assert(nodeConverter->getConverterPlugin());
-        QWidget *w = nodeConverter->getConverterParamWidget();
-        if (w != nullptr) {
-	        PVLOG_DEBUG("PVInspector::PVXmlParamWidget->objectName() =%s\n",
-	                    qPrintable(w->objectName()));
-	        lesWidgetDuLayout.push_back(w);
-	        layout->addWidget(w);
-	        addListWidget();
-	        type = splitterParam;
+void PVInspector::PVXmlParamWidget::drawForConverter(PVRush::PVXmlTreeNodeDom* nodeConverter)
+{
+	PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForConverter\n");
+	assert(nodeConverter);
+	assert(nodeConverter->getConverterPlugin());
+	QWidget* w = nodeConverter->getConverterParamWidget();
+	if (w != nullptr) {
+		PVLOG_DEBUG("PVInspector::PVXmlParamWidget->objectName() =%s\n",
+		            qPrintable(w->objectName()));
+		lesWidgetDuLayout.push_back(w);
+		layout->addWidget(w);
+		addListWidget();
+		type = splitterParam;
 
-	        connect(nodeConverter, SIGNAL(data_changed()), this, SLOT(slotEmitNeedApply()));
-	        //slotEmitNeedApply();
-	        //focus on regexp
-	        //w->getWidgetToFocus()->setFocus();
-        } else {
-	        PVLOG_DEBUG("PVInspector::PVXmlParamWidget: no widget\n");
-        }
+		connect(nodeConverter, SIGNAL(data_changed()), this, SLOT(slotEmitNeedApply()));
+		// slotEmitNeedApply();
+		// focus on regexp
+		// w->getWidgetToFocus()->setFocus();
+	} else {
+		PVLOG_DEBUG("PVInspector::PVXmlParamWidget: no widget\n");
+	}
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::addListWidget
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::addListWidget() {
-    for (int i = 0; i < lesWidgetDuLayout.count(); i++) {
-        if (i == 2) {
-            layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
-        }
-        if (lesWidgetDuLayout.at(i)->objectName() != "nbr")
-            layout->addWidget(lesWidgetDuLayout.at(i));
-    }
-    layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+void PVInspector::PVXmlParamWidget::addListWidget()
+{
+	for (int i = 0; i < lesWidgetDuLayout.count(); i++) {
+		if (i == 2) {
+			layout->addSpacerItem(
+			    new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+		}
+		if (lesWidgetDuLayout.at(i)->objectName() != "nbr")
+			layout->addWidget(lesWidgetDuLayout.at(i));
+	}
+	layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
 }
 
 /******************************************************************************
@@ -193,233 +197,238 @@ void PVInspector::PVXmlParamWidget::addListWidget() {
  * PVInspector::PVXmlParamWidget::removeListWidget
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::removeListWidget() {
-        /*
-         * Suppression de tous les widgets (textes, btn, editBox...).
-         */
-        while (!lesWidgetDuLayout.isEmpty()) {
-                QWidget *tmp = lesWidgetDuLayout.front();
+void PVInspector::PVXmlParamWidget::removeListWidget()
+{
+	/*
+	 * Suppression de tous les widgets (textes, btn, editBox...).
+	 */
+	while (!lesWidgetDuLayout.isEmpty()) {
+		QWidget* tmp = lesWidgetDuLayout.front();
 
-                tmp->hide();
-                tmp->close();
-                layout->removeWidget(tmp);
-                lesWidgetDuLayout.removeFirst();
-                layout->update();
-        }
+		tmp->hide();
+		tmp->close();
+		layout->removeWidget(tmp);
+		lesWidgetDuLayout.removeFirst();
+		layout->update();
+	}
 
-        /* 
-         *  Suppression des items (commes les spacers).
-         */
-        for (int i = 0; i < 10; i++) {
-                layout->removeItem(layout->itemAt(0));
-        }
+	/*
+	 *  Suppression des items (commes les spacers).
+	 */
+	for (int i = 0; i < 10; i++) {
+		layout->removeItem(layout->itemAt(0));
+	}
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::getParam
  *
  *****************************************************************************/
-QVariant PVInspector::PVXmlParamWidget::getParam(int i) {
-    int id;
-    if (i == 0){
-      id = 1;
-    }else if (i == 1){
-      id = 3;
-    }else if (i == 2){
-      id = 5;
-    }else {
-      return QVariant();
-    }
-    return ((PVXmlParamWidgetEditorBox*) lesWidgetDuLayout.at(id))->val();
+QVariant PVInspector::PVXmlParamWidget::getParam(int i)
+{
+	int id;
+	if (i == 0) {
+		id = 1;
+	} else if (i == 1) {
+		id = 3;
+	} else if (i == 2) {
+		id = 5;
+	} else {
+		return QVariant();
+	}
+	return ((PVXmlParamWidgetEditorBox*)lesWidgetDuLayout.at(id))->val();
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::getParamVariantByName
  *
  *****************************************************************************/
-QVariant PVInspector::PVXmlParamWidget::getParamVariantByName(QString nameParam) {
-    for (int i = 0; i < lesWidgetDuLayout.count(); i++) {
-        QWidget *w = ((QWidget*) lesWidgetDuLayout.at(i));
-        if (w->objectName() == nameParam) {
-            if (nameParam == "validator" || nameParam == "time-format") {
-                return ((PVXmlParamTextEdit*) w)->getVal();
-            } else if (nameParam == "typeCombo" || nameParam == "mapping" || nameParam == "plotting" || nameParam == "key") {
-                return ((PVXmlParamComboBox*) w)->val();
-            } else if (nameParam == "color" || nameParam == "titlecolor") {
-                return ((PVXmlParamColorDialog*) w)->getColor();
-            } else
-                return ((PVXmlParamWidgetEditorBox*) w)->val();
-        }
-    }
-    return QVariant();
+QVariant PVInspector::PVXmlParamWidget::getParamVariantByName(QString nameParam)
+{
+	for (int i = 0; i < lesWidgetDuLayout.count(); i++) {
+		QWidget* w = ((QWidget*)lesWidgetDuLayout.at(i));
+		if (w->objectName() == nameParam) {
+			if (nameParam == "validator" || nameParam == "time-format") {
+				return ((PVXmlParamTextEdit*)w)->getVal();
+			} else if (nameParam == "typeCombo" || nameParam == "mapping" ||
+			           nameParam == "plotting" || nameParam == "key") {
+				return ((PVXmlParamComboBox*)w)->val();
+			} else if (nameParam == "color" || nameParam == "titlecolor") {
+				return ((PVXmlParamColorDialog*)w)->getColor();
+			} else
+				return ((PVXmlParamWidgetEditorBox*)w)->val();
+		}
+	}
+	return QVariant();
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::getParamWidgetByName
  *
  *****************************************************************************/
-QWidget * PVInspector::PVXmlParamWidget::getParamWidgetByName(QString nameParam) {
-    for (int i = 0; i < lesWidgetDuLayout.count(); i++) {
-        QWidget *w = ((QWidget*) lesWidgetDuLayout.at(i));
-        if (w->objectName() == nameParam) {
-            return w;
-        }
-    }
-    return NULL;
+QWidget* PVInspector::PVXmlParamWidget::getParamWidgetByName(QString nameParam)
+{
+	for (int i = 0; i < lesWidgetDuLayout.count(); i++) {
+		QWidget* w = ((QWidget*)lesWidgetDuLayout.at(i));
+		if (w->objectName() == nameParam) {
+			return w;
+		}
+	}
+	return NULL;
 }
 
 /******************************** SLOTS ***************************************/
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::edit
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
-    PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit\n");
+void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index)
+{
+	PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit\n");
 	drawForNo(index);
 	if (index.isValid()) {
-		//emit signalQuittingAParamBoard();
-		//if (confirmApply == true) {
+		// emit signalQuittingAParamBoard();
+		// if (confirmApply == true) {
 		//            //emit the signal to require confirmation.
 		//    emit signalNeedConfirmApply(editingIndex);
 		//}
-		//confirmApply = false;
+		// confirmApply = false;
 		editingIndex = index;
-		PVRush::PVXmlTreeNodeDom *nodeOnClick = (PVRush::PVXmlTreeNodeDom *) index.internalPointer();
+		PVRush::PVXmlTreeNodeDom* nodeOnClick = (PVRush::PVXmlTreeNodeDom*)index.internalPointer();
 
 		if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::filter) {
-            PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> filter\n");
+			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> filter\n");
 			drawForFilter(nodeOnClick);
-		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx ) {//|| (splitter && (nodeOnClick->attribute("type","") == "regexp"))
-            PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> regex\n");
+		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx) { //|| (splitter &&
+			//(nodeOnClick->attribute("type","") ==
+			//"regexp"))
+			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> regex\n");
 			drawForRegEx(nodeOnClick);
-			//confirmApply = false;
-		}else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::axis){
-            PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> axis\n");
-				drawForAxis(nodeOnClick);
+			// confirmApply = false;
+		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::axis) {
+			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> axis\n");
+			drawForAxis(nodeOnClick);
 		} else if (nodeOnClick->attribute("type", "") == "url") {
 			return;
 		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::splitter) {
-            PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> splitter\n");
+			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> splitter\n");
 			drawForSplitter(nodeOnClick);
-		}
-		else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::converter) {
+		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::converter) {
 			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> converter\n");
 			drawForConverter(nodeOnClick);
 		}
 	}
-
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::slotForceApply
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::slotForceApply() {
-    emit signalForceApply(editingIndex);
+void PVInspector::PVXmlParamWidget::slotForceApply()
+{
+	emit signalForceApply(editingIndex);
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::regExCountSel
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::regExCountSel(const QString &reg) {
-    QRegExp regExp = QRegExp(reg);
-    PVXmlParamWidgetEditorBox *widgetNumberOfSelect = (PVXmlParamWidgetEditorBox *) getParamWidgetByName("nbr");
-    //update number of selection count
-    widgetNumberOfSelect->setVal(QVariant(regExp.captureCount()));
+void PVInspector::PVXmlParamWidget::regExCountSel(const QString& reg)
+{
+	QRegExp regExp = QRegExp(reg);
+	PVXmlParamWidgetEditorBox* widgetNumberOfSelect =
+	    (PVXmlParamWidgetEditorBox*)getParamWidgetByName("nbr");
+	// update number of selection count
+	widgetNumberOfSelect->setVal(QVariant(regExp.captureCount()));
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::updatePlotMapping
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::updatePlotMapping(const QString& t) {
-    //qDebug() << "updatePlotMapping(" << t << ")";
-    if (t.length() > 1) {
+void PVInspector::PVXmlParamWidget::updatePlotMapping(const QString& t)
+{
+	// qDebug() << "updatePlotMapping(" << t << ")";
+	if (t.length() > 1) {
 
-        PVXmlParamComboBox *myType = (PVXmlParamComboBox *) getParamWidgetByName("typeCombo");
-        PVXmlParamWidgetEditorBox *myName = (PVXmlParamWidgetEditorBox *) getParamWidgetByName("name");
+		PVXmlParamComboBox* myType = (PVXmlParamComboBox*)getParamWidgetByName("typeCombo");
+		PVXmlParamWidgetEditorBox* myName =
+		    (PVXmlParamWidgetEditorBox*)getParamWidgetByName("name");
 
-        if (myType->currentText() == "time") {
-            PVXmlParamTextEdit *timeFormat = (PVXmlParamTextEdit*) getParamWidgetByName("time-format");
-            timeFormat->setVisible(true);
-            myName->setText("Time");
-        } else {
-            PVXmlParamTextEdit *timeFormat = (PVXmlParamTextEdit*) getParamWidgetByName("time-format");
-            timeFormat->setVisible(false);
-        }
-    }
+		if (myType->currentText() == "time") {
+			PVXmlParamTextEdit* timeFormat =
+			    (PVXmlParamTextEdit*)getParamWidgetByName("time-format");
+			timeFormat->setVisible(true);
+			myName->setText("Time");
+		} else {
+			PVXmlParamTextEdit* timeFormat =
+			    (PVXmlParamTextEdit*)getParamWidgetByName("time-format");
+			timeFormat->setVisible(false);
+		}
+	}
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::slotConfirmRegExpInName
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::slotConfirmRegExpInName(const QString &name) {
-    //for all char
-    QRegExp reg(".*(\\*|\\[|\\{|\\]|\\}).*");
-    if (reg.exactMatch(name)) {
-        QDialog confirm(this);
-        QVBoxLayout vb;
-        confirm.setLayout(&vb);
-        vb.addWidget(new QLabel("Are you writing a regular expression into the wrong field ?"));
-        QHBoxLayout bas;
-        vb.addLayout(&bas);
-        QPushButton no("No");
-        bas.addWidget(&no);
-        QPushButton yes("Yes");
-        bas.addWidget(&yes);
+void PVInspector::PVXmlParamWidget::slotConfirmRegExpInName(const QString& name)
+{
+	// for all char
+	QRegExp reg(".*(\\*|\\[|\\{|\\]|\\}).*");
+	if (reg.exactMatch(name)) {
+		QDialog confirm(this);
+		QVBoxLayout vb;
+		confirm.setLayout(&vb);
+		vb.addWidget(new QLabel("Are you writing a regular expression into the wrong field ?"));
+		QHBoxLayout bas;
+		vb.addLayout(&bas);
+		QPushButton no("No");
+		bas.addWidget(&no);
+		QPushButton yes("Yes");
+		bas.addWidget(&yes);
 
-        //connect the response button
-        connect(&no, SIGNAL(clicked()), &confirm, SLOT(reject()));
-        connect(&yes, SIGNAL(clicked()), &confirm, SLOT(accept()));
+		// connect the response button
+		connect(&no, SIGNAL(clicked()), &confirm, SLOT(reject()));
+		connect(&yes, SIGNAL(clicked()), &confirm, SLOT(accept()));
 
-        //if confirmed then apply
-        if (confirm.exec()) {
-//            PVXmlParamTextEdit *name = (PVXmlParamTextEdit *) getParamWidgetByName("name");
-//            PVXmlParamTextEdit *exp = (PVXmlParamTextEdit *) getParamWidgetByName("expression");
-            //exp->setVal(name->getVal().toString());
-            //name->setVal(QString(""));
-        }
-    }
+		// if confirmed then apply
+		if (confirm.exec()) {
+			//            PVXmlParamTextEdit *name = (PVXmlParamTextEdit *)
+			//            getParamWidgetByName("name");
+			//            PVXmlParamTextEdit *exp = (PVXmlParamTextEdit *)
+			//            getParamWidgetByName("expression");
+			// exp->setVal(name->getVal().toString());
+			// name->setVal(QString(""));
+		}
+	}
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::slotEmitNeedApply
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::slotEmitNeedApply() {
-    emit signalNeedApply();
+void PVInspector::PVXmlParamWidget::slotEmitNeedApply()
+{
+	emit signalNeedApply();
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::slotSelectNext
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::slotSelectNext(){
-  emit signalSelectNext();
+void PVInspector::PVXmlParamWidget::slotSelectNext()
+{
+	emit signalSelectNext();
 }
-
-
-

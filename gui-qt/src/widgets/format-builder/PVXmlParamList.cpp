@@ -7,10 +7,7 @@
 
 #include "include/PVXmlParamList.h"
 
-
-PVInspector::PVXmlParamList::PVXmlParamList(QString const& name):
-	QListWidget(),
-	_name(name)
+PVInspector::PVXmlParamList::PVXmlParamList(QString const& name) : QListWidget(), _name(name)
 {
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 

@@ -13,11 +13,12 @@
 
 #include <PVAxisComputationDlg.h>
 
-PVInspector::PVAxisComputationDlg::PVAxisComputationDlg(Inendi::PVView& view, QWidget* parent):
-	QDialog(parent)
+PVInspector::PVAxisComputationDlg::PVAxisComputationDlg(Inendi::PVView& view, QWidget* parent)
+    : QDialog(parent)
 {
 	setupUi(this);
-	_args_plugin_widget->set_widget_factory(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(view));
+	_args_plugin_widget->set_widget_factory(
+	    PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(view));
 
 	init_plugins(_combo_plugins);
 	update_plugin_args();
@@ -28,7 +29,8 @@ PVInspector::PVAxisComputationDlg::PVAxisComputationDlg(Inendi::PVView& view, QW
 void PVInspector::PVAxisComputationDlg::init_plugins(QComboBox* cb)
 {
 	// List all available plugins and add them to the combo box
-	LIB_CLASS(Inendi::PVAxisComputation)::list_classes const& axis_plugins = LIB_CLASS(Inendi::PVAxisComputation)::get().get_list();
+	LIB_CLASS(Inendi::PVAxisComputation)::list_classes const& axis_plugins =
+	    LIB_CLASS(Inendi::PVAxisComputation)::get().get_list();
 	LIB_CLASS(Inendi::PVAxisComputation)::list_classes::const_iterator it;
 	for (it = axis_plugins.begin(); it != axis_plugins.end(); it++) {
 		QString name = it->value()->get_human_name();
@@ -46,9 +48,11 @@ void PVInspector::PVAxisComputationDlg::update_plugin_args()
 	}
 
 	QString cur_plugin = _combo_plugins->itemData(cur_idx).toString();
-	Inendi::PVAxisComputation_p plugin_lib = LIB_CLASS(Inendi::PVAxisComputation)::get().get_class_by_name(cur_plugin);
+	Inendi::PVAxisComputation_p plugin_lib =
+	    LIB_CLASS(Inendi::PVAxisComputation)::get().get_class_by_name(cur_plugin);
 	if (!plugin_lib) {
-		PVLOG_ERROR("(PVInspector::PVAxisComputationDlg) unable to find plugin %s\n", qPrintable(cur_plugin));
+		PVLOG_ERROR("(PVInspector::PVAxisComputationDlg) unable to find plugin %s\n",
+		            qPrintable(cur_plugin));
 		return;
 	}
 	_plugin_args = plugin_lib->get_default_args();

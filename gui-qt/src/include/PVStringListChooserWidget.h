@@ -10,21 +10,24 @@
 #include <QStringList>
 #include <QListWidget>
 
-namespace PVInspector {
+namespace PVInspector
+{
 
 class PVStringListChooserWidget : public QDialog
 {
 	Q_OBJECT
 
-public:
-	PVStringListChooserWidget(QWidget *parent_, QString const& text, QStringList const& list, QStringList comments = QStringList());
-public:
-	QStringList get_sel_list();
-public slots:
-	void ok_Slot();
-protected:
-	QListWidget* _list_w;
-	QStringList  _final_list;
-};
+  public:
+	PVStringListChooserWidget(QWidget* parent_, QString const& text, QStringList const& list,
+	                          QStringList comments = QStringList());
 
+  public:
+	QStringList get_sel_list();
+  public slots:
+	void ok_Slot();
+
+  protected:
+	QListWidget* _list_w;
+	QStringList _final_list;
+};
 }

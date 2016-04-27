@@ -57,9 +57,7 @@
 
 #include <PVFormatBuilderWidget.h>
 
-#include <tbb/tick_count.h>
-
-QFile *report_file;
+QFile* report_file;
 
 /******************************************************************************
  *
@@ -68,10 +66,11 @@ QFile *report_file;
  *****************************************************************************/
 Q_DECLARE_METATYPE(Inendi::PVSource*);
 
-PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
-	QMainWindow(parent),
-	_load_solution_dlg(this, tr("Load an investigation..."), QString(), INENDI_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER),
-	_root(new Inendi::PVRoot())
+PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
+    : QMainWindow(parent)
+    , _load_solution_dlg(this, tr("Load an investigation..."), QString(),
+                         INENDI_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER)
+    , _root(new Inendi::PVRoot())
 {
 	setAcceptDrops(true);
 
@@ -79,44 +78,50 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 
 	// SIZE STUFF
 	// WARNING: nothing should be set here.
-	
+
 	// OBJECTNAME STUFF
 	setObjectName("PVMainWindow");
-	
-	//setWindowFlags(Qt::FramelessWindowHint);
+
+	// setWindowFlags(Qt::FramelessWindowHint);
 
 	// FIXME
 	//_start_screen_widget = new PVStartScreenWidget(this);
-	
+
 	// FONT stuff
 	QFontDatabase pv_font_database;
 	pv_font_database.addApplicationFont(QString(":/Jura-DemiBold.ttf"));
 	pv_font_database.addApplicationFont(QString(":/OSP-DIN.ttf"));
 
-	setGeometry(20,10, 1024, 900);
-//	datatree = inendi_datatreerootitem_new();
+	setGeometry(20, 10, 1024, 900);
+	//	datatree = inendi_datatreerootitem_new();
 
-	//import_source = NULL;
+	// import_source = NULL;
 	report_started = false;
 	report_image_index = 0;
 	report_filename = NULL;
 
-	//We activate all available Windows
+	// We activate all available Windows
 
 	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(&get_root());
 	_projects_tab_widget->show();
-	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this, SLOT(create_new_window_for_workspace(QWidget*)));
+	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this,
+	        SLOT(create_new_window_for_workspace(QWidget*)));
 	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(solution_new_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_project()), this, SLOT(solution_load_Slot()));
-	connect(_projects_tab_widget, SIGNAL(load_project_from_path(const QString &)), this, SLOT(load_solution_and_create_mw(const QString &)));
+	connect(_projects_tab_widget, SIGNAL(load_project_from_path(const QString&)), this,
+	        SLOT(load_solution_and_create_mw(const QString&)));
 	connect(_projects_tab_widget, SIGNAL(save_project()), this, SLOT(solution_save_Slot()));
-	connect(_projects_tab_widget, SIGNAL(load_source_from_description(PVRush::PVSourceDescription)), this, SLOT(load_source_from_description_Slot(PVRush::PVSourceDescription)));
-	connect(_projects_tab_widget, SIGNAL(import_type(const QString &)), this, SLOT(import_type_Slot(const QString &)) );
+	connect(_projects_tab_widget, SIGNAL(load_source_from_description(PVRush::PVSourceDescription)),
+	        this, SLOT(load_source_from_description_Slot(PVRush::PVSourceDescription)));
+	connect(_projects_tab_widget, SIGNAL(import_type(const QString&)), this,
+	        SLOT(import_type_Slot(const QString&)));
 	connect(_projects_tab_widget, SIGNAL(new_format()), this, SLOT(new_format_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_format()), this, SLOT(open_format_Slot()));
-	connect(_projects_tab_widget, SIGNAL(edit_format(const QString &)), this, SLOT(edit_format_Slot(const QString &)));
-	connect(_projects_tab_widget, SIGNAL(is_empty()), this, SLOT(close_solution_Slot()) );
-	connect(_projects_tab_widget, SIGNAL(active_project(bool)), this, SLOT(menu_activate_is_file_opened(bool)));
+	connect(_projects_tab_widget, SIGNAL(edit_format(const QString&)), this,
+	        SLOT(edit_format_Slot(const QString&)));
+	connect(_projects_tab_widget, SIGNAL(is_empty()), this, SLOT(close_solution_Slot()));
+	connect(_projects_tab_widget, SIGNAL(active_project(bool)), this,
+	        SLOT(menu_activate_is_file_opened(bool)));
 
 	// We display the PV Icon together with a button to import files
 	pv_centralMainWidget = new QWidget();
@@ -124,7 +129,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 
 	pv_mainLayout = new QVBoxLayout();
 	pv_mainLayout->setSpacing(40);
-	pv_mainLayout->setContentsMargins(0,0,0,0);
+	pv_mainLayout->setContentsMargins(0, 0, 0, 0);
 
 	pv_mainLayout->addWidget(_projects_tab_widget);
 
@@ -138,21 +143,20 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 
 	_projects_tab_widget->setFocus(Qt::OtherFocusReason);
 
-
 	// RemoteLogDialog = new QMainWindow(this, Qt::Dialog);
 	// QObject::connect(RemoteLogDialog, SIGNAL(destroyed()), this, SLOT(hide()));
 
-	//We populate all actions, menus and connect them
+	// We populate all actions, menus and connect them
 	create_actions();
 	create_menus();
 	connect_actions();
 	menu_activate_is_file_opened(false);
-	
+
 	statusBar();
 	statemachine_label = new QLabel("");
 	statusBar()->insertPermanentWidget(0, statemachine_label);
 
-	//splash.finish(_start_screen_widget);
+	// splash.finish(_start_screen_widget);
 
 	// Center the main window
 	QRect r = geometry();
@@ -160,14 +164,16 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	setGeometry(r);
 
 	// Load version informations
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
-	_last_known_cur_release = pvconfig.value(PVCONFIG_LAST_KNOWN_CUR_RELEASE, INENDI_VERSION_INVALID).toUInt();
-	_last_known_maj_release = pvconfig.value(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, INENDI_VERSION_INVALID).toUInt();
+	_last_known_cur_release =
+	    pvconfig.value(PVCONFIG_LAST_KNOWN_CUR_RELEASE, INENDI_VERSION_INVALID).toUInt();
+	_last_known_maj_release =
+	    pvconfig.value(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, INENDI_VERSION_INVALID).toUInt();
 
 	update_check();
 
-	//Set stylesheet
+	// Set stylesheet
 	QFile css_file(":/gui.css");
 	css_file.open(QFile::ReadOnly);
 	QTextStream css_stream(&css_file);
@@ -176,7 +182,8 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	setStyleSheet(css_string);
 
 #ifdef WITH_MINESET
-	connect(this, &PVInspector::PVMainWindow::mineset_error, this, &PVInspector::PVMainWindow::mineset_error_slot);
+	connect(this, &PVInspector::PVMainWindow::mineset_error, this,
+	        &PVInspector::PVMainWindow::mineset_error_slot);
 #endif
 
 	showMaximized();
@@ -186,14 +193,13 @@ bool PVInspector::PVMainWindow::event(QEvent* event)
 {
 	QString mime_type = "application/x-inendi_workspace";
 
-	if(event->type() == QEvent::DragEnter) {
+	if (event->type() == QEvent::DragEnter) {
 		QDragEnterEvent* dragEnterEvent = static_cast<QDragEnterEvent*>(event);
 		if (dragEnterEvent->mimeData()->hasFormat(mime_type)) {
 			dragEnterEvent->accept(); // dragEnterEvent->acceptProposedAction();
 			return true;
 		}
-	}
-	else if (event->type() == QEvent::Drop) {
+	} else if (event->type() == QEvent::Drop) {
 		QDropEvent* dropEvent = static_cast<QDropEvent*>(event);
 		if (dropEvent->mimeData()->hasFormat(mime_type)) {
 			dropEvent->acceptProposedAction();
@@ -202,7 +208,8 @@ bool PVInspector::PVMainWindow::event(QEvent* event)
 			if (byte_array.size() < (int)sizeof(PVGuiQt::PVSourceWorkspace*)) {
 				return false;
 			}
-			PVGuiQt::PVSourceWorkspace* workspace = *(reinterpret_cast<PVGuiQt::PVSourceWorkspace* const*>(byte_array.constData()));
+			PVGuiQt::PVSourceWorkspace* workspace =
+			    *(reinterpret_cast<PVGuiQt::PVSourceWorkspace* const*>(byte_array.constData()));
 
 			_projects_tab_widget->add_workspace(workspace);
 
@@ -230,7 +237,6 @@ Inendi::PVRoot_sp PVInspector::PVMainWindow::get_root_sp()
 	return _root;
 }
 ///////////////////////////////////////////////////////////////////////////
-
 
 /******************************************************************************
  *
@@ -260,7 +266,8 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 		}
 
 		// Load possible formats of the remaining sources
-		PVRush::hash_format_creator dis_format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(pre_discovered_creators);
+		PVRush::hash_format_creator dis_format_creator =
+		    PVRush::PVSourceCreatorFactory::get_supported_formats(pre_discovered_creators);
 
 		// Add the custom formats
 		PVRush::hash_formats::const_iterator it_cus_f;
@@ -270,20 +277,20 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 
 			PVRush::list_creators::const_iterator it_lc;
 			for (it_lc = ctxt.lcr.begin(); it_lc != ctxt.lcr.end(); it_lc++) {
-			    PVRush::hash_format_creator::mapped_type v(it_cus_f.value(), *it_lc);
-			    dis_format_creator[it_cus_f.key()] = v;
+				PVRush::hash_format_creator::mapped_type v(it_cus_f.value(), *it_lc);
+				dis_format_creator[it_cus_f.key()] = v;
 
-			    // Save this format/creator pair to the "format_creator" object
-			    ctxt.format_creator[it_cus_f.key()] = v;
+				// Save this format/creator pair to the "format_creator" object
+				ctxt.format_creator[it_cus_f.key()] = v;
 
-			    // We don't want to override text format type with Python or Perl
-			    if((*it_lc)->name() == "text")
-			      break;
+				// We don't want to override text format type with Python or Perl
+				if ((*it_lc)->name() == "text")
+					break;
 			}
 		}
 
 		// Try every possible format
-		QHash<QString,PVCore::PVMeanValue<float> > file_types;
+		QHash<QString, PVCore::PVMeanValue<float>> file_types;
 		tbb::tick_count dis_start = tbb::tick_count::now();
 
 		QList<PVRush::hash_format_creator::key_type> dis_formats = dis_format_creator.keys();
@@ -292,38 +299,38 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 		std::string input_exception_str;
 #pragma omp parallel for
 		for (int i = 0; i < dis_format_creator.size(); i++) {
-			//PVRush::pair_format_creator const& pfc = itfc.value();
+			// PVRush::pair_format_creator const& pfc = itfc.value();
 			PVRush::pair_format_creator const& pfc = dis_v.at(i);
-			//QString const& str_format = itfc.key();
+			// QString const& str_format = itfc.key();
 			QString const& str_format = dis_formats.at(i);
 			try {
-				float success_rate = PVRush::PVSourceCreatorFactory::discover_input(pfc, *itin, &_auto_detect_cancellation);
+				float success_rate = PVRush::PVSourceCreatorFactory::discover_input(
+				    pfc, *itin, &_auto_detect_cancellation);
 
 				if (success_rate > 0) {
 #pragma omp critical
 					{
-						PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(str_format), success_rate);
+						PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n",
+						           qPrintable(in_str), qPrintable(str_format), success_rate);
 						file_types[str_format].push(success_rate);
 						ctxt.discovered_types[str_format].push(success_rate);
 					}
 				}
-			}
-			catch (PVRush::PVXmlParamParserException &e) {
+			} catch (PVRush::PVXmlParamParserException& e) {
 #pragma omp critical
 				{
-					ctxt.formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), tr("XML parser error: ") + e.what());
+					ctxt.formats_error[pfc.first.get_full_path()] = std::pair<QString, QString>(
+					    pfc.first.get_format_name(), tr("XML parser error: ") + e.what());
 				}
 				continue;
-			}
-			catch (PVRush::PVFormatInvalid &e) {
+			} catch (PVRush::PVFormatInvalid& e) {
 #pragma omp critical
 				{
-					ctxt.formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), e.what());
+					ctxt.formats_error[pfc.first.get_full_path()] =
+					    std::pair<QString, QString>(pfc.first.get_format_name(), e.what());
 				}
 				continue;
-			}
-			catch (PVRush::PVInputException &e)
-			{
+			} catch (PVRush::PVInputException& e) {
 #pragma omp critical
 				{
 					input_exception = true;
@@ -332,7 +339,8 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 			}
 		}
 		tbb::tick_count dis_end = tbb::tick_count::now();
-		PVLOG_INFO("Automatic format discovery took %0.4f seconds.\n", (dis_end-dis_start).seconds());
+		PVLOG_INFO("Automatic format discovery took %0.4f seconds.\n",
+		           (dis_end - dis_start).seconds());
 		if (input_exception) {
 			PVLOG_ERROR("PVInput exception: %s\n", input_exception_str.c_str());
 			continue;
@@ -341,8 +349,7 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 		if (file_types.count() == 1) {
 			// We got the formats that matches this input
 			ctxt.discovered[file_types.keys()[0]].push_back(*itin);
-		}
-		else {
+		} else {
 			if (file_types.count() > 1) {
 				ctxt.files_multi_formats[in_str] = file_types.keys();
 			}
@@ -360,8 +367,7 @@ void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 	if (maybe_save_solution()) {
 		_root.reset();
 		event->accept();
-	}
-	else {
+	} else {
 		event->ignore();
 	}
 }
@@ -376,9 +382,13 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer(Inendi::PVView
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
 	/* We get the current selected layer */
-	Inendi::PVLayer &current_selected_layer = inendi_view->get_current_layer();
+	Inendi::PVLayer& current_selected_layer = inendi_view->get_current_layer();
 	/* We fill it's lines_properties */
-	inendi_view->get_output_layer().get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), inendi_view->get_real_output_selection(), inendi_view->get_row_count());
+	inendi_view->get_output_layer()
+	    .get_lines_properties()
+	    .A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(),
+	                                                inendi_view->get_real_output_selection(),
+	                                                inendi_view->get_row_count());
 
 	/* We need to process the view from the layer_stack */
 	Inendi::PVView_sp view_sp = inendi_view->shared_from_this();
@@ -395,7 +405,8 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
 	Inendi::PVView_sp view_sp = inendi_view->shared_from_this();
 
 	bool& should_hide_layers = inendi_view->get_layer_stack().should_hide_layers();
-	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(view_sp->get_layer_stack().get_new_layer_name(), should_hide_layers);
+	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
+	    view_sp->get_layer_stack().get_new_layer_name(), should_hide_layers);
 
 	if (name.isEmpty()) {
 		return;
@@ -409,7 +420,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
 	}
 
 	actor.call<FUNC(Inendi::PVView::add_new_layer)>(name);
-	Inendi::PVLayer &layer = view_sp->get_current_layer();
+	Inendi::PVLayer& layer = view_sp->get_current_layer();
 
 	// We need to configure the layer
 	view_sp->commit_selection_to_layer(layer);
@@ -432,9 +443,10 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 	PVHive::get().register_actor(view_sp, actor);
 
 	Inendi::PVLayer& current_layer = inendi_view->get_current_layer();
-	
+
 	bool& should_hide_layers = view_sp->get_layer_stack().should_hide_layers();
-	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(view_sp->get_layer_stack().get_new_layer_name(), should_hide_layers);
+	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
+	    view_sp->get_layer_stack().get_new_layer_name(), should_hide_layers);
 	if (!name.isEmpty()) {
 
 		if (should_hide_layers) {
@@ -462,9 +474,9 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 }
 
 // Check if we have already a menu with this name at this level
-static QMenu *create_filters_menu_exists(QHash<QMenu *, int> actions_list, QString name, int level)
+static QMenu* create_filters_menu_exists(QHash<QMenu*, int> actions_list, QString name, int level)
 {
-	QHashIterator<QMenu *, int> iter(actions_list);
+	QHashIterator<QMenu*, int> iter(actions_list);
 	while (iter.hasNext()) {
 		iter.next();
 		QString menu_title = iter.key()->title();
@@ -487,10 +499,12 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
-	QMenu *menu = filter_Menu;
-	QHash<QMenu *, int> actions_list; // key = action name; value = menu level; Foo/Bar/Camp makes Foo at level 0, Bar at level 1, etc.
+	QMenu* menu = filter_Menu;
+	QHash<QMenu*, int> actions_list; // key = action name; value = menu level;
+	                                 // Foo/Bar/Camp makes Foo at level 0, Bar at
+	                                 // level 1, etc.
 
-	LIB_CLASS(Inendi::PVLayerFilter) &filters_layer = 	LIB_CLASS(Inendi::PVLayerFilter)::get();
+	LIB_CLASS(Inendi::PVLayerFilter)& filters_layer = LIB_CLASS(Inendi::PVLayerFilter)::get();
 	LIB_CLASS(Inendi::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
 	LIB_CLASS(Inendi::PVLayerFilter)::list_classes::const_iterator it;
 
@@ -508,23 +522,26 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 				bool is_last = i == actions_name.count() - 1 ? 1 : 0;
 
 				// Step 1: we add the different menus into the hash
-				QMenu *menu_exists = create_filters_menu_exists(actions_list, actions_name[i], i);
+				QMenu* menu_exists = create_filters_menu_exists(actions_list, actions_name[i], i);
 				if (!menu_exists) {
-					QMenu *filter_element_menu = new QMenu(actions_name[i]);
+					QMenu* filter_element_menu = new QMenu(actions_name[i]);
 					actions_list[filter_element_menu] = i;
 				}
 
 				// Step 2: we connect the menus with each other and connect the actions
-				QMenu *menu_to_add = create_filters_menu_exists(actions_list, actions_name[i], i);
+				QMenu* menu_to_add = create_filters_menu_exists(actions_list, actions_name[i], i);
 				if (!menu_to_add) {
-					PVLOG_ERROR("The menu named '%s' at position level %d cannot be added since it was not append previously!\n", qPrintable(actions_name[i]), i);
+					PVLOG_ERROR("The menu named '%s' at position level %d cannot be "
+					            "added since it was not append previously!\n",
+					            qPrintable(actions_name[i]), i);
 				}
 				if (i == 0) { // We are at root level
 					menu->addMenu(menu_to_add);
 				} else {
 					if (is_last) {
-						QMenu *previous_menu = create_filters_menu_exists(actions_list, actions_name[i - 1], i - 1);
-						
+						QMenu* previous_menu =
+						    create_filters_menu_exists(actions_list, actions_name[i - 1], i - 1);
+
 						QAction* action = new QAction(actions_name[i] + "...", previous_menu);
 						action->setObjectName(filter_name);
 						action->setStatusTip(status_tip);
@@ -532,13 +549,15 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 						previous_menu->addAction(action);
 					} else {
 						// we add a menu to the previous menu
-						QMenu *previous_menu = create_filters_menu_exists(actions_list, actions_name[i - 1], i - 1);
-						QMenu *current_menu = create_filters_menu_exists(actions_list, actions_name[i], i);
+						QMenu* previous_menu =
+						    create_filters_menu_exists(actions_list, actions_name[i - 1], i - 1);
+						QMenu* current_menu =
+						    create_filters_menu_exists(actions_list, actions_name[i], i);
 						previous_menu->addMenu(current_menu);
 					}
 				}
 			}
-		} else {	// Nothing to split, so there is only a direct action
+		} else { // Nothing to split, so there is only a direct action
 			QAction* action = new QAction(action_name + "...", menu);
 			action->setObjectName(filter_name);
 			action->setStatusTip(status_tip);
@@ -560,24 +579,27 @@ void PVInspector::PVMainWindow::close_solution_Slot()
 	set_window_title_with_filename();
 }
 
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::get_tab_from_view
  *
  *****************************************************************************/
-PVGuiQt::PVSourceWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Inendi::PVView* inendi_view)
+PVGuiQt::PVSourceWorkspace*
+PVInspector::PVMainWindow::get_tab_from_view(Inendi::PVView* inendi_view)
 {
 	return get_tab_from_view(*inendi_view);
 }
 
-PVGuiQt::PVSourceWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Inendi::PVView const& inendi_view)
+PVGuiQt::PVSourceWorkspace*
+PVInspector::PVMainWindow::get_tab_from_view(Inendi::PVView const& inendi_view)
 {
 	// This returns the tab associated to a inendi view
 	const Inendi::PVScene* scene = inendi_view.get_parent<Inendi::PVScene>();
-	PVGuiQt::PVSceneWorkspacesTabWidget* workspaces_tab_widget = _projects_tab_widget->get_workspace_tab_widget_from_scene(scene);
-	for (int i = 0; workspaces_tab_widget && i < workspaces_tab_widget->count();i++) {
-		PVGuiQt::PVSourceWorkspace *tab = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspaces_tab_widget->widget(i));
+	PVGuiQt::PVSceneWorkspacesTabWidget* workspaces_tab_widget =
+	    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene);
+	for (int i = 0; workspaces_tab_widget && i < workspaces_tab_widget->count(); i++) {
+		PVGuiQt::PVSourceWorkspace* tab =
+		    dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspaces_tab_widget->widget(i));
 		if (!tab) {
 			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
 		} else {
@@ -590,8 +612,6 @@ PVGuiQt::PVSourceWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Inendi:
 	return nullptr;
 }
 
-
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::import_type
@@ -600,7 +620,8 @@ PVGuiQt::PVSourceWorkspace* PVInspector::PVMainWindow::get_tab_from_view(Inendi:
 void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 {
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
-	PVRush::hash_format_creator format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
+	PVRush::hash_format_creator format_creator =
+	    PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
 
 	PVRush::hash_formats formats, new_formats;
 
@@ -626,13 +647,13 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			formats[it.key()] = it.value();
 			PVRush::list_creators::const_iterator it_lc;
 			for (it_lc = lcr.begin(); it_lc != lcr.end(); it_lc++) {
-			    PVRush::hash_format_creator::mapped_type v(it.value(), *it_lc);
-			    // Save this format/creator pair to the "format_creator" object
-			    format_creator[it.key()] = v;
+				PVRush::hash_format_creator::mapped_type v(it.value(), *it_lc);
+				// Save this format/creator pair to the "format_creator" object
+				format_creator[it.key()] = v;
 
-			    // We don't want to override text format type with Python or Perl
-			    if((*it_lc)->name() == "text")
-			      break;
+				// We don't want to override text format type with Python or Perl
+				if ((*it_lc)->name() == "text")
+					break;
 			}
 		}
 	}
@@ -640,39 +661,47 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	import_type(in_t, inputs, formats, format_creator, choosenFormat);
 }
 
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::import_type
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat)
+void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
+                                            PVRush::PVInputType::list_inputs const& inputs,
+                                            PVRush::hash_formats& formats,
+                                            PVRush::hash_format_creator& format_creator,
+                                            QString const& choosenFormat)
 {
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 
-	QHash< QString,PVRush::PVInputType::list_inputs > discovered;
-	QHash<QString,PVCore::PVMeanValue<float> > discovered_types; // format->mean_success_rate
+	QHash<QString, PVRush::PVInputType::list_inputs> discovered;
+	QHash<QString, PVCore::PVMeanValue<float>> discovered_types; // format->mean_success_rate
 
-	QHash<QString, std::pair<QString,QString> > formats_error; // Errors w/ some formats
+	QHash<QString, std::pair<QString, QString>> formats_error; // Errors w/ some formats
 
 	map_files_types files_multi_formats;
-	QHash<QString,PVRush::PVInputDescription_p> hash_input_name;
+	QHash<QString, PVRush::PVInputDescription_p> hash_input_name;
 
 	bool file_type_found = false;
 
 	if (choosenFormat.compare(INENDI_AUTOMATIC_FORMAT_STR) == 0) {
-		PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(tr("Auto-detecting file format..."), (QWidget*) this);
+		PVCore::PVProgressBox* pbox =
+		    new PVCore::PVProgressBox(tr("Auto-detecting file format..."), (QWidget*)this);
 		pbox->set_enable_cancel(true);
 		set_auto_detect_cancellation(false);
 		// set_auto_detect_cancellation() implictly set to true
 		connect(pbox, SIGNAL(rejected()), this, SLOT(set_auto_detect_cancellation()));
 
-		if (!PVCore::PVProgressBox::progress(boost::bind(&PVMainWindow::auto_detect_formats, this, PVFormatDetectCtxt(inputs, hash_input_name, formats, format_creator, files_multi_formats, discovered, formats_error, lcr, in_t, discovered_types)), pbox)) {
+		if (!PVCore::PVProgressBox::progress(
+		        boost::bind(&PVMainWindow::auto_detect_formats, this,
+		                    PVFormatDetectCtxt(inputs, hash_input_name, formats, format_creator,
+		                                       files_multi_formats, discovered, formats_error, lcr,
+		                                       in_t, discovered_types)),
+		        pbox)) {
 			return;
 		}
 		file_type_found = (discovered.size() > 0) | (files_multi_formats.size() > 0);
-	}
-	else if (choosenFormat.compare(INENDI_LOCAL_FORMAT_STR) == 0) {
+	} else if (choosenFormat.compare(INENDI_LOCAL_FORMAT_STR) == 0) {
 		PVRush::hash_formats custom_formats;
 		PVRush::list_creators pre_discovered_creators;
 
@@ -688,15 +717,15 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 				}
 			}
 
-			for(auto hf_it = custom_formats.begin(); hf_it != custom_formats.end(); ++hf_it) {
+			for (auto hf_it = custom_formats.begin(); hf_it != custom_formats.end(); ++hf_it) {
 				formats.insert(hf_it.key(), hf_it.value());
 
 				for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
 					PVRush::hash_format_creator::mapped_type v(hf_it.value(), *src_cr_it);
 					format_creator[hf_it.key()] = v;
 					// We don't want to override text format type with Python or Perl
-					if((*src_cr_it)->name() == "text")
-					  break;
+					if ((*src_cr_it)->name() == "text")
+						break;
 				}
 			}
 		}
@@ -705,13 +734,12 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 			file_type_found = true;
 			discovered[custom_formats.keys()[0]] = inputs;
 		}
-	}
-	else if (choosenFormat.compare(INENDI_BROWSE_FORMAT_STR) == 0) {
+	} else if (choosenFormat.compare(INENDI_BROWSE_FORMAT_STR) == 0) {
 		/* A QFileDialog is explicitly used over QFileDialog::getOpenFileName
 		 * because this latter does not used QFileDialog's global environment
 		 * like last used current directory.
 		 */
-		QFileDialog *fdialog = new QFileDialog(this);
+		QFileDialog* fdialog = new QFileDialog(this);
 
 		fdialog->setOption(QFileDialog::DontUseNativeDialog, true);
 		fdialog->setNameFilter("Formats (*.format)");
@@ -731,8 +759,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 				PVRush::hash_format_creator::mapped_type v(format, *src_cr_it);
 				format_creator[format_name] = v;
 				// We don't want to override text format type with Python or Perl
-				if((*src_cr_it)->name() == "text")
-				  break;
+				if ((*src_cr_it)->name() == "text")
+					break;
 			}
 
 			if (fi.isReadable()) {
@@ -746,21 +774,24 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		if (ret == QDialog::Rejected) {
 			return;
 		}
-	}
-	else
-	{
+	} else {
 		file_type_found = true;
 		discovered[choosenFormat] = inputs;
 	}
 
 	treat_invalid_formats(formats_error);
-	
+
 	if (!file_type_found) {
 		QString msg;
 		if (choosenFormat.compare(INENDI_AUTOMATIC_FORMAT_STR) == 0) {
-			msg = "<p>Automatic format detection reported <strong>no valid format</strong>.</p>";
-			msg += "<p>Please note that automatic format detection is only applied on a small subset of the provided sources.</p>";
-			msg += "<p><strong>Trick:</strong> if you know the format of these sources, and if it contains one or more filters that invalidate a lot of elements, you should avoid automatic format detection and select this format by hand in the import sources dialog.</p>";
+			msg = "<p>Automatic format detection reported <strong>no valid "
+			      "format</strong>.</p>";
+			msg += "<p>Please note that automatic format detection is only applied "
+			       "on a small subset of the provided sources.</p>";
+			msg += "<p><strong>Trick:</strong> if you know the format of these "
+			       "sources, and if it contains one or more filters that invalidate "
+			       "a lot of elements, you should avoid automatic format detection "
+			       "and select this format by hand in the import sources dialog.</p>";
 		} else if (choosenFormat.compare(INENDI_BROWSE_FORMAT_STR) == 0) {
 			msg = "<p>No valid format file found.</p>";
 			msg = "<p>Check for file permission on the chosen format file.</p>";
@@ -768,9 +799,12 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 			// must never happens
 			msg = "<p>No valid local format file found.</p>";
 			msg += "<ul>";
-			msg += "<li>the source's directory contains a readable format file named <em>inendi.format</em> (or <em>picviz.format</em> for backward compatibility)</li>";
-			msg += "<li>the source file has a format file whose name is <em>file.ext<strong>.format</strong></em></li>";
-			msg +="</ul>";
+			msg += "<li>the source's directory contains a readable format file named "
+			       "<em>inendi.format</em> (or <em>picviz.format</em> for backward "
+			       "compatibility)</li>";
+			msg += "<li>the source file has a format file whose name is "
+			       "<em>file.ext<strong>.format</strong></em></li>";
+			msg += "</ul>";
 		}
 		QMessageBox::warning(this, "Cannot import sources", msg);
 		return;
@@ -779,13 +813,16 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	if (discovered_types.size() > 1) {
 		QStringList dis_types = discovered_types.keys();
 		QStringList dis_types_comment;
-		QList<PVCore::PVMeanValue<float> > rates = discovered_types.values();
-		QList<PVCore::PVMeanValue<float> >::const_iterator itf;
+		QList<PVCore::PVMeanValue<float>> rates = discovered_types.values();
+		QList<PVCore::PVMeanValue<float>>::const_iterator itf;
 		for (itf = rates.begin(); itf != rates.end(); itf++) {
-			dis_types_comment << QString("mean success rate = %1%").arg(itf->compute_mean()*100);
+			dis_types_comment << QString("mean success rate = %1%").arg(itf->compute_mean() * 100);
 		}
 
-		PVStringListChooserWidget *choosew = new PVStringListChooserWidget(this, "Multiple types have been detected.\nPlease choose the one(s) you need and press OK.", dis_types, dis_types_comment);
+		PVStringListChooserWidget* choosew = new PVStringListChooserWidget(
+		    this, "Multiple types have been detected.\nPlease choose the one(s) "
+		          "you need and press OK.",
+		    dis_types, dis_types_comment);
 		if (!choosew->exec())
 			return;
 		QStringList sel_types = choosew->get_sel_list();
@@ -794,7 +831,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		if (dis_types.size() != sel_types.size()) {
 			// Remove types that are not in dis_types from 'discovered'
 			for (int i = 0; i < dis_types.size(); i++) {
-				QString const& t_ = dis_types[i];	
+				QString const& t_ = dis_types[i];
 				if (sel_types.contains(t_))
 					continue;
 				discovered.remove(t_);
@@ -814,15 +851,15 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 				map_files_types::iterator it_rem = it;
 				it++;
 				files_multi_formats.erase(it_rem);
-			}
-			else {
+			} else {
 				it++;
 			}
 		}
 	}
-	
+
 	if (files_multi_formats.size() > 0) {
-		PVFilesTypesSelWidget* files_types_sel = new PVFilesTypesSelWidget(this, files_multi_formats);
+		PVFilesTypesSelWidget* files_types_sel =
+		    new PVFilesTypesSelWidget(this, files_multi_formats);
 		if (!files_types_sel->exec())
 			return;
 		// Add everything to the discovered table
@@ -854,8 +891,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 
 		PVRush::PVSourceDescription src_desc(inputs, fc.second, cur_format);
 
-
-		if (load_source_from_description_Slot(src_desc)){
+		if (load_source_from_description_Slot(src_desc)) {
 			one_extraction_successful = true;
 		}
 	}
@@ -877,8 +913,6 @@ void PVInspector::PVMainWindow::import_type_default_Slot()
 	import_type(LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file"));
 }
 
-
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::import_type_Slot
@@ -886,51 +920,47 @@ void PVInspector::PVMainWindow::import_type_default_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::import_type_Slot()
 {
-	QAction* action_src = (QAction*) sender();
+	QAction* action_src = (QAction*)sender();
 	QString const& itype = action_src->data().toString();
 	import_type_Slot(itype);
 }
 
-void PVInspector::PVMainWindow::import_type_Slot(const QString & itype)
+void PVInspector::PVMainWindow::import_type_Slot(const QString& itype)
 {
 	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(itype);
 	import_type(in_t);
 }
-
-
 
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::keyPressEvent()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
+void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent* event)
 {
 	QMainWindow::keyPressEvent(event);
 #ifdef INENDI_DEVELOPER_MODE
 	switch (event->key()) {
 
-		case Qt::Key_Dollar:
-		{
-			/*if (pv_WorkspacesTabWidget->currentIndex() == -1) {
-				break;
-			}*/
-			PVLOG_INFO("Reloading CSS\n");
+	case Qt::Key_Dollar: {
+		/*if (pv_WorkspacesTabWidget->currentIndex() == -1) {
+		        break;
+		}*/
+		PVLOG_INFO("Reloading CSS\n");
 
-			QFile css_file(INENDI_SOURCE_DIRECTORY "/gui-qt/src/resources/gui.css");
-			if (css_file.open(QFile::ReadOnly)) {
-				QTextStream css_stream(&css_file);
-				QString css_string(css_stream.readAll());
-				css_file.close();
+		QFile css_file(INENDI_SOURCE_DIRECTORY "/gui-qt/src/resources/gui.css");
+		if (css_file.open(QFile::ReadOnly)) {
+			QTextStream css_stream(&css_file);
+			QString css_string(css_stream.readAll());
+			css_file.close();
 
-				setStyleSheet(css_string);
-				setStyle(QApplication::style());
-			}
-			break;
+			setStyleSheet(css_string);
+			setStyle(QApplication::style());
 		}
+		break;
+	}
 	}
 #endif
-
 }
 
 /******************************************************************************
@@ -950,7 +980,6 @@ void PVInspector::PVMainWindow::events_display_unselected_Slot()
 	state_machine.toggle_listing_unselected_visibility();
 }
 
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::load_files
@@ -964,7 +993,8 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 
 	PVRush::PVInputType_p in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_file);
-	PVRush::hash_format_creator format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
+	PVRush::hash_format_creator format_creator =
+	    PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
 
 	PVRush::hash_formats formats;
 	{
@@ -976,7 +1006,7 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 
 	// Create PVFileDescription objects
 	//
-	
+
 	PVRush::PVInputType::list_inputs files_in;
 	{
 		std::vector<QString>::const_iterator it;
@@ -984,30 +1014,27 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 			files_in.push_back(PVRush::PVInputDescription_p(new PVRush::PVFileDescription(*it)));
 		}
 	}
-	
+
 	if (!format.isEmpty()) {
 		PVRush::PVFormat new_format("custom:arg", format);
 		formats["custom:arg"] = new_format;
 
 		PVRush::list_creators::const_iterator it_lc;
 		for (it_lc = lcr.begin(); it_lc != lcr.end(); it_lc++) {
-		    PVRush::hash_format_creator::mapped_type v(new_format, *it_lc);
-		    // Save this format/creator pair to the "format_creator" object
-		    format_creator["custom:arg"] = v;
-		    // We don't want to override text format type with Python or Perl
-		    if((*it_lc)->name() == "text")
-		      break;
+			PVRush::hash_format_creator::mapped_type v(new_format, *it_lc);
+			// Save this format/creator pair to the "format_creator" object
+			format_creator["custom:arg"] = v;
+			// We don't want to override text format type with Python or Perl
+			if ((*it_lc)->name() == "text")
+				break;
 		}
 		format = "custom:arg";
-	}
-	else {
+	} else {
 		format = INENDI_AUTOMATIC_FORMAT_STR;
 	}
 
 	import_type(in_file, files_in, formats, format_creator, format);
 }
-
-
 
 /******************************************************************************
  *
@@ -1030,7 +1057,7 @@ bool PVInspector::PVMainWindow::load_scene(Inendi::PVScene* scene)
 bool PVInspector::PVMainWindow::load_root()
 {
 	// Here, load the whole root !
-	for (Inendi::PVScene_sp const& scene_p: get_root().get_children()) {
+	for (Inendi::PVScene_sp const& scene_p : get_root().get_children()) {
 		if (!load_scene(scene_p.get())) {
 			return false;
 		}
@@ -1044,12 +1071,14 @@ void PVInspector::PVMainWindow::display_inv_elts()
 	if (current_view()) {
 		if (current_view()->get_parent<Inendi::PVSource>()->get_invalid_evts().size() > 0) {
 			PVGuiQt::PVWorkspaceBase* workspace = _projects_tab_widget->current_workspace();
-			if (PVGuiQt::PVSourceWorkspace* source_workspace = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)) {
+			if (PVGuiQt::PVSourceWorkspace* source_workspace =
+			        dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)) {
 				source_workspace->get_source_invalid_evts_dlg()->show();
 			}
-		}
-		else {
-			QMessageBox::information(this, tr("Invalid events"), tr("No invalid events have been saved or created during the extraction of this source."));
+		} else {
+			QMessageBox::information(this, tr("Invalid events"),
+			                         tr("No invalid events have been saved or created during the "
+			                            "extraction of this source."));
 		}
 	}
 }
@@ -1058,15 +1087,14 @@ void PVInspector::PVMainWindow::display_inv_elts()
  * PVInspector::PVMainWindow::save_screenshot
  *****************************************************************************/
 
-void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
-                                                const QString& title,
+void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap, const QString& title,
                                                 const QString& name)
 {
 	QString filename = "screenshot_" + name;
 
 	static const QString default_prefix("_0001.png");
 
-	if(_screenshot_root_dir.isEmpty()) {
+	if (_screenshot_root_dir.isEmpty()) {
 		_screenshot_root_dir = QDir::currentPath();
 	}
 
@@ -1075,16 +1103,15 @@ void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 	 * try to extract its counter.
 	 */
 	QDir dir(_screenshot_root_dir, filename + "_*.png");
-	QStringList fnl = dir.entryList(QDir::Files | QDir::NoDotAndDotDot,
-	                                QDir::Name | QDir::Reversed);
+	QStringList fnl =
+	    dir.entryList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name | QDir::Reversed);
 
 	if (fnl.isEmpty() == false) {
 		QRegExp re(filename + "_(\\d+).*");
 		int pos = re.indexIn(fnl[0], 0);
 		if (pos != -1) {
 			int count = re.cap(1).toInt() + 1;
-			filename += QString("_%1.png").arg(count, 4, 10,
-			                                   QChar('0'));
+			filename += QString("_%1.png").arg(count, 4, 10, QChar('0'));
 		} else {
 			filename.append(default_prefix);
 		}
@@ -1092,10 +1119,8 @@ void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 		filename.append(default_prefix);
 	}
 
-	QString img_name = QFileDialog::getSaveFileName(this,
-	                                                title,
-	                                                filename,
-	                                                QString("PNG Image (*.png)"));
+	QString img_name =
+	    QFileDialog::getSaveFileName(this, title, filename, QString("PNG Image (*.png)"));
 
 	if (img_name.isEmpty()) {
 		return;
@@ -1109,8 +1134,9 @@ void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 
 	if (pixmap.save(img_name) == false) {
 		QMessageBox::critical(this, "Error saving the screenshot",
-		                     "Check for permissions in '" + _screenshot_root_dir + "' or for free disk space",
-		                     QMessageBox::Ok);
+		                      "Check for permissions in '" + _screenshot_root_dir +
+		                          "' or for free disk space",
+		                      QMessageBox::Ok);
 	}
 }
 
@@ -1136,15 +1162,15 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			loaded_from_disk = src->load_from_disk();
 		} catch (std::exception& e) {
 			PVLOG_ERROR("PVNraw error: %s\n", e.what());
-			QMessageBox::critical(this, "Cannot load sources", QString("Error while opening nraw: ") + e.what());
+			QMessageBox::critical(this, "Cannot load sources",
+			                      QString("Error while opening nraw: ") + e.what());
 			return false;
 		}
 
 		BENCH_STOP(lfd);
 #ifdef INENDI_DEVELOPER_MODE
 		if (loaded_from_disk) {
-			PVLOG_INFO("nraw read from disk in %g sec\n",
-			           BENCH_END_TIME(lfd));
+			PVLOG_INFO("nraw read from disk in %g sec\n", BENCH_END_TIME(lfd));
 		}
 #endif
 	}
@@ -1155,46 +1181,64 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 
 		PVRush::PVControllerJob_p job_import;
 		try {
-			job_import = src->extract(src->get_format().get_first_line(), src->get_format().get_line_count());
-		}
-		catch (PVRush::PVInputException const& e) {
-			QMessageBox::critical(this, "Cannot create sources", QString("Error with input: ") + e.what().c_str());
+			job_import = src->extract(src->get_format().get_first_line(),
+			                          src->get_format().get_line_count());
+		} catch (PVRush::PVInputException const& e) {
+			QMessageBox::critical(this, "Cannot create sources",
+			                      QString("Error with input: ") + e.what().c_str());
 			return false;
-		}
-		catch (PVRush::PVNrawException const& e) {
-			QMessageBox::critical(this, "Cannot create sources", QString("Error with nraw: ") + e.what());
+		} catch (PVRush::PVNrawException const& e) {
+			QMessageBox::critical(this, "Cannot create sources",
+			                      QString("Error with nraw: ") + e.what());
 			return false;
 		}
 
-		if (!PVExtractorWidget::show_job_progress_bar(job_import, src->get_format_name(), job_import->nb_elts_max(), this)) {
+		if (!PVExtractorWidget::show_job_progress_bar(job_import, src->get_format_name(),
+		                                              job_import->nb_elts_max(), this)) {
 			// If job is canceled, stop here
 			return false;
 		}
 		src->wait_extract_end(job_import);
 
 		if (src->get_rushnraw().get_row_count() == 0) {
-			QString msg = QString("<p>The files <strong>%1</strong> using format <strong>%2</strong> cannot be opened. ").arg(src->get_name()).arg(src->get_format_name());
+			QString msg = QString("<p>The files <strong>%1</strong> using format "
+			                      "<strong>%2</strong> cannot be opened. ")
+			                  .arg(src->get_name())
+			                  .arg(src->get_format_name());
 			PVRow nelts = job_import->rejected_elements();
 			if (nelts > 0) {
-				msg += QString("Indeed, <strong>%1 elements</strong> have been extracted but were <strong>all invalid</strong>.</p>").arg(nelts);
-				msg += QString("<p>This is because one or more splitters and/or filters defined in format <strong>%1</strong> reported invalid events during the extraction.<br />").arg(src->get_format_name());
-				msg += QString("You may have invalid regular expressions set in this format, or simply all the events have been invalidated by one or more filters thus no events matches your criterias.</p>");
-				msg += QString("<p>You might try to <strong>fix your format</strong> or try to load <strong>another set of data</strong>.</p>");
-			}
-			else {
-				msg += QString("Indeed, the sources <strong>were empty</strong> (empty files, bad database query, etc...) because no elements have been extracted.</p><p>You should try to load another set of data.</p>");
+				msg += QString("Indeed, <strong>%1 elements</strong> have been extracted "
+				               "but were <strong>all invalid</strong>.</p>").arg(nelts);
+				msg += QString("<p>This is because one or more splitters and/or "
+				               "filters defined in format <strong>%1</strong> reported "
+				               "invalid events during the extraction.<br />")
+				           .arg(src->get_format_name());
+				msg += QString("You may have invalid regular expressions set in this "
+				               "format, or simply all the events have been invalidated "
+				               "by one or more filters thus no events matches your "
+				               "criterias.</p>");
+				msg += QString("<p>You might try to <strong>fix your format</strong> or "
+				               "try to load <strong>another set of data</strong>.</p>");
+			} else {
+				msg += QString("Indeed, the sources <strong>were empty</strong> (empty "
+				               "files, bad database query, etc...) because no elements "
+				               "have been extracted.</p><p>You should try to load "
+				               "another set of data.</p>");
 			}
 			QMessageBox::critical(this, "Cannot load sources", msg);
 			return false;
 		} else if (src->get_rushnraw().get_invalid_count() != 0) {
-			// We can continue with it but user have to know that some values are incorrect.
-			QMessageBox::warning(this, "Failed conversions", "Some conversions from text to binary failed during import. Please, look at your terminal to know which conversions failed.");
+			// We can continue with it but user have to know that some values are
+			// incorrect.
+			QMessageBox::warning(this, "Failed conversions",
+			                     "Some conversions from text to binary failed during "
+			                     "import. Please, look at your terminal to know "
+			                     "which conversions failed.");
 		}
 
 		BENCH_STOP(lff);
 #ifdef INENDI_DEVELOPER_MODE
-		PVLOG_INFO("nraw created from data in %g sec\n",
-		           BENCH_END_TIME(lff));
+		PVLOG_INFO("nraw created from data in %g sec\n", BENCH_END_TIME(lff));
 #endif
 	}
 
@@ -1202,12 +1246,15 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	// keeping the existing layers !
 	bool success = true;
 	if (src->get_children<Inendi::PVView>().size() == 0) {
-		if (!PVCore::PVProgressBox::progress(boost::bind<void>(&Inendi::PVSource::create_default_view, src), tr("Processing..."), (QWidget*) this)) {
+		if (!PVCore::PVProgressBox::progress(
+		        boost::bind<void>(&Inendi::PVSource::create_default_view, src), tr("Processing..."),
+		        (QWidget*)this)) {
 			success = false;
 		}
-	}
-	else {
-		if (!PVCore::PVProgressBox::progress(boost::bind(&Inendi::PVSource::process_from_source, src), tr("Processing..."), (QWidget*) this)) {
+	} else {
+		if (!PVCore::PVProgressBox::progress(
+		        boost::bind(&Inendi::PVSource::process_from_source, src), tr("Processing..."),
+		        (QWidget*)this)) {
 			success = false;
 		}
 	}
@@ -1221,15 +1268,16 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	if (src->get_children<Inendi::PVView>().size() > 0) {
 		Inendi::PVView_sp first_view_p = src->get_children<Inendi::PVView>().at(0);
 		first_view_p->get_parent<Inendi::PVRoot>()->select_view(*first_view_p);
-		for(auto& inv_elts: src->get_invalid_evts()) {
+		for (auto& inv_elts : src->get_invalid_evts()) {
 			first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
 		}
 		first_view_p->process_from_layer_stack();
 		first_view_p->get_volatile_selection() = first_view_p->get_current_layer().get_selection();
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(first_view_p);
+		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(
+		    first_view_p);
 	}
 
-	//connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
+	// connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
 
 	//_projects_tab_widget->setCurrentIndex(new_tab_index);
 
@@ -1237,9 +1285,13 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		display_inv_elts();
 	}
 
-	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), src->get_format().get_full_path(), PVCore::PVRecentItemsManager::Category::USED_FORMATS);
+	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
+	    PVCore::PVRecentItemsManager::get(), src->get_format().get_full_path(),
+	    PVCore::PVRecentItemsManager::Category::USED_FORMATS);
 
-	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add_source)>(PVCore::PVRecentItemsManager::get(), src->get_source_creator(), src->get_inputs(), src->get_format());
+	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add_source)>(
+	    PVCore::PVRecentItemsManager::get(), src->get_source_creator(), src->get_inputs(),
+	    src->get_format());
 
 	return true;
 }
@@ -1255,8 +1307,8 @@ void PVInspector::PVMainWindow::remove_source(Inendi::PVSource* src_p)
 
 	scene_p->remove_child(src_p->shared_from_this());
 	if (scene_p->get_children().size() == 0) {
-		PVGuiQt::PVSceneWorkspacesTabWidget *tab =
-			_projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get());
+		PVGuiQt::PVSceneWorkspacesTabWidget* tab =
+		    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get());
 		if (tab != nullptr) {
 			_projects_tab_widget->remove_project(tab);
 			tab->deleteLater();
@@ -1285,19 +1337,19 @@ void PVInspector::PVMainWindow::set_color(Inendi::PVView* inendi_view)
 	Inendi::PVView_sp view_sp(inendi_view->shared_from_this());
 	PVHive::get().register_actor(view_sp, actor);
 
-	//actor.call<FUNC(Inendi::PVView::set_color_on_post_filter_layer)>(color);
+	// actor.call<FUNC(Inendi::PVView::set_color_on_post_filter_layer)>(color);
 	actor.call<FUNC(Inendi::PVView::set_color_on_active_layer)>(color);
 	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
-	//commit_selection_in_current_layer(inendi_view);
+	// commit_selection_in_current_layer(inendi_view);
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::set_selection_from_layer
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::set_selection_from_layer(Inendi::PVView_sp view, Inendi::PVLayer const& layer)
+void PVInspector::PVMainWindow::set_selection_from_layer(Inendi::PVView_sp view,
+                                                         Inendi::PVLayer const& layer)
 {
 	PVHive::PVActor<Inendi::PVView> actor;
 	PVHive::get().register_actor(view, actor);
@@ -1305,7 +1357,6 @@ void PVInspector::PVMainWindow::set_selection_from_layer(Inendi::PVView_sp view,
 	actor.call<FUNC(Inendi::PVView::set_selection_from_layer)>(layer);
 	actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
 }
-
 
 /******************************************************************************
  *
@@ -1316,10 +1367,10 @@ void PVInspector::PVMainWindow::set_version_informations()
 {
 	/*
 	if (_last_known_cur_release != INENDI_VERSION_INVALID) {
-		pv_lastCurVersion->setText(PVCore::PVVersion::to_str(_last_known_cur_release));
+	        pv_lastCurVersion->setText(PVCore::PVVersion::to_str(_last_known_cur_release));
 	}
 	if (_last_known_maj_release != INENDI_VERSION_INVALID) {
-		pv_lastMajVersion->setText(PVCore::PVVersion::to_str(_last_known_maj_release));
+	        pv_lastMajVersion->setText(PVCore::PVVersion::to_str(_last_known_maj_release));
 	}*/
 }
 
@@ -1328,23 +1379,26 @@ void PVInspector::PVMainWindow::set_version_informations()
  * PVInspector::PVMainWindow::treat_invalid_formats
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors)
+void PVInspector::PVMainWindow::treat_invalid_formats(
+    QHash<QString, std::pair<QString, QString>> const& errors)
 {
 	if (errors.size() == 0) {
 		return;
 	}
 
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
-	if (!pvconfig.value(PVCONFIG_FORMATS_SHOW_INVALID, PVCONFIG_FORMATS_SHOW_INVALID_DEFAULT).toBool()) {
-	   return;
+	if (!pvconfig.value(PVCONFIG_FORMATS_SHOW_INVALID, PVCONFIG_FORMATS_SHOW_INVALID_DEFAULT)
+	         .toBool()) {
+		return;
 	}
 
 	// Get the current ignore list
-	QStringList formats_ignored = pvconfig.value(PVCONFIG_FORMATS_INVALID_IGNORED, QStringList()).toStringList();
+	QStringList formats_ignored =
+	    pvconfig.value(PVCONFIG_FORMATS_INVALID_IGNORED, QStringList()).toStringList();
 
 	// And remove them from the error list
-	QHash<QString, std::pair<QString, QString> > errors_ = errors;
+	QHash<QString, std::pair<QString, QString>> errors_ = errors;
 	for (int i = 0; i < formats_ignored.size(); i++) {
 		errors_.remove(formats_ignored[i]);
 	}
@@ -1354,22 +1408,27 @@ void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<Q
 	}
 
 	QMessageBox msg(QMessageBox::Warning, tr("Invalid formats"), tr("Some formats were invalid."));
-   	msg.setInformativeText(tr("You can simply ignore this message, choose not to display it again (for every format), or remove this warning only for these formats."));
+	msg.setInformativeText(
+	    tr("You can simply ignore this message, choose not to display it again "
+	       "(for every format), or remove this warning only for these formats."));
 	QPushButton* ignore = msg.addButton(QMessageBox::Ignore);
 	msg.setDefaultButton(ignore);
-	QPushButton* always_ignore = msg.addButton(tr("Always ignore these formats"), QMessageBox::AcceptRole);
-	QPushButton* never_again = msg.addButton(tr("Never display this message again"), QMessageBox::RejectRole);
+	QPushButton* always_ignore =
+	    msg.addButton(tr("Always ignore these formats"), QMessageBox::AcceptRole);
+	QPushButton* never_again =
+	    msg.addButton(tr("Never display this message again"), QMessageBox::RejectRole);
 
 	QString detailed_txt;
-	QHash<QString, std::pair<QString,QString> >::const_iterator it;
+	QHash<QString, std::pair<QString, QString>>::const_iterator it;
 	for (it = errors_.begin(); it != errors_.end(); it++) {
-		detailed_txt += it.value().first + QString(" (") + it.key() + QString("): ") + it.value().second + QString("\n");
+		detailed_txt += it.value().first + QString(" (") + it.key() + QString("): ") +
+		                it.value().second + QString("\n");
 	}
 	msg.setDetailedText(detailed_txt);
 
 	msg.exec();
 
-	QPushButton* clicked_btn = (QPushButton*) msg.clickedButton();
+	QPushButton* clicked_btn = (QPushButton*)msg.clickedButton();
 
 	if (clicked_btn == ignore) {
 		return;
@@ -1387,8 +1446,6 @@ void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<Q
 	}
 }
 
-
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::update_check
@@ -1397,22 +1454,23 @@ void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<Q
 int PVInspector::PVMainWindow::update_check()
 {
 #ifdef CUSTOMER_RELEASE
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	// If the user does not want us to check for new versions, just don't do it.
 	if (!pvconfig.value("check_new_versions", true).toBool()) {
 		return 1;
 	}
 
-	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+	QNetworkAccessManager* manager = new QNetworkAccessManager(this);
 	QNetworkRequest request;
 
-	connect(manager, SIGNAL(finished(QNetworkReply*)),
-		this, SLOT(update_reply_finished_Slot(QNetworkReply*)));
+	connect(manager, SIGNAL(finished(QNetworkReply*)), this,
+	        SLOT(update_reply_finished_Slot(QNetworkReply*)));
 
-	//request.setUrl(QUrl("http://www.picviz.com/update.html"));
+	// request.setUrl(QUrl("http://www.picviz.com/update.html"));
 	request.setUrl(QUrl(PVCore::PVVersion::update_url()));
-	request.setRawHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:5.0) Gecko/20100101 Firefox/5.0 PV/" INENDI_CURRENT_VERSION_STR);
+	request.setRawHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:5.0) Gecko/20100101 "
+	                                   "Firefox/5.0 PV/" INENDI_CURRENT_VERSION_STR);
 
 	manager->get(request);
 
@@ -1445,12 +1503,12 @@ void PVInspector::PVMainWindow::update_statemachine_label(Inendi::PVView_sp view
 }
 
 // Mainly from Qt's SDI example
-PVInspector::PVMainWindow *PVInspector::PVMainWindow::find_main_window(const QString& path)
+PVInspector::PVMainWindow* PVInspector::PVMainWindow::find_main_window(const QString& path)
 {
 	QString canonicalFilePath = QFileInfo(path).canonicalFilePath();
 
-	foreach (QWidget *widget, qApp->topLevelWidgets()) {
-		PVMainWindow *mw = qobject_cast<PVMainWindow *>(widget);
+	foreach (QWidget* widget, qApp->topLevelWidgets()) {
+		PVMainWindow* mw = qobject_cast<PVMainWindow*>(widget);
 		if (mw && QFileInfo(mw->get_solution_path()).canonicalFilePath() == canonicalFilePath)
 			return mw;
 	}

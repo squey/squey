@@ -6,7 +6,7 @@
  */
 
 #ifndef PVXMLPARAMWIDGETBOARDAXIS_H
-#define	PVXMLPARAMWIDGETBOARDAXIS_H
+#define PVXMLPARAMWIDGETBOARDAXIS_H
 #include <QWidget>
 #include <QDir>
 #include <QStringList>
@@ -44,67 +44,70 @@
 #include <inendi/PVMappingFilter.h>
 #include <inendi/PVPlottingFilter.h>
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 class PVArgumentListWidget;
 }
 
-namespace PVInspector{
+namespace PVInspector
+{
 
 class PVXmlParamWidget;
 
-class PVXmlParamWidgetBoardAxis : public QWidget {
-    Q_OBJECT
-public:
-    PVXmlParamWidgetBoardAxis(PVRush::PVXmlTreeNodeDom *pNode, PVXmlParamWidget* parent);
-    virtual ~PVXmlParamWidgetBoardAxis();
-    QWidget *getWidgetToFocus();
+class PVXmlParamWidgetBoardAxis : public QWidget
+{
+	Q_OBJECT
+  public:
+	PVXmlParamWidgetBoardAxis(PVRush::PVXmlTreeNodeDom* pNode, PVXmlParamWidget* parent);
+	virtual ~PVXmlParamWidgetBoardAxis();
+	QWidget* getWidgetToFocus();
 	PVXmlParamWidget* parent() { return _parent; }
-    
+
   private:
-    void allocBoardFields();
-    QVBoxLayout *createTab(const QString &title, QTabWidget *tab);
-    void disableConnexion();
-    void disAllocBoardFields();
-    void draw();
-    void initConnexion();
-    void initValue();
+	void allocBoardFields();
+	QVBoxLayout* createTab(const QString& title, QTabWidget* tab);
+	void disableConnexion();
+	void disAllocBoardFields();
+	void draw();
+	void initConnexion();
+	void initValue();
 	void setListTags();
 	Inendi::PVMappingFilter::p_type get_mapping_lib_filter();
 	Inendi::PVPlottingFilter::p_type get_plotting_lib_filter();
-    
-    QStringList listType() const;
-    QStringList getListTypeMapping(const QString& mType);
-    QStringList getListTypePlotting(const QString& mType);
+
+	QStringList listType() const;
+	QStringList getListTypeMapping(const QString& mType);
+	QStringList getListTypePlotting(const QString& mType);
 	QSet<QString> getListTags();
 	QSet<QString> getListParentSplitterTag();
-    
+
 	QStringList get_current_tags();
-    /***************************  board items **********************/
-    //***** tab general ***** 
-    QTabWidget *tabParam;
-    PVXmlParamWidgetEditorBox *textName;//name
-    //type
-    PVXmlParamWidgetEditorBox *_type_format; //!< Format to parse data (use for time)
-    QPushButton* btnTypeFormatHelp;
+	/***************************  board items **********************/
+	//***** tab general *****
+	QTabWidget* tabParam;
+	PVXmlParamWidgetEditorBox* textName; // name
+	// type
+	PVXmlParamWidgetEditorBox* _type_format; //!< Format to parse data (use for time)
+	QPushButton* btnTypeFormatHelp;
 
 	PVWidgets::PVAxisTypeWidget* mapPlotType;
 	PVWidgets::PVMappingModeWidget* comboMapping;
 	PVWidgets::PVPlottingModeWidget* comboPlotting;
 	PVXmlParamList* listTags;
-    
-    //***** tab time format ***** 
-    QLabel *timeFormatLabel;
-    QCheckBox *useParentRegExpValue;
+
+	//***** tab time format *****
+	QLabel* timeFormatLabel;
+	QCheckBox* useParentRegExpValue;
 	QPushButton* btnTagHelp;
-    
-    //***** tab param ***** 
-    PVXmlParamColorDialog *buttonColor;
-    QLabel *colorLabel;
-    PVXmlParamColorDialog *buttonTitleColor;
-    QLabel *titleColorLabel;
-    
-    //***** view values from parent regexp *****
-    QTextEdit *tableValueFromParentRegExp;
+
+	//***** tab param *****
+	PVXmlParamColorDialog* buttonColor;
+	QLabel* colorLabel;
+	PVXmlParamColorDialog* buttonTitleColor;
+	QLabel* titleColorLabel;
+
+	//***** view values from parent regexp *****
+	QTextEdit* tableValueFromParentRegExp;
 
 	// Mapping/plotting parameters widgets
 	QHBoxLayout* _layout_params_mp;
@@ -117,32 +120,29 @@ public:
 	QGroupBox* _grp_mapping;
 	QGroupBox* _grp_plotting;
 
-    
-    QPushButton *buttonNextAxis;
-    /***************************  board items **********************/
-    
-    
-    //editing node
-    PVRush::PVXmlTreeNodeDom *node;
-    QString pluginListURL;
+	QPushButton* buttonNextAxis;
+	/***************************  board items **********************/
+
+	// editing node
+	PVRush::PVXmlTreeNodeDom* node;
+	QString pluginListURL;
 
 	PVXmlParamWidget* _parent;
-    
-public slots:
-    void slotGoNextAxis();
-    void slotSetValues();
-    void updatePlotMapping(const QString& t) ;
+
+  public slots:
+	void slotGoNextAxis();
+	void slotSetValues();
+	void updatePlotMapping(const QString& t);
 	void slotShowTagHelp();
 	void slotShowTypeFormatHelp();
 	void updateMappingParams();
 	void updatePlottingParams();
 	void slotSetParamsMapping();
 	void slotSetParamsPlotting();
-    
-    signals:
-    void signalRefreshView();
-    void signalSelectNext();
+
+signals:
+	void signalRefreshView();
+	void signalSelectNext();
 };
 }
-#endif	/* PVXMLPARAMWIDGETBOARDAXIS_H */
-
+#endif /* PVXMLPARAMWIDGETBOARDAXIS_H */

@@ -10,21 +10,24 @@
 
 #include <PVAxisTagHelp.h>
 
-PVInspector::PVAxisTagHelp::PVAxisTagHelp(QStringList /*sel_tags*/, QWidget* parent):
-	QDialog(parent)
+PVInspector::PVAxisTagHelp::PVAxisTagHelp(QStringList /*sel_tags*/, QWidget* parent)
+    : QDialog(parent)
 {
 	setupUi(this);
 	setWindowTitle(tr("Axis tag help"));
 
 	// Fill the axis tag table
 	_table_tags->setColumnCount(4);
-	_table_tags->setHorizontalHeaderLabels(QStringList() << tr("Tag name") << tr("Description") << tr("Filters that uses it") << tr("Splitters that provide it"));
+	_table_tags->setHorizontalHeaderLabels(QStringList() << tr("Tag name") << tr("Description")
+	                                                     << tr("Filters that uses it")
+	                                                     << tr("Splitters that provide it"));
 
 	// Get layer-filters tags
 	Inendi::PVLayerFilterListTags const& tags = LIB_CLASS(Inendi::PVLayerFilter)::get().get_tags();
 
 	// Get splitters tags
-	PVFilter::PVFieldsSplitterListTags const& sp_tags = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_tags();
+	PVFilter::PVFieldsSplitterListTags const& sp_tags =
+	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_tags();
 
 	// Create a hash of {tag-name->tag-object} from the splitters tags
 	QHash<QString, PVFilter::PVFieldsSplitterTag const*> hash_sp_tags;
@@ -46,14 +49,15 @@ PVInspector::PVAxisTagHelp::PVAxisTagHelp(QStringList /*sel_tags*/, QWidget* par
 		QString used_by = tag_to_classes_name(tag);
 		_table_tags->setItem(row, 2, new QTableWidgetItem(used_by));
 		if (hash_sp_tags.contains(tag_name)) {
-			_table_tags->setItem(row, 3, new QTableWidgetItem(tag_to_classes_name(*(hash_sp_tags[tag_name]))));
+			_table_tags->setItem(
+			    row, 3, new QTableWidgetItem(tag_to_classes_name(*(hash_sp_tags[tag_name]))));
 			hash_sp_tags.remove(tag_name);
 		}
 		row++;
 	}
 
 	// Add the remaining splitters tags
-	_table_tags->setRowCount(row+hash_sp_tags.size()-1);
+	_table_tags->setRowCount(row + hash_sp_tags.size() - 1);
 	QHash<QString, PVFilter::PVFieldsSplitterTag const*>::iterator it_hash_sp;
 	for (it_hash_sp = hash_sp_tags.begin(); it_hash_sp != hash_sp_tags.end(); it_hash_sp++) {
 		PVFilter::PVFieldsSplitterTag const& tag = *(it_hash_sp.value());

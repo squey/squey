@@ -15,9 +15,8 @@
 // AG: FIXME: cf. libinendi/src/PVPlotted.cpp
 #include <inendi/PVView.h>
 
-PVInspector::PVViewsModel::PVViewsModel(Inendi::PVSource const& src, QObject* parent):
-	QAbstractItemModel(parent),
-	_src(src)
+PVInspector::PVViewsModel::PVViewsModel(Inendi::PVSource const& src, QObject* parent)
+    : QAbstractItemModel(parent), _src(src)
 {
 }
 
@@ -29,7 +28,8 @@ PVInspector::PVViewsModel::~PVViewsModel()
 	}
 }
 
-PVInspector::PVViewsModel::PVIndexNode const& PVInspector::PVViewsModel::get_object(QModelIndex const& index) const
+PVInspector::PVViewsModel::PVIndexNode const&
+PVInspector::PVViewsModel::get_object(QModelIndex const& index) const
 {
 	assert(index.isValid());
 	return *(static_cast<PVIndexNode*>(index.internalPointer()));
@@ -40,11 +40,11 @@ QModelIndex PVInspector::PVViewsModel::index(int row, int column, const QModelIn
 	// Column is always 0 (see columnCount), but asserts it
 	assert(column == 0);
 
-	auto mappeds =  _src.get_children<Inendi::PVMapped>();
+	auto mappeds = _src.get_children<Inendi::PVMapped>();
 
 	if (!parent.isValid()) {
 		// Root elements are mapped objects
-		assert(row <mappeds.size());
+		assert(row < mappeds.size());
 		Inendi::PVMapped_p mapped(mappeds.at(row));
 		PVIndexNode nt(mapped.get());
 		PVIndexNode* pnt = NULL;
@@ -83,7 +83,7 @@ QModelIndex PVInspector::PVViewsModel::index(int row, int column, const QModelIn
 	return createIndex(row, column, pnt);
 }
 
-int PVInspector::PVViewsModel::rowCount(const QModelIndex &index) const
+int PVInspector::PVViewsModel::rowCount(const QModelIndex& index) const
 {
 	auto mappeds = _src.get_children<Inendi::PVMapped>();
 
@@ -91,7 +91,7 @@ int PVInspector::PVViewsModel::rowCount(const QModelIndex &index) const
 		// Return number of mapped
 		return mappeds.size();
 	}
-	
+
 	PVIndexNode node_obj = get_object(index);
 	if (node_obj.is_plotted()) {
 		// That's a plotted object, so no children
@@ -109,49 +109,46 @@ int PVInspector::PVViewsModel::columnCount(const QModelIndex& /*index*/) const
 	return 1;
 }
 
-QVariant PVInspector::PVViewsModel::data(const QModelIndex &index, int role) const
+QVariant PVInspector::PVViewsModel::data(const QModelIndex& index, int role) const
 {
 	if (!index.isValid()) {
 		return QVariant();
 	}
 	PVIndexNode node_obj = get_object(index);
 	switch (role) {
-		case Qt::DisplayRole:
-		{
-			QString ret;
-			if (node_obj.is_mapped()) {
-				Inendi::PVMapped* mapped = node_obj.as_mapped();
-				ret = QString("Mapping");
-				ret += ": " + mapped->get_name();
-				if (!mapped->is_uptodate()) {
-					ret += QString(" *");
-				}
+	case Qt::DisplayRole: {
+		QString ret;
+		if (node_obj.is_mapped()) {
+			Inendi::PVMapped* mapped = node_obj.as_mapped();
+			ret = QString("Mapping");
+			ret += ": " + mapped->get_name();
+			if (!mapped->is_uptodate()) {
+				ret += QString(" *");
 			}
-			else {
-				Inendi::PVPlotted* plotted = node_obj.as_plotted();
-				ret = QString("Plotting");
-				ret += ": " + plotted->get_name();
-				if (!node_obj.as_plotted()->is_uptodate()) {
-					ret += QString(" *");
-				}
-			}
-			return ret;
-		}
-		case Qt::FontRole:
-		{
-			if (!node_obj.is_plotted()) {
-				return QVariant();
-			}
+		} else {
 			Inendi::PVPlotted* plotted = node_obj.as_plotted();
-			if (plotted->current_view() == _src.current_view()) {
-				QFont font;
-				font.setBold(true);
-				return font;
+			ret = QString("Plotting");
+			ret += ": " + plotted->get_name();
+			if (!node_obj.as_plotted()->is_uptodate()) {
+				ret += QString(" *");
 			}
+		}
+		return ret;
+	}
+	case Qt::FontRole: {
+		if (!node_obj.is_plotted()) {
 			return QVariant();
 		}
-		default:
-			break;
+		Inendi::PVPlotted* plotted = node_obj.as_plotted();
+		if (plotted->current_view() == _src.current_view()) {
+			QFont font;
+			font.setBold(true);
+			return font;
+		}
+		return QVariant();
+	}
+	default:
+		break;
 	};
 
 	return QVariant();
@@ -163,7 +160,7 @@ Qt::ItemFlags PVInspector::PVViewsModel::flags(const QModelIndex& /*index*/) con
 	return flags;
 }
 
-QModelIndex PVInspector::PVViewsModel::parent(const QModelIndex & index) const
+QModelIndex PVInspector::PVViewsModel::parent(const QModelIndex& index) const
 {
 	if (!index.isValid()) {
 		return QModelIndex();
@@ -215,8 +212,7 @@ QModelIndex PVInspector::PVViewsModel::get_index_from_node(PVIndexNode const& no
 			if (test == node) {
 				return idx;
 			}
-		}
-		else {
+		} else {
 			int nplotted = rowCount(idx);
 			for (int j = 0; j < nplotted; j++) {
 				QModelIndex idx_plotted = index(j, 0, idx);

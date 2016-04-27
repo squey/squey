@@ -17,36 +17,36 @@
 
 namespace PVWidgets
 {
-	class PVArgumentListWidget;
+class PVArgumentListWidget;
 }
 
 namespace Inendi
 {
-	class PVAxisComputation;
-	class PVView;
+class PVAxisComputation;
+class PVView;
 }
 
-namespace PVInspector {
+namespace PVInspector
+{
 
-class PVAxisComputationDlg: public QDialog, Ui::PVAxisComputationDlg
+class PVAxisComputationDlg : public QDialog, Ui::PVAxisComputationDlg
 {
 	Q_OBJECT
-public:
+  public:
 	PVAxisComputationDlg(Inendi::PVView& view, QWidget* parent = NULL);
 
-public:
+  public:
 	std::shared_ptr<Inendi::PVAxisComputation> get_plugin();
 
-private:
+  private:
 	void init_plugins(QComboBox* cb);
-private slots:
+  private slots:
 	void update_plugin_args();
 
-private:
+  private:
 	std::shared_ptr<Inendi::PVAxisComputation> _cur_plugin;
 	PVCore::PVArgumentList _plugin_args;
 };
-
 }
 
 #endif

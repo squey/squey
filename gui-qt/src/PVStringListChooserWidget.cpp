@@ -10,14 +10,17 @@
 
 #include <PVStringListChooserWidget.h>
 
-PVInspector::PVStringListChooserWidget::PVStringListChooserWidget(QWidget *parent_, QString const& text, QStringList const& list, QStringList comments) :
-	QDialog(parent_)
+PVInspector::PVStringListChooserWidget::PVStringListChooserWidget(QWidget* parent_,
+                                                                  QString const& text,
+                                                                  QStringList const& list,
+                                                                  QStringList comments)
+    : QDialog(parent_)
 {
-	QVBoxLayout *main_layout    = new QVBoxLayout;
-	QHBoxLayout *buttons_layout = new QHBoxLayout;
-	QPushButton *cancel         = new QPushButton("Cancel");
-	QPushButton *ok             = new QPushButton("OK");
-	_list_w                     = new QListWidget();
+	QVBoxLayout* main_layout = new QVBoxLayout;
+	QHBoxLayout* buttons_layout = new QHBoxLayout;
+	QPushButton* cancel = new QPushButton("Cancel");
+	QPushButton* ok = new QPushButton("OK");
+	_list_w = new QListWidget();
 
 	bool add_comments = comments.size() == list.size();
 
@@ -43,7 +46,6 @@ PVInspector::PVStringListChooserWidget::PVStringListChooserWidget(QWidget *paren
 	connect(ok, SIGNAL(pressed()), this, SLOT(ok_Slot()));
 	buttons_layout->addWidget(cancel);
 	connect(cancel, SIGNAL(pressed()), this, SLOT(reject()));
-
 
 	setLayout(main_layout);
 }

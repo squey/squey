@@ -83,7 +83,9 @@ void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 		return;
 	}
 
-	PVGuiQt::PVAxesCombinationDialog* dlg = ((PVGuiQt::PVWorkspaceBase*) _projects_tab_widget->current_workspace())->get_axes_combination_editor(current_view());
+	PVGuiQt::PVAxesCombinationDialog* dlg =
+	    ((PVGuiQt::PVWorkspaceBase*)_projects_tab_widget->current_workspace())
+	        ->get_axes_combination_editor(current_view());
 	if (dlg->isVisible()) {
 		return;
 	}
@@ -113,7 +115,7 @@ void PVInspector::PVMainWindow::axes_mode_Slot()
 	if (current_lib_view->get_state_machine().is_axes_mode()) {
 		/* We turn SQUARE AREA mode OFF */
 		current_lib_view->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_OFF);
-		//current_view->update_axes();
+		// current_view->update_axes();
 		axes_mode_Action->setText(QString("Leave Axes mode"));
 	} else {
 		axes_mode_Action->setText(QString("Enter Axes mode"));
@@ -279,7 +281,7 @@ void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
 	}
 	Inendi::PVView* cur_view_p = current_view();
 	PVExpandSelDlg* dlg = new PVExpandSelDlg(*cur_view_p, this);
-	Inendi::PVView &view = *cur_view_p;
+	Inendi::PVView& view = *cur_view_p;
 	if (dlg->exec() != QDialog::Accepted) {
 		return;
 	}
@@ -321,15 +323,16 @@ void PVInspector::PVMainWindow::export_selection_to_mineset_Slot()
 	pbox.set_enable_cancel(false);
 
 	PVCore::PVProgressBox::progress([&]() {
-		try {
-			std::string dataset_url = Inendi::PVMineset::import_dataset(*current_view());
-			current_view()->add_mineset_dataset(dataset_url);
-			QDesktopServices::openUrl(QUrl(dataset_url.c_str()));
-		}
-		catch (const Inendi::PVMineset::mineset_error& e) {
-			emit mineset_error(QString(e.what()));
-		}
-	}, &pbox);
+		                                try {
+			                                std::string dataset_url =
+			                                    Inendi::PVMineset::import_dataset(*current_view());
+			                                current_view()->add_mineset_dataset(dataset_url);
+			                                QDesktopServices::openUrl(QUrl(dataset_url.c_str()));
+		                                } catch (const Inendi::PVMineset::mineset_error& e) {
+			                                emit mineset_error(QString(e.what()));
+		                                }
+		                            },
+	                                &pbox);
 }
 
 /******************************************************************************
@@ -339,12 +342,8 @@ void PVInspector::PVMainWindow::export_selection_to_mineset_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::mineset_error_slot(QString error_msg)
 {
-	QMessageBox::critical(
-		this,
-		"Error when exporting current selection to Mineset",
-		error_msg,
-		QMessageBox::Ok
-	);
+	QMessageBox::critical(this, "Error when exporting current selection to Mineset", error_msg,
+	                      QMessageBox::Ok);
 }
 #endif
 
@@ -373,14 +372,16 @@ void PVInspector::PVMainWindow::filter_select_all_Slot()
 void PVInspector::PVMainWindow::filter_Slot(void)
 {
 	if (current_view()) {
-		QObject *s = sender();
+		QObject* s = sender();
 		Inendi::PVView* lib_view = current_view();
 		QString filter_name = s->objectName();
 
-		Inendi::PVLayerFilter::p_type filter_org = LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
+		Inendi::PVLayerFilter::p_type filter_org =
+		    LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
 		Inendi::PVLayerFilter::p_type fclone = filter_org->clone<Inendi::PVLayerFilter>();
-		PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
-		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone, this);
+		PVCore::PVArgumentList& args = lib_view->get_last_args_filter(filter_name);
+		PVGuiQt::PVLayerFilterProcessWidget* filter_widget =
+		    new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone, this);
 		filter_widget->show();
 	}
 }
@@ -398,10 +399,12 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
 			return;
 		}
 		QString const& filter_name = lib_view->get_last_used_filter();
-		Inendi::PVLayerFilter::p_type filter_org = LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
+		Inendi::PVLayerFilter::p_type filter_org =
+		    LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
 		Inendi::PVLayerFilter::p_type fclone = filter_org->clone<Inendi::PVLayerFilter>();
-		PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
-		PVGuiQt::PVLayerFilterProcessWidget* filter_widget = new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone, this);
+		PVCore::PVArgumentList& args = lib_view->get_last_args_filter(filter_name);
+		PVGuiQt::PVLayerFilterProcessWidget* filter_widget =
+		    new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone, this);
 		filter_widget->show();
 		filter_widget->preview_Slot();
 	}
@@ -415,12 +418,14 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
 void PVInspector::PVMainWindow::extractor_file_Slot()
 {
 	if (!current_view()) {
-		//TODO: this should not happen because the menu item should be disabled... !
+		// TODO: this should not happen because the menu item should be disabled...
+		// !
 		return;
 	}
-	
+
 	// For now, shows a modal dialog!
-	PVExtractorWidget* ext = new PVExtractorWidget(*current_view()->get_parent<Inendi::PVSource>(), _projects_tab_widget, this);
+	PVExtractorWidget* ext = new PVExtractorWidget(*current_view()->get_parent<Inendi::PVSource>(),
+	                                               _projects_tab_widget, this);
 	ext->exec();
 	ext->deleteLater();
 }
@@ -440,16 +445,17 @@ Inendi::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 	return scene_p;
 }
 
-bool PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
+bool
+PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
 {
 	bool has_error = false;
 	Inendi::PVScene_sp scene_p;
 
 	PVRush::PVFormat format = src_desc.get_format();
 	if ((format.exists() == false) || (QFileInfo(format.get_full_path()).isReadable() == false)) {
-		QMessageBox::warning(this,
-		                     tr("Format \"%1\" can not be read").arg(format.get_format_name()),
-		                     tr("Check that the file \"%1\" exists and is readable").arg(format.get_full_path()));
+		QMessageBox::warning(
+		    this, tr("Format \"%1\" can not be read").arg(format.get_format_name()),
+		    tr("Check that the file \"%1\" exists and is readable").arg(format.get_full_path()));
 		return false;
 	}
 
@@ -460,38 +466,42 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 		// No loaded project: create a new one and load the source
 		scene_p = project_new_Slot();
 		new_scene = true;
-	}
-	else if (scenes.size() == 1) {
+	} else if (scenes.size() == 1) {
 		// Only one project loaded: use it to load the source
 		scene_p = scenes.at(0)->shared_from_this();
 		Inendi::PVRoot_sp root_sp = get_root().shared_from_this();
 		PVHive::call<FUNC(Inendi::PVRoot::select_scene)>(root_sp, *scene_p.get());
 	} else {
-		// More than one project loaded: ask the user the project he wants to use to load the source
-		PVGuiQt::PVImportSourceToProjectDlg* dlg = new PVGuiQt::PVImportSourceToProjectDlg(get_root(), get_root().current_scene(), this);
+		// More than one project loaded: ask the user the project he wants to use to
+		// load the source
+		PVGuiQt::PVImportSourceToProjectDlg* dlg =
+		    new PVGuiQt::PVImportSourceToProjectDlg(get_root(), get_root().current_scene(), this);
 		if (dlg->exec() != QDialog::Accepted) {
 			return false;
 		}
 
 		Inendi::PVRoot_sp root_sp = get_root().shared_from_this();
-		PVHive::call<FUNC(Inendi::PVRoot::select_scene)>(root_sp, *((Inendi::PVScene*) dlg->get_selected_scene()));
+		PVHive::call<FUNC(Inendi::PVRoot::select_scene)>(
+		    root_sp, *((Inendi::PVScene*)dlg->get_selected_scene()));
 		scene_p = current_scene()->shared_from_this();
 		dlg->deleteLater();
 	}
 
 	Inendi::PVSource_sp src_p;
 	try {
-		 src_p = PVHive::call<FUNC(Inendi::PVScene::add_source_from_description)>(scene_p, src_desc);
+		src_p = PVHive::call<FUNC(Inendi::PVScene::add_source_from_description)>(scene_p, src_desc);
 	} catch (PVRush::PVFormatException const& e) {
 		PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
 		has_error = true;
 	} catch (PVRush::PVInputException const& e) {
-		QMessageBox::critical(this, tr("Fatal error while loading source..."), tr("Fatal error while loading source: %1").arg(e.what().c_str()));
+		QMessageBox::critical(this, tr("Fatal error while loading source..."),
+		                      tr("Fatal error while loading source: %1").arg(e.what().c_str()));
 		has_error = true;
 	}
 
 	if (has_error && new_scene) {
-		_projects_tab_widget->remove_project(_projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get()));
+		_projects_tab_widget->remove_project(
+		    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get()));
 		return false;
 	}
 
@@ -500,13 +510,10 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSour
 			remove_source(src_p.get());
 			return false;
 		}
-	}
-	catch (const PVRush::PVFormatNoTimeMapping& e) {
+	} catch (const PVRush::PVFormatNoTimeMapping& e) {
 		QMessageBox::critical(
-			this,
-			tr("Fatal error while loading source..."),
-			(std::string("\nNo mapping format specified for axis '") + e.what() + "'").c_str()
-		);
+		    this, tr("Fatal error while loading source..."),
+		    (std::string("\nNo mapping format specified for axis '") + e.what() + "'").c_str());
 		return false;
 	}
 
@@ -544,11 +551,10 @@ void PVInspector::PVMainWindow::load_solution_and_create_mw(QString const& file)
 	}
 	if (is_solution_untitled() && get_root().is_empty() && !isWindowModified()) {
 		load_solution(file);
-	}
-	else {
-	// FIXME : This Windows is a memory leak
+	} else {
+		// FIXME : This Windows is a memory leak
 		PVMainWindow* other = new PVMainWindow();
-		other->move(x() + 40, y() + 40); 
+		other->move(x() + 40, y() + 40);
 		other->show();
 		if (!load_solution(file)) {
 			other->deleteLater();
@@ -561,8 +567,7 @@ void PVInspector::PVMainWindow::solution_save_Slot()
 {
 	if (is_solution_untitled()) {
 		solution_saveas_Slot();
-	}
-	else {
+	} else {
 		PVCore::PVSerializeArchiveOptions_p options(get_root().get_default_serialize_options());
 		save_solution(get_solution_path(), options);
 	}
@@ -575,15 +580,16 @@ void PVInspector::PVMainWindow::solution_saveas_Slot()
 	}
 
 	PVCore::PVSerializeArchiveOptions_p options(get_root().get_default_serialize_options());
-	PVSaveDataTreeDialog* dlg = new PVSaveDataTreeDialog(options, INENDI_ROOT_ARCHIVE_EXT, INENDI_ROOT_ARCHIVE_FILTER, this);
+	PVSaveDataTreeDialog* dlg = new PVSaveDataTreeDialog(options, INENDI_ROOT_ARCHIVE_EXT,
+	                                                     INENDI_ROOT_ARCHIVE_FILTER, this);
 	if (!_current_save_root_folder.isEmpty()) {
 		dlg->setDirectory(_current_save_root_folder);
-	}    
+	}
 	dlg->selectFile(get_solution_path());
 	if (dlg->exec() == QDialog::Accepted) {
 		QString file = dlg->selectedFiles().at(0);
 		save_solution(file, options);
-	}    
+	}
 	_current_save_root_folder = dlg->directory().absolutePath();
 	dlg->deleteLater();
 }
@@ -594,18 +600,16 @@ bool PVInspector::PVMainWindow::maybe_save_solution()
 		QMessageBox::StandardButton ret;
 		QString solution_name = QFileInfo(windowFilePath()).fileName();
 		ret = QMessageBox::warning(this, tr("%1").arg(solution_name),
-				tr("The solution \"%1\"has been modified.\n"
-					"Do you want to save your changes?").arg(solution_name),
-				QMessageBox::Save | QMessageBox::Discard
-				| QMessageBox::Cancel);
+		                           tr("The solution \"%1\"has been modified.\n"
+		                              "Do you want to save your changes?").arg(solution_name),
+		                           QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 		if (ret == QMessageBox::Save) {
 			solution_save_Slot();
 			return true;
 		}
 		if (ret == QMessageBox::Discard) {
 			return true;
-		}
-		else if (ret == QMessageBox::Cancel) {
+		} else if (ret == QMessageBox::Cancel) {
 			return false;
 		}
 	}
@@ -618,44 +622,49 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 
 	PVCore::PVSerializeArchive_p ar;
 	PVCore::PVSerializeArchiveError read_exception = PVCore::PVSerializeArchiveError(QString());
-	PVCore::PVProgressBox* pbox_solution = new PVCore::PVProgressBox("Loading investigation...", this);
+	PVCore::PVProgressBox* pbox_solution =
+	    new PVCore::PVProgressBox("Loading investigation...", this);
 	pbox_solution->set_enable_cancel(true);
-	bool ret = PVCore::PVProgressBox::progress([&] {
-			try {
-				ar.reset(new PVCore::PVSerializeArchiveZip(file, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
-			} catch (const PVCore::PVSerializeArchiveError& e) {
-				read_exception = e;
-			}
-		}, pbox_solution);
+	bool ret = PVCore::PVProgressBox::progress(
+	    [&] {
+		    try {
+			    ar.reset(new PVCore::PVSerializeArchiveZip(file, PVCore::PVSerializeArchive::read,
+			                                               INENDI_ARCHIVES_VERSION));
+		    } catch (const PVCore::PVSerializeArchiveError& e) {
+			    read_exception = e;
+		    }
+		},
+	    pbox_solution);
 	if (!ret) {
 		return false;
 	}
 
 	if (!read_exception.what().isEmpty()) {
-		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."), tr("Fatal error while loading solution %1:\n%2").arg(file).arg(read_exception.what()), QMessageBox::Ok, this);
+		QMessageBox* box = new QMessageBox(
+		    QMessageBox::Critical, tr("Fatal error while loading solution..."),
+		    tr("Fatal error while loading solution %1:\n%2").arg(file).arg(read_exception.what()),
+		    QMessageBox::Ok, this);
 		box->exec();
 		return false;
-	}    
+	}
 
 	bool solution_has_been_fixed = false;
 	while (true) {
 		QString err_msg;
 		try {
 			get_root().load_from_archive(ar);
-		}    
-		catch (PVCore::PVSerializeArchiveError& e) { 
+		} catch (PVCore::PVSerializeArchiveError& e) {
 			err_msg = tr("Error while loading solution %1:\n%2").arg(file).arg(e.what());
-		}    
-		catch (PVRush::PVInputException const& e)
-		{    
-			err_msg = tr("Error while loading solution %1:\n%2").arg(file).arg(QString::fromStdString(e.what()));
-		}    
-		catch (...)
-		{    
+		} catch (PVRush::PVInputException const& e) {
+			err_msg = tr("Error while loading solution %1:\n%2").arg(file).arg(
+			    QString::fromStdString(e.what()));
+		} catch (...) {
 			err_msg = tr("Fatal error while loading solution %1:\n unhandled error(s).").arg(file);
-		}    
+		}
 		if (!err_msg.isEmpty()) {
-			QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."), err_msg, QMessageBox::Ok, this);
+			QMessageBox* box =
+			    new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."),
+			                    err_msg, QMessageBox::Ok, this);
 			box->exec();
 			return false;
 		}
@@ -664,12 +673,13 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 				solution_has_been_fixed = true;
 				reset_root();
 				continue;
-			}    
-			else {
+			} else {
 				if (!err_msg.isEmpty()) {
-					QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading solution..."), err_msg, QMessageBox::Ok, this);
+					QMessageBox* box = new QMessageBox(QMessageBox::Critical,
+					                                   tr("Error while loading solution..."),
+					                                   err_msg, QMessageBox::Ok, this);
 					box->exec();
-				}    
+				}
 				reset_root();
 				return false;
 			}
@@ -678,7 +688,8 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 	}
 
 	if (!load_root()) {
-		PVLOG_ERROR("(PVMainWindow::solution_load) error while processing the solution...\n");
+		PVLOG_ERROR("(PVMainWindow::solution_load) error while processing the "
+		            "solution...\n");
 		reset_root();
 		return false;
 	}
@@ -690,29 +701,38 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		setWindowModified(true);
 	}
 
-	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
+	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
+	    PVCore::PVRecentItemsManager::get(), file,
+	    PVCore::PVRecentItemsManager::Category::PROJECTS);
 
 	flag_investigation_as_cached(file);
 
 	return true;
 }
 
-void PVInspector::PVMainWindow::save_solution(QString const& file, PVCore::PVSerializeArchiveOptions_p const& options)
+void PVInspector::PVMainWindow::save_solution(QString const& file,
+                                              PVCore::PVSerializeArchiveOptions_p const& options)
 {
 	try {
-		PVCore::PVProgressBox* pbox_solution = new PVCore::PVProgressBox("Saving investigation...", this);
+		PVCore::PVProgressBox* pbox_solution =
+		    new PVCore::PVProgressBox("Saving investigation...", this);
 		pbox_solution->set_enable_cancel(true);
-		bool ret = PVCore::PVProgressBox::progress([&] {get_root().save_to_file(file, options);}, pbox_solution);
+		bool ret = PVCore::PVProgressBox::progress([&] { get_root().save_to_file(file, options); },
+		                                           pbox_solution);
 		if (!ret) {
 			return;
 		}
-	}
-	catch (PVCore::PVSerializeArchiveError const& e) {
-		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while saving solution..."), tr("Error while saving solution %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
+	} catch (PVCore::PVSerializeArchiveError const& e) {
+		QMessageBox* box =
+		    new QMessageBox(QMessageBox::Critical, tr("Error while saving solution..."),
+		                    tr("Error while saving solution %1:\n%2").arg(file).arg(e.what()),
+		                    QMessageBox::Ok, this);
 		box->exec();
 	}
 
-	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
+	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
+	    PVCore::PVRecentItemsManager::get(), file,
+	    PVCore::PVRecentItemsManager::Category::PROJECTS);
 
 	flag_investigation_as_cached(file);
 
@@ -743,7 +763,6 @@ void PVInspector::PVMainWindow::set_window_title_with_filename()
 	setWindowFilePath(file);
 }
 
-
 void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_workspace)
 {
 	// FIXME : This Windows is a memory leak
@@ -752,29 +771,39 @@ void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_
 	other->resize(size());
 	other->show();
 
-	//other->_workspaces_tab_widget->setVisible(true);
+	// other->_workspaces_tab_widget->setVisible(true);
 
-	PVGuiQt::PVSourceWorkspace* workspace = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(widget_workspace);
+	PVGuiQt::PVSourceWorkspace* workspace =
+	    dynamic_cast<PVGuiQt::PVSourceWorkspace*>(widget_workspace);
 	if (workspace) {
 		_projects_tab_widget->remove_workspace(workspace, false);
-		other->_projects_tab_widget->add_workspace((PVGuiQt::PVSourceWorkspace*) workspace);
+		other->_projects_tab_widget->add_workspace((PVGuiQt::PVSourceWorkspace*)workspace);
 	}
 }
 
 bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p ar)
 {
 	// Fix errors due to invalid file paths
-	PVCore::PVSerializeArchive::list_errors_t errs_file = ar->get_repairable_errors_of_type<PVCore::PVSerializeArchiveErrorFileNotReadable>();
-	// TODO: a nice widget were file paths can be modified by batch (for instance modify all the files' directory in one action)
-	foreach(PVCore::PVSerializeArchiveFixError_p err, errs_file) {
-		QString const& old_path(err->exception_as<PVCore::PVSerializeArchiveErrorFileNotReadable>()->get_path());
-		QMessageBox* box = new QMessageBox(QMessageBox::Warning, tr("Error while loading project..."), tr("File '%1' cannot be found or isn't readable by the process. Please select its new path.").arg(old_path), QMessageBox::Ok, this);
+	PVCore::PVSerializeArchive::list_errors_t errs_file =
+	    ar->get_repairable_errors_of_type<PVCore::PVSerializeArchiveErrorFileNotReadable>();
+	// TODO: a nice widget were file paths can be modified by batch (for instance
+	// modify all the files' directory in one action)
+	foreach (PVCore::PVSerializeArchiveFixError_p err, errs_file) {
+		QString const& old_path(
+		    err->exception_as<PVCore::PVSerializeArchiveErrorFileNotReadable>()->get_path());
+		QMessageBox* box =
+		    new QMessageBox(QMessageBox::Warning, tr("Error while loading project..."),
+		                    tr("File '%1' cannot be found or isn't readable by the process. Please "
+		                       "select its new path.").arg(old_path),
+		                    QMessageBox::Ok, this);
 		box->exec();
-		QString new_file = QFileDialog::getOpenFileName(this, tr("Select new file path..."), old_path);
+		QString new_file =
+		    QFileDialog::getOpenFileName(this, tr("Select new file path..."), old_path);
 		if (new_file.isEmpty()) {
 			return false;
 		}
-		PVCore::PVSerializeArchiveFixAttribute* fix_a = (PVCore::PVSerializeArchiveFixAttribute*) err.get();
+		PVCore::PVSerializeArchiveFixAttribute* fix_a =
+		    (PVCore::PVSerializeArchiveFixAttribute*)err.get();
 		fix_a->fix(new_file);
 	}
 
@@ -791,9 +820,9 @@ bool PVInspector::PVMainWindow::project_save_Slot()
 {
 	if (is_project_untitled()) {
 		return project_saveas_Slot();
-	}
-	else {
-		PVCore::PVSerializeArchiveOptions_p options(current_scene()->get_default_serialize_options());
+	} else {
+		PVCore::PVSerializeArchiveOptions_p options(
+		    current_scene()->get_default_serialize_options());
 		return save_project(_cur_project_file, options);
 	}
 }
@@ -807,10 +836,12 @@ bool PVInspector::PVMainWindow::project_saveas_Slot()
 {
 	bool ret = false;
 	if (current_scene()) {
-		PVCore::PVSerializeArchiveOptions_p options(current_scene()->get_default_serialize_options());
-		PVSaveDataTreeDialog* dlg = new PVSaveDataTreeDialog(options, INENDI_SCENE_ARCHIVE_EXT, INENDI_SCENE_ARCHIVE_FILTER, this);
+		PVCore::PVSerializeArchiveOptions_p options(
+		    current_scene()->get_default_serialize_options());
+		PVSaveDataTreeDialog* dlg = new PVSaveDataTreeDialog(options, INENDI_SCENE_ARCHIVE_EXT,
+		                                                     INENDI_SCENE_ARCHIVE_FILTER, this);
 		/*if (!_current_save_project_folder.isEmpty()) {
-			dlg->setDirectory(_current_save_project_folder);
+		        dlg->setDirectory(_current_save_project_folder);
 		}*/
 		dlg->selectFile(current_scene()->get_path());
 		if (dlg->exec() == QDialog::Accepted) {
@@ -823,19 +854,24 @@ bool PVInspector::PVMainWindow::project_saveas_Slot()
 	return ret;
 }
 
-bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSerializeArchiveOptions_p options)
+bool PVInspector::PVMainWindow::save_project(QString const& file,
+                                             PVCore::PVSerializeArchiveOptions_p options)
 {
 	try {
 		Inendi::PVScene_p scene_p = current_scene()->shared_from_this();
 		PVHive::call<FUNC(Inendi::PVScene::save_to_file)>(scene_p, file, options, false);
-	}
-	catch (PVCore::PVSerializeArchiveError& e) {
-		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while saving project..."), tr("Error while saving project %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
+	} catch (PVCore::PVSerializeArchiveError& e) {
+		QMessageBox* box =
+		    new QMessageBox(QMessageBox::Critical, tr("Error while saving project..."),
+		                    tr("Error while saving project %1:\n%2").arg(file).arg(e.what()),
+		                    QMessageBox::Ok, this);
 		box->exec();
 		return false;
 	}
 
-	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
+	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
+	    PVCore::PVRecentItemsManager::get(), file,
+	    PVCore::PVRecentItemsManager::Category::PROJECTS);
 
 	return true;
 }
@@ -927,7 +963,7 @@ void PVInspector::PVMainWindow::set_color_Slot()
  * PVInspector::PVMainWindow::update_reply_finished_Slot
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
+void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply* reply)
 {
 	if (reply->error() != QNetworkReply::NoError) {
 		// There was an error retrieving the current version.
@@ -940,16 +976,21 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 	QByteArray data = reply->readAll();
 	version_t current_v, last_v;
 	if (!PVCore::PVVersion::from_network_reply(data, current_v, last_v)) {
-		PVLOG_DEBUG("(PVMainWindow::update_reply_finished_Slot) invalid server reply:\n%s\n", qPrintable(QString::fromUtf8(data.constData(), data.size())));
+		PVLOG_DEBUG("(PVMainWindow::update_reply_finished_Slot) invalid server "
+		            "reply:\n%s\n",
+		            qPrintable(QString::fromUtf8(data.constData(), data.size())));
 		return;
 	}
 
 	if (INENDI_MAJOR_VERSION(current_v) != INENDI_CURRENT_VERSION_MAJOR ||
-		INENDI_MINOR_VERSION(current_v) != INENDI_CURRENT_VERSION_MINOR ||
-		last_v < INENDI_CURRENT_VERSION) {
+	    INENDI_MINOR_VERSION(current_v) != INENDI_CURRENT_VERSION_MINOR ||
+	    last_v < INENDI_CURRENT_VERSION) {
 		// Invalid answer from the server
-		PVLOG_DEBUG("(PVMainWindow::update_reply_finished_Slot) invalid server reply: version mismatch:\ncurrent version: %s / last current major/minor version: %s\nlast available version: %s.",
-				INENDI_CURRENT_VERSION_STR, qPrintable(PVCore::PVVersion::to_str(current_v)), qPrintable(PVCore::PVVersion::to_str(last_v)));
+		PVLOG_DEBUG("(PVMainWindow::update_reply_finished_Slot) invalid server "
+		            "reply: version mismatch:\ncurrent version: %s / last current "
+		            "major/minor version: %s\nlast available version: %s.",
+		            INENDI_CURRENT_VERSION_STR, qPrintable(PVCore::PVVersion::to_str(current_v)),
+		            qPrintable(PVCore::PVVersion::to_str(last_v)));
 		return;
 	}
 
@@ -967,7 +1008,7 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 	set_version_informations();
 
 	// Update PVCONFIG settings
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	pvconfig.setValue(PVCONFIG_LAST_KNOWN_CUR_RELEASE, current_v);
 	pvconfig.setValue(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, last_v);
@@ -976,7 +1017,10 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 	bool show_msg = false;
 	if (current_v > INENDI_CURRENT_VERSION) {
 		// A patch is available
-		desc += tr("A new version (%1) is available for free for the %2.%3 branch.").arg(PVCore::PVVersion::to_str(current_v)).arg(INENDI_CURRENT_VERSION_MAJOR).arg(INENDI_CURRENT_VERSION_MINOR);
+		desc += tr("A new version (%1) is available for free for the %2.%3 branch.")
+		            .arg(PVCore::PVVersion::to_str(current_v))
+		            .arg(INENDI_CURRENT_VERSION_MAJOR)
+		            .arg(INENDI_CURRENT_VERSION_MINOR);
 		desc += "\n";
 		show_msg = true;
 	}
@@ -988,10 +1032,10 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 
 	if (show_msg) {
 		PVLOG_INFO(qPrintable(desc));
-		QMessageBox msgBox(QMessageBox::Information, tr("New version available"), tr("A new version is available.\n\n") + desc, QMessageBox::Ok, this);
+		QMessageBox msgBox(QMessageBox::Information, tr("New version available"),
+		                   tr("A new version is available.\n\n") + desc, QMessageBox::Ok, this);
 		msgBox.exec();
 	}
-
 }
 
 /******************************************************************************
@@ -1058,8 +1102,10 @@ void PVInspector::PVMainWindow::get_screenshot_widget()
 			/* if there is a workspace_tab_widget, we are on the workspaces
 			 * page or on a data collection page
 			 */
-			int current_tab_index = _projects_tab_widget->current_workspace_tab_widget()->currentIndex();
-			name = QFileInfo(_projects_tab_widget->current_workspace_tab_widget()->tabText(current_tab_index)).baseName();
+			int current_tab_index =
+			    _projects_tab_widget->current_workspace_tab_widget()->currentIndex();
+			name = QFileInfo(_projects_tab_widget->current_workspace_tab_widget()->tabText(
+			                     current_tab_index)).baseName();
 		} else {
 			/* if there is no workspace_tab_widget, it means we are on the
 			 * start screen
@@ -1067,7 +1113,6 @@ void PVInspector::PVMainWindow::get_screenshot_widget()
 			name = "startscreen";
 		}
 	}
-
 
 	QPixmap pixmap = QPixmap::grabWidget(p);
 
@@ -1082,8 +1127,7 @@ void PVInspector::PVMainWindow::get_screenshot_window()
 {
 	QPixmap pixmap = QPixmap::grabWindow(winId());
 
-	save_screenshot(pixmap,
-	                "Save window capture", "application");
+	save_screenshot(pixmap, "Save window capture", "application");
 }
 
 /******************************************************************************
@@ -1094,8 +1138,7 @@ void PVInspector::PVMainWindow::get_screenshot_desktop()
 {
 	QPixmap pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
 
-	save_screenshot(pixmap,
-	                "Save desktop capture", "desktop");
+	save_screenshot(pixmap, "Save desktop capture", "desktop");
 }
 
 /******************************************************************************
@@ -1108,16 +1151,15 @@ void PVInspector::PVMainWindow::whats_this_Slot()
 	QWhatsThis::enterWhatsThisMode();
 }
 
-
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::new_format_Slot()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::new_format_Slot() {
-    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(this);
-    editorWidget->show();
+void PVInspector::PVMainWindow::new_format_Slot()
+{
+	PVFormatBuilderWidget* editorWidget = new PVFormatBuilderWidget(this);
+	editorWidget->show();
 }
 
 /******************************************************************************
@@ -1139,27 +1181,31 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 		return;
 	}
 
-    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(_projects_tab_widget->current_workspace());
+	PVFormatBuilderWidget* editorWidget =
+	    new PVFormatBuilderWidget(_projects_tab_widget->current_workspace());
 	editorWidget->openFormat(format.get_full_path());
-    editorWidget->show();
+	editorWidget->show();
 }
 
 void PVInspector::PVMainWindow::edit_format_Slot(const QString& format)
 {
-    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(_projects_tab_widget->current_workspace());
+	PVFormatBuilderWidget* editorWidget =
+	    new PVFormatBuilderWidget(_projects_tab_widget->current_workspace());
 	editorWidget->openFormat(format);
-    editorWidget->show();
+	editorWidget->show();
 }
 
 void PVInspector::PVMainWindow::open_format_Slot()
 {
-    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(this);
-    QString url = editorWidget->slotOpen();
+	PVFormatBuilderWidget* editorWidget = new PVFormatBuilderWidget(this);
+	QString url = editorWidget->slotOpen();
 
-    if (!url.isEmpty()) {
-        editorWidget->show();
-        PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), url, PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
-    }
+	if (!url.isEmpty()) {
+		editorWidget->show();
+		PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
+		    PVCore::PVRecentItemsManager::get(), url,
+		    PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
+	}
 }
 
 /******************************************************************************
@@ -1167,22 +1213,23 @@ void PVInspector::PVMainWindow::open_format_Slot()
  * PVInspector::PVMainWindow::enable_menu_filter_Slot()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::enable_menu_filter_Slot(bool f){
+void PVInspector::PVMainWindow::enable_menu_filter_Slot(bool f)
+{
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 	filter_Menu->setEnabled(f);
 }
 
 void PVInspector::PVMainWindow::edit_format_Slot(QString const& path, QWidget* parent)
 {
-    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(parent);
-    editorWidget->show();
+	PVFormatBuilderWidget* editorWidget = new PVFormatBuilderWidget(parent);
+	editorWidget->show();
 	editorWidget->openFormat(path);
 }
 
 void PVInspector::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* parent)
 {
-    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(parent);
-    editorWidget->show();
+	PVFormatBuilderWidget* editorWidget = new PVFormatBuilderWidget(parent);
+	editorWidget->show();
 	editorWidget->openFormat(doc);
 }
 
@@ -1191,7 +1238,7 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 	if (!current_view()) {
 		return;
 	}
-	
+
 	Inendi::PVView* view = current_view();
 
 	PVAxisComputationDlg* dlg = new PVAxisComputationDlg(*view, this);
@@ -1224,8 +1271,10 @@ void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 		Inendi::PVView_sp view(current_view()->shared_from_this());
 
 		PVCore::PVArgumentList args;
-		args[PVCore::PVArgumentKey("sel-layer", tr("Choose a layer"))].setValue<Inendi::PVLayer*>(&view->get_current_layer());
-		bool ret = PVWidgets::PVArgumentListWidget::modify_arguments_dlg(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view), args, this);
+		args[PVCore::PVArgumentKey("sel-layer", tr("Choose a layer"))].setValue<Inendi::PVLayer*>(
+		    &view->get_current_layer());
+		bool ret = PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
+		    PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view), args, this);
 		if (ret) {
 			Inendi::PVLayer* layer = args["sel-layer"].value<Inendi::PVLayer*>();
 			set_selection_from_layer(view, *layer);
@@ -1247,10 +1296,10 @@ void PVInspector::PVMainWindow::layer_export_Slot()
 	}
 
 	QFileDialog fd;
-	QString file = fd.getSaveFileName(this, "Export current layer...",
-	                                  fd.directory().absolutePath(),
-	                                  INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if(!file.isEmpty()) {
+	QString file =
+	    fd.getSaveFileName(this, "Export current layer...", fd.directory().absolutePath(),
+	                       INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	if (!file.isEmpty()) {
 		current_view()->get_current_layer().save_to_file(file);
 	}
 }
@@ -1262,16 +1311,16 @@ void PVInspector::PVMainWindow::layer_import_Slot()
 	}
 
 	QFileDialog fd;
-	QString file = fd.getOpenFileName(this, "Import a layer...",
-	                                  fd.directory().absolutePath(),
+	QString file = fd.getOpenFileName(this, "Import a layer...", fd.directory().absolutePath(),
 	                                  INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if(file.isEmpty()) {
+	if (file.isEmpty()) {
 		return;
 	}
 
 	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
-		lib_view->get_current_layer().reset_to_default_color(lib_view->get_parent<Inendi::PVSource>()->get_rushnraw().get_row_count());
+		lib_view->get_current_layer().reset_to_default_color(
+		    lib_view->get_parent<Inendi::PVSource>()->get_rushnraw().get_row_count());
 		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::add_new_layer_from_file)>(lib_view, file);
 		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(lib_view);
 	}
@@ -1284,10 +1333,9 @@ void PVInspector::PVMainWindow::layer_save_ls_Slot()
 	}
 
 	QFileDialog fd;
-	QString file = fd.getSaveFileName(this, "Save layer stack...",
-	                                  fd.directory().absolutePath(),
+	QString file = fd.getSaveFileName(this, "Save layer stack...", fd.directory().absolutePath(),
 	                                  INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if(!file.isEmpty()) {
+	if (!file.isEmpty()) {
 		current_view()->get_layer_stack().save_to_file(file);
 	}
 }
@@ -1299,10 +1347,10 @@ void PVInspector::PVMainWindow::layer_load_ls_Slot()
 	}
 
 	QFileDialog fd;
-	QString file = fd.getOpenFileName(this, "Import a layer stack...",
-	                                  fd.directory().absolutePath(),
-	                                  INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if(!file.isEmpty()) {
+	QString file =
+	    fd.getOpenFileName(this, "Import a layer stack...", fd.directory().absolutePath(),
+	                       INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	if (!file.isEmpty()) {
 		current_view()->get_layer_stack().load_from_file(file);
 	}
 }
@@ -1324,7 +1372,8 @@ void PVInspector::PVMainWindow::layer_reset_color_Slot()
 
 	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
-		lib_view->get_current_layer().reset_to_default_color(lib_view->get_parent<Inendi::PVSource>()->get_rushnraw().get_row_count());
+		lib_view->get_current_layer().reset_to_default_color(
+		    lib_view->get_parent<Inendi::PVSource>()->get_rushnraw().get_row_count());
 		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(lib_view);
 	}
 }

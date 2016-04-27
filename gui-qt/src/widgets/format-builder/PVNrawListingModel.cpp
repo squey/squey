@@ -10,17 +10,14 @@
 
 #include <QBrush>
 
-PVInspector::PVNrawListingModel::PVNrawListingModel(QObject* parent):
-	QAbstractTableModel(parent),
-	_nraw(nullptr),
-	_col_tosel(0),
-	_show_sel(false)
+PVInspector::PVNrawListingModel::PVNrawListingModel(QObject* parent)
+    : QAbstractTableModel(parent), _nraw(nullptr), _col_tosel(0), _show_sel(false)
 {
 }
 
-int PVInspector::PVNrawListingModel::rowCount(const QModelIndex &parent) const
+int PVInspector::PVNrawListingModel::rowCount(const QModelIndex& parent) const
 {
-	if(not _nraw) {
+	if (not _nraw) {
 		return 0;
 	}
 
@@ -29,7 +26,7 @@ int PVInspector::PVNrawListingModel::rowCount(const QModelIndex &parent) const
 
 int PVInspector::PVNrawListingModel::columnCount(const QModelIndex& parent) const
 {
-	if(not _nraw) {
+	if (not _nraw) {
 		return 0;
 	}
 	return _nraw->get_number_cols();
@@ -37,22 +34,21 @@ int PVInspector::PVNrawListingModel::columnCount(const QModelIndex& parent) cons
 
 QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int role) const
 {
-	if(not _nraw) {
+	if (not _nraw) {
 		return {};
 	}
 
 	switch (role) {
-		case Qt::DisplayRole:
-			return QString::fromStdString(_nraw->at_string(index.row(), index.column()));
+	case Qt::DisplayRole:
+		return QString::fromStdString(_nraw->at_string(index.row(), index.column()));
 
-		case Qt::BackgroundRole:
-		{
-			if (_show_sel && index.column() == _col_tosel) {
-				// TODO: put this color in something more global (taken from PVListingModel.cpp)
-				return QBrush(QColor(130, 100, 25));
-			}
-			break;
+	case Qt::BackgroundRole: {
+		if (_show_sel && index.column() == _col_tosel) {
+			// TODO: put this color in something more global (taken from PVListingModel.cpp)
+			return QBrush(QColor(130, 100, 25));
 		}
+		break;
+	}
 	};
 
 	return QVariant();
@@ -63,9 +59,10 @@ Qt::ItemFlags PVInspector::PVNrawListingModel::flags(const QModelIndex& /*index*
 	return Qt::ItemIsEnabled;
 }
 
-QVariant PVInspector::PVNrawListingModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant PVInspector::PVNrawListingModel::headerData(int section, Qt::Orientation orientation,
+                                                     int role) const
 {
-	if(not _nraw) {
+	if (not _nraw) {
 		return {};
 	}
 
@@ -76,7 +73,7 @@ QVariant PVInspector::PVNrawListingModel::headerData(int section, Qt::Orientatio
 
 void PVInspector::PVNrawListingModel::set_nraw(PVRush::PVNraw const& nraw)
 {
-	if(nraw.get_row_count() == 0) {
+	if (nraw.get_row_count() == 0) {
 		_nraw = nullptr;
 	} else {
 		_nraw = &nraw;

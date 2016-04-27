@@ -11,7 +11,8 @@
 #include <QColorDialog>
 #include <inendi/PVView_types.h>
 
-namespace PVInspector {
+namespace PVInspector
+{
 class PVMainWindow;
 
 /**
@@ -21,19 +22,18 @@ class PVColorDialog : public QColorDialog
 {
 	Q_OBJECT
 
-public:
+  public:
 	/**
 	 * Constructor
 	 */
 	PVColorDialog(Inendi::PVView& inendi_view, QWidget* parent = 0);
 
-public:
+  public:
 	Inendi::PVView& get_lib_view() { return _inendi_view; }
 
-protected:
+  protected:
 	Inendi::PVView& _inendi_view;
 };
 }
 
 #endif // PVCOLORDIALOG_H
-

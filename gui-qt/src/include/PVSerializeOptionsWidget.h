@@ -16,23 +16,23 @@
 #include <QWidget>
 #include <QTreeView>
 
-namespace PVInspector {
-
-class PVSerializeOptionsWidget: public QWidget
+namespace PVInspector
 {
-public:
+
+class PVSerializeOptionsWidget : public QWidget
+{
+  public:
 	PVSerializeOptionsWidget(PVCore::PVSerializeArchiveOptions_p options, QWidget* parent = 0);
 
-public:
+  public:
 	QTreeView* get_view() { return _view; }
 
-protected:
+  protected:
 	QTreeView* _view;
 	PVSerializeOptionsModel* _model;
-	
+
 	Q_OBJECT
 };
-
 }
 
 #endif
