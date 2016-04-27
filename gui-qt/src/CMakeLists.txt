@@ -58,7 +58,6 @@ main.cpp
 PVAxisComputationDlg.cpp
 #PVAxesCombinationWidget.cpp
 #PVAxesCombinationDialog.cpp
-PVCustomStyle.cpp
 PVCustomTitleDialog.cpp
 PVFilesTypesSelWidget.cpp
 PVExtractorWidget.cpp
