@@ -198,7 +198,7 @@ bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJ
 	pbox->launch_timer_status();
 
 	// Show the progressBox
-	if (pbox->exec() == QDialog::Accepted) {
+	if (job->done() or pbox->exec() == QDialog::Accepted) {
 		// Job finished, everything is fine.
 		return true;
 	}
