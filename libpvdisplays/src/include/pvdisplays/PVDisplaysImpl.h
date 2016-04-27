@@ -11,20 +11,21 @@
 #include <pvdisplays/PVDisplayIf.h>
 #include <QMetaType>
 
-namespace PVDisplays {
+namespace PVDisplays
+{
 
 class PVDisplaysContainer;
 
-class PVDisplaysImpl: public QObject
+class PVDisplaysImpl : public QObject
 {
-public:
+  public:
 	struct ActionParams
 	{
 		PVDisplayIf* disp_if;
 		QVariant params;
 	};
 
-private:
+  private:
 	PVDisplaysImpl()
 	{
 		// Load all plugins
@@ -34,17 +35,13 @@ private:
 		static_init();
 	}
 
-	~PVDisplaysImpl()
-	{
-		static_release();
-	}
+	~PVDisplaysImpl() { static_release(); }
 
-public:
+  public:
 	static PVDisplaysImpl& get();
 
-public:
-	template <typename F>
-	void visit_all_displays(F const& f, int flags = 0) const
+  public:
+	template <typename F> void visit_all_displays(F const& f, int flags = 0) const
 	{
 		visit_displays_by_if<PVDisplayViewIf>(f, flags);
 		visit_displays_by_if<PVDisplaySourceIf>(f, flags);
@@ -52,11 +49,11 @@ public:
 		visit_displays_by_if<PVDisplayViewZoneIf>(f, flags);
 	}
 
-	template <typename If, typename F>
-	void visit_displays_by_if(F const& f, int flags = 0) const
+	template <typename If, typename F> void visit_displays_by_if(F const& f, int flags = 0) const
 	{
 		// Interface of 'F' must be void f(If& obj), or with a base of If;
-		typename PVCore::PVClassLibrary<If>::list_classes const& lc = PVCore::PVClassLibrary<If>::get().get_list();
+		typename PVCore::PVClassLibrary<If>::list_classes const& lc =
+		    PVCore::PVClassLibrary<If>::get().get_list();
 		// `lc' is of type QHash<QString,shared_pointer<If>>
 		for (auto it = lc.begin(); it != lc.end(); it++) {
 			If& obj = *(it->value());
@@ -66,8 +63,7 @@ public:
 		}
 	}
 
-	template <typename If, typename... P>
-	QWidget* get_widget(If& interface, P && ... args) const
+	template <typename If, typename... P> QWidget* get_widget(If& interface, P&&... args) const
 	{
 		if (interface.match_flags(PVDisplayIf::UniquePerParameters)) {
 			return interface.get_unique_widget(std::forward<P>(args)...);
@@ -77,7 +73,7 @@ public:
 	}
 
 	template <typename If, typename... P>
-	If& get_params_from_action(QAction& action, P && ... args) const
+	If& get_params_from_action(QAction& action, P&&... args) const
 	{
 		QVariant org_data = action.data();
 
@@ -93,14 +89,14 @@ public:
 	}
 
 	template <typename If, typename... P>
-	inline QAction* action_bound_to_params(If& interface, P && ... args) const
+	inline QAction* action_bound_to_params(If& interface, P&&... args) const
 	{
 		// Get the action from the interface and add the interface itself as an argument to QAction
 		QAction* act = interface.action_bound_to_params(std::forward<P>(args)...);
 		ActionParams p;
 		p.disp_if = static_cast<PVDisplayIf*>(&interface);
 		p.params = act->data();
-		
+
 		QVariant var;
 		var.setValue<ActionParams>(p);
 		act->setData(var);
@@ -108,23 +104,26 @@ public:
 		return act;
 	}
 
-	void add_displays_view_axis_menu(QMenu& menu, QObject* receiver, const char* slot, Inendi::PVView* view, PVCol axis_comb) const;
-	void add_displays_view_zone_menu(QMenu& menu, QObject* receiver, const char* slot, Inendi::PVView* view, PVCol axis_comb) const;
+	void add_displays_view_axis_menu(QMenu& menu, QObject* receiver, const char* slot,
+	                                 Inendi::PVView* view, PVCol axis_comb) const;
+	void add_displays_view_zone_menu(QMenu& menu, QObject* receiver, const char* slot,
+	                                 Inendi::PVView* view, PVCol axis_comb) const;
 
 	PVDisplaysContainer* get_parent_container(QWidget* self) const;
 
-private:
+  private:
 	void static_init();
 	void static_release();
 	void load_plugins();
 
-private:
+  private:
 	static PVDisplaysImpl* _instance;
 };
 
-
-inline PVDisplaysImpl& get() { return PVDisplaysImpl::get(); }
-
+inline PVDisplaysImpl& get()
+{
+	return PVDisplaysImpl::get();
+}
 }
 
 Q_DECLARE_METATYPE(PVDisplays::PVDisplaysImpl::ActionParams)

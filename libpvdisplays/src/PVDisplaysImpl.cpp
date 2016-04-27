@@ -15,9 +15,9 @@
 
 PVDisplays::PVDisplaysImpl* PVDisplays::PVDisplaysImpl::_instance = nullptr;
 
-static const char * plugins_get_displays_dir(void)
+static const char* plugins_get_displays_dir(void)
 {
-	const char *pluginsdir;
+	const char* pluginsdir;
 
 	// FIXME : This is dead code
 	pluginsdir = getenv("INENDI_DISPLAYS_DIR");
@@ -33,54 +33,59 @@ PVDisplays::PVDisplaysImpl& PVDisplays::PVDisplaysImpl::get()
 
 void PVDisplays::PVDisplaysImpl::load_plugins()
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString(plugins_get_displays_dir()), "libdisplay");
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(
+	    QString(plugins_get_displays_dir()), "libdisplay");
 	if (ret == 0) {
 		PVLOG_WARN("No display plugins have been loaded !\n");
-	}
-	else {
+	} else {
 		PVLOG_INFO("%d display plugins have been loaded.\n", ret);
 	}
 }
 
 void PVDisplays::PVDisplaysImpl::static_init()
 {
-	visit_all_displays(	[](PVDisplayIf& obj) { obj.static_init(); } );
+	visit_all_displays([](PVDisplayIf& obj) { obj.static_init(); });
 }
 
 void PVDisplays::PVDisplaysImpl::static_release()
 {
-	visit_all_displays(	[](PVDisplayIf& obj) { obj.static_release(); } );
+	visit_all_displays([](PVDisplayIf& obj) { obj.static_release(); });
 }
 
-void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu, QObject* receiver, const char* slot, Inendi::PVView* view, PVCol axis_comb) const
+void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu, QObject* receiver,
+                                                             const char* slot, Inendi::PVView* view,
+                                                             PVCol axis_comb) const
 {
 	visit_displays_by_if<PVDisplayViewAxisIf>(
-		[&](PVDisplayViewAxisIf& interface)
-		{
-			QAction* act = action_bound_to_params(interface, view, axis_comb);
-			act->setText(interface.axis_menu_name(view, axis_comb));
-			act->setIcon(interface.toolbar_icon());
-			connect(act, SIGNAL(triggered()), receiver, slot);
-			menu.addAction(act);
+	    [&](PVDisplayViewAxisIf& interface) {
+		    QAction* act = action_bound_to_params(interface, view, axis_comb);
+		    act->setText(interface.axis_menu_name(view, axis_comb));
+		    act->setIcon(interface.toolbar_icon());
+		    connect(act, SIGNAL(triggered()), receiver, slot);
+		    menu.addAction(act);
 
-		}, PVDisplayIf::ShowInCtxtMenu);
+		},
+	    PVDisplayIf::ShowInCtxtMenu);
 }
 
-void PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(QMenu& menu, QObject* receiver, const char* slot, Inendi::PVView* view, PVCol axis_comb) const
+void PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(QMenu& menu, QObject* receiver,
+                                                             const char* slot, Inendi::PVView* view,
+                                                             PVCol axis_comb) const
 {
 	visit_displays_by_if<PVDisplayViewZoneIf>(
-		[&](PVDisplayViewZoneIf& interface)
-		{
-			QAction* act = action_bound_to_params(interface, view, axis_comb);
-			act->setText(interface.axis_menu_name(view, axis_comb));
-			act->setIcon(interface.toolbar_icon());
-			connect(act, SIGNAL(triggered()), receiver, slot);
-			menu.addAction(act);
+	    [&](PVDisplayViewZoneIf& interface) {
+		    QAction* act = action_bound_to_params(interface, view, axis_comb);
+		    act->setText(interface.axis_menu_name(view, axis_comb));
+		    act->setIcon(interface.toolbar_icon());
+		    connect(act, SIGNAL(triggered()), receiver, slot);
+		    menu.addAction(act);
 
-		}, PVDisplayIf::ShowInCtxtMenu);
+		},
+	    PVDisplayIf::ShowInCtxtMenu);
 }
 
-PVDisplays::PVDisplaysContainer* PVDisplays::PVDisplaysImpl::get_parent_container(QWidget* self) const
+PVDisplays::PVDisplaysContainer*
+PVDisplays::PVDisplaysImpl::get_parent_container(QWidget* self) const
 {
 	return PVCore::get_qobject_parent_of_type<PVDisplaysContainer*>(self);
 }

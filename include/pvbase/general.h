@@ -12,19 +12,20 @@
 
 #include <QtGlobal>
 
-// "INENDI_VERSION_FILE_PATH" and "INENDI_BUILD_FILE_PATH" are set by cmake (CMakeOptions.txt/CMakeVersionHandler.txt respectively)
+// "INENDI_VERSION_FILE_PATH" and "INENDI_BUILD_FILE_PATH" are set by cmake
+// (CMakeOptions.txt/CMakeVersionHandler.txt respectively)
 #include INENDI_VERSION_FILE_PATH
 #include INENDI_BUILD_FILE_PATH
 
 #include "types.h"
 #include "export.h"
 
-static constexpr const char* INENDI_ORGANISATION    = "ESI Group";
+static constexpr const char* INENDI_ORGANISATION = "ESI Group";
 static constexpr const char* INENDI_APPLICATIONNAME = "INENDI Inspector";
 
-static constexpr const char* INENDI_FLEX_PREFIX  = "II";
+static constexpr const char* INENDI_FLEX_PREFIX = "II";
 static constexpr const char* INENDI_FLEX_FEATURE = "INSPECTOR";
-static constexpr const char* INENDI_FLEX_MAXMEM  = "MAXMEM";
+static constexpr const char* INENDI_FLEX_MAXMEM = "MAXMEM";
 
 static constexpr const int INENDI_LINES_MAX = std::numeric_limits<int>::max();
 
@@ -41,7 +42,7 @@ static constexpr const char* INENDI_BROWSE_FORMAT_STR = "[choose my format...]";
 static constexpr const char PVCORE_DIRECTORY_SEP = ';';
 
 static constexpr const char* PVCONFIG_FORMATS_INVALID_IGNORED = "formats/invalid/ignored";
-static constexpr const char*  PVCONFIG_FORMATS_SHOW_INVALID = "formats/invalid/warning";
+static constexpr const char* PVCONFIG_FORMATS_SHOW_INVALID = "formats/invalid/warning";
 #define PVCONFIG_FORMATS_SHOW_INVALID_DEFAULT (QVariant(true))
 
 #define ALL_FILES_FILTER "All files (*.*)"
@@ -61,15 +62,15 @@ static constexpr const char* ESCAPE_PERCENT = "\%";
 #define INENDI_INSPECTOR_CONFDIR INENDI_CONFDIR INENDI_PATH_SEPARATOR "inspector"
 
 #define inendi_verify(e) __inendi_verify(e, __FILE__, __LINE__)
-#define __inendi_verify(e, F, L)\
-	if (!(e)) {\
-		fprintf(stderr, "valid assertion failed at %s:%d: %s.\n", F, L, #e);\
-		abort();\
+#define __inendi_verify(e, F, L)                                                                   \
+	if (!(e)) {                                                                                    \
+		fprintf(stderr, "valid assertion failed at %s:%d: %s.\n", F, L, #e);                       \
+		abort();                                                                                   \
 	}
 
-#define NEXT_MULTIPLE(n, align) ((((n)*(align)-1)/(align))*(align))
-#define PREV_MULTIPLE(n, align) (((n)/(align))*(align))
+#define NEXT_MULTIPLE(n, align) ((((n) * (align)-1) / (align)) * (align))
+#define PREV_MULTIPLE(n, align) (((n) / (align)) * (align))
 
 #define PV_UNUSED(v) ((void)v)
 
-#endif	/* PVBASE_GENERAL_H */
+#endif /* PVBASE_GENERAL_H */

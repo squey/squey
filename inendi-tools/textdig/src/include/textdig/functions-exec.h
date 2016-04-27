@@ -14,15 +14,13 @@
 #include <textdig/textdig.h>
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
-void *function_run_from_string(const char *string);
+void* function_run_from_string(const char* string);
 
 #ifdef __cplusplus
- }
+}
 #endif
 
-
 #endif /* _FUNCTIONS_EXEC_H_ */
-
