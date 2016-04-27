@@ -13,7 +13,6 @@
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/PVTools.h>
-#include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
 
 #include <iostream>
@@ -34,8 +33,6 @@
 
 #define WIDTH 1024
 #define BBITS 10
-
-typedef PVParallelView::PVZonesDrawing<BBITS> zones_drawing_t;
 
 void show_qimage(QString const& title, QImage const& img)
 {
@@ -101,7 +98,6 @@ int main(int argc, char** argv)
 
 	size_t n = atoll(argv[1]);
 
-	PVCuda::init_cuda();
 	PVParallelView::PVBCIBackendImage_p dst_img;
 	switch (bbits) {
 		case 10:

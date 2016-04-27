@@ -162,7 +162,6 @@ static inline bool test_sse(const __m128i &sse_y1,
  * About the quadtree
  */
 // typedef PVCore::PVVector<PVQuadTreeEntry, tbb::scalable_allocator<PVQuadTreeEntry> > pvquadtree_entries_t;
-// typedef PVCore::PVVector<PVQuadTreeEntry, 1000, PVCore::PVJEMallocAllocator<PVQuadTreeEntry> > pvquadtree_entries_t;
 typedef PVCore::PVVector<PVQuadTreeEntry> pvquadtree_entries_t;
 
 /**

@@ -47,27 +47,13 @@ private:
  * PVParallelView::PVZonesManager::PVZonesManager
  *
  *****************************************************************************/
-PVParallelView::PVZonesManager::PVZonesManager()
+PVParallelView::PVZonesManager::PVZonesManager(Inendi::PVView const& view):
+    _uint_plotted(&view.get_parent<Inendi::PVPlotted>()->get_uint_plotted()),
+    _nrows(view.get_row_count()),
+    _ncols(view.get_column_count()),
+    _axes_comb(view.get_axes_combination().get_axes_index_list())
 {
-}
-
-/******************************************************************************
- *
- * PVParallelView::PVZonesManager::set_uint_plotted
- *
- *****************************************************************************/
-void PVParallelView::PVZonesManager::set_uint_plotted(Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols)
-{
-	_uint_plotted = &plotted;
-	_nrows = nrows;
-	_ncols = ncols;
-
-	// Init original axes combination
-	_axes_comb.clear();
-	_axes_comb.reserve(ncols);
-	for (PVCol c = 0; c < ncols; c++) {
-		_axes_comb.push_back(axes_comb_id_t(c, 0));
-	}
+    update_all();
 }
 
 /******************************************************************************
@@ -81,56 +67,13 @@ void PVParallelView::PVZonesManager::update_all()
 	PVLOG_INFO("(PVZonesManager::update_all) number of zones = %d\n", nzones);
 	assert(nzones >= 1);
 	_zones.clear();
-	_zones.reserve(nzones);
-	for (PVZoneID z = 0; z < nzones; z++) {
-		_zones.push_back(PVZone());
-	}
+	_zones.resize(nzones);
 
-	PVZoneProcessing zp(get_uint_plotted(), get_row_count());
-	{
-		__impl::ZoneCreation zc;
-		zc._zm = this;
-		const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
-		tbb::task_scheduler_init init(nthreads);
-		tbb::parallel_for(tbb::blocked_range<PVZoneID>(0, nzones, 8), zc);
-
-#ifdef EXPLICIT_ZZTS_PROCESSING
-		BENCH_START(zztree);
-#if 1
-		// Create Zoomed Zone Tree (serial)
-		for (PVZoneID z = 0; z < nzones; z++) {
-			get_zone_cols(z, zp.col_a(), zp.col_b());
-			PVZoneTree& ztree = _zones[z].ztree();
-			PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
-			zztree.process(zp, ztree);
-		}
-		BENCH_END(zztree, "ZZTREES PROCESS (SERIAL)", 1, 1, 1, 1);
-#else
-		// Create Zoomed Zone Tree (parallel)
-		tbb::parallel_for(tbb::blocked_range<size_t>(0, nzones, 1), [&](tbb::blocked_range<size_t> const& range) {
-			for (size_t z = range.begin(); z != range.end(); z++) {
-				get_zone_cols(z, zp.col_a(), zp.col_b());
-				PVZoneTree& ztree = _zones[z].ztree();
-				PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
-				zztree.process(zp, ztree);
-			}
-		});
-		BENCH_END(zztree, "ZZTREES PROCESS (PARALLEL)", 1, 1, 1, 1);
-#endif
-#endif // EXPLICIT_ZZTS_PROCESSING
-
-	}
-
-	/*
-	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
-	PVParallelView::PVZoneTree::ProcessTLS tls;
-	for (PVZoneID z = 0; z < nzones; z++) {
-		get_zone_cols(z, zp.col_a(), zp.col_b());
-		PVZoneTree& ztree = _zones[z].ztree();
-		ztree.process(zp, tls);
-		//PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
-		//zztree.process(zp, ztree);
-	}*/
+	__impl::ZoneCreation zc;
+	zc._zm = this;
+	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	tbb::task_scheduler_init init(nthreads);
+	tbb::parallel_for(tbb::blocked_range<PVZoneID>(0, nzones, 8), zc);
 }
 
 /******************************************************************************
@@ -142,7 +85,7 @@ void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
 {
 	assert(zone_id < (PVZoneID) _zones.size());
 
-	_zones[zone_id].reset();
+	_zones[zone_id] = PVZone();
 
 	PVZoneProcessing zp(get_uint_plotted(), get_row_count());
 	get_zone_cols(zone_id, zp.col_a(), zp.col_b());
@@ -153,11 +96,7 @@ void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
 	ztree.process(zp, pdata);
 
 	PVZoomedZoneTree& zztree = _zones[zone_id].zoomed_ztree();
-#if EXPLICIT_ZZTS_PROCESSING
-	zztree.process(zp, ztree);
-#else
 	zztree.reset();
-#endif
 }
 
 /******************************************************************************
@@ -189,8 +128,7 @@ std::vector<PVZoneID> PVParallelView::PVZonesManager::update_from_axes_comb(colu
 
 	std::vector<PVZoneID> zoneids;
 	PVCol new_nb_pairs = ac.size()-1;
-	list_zones_t new_zones;
-	new_zones.resize(new_nb_pairs);
+	std::vector<PVZone> new_zones(new_nb_pairs);
 
 	// iterate on the new axes combination to find reusable zones
 	for (PVCol i = 0 ; i < new_nb_pairs; i++) {
@@ -258,17 +196,6 @@ void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID zone_id)
 
 /******************************************************************************
  *
- * PVParallelView::PVZonesManager::lazy_init_from_view
- *
- *****************************************************************************/
-void PVParallelView::PVZonesManager::lazy_init_from_view(Inendi::PVView const& view)
-{
-	set_uint_plotted(view);
-	_axes_comb = view.get_axes_combination().get_axes_index_list();
-}
-
-/******************************************************************************
- *
  * PVParallelView::PVZonesManager::filter_zone_by_sel
  *
  *****************************************************************************/
@@ -282,16 +209,6 @@ void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone
 {
 	assert(zone_id < (PVZoneID) _zones.size());
 	_zones[zone_id].filter_by_sel_background(sel, _nrows);
-}
-
-/******************************************************************************
- *
- * PVParallelView::PVZonesManager::set_uint_plotted
- *
- *****************************************************************************/
-void PVParallelView::PVZonesManager::set_uint_plotted(Inendi::PVView const& view)
-{
-	set_uint_plotted(view.get_parent<Inendi::PVPlotted>()->get_uint_plotted(), view.get_row_count(), view.get_column_count());
 }
 
 /******************************************************************************

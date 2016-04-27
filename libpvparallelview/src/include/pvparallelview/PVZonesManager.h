@@ -36,15 +36,12 @@ class ZoneCreation;
 
 class PVZonesManager: public QObject, boost::noncopyable
 {
-	Q_OBJECT;
-
 	friend class PVParallelView::__impl::ZoneCreation;
 
-	typedef std::vector<PVZone> list_zones_t;
 	typedef tbb::enumerable_thread_specific<PVZoneTree::ProcessData> process_ztree_tls_t;
 
 public:
-	PVZonesManager();
+	explicit PVZonesManager(Inendi::PVView const& view);
 
 public:
 	typedef Inendi::PVAxesCombination::axes_comb_id_t    axes_comb_id_t;
@@ -63,27 +60,34 @@ public:
 	void request_zoomed_zone(PVZoneID zone);
 
 public:
-	template <class Tree>
-	inline Tree const& get_zone_tree(PVZoneID z) const
+	PVZoneTree const& get_zone_tree(PVZoneID z) const
 	{
 		assert(z < get_number_of_managed_zones());
-		return _zones[z].get_tree<Tree>();
+		return _zones[z].ztree();
 	}
 
-	template <class Tree>
-	inline Tree& get_zone_tree(PVZoneID z)
+	PVZoneTree & get_zone_tree(PVZoneID z) 
 	{
 		assert(z < get_number_of_managed_zones());
-		return _zones[z].get_tree<Tree>();
+		return _zones[z].ztree();
+	}
+
+	PVZoomedZoneTree const& get_zoom_zone_tree(PVZoneID z) const
+	{
+		assert(z < get_number_of_managed_zones());
+		return _zones[z].zoomed_ztree();
+	}
+
+	PVZoomedZoneTree & get_zoom_zone_tree(PVZoneID z) 
+	{
+		assert(z < get_number_of_managed_zones());
+		return _zones[z].zoomed_ztree();
 	}
 
 	void filter_zone_by_sel(PVZoneID zone_id, const Inendi::PVSelection& sel);
 	void filter_zone_by_sel_background(PVZoneID zone_id, const Inendi::PVSelection& sel);
 
 public:
-	void set_uint_plotted(Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
-	void set_uint_plotted(Inendi::PVView const& view);
-	void lazy_init_from_view(Inendi::PVView const& view);
 	inline PVZoneID get_number_of_managed_zones() const { return _axes_comb.size()-1; }
 	inline PVCol get_number_cols() const { return _ncols; }
 	inline PVRow get_row_count() const { return _nrows; }
@@ -106,17 +110,13 @@ public:
 		b = _axes_comb[z+1].get_axis();
 	}
 
-signals:
-	void filter_by_sel_finished(int zone_id, bool changed);
-
 protected:
-	Inendi::PVPlotted::uint_plotted_table_t const* _uint_plotted = NULL;
-	PVRow _nrows = 0;
-	PVCol _ncols = 0;
-	columns_indexes_t _axes_comb;
-	list_zones_t _zones;
+	Inendi::PVPlotted::uint_plotted_table_t const* _uint_plotted = nullptr; //FIXME : This is a duplication, it should get it from view
+	PVRow _nrows = 0; //FIXME : This is a duplication, it should get it from view
+	PVCol _ncols = 0; //FIXME : This is a duplication, it should get it from view
+	columns_indexes_t _axes_comb; //FIXME : This is a duplication, it should get it from view
+	std::vector<PVZone> _zones;
 	process_ztree_tls_t _tls_ztree;
-	//list_zones_tree_t _quad_trees;
 };
 
 

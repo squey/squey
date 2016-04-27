@@ -72,11 +72,6 @@ PVParallelView::PVFullParallelView::~PVFullParallelView()
  * PVParallelView::PVFullParallelView::paintEvent
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelView::paintEvent(QPaintEvent *event)
-{
-    QGraphicsView::paintEvent(event);
-}
-
 void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const QRectF& rect)
 {
 	// Get back in viewport's coordinates system

@@ -11,10 +11,7 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZoneRendering_types.h>
 
-#define TBB_PREVIEW_GRAPH_NODES 1
 #include <tbb/flow_graph.h>
-
-#include <cassert>
 
 namespace PVCore {
 class PVHSVColor;
@@ -30,55 +27,55 @@ class PVRenderingPipeline;
 class PVRenderingPipelinePreprocessRouter;
 class PVZonesManager;
 
+/**
+ * A ZonesProcessor is a full pipeline with ZonePipeline and preprocessing.
+ *
+ * It provides interface to recompute or not preprocessing data.
+ *
+ * @Note it is only sugar for a ZonePileline.
+ */
 class PVZonesProcessor
 {
-	friend class PVRenderingPipeline;
-	typedef tbb::flow::receiver<PVZoneRendering_p> receiver_type;
+	using receiver_type = tbb::flow::receiver<PVZoneRendering_p>;
 
-protected:
-	PVZonesProcessor(receiver_type& in_port, PVRenderingPipelinePreprocessRouter* preprocess = nullptr):
-		_in_port(&in_port), _preprocess(preprocess)
+public:
+	PVZonesProcessor(receiver_type& in_port, PVRenderingPipelinePreprocessRouter& preprocess):
+		_in_port(in_port), _preprocess(preprocess)
 	{ }
 
 public:
-	PVZonesProcessor():
-		_in_port(nullptr),
-		_preprocess(nullptr)
-	{ }
+	/**
+	 * Push a new "token" in the pipeline.
+	 */
+	inline bool add_job(PVZoneRendering_p const& zr) { return _in_port.try_put(zr); }
 
-	PVZonesProcessor(PVZonesProcessor const& zp):
-		_in_port(zp._in_port), _preprocess(zp._preprocess)
-	{ }
-
-	inline PVZonesProcessor& operator=(PVZonesProcessor const& zp)
-	{
-		if (&zp != this) {
-			_in_port = zp._in_port;
-			_preprocess = zp._preprocess;
-		}
-		return *this;
-	}
-
-public:
-	inline bool add_job(PVZoneRendering_p const& zr)
-	{
-		assert(_in_port);
-		return _in_port->try_put(zr);
-	}
-
-	// Preprocess router specific functions
+	/**
+	 * Update number of zones.
+	 *
+	 * @note : Zones to recompute should be invalidate.
+	 * @fixme : Every zone should certainly be invalidate in this case.
+	 */
 	void set_number_zones(const PVZoneID n);
+
+	/**
+	 * Invalidate a zone so that it will be recompute from preprocessing.
+	 */
 	void invalidate_zone_preprocessing(const PVZoneID zone_id);
 
 public:
-	// Static helper functions, implemented in PVZonesProcessor.cpp
+	/**
+	 * Create a ZonesProcessor for foreground image
+	 */
 	static PVZonesProcessor declare_processor_zm_sel(PVRenderingPipeline& pipeline, PVZonesManager& zm, PVCore::PVHSVColor const* colors, Inendi::PVSelection const& sel);
+
+	/**
+	 * Create a ZonesProcessor for backgorund image.
+	 */
 	static PVZonesProcessor declare_background_processor_zm_sel(PVRenderingPipeline& pipeline, PVZonesManager& zm, PVCore::PVHSVColor const* colors, Inendi::PVSelection const& sel);
-	static PVZonesProcessor declare_processor_direct(PVRenderingPipeline& pipeline, PVCore::PVHSVColor const* colors);
 
 private:
-	receiver_type* _in_port;
-	PVRenderingPipelinePreprocessRouter* _preprocess;
+	receiver_type& _in_port;
+	PVRenderingPipelinePreprocessRouter& _preprocess;
 };
 
 }

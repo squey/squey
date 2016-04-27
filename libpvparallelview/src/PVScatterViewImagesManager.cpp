@@ -49,7 +49,7 @@ void PVParallelView::PVScatterViewImagesManager::set_zone(PVZoneID const zid)
 	cancel_all_and_wait();
 	_zid = zid;
 
-	PVParallelView::PVZoomedZoneTree const& zzt = get_zones_manager().get_zone_tree<PVParallelView::PVZoomedZoneTree>(_zid);
+	PVParallelView::PVZoomedZoneTree const& zzt = get_zones_manager().get_zoom_zone_tree(_zid);
 	_data.set_zoomed_zone_tree(zzt);
 }
 

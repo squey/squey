@@ -142,7 +142,7 @@ public:
 			_ztree->_treeb[b].count = 0;
 			for (uint32_t task = 0 ; task < _pdata.ntasks; task++) {
 				_ztree->_treeb[b].count += _pdata.trees[task][b].size();
-				_ztree->_first_elts[b] = inendi_min(_ztree->_first_elts[b], _pdata.first_elts[task][b]);
+				_ztree->_first_elts[b] = std::min(_ztree->_first_elts[b], _pdata.first_elts[task][b]);
 			}
 			_alloc_size += (((_ztree->_treeb[b].count + 15) / 16) * 16);
 		}
@@ -194,57 +194,18 @@ private:
 	uint32_t _task_num;
 };
 
-class TBBSelFilter {
-public:
-	TBBSelFilter (
-		PVParallelView::PVZoneTree* tree,
-		const Inendi::PVSelection::const_pointer sel_buf
-	) :
-		_tree(tree),
-		_sel_buf(sel_buf)
-	{
-	}
-	
-	void operator() (const tbb::blocked_range<size_t>& range) const
-	{
-		for (PVRow b = range.begin(); b != range.end(); ++b) {
-			PVRow res = PVROW_INVALID_VALUE;
-			if (_tree->branch_valid(b)) {
-				const PVRow r = _tree->get_first_elt_of_branch(b);
-				if ((_sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
-					res = r;
-				}
-				else {
-					for (size_t i=0; i< _tree->_treeb[b].count; i++) {
-						const PVRow r = _tree->_treeb[b].p[i];
-						if ((_sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
-							res = r;
-							break;
-						}
-					}
-				}
-			}
-			_tree->_sel_elts[b] = res;
-		}
-	}
-
-private:
-	mutable PVParallelView::PVZoneTree* _tree;
-	Inendi::PVSelection::const_pointer _sel_buf;
-};
-
 class TBBSelFilterMaxCount {
 public:
 	TBBSelFilterMaxCount (
 		PVParallelView::PVZoneTree* tree,
 		PVRow* buf_elts,
-		const Inendi::PVSelection::const_pointer sel_buf,
+		const Inendi::PVSelection& sel,
 		tbb::atomic<ssize_t>& nelts,
 		tbb::task_group_context& ctxt
 	) :
 		_tree(tree),
 		_buf_elts(buf_elts),
-		_sel_buf(sel_buf),
+		_sel(sel),
 		_nelts(&nelts),
 		_ctxt(&ctxt)
 	{
@@ -254,7 +215,6 @@ public:
 	{
 		const ssize_t cur_remaing = (ssize_t) *_nelts;
 		ssize_t nelts_found = 0;
-		const Inendi::PVSelection::const_pointer sel_buf = _sel_buf;
 		if (cur_remaing == 0) {
 			return;
 		}
@@ -264,14 +224,15 @@ public:
 			PVRow res = PVROW_INVALID_VALUE;
 			if (_tree->branch_valid(b)) {
 				const PVRow r = _tree->get_first_elt_of_branch(b);
-				if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
+				// If bit is selected in selection, mark it
+				if (_sel.get_line_fast(r)) {
 					res = r;
 					nelts_found++;
 				}
 				else {
 					for (size_t i=0; i< _tree->_treeb[b].count; i++) {
 						const PVRow r = _tree->_treeb[b].p[i];
-						if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
+						if (_sel.get_line_fast(r)) {
 							res = r;
 							nelts_found++;
 							break;
@@ -293,29 +254,12 @@ public:
 private:
 	mutable PVParallelView::PVZoneTree* _tree;
 	mutable PVRow* _buf_elts;
-	Inendi::PVSelection::const_pointer _sel_buf;
+	Inendi::PVSelection const& _sel;
 	mutable tbb::atomic<ssize_t>* _nelts;
 	mutable tbb::task_group_context* _ctxt;
 };
 
 } }
-
-void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Inendi::PVSelection& sel)
-{
-	BENCH_START(subtree);
-	memset(_sel_elts, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
-	const uint32_t* pcol_a = zp.get_plotted_col(zp.col_a());
-	const uint32_t* pcol_b = zp.get_plotted_col(zp.col_b());
-
-	sel.visit_selected_lines([&](PVRow r){
-		const PVRow y1 = pcol_a[r] >> (32-NBITS_INDEX);
-		const PVRow y2 = pcol_b[r] >> (32-NBITS_INDEX);
-
-		const PVRow b = y1 | (y2 << NBITS_INDEX);
-		_sel_elts[b] = inendi_min(_sel_elts[b], r);
-	}, zp.nrows());
-	BENCH_END(subtree, "filter_by_sel_tbb_treeb_new", 1, 1, sizeof(PVRow), zp.nrows());
-}
 
 // PVZoneTree implementation
 //
@@ -374,211 +318,16 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 	BENCH_END(merge, "MERGE", nrows*2, sizeof(float), nrows*2, sizeof(float));
 }
 
-void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& zp)
-{
-	const uint32_t* pcol_a = zp.get_plotted_col_a();
-	const uint32_t* pcol_b = zp.get_plotted_col_b();
-	tbb::tick_count start, end;
-
-	memset(_treeb, 0, sizeof(PVBranch)*NBUCKETS);
-
-	// Fix max number of threads
-	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
-
-	// Create a tree by thread
-	vec_rows_t** thread_trees = new vec_rows_t*[nthreads];
-	for (size_t ith=0; ith<nthreads; ith++) {
-		thread_trees[ith] = new vec_rows_t[NBUCKETS];
-	}
-
-	// Create an array of first elements by thread
-	PVRow** first_elts_list = new PVRow*[nthreads];
-	for (size_t ith=0; ith<nthreads; ith++) {
-		first_elts_list[ith] = new PVRow[NBUCKETS];
-		memset(first_elts_list[ith], PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
-	}
-	size_t alloc_size = 0;
-#pragma omp parallel num_threads(nthreads)
-	{
-		// Initialize one tree per thread
-		vec_rows_t* thread_tree = thread_trees[omp_get_thread_num()];
-
-		// Initialize one first elements arrays by thread
-		PVRow* first_elts = first_elts_list[omp_get_thread_num()];
-
-		PVRow nrows_sse = (zp.nrows()/4)*4;
-#pragma omp barrier
-#pragma omp master
-		{
-			start = tbb::tick_count::now();
-		}
-#pragma omp for schedule(static)
-		for (PVRow r = 0; r < nrows_sse; r += 4) {
-			__m128i sse_y1, sse_y2, sse_bcodes;
-			sse_y1 = _mm_load_si128((const __m128i*) &pcol_a[r]);
-			sse_y2 = _mm_load_si128((const __m128i*) &pcol_b[r]);
-
-			sse_y1 = _mm_srli_epi32(sse_y1, 32-NBITS_INDEX);
-			sse_y2 = _mm_srli_epi32(sse_y2, 32-NBITS_INDEX);
-			sse_bcodes = _mm_or_si128(sse_y1, _mm_slli_epi32(sse_y2, NBITS_INDEX));
-
-			uint32_t b0 = _mm_extract_epi32(sse_bcodes, 0);
-			if (thread_tree[b0].size() == 0 ) {
-				first_elts[b0] = r+0;
-			}
-			thread_tree[b0].push_back(r+0);
-
-			uint32_t b1 = _mm_extract_epi32(sse_bcodes, 1);
-			if (thread_tree[b1].size() == 0 ) {
-				first_elts[b1] = r+1;
-			}
-			thread_tree[b1].push_back(r+1);
-
-			uint32_t b2 = _mm_extract_epi32(sse_bcodes, 2);
-			if (thread_tree[b2].size() == 0 ) {
-				first_elts[b2] = r+2;
-			}
-			thread_tree[b2].push_back(r+2);
-
-			uint32_t b3 = _mm_extract_epi32(sse_bcodes, 3);
-			if (thread_tree[b3].size() == 0 ) {
-				first_elts[b3] = r+3;
-			}
-			thread_tree[b3].push_back(r+3);
-		}
-#pragma omp master
-		{
-			for (PVRow r = nrows_sse; r < zp.nrows(); r++) {
-				uint32_t y1 = pcol_a[r];
-				uint32_t y2 = pcol_b[r];
-
-				PVBCode b;
-				b.int_v = 0;
-				b.s.l = y1 >> (32-NBITS_INDEX);
-				b.s.r = y2 >> (32-NBITS_INDEX);
-
-				if (thread_tree[b.int_v].size() == 0 ) {
-					first_elts[b.int_v] = r;
-				}
-				thread_tree[b.int_v].push_back(r);
-			}
-		}
-#pragma omp barrier
-#pragma omp for reduction(+:alloc_size) schedule(dynamic, GRAINSIZE)
-		// _1 Sum the number of elements contained by each branch of the final tree
-		// _2 Store the first element of each branch of the final tree in a buffer
-		for (PVRow b = 0; b < NBUCKETS; b++) {
-			_treeb[b].count = 0;
-			for (size_t ith = 0; ith < nthreads; ith++) {
-				_treeb[b].count += thread_trees[ith][b].size();
-				_first_elts[b] = inendi_min(_first_elts[b], first_elts_list[ith][b]);
-			}
-			alloc_size += (((_treeb[b].count + 15) / 16) * 16);
-		}
-#pragma omp barrier
-#pragma omp master
-		{
-			_tree_data = PVCore::PVAlignedAllocator<PVRow, 16>().allocate(alloc_size);
-
-			// Update branch pointer
-			PVRow* cur_p = _tree_data;
-			for (PVRow b = 0; b < NBUCKETS; b++) {
-				if (_treeb[b].count > 0) {
-					_treeb[b].p = cur_p;
-					cur_p += ((_treeb[b].count + 15)/16)*16;
-				}
-			}
-		}
-#pragma omp barrier
-#pragma omp for schedule(dynamic, GRAINSIZE)
-		for (PVRow b = 0; b < NBUCKETS; b++) {
-			if (_treeb[b].count == 0) {
-				continue;
-			}
-			PVRow* cur_branch = _treeb[b].p;
-			for (size_t ith = 0; ith < nthreads; ith++) {
-				vec_rows_t const& c = thread_trees[ith][b];
-				if (c.size() > 0) {
-					memcpy(cur_branch, &c.at(0), c.size()*sizeof(PVRow));
-					cur_branch += c.size();
-					assert(cur_branch <= _treeb[b].p + _treeb[b].count);
-				}
-			}
-		}
-
-#pragma omp master
-		{
-			end = tbb::tick_count::now();
-		}
-	}
-
-	// Cleanup
-	for (size_t ith=0; ith<nthreads; ith++) {
-		delete [] first_elts_list[ith];
-	}
-	delete [] first_elts_list;
-	for (size_t ith=0; ith<nthreads; ith++) {
-		delete [] thread_trees[ith];
-	}
-	delete [] thread_trees;
-
-	PVLOG_INFO("OMP tree process in %0.4f ms.\n", (end-start).seconds()*1000.0);
-}
-
-void PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Inendi::PVSelection const& sel)
-{
-	BENCH_START(subtree);
-	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
-	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
-#pragma omp parallel for schedule(dynamic, GRAINSIZE) firstprivate(sel_buf) num_threads(nthreads)
-	for (size_t b = 0; b < NBUCKETS; b++) {
-		if (branch_valid(b)) {
-			const PVRow r = get_first_elt_of_branch(b);
-			bool found = false;
-			if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
-				found = true;
-			}
-			else {
-				for (size_t i=0; i<_treeb[b].count; i++) {
-					const PVRow r = _treeb[b].p[i];
-					if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (found) {
-				_sel_elts[b] = r;
-			}
-			else {
-				_sel_elts[b] = PVROW_INVALID_VALUE;
-			}
-		}
-	}
-	//BENCH_END(subtree, "filter_by_sel_omp_treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
-	BENCH_END(subtree, "filter_by_sel_omp_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
-}
-
 void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts)
 {
 	// returns a zone tree with only the selected events
-	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	tbb::atomic<ssize_t> nelts_sel;
 	BENCH_START(subtree2);
 	nelts_sel = (ssize_t) sel.get_number_of_selected_lines_in_range(0, nrows);
-	static_assert(NBUCKETS%4 == 0, "NBUCKETS isn't a multiple of 4");
-	const __m128i sse_invalid = _mm_set1_epi32(PVROW_INVALID_VALUE);
-	for (size_t b = 0; b < NBUCKETS; b += 4) {
-		_mm_stream_si128((__m128i*) &buf_elts[b], sse_invalid);
-	}
+	std::fill_n(buf_elts, NBUCKETS, PVROW_INVALID_VALUE);
 	tbb::task_group_context context;
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilterMaxCount(this, buf_elts, sel_buf, nelts_sel, context), tbb::simple_partitioner(), context);
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilterMaxCount(this, buf_elts, sel, nelts_sel, context), tbb::simple_partitioner(), context);
 	BENCH_END(subtree2, "filter_by_sel_tbb_treeb_maxcount", 1, 1, sizeof(PVRow), NBUCKETS);
-
-	/*
-	BENCH_START(subtree);
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilter(this, sel_buf), tbb::simple_partitioner());
-	BENCH_END(subtree, "filter_by_sel_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);*/
 }
 
 void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel, const PVRow /*nrows*/, PVRow* buf_elts)
@@ -641,48 +390,6 @@ uint32_t PVParallelView::PVZoneTree::get_right_axis_count_seq(const uint32_t bra
 	}
 
 	return count;
-}
-
-/*
-uint32_t PVParallelView::PVZoneTree::get_right_axis_count_sse(const uint32_t branch_r) const
-{
-	PVBCode b_start;
-	b_start.s.r = branch_r;
-	b_start.s.l = 0;
-
-	PVBCode b_end;
-	b_end.s.r = branch_r;
-	b_end.s.l = (1<<NBITS_INDEX)-1;
-
-	// The advantage of doing this on the right axis is that our
-	// indexes are sequentials !
-	BENCH_START(bcount);
-	__m128i sse_count = _mm_setzero_si128();
-	for (uint32_t b = b_start.int_v; b < b_end.int_v; b += 4) {
-		const __m128i sse_branch_0 = _mm_load_si128(&_treeb[b]);
-		const __m128i sse_branch_1 = _mm_load_si128(&_treeb[b+1]);
-		const __m128i sse_branch_2 = _mm_load_si128(&_treeb[b+2]);
-		const __m128i sse_branch_3 = _mm_load_si128(&_treeb[b+3]);
-
-		count += _treeb[b].count;
-	}
-	BENCH_END(bcount, "count-sse", b_end.int_v-b_start.int_v, 1023, sizeof(uint32_t), 1);
-
-	return count;
-}*/
-
-void PVParallelView::PVZoneTree::get_float_pts(pts_t& pts, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
-{
-	pts.reserve(NBUCKETS*4);
-	for (size_t i = 0; i < NBUCKETS; i++) {
-		if (branch_valid(i) > 0) {
-			PVRow idx_first = get_first_elt_of_branch(i);
-			pts.push_back(0.0f);
-			pts.push_back(org_plotted[col_a*nrows+idx_first]);
-			pts.push_back(1.0f);
-			pts.push_back(org_plotted[col_b*nrows+idx_first]);
-		}
-	}
 }
 
 void PVParallelView::PVZoneTree::dump_branches() const

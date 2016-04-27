@@ -616,13 +616,6 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 	int zoom_level = get_zoom_level();
 
-#if 0
-	// a second to slow the rendering
-	for(int i = 0; i < 20; ++i) {
-		usleep(50000);
-	}
-#endif
-
 	if (_left_zone) {
 		if (_render_type == RENDER_ALL) {
 			_renderable_zone_number++;

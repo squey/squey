@@ -35,9 +35,6 @@ public:
 	virtual ~PVZoneTreeBase() { }
 
 public:
-	virtual void get_float_pts(pts_t& pts, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b) = 0;
-	void display(QString const& name, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
-
 	inline uint32_t get_first_elt_of_branch(uint32_t branch_id) const
 	{
 		return _first_elts[branch_id];
@@ -60,9 +57,6 @@ public:
 
 	size_t browse_tree_bci(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 	size_t browse_tree_bci_sel(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
-
-	size_t browse_tree_bci_no_sse(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
-	size_t browse_tree_bci_old(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 
 private:
 	size_t browse_tree_bci_from_buffer(const PVRow* elts, PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;

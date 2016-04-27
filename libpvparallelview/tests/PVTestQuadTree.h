@@ -153,7 +153,6 @@ class PVQuadTree
 	constexpr static int task_depth_limit = 6;
 
 	// typedef PVCore::PVVector<PVQuadTreeEntry, tbb::scalable_allocator<PVQuadTreeEntry> > pvquadtree_entries_t;
-	// typedef PVCore::PVVector<PVQuadTreeEntry, 1000, PVCore::PVJEMallocAllocator<PVQuadTreeEntry> > pvquadtree_entries_t;
 	typedef PVCore::PVVector<PVQuadTreeEntry> pvquadtree_entries_t;
 
 public:

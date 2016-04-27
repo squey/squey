@@ -25,33 +25,31 @@ namespace PVParallelView {
 
 class PVBCIDrawingBackendCUDA;
 
+/**
+ * It is an image convertible to QImage with host/device management.
+ *
+ * Calls for data transfert have to be done manualy to make sure they are done
+ * the right time
+ * FIXME : Check this assert.
+ */
 class PVBCIBackendImageCUDA: public PVParallelView::PVBCIBackendImage
 {
 	friend class PVParallelView::PVBCIDrawingBackendCUDA;
 	friend class cuda_engine;
 	
-	typedef uint32_t pixel_t;
-	typedef uint32_t* pixel_pointer_t;
-	typedef uint32_t const* const_pixel_pointer_t;
+	using pixel_t = uint32_t;
 
-	typedef std::allocator<pixel_t> pixel_allocator;
-
-protected:
+public:
 	PVBCIBackendImageCUDA(const uint32_t width, uint8_t height_bits, const int cuda_device, cudaStream_t stream);
-
-public:
-	virtual ~PVBCIBackendImageCUDA();
-
-public:
-	virtual void resize_width(PVBCIBackendImage& dst, const uint32_t width) const override;
+	~PVBCIBackendImageCUDA() override;
 
 // AG: should be protected, but used directly in some benchmarking tests
 public:
-	pixel_pointer_t device_img() { return _device_img; }
-	pixel_pointer_t host_img() { return _host_img; }
+	pixel_t* device_img() { return _device_img; }
+	pixel_t* host_img() { return _host_img; }
 
-	const_pixel_pointer_t device_img() const { return _device_img; }
-	const_pixel_pointer_t host_img() const { return _host_img; }
+	pixel_t const* device_img() const { return _device_img; }
+	pixel_t const* host_img() const { return _host_img; }
 
 	inline void copy_device_to_host(cudaStream_t const& stream) const
 	{
@@ -93,64 +91,19 @@ private:
 	inline size_t size_org_pixel() const { return _org_width*PVBCIBackendImage::height(); }
 
 private:
-	pixel_pointer_t _host_img;
-	pixel_pointer_t _device_img;
-	uint32_t _org_width;
-	int _cuda_device;
+	pixel_t* _host_img; //!< Pointer to image representation on the host
+	pixel_t* _device_img; //!< Pointer to image representation on the device.
+	uint32_t _org_width; //!< Allocatad with size on the host.
+	int _cuda_device; //!< Id of the cuda device use for computation.
 };
 
 class PVBCIDrawingBackendCUDA: public PVBCIDrawingBackendAsync
 {
 	typedef PVBCIBackendImageCUDA backend_image_t;
 
-	// Stream Pool
-	class StreamPool
-	{
-		typedef tbb::concurrent_bounded_queue<cudaStream_t> queue_streams_t;
-	public:
-		~StreamPool()
-		{
-			cudaStream_t s;
-			while (_streams.try_pop(s)) {
-				inendi_verify_cuda(cudaStreamDestroy(s));
-			}
-		}
-
-	public:
-		void init(size_t n)
-		{
-			_streams.set_capacity(n);
-			cudaStream_t s;
-			for (size_t i = 0; i < n; i++) {
-				inendi_verify_cuda(cudaStreamCreate(&s));
-				_streams.try_push(s);
-			}
-		}
-
-		inline cudaStream_t get_available_stream()
-		{
-			cudaStream_t s;
-			_streams.pop(s);
-			return s;
-		}
-
-		inline void return_stream(cudaStream_t s)
-		{
-#ifdef NDEBUG
-			_streams.try_push(s);
-#else
-			assert(_streams.try_push(s));
-#endif
-		}
-
-	private:
-		queue_streams_t _streams;
-	};
-
 	struct cuda_job_data
 	{
 		std::function<void()> done_function;
-		//StreamPool* stream_pool;
 	};
 
 
@@ -158,27 +111,18 @@ class PVBCIDrawingBackendCUDA: public PVBCIDrawingBackendAsync
 	{
 		PVBCICodeBase* device_codes;
 		cudaStream_t stream;
-		//StreamPool streams;
 	};
-
-private:
-	typedef typename backend_image_t::pixel_t pixel_t;
-	typedef typename backend_image_t::pixel_pointer_t pixel_pointer_t;
 
 private:
 	PVBCIDrawingBackendCUDA();
 
 public:
 	virtual ~PVBCIDrawingBackendCUDA();
-
-public:
 	static PVBCIDrawingBackendCUDA& get();
-	static void release();
 
 public:
 	Flags flags() const { return Serial; }
-	PVBCIBackendImage_p create_image(size_t img_width, uint8_t height_bits) const override;
-	PVBCIBackendImage_p create_image_on_same_device(size_t img_width, uint8_t height_bits, backend_image_t const& ref) const;
+	PVBCIBackendImage_p create_image(size_t img_width, uint8_t height_bits) override;
 
 public:
 	PVBCICodeBase* allocate_bci(size_t n) override;
@@ -186,17 +130,17 @@ public:
 
 public:
 	void operator()(PVBCIBackendImage_p& dst_img, size_t x_start, size_t width, PVBCICodeBase* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false, std::function<void()> const& render_done = std::function<void()>()) override;
-	void wait_all();
+	void wait_all() const;
 
 private:
+	/**
+	 * Callback function called once image creation is done and back on computer.
+	 */
 	static void image_rendered_and_copied_callback(cudaStream_t stream, cudaError_t status, void* data);
 
 private:
-	mutable std::map<int, device_t> _devices;
-	mutable std::map<int, device_t>::const_iterator _last_image_dev;
-
-private:
-	static PVBCIDrawingBackendCUDA* _instance;
+	std::map<int, device_t> _devices; //!< List of available device from their ids
+	std::map<int, device_t>::const_iterator _last_image_dev; //!< Next device to use for computation.
 };
 
 }

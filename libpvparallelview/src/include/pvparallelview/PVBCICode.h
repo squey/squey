@@ -19,6 +19,16 @@ namespace PVParallelView {
 
 class PVBCICodeBase;
 
+/**
+ * It represents a line in a Zone of ParallelView
+ *
+ * * Line is:
+ *     * position (listing position)
+ *     * left plotting value
+ *     * right plotting value
+ *     * color
+ *     * direction (use?)
+ */
 template <size_t Bbits = NBITS_INDEX>
 struct PVBCICode
 {
@@ -26,10 +36,6 @@ struct PVBCICode
 	static_assert((Bbits >= 1) & (Bbits <= 11), "PVBCICode: Bbits must be between 1 and 11.");
 #endif
 
-	typedef PVBCICode<Bbits> DECLARE_ALIGN(16) ap_t;
-	typedef uint64_t int_type;
-
-	//typedef PVCore::PVAlignedAllocator<PVBCICode, 16> allocator;
 	typedef tbb::cache_aligned_allocator<PVBCICode> allocator;
 	union {
 		uint64_t int_v;
@@ -39,7 +45,7 @@ struct PVBCICode
 			uint32_t r: Bbits;
 			uint32_t color: 8;
 			uint32_t type: 2;
-		} s;
+		} __attribute((packed)) s;
 	};
 
 	typedef enum {

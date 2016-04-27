@@ -13,19 +13,20 @@
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage_types.h>
 
-#include <QImage>
-
 #include <functional>
 
 namespace PVParallelView {
 
 class PVBCICodeBase;
 
+/**
+ * Management class to create image representation and fill it.
+ */
 class PVBCIDrawingBackend
 {
 public:
-	typedef PVBCIBackendImage backend_image_t;
-	typedef PVBCIBackendImage_p backend_image_p_t;
+	using backend_image_t = PVBCIBackendImage;
+	using backend_image_p_t = PVBCIBackendImage_p;
 
 	typedef enum {
 		Serial = 1,
@@ -36,8 +37,8 @@ public:
 	virtual ~PVBCIDrawingBackend() { }
 
 public:
-	virtual backend_image_p_t create_image(size_t img_width, uint8_t height_bits) const = 0;
-	virtual backend_image_p_t create_image_on_same_device(size_t img_width, uint8_t height_bits, backend_image_t const& /*ref*/) const { return create_image(img_width, height_bits); }
+	virtual backend_image_p_t create_image(size_t img_width, uint8_t height_bits) = 0;
+	// TODO : flags is only Serial.
 	virtual Flags flags() const = 0;
 	virtual bool is_sync() const = 0;
 
@@ -48,30 +49,30 @@ public:
 public:
 	// If this backend is synchronous, render_done must be ignored.
 	virtual void operator()(PVBCIBackendImage_p& dst_img, size_t x_start, size_t width, PVBCICodeBase* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false, std::function<void()> const& render_done = std::function<void()>()) = 0;
-
-protected:
-/*
-	template <class PixelType>
-	static inline PixelType* get_image_pointer_for_x_position_helper(PixelType* dst_img, size_t x)
-	{
-		return dst_img+x*dst_img->height();
-	}
-	*/
 };
 
+/**
+ * Interface for synchronous backend
+ *
+ * TODO : Remove, it is not use anyway!!!
+ */
 class PVBCIDrawingBackendSync: public PVBCIDrawingBackend
 {
 public:
 	bool is_sync() const override { return true; }
 };
 
+/**
+ * Interface for asynchronous Drawing Backend.
+ */
 class PVBCIDrawingBackendAsync: public PVBCIDrawingBackend
 {
 public:
 	bool is_sync() const override { return false; }
 
 public:
-	virtual void wait_all() = 0;
+	// TODO : Remove this unused method.
+	virtual void wait_all() const = 0;
 };
 
 }

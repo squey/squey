@@ -8,7 +8,6 @@
 #ifndef ZOOMDLG_H
 #define ZOOMDLG_H
 
-#include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVLibView.h>

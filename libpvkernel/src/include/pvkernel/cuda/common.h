@@ -42,8 +42,6 @@
 
 namespace PVCuda {
 
-void init_cuda();
-void init_cuda_thread();
 void init_gl_cuda();
 int get_number_blocks();
 size_t get_shared_mem_size();

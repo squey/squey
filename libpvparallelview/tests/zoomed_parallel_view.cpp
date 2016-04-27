@@ -18,7 +18,6 @@
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
-#include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVZoomedParallelView.h>
@@ -30,33 +29,10 @@
 #include <QApplication>
 #include <QGraphicsView>
 
+const std::string filename = TEST_FOLDER "/picviz/heat_line.csv";
+const std::string fileformat = TEST_FOLDER "/picviz/heat_line.csv.format";
+
 /*****************************************************************************/
-
-#define CRAND() (127 + (random() & 0x7F))
-
-//#define CONE
-
-void init_rand_plotted(Inendi::PVPlotted::plotted_table_t& p,
-                       PVRow nrows, PVCol ncols)
-{
-	srand(0);
-	p.clear();
-	p.reserve(nrows*ncols);
-#ifdef CONE
-	for (PVRow i = 0; i < nrows; i++) {
-		p.push_back(0.8f + 0.2f * (i / (float)nrows));
-	}
-	for (PVRow i = 0; i < nrows; i++) {
-		p.push_back(0.9);
-	}
-#else
-	for (PVRow i = 0; i < nrows*ncols; i++) {
-		p.push_back((float)((double)(rand())/(double)RAND_MAX));
-	}
-#endif
-}
-
-#define RENDERING_BITS PARALLELVIEW_ZZT_BBITS
 
 int main(int argc, char** argv)
 {
@@ -69,7 +45,9 @@ int main(int argc, char** argv)
 
 	PVParallelView::common::RAII_cuda_init cuda_resources;
 
-	PVParallelView::PVLibView* plib_view = create_lib_view_from_args(argc, argv);
+	TestEnv env(filename, fileformat);
+
+	PVParallelView::PVLibView* plib_view = env.get_lib_view();
 	PVParallelView::PVZoomedParallelView* zpview = plib_view->create_zoomed_view(1);
 	zpview->resize(1024, 1024);
 	zpview->show();

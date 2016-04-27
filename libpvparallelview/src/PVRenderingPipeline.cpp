@@ -13,8 +13,6 @@
 
 #include <iostream>
 
-#include <mcheck.h>
-
 PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& backend):
 	_bci_buffers(backend),
 	_node_limiter(_g, BCI_BUFFERS_COUNT),
@@ -110,6 +108,7 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 			tbb::flow::unlimited,
 			[](PVZoneRendering_p zr)
 			{
+				// FIXME : It does nothing
 				zr->finished(zr);
 			});
 
@@ -161,13 +160,6 @@ PVParallelView::PVRenderingPipeline::~PVRenderingPipeline()
 	cancel_all();
 	wait_for_all();
 
-	for (Preprocessor* p: _preprocessors) {
-		delete p;
-	}
-	for (DirectInput* di: _direct_inputs) {
-		delete di;
-	}
-
 	delete _cp_postlimiter;
 	delete _cp_postcomputebci;
 
@@ -189,51 +181,20 @@ void PVParallelView::PVRenderingPipeline::wait_for_all()
 	tbb_graph().wait_for_all();
 }
 
-PVParallelView::PVZonesProcessor PVParallelView::PVRenderingPipeline::declare_processor(preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones)
+PVParallelView::PVZonesProcessor PVParallelView::PVRenderingPipeline::declare_processor(Preprocessor::preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones)
 {
-	//Preprocessor* pp = new Preprocessor(tbb_graph(), _node_buffer, *_node_finish, f, colors, nzones);
-	Preprocessor* pp = new Preprocessor(tbb_graph(), *_workflow_router, *_node_finish, f, colors, nzones);
-	_preprocessors.push_back(pp);
-	return PVZonesProcessor(pp->input_port(), &pp->router);
-}
-
-PVParallelView::PVZonesProcessor PVParallelView::PVRenderingPipeline::declare_processor(PVCore::PVHSVColor const* colors)
-{
-	//DirectInput* di = new DirectInput(tbb_graph(), _node_buffer, *_node_finish, colors);
-	DirectInput* di = new DirectInput(tbb_graph(), *_workflow_router, *_node_finish, colors);
-	_direct_inputs.push_back(di);
-	return PVZonesProcessor(di->node_process);
+	_preprocessors.emplace_back(new Preprocessor(tbb_graph(), *_workflow_router, *_node_finish, f, colors, nzones));
+	return PVZonesProcessor(_preprocessors.back()->input_port(), _preprocessors.back()->get_router());
 }
 
 // Preprocess class
 PVParallelView::PVRenderingPipeline::Preprocessor::Preprocessor(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones):
 	router(nzones, colors),
 	node_process(g, 24, [=](PVZoneRendering_p zr) { f(zr->get_zone_id()); return zr; }),
-	node_or(g),
 	node_router(g, tbb::flow::serial, router)
 {
-	tbb::flow::make_edge(node_or, node_router);
 	tbb::flow::make_edge(tbb::flow::output_port<PVRenderingPipelinePreprocessRouter::OutIdxPreprocess>(node_router), node_process);
 	tbb::flow::make_edge(tbb::flow::output_port<PVRenderingPipelinePreprocessRouter::OutIdxContinue>(node_router), node_in_job);
 	tbb::flow::make_edge(tbb::flow::output_port<PVRenderingPipelinePreprocessRouter::OutIdxCancel>(node_router), node_cancel_job);
-	tbb::flow::make_edge(node_process, tbb::flow::input_port<PVRenderingPipelinePreprocessRouter::InputIdxPostProcess>(node_or));
+	tbb::flow::make_edge(node_process, node_router);
 }
-
-// DirectInput class
-PVParallelView::PVRenderingPipeline::DirectInput::DirectInput(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, PVCore::PVHSVColor const* colors_):
-	node_process(g, tbb::flow::unlimited,
-		[=](PVZoneRendering_p zr, direct_process_type::output_ports_type& op)
-		{
-			if (zr->should_cancel()) {
-				std::get<1>(op).try_put(zr);
-			}
-			else {
-				std::get<0>(op).try_put(ZoneRenderingWithColors(zr, colors_));
-			}
-		})
-{
-	tbb::flow::make_edge(tbb::flow::output_port<0>(node_process), node_in_job);
-	tbb::flow::make_edge(tbb::flow::output_port<1>(node_process), node_cancel_job);
-}
-
-// The 8AM commit

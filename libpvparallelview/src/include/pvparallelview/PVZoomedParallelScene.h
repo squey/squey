@@ -362,7 +362,7 @@ private:
 	 *
 	 * @param z the zone
 	 */
-	inline PVZoomedZoneTree const& get_zztree(PVZoneID const z) { return _zm.get_zone_tree<PVZoomedZoneTree>(z); }
+	inline PVZoomedZoneTree const& get_zztree(PVZoneID const z) { return _zm.get_zoom_zone_tree(z); }
 
 	/**
 	 * Connect in Qt's sense the slot \slots to the PVZoneRendering \zr.

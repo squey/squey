@@ -15,33 +15,27 @@
 
 #include "common.h"
 
-#include <stdlib.h>
 
-#define FILENAME "zoomed_zone_tree.dump"
+using zzt_t = PVParallelView::PVZoomedZoneTree;
 
-typedef PVParallelView::PVZoomedZoneTree zzt_t;
+const std::string dump_file = "/tmp/zoomed_zone_tree.dump";
+const std::string filename = TEST_FOLDER "/picviz/heat_line.csv";
+const std::string fileformat = TEST_FOLDER "/picviz/heat_line.csv.format";
 
 void clean()
 {
-	remove(FILENAME);
+	remove(dump_file.c_str());
 }
 
-int main(int argc, char **argv)
+int main()
 {
-	if ((argc != 2) && (argc != 4)) {
-		usage(argv[0]);
-		return 1;
-	}
-
 	atexit(clean);
 
 	PVParallelView::common::RAII_cuda_init cuda_resources;
 
-	PVParallelView::PVLibView* pv = create_lib_view_from_args(argc, argv);
+	TestEnv env(filename, fileformat);
 
-	if (pv == nullptr) {
-		return 1;
-	}
+	PVParallelView::PVLibView* pv = env.get_lib_view();
 
 	PVParallelView::PVZonesManager &zm = pv->get_zones_manager();
 
@@ -50,16 +44,16 @@ int main(int argc, char **argv)
 
 		std::cout << "  initialization, it can take a while" << std::endl;
 		zm.request_zoomed_zone(zid);
-		zzt_t &zzt = zm.get_zone_tree<zzt_t>(zid);
+		zzt_t &zzt = zm.get_zoom_zone_tree(zid);
 		std::cout << "  done" << std::endl;
 
 		std::cout << "  dumping" << std::endl;
-		bool ret = zzt.dump_to_file(FILENAME);
+		bool ret = zzt.dump_to_file(dump_file.c_str());
 		PV_VALID(ret, true);
 		std::cout << "  done" << std::endl;
 
 		std::cout << "  exhuming" << std::endl;
-		zzt_t *zzt2 = zzt_t::load_from_file(FILENAME);
+		zzt_t *zzt2 = zzt_t::load_from_file(dump_file.c_str());
 		PV_ASSERT_VALID(zzt2 != nullptr);
 		std::cout << "  done" << std::endl;
 

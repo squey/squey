@@ -17,13 +17,13 @@
 
 #include <tbb/atomic.h>
 
-#include <boost/utility.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 
 #include <tbb/spin_rw_mutex.h>
 
 #include <functional>
+#include <atomic>
 
 namespace PVCore {
 class PVHSVColor;
@@ -37,30 +37,19 @@ class PVZonesProcessor;
 template <size_t Bbits>
 class PVBCICode;
 
-class PVZoneRendering: boost::noncopyable
+/**
+ * It looks like this class is a job scheduler for multiple zone rendering on the same ZoneId
+ * It call a QtSlot at the end of the job.
+ */
+class PVZoneRendering
 {
 	friend class PVRenderingPipeline;
 
 public:
 	typedef PVZoneRendering_p p_type;
-	typedef std::function<void(PVZoneRendering&)> on_success_function_type;
 
 private:
-	struct cancel_state
-	{   
-		union {
-			struct {
-				uint8_t should_cancel: 1;
-			} s;
-			uint8_t v;
-		};   
-
-		bool should_cancel() const { return s.should_cancel; }
-		//bool delete_on_finish() const { return s.delete_on_finish; }
-
-		static cancel_state value(bool cancel) { cancel_state ret; ret.v = cancel; return ret; } 
-		//static cancel_state value(bool cancel, bool del) { cancel_state ret; ret.v = (cancel | (del<<1)); return ret; }
-	};
+	using cancel_state = bool;
 
 	struct next_job
 	{
@@ -78,17 +67,19 @@ private:
 public:
 	PVZoneRendering(PVZoneID zone_id):
 		_zone_id(zone_id),
+		_should_cancel(false),
+		_qobject_finished_success(nullptr),
 		_finished(false)
 	{
-		init();
 	}
 
-	PVZoneRendering():
-		_zone_id(PVZONEID_INVALID),
-		_finished(false)
-	{
-		init();
-	}
+	PVZoneRendering(PVZoneRendering const&) = delete;
+	PVZoneRendering(PVZoneRendering &&) = delete;
+	PVZoneRendering& operator=(PVZoneRendering const&) = delete;
+	PVZoneRendering& operator=(PVZoneRendering &&) = delete;
+
+	PVZoneRendering(): PVZoneRendering(PVZONEID_INVALID)
+	{}
 
 	virtual ~PVZoneRendering()
 	{
@@ -97,22 +88,13 @@ public:
 
 public:
 	inline PVZoneID get_zone_id() const { return _zone_id; }
-	inline PVZoneID zid() const { return _zone_id; }
 	inline void set_zone_id(PVZoneID const zone_id) { assert(_finished); _zone_id = zone_id; }
 
-	inline bool should_cancel() const
-	{
-		return ((cancel_state)_cancel_state).should_cancel();
-	}
-	inline bool valid() const { return _zone_id != (PVZoneID) PVZONEID_INVALID; }
-
-	virtual bool cancel()
-	{
-		// Returns true if it was previously canceled
-		return _cancel_state.fetch_and_store(cancel_state::value(true)).should_cancel();
-	}
-
+	virtual bool cancel() { return _should_cancel.fetch_and_store(true); }
+	inline bool should_cancel() const { return _should_cancel; }
 	void cancel_and_add_job(PVZonesProcessor& zp, p_type const& zr);
+
+	inline bool valid() const { return _zone_id != (PVZoneID) PVZONEID_INVALID; }
 
 	inline void set_render_finished_slot(QObject* receiver, const char* slot) { _qobject_finished_success = receiver; _qobject_slot = slot; }
 
@@ -125,34 +107,24 @@ public:
 		}
 	}
 
-	void reset()
-	{
-		_finished = false;
-		_cancel_state = cancel_state::value(false);
-		assert(_job_after_canceled.zp == nullptr);
-	}
-
-	bool finished() const;
+	bool finished() const { return _finished; }
 
 protected:
 	void finished(p_type const& this_sp);
 
 private:
-	void init();
-
-private:
 	PVZoneID _zone_id;
 	
-	tbb::atomic<cancel_state> _cancel_state;
+	tbb::atomic<cancel_state> _should_cancel;
 
 	// Qt signalisation
 	QObject* _qobject_finished_success;
 	const char* _qobject_slot;
 
 	// Synchronisation
-	boost::condition_variable _wait_cond;
 	mutable boost::mutex _wait_mut;
-	bool _finished;
+	boost::condition_variable _wait_cond;
+	std::atomic<bool> _finished;
 
 	// Next job when this one has been canceled
 	next_job _job_after_canceled;

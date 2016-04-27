@@ -2,14 +2,13 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2012-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #ifndef PVPARALLELVIEW_PBBCIBUFFERS_H
 #define PVPARALLELVIEW_PBBCIBUFFERS_H
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/cuda/common.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
@@ -31,23 +30,22 @@ public:
 	static void free(bci_base_type* codes, PVBCIDrawingBackend& backend);
 };
 
+/**
+ * Manager for BCI Buffers.
+ *
+ * It is a pool of BCI buffers that can be take and return.
+ *
+ * Depending on initialisation, buffer will be allocated using default allocator or backend allocator.
+ *
+ * A buffer is big enought to contains data for a full zone.
+ */
 template <size_t N>
 class PVBCIBuffers: private PVBCIBuffersAlloc
 {
 	static_assert(PARALLELVIEW_MAX_BCI_CODES % 16 == 0, "PARALLELVIEW_MAX_BCI_CODES must be a multiple of 16.");
 	static_assert(N >= 2, "The number of BCI buffers must be >= 2.");
 
-	typedef PVBCICode<> bci_type;
-
 public:
-	PVBCIBuffers():
-		_backend(nullptr)
-	{
-		_codes = (bci_base_type*) PVBCICode<>::allocate_codes(PARALLELVIEW_MAX_BCI_CODES*N);
-		_org_codes = _codes;
-		init();
-	}
-
 	PVBCIBuffers(PVBCIDrawingBackend& backend):
 		_backend(&backend)
 	{
@@ -62,18 +60,12 @@ public:
 			_codes = (bci_base_type*) ((((uintptr_t)_org_codes + 15)/16)*16);
 		}
 
-		init();
+		for (size_t i = 0; i < N; i++) {
+			_free_bufs.push(get_buffer_n(i));
+		}
 	}
 
-	~PVBCIBuffers()
-	{
-		if (_backend) {
-			free(_org_codes, *_backend);
-		}
-		else {
-			PVBCICode<>::free_codes((PVBCICode<>*)_codes);
-		}
-	}
+	~PVBCIBuffers() { free(_org_codes, *_backend); }
 
 public:
 	bci_base_type* get_available_buffer()
@@ -96,14 +88,6 @@ public:
 	}
 
 private:
-	void init()
-	{
-		//_free_bufs.set_capacity(N);
-		for (size_t i = 0; i < N; i++) {
-			_free_bufs.push(get_buffer_n(i));
-		}
-	}
-
 	bci_base_type* get_buffer_n(size_t i)
 	{
 		assert(i <= N);

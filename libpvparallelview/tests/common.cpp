@@ -174,28 +174,3 @@ bool create_plotted_table_from_args(Inendi::PVPlotted::uint_plotted_table_t &nor
 
 	return true;
 }
-
-PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
-{
-	PVCol ncols;
-	PVRow nrows;
-	
-	init_env();
-	Inendi::PVPlotted::uint_plotted_table_t &norm_plotted = g_norm_plotted;
-	Inendi::common::load_mapping_filters();
-	Inendi::common::load_plotting_filters();
-
-	if (!create_plotted_table_from_args(norm_plotted, nrows, ncols, argc, argv)) {
-		return NULL;
-	}
-
-	//PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
-
-	g_fake_view.reset(new Inendi::PVView());
-	g_fake_view->reset_layers();
-	g_fake_view->set_fake_axes_comb(ncols);
-
-	PVParallelView::PVLibView* plib_view = PVParallelView::common::get_lib_view(*g_fake_view, norm_plotted, nrows, ncols);
-
-	return plib_view;
-}

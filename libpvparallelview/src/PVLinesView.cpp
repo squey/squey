@@ -136,7 +136,7 @@ void PVParallelView::PVLinesView::do_translate(PVZoneID previous_first_zone, uin
 
 		const PVZoneID nimgs = get_number_of_visible_zones();
 		PVZoneID first_z_to_render = _first_zone + nimgs - n;
-		const PVZoneID last_z = inendi_min(nimgs+_first_zone, get_number_of_managed_zones());
+		const PVZoneID last_z = std::min(nimgs+_first_zone, get_number_of_managed_zones());
 
 		// If a rendering job is provided, tell him that we virtually have rendered from _first_zone to first_z_to_render images
 		/*if (job) {
@@ -159,7 +159,7 @@ void PVParallelView::PVLinesView::do_translate(PVZoneID previous_first_zone, uin
 		const PVZoneID n = unsigned_translation_offset;
 		right_rotate_single_zone_images(unsigned_translation_offset);
 		PVZoneID first_z_to_render = _first_zone;
-		const PVZoneID last_z = inendi_min(_first_zone + n, get_number_of_managed_zones());
+		const PVZoneID last_z = std::min(_first_zone + n, get_number_of_managed_zones());
 
 		// If a rendering job is provided, tell him that we virtually have rendered from last_z to get_last_visible_zone_index()
 		/*if (job) {
@@ -457,7 +457,7 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(PVZoneID zone_id, 
 	PVZoneRenderingBCI_p<PARALLELVIEW_ZT_BBITS> zr(new PVZoneRenderingBCI<PARALLELVIEW_ZT_BBITS>(zone_id,
 		[&](PVZoneID zone_id, PVCore::PVHSVColor const* colors, PVBCICode<PARALLELVIEW_ZT_BBITS>* codes)
 		{
-			return this->get_zones_manager().get_zone_tree<PVZoneTree>(zone_id).browse_tree_bci(colors, codes);
+			return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci(colors, codes);
 		},
 		single_zone_images.bg,
 		0,
@@ -496,7 +496,7 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(PVZoneID zone_id,
 	PVZoneRenderingBCI_p<PARALLELVIEW_ZT_BBITS> zr(new PVZoneRenderingBCI<PARALLELVIEW_ZT_BBITS>(zone_id,
 		[&](PVZoneID zone_id, PVCore::PVHSVColor const* colors, PVBCICode<PARALLELVIEW_ZT_BBITS>* codes)
 		{
-			return this->get_zones_manager().get_zone_tree<PVZoneTree>(zone_id).browse_tree_bci_sel(colors, codes);
+			return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci_sel(colors, codes);
 		},
 		single_zone_images.sel,
 		0,
@@ -537,7 +537,7 @@ void PVParallelView::PVLinesView::right_rotate_single_zone_images(PVZoneID s)
  *****************************************************************************/
 void PVParallelView::PVLinesView::set_nb_drawable_zones(PVZoneID nb_zones)
 {
-	nb_zones = inendi_min(nb_zones, MaxDrawnZones);
+	nb_zones = std::min(nb_zones, (PVZoneID) MaxDrawnZones);
 	PVZoneID old_nzones = get_number_of_visible_zones();
 	if (nb_zones == old_nzones || nb_zones <= 0) {
 		// Le changement, c'est toujours pas maintenant.

@@ -11,11 +11,11 @@
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/cuda/bci_cuda.h>
 
-#include <npp.h> // NVIDIA's NPP library, for image resizing
-
-#include <iostream>
-
-PVParallelView::PVBCIDrawingBackendCUDA* PVParallelView::PVBCIDrawingBackendCUDA::_instance = nullptr;
+/******************************************************************************
+ *
+ * cuda_kernel
+ *
+ *****************************************************************************/
 
 template <size_t Bbits>
 struct cuda_kernel;
@@ -45,6 +45,12 @@ struct cuda_kernel<11>
 	}
 };
 
+/******************************************************************************
+ *
+ * BackendImageCUDA
+ *
+ *****************************************************************************/
+
 PVParallelView::PVBCIBackendImageCUDA::PVBCIBackendImageCUDA(const uint32_t width, uint8_t height_bits, const int cuda_device, cudaStream_t stream):
 	PVBCIBackendImage(width, height_bits),
 	_cuda_device(cuda_device)
@@ -60,47 +66,18 @@ PVParallelView::PVBCIBackendImageCUDA::PVBCIBackendImageCUDA(const uint32_t widt
 
 PVParallelView::PVBCIBackendImageCUDA::~PVBCIBackendImageCUDA()
 {
-	//size_t simg = PVBCIBackendImage::size_pixel();
-	//pixel_allocator().deallocate(_host_img, simg);
 	inendi_verify_cuda(cudaFreeHost(_host_img));
 	inendi_verify_cuda(cudaFree(_device_img));
 }
 
-void PVParallelView::PVBCIBackendImageCUDA::resize_width(PVBCIBackendImage& dst, const uint32_t width) const
-{
-	assert(org_width() % 4 == 0);
-
-	PVBCIBackendImageCUDA* dst_img = static_cast<PVBCIBackendImageCUDA*>(&dst);
-	assert(dst_img->org_width() % 4 == 0);
-
-	set_current_device();
-
-	cudaEvent_t end;
-	cudaEventCreate(&end);
-
-	// NPP resize method
-	NppiRect rorg;
-	rorg.x = 0; rorg.y = 0;
-	rorg.width = PVBCIBackendImage::width(); rorg.height = PVBCIBackendImage::height();
-	NppiSize sorg, sdst;
-	sorg.width = PVBCIBackendImage::width(); sorg.height = PVBCIBackendImage::height();
-	sdst.width = width; sdst.height = sorg.height;
-	nppiResize_8u_C4R((const Npp8u*) device_img(), sorg, org_width()*sizeof(pixel_t), rorg, (Npp8u*) dst_img->device_img(), dst_img->org_width()*sizeof(pixel_t), sdst, (double)width/(double)sorg.width, 1.0, NPPI_INTER_NN);
-
-	// wait for the end
-	cudaEventRecord(end);
-	cudaEventSynchronize(end);
-	cudaEventDestroy(end);
-
-	dst_img->set_width(width);
-	dst_img->set_current_device();
-	dst_img->copy_device_to_host();
-}
+/******************************************************************************
+ *
+ * DrawingBackendCUDA
+ *
+ *****************************************************************************/
 
 PVParallelView::PVBCIDrawingBackendCUDA::PVBCIDrawingBackendCUDA()
 {
-	PVCuda::init_cuda();
-
 	// List all usable cuda engines and create stream and appropriate structure
 	std::vector<int> list_ids;
 	PVCuda::visit_usable_cuda_devices([&](int id)
@@ -121,89 +98,51 @@ PVParallelView::PVBCIDrawingBackendCUDA::PVBCIDrawingBackendCUDA()
 
 	// Enable full P2P access!
 	if (list_ids.size() > 1) {
-		std::sort(list_ids.begin(), list_ids.end());
-		do {
-			cudaSetDevice(*list_ids.begin());
-			cudaDeviceEnablePeerAccess(*(list_ids.begin()+1), 0);
+		for(size_t i=0; i<list_ids.size(); i++) {
+			for(size_t j=i+1; j<list_ids.size(); j++) {
+				cudaSetDevice(i);
+				cudaDeviceEnablePeerAccess(j, 0);
+				cudaSetDevice(j);
+				cudaDeviceEnablePeerAccess(i, 0);
+			}
 		}
-		while (std::next_permutation(list_ids.begin(), list_ids.end()));
 	}
-
-
-	/*
-	// Init stream pools
-	const size_t ndevs = _devices.size();
-	const size_t streams_per_dev = (BCI_BUFFERS_COUNT+ndevs-1)/ndevs;
-
-	decltype(_devices)::iterator it;
-	for (it = _devices.begin(); it != _devices.end(); it++) {
-		it->second.streams.init(streams_per_dev);
-	}*/
 
 	_last_image_dev = _devices.begin();
 }
 
 PVParallelView::PVBCIDrawingBackendCUDA::~PVBCIDrawingBackendCUDA()
 {
-	decltype(_devices)::const_iterator it;
-	for (it = _devices.begin(); it != _devices.end(); it++) {
-		cudaSetDevice(it->first);
-		inendi_verify_cuda(cudaFree(it->second.device_codes));
-		inendi_verify_cuda(cudaStreamDestroy(it->second.stream));
+	for (auto& device: _devices) {
+		cudaSetDevice(device.first);
+		inendi_verify_cuda(cudaFree(device.second.device_codes));
+		inendi_verify_cuda(cudaStreamDestroy(device.second.stream));
 	}
 }
 
 PVParallelView::PVBCIDrawingBackendCUDA& PVParallelView::PVBCIDrawingBackendCUDA::get()
 {
-	if (_instance == nullptr) {
-		_instance = new PVBCIDrawingBackendCUDA();
-	}
-	return *_instance;
+	static PVBCIDrawingBackendCUDA backend;
+	return backend;
 }
 
-void PVParallelView::PVBCIDrawingBackendCUDA::release()
-{
-	if (_instance) {
-		delete _instance;
-	}
-}
-
-PVParallelView::PVBCIBackendImage_p PVParallelView::PVBCIDrawingBackendCUDA::create_image(size_t img_width, uint8_t height_bits) const
+PVParallelView::PVBCIBackendImage_p PVParallelView::PVBCIDrawingBackendCUDA::create_image(size_t img_width, uint8_t height_bits)
 {
 	assert(_devices.size() >= 1);
 	if (_last_image_dev == _devices.end()) {
 		_last_image_dev = _devices.begin();
 	}
 
+	// Create image on a device in a round robin way
 	int dev = _last_image_dev->first;
 	PVBCIBackendImage_p ret(new PVBCIBackendImageCUDA(img_width, height_bits, dev, _last_image_dev->second.stream));
 	++_last_image_dev;
 	return ret;
 }
 
-PVParallelView::PVBCIBackendImage_p PVParallelView::PVBCIDrawingBackendCUDA::create_image_on_same_device(size_t img_width, uint8_t height_bits, backend_image_t const& ref) const
-{
-	assert(_devices.size() >= 1);
-
-	PVBCIBackendImageCUDA const* ref_cuda = dynamic_cast<PVBCIBackendImageCUDA const*>(&ref);
-	int dev;
-	if (ref_cuda) {
-		dev = ref_cuda->get_cuda_device();
-	}
-	else {
-		if (_last_image_dev == _devices.end()) {
-			_last_image_dev = _devices.begin();
-		}
-		dev = _last_image_dev->first;
-		++_last_image_dev;
-	}
-	PVBCIBackendImage_p ret(new PVBCIBackendImageCUDA(img_width, height_bits, dev, _devices[dev].stream));
-	return ret;
-}
-
 void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage_p& dst_img, size_t x_start, size_t width, PVBCICodeBase* codes, size_t n, const float zoom_y, bool reverse, std::function<void()> const& render_done)
 {
-#ifdef NBDEUG
+#ifdef NDEBUG
 	backend_image_t* dst_img_cuda = static_cast<backend_image_t*>(dst_img.get());
 #else
 	backend_image_t* dst_img_cuda = dynamic_cast<backend_image_t*>(dst_img.get());
@@ -243,9 +182,6 @@ void PVParallelView::PVBCIDrawingBackendCUDA::image_rendered_and_copied_callback
 
 	cuda_job_data* data = reinterpret_cast<cuda_job_data*>(data_);
 	
-	// Get back stream
-	//data->stream_pool->return_stream(stream);
-
 	// Call termination function
 	if (data->done_function) {
 		(data->done_function)();
@@ -254,12 +190,11 @@ void PVParallelView::PVBCIDrawingBackendCUDA::image_rendered_and_copied_callback
 	delete data;
 }
 
-void PVParallelView::PVBCIDrawingBackendCUDA::wait_all()
+void PVParallelView::PVBCIDrawingBackendCUDA::wait_all() const
 {
 	// Wait all GPUs!
-	decltype(_devices)::const_iterator it;
-	for (it = _devices.begin(); it != _devices.end(); it++) {
-		cudaSetDevice(it->first);
+	for (auto& device: _devices) {
+		cudaSetDevice(device.first);
 		cudaDeviceSynchronize();
 	}
 }

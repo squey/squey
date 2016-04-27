@@ -37,10 +37,13 @@ class PVLinesView
 	constexpr static size_t bbits = PARALLELVIEW_ZT_BBITS;
 
 private:
+	/**
+	 * It keep BCI and Image information for a given zone.
+	 */
 	struct SingleZoneImages
 	{
-		PVBCIBackendImage_p sel;
-		PVBCIBackendImage_p bg;
+		std::shared_ptr<PVBCIBackendImage> sel;
+		std::shared_ptr<PVBCIBackendImage> bg;
 
 		PVZoneRenderingBCIBase_p last_zr_sel;
 		PVZoneRenderingBCIBase_p last_zr_bg;
@@ -68,6 +71,9 @@ private:
 	};
 
 public:
+	/**
+	 * It keeps zoom information for a given zone.
+	 */
 	struct ZoneWidthWithZoomLevel
 	{
 		constexpr static int default_base_width = PVParallelView::ZoneBaseWidth;
@@ -101,8 +107,8 @@ public:
 	};
 
 public:
-	typedef std::vector<SingleZoneImages> list_zone_images_t;
-	typedef std::vector<ZoneWidthWithZoomLevel> list_zone_width_with_zoom_level_t;
+	using list_zone_images_t = std::vector<SingleZoneImages>;
+	using list_zone_width_with_zoom_level_t = std::vector<ZoneWidthWithZoomLevel>;
 
 public:
 	PVLinesView(PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg, QObject* img_update_receiver = NULL, uint32_t zone_width = PVParallelView::ZoneMaxWidth);
@@ -116,7 +122,7 @@ public:
 	void decrease_global_zoom_level();
 
 	inline PVZoneID get_first_visible_zone_index() const { return _first_zone; }
-	inline PVZoneID get_last_visible_zone_index() const { return inendi_min((PVZoneID)(_first_zone + get_number_of_visible_zones()-1), get_number_of_managed_zones()-1); }
+	inline PVZoneID get_last_visible_zone_index() const { return std::min((PVZoneID)(_first_zone + get_number_of_visible_zones()-1), get_number_of_managed_zones()-1); }
 	uint32_t get_left_border_position_of_zone_in_scene(PVZoneID zone_id) const;
 
 	PVZoneID get_number_of_managed_zones() const;

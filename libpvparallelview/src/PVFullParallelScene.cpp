@@ -24,7 +24,6 @@
 #include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVSlidersGroup.h>
 #include <pvparallelview/PVZonesManager.h>
-#include <pvparallelview/PVZoneRenderingBCI.h>
 #include <pvparallelview/PVSelectionGenerator.h>
 
 #include <tbb/task.h>
@@ -108,8 +107,6 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 
 	connect(_full_parallel_view->horizontalScrollBar(), SIGNAL(sliderPressed()), this, SLOT(scrollbar_pressed_Slot()));
 	connect(_full_parallel_view->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(scrollbar_released_Slot()));
-
-	PVParallelView::PVLinesView::list_zone_images_t images = _lines_view.get_zones_images();
 
 	// Add ALL axes
 	const PVZoneID nzones = _lines_view.get_number_of_managed_zones()+1;

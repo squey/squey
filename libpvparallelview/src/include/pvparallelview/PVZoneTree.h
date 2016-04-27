@@ -41,7 +41,6 @@ namespace __impl {
 class TBBMergeTreesTask;
 class TBBCreateTreeTask;
 class TBBComputeAllocSizeAndFirstElts;
-class TBBSelFilter;
 class TBBSelFilterMaxCount;
 }
 
@@ -52,7 +51,6 @@ class PVZoneTree: public PVZoneTreeBase
 	friend class __impl::TBBCreateTreeTask;
 	friend class __impl::TBBMergeTreesTask;
 	friend class __impl::TBBComputeAllocSizeAndFirstElts;
-	friend class __impl::TBBSelFilter;
 	friend class __impl::TBBSelFilterMaxCount;
 
 public:
@@ -73,7 +71,6 @@ public:
 		friend class __impl::TBBCreateTreeTask;
 		friend class __impl::TBBMergeTreesTask;
 		friend class __impl::TBBComputeAllocSizeAndFirstElts;
-		friend class __impl::TBBSelFilter;
 
 		ProcessData(uint32_t n = PVCore::PVHardwareConcurrency::get_physical_core_number()) : ntasks(n)
 		{
@@ -261,23 +258,17 @@ public:
 	//inline uint32_t get_right_axis_count(const uint32_t branch_r) const { return get_right_axis_count_seq(branch_r); }
 
 public:
-	void process_omp_sse_treeb(PVZoneProcessing const& zp);
 	inline void process_tbb_sse_treeb(PVZoneProcessing const& zp) { ProcessData pdata; process_tbb_sse_treeb(zp, pdata); }
 	void process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata);
 	void process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp);
 
-	void filter_by_sel_omp_treeb(Inendi::PVSelection const& sel);
 	void filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
 	void filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
-	void filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Inendi::PVSelection& sel);
 
 	uint32_t get_right_axis_count_seq(const uint32_t branch_r) const;
 
 	PVBranch& get_branch(uint32_t branch_id) { return _treeb[branch_id]; }
 	PVBranch const& get_branch(uint32_t branch_id) const { return _treeb[branch_id]; }
-
-private:
-	void get_float_pts(pts_t& pts, Inendi::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
 
 protected:
 	PVBranch _treeb[NBUCKETS];

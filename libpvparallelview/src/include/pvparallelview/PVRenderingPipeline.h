@@ -59,32 +59,41 @@ class PVRenderingPipeline: boost::noncopyable
 	typedef tbb::flow::receiver<ZoneRenderingWithColors> input_port_zrc_type;
 	typedef tbb::flow::receiver<PVZoneRendering_p> input_port_cancel_type;
 
-	// Process nodes structures
-	struct Preprocessor: boost::noncopyable
+	/**
+	 * Preprocessing before entering the pipeline.
+	 */
+	class Preprocessor: boost::noncopyable
 	{
-		typedef std::function<void(PVZoneID)> preprocess_func_type;
+		public:
+			/**
+			 * Type of the preprocessing function to apply for a given ZoneID
+			 */
+			using preprocess_func_type = std::function<void(PVZoneID)>;
 
-		typedef PVRenderingPipelinePreprocessRouter::process_or_type process_or_type;
-		typedef PVRenderingPipelinePreprocessRouter::multinode_router multinode_router;
+		private:
+			using multinode_router = PVRenderingPipelinePreprocessRouter::multinode_router;
+			using input_port_type = tbb::flow::receiver<PVZoneRendering_p>;
 
-		typedef tbb::flow::receiver<PVZoneRendering_p> input_port_type;
+		public:
+			/**
+			 * Build a TBB pipeline to apply preprocessing.
+			 */
+			Preprocessor(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones);
 
-		Preprocessor(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones);
+			/**
+			 * Input where we should push "token ZoneRedering"
+			 */
+			inline input_port_type& input_port() { return node_router; }
 
-		inline input_port_type& input_port() { return tbb::flow::input_port<PVRenderingPipelinePreprocessRouter::InputIdxDirect>(node_or); }
+			/**
+			 * Routing function to update state defining if preprocessing should be recomputed.
+			 */
+			PVRenderingPipelinePreprocessRouter& get_router() { return router; }
 
-		PVRenderingPipelinePreprocessRouter router;
-		tbb::flow::function_node<PVZoneRendering_p, PVZoneRendering_p> node_process;
-		process_or_type node_or;
-		multinode_router node_router;
-	};
-
-	struct DirectInput: boost::noncopyable
-	{
-		typedef tbb::flow::multifunction_node<PVZoneRendering_p, std::tuple<ZoneRenderingWithColors, PVZoneRendering_p>> direct_process_type;
-		DirectInput(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, PVCore::PVHSVColor const* colors_);
-
-		direct_process_type node_process;
+		private:
+			PVRenderingPipelinePreprocessRouter router; //!< Routing functor on preprocess node or continue pipeline.
+			tbb::flow::function_node<PVZoneRendering_p, PVZoneRendering_p> node_process; //!< Preprocessing function node.
+			multinode_router node_router; //!< routing node based on router.
 	};
 
 	// Cancellation points types
@@ -99,40 +108,23 @@ class PVRenderingPipeline: boost::noncopyable
 	typedef tbb::flow::multifunction_node<ZoneRenderingWithBCI, std::tuple<ZoneRenderingWithBCI, ZoneRenderingWithBCI> > cp_postcomputebci_type;
 	typedef tbb::flow::multifunction_node<ZoneRenderingWithColors, std::tuple<ZoneRenderingWithColors, ZoneRenderingWithColors> > workflow_router_type;
 
-	friend class Preprocess;
-	friend class DirectInput;
-
-public:
-	typedef PVRenderingPipelinePreprocessRouter::ZoneState ZoneState;
-	typedef Preprocessor::preprocess_func_type preprocess_func_type;
-
 public:
 	PVRenderingPipeline(PVBCIDrawingBackend& bci_backend);
 	~PVRenderingPipeline();
 
 public:
-	PVZonesProcessor declare_processor(preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones);
-	PVZonesProcessor declare_processor(PVCore::PVHSVColor const* colors);
+	PVZonesProcessor declare_processor(Preprocessor::preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones);
 
 	void cancel_all();
 	void wait_for_all();
-
-public:
-	/*
-	template <size_t bbits>
-	static void* allocate_zr()
-	{
-		return malloc(sizeof(PVZoneRendering<bbits>));
-	}
-	static void free_zr(PVZoneRenderingBase_p zr);*/
 
 private:
 	inline tbb::flow::graph& tbb_graph() { return _g; }
 	inline tbb::flow::graph const& tbb_graph() const { return _g; }
 
 private:
-	std::vector<Preprocessor*> _preprocessors;
-	std::vector<DirectInput*> _direct_inputs;
+	// FIXME : Unique ptr is use as move constructor is disabled
+	std::vector<std::unique_ptr<Preprocessor>> _preprocessors;
 	PVBCIBuffers<BCI_BUFFERS_COUNT> _bci_buffers;
 
 private:
