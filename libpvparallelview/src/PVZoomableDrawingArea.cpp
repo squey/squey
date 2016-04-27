@@ -18,13 +18,13 @@
  * PVParallelView::PVZoomableDrawingArea::PVZoomableDrawingArea
  *****************************************************************************/
 
-PVParallelView::PVZoomableDrawingArea::PVZoomableDrawingArea(QWidget *parent) :
-	PVWidgets::PVGraphicsView(parent)
+PVParallelView::PVZoomableDrawingArea::PVZoomableDrawingArea(QWidget* parent)
+    : PVWidgets::PVGraphicsView(parent)
 {
 	set_transformation_anchor(AnchorUnderMouse);
 	set_resize_anchor(AnchorViewCenter);
 
-	QGraphicsScene *scene = new QGraphicsScene();
+	QGraphicsScene* scene = new QGraphicsScene();
 	set_scene(scene);
 }
 
@@ -115,6 +115,5 @@ void PVParallelView::PVZoomableDrawingArea::reconfigure_view()
 
 	set_transform(transfo_inv_x * transfo_inv_y * transfo);
 
-	get_constraints()->adjust_pan(get_horizontal_scrollbar(),
-	                              get_vertical_scrollbar());
+	get_constraints()->adjust_pan(get_horizontal_scrollbar(), get_vertical_scrollbar());
 }

@@ -13,15 +13,18 @@
 
 #include <tbb/flow_graph.h>
 
-namespace PVCore {
+namespace PVCore
+{
 class PVHSVColor;
 }
 
-namespace Inendi {
+namespace Inendi
+{
 class PVSelection;
 }
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 class PVRenderingPipeline;
 class PVRenderingPipelinePreprocessRouter;
@@ -38,12 +41,13 @@ class PVZonesProcessor
 {
 	using receiver_type = tbb::flow::receiver<PVZoneRendering_p>;
 
-public:
-	PVZonesProcessor(receiver_type& in_port, PVRenderingPipelinePreprocessRouter& preprocess):
-		_in_port(in_port), _preprocess(preprocess)
-	{ }
+  public:
+	PVZonesProcessor(receiver_type& in_port, PVRenderingPipelinePreprocessRouter& preprocess)
+	    : _in_port(in_port), _preprocess(preprocess)
+	{
+	}
 
-public:
+  public:
 	/**
 	 * Push a new "token" in the pipeline.
 	 */
@@ -62,22 +66,27 @@ public:
 	 */
 	void invalidate_zone_preprocessing(const PVZoneID zone_id);
 
-public:
+  public:
 	/**
 	 * Create a ZonesProcessor for foreground image
 	 */
-	static PVZonesProcessor declare_processor_zm_sel(PVRenderingPipeline& pipeline, PVZonesManager& zm, PVCore::PVHSVColor const* colors, Inendi::PVSelection const& sel);
+	static PVZonesProcessor declare_processor_zm_sel(PVRenderingPipeline& pipeline,
+	                                                 PVZonesManager& zm,
+	                                                 PVCore::PVHSVColor const* colors,
+	                                                 Inendi::PVSelection const& sel);
 
 	/**
 	 * Create a ZonesProcessor for backgorund image.
 	 */
-	static PVZonesProcessor declare_background_processor_zm_sel(PVRenderingPipeline& pipeline, PVZonesManager& zm, PVCore::PVHSVColor const* colors, Inendi::PVSelection const& sel);
+	static PVZonesProcessor declare_background_processor_zm_sel(PVRenderingPipeline& pipeline,
+	                                                            PVZonesManager& zm,
+	                                                            PVCore::PVHSVColor const* colors,
+	                                                            Inendi::PVSelection const& sel);
 
-private:
+  private:
 	receiver_type& _in_port;
 	PVRenderingPipelinePreprocessRouter& _preprocess;
 };
-
 }
 
 #endif

@@ -13,7 +13,7 @@
 
 #include <stdlib.h>
 
-#define VALUE_MAX (1UL<<22)
+#define VALUE_MAX (1UL << 22)
 #define VALUE_MASK (VALUE_MAX - 1)
 
 #define FILENAME "quadtree.dump"
@@ -26,7 +26,7 @@ void clean()
 	remove(FILENAME);
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	size_t num = 1000;
 	if (argc >= 2) {
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 
 	atexit(clean);
 
-	quadtree_t *qt;
+	quadtree_t* qt;
 	quadtree_t* qt2;
 
 	std::cout << "initialization, it can take a while" << std::endl;

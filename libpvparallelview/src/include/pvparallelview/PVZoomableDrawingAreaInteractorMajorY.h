@@ -15,10 +15,10 @@ namespace PVParallelView
 
 class PVZoomableDrawingAreaInteractorMajorY : public PVParallelView::PVZoomableDrawingAreaInteractor
 {
-public:
+  public:
 	PVZoomableDrawingAreaInteractorMajorY(PVWidgets::PVGraphicsView* parent);
 
-protected:
+  protected:
 	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event) override;
 	bool mouseReleaseEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event) override;
 
@@ -26,10 +26,9 @@ protected:
 
 	bool wheelEvent(PVParallelView::PVZoomableDrawingArea* zda, QWheelEvent* event) override;
 
-private:
+  private:
 	QPoint _pan_reference;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVZOOMABLEDRAWINGAREAINTERACTORMAJORY_H

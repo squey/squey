@@ -15,8 +15,9 @@
  * PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount
  *****************************************************************************/
 
-PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount():
-	PVDisplayViewAxisIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu, "Hit count view")
+PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount()
+    : PVDisplayViewAxisIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+                          "Hit count view")
 {
 }
 
@@ -24,8 +25,7 @@ PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount():
  * PVDisplays::PVDisplayViewHitCount::create_widget
  *****************************************************************************/
 
-QWidget* PVDisplays::PVDisplayViewHitCount::create_widget(Inendi::PVView* view,
-                                                          PVCol axis_comb,
+QWidget* PVDisplays::PVDisplayViewHitCount::create_widget(Inendi::PVView* view, PVCol axis_comb,
                                                           QWidget* parent) const
 {
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
@@ -47,10 +47,10 @@ QIcon PVDisplays::PVDisplayViewHitCount::toolbar_icon() const
  * PVDisplays::PVDisplayViewHitCount::widget_title
  *****************************************************************************/
 
-QString PVDisplays::PVDisplayViewHitCount::widget_title(Inendi::PVView* view,
-                                                        PVCol axis_comb) const
+QString PVDisplays::PVDisplayViewHitCount::widget_title(Inendi::PVView* view, PVCol axis_comb) const
 {
-	return QString("Hit count view [" + view->get_name() + " on axis " + view->get_axis_name(axis_comb) + "]");
+	return QString("Hit count view [" + view->get_name() + " on axis " +
+	               view->get_axis_name(axis_comb) + "]");
 }
 
 /*****************************************************************************

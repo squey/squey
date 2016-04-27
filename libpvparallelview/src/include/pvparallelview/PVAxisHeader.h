@@ -48,14 +48,10 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
 {
 	Q_OBJECT
 
-public:
-	PVAxisHeader(
-		const Inendi::PVView &view,
-		PVSlidersGroup* sg,
-		PVAxisGraphicsItem* parent
-	);
+  public:
+	PVAxisHeader(const Inendi::PVView& view, PVSlidersGroup* sg, PVAxisGraphicsItem* parent);
 
-public:
+  public:
 	void set_width(int width);
 	void start(bool start);
 
@@ -63,35 +59,35 @@ public:
 	PVAxisGraphicsItem const* axis() const;
 	bool is_last_axis() const;
 
-protected:
-	void hoverEnterEvent(QGraphicsSceneHoverEvent * event) override;
-	void hoverLeaveEvent(QGraphicsSceneHoverEvent * event) override;
-	void mousePressEvent(QGraphicsSceneMouseEvent * event) override;
-	void mouseReleaseEvent(QGraphicsSceneMouseEvent * event) override;
-	void mouseMoveEvent(QGraphicsSceneMouseEvent * event) override;
-	void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
+  protected:
+	void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
+	void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
+	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
+	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
+	void contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override;
 
 signals:
 	void mouse_hover_entered(PVCol col, bool entered);
 	void mouse_clicked(PVCol col);
 	void new_zoomed_parallel_view(int _axis_index);
 
-private slots:
+  private slots:
 	void new_zoomed_parallel_view();
 	void new_selection_sliders();
 
-private:
+  private:
 	PVCol get_axis_index() const;
 
-private:
-	const Inendi::PVView&            _view;
-	PVSlidersGroup*                  _sliders_group;
-	int                              _width;
+  private:
+	const Inendi::PVView& _view;
+	PVSlidersGroup* _sliders_group;
+	int _width;
 
 	__impl::PVAxisSelectedAnimation* _axis_selected_animation;
-	bool                             _started = false;
-	bool                             _clicked;
-	QGraphicsSceneMouseEvent         _click_event;
+	bool _started = false;
+	bool _clicked;
+	QGraphicsSceneMouseEvent _click_event;
 };
 
 namespace __impl
@@ -105,27 +101,27 @@ class PVAxisSelectedAnimation : QObject
 
 	Q_PROPERTY(qreal opacity READ get_opacity WRITE set_opacity);
 
-private:
+  private:
 	static constexpr qreal opacity_animation_min_amount = 0.2;
 	static constexpr qreal opacity_animation_max_amount = 1.0;
 	static constexpr size_t opacity_animation_duration_ms = 200;
 	static constexpr QEasingCurve::Type opacity_animation_easing = QEasingCurve::Linear;
 
-public:
+  public:
 	PVAxisSelectedAnimation(PVAxisHeader* parent);
 	~PVAxisSelectedAnimation();
 
-public:
+  public:
 	void start(bool start);
 
-private: // properties
+  private:                                    // properties
 	qreal get_opacity() const { return 0.0; } // avoid Qt warning
 	void set_opacity(qreal opacity);
 
-private:
+  private:
 	inline PVAxisHeader* header() { return static_cast<PVAxisHeader*>(parent()); }
 
-private:
+  private:
 	QPropertyAnimation* _opacity_animation;
 	QPropertyAnimation* _blur_animation;
 
@@ -134,13 +130,10 @@ private:
 
 class PVGraphicsPolygonItem : public QGraphicsPolygonItem
 {
-	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
-
+	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+	           QWidget* widget = nullptr) override;
 };
-
 }
-
-
 }
 
 #endif // __PVPARALLELVIEW_PVAXISHEADER_H__

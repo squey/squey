@@ -17,17 +17,16 @@
  * PVParallelView::PVScatterViewParamsWidget::PVScatterViewParamsWidget
  *****************************************************************************/
 
-PVParallelView::PVScatterViewParamsWidget::PVScatterViewParamsWidget(PVScatterView* parent):
-	QToolBar(parent)
+PVParallelView::PVScatterViewParamsWidget::PVScatterViewParamsWidget(PVScatterView* parent)
+    : QToolBar(parent)
 {
 
 	_sel_mode_signal_mapper = new QSignalMapper(this);
-	QObject::connect(_sel_mode_signal_mapper, SIGNAL(mapped(int)),
-	                 this, SLOT(set_selection_mode(int)));
+	QObject::connect(_sel_mode_signal_mapper, SIGNAL(mapped(int)), this,
+	                 SLOT(set_selection_mode(int)));
 
-	_sel_mode_button = PVSelectionRectangle::add_selection_mode_selector(parent,
-	                                                                     this,
-	                                                                     _sel_mode_signal_mapper);
+	_sel_mode_button =
+	    PVSelectionRectangle::add_selection_mode_selector(parent, this, _sel_mode_signal_mapper);
 }
 
 /*****************************************************************************
@@ -36,10 +35,9 @@ PVParallelView::PVScatterViewParamsWidget::PVScatterViewParamsWidget(PVScatterVi
 
 void PVParallelView::PVScatterViewParamsWidget::set_selection_mode(int mode)
 {
-	PVSelectionRectangle::update_selection_mode_selector(_sel_mode_button,
-	                                                     mode);
+	PVSelectionRectangle::update_selection_mode_selector(_sel_mode_button, mode);
 
-	PVScatterView *sv = parent_sv();
+	PVScatterView* sv = parent_sv();
 	sv->get_selection_rect()->set_selection_mode(mode);
 	sv->fake_mouse_move();
 	sv->get_viewport()->update();

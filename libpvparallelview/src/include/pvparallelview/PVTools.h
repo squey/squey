@@ -11,12 +11,12 @@
 #include <pvparallelview/common.h>
 #include <inendi/PVPlotted.h>
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
-namespace PVTools {
-
+namespace PVTools
+{
 }
-
 }
 
 #endif

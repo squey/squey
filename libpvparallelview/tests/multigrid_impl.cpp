@@ -17,17 +17,17 @@ unsigned depth;
 
 typedef PVParallelView::PVMultiGrid<2> multigrid_t;
 
-multigrid_t *rmg;
-PVParallelView::PVMultiGridEntry *entries;
+multigrid_t* rmg;
+PVParallelView::PVMultiGridEntry* entries;
 
-#define MAX_VALUE ((1<<22) - 1)
+#define MAX_VALUE ((1 << 22) - 1)
 
 void usage()
 {
 	std::cout << "usage: multigrid_impl depth count" << std::endl;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	if (argc != 3) {
 		usage();
@@ -37,8 +37,8 @@ int main(int argc, char **argv)
 	depth = (unsigned)atoi(argv[1]);
 	count = (unsigned)atoi(argv[2]);
 
-	entries = new PVParallelView::PVMultiGridEntry [count];
-	for(unsigned i = 0; i < count; ++i) {
+	entries = new PVParallelView::PVMultiGridEntry[count];
+	for (unsigned i = 0; i < count; ++i) {
 		entries[i].y1 = random() & MAX_VALUE;
 		entries[i].y2 = random() & MAX_VALUE;
 		entries[i].idx = i;
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 
 	std::cout << "Filling multigrid, it can take a while..." << std::endl;
 	BENCH_START(fill);
-	for(unsigned i = 0; i < count; ++i) {
+	for (unsigned i = 0; i < count; ++i) {
 		rmg->insert(entries[i]);
 	}
 	BENCH_END(fill, "fill", 1, 1, 1, 1);
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 	std::cout << "memory used : " << rmg->memory() << std::endl;
 	std::cout << "max_depth   : " << rmg->max_depth() << std::endl;
 
-	//delete rmg;
+	// delete rmg;
 
 	return 0;
 }

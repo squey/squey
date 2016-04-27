@@ -21,11 +21,11 @@
 QRectF PVParallelView::PVZoomAxisSlider::boundingRect() const
 {
 	if (_orientation == Min) {
-		return QRectF(QPointF(-ZOOM_ARROW_SIDE-MARGIN, -MARGIN),
-		              QPointF(ZOOM_ARROW_SIDE+MARGIN, 0));
+		return QRectF(QPointF(-ZOOM_ARROW_SIDE - MARGIN, -MARGIN),
+		              QPointF(ZOOM_ARROW_SIDE + MARGIN, 0));
 	} else {
-		return QRectF(QPointF(-ZOOM_ARROW_SIDE-MARGIN, 0),
-		              QPointF(ZOOM_ARROW_SIDE+MARGIN, MARGIN));
+		return QRectF(QPointF(-ZOOM_ARROW_SIDE - MARGIN, 0),
+		              QPointF(ZOOM_ARROW_SIDE + MARGIN, MARGIN));
 	}
 }
 
@@ -33,20 +33,18 @@ QRectF PVParallelView::PVZoomAxisSlider::boundingRect() const
  * PVParallelView::PVZoomAxisSlider::paint
  *****************************************************************************/
 
-void PVParallelView::PVZoomAxisSlider::paint(QPainter *painter,
-                                             const QStyleOptionGraphicsItem *option,
-                                             QWidget *widget)
+void PVParallelView::PVZoomAxisSlider::paint(QPainter* painter,
+                                             const QStyleOptionGraphicsItem* option,
+                                             QWidget* widget)
 {
 	static const QPointF min_points[3] = {
-		QPointF(             0.0,              0.0),
-		QPointF(-ZOOM_ARROW_SIDE, -ZOOM_ARROW_SIDE),
-		QPointF( ZOOM_ARROW_SIDE, -ZOOM_ARROW_SIDE),
+	    QPointF(0.0, 0.0), QPointF(-ZOOM_ARROW_SIDE, -ZOOM_ARROW_SIDE),
+	    QPointF(ZOOM_ARROW_SIDE, -ZOOM_ARROW_SIDE),
 	};
 
 	static const QPointF max_points[3] = {
-		QPointF(             0.0,             0.0),
-		QPointF(-ZOOM_ARROW_SIDE, ZOOM_ARROW_SIDE),
-		QPointF( ZOOM_ARROW_SIDE, ZOOM_ARROW_SIDE),
+	    QPointF(0.0, 0.0), QPointF(-ZOOM_ARROW_SIDE, ZOOM_ARROW_SIDE),
+	    QPointF(ZOOM_ARROW_SIDE, ZOOM_ARROW_SIDE),
 	};
 
 	painter->save();
@@ -65,8 +63,7 @@ void PVParallelView::PVZoomAxisSlider::paint(QPainter *painter,
 		painter->drawPolygon(max_points, 3);
 	}
 
-	painter->drawLine(QPointF(-ZOOM_LINE_WIDTH, 0),
-	                  QPointF(ZOOM_LINE_WIDTH, 0));
+	painter->drawLine(QPointF(-ZOOM_LINE_WIDTH, 0), QPointF(ZOOM_LINE_WIDTH, 0));
 
 	painter->restore();
 

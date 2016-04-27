@@ -14,20 +14,22 @@
 #include <pvparallelview/PVZoomedZoneTree.h>
 #include <pvparallelview/common.h>
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 /**
  * Gather zone tree and zoomed zone tree of a Zone.
  */
 class PVZone
 {
-public:
-	PVZone():
-		_ztree(new PVZoneTree()),
-		_zoomed_ztree(new PVZoomedZoneTree(_ztree->get_sel_elts(), _ztree->get_bg_elts()))
-	{ }
+  public:
+	PVZone()
+	    : _ztree(new PVZoneTree())
+	    , _zoomed_ztree(new PVZoomedZoneTree(_ztree->get_sel_elts(), _ztree->get_bg_elts()))
+	{
+	}
 
-public:
+  public:
 	PVZoneTree& ztree() { return *_ztree; }
 	PVZoneTree const& ztree() const { return *_ztree; }
 
@@ -47,12 +49,10 @@ public:
 		_ztree->filter_by_sel_background(sel, nrows);
 	}
 
-private:
+  private:
 	PVZoneTree_p _ztree;
 	PVZoomedZoneTree_p _zoomed_ztree;
-
 };
-
 }
 
 #endif

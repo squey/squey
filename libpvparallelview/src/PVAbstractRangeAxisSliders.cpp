@@ -15,11 +15,10 @@
  * PVParallelView::PVAbstractRangeAxisSliders::PVAbstractRangeAxisSliders
  *****************************************************************************/
 
-PVParallelView::PVAbstractRangeAxisSliders::PVAbstractRangeAxisSliders(QGraphicsItem *parent,
-                                                                       PVSlidersManager_p sm_p,
-                                                                       PVParallelView::PVSlidersGroup *group,
-                                                                       const char *text) :
-	PVAbstractAxisSliders(parent, sm_p, group, text)
+PVParallelView::PVAbstractRangeAxisSliders::PVAbstractRangeAxisSliders(
+    QGraphicsItem* parent, PVSlidersManager_p sm_p, PVParallelView::PVSlidersGroup* group,
+    const char* text)
+    : PVAbstractAxisSliders(parent, sm_p, group, text)
 {
 }
 
@@ -49,9 +48,9 @@ PVParallelView::PVAbstractRangeAxisSliders::~PVAbstractRangeAxisSliders()
  * PVParallelView::PVAbstractRangeAxisSliders::paint
  *****************************************************************************/
 
-void PVParallelView::PVAbstractRangeAxisSliders::paint(QPainter *painter,
-                                                       const QStyleOptionGraphicsItem *option,
-                                                       QWidget *widget)
+void PVParallelView::PVAbstractRangeAxisSliders::paint(QPainter* painter,
+                                                       const QStyleOptionGraphicsItem* option,
+                                                       QWidget* widget)
 {
 	qreal vmin = _sl_min->pos().y();
 	_text->setPos(0, vmin);

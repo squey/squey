@@ -46,71 +46,56 @@
 #define print_m(R) __print_mat(#R, R)
 #define print_mat(R) __print_mat(#R, R)
 
-template <typename M>
-void __print_mat(const char *text, const M &m)
+template <typename M> void __print_mat(const char* text, const M& m)
 {
-	std::cout << text << ": " << std::endl
-	          << "  " << m.m11() << " " << m.m12() << " " << m.m13() << std::endl
-	          << "  " << m.m21() << " " << m.m22() << " " << m.m23() << std::endl
+	std::cout << text << ": " << std::endl << "  " << m.m11() << " " << m.m12() << " " << m.m13()
+	          << std::endl << "  " << m.m21() << " " << m.m22() << " " << m.m23() << std::endl
 	          << "  " << m.m31() << " " << m.m32() << " " << m.m33() << std::endl;
 }
 
 #define print_r(R) __print_rect(#R, R)
 #define print_rect(R) __print_rect(#R, R)
 
-template <typename R>
-void __print_rect(const char *text, const R &r)
+template <typename R> void __print_rect(const char* text, const R& r)
 {
-	std::cout << text << ": "
-	          << r.x() << " " << r.y() << ", "
-	          << r.width() << " " << r.height()
+	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
 	          << std::endl;
 }
 
 #define print_v(R) __print_vect(#R, R)
 #define print_vect(R) __print_vect(#R, R)
 
-template <typename R>
-void __print_vect(const char *text, const R &r)
+template <typename R> void __print_vect(const char* text, const R& r)
 {
-	std::cout << text << ": "
-	          << r.x() << " " << r.y()
-	          << std::endl;
+	std::cout << text << ": " << r.x() << " " << r.y() << std::endl;
 }
 
 #define print_s(V) print_scalar(V)
 #define print_scalar(V) __print_scalar(#V, V)
 
-template <typename V>
-void __print_scalar(const char *text, const V &v)
+template <typename V> void __print_scalar(const char* text, const V& v)
 {
-	std::cout << text << ": "
-	          << v
-	          << std::endl;
+	std::cout << text << ": " << v << std::endl;
 }
 
 /*****************************************************************************
  * PVParallelView::PVHitCountView::PVHitCountView
  *****************************************************************************/
 
-PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView_sp &pvview_sp,
-                                               const uint32_t *col_plotted,
-                                               const PVRow nrows,
-                                               const PVCol axis_index,
-                                               QWidget *parent) :
-	PVParallelView::PVZoomableDrawingAreaWithAxes(parent),
-	_pvview(*pvview_sp),
-	_axis_index(axis_index),
-	_hit_graph_manager(col_plotted, nrows, 2,
-	                   layer_stack_output_selection(),
-	                   real_selection()),
-	_view_deleted(false),
-	_show_bg(true),
-	_auto_x_zoom_sel(false),
-	_do_auto_scale(false),
-	_use_log_color(false)
+PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView_sp& pvview_sp,
+                                               const uint32_t* col_plotted, const PVRow nrows,
+                                               const PVCol axis_index, QWidget* parent)
+    : PVParallelView::PVZoomableDrawingAreaWithAxes(parent)
+    , _pvview(*pvview_sp)
+    , _axis_index(axis_index)
+    , _hit_graph_manager(col_plotted, nrows, 2, layer_stack_output_selection(), real_selection())
+    , _view_deleted(false)
+    , _show_bg(true)
+    , _auto_x_zoom_sel(false)
+    , _do_auto_scale(false)
+    , _use_log_color(false)
 {
-	 set_gl_viewport();
+	set_gl_viewport();
 
 	_axis_id = _pvview.get_axes_combination().get_axes_comb_id(axis_index);
 
@@ -191,22 +176,17 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView_sp &pvview_sp,
 
 	_update_all_timer.setInterval(RENDER_TIMEOUT);
 	_update_all_timer.setSingleShot(true);
-	connect(&_update_all_timer, SIGNAL(timeout()),
-			this, SLOT(do_update_all()));
+	connect(&_update_all_timer, SIGNAL(timeout()), this, SLOT(do_update_all()));
 
-	connect(this, SIGNAL(zoom_has_changed(int)),
-	        this, SLOT(do_zoom_change(int)));
-	connect(this, SIGNAL(pan_has_changed()),
-	        this, SLOT(do_pan_change()));
+	connect(this, SIGNAL(zoom_has_changed(int)), this, SLOT(do_zoom_change(int)));
+	connect(this, SIGNAL(pan_has_changed()), this, SLOT(do_pan_change()));
 
-	connect(get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)),
-	        this, SLOT(do_pan_change()));
+	connect(get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
 
 	_help_widget = new PVWidgets::PVHelpWidget(this);
 	_help_widget->hide();
 
-	_help_widget->initTextFromFile("hit count view's help",
-	                               ":help-style");
+	_help_widget->initTextFromFile("hit count view's help", ":help-style");
 	_help_widget->addTextFromFile(":help-selection");
 	_help_widget->addTextFromFile(":help-layers");
 	_help_widget->newColumn();
@@ -226,11 +206,9 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView_sp &pvview_sp,
 
 	// Register view for unselected & zombie events toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
-	PVHive::get().register_observer(pvview_sp,
-	                                [=](Inendi::PVView& view) {
-		                                return &view.are_view_unselected_zombie_visible();
-	                                },
-	                                *obs);
+	PVHive::get().register_observer(
+	    pvview_sp, [=](Inendi::PVView& view) { return &view.are_view_unselected_zombie_visible(); },
+	    *obs);
 
 	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
 
@@ -344,7 +322,9 @@ void PVParallelView::PVHitCountView::set_x_zoom_level_from_sel()
 {
 	const uint32_t max_count_sel = get_hit_graph_manager().get_max_count_selected();
 	if (max_count_sel > 0) {
-		set_zoom_value(PVZoomableDrawingAreaConstraints::X, x_zoom_converter().scale_to_zoom(get_margined_viewport_width()/(double)max_count_sel));
+		set_zoom_value(PVZoomableDrawingAreaConstraints::X,
+		               x_zoom_converter().scale_to_zoom(get_margined_viewport_width() /
+		                                                (double)max_count_sel));
 	}
 }
 
@@ -361,40 +341,31 @@ void PVParallelView::PVHitCountView::request_auto_scale()
  * PVParallelView::PVHitCountView::drawBackground
  *****************************************************************************/
 
-void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
-                                                    const QRectF &margined_rect)
+void PVParallelView::PVHitCountView::drawBackground(QPainter* painter, const QRectF& margined_rect)
 {
-	//int img_top = map_margined_from_scene(QPointF(0, _block_base_pos)).y();
+	// int img_top = map_margined_from_scene(QPointF(0, _block_base_pos)).y();
 	int img_top = map_margined_from_scene(QPointF(0, get_hit_graph_manager().last_y_min())).y();
 
-	int block_view_offset = - img_top;
+	int block_view_offset = -img_top;
 
 	int zoom_level = get_y_axis_zoom().get_clamped_value();
 	double rel_y_scale = y_zoom_to_scale(zoom_level - _block_zoom_value);
 
 	painter->setPen(Qt::white);
 
-	int x_axis_right = std::min((int)map_margined_from_scene(QPointF(_max_count, 0.)).x(),
-	                            get_x_axis_length());
+	int x_axis_right =
+	    std::min((int)map_margined_from_scene(QPointF(_max_count, 0.)).x(), get_x_axis_length());
 
 	if (show_bg()) {
 		painter->setOpacity(0.25);
 		// BENCH_START(hcv_draw_all);
-		draw_lines(painter,
-		           x_axis_right,
-		           block_view_offset,
-		           rel_y_scale,
-		           get_hit_graph_manager().buffer_all(),
-		           0);
+		draw_lines(painter, x_axis_right, block_view_offset, rel_y_scale,
+		           get_hit_graph_manager().buffer_all(), 0);
 
 		// painter->setOpacity(0.25);
 		// BENCH_START(hcv_draw_selectable);
-		draw_lines(painter,
-		           x_axis_right,
-		           block_view_offset,
-		           rel_y_scale,
-		           get_hit_graph_manager().buffer_selectable(),
-		           63);
+		draw_lines(painter, x_axis_right, block_view_offset, rel_y_scale,
+		           get_hit_graph_manager().buffer_selectable(), 63);
 		// BENCH_STOP(hcv_draw_selectable);
 		// BENCH_STAT_TIME(hcv_draw_selectable);
 	}
@@ -402,12 +373,8 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter *painter,
 	// selected events
 	painter->setOpacity(1.0);
 	// BENCH_START(hcv_draw_selected);
-	draw_lines(painter,
-	           x_axis_right,
-	           block_view_offset,
-	           rel_y_scale,
-	           get_hit_graph_manager().buffer_selected(),
-	           255);
+	draw_lines(painter, x_axis_right, block_view_offset, rel_y_scale,
+	           get_hit_graph_manager().buffer_selected(), 255);
 	// BENCH_STOP(hcv_draw_selected);
 	// BENCH_STAT_TIME(hcv_draw_selected);
 
@@ -422,11 +389,9 @@ void PVParallelView::PVHitCountView::drawForeground(QPainter* /*painter*/, const
  * PVParallelView::PVHitCountView::draw_lines
  *****************************************************************************/
 
-void PVParallelView::PVHitCountView::draw_lines(QPainter *painter,
-                                                const int x_max,
+void PVParallelView::PVHitCountView::draw_lines(QPainter* painter, const int x_max,
                                                 const int block_view_offset,
-                                                const double rel_y_scale,
-                                                const uint32_t *buffer,
+                                                const double rel_y_scale, const uint32_t* buffer,
                                                 const int hsv_value)
 {
 	const int y_axis_length = get_y_axis_length();
@@ -478,7 +443,8 @@ void PVParallelView::PVHitCountView::draw_lines(QPainter *painter,
 
 		// using fillRect is faster than drawLine... 10 times faster
 		// for the color-ramp, it's: ratio * (RED - GREEN) + GREEN
-		painter->fillRect(0, y_val, vx, 1, QColor::fromHsv(ratio * (0 - 120) + 120, 255, hsv_value));
+		painter->fillRect(0, y_val, vx, 1,
+		                  QColor::fromHsv(ratio * (0 - 120) + 120, 255, hsv_value));
 	}
 }
 
@@ -493,8 +459,7 @@ void PVParallelView::PVHitCountView::do_zoom_change(int axes)
 			get_horizontal_scrollbar()->setValue(0);
 		}
 	}
-	_sel_rect->set_handles_scale(1. / get_transform().m11(),
-	                             1. / get_transform().m22());
+	_sel_rect->set_handles_scale(1. / get_transform().m11(), 1. / get_transform().m22());
 
 	_update_all_timer.start();
 }
@@ -531,7 +496,7 @@ void PVParallelView::PVHitCountView::do_update_all()
 	}
 
 	uint32_t y_min = map_margined_to_scene(0, 0).y();
-	uint64_t block_size = 1L << (32-zoom_level);
+	uint64_t block_size = 1L << (32 - zoom_level);
 	uint32_t block_y_min = (uint64_t)y_min & ~(block_size - 1);
 
 	get_hit_graph_manager().change_and_process_view(block_y_min, zoom_level, alpha);
@@ -543,8 +508,7 @@ void PVParallelView::PVHitCountView::do_update_all()
 		set_transformation_anchor(PVGraphicsView::NoAnchor);
 		reconfigure_view();
 
-		_sel_rect->set_handles_scale(1. / get_transform().m11(),
-		                             1. / get_transform().m22());
+		_sel_rect->set_handles_scale(1. / get_transform().m11(), 1. / get_transform().m22());
 
 		set_transformation_anchor(old_anchor);
 
@@ -589,8 +553,7 @@ void PVParallelView::PVHitCountView::update_sel()
 		set_transformation_anchor(PVGraphicsView::NoAnchor);
 		reconfigure_view();
 
-		_sel_rect->set_handles_scale(1. / get_transform().m11(),
-		                             1. / get_transform().m22());
+		_sel_rect->set_handles_scale(1. / get_transform().m11(), 1. / get_transform().m22());
 
 		set_transformation_anchor(PVGraphicsView::AnchorUnderMouse);
 		get_horizontal_scrollbar()->setValue(0);
@@ -631,7 +594,6 @@ QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 /*pos*/) con
 {
 	return QString();
 }
-
 
 /*****************************************************************************
  * PVParallelView::PVHitCountView::set_params_widget_position

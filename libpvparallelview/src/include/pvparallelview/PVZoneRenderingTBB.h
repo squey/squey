@@ -12,20 +12,17 @@
 
 #include <tbb/task.h>
 
-namespace PVParallelView {
-
-class PVZoneRenderingTBB: public PVZoneRendering
+namespace PVParallelView
 {
-public:
-	PVZoneRenderingTBB(PVZoneID zone_id):
-		PVZoneRendering(zone_id)
-	{ }
 
-	PVZoneRenderingTBB():
-		PVZoneRendering()
-	{ }
+class PVZoneRenderingTBB : public PVZoneRendering
+{
+  public:
+	PVZoneRenderingTBB(PVZoneID zone_id) : PVZoneRendering(zone_id) {}
 
-public:
+	PVZoneRenderingTBB() : PVZoneRendering() {}
+
+  public:
 	bool cancel() override
 	{
 		const bool ret = PVZoneRendering::cancel();
@@ -37,10 +34,9 @@ public:
 
 	tbb::task_group_context& get_task_group_context() { return _grp_ctxt; }
 
-private:
+  private:
 	tbb::task_group_context _grp_ctxt;
 };
-
 }
 
 #endif

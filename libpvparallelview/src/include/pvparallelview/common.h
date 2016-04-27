@@ -17,23 +17,25 @@
 #endif
 
 #define NBITS_INDEX 10
-#define NBUCKETS ((1UL<<(2*NBITS_INDEX)))
+#define NBUCKETS ((1UL << (2 * NBITS_INDEX)))
 
 // the cardinal of buckets ranges
 #define BUCKET_ELT_COUNT (1 << (32 - NBITS_INDEX))
 
-#define PARALLELVIEW_ZT_BBITS  10
+#define PARALLELVIEW_ZT_BBITS 10
 #define PARALLELVIEW_ZZT_BBITS 11
 
 #define PARALLELVIEW_ZOOM_WIDTH 512
 
-#define PARALLELVIEW_MAX_BCI_CODES ((1UL<<(2*PARALLELVIEW_ZZT_BBITS))+2*(1UL<<(PARALLELVIEW_ZZT_BBITS))*(PARALLELVIEW_ZOOM_WIDTH))
+#define PARALLELVIEW_MAX_BCI_CODES                                                                 \
+	((1UL << (2 * PARALLELVIEW_ZZT_BBITS)) +                                                       \
+	 2 * (1UL << (PARALLELVIEW_ZZT_BBITS)) * (PARALLELVIEW_ZOOM_WIDTH))
 
 #if (NBUCKETS % 2 != 0)
 #error NBUCKETS must be a multiple of 2
 #endif
 
-#define MASK_INT_YCOORD (((1UL)<<NBITS_INDEX)-1)
+#define MASK_INT_YCOORD (((1UL) << NBITS_INDEX) - 1)
 
 #define IMAGE_HEIGHT (1024)
 #define IMAGE_WIDTH (2048)
@@ -58,14 +60,21 @@
 #define PARALLELVIEW_MAX_DRAWN_ZONES 30
 
 #ifndef __CUDACC__
-static_assert((1<<(boost::static_log2<PARALLELVIEW_ZONE_MIN_WIDTH>::value) == PARALLELVIEW_ZONE_MIN_WIDTH), "Must be a power of two");
-static_assert((1<<(boost::static_log2<PARALLELVIEW_ZONE_BASE_WIDTH>::value) == PARALLELVIEW_ZONE_BASE_WIDTH), "Must be a power of two");
-static_assert((1<<(boost::static_log2<PARALLELVIEW_ZONE_MAX_WIDTH>::value) == PARALLELVIEW_ZONE_MAX_WIDTH), "Must be a power of two");
+static_assert((1 << (boost::static_log2<PARALLELVIEW_ZONE_MIN_WIDTH>::value) ==
+               PARALLELVIEW_ZONE_MIN_WIDTH),
+              "Must be a power of two");
+static_assert((1 << (boost::static_log2<PARALLELVIEW_ZONE_BASE_WIDTH>::value) ==
+               PARALLELVIEW_ZONE_BASE_WIDTH),
+              "Must be a power of two");
+static_assert((1 << (boost::static_log2<PARALLELVIEW_ZONE_MAX_WIDTH>::value) ==
+               PARALLELVIEW_ZONE_MAX_WIDTH),
+              "Must be a power of two");
 #endif
 
-#define MASK_INT_PLOTTED (~(1UL<<(32-NBITS_INDEX))-1)
+#define MASK_INT_PLOTTED (~(1UL << (32 - NBITS_INDEX)) - 1)
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 enum {
 	AxisWidth = PARALLELVIEW_AXIS_WIDTH,
@@ -79,7 +88,6 @@ enum {
 	MaxBciCodes = PARALLELVIEW_MAX_BCI_CODES
 };
 
-
 #ifdef __CUDACC__
 // nvcc does not support C++0x !
 #define CUDA_CONSTEXPR const
@@ -87,13 +95,11 @@ enum {
 #define CUDA_CONSTEXPR constexpr
 #endif
 
-template <size_t Bbits>
-struct constants
+template <size_t Bbits> struct constants
 {
-	CUDA_CONSTEXPR static uint32_t image_height = ((uint32_t)1)<<Bbits;
-	CUDA_CONSTEXPR static uint32_t mask_int_ycoord = (((uint32_t)1)<<Bbits)-1;
+	CUDA_CONSTEXPR static uint32_t image_height = ((uint32_t)1) << Bbits;
+	CUDA_CONSTEXPR static uint32_t mask_int_ycoord = (((uint32_t)1) << Bbits) - 1;
 };
-
 }
 
 //#include <pvkernel/core/PVAllocators.h>

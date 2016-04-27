@@ -15,13 +15,11 @@
  * PVParallelView::PVAbstractAxisSliders::PVAbstractAxisSliders
  *****************************************************************************/
 
-PVParallelView::PVAbstractAxisSliders::PVAbstractAxisSliders(QGraphicsItem *parent,
+PVParallelView::PVAbstractAxisSliders::PVAbstractAxisSliders(QGraphicsItem* parent,
                                                              PVSlidersManager_p sm_p,
-                                                             PVSlidersGroup *group,
-                                                             const char *text) :
-	QObject(nullptr), QGraphicsItemGroup(parent),
-	_sliders_manager_p(sm_p),
-	_group(group)
+                                                             PVSlidersGroup* group,
+                                                             const char* text)
+    : QObject(nullptr), QGraphicsItemGroup(parent), _sliders_manager_p(sm_p), _group(group)
 {
 	setHandlesChildEvents(false);
 
@@ -36,7 +34,9 @@ PVParallelView::PVAbstractAxisSliders::PVAbstractAxisSliders(QGraphicsItem *pare
 	_text->hide();
 }
 
-void PVParallelView::PVAbstractAxisSliders::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
+void PVParallelView::PVAbstractAxisSliders::paint(QPainter* painter,
+                                                  const QStyleOptionGraphicsItem* option,
+                                                  QWidget* widget)
 {
 	QGraphicsItemGroup::paint(painter, option, widget);
 

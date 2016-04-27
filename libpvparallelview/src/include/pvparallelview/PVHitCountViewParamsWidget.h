@@ -23,32 +23,31 @@ class PVHitCountView;
 class PVHitCountViewParamsWidget : public QToolBar
 // public PVWidgets::PVConfigPopupWidget
 {
-Q_OBJECT
+	Q_OBJECT
 
-public:
+  public:
 	PVHitCountViewParamsWidget(PVHitCountView* parent);
 
-public:
+  public:
 	void update_widgets();
 
-private slots:
+  private slots:
 	void set_selection_mode(int mode);
 
-private:
+  private:
 	PVHitCountView* parent_hcv();
 
-private:
+  private:
 #if RH_USE_PVConfigPopupWidget
-	QCheckBox     *_cb_autofit;
-	QCheckBox     *_cb_use_log_color;
+	QCheckBox* _cb_autofit;
+	QCheckBox* _cb_use_log_color;
 #else
-	QAction       *_autofit;
-	QAction       *_use_log_color;
+	QAction* _autofit;
+	QAction* _use_log_color;
 #endif
-	QSignalMapper *_signal_mapper;
-	QToolButton   *_sel_mode_button;
+	QSignalMapper* _signal_mapper;
+	QToolButton* _sel_mode_button;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVHITCOUNTVIEWPARAMSWIDGET_H

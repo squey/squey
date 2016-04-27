@@ -14,13 +14,14 @@
 
 #include <tbb/atomic.h>
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 class PVLinesView;
 class PVZoomedParallelScene;
 class PVFullParallelScene;
 
-class PVRenderingJob: public QObject
+class PVRenderingJob : public QObject
 {
 	friend class PVLinesView;
 	friend class PVZonesManager;
@@ -29,28 +30,23 @@ class PVRenderingJob: public QObject
 
 	Q_OBJECT
 
-public:
-	PVRenderingJob(QObject* parent = NULL):
-		QObject(parent)
-	{
-		_should_cancel = false;
-	}
+  public:
+	PVRenderingJob(QObject* parent = NULL) : QObject(parent) { _should_cancel = false; }
 
-public:
+  public:
 	void cancel() { _should_cancel = true; }
 	void reset() { _should_cancel = false; }
 
-protected:
+  protected:
 	bool should_cancel() const { return _should_cancel == true; }
 	void zone_finished(PVZoneID z) { emit zone_rendered(z); }
 
 signals:
 	void zone_rendered(int z);
 
-protected:
+  protected:
 	tbb::atomic<bool> _should_cancel;
 };
-
 }
 
 #endif

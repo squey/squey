@@ -39,18 +39,18 @@ class PVSlidersManager;
 
 class PVLibView
 {
-private:
+  private:
 	typedef std::list<PVFullParallelScene*> scene_list_t;
 	typedef std::vector<PVZoomedParallelScene*> zoomed_scene_list_t;
 	typedef std::vector<PVHitCountView*> hit_count_view_list_t;
 	typedef std::vector<PVScatterView*> scatter_view_list_t;
 	friend class process_selection_Observer;
 
-public:
+  public:
 	PVLibView(Inendi::PVView_sp& view_sp);
 	~PVLibView();
 
-public:
+  public:
 	PVFullParallelView* create_view(QWidget* parent = NULL);
 	PVZoomedParallelView* create_zoomed_view(PVCol const axis, QWidget* parent = NULL);
 	PVHitCountView* create_hit_count_view(PVCol const axis, QWidget* parent = NULL);
@@ -60,12 +60,12 @@ public:
 	PVZonesManager& get_zones_manager() { return _zones_manager; }
 	Inendi::PVView* lib_view() { return _obs_view->get_object(); }
 
-	void remove_view(PVFullParallelScene *scene);
-	void remove_zoomed_view(PVZoomedParallelScene *scene);
-	void remove_hit_count_view(PVHitCountView *view);
-	void remove_scatter_view(PVScatterView *view);
+	void remove_view(PVFullParallelScene* scene);
+	void remove_zoomed_view(PVZoomedParallelScene* scene);
+	void remove_hit_count_view(PVHitCountView* view);
+	void remove_scatter_view(PVScatterView* view);
 
-protected:
+  protected:
 	void selection_updated();
 	void output_layer_updated();
 	void layer_stack_output_layer_updated();
@@ -74,25 +74,24 @@ protected:
 	void axes_comb_updated();
 	void plotting_updated();
 
-private:
-	PVZonesManager                            _zones_manager;
-	PVCore::PVSharedPtr<PVSlidersManager>     _sliders_manager_p;
-	PVHive::PVObserver_p<Inendi::PVLayer>     _obs_output_layer;
-	PVHive::PVObserver_p<Inendi::PVLayer>     _obs_layer_stack_output_layer;
+  private:
+	PVZonesManager _zones_manager;
+	PVCore::PVSharedPtr<PVSlidersManager> _sliders_manager_p;
+	PVHive::PVObserver_p<Inendi::PVLayer> _obs_output_layer;
+	PVHive::PVObserver_p<Inendi::PVLayer> _obs_layer_stack_output_layer;
 	PVHive::PVObserver_p<Inendi::PVSelection> _obs_sel;
-	PVHive::PVObserver_p<Inendi::PVView>      _obs_view;
+	PVHive::PVObserver_p<Inendi::PVView> _obs_view;
 	PVHive::PVObserver_p<Inendi::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
-	PVHive::PVObserver_p<Inendi::PVPlotting>  _obs_plotting;
-	scene_list_t                              _parallel_scenes;
-	zoomed_scene_list_t                       _zoomed_parallel_scenes;
-	hit_count_view_list_t                     _hit_count_views;
-	scatter_view_list_t                       _scatter_views;
-	PVCore::PVHSVColor                 const* _colors;
+	PVHive::PVObserver_p<Inendi::PVPlotting> _obs_plotting;
+	scene_list_t _parallel_scenes;
+	zoomed_scene_list_t _zoomed_parallel_scenes;
+	hit_count_view_list_t _hit_count_views;
+	scatter_view_list_t _scatter_views;
+	PVCore::PVHSVColor const* _colors;
 
 	PVZonesProcessor _processor_sel;
 	PVZonesProcessor _processor_bg;
 };
-
 }
 
 #endif /* PVPARALLELVIEW_PVLIBVIEW_H */

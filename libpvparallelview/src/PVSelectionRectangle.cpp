@@ -16,26 +16,25 @@
 #include <QToolBar>
 #include <QAction>
 
-const QColor PVParallelView::PVSelectionRectangle::rectangle_color     = Qt::red;
-const QColor PVParallelView::PVSelectionRectangle::handle_color        = QColor(255, 127, 36);
-const int    PVParallelView::PVSelectionRectangle::handle_transparency = 50;
-const int    PVParallelView::PVSelectionRectangle::delay_msec          = 300;
+const QColor PVParallelView::PVSelectionRectangle::rectangle_color = Qt::red;
+const QColor PVParallelView::PVSelectionRectangle::handle_color = QColor(255, 127, 36);
+const int PVParallelView::PVSelectionRectangle::handle_transparency = 50;
+const int PVParallelView::PVSelectionRectangle::delay_msec = 300;
 
 /*****************************************************************************
  * PVParallelView::PVSelectionRectangle::PVSelectionRectangle
  *****************************************************************************/
 
-PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene) :
-	QObject(static_cast<QObject*>(scene)),
-	_use_selection_modifiers(true)
+PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene)
+    : QObject(static_cast<QObject*>(scene)), _use_selection_modifiers(true)
 {
 	_rect = new PVParallelView::PVSelectionRectangleItem();
 	scene->addItem(_rect);
 	_rect->clear();
 	_rect->set_pen_color(PVSelectionRectangle::rectangle_color);
 
-	connect(_rect, SIGNAL(geometry_has_changed(const QRectF&, const QRectF&)),
-	        this, SLOT(start_timer()));
+	connect(_rect, SIGNAL(geometry_has_changed(const QRectF&, const QRectF&)), this,
+	        SLOT(start_timer()));
 
 	QColor hc = PVSelectionRectangle::handle_color;
 	_rect->set_handles_pen_color(hc);
@@ -45,14 +44,12 @@ PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene
 	_timer = new QTimer(this);
 	_timer->setSingleShot(true);
 
-	connect(_timer, SIGNAL(timeout()),
-	        this, SLOT(timeout()));
+	connect(_timer, SIGNAL(timeout()), this, SLOT(timeout()));
 
 	/* as commit is a virtual method, the chaining
 	 * timeout->commit_volatile_selection->commit is required
 	 */
-	connect(this, SIGNAL(commit_volatile_selection(bool)),
-	        this, SLOT(commit(bool)));
+	connect(this, SIGNAL(commit_volatile_selection(bool)), this, SLOT(commit(bool)));
 }
 
 /*****************************************************************************
@@ -88,9 +85,7 @@ void PVParallelView::PVSelectionRectangle::step(const QPointF& p)
  * PVParallelView::PVSelectionRectangle::end
  *****************************************************************************/
 
-void PVParallelView::PVSelectionRectangle::end(const QPointF& p,
-                                               bool use_sel_modifiers,
-                                               bool now)
+void PVParallelView::PVSelectionRectangle::end(const QPointF& p, bool use_sel_modifiers, bool now)
 {
 	_use_selection_modifiers = use_sel_modifiers;
 	_rect->end(p);
@@ -114,9 +109,9 @@ QGraphicsScene* PVParallelView::PVSelectionRectangle::scene() const
  * PVParallelView::PVSelectionRectangle::add_selection_mode_selector
  *****************************************************************************/
 
-QToolButton* PVParallelView::PVSelectionRectangle::add_selection_mode_selector(QWidget *view,
-                                                                              QToolBar *toolbar,
-                                                                              QSignalMapper* signal_mapper)
+QToolButton*
+PVParallelView::PVSelectionRectangle::add_selection_mode_selector(QWidget* view, QToolBar* toolbar,
+                                                                  QSignalMapper* signal_mapper)
 {
 	toolbar->setIconSize(QSize(17, 17));
 
@@ -164,12 +159,12 @@ QToolButton* PVParallelView::PVSelectionRectangle::add_selection_mode_selector(Q
 void PVParallelView::PVSelectionRectangle::update_selection_mode_selector(QToolButton* button,
                                                                           int mode)
 {
-	QAction *action = nullptr;
+	QAction* action = nullptr;
 
 	try {
 		// QList::at has assert in DEBUG mode...
 		action = button->actions().at(mode);
-	} catch(...) {
+	} catch (...) {
 	}
 
 	if (action != nullptr) {
@@ -239,4 +234,3 @@ void PVParallelView::PVSelectionRectangle::grow_by(qreal hratio, qreal vratio)
 	begin(QPointF(x - hoffset, y - voffset));
 	end(QPointF(x + hoffset + width, y + voffset + height), false);
 }
-

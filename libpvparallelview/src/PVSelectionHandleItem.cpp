@@ -37,14 +37,14 @@ static int masked_inversion(int value, int mask)
  *****************************************************************************/
 
 PVParallelView::PVSelectionHandleItem::PVSelectionHandleItem(handle_type type,
-                                                             PVSelectionRectangleItem* sel_rect) :
-	QGraphicsItem(nullptr),
-	_sel_rect(sel_rect),
-	_xscale(1.0),
-	_yscale(1.0),
-	_type(type),
-	_is_visible(true),
-	_always_hidden(false)
+                                                             PVSelectionRectangleItem* sel_rect)
+    : QGraphicsItem(nullptr)
+    , _sel_rect(sel_rect)
+    , _xscale(1.0)
+    , _yscale(1.0)
+    , _type(type)
+    , _is_visible(true)
+    , _always_hidden(false)
 {
 	setAcceptHoverEvents(true);
 
@@ -78,8 +78,7 @@ void PVParallelView::PVSelectionHandleItem::set_brush_color(QColor col)
  * PVParallelView::PVSelectionHandleItem::set_scale
  *****************************************************************************/
 
-void PVParallelView::PVSelectionHandleItem::set_scale(const qreal xscale,
-                                                      const qreal yscale)
+void PVParallelView::PVSelectionHandleItem::set_scale(const qreal xscale, const qreal yscale)
 {
 	_xscale = xscale;
 	_yscale = yscale;
@@ -207,7 +206,8 @@ void PVParallelView::PVSelectionHandleItem::mouseMoveEvent(QGraphicsSceneMouseEv
  * PVParallelView::PVSelectionHandleItem::get_selection_rectangle
  *****************************************************************************/
 
-PVParallelView::PVSelectionRectangleItem* PVParallelView::PVSelectionHandleItem::get_selection_rectangle()
+PVParallelView::PVSelectionRectangleItem*
+PVParallelView::PVSelectionHandleItem::get_selection_rectangle()
 {
 	return _sel_rect;
 }
@@ -216,7 +216,8 @@ PVParallelView::PVSelectionRectangleItem* PVParallelView::PVSelectionHandleItem:
  * PVParallelView::PVSelectionHandleItem::get_selection_rectangle
  *****************************************************************************/
 
-const PVParallelView::PVSelectionRectangleItem* PVParallelView::PVSelectionHandleItem::get_selection_rectangle() const
+const PVParallelView::PVSelectionRectangleItem*
+PVParallelView::PVSelectionHandleItem::get_selection_rectangle() const
 {
 	return _sel_rect;
 }
@@ -229,7 +230,7 @@ void PVParallelView::PVSelectionHandleItem::update_selection_rectangle_geometry(
 {
 	QPointF delta = p - _ref;
 
-	switch(_type) {
+	switch (_type) {
 	case N:
 	case S:
 		delta.setX(0.);
@@ -267,7 +268,7 @@ void PVParallelView::PVSelectionHandleItem::update_selection_rectangle_geometry(
 
 	QPointF np(px, py);
 
-	switch(_type) {
+	switch (_type) {
 	case N:
 		rect.setTopLeft(np);
 		break;
@@ -310,50 +311,41 @@ void PVParallelView::PVSelectionHandleItem::update_geometry(const QRectF& rect)
 	qreal h_xsize = handle_size * _xscale;
 	qreal h_ysize = handle_size * _yscale;
 
-	switch(_type) {
+	switch (_type) {
 	case N:
-		_rect = QRectF(0, -h_ysize,
-		               rect.width(), h_ysize);
+		_rect = QRectF(0, -h_ysize, rect.width(), h_ysize);
 		setPos(rect.topLeft());
 		break;
 	case NE:
-		_rect = QRectF(0, -h_ysize,
-		               h_xsize, h_ysize);
+		_rect = QRectF(0, -h_ysize, h_xsize, h_ysize);
 		setPos(rect.topRight());
 		break;
 	case E:
-		_rect = QRectF(0, 0,
-		               h_xsize, rect.height());
+		_rect = QRectF(0, 0, h_xsize, rect.height());
 		setPos(rect.topRight());
 		break;
 	case SE:
-		_rect = QRectF(0, 0,
-		               h_xsize, h_ysize);
+		_rect = QRectF(0, 0, h_xsize, h_ysize);
 		setPos(rect.bottomRight());
 		break;
 	case S:
-		_rect = QRectF(0, 0,
-		               rect.width(), h_ysize);
+		_rect = QRectF(0, 0, rect.width(), h_ysize);
 		setPos(rect.bottomLeft());
 		break;
 	case SW:
-		_rect = QRectF(-h_xsize, 0,
-		               h_xsize, h_ysize);
+		_rect = QRectF(-h_xsize, 0, h_xsize, h_ysize);
 		setPos(rect.bottomLeft());
 		break;
 	case W:
-		_rect = QRectF(-h_xsize, 0,
-		               h_xsize, rect.height());
+		_rect = QRectF(-h_xsize, 0, h_xsize, rect.height());
 		setPos(rect.topLeft());
 		break;
 	case NW:
-		_rect = QRectF(-h_xsize, -h_ysize,
-		               h_xsize, h_ysize);
+		_rect = QRectF(-h_xsize, -h_ysize, h_xsize, h_ysize);
 		setPos(rect.topLeft());
 		break;
 	case CENTER:
-		_rect = QRectF(0, 0,
-		               rect.width(), rect.height());
+		_rect = QRectF(0, 0, rect.width(), rect.height());
 		setPos(rect.topLeft());
 		break;
 	}
@@ -418,7 +410,7 @@ void PVParallelView::PVSelectionHandleItem::activate_cursor(bool use_own)
 	QCursor cursor;
 
 	if (use_own && !_always_hidden) {
-		switch(_type) {
+		switch (_type) {
 		case N:
 			cursor = Qt::SizeVerCursor;
 			break;
@@ -465,7 +457,7 @@ void PVParallelView::PVSelectionHandleItem::force_hidden(bool hidden)
 	activate_cursor(!_always_hidden);
 
 	if (hidden) {
-		if(is_visible()) {
+		if (is_visible()) {
 			set_visible(false);
 		}
 	}

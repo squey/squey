@@ -26,14 +26,13 @@ namespace PVParallelView
 
 class PVZoomConverter
 {
-public:
+  public:
 	/**
 	 * Needed virtual DTOR to compile
 	 */
-	virtual ~PVZoomConverter()
-	{}
+	virtual ~PVZoomConverter() {}
 
-public:
+  public:
 	/**
 	 * retrieve a zoom value from a scale value
 	 *
@@ -50,7 +49,6 @@ public:
 	 */
 	virtual qreal zoom_to_scale(const int value) const = 0;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVZOOMCONVERTER_H

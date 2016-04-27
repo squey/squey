@@ -51,21 +51,23 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	friend class __impl::PVAxisSelectedAnimation;
 	friend class PVAxisHeader;
 
-public:
+  public:
 	static constexpr qreal label_rotation = -45.;
 
-public:
+  public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
-	typedef PVSlidersManager::axis_id_t        axis_id_t;
+	typedef PVSlidersManager::axis_id_t axis_id_t;
 
 	// Used to draw the axis out of the image zone
 	constexpr static int axis_extend = 8;
 
-public:
-	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Inendi::PVView const& view, const axis_id_t &axis_id);
+  public:
+	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Inendi::PVView const& view,
+	                   const axis_id_t& axis_id);
 	~PVAxisGraphicsItem();
 
-	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) override;
+	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+	           QWidget* widget = 0) override;
 	QRectF boundingRect() const override;
 
 	void update_axis_label_info();
@@ -74,20 +76,11 @@ public:
 
 	void set_min_max_visible(const bool visible);
 
-	PVSlidersGroup *get_sliders_group()
-	{
-		return _sliders_group;
-	}
+	PVSlidersGroup* get_sliders_group() { return _sliders_group; }
 
-	const PVSlidersGroup *get_sliders_group() const
-	{
-		return _sliders_group;
-	}
+	const PVSlidersGroup* get_sliders_group() const { return _sliders_group; }
 
-	const axis_id_t get_axis_id() const
-	{
-		return _axis_id;
-	}
+	const axis_id_t get_axis_id() const { return _axis_id; }
 
 	PVCol get_combined_axis_column() const
 	{
@@ -96,7 +89,8 @@ public:
 
 	PVCol get_original_axis_column() const
 	{
-		return _lib_view.get_axes_combination().get_axis_column_index(_lib_view.get_axes_combination().get_index_by_id(_axis_id));
+		return _lib_view.get_axes_combination().get_axis_column_index(
+		    _lib_view.get_axes_combination().get_index_by_id(_axis_id));
 	}
 
 	QRectF get_top_decoration_scene_bbox() const;
@@ -123,13 +117,10 @@ public:
 
 	PVAxisLabel* label() const { return _label; }
 
-public slots:
-	void emit_new_zoomed_parallel_view(int axis_id)
-	{
-		emit new_zoomed_parallel_view(axis_id);
-	}
+  public slots:
+	void emit_new_zoomed_parallel_view(int axis_id) { emit new_zoomed_parallel_view(axis_id); }
 
-protected:
+  protected:
 	void show_tooltip(QGraphicsTextItem* gti, QGraphicsSceneHelpEvent* event) const;
 
 signals:
@@ -137,7 +128,7 @@ signals:
 	void mouse_hover_entered(PVCol axis, bool entered);
 	void mouse_clicked(PVCol axis);
 
-private:
+  private:
 	Inendi::PVAxis const* lib_axis() const;
 	void set_axis_text_value(QGraphicsTextItem* item, PVRow const r);
 	inline bool show_min_max_values() const { return _minmax_visible; }
@@ -146,24 +137,23 @@ private:
 	void update_axis_min_max_position();
 	void update_layer_min_max_position();
 
-private:
-	PVSlidersManager_p              _sliders_manager_p;
-	axis_id_t                       _axis_id;
-	QRectF                          _bbox;
-	Inendi::PVView const&           _lib_view;
-	PVSlidersGroup                 *_sliders_group;
-	PVAxisLabel                    *_label;
-	PVAxisHeader              	   *_header_zone;
-	int                             _axis_length;
-	int                             _zone_width;
-	QGraphicsTextItem              *_axis_min_value;
-	QGraphicsTextItem              *_axis_max_value;
-	QGraphicsTextItem              *_layer_min_value;
-	QGraphicsTextItem              *_layer_max_value;
-	__impl::PVToolTipEventFilter   *_event_filter;
-	bool                            _minmax_visible;
+  private:
+	PVSlidersManager_p _sliders_manager_p;
+	axis_id_t _axis_id;
+	QRectF _bbox;
+	Inendi::PVView const& _lib_view;
+	PVSlidersGroup* _sliders_group;
+	PVAxisLabel* _label;
+	PVAxisHeader* _header_zone;
+	int _axis_length;
+	int _zone_width;
+	QGraphicsTextItem* _axis_min_value;
+	QGraphicsTextItem* _axis_max_value;
+	QGraphicsTextItem* _layer_min_value;
+	QGraphicsTextItem* _layer_max_value;
+	__impl::PVToolTipEventFilter* _event_filter;
+	bool _minmax_visible;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVAXISGRAPHICSITEM_H

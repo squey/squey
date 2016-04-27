@@ -20,9 +20,8 @@
  * PVParallelView::PVFullParallelView::PVFullParallelView
  *
  *****************************************************************************/
-PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent):
-	QGraphicsView(parent),
-	_first_resize(true)
+PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent)
+    : QGraphicsView(parent), _first_resize(true)
 {
 	viewport()->setCursor(Qt::CrossCursor);
 	setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
@@ -34,8 +33,7 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent):
 	_help_widget = new PVWidgets::PVHelpWidget(this);
 	_help_widget->hide();
 
-	_help_widget->initTextFromFile("full parallel view's help",
-	                               ":help-style");
+	_help_widget->initTextFromFile("full parallel view's help", ":help-style");
 	_help_widget->addTextFromFile(":help-selection");
 	_help_widget->addTextFromFile(":help-layers");
 	_help_widget->newColumn();
@@ -81,8 +79,12 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 	QRectF rect_view = mapFromScene(rect).boundingRect();
 
 	painter->setPen(QPen(QColor(0x16, 0xe8, 0x2a), 0));
-	
-	QString count = QString("%L1 (%2 %) / %L3").arg(_selected_events_number).arg((uint32_t) (100.0*(double)_selected_events_number/(double)_total_events_number)).arg(_total_events_number);
+
+	QString count =
+	    QString("%L1 (%2 %) / %L3")
+	        .arg(_selected_events_number)
+	        .arg((uint32_t)(100.0 * (double)_selected_events_number / (double)_total_events_number))
+	        .arg(_total_events_number);
 
 	// The "count" string is drawn only if necessary
 	QFontMetrics fm(painter->font());
@@ -105,7 +107,7 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 
 		painter->setPen(QPen(QColor(0x00, 0x00, 0xFF), 0));
 		QList<QGraphicsItem*> pixmaps = scene()->items();
-		for (QGraphicsItem* p: pixmaps) {
+		for (QGraphicsItem* p : pixmaps) {
 			if (dynamic_cast<QGraphicsPixmapItem*>(p)) {
 				painter->drawPolygon(mapFromScene(p->sceneBoundingRect()));
 			}
@@ -121,14 +123,14 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
  * PVParallelView::PVFullParallelView::resizeEvent
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent *event)
+void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent* event)
 {
 	QGraphicsView::resizeEvent(event);
 
-	PVParallelView::PVFullParallelScene *fps = (PVParallelView::PVFullParallelScene*)scene();
-	if(fps != nullptr) {
+	PVParallelView::PVFullParallelScene* fps = (PVParallelView::PVFullParallelScene*)scene();
+	if (fps != nullptr) {
 		fps->update_viewport();
-		if(_first_resize) {
+		if (_first_resize) {
 			_first_resize = false;
 			fps->reset_zones_layout_to_default();
 		} else {
@@ -169,10 +171,7 @@ void PVParallelView::PVFullParallelView::leaveEvent(QEvent*)
 
 void PVParallelView::PVFullParallelView::fake_mouse_move()
 {
-	QMouseEvent e((QEvent::MouseMove),
-	              mapFromGlobal(QCursor::pos()),
-	              Qt::NoButton,
-	              Qt::NoButton,
+	QMouseEvent e((QEvent::MouseMove), mapFromGlobal(QCursor::pos()), Qt::NoButton, Qt::NoButton,
 	              Qt::NoModifier);
 	QApplication::sendEvent(viewport(), &e);
 }

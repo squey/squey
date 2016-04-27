@@ -15,16 +15,19 @@
 #include <tbb/enumerable_thread_specific.h>
 #include <tbb/task_scheduler_init.h>
 
-namespace PVParallelView { namespace __impl {
+namespace PVParallelView
+{
+namespace __impl
+{
 
 class ZoneCreation
 {
-public:
+  public:
 	void operator()(const tbb::blocked_range<PVZoneID>& r) const
 	{
 		PVParallelView::PVZonesManager* zm = _zm;
 		PVParallelView::PVZoneProcessing zp(zm->get_uint_plotted(), zm->get_row_count());
-		PVParallelView::PVZoneTree::ProcessData &pdata = _tls_pdata.local();
+		PVParallelView::PVZoneTree::ProcessData& pdata = _tls_pdata.local();
 		for (PVZoneID z = r.begin(); z != r.end(); z++) {
 			pdata.clear();
 			zm->get_zone_cols(z, zp.col_a(), zp.col_b());
@@ -33,27 +36,27 @@ public:
 		}
 	}
 
-public:
+  public:
 	PVParallelView::PVZonesManager* _zm;
 
-private:
-    mutable tbb::enumerable_thread_specific<PVParallelView::PVZoneTree::ProcessData> _tls_pdata;
+  private:
+	mutable tbb::enumerable_thread_specific<PVParallelView::PVZoneTree::ProcessData> _tls_pdata;
 };
-
-} }
+}
+}
 
 /******************************************************************************
  *
  * PVParallelView::PVZonesManager::PVZonesManager
  *
  *****************************************************************************/
-PVParallelView::PVZonesManager::PVZonesManager(Inendi::PVView const& view):
-    _uint_plotted(&view.get_parent<Inendi::PVPlotted>()->get_uint_plotted()),
-    _nrows(view.get_row_count()),
-    _ncols(view.get_column_count()),
-    _axes_comb(view.get_axes_combination().get_axes_index_list())
+PVParallelView::PVZonesManager::PVZonesManager(Inendi::PVView const& view)
+    : _uint_plotted(&view.get_parent<Inendi::PVPlotted>()->get_uint_plotted())
+    , _nrows(view.get_row_count())
+    , _ncols(view.get_column_count())
+    , _axes_comb(view.get_axes_combination().get_axes_index_list())
 {
-    update_all();
+	update_all();
 }
 
 /******************************************************************************
@@ -83,7 +86,7 @@ void PVParallelView::PVZonesManager::update_all()
  *****************************************************************************/
 void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
 {
-	assert(zone_id < (PVZoneID) _zones.size());
+	assert(zone_id < (PVZoneID)_zones.size());
 
 	_zones[zone_id] = PVZone();
 
@@ -104,7 +107,8 @@ void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
  * PVParallelView::PVZonesManager::update_from_axes_comb
  *
  *****************************************************************************/
-std::vector<PVZoneID> PVParallelView::PVZonesManager::update_from_axes_comb(columns_indexes_t const& ac)
+std::vector<PVZoneID>
+PVParallelView::PVZonesManager::update_from_axes_comb(columns_indexes_t const& ac)
 {
 	typedef std::pair<PVCol, PVCol> axes_pair_t;
 	typedef std::vector<axes_pair_t> axes_pair_list_t;
@@ -121,21 +125,18 @@ std::vector<PVZoneID> PVParallelView::PVZonesManager::update_from_axes_comb(colu
 	PVCol old_nb_pairs = _axes_comb.size() - 1;
 	old_pairs.reserve(old_nb_pairs);
 
-	for (PVCol i = 0 ; i < old_nb_pairs; ++i) {
-		old_pairs.push_back(std::make_pair(_axes_comb[i].get_axis(),
-		                                   _axes_comb[i + 1].get_axis()));
+	for (PVCol i = 0; i < old_nb_pairs; ++i) {
+		old_pairs.push_back(std::make_pair(_axes_comb[i].get_axis(), _axes_comb[i + 1].get_axis()));
 	}
 
 	std::vector<PVZoneID> zoneids;
-	PVCol new_nb_pairs = ac.size()-1;
+	PVCol new_nb_pairs = ac.size() - 1;
 	std::vector<PVZone> new_zones(new_nb_pairs);
 
 	// iterate on the new axes combination to find reusable zones
-	for (PVCol i = 0 ; i < new_nb_pairs; i++) {
-		axes_pair_t axes_pair = std::make_pair(ac[i].get_axis(),
-		                                       ac[i + 1].get_axis());
-		axes_pair_list_t::iterator it = std::find(old_pairs.begin(), old_pairs.end(),
-		                                          axes_pair);
+	for (PVCol i = 0; i < new_nb_pairs; i++) {
+		axes_pair_t axes_pair = std::make_pair(ac[i].get_axis(), ac[i + 1].get_axis());
+		axes_pair_list_t::iterator it = std::find(old_pairs.begin(), old_pairs.end(), axes_pair);
 
 		if (it == old_pairs.end()) {
 			// this zone has to be updated (when _zone will be updated)
@@ -163,7 +164,8 @@ std::vector<PVZoneID> PVParallelView::PVZonesManager::update_from_axes_comb(colu
  * PVParallelView::PVZonesManager::update_from_axes_comb
  *
  *****************************************************************************/
-std::vector<PVZoneID> PVParallelView::PVZonesManager::update_from_axes_comb(Inendi::PVView const& view)
+std::vector<PVZoneID>
+PVParallelView::PVZonesManager::update_from_axes_comb(Inendi::PVView const& view)
 {
 	return update_from_axes_comb(view.get_axes_combination().get_axes_index_list());
 }
@@ -199,15 +201,17 @@ void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID zone_id)
  * PVParallelView::PVZonesManager::filter_zone_by_sel
  *
  *****************************************************************************/
-void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zone_id, const Inendi::PVSelection& sel)
+void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zone_id,
+                                                        const Inendi::PVSelection& sel)
 {
-	assert(zone_id < (PVZoneID) _zones.size());
+	assert(zone_id < (PVZoneID)_zones.size());
 	_zones[zone_id].filter_by_sel(sel, _nrows);
 }
 
-void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone_id, const Inendi::PVSelection& sel)
+void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone_id,
+                                                                   const Inendi::PVSelection& sel)
 {
-	assert(zone_id < (PVZoneID) _zones.size());
+	assert(zone_id < (PVZoneID)_zones.size());
 	_zones[zone_id].filter_by_sel_background(sel, _nrows);
 }
 
@@ -219,17 +223,14 @@ void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone
 QSet<PVZoneID> PVParallelView::PVZonesManager::list_cols_to_zones(QSet<PVCol> const& cols) const
 {
 	QSet<PVZoneID> ret;
-	for (PVCol c: cols) {
+	for (PVCol c : cols) {
 		if (c == 0) {
 			ret << 0;
-		}
-		else
-		if (c == get_number_of_managed_zones()) {
-			ret << c-1;
-		}
-		else {
+		} else if (c == get_number_of_managed_zones()) {
+			ret << c - 1;
+		} else {
 			ret << c;
-			ret << c-1;
+			ret << c - 1;
 		}
 	}
 	return ret;

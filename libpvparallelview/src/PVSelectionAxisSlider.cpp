@@ -21,11 +21,11 @@
 QRectF PVParallelView::PVSelectionAxisSlider::boundingRect() const
 {
 	if (_orientation == Min) {
-		return QRectF(QPointF(- SLIDER_HALF_WIDTH-MARGIN, 0),
-		              QPointF(SLIDER_HALF_WIDTH+MARGIN, -4-MARGIN));
+		return QRectF(QPointF(-SLIDER_HALF_WIDTH - MARGIN, 0),
+		              QPointF(SLIDER_HALF_WIDTH + MARGIN, -4 - MARGIN));
 	} else {
-		return QRectF(QPointF(- SLIDER_HALF_WIDTH-MARGIN, 0),
-		              QPointF(SLIDER_HALF_WIDTH+MARGIN, 4+MARGIN));
+		return QRectF(QPointF(-SLIDER_HALF_WIDTH - MARGIN, 0),
+		              QPointF(SLIDER_HALF_WIDTH + MARGIN, 4 + MARGIN));
 	}
 }
 
@@ -33,15 +33,13 @@ QRectF PVParallelView::PVSelectionAxisSlider::boundingRect() const
  * PVParallelView::PVSelectionAxisSlider::paint
  *****************************************************************************/
 
-void PVParallelView::PVSelectionAxisSlider::paint(QPainter *painter,
-                                                  const QStyleOptionGraphicsItem *option,
-                                                  QWidget *widget)
+void PVParallelView::PVSelectionAxisSlider::paint(QPainter* painter,
+                                                  const QStyleOptionGraphicsItem* option,
+                                                  QWidget* widget)
 {
-	static const QRectF min_rect(QPointF(- SLIDER_HALF_WIDTH, 0),
-	                             QPointF(SLIDER_HALF_WIDTH, -4));
+	static const QRectF min_rect(QPointF(-SLIDER_HALF_WIDTH, 0), QPointF(SLIDER_HALF_WIDTH, -4));
 
-	static const QRectF max_rect(QPointF(- SLIDER_HALF_WIDTH, 0),
-	                             QPointF(SLIDER_HALF_WIDTH, 4));
+	static const QRectF max_rect(QPointF(-SLIDER_HALF_WIDTH, 0), QPointF(SLIDER_HALF_WIDTH, 4));
 
 	painter->save();
 
@@ -63,11 +61,11 @@ void PVParallelView::PVSelectionAxisSlider::paint(QPainter *painter,
 
 	if (_orientation == Min) {
 		painter->drawRect(min_rect);
-		painter->drawLine( SLIDER_HALF_WIDTH, 0,  SLIDER_HALF_WIDTH, 2);
+		painter->drawLine(SLIDER_HALF_WIDTH, 0, SLIDER_HALF_WIDTH, 2);
 		painter->drawLine(-SLIDER_HALF_WIDTH, 0, -SLIDER_HALF_WIDTH, 2);
 	} else {
 		painter->drawRect(max_rect);
-		painter->drawLine( SLIDER_HALF_WIDTH, 0,  SLIDER_HALF_WIDTH, -1);
+		painter->drawLine(SLIDER_HALF_WIDTH, 0, SLIDER_HALF_WIDTH, -1);
 		painter->drawLine(-SLIDER_HALF_WIDTH, 0, -SLIDER_HALF_WIDTH, -1);
 	}
 

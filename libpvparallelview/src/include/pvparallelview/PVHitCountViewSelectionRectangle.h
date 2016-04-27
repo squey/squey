@@ -14,7 +14,6 @@ namespace Inendi
 {
 
 class PVView;
-
 }
 
 namespace PVParallelView
@@ -29,7 +28,7 @@ class PVHitCountView;
  */
 class PVHitCountViewSelectionRectangle : public PVParallelView::PVSelectionRectangle
 {
-public:
+  public:
 	/**
 	 * create a selection rectangle for hit-count view
 	 *
@@ -37,7 +36,7 @@ public:
 	 */
 	PVHitCountViewSelectionRectangle(PVHitCountView* hcv);
 
-protected:
+  protected:
 	/**
 	 * selection commit for hit-count view
 	 *
@@ -52,10 +51,9 @@ protected:
 	 */
 	Inendi::PVView& lib_view() override;
 
-private:
+  private:
 	PVHitCountView* _hcv;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVHITCOUNTVIEWSELECTIONRECTANGLE_H

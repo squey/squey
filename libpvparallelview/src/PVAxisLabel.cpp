@@ -24,12 +24,11 @@
  * PVParallelView::PVAxisLabel::PVAxisLabel
  *****************************************************************************/
 
-PVParallelView::PVAxisLabel::PVAxisLabel(const Inendi::PVView &view,
-                                         PVSlidersGroup *sg,
-                                         QGraphicsItem *parent) :
-	QGraphicsSimpleTextItem(parent), _lib_view(view), _sliders_group(sg)
+PVParallelView::PVAxisLabel::PVAxisLabel(const Inendi::PVView& view, PVSlidersGroup* sg,
+                                         QGraphicsItem* parent)
+    : QGraphicsSimpleTextItem(parent), _lib_view(view), _sliders_group(sg)
 {
-	//setAcceptHoverEvents(true); // This is needed to enable hover events
+	// setAcceptHoverEvents(true); // This is needed to enable hover events
 	setFlag(QGraphicsItem::ItemClipsToShape, true);
 }
 
@@ -54,25 +53,25 @@ void PVParallelView::PVAxisLabel::set_bounding_box_width(int width)
 	}
 }
 
-bool PVParallelView::PVAxisLabel::contains(const QPointF & point) const
+bool PVParallelView::PVAxisLabel::contains(const QPointF& point) const
 {
-	//PVLOG_INFO("PVParallelView::PVAxisLabel::contains\n");
+	// PVLOG_INFO("PVParallelView::PVAxisLabel::contains\n");
 	QRectF rect = QGraphicsSimpleTextItem::boundingRect();
 	/*if (_bounding_box_width) {
-		rect.setWidth(_bounding_box_width);
+	        rect.setWidth(_bounding_box_width);
 	}*/
 	return rect.contains(point);
 }
 
 QRectF PVParallelView::PVAxisLabel::boundingRect() const
 {
-	//PVLOG_INFO("PVParallelView::PVAxisLabel::boundingRect\n");
+	// PVLOG_INFO("PVParallelView::PVAxisLabel::boundingRect\n");
 	return QGraphicsSimpleTextItem::boundingRect();
 }
 
 QPainterPath PVParallelView::PVAxisLabel::shape() const
 {
-	//PVLOG_INFO("PVParallelView::PVAxisLabel::shape\n");
+	// PVLOG_INFO("PVParallelView::PVAxisLabel::shape\n");
 	QPainterPath path;
 	QRectF rect = QGraphicsSimpleTextItem::boundingRect();
 	if (_bounding_box_width) {
@@ -88,8 +87,7 @@ PVParallelView::PVAxisGraphicsItem const* PVParallelView::PVAxisLabel::get_paren
 	return dynamic_cast<PVAxisGraphicsItem const*>(parentItem());
 }
 
-
-void PVParallelView::PVAxisLabel::set_text(const QString &text)
+void PVParallelView::PVAxisLabel::set_text(const QString& text)
 {
 	QFontMetrics metrics = QFontMetrics(font());
 
@@ -98,9 +96,7 @@ void PVParallelView::PVAxisLabel::set_text(const QString &text)
 		setText(metrics.elidedText(text, Qt::ElideMiddle, MAX_WIDTH));
 
 		setToolTip(text);
-	}
-	else {
+	} else {
 		setText(text);
 	}
-
 }

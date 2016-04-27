@@ -18,17 +18,20 @@
  * PVParallelView::PVHitCountViewInteractor::PVHitCountViewInteractor
  *****************************************************************************/
 
-PVParallelView::PVHitCountViewInteractor::PVHitCountViewInteractor(PVWidgets::PVGraphicsView* parent) :
-	PVZoomableDrawingAreaInteractor(parent)
-{}
+PVParallelView::PVHitCountViewInteractor::PVHitCountViewInteractor(
+    PVWidgets::PVGraphicsView* parent)
+    : PVZoomableDrawingAreaInteractor(parent)
+{
+}
 
 /*****************************************************************************
  * PVParallelView::PVHitCountViewInteractor::resizeEvent
  *****************************************************************************/
 
-bool PVParallelView::PVHitCountViewInteractor::resizeEvent(PVZoomableDrawingArea* zda, QResizeEvent*)
+bool PVParallelView::PVHitCountViewInteractor::resizeEvent(PVZoomableDrawingArea* zda,
+                                                           QResizeEvent*)
 {
-	PVHitCountView *hcv = get_hit_count_view(zda);
+	PVHitCountView* hcv = get_hit_count_view(zda);
 	hcv->set_x_axis_zoom();
 
 	hcv->reconfigure_view();
@@ -51,11 +54,12 @@ bool PVParallelView::PVHitCountViewInteractor::resizeEvent(PVZoomableDrawingArea
  * PVParallelView::PVHitCountViewInteractor::keyPressEvent
  *****************************************************************************/
 
-bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent *event)
+bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingArea* zda,
+                                                             QKeyEvent* event)
 {
-	PVHitCountView *hcv = get_hit_count_view(zda);
+	PVHitCountView* hcv = get_hit_count_view(zda);
 
-	if(PVWidgets::PVHelpWidget::is_help_key(event->key())) {
+	if (PVWidgets::PVHelpWidget::is_help_key(event->key())) {
 		if (hcv->help_widget()->isHidden()) {
 			hcv->help_widget()->popup(hcv->get_viewport(),
 			                          PVWidgets::PVTextPopupWidget::AlignCenter,
@@ -76,7 +80,7 @@ bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingAr
 #if RH_USE_PVConfigPopupWidget
 	case Qt::Key_Space:
 		if (event->modifiers() == Qt::NoModifier) {
-			if(hcv->params_widget()->isHidden()) {
+			if (hcv->params_widget()->isHidden()) {
 				hcv->params_widget()->setPersistence(false);
 				hcv->params_widget()->popup(QCursor::pos(), true);
 				return true;
@@ -94,13 +98,12 @@ bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingAr
 
 			hcv->reconfigure_view();
 
-			QScrollBar64 *sb = hcv->get_horizontal_scrollbar();
+			QScrollBar64* sb = hcv->get_horizontal_scrollbar();
 			sb->setValue(0);
 
 			zda->get_viewport()->update();
 			zoom_has_changed(zda, PVZoomableDrawingAreaConstraints::X);
-		}
-		else {
+		} else {
 			hcv->reset_view();
 			hcv->reconfigure_view();
 			hcv->_update_all_timer.start();
@@ -119,7 +122,8 @@ bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingAr
  * PVParallelView::PVHitCountViewInteractor::wheelEvent
  *****************************************************************************/
 
-bool PVParallelView::PVHitCountViewInteractor::wheelEvent(PVZoomableDrawingArea* zda, QWheelEvent* event)
+bool PVParallelView::PVHitCountViewInteractor::wheelEvent(PVZoomableDrawingArea* zda,
+                                                          QWheelEvent* event)
 {
 	int mask = 0;
 
@@ -131,8 +135,8 @@ bool PVParallelView::PVHitCountViewInteractor::wheelEvent(PVZoomableDrawingArea*
 		mask = PVZoomableDrawingAreaConstraints::X;
 	}
 
-	PVHitCountView *hcv = get_hit_count_view(zda);
-	int inc = (event->delta() > 0)?1:-1;
+	PVHitCountView* hcv = get_hit_count_view(zda);
+	int inc = (event->delta() > 0) ? 1 : -1;
 
 	if (mask & PVZoomableDrawingAreaConstraints::X) {
 
@@ -150,8 +154,8 @@ bool PVParallelView::PVHitCountViewInteractor::wheelEvent(PVZoomableDrawingArea*
 			zoom_has_changed(hcv, mask);
 			return true;
 		}
-	} else 	if (mask != 0) {
-		int inc = (event->delta() > 0)?1:-1;
+	} else if (mask != 0) {
+		int inc = (event->delta() > 0) ? 1 : -1;
 
 		event->setAccepted(true);
 
@@ -172,7 +176,7 @@ bool PVParallelView::PVHitCountViewInteractor::wheelEvent(PVZoomableDrawingArea*
  *****************************************************************************/
 
 PVParallelView::PVHitCountView*
-PVParallelView::PVHitCountViewInteractor::get_hit_count_view(PVZoomableDrawingArea *zda)
+PVParallelView::PVHitCountViewInteractor::get_hit_count_view(PVZoomableDrawingArea* zda)
 {
 	assert(qobject_cast<PVHitCountView*>(zda));
 	return static_cast<PVHitCountView*>(zda);

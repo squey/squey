@@ -25,7 +25,8 @@ void test_left_shift(PVParallelView::PVHitGraphBuffer const& b, uint32_t n)
 
 	bshift.shift_left(n);
 
-	PV_ASSERT_VALID(memcmp(bshift.buffer(), b.buffer_block(n), (b.nblocks()-n)*b.size_block()*sizeof(uint32_t)) == 0);
+	PV_ASSERT_VALID(memcmp(bshift.buffer(), b.buffer_block(n),
+	                       (b.nblocks() - n) * b.size_block() * sizeof(uint32_t)) == 0);
 }
 
 void test_right_shift(PVParallelView::PVHitGraphBuffer const& b, uint32_t n)
@@ -35,7 +36,8 @@ void test_right_shift(PVParallelView::PVHitGraphBuffer const& b, uint32_t n)
 
 	bshift.shift_right(n);
 
-	PV_ASSERT_VALID(memcmp(b.buffer(), bshift.buffer_block(n), (b.nblocks()-n)*b.size_block()*sizeof(uint32_t)) == 0);
+	PV_ASSERT_VALID(memcmp(b.buffer(), bshift.buffer_block(n),
+	                       (b.nblocks() - n) * b.size_block() * sizeof(uint32_t)) == 0);
 }
 
 int main()

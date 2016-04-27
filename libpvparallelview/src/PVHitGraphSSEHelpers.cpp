@@ -8,16 +8,18 @@
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvparallelview/PVHitGraphSSEHelpers.h>
 
-__m128i PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(__m128i y_sse, __m128i p_sse, const __m128i y_min_ref_sse,
-                     const HCSSE_ALPHA_DOUBLE_VEC alpha_sse, const __m128i zoom_mask_sse, uint32_t idx_shift, uint32_t zoom_shift, size_t nbits)
+__m128i PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(
+    __m128i y_sse, __m128i p_sse, const __m128i y_min_ref_sse,
+    const HCSSE_ALPHA_DOUBLE_VEC alpha_sse, const __m128i zoom_mask_sse, uint32_t idx_shift,
+    uint32_t zoom_shift, size_t nbits)
 {
-	/* y = (y - y_min_ref) * alpha
-	 * p = y >> zoom_shift (i.e. base)
-	 * off =  = (p << nbits) + (y & zoom_mask) >> idx_shift
-	 */
+/* y = (y - y_min_ref) * alpha
+ * p = y >> zoom_shift (i.e. base)
+ * off =  = (p << nbits) + (y & zoom_mask) >> idx_shift
+ */
 #ifdef __AVX__
 	y_sse = _mm_sub_epi32(y_sse, y_min_ref_sse);
-	const __m256d tmp1_avx = inendi_mm256_cvtepu32_pd (y_sse);
+	const __m256d tmp1_avx = inendi_mm256_cvtepu32_pd(y_sse);
 	const __m256d tmp2_avx = _mm256_mul_pd(tmp1_avx, alpha_sse);
 	y_sse = inendi_mm256_cvttpd_epu32(tmp2_avx);
 
@@ -39,10 +41,9 @@ __m128i PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(__m128i y
 #endif
 
 	p_sse = _mm_srli_epi32(y_sse, zoom_shift);
-	const __m128i off_sse = _mm_add_epi32(_mm_slli_epi32(p_sse, nbits),
-	                                      _mm_srli_epi32(_mm_and_si128(y_sse,
-                                                                       zoom_mask_sse),
-	                                      idx_shift));
+	const __m128i off_sse =
+	    _mm_add_epi32(_mm_slli_epi32(p_sse, nbits),
+	                  _mm_srli_epi32(_mm_and_si128(y_sse, zoom_mask_sse), idx_shift));
 
 	return off_sse;
 }

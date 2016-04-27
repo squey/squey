@@ -25,12 +25,10 @@
 
 PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::_s = nullptr;
 
-PVParallelView::PVParallelViewImpl::PVParallelViewImpl():
-	_backend(nullptr),
-	_pipeline(nullptr),
-	_show_bboxes(false)
+PVParallelView::PVParallelViewImpl::PVParallelViewImpl()
+    : _backend(nullptr), _pipeline(nullptr), _show_bboxes(false)
 {
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	const float win_r = pvconfig.value("pvgl/window_r", 0.2f).toFloat();
 	const float win_g = pvconfig.value("pvgl/window_g", 0.2f).toFloat();
@@ -75,7 +73,7 @@ void PVParallelView::PVParallelViewImpl::register_displays()
 
 PVParallelView::PVParallelViewImpl& PVParallelView::PVParallelViewImpl::get()
 {
-	if(not _s) {
+	if (not _s) {
 		_s = new PVParallelViewImpl;
 	}
 	return *_s;
@@ -116,10 +114,9 @@ namespace common
  * RAII cuda resources implementation
  *
  ************************************************************/
-	RAII_cuda_init::RAII_cuda_init():
-		_instance(&PVParallelView::PVParallelViewImpl::get())
-		{
-			_instance->init_backends<PVBCIDrawingBackendCUDA>();
-		}
+RAII_cuda_init::RAII_cuda_init() : _instance(&PVParallelView::PVParallelViewImpl::get())
+{
+	_instance->init_backends<PVBCIDrawingBackendCUDA>();
+}
 }
 }

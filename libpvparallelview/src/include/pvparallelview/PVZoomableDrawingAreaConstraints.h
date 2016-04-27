@@ -27,23 +27,19 @@ class PVAxisZoom;
 
 class PVZoomableDrawingAreaConstraints
 {
-public:
+  public:
 	/**
 	 * an enum to use as a bitfield with set_zoom_value() and increment_zoom_value()
 	 */
-	typedef enum {
-		X = 1,
-		Y = 2
-	} AxisMask;
+	typedef enum { X = 1, Y = 2 } AxisMask;
 
-public:
+  public:
 	/**
 	 * Needed virtual DTOR to compile
 	 */
-	virtual ~PVZoomableDrawingAreaConstraints()
-	{}
+	virtual ~PVZoomableDrawingAreaConstraints() {}
 
-public:
+  public:
 	/**
 	 * Returns if a zoom operation is available on axis X
 	 *
@@ -69,7 +65,7 @@ public:
 	 * @param zy [in] the PVAxisZoom of Y axis
 	 * @return true if a change has occur, false otherwise
 	 */
-	virtual bool set_zoom_value(int axes, int value, PVAxisZoom &zx, PVAxisZoom &zy) = 0;
+	virtual bool set_zoom_value(int axes, int value, PVAxisZoom& zx, PVAxisZoom& zy) = 0;
 
 	/**
 	 * Change the zoom value given its parameters
@@ -82,7 +78,7 @@ public:
 	 * @param zy [in] the PVAxisZoom of Y axis
 	 * @return true if a change has occur, false otherwise
 	 */
-	virtual bool increment_zoom_value(int axes, int value, PVAxisZoom &zx, PVAxisZoom &zy) = 0;
+	virtual bool increment_zoom_value(int axes, int value, PVAxisZoom& zx, PVAxisZoom& zy) = 0;
 
 	/**
 	 * Make adjustment to the PVGraphicsView's scrollbars according to
@@ -91,9 +87,9 @@ public:
 	 * @param xsb the horizontal view's scrollbar
 	 * @param ysb the vertical view's scrollbar
 	 */
-	virtual void adjust_pan(QScrollBar64 *xsb, QScrollBar64 *ysb) = 0;
+	virtual void adjust_pan(QScrollBar64* xsb, QScrollBar64* ysb) = 0;
 
-protected:
+  protected:
 	/**
 	 * Set current value of @a az to @a value
 	 *
@@ -102,10 +98,7 @@ protected:
 	 * @param az the PVAxisZoom to update
 	 * @param value [in] the new value.
 	 */
-	static inline void set_value(PVParallelView::PVAxisZoom &az, int value)
-	{
-		az.set_value(value);
-	}
+	static inline void set_value(PVParallelView::PVAxisZoom& az, int value) { az.set_value(value); }
 
 	/**
 	 * Set current value of @a az to @a value
@@ -117,12 +110,11 @@ protected:
 	 * @param az the PVAxisZoom to update
 	 * @param value [in] the new value.
 	 */
-	static inline void set_clamped_value(PVParallelView::PVAxisZoom &az, int value)
+	static inline void set_clamped_value(PVParallelView::PVAxisZoom& az, int value)
 	{
 		az.set_clamped_value(value);
 	}
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVZOOMABLEDRAWINGAREACONSTRAINTS_H

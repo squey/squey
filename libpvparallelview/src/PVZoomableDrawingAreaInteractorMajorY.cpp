@@ -13,14 +13,17 @@
  * PVParallelView::PVZoomableDrawingAreaInteractorMajorY::PVZoomableDrawingAreaInteractorMajorY
  *****************************************************************************/
 
-PVParallelView::PVZoomableDrawingAreaInteractorMajorY::PVZoomableDrawingAreaInteractorMajorY(PVWidgets::PVGraphicsView* parent) :
-	PVParallelView::PVZoomableDrawingAreaInteractor(parent)
-{}
+PVParallelView::PVZoomableDrawingAreaInteractorMajorY::PVZoomableDrawingAreaInteractorMajorY(
+    PVWidgets::PVGraphicsView* parent)
+    : PVParallelView::PVZoomableDrawingAreaInteractor(parent)
+{
+}
 
 /*****************************************************************************
  * PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mousePressEvent
  *****************************************************************************/
-bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mousePressEvent(PVParallelView::PVZoomableDrawingArea*, QMouseEvent* event)
+bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mousePressEvent(
+    PVParallelView::PVZoomableDrawingArea*, QMouseEvent* event)
 {
 	if (event->button() == Qt::RightButton) {
 		_pan_reference = event->pos();
@@ -35,7 +38,8 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mousePressEvent(PVPa
  * PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mouseReleaseEvent
  *****************************************************************************/
 
-bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mouseReleaseEvent(PVParallelView::PVZoomableDrawingArea*, QMouseEvent*)
+bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mouseReleaseEvent(
+    PVParallelView::PVZoomableDrawingArea*, QMouseEvent*)
 {
 	return false;
 }
@@ -44,14 +48,15 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mouseReleaseEvent(PV
  * PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mouseMoveEvent
  *****************************************************************************/
 
-bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mouseMoveEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
+bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mouseMoveEvent(
+    PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
 {
 	if (event->buttons() == Qt::RightButton) {
 
 		QPoint delta = _pan_reference - event->pos();
 		_pan_reference = event->pos();
 
-		QScrollBar64 *sb;
+		QScrollBar64* sb;
 
 		sb = zda->get_horizontal_scrollbar();
 		sb->setValue(sb->value() + delta.x());
@@ -70,20 +75,22 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::mouseMoveEvent(PVPar
  * PVParallelView::PVZoomableDrawingAreaInteractorMajorY::wheelEvent
  *****************************************************************************/
 
-bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::wheelEvent(PVParallelView::PVZoomableDrawingArea* zda, QWheelEvent* event)
+bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::wheelEvent(
+    PVParallelView::PVZoomableDrawingArea* zda, QWheelEvent* event)
 {
 	int mask = 0;
 
 	if (event->modifiers() == Qt::NoModifier) {
 		mask = PVParallelView::PVZoomableDrawingAreaConstraints::Y;
 	} else if (event->modifiers() == Qt::ControlModifier) {
-		mask = PVParallelView::PVZoomableDrawingAreaConstraints::X | PVParallelView::PVZoomableDrawingAreaConstraints::Y;
+		mask = PVParallelView::PVZoomableDrawingAreaConstraints::X |
+		       PVParallelView::PVZoomableDrawingAreaConstraints::Y;
 	} else if (event->modifiers() == Qt::ShiftModifier) {
 		mask = PVParallelView::PVZoomableDrawingAreaConstraints::X;
 	}
 
 	if (mask != 0) {
-		int inc = (event->delta() > 0)?1:-1;
+		int inc = (event->delta() > 0) ? 1 : -1;
 
 		event->setAccepted(true);
 

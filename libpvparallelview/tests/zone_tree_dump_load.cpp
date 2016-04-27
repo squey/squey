@@ -36,11 +36,11 @@ int main()
 
 	PVParallelView::PVLibView* pv = env.get_lib_view();
 
-	PVParallelView::PVZonesManager &zm = pv->get_zones_manager();
+	PVParallelView::PVZonesManager& zm = pv->get_zones_manager();
 
 	for (PVZoneID zid = 0; zid < zm.get_number_of_managed_zones(); ++zid) {
 		std::cout << "testing zone " << zid << std::endl;
-		zt_t &zt = zm.get_zone_tree(zid);
+		zt_t& zt = zm.get_zone_tree(zid);
 
 		std::cout << "  dumping" << std::endl;
 		bool ret = zt.dump_to_file(dump_file);
@@ -48,7 +48,7 @@ int main()
 		std::cout << "  done" << std::endl;
 
 		std::cout << "  exhuming" << std::endl;
-		zt_t *zt2 = zt_t::load_from_file(dump_file);
+		zt_t* zt2 = zt_t::load_from_file(dump_file);
 		PV_ASSERT_VALID(zt2 != nullptr);
 		std::cout << "  done" << std::endl;
 

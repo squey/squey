@@ -18,8 +18,8 @@
  * PVParallelView::PVZoomedParallelView::PVZoomedParallelView
  *****************************************************************************/
 
-PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget *parent) :
-	PVWidgets::PVGraphicsView(parent)
+PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget* parent)
+    : PVWidgets::PVGraphicsView(parent)
 {
 	setMinimumHeight(300);
 
@@ -28,8 +28,7 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget *parent) :
 	_help_widget = new PVWidgets::PVHelpWidget(this);
 	_help_widget->hide();
 
-	_help_widget->initTextFromFile("zoomed parallel view's help",
-	                               ":help-style");
+	_help_widget->initTextFromFile("zoomed parallel view's help", ":help-style");
 	_help_widget->addTextFromFile(":help-selection");
 	_help_widget->addTextFromFile(":help-layers");
 	_help_widget->newColumn();
@@ -60,12 +59,13 @@ PVParallelView::PVZoomedParallelView::~PVZoomedParallelView()
  * PVParallelView::PVZoomedParallelView::resizeEvent
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent *event)
+void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent* event)
 {
 	PVWidgets::PVGraphicsView::resizeEvent(event);
 
-	PVParallelView::PVZoomedParallelScene *zps = (PVParallelView::PVZoomedParallelScene*)get_scene();
-	if(zps == nullptr) {
+	PVParallelView::PVZoomedParallelScene* zps =
+	    (PVParallelView::PVZoomedParallelScene*)get_scene();
+	if (zps == nullptr) {
 		return;
 	}
 
@@ -83,8 +83,7 @@ void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent *event)
  * PVParallelView::PVZoomedParallelView::drawForeground
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelView::drawForeground(QPainter* painter,
-                                                          const QRectF& rect)
+void PVParallelView::PVZoomedParallelView::drawForeground(QPainter* painter, const QRectF& rect)
 {
 	PVGraphicsView::drawForeground(painter, rect);
 

@@ -18,7 +18,6 @@ namespace PVWidgets
 {
 
 class PVHelpWidget;
-
 }
 
 namespace PVParallelView
@@ -38,13 +37,13 @@ class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 {
 	friend class PVZoomedParallelScene;
 
-public:
+  public:
 	/**
 	 * Constructor
 	 *
 	 * @param parent parent widget
 	 */
-	PVZoomedParallelView(QWidget *parent = nullptr);
+	PVZoomedParallelView(QWidget* parent = nullptr);
 
 	/**
 	 * Destructor
@@ -56,7 +55,7 @@ public:
 	 *
 	 * @param event then resize event
 	 */
-	void resizeEvent(QResizeEvent *event);
+	void resizeEvent(QResizeEvent* event);
 
 	void set_displayed_axis_name(const QString& s) { _display_axis_name = s; }
 
@@ -65,16 +64,15 @@ public:
 	 */
 	void drawForeground(QPainter* painter, const QRectF& rect) override;
 
-protected:
+  protected:
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 	PVZoomedParallelViewParamsWidget* params_widget() { return _params_widget; }
 
-private:
-	QString                           _display_axis_name;
-	PVWidgets::PVHelpWidget          *_help_widget;
-	PVZoomedParallelViewParamsWidget *_params_widget;
+  private:
+	QString _display_axis_name;
+	PVWidgets::PVHelpWidget* _help_widget;
+	PVZoomedParallelViewParamsWidget* _params_widget;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVZOOMEDPARALLELVIEW_H

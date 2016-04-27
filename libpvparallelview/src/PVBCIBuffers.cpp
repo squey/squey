@@ -8,7 +8,8 @@
 #include <pvparallelview/PVBCIBuffers.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
 
-PVParallelView::PVBCIBuffersAlloc::bci_base_type* PVParallelView::PVBCIBuffersAlloc::allocate(size_t n, PVBCIDrawingBackend& backend)
+PVParallelView::PVBCIBuffersAlloc::bci_base_type*
+PVParallelView::PVBCIBuffersAlloc::allocate(size_t n, PVBCIDrawingBackend& backend)
 {
 	return backend.allocate_bci(n);
 }

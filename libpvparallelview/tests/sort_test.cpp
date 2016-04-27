@@ -15,14 +15,14 @@
 
 #include <pvparallelview/PVQuadTree.h>
 
-#define MAX_VALUE ((1<<22) - 1)
+#define MAX_VALUE ((1 << 22) - 1)
 
 unsigned count;
 
 std::vector<PVParallelView::PVQuadTreeEntry> entries1;
 std::vector<PVParallelView::PVQuadTreeEntry> entries2;
 
-bool entry_less(const PVParallelView::PVQuadTreeEntry &a, const PVParallelView::PVQuadTreeEntry &b)
+bool entry_less(const PVParallelView::PVQuadTreeEntry& a, const PVParallelView::PVQuadTreeEntry& b)
 {
 	if (a.y2 < b.y2)
 		return true;
@@ -37,7 +37,7 @@ void usage()
 	std::cout << "usage: Tsort_test count" << std::endl;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	if (argc != 2) {
 		usage();
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 
 	entries1.reserve(count);
 
-	for(unsigned i = 0; i < count; ++i) {
+	for (unsigned i = 0; i < count; ++i) {
 		PVParallelView::PVQuadTreeEntry e;
 		e.y1 = random() & MAX_VALUE;
 		e.y2 = random() & MAX_VALUE;

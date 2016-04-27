@@ -29,9 +29,8 @@ bool PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::zoom_y_availabl
  * PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::set_zoom_value
  *****************************************************************************/
 
-bool PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::set_zoom_value(int /*axes*/, int value,
-                                                                                PVParallelView::PVAxisZoom &zx,
-                                                                                PVParallelView::PVAxisZoom &zy)
+bool PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::set_zoom_value(
+    int /*axes*/, int value, PVParallelView::PVAxisZoom& zx, PVParallelView::PVAxisZoom& zy)
 {
 	set_clamped_value(zx, value);
 	set_clamped_value(zy, value);
@@ -42,9 +41,8 @@ bool PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::set_zoom_value(
  * PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::increment_zoom_value
  *****************************************************************************/
 
-bool PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::increment_zoom_value(int /*axes*/, int value,
-                                                                                      PVParallelView::PVAxisZoom &zx,
-                                                                                      PVParallelView::PVAxisZoom &zy)
+bool PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::increment_zoom_value(
+    int /*axes*/, int value, PVParallelView::PVAxisZoom& zx, PVParallelView::PVAxisZoom& zy)
 {
 	set_clamped_value(zx, zx.get_value() + value);
 	set_clamped_value(zy, zy.get_value() + value);
@@ -55,6 +53,7 @@ bool PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::increment_zoom_
  * PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::adjust_pan
  *****************************************************************************/
 
-void PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::adjust_pan(QScrollBar64 */*xsb*/,
-	                                                                    QScrollBar64 */*ysb*/)
-{}
+void PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::adjust_pan(QScrollBar64* /*xsb*/,
+                                                                            QScrollBar64* /*ysb*/)
+{
+}

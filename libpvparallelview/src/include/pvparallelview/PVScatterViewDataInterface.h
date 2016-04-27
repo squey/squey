@@ -8,7 +8,6 @@
 #ifndef __PVSCATTERVIEWDATAINTERFACE_H__
 #define __PVSCATTERVIEWDATAINTERFACE_H__
 
-
 #include <boost/noncopyable.hpp>
 
 #include <pvkernel/core/general.h>
@@ -16,25 +15,28 @@
 
 #include <pvparallelview/PVScatterViewImage.h>
 
-namespace tbb {
+namespace tbb
+{
 class task_group_context;
 }
 
-namespace Inendi {
+namespace Inendi
+{
 class PVSelection;
 }
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 class PVZoomedZoneTree;
 
 class PVScatterViewDataInterface : boost::noncopyable
 {
-public:
-	PVScatterViewDataInterface() {};
-	virtual ~PVScatterViewDataInterface() {};
+  public:
+	PVScatterViewDataInterface(){};
+	virtual ~PVScatterViewDataInterface(){};
 
-public:
+  public:
 	struct ProcessParams
 	{
 		struct dirty_rect
@@ -46,34 +48,33 @@ public:
 			uint64_t y2_max;
 		};
 
-		ProcessParams(
-			PVZoomedZoneTree const& zzt_,
-			const PVCore::PVHSVColor* colors_
-		) :
-			zzt(&zzt_),
-			colors(colors_),
-			y1_min(0),
-			y1_max(0),
-			y2_min(0),
-			y2_max(0),
-			zoom(0),
-			alpha(1.0),
-			y1_offset(0),
-			y2_offset(0)
-		{ }
+		ProcessParams(PVZoomedZoneTree const& zzt_, const PVCore::PVHSVColor* colors_)
+		    : zzt(&zzt_)
+		    , colors(colors_)
+		    , y1_min(0)
+		    , y1_max(0)
+		    , y2_min(0)
+		    , y2_max(0)
+		    , zoom(0)
+		    , alpha(1.0)
+		    , y1_offset(0)
+		    , y2_offset(0)
+		{
+		}
 
-		ProcessParams():
-			zzt(nullptr),
-			colors(nullptr),
-			y1_min(-1),
-			y1_max(-1),
-			y2_min(-1),
-			y2_max(-1),
-			zoom(-1),
-			alpha(1.0),
-			y1_offset(0),
-			y2_offset(0)
-		{ }
+		ProcessParams()
+		    : zzt(nullptr)
+		    , colors(nullptr)
+		    , y1_min(-1)
+		    , y1_max(-1)
+		    , y2_min(-1)
+		    , y2_max(-1)
+		    , zoom(-1)
+		    , alpha(1.0)
+		    , y1_offset(0)
+		    , y2_offset(0)
+		{
+		}
 
 		bool can_optimize_translation() const;
 		dirty_rect rect_1() const;
@@ -81,21 +82,11 @@ public:
 		int32_t map_to_view(int64_t scene_value) const;
 		QRect map_to_view(const dirty_rect& rect) const;
 
-		bool params_changed(
-				uint64_t y1_min_,
-				uint64_t y1_max_,
-				uint64_t y2_min_,
-				uint64_t y2_max_,
-				int zoom_,
-				double alpha_) const;
+		bool params_changed(uint64_t y1_min_, uint64_t y1_max_, uint64_t y2_min_, uint64_t y2_max_,
+		                    int zoom_, double alpha_) const;
 
-		void set_params(
-				uint64_t y1_min_,
-				uint64_t y1_max_,
-				uint64_t y2_min_,
-				uint64_t y2_max_,
-				int zoom_,
-				double alpha_);
+		void set_params(uint64_t y1_min_, uint64_t y1_max_, uint64_t y2_min_, uint64_t y2_max_,
+		                int zoom_, double alpha_);
 
 		PVZoomedZoneTree const* zzt;
 		const PVCore::PVHSVColor* colors;
@@ -111,9 +102,9 @@ public:
 
 	class ProcessImage
 	{
-	public:
+	  public:
 		inline PVScatterViewImage& image_processing() { return _image_processing; }
-		inline PVScatterViewImage& image_processed()  { return _image_processed; }
+		inline PVScatterViewImage& image_processed() { return _image_processed; }
 		inline PVScatterViewImage const& image_processed() const { return _image_processed; }
 		inline ProcessParams const& processed_params() const { return _processed_params; }
 
@@ -127,14 +118,15 @@ public:
 
 		void set_zoomed_zone_tree(PVZoomedZoneTree const& zzt) { _processed_params.zzt = &zzt; }
 
-	private:
+	  private:
 		ProcessParams _processed_params;
 		PVScatterViewImage _image_processed;
 		PVScatterViewImage _image_processing;
 	};
 
-public:
-	inline void process_image_bg(ProcessParams const& params, tbb::task_group_context* ctxt = nullptr)
+  public:
+	inline void process_image_bg(ProcessParams const& params,
+	                             tbb::task_group_context* ctxt = nullptr)
 	{
 		process_bg(params, image_bg_processing(), ctxt);
 		if (!is_ctxt_cancelled(ctxt)) {
@@ -142,7 +134,8 @@ public:
 		}
 	}
 
-	inline void process_image_sel(ProcessParams const& params, Inendi::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr)
+	inline void process_image_sel(ProcessParams const& params, Inendi::PVSelection const& sel,
+	                              tbb::task_group_context* ctxt = nullptr)
 	{
 		process_sel(params, image_sel_processing(), sel, ctxt);
 		if (!is_ctxt_cancelled(ctxt)) {
@@ -150,7 +143,8 @@ public:
 		}
 	}
 
-	inline void process_all_images(ProcessParams const& params, Inendi::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr)
+	inline void process_all_images(ProcessParams const& params, Inendi::PVSelection const& sel,
+	                               tbb::task_group_context* ctxt = nullptr)
 	{
 		process_all(params, image_bg_processing(), image_sel_processing(), sel, ctxt);
 		if (!is_ctxt_cancelled(ctxt)) {
@@ -159,7 +153,7 @@ public:
 		}
 	}
 
-public:
+  public:
 	PVScatterViewImage const& image_bg() const { return _image_bg.image_processed(); }
 	PVScatterViewImage const& image_sel() const { return _image_sel.image_processed(); }
 
@@ -184,10 +178,15 @@ public:
 		image_sel_processing().clear();
 	}
 
-protected:
-	virtual void process_bg(ProcessParams const& params, PVScatterViewImage& image, tbb::task_group_context* ctxt = nullptr) const = 0;
-	virtual void process_sel(ProcessParams const& params, PVScatterViewImage& image, Inendi::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr) const = 0;
-	virtual void process_all(ProcessParams const& params, PVScatterViewImage& image_bg, PVScatterViewImage& image_sel, Inendi::PVSelection const& sel, tbb::task_group_context* ctxt = nullptr) const
+  protected:
+	virtual void process_bg(ProcessParams const& params, PVScatterViewImage& image,
+	                        tbb::task_group_context* ctxt = nullptr) const = 0;
+	virtual void process_sel(ProcessParams const& params, PVScatterViewImage& image,
+	                         Inendi::PVSelection const& sel,
+	                         tbb::task_group_context* ctxt = nullptr) const = 0;
+	virtual void process_all(ProcessParams const& params, PVScatterViewImage& image_bg,
+	                         PVScatterViewImage& image_sel, Inendi::PVSelection const& sel,
+	                         tbb::task_group_context* ctxt = nullptr) const
 	{
 		process_bg(params, image_bg, ctxt);
 		if (!is_ctxt_cancelled(ctxt)) {
@@ -195,16 +194,13 @@ protected:
 		}
 	}
 
-protected:
+  protected:
 	static bool is_ctxt_cancelled(tbb::task_group_context* ctxt);
 
-
-private:
+  private:
 	ProcessImage _image_bg;
 	ProcessImage _image_sel;
 };
-
 }
-
 
 #endif // __PVSCATTERVIEWDATAINTERFACE_H__

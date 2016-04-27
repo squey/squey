@@ -16,8 +16,8 @@
  * PVParallelView::PVScatterViewInteractor::PVScatterViewInteractor
  *****************************************************************************/
 
-PVParallelView::PVScatterViewInteractor::PVScatterViewInteractor(PVWidgets::PVGraphicsView* parent) :
-PVZoomableDrawingAreaInteractor(parent)
+PVParallelView::PVScatterViewInteractor::PVScatterViewInteractor(PVWidgets::PVGraphicsView* parent)
+    : PVZoomableDrawingAreaInteractor(parent)
 {
 }
 
@@ -25,14 +25,14 @@ PVZoomableDrawingAreaInteractor(parent)
  * PVParallelView::PVScatterViewInteractor::keyPressEvent
  *****************************************************************************/
 
-bool PVParallelView::PVScatterViewInteractor::keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent *event)
+bool PVParallelView::PVScatterViewInteractor::keyPressEvent(PVZoomableDrawingArea* zda,
+                                                            QKeyEvent* event)
 {
-	PVScatterView *sv = get_scatter_view(zda);
+	PVScatterView* sv = get_scatter_view(zda);
 
-	if(PVWidgets::PVHelpWidget::is_help_key(event->key())) {
+	if (PVWidgets::PVHelpWidget::is_help_key(event->key())) {
 		if (sv->help_widget()->isHidden()) {
-			sv->help_widget()->popup(sv->get_viewport(),
-			                         PVWidgets::PVTextPopupWidget::AlignCenter,
+			sv->help_widget()->popup(sv->get_viewport(), PVWidgets::PVTextPopupWidget::AlignCenter,
 			                         PVWidgets::PVTextPopupWidget::ExpandAll);
 			// FIXME : This is a hack to update the help_widget. It should be
 			// updated automaticaly as it does with QWebView but it doesn't
@@ -58,7 +58,7 @@ bool PVParallelView::PVScatterViewInteractor::keyPressEvent(PVZoomableDrawingAre
 
 bool PVParallelView::PVScatterViewInteractor::resizeEvent(PVZoomableDrawingArea* zda, QResizeEvent*)
 {
-	PVScatterView *sv = get_scatter_view(zda);
+	PVScatterView* sv = get_scatter_view(zda);
 
 	sv->do_update_all();
 
@@ -81,7 +81,7 @@ bool PVParallelView::PVScatterViewInteractor::resizeEvent(PVZoomableDrawingArea*
  *****************************************************************************/
 
 PVParallelView::PVScatterView*
-PVParallelView::PVScatterViewInteractor::get_scatter_view(PVZoomableDrawingArea *zda)
+PVParallelView::PVScatterViewInteractor::get_scatter_view(PVZoomableDrawingArea* zda)
 {
 	assert(qobject_cast<PVScatterView*>(zda));
 	return static_cast<PVScatterView*>(zda);

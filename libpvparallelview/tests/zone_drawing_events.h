@@ -10,18 +10,19 @@
 
 #include <QMainWindow>
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 class PVLinesView;
 }
 
-class LinesViewMw: public QMainWindow
+class LinesViewMw : public QMainWindow
 {
 	Q_OBJECT
 
-public:
-	LinesViewMw() { }
+  public:
+	LinesViewMw() {}
 
-public slots:
+  public slots:
 	void zr_sel_finished(int zone_id);
 	void zr_bg_finished(int zone_id);
 };

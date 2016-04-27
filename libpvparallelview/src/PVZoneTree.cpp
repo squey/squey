@@ -34,20 +34,20 @@
 
 using Inendi::PVSelection;
 
-namespace PVParallelView { namespace __impl {
+namespace PVParallelView
+{
+namespace __impl
+{
 
 class TBBCreateTreeTask
 {
-public:
-	TBBCreateTreeTask(
-		PVParallelView::PVZoneTree::PVTreeParams const& params,
-		uint32_t task_num
-	)
-		: _params(params),
-		  _task_num(task_num)
-	{}
+  public:
+	TBBCreateTreeTask(PVParallelView::PVZoneTree::PVTreeParams const& params, uint32_t task_num)
+	    : _params(params), _task_num(task_num)
+	{
+	}
 
-    void operator()()
+	void operator()()
 	{
 		PVParallelView::PVZoneProcessing const& zp = _params.zp();
 
@@ -59,52 +59,54 @@ public:
 
 		PVRow r = _params.range(_task_num).begin;
 		PVRow nrows = _params.range(_task_num).end;
-		PVRow nrows_sse = (nrows/4)*4;
+		PVRow nrows_sse = (nrows / 4) * 4;
 
-		PVParallelView::PVZoneTree::pdata_array_t& first_elts = _params.pdata().first_elts[_task_num];
-		PVParallelView::PVZoneTree::nbuckets_array_vector_t& tree = _params.pdata().trees[_task_num];
+		PVParallelView::PVZoneTree::pdata_array_t& first_elts =
+		    _params.pdata().first_elts[_task_num];
+		PVParallelView::PVZoneTree::nbuckets_array_vector_t& tree =
+		    _params.pdata().trees[_task_num];
 
 		__m128i sse_y1, sse_y2, sse_bcodes;
 
 		for (; r < nrows_sse; r += 4) {
-			sse_y1 = _mm_load_si128((const __m128i*) &pcol_a[r]);
-			sse_y2 = _mm_load_si128((const __m128i*) &pcol_b[r]);
+			sse_y1 = _mm_load_si128((const __m128i*)&pcol_a[r]);
+			sse_y2 = _mm_load_si128((const __m128i*)&pcol_b[r]);
 
-			sse_y1 = _mm_srli_epi32(sse_y1, 32-NBITS_INDEX);
-			sse_y2 = _mm_srli_epi32(sse_y2, 32-NBITS_INDEX);
+			sse_y1 = _mm_srli_epi32(sse_y1, 32 - NBITS_INDEX);
+			sse_y2 = _mm_srli_epi32(sse_y2, 32 - NBITS_INDEX);
 			sse_bcodes = _mm_or_si128(sse_y1, _mm_slli_epi32(sse_y2, NBITS_INDEX));
 
 			uint32_t b0 = _mm_extract_epi32(sse_bcodes, 0);
 			if (tree[b0].size() == 0) {
-				first_elts[b0] = r+0;
+				first_elts[b0] = r + 0;
 			}
-			tree[b0].push_back(r+0);
+			tree[b0].push_back(r + 0);
 
 			uint32_t b1 = _mm_extract_epi32(sse_bcodes, 1);
 			if (tree[b1].size() == 0) {
-				first_elts[b1] = r+1;
+				first_elts[b1] = r + 1;
 			}
-			tree[b1].push_back(r+1);
+			tree[b1].push_back(r + 1);
 
 			uint32_t b2 = _mm_extract_epi32(sse_bcodes, 2);
 			if (tree[b2].size() == 0) {
-				first_elts[b2] = r+2;
+				first_elts[b2] = r + 2;
 			}
-			tree[b2].push_back(r+2);
+			tree[b2].push_back(r + 2);
 
 			uint32_t b3 = _mm_extract_epi32(sse_bcodes, 3);
 			if (tree[b3].size() == 0) {
-				first_elts[b3] = r+3;
+				first_elts[b3] = r + 3;
 			}
-			tree[b3].push_back(r+3);
+			tree[b3].push_back(r + 3);
 		}
 		for (; r < nrows; r++) {
 			uint32_t y1 = pcol_a[r];
 			uint32_t y2 = pcol_b[r];
 			PVParallelView::PVBCode code_b;
 			code_b.int_v = 0;
-			code_b.s.l = y1 >> (32-NBITS_INDEX);
-			code_b.s.r = y2 >> (32-NBITS_INDEX);
+			code_b.s.l = y1 >> (32 - NBITS_INDEX);
+			code_b.s.r = y2 >> (32 - NBITS_INDEX);
 
 			if (tree[code_b.int_v].size() == 0) {
 				first_elts[code_b.int_v] = r;
@@ -113,50 +115,45 @@ public:
 		}
 	}
 
-private:
-    PVParallelView::PVZoneTree::PVTreeParams const& _params;
-    uint32_t _task_num;
+  private:
+	PVParallelView::PVZoneTree::PVTreeParams const& _params;
+	uint32_t _task_num;
 };
 
 class TBBComputeAllocSizeAndFirstElts
 {
-public:
-	TBBComputeAllocSizeAndFirstElts (
-		PVParallelView::PVZoneTree* ztree, PVParallelView::PVZoneTree::ProcessData& pdata
-	) :
-		_ztree(ztree),
-		_pdata(pdata),
-		_alloc_size(0)
-	{ }
+  public:
+	TBBComputeAllocSizeAndFirstElts(PVParallelView::PVZoneTree* ztree,
+	                                PVParallelView::PVZoneTree::ProcessData& pdata)
+	    : _ztree(ztree), _pdata(pdata), _alloc_size(0)
+	{
+	}
 
-	TBBComputeAllocSizeAndFirstElts(TBBComputeAllocSizeAndFirstElts& x, tbb::split) :
-		_ztree(x._ztree),
-		_pdata(x._pdata),
-		_alloc_size(0)
-	{ }
+	TBBComputeAllocSizeAndFirstElts(TBBComputeAllocSizeAndFirstElts& x, tbb::split)
+	    : _ztree(x._ztree), _pdata(x._pdata), _alloc_size(0)
+	{
+	}
 
-public:
-	void operator() (const tbb::blocked_range<size_t>& range) const
+  public:
+	void operator()(const tbb::blocked_range<size_t>& range) const
 	{
 		for (PVRow b = range.begin(); b != range.end(); ++b) {
 			_ztree->_treeb[b].count = 0;
-			for (uint32_t task = 0 ; task < _pdata.ntasks; task++) {
+			for (uint32_t task = 0; task < _pdata.ntasks; task++) {
 				_ztree->_treeb[b].count += _pdata.trees[task][b].size();
-				_ztree->_first_elts[b] = std::min(_ztree->_first_elts[b], _pdata.first_elts[task][b]);
+				_ztree->_first_elts[b] =
+				    std::min(_ztree->_first_elts[b], _pdata.first_elts[task][b]);
 			}
 			_alloc_size += (((_ztree->_treeb[b].count + 15) / 16) * 16);
 		}
 	}
 
-	void join(TBBComputeAllocSizeAndFirstElts& rhs)
-	{
-		_alloc_size += rhs._alloc_size;
-	}
+	void join(TBBComputeAllocSizeAndFirstElts& rhs) { _alloc_size += rhs._alloc_size; }
 
-public:
+  public:
 	inline size_t alloc_size() const { return _alloc_size; }
 
-private:
+  private:
 	PVParallelView::PVZoneTree* _ztree;
 	PVParallelView::PVZoneTree::ProcessData& _pdata;
 	mutable size_t _alloc_size;
@@ -165,10 +162,12 @@ private:
 
 class TBBMergeTreesTask
 {
-public:
-	TBBMergeTreesTask (PVParallelView::PVZoneTree* ztree, PVParallelView::PVZoneTree::PVTreeParams const& params, uint32_t task_num):
-		_ztree(ztree), _params(params), _task_num(task_num)
-	{ }
+  public:
+	TBBMergeTreesTask(PVParallelView::PVZoneTree* ztree,
+	                  PVParallelView::PVZoneTree::PVTreeParams const& params, uint32_t task_num)
+	    : _ztree(ztree), _params(params), _task_num(task_num)
+	{
+	}
 
 	void operator()()
 	{
@@ -177,10 +176,11 @@ public:
 				continue;
 			}
 			PVRow* cur_branch = _ztree->_treeb[b].p;
-			for (uint32_t task = 0 ; task < _params.pdata().ntasks ; task++) {
-				PVParallelView::PVZoneTree::vec_rows_t const& branch = _params.pdata().trees[task][b];
+			for (uint32_t task = 0; task < _params.pdata().ntasks; task++) {
+				PVParallelView::PVZoneTree::vec_rows_t const& branch =
+				    _params.pdata().trees[task][b];
 				if (branch.size() > 0) {
-					memcpy(cur_branch, &branch.at(0), branch.size()*sizeof(PVRow));
+					memcpy(cur_branch, &branch.at(0), branch.size() * sizeof(PVRow));
 					cur_branch += branch.size();
 					assert(cur_branch <= _ztree->_treeb[b].p + _ztree->_treeb[b].count);
 				}
@@ -188,32 +188,25 @@ public:
 		}
 	}
 
-private:
+  private:
 	PVParallelView::PVZoneTree* _ztree;
 	PVParallelView::PVZoneTree::PVTreeParams const& _params;
 	uint32_t _task_num;
 };
 
-class TBBSelFilterMaxCount {
-public:
-	TBBSelFilterMaxCount (
-		PVParallelView::PVZoneTree* tree,
-		PVRow* buf_elts,
-		const Inendi::PVSelection& sel,
-		tbb::atomic<ssize_t>& nelts,
-		tbb::task_group_context& ctxt
-	) :
-		_tree(tree),
-		_buf_elts(buf_elts),
-		_sel(sel),
-		_nelts(&nelts),
-		_ctxt(&ctxt)
+class TBBSelFilterMaxCount
+{
+  public:
+	TBBSelFilterMaxCount(PVParallelView::PVZoneTree* tree, PVRow* buf_elts,
+	                     const Inendi::PVSelection& sel, tbb::atomic<ssize_t>& nelts,
+	                     tbb::task_group_context& ctxt)
+	    : _tree(tree), _buf_elts(buf_elts), _sel(sel), _nelts(&nelts), _ctxt(&ctxt)
 	{
 	}
-	
-	void operator() (const tbb::blocked_range<size_t>& range) const
+
+	void operator()(const tbb::blocked_range<size_t>& range) const
 	{
-		const ssize_t cur_remaing = (ssize_t) *_nelts;
+		const ssize_t cur_remaing = (ssize_t)*_nelts;
 		ssize_t nelts_found = 0;
 		if (cur_remaing == 0) {
 			return;
@@ -228,9 +221,8 @@ public:
 				if (_sel.get_line_fast(r)) {
 					res = r;
 					nelts_found++;
-				}
-				else {
-					for (size_t i=0; i< _tree->_treeb[b].count; i++) {
+				} else {
+					for (size_t i = 0; i < _tree->_treeb[b].count; i++) {
 						const PVRow r = _tree->_treeb[b].p[i];
 						if (_sel.get_line_fast(r)) {
 							res = r;
@@ -245,38 +237,36 @@ public:
 				break;
 			}
 		}
-		if ((nelts_found > 0) &&
-		    (_nelts->fetch_and_add(-nelts_found) <= nelts_found)) {
+		if ((nelts_found > 0) && (_nelts->fetch_and_add(-nelts_found) <= nelts_found)) {
 			_ctxt->cancel_group_execution();
 		}
 	}
 
-private:
+  private:
 	mutable PVParallelView::PVZoneTree* _tree;
 	mutable PVRow* _buf_elts;
 	Inendi::PVSelection const& _sel;
 	mutable tbb::atomic<ssize_t>* _nelts;
 	mutable tbb::task_group_context* _ctxt;
 };
-
-} }
+}
+}
 
 // PVZoneTree implementation
 //
 
-PVParallelView::PVZoneTree::PVZoneTree():
-	PVZoneTreeBase(),
-	_tree_data(NULL)
+PVParallelView::PVZoneTree::PVZoneTree() : PVZoneTreeBase(), _tree_data(NULL)
 {
 }
 
-void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata)
+void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& zp,
+                                                       ProcessData& pdata)
 {
 
 	PVRow nrows = zp.nrows();
 
-	for (uint32_t task = 0 ; task < pdata.ntasks ; task++) {
-		memset(pdata.first_elts[task].elems, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
+	for (uint32_t task = 0; task < pdata.ntasks; task++) {
+		memset(pdata.first_elts[task].elems, PVROW_INVALID_VALUE, sizeof(PVRow) * NBUCKETS);
 	}
 
 	BENCH_START(trees);
@@ -287,12 +277,13 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 		group.run(__impl::TBBCreateTreeTask(create_tree_params, t));
 	}
 	group.wait();
-	BENCH_END(trees, "TREES", nrows*2, sizeof(float), nrows*2, sizeof(float));
+	BENCH_END(trees, "TREES", nrows * 2, sizeof(float), nrows * 2, sizeof(float));
 
-	memset(_treeb, 0, sizeof(PVBranch)*NBUCKETS);
+	memset(_treeb, 0, sizeof(PVBranch) * NBUCKETS);
 
 	__impl::TBBComputeAllocSizeAndFirstElts reduce_body(this, pdata);
-	tbb::parallel_reduce(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), reduce_body, tbb::simple_partitioner());
+	tbb::parallel_reduce(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), reduce_body,
+	                     tbb::simple_partitioner());
 
 	if (_tree_data) {
 		PVCore::PVAlignedAllocator<PVRow, 16>().deallocate(_tree_data, reduce_body.alloc_size());
@@ -304,7 +295,7 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 	for (PVRow b = 0; b < NBUCKETS; b++) {
 		if (_treeb[b].count > 0) {
 			_treeb[b].p = cur_p;
-			cur_p += ((_treeb[b].count + 15)/16)*16;
+			cur_p += ((_treeb[b].count + 15) / 16) * 16;
 		}
 	}
 
@@ -315,60 +306,65 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 		group.run(__impl::TBBMergeTreesTask(this, merge_tree_params, t));
 	}
 	group.wait();
-	BENCH_END(merge, "MERGE", nrows*2, sizeof(float), nrows*2, sizeof(float));
+	BENCH_END(merge, "MERGE", nrows * 2, sizeof(float), nrows * 2, sizeof(float));
 }
 
-void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts)
+void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel,
+                                                         const PVRow nrows, PVRow* buf_elts)
 {
 	// returns a zone tree with only the selected events
 	tbb::atomic<ssize_t> nelts_sel;
 	BENCH_START(subtree2);
-	nelts_sel = (ssize_t) sel.get_number_of_selected_lines_in_range(0, nrows);
+	nelts_sel = (ssize_t)sel.get_number_of_selected_lines_in_range(0, nrows);
 	std::fill_n(buf_elts, NBUCKETS, PVROW_INVALID_VALUE);
 	tbb::task_group_context context;
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilterMaxCount(this, buf_elts, sel, nelts_sel, context), tbb::simple_partitioner(), context);
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE),
+	                  __impl::TBBSelFilterMaxCount(this, buf_elts, sel, nelts_sel, context),
+	                  tbb::simple_partitioner(), context);
 	BENCH_END(subtree2, "filter_by_sel_tbb_treeb_maxcount", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 
-void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel, const PVRow /*nrows*/, PVRow* buf_elts)
+void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel,
+                                                                    const PVRow /*nrows*/,
+                                                                    PVRow* buf_elts)
 {
 	// returns a zone tree with only the selected events
 	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	if (sel_buf == nullptr) {
 		// Empty selection
-		memcpy(buf_elts, _first_elts, sizeof(PVRow)*NBUCKETS);
+		memcpy(buf_elts, _first_elts, sizeof(PVRow) * NBUCKETS);
 		return;
 	}
 	BENCH_START(subtree2);
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE),
-		[&](const tbb::blocked_range<size_t>& range)
-		{
-			PVRow* buf_elts_ = buf_elts;
-			PVZoneTree* tree = this;
-			for (PVRow b = range.begin(); b != range.end(); b++) {
-				PVRow res = PVROW_INVALID_VALUE;
-				if (tree->branch_valid(b)) {
-					const PVRow r = tree->get_first_elt_of_branch(b);
-					if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
-						res = r;
-					}
-					else {
-						for (size_t i=0; i< tree->_treeb[b].count; i++) {
-							const PVRow r = tree->_treeb[b].p[i];
-							if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
-								res = r;
-								break;
-							}
+	                  [&](const tbb::blocked_range<size_t>& range) {
+		PVRow* buf_elts_ = buf_elts;
+		PVZoneTree* tree = this;
+		for (PVRow b = range.begin(); b != range.end(); b++) {
+			PVRow res = PVROW_INVALID_VALUE;
+			if (tree->branch_valid(b)) {
+				const PVRow r = tree->get_first_elt_of_branch(b);
+				if ((sel_buf[PVSelection::line_index_to_chunk(r)]) &
+				    (1UL << (PVSelection::line_index_to_chunk_bit(r)))) {
+					res = r;
+				} else {
+					for (size_t i = 0; i < tree->_treeb[b].count; i++) {
+						const PVRow r = tree->_treeb[b].p[i];
+						if ((sel_buf[PVSelection::line_index_to_chunk(r)]) &
+						    (1UL << (PVSelection::line_index_to_chunk_bit(r)))) {
+							res = r;
+							break;
 						}
 					}
-					// If nothing from the nu_selection, take the first event (a zombie one)
-					if (res == PVROW_INVALID_VALUE) {
-						res = r;
-					}
 				}
-				buf_elts_[b] = res;
+				// If nothing from the nu_selection, take the first event (a zombie one)
+				if (res == PVROW_INVALID_VALUE) {
+					res = r;
+				}
 			}
-		});
+			buf_elts_[b] = res;
+		}
+	});
 	BENCH_END(subtree2, "filter_by_sel_background_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 
@@ -380,7 +376,7 @@ uint32_t PVParallelView::PVZoneTree::get_right_axis_count_seq(const uint32_t bra
 
 	PVBCode b_end;
 	b_end.s.r = branch_r;
-	b_end.s.l = (1<<NBITS_INDEX)-1;
+	b_end.s.l = (1 << NBITS_INDEX) - 1;
 
 	// The advantage of doing this on the right axis is that our
 	// indexes are sequentials !
@@ -405,7 +401,7 @@ void PVParallelView::PVZoneTree::dump_branches() const
 	}
 }
 
-bool PVParallelView::PVZoneTree::operator==(PVParallelView::PVZoneTree &zt) const
+bool PVParallelView::PVZoneTree::operator==(PVParallelView::PVZoneTree& zt) const
 {
 	for (size_t i = 0; i < NBUCKETS; ++i) {
 		if (get_branch_count(i) != zt.get_branch_count(i)) {
@@ -429,45 +425,39 @@ bool PVParallelView::PVZoneTree::operator==(PVParallelView::PVZoneTree &zt) cons
 	return true;
 }
 
-bool PVParallelView::PVZoneTree::dump_to_file(const char *filename) const
+bool PVParallelView::PVZoneTree::dump_to_file(const char* filename) const
 {
-	FILE *fp = fopen(filename, "w");
+	FILE* fp = fopen(filename, "w");
 	if (fp == NULL) {
-		PVLOG_ERROR("Error while opening %s for writing: %s.\n",
-		            filename, strerror(errno));
+		PVLOG_ERROR("Error while opening %s for writing: %s.\n", filename, strerror(errno));
 		return false;
 	}
 
 	bool err = false;
 	for (size_t i = 0; i < NBUCKETS; ++i) {
-		const PVBranch &b = _treeb[i];
+		const PVBranch& b = _treeb[i];
 		size_t count = b.count;
 		if (fwrite(&count, sizeof(count), 1, fp) != 1) {
-			PVLOG_ERROR("Error while writing %s: %s.\n",
-			            filename, strerror(errno));
+			PVLOG_ERROR("Error while writing %s: %s.\n", filename, strerror(errno));
 			err = true;
 			break;
 		}
 
 		if (fwrite(b.p, sizeof(PVRow), count, fp) != count) {
-			PVLOG_ERROR("Error while writing %s: %s.\n",
-			            filename, strerror(errno));
+			PVLOG_ERROR("Error while writing %s: %s.\n", filename, strerror(errno));
 			err = true;
 			break;
 		}
 	}
 
 	if (fwrite(_first_elts, sizeof(PVRow), NBUCKETS, fp) != NBUCKETS) {
-		PVLOG_ERROR("Error while writing %s: %s.\n",
-		            filename, strerror(errno));
+		PVLOG_ERROR("Error while writing %s: %s.\n", filename, strerror(errno));
 		err = true;
 	} else if (fwrite(_sel_elts, sizeof(PVRow), NBUCKETS, fp) != NBUCKETS) {
-		PVLOG_ERROR("Error while writing %s: %s.\n",
-		            filename, strerror(errno));
+		PVLOG_ERROR("Error while writing %s: %s.\n", filename, strerror(errno));
 		err = true;
 	} else if (fwrite(_bg_elts, sizeof(PVRow), NBUCKETS, fp) != NBUCKETS) {
-		PVLOG_ERROR("Error while writing %s: %s.\n",
-		            filename, strerror(errno));
+		PVLOG_ERROR("Error while writing %s: %s.\n", filename, strerror(errno));
 		err = true;
 	}
 
@@ -475,34 +465,30 @@ bool PVParallelView::PVZoneTree::dump_to_file(const char *filename) const
 	return !err;
 }
 
-
-PVParallelView::PVZoneTree *PVParallelView::PVZoneTree::load_from_file(const char *filename)
+PVParallelView::PVZoneTree* PVParallelView::PVZoneTree::load_from_file(const char* filename)
 {
-	FILE *fp = fopen(filename, "r");
+	FILE* fp = fopen(filename, "r");
 	if (fp == nullptr) {
-		PVLOG_ERROR("Error while opening %s for reading: %s.\n",
-		            filename, strerror(errno));
+		PVLOG_ERROR("Error while opening %s for reading: %s.\n", filename, strerror(errno));
 		return nullptr;
 	}
 
-	PVZoneTree *zt = new PVZoneTree();
+	PVZoneTree* zt = new PVZoneTree();
 	bool err = false;
 
 	for (size_t i = 0; i < NBUCKETS; ++i) {
-		PVBranch &b = zt->_treeb[i];
+		PVBranch& b = zt->_treeb[i];
 		size_t count = b.count;
 		if (fread(&count, sizeof(count), 1, fp) != 1) {
-			PVLOG_ERROR("Error while reading %s: %s.\n",
-			            filename, strerror(errno));
+			PVLOG_ERROR("Error while reading %s: %s.\n", filename, strerror(errno));
 			err = true;
 			break;
 		}
 		b.count = count;
-		b.p = new PVRow [count];
+		b.p = new PVRow[count];
 
 		if (fread(b.p, sizeof(PVRow), count, fp) != count) {
-			PVLOG_ERROR("Error while reading %s: %s.\n",
-			            filename, strerror(errno));
+			PVLOG_ERROR("Error while reading %s: %s.\n", filename, strerror(errno));
 			err = true;
 			break;
 		}
@@ -510,16 +496,13 @@ PVParallelView::PVZoneTree *PVParallelView::PVZoneTree::load_from_file(const cha
 
 	if (err == false) {
 		if (fread(zt->_first_elts, sizeof(PVRow), NBUCKETS, fp) != NBUCKETS) {
-			PVLOG_ERROR("Error while reading %s: %s.\n",
-			            filename, strerror(errno));
+			PVLOG_ERROR("Error while reading %s: %s.\n", filename, strerror(errno));
 			err = true;
 		} else if (fread(zt->_sel_elts, sizeof(PVRow), NBUCKETS, fp) != NBUCKETS) {
-			PVLOG_ERROR("Error while reading %s: %s.\n",
-			            filename, strerror(errno));
+			PVLOG_ERROR("Error while reading %s: %s.\n", filename, strerror(errno));
 			err = true;
 		} else if (fread(zt->_bg_elts, sizeof(PVRow), NBUCKETS, fp) != NBUCKETS) {
-			PVLOG_ERROR("Error while reading %s: %s.\n",
-			            filename, strerror(errno));
+			PVLOG_ERROR("Error while reading %s: %s.\n", filename, strerror(errno));
 			err = true;
 		}
 	}

@@ -18,12 +18,12 @@
 
 #define QT_MAX_VALUE (BUCKET_ELT_COUNT)
 
-typedef PVParallelView::PVQuadTreeEntry                                    quadtree_entry_t;
+typedef PVParallelView::PVQuadTreeEntry quadtree_entry_t;
 typedef PVParallelView::PVQuadTree<10000, 1000, 0, PARALLELVIEW_ZZT_BBITS> quadtree_t;
-typedef quadtree_t::pv_tlr_buffer_t                                        tlr_buffer_t;
-typedef tlr_buffer_t::index_t                                              tlr_index_t;
-typedef PVParallelView::PVBCICode<PARALLELVIEW_ZZT_BBITS>                  bci_code_t;
-typedef PVParallelView::constants<PARALLELVIEW_ZZT_BBITS>                  constants;
+typedef quadtree_t::pv_tlr_buffer_t tlr_buffer_t;
+typedef tlr_buffer_t::index_t tlr_index_t;
+typedef PVParallelView::PVBCICode<PARALLELVIEW_ZZT_BBITS> bci_code_t;
+typedef PVParallelView::constants<PARALLELVIEW_ZZT_BBITS> constants;
 
 constexpr static uint32_t mask_int_ycoord = constants::mask_int_ycoord;
 
@@ -34,7 +34,6 @@ uint32_t tested_count_sse = 0;
 uint32_t inserted_count_seq = 0;
 uint32_t inserted_count_sse = 0;
 
-
 /*****************************************************************************
  * about data
  */
@@ -43,13 +42,13 @@ size_t init_count(size_t num)
 	return 2048 * num;
 }
 
-quadtree_entry_t *init_entries(size_t num)
+quadtree_entry_t* init_entries(size_t num)
 {
 	typedef PVCore::PVAlignedAllocator<quadtree_entry_t, 16> Alloc;
-	quadtree_entry_t *entries = Alloc().allocate(init_count(num));
+	quadtree_entry_t* entries = Alloc().allocate(init_count(num));
 	size_t idx = 0;
-	for(size_t i = 0; i < 2048; ++i) {
-		for(size_t j = 0; j < num; ++j) {
+	for (size_t i = 0; i < 2048; ++i) {
+		for (size_t j = 0; j < num; ++j) {
 			entries[i].idx = idx;
 			entries[i].y1 = i;
 			entries[i].y2 = (j / (double)num) * QT_MAX_VALUE;
@@ -68,15 +67,11 @@ static inline double get_scale_factor(uint32_t zoom)
 	return pow(2, zoom);
 }
 
-static inline void compute_bci_projection_y2(const uint64_t y1,
-                                             const uint64_t y2,
-                                             const uint64_t y_min,
-                                             const uint64_t y_lim,
-                                             const int shift,
-                                             const uint32_t mask,
-                                             const uint32_t width,
-                                             const float beta,
-                                             bci_code_t &bci)
+static inline void compute_bci_projection_y2(const uint64_t y1, const uint64_t y2,
+                                             const uint64_t y_min, const uint64_t y_lim,
+                                             const int shift, const uint32_t mask,
+                                             const uint32_t width, const float beta,
+                                             bci_code_t& bci)
 {
 	bci.s.l = ((y1 - y_min) >> shift) & mask;
 
@@ -98,15 +93,9 @@ static inline void compute_bci_projection_y2(const uint64_t y1,
 /*****************************************************************************
  * about program's parameters
  */
-enum {
-	P_PROG = 0,
-	P_NUM,
-	P_ZOOM,
-	P_MIN,
-	P_MAX_VALUE
-};
+enum { P_PROG = 0, P_NUM, P_ZOOM, P_MIN, P_MAX_VALUE };
 
-void usage(const char *program)
+void usage(const char* program)
 {
 	std::cerr << "usage: " << basename(program) << " num zoom min\n" << std::endl;
 	std::cerr << "\tnum  : number of events for each primary coordinate event" << std::endl;
@@ -118,15 +107,11 @@ void usage(const char *program)
  * sequential extraction
  */
 template <typename Ftest, typename Finsert>
-void extract_seq(const quadtree_entry_t *entries, const size_t size,
-                 const uint32_t y1_min_value, const uint32_t y1_mid_value,
-                 const uint32_t y2_min_value, const uint32_t y2_mid_value,
-                 const uint64_t y1_min, const uint64_t y1_max,
-                 const uint32_t zoom, const uint32_t y2_count,
-                 const Ftest &test_f,
-                 const Finsert &insert_f,
-                 uint32_t *buffer,
-                 tlr_buffer_t &tlr)
+void extract_seq(const quadtree_entry_t* entries, const size_t size, const uint32_t y1_min_value,
+                 const uint32_t y1_mid_value, const uint32_t y2_min_value,
+                 const uint32_t y2_mid_value, const uint64_t y1_min, const uint64_t y1_max,
+                 const uint32_t zoom, const uint32_t y2_count, const Ftest& test_f,
+                 const Finsert& insert_f, uint32_t* buffer, tlr_buffer_t& tlr)
 {
 	const uint64_t max_count = 1 << zoom;
 	const uint64_t y1_orig = y1_min_value;
@@ -134,20 +119,23 @@ void extract_seq(const quadtree_entry_t *entries, const size_t size,
 	const uint64_t y1_scale = y1_len / max_count;
 	const uint64_t y2_orig = y2_min_value;
 	const uint64_t y2_scale = ((y2_mid_value - y2_orig) * 2) / y2_count;
-	const uint64_t ly1_min = (PVCore::clamp(y1_min, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
-	const uint64_t ly1_max = (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
+	const uint64_t ly1_min =
+	    (PVCore::clamp(y1_min, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
+	const uint64_t ly1_max =
+	    (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 	const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
 	const size_t count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
 	memset(buffer, 0, count_aligned * sizeof(uint32_t));
 	uint32_t remaining = clipped_max_count * y2_count;
 
-	for(size_t i = 0; i < size; ++i) {
-		const quadtree_entry_t &e = entries[i];
+	for (size_t i = 0; i < size; ++i) {
+		const quadtree_entry_t& e = entries[i];
 		++tested_count_seq;
 		if (!test_f(e, y1_min, y1_max)) {
 			continue;
 		}
-		const uint32_t pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min) + clipped_max_count * ((e.y2 - y2_orig) / y2_scale);
+		const uint32_t pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min) +
+		                     clipped_max_count * ((e.y2 - y2_orig) / y2_scale);
 		if (B_IS_SET(buffer[pos >> 5], pos & 31)) {
 			continue;
 		}
@@ -161,20 +149,16 @@ void extract_seq(const quadtree_entry_t *entries, const size_t size,
 	}
 }
 
-
-void _sse_p32(const char *text, const __m128i &sse_reg)
+void _sse_p32(const char* text, const __m128i& sse_reg)
 {
-	std::cout << text << ": [ "
-	          << _mm_extract_epi32(sse_reg, 3) << " | "
-	          << _mm_extract_epi32(sse_reg, 2) << " | "
-	          << _mm_extract_epi32(sse_reg, 1) << " | "
+	std::cout << text << ": [ " << _mm_extract_epi32(sse_reg, 3) << " | "
+	          << _mm_extract_epi32(sse_reg, 2) << " | " << _mm_extract_epi32(sse_reg, 1) << " | "
 	          << _mm_extract_epi32(sse_reg, 0) << " ]" << std::endl;
 }
 
-void _sse_p64(const char *text, const __m128i &sse_reg)
+void _sse_p64(const char* text, const __m128i& sse_reg)
 {
-	std::cout << text << ": [ "
-	          << _mm_extract_epi64(sse_reg, 1) << " | "
+	std::cout << text << ": [ " << _mm_extract_epi64(sse_reg, 1) << " | "
 	          << _mm_extract_epi64(sse_reg, 0) << " ]" << std::endl;
 }
 
@@ -187,10 +171,12 @@ void _sse_p64(const char *text, const __m128i &sse_reg)
 #endif
 
 #define NONE 0
-bool test_sse(const __m128i &sse_y1, const __m128i &sse_y1_min, const __m128i &sse_y1_max, __m128i &sse_res)
+bool test_sse(const __m128i& sse_y1, const __m128i& sse_y1_min, const __m128i& sse_y1_max,
+              __m128i& sse_res)
 {
-	static const __m128i shuffle_mask      = _mm_set_epi32(0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF);
-	static const __m128i full_mask         = _mm_set1_epi32(0xFFFFFFFF);
+	static const __m128i shuffle_mask =
+	    _mm_set_epi32(0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF);
+	static const __m128i full_mask = _mm_set1_epi32(0xFFFFFFFF);
 
 	/* expand 4x32b register into 2 2x64b registers
 	 */
@@ -214,14 +200,14 @@ bool test_sse(const __m128i &sse_y1, const __m128i &sse_y1_min, const __m128i &s
 
 	/* "unshuffle" min result into 1 register
 	 */
-	__m128i sse_min_r0 = _mm_shuffle_epi32(sse_min0, _MM_SHUFFLE(NONE, NONE,    2,    0));
-	__m128i sse_min_r1 = _mm_shuffle_epi32(sse_min1, _MM_SHUFFLE(   2,    0, NONE, NONE));
+	__m128i sse_min_r0 = _mm_shuffle_epi32(sse_min0, _MM_SHUFFLE(NONE, NONE, 2, 0));
+	__m128i sse_min_r1 = _mm_shuffle_epi32(sse_min1, _MM_SHUFFLE(2, 0, NONE, NONE));
 	__m128i sse_tmin = _mm_or_si128(sse_min_r0, sse_min_r1);
 
 	/* "unshuffle" min result into 1 register
 	 */
-	__m128i sse_max_r0 = _mm_shuffle_epi32(sse_max0, _MM_SHUFFLE(NONE, NONE,    2,    0));
-	__m128i sse_max_r1 = _mm_shuffle_epi32(sse_max1, _MM_SHUFFLE(   2,    0, NONE, NONE));
+	__m128i sse_max_r0 = _mm_shuffle_epi32(sse_max0, _MM_SHUFFLE(NONE, NONE, 2, 0));
+	__m128i sse_max_r1 = _mm_shuffle_epi32(sse_max1, _MM_SHUFFLE(2, 0, NONE, NONE));
 	__m128i sse_tmax = _mm_or_si128(sse_max_r0, sse_max_r1);
 
 	sse_res = _mm_andnot_si128(sse_tmin, sse_tmax);
@@ -229,21 +215,22 @@ bool test_sse(const __m128i &sse_y1, const __m128i &sse_y1_min, const __m128i &s
 	return _mm_testz_si128(sse_res, full_mask);
 }
 
-bool test_sse2(const __m128i &sse_y1, const __m128i &sse_y1_min, const __m128i &sse_y1_max, __m128i &sse_res)
+bool test_sse2(const __m128i& sse_y1, const __m128i& sse_y1_min, const __m128i& sse_y1_max,
+               __m128i& sse_res)
 {
-	static const __m128i sse_full_ones  = _mm_set1_epi32(0xFFFFFFFF);
+	static const __m128i sse_full_ones = _mm_set1_epi32(0xFFFFFFFF);
 	static const __m128i sse_full_zeros = _mm_set1_epi32(0);
 
-	/* expand 4x32b register into 2 2x64b registers
-	 */
+/* expand 4x32b register into 2 2x64b registers
+ */
 
 #ifdef PRINT_SSE
 	std::cout << "#############################################################" << std::endl;
 #endif
 	sse_p32(sse_y1);
 
-	const __m128i sse_y1_0 = _mm_unpacklo_epi32 (sse_y1, sse_full_zeros);
-	const __m128i sse_y1_1 = _mm_unpackhi_epi32 (sse_y1, sse_full_zeros);
+	const __m128i sse_y1_0 = _mm_unpacklo_epi32(sse_y1, sse_full_zeros);
+	const __m128i sse_y1_1 = _mm_unpackhi_epi32(sse_y1, sse_full_zeros);
 
 	/* doing registers test against min
 	 */
@@ -328,15 +315,11 @@ bool test_sse2(const __m128i &sse_y1, const __m128i &sse_y1_min, const __m128i &
  * vectorized extraction
  */
 template <typename Ftest, typename Finsert>
-void extract_sse(const quadtree_entry_t *entries, const size_t size,
-                 const uint32_t y1_min_value, const uint32_t y1_mid_value,
-                 const uint32_t y2_min_value, const uint32_t y2_mid_value,
-                 const uint64_t y1_min, const uint64_t y1_max,
-                 const uint32_t zoom, const uint32_t y2_count,
-                 const Ftest &test_f,
-                 const Finsert &insert_f,
-                 uint32_t *buffer,
-                 tlr_buffer_t &tlr)
+void extract_sse(const quadtree_entry_t* entries, const size_t size, const uint32_t y1_min_value,
+                 const uint32_t y1_mid_value, const uint32_t y2_min_value,
+                 const uint32_t y2_mid_value, const uint64_t y1_min, const uint64_t y1_max,
+                 const uint32_t zoom, const uint32_t y2_count, const Ftest& test_f,
+                 const Finsert& insert_f, uint32_t* buffer, tlr_buffer_t& tlr)
 {
 	const uint64_t max_count = 1 << zoom;
 	const uint64_t y1_orig = y1_min_value;
@@ -346,38 +329,40 @@ void extract_sse(const quadtree_entry_t *entries, const size_t size,
 	const uint64_t y2_orig = y2_min_value;
 	const uint64_t y2_scale = ((y2_mid_value - y2_orig) * 2) / y2_count;
 	const uint64_t y2_shift = log2(y2_scale);
-	const uint64_t ly1_min = (PVCore::clamp(y1_min, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
-	const uint64_t ly1_max = (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
+	const uint64_t ly1_min =
+	    (PVCore::clamp(y1_min, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
+	const uint64_t ly1_max =
+	    (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 	const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
 	const size_t count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
 	memset(buffer, 0, count_aligned * sizeof(uint32_t));
 	uint32_t remaining = clipped_max_count * y2_count;
 
-	const __m128i sse_y1_min            = _mm_set1_epi64x(y1_min);
-	const __m128i sse_y1_max            = _mm_set1_epi64x(y1_max);
-	const __m128i sse_y1_orig           = _mm_set1_epi32(y1_orig);
-	const __m128i sse_y1_shift          = _mm_set1_epi32(y1_shift);
-	const __m128i sse_ly1_min           = _mm_set1_epi32(ly1_min);
-	const __m128i sse_y2_orig           = _mm_set1_epi32(y2_orig);
-	const __m128i sse_y2_shift          = _mm_set1_epi32(y2_shift);
+	const __m128i sse_y1_min = _mm_set1_epi64x(y1_min);
+	const __m128i sse_y1_max = _mm_set1_epi64x(y1_max);
+	const __m128i sse_y1_orig = _mm_set1_epi32(y1_orig);
+	const __m128i sse_y1_shift = _mm_set1_epi32(y1_shift);
+	const __m128i sse_ly1_min = _mm_set1_epi32(ly1_min);
+	const __m128i sse_y2_orig = _mm_set1_epi32(y2_orig);
+	const __m128i sse_y2_shift = _mm_set1_epi32(y2_shift);
 	const __m128i sse_clipped_max_count = _mm_set1_epi32(clipped_max_count);
 
 #ifdef USE_SSE_BOOL_ACCESS
-	static const __m128i sse_pos_mask   = _mm_set1_epi32(31);
+	static const __m128i sse_pos_mask = _mm_set1_epi32(31);
 #endif
 
 	size_t packed_size = size & ~3;
-	for(size_t i = 0; i < packed_size; i += 4) {
-		const quadtree_entry_t &e0 = entries[i];
-		const quadtree_entry_t &e1 = entries[i+1];
-		const quadtree_entry_t &e2 = entries[i+2];
-		const quadtree_entry_t &e3 = entries[i+3];
+	for (size_t i = 0; i < packed_size; i += 4) {
+		const quadtree_entry_t& e0 = entries[i];
+		const quadtree_entry_t& e1 = entries[i + 1];
+		const quadtree_entry_t& e2 = entries[i + 2];
+		const quadtree_entry_t& e3 = entries[i + 3];
 
 		// TODO: compact all _mm_xxxxx expressions ;-)
-		__m128i sse_r0 = _mm_loadu_si128((const __m128i*) &e0);
-		__m128i sse_r1 = _mm_loadu_si128((const __m128i*) &e1);
-		__m128i sse_r2 = _mm_loadu_si128((const __m128i*) &e2);
-		__m128i sse_r3 = _mm_loadu_si128((const __m128i*) &e3);
+		__m128i sse_r0 = _mm_loadu_si128((const __m128i*)&e0);
+		__m128i sse_r1 = _mm_loadu_si128((const __m128i*)&e1);
+		__m128i sse_r2 = _mm_loadu_si128((const __m128i*)&e2);
+		__m128i sse_r3 = _mm_loadu_si128((const __m128i*)&e3);
 
 		/* "transposition" partielle pour avoir les y1 dans un registre
 		 * et les y2 dans un autre
@@ -403,13 +388,13 @@ void extract_sse(const quadtree_entry_t *entries, const size_t size,
 		  pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min)
 		        + clipped_max_count * ((e.y2 - y2_orig) / y2_scale)
 		 */
-		__m128i sse_0s  = _mm_sub_epi32(sse_y1, sse_y1_orig);
+		__m128i sse_0s = _mm_sub_epi32(sse_y1, sse_y1_orig);
 		__m128i sse_0sd = _mm_srl_epi32(sse_0s, sse_y1_shift);
-		__m128i sse_0x  = _mm_sub_epi32(sse_0sd, sse_ly1_min);
+		__m128i sse_0x = _mm_sub_epi32(sse_0sd, sse_ly1_min);
 
-		__m128i sse_1s  = _mm_sub_epi32(sse_y2, sse_y2_orig);
+		__m128i sse_1s = _mm_sub_epi32(sse_y2, sse_y2_orig);
 		__m128i sse_1sd = _mm_srl_epi32(sse_1s, sse_y2_shift);
-		__m128i sse_1y  = _mm_mullo_epi32(sse_1sd, sse_clipped_max_count);
+		__m128i sse_1y = _mm_mullo_epi32(sse_1sd, sse_clipped_max_count);
 
 		__m128i sse_pos = _mm_add_epi32(sse_0x, sse_1y);
 
@@ -418,7 +403,7 @@ void extract_sse(const quadtree_entry_t *entries, const size_t size,
 		__m128i sse_index = _mm_and_si128(sse_pos, sse_pos_mask);
 #endif
 
-		if(_mm_extract_epi32(sse_test, 0)) {
+		if (_mm_extract_epi32(sse_test, 0)) {
 #ifdef USE_SSE_BOOL_ACCESS
 			uint32_t b = _mm_extract_epi32(sse_block, 0);
 			uint32_t i = _mm_extract_epi32(sse_index, 0);
@@ -441,7 +426,7 @@ void extract_sse(const quadtree_entry_t *entries, const size_t size,
 			}
 		}
 
-		if(_mm_extract_epi32(sse_test, 1)) {
+		if (_mm_extract_epi32(sse_test, 1)) {
 #ifdef USE_SSE_BOOL_ACCESS
 			uint32_t b = _mm_extract_epi32(sse_block, 1);
 			uint32_t i = _mm_extract_epi32(sse_index, 1);
@@ -464,7 +449,7 @@ void extract_sse(const quadtree_entry_t *entries, const size_t size,
 			}
 		}
 
-		if(_mm_extract_epi32(sse_test, 2)) {
+		if (_mm_extract_epi32(sse_test, 2)) {
 #ifdef USE_SSE_BOOL_ACCESS
 			uint32_t b = _mm_extract_epi32(sse_block, 2);
 			uint32_t i = _mm_extract_epi32(sse_index, 2);
@@ -487,7 +472,7 @@ void extract_sse(const quadtree_entry_t *entries, const size_t size,
 			}
 		}
 
-		if(_mm_extract_epi32(sse_test, 3)) {
+		if (_mm_extract_epi32(sse_test, 3)) {
 #ifdef USE_SSE_BOOL_ACCESS
 			uint32_t b = _mm_extract_epi32(sse_block, 3);
 			uint32_t i = _mm_extract_epi32(sse_index, 3);
@@ -511,13 +496,14 @@ void extract_sse(const quadtree_entry_t *entries, const size_t size,
 		}
 	}
 
-	for(size_t i = packed_size; i < size; ++i) {
-		const quadtree_entry_t &e = entries[i];
+	for (size_t i = packed_size; i < size; ++i) {
+		const quadtree_entry_t& e = entries[i];
 		++tested_count_sse;
 		if (!test_f(e, y1_min, y1_max)) {
 			continue;
 		}
-		const uint32_t pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min) + clipped_max_count * ((e.y2 - y2_orig) / y2_scale);
+		const uint32_t pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min) +
+		                     clipped_max_count * ((e.y2 - y2_orig) / y2_scale);
 		if (B_IS_SET(buffer[pos >> 5], pos & 31)) {
 			continue;
 		}
@@ -534,24 +520,24 @@ void extract_sse(const quadtree_entry_t *entries, const size_t size,
 /*****************************************************************************
  * main
  */
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	if (argc != P_MAX_VALUE) {
 		usage(argv[P_PROG]);
 		exit(1);
 	}
 
-	size_t num = (size_t) atol(argv[P_NUM]);
-	uint32_t zoom = (uint32_t) atol(argv[P_ZOOM]);
+	size_t num = (size_t)atol(argv[P_NUM]);
+	uint32_t zoom = (uint32_t)atol(argv[P_ZOOM]);
 
-	quadtree_entry_t *entries = init_entries(num);
-	uint32_t *buffer = new uint32_t [2048 * 4096];
-	tlr_buffer_t *tlr_seq = new tlr_buffer_t;
-	tlr_buffer_t *tlr_sse = new tlr_buffer_t;
+	quadtree_entry_t* entries = init_entries(num);
+	uint32_t* buffer = new uint32_t[2048 * 4096];
+	tlr_buffer_t* tlr_seq = new tlr_buffer_t;
+	tlr_buffer_t* tlr_sse = new tlr_buffer_t;
 
 	size_t ent_num = init_count(num);
 
-	const uint64_t y1_min = (uint64_t) atol(argv[P_MIN]);
+	const uint64_t y1_min = (uint64_t)atol(argv[P_MIN]);
 	const uint64_t y1_max = y1_min + (1UL << (32 - zoom));
 	const uint64_t y1_lim = y1_max;
 	std::cout << "y1_min  : " << y1_min << std::endl;
@@ -568,51 +554,41 @@ int main(int argc, char **argv)
 	uint32_t v_in = 1024;
 
 	std::cout << "test_sse with values around y1_min" << std::endl;
-	for(size_t i = 0; i < 16; ++i) {
-		uint32_t v0 = (i&1)?v_in:v_out;
-		uint32_t v1 = (i&2)?v_in:v_out;
-		uint32_t v2 = (i&4)?v_in:v_out;
-		uint32_t v3 = (i&8)?v_in:v_out;
+	for (size_t i = 0; i < 16; ++i) {
+		uint32_t v0 = (i & 1) ? v_in : v_out;
+		uint32_t v1 = (i & 2) ? v_in : v_out;
+		uint32_t v2 = (i & 4) ? v_in : v_out;
+		uint32_t v3 = (i & 8) ? v_in : v_out;
 
 		sse_vec = _mm_set_epi32(v3, v2, v1, v0);
 
 		int res = test_sse2(sse_vec, sse_y1_min, sse_y1_max, sse_res);
 
-		printf ("  sse_vec: [ %4u %4u %4u %4u ] => res: %d - [ %2d %2d %2d %2d ]\n",
-		        _mm_extract_epi32(sse_vec, 3),
-		        _mm_extract_epi32(sse_vec, 2),
-		        _mm_extract_epi32(sse_vec, 1),
-		        _mm_extract_epi32(sse_vec, 0),
-		        res,
-		        _mm_extract_epi32(sse_res, 3),
-		        _mm_extract_epi32(sse_res, 2),
-		        _mm_extract_epi32(sse_res, 1),
-		        _mm_extract_epi32(sse_res, 0));
+		printf("  sse_vec: [ %4u %4u %4u %4u ] => res: %d - [ %2d %2d %2d %2d ]\n",
+		       _mm_extract_epi32(sse_vec, 3), _mm_extract_epi32(sse_vec, 2),
+		       _mm_extract_epi32(sse_vec, 1), _mm_extract_epi32(sse_vec, 0), res,
+		       _mm_extract_epi32(sse_res, 3), _mm_extract_epi32(sse_res, 2),
+		       _mm_extract_epi32(sse_res, 1), _mm_extract_epi32(sse_res, 0));
 	}
 
 	v_out = 2050;
 	v_in = 1024;
 
 	std::cout << "test_sse with values around y2_min" << std::endl;
-	for(size_t i = 0; i < 16; ++i) {
-		uint32_t v0 = (i&1)?v_in:v_out;
-		uint32_t v1 = (i&2)?v_in:v_out;
-		uint32_t v2 = (i&4)?v_in:v_out;
-		uint32_t v3 = (i&8)?v_in:v_out;
+	for (size_t i = 0; i < 16; ++i) {
+		uint32_t v0 = (i & 1) ? v_in : v_out;
+		uint32_t v1 = (i & 2) ? v_in : v_out;
+		uint32_t v2 = (i & 4) ? v_in : v_out;
+		uint32_t v3 = (i & 8) ? v_in : v_out;
 
 		sse_vec = _mm_set_epi32(v3, v2, v1, v0);
 		int res = test_sse2(sse_vec, sse_y1_min, sse_y1_max, sse_res);
 
-		printf ("  sse_vec: [ %4u %4u %4u %4u ] => res: %d - [ %2d %2d %2d %2d ]\n",
-		        _mm_extract_epi32(sse_vec, 3),
-		        _mm_extract_epi32(sse_vec, 2),
-		        _mm_extract_epi32(sse_vec, 1),
-		        _mm_extract_epi32(sse_vec, 0),
-		        res,
-		        _mm_extract_epi32(sse_res, 3),
-		        _mm_extract_epi32(sse_res, 2),
-		        _mm_extract_epi32(sse_res, 1),
-		        _mm_extract_epi32(sse_res, 0));
+		printf("  sse_vec: [ %4u %4u %4u %4u ] => res: %d - [ %2d %2d %2d %2d ]\n",
+		       _mm_extract_epi32(sse_vec, 3), _mm_extract_epi32(sse_vec, 2),
+		       _mm_extract_epi32(sse_vec, 1), _mm_extract_epi32(sse_vec, 0), res,
+		       _mm_extract_epi32(sse_res, 3), _mm_extract_epi32(sse_res, 2),
+		       _mm_extract_epi32(sse_res, 1), _mm_extract_epi32(sse_res, 0));
 	}
 
 	const uint64_t y_min = y1_min;
@@ -623,29 +599,19 @@ int main(int argc, char **argv)
 
 	tlr_seq->clear();
 	BENCH_START(seq);
-	extract_seq(entries, ent_num,
-	            0, BUCKET_ELT_COUNT >> 1,
-	            0, BUCKET_ELT_COUNT >> 1,
-	            y1_min, y1_max,
-	            zoom, 4096,
-	            [](const quadtree_entry_t &e, const uint64_t y1_min, const uint64_t y1_max) -> bool
-	            {
-		            return (e.y1 >= y1_min) && (e.y1 < y1_max);
-	            },
-	            [&](const quadtree_entry_t &e, tlr_buffer_t &buffer)
-	            {
+	extract_seq(entries, ent_num, 0, BUCKET_ELT_COUNT >> 1, 0, BUCKET_ELT_COUNT >> 1, y1_min,
+	            y1_max, zoom, 4096,
+	            [](const quadtree_entry_t& e, const uint64_t y1_min, const uint64_t y1_max)
+	                -> bool { return (e.y1 >= y1_min) && (e.y1 < y1_max); },
+	            [&](const quadtree_entry_t& e, tlr_buffer_t& buffer) {
 		            bci_code_t bci;
-		            compute_bci_projection_y2(e.y1, e.y2,
-		                                      y_min, y_lim,
-		                                      shift, mask_int_ycoord,
+		            compute_bci_projection_y2(e.y1, e.y2, y_min, y_lim, shift, mask_int_ycoord,
 		                                      width, beta, bci);
-		            tlr_index_t tlr(bci.s.type,
-		                            bci.s.l,
-		                            bci.s.r);
+		            tlr_index_t tlr(bci.s.type, bci.s.l, bci.s.r);
 		            if (e.idx < buffer[tlr.v]) {
 			            buffer[tlr.v] = e.idx;
 		            }
-	            },
+		        },
 	            buffer, *tlr_seq);
 	BENCH_STOP(seq);
 	BENCH_SHOW(seq, "sequential run", 0, 0, 0, 0);
@@ -653,29 +619,19 @@ int main(int argc, char **argv)
 
 	tlr_sse->clear();
 	BENCH_START(sse);
-	extract_sse(entries, ent_num,
-	            0, BUCKET_ELT_COUNT >> 1,
-	            0, BUCKET_ELT_COUNT >> 1,
-	            y1_min, y1_max,
-	            zoom, 4096,
-	            [](const quadtree_entry_t &e, const uint64_t y1_min, const uint64_t y1_max) -> bool
-	            {
-		            return (y1_min <= e.y1) && (e.y1 < y1_max);
-	            },
-	            [&](const quadtree_entry_t &e, tlr_buffer_t &buffer)
-	            {
+	extract_sse(entries, ent_num, 0, BUCKET_ELT_COUNT >> 1, 0, BUCKET_ELT_COUNT >> 1, y1_min,
+	            y1_max, zoom, 4096,
+	            [](const quadtree_entry_t& e, const uint64_t y1_min, const uint64_t y1_max)
+	                -> bool { return (y1_min <= e.y1) && (e.y1 < y1_max); },
+	            [&](const quadtree_entry_t& e, tlr_buffer_t& buffer) {
 		            bci_code_t bci;
-		            compute_bci_projection_y2(e.y1, e.y2,
-		                                      y_min, y_lim,
-		                                      shift, mask_int_ycoord,
+		            compute_bci_projection_y2(e.y1, e.y2, y_min, y_lim, shift, mask_int_ycoord,
 		                                      width, beta, bci);
-		            tlr_index_t tlr(bci.s.type,
-		                            bci.s.l,
-		                            bci.s.r);
+		            tlr_index_t tlr(bci.s.type, bci.s.l, bci.s.r);
 		            if (e.idx < buffer[tlr.v]) {
 			            buffer[tlr.v] = e.idx;
 		            }
-	            },
+		        },
 	            buffer, *tlr_sse);
 	BENCH_STOP(sse);
 	BENCH_SHOW(sse, "vectorized run", 0, 0, 0, 0);
@@ -686,7 +642,7 @@ int main(int argc, char **argv)
 	bool diff = false;
 
 	int seq_found_count = 0;
-	for(size_t i = 0; i < tlr_buffer_t::length; ++i) {
+	for (size_t i = 0; i < tlr_buffer_t::length; ++i) {
 		if ((*tlr_seq)[i] != UINT32_MAX) {
 			++seq_found_count;
 		}
@@ -694,21 +650,21 @@ int main(int argc, char **argv)
 	std::cout << "BCI codes found in seq version: " << seq_found_count << std::endl;
 
 	int sse_found_count = 0;
-	for(size_t i = 0; i < tlr_buffer_t::length; ++i) {
+	for (size_t i = 0; i < tlr_buffer_t::length; ++i) {
 		if ((*tlr_sse)[i] != UINT32_MAX) {
 			++sse_found_count;
 		}
 	}
 	std::cout << "BCI codes found in sse version: " << sse_found_count << std::endl;
 
-	//std::cout << "diff at:";
-	for(size_t i = 0; i < tlr_buffer_t::length; ++i) {
+	// std::cout << "diff at:";
+	for (size_t i = 0; i < tlr_buffer_t::length; ++i) {
 		if ((*tlr_seq)[i] != (*tlr_sse)[i]) {
 			diff = true;
-			//std::cout << " " << i;
+			// std::cout << " " << i;
 		}
 	}
-	//std::cout << std::endl;
+	// std::cout << std::endl;
 
 	if (diff) {
 		std::cout << "TLRBuffers are different" << std::endl;
@@ -726,4 +682,3 @@ int main(int argc, char **argv)
 
 	return 0;
 }
-

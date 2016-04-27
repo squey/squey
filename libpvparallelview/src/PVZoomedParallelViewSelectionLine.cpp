@@ -18,11 +18,9 @@
  * PVParallelView::PVZoomedParallelViewSelectionLine::PVZoomedParallelViewSelectionLine
  *****************************************************************************/
 
-PVParallelView::PVZoomedParallelViewSelectionLine::PVZoomedParallelViewSelectionLine(PVZoomedParallelView* zpv)
-	: QGraphicsObject(nullptr),
-	  _zpv(zpv),
-	  _x_scale(1.0),
-	  _y_scale(1.0)
+PVParallelView::PVZoomedParallelViewSelectionLine::PVZoomedParallelViewSelectionLine(
+    PVZoomedParallelView* zpv)
+    : QGraphicsObject(nullptr), _zpv(zpv), _x_scale(1.0), _y_scale(1.0)
 {
 	_timer = new QTimer(this);
 	_timer->setSingleShot(true);
@@ -61,41 +59,41 @@ void PVParallelView::PVZoomedParallelViewSelectionLine::paint(QPainter* painter,
 	const qreal line_offset = 10. / _x_scale;
 
 	if (!isVisible()) {
-                return;
-        }
+		return;
+	}
 
-        painter->save();
+	painter->save();
 
-        painter->setPen(QPen(_pen_color, 0));
+	painter->setPen(QPen(_pen_color, 0));
 
-        painter->drawLine(_tl_pos, _br_pos);
+	painter->drawLine(_tl_pos, _br_pos);
 
-        painter->setPen(QPen(PVSelectionRectangle::handle_color, 0));
+	painter->setPen(QPen(PVSelectionRectangle::handle_color, 0));
 
-        qreal x1 = 0.;
-        qreal x2 = _tl_pos.x();
-        qreal y = _tl_pos.y();
+	qreal x1 = 0.;
+	qreal x2 = _tl_pos.x();
+	qreal y = _tl_pos.y();
 
-        if (x2 < 0) {
-	        x2 -= line_offset;
-        } else {
-	        x2 += line_offset;
-        }
+	if (x2 < 0) {
+		x2 -= line_offset;
+	} else {
+		x2 += line_offset;
+	}
 
-        painter->drawLine(QPointF(x1, y), QPointF(x2, y));
+	painter->drawLine(QPointF(x1, y), QPointF(x2, y));
 
-        x2 = _br_pos.x();
-        y = _br_pos.y();
+	x2 = _br_pos.x();
+	y = _br_pos.y();
 
-        if (x2 < 0) {
-	        x2 -= line_offset;
-        } else {
-	        x2 += line_offset;
-        }
+	if (x2 < 0) {
+		x2 -= line_offset;
+	} else {
+		x2 += line_offset;
+	}
 
-        painter->drawLine(QPointF(x1, y), QPointF(x2, y));
+	painter->drawLine(QPointF(x1, y), QPointF(x2, y));
 
-        painter->restore();
+	painter->restore();
 }
 
 /*****************************************************************************
@@ -143,7 +141,7 @@ qreal PVParallelView::PVZoomedParallelViewSelectionLine::bottom() const
  * PVParallelView::PVZoomedParallelViewSelectionLine::begin
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelViewSelectionLine::begin(const QPointF &p)
+void PVParallelView::PVZoomedParallelViewSelectionLine::begin(const QPointF& p)
 {
 	start_timer();
 	show();
@@ -161,8 +159,7 @@ void PVParallelView::PVZoomedParallelViewSelectionLine::begin(const QPointF &p)
  * PVParallelView::PVZoomedParallelViewSelectionLine::step
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelViewSelectionLine::step(const QPointF &p,
-                                                             bool need_timer)
+void PVParallelView::PVZoomedParallelViewSelectionLine::step(const QPointF& p, bool need_timer)
 {
 	if (need_timer) {
 		start_timer();
@@ -180,7 +177,7 @@ void PVParallelView::PVZoomedParallelViewSelectionLine::step(const QPointF &p,
  * PVParallelView::PVZoomedParallelViewSelectionLine::end
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelViewSelectionLine::end(const QPointF &p)
+void PVParallelView::PVZoomedParallelViewSelectionLine::end(const QPointF& p)
 {
 	step(p, false);
 	_timer->stop();
