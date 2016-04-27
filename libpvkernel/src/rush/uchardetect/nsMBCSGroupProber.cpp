@@ -41,169 +41,143 @@
 #include <pvkernel/rush/uchardetect/nsMBCSGroupProber.h>
 
 #ifdef DEBUG_chardet
-char *ProberName[] = 
-{
-  "UTF8",
-  "SJIS",
-  "EUCJP",
-  "GB18030",
-  "EUCKR",
-  "Big5",
-  "EUCTW",
+char* ProberName[] = {
+    "UTF8", "SJIS", "EUCJP", "GB18030", "EUCKR", "Big5", "EUCTW",
 };
 
 #endif
 
 nsMBCSGroupProber::nsMBCSGroupProber()
 {
-  mProbers[0] = new nsUTF8Prober();
-  mProbers[1] = new nsSJISProber();
-  mProbers[2] = new nsEUCJPProber();
-  mProbers[3] = new nsGB18030Prober();
-  mProbers[4] = new nsEUCKRProber();
-  mProbers[5] = new nsBig5Prober();
-  mProbers[6] = new nsEUCTWProber();
-  Reset();
+	mProbers[0] = new nsUTF8Prober();
+	mProbers[1] = new nsSJISProber();
+	mProbers[2] = new nsEUCJPProber();
+	mProbers[3] = new nsGB18030Prober();
+	mProbers[4] = new nsEUCKRProber();
+	mProbers[5] = new nsBig5Prober();
+	mProbers[6] = new nsEUCTWProber();
+	Reset();
 }
 
 nsMBCSGroupProber::~nsMBCSGroupProber()
 {
-  for (PRUint32 i = 0; i < NUM_OF_PROBERS; i++)
-  {
-    delete mProbers[i];
-  }
+	for (PRUint32 i = 0; i < NUM_OF_PROBERS; i++) {
+		delete mProbers[i];
+	}
 }
 
 const char* nsMBCSGroupProber::GetCharSetName()
 {
-  if (mBestGuess == -1)
-  {
-    GetConfidence();
-    if (mBestGuess == -1)
-      mBestGuess = 0;
-  }
-  return mProbers[mBestGuess]->GetCharSetName();
+	if (mBestGuess == -1) {
+		GetConfidence();
+		if (mBestGuess == -1)
+			mBestGuess = 0;
+	}
+	return mProbers[mBestGuess]->GetCharSetName();
 }
 
-void  nsMBCSGroupProber::Reset(void)
+void nsMBCSGroupProber::Reset(void)
 {
-  mActiveNum = 0;
-  for (PRUint32 i = 0; i < NUM_OF_PROBERS; i++)
-  {
-    if (mProbers[i])
-    {
-      mProbers[i]->Reset();
-      mIsActive[i] = PR_TRUE;
-      ++mActiveNum;
-    }
-    else
-      mIsActive[i] = PR_FALSE;
-  }
-  mBestGuess = -1;
-  mState = eDetecting;
+	mActiveNum = 0;
+	for (PRUint32 i = 0; i < NUM_OF_PROBERS; i++) {
+		if (mProbers[i]) {
+			mProbers[i]->Reset();
+			mIsActive[i] = PR_TRUE;
+			++mActiveNum;
+		} else
+			mIsActive[i] = PR_FALSE;
+	}
+	mBestGuess = -1;
+	mState = eDetecting;
 }
 
 nsProbingState nsMBCSGroupProber::HandleData(const char* aBuf, PRUint32 aLen)
 {
-  nsProbingState st;
-  PRUint32 i;
+	nsProbingState st;
+	PRUint32 i;
 
-  //do filtering to reduce load to probers
-  char *highbyteBuf;
-  char *hptr;
-  PRBool keepNext = PR_TRUE;   //assume previous is not ascii, it will do no harm except add some noise
-  hptr = highbyteBuf = (char*)PR_Malloc(aLen);
-  if (!hptr)
-      return mState;
-  for (i = 0; i < aLen; i++)
-  {
-    if (aBuf[i] & 0x80)
-    {
-      *hptr++ = aBuf[i];
-      keepNext = PR_TRUE;
-    }
-    else
-    {
-      //if previous is highbyte, keep this even it is a ASCII
-      if (keepNext)
-      {
-          *hptr++ = aBuf[i];
-          keepNext = PR_FALSE;
-      }
-    }
-  }
+	// do filtering to reduce load to probers
+	char* highbyteBuf;
+	char* hptr;
+	PRBool keepNext =
+	    PR_TRUE; // assume previous is not ascii, it will do no harm except add some noise
+	hptr = highbyteBuf = (char*)PR_Malloc(aLen);
+	if (!hptr)
+		return mState;
+	for (i = 0; i < aLen; i++) {
+		if (aBuf[i] & 0x80) {
+			*hptr++ = aBuf[i];
+			keepNext = PR_TRUE;
+		} else {
+			// if previous is highbyte, keep this even it is a ASCII
+			if (keepNext) {
+				*hptr++ = aBuf[i];
+				keepNext = PR_FALSE;
+			}
+		}
+	}
 
-  for (i = 0; i < NUM_OF_PROBERS; i++)
-  {
-     if (!mIsActive[i])
-       continue;
-     st = mProbers[i]->HandleData(highbyteBuf, hptr - highbyteBuf);
-     if (st == eFoundIt)
-     {
-       mBestGuess = i;
-       mState = eFoundIt;
-       break;
-     }
-     else if (st == eNotMe)
-     {
-       mIsActive[i] = PR_FALSE;
-       mActiveNum--;
-       if (mActiveNum <= 0)
-       {
-         mState = eNotMe;
-         break;
-       }
-     }
-  }
+	for (i = 0; i < NUM_OF_PROBERS; i++) {
+		if (!mIsActive[i])
+			continue;
+		st = mProbers[i]->HandleData(highbyteBuf, hptr - highbyteBuf);
+		if (st == eFoundIt) {
+			mBestGuess = i;
+			mState = eFoundIt;
+			break;
+		} else if (st == eNotMe) {
+			mIsActive[i] = PR_FALSE;
+			mActiveNum--;
+			if (mActiveNum <= 0) {
+				mState = eNotMe;
+				break;
+			}
+		}
+	}
 
-  PR_FREEIF(highbyteBuf);
+	PR_FREEIF(highbyteBuf);
 
-  return mState;
+	return mState;
 }
 
 float nsMBCSGroupProber::GetConfidence(void)
 {
-  PRUint32 i;
-  float bestConf = 0.0, cf;
+	PRUint32 i;
+	float bestConf = 0.0, cf;
 
-  switch (mState)
-  {
-  case eFoundIt:
-    return (float)0.99;
-  case eNotMe:
-    return (float)0.01;
-  default:
-    for (i = 0; i < NUM_OF_PROBERS; i++)
-    {
-      if (!mIsActive[i])
-        continue;
-      cf = mProbers[i]->GetConfidence();
-      if (bestConf < cf)
-      {
-        bestConf = cf;
-        mBestGuess = i;
-      }
-    }
-  }
-  return bestConf;
+	switch (mState) {
+	case eFoundIt:
+		return (float)0.99;
+	case eNotMe:
+		return (float)0.01;
+	default:
+		for (i = 0; i < NUM_OF_PROBERS; i++) {
+			if (!mIsActive[i])
+				continue;
+			cf = mProbers[i]->GetConfidence();
+			if (bestConf < cf) {
+				bestConf = cf;
+				mBestGuess = i;
+			}
+		}
+	}
+	return bestConf;
 }
 
 #ifdef DEBUG_chardet
 void nsMBCSGroupProber::DumpStatus()
 {
-  PRUint32 i;
-  float cf;
-  
-  GetConfidence();
-  for (i = 0; i < NUM_OF_PROBERS; i++)
-  {
-    if (!mIsActive[i])
-      printf("  MBCS inactive: [%s] (confidence is too low).\r\n", ProberName[i]);
-    else
-    {
-      cf = mProbers[i]->GetConfidence();
-      printf("  MBCS %1.3f: [%s]\r\n", cf, ProberName[i]);
-    }
-  }
+	PRUint32 i;
+	float cf;
+
+	GetConfidence();
+	for (i = 0; i < NUM_OF_PROBERS; i++) {
+		if (!mIsActive[i])
+			printf("  MBCS inactive: [%s] (confidence is too low).\r\n", ProberName[i]);
+		else {
+			cf = mProbers[i]->GetConfidence();
+			printf("  MBCS %1.3f: [%s]\r\n", cf, ProberName[i]);
+		}
+	}
 }
 #endif

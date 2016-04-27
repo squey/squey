@@ -25,9 +25,10 @@ static inline void propagate_event_to_scene(PVWidgets::PVGraphicsView* obj, E* e
  * PVWidgets::PVGraphicsViewInteractorScene::PVGraphicsViewInteractorScene
  *****************************************************************************/
 
-PVWidgets::PVGraphicsViewInteractorScene::PVGraphicsViewInteractorScene(PVGraphicsView* parent) :
-	PVWidgets::PVGraphicsViewInteractor<PVGraphicsView>(parent)
-{}
+PVWidgets::PVGraphicsViewInteractorScene::PVGraphicsViewInteractorScene(PVGraphicsView* parent)
+    : PVWidgets::PVGraphicsViewInteractor<PVGraphicsView>(parent)
+{
+}
 
 /*****************************************************************************
  * PVWidgets::PVGraphicsViewInteractorScene::contextMenuEvent
@@ -82,8 +83,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::mouseDoubleClickEvent(PVGraphicsV
 
 	scene_event.setWidget(obj->get_viewport());
 
-	scene_event.setButtonDownScenePos(obj->_mouse_pressed_button,
-	                                  obj->_mouse_pressed_scene_coord);
+	scene_event.setButtonDownScenePos(obj->_mouse_pressed_button, obj->_mouse_pressed_scene_coord);
 	scene_event.setButtonDownScreenPos(obj->_mouse_pressed_button,
 	                                   obj->_mouse_pressed_screen_coord);
 
@@ -127,8 +127,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::mousePressEvent(PVGraphicsView* o
 
 	scene_event.setWidget(obj->get_viewport());
 
-	scene_event.setButtonDownScenePos(obj->_mouse_pressed_button,
-	                                  obj->_mouse_pressed_scene_coord);
+	scene_event.setButtonDownScenePos(obj->_mouse_pressed_button, obj->_mouse_pressed_scene_coord);
 	scene_event.setButtonDownScreenPos(obj->_mouse_pressed_button,
 	                                   obj->_mouse_pressed_screen_coord);
 
@@ -164,7 +163,8 @@ bool PVWidgets::PVGraphicsViewInteractorScene::mouseReleaseEvent(PVGraphicsView*
 	scene_event.setWidget(obj->get_viewport());
 
 	scene_event.setButtonDownScenePos(obj->_mouse_pressed_button, obj->_mouse_pressed_scene_coord);
-	scene_event.setButtonDownScreenPos(obj->_mouse_pressed_button, obj->_mouse_pressed_screen_coord);
+	scene_event.setButtonDownScreenPos(obj->_mouse_pressed_button,
+	                                   obj->_mouse_pressed_screen_coord);
 
 	scene_event.setScenePos(obj->map_to_scene(event->pos()));
 	scene_event.setScreenPos(event->globalPos());
@@ -198,8 +198,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::mouseMoveEvent(PVGraphicsView* ob
 
 	scene_event.setWidget(obj->get_viewport());
 
-	scene_event.setButtonDownScenePos(obj->_mouse_pressed_button,
-	                                  obj->_mouse_pressed_scene_coord);
+	scene_event.setButtonDownScenePos(obj->_mouse_pressed_button, obj->_mouse_pressed_scene_coord);
 	scene_event.setButtonDownScreenPos(obj->_mouse_pressed_button,
 	                                   obj->_mouse_pressed_screen_coord);
 
@@ -230,8 +229,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::mouseMoveEvent(PVGraphicsView* ob
  * PVWidgets::PVGraphicsViewInteractorScene::wheelEvent
  *****************************************************************************/
 
-bool PVWidgets::PVGraphicsViewInteractorScene::wheelEvent(PVGraphicsView* obj,
-                                                          QWheelEvent* event)
+bool PVWidgets::PVGraphicsViewInteractorScene::wheelEvent(PVGraphicsView* obj, QWheelEvent* event)
 {
 	QGraphicsSceneWheelEvent scene_event(QEvent::GraphicsSceneWheel);
 
@@ -259,8 +257,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::wheelEvent(PVGraphicsView* obj,
  * PVWidgets::PVGraphicsViewInteractorScene::keyPressEvent
  *****************************************************************************/
 
-bool PVWidgets::PVGraphicsViewInteractorScene::keyPressEvent(PVGraphicsView* obj,
-                                                             QKeyEvent* event)
+bool PVWidgets::PVGraphicsViewInteractorScene::keyPressEvent(PVGraphicsView* obj, QKeyEvent* event)
 {
 	propagate_event_to_scene(obj, event);
 

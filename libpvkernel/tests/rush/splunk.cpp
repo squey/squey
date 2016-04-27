@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -64,12 +64,8 @@ int main(int argc, char** argv)
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
-	PV_ASSERT_VALID(
-		indexes.size() == 3 &&
-		indexes[0] == "history" &&
-		indexes[1] == "main" &&
-		indexes[2] == "summary"
-	);
+	PV_ASSERT_VALID(indexes.size() == 3 && indexes[0] == "history" && indexes[1] == "main" &&
+	                indexes[2] == "summary");
 
 	/*************************************************************************
 	 * Check we can get the correct sourcetypes from the server
@@ -79,10 +75,7 @@ int main(int argc, char** argv)
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
-	PV_ASSERT_VALID(
-		sourcetypes.size() == 1 &&
-		sourcetypes[0] == "proxy_sample"
-	);
+	PV_ASSERT_VALID(sourcetypes.size() == 1 && sourcetypes[0] == "proxy_sample");
 
 	/*************************************************************************
 	 * Check we can get the correct hosts from the server
@@ -92,11 +85,7 @@ int main(int argc, char** argv)
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
-	PV_ASSERT_VALID(
-		hosts.size() == 2 &&
-		hosts[0] == "connectors" &&
-		hosts[1] == "connectors2"
-	);
+	PV_ASSERT_VALID(hosts.size() == 2 && hosts[0] == "connectors" && hosts[1] == "connectors2");
 
 	/*************************************************************************
 	 * Check we can get the correct columns from the server
@@ -106,49 +95,47 @@ int main(int argc, char** argv)
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
-	PV_ASSERT_VALID(columns == PVRush::PVSplunkAPI::columns_t({
-		{"category", "string"},
-		{"date_hour", "integer"},
-		{"date_mday", "integer"},
-		{"date_minute", "integer"},
-		{"date_month", "string"},
-		{"date_second", "integer"},
-		{"date_wday", "string"},
-		{"date_year", "integer"},
-		{"date_zone", "integer"},
-		{"eventtype", "string"},
-		{"host", "string"},
-		{"http_method", "string"},
-		{"http_status", "integer"},
-		{"index", "string"},
-		{"linecount", "integer"},
-		{"login", "integer"},
-		{"mime_type", "string"},
-		{"punct", "string"},
-		{"result_code", "string"},
-		{"source", "string"},
-		{"sourcetype", "string"},
-		{"splunk_server", "string"},
-		{"splunk_server_group", "string"},
-		{"src_ip", "string"},
-		{"time", "integer"},
-		{"time_spent", "integer"},
-		{"timeendpos", "integer"},
-		{"timestartpos", "integer"},
-		{"total_bytes", "integer"},
-		{"url", "string"},
-		{"user_agent", "string"},
-		{"_bkt", "string"},
-		{"_cd", "string"},
-		{"_indextime", "integer"},
-		{"_kv", "integer"},
-		{"_raw", "string"},
-		{"_serial", "integer"},
-		{"_si", "string"},
-		{"_sourcetype", "string"},
-		{"_subsecond", "string"},
-		{"_time", "integer"}
-	 }));
+	PV_ASSERT_VALID(columns == PVRush::PVSplunkAPI::columns_t({{"category", "string"},
+	                                                           {"date_hour", "integer"},
+	                                                           {"date_mday", "integer"},
+	                                                           {"date_minute", "integer"},
+	                                                           {"date_month", "string"},
+	                                                           {"date_second", "integer"},
+	                                                           {"date_wday", "string"},
+	                                                           {"date_year", "integer"},
+	                                                           {"date_zone", "integer"},
+	                                                           {"eventtype", "string"},
+	                                                           {"host", "string"},
+	                                                           {"http_method", "string"},
+	                                                           {"http_status", "integer"},
+	                                                           {"index", "string"},
+	                                                           {"linecount", "integer"},
+	                                                           {"login", "integer"},
+	                                                           {"mime_type", "string"},
+	                                                           {"punct", "string"},
+	                                                           {"result_code", "string"},
+	                                                           {"source", "string"},
+	                                                           {"sourcetype", "string"},
+	                                                           {"splunk_server", "string"},
+	                                                           {"splunk_server_group", "string"},
+	                                                           {"src_ip", "string"},
+	                                                           {"time", "integer"},
+	                                                           {"time_spent", "integer"},
+	                                                           {"timeendpos", "integer"},
+	                                                           {"timestartpos", "integer"},
+	                                                           {"total_bytes", "integer"},
+	                                                           {"url", "string"},
+	                                                           {"user_agent", "string"},
+	                                                           {"_bkt", "string"},
+	                                                           {"_cd", "string"},
+	                                                           {"_indextime", "integer"},
+	                                                           {"_kv", "integer"},
+	                                                           {"_raw", "string"},
+	                                                           {"_serial", "integer"},
+	                                                           {"_si", "string"},
+	                                                           {"_sourcetype", "string"},
+	                                                           {"_subsecond", "string"},
+	                                                           {"_time", "integer"}}));
 
 	/*************************************************************************
 	 * Check we can correctly count number of matching fields
@@ -177,36 +164,31 @@ int main(int argc, char** argv)
 
 	// Count number of line in the reference file
 	std::ifstream reference_file_stream(reference_file);
-	if(not reference_file_stream.good()) {
+	if (not reference_file_stream.good()) {
 		return 1;
 	}
-	size_t reference_file_line_count = std::count(
-		std::istreambuf_iterator<char>(reference_file_stream),
-		std::istreambuf_iterator<char>(),
-		'\n'
-	);
+	size_t reference_file_line_count =
+	    std::count(std::istreambuf_iterator<char>(reference_file_stream),
+	               std::istreambuf_iterator<char>(), '\n');
 	PVRush::PVUtils::sort_file(reference_file.c_str(), reference_sorted_file.c_str());
 
 	// Count number of line in the exported file
 	std::ifstream output_file_stream(output_file);
-	if(not output_file_stream.good()) {
+	if (not output_file_stream.good()) {
 		return 1;
 	}
-	size_t output_file_line_count = std::count(
-		std::istreambuf_iterator<char>(output_file_stream),
-		std::istreambuf_iterator<char>(),
-		'\n'
-	);
+	size_t output_file_line_count = std::count(std::istreambuf_iterator<char>(output_file_stream),
+	                                           std::istreambuf_iterator<char>(), '\n');
 	PVRush::PVUtils::sort_file(output_file.c_str());
 
 	// Check there are the same number of lines for reference, exported file
 	// and count API call
-	PV_ASSERT_VALID(
-		output_file_line_count == reference_file_line_count && output_file_line_count == count
-	);
+	PV_ASSERT_VALID(output_file_line_count == reference_file_line_count &&
+	                output_file_line_count == count);
 
 	// Check sorted content is the same as Splunk doesn't return ordered result
-	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file.c_str(), reference_sorted_file.c_str()));
+	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file.c_str(),
+	                                                         reference_sorted_file.c_str()));
 
 	/*
 	 * Do some clean up

@@ -40,10 +40,12 @@ int main(int argc, char** argv)
 	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 
 	// Load source plugins that take a file as input
-	PVRush::PVInputType_p file_type = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
+	PVRush::PVInputType_p file_type =
+	    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
 
 	// Auto-discovery on that input
-	std::multimap<float, PVRush::pair_format_creator> discovery = PVRush::PVSourceCreatorFactory::discover_input(file_type, file);
+	std::multimap<float, PVRush::pair_format_creator> discovery =
+	    PVRush::PVSourceCreatorFactory::discover_input(file_type, file);
 	std::multimap<float, PVRush::pair_format_creator>::const_iterator it;
 
 	// Dump format statistics

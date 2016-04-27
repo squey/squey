@@ -15,40 +15,40 @@
 
 #include <exception>
 
-namespace PVCore {
+namespace PVCore
+{
 
 /*! \brief Exception class if a filter argument is missing during PVFilterFunction::set_args()
  */
 class PVFunctionArgumentMissing : public std::exception
 {
-public:
-	PVFunctionArgumentMissing(QString const& arg) throw() :
-		std::exception()
+  public:
+	PVFunctionArgumentMissing(QString const& arg) throw() : std::exception()
 	{
 		_what = QString("Argument %1 missing").arg(arg);
 	}
-	~PVFunctionArgumentMissing() throw() {};
+	~PVFunctionArgumentMissing() throw(){};
 	virtual const char* what() const throw() { return qPrintable(_what); };
-protected:
+
+  protected:
 	QString _what;
 };
 
 class PVFunctionArgsBase
 {
 
-public:
-	PVFunctionArgsBase(PVArgumentList const& args = PVArgumentList()) :
-		_args(args), _def_args(args)
+  public:
+	PVFunctionArgsBase(PVArgumentList const& args = PVArgumentList()) : _args(args), _def_args(args)
 	{
 	}
 
-	virtual ~PVFunctionArgsBase() { }
+	virtual ~PVFunctionArgsBase() {}
 
-public:
+  public:
 	virtual const PVArgumentList& get_args() const { return _args; }
 	virtual void set_args(PVArgumentList const& args)
 	{
-		PVArgumentList::const_iterator it,ite;
+		PVArgumentList::const_iterator it, ite;
 		it = _def_args.begin();
 		ite = _def_args.end();
 		for (; it != ite; it++) {
@@ -58,7 +58,7 @@ public:
 				throw PVFunctionArgumentMissing(it->key());
 			}
 		}
-	   _args = args;
+		_args = args;
 	}
 
 	PVArgumentList const& get_default_args() const { return _def_args; }
@@ -69,12 +69,10 @@ public:
 		PVCore::PVArgumentKeyList keys = get_args_keys_for_preset();
 
 		// Get rid of unwanted args
-		PVArgumentList filtered_args ;
-		foreach (PVCore::PVArgumentKey key, keys)
-		{
+		PVArgumentList filtered_args;
+		foreach (PVCore::PVArgumentKey key, keys) {
 			PVArgumentList::const_iterator it = args.find(key);
-			if (it != args.end())
-			{
+			if (it != args.end()) {
 				filtered_args[it->key()] = it->value();
 			}
 		}
@@ -95,36 +93,34 @@ public:
 			}
 		}
 	}
-protected:
+
+  protected:
 	PVArgumentList _args;
 	PVArgumentList _def_args;
 };
 
 // FIXME: is this really useful ?!
-template <class F>
-class PVFunctionArgs: public PVFunctionArgsBase
+template <class F> class PVFunctionArgs : public PVFunctionArgsBase
 {
-public:
+  public:
 	typedef F func_type;
-public:
-	PVFunctionArgs(PVArgumentList const& args = PVArgumentList()) :
-		PVFunctionArgsBase(args)
-	{ }
-public:
+
+  public:
+	PVFunctionArgs(PVArgumentList const& args = PVArgumentList()) : PVFunctionArgsBase(args) {}
+
+  public:
 	virtual func_type f() = 0;
 };
-
 }
 
-#define DEFAULT_ARGS_FUNC(T)\
-	PVCore::PVArgumentList T::default_args()
+#define DEFAULT_ARGS_FUNC(T) PVCore::PVArgumentList T::default_args()
 
-#define CLASS_FUNC_ARGS_NOPARAM(T)\
-	public:\
-		static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
+#define CLASS_FUNC_ARGS_NOPARAM(T)                                                                 \
+  public:                                                                                          \
+	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 
-#define CLASS_FUNC_ARGS_PARAM(T)\
-	public:\
-		static PVCore::PVArgumentList default_args();\
+#define CLASS_FUNC_ARGS_PARAM(T)                                                                   \
+  public:                                                                                          \
+	static PVCore::PVArgumentList default_args();
 
 #endif

@@ -14,8 +14,8 @@
  * PVFilter::PVFieldSplitterMacAddressParamWidget::PVFieldSplitterCSVParamWidget
  *****************************************************************************/
 
-PVFilter::PVFieldSplitterMacAddressParamWidget::PVFieldSplitterMacAddressParamWidget() :
-	PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterMacAddress()))
+PVFilter::PVFieldSplitterMacAddressParamWidget::PVFieldSplitterMacAddressParamWidget()
+    : PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterMacAddress()))
 {
 	_action_menu = new QAction(QString("add Mac Address Splitter"), this);
 }
@@ -26,8 +26,8 @@ PVFilter::PVFieldSplitterMacAddressParamWidget::PVFieldSplitterMacAddressParamWi
 
 QAction* PVFilter::PVFieldSplitterMacAddressParamWidget::get_action_menu()
 {
-    assert(_action_menu);
-    return _action_menu;
+	assert(_action_menu);
+	return _action_menu;
 }
 
 /******************************************************************************

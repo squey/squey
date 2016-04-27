@@ -20,53 +20,49 @@
 
 class QSpinBox;
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldSplitterCSVParamWidget: public PVFieldsSplitterParamWidget {
+class PVFieldSplitterCSVParamWidget : public PVFieldsSplitterParamWidget
+{
 	Q_OBJECT
 
-public:
-
+  public:
 	PVFieldSplitterCSVParamWidget();
-	//PVFieldSplitterCSVParamWidget(const PVFieldSplitterCSVParamWidget& src);
+	// PVFieldSplitterCSVParamWidget(const PVFieldSplitterCSVParamWidget& src);
 
-private:
+  private:
 	QAction* action_menu;
 	QWidget* param_widget;
-	QSpinBox *_child_number_edit; //!< Widget to select number of child (number of column in csv)
+	QSpinBox* _child_number_edit; //!< Widget to select number of child (number of column in csv)
 	PVWidgets::QKeySequenceWidget* separator_text;
 	PVWidgets::QKeySequenceWidget* quote_text;
-	//QLineEdit* separator_text;
+	// QLineEdit* separator_text;
 	QLabel* _recommands_label;
 	int id;
 
-public:
+  public:
 	QWidget* get_param_widget();
 	QAction* get_action_menu();
 
-	void set_id(int id_param) {
-		id = id_param;
-	}
+	void set_id(int id_param) { id = id_param; }
 	void update_data_display();
 
-private:
+  private:
 	void init();
 	void update_recommanded_nfields();
 
-
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterCSVParamWidget)
 
-public slots:
-	//void updateSeparator(const QString &sep);
+  public slots:
+	// void updateSeparator(const QString &sep);
 	void updateSeparator(QKeySequence key);
 	void updateQuote(QKeySequence key);
 	void updateNChilds();
-	
 
 signals:
 	void signalRefreshView();
 };
-
 }
 
 #endif

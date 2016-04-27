@@ -30,13 +30,15 @@ int main(int argc, char** argv)
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVRush::PVPluginsLoad::load_all_plugins();
 
-	const QString format_path = QString::fromLocal8Bit(argv[1]) + QLatin1String("/tickets/28/field_enum.format");
+	const QString format_path =
+	    QString::fromLocal8Bit(argv[1]) + QLatin1String("/tickets/28/field_enum.format");
 	PVRush::PVFormat format("org", format_path);
 	format.populate();
 
 	int fd = open(qPrintable(format_path), O_RDWR);
 	if (fd == -1) {
-		std::cerr << "Unable to open the format for reading/writing after PVFormat::populate() : " << strerror(errno) << std::endl;
+		std::cerr << "Unable to open the format for reading/writing after PVFormat::populate() : "
+		          << strerror(errno) << std::endl;
 		return 1;
 	}
 	return 0;

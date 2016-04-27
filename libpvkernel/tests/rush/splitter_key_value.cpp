@@ -22,22 +22,27 @@ constexpr static size_t nb_dup = 1000;
 constexpr static size_t nb_dup = 1;
 #endif
 
-static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/splitters/key_value/key_value.log";
-static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/key_value/key_value.log.out";
-
+static constexpr const char* log_file =
+    TEST_FOLDER "/pvkernel/rush/splitters/key_value/key_value.log";
+static constexpr const char* ref_file =
+    TEST_FOLDER "/pvkernel/rush/splitters/key_value/key_value.log.out";
 
 int main()
 {
 	pvtest::TestSplitter ts(log_file, nb_dup);
 
 	// Prepare splitter plugin
-	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("key_value");
+	PVFilter::PVFieldsSplitter::p_type sp_lib_p =
+	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("key_value");
 
 	PVCore::PVArgumentList args;
 	args["sep"] = " ";
 	args["quote"] = '"';
 	args["affectation"] = "=";
-	args["keys"] = QStringList() << "time" << "arg" << "dstif" << "src";
+	args["keys"] = QStringList() << "time"
+	                             << "arg"
+	                             << "dstif"
+	                             << "src";
 	sp_lib_p->set_args(args);
 
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());

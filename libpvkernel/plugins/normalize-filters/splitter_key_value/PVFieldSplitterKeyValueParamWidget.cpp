@@ -25,8 +25,8 @@
  * PVFilter::PVFieldSplitterKeyValueParamWidget::PVFieldSplitterKeyValueParamWidget
  *
  *****************************************************************************/
-PVFilter::PVFieldSplitterKeyValueParamWidget::PVFieldSplitterKeyValueParamWidget() :
-	PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterKeyValue()))
+PVFilter::PVFieldSplitterKeyValueParamWidget::PVFieldSplitterKeyValueParamWidget()
+    : PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterKeyValue()))
 {
 	_action_menu = new QAction(QString("add Key Value"), this);
 }
@@ -38,9 +38,9 @@ PVFilter::PVFieldSplitterKeyValueParamWidget::PVFieldSplitterKeyValueParamWidget
  *****************************************************************************/
 QAction* PVFilter::PVFieldSplitterKeyValueParamWidget::get_action_menu()
 {
-    PVLOG_DEBUG("get action PVFieldSplitterKeyValueParamWidget\n");
-    assert(_action_menu);
-    return _action_menu;
+	PVLOG_DEBUG("get action PVFieldSplitterKeyValueParamWidget\n");
+	assert(_action_menu);
+	return _action_menu;
 }
 
 /******************************************************************************
@@ -88,12 +88,14 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 	_quote_char->setMaxNumKey(1);
 	quote_character_layout->addWidget(quote_label);
 	quote_character_layout->addWidget(_quote_char);
-	quote_character_layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
+	quote_character_layout->addSpacerItem(
+	    new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
 	structure_layout->addLayout(fields_separator_layout);
 	structure_layout->addLayout(affectation_operator_layout);
 	structure_layout->addLayout(quote_character_layout);
-	structure_layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
+	structure_layout->addSpacerItem(
+	    new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
 	QHBoxLayout* keys_layout = new QHBoxLayout();
 	QVBoxLayout* buttons_layout = new QVBoxLayout();
@@ -120,9 +122,12 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 	layout->addWidget(structure_groupbox);
 	layout->addWidget(keys_groupbox);
 
-	connect(_affectation_operator_lineedit, SIGNAL(textChanged(const QString &)), this, SLOT(update_params()));
-	connect(_separator_char_lineedit, SIGNAL(textChanged(const QString &)), this, SLOT(update_params()));
-	connect(_quote_char, SIGNAL(keySequenceChanged(const QKeySequence &)), this, SLOT(update_params()));
+	connect(_affectation_operator_lineedit, SIGNAL(textChanged(const QString&)), this,
+	        SLOT(update_params()));
+	connect(_separator_char_lineedit, SIGNAL(textChanged(const QString&)), this,
+	        SLOT(update_params()));
+	connect(_quote_char, SIGNAL(keySequenceChanged(const QKeySequence&)), this,
+	        SLOT(update_params()));
 	connect(add_button, SIGNAL(clicked(bool)), this, SLOT(add_new_key()));
 	connect(del_button, SIGNAL(clicked(bool)), this, SLOT(del_keys()));
 	connect(up_button, SIGNAL(clicked(bool)), this, SLOT(move_key_up()));
@@ -145,19 +150,20 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::update_params()
 	args["affectation"] = _affectation_operator_lineedit->text();
 
 	QStringList keys;
-	for (int i = 0 ; i < _keys_list->count() ; i++) {
+	for (int i = 0; i < _keys_list->count(); i++) {
 		keys << _keys_list->item(i)->text();
 	}
 	args["keys"] = QVariant(keys);
 
 	get_filter()->set_args(args);
-    emit args_changed_Signal();
+	emit args_changed_Signal();
 }
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::add_new_key()
 {
 	bool ok;
-	QString key = QInputDialog::getText(nullptr, tr("Enter new key"), tr("Key:"), QLineEdit::Normal, "", &ok);
+	QString key =
+	    QInputDialog::getText(nullptr, tr("Enter new key"), tr("Key:"), QLineEdit::Normal, "", &ok);
 
 	if (!key.isEmpty()) {
 		_keys_list->addItem(new QListWidgetItem(key));
@@ -167,7 +173,7 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::add_new_key()
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::del_keys()
 {
-	QList<QListWidgetItem *> keys = _keys_list->selectedItems();
+	QList<QListWidgetItem*> keys = _keys_list->selectedItems();
 	for (QListWidgetItem* key : keys) {
 		delete _keys_list->takeItem(_keys_list->row(key));
 	}
@@ -180,7 +186,7 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::update_children_count()
 	PVCore::PVArgumentList args = get_filter()->get_args();
 
 	QStringList keys;
-	for (int i = 0 ; i < _keys_list->count() ; i++) {
+	for (int i = 0; i < _keys_list->count(); i++) {
 		keys << _keys_list->item(i)->text();
 	}
 	args["keys"] = QVariant(keys);
@@ -194,16 +200,15 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::update_children_count()
 void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_down()
 {
 	int currentIndex = _keys_list->currentRow();
-	QListWidgetItem *currentItem = _keys_list->takeItem(currentIndex);
-	_keys_list->insertItem(currentIndex+1, currentItem);
-	_keys_list->setCurrentRow(currentIndex+1);
+	QListWidgetItem* currentItem = _keys_list->takeItem(currentIndex);
+	_keys_list->insertItem(currentIndex + 1, currentItem);
+	_keys_list->setCurrentRow(currentIndex + 1);
 }
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_up()
 {
 	int currentIndex = _keys_list->currentRow();
-	QListWidgetItem *currentItem = _keys_list->takeItem(currentIndex);
-	_keys_list->insertItem(currentIndex-1, currentItem);
-	_keys_list->setCurrentRow(currentIndex-1);
+	QListWidgetItem* currentItem = _keys_list->takeItem(currentIndex);
+	_keys_list->insertItem(currentIndex - 1, currentItem);
+	_keys_list->setCurrentRow(currentIndex - 1);
 }
-

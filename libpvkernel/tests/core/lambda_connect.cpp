@@ -12,14 +12,14 @@
 #include <QObject>
 #include <QPushButton>
 
-
 int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 
 	QPushButton* push_button = new QPushButton("lambda");
 	connect(push_button, SIGNAL(clicked(bool)), [] {
-		QMessageBox msgbox(QMessageBox::Question, "Lambda", "lambda_connect works! :)", QMessageBox::Ok);
+		QMessageBox msgbox(QMessageBox::Question, "Lambda", "lambda_connect works! :)",
+		                   QMessageBox::Ok);
 		msgbox.exec();
 	});
 

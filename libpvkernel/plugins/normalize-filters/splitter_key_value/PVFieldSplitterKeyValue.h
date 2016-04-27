@@ -12,18 +12,23 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldSplitterKeyValue : public PVFieldsSplitter {
+class PVFieldSplitterKeyValue : public PVFieldsSplitter
+{
 
-public:
-	PVFieldSplitterKeyValue(PVCore::PVArgumentList const& args = PVFieldSplitterKeyValue::default_args());
+  public:
+	PVFieldSplitterKeyValue(
+	    PVCore::PVArgumentList const& args = PVFieldSplitterKeyValue::default_args());
 
-public:
+  public:
 	void set_args(PVCore::PVArgumentList const& args) override;
-	PVCore::list_fields::size_type one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field) override;
+	PVCore::list_fields::size_type one_to_many(PVCore::list_fields& l,
+	                                           PVCore::list_fields::iterator it_ins,
+	                                           PVCore::PVField& field) override;
 
-private:
+  private:
 	std::string _separator;
 	char _quote;
 	std::string _affect;
@@ -32,7 +37,6 @@ private:
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterKeyValue)
 };
-
 }
 
 #endif // PVFILTER_PVFIELDSPLITTERKEYVALUE_H

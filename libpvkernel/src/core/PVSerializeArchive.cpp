@@ -10,16 +10,14 @@
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 #include <pvkernel/core/PVSerializeObject.h>
 
-PVCore::PVSerializeArchive::PVSerializeArchive(version_t version):
-	_version(version),
-	_is_opened(false)
+PVCore::PVSerializeArchive::PVSerializeArchive(version_t version)
+    : _version(version), _is_opened(false)
 {
 }
 
-
-PVCore::PVSerializeArchive::PVSerializeArchive(QString const& dir, archive_mode mode, version_t version):
-	_version(version),
-	_is_opened(false)
+PVCore::PVSerializeArchive::PVSerializeArchive(QString const& dir, archive_mode mode,
+                                               version_t version)
+    : _version(version), _is_opened(false)
 {
 	open(dir, mode);
 }
@@ -39,10 +37,9 @@ void PVCore::PVSerializeArchive::open(QString const& dir, archive_mode mode)
 		if (!QDir::root().mkdir(dir)) {
 			throw PVSerializeArchiveError(QString("Unable to create directory '%1'.").arg(dir));
 		}
-	}
-	else {
+	} else {
 		if (!dir_.exists()) {
-				throw PVSerializeArchiveError(QString("Unable to find directory '%1'.").arg(dir));
+			throw PVSerializeArchiveError(QString("Unable to find directory '%1'.").arg(dir));
 		}
 	}
 
@@ -56,13 +53,13 @@ PVCore::PVSerializeArchive::~PVSerializeArchive()
 	}
 }
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::allocate_object(QString const& name, PVSerializeObject* parent)
+PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::allocate_object(QString const& name,
+                                                                        PVSerializeObject* parent)
 {
 	QString new_path;
 	if (parent) {
 		new_path = parent->get_logical_path() + QString("/") + name;
-	}
-	else {
+	} else {
 		new_path = "";
 	}
 
@@ -76,20 +73,23 @@ void PVCore::PVSerializeArchive::init()
 	_root_obj = allocate_object(_root_dir, NULL);
 	create_attributes(*_root_obj);
 	// Version special attribute
-	_root_obj->attribute(QString("version"), _version, (version_t) 0);
+	_root_obj->attribute(QString("version"), _version, (version_t)0);
 }
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::create_object(QString const& name, PVSerializeObject* parent)
+PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::create_object(QString const& name,
+                                                                      PVSerializeObject* parent)
 {
 	PVSerializeObject_p ret(allocate_object(name, parent));
 	QDir new_path = get_dir_for_object(*ret);
 	if (is_writing()) {
 		if (!QDir::root().mkdir(new_path.path())) {
-			throw PVSerializeArchiveError(QString("Unable to create directory '%1'.").arg(new_path.canonicalPath()));
+			throw PVSerializeArchiveError(
+			    QString("Unable to create directory '%1'.").arg(new_path.canonicalPath()));
 		}
 	}
 	if (!new_path.exists()) {
-		throw PVSerializeArchiveErrorNoObject(name, QString("Unable to change into directory '%1'.").arg(new_path.canonicalPath()));
+		throw PVSerializeArchiveErrorNoObject(
+		    name, QString("Unable to change into directory '%1'.").arg(new_path.canonicalPath()));
 	}
 	create_attributes(*ret);
 	return ret;
@@ -97,7 +97,8 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::create_object(QString co
 
 void PVCore::PVSerializeArchive::create_attributes(PVSerializeObject const& so)
 {
-	_objs_attributes.insert(get_object_config_path(so), new QSettings(get_object_config_path(so), QSettings::IniFormat));
+	_objs_attributes.insert(get_object_config_path(so),
+	                        new QSettings(get_object_config_path(so), QSettings::IniFormat));
 }
 
 PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::get_root()
@@ -123,33 +124,39 @@ void PVCore::PVSerializeArchive::finish()
 	_is_opened = false;
 }
 
-void PVCore::PVSerializeArchive::attribute_write(PVSerializeObject const& so, QString const& name, QVariant const& obj)
+void PVCore::PVSerializeArchive::attribute_write(PVSerializeObject const& so, QString const& name,
+                                                 QVariant const& obj)
 {
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
 	settings->setValue(name, obj);
 }
 
-void PVCore::PVSerializeArchive::attribute_read(PVSerializeObject& so, QString const& name, QVariant& obj, QVariant const& def)
+void PVCore::PVSerializeArchive::attribute_read(PVSerializeObject& so, QString const& name,
+                                                QVariant& obj, QVariant const& def)
 {
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
 	obj = settings->value(name, def);
 }
 
-void PVCore::PVSerializeArchive::list_attributes_write(PVSerializeObject const& so, QString const& name, std::vector<QVariant> const& obj)
+void PVCore::PVSerializeArchive::list_attributes_write(PVSerializeObject const& so,
+                                                       QString const& name,
+                                                       std::vector<QVariant> const& obj)
 {
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
 	std::vector<QVariant>::const_iterator it;
 	settings->beginWriteArray(name);
 	int idx = 0;
 	for (it = obj.begin(); it != obj.end(); it++) {
-			settings->setArrayIndex(idx);
-			settings->setValue("value", *it);
-			idx++;
+		settings->setArrayIndex(idx);
+		settings->setValue("value", *it);
+		idx++;
 	}
 	settings->endArray();
 }
 
-void PVCore::PVSerializeArchive::list_attributes_read(PVSerializeObject const& so, QString const& name, std::vector<QVariant>& obj)
+void PVCore::PVSerializeArchive::list_attributes_read(PVSerializeObject const& so,
+                                                      QString const& name,
+                                                      std::vector<QVariant>& obj)
 {
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
 	int size = settings->beginReadArray(name);
@@ -162,40 +169,45 @@ void PVCore::PVSerializeArchive::list_attributes_read(PVSerializeObject const& s
 	settings->endArray();
 }
 
-void PVCore::PVSerializeArchive::hash_arguments_write(PVSerializeObject const& so, QString const& name, PVArgumentList const& obj)
+void PVCore::PVSerializeArchive::hash_arguments_write(PVSerializeObject const& so,
+                                                      QString const& name,
+                                                      PVArgumentList const& obj)
 {
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
-//	PVArgumentList::const_iterator it;
-//	settings->beginGroup(name);
-//	for (it = obj.begin(); it != obj.end(); it++) {
-//		   settings->setValue(it.key(), PVArgument_to_QString(it.value()));
-//	}
-//	settings->endGroup();
+	//	PVArgumentList::const_iterator it;
+	//	settings->beginGroup(name);
+	//	for (it = obj.begin(); it != obj.end(); it++) {
+	//		   settings->setValue(it.key(), PVArgument_to_QString(it.value()));
+	//	}
+	//	settings->endGroup();
 	PVArgumentList_to_QSettings(obj, *settings, name);
 }
 
-void PVCore::PVSerializeArchive::hash_arguments_read(PVSerializeObject const& so, QString const& name, PVArgumentList& obj, PVArgumentList const& def_args)
+void PVCore::PVSerializeArchive::hash_arguments_read(PVSerializeObject const& so,
+                                                     QString const& name, PVArgumentList& obj,
+                                                     PVArgumentList const& def_args)
 {
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
 	obj.clear();
-//	QStringList keys = settings->childKeys();
-//	for (int i = 0; i < keys.size(); i++) {
-//		QString const& key = keys.at(i);
-//		if (def_args.contains(key)) {
-//			obj[key] = QString_to_PVArgument(settings->value(key).toString(), def_args[key]);
-//		}
-//	}
+	//	QStringList keys = settings->childKeys();
+	//	for (int i = 0; i < keys.size(); i++) {
+	//		QString const& key = keys.at(i);
+	//		if (def_args.contains(key)) {
+	//			obj[key] = QString_to_PVArgument(settings->value(key).toString(), def_args[key]);
+	//		}
+	//	}
 	obj = QSettings_to_PVArgumentList(*settings, def_args, name);
 }
 
-size_t PVCore::PVSerializeArchive::buffer(PVSerializeObject const& so, QString const& name, void* buf, size_t n)
+size_t PVCore::PVSerializeArchive::buffer(PVSerializeObject const& so, QString const& name,
+                                          void* buf, size_t n)
 {
 	QFile buf_file(get_dir_for_object(so).absoluteFilePath(name));
 	if (is_writing()) {
 		if (!buf_file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
 			throw PVSerializeObjectFileError(buf_file);
 		}
-		qint64 ret = buf_file.write((const char*) buf, n);
+		qint64 ret = buf_file.write((const char*)buf, n);
 		if (ret == -1) {
 			throw PVSerializeObjectFileError(buf_file);
 		}
@@ -207,12 +219,11 @@ size_t PVCore::PVSerializeArchive::buffer(PVSerializeObject const& so, QString c
 		}
 
 		return ret;
-	}
-	else {
+	} else {
 		if (!buf_file.open(QIODevice::ReadOnly)) {
 			throw PVSerializeObjectFileError(buf_file);
 		}
-		qint64 ret = buf_file.read((char*) buf, n);
+		qint64 ret = buf_file.read((char*)buf, n);
 		if (ret == -1) {
 			throw PVSerializeObjectFileError(buf_file);
 		}
@@ -220,13 +231,15 @@ size_t PVCore::PVSerializeArchive::buffer(PVSerializeObject const& so, QString c
 	}
 }
 
-void PVCore::PVSerializeArchive::buffer_path(PVSerializeObject const& so, QString const& name, QString& path)
+void PVCore::PVSerializeArchive::buffer_path(PVSerializeObject const& so, QString const& name,
+                                             QString& path)
 {
 	assert(!is_writing());
 	path = get_dir_for_object(so).absoluteFilePath(name);
 }
 
-bool PVCore::PVSerializeArchive::must_write_object(PVSerializeObject const& parent, QString const& child)
+bool PVCore::PVSerializeArchive::must_write_object(PVSerializeObject const& parent,
+                                                   QString const& child)
 {
 	assert(_options.get() != this);
 	if (!_options) {
@@ -250,7 +263,8 @@ QString PVCore::PVSerializeArchive::get_object_config_path(PVSerializeObject con
 	return dir.absoluteFilePath("config.ini");
 }
 
-void PVCore::PVSerializeArchive::file(PVSerializeObject const& so, QString const& name, QString& path)
+void PVCore::PVSerializeArchive::file(PVSerializeObject const& so, QString const& name,
+                                      QString& path)
 {
 	QDir dir = get_dir_for_object(so);
 	QString ar_file(dir.absoluteFilePath(name));
@@ -259,16 +273,18 @@ void PVCore::PVSerializeArchive::file(PVSerializeObject const& so, QString const
 		if (!org_file.copy(ar_file)) {
 			throw PVSerializeObjectFileError(org_file);
 		}
-	}
-	else {
+	} else {
 		if (!dir.exists(name)) {
-			throw PVSerializeArchiveError(QString("File '%1' within '%2' does not exist.").arg(name).arg(so.get_logical_path()));
+			throw PVSerializeArchiveError(QString("File '%1' within '%2' does not exist.")
+			                                  .arg(name)
+			                                  .arg(so.get_logical_path()));
 		}
 		path = ar_file;
 	}
 }
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::get_object_by_path(QString const& path) const
+PVCore::PVSerializeObject_p
+PVCore::PVSerializeArchive::get_object_by_path(QString const& path) const
 {
 	assert(_objects.contains(path));
 	return _objects[path];
@@ -279,7 +295,8 @@ bool PVCore::PVSerializeArchive::object_exists_by_path(QString const& path) cons
 	return _objects.contains(path);
 }
 
-void PVCore::PVSerializeArchive::repairable_error(std::shared_ptr<PVSerializeArchiveFixError> const& error)
+void PVCore::PVSerializeArchive::repairable_error(
+    std::shared_ptr<PVSerializeArchiveFixError> const& error)
 {
 	_repairable_errors.push_back(error);
 }

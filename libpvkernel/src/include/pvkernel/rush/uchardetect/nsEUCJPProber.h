@@ -49,28 +49,30 @@
 #include "JpCntx.h"
 #include "CharDistribution.h"
 
-class nsEUCJPProber: public nsCharSetProber {
-public:
-  nsEUCJPProber(void){mCodingSM = new nsCodingStateMachine(&EUCJPSMModel);
-                      Reset();}
-  virtual ~nsEUCJPProber(void){delete mCodingSM;}
-  nsProbingState HandleData(const char* aBuf, PRUint32 aLen);
-  const char* GetCharSetName() {return CHARDET_ENCODING_EUC_JP;}
-  nsProbingState GetState(void) {return mState;}
-  void      Reset(void);
-  float     GetConfidence(void);
-  void      SetOpion() {}
+class nsEUCJPProber : public nsCharSetProber
+{
+  public:
+	nsEUCJPProber(void)
+	{
+		mCodingSM = new nsCodingStateMachine(&EUCJPSMModel);
+		Reset();
+	}
+	virtual ~nsEUCJPProber(void) { delete mCodingSM; }
+	nsProbingState HandleData(const char* aBuf, PRUint32 aLen);
+	const char* GetCharSetName() { return CHARDET_ENCODING_EUC_JP; }
+	nsProbingState GetState(void) { return mState; }
+	void Reset(void);
+	float GetConfidence(void);
+	void SetOpion() {}
 
-protected:
-  nsCodingStateMachine* mCodingSM;
-  nsProbingState mState;
+  protected:
+	nsCodingStateMachine* mCodingSM;
+	nsProbingState mState;
 
-  EUCJPContextAnalysis mContextAnalyser;
-  EUCJPDistributionAnalysis mDistributionAnalyser;
+	EUCJPContextAnalysis mContextAnalyser;
+	EUCJPDistributionAnalysis mDistributionAnalyser;
 
-  char mLastChar[2];
+	char mLastChar[2];
 };
 
-
 #endif /* nsEUCJPProber_h__ */
-

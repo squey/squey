@@ -18,33 +18,33 @@ class QComboBox;
 
 #include <pvkernel/widgets/qkeysequencewidget.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldConverterGUIDToIPParamWidget: public PVFieldsConverterParamWidget
+class PVFieldConverterGUIDToIPParamWidget : public PVFieldsConverterParamWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVFieldConverterGUIDToIPParamWidget();
 
-public:
+  public:
 	QAction* get_action_menu();
 	QWidget* get_param_widget();
 
-private slots:
+  private slots:
 	void update_params();
 
-private:
+  private:
 	QAction* _action_menu;
 	QWidget* _param_widget;
 
 	QRadioButton* _ipv4;
 	QRadioButton* _ipv6;
 
-private:
+  private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldConverterGUIDToIPParamWidget)
 };
-
 }
 
 #endif // PVFIELDCONVERTERGUIDTOIPPARAMWIDGET_H

@@ -22,9 +22,10 @@ bool PVCore::PVClassLibraryLibLoader::load_class(QString const& path)
 {
 	QLibrary lib(path);
 	register_class_func rf;
-	rf = (register_class_func) lib.resolve(register_class_func_string);
+	rf = (register_class_func)lib.resolve(register_class_func_string);
 	if (!rf) {
-		PVLOG_ERROR("Error while loading plugin %s: %s\n", qPrintable(path), qPrintable(lib.errorString()));
+		PVLOG_ERROR("Error while loading plugin %s: %s\n", qPrintable(path),
+		            qPrintable(lib.errorString()));
 		return false;
 	}
 
@@ -35,7 +36,8 @@ bool PVCore::PVClassLibraryLibLoader::load_class(QString const& path)
 	return true;
 }
 
-int PVCore::PVClassLibraryLibLoader::load_class_from_dir(QString const& pluginsdir, QString const& prefix)
+int PVCore::PVClassLibraryLibLoader::load_class_from_dir(QString const& pluginsdir,
+                                                         QString const& prefix)
 {
 	QDir dir(pluginsdir);
 	PVLOG_INFO("Reading plugins directory: %s\n", qPrintable(pluginsdir));
@@ -44,12 +46,12 @@ int PVCore::PVClassLibraryLibLoader::load_class_from_dir(QString const& pluginsd
 	QStringList filters;
 	filters << QString("*") + prefix + QString("_*.so");
 	dir.setNameFilters(filters);
-	
+
 	QStringList files = dir.entryList();
 	QStringListIterator filesIterator(files);
 	int count = 0;
 
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
 	while (filesIterator.hasNext()) {
 		QString curfile = filesIterator.next();
 		QString activated_token = curfile + QString("/activated");
@@ -64,7 +66,8 @@ int PVCore::PVClassLibraryLibLoader::load_class_from_dir(QString const& pluginsd
 	return count;
 }
 
-int PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString const& pluginsdirs, QString const& prefix)
+int PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString const& pluginsdirs,
+                                                          QString const& prefix)
 {
 	QStringList pluginsdirs_list = split_plugin_dirs(pluginsdirs);
 

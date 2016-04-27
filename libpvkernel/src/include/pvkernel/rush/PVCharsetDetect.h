@@ -14,25 +14,26 @@
 
 #include <string>
 
-namespace PVRush {
+namespace PVRush
+{
 
-class PVCharsetDetect : public nsUniversalDetector {
-public:
+class PVCharsetDetect : public nsUniversalDetector
+{
+  public:
 	PVCharsetDetect();
 
-protected:
+  protected:
 	virtual void Report(const char* charset);
 	virtual void Reset();
 
-public:
+  public:
 	std::string const& GetCharset() const;
 	bool found() const;
 
-protected:
+  protected:
 	std::string _charset;
 	bool _found;
 };
-
 }
 
 #endif

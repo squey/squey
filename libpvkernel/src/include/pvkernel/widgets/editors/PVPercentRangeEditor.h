@@ -26,15 +26,16 @@ class PVPercentRangeEditor : public PVAbstractRangePicker
 {
 	Q_OBJECT
 
-	Q_PROPERTY(PVCore::PVPercentRangeType _percent_range_type READ get_values WRITE set_values USER true)
+	Q_PROPERTY(PVCore::PVPercentRangeType _percent_range_type READ get_values WRITE set_values
+	               USER true)
 
-public:
+  public:
 	/**
 	 * Constructor
 	 */
-	PVPercentRangeEditor(QWidget *parent = 0);
+	PVPercentRangeEditor(QWidget* parent = 0);
 
-public:
+  public:
 	/**
 	 * returns the editor's curent value
 	 *
@@ -49,7 +50,6 @@ public:
 	 */
 	void set_values(const PVCore::PVPercentRangeType& r);
 };
-
 }
 
 #endif // PVWIDGETS_PVPERCENTRANGEEDITOR_H

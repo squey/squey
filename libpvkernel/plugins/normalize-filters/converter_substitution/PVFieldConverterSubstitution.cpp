@@ -14,8 +14,9 @@
  * PVFilter::PVFieldGUIDToIP::PVFieldGUIDToIP
  *
  *****************************************************************************/
-PVFilter::PVFieldConverterSubstitution::PVFieldConverterSubstitution(PVCore::PVArgumentList const& args) :
-	PVFieldsConverter()
+PVFilter::PVFieldConverterSubstitution::PVFieldConverterSubstitution(
+    PVCore::PVArgumentList const& args)
+    : PVFieldsConverter()
 {
 	INIT_FILTER(PVFilter::PVFieldConverterSubstitution, args);
 }
@@ -29,16 +30,16 @@ void PVFilter::PVFieldConverterSubstitution::set_args(PVCore::PVArgumentList con
 {
 	FilterT::set_args(args);
 
-	_default_value     = args.at("default_value").toString().toStdString();
+	_default_value = args.at("default_value").toString().toStdString();
 	_use_default_value = args.at("use_default_value").toBool();
-	_sep_char          = args.at("sep").toChar().toLatin1();
-	_quote_char        = args.at("quote").toChar().toLatin1();
+	_sep_char = args.at("sep").toChar().toLatin1();
+	_quote_char = args.at("quote").toChar().toLatin1();
 
 	std::ifstream ifs(args.at("path").toString().toStdString());
 	std::string buffer(4096 * 2, 0);
 	// FIXME : Add more check on file format.
 	// FIXME : Handle quote char
-	while(ifs.getline(&buffer.front(), buffer.size())) {
+	while (ifs.getline(&buffer.front(), buffer.size())) {
 		char* txt = &buffer.front();
 		char* key = std::find(txt, txt + buffer.size(), _sep_char);
 		char* v = std::find(key + 1, txt + buffer.size(), '\0');
@@ -50,11 +51,11 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldConverterSubstitution)
 {
 	PVCore::PVArgumentList args;
 
-	args["path"]              = QString();
-	args["default_value"]     = QString();
+	args["path"] = QString();
+	args["default_value"] = QString();
 	args["use_default_value"] = false;
-	args["sep"]               = QChar(',');
-	args["quote"]             = QChar('"');
+	args["sep"] = QChar(',');
+	args["quote"] = QChar('"');
 
 	return args;
 }
@@ -68,7 +69,7 @@ PVCore::PVField& PVFilter::PVFieldConverterSubstitution::one_to_one(PVCore::PVFi
 {
 	auto it = _key.find(std::string(field.begin(), field.size()));
 
-	if(it == _key.end()) {
+	if (it == _key.end()) {
 		if (_use_default_value) {
 			field.allocate_new(_default_value.size());
 			field.set_end(std::copy(_default_value.begin(), _default_value.end(), field.begin()));

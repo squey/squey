@@ -7,9 +7,10 @@
 
 /*! \mainpage PVKernel library
  *
- * The PVKernel library handles all the transformation of data (binary, text, etc.) into a normalized table (called nraw). 
- * It is based in three modules. 
- * 
+ * The PVKernel library handles all the transformation of data (binary, text, etc.) into a
+normalized table (called nraw).
+ * It is based in three modules.
+ *
  \dot
 digraph G {
 compound=true;
@@ -27,14 +28,14 @@ compound=true;
  * PVRush has the single task to take any type of file (that is stored in a given place)
  * and create a CSV-like version of it that is stored in memory. It also manages the
  * extraction of these data.
- * 
- * This memory CSV-like is called a \b NRAW (for Normalized Raw). 
+ *
+ * This memory CSV-like is called a \b NRAW (for Normalized Raw).
  *
  * \subsection rushhowto How it works
  *
  * TODO: write this section :)
  *
- * 
+ *
  * \subsection rushsources Sources in PVRush
  *
  * The interface of a source is defined by \ref PVRawSource. The responsability of a source
@@ -46,7 +47,7 @@ compound=true;
  * The input are segmented with two main properties :
  * <ul>
  * <li>where it comes from (a local file, a database). Handled by the "input type" plugins</li>
- * <li>the contained data (text data, SQL result, etc...). It is handled by the" 
+ * <li>the contained data (text data, SQL result, etc...). It is handled by the"
  * </ul>
  *
  * \subsubsection rushagg Aggregator
@@ -84,10 +85,10 @@ compound=true;
       format -> formatplugins;
       formatpluginshelper -> formatplugins;
       normalize->decode;
-      decode->normalize;      
+      decode->normalize;
       decodeplugins -> decode;
       normalize -> csv;
-      
+
   }
  \enddot
  *
@@ -97,4 +98,3 @@ compound=true;
  * - \ref Normalization How to normalize a file into an array
  *
  */
-

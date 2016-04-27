@@ -14,17 +14,18 @@
 #include <QString>
 #include <QMetaType>
 
-namespace PVCore {
+namespace PVCore
+{
 
 class PVTextEditType
 {
-public:
+  public:
 	inline void set_text(QString const& txt) { _txt = txt; }
 	inline QString const& get_text() const { return _txt; }
-private:
+
+  private:
 	QString _txt;
 };
-
 }
 
 // WARNING : This declaration MUST BE outside namespace's scope

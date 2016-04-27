@@ -17,20 +17,23 @@
 
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
-namespace PVRush {
+namespace PVRush
+{
 
-class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*,void> {
-public:
+class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, void>
+{
+  public:
 	typedef PVRawSourceBase_p p_type;
-public:
+
+  public:
 	PVRawSourceBase();
-	virtual ~PVRawSourceBase() {};
+	virtual ~PVRawSourceBase(){};
 	PVRawSourceBase(const PVRawSourceBase& src) = delete;
 
-public:
+  public:
 	virtual void release_input() {}
 
-public:
+  public:
 	chunk_index last_elt_index() { return _last_elt_index; }
 	void set_number_cols_to_reserve(PVCol col)
 	{
@@ -47,11 +50,11 @@ public:
 	virtual PVCore::PVChunk* operator()() = 0;
 	virtual input_offset get_input_offset_from_index(chunk_index idx, chunk_index& known_idx) = 0;
 
-protected:
-	mutable chunk_index _last_elt_index; // Local file index of the last element of that source. Can correspond to a number of lines
+  protected:
+	mutable chunk_index _last_elt_index; // Local file index of the last element of that source. Can
+	                                     // correspond to a number of lines
 	PVCol _ncols_to_reserve;
 };
-
 }
 
 #endif

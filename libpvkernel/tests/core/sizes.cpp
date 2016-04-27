@@ -20,7 +20,8 @@ int main()
 	std::cout << "sizeof PVField:" << sizeof(PVCore::PVField) << std::endl;
 	std::cout << "sizeof PVBufferSlice:" << sizeof(PVCore::PVBufferSlice) << std::endl;
 	std::cout << "sizeof QString:" << sizeof(QString) << std::endl;
-	std::cout << "sizeof PVColor:" << sizeof(PVCore::PVColor) << ", is POD:" << std::is_pod<PVCore::PVColor>::value << std::endl;
+	std::cout << "sizeof PVColor:" << sizeof(PVCore::PVColor)
+	          << ", is POD:" << std::is_pod<PVCore::PVColor>::value << std::endl;
 
 	return 0;
 }

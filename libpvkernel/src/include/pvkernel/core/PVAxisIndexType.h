@@ -14,15 +14,16 @@
 #include <QMetaType>
 #include <QStringList>
 
-namespace PVCore {
+namespace PVCore
+{
 
 /**
  * \class PVAxisIndexType
  */
 class PVAxisIndexType : public PVArgumentType<PVAxisIndexType>
 {
-	
-public:
+
+  public:
 	/**
 	 * Constructor
 	 */
@@ -35,7 +36,8 @@ public:
 
 	QString to_string() const
 	{
-		return QString::number(_origin_axis_index) + ":" + QString(_append_none_axis?"true":"false");
+		return QString::number(_origin_axis_index) + ":" +
+		       QString(_append_none_axis ? "true" : "false");
 	}
 	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
 	{
@@ -45,7 +47,7 @@ public:
 
 		QStringList parts = str.split(":");
 		if (parts.count() == 2) {
-			int  origin_axis_index;
+			int origin_axis_index;
 			bool append_none_axis;
 			origin_axis_index = parts[0].toInt(&res_ok);
 			append_none_axis = parts[1].compare("true", Qt::CaseInsensitive) == 0;
@@ -58,15 +60,16 @@ public:
 
 		return arg;
 	}
-	bool operator==(const PVAxisIndexType &other) const
+	bool operator==(const PVAxisIndexType& other) const
 	{
-		return _origin_axis_index == other._origin_axis_index && _append_none_axis == other._append_none_axis ;
+		return _origin_axis_index == other._origin_axis_index &&
+		       _append_none_axis == other._append_none_axis;
 	}
 
-protected:
+  protected:
 	// The original axis index will never change. PVAxisCombination takes care of any
 	// axis addition/order modification, but will never change the original axis index.
-	int  _origin_axis_index;
+	int _origin_axis_index;
 	int _axis_index;
 	bool _append_none_axis;
 };
@@ -74,6 +77,5 @@ protected:
 
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(PVCore::PVAxisIndexType)
-
 
 #endif // PVCORE_PVAXISINDEXTYPE_H

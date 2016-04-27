@@ -10,11 +10,11 @@
 
 #include <memory>
 
-namespace PVCore {
+namespace PVCore
+{
 
 class PVSerializeArchiveOptions;
 typedef std::shared_ptr<PVSerializeArchiveOptions> PVSerializeArchiveOptions_p;
-
 }
 
 #endif

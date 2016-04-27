@@ -17,17 +17,23 @@
 
 #include <tbb/combinable.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldSplitterURL : public PVFieldsFilter<one_to_many> {
-public:
+class PVFieldSplitterURL : public PVFieldsFilter<one_to_many>
+{
+  public:
 	PVFieldSplitterURL();
-protected:
-	PVCore::list_fields::size_type one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field);
-protected:
+
+  protected:
+	PVCore::list_fields::size_type one_to_many(PVCore::list_fields& l,
+	                                           PVCore::list_fields::iterator it_ins,
+	                                           PVCore::PVField& field);
+
+  protected:
 	void set_children_axes_tag(filter_child_axes_tag_t const& axes);
 
-private:
+  private:
 	int _col_proto;
 	int _col_subdomain;
 	int _col_host;
@@ -44,7 +50,6 @@ private:
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterURL)
 };
-
 }
 
 #endif

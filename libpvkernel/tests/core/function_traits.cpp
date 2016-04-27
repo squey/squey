@@ -17,7 +17,7 @@
 
 void f(int a, short b, char c, uint64_t d)
 {
-	std::cout << a << " " << b << " " << (int) c << " " << d << std::endl;
+	std::cout << a << " " << b << " " << (int)c << " " << d << std::endl;
 }
 
 void f2(int* a, const short* b, const short& c, short& d)
@@ -35,7 +35,7 @@ void fnoarg()
 
 struct A
 {
-	size_t f(size_t i) const { return i*_i; }
+	size_t f(size_t i) const { return i * _i; }
 	void add(size_t& i) { i++; }
 	size_t _i;
 };
@@ -53,21 +53,25 @@ int main(int /*argc*/, char** /*argv*/)
 	std::cout << sizeof(ftraits::arguments_type) << std::endl;
 
 	ftraits::arguments_deep_copy_type args;
-	boost::thread th([=,&args] {
-			ftraits::arguments_type my_args;
-			my_args.set_args(1, 2, 4, 5);
-			args = my_args;
-			});
+	boost::thread th([=, &args] {
+		ftraits::arguments_type my_args;
+		my_args.set_args(1, 2, 4, 5);
+		args = my_args;
+	});
 	th.join();
-	std::cout << std::get<0>(args) << " " << std::get<1>(args) << " " << (int) std::get<2>(args) << " " << std::get<3>(args) << std::endl;
+	std::cout << std::get<0>(args) << " " << std::get<1>(args) << " " << (int)std::get<2>(args)
+	          << " " << std::get<3>(args) << std::endl;
 
 	typedef PVCore::PVTypeTraits::function_traits<decltype(f2)> ftraits2;
 
 	ftraits2::arguments_type args2;
-	int a = 2; short b = 4; const short d = 5;
+	int a = 2;
+	short b = 4;
+	const short d = 5;
 	args2.set_args(&a, &b, d, b);
 	std::cout << &a << " " << &b << std::endl;
-	std::cout << std::get<0>(args2) << " " << std::get<1>(args2) << " " << std::get<2>(args2) << " " << std::get<3>(args2) << std::endl;
+	std::cout << std::get<0>(args2) << " " << std::get<1>(args2) << " " << std::get<2>(args2) << " "
+	          << std::get<3>(args2) << std::endl;
 
 	typedef PVCore::PVTypeTraits::function_traits<decltype(fnoarg)> ftraits_noarg;
 	ftraits_noarg::arguments_type noargs;

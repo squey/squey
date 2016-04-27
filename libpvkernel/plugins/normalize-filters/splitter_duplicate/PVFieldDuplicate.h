@@ -12,23 +12,26 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldDuplicate : public PVFieldsFilter<one_to_many> {
+class PVFieldDuplicate : public PVFieldsFilter<one_to_many>
+{
 
-public:
+  public:
 	PVFieldDuplicate(PVCore::PVArgumentList const& args = PVFieldDuplicate::default_args());
 
-public:
+  public:
 	void set_args(PVCore::PVArgumentList const& args);
-	PVCore::list_fields::size_type one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field);
+	PVCore::list_fields::size_type one_to_many(PVCore::list_fields& l,
+	                                           PVCore::list_fields::iterator it_ins,
+	                                           PVCore::PVField& field);
 
-private:
+  private:
 	size_t _n;
 
 	CLASS_FILTER(PVFilter::PVFieldDuplicate)
 };
-
 }
 
 #endif // PVFILTER_PVFIELDDUPLICATE_H

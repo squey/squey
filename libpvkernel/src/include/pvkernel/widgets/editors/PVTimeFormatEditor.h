@@ -18,35 +18,37 @@
 #include <pvkernel/core/PVTimeFormatType.h>
 
 // Forward declaration
-namespace PVCore {
+namespace PVCore
+{
 class PVDateTimeParser;
 }
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
 class PVTimeFormatHelpDlg;
 class PVTimeValidatorHighLight;
 
-class PVTimeFormatHelpDlg: public QDialog
+class PVTimeFormatHelpDlg : public QDialog
 {
 	Q_OBJECT
-public:
+  public:
 	PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* parent);
 
-private:
+  private:
 	void set_help(QTextEdit* txt);
 
-public slots:
+  public slots:
 	void update_tf_from_editor();
 
-private slots:
+  private slots:
 	void update_tf_to_editor();
 	void validate_time_strings();
 	void activate_auto_validation(int state);
 	void time_formats_changed();
 	void time_strings_changed();
 
-private:
+  private:
 	QLineEdit* _editor; // Parent editor
 	QTextEdit* _tfs_edit;
 	QTextEdit* _ts_validate;
@@ -56,30 +58,29 @@ private:
 	bool _auto_validate;
 };
 
-class PVTimeValidatorHighLight: public QSyntaxHighlighter
+class PVTimeValidatorHighLight : public QSyntaxHighlighter
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVTimeValidatorHighLight(QTextEdit* parent);
 	virtual ~PVTimeValidatorHighLight();
-	
+
 	void set_time_format(QString const& str);
 	virtual void highlightBlock(QString const& text);
 
 	inline PVCore::PVDateTimeParser* get_parser() const { return _cur_parser; };
 
-public slots:
+  public slots:
 	void format_changed();
 
-private:
-    QTextCharFormat _format_match;
-    QTextCharFormat _format_no_match;
-    QTextCharFormat _format_changed;
+  private:
+	QTextCharFormat _format_match;
+	QTextCharFormat _format_no_match;
+	QTextCharFormat _format_changed;
 	PVCore::PVDateTimeParser* _cur_parser;
 	bool _format_has_changed;
 };
-
 }
 
 #endif

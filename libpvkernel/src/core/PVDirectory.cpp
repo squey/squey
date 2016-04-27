@@ -18,11 +18,12 @@ bool PVCore::PVDirectory::remove_rec(QString const& dirName)
 	QDir dir(dirName);
 
 	if (dir.exists(dirName)) {
-		Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
+		Q_FOREACH (QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System |
+		                                                 QDir::Hidden | QDir::AllDirs | QDir::Files,
+		                                             QDir::DirsFirst)) {
 			if (info.isDir()) {
 				result = remove_rec(info.absoluteFilePath());
-			}
-			else {
+			} else {
 				result = QFile::remove(info.absoluteFilePath());
 			}
 
@@ -53,4 +54,3 @@ QString PVCore::PVDirectory::temp_dir(QString const& pattern)
 {
 	return temp_dir(QDir::temp(), pattern);
 }
-

@@ -30,14 +30,14 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	tbb::tick_count start,end;
+	tbb::tick_count start, end;
 	start = tbb::tick_count::now();
 	int i;
 	for (i = 0; i < 1000000; i++) {
 		parser.mapping_time_to_cal(time, cal);
 	}
 	end = tbb::tick_count::now();
-	PV_STAT_PROCESS_BW("mapping_bw", i / (end-start).seconds());
+	PV_STAT_PROCESS_BW("mapping_bw", i / (end - start).seconds());
 
 	return 0;
 }

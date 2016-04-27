@@ -23,55 +23,49 @@
 #include <QStringList>
 #include <QRegExp>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
+class PVFieldSplitterRegexpParamWidget : public PVFieldsSplitterParamWidget
+{
+	Q_OBJECT;
 
-class PVFieldSplitterRegexpParamWidget: public PVFieldsSplitterParamWidget {
-    Q_OBJECT;
-private:
-    QAction* action_menu;
-    QWidget* param_widget;
-    int id;
-    
-    //widget showed
-    QLineEdit *expression_lineEdit;
-    QLabel *child_count_text;
-    QTextEdit *validator_textEdit;
-    QTableWidget *table_validator_TableWidget;
-    QPushButton *btn_apply;
+  private:
+	QAction* action_menu;
+	QWidget* param_widget;
+	int id;
+
+	// widget showed
+	QLineEdit* expression_lineEdit;
+	QLabel* child_count_text;
+	QTextEdit* validator_textEdit;
+	QTableWidget* table_validator_TableWidget;
+	QPushButton* btn_apply;
 	QCheckBox* fullline_checkBox;
-    
-    bool expressionChanged;
-    
-    void initWidget();
-    
-    
 
-public:
-    PVFieldSplitterRegexpParamWidget();
-    QAction* get_action_menu();
-    QWidget* get_param_widget();
-    
-    void set_id(int id_param) {
-        id = id_param;
-    }
-    
-    
-    void update_data_display();
-    
-    
-    
-    CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterRegexpParamWidget)
-public slots:
-    void slotUpdateTableValidator();
-    void slotExpressionChanged();
+	bool expressionChanged;
+
+	void initWidget();
+
+  public:
+	PVFieldSplitterRegexpParamWidget();
+	QAction* get_action_menu();
+	QWidget* get_param_widget();
+
+	void set_id(int id_param) { id = id_param; }
+
+	void update_data_display();
+
+	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterRegexpParamWidget)
+  public slots:
+	void slotUpdateTableValidator();
+	void slotExpressionChanged();
 	void slotFullineChanged(int state);
 
 signals:
-    void data_changed();
-    void signalRefreshView();
+	void data_changed();
+	void signalRefreshView();
 };
-
 }
 
 #endif

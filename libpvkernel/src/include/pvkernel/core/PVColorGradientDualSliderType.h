@@ -11,23 +11,33 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 
-namespace PVCore {
+namespace PVCore
+{
 
 /**
  * \class PVColorGradientDualSliderType
  */
-class PVColorGradientDualSliderType: public PVArgumentType<PVColorGradientDualSliderType>
+class PVColorGradientDualSliderType : public PVArgumentType<PVColorGradientDualSliderType>
 {
-public:
-	PVColorGradientDualSliderType() { _sliders_positions[0] = 0; _sliders_positions[1] = 1; };
+  public:
+	PVColorGradientDualSliderType()
+	{
+		_sliders_positions[0] = 0;
+		_sliders_positions[1] = 1;
+	};
 	PVColorGradientDualSliderType(const double positions[2]) { set_positions(positions); }
 
 	inline const double* get_positions() const { return _sliders_positions; }
-	inline void set_positions(const double pos[2]) { _sliders_positions[0]= pos[0]; _sliders_positions[1] = pos[1]; }
+	inline void set_positions(const double pos[2])
+	{
+		_sliders_positions[0] = pos[0];
+		_sliders_positions[1] = pos[1];
+	}
 
 	QString to_string() const
 	{
-		return QString::number(_sliders_positions[0]) + "," + QString::number(_sliders_positions[1]);
+		return QString::number(_sliders_positions[0]) + "," +
+		       QString::number(_sliders_positions[1]);
 	}
 	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
 	{
@@ -46,18 +56,16 @@ public:
 		}
 
 		return arg;
-
 	}
-	bool operator==(const PVColorGradientDualSliderType &other) const
+	bool operator==(const PVColorGradientDualSliderType& other) const
 	{
 		return _sliders_positions[0] == other._sliders_positions[0] &&
-			   _sliders_positions[1] == other._sliders_positions[1] ;
+		       _sliders_positions[1] == other._sliders_positions[1];
 	}
 
-protected:
+  protected:
 	double _sliders_positions[2];
 };
-
 }
 
 // WARNING : This declaration MUST BE outside namespace's scope

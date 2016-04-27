@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -15,35 +15,37 @@
 
 #include <map>
 
-namespace PVRush {
+namespace PVRush
+{
 
 class PVElasticsearchPresets
 {
-public:
+  public:
 	static const char PV_SETTINGS_INPUT[];
 
-private:
+  private:
 	PVElasticsearchPresets();
 	~PVElasticsearchPresets();
 
-public:
+  public:
 	typedef unsigned int id_t;
 	typedef std::map<id_t, QString> list_id_names_t;
 
-public:
+  public:
 	static PVElasticsearchPresets& get();
 
-public:
-	id_t add(QString const& name, PVElasticsearchInfos const& infos, QString const& query, QString const& query_type);
-	void set(id_t id, PVElasticsearchInfos const& infos, QString const& query, QString const& query_type, QString const& name = QString());
+  public:
+	id_t add(QString const& name, PVElasticsearchInfos const& infos, QString const& query,
+	         QString const& query_type);
+	void set(id_t id, PVElasticsearchInfos const& infos, QString const& query,
+	         QString const& query_type, QString const& name = QString());
 	list_id_names_t list_id_names();
 	bool get(id_t id, PVElasticsearchInfos& infos, QString& query, QString& query_type);
 	void rm(id_t id);
 
-protected:
+  protected:
 	QSettings _settings;
 };
-
 }
 
 #endif

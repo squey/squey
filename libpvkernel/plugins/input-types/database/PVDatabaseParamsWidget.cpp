@@ -21,7 +21,7 @@
 // Hash table used to have 'human-readable' name of Qt's SQL drivers
 class HashDriversName
 {
-public:
+  public:
 	HashDriversName()
 	{
 		_hash["QMYSQL"] = "MySQL";
@@ -35,7 +35,7 @@ public:
 		_port["QODBC"] = 0;
 	}
 	QString name(QString const& driver)
-	{ 
+	{
 		if (_hash.contains(driver)) {
 			return _hash[driver];
 		}
@@ -50,16 +50,18 @@ public:
 		return 0;
 	}
 
-private:
-	QHash<QString,QString> _hash;
-	QHash<QString,uint16_t> _port;
+  private:
+	QHash<QString, QString> _hash;
+	QHash<QString, uint16_t> _port;
 };
 static HashDriversName g_drivers_name;
 
-PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const* in_t, PVRush::hash_formats const& formats, QWidget* parent):
-	QDialog(parent),
-	_settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME),
-	_in_t(in_t)
+PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const* in_t,
+                                                       PVRush::hash_formats const& formats,
+                                                       QWidget* parent)
+    : QDialog(parent)
+    , _settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
+    , _in_t(in_t)
 {
 	// Create the UI
 	setupUi(this);
@@ -80,25 +82,30 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 			_combo_type->addItem(name, d);
 		}
 	}
-	
+
 	// Presets widget
 	_presets_widget = new PVWidgets::PVPresetsWidget(tr("Saved settings"));
 	presets_layout->addWidget(_presets_widget);
 	populate_presets();
 
 	// Set connections
-	connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this, SLOT(preset_load_Slot(const QString&)));
-	connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this, SLOT(preset_new_Slot(const QString&)));
-	connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this, SLOT(preset_save_Slot(const QString&)));
-	connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this, SLOT(preset_remove_Slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this,
+	        SLOT(preset_load_Slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this,
+	        SLOT(preset_new_Slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this,
+	        SLOT(preset_save_Slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this,
+	        SLOT(preset_remove_Slot(const QString&)));
 	connect(_combo_type, SIGNAL(currentIndexChanged(int)), this, SLOT(sql_type_changed_Slot(int)));
 	connect(_btn_query_preview, SIGNAL(clicked()), this, SLOT(query_preview_Slot()));
 	connect(_btn_update_fields, SIGNAL(clicked()), this, SLOT(update_fields_Slot()));
 	connect(_btn_edit_existing, SIGNAL(clicked()), this, SLOT(edit_existing_format_Slot()));
 	connect(_btn_edit_new, SIGNAL(clicked()), this, SLOT(edit_new_format_Slot()));
-	connect(_radio_use_existing, SIGNAL(toggled(bool)), this, SLOT(use_existing_format_toggle_Slot(bool)));
+	connect(_radio_use_existing, SIGNAL(toggled(bool)), this,
+	        SLOT(use_existing_format_toggle_Slot(bool)));
 	connect(_btn_sqlite_browse, SIGNAL(clicked()), this, SLOT(browse_sqlite_Slot()));
-	
+
 	_combo_type->setCurrentIndex(0);
 	sql_type_changed_Slot(0);
 	_last_load_preset = -1;
@@ -108,13 +115,11 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	if (_settings.contains("last_preset")) {
 		PVRush::PVDBPresets::id_t id = _settings.value("last_preset").toUInt();
 		load_preset(id);
-	}
-	else {
+	} else {
 		// Load the first preset if any
 		if (_presets_widget->get_preset_count() > 0) {
 			load_preset(_presets_widget->get_preset_data(0).toUInt());
-		}
-		else {
+		} else {
 			_combo_type->setCurrentIndex(0);
 		}
 	}
@@ -132,7 +137,9 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 
 	// Set SQL field columns
 	_table_fields->setColumnCount(3);
-	_table_fields->setHorizontalHeaderLabels(QStringList() << "Field name" << "SQL type" << "INENDI type");
+	_table_fields->setHorizontalHeaderLabels(QStringList() << "Field name"
+	                                                       << "SQL type"
+	                                                       << "INENDI type");
 
 	enable_used_format(true);
 }
@@ -140,7 +147,7 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 PVRush::PVDatabaseParamsWidget::~PVDatabaseParamsWidget()
 {
 	if (_last_load_preset != -1) {
-		_settings.setValue("last_preset", (PVDBPresets::id_t) _last_load_preset);
+		_settings.setValue("last_preset", (PVDBPresets::id_t)_last_load_preset);
 	}
 	if (!_txt_nrows->text().isEmpty()) {
 		_settings.setValue("preview_nrows", _txt_nrows->text().toUInt());
@@ -155,14 +162,14 @@ void PVRush::PVDatabaseParamsWidget::populate_presets()
 	PVDBPresets::list_id_names_t l = PVDBPresets::get().list_id_names();
 	PVDBPresets::list_id_names_t::const_iterator it;
 	for (it = l.begin(); it != l.end(); it++) {
-		_presets_widget->add_preset(it->second,  it->first);
+		_presets_widget->add_preset(it->second, it->first);
 	}
 }
 
 PVRush::PVDBPresets::id_t PVRush::PVDatabaseParamsWidget::get_current_preset_id()
 {
 	// This assume that an existing preset has been selected !
-	//assert(!_presets_widget->is_preset_txt_new());
+	// assert(!_presets_widget->is_preset_txt_new());
 	return _presets_widget->get_preset_data().toUInt();
 }
 
@@ -190,14 +197,21 @@ void PVRush::PVDatabaseParamsWidget::load_preset(PVDBPresets::id_t id)
 	bool ret = PVDBPresets::get().get(id, infos, query);
 	if (!ret) {
 		// Maybe the user modified the settings by hand...
-		QMessageBox msg(QMessageBox::Critical, tr("Error while loading preset..."), tr("Preset %1 could not be loaded. Maybe it has been modified and/or deleted by another application. The list of available presets will be refreshed.").arg(_presets_widget->get_current_preset_name()), QMessageBox::Ok);
+		QMessageBox msg(QMessageBox::Critical, tr("Error while loading preset..."),
+		                tr("Preset %1 could not be loaded. Maybe it has been modified and/or "
+		                   "deleted by another application. The list of available presets will be "
+		                   "refreshed.").arg(_presets_widget->get_current_preset_name()),
+		                QMessageBox::Ok);
 		msg.exec();
 		populate_presets();
 		return;
 	}
 
 	if (!set_dbinfos(infos)) {
-		QMessageBox msg(QMessageBox::Warning, tr("Error while loading preset.."), tr("Database driver %1 isn't supported !").arg(g_drivers_name.name(infos.get_type())), QMessageBox::Ok);
+		QMessageBox msg(
+		    QMessageBox::Warning, tr("Error while loading preset.."),
+		    tr("Database driver %1 isn't supported !").arg(g_drivers_name.name(infos.get_type())),
+		    QMessageBox::Ok);
 		msg.exec();
 		return;
 	}
@@ -210,7 +224,7 @@ void PVRush::PVDatabaseParamsWidget::preset_save_Slot(const QString& /*preset*/)
 {
 	PVDBPresets::id_t id = get_current_preset_id();
 	QString query = get_query();
-	
+
 	PVDBInfos new_infos;
 	get_dbinfos(new_infos);
 
@@ -272,7 +286,6 @@ bool PVRush::PVDatabaseParamsWidget::select_type(QString const& qt_type)
 	return true;
 }
 
-
 void PVRush::PVDatabaseParamsWidget::sql_type_changed_Slot(int idx)
 {
 	_txt_port->setText(QString::number(g_drivers_name.port(_combo_type->itemData(idx).toString())));
@@ -282,9 +295,7 @@ void PVRush::PVDatabaseParamsWidget::sql_type_changed_Slot(int idx)
 	QString driver = _combo_type->itemData(idx).toString();
 	if (driver == "QSQLITE") {
 		show_sqlite();
-	}
-	else
-	if (driver == "QODBC") {
+	} else if (driver == "QODBC") {
 		show_odbc();
 	}
 }
@@ -312,11 +323,10 @@ void PVRush::PVDatabaseParamsWidget::show_odbc()
 
 void PVRush::PVDatabaseParamsWidget::show_layout_children(const QLayout* layout, bool show)
 {
-	QLayoutItem *item = 0;
-	QWidget *widget = 0;
+	QLayoutItem* item = 0;
+	QWidget* widget = 0;
 
-	for(int i = 0; i < layout->count(); ++i)
-	{
+	for (int i = 0; i < layout->count(); ++i) {
 		item = layout->itemAt(i);
 		if (item) {
 			widget = item->widget();
@@ -333,7 +343,8 @@ void PVRush::PVDatabaseParamsWidget::query_preview_Slot()
 	PVDBInfos new_infos;
 	get_dbinfos(new_infos);
 
-	PVDBPreviewWidget* dlg = new PVDBPreviewWidget(new_infos, get_query(), _txt_nrows->text().toUInt(), this);
+	PVDBPreviewWidget* dlg =
+	    new PVDBPreviewWidget(new_infos, get_query(), _txt_nrows->text().toUInt(), this);
 
 	if (!dlg->init()) {
 		return;
@@ -355,7 +366,7 @@ void PVRush::PVDatabaseParamsWidget::update_fields_Slot()
 	if (!qr.connect_serv()) {
 		return;
 	}
-	QSqlQuery query = qr.to_query(0,1);
+	QSqlQuery query = qr.to_query(0, 1);
 	query.exec();
 	QSqlRecord record = query.record();
 
@@ -372,7 +383,8 @@ void PVRush::PVDatabaseParamsWidget::update_fields_Slot()
 		QSqlField field = record.field(i);
 		QString name = field.name();
 		_table_fields->setItem(i, 0, new QTableWidgetItem(name));
-		// typeID isn't documented ! (well its name is in the detailed description of QSqlField, but that's it !)
+		// typeID isn't documented ! (well its name is in the detailed description of QSqlField, but
+		// that's it !)
 		int type_id = field.typeID();
 		_table_fields->setItem(i, 1, new QTableWidgetItem(type_map->map(type_id)));
 

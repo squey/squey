@@ -27,7 +27,8 @@ void debug_qstringlist(QStringList list)
 {
 	for (int i = 0; i < list.size(); ++i) {
 		printf("%s", list.at(i).toLocal8Bit().constData());
-		if (i+1 < list.size()) printf(",");
+		if (i + 1 < list.size())
+			printf(",");
 	}
 	printf("\n");
 }

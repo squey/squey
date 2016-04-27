@@ -12,41 +12,43 @@
 #include <QAbstractItemModel>
 
 // Forward declaration
-namespace PVCore {
+namespace PVCore
+{
 class PVDataTreeObjectBase;
 class PVDataTreeObjectWithChildrenBase;
 }
 
-namespace PVWidgets {
-
-class PVDataTreeModel: public QAbstractItemModel
+namespace PVWidgets
 {
-public:
+
+class PVDataTreeModel : public QAbstractItemModel
+{
+  public:
 	PVDataTreeModel(PVCore::PVDataTreeObjectBase& root, QObject* parent = 0);
 
-public:
-	QVariant data(const QModelIndex &index, int role) const;
-    int rowCount(const QModelIndex &index) const;
-    int columnCount(const QModelIndex &index) const;
-	QModelIndex parent(const QModelIndex & index) const;
+  public:
+	QVariant data(const QModelIndex& index, int role) const;
+	int rowCount(const QModelIndex& index) const;
+	int columnCount(const QModelIndex& index) const;
+	QModelIndex parent(const QModelIndex& index) const;
 	QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const;
 	Qt::ItemFlags flags(const QModelIndex& index) const;
 
-public:
+  public:
 	PVCore::PVDataTreeObjectBase* get_object(QModelIndex const& index) const;
 
-protected:
+  protected:
 	QModelIndex index_from_obj(PVCore::PVDataTreeObjectBase const* obj) const;
 
-private:
-	QModelIndex index_from_obj_rec(QModelIndex const& cur, PVCore::PVDataTreeObjectWithChildrenBase const* idx_obj, PVCore::PVDataTreeObjectBase const* obj_test) const;
+  private:
+	QModelIndex index_from_obj_rec(QModelIndex const& cur,
+	                               PVCore::PVDataTreeObjectWithChildrenBase const* idx_obj,
+	                               PVCore::PVDataTreeObjectBase const* obj_test) const;
 
-protected:
+  protected:
 	PVCore::PVDataTreeObjectWithChildrenBase* _root;
 	PVCore::PVDataTreeObjectBase* _root_base;
 };
-
 };
-
 
 #endif

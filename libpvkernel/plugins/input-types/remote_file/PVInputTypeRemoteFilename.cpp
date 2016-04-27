@@ -17,18 +17,21 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-PVRush::PVInputTypeRemoteFilename::PVInputTypeRemoteFilename() :
-	PVInputTypeFilename()
+PVRush::PVInputTypeRemoteFilename::PVInputTypeRemoteFilename() : PVInputTypeFilename()
 {
 }
 
-bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, PVCore::PVArgumentList& /*args_ext*/, QWidget* parent) const
+bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats,
+                                                     hash_formats& /*new_formats*/,
+                                                     list_inputs& inputs, QString& format,
+                                                     PVCore::PVArgumentList& /*args_ext*/,
+                                                     QWidget* parent) const
 {
 	QStringList formats_str = formats.keys();
 
 	formats_str.prepend(INENDI_AUTOMATIC_FORMAT_STR);
 	formats_str.prepend(INENDI_BROWSE_FORMAT_STR);
-	PVLogViewerDialog *RemoteLogDialog = new PVLogViewerDialog(formats_str, parent);
+	PVLogViewerDialog* RemoteLogDialog = new PVLogViewerDialog(formats_str, parent);
 	if (RemoteLogDialog->exec() == QDialog::Rejected) {
 		RemoteLogDialog->deleteLater();
 		return false;
@@ -97,7 +100,8 @@ QString PVRush::PVInputTypeRemoteFilename::tab_name_of_inputs(list_inputs const&
 		return PVInputTypeFilename::tab_name_of_inputs(in);
 	}
 
-	return url.toString(QUrl::RemovePassword | QUrl::RemovePath | QUrl::RemoveQuery | QUrl::StripTrailingSlash);
+	return url.toString(QUrl::RemovePassword | QUrl::RemovePath | QUrl::RemoveQuery |
+	                    QUrl::StripTrailingSlash);
 }
 
 QString PVRush::PVInputTypeRemoteFilename::menu_input_name() const
@@ -105,7 +109,8 @@ QString PVRush::PVInputTypeRemoteFilename::menu_input_name() const
 	return QString("Remote files...");
 }
 
-bool PVRush::PVInputTypeRemoteFilename::get_custom_formats(PVInputDescription_p /*in*/, hash_formats& /*formats*/) const
+bool PVRush::PVInputTypeRemoteFilename::get_custom_formats(PVInputDescription_p /*in*/,
+                                                           hash_formats& /*formats*/) const
 {
 	return false;
 }

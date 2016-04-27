@@ -8,13 +8,14 @@
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
-PVCore::PVSerializeObject::PVSerializeObject(QString const& path, PVSerializeArchive* parent_ar, PVSerializeObject* parent):
-		_parent_ar(parent_ar),
-		_parent(parent),
-		_logical_path(path),
-		_is_optional(false),
-		_must_write(true),
-		_bound_obj_type(typeid(void))
+PVCore::PVSerializeObject::PVSerializeObject(QString const& path, PVSerializeArchive* parent_ar,
+                                             PVSerializeObject* parent)
+    : _parent_ar(parent_ar)
+    , _parent(parent)
+    , _logical_path(path)
+    , _is_optional(false)
+    , _must_write(true)
+    , _bound_obj_type(typeid(void))
 {
 }
 
@@ -23,12 +24,15 @@ bool PVCore::PVSerializeObject::is_writing() const
 	return _parent_ar->is_writing();
 }
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeObject::create_object(QString const& name, QString const& desc, bool optional, bool visible, bool def_option)
+PVCore::PVSerializeObject_p PVCore::PVSerializeObject::create_object(QString const& name,
+                                                                     QString const& desc,
+                                                                     bool optional, bool visible,
+                                                                     bool def_option)
 {
 	p_type child = _parent_ar->create_object(name, this);
 	child->_visible = visible;
 	child->_is_optional = optional;
-	child->_desc = (desc.isNull())?name:desc;
+	child->_desc = (desc.isNull()) ? name : desc;
 	child->_must_write = def_option;
 	_childs.insert(name, child);
 
@@ -84,17 +88,20 @@ void PVCore::PVSerializeObject::attribute_write(QString const& name, QVariant co
 	_parent_ar->attribute_write(*this, name, obj);
 }
 
-void PVCore::PVSerializeObject::attribute_read(QString const& name, QVariant& obj, QVariant const& def)
+void PVCore::PVSerializeObject::attribute_read(QString const& name, QVariant& obj,
+                                               QVariant const& def)
 {
 	_parent_ar->attribute_read(*this, name, obj, def);
 }
 
-void PVCore::PVSerializeObject::list_attributes_write(QString const& name, std::vector<QVariant> const& list)
+void PVCore::PVSerializeObject::list_attributes_write(QString const& name,
+                                                      std::vector<QVariant> const& list)
 {
 	_parent_ar->list_attributes_write(*this, name, list);
 }
 
-void PVCore::PVSerializeObject::list_attributes_read(QString const& name, std::vector<QVariant>& list)
+void PVCore::PVSerializeObject::list_attributes_read(QString const& name,
+                                                     std::vector<QVariant>& list)
 {
 	_parent_ar->list_attributes_read(*this, name, list);
 }
@@ -104,7 +111,8 @@ void PVCore::PVSerializeObject::hash_arguments_write(QString const& name, PVArgu
 	_parent_ar->hash_arguments_write(*this, name, obj);
 }
 
-void PVCore::PVSerializeObject::hash_arguments_read(QString const& name, PVArgumentList& obj, PVArgumentList const& def_args)
+void PVCore::PVSerializeObject::hash_arguments_read(QString const& name, PVArgumentList& obj,
+                                                    PVArgumentList const& def_args)
 {
 	_parent_ar->hash_arguments_read(*this, name, obj, def_args);
 }
@@ -147,7 +155,8 @@ void PVCore::PVSerializeObject::set_write(bool write)
 	}
 }
 
-const PVCore::PVSerializeObject::p_type PVCore::PVSerializeObject::get_child_by_name(QString const& name) const
+const PVCore::PVSerializeObject::p_type
+PVCore::PVSerializeObject::get_child_by_name(QString const& name) const
 {
 	return _childs.value(name, p_type());
 }
@@ -185,7 +194,8 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeObject::get_object_by_path(QStrin
 	return get_archive_object_from_path(path);
 }
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeObject::get_archive_object_from_path(QString const& path) const
+PVCore::PVSerializeObject_p
+PVCore::PVSerializeObject::get_archive_object_from_path(QString const& path) const
 {
 	return _parent_ar->get_object_by_path(path);
 }
@@ -195,17 +205,18 @@ bool PVCore::PVSerializeObject::visible() const
 	return _visible;
 }
 
-void PVCore::PVSerializeObject::arguments(QString const& name, PVArgumentList& obj, PVArgumentList const& def_args)
+void PVCore::PVSerializeObject::arguments(QString const& name, PVArgumentList& obj,
+                                          PVArgumentList const& def_args)
 {
 	if (is_writing()) {
 		hash_arguments_write(name, obj);
-	}
-	else {
+	} else {
 		hash_arguments_read(name, obj, def_args);
 	}
 }
 
-void PVCore::PVSerializeObject::repairable_error(std::shared_ptr<PVSerializeArchiveFixError> const& error)
+void PVCore::PVSerializeObject::repairable_error(
+    std::shared_ptr<PVSerializeArchiveFixError> const& error)
 {
 	_parent_ar->repairable_error(error);
 }

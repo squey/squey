@@ -8,5 +8,4 @@
 #ifndef PVRUSH_RUSH_H
 #define PVRUSH_RUSH_H
 
-#endif	/* PVRUSH_RUSH_H */
-
+#endif /* PVRUSH_RUSH_H */

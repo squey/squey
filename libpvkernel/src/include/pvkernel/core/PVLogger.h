@@ -16,32 +16,33 @@
 
 #include <pvbase/export.h>
 
-
 // The following are given be decreasing order of importance/verbosity
 // Rem : Use HEAVYDEBUG level when you know that the message is potentially produced
 //       a lot of times (as in a loop) and don't want it to appear in an everyday
 //       DEBUG level.
-#define PVLOG_FATAL(fmt, ...) PVCore::PVLogger::getInstance()->fatal(fmt, ##__VA_ARGS__) 
-#define PVLOG_ERROR(fmt, ...) PVCore::PVLogger::getInstance()->error(fmt, ##__VA_ARGS__) 
-#define PVLOG_CUDA_ERROR(fmt, ...) PVCore::PVLogger::getInstance()->cudaError(fmt, ##__VA_ARGS__) 
-#define PVLOG_WARN(fmt, ...) PVCore::PVLogger::getInstance()->warn(fmt, ##__VA_ARGS__) 
-#define PVLOG_INFO(fmt, ...) PVCore::PVLogger::getInstance()->info(fmt, ##__VA_ARGS__) 
+#define PVLOG_FATAL(fmt, ...) PVCore::PVLogger::getInstance()->fatal(fmt, ##__VA_ARGS__)
+#define PVLOG_ERROR(fmt, ...) PVCore::PVLogger::getInstance()->error(fmt, ##__VA_ARGS__)
+#define PVLOG_CUDA_ERROR(fmt, ...) PVCore::PVLogger::getInstance()->cudaError(fmt, ##__VA_ARGS__)
+#define PVLOG_WARN(fmt, ...) PVCore::PVLogger::getInstance()->warn(fmt, ##__VA_ARGS__)
+#define PVLOG_INFO(fmt, ...) PVCore::PVLogger::getInstance()->info(fmt, ##__VA_ARGS__)
 #ifdef NDEBUG
 // If we are in release mode, PVLOG_DEBUG and PVLOG_HEAVYDEBUG must not produce any code !
 #define PVLOG_DEBUG(fmt, ...)
 #define PVLOG_HEAVYDEBUG(fmt, ...)
 #else
-#define PVLOG_DEBUG(fmt, ...) PVCore::PVLogger::getInstance()->debug(fmt, ##__VA_ARGS__) 
+#define PVLOG_DEBUG(fmt, ...) PVCore::PVLogger::getInstance()->debug(fmt, ##__VA_ARGS__)
 #define PVLOG_HEAVYDEBUG(fmt, ...) PVCore::PVLogger::getInstance()->heavydebug(fmt, ##__VA_ARGS__)
 #endif
-// The next MACRO outputs the given message without prefixing it with the usual stuff (works as a printf)
-#define PVLOG_PLAIN(fmt, ...) PVCore::PVLogger::getInstance()->plain(fmt, ##__VA_ARGS__) 
+// The next MACRO outputs the given message without prefixing it with the usual stuff (works as a
+// printf)
+#define PVLOG_PLAIN(fmt, ...) PVCore::PVLogger::getInstance()->plain(fmt, ##__VA_ARGS__)
 
-namespace PVCore {
+namespace PVCore
+{
 
 class PVLogger
 {
-public:
+  public:
 	enum LogLevel {
 		PVLOG_FATAL,
 		PVLOG_ERROR,
@@ -52,35 +53,34 @@ public:
 		PVLOG_HEAVYDEBUG,
 	};
 
-protected:
+  protected:
 	PVLogger();
-public:
 
+  public:
 	~PVLogger();
 
 	/* Singleton */
-	static PVLogger *getInstance();
+	static PVLogger* getInstance();
 
 	LogLevel level;
 	QString datetime_format;
 
-	void heavydebug(const char *, ...);	
-	void debug(const char *, ...);
-	void info(const char *, ...);
-	void warn(const char *, ...);
-	void error(const char *, ...);
-	void cudaError(const char *, ...);
-	void fatal(const char *, ...);
-	void plain(const char *, ...);
+	void heavydebug(const char*, ...);
+	void debug(const char*, ...);
+	void info(const char*, ...);
+	void warn(const char*, ...);
+	void error(const char*, ...);
+	void cudaError(const char*, ...);
+	void fatal(const char*, ...);
+	void plain(const char*, ...);
 
 	QString get_now_str();
 
-private:
-	FILE *fp;
+  private:
+	FILE* fp;
 	QByteArray log_filename;
 	QMutex mutex;
 };
-
 }
 
-#endif	/* PVCORE_PVLOGGER_H */
+#endif /* PVCORE_PVLOGGER_H */

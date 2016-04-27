@@ -11,14 +11,14 @@
 #include <pvbase/export.h>
 #include <QItemEditorFactory>
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
-namespace PVArgumentListWidgetFactory {
+namespace PVArgumentListWidgetFactory
+{
 
 QItemEditorFactory* create_core_widgets_factory();
-
 }
-
 }
 
 #endif

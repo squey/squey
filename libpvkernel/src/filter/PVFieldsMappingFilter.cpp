@@ -14,8 +14,8 @@
  * PVFilter::PVCore::PVFieldsMappingFilter::PVCore::PVFieldsMappingFilter
  *
  *****************************************************************************/
-PVFilter::PVFieldsMappingFilter::PVFieldsMappingFilter(map_filters const& mfilters) :
-	_mfilters(mfilters)
+PVFilter::PVFieldsMappingFilter::PVFieldsMappingFilter(map_filters const& mfilters)
+    : _mfilters(mfilters)
 {
 }
 
@@ -24,12 +24,12 @@ PVFilter::PVFieldsMappingFilter::PVFieldsMappingFilter(map_filters const& mfilte
  * PVFilter::PVFieldsMappingFilter::operator
  *
  *****************************************************************************/
-PVCore::list_fields& PVFilter::PVFieldsMappingFilter::many_to_many(PVCore::list_fields &fields)
+PVCore::list_fields& PVFilter::PVFieldsMappingFilter::many_to_many(PVCore::list_fields& fields)
 {
-	//TODO: this *can* be optimised !
+	// TODO: this *can* be optimised !
 	if (fields.size() == 0)
 		return fields;
-	map_filters::const_iterator it,ite;
+	map_filters::const_iterator it, ite;
 	ite = _mfilters.end();
 	PVCore::list_fields tmp_fields;
 	for (it = _mfilters.begin(); it != ite; it++) {
@@ -37,12 +37,13 @@ PVCore::list_fields& PVFilter::PVFieldsMappingFilter::many_to_many(PVCore::list_
 		PVFieldsBaseFilter_f f = (*it).second;
 		tmp_fields.clear();
 		list_indexes::const_iterator it_ind;
-		for (it_ind = indx.begin(); it_ind != indx.end(); it_ind++)
-		{
+		for (it_ind = indx.begin(); it_ind != indx.end(); it_ind++) {
 			PVCore::list_fields::iterator it_curf = fields.begin();
 			chunk_index id_field = *it_ind;
 			if (id_field >= fields.size()) {
-				PVLOG_DEBUG("(PVFieldsMappingFilter) element hasn't enough field to apply mapping (index %d requested, %d fields available). Ignoring element...\n", *it_ind, fields.size());
+				PVLOG_DEBUG("(PVFieldsMappingFilter) element hasn't enough field to apply mapping "
+				            "(index %d requested, %d fields available). Ignoring element...\n",
+				            *it_ind, fields.size());
 				continue;
 			}
 			std::advance(it_curf, id_field);
@@ -50,7 +51,7 @@ PVCore::list_fields& PVFilter::PVFieldsMappingFilter::many_to_many(PVCore::list_
 			fields.erase(it_curf);
 		}
 
-		PVCore::list_fields &final_fields = f(tmp_fields);
+		PVCore::list_fields& final_fields = f(tmp_fields);
 		chunk_index ins_index = *(std::min_element(indx.begin(), indx.end()));
 		PVCore::list_fields::iterator itins = fields.begin();
 		if (ins_index <= fields.size()) {

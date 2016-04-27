@@ -13,8 +13,7 @@
  * PVCore::PVRegexpEditor::PVRegexpEditor
  *
  *****************************************************************************/
-PVWidgets::PVRegexpEditor::PVRegexpEditor(QWidget *parent):
-	QLineEdit(parent)
+PVWidgets::PVRegexpEditor::PVRegexpEditor(QWidget* parent) : QLineEdit(parent)
 {
 }
 

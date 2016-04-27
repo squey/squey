@@ -11,13 +11,13 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
-
 #include <QSqlDatabase>
 #include <QString>
 
 #include "PVDBServ_types.h"
 
-namespace PVRush {
+namespace PVRush
+{
 
 class PVDBQuery;
 class PVDBServ;
@@ -26,11 +26,13 @@ class PVDBInfos
 {
 	friend class PVDBServ;
 	friend class PVCore::PVSerializeObject;
-public:
-	PVDBInfos();
-	PVDBInfos(QString const& type, QString const& host, uint16_t port, QString const& username, QString const& password, QString const& dbname, QString const& options = QString(""));
 
-public:
+  public:
+	PVDBInfos();
+	PVDBInfos(QString const& type, QString const& host, uint16_t port, QString const& username,
+	          QString const& password, QString const& dbname, QString const& options = QString(""));
+
+  public:
 	void set_type(QString const& type) { _type = type; }
 	void set_host(QString const& host) { _host = host; }
 	void set_username(QString const& username) { _username = username; }
@@ -46,14 +48,14 @@ public:
 	QString const& get_options() const { return _options; }
 	QString const& get_dbname() const { return _dbname; }
 	uint16_t get_port() const { return _port; }
-	
+
 	// That name *must* be unique accross different databases
 	QString database_name() const;
 
-protected:
+  protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
-protected:
+  protected:
 	QString _host;
 	QString _username;
 	QString _password;
@@ -63,27 +65,27 @@ protected:
 	uint16_t _port;
 };
 
-class PVDBServ: public PVDBInfos
+class PVDBServ : public PVDBInfos
 {
 	friend class PVDBQuery;
-public:
+
+  public:
 	typedef PVDBServ_p p_type;
-public:
+
+  public:
 	PVDBServ(PVDBInfos const& infos);
 	~PVDBServ();
 
-public:
+  public:
 	bool connect();
 	QString last_error() const;
 
-protected:
+  protected:
 	QSqlDatabase to_database();
 
-private:
+  private:
 	QSqlDatabase _db;
 };
-
-
 }
 
 #endif

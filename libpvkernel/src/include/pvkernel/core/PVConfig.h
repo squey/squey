@@ -22,13 +22,13 @@ class PVConfig
 {
 	typedef std::shared_ptr<PVConfig> PVConfig_p;
 
-public:
+  public:
 	/**
 	 * return a singleton on the global configuration accessor
 	 */
 	static PVConfig& get();
 
-public:
+  public:
 	/**
 	 * return the path to the white/grey/black lists
 	 */
@@ -41,22 +41,21 @@ public:
 
 	static QString username();
 
-private:
+  private:
 	// private stuffs for a singleton declaration
 	PVConfig();
 	PVConfig(const PVConfig&);
-	PVConfig &operator=(const PVConfig&);
+	PVConfig& operator=(const PVConfig&);
 
-public:
+  public:
 	// public destructor to permit its destruction
 	~PVConfig();
 
-private:
-	static PVConfig_p  _pvconfig;
-	QSettings         *_config;
-	QString            _username;
+  private:
+	static PVConfig_p _pvconfig;
+	QSettings* _config;
+	QString _username;
 };
-
 }
 
 #endif /* PVCORE_PVCONFIG_H */

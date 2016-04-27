@@ -18,7 +18,8 @@
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("substitution", PVFilter::PVFieldConverterSubstitution);
-	REGISTER_CLASS_AS("converter_substitution", PVFilter::PVFieldConverterSubstitution, PVFilter::PVFieldsFilterReg);
+	REGISTER_CLASS_AS("converter_substitution", PVFilter::PVFieldConverterSubstitution,
+	                  PVFilter::PVFieldsFilterReg);
 
 	REGISTER_CLASS("substitution", PVFilter::PVFieldConverterSubstitutionParamWidget);
 }

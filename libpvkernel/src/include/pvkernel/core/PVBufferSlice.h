@@ -12,59 +12,72 @@
 
 #include <list>
 
-namespace PVCore {
+namespace PVCore
+{
 
-typedef std::list< std::pair<char*,size_t> > buf_list_t;
+typedef std::list<std::pair<char*, size_t>> buf_list_t;
 
 /*! \brief Defines a "slice" of an existing buffer. Used by the normalisation process.
  *
- * This class originally defines a slice of an existing buffer. It is the base class of \ref PVCore::PVElement
- * and \ref PVCore::PVField. A slice can be "detached" from the original buffer if a reallocation is done. If such
- * reallocation occurs, the new pointer is add to a list of buffers, sothat further deallocation can be done.
+ * This class originally defines a slice of an existing buffer. It is the base class of \ref
+ *PVCore::PVElement
+ * and \ref PVCore::PVField. A slice can be "detached" from the original buffer if a reallocation is
+ *done. If such
+ * reallocation occurs, the new pointer is add to a list of buffers, sothat further deallocation can
+ *be done.
  * For now, a \ref PVCore::PVElement object contains a list of buffers reallocated by its fields.
  *
  * \remark
- * A buffer slice has two sizes: a logical and a physical one. The logical size is changed according to \ref set_end, and
- * is the size of useful data inside this slice. The pysical size is the size to which a slice can grow without the need
- * of any reallocations. 
+ * A buffer slice has two sizes: a logical and a physical one. The logical size is changed according
+ *to \ref set_end, and
+ * is the size of useful data inside this slice. The pysical size is the size to which a slice can
+ *grow without the need
+ * of any reallocations.
  */
-class PVBufferSlice {
-public:
+class PVBufferSlice
+{
+  public:
 	/*! \brief Construct a buffer slice from a start and end pointer.
 	 *  \param[in] begin    Begin of the buffer slice
 	 *  \param[in] end      End of the buffer slice, ie. the pointer after the last valid character
 	 *  \param[in] buf_list Reference to an external buffer list used to keep track of reallocations
 	 *
-	 * Construct a buffer slice from a start and end pointer. Moreover, and buffer list must be provided in
+	 * Construct a buffer slice from a start and end pointer. Moreover, and buffer list must be
+	 *provided in
 	 * order to keep track of reallocations (if they occur).
 	 *
 	 * \note The size of this slice is thus end-begin .
 	 */
-	PVBufferSlice(char* begin, char* end, buf_list_t &buf_list);
+	PVBufferSlice(char* begin, char* end, buf_list_t& buf_list);
 
 	/*! \brief Construct an undefined slice.
 	 *  \param[in] buf_list Reference to an external buffer list used to keep track of reallocations
 	 */
-	PVBufferSlice(buf_list_t &buf_list);
-
+	PVBufferSlice(buf_list_t& buf_list);
 
 	/*! \brief Copy-constructor
 	 *  \param[in] src Original buffer slice
 	 *
 	 *  \sa copy_from
 	 */
-	PVBufferSlice(PVBufferSlice const& src): _buf_list(src._buf_list) { copy_from(src); };
+	PVBufferSlice(PVBufferSlice const& src) : _buf_list(src._buf_list) { copy_from(src); };
 
 	// Destructor "inline" for performance reasons
 	virtual ~PVBufferSlice() {}
-public:
+
+  public:
 	/*! \brief Copy operator
 	 *  \param[in] src Original buffer slice
 	 *
 	 *  \sa copy_from
 	 */
-	inline PVBufferSlice& operator=(PVBufferSlice const& src) { copy_from(src); return *this; };
-public:
+	inline PVBufferSlice& operator=(PVBufferSlice const& src)
+	{
+		copy_from(src);
+		return *this;
+	};
+
+  public:
 	/*! \brief Pointer to the beginning of this slice.
 	 */
 	char* begin() const;
@@ -107,8 +120,10 @@ public:
 	 *  \param n Number of bytes to grow.
 	 *  \return true if enough physical space was available, false otherwise.
 	 *
-	 *  This function basically set end() to end()+n, by checking if enough physical space is available. If this is not the case,
-	 *  it will do nothing and returns false. Thus, a reallocation is needed, and this is the purpose of \ref grow_by_reallocate.
+	 *  This function basically set end() to end()+n, by checking if enough physical space is
+	 *available. If this is not the case,
+	 *  it will do nothing and returns false. Thus, a reallocation is needed, and this is the
+	 *purpose of \ref grow_by_reallocate.
 	 *
 	 *  \sa grow_by_reallocate
 	 */
@@ -117,32 +132,33 @@ public:
 	/*! \brief Grow the logical size of this slice, and reallocate it if necessary.
 	 *  \param n Number of bytes to grow
 	 *
-	 *  This function basically set end() to end()+n. If there is not enough physical space for this operation, a reallocation
+	 *  This function basically set end() to end()+n. If there is not enough physical space for this
+	 *operation, a reallocation
 	 *  is performed.
 	 */
 	void grow_by_reallocate(size_t n);
 
-
 	/*! \brief Discard the old content and reallocate a new buffer.
 	 *  \param[in] n Size of the new buffer.
 	 *
-	 *  This function discard the old content and reallocate a new buffer. If a previous buffer had to
+	 *  This function discard the old content and reallocate a new buffer. If a previous buffer had
+	 *to
 	 *  be reallocated (with \ref grow_by_reallocate for instance), then this buffer is deallocated.
 	 */
 	void allocate_new(size_t n);
 
-public:
+  public:
 	/*! \brief Change the buffer list that save the allocated buffers.
 	 *  \param[in] buf_list Reference to the buffer list.
 	 *  \sa PVBufferSlice
 	 */
 	inline void set_buflist(buf_list_t& buf_list) { _buf_list = buf_list; }
 
-protected:
+  protected:
 	// Perform a deep copy of current data in a new buffer
 	void _realloc_data();
 
-private:
+  private:
 	inline void copy_from(PVBufferSlice const& src)
 	{
 		_begin = src._begin;
@@ -150,16 +166,15 @@ private:
 		_physical_end = src._physical_end;
 		_realloc_buf = src._realloc_buf;
 	}
-protected:
+
+  protected:
 	char* _begin;
 	char* _end;
 	char* _physical_end;
 	char* _realloc_buf;
 
-	buf_list_t &_buf_list;
+	buf_list_t& _buf_list;
 };
-
 }
 
 #endif
-

@@ -10,13 +10,13 @@
 
 #include <stdexcept>
 
-namespace PVRush {
+namespace PVRush
+{
 
-struct PVNrawException: public std::runtime_error
+struct PVNrawException : public std::runtime_error
 {
 	using std::runtime_error::runtime_error;
 };
-
 }
 
 #endif

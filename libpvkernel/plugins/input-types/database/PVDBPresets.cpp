@@ -11,8 +11,8 @@
 #include <QSettings>
 #include <QStringList>
 
-PVRush::PVDBPresets::PVDBPresets():
-	_settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
+PVRush::PVDBPresets::PVDBPresets()
+    : _settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
 {
 	_settings.beginGroup(PV_SETTINGS_INPUT_DB "presets");
 }
@@ -28,8 +28,8 @@ PVRush::PVDBPresets& PVRush::PVDBPresets::get()
 	return obj;
 }
 
-
-PVRush::PVDBPresets::id_t PVRush::PVDBPresets::add(QString const& name, PVDBInfos const& infos, QString const& query)
+PVRush::PVDBPresets::id_t PVRush::PVDBPresets::add(QString const& name, PVDBInfos const& infos,
+                                                   QString const& query)
 {
 	QStringList grps = _settings.childGroups();
 	id_t max = 0;
@@ -40,12 +40,13 @@ PVRush::PVDBPresets::id_t PVRush::PVDBPresets::add(QString const& name, PVDBInfo
 		}
 	}
 
-	id_t new_id = max+1;
+	id_t new_id = max + 1;
 	set(new_id, infos, query, name);
 	return new_id;
 }
 
-void PVRush::PVDBPresets::set(id_t id, PVDBInfos const& infos, QString const& query, QString const& name)
+void PVRush::PVDBPresets::set(id_t id, PVDBInfos const& infos, QString const& query,
+                              QString const& name)
 {
 	QString grp = QString::number(id);
 	_settings.beginGroup(grp);
@@ -73,7 +74,7 @@ bool PVRush::PVDBPresets::get(id_t id, PVDBInfos& infos, QString& query)
 		infos.set_port(_settings.value("port", "").toUInt());
 		infos.set_username(_settings.value("username", "").toString());
 		infos.set_password(_settings.value("password", "").toString());
-		infos.set_port((uint16_t) _settings.value("port", 0).toUInt());
+		infos.set_port((uint16_t)_settings.value("port", 0).toUInt());
 		infos.set_type(_settings.value("type", "").toString());
 		query = _settings.value("query", "").toString();
 		ret = true;

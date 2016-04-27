@@ -29,35 +29,38 @@
 #define HSV_COLOR_TRANSPARENT 253
 
 // Some colors that can be useful
-#define HSV_COLOR_BLUE  10
+#define HSV_COLOR_BLUE 10
 #define HSV_COLOR_GREEN 59
-#define HSV_COLOR_RED   126
+#define HSV_COLOR_RED 126
 
-namespace PVCore {
+namespace PVCore
+{
 
 class PVHSVColor
 {
 	typedef uint8_t T;
-public:
-	typedef T h_type;
-	static CUDA_CONSTEXPR uint8_t color_max = (1<<HSV_COLOR_NBITS_ZONE)*6;
 
-public:
+  public:
+	typedef T h_type;
+	static CUDA_CONSTEXPR uint8_t color_max = (1 << HSV_COLOR_NBITS_ZONE) * 6;
+
+  public:
 	// Unitialized, and this is wanted !
-	PVHSVColor() { }
+	PVHSVColor() {}
 	PVHSVColor(T h_) { _h = h_; }
 
-public:
+  public:
 	inline T& h() { return _h; };
-	inline T  h() const { return _h; };
+	inline T h() const { return _h; };
 	static PVHSVColor* init_colors(PVRow nb_colors);
-	static void to_rgba(const PVHSVColor* hsv_image, QImage& rbg_image, QRect const& img_rect = QRect());
+	static void to_rgba(const PVHSVColor* hsv_image, QImage& rbg_image,
+	                    QRect const& img_rect = QRect());
 	bool is_valid() const;
 
-	bool operator==(PVHSVColor const& c) const { return c._h == _h;}
+	bool operator==(PVHSVColor const& c) const { return c._h == _h; }
 	bool operator!=(PVHSVColor const& c) const { return not(c == *this); }
 
-public:
+  public:
 	void to_rgb(T& r, T& g, T& b) const;
 	void to_rgb(T* rgb) const;
 
@@ -70,10 +73,9 @@ public:
 	void toQColorA(QColor& qc) const;
 	QColor toQColorA() const;
 
-private:
+  private:
 	T _h;
 };
-
 }
 
 #endif

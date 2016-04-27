@@ -10,16 +10,16 @@
 
 #include "PVSourceCreatorTextfile.h"
 
-namespace PVRush {
-
-class PVSourceCreatorRemoteTextfile: public PVSourceCreatorTextfile
+namespace PVRush
 {
-public:
+
+class PVSourceCreatorRemoteTextfile : public PVSourceCreatorTextfile
+{
+  public:
 	QString supported_type() const;
 
 	CLASS_REGISTRABLE(PVSourceCreatorRemoteTextfile)
 };
-
 }
 
 #endif

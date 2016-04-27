@@ -11,65 +11,48 @@
 #include <iostream>
 #include <QCoreApplication>
 
-
 #include <pvkernel/core/inendi_assert.h>
 
 #include <list>
 
-class PVTestChild: public std::enable_shared_from_this<PVTestChild>
+class PVTestChild : public std::enable_shared_from_this<PVTestChild>
 {
 	friend class PVCore::PVSerializeObject;
-public:
-	PVTestChild():
-		_a(0)
-	{ }
-	PVTestChild(int a):
-		_a(a)
-	{ }
 
-	bool operator==(const PVTestChild& rhs) const
-	{
-		return _a == rhs._a;
-	}
+  public:
+	PVTestChild() : _a(0) {}
+	PVTestChild(int a) : _a(a) {}
 
-	bool operator!=(const PVTestChild& rhs) const
-	{
-		return _a != rhs._a;
-	}
+	bool operator==(const PVTestChild& rhs) const { return _a == rhs._a; }
 
-public:
-	void dump() const
-	{
-		std::cout << "child int: " << _a << std::endl;
-	}
+	bool operator!=(const PVTestChild& rhs) const { return _a != rhs._a; }
 
-protected:
+  public:
+	void dump() const { std::cout << "child int: " << _a << std::endl; }
+
+  protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*version*/)
 	{
-		so.attribute("int", _a, (int) 0);
+		so.attribute("int", _a, (int)0);
 	}
-private:
+
+  private:
 	int _a;
 };
 
 class PVTestBuf
 {
 	friend class PVCore::PVSerializeObject;
-public:
-	PVTestBuf()
-	{
-		buf[0] = buf[1] = buf[2] = buf[3] = 0;
-	}
 
-	void set_buf()
-	{
-		buf[0] = buf[1] = buf[2] = buf[3] = 10;
-	}
+  public:
+	PVTestBuf() { buf[0] = buf[1] = buf[2] = buf[3] = 0; }
+
+	void set_buf() { buf[0] = buf[1] = buf[2] = buf[3] = 10; }
 
 	bool operator==(const PVTestBuf& rhs) const
 	{
 		for (int i = 0; i < 4; i++) {
-			if(buf[i] != rhs.buf[i]) {
+			if (buf[i] != rhs.buf[i]) {
 				return false;
 			}
 		}
@@ -79,7 +62,7 @@ public:
 	bool operator!=(const PVTestBuf& rhs) const
 	{
 		for (int i = 0; i < 4; i++) {
-			if(buf[i] != rhs.buf[i]) {
+			if (buf[i] != rhs.buf[i]) {
 				return true;
 			}
 		}
@@ -93,37 +76,36 @@ public:
 			std::cout << buf[i] << std::endl;
 		}
 	}
-protected:
+
+  protected:
 	void serialize_write(PVCore::PVSerializeObject& so)
 	{
-		so.buffer("data", &buf, sizeof(int)*4);
+		so.buffer("data", &buf, sizeof(int) * 4);
 	}
 
-	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*version*/)
+	void serialize_read(PVCore::PVSerializeObject& so,
+	                    PVCore::PVSerializeArchive::version_t /*version*/)
 	{
-		so.buffer("data", &buf, sizeof(int)*4);
+		so.buffer("data", &buf, sizeof(int) * 4);
 	}
 
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*version*/)
 	{
 		so.split(*this);
 	}
-protected:
+
+  protected:
 	int buf[4];
 };
 
 class PVTestObj
 {
 	friend class PVCore::PVSerializeObject;
-public:
-	PVTestObj():
-		_a(0)
-	{ }
 
-	PVTestObj(QString const& str, int a):
-		_str(str),
-		_a(a),
-		_child(10*a)
+  public:
+	PVTestObj() : _a(0) {}
+
+	PVTestObj(QString const& str, int a) : _str(str), _a(a), _child(10 * a)
 	{
 		for (int i = 0; i < 10; i++) {
 			_list_children.push_back(PVTestChild(i));
@@ -192,7 +174,7 @@ public:
 		return true;
 	}
 
-public:
+  public:
 	void dump() const
 	{
 		std::cout << "str: " << qPrintable(_str) << std::endl;
@@ -212,7 +194,7 @@ public:
 		std::cout << "references:" << std::endl;
 		std::cout << "-----------" << std::endl;
 		std::cout << "Original list:" << std::endl;
-		std::list<std::shared_ptr<PVTestChild> >::const_iterator it_ptr;
+		std::list<std::shared_ptr<PVTestChild>>::const_iterator it_ptr;
 		for (it_ptr = _list_p1.begin(); it_ptr != _list_p1.end(); it_ptr++) {
 			std::cout << it_ptr->get() << std::endl;
 		}
@@ -221,11 +203,12 @@ public:
 			std::cout << it_ptr->get() << std::endl;
 		}
 	}
-protected:
+
+  protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*version*/)
 	{
 		so.attribute("str", _str, QString("default"));
-		so.attribute("int", _a, (int) 0);
+		so.attribute("int", _a, (int)0);
 		so.object("child", _child, "That's a child", true);
 		so.list("children", _list_children);
 		so.list_attributes("int_children", _list_ints);
@@ -236,13 +219,13 @@ protected:
 		so.list_ref("test_ref", _list_p2, org);
 	}
 
-private:
+  private:
 	QString _str;
 	int _a;
 	PVTestChild _child;
 	std::list<PVTestChild> _list_children;
-	std::list<std::shared_ptr<PVTestChild> > _list_p1;
-	std::list<std::shared_ptr<PVTestChild> > _list_p2;
+	std::list<std::shared_ptr<PVTestChild>> _list_p1;
+	std::list<std::shared_ptr<PVTestChild>> _list_p2;
 	std::list<int> _list_ints;
 	PVTestBuf _buf;
 };
@@ -259,13 +242,14 @@ int main(int argc, char** argv)
 	options->get_root()->object("obj", obj);
 	options->get_root()->get_child_by_name("obj")->get_child_by_name("child")->set_write(false);
 
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::write, 1));
+	PVCore::PVSerializeArchive_p ar(
+	    new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::write, 1));
 	ar->set_options(options);
 	ar->get_root()->object("obj", obj);
 
-
 	// Get it back
-	ar = PVCore::PVSerializeArchive_p(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::read, 1));
+	ar = PVCore::PVSerializeArchive_p(
+	    new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::read, 1));
 	PVTestObj obj_r;
 	obj_r.dump();
 	ar->get_root()->object("obj", obj_r);
@@ -274,12 +258,14 @@ int main(int argc, char** argv)
 	PV_ASSERT_VALID(obj == obj_r);
 
 	// Same with zip archives
-	ar = PVCore::PVSerializeArchive_p(new PVCore::PVSerializeArchiveZip("/tmp/testarch.pv", PVCore::PVSerializeArchive::write, 1));
+	ar = PVCore::PVSerializeArchive_p(new PVCore::PVSerializeArchiveZip(
+	    "/tmp/testarch.pv", PVCore::PVSerializeArchive::write, 1));
 	ar->get_root()->object("obj", obj);
 	ar->finish();
 
 	// Get it back
-	ar = PVCore::PVSerializeArchive_p(new PVCore::PVSerializeArchiveZip("/tmp/testarch.pv", PVCore::PVSerializeArchive::read, 1));
+	ar = PVCore::PVSerializeArchive_p(
+	    new PVCore::PVSerializeArchiveZip("/tmp/testarch.pv", PVCore::PVSerializeArchive::read, 1));
 	PVTestObj obj_r2;
 	ar->get_root()->object("obj", obj_r2);
 	ar->finish();

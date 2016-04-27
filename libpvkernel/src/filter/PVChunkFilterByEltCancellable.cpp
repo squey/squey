@@ -15,10 +15,10 @@
  * PVFilter::PVChunkFilterByEltCancellable::PVChunkFilterByEltCancellable
  *
  *****************************************************************************/
-PVFilter::PVChunkFilterByEltCancellable::PVChunkFilterByEltCancellable(PVElementFilter_f elt_filter, float timeout, bool *cancellation) :
-	PVChunkFilter(),
-	_timeout(timeout),
-	_cancellation(cancellation)
+PVFilter::PVChunkFilterByEltCancellable::PVChunkFilterByEltCancellable(PVElementFilter_f elt_filter,
+                                                                       float timeout,
+                                                                       bool* cancellation)
+    : PVChunkFilter(), _timeout(timeout), _cancellation(cancellation)
 {
 	_elt_filter = elt_filter;
 	_n_elts_invalid = 0;
@@ -32,7 +32,7 @@ PVFilter::PVChunkFilterByEltCancellable::PVChunkFilterByEltCancellable(PVElement
 PVCore::PVChunk* PVFilter::PVChunkFilterByEltCancellable::operator()(PVCore::PVChunk* chunk)
 {
 	PVCore::list_elts& elts = chunk->elements();
-	PVCore::list_elts::iterator it,ite;
+	PVCore::list_elts::iterator it, ite;
 	it = elts.begin();
 	ite = elts.end();
 	size_t nelts = elts.size();
@@ -40,20 +40,17 @@ PVCore::PVChunk* PVFilter::PVChunkFilterByEltCancellable::operator()(PVCore::PVC
 	tbb::tick_count start = tbb::tick_count::now();
 	tbb::tick_count current;
 
-	while (it != ite)
-	{
+	while (it != ite) {
 		tbb::tick_count ls, le;
 		ls = tbb::tick_count::now();
-		PVCore::PVElement &elt = _elt_filter(*(*it));
+		PVCore::PVElement& elt = _elt_filter(*(*it));
 		le = tbb::tick_count::now();
-		if (!elt.valid())
-		{
+		if (!elt.valid()) {
 			PVCore::PVElement::free(*it);
 			PVCore::list_elts::iterator it_rem = it;
 			it++;
 			elts.erase(it_rem);
-		}
-		else {
+		} else {
 			it++;
 			nelts_valid++;
 		}

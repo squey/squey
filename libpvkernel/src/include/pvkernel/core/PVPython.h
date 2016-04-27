@@ -25,34 +25,42 @@
 
 #include <list>
 
-namespace PVCore {
+namespace PVCore
+{
 
 class PVPythonClassDecl;
 
 class PVPythonInitializer
 {
 	friend class PVPythonClassRegister;
-public:
+
+  public:
 	~PVPythonInitializer();
-private:
+
+  private:
 	PVPythonInitializer();
-	PVPythonInitializer(const PVPythonInitializer&) { }
-public:
+	PVPythonInitializer(const PVPythonInitializer&) {}
+
+  public:
 	static PVPythonInitializer& get();
-public:
+
+  public:
 	boost::python::object python_main;
 	boost::python::dict python_main_namespace;
-protected:
+
+  protected:
 	static void register_class(PVPythonClassDecl const& c);
-private:
+
+  private:
 	static std::list<std::unique_ptr<PVPythonClassDecl>>& get_class_list();
-private:
+
+  private:
 	PyThreadState* mainThreadState;
 };
 
 class PVPythonLocker
 {
-public:
+  public:
 	PVPythonLocker()
 	{
 		PVLOG_DEBUG("PVPythonLocker construct\n");
@@ -63,18 +71,20 @@ public:
 		PVLOG_DEBUG("PVPythonLocker destruct\n");
 		PyGILState_Release(_state);
 	}
-private:
-	PVPythonLocker(const PVPythonLocker&) { }
-private:
+
+  private:
+	PVPythonLocker(const PVPythonLocker&) {}
+
+  private:
 	PyGILState_STATE _state;
 };
 
-namespace PVPython {
-	extern QString get_list_index_as_qstring(boost::python::list pylist, int index);
+namespace PVPython
+{
+extern QString get_list_index_as_qstring(boost::python::list pylist, int index);
 }
-
 }
 
 #endif
 
-#endif //PVPYTHON_H
+#endif // PVPYTHON_H

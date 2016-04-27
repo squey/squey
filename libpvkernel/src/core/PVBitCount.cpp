@@ -14,8 +14,9 @@
 size_t PVCore::PVBitCount::bit_count(size_t n, const uint64_t* data)
 {
 	size_t ret = 0;
-// TODO: need to benchmark for a good grainsize !
-//#pragma omp parallel for reduction(+:ret) num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())
+	// TODO: need to benchmark for a good grainsize !
+	//#pragma omp parallel for reduction(+:ret)
+	// num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())
 	for (size_t i = 0; i < n; i++) {
 		uint64_t v = data[i];
 		ret += bit_count(v);
@@ -35,7 +36,7 @@ size_t PVCore::PVBitCount::bit_count_between(size_t a, size_t b, const uint64_t*
 
 	if (a_byte == b_byte) {
 		const uint64_t v0 = data[a_byte];
-		const size_t shift0 = (a    & tmp);
+		const size_t shift0 = (a & tmp);
 		const size_t shift1 = ((~b) & tmp);
 		const uint64_t va = (v0 >> shift0) << shift0;
 		const uint64_t vb = (v0 << shift1) >> shift1;

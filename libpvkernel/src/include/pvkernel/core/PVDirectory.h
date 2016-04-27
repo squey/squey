@@ -12,16 +12,16 @@
 #include <QString>
 #include <QDir>
 
-namespace PVCore {
+namespace PVCore
+{
 
 class PVDirectory
 {
-public:
+  public:
 	static bool remove_rec(QString const& dirName);
 	static QString temp_dir(QString const& pattern);
 	static QString temp_dir(QDir const& directory, QString const& pattern);
 };
-
 }
 
 #endif

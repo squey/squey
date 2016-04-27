@@ -22,18 +22,22 @@
 #include <QIcon>
 #include <QCursor>
 
-namespace PVRush {
+namespace PVRush
+{
 
-class PVInputType: public QObject, public PVCore::PVRegistrableClass<PVInputType>
+class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputType>
 {
 	Q_OBJECT
-public:
+  public:
 	typedef std::shared_ptr<PVInputType> p_type;
 	// List of inputs description
 	typedef QList<PVInputDescription_p> list_inputs;
 	typedef list_inputs list_inputs_desc;
-public:
-	virtual bool createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent = NULL) const = 0;
+
+  public:
+	virtual bool createWidget(hash_formats const& formats, hash_formats& new_formats,
+	                          list_inputs& inputs, QString& format,
+	                          PVCore::PVArgumentList& args_ext, QWidget* parent = NULL) const = 0;
 	virtual QString name() const = 0;
 	virtual QString human_name() const = 0;
 	virtual QString human_name_serialize() const = 0;
@@ -43,17 +47,22 @@ public:
 	virtual QString menu_input_name() const = 0;
 	virtual QKeySequence menu_shortcut() const { return QKeySequence(); }
 	virtual QString tab_name_of_inputs(list_inputs const& in) const = 0;
-	virtual bool get_custom_formats(PVInputDescription_p in, hash_formats &formats) const = 0;
-	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const = 0;
-	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs, PVCore::PVSerializeObject_p so_ref) const = 0;
+	virtual bool get_custom_formats(PVInputDescription_p in, hash_formats& formats) const = 0;
+	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj,
+	                                                     QString const& name,
+	                                                     list_inputs& inputs) const = 0;
+	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name,
+	                                  list_inputs& inputs,
+	                                  PVCore::PVSerializeObject_p so_ref) const = 0;
 
 	virtual QIcon icon() const { return QIcon(); }
 	virtual QCursor cursor() const { return QCursor(); }
 
-	virtual void save_input_to_qsettings(const PVInputDescription& input_descr, QSettings& settings) = 0;
+	virtual void save_input_to_qsettings(const PVInputDescription& input_descr,
+	                                     QSettings& settings) = 0;
 	virtual PVInputDescription_p load_input_from_qsettings(const QSettings& settings) = 0;
 
-public:
+  public:
 	QStringList human_name_of_inputs(list_inputs const& in) const
 	{
 		QStringList ret;
@@ -63,7 +72,8 @@ public:
 		}
 		return ret;
 	}
-public:
+
+  public:
 	void edit_format(QString const& path, QWidget* parent) const
 	{
 		emit edit_format_signal(path, parent);
@@ -76,19 +86,21 @@ public:
 
 	void connect_parent(QObject const* parent) const
 	{
-		connect((QObject*) this, SIGNAL(edit_format_signal(QString const&, QWidget*)), parent, SLOT(edit_format_Slot(QString const&, QWidget*)));
-		connect((QObject*) this, SIGNAL(edit_format_signal(QDomDocument&, QWidget*)), parent, SLOT(edit_format_Slot(QDomDocument&, QWidget*)));
+		connect((QObject*)this, SIGNAL(edit_format_signal(QString const&, QWidget*)), parent,
+		        SLOT(edit_format_Slot(QString const&, QWidget*)));
+		connect((QObject*)this, SIGNAL(edit_format_signal(QDomDocument&, QWidget*)), parent,
+		        SLOT(edit_format_Slot(QDomDocument&, QWidget*)));
 	}
 signals:
 	void edit_format_signal(QString const& path, QWidget* parent) const;
 	void edit_format_signal(QDomDocument& doc, QWidget* parent) const;
 };
 
-template <typename T>
-class PVInputTypeDesc: public PVInputType
+template <typename T> class PVInputTypeDesc : public PVInputType
 {
-public:
-	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const
+  public:
+	virtual PVCore::PVSerializeObject_p
+	serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const
 	{
 		// Get name of inputs
 		QStringList descs;
@@ -96,9 +108,11 @@ public:
 		for (it = inputs.begin(); it != inputs.end(); it++) {
 			descs << human_name_of_input(*it);
 		}
-		return obj.list<list_inputs, std::shared_ptr<T> >(name, inputs, human_name_serialize(), NULL, descs);
+		return obj.list<list_inputs, std::shared_ptr<T>>(name, inputs, human_name_serialize(), NULL,
+		                                                 descs);
 	}
-	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs, PVCore::PVSerializeObject_p so_ref) const
+	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name,
+	                                  list_inputs& inputs, PVCore::PVSerializeObject_p so_ref) const
 	{
 		obj.list_ref(name, inputs, so_ref);
 	}
@@ -118,7 +132,6 @@ public:
 };
 
 typedef PVInputType::p_type PVInputType_p;
-
 }
 
 #endif

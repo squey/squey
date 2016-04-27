@@ -10,7 +10,8 @@
 
 #include <typeinfo>
 
-namespace PVCore {
+namespace PVCore
+{
 
 /*! \brief Defines a copyable std::type_info.
  *
@@ -23,49 +24,40 @@ namespace PVCore {
  */
 class PVTypeInfo
 {
-private:
-	std::type_info const*   pStdInfo_;
+  private:
+	std::type_info const* pStdInfo_;
 
-public:
+  public:
 	virtual ~PVTypeInfo() {}
 
-	PVTypeInfo( std::type_info const& stdInfo )
-		: pStdInfo_( &stdInfo )
-	{}
+	PVTypeInfo(std::type_info const& stdInfo) : pStdInfo_(&stdInfo) {}
 
 	char const* name() const { return pStdInfo_->name(); }
 
-	bool operator!=( PVTypeInfo const& other ) const
+	bool operator!=(PVTypeInfo const& other) const
 	{
-		return !!(*pStdInfo_ != *other.pStdInfo_);      // "!!" for MSVC non-std ops.
+		return !!(*pStdInfo_ != *other.pStdInfo_); // "!!" for MSVC non-std ops.
 	}
 
-	bool operator<( PVTypeInfo const& other ) const
+	bool operator<(PVTypeInfo const& other) const
 	{
-		return !!pStdInfo_->before( *other.pStdInfo_ ); // "!!" for MSVC non-std ops.
+		return !!pStdInfo_->before(*other.pStdInfo_); // "!!" for MSVC non-std ops.
 	}
 
-	bool operator<=( PVTypeInfo const& other ) const
+	bool operator<=(PVTypeInfo const& other) const { return !other.pStdInfo_->before(*pStdInfo_); }
+
+	bool operator==(PVTypeInfo const& other) const
 	{
-		return !other.pStdInfo_->before( *pStdInfo_ );
+		return !!(*pStdInfo_ == *other.pStdInfo_); // "!!" for MSVC non-std ops.
 	}
 
-	bool operator==( PVTypeInfo const& other ) const
-	{
-		return !!(*pStdInfo_ == *other.pStdInfo_);      // "!!" for MSVC non-std ops.
-	}
+	bool operator>=(PVTypeInfo const& other) const { return !pStdInfo_->before(*other.pStdInfo_); }
 
-	bool operator>=( PVTypeInfo const& other ) const
+	bool operator>(PVTypeInfo const& other) const
 	{
-		return !pStdInfo_->before( *other.pStdInfo_ );
-	}
-
-	bool operator>( PVTypeInfo const& other ) const
-	{
-		return !!other.pStdInfo_->before( *pStdInfo_ ); // "!!" for MSVC non-std ops.
+		return !!other.pStdInfo_->before(*pStdInfo_); // "!!" for MSVC non-std ops.
 	}
 };
-
 }
 
 #endif

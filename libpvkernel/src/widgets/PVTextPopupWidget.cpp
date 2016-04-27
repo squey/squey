@@ -29,30 +29,34 @@
  * documentation which also uses div tags with CSS's display set to table or table-cell.
  */
 
-#define AlignHoriMask (PVWidgets::PVTextPopupWidget::AlignLeft | PVWidgets::PVTextPopupWidget::AlignRight | PVWidgets::PVTextPopupWidget::AlignHCenter)
-#define AlignVertMask (PVWidgets::PVTextPopupWidget::AlignTop | PVWidgets::PVTextPopupWidget::AlignBottom | PVWidgets::PVTextPopupWidget::AlignVCenter)
+#define AlignHoriMask                                                                              \
+	(PVWidgets::PVTextPopupWidget::AlignLeft | PVWidgets::PVTextPopupWidget::AlignRight |          \
+	 PVWidgets::PVTextPopupWidget::AlignHCenter)
+#define AlignVertMask                                                                              \
+	(PVWidgets::PVTextPopupWidget::AlignTop | PVWidgets::PVTextPopupWidget::AlignBottom |          \
+	 PVWidgets::PVTextPopupWidget::AlignVCenter)
 
-//#define DEFAULT_HTML_TEXT "<html><body style=\"background-color: transparent; -webkit-opacity: 0.5; color: white;\">default text</body></html>"
-#define DEFAULT_HTML_TEXT "<html><body style=\"background-color: #FF0000; color: white;\">default text</body></html>"
+//#define DEFAULT_HTML_TEXT "<html><body style=\"background-color: transparent; -webkit-opacity:
+// 0.5; color: white;\">default text</body></html>"
+#define DEFAULT_HTML_TEXT                                                                          \
+	"<html><body style=\"background-color: #FF0000; color: white;\">default text</body></html>"
 
-static QRect reconfigure_geometry(const QRect current_geom, const QWidget* widget,
-                                  int align, int expand, int border)
+static QRect reconfigure_geometry(const QRect current_geom, const QWidget* widget, int align,
+                                  int expand, int border)
 {
 	QRect parent_geom = widget->geometry();
 
 	/* about borders
 	 */
-	parent_geom = QRect(parent_geom.x() + border,
-	                    parent_geom.y() + border,
-	                    parent_geom.width() - 2 * border,
-	                    parent_geom.height() - 2 * border);
+	parent_geom = QRect(parent_geom.x() + border, parent_geom.y() + border,
+	                    parent_geom.width() - 2 * border, parent_geom.height() - 2 * border);
 
 	// parent_geom.moveTo(widget->mapToGlobal(parent_geom.topLeft()));
 
 	QPoint center_pos = parent_geom.center();
 	QRect new_geom;
 
- 	if (expand & PVWidgets::PVTextPopupWidget::ExpandX) {
+	if (expand & PVWidgets::PVTextPopupWidget::ExpandX) {
 		new_geom.setWidth(parent_geom.width());
 	} else {
 		new_geom.setWidth(current_geom.width());
@@ -64,7 +68,7 @@ static QRect reconfigure_geometry(const QRect current_geom, const QWidget* widge
 		new_geom.setHeight(current_geom.height());
 	}
 
-	switch(align & AlignHoriMask) {
+	switch (align & AlignHoriMask) {
 	case PVWidgets::PVTextPopupWidget::AlignRight:
 		new_geom.moveLeft(parent_geom.right() - new_geom.width());
 		break;
@@ -76,7 +80,7 @@ static QRect reconfigure_geometry(const QRect current_geom, const QWidget* widge
 		new_geom.moveLeft(parent_geom.left());
 		break;
 	}
-	switch(align & AlignVertMask) {
+	switch (align & AlignVertMask) {
 	case PVWidgets::PVTextPopupWidget::AlignBottom:
 		new_geom.moveTop(parent_geom.bottom() - new_geom.height());
 		break;
@@ -92,13 +96,13 @@ static QRect reconfigure_geometry(const QRect current_geom, const QWidget* widge
 	return new_geom;
 }
 
-static void write_open_table(QString &text)
+static void write_open_table(QString& text)
 {
 	text += "<div>\n";
 	text += "<div>\n";
 }
 
-static void write_close_table(QString &text)
+static void write_close_table(QString& text)
 {
 	text += "</div>\n";
 	text += "</div>\n";
@@ -108,9 +112,8 @@ static void write_close_table(QString &text)
  * PVWidgets::PVTextPopupWidget::PVTextPopupWidget
  *****************************************************************************/
 
-PVWidgets::PVTextPopupWidget::PVTextPopupWidget(QWidget* parent) :
-	PVWidgets::PVPopupWidget::PVPopupWidget(parent),
-	_last_widget(0)
+PVWidgets::PVTextPopupWidget::PVTextPopupWidget(QWidget* parent)
+    : PVWidgets::PVPopupWidget::PVPopupWidget(parent), _last_widget(0)
 {
 	setWindowFlags(Qt::FramelessWindowHint);
 
@@ -125,7 +128,6 @@ PVWidgets::PVTextPopupWidget::PVTextPopupWidget(QWidget* parent) :
 #else
 	_webview = new QWebEngineView();
 #endif
-
 
 	// no need for "reload" context menu
 	_webview->setContextMenuPolicy(Qt::NoContextMenu);
@@ -156,7 +158,9 @@ void PVWidgets::PVTextPopupWidget::setTextFromFile(const QString& filename)
 		data = file.read(file.size());
 		text = QString(data);
 	} else {
-		text = "<html><body style=\"background-color: #1F1F1F; webkit-opacity: 0.5; color: white;\">ERROR: file <b>" + filename + "</b> can not be loaded</body></html>";
+		text = "<html><body style=\"background-color: #1F1F1F; webkit-opacity: 0.5; color: "
+		       "white;\">ERROR: file <b>" +
+		       filename + "</b> can not be loaded</body></html>";
 	}
 
 	setText(text);
@@ -170,8 +174,7 @@ void PVWidgets::PVTextPopupWidget::initTextFromFile(const QString& title,
                                                     const QString& css_filename)
 {
 	_temp_text = QString();
-	_temp_text += "<html>\n<head>\n<title>" + title + "</title>\n"
-		+ "<style type=\"text/css\">\n";
+	_temp_text += "<html>\n<head>\n<title>" + title + "</title>\n" + "<style type=\"text/css\">\n";
 
 	QFile file(css_filename);
 	QString text;
@@ -185,7 +188,7 @@ void PVWidgets::PVTextPopupWidget::initTextFromFile(const QString& title,
 		           qPrintable(css_filename));
 	}
 
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	int r = 255 * pvconfig.value("pvgl/window_r", 0.2f).toFloat();
 	int g = 255 * pvconfig.value("pvgl/window_g", 0.2f).toFloat();
@@ -193,7 +196,8 @@ void PVWidgets::PVTextPopupWidget::initTextFromFile(const QString& title,
 
 	_temp_text += "\n";
 	_temp_text += "body {\n";
-	_temp_text += "  background-color: rgb(" + QString::number(r) + "," + QString::number(g) +","+  QString::number(b) +");\n";
+	_temp_text += "  background-color: rgb(" + QString::number(r) + "," + QString::number(g) + "," +
+	              QString::number(b) + ");\n";
 	_temp_text += "}\n";
 	_temp_text += "</style>\n";
 	_temp_text += "</head>\n";
@@ -269,9 +273,7 @@ void PVWidgets::PVTextPopupWidget::finalizeText()
  * PVWidgets::PVTextPopupWidget::popup
  *****************************************************************************/
 
-void PVWidgets::PVTextPopupWidget::popup(QWidget* widget,
-                                         int align, int expand,
-                                         int border)
+void PVWidgets::PVTextPopupWidget::popup(QWidget* widget, int align, int expand, int border)
 {
 	if (isVisible()) {
 		return;
@@ -285,10 +287,7 @@ void PVWidgets::PVTextPopupWidget::popup(QWidget* widget,
 	// make sure the popup's geometry is correct
 	adjustSize();
 
-	QRect new_geom = reconfigure_geometry(geometry(),
-	                                      widget,
-	                                      align, expand,
-	                                      border);
+	QRect new_geom = reconfigure_geometry(geometry(), widget, align, expand, border);
 
 	setGeometry(new_geom);
 	raise();
@@ -319,20 +318,19 @@ void PVWidgets::PVTextPopupWidget::setVisible(bool visible)
  * PVWidgets::PVTextPopupWidget::eventFilter
  *****************************************************************************/
 
-bool PVWidgets::PVTextPopupWidget::eventFilter(QObject *obj, QEvent *event)
+bool PVWidgets::PVTextPopupWidget::eventFilter(QObject* obj, QEvent* event)
 {
 	if (_last_widget == nullptr) {
 		return false;
 	}
 
 	if (event->type() == QEvent::Resize) {
-		 QRect geom = reconfigure_geometry(geometry(), _last_widget,
-		                                   _last_align, _last_expand,
-		                                   _last_border);
+		QRect geom =
+		    reconfigure_geometry(geometry(), _last_widget, _last_align, _last_expand, _last_border);
 
-		 setGeometry(geom);
+		setGeometry(geom);
 
-		 return false;
+		return false;
 	} else if (event->type() == QEvent::KeyPress) {
 		if (isVisible()) {
 			int key = static_cast<QKeyEvent*>(event)->key();

@@ -12,28 +12,29 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <QString>
 
-namespace PVCore {
+namespace PVCore
+{
 
 // Helper class to serialize the original file if wanted
 class PVFileSerialize
 {
 	friend class PVCore::PVSerializeObject;
-public:
+
+  public:
 	PVFileSerialize(QString const& path);
-public:
+
+  public:
 	QString const& get_path() const;
 
-protected:
+  protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
 
 	PVSERIALIZEOBJECT_SPLIT
 
-protected:
+  protected:
 	QString _path;
 };
-
 }
-
 
 #endif

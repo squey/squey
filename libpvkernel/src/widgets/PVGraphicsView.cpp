@@ -32,11 +32,11 @@
 #include <cassert>
 #include <algorithm>
 
-static inline qint64 sb_round(const qreal &d)
+static inline qint64 sb_round(const qreal& d)
 {
-	if (d <= (qreal) INT64_MIN)
+	if (d <= (qreal)INT64_MIN)
 		return INT64_MIN;
-	else if (d >= (qreal) INT64_MAX)
+	else if (d >= (qreal)INT64_MAX)
 		return INT64_MAX;
 	return (d > (qreal)0.0) ? floor(d + (qreal)0.5) : ceil(d - (qreal)0.5);
 }
@@ -44,55 +44,48 @@ static inline qint64 sb_round(const qreal &d)
 #define print_r(R) print_rect(R)
 #define print_rect(R) __print_rect(#R, R)
 
-template <typename R>
-void __print_rect(const char *text, const R &r)
+template <typename R> void __print_rect(const char* text, const R& r)
 {
-	std::cout << text << ": "
-	          << r.x() << " " << r.y() << ", "
-	          << r.width() << " " << r.height()
+	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
 	          << std::endl;
 }
 
 #define print_p(P) print_point(P)
 #define print_point(P) __print_point(#P, P)
 
-template <typename P>
-void __print_point(const char *text, const P &p)
+template <typename P> void __print_point(const char* text, const P& p)
 {
-	std::cout << text << ": "
-	          << p.x() << " " << p.y()
-	          << std::endl;
+	std::cout << text << ": " << p.x() << " " << p.y() << std::endl;
 }
 
 #define print_t(T) print_transform(T)
 #define print_transform(T) __print_transform(#T, T)
 
-template <typename T>
-void __print_transform(const char *text, const T &t)
+template <typename T> void __print_transform(const char* text, const T& t)
 {
-	std::cout << text << ": " << std::endl
-	          << t.m11() << " " << t.m21() << " " << t.m31() << std::endl
-	          << t.m12() << " " << t.m22() << " " << t.m32() << std::endl
-	          << t.m13() << " " << t.m23() << " " << t.m33() << std::endl;
+	std::cout << text << ": " << std::endl << t.m11() << " " << t.m21() << " " << t.m31()
+	          << std::endl << t.m12() << " " << t.m22() << " " << t.m32() << std::endl << t.m13()
+	          << " " << t.m23() << " " << t.m33() << std::endl;
 }
 
-namespace PVWidgets { namespace __impl {
-
-class PVViewportEventFilter: public QObject
+namespace PVWidgets
 {
-public:
-	PVViewportEventFilter(PVWidgets::PVGraphicsView* view):
-		_view(view)
-	{ }
+namespace __impl
+{
 
-protected:
+class PVViewportEventFilter : public QObject
+{
+  public:
+	PVViewportEventFilter(PVWidgets::PVGraphicsView* view) : _view(view) {}
+
+  protected:
 	bool eventFilter(QObject* obj, QEvent* event)
 	{
 		if (obj != _view->get_viewport()) {
 			return QObject::eventFilter(obj, event);
 		}
 
-		switch(event->type()) {
+		switch (event->type()) {
 		case QEvent::Paint:
 			return _view->viewportPaintEvent(static_cast<QPaintEvent*>(event));
 		case QEvent::MouseMove:
@@ -104,34 +97,31 @@ protected:
 		return QObject::eventFilter(obj, event);
 	}
 
-private:
+  private:
 	PVWidgets::PVGraphicsView* _view;
 };
-
-} }
+}
+}
 
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::_usable_events
  *****************************************************************************/
 
 QEvent::Type PVWidgets::PVGraphicsView::_usable_events[] = {
-	QEvent::ContextMenu,
-	QEvent::MouseButtonDblClick,
-	QEvent::MouseButtonPress, QEvent::MouseButtonRelease,
-	QEvent::MouseMove,
-	QEvent::Wheel,
-	QEvent::KeyPress, QEvent::KeyRelease,
-	QEvent::Resize
-};
+    QEvent::ContextMenu,        QEvent::MouseButtonDblClick, QEvent::MouseButtonPress,
+    QEvent::MouseButtonRelease, QEvent::MouseMove,           QEvent::Wheel,
+    QEvent::KeyPress,           QEvent::KeyRelease,          QEvent::Resize};
 
-QEvent::Type* PVWidgets::PVGraphicsView::_usable_events_end = PVWidgets::PVGraphicsView::_usable_events + (sizeof(PVWidgets::PVGraphicsView::_usable_events) / sizeof(QEvent::Type));
+QEvent::Type* PVWidgets::PVGraphicsView::_usable_events_end =
+    PVWidgets::PVGraphicsView::_usable_events +
+    (sizeof(PVWidgets::PVGraphicsView::_usable_events) / sizeof(QEvent::Type));
 
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::PVGraphicsView
  *****************************************************************************/
 
-PVWidgets::PVGraphicsView::PVGraphicsView(QWidget *parent)
-	: QWidget(parent), _viewport(nullptr), _scene(nullptr)
+PVWidgets::PVGraphicsView::PVGraphicsView(QWidget* parent)
+    : QWidget(parent), _viewport(nullptr), _scene(nullptr)
 {
 	init();
 }
@@ -140,8 +130,8 @@ PVWidgets::PVGraphicsView::PVGraphicsView(QWidget *parent)
  * PVWidgets::PVGraphicsView::PVGraphicsView
  *****************************************************************************/
 
-PVWidgets::PVGraphicsView::PVGraphicsView(QGraphicsScene *scene, QWidget *parent)
-	: QWidget(parent), _viewport(nullptr), _scene(nullptr)
+PVWidgets::PVGraphicsView::PVGraphicsView(QGraphicsScene* scene, QWidget* parent)
+    : QWidget(parent), _viewport(nullptr), _scene(nullptr)
 {
 	init();
 	set_scene(scene);
@@ -152,13 +142,14 @@ PVWidgets::PVGraphicsView::PVGraphicsView(QGraphicsScene *scene, QWidget *parent
  *****************************************************************************/
 
 PVWidgets::PVGraphicsView::~PVGraphicsView()
-{}
+{
+}
 
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::get_viewport
  *****************************************************************************/
 
-QWidget *PVWidgets::PVGraphicsView::get_viewport() const
+QWidget* PVWidgets::PVGraphicsView::get_viewport() const
 {
 	return _viewport;
 }
@@ -167,10 +158,10 @@ QWidget *PVWidgets::PVGraphicsView::get_viewport() const
  * PVWidgets::PVGraphicsView::set_scene
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::set_scene(QGraphicsScene *scene)
+void PVWidgets::PVGraphicsView::set_scene(QGraphicsScene* scene)
 {
-	if(_scene && hasFocus()) {
-            _scene->clearFocus();
+	if (_scene && hasFocus()) {
+		_scene->clearFocus();
 	}
 
 	_scene = scene;
@@ -192,7 +183,7 @@ void PVWidgets::PVGraphicsView::set_scene(QGraphicsScene *scene)
  * PVWidgets::PVGraphicsView::map_to_scene
  *****************************************************************************/
 
-QPointF PVWidgets::PVGraphicsView::map_to_scene(const QPointF &p) const
+QPointF PVWidgets::PVGraphicsView::map_to_scene(const QPointF& p) const
 {
 	/*QPointF np = p + get_scroll();
 	return _inv_transform.map(np) + _scene_offset;*/
@@ -203,7 +194,7 @@ QPointF PVWidgets::PVGraphicsView::map_to_scene(const QPointF &p) const
  * PVWidgets::PVGraphicsView::map_to_scene
  *****************************************************************************/
 
-QRectF PVWidgets::PVGraphicsView::map_to_scene(const QRectF &r) const
+QRectF PVWidgets::PVGraphicsView::map_to_scene(const QRectF& r) const
 {
 	/*QRectF tr = r.translated(get_scroll());
 	return _inv_transform.mapRect(tr).translated(_scene_offset);*/
@@ -214,7 +205,7 @@ QRectF PVWidgets::PVGraphicsView::map_to_scene(const QRectF &r) const
  * PVWidgets::PVGraphicsView::map_from_scene
  *****************************************************************************/
 
-QPointF PVWidgets::PVGraphicsView::map_from_scene(const QPointF &p) const
+QPointF PVWidgets::PVGraphicsView::map_from_scene(const QPointF& p) const
 {
 	/*QPointF np = _transform.map(p - _scene_offset);
 	np -= get_scroll();
@@ -226,7 +217,7 @@ QPointF PVWidgets::PVGraphicsView::map_from_scene(const QPointF &p) const
  * PVWidgets::PVGraphicsView::map_from_scene
  *****************************************************************************/
 
-QRectF PVWidgets::PVGraphicsView::map_from_scene(const QRectF &r) const
+QRectF PVWidgets::PVGraphicsView::map_from_scene(const QRectF& r) const
 {
 	/*QRectF nr = _transform.mapRect(r.translated(-_scene_offset));
 	nr.translate(-get_scroll());
@@ -259,7 +250,7 @@ QTransform PVWidgets::PVGraphicsView::get_transform_from_scene() const
  * PVWidgets::PVGraphicsView::set_scene_rect
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::set_scene_rect(const QRectF &r)
+void PVWidgets::PVGraphicsView::set_scene_rect(const QRectF& r)
 {
 	_scene_rect = r;
 	recompute_viewport();
@@ -282,7 +273,7 @@ QRectF PVWidgets::PVGraphicsView::get_scene_rect() const
  * PVWidgets::PVGraphicsView::set_transform
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::set_transform(const QTransform &t, bool combine)
+void PVWidgets::PVGraphicsView::set_transform(const QTransform& t, bool combine)
 {
 	if (combine) {
 		_transform = t * _transform;
@@ -329,10 +320,10 @@ void PVWidgets::PVGraphicsView::fit_in_view(Qt::AspectRatioMode mode)
  * PVWidgets::PVGraphicsView::center_on
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::center_on(const QPointF &pos)
+void PVWidgets::PVGraphicsView::center_on(const QPointF& pos)
 {
 	QPointF pos_view = _transform.map(pos - _scene_offset);
-	pos_view -= QPointF(get_margined_viewport_width()/2.0, get_margined_viewport_height()/2.0);
+	pos_view -= QPointF(get_margined_viewport_width() / 2.0, get_margined_viewport_height() / 2.0);
 
 	_hbar->setValue(pos_view.x());
 	_vbar->setValue(pos_view.y());
@@ -344,14 +335,10 @@ void PVWidgets::PVGraphicsView::center_on(const QPointF &pos)
 
 void PVWidgets::PVGraphicsView::fake_mouse_move()
 {
-	QMouseEvent e((QEvent::MouseMove),
-	              mapFromGlobal(QCursor::pos()),
-	              Qt::NoButton,
-	              Qt::NoButton,
+	QMouseEvent e((QEvent::MouseMove), mapFromGlobal(QCursor::pos()), Qt::NoButton, Qt::NoButton,
 	              Qt::NoModifier);
-	QApplication::sendEvent(get_viewport() , &e);
+	QApplication::sendEvent(get_viewport(), &e);
 }
-
 
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::set_background_color
@@ -404,9 +391,10 @@ Qt::ScrollBarPolicy PVWidgets::PVGraphicsView::get_vertical_scrollbar_policy() c
  * PVWidgets::PVGraphicsView::set_resize_anchor
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::set_resize_anchor(const PVWidgets::PVGraphicsView::ViewportAnchor anchor)
+void
+PVWidgets::PVGraphicsView::set_resize_anchor(const PVWidgets::PVGraphicsView::ViewportAnchor anchor)
 {
-	switch(anchor) {
+	switch (anchor) {
 	case NoAnchor:
 	case AnchorViewCenter:
 		_resize_anchor = anchor;
@@ -435,7 +423,8 @@ PVWidgets::PVGraphicsView::ViewportAnchor PVWidgets::PVGraphicsView::get_resize_
  * PVWidgets::PVGraphicsView::set_transformation_anchor
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::set_transformation_anchor(const PVWidgets::PVGraphicsView::ViewportAnchor anchor)
+void PVWidgets::PVGraphicsView::set_transformation_anchor(
+    const PVWidgets::PVGraphicsView::ViewportAnchor anchor)
 {
 	_transformation_anchor = anchor;
 
@@ -449,7 +438,8 @@ void PVWidgets::PVGraphicsView::set_transformation_anchor(const PVWidgets::PVGra
  * PVWidgets::PVGraphicsView::get_transformation_anchor
  *****************************************************************************/
 
-PVWidgets::PVGraphicsView::ViewportAnchor PVWidgets::PVGraphicsView::get_transformation_anchor() const
+PVWidgets::PVGraphicsView::ViewportAnchor
+PVWidgets::PVGraphicsView::get_transformation_anchor() const
 {
 	return _transformation_anchor;
 }
@@ -458,12 +448,11 @@ PVWidgets::PVGraphicsView::ViewportAnchor PVWidgets::PVGraphicsView::get_transfo
  * PVWidgets::PVGraphicsView::set_scene_margins
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::set_scene_margins(const int left,
-                                                  const int right,
-                                                  const int top,
+void PVWidgets::PVGraphicsView::set_scene_margins(const int left, const int right, const int top,
                                                   const int bottom)
 {
-	if ((_scene_margin_left != left) || (_scene_margin_right != right) || (_scene_margin_top != top) || (_scene_margin_bottom != bottom)) {
+	if ((_scene_margin_left != left) || (_scene_margin_right != right) ||
+	    (_scene_margin_top != top) || (_scene_margin_bottom != bottom)) {
 		_scene_margin_left = left;
 		_scene_margin_right = right;
 		_scene_margin_top = top;
@@ -556,23 +545,25 @@ QTransform PVWidgets::PVGraphicsView::get_transform_from_margined_viewport() con
 
 QRectF PVWidgets::PVGraphicsView::get_visible_scene_rect() const
 {
-	return map_to_scene(QRectF(0, 0, get_margined_viewport_width(), get_margined_viewport_height()));
+	return map_to_scene(
+	    QRectF(0, 0, get_margined_viewport_width(), get_margined_viewport_height()));
 }
 
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::viewportPaintEvent
  *****************************************************************************/
 
-bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
+bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent* event)
 {
-	if(get_scene() == nullptr) {
+	if (get_scene() == nullptr) {
 		return false;
 	}
 
 	const QRectF unmargined_render_rect = event->rect();
 	const QRectF margined_render_rect = map_to_margined(unmargined_render_rect);
 
-	// Benchmark of the following line gives about 0.005ms, which is negligeable against the other renderings..
+	// Benchmark of the following line gives about 0.005ms, which is negligeable against the other
+	// renderings..
 	const QTransform margined_transform = get_transform_from_margined_viewport();
 
 	QPainter painter;
@@ -586,9 +577,7 @@ bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
 		const QRectF unmargined_scene_rect = map_to_scene(unmargined_render_rect);
 
 		painter.setTransform(QTransform(), false);
-		get_scene()->render(&painter,
-		                    unmargined_render_rect,
-		                    unmargined_scene_rect,
+		get_scene()->render(&painter, unmargined_render_rect, unmargined_scene_rect,
 		                    Qt::IgnoreAspectRatio);
 	}
 
@@ -604,7 +593,7 @@ bool PVWidgets::PVGraphicsView::viewportPaintEvent(QPaintEvent *event)
  * PVWidgets::PVGraphicsView::resizeEvent
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::resizeEvent(QResizeEvent *event)
+void PVWidgets::PVGraphicsView::resizeEvent(QResizeEvent* event)
 {
 	call_interactor(event);
 }
@@ -631,7 +620,7 @@ void PVWidgets::PVGraphicsView::leaveEvent(QEvent*)
  * PVWidgets::PVGraphicsView::contextMenuEvent
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::contextMenuEvent(QContextMenuEvent *event)
+void PVWidgets::PVGraphicsView::contextMenuEvent(QContextMenuEvent* event)
 {
 	_mouse_pressed_screen_coord = event->globalPos();
 	_mouse_pressed_view_coord = event->pos();
@@ -661,7 +650,7 @@ void PVWidgets::PVGraphicsView::contextMenuEvent(QContextMenuEvent *event)
  * PVWidgets::PVGraphicsView::focusInEvent
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::focusInEvent(QFocusEvent *event)
+void PVWidgets::PVGraphicsView::focusInEvent(QFocusEvent* event)
 {
 	_mouse_pressed_screen_coord = QCursor::pos();
 	_mouse_pressed_view_coord = mapFromGlobal(_mouse_pressed_screen_coord);
@@ -678,7 +667,7 @@ void PVWidgets::PVGraphicsView::focusInEvent(QFocusEvent *event)
  * PVWidgets::PVGraphicsView::focusOutEvent
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::focusOutEvent(QFocusEvent *event)
+void PVWidgets::PVGraphicsView::focusOutEvent(QFocusEvent* event)
 {
 	QWidget::focusOutEvent(event);
 
@@ -691,7 +680,7 @@ void PVWidgets::PVGraphicsView::focusOutEvent(QFocusEvent *event)
  * PVWidgets::PVGraphicsView::keyPressEvent
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::keyPressEvent(QKeyEvent *event)
+void PVWidgets::PVGraphicsView::keyPressEvent(QKeyEvent* event)
 {
 	if (!call_interactor(event)) {
 		QWidget::keyPressEvent(event);
@@ -702,7 +691,7 @@ void PVWidgets::PVGraphicsView::keyPressEvent(QKeyEvent *event)
  * PVWidgets::PVGraphicsView::keyReleaseEvent
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::keyReleaseEvent(QKeyEvent *event)
+void PVWidgets::PVGraphicsView::keyReleaseEvent(QKeyEvent* event)
 {
 	if (!call_interactor(event)) {
 		QWidget::keyReleaseEvent(event);
@@ -713,7 +702,7 @@ void PVWidgets::PVGraphicsView::keyReleaseEvent(QKeyEvent *event)
  * PVWidgets::PVGraphicsView::mouseDoubleClickEvent
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
+void PVWidgets::PVGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 {
 	if (!call_interactor(event)) {
 		QWidget::mouseDoubleClickEvent(event);
@@ -724,7 +713,7 @@ void PVWidgets::PVGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
  * PVWidgets::PVGraphicsView::mouseMoveEvent
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::mouseMoveEvent(QMouseEvent *event)
+void PVWidgets::PVGraphicsView::mouseMoveEvent(QMouseEvent* event)
 {
 	if (!call_interactor(event)) {
 		QWidget::mouseMoveEvent(event);
@@ -737,7 +726,7 @@ void PVWidgets::PVGraphicsView::mouseMoveEvent(QMouseEvent *event)
  * PVWidgets::PVGraphicsView::mousePressEvent
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::mousePressEvent(QMouseEvent *event)
+void PVWidgets::PVGraphicsView::mousePressEvent(QMouseEvent* event)
 {
 	if (!call_interactor(event)) {
 		QWidget::mousePressEvent(event);
@@ -750,7 +739,7 @@ void PVWidgets::PVGraphicsView::mousePressEvent(QMouseEvent *event)
  * PVWidgets::PVGraphicsView::mouseReleaseEvent
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::mouseReleaseEvent(QMouseEvent *event)
+void PVWidgets::PVGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 {
 	if (!call_interactor(event)) {
 		QWidget::mouseReleaseEvent(event);
@@ -763,7 +752,7 @@ void PVWidgets::PVGraphicsView::mouseReleaseEvent(QMouseEvent *event)
  * PVWidgets::PVGraphicsView::wheelEvent
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::wheelEvent(QWheelEvent *event)
+void PVWidgets::PVGraphicsView::wheelEvent(QWheelEvent* event)
 {
 	if (!call_interactor(event)) {
 		QWidget::wheelEvent(event);
@@ -774,16 +763,17 @@ void PVWidgets::PVGraphicsView::wheelEvent(QWheelEvent *event)
  * PVWidgets::PVGraphicsView::drawBackground
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::drawBackground(QPainter *, const QRectF &)
-{}
+void PVWidgets::PVGraphicsView::drawBackground(QPainter*, const QRectF&)
+{
+}
 
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::drawForeground
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::drawForeground(QPainter *, const QRectF &)
-{}
-
+void PVWidgets::PVGraphicsView::drawForeground(QPainter*, const QRectF&)
+{
+}
 
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::sizehint
@@ -802,7 +792,7 @@ QSize PVWidgets::PVGraphicsView::sizeHint() const
  * PVWidgets::PVGraphicsView::set_view
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::set_view(const QRectF &area, Qt::AspectRatioMode mode)
+void PVWidgets::PVGraphicsView::set_view(const QRectF& area, Qt::AspectRatioMode mode)
 {
 	/* FIXME: not stable when scrollbar are effectively hidden or shown
 	 * by ::recompute_viewport because _viewport's size has changed.
@@ -816,7 +806,7 @@ void PVWidgets::PVGraphicsView::set_view(const QRectF &area, Qt::AspectRatioMode
 	qreal tx = area.x();
 	qreal ty = area.y();
 
-	switch(mode) {
+	switch (mode) {
 	case Qt::IgnoreAspectRatio:
 		break;
 	case Qt::KeepAspectRatio:
@@ -926,10 +916,8 @@ void PVWidgets::PVGraphicsView::set_viewport(QWidget* w)
 	_viewport->setMouseTracking(mouse_tracking);
 
 	// Connect hbar and vbar valueChanged events
-	connect(_hbar, SIGNAL(valueChanged(qint64)),
-	        _viewport, SLOT(update()));
-	connect(_vbar, SIGNAL(valueChanged(qint64)),
-	        _viewport, SLOT(update()));
+	connect(_hbar, SIGNAL(valueChanged(qint64)), _viewport, SLOT(update()));
+	connect(_vbar, SIGNAL(valueChanged(qint64)), _viewport, SLOT(update()));
 
 	_viewport->installEventFilter(_viewport_event_filter);
 	_layout->addWidget(_viewport, 0, 0);
@@ -944,7 +932,7 @@ void PVWidgets::PVGraphicsView::set_viewport(QWidget* w)
 bool PVWidgets::PVGraphicsView::set_gl_viewport(QGLFormat const& format)
 {
 #ifdef QT_NO_OPENGL
-	(void) format;
+	(void)format;
 	return false;
 #else
 	QGLWidget* w = new QGLWidget(format);
@@ -993,7 +981,7 @@ void PVWidgets::PVGraphicsView::recompute_margins()
 
 void PVWidgets::PVGraphicsView::recompute_viewport()
 {
-	qint64 view_width =  get_margined_viewport_width();
+	qint64 view_width = get_margined_viewport_width();
 	qint64 view_height = get_margined_viewport_height();
 
 	QRectF scene_rect = _transform.mapRect(get_scene_rect().translated(-_scene_offset));
@@ -1050,7 +1038,7 @@ qreal PVWidgets::PVGraphicsView::compute_screen_offset_x(const qint64 view_width
 {
 	qreal ret = _scene_margin_left;
 
-	switch(_alignment & Qt::AlignHorizontal_Mask) {
+	switch (_alignment & Qt::AlignHorizontal_Mask) {
 	case Qt::AlignLeft:
 		break;
 	case Qt::AlignRight:
@@ -1072,7 +1060,7 @@ qreal PVWidgets::PVGraphicsView::compute_screen_offset_y(const qint64 view_heigh
 {
 	qreal ret = _scene_margin_top;
 
-	switch(_alignment & Qt::AlignVertical_Mask) {
+	switch (_alignment & Qt::AlignVertical_Mask) {
 	case Qt::AlignTop:
 		break;
 	case Qt::AlignBottom:
@@ -1138,9 +1126,8 @@ void PVWidgets::PVGraphicsView::undeclare_interactor(PVGraphicsViewInteractorBas
 
 	unregister_all(interactor);
 
-	interactor_enum_t::iterator it = std::find(_interactor_enum.begin(),
-	                                           _interactor_enum.end(),
-	                                           interactor);
+	interactor_enum_t::iterator it =
+	    std::find(_interactor_enum.begin(), _interactor_enum.end(), interactor);
 
 	if (it != _interactor_enum.end()) {
 		_interactor_enum.erase(it);
@@ -1151,8 +1138,9 @@ void PVWidgets::PVGraphicsView::undeclare_interactor(PVGraphicsViewInteractorBas
  * PVWidgets::PVGraphicsView::register_front_one
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::register_front_one(QEvent::Type type,
-                                                   PVWidgets::PVGraphicsViewInteractorBase* interactor)
+void
+PVWidgets::PVGraphicsView::register_front_one(QEvent::Type type,
+                                              PVWidgets::PVGraphicsViewInteractorBase* interactor)
 {
 	assert(is_event_supported(type));
 	assert(interactor);
@@ -1166,8 +1154,8 @@ void PVWidgets::PVGraphicsView::register_front_one(QEvent::Type type,
  * PVWidgets::PVGraphicsView::register_front_all
  *****************************************************************************/
 
-
-void PVWidgets::PVGraphicsView::register_front_all(PVWidgets::PVGraphicsViewInteractorBase* interactor)
+void
+PVWidgets::PVGraphicsView::register_front_all(PVWidgets::PVGraphicsViewInteractorBase* interactor)
 {
 	assert(interactor);
 
@@ -1180,8 +1168,9 @@ void PVWidgets::PVGraphicsView::register_front_all(PVWidgets::PVGraphicsViewInte
  * PVWidgets::PVGraphicsView::register_back_one
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::register_back_one(QEvent::Type type,
-                                                  PVWidgets::PVGraphicsViewInteractorBase* interactor)
+void
+PVWidgets::PVGraphicsView::register_back_one(QEvent::Type type,
+                                             PVWidgets::PVGraphicsViewInteractorBase* interactor)
 {
 	assert(is_event_supported(type));
 	assert(interactor);
@@ -1195,8 +1184,8 @@ void PVWidgets::PVGraphicsView::register_back_one(QEvent::Type type,
  * PVWidgets::PVGraphicsView::register_back_all
  *****************************************************************************/
 
-
-void PVWidgets::PVGraphicsView::register_back_all(PVWidgets::PVGraphicsViewInteractorBase* interactor)
+void
+PVWidgets::PVGraphicsView::register_back_all(PVWidgets::PVGraphicsViewInteractorBase* interactor)
 {
 	assert(interactor);
 
@@ -1214,7 +1203,7 @@ void PVWidgets::PVGraphicsView::unregister_one(QEvent::Type type,
 	assert(is_event_supported(type));
 	assert(interactor);
 
-	interactor_list_t &ilist = _interactor_map[type];
+	interactor_list_t& ilist = _interactor_map[type];
 	interactor_list_t::iterator it = std::find(ilist.begin(), ilist.end(), interactor);
 
 	if (it != ilist.end()) {
@@ -1248,7 +1237,7 @@ bool PVWidgets::PVGraphicsView::is_event_supported(QEvent::Type type)
  * PVWidgets::PVGraphicsView::call_interactor
  *****************************************************************************/
 
-bool PVWidgets::PVGraphicsView::call_interactor(QEvent *event)
+bool PVWidgets::PVGraphicsView::call_interactor(QEvent* event)
 {
 	bool ret = false;
 	assert(is_event_supported(event->type()));
@@ -1273,8 +1262,8 @@ bool PVWidgets::PVGraphicsView::call_interactor(QEvent *event)
 
 void PVWidgets::PVGraphicsView::install_default_scene_interactor()
 {
-	PVWidgets::PVGraphicsViewInteractorBase *inter =
-		declare_interactor<PVWidgets::PVGraphicsViewInteractorScene>();
+	PVWidgets::PVGraphicsViewInteractorBase* inter =
+	    declare_interactor<PVWidgets::PVGraphicsViewInteractorScene>();
 	register_back_all(inter);
 
 	register_front_one(QEvent::MouseButtonDblClick, inter);

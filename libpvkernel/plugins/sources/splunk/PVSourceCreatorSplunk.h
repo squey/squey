@@ -15,9 +15,9 @@
 namespace PVRush
 {
 
-class PVSourceCreatorSplunk: public PVSourceCreator
+class PVSourceCreatorSplunk : public PVSourceCreator
 {
-public:
+  public:
 	source_p create_source_from_input(PVInputDescription_p input, const PVFormat& format) const;
 	QString supported_type() const;
 	hash_formats get_supported_formats() const;
@@ -29,4 +29,4 @@ public:
 
 } // namespace PVRush
 
-#endif	// INENDI_PVSOURCECREATORSPLUNK_H
+#endif // INENDI_PVSOURCECREATORSPLUNK_H

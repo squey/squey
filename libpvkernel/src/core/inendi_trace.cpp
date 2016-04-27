@@ -16,7 +16,7 @@
 void PVCore::dump_calltrace()
 {
 	int s;
-	void *buffer[SIZE];
+	void* buffer[SIZE];
 
 	printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
 	s = backtrace(buffer, SIZE);
@@ -49,9 +49,12 @@ void PVCore::dump_meminfo()
 	fclose(fp);
 	(void)m_lib;
 
-
-	printf("virtual : "); display_size(m_size * psize);
-	printf("resident: "); display_size(m_resident * psize);
-	printf("share   : "); display_size(m_share * psize);
-	printf("text    : "); display_size(m_text * psize);
+	printf("virtual : ");
+	display_size(m_size * psize);
+	printf("resident: ");
+	display_size(m_resident * psize);
+	printf("share   : ");
+	display_size(m_share * psize);
+	printf("text    : ");
+	display_size(m_text * psize);
 }

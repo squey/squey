@@ -26,26 +26,29 @@ std::string get_full_name(const char* name, size_t nrows, size_t ncols)
 
 #define FN(NAME) get_full_name(NAME, nrows, ncols)
 
-void original_fill(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end, PVCol* cols, size_t ncols)
+void original_fill(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end,
+                   PVCol* cols, size_t ncols)
 {
 	for (PVRow r = start; r < end; r++) {
-		size_t offset_row_res = r*ncols;
-		const float* plotted_line = &plotted[r*plotted_ncols];
+		size_t offset_row_res = r * ncols;
+		const float* plotted_line = &plotted[r * plotted_ncols];
 		for (size_t c = 0; c < ncols; c++) {
 			res[offset_row_res + c] = plotted_line[cols[c]];
 		}
 	}
 }
 
-void fill_sse(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end, PVCol* cols, size_t ncols)
+void fill_sse(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end,
+              PVCol* cols, size_t ncols)
 {
-	size_t ncols_sse = (ncols<<2)>>2;
+	size_t ncols_sse = (ncols << 2) >> 2;
 	for (PVRow r = start; r < end; r++) {
-		size_t offset_row_res = r*ncols;
-		const float* plotted_line = &plotted[r*plotted_ncols];
+		size_t offset_row_res = r * ncols;
+		const float* plotted_line = &plotted[r * plotted_ncols];
 		__m128 sse_plotted;
 		for (size_t c = 0; c < ncols_sse; c += 4) {
-			sse_plotted = _mm_set_ps(plotted_line[cols[c+3]], plotted_line[cols[c+2]], plotted_line[cols[c+1]], plotted_line[cols[c]]);
+			sse_plotted = _mm_set_ps(plotted_line[cols[c + 3]], plotted_line[cols[c + 2]],
+			                         plotted_line[cols[c + 1]], plotted_line[cols[c]]);
 			_mm_storeu_ps(&res[offset_row_res + c], sse_plotted);
 		}
 		for (size_t c = ncols_sse; c < ncols; c++) {
@@ -54,35 +57,38 @@ void fill_sse(float* res, const float* plotted, size_t plotted_ncols, PVRow star
 	}
 }
 
-void omp_fill(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end, PVCol* cols, size_t ncols)
+void omp_fill(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end,
+              PVCol* cols, size_t ncols)
 {
 #pragma omp parallel for num_threads(12)
 	for (PVRow r = start; r < end; r++) {
-		size_t offset_row_res = r*ncols;
-		const float* plotted_line = &plotted[r*plotted_ncols];
+		size_t offset_row_res = r * ncols;
+		const float* plotted_line = &plotted[r * plotted_ncols];
 		for (size_t c = 0; c < ncols; c++) {
 			res[offset_row_res + c] = plotted_line[cols[c]];
 		}
 	}
 }
 
-void trans_fill(float* res, const float* plotted, size_t plotted_nrows, PVRow start, PVRow end, PVCol* cols, size_t ncols)
+void trans_fill(float* res, const float* plotted, size_t plotted_nrows, PVRow start, PVRow end,
+                PVCol* cols, size_t ncols)
 {
 	for (PVRow r = start; r < end; r++) {
-		size_t offset_row_res = r*ncols;
+		size_t offset_row_res = r * ncols;
 		for (size_t c = 0; c < ncols; c++) {
-			res[offset_row_res + c] = plotted[cols[c]*plotted_nrows+r];
+			res[offset_row_res + c] = plotted[cols[c] * plotted_nrows + r];
 		}
 	}
 }
 
-void trans_fill2(float* res, const float* plotted, size_t plotted_nrows, PVRow start, PVRow end, PVCol* cols, size_t ncols)
+void trans_fill2(float* res, const float* plotted, size_t plotted_nrows, PVRow start, PVRow end,
+                 PVCol* cols, size_t ncols)
 {
 	for (size_t c = 0; c < ncols; c++) {
-		const size_t offset_col_plotted = cols[c]*plotted_nrows;
+		const size_t offset_col_plotted = cols[c] * plotted_nrows;
 		const float* plotted_line = &plotted[offset_col_plotted];
 		for (PVRow r = start; r < end; r++) {
-			size_t offset_row_res = r*ncols;
+			size_t offset_row_res = r * ncols;
 			res[offset_row_res + c] = plotted_line[r];
 		}
 	}
@@ -91,17 +97,19 @@ void trans_fill2(float* res, const float* plotted, size_t plotted_nrows, PVRow s
 float* allocate_res(size_t rows, size_t cols)
 {
 	float* res;
-	size_t s = rows*cols*sizeof(float);
-	posix_memalign((void**) &res, 16, s);
+	size_t s = rows * cols * sizeof(float);
+	posix_memalign((void**)&res, 16, s);
 	memset(res, 0, s);
 	return res;
 }
 
-void init_data(PVCore::PVMatrix<float, size_t, size_t>& plotted, PVCore::PVMatrix<float, size_t, size_t>& trans_plotted, float** res, float** ref_res, size_t nrows, size_t ncols)
+void init_data(PVCore::PVMatrix<float, size_t, size_t>& plotted,
+               PVCore::PVMatrix<float, size_t, size_t>& trans_plotted, float** res, float** ref_res,
+               size_t nrows, size_t ncols)
 {
 	plotted.resize(nrows, ncols);
-	for (size_t i = 0; i < nrows*ncols; i++) {
-		plotted.get_data()[i] = (float)rand()/(float)RAND_MAX;
+	for (size_t i = 0; i < nrows * ncols; i++) {
+		plotted.get_data()[i] = (float)rand() / (float)RAND_MAX;
 	}
 	plotted.transpose_to(trans_plotted);
 
@@ -131,9 +139,9 @@ int main(int argc, char** argv)
 		all_cols.push_back(i);
 	}
 
-	float *res, *ref_res;
+	float* res, *ref_res;
 	{
-		PVCore::PVMatrix<float, size_t, size_t> plotted,trans_plotted;
+		PVCore::PVMatrix<float, size_t, size_t> plotted, trans_plotted;
 		init_data(plotted, trans_plotted, &res, &ref_res, nrows, ncols);
 
 		BENCH_START(org);
@@ -146,14 +154,14 @@ int main(int argc, char** argv)
 		BENCH_STOP(sse);
 		double sse_time = BENCH_END_TIME(sse);
 		PV_STAT_SPEEDUP(FN("fill_sse"), org_time / sse_time);
-		PV_VALID(memcmp(res, ref_res, nrows*ncols*sizeof(float)), 0);
+		PV_VALID(memcmp(res, ref_res, nrows * ncols * sizeof(float)), 0);
 
 		BENCH_START(omp2);
 		omp_fill(res, plotted.get_data(), ncols, 0, nrows, &all_cols[0], ncols);
 		BENCH_STOP(omp2);
 		double omp2_time = BENCH_END_TIME(omp2);
 		PV_STAT_SPEEDUP(FN("fill_omp2"), org_time / omp2_time);
-		PV_VALID(memcmp(res, ref_res, nrows*ncols*sizeof(float)), 0);
+		PV_VALID(memcmp(res, ref_res, nrows * ncols * sizeof(float)), 0);
 
 		BENCH_START(transp);
 		trans_fill(res, trans_plotted.get_data(), nrows, 0, nrows, &all_cols[0], ncols);
@@ -165,32 +173,34 @@ int main(int argc, char** argv)
 		BENCH_STOP(transp2);
 		double transp2_time = BENCH_END_TIME(transp2);
 		PV_STAT_SPEEDUP(FN("transpose_v2"), transp_time / transp2_time);
-		PV_VALID(memcmp(res, ref_res, nrows*ncols*sizeof(float)), 0);
+		PV_VALID(memcmp(res, ref_res, nrows * ncols * sizeof(float)), 0);
 
-		free(res); free(ref_res);
+		free(res);
+		free(ref_res);
 	}
 
 	std::cout << std::endl << "Half of the columns:" << std::endl;
 	{
-		PVCore::PVMatrix<float, size_t, size_t> plotted,trans_plotted;
+		PVCore::PVMatrix<float, size_t, size_t> plotted, trans_plotted;
 		init_data(plotted, trans_plotted, &res, &ref_res, nrows, ncols);
 
-		original_fill(ref_res, plotted.get_data(), ncols, 0, nrows, &all_cols[0], ncols/2);
+		original_fill(ref_res, plotted.get_data(), ncols, 0, nrows, &all_cols[0], ncols / 2);
 
 		BENCH_START(transp);
-		trans_fill(res, trans_plotted.get_data(), nrows, 0, nrows, &all_cols[0], ncols/2);
+		trans_fill(res, trans_plotted.get_data(), nrows, 0, nrows, &all_cols[0], ncols / 2);
 		BENCH_STOP(transp);
 		double transp_time = BENCH_END_TIME(transp);
-		PV_VALID(memcmp(res, ref_res, nrows*(ncols/2)*sizeof(float)), 0);
+		PV_VALID(memcmp(res, ref_res, nrows * (ncols / 2) * sizeof(float)), 0);
 
 		BENCH_START(transp2);
-		trans_fill2(res, trans_plotted.get_data(), nrows, 0, nrows, &all_cols[0], ncols/2);
+		trans_fill2(res, trans_plotted.get_data(), nrows, 0, nrows, &all_cols[0], ncols / 2);
 		BENCH_STOP(transp2);
 		double transp2_time = BENCH_END_TIME(transp2);
 		PV_STAT_SPEEDUP(FN("transpose_half_v2"), transp_time / transp2_time);
-		PV_VALID(memcmp(res, ref_res, nrows*(ncols/2)*sizeof(float)), 0);
+		PV_VALID(memcmp(res, ref_res, nrows * (ncols / 2) * sizeof(float)), 0);
 
-		free(res); free(ref_res);
+		free(res);
+		free(ref_res);
 	}
 
 	return 0;

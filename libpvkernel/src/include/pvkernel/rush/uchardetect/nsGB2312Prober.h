@@ -43,32 +43,33 @@
 #include "nsCodingStateMachine.h"
 #include "CharDistribution.h"
 
-// We use gb18030 to replace gb2312, because 18030 is a superset. 
+// We use gb18030 to replace gb2312, because 18030 is a superset.
 
-class nsGB18030Prober: public nsCharSetProber {
-public:
-  nsGB18030Prober(void){mCodingSM = new nsCodingStateMachine(&GB18030SMModel);
-                      Reset();}
-  virtual ~nsGB18030Prober(void){delete mCodingSM;}
-  nsProbingState HandleData(const char* aBuf, PRUint32 aLen);
-  const char* GetCharSetName() {return CHARDET_ENCODING_GB18030;}
-  nsProbingState GetState(void) {return mState;}
-  void      Reset(void);
-  float     GetConfidence(void);
-  void      SetOpion() {}
+class nsGB18030Prober : public nsCharSetProber
+{
+  public:
+	nsGB18030Prober(void)
+	{
+		mCodingSM = new nsCodingStateMachine(&GB18030SMModel);
+		Reset();
+	}
+	virtual ~nsGB18030Prober(void) { delete mCodingSM; }
+	nsProbingState HandleData(const char* aBuf, PRUint32 aLen);
+	const char* GetCharSetName() { return CHARDET_ENCODING_GB18030; }
+	nsProbingState GetState(void) { return mState; }
+	void Reset(void);
+	float GetConfidence(void);
+	void SetOpion() {}
 
-protected:
-  void      GetDistribution(PRUint32 aCharLen, const char* aStr);
-  
-  nsCodingStateMachine* mCodingSM;
-  nsProbingState mState;
+  protected:
+	void GetDistribution(PRUint32 aCharLen, const char* aStr);
 
-  //GB2312ContextAnalysis mContextAnalyser;
-  GB2312DistributionAnalysis mDistributionAnalyser;
-  char mLastChar[2];
+	nsCodingStateMachine* mCodingSM;
+	nsProbingState mState;
 
+	// GB2312ContextAnalysis mContextAnalyser;
+	GB2312DistributionAnalysis mDistributionAnalyser;
+	char mLastChar[2];
 };
 
-
 #endif /* nsGB2312Prober_h__ */
-

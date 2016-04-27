@@ -53,18 +53,18 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	tbb::tick_count start,end;
+	tbb::tick_count start, end;
 	srand(time(NULL));
 	size_t sb = atoll(argv[1]);
 	int nblocks = atoi(argv[2]);
 
 	vec_t v;
-	v.resize(nblocks*sb);
+	v.resize(nblocks * sb);
 
 	for (int b = 0; b < nblocks; b++) {
 		int nb = rand();
 		for (size_t i = 0; i < sb; i++) {
-			v[b*sb+i] = pair_int_t(i, nb);
+			v[b * sb + i] = pair_int_t(i, nb);
 		}
 	}
 	vec_t v_org(v);
@@ -72,25 +72,25 @@ int main(int argc, char** argv)
 	start = tbb::tick_count::now();
 	std::stable_sort(v.begin(), v.end(), less_p);
 	end = tbb::tick_count::now();
-	PV_STAT_TIME_SEC("stable_sort", (end-start).seconds());
+	PV_STAT_TIME_SEC("stable_sort", (end - start).seconds());
 	vec_t v_save = v;
 
 	start = tbb::tick_count::now();
 	PVCore::stable_sort_reverse(v.begin(), v.end(), comp);
 	end = tbb::tick_count::now();
-	PV_STAT_TIME_SEC("stable_reverse", (end-start).seconds());
+	PV_STAT_TIME_SEC("stable_reverse", (end - start).seconds());
 
 	v = v_save;
 	start = tbb::tick_count::now();
 	std::stable_sort(v.begin(), v.end(), greater_p);
 	end = tbb::tick_count::now();
-	PV_STAT_TIME_SEC("reverse_sort_from_sorted", (end-start).seconds());
+	PV_STAT_TIME_SEC("reverse_sort_from_sorted", (end - start).seconds());
 
 	v = v_org;
 	start = tbb::tick_count::now();
 	std::stable_sort(v.begin(), v.end(), greater_p);
 	end = tbb::tick_count::now();
-	PV_STAT_TIME_SEC("reverse_sort_from_original", (end-start).seconds());
+	PV_STAT_TIME_SEC("reverse_sort_from_original", (end - start).seconds());
 
 	return 0;
 }

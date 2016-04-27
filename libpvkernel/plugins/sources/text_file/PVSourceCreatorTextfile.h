@@ -13,11 +13,12 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVUnicodeSource.h>
 
-namespace PVRush {
-
-class PVSourceCreatorTextfile: public PVSourceCreator
+namespace PVRush
 {
-public:
+
+class PVSourceCreatorTextfile : public PVSourceCreator
+{
+  public:
 	source_p create_source_from_input(PVInputDescription_p input, const PVFormat& format) const;
 	QString supported_type() const;
 	hash_formats get_supported_formats() const;
@@ -26,7 +27,6 @@ public:
 
 	CLASS_REGISTRABLE(PVSourceCreatorTextfile)
 };
-
 }
 
 #endif

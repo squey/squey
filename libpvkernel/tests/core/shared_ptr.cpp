@@ -15,10 +15,7 @@
 
 struct pouet
 {
-	pouet *get_addr()
-	{
-		return this;
-	}
+	pouet* get_addr() { return this; }
 };
 
 typedef struct PVCore::PVSharedPtr<pouet> pouet_p;
@@ -35,7 +32,7 @@ static void deleted_status_set()
 }
 
 // same as above
-void deleter(void *p)
+void deleter(void* p)
 {
 	(void)p;
 	deleted_status = true;
@@ -162,7 +159,7 @@ int main()
 	PV_VALID(p_p1 >= p_p2, true);
 	PV_VALID(p_p1 >= p_p3, false);
 
-	pouet *p;
+	pouet* p;
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of lambda deleter on one shared_ptr" << std::endl;
@@ -171,10 +168,7 @@ int main()
 	p_p2 = pouet_p(p);
 	std::cout << "  p_p2 is set" << std::endl;
 	std::cout << "  p_p2.set_deleter(...)" << std::endl;
-	p_p2.set_deleter([](void*)
-	                 {
-		                 deleted_status_set();
-	                 });
+	p_p2.set_deleter([](void*) { deleted_status_set(); });
 	deleted_status = false;
 	std::cout << "  p_p2.reset()" << std::endl;
 	p_p2.reset();
@@ -201,10 +195,7 @@ int main()
 	p_p2 = p_p3;
 
 	std::cout << "  p_p2.set_deleter(...)" << std::endl;
-	p_p2.set_deleter([](void*)
-	                 {
-		                 deleted_status_set();
-	                 });
+	p_p2.set_deleter([](void*) { deleted_status_set(); });
 
 	deleted_status = false;
 	std::cout << "  p_p2.reset()" << std::endl;
@@ -231,10 +222,7 @@ int main()
 
 	p = new pouet;
 
-	p_p2 = PVCore::make_shared<pouet>(p, [](void*)
-	                                  {
-		                                  deleted_status_set();
-	                                  });
+	p_p2 = PVCore::make_shared<pouet>(p, [](void*) { deleted_status_set(); });
 
 	PV_VALID((bool)p_p2, true);
 	PV_VALID(p_p2.get(), p);

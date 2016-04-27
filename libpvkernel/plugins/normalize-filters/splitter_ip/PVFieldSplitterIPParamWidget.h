@@ -21,27 +21,28 @@ class QLabel;
 
 #include <pvkernel/widgets/qkeysequencewidget.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldSplitterIPParamWidget: public PVFieldsSplitterParamWidget
+class PVFieldSplitterIPParamWidget : public PVFieldsSplitterParamWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVFieldSplitterIPParamWidget();
 
-public:
+  public:
 	QAction* get_action_menu();
 	QWidget* get_param_widget();
 
-private slots:
+  private slots:
 	void set_ip_type(bool reset_groups_check_state = true);
 	void update_child_count();
 
-private:
+  private:
 	void set_groups_check_state(bool check_all = false);
 
-private:
+  private:
 	QAction* _action_menu;
 
 	QRadioButton* _ipv4;
@@ -52,10 +53,9 @@ private:
 
 	size_t _group_count;
 
-private:
+  private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterIPParamWidget)
 };
-
 }
 
 #endif // PVFIELDSPLITTERIPPARAMWIDGET_H

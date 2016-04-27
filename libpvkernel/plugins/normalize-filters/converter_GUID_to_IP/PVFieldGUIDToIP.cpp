@@ -12,8 +12,7 @@
  * PVFilter::PVFieldGUIDToIP::PVFieldGUIDToIP
  *
  *****************************************************************************/
-PVFilter::PVFieldGUIDToIP::PVFieldGUIDToIP(PVCore::PVArgumentList const& args) :
-	PVFieldsConverter()
+PVFilter::PVFieldGUIDToIP::PVFieldGUIDToIP(PVCore::PVArgumentList const& args) : PVFieldsConverter()
 {
 	INIT_FILTER(PVFilter::PVFieldGUIDToIP, args);
 }
@@ -44,7 +43,7 @@ PVCore::PVField& PVFilter::PVFieldGUIDToIP::one_to_one(PVCore::PVField& field)
 
 	constexpr int field_max_len = 38; // With bracet
 	constexpr size_t ipv4_dec_max_len = 15;
-	constexpr size_t ipv6_hexa_len = 32+7;
+	constexpr size_t ipv6_hexa_len = 32 + 7;
 
 	char* txt = field.begin();
 	if (field.size() == field_max_len) {
@@ -52,7 +51,7 @@ PVCore::PVField& PVFilter::PVFieldGUIDToIP::one_to_one(PVCore::PVField& field)
 		txt++;
 	}
 
-	if (not _ipv6) { //ipv4
+	if (not _ipv6) { // ipv4
 		unsigned int a, b, c, d;
 		if (sscanf(txt, "%2x%2x%2x%2x", &a, &b, &c, &d) == 4) {
 			field.allocate_new(ipv4_dec_max_len + 1);
@@ -63,12 +62,13 @@ PVCore::PVField& PVFilter::PVFieldGUIDToIP::one_to_one(PVCore::PVField& field)
 			field.set_invalid();
 			field.elt_parent()->set_invalid();
 		}
-	} else { //ipv6
+	} else { // ipv6
 		unsigned int a, b, c, d, e, f, g, h;
 
 		if (sscanf(txt, "%4X%4X-%4X-%4X-%4X-%4X%4X%4X", &a, &b, &c, &d, &e, &f, &g, &h) == 8) {
 			field.allocate_new(ipv6_hexa_len + 1);
-			int end = snprintf(field.begin(), ipv6_hexa_len + 1, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", a, b, c, d, e, f, g, h);
+			int end = snprintf(field.begin(), ipv6_hexa_len + 1,
+			                   "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", a, b, c, d, e, f, g, h);
 			field.set_end(field.begin() + end);
 		} else {
 			field.set_invalid();
@@ -78,6 +78,5 @@ PVCore::PVField& PVFilter::PVFieldGUIDToIP::one_to_one(PVCore::PVField& field)
 
 	return field;
 }
-
 
 IMPL_FILTER(PVFilter::PVFieldGUIDToIP)

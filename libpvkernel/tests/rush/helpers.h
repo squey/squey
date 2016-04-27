@@ -13,7 +13,7 @@
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 
-void dump_chunk_csv(PVCore::PVChunk&c, std::ostream & out);
+void dump_chunk_csv(PVCore::PVChunk& c, std::ostream& out);
 void dump_chunk_raw(PVCore::PVChunk const& c);
 
 #endif

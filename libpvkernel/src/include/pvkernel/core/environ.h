@@ -10,11 +10,11 @@
 
 #include <pvkernel/core/general.h>
 
-namespace PVCore {
+namespace PVCore
+{
 
-	int mkenv(const char *name, const char *value);
-	int rmenv(const char *name);
-
+int mkenv(const char* name, const char* value);
+int rmenv(const char* name);
 }
 
-#endif	/* PVCORE_ENVIRON_H */
+#endif /* PVCORE_ENVIRON_H */

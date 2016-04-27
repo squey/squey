@@ -31,7 +31,7 @@ void PVRush::PVAggregator::release_inputs()
 
 void PVRush::PVAggregator::init()
 {
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	_eoi = false;
 	_nstart = 0;
@@ -47,25 +47,28 @@ void PVRush::PVAggregator::init()
 	_skip_lines_count = 0;
 }
 
-void PVRush::PVAggregator::set_stop_condition(bool *cond)
+void PVRush::PVAggregator::set_stop_condition(bool* cond)
 {
 	_stop_cond = cond;
 }
 
-void PVRush::PVAggregator::process_from_source(list_inputs::iterator input_start, chunk_index nstart, chunk_index nend)
+void PVRush::PVAggregator::process_from_source(list_inputs::iterator input_start,
+                                               chunk_index nstart, chunk_index nend)
 {
 	// Process from nstart to nend, starting by input_start
-	
+
 	// Find, compute offset for input_start
 	if (!read_until_source(input_start)) {
-		PVLOG_ERROR("(PVAggregator::process_from_source) unable to reach source %s. Using the last one...\n", qPrintable((*input_start)->human_name()));
+		PVLOG_ERROR("(PVAggregator::process_from_source) unable to reach source %s. Using the last "
+		            "one...\n",
+		            qPrintable((*input_start)->human_name()));
 		list_inputs::iterator it_last = _inputs.end();
 		it_last--;
 		if (input_start != it_last) {
 			process_from_source(it_last, nstart, nend);
-		}
-		else {
-			PVLOG_ERROR("(PVAggregator::process_from_source) already searching for the last source ! Starting from the beggining...\n");
+		} else {
+			PVLOG_ERROR("(PVAggregator::process_from_source) already searching for the last source "
+			            "! Starting from the beggining...\n");
 			process_indexes(_nstart, _nend);
 			return;
 		}
@@ -80,7 +83,8 @@ void PVRush::PVAggregator::process_from_source(list_inputs::iterator input_start
 	process_indexes(_nstart, _nend);
 }
 
-void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend, chunk_index expected_nelts)
+void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend,
+                                           chunk_index expected_nelts)
 {
 	_nstart = nstart;
 	_nend = nend;
@@ -88,11 +92,11 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend,
 	_last_elt_agg_index = 0;
 
 	if (expected_nelts == 0) {
-		expected_nelts = nend-nstart;
+		expected_nelts = nend - nstart;
 	}
 
 	// Find out the source that contains nstart
-	
+
 	chunk_index src_global_index = 0;
 	list_inputs::iterator it_src = agg_index_to_source_iterator(nstart, &src_global_index);
 	if (it_src == _inputs.end()) {
@@ -124,8 +128,7 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend,
 		_cur_src_index = src_global_index;
 		_begin_of_input = false;
 		_nlast = src_global_index + src_found_index;
-	}
-	else {
+	} else {
 		(*_cur_input)->seek_begin();
 		_cur_src_index = 0;
 		_begin_of_input = true;
@@ -166,8 +169,7 @@ PVCore::PVChunk* PVRush::PVAggregator::read_until_index(chunk_index idx) const
 
 PVCore::PVChunk* PVRush::PVAggregator::next_chunk() const
 {
-	if (*_stop_cond)
-	{
+	if (*_stop_cond) {
 		PVLOG_DEBUG("(PVAggregator::next_chunk) aggregator stop because of stop condition\n");
 		return NULL;
 	}
@@ -184,7 +186,7 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk() const
 		}
 		_cur_src_index = _nlast;
 		_src_offsets[_cur_src_index] = _cur_input;
-		(*_cur_input)->prepare_for_nelts(_nend-_nlast);
+		(*_cur_input)->prepare_for_nelts(_nend - _nlast);
 		ret = (*_cur_input)->operator()();
 		_begin_of_input = true;
 	}
@@ -192,8 +194,8 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk() const
 	if (ret != NULL) {
 		ret->_agg_index = _cur_src_index + ret->_index;
 		if (_begin_of_input) {
-			PVCore::list_elts &elts = ret->elements();
-			for(size_t i = 0; i < _skip_lines_count; ++i) {
+			PVCore::list_elts& elts = ret->elements();
+			for (size_t i = 0; i < _skip_lines_count; ++i) {
 				PVCore::list_elts::iterator it = elts.begin();
 				if (it != elts.end()) {
 					PVCore::PVElement::free(*it);
@@ -203,7 +205,7 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk() const
 			_begin_of_input = false;
 		}
 		_nlast += ret->c_elements().size();
-		_last_elt_agg_index = _nlast + ret->_index-1;
+		_last_elt_agg_index = _nlast + ret->_index - 1;
 	}
 
 	return ret;
@@ -239,8 +241,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 				ret->_index += nelts_remove;
 			}
 		}
-	}
-	else {
+	} else {
 		ret = next_chunk();
 	}
 
@@ -257,7 +258,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 			// As we use std::list for elements, this will not be
 			// really efficient.
 			// TODO: profile this.
-			chunk_index nstart_rem = _nend+1-ret->_agg_index;
+			chunk_index nstart_rem = _nend + 1 - ret->_agg_index;
 			PVCore::list_elts& elts = ret->elements();
 			PVCore::list_elts::iterator it_elt = elts.begin();
 			// Go to the nstart_rem ith element
@@ -278,7 +279,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 	return ret;
 }
 
-PVCore::PVChunk* PVRush::PVAggregator::operator()(tbb::flow_control &fc) const
+PVCore::PVChunk* PVRush::PVAggregator::operator()(tbb::flow_control& fc) const
 {
 	PVCore::PVChunk* ret = this->operator()();
 	if (ret == NULL) {
@@ -334,13 +335,15 @@ chunk_index PVRush::PVAggregator::last_elt_agg_index()
 	return _last_elt_agg_index;
 }
 
-PVRush::PVRawSourceBase_p PVRush::PVAggregator::agg_index_to_source(chunk_index idx, chunk_index* global_index)
+PVRush::PVRawSourceBase_p PVRush::PVAggregator::agg_index_to_source(chunk_index idx,
+                                                                    chunk_index* global_index)
 {
 	list_inputs::iterator it_src = agg_index_to_source_iterator(idx, global_index);
 	return (it_src != _inputs.end()) ? *it_src : PVRawSourceBase_p();
 }
 
-PVRush::PVAggregator::list_inputs::iterator PVRush::PVAggregator::agg_index_to_source_iterator(chunk_index idx, chunk_index* global_index)
+PVRush::PVAggregator::list_inputs::iterator
+PVRush::PVAggregator::agg_index_to_source_iterator(chunk_index idx, chunk_index* global_index)
 {
 	map_source_offsets::reverse_iterator it;
 	for (it = _src_offsets.rbegin(); it != _src_offsets.rend(); it++) {
@@ -366,13 +369,14 @@ void PVRush::PVAggregator::debug() const
 	// List sources
 	PVLOG_DEBUG("PVAggregator::debug\n");
 	PVLOG_DEBUG("PVAggregator::debug source\n");
-	for (auto const& input: _inputs) {
+	for (auto const& input : _inputs) {
 		PVLOG_DEBUG("source %s\n", qPrintable(input->human_name()));
 	}
 
 	PVLOG_DEBUG("PVAggregator::debug offset->source\n");
-	for (auto const& src_off: _src_offsets) {
-		PVLOG_DEBUG("offset %d: source %s\n", src_off.first, qPrintable((*(src_off.second))->human_name()));
+	for (auto const& src_off : _src_offsets) {
+		PVLOG_DEBUG("offset %d: source %s\n", src_off.first,
+		            qPrintable((*(src_off.second))->human_name()));
 	}
 	PVLOG_DEBUG("PVAggregator::debug nstart=%d nlast=%d nend=%d\n", _nstart, _nlast, _nend);
 }

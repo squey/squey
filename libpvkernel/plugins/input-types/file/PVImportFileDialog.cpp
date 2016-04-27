@@ -16,7 +16,8 @@
  * PVRush::PVImportFileDialog::PVImportFileDialog
  *
  *****************************************************************************/
-PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget *parent) : QFileDialog(parent)
+PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget* parent)
+    : QFileDialog(parent)
 {
 	setWindowTitle("Import file");
 	setFileMode(QFileDialog::ExistingFiles);
@@ -24,12 +25,12 @@ PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget 
 	// Set this flags to make sure we can access the layout.
 	setOption(QFileDialog::DontUseNativeDialog);
 
-	QGridLayout *this_layout = (QGridLayout *)layout();
+	QGridLayout* this_layout = (QGridLayout*)layout();
 
-	QGroupBox *option_group = new QGroupBox();
+	QGroupBox* option_group = new QGroupBox();
 	this_layout->addWidget(option_group, 6, 0, 1, 3);
 
-	QFormLayout * form_layout = new QFormLayout();
+	QFormLayout* form_layout = new QFormLayout();
 	option_group->setLayout(form_layout);
 
 	treat_as_combobox = new QComboBox();
@@ -47,7 +48,7 @@ QStringList PVRush::PVImportFileDialog::getFileNames(QString& treat_as)
 {
 
 	/* Launch the Dialog and check if the user pressed Cancel button */
-	if ( not exec() ) {
+	if (not exec()) {
 		return {};
 	}
 

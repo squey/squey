@@ -32,18 +32,18 @@ namespace PVFilter
  */
 class PVGuessReducingTree
 {
-	typedef QHash<size_t, int>                            size_map_t;
+	typedef QHash<size_t, int> size_map_t;
 	typedef std::pair<PVCore::PVArgumentList, size_map_t> data_t;
-	typedef QHash<QString, data_t>                        data_map_t;
+	typedef QHash<QString, data_t> data_map_t;
 
-public:
+  public:
 	/**
 	 * Add or increment the occurrence counter for the pair (al, nfields).
 	 *
 	 * @param[in] al the argument list to reference
 	 * @param[in] nfields the fields number to reference
 	 */
-	void add(const PVCore::PVArgumentList &al, const size_t nfields)
+	void add(const PVCore::PVArgumentList& al, const size_t nfields)
 	{
 		if (nfields == 0) {
 			return;
@@ -53,12 +53,12 @@ public:
 
 		for (PVCore::PVArgumentList::const_iterator it = al.begin(); it != al.end(); ++it) {
 			// use of a non-printable character as arguments values separator
-			str.append("\01"+it->value().toString());
+			str.append("\01" + it->value().toString());
 		}
 
 		data_map_t::iterator it = _data_map.find(str);
 		if (it == _data_map.end()) {
-			data_t &d = _data_map[str];
+			data_t& d = _data_map[str];
 			d.first = al;
 			d.second[nfields] = 1;
 		} else {
@@ -73,15 +73,18 @@ public:
 	 */
 	void dump() const
 	{
-		for (data_map_t::const_iterator dm_it = _data_map.begin(); dm_it != _data_map.end(); ++dm_it) {
+		for (data_map_t::const_iterator dm_it = _data_map.begin(); dm_it != _data_map.end();
+		     ++dm_it) {
 			std::cout << "key: " << qPrintable(dm_it.key()) << std::endl << "  al :";
 
-			for (PVCore::PVArgumentList::const_iterator al_it = dm_it->first.begin(); al_it != dm_it->first.end(); ++al_it) {
+			for (PVCore::PVArgumentList::const_iterator al_it = dm_it->first.begin();
+			     al_it != dm_it->first.end(); ++al_it) {
 				std::cout << " (" << qPrintable(al_it->value().toString()) << ")";
 			}
 			std::cout << std::endl << "  cnt:";
 
-			for (size_map_t::const_iterator sm_it = dm_it->second.begin(); sm_it != dm_it->second.end(); ++sm_it) {
+			for (size_map_t::const_iterator sm_it = dm_it->second.begin();
+			     sm_it != dm_it->second.end(); ++sm_it) {
 				std::cout << " " << sm_it.key() << " (" << *sm_it << ")";
 			}
 			std::cout << std::endl;
@@ -112,13 +115,15 @@ public:
 	 *
 	 * @return true if an entry has been found; false otherwise.
 	 */
-	bool get_highest_entry(PVCore::PVArgumentList &al, size_t &nfields) const
+	bool get_highest_entry(PVCore::PVArgumentList& al, size_t& nfields) const
 	{
 		bool ret = false;
 		int highest = -1;
 
-		for (data_map_t::const_iterator dm_it = _data_map.begin(); dm_it != _data_map.end(); ++dm_it) {
-			for (size_map_t::const_iterator sm_it = dm_it->second.begin(); sm_it != dm_it->second.end(); ++sm_it) {
+		for (data_map_t::const_iterator dm_it = _data_map.begin(); dm_it != _data_map.end();
+		     ++dm_it) {
+			for (size_map_t::const_iterator sm_it = dm_it->second.begin();
+			     sm_it != dm_it->second.end(); ++sm_it) {
 				if (highest < *sm_it) {
 					ret = true;
 					al = dm_it->first;
@@ -134,17 +139,17 @@ public:
 	size_t size() const
 	{
 		size_t s = 0;
-		for (data_map_t::const_iterator dm_it = _data_map.begin(); dm_it != _data_map.end(); ++dm_it) {
+		for (data_map_t::const_iterator dm_it = _data_map.begin(); dm_it != _data_map.end();
+		     ++dm_it) {
 			s += dm_it->second.size();
 		}
 
 		return s;
 	}
 
-private:
+  private:
 	data_map_t _data_map;
 };
-
 }
 
 void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* chunk)
@@ -191,7 +196,8 @@ bool PVFilter::PVFieldSplitterChunkMatch::get_match(PVCore::PVArgumentList& args
 	return red.get_highest_entry(args, nfields);
 }
 
-PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_p src, PVCol &naxes)
+PVFilter::PVFieldsSplitter_p
+PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_p src, PVCol& naxes)
 {
 	PVCore::PVChunk* chunk = (*src)();
 	PVFieldsSplitter_p ret;
@@ -202,7 +208,8 @@ PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_i
 			return ret;
 		}
 	}
-	LIB_CLASS(PVFilter::PVFieldsSplitter)::list_classes const& lf = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_list();
+	LIB_CLASS(PVFilter::PVFieldsSplitter)::list_classes const& lf =
+	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_list();
 	LIB_CLASS(PVFilter::PVFieldsSplitter)::list_classes::const_iterator it;
 	for (it = lf.begin(); it != lf.end(); it++) {
 		PVFilter::PVFieldsSplitter_p sp = it->value()->clone<PVFilter::PVFieldsSplitter>();
@@ -213,7 +220,9 @@ PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_i
 		size_t nfields;
 
 		if (match.get_match(args, nfields)) {
-			PVLOG_DEBUG("(PVFieldSplitterChunkMatch) filter %s matches with %d fields\n with arguments:\n", qPrintable(it->key()), nfields);
+			PVLOG_DEBUG(
+			    "(PVFieldSplitterChunkMatch) filter %s matches with %d fields\n with arguments:\n",
+			    qPrintable(it->key()), nfields);
 			PVCore::dump_argument_list(args);
 			ret = sp;
 			ret->set_number_expected_fields(nfields);

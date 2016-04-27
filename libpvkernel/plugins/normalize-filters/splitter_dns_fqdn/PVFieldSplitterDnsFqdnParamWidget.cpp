@@ -17,8 +17,8 @@
  * PVFilter::PVFieldSplitterDnsFqdnParamWidget::PVFieldSplitterCSVParamWidget
  *****************************************************************************/
 
-PVFilter::PVFieldSplitterDnsFqdnParamWidget::PVFieldSplitterDnsFqdnParamWidget() :
-	PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterDnsFqdn()))
+PVFilter::PVFieldSplitterDnsFqdnParamWidget::PVFieldSplitterDnsFqdnParamWidget()
+    : PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterDnsFqdn()))
 {
 	_action_menu = new QAction(QString("add DNS FQDN Splitter"), this);
 }
@@ -29,8 +29,8 @@ PVFilter::PVFieldSplitterDnsFqdnParamWidget::PVFieldSplitterDnsFqdnParamWidget()
 
 QAction* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_action_menu()
 {
-    assert(_action_menu);
-    return _action_menu;
+	assert(_action_menu);
+	return _action_menu;
 }
 
 /******************************************************************************
@@ -39,15 +39,15 @@ QAction* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_action_menu()
 
 QWidget* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_param_widget()
 {
-	//get args
-	PVCore::PVArgumentList args =  get_filter()->get_args();
+	// get args
+	PVCore::PVArgumentList args = get_filter()->get_args();
 
-	bool tld1      = args[PVFieldSplitterDnsFqdn::TLD1].toBool();
-	bool tld2      = args[PVFieldSplitterDnsFqdn::TLD2].toBool();
-	bool tld3      = args[PVFieldSplitterDnsFqdn::TLD3].toBool();
-	bool subd1     = args[PVFieldSplitterDnsFqdn::SUBD1].toBool();
-	bool subd2     = args[PVFieldSplitterDnsFqdn::SUBD2].toBool();
-	bool subd3     = args[PVFieldSplitterDnsFqdn::SUBD3].toBool();
+	bool tld1 = args[PVFieldSplitterDnsFqdn::TLD1].toBool();
+	bool tld2 = args[PVFieldSplitterDnsFqdn::TLD2].toBool();
+	bool tld3 = args[PVFieldSplitterDnsFqdn::TLD3].toBool();
+	bool subd1 = args[PVFieldSplitterDnsFqdn::SUBD1].toBool();
+	bool subd2 = args[PVFieldSplitterDnsFqdn::SUBD2].toBool();
+	bool subd3 = args[PVFieldSplitterDnsFqdn::SUBD3].toBool();
 	bool subd1_rev = args[PVFieldSplitterDnsFqdn::SUBD1_REV].toBool();
 	bool subd2_rev = args[PVFieldSplitterDnsFqdn::SUBD2_REV].toBool();
 	bool subd3_rev = args[PVFieldSplitterDnsFqdn::SUBD3_REV].toBool();
@@ -89,7 +89,7 @@ QWidget* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_param_widget()
 	_split_cb[5]->setChecked(subd3);
 
 	for (int i = 0; i < 6; ++i) {
-		QWidget *w = _split_cb[i];
+		QWidget* w = _split_cb[i];
 		connect(w, SIGNAL(stateChanged(int)), this, SLOT(split_cb_changed(int)));
 		layout->addWidget(w, i, 0);
 	}
@@ -102,7 +102,7 @@ QWidget* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_param_widget()
 	_rev_cb[2]->setChecked(subd3_rev);
 
 	for (int i = 0; i < 3; ++i) {
-		QWidget *w = _rev_cb[i];
+		QWidget* w = _rev_cb[i];
 		w->setEnabled(_split_cb[i + 3]->isChecked());
 		connect(w, SIGNAL(stateChanged(int)), this, SLOT(rev_cb_changed(int)));
 		layout->addWidget(w, i + 3, 1);
@@ -121,14 +121,14 @@ void PVFilter::PVFieldSplitterDnsFqdnParamWidget::split_cb_changed(int)
 
 	size_t n = 0;
 
-	for(int i = 0; i < 6; ++i) {
+	for (int i = 0; i < 6; ++i) {
 		bool s = _split_cb[i]->isChecked();
 		if (s) {
 			++n;
 		}
 		if (i >= 3) {
 			// need to enable/disable subdomains rev cb
-			_rev_cb[i-3]->setEnabled(s);
+			_rev_cb[i - 3]->setEnabled(s);
 		}
 	}
 

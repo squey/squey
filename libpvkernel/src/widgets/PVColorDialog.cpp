@@ -10,11 +10,12 @@
 
 #include <QMouseEvent>
 
-//static PVCore::PVHSVColor g_predefined_colors[] = {HSV_COLOR_WHITE, HSV_COLOR_RED, HSV_COLOR_GREEN, HSV_COLOR_BLUE};
+// static PVCore::PVHSVColor g_predefined_colors[] = {HSV_COLOR_WHITE, HSV_COLOR_RED,
+// HSV_COLOR_GREEN, HSV_COLOR_BLUE};
 
 #define GRID_COL_SIZE 11
 #define HSV_COLOR_PROPERTY "inendi_hsv_color_property"
-#define HSV_COLOR_INDEX    "inendi_hsv_color_index"
+#define HSV_COLOR_INDEX "inendi_hsv_color_index"
 
 static void fill_label_with_color(QLabel* l, PVCore::PVHSVColor c)
 {
@@ -56,18 +57,18 @@ static QLabel* label_from_sender(QObject* obj_sender)
 	return qobject_cast<QLabel*>(act->parent());
 }
 
-
-namespace PVWidgets { namespace __impl {
-
-class PVLabelEventFilter: public QObject
+namespace PVWidgets
 {
-public:
-	PVLabelEventFilter(PVWidgets::PVColorDialog* parent):
-		QObject(parent)
-	{ }
+namespace __impl
+{
 
-protected:
-	bool eventFilter(QObject *obj, QEvent *ev)
+class PVLabelEventFilter : public QObject
+{
+  public:
+	PVLabelEventFilter(PVWidgets::PVColorDialog* parent) : QObject(parent) {}
+
+  protected:
+	bool eventFilter(QObject* obj, QEvent* ev)
 	{
 		assert(qobject_cast<QLabel*>(obj));
 		QLabel* label = static_cast<QLabel*>(obj);
@@ -85,25 +86,24 @@ protected:
 		return false;
 	};
 
-private:
+  private:
 	inline PVWidgets::PVColorDialog* dlg_parent()
 	{
 		assert(qobject_cast<PVWidgets::PVColorDialog*>(parent()));
 		return static_cast<PVWidgets::PVColorDialog*>(parent());
 	}
 };
+}
+}
 
-} }
-
-PVWidgets::PVColorDialog::PVColorDialog(QWidget* parent):
-	QDialog(parent)
+PVWidgets::PVColorDialog::PVColorDialog(QWidget* parent) : QDialog(parent)
 {
 	init();
 	set_color(0);
 }
 
-PVWidgets::PVColorDialog::PVColorDialog(PVCore::PVHSVColor const& c, QWidget* parent):
-	QDialog(parent)
+PVWidgets::PVColorDialog::PVColorDialog(PVCore::PVHSVColor const& c, QWidget* parent)
+    : QDialog(parent)
 {
 	init();
 	set_color(c);
@@ -116,7 +116,8 @@ void PVWidgets::PVColorDialog::init()
 	setupUi(this);
 
 	// Init the predefined colors
-	std::vector<PVCore::PVHSVColor> colors = std::move(PVCore::PVPredefinedHSVColors::get_predefined_colors());
+	std::vector<PVCore::PVHSVColor> colors =
+	    std::move(PVCore::PVPredefinedHSVColors::get_predefined_colors());
 	for (size_t i = 0; i < colors.size(); i++) {
 		const PVCore::PVHSVColor c = colors[i];
 
@@ -139,21 +140,24 @@ void PVWidgets::PVColorDialog::init()
 
 		// ...and other actions
 		QAction* act_save_color = new QAction(tr("Save current color"), color_label);
-		connect(act_save_color, SIGNAL(triggered()), this, SLOT(set_predefined_color_from_action()));
+		connect(act_save_color, SIGNAL(triggered()), this,
+		        SLOT(set_predefined_color_from_action()));
 		QAction* act_reset = new QAction(tr("Reset to white"), color_label);
 		connect(act_reset, SIGNAL(triggered()), this, SLOT(reset_predefined_color_from_action()));
 
 		color_label->addAction(act_save_color);
 		color_label->addAction(act_reset);
 
-		_predefined_grid->addWidget(color_label, i / GRID_COL_SIZE, i % GRID_COL_SIZE, Qt::AlignLeft);
+		_predefined_grid->addWidget(color_label, i / GRID_COL_SIZE, i % GRID_COL_SIZE,
+		                            Qt::AlignLeft);
 	}
 
 	// Fill the last row with a spacer
-	const size_t last_row = (colors.size() + (GRID_COL_SIZE-1)) / GRID_COL_SIZE;
+	const size_t last_row = (colors.size() + (GRID_COL_SIZE - 1)) / GRID_COL_SIZE;
 	const int last_empty_col = colors.size() % GRID_COL_SIZE;
 	if (last_empty_col > 0) {
-		_predefined_grid->addItem(new QSpacerItem(1, 0, QSizePolicy::Expanding), last_row, last_empty_col, GRID_COL_SIZE-last_empty_col);
+		_predefined_grid->addItem(new QSpacerItem(1, 0, QSizePolicy::Expanding), last_row,
+		                          last_empty_col, GRID_COL_SIZE - last_empty_col);
 	}
 
 	connect(picker(), SIGNAL(color_changed_left(int)), this, SLOT(picker_color_changed(int)));
@@ -183,7 +187,8 @@ void PVWidgets::PVColorDialog::unselect_all_preselected_colors()
 {
 	const size_t ncolors = PVCore::PVPredefinedHSVColors::get_predefined_colors_count();
 	for (size_t i = 0; i < ncolors; i++) {
-		QLabel* label = static_cast<QLabel*>(_predefined_grid->itemAtPosition(i / GRID_COL_SIZE, i % GRID_COL_SIZE)->widget());
+		QLabel* label = static_cast<QLabel*>(
+		    _predefined_grid->itemAtPosition(i / GRID_COL_SIZE, i % GRID_COL_SIZE)->widget());
 		unselect_label(label);
 	}
 }

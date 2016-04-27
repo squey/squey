@@ -12,75 +12,81 @@
 
 #define PV_MAX_INDEX 1000000000
 
-PVRush::PVControllerJob::PVControllerJob(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc,
-		PVAggregator &agg, PVFilter::PVChunkFilterByElt& filter, PVOutput& out_filter, size_t ntokens) :
-	_elt_invalid_filter(_inv_elts),
-	_job_done(false),
-	_agg(agg),
-	_split_filter(filter),
-	_out_filter(out_filter),
-	_idx_begin(begin),
-	_ntokens(ntokens)
+PVRush::PVControllerJob::PVControllerJob(chunk_index begin, chunk_index end, chunk_index n_elts,
+                                         stop_cdtion sc, PVAggregator& agg,
+                                         PVFilter::PVChunkFilterByElt& filter, PVOutput& out_filter,
+                                         size_t ntokens)
+    : _elt_invalid_filter(_inv_elts)
+    , _job_done(false)
+    , _agg(agg)
+    , _split_filter(filter)
+    , _out_filter(out_filter)
+    , _idx_begin(begin)
+    , _ntokens(ntokens)
 {
 
 	// FIXME : Should be done at compile time using tag dispatching.
 	if (sc == sc_n_elts) {
 		_max_n_elts = n_elts;
 		_idx_end = PV_MAX_INDEX;
-	}
-	else {
+	} else {
 		_max_n_elts = end - begin;
 		_idx_end = end;
 	}
 }
 
-void PVRush::PVControllerJob::run_read_all_job() {
-	// TODO : It doesn't work but it didn't neither before....
-	_executor = std::async(std::launch::async, [&](){
-				_agg.read_all_chunks_from_beggining();
-				job_has_run_no_output_update();
-	});
-}
-
-void PVRush::PVControllerJob::run_job() {
-	_executor = std::async(std::launch::async, [&](){
-			_job_done = false;
-
-			// Configure the aggregator
-			_agg.process_indexes(_idx_begin, _idx_end, _max_n_elts);
-			_agg.set_stop_condition(&(_job_done));
-			_out_filter.set_stop_condition(&(_job_done));
-
-			// And create the pipeline
-			_pipeline = new(tbb::task::allocate_root()) PVPipelineTask();
-			_pipeline->set_filter(create_tbb_filter());		
-			_pipeline->set_tokens(_ntokens);
-
-			// Launch the pipeline
-			tbb::task::spawn_root_and_wait(*_pipeline);
-
-			/**
-			 * according to the TBB's documentation, the pipeline is implictly
-			 * freed by tbb::task::spawn_root_and_wait(...).
-			 */
-
-			job_has_run();
-
-	});
-}
-
-tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
+void PVRush::PVControllerJob::run_read_all_job()
 {
-	tbb::filter_t<void,PVCore::PVChunk*> input_filter(tbb::filter::serial_in_order, [this](tbb::flow_control &fc){ return _agg(fc);});
+	// TODO : It doesn't work but it didn't neither before....
+	_executor = std::async(std::launch::async, [&]() {
+		_agg.read_all_chunks_from_beggining();
+		job_has_run_no_output_update();
+	});
+}
+
+void PVRush::PVControllerJob::run_job()
+{
+	_executor = std::async(std::launch::async, [&]() {
+		_job_done = false;
+
+		// Configure the aggregator
+		_agg.process_indexes(_idx_begin, _idx_end, _max_n_elts);
+		_agg.set_stop_condition(&(_job_done));
+		_out_filter.set_stop_condition(&(_job_done));
+
+		// And create the pipeline
+		_pipeline = new (tbb::task::allocate_root()) PVPipelineTask();
+		_pipeline->set_filter(create_tbb_filter());
+		_pipeline->set_tokens(_ntokens);
+
+		// Launch the pipeline
+		tbb::task::spawn_root_and_wait(*_pipeline);
+
+		/**
+		 * according to the TBB's documentation, the pipeline is implictly
+		 * freed by tbb::task::spawn_root_and_wait(...).
+		 */
+
+		job_has_run();
+
+	});
+}
+
+tbb::filter_t<void, void> PVRush::PVControllerJob::create_tbb_filter()
+{
+	tbb::filter_t<void, PVCore::PVChunk*> input_filter(
+	    tbb::filter::serial_in_order, [this](tbb::flow_control& fc) { return _agg(fc); });
 
 	// The "job" filter
-	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> transform_filter(tbb::filter::parallel, _split_filter.f());
+	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> transform_filter(tbb::filter::parallel,
+	                                                                   _split_filter.f());
 
 	// Final output filter
-	tbb::filter_t<PVCore::PVChunk*,void> out_filter(tbb::filter::parallel, _out_filter.f());
+	tbb::filter_t<PVCore::PVChunk*, void> out_filter(tbb::filter::parallel, _out_filter.f());
 
 	// The next dump filter, that dumps all the invalid events
-	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> dump_inv_elts_filter(tbb::filter::parallel, _elt_invalid_filter.f());
+	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> dump_inv_elts_filter(tbb::filter::parallel,
+	                                                                       _elt_invalid_filter.f());
 
 	return input_filter & transform_filter & dump_inv_elts_filter & out_filter;
 }
@@ -92,7 +98,7 @@ void PVRush::PVControllerJob::wait_end()
 
 void PVRush::PVControllerJob::cancel()
 {
-	if(_pipeline)
+	if (_pipeline)
 		_pipeline->cancel();
 	wait_end();
 }

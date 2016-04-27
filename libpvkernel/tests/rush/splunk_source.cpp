@@ -1,15 +1,15 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/inendi_assert.h>
-#include <pvkernel/rush/PVPluginsLoad.h>                                        
+#include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
-#include <pvkernel/rush/PVSourceCreator.h>                                      
+#include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVUtils.h>
 
 // FIXME : It should not be include this way if plugins provide correct API.
@@ -43,8 +43,9 @@ int main()
 	 */
 	PVRush::PVInputDescription_p ind(new PVRush::PVSplunkQuery(infos, "total_bytes > 5000", ""));
 
-	PVRush::PVSourceCreator_p sc = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("splunk");
-	PVRush::PVFormat format;                                                    
+	PVRush::PVSourceCreator_p sc =
+	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("splunk");
+	PVRush::PVFormat format;
 	PVRush::PVSourceCreator::source_p src = sc->create_source_from_input(ind, format);
 	auto& source = *src;
 

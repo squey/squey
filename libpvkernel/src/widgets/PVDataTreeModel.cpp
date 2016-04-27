@@ -10,8 +10,8 @@
 
 #include <QFont>
 
-PVWidgets::PVDataTreeModel::PVDataTreeModel(PVCore::PVDataTreeObjectBase& root, QObject* parent):
-	QAbstractItemModel(parent)
+PVWidgets::PVDataTreeModel::PVDataTreeModel(PVCore::PVDataTreeObjectBase& root, QObject* parent)
+    : QAbstractItemModel(parent)
 {
 	_root_base = &root;
 	_root = root.cast_with_children();
@@ -33,10 +33,10 @@ QModelIndex PVWidgets::PVDataTreeModel::index(int row, int column, const QModelI
 		assert(_root);
 		// Root element: get its children !
 		children = _root->get_children_base();
-	}
-	else {
+	} else {
 		// Get children of this parent !
-		PVCore::PVDataTreeObjectWithChildrenBase* node_obj = get_object(parent)->cast_with_children();
+		PVCore::PVDataTreeObjectWithChildrenBase* node_obj =
+		    get_object(parent)->cast_with_children();
 		if (!node_obj) {
 			return QModelIndex();
 		}
@@ -50,7 +50,7 @@ QModelIndex PVWidgets::PVDataTreeModel::index(int row, int column, const QModelI
 	return createIndex(row, column, final_obj);
 }
 
-int PVWidgets::PVDataTreeModel::rowCount(const QModelIndex &index) const
+int PVWidgets::PVDataTreeModel::rowCount(const QModelIndex& index) const
 {
 	if (!_root) {
 		return 0;
@@ -60,7 +60,7 @@ int PVWidgets::PVDataTreeModel::rowCount(const QModelIndex &index) const
 		// Root object. Get its number of children.
 		return _root->get_children_count();
 	}
-	
+
 	PVCore::PVDataTreeObjectWithChildrenBase* node_obj = get_object(index)->cast_with_children();
 	if (node_obj) {
 		// This object has children, so return its count.
@@ -77,19 +77,18 @@ int PVWidgets::PVDataTreeModel::columnCount(const QModelIndex& /*index*/) const
 	return 1;
 }
 
-QVariant PVWidgets::PVDataTreeModel::data(const QModelIndex &index, int role) const
+QVariant PVWidgets::PVDataTreeModel::data(const QModelIndex& index, int role) const
 {
 	if (!index.isValid()) {
 		return QVariant();
 	}
 	PVCore::PVDataTreeObjectBase* node_obj = get_object(index);
 	switch (role) {
-		case Qt::DisplayRole:
-		{
-			return node_obj->get_serialize_description();
-		}
-		default:
-			break;
+	case Qt::DisplayRole: {
+		return node_obj->get_serialize_description();
+	}
+	default:
+		break;
 	};
 
 	return QVariant();
@@ -101,7 +100,7 @@ Qt::ItemFlags PVWidgets::PVDataTreeModel::flags(const QModelIndex& /*index*/) co
 	return flags;
 }
 
-QModelIndex PVWidgets::PVDataTreeModel::parent(const QModelIndex & index) const
+QModelIndex PVWidgets::PVDataTreeModel::parent(const QModelIndex& index) const
 {
 	if (!index.isValid()) {
 		return QModelIndex();
@@ -111,7 +110,7 @@ QModelIndex PVWidgets::PVDataTreeModel::parent(const QModelIndex & index) const
 	if (!node_obj) {
 		return QModelIndex();
 	}
-	
+
 	PVCore::PVDataTreeObjectBase* const node_parent = node_obj->get_parent_base();
 	assert(_root);
 	if (node_parent->cast_with_children() == _root) {
@@ -119,8 +118,10 @@ QModelIndex PVWidgets::PVDataTreeModel::parent(const QModelIndex & index) const
 		return QModelIndex();
 	}
 
-	// We need to take the parent of node_parent, and get the index of node_parent into its children.
-	PVCore::PVDataTreeObjectWithChildrenBase* const super_parent = node_parent->cast_with_parent()->get_parent_base()->cast_with_children();
+	// We need to take the parent of node_parent, and get the index of node_parent into its
+	// children.
+	PVCore::PVDataTreeObjectWithChildrenBase* const super_parent =
+	    node_parent->cast_with_parent()->get_parent_base()->cast_with_children();
 	assert(super_parent);
 
 	int idx_parent = 0;
@@ -134,12 +135,15 @@ QModelIndex PVWidgets::PVDataTreeModel::parent(const QModelIndex & index) const
 	return createIndex(idx_parent, 0, node_obj->get_parent_base());
 }
 
-QModelIndex PVWidgets::PVDataTreeModel::index_from_obj(PVCore::PVDataTreeObjectBase const* obj) const
+QModelIndex
+PVWidgets::PVDataTreeModel::index_from_obj(PVCore::PVDataTreeObjectBase const* obj) const
 {
 	return index_from_obj_rec(QModelIndex(), _root, obj);
 }
 
-QModelIndex PVWidgets::PVDataTreeModel::index_from_obj_rec(QModelIndex const& cur, PVCore::PVDataTreeObjectWithChildrenBase const* idx_obj, PVCore::PVDataTreeObjectBase const* obj_test) const
+QModelIndex PVWidgets::PVDataTreeModel::index_from_obj_rec(
+    QModelIndex const& cur, PVCore::PVDataTreeObjectWithChildrenBase const* idx_obj,
+    PVCore::PVDataTreeObjectBase const* obj_test) const
 {
 	if (!idx_obj) {
 		return QModelIndex();
@@ -150,8 +154,9 @@ QModelIndex PVWidgets::PVDataTreeModel::index_from_obj_rec(QModelIndex const& cu
 	}
 
 	int row = 0;
-	PVCore::PVDataTreeObjectWithChildrenBase::children_base_t children = idx_obj->get_children_base();
-	for (PVCore::PVDataTreeObjectBase const* c: children) {
+	PVCore::PVDataTreeObjectWithChildrenBase::children_base_t children =
+	    idx_obj->get_children_base();
+	for (PVCore::PVDataTreeObjectBase const* c : children) {
 		if (c == obj_test) {
 			return index(row, 0, cur);
 		}
@@ -160,7 +165,7 @@ QModelIndex PVWidgets::PVDataTreeModel::index_from_obj_rec(QModelIndex const& cu
 
 	// Go one level deeper
 	row = 0;
-	for (PVCore::PVDataTreeObjectBase const* c: children) {
+	for (PVCore::PVDataTreeObjectBase const* c : children) {
 		QModelIndex new_cur = index(row, 0, cur);
 		QModelIndex test = index_from_obj_rec(new_cur, c->cast_with_children(), obj_test);
 		if (test.isValid()) {

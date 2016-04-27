@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -9,12 +9,13 @@
 
 #include <time.h>
 
-PVRush::PVSplunkQuery::PVSplunkQuery(PVSplunkInfos const& infos, QString const& query, QString const& query_type):
-	_infos(infos),
-	_query(query),
-	_query_type(query_type),
-	_start_ms(0),
-	_end_ms((int64_t)(time(NULL))*1000)
+PVRush::PVSplunkQuery::PVSplunkQuery(PVSplunkInfos const& infos, QString const& query,
+                                     QString const& query_type)
+    : _infos(infos)
+    , _query(query)
+    , _query_type(query_type)
+    , _start_ms(0)
+    , _end_ms((int64_t)(time(NULL)) * 1000)
 {
 }
 
@@ -28,9 +29,8 @@ bool PVRush::PVSplunkQuery::operator==(const PVInputDescription& other) const
 	if (!other_query) {
 		return false;
 	}
-	return _infos == other_query->_infos &&
-	       _query == other_query->_query &&
-	       _query_type == other_query->_query_type ;
+	return _infos == other_query->_infos && _query == other_query->_query &&
+	       _query_type == other_query->_query_type;
 }
 
 QString PVRush::PVSplunkQuery::human_name() const
@@ -45,7 +45,8 @@ void PVRush::PVSplunkQuery::serialize_write(PVCore::PVSerializeObject& so)
 	so.object("server", _infos);
 }
 
-void PVRush::PVSplunkQuery::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void PVRush::PVSplunkQuery::serialize_read(PVCore::PVSerializeObject& so,
+                                           PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.attribute("query", _query);
 	so.attribute("query_type", _query_type);

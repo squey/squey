@@ -21,7 +21,6 @@ void PVCore::PVIntrinsics::init_cpuid()
 	_init_done = true;
 }
 
-
 bool PVCore::PVIntrinsics::has_sse41()
 {
 	assert(_init_done);

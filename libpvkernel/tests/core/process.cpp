@@ -15,28 +15,23 @@
 
 using namespace PVCore;
 
-PVBuffer *buf = new PVBuffer();
-PVProcess1 *p1 = new PVProcess1();
-PVProcess2 *p2 = new PVProcess2();
+PVBuffer* buf = new PVBuffer();
+PVProcess1* p1 = new PVProcess1();
+PVProcess2* p2 = new PVProcess2();
 
-
-void *mythread1(void *threadid)
+void* mythread1(void* threadid)
 {
 	p1->process(1000000);
 
 	pthread_exit(NULL);
 }
 
-
-
-void *mythread2(void *threadid)
+void* mythread2(void* threadid)
 {
 	p2->process(1000000);
 
 	pthread_exit(NULL);
 }
-
-
 
 int main(void)
 {
@@ -50,12 +45,10 @@ int main(void)
 	p2->input_buffer = buf;
 	p2->input_pvprocess = p1;
 
-
-	
 	t = 0;
-	rc = pthread_create(&threads[t], NULL, mythread1, (void *)t);
+	rc = pthread_create(&threads[t], NULL, mythread1, (void*)t);
 	t = 1;
-	rc = pthread_create(&threads[t], NULL, mythread2, (void *)t);
+	rc = pthread_create(&threads[t], NULL, mythread2, (void*)t);
 
 	pthread_exit(NULL);
 

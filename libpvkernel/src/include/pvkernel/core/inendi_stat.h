@@ -28,7 +28,8 @@
  * @param UNIT the statistic's unit
  * @param VALUE the statistic's value
  */
-#define PV_STAT(NAME, UNIT, VALUE) std::cerr << "__pvstat__{{" << (NAME) << "," << (UNIT) << "}}:" << (VALUE) << std::endl
+#define PV_STAT(NAME, UNIT, VALUE)                                                                 \
+	std::cerr << "__pvstat__{{" << (NAME) << "," << (UNIT) << "}}:" << (VALUE) << std::endl
 
 /**
  * @def PV_STAT_MEM_USE(NAME, VALUE)

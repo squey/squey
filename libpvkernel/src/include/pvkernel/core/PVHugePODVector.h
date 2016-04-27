@@ -11,14 +11,14 @@
 #include <pvkernel/core/PVAllocators.h>
 #include <cassert>
 
-namespace PVCore {
+namespace PVCore
+{
 
-template <typename T, size_t Align = 16>
-class PVHugePODVector
+template <typename T, size_t Align = 16> class PVHugePODVector
 {
 	static_assert(std::is_pod<T>::value, "PVHugePODVector: T must be a POD!");
 
-public:
+  public:
 	typedef T value_type;
 	typedef PVNUMAHugePagedInterleavedAllocator<value_type> allocator_type;
 	typedef typename allocator_type::pointer pointer;
@@ -27,33 +27,23 @@ public:
 	typedef typename allocator_type::const_reference const_reference;
 	typedef typename allocator_type::size_type size_type;
 
-	typedef pointer       iterator;
+	typedef pointer iterator;
 	typedef const_pointer const_iterator;
 
-private:
+  private:
 	typedef typename allocator_type::template rebind<char>::other char_allocator_type;
 
 	static size_type page_size;
 
-public:
-	PVHugePODVector():
-		_buf(nullptr),
-		_aligned_buf(nullptr),
-		_size(0)
-	{ }
+  public:
+	PVHugePODVector() : _buf(nullptr), _aligned_buf(nullptr), _size(0) {}
 
-	PVHugePODVector(PVHugePODVector const& o):
-		_buf(nullptr),
-		_aligned_buf(nullptr),
-		_size(0)
+	PVHugePODVector(PVHugePODVector const& o) : _buf(nullptr), _aligned_buf(nullptr), _size(0)
 	{
 		copy(o);
 	}
 
-	PVHugePODVector(PVHugePODVector && o)
-	{
-		move(o);
-	}
+	PVHugePODVector(PVHugePODVector&& o) { move(o); }
 
 	~PVHugePODVector()
 	{
@@ -62,8 +52,8 @@ public:
 		}
 	}
 
-public:
-	PVHugePODVector& operator=(PVHugePODVector && o)
+  public:
+	PVHugePODVector& operator=(PVHugePODVector&& o)
 	{
 		if (&o != this) {
 			move(o);
@@ -79,7 +69,7 @@ public:
 		return *this;
 	}
 
-public:
+  public:
 	void resize(const size_type n)
 	{
 		if (n == size()) {
@@ -88,12 +78,11 @@ public:
 
 		if (_buf) {
 			reallocate(n);
-		}
-		else {
+		} else {
 			allocate(n);
 		}
 	}
-	
+
 	void clear()
 	{
 		if (_buf) {
@@ -103,27 +92,35 @@ public:
 		}
 	}
 
-public:
-	inline reference at(size_type i) { assert(i < size()); return _aligned_buf[i]; }
-	inline const_reference at(size_type i) const { assert(i < size()); return _aligned_buf[i]; }
+  public:
+	inline reference at(size_type i)
+	{
+		assert(i < size());
+		return _aligned_buf[i];
+	}
+	inline const_reference at(size_type i) const
+	{
+		assert(i < size());
+		return _aligned_buf[i];
+	}
 
 	inline reference operator[](size_type i) { return at(i); }
 	inline const_reference operator[](size_type i) const { return at(i); }
 
 	inline size_type size() const { return _size; }
 
-public:
+  public:
 	iterator begin() { return _aligned_buf; }
 	const_iterator begin() const { return _aligned_buf; }
 
 	iterator end() { return (_buf) ? (&_aligned_buf[size()]) : nullptr; }
 	const_iterator end() const { return (_buf) ? (&_aligned_buf[size()]) : nullptr; }
 
-private:
+  private:
 	void allocate(const size_t n)
 	{
 		assert(!_buf);
-		_buf = reinterpret_cast<pointer>(char_allocator_type().allocate(n*sizeof(T) + Align));
+		_buf = reinterpret_cast<pointer>(char_allocator_type().allocate(n * sizeof(T) + Align));
 		if (_buf == (pointer)-1) {
 			throw std::bad_alloc();
 		}
@@ -134,7 +131,8 @@ private:
 	void reallocate(const size_t n)
 	{
 		assert(n != size());
-		_buf = reinterpret_cast<pointer>(mremap(_buf, real_buffer_size(), n*sizeof(T) + Align, MREMAP_MAYMOVE));
+		_buf = reinterpret_cast<pointer>(
+		    mremap(_buf, real_buffer_size(), n * sizeof(T) + Align, MREMAP_MAYMOVE));
 		if (_buf == (pointer)-1) {
 			throw std::bad_alloc();
 		}
@@ -144,13 +142,13 @@ private:
 
 	inline void set_aligned_buf()
 	{
-		_aligned_buf = reinterpret_cast<pointer>((((uintptr_t)(_buf) + Align - 1)/Align)*Align);
+		_aligned_buf = reinterpret_cast<pointer>((((uintptr_t)(_buf) + Align - 1) / Align) * Align);
 	}
 
 	inline size_t real_buffer_size() const
 	{
 		assert(_aligned_buf >= _buf);
-		return (_size*sizeof(T)) + ((uintptr_t)_aligned_buf - (uintptr_t)_buf);
+		return (_size * sizeof(T)) + ((uintptr_t)_aligned_buf - (uintptr_t)_buf);
 	}
 
 	void free()
@@ -160,7 +158,7 @@ private:
 		_size = 0;
 	}
 
-	void move(PVHugePODVector && o)
+	void move(PVHugePODVector&& o)
 	{
 		assert(&o != this);
 		_buf = o._buf;
@@ -173,15 +171,14 @@ private:
 	void copy(PVHugePODVector const& o)
 	{
 		resize(o._size);
-		memcpy(begin(), o.begin(), size()*sizeof(T));
+		memcpy(begin(), o.begin(), size() * sizeof(T));
 	}
 
-private:
+  private:
 	pointer _buf;
 	pointer _aligned_buf;
-	size_t  _size;
+	size_t _size;
 };
-
 }
 
 #endif

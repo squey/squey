@@ -22,16 +22,18 @@ constexpr static size_t nb_dup = 100000;
 constexpr static size_t nb_dup = 1;
 #endif
 
-static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/converter/substitution/guid.log";
-static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/converter/substitution/subs.out";
-
+static constexpr const char* log_file =
+    TEST_FOLDER "/pvkernel/rush/converter/substitution/guid.log";
+static constexpr const char* ref_file =
+    TEST_FOLDER "/pvkernel/rush/converter/substitution/subs.out";
 
 int main()
 {
 	pvtest::TestSplitter ts(log_file, nb_dup);
 
 	// Prepare splitter plugin
-	PVFilter::PVFieldsConverter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsConverter)::get().get_class_by_name("substitution");
+	PVFilter::PVFieldsConverter::p_type sp_lib_p =
+	    LIB_CLASS(PVFilter::PVFieldsConverter)::get().get_class_by_name("substitution");
 
 	PVCore::PVArgumentList args;
 	args["path"] = TEST_FOLDER "/pvkernel/rush/converter/substitution/apply";

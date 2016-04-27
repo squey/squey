@@ -17,8 +17,8 @@
  * PVWidgets::PVPercentRangeEditor::PVPercentRangeEditor
  *****************************************************************************/
 
-PVWidgets::PVPercentRangeEditor::PVPercentRangeEditor(QWidget *parent) :
-	PVAbstractRangePicker(0., 100., parent)
+PVWidgets::PVPercentRangeEditor::PVPercentRangeEditor(QWidget* parent)
+    : PVAbstractRangePicker(0., 100., parent)
 {
 	_min_spinbox->use_floating_point(true);
 	_max_spinbox->use_floating_point(true);

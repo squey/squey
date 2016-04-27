@@ -14,27 +14,29 @@
 
 #include <unordered_map>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldConverterSubstitution : public PVFieldsConverter {
+class PVFieldConverterSubstitution : public PVFieldsConverter
+{
 
-public:
-	PVFieldConverterSubstitution(PVCore::PVArgumentList const& args = PVFieldConverterSubstitution::default_args());
+  public:
+	PVFieldConverterSubstitution(
+	    PVCore::PVArgumentList const& args = PVFieldConverterSubstitution::default_args());
 
-public:
+  public:
 	void set_args(PVCore::PVArgumentList const& args) override;
 	PVCore::PVField& one_to_one(PVCore::PVField& field) override;
 
-private:
+  private:
 	std::string _default_value;
-	bool    _use_default_value;
+	bool _use_default_value;
 	char _sep_char;
 	char _quote_char;
 	std::unordered_map<std::string, std::string> _key;
 
 	CLASS_FILTER(PVFilter::PVFieldConverterSubstitution)
 };
-
 }
 
 #endif // PVFILTER_PVFIELDCONVERTERSUBSTITUTION_H

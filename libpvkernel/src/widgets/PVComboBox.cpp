@@ -7,14 +7,12 @@
 
 #include <pvkernel/widgets/PVComboBox.h>
 
-
 /******************************************************************************
  *
  * PVInspector::PVComboBox::PVComboBox
  *
  *****************************************************************************/
-PVWidgets::PVComboBox::PVComboBox(QWidget* parent):
-	QComboBox(parent)
+PVWidgets::PVComboBox::PVComboBox(QWidget* parent) : QComboBox(parent)
 {
 	setModel(new PVComboBoxModel(_dis_elt));
 }
@@ -26,7 +24,7 @@ PVWidgets::PVComboBox::PVComboBox(QWidget* parent):
  *****************************************************************************/
 QString PVWidgets::PVComboBox::get_selected() const
 {
-    return currentText();
+	return currentText();
 }
 
 QVariant PVWidgets::PVComboBox::get_sel_userdata() const
@@ -85,9 +83,8 @@ void PVWidgets::PVComboBox::clear_disabled_strings()
 
 // PVComboBoxModel implementation
 
-PVWidgets::PVComboBox::PVComboBoxModel::PVComboBoxModel(QStringList& dis_elt, QObject* parent):
-	QStandardItemModel(parent),
-	_dis_elt(dis_elt)
+PVWidgets::PVComboBox::PVComboBoxModel::PVComboBoxModel(QStringList& dis_elt, QObject* parent)
+    : QStandardItemModel(parent), _dis_elt(dis_elt)
 {
 }
 
@@ -106,7 +103,7 @@ QVariant PVWidgets::PVComboBox::PVComboBoxModel::data(const QModelIndex& index, 
 {
 	if (role == Qt::ForegroundRole && is_disabled(index)) {
 		// If an item is disabled, it will be displayed in red.
-		return QVariant(QBrush(QColor(255,0,0)));
+		return QVariant(QBrush(QColor(255, 0, 0)));
 	}
 
 	return QStandardItemModel::data(index, role);

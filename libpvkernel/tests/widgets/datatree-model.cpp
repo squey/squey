@@ -28,32 +28,32 @@ class C;
 class D;
 class E;
 
-#define PVSERIALIZEOBJECT_SPLIT\
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)\
-	{\
-		so.split(*this);\
-	}\
+#define PVSERIALIZEOBJECT_SPLIT                                                                    \
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)     \
+	{                                                                                              \
+		so.split(*this);                                                                           \
+	}
 
 typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, B> data_tree_a_t;
 class A : public data_tree_a_t
 {
 
-public:
-	A(int i = 0):
-		data_tree_a_t(),
-		_i(i)
-	{}
+  public:
+	A(int i = 0) : data_tree_a_t(), _i(i) {}
 
-public:
+  public:
 	virtual ~A() { std::cout << "~A(" << this << ")" << std::endl; }
 
-public:
+  public:
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const { return QString("A: ") + QString::number(get_i()); }
+	virtual QString get_serialize_description() const
+	{
+		return QString("A: ") + QString::number(get_i());
+	}
 
-private:
+  private:
 	int _i;
 };
 
@@ -62,46 +62,45 @@ class B : public data_tree_b_t
 {
 	friend class A;
 
-public:
-	B(int i = 0):
-		data_tree_b_t(),
-		_i(i)
-   	{}
+  public:
+	B(int i = 0) : data_tree_b_t(), _i(i) {}
 
-public:
+  public:
 	virtual ~B() { std::cout << "~B(" << this << ")" << std::endl; }
 
-public:
+  public:
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const { return QString("B: ") + QString::number(get_i()); }
+	virtual QString get_serialize_description() const
+	{
+		return QString("B: ") + QString::number(get_i());
+	}
 
-private:
+  private:
 	int _i;
 };
-
 
 typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
 class C : public data_tree_c_t
 {
 
-public:
-	C(int i = 0):
-		data_tree_c_t(),
-		_i(i)
-	{ }
+  public:
+	C(int i = 0) : data_tree_c_t(), _i(i) {}
 
-public:
+  public:
 	virtual ~C() { std::cout << "~C(" << this << ")" << std::endl; }
 
-public:
+  public:
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const { return QString("C: ") + QString::number(get_i()); }
+	virtual QString get_serialize_description() const
+	{
+		return QString("C: ") + QString::number(get_i());
+	}
 
-private:
+  private:
 	int _i;
 };
 
@@ -109,52 +108,45 @@ typedef typename PVCore::PVDataTreeObject<C, E> data_tree_d_t;
 class D : public data_tree_d_t
 {
 
-public:
-	D(int i = 0):
-		data_tree_d_t(),
-		_i(i)
-   	{ }
+  public:
+	D(int i = 0) : data_tree_d_t(), _i(i) {}
 
-public:
-	virtual ~D()
-	{
-		std::cout << "~D(" << this << ")" << std::endl;
-	}
+  public:
+	virtual ~D() { std::cout << "~D(" << this << ")" << std::endl; }
 
-public:
+  public:
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const { return QString("D: ") + QString::number(get_i()); }
+	virtual QString get_serialize_description() const
+	{
+		return QString("D: ") + QString::number(get_i());
+	}
 
-private:
+  private:
 	int _i;
 };
-
 
 typedef typename PVCore::PVDataTreeObject<D, PVCore::PVDataTreeNoChildren<E>> data_tree_e_t;
 class E : public data_tree_e_t
 {
 
-public:
-	E(int i = 0):
-		data_tree_e_t(),
-		_i(i)
-	{ }
+  public:
+	E(int i = 0) : data_tree_e_t(), _i(i) {}
 
-public:
-	virtual ~E()
-	{
-		std::cout << "~E(" << this << ")" << std::endl;
-	}
+  public:
+	virtual ~E() { std::cout << "~E(" << this << ")" << std::endl; }
 
-public:
+  public:
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const { return QString("E: ") + QString::number(get_i()); }
+	virtual QString get_serialize_description() const
+	{
+		return QString("E: ") + QString::number(get_i());
+	}
 
-private:
+  private:
 	int _i;
 };
 
@@ -167,7 +159,7 @@ typedef typename E::p_type E_p;
 typedef PVWidgets::PVDataTreeMaskProxyModel<C> proxy_model_c_t;
 typedef PVWidgets::PVDataTreeMaskProxyModel<std::string> proxy_model_d_t;
 
-void usage(char *progname)
+void usage(char* progname)
 {
 	std::cerr << "usage: " << basename(progname) << " [1|2|3]" << std::endl;
 	std::cerr << "\t1: to display only model view" << std::endl;
@@ -234,10 +226,10 @@ int main(int argc, char** argv)
 	mw->show();
 
 	// Create our proxy and its view
-	proxy_model_c_t *proxy_c = new proxy_model_c_t();
+	proxy_model_c_t* proxy_c = new proxy_model_c_t();
 	proxy_c->setSourceModel(model);
 
-	proxy_model_d_t *proxy_d = new proxy_model_d_t();
+	proxy_model_d_t* proxy_d = new proxy_model_d_t();
 	proxy_d->setSourceModel(proxy_c);
 
 	QTreeView* view2 = new QTreeView();

@@ -19,20 +19,22 @@
 
 #include <pvkernel/widgets/PVQueryBuilder.h>
 
-
 #include "PVElasticsearchPresets.h"
 
-namespace PVRush {
+namespace PVRush
+{
 
 class PVInputTypeElasticsearch;
 class PVElasticsearchQuery;
 class PVElasticsearchInfos;
 
-class PVElasticsearchParamsWidget: public PVParamsWidget<PVInputTypeElasticsearch, PVElasticsearchPresets, PVElasticsearchInfos, PVElasticsearchQuery>
+class PVElasticsearchParamsWidget
+    : public PVParamsWidget<PVInputTypeElasticsearch, PVElasticsearchPresets, PVElasticsearchInfos,
+                            PVElasticsearchQuery>
 {
 	Q_OBJECT
 
-private:
+  private:
 	enum EQueryType {
 		QUERY_BUILDER = 0,
 		JSON,
@@ -41,38 +43,40 @@ private:
 		COUNT
 	};
 
-public:
-	PVElasticsearchParamsWidget(PVInputTypeElasticsearch const* in_t, PVRush::hash_formats const& formats, QWidget* parent);
+  public:
+	PVElasticsearchParamsWidget(PVInputTypeElasticsearch const* in_t,
+	                            PVRush::hash_formats const& formats, QWidget* parent);
 
-public:
+  public:
 	QString get_server_query(std::string* error = nullptr) const override;
 	QString get_serialize_query() const override;
 
-protected slots:
+  protected slots:
 	size_t query_result_count(std::string* error = nullptr) override;
 	bool fetch_server_data(const PVElasticsearchInfos& infos) override;
 	void query_type_changed_slot() override;
 
-protected:
+  protected:
 	QString get_export_filters() override;
 
-private slots:
+  private slots:
 	void index_changed_by_user_slot();
 	void index_changed_slot(const QString& index);
 	void fetch_server_data_slot();
 
-protected:
+  protected:
 	PVElasticsearchInfos get_infos() const override;
 	bool set_infos(PVElasticsearchInfos const& infos);
 	void set_query(QString const& query);
 	bool check_connection(std::string* error = nullptr) override;
-	void export_query_result(QTextStream& output_stream, PVCore::PVProgressBox& pbox, std::string* error = nullptr) override;
+	void export_query_result(QTextStream& output_stream, PVCore::PVProgressBox& pbox,
+	                         std::string* error = nullptr) override;
 	void set_query_type(QString const& query_type);
 
-private:
+  private:
 	QString get_sql_query_prefix() const;
 
-private:
+  private:
 	QPushButton* _btn_refresh;
 	QComboBox* _combo_index;
 };

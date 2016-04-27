@@ -16,16 +16,14 @@
 #include <cstdint>
 
 // Taken from Qt's qhash.h
-template <class T>
-inline unsigned int qHash(std::shared_ptr<T> const& p)
+template <class T> inline unsigned int qHash(std::shared_ptr<T> const& p)
 {
 	uintptr_t key = (uintptr_t)p.get();
 	if (sizeof(uintptr_t) > sizeof(unsigned int)) {
 		return (unsigned int)(((key >> (8 * sizeof(unsigned int) - 1)) ^ key) & (~0U));
 	} else {
 		return (unsigned int)(key & (~0U));
-	}    
-
+	}
 }
 
 #endif

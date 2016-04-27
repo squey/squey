@@ -24,8 +24,9 @@
  * PVFilter::PVFieldConverterSubstitutionParamWidget::PVFieldConverterSubstitutionParamWidget
  *
  *****************************************************************************/
-PVFilter::PVFieldConverterSubstitutionParamWidget::PVFieldConverterSubstitutionParamWidget() :
-	PVFieldsConverterParamWidget(PVFilter::PVFieldsConverter_p(new PVFieldConverterSubstitution()))
+PVFilter::PVFieldConverterSubstitutionParamWidget::PVFieldConverterSubstitutionParamWidget()
+    : PVFieldsConverterParamWidget(
+          PVFilter::PVFieldsConverter_p(new PVFieldConverterSubstitution()))
 {
 	_action_menu = new QAction(QString("add Substitution"), this);
 }
@@ -37,9 +38,9 @@ PVFilter::PVFieldConverterSubstitutionParamWidget::PVFieldConverterSubstitutionP
  *****************************************************************************/
 QAction* PVFilter::PVFieldConverterSubstitutionParamWidget::get_action_menu()
 {
-    PVLOG_DEBUG("get action PVFieldSubstitutionParamWidget\n");
-    assert(_action_menu);
-    return _action_menu;
+	PVLOG_DEBUG("get action PVFieldSubstitutionParamWidget\n");
+	assert(_action_menu);
+	return _action_menu;
 }
 
 /******************************************************************************
@@ -79,7 +80,8 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	_separator_char->setMaxNumKey(1);
 	fields_separator_layout->addWidget(separator_label);
 	fields_separator_layout->addWidget(_separator_char);
-	fields_separator_layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
+	fields_separator_layout->addSpacerItem(
+	    new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
 	// Quote character
 	QHBoxLayout* quote_character_layout = new QHBoxLayout();
@@ -90,7 +92,8 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	_quote_char->setMaxNumKey(1);
 	quote_character_layout->addWidget(quote_label);
 	quote_character_layout->addWidget(_quote_char);
-	quote_character_layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
+	quote_character_layout->addSpacerItem(
+	    new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
 	QHBoxLayout* default_value_layout = new QHBoxLayout();
 
@@ -114,9 +117,12 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	// Connections
 	connect(browse_pushbutton, SIGNAL(clicked(bool)), this, SLOT(browse_conversion_file()));
 	connect(_default_value_line_edit, SIGNAL(textChanged(QString)), this, SLOT(update_params()));
-	connect(_use_default_value_checkbox, SIGNAL(stateChanged(int)), this, SLOT(use_default_value_checkbox_changed(int)));
-	connect(_separator_char, SIGNAL(keySequenceChanged(const QKeySequence &)), this, SLOT(update_params()));
-	connect(_quote_char, SIGNAL(keySequenceChanged(const QKeySequence &)), this, SLOT(update_params()));
+	connect(_use_default_value_checkbox, SIGNAL(stateChanged(int)), this,
+	        SLOT(use_default_value_checkbox_changed(int)));
+	connect(_separator_char, SIGNAL(keySequenceChanged(const QKeySequence&)), this,
+	        SLOT(update_params()));
+	connect(_quote_char, SIGNAL(keySequenceChanged(const QKeySequence&)), this,
+	        SLOT(update_params()));
 
 	return _param_widget;
 }
@@ -133,11 +139,13 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::update_params()
 	args["path"] = _file_path_line_edit->text();
 	args["default_value"] = _default_value_line_edit->text();
 	args["use_default_value"] = _use_default_value_checkbox->isChecked();
-	args["sep"] = _separator_char->keySequence().toString();;
-	args["quote"] = _quote_char->keySequence().toString();;
+	args["sep"] = _separator_char->keySequence().toString();
+	;
+	args["quote"] = _quote_char->keySequence().toString();
+	;
 
 	get_filter()->set_args(args);
-    emit args_changed_Signal();
+	emit args_changed_Signal();
 }
 
 void PVFilter::PVFieldConverterSubstitutionParamWidget::browse_conversion_file()
@@ -152,7 +160,8 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::browse_conversion_file()
 	update_params();
 }
 
-void PVFilter::PVFieldConverterSubstitutionParamWidget::use_default_value_checkbox_changed(int state)
+void
+PVFilter::PVFieldConverterSubstitutionParamWidget::use_default_value_checkbox_changed(int state)
 {
 	_default_value_line_edit->setEnabled(state == Qt::Checked);
 

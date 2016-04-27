@@ -10,22 +10,20 @@
 #include <pvkernel/core/PVChunk.h>
 
 tbb::scalable_allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
-//std::allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
+// std::allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
 
-PVCore::PVElement::PVElement(PVChunk* parent) :
-	PVBufferSlice(_reallocated_buffers)
+PVCore::PVElement::PVElement(PVChunk* parent) : PVBufferSlice(_reallocated_buffers)
 {
 	init(parent);
 }
 
-PVCore::PVElement::PVElement(PVChunk* parent, char* begin, char* end) :
-	PVBufferSlice(begin, end, _reallocated_buffers)
+PVCore::PVElement::PVElement(PVChunk* parent, char* begin, char* end)
+    : PVBufferSlice(begin, end, _reallocated_buffers)
 {
 	init(parent);
 }
 
-PVCore::PVElement::PVElement(PVElement const& src) :
-	PVBufferSlice(src)
+PVCore::PVElement::PVElement(PVElement const& src) : PVBufferSlice(src)
 {
 	// No copy must occur !
 	assert(false);
@@ -48,7 +46,7 @@ void PVCore::PVElement::init(PVChunk* parent)
 	_valid = true;
 	_parent = parent;
 	// In the beggining, it only has a big field
-	//PVField f(*this, begin(), end());
+	// PVField f(*this, begin(), end());
 	//_fields.push_back(f);
 	_org_buf = NULL;
 	_org_buf_size = 0;

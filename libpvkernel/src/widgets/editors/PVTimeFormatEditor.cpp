@@ -22,9 +22,8 @@
 // PVTimeFormatHelpDlg implementation
 //
 
-PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* parent):
-	QDialog(parent),
-	_editor(editor)
+PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* parent)
+    : QDialog(parent), _editor(editor)
 {
 	setWindowTitle(tr("Time format help"));
 
@@ -40,15 +39,17 @@ PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* 
 	_ts_validate = new QTextEdit();
 
 	QFontMetrics m(_tfs_edit->font());
-	_tfs_edit->setFixedHeight(6*m.lineSpacing());
-	_ts_validate->setFixedHeight(6*m.lineSpacing());
-	_ts_interpreted->setFixedHeight(6*m.lineSpacing());
+	_tfs_edit->setFixedHeight(6 * m.lineSpacing());
+	_ts_validate->setFixedHeight(6 * m.lineSpacing());
+	_ts_interpreted->setFixedHeight(6 * m.lineSpacing());
 
 	_validator_hl = new PVTimeValidatorHighLight(_ts_validate);
 	_validate_btn = new QPushButton(tr("Validate..."));
-	QCheckBox* auto_validate_chkbox = new QCheckBox(tr("Auto-validate when time format is changed"));
+	QCheckBox* auto_validate_chkbox =
+	    new QCheckBox(tr("Auto-validate when time format is changed"));
 	connect(_validate_btn, SIGNAL(clicked()), this, SLOT(validate_time_strings()));
-	connect(auto_validate_chkbox, SIGNAL(stateChanged(int)), this, SLOT(activate_auto_validation(int)));
+	connect(auto_validate_chkbox, SIGNAL(stateChanged(int)), this,
+	        SLOT(activate_auto_validation(int)));
 
 	connect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(time_formats_changed()));
 	connect(_ts_validate, SIGNAL(textChanged()), this, SLOT(time_strings_changed()));
@@ -61,14 +62,17 @@ PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* 
 	QGridLayout* bottom_layout = new QGridLayout();
 	bottom_layout->addWidget(new QLabel(tr("Time format:\n(enter one per line)"), this), 0, 0);
 	bottom_layout->addWidget(_tfs_edit, 1, 0);
-	bottom_layout->addWidget(new QLabel(tr("Enter time strings in order to validate your time format:"), this), 0, 1);
+	bottom_layout->addWidget(
+	    new QLabel(tr("Enter time strings in order to validate your time format:"), this), 0, 1);
 	bottom_layout->addWidget(_ts_validate, 1, 1);
-	bottom_layout->addWidget(new QLabel(tr("Interpreted time strings (using current locale):"), this), 2, 1);
+	bottom_layout->addWidget(
+	    new QLabel(tr("Interpreted time strings (using current locale):"), this), 2, 1);
 	bottom_layout->addWidget(_ts_interpreted, 3, 1);
 	bottom_layout->addWidget(auto_validate_chkbox, 4, 1);
 	bottom_layout->addWidget(_validate_btn, 5, 1);
 
-	QDialogButtonBox* dlg_btns = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
+	QDialogButtonBox* dlg_btns =
+	    new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
 	connect(dlg_btns, SIGNAL(accepted()), this, SLOT(update_tf_to_editor()));
 	connect(dlg_btns, SIGNAL(accepted()), this, SLOT(hide()));
 	connect(dlg_btns, SIGNAL(rejected()), this, SLOT(hide()));
@@ -87,9 +91,10 @@ PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* 
 
 void PVWidgets::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
 {
-  txt->setReadOnly(true);
-  txt->document()->setDefaultStyleSheet("td {\nbackground-color:#ffe6bb;\n}\nbody{\nbackground-color:#fcffc4;\n}\n");
-  QString html=QString("<body>\
+	txt->setReadOnly(true);
+	txt->document()->setDefaultStyleSheet(
+	    "td {\nbackground-color:#ffe6bb;\n}\nbody{\nbackground-color:#fcffc4;\n}\n");
+	QString html = QString("<body>\
   <big><b>Help for the time format</b></big><br/>\
   sample :<br/>\
   MMM/d/yyyy H:m:ss<br/><br/>\
@@ -132,8 +137,8 @@ void PVWidgets::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
   </table>\
   <br /><strong>Note:</strong>&nbsp;Any text that should be in the time format but not treated as special characters must be inside quotes (e.g. m'mn' s's')\
   </body>");
-  
-  txt->setHtml(html);
+
+	txt->setHtml(html);
 }
 
 void PVWidgets::PVTimeFormatHelpDlg::time_formats_changed()
@@ -154,9 +159,12 @@ void PVWidgets::PVTimeFormatHelpDlg::time_strings_changed()
 	// AG: it is really important to initalize this QString with an empty string
 	// and not only by doin `QString txt'. Indeed, the first variant initalize QString's
 	// internal data (with a malloc). If this is not done, the first string added in the following
-	// for loop will not be copied into the final buffer, because QString will make an alias of the QString
-	// created by QString::fromRawData (which is clever). Then, when the next string is added, it will try
-	// to make a deep-copy of the previous string, but this odes ot exist as it was hold by the previous UnicodeString
+	// for loop will not be copied into the final buffer, because QString will make an alias of the
+	// QString
+	// created by QString::fromRawData (which is clever). Then, when the next string is added, it
+	// will try
+	// to make a deep-copy of the previous string, but this odes ot exist as it was hold by the
+	// previous UnicodeString
 	// object.
 	// Here we are..
 	QString txt("");
@@ -171,7 +179,7 @@ void PVWidgets::PVTimeFormatHelpDlg::time_strings_changed()
 			UnicodeString str;
 			FieldPosition pos = 0;
 			sdf->format(*cal, str, pos);
-			txt += QString::fromRawData((const QChar*) str.getBuffer(), str.length());
+			txt += QString::fromRawData((const QChar*)str.getBuffer(), str.length());
 		}
 		txt += "\n";
 		cal->clear();
@@ -196,10 +204,10 @@ void PVWidgets::PVTimeFormatHelpDlg::activate_auto_validation(int state)
 {
 	_auto_validate = state == Qt::Checked;
 	if (_auto_validate) {
-		connect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(validate_time_strings()), Qt::UniqueConnection);
+		connect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(validate_time_strings()),
+		        Qt::UniqueConnection);
 		_validate_btn->setEnabled(false);
-	}
-	else {
+	} else {
 		disconnect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(validate_time_strings()));
 		_validate_btn->setEnabled(true);
 	}
@@ -214,7 +222,8 @@ void PVWidgets::PVTimeFormatHelpDlg::validate_time_strings()
 	_validator_hl->set_time_format(_tfs_edit->toPlainText());
 	_validator_hl->rehighlight();
 	if (auto_validate) {
-		connect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(validate_time_strings()), Qt::UniqueConnection);
+		connect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(validate_time_strings()),
+		        Qt::UniqueConnection);
 	}
 
 	if (!_auto_validate) {
@@ -226,13 +235,11 @@ void PVWidgets::PVTimeFormatHelpDlg::validate_time_strings()
 // PVTimeValidatorHighLight implementation
 //
 
-PVWidgets::PVTimeValidatorHighLight::PVTimeValidatorHighLight(QTextEdit* parent):
-	QSyntaxHighlighter(parent),
-	_cur_parser(NULL),
-	_format_has_changed(true)
+PVWidgets::PVTimeValidatorHighLight::PVTimeValidatorHighLight(QTextEdit* parent)
+    : QSyntaxHighlighter(parent), _cur_parser(NULL), _format_has_changed(true)
 {
-    _format_match.setBackground(QColor("#00FF00"));
-    _format_no_match.setBackground(QColor("#FF0000"));
+	_format_match.setBackground(QColor("#00FF00"));
+	_format_no_match.setBackground(QColor("#FF0000"));
 	_format_changed.setBackground(QColor("#F0F0F0"));
 }
 
@@ -251,7 +258,8 @@ void PVWidgets::PVTimeValidatorHighLight::format_changed()
 
 void PVWidgets::PVTimeValidatorHighLight::set_time_format(QString const& str)
 {
-	const QStringList& tf = QString(str).replace("epoch.S", "epoch").replace("epochS", "epoch").split("\n");
+	const QStringList& tf =
+	    QString(str).replace("epoch.S", "epoch").replace("epochS", "epoch").split("\n");
 
 	if (_cur_parser != NULL) {
 		if (_cur_parser->original_time_formats() == tf) {

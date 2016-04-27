@@ -12,8 +12,8 @@
 
 class QComboBox;
 
-
-namespace PVRush {
+namespace PVRush
+{
 
 /**
  * \class PVImportFileDialog
@@ -22,21 +22,19 @@ namespace PVRush {
  */
 class PVImportFileDialog : public QFileDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
-public:
-	PVImportFileDialog(QStringList pluginslist, QWidget *parent = 0);
+  public:
+	PVImportFileDialog(QStringList pluginslist, QWidget* parent = 0);
 
 	/**
 	 * Open the FileDialog and return list of selected file with selected format.
 	 */
 	QStringList getFileNames(QString& treat_as);
 
-private:
-	QComboBox *treat_as_combobox; //!< Combo box with formats.
-
+  private:
+	QComboBox* treat_as_combobox; //!< Combo box with formats.
 };
 }
 
 #endif // PVIMPORTFILEDIALOG_H
-

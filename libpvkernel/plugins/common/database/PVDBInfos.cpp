@@ -13,7 +13,9 @@ PVRush::PVDBInfos::PVDBInfos()
 {
 }
 
-PVRush::PVDBInfos::PVDBInfos(QString const& type, QString const& host, uint16_t port, QString const& username, QString const& password, QString const& dbname, QString const& options)
+PVRush::PVDBInfos::PVDBInfos(QString const& type, QString const& host, uint16_t port,
+                             QString const& username, QString const& password,
+                             QString const& dbname, QString const& options)
 {
 	set_type(type);
 	set_host(host);
@@ -26,7 +28,8 @@ PVRush::PVDBInfos::PVDBInfos(QString const& type, QString const& host, uint16_t 
 
 QString PVRush::PVDBInfos::database_name() const
 {
-	return _type + QString("://") + _username + QString("@") + _host + QString(":") + QString::number(_port);
+	return _type + QString("://") + _username + QString("@") + _host + QString(":") +
+	       QString::number(_port);
 }
 
 PVRush::PVDBServ::PVDBServ(PVDBInfos const& infos)
@@ -65,8 +68,7 @@ bool PVRush::PVDBServ::connect()
 	bool ret = _db.open();
 	if (ret) {
 		PVLOG_DEBUG("Connection successful.\n");
-	}
-	else {
+	} else {
 		PVLOG_DEBUG("Connection error: %s.\n", qPrintable(last_error()));
 	}
 	return ret;
@@ -74,7 +76,8 @@ bool PVRush::PVDBServ::connect()
 
 QString PVRush::PVDBServ::last_error() const
 {
-	return _db.lastError().databaseText() + " " + _db.lastError().driverText() + " " + QString::number(_db.lastError().number());
+	return _db.lastError().databaseText() + " " + _db.lastError().driverText() + " " +
+	       QString::number(_db.lastError().number());
 }
 
 QSqlDatabase PVRush::PVDBServ::to_database()
@@ -82,7 +85,8 @@ QSqlDatabase PVRush::PVDBServ::to_database()
 	return _db;
 }
 
-void PVRush::PVDBInfos::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void PVRush::PVDBInfos::serialize(PVCore::PVSerializeObject& so,
+                                  PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.attribute("host", _host);
 	so.attribute("username", _username);

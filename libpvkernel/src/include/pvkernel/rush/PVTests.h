@@ -19,9 +19,9 @@ struct PVTests
 {
 	/*! \brief Normalize a file with the given format
 	 */
-	static bool get_file_sc(PVInputDescription_p file, PVRush::PVFormat const& format, PVSourceCreator_p &sc);
+	static bool get_file_sc(PVInputDescription_p file, PVRush::PVFormat const& format,
+	                        PVSourceCreator_p& sc);
 };
-
 }
 
 #endif

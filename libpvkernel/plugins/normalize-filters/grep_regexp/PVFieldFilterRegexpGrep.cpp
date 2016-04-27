@@ -7,14 +7,13 @@
 
 #include "PVFieldFilterRegexpGrep.h"
 
-
 /******************************************************************************
  *
  * PVFilter::PVFieldFilterRegexpGrepg::PVFieldFilterGrep
  *
  *****************************************************************************/
-PVFilter::PVFieldFilterRegexpGrep::PVFieldFilterRegexpGrep(PVCore::PVArgumentList const& args) :
-	PVFilter::PVFieldsFilter<PVFilter::one_to_one>()
+PVFilter::PVFieldFilterRegexpGrep::PVFieldFilterRegexpGrep(PVCore::PVArgumentList const& args)
+    : PVFilter::PVFieldsFilter<PVFilter::one_to_one>()
 {
 	INIT_FILTER(PVFilter::PVFieldFilterRegexpGrep, args);
 }
@@ -54,7 +53,7 @@ PVCore::PVField& PVFilter::PVFieldFilterRegexpGrep::one_to_one(PVCore::PVField& 
 	std::cmatch base_match;
 	bool found = std::regex_search<const char*>(field.begin(), field.end(), base_match, _rx);
 	found |= base_match.size() > 1;
-	if (not (found ^ _inverse)) {
+	if (not(found ^ _inverse)) {
 		field.set_invalid();
 	}
 	return field;

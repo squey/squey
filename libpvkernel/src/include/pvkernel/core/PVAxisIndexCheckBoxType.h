@@ -14,15 +14,16 @@
 #include <QMetaType>
 #include <QStringList>
 
-namespace PVCore {
+namespace PVCore
+{
 
 /**
  * \class PVAxisIndexCheckBoxType
  */
 class PVAxisIndexCheckBoxType : public PVArgumentType<PVAxisIndexCheckBoxType>
 {
-	
-public:
+
+  public:
 	/**
 	 * Constructor
 	 */
@@ -36,7 +37,7 @@ public:
 
 	QString to_string() const
 	{
-		return QString::number(_origin_axis_index) + ":" + QString(_is_checked?"true":"false");
+		return QString::number(_origin_axis_index) + ":" + QString(_is_checked ? "true" : "false");
 	}
 	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
 	{
@@ -45,8 +46,8 @@ public:
 
 		QStringList parts = str.split(":");
 		if (parts.count() == 2) {
-			int  origin_axis_index ;
-			bool is_checked ;
+			int origin_axis_index;
+			bool is_checked;
 			origin_axis_index = parts[0].toInt(&res_ok);
 			is_checked = parts[1].compare("true", Qt::CaseInsensitive) == 0;
 			arg.setValue(PVAxisIndexCheckBoxType(origin_axis_index, is_checked));
@@ -58,21 +59,20 @@ public:
 
 		return arg;
 	}
-	bool operator==(const PVAxisIndexCheckBoxType &other) const
+	bool operator==(const PVAxisIndexCheckBoxType& other) const
 	{
-		return _origin_axis_index == other._origin_axis_index && _is_checked == other._is_checked ;
+		return _origin_axis_index == other._origin_axis_index && _is_checked == other._is_checked;
 	}
 
-protected:
+  protected:
 	// The original axis index will never change. PVAxisCombination takes care of any
 	// axis addition/order modification, but will never change the original axis index.
-	int  _origin_axis_index;
+	int _origin_axis_index;
 	bool _is_checked;
 };
 }
 
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(PVCore::PVAxisIndexCheckBoxType)
-
 
 #endif // PVCORE_PVAXISINDEXCHECKBOXTYPE_H

@@ -21,27 +21,26 @@
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
-namespace PVCore {
-
-enum DecimalType {
-	IntegerType = 0,
-	UnsignedIntegerType,
-	FloatType
-};
-
-namespace __impl {
-
-template <size_t storage_bits>
-class PVDecimalStorageBase
+namespace PVCore
 {
-	protected:
-	static_assert((1<<(boost::static_log2<storage_bits>::value) == storage_bits) && (storage_bits <= 64), "PVCore::PVDecimalStorage: storage_bits must be a power of 2, and <= 64.");
+
+enum DecimalType { IntegerType = 0, UnsignedIntegerType, FloatType };
+
+namespace __impl
+{
+
+template <size_t storage_bits> class PVDecimalStorageBase
+{
+  protected:
+	static_assert((1 << (boost::static_log2<storage_bits>::value) == storage_bits) &&
+	                  (storage_bits <= 64),
+	              "PVCore::PVDecimalStorage: storage_bits must be a power of 2, and <= 64.");
 
 	typedef typename boost::uint_t<storage_bits>::exact uint_type;
 	typedef typename boost::int_t<storage_bits>::exact int_type;
 	typedef uint_type storage_type;
 
-public:
+  public:
 	uint_type& storage_as_uint() { return _v; }
 	uint_type const& storage_as_uint() const { return _v; }
 
@@ -73,100 +72,131 @@ public:
 	}
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, uint_type>::value, T>::type& storage_cast() { return storage_as_uint(); };
+	typename std::enable_if<std::is_same<T, uint_type>::value, T>::type& storage_cast()
+	{
+		return storage_as_uint();
+	};
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, int_type>::value, T>::type&  storage_cast() { return storage_as_int(); };
+	typename std::enable_if<std::is_same<T, int_type>::value, T>::type& storage_cast()
+	{
+		return storage_as_int();
+	};
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, uint_type>::value, T>::type const& storage_cast() const { return storage_as_uint(); };
+	typename std::enable_if<std::is_same<T, uint_type>::value, T>::type const& storage_cast() const
+	{
+		return storage_as_uint();
+	};
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, int_type>::value, T>::type const&  storage_cast() const { return storage_as_int(); };
+	typename std::enable_if<std::is_same<T, int_type>::value, T>::type const& storage_cast() const
+	{
+		return storage_as_int();
+	};
 
 	inline bool operator<(PVDecimalStorageBase const& o) const { return _v < o._v; }
 	inline bool operator==(PVDecimalStorageBase const& o) const { return _v == o._v; }
 
-public:
+  public:
 	template <typename C, typename... P>
-	static auto call_from_type(DecimalType const type, P && ... params) -> decltype(C::template call<int_type>(params...))
+	static auto call_from_type(DecimalType const type, P&&... params)
+	    -> decltype(C::template call<int_type>(params...))
 	{
 		switch (type) {
-			case IntegerType:
-				return C::template call<int_type>(std::forward<P>(params)...);
-			case UnsignedIntegerType:
-				return C::template call<uint_type>(std::forward<P>(params)...);
-			default:
-				assert(false);
+		case IntegerType:
+			return C::template call<int_type>(std::forward<P>(params)...);
+		case UnsignedIntegerType:
+			return C::template call<uint_type>(std::forward<P>(params)...);
+		default:
+			assert(false);
 		}
 
 		return decltype(C::template call<int_type>(params...))();
 	}
 
-protected:
+  protected:
 	storage_type _v;
 };
-
 }
 
 template <size_t storage_bits>
-class PVDecimalStorage: public __impl::PVDecimalStorageBase<storage_bits>
+class PVDecimalStorage : public __impl::PVDecimalStorageBase<storage_bits>
 {
 	typedef typename __impl::PVDecimalStorageBase<storage_bits>::storage_type storage_type;
-	static_assert(sizeof(PVDecimalStorage<storage_bits>) == sizeof(storage_type), "PVDecimalStorage has an invalid size !");
+	static_assert(sizeof(PVDecimalStorage<storage_bits>) == sizeof(storage_type),
+	              "PVDecimalStorage has an invalid size !");
 };
 
-template <>
-class PVDecimalStorage<32>: public __impl::PVDecimalStorageBase<32>
+template <> class PVDecimalStorage<32> : public __impl::PVDecimalStorageBase<32>
 {
 	typedef __impl::PVDecimalStorageBase<32> base_type;
 	typedef base_type::storage_type storage_type;
 
 	static_assert(sizeof(float) == sizeof(storage_type), "float isn't stored on 32 bits !");
 
-public:
+  public:
 	float& storage_as_float() { return *(reinterpret_cast<float*>(&_v)); }
 	float const& storage_as_float() const { return *(reinterpret_cast<float const*>(&_v)); }
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, float>::value == true,  T>::type& storage_cast() { return storage_as_float(); };
+	typename std::enable_if<std::is_same<T, float>::value == true, T>::type& storage_cast()
+	{
+		return storage_as_float();
+	};
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, float>::value == false, T>::type& storage_cast() { return base_type::template storage_cast<T>(); }
+	typename std::enable_if<std::is_same<T, float>::value == false, T>::type& storage_cast()
+	{
+		return base_type::template storage_cast<T>();
+	}
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, float>::value == true,  T>::type const& storage_cast() const { return storage_as_float(); };
+	typename std::enable_if<std::is_same<T, float>::value == true, T>::type const&
+	storage_cast() const
+	{
+		return storage_as_float();
+	};
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, float>::value == false, T>::type const& storage_cast() const { return base_type::template storage_cast<T>(); }
+	typename std::enable_if<std::is_same<T, float>::value == false, T>::type const&
+	storage_cast() const
+	{
+		return base_type::template storage_cast<T>();
+	}
 
-	template <typename T, typename std::enable_if<std::is_same<T, float>::value == true,  int>::type = 0>
+	template <typename T,
+	          typename std::enable_if<std::is_same<T, float>::value == true, int>::type = 0>
 	void set_max()
 	{
 		storage_as_float() = std::numeric_limits<float>::max();
 	}
 
-	template <typename T, typename std::enable_if<std::is_same<T, float>::value == false, int>::type = 0>
+	template <typename T,
+	          typename std::enable_if<std::is_same<T, float>::value == false, int>::type = 0>
 	void set_max()
 	{
 		base_type::set_max<T>();
 	}
 
-	template <typename T, typename std::enable_if<std::is_same<T, float>::value == true,  int>::type = 0>
+	template <typename T,
+	          typename std::enable_if<std::is_same<T, float>::value == true, int>::type = 0>
 	void set_min()
 	{
 		storage_as_float() = std::numeric_limits<float>::min();
 	}
 
-	template <typename T, typename std::enable_if<std::is_same<T, float>::value == false, int>::type = 0>
+	template <typename T,
+	          typename std::enable_if<std::is_same<T, float>::value == false, int>::type = 0>
 	void set_min()
 	{
 		base_type::set_min<T>();
 	}
 
-public:
+  public:
 	template <typename C, typename... P>
-	static auto call_from_type(DecimalType const type, P && ... params) -> decltype(C::template call<int_type>(params...))
+	static auto call_from_type(DecimalType const type, P&&... params)
+	    -> decltype(C::template call<int_type>(params...))
 	{
 		if (type == FloatType) {
 			return C::template call<float>(std::forward<P>(params)...);
@@ -174,35 +204,48 @@ public:
 
 		return base_type::call_from_type<C>(type, std::forward<P>(params)...);
 	}
-
 };
 
-template <>
-class PVDecimalStorage<64>: public __impl::PVDecimalStorageBase<64>
+template <> class PVDecimalStorage<64> : public __impl::PVDecimalStorageBase<64>
 {
 	typedef __impl::PVDecimalStorageBase<64> base_type;
 	typedef typename base_type::storage_type storage_type;
 	static_assert(sizeof(double) == sizeof(storage_type), "double isn't stored on 64 bits !");
 
-public:
+  public:
 	double& storage_as_float() { return *(reinterpret_cast<double*>(&_v)); }
 	double const& storage_as_float() const { return *(reinterpret_cast<double const*>(&_v)); }
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, double>::value == true,  T>::type& storage_cast() { return storage_as_float(); };
+	typename std::enable_if<std::is_same<T, double>::value == true, T>::type& storage_cast()
+	{
+		return storage_as_float();
+	};
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, double>::value == false, T>::type& storage_cast() { return base_type::template storage_cast<T>(); }
+	typename std::enable_if<std::is_same<T, double>::value == false, T>::type& storage_cast()
+	{
+		return base_type::template storage_cast<T>();
+	}
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, double>::value == true,  T>::type const& storage_cast() const { return storage_as_float(); };
+	typename std::enable_if<std::is_same<T, double>::value == true, T>::type const&
+	storage_cast() const
+	{
+		return storage_as_float();
+	};
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, double>::value == false, T>::type const& storage_cast() const { return base_type::template storage_cast<T>(); }
+	typename std::enable_if<std::is_same<T, double>::value == false, T>::type const&
+	storage_cast() const
+	{
+		return base_type::template storage_cast<T>();
+	}
 
-public:
+  public:
 	template <typename C, typename... P>
-	static auto call_from_type(DecimalType const type, P && ... params) -> decltype(C::template call<int_type>(params...))
+	static auto call_from_type(DecimalType const type, P&&... params)
+	    -> decltype(C::template call<int_type>(params...))
 	{
 		if (type == FloatType) {
 			return C::template call<double>(std::forward<P>(params)...);
@@ -211,17 +254,17 @@ public:
 		return base_type::call_from_type<C>(type, std::forward<P>(params)...);
 	}
 };
-
 }
 
-namespace std {
-template<size_t storage_bits>
-class hash<PVCore::PVDecimalStorage<storage_bits> > {
-public:
-    size_t operator()(const PVCore::PVDecimalStorage<storage_bits> &s) const
-    {
-        return s.storage_as_uint();
-    }
+namespace std
+{
+template <size_t storage_bits> class hash<PVCore::PVDecimalStorage<storage_bits>>
+{
+  public:
+	size_t operator()(const PVCore::PVDecimalStorage<storage_bits>& s) const
+	{
+		return s.storage_as_uint();
+	}
 };
 }
 

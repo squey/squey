@@ -23,30 +23,32 @@
 #include <pvkernel/widgets/PVPresetsWidget.h>
 #include "PVDBPresets.h"
 
-namespace PVRush {
+namespace PVRush
+{
 
 class PVInputTypeDatabase;
 
-class PVDatabaseParamsWidget: public QDialog, private Ui::DbParams
+class PVDatabaseParamsWidget : public QDialog, private Ui::DbParams
 {
 	Q_OBJECT
 
-public:
-	PVDatabaseParamsWidget(PVInputTypeDatabase const* in_t, PVRush::hash_formats const& formats, QWidget* parent);
+  public:
+	PVDatabaseParamsWidget(PVInputTypeDatabase const* in_t, PVRush::hash_formats const& formats,
+	                       QWidget* parent);
 	~PVDatabaseParamsWidget();
 
-public:
+  public:
 	void get_dbinfos(PVDBInfos& infos);
 	QString get_query();
 	bool is_format_custom() { return _radio_new_format->isChecked(); };
 	QString get_existing_format();
 	QDomDocument get_custom_format() { return _new_format_doc; };
 
-protected:
+  protected:
 	void populate_presets();
 	PVDBPresets::id_t get_current_preset_id();
 
-public slots:
+  public slots:
 	void preset_new_Slot(const QString& name);
 	void preset_load_Slot(const QString& name);
 	void preset_save_Slot(const QString& name);
@@ -60,7 +62,7 @@ public slots:
 	void use_existing_format_toggle_Slot(bool toggle);
 	void browse_sqlite_Slot();
 
-protected:
+  protected:
 	bool set_dbinfos(PVDBInfos const& infos);
 	void set_query(QString const& query);
 	bool select_type(QString const& qt_type);
@@ -72,23 +74,22 @@ protected:
 	void show_odbc();
 	static void show_layout_children(const QLayout* layout, bool show);
 
-protected:
+  protected:
 	PVWidgets::PVPresetsWidget* _presets_widget;
 	QSettings _settings;
 	int64_t _last_load_preset;
 	PVInputTypeDatabase const* _in_t;
 
-protected:
+  protected:
 	QPushButton* _btn_sqlite_browse;
 
-protected:
+  protected:
 	// New XML format created from the database fields
 	QDomDocument _new_format_doc;
 
-private:
+  private:
 	QFileDialog _file_dlg;
 };
-
 }
 
 #endif

@@ -47,7 +47,8 @@ int main()
 		} else if (it2.key() == "test") {
 			continue;
 		} else {
-			std::cout << "where does the key '" << qPrintable(it2.key()) << "' come from" << std::endl;
+			std::cout << "where does the key '" << qPrintable(it2.key()) << "' come from"
+			          << std::endl;
 			return 1;
 		}
 	}

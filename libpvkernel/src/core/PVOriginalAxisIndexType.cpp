@@ -13,7 +13,8 @@ PVCore::PVOriginalAxisIndexType::PVOriginalAxisIndexType(bool /*append_none_axis
 	_origin_axis_index = -1;
 }
 
-PVCore::PVOriginalAxisIndexType::PVOriginalAxisIndexType(int origin_axis_index, bool append_none_axis)
+PVCore::PVOriginalAxisIndexType::PVOriginalAxisIndexType(int origin_axis_index,
+                                                         bool append_none_axis)
 {
 	_origin_axis_index = origin_axis_index;
 	_append_none_axis = append_none_axis;

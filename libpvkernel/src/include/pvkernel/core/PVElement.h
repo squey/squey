@@ -21,29 +21,35 @@
 
 namespace PVRush
 {
-	class PVNraw;
+class PVNraw;
 }
 
-namespace PVCore {
+namespace PVCore
+{
 
 class PVChunk;
 
-typedef std::list<PVField, PVPreAllocatedListAllocator<PVField, tbb::scalable_allocator<PVField> > > list_fields;
-//typedef std::list<PVField, tbb::tbb_allocator<PVField> > list_fields;
-//typedef std::list<PVField> list_fields;
+typedef std::list<PVField, PVPreAllocatedListAllocator<PVField, tbb::scalable_allocator<PVField>>>
+    list_fields;
+// typedef std::list<PVField, tbb::tbb_allocator<PVField> > list_fields;
+// typedef std::list<PVField> list_fields;
 
-
-class PVElement : public PVBufferSlice {
+class PVElement : public PVBufferSlice
+{
 	friend class PVField;
 	friend class PVChunk;
-public:
+
+  public:
 	PVElement(PVChunk* parent, char* begin, char* end);
 	PVElement(PVChunk* parent);
-public:
+
+  public:
 	PVElement(PVElement const& src);
-public:
+
+  public:
 	virtual ~PVElement();
-public:
+
+  public:
 	bool valid() const;
 	void set_invalid();
 	void set_parent(PVChunk* parent);
@@ -61,7 +67,7 @@ public:
 
 	buf_list_t& realloc_bufs();
 
-public:
+  public:
 	// Element allocation and deallocation
 	static inline PVElement* construct(PVChunk* parent, char* begin, char* end)
 	{
@@ -82,26 +88,28 @@ public:
 		_alloc.destroy(elt);
 		_alloc.deallocate(elt, 1);
 	}
-protected:
+
+  protected:
 	// Set by the parent PVChunk
 	void set_chunk_index(size_t i) { _chunk_index = i; }
 	void init_fields(void* fields_buf, size_t size_buf);
-private:
+
+  private:
 	void init(PVChunk* parent);
-protected:
+
+  protected:
 	bool _valid;
 	list_fields _fields;
-	PVChunk *_parent;
+	PVChunk* _parent;
 	buf_list_t _reallocated_buffers; // buf_list_t defined in PVBufferSlice.h
 	char* _org_buf;
 	size_t _org_buf_size;
 	size_t _chunk_index;
 
-private:
- 	static tbb::scalable_allocator<PVElement> _alloc;
-	//static std::allocator<PVElement> _alloc;
+  private:
+	static tbb::scalable_allocator<PVElement> _alloc;
+	// static std::allocator<PVElement> _alloc;
 };
-
 }
 
 #endif

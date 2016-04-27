@@ -19,41 +19,39 @@ class QPushButton;
 
 class FileNameSelectorWidget : public QWidget
 {
-    Q_OBJECT
-public:
-    explicit FileNameSelectorWidget( QWidget * parent = 0 );
-    ~FileNameSelectorWidget();
-    QString text() const;
-    void setText(const QString&);
+	Q_OBJECT
+  public:
+	explicit FileNameSelectorWidget(QWidget* parent = 0);
+	~FileNameSelectorWidget();
+	QString text() const;
+	void setText(const QString&);
 
-private slots:
-    void slotPathChanged();
+  private slots:
+	void slotPathChanged();
 
-private:
-    QLineEdit *m_path;
-    QPushButton *m_selectPath;
-    QFileDialog _file_dlg;
+  private:
+	QLineEdit* m_path;
+	QPushButton* m_selectPath;
+	QFileDialog _file_dlg;
 };
 
 class LOGVIEWER_EXPORT FileConnectionDialog : public QDialog
 {
-    Q_OBJECT
-public:
-    explicit FileConnectionDialog( QWidget *parent );
-    ~FileConnectionDialog();
+	Q_OBJECT
+  public:
+	explicit FileConnectionDialog(QWidget* parent);
+	~FileConnectionDialog();
 
-    RegisteredFile registeredFileSettings() const;
+	RegisteredFile registeredFileSettings() const;
 
-    void initialize( const RegisteredFile&registered, const QString& hostname );
-private slots:
-    void slotTextChanged( const QString&text );
-    void slotProtocolChanged( int index );
+	void initialize(const RegisteredFile& registered, const QString& hostname);
+  private slots:
+	void slotTextChanged(const QString& text);
+	void slotProtocolChanged(int index);
 
-private:
-    class FileConnectionDialogPrivate;
-    FileConnectionDialogPrivate* d;
+  private:
+	class FileConnectionDialogPrivate;
+	FileConnectionDialogPrivate* d;
 };
 
-
 #endif /* FILECONNECTIONDIALOG_H */
-

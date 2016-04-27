@@ -22,8 +22,7 @@ int main(int argc, char** argv)
 	bool ret = is_archive(file);
 	if (ret) {
 		std::cout << file.toUtf8().constData() << " is an archive." << std::endl;
-	}
-	else {
+	} else {
 		std::cout << file.toUtf8().constData() << " isn't an archive." << std::endl;
 	}
 	return 0;

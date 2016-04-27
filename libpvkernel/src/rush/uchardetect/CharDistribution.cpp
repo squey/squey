@@ -44,68 +44,67 @@
 #include <pvkernel/rush/uchardetect/GB2312Freq.tab>
 
 #define SURE_YES 0.99f
-#define SURE_NO  0.01f
+#define SURE_NO 0.01f
 
-#define MINIMUM_DATA_THRESHOLD  4
+#define MINIMUM_DATA_THRESHOLD 4
 
-//return confidence base on received data
+// return confidence base on received data
 float CharDistributionAnalysis::GetConfidence()
-{ 
-  //if we didn't receive any character in our consideration range, or the
-  //number of frequent characters is below the minimum threshold, return
-  // negative answer
-  if (mTotalChars <= 0 || mFreqChars <= MINIMUM_DATA_THRESHOLD)
-    return SURE_NO;
+{
+	// if we didn't receive any character in our consideration range, or the
+	// number of frequent characters is below the minimum threshold, return
+	// negative answer
+	if (mTotalChars <= 0 || mFreqChars <= MINIMUM_DATA_THRESHOLD)
+		return SURE_NO;
 
-  if (mTotalChars != mFreqChars) {
-    float r = mFreqChars / ((mTotalChars - mFreqChars) * mTypicalDistributionRatio);
+	if (mTotalChars != mFreqChars) {
+		float r = mFreqChars / ((mTotalChars - mFreqChars) * mTypicalDistributionRatio);
 
-    if (r < SURE_YES)
-      return r;
-  }
-  //normalize confidence, (we don't want to be 100% sure)
-  return SURE_YES;
+		if (r < SURE_YES)
+			return r;
+	}
+	// normalize confidence, (we don't want to be 100% sure)
+	return SURE_YES;
 }
 
 EUCTWDistributionAnalysis::EUCTWDistributionAnalysis()
 {
-  mCharToFreqOrder = EUCTWCharToFreqOrder;
-  mTableSize = EUCTW_TABLE_SIZE;
-  mTypicalDistributionRatio = EUCTW_TYPICAL_DISTRIBUTION_RATIO;
+	mCharToFreqOrder = EUCTWCharToFreqOrder;
+	mTableSize = EUCTW_TABLE_SIZE;
+	mTypicalDistributionRatio = EUCTW_TYPICAL_DISTRIBUTION_RATIO;
 }
 
 EUCKRDistributionAnalysis::EUCKRDistributionAnalysis()
 {
-  mCharToFreqOrder = EUCKRCharToFreqOrder;
-  mTableSize = EUCKR_TABLE_SIZE;
-  mTypicalDistributionRatio = EUCKR_TYPICAL_DISTRIBUTION_RATIO;
+	mCharToFreqOrder = EUCKRCharToFreqOrder;
+	mTableSize = EUCKR_TABLE_SIZE;
+	mTypicalDistributionRatio = EUCKR_TYPICAL_DISTRIBUTION_RATIO;
 }
 
 GB2312DistributionAnalysis::GB2312DistributionAnalysis()
 {
-  mCharToFreqOrder = GB2312CharToFreqOrder;
-  mTableSize = GB2312_TABLE_SIZE;
-  mTypicalDistributionRatio = GB2312_TYPICAL_DISTRIBUTION_RATIO;
+	mCharToFreqOrder = GB2312CharToFreqOrder;
+	mTableSize = GB2312_TABLE_SIZE;
+	mTypicalDistributionRatio = GB2312_TYPICAL_DISTRIBUTION_RATIO;
 }
 
 Big5DistributionAnalysis::Big5DistributionAnalysis()
 {
-  mCharToFreqOrder = Big5CharToFreqOrder;
-  mTableSize = BIG5_TABLE_SIZE;
-  mTypicalDistributionRatio = BIG5_TYPICAL_DISTRIBUTION_RATIO;
+	mCharToFreqOrder = Big5CharToFreqOrder;
+	mTableSize = BIG5_TABLE_SIZE;
+	mTypicalDistributionRatio = BIG5_TYPICAL_DISTRIBUTION_RATIO;
 }
 
 SJISDistributionAnalysis::SJISDistributionAnalysis()
 {
-  mCharToFreqOrder = JISCharToFreqOrder;
-  mTableSize = JIS_TABLE_SIZE;
-  mTypicalDistributionRatio = JIS_TYPICAL_DISTRIBUTION_RATIO;
+	mCharToFreqOrder = JISCharToFreqOrder;
+	mTableSize = JIS_TABLE_SIZE;
+	mTypicalDistributionRatio = JIS_TYPICAL_DISTRIBUTION_RATIO;
 }
 
 EUCJPDistributionAnalysis::EUCJPDistributionAnalysis()
 {
-  mCharToFreqOrder = JISCharToFreqOrder;
-  mTableSize = JIS_TABLE_SIZE;
-  mTypicalDistributionRatio = JIS_TYPICAL_DISTRIBUTION_RATIO;
+	mCharToFreqOrder = JISCharToFreqOrder;
+	mTableSize = JIS_TABLE_SIZE;
+	mTypicalDistributionRatio = JIS_TYPICAL_DISTRIBUTION_RATIO;
 }
-

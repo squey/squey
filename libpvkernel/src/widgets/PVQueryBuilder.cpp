@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -30,15 +30,18 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
-PVWidgets::PVQueryBuilder::PVQueryBuilder(QWidget* parent /*= nullptr*/) : QWidget(parent),
+PVWidgets::PVQueryBuilder::PVQueryBuilder(QWidget* parent /*= nullptr*/)
+    : QWidget(parent)
+    ,
 #ifdef QT_WEBKIT
-	_view(new QWebView)
+    _view(new QWebView)
 #else
-	_view(new QWebEngineView)
+    _view(new QWebEngineView)
 #endif
 {
 	// Javascript content must be executed on the main Qt thread to avoid crashs
-	connect(this, SIGNAL(run_javascript_signal(const QString&, QString*)), this, SLOT(run_javascript_slot(const QString&, QString*)));
+	connect(this, SIGNAL(run_javascript_signal(const QString&, QString*)), this,
+	        SLOT(run_javascript_slot(const QString&, QString*)));
 
 	reinit();
 }
@@ -46,7 +49,7 @@ PVWidgets::PVQueryBuilder::PVQueryBuilder(QWidget* parent /*= nullptr*/) : QWidg
 static std::string get_query_builder_path()
 {
 	const char* path = getenv("QUERY_BUILDER_PATH");
-	if(path) {
+	if (path) {
 		return path;
 	}
 	return INENDI_QUERY_BUILDER;
@@ -95,14 +98,10 @@ void PVWidgets::PVQueryBuilder::set_filters(const std::string& filters)
 	// plugins
 	rapidjson::Value json_plugins(rapidjson::kArrayType);
 	std::vector<std::string> plugins = {
-		"bt-tooltip-errors",
-		//"sortable", // doesn't seem to be supported by Qt for the moment
-		"filter-description",
-		"unique-filter",
-		"bt-tooltip-errors",
-		"bt-selectpicker",
-		"bt-checkbox"
-	};
+	    "bt-tooltip-errors",
+	    //"sortable", // doesn't seem to be supported by Qt for the moment
+	    "filter-description", "unique-filter", "bt-tooltip-errors",
+	    "bt-selectpicker",    "bt-checkbox"};
 	for (const std::string& plugin : plugins) {
 		rapidjson::Value json_plugin;
 		json_plugin.SetString(plugin.c_str(), json.GetAllocator());
@@ -162,16 +161,12 @@ void PVWidgets::PVQueryBuilder::set_filters(const columns_t& columns)
 
 void PVWidgets::PVQueryBuilder::set_rules(const std::string& rules)
 {
-	run_javascript(
-		"$('#querybuilder').queryBuilder('setRules', " + rules + ");"
-	);
+	run_javascript("$('#querybuilder').queryBuilder('setRules', " + rules + ");");
 }
 
 void PVWidgets::PVQueryBuilder::reset_rules()
 {
-	run_javascript(
-		"$('#querybuilder').queryBuilder('reset');"
-	);
+	run_javascript("$('#querybuilder').queryBuilder('reset');");
 
 	workaround_qwebengine_refresh_bug();
 }
@@ -180,23 +175,22 @@ std::string PVWidgets::PVQueryBuilder::get_rules() const
 {
 	std::string result;
 
-	run_javascript(
-		"var obj = document.activeElement;"
-		"if (obj) {"
-		"	var event = new Event('change');"
-		"	obj.dispatchEvent(event);"
-		"}"
-		"var result = $('#querybuilder').queryBuilder('getRules');"
-		"if (!$.isEmptyObject(result)) {"
-		"	JSON.stringify(result, null, 2);"
-		"}",
-		&result
-	);
+	run_javascript("var obj = document.activeElement;"
+	               "if (obj) {"
+	               "	var event = new Event('change');"
+	               "	obj.dispatchEvent(event);"
+	               "}"
+	               "var result = $('#querybuilder').queryBuilder('getRules');"
+	               "if (!$.isEmptyObject(result)) {"
+	               "	JSON.stringify(result, null, 2);"
+	               "}",
+	               &result);
 
 	return result;
 }
 
-void PVWidgets::PVQueryBuilder::run_javascript(const std::string& javascript, std::string* result /*= nullptr*/) const
+void PVWidgets::PVQueryBuilder::run_javascript(const std::string& javascript,
+                                               std::string* result /*= nullptr*/) const
 {
 	QString r;
 
@@ -207,7 +201,7 @@ void PVWidgets::PVQueryBuilder::run_javascript(const std::string& javascript, st
 	// Yet another new trick to run asynchronous code synchronously
 	if (not _javascript_executed) {
 		std::unique_lock<std::mutex> lck(_mutex);
-		_cv.wait(lck, [&](){ return _javascript_executed == true; });
+		_cv.wait(lck, [&]() { return _javascript_executed == true; });
 	}
 
 	if (result) {
@@ -215,7 +209,8 @@ void PVWidgets::PVQueryBuilder::run_javascript(const std::string& javascript, st
 	}
 }
 
-void PVWidgets::PVQueryBuilder::run_javascript_slot(const QString& javascript, QString* result /*= nullptr*/) const
+void PVWidgets::PVQueryBuilder::run_javascript_slot(const QString& javascript,
+                                                    QString* result /*= nullptr*/) const
 {
 	QVariant r;
 
@@ -224,12 +219,10 @@ void PVWidgets::PVQueryBuilder::run_javascript_slot(const QString& javascript, Q
 #else
 	QEventLoop loop;
 
-	_view->page()->runJavaScript(javascript, [&](const QVariant& res)
-		{
-			r = res;
-			emit loop.quit();
-		}
-	);
+	_view->page()->runJavaScript(javascript, [&](const QVariant& res) {
+		r = res;
+		emit loop.quit();
+	});
 
 	loop.exec(); // Trick to run asynchronous code synchronously
 #endif
@@ -254,8 +247,8 @@ void PVWidgets::PVQueryBuilder::workaround_qwebengine_refresh_bug()
 #ifndef QT_WEBKIT
 	// Really really really ugly hack to workaround QWebEngine refresh bug
 	if (_view) {
-		_view->resize(_view->width() +1, _view->height() +1);
-		_view->resize(_view->width() -1, _view->height() -1);
+		_view->resize(_view->width() + 1, _view->height() + 1);
+		_view->resize(_view->width() - 1, _view->height() - 1);
 	}
 #endif
 }

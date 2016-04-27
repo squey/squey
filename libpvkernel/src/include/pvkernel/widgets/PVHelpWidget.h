@@ -15,7 +15,7 @@ namespace PVWidgets
 
 class PVHelpWidget : public PVTextPopupWidget
 {
-public:
+  public:
 	PVHelpWidget(QWidget* parent);
 
 	/**
@@ -29,7 +29,7 @@ public:
 	 */
 	bool is_close_key(int key) override;
 
-public:
+  public:
 	/**
 	 * test if key is one of the help keys
 	 *
@@ -39,7 +39,6 @@ public:
 	 */
 	static bool is_help_key(int key);
 };
-
 }
 
 #endif // PVWIDGETS_PVHELPWIDGET_H

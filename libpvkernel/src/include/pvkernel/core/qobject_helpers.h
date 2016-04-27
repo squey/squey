@@ -10,7 +10,8 @@
 
 #include <QObject>
 
-namespace PVCore {
+namespace PVCore
+{
 
 /**
  * Search for a widget which can be cast to T* in the family tree of a widget.
@@ -28,8 +29,8 @@ typename std::remove_pointer<T>::type* get_qobject_hierarchy_of_type(QObject* se
 		return nullptr;
 	}
 
-	QObject* o = test_self?self:self->parent();
-	while(o) {
+	QObject* o = test_self ? self : self->parent();
+	while (o) {
 		pointer o_cast = dynamic_cast<pointer>(o);
 		if (o_cast) {
 			return o_cast;
@@ -49,7 +50,6 @@ typename std::remove_pointer<T>::type* get_qobject_parent_of_type(QObject* self)
 {
 	return get_qobject_hierarchy_of_type<T>(self, false);
 }
-
 }
 
 #endif

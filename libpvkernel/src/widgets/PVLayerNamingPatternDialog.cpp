@@ -21,9 +21,8 @@
 PVWidgets::PVLayerNamingPatternDialog::PVLayerNamingPatternDialog(const QString& title,
                                                                   const QString& text,
                                                                   const QString& pattern,
-                                                                  insert_mode m,
-                                                                  QWidget* parent) :
-	QDialog(parent)
+                                                                  insert_mode m, QWidget* parent)
+    : QDialog(parent)
 {
 	setWindowTitle(title);
 
@@ -31,7 +30,8 @@ PVWidgets::PVLayerNamingPatternDialog::PVLayerNamingPatternDialog(const QString&
 	setLayout(vlayout);
 
 	// the explaination text
-	QLabel* label = new QLabel(text + "; substitution form:\n%l: current layer's name\n%a: axis' name\n%v: comma separated values");
+	QLabel* label = new QLabel(text + "; substitution form:\n%l: current layer's name\n%a: axis' "
+	                                  "name\n%v: comma separated values");
 	vlayout->addWidget(label);
 
 	// the pattern edit
@@ -53,7 +53,8 @@ PVWidgets::PVLayerNamingPatternDialog::PVLayerNamingPatternDialog(const QString&
 	hlayout->addWidget(_combo_box);
 
 	// the button box
-	QDialogButtonBox* button_box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	QDialogButtonBox* button_box =
+	    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 	connect(button_box, SIGNAL(accepted()), this, SLOT(accept()));
 	connect(button_box, SIGNAL(rejected()), this, SLOT(reject()));
 

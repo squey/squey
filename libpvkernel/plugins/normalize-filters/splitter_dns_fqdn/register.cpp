@@ -18,7 +18,8 @@
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("dns_fqdn", PVFilter::PVFieldSplitterDnsFqdn);
-	REGISTER_CLASS_AS("splitter_dns_fqdn", PVFilter::PVFieldSplitterDnsFqdn, PVFilter::PVFieldsFilterReg);
+	REGISTER_CLASS_AS("splitter_dns_fqdn", PVFilter::PVFieldSplitterDnsFqdn,
+	                  PVFilter::PVFieldsFilterReg);
 
 	REGISTER_CLASS("dns_fqdn", PVFilter::PVFieldSplitterDnsFqdnParamWidget);
 }

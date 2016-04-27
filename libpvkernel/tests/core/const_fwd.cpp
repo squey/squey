@@ -18,7 +18,7 @@ struct A
 	bool is_const() { return false; }
 	bool is_const() const { return true; }
 
-	operator std::string () const
+	operator std::string() const
 	{
 		std::stringstream ret;
 		ret << std::string("class A(") << this << ")";
@@ -26,15 +26,15 @@ struct A
 	}
 };
 
-
-std::ostream& operator << (std::ostream& o, const A& a)
+std::ostream& operator<<(std::ostream& o, const A& a)
 {
 	o << std::string(a);
 	return o;
 }
 
-
-class B { };
+class B
+{
+};
 
 int main()
 {

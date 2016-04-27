@@ -20,7 +20,9 @@
 
 void debug_qstringlist(QStringList list);
 
-/* #define INENDI_ENTERING_DEBUG inendi_debug(INENDI_DEBUG_DEBUG, "==> Entering %s...\n", __FUNCTION__); */
-/* #define INENDI_LEAVING_DEBUG inendi_debug(INENDI_DEBUG_DEBUG, "<== Leaving %s...\n", __FUNCTION__); */
+/* #define INENDI_ENTERING_DEBUG inendi_debug(INENDI_DEBUG_DEBUG, "==> Entering %s...\n",
+ * __FUNCTION__); */
+/* #define INENDI_LEAVING_DEBUG inendi_debug(INENDI_DEBUG_DEBUG, "<== Leaving %s...\n",
+ * __FUNCTION__); */
 
-#endif	/* PVCORE_DEBUG_H */
+#endif /* PVCORE_DEBUG_H */

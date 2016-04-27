@@ -25,13 +25,13 @@ constexpr static size_t nb_dup = 1;
 static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/splitters/mac/mac";
 static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/mac/mac.out";
 
-
 int main()
 {
 	pvtest::TestSplitter ts(log_file, nb_dup);
 
 	// Prepare splitter plugin
-	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("mac_address");
+	PVFilter::PVFieldsSplitter::p_type sp_lib_p =
+	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("mac_address");
 
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());

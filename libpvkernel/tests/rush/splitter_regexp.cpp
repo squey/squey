@@ -22,19 +22,24 @@ constexpr static size_t nb_dup = 100;
 constexpr static size_t nb_dup = 1;
 #endif
 
-static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/splitters/regexp/squid.log.1000";
-static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/regexp/squid.log.1000.out";
-
+static constexpr const char* log_file =
+    TEST_FOLDER "/pvkernel/rush/splitters/regexp/squid.log.1000";
+static constexpr const char* ref_file =
+    TEST_FOLDER "/pvkernel/rush/splitters/regexp/squid.log.1000.out";
 
 int main()
 {
 	pvtest::TestSplitter ts(log_file, nb_dup);
 
 	// Prepare splitter plugin
-	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
+	PVFilter::PVFieldsSplitter::p_type sp_lib_p =
+	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
 
 	PVCore::PVArgumentList args;
-	args["regexp"] = PVCore::PVArgument(QString("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/_-]+([0-9]+)\\s+[0-9]+\\s+(GET|POST|PUT|OPTIONS)\\s+(\\S+)\\s+(\\S+)\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)"));
+	args["regexp"] =
+	    PVCore::PVArgument(QString("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/"
+	                               "_-]+([0-9]+)\\s+[0-9]+\\s+(GET|POST|PUT|OPTIONS)\\s+(\\S+)\\s+("
+	                               "\\S+)\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)"));
 	args["full-line"] = false;
 	sp_lib_p->set_args(args);
 

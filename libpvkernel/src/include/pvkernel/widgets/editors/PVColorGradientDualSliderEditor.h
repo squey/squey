@@ -13,8 +13,8 @@
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 #include <pvkernel/widgets/PVColorPicker.h>
 
-
-namespace PVWidgets {
+namespace PVWidgets
+{
 class PVMainWindow;
 
 /**
@@ -23,19 +23,19 @@ class PVMainWindow;
 class PVColorGradientDualSliderEditor : public PVColorPicker
 {
 	Q_OBJECT
-	Q_PROPERTY(PVCore::PVColorGradientDualSliderType _color_slider READ get_values WRITE set_values USER true)
+	Q_PROPERTY(PVCore::PVColorGradientDualSliderType _color_slider READ get_values WRITE set_values
+	               USER true)
 
-public:
+  public:
 	/**
 	 * Constructor
 	 */
-	PVColorGradientDualSliderEditor(QWidget *parent = 0);
+	PVColorGradientDualSliderEditor(QWidget* parent = 0);
 
-public:
+  public:
 	PVCore::PVColorGradientDualSliderType get_values() const;
 	void set_values(PVCore::PVColorGradientDualSliderType v);
 };
-
 }
 
 #endif // PVColorGradientDualSliderEditor_H

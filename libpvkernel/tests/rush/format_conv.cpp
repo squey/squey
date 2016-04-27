@@ -21,8 +21,9 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// Read a format, convert it to the last vversion and dump its XML content + its internal representation
-	
+	// Read a format, convert it to the last vversion and dump its XML content + its internal
+	// representation
+
 	QFile f(argv[1]);
 	if (!f.open(QIODevice::ReadOnly)) {
 		std::cerr << "Unable to open " << argv[1] << std::endl;

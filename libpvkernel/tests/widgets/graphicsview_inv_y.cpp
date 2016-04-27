@@ -17,9 +17,9 @@
 #define HEIGHT 1024
 #define STEP 16
 
-class EventFilter: public QObject
+class EventFilter : public QObject
 {
-protected:
+  protected:
 	bool eventFilter(QObject* obj, QEvent* ev)
 	{
 		if (ev->type() == QEvent::Wheel) {
@@ -28,8 +28,7 @@ protected:
 			if (wev->modifiers() == Qt::AltModifier) {
 				if (wev->delta() > 0) {
 					scale *= 1.2;
-				}
-				else {
+				} else {
 					scale /= 1.2;
 				}
 				QTransform tscale;
@@ -42,7 +41,7 @@ protected:
 		return QObject::eventFilter(obj, ev);
 	}
 
-public:
+  public:
 	QTransform inv_y;
 	double scale;
 };
@@ -60,18 +59,18 @@ int main(int argc, char** argv)
 
 	PVWidgets::PVGraphicsView* view = new PVWidgets::PVGraphicsView(new QGraphicsScene());
 	QGraphicsScene* scene = view->get_scene();
-	//QGraphicsScene* scene = new QGraphicsScene();
-	//QGraphicsView* view = new QGraphicsView();
+	// QGraphicsScene* scene = new QGraphicsScene();
+	// QGraphicsView* view = new QGraphicsView();
 
 	scene->setItemIndexMethod(QGraphicsScene::NoIndex);
 	for (size_t y = 0; y < height; y += step) {
 		QGraphicsLineItem* item = new QGraphicsLineItem(0, y, 1024, y);
-		const double r = (double)y/(double)height;
-		item->setPen(QColor(r * 255.0, (1.0-r)*255.0, (1.0-r)*255.0));
+		const double r = (double)y / (double)height;
+		item->setPen(QColor(r * 255.0, (1.0 - r) * 255.0, (1.0 - r) * 255.0));
 		scene->addItem(item);
 	}
 
-	//view->setScene(scene);
+	// view->setScene(scene);
 
 	qDebug() << scene->sceneRect();
 
@@ -80,7 +79,7 @@ int main(int argc, char** argv)
 	inv_y.scale(1.0, -1.0);
 
 	EventFilter* evf = new EventFilter();
-	evf->scale = 8192.0/(double)height;
+	evf->scale = 8192.0 / (double)height;
 	evf->inv_y = inv_y;
 
 	QTransform scale;

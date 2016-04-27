@@ -8,20 +8,20 @@
 #include <pvkernel/core/PVCompList.h>
 #include <pvkernel/core/PVTimeFormatType.h>
 
-namespace PVCore {
+namespace PVCore
+{
 
-template <>
-bool comp_list(QList<PVArgument> const& l1, QList<PVArgument> const& l2)
+template <> bool comp_list(QList<PVArgument> const& l1, QList<PVArgument> const& l2)
 {
 	if (l1.size() != l2.size()) {
 		return false;
 	}
 
-	QList<QVariant>::const_iterator it1,it2;
+	QList<QVariant>::const_iterator it1, it2;
 	it1 = l1.begin();
 	it2 = l2.begin();
 
-for (; it1 != l1.end(); it1++) {
+	for (; it1 != l1.end(); it1++) {
 		QVariant const& v1 = *it1;
 		QVariant const& v2 = *it2;
 
@@ -31,9 +31,7 @@ for (; it1 != l1.end(); it1++) {
 			if (!v1b->is_equal(*v2b)) {
 				return false;
 			}
-		}
-		else
-		if (v1 != v2) {
+		} else if (v1 != v2) {
 			return false;
 		}
 		it2++;
@@ -53,14 +51,16 @@ bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h
 		if (it2 == h2.end()) {
 			return false;
 		}
-		if (it1->value().userType() >= QMetaType::User && it1->value().userType() == it2->value().userType()) { // custom type
-			const PVArgumentTypeBase* v1 = static_cast<const PVArgumentTypeBase*>(it1->value().constData());
-			const PVArgumentTypeBase* v2 = static_cast<const PVArgumentTypeBase*>(it2->value().constData());
+		if (it1->value().userType() >= QMetaType::User &&
+		    it1->value().userType() == it2->value().userType()) { // custom type
+			const PVArgumentTypeBase* v1 =
+			    static_cast<const PVArgumentTypeBase*>(it1->value().constData());
+			const PVArgumentTypeBase* v2 =
+			    static_cast<const PVArgumentTypeBase*>(it2->value().constData());
 			if (!v1->is_equal(*v2)) {
 				return false;
 			}
-		}
-		else if (it1->value() != it2->value()) {
+		} else if (it1->value() != it2->value()) {
 			return false;
 		}
 	}
@@ -68,7 +68,8 @@ bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h
 	return true;
 }
 
-bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2, const PVCore::PVArgumentKeyList& keys)
+bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2,
+               const PVCore::PVArgumentKeyList& keys)
 {
 	foreach (PVCore::PVArgumentKey key, keys) {
 		PVCore::PVArgument arg1 = h1.at(key);
@@ -78,19 +79,18 @@ bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h
 			return false;
 		}
 
-		if (arg1.userType() >= QMetaType::User && arg1.userType() == arg2.userType()) { // custom type
+		if (arg1.userType() >= QMetaType::User &&
+		    arg1.userType() == arg2.userType()) { // custom type
 			const PVArgumentTypeBase* v1 = static_cast<const PVArgumentTypeBase*>(arg1.constData());
 			const PVArgumentTypeBase* v2 = static_cast<const PVArgumentTypeBase*>(arg2.constData());
 			if (!v1->is_equal(*v2)) {
 				return false;
 			}
-		}
-		else if (arg1 != arg2) {
+		} else if (arg1 != arg2) {
 			return false;
 		}
 	}
 
 	return true;
 }
-
 }

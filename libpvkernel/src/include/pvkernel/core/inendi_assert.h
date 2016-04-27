@@ -29,38 +29,32 @@ namespace __impl
 /* A convenient way to print a list of heterogeneous values.
  * ::print_with_comma() must never be called (obvious reason).
  */
-template <typename... P>
-struct va_printer
+template <typename... P> struct va_printer
 {
 	static void print() {}
 };
 
-template <typename N, typename V, typename... P>
-struct va_printer<N, V, P...>
+template <typename N, typename V, typename... P> struct va_printer<N, V, P...>
 {
-	static void print_with_comma(const N &name, const V &value, P... p) {
+	static void print_with_comma(const N& name, const V& value, P... p)
+	{
 		std::cerr << ", " << name << "=" << value;
 		va_printer<P...>::print_with_comma(p...);
 	}
 
-	static void print(const N &name, const V &value, P... p) {
+	static void print(const N& name, const V& value, P... p)
+	{
 		std::cerr << name << "=" << value;
 		va_printer<P...>::print_with_comma(p...);
 	}
 };
 
-
-template <>
-struct va_printer<>
+template <> struct va_printer<>
 {
-	static void print_with_comma() {
-	}
+	static void print_with_comma() {}
 
-	static void print() {
-	}
+	static void print() {}
 };
-
-
 }
 
 /**
@@ -101,12 +95,9 @@ struct va_printer<>
  * @param expected the expression's expected value
  */
 
-template <typename T>
-void printer(const char* expr, const T& value, const T& expected)
+template <typename T> void printer(const char* expr, const T& value, const T& expected)
 {
-	std::cerr << std::boolalpha << expr
-	          << " = " << value
-	          << " (expected: " << expected << ")"
+	std::cerr << std::boolalpha << expr << " = " << value << " (expected: " << expected << ")"
 	          << std::noboolalpha << std::endl;
 }
 
@@ -146,14 +137,14 @@ void printer(const char* expr, const T& value, const T& expected)
  *
  * @return true if @a value matchs @a expected, false otherwise
  */
-template <typename T>
-bool checker(const T& value, const T& expected)
+template <typename T> bool checker(const T& value, const T& expected)
 {
 	return value == expected;
 }
 
 /**
- * @fn void validate(const char* file, int line, const char* expr, const T& value, const T& expected, const bool print_info_anytime, P... p)
+ * @fn void validate(const char* file, int line, const char* expr, const T& value, const T&
+ *expected, const bool print_info_anytime, P... p)
  *
  * @brief entry point function for assertion and unit tests.
  *
@@ -169,10 +160,12 @@ bool checker(const T& value, const T& expected)
  * @param expected the expression's expected value
  * @param print_info_anytime to tell if @a expr, @a value, and @a expected must be printed whatever
  * the result of comparison between @a value and @a expected or only when the test fails
- * @param p... extra parameters to be displayed when an error occurs, the list must be presented as follow: param1's name, param1's value, ..., paramN's name, paramN's value.
+ * @param p... extra parameters to be displayed when an error occurs, the list must be presented as
+ *follow: param1's name, param1's value, ..., paramN's name, paramN's value.
  */
 template <typename T, typename... P>
-void validate(const char* file, int line, const char* expr, const T& value, const T& expected, const bool print_info_anytime, P... p)
+void validate(const char* file, int line, const char* expr, const T& value, const T& expected,
+              const bool print_info_anytime, P... p)
 {
 	if (print_info_anytime) {
 		printer<T>(expr, value, expected);
@@ -183,7 +176,7 @@ void validate(const char* file, int line, const char* expr, const T& value, cons
 		}
 
 		std::cerr << file << ":" << line << ": statement fails";
-		if(sizeof...(P) != 0) {
+		if (sizeof...(P) != 0) {
 			std::cerr << " with ";
 			__impl::va_printer<P...>::print(p...);
 		}
@@ -192,7 +185,6 @@ void validate(const char* file, int line, const char* expr, const T& value, cons
 		exit(1);
 	}
 }
-
 }
 
 /**
@@ -202,7 +194,8 @@ void validate(const char* file, int line, const char* expr, const T& value, cons
  * program exits on error printing the expression, the expression's value, the
  * expected value, and the error's line and file.
  */
-#define PV_VALID(EXPR, EXPECTED_VALUE, ...) PVAssert::validate(__FILE__, __LINE__, #EXPR, (EXPR), (EXPECTED_VALUE), false, ##__VA_ARGS__)
+#define PV_VALID(EXPR, EXPECTED_VALUE, ...)                                                        \
+	PVAssert::validate(__FILE__, __LINE__, #EXPR, (EXPR), (EXPECTED_VALUE), false, ##__VA_ARGS__)
 
 /**
  * @def PV_VALID_P(expr, expected_value, ...)
@@ -211,12 +204,14 @@ void validate(const char* file, int line, const char* expr, const T& value, cons
  * the expression's value differs from the expected value, exits printing the
  * error's line and file
  */
-#define PV_VALID_P(EXPR, EXPECTED_VALUE, ...) PVAssert::validate(__FILE__, __LINE__, #EXPR, (EXPR), (EXPECTED_VALUE), true, ##__VA_ARGS__)
+#define PV_VALID_P(EXPR, EXPECTED_VALUE, ...)                                                      \
+	PVAssert::validate(__FILE__, __LINE__, #EXPR, (EXPR), (EXPECTED_VALUE), true, ##__VA_ARGS__)
 
 /**
  * @def PV_ASSERT_VALID(expr, ...)
  * An equivalent of #PV_VALID (expr, true, ...)
 */
-#define PV_ASSERT_VALID(EXPR, ...) PVAssert::validate(__FILE__, __LINE__, #EXPR, (EXPR), true, false, ##__VA_ARGS__)
+#define PV_ASSERT_VALID(EXPR, ...)                                                                 \
+	PVAssert::validate(__FILE__, __LINE__, #EXPR, (EXPR), true, false, ##__VA_ARGS__)
 
 #endif // PVCORE_INENDIASSERT_H

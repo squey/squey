@@ -25,32 +25,32 @@ class B;
 class C;
 class D;
 
-#define PVSERIALIZEOBJECT_SPLIT\
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)\
-	{\
-		so.split(*this);\
-	}\
+#define PVSERIALIZEOBJECT_SPLIT                                                                    \
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)     \
+	{                                                                                              \
+		so.split(*this);                                                                           \
+	}
 
 typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, B> data_tree_a_t;
 class A : public data_tree_a_t
 {
 
-public:
-	A(int i = 0):
-		data_tree_a_t(),
-		_i(i)
-	{}
+  public:
+	A(int i = 0) : data_tree_a_t(), _i(i) {}
 
-public:
+  public:
 	virtual ~A() {}
 
-public:
+  public:
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const { return QString("A: ") + QString::number(get_i()); }
+	virtual QString get_serialize_description() const
+	{
+		return QString("A: ") + QString::number(get_i());
+	}
 
-private:
+  private:
 	int _i;
 };
 
@@ -59,46 +59,45 @@ class B : public data_tree_b_t
 {
 	friend class A;
 
-public:
-	B(int i = 0):
-		data_tree_b_t(),
-		_i(i)
-   	{}
+  public:
+	B(int i = 0) : data_tree_b_t(), _i(i) {}
 
-public:
+  public:
 	virtual ~B() {}
 
-public:
+  public:
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const { return QString("B: ") + QString::number(get_i()); }
+	virtual QString get_serialize_description() const
+	{
+		return QString("B: ") + QString::number(get_i());
+	}
 
-private:
+  private:
 	int _i;
 };
-
 
 typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
 class C : public data_tree_c_t
 {
 
-public:
-	C(int i = 0):
-		data_tree_c_t(),
-		_i(i)
-	{ }
+  public:
+	C(int i = 0) : data_tree_c_t(), _i(i) {}
 
-public:
+  public:
 	virtual ~C() {}
 
-public:
+  public:
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const { return QString("C: ") + QString::number(get_i()); }
+	virtual QString get_serialize_description() const
+	{
+		return QString("C: ") + QString::number(get_i());
+	}
 
-private:
+  private:
 	int _i;
 };
 
@@ -106,22 +105,22 @@ typedef typename PVCore::PVDataTreeObject<C, PVCore::PVDataTreeNoChildren<D>> da
 class D : public data_tree_d_t
 {
 
-public:
-	D(int i = 0):
-		data_tree_d_t(),
-		_i(i)
-   	{ }
+  public:
+	D(int i = 0) : data_tree_d_t(), _i(i) {}
 
-public:
+  public:
 	virtual ~D() {}
 
-public:
+  public:
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const { return QString("D: ") + QString::number(get_i()); }
+	virtual QString get_serialize_description() const
+	{
+		return QString("D: ") + QString::number(get_i());
+	}
 
-private:
+  private:
 	int _i;
 };
 
@@ -132,22 +131,20 @@ typedef typename D::p_type D_p;
 
 typedef PVWidgets::PVDataTreeMaskProxyModel<C> proxy_model_t;
 
-void print_model_index(const QModelIndex &index)
+void print_model_index(const QModelIndex& index)
 {
-	PVCore::PVDataTreeObjectBase *object
-		= static_cast<PVCore::PVDataTreeObjectBase*>(index.internalPointer());
+	PVCore::PVDataTreeObjectBase* object =
+	    static_cast<PVCore::PVDataTreeObjectBase*>(index.internalPointer());
 
 	if (index.isValid() && (object != nullptr)) {
-		std::cout << "(" << index.row() << "," << index.column()
-		          << "," << qPrintable(object->get_serialize_description())
-		          << ")";
+		std::cout << "(" << index.row() << "," << index.column() << ","
+		          << qPrintable(object->get_serialize_description()) << ")";
 	} else {
 		std::cout << "(" << index.row() << "," << index.column() << ",0)";
 	}
 }
 
-void print_proxy_tree(const QAbstractItemModel &m,
-                      const QModelIndex index = QModelIndex(),
+void print_proxy_tree(const QAbstractItemModel& m, const QModelIndex index = QModelIndex(),
                       const int decal = 0)
 {
 	for (int i = 0; i < decal; ++i) {
@@ -220,7 +217,7 @@ int main(int argc, char** argv)
 	std::cout << "MODEL" << std::endl;
 	print_proxy_tree(*model);
 
-	proxy_model_t *proxy = new proxy_model_t();
+	proxy_model_t* proxy = new proxy_model_t();
 	proxy->setSourceModel(model);
 
 	std::cout << "MASK PROXY(C)" << std::endl;

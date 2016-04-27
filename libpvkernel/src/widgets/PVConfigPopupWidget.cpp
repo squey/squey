@@ -18,9 +18,8 @@
  * PVWidgets::PVConfigPopupWidget::PVConfigPopupWidget
  *****************************************************************************/
 
-PVWidgets::PVConfigPopupWidget::PVConfigPopupWidget(QWidget* parent,
-                                                    bool persistent) :
-	PVWidgets::PVPopupWidget::PVPopupWidget(parent)
+PVWidgets::PVConfigPopupWidget::PVConfigPopupWidget(QWidget* parent, bool persistent)
+    : PVWidgets::PVPopupWidget::PVPopupWidget(parent)
 {
 	QVBoxLayout* vbox = new QVBoxLayout();
 	vbox->setContentsMargins(0, 0, 0, 0);
@@ -37,8 +36,7 @@ PVWidgets::PVConfigPopupWidget::PVConfigPopupWidget(QWidget* parent,
 	_pers_button->setCheckable(true);
 	_pers_button->setFixedSize(16, 16);
 
-	connect(_pers_button, SIGNAL(toggled(bool)),
-	        this, SLOT(setPersistence(bool)));
+	connect(_pers_button, SIGNAL(toggled(bool)), this, SLOT(setPersistence(bool)));
 	hbox->addWidget(_pers_button);
 
 	setPersistence(persistent);

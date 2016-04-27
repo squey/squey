@@ -9,13 +9,13 @@
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 
-PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(version_t v):
-	PVSerializeArchive(v)
+PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(version_t v) : PVSerializeArchive(v)
 {
 }
 
-PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(QString const& zip_path, archive_mode mode, version_t v):
-	PVSerializeArchive(v)
+PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(QString const& zip_path, archive_mode mode,
+                                                     version_t v)
+    : PVSerializeArchive(v)
 {
 	open_zip(zip_path, mode);
 }

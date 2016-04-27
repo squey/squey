@@ -17,40 +17,38 @@
 
 #include <pvkernel/widgets/qkeysequencewidget.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldSplitterDnsFqdnParamWidget: public PVFieldsSplitterParamWidget
+class PVFieldSplitterDnsFqdnParamWidget : public PVFieldsSplitterParamWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVFieldSplitterDnsFqdnParamWidget();
 
-	size_t force_number_children()
-	{
-		return 0;
-	}
-public:
+	size_t force_number_children() { return 0; }
+
+  public:
 	QAction* get_action_menu();
 	QWidget* get_param_widget();
 
-private:
+  private:
 	void update_args(PVCore::PVArgumentList& args);
 
-private slots:
+  private slots:
 	void split_cb_changed(int state);
 	void rev_cb_changed(int state);
 
-private:
-	QAction*   _action_menu;
-	QWidget*   _param_widget;
+  private:
+	QAction* _action_menu;
+	QWidget* _param_widget;
 	QCheckBox* _split_cb[6];
 	QCheckBox* _rev_cb[3];
 
-private:
+  private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterDnsFqdnParamWidget)
 };
-
 }
 
 #endif // PVFIELDSPLITTERDNSFQDNPARAMWIDGET_H

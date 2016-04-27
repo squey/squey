@@ -12,15 +12,18 @@
 #include <pvkernel/core/PVBufferSlice.h>
 #include <pvkernel/core/PVDecimalStorage.h>
 
-namespace PVCore {
+namespace PVCore
+{
 
 class PVElement;
 
-class PVField : public PVBufferSlice {
-public:
+class PVField : public PVBufferSlice
+{
+  public:
 	PVField(PVElement& parent, char* begin, char* end);
 	PVField(PVElement& parent);
-public:
+
+  public:
 	bool valid() const;
 	void set_invalid();
 	PVElement* elt_parent();
@@ -28,13 +31,14 @@ public:
 	void deep_copy();
 	size_t get_index_of_parent_element();
 	size_t get_agg_index_of_parent_element();
-private:
+
+  private:
 	void init(PVElement& parent);
-protected:
+
+  protected:
 	bool _valid;
 	PVElement* _parent;
 };
-
 }
 
 #endif

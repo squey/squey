@@ -22,42 +22,60 @@
 #include <EXTERN.h>
 #include <perl.h>
 
-namespace PVRush {
+namespace PVRush
+{
 
-class PVPerlSource: public PVRawSourceBase {
-public:
+class PVPerlSource : public PVRawSourceBase
+{
+  public:
 	PVPerlSource(PVInputDescription_p input, size_t min_chunk_size, const QString& perl_file);
 	virtual ~PVPerlSource();
-public:
+
+  public:
 	virtual QString human_name();
 	virtual void seek_begin();
 	virtual bool seek(input_offset /*off*/) { return false; }
 	virtual void prepare_for_nelts(chunk_index nelts);
 	virtual PVCore::PVChunk* operator()();
-	virtual input_offset get_input_offset_from_index(chunk_index /*idx*/, chunk_index& /*known_idx*/) {return 0;}
-public:
+	virtual input_offset get_input_offset_from_index(chunk_index /*idx*/,
+	                                                 chunk_index& /*known_idx*/)
+	{
+		return 0;
+	}
+
+  public:
 	virtual func_type f() { return boost::bind<PVCore::PVChunk*>(&PVPerlSource::operator(), this); }
-protected:
+
+  protected:
 	QString _perl_file;
 	input_offset _start;
 	size_t _min_chunk_size;
 	chunk_index _next_index;
-private:
-	PerlInterpreter *my_perl;
+
+  private:
+	PerlInterpreter* my_perl;
 };
 
-class PVPerlFormatInvalid: public PVFormatInvalid
+class PVPerlFormatInvalid : public PVFormatInvalid
 {
-public:
-	PVPerlFormatInvalid(QString const& file) : PVFormatInvalid(QObject::tr("Unable to parse %1").arg(file).toStdString()) {}
+  public:
+	PVPerlFormatInvalid(QString const& file)
+	    : PVFormatInvalid(QObject::tr("Unable to parse %1").arg(file).toStdString())
+	{
+	}
 };
 
-class PVPerlExecException: public PVFormatInvalid
+class PVPerlExecException : public PVFormatInvalid
 {
-public:
-	PVPerlExecException(QString const& file, char* msg) : PVFormatInvalid(QObject::tr("Error in Perl file %1: %2").arg(file).arg(QString::fromLocal8Bit(msg)).toStdString()) {}
+  public:
+	PVPerlExecException(QString const& file, char* msg)
+	    : PVFormatInvalid(QObject::tr("Error in Perl file %1: %2")
+	                          .arg(file)
+	                          .arg(QString::fromLocal8Bit(msg))
+	                          .toStdString())
+	{
+	}
 };
-
 }
 
 #endif

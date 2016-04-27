@@ -12,25 +12,26 @@
 
 #include <map>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
 /**
  * This is a filter which doesn't change the PVChunk but save invalid elements
  * in the QStringList set at contruct time.
  */
-class PVChunkFilterDumpElts : public PVChunkFilter {
+class PVChunkFilterDumpElts : public PVChunkFilter
+{
 
-public:
+  public:
 	PVChunkFilterDumpElts(std::map<size_t, std::string>& l);
 
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 
-protected:
+  protected:
 	std::map<size_t, std::string>& _l; //!< List with invlaid elements.
 
 	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterDumpElts)
 };
-
 }
 
 #endif

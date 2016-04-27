@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -24,7 +24,8 @@ PVRush::PVSplunkInfos::PVSplunkInfos(PVSplunkInfos const& infos)
 	_splunk_sourcetype = infos._splunk_sourcetype;
 }
 
-void PVRush::PVSplunkInfos::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void PVRush::PVSplunkInfos::serialize(PVCore::PVSerializeObject& so,
+                                      PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.attribute("host", _host);
 	so.attribute("port", _port);

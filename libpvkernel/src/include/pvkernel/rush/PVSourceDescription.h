@@ -19,25 +19,15 @@ namespace PVRush
 
 class PVSourceDescription
 {
-public:
+  public:
 	typedef typename PVCore::PVSharedPtr<PVSourceDescription> shared_pointer;
 
-public:
-	PVSourceDescription() :
-		_inputs(),
-		_source_creator_p(),
-		_format()
-	{
-	}
+  public:
+	PVSourceDescription() : _inputs(), _source_creator_p(), _format() {}
 
-	PVSourceDescription(
-		const PVRush::PVInputType::list_inputs& inputs,
-		PVRush::PVSourceCreator_p source_creator_p,
-		const PVRush::PVFormat& format
-	) :
-		_inputs(inputs),
-		_source_creator_p(source_creator_p),
-		_format(format)
+	PVSourceDescription(const PVRush::PVInputType::list_inputs& inputs,
+	                    PVRush::PVSourceCreator_p source_creator_p, const PVRush::PVFormat& format)
+	    : _inputs(inputs), _source_creator_p(source_creator_p), _format(format)
 	{
 	}
 
@@ -45,7 +35,10 @@ public:
 	bool operator!=(const PVSourceDescription& other) const { return !operator==(other); }
 
 	void set_inputs(const PVRush::PVInputType::list_inputs inputs) { _inputs = inputs; }
-	void set_source_creator(PVRush::PVSourceCreator_p source_creator_p) { _source_creator_p = source_creator_p; }
+	void set_source_creator(PVRush::PVSourceCreator_p source_creator_p)
+	{
+		_source_creator_p = source_creator_p;
+	}
 	void set_format(PVRush::PVFormat format) { _format = format; }
 	bool is_valid();
 
@@ -53,12 +46,11 @@ public:
 	PVRush::PVSourceCreator_p get_source_creator() const { return _source_creator_p; }
 	PVRush::PVFormat get_format() const { return _format; }
 
-private:
+  private:
 	PVRush::PVInputType::list_inputs _inputs;
 	PVRush::PVSourceCreator_p _source_creator_p;
 	PVRush::PVFormat _format;
 };
-
 }
 
 #endif /* PVSOURCEDESCRIPTION_H_ */

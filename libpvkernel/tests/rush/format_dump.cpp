@@ -62,6 +62,5 @@ int main(int argc, char** argv)
 		axis_id++;
 	}
 
-
 	return 0;
 }

@@ -12,19 +12,21 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVChunkFilter : public PVFilterFunctionBase<PVCore::PVChunk*,PVCore::PVChunk*>  {
-public:
+class PVChunkFilter : public PVFilterFunctionBase<PVCore::PVChunk*, PVCore::PVChunk*>
+{
+  public:
 	PVChunkFilter();
-public:
+
+  public:
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 
 	CLASS_FILTER_NONREG(PVChunkFilter)
 };
 
 typedef PVChunkFilter::func_type PVChunkFilter_f;
-
 }
 
 #endif

@@ -11,9 +11,9 @@
 #include <QDesktopWidget>
 #include <QMouseEvent>
 
-static QRect fitToScreen(const QRect &rect)
+static QRect fitToScreen(const QRect& rect)
 {
-	const QDesktopWidget *dw = QApplication::desktop();
+	const QDesktopWidget* dw = QApplication::desktop();
 	QRect screen_geom = dw->availableGeometry(dw->screenNumber(rect.center()));
 
 	QRect new_geom = rect;
@@ -37,8 +37,7 @@ static QRect fitToScreen(const QRect &rect)
  * PVWidgets::PVPopupWidget::PVPopupWidget
  *****************************************************************************/
 
-PVWidgets::PVPopupWidget::PVPopupWidget(QWidget* parent) :
-	QWidget(parent)
+PVWidgets::PVPopupWidget::PVPopupWidget(QWidget* parent) : QWidget(parent)
 {
 	setFocusPolicy(Qt::ClickFocus);
 	setMouseTracking(true);
@@ -50,7 +49,7 @@ PVWidgets::PVPopupWidget::PVPopupWidget(QWidget* parent) :
 
 void PVWidgets::PVPopupWidget::popup(const QPoint& p, bool centered)
 {
-	if(isVisible()) {
+	if (isVisible()) {
 		return;
 	}
 
@@ -102,12 +101,8 @@ bool PVWidgets::PVPopupWidget::is_close_key(int key)
 
 void PVWidgets::PVPopupWidget::mouseMoveEvent(QMouseEvent* event)
 {
-	QMouseEvent pevent(QEvent::MouseMove,
-	                   parentWidget()->mapFromGlobal(event->globalPos()),
-	                   event->globalPos(),
-	                   event->button(),
-	                   event->buttons(),
-	                   event->modifiers());
+	QMouseEvent pevent(QEvent::MouseMove, parentWidget()->mapFromGlobal(event->globalPos()),
+	                   event->globalPos(), event->button(), event->buttons(), event->modifiers());
 
 	QApplication::sendEvent(parentWidget(), &pevent);
 	event->ignore();

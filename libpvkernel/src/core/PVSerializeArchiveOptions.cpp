@@ -10,14 +10,15 @@
 
 #include <typeinfo>
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeArchiveOptions::create_object(QString const& name, PVSerializeObject* parent)
+PVCore::PVSerializeObject_p
+PVCore::PVSerializeArchiveOptions::create_object(QString const& name, PVSerializeObject* parent)
 {
 	PVSerializeObject_p ret(allocate_object(name, parent));
 	return ret;
 }
 
-
-bool PVCore::PVSerializeArchiveOptions::must_write(PVSerializeObject const& parent, QString const& child)
+bool PVCore::PVSerializeArchiveOptions::must_write(PVSerializeObject const& parent,
+                                                   QString const& child)
 {
 	QString path = get_object_logical_path(parent);
 	assert(_objects.contains(path));
@@ -33,9 +34,9 @@ void PVCore::PVSerializeArchiveOptions::include_all_files(bool inc)
 {
 	// AG: that's a little hack, since we should not be aware of what an original file is... !
 	// No recursive function here. We look for PVFileSerialize objects, and include/exclude them.
-	
+
 	QList<PVSerializeObject_p> objs = _objects.values();
-	foreach(PVSerializeObject_p o, objs) {
+	foreach (PVSerializeObject_p o, objs) {
 		if (o->bound_obj_type() == typeid(PVFileSerialize)) {
 			o->set_write(inc);
 		}
@@ -45,21 +46,20 @@ void PVCore::PVSerializeArchiveOptions::include_all_files(bool inc)
 int PVCore::PVSerializeArchiveOptions::does_include_all_files() const
 {
 	// AG: part of the previous hack
-	
+
 	int state = Qt::Unchecked;
 	bool all_write = true;
 	QList<PVSerializeObject_p> objs = _objects.values();
-	foreach(PVSerializeObject_p o, objs) {
+	foreach (PVSerializeObject_p o, objs) {
 		if (o->bound_obj_type() == typeid(PVFileSerialize)) {
 			if (o->must_write()) {
 				state = Qt::PartiallyChecked;
-			}
-			else {
+			} else {
 				all_write = false;
 			}
 		}
 	}
-	
+
 	if (state == Qt::PartiallyChecked && all_write) {
 		state = Qt::Checked;
 	}

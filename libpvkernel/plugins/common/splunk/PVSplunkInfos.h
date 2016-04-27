@@ -13,16 +13,18 @@
 
 #include <QString>
 
-namespace PVRush {
+namespace PVRush
+{
 
 class PVSplunkInfos
 {
 	friend class PVCore::PVSerializeObject;
-public:
+
+  public:
 	PVSplunkInfos();
 	PVSplunkInfos(PVSplunkInfos const& infos);
 
-public:
+  public:
 	void set_host(QString const& host) { _host = host; }
 	void set_port(uint16_t port) { _port = port; }
 	void set_login(QString const& login) { _login = login; }
@@ -43,19 +45,15 @@ public:
 
 	inline bool operator==(PVSplunkInfos const& o) const
 	{
-		return _host == o._host &&
-			   _port == o._port &&
-			   _login == o._login &&
-			   _password == o._password &&
-			   _splunk_index == o._splunk_index &&
-			   _splunk_host == o._splunk_host &&
-			   _splunk_sourcetype == o._splunk_sourcetype;
+		return _host == o._host && _port == o._port && _login == o._login &&
+		       _password == o._password && _splunk_index == o._splunk_index &&
+		       _splunk_host == o._splunk_host && _splunk_sourcetype == o._splunk_sourcetype;
 	}
 
-protected:
+  protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
-protected:
+  protected:
 	QString _host;
 	uint16_t _port;
 	QString _login;
@@ -65,7 +63,6 @@ protected:
 	QString _splunk_host;
 	QString _splunk_sourcetype;
 };
-
 }
 
 #endif // __PVSPLUNKINFOS_H__

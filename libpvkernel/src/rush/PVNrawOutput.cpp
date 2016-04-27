@@ -7,8 +7,7 @@
 
 #include <pvkernel/rush/PVNrawOutput.h>
 
-PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw):
-	_nraw_dest(&nraw)
+PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw)
 {
 }
 

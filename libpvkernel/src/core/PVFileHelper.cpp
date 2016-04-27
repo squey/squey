@@ -28,5 +28,5 @@ bool PVCore::PVFileHelper::is_already_opened(const char* file_name)
 		close(fd);
 	}
 
-    return ret;
+	return ret;
 }

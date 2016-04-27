@@ -7,7 +7,6 @@
 
 #include "include/PVLogViewerDialog.h"
 
-
 #include <QLabel>
 #include <QMenu>
 #include <QMenuBar>
@@ -16,16 +15,15 @@
 #include <QVBoxLayout>
 #include <QSpacerItem>
 
-PVLogViewerDialog::PVLogViewerDialog(QStringList const& formats, QWidget* parent):
-	QDialog(parent)
+PVLogViewerDialog::PVLogViewerDialog(QStringList const& formats, QWidget* parent) : QDialog(parent)
 {
-	QMenuBar *rl_menuBar = new QMenuBar(0);
-	QMenu *rl_fileMenu = rl_menuBar->addMenu( tr( "Machine" ) );
+	QMenuBar* rl_menuBar = new QMenuBar(0);
+	QMenu* rl_fileMenu = rl_menuBar->addMenu(tr("Machine"));
 
-	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-					 | QDialogButtonBox::Cancel);
+	QDialogButtonBox* buttonBox =
+	    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-	QVBoxLayout *rl_layout = new QVBoxLayout;
+	QVBoxLayout* rl_layout = new QVBoxLayout;
 
 	pv_RemoteLog = new LogViewerWidget(this);
 	rl_fileMenu->addAction(pv_RemoteLog->addMachineAction());
@@ -35,7 +33,7 @@ PVLogViewerDialog::PVLogViewerDialog(QStringList const& formats, QWidget* parent
 	rl_menuBar->show();
 
 	rl_layout->addWidget(pv_RemoteLog);
-	
+
 	QHBoxLayout* formatLayout = new QHBoxLayout();
 	formatLayout->addWidget(new QLabel(tr("Format:")));
 	_combo_format = new QComboBox();

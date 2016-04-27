@@ -10,10 +10,12 @@
 
 #include <pvkernel/filter/PVFieldFilter.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldFilterReplace : public PVFieldFilter {
-public:
+class PVFieldFilterReplace : public PVFieldFilter
+{
+  public:
 	PVCore::PVField
 };
 }

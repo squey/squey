@@ -23,15 +23,16 @@ constexpr static size_t nb_dup = 1;
 #endif
 
 static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/splitters/duplicate/lines.txt";
-static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/duplicate/lines.txt.out";
-
+static constexpr const char* ref_file =
+    TEST_FOLDER "/pvkernel/rush/splitters/duplicate/lines.txt.out";
 
 int main()
 {
 	pvtest::TestSplitter ts(log_file, nb_dup);
 
 	// Prepare splitter plugin
-	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("duplicate");
+	PVFilter::PVFieldsSplitter::p_type sp_lib_p =
+	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("duplicate");
 
 	PVCore::PVArgumentList args = sp_lib_p->get_args();
 	args["n"] = 7;

@@ -13,17 +13,19 @@
 #include <QStringList>
 #include <QString>
 
-namespace PVCore {
+namespace PVCore
+{
 
 /*! \brief Provide conveniant functions around libarchive (http://www.libarchive.com)
  *
  * This class provides static functions for conveniant uses of the libarchive interfaces.
  *
- * \todo We might consider outsourcing some of these as this might be useful for the community (see libarchive's mailing-list archive).
+ * \todo We might consider outsourcing some of these as this might be useful for the community (see
+ *libarchive's mailing-list archive).
  */
 class PVArchive
 {
-public:
+  public:
 	/* \brief Detects if a file can be processed as an archive thanks to libarchive.
 	 * \param[in] path Path to the potential archive file
 	 *
@@ -39,18 +41,17 @@ public:
 	 *
 	 * This function extracts the archive pointed by path into dir_dest.
 	 */
-	static bool extract(QString const& path, QString const& dir_dest, QStringList &extracted_files);
+	static bool extract(QString const& path, QString const& dir_dest, QStringList& extracted_files);
 
 	/* \brief Create a tar/bz2 archive of a directory
 	 * \param[in] ar_path  Path to the archive to create
-	 * \param[in] dir_path Path of the directory to include into the archive. 
+	 * \param[in] dir_path Path of the directory to include into the archive.
 	 * \return true if the archive was successfully created, false otherwise.
 	 *
 	 * \note This is mainly used by PVCore::PVSerializeArchiveZip
 	 */
 	static bool create_tarbz2(QString const& ar_path, QString const& dir_path);
 };
-
 }
 
 #endif

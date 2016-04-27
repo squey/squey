@@ -15,10 +15,10 @@ namespace PVWidgets
 
 class PVGraphicsViewInteractorScene : public PVGraphicsViewInteractor<PVGraphicsView>
 {
-public:
+  public:
 	PVGraphicsViewInteractorScene(PVGraphicsView* parent);
 
-protected:
+  protected:
 	bool contextMenuEvent(PVGraphicsView* obj, QContextMenuEvent* event) override;
 
 	bool mouseDoubleClickEvent(PVGraphicsView* obj, QMouseEvent* event) override;
@@ -31,7 +31,6 @@ protected:
 	bool keyPressEvent(PVGraphicsView* obj, QKeyEvent* event) override;
 	bool keyReleaseEvent(PVGraphicsView* obj, QKeyEvent* event) override;
 };
-
 }
 
 #endif // PVWIDGETS_PVGRAPHICSVIEWINTERACTORSCENE_H

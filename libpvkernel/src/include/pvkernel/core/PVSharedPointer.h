@@ -21,17 +21,21 @@
 namespace PVCore
 {
 
-template <typename T>
-class PVSharedPtr;
+template <typename T> class PVSharedPtr;
 
-template <typename T>
-class PVWeakPtr;
+template <typename T> class PVWeakPtr;
 
 namespace __impl
 {
-struct static_cast_tag {};
-struct const_cast_tag {};
-struct dynamic_cast_tag {};
+struct static_cast_tag
+{
+};
+struct const_cast_tag
+{
+};
+struct dynamic_cast_tag
+{
+};
 }
 
 /**
@@ -40,33 +44,23 @@ struct dynamic_cast_tag {};
  * @brief a shared pointer with a deleter which can be changed at run-time.
  *
  */
-template <typename T>
-class PVSharedPtr
+template <typename T> class PVSharedPtr
 {
-public:
-	template<typename X> friend class PVWeakPtr;
-	template<typename X> friend class PVSharedPtr;
+  public:
+	template <typename X> friend class PVWeakPtr;
+	template <typename X> friend class PVSharedPtr;
 
-public:
+  public:
 	typedef T type;
 	typedef PVSharedCounter shared_counter_t;
 	typedef type* pointer;
-	typedef void(*deleter)(void*);
+	typedef void (*deleter)(void*);
 
+	PVSharedPtr() : _shared_count(), _px(nullptr) {}
 
-	PVSharedPtr(): _shared_count(), _px(nullptr)
-	{
-	}
+	explicit PVSharedPtr(pointer p) : _shared_count(p), _px(p) { enable_shared_from_this(this, p); }
 
-	explicit PVSharedPtr(pointer p) : _shared_count(p), _px(p)
-	{
-		enable_shared_from_this(this, p);
-	}
-
-	template<class Y>
-	explicit PVSharedPtr(Y* p):
-		_shared_count(p),
-		_px(static_cast<pointer>(p))
+	template <class Y> explicit PVSharedPtr(Y* p) : _shared_count(p), _px(static_cast<pointer>(p))
 	{
 		enable_shared_from_this(this, p);
 	}
@@ -76,12 +70,9 @@ public:
 		enable_shared_from_this(this, p);
 	}
 
-	PVSharedPtr(const PVSharedPtr<T> &r) : _shared_count(r._shared_count), _px(r._px)
-	{
-	}
+	PVSharedPtr(const PVSharedPtr<T>& r) : _shared_count(r._shared_count), _px(r._px) {}
 
-	template <typename Y>
-	explicit PVSharedPtr(PVSharedPtr<Y> const & r)
+	template <typename Y> explicit PVSharedPtr(PVSharedPtr<Y> const& r)
 	{
 		static_assert(std::is_convertible<Y*, T*>::value, "type Y is not derived from type T");
 		_shared_count = r._shared_count;
@@ -90,68 +81,58 @@ public:
 		_px = static_cast<pointer>(r._px);
 	}
 
-	 // Create PVSharedPtr from PVWeakPtr
+	// Create PVSharedPtr from PVWeakPtr
 	template <class Y>
-	PVSharedPtr(PVWeakPtr<Y> const & r):
-		_shared_count(r._weak_count),
-		_px(static_cast<pointer>(r._px))
+	PVSharedPtr(PVWeakPtr<Y> const& r)
+	    : _shared_count(r._weak_count), _px(static_cast<pointer>(r._px))
 	{
 	}
 
 	// for PVEnableSharedFromThis::_internal_accept_owner
 	template <typename Y, typename Z>
-	PVSharedPtr(PVSharedPtr<Y> const & r, Z* p): _shared_count(r._shared_count)
+	PVSharedPtr(PVSharedPtr<Y> const& r, Z* p)
+	    : _shared_count(r._shared_count)
 	{
 		_px = static_cast<pointer>(p);
 	}
 
 	template <class Y>
-	PVSharedPtr(PVSharedPtr<Y> const & r, __impl::static_cast_tag):
-		_shared_count(r._shared_count)
+	PVSharedPtr(PVSharedPtr<Y> const& r, __impl::static_cast_tag)
+	    : _shared_count(r._shared_count)
 	{
 		_px = static_cast<pointer>(r.get());
 	}
 
-	template<class Y>
-	PVSharedPtr(PVSharedPtr<Y> const & r, __impl::const_cast_tag) : _shared_count(r._shared_count)
+	template <class Y>
+	PVSharedPtr(PVSharedPtr<Y> const& r, __impl::const_cast_tag)
+	    : _shared_count(r._shared_count)
 	{
 		_px = const_cast<pointer>(r.get());
 	}
 
-	template<class Y>
-	PVSharedPtr(PVSharedPtr<Y> const & r, __impl::dynamic_cast_tag) : _shared_count(r._shared_count)
+	template <class Y>
+	PVSharedPtr(PVSharedPtr<Y> const& r, __impl::dynamic_cast_tag)
+	    : _shared_count(r._shared_count)
 	{
 		_px = dynamic_cast<pointer>(r.get());
-		if(_px == nullptr) {
+		if (_px == nullptr) {
 			_shared_count = shared_counter_t();
 		}
 	}
 
-	inline void reset()
-	{
-		PVSharedPtr<T>().swap(*this);
-	}
+	inline void reset() { PVSharedPtr<T>().swap(*this); }
 
-	template<class Y> void reset(Y* p)
-	{
-		PVSharedPtr<T>(p).swap(*this);
-	}
+	template <class Y> void reset(Y* p) { PVSharedPtr<T>(p).swap(*this); }
 
-	template<class Y, class D> void reset(Y * p, D d)
-	{
-		PVSharedPtr<T>(p, d).swap(*this);
-	}
+	template <class Y, class D> void reset(Y* p, D d) { PVSharedPtr<T>(p, d).swap(*this); }
 
-	PVSharedPtr<T>& operator=(const PVSharedPtr<T> &rhs)
+	PVSharedPtr<T>& operator=(const PVSharedPtr<T>& rhs)
 	{
 		PVSharedPtr<T>(rhs).swap(*this);
 		return *this;
 	}
 
-	inline pointer get() const
-	{
-		return _px;
-	}
+	inline pointer get() const { return _px; }
 
 	inline operator bool() const { return (_shared_count.get() != nullptr); }
 
@@ -169,13 +150,10 @@ public:
 		return _px;
 	}
 
-	void set_deleter(deleter d)	{ _shared_count.set_deleter((void*)d); }
-	deleter get_deleter() const	{ return (deleter) _shared_count.get_deleter(); }
+	void set_deleter(deleter d) { _shared_count.set_deleter((void*)d); }
+	deleter get_deleter() const { return (deleter)_shared_count.get_deleter(); }
 
-	long use_count() const
-	{
-		return _shared_count.use_count();
-	}
+	long use_count() const { return _shared_count.use_count(); }
 
 	inline void swap(PVSharedPtr<T>& other)
 	{
@@ -184,69 +162,59 @@ public:
 		std::swap(_px, other._px);
 	}
 
-private:
-	template<class X, class Y>
-	inline void enable_shared_from_this(PVSharedPtr<X>* sp, PVCore::PVEnableSharedFromThis<Y>* const p)
+  private:
+	template <class X, class Y>
+	inline void enable_shared_from_this(PVSharedPtr<X>* sp,
+	                                    PVCore::PVEnableSharedFromThis<Y>* const p)
 	{
-		if(p != nullptr)
-		{
+		if (p != nullptr) {
 			p->_internal_accept_owner(sp, (Y*)p);
 		}
 	}
 
-	inline void enable_shared_from_this(...)
-	{
-	}
+	inline void enable_shared_from_this(...) {}
 
-private:
+  private:
 	shared_counter_t _shared_count;
 	pointer _px;
 };
 
-template <class T, class U>
-bool operator==(const PVSharedPtr<T>& lhs, const PVSharedPtr<U>& rhs)
+template <class T, class U> bool operator==(const PVSharedPtr<T>& lhs, const PVSharedPtr<U>& rhs)
 {
 	return (lhs.get() == rhs.get());
 }
 
-template <class T, class U>
-bool operator!=(const PVSharedPtr<T>& lhs, const PVSharedPtr<U>& rhs)
+template <class T, class U> bool operator!=(const PVSharedPtr<T>& lhs, const PVSharedPtr<U>& rhs)
 {
 	return (lhs.get() != rhs.get());
 }
 
-template <class T, class U>
-bool operator<(const PVSharedPtr<T>& lhs, const PVSharedPtr<U>& rhs)
+template <class T, class U> bool operator<(const PVSharedPtr<T>& lhs, const PVSharedPtr<U>& rhs)
 {
 	return (lhs.get() < rhs.get());
 }
 
-template <class T, class U>
-bool operator<=(const PVSharedPtr<T>& lhs, const PVSharedPtr<U>& rhs)
+template <class T, class U> bool operator<=(const PVSharedPtr<T>& lhs, const PVSharedPtr<U>& rhs)
 {
 	return (lhs.get() <= rhs.get());
 }
 
-template <class T, class U>
-bool operator>(const PVSharedPtr<T>& lhs, const PVSharedPtr<U>& rhs)
+template <class T, class U> bool operator>(const PVSharedPtr<T>& lhs, const PVSharedPtr<U>& rhs)
 {
 	return (lhs.get() > rhs.get());
 }
 
-template <class T, class U>
-bool operator>=(const PVSharedPtr<T>& lhs, const PVSharedPtr<U>& rhs)
+template <class T, class U> bool operator>=(const PVSharedPtr<T>& lhs, const PVSharedPtr<U>& rhs)
 {
 	return (lhs.get() >= rhs.get());
 }
 
-template <typename T>
-PVSharedPtr<T> make_shared(T *t)
+template <typename T> PVSharedPtr<T> make_shared(T* t)
 {
 	return PVSharedPtr<T>(t);
 }
 
-template <typename T, typename D>
-PVSharedPtr<T> make_shared(T *t, D d)
+template <typename T, typename D> PVSharedPtr<T> make_shared(T* t, D d)
 {
 	return PVSharedPtr<T>(t, d);
 }
@@ -257,66 +225,58 @@ std::basic_ostream<U, V>& operator<<(std::basic_ostream<U, V>& os, const PVShare
 	return os << rhs.get();
 }
 
-template <class T>
-void swap(PVSharedPtr<T>& a, PVSharedPtr<T>& b)
+template <class T> void swap(PVSharedPtr<T>& a, PVSharedPtr<T>& b)
 {
 	a.swap(b);
 }
 
-template<class T, class U>
-PVSharedPtr<T> static_pointer_cast(PVSharedPtr<U> const & r)
+template <class T, class U> PVSharedPtr<T> static_pointer_cast(PVSharedPtr<U> const& r)
 {
-    return PVSharedPtr<T>(r, __impl::static_cast_tag());
+	return PVSharedPtr<T>(r, __impl::static_cast_tag());
 }
 
-template<class T, class U>
-PVSharedPtr<T> const_pointer_cast(PVSharedPtr<U> const & r)
+template <class T, class U> PVSharedPtr<T> const_pointer_cast(PVSharedPtr<U> const& r)
 {
-    return PVSharedPtr<T>(r, __impl::const_cast_tag());
+	return PVSharedPtr<T>(r, __impl::const_cast_tag());
 }
 
-template<class T, class U>
-PVSharedPtr<T> dynamic_pointer_cast(PVSharedPtr<U> const & r)
+template <class T, class U> PVSharedPtr<T> dynamic_pointer_cast(PVSharedPtr<U> const& r)
 {
-    return PVSharedPtr<T>(r, __impl::dynamic_cast_tag());
+	return PVSharedPtr<T>(r, __impl::dynamic_cast_tag());
+}
 }
 
-}
+namespace PVCore
+{
 
-namespace PVCore {
+namespace PVTypeTraits
+{
 
-namespace PVTypeTraits {
-
-template <class T>
-struct remove_shared_ptr<PVCore::PVSharedPtr<T> >
+template <class T> struct remove_shared_ptr<PVCore::PVSharedPtr<T>>
 {
 	typedef T type;
 };
 
-template <class T>
-struct pointer<PVCore::PVSharedPtr<T> >
+template <class T> struct pointer<PVCore::PVSharedPtr<T>>
 {
 	typedef PVCore::PVSharedPtr<T> type;
 	static inline type get(type obj) { return obj; }
 };
 
-template <class T>
-struct pointer<PVCore::PVSharedPtr<T>& >
+template <class T> struct pointer<PVCore::PVSharedPtr<T>&>
 {
 	typedef PVCore::PVSharedPtr<T>& type;
 	static inline type get(type obj) { return obj; }
 };
 
 template <class Y, class T>
-struct dynamic_pointer_cast<PVCore::PVSharedPtr<Y>, PVCore::PVSharedPtr<T> >
+struct dynamic_pointer_cast<PVCore::PVSharedPtr<Y>, PVCore::PVSharedPtr<T>>
 {
 	typedef typename PVCore::PVSharedPtr<T> org_pointer;
 	typedef typename PVCore::PVSharedPtr<Y> result_pointer;
 	static result_pointer cast(org_pointer const& p) { return PVCore::dynamic_pointer_cast<Y>(p); }
 };
-
 }
-
 }
 
 #endif // PVCORE_SHAREDPOINTER_H

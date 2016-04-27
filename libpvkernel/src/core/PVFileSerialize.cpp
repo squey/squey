@@ -7,9 +7,7 @@
 
 #include <pvkernel/core/PVFileSerialize.h>
 
-
-PVCore::PVFileSerialize::PVFileSerialize(QString const& path):
-	_path(path)
+PVCore::PVFileSerialize::PVFileSerialize(QString const& path) : _path(path)
 {
 }
 
@@ -18,7 +16,8 @@ QString const& PVCore::PVFileSerialize::get_path() const
 	return _path;
 }
 
-void PVCore::PVFileSerialize::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void PVCore::PVFileSerialize::serialize_read(PVCore::PVSerializeObject& so,
+                                             PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	QString fname;
 	so.attribute("filename", fname);

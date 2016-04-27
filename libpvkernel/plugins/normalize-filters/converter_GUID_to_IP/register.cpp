@@ -18,7 +18,8 @@
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("GUID_to_IP", PVFilter::PVFieldGUIDToIP);
-	REGISTER_CLASS_AS("converter_GUID_to_IP", PVFilter::PVFieldGUIDToIP, PVFilter::PVFieldsFilterReg);
+	REGISTER_CLASS_AS("converter_GUID_to_IP", PVFilter::PVFieldGUIDToIP,
+	                  PVFilter::PVFieldsFilterReg);
 
 	REGISTER_CLASS("GUID_to_IP", PVFilter::PVFieldConverterGUIDToIPParamWidget);
 }
