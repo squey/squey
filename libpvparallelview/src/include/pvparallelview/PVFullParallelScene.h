@@ -29,12 +29,6 @@
 #include <pvhive/PVObserverSignal.h>
 
 #include <tbb/atomic.h>
-#include <tbb/task_group.h>
-
-
-namespace tbb {
-class task;
-}
 
 namespace PVParallelView {
 

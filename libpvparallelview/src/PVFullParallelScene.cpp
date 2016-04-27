@@ -26,8 +26,6 @@
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVSelectionGenerator.h>
 
-#include <tbb/task.h>
-
 #include <QtCore>
 #include <QKeyEvent>
 
