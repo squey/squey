@@ -19,7 +19,7 @@
  * a thread safe printf
  *****************************************************************************/
 
-void Sprintf(const char *format, ...)
+void Sprintf(const char* format, ...)
 {
 	static std::mutex pmutex;
 	std::lock_guard<std::mutex> lg(pmutex);
@@ -34,15 +34,15 @@ void Sprintf(const char *format, ...)
  * thread code
  *****************************************************************************/
 
-void inner_thread(MessageChannel &chan)
+void inner_thread(MessageChannel& chan)
 {
 	bool run = true;
-	action_message_t   a;
+	action_message_t a;
 	reaction_message_t r;
 
-	while(run) {
+	while (run) {
 		if (chan.get_action(a)) {
-			switch(a.func) {
+			switch (a.func) {
 			case ACTION_REFRESH:
 				Sprintf("inner_thread: receive REFRESH\n");
 				usleep(random() % 100);
@@ -73,14 +73,10 @@ void inner_thread(MessageChannel &chan)
 
 class MainApp : public QApplication
 {
-public:
-	MainApp(int argc, char** argv) : QApplication(argc, argv)
-	{}
+  public:
+	MainApp(int argc, char** argv) : QApplication(argc, argv) {}
 
-	void set_actor(ObjActor *actor)
-	{
-		connect(actor, SIGNAL(finished()), this, SLOT(quit()));
-	}
+	void set_actor(ObjActor* actor) { connect(actor, SIGNAL(finished()), this, SLOT(quit())); }
 };
 
 int main(int argc, char** argv)
@@ -98,10 +94,10 @@ int main(int argc, char** argv)
 
 	Obj_p obj = Obj_p(new Obj());
 
-	ObjActor *actor = new ObjActor(atoi(argv[1]));
+	ObjActor* actor = new ObjActor(atoi(argv[1]));
 	PVHive::PVHive::get().register_actor(obj, *actor);
 
-	ObjObserver *observer = new ObjObserver(obj->get_message_channel());
+	ObjObserver* observer = new ObjObserver(obj->get_message_channel());
 	PVHive::PVHive::get().register_observer(obj, *observer);
 
 	app.set_actor(actor);

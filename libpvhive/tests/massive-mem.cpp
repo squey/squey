@@ -54,11 +54,10 @@ void print_size(const char *text, size_t size, int num)
 
 class Block2
 {
-public:
-	Block2()
-	{}
+  public:
+	Block2() {}
 
-private:
+  private:
 	int _i;
 };
 
@@ -68,7 +67,7 @@ typedef PVCore::PVSharedPtr<Block2> Block2_p;
  * main
  *****************************************************************************/
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	if (argc <= 1) {
 		std::cerr << "usage: " << argv[0] << " elements_number" << std::endl;
@@ -79,13 +78,13 @@ int main(int argc, char **argv)
 
 	size_t base, next;
 
-	PVHive::PVHive &hive = PVHive::PVHive::get();
+	PVHive::PVHive& hive = PVHive::PVHive::get();
 	base = hive.memory();
 	std::cout << "hive usage: " << base << " o" << std::endl;
 	PV_STAT_MEM_USE_O("hive", base);
 	std::cout << std::endl;
 
-	Block2_p *blocks2 = new Block2_p [element_num];
+	Block2_p* blocks2 = new Block2_p[element_num];
 	next = base;
 	{
 		MEM_START(blk);
@@ -108,7 +107,6 @@ int main(int argc, char **argv)
 	PV_STAT_MEM_USE_O("object", (next - base) / element_num);
 	std::cout << std::endl;
 
-
 	Block_p block = Block_p(new Block(element_num));
 	base = next;
 	{
@@ -123,8 +121,7 @@ int main(int argc, char **argv)
 	PV_STAT_MEM_USE_O("property", (next - base) / element_num);
 	std::cout << std::endl;
 
-
-	BlockObs *block_obs = new BlockObs [element_num];
+	BlockObs* block_obs = new BlockObs[element_num];
 	base = next;
 	{
 		MEM_START(objobs);
@@ -138,8 +135,7 @@ int main(int argc, char **argv)
 	PV_STAT_MEM_USE_O("object_observer", (next - base) / element_num);
 	std::cout << std::endl;
 
-
-	PropertyObs *prop_obs = new PropertyObs [element_num];
+	PropertyObs* prop_obs = new PropertyObs[element_num];
 	base = next;
 	{
 		MEM_START(propobs);
@@ -154,8 +150,7 @@ int main(int argc, char **argv)
 	PV_STAT_MEM_USE_O("property_observer", (next - base) / element_num);
 	std::cout << std::endl;
 
-
-	BlockAct *block_act = new BlockAct [element_num];
+	BlockAct* block_act = new BlockAct[element_num];
 	base = next;
 	{
 		MEM_START(objact);
@@ -169,8 +164,7 @@ int main(int argc, char **argv)
 	PV_STAT_MEM_USE_O("object_actor", (next - base) / element_num);
 	std::cout << std::endl;
 
-
-	PropertyAct *prop_act = new PropertyAct [element_num];
+	PropertyAct* prop_act = new PropertyAct[element_num];
 	base = next;
 	{
 		MEM_START(propact);

@@ -25,31 +25,18 @@ namespace PVHive
  * the slots to implement are do_refresh(PVHive::PVObserverBase *), and
  * do_about_to_be_deleted(PVHive::PVObserverBase *).
  */
-template <class T>
-class PVQObserver : public __impl::PVQRefresh, public PVObserver<T>
+template <class T> class PVQObserver : public __impl::PVQRefresh, public PVObserver<T>
 {
-public:
-	PVQObserver(QObject* parent) :
-		__impl::PVQRefresh(parent)
-	{}
+  public:
+	PVQObserver(QObject* parent) : __impl::PVQRefresh(parent) {}
 
-protected:
-	virtual void about_to_be_refreshed()
-	{
-		emit_about_to_be_refreshed_signal(this);
-	}
+  protected:
+	virtual void about_to_be_refreshed() { emit_about_to_be_refreshed_signal(this); }
 
-	virtual void refresh()
-	{
-		emit_refresh_signal(this);
-	}
+	virtual void refresh() { emit_refresh_signal(this); }
 
-	virtual void about_to_be_deleted()
-	{
-		emit_about_to_be_deleted_signal(this);
-	}
+	virtual void about_to_be_deleted() { emit_about_to_be_deleted_signal(this); }
 };
-
 }
 
 #endif // LIBPVHIVE_PVQOBSERVER_H

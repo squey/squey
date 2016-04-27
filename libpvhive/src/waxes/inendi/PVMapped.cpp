@@ -16,11 +16,12 @@ PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 IMPL_WAX(Inendi::PVMapped::process_from_parent_source, mapped, args)
 {
-	for (auto const& c: mapped->get_children<Inendi::PVPlotted>()) {
+	for (auto const& c : mapped->get_children<Inendi::PVPlotted>()) {
 		about_to_refresh_observers(&c->get_plotting());
 	}
-	call_object_default<Inendi::PVMapped, FUNC(Inendi::PVMapped::process_from_parent_source)>(mapped, args);
-	for (auto const& c: mapped->get_children<Inendi::PVPlotted>()) {
+	call_object_default<Inendi::PVMapped, FUNC(Inendi::PVMapped::process_from_parent_source)>(
+	    mapped, args);
+	for (auto const& c : mapped->get_children<Inendi::PVPlotted>()) {
 		refresh_observers(&c->get_plotting());
 	}
 }

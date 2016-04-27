@@ -16,8 +16,8 @@
 
 class PVHiveTest
 {
-public:
-	static PVHiveTest &get()
+  public:
+	static PVHiveTest& get()
 	{
 		if (_hive == nullptr) {
 			_hive = new PVHiveTest;
@@ -25,11 +25,12 @@ public:
 		return *_hive;
 	}
 
-public:
+  public:
 	void register_actor()
 	{
 		{
-			std::cout << "PVHiveTest::register_actor() trying to lock _actor_mutex (write)" << std::endl;
+			std::cout << "PVHiveTest::register_actor() trying to lock _actor_mutex (write)"
+			          << std::endl;
 			boost::lock_guard<boost::mutex> lock(_actors_mutex);
 			std::cout << "PVHiveTest::register_actor() _actor_mutex locked (write)" << std::endl;
 			std::cout << "PVHiveTest::register_actor() begin (write) _actors" << std::endl;
@@ -43,15 +44,18 @@ public:
 	void unregister_actor()
 	{
 		{
-			std::cout << "PVHiveTest::unregister_actor() trying to lock _observers_lock (read)" << std::endl;
+			std::cout << "PVHiveTest::unregister_actor() trying to lock "
+			             "_observers_lock (read)" << std::endl;
 			read_lock_t read_lock(_observers_lock);
-			std::cout << "PVHiveTest::unregister_actor() _observers_lock locked (read)" << std::endl;
+			std::cout << "PVHiveTest::unregister_actor() _observers_lock locked (read)"
+			          << std::endl;
 			std::cout << "PVHiveTest::unregister_actor() begin (read) _observers" << std::endl;
 			sleep(1); // read observers
 			std::cout << "PVHiveTest::unregister_actor() end (read) _observers" << std::endl;
 		}
 		std::cout << "PVHiveTest::unregister_actor() _observers_lock released (read)" << std::endl;
-		std::cout << "PVHiveTest::unregister_actor() trying to lock _actors_mutex (write)" << std::endl;
+		std::cout << "PVHiveTest::unregister_actor() trying to lock _actors_mutex (write)"
+		          << std::endl;
 		{
 			boost::lock_guard<boost::mutex> lock(_actors_mutex);
 			std::cout << "PVHiveTest::unregister_actor() _actors_mutex locked (write)" << std::endl;
@@ -67,24 +71,29 @@ public:
 	void register_observer()
 	{
 		{
-			std::cout << "PVHiveTest::register_observer() trying to lock _observers_lock (write)" << std::endl;
+			std::cout << "PVHiveTest::register_observer() trying to lock "
+			             "_observers_lock (write)" << std::endl;
 			write_lock_t write_lock(_observers_lock);
-			std::cout << "PVHiveTest::register_observer() _observers_lock locked (write)" << std::endl;
+			std::cout << "PVHiveTest::register_observer() _observers_lock locked (write)"
+			          << std::endl;
 
 			std::cout << "PVHiveTest::register_observer() begin (write) _observers" << std::endl;
 			sleep(1); // insert observer
 			std::cout << "PVHiveTest::register_observer() end (write) _observers" << std::endl;
 		}
-		std::cout << "PVHiveTest::register_observer() _observers_lock released (write)" << std::endl;
+		std::cout << "PVHiveTest::register_observer() _observers_lock released (write)"
+		          << std::endl;
 		std::cout << "---" << std::endl;
 	}
 
 	void refresh_observers()
 	{
 		{
-			std::cout << "PVHiveTest::refresh_observers() trying to lock _observers_lock (read)" << std::endl;
+			std::cout << "PVHiveTest::refresh_observers() trying to lock "
+			             "_observers_lock (read)" << std::endl;
 			read_lock_t read_lock(_observers_lock);
-			std::cout << "PVHiveTest::refresh_observers() _observers_lock locked (read)" << std::endl;
+			std::cout << "PVHiveTest::refresh_observers() _observers_lock locked (read)"
+			          << std::endl;
 
 			std::cout << "PVHiveTest::refresh_observers() begin (read) _observers" << std::endl;
 			sleep(1); // insert observer
@@ -94,8 +103,8 @@ public:
 		std::cout << "---" << std::endl;
 	}
 
-private:
-	static PVHiveTest *_hive;
+  private:
+	static PVHiveTest* _hive;
 
 	// thread safety
 	typedef boost::shared_mutex lock_t;
@@ -105,7 +114,7 @@ private:
 	boost::mutex _actors_mutex;
 };
 
-PVHiveTest *PVHiveTest::_hive = nullptr;
+PVHiveTest* PVHiveTest::_hive = nullptr;
 
 void thread1()
 {

@@ -22,35 +22,39 @@
 
 struct MyClass
 {
-public:
+  public:
 	typedef PVCore::PVSharedPtr<MyClass> shared_pointer;
-public:
+
+  public:
 	uint32_t get_counter() { return _counter; }
 	void set_counter(uint32_t counter) { _counter = counter; }
-private:
+
+  private:
 	uint32_t _counter = 0;
 };
 
 class TestDlg;
 
-class set_counter_Observer: public PVHive::PVFuncObserverSignal<MyClass, FUNC(MyClass::set_counter)>
+class set_counter_Observer
+    : public PVHive::PVFuncObserverSignal<MyClass, FUNC(MyClass::set_counter)>
 {
-public:
+  public:
 	set_counter_Observer(TestDlg* parent) : _parent(parent) {}
-protected:
+
+  protected:
 	virtual void update(arguments_deep_copy_type const& args) const;
-private:
+
+  private:
 	TestDlg* _parent;
 };
 
-class TestDlg: public QDialog
+class TestDlg : public QDialog
 {
 	Q_OBJECT
 
-public:
-	TestDlg(QWidget* parent, MyClass::shared_pointer& test_sp) :
-		QDialog(parent),
-		_set_counter_observer(new set_counter_Observer(this))
+  public:
+	TestDlg(QWidget* parent, MyClass::shared_pointer& test_sp)
+	    : QDialog(parent), _set_counter_observer(new set_counter_Observer(this))
 	{
 		_label = new QLabel(tr("N/A"), this);
 		_progress_bar = new QProgressBar();
@@ -63,29 +67,22 @@ public:
 		setLayout(layout);
 
 		// Test::set_counter function observer
-		PVHive::PVHive::get().register_func_observer(
-			test_sp,
-			*_set_counter_observer
-		);
+		PVHive::PVHive::get().register_func_observer(test_sp, *_set_counter_observer);
 	}
 
-	virtual ~TestDlg()
-	{
-		delete _set_counter_observer;
-	}
+	virtual ~TestDlg() { delete _set_counter_observer; }
 
-public:
+  public:
 	void update_counter(uint32_t value)
 	{
 		_label->setText(QString::number(value));
 		_progress_bar->setValue(value);
 	}
 
-private:
+  private:
 	QLabel* _label;
 	QProgressBar* _progress_bar;
 	set_counter_Observer* _set_counter_observer;
 };
 
 #endif // __FUNC_OBSERVER_THREAD_H__
-

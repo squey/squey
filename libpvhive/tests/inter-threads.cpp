@@ -14,27 +14,20 @@
 
 class Entity
 {
-public:
-	Entity(int i) : _i(i)
-	{}
+  public:
+	Entity(int i) : _i(i) {}
 
-	void set_i(int i)
-	{
-		_i = i;
-	}
+	void set_i(int i) { _i = i; }
 
-	int get_i() const
-	{
-		return _i;
-	}
+	int get_i() const { return _i; }
 
-private:
+  private:
 	int _i;
 };
 
 typedef PVCore::PVSharedPtr<Entity> Entity_p;
 
-Entity_p *shared_e = nullptr;
+Entity_p* shared_e = nullptr;
 
 static bool observer_must_run = true;
 
@@ -42,31 +35,26 @@ typedef PVHive::PVActor<Entity> EntityActor;
 
 class EntityObserver : public PVHive::PVObserver<Entity>
 {
-public:
-	EntityObserver()
-	{
-	}
+  public:
+	EntityObserver() {}
 
 	void refresh()
 	{
-		std::cout << "  ::refresh thread("
-		          << boost::this_thread::get_id()
-		          << ") i(" << get_object()->get_i() << ")" << std::endl;
+		std::cout << "  ::refresh thread(" << boost::this_thread::get_id() << ") i("
+		          << get_object()->get_i() << ")" << std::endl;
 	}
 
 	void about_to_be_deleted()
 	{
 		observer_must_run = false;
-		std::cout << "  ::about_to_be_deleted thread("
-		          << boost::this_thread::get_id() << ")"
+		std::cout << "  ::about_to_be_deleted thread(" << boost::this_thread::get_id() << ")"
 		          << std::endl;
 	}
 };
 
 void th_actor_func()
 {
-	std::cout << "th_actor: init - " <<boost::this_thread::get_id()
-	          << std::endl;
+	std::cout << "th_actor: init - " << boost::this_thread::get_id() << std::endl;
 	int count = 0;
 	Entity_p e = Entity_p(new Entity(42));
 	shared_e = &e;
@@ -82,8 +70,8 @@ void th_actor_func()
 	std::cout << "th_actor: run" << std::endl;
 	while (count < 10) {
 		sleep(1);
-		std::cout << "th_actor_func - " << boost::this_thread::get_id()
-		          << " - e.set_i(" << count << ")" << std::endl;
+		std::cout << "th_actor_func - " << boost::this_thread::get_id() << " - e.set_i(" << count
+		          << ")" << std::endl;
 		PVACTOR_CALL(a, &Entity::set_i, count);
 		++count;
 	}
@@ -98,8 +86,7 @@ void th_actor_func()
  */
 void th_long_observer_func()
 {
-	std::cout << "th_long_observer_func: init - "
-	          << boost::this_thread::get_id()  << std::endl;
+	std::cout << "th_long_observer_func: init - " << boost::this_thread::get_id() << std::endl;
 	EntityObserver o;
 	PVHive::PVHive::get().register_observer(*shared_e, o);
 
@@ -118,8 +105,7 @@ void th_long_observer_func()
  */
 void th_short_observer_func()
 {
-	std::cout << "th_short_observer_func: init - "
-	          << boost::this_thread::get_id()  << std::endl;
+	std::cout << "th_short_observer_func: init - " << boost::this_thread::get_id() << std::endl;
 
 	int count = 0;
 	EntityObserver o;

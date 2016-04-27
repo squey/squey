@@ -14,53 +14,56 @@
 #include <QSemaphore>
 #include <QObject>
 
-namespace PVHive {
+namespace PVHive
+{
 
 class PVHive;
 
-class PVFuncObserverBase: public PVObserverObjectBase
+class PVFuncObserverBase : public PVObserverObjectBase
 {
-public:
-	PVFuncObserverBase(void* f):
-		_f(f)
-	{ }
+  public:
+	PVFuncObserverBase(void* f) : _f(f) {}
 	virtual ~PVFuncObserverBase();
 
 	void do_about_to_be_updated(const void* args) const { do_about_to_be_updated_impl(args); }
 	void do_update(const void* args) const { do_update_impl(args); }
 
-protected:
-	virtual void do_about_to_be_updated_impl(const void* args) const { call_about_to_be_updated_with_casted_args(args); }
+  protected:
+	virtual void do_about_to_be_updated_impl(const void* args) const
+	{
+		call_about_to_be_updated_with_casted_args(args);
+	}
 	virtual void do_update_impl(const void* args) const { call_update_with_casted_args(args); }
 
 	virtual void call_about_to_be_updated_with_casted_args(const void* args) const = 0;
 	virtual void call_update_with_casted_args(const void* args) const = 0;
 
-protected:
+  protected:
 	void* _f;
 };
-
 }
 
 namespace __impl
 {
 
-// Qt signals/slots model doesn't support template classes, that's why we need a non-template base class for using signals/slots to access the Qt thread.
-// Plus, Qt is confused by PVHive being a namespace and a class, so the implementation of PVFuncObservelSignalBase is directly put in __impl.
+// Qt signals/slots model doesn't support template classes, that's why we need a non-template base
+// class for using signals/slots to access the Qt thread.
+// Plus, Qt is confused by PVHive being a namespace and a class, so the implementation of
+// PVFuncObservelSignalBase is directly put in __impl.
 
-class PVFuncObserverSignalBase: public QObject, public PVHive::PVFuncObserverBase
+class PVFuncObserverSignalBase : public QObject, public PVHive::PVFuncObserverBase
 {
 	Q_OBJECT;
 
-public:
+  public:
 	PVFuncObserverSignalBase(void* f);
-	virtual ~PVFuncObserverSignalBase() {};
+	virtual ~PVFuncObserverSignalBase(){};
 
-protected:
+  protected:
 	virtual void do_about_to_be_updated_impl(const void*) const;
 	virtual void do_update_impl(const void*) const;
 
-private slots:
+  private slots:
 	void about_to_be_refreshed_slot(const void*) const;
 	void refresh_slot(const void*) const;
 
@@ -68,61 +71,58 @@ signals:
 	void about_to_be_refreshed_signal(const void*) const;
 	void refresh_signal(const void*) const;
 };
-
 }
 
-namespace PVHive {
+namespace PVHive
+{
 
-template <class B, class T, class F, F bound_function>
-class PVFuncObserverTemplatedBase : public B
+template <class B, class T, class F, F bound_function> class PVFuncObserverTemplatedBase : public B
 {
 	friend class PVHive;
 
-public:
+  public:
 	typedef B observer_type;
 	typedef F f_type;
 	typedef PVCore::PVTypeTraits::function_traits<f_type> f_traits;
 	typedef typename f_traits::arguments_type arguments_type;
 	typedef typename f_traits::arguments_type arguments_deep_copy_type;
 
-public:
-	PVFuncObserverTemplatedBase():
-		B((void*)(bound_function))
-	{ }
+  public:
+	PVFuncObserverTemplatedBase() : B((void*)(bound_function)) {}
 };
 
 /**
  * @class PVFuncObserver
  *
- * A template class to specify observers on a given type/class, filtered by a function of this class.
+ * A template class to specify observers on a given type/class, filtered by a function of this
+ *class.
  *
- * All subclasses must implements PVObserverBase::update() and/or PVObserverBase::about_to_be_updated()
+ * All subclasses must implements PVObserverBase::update() and/or
+ *PVObserverBase::about_to_be_updated()
  *
  */
 template <class T, class F, F f>
 class PVFuncObserver : public PVFuncObserverTemplatedBase<PVFuncObserverBase, T, F, f>
 {
-public:
+  public:
 	typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_type arguments_type;
 
-public:
-	PVFuncObserver():
-		PVFuncObserverTemplatedBase<PVFuncObserverBase, T, F, f>()
-	{ }
+  public:
+	PVFuncObserver() : PVFuncObserverTemplatedBase<PVFuncObserverBase, T, F, f>() {}
 
-private:
+  private:
 	virtual void call_about_to_be_updated_with_casted_args(const void* args) const
 	{
-		arguments_type* casted_args = (arguments_type*) args;
+		arguments_type* casted_args = (arguments_type*)args;
 		this->about_to_be_updated(*(casted_args));
 	}
 	virtual void call_update_with_casted_args(const void* args) const
 	{
-		arguments_type* casted_args = (arguments_type*) args;
+		arguments_type* casted_args = (arguments_type*)args;
 		this->update(*(casted_args));
 	}
 
-public:
+  public:
 	virtual void about_to_be_updated(const arguments_type&) const {}
 	virtual void update(const arguments_type&) const {}
 };
@@ -132,39 +132,42 @@ public:
  *
  * A Qt compliant version of PVFuncObserver.
  *
- * All subclasses must implements PVObserverBase::update() and/or PVObserverBase::about_to_be_updated()
+ * All subclasses must implements PVObserverBase::update() and/or
+ *PVObserverBase::about_to_be_updated()
  *
  */
 template <class T, class F, F f>
-class PVFuncObserverSignal : public PVFuncObserverTemplatedBase< ::__impl::PVFuncObserverSignalBase, T, F, f>
+class PVFuncObserverSignal
+    : public PVFuncObserverTemplatedBase<::__impl::PVFuncObserverSignalBase, T, F, f>
 {
-public:
-	typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_deep_copy_type arguments_deep_copy_type;
+  public:
+	typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_deep_copy_type
+	    arguments_deep_copy_type;
 
-public:
-	PVFuncObserverSignal():
-		PVFuncObserverTemplatedBase< ::__impl::PVFuncObserverSignalBase, T, F, f>()
-	{ }
+  public:
+	PVFuncObserverSignal()
+	    : PVFuncObserverTemplatedBase<::__impl::PVFuncObserverSignalBase, T, F, f>()
+	{
+	}
 
-private:
+  private:
 	virtual void call_about_to_be_updated_with_casted_args(const void* args) const
 	{
-		arguments_deep_copy_type* casted_args = (arguments_deep_copy_type*) args;
+		arguments_deep_copy_type* casted_args = (arguments_deep_copy_type*)args;
 		this->about_to_be_updated(*(casted_args));
 		delete casted_args;
 	}
 	virtual void call_update_with_casted_args(const void* args) const
 	{
-		arguments_deep_copy_type* casted_args = (arguments_deep_copy_type*) args;
+		arguments_deep_copy_type* casted_args = (arguments_deep_copy_type*)args;
 		this->update(*(casted_args));
 		delete casted_args;
 	}
 
-public:
+  public:
 	virtual void about_to_be_updated(const arguments_deep_copy_type&) const {}
 	virtual void update(const arguments_deep_copy_type&) const {}
 };
-
 }
 
 #endif // LIBPVHIVE_PVOBSERVER_H

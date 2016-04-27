@@ -17,7 +17,6 @@ namespace PVHive
 
 class PVObserverBase;
 
-
 namespace __impl
 {
 
@@ -46,23 +45,20 @@ class PVRefreshSignal : public QObject
 {
 	Q_OBJECT
 
-public:
-	PVRefreshSignal(QObject *parent = nullptr) :
-		QObject(parent),
-		_atbd_sem(0)
-	{}
+  public:
+	PVRefreshSignal(QObject* parent = nullptr) : QObject(parent), _atbd_sem(0) {}
 
-public:
+  public:
 	/**
 	 * Connect a Qt slot to the "about_to_be_refreshed" event.
 	 *
 	 * @param receiver the receiving Qobject
 	 * @param slot the slot
 	 */
-	inline void connect_about_to_be_refreshed(QObject *receiver, const char *slot)
+	inline void connect_about_to_be_refreshed(QObject* receiver, const char* slot)
 	{
-		connect(this, SIGNAL(about_to_be_refreshed_signal(PVHive::PVObserverBase*)),
-		        receiver, slot);
+		connect(this, SIGNAL(about_to_be_refreshed_signal(PVHive::PVObserverBase*)), receiver,
+		        slot);
 	}
 
 	/**
@@ -71,16 +67,14 @@ public:
 	 * @param receiver the receiving Qobject
 	 * @param slot the slot
 	 */
-	inline void connect_refresh(QObject *receiver, const char *slot)
+	inline void connect_refresh(QObject* receiver, const char* slot)
 	{
-		connect(this, SIGNAL(refresh_signal(PVHive::PVObserverBase*)),
-		        receiver, slot);
+		connect(this, SIGNAL(refresh_signal(PVHive::PVObserverBase*)), receiver, slot);
 	}
 
-	inline void disconnect_refresh(QObject *receiver, const char *slot)
+	inline void disconnect_refresh(QObject* receiver, const char* slot)
 	{
-		disconnect(this, SIGNAL(refresh_signal(PVHive::PVObserverBase*)),
-		        receiver, slot);
+		disconnect(this, SIGNAL(refresh_signal(PVHive::PVObserverBase*)), receiver, slot);
 	}
 
 	/**
@@ -89,26 +83,22 @@ public:
 	 * @param receiver the receiving Qobject
 	 * @param slot the slot
 	 */
-	inline void connect_about_to_be_deleted(QObject* receiver, const char *slot)
+	inline void connect_about_to_be_deleted(QObject* receiver, const char* slot)
 	{
-		connect(this, SIGNAL(about_to_be_deleted_signal(PVHive::PVObserverBase*)),
-		        receiver, slot);
-		connect(this, SIGNAL(sync_about_to_be_deleted_signal(PVHive::PVObserverBase*)),
-		        this, SLOT(do_sync_atbd_signal(PVHive::PVObserverBase*)));
+		connect(this, SIGNAL(about_to_be_deleted_signal(PVHive::PVObserverBase*)), receiver, slot);
+		connect(this, SIGNAL(sync_about_to_be_deleted_signal(PVHive::PVObserverBase*)), this,
+		        SLOT(do_sync_atbd_signal(PVHive::PVObserverBase*)));
 	}
 
-protected:
+  protected:
 	inline void emit_about_to_be_refreshed_signal(PVObserverBase* o)
 	{
 		emit about_to_be_refreshed_signal(o);
 	}
 
-	inline void emit_refresh_signal(PVObserverBase* o)
-	{
-		emit refresh_signal(o);
-	}
+	inline void emit_refresh_signal(PVObserverBase* o) { emit refresh_signal(o); }
 
-	inline void emit_about_to_be_deleted_signal(PVObserverBase *o)
+	inline void emit_about_to_be_deleted_signal(PVObserverBase* o)
 	{
 		if (thread() == QThread::currentThread()) {
 			// the signal will be synchronous
@@ -131,18 +121,18 @@ signals:
  * or not. See http://qt-project.org/doc/qt-4.8/moc.html
  */
 #ifdef Q_MOC_RUN
-	void about_to_be_refreshed_signal(PVHive::PVObserverBase *o);
-	void refresh_signal(PVHive::PVObserverBase *o);
-	void about_to_be_deleted_signal(PVHive::PVObserverBase *o);
-	void sync_about_to_be_deleted_signal(PVHive::PVObserverBase *o);
+	void about_to_be_refreshed_signal(PVHive::PVObserverBase* o);
+	void refresh_signal(PVHive::PVObserverBase* o);
+	void about_to_be_deleted_signal(PVHive::PVObserverBase* o);
+	void sync_about_to_be_deleted_signal(PVHive::PVObserverBase* o);
 #else
-	void about_to_be_refreshed_signal(PVObserverBase *o);
-	void refresh_signal(PVObserverBase *o);
-	void about_to_be_deleted_signal(PVObserverBase *o);
-	void sync_about_to_be_deleted_signal(PVObserverBase *o);
+	void about_to_be_refreshed_signal(PVObserverBase* o);
+	void refresh_signal(PVObserverBase* o);
+	void about_to_be_deleted_signal(PVObserverBase* o);
+	void sync_about_to_be_deleted_signal(PVObserverBase* o);
 #endif
 
-private slots:
+  private slots:
 /* same problem about Qt and namespaces
  */
 #ifdef Q_MOC_RUN
@@ -151,12 +141,10 @@ private slots:
 	void do_sync_atbd_signal(PVObserverBase* o);
 #endif
 
-private:
+  private:
 	QSemaphore _atbd_sem;
 };
-
 }
-
 }
 
 #endif // LIBPVHIVE_PVREFRESHSIGNAL_H

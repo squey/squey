@@ -31,16 +31,16 @@ class PVQRefresh : public PVRefreshSignal
 {
 	Q_OBJECT
 
-public:
-	PVQRefresh(QObject *parent = nullptr) :
-		PVRefreshSignal(parent)
+  public:
+	PVQRefresh(QObject* parent = nullptr) : PVRefreshSignal(parent)
 	{
-		connect_about_to_be_refreshed(this, SLOT(do_about_to_be_refreshed(PVHive::PVObserverBase *)));
-		connect_refresh(this, SLOT(do_refresh(PVHive::PVObserverBase *)));
-		connect_about_to_be_deleted(this, SLOT(do_about_to_be_deleted(PVHive::PVObserverBase *)));
+		connect_about_to_be_refreshed(this,
+		                              SLOT(do_about_to_be_refreshed(PVHive::PVObserverBase*)));
+		connect_refresh(this, SLOT(do_refresh(PVHive::PVObserverBase*)));
+		connect_about_to_be_deleted(this, SLOT(do_about_to_be_deleted(PVHive::PVObserverBase*)));
 	}
 
-protected slots:
+  protected slots:
 /* Qt's signals/slots mechanism can not work properly with namespaces; leading
  * to run-time errors of type "Incompatible sender/receiver arguments" or
  * "No such signal": the signals use implicit namespaces prefix (otherwise it
@@ -51,18 +51,16 @@ protected slots:
  * or not. See http://qt-project.org/doc/qt-4.8/moc.html
  */
 #ifdef Q_MOC_RUN
-	virtual void do_about_to_be_refreshed(PVHive::PVObserverBase *o) {};
-	virtual void do_refresh(PVHive::PVObserverBase *o) {};
-	virtual void do_about_to_be_deleted(PVHive::PVObserverBase *o) {};
+	virtual void do_about_to_be_refreshed(PVHive::PVObserverBase* o){};
+	virtual void do_refresh(PVHive::PVObserverBase* o){};
+	virtual void do_about_to_be_deleted(PVHive::PVObserverBase* o){};
 #else
-	virtual void do_about_to_be_refreshed(PVObserverBase* /*o*/) {};
-	virtual void do_refresh(PVObserverBase* /*o*/) {};
-	virtual void do_about_to_be_deleted(PVObserverBase* /*o*/) {};
+	virtual void do_about_to_be_refreshed(PVObserverBase* /*o*/){};
+	virtual void do_refresh(PVObserverBase* /*o*/){};
+	virtual void do_about_to_be_deleted(PVObserverBase* /*o*/){};
 #endif
 };
-
 }
-
 }
 
 #endif // LIBPVHIVE_PVQREFRESH_H

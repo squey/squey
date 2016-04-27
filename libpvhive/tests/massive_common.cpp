@@ -41,7 +41,6 @@ void BlockAct::action()
 	PVACTOR_CALL(*this, &Block::set_value, _value);
 }
 
-
 void PropertyAct::action()
 {
 	PVACTOR_CALL(*this, &Block::set_prop, _index, Property(_value));

@@ -7,10 +7,10 @@
 
 #include <pvhive/PVFuncObserver.h>
 
-__impl::PVFuncObserverSignalBase::PVFuncObserverSignalBase(void* f):
-	PVHive::PVFuncObserverBase(f)
+__impl::PVFuncObserverSignalBase::PVFuncObserverSignalBase(void* f) : PVHive::PVFuncObserverBase(f)
 {
-	connect(this, SIGNAL(about_to_be_refreshed_signal(const void*)), this, SLOT(about_to_be_refreshed_slot(const void*)));
+	connect(this, SIGNAL(about_to_be_refreshed_signal(const void*)), this,
+	        SLOT(about_to_be_refreshed_slot(const void*)));
 	connect(this, SIGNAL(refresh_signal(const void*)), this, SLOT(refresh_slot(const void*)));
 }
 
@@ -34,4 +34,3 @@ void __impl::PVFuncObserverSignalBase::refresh_slot(const void* args) const
 {
 	call_update_with_casted_args(args);
 }
-

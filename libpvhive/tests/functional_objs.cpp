@@ -9,7 +9,6 @@
 #include <pvhive/PVWax.h>
 #include "functional_objs.h"
 
-
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 IMPL_WAX(PropertyEntity::set_prop, e, args)

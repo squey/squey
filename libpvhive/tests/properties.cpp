@@ -20,27 +20,26 @@
 
 class MyObjectProperty
 {
-public:
-	MyObjectProperty(int v = 0): _v(v)
-	{ }
+  public:
+	MyObjectProperty(int v = 0) : _v(v) {}
 
 	int get_value() { return _v; }
 	void set_value(int v) { _v = v; }
 
-public:
+  public:
 	int _v;
 };
 
 class MyObject
 {
-public:
-	MyObject(int i): _i(i)
+  public:
+	MyObject(int i) : _i(i)
 	{
 		std::cout << "MyObject::_i: " << &_i << std::endl;
 		std::cout << "MyObject::_prop: " << &_prop << std::endl;
 	}
 
-public:
+  public:
 	int const& get_i() const { return _i; };
 	void set_i(int const& i) { _i = i; }
 	void set_i2(int const& i) { _i = i; }
@@ -49,7 +48,7 @@ public:
 	MyObjectProperty const& get_prop() const { return _prop; }
 	MyObjectProperty& get_prop() { return _prop; }
 
-private:
+  private:
 	int _i;
 	MyObjectProperty _prop;
 };
@@ -58,51 +57,53 @@ typedef PVCore::PVSharedPtr<MyObject> MyObject_p;
 
 class MyObjectObserver : public PVHive::PVObserver<MyObjectProperty>
 {
-public:
+  public:
 	MyObjectObserver() {}
 
 	void refresh()
 	{
-		std::cout << "  MyObjectObserver::refresh for object "
-		          << get_object() << std::endl;
+		std::cout << "  MyObjectObserver::refresh for object " << get_object() << std::endl;
 	}
 
 	void about_to_be_deleted()
 	{
-		std::cout << "  MyObjectObserver::about_to_be_deleted for object "
-		          << get_object() << std::endl;
+		std::cout << "  MyObjectObserver::about_to_be_deleted for object " << get_object()
+		          << std::endl;
 	}
 };
 
-
 class MyObjectPropertyObserver : public PVHive::PVObserver<MyObjectProperty>
 {
-public:
+  public:
 	MyObjectPropertyObserver() {}
 
 	void refresh()
 	{
-		std::cout << "  MyObjectPropertyObserver::refresh for object "
-		          << get_object() << std::endl;
+		std::cout << "  MyObjectPropertyObserver::refresh for object " << get_object() << std::endl;
 	}
 
 	void about_to_be_deleted()
 	{
-		std::cout << "  MyObjectPropertyObserver::about_to_be_deleted for object "
-		          << get_object() << std::endl;
+		std::cout << "  MyObjectPropertyObserver::about_to_be_deleted for object " << get_object()
+		          << std::endl;
 	}
 };
 
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 /*template <>
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop,
-                                 boost::reference_wrapper<MyObjectProperty const> >(MyObject* o, boost::reference_wrapper<MyObjectProperty const> p)
+void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop),
+&MyObject::set_prop,
+                                 boost::reference_wrapper<MyObjectProperty
+const> >(MyObject* o, boost::reference_wrapper<MyObjectProperty const> p)
 {
-	std::cout << "  PVHive::call_object for MyObject::set_prop" << std::endl;
-	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
-	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, MyObjectProperty const&>(o, p);
-	refresh_observers(&o->get_prop());
+        std::cout << "  PVHive::call_object for MyObject::set_prop" <<
+std::endl;
+        std::cout << "    in thread " << boost::this_thread::get_id() <<
+std::endl;
+        call_object_default<MyObject, decltype(&MyObject::set_prop),
+&MyObject::set_prop, MyObjectProperty const&>(o, p);
+        refresh_observers(&o->get_prop());
 }*/
 
 IMPL_WAX(MyObject::set_prop, o, args)
@@ -115,7 +116,6 @@ IMPL_WAX(MyObject::set_prop, o, args)
 
 PVHIVE_CALL_OBJECT_BLOCK_END()
 
-
 void hive_dump_content()
 {
 	std::cout << "# atexit: dumping hive content" << std::endl;
@@ -124,18 +124,15 @@ void hive_dump_content()
 
 int main()
 {
-	PVHive::PVHive &hive = PVHive::PVHive::get();
+	PVHive::PVHive& hive = PVHive::PVHive::get();
 
 	atexit(hive_dump_content);
 
 	MyObject_p myobj = MyObject_p(new MyObject(42));
 
 	hive.register_object(myobj);
-	hive.register_object(myobj, [](MyObject& myo) -> MyObjectProperty*
-	                     {
-		                     return &myo.get_prop();
-	                     });
-
+	hive.register_object(myobj,
+	                     [](MyObject & myo) -> MyObjectProperty * { return &myo.get_prop(); });
 
 	// 1 acteur sur myobj
 	PVHive::PVActor<MyObject> oactor;
@@ -149,18 +146,15 @@ int main()
 
 	// 1 observeur sur myobj
 	MyObjectObserver oobserver;
-	std::cout << "# register observer " << &oobserver
-	          << "#  for myobj " << &myobj << std::endl;
+	std::cout << "# register observer " << &oobserver << "#  for myobj " << &myobj << std::endl;
 	hive.register_observer(myobj, oobserver);
 
 	// 2 observeur sur myobj.prop, 1 en lambda et un en methode
 	MyObjectPropertyObserver pobserver;
-	std::cout << "# register observer " << &pobserver
-	          << "#  for myobj.get_prop() " << &(myobj->get_prop()) << std::endl;
-	hive.register_observer(myobj, [](MyObject& myo) -> MyObjectProperty*
-	                       {
-		                       return &myo.get_prop();
-	                       }, pobserver);
+	std::cout << "# register observer " << &pobserver << "#  for myobj.get_prop() "
+	          << &(myobj->get_prop()) << std::endl;
+	hive.register_observer(
+	    myobj, [](MyObject & myo) -> MyObjectProperty * { return &myo.get_prop(); }, pobserver);
 
 	std::cout << "# oactor.call(8)" << std::endl;
 	PVACTOR_CALL(oactor, &MyObject::set_i, 8);
@@ -177,9 +171,3 @@ int main()
 
 	return 0;
 }
-
-
-
-
-
-

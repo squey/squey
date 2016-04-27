@@ -22,7 +22,7 @@ IMPL_WAX(Inendi::PVView::process_eventline, view, args)
 IMPL_WAX(Inendi::PVView::process_selection, view, args)
 {
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_eventline)>(view, args);
-	//refresh_observers(&view->get_pre_filter_layer());
+	// refresh_observers(&view->get_pre_filter_layer());
 }
 
 IMPL_WAX(Inendi::PVView::process_layer_stack, view, args)
@@ -34,7 +34,7 @@ IMPL_WAX(Inendi::PVView::process_layer_stack, view, args)
 IMPL_WAX(Inendi::PVView::process_visibility, view, args)
 {
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_visibility)>(view, args);
-	//refresh_observers(&view->get_real_output_selection());
+	// refresh_observers(&view->get_real_output_selection());
 	refresh_observers(&view->get_output_layer());
 }
 
@@ -62,7 +62,8 @@ IMPL_WAX(Inendi::PVView::process_from_eventline, view, args)
 
 IMPL_WAX(Inendi::PVView::process_real_output_selection, view, args)
 {
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_real_output_selection)>(view, args);
+	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_real_output_selection)>(view,
+	                                                                                         args);
 	refresh_observers(&view->get_real_output_selection());
 }
 
@@ -119,35 +120,41 @@ IMPL_WAX(Inendi::PVView::reset_layers, view, args)
 
 IMPL_WAX(Inendi::PVView::set_layer_stack_selected_layer_index, view, args)
 {
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::set_layer_stack_selected_layer_index)>(view, args);
+	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::set_layer_stack_selected_layer_index)>(
+	    view, args);
 	refresh_observers(&view->get_layer_stack());
 	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Inendi::PVView::set_layer_stack_layer_n_name, view, args)
 {
-	auto ret = call_object_default<Inendi::PVView, FUNC(Inendi::PVView::set_layer_stack_layer_n_name)>(view, args);
+	auto ret =
+	    call_object_default<Inendi::PVView, FUNC(Inendi::PVView::set_layer_stack_layer_n_name)>(
+	        view, args);
 	refresh_observers(&view->get_layer_stack());
 	return ret;
 }
 
 IMPL_WAX(Inendi::PVView::toggle_layer_stack_layer_n_locked_state, view, args)
 {
-	auto ret = call_object_default<Inendi::PVView, FUNC(Inendi::PVView::toggle_layer_stack_layer_n_locked_state)>(view, args);
+	auto ret = call_object_default<
+	    Inendi::PVView, FUNC(Inendi::PVView::toggle_layer_stack_layer_n_locked_state)>(view, args);
 	refresh_observers(&view->get_layer_stack());
 	return ret;
 }
 
 IMPL_WAX(Inendi::PVView::toggle_layer_stack_layer_n_visible_state, view, args)
 {
-	auto ret = call_object_default<Inendi::PVView, FUNC(Inendi::PVView::toggle_layer_stack_layer_n_visible_state)>(view, args);
+	auto ret = call_object_default<
+	    Inendi::PVView, FUNC(Inendi::PVView::toggle_layer_stack_layer_n_visible_state)>(view, args);
 	refresh_observers(&view->get_layer_stack());
 	return ret;
 }
 
 IMPL_WAX(Inendi::PVView::toggle_view_unselected_zombie_visibility, view, args)
 {
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::toggle_view_unselected_zombie_visibility)>(view, args);
+	call_object_default<Inendi::PVView,
+	                    FUNC(Inendi::PVView::toggle_view_unselected_zombie_visibility)>(view, args);
 	refresh_observers(&view->are_view_unselected_zombie_visible());
 }
 
@@ -168,13 +175,15 @@ IMPL_WAX(Inendi::PVView::compute_layer_min_max, view, args)
 
 IMPL_WAX(Inendi::PVView::set_axes_combination_list_id, view, args)
 {
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::set_axes_combination_list_id)>(view, args);
+	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::set_axes_combination_list_id)>(view,
+	                                                                                        args);
 	refresh_observers(&view->get_axes_combination().get_axes_index_list());
 }
 
 IMPL_WAX(Inendi::PVView::move_axis_to_new_position, view, args)
 {
-	auto ret = call_object_default<Inendi::PVView, FUNC(Inendi::PVView::move_axis_to_new_position)>(view, args);
+	auto ret = call_object_default<Inendi::PVView, FUNC(Inendi::PVView::move_axis_to_new_position)>(
+	    view, args);
 	refresh_observers(&view->get_axes_combination().get_axes_index_list());
 	return ret;
 }

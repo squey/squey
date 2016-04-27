@@ -15,7 +15,7 @@
 
 /*****************************************************************************/
 
-PVHive::PVHive *PVHive::PVHive::_hive = nullptr;
+PVHive::PVHive* PVHive::PVHive::_hive = nullptr;
 
 /*****************************************************************************
  * PVHive::PVHive::unregister_actor()
@@ -23,7 +23,7 @@ PVHive::PVHive *PVHive::PVHive::_hive = nullptr;
 
 bool PVHive::PVHive::unregister_actor(PVActorBase& actor)
 {
-	if(actor._object) {
+	if (actor._object) {
 		observables_t::accessor acc;
 
 		if (_observables.find(acc, actor._registered_object)) {
@@ -42,7 +42,7 @@ bool PVHive::PVHive::unregister_actor(PVActorBase& actor)
 
 bool PVHive::PVHive::unregister_observer(PVObserverBase& observer)
 {
-	if(observer._object) {
+	if (observer._object) {
 		observables_t::accessor acc;
 
 		if (_observables.find(acc, observer._registered_object)) {
@@ -59,7 +59,7 @@ bool PVHive::PVHive::unregister_observer(PVObserverBase& observer)
  * PVHive::PVHive::unregister_object()
  *****************************************************************************/
 
-void PVHive::PVHive::unregister_object(void *object)
+void PVHive::PVHive::unregister_object(void* object)
 {
 	// the object must be a valid address
 	assert(object != nullptr);
@@ -96,12 +96,10 @@ void PVHive::PVHive::unregister_object(void *object)
 		}
 
 		// and observers
-		for (auto it = acc->second.observers.rbegin();
-		     it != acc->second.observers.rend(); ++it) {
+		for (auto it = acc->second.observers.rbegin(); it != acc->second.observers.rend(); ++it) {
 			(*it)->object_about_to_be_unregistered();
 		}
-		for (auto it = acc->second.observers.rbegin();
-		     it != acc->second.observers.rend(); ++it) {
+		for (auto it = acc->second.observers.rbegin(); it != acc->second.observers.rend(); ++it) {
 			(*it)->about_to_be_deleted();
 		}
 
@@ -112,14 +110,17 @@ void PVHive::PVHive::unregister_object(void *object)
 
 bool PVHive::PVHive::unregister_func_observer(PVFuncObserverBase& observer, void* f)
 {
-	if(observer._object) {
+	if (observer._object) {
 		observables_t::accessor acc;
 
 		if (_observables.find(acc, observer._registered_object)) {
 			func_observers_t& fobs(acc->second.func_observers);
 			func_observers_t::const_iterator it_fo, it_fo_e;
 			std::tie(it_fo, it_fo_e) = fobs.equal_range(f);
-			func_observers_t::const_iterator it_to_del = std::find_if(it_fo, it_fo_e, [=,&observer](func_observers_t::value_type const& it) { return it.second == &observer; });
+			func_observers_t::const_iterator it_to_del = std::find_if(
+			    it_fo, it_fo_e, [=, &observer](func_observers_t::value_type const& it) {
+				    return it.second == &observer;
+				});
 			if (it_to_del != fobs.end()) {
 				fobs.erase(it_to_del);
 			}
@@ -136,7 +137,7 @@ bool PVHive::PVHive::unregister_func_observer(PVFuncObserverBase& observer, void
  * PVHive::PVHive::do_refresh_observers()
  *****************************************************************************/
 
-void PVHive::PVHive::do_refresh_observers(void *object)
+void PVHive::PVHive::do_refresh_observers(void* object)
 {
 	observables_t::const_accessor acc;
 
@@ -147,7 +148,7 @@ void PVHive::PVHive::do_refresh_observers(void *object)
 	}
 }
 
-void PVHive::PVHive::do_refresh_observers_maybe_recursive(void *object)
+void PVHive::PVHive::do_refresh_observers_maybe_recursive(void* object)
 {
 	observables_t::const_accessor acc;
 
@@ -171,14 +172,16 @@ void PVHive::PVHive::do_about_to_refresh_observers(void* object)
 	}
 }
 
-void PVHive::PVHive::refresh_observers(PVCore::PVDataTreeObjectWithParentBase const* object, void* obj_refresh)
+void PVHive::PVHive::refresh_observers(PVCore::PVDataTreeObjectWithParentBase const* object,
+                                       void* obj_refresh)
 {
 	// object must be a valid address
 	assert(object != nullptr);
 
 	do_refresh_observers(obj_refresh);
 
-	// AG: in test cases (mainly PVGuiQt and PVParallelView), we use "fake" objects that have no parents,
+	// AG: in test cases (mainly PVGuiQt and PVParallelView), we use "fake"
+	// objects that have no parents,
 	// thus this check is necessary!
 	PVCore::PVDataTreeObjectBase const* const parent = object->get_parent_base();
 	if (parent) {
@@ -186,14 +189,16 @@ void PVHive::PVHive::refresh_observers(PVCore::PVDataTreeObjectWithParentBase co
 	}
 }
 
-void PVHive::PVHive::refresh_observers_maybe_recursive(PVCore::PVDataTreeObjectWithParentBase const* object, void* obj_refresh)
+void PVHive::PVHive::refresh_observers_maybe_recursive(
+    PVCore::PVDataTreeObjectWithParentBase const* object, void* obj_refresh)
 {
 	// object must be a valid address
 	assert(object != nullptr);
 
 	do_refresh_observers_maybe_recursive(obj_refresh);
 
-	// AG: in test cases (mainly PVGuiQt and PVParallelView), we use "fake" objects that have no parents,
+	// AG: in test cases (mainly PVGuiQt and PVParallelView), we use "fake"
+	// objects that have no parents,
 	// thus this check is necessary!
 	PVCore::PVDataTreeObjectBase const* const parent = object->get_parent_base();
 	if (parent) {

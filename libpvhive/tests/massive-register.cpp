@@ -22,13 +22,16 @@
  * main
  *****************************************************************************/
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	tbb::tick_count t1, t2;
 	long index;
 
 	if (argc <= 6) {
-		std::cerr << "usage: " << argv[0] << " objects_number properties_number actor_per_object actor_per_property observers_per_object observers_per_property" << std::endl;
+		std::cerr << "usage: " << argv[0] << " objects_number properties_number "
+		                                     "actor_per_object actor_per_property "
+		                                     "observers_per_object "
+		                                     "observers_per_property" << std::endl;
 		return 1;
 	}
 
@@ -49,23 +52,20 @@ int main(int argc, char **argv)
 	long prop_act_num = obj_prop_num * act_per_prop;
 	long prop_obs_num = obj_prop_num * obs_per_prop;
 
-	if(obj_num == 0)  {
+	if (obj_num == 0) {
 		std::cerr << "at least one object must be created" << std::endl;
 		return 1;
 	}
 
-	PVHive::PVHive &hive = PVHive::PVHive::get();
+	PVHive::PVHive& hive = PVHive::PVHive::get();
 
-
-	Block_p *blocks = new Block_p [obj_num];
+	Block_p* blocks = new Block_p[obj_num];
 	for (int i = 0; i < obj_num; ++i) {
 		blocks[i] = Block_p(new Block(prop_num));
 	}
 
-
-	if(((prop_num == 0)
-	    && (act_per_obj == 0) && (act_per_prop == 0)
-	    && (obs_per_obj == 0) && (obs_per_prop == 0))) {
+	if (((prop_num == 0) && (act_per_obj == 0) && (act_per_prop == 0) && (obs_per_obj == 0) &&
+	     (obs_per_prop == 0))) {
 		std::stringstream ss;
 		ss << "register_object_" << obj_num;
 		std::cout << "# registering objects" << std::endl;
@@ -78,28 +78,24 @@ int main(int argc, char **argv)
 		PV_STAT_CALLS(ss.str(), obj_num / BENCH_END_TIME(calls));
 	}
 
-	if(((prop_num != 0)
-	    && (act_per_obj == 0) && (act_per_prop == 0)
-	    && (obs_per_obj == 0) && (obs_per_prop == 0))) {
+	if (((prop_num != 0) && (act_per_obj == 0) && (act_per_prop == 0) && (obs_per_obj == 0) &&
+	     (obs_per_prop == 0))) {
 		std::stringstream ss;
 		ss << "register_property_" << obj_num << "_" << prop_num;
 		std::cout << "# creating properties" << std::endl;
 		BENCH_START(calls);
 		for (int j = 0; j < obj_num; ++j) {
 			for (int i = 0; i < prop_num; ++i) {
-				hive.register_object(blocks[j],
-				                     std::bind(&get_prop, std::placeholders::_1, i));
+				hive.register_object(blocks[j], std::bind(&get_prop, std::placeholders::_1, i));
 			}
 		}
 		BENCH_STOP(calls);
 		PV_STAT_CALLS(ss.str(), obj_prop_num / BENCH_END_TIME(calls));
 	}
 
-
-	BlockAct *block_actors = new BlockAct [obj_act_num];
-	if(((prop_num == 0)
-	    && (act_per_obj != 0) && (act_per_prop == 0)
-	    && (obs_per_obj == 0) && (obs_per_prop == 0))) {
+	BlockAct* block_actors = new BlockAct[obj_act_num];
+	if (((prop_num == 0) && (act_per_obj != 0) && (act_per_prop == 0) && (obs_per_obj == 0) &&
+	     (obs_per_prop == 0))) {
 		std::stringstream ss;
 		ss << "register_object_actor_" << obj_num << "_" << act_per_obj;
 		std::cout << "# creating object actors" << std::endl;
@@ -115,8 +111,7 @@ int main(int argc, char **argv)
 		PV_STAT_CALLS(ss.str(), obj_act_num / BENCH_END_TIME(calls));
 	}
 
-
-	PropertyAct *prop_actors = new PropertyAct [prop_act_num];
+	PropertyAct* prop_actors = new PropertyAct[prop_act_num];
 	index = 0;
 	for (int k = 0; k < obj_num; ++k) {
 		for (int j = 0; j < prop_num; ++j) {
@@ -127,9 +122,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if(((prop_num != 0)
-	    && (act_per_obj == 0) && (act_per_prop != 0)
-	    && (obs_per_obj == 0) && (obs_per_prop == 0))) {
+	if (((prop_num != 0) && (act_per_obj == 0) && (act_per_prop != 0) && (obs_per_obj == 0) &&
+	     (obs_per_prop == 0))) {
 		std::stringstream ss;
 		ss << "register_property_actor_" << obj_num << "_" << prop_num << "_" << act_per_prop;
 		std::cout << "# creating property actors" << std::endl;
@@ -138,8 +132,7 @@ int main(int argc, char **argv)
 		for (int k = 0; k < obj_num; ++k) {
 			for (int j = 0; j < prop_num; ++j) {
 				for (int i = 0; i < act_per_prop; ++i) {
-					hive.register_actor(blocks[k],
-					                    prop_actors[index]);
+					hive.register_actor(blocks[k], prop_actors[index]);
 					++index;
 				}
 			}
@@ -148,11 +141,9 @@ int main(int argc, char **argv)
 		PV_STAT_CALLS(ss.str(), prop_act_num / BENCH_END_TIME(calls));
 	}
 
-
-	BlockObs *block_observers = new BlockObs [obj_obs_num];
-	if(((prop_num == 0)
-	    && (act_per_obj == 0) && (act_per_prop == 0)
-	    && (obs_per_obj != 0) && (obs_per_prop == 0))) {
+	BlockObs* block_observers = new BlockObs[obj_obs_num];
+	if (((prop_num == 0) && (act_per_obj == 0) && (act_per_prop == 0) && (obs_per_obj != 0) &&
+	     (obs_per_prop == 0))) {
 		std::stringstream ss;
 		ss << "register_object_observer_" << obj_num << "_" << obs_per_obj;
 		std::cout << "# creating object observers" << std::endl;
@@ -168,12 +159,10 @@ int main(int argc, char **argv)
 		PV_STAT_CALLS(ss.str(), obj_obs_num / BENCH_END_TIME(calls));
 	}
 
+	PropertyObs* prop_observers = new PropertyObs[prop_obs_num];
 
-	PropertyObs *prop_observers = new PropertyObs [prop_obs_num];
-
-	if(((prop_num != 0)
-	    && (act_per_obj == 0) && (act_per_prop == 0)
-	    && (obs_per_obj == 0) && (obs_per_prop != 0))) {
+	if (((prop_num != 0) && (act_per_obj == 0) && (act_per_prop == 0) && (obs_per_obj == 0) &&
+	     (obs_per_prop != 0))) {
 		std::stringstream ss;
 		ss << "register_property_observer_" << obj_num << "_" << prop_num << "_" << obs_per_prop;
 		std::cout << "# creating property observers" << std::endl;
@@ -182,9 +171,8 @@ int main(int argc, char **argv)
 		for (int k = 0; k < obj_num; ++k) {
 			for (int j = 0; j < prop_num; ++j) {
 				for (int i = 0; i < obs_per_prop; ++i) {
-					hive.register_observer(blocks[k], std::bind(&get_prop,
-					                                            std::placeholders::_1,
-					                                            j),
+					hive.register_observer(blocks[k],
+					                       std::bind(&get_prop, std::placeholders::_1, j),
 					                       prop_observers[index]);
 					++index;
 				}

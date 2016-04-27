@@ -20,37 +20,29 @@ class PVHive;
  */
 class PVActorBase
 {
-public:
+  public:
 	friend class PVHive;
 
-public:
-	PVActorBase() : _object(nullptr)
-	{}
+  public:
+	PVActorBase() : _object(nullptr) {}
 
 	virtual ~PVActorBase();
 
-protected:
-	void* get_object() const
-	{
-		return _object;
-	}
+  protected:
+	void* get_object() const { return _object; }
 
-	void* get_registered_object() const
-	{
-		return _registered_object;
-	}
+	void* get_registered_object() const { return _registered_object; }
 
-	void set_object(void *object, void* registered_object)
+	void set_object(void* object, void* registered_object)
 	{
 		_object = object;
 		_registered_object = registered_object;
 	}
 
-private:
-	void *_object;
-	void *_registered_object;
+  private:
+	void* _object;
+	void* _registered_object;
 };
-
 }
 
 #endif /* LIVPVHIVE_PVACTORBASE_H */

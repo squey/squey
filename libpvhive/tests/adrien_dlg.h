@@ -24,13 +24,12 @@
 
 #include <boost/thread.hpp>
 
-class LabelObserver: public QLabel, public PVHive::PVObserver<ObjectProperty>
+class LabelObserver : public QLabel, public PVHive::PVObserver<ObjectProperty>
 {
-public:
-	LabelObserver(QWidget* parent = NULL):
-		QLabel(parent)
-	{ }
-protected:
+  public:
+	LabelObserver(QWidget* parent = NULL) : QLabel(parent) {}
+
+  protected:
 	virtual void refresh()
 	{
 		std::cout << "  Label refresh to " << get_object()->_v << std::endl;
@@ -38,19 +37,19 @@ protected:
 		std::cout << "    owner thread   " << thread() << std::endl;
 		setText(QString::number(get_object()->_v));
 	}
-	virtual void about_to_be_deleted() { }
+	virtual void about_to_be_deleted() {}
 };
 
-class BarObserver: public QProgressBar, public PVHive::PVObserver<ObjectProperty>
+class BarObserver : public QProgressBar, public PVHive::PVObserver<ObjectProperty>
 {
-public:
-	BarObserver(QWidget* parent = NULL):
-		QProgressBar(parent)
+  public:
+	BarObserver(QWidget* parent = NULL) : QProgressBar(parent)
 	{
 		setMinimum(0);
 		setMaximum(100);
 	}
-protected:
+
+  protected:
 	virtual void refresh()
 	{
 		std::cout << "  Bar refresh to " << get_object()->_v << std::endl;
@@ -58,39 +57,34 @@ protected:
 		std::cout << "    owner thread   " << thread() << std::endl;
 		setValue(get_object()->_v);
 	}
-	virtual void about_to_be_deleted() { }
+	virtual void about_to_be_deleted() {}
 };
 
 class MyObjQObserver : public PVHive::PVQObserver<MyObject>
 {
-public:
-	MyObjQObserver(QObject *parent) :
-		PVHive::PVQObserver<MyObject>(parent)
-	{}
+  public:
+	MyObjQObserver(QObject* parent) : PVHive::PVQObserver<MyObject>(parent) {}
 
-	virtual void do_refresh(PVHive::PVObserverBase *)
+	virtual void do_refresh(PVHive::PVObserverBase*)
 	{
 		std::cout << "  MyObjQObserver::do_refresh" << std::endl;
 		std::cout << "    running thread " << boost::this_thread::get_id() << std::endl;
 		std::cout << "    owner thread   " << thread() << std::endl;
 	}
 
-	virtual void do_about_to_be_deleted(PVHive::PVObserverBase *)
+	virtual void do_about_to_be_deleted(PVHive::PVObserverBase*)
 	{
 		std::cout << "MyObjQObserver::do_about_to_be_deleted" << std::endl;
 	}
-
 };
 
-class TestDlg: public QDialog
+class TestDlg : public QDialog
 {
 	Q_OBJECT
 
-public:
-	TestDlg(MyObject_p& o, QWidget* parent):
-		QDialog(parent),
-		_myobj_observer(this),
-		_objprop_observer(this)
+  public:
+	TestDlg(MyObject_p& o, QWidget* parent)
+	    : QDialog(parent), _myobj_observer(this), _objprop_observer(this)
 	{
 		_prop_label = new QLabel(tr("NA"), this);
 		_other_label = new LabelObserver(this);
@@ -106,13 +100,10 @@ public:
 		_progress_bar->setMinimum(0);
 		_progress_bar->setMaximum(100);
 
-		PVHive::PVHive &hive = PVHive::PVHive::get();
+		PVHive::PVHive& hive = PVHive::PVHive::get();
 		hive.register_observer(o, _myobj_observer);
 
-		auto prop_get = [] (MyObject& o) -> ObjectProperty*
-			{
-				return &o.get_prop();
-			};
+		auto prop_get = [](MyObject & o) -> ObjectProperty * { return &o.get_prop(); };
 
 		hive.register_observer(o, prop_get, _objprop_observer);
 		hive.register_observer(o, prop_get, *_other_label);
@@ -120,25 +111,26 @@ public:
 		/* the next line can run without error only if the thread doing the
 		 * refresh() calls inherits from QObject
 		 */
-		//hive.register_observer(o, prop_get, *_bar);
+		// hive.register_observer(o, prop_get, *_bar);
 
 		_objprop_observer.connect_refresh(this, SLOT(prop_changed(PVHive::PVObserverBase*)));
 	}
 
-public slots:
+  public slots:
 	void prop_changed(PVHive::PVObserverBase* v)
 	{
 		std::cout << "  TestDlg::prop_changed" << std::endl;
 		std::cout << "    running thread " << boost::this_thread::get_id() << std::endl;
 		std::cout << "    owner thread   " << thread() << std::endl;
-		PVHive::PVObserverSignal<ObjectProperty>* prop_v = dynamic_cast<PVHive::PVObserverSignal<ObjectProperty>*>(v);
+		PVHive::PVObserverSignal<ObjectProperty>* prop_v =
+		    dynamic_cast<PVHive::PVObserverSignal<ObjectProperty>*>(v);
 		assert(prop_v);
 		int new_v = prop_v->get_object()->_v;
 		_prop_label->setText(QString::number(new_v));
 		_progress_bar->setValue(new_v);
 	}
 
-private:
+  private:
 	MyObjQObserver _myobj_observer;
 	PVHive::PVObserverSignal<ObjectProperty> _objprop_observer;
 
